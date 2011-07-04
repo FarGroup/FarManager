@@ -968,7 +968,7 @@ int TreeList::ProcessKey(int Key)
 					int ItemNumber=1;
 					HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
 					FileList::FileNameToPluginItem(ListData[CurFile]->strName,ItemList);
-					int PutCode=CtrlObject->Plugins.PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move,0);
+					int PutCode=CtrlObject->Plugins.PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move!=0,0);
 
 					if (PutCode==1 || PutCode==2)
 						AnotherPanel->SetPluginModified();

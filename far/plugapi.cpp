@@ -931,7 +931,7 @@ static int FarDialogExSehed(Dialog *FarDialog)
 
 HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, const GUID* Id, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, const FarDialogItem *Item,
-                            unsigned int ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
+                            size_t ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
                             FARWINDOWPROC DlgProc, void* Param)
 {
 	HANDLE hDlg=INVALID_HANDLE_VALUE;
@@ -1459,7 +1459,7 @@ static void PR_FarGetDirListMsg()
 	Message(0,0,L"",MSG(MPreparingList));
 }
 
-int WINAPI FarGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,int *pItemsNumber)
+int WINAPI FarGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t *pItemsNumber)
 {
 	if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
 		return FALSE;
@@ -1551,7 +1551,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
                                HANDLE hPlugin,
                                const wchar_t *Dir,
                                PluginPanelItem **pPanelItem,
-                               int *pItemsNumber)
+                               size_t *pItemsNumber)
 {
 	if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
 		return FALSE;
@@ -1614,7 +1614,7 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,
 					if (StrCmpI(strPrevDir, NewInfo.CurDir) )
 					{
 						PluginPanelItem *PanelData=nullptr;
-						int ItemCount=0;
+						size_t ItemCount=0;
 
 						if (CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_SILENT))
 						{
@@ -1664,7 +1664,7 @@ static void CopyPluginDirItem(PluginPanelItem *CurPanelItem)
 void ScanPluginDir()
 {
 	PluginPanelItem *PanelData=nullptr;
-	int ItemCount=0;
+	size_t ItemCount=0;
 	int AbortOp=FALSE;
 	string strDirName;
 	strDirName = strPluginSearchPath;
@@ -1702,7 +1702,7 @@ void ScanPluginDir()
 
 	PluginDirList=NewList;
 
-	for (int i=0; i<ItemCount && !StopSearch; i++)
+	for (size_t i=0; i<ItemCount && !StopSearch; i++)
 	{
 		PluginPanelItem *CurPanelItem=PanelData+i;
 
@@ -1710,7 +1710,7 @@ void ScanPluginDir()
 			CopyPluginDirItem(CurPanelItem);
 	}
 
-	for (int i=0; i<ItemCount && !StopSearch; i++)
+	for (size_t i=0; i<ItemCount && !StopSearch; i++)
 	{
 		PluginPanelItem *CurPanelItem=PanelData+i;
 
@@ -1761,9 +1761,9 @@ void ScanPluginDir()
 }
 
 
-void WINAPI FarFreeDirList(PluginPanelItem *PanelItem, int nItemsNumber)
+void WINAPI FarFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber)
 {
-	for (int I=0; I<nItemsNumber; I++)
+	for (size_t I=0; I<nItemsNumber; I++)
 	{
 		PluginPanelItem *CurPanelItem=PanelItem+I;
 		FreePluginPanelItem(CurPanelItem);
@@ -1773,12 +1773,12 @@ void WINAPI FarFreeDirList(PluginPanelItem *PanelItem, int nItemsNumber)
 }
 
 
-void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, int ItemsNumber)
+void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
 	if (!PanelItem)
 		return;
 
-	for (int I=0; I<ItemsNumber; I++)
+	for (size_t I=0; I<ItemsNumber; I++)
 	{
 		PluginPanelItem *CurPanelItem=PanelItem+I;
 

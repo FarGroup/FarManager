@@ -252,14 +252,15 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
                      unsigned __int64 &CompressedFileSize)
 {
 	PluginPanelItem *PanelItem=nullptr;
-	int ItemsNumber,ExitCode;
+	size_t ItemsNumber=0;
+	int ExitCode;
 	DirCount=FileCount=0;
 	FileSize=CompressedFileSize=0;
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 
 	if ((ExitCode=FarGetPluginDirList((INT_PTR)ph->pPlugin, ph->hPlugin, DirName, &PanelItem,&ItemsNumber))==TRUE) //INT_PTR - BUGBUG
 	{
-		for (int I=0; I<ItemsNumber; I++)
+		for (size_t I=0; I<ItemsNumber; I++)
 		{
 			if (PanelItem[I].FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{

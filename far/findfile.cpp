@@ -731,7 +731,7 @@ void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=f
 			// force plugin to update its file list (that can be empty at this time)
 			// if not done SetDirectory may fail
 			{
-				int FileCount=0;
+				size_t FileCount=0;
 				PluginPanelItem *PanelData=nullptr;
 
 				if (CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
@@ -1135,12 +1135,12 @@ bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wcha
 	const wchar_t *lpFileNameToFind = PointToName(FindData.strFileName);
 	const wchar_t *lpFileNameToFindShort = PointToName(FindData.strAlternateFileName);
 	PluginPanelItem *pItems;
-	int nItemsNumber;
+	size_t nItemsNumber;
 	bool nResult=false;
 
 	if (CtrlObject->Plugins.GetFindData(ArcItem.hPlugin,&pItems,&nItemsNumber,OPM_SILENT))
 	{
-		for (int i=0; i<nItemsNumber; i++)
+		for (size_t i=0; i<nItemsNumber; i++)
 		{
 			PluginPanelItem Item = pItems[i];
 			Item.FileName=const_cast<LPWSTR>(PointToName(NullToEmpty(pItems[i].FileName)));
@@ -2640,7 +2640,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel)
 {
 	PluginPanelItem *PanelData=nullptr;
-	int ItemCount=0;
+	size_t ItemCount=0;
 	bool GetFindDataResult=false;
 	{
 		CriticalSectionLock Lock(PluginCS);
@@ -2660,7 +2660,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 
 	if (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1)
 	{
-		for (int I=0; I<ItemCount && !StopEvent.Signaled(); I++)
+		for (size_t I=0; I<ItemCount && !StopEvent.Signaled(); I++)
 		{
 			Sleep(0);
 			PauseEvent.Wait();
@@ -2694,7 +2694,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 
 	if (SearchMode!=FINDAREA_CURRENT_ONLY)
 	{
-		for (int I=0; I<ItemCount && !StopEvent.Signaled(); I++)
+		for (size_t I=0; I<ItemCount && !StopEvent.Signaled(); I++)
 		{
 			PluginPanelItem *CurPanelItem=PanelData+I;
 			string strCurName=CurPanelItem->FileName;

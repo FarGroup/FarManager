@@ -454,7 +454,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
 		PluginPanelItem *PanelData=nullptr;
 		string strPath;
-		int PanelCount=0;
+		size_t PanelCount=0;
 		strPath = strCurDir;
 		AddEndSlash(strPath);
 
@@ -466,7 +466,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			{
 				ListData=pTemp;
 
-				for (int i=0; i < PanelCount; i++)
+				for (size_t i=0; i < PanelCount; i++)
 				{
 					CurPtr = ListData[FileCount+i];
 					PluginPanelItem &fdata=PanelData[i];
@@ -483,7 +483,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 				// цветовую боевую раскраску в самом конце, за один раз
 				CtrlObject->HiFiles->GetHiColor(&ListData[FileCount],PanelCount);
-				FileCount+=PanelCount;
+				FileCount+=static_cast<int>(PanelCount);
 			}
 
 			CtrlObject->Plugins.FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
@@ -684,7 +684,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	}
 
 	PluginPanelItem *PanelData=nullptr;
-	int PluginFileCount;
+	size_t PluginFileCount;
 
 	if (!CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&PluginFileCount,0))
 	{
@@ -742,7 +742,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		DeleteListData(ListData,FileCount);
 	}
 
-	FileCount=PluginFileCount;
+	FileCount=static_cast<int>(PluginFileCount);
 	ListData=(FileListItem**)xf_malloc(sizeof(FileListItem*)*(FileCount+1));
 
 	if (!ListData)
@@ -841,7 +841,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	/* $ 25.02.2001 VVM
 	    ! Ќе считывать повторно список файлов с панели плагина */
 	if (IsColumnDisplayed(DIZ_COLUMN))
-		ReadDiz(PanelData,PluginFileCount,RDF_NO_UPDATE);
+		ReadDiz(PanelData,static_cast<int>(PluginFileCount),RDF_NO_UPDATE);
 
 	CorrectPosition();
 	CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,PluginFileCount);
@@ -883,7 +883,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 	else
 	{
 		PluginPanelItem *PanelData=nullptr;
-		int PluginFileCount=0;
+		size_t PluginFileCount=0;
 		OpenPanelInfo Info;
 		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 
@@ -910,7 +910,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 			{
 				PluginPanelItem *CurPanelData=PanelData;
 
-				for (int J=0; J < PluginFileCount; J++, CurPanelData++)
+				for (size_t J=0; J < PluginFileCount; J++, CurPanelData++)
 				{
 					string strFileName = CurPanelData->FileName;
 

@@ -853,7 +853,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	return hResult;
 }
 
-HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, int ItemsNumber)
+HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *pResult = nullptr;
@@ -1071,7 +1071,7 @@ int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 int PluginManager::GetFindData(
     HANDLE hPlugin,
     PluginPanelItem **pPanelData,
-    int *pItemsNumber,
+    size_t *pItemsNumber,
     int OpMode
 )
 {
@@ -1085,7 +1085,7 @@ int PluginManager::GetFindData(
 void PluginManager::FreeFindData(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber
+    size_t ItemsNumber
 )
 {
 	PluginHandle *ph = (PluginHandle *)hPlugin;
@@ -1096,7 +1096,7 @@ void PluginManager::FreeFindData(
 int PluginManager::GetVirtualFindData(
     HANDLE hPlugin,
     PluginPanelItem **pPanelData,
-    int *pItemsNumber,
+    size_t *pItemsNumber,
     const wchar_t *Path
 )
 {
@@ -1110,7 +1110,7 @@ int PluginManager::GetVirtualFindData(
 void PluginManager::FreeVirtualFindData(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber
+    size_t ItemsNumber
 )
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
@@ -1189,7 +1189,7 @@ int PluginManager::GetFile(
 int PluginManager::DeleteFiles(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
+    size_t ItemsNumber,
     int OpMode
 )
 {
@@ -1228,7 +1228,7 @@ int PluginManager::MakeDirectory(
 int PluginManager::ProcessHostFile(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
+    size_t ItemsNumber,
     int OpMode
 )
 {
@@ -1248,8 +1248,8 @@ int PluginManager::ProcessHostFile(
 int PluginManager::GetFiles(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
-    int Move,
+    size_t ItemsNumber,
+    bool Move,
     const wchar_t **DestPath,
     int OpMode
 )
@@ -1263,8 +1263,8 @@ int PluginManager::GetFiles(
 int PluginManager::PutFiles(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
-    int Move,
+    size_t ItemsNumber,
+    bool Move,
     int OpMode
 )
 {

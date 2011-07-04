@@ -432,14 +432,14 @@ void HighlightFiles::UpdateCurrentTime()
 	CurrentTime = current.QuadPart;
 }
 
-void HighlightFiles::GetHiColor(FileListItem **FileItem,int FileCount,bool UseAttrHighlighting)
+void HighlightFiles::GetHiColor(FileListItem **FileItem,size_t FileCount,bool UseAttrHighlighting)
 {
 	if (!FileItem || !FileCount)
 		return;
 
 	FileFilterParams *CurHiData;
 
-	for (int FCnt=0; FCnt < FileCount; ++FCnt)
+	for (size_t FCnt=0; FCnt < FileCount; ++FCnt)
 	{
 		FileListItem& fli = *FileItem[FCnt];
 		ApplyDefaultStartingColors(&fli.Colors);

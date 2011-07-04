@@ -555,7 +555,7 @@ void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 
 	if (ItemList && ItemNumber>0)
 	{
-		int GetCode=CtrlObject->Plugins.GetFiles(hPlugin,ItemList,ItemNumber,Move,DestPath,0);
+		int GetCode=CtrlObject->Plugins.GetFiles(hPlugin,ItemList,ItemNumber,Move!=0,DestPath,0);
 
 		if ((Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
 		        Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
@@ -712,7 +712,7 @@ void FileList::PluginHostGetFiles()
 		        hCurPlugin!=(HANDLE)-2)
 		{
 			PluginPanelItem *ItemList;
-			int ItemNumber;
+			size_t ItemNumber;
 			_ALGO(SysLog(L"call Plugins.GetFindData()"));
 
 			if (CtrlObject->Plugins.GetFindData(hCurPlugin,&ItemList,&ItemNumber,0))
@@ -831,7 +831,7 @@ int FileList::PluginPutFilesToAnother(int Move,Panel *AnotherPanel)
 	{
 		SetCurPath();
 		_ALGO(SysLog(L"call Plugins.PutFiles"));
-		PutCode=CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,Move,0);
+		PutCode=CtrlObject->Plugins.PutFiles(AnotherFilePanel->hPlugin,ItemList,ItemNumber,Move!=0,0);
 
 		if (PutCode==1 || PutCode==2)
 		{
@@ -973,7 +973,7 @@ int FileList::ProcessOneHostFile(int Idx)
 	if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
 	{
 		PluginPanelItem *ItemList;
-		int ItemNumber;
+		size_t ItemNumber;
 		_ALGO(SysLog(L"call Plugins.GetFindData"));
 
 		if (CtrlObject->Plugins.GetFindData(hNewPlugin,&ItemList,&ItemNumber,OPM_TOPLEVEL))

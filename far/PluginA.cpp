@@ -602,12 +602,12 @@ void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
 	}
 }
 
-void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelItem **PanelItemW, int ItemsNumber)
+void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelItem **PanelItemW, size_t ItemsNumber)
 {
 	*PanelItemW = (PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(PluginPanelItem));
 	memset(*PanelItemW,0,ItemsNumber*sizeof(PluginPanelItem));
 
-	for (int i=0; i<ItemsNumber; i++)
+	for (size_t i=0; i<ItemsNumber; i++)
 	{
 		(*PanelItemW)[i].Flags = PanelItemA[i].Flags;
 		(*PanelItemW)[i].NumberOfLinks = PanelItemA[i].NumberOfLinks;
@@ -689,12 +689,12 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 	UnicodeToOEM(PanelItem.AlternateFileName,PanelItemA.FindData.cAlternateFileName,sizeof(PanelItemA.FindData.cAlternateFileName));
 }
 
-void ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, oldfar::PluginPanelItem *&PanelItemA, int ItemsNumber)
+void ConvertPanelItemsArrayToAnsi(const PluginPanelItem *PanelItemW, oldfar::PluginPanelItem *&PanelItemA, size_t ItemsNumber)
 {
 	PanelItemA = (oldfar::PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(oldfar::PluginPanelItem));
 	memset(PanelItemA,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
 
-	for (int i=0; i<ItemsNumber; i++)
+	for (size_t i=0; i<ItemsNumber; i++)
 	{
 		ConvertPanelItemToAnsi(PanelItemW[i],PanelItemA[i]);
 	}
@@ -724,9 +724,9 @@ void FreeUnicodePanelItem(PluginPanelItem *PanelItem, size_t ItemsNumber)
 	xf_free(PanelItem);
 }
 
-void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, int ItemsNumber, bool bFreeArray=true)
+void FreePanelItemA(oldfar::PluginPanelItem *PanelItem, size_t ItemsNumber, bool bFreeArray=true)
 {
-	for (int i=0; i<ItemsNumber; i++)
+	for (size_t i=0; i<ItemsNumber; i++)
 	{
 		if (PanelItem[i].Description)
 			xf_free(PanelItem[i].Description);
@@ -2974,8 +2974,8 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA)
 	PIA->PanelRect.top    = PIW->PanelRect.top;
 	PIA->PanelRect.right  = PIW->PanelRect.right;
 	PIA->PanelRect.bottom = PIW->PanelRect.bottom;
-	PIA->ItemsNumber = PIW->ItemsNumber;
-	PIA->SelectedItemsNumber = PIW->SelectedItemsNumber;
+	PIA->ItemsNumber = static_cast<int>(PIW->ItemsNumber);
+	PIA->SelectedItemsNumber = static_cast<int>(PIW->SelectedItemsNumber);
 	PIA->PanelItems = nullptr;
 	PIA->SelectedItems = nullptr;
 	PIA->CurrentItem = PIW->CurrentItem;
@@ -3100,7 +3100,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 						memset(OldPI->PanelItems,0,PI.ItemsNumber*sizeof(oldfar::PluginPanelItem));
 						PluginPanelItem* PPI=nullptr; int PPISize=0;
 
-						for (int i=0; i<PI.ItemsNumber; i++)
+						for (int i=0; i<static_cast<int>(PI.ItemsNumber); i++)
 						{
 							int NewPPISize=static_cast<int>(NativeInfo.PanelControl(hPlugin,FCTL_GETPANELITEM,i,0));
 
@@ -3138,7 +3138,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 						memset(OldPI->SelectedItems,0,PI.SelectedItemsNumber*sizeof(oldfar::PluginPanelItem));
 						PluginPanelItem* PPI=nullptr; int PPISize=0;
 
-						for (int i=0; i<PI.SelectedItemsNumber; i++)
+						for (int i=0; i<static_cast<int>(PI.SelectedItemsNumber); i++)
 						{
 							int NewPPISize=static_cast<int>(NativeInfo.PanelControl(hPlugin,FCTL_GETSELECTEDPANELITEM,i,0));
 
@@ -3384,7 +3384,7 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 	DeleteEndSlash(strDir, true);
 
 	PluginPanelItem *pItems;
-	int ItemsNumber;
+	size_t ItemsNumber;
 	int ret=NativeInfo.GetDirList(strDir, &pItems, &ItemsNumber);
 
 	size_t PathOffset = ExtractFilePath(strDir).GetLength() + 1;
@@ -3396,12 +3396,12 @@ int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,i
 
 		if (*pPanelItem)
 		{
-			*pItemsNumber = ItemsNumber;
-			**((int **)pPanelItem) = ItemsNumber;
+			*pItemsNumber = static_cast<int>(ItemsNumber);
+			**((int **)pPanelItem) = static_cast<int>(ItemsNumber);
 			(*((int **)pPanelItem))++;
 			memset(*pPanelItem,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
 
-			for (int i=0; i<ItemsNumber; i++)
+			for (size_t i=0; i<ItemsNumber; i++)
 			{
 				(*pPanelItem)[i].FindData.dwFileAttributes = pItems[i].FileAttributes;
 				(*pPanelItem)[i].FindData.ftCreationTime = pItems[i].CreationTime;
@@ -3434,7 +3434,7 @@ int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *
 	string strDir(Dir);
 
 	PluginPanelItem *pPanelItemW;
-	int ItemsNumber;
+	size_t ItemsNumber;
 	int ret=NativeInfo.GetPluginDirList(GetPluginGuid(PluginNumber), hPlugin, strDir, &pPanelItemW, &ItemsNumber);
 
 	if (ret && ItemsNumber)
@@ -3444,12 +3444,12 @@ int WINAPI FarGetPluginDirListA(INT_PTR PluginNumber,HANDLE hPlugin,const char *
 
 		if (*pPanelItem)
 		{
-			*pItemsNumber = ItemsNumber;
-			**((int **)pPanelItem) = ItemsNumber;
+			*pItemsNumber = static_cast<int>(ItemsNumber);
+			**((int **)pPanelItem) = static_cast<int>(ItemsNumber);
 			(*((int **)pPanelItem))++;
 			memset(*pPanelItem,0,ItemsNumber*sizeof(oldfar::PluginPanelItem));
 
-			for (int i=0; i<ItemsNumber; i++)
+			for (size_t i=0; i<ItemsNumber; i++)
 			{
 				ConvertPanelItemToAnsi(pPanelItemW[i],(*pPanelItem)[i]);
 			}
@@ -4979,7 +4979,7 @@ HANDLE PluginA::OpenFilePlugin(
 int PluginA::SetFindList(
     HANDLE hPlugin,
     const PluginPanelItem *PanelItem,
-    int ItemsNumber
+    size_t ItemsNumber
 )
 {
 	BOOL bResult = FALSE;
@@ -4991,7 +4991,7 @@ int PluginA::SetFindList(
 		es.bDefaultResult = FALSE;
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
-		EXECUTE_FUNCTION_EX(FUNCTION(iSetFindList)(hPlugin, PanelItemA, ItemsNumber), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iSetFindList)(hPlugin, PanelItemA, static_cast<int>(ItemsNumber)), es);
 		FreePanelItemA(PanelItemA,ItemsNumber);
 		bResult = es.bResult;
 	}
@@ -5081,7 +5081,7 @@ int PluginA::ProcessDialogEvent(
 int PluginA::GetVirtualFindData(
     HANDLE hPlugin,
     PluginPanelItem **pPanelItem,
-    int *pItemsNumber,
+    size_t *pItemsNumber,
     const wchar_t *Path
 )
 {
@@ -5096,7 +5096,9 @@ int PluginA::GetVirtualFindData(
 		size_t Size=StrLength(Path)+1;
 		LPSTR PathA=new char[Size];
 		UnicodeToOEM(Path,PathA,Size);
-		EXECUTE_FUNCTION_EX(FUNCTION(iGetVirtualFindData)(hPlugin, &pVFDPanelItemA, pItemsNumber, PathA), es);
+		int ItemsNumber = 0;
+		EXECUTE_FUNCTION_EX(FUNCTION(iGetVirtualFindData)(hPlugin, &pVFDPanelItemA, &ItemsNumber, PathA), es);
+		*pItemsNumber = ItemsNumber;
 		bResult = es.bResult;
 		delete[] PathA;
 
@@ -5113,7 +5115,7 @@ int PluginA::GetVirtualFindData(
 void PluginA::FreeVirtualFindData(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber
+    size_t ItemsNumber
 )
 {
 	FreeUnicodePanelItem(PanelItem, ItemsNumber);
@@ -5122,7 +5124,7 @@ void PluginA::FreeVirtualFindData(
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEVIRTUALFINDDATA;
-		EXECUTE_FUNCTION(FUNCTION(iFreeVirtualFindData)(hPlugin, pVFDPanelItemA, ItemsNumber), es);
+		EXECUTE_FUNCTION(FUNCTION(iFreeVirtualFindData)(hPlugin, pVFDPanelItemA, static_cast<int>(ItemsNumber)), es);
 		pVFDPanelItemA = nullptr;
 	}
 }
@@ -5132,8 +5134,8 @@ void PluginA::FreeVirtualFindData(
 int PluginA::GetFiles(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
-    int Move,
+    size_t ItemsNumber,
+    bool Move,
     const wchar_t **DestPath,
     int OpMode
 )
@@ -5149,7 +5151,7 @@ int PluginA::GetFiles(
 		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
 		char DestA[oldfar::NM];
 		UnicodeToOEM(*DestPath,DestA,sizeof(DestA));
-		EXECUTE_FUNCTION_EX(FUNCTION(iGetFiles)(hPlugin, PanelItemA, ItemsNumber, Move, DestA, OpMode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iGetFiles)(hPlugin, PanelItemA, static_cast<int>(ItemsNumber), Move, DestA, OpMode), es);
 		static wchar_t DestW[oldfar::NM];
 		OEMToUnicode(DestA,DestW,ARRAYSIZE(DestW));
 		*DestPath=DestW;
@@ -5164,8 +5166,8 @@ int PluginA::GetFiles(
 int PluginA::PutFiles(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
-    int Move,
+    size_t ItemsNumber,
+    bool Move,
     int OpMode
 )
 {
@@ -5178,7 +5180,7 @@ int PluginA::PutFiles(
 		es.nDefaultResult = -1;
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
-		EXECUTE_FUNCTION_EX(FUNCTION(iPutFiles)(hPlugin, PanelItemA, ItemsNumber, Move, OpMode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iPutFiles)(hPlugin, PanelItemA, static_cast<int>(ItemsNumber), Move, OpMode), es);
 		FreePanelItemA(PanelItemA,ItemsNumber);
 		nResult = (int)es.nResult;
 	}
@@ -5189,7 +5191,7 @@ int PluginA::PutFiles(
 int PluginA::DeleteFiles(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
+    size_t ItemsNumber,
     int OpMode
 )
 {
@@ -5202,7 +5204,7 @@ int PluginA::DeleteFiles(
 		es.bDefaultResult = FALSE;
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
-		EXECUTE_FUNCTION_EX(FUNCTION(iDeleteFiles)(hPlugin, PanelItemA, ItemsNumber, OpMode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iDeleteFiles)(hPlugin, PanelItemA, static_cast<int>(ItemsNumber), OpMode), es);
 		FreePanelItemA(PanelItemA,ItemsNumber);
 		bResult = (int)es.bResult;
 	}
@@ -5240,7 +5242,7 @@ int PluginA::MakeDirectory(
 int PluginA::ProcessHostFile(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
+    size_t ItemsNumber,
     int OpMode
 )
 {
@@ -5253,7 +5255,7 @@ int PluginA::ProcessHostFile(
 		es.bDefaultResult = FALSE;
 		oldfar::PluginPanelItem *PanelItemA = nullptr;
 		ConvertPanelItemsArrayToAnsi(PanelItem,PanelItemA,ItemsNumber);
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessHostFile)(hPlugin, PanelItemA, ItemsNumber, OpMode), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iProcessHostFile)(hPlugin, PanelItemA, static_cast<int>(ItemsNumber), OpMode), es);
 		FreePanelItemA(PanelItemA,ItemsNumber);
 		bResult = es.bResult;
 	}
@@ -5323,7 +5325,7 @@ int PluginA::Compare(
 int PluginA::GetFindData(
     HANDLE hPlugin,
     PluginPanelItem **pPanelItem,
-    int *pItemsNumber,
+    size_t *pItemsNumber,
     int OpMode
 )
 {
@@ -5335,8 +5337,10 @@ int PluginA::GetFindData(
 		es.id = EXCEPT_GETFINDDATA;
 		es.bDefaultResult = FALSE;
 		pFDPanelItemA = nullptr;
-		EXECUTE_FUNCTION_EX(FUNCTION(iGetFindData)(hPlugin, &pFDPanelItemA, pItemsNumber, OpMode), es);
+		int ItemsNumber = 0;
+		EXECUTE_FUNCTION_EX(FUNCTION(iGetFindData)(hPlugin, &pFDPanelItemA, &ItemsNumber, OpMode), es);
 		bResult = es.bResult;
+		*pItemsNumber = ItemsNumber;
 
 		if (bResult && *pItemsNumber)
 		{
@@ -5351,7 +5355,7 @@ int PluginA::GetFindData(
 void PluginA::FreeFindData(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber
+    size_t ItemsNumber
 )
 {
 	FreeUnicodePanelItem(PanelItem, ItemsNumber);
@@ -5360,7 +5364,7 @@ void PluginA::FreeFindData(
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEFINDDATA;
-		EXECUTE_FUNCTION(FUNCTION(iFreeFindData)(hPlugin, pFDPanelItemA, ItemsNumber), es);
+		EXECUTE_FUNCTION(FUNCTION(iFreeFindData)(hPlugin, pFDPanelItemA, static_cast<int>(ItemsNumber)), es);
 		pFDPanelItemA = nullptr;
 	}
 }

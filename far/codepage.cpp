@@ -154,7 +154,7 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position, bool 
 		{
 			FarListInfo info;
 			SendDlgMessage(dialog, DM_LISTINFO, control, &info);
-			position = info.ItemsNumber;
+			position = static_cast<int>(info.ItemsNumber);
 		}
 
 		// Вставляем элемент
@@ -243,7 +243,7 @@ void AddSeparator(LPCWSTR Label=nullptr,int position = -1)
 		{
 			FarListInfo info;
 			SendDlgMessage(dialog, DM_LISTINFO, control, &info);
-			position = info.ItemsNumber;
+			position = static_cast<int>(info.ItemsNumber);
 		}
 
 		FarListInsert item = {position};
@@ -276,7 +276,7 @@ int GetItemsCount()
 	{
 		FarListInfo info;
 		SendDlgMessage(dialog, DM_LISTINFO, control, &info);
-		return info.ItemsNumber;
+		return static_cast<int>(info.ItemsNumber);
 	}
 }
 
@@ -769,7 +769,7 @@ UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool 
 		FarListInfo info;
 		SendDlgMessage(dialogHandle, DM_LISTINFO, control, &info);
 
-		for (int i=0; i<info.ItemsNumber; i++)
+		for (int i=0; i<static_cast<int>(info.ItemsNumber); i++)
 		{
 			if (GetListItemCodePage(i)==codePage)
 			{

@@ -262,7 +262,7 @@ int WINAPI KeyNameToKeyW(const wchar_t *Name)
 
 static int WINAPI FarGetPluginDirListW(const GUID* PluginId,HANDLE hPlugin,
                                const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
-                               int *pItemsNumber)
+                               size_t *pItemsNumber)
 {
 	return FarGetPluginDirList(GetPluginNumber(PluginId),hPlugin,Dir,pPanelItem,pItemsNumber);
 }
@@ -332,7 +332,7 @@ static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMM
 
 static HANDLE WINAPI FarDialogInitW(const GUID* PluginId, const GUID* Id, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, const struct FarDialogItem *Item,
-                            unsigned int ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
+                            size_t ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
                             FARWINDOWPROC Proc, void* Param)
 {
 	return FarDialogInit(GetPluginNumber(PluginId),Id,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,Reserved,Flags,Proc,Param);
@@ -1033,7 +1033,7 @@ HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 int Plugin::SetFindList(
     HANDLE hPlugin,
     const PluginPanelItem *PanelItem,
-    int ItemsNumber
+    size_t ItemsNumber
 )
 {
 	BOOL bResult = FALSE;
@@ -1201,7 +1201,7 @@ int Plugin::ProcessConsoleInput(
 int Plugin::GetVirtualFindData(
     HANDLE hPlugin,
     PluginPanelItem **pPanelItem,
-    int *pItemsNumber,
+    size_t *pItemsNumber,
     const wchar_t *Path
 )
 {
@@ -1230,7 +1230,7 @@ int Plugin::GetVirtualFindData(
 void Plugin::FreeVirtualFindData(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber
+    size_t ItemsNumber
 )
 {
 	if (Exports[iFreeVirtualFindData] && !ProcessException)
@@ -1250,8 +1250,8 @@ void Plugin::FreeVirtualFindData(
 int Plugin::GetFiles(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
-    int Move,
+    size_t ItemsNumber,
+    bool Move,
     const wchar_t **DestPath,
     int OpMode
 )
@@ -1282,8 +1282,8 @@ int Plugin::GetFiles(
 int Plugin::PutFiles(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
-    int Move,
+    size_t ItemsNumber,
+    bool Move,
     int OpMode
 )
 {
@@ -1313,7 +1313,7 @@ int Plugin::PutFiles(
 int Plugin::DeleteFiles(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
+    size_t ItemsNumber,
     int OpMode
 )
 {
@@ -1366,7 +1366,7 @@ int Plugin::MakeDirectory(
 int Plugin::ProcessHostFile(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber,
+    size_t ItemsNumber,
     int OpMode
 )
 {
@@ -1445,7 +1445,7 @@ int Plugin::Compare(
 int Plugin::GetFindData(
     HANDLE hPlugin,
     PluginPanelItem **pPanelItem,
-    int *pItemsNumber,
+    size_t *pItemsNumber,
     int OpMode
 )
 {
@@ -1474,7 +1474,7 @@ int Plugin::GetFindData(
 void Plugin::FreeFindData(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    int ItemsNumber
+    size_t ItemsNumber
 )
 {
 	if (Exports[iFreeFindData] && !ProcessException)
