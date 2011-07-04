@@ -2192,7 +2192,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 
 		{
 			string strPlugins = Opt.ProfilePath;
-			strPlugins += L"\\Plugins\\*.db";
+			strPlugins += L"\\PluginsData\\*.db";
 			FAR_FIND_DATA_EX fd;
 			FindFile ff(strPlugins);
 			e = new TiXmlElement("pluginsconfig");
