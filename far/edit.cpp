@@ -2996,7 +2996,10 @@ void EditControl::Show()
 	{
 		SetLeftPos(0);
 	}
-	Edit::Show();
+	if (pOwner->IsVisible())
+	{
+		Edit::Show();
+	}
 }
 
 void EditControl::Changed(bool DelBlock)
