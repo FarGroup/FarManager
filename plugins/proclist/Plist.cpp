@@ -299,7 +299,7 @@ bool GetPDataNT(ProcessDataNT& DATA, ProcessPerfData& pd)
 	return true;
 }
 
-BOOL GetList(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& Thread)
+BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread)
 {
 	DWORD numTasks;
 	ProcessPerfData* pData=0;

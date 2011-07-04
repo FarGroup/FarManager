@@ -643,7 +643,7 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
   {
     if (pstrCurDir->Len()) m_fsf.AddEndSlash(*pstrCurDir);
     *ppFiles=new LPCWSTR[pi.SelectedItemsNumber];
-    SelectedItemsCount=pi.SelectedItemsNumber;
+    SelectedItemsCount=(int)pi.SelectedItemsNumber;
     SelectedItems=new PluginPanelItem*[SelectedItemsCount];
     for (int i=0; i<pi.SelectedItemsNumber; i++)
     {

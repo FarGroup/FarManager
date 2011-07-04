@@ -3,6 +3,7 @@
 // This plugin can change case to: lower case, Title Case, UPPER CASE and tOGGLE cASE
 // Besides, it has ability of cyclic case change like MS Word by ShiftF3
 #include <plugin.hpp>
+#include <CRT/crt.hpp>
 #include <PluginSettings.hpp>
 #include "EditLng.hpp"
 #include "version.hpp"
@@ -16,7 +17,6 @@
 #else
 #include <values.h> //MAXINT
 #endif
-#include <CRT/crt.hpp>
 
 #if defined(__GNUC__)
 #ifdef __cplusplus

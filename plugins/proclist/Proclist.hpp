@@ -95,7 +95,7 @@ class Plist
 		Plist();
 		~Plist();
 		bool Connect(LPCTSTR pMachine, LPCTSTR pUser=0, LPCTSTR pPasw=0);
-		int GetFindData(PluginPanelItem* &pPanelItem,int &pItemsNumber,OPERATION_MODES OpMode);
+		int GetFindData(PluginPanelItem* &pPanelItem,size_t &pItemsNumber,OPERATION_MODES OpMode);
 		void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
 		void GetOpenPanelInfo(struct OpenPanelInfo *Info);
 		int SetDirectory(wchar_t *Dir,int OpMode);
@@ -152,8 +152,7 @@ extern wchar_t *PluginRootKey;
 
 class PerfThread;
 
-BOOL GetList95(PluginPanelItem **pPanelItem,int *pItemsNumber);
-BOOL GetList(PluginPanelItem **pPanelItem,int *pItemsNumber,PerfThread& PThread);
+BOOL GetList(PluginPanelItem **pPanelItem,size_t* ItemsNumber,PerfThread& PThread);
 BOOL KillProcess(DWORD pid,HWND hwnd);
 
 const wchar_t *GetMsg(int MsgId);
@@ -210,7 +209,7 @@ enum { SM_CUSTOM=64, SM_PID, SM_PARENTPID, SM_PRIOR, SM_PERFCOUNTER,  SM_PERSEC=
 
 extern wchar_t CustomColumns[10][10];
 
-BOOL GetList(PluginPanelItem* &pPanelItem,int &ItemsNumber,PerfThread& PThread);
+BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& PThread);
 DWORD GetHeapSize(DWORD dwPID);
 wchar_t* PrintNTUptime(void*p);
 wchar_t* PrintTime(ULONGLONG ul100ns, bool bDays=true);

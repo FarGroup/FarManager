@@ -76,9 +76,9 @@ struct OwnPanelInfo
   int PanelType;
   bool Plugin;
   PluginPanelItem *PanelItems;
-  int ItemsNumber;
+  size_t ItemsNumber;
   PluginPanelItem *SelectedItems;
-  int SelectedItemsNumber;
+  size_t SelectedItemsNumber;
   wchar_t *lpwszCurDir;
 };
 
@@ -487,15 +487,15 @@ static bool BuildPanelIndex(const OwnPanelInfo *pInfo, struct FileIndex *pIndex,
 {
   bool bProcessSelected;
   pIndex->ppi = NULL;
-  pIndex->iCount = ( bProcessSelected = (Opt.ProcessSelected && pInfo->SelectedItemsNumber &&
+  pIndex->iCount = (int)(( bProcessSelected = (Opt.ProcessSelected && pInfo->SelectedItemsNumber &&
                      (pInfo->SelectedItems[0].Flags & PPIF_SELECTED)) ) ? pInfo->SelectedItemsNumber :
-                     pInfo->ItemsNumber;
+                     pInfo->ItemsNumber);
   if (!pIndex->iCount)
     return true;
   if (!(pIndex->ppi = (PluginPanelItem **)malloc(pIndex->iCount*sizeof(pIndex->ppi[0]))))
     return false;
   int j = 0;
-  for (int i = pInfo->ItemsNumber - 1; i >= 0 && j < pIndex->iCount; i--)
+  for (int i = (int)pInfo->ItemsNumber - 1; i >= 0 && j < pIndex->iCount; i--)
   {
     if ( (Opt.ProcessSubfolders ||
          !(pInfo->PanelItems[i].FileAttributes & FILE_ATTRIBUTE_DIRECTORY)) &&
@@ -542,7 +542,7 @@ static int GetDirList(OwnPanelInfo *PInfo, const wchar_t *Dir)
   WIN32_FIND_DATA wfdFindData;
   HANDLE hFind;
   struct PluginPanelItem **pPanelItem = &PInfo->PanelItems;
-  int *pItemsNumber = &PInfo->ItemsNumber;
+  size_t *pItemsNumber = &PInfo->ItemsNumber;
   PInfo->lpwszCurDir = wcsdup(Dir);
   *pPanelItem = NULL;
   *pItemsNumber = 0;

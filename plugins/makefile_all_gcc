@@ -1,5 +1,5 @@
 ALLDIRS = align autowrap brackets compare drawline editcase farcmds \
-          filecase hlfviewer macroview network proclist tmppanel ftp multiarc
+          filecase hlfviewer network proclist tmppanel ftp multiarc macroview
 
 all: libcrt $(ALLDIRS)
 

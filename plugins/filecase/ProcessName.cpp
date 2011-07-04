@@ -63,7 +63,7 @@ void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
   if( Opt.ProcessSubDir && (FileAttributes&FILE_ATTRIBUTE_DIRECTORY))
   {
     struct PluginPanelItem *Items;
-    int ItemsNumber,DirList;
+    size_t ItemsNumber,DirList;
 
     DirList = Info.GetDirList(OldFullName,&Items,&ItemsNumber);
 

@@ -113,7 +113,7 @@ class NetBrowser
     void CreateFavSubFolder();
     NetBrowser();
     ~NetBrowser();
-    int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,OPERATION_MODES OpMode);
+    int GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,OPERATION_MODES OpMode);
     void FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber);
     void GetOpenPanelInfo(struct OpenPanelInfo *Info);
     int SetDirectory(const wchar_t *Dir,OPERATION_MODES OpMode);

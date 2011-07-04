@@ -139,7 +139,7 @@ int WINAPI GetFindDataW(GetFindDataInfo *Info)
 void WINAPI FreeFindDataW(const FreeFindDataInfo *Info)
 {
   NetBrowser *Browser=(NetBrowser *)Info->hPanel;
-  Browser->FreeFindData(Info->PanelItem,Info->ItemsNumber);
+  Browser->FreeFindData(Info->PanelItem,(int)Info->ItemsNumber);
 }
 
 //-----------------------------------------------------------------------------
@@ -160,7 +160,7 @@ int WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
 int WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
 {
   NetBrowser *Browser=(NetBrowser *)Info->hPanel;
-  return(Browser->DeleteFiles(Info->PanelItem,Info->ItemsNumber,Info->OpMode));
+  return(Browser->DeleteFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->OpMode));
 }
 
 //-----------------------------------------------------------------------------

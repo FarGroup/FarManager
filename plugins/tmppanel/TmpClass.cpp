@@ -6,6 +6,7 @@ Temporary panel plugin class implementation
 */
 
 #include "TmpPanel.hpp"
+#include "guid.hpp"
 
 TmpPanel::TmpPanel()
 {
@@ -25,12 +26,12 @@ TmpPanel::~TmpPanel()
 		FreePanelItems(TmpPanelItem, TmpItemsNumber);
 }
 
-int TmpPanel::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,const OPERATION_MODES OpMode)
+int TmpPanel::GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,const OPERATION_MODES OpMode)
 {
 	IfOptCommonPanel();
-	int Size=Info.PanelControl(this,FCTL_GETCOLUMNTYPES,0,NULL);
+	size_t Size=Info.PanelControl(this,FCTL_GETCOLUMNTYPES,0,NULL);
 	wchar_t* ColumnTypes=new wchar_t[Size];
-	Info.PanelControl(this,FCTL_GETCOLUMNTYPES,Size,ColumnTypes);
+	Info.PanelControl(this,FCTL_GETCOLUMNTYPES,static_cast<int>(Size),ColumnTypes);
 	UpdateItems(IsOwnersDisplayed(ColumnTypes),IsLinksDisplayed(ColumnTypes));
 	delete[] ColumnTypes;
 	*pPanelItem=TmpPanelItem;
@@ -114,14 +115,14 @@ int TmpPanel::SetDirectory(const wchar_t *Dir,const OPERATION_MODES OpMode)
 }
 
 
-int TmpPanel::PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int,const wchar_t *SrcPath,const OPERATION_MODES)
+int TmpPanel::PutFiles(struct PluginPanelItem *PanelItem,size_t ItemsNumber,int,const wchar_t *SrcPath,const OPERATION_MODES)
 {
 	UpdateNotNeeded=FALSE;
 	HANDLE hScreen = BeginPutFiles();
 
-	for (int i=0; i<ItemsNumber; i++)
+	for (size_t i=0; i<ItemsNumber; i++)
 	{
-		if (!PutOneFile(SrcPath, PanelItem [i]))
+		if (!PutOneFile(SrcPath, PanelItem[i]))
 		{
 			CommitPutFiles(hScreen, FALSE);
 			return FALSE;
@@ -158,7 +159,7 @@ int TmpPanel::PutDirectoryContents(const wchar_t* Path)
 	if (Opt.SelectedCopyContents)
 	{
 		PluginPanelItem *DirItems;
-		int DirItemsNumber;
+		size_t DirItemsNumber;
 
 		if (!Info.GetDirList(Path, &DirItems, &DirItemsNumber))
 		{
@@ -272,7 +273,7 @@ void TmpPanel::CommitPutFiles(HANDLE hRestoreScreen, int Success)
 }
 
 
-int TmpPanel::SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumber)
+int TmpPanel::SetFindList(const struct PluginPanelItem *PanelItem,size_t ItemsNumber)
 {
 	HANDLE hScreen = BeginPutFiles();
 	FindSearchResultsPanel();
@@ -285,7 +286,7 @@ int TmpPanel::SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumbe
 		TmpItemsNumber=ItemsNumber;
 		memset(TmpPanelItem,0,TmpItemsNumber*sizeof(*TmpPanelItem));
 
-		for (int i=0; i<ItemsNumber; ++i)
+		for (size_t i=0; i<ItemsNumber; ++i)
 		{
 			TmpPanelItem[i].UserData = i;
 
@@ -341,7 +342,7 @@ void TmpPanel::FindSearchResultsPanel()
 			if (PanelIndex != SearchResultsPanel)
 			{
 				CommonPanels[PanelIndex].Items = TmpPanelItem;
-				CommonPanels[PanelIndex].ItemsNumber = TmpItemsNumber;
+				CommonPanels[PanelIndex].ItemsNumber = (UINT)TmpItemsNumber;
 				PanelIndex = SearchResultsPanel;
 				TmpPanelItem = CommonPanels[PanelIndex].Items;
 				TmpItemsNumber = CommonPanels[PanelIndex].ItemsNumber;
@@ -425,7 +426,7 @@ void TmpPanel::RemoveEmptyItems()
 	if (StartupOptCommonPanel)
 	{
 		CommonPanels[PanelIndex].Items=TmpPanelItem;
-		CommonPanels[PanelIndex].ItemsNumber=TmpItemsNumber;
+		CommonPanels[PanelIndex].ItemsNumber=(UINT)TmpItemsNumber;
 	}
 }
 
@@ -557,9 +558,9 @@ int TmpPanel::ProcessEvent(int Event,void *)
 	if (Event==FE_CHANGEVIEWMODE)
 	{
 		IfOptCommonPanel();
-		int Size=Info.PanelControl(this,FCTL_GETCOLUMNTYPES,0,NULL);
+		size_t Size=Info.PanelControl(this,FCTL_GETCOLUMNTYPES,0,NULL);
 		wchar_t* ColumnTypes=new wchar_t[Size];
-		Info.PanelControl(this,FCTL_GETCOLUMNTYPES,Size,ColumnTypes);
+		Info.PanelControl(this,FCTL_GETCOLUMNTYPES,static_cast<int>(Size),ColumnTypes);
 		int UpdateOwners=IsOwnersDisplayed(ColumnTypes) && !LastOwnersRead;
 		int UpdateLinks=IsLinksDisplayed(ColumnTypes) && !LastLinksRead;
 		delete[] ColumnTypes;
@@ -858,7 +859,7 @@ void TmpPanel::SwitchToPanel(int NewPanelIndex)
 	if ((unsigned)NewPanelIndex<COMMONPANELSNUMBER && NewPanelIndex!=(int)PanelIndex)
 	{
 		CommonPanels[PanelIndex].Items=TmpPanelItem;
-		CommonPanels[PanelIndex].ItemsNumber=TmpItemsNumber;
+		CommonPanels[PanelIndex].ItemsNumber=(UINT)TmpItemsNumber;
 
 		if (!CommonPanels[NewPanelIndex].Items)
 		{

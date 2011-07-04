@@ -14,7 +14,7 @@ class TmpPanel
 {
 	private:
 		PluginPanelItem *TmpPanelItem;
-		int TmpItemsNumber;
+		size_t TmpItemsNumber;
 		int LastOwnersRead;
 		int LastLinksRead;
 		int UpdateNotNeeded;
@@ -42,18 +42,18 @@ class TmpPanel
 		//int OpenFrom;
 
 	public:
-		int GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,const OPERATION_MODES OpMode);
+		int GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,const OPERATION_MODES OpMode);
 		void GetOpenPanelInfo(struct OpenPanelInfo *Info);
 		int SetDirectory(const wchar_t *Dir,const OPERATION_MODES OpMode);
 
-		int PutFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,int Move,const wchar_t *SrcPath,const OPERATION_MODES OpMode);
+		int PutFiles(struct PluginPanelItem *PanelItem,size_t ItemsNumber,int Move,const wchar_t *SrcPath,const OPERATION_MODES OpMode);
 		HANDLE BeginPutFiles();
 		void CommitPutFiles(HANDLE hRestoreScreen, int Success);
 		int PutDirectoryContents(const wchar_t* Path);
 		int PutOneFile(const wchar_t* SrcPath, PluginPanelItem &PanelItem);
 		int PutOneFile(const wchar_t* FilePath);
 
-		int SetFindList(const struct PluginPanelItem *PanelItem,int ItemsNumber);
+		int SetFindList(const struct PluginPanelItem *PanelItem,size_t ItemsNumber);
 		int ProcessEvent(int Event,void *Param);
 		int ProcessKey(const INPUT_RECORD *Rec);
 		void IfOptCommonPanel(void);

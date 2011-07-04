@@ -478,7 +478,7 @@ BOOL CALLBACK EnumWndProc(HWND hWnd,LPARAM lParam)
 	return TRUE;
 }
 
-int Plist::GetFindData(PluginPanelItem*& pPanelItem,int &ItemsNumber,OPERATION_MODES OpMode)
+int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATION_MODES OpMode)
 {
 	Lock l(pPerfThread);
 	int RetCode = GetList(pPanelItem,ItemsNumber,*pPerfThread);

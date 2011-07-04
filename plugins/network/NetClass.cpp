@@ -326,7 +326,7 @@ BOOL NetBrowser::GotoFavorite(wchar_t *lpPath)
 	return FALSE;
 }
 
-int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,int *pItemsNumber,OPERATION_MODES OpMode)
+int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,OPERATION_MODES OpMode)
 {
 #ifdef NETWORK_LOGGING
 	LogData(L"Entering NetBrowser::GetFindData");
@@ -739,7 +739,6 @@ void NetBrowser::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 	Info->PanelModesArray=PanelModesArray;
 	Info->PanelModesNumber=ARRAYSIZE(PanelModesArray);
 	Info->StartPanelMode=PanelMode[0];
-	int i,j;
 
 	if (PCurResource && PCurResource->dwDisplayType == RESOURCEDISPLAYTYPE_SERVER)
 	{
@@ -769,7 +768,7 @@ void NetBrowser::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 		static struct KeyBarLabel kbl[ARRAYSIZE(FKeys)/3];
 		static struct KeyBarTitles kbt = {ARRAYSIZE(kbl), kbl};
 
-		for (j=i=0; i < ARRAYSIZE(FKeys); i+=3, ++j)
+		for (size_t j=0,i=0; i < ARRAYSIZE(FKeys); i+=3, ++j)
 		{
 			kbl[j].Key.VirtualKeyCode = FKeys[i];
 			kbl[j].Key.ControlKeyState = FKeys[i+1];
@@ -814,7 +813,7 @@ void NetBrowser::GetOpenPanelInfo(struct OpenPanelInfo *Info)
 		static struct KeyBarLabel kbl[ARRAYSIZE(FKeys)/3];
 		static struct KeyBarTitles kbt = {ARRAYSIZE(kbl), kbl};
 
-		for (j=i=0; i < ARRAYSIZE(FKeys); i+=3, ++j)
+		for (size_t j=0,i=0; i < ARRAYSIZE(FKeys); i+=3, ++j)
 		{
 			kbl[j].Key.VirtualKeyCode = FKeys[i];
 			kbl[j].Key.ControlKeyState = FKeys[i+1];
@@ -1392,7 +1391,7 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 			struct PanelInfo PInfo;
 			Info.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
 
-			for (int I=0; I<PInfo.SelectedItemsNumber; I++)
+			for (int I=0; I<(int)PInfo.SelectedItemsNumber; I++)
 			{
 				size_t Size = Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,0);
 				PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
@@ -2140,7 +2139,7 @@ void NetBrowser::SetCursorToShare(wchar_t *Share)
 	if (PInfo.ItemsNumber)
 	{
 		// prevent recursion
-		for (int i=0; i<PInfo.ItemsNumber; i++)
+		for (int i=0; i<(int)PInfo.ItemsNumber; i++)
 		{
 			wchar_t szAnsiName[MAX_PATH];
 			size_t Size = Info.PanelControl(this,FCTL_GETPANELITEM,i,0);
@@ -2224,7 +2223,7 @@ void NetBrowser::RemoveItems()
 	if ((p>szName)&&(p[-1] != L'\\'))
 		*p++ = L'\\';
 
-	for (int i = 0; i < PInfo.SelectedItemsNumber; i++)
+	for (int i = 0; i < (int)PInfo.SelectedItemsNumber; i++)
 	{
 		size_t Size = Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,0);
 		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);

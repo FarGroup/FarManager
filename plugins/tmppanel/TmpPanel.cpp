@@ -7,6 +7,9 @@ Temporary panel main plugin code
 
 #include "TmpPanel.hpp"
 
+#include <initguid.h>
+#include "guid.hpp"
+
 //wchar_t *PluginRootKey;
 unsigned int CurrentCommonPanel;
 struct PluginStartupInfo Info;
@@ -79,11 +82,11 @@ static HANDLE OpenPanelFromOutput(wchar_t *argv)
 		}
 		else
 		{
-			DWORD Size=FSF.GetCurrentDirectory(0,NULL);
+			size_t Size=FSF.GetCurrentDirectory(0,NULL);
 
 			if (Size)
 			{
-				workDir.Reset(Size);
+				workDir.Reset((int)Size);
 				FSF.GetCurrentDirectory(Size,workDir);
 			}
 		}

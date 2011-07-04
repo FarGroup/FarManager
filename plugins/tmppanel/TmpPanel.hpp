@@ -11,14 +11,11 @@ Temporary panel header file
 #include "plugin.hpp"
 #include "CRT/crt.hpp"
 #include <shellapi.h>
-#include <initguid.h>
 
 #include "TmpLng.hpp"
 #include "TmpClass.hpp"
 #include "TmpCfg.hpp"
 #include "version.hpp"
-#include "guid.hpp"
-
 
 #define COMMONPANELSNUMBER 10
 
@@ -51,7 +48,7 @@ const wchar_t *GetMsg(int MsgId);
 
 int Config();
 void GoToFile(const wchar_t *Target, BOOL AnotherPanel);
-void FreePanelItems(PluginPanelItem *Items, DWORD Total);
+void FreePanelItems(PluginPanelItem *Items, size_t Total);
 
 wchar_t *ParseParam(wchar_t *& str);
 void GetOptions(void);

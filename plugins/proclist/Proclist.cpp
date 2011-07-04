@@ -243,7 +243,7 @@ int WINAPI GetFindDataW(struct GetFindDataInfo *Info)
 void   WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info)
 {
 	Plist *Panel=(Plist *)Info->hPanel;
-	Panel->FreeFindData(Info->PanelItem,Info->ItemsNumber);
+	Panel->FreeFindData(Info->PanelItem,(int)Info->ItemsNumber);
 }
 
 
@@ -289,13 +289,13 @@ void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info)
 
 int WINAPI GetFilesW(struct GetFilesInfo *Info)
 {
-	return ((Plist *)Info->hPanel)->GetFiles(Info->PanelItem,Info->ItemsNumber,Info->Move,&Info->DestPath,Info->OpMode);
+	return ((Plist *)Info->hPanel)->GetFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->Move,&Info->DestPath,Info->OpMode);
 }
 
 
 int WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
 {
-	return ((Plist *)Info->hPanel)->DeleteFiles(Info->PanelItem,Info->ItemsNumber,Info->OpMode);
+	return ((Plist *)Info->hPanel)->DeleteFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->OpMode);
 }
 
 

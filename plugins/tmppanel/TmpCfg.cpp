@@ -8,6 +8,7 @@ Temporary panel configuration
 #include "TmpPanel.hpp"
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
+#include "guid.hpp"
 
 options_t Opt;
 

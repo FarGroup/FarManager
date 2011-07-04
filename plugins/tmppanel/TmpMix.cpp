@@ -6,17 +6,18 @@ Temporary panel miscellaneous utility functions
 */
 
 #include "TmpPanel.hpp"
+#include "guid.hpp"
 
 const wchar_t *GetMsg(int MsgId)
 {
 	return(Info.GetMsg(&MainGuid,MsgId));
 }
 
-void FreePanelItems(PluginPanelItem *Items, DWORD Total)
+void FreePanelItems(PluginPanelItem *Items, size_t Total)
 {
 	if (Items)
 	{
-		for (DWORD I=0; I<Total; I++)
+		for (size_t I=0; I<Total; I++)
 		{
 			if (Items[I].Owner)
 				free((void*)Items[I].Owner);
@@ -240,7 +241,7 @@ success:
 wchar_t* GetFullPath(const wchar_t* input, StrBuf& output)
 {
 	output.Grow(MAX_PATH);
-	int size = FSF.ConvertPath(CPM_FULL, input, output, output.Size());
+	size_t size = FSF.ConvertPath(CPM_FULL, input, output, output.Size());
 
 	if (size > output.Size())
 	{
