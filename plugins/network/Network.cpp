@@ -36,7 +36,6 @@ void WINAPI GetGlobalInfoW(GlobalInfo *Info)
 //-----------------------------------------------------------------------------
 HANDLE WINAPI OpenW(const OpenInfo *OInfo)
 {
-	InitializeNetFunction();
 	HANDLE hPlugin=new NetBrowser;
 
 	if (hPlugin==NULL)

@@ -4,11 +4,10 @@ NetCfg.cpp \
 NetClass.cpp \
 NetCommon.cpp \
 NetFavorites.cpp \
-NetMix.cpp \
-NetNT.cpp
+NetMix.cpp
 DOCS = NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng
 
-USERLIBS = -lmpr
+USERLIBS = -lmpr -lnetapi32
 
 include ../makefile_gcc_def_inc
 

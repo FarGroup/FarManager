@@ -7,7 +7,7 @@
 const wchar_t *StrAddToDisksMenu=L"AddToDisksMenu";
 const wchar_t *StrAddToPluginsMenu=L"AddToPluginsMenu";
 const wchar_t *StrHelpNetBrowse=L"Contents";
-const wchar_t *StrNTHiddenShare=L"NTHiddenShare";
+const wchar_t *StrHiddenShares=L"HiddenShares";
 const wchar_t *StrShowPrinters=L"ShowPrinters";
 const wchar_t *StrLocalNetwork=L"LocalNetwork";
 const wchar_t *StrDisconnectMode=L"DisconnectMode";
@@ -27,7 +27,7 @@ int Config()
 	Builder.AddCheckbox(MNoRootDoublePoint, &Opt.RootDoublePoint);
 	Builder.AddSeparator();
 	Builder.AddCheckbox(MConfigLocalNetwork, &Opt.LocalNetwork);
-	Builder.AddCheckbox(MNTGetHideShare, &Opt.NTGetHideShare);
+	Builder.AddCheckbox(MHiddenShares, &Opt.HiddenShares);
 	Builder.AddCheckbox(MConfigShowPrinters, &Opt.ShowPrinters);
 	Builder.AddSeparator();
 	Builder.AddCheckbox(MFullPathShares, &Opt.FullPathShares);
@@ -42,7 +42,7 @@ int Config()
 		settings.Set(0,StrAddToDisksMenu,Opt.AddToDisksMenu);
 		settings.Set(0,StrAddToPluginsMenu,Opt.AddToPluginsMenu);
 		settings.Set(0,StrLocalNetwork,Opt.LocalNetwork);
-		settings.Set(0,StrNTHiddenShare,Opt.NTGetHideShare);
+		settings.Set(0,StrHiddenShares,Opt.HiddenShares);
 		settings.Set(0,StrShowPrinters,Opt.ShowPrinters);
 		settings.Set(0,StrFullPathShares,Opt.FullPathShares);
 		settings.Set(0,StrFavoritesFlags,Opt.FavoritesFlags);

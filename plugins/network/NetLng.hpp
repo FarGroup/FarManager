@@ -48,7 +48,7 @@ enum
 	MConfigAddToPluginMenu,
 	MConfigDisksMenuDigit,
 	MConfigLocalNetwork,
-	MNTGetHideShare,
+	MHiddenShares,
 	MConfigShowPrinters,
 	MFullPathShares,
 	MNoRootDoublePoint,

@@ -262,7 +262,7 @@ BOOL NetBrowser::EnumerateNetList()
 		}
 	}
 
-	if (!CheckFavoriteItem(PCurResource) && Opt.NTGetHideShare)
+	if (!CheckFavoriteItem(PCurResource) && Opt.HiddenShares)
 	{
 		PanelInfo PInfo;
 		Info.PanelControl(this, FCTL_GETPANELINFO,0,&PInfo);
@@ -288,7 +288,7 @@ BOOL NetBrowser::EnumerateNetList()
 				}
 			}
 
-			GetHideShareNT();
+			GetHiddenShares();
 		}
 	}
 
@@ -1158,7 +1158,7 @@ BOOL NetBrowser::GetDfsParent(const NETRESOURCE &SrcRes, NETRESOURCE &Parent)
         inRes.dwType = RESOURCETYPE_ANY;
         inRes.lpRemoteName = szServ;
         DWORD dwRes;
-        while((dwRes = FWNetGetResourceInformation(&inRes, resResult,
+        while((dwRes = WNetGetResourceInformation(&inRes, resResult,
           &dwBuffSize, &pszSys)) == ERROR_MORE_DATA)
         {
           resResult = (NETRESOURCE *)realloc(resResult, dwBuffSize);
@@ -1190,9 +1190,6 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 {
 	NETRESOURCE nr = {0};
 
-	if (!FWNetGetResourceInformation || !FWNetGetResourceParent)
-		return FALSE;
-
 #ifdef NETWORK_LOGGING
 
 	if (LogFile)
@@ -1208,14 +1205,14 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 	nr.dwType        = RESOURCETYPE_ANY;
 	nr.dwUsage       = RESOURCEUSAGE_ALL;
 	nr.lpRemoteName  = SrcName;
-	DWORD dwError=FWNetGetResourceInformation(&nr,lpnrOut,&cbBuffer,&pszSystem);
+	DWORD dwError=WNetGetResourceInformation(&nr,lpnrOut,&cbBuffer,&pszSystem);
 
 	// If the call fails because the buffer is too small,
 	//   call the LocalAlloc function to allocate a larger buffer.
 	if (dwError == ERROR_MORE_DATA)
 	{
 		if ((lpnrOut = (LPNETRESOURCE)LocalAlloc(LMEM_FIXED, cbBuffer)) != NULL)
-			dwError = FWNetGetResourceInformation(&nr, lpnrOut, &cbBuffer, &pszSystem);
+			dwError = WNetGetResourceInformation(&nr, lpnrOut, &cbBuffer, &pszSystem);
 	}
 
 	if (dwError == NO_ERROR)
@@ -1258,9 +1255,6 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 			return TRUE;
 	}
 
-	if (!FWNetGetResourceInformation || !FWNetGetResourceParent)
-		return FALSE;
-
 #ifdef NETWORK_LOGGING
 
 	if (LogFile)
@@ -1279,14 +1273,14 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 	nrSrc.dwScope       = RESOURCE_GLOBALNET;
 	nrSrc.dwUsage       = 0;
 	nrSrc.dwType        = RESOURCETYPE_ANY;
-	DWORD dwError=FWNetGetResourceInformation(&nrSrc,lpnrOut,&cbBuffer,&pszSystem);
+	DWORD dwError=WNetGetResourceInformation(&nrSrc,lpnrOut,&cbBuffer,&pszSystem);
 
 	// If the call fails because the buffer is too small,
 	//   call the LocalAlloc function to allocate a larger buffer.
 	if (dwError == ERROR_MORE_DATA)
 	{
 		if ((lpnrOut = (LPNETRESOURCE)LocalAlloc(LMEM_FIXED, cbBuffer)) != NULL)
-			dwError = FWNetGetResourceInformation(&nrSrc, lpnrOut, &cbBuffer, &pszSystem);
+			dwError = WNetGetResourceInformation(&nrSrc, lpnrOut, &cbBuffer, &pszSystem);
 	}
 
 	if (dwError == NO_ERROR)
@@ -1300,7 +1294,7 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 #endif
 		nrSrc.lpProvider=lpnrOut->lpProvider;
 
-		if (FWNetGetResourceParent(&nrSrc,lpnrOut,&cbBuffer) == NO_ERROR)
+		if (WNetGetResourceParent(&nrSrc,lpnrOut,&cbBuffer) == NO_ERROR)
 		{
 			if (DstNetResource)
 				NetResourceList::CopyNetResource(*DstNetResource, *lpnrOut);
@@ -2274,4 +2268,82 @@ void NetBrowser::CreateFavSubFolder()
 		Info.PanelControl(this,FCTL_UPDATEPANEL,0,0);
 		Info.PanelControl(this,FCTL_REDRAWPANEL,0,0);
 	}
+}
+
+void NetBrowser::GetHiddenShares()
+{
+	wchar_t lpwsNetPath[MAX_PATH];
+	PSHARE_INFO_1 BufPtr, p;
+	NET_API_STATUS res;
+
+	if (PCurResource == NULL) return;
+
+	LPTSTR lpszServer = PCurResource->lpRemoteName;
+	wchar_t szResPath [MAX_PATH];
+	LPTSTR pszSystem;
+	NETRESOURCE pri;
+	NETRESOURCE nr [256];
+	DWORD er=0,tr=0,resume=0,rrsiz;
+	lstrcpyn(lpwsNetPath,lpszServer,ARRAYSIZE(lpwsNetPath));
+
+	do
+	{
+		res = NetShareEnum((LPWSTR)lpwsNetPath, 1, (LPBYTE *) &BufPtr, MAX_PREFERRED_LENGTH, &er, &tr, &resume);
+
+		if (res == ERROR_SUCCESS || res == ERROR_MORE_DATA)
+		{
+			p=BufPtr;
+
+			for (DWORD J=0; J < er; J++)
+			{
+				memset((void *)&pri,0,sizeof(pri));
+				pri.dwScope = RESOURCE_GLOBALNET;
+				pri.dwType = RESOURCETYPE_DISK;
+				pri.lpLocalName = NULL;
+				lstrcpy(szResPath,lpszServer);
+				lstrcat(szResPath,L"\\");
+				{
+					size_t pos = lstrlen(szResPath);
+					lstrcpyn(&szResPath[pos], p->shi1_netname, (int)(ARRAYSIZE(szResPath)-pos));
+				}
+
+				if (szResPath[lstrlen(szResPath)-1] == L'$' &&
+				        lstrcmp(&szResPath[lstrlen(szResPath)-4],L"IPC$"))
+				{
+					pri.lpRemoteName = szResPath;
+					pri.dwUsage = RESOURCEUSAGE_CONTAINER;
+					pri.lpProvider = NULL;
+					rrsiz = sizeof(nr);
+					// we need to provide buffer space for WNetGetResourceInformation
+					int rc = WNetGetResourceInformation(&pri,(void *)&nr [0],&rrsiz,&pszSystem);
+
+					if (rc!=NO_ERROR)
+					{
+						p++;
+						continue;
+						//break; //?????
+					}
+
+					if (p->shi1_type == STYPE_DISKTREE)
+						nr [0].dwType=RESOURCETYPE_DISK;
+
+					if (p->shi1_type == STYPE_PRINTQ)
+						nr [0].dwType=RESOURCETYPE_PRINT;
+
+					if (p->shi1_type == STYPE_SPECIAL)
+						nr [0].dwType=RESOURCETYPE_DISK;
+
+					NetList.Push(nr [0]);
+				}
+
+				p++;
+			}
+
+			NetApiBufferFree(BufPtr);
+		}
+
+		if (res == ERROR_SUCCESS)
+			break;
+	}
+	while (res==ERROR_MORE_DATA);
 }

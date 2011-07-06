@@ -8,8 +8,7 @@ $(OBJDIR)\NetCfg.obj \
 $(OBJDIR)\NetClass.obj \
 $(OBJDIR)\NetCommon.obj \
 $(OBJDIR)\NetFavorites.obj \
-$(OBJDIR)\NetMix.obj \
-$(OBJDIR)\NetNT.obj
+$(OBJDIR)\NetMix.obj
 DOCS = NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng
 
 !if defined(DEBUG) && !defined(NO_LOG)

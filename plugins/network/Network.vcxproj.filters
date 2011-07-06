@@ -36,9 +36,6 @@
     <ClCompile Include="NetMix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NetNT.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Network.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

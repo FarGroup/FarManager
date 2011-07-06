@@ -101,7 +101,7 @@ class NetBrowser
 		static int GetNameAndPassword(NameAndPassInfo* passInfo);
 		void GetRemoteName(NETRESOURCE *NetRes, wchar_t *RemoteName);
 		BOOL EnumerateNetList();
-		void GetHideShareNT();
+		void GetHiddenShares();
 		void GetFreeLetter(DWORD &DriveMask, wchar_t *DiskName);
 		BOOL IsReadable(const wchar_t *Remote);
 		int GotoComputer(const wchar_t *Dir);
