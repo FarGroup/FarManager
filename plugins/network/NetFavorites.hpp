@@ -14,13 +14,14 @@
 
 #include "NetClass.hpp"
 
-typedef struct _FAVORITEITEM {
-  wchar_t *lpRemoteName;
-  int ccRemoteName;
-  wchar_t *lpUserName;
-  int ccUserName;
-  wchar_t *lpPassword;
-  int ccPassword;
+typedef struct _FAVORITEITEM
+{
+	wchar_t *lpRemoteName;
+	int ccRemoteName;
+	wchar_t *lpUserName;
+	int ccUserName;
+	wchar_t *lpPassword;
+	int ccPassword;
 } FAVORITEITEM, *LPFAVORITEITEM;
 
 #define FAVORITES_UPBROWSE_TO_FAVORITES 0x01L

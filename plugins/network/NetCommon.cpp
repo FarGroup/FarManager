@@ -25,88 +25,86 @@ BOOL UsedNetFunctions=FALSE;
 
 void InitializeNetFunction(void)
 {
-  static BOOL Init=FALSE;
-  if(Init) return;
+	static BOOL Init=FALSE;
 
-  if(!hMpr32 && 0==(hMpr32 = GetModuleHandle(L"Mpr")))
-    hMpr32 = LoadLibrary(L"Mpr");
+	if (Init) return;
 
-  if(!FWNetGetResourceInformation)
-    FWNetGetResourceInformation=(PWNetGetResourceInformation)GetProcAddress(hMpr32,"WNetGetResourceInformationW");
+	if (!hMpr32 && 0==(hMpr32 = GetModuleHandle(L"Mpr")))
+		hMpr32 = LoadLibrary(L"Mpr");
 
-  if(!FWNetGetResourceParent)
-    FWNetGetResourceParent=(PWNetGetResourceParent)GetProcAddress(hMpr32,"WNetGetResourceParentW");
+	if (!FWNetGetResourceInformation)
+		FWNetGetResourceInformation=(PWNetGetResourceInformation)GetProcAddress(hMpr32,"WNetGetResourceInformationW");
 
-  if(!hNetApi && 0==(hNetApi = GetModuleHandle(L"netapi32")))
-    hNetApi = LoadLibrary(L"netapi32");
+	if (!FWNetGetResourceParent)
+		FWNetGetResourceParent=(PWNetGetResourceParent)GetProcAddress(hMpr32,"WNetGetResourceParentW");
 
-  if(!FNetApiBufferFree)
-    FNetApiBufferFree=(PNetApiBufferFree)GetProcAddress(hNetApi,"NetApiBufferFree");
+	if (!hNetApi && 0==(hNetApi = GetModuleHandle(L"netapi32")))
+		hNetApi = LoadLibrary(L"netapi32");
 
-  if(!FNetShareEnum)
-    FNetShareEnum=(PNetShareEnum)GetProcAddress(hNetApi,"NetShareEnum");
+	if (!FNetApiBufferFree)
+		FNetApiBufferFree=(PNetApiBufferFree)GetProcAddress(hNetApi,"NetApiBufferFree");
 
-  if(!FNetDfsGetInfo)
-    FNetDfsGetInfo=(PNetDfsGetInfo)GetProcAddress(hNetApi, "NetDfsGetInfo");
+	if (!FNetShareEnum)
+		FNetShareEnum=(PNetShareEnum)GetProcAddress(hNetApi,"NetShareEnum");
 
-  UsedNetFunctions=FWNetGetResourceInformation &&
-    FNetShareEnum &&
-    FNetApiBufferFree &&
-    FWNetGetResourceParent;
+	if (!FNetDfsGetInfo)
+		FNetDfsGetInfo=(PNetDfsGetInfo)GetProcAddress(hNetApi, "NetDfsGetInfo");
 
-  Init=TRUE;
+	UsedNetFunctions=FWNetGetResourceInformation &&
+	                 FNetShareEnum &&
+	                 FNetApiBufferFree &&
+	                 FWNetGetResourceParent;
+	Init=TRUE;
 }
 
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
-  ::Info=*Info;
-
-  ::FSF=*Info->FSF;
-  ::Info.FSF=&::FSF;
-
-  PluginSettings settings(MainGuid, ::Info.SettingsControl);
-  Opt.AddToDisksMenu = settings.Get(0,StrAddToDisksMenu,1);
-  Opt.AddToPluginsMenu = settings.Get(0,StrAddToPluginsMenu,1);
-  Opt.LocalNetwork = settings.Get(0,StrLocalNetwork,TRUE);
-  Opt.NTGetHideShare = settings.Get(0,StrNTHiddenShare,0);
-  Opt.ShowPrinters = settings.Get(0,StrShowPrinters,0);
-  Opt.FullPathShares = settings.Get(0,StrFullPathShares,TRUE);
-  Opt.FavoritesFlags = settings.Get(0,StrFavoritesFlags,int(FAVORITES_DEFAULTS));
-  Opt.RootDoublePoint = settings.Get(0,StrNoRootDoublePoint,TRUE);
-  Opt.DisconnectMode = settings.Set(0,StrDisconnectMode, FALSE);
-  Opt.HiddenSharesAsHidden = settings.Set(0,StrHiddenSharesAsHidden, TRUE);
-  Opt.NavigateToDomains = settings.Set(0,StrNavigateToDomains, FALSE);
-
-  CommonRootResources = new NetResourceList;
-  NetResourceList::InitNetResource (CommonCurResource);
+	::Info=*Info;
+	::FSF=*Info->FSF;
+	::Info.FSF=&::FSF;
+	PluginSettings settings(MainGuid, ::Info.SettingsControl);
+	Opt.AddToDisksMenu = settings.Get(0,StrAddToDisksMenu,1);
+	Opt.AddToPluginsMenu = settings.Get(0,StrAddToPluginsMenu,1);
+	Opt.LocalNetwork = settings.Get(0,StrLocalNetwork,TRUE);
+	Opt.NTGetHideShare = settings.Get(0,StrNTHiddenShare,0);
+	Opt.ShowPrinters = settings.Get(0,StrShowPrinters,0);
+	Opt.FullPathShares = settings.Get(0,StrFullPathShares,TRUE);
+	Opt.FavoritesFlags = settings.Get(0,StrFavoritesFlags,int(FAVORITES_DEFAULTS));
+	Opt.RootDoublePoint = settings.Get(0,StrNoRootDoublePoint,TRUE);
+	Opt.DisconnectMode = settings.Get(0,StrDisconnectMode, FALSE);
+	Opt.HiddenSharesAsHidden = settings.Get(0,StrHiddenSharesAsHidden, TRUE);
+	Opt.NavigateToDomains = settings.Get(0,StrNavigateToDomains, FALSE);
+	CommonRootResources = new NetResourceList;
+	NetResourceList::InitNetResource(CommonCurResource);
 }
 
 void DeinitializeNetFunctions(void)
 {
-    if(hMpr32)
-        FreeLibrary(hMpr32);
-    if(hNetApi)
-        FreeLibrary(hNetApi);
+	if (hMpr32)
+		FreeLibrary(hMpr32);
+
+	if (hNetApi)
+		FreeLibrary(hNetApi);
 }
 
 int WINAPI ConfigureW(const ConfigureInfo* Info)
 {
-  return Config();
+	return Config();
 }
 
 BOOL DlgCreateFolder(wchar_t* lpBuffer, int nBufferSize)
 {
-  BOOL res = Info.InputBox(&MainGuid,
-    L"Make Folder",
-    L"Folder name:",
-    L"NewFolder",
-    NULL,
-    lpBuffer,
-    nBufferSize,
-    NULL,
-    FIB_BUTTONS
-    );
-  return res;
+	BOOL res = Info.InputBox(&MainGuid,
+	                         L"Make Folder",
+	                         L"Folder name:",
+	                         L"NewFolder",
+	                         NULL,
+	                         lpBuffer,
+	                         nBufferSize,
+	                         NULL,
+	                         FIB_BUTTONS
+	                        );
+	return res;
 }
 
 /* NO NEED THIS

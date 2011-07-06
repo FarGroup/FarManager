@@ -65,6 +65,6 @@ void _Opt::Read()
 	Opt.ExportModuleVersion=settings.Get(0,L"ExportModuleVersion", 0);
 	Opt.ExportPerformance=settings.Get(0,L"ExportPerformance", 1);
 	Opt.ExportHandles=settings.Get(0,L"ExportHandles", 0);
-	Opt.ExportHandlesUnnamed=settings.Set(0,L"ExportHandlesUnnamed",0);
+	Opt.ExportHandlesUnnamed=settings.Get(0,L"ExportHandlesUnnamed",0);
 	Opt.EnableWMI=settings.Get(0,L"EnableWMI", 1);
 }

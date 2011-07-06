@@ -17,7 +17,8 @@ void NetBrowser::OpenLogFile(wchar_t *lpFileName)
 {
 	if (!LogFileRef)
 		LogFile = _wfopen(lpFileName, L"a+t");
-	if(LogFile)
+
+	if (LogFile)
 		_ftprintf(LogFile, L"Opening plugin\n");
 
 	LogFileRef++;
@@ -32,7 +33,7 @@ void NetBrowser::CloseLogfile()
 
 void NetBrowser::LogData(wchar_t * Data)
 {
-	if(LogFile)
+	if (LogFile)
 	{
 		_ftprintf(LogFile,L"%s\n", Data);
 		wchar_t buffer[MAX_PATH];
@@ -227,7 +228,7 @@ NetBrowser::~NetBrowser()
 
 void NetBrowser::LogNetResource(NETRESOURCE &Res)
 {
-	if(LogFile)
+	if (LogFile)
 	{
 		_ftprintf(LogFile, L"dwScope = %d\ndwType = %d\ndwDisplayType = %d\ndwUsage = %d\n", Res.dwScope, Res.dwType, Res.dwDisplayType, Res.dwUsage);
 		_ftprintf(LogFile, L"lpLocalName = %s\nlpRemoteName = %s\nlpComment = %s\nlpProvider = %s\n\n", Res.lpLocalName, Res.lpRemoteName, Res.lpComment, Res.lpProvider);
@@ -1193,8 +1194,10 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 		return FALSE;
 
 #ifdef NETWORK_LOGGING
-	if(LogFile)
+
+	if (LogFile)
 		_ftprintf(LogFile, L"GetResourceInfo %s\n", SrcName);
+
 #endif
 	NETRESOURCE nrOut [32];   // provide buffer space
 	NETRESOURCE *lpnrOut = &nrOut [0];
@@ -1221,8 +1224,10 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 			NetResourceList::CopyNetResource(*DstNetResource, *lpnrOut);
 
 #ifdef NETWORK_LOGGING
-		if(LogFile)
+
+		if (LogFile)
 			_ftprintf(LogFile, L"Result:\n");
+
 		LogNetResource(*DstNetResource);
 #endif
 
@@ -1235,7 +1240,7 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 #ifdef NETWORK_LOGGING
 	else
 	{
-		if(LogFile)
+		if (LogFile)
 			_ftprintf(LogFile, L"error %d\n", GetLastError());
 	}
 
@@ -1257,8 +1262,10 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 		return FALSE;
 
 #ifdef NETWORK_LOGGING
-	if(LogFile)
+
+	if (LogFile)
 		_ftprintf(LogFile, L"GetResourceParent( for:\n");
+
 	LogNetResource(SrcRes);
 #endif
 	TSaveScreen ss;
@@ -1277,15 +1284,18 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 	// If the call fails because the buffer is too small,
 	//   call the LocalAlloc function to allocate a larger buffer.
 	if (dwError == ERROR_MORE_DATA)
-{
-	if ((lpnrOut = (LPNETRESOURCE)LocalAlloc(LMEM_FIXED, cbBuffer)) != NULL)
+	{
+		if ((lpnrOut = (LPNETRESOURCE)LocalAlloc(LMEM_FIXED, cbBuffer)) != NULL)
 			dwError = FWNetGetResourceInformation(&nrSrc, lpnrOut, &cbBuffer, &pszSystem);
 	}
+
 	if (dwError == NO_ERROR)
-{
+	{
 #ifdef NETWORK_LOGGING
-		if(LogFile)
+
+		if (LogFile)
 			_ftprintf(LogFile, L"WNetGetResourceInformation() returned:\n");
+
 		LogNetResource(*lpnrOut);
 #endif
 		nrSrc.lpProvider=lpnrOut->lpProvider;
@@ -1296,8 +1306,10 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 				NetResourceList::CopyNetResource(*DstNetResource, *lpnrOut);
 
 #ifdef NETWORK_LOGGING
-			if(LogFile)
+
+			if (LogFile)
 				_ftprintf(LogFile, L"Result:\n");
+
 			LogNetResource(*DstNetResource);
 #endif
 			Ret=TRUE;
@@ -1306,6 +1318,7 @@ BOOL NetBrowser::GetResourceParent(NETRESOURCE &SrcRes, LPNETRESOURCE DstNetReso
 		if (lpnrOut != &nrOut [0])
 			LocalFree(lpnrOut);
 	}
+
 	return Ret;
 }
 

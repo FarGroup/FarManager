@@ -1,3 +1,11 @@
+svs 06.07.2011 10:30:30 +0300 - build 74
+
+1. отвалился "net:" - последствия "копипасте" :-(
+
+2. Форматирование кода
+   AStyle --style=ansi --indent=tab=4 --brackets=break --indent-classes --indent-switches --indent-namespaces --indent-preprocessor --break-blocks --delete-empty-lines --unpad-paren --keep-one-line-statements --keep-one-line-blocks "!\!.!"
+
+
 drkns 28.06.2011 22:07:49 +0200 - build 73
 
 1. Far 3 API.
