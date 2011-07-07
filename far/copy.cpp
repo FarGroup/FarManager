@@ -1408,18 +1408,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		return;
 	}
 
-	if (CheckNulOrCon(strCopyDlgValue))
-		Flags|=FCOPY_COPYTONUL;
-
-	if (Flags&FCOPY_COPYTONUL)
-	{
-		Flags&=~FCOPY_MOVE;
-		Move=0;
-	}
-
-	if (CDP.SelCount==1 || (Flags&FCOPY_COPYTONUL))
-		AddSlash=false; //???
-
 	if (DestPlugin==2)
 	{
 		if (PluginDestPath)
@@ -1442,7 +1430,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	// TODO: Posix - bugbug
 	ReplaceSlashToBSlash(strCopyDlgValue);
 	// нужно ли показывать время копирования?
-	bool ShowCopyTime=(Opt.CMOpt.CopyTimeRule&((Flags&FCOPY_COPYTONUL)?COPY_RULE_NUL:COPY_RULE_FILES))!=0;
 	// ***********************************************************************
 	// **** Здесь все подготовительные операции закончены, можно приступать
 	// **** к процессу Copy/Move/Link
@@ -1471,11 +1458,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			TotalCopySize=TotalCopiedSize=TotalSkippedSize=0;
 
 			// Запомним время начала
-			if (ShowCopyTime)
-			{
-				CopyStartTime = clock();
-				WaitUserTime = OldCalcTime = 0;
-			}
+			CopyStartTime = clock();
+			WaitUserTime = OldCalcTime = 0;
 
 			if (CountTarget > 1)
 				Move=0;
@@ -1506,6 +1490,11 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					Flags&=~FCOPY_MOVE;
 					Move=0;
 				}
+				bool ShowCopyTime=(Opt.CMOpt.CopyTimeRule&((Flags&FCOPY_COPYTONUL)?COPY_RULE_NUL:COPY_RULE_FILES))!=0;
+
+				if (CDP.SelCount==1 || (Flags&FCOPY_COPYTONUL))
+					AddSlash=false; //???
+
 
 				if (DestList.IsEmpty()) // нужно учесть моменты связанные с операцией Move.
 				{
@@ -2209,8 +2198,8 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	if (!*NamePtr || TestParentFolderName(NamePtr))
 		DestAttr=FILE_ATTRIBUTE_DIRECTORY;
 
-	FAR_FIND_DATA_EX DestData;
-	if (DestAttr==INVALID_FILE_ATTRIBUTES)
+	FAR_FIND_DATA_EX DestData={};
+	if (DestAttr==INVALID_FILE_ATTRIBUTES && !(Flags&FCOPY_COPYTONUL))
 	{
 		if (apiGetFindDataEx(strDestPath,DestData))
 			DestAttr=DestData.dwFileAttributes;
