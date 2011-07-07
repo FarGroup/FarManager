@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.07.2011 19:55:23 +0200 - build 2101
+
+1. Mantis#0001830: elevation on attempt to copy a file from network to nul
+
+drkns 07.07.2011 12:31:47 +0200 - build 2100
+
+1. DM_SETHISTORY event did not work.
+
+drkns 07.07.2011 10:43:36 +0200 - build 2099
+
+1. VMenu.UserData still reminds of itself.
+
 drkns 04.07.2011 21:44:34 +0200 - build 2098
 
 1. Another portion of size_t in API.
