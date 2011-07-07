@@ -258,7 +258,6 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 			int ExitCode = FolderList.GetExitCode();
 			if (ExitCode>=0)
 			{
-				RetItem = *static_cast<ShortcutItem**>(FolderList.GetUserData(nullptr, 0, ExitCode));
 				void* Data = FolderList.GetUserData(nullptr, 0, ExitCode);
 				RetItem = Data?*static_cast<ShortcutItem**>(Data):nullptr;
 			}

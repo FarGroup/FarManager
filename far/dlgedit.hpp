@@ -148,6 +148,7 @@ class DlgEdit: public ScreenObject
 		bool HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
 
 		History* GetHistory() const {return iHistory;}
+		void SetHistory(const wchar_t* Name);
 
 	private:
 		Dialog* m_Dialog;

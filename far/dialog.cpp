@@ -4049,8 +4049,9 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 	int ret=0;
 	History *DlgHist = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
 
-	DlgHist->ResetPosition();
+	if(DlgHist)
 	{
+		DlgHist->ResetPosition();
 		// создание пустого вертикального меню
 		VMenu HistoryMenu(L"",nullptr,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
 		HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
@@ -4090,7 +4091,10 @@ int Dialog::AddToEditHistory(DialogItemEx* CurItem, const wchar_t *AddStr)
 	}
 
 	History *DlgHist = static_cast<DlgEdit*>(CurItem->ObjPtr)->GetHistory();
-	DlgHist->AddToHistory(AddStr);
+	if(DlgHist)
+	{
+		DlgHist->AddToHistory(AddStr);
+	}
 	return TRUE;
 }
 
@@ -5281,7 +5285,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 				{
 					CurItem->Flags|=DIF_HISTORY;
 					CurItem->strHistory=(const wchar_t *)Param2;
-
+					static_cast<DlgEdit*>(CurItem->ObjPtr)->SetHistory(CurItem->strHistory);
 					if (Type==DI_EDIT && (CurItem->Flags&DIF_USELASTHISTORY))
 					{
 						Dlg->ProcessLastHistory(CurItem, Param1);
