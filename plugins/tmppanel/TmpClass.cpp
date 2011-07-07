@@ -298,8 +298,8 @@ int TmpPanel::SetFindList(const struct PluginPanelItem *PanelItem,size_t ItemsNu
 			TmpPanelItem[i].FileSize=PanelItem[i].FileSize;
 			TmpPanelItem[i].PackSize=PanelItem[i].PackSize;
 
-			if (TmpPanelItem[i].FileName)
-				TmpPanelItem[i].FileName = wcsdup(TmpPanelItem[i].FileName);
+			if (PanelItem[i].FileName)
+				TmpPanelItem[i].FileName = wcsdup(PanelItem[i].FileName);
 
 			TmpPanelItem[i].AlternateFileName = NULL;
 		}
