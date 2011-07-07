@@ -44,6 +44,7 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 	m_Dialog(pOwner),
 	m_Index(Index),
 	Type(Type),
+	iHistory(nullptr),
 #if defined(PROJECT_DI_MEMOEDIT)
 	multiEdit(nullptr),
 #endif
@@ -60,7 +61,6 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 		{
 			Edit::Callback callback={true,EditChange,this};
 
-			iHistory=0;
 			FarList* iList=0;
 			DWORD iFlags=0;
 			if(pOwner)
@@ -72,7 +72,7 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 				}
 				if(CurItem->Flags&DIF_HISTORY && !CurItem->strHistory.IsEmpty())
 				{
-					iHistory=new History(HISTORYTYPE_DIALOG, CurItem->strHistory, Opt.DialogsHistoryCount, &Opt.Dialogs.EditHistory, false);
+					SetHistory(CurItem->strHistory);
 				}
 				if(CurItem->Type == DI_COMBOBOX)
 				{
