@@ -190,7 +190,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 					strFolderName = MSG(i->strPluginModule.IsEmpty()?MShortcutNone:MShortcutPlugin);
 				}
 				ListItem.strName = strFolderName;
-				ListItem.UserData = i;
+				ListItem.UserData = &i;
 				ListItem.UserDataSize = sizeof(i);
 				FolderList.AddItem(&ListItem);
 			}
@@ -199,7 +199,8 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 			{
 				DWORD Key=FolderList.ReadInput();
 				int ItemPos = FolderList.GetSelectPos();
-				ShortcutItem* Item = static_cast<ShortcutItem*>(FolderList.GetUserData(nullptr, 0, ItemPos));
+				void* Data = FolderList.GetUserData(nullptr, 0, ItemPos);
+				ShortcutItem* Item = Data?*static_cast<ShortcutItem**>(Data):nullptr;
 				switch (Key)
 				{
 				case KEY_NUMDEL:
@@ -224,7 +225,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 							}
 							MenuItemEx NewMenuItem = {};
 							NewMenuItem.strName = NewItem->strFolder;
-							NewMenuItem.UserData = NewItem;
+							NewMenuItem.UserData = &NewItem;
 							NewMenuItem.UserDataSize = sizeof(NewItem);
 							FolderList.AddItem(&NewMenuItem, ItemPos);
 							FolderList.SetSelectPos(ItemPos, 1);
@@ -257,7 +258,9 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 			int ExitCode = FolderList.GetExitCode();
 			if (ExitCode>=0)
 			{
-				RetItem = static_cast<ShortcutItem*>(FolderList.GetUserData(nullptr, 0, ExitCode));
+				RetItem = *static_cast<ShortcutItem**>(FolderList.GetUserData(nullptr, 0, ExitCode));
+				void* Data = FolderList.GetUserData(nullptr, 0, ExitCode);
+				RetItem = Data?*static_cast<ShortcutItem**>(Data):nullptr;
 			}
 		}
 		else
