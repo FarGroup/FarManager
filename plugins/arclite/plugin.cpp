@@ -1049,7 +1049,7 @@ int WINAPI SetDirectoryW(const SetDirectoryInfo* info) {
 
 int WINAPI GetFindDataW(GetFindDataInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
-  reinterpret_cast<Plugin*>(info->hPanel)->list(&info->PanelItem, &info->ItemsNumber);
+  reinterpret_cast<Plugin*>(info->hPanel)->list(&info->PanelItem, (int*)&info->ItemsNumber);
   return TRUE;
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & (OPM_SILENT | OPM_FIND)) != 0);
 }
