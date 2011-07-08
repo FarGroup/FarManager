@@ -2,7 +2,6 @@
 #include "perfthread.hpp"
 #include "Proclng.hpp"
 #include "guid.hpp"
-#include <farkeys.hpp>
 #include <DlgBuilder.hpp>
 #include <PluginSettings.hpp>
 
