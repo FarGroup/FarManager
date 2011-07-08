@@ -118,7 +118,7 @@ public:
     current_dir = new_dir;
   }
 
-  void list(PluginPanelItem** panel_items, int* items_number) {
+  void list(PluginPanelItem** panel_items, size_t* items_number) {
     if (!archive->is_open())
       FAIL(E_ABORT);
     UInt32 dir_index = archive->find_dir(current_dir);
@@ -1049,7 +1049,7 @@ int WINAPI SetDirectoryW(const SetDirectoryInfo* info) {
 
 int WINAPI GetFindDataW(GetFindDataInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
-  reinterpret_cast<Plugin*>(info->hPanel)->list(&info->PanelItem, (int*)&info->ItemsNumber);
+  reinterpret_cast<Plugin*>(info->hPanel)->list(&info->PanelItem, &info->ItemsNumber);
   return TRUE;
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & (OPM_SILENT | OPM_FIND)) != 0);
 }
@@ -1150,7 +1150,7 @@ int WINAPI ConfigureW(const struct ConfigureInfo* info) {
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, false);
 }
 
-void WINAPI ExitFARW() {
+void WINAPI ExitFARW(ExitInfo* Info) {
   g_archives.clear();
   ArcAPI::free();
 }
