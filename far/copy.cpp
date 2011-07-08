@@ -3162,18 +3162,21 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 				{
 					SrcFile.Close();
 
-					if (Append)
+					if (!(Flags&FCOPY_COPYTONUL))
 					{
-						DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
-					}
+						if (Append)
+						{
+							DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
+						}
 
-					DestFile.SetEnd();
-					DestFile.Close();
+						DestFile.SetEnd();
+						DestFile.Close();
 
-					if (!Append)
-					{
-						apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
-						apiDeleteFile(strDestName); //BUGBUG
+						if (!Append)
+						{
+							apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
+							apiDeleteFile(strDestName); //BUGBUG
+						}
 					}
 
 					return COPY_CANCEL;
