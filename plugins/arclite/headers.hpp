@@ -28,5 +28,4 @@ using namespace std;
 #include "CPP/7zip/IPassword.h"
 
 #include "plugin.hpp"
-#include "farkeys.hpp"
 #include "farcolor.hpp"
