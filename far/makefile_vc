@@ -330,7 +330,7 @@ depfile:
 	$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
 
 .PHONY: build
-build: "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\FarKeysW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\farkeys.hpp" "$(FARINCLUDE)\plugin.hpp"
+build: "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp"
 
 .PHONY: AllDirs
 AllDirs:
@@ -400,10 +400,6 @@ $(FARINCLUDE)\farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) -DINPUT=colors.hpp headers.m4 > $@
 
-$(FARINCLUDE)\farkeys.hpp: keys.hpp farversion.m4 tools.m4 vbuild.m4
-	$(MSG)
-	$(M4) -DINPUT=keys.hpp headers.m4 > $@
-
 $(FARINCLUDE)\plugin.hpp: $(@F) farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) -DINPUT=$(@F) headers.m4 > $@
@@ -419,8 +415,7 @@ $(OUTDIR)\Far.exe.ini: $(@F)
 	copy /Y $(@F) $@ > nul
 
 $(FARINCLUDE)\PluginW.pas \
-$(FARINCLUDE)\FarColorW.pas \
-$(FARINCLUDE)\FarKeysW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)\FarColorW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) -DINPUT=$(@F) headers.m4 > $@
 

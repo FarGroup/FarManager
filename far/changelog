@@ -1,3 +1,7 @@
+drkns 09.07.2011 02:05:28 +0200
+
+1. farkeys.hpp больше в API не входит.  онстанты KEY_* только дл€ внутреннего использовани€.
+
 zg 09.07.2011 01:10:01 +0200 - build 2103
 
 1. выкинуты FarInputRecordToKey и FarKeyToInputRecord.

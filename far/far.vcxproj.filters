@@ -757,9 +757,6 @@
     <ClInclude Include="Include\farcolor.hpp">
       <Filter>Generated Files</Filter>
     </ClInclude>
-    <ClInclude Include="Include\farkeys.hpp">
-      <Filter>Generated Files</Filter>
-    </ClInclude>
     <ClInclude Include="Include\plugin.hpp">
       <Filter>Generated Files</Filter>
     </ClInclude>
