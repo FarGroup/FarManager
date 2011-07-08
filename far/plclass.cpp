@@ -231,7 +231,7 @@ static const wchar_t* _ExportsNamesW[i_LAST] =
 	W(EXP_GETMINFARVERSION),
 };
 
-static size_t WINAPI FarKeyToName(int Key,wchar_t *KeyText,size_t Size)
+size_t WINAPI FarKeyToName(int Key,wchar_t *KeyText,size_t Size)
 {
 	string strKT;
 
@@ -256,6 +256,16 @@ int WINAPI KeyNameToKeyW(const wchar_t *Name)
 {
 	string strN(Name);
 	return KeyNameToKey(strN);
+}
+
+static size_t WINAPI InputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyText, size_t Size)
+{
+	return FarKeyToName(InputRecordToKey(Key),KeyText,Size);
+}
+
+static BOOL WINAPI KeyNameToInputRecord(const wchar_t *Name,INPUT_RECORD* Key)
+{
+	return KeyToInputRecord(KeyNameToKeyW(Name),Key)?TRUE:FALSE;
 }
 
 #define GetPluginNumber(Id) (CtrlObject?CtrlObject->Plugins.PluginGuidToPluginNumber(*Id):-1)
@@ -398,10 +408,8 @@ FarStandardFunctions NativeFSF =
 	AddEndSlash,
 	CopyToClipboard,
 	PasteFromClipboard,
-	FarKeyToName,
-	KeyNameToKeyW,
-	InputRecordToKey,
-	KeyToInputRecord,
+	InputRecordToKeyName,
+	KeyNameToInputRecord,
 	Xlat,
 	farGetFileOwner,
 	GetNumberOfLinks,

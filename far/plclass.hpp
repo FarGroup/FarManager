@@ -285,3 +285,6 @@ private:
 
 extern PluginStartupInfo NativeInfo;
 extern FarStandardFunctions NativeFSF;
+
+size_t WINAPI FarKeyToName(int Key,wchar_t *KeyText,size_t Size);
+int WINAPI KeyNameToKeyW(const wchar_t *Name);

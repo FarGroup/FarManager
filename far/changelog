@@ -1,3 +1,11 @@
+zg 09.07.2011 01:10:01 +0200 - build 2103
+
+1. выкинуты FarInputRecordToKey и FarKeyToInputRecord.
+
+2. FarKeyToName заменена на FarInputRecordToName.
+
+3. FarNameToKey заменена на FarNameToInputRecord.
+
 drkns 08.07.2011 12:40:30 +0200 - build 2102
 
 1. Ещё раз #0001830.

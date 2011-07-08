@@ -1086,13 +1086,13 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 int WINAPI KeyNameToKeyA(const char *Name)
 {
 	string strN(Name);
-	return KeyToOldKey(NativeFSF.FarNameToKey(strN));
+	return KeyToOldKey(KeyNameToKeyW(strN));
 }
 
 BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 {
 	wchar_t Name[MAX_PATH];
-	size_t ret = NativeFSF.FarKeyToName(OldKeyToKey(Key),Name,ARRAYSIZE(Name));
+	size_t ret = FarKeyToName(OldKeyToKey(Key),Name,ARRAYSIZE(Name));
 
 	if (ret)
 		UnicodeToOEM(Name, KeyText,Size>0?Size+1:32);
@@ -1102,7 +1102,7 @@ BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 
 int WINAPI InputRecordToKeyA(const INPUT_RECORD *r)
 {
-	return KeyToOldKey(NativeFSF.FarInputRecordToKey(r));
+	return KeyToOldKey(InputRecordToKey(r));
 }
 
 char* WINAPI FarMkTempA(char *Dest, const char *Prefix)
@@ -2258,7 +2258,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 		}
 		case DN_HOTKEY:
 			Msg=oldfar::DN_HOTKEY;
-			Param2=ToPtr(KeyToOldKey((DWORD)NativeFSF.FarInputRecordToKey((const INPUT_RECORD *)Param2)));
+			Param2=ToPtr(KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2)));
 			break;
 		case DN_INITDIALOG:
 			Msg=oldfar::DN_INITDIALOG;
@@ -2295,7 +2295,7 @@ INT_PTR WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 				else if (record->EventType==KEY_EVENT)
 				{
 					Msg=oldfar::DN_KEY;
-					Param2=ToPtr(KeyToOldKey((DWORD)NativeFSF.FarInputRecordToKey((const INPUT_RECORD *)Param2)));
+					Param2=ToPtr(KeyToOldKey((DWORD)InputRecordToKey((const INPUT_RECORD *)Param2)));
 					break;
 				}
 			}
@@ -2370,7 +2370,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			for (int i=0; i<Count; i++)
 			{
-				NativeFSF.FarKeyToInputRecord(OldKeyToKey(KeysA[i]),KeysW+i);
+				KeyToInputRecord(OldKeyToKey(KeysA[i]),KeysW+i);
 			}
 			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_KEY, Param1, KeysW);
 			xf_free(KeysW);
@@ -5376,7 +5376,7 @@ int PluginA::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 	int dwControlState;
 
 	//BUGBUG: здесь можно проще.
-	TranslateKeyToVK(NativeFSF.FarInputRecordToKey(Rec),VirtKey,dwControlState);
+	TranslateKeyToVK(InputRecordToKey(Rec),VirtKey,dwControlState);
 	if (Exports[iProcessPanelInput] && !ProcessException)
 	{
 		ExecuteStruct es;
