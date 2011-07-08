@@ -1,3 +1,9 @@
+svs 08.07.2011 15:07:22 +0300 - build 82
+
+1. Отвалился поиск по "Software\Microsoft\Windows\CurrentVersion\App Paths"
+
+2. Bug: после миграции на АПИ 3 фсе время позиционируем на пассивную панель.
+
 drkns 28.06.2011 16:29:52 +0200 - build 81
 
 1. Far 3 API.

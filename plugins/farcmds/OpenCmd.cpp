@@ -690,6 +690,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 								GetEnvironmentVariable(L"FARHOME", Path+lstrlen(Path), FARHOMELength);
 								lstrcat(Path,L";");
 								GetEnvironmentVariable(L"PATH", Path+lstrlen(Path), PathLength);
+								*selectItem=0;
 								SearchPath(Path, temp, NULL, ARRAYSIZE(selectItem), selectItem, &pFile);
 								free(Path);
 							}
