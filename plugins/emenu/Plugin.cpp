@@ -7,7 +7,6 @@
 #include "Pidl.h"
 #include <shlguid.h>
 #include "OleThread.h"
-#include <farkeys.hpp>
 #include "HMenu.h"
 #include <PluginSettings.hpp>
 #include "guid.hpp"
