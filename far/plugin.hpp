@@ -2540,7 +2540,7 @@ struct ProcessDialogEventInfo
 {
 	size_t StructSize;
 	int Event;
-	FarDialogEvent* Param;
+	struct FarDialogEvent* Param;
 };
 
 struct ProcessSynchroEventInfo

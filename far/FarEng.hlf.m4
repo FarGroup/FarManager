@@ -162,7 +162,7 @@ and line position.
   Search for "main" plugins in the folder given in <path>.
   Several search paths may be given separated by ';'.
 
-  Example: far /p%SystemRoot%\\Profiles\\%USERNAME%\\Far
+  Example: #far /p%USERPROFILE%\\Far\\Plugins#
 
   #/co#
   Forces Far to load plugins from cache only. Plugins are loaded faster this way,
@@ -179,7 +179,7 @@ will be loaded from cache;
   - ^<wrap>/co is ignored, if /p is given;
   - ^<wrap>if /p and /co are not given, then plugins will be loaded from the 'Plugins'
 folder, which is in the same folder as Far.exe, and the 'Plugins' folder, which is in the
-user profile folder ('%APPDATA%\Far Manager\Profile' by default).
+user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
 
   #/m#
   Far will not load macros when started.
@@ -800,7 +800,7 @@ are plugins that emulate file systems.
 
     All plugins are stored in separate folders within the 'Plugins' folder,
 which is in the same folder as Far.exe, and the 'Plugins' folder, which is in the
-user profile folder ('%APPDATA%\Far Manager\Profile' by default).
+user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
 When detecting a new plugin Far saves information about it and later loads the
 plugin only when necessary, so unused plugins do not require additional memory.
 But if you are sure that some plugins are useless for you, you may remove them

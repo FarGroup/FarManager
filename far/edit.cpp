@@ -1262,7 +1262,21 @@ int Edit::ProcessKey(int Key)
 
 			if (Mask && *Mask)
 			{
-				Str[CurPos] = L' ';
+				int MaskLen=StrLength(Mask);
+				int i,j;
+				for (i=CurPos,j=CurPos; i<MaskLen; i++)
+				{
+					if (CheckCharMask(Mask[i+1]))
+					{
+						while (!CheckCharMask(Mask[j]) && j<MaskLen)
+							j++;
+
+						Str[j]=Str[i+1];
+						j++;
+					}
+				}
+
+				Str[j]=L' ';
 			}
 			else
 			{
@@ -2846,9 +2860,9 @@ int Edit::KeyMatchedMask(int Key)
 {
 	int Inserted=FALSE;
 
-	if (Mask[CurPos]==EDMASK_ANY || Key == L' ')
+	if (Mask[CurPos]==EDMASK_ANY)
 		Inserted=TRUE;
-	else if (Mask[CurPos]==EDMASK_DSS && (iswdigit(Key) /*|| Key==L' '*/ || Key==L'-'))
+	else if (Mask[CurPos]==EDMASK_DSS && (iswdigit(Key) || Key==L' ' || Key==L'-'))
 		Inserted=TRUE;
 	else if (Mask[CurPos]==EDMASK_DIGIT && (iswdigit(Key)))
 		Inserted=TRUE;

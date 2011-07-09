@@ -161,7 +161,7 @@ konfigurációnál a kapcsoló használata instabil működést eredményezhet.
           ^<wrap>mappáiban keresi. Több keresési útvonal is megadható,
 ";"-vel elválasztva.
 
-          Példa: far /p%SystemRoot%\\Profiles\\%USERNAME%\\FAR
+          Példa: #far /p%USERPROFILE%\\Far\\Plugins#
 
   #/co#   ^<wrap>A FAR pluginjei csak a gyorsítótárból töltődhetnek be.
 Bár így a betöltésük gyorsabb, az új vagy megváltozott plugineket a FAR nem
