@@ -1192,7 +1192,7 @@ struct MacroSendMacroText
 {
 	size_t StructSize;
 	FARKEYMACROFLAGS Flags;
-	DWORD AKey;
+	FarKey AKey;
 	const wchar_t *SequenceText;
 };
 

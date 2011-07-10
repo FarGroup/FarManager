@@ -2281,7 +2281,11 @@ INT_PTR WINAPI farMacroControl(HANDLE hHandle, FAR_MACRO_CONTROL_COMMANDS Comman
 					{
 						MacroSendMacroText *PlainText=(MacroSendMacroText*)Param2;
 						if (PlainText->SequenceText && *PlainText->SequenceText)
-							return Macro.PostNewMacro(PlainText->SequenceText,(PlainText->Flags|MFLAGS_POSTFROMPLUGIN)<<8,PlainText->AKey);
+						{
+							INPUT_RECORD rec;
+							ProcessKeyToInputRecord(PlainText->AKey.VirtualKeyCode,PlainText->AKey.ControlKeyState,&rec);
+							return Macro.PostNewMacro(PlainText->SequenceText,(PlainText->Flags|MFLAGS_POSTFROMPLUGIN)<<8,InputRecordToKey(&rec));
+						}
 
 						break;
 					}
