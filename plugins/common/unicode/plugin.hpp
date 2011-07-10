@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2097
+  Plugin API for Far Manager 3.0 build 2105
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2097
+#define FARMANAGERVERSION_BUILD 2105
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -99,6 +99,7 @@ static const FARMESSAGEFLAGS
 
 typedef int (WINAPI *FARAPIMESSAGE)(
     const GUID* PluginId,
+    const GUID* Id,
     FARMESSAGEFLAGS Flags,
     const wchar_t *HelpTopic,
     const wchar_t * const *Items,
@@ -609,6 +610,7 @@ static const FARMENUFLAGS
 
 typedef int (WINAPI *FARAPIMENU)(
 	const GUID*         PluginId,
+    const GUID*         Id,
     int                 X,
     int                 Y,
     int                 MaxHeight,
@@ -1774,8 +1776,6 @@ typedef const wchar_t*(WINAPI *FARSTDPOINTTONAME)(const wchar_t *Path);
 typedef BOOL (WINAPI *FARSTDADDENDSLASH)(wchar_t *Path);
 typedef int (WINAPI *FARSTDCOPYTOCLIPBOARD)(const wchar_t *Data);
 typedef wchar_t *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
-typedef int (WINAPI *FARSTDINPUTRECORDTOKEY)(const INPUT_RECORD *r);
-typedef int (WINAPI *FARSTDKEYTOINPUTRECORD)(int Key,INPUT_RECORD *r);
 typedef int (WINAPI *FARSTDLOCALISLOWER)(wchar_t Ch);
 typedef int (WINAPI *FARSTDLOCALISUPPER)(wchar_t Ch);
 typedef int (WINAPI *FARSTDLOCALISALPHA)(wchar_t Ch);
@@ -1808,11 +1808,11 @@ static const XLAT_FLAGS
 	XLAT_CONVERTALLCMDLINE = 0x0000000000010000ULL;
 
 
-typedef size_t (WINAPI *FARSTDKEYTOKEYNAME)(int Key, wchar_t *KeyText, size_t Size);
+typedef size_t (WINAPI *FARSTDINPUTRECORDTOKEYNAME)(const INPUT_RECORD* Key, wchar_t *KeyText, size_t Size);
 
 typedef wchar_t*(WINAPI *FARSTDXLAT)(wchar_t *Line,int StartPos,int EndPos,XLAT_FLAGS Flags);
 
-typedef int (WINAPI *FARSTDKEYNAMETOKEY)(const wchar_t *Name);
+typedef BOOL (WINAPI *FARSTDKEYNAMETOINPUTRECORD)(const wchar_t *Name,INPUT_RECORD* Key);
 
 typedef int (WINAPI *FRSUSERFUNC)(
     const struct PluginPanelItem *FData,
@@ -1907,10 +1907,8 @@ typedef struct FarStandardFunctions
 	FARSTDADDENDSLASH          AddEndSlash;
 	FARSTDCOPYTOCLIPBOARD      CopyToClipboard;
 	FARSTDPASTEFROMCLIPBOARD   PasteFromClipboard;
-	FARSTDKEYTOKEYNAME         FarKeyToName;
-	FARSTDKEYNAMETOKEY         FarNameToKey;
-	FARSTDINPUTRECORDTOKEY     FarInputRecordToKey;
-	FARSTDKEYTOINPUTRECORD     FarKeyToInputRecord;
+	FARSTDINPUTRECORDTOKEYNAME FarInputRecordToName;
+	FARSTDKEYNAMETOINPUTRECORD FarNameToInputRecord;
 	FARSTDXLAT                 XLat;
 	FARSTDGETFILEOWNER         GetFileOwner;
 	FARSTDGETNUMBEROFLINKS     GetNumberOfLinks;
@@ -2320,7 +2318,7 @@ struct ProcessDialogEventInfo
 {
 	size_t StructSize;
 	int Event;
-	FarDialogEvent* Param;
+	struct FarDialogEvent* Param;
 };
 
 struct ProcessSynchroEventInfo
