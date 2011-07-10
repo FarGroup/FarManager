@@ -358,6 +358,7 @@ enum MACRO_OP_CODE
 	MCODE_V_HELPSELTOPIC,             // Help.SelTopic
 
 	MCODE_V_MENU_VALUE,               // Menu.Value
+	MCODE_V_MENUINFOID,               // Menu.Info.Id
 };
 
 typedef enum MACRO_OP_CODE TMacroOpCode;

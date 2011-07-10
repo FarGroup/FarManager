@@ -216,6 +216,7 @@ TMacroKeywords MKeywords[] =
 	{2,  L"Viewer.State",       MCODE_V_VIEWERSTATE,0},
 
 	{2,  L"Menu.Value",         MCODE_V_MENU_VALUE,0},
+	{2,  L"Menu.Info.Id",       MCODE_V_MENUINFOID,0},
 
 	{2,  L"Fullscreen",         MCODE_C_FULLSCREENMODE,0},
 	{2,  L"IsUserAdmin",        MCODE_C_ISUSERADMIN,0},
@@ -1596,6 +1597,7 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 					break;
 				}
 				case MCODE_V_MENU_VALUE: // Menu.Value
+				case MCODE_V_MENUINFOID: // Menu.Info.Id
 				{
 					int CurMMode=GetMode();
 					Cond=L"";
@@ -1618,11 +1620,19 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 						{
 							string NewStr;
 
-							if (f->VMProcess(CheckCode,&NewStr))
+							switch(CheckCode)
 							{
-								HiText2Str(strFileName, NewStr);
-								RemoveExternalSpaces(strFileName);
-								Cond=strFileName.CPtr();
+								case MCODE_V_MENU_VALUE:
+									if (f->VMProcess(CheckCode,&NewStr))
+									{
+										HiText2Str(strFileName, NewStr);
+										RemoveExternalSpaces(strFileName);
+										Cond=strFileName.CPtr();
+									}
+									break;
+								case MCODE_V_MENUINFOID:
+									Cond=reinterpret_cast<LPCWSTR>(static_cast<INT_PTR>(f->VMProcess(CheckCode)));
+									break;
 							}
 						}
 					}
@@ -2455,7 +2465,7 @@ static bool msgBoxFunc(const TMacroFunction*)
 	string TempBuf = title;
 	TempBuf += L"\n";
 	TempBuf += text;
-	int Result=FarMessageFn(-1,Flags,nullptr,(const wchar_t * const *)TempBuf.CPtr(),0,0)+1;
+	int Result=FarMessageFn(-1,&FarGuid,Flags,nullptr,(const wchar_t * const *)TempBuf.CPtr(),0,0)+1;
 	/*
 	if (Result <= -1) // Break?
 		CtrlObject->Macro.SendDropProcess();

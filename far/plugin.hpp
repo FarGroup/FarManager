@@ -105,6 +105,7 @@ static const FARMESSAGEFLAGS
 
 typedef int (WINAPI *FARAPIMESSAGE)(
     const GUID* PluginId,
+    const GUID* Id,
     FARMESSAGEFLAGS Flags,
     const wchar_t *HelpTopic,
     const wchar_t * const *Items,
@@ -641,6 +642,7 @@ static const FARMENUFLAGS
 
 typedef int (WINAPI *FARAPIMENU)(
 	const GUID*         PluginId,
+    const GUID*         Id,
     int                 X,
     int                 Y,
     int                 MaxHeight,

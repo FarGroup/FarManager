@@ -67,7 +67,7 @@ int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str14=nullptr, INT_PTR PluginNumber=-1);
 
 int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t * const *Items,
-            size_t ItemsNumber,INT_PTR PluginNumber=-1);
+            size_t ItemsNumber,INT_PTR PluginNumber=-1,const GUID* Id=nullptr);
 
 void SetMessageHelp(const wchar_t *Topic);
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);

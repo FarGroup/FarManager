@@ -733,6 +733,7 @@ static DWORD NormalizeControlKeys(DWORD Value)
 
 int WINAPI FarMenuFn(
     INT_PTR PluginNumber,
+    const GUID* Id,
     int X,
     int Y,
     int MaxHeight,
@@ -757,6 +758,7 @@ int WINAPI FarMenuFn(
 		VMenu FarMenu(Title,nullptr,0,MaxHeight);
 		CtrlObject->Macro.SetMode(MACRO_MENU);
 		FarMenu.SetPosition(X,Y,0,0);
+		FarMenu.SetId(*Id);
 
 		if (BreakCode)
 			*BreakCode=-1;
@@ -1053,7 +1055,7 @@ const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId)
 	return L"";
 }
 
-int WINAPI FarMessageFn(INT_PTR PluginNumber,unsigned __int64 Flags,const wchar_t *HelpTopic,
+int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Flags,const wchar_t *HelpTopic,
                         const wchar_t * const *Items,size_t ItemsNumber,
                         int ButtonsNumber)
 {
@@ -1190,7 +1192,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,unsigned __int64 Flags,const wchar_
 	if ((frame=FrameManager->GetBottomFrame()) )
 		frame->Lock(); // отменим прорисовку фрейма
 
-	int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN),ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber);
+	int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN),ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber,Id);
 
 	/* $ 15.05.2002 SKV
 	  Однако разлочивать надо ровно то, что залочили.

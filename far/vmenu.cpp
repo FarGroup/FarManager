@@ -81,7 +81,8 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	Item(nullptr),
 	ItemCount(0),
 	ItemHiddenCount(0),
-	ItemSubMenusCount(0)
+	ItemSubMenusCount(0),
+	MenuId(FarGuid)
 {
 	SaveScr=nullptr;
 	SetDynamicallyBorn(false);
@@ -1137,6 +1138,12 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			}
 
 			return 0;
+		}
+		case MCODE_V_MENUINFOID:
+		{
+			static string strId;
+			strId = GuidToStr(MenuId);
+			return reinterpret_cast<INT_PTR>(strId.CPtr());
 		}
 
 	}
@@ -3140,4 +3147,14 @@ bool VMenu::Pack()
 		FirstIndex++;
 	}
 	return (OldItemCount!=ItemCount);
+}
+
+void VMenu::SetId(const GUID& Id)
+{
+	MenuId=Id;
+}
+
+const GUID& VMenu::Id(void)
+{
+	return MenuId;
 }

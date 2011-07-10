@@ -161,7 +161,8 @@ int Message(
     const wchar_t *Title,
     const wchar_t * const *Items,
     size_t ItemsNumber,
-    INT_PTR PluginNumber
+    INT_PTR PluginNumber,
+    const GUID* Id
 )
 {
 	string strTempStr;
@@ -423,6 +424,7 @@ int Message(
 			IsWarningStyle=Flags&MSG_WARNING;
 			Dialog Dlg(MsgDlg,ItemCount,MsgDlgProc);
 			Dlg.SetPosition(X1,Y1,X2,Y2);
+			if(Id) Dlg.SetId(*Id);
 
 			if (!strHelpTopic.IsEmpty())
 				Dlg.SetHelp(strHelpTopic);

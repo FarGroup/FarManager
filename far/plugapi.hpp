@@ -74,12 +74,12 @@ int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
                                size_t *pItemsNumber);
 void WINAPI FarFreePluginDirList(PluginPanelItem *PanelItem, size_t ItemsNumber);
 
-int WINAPI FarMenuFn(INT_PTR PluginNumber,int X,int Y,int MaxHeight,
+int WINAPI FarMenuFn(INT_PTR PluginNumber,const GUID* Id,int X,int Y,int MaxHeight,
                      unsigned __int64 Flags,const wchar_t *Title,const wchar_t *Bottom,
                      const wchar_t *HelpTopic,const FarKey *BreakKeys,int *BreakCode,
                      const struct FarMenuItem *Item, size_t ItemsNumber);
 const wchar_t* WINAPI FarGetMsgFn(INT_PTR PluginHandle,int MsgId);
-int WINAPI FarMessageFn(INT_PTR PluginNumber,unsigned __int64 Flags,
+int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Flags,
                         const wchar_t *HelpTopic,const wchar_t * const *Items,size_t ItemsNumber,
                         int ButtonsNumber);
 INT_PTR WINAPI FarPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,void* Param2);
