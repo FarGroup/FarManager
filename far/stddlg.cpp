@@ -467,7 +467,8 @@ int WINAPI GetString(
     DWORD Flags,
     int *CheckBoxValue,
     const wchar_t *CheckBoxText,
-    INT_PTR PluginNumber
+    INT_PTR PluginNumber,
+    const GUID* Id
 )
 {
 	int Substract=5; // дополнительная величина :-)
@@ -545,6 +546,7 @@ int WINAPI GetString(
 	{
 		Dialog Dlg(StrDlg,ARRAYSIZE(StrDlg)-Substract,GetStringDlgProc);
 		Dlg.SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
+		if(Id) Dlg.SetId(*Id);
 
 		if (HelpTopic)
 			Dlg.SetHelp(HelpTopic);

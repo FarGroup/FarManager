@@ -292,12 +292,12 @@ static int WINAPI FarMessageFnW(const GUID* PluginId,const GUID* Id,unsigned __i
   return FarMessageFn(GetPluginNumber(PluginId),Id,Flags,HelpTopic,Items,ItemsNumber,ButtonsNumber);
 }
 
-static int WINAPI FarInputBoxW(const GUID* PluginId,const wchar_t *Title,const wchar_t *Prompt,
+static int WINAPI FarInputBoxW(const GUID* PluginId,const GUID* Id,const wchar_t *Title,const wchar_t *Prompt,
                        const wchar_t *HistoryName,const wchar_t *SrcText,
                        wchar_t *DestText,int DestLength,
                        const wchar_t *HelpTopic,unsigned __int64 Flags)
 {
-	return FarInputBox(GetPluginNumber(PluginId),Title,Prompt,HistoryName,SrcText,DestText,DestLength,HelpTopic,Flags);
+	return FarInputBox(GetPluginNumber(PluginId),Id,Title,Prompt,HistoryName,SrcText,DestText,DestLength,HelpTopic,Flags);
 }
 
 static BOOL WINAPI farColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct FarColor *Color)

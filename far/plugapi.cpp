@@ -140,6 +140,7 @@ void ScanPluginDir();
 */
 int WINAPI FarInputBox(
     INT_PTR PluginNumber,
+    const GUID* Id,
     const wchar_t *Title,
     const wchar_t *Prompt,
     const wchar_t *HistoryName,
@@ -154,7 +155,7 @@ int WINAPI FarInputBox(
 		return FALSE;
 
 	string strDest;
-	int nResult = GetString(Title,Prompt,HistoryName,SrcText,strDest,HelpTopic,Flags&~FIB_CHECKBOX,nullptr,nullptr,PluginNumber);
+	int nResult = GetString(Title,Prompt,HistoryName,SrcText,strDest,HelpTopic,Flags&~FIB_CHECKBOX,nullptr,nullptr,PluginNumber,Id);
 	xwcsncpy(DestText, strDest, DestLength+1);
 	return nResult;
 }

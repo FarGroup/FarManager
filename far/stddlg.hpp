@@ -114,7 +114,8 @@ int __stdcall GetString(
     DWORD Flags = 0,
     int *CheckBoxValue = nullptr,
     const wchar_t *CheckBoxText = nullptr,
-    INT_PTR PluginNumber = -1
+    INT_PTR PluginNumber = -1,
+    const GUID* Id = nullptr
 );
 
 // для диалога GetNameAndPassword()

@@ -107,7 +107,7 @@ BOOL WINAPI FarShowHelp(const wchar_t *ModuleName,
 /* Обертка вокруг GetString для плагинов - с меньшей функциональностью.
    Сделано для того, чтобы не дублировать код GetString.*/
 
-int WINAPI FarInputBox(INT_PTR PluginNumber,const wchar_t *Title,const wchar_t *Prompt,
+int WINAPI FarInputBox(INT_PTR PluginNumber,const GUID* Id,const wchar_t *Title,const wchar_t *Prompt,
                        const wchar_t *HistoryName,const wchar_t *SrcText,
                        wchar_t *DestText,int DestLength,
                        const wchar_t *HelpTopic,unsigned __int64 Flags);

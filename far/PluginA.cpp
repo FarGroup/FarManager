@@ -1283,7 +1283,7 @@ int WINAPI FarInputBoxA(const char *Title,const char *Prompt,const char *History
 	if (Flags&oldfar::FIB_NOAMPERSAND)
 		NewFlags|=FIB_NOAMPERSAND;
 
-	int ret = NativeInfo.InputBox(&FarGuid,(Title?strT.CPtr():nullptr),(Prompt?strP.CPtr():nullptr),(HistoryName?strHN.CPtr():nullptr),(SrcText?strST.CPtr():nullptr),D,DestLength,(HelpTopic?strHT.CPtr():nullptr),NewFlags);
+	int ret = NativeInfo.InputBox(&FarGuid,&FarGuid,(Title?strT.CPtr():nullptr),(Prompt?strP.CPtr():nullptr),(HistoryName?strHN.CPtr():nullptr),(SrcText?strST.CPtr():nullptr),D,DestLength,(HelpTopic?strHT.CPtr():nullptr),NewFlags);
 	strD.ReleaseBuffer();
 
 	if (ret && DestText)

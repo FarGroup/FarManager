@@ -1748,6 +1748,7 @@ static const INPUTBOXFLAGS
 
 typedef int (WINAPI *FARAPIINPUTBOX)(
     const GUID* PluginId,
+    const GUID* Id,
     const wchar_t *Title,
     const wchar_t *SubTitle,
     const wchar_t *HistoryName,
