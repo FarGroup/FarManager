@@ -122,6 +122,7 @@ class Edit:public ScreenObject
 {
 		friend class DlgEdit;
 		friend class Editor;
+		friend class FileEditor;
 
 	protected:
 		wchar_t *Str;

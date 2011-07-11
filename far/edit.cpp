@@ -72,14 +72,14 @@ static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n",L"\r\r\n"};
 #define EDMASK_HEX   L'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
 
 Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
-	m_next(nullptr),
-	m_prev(nullptr),
 	Str(bAllocateData ? static_cast<wchar_t*>(xf_malloc(sizeof(wchar_t))) : nullptr),
 	StrSize(0),
+	CurPos(0),
+	LeftPos(0),
+	m_next(nullptr),
+	m_prev(nullptr),
 	MaxLength(-1),
 	Mask(nullptr),
-	LeftPos(0),
-	CurPos(0),
 	PrevCurPos(0),
 	MSelStart(-1),
 	SelStart(-1),
