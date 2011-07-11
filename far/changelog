@@ -1,3 +1,7 @@
+drkns 11.07.2011 20:59:48 +0200 - build 2109
+
+1. Рефакторинг Edit / EditControl.
+
 zg 10.07.2011 21:53:31 +0200 - build 2108
 
 1. уточнение 2106.1. тип MacroSendMacroText.AKey - INPUT_RECORD, потому что кнопки мыши тоже могут быть AKey.

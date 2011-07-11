@@ -59,7 +59,7 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 			break;
 		case DLGEDIT_SINGLELINE:
 		{
-			Edit::Callback callback={true,EditChange,this};
+			EditControl::Callback callback={true,EditChange,this};
 
 			FarList* iList=0;
 			DWORD iFlags=0;

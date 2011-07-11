@@ -6744,7 +6744,7 @@ void Editor::PR_EditorShowMsg()
 
 Edit *Editor::CreateString(const wchar_t *lpwszStr, int nLength)
 {
-	Edit *pEdit = new Edit(this, nullptr, lpwszStr ? false : true);
+	Edit *pEdit = new Edit(this, lpwszStr ? false : true);
 
 	if (pEdit)
 	{
@@ -6999,10 +6999,10 @@ void Editor::GetCursorType(bool& Visible,DWORD& Size)
 	CurLine->GetCursorType(Visible,Size); //???
 }
 
-void Editor::SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged)
+void Editor::SetObjectColor(PaletteColors Color,PaletteColors SelColor)
 {
 	for (Edit *CurPtr=TopList; CurPtr; CurPtr=CurPtr->m_next) //???
-		CurPtr->SetObjectColor(Color,SelColor,ColorUnChanged);
+		CurPtr->SetObjectColor(Color,SelColor);
 }
 
 void Editor::DrawScrollbar()

@@ -122,39 +122,27 @@ class Edit:public ScreenObject
 {
 		friend class DlgEdit;
 		friend class Editor;
-		friend class CommandLine;
-		friend class EditControl;
 
-	public:
-		typedef void (*EDITCHANGEFUNC)(void* aParam);
-		struct Callback
-		{
-			bool Active;
-			EDITCHANGEFUNC m_Callback;
-			void* m_Param;
-		};
+	protected:
+		wchar_t *Str;
+		int StrSize;
+		int CurPos;
+		int LeftPos;
 
-	public:
-		Edit  *m_next;
-		Edit  *m_prev;
+		virtual void DisableCallback(){};
+		virtual void RevertCallback(){};
 
 	private:
-		wchar_t *Str;
-
-		int    StrSize;
-		int    MaxLength;
-
+		Edit  *m_next;
+		Edit  *m_prev;
+		int MaxLength;
 		wchar_t *Mask;
-
 		ColorItem *ColorList;
 		int    ColorCount;
 
 		FarColor Color;
 		FarColor SelColor;
-		FarColor ColorUnChanged;   // 28.07.2000 SVS - для диалога
 
-		int    LeftPos;
-		int    CurPos;
 		int    PrevCurPos;       // 12.08.2000 KM - предыдущее положение курсора
 
 		int    TabSize;          // 14.02.2001 IS - Размер табуляции - по умолчанию равен Opt.TabSize;
@@ -173,13 +161,14 @@ class Edit:public ScreenObject
 
 		UINT m_codepage; //BUGBUG
 
-		Callback m_Callback;
+	protected:
+		void   DeleteBlock();
 
 	private:
 		virtual void   DisplayObject();
+		virtual void SetUnchangedColor(){};
 		int    InsertKey(int Key);
 		int    RecurseProcessKey(int Key);
-		void   DeleteBlock();
 		void   ApplyColor();
 		int    GetNextCursorPos(int Position,int Where);
 		void   RefreshStrByMask(int InitMode=FALSE);
@@ -196,7 +185,7 @@ class Edit:public ScreenObject
 
 		inline const wchar_t* WordDiv(void) {return strWordDiv->CPtr();};
 	public:
-		Edit(ScreenObject *pOwner = nullptr, Callback* aCallback = nullptr, bool bAllocateData = true);
+		Edit(ScreenObject *pOwner = nullptr, bool bAllocateData = true);
 		virtual ~Edit();
 
 	public:
@@ -210,9 +199,9 @@ class Edit:public ScreenObject
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 
 		//   ! Функция установки текущих Color,SelColor и ColorUnChanged!
-		void  SetObjectColor(PaletteColors Color,PaletteColors SelColor = COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
-		void  SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged);
-		void  GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged) {Color = this->Color; SelColor = this->SelColor; ColorUnChanged = this->ColorUnChanged;}
+		void  SetObjectColor(PaletteColors Color,PaletteColors SelColor = COL_COMMANDLINESELECTED);
+		void  SetObjectColor(const FarColor& Color,const FarColor& SelColor);
+		void  GetObjectColor(FarColor& Color, FarColor& SelColor) {Color = this->Color; SelColor = this->SelColor;}
 
 		void SetTabSize(int NewSize) { TabSize=NewSize; }
 		int  GetTabSize() {return TabSize; }
@@ -297,10 +286,8 @@ class Edit:public ScreenObject
 		void GetCursorType(bool& Visible, DWORD& Size);
 		int  GetReadOnly() {return Flags.Check(FEDITLINE_READONLY);}
 		void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
-		int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
-		void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
 		void SetWordDiv(const string& WordDiv) {strWordDiv=&WordDiv;}
-		virtual void Changed(bool DelBlock=false);
+		virtual void Changed(bool DelBlock=false){};
 };
 
 
@@ -323,12 +310,33 @@ class EditControl:public Edit
 	void SetMenuPos(VMenu& menu);
 	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey);
 
+	FarColor ColorUnChanged;   // 28.07.2000 SVS - для диалога
 
 	BitFlags ECFlags;
 
 	bool ACState;
+	
+	bool CallbackSaveState;
+
+	virtual void DisableCallback()
+	{
+		CallbackSaveState = m_Callback.Active;
+		m_Callback.Active = false;
+	}
+	virtual void RevertCallback()
+	{
+		m_Callback.Active = CallbackSaveState;
+	};
 
 public:
+	typedef void (*EDITCHANGEFUNC)(void* aParam);
+	struct Callback
+	{
+		bool Active;
+		EDITCHANGEFUNC m_Callback;
+		void* m_Param;
+	};
+	Callback m_Callback;
 
 	enum ECFLAGS
 	{
@@ -340,10 +348,17 @@ public:
 	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 	virtual void Show();
 	virtual void Changed(bool DelBlock=false);
-	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
+	virtual void SetUnchangedColor();
 
 	void AutoComplete(bool Manual,bool DelBlock);
 	void EnableAC(bool Permanent=false);
 	void DisableAC(bool Permanent=false);
 	void RevertAC(){ACState?EnableAC():DisableAC();}
+	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
+
+	void  SetObjectColor(PaletteColors Color,PaletteColors SelColor = COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
+	void  SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged);
+	void  GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged);
+	int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
+	void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
 };

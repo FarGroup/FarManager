@@ -71,17 +71,7 @@ static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n",L"\r\r\n"};
 #define EDMASK_ALPHA L'A' // позволяет вводить в строку ввода только буквы.
 #define EDMASK_HEX   L'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
 
-class DisableCallback
-{
-	bool OldState;
-	bool *CurState;
-public:
-	DisableCallback(bool &State){OldState=State;CurState=&State;State=false;}
-	void Restore(){*CurState=OldState;}
-	~DisableCallback(){Restore();}
-};
-
-Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData):
+Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	m_next(nullptr),
 	m_prev(nullptr),
 	Str(bAllocateData ? static_cast<wchar_t*>(xf_malloc(sizeof(wchar_t))) : nullptr),
@@ -97,12 +87,6 @@ Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData):
 	CursorSize(-1),
 	CursorPos(0)
 {
-	m_Callback.Active=true;
-	m_Callback.m_Callback=nullptr;
-	m_Callback.m_Param=nullptr;
-
-	if (aCallback) m_Callback=*aCallback;
-
 	SetOwner(pOwner);
 	SetWordDiv(Opt.strWordDiv);
 
@@ -110,7 +94,7 @@ Edit::Edit(ScreenObject *pOwner, Callback* aCallback, bool bAllocateData):
 		*Str=0;
 
 	Flags.Set(FEDITLINE_EDITBEYONDEND);
-	SetObjectColor(COL_COMMANDLINE, COL_COMMANDLINESELECTED, COL_DIALOGEDITUNCHANGED);
+	SetObjectColor(COL_COMMANDLINE, COL_COMMANDLINESELECTED);
 	EndType=EOL_NONE;
 	ColorList=nullptr;
 	ColorCount=0;
@@ -433,7 +417,7 @@ void Edit::FastShow()
 	{
 		if (Flags.Check(FEDITLINE_CLEARFLAG))
 		{
-			SetColor(ColorUnChanged);
+			SetUnchangedColor();
 
 			if (Mask && *Mask)
 				OutStrLength=StrLength(RemoveTrailingSpaces(OutStr));
@@ -968,14 +952,14 @@ int Edit::ProcessKey(int Key)
 		}
 		case KEY_CTRLSHIFTBS:
 		{
-			DisableCallback DC(m_Callback.Active);
+			DisableCallback();
 
 			// BUGBUG
 			for (int i=CurPos; i>=0; i--)
 			{
 				RecurseProcessKey(KEY_BS);
 			}
-			DC.Restore();
+			RevertCallback();
 			Changed(true);
 			Show();
 			return TRUE;
@@ -990,7 +974,7 @@ int Edit::ProcessKey(int Key)
 
 			Lock();
 
-			DisableCallback DC(m_Callback.Active);
+			DisableCallback();
 
 			// BUGBUG
 			for (;;)
@@ -1010,7 +994,7 @@ int Edit::ProcessKey(int Key)
 			}
 
 			Unlock();
-			DC.Restore();
+			RevertCallback();
 			Changed(true);
 			Show();
 			return TRUE;
@@ -1075,7 +1059,7 @@ int Edit::ProcessKey(int Key)
 				return FALSE;
 
 			Lock();
-			DisableCallback DC(m_Callback.Active);
+			DisableCallback();
 			if (Mask && *Mask)
 			{
 				int MaskLen=StrLength(Mask);
@@ -1115,7 +1099,7 @@ int Edit::ProcessKey(int Key)
 			}
 
 			Unlock();
-			DC.Restore();
+			RevertCallback();
 			Changed(true);
 			Show();
 			return TRUE;
@@ -1411,8 +1395,9 @@ int Edit::ProcessKey(int Key)
 
 			if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS))
 			{
-				DisableCallback DC(m_Callback.Active);
+				DisableCallback();
 				DeleteBlock();
+				RevertCallback();
 			}
 
 			for (int i=StrLength(Str)-1; i>=0 && IsEol(Str[i]); i--)
@@ -1475,8 +1460,9 @@ int Edit::ProcessKey(int Key)
 					SelStart=PrevSelStart;
 					SelEnd=PrevSelEnd;
 				}
-				DisableCallback DC(m_Callback.Active);
+				DisableCallback();
 				DeleteBlock();
+				RevertCallback();
 			}
 
 			if (InsertKey(Key))
@@ -1668,18 +1654,16 @@ int Edit::InsertKey(int Key)
 	return TRUE;
 }
 
-void Edit::SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged)
+void Edit::SetObjectColor(PaletteColors Color,PaletteColors SelColor)
 {
 	this->Color=ColorIndexToColor(Color);
 	this->SelColor=ColorIndexToColor(SelColor);
-	this->ColorUnChanged=ColorIndexToColor(ColorUnChanged);
 }
 
-void Edit::SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged)
+void Edit::SetObjectColor(const FarColor& Color,const FarColor& SelColor)
 {
 	this->Color=Color;
 	this->SelColor=SelColor;
-	this->ColorUnChanged=ColorUnChanged;
 }
 
 void Edit::GetString(wchar_t *Str,int MaxSize)
@@ -2896,14 +2880,6 @@ void Edit::SetDialogParent(DWORD Sets)
 	}
 }
 
-void Edit::Changed(bool DelBlock)
-{
-	if(m_Callback.Active && m_Callback.m_Callback)
-	{
-		m_Callback.m_Callback(m_Callback.m_Param);
-	}
-}
-
 /*
 SystemCPEncoder::SystemCPEncoder(int nCodePage)
 {
@@ -2994,14 +2970,26 @@ int __stdcall SystemCPEncoder::Transcode(
 }
 */
 
-EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):Edit(pOwner,aCallback,bAllocateData)
+EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):Edit(pOwner,bAllocateData)
 {
+	if (aCallback)
+	{
+		m_Callback=*aCallback;
+	}
+	else
+	{
+		m_Callback.Active=true;
+		m_Callback.m_Callback=nullptr;
+		m_Callback.m_Param=nullptr;
+	}
+
 	ECFlags=iFlags;
 	pHistory=iHistory;
 	pList=iList;
 	Selection=false;
 	SelectionStart=-1;
 	ACState=ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=FALSE;
+	ColorUnChanged = ColorIndexToColor(COL_DIALOGEDITUNCHANGED);
 }
 
 void EditControl::Show()
@@ -3020,8 +3008,11 @@ void EditControl::Changed(bool DelBlock)
 {
 	if(m_Callback.Active)
 	{
-		Edit::Changed();
-		AutoComplete(false,DelBlock);
+		if(m_Callback.m_Callback)
+		{
+			m_Callback.m_Callback(m_Callback.m_Param);
+		}
+		AutoComplete(false, DelBlock);
 	}
 }
 
@@ -3274,11 +3265,12 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 											CurPos--;
 										}
 
-										DisableCallback DC(m_Callback.Active);
+										DisableCallback();
 										InsertString(ComplMenu.GetItemPtr(0)->strName+SelStart);
 										if(X2-X1>GetLength())
 											SetLeftPos(0);
 										Select(SelStart, GetLength());
+										RevertCallback();
 									}
 									ComplMenu.AddItem(&EmptyItem,0);
 									SetMenuPos(ComplMenu);
@@ -3488,4 +3480,27 @@ void EditControl::DisableAC(bool Permanent)
 {
 	ACState=Permanent?false:ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=FALSE;
 	ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);
+}
+
+void EditControl::SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged)
+{
+	Edit::SetObjectColor(Color, SelColor);
+	this->ColorUnChanged=ColorIndexToColor(ColorUnChanged);
+}
+
+void EditControl::SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged)
+{
+	Edit::SetObjectColor(Color, SelColor);
+	this->ColorUnChanged=ColorUnChanged;
+}
+
+void EditControl::GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged)
+{
+	Edit::GetObjectColor(Color, SelColor);
+	ColorUnChanged = this->ColorUnChanged;
+}
+
+void EditControl::SetUnchangedColor()
+{
+	SetColor(ColorUnChanged);
 }
