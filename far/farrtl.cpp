@@ -15,7 +15,9 @@ farrtl.cpp
 
 bool InsufficientMemoryHandler()
 {
-	Console.SetTextAttributes(FOREGROUND_RED|FOREGROUND_INTENSITY);
+	static FarColor ErrColor;
+	Colors::ConsoleColorToFarColor(FOREGROUND_RED|FOREGROUND_INTENSITY, ErrColor);
+	Console.SetTextAttributes(ErrColor);
 	COORD OldPos,Pos={};
 	Console.GetCursorPosition(OldPos);
 	Console.SetCursorPosition(Pos);

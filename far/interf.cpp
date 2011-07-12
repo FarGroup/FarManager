@@ -793,7 +793,7 @@ void SetColor(const FarColor& Color)
 
 void SetRealColor(const FarColor& Color)
 {
-	Console.SetTextAttributes(Colors::FarColorToConsoleColor(Color));
+	Console.SetTextAttributes(Color);
 }
 
 void ClearScreen(const FarColor& Color)
@@ -801,11 +801,11 @@ void ClearScreen(const FarColor& Color)
 	ScrBuf.FillRect(0,0,ScrX,ScrY,L' ',Color);
 	if(Opt.WindowMode)
 	{
-		Console.ClearExtraRegions(Colors::FarColorToConsoleColor(Color));
+		Console.ClearExtraRegions(Color);
 	}
 	ScrBuf.ResetShadow();
 	ScrBuf.Flush();
-	Console.SetTextAttributes(Colors::FarColorToConsoleColor(Color));
+	Console.SetTextAttributes(Color);
 }
 
 const FarColor& GetColor()

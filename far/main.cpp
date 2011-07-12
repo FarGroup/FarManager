@@ -121,7 +121,7 @@ static int MainProcess(
 	{
 		ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 		ControlObject CtrlObj;
-		WORD InitAttributes=0;
+		FarColor InitAttributes={};
 		Console.GetTextAttributes(InitAttributes);
 		SetRealColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 		GetSystemInfo(&SystemInfo);

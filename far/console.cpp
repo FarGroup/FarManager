@@ -375,21 +375,21 @@ bool console::Write(LPCWSTR Buffer, DWORD NumberOfCharsToWrite) const
 	return WriteConsole(GetOutputHandle(), Buffer, NumberOfCharsToWrite, &NumberOfCharsWritten, nullptr)!=FALSE;
 }
 
-bool console::GetTextAttributes(WORD& Attributes) const
+bool console::GetTextAttributes(FarColor& Attributes) const
 {
 	bool Result=false;
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
 	if(GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
 	{
-		Attributes=ConsoleScreenBufferInfo.wAttributes;
+		Colors::ConsoleColorToFarColor(ConsoleScreenBufferInfo.wAttributes, Attributes);
 		Result=true;
 	}
 	return Result;
 }
 
-bool console::SetTextAttributes(WORD Attributes) const
+bool console::SetTextAttributes(const FarColor& Attributes) const
 {
-	return SetConsoleTextAttribute(GetOutputHandle(), Attributes)!=FALSE;
+	return SetConsoleTextAttribute(GetOutputHandle(), Colors::FarColorToConsoleColor(Attributes))!=FALSE;
 }
 
 bool console::GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const
@@ -463,7 +463,7 @@ bool console::SetActiveScreenBuffer(HANDLE ConsoleOutput) const
 	return SetConsoleActiveScreenBuffer(ConsoleOutput)!=FALSE;
 }
 
-bool console::ClearExtraRegions(WORD Color) const
+bool console::ClearExtraRegions(const FarColor& Color) const
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
@@ -471,14 +471,15 @@ bool console::ClearExtraRegions(WORD Color) const
 	DWORD CharsWritten;
 	COORD TopCoord={0,0};
 	FillConsoleOutputCharacter(GetOutputHandle(), L' ', TopSize, TopCoord, &CharsWritten);
-	FillConsoleOutputAttribute(GetOutputHandle(), Color, TopSize, TopCoord, &CharsWritten );
+	WORD ConColor = Colors::FarColorToConsoleColor(Color);
+	FillConsoleOutputAttribute(GetOutputHandle(), ConColor, TopSize, TopCoord, &CharsWritten );
 
 	DWORD RightSize = csbi.dwSize.X-csbi.srWindow.Right;
 	COORD RightCoord={csbi.srWindow.Right,GetDelta()};
 	for(; RightCoord.Y<csbi.dwSize.Y; RightCoord.Y++)
 	{
 		FillConsoleOutputCharacter(GetOutputHandle(), L' ', RightSize, RightCoord, &CharsWritten);
-		FillConsoleOutputAttribute(GetOutputHandle(), Color, RightSize, RightCoord, &CharsWritten);
+		FillConsoleOutputAttribute(GetOutputHandle(), ConColor, RightSize, RightCoord, &CharsWritten);
 	}
 	return true;
 }

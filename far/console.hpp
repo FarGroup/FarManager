@@ -75,8 +75,8 @@ public:
 	bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const;
 	bool Write(LPCWSTR Buffer, DWORD NumberOfCharsToWrite) const;
 
-	bool GetTextAttributes(WORD& Attributes) const;
-	bool SetTextAttributes(WORD Attributes) const;
+	bool GetTextAttributes(FarColor& Attributes) const;
+	bool SetTextAttributes(const FarColor& Attributes) const;
 
 	bool GetCursorInfo(CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const;
 	bool SetCursorInfo(const CONSOLE_CURSOR_INFO& ConsoleCursorInfo) const;
@@ -96,7 +96,7 @@ public:
 
 	bool SetActiveScreenBuffer(HANDLE ConsoleOutput) const;
 
-	bool ClearExtraRegions(WORD Color) const;
+	bool ClearExtraRegions(const FarColor& Color) const;
 
 	bool ScrollWindow(int Lines,int Columns=0) const;
 
