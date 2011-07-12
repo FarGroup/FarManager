@@ -45,7 +45,7 @@ public:
       for (unsigned i = 0; i < archives.size(); i++) {
         format_names.add(archives[i]->arc_chain.to_string());
       }
-      format_idx = Far::menu(Far::get_msg(MSG_PLUGIN_NAME), format_names);
+      format_idx = Far::menu(c_format_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), format_names);
       if (format_idx == -1)
         FAIL(E_ABORT);
     }
@@ -161,8 +161,8 @@ public:
 
   class PluginPanelItemAccessor {
   public:
-    virtual const PluginPanelItem* get(unsigned idx) const = 0;
-    virtual int size() const = 0;
+    virtual const PluginPanelItem* get(size_t idx) const = 0;
+    virtual size_t size() const = 0;
   };
 
   void extract(const PluginPanelItemAccessor& panel_items, wstring& dst_dir, bool move, OPERATION_MODES op_mode) {
@@ -210,7 +210,7 @@ public:
 
     vector<UInt32> indices;
     indices.reserve(panel_items.size());
-    for (int i = 0; i < panel_items.size(); i++) {
+    for (size_t i = 0; i < panel_items.size(); i++) {
       indices.push_back(static_cast<UInt32>(panel_items.get(i)->UserData));
     }
 
@@ -246,14 +246,14 @@ public:
     class PluginPanelItems: public PluginPanelItemAccessor {
     private:
       const PluginPanelItem* panel_items;
-      int items_number;
+      size_t items_number;
     public:
-      PluginPanelItems(const PluginPanelItem* panel_items, int items_number): panel_items(panel_items), items_number(items_number) {
+      PluginPanelItems(const PluginPanelItem* panel_items, size_t items_number): panel_items(panel_items), items_number(items_number) {
       }
-      virtual const PluginPanelItem* get(unsigned idx) const {
+      virtual const PluginPanelItem* get(size_t idx) const {
         return panel_items + idx;
       }
-      virtual int size() const {
+      virtual size_t size() const {
         return items_number;
       }
     };
@@ -275,11 +275,11 @@ public:
       PluginPanelItems(HANDLE h_plugin): h_plugin(h_plugin) {
         CHECK(Far::get_panel_info(h_plugin, panel_info));
       }
-      virtual const PluginPanelItem* get(unsigned idx) const {
+      virtual const PluginPanelItem* get(size_t idx) const {
         Far::get_panel_item(h_plugin, FCTL_GETSELECTEDPANELITEM, idx, buf);
         return reinterpret_cast<const PluginPanelItem*>(buf.data());
       }
-      virtual int size() const {
+      virtual size_t size() const {
         return panel_info.SelectedItemsNumber;
       }
     };
@@ -401,7 +401,7 @@ public:
       indices.push_back(static_cast<UInt32>(panel_items[i].UserData));
     }
     archive->test(src_dir_index, indices);
-    Far::info_dlg(Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_TEST_OK));
+    Far::info_dlg(c_test_ok_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_TEST_OK));
   }
 
   static void bulk_test(const vector<wstring>& arc_list) {
@@ -449,7 +449,7 @@ public:
     }
     else {
       Far::update_panel(PANEL_ACTIVE, false);
-      Far::info_dlg(Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_TEST_OK));
+      Far::info_dlg(c_test_ok_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_TEST_OK));
     }
   }
 
@@ -522,7 +522,7 @@ public:
       if (!is_absolute_path(options.arc_path))
         options.arc_path = Far::get_absolute_path(options.arc_path);
       if (File::exists(options.arc_path)) {
-        if (Far::message(Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_OVERWRITE), 0, FMSG_MB_YESNO) != 0)
+        if (Far::message(c_overwrite_archive_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_OVERWRITE), 0, FMSG_MB_YESNO) != 0)
           FAIL(E_ABORT);
       }
       g_options.update_arc_format_name = ArcAPI::formats().at(options.arc_type).name;
@@ -581,7 +581,7 @@ public:
     vector<wstring> file_list;
     file_list.reserve(panel_info.SelectedItemsNumber);
     wstring src_path = Far::get_panel_dir(PANEL_ACTIVE);
-    for (int i = 0; i < panel_info.SelectedItemsNumber; i++) {
+    for (size_t i = 0; i < panel_info.SelectedItemsNumber; i++) {
       Far::PanelItem panel_item = Far::get_selected_panel_item(PANEL_ACTIVE, i);
       file_list.push_back(panel_item.file_name);
     }
@@ -629,7 +629,7 @@ public:
     if (!is_absolute_path(options.arc_path))
       options.arc_path = Far::get_absolute_path(options.arc_path);
     if (File::exists(options.arc_path)) {
-      if (Far::message(Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_OVERWRITE), 0, FMSG_MB_YESNO) != 0)
+      if (Far::message(c_overwrite_archive_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_OVERWRITE), 0, FMSG_MB_YESNO) != 0)
         FAIL(E_ABORT);
     }
     g_options.update_arc_format_name = ArcAPI::formats().at(options.arc_type).name;
@@ -757,7 +757,7 @@ public:
 
     bool show_dialog = (op_mode & (OPM_SILENT | OPM_FIND | OPM_VIEW | OPM_EDIT | OPM_QUICKVIEW)) == 0;
     if (show_dialog) {
-      if (Far::message(Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_DELETE_DLG_CONFIRM), 0, FMSG_MB_OKCANCEL) != 0)
+      if (Far::message(c_delete_files_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_DELETE_DLG_CONFIRM), 0, FMSG_MB_OKCANCEL) != 0)
         FAIL(E_ABORT);
     }
 
@@ -778,7 +778,7 @@ public:
     bool show_dialog = (op_mode & (OPM_SILENT | OPM_FIND | OPM_VIEW | OPM_EDIT | OPM_QUICKVIEW)) == 0;
     created_dir = *name;
     if (show_dialog) {
-      if (!Far::input_dlg(Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_CREATE_DIR_DLG_NAME), created_dir))
+      if (!Far::input_dlg(c_create_dir_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_CREATE_DIR_DLG_NAME), created_dir))
         FAIL(E_ABORT);
       *name = created_dir.c_str();
     }
@@ -934,7 +934,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
     unsigned extract_menu_id = menu_items.add(Far::get_msg(MSG_MENU_EXTRACT));
     unsigned test_menu_id = menu_items.add(Far::get_msg(MSG_MENU_TEST));
     unsigned sfx_convert_menu_id = menu_items.add(Far::get_msg(MSG_MENU_SFX_CONVERT));
-    unsigned item = Far::menu(Far::get_msg(MSG_PLUGIN_NAME), menu_items, L"Contents");
+    unsigned item = Far::menu(c_main_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items, L"Contents");
     if (item == open_menu_id || item == detect_menu_id) {
       OpenOptions options;
       options.detect = item == detect_menu_id;
@@ -967,7 +967,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       vector<wstring> file_list;
       file_list.reserve(panel_info.SelectedItemsNumber);
       wstring dir = Far::get_panel_dir(PANEL_ACTIVE);
-      for (int i = 0; i < panel_info.SelectedItemsNumber; i++) {
+      for (size_t i = 0; i < panel_info.SelectedItemsNumber; i++) {
         Far::PanelItem panel_item = Far::get_selected_panel_item(PANEL_ACTIVE, i);
         if ((panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
           wstring file_path = add_trailing_slash(dir) + panel_item.file_name;
@@ -1092,7 +1092,7 @@ int WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   Far::MenuItems menu_items;
   menu_items.add(Far::get_msg(MSG_TEST_MENU));
-  int item = Far::menu(Far::get_msg(MSG_PLUGIN_NAME), menu_items);
+  int item = Far::menu(c_arccmd_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items);
   if (item == 0)
     reinterpret_cast<Plugin*>(info->hPanel)->test_files(info->PanelItem, info->ItemsNumber, info->OpMode);
   return TRUE;

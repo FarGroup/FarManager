@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2105
+  Plugin API for Far Manager 3.0 build 2111
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2105
+#define FARMANAGERVERSION_BUILD 2111
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1094,7 +1094,7 @@ struct MacroSendMacroText
 {
 	size_t StructSize;
 	FARKEYMACROFLAGS Flags;
-	DWORD AKey;
+	INPUT_RECORD AKey;
 	const wchar_t *SequenceText;
 };
 
@@ -1555,6 +1555,7 @@ static const INPUTBOXFLAGS
 
 typedef int (WINAPI *FARAPIINPUTBOX)(
     const GUID* PluginId,
+    const GUID* Id,
     const wchar_t *Title,
     const wchar_t *SubTitle,
     const wchar_t *HistoryName,

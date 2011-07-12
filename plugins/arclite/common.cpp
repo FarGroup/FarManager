@@ -4,6 +4,7 @@
 #include "error.hpp"
 #include "common.hpp"
 #include "farutils.hpp"
+#include "guids.hpp"
 
 Error g_com_error;
 
@@ -84,7 +85,7 @@ wstring expand_macros(const wstring& text) {
     wstring macro = L"print(" + text.substr(b_pos + 1, e_pos - b_pos - 1) + L") Enter";
     wstring mresult;
     if (Far::post_macro(macro))
-      Far::input_dlg(wstring(), wstring(), mresult);
+      Far::input_dlg(c_generic_guid, wstring(), wstring(), mresult);
     else
       FAIL(E_ABORT);
 

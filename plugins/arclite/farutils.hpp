@@ -37,13 +37,13 @@ const wchar_t* msg_ptr(int id);
 wstring get_msg(int id);
 
 unsigned get_optimal_msg_width();
-int message(const wstring& msg, int button_cnt = 0, unsigned __int64 flags = 0);
+int message(const GUID& id, const wstring& msg, int button_cnt = 0, unsigned __int64 flags = 0);
 
 class MenuItems: public vector<wstring> {
 public:
   unsigned add(const wstring& item);
 };
-int menu(const wstring& title, const MenuItems& items, const wchar_t* help = NULL);
+int menu(const GUID& id, const wstring& title, const MenuItems& items, const wchar_t* help = NULL);
 
 wstring get_progress_bar_str(unsigned width, unsigned __int64 completed, unsigned __int64 total);
 void set_progress_state(TBPFLAG state);
@@ -72,7 +72,7 @@ bool get_panel_info(HANDLE h_panel, PanelInfo& panel_info);
 bool is_real_file_panel(const PanelInfo& panel_info);
 wstring get_panel_dir(HANDLE h_panel);
 
-void get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int index, Buffer<unsigned char>& buf);
+void get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, size_t index, Buffer<unsigned char>& buf);
 struct PanelItem {
   DWORD file_attributes;
   FILETIME creation_time;
@@ -85,12 +85,12 @@ struct PanelItem {
   DWORD_PTR user_data;
 };
 PanelItem get_current_panel_item(HANDLE h_panel);
-PanelItem get_panel_item(HANDLE h_panel, unsigned index);
-PanelItem get_selected_panel_item(HANDLE h_panel, unsigned index);
+PanelItem get_panel_item(HANDLE h_panel, size_t index);
+PanelItem get_selected_panel_item(HANDLE h_panel, size_t index);
 
 void error_dlg(const wstring& title, const Error& e);
-void info_dlg(const wstring& title, const wstring& msg);
-bool input_dlg(const wstring& title, const wstring& msg, wstring& text, unsigned __int64 flags = 0);
+void info_dlg(const GUID& id, const wstring& title, const wstring& msg);
+bool input_dlg(const GUID& id, const wstring& title, const wstring& msg, wstring& text, unsigned __int64 flags = 0);
 
 #define AUTO_SIZE (-1)
 const unsigned c_x_frame = 5;

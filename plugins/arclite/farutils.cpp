@@ -39,8 +39,8 @@ unsigned get_optimal_msg_width() {
   return 60;
 }
 
-int message(const wstring& msg, int button_cnt, unsigned __int64 flags) {
-  return g_far.Message(&c_plugin_guid, flags | FMSG_ALLINONE, NULL, reinterpret_cast<const wchar_t* const*>(msg.c_str()), 0, button_cnt);
+int message(const GUID& id, const wstring& msg, int button_cnt, unsigned __int64 flags) {
+  return g_far.Message(&c_plugin_guid, &id, flags | FMSG_ALLINONE, NULL, reinterpret_cast<const wchar_t* const*>(msg.c_str()), 0, button_cnt);
 }
 
 unsigned MenuItems::add(const wstring& item) {
@@ -48,7 +48,7 @@ unsigned MenuItems::add(const wstring& item) {
   return static_cast<unsigned>(size() - 1);
 }
 
-int menu(const wstring& title, const MenuItems& items, const wchar_t* help) {
+int menu(const GUID& id, const wstring& title, const MenuItems& items, const wchar_t* help) {
   vector<FarMenuItem> menu_items;
   menu_items.reserve(items.size());
   FarMenuItem mi;
@@ -57,7 +57,7 @@ int menu(const wstring& title, const MenuItems& items, const wchar_t* help) {
     mi.Text = items[i].c_str();
     menu_items.push_back(mi);
   }
-  return g_far.Menu(&c_plugin_guid, -1, -1, 0, FMENU_WRAPMODE, title.c_str(), NULL, help, NULL, NULL, menu_items.data(), static_cast<int>(menu_items.size()));
+  return g_far.Menu(&c_plugin_guid, &id, -1, -1, 0, FMENU_WRAPMODE, title.c_str(), NULL, help, NULL, NULL, menu_items.data(), static_cast<int>(menu_items.size()));
 }
 
 wstring get_progress_bar_str(unsigned width, unsigned __int64 completed, unsigned __int64 total) {
@@ -171,7 +171,7 @@ wstring get_panel_dir(HANDLE h_panel) {
   return wstring(buf.data(), size - 1);
 }
 
-void get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int index, Buffer<unsigned char>& buf) {
+void get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, size_t index, Buffer<unsigned char>& buf) {
   FarGetPluginPanelItem gpi;
   gpi.Size = buf.size();
   gpi.Item = reinterpret_cast<PluginPanelItem*>(buf.data());
@@ -185,7 +185,7 @@ void get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int index, Bu
   }
 }
 
-PanelItem get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, int index) {
+PanelItem get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, size_t index) {
   Buffer<unsigned char> buf(0x1000);
   get_panel_item(h_panel, command, index, buf);
   const PluginPanelItem* panel_item = reinterpret_cast<const PluginPanelItem*>(buf.data());
@@ -206,11 +206,11 @@ PanelItem get_current_panel_item(HANDLE h_panel) {
   return get_panel_item(h_panel, FCTL_GETCURRENTPANELITEM, 0);
 }
 
-PanelItem get_panel_item(HANDLE h_panel, unsigned index) {
+PanelItem get_panel_item(HANDLE h_panel, size_t index) {
   return get_panel_item(h_panel, FCTL_GETPANELITEM, index);
 }
 
-PanelItem get_selected_panel_item(HANDLE h_panel, unsigned index) {
+PanelItem get_selected_panel_item(HANDLE h_panel, size_t index) {
   return get_panel_item(h_panel, FCTL_GETSELECTEDPANELITEM, index);
 }
 
@@ -226,16 +226,16 @@ void error_dlg(const wstring& title, const Error& e) {
     st << word_wrap(*msg, get_optimal_msg_width()) << L'\n';
   }
   st << extract_file_name(widen(e.file)) << L':' << e.line;
-  message(st.str(), 0, FMSG_WARNING | FMSG_MB_OK);
+  message(c_error_dialog_guid, st.str(), 0, FMSG_WARNING | FMSG_MB_OK);
 }
 
-void info_dlg(const wstring& title, const wstring& msg) {
-  message(title + L'\n' + msg, 0, FMSG_MB_OK);
+void info_dlg(const GUID& id, const wstring& title, const wstring& msg) {
+  message(id, title + L'\n' + msg, 0, FMSG_MB_OK);
 }
 
-bool input_dlg(const wstring& title, const wstring& msg, wstring& text, unsigned __int64 flags) {
+bool input_dlg(const GUID& id, const wstring& title, const wstring& msg, wstring& text, unsigned __int64 flags) {
   Buffer<wchar_t> buf(1024);
-  if (g_far.InputBox(&c_plugin_guid, title.c_str(), msg.c_str(), nullptr, text.c_str(), buf.data(), static_cast<int>(buf.size()), nullptr, flags)) {
+  if (g_far.InputBox(&c_plugin_guid, &id, title.c_str(), msg.c_str(), nullptr, text.c_str(), buf.data(), static_cast<int>(buf.size()), nullptr, flags)) {
     text.assign(buf.data());
     return true;
   }
@@ -739,7 +739,7 @@ bool panel_go_to_file(HANDLE h_panel, const wstring& file_path) {
   wstring file_name = upcase(extract_file_name(file_path));
   PanelRedrawInfo panel_ri = { 0 };
   Buffer<unsigned char> buf(0x1000);
-  int i;
+  size_t i;
   for (i = 0; i < panel_info.ItemsNumber; i++) {
     get_panel_item(h_panel, FCTL_GETPANELITEM, i, buf);
     const PluginPanelItem* panel_item = reinterpret_cast<const PluginPanelItem*>(buf.data());

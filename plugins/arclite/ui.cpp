@@ -49,7 +49,7 @@ void ProgressMonitor::display() {
   else {
     Far::set_progress_state(TBPF_INDETERMINATE);
   }
-  Far::message(title + L'\n' + progress_text, 0, FMSG_LEFTALIGN);
+  Far::message(c_progress_dialog_guid, title + L'\n' + progress_text, 0, FMSG_LEFTALIGN);
   SetConsoleTitleW(title.c_str());
 }
 
@@ -109,7 +109,7 @@ void ProgressMonitor::handle_esc() {
   if (!confirm_esc)
     FAIL(E_ABORT);
   ProgressSuspend ps(*this);
-  if (Far::message(Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_PROGRESS_INTERRUPT), 0, FMSG_MB_YESNO) == 0)
+  if (Far::message(c_interrupt_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_PROGRESS_INTERRUPT), 0, FMSG_MB_YESNO) == 0)
     FAIL(E_ABORT);
 }
 
@@ -388,7 +388,7 @@ private:
       if (options.open_dir != triUndef)
         g_options.extract_open_dir = options.open_dir == triTrue;
       g_options.save();
-      Far::info_dlg(Far::get_msg(MSG_EXTRACT_DLG_TITLE), Far::get_msg(MSG_EXTRACT_DLG_PARAMS_SAVED));
+      Far::info_dlg(c_extract_params_saved_dialog_guid, Far::get_msg(MSG_EXTRACT_DLG_TITLE), Far::get_msg(MSG_EXTRACT_DLG_PARAMS_SAVED));
       set_focus(ok_ctrl_id);
     }
     return default_dialog_proc(msg, param1, param2);
@@ -489,7 +489,7 @@ void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors
     cancel_id = button_cnt;
     button_cnt++;
     ProgressSuspend ps(progress);
-    unsigned id = Far::message(st.str(), button_cnt, FMSG_WARNING);
+    unsigned id = Far::message(c_retry_ignore_dialog_guid, st.str(), button_cnt, FMSG_WARNING);
     if (can_retry && id == retry_id) {
     }
     else if (can_ignore && id == ignore_id) {
@@ -512,7 +512,7 @@ void show_error_log(const ErrorLog& error_log) {
   msg += Far::get_msg(MSG_LOG_INFO) + L'\n';
   msg += Far::get_msg(MSG_LOG_CLOSE) + L'\n';
   msg += Far::get_msg(MSG_LOG_SHOW) + L'\n';
-  if (Far::message(msg, 2, FMSG_WARNING) != 1) return;
+  if (Far::message(c_error_log_dialog_guid, msg, 2, FMSG_WARNING) != 1) return;
 
   TempFile temp_file;
   File file(temp_file.get_path(), GENERIC_WRITE, FILE_SHARE_READ, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL);
@@ -1043,7 +1043,7 @@ private:
       unsigned profile_idx = profiles.find_by_options(options);
       if (profile_idx < profiles.size())
         name = profiles[profile_idx].name;
-      if (Far::input_dlg(Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_UPDATE_DLG_INPUT_PROFILE_NAME), name)) {
+      if (Far::input_dlg(c_save_profile_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_UPDATE_DLG_INPUT_PROFILE_NAME), name)) {
         DisableEvents de(*this);
         profiles.update(name, options);
         populate_profile_list();
@@ -1054,7 +1054,7 @@ private:
     else if (new_arc && msg == DN_BTNCLICK && param1 == delete_profile_ctrl_id) {
       unsigned profile_idx = get_list_pos(profile_ctrl_id);
       if (profile_idx != -1 && profile_idx < profiles.size()) {
-        if (Far::message(Far::get_msg(MSG_PLUGIN_NAME) + L'\n' + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_PROFILE_DELETE), 0, FMSG_MB_YESNO) == 0) {
+        if (Far::message(c_delete_profile_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L'\n' + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_PROFILE_DELETE), 0, FMSG_MB_YESNO) == 0) {
           DisableEvents de(*this);
           profiles.erase(profiles.begin() + profile_idx);
           populate_profile_list();
@@ -1064,7 +1064,7 @@ private:
       }
     }
     else if (new_arc && msg == DN_BTNCLICK && param1 == arc_path_eval_ctrl_id) {
-      Far::info_dlg(wstring(), word_wrap(eval_arc_path(), Far::get_optimal_msg_width()));
+      Far::info_dlg(c_arc_path_eval_dialog_guid, wstring(), word_wrap(eval_arc_path(), Far::get_optimal_msg_width()));
     }
     else if (msg == DN_BTNCLICK && param1 == enable_filter_ctrl_id) {
       if (param2) {
