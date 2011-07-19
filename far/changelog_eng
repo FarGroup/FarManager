@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 12.07.2011 11:07:16 +0200 - build 2111
+
+1. Inner changes in color processing.
+
+drkns 11.07.2011 21:29:12 +0200 - build 2110
+
+1. Continuation of 2109.
+
+drkns 11.07.2011 20:59:48 +0200 - build 2109
+
+1. Refactoring of Edit / EditControl.
+
 zg 10.07.2011 21:53:31 +0200 - build 2108
 
 1. correction of 2106.1. MacroSendMacroText.AKey type is INPUT_RECORD because the mouse buttons may be AKey too.
