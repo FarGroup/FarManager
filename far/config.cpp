@@ -717,7 +717,6 @@ static struct FARConfig
 
 	{0, GeneralConfig::TYPE_INTEGER, NKeySystemExecutor,L"RestoreCP",&Opt.RestoreCPAfterExecute,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeySystemExecutor,L"UseAppPath",&Opt.ExecuteUseAppPath,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, NKeySystemExecutor,L"ShowErrorMessage",&Opt.ExecuteShowErrorMessage,1, 0},
 	{0, GeneralConfig::TYPE_TEXT,    NKeySystemExecutor,L"BatchType",&Opt.strExecuteBatchType,0,constBatchExt},
 	{0, GeneralConfig::TYPE_INTEGER, NKeySystemExecutor,L"FullTitle",&Opt.ExecuteFullTitle,0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeySystemExecutor,L"SilentExternal",&Opt.ExecuteSilentExternal,0, 0},

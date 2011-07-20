@@ -642,7 +642,6 @@ struct Options
 
 	DWORD LCIDSort;
 	int RestoreCPAfterExecute;
-	int ExecuteShowErrorMessage;
 	int ExecuteUseAppPath;
 	int ExecuteFullTitle;
 	int ExecuteSilentExternal;

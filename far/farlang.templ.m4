@@ -10243,6 +10243,24 @@ l:
 "Nie mogę wykonać"
 "No se puede ejecutar"
 
+MCannotInvokeComspec
+"Ошибка вызова командного интерпретатора"
+"Cannot invoke command interpreter"
+upd:"Cannot invoke command interpreter"
+upd:"Cannot invoke command interpreter"
+upd:"Cannot invoke command interpreter"
+upd:"Cannot invoke command interpreter"
+upd:"Cannot invoke command interpreter"
+
+MCheckComspecVar
+"Проверьте переменную окружения COMSPEC"
+"Check COMSPEC environment variable"
+upd:"Check COMSPEC environment variable"
+upd:"Check COMSPEC environment variable"
+upd:"Check COMSPEC environment variable"
+upd:"Check COMSPEC environment variable"
+upd:"Check COMSPEC environment variable"
+
 MScanningFolder
 "Просмотр папки"
 "Scanning the folder"

@@ -1042,9 +1042,6 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 		dwError = GetLastError();
 	}
 
-	DWORD ErrorCode=0;
-	bool ErrMsg=false;
-
 	if (!dwError)
 	{
 		if (hProcess)
@@ -1198,38 +1195,35 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 		}
 
 		nResult = 0;
+
+		if(!Silent)
+		{
+			ScrBuf.FillBuf();
+			CtrlObject->CmdLine->SaveBackground();
+			ProcessShowClock--;
+		}
 	}
 	else
 	{
-
-		if (Opt.ExecuteShowErrorMessage)
+		
+		if (!Silent)
 		{
-			ErrorCode=GetLastError();
-			ErrMsg=true;
+			CtrlObject->Cp()->Redraw();
+			if (Opt.ShowKeyBar)
+			{
+				CtrlObject->MainKeyBar->Show();
+			}
+		}
+
+		SetMessageHelp(L"ErrCannotExecute");
+		if(DirectRun)
+		{
+			Message(MSG_WARNING|MSG_ERRORTYPE, 1,MSG(MError), MSG(MCannotExecute), strNewCmdStr, MSG(MOk));
 		}
 		else
 		{
-			string strOutStr;
-			strOutStr.Format(MSG(MExecuteErrorMessage),strNewCmdStr.CPtr());
-			string strPtrStr=FarFormatText(strOutStr,ScrX,strPtrStr,L"\n",0);
-			Console.Write(strPtrStr, static_cast<DWORD>(strPtrStr.GetLength()));
+			Message(MSG_WARNING|MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar), MSG(MOk));
 		}
-	}
-
-	if(!Silent)
-	{
-		ScrBuf.FillBuf();
-		CtrlObject->CmdLine->SaveBackground();
-		ProcessShowClock--;
-	}
-
-	if(ErrMsg)
-	{
-		SetLastError(ErrorCode);
-		SetMessageHelp(L"ErrCannotExecute");
-		string strOutStr = strNewCmdStr;
-		Unquote(strOutStr);
-		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotExecute),strOutStr,MSG(MOk));
 	}
 
 	if(!Silent)
