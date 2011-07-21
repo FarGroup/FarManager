@@ -1575,10 +1575,10 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, bool SeparateWindow, 
 			GotoXY(X2+1,Y1);
 			Text(L" ");
 			ScrBuf.Flush();
-			LPWCH Environment = GetEnvironmentStrings();
 			Console.SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
-			string strOut = "\n";
-			int CmdLength = strCmdLine.GetLength();
+			string strOut("\n");
+			int CmdLength = static_cast<int>(strCmdLine.GetLength());
+			LPWCH Environment = GetEnvironmentStrings();
 			for (LPCWSTR Ptr = Environment; *Ptr;)
 			{
 				int PtrLength = StrLength(Ptr);
@@ -1588,6 +1588,7 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, bool SeparateWindow, 
 				}
 				Ptr+=PtrLength+1;
 			}
+			FreeEnvironmentStrings(Environment);
 			strOut.Append(L"\n\n", Opt.ShowKeyBar?2:1);
 			Console.Write(strOut, static_cast<DWORD>(strOut.GetLength()));
 			ScrBuf.FillBuf();
