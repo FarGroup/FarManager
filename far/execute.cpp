@@ -1284,22 +1284,21 @@ int CommandLine::CmdExecute(const wchar_t *CmdLine,bool AlwaysWaitFinish,bool Se
 	bool PrintCommand=true;
 	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow,PrintCommand)) == TRUE)
 	{
-		ShowBackground();
-
-		string strNewDir=strCurDir;
-		strCurDir=strPrevDir;
-		Redraw();
-		strCurDir=strNewDir;
-
 		if (PrintCommand)
 		{
+			ShowBackground();
+			string strNewDir=strCurDir;
+			strCurDir=strPrevDir;
+			Redraw();
+			strCurDir=strNewDir;
 			GotoXY(X2+1,Y1);
 			Text(L" ");
 			ScrollScreen(2);
+			SaveBackground();
 		}
 
 		SetString(L"", FALSE);
-		SaveBackground();
+
 		Code=-1;
 	}
 	else
@@ -1567,13 +1566,40 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, bool SeparateWindow, 
 		strCmdLine.LShift(3);
 		RemoveLeadingSpaces(strCmdLine);
 
-		if (CheckCmdLineForHelp(strCmdLine) || strCmdLine.IsEmpty())
+		// "set" (display all) or "set var" (display all that begin with "var")
+		if (strCmdLine.IsEmpty() || !strCmdLine.Pos(pos,L'=') || !pos)
+		{
+			ShowBackground();
+			// display command
+			Redraw();
+			GotoXY(X2+1,Y1);
+			Text(L" ");
+			ScrBuf.Flush();
+			LPWCH Environment = GetEnvironmentStrings();
+			Console.SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+			string strOut = "\n";
+			int CmdLength = strCmdLine.GetLength();
+			for (LPCWSTR Ptr = Environment; *Ptr;)
+			{
+				int PtrLength = StrLength(Ptr);
+				if (!StrCmpNI(Ptr, strCmdLine, CmdLength))
+				{
+					strOut.Append(Ptr, PtrLength).Append(L"\n");
+				}
+				Ptr+=PtrLength+1;
+			}
+			strOut.Append(L"\n\n", Opt.ShowKeyBar?2:1);
+			Console.Write(strOut, static_cast<DWORD>(strOut.GetLength()));
+			ScrBuf.FillBuf();
+			SaveBackground();
+			PrintCommand = false;
+			return TRUE;
+		}
+
+		if (CheckCmdLineForHelp(strCmdLine))
 			return FALSE; // отдадимся COMSPEC`у
 
 		if (CheckCmdLineForSet(strCmdLine)) // вариант для /A и /P
-			return FALSE;
-
-		if (!strCmdLine.Pos(pos,L'='))
 			return FALSE;
 
 		if (strCmdLine.GetLength() == pos+1) //set var=
