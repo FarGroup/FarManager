@@ -2672,6 +2672,9 @@ static bool menushowFunc(const TMacroFunction*)
 	Menu.Show();
 	int PrevSelectedPos=Menu.GetSelectPos();
 	DWORD Key=0;
+	int RealPos;
+	bool CheckFlag;
+	int X1, Y1, X2, Y2, NewY2;
 	while (!Menu.Done() && !CloseFARMenu)
 	{
 		SelectedPos=Menu.GetSelectPos();
@@ -2689,15 +2692,38 @@ static bool menushowFunc(const TMacroFunction*)
 
 			case KEY_CTRLADD:
 			case KEY_CTRLSUBTRACT:
+			case KEY_CTRLMULTIPLY:
 				if (bMultiSelect)
 				{
 					for(int i=0; i<Menu.GetShowItemCount(); i++)
 					{
-						Menu.SetCheck((Key==KEY_CTRLADD), Menu.VisualPosToReal(i));
+						RealPos=Menu.VisualPosToReal(i);
+						if (Key==KEY_CTRLMULTIPLY)
+						{
+							CheckFlag=Menu.GetCheck(RealPos)?false:true;
+						}
+						else
+						{
+							CheckFlag=(Key==KEY_CTRLADD);
+						}
+						Menu.SetCheck(CheckFlag, RealPos);
 					}
 					Menu.Show();
 				}
 				break;
+
+			case KEY_CTRLA:
+			{
+				Menu.GetPosition(X1, Y1, X2, Y2);
+				NewY2=Y1+Menu.GetShowItemCount()+1;
+
+				if (NewY2>ScrY-2)
+					NewY2=ScrY-2;
+
+				Menu.SetPosition(X1,Y1,X2,NewY2);
+				Menu.Show();
+				break;
+			}
 
 			case KEY_BREAK:
 				CtrlObject->Macro.SendDropProcess();
@@ -2761,12 +2787,18 @@ static bool menushowFunc(const TMacroFunction*)
 	else
 	{
 		Menu.Hide();
-		Result=0;
 		if (bExitAfterNavigate)
 		{
 			Result=SelectedPos+1;
 			if ((Key == KEY_ESC) || (Key == KEY_F10) || (Key == KEY_BREAK))
 				Result=-Result;
+		}
+		else
+		{
+			if(bResultAsIndex)
+				Result=0;
+			else
+				Result=L"";
 		}
 	}
 
@@ -4695,8 +4727,7 @@ done:
 	{
 		INPUT_RECORD rec;
 
-		//if (PeekInputRecord(&rec) && rec.EventType==KEY_EVENT && rec.Event.KeyEvent.wVirtualKeyCode == VK_CANCEL)
-		if (StopMacro)
+		if (StopMacro || (PeekInputRecord(&rec) && rec.EventType==KEY_EVENT && rec.Event.KeyEvent.wVirtualKeyCode == VK_CANCEL))
 		{
 			GetInputRecord(&rec,true);  // удаляем из очереди эту "клавишу"...
 			Work.KeyProcess=0;
