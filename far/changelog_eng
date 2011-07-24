@@ -3,6 +3,31 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 24.07.2011 10:17:29 +0300 - build 2115
+
+1. Mantis#0001751: Menu creation in a macro
+   (from DAtaMan)
+   + additional key combinations are added to Menu.Show:
+      Ctrl-Multiply - inversion of selection
+      Ctrl-A - adjust the height of the menu
+   - if Esc was pressed, "0" was returned. Now it is the empty string (or 0 if the result is an index)
+
+2. Mantis#0001793: Enable macro interruption with CtrlBreak during "visual" functions
+   (from Maximus)
+   After next patching of macro interruption drawing was broken at mmode(1,0)
+
+drkns 21.07.2011 21:28:51 +0200 - build 2114
+
+1. Correction of 2113.1.
+
+drkns 21.07.2011 10:15:15 +0200 - build 2113
+
+1. Now Far processes `set <var>` command by itself.
+
+drkns 20.07.2011 13:13:51 +0200 - build 2112
+
+1. More correct message about starting error for the case of comspec use.
+
 drkns 12.07.2011 11:07:16 +0200 - build 2111
 
 1. Inner changes in color processing.
