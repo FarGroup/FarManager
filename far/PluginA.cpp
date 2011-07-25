@@ -1707,7 +1707,17 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 	di.X2=diA.X2;
 	di.Y2=diA.Y2;
 	di.Flags=0;
-	if (diA.Focus) di.Flags|=DIF_FOCUS;
+
+	if (diA.Focus)
+	{
+		di.Flags|=DIF_FOCUS;
+	}
+
+	// emulate old listbox behaviour
+	if (diA.Type == oldfar::DI_LISTBOX)
+	{
+		di.Flags|=DIF_LISTTRACKMOUSE;
+	}
 
 	if (diA.Flags)
 	{
@@ -2778,22 +2788,31 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		case oldfar::DM_LISTSETMOUSEREACTION:
 		{
 			oldfar::FARLISTMOUSEREACTIONTYPE OldType = static_cast<oldfar::FARLISTMOUSEREACTIONTYPE>(reinterpret_cast<INT_PTR>(Param2));
-			FARLISTMOUSEREACTIONTYPE Type=LMRT_ONLYFOCUS;
+			FarDialogItem DlgItem = {};
+			NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEMSHORT, Param1, &DlgItem);
+			FARDIALOGITEMFLAGS OldFlags = DlgItem.Flags;
+			DlgItem.Flags&=~(DIF_LISTTRACKMOUSE|DIF_LISTTRACKMOUSEINFOCUS);
 			switch (OldType)
 			{
 			case oldfar::LMRT_ONLYFOCUS:
-				Type=LMRT_ONLYFOCUS;
+				DlgItem.Flags|=DIF_LISTTRACKMOUSEINFOCUS;
 				break;
 			case oldfar::LMRT_ALWAYS:
-				Type=LMRT_ALWAYS;
+				DlgItem.Flags|=DIF_LISTTRACKMOUSE;
 				break;
 			case oldfar::LMRT_NEVER:
-				Type=LMRT_NEVER;
 				break;
 			default:
+				DlgItem.Flags = OldFlags;
 				break;
 			}
-			return NativeInfo.SendDlgMessage(hDlg, DM_LISTSETMOUSEREACTION, Param1, ToPtr(Type));
+			NativeInfo.SendDlgMessage(hDlg, DM_SETDLGITEMSHORT, Param1, &DlgItem);
+			DWORD OldValue = oldfar::LMRT_NEVER;
+			if (OldFlags&DIF_LISTTRACKMOUSE)
+				OldValue = oldfar::LMRT_ALWAYS;
+			else if (OldFlags&DIF_LISTTRACKMOUSEINFOCUS)
+				OldValue = oldfar::LMRT_ONLYFOCUS;
+			return OldValue;
 		}
 		case oldfar::DM_GETCURSORSIZE:   Msg = DM_GETCURSORSIZE; break;
 		case oldfar::DM_SETCURSORSIZE:   Msg = DM_SETCURSORSIZE; break;
@@ -3589,8 +3608,6 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 
 					if (kmA->PlainText.Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) kmW.Text.Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
 
-					if (kmA->PlainText.Flags&oldfar::KSFLAGS_REG_MULTI_SZ) kmW.Text.Flags|=KMFLAGS_REG_MULTI_SZ;
-
 					break;
 
 				case oldfar::MCMD_CHECKMACRO:
@@ -3665,9 +3682,6 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 
 			if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS)
 				MRec.Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
-
-			if (ksA->Flags&oldfar::KSFLAGS_REG_MULTI_SZ)
-				MRec.Flags|=MFLAGS_REG_MULTI_SZ;
 
 			MRec.BufferSize=ksA->Count;
 

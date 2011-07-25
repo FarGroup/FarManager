@@ -100,6 +100,7 @@ SRCS = \
 	localOEM.cpp \
 	lockscrn.cpp \
 	macro.cpp \
+	macrocompiler.cpp \
 	main.cpp \
 	manager.cpp \
 	menubar.cpp \
@@ -143,7 +144,6 @@ SRCS = \
 	stddlg.cpp \
 	strmix.cpp \
 	synchro.cpp \
-	macrocompiler.cpp \
 	syslog.cpp \
 	tinyxml.cpp \
 	TaskBar.cpp \

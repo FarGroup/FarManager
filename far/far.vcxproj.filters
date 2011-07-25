@@ -272,6 +272,9 @@
     <ClCompile Include="macro.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="macrocompiler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -387,9 +390,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="synchro.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="macrocompiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="syslog.cpp">
@@ -793,6 +793,9 @@
     <ClInclude Include="macro.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="macrocompiler.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="macroopcode.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -926,9 +929,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="synchro.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="macrocompiler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="syslog.hpp">
