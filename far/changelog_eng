@@ -3,6 +3,11 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.07.2011 19:15:39 +0200 - build 2116
+
+1. DM_LISTSETMOUSEREACTION no longer exists. Desired list behavior is set with DIF_LISTTRACKMOUSE/DIF_LISTTRACKMOUSEINFOCUS flags at dialog creation.
+   By default the flags are not set for new plugins (the list does not track the mouse), DIF_LISTTRACKMOUSE is set for ANSI plugins (track always).
+
 svs 24.07.2011 10:17:29 +0300 - build 2115
 
 1. Mantis#0001751: Menu creation in a macro
