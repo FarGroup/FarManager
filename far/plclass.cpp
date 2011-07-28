@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "setcolor.hpp"
 #include "mix.hpp"
-
+#include "FarGuid.hpp"
 
 typedef void   (WINAPI *iClosePanelPrototype)          (const ClosePanelInfo *Info);
 typedef int    (WINAPI *iComparePrototype)             (const CompareInfo *Info);

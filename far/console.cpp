@@ -233,9 +233,11 @@ bool console::SetMode(HANDLE ConsoleHandle, DWORD Mode) const
 	return SetConsoleMode(ConsoleHandle, Mode)!=FALSE;
 }
 
-bool console::PeekInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsRead) const
+bool console::PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const
 {
-	bool Result=PeekConsoleInput(GetInputHandle(), Buffer, Length, &NumberOfEventsRead)!=FALSE;
+	DWORD dwNumberOfEventsRead = 0;
+	bool Result=PeekConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead)!=FALSE;
+	NumberOfEventsRead = dwNumberOfEventsRead;
 	if(Opt.WindowMode && Buffer->EventType==MOUSE_EVENT)
 	{
 		Buffer->Event.MouseEvent.dwMousePosition.Y=Max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
@@ -246,9 +248,11 @@ bool console::PeekInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEvent
 	return Result;
 }
 
-bool console::ReadInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsRead) const
+bool console::ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const
 {
-	bool Result=ReadConsoleInput(GetInputHandle(), Buffer, Length, &NumberOfEventsRead)!=FALSE;
+	DWORD dwNumberOfEventsRead = 0;
+	bool Result=ReadConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead)!=FALSE;
+	NumberOfEventsRead = dwNumberOfEventsRead;
 	if(Opt.WindowMode && Buffer->EventType==MOUSE_EVENT)
 	{
 		Buffer->Event.MouseEvent.dwMousePosition.Y=Max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
@@ -259,13 +263,16 @@ bool console::ReadInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEvent
 	return Result;
 }
 
-bool console::WriteInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsWritten) const
+bool console::WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const
 {
 	if(Opt.WindowMode && Buffer->EventType==MOUSE_EVENT)
 	{
 		Buffer->Event.MouseEvent.dwMousePosition.Y+=GetDelta();
 	}
-	return WriteConsoleInput(GetInputHandle(), Buffer, Length, &NumberOfEventsWritten)!=FALSE;
+	DWORD dwNumberOfEventsWritten = 0;
+	bool Result = WriteConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsWritten)!=FALSE;
+  NumberOfEventsWritten = dwNumberOfEventsWritten;
+	return Result;
 }
 
 // пишем/читаем порциями по 32 K, иначе проблемы.
@@ -369,10 +376,16 @@ bool console::WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD B
 	return Result;
 }
 
-bool console::Write(LPCWSTR Buffer, DWORD NumberOfCharsToWrite) const
+bool console::Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const
 {
 	DWORD NumberOfCharsWritten;
-	return WriteConsole(GetOutputHandle(), Buffer, NumberOfCharsToWrite, &NumberOfCharsWritten, nullptr)!=FALSE;
+	return WriteConsole(GetOutputHandle(), Buffer, static_cast<DWORD>(NumberOfCharsToWrite), &NumberOfCharsWritten, nullptr)!=FALSE;
+}
+
+bool console::Commit() const
+{
+	// reserved
+	return true;
 }
 
 bool console::GetTextAttributes(FarColor& Attributes) const
@@ -438,14 +451,17 @@ bool console::FlushInputBuffer() const
 	return FlushConsoleInputBuffer(GetInputHandle())!=FALSE;
 }
 
-bool console::GetNumberOfInputEvents(DWORD& NumberOfEvents) const
+bool console::GetNumberOfInputEvents(size_t& NumberOfEvents) const
 {
-	return GetNumberOfConsoleInputEvents(GetInputHandle(), &NumberOfEvents)!=FALSE;
+	DWORD dwNumberOfEvents = 0;
+	bool Result = GetNumberOfConsoleInputEvents(GetInputHandle(), &dwNumberOfEvents)!=FALSE;
+	NumberOfEvents = dwNumberOfEvents;
+	return Result;
 }
 
-DWORD console::GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, DWORD TargetBufferLength, LPCWSTR ExeName) const
+bool console::GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLength, LPCWSTR ExeName) const
 {
-	return GetConsoleAlias(const_cast<LPWSTR>(Source), TargetBuffer, TargetBufferLength, const_cast<LPWSTR>(ExeName));
+	return GetConsoleAlias(const_cast<LPWSTR>(Source), TargetBuffer, static_cast<DWORD>(TargetBufferLength), const_cast<LPWSTR>(ExeName))!=0;
 }
 
 bool console::GetDisplayMode(DWORD& Mode) const

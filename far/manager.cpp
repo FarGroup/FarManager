@@ -793,7 +793,7 @@ int Manager::ProcessKey(DWORD Key)
 				{
 					_ALGO(CleverSysLog clv(L"Manager::ProcessKey()"));
 					_ALGO(SysLog(L"Key=%s",_FARKEY_ToName(Key)));
-
+#ifndef NO_WRAPPER
 					if (CtrlObject->Cp()->ActivePanel->GetMode() == PLUGIN_PANEL)
 					{
 						PluginHandle *ph=(PluginHandle*)CtrlObject->Cp()->ActivePanel->GetPluginHandle();
@@ -801,6 +801,7 @@ int Manager::ProcessKey(DWORD Key)
 							if (CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key,TRUE))
 								return TRUE;
 					}
+#endif // NO_WRAPPER
 					break;
 				}
 			#if 0

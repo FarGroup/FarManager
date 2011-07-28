@@ -33,6 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-void ShellDelete(Panel *SrcPanel,int Wipe);
+void ShellDelete(Panel *SrcPanel,bool Wipe);
 void DeleteDirTree(const wchar_t *Dir);
 int DeleteFileWithFolder(const wchar_t *FileName);

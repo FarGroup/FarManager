@@ -272,10 +272,10 @@ static size_t AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSele
 				item->bIsPlugin = true;
 				item->pPlugin = pPlugin;
 				item->Guid = guid;
-
+#ifndef NO_WRAPPER
 				if (pPlugin->IsOemPlugin())
 					OneItem.Item.Flags=LIF_CHECKED|L'A';
-
+#endif // NO_WRAPPER
 				OneItem.Item.strName = strMenuText;
 				OneItem.Item.UserDataSize=sizeof(PanelMenuItem);
 				OneItem.Item.UserData=item;

@@ -642,7 +642,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 {
 	_KEYMACRO(CleverSysLog Clev(L"GetInputRecord()"));
 	static int LastEventIdle=FALSE;
-	DWORD ReadCount;
+	size_t ReadCount;
 	DWORD LoopCount=0,CalcKey;
 	DWORD ReadKey=0;
 	int NotMacros=FALSE;
@@ -781,7 +781,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			if (rec->EventType==KEY_EVENT && !rec->Event.KeyEvent.wVirtualScanCode && (rec->Event.KeyEvent.wVirtualKeyCode==VK_NUMLOCK||rec->Event.KeyEvent.wVirtualKeyCode==VK_CAPITAL||rec->Event.KeyEvent.wVirtualKeyCode==VK_SCROLL))
 			{
 				INPUT_RECORD pinp;
-				DWORD nread;
+				size_t nread;
 				Console.ReadInput(&pinp, 1, nread);
 				continue;
 			}
@@ -1021,7 +1021,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				if (PrevVKKeyCode2 != VK_SHIFT)
 				{
 					INPUT_RECORD pinp;
-					DWORD nread;
+					size_t nread;
 					// Удалим из очереди...
 					Console.ReadInput(&pinp, 1, nread);
 					return KEY_NONE;
@@ -1493,7 +1493,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 {
-	DWORD ReadCount;
+	size_t ReadCount;
 	DWORD Key;
 	ScrBuf.Flush();
 
@@ -1574,7 +1574,7 @@ int WriteInput(int Key,DWORD Flags)
 	if (Flags&(SKEY_VK_KEYS|SKEY_IDLE))
 	{
 		INPUT_RECORD Rec;
-		DWORD WriteCount;
+		size_t WriteCount;
 
 		if (Flags&SKEY_IDLE)
 		{
@@ -2167,7 +2167,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 		{
 			//FlushInputBuffer();//???
 			INPUT_RECORD TempRec;
-			DWORD ReadCount;
+			size_t ReadCount;
 			Console.ReadInput(&TempRec, 1, ReadCount);
 			IntKeyState.ReturnAltValue=TRUE;
 			//_SVS(SysLog(L"0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));

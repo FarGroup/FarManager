@@ -57,6 +57,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "strmix.hpp"
 #include "history.hpp"
+#include "FarGuid.hpp"
 
 #define VTEXT_ADN_SEPARATORS	1
 

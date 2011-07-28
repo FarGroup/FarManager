@@ -46,11 +46,17 @@ public:
 	Language();
 	~Language();
 
-	bool Init(const wchar_t *Path, bool bUnicode, int CountNeed=-1);
+	bool Init(const wchar_t *Path, int CountNeed=-1);
+#ifndef NO_WRAPPER
+	bool InitA(const wchar_t *Path, int CountNeed=-1);
+#endif // NO_WRAPPER
 	void Close();
 
 	const wchar_t* GetMsg(int nID) const;
+
+#ifndef NO_WRAPPER
 	const char* GetMsgA(int nID) const;
+#endif // NO_WRAPPER
 
 	bool IsLanguageLoaded() const {return LanguageLoaded;}
 	LngErrors GetLastError() const {return LastError;}
@@ -60,12 +66,14 @@ private:
 	bool LanguageLoaded;
 	wchar_t **MsgAddr;
 	wchar_t *MsgList;
+#ifndef NO_WRAPPER
 	char **MsgAddrA; //фантастика, да
 	char *MsgListA;
+	bool m_bUnicode;
+#endif // NO_WRAPPER
 	long MsgSize;
 	int MsgCount;
 	string strMessageFile;
-	bool m_bUnicode;
 
 	void ConvertString(const wchar_t *Src,string &strDest);
 	bool CheckMsgId(int MsgId) const;

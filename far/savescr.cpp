@@ -248,6 +248,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 					CharCopy(&Tmp[i*Size.X],&ScreenBuf[i*OWi], Size.X);
 				}
 				Console.WriteOutput(Tmp, Size, Coord, WriteRegion);
+				Console.Commit();
 			}
 			delete[] Tmp;
 		}
@@ -274,6 +275,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 					CharCopy(&Tmp[i*Size.X],&ScreenBuf[i*OWi+NewX], Size.X);
 				}
 				Console.WriteOutput(Tmp, Size, Coord, WriteRegion);
+				Console.Commit();
 			}
 			delete[] Tmp;
 		}

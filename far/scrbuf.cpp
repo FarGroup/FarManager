@@ -468,6 +468,7 @@ void ScreenBuf::Flush()
 					SMALL_RECT WriteRegion=*PtrRect;
 					Console.WriteOutput(Buf, BufferSize, BufferCoord, WriteRegion);
 				}
+				Console.Commit();
 				memcpy(Shadow,Buf,BufX*BufY*sizeof(FAR_CHAR_INFO));
 			}
 		}

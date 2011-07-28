@@ -62,12 +62,20 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "wakeful.hpp"
 
-static void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent);
+enum DEL_MODE
+{
+	DEL_SCAN,
+	DEL_DEL,
+	DEL_WIPE,
+	DEL_WIPEPROCESS
+};
+
+static void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePercent);
 static int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe);
-static int ShellRemoveFile(const wchar_t *Name,int Wipe);
+static int ShellRemoveFile(const wchar_t *Name,int Wipe, int TotalPercent);
 static int ERemoveDirectory(const wchar_t *Name,int Wipe);
 static int RemoveToRecycleBin(const wchar_t *Name);
-static int WipeFile(const wchar_t *Name);
+static int WipeFile(const wchar_t *Name, int TotalPercent);
 static int WipeDirectory(const wchar_t *Name);
 static void PR_ShellDeleteMsg();
 
@@ -78,7 +86,7 @@ ConsoleTitle *DeleteTitle=nullptr;
 
 enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
 
-void ShellDelete(Panel *SrcPanel,int Wipe)
+void ShellDelete(Panel *SrcPanel,bool Wipe)
 {
 	ChangePriority ChPriority(Opt.DelThreadPriority);
 	TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellDeleteMsg);
@@ -302,7 +310,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 					{
 						DWORD CurTime=GetTickCount();
 
-						if (CurTime-StartTime>RedrawTimeout || FirstTime)
+						if (ItemsCount > 1 && CurTime-StartTime>RedrawTimeout || FirstTime)
 						{
 							StartTime=CurTime;
 							FirstTime=false;
@@ -313,9 +321,8 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 								break;
 							}
 
-							ShellDeleteMsg(strSelName,Wipe,-1);
+							ShellDeleteMsg(strSelName, DEL_SCAN, 0, 0);
 						}
-
 						ULONG CurrentFileCount,CurrentDirCount,ClusterSize;
 						UINT64 FileSize,CompressedFileSize,RealSize;
 
@@ -349,7 +356,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 				continue;
 
 			DWORD CurTime=GetTickCount();
-
+			int TotalPercent = (Opt.DelOpt.DelShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
 			if (CurTime-StartTime>RedrawTimeout || FirstTime)
 			{
 				StartTime=CurTime;
@@ -361,7 +368,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 					break;
 				}
 
-				ShellDeleteMsg(strSelName,Wipe,Opt.DelOpt.DelShowTotal?(ItemsCount?(ProcessedItems*100/ItemsCount):0):-1);
+				ShellDeleteMsg(strSelName, Wipe?DEL_WIPE:DEL_DEL, TotalPercent, 0);
 			}
 
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -420,7 +427,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 					while (ScTree.GetNextName(&FindData,strFullName))
 					{
 						DWORD CurTime=GetTickCount();
-
+						int TotalPercent = (Opt.DelOpt.DelShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
 						if (CurTime-StartTime>RedrawTimeout)
 						{
 							StartTime=CurTime;
@@ -436,7 +443,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 								}
 							}
 
-							ShellDeleteMsg(strFullName,Wipe,Opt.DelOpt.DelShowTotal?(ItemsCount?(ProcessedItems*100/ItemsCount):0):-1);
+							ShellDeleteMsg(strFullName,Wipe?DEL_WIPE:DEL_DEL, TotalPercent, 0);
 						}
 
 						if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -522,7 +529,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 							}
 
 							if (AskCode==DELETE_YES)
-								if (ShellRemoveFile(strFullName,Wipe)==DELETE_CANCEL)
+								if (ShellRemoveFile(strFullName,Wipe,TotalPercent)==DELETE_CANCEL)
 								{
 									Cancel=true;
 									break;
@@ -580,7 +587,7 @@ void ShellDelete(Panel *SrcPanel,int Wipe)
 
 				if (AskCode==DELETE_YES)
 				{
-					int DeleteCode=ShellRemoveFile(strSelName,Wipe);
+					int DeleteCode=ShellRemoveFile(strSelName,Wipe,TotalPercent);
 
 					if (DeleteCode==DELETE_SUCCESS && UpdateDiz)
 					{
@@ -613,42 +620,65 @@ done:
 static void PR_ShellDeleteMsg()
 {
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
-	ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<int>(reinterpret_cast<INT_PTR>(preRedrawItem.Param.Param4)),static_cast<int>(preRedrawItem.Param.Param5));
+	LARGE_INTEGER i;
+	i.QuadPart = preRedrawItem.Param.Param5;
+	ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<DEL_MODE>(reinterpret_cast<INT_PTR>(preRedrawItem.Param.Param4)), i.LowPart, i.HighPart);
 }
 
-void ShellDeleteMsg(const wchar_t *Name,int Wipe,int Percent)
+void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePercent)
 {
-	string strProgress;
+	FormatString strProgress, strWipeProgress;
 	size_t Width=52;
-
-	if (Percent!=-1)
+	size_t Length=Width-5; // -5 под проценты
+	if(Mode==DEL_WIPEPROCESS || Mode==DEL_WIPE)
 	{
-		size_t Length=Width-5; // -5 под проценты
-		wchar_t *Progress=strProgress.GetBuffer(Length);
+		wchar_t *WipeProgress=strWipeProgress.GetBuffer(Length);
+		if (WipeProgress)
+		{
+			size_t CurPos=Min(WipePercent,100)*Length/100;
+			wmemset(WipeProgress,BoxSymbols[BS_X_DB],CurPos);
+			wmemset(WipeProgress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
+			strWipeProgress.ReleaseBuffer(Length);
+			strWipeProgress<<L" "<<fmt::Width(3)<<WipePercent<<L"%";
+		}
+		if(Percent==-1)
+		{
+			TBC.SetProgressValue(WipePercent, 100);
+		}
+	}
 
+	if (Mode!=DEL_SCAN && Percent!=-1)
+	{
+		wchar_t *Progress=strProgress.GetBuffer(Length);
 		if (Progress)
 		{
 			size_t CurPos=Min(Percent,100)*Length/100;
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);
-			FormatString strTmp;
-			strTmp<<L" "<<fmt::Width(3)<<Percent<<L"%";
-			strProgress+=strTmp;
-			*DeleteTitle << L"{" << Percent << L"%} " << MSG(Wipe?MDeleteWipeTitle:MDeleteTitle) << fmt::Flush();
+			strProgress<<L" "<<fmt::Width(3)<<Percent<<L"%";
+			*DeleteTitle << L"{" << Percent << L"%} " << MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle) << fmt::Flush();
 		}
-
 		TBC.SetProgressValue(Percent,100);
 	}
 
 	string strOutFileName(Name);
 	TruncPathStr(strOutFileName,static_cast<int>(Width));
 	CenterStr(strOutFileName,strOutFileName,static_cast<int>(Width));
-	Message(0,0,MSG(Wipe?MDeleteWipeTitle:MDeleteTitle),(Percent>=0||!Opt.DelOpt.DelShowTotal)?MSG(Wipe?MDeletingWiping:MDeleting):MSG(MScanningFolder),strOutFileName,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
+	Message(0,0,
+		MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle),
+		Mode==DEL_SCAN? MSG(MScanningFolder) : MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeletingWiping:MDeleting),
+		strOutFileName,
+		strWipeProgress.IsEmpty()?nullptr:strWipeProgress.CPtr(),
+		strProgress.IsEmpty()?nullptr:strProgress.CPtr());
+
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	preRedrawItem.Param.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
-	preRedrawItem.Param.Param4=(void *)(INT_PTR)Wipe;
-	preRedrawItem.Param.Param5=(__int64)Percent;
+	preRedrawItem.Param.Param4=ToPtr(Mode);
+	LARGE_INTEGER i;
+	i.LowPart = Percent;
+	i.HighPart = WipePercent;
+	preRedrawItem.Param.Param5=i.QuadPart;
 	PreRedraw.SetParam(preRedrawItem.Param);
 }
 
@@ -694,7 +724,7 @@ int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
 
 
 
-int ShellRemoveFile(const wchar_t *Name,int Wipe)
+int ShellRemoveFile(const wchar_t *Name,int Wipe, int TotalPercent)
 {
 	ProcessedItems++;
 	string strFullName;
@@ -737,7 +767,7 @@ int ShellRemoveFile(const wchar_t *Name,int Wipe)
 					SkipWipeMode=0;
 				case 0:
 
-					if (WipeFile(Name))
+					if (WipeFile(Name, TotalPercent))
 						return DELETE_SUCCESS;
 			}
 		}
@@ -909,12 +939,12 @@ int RemoveToRecycleBin(const wchar_t *Name)
 	return MoveToRecycleBinInternal(lpwszName);
 }
 
-int WipeFile(const wchar_t *Name)
+int WipeFile(const wchar_t *Name, int TotalPercent)
 {
 	unsigned __int64 FileSize;
 	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
 	File WipeFile;
-	if(!WipeFile.Open(Name, GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT|FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
+	if(!WipeFile.Open(Name, GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT|FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
 	{
 		return FALSE;
 	}
@@ -927,20 +957,33 @@ int WipeFile(const wchar_t *Name)
 
 	if(FileSize)
 	{
-		const int BufSize=65536;
-		LPBYTE Buf=new BYTE[BufSize];
-		memset(Buf, Opt.WipeSymbol, BufSize); // используем символ заполнитель
+		INT64 InitFileSize = FileSize;
+		const size_t BufSize=65536;
+		static BYTE Buf[BufSize];
+		static bool BufInit = false;
+		if(!BufInit)
+		{
+			memset(Buf, Opt.WipeSymbol, BufSize); // используем символ заполнитель
+			BufInit = true;
+		}
 		DWORD Written;
+		DWORD StartTime=GetTickCount();
+
 		while (FileSize>0)
 		{
 			DWORD WriteSize=(DWORD)Min((unsigned __int64)BufSize,FileSize);
 			WipeFile.Write(Buf,WriteSize,Written);
 			FileSize-=WriteSize;
+			DWORD CurTime=GetTickCount();
+			if (CurTime-StartTime>RedrawTimeout)
+			{
+				StartTime=CurTime;
+				int WipePercent = (InitFileSize-FileSize)*100/InitFileSize;
+				ShellDeleteMsg(Name, DEL_WIPEPROCESS, TotalPercent, WipePercent);
+			}
 		}
-		WipeFile.Write(Buf,BufSize,Written);
-		delete[] Buf;
 		WipeFile.SetPointer(0,nullptr,FILE_BEGIN);
-		WipeFile.SetEnd();
+		//WipeFile.SetEnd();
 	}
 
 	WipeFile.Close();

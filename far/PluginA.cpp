@@ -29,6 +29,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#ifndef NO_WRAPPER
+
 #include "plugins.hpp"
 #include "codepage.hpp"
 #include "chgprior.hpp"
@@ -46,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "mix.hpp"
 #include "colormix.hpp"
+#include "FarGuid.hpp"
 
 #define EXP_GETGLOBALINFO       ""
 #define EXP_SETSTARTUPINFO      "SetStartupInfo"
@@ -5767,3 +5770,5 @@ void PluginA::ExitFAR(const ExitInfo *Info)
 		EXECUTE_FUNCTION(FUNCTION(iExitFAR)(), es);
 	}
 }
+
+#endif // NO_WRAPPER

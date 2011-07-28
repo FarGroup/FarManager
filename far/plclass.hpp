@@ -182,9 +182,13 @@ public:
 	virtual bool GetPluginInfo(PluginInfo *pi);
 	virtual int Configure(const GUID& Guid);
 	virtual void ExitFAR(const ExitInfo *Info);
-
+#ifndef NO_WRAPPER
 	virtual bool IsOemPlugin() const { return false; }
+#endif // NO_WRAPPER
 	virtual const wchar_t *GetHotkeyName() const { return m_strGuid; }
+
+	virtual bool InitLang(const wchar_t *Path) { return PluginLang.Init(Path); }
+	void CloseLang() { PluginLang.Close(); }
 
 	bool HasGetGlobalInfo()       const { return Exports[iGetGlobalInfo]!=nullptr; }
 	bool HasOpenPanel()           const { return Exports[iOpen]!=nullptr; }
@@ -235,9 +239,6 @@ public:
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags)==TRUE; }
 	DWORD GetWorkFlags() const { return WorkFlags.Flags; }
 	DWORD GetFuncFlags() const { return FuncFlags.Flags; }
-
-	bool InitLang(const wchar_t *Path) { return PluginLang.Init(Path,!IsOemPlugin()); }
-	void CloseLang() { PluginLang.Close(); }
 
 	bool Load();
 	int Unload(bool bExitFAR = false);

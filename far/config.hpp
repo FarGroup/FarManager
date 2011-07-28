@@ -383,7 +383,9 @@ struct LoadPluginsOptions
 	string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
 	string strPersonalPluginsPath;
 	int SilentLoadPlugin; // при загрузке плагина с кривым...
+#ifndef NO_WRAPPER
 	int OEMPluginsSupport;
+#endif // NO_WRAPPER
 	int ScanSymlinks;
 };
 
@@ -640,7 +642,6 @@ struct Options
 	int CloseCDGate;       // автомонтирование CD
 	int UpdateEnvironment;
 
-	DWORD LCIDSort;
 	int RestoreCPAfterExecute;
 	int ExecuteUseAppPath;
 	int ExecuteFullTitle;

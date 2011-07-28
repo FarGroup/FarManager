@@ -33,8 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef NO_WRAPPER
 void LocalUpperInit();
-void InitLCIDSort();
 
 inline int IsSpaceA(int x) { return x==' '  || x=='\t';  }
 inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }
@@ -55,3 +55,4 @@ int WINAPI LStricmp(const char *s1,const char *s2);
 int WINAPI LStrnicmp(const char *s1,const char *s2,int n);
 const char * __cdecl LocalStrstri(const char *str1, const char *str2);
 const char * __cdecl LocalRevStrstri(const char *str1, const char *str2);
+#endif // NO_WRAPPER

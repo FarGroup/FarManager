@@ -68,12 +68,13 @@ public:
 	bool GetMode(HANDLE ConsoleHandle, DWORD& Mode) const;
 	bool SetMode(HANDLE ConsoleHandle, DWORD Mode) const;
 
-	bool PeekInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsRead) const;
-	bool ReadInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsRead) const;
-	bool WriteInput(INPUT_RECORD* Buffer, DWORD Length, DWORD& NumberOfEventsWritten) const;
+	bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const;
+	bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsRead) const;
+	bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const;
 	bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const ;
 	bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const;
-	bool Write(LPCWSTR Buffer, DWORD NumberOfCharsToWrite) const;
+	bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const;
+	bool Commit() const;
 
 	bool GetTextAttributes(FarColor& Attributes) const;
 	bool SetTextAttributes(const FarColor& Attributes) const;
@@ -86,9 +87,9 @@ public:
 
 	bool FlushInputBuffer() const;
 
-	bool GetNumberOfInputEvents(DWORD& NumberOfEvents) const;
+	bool GetNumberOfInputEvents(size_t& NumberOfEvents) const;
 
-	DWORD GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, DWORD TargetBufferLength, LPCWSTR ExeName) const;
+	bool GetAlias(LPCWSTR Source, LPWSTR TargetBuffer, size_t TargetBufferLength, LPCWSTR ExeName) const;
 
 	bool GetDisplayMode(DWORD& Mode) const;
 

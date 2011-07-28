@@ -23,11 +23,12 @@ bool InsufficientMemoryHandler()
 	Console.SetCursorPosition(Pos);
 	static WCHAR ErrorMessage[] = L"Not enough memory is available to complete this operation.\nPress Enter to retry or Esc to continue...";
 	Console.Write(ErrorMessage, ARRAYSIZE(ErrorMessage));
+	Console.Commit();
 	Console.SetCursorPosition(OldPos);
 	INPUT_RECORD ir={};
+	size_t Read;
 	do
 	{
-		DWORD Read;
 		Console.ReadInput(&ir, 1, Read);
 	}
 	while(!(ir.EventType == KEY_EVENT && !ir.Event.KeyEvent.bKeyDown && (ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN || ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN || ir.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE)));

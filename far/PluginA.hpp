@@ -28,10 +28,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef NO_WRAPPER
+
 #include "plclass.hpp"
 #include "pluginold.hpp"
-#include "FarGuid.hpp"
-
 
 class PluginA: public Plugin
 {
@@ -82,6 +82,7 @@ public:
 	virtual bool IsOemPlugin() const { return true; }
 	virtual const wchar_t *GetHotkeyName() const { return GetCacheName(); }
 
+	virtual bool InitLang(const wchar_t *Path) { return PluginLang.InitA(Path); }
 	const char *GetMsgA(int nID) const { return PluginLang.GetMsgA(nID); }
 
 private:
@@ -104,3 +105,5 @@ private:
 
 	UINT64 OEMApiCnt;
 };
+
+#endif // NO_WRAPPER

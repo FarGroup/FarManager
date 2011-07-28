@@ -58,6 +58,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "processname.hpp"
 #include "pathmix.hpp"
 #include "cmdline.hpp"
+#include "FarGuid.hpp"
+
 VMenu::VMenu(const wchar_t *Title,       // заголовок меню
              MenuDataEx *Data, // пункты меню
              int ItemCount,     // количество пунктов меню

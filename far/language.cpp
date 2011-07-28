@@ -290,21 +290,26 @@ Language::Language():
 	LanguageLoaded(false),
 	MsgAddr(nullptr),
 	MsgList(nullptr),
+#ifndef NO_WRAPPER
 	MsgAddrA(nullptr),
 	MsgListA(nullptr),
+	m_bUnicode(true),
+#endif // NO_WRAPPER
 	MsgSize(0),
-	MsgCount(0),
-	m_bUnicode(true)
+	MsgCount(0)
 {
 }
 
-bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
+bool Language::Init(const wchar_t *Path, int CountNeed)
 {
-	if (MsgList || MsgListA)
+	if (MsgList
+#ifndef NO_WRAPPER
+	|| MsgListA
+#endif // NO_WRAPPER
+	)
 		return true;
 	GuardLastError gle;
 	LastError = LERROR_SUCCESS;
-	m_bUnicode = bUnicode;
 	UINT nCodePage = CP_OEMCP;
 	string strLangName=Opt.strLanguage;
 	FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nCodePage,FALSE, &strLangName);
@@ -336,7 +341,9 @@ bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 		ConvertString(ReadStr+1,strDestStr);
 		int DestLength=(int)pack(strDestStr.GetLength()+1);
 
+#ifndef NO_WRAPPER
 		if (m_bUnicode)
+#endif // NO_WRAPPER
 		{
 			if (!(MsgList = (wchar_t*)xf_realloc(MsgList, (MsgSize+DestLength)*sizeof(wchar_t))))
 			{
@@ -347,6 +354,7 @@ bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 			*(int*)&MsgList[MsgSize+DestLength-_PACK] = 0;
 			wcscpy(MsgList+MsgSize, strDestStr);
 		}
+#ifndef NO_WRAPPER
 		else
 		{
 			if (!(MsgListA = (char*)xf_realloc(MsgListA, (MsgSize+DestLength)*sizeof(char))))
@@ -358,7 +366,7 @@ bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 			*(int*)&MsgListA[MsgSize+DestLength-_PACK] = 0;
 			WideCharToMultiByte(CP_OEMCP, 0, strDestStr, -1, MsgListA+MsgSize, DestLength, nullptr, nullptr);
 		}
-
+#endif // NO_WRAPPER
 		MsgSize+=DestLength;
 		MsgCount++;
 	}
@@ -371,7 +379,9 @@ bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 		return false;
 	}
 
+#ifndef NO_WRAPPER
 	if (m_bUnicode)
+#endif // NO_WRAPPER
 	{
 		wchar_t *CurAddr = MsgList;
 		MsgAddr = new wchar_t*[MsgCount];
@@ -388,6 +398,7 @@ bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 			CurAddr+=pack(StrLength(CurAddr)+1);
 		}
 	}
+#ifndef NO_WRAPPER
 	else
 	{
 		char *CurAddrA = MsgListA;
@@ -407,7 +418,7 @@ bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 			CurAddrA+=pack(strlen(CurAddrA)+1);
 		}
 	}
-
+#endif // NO_WRAPPER
 	fclose(LangFile);
 
 	if (this == &Lang)
@@ -417,6 +428,14 @@ bool Language::Init(const wchar_t *Path, bool bUnicode, int CountNeed)
 	return true;
 }
 
+#ifndef NO_WRAPPER
+bool Language::InitA(const wchar_t *Path, int CountNeed)
+{
+	m_bUnicode = false;
+	return Init(Path, CountNeed);
+}
+#endif // NO_WRAPPER
+
 Language::~Language()
 {
 	Free();
@@ -424,23 +443,32 @@ Language::~Language()
 
 void Language::Free()
 {
-	if (MsgList) xf_free(MsgList);
+	if (MsgList)
+	{
+		xf_free(MsgList);
+		MsgList=nullptr;
+	}
+	if (MsgAddr)
+	{
+		delete[] MsgAddr;
+		MsgAddr=nullptr;
+	}
+#ifndef NO_WRAPPER
+	if (MsgListA)
+	{
+		xf_free(MsgListA);
+		MsgListA=nullptr;
+	}
+	if (MsgAddrA)
+	{
+		delete[] MsgAddrA;
+		MsgAddrA=nullptr;
+	}
+	m_bUnicode = true;
+#endif // NO_WRAPPER
 
-	if (MsgListA)xf_free(MsgListA);
-
-	MsgList=nullptr;
-	MsgListA=nullptr;
-
-	if (MsgAddr) delete[] MsgAddr;
-
-	MsgAddr=nullptr;
-
-	if (MsgAddrA) delete[] MsgAddrA;
-
-	MsgAddrA=nullptr;
 	MsgCount=0;
 	MsgSize=0;
-	m_bUnicode = true;
 }
 
 void Language::Close()
@@ -452,20 +480,24 @@ void Language::Close()
 
 		OldLang.MsgList=MsgList;
 		OldLang.MsgAddr=MsgAddr;
+#ifndef NO_WRAPPER
 		OldLang.MsgListA=MsgListA;
 		OldLang.MsgAddrA=MsgAddrA;
+		OldLang.m_bUnicode=m_bUnicode;
+#endif // NO_WRAPPER
 		OldLang.MsgCount=MsgCount;
 		OldLang.MsgSize=MsgSize;
-		OldLang.m_bUnicode=m_bUnicode;
 	}
 
 	MsgList=nullptr;
 	MsgAddr=nullptr;
+#ifndef NO_WRAPPER
 	MsgListA=nullptr;
 	MsgAddrA=nullptr;
+	m_bUnicode = true;
+#endif // NO_WRAPPER
 	MsgCount=0;
 	MsgSize=0;
-	m_bUnicode = true;
 	LanguageLoaded=false;
 }
 
@@ -563,7 +595,11 @@ bool Language::CheckMsgId(int MsgId) const
 
 const wchar_t* Language::GetMsg(int nID) const
 {
-	if (!m_bUnicode || !CheckMsgId(nID))
+	if (
+#ifndef NO_WRAPPER
+	!m_bUnicode ||
+#endif // NO_WRAPPER
+	!CheckMsgId(nID))
 		return L"";
 
 	if (this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
@@ -572,6 +608,7 @@ const wchar_t* Language::GetMsg(int nID) const
 	return MsgAddr[nID];
 }
 
+#ifndef NO_WRAPPER
 const char* Language::GetMsgA(int nID) const
 {
 	if (m_bUnicode || !CheckMsgId(nID))
@@ -582,3 +619,4 @@ const char* Language::GetMsgA(int nID) const
 
 	return MsgAddrA[nID];
 }
+#endif // NO_WRAPPER

@@ -34,17 +34,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#ifndef NO_WRAPPER
 #include "localOEM.hpp"
 #include "syslog.hpp"
 #include "config.hpp"
 #include "configdb.hpp"
 
-static int _cdecl LCSort(const void *el1,const void *el2);
-
 static unsigned char LowerToUpper[256];
 static unsigned char UpperToLower[256];
 static unsigned char IsUpperOrLower[256];
-static unsigned char LCOrder[256];
 
 void LocalUpperInit()
 {
@@ -68,47 +66,6 @@ void LocalUpperInit()
 			CharToOemA(CvtStr,CvtStr);
 			UpperToLower[I]=CvtStr[0];
 		}
-	}
-}
-
-/*
-   Инициализация системозависимой сортировки строк.
-   Вызывать только после CopyGlobalSettings (потому что только тогда GetRegKey
-   считает правильные данные) и перед InitKeysArray (потому что там уже
-   используется сортировка)!
-*/
-void InitLCIDSort()
-{
-	unsigned char LCSortBuffer[256];
-
-	for (size_t i=0; i<ARRAYSIZE(LCSortBuffer); i++)
-	{
-		LCSortBuffer[i]=static_cast<BYTE>(i);
-	}
-
-	Opt.LCIDSort=GeneralCfg->GetValue(L"System",L"LCID",LOCALE_USER_DEFAULT);
-	far_qsort(LCSortBuffer,256,sizeof(LCSortBuffer[0]),LCSort);
-
-	for (size_t i=0; i<ARRAYSIZE(LCSortBuffer); i++)
-	{
-		LCOrder[LCSortBuffer[i]]=static_cast<BYTE>(i);
-	}
-
-	LCOrder[0]=0;
-	LCOrder[(unsigned)'\\']=1;
-	LCOrder[(unsigned)'.']=2;
-
-	for (size_t i=0; i<ARRAYSIZE(LCSortBuffer)-1; i++)
-	{
-		if (!LCSort(&LCSortBuffer[i],&LCSortBuffer[i+1]))
-		{
-			LCOrder[LCSortBuffer[i+1]]=LCOrder[LCSortBuffer[i]];
-		}
-	}
-
-	for (size_t i=0; i<ARRAYSIZE(LCOrder); i++)
-	{
-		LCOrder[i]=LCOrder[UpperToLower[i]];
 	}
 }
 
@@ -292,5 +249,6 @@ int _cdecl LCSort(const void *el1,const void *el2)
 		Str2[]={*static_cast<const char*>(el2),L'\0'};
 	OemToCharBuffA(Str1,Str1,1);
 	OemToCharBuffA(Str2,Str2,1);
-	return(CompareStringA(Opt.LCIDSort,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
+	return(CompareStringA(LOCALE_USER_DEFAULT,NORM_IGNORENONSPACE|SORT_STRINGSORT|NORM_IGNORECASE,Str1,1,Str2,1)-2);
 }
+#endif // NO_WRAPPER

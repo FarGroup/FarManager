@@ -80,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CFileMask.hpp"
 #include "vmenu.hpp"
 #include "elevation.hpp"
+#include "FarGuid.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam

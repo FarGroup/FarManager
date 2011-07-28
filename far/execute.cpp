@@ -1064,7 +1064,7 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 					HANDLE hOutput = Console.GetOutputHandle();
 					HANDLE hInput = Console.GetInputHandle();
 					INPUT_RECORD ir[256];
-					DWORD rd;
+					size_t rd;
 					int vkey=0,ctrl=0;
 					TranslateKeyToVK(Opt.ConsoleDetachKey,vkey,ctrl,nullptr);
 					int alt=ctrl&PKF_ALT;
@@ -1590,7 +1590,8 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, bool SeparateWindow, 
 			}
 			FreeEnvironmentStrings(Environment);
 			strOut.Append(L"\n\n", Opt.ShowKeyBar?2:1);
-			Console.Write(strOut, static_cast<DWORD>(strOut.GetLength()));
+			Console.Write(strOut, strOut.GetLength());
+			Console.Commit();
 			ScrBuf.FillBuf();
 			SaveBackground();
 			PrintCommand = false;
@@ -1725,8 +1726,9 @@ int CommandLine::ProcessOSCommands(const wchar_t *CmdLine, bool SeparateWindow, 
 		if (r1 && r2) // Если все ОБИ, то так  и...
 		{
 			InitRecodeOutTable();
+#ifndef NO_WRAPPER
 			LocalUpperInit();
-			InitLCIDSort();
+#endif // NO_WRAPPER
 			InitKeysArray();
 			ScrBuf.ResetShadow();
 			ScrBuf.Flush();

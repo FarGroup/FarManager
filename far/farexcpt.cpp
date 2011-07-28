@@ -174,7 +174,9 @@ bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 	string strAddr;
 	strAddr.Format(L"0x%p",Adress);
 	string strFunction=GetFunctionName(From);
+#ifndef NO_WRAPPER
 	if(Module && !Module->IsOemPlugin())
+#endif // NO_WRAPPER
 	{
 		strFunction+=L"W";
 	}

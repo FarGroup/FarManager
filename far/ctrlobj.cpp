@@ -178,10 +178,10 @@ void ControlObject::ShowCopyright(DWORD Flags)
 {
 	if (Flags&1)
 	{
-		Console.Write(Version,StrLength(Version));
-		Console.Write(L"\n",1);
-		Console.Write(Copyright,StrLength(Copyright));
-		Console.Write(L"\n",1);
+		string strOut(Version);
+		strOut.Append(L"\n").Append(Copyright).Append(L"\n"); 
+		Console.Write(strOut,strOut.GetLength());
+		Console.Commit();
 	}
 	else
 	{

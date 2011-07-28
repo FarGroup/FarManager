@@ -1652,7 +1652,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 		return;
 
 	int InternalLog=fp?FALSE:TRUE;
-	DWORD ReadCount2;
+	size_t ReadCount2;
 	// берем количество оставшейся порции эвентов
 	Console.GetNumberOfInputEvents(ReadCount2);
 
@@ -1679,7 +1679,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 
 			if (TmpRec)
 			{
-				DWORD ReadCount3;
+				size_t ReadCount3;
 				Console.PeekInput(TmpRec, ReadCount2, ReadCount3);
 
 				for (DWORD I=0; I < ReadCount2; ++I)
