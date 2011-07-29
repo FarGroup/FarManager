@@ -188,7 +188,7 @@ static CompressionMapEntry CompressionMap[] =
 
 class SevenZipCompressionConfig {
 
-private:
+protected:
 
 	const CompressionFormatInfo* m_pFormat;
 

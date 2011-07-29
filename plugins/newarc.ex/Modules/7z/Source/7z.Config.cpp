@@ -10,7 +10,7 @@ void SevenZipCompressionConfig::Clear()
 {
 	m_bOverride = false;
 
-	m_uLevel = 0;
+	m_uLevel = 5;
 	m_uMethod = 0;
 	m_uDictionarySize = 0;
 
@@ -337,11 +337,23 @@ void GetSizeString(int nSizeInBytes, string& strResult)
 
 void AddDictionarySize(FarDialog* D, int nSize)
 {
+	SevenZipCompressionConfig* pCfg = (SevenZipCompressionConfig*)D->GetDlgData();
+
 	string strResult;
 	GetSizeString(nSize, strResult);
 
 	int index = D->ListAddStr(8, strResult);
 	D->ListSetDataEx(8, index, (void*)nSize, sizeof(void*));
+
+	if ( nSize == pCfg->GetDictionarySize() )
+	{
+		FarListPos pos;
+
+		pos.TopPos = -1;
+		pos.SelectPos = index;
+
+		D->ListSetCurrentPos(8, &pos);
+	}
 }
 
 DWORD GetDefaultDictionarySize(int nMethod, int nLevel)
@@ -536,13 +548,21 @@ LONG_PTR __stdcall hndConfigureFormat(FarDialog* D, int nMsg, int Param1, LONG_P
 	{
 		const CompressionFormatInfo* pFormat = pCfg->GetFormat();
 
-		for (int i = 0; i < pFormat->nNumMethods; i++)
+		FarListPos pos;
+
+		pos.TopPos = -1;
+		pos.SelectPos = 0;
+
+		for (unsigned int uMethod = 0; uMethod < pFormat->nNumMethods; uMethod++)
 		{
-			int index = D->ListAddStr(6, MethodNames[pFormat->pMethodIDs[i]]); //check for 7z SFX!!!
-			D->ListSetDataEx(6, index, (void*)pFormat->pMethodIDs[i], sizeof(void*));
+			int index = D->ListAddStr(6, MethodNames[pFormat->pMethodIDs[uMethod]]); //check for 7z SFX!!!
+			D->ListSetDataEx(6, index, (void*)pFormat->pMethodIDs[uMethod], sizeof(void*));
+
+			if ( uMethod == pCfg->GetMethod()-1 )
+				pos.SelectPos = index;
 		}
 
-		FarListPos pos;
+		D->ListSetCurrentPos(6, &pos);
 
 		pos.TopPos = -1;
 		pos.SelectPos = 0;
@@ -556,7 +576,7 @@ LONG_PTR __stdcall hndConfigureFormat(FarDialog* D, int nMsg, int Param1, LONG_P
 				int index = D->ListAddStr(2, LevelNames[uLevel]);
 				D->ListSetDataEx(2, index, (void*)uLevel, sizeof(void*));
 
-				if ( uLevel == 5 ) //normal
+				if ( uLevel == pCfg->GetLevel() )
 					pos.SelectPos = index;
 			}
 		}
