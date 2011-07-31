@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setcolor.hpp"
 #include "mix.hpp"
 #include "FarGuid.hpp"
+#include "console.hpp"
 
 typedef void   (WINAPI *iClosePanelPrototype)          (const ClosePanelInfo *Info);
 typedef int    (WINAPI *iComparePrototype)             (const CompareInfo *Info);
@@ -305,7 +306,7 @@ static BOOL WINAPI farColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, 
 	BOOL Result = FALSE;
 	if (!FrameManager->ManagerIsDown())
 	{
-		Result = GetColorDialog(*Color, true, false);
+		Result = Console.GetColorDialog(*Color, true, false);
 	}
 	return Result;
 }

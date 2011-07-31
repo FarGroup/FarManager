@@ -748,9 +748,7 @@ void MakeShadow(int X1,int Y1,int X2,int Y2)
 	if (X2>ScrX) X2=ScrX;
 
 	if (Y2>ScrY) Y2=ScrY;
-	FarColor Mask;
-	Colors::ConsoleColorToFarColor(0xf8, Mask);
-	ScrBuf.ApplyColorMask(X1,Y1,X2,Y2,Mask);
+	ScrBuf.ApplyShadow(X1,Y1,X2,Y2);
 }
 
 void ChangeBlockColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)

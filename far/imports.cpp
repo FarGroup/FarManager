@@ -48,8 +48,8 @@ ImportedFunctions::ImportedFunctions()
 
 	if (hKernel)
 	{
-		pfnGetConsoleKeyboardLayoutName = reinterpret_cast<PGETCONSOLEKEYBOARDLAYOUTNAME>(GetProcAddress(hKernel, "GetConsoleKeyboardLayoutNameW"));
-		pfnCreateSymbolicLink = reinterpret_cast<PCREATESYMBOLICLINK>(GetProcAddress(hKernel, "CreateSymbolicLinkW"));
+		pfnGetConsoleKeyboardLayoutName = reinterpret_cast<GETCONSOLEKEYBOARDLAYOUTNAME>(GetProcAddress(hKernel, "GetConsoleKeyboardLayoutNameW"));
+		pfnCreateSymbolicLink = reinterpret_cast<CREATESYMBOLICLINK>(GetProcAddress(hKernel, "CreateSymbolicLinkW"));
 		pfnFindFirstFileNameW = reinterpret_cast<FINDFIRSTFILENAMEW>(GetProcAddress(hKernel, "FindFirstFileNameW"));
 		pfnFindNextFileNameW = reinterpret_cast<FINDNEXTFILENAMEW>(GetProcAddress(hKernel, "FindNextFileNameW"));
 		pfnFindFirstStreamW = reinterpret_cast<FINDFIRSTSTREAMW>(GetProcAddress(hKernel, "FindFirstStreamW"));
@@ -77,7 +77,7 @@ ImportedFunctions::ImportedFunctions()
 
 	if (hShell)
 	{
-		pfnSHCreateAssociationRegistration = reinterpret_cast<PSHCREATEASSOCIATIONREGISTRATION>(GetProcAddress(hShell, "SHCreateAssociationRegistration"));
+		pfnSHCreateAssociationRegistration = reinterpret_cast<SHCREATEASSOCIATIONREGISTRATION>(GetProcAddress(hShell, "SHCreateAssociationRegistration"));
 	}
 
 	if(hVirtDisk)

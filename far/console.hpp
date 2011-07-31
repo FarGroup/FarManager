@@ -35,6 +35,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class console
 {
 public:
+	console();
+	~console();
+
 	bool Allocate() const;
 	bool Free() const;
 
@@ -105,8 +108,10 @@ public:
 
 	bool ResetPosition() const;
 
+	bool GetColorDialog(FarColor& Color, bool Centered = false, bool AddTransparent = false) const;
+
 private:
-	int GetDelta() const;
+	class ConsoleCore* Core;
 };
 
 extern console Console;

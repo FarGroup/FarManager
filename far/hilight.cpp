@@ -327,8 +327,8 @@ void ApplyDefaultStartingColors(HighlightDataColor *Colors)
 	for (int j=0; j<2; j++)
 		for (int i=0; i<4; i++)
 		{
-			Colors->Color[j][i].ForegroundColor=0xFF000000;
-			Colors->Color[j][i].BackgroundColor=0xFF000000;
+			Colors->Color[j][i].ForegroundColor=0x00000000;
+			Colors->Color[j][i].BackgroundColor=0x00000000;
 		}
 
 	Colors->MarkChar=0x00FF0000;
@@ -369,10 +369,16 @@ void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
 		{
 			//Если текущие цвета в Src (fore и/или back) не прозрачные
 			//то унаследуем их в Dest.
-			if (!(SrcColors->Color[j][i].ForegroundColor&0xFF000000))
+			if ((SrcColors->Color[j][i].ForegroundColor&0xff000000)==0xff000000)
+			{
 				DestColors->Color[j][i].ForegroundColor=SrcColors->Color[j][i].ForegroundColor;
-			if (!(SrcColors->Color[j][i].BackgroundColor&0xFF000000))
+				SrcColors->Color[j][i].Flags&FCF_FG_4BIT? DestColors->Color[j][i].Flags|=FCF_FG_4BIT : DestColors->Color[j][i].Flags&=~FCF_FG_4BIT;
+			}
+			if ((SrcColors->Color[j][i].BackgroundColor&0xff000000)==0xff000000)
+			{
 				DestColors->Color[j][i].BackgroundColor=SrcColors->Color[j][i].BackgroundColor;
+				SrcColors->Color[j][i].Flags&FCF_BG_4BIT? DestColors->Color[j][i].Flags|=FCF_BG_4BIT : DestColors->Color[j][i].Flags&=~FCF_BG_4BIT;
+			}
 		}
 	}
 
@@ -380,21 +386,6 @@ void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
 	if (!(SrcColors->MarkChar&0x00FF0000))
 		DestColors->MarkChar=SrcColors->MarkChar;
 }
-
-/*
-bool HasTransparent(HighlightDataColor *Colors)
-{
-  for (int j=0; j<2; j++)
-    for (int i=0; i<4; i++)
-      if (Colors->Color[j][i]&0xFF00)
-        return true;
-
-  if (Colors->MarkChar&0x00FF0000)
-    return true;
-
-  return false;
-}
-*/
 
 void ApplyFinalColors(HighlightDataColor *Colors)
 {
@@ -406,9 +397,30 @@ void ApplyFinalColors(HighlightDataColor *Colors)
 		{
 			//Если какой то из текущих цветов (fore или back) прозрачный
 			//то унаследуем соответствующий цвет с панелей.
-			// BUGBUG
-			/*BYTE temp=(BYTE)((Colors->Color[j][i]&0xFF00)>>8);
-			Colors->Color[j][i]=((~temp)&(BYTE)Colors->Color[j][i])|(temp&(BYTE)Palette[FarColor[i]-COL_FIRSTPALETTECOLOR]);*/
+			if(!(Colors->Color[j][i].BackgroundColor&0xff000000))
+			{
+				Colors->Color[j][i].BackgroundColor=Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].BackgroundColor;
+				if(Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_BG_4BIT)
+				{
+					Colors->Color[j][i].Flags|=FCF_BG_4BIT;
+				}
+				else
+				{
+					Colors->Color[j][i].Flags&=~FCF_BG_4BIT;
+				}
+			}
+			if(!(Colors->Color[j][i].ForegroundColor&0xff000000))
+			{
+				Colors->Color[j][i].ForegroundColor=Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].ForegroundColor;
+				if(Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_FG_4BIT)
+				{
+					Colors->Color[j][i].Flags|=FCF_FG_4BIT;
+				}
+				else
+				{
+					Colors->Color[j][i].Flags&=~FCF_FG_4BIT;
+				}
+			}
 		}
 
 	//Если символ пометки прозрачный то его как бы и нет вообще.
@@ -990,8 +1002,9 @@ void SetHighlighting(bool DeleteOld)
 	for (size_t I=0; I < ARRAYSIZE(StdHighlightData); I++)
 	{
 		Colors::ConsoleColorToFarColor(StdHighlightData[I].InitNC, StdHighlightData[I].NormalColor);
-		StdHighlightData[I].NormalColor.BackgroundColor|=0xFF000000;
+		StdHighlightData[I].NormalColor.BackgroundColor&=0x00ffffff;
 		Colors::ConsoleColorToFarColor(StdHighlightData[I].InitCC, StdHighlightData[I].CursorColor);
+
 
 		FormatString strKeyName;
 		strKeyName << L"Group" << I;
@@ -1010,12 +1023,29 @@ void SetHighlighting(bool DeleteOld)
 		cfg->SetValue(key,HLS.CursorColorB,StdHighlightData[I].CursorColor.BackgroundColor);
 		cfg->SetValue(key,HLS.CursorColorFlags,StdHighlightData[I].CursorColor.Flags);
 
+		UINT DefaultBlack = 0xff000000, TransparentBlack = 0x00000000;
+		cfg->SetValue(key,HLS.SelectedColorF,DefaultBlack);
+		cfg->SetValue(key,HLS.SelectedColorB,TransparentBlack);
 		cfg->SetValue(key,HLS.SelectedColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
+
+		cfg->SetValue(key,HLS.SelectedCursorColorF,DefaultBlack);
+		cfg->SetValue(key,HLS.SelectedCursorColorB,DefaultBlack);
 		cfg->SetValue(key,HLS.SelectedCursorColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
 
+		cfg->SetValue(key,HLS.MarkCharNormalColorF,DefaultBlack);
+		cfg->SetValue(key,HLS.MarkCharNormalColorB,TransparentBlack);
 		cfg->SetValue(key,HLS.MarkCharNormalColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
+
+		cfg->SetValue(key,HLS.MarkCharSelectedColorF,DefaultBlack);
+		cfg->SetValue(key,HLS.MarkCharSelectedColorB,TransparentBlack);
 		cfg->SetValue(key,HLS.MarkCharSelectedColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
+
+		cfg->SetValue(key,HLS.MarkCharCursorColorF,DefaultBlack);
+		cfg->SetValue(key,HLS.MarkCharCursorColorB,DefaultBlack);
 		cfg->SetValue(key,HLS.MarkCharCursorColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
+
+		cfg->SetValue(key,HLS.MarkCharSelectedCursorColorF,DefaultBlack);
+		cfg->SetValue(key,HLS.MarkCharSelectedCursorColorB,DefaultBlack);
 		cfg->SetValue(key,HLS.MarkCharSelectedCursorColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
 	}
 

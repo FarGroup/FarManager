@@ -37,15 +37,47 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 int Colors::FarColorToConsoleColor(const FarColor& Color)
 {
-	const FARCOLORFLAGS consoleColors=FCF_FG_4BIT|FCF_BG_4BIT;
-	if((Color.Flags&consoleColors)==consoleColors) return ((Color.ForegroundColor&ConsoleMask)<<ConsoleFgShift)|((Color.BackgroundColor&ConsoleMask)<<ConsoleBgShift);
-	return DefaultColor;
+	static FARCOLORFLAGS Flags[2] = {FCF_BG_4BIT, FCF_FG_4BIT};
+	static int Shifts[2] = {ConsoleBgShift, ConsoleFgShift};
+	int TrueColors[2]={Color.BackgroundColor, Color.ForegroundColor};
+	BYTE IndexColors[2] = {0,7};
+
+	for(size_t i = 0; i < ARRAYSIZE(TrueColors); ++i)
+	{
+		if(Color.Flags&Flags[i])
+		{
+			IndexColors[i] = TrueColors[i]&ConsoleMask;
+		}
+		else
+		{
+			switch(TrueColors[i]&0x00ffffff)
+			{
+				case 0x000000: IndexColors[i] = 0x0; break;
+				case 0x800000: IndexColors[i] = 0x1; break;
+				case 0x008000: IndexColors[i] = 0x2; break;
+				case 0x808000: IndexColors[i] = 0x3; break;
+				case 0x000080: IndexColors[i] = 0x4; break;
+				case 0x800080: IndexColors[i] = 0x5; break;
+				case 0x008080: IndexColors[i] = 0x6; break;
+				case 0xc0c0c0: IndexColors[i] = 0x7; break;
+				case 0x808080: IndexColors[i] = 0x8; break;
+				case 0xff0000: IndexColors[i] = 0x9; break;
+				case 0x00ff00: IndexColors[i] = 0xa; break;
+				case 0xffff00: IndexColors[i] = 0xb; break;
+				case 0x0000ff: IndexColors[i] = 0xc; break;
+				case 0xff00ff: IndexColors[i] = 0xd; break;
+				case 0x00ffff: IndexColors[i] = 0xe; break;
+				case 0xffffff: IndexColors[i] = 0xf; break;
+			}
+		}
+	}
+	return (IndexColors[0] << Shifts[0]) | (IndexColors[1] << Shifts[1]);
 }
 
 void Colors::ConsoleColorToFarColor(int Color,FarColor& NewColor)
 {
 	NewColor.Flags=FCF_FG_4BIT|FCF_BG_4BIT;
-	NewColor.ForegroundColor=(Color>>ConsoleFgShift)&ConsoleMask;
-	NewColor.BackgroundColor=(Color>>ConsoleBgShift)&ConsoleMask;
+	NewColor.ForegroundColor=((Color>>ConsoleFgShift)&ConsoleMask)|0xff000000;
+	NewColor.BackgroundColor=((Color>>ConsoleBgShift)&ConsoleMask)|0xff000000;
 	NewColor.Reserved=nullptr;
 }

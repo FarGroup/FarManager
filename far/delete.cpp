@@ -310,7 +310,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 					{
 						DWORD CurTime=GetTickCount();
 
-						if (ItemsCount > 1 && CurTime-StartTime>RedrawTimeout || FirstTime)
+						if (ItemsCount > 1 && (CurTime-StartTime>RedrawTimeout || FirstTime))
 						{
 							StartTime=CurTime;
 							FirstTime=false;

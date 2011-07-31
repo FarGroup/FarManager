@@ -173,27 +173,37 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text,size_t MaxT
 }
 
 /* Изменить значение цветовых атрибутов в соответствии с маской
-   (в основном применяется для "создания" тени)
+   (применяется для "создания" тени)
 */
-void ScreenBuf::ApplyColorMask(int X1,int Y1,int X2,int Y2,const FarColor& ColorMask)
+void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 {
 	CriticalSectionLock Lock(CS);
 	int Width=X2-X1+1;
 	int Height=Y2-Y1+1;
 	int I, J;
-	FarColor Mask;
-	Colors::ConsoleColorToFarColor(0x08, Mask);
 	for (I=0; I < Height; I++)
 	{
 		FAR_CHAR_INFO *PtrBuf=Buf+(Y1+I)*BufX+X1;
 
 		for (J=0; J < Width; J++, ++PtrBuf)
 		{
-			PtrBuf->Attributes.ForegroundColor&=~ColorMask.ForegroundColor;
-			PtrBuf->Attributes.BackgroundColor&=~ColorMask.BackgroundColor;
-			if (!PtrBuf->Attributes.ForegroundColor && !PtrBuf->Attributes.BackgroundColor)
+			PtrBuf->Attributes.BackgroundColor = 0;
+
+			if(PtrBuf->Attributes.Flags&FCF_FG_4BIT)
 			{
-				PtrBuf->Attributes=Mask;
+				PtrBuf->Attributes.ForegroundColor&=~0x8;
+				if(!PtrBuf->Attributes.ForegroundColor)
+				{
+					PtrBuf->Attributes.ForegroundColor=0x8;
+				}
+			}
+			else
+			{
+				PtrBuf->Attributes.ForegroundColor&=~0x808080;
+				if(!PtrBuf->Attributes.ForegroundColor)
+				{
+					PtrBuf->Attributes.ForegroundColor = 0x808080;
+				}
 			}
 		}
 	}

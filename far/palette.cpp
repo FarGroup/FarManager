@@ -407,8 +407,8 @@ palette::palette():
 		Colors::ConsoleColorToFarColor(DefaultPaletteIndex[i], DefaultPalette[i]);
 		Colors::ConsoleColorToFarColor(BlackPaletteIndex[i], BlackPalette[i]);
 	}
-	DefaultPalette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor|=0xFF000000;
-	DefaultPalette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor|=0xFF000000;
+	DefaultPalette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor&=0x00ffffff;
+	DefaultPalette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor&=0x00ffffff;
 }
 
 void palette::ResetToDefault()

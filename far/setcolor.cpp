@@ -49,6 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "palette.hpp"
 #include "config.hpp"
+#include "console.hpp"
 
 static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2=nullptr);
 
@@ -57,7 +58,7 @@ void GetColor(int PaletteIndex, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2, VMen
 	ChangeMacroMode chgMacroMode(MACRO_MENU);
 	FarColor NewColor = Opt.Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR];
 
-	if (GetColorDialog(NewColor))
+	if (Console.GetColorDialog(NewColor))
 	{
 		Opt.Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR] = NewColor;
 		ScrBuf.Lock(); // отменяем всякую прорисовку
@@ -624,7 +625,7 @@ static INT_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, void* Pa
 }
 
 
-int GetColorDialog(FarColor& Color,bool bCentered,bool bAddTransparent)
+bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 {
 	FarDialogItem ColorDlgData[]=
 	{
@@ -735,8 +736,8 @@ int GetColorDialog(FarColor& Color,bool bCentered,bool bAddTransparent)
 			ColorDlg[i].X2+=4;
 		}
 
-		ColorDlg[35].Selected=(Color.ForegroundColor&0xFF000000?1:0);
-		ColorDlg[36].Selected=(Color.BackgroundColor&0xFF000000?1:0);
+		ColorDlg[35].Selected=(Color.ForegroundColor&0xff000000)?0:1;
+		ColorDlg[36].Selected=(Color.BackgroundColor&0xff000000)?0:1;
 	}
 	else
 	{
@@ -761,17 +762,17 @@ int GetColorDialog(FarColor& Color,bool bCentered,bool bAddTransparent)
 		Color=CurColor;
 
 		if (ColorDlg[35].Selected)
-			Color.ForegroundColor|=0xFF000000;
+			Color.ForegroundColor&=0x00ffffff;
 		else
-			Color.ForegroundColor&=0x00FFFFFF;
+			Color.ForegroundColor|=0xff000000;
 
 		if (ColorDlg[36].Selected)
-			Color.BackgroundColor|=0xFF000000;
+			Color.BackgroundColor&=0x00ffffff;
 		else
-			Color.BackgroundColor&=0x00FFFFFF;
+			Color.BackgroundColor|=0xff000000;
 
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }
