@@ -3,6 +3,26 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 31.07.2011 16:34:12 +0200 - build 2120
+
+1. Correction for default highlighting of files.
+
+drkns 31.07.2011 16:23:27 +0200 - build 2119
+
+1. Correction of 2118.1.
+
+drkns 31.07.2011 16:09:11 +0200 - build 2118
+
+1. Inner changes in color processing.
+
+2. Experimental support for external rendering of FAR window.
+
+drkns 28.07.2011 19:46:22 +0200 - build 2117
+
+1. Wipe progress bar is now shown.
+
+2. Wrapper can be switched off at compile time.
+
 drkns 25.07.2011 19:15:39 +0200 - build 2116
 
 1. DM_LISTSETMOUSEREACTION no longer exists. Desired list behavior is set with DIF_LISTTRACKMOUSE/DIF_LISTTRACKMOUSEINFOCUS flags at dialog creation.
