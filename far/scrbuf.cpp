@@ -192,7 +192,7 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 			if(PtrBuf->Attributes.Flags&FCF_FG_4BIT)
 			{
 				PtrBuf->Attributes.ForegroundColor&=~0x8;
-				if(!PtrBuf->Attributes.ForegroundColor)
+				if(!(PtrBuf->Attributes.ForegroundColor&0x00ffffff))
 				{
 					PtrBuf->Attributes.ForegroundColor=0x8;
 				}
@@ -200,7 +200,7 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 			else
 			{
 				PtrBuf->Attributes.ForegroundColor&=~0x808080;
-				if(!PtrBuf->Attributes.ForegroundColor)
+				if(!(PtrBuf->Attributes.ForegroundColor&0x00ffffff))
 				{
 					PtrBuf->Attributes.ForegroundColor = 0x808080;
 				}
