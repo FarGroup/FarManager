@@ -64,14 +64,8 @@ FileFilterParams::FileFilterParams()
 		for(size_t j = 0; j < 4; ++j)
 		{
 			FHighlight.Colors.Color[i][j].ForegroundColor|=0xff000000;
-			FHighlight.Colors.Color[i][j].BackgroundColor|=0xff000000;
 		}
 	}
-
-	FHighlight.Colors.Color[0][0].BackgroundColor&=0x00ffffff;
-	FHighlight.Colors.Color[0][1].BackgroundColor&=0x00ffffff;
-	FHighlight.Colors.Color[1][0].BackgroundColor&=0x00ffffff;
-	FHighlight.Colors.Color[1][1].BackgroundColor&=0x00ffffff;
 
 	FHighlight.SortGroup=DEFAULT_SORT_GROUP;
 	FHighlight.bContinueProcessing=false;

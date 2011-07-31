@@ -1004,7 +1004,7 @@ void SetHighlighting(bool DeleteOld)
 		Colors::ConsoleColorToFarColor(StdHighlightData[I].InitNC, StdHighlightData[I].NormalColor);
 		StdHighlightData[I].NormalColor.BackgroundColor&=0x00ffffff;
 		Colors::ConsoleColorToFarColor(StdHighlightData[I].InitCC, StdHighlightData[I].CursorColor);
-
+		StdHighlightData[I].CursorColor.BackgroundColor&=0x00ffffff;
 
 		FormatString strKeyName;
 		strKeyName << L"Group" << I;
@@ -1029,7 +1029,7 @@ void SetHighlighting(bool DeleteOld)
 		cfg->SetValue(key,HLS.SelectedColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
 
 		cfg->SetValue(key,HLS.SelectedCursorColorF,DefaultBlack);
-		cfg->SetValue(key,HLS.SelectedCursorColorB,DefaultBlack);
+		cfg->SetValue(key,HLS.SelectedCursorColorB,TransparentBlack);
 		cfg->SetValue(key,HLS.SelectedCursorColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
 
 		cfg->SetValue(key,HLS.MarkCharNormalColorF,DefaultBlack);
@@ -1041,11 +1041,11 @@ void SetHighlighting(bool DeleteOld)
 		cfg->SetValue(key,HLS.MarkCharSelectedColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
 
 		cfg->SetValue(key,HLS.MarkCharCursorColorF,DefaultBlack);
-		cfg->SetValue(key,HLS.MarkCharCursorColorB,DefaultBlack);
+		cfg->SetValue(key,HLS.MarkCharCursorColorB,TransparentBlack);
 		cfg->SetValue(key,HLS.MarkCharCursorColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
 
 		cfg->SetValue(key,HLS.MarkCharSelectedCursorColorF,DefaultBlack);
-		cfg->SetValue(key,HLS.MarkCharSelectedCursorColorB,DefaultBlack);
+		cfg->SetValue(key,HLS.MarkCharSelectedCursorColorB,TransparentBlack);
 		cfg->SetValue(key,HLS.MarkCharSelectedCursorColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
 	}
 
