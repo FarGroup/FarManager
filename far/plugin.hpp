@@ -69,12 +69,12 @@ typedef unsigned __int64 FARCOLORFLAGS;
 static const FARCOLORFLAGS
 	FCF_FG_4BIT       = 0x0000000000000001ULL,
 	FCF_BG_4BIT       = 0x0000000000000002ULL,
-	FCF_4BITMASK     = FCF_FG_4BIT|FCF_BG_4BIT,
+	FCF_4BITMASK      = 0x0000000000000003ULL, //FCF_FG_4BIT|FCF_BG_4BIT
 
 	FCF_FG_BOLD       = 0x0000000000000004ULL,
 	FCF_FG_ITALIC     = 0x0000000000000008ULL,
 	FCF_FG_UNDERLINE  = 0x0000000000000010ULL,
-	FCF_STYLEMASK     = FCF_FG_BOLD|FCF_FG_ITALIC|FCF_FG_UNDERLINE;
+	FCF_STYLEMASK     = 0x000000000000001cULL; //FCF_FG_BOLD|FCF_FG_ITALIC|FCF_FG_UNDERLINE
 
 struct FarColor
 {
@@ -510,7 +510,7 @@ struct DialogInfo
 struct FarGetDialogItem
 {
 	size_t Size;
-	FarDialogItem* Item;
+	struct FarDialogItem* Item;
 };
 
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
@@ -694,7 +694,7 @@ struct PluginPanelItem
 struct FarGetPluginPanelItem
 {
 	size_t Size;
-	PluginPanelItem* Item;
+	struct PluginPanelItem* Item;
 };
 
 typedef unsigned __int64 PANELINFOFLAGS;
@@ -819,7 +819,7 @@ enum FILE_CONTROL_COMMANDS
 typedef void (WINAPI *FARAPITEXT)(
     int X,
     int Y,
-    const FarColor* Color,
+    const struct FarColor* Color,
     const wchar_t *Str
 );
 
@@ -1287,7 +1287,7 @@ struct FarSetColors
 	FARSETCOLORFLAGS Flags;
 	size_t StartIndex;
 	size_t ColorsCount;
-	FarColor* Colors;
+	struct FarColor* Colors;
 };
 
 enum WINDOWINFO_TYPE
