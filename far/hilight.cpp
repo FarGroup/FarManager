@@ -327,7 +327,7 @@ void ApplyDefaultStartingColors(HighlightDataColor *Colors)
 	for (int j=0; j<2; j++)
 		for (int i=0; i<4; i++)
 		{
-			Colors->Color[j][i].ForegroundColor=0x00000000;
+			Colors->Color[j][i].ForegroundColor=0xff000000;
 			Colors->Color[j][i].BackgroundColor=0x00000000;
 		}
 
@@ -346,12 +346,15 @@ void ApplyBlackOnBlackColors(HighlightDataColor *Colors)
 			FarColor NewColor = Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR];
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor=(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor&0xFF000000)|(NewColor.BackgroundColor&0x00FFFFFF);
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor=(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor&0xFF000000)|(NewColor.ForegroundColor&0x00FFFFFF);
-			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Flags = NewColor.Flags;
+			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Flags&=~FCF_4BITMASK;
+			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Flags |= NewColor.Flags;
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Reserved = NewColor.Reserved;
 		}
 		if (!(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor&0x00FFFFFF) && !(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor&0x00FFFFFF))
 		{
+			FARCOLORFLAGS ExFlags = Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags&=~FCF_4BITMASK;
 			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i] = Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i];
+			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags=(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags&FCF_4BITMASK)|ExFlags;
 		}
 	}
 }
@@ -379,6 +382,7 @@ void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
 				DestColors->Color[j][i].BackgroundColor=SrcColors->Color[j][i].BackgroundColor;
 				SrcColors->Color[j][i].Flags&FCF_BG_4BIT? DestColors->Color[j][i].Flags|=FCF_BG_4BIT : DestColors->Color[j][i].Flags&=~FCF_BG_4BIT;
 			}
+			DestColors->Color[j][i].Flags |= SrcColors->Color[j][i].Flags&~FCF_4BITMASK;
 		}
 	}
 
