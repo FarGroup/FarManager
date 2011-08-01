@@ -2363,6 +2363,8 @@ enum FAR_PKF_FLAGS
 	PKF_CONTROL     = 0x00000001,
 	PKF_ALT         = 0x00000002,
 	PKF_SHIFT       = 0x00000004,
+ 	PKF_RCONTROL    = 0x00000010,
+ 	PKF_RALT        = 0x00000020,
 	PKF_PREPROCESS  = 0x00080000, // for "Key", function ProcessKey()
 };
 #endif // END FAR_USE_INTERNALS

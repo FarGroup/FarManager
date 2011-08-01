@@ -1067,9 +1067,9 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 					size_t rd;
 					int vkey=0,ctrl=0;
 					TranslateKeyToVK(Opt.ConsoleDetachKey,vkey,ctrl,nullptr);
-					int alt=ctrl&PKF_ALT;
+					int alt=ctrl&(PKF_ALT|PKF_RALT);
 					int shift=ctrl&PKF_SHIFT;
-					ctrl=ctrl&PKF_CONTROL;
+					ctrl=ctrl&(PKF_CONTROL|PKF_RCONTROL);
 					bool bAlt, bShift, bCtrl;
 					DWORD dwControlKeyState;
 
@@ -1205,7 +1205,7 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 	}
 	else
 	{
-		
+
 		if (!Silent)
 		{
 			CtrlObject->Cp()->Redraw();
