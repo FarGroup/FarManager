@@ -1,3 +1,7 @@
+drkns 02.08.2011 10:55:14 +0200 - build 2123
+
+1. Mantis#0001842: В Execute.cpp неаккуратно считывается буфер
+
 svs 01.08.2011 15:43:24 +0300 - build 2122
 
 1. Mantis#0001832: Проблема FarNameToInputRecord / FarInputRecordToName
