@@ -1887,6 +1887,14 @@ int Edit::GetSelString(string &strStr)
 
 
 
+void Edit::AppendString(const wchar_t *Str)
+{
+	int LastPos = CurPos;
+	CurPos = GetLength();
+	InsertString(Str);
+	CurPos = LastPos;
+}
+
 void Edit::InsertString(const wchar_t *Str)
 {
 	if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
@@ -3173,7 +3181,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 					CurPos--;
 				}
 
-				InsertString(ComplMenu.GetItemPtr(0)->strName+SelStart);
+				AppendString(ComplMenu.GetItemPtr(0)->strName+SelStart);
 				Select(SelStart, GetLength());
 				Show();
 			}
@@ -3266,7 +3274,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 										}
 
 										DisableCallback();
-										InsertString(ComplMenu.GetItemPtr(0)->strName+SelStart);
+										AppendString(ComplMenu.GetItemPtr(0)->strName+SelStart);
 										if(X2-X1>GetLength())
 											SetLeftPos(0);
 										Select(SelStart, GetLength());

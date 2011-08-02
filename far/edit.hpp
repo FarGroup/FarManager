@@ -235,6 +235,7 @@ class Edit:public ScreenObject
 
 		int   GetLength();
 
+		void AppendString(const wchar_t *Str);
 		void  InsertString(const wchar_t *Str);
 		void  InsertBinaryString(const wchar_t *Str,int Length);
 

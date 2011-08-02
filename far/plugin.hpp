@@ -354,7 +354,7 @@ struct FarListItem
 {
 	LISTITEMFLAGS Flags;
 	const wchar_t *Text;
-	DWORD Reserved[3];
+	DWORD_PTR Reserved[3];
 };
 
 struct FarListUpdate
@@ -392,7 +392,7 @@ struct FarListFind
 	int StartIndex;
 	const wchar_t *Pattern;
 	FARLISTFINDFLAGS Flags;
-	DWORD Reserved;
+	DWORD_PTR Reserved;
 };
 
 struct FarListDelete
@@ -418,7 +418,7 @@ struct FarListInfo
 	int TopPos;
 	int MaxHeight;
 	int MaxLength;
-	DWORD Reserved[6];
+	DWORD_PTR Reserved[6];
 };
 
 struct FarListItemData
@@ -426,7 +426,7 @@ struct FarListItemData
 	int Index;
 	size_t DataSize;
 	void *Data;
-	DWORD Reserved;
+	DWORD_PTR Reserved;
 };
 
 struct FarList
@@ -463,10 +463,10 @@ struct FarDialogItem
 	int X1,Y1,X2,Y2;
 	union
 	{
-		DWORD_PTR Reserved;
 		int Selected;
 		struct FarList *ListItems;
 		struct FAR_CHAR_INFO *VBuf;
+		DWORD_PTR Reserved;
 	}
 #ifndef __cplusplus
 	Param
@@ -586,7 +586,7 @@ typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
     const wchar_t        *HelpTopic,
     const struct FarDialogItem *Item,
     size_t                ItemsNumber,
-    DWORD                 Reserved,
+    DWORD_PTR             Reserved,
     FARDIALOGFLAGS        Flags,
     FARWINDOWPROC         DlgProc,
     void*                 Param
@@ -624,7 +624,7 @@ struct FarMenuItem
 	MENUITEMFLAGS Flags;
 	const wchar_t *Text;
 	DWORD AccelKey;
-	DWORD Reserved;
+	DWORD_PTR Reserved;
 	DWORD_PTR UserData;
 };
 
@@ -758,7 +758,7 @@ struct PanelInfo
 	int ViewMode;
 	enum OPENPANELINFO_SORTMODES SortMode;
 	PANELINFOFLAGS Flags;
-	DWORD Reserved;
+	DWORD_PTR Reserved;
 };
 
 
@@ -1100,7 +1100,7 @@ struct ActlMediaType
 {
 	DWORD Letter;
 	FARMEDIATYPEFLAGS Flags;
-	DWORD Reserved[2];
+	DWORD_PTR Reserved[2];
 };
 #endif // END FAR_USE_INTERNALS
 
@@ -1391,7 +1391,7 @@ struct ViewerSetMode
 #endif
 	;
 	VIEWER_SETMODEFLAGS_TYPES Flags;
-	DWORD Reserved;
+	DWORD_PTR Reserved;
 };
 
 struct ViewerSelect
@@ -1420,7 +1420,7 @@ struct ViewerMode
 	int Wrap;
 	int WordWrap;
 	int Hex;
-	DWORD Reserved[4];
+	DWORD_PTR Reserved[4];
 };
 
 struct ViewerInfo
@@ -1549,14 +1549,14 @@ struct EditorSetParameter
 	{
 		int iParam;
 		wchar_t *wszParam;
-		DWORD Reserved1;
+		DWORD_PTR Reserved;
 	}
 #ifndef __cplusplus
 	Param
 #endif
 	;
 	unsigned __int64 Flags;
-	DWORD Size;
+	size_t Size;
 };
 
 
@@ -1656,7 +1656,7 @@ struct EditorInfo
 	int BookMarkCount;
 	DWORD CurState;
 	UINT CodePage;
-	DWORD Reserved[5];
+	DWORD_PTR Reserved[5];
 };
 
 struct EditorBookMarks
@@ -1665,7 +1665,7 @@ struct EditorBookMarks
 	int *Cursor;
 	int *ScreenLine;
 	int *LeftPos;
-	DWORD Reserved[4];
+	DWORD_PTR Reserved[4];
 };
 
 struct EditorSetPosition

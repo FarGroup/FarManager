@@ -323,7 +323,7 @@ virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoo
 		Colors::ConsoleColorToFarColor(ConsoleBuffer[i].Attributes, Buffer[i+Offset].Attributes);
 	}
 
-	delete[] ConsoleBuffer; 
+	delete[] ConsoleBuffer;
 
 	if(Opt.WindowMode)
 	{
