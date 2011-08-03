@@ -57,9 +57,9 @@ int Colors::FarColorToConsoleColor(const FarColor& Color)
 			}
 			else
 			{
-				int B = LOBYTE(LOWORD(TrueColors[i]));
-				int G = HIBYTE(LOWORD(TrueColors[i]));
 				int R = LOBYTE(HIWORD(TrueColors[i]));
+				int G = HIBYTE(LOWORD(TrueColors[i]));
+				int B = LOBYTE(LOWORD(TrueColors[i]));
   
 				// special case, silver color:
 				if(INSIDE(160, R, 223) && INSIDE(160, G, 223) && INSIDE(160, B, 223))
