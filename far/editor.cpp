@@ -859,17 +859,17 @@ int Editor::ProcessKey(int Key)
 					KEY_DOWN,      KEY_NUMPAD2,
 					KEY_PGUP,      KEY_NUMPAD9,
 					KEY_PGDN,      KEY_NUMPAD3,
-					KEY_CTRLHOME,  KEY_CTRLNUMPAD7,
-					KEY_CTRLPGUP,  KEY_CTRLNUMPAD9,
-					KEY_CTRLEND,   KEY_CTRLNUMPAD1,
-					KEY_CTRLPGDN,  KEY_CTRLNUMPAD3,
-					KEY_CTRLLEFT,  KEY_CTRLNUMPAD4,
-					KEY_CTRLRIGHT, KEY_CTRLNUMPAD7,
-					KEY_CTRLUP,    KEY_CTRLNUMPAD8,
-					KEY_CTRLDOWN,  KEY_CTRLNUMPAD2,
-					KEY_CTRLN,
-					KEY_CTRLE,
-					KEY_CTRLS,
+					KEY_CTRLHOME,  KEY_RCTRLHOME,  KEY_CTRLNUMPAD7,  KEY_RCTRLNUMPAD7,
+					KEY_CTRLPGUP,  KEY_RCTRLPGUP,  KEY_CTRLNUMPAD9,  KEY_RCTRLNUMPAD9,
+					KEY_CTRLEND,   KEY_RCTRLEND,   KEY_CTRLNUMPAD1,  KEY_RCTRLNUMPAD1,
+					KEY_CTRLPGDN,  KEY_RCTRLPGDN,  KEY_CTRLNUMPAD3,  KEY_RCTRLNUMPAD3,
+					KEY_CTRLLEFT,  KEY_RCTRLLEFT,  KEY_CTRLNUMPAD4,  KEY_RCTRLNUMPAD4,
+					KEY_CTRLRIGHT, KEY_RCTRLRIGHT, KEY_CTRLNUMPAD7,  KEY_RCTRLNUMPAD7,
+					KEY_CTRLUP,    KEY_RCTRLUP,    KEY_CTRLNUMPAD8,  KEY_RCTRLNUMPAD8,
+					KEY_CTRLDOWN,  KEY_RCTRLDOWN,  KEY_CTRLNUMPAD2,  KEY_RCTRLNUMPAD2,
+					KEY_CTRLN,     KEY_RCTRLN,
+					KEY_CTRLE,     KEY_RCTRLE,
+					KEY_CTRLS,     KEY_RCTRLS,
 				};
 
 				for (size_t I=0; I<ARRAYSIZE(UnmarkKeys); I++)
@@ -893,7 +893,7 @@ int Editor::ProcessKey(int Key)
 		}
 	}
 
-	if (Key==KEY_ALTD)
+	if (Key==KEY_ALTD || Key==KEY_RALTD)
 		Key=KEY_CTRLK;
 
 	// работа с закладками
@@ -913,13 +913,14 @@ int Editor::ProcessKey(int Key)
 
 	switch (Key)
 	{
-		case KEY_SHIFTLEFT:    case KEY_SHIFTRIGHT:
-		case KEY_SHIFTUP:      case KEY_SHIFTDOWN:
-		case KEY_SHIFTHOME:    case KEY_SHIFTEND:
-		case KEY_SHIFTNUMPAD4: case KEY_SHIFTNUMPAD6:
-		case KEY_SHIFTNUMPAD8: case KEY_SHIFTNUMPAD2:
-		case KEY_SHIFTNUMPAD7: case KEY_SHIFTNUMPAD1:
+		case KEY_SHIFTLEFT:      case KEY_SHIFTRIGHT:
+		case KEY_SHIFTUP:        case KEY_SHIFTDOWN:
+		case KEY_SHIFTHOME:      case KEY_SHIFTEND:
+		case KEY_SHIFTNUMPAD4:   case KEY_SHIFTNUMPAD6:
+		case KEY_SHIFTNUMPAD8:   case KEY_SHIFTNUMPAD2:
+		case KEY_SHIFTNUMPAD7:   case KEY_SHIFTNUMPAD1:
 		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:   /* 12.11.2002 DJ */
+		case KEY_RCTRLSHIFTLEFT: case KEY_RCTRLSHIFTNUMPAD4:
 		{
 			_KEYMACRO(CleverSysLog SL(L"Editor::ProcessKey(KEY_SHIFT*)"));
 			_SVS(SysLog(L"[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
@@ -966,7 +967,9 @@ int Editor::ProcessKey(int Key)
 	switch (Key)
 	{
 		case KEY_CTRLSHIFTPGUP:   case KEY_CTRLSHIFTNUMPAD9:
+		case KEY_RCTRLSHIFTPGUP:  case KEY_RCTRLSHIFTNUMPAD9:
 		case KEY_CTRLSHIFTHOME:   case KEY_CTRLSHIFTNUMPAD7:
+		case KEY_RCTRLSHIFTHOME:  case KEY_RCTRLSHIFTNUMPAD7:
 		{
 			Lock();
 			Pasting++;
@@ -976,7 +979,7 @@ int Editor::ProcessKey(int Key)
 				ProcessKey(KEY_SHIFTPGUP);
 			}
 
-			if (Key == KEY_CTRLSHIFTHOME || Key == KEY_CTRLSHIFTNUMPAD7)
+			if (Key == KEY_CTRLSHIFTHOME || Key == KEY_CTRLSHIFTNUMPAD7 || Key == KEY_RCTRLSHIFTHOME || Key == KEY_RCTRLSHIFTNUMPAD7)
 				ProcessKey(KEY_SHIFTHOME);
 
 			Pasting--;
@@ -985,7 +988,9 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLSHIFTPGDN:   case KEY_CTRLSHIFTNUMPAD3:
+		case KEY_RCTRLSHIFTPGDN:  case KEY_RCTRLSHIFTNUMPAD3:
 		case KEY_CTRLSHIFTEND:    case KEY_CTRLSHIFTNUMPAD1:
+		case KEY_RCTRLSHIFTEND:   case KEY_RCTRLSHIFTNUMPAD1:
 		{
 			Lock();
 			Pasting++;
@@ -1007,7 +1012,7 @@ int Editor::ProcessKey(int Key)
 			*/
 			Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
 
-			if (Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1)
+			if (Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1 || Key == KEY_RCTRLSHIFTEND || Key == KEY_RCTRLSHIFTNUMPAD1)
 				ProcessKey(KEY_SHIFTEND);
 
 			Pasting--;
@@ -1213,6 +1218,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
+		case KEY_RCTRLSHIFTLEFT: case KEY_RCTRLSHIFTNUMPAD4:
 		{
 			_SVS(CleverSysLog SL(L"case KEY_CTRLSHIFTLEFT"));
 			_SVS(SysLog(L"[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,SelEnd));
@@ -1274,6 +1280,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLSHIFTRIGHT:  case KEY_CTRLSHIFTNUMPAD6:
+		case KEY_RCTRLSHIFTRIGHT: case KEY_RCTRLSHIFTNUMPAD6:
 		{
 			_SVS(CleverSysLog SL(L"case KEY_CTRLSHIFTRIGHT"));
 			_SVS(SysLog(L"[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,SelEnd));
@@ -1479,24 +1486,29 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLADD:
+		case KEY_RCTRLADD:
 		{
 			Copy(TRUE);
 			return TRUE;
 		}
 		case KEY_CTRLA:
+		case KEY_RCTRLA:
 		{
 			UnmarkBlock();
 			SelectAll();
 			return TRUE;
 		}
 		case KEY_CTRLU:
+		case KEY_RCTRLU:
 		{
 			UnmarkMacroBlock();
 			UnmarkBlock();
 			return TRUE;
 		}
 		case KEY_CTRLC:
+		case KEY_RCTRLC:
 		case KEY_CTRLINS:    case KEY_CTRLNUMPAD0:
+		case KEY_RCTRLINS:   case KEY_RCTRLNUMPAD0:
 		{
 			if (/*!EdOpt.PersistentBlocks && */!BlockStart && !VBlockStart)
 			{
@@ -1510,7 +1522,9 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLP:
+		case KEY_RCTRLP:
 		case KEY_CTRLM:
+		case KEY_RCTRLM:
 		{
 			if (Flags.Check(FEDITOR_LOCKMODE))
 				return TRUE;
@@ -1521,13 +1535,13 @@ int Editor::ProcessKey(int Key)
 				CurLine->GetSelection(SelStart,SelEnd);
 				Pasting++;
 				bool OldUseInternalClipboard=Clipboard::SetUseInternalClipboardState(true);
-				ProcessKey(Key==KEY_CTRLP ? KEY_CTRLINS:KEY_SHIFTDEL);
+				ProcessKey((Key==KEY_CTRLP || Key==KEY_RCTRLP) ? KEY_CTRLINS:KEY_SHIFTDEL);
 
 				/* $ 10.04.2001 SVS
 				  ^P/^M - некорректно работали: уловие дл€ CurPos должно быть ">=",
 				   а не "меньше".
 				*/
-				if (Key==KEY_CTRLM && SelStart!=-1 && SelEnd!=-1)
+				if ((Key==KEY_CTRLM || Key==KEY_RCTRLM) && SelStart!=-1 && SelEnd!=-1)
 				{
 					if (CurPos>=SelEnd)
 						CurLine->SetCurPos(CurPos-(SelEnd-SelStart));
@@ -1549,6 +1563,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLX:
+		case KEY_RCTRLX:
 		case KEY_SHIFTDEL:
 		case KEY_SHIFTNUMDEL:
 		case KEY_SHIFTDECIMAL:
@@ -1556,6 +1571,7 @@ int Editor::ProcessKey(int Key)
 			Copy(FALSE);
 		}
 		case KEY_CTRLD:
+		case KEY_RCTRLD:
 		{
 			if (Flags.Check(FEDITOR_LOCKMODE))
 				return TRUE;
@@ -1566,6 +1582,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLV:
+		case KEY_RCTRLV:
 		case KEY_SHIFTINS: case KEY_SHIFTNUMPAD0:
 		{
 			if (Flags.Check(FEDITOR_LOCKMODE))
@@ -1730,6 +1747,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLBS:
+		case KEY_RCTRLBS:
 		{
 			if (!Flags.Check(FEDITOR_LOCKMODE))
 			{
@@ -1798,8 +1816,9 @@ int Editor::ProcessKey(int Key)
 		}
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
+		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_CTRLUP);
@@ -1808,8 +1827,9 @@ int Editor::ProcessKey(int Key)
 		}
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
+		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_CTRLDOWN);
@@ -1818,8 +1838,9 @@ int Editor::ProcessKey(int Key)
 		}
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
+		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsHWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsHWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_LEFT);
@@ -1828,8 +1849,9 @@ int Editor::ProcessKey(int Key)
 		}
 		case KEY_MSWHEEL_RIGHT:
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
+		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsHWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsHWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_RIGHT);
@@ -1837,13 +1859,15 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLUP:  case KEY_CTRLNUMPAD8:
+		case KEY_RCTRLUP: case KEY_RCTRLNUMPAD8:
 		{
 			Flags.Set(FEDITOR_NEWUNDO);
 			ScrollUp();
 			Show();
 			return TRUE;
 		}
-		case KEY_CTRLDOWN: case KEY_CTRLNUMPAD2:
+		case KEY_CTRLDOWN:  case KEY_CTRLNUMPAD2:
+		case KEY_RCTRLDOWN: case KEY_RCTRLNUMPAD2:
 		{
 			Flags.Set(FEDITOR_NEWUNDO);
 			ScrollDown();
@@ -1871,7 +1895,9 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLHOME:  case KEY_CTRLNUMPAD7:
+		case KEY_RCTRLHOME: case KEY_RCTRLNUMPAD7:
 		case KEY_CTRLPGUP:  case KEY_CTRLNUMPAD9:
+		case KEY_RCTRLPGUP: case KEY_RCTRLNUMPAD9:
 		{
 			{
 				Flags.Set(FEDITOR_NEWUNDO);
@@ -1879,7 +1905,7 @@ int Editor::ProcessKey(int Key)
 				NumLine=0;
 				TopScreen=CurLine=TopList;
 
-				if (Key == KEY_CTRLHOME || Key == KEY_CTRLNUMPAD7)
+				if (Key == KEY_CTRLHOME || Key == KEY_RCTRLHOME || Key == KEY_CTRLNUMPAD7 || Key == KEY_RCTRLNUMPAD7)
 					CurLine->SetCurPos(0);
 				else
 					CurLine->SetTabCurPos(StartPos);
@@ -1889,7 +1915,9 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLEND:   case KEY_CTRLNUMPAD1:
+		case KEY_RCTRLEND:  case KEY_RCTRLNUMPAD1:
 		case KEY_CTRLPGDN:  case KEY_CTRLNUMPAD3:
+		case KEY_RCTRLPGDN: case KEY_RCTRLNUMPAD3:
 		{
 			{
 				Flags.Set(FEDITOR_NEWUNDO);
@@ -1905,7 +1933,7 @@ int Editor::ProcessKey(int Key)
 
 				CurLine->SetLeftPos(0);
 
-				if (Key == KEY_CTRLEND || Key == KEY_CTRLNUMPAD1)
+				if (Key == KEY_CTRLEND || Key == KEY_RCTRLEND || Key == KEY_CTRLNUMPAD1 || Key == KEY_RCTRLNUMPAD1)
 				{
 					CurLine->SetCurPos(CurLine->GetLength());
 					CurLine->FastShow();
@@ -1934,6 +1962,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLN:
+		case KEY_RCTRLN:
 		{
 			Flags.Set(FEDITOR_NEWUNDO);
 
@@ -1948,6 +1977,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLE:
+		case KEY_RCTRLE:
 		{
 			{
 				Flags.Set(FEDITOR_NEWUNDO);
@@ -1975,6 +2005,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLL:
+		case KEY_RCTRLL:
 		{
 			Flags.Swap(FEDITOR_LOCKMODE);
 
@@ -1983,6 +2014,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLY:
+		case KEY_RCTRLY:
 		{
 			DeleteString(CurLine,NumLine,FALSE,NumLine);
 			Show();
@@ -2003,6 +2035,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLF7:
+		case KEY_RCTRLF7:
 		{
 			if (!Flags.Check(FEDITOR_LOCKMODE))
 			{
@@ -2035,6 +2068,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTF7:
+		case KEY_RALTF7:
 		{
 			Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
 			int LastSearchReversePrev = LastSearchReverse;
@@ -2089,13 +2123,16 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLSHIFTZ:
+		case KEY_RCTRLSHIFTZ:
 		case KEY_ALTBS:
+		case KEY_RALTBS:
 		case KEY_CTRLZ:
+		case KEY_RCTRLZ:
 		{
 			if (!Flags.Check(FEDITOR_LOCKMODE))
 			{
 				Lock();
-				Undo(Key==KEY_CTRLSHIFTZ);
+				Undo(Key==KEY_CTRLSHIFTZ || Key==KEY_RCTRLSHIFTZ);
 				Unlock();
 				Show();
 			}
@@ -2103,6 +2140,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTF8:
+		case KEY_RALTF8:
 		{
 			{
 				GoToPosition();
@@ -2117,6 +2155,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTU:
+		case KEY_RALTU:
 		{
 			if (!Flags.Check(FEDITOR_LOCKMODE))
 			{
@@ -2127,6 +2166,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTI:
+		case KEY_RALTI:
 		{
 			if (!Flags.Check(FEDITOR_LOCKMODE))
 			{
@@ -2137,7 +2177,9 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTSHIFTLEFT:  case KEY_ALTSHIFTNUMPAD4:
+		case KEY_RALTSHIFTLEFT: case KEY_RALTSHIFTNUMPAD4:
 		case KEY_ALTLEFT:
+		case KEY_RALTLEFT:
 		{
 			if (!CurPos)
 				return TRUE;
@@ -2174,7 +2216,9 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTSHIFTRIGHT:  case KEY_ALTSHIFTNUMPAD6:
+		case KEY_RALTSHIFTRIGHT: case KEY_RALTSHIFTNUMPAD6:
 		case KEY_ALTRIGHT:
+		case KEY_RALTRIGHT:
 		{
 			/* $ 23.10.2000 tran
 			   вместо GetTabCurPos надо вызывать GetCurPos -
@@ -2229,7 +2273,8 @@ int Editor::ProcessKey(int Key)
 		/* $ 29.06.2000 IG
 		  + CtrlAltLeft, CtrlAltRight дл€ вертикальный блоков
 		*/
-		case KEY_CTRLALTLEFT: case KEY_CTRLALTNUMPAD4:
+		case KEY_CTRLALTLEFT:   case KEY_CTRLALTNUMPAD4:
+		case KEY_RCTRLRALTLEFT: case KEY_RCTRLRALTNUMPAD4:
 		{
 			{
 				int SkipSpace=TRUE;
@@ -2273,7 +2318,8 @@ int Editor::ProcessKey(int Key)
 			}
 			return TRUE;
 		}
-		case KEY_CTRLALTRIGHT: case KEY_CTRLALTNUMPAD6:
+		case KEY_CTRLALTRIGHT:   case KEY_CTRLALTNUMPAD6:
+		case KEY_RCTRLRALTRIGHT: case KEY_RCTRLRALTNUMPAD6:
 		{
 			{
 				int SkipSpace=TRUE;
@@ -2312,7 +2358,9 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTSHIFTUP:    case KEY_ALTSHIFTNUMPAD8:
+		case KEY_RALTSHIFTUP:   case KEY_RALTSHIFTNUMPAD8:
 		case KEY_ALTUP:
+		case KEY_RALTUP:
 		{
 			if (!CurLine->m_prev)
 				return TRUE;
@@ -2343,7 +2391,9 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTSHIFTDOWN:  case KEY_ALTSHIFTNUMPAD2:
+		case KEY_RALTSHIFTDOWN: case KEY_RALTSHIFTNUMPAD2:
 		case KEY_ALTDOWN:
+		case KEY_RALTDOWN:
 		{
 			if (!CurLine->m_next)
 				return TRUE;
@@ -2373,8 +2423,10 @@ int Editor::ProcessKey(int Key)
 			//_D(SysLog(L"~~~~ Key_AltDOWN: VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return TRUE;
 		}
-		case KEY_ALTSHIFTHOME: case KEY_ALTSHIFTNUMPAD7:
+		case KEY_ALTSHIFTHOME:  case KEY_ALTSHIFTNUMPAD7:
+		case KEY_RALTSHIFTHOME: case KEY_RALTSHIFTNUMPAD7:
 		case KEY_ALTHOME:
+		case KEY_RALTHOME:
 		{
 			Pasting++;
 			Lock();
@@ -2387,8 +2439,10 @@ int Editor::ProcessKey(int Key)
 			Show();
 			return TRUE;
 		}
-		case KEY_ALTSHIFTEND: case KEY_ALTSHIFTNUMPAD1:
+		case KEY_ALTSHIFTEND:  case KEY_ALTSHIFTNUMPAD1:
+		case KEY_RALTSHIFTEND: case KEY_RALTSHIFTNUMPAD1:
 		case KEY_ALTEND:
+		case KEY_RALTEND:
 		{
 			Pasting++;
 			Lock();
@@ -2406,8 +2460,10 @@ int Editor::ProcessKey(int Key)
 			Show();
 			return TRUE;
 		}
-		case KEY_ALTSHIFTPGUP: case KEY_ALTSHIFTNUMPAD9:
+		case KEY_ALTSHIFTPGUP:  case KEY_ALTSHIFTNUMPAD9:
+		case KEY_RALTSHIFTPGUP: case KEY_RALTSHIFTNUMPAD9:
 		case KEY_ALTPGUP:
+		case KEY_RALTPGUP:
 		{
 			Pasting++;
 			Lock();
@@ -2420,8 +2476,10 @@ int Editor::ProcessKey(int Key)
 			Show();
 			return TRUE;
 		}
-		case KEY_ALTSHIFTPGDN: case KEY_ALTSHIFTNUMPAD3:
+		case KEY_ALTSHIFTPGDN:  case KEY_ALTSHIFTNUMPAD3:
+		case KEY_RALTSHIFTPGDN: case KEY_RALTSHIFTNUMPAD3:
 		case KEY_ALTPGDN:
+		case KEY_RALTPGDN:
 		{
 			Pasting++;
 			Lock();
@@ -2434,8 +2492,10 @@ int Editor::ProcessKey(int Key)
 			Show();
 			return TRUE;
 		}
-		case KEY_CTRLALTPGUP: case KEY_CTRLALTNUMPAD9:
-		case KEY_CTRLALTHOME: case KEY_CTRLALTNUMPAD7:
+		case KEY_CTRLALTPGUP:   case KEY_CTRLALTNUMPAD9:
+		case KEY_RCTRLRALTPGUP: case KEY_RCTRLRALTNUMPAD9:
+		case KEY_CTRLALTHOME:   case KEY_CTRLALTNUMPAD7:
+		case KEY_RCTRLRALTHOME: case KEY_RCTRLRALTNUMPAD7:
 		{
 			Lock();
 			Pasting++;
@@ -2452,8 +2512,10 @@ int Editor::ProcessKey(int Key)
 			Show();
 			return TRUE;
 		}
-		case KEY_CTRLALTPGDN:  case KEY_CTRLALTNUMPAD3:
-		case KEY_CTRLALTEND:   case KEY_CTRLALTNUMPAD1:
+		case KEY_CTRLALTPGDN:   case KEY_CTRLALTNUMPAD3:
+		case KEY_RCTRLRALTPGDN: case KEY_RCTRLRALTNUMPAD3:
+		case KEY_CTRLALTEND:    case KEY_CTRLALTNUMPAD1:
+		case KEY_RCTRLRALTEND:  case KEY_RCTRLRALTNUMPAD1:
 		{
 			Lock();
 			Pasting++;
@@ -2471,16 +2533,26 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLALTBRACKET:       // ¬ставить сетевое (UNC) путь из левой панели
+		case KEY_RCTRLRALTBRACKET:
 		case KEY_CTRLALTBACKBRACKET:   // ¬ставить сетевое (UNC) путь из правой панели
+		case KEY_RCTRLRALTBACKBRACKET:
 		case KEY_ALTSHIFTBRACKET:      // ¬ставить сетевое (UNC) путь из активной панели
+		case KEY_RALTSHIFTBRACKET:
 		case KEY_ALTSHIFTBACKBRACKET:  // ¬ставить сетевое (UNC) путь из пассивной панели
+		case KEY_RALTSHIFTBACKBRACKET:
 		case KEY_CTRLBRACKET:          // ¬ставить путь из левой панели
+		case KEY_RCTRLBRACKET:
 		case KEY_CTRLBACKBRACKET:      // ¬ставить путь из правой панели
+		case KEY_RCTRLBACKBRACKET:
 		case KEY_CTRLSHIFTBRACKET:     // ¬ставить путь из активной панели
+		case KEY_RCTRLSHIFTBRACKET:
 		case KEY_CTRLSHIFTBACKBRACKET: // ¬ставить путь из пассивной панели
+		case KEY_RCTRLSHIFTBACKBRACKET:
 		case KEY_CTRLSHIFTNUMENTER:
+		case KEY_RCTRLSHIFTNUMENTER:
 		case KEY_SHIFTNUMENTER:
 		case KEY_CTRLSHIFTENTER:
+		case KEY_RCTRLSHIFTENTER:
 		case KEY_SHIFTENTER:
 		{
 			if (!Flags.Check(FEDITOR_LOCKMODE))
@@ -2503,6 +2575,7 @@ int Editor::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLQ:
+		case KEY_RCTRLQ:
 		{
 			if (!Flags.Check(FEDITOR_LOCKMODE))
 			{
@@ -2603,7 +2676,9 @@ int Editor::ProcessKey(int Key)
 		default:
 		{
 			{
-				if ((Key==KEY_CTRLDEL || Key==KEY_CTRLNUMDEL || Key==KEY_CTRLDECIMAL || Key==KEY_CTRLT) && CurPos>=CurLine->GetLength())
+				if ((Key==KEY_CTRLDEL || Key==KEY_RCTRLDEL || Key==KEY_CTRLNUMDEL || Key==KEY_RCTRLNUMDEL
+					|| Key==KEY_CTRLDECIMAL || Key==KEY_RCTRLDECIMAL || Key==KEY_CTRLT || Key==KEY_RCTRLT)
+					&& CurPos>=CurLine->GetLength())
 				{
 					/*$ 08.12.2000 skv
 					  - CTRL-DEL в начале строки при выделенном блоке и
@@ -2631,17 +2706,19 @@ int Editor::ProcessKey(int Key)
 						Show();
 					}
 
-				int SkipCheckUndo=(Key==KEY_RIGHT     || Key==KEY_NUMPAD6     ||
-				                   Key==KEY_CTRLLEFT  || Key==KEY_CTRLNUMPAD4 ||
-				                   Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD6 ||
-				                   Key==KEY_HOME      || Key==KEY_NUMPAD7     ||
-				                   Key==KEY_END       || Key==KEY_NUMPAD1     ||
-				                   Key==KEY_CTRLS);
+				int SkipCheckUndo=(Key==KEY_RIGHT      || Key==KEY_NUMPAD6      ||
+				                   Key==KEY_CTRLLEFT   || Key==KEY_CTRLNUMPAD4  ||
+				                   Key==KEY_RCTRLLEFT  || Key==KEY_RCTRLNUMPAD4 ||
+				                   Key==KEY_CTRLRIGHT  || Key==KEY_CTRLNUMPAD6  ||
+				                   Key==KEY_RCTRLRIGHT || Key==KEY_RCTRLNUMPAD6 ||
+				                   Key==KEY_HOME       || Key==KEY_NUMPAD7      ||
+				                   Key==KEY_END        || Key==KEY_NUMPAD1      ||
+				                   Key==KEY_CTRLS      || Key==KEY_RCTRLS);
 
 				if (Flags.Check(FEDITOR_LOCKMODE) && !SkipCheckUndo)
 					return TRUE;
 
-				if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLNUMPAD4) && !CurLine->GetCurPos())
+				if ((Key==KEY_CTRLLEFT || Key==KEY_RCTRLLEFT || Key==KEY_CTRLNUMPAD4 || Key==KEY_RCTRLNUMPAD4) && !CurLine->GetCurPos())
 				{
 					Pasting++;
 					ProcessKey(KEY_LEFT);
@@ -2659,7 +2736,8 @@ int Editor::ProcessKey(int Key)
 					return TRUE;
 				}
 
-				if (((!EdOpt.CursorBeyondEOL && (Key==KEY_RIGHT || Key==KEY_NUMPAD6)) || Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD6) &&
+				if (((!EdOpt.CursorBeyondEOL && (Key==KEY_RIGHT || Key==KEY_NUMPAD6)) 
+					|| Key==KEY_CTRLRIGHT || Key==KEY_RCTRLRIGHT || Key==KEY_CTRLNUMPAD6 || Key==KEY_RCTRLNUMPAD6) &&
 				        CurLine->GetCurPos()>=CurLine->GetLength() &&
 				        CurLine->m_next)
 				{
@@ -2792,7 +2870,7 @@ int Editor::ProcessKey(int Key)
 
 					// <Bug 794>
 					// обработаем только первую и последнюю строку с блоком
-					if (Key == KEY_CTRLK && EdOpt.PersistentBlocks)
+					if ((Key == KEY_CTRLK || Key == KEY_RCTRLK) && EdOpt.PersistentBlocks)
 					{
 						if (CurLine==BlockStart)
 						{

@@ -675,19 +675,22 @@ int Edit::ProcessKey(int Key)
 			Key=L'.';
 			break;
 		case KEY_CTRLC:
+		case KEY_RCTRLC:
 			Key=KEY_CTRLINS;
 			break;
 		case KEY_CTRLV:
+		case KEY_RCTRLV:
 			Key=KEY_SHIFTINS;
 			break;
 		case KEY_CTRLX:
+		case KEY_RCTRLX:
 			Key=KEY_SHIFTDEL;
 			break;
 	}
 
 	int PrevSelStart=-1,PrevSelEnd=0;
 
-	if (!Flags.Check(FEDITLINE_DROPDOWNBOX) && Key==KEY_CTRLL)
+	if (!Flags.Check(FEDITLINE_DROPDOWNBOX) && (Key==KEY_CTRLL || Key==KEY_RCTRLL))
 	{
 		Flags.Swap(FEDITLINE_READONLY);
 	}
@@ -699,7 +702,7 @@ int Edit::ProcessKey(int Key)
 	       - символ перед курсором удален
 	       - выделение блока снято
 	*/
-	if ((((Key==KEY_BS || Key==KEY_DEL || Key==KEY_NUMDEL) && Flags.Check(FEDITLINE_DELREMOVESBLOCKS)) || Key==KEY_CTRLD) &&
+	if ((((Key==KEY_BS || Key==KEY_DEL || Key==KEY_NUMDEL) && Flags.Check(FEDITLINE_DELREMOVESBLOCKS)) || Key==KEY_CTRLD || Key==KEY_RCTRLD) &&
 	        !Flags.Check(FEDITLINE_EDITORMODE) && SelStart!=-1 && SelStart<SelEnd)
 	{
 		DeleteBlock();
@@ -721,8 +724,9 @@ int Edit::ProcessKey(int Key)
 	{
 		Flags.Clear(FEDITLINE_MARKINGBLOCK); // хмм... а это здесь должно быть?
 
-		if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && !(Key==KEY_CTRLINS || Key==KEY_CTRLNUMPAD0) &&
-		        !(Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL) && !Flags.Check(FEDITLINE_EDITORMODE) && Key != KEY_CTRLQ &&
+		if (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) && !(Key==KEY_CTRLINS || Key==KEY_RCTRLINS || Key==KEY_CTRLNUMPAD0 || Key==KEY_RCTRLNUMPAD0) &&
+		        !(Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL) && !Flags.Check(FEDITLINE_EDITORMODE) &&
+		        (Key != KEY_CTRLQ && Key != KEY_RCTRLQ) &&
 		        !(Key == KEY_SHIFTINS || Key == KEY_SHIFTNUMPAD0)) //Key != KEY_SHIFTINS) //??
 		{
 			/* $ 12.11.2002 DJ
@@ -756,9 +760,9 @@ int Edit::ProcessKey(int Key)
 		SelEnd=StrSize;
 	}
 
-	if (Flags.Check(FEDITLINE_CLEARFLAG) && ((Key <= 0xFFFF && Key!=KEY_BS) || Key==KEY_CTRLBRACKET ||
-	        Key==KEY_CTRLBACKBRACKET || Key==KEY_CTRLSHIFTBRACKET ||
-	        Key==KEY_CTRLSHIFTBACKBRACKET || Key==KEY_SHIFTENTER || Key==KEY_SHIFTNUMENTER))
+	if (Flags.Check(FEDITLINE_CLEARFLAG) && ((Key <= 0xFFFF && Key!=KEY_BS) || Key==KEY_CTRLBRACKET || Key==KEY_RCTRLBRACKET ||
+	        Key==KEY_CTRLBACKBRACKET || Key==KEY_RCTRLBACKBRACKET || Key==KEY_CTRLSHIFTBRACKET || Key==KEY_RCTRLSHIFTBRACKET ||
+	        Key==KEY_CTRLSHIFTBACKBRACKET || Key==KEY_RCTRLSHIFTBACKBRACKET || Key==KEY_SHIFTENTER || Key==KEY_SHIFTNUMENTER))
 	{
 		LeftPos=0;
 		SetString(L"");
@@ -772,11 +776,12 @@ int Edit::ProcessKey(int Key)
 		return TRUE;
 	}
 
-	if (Key!=KEY_NONE && Key!=KEY_IDLE && Key!=KEY_SHIFTINS && Key!=KEY_SHIFTNUMPAD0 && Key!=KEY_CTRLINS &&
+	if (Key!=KEY_NONE && Key!=KEY_IDLE && Key!=KEY_SHIFTINS && Key!=KEY_SHIFTNUMPAD0 && (Key!=KEY_CTRLINS && Key!=KEY_RCTRLINS) &&
 	        ((unsigned int)Key<KEY_F1 || (unsigned int)Key>KEY_F12) && Key!=KEY_ALT && Key!=KEY_SHIFT &&
 	        Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
-	        (Key<KEY_ALT_BASE || Key > KEY_ALT_BASE+0xFFFF) && // ???? 256 ???
-	        !(((unsigned int)Key>=KEY_MACRO_BASE && (unsigned int)Key<=KEY_MACRO_ENDBASE) || ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) && Key!=KEY_CTRLQ)
+	        !((Key>=KEY_ALT_BASE && Key <= KEY_ALT_BASE+0xFFFF) || (Key>=KEY_RALT_BASE && Key <= KEY_RALT_BASE+0xFFFF)) && // ???? 256 ???
+	        !(((unsigned int)Key>=KEY_MACRO_BASE && (unsigned int)Key<=KEY_MACRO_ENDBASE) || ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) &&
+	        (Key!=KEY_CTRLQ && Key!=KEY_RCTRLQ))
 	{
 		Flags.Clear(FEDITLINE_CLEARFLAG);
 		Show();
@@ -838,7 +843,8 @@ int Edit::ProcessKey(int Key)
 			RecurseProcessKey(KEY_RIGHT);
 			return TRUE;
 		}
-		case KEY_CTRLSHIFTLEFT: case KEY_CTRLSHIFTNUMPAD4:
+		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
+		case KEY_RCTRLSHIFTLEFT: case KEY_RCTRLSHIFTNUMPAD4:
 		{
 			if (CurPos>StrSize)
 			{
@@ -862,7 +868,8 @@ int Edit::ProcessKey(int Key)
 			Show();
 			return TRUE;
 		}
-		case KEY_CTRLSHIFTRIGHT: case KEY_CTRLSHIFTNUMPAD6:
+		case KEY_CTRLSHIFTRIGHT:  case KEY_CTRLSHIFTNUMPAD6:
+		case KEY_RCTRLSHIFTRIGHT: case KEY_RCTRLSHIFTNUMPAD6:
 		{
 			if (CurPos>=StrSize)
 				return FALSE;
@@ -951,6 +958,7 @@ int Edit::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLSHIFTBS:
+		case KEY_RCTRLSHIFTBS:
 		{
 			DisableCallback();
 
@@ -965,6 +973,7 @@ int Edit::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLBS:
+		case KEY_RCTRLBS:
 		{
 			if (CurPos>StrSize)
 			{
@@ -1000,6 +1009,7 @@ int Edit::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLQ:
+		case KEY_RCTRLQ:
 		{
 			Lock();
 
@@ -1054,6 +1064,10 @@ int Edit::ProcessKey(int Key)
 		case KEY_CTRLDEL:
 		case KEY_CTRLNUMDEL:
 		case KEY_CTRLDECIMAL:
+		case KEY_RCTRLT:
+		case KEY_RCTRLDEL:
+		case KEY_RCTRLNUMDEL:
+		case KEY_RCTRLDECIMAL:
 		{
 			if (CurPos>=StrSize)
 				return FALSE;
@@ -1105,6 +1119,7 @@ int Edit::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLY:
+		case KEY_RCTRLY:
 		{
 			if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
 				return (TRUE);
@@ -1120,6 +1135,7 @@ int Edit::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLK:
+		case KEY_RCTRLK:
 		{
 			if (Flags.Check(FEDITLINE_READONLY|FEDITLINE_DROPDOWNBOX))
 				return (TRUE);
@@ -1148,15 +1164,18 @@ int Edit::ProcessKey(int Key)
 		}
 		case KEY_HOME:        case KEY_NUMPAD7:
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
+		case KEY_RCTRLHOME:   case KEY_RCTRLNUMPAD7:
 		{
 			PrevCurPos=CurPos;
 			CurPos=0;
 			Show();
 			return TRUE;
 		}
-		case KEY_END:         case KEY_NUMPAD1:
-		case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
-		case KEY_CTRLSHIFTEND:     case KEY_CTRLSHIFTNUMPAD1:
+		case KEY_END:           case KEY_NUMPAD1:
+		case KEY_CTRLEND:       case KEY_CTRLNUMPAD1:
+		case KEY_RCTRLEND:      case KEY_RCTRLNUMPAD1:
+		case KEY_CTRLSHIFTEND:  case KEY_CTRLSHIFTNUMPAD1:
+		case KEY_RCTRLSHIFTEND: case KEY_RCTRLSHIFTNUMPAD1:
 		{
 			PrevCurPos=CurPos;
 
@@ -1178,7 +1197,7 @@ int Edit::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_LEFT:        case KEY_NUMPAD4:        case KEY_MSWHEEL_LEFT:
-		case KEY_CTRLS:
+		case KEY_CTRLS:       case KEY_RCTRLS:
 		{
 			if (CurPos>0)
 			{
@@ -1190,7 +1209,7 @@ int Edit::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_RIGHT:       case KEY_NUMPAD6:        case KEY_MSWHEEL_RIGHT:
-		case KEY_CTRLD:
+		case KEY_CTRLD:       case KEY_RCTRLD:
 		{
 			PrevCurPos=CurPos;
 
@@ -1274,6 +1293,7 @@ int Edit::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
+		case KEY_RCTRLLEFT: case KEY_RCTRLNUMPAD4:
 		{
 			PrevCurPos=CurPos;
 
@@ -1296,6 +1316,7 @@ int Edit::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLRIGHT:   case KEY_CTRLNUMPAD6:
+		case KEY_RCTRLRIGHT:  case KEY_RCTRLNUMPAD6:
 		{
 			if (CurPos>=StrSize)
 				return FALSE;
@@ -1348,6 +1369,7 @@ int Edit::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLINS:     case KEY_CTRLNUMPAD0:
+		case KEY_RCTRLINS:    case KEY_RCTRLNUMPAD0:
 		{
 			if (!Flags.Check(FEDITLINE_PASSWORDMODE))
 			{
@@ -3299,6 +3321,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 							{
 							// "классический" перебор
 							case KEY_CTRLEND:
+							case KEY_RCTRLEND:
 								{
 									ComplMenu.ProcessKey(KEY_DOWN);
 									break;
@@ -3331,13 +3354,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 							// навигация по строке ввода
 							case KEY_LEFT:
 							case KEY_NUMPAD4:
-							case KEY_CTRLS:
+							case KEY_CTRLS:     case KEY_RCTRLS:
 							case KEY_RIGHT:
 							case KEY_NUMPAD6:
-							case KEY_CTRLD:
-							case KEY_CTRLLEFT:
-							case KEY_CTRLRIGHT:
-							case KEY_CTRLHOME:
+							case KEY_CTRLD:     case KEY_RCTRLD:
+							case KEY_CTRLLEFT:  case KEY_RCTRLLEFT:
+							case KEY_CTRLRIGHT: case KEY_RCTRLRIGHT:
+							case KEY_CTRLHOME:  case KEY_RCTRLHOME:
 								{
 									if(MenuKey == KEY_LEFT || MenuKey == KEY_NUMPAD4)
 									{
@@ -3368,6 +3391,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 							case KEY_ESC:
 							case KEY_F10:
 							case KEY_ALTF9:
+							case KEY_RALTF9:
 							case KEY_UP:
 							case KEY_NUMPAD8:
 							case KEY_DOWN:
@@ -3380,6 +3404,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 							case KEY_ALTRIGHT:
 							case KEY_ALTHOME:
 							case KEY_ALTEND:
+							case KEY_RALTLEFT:
+							case KEY_RALTRIGHT:
+							case KEY_RALTHOME:
+							case KEY_RALTEND:
 							case KEY_MSWHEEL_UP:
 							case KEY_MSWHEEL_DOWN:
 							case KEY_MSWHEEL_LEFT:

@@ -867,33 +867,55 @@ int FileList::ProcessKey(int Key)
 		switch (Key)
 		{
 			case KEY_CTRLF:
+			case KEY_RCTRLF:
 			case KEY_CTRLALTF:
+			case KEY_RCTRLRALTF:
 			case KEY_CTRLENTER:
+			case KEY_RCTRLENTER:
 			case KEY_CTRLNUMENTER:
+			case KEY_RCTRLNUMENTER:
 			case KEY_CTRLBRACKET:
+			case KEY_RCTRLBRACKET:
 			case KEY_CTRLBACKBRACKET:
+			case KEY_RCTRLBACKBRACKET:
 			case KEY_CTRLSHIFTBRACKET:
+			case KEY_RCTRLSHIFTBRACKET:
 			case KEY_CTRLSHIFTBACKBRACKET:
+			case KEY_RCTRLSHIFTBACKBRACKET:
 			case KEY_CTRL|KEY_SEMICOLON:
+			case KEY_RCTRL|KEY_SEMICOLON:
 			case KEY_CTRL|KEY_ALT|KEY_SEMICOLON:
+			case KEY_RCTRL|KEY_RALT|KEY_SEMICOLON:
 			case KEY_CTRLALTBRACKET:
+			case KEY_RCTRLRALTBRACKET:
 			case KEY_CTRLALTBACKBRACKET:
+			case KEY_RCTRLRALTBACKBRACKET:
 			case KEY_ALTSHIFTBRACKET:
+			case KEY_RALTSHIFTBRACKET:
 			case KEY_ALTSHIFTBACKBRACKET:
+			case KEY_RALTSHIFTBACKBRACKET:
 				break;
 			case KEY_CTRLG:
+			case KEY_RCTRLG:
 			case KEY_SHIFTF4:
 			case KEY_F7:
 			case KEY_CTRLH:
+			case KEY_RCTRLH:
 			case KEY_ALTSHIFTF9:
+			case KEY_RALTSHIFTF9:
 			case KEY_CTRLN:
+			case KEY_RCTRLN:
 				break;
 				// эти спорные, хот€, если Ctrl-F работает, то и эти должны :-)
 				/*
 				      case KEY_CTRLINS:
+				      case KEY_RCTRLINS:
 				      case KEY_CTRLSHIFTINS:
+				      case KEY_RCTRLSHIFTINS:
 				      case KEY_CTRLALTINS:
+				      case KEY_RCTRLRALTINS:
 				      case KEY_ALTSHIFTINS:
+				      case KEY_RALTSHIFTINS:
 				        break;
 				*/
 			default:
@@ -915,10 +937,13 @@ int FileList::ProcessKey(int Key)
 	if ( !InternalProcessKey )
 	{
 		// Create a folder shortcut?
-		if ((Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || (Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9))
+		if ((Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || 
+			(Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9) || 
+			(Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9) ||
+			(Key>=KEY_RCTRLRALT0 && Key<=KEY_RCTRLRALT9))
 		{
-			bool Add = (Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9);
-			SaveShortcutFolder(Key-(Add?KEY_CTRLALT0:KEY_CTRLSHIFT0), Add);
+			bool Add = ((Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9) || (Key>=KEY_RCTRLRALT0 && Key<=KEY_RCTRLRALT9));
+			SaveShortcutFolder(Key&(~(KEY_CTRL|KEY_RCTRL|KEY_ALT|KEY_RALT))-'0', Add);
 			return TRUE;
 		}
 		// Jump to a folder shortcut?
@@ -954,6 +979,7 @@ int FileList::ProcessKey(int Key)
 			return FALSE;
 		}
 		case KEY_ALTSHIFTF9:
+		case KEY_RALTSHIFTF9:
 		{
 			PluginHandle *ph = (PluginHandle*)hPlugin;
 
@@ -999,48 +1025,62 @@ int FileList::ProcessKey(int Key)
 			SelectFiles(SELECT_REMOVE);
 			return TRUE;
 		case KEY_CTRLADD:
+		case KEY_RCTRLADD:
 			SelectFiles(SELECT_ADDEXT);
 			return TRUE;
 		case KEY_CTRLSUBTRACT:
+		case KEY_RCTRLSUBTRACT:
 			SelectFiles(SELECT_REMOVEEXT);
 			return TRUE;
 		case KEY_ALTADD:
+		case KEY_RALTADD:
 			SelectFiles(SELECT_ADDNAME);
 			return TRUE;
 		case KEY_ALTSUBTRACT:
+		case KEY_RALTSUBTRACT:
 			SelectFiles(SELECT_REMOVENAME);
 			return TRUE;
 		case KEY_MULTIPLY:
 			SelectFiles(SELECT_INVERT);
 			return TRUE;
 		case KEY_CTRLMULTIPLY:
+		case KEY_RCTRLMULTIPLY:
 			SelectFiles(SELECT_INVERTALL);
 			return TRUE;
 		case KEY_ALTLEFT:     // ѕрокрутка длинных имен и описаний
+		case KEY_RALTLEFT:
 		case KEY_ALTHOME:     // ѕрокрутка длинных имен и описаний - в начало
-			LeftPos=(Key == KEY_ALTHOME)?-0x7fff:LeftPos-1;
+		case KEY_RALTHOME:
+			LeftPos=(Key == KEY_ALTHOME || Key == KEY_RALTHOME)?-0x7fff:LeftPos-1;
 			Redraw();
 			return TRUE;
 		case KEY_ALTRIGHT:    // ѕрокрутка длинных имен и описаний
+		case KEY_RALTRIGHT:
 		case KEY_ALTEND:     // ѕрокрутка длинных имен и описаний - в конец
-			LeftPos=(Key == KEY_ALTEND)?0x7fff:LeftPos+1;
+		case KEY_RALTEND:
+			LeftPos=(Key == KEY_ALTEND || Key == KEY_RALTEND)?0x7fff:LeftPos+1;
 			Redraw();
 			return TRUE;
 		case KEY_CTRLINS:      case KEY_CTRLNUMPAD0:
+		case KEY_RCTRLINS:     case KEY_RCTRLNUMPAD0:
 
 			if (CmdLength>0)
 				return FALSE;
 
-		case KEY_CTRLSHIFTINS: case KEY_CTRLSHIFTNUMPAD0:  // копировать имена
-		case KEY_CTRLALTINS:   case KEY_CTRLALTNUMPAD0:    // копировать UNC-имена
-		case KEY_ALTSHIFTINS:  case KEY_ALTSHIFTNUMPAD0:   // копировать полные имена
+		case KEY_CTRLSHIFTINS:  case KEY_CTRLSHIFTNUMPAD0:  // копировать имена
+		case KEY_RCTRLSHIFTINS: case KEY_RCTRLSHIFTNUMPAD0:
+		case KEY_CTRLALTINS:    case KEY_CTRLALTNUMPAD0:    // копировать UNC-имена
+		case KEY_RCTRLRALTINS:  case KEY_RCTRLRALTNUMPAD0:
+		case KEY_ALTSHIFTINS:   case KEY_ALTSHIFTNUMPAD0:   // копировать полные имена
+		case KEY_RALTSHIFTINS:  case KEY_RALTSHIFTNUMPAD0:
 			//if (FileCount>0 && SetCurPath()) // ?????
 			SetCurPath();
-			CopyNames(Key == KEY_CTRLALTINS || Key == KEY_ALTSHIFTINS || Key == KEY_CTRLALTNUMPAD0 || Key == KEY_ALTSHIFTNUMPAD0,
-			          (Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT));
+			CopyNames(Key == KEY_CTRLALTINS || Key == KEY_RCTRLRALTINS || Key == KEY_ALTSHIFTINS || Key == KEY_RALTSHIFTINS || Key == KEY_CTRLALTNUMPAD0 || Key == KEY_RCTRLRALTNUMPAD0 || Key == KEY_ALTSHIFTNUMPAD0 || Key == KEY_RALTSHIFTNUMPAD0,
+			          (Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT) || (Key&(KEY_RCTRL|KEY_RALT))==(KEY_RCTRL|KEY_RALT));
 			return TRUE;
 
 		case KEY_CTRLC: // hdrop
+		case KEY_RCTRLC:
 			CopyFiles();
 			return TRUE;
 
@@ -1048,11 +1088,13 @@ int FileList::ProcessKey(int Key)
 			  + Ctrl: вставл€ет им€ файла с пассивной панели.
 			  + CtrlAlt: вставл€ет UNC-им€ файла с пассивной панели */
 		case KEY_CTRL|KEY_SEMICOLON:
+		case KEY_RCTRL|KEY_SEMICOLON:
 		case KEY_CTRL|KEY_ALT|KEY_SEMICOLON:
+		case KEY_RCTRL|KEY_RALT|KEY_SEMICOLON:
 		{
 			int NewKey = KEY_CTRLF;
 
-			if (Key & KEY_ALT)
+			if (Key & (KEY_ALT|KEY_RALT))
 				NewKey|=KEY_ALT;
 
 			Panel *SrcPanel = CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
@@ -1064,18 +1106,25 @@ int FileList::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLNUMENTER:
+		case KEY_RCTRLNUMENTER:
 		case KEY_CTRLSHIFTNUMENTER:
+		case KEY_RCTRLSHIFTNUMENTER:
 		case KEY_CTRLENTER:
+		case KEY_RCTRLENTER:
 		case KEY_CTRLSHIFTENTER:
+		case KEY_RCTRLSHIFTENTER:
 		case KEY_CTRLJ:
+		case KEY_RCTRLJ:
 		case KEY_CTRLF:
+		case KEY_RCTRLF:
 		case KEY_CTRLALTF:  // 29.01.2001 VVM + ѕо CTRL+ALT+F в командную строку сбрасываетс€ UNC-им€ текущего файла.
+		case KEY_RCTRLRALTF:
 		{
 			if (FileCount>0 && SetCurPath())
 			{
 				string strFileName;
 
-				if (Key==KEY_CTRLSHIFTENTER || Key==KEY_CTRLSHIFTNUMENTER)
+				if (Key==KEY_CTRLSHIFTENTER || Key==KEY_RCTRLSHIFTENTER || Key==KEY_CTRLSHIFTNUMENTER || Key==KEY_RCTRLSHIFTNUMENTER)
 				{
 					_MakePath1(Key,strFileName, L" ");
 				}
@@ -1097,13 +1146,13 @@ int FileList::ProcessKey(int Key)
 						else
 							strFileName.SetLength(1); // "."
 
-						if (Key!=KEY_CTRLALTF)
+						if (Key!=KEY_CTRLALTF && Key!=KEY_RCTRLRALTF)
 							Key=KEY_CTRLF;
 
 						CurrentPath=TRUE;
 					}
 
-					if (Key==KEY_CTRLF || Key==KEY_CTRLALTF)
+					if (Key==KEY_CTRLF || Key==KEY_RCTRLF || Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF)
 					{
 						OpenPanelInfo Info={0};
 
@@ -1113,7 +1162,7 @@ int FileList::ProcessKey(int Key)
 						}
 
 						if (PanelMode!=PLUGIN_PANEL)
-							CreateFullPathName(CurPtr->strName,CurPtr->strShortName,CurPtr->FileAttr, strFileName, Key==KEY_CTRLALTF);
+							CreateFullPathName(CurPtr->strName,CurPtr->strShortName,CurPtr->FileAttr, strFileName, Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF);
 						else
 						{
 							string strFullName = Info.CurDir;
@@ -1145,7 +1194,7 @@ int FileList::ProcessKey(int Key)
 						AddEndSlash(strFileName);
 
 					// добавим первый префикс!
-					if (PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix && !(Key == KEY_CTRLENTER || Key == KEY_CTRLNUMENTER || Key == KEY_CTRLJ))
+					if (PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix && !(Key == KEY_CTRLENTER || Key == KEY_RCTRLENTER || Key == KEY_CTRLNUMENTER || Key == KEY_RCTRLNUMENTER || Key == KEY_CTRLJ || Key == KEY_RCTRLJ))
 					{
 						string strPrefix;
 
@@ -1169,13 +1218,21 @@ int FileList::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLALTBRACKET:       // ¬ставить сетевое (UNC) путь из левой панели
+		case KEY_RCTRLRALTBRACKET:
 		case KEY_CTRLALTBACKBRACKET:   // ¬ставить сетевое (UNC) путь из правой панели
+		case KEY_RCTRLRALTBACKBRACKET:
 		case KEY_ALTSHIFTBRACKET:      // ¬ставить сетевое (UNC) путь из активной панели
+		case KEY_RALTSHIFTBRACKET:
 		case KEY_ALTSHIFTBACKBRACKET:  // ¬ставить сетевое (UNC) путь из пассивной панели
+		case KEY_RALTSHIFTBACKBRACKET:
 		case KEY_CTRLBRACKET:          // ¬ставить путь из левой панели
+		case KEY_RCTRLBRACKET:
 		case KEY_CTRLBACKBRACKET:      // ¬ставить путь из правой панели
+		case KEY_RCTRLBACKBRACKET:
 		case KEY_CTRLSHIFTBRACKET:     // ¬ставить путь из активной панели
+		case KEY_RCTRLSHIFTBRACKET:
 		case KEY_CTRLSHIFTBACKBRACKET: // ¬ставить путь из пассивной панели
+		case KEY_RCTRLSHIFTBACKBRACKET:
 		{
 			string strPanelDir;
 
@@ -1185,6 +1242,7 @@ int FileList::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLA:
+		case KEY_RCTRLA:
 		{
 			_ALGO(CleverSysLog clv(L"Ctrl-A"));
 
@@ -1197,6 +1255,7 @@ int FileList::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLG:
+		case KEY_RCTRLG:
 		{
 			_ALGO(CleverSysLog clv(L"Ctrl-G"));
 
@@ -1218,12 +1277,14 @@ int FileList::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLZ:
+		case KEY_RCTRLZ:
 
 			if (FileCount>0 && PanelMode==NORMAL_PANEL && SetCurPath())
 				DescribeFiles();
 
 			return TRUE;
 		case KEY_CTRLH:
+		case KEY_RCTRLH:
 		{
 			Opt.ShowHidden=!Opt.ShowHidden;
 			Update(UPDATE_KEEP_SELECTION);
@@ -1234,11 +1295,13 @@ int FileList::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLM:
+		case KEY_RCTRLM:
 		{
 			RestoreSelection();
 			return TRUE;
 		}
 		case KEY_CTRLR:
+		case KEY_RCTRLR:
 		{
 			Update(UPDATE_KEEP_SELECTION);
 			Redraw();
@@ -1254,6 +1317,7 @@ int FileList::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLN:
+		case KEY_RCTRLN:
 		{
 			ShowShortNames=!ShowShortNames;
 			Redraw();
@@ -1264,7 +1328,9 @@ int FileList::ProcessKey(int Key)
 		case KEY_ENTER:
 		case KEY_SHIFTENTER:
 		case KEY_CTRLALTENTER:
+		case KEY_RCTRLRALTENTER:
 		case KEY_CTRLALTNUMENTER:
+		case KEY_RCTRLRALTNUMENTER:
 		{
 			_ALGO(CleverSysLog clv(L"Enter/Shift-Enter"));
 			_ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
@@ -1278,10 +1344,11 @@ int FileList::ProcessKey(int Key)
 				return TRUE;
 			}
 
-			ProcessEnter(1,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, true, Key == KEY_CTRLALTENTER || Key == KEY_CTRLALTNUMENTER);
+			ProcessEnter(1,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, true, Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER);
 			return TRUE;
 		}
 		case KEY_CTRLBACKSLASH:
+		case KEY_RCTRLBACKSLASH:
 		{
 			_ALGO(CleverSysLog clv(L"Ctrl-\\"));
 			_ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
@@ -1356,11 +1423,15 @@ int FileList::ProcessKey(int Key)
 		case KEY_F3:
 		case KEY_NUMPAD5:      case KEY_SHIFTNUMPAD5:
 		case KEY_ALTF3:
+		case KEY_RALTF3:
 		case KEY_CTRLSHIFTF3:
+		case KEY_RCTRLSHIFTF3:
 		case KEY_F4:
 		case KEY_ALTF4:
+		case KEY_RALTF4:
 		case KEY_SHIFTF4:
 		case KEY_CTRLSHIFTF4:
+		case KEY_RCTRLSHIFTF4:
 		{
 			_ALGO(CleverSysLog clv(L"Edit/View"));
 			_ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
@@ -1375,7 +1446,7 @@ int FileList::ProcessKey(int Key)
 
 			if ((Key==KEY_SHIFTF4 || FileCount>0) && SetCurPath())
 			{
-				int Edit=(Key==KEY_F4 || Key==KEY_ALTF4 || Key==KEY_SHIFTF4 || Key==KEY_CTRLSHIFTF4);
+				int Edit=(Key==KEY_F4 || Key==KEY_ALTF4 || Key==KEY_RALTF4 || Key==KEY_SHIFTF4 || Key==KEY_CTRLSHIFTF4 || Key==KEY_RCTRLSHIFTF4);
 				BOOL Modaling=FALSE; ///
 				int UploadFile=TRUE;
 				string strPluginData;
@@ -1549,11 +1620,11 @@ int FileList::ProcessKey(int Key)
 					{
 						int editorExitCode;
 						int EnableExternal=(((Key==KEY_F4 || Key==KEY_SHIFTF4) && Opt.EdOpt.UseExternalEditor) ||
-						                    (Key==KEY_ALTF4 && !Opt.EdOpt.UseExternalEditor)) && !Opt.strExternalEditor.IsEmpty();
+						                    ((Key==KEY_ALTF4 || Key==KEY_RALTF4) && !Opt.EdOpt.UseExternalEditor)) && !Opt.strExternalEditor.IsEmpty();
 						/* $ 02.08.2001 IS обработаем ассоциации дл€ alt-f4 */
 						BOOL Processed=FALSE;
 
-						if (Key==KEY_ALTF4 &&
+						if ((Key==KEY_ALTF4 || Key==KEY_RALTF4) &&
 						        ProcessLocalFileTypes(strFileName,strShortFileName,FILETYPE_ALTEDIT,
 						                              PluginMode))
 							Processed=TRUE;
@@ -1562,7 +1633,7 @@ int FileList::ProcessKey(int Key)
 						                               PluginMode))
 							Processed=TRUE;
 
-						if (!Processed || Key==KEY_CTRLSHIFTF4)
+						if (!Processed || Key==KEY_CTRLSHIFTF4 || Key==KEY_RCTRLSHIFTF4)
 						{
 							if (EnableExternal)
 								ProcessExternal(Opt.strExternalEditor,strFileName,strShortFileName,PluginMode);
@@ -1657,19 +1728,19 @@ int FileList::ProcessKey(int Key)
 					else
 					{
 						int EnableExternal=((Key==KEY_F3 && Opt.ViOpt.UseExternalViewer) ||
-						                    (Key==KEY_ALTF3 && !Opt.ViOpt.UseExternalViewer)) &&
+						                    ((Key==KEY_ALTF3 || Key==KEY_RALTF3) && !Opt.ViOpt.UseExternalViewer)) &&
 						                   !Opt.strExternalViewer.IsEmpty();
 						/* $ 02.08.2001 IS обработаем ассоциации дл€ alt-f3 */
 						BOOL Processed=FALSE;
 
-						if (Key==KEY_ALTF3 &&
+						if ((Key==KEY_ALTF3 || Key==KEY_RALTF3) &&
 						        ProcessLocalFileTypes(strFileName,strShortFileName,FILETYPE_ALTVIEW,PluginMode))
 							Processed=TRUE;
 						else if (Key==KEY_F3 &&
 						         ProcessLocalFileTypes(strFileName,strShortFileName,FILETYPE_VIEW,PluginMode))
 							Processed=TRUE;
 
-						if (!Processed || Key==KEY_CTRLSHIFTF3)
+						if (!Processed || Key==KEY_CTRLSHIFTF3 || Key==KEY_RCTRLSHIFTF3)
 						{
 							if (EnableExternal)
 								ProcessExternal(Opt.strExternalViewer,strFileName,strShortFileName,PluginMode);
@@ -1757,6 +1828,7 @@ int FileList::ProcessKey(int Key)
 		case KEY_F5:
 		case KEY_F6:
 		case KEY_ALTF6:
+		case KEY_RALTF6:
 		case KEY_DRAGCOPY:
 		case KEY_DRAGMOVE:
 		{
@@ -1769,6 +1841,7 @@ int FileList::ProcessKey(int Key)
 		}
 
 		case KEY_ALTF5:  // ѕечать текущего/выбранных файла/ов
+		case KEY_RALTF5:
 		{
 			_ALGO(CleverSysLog clv(L"Alt-F5"));
 			_ALGO(SysLog(L"%s, FileCount=%d",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount));
@@ -1869,8 +1942,11 @@ int FileList::ProcessKey(int Key)
 		case KEY_SHIFTNUMDEL:
 		case KEY_SHIFTDECIMAL:
 		case KEY_ALTNUMDEL:
+		case KEY_RALTNUMDEL:
 		case KEY_ALTDECIMAL:
+		case KEY_RALTDECIMAL:
 		case KEY_ALTDEL:
+		case KEY_RALTDEL:
 		{
 			_ALGO(CleverSysLog clv(L"F8/Shift-F8/Shift-Del/Alt-Del"));
 			_ALGO(SysLog(L"%s, FileCount=%d, Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
@@ -1890,7 +1966,7 @@ int FileList::ProcessKey(int Key)
 					if (Key==KEY_SHIFTDEL || Key==KEY_SHIFTNUMDEL || Key==KEY_SHIFTDECIMAL)
 						Opt.DeleteToRecycleBin=0;
 
-					ShellDelete(this,Key==KEY_ALTDEL||Key==KEY_ALTNUMDEL||Key==KEY_ALTDECIMAL);
+					ShellDelete(this,Key==KEY_ALTDEL||Key==KEY_RALTDEL||Key==KEY_ALTNUMDEL||Key==KEY_RALTNUMDEL||Key==KEY_ALTDECIMAL||Key==KEY_RALTDECIMAL);
 					Opt.DeleteToRecycleBin=SaveOpt;
 				}
 
@@ -1903,16 +1979,19 @@ int FileList::ProcessKey(int Key)
 		// $ 26.07.2001 VVM  — альтом скролим всегда по 1
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
-			Scroll(Key & KEY_ALT?-1:-Opt.MsWheelDelta);
+		case(KEY_MSWHEEL_UP | KEY_RALT):
+			Scroll(Key & (KEY_ALT|KEY_RALT)?-1:-Opt.MsWheelDelta);
 			return TRUE;
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
-			Scroll(Key & KEY_ALT?1:Opt.MsWheelDelta);
+		case(KEY_MSWHEEL_DOWN | KEY_RALT):
+			Scroll(Key & (KEY_ALT|KEY_RALT)?1:Opt.MsWheelDelta);
 			return TRUE;
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
+		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsHWheelDelta;
+			int Roll = Key & (KEY_ALT|KEY_RALT)?1:Opt.MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_LEFT);
@@ -1921,8 +2000,9 @@ int FileList::ProcessKey(int Key)
 		}
 		case KEY_MSWHEEL_RIGHT:
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
+		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsHWheelDelta;
+			int Roll = Key & (KEY_ALT|KEY_RALT)?1:Opt.MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_RIGHT);
@@ -2115,33 +2195,43 @@ int FileList::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLF3:
+		case KEY_RCTRLF3:
 			SetSortMode(BY_NAME);
 			return TRUE;
 		case KEY_CTRLF4:
+		case KEY_RCTRLF4:
 			SetSortMode(BY_EXT);
 			return TRUE;
 		case KEY_CTRLF5:
+		case KEY_RCTRLF5:
 			SetSortMode(BY_MTIME);
 			return TRUE;
 		case KEY_CTRLF6:
+		case KEY_RCTRLF6:
 			SetSortMode(BY_SIZE);
 			return TRUE;
 		case KEY_CTRLF7:
+		case KEY_RCTRLF7:
 			SetSortMode(UNSORTED);
 			return TRUE;
 		case KEY_CTRLF8:
+		case KEY_RCTRLF8:
 			SetSortMode(BY_CTIME);
 			return TRUE;
 		case KEY_CTRLF9:
+		case KEY_RCTRLF9:
 			SetSortMode(BY_ATIME);
 			return TRUE;
 		case KEY_CTRLF10:
+		case KEY_RCTRLF10:
 			SetSortMode(BY_DIZ);
 			return TRUE;
 		case KEY_CTRLF11:
+		case KEY_RCTRLF11:
 			SetSortMode(BY_OWNER);
 			return TRUE;
 		case KEY_CTRLF12:
+		case KEY_RCTRLF12:
 			SelectSortMode();
 			return TRUE;
 		case KEY_SHIFTF11:
@@ -2159,6 +2249,7 @@ int FileList::ProcessKey(int Key)
 			Show();
 			return TRUE;
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
+		case KEY_RCTRLPGUP:    case KEY_RCTRLNUMPAD9:
 		{
 			//"this" может быть удалЄн в ChangeDir
 			bool CheckFullScreen=IsFullScreen();
@@ -2173,17 +2264,21 @@ int FileList::ProcessKey(int Key)
 		}
 		return TRUE;
 		case KEY_CTRLPGDN:
+		case KEY_RCTRLPGDN:
 		case KEY_CTRLNUMPAD3:
+		case KEY_RCTRLNUMPAD3:
 		case KEY_CTRLSHIFTPGDN:
+		case KEY_RCTRLSHIFTPGDN:
 		case KEY_CTRLSHIFTNUMPAD3:
+		case KEY_RCTRLSHIFTNUMPAD3:
 			ProcessEnter(0,0,!(Key&KEY_SHIFT), false, OFP_ALTERNATIVE);
 			return TRUE;
 		default:
 
-			if (((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535) ||
-			        (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+65535)) &&
-			        (Key&~KEY_ALTSHIFT_BASE)!=KEY_BS && (Key&~KEY_ALTSHIFT_BASE)!=KEY_TAB &&
-			        (Key&~KEY_ALTSHIFT_BASE)!=KEY_ENTER && (Key&~KEY_ALTSHIFT_BASE)!=KEY_ESC &&
+			if (((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535) || (Key>=KEY_RALT_BASE+0x01 && Key<=KEY_RALT_BASE+65535) ||
+			        (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+65535) || (Key>=KEY_RALTSHIFT_BASE+0x01 && Key<=KEY_RALTSHIFT_BASE+65535)) &&
+			        (Key&~(KEY_ALT|KEY_RALT|KEY_SHIFT))!=KEY_BS && (Key&~(KEY_ALT|KEY_RALT|KEY_SHIFT))!=KEY_TAB &&
+			        (Key&~(KEY_ALT|KEY_RALT|KEY_SHIFT))!=KEY_ENTER && (Key&~(KEY_ALT|KEY_RALT|KEY_SHIFT))!=KEY_ESC &&
 			        !(Key&EXTENDED_KEY_BASE)
 			   )
 			{
@@ -2194,11 +2289,13 @@ int FileList::ProcessKey(int Key)
 
 				if (Key >= KEY_ALTSHIFT0 && Key <= KEY_ALTSHIFT9)
 					Key=(DWORD)Code[Key-KEY_ALTSHIFT0];
-				else if ((Key&(~(KEY_ALT+KEY_SHIFT))) == '/')
+				else if (Key >= KEY_RALTSHIFT0 && Key <= KEY_RALTSHIFT9)
+					Key=(DWORD)Code[Key-KEY_RALTSHIFT0];
+				else if ((Key&(~(KEY_ALT|KEY_RALT|KEY_SHIFT))) == '/')
 					Key='?';
-				else if (Key == KEY_ALTSHIFT+'-')
+				else if ((Key == KEY_ALTSHIFT+'-') || (Key == KEY_RALT+KEY_SHIFT+'-'))
 					Key='_';
-				else if (Key == KEY_ALTSHIFT+'=')
+				else if ((Key == KEY_ALTSHIFT+'=') || (Key == KEY_RALT+KEY_SHIFT+'='))
 					Key='+';
 
 				//_SVS(SysLog(L"<FastFind: Key=%s",_FARKEY_ToName(Key)));
@@ -4787,7 +4884,7 @@ void FileList::ProcessCopyKeys(int Key)
 
 		if (PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILES))
 		{
-			if (Key!=KEY_ALTF6)
+			if (Key!=KEY_ALTF6 && Key!=KEY_RALTF6)
 			{
 				string strPluginDestPath;
 				int ToPlugin=FALSE;
@@ -4840,9 +4937,9 @@ void FileList::ProcessCopyKeys(int Key)
 		else
 		{
 			int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
-			             AnotherPanel->IsVisible() && Key!=KEY_ALTF6 &&
+			             AnotherPanel->IsVisible() && (Key!=KEY_ALTF6 && Key!=KEY_RALTF6) &&
 			             !CtrlObject->Plugins.UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
-			ShellCopy ShCopy(this,Move,Key==KEY_ALTF6,FALSE,Ask,ToPlugin,nullptr, Drag && AnotherDir);
+			ShellCopy ShCopy(this,Move,(Key==KEY_ALTF6 || Key==KEY_RALTF6),FALSE,Ask,ToPlugin,nullptr, Drag && AnotherDir);
 
 			if (ToPlugin==1)
 				PluginPutFilesToAnother(Move,AnotherPanel);

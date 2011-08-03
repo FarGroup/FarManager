@@ -947,7 +947,9 @@ int Manager::ProcessKey(DWORD Key)
 		switch (Key)
 		{
 			case KEY_ALT|KEY_NUMPAD0:
+			case KEY_RALT|KEY_NUMPAD0:
 			case KEY_ALTINS:
+			case KEY_RALTINS:
 			{
 				RunGraber();
 				return TRUE;
@@ -966,6 +968,7 @@ int Manager::ProcessKey(DWORD Key)
 			{
 				// <Удалить после появления макрофункции Scroll>
 				case KEY_CTRLALTUP:
+				case KEY_RCTRLRALTUP:
 					if(Opt.WindowMode)
 					{
 						Console.ScrollWindow(-1);
@@ -974,6 +977,7 @@ int Manager::ProcessKey(DWORD Key)
 					break;
 
 				case KEY_CTRLALTDOWN:
+				case KEY_RCTRLRALTDOWN:
 					if(Opt.WindowMode)
 					{
 						Console.ScrollWindow(1);
@@ -982,6 +986,7 @@ int Manager::ProcessKey(DWORD Key)
 					break;
 
 				case KEY_CTRLALTPGUP:
+				case KEY_RCTRLRALTPGUP:
 					if(Opt.WindowMode)
 					{
 						Console.ScrollWindow(-ScrY);
@@ -990,6 +995,7 @@ int Manager::ProcessKey(DWORD Key)
 					break;
 
 				case KEY_CTRLALTHOME:
+				case KEY_RCTRLRALTHOME:
 					if(Opt.WindowMode)
 					{
 						while(Console.ScrollWindow(-ScrY));
@@ -998,6 +1004,7 @@ int Manager::ProcessKey(DWORD Key)
 					break;
 
 				case KEY_CTRLALTPGDN:
+				case KEY_RCTRLRALTPGDN:
 					if(Opt.WindowMode)
 					{
 						Console.ScrollWindow(ScrY);
@@ -1006,6 +1013,7 @@ int Manager::ProcessKey(DWORD Key)
 					break;
 
 				case KEY_CTRLALTEND:
+				case KEY_RCTRLRALTEND:
 					if(Opt.WindowMode)
 					{
 						while(Console.ScrollWindow(ScrY));
@@ -1015,6 +1023,7 @@ int Manager::ProcessKey(DWORD Key)
 				// </Удалить после появления макрофункции Scroll>
 
 				case KEY_CTRLW:
+				case KEY_RCTRLW:
 					ShowProcessList();
 					return TRUE;
 				case KEY_F11:
@@ -1023,6 +1032,7 @@ int Manager::ProcessKey(DWORD Key)
 					//_MANAGER(SysLog(-1));
 					return TRUE;
 				case KEY_ALTF9:
+				case KEY_RALTF9:
 				{
 					//_MANAGER(SysLog(1,"Manager::ProcessKey, KEY_ALTF9 pressed..."));
 					Sleep(1);
@@ -1135,11 +1145,13 @@ int Manager::ProcessKey(DWORD Key)
 					break;
 				}
 				case KEY_CTRLTAB:
+				case KEY_RCTRLTAB:
 				case KEY_CTRLSHIFTTAB:
+				case KEY_RCTRLSHIFTTAB:
 
 					if (CurrentFrame->GetCanLoseFocus())
 					{
-						DeactivateFrame(CurrentFrame,Key==KEY_CTRLTAB?1:-1);
+						DeactivateFrame(CurrentFrame,(Key==KEY_CTRLTAB||Key==KEY_RCTRLTAB)?1:-1);
 					}
 
 					_MANAGER(SysLog(-1));

@@ -825,12 +825,12 @@ bool VMenu::IsFilterEditKey(int Key)
 
 bool VMenu::ShouldSendKeyToFilter(int Key)
 {
-	if (Key==KEY_CTRLALTF)
+	if (Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF)
 		return true;
 
 	if (bFilterEnabled)
 	{
-		if (Key==KEY_CTRLALTL)
+		if (Key==KEY_CTRLALTL || Key==KEY_RCTRLRALTL)
 			return true;
 
 		if (!bFilterLocked && IsFilterEditKey(Key))
@@ -1214,9 +1214,9 @@ int VMenu::ProcessKey(int Key)
 
 	if (!GetShowItemCount())
 	{
-		if ((Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC && Key!=KEY_ALTF9))
+		if ((Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC && Key!=KEY_ALTF9 && Key!=KEY_RALTF9))
 		{
-			if (!bFilterEnabled || (bFilterEnabled && Key!=KEY_BS && Key!=KEY_CTRLALTF))
+			if (!bFilterEnabled || (bFilterEnabled && Key!=KEY_BS && Key!=KEY_CTRLALTF && Key!=KEY_RCTRLRALTF))
 			{
 				Modal::ExitCode = -1;
 				return FALSE;
@@ -1242,6 +1242,7 @@ int VMenu::ProcessKey(int Key)
 	switch (Key)
 	{
 		case KEY_ALTF9:
+		case KEY_RALTF9:
 			FrameManager->ProcessKey(KEY_ALTF9);
 			break;
 		case KEY_NUMENTER:
@@ -1271,7 +1272,9 @@ int VMenu::ProcessKey(int Key)
 		}
 		case KEY_HOME:         case KEY_NUMPAD7:
 		case KEY_CTRLHOME:     case KEY_CTRLNUMPAD7:
+		case KEY_RCTRLHOME:    case KEY_RCTRLNUMPAD7:
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
+		case KEY_RCTRLPGUP:    case KEY_RCTRLNUMPAD9:
 		{
 			FarListPos pos={0,-1};
 			SetSelectPos(&pos);
@@ -1280,7 +1283,9 @@ int VMenu::ProcessKey(int Key)
 		}
 		case KEY_END:          case KEY_NUMPAD1:
 		case KEY_CTRLEND:      case KEY_CTRLNUMPAD1:
+		case KEY_RCTRLEND:     case KEY_RCTRLNUMPAD1:
 		case KEY_CTRLPGDN:     case KEY_CTRLNUMPAD3:
+		case KEY_RCTRLPGDN:    case KEY_RCTRLNUMPAD3:
 		{
 			SetSelectPos(ItemCount-1,-1);
 			ShowMenu(true);
@@ -1312,10 +1317,12 @@ int VMenu::ProcessKey(int Key)
 			ShowMenu(true);
 			break;
 		}
-		case KEY_ALTHOME:           case KEY_NUMPAD7|KEY_ALT:
-		case KEY_ALTEND:            case KEY_NUMPAD1|KEY_ALT:
+		case KEY_ALTHOME:           case KEY_ALT|KEY_NUMPAD7:
+		case KEY_RALTHOME:          case KEY_RALT|KEY_NUMPAD7:
+		case KEY_ALTEND:            case KEY_ALT|KEY_NUMPAD1:
+		case KEY_RALTEND:           case KEY_RALT|KEY_NUMPAD1:
 		{
-			if (Key == KEY_ALTHOME || Key == (KEY_NUMPAD7|KEY_ALT))
+			if (Key == KEY_ALTHOME || Key == KEY_RALTHOME || Key == (KEY_ALT|KEY_NUMPAD7) || Key == (KEY_RALT|KEY_NUMPAD7))
 			{
 				for (int I=0; I < ItemCount; ++I)
 					Item[I]->ShowPos=0;
@@ -1339,13 +1346,15 @@ int VMenu::ProcessKey(int Key)
 			ShowMenu(true);
 			break;
 		}
-		case KEY_ALTLEFT:  case KEY_NUMPAD4|KEY_ALT: case KEY_MSWHEEL_LEFT:
-		case KEY_ALTRIGHT: case KEY_NUMPAD6|KEY_ALT: case KEY_MSWHEEL_RIGHT:
+		case KEY_ALTLEFT:   case KEY_ALT|KEY_NUMPAD4:  case KEY_MSWHEEL_LEFT:
+		case KEY_RALTLEFT:  case KEY_RALT|KEY_NUMPAD4:
+		case KEY_ALTRIGHT:  case KEY_ALT|KEY_NUMPAD6:  case KEY_MSWHEEL_RIGHT:
+		case KEY_RALTRIGHT: case KEY_RALT|KEY_NUMPAD6:
 		{
 			bool NeedRedraw=false;
 
 			for (int I=0; I < ItemCount; ++I)
-				if (ShiftItemShowPos(I,(Key == KEY_ALTLEFT || Key == (KEY_NUMPAD4|KEY_ALT) || Key == KEY_MSWHEEL_LEFT)?-1:1))
+				if (ShiftItemShowPos(I,(Key == KEY_ALTLEFT || Key == KEY_RALTLEFT || Key == (KEY_ALT|KEY_NUMPAD4) || Key == (KEY_RALT|KEY_NUMPAD4) || Key == KEY_MSWHEEL_LEFT)?-1:1))
 					NeedRedraw=true;
 
 			if (NeedRedraw)
@@ -1353,10 +1362,12 @@ int VMenu::ProcessKey(int Key)
 
 			break;
 		}
-		case KEY_ALTSHIFTLEFT:      case KEY_NUMPAD4|KEY_ALT|KEY_SHIFT:
-		case KEY_ALTSHIFTRIGHT:     case KEY_NUMPAD6|KEY_ALT|KEY_SHIFT:
+		case KEY_ALTSHIFTLEFT:      case KEY_ALT|KEY_SHIFT|KEY_NUMPAD4:
+		case KEY_RALTSHIFTLEFT:     case KEY_RALT|KEY_SHIFT|KEY_NUMPAD4:
+		case KEY_ALTSHIFTRIGHT:     case KEY_ALT|KEY_SHIFT|KEY_NUMPAD6:
+		case KEY_RALTSHIFTRIGHT:    case KEY_RALT|KEY_SHIFT|KEY_NUMPAD6:
 		{
-			if (ShiftItemShowPos(SelectPos,(Key == KEY_ALTSHIFTLEFT || Key == (KEY_NUMPAD4|KEY_ALT|KEY_SHIFT))?-1:1))
+			if (ShiftItemShowPos(SelectPos,(Key == KEY_ALTSHIFTLEFT || Key == KEY_RALTSHIFTLEFT || Key == (KEY_ALT|KEY_SHIFT|KEY_NUMPAD4) || Key == (KEY_RALT|KEY_SHIFT|KEY_NUMPAD4))?-1:1))
 				ShowMenu(true);
 
 			break;
@@ -1378,6 +1389,7 @@ int VMenu::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLALTF:
+		case KEY_RCTRLRALTF:
 		{
 			bFilterEnabled=!bFilterEnabled;
 			bFilterLocked=false;
@@ -1390,6 +1402,7 @@ int VMenu::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLV:
+		case KEY_RCTRLV:
 		case KEY_SHIFTINS:    case KEY_SHIFTNUMPAD0:
 		{
 			if (bFilterEnabled && !bFilterLocked)
@@ -1414,6 +1427,7 @@ int VMenu::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLALTL:
+		case KEY_RCTRLRALTL:
 		{
 			if (bFilterEnabled)
 			{

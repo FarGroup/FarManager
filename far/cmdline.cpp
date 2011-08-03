@@ -153,7 +153,7 @@ int CommandLine::ProcessKey(int Key)
 	const wchar_t *PStr;
 	string strStr;
 
-	if ((Key==KEY_CTRLEND || Key==KEY_CTRLNUMPAD1) && CmdStr.GetCurPos()==CmdStr.GetLength())
+	if ((Key==KEY_CTRLEND || Key==KEY_RCTRLEND || Key==KEY_CTRLNUMPAD1 || Key==KEY_RCTRLNUMPAD1) && CmdStr.GetCurPos()==CmdStr.GetLength())
 	{
 		if (LastCmdPartLength==-1)
 			strLastCmdStr = CmdStr.GetStringAddr();
@@ -205,9 +205,11 @@ int CommandLine::ProcessKey(int Key)
 	switch (Key)
 	{
 		case KEY_CTRLE:
+		case KEY_RCTRLE:
 		case KEY_CTRLX:
+		case KEY_RCTRLX:
 			{
-				if (Key == KEY_CTRLE)
+				if (Key == KEY_CTRLE || Key == KEY_RCTRLE)
 				{
 					CtrlObject->CmdHistory->GetPrev(strStr);
 				}
@@ -242,6 +244,7 @@ int CommandLine::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTF8:
+		case KEY_RALTF8:
 		{
 			int Type;
 			// $ 19.09.2000 SVS - При выборе из History (по Alt-F8) плагин не получал управление!
@@ -270,6 +273,7 @@ int CommandLine::ProcessKey(int Key)
 			FrameManager->ExitMainLoop(TRUE);
 			return TRUE;
 		case KEY_ALTF10:
+		case KEY_RALTF10:
 		{
 			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 			{
@@ -305,10 +309,12 @@ int CommandLine::ProcessKey(int Key)
 			CtrlObject->Plugins.CommandsMenu(FALSE,FALSE,0);
 			return TRUE;
 		case KEY_ALTF11:
+		case KEY_RALTF11:
 			ShowViewEditHistory();
 			CtrlObject->Cp()->Redraw();
 			return TRUE;
 		case KEY_ALTF12:
+		case KEY_RALTF12:
 		{
 			int Type;
 			int SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),L"HistoryFolders",strStr,Type);
@@ -359,7 +365,9 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_ENTER:
 		case KEY_SHIFTENTER:
 		case KEY_CTRLALTENTER:
+		case KEY_RCTRLRALTENTER:
 		case KEY_CTRLALTNUMENTER:
+		case KEY_RCTRLRALTNUMENTER:
 		{
 			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 			CmdStr.Select(-1,0);
@@ -377,10 +385,11 @@ int CommandLine::ProcessKey(int Key)
 			ProcessOSAliases(strStr);
 
 			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)strStr.CPtr()))
-				CmdExecute(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false, false, Key == KEY_CTRLALTENTER || Key == KEY_CTRLALTNUMENTER);
+				CmdExecute(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false, false, Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER);
 		}
 		return TRUE;
 		case KEY_CTRLU:
+		case KEY_RCTRLU:
 			CmdStr.Select(-1,0);
 			CmdStr.Show();
 			return TRUE;
@@ -399,11 +408,15 @@ int CommandLine::ProcessKey(int Key)
 		   ВНИМАНИЕ!
 		   Для сокращения кода этот кусок должен стоять перед "default"
 		*/
-		case KEY_ALTSHIFTLEFT:  case KEY_ALTSHIFTNUMPAD4:
-		case KEY_ALTSHIFTRIGHT: case KEY_ALTSHIFTNUMPAD6:
-		case KEY_ALTSHIFTEND:   case KEY_ALTSHIFTNUMPAD1:
-		case KEY_ALTSHIFTHOME:  case KEY_ALTSHIFTNUMPAD7:
-			Key&=~KEY_ALT;
+		case KEY_ALTSHIFTLEFT:   case KEY_ALTSHIFTNUMPAD4:
+		case KEY_RALTSHIFTLEFT:  case KEY_RALTSHIFTNUMPAD4:
+		case KEY_ALTSHIFTRIGHT:  case KEY_ALTSHIFTNUMPAD6:
+		case KEY_RALTSHIFTRIGHT: case KEY_RALTSHIFTNUMPAD6:
+		case KEY_ALTSHIFTEND:    case KEY_ALTSHIFTNUMPAD1:
+		case KEY_RALTSHIFTEND:   case KEY_RALTSHIFTNUMPAD1:
+		case KEY_ALTSHIFTHOME:   case KEY_ALTSHIFTNUMPAD7:
+		case KEY_RALTSHIFTHOME:  case KEY_RALTSHIFTNUMPAD7:
+			Key&=~(KEY_ALT|KEY_RALT);
 		default:
 
 			//   Сбрасываем выделение на некоторых клавишах
@@ -412,13 +425,17 @@ int CommandLine::ProcessKey(int Key)
 				static int UnmarkKeys[]=
 				{
 					KEY_LEFT,       KEY_NUMPAD4,
-					KEY_CTRLS,
+					KEY_CTRLS,      KEY_RCTRLS,
 					KEY_RIGHT,      KEY_NUMPAD6,
-					KEY_CTRLD,
+					KEY_CTRLD,      KEY_RCTRLD,
 					KEY_CTRLLEFT,   KEY_CTRLNUMPAD4,
+					KEY_RCTRLLEFT,  KEY_RCTRLNUMPAD4,
 					KEY_CTRLRIGHT,  KEY_CTRLNUMPAD6,
+					KEY_RCTRLRIGHT, KEY_RCTRLNUMPAD6,
 					KEY_CTRLHOME,   KEY_CTRLNUMPAD7,
+					KEY_RCTRLHOME,  KEY_RCTRLNUMPAD7,
 					KEY_CTRLEND,    KEY_CTRLNUMPAD1,
+					KEY_RCTRLEND,   KEY_RCTRLNUMPAD1,
 					KEY_HOME,       KEY_NUMPAD7,
 					KEY_END,        KEY_NUMPAD1
 				};
@@ -431,7 +448,7 @@ int CommandLine::ProcessKey(int Key)
 					}
 			}
 
-			if (Key == KEY_CTRLD)
+			if (Key == KEY_CTRLD || Key == KEY_RCTRLD)
 				Key=KEY_RIGHT;
 
 			if (!CmdStr.ProcessKey(Key))
@@ -439,7 +456,7 @@ int CommandLine::ProcessKey(int Key)
 
 			LastCmdPartLength=-1;
 
-			if(Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1)
+			if(Key == KEY_CTRLSHIFTEND || Key == KEY_RCTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1 || Key == KEY_RCTRLSHIFTNUMPAD1)
 			{
 				CmdStr.EnableAC();
 				CmdStr.AutoComplete(true,false);

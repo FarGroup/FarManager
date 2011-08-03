@@ -198,8 +198,10 @@ int FolderTree::GetTypeAndName(string &strType, string &strName)
 
 int FolderTree::ProcessKey(int Key)
 {
-	if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255)
+	if (Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535)
 		Key=Lower(Key-KEY_ALT_BASE);
+	else if (Key>=KEY_RALT_BASE+0x01 && Key<=KEY_RALT_BASE+65535)
+		Key=Lower(Key-KEY_RALT_BASE);
 
 	switch (Key)
 	{
@@ -233,19 +235,19 @@ int FolderTree::ProcessKey(int Key)
 			IsFullScreen=!IsFullScreen;
 			ResizeConsole();
 			return TRUE;
-		case KEY_CTRLR:
+		case KEY_CTRLR:		case KEY_RCTRLR:
 		case KEY_F2:
 			Tree->ProcessKey(KEY_CTRLR);
 			DrawEdit();
 			break;
-		case KEY_CTRLNUMENTER:
-		case KEY_CTRLSHIFTNUMENTER:
-		case KEY_CTRLENTER:
-		case KEY_CTRLSHIFTENTER:
+		case KEY_CTRLNUMENTER:       case KEY_RCTRLNUMENTER:
+		case KEY_CTRLSHIFTNUMENTER:  case KEY_RCTRLSHIFTNUMENTER:
+		case KEY_CTRLENTER:          case KEY_RCTRLENTER:
+		case KEY_CTRLSHIFTENTER:     case KEY_RCTRLSHIFTENTER:
 		{
 			string strName;
 			FindEdit->GetString(strName);
-			Tree->FindPartName(strName,TRUE,Key==KEY_CTRLSHIFTENTER||Key == KEY_CTRLSHIFTNUMENTER?-1:1,1);
+			Tree->FindPartName(strName,TRUE,Key==KEY_CTRLSHIFTENTER||Key==KEY_RCTRLSHIFTENTER||Key == KEY_CTRLSHIFTNUMENTER||Key == KEY_RCTRLSHIFTNUMENTER?-1:1,1);
 			DrawEdit();
 		}
 		break;
@@ -263,8 +265,10 @@ int FolderTree::ProcessKey(int Key)
 		case KEY_NUMPAD1:
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
+		case(KEY_MSWHEEL_UP | KEY_RALT):
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
+		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 			FindEdit->SetString(L"");
 			Tree->ProcessKey(Key);
 			DrawEdit();

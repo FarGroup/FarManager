@@ -138,17 +138,27 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 	switch (Key)
 	{
 		case KEY_CTRLALTBRACKET:       // Вставить сетевое (UNC) путь из левой панели
+		case KEY_RCTRLRALTBRACKET:
 		case KEY_CTRLALTBACKBRACKET:   // Вставить сетевое (UNC) путь из правой панели
+		case KEY_RCTRLRALTBACKBRACKET:
 		case KEY_ALTSHIFTBRACKET:      // Вставить сетевое (UNC) путь из активной панели
+		case KEY_RALTSHIFTBRACKET:
 		case KEY_ALTSHIFTBACKBRACKET:  // Вставить сетевое (UNC) путь из пассивной панели
+		case KEY_RALTSHIFTBACKBRACKET:
 			NeedRealName=TRUE;
 		case KEY_CTRLBRACKET:          // Вставить путь из левой панели
+		case KEY_RCTRLBRACKET:
 		case KEY_CTRLBACKBRACKET:      // Вставить путь из правой панели
+		case KEY_RCTRLBACKBRACKET:
 		case KEY_CTRLSHIFTBRACKET:     // Вставить путь из активной панели
+		case KEY_RCTRLSHIFTBRACKET:
 		case KEY_CTRLSHIFTBACKBRACKET: // Вставить путь из пассивной панели
+		case KEY_RCTRLSHIFTBACKBRACKET:
 		case KEY_CTRLSHIFTNUMENTER:    // Текущий файл с пасс.панели
+		case KEY_RCTRLSHIFTNUMENTER:
 		case KEY_SHIFTNUMENTER:        // Текущий файл с актив.панели
 		case KEY_CTRLSHIFTENTER:       // Текущий файл с пасс.панели
+		case KEY_RCTRLSHIFTENTER:
 		case KEY_SHIFTENTER:           // Текущий файл с актив.панели
 		{
 			Panel *SrcPanel=nullptr;
@@ -157,30 +167,40 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 			switch (Key)
 			{
 				case KEY_CTRLALTBRACKET:
+				case KEY_RCTRLRALTBRACKET:
 				case KEY_CTRLBRACKET:
+				case KEY_RCTRLBRACKET:
 					SrcPanel=Cp->LeftPanel;
 					break;
 				case KEY_CTRLALTBACKBRACKET:
+				case KEY_RCTRLRALTBACKBRACKET:
 				case KEY_CTRLBACKBRACKET:
+				case KEY_RCTRLBACKBRACKET:
 					SrcPanel=Cp->RightPanel;
 					break;
 				case KEY_SHIFTNUMENTER:
 				case KEY_SHIFTENTER:
 				case KEY_ALTSHIFTBRACKET:
+				case KEY_RALTSHIFTBRACKET:
 				case KEY_CTRLSHIFTBRACKET:
+				case KEY_RCTRLSHIFTBRACKET:
 					SrcPanel=Cp->ActivePanel;
 					break;
 				case KEY_CTRLSHIFTNUMENTER:
+				case KEY_RCTRLSHIFTNUMENTER:
 				case KEY_CTRLSHIFTENTER:
+				case KEY_RCTRLSHIFTENTER:
 				case KEY_ALTSHIFTBACKBRACKET:
+				case KEY_RALTSHIFTBACKBRACKET:
 				case KEY_CTRLSHIFTBACKBRACKET:
+				case KEY_RCTRLSHIFTBACKBRACKET:
 					SrcPanel=Cp->GetAnotherPanel(Cp->ActivePanel);
 					break;
 			}
 
 			if (SrcPanel)
 			{
-				if (Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER)
+				if (Key == KEY_SHIFTENTER || Key == KEY_CTRLSHIFTENTER || Key == KEY_RCTRLSHIFTENTER || Key == KEY_SHIFTNUMENTER || Key == KEY_CTRLSHIFTNUMENTER || Key == KEY_RCTRLSHIFTNUMENTER)
 				{
 					string strShortFileName;
 					SrcPanel->GetCurName(strPathName,strShortFileName);

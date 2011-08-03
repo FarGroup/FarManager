@@ -719,6 +719,7 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowU
 		{
 			// Обработка скрытия/показа системных таблиц символов
 			case KEY_CTRLH:
+			case KEY_RCTRLH:
 				Opt.CPMenuMode = !Opt.CPMenuMode;
 				CodePages->SetBottomTitle(MSG(!Opt.CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
 				FillCodePagesVMenu(bShowUnicode, bShowUTF, bShowUTF7);

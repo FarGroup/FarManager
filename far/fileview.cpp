@@ -268,6 +268,7 @@ int FileViewer::ProcessKey(int Key)
 		/* $ 22.07.2000 tran
 		   + выход по ctrl-f10 с установкой курсора на файл */
 		case KEY_CTRLF10:
+		case KEY_RCTRLF10:
 		{
 			if (View.isTemporary())
 			{
@@ -283,6 +284,7 @@ int FileViewer::ProcessKey(int Key)
 		}
 		// $ 15.07.2000 tran + CtrlB switch KeyBar
 		case KEY_CTRLB:
+		case KEY_RCTRLB:
 			Opt.ViOpt.ShowKeyBar=!Opt.ViOpt.ShowKeyBar;
 
 			if (Opt.ViOpt.ShowKeyBar)
@@ -294,6 +296,7 @@ int FileViewer::ProcessKey(int Key)
 			KeyBarVisible = Opt.ViOpt.ShowKeyBar;
 			return (TRUE);
 		case KEY_CTRLSHIFTB:
+		case KEY_RCTRLSHIFTB:
 		{
 			Opt.ViOpt.ShowTitleBar=!Opt.ViOpt.ShowTitleBar;
 			TitleBarVisible = Opt.ViOpt.ShowTitleBar;
@@ -301,6 +304,7 @@ int FileViewer::ProcessKey(int Key)
 			return (TRUE);
 		}
 		case KEY_CTRLO:
+		case KEY_RCTRLO:
 
 			if (!Opt.OnlyEditorViewerUsed)
 			{
@@ -357,6 +361,7 @@ int FileViewer::ProcessKey(int Key)
 			return TRUE;
 
 		case KEY_ALTSHIFTF9:
+		case KEY_RALTSHIFTF9:
 			// Работа с локальной копией ViewerOptions
 			ViewerOptions ViOpt;
 			ViOpt.TabSize=View.GetTabSize();
@@ -377,7 +382,7 @@ int FileViewer::ProcessKey(int Key)
 			View.Show();
 			return TRUE;
 		case KEY_ALTF11:
-
+		case KEY_RALTF11:
 			if (GetCanLoseFocus())
 				CtrlObject->CmdLine->ShowViewEditHistory();
 

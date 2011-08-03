@@ -577,16 +577,18 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 					}
 
 					case KEY_CTRLUP:
+					case KEY_RCTRLUP:
 					case KEY_CTRLDOWN:
+					case KEY_RCTRLDOWN:
 					{
 						int Pos=UserMenu.GetSelectPos();
 
 						if (Pos!=UserMenu.GetItemCount()-1 && CurrentMenuItem)
 						{
-							if (!(Key==KEY_CTRLUP && !Pos) && !(Key==KEY_CTRLDOWN && Pos==UserMenu.GetItemCount()-2))
+							if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !Pos) && !((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && Pos==UserMenu.GetItemCount()-2))
 							{
 								MenuModified = MenuNeedRefresh = true;
-								if (Key==KEY_CTRLUP)
+								if (Key==KEY_CTRLUP || Key==KEY_RCTRLUP)
 								{
 									Menu->MoveBefore(Menu->Prev(CurrentMenuItem),CurrentMenuItem);
 									MenuPos--;
@@ -602,6 +604,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 					break;
 
 					case KEY_ALTF4:       // редактировать все меню
+					case KEY_RALTF4:
 					{
 						(*FrameManager)[0]->Unlock();
 						string strMenuFileName;

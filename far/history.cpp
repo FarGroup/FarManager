@@ -340,6 +340,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 			switch (Key)
 			{
 				case KEY_CTRLR: // обновить с удалением недоступных
+				case KEY_RCTRLR:
 				{
 					if (TypeHistory == HISTORYTYPE_FOLDER || TypeHistory == HISTORYTYPE_VIEW)
 					{
@@ -381,20 +382,28 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 					break;
 				}
 				case KEY_CTRLSHIFTNUMENTER:
+				case KEY_RCTRLSHIFTNUMENTER:
 				case KEY_CTRLNUMENTER:
+				case KEY_RCTRLNUMENTER:
 				case KEY_SHIFTNUMENTER:
 				case KEY_CTRLSHIFTENTER:
+				case KEY_RCTRLSHIFTENTER:
 				case KEY_CTRLENTER:
+				case KEY_RCTRLENTER:
 				case KEY_SHIFTENTER:
 				case KEY_CTRLALTENTER:
+				case KEY_RCTRLRALTENTER:
 				case KEY_CTRLALTNUMENTER:
+				case KEY_RCTRLRALTNUMENTER:
 				{
 					if (TypeHistory == HISTORYTYPE_DIALOG)
 						break;
 
 					HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
 					Done=true;
-					RetCode = Key==KEY_CTRLALTENTER||Key==KEY_CTRLALTNUMENTER?7:(Key==KEY_CTRLSHIFTENTER||Key==KEY_CTRLSHIFTNUMENTER?6:(Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER?2:3));
+					RetCode = (Key==KEY_CTRLALTENTER||Key==KEY_RCTRLRALTENTER||Key==KEY_CTRLALTNUMENTER||Key==KEY_RCTRLRALTNUMENTER)?7
+						:((Key==KEY_CTRLSHIFTENTER||Key==KEY_RCTRLSHIFTENTER||Key==KEY_CTRLSHIFTNUMENTER||Key==KEY_RCTRLSHIFTNUMENTER)?6
+							:((Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER)?2:3));
 					break;
 				}
 				case KEY_F3:
@@ -411,7 +420,9 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 				}
 				// $ 09.04.2001 SVS - Фича - копирование из истории строки в Clipboard
 				case KEY_CTRLC:
+				case KEY_RCTRLC:
 				case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
+				case KEY_RCTRLINS: case KEY_RCTRLNUMPAD0:
 				{
 					if (CurrentRecord)
 					{

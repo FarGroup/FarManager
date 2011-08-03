@@ -1159,7 +1159,8 @@ int Viewer::ProcessKey(int Key)
 	     Происходят какие-то манипуляции -> снимем выделение
 	*/
 	if (!ViOpt.PersistentBlocks &&
-	        Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_CTRLNUMPAD0) && Key!=KEY_CTRLC)
+	        Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_RCTRLINS||Key==KEY_CTRLNUMPAD0||Key==KEY_RCTRLNUMPAD0) &&
+	        Key!=KEY_CTRLC && Key!=KEY_RCTRLC)
 		SelectSize = -1;
 
 	if (!InternalKey && !LastKeyUndo && (FilePos!=UndoData[0].UndoAddr || LeftPos!=UndoData[0].UndoLeft))
@@ -1174,7 +1175,7 @@ int Viewer::ProcessKey(int Key)
 		UndoData[0].UndoLeft=LeftPos;
 	}
 
-	if (Key!=KEY_ALTBS && Key!=KEY_CTRLZ && Key!=KEY_NONE && Key!=KEY_IDLE)
+	if (Key!=KEY_ALTBS && Key!=KEY_RALTBS && Key!=KEY_CTRLZ && Key!=KEY_RCTRLZ && Key!=KEY_NONE && Key!=KEY_IDLE)
 		LastKeyUndo=FALSE;
 
 	if (Key>=KEY_CTRL0 && Key<=KEY_CTRL9)
@@ -1193,6 +1194,8 @@ int Viewer::ProcessKey(int Key)
 
 	if (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9)
 		Key=Key-KEY_CTRLSHIFT0+KEY_RCTRL0;
+	else if (Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9)
+		Key&=~KEY_SHIFT;
 
 	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9)
 	{
@@ -1210,13 +1213,16 @@ int Viewer::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLU:
+		case KEY_RCTRLU:
 		{
 			SelectSize = -1;
 			Show();
 			return TRUE;
 		}
 		case KEY_CTRLC:
+		case KEY_RCTRLC:
 		case KEY_CTRLINS:  case KEY_CTRLNUMPAD0:
+		case KEY_RCTRLINS: case KEY_RCTRLNUMPAD0:
 		{
 			if (SelectSize >= 0 && ViewFile.Opened())
 			{
@@ -1236,6 +1242,7 @@ int Viewer::ProcessKey(int Key)
 		}
 		//   включить/выключить скролбар
 		case KEY_CTRLS:
+		case KEY_RCTRLS:
 		{
 			ViOpt.ShowScrollbar=!ViOpt.ShowScrollbar;
 			Opt.ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
@@ -1296,7 +1303,9 @@ int Viewer::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTBS:
+		case KEY_RALTBS:
 		case KEY_CTRLZ:
+		case KEY_RCTRLZ:
 		{
 			for (size_t I=1; I<ARRAYSIZE(UndoData); I++)
 			{
@@ -1401,6 +1410,7 @@ int Viewer::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTF7:
+		case KEY_RALTF7:
 		{
 			Search(-1,0);
 			return TRUE;
@@ -1439,6 +1449,7 @@ int Viewer::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTF8:
+		case KEY_RALTF8:
 		{
 			if (ViewFile.Opened())
 			{
@@ -1458,8 +1469,9 @@ int Viewer::ProcessKey(int Key)
 		  + С альтом скролим по 1 */
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
+		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_UP);
@@ -1468,8 +1480,9 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
+		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_DOWN);
@@ -1478,8 +1491,9 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
+		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsHWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsHWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_LEFT);
@@ -1488,8 +1502,9 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_MSWHEEL_RIGHT:
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
+		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsHWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsHWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_RIGHT);
@@ -1532,7 +1547,7 @@ int Viewer::ProcessKey(int Key)
 
 			return TRUE;
 		}
-		case KEY_PGUP: case KEY_NUMPAD9: case KEY_SHIFTNUMPAD9: case KEY_CTRLUP:
+		case KEY_PGUP: case KEY_NUMPAD9: case KEY_SHIFTNUMPAD9: case KEY_CTRLUP: case KEY_RCTRLUP:
 		{
 			if (ViewFile.Opened())
 			{
@@ -1542,14 +1557,14 @@ int Viewer::ProcessKey(int Key)
 
 			return TRUE;
 		}
-		case KEY_PGDN: case KEY_NUMPAD3:  case KEY_SHIFTNUMPAD3: case KEY_CTRLDOWN:
+		case KEY_PGDN: case KEY_NUMPAD3:  case KEY_SHIFTNUMPAD3: case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
 		{
 			if (LastPage || !ViewFile.Opened())
 				return TRUE;
 
 			FilePos = EndOfScreen(-1); // start of last screen line
 
-			if (Key == KEY_CTRLDOWN)
+			if (Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN)
 			{
 				vseek(vString.nFilePos = FilePos, SEEK_SET);
 				for (int i=Y1; i<=Y2; i++)
@@ -1593,7 +1608,8 @@ int Viewer::ProcessKey(int Key)
 
 			return TRUE;
 		}
-		case KEY_CTRLLEFT: case KEY_CTRLNUMPAD4:
+		case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
+		case KEY_RCTRLLEFT: case KEY_RCTRLNUMPAD4:
 		{
 			if (ViewFile.Opened())
 			{
@@ -1611,7 +1627,8 @@ int Viewer::ProcessKey(int Key)
 
 			return TRUE;
 		}
-		case KEY_CTRLRIGHT: case KEY_CTRLNUMPAD6:
+		case KEY_CTRLRIGHT:  case KEY_CTRLNUMPAD6:
+		case KEY_RCTRLRIGHT: case KEY_RCTRLNUMPAD6:
 		{
 			if (ViewFile.Opened())
 			{
@@ -1633,7 +1650,8 @@ int Viewer::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLSHIFTLEFT:    case KEY_CTRLSHIFTNUMPAD4:
-
+		case KEY_RCTRLSHIFTLEFT:   case KEY_RCTRLSHIFTNUMPAD4:
+		{
 			// Перейти на начало строк
 			if (ViewFile.Opened())
 			{
@@ -1642,7 +1660,9 @@ int Viewer::ProcessKey(int Key)
 			}
 
 			return TRUE;
+		}
 		case KEY_CTRLSHIFTRIGHT:     case KEY_CTRLSHIFTNUMPAD6:
+		case KEY_RCTRLSHIFTRIGHT:    case KEY_RCTRLSHIFTNUMPAD6:
 		{
 			// Перейти на конец строк
 			if (ViewFile.Opened())
@@ -1668,6 +1688,7 @@ int Viewer::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
+		case KEY_RCTRLHOME:   case KEY_RCTRLNUMPAD7:
 		case KEY_HOME:        case KEY_NUMPAD7:   case KEY_SHIFTNUMPAD7:
 
 			// Перейти на начало файла
@@ -1675,6 +1696,7 @@ int Viewer::ProcessKey(int Key)
 				LeftPos=0;
 
 		case KEY_CTRLPGUP:    case KEY_CTRLNUMPAD9:
+		case KEY_RCTRLPGUP:   case KEY_RCTRLNUMPAD9:
 			if (ViewFile.Opened())
 			{
 				FilePos=0;
@@ -1683,6 +1705,7 @@ int Viewer::ProcessKey(int Key)
 
 			return TRUE;
 		case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
+		case KEY_RCTRLEND:    case KEY_RCTRLNUMPAD1:
 		case KEY_END:         case KEY_NUMPAD1: case KEY_SHIFTNUMPAD1:
 
 			// Перейти на конец файла
@@ -1690,6 +1713,7 @@ int Viewer::ProcessKey(int Key)
 				LeftPos=0;
 
 		case KEY_CTRLPGDN:    case KEY_CTRLNUMPAD3:
+		case KEY_RCTRLPGDN:   case KEY_RCTRLNUMPAD3:
 
 			if (ViewFile.Opened())
 			{

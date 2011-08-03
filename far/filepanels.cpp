@@ -448,6 +448,7 @@ int FilePanels::ProcessKey(int Key)
 		return TRUE;
 
 	if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD4 || Key==KEY_CTRLNUMPAD6
+		|| Key==KEY_RCTRLLEFT || Key==KEY_RCTRLRIGHT || Key==KEY_RCTRLNUMPAD4 || Key==KEY_RCTRLNUMPAD6
 	        /* || Key==KEY_CTRLUP   || Key==KEY_CTRLDOWN || Key==KEY_CTRLNUMPAD8 || Key==KEY_CTRLNUMPAD2 */) &&
 	        (CtrlObject->CmdLine->GetLength()>0 ||
 	         (!LeftPanel->IsVisible() && !RightPanel->IsVisible())))
@@ -473,6 +474,7 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLF1:
+		case KEY_RCTRLF1:
 		{
 			if (LeftPanel->IsVisible())
 			{
@@ -493,6 +495,7 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLF2:
+		case KEY_RCTRLF2:
 		{
 			if (RightPanel->IsVisible())
 			{
@@ -513,6 +516,7 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLB:
+		case KEY_RCTRLB:
 		{
 			Opt.ShowKeyBar=!Opt.ShowKeyBar;
 			KeyBarVisible = Opt.ShowKeyBar;
@@ -524,18 +528,18 @@ int FilePanels::ProcessKey(int Key)
 			FrameManager->RefreshFrame();
 			break;
 		}
-		case KEY_CTRLL:
-		case KEY_CTRLQ:
-		case KEY_CTRLT:
+		case KEY_CTRLL: case KEY_RCTRLL:
+		case KEY_CTRLQ: case KEY_RCTRLQ:
+		case KEY_CTRLT: case KEY_RCTRLT:
 		{
 			if (ActivePanel->IsVisible())
 			{
 				Panel *AnotherPanel=GetAnotherPanel(ActivePanel);
 				int NewType;
 
-				if (Key==KEY_CTRLL)
+				if (Key==KEY_CTRLL || Key==KEY_RCTRLL)
 					NewType=INFO_PANEL;
-				else if (Key==KEY_CTRLQ)
+				else if (Key==KEY_CTRLQ || Key==KEY_RCTRLQ)
 					NewType=QVIEW_PANEL;
 				else
 					NewType=TREE_PANEL;
@@ -574,6 +578,7 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLO:
+		case KEY_RCTRLO:
 		{
 			{
 				int LeftVisible=LeftPanel->IsVisible();
@@ -611,6 +616,7 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLP:
+		case KEY_RCTRLP:
 		{
 			if (ActivePanel->IsVisible())
 			{
@@ -628,11 +634,13 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLI:
+		case KEY_RCTRLI:
 		{
 			ActivePanel->EditFilter();
 			return TRUE;
 		}
 		case KEY_CTRLU:
+		case KEY_RCTRLU:
 		{
 			if (!LeftPanel->IsVisible() && !RightPanel->IsVisible())
 				CtrlObject->CmdLine->ProcessKey(Key);
@@ -648,6 +656,7 @@ int FilePanels::ProcessKey(int Key)
 		   панели
 		*/
 		case KEY_ALTF1:
+		case KEY_RALTF1:
 		{
 			LeftPanel->ChangeDisk();
 
@@ -657,6 +666,7 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_ALTF2:
+		case KEY_RALTF2:
 		{
 			RightPanel->ChangeDisk();
 
@@ -666,6 +676,7 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_ALTF7:
+		case KEY_RALTF7:
 		{
 			{
 				FindFiles FindFiles;
@@ -673,6 +684,7 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLUP:  case KEY_CTRLNUMPAD8:
+		case KEY_RCTRLUP: case KEY_RCTRLNUMPAD8:
 		{
 			bool Set=false;
 			if (Opt.LeftHeightDecrement<ScrY-7)
@@ -694,6 +706,7 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLDOWN:  case KEY_CTRLNUMPAD2:
+		case KEY_RCTRLDOWN: case KEY_RCTRLNUMPAD2:
 		{
 			bool Set=false;
 			if (Opt.LeftHeightDecrement>0)
@@ -716,6 +729,7 @@ int FilePanels::ProcessKey(int Key)
 		}
 
 		case KEY_CTRLSHIFTUP:  case KEY_CTRLSHIFTNUMPAD8:
+		case KEY_RCTRLSHIFTUP: case KEY_RCTRLSHIFTNUMPAD8:
 		{
 			int& HeightDecrement=(ActivePanel==LeftPanel)?Opt.LeftHeightDecrement:Opt.RightHeightDecrement;
 			if (HeightDecrement<ScrY-7)
@@ -728,6 +742,7 @@ int FilePanels::ProcessKey(int Key)
 		}
 
 		case KEY_CTRLSHIFTDOWN:  case KEY_CTRLSHIFTNUMPAD2:
+		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
 		{
 			int& HeightDecrement=(ActivePanel==LeftPanel)?Opt.LeftHeightDecrement:Opt.RightHeightDecrement;
 			if (HeightDecrement>0)
@@ -739,7 +754,8 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 
-		case KEY_CTRLLEFT: case KEY_CTRLNUMPAD4:
+		case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
+		case KEY_RCTRLLEFT: case KEY_RCTRLNUMPAD4:
 		{
 			if (Opt.WidthDecrement<ScrX/2-10)
 			{
@@ -750,7 +766,8 @@ int FilePanels::ProcessKey(int Key)
 
 			break;
 		}
-		case KEY_CTRLRIGHT: case KEY_CTRLNUMPAD6:
+		case KEY_CTRLRIGHT:  case KEY_CTRLNUMPAD6:
+		case KEY_RCTRLRIGHT: case KEY_RCTRLNUMPAD6:
 		{
 			if (Opt.WidthDecrement>-(ScrX/2-10))
 			{
@@ -762,6 +779,7 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLCLEAR:
+		case KEY_RCTRLCLEAR:
 		{
 			if (Opt.WidthDecrement)
 			{
@@ -773,6 +791,7 @@ int FilePanels::ProcessKey(int Key)
 			break;
 		}
 		case KEY_CTRLALTCLEAR:
+		case KEY_RCTRLRALTCLEAR:
 		{
 			bool Set=false;
 			if (Opt.LeftHeightDecrement)

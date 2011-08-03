@@ -441,6 +441,7 @@ int InfoList::ProcessKey(int Key)
 		CtrlObject->Cp()->Redraw();
 		return TRUE;
 		case KEY_CTRLR:
+		case KEY_RCTRLR:
 			Redraw();
 			return TRUE;
 	}

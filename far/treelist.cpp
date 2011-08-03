@@ -840,7 +840,7 @@ int TreeList::ProcessKey(int Key)
 	if (!IsVisible())
 		return FALSE;
 
-	if (!TreeCount && Key!=KEY_CTRLR)
+	if (!TreeCount && Key!=KEY_CTRLR && Key!=KEY_RCTRLR)
 		return FALSE;
 
 	string strTemp;
@@ -867,16 +867,21 @@ int TreeList::ProcessKey(int Key)
 		}
 		case KEY_SHIFTNUMENTER:
 		case KEY_CTRLNUMENTER:
+		case KEY_RCTRLNUMENTER:
 		case KEY_SHIFTENTER:
 		case KEY_CTRLENTER:
+		case KEY_RCTRLENTER:
 		case KEY_CTRLF:
+		case KEY_RCTRLF:
 		case KEY_CTRLALTINS:
+		case KEY_RCTRLRALTINS:
 		case KEY_CTRLALTNUMPAD0:
+		case KEY_RCTRLRALTNUMPAD0:
 		{
 			string strQuotedName=ListData[CurFile]->strName;
 			QuoteSpace(strQuotedName);
 
-			if (Key==KEY_CTRLALTINS||Key==KEY_CTRLALTNUMPAD0)
+			if (Key==KEY_CTRLALTINS||Key==KEY_RCTRLRALTINS||Key==KEY_CTRLALTNUMPAD0||Key==KEY_RCTRLRALTNUMPAD0)
 			{
 				CopyToClipboard(strQuotedName);
 			}
@@ -896,6 +901,7 @@ int TreeList::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLBACKSLASH:
+		case KEY_RCTRLBACKSLASH:
 		{
 			CurFile=0;
 			ProcessEnter();
@@ -912,6 +918,7 @@ int TreeList::ProcessKey(int Key)
 		}
 		case KEY_F4:
 		case KEY_CTRLA:
+		case KEY_RCTRLA:
 		{
 			if (SetCurPath())
 				ShellSetFileAttributes(this);
@@ -919,6 +926,7 @@ int TreeList::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_CTRLR:
+		case KEY_RCTRLR:
 		{
 			ReadTree();
 
@@ -943,6 +951,7 @@ int TreeList::ProcessKey(int Key)
 		case KEY_DRAGCOPY:
 		case KEY_F6:
 		case KEY_ALTF6:
+		case KEY_RALTF6:
 		case KEY_DRAGMOVE:
 		{
 			if (SetCurPath() && TreeCount>0)
@@ -953,9 +962,9 @@ int TreeList::ProcessKey(int Key)
 				int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
 				             AnotherPanel->IsVisible() &&
 				             !CtrlObject->Plugins.UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
-				int Link=(Key==KEY_ALTF6 && !ToPlugin);
+				int Link=((Key==KEY_ALTF6||Key==KEY_RALTF6) && !ToPlugin);
 
-				if (Key==KEY_ALTF6 && !Link) // молча отвалим :-)
+				if ((Key==KEY_ALTF6||Key==KEY_RALTF6) && !Link) // молча отвалим :-)
 					return TRUE;
 
 				{
@@ -1009,8 +1018,11 @@ int TreeList::ProcessKey(int Key)
 		case KEY_SHIFTNUMDEL:
 		case KEY_SHIFTDECIMAL:
 		case KEY_ALTNUMDEL:
+		case KEY_RALTNUMDEL:
 		case KEY_ALTDECIMAL:
+		case KEY_RALTDECIMAL:
 		case KEY_ALTDEL:
+		case KEY_RALTDEL:
 		{
 			if (SetCurPath())
 			{
@@ -1019,7 +1031,7 @@ int TreeList::ProcessKey(int Key)
 				if (Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL)
 					Opt.DeleteToRecycleBin=0;
 
-				ShellDelete(this,Key==KEY_ALTDEL||Key==KEY_ALTNUMDEL||Key==KEY_ALTDECIMAL);
+				ShellDelete(this,Key==KEY_ALTDEL||Key==KEY_RALTDEL||Key==KEY_ALTNUMDEL||Key==KEY_RALTNUMDEL||Key==KEY_ALTDECIMAL||Key==KEY_RALTDECIMAL);
 				// Надобно не забыть обновить противоположную панель...
 				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 				AnotherPanel->Update(UPDATE_KEEP_SELECTION);
@@ -1034,20 +1046,23 @@ int TreeList::ProcessKey(int Key)
 		}
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
+		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			Scroll(Key & KEY_ALT?-1:-Opt.MsWheelDelta);
+			Scroll(Key & (KEY_ALT|KEY_RALT)?-1:-Opt.MsWheelDelta);
 			return TRUE;
 		}
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
+		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			Scroll(Key & KEY_ALT?1:Opt.MsWheelDelta);
+			Scroll(Key & (KEY_ALT|KEY_RALT)?1:Opt.MsWheelDelta);
 			return TRUE;
 		}
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
+		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsHWheelDelta;
+			int Roll = Key & (KEY_ALT|KEY_RALT)?1:Opt.MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_LEFT);
@@ -1056,8 +1071,9 @@ int TreeList::ProcessKey(int Key)
 		}
 		case KEY_MSWHEEL_RIGHT:
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
+		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = Key & KEY_ALT?1:Opt.MsHWheelDelta;
+			int Roll = Key & (KEY_ALT|KEY_RALT)?1:Opt.MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_RIGHT);
@@ -1145,9 +1161,8 @@ int TreeList::ProcessKey(int Key)
 			return TRUE;
 		}
 		default:
-
-			if ((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+255) ||
-			        (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+255))
+			if ((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535) || (Key>=KEY_RALT_BASE+0x01 && Key<=KEY_RALT_BASE+65535) ||
+			        (Key>=KEY_ALTSHIFT_BASE+0x01 && Key<=KEY_ALTSHIFT_BASE+65535) || (Key>=KEY_RALTSHIFT_BASE+0x01 && Key<=KEY_RALTSHIFT_BASE+65535))
 			{
 				FastFind(Key);
 

@@ -931,6 +931,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		   Alt-F11 - показать view/edit history
 		*/
 		case KEY_ALTF11:
+		case KEY_RALTF11:
 		{
 			if (GetCanLoseFocus())
 			{
@@ -975,6 +976,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			     ctrl+f - вставить в строку полное имя редактируемого файла
 			*/
 			case KEY_CTRLF:
+			case KEY_RCTRLF:
 			{
 				if (!m_editor->Flags.Check(FEDITOR_LOCKMODE))
 				{
@@ -1003,6 +1005,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			   + Добавляем реакцию показа бакграунда на клавишу CtrlAltShift
 			*/
 			case KEY_CTRLO:
+			case KEY_RCTRLO:
 			{
 				if (!Opt.OnlyEditorViewerUsed)
 				{
@@ -1172,6 +1175,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			}
 			// $ 21.07.2000 SKV + выход с позиционированием на редактируемом файле по CTRLF10
 			case KEY_CTRLF10:
+			case KEY_RCTRLF10:
 			{
 				if (isTemporary())
 				{
@@ -1205,6 +1209,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				return (TRUE);
 			}
 			case KEY_CTRLB:
+			case KEY_RCTRLB:
 			{
 				Opt.EdOpt.ShowKeyBar=!Opt.EdOpt.ShowKeyBar;
 
@@ -1218,6 +1223,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				return (TRUE);
 			}
 			case KEY_CTRLSHIFTB:
+			case KEY_RCTRLSHIFTB:
 			{
 				Opt.EdOpt.ShowTitleBar=!Opt.EdOpt.ShowTitleBar;
 				TitleBarVisible = Opt.EdOpt.ShowTitleBar;
@@ -1330,6 +1336,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				return TRUE;
 			}
 			case KEY_ALTSHIFTF9:
+			case KEY_RALTSHIFTF9:
 			{
 				//     Работа с локальной копией EditorOptions
 				EditorOptions EdOpt;

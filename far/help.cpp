@@ -1127,7 +1127,9 @@ int Help::ProcessKey(int Key)
 		}
 		case KEY_HOME:        case KEY_NUMPAD7:
 		case KEY_CTRLHOME:    case KEY_CTRLNUMPAD7:
+		case KEY_RCTRLHOME:   case KEY_RCTRLNUMPAD7:
 		case KEY_CTRLPGUP:    case KEY_CTRLNUMPAD9:
+		case KEY_RCTRLPGUP:   case KEY_RCTRLNUMPAD9:
 		{
 			StackData.CurX=StackData.CurY=0;
 			StackData.TopStr=0;
@@ -1140,7 +1142,9 @@ int Help::ProcessKey(int Key)
 		}
 		case KEY_END:         case KEY_NUMPAD1:
 		case KEY_CTRLEND:     case KEY_CTRLNUMPAD1:
+		case KEY_RCTRLEND:    case KEY_RCTRLNUMPAD1:
 		case KEY_CTRLPGDN:    case KEY_CTRLNUMPAD3:
+		case KEY_RCTRLPGDN:   case KEY_RCTRLNUMPAD3:
 		{
 			StackData.CurX=StackData.CurY=0;
 			StackData.TopStr=StrCount;
@@ -1201,20 +1205,22 @@ int Help::ProcessKey(int Key)
 		  + С альтом скролим по 1 */
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
+		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
 			if (StackData.TopStr>0)
 			{
-				StackData.TopStr-=Key&KEY_ALT?1:Opt.MsWheelDeltaHelp;
+				StackData.TopStr-=Key&(KEY_ALT|KEY_RALT)?1:Opt.MsWheelDeltaHelp;
 				FastShow();
 			}
 			return TRUE;
 		}
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
+		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
 			if (StackData.TopStr<StrCount-FixCount-(Y2-Y1-1-FixSize))
 			{
-				StackData.TopStr+=Key&KEY_ALT?1:Opt.MsWheelDeltaHelp;
+				StackData.TopStr+=Key&(KEY_ALT|KEY_RALT)?1:Opt.MsWheelDeltaHelp;
 				FastShow();
 			}
 			return TRUE;
@@ -1307,6 +1313,7 @@ int Help::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_ALTF1:
+		case KEY_RALTF1:
 		case KEY_BS:
 		{
 			// Если стек возврата пуст - выходим их хелпа

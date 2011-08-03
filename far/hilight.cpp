@@ -616,6 +616,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 					  ≈сли нажали ctrl+r, то восстановить значени€ по умолчанию.
 					*/
 				case KEY_CTRLR:
+				case KEY_RCTRLR:
 				{
 
 					if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
@@ -720,7 +721,8 @@ void HighlightFiles::HiEdit(int MenuPos)
 					break;
 				}
 
-				case KEY_CTRLUP: case KEY_CTRLNUMPAD8:
+				case KEY_CTRLUP:  case KEY_CTRLNUMPAD8:
+				case KEY_RCTRLUP: case KEY_RCTRLNUMPAD8:
 				{
 					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
@@ -757,7 +759,8 @@ void HighlightFiles::HiEdit(int MenuPos)
 					break;
 				}
 
-				case KEY_CTRLDOWN: case KEY_CTRLNUMPAD2:
+				case KEY_CTRLDOWN:  case KEY_CTRLNUMPAD2:
+				case KEY_RCTRLDOWN: case KEY_RCTRLNUMPAD2:
 				{
 					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);

@@ -1661,9 +1661,12 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 				break;
 
 			case KEY_CTRLALTSHIFTPRESS:
+			case KEY_RCTRLALTSHIFTPRESS:
 			case KEY_ALTF9:
+			case KEY_RALTF9:
 			case KEY_F11:
 			case KEY_CTRLW:
+			case KEY_RCTRLW:
 				{
 					FrameManager->ProcessKey((DWORD)key);
 					return TRUE;
@@ -1711,19 +1714,31 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 			case KEY_MSWHEEL_UP:
 			case KEY_MSWHEEL_DOWN:
 			case KEY_ALTLEFT:
+			case KEY_RALTLEFT:
 			case KEY_ALT|KEY_NUMPAD4:
+			case KEY_RALT|KEY_NUMPAD4:
 			case KEY_MSWHEEL_LEFT:
 			case KEY_ALTRIGHT:
+			case KEY_RALTRIGHT:
 			case KEY_ALT|KEY_NUMPAD6:
+			case KEY_RALT|KEY_NUMPAD6:
 			case KEY_MSWHEEL_RIGHT:
 			case KEY_ALTSHIFTLEFT:
+			case KEY_RALTSHIFTLEFT:
 			case KEY_ALT|KEY_SHIFT|KEY_NUMPAD4:
+			case KEY_RALT|KEY_SHIFT|KEY_NUMPAD4:
 			case KEY_ALTSHIFTRIGHT:
+			case KEY_RALTSHIFTRIGHT:
 			case KEY_ALT|KEY_SHIFT|KEY_NUMPAD6:
+			case KEY_RALT|KEY_SHIFT|KEY_NUMPAD6:
 			case KEY_ALTHOME:
+			case KEY_RALTHOME:
 			case KEY_ALT|KEY_NUMPAD7:
+			case KEY_RALT|KEY_NUMPAD7:
 			case KEY_ALTEND:
+			case KEY_RALTEND:
 			case KEY_ALT|KEY_NUMPAD1:
+			case KEY_RALT|KEY_NUMPAD1:
 				{
 					ListBox->ProcessKey((unsigned)key);
 					return TRUE;
@@ -1732,6 +1747,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 
 			/*
 			case KEY_CTRLA:
+			case KEY_RCTRLA:
 			{
 				if (!ListBox->GetItemCount())
 				{

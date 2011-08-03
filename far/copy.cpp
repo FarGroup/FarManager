@@ -678,9 +678,9 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			if (record->EventType==KEY_EVENT)
 			{
 				int key = InputRecordToKey(record);
-				if (key == KEY_ALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
+				if (key == KEY_ALTF10 || key == KEY_RALTF10 || key == KEY_F10 || key == KEY_SHIFTF10)
 				{
-					DlgParam->AltF10=key == KEY_ALTF10?1:(key == KEY_SHIFTF10?2:0);
+					DlgParam->AltF10=(key == KEY_ALTF10 || key == KEY_RALTF10)?1:(key == KEY_SHIFTF10?2:0);
 					SendDlgMessage(hDlg,DM_CALLTREE,DlgParam->AltF10,0);
 					return TRUE;
 				}

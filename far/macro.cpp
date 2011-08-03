@@ -2694,18 +2694,21 @@ static bool menushowFunc(const TMacroFunction*)
 			case KEY_CTRLADD:
 			case KEY_CTRLSUBTRACT:
 			case KEY_CTRLMULTIPLY:
+			case KEY_RCTRLADD:
+			case KEY_RCTRLSUBTRACT:
+			case KEY_RCTRLMULTIPLY:
 				if (bMultiSelect)
 				{
 					for(int i=0; i<Menu.GetShowItemCount(); i++)
 					{
 						RealPos=Menu.VisualPosToReal(i);
-						if (Key==KEY_CTRLMULTIPLY)
+						if (Key==KEY_CTRLMULTIPLY || Key==KEY_RCTRLMULTIPLY)
 						{
 							CheckFlag=Menu.GetCheck(RealPos)?false:true;
 						}
 						else
 						{
-							CheckFlag=(Key==KEY_CTRLADD);
+							CheckFlag=(Key==KEY_CTRLADD || Key==KEY_RCTRLADD);
 						}
 						Menu.SetCheck(CheckFlag, RealPos);
 					}
@@ -2714,6 +2717,7 @@ static bool menushowFunc(const TMacroFunction*)
 				break;
 
 			case KEY_CTRLA:
+			case KEY_RCTRLA:
 			{
 				Menu.GetPosition(X1, Y1, X2, Y2);
 				NewY2=Y1+Menu.GetShowItemCount()+1;
@@ -4768,6 +4772,7 @@ done:
 			goto begin;
 		}
 		case KEY_ALTINS:
+		case KEY_RALTINS:
 		{
 			if (RunGraber())
 				return KEY_NONE;
@@ -6480,7 +6485,7 @@ INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void*
 		// <Клавиши, которые не введешь в диалоге назначения>
 		DWORD PreDefKeyMain[]=
 		{
-			KEY_CTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,
+			KEY_CTRLDOWN,KEY_RCTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,KEY_RCTRLF5,
 		};
 
 		for (size_t i=0; i<ARRAYSIZE(PreDefKeyMain); i++)
@@ -6499,7 +6504,7 @@ INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void*
 		};
 		DWORD PreDefModKey[]=
 		{
-			0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,
+			0,KEY_CTRL,KEY_RCTRL,KEY_SHIFT,KEY_ALT,KEY_RALT,KEY_CTRLSHIFT,KEY_RCTRLSHIFT,KEY_CTRLALT,KEY_RCTRLRALT,KEY_ALTSHIFT,KEY_RALTSHIFT,
 		};
 
 		for (size_t i=0; i<ARRAYSIZE(PreDefKey); i++)
@@ -6559,7 +6564,7 @@ INT_PTR WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void*
 		// Esc & (Enter и предыдущий Enter) - не обрабатываем
 		if (key == KEY_ESC ||
 		        ((key == KEY_ENTER||key == KEY_NUMENTER) && (LastKey == KEY_ENTER||LastKey == KEY_NUMENTER)) ||
-		        key == KEY_CTRLDOWN ||
+		        key == KEY_CTRLDOWN || key == KEY_RCTRLDOWN ||
 		        key == KEY_F1)
 		{
 			return FALSE;
@@ -7220,7 +7225,7 @@ int KeyMacro::PopState()
 // Функция получения индекса нужного макроса в массиве
 // Ret=-1 - не найден таковой.
 // если CheckMode=-1 - значит пофигу в каком режиме, т.е. первый попавшийся
-int KeyMacro::GetIndex(int Key, int ChechMode, bool UseCommon)
+int KeyMacro::GetIndex(int Key, int CheckMode, bool UseCommon)
 {
 	if (MacroLIB)
 	{
@@ -7229,19 +7234,19 @@ int KeyMacro::GetIndex(int Key, int ChechMode, bool UseCommon)
 			int Pos,Len;
 			MacroRecord *MPtr=nullptr;
 
-			if (ChechMode == -1)
+			if (CheckMode == -1)
 			{
 				Len=MacroLIBCount;
 				MPtr=MacroLIB;
 			}
-			else if (ChechMode >= 0 && ChechMode < MACRO_LAST)
+			else if (CheckMode >= 0 && CheckMode < MACRO_LAST)
 			{
-				Len=IndexMode[ChechMode][1];
+				Len=IndexMode[CheckMode][1];
 
 				if (Len)
-					MPtr=MacroLIB+IndexMode[ChechMode][0];
+					MPtr=MacroLIB+IndexMode[CheckMode][0];
 
-				//_SVS(SysLog(L"ChechMode=%d (%d,%d)",ChechMode,IndexMode[ChechMode][0],IndexMode[ChechMode][1]));
+				//_SVS(SysLog(L"CheckMode=%d (%d,%d)",CheckMode,IndexMode[CheckMode][0],IndexMode[CheckMode][1]));
 			}
 			else
 			{
@@ -7250,23 +7255,42 @@ int KeyMacro::GetIndex(int Key, int ChechMode, bool UseCommon)
 
 			if (Len)
 			{
-				for (Pos=0; Pos < Len; ++Pos, ++MPtr)
+				int ctrl = ((Key&(KEY_RCTRL|KEY_RALT)) && !(Key&(KEY_CTRL|KEY_ALT))) ? 0 : 1;
+				MacroRecord *MPtrSave=MPtr;
+				for (; ctrl < 2; ctrl++)
 				{
-					if (!((MPtr->Key ^ Key) & ~0xFFFF) &&
-					        (Upper(static_cast<WCHAR>(MPtr->Key))==Upper(static_cast<WCHAR>(Key))) &&
-					        (MPtr->BufferSize > 0))
+					for (Pos=0; Pos < Len; ++Pos, ++MPtr)
 					{
-						//        && (ChechMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == ChechMode))
-						//_SVS(SysLog(L"GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
-						if (!(MPtr->Flags&MFLAGS_DISABLEMACRO))
-							return Pos+((ChechMode >= 0)?IndexMode[ChechMode][0]:0);
+						if (!((MPtr->Key ^ Key) & ~0xFFFF) &&
+								(Upper(static_cast<WCHAR>(MPtr->Key))==Upper(static_cast<WCHAR>(Key))) &&
+								(MPtr->BufferSize > 0))
+						{
+							//        && (CheckMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == CheckMode))
+							//_SVS(SysLog(L"GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
+							if (!(MPtr->Flags&MFLAGS_DISABLEMACRO))
+								return Pos+((CheckMode >= 0)?IndexMode[CheckMode][0]:0);
+						}
+					}
+					if (!ctrl)
+					{
+						if (Key & KEY_RCTRL)
+						{
+							Key &= ~KEY_RCTRL;
+							Key |= KEY_CTRL;
+						}
+						if (Key & KEY_RALT)
+						{
+							Key &= ~KEY_RALT;
+							Key |= KEY_ALT;
+						}
+						MPtr = MPtrSave;
 					}
 				}
 			}
 
 			// здесь смотрим на MACRO_COMMON
-			if (ChechMode != -1 && !I && UseCommon)
-				ChechMode=MACRO_COMMON;
+			if (CheckMode != -1 && !I && UseCommon)
+				CheckMode=MACRO_COMMON;
 			else
 				break;
 		}

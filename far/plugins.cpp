@@ -1668,6 +1668,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						break;
 
 					case KEY_ALTF11:
+					case KEY_RALTF11:
 						WriteEvent(FLOG_PLUGINSINFO);
 						break;
 
@@ -1691,6 +1692,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						break;
 
 					case KEY_ALTSHIFTF9:
+					case KEY_RALTSHIFTF9:
 					{
 						PluginList.Hide();
 						NeedUpdateItems = true;

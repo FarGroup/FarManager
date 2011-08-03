@@ -72,6 +72,7 @@ void ShowProcessList()
 				break;
 			}
 			case KEY_CTRLR:
+			case KEY_RCTRLR:
 			{
 				ProcList.Hide();
 				ProcList.DeleteItems();

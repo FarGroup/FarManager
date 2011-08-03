@@ -373,13 +373,16 @@ bool FileFilter::FilterEdit()
 				break;
 			}
 			case KEY_CTRLUP:
+			case KEY_RCTRLUP:
 			case KEY_CTRLDOWN:
+			case KEY_RCTRLDOWN:
 			{
 				int SelPos=FilterList.GetSelectPos();
 
-				if (SelPos<(int)FilterData.getCount() && !(Key==KEY_CTRLUP && !SelPos) && !(Key==KEY_CTRLDOWN && SelPos==(int)(FilterData.getCount()-1)))
+				if (SelPos<(int)FilterData.getCount() && !((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !SelPos) &&
+					!((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && SelPos==(int)(FilterData.getCount()-1)))
 				{
-					int NewPos = SelPos + (Key == KEY_CTRLDOWN ? 1 : -1);
+					int NewPos = SelPos + ((Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN) ? 1 : -1);
 					MenuItemEx CurItem  = *FilterList.GetItemPtr(SelPos);
 					MenuItemEx NextItem = *FilterList.GetItemPtr(NewPos);
 					FilterData.swapItems(NewPos,SelPos);
