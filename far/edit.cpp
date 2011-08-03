@@ -2776,7 +2776,8 @@ void Edit::ApplyColor()
 			    Y1,
 			    CurItem->Color,
 			    // Не раскрашиваем выделение
-			    SelColor
+			    SelColor,
+			    true
 			);
 		}
 	}

@@ -761,7 +761,7 @@ void ChangeBlockColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)
 
 	if (Y2>ScrY) Y2=ScrY;
 
-	ScrBuf.ApplyColor(X1, Y1, X2, Y2, Color);
+	ScrBuf.ApplyColor(X1, Y1, X2, Y2, Color, true);
 }
 
 void vmprintf(const WCHAR *fmt,...)

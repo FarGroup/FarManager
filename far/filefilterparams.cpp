@@ -614,7 +614,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample,HighlightData
 
 		if (!(Color.BackgroundColor&0x00ffffff) && !(Color.ForegroundColor&0x00ffffff))
 		{
-			FARCOLORFLAGS ExFlags = Color.Flags&~FCF_4BITMASK;
+			FARCOLORFLAGS ExFlags = Color.Flags&FCF_EXTENDEDFLAGS;
 			Color=ColorIndexToColor(PalColor[i]);
 			Color.Flags|=ExFlags;
 
@@ -643,7 +643,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample,HighlightData
 			else
 			{
 				// apply all except color mode
-				FARCOLORFLAGS ExFlags = Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags&~FCF_4BITMASK;
+				FARCOLORFLAGS ExFlags = Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags&FCF_EXTENDEDFLAGS;
 				VBufColorExample[15*i+1].Attributes.Flags|=ExFlags;
 			}
 		}

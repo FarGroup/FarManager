@@ -602,7 +602,7 @@ virtual int GetDelta() const
 class ExtendedConsoleCore:public ConsoleCore
 {
 public:
-	ExtendedConsoleCore():Module(LoadLibrary(L"console.dll"))
+	ExtendedConsoleCore():Module(LoadLibrary(L"extendedconsole.dll"))
 	{
 		memset(&Imports, 0, sizeof(Imports));
 		if(Module)

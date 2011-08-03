@@ -220,7 +220,8 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 
 /* Непосредственное изменение цветовых атрибутов
 */
-void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)
+// used in block selection
+void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bool PreserveExFlags)
 {
 	CriticalSectionLock Lock(CS);
 	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
@@ -234,14 +235,31 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)
 		int Height=Y2-Y1+1;
 		int I, J;
 
-		for (I=0; I < Height; I++)
+		FAR_CHAR_INFO *PtrBuf;
+		FARCOLORFLAGS ExFlags;
+		if(PreserveExFlags)
 		{
-			FAR_CHAR_INFO *PtrBuf=Buf+(Y1+I)*BufX+X1;
-
-			for (J=0; J < Width; J++, ++PtrBuf)
-				PtrBuf->Attributes=Color;
-
-			//Buf[K+J].Attributes=Color;
+			for (I=0; I < Height; I++)
+			{
+				PtrBuf=Buf+(Y1+I)*BufX+X1;
+				for (J=0; J < Width; J++, ++PtrBuf)
+				{
+					ExFlags = PtrBuf->Attributes.Flags&FCF_EXTENDEDFLAGS;
+					PtrBuf->Attributes=Color;
+					PtrBuf->Attributes.Flags = (PtrBuf->Attributes.Flags&~FCF_EXTENDEDFLAGS)|ExFlags;
+				}
+			}
+		}
+		else
+		{
+			for (I=0; I < Height; I++)
+			{
+				PtrBuf=Buf+(Y1+I)*BufX+X1;
+				for (J=0; J < Width; J++, ++PtrBuf)
+				{
+					PtrBuf->Attributes=Color;
+				}
+			}
 		}
 
 #ifdef DIRECT_SCREEN_OUT
@@ -257,7 +275,8 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color)
 
 /* Непосредственное изменение цветовых атрибутов с заданым цетом исключением
 */
-void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor)
+// used in stream selection
+void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,const FarColor& ExceptColor, bool ForceExFlags)
 {
 	CriticalSectionLock Lock(CS);
 	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
@@ -267,15 +286,19 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 		Y1=Max(0,Y1);
 		Y2=Min(static_cast<int>(ScrY),Y2);
 
+		FAR_CHAR_INFO *PtrBuf;
 		for (int I = 0; I < Y2-Y1+1; I++)
 		{
-			FAR_CHAR_INFO *PtrBuf = Buf+(Y1+I)*BufX+X1;
-
+			PtrBuf = Buf+(Y1+I)*BufX+X1;
 			for (int J = 0; J < X2-X1+1; J++, ++PtrBuf)
 			{
 				if (PtrBuf->Attributes.ForegroundColor != ExceptColor.ForegroundColor || PtrBuf->Attributes.BackgroundColor != ExceptColor.BackgroundColor)
 				{
-					PtrBuf->Attributes = Color;
+					PtrBuf->Attributes=Color;
+				}
+				else if (ForceExFlags)
+				{
+					PtrBuf->Attributes.Flags = (PtrBuf->Attributes.Flags&~FCF_EXTENDEDFLAGS)|Color.Flags&FCF_EXTENDEDFLAGS;
 				}
 			}
 		}

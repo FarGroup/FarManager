@@ -3709,7 +3709,7 @@ BOOL Editor::Search(int Next)
 						Show();
 						SHORT CurX,CurY;
 						GetCursorPos(CurX,CurY);
-						ScrBuf.ApplyColor(CurX,CurY,CurPtr->RealPosToTab(CurPtr->TabPosToReal(CurX)+SearchLength)-1,CurY,ColorIndexToColor(COL_EDITORSELECTEDTEXT));
+						ChangeBlockColor(CurX,CurY,CurPtr->RealPosToTab(CurPtr->TabPosToReal(CurX)+SearchLength)-1,CurY,ColorIndexToColor(COL_EDITORSELECTEDTEXT));
 						string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
 						InsertQuote(strQSearchStr);
 						InsertQuote(strQReplaceStr);
