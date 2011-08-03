@@ -39,38 +39,93 @@ int Colors::FarColorToConsoleColor(const FarColor& Color)
 {
 	static FARCOLORFLAGS Flags[2] = {FCF_BG_4BIT, FCF_FG_4BIT};
 	static int Shifts[2] = {ConsoleBgShift, ConsoleFgShift};
-	int TrueColors[2]={Color.BackgroundColor, Color.ForegroundColor};
-	BYTE IndexColors[2] = {0,7};
+	static int RedMask = 1, GreenMask = 2, BlueMask = 4, IntensityMask = 8;
+	static BYTE IndexColors[2] = {};
+	static int LastTrueColors[2] = {};
+	int TrueColors[] = {Color.BackgroundColor, Color.ForegroundColor};
+
+	#define INSIDE(from, what, to) ((from) <= (what) && (what) <= (to))
 
 	for(size_t i = 0; i < ARRAYSIZE(TrueColors); ++i)
 	{
-		if(Color.Flags&Flags[i])
+		if(TrueColors[i] != LastTrueColors[i])
 		{
-			IndexColors[i] = TrueColors[i]&ConsoleMask;
-		}
-		else
-		{
-			switch(TrueColors[i]&0x00ffffff)
+			LastTrueColors[i] = TrueColors[i];
+			if(Color.Flags&Flags[i])
 			{
-				case 0x000000: IndexColors[i] = 0x0; break;
-				case 0x800000: IndexColors[i] = 0x1; break;
-				case 0x008000: IndexColors[i] = 0x2; break;
-				case 0x808000: IndexColors[i] = 0x3; break;
-				case 0x000080: IndexColors[i] = 0x4; break;
-				case 0x800080: IndexColors[i] = 0x5; break;
-				case 0x008080: IndexColors[i] = 0x6; break;
-				case 0xc0c0c0: IndexColors[i] = 0x7; break;
-				case 0x808080: IndexColors[i] = 0x8; break;
-				case 0xff0000: IndexColors[i] = 0x9; break;
-				case 0x00ff00: IndexColors[i] = 0xa; break;
-				case 0xffff00: IndexColors[i] = 0xb; break;
-				case 0x0000ff: IndexColors[i] = 0xc; break;
-				case 0xff00ff: IndexColors[i] = 0xd; break;
-				case 0x00ffff: IndexColors[i] = 0xe; break;
-				case 0xffffff: IndexColors[i] = 0xf; break;
+				IndexColors[i] = TrueColors[i]&ConsoleMask;
+			}
+			else
+			{
+				int B = LOBYTE(LOWORD(TrueColors[i]));
+				int G = HIBYTE(LOWORD(TrueColors[i]));
+				int R = LOBYTE(HIWORD(TrueColors[i]));
+  
+				// special case, silver color:
+				if(INSIDE(160, R, 223) && INSIDE(160, G, 223) && INSIDE(160, B, 223))
+				{
+					IndexColors[i] = RedMask|GreenMask|BlueMask;
+				}
+				else
+				{
+					int* p[] = {&R, &G, &B};
+					int IntenseCount = 0;
+					for(size_t j = 0; j < ARRAYSIZE(p); ++j)
+					{
+						if(INSIDE(0, *p[j], 63))
+						{
+							*p[j]=0;
+						}
+						else if(INSIDE(64, *p[j], 191))
+						{
+							*p[j]=128;
+						}
+						else if(INSIDE(192, *p[j], 255))
+						{
+							*p[j]=255;
+							++IntenseCount;
+						}
+					}
+					// eliminate mixed intensity
+					if(IntenseCount > 0 && IntenseCount < 3)
+					{
+						for(size_t j = 0; j < 3; ++j)
+						{
+							if(*p[j] == 128)
+							{
+								*p[j] = IntenseCount==1? 0 : 255;
+							}
+						}
+					}
+					IndexColors[i] = 0;
+					if(R)
+					{
+						IndexColors[i] |= RedMask;
+					}
+					if(G)
+					{
+						IndexColors[i]|=GreenMask;
+					}
+					if(B)
+					{
+						IndexColors[i]|=BlueMask;
+					}
+					if(IntenseCount)
+					{
+						IndexColors[i]|=IntensityMask;
+					}
+				}
+			}
+			if(TrueColors[0] != TrueColors[1] && IndexColors[0] == IndexColors[1])
+			{
+				// oops, unreadable
+				IndexColors[0]&IntensityMask? IndexColors[0]&=~IntensityMask : IndexColors[1]|=IntensityMask;
 			}
 		}
 	}
+
+	#undef INSIDE
+
 	return (IndexColors[0] << Shifts[0]) | (IndexColors[1] << Shifts[1]);
 }
 
