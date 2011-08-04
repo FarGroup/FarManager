@@ -39,7 +39,7 @@ int Colors::FarColorToConsoleColor(const FarColor& Color)
 {
 	static FARCOLORFLAGS Flags[2] = {FCF_BG_4BIT, FCF_FG_4BIT};
 	static int Shifts[2] = {ConsoleBgShift, ConsoleFgShift};
-	static int RedMask = 1, GreenMask = 2, BlueMask = 4, IntensityMask = 8;
+	static int BlueMask = 1, GreenMask = 2, RedMask = 4, IntensityMask = 8;
 	static BYTE IndexColors[2] = {};
 	static unsigned int LastTrueColors[2] = {};
 	static int Result = 0;
