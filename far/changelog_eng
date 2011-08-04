@@ -3,6 +3,62 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.08.2011 23:43:18 +0200 - build 2130
+
+1. FarColor.ForegroundColor and FarColor.BackgroundColor - COLORREF. If FCF_<F|B>G_4BIT  flag is not mentioned, then 0xAABBGGRR formatted color is expected.
+
+2. Generated headers (farcolor.hpp, plugin.hpp) are now compiled during build process (as С and С++) in order to discover possible problems at an earlier stage.
+
+drkns 04.08.2011 12:17:52 +0200 - build 2129
+
+1. And once more.
+
+drkns 04.08.2011 09:17:17 +0200 - build 2128
+
+1. Correction of 2125.1.
+
+svs 04.08.2011 02:55:52 +0300 - build 2127
+
+1. Mantis#0001832: FarNameToInputRecord / FarInputRecordToName problem
+   (from Maximus)
+   Next...
+   - if "right-hand" combinations were not assigned to any reserved actions earlier then FAR acts on them as on "left-hand" ones.
+   - Изыски типа RightCtrlLeftAlt+something are not processed in any special way (meaning Right->Left replacement).
+   - In macros, as anywhere else, if nothing is assigned to "right-hand" combination, then handle it like the "left-hand" one.
+
+   svs> 255 is changed to 65535
+
+drkns 03.08.2011 23:57:15 +0200 - build 2126
+
+1. external rendering support:
+   - the values of some FCF_ flags are changed;
+   - console.dll -> extendedconsole.dll;
+   - selected text in editor retains its extended attributes.
+
+drkns 03.08.2011 12:12:12 +0200 - build 2125
+
+1. "Non-4 bit" colors are cast to standard console palette more or less adequately.
+
+drkns 02.08.2011 21:00:36 +0200 - build 2124
+
+1. Mantis#0001603: Autocompletion in the middle of the line works incorrectly in dialogs
+
+2. All `Reserved` in plugin.hpp are pointer-sized.
+
+drkns 02.08.2011 10:55:14 +0200 - build 2123
+
+1. Mantis#0001842: incorrect buffer read in Execute.cpp
+
+svs 01.08.2011 15:43:24 +0300 - build 2122
+
+1. Mantis#0001832: FarNameToInputRecord / FarInputRecordToName problem
+   (from Maximus + skirda)
+   The next iteration...
+
+drkns 01.08.2011 11:02:24 +0200 - build 2121
+
+1. Correction of extended color attributes handling in files highlighting.
+
 drkns 31.07.2011 16:34:12 +0200 - build 2120
 
 1. Correction for default highlighting of files.
