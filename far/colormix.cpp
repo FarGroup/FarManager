@@ -41,92 +41,99 @@ int Colors::FarColorToConsoleColor(const FarColor& Color)
 	static int Shifts[2] = {ConsoleBgShift, ConsoleFgShift};
 	static int RedMask = 1, GreenMask = 2, BlueMask = 4, IntensityMask = 8;
 	static BYTE IndexColors[2] = {};
-	static int LastTrueColors[2] = {};
-	int TrueColors[] = {Color.BackgroundColor, Color.ForegroundColor};
-
-	#define INSIDE(from, what, to) ((from) <= (what) && (what) <= (to))
-
-	for(size_t i = 0; i < ARRAYSIZE(TrueColors); ++i)
+	static unsigned int LastTrueColors[2] = {};
+	static int Result = 0;
+	if(Color.BackgroundColor != LastTrueColors[0] || Color.ForegroundColor != LastTrueColors[1])
 	{
-		if(TrueColors[i] != LastTrueColors[i])
+		unsigned int TrueColors[] = {Color.BackgroundColor, Color.ForegroundColor};
+
+#define INSIDE(from, what, to) ((from) <= (what) && (what) <= (to))
+
+		for(size_t i = 0; i < ARRAYSIZE(TrueColors); ++i)
 		{
-			LastTrueColors[i] = TrueColors[i];
-			if(Color.Flags&Flags[i])
+			if(TrueColors[i] != LastTrueColors[i])
 			{
-				IndexColors[i] = TrueColors[i]&ConsoleMask;
-			}
-			else
-			{
-				int R = LOBYTE(HIWORD(TrueColors[i]));
-				int G = HIBYTE(LOWORD(TrueColors[i]));
-				int B = LOBYTE(LOWORD(TrueColors[i]));
-  
-				// special case, silver color:
-				if(INSIDE(160, R, 223) && INSIDE(160, G, 223) && INSIDE(160, B, 223))
+				LastTrueColors[i] = TrueColors[i];
+				if(Color.Flags&Flags[i])
 				{
-					IndexColors[i] = RedMask|GreenMask|BlueMask;
+					IndexColors[i] = TrueColors[i]&ConsoleMask;
 				}
 				else
 				{
-					int* p[] = {&R, &G, &B};
-					int IntenseCount = 0;
-					for(size_t j = 0; j < ARRAYSIZE(p); ++j)
+					int R = LOBYTE(HIWORD(TrueColors[i]));
+					int G = HIBYTE(LOWORD(TrueColors[i]));
+					int B = LOBYTE(LOWORD(TrueColors[i]));
+
+					// special case, silver color:
+					if(INSIDE(160, R, 223) && INSIDE(160, G, 223) && INSIDE(160, B, 223))
 					{
-						if(INSIDE(0, *p[j], 63))
-						{
-							*p[j]=0;
-						}
-						else if(INSIDE(64, *p[j], 191))
-						{
-							*p[j]=128;
-						}
-						else if(INSIDE(192, *p[j], 255))
-						{
-							*p[j]=255;
-							++IntenseCount;
-						}
+						IndexColors[i] = RedMask|GreenMask|BlueMask;
 					}
-					// eliminate mixed intensity
-					if(IntenseCount > 0 && IntenseCount < 3)
+					else
 					{
-						for(size_t j = 0; j < 3; ++j)
+						int* p[] = {&R, &G, &B};
+						int IntenseCount = 0;
+						for(size_t j = 0; j < ARRAYSIZE(p); ++j)
 						{
-							if(*p[j] == 128)
+							if(INSIDE(0, *p[j], 63))
 							{
-								*p[j] = IntenseCount==1? 0 : 255;
+								*p[j]=0;
+							}
+							else if(INSIDE(64, *p[j], 191))
+							{
+								*p[j]=128;
+							}
+							else if(INSIDE(192, *p[j], 255))
+							{
+								*p[j]=255;
+								++IntenseCount;
 							}
 						}
-					}
-					IndexColors[i] = 0;
-					if(R)
-					{
-						IndexColors[i] |= RedMask;
-					}
-					if(G)
-					{
-						IndexColors[i]|=GreenMask;
-					}
-					if(B)
-					{
-						IndexColors[i]|=BlueMask;
-					}
-					if(IntenseCount)
-					{
-						IndexColors[i]|=IntensityMask;
+						// eliminate mixed intensity
+						if(IntenseCount > 0 && IntenseCount < 3)
+						{
+							for(size_t j = 0; j < 3; ++j)
+							{
+								if(*p[j] == 128)
+								{
+									*p[j] = IntenseCount==1? 0 : 255;
+								}
+							}
+						}
+						IndexColors[i] = 0;
+						if(R)
+						{
+							IndexColors[i] |= RedMask;
+						}
+						if(G)
+						{
+							IndexColors[i]|=GreenMask;
+						}
+						if(B)
+						{
+							IndexColors[i]|=BlueMask;
+						}
+						if(IntenseCount)
+						{
+							IndexColors[i]|=IntensityMask;
+						}
 					}
 				}
 			}
-			if(TrueColors[0] != TrueColors[1] && IndexColors[0] == IndexColors[1])
-			{
-				// oops, unreadable
-				IndexColors[0]&IntensityMask? IndexColors[0]&=~IntensityMask : IndexColors[1]|=IntensityMask;
-			}
 		}
+
+		if(TrueColors[0] != TrueColors[1] && IndexColors[0] == IndexColors[1])
+		{
+			// oops, unreadable
+			IndexColors[0]&IntensityMask? IndexColors[0]&=~IntensityMask : IndexColors[1]|=IntensityMask;
+		}
+		Result = (IndexColors[0] << Shifts[0]) | (IndexColors[1] << Shifts[1]);
+
+#undef INSIDE
+
 	}
 
-	#undef INSIDE
-
-	return (IndexColors[0] << Shifts[0]) | (IndexColors[1] << Shifts[1]);
+	return Result;
 }
 
 void Colors::ConsoleColorToFarColor(int Color,FarColor& NewColor)
