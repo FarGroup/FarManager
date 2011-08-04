@@ -1075,6 +1075,9 @@
     <ClInclude Include="nsUniversalDetectorEx.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="keys.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="bootstrap\lang.inc">
@@ -1148,14 +1151,14 @@
     <CustomBuild Include="File_id.diz.m4">
       <Filter>Dependencies</Filter>
     </CustomBuild>
-    <CustomBuild Include="keys.hpp">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="plugin.hpp">
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="Far.exe.ini">
       <Filter>Dependencies</Filter>
+    </CustomBuild>
+    <CustomBuild Include="api_test.c">
+      <Filter>Source Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

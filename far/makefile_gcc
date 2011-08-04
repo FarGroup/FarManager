@@ -162,6 +162,8 @@ SRCS = \
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) $(OBJDIR)/far.rc.o
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
+TESTOBJS = $(OBJDIR)/api_test_c.o $(OBJDIR)/api_test_c++.o
+
 CXX = g++
 CC = gcc
 RM = rm -f
@@ -217,64 +219,76 @@ $(OBJDIR)/headers.gch: headers.cpp
 
 $(OBJS): $(OBJDIR)/headers.gch
 
+$(OBJDIR)/headers.gch: $(TESTOBJS)
+
 $(OBJDIR)/far.rc.o: bootstrap/far.rc res.hpp Far.ico
 	@echo compiling resource file
 	@$(WINDRES) -i $< -o $@
 
+$(OBJDIR)/api_test_c.o: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
+	@echo testing C plugin API
+	@$(CC) -c -x c -o $@ api_test.c
+
+$(OBJDIR)/api_test_c++.o: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
+	@echo testing C++ plugin API
+	@$(CXX) -c -x c++ -o $@ api_test.c
+
+MSG=@echo generating $@
+
 bootstrap/Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(M4) Far.exe.manifest.m4 > $@
 
 bootstrap/far.rc: far.rc.m4 farversion.m4 tools.m4 vbuild.m4 res.hpp bootstrap/Far.exe.manifest
-	@echo generating $@
+	$(MSG)
 	@$(M4) far.rc.m4 > $@
 
 bootstrap/copyright.inc: copyright.inc.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(M4) copyright.inc.m4 > $@
 
 bootstrap/farversion.inc: farversion.inc.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(M4) farversion.inc.m4 > $@
 
 bootstrap/farlang.templ: farlang.templ.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(M4) farlang.templ.m4 > $@
 
 $(EXEDIR)/FarEng.hlf: FarEng.hlf.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(GAWK) -f ./scripts/mkhlf.awk FarEng.hlf.m4 | $(M4) > $@
 
 $(EXEDIR)/FarRus.hlf: FarRus.hlf.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(GAWK) -f ./scripts/mkhlf.awk FarRus.hlf.m4 | $(M4) > $@
 
 $(EXEDIR)/FarHun.hlf: FarHun.hlf.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(GAWK) -f ./scripts/mkhlf.awk FarHun.hlf.m4 | $(M4) > $@
 
 $(EXEDIR)/File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(M4) File_id.diz.m4 > $@
 
 $(EXEDIR)/Far.exe.ini: Far.exe.ini
-	@echo generating $@
+	$(MSG)
 	@$(CP) Far.exe.ini $@
 
 $(FARINCLUDE)/farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(M4) -DINPUT=colors.hpp headers.m4 > $@
 
 $(FARINCLUDE)/plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(M4) -DINPUT=plugin.hpp headers.m4 > $@
 
 $(FARINCLUDE)/PluginW.pas: PluginW.pas farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(M4) -DINPUT=PluginW.pas headers.m4 > $@
 
 $(FARINCLUDE)/FarColorW.pas: FarColorW.pas farversion.m4 tools.m4 vbuild.m4
-	@echo generating $@
+	$(MSG)
 	@$(M4) -DINPUT=FarColorW.pas headers.m4 > $@
 
 ifeq ($(MAKECMDGOALS),build)
@@ -285,6 +299,7 @@ endif
 clean:
 	@echo cleaning
 	@$(RM) $(OBJS)
+	@$(RM) $(TESTOBJS)
 	@$(RM) $(OBJDIR)/headers.gch
 	@$(RM) $(EXEFULLNAME) $(MAP)
 	@$(RM) bootstrap/*.*

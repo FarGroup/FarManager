@@ -410,6 +410,62 @@ if not exist bootstrap mkdir bootstrap</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <CustomBuild Include="api_test.c">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">echo testing C plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c.obj" /TC api_test.c
+echo testing C++ plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.obj" /TP api_test.c
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">echo testing C plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c.obj" /TC api_test.c
+echo testing C++ plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.obj" /TP api_test.c
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">echo testing C plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c.obj" /TC api_test.c
+echo testing C++ plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.obj" /TP api_test.c
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo testing C plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c.obj" /TC api_test.c
+echo testing C++ plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.obj" /TP api_test.c
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">echo testing C plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c.obj" /TC api_test.c
+echo testing C++ plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.obj" /TP api_test.c
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">echo testing C plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c.obj" /TC api_test.c
+echo testing C++ plugin API
+cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.obj" /TP api_test.c
+</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(IntDir)%(Filename)_c.obj;$(IntDir)%(Filename)_c++.obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(IntDir)%(Filename)_c.obj;$(IntDir)%(Filename)_c++.obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(Filename)_c.obj;$(IntDir)%(Filename)_c++.obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(Filename)_c.obj;$(IntDir)%(Filename)_c++.obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)%(Filename)_c.obj;$(IntDir)%(Filename)_c++.obj</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)%(Filename)_c.obj;$(IntDir)%(Filename)_c++.obj</Outputs>
+    </CustomBuild>
     <ClCompile Include="configdb.cpp" />
     <ClCompile Include="elevation.cpp" />
     <ClCompile Include="cache.cpp" />

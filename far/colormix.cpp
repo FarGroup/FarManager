@@ -41,11 +41,11 @@ int Colors::FarColorToConsoleColor(const FarColor& Color)
 	static int Shifts[2] = {ConsoleBgShift, ConsoleFgShift};
 	static int BlueMask = 1, GreenMask = 2, RedMask = 4, IntensityMask = 8;
 	static BYTE IndexColors[2] = {};
-	static unsigned int LastTrueColors[2] = {};
+	static COLORREF LastTrueColors[2] = {};
 	static int Result = 0;
 	if(Color.BackgroundColor != LastTrueColors[0] || Color.ForegroundColor != LastTrueColors[1])
 	{
-		unsigned int TrueColors[] = {Color.BackgroundColor, Color.ForegroundColor};
+		COLORREF TrueColors[] = {Color.BackgroundColor, Color.ForegroundColor};
 
 #define INSIDE(from, what, to) ((from) <= (what) && (what) <= (to))
 
@@ -60,9 +60,9 @@ int Colors::FarColorToConsoleColor(const FarColor& Color)
 				}
 				else
 				{
-					int R = LOBYTE(HIWORD(TrueColors[i]));
-					int G = HIBYTE(LOWORD(TrueColors[i]));
-					int B = LOBYTE(LOWORD(TrueColors[i]));
+					int R = GetRValue(TrueColors[i]);
+					int G = GetGValue(TrueColors[i]);
+					int B = GetBValue(TrueColors[i]);
 
 					// special case, silver color:
 					if(INSIDE(160, R, 223) && INSIDE(160, G, 223) && INSIDE(160, B, 223))

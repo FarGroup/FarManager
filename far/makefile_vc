@@ -246,6 +246,8 @@ LINK_OBJS = \
 
 LINK_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib ole32.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib
 
+TEST_OBJS = "$(INTDIR)\api_test_c.obj" "$(INTDIR)\api_test_c++.obj"
+
 DEFINES=\
 	/D "UNICODE"\
 	/D "_UNICODE"\
@@ -342,7 +344,7 @@ AllDirs:
 	if not exist "$(CODDIR)\" mkdir "$(CODDIR)"
 !endif
 
-"$(OUTDIR)\Far.exe": $(PCH_FILE) $(LINK_OBJS) $(RES_FILE) bootstrap\Far.exe.manifest bootstrap\far.rc bootstrap\copyright.inc bootstrap\farversion.inc
+"$(OUTDIR)\Far.exe": $(TEST_OBJS) $(PCH_FILE) $(LINK_OBJS) $(RES_FILE) bootstrap\Far.exe.manifest bootstrap\far.rc bootstrap\copyright.inc bootstrap\farversion.inc
 	echo linking $@
 !ifndef LINK_ULINK
 	$(LINK) @<<
@@ -381,6 +383,14 @@ $(RES_FILE): bootstrap\far.rc res.hpp Far.ico
 !ifdef USEDEPS
 !include "$(DEPFILE)"
 !endif
+
+$(INTDIR)\api_test_c.obj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
+	echo testing C plugin API
+	$(CPP) /nologo /c /Fo"$@" /TC api_test.c
+
+$(INTDIR)\api_test_c++.obj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
+	echo testing C++ plugin API
+	$(CPP) /nologo /c /Fo"$@" /TP api_test.c
 
 MSG=echo generating $@
 

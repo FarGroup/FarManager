@@ -1,5 +1,5 @@
 BEGIN{
-  print "Rebuild dependencies..." > "/dev/stderr"
+  print "Rebuilding dependencies..." > "/dev/stderr"
   ORS=""
   if (compiler=="gcc")
   {
