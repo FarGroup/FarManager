@@ -197,16 +197,22 @@ public:
 		GetDatabasePath(DbFile, strPath, Local);
 		if (sqlite3_open16(strPath.CPtr(),&pDb) != SQLITE_OK)
 		{
-			sqlite3_close(pDb);
-			pDb = nullptr;
 			//if failed, let's open a memory only db so Far can work anyway
 			//BUGBUG maybe need to display some error message
-			if (sqlite3_open16(L":memory:",&pDb) != SQLITE_OK)
-			{
-				sqlite3_close(pDb);
-				pDb = nullptr;
-				return false;
-			}
+			return ReopenInMemory();
+		}
+		return true;
+	}
+
+	bool ReopenInMemory()
+	{
+		sqlite3_close(pDb);
+		pDb = nullptr;
+		if (sqlite3_open16(L":memory:",&pDb) != SQLITE_OK)
+		{
+			sqlite3_close(pDb);
+			pDb = nullptr;
+			return false;
 		}
 		return true;
 	}
@@ -1181,7 +1187,11 @@ public:
 			return;
 
 		//schema
-		db.SetWALJournalingMode();
+		if(!db.SetWALJournalingMode())
+		{
+			db.ReopenInMemory();
+		}
+
 		db.EnableForeignKeysConstraints();
 		db.Exec(
 			"CREATE TABLE IF NOT EXISTS cachename(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);"
@@ -1709,7 +1719,11 @@ public:
 			return;
 
 		//schema
-		db.SetWALJournalingMode();
+		if(!db.SetWALJournalingMode())
+		{
+			db.ReopenInMemory();
+		}
+
 		db.EnableForeignKeysConstraints();
 		//command,view,edit,folder,dialog history
 		db.Exec(

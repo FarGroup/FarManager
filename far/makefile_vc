@@ -246,7 +246,7 @@ LINK_OBJS = \
 
 LINK_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib ole32.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib
 
-TEST_OBJS = "$(INTDIR)\api_test_c.obj" "$(INTDIR)\api_test_c++.obj"
+TEST_OBJS = "$(INTDIR)\api_test_c.testobj" "$(INTDIR)\api_test_c++.testobj"
 
 DEFINES=\
 	/D "UNICODE"\
@@ -384,11 +384,11 @@ $(RES_FILE): bootstrap\far.rc res.hpp Far.ico
 !include "$(DEPFILE)"
 !endif
 
-$(INTDIR)\api_test_c.obj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
+$(INTDIR)\api_test_c.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
 	echo testing C plugin API
 	$(CPP) /nologo /c /Fo"$@" /TC api_test.c
 
-$(INTDIR)\api_test_c++.obj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
+$(INTDIR)\api_test_c++.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
 	echo testing C++ plugin API
 	$(CPP) /nologo /c /Fo"$@" /TP api_test.c
 

@@ -1,3 +1,9 @@
+drkns 05.08.2011 10:11:19 +0200 - build 2131
+
+1. Если базы данных с WAL Journaling Mode (истории/кеш плагинов) были недоступны для записи - всё падало.
+
+2. При смене диска подавляются запросы повышения прав.
+
 drkns 04.08.2011 23:43:18 +0200 - build 2130
 
 1. FarColor.ForegroundColor и FarColor.BackgroundColor - COLORREF. Если флаг FCF_<F|B>G_4BIT не указан, там ожидается цвет в формате 0xAABBGGRR.

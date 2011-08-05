@@ -200,10 +200,10 @@ FindFile::FindFile(LPCWSTR Object, bool ScanSymLink):
 	NTPath strName(Object);
 
 	// temporary disable elevation to try "real" name first
-	DWORD OldElevationMode = Opt.ElevationMode;
-	Opt.ElevationMode = 0;
-	Handle = FindFirstFileInternal(strName, Data);
-	Opt.ElevationMode = OldElevationMode;
+	{
+		DisableElevation DE;
+		Handle = FindFirstFileInternal(strName, Data);
+	}
 
 	if (Handle == INVALID_HANDLE_VALUE && GetLastError() == ERROR_ACCESS_DENIED)
 	{

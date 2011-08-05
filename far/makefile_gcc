@@ -162,7 +162,7 @@ SRCS = \
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) $(OBJDIR)/far.rc.o
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
-TESTOBJS = $(OBJDIR)/api_test_c.o $(OBJDIR)/api_test_c++.o
+TESTOBJS = $(OBJDIR)/api_test_c.testobj $(OBJDIR)/api_test_c++.testobj
 
 CXX = g++
 CC = gcc
@@ -225,11 +225,11 @@ $(OBJDIR)/far.rc.o: bootstrap/far.rc res.hpp Far.ico
 	@echo compiling resource file
 	@$(WINDRES) -i $< -o $@
 
-$(OBJDIR)/api_test_c.o: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
+$(OBJDIR)/api_test_c.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
 	@echo testing C plugin API
 	@$(CC) -c -x c -o $@ api_test.c
 
-$(OBJDIR)/api_test_c++.o: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
+$(OBJDIR)/api_test_c++.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
 	@echo testing C++ plugin API
 	@$(CXX) -c -x c++ -o $@ api_test.c
 

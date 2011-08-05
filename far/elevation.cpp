@@ -171,13 +171,13 @@ bool WritePipeData(HANDLE Pipe, LPCVOID Data, size_t DataSize)
 
 DisableElevation::DisableElevation()
 {
-	Value = Opt.ElevationMode;
-	Opt.ElevationMode = 0;
+	Value = Opt.CurrentElevationMode;
+	Opt.CurrentElevationMode = 0;
 }
 
 DisableElevation::~DisableElevation()
 {
-	Opt.ElevationMode = Value;
+	Opt.CurrentElevationMode = Value;
 }
 
 elevation Elevation;
@@ -348,7 +348,7 @@ bool elevation::Initialize()
 			}
 
 			FormatString strParam;
-			strParam << L"/elevation " << strPipeID << L" " << GetCurrentProcessId() << L" " << ((Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)? L"1" : L"0");
+			strParam << L"/elevation " << strPipeID << L" " << GetCurrentProcessId() << L" " << ((Opt.CurrentElevationMode&ELEVATION_USE_PRIVILEGES)? L"1" : L"0");
 			SHELLEXECUTEINFO info=
 			{
 				sizeof(info),
@@ -483,7 +483,7 @@ void ElevationApproveDlgSync(LPVOID Param)
 
 bool elevation::ElevationApproveDlg(int Why, LPCWSTR Object)
 {
-	if(!(Opt.IsUserAdmin && !(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
+	if(!(Opt.IsUserAdmin && !(Opt.CurrentElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&
 		FrameManager && !FrameManager->ManagerIsDown())
 	{
@@ -1044,7 +1044,7 @@ HANDLE elevation::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 bool ElevationRequired(ELEVATION_MODE Mode)
 {
 	bool Result = false;
-	if(Opt.ElevationMode&Mode)
+	if(Opt.CurrentElevationMode&Mode)
 	{
 		if(ifn.pfnRtlGetLastNtStatus)
 		{

@@ -148,7 +148,10 @@ void SystemSettings()
 	Builder.AddCheckbox(MConfigAutoSave, &Opt.AutoSaveSetup);
 	Builder.AddOKCancel();
 
-	Builder.ShowDialog();
+	if (Builder.ShowDialog())
+	{
+		Opt.CurrentElevationMode = Opt.ElevationMode;
+	}
 }
 
 
@@ -884,6 +887,9 @@ void ReadConfig()
 	}
 
 	/* <оняропнжеяяш> *************************************************** */
+
+	Opt.CurrentElevationMode = Opt.ElevationMode;
+
 	if (Opt.ShowMenuBar)
 		Opt.ShowMenuBar=1;
 

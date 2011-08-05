@@ -900,7 +900,7 @@ bool MoveToRecycleBinInternal(LPCWSTR Object)
 	DWORD Result=SHFileOperation(&fop);
 
 	if (Result == 0x78 // DE_ACCESSDENIEDSRC == ERROR_ACCESS_DENIED
-		&& Opt.ElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
+		&& Opt.CurrentElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
 	{
 		Result = Elevation.fMoveToRecycleBin(fop);
 	}

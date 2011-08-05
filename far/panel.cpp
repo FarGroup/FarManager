@@ -79,6 +79,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "window.hpp"
 #include "palette.hpp"
 #include "FarGuid.hpp"
+#include "elevation.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -160,6 +161,7 @@ void Panel::ChangeDirToCurrent()
 
 void Panel::ChangeDisk()
 {
+	DisableElevation DE;
 	int Pos=0,FirstCall=TRUE;
 
 	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')

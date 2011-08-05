@@ -685,6 +685,8 @@ struct Options
 	string strTitleAddons;
 
 	int ElevationMode;
+	int CurrentElevationMode;
+
 	BOOL WindowMode;
 
 	string ProfilePath;
