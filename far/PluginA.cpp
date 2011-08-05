@@ -2921,7 +2921,8 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 
 		for (int i=0; i<ItemsNumber; i++)
 		{
-			FarGetDialogItem gdi = {NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, i, 0), (FarDialogItem *)xf_malloc(gdi.Size)};
+			size_t Size = NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, i, 0);
+			FarGetDialogItem gdi = {Size, static_cast<FarDialogItem*>(xf_malloc(Size))};
 
 			if (gdi.Item)
 			{

@@ -432,4 +432,17 @@ $(FARINCLUDE)\FarColorW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
 .PHONY: CLEAN
 CLEAN:
 	echo cleaning
-	for %%i in ("$(INTDIR)\*.*" "$(CODDIR)\*.*" "bootstrap\*.*" "$(OUTDIR)\Far.exe" "$(OUTDIR)\Far.exp" "$(OUTDIR)\Far.lib" "$(OUTDIR)\Far.map" "$(OUTDIR)\Far.pdb" "$(OUTDIR)\*.hlf" "$(OUTDIR)\*.lng" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.ini") do @if exist %%i del /q /f %%i
+	for %%i in (\
+	"$(INTDIR)"\
+	"$(CODDIR)"\
+	"bootstrap"\
+	"$(OUTDIR)\Far.exe"\
+	"$(OUTDIR)\Far.exp"\
+	"$(OUTDIR)\Far.lib"\
+	"$(OUTDIR)\Far.map"\
+	"$(OUTDIR)\Far.pdb"\
+	"$(OUTDIR)\*.hlf"\
+	"$(OUTDIR)\*.lng"\
+	"$(OUTDIR)\File_id.diz"\
+	"$(OUTDIR)\Far.exe.ini"\
+	) do @if exist %%i del /q /f %%i
