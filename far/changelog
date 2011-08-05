@@ -1,3 +1,11 @@
+svs 05.08.2011 12:08:57 +0300 - build 2132
+
+1. Mantis#0001832: ѕроблема FarNameToInputRecord / FarInputRecordToName
+   (from Maximus)
+   1. теперь можно повесить и на правую
+   2. немного форматировани€
+   3. неиспользуема€ KeyMacro::GetRecordSize убрана под "#if 0" 
+
 drkns 05.08.2011 10:11:19 +0200 - build 2131
 
 1. ≈сли базы данных с WAL Journaling Mode (истории/кеш плагинов) были недоступны дл€ записи - всЄ падало.
