@@ -163,7 +163,7 @@ void FileFilterParams::SetMask(bool Used, const wchar_t *Mask)
 			else
 			{
 				string strTmp = strMask;
-				strTmp.LShift(posSeparator+1);
+				strTmp.LShift(posSeparator);
 				strMask.SetLength(posSeparator);
 				Add_PATHEXT(strMask);
 				strMask += strTmp;
