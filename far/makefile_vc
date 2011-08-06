@@ -332,7 +332,7 @@ depfile:
 	$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
 
 .PHONY: build
-build: "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp"
+build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp"
 
 .PHONY: AllDirs
 AllDirs:
@@ -344,7 +344,7 @@ AllDirs:
 	if not exist "$(CODDIR)\" mkdir "$(CODDIR)"
 !endif
 
-"$(OUTDIR)\Far.exe": $(TEST_OBJS) $(PCH_FILE) $(LINK_OBJS) $(RES_FILE) bootstrap\Far.exe.manifest bootstrap\far.rc bootstrap\copyright.inc bootstrap\farversion.inc
+"$(OUTDIR)\Far.exe": $(PCH_FILE) $(LINK_OBJS) $(RES_FILE) bootstrap\Far.exe.manifest bootstrap\far.rc bootstrap\copyright.inc bootstrap\farversion.inc
 	echo linking $@
 !ifndef LINK_ULINK
 	$(LINK) @<<

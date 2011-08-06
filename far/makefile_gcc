@@ -199,7 +199,7 @@ dirs:
 	@$(MKDIR) bootstrap
 
 .PHONY: build
-build: $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun.hlf $(EXEDIR)/File_id.diz $(EXEDIR)/Far.exe.ini $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/PluginW.pas $(FARINCLUDE)/FarColorW.pas
+build: $(TESTOBJS) $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun.hlf $(EXEDIR)/File_id.diz $(EXEDIR)/Far.exe.ini $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/PluginW.pas $(FARINCLUDE)/FarColorW.pas
 
 $(EXEFULLNAME): bootstrap/Far.exe.manifest bootstrap/far.rc bootstrap/copyright.inc bootstrap/farversion.inc $(OBJS)
 	@echo linking $@
@@ -218,8 +218,6 @@ $(OBJDIR)/headers.gch: headers.cpp
 	@$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
 
 $(OBJS): $(OBJDIR)/headers.gch
-
-$(OBJDIR)/headers.gch: $(TESTOBJS)
 
 $(OBJDIR)/far.rc.o: bootstrap/far.rc res.hpp Far.ico
 	@echo compiling resource file
