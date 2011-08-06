@@ -63,7 +63,7 @@ FileFilterParams::FileFilterParams()
 	{
 		for(size_t j = 0; j < 4; ++j)
 		{
-			FHighlight.Colors.Color[i][j].ForegroundColor|=0xff000000;
+			MAKE_OPAQUE(FHighlight.Colors.Color[i][j].ForegroundColor);
 		}
 	}
 
@@ -612,7 +612,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample,HighlightData
 	{
 		Color=Colors.Color[HIGHLIGHTCOLORTYPE_FILE][i];
 
-		if (!(Color.BackgroundColor&0x00ffffff) && !(Color.ForegroundColor&0x00ffffff))
+		if (!COLORVALUE(Color.BackgroundColor) && !COLORVALUE(Color.ForegroundColor))
 		{
 			FARCOLORFLAGS ExFlags = Color.Flags&FCF_EXTENDEDFLAGS;
 			Color=ColorIndexToColor(PalColor[i]);
@@ -636,7 +636,7 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample,HighlightData
 		if (LOWORD(Colors.MarkChar))
 		{
 			VBufColorExample[15*i+1].Char=LOWORD(Colors.MarkChar);
-			if ((Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor&0x00FFFFFF) || (Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor&0x00FFFFFF))
+			if (COLORVALUE(Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor) || COLORVALUE(Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor))
 			{
 				VBufColorExample[15*i+1].Attributes=Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i];
 			}
@@ -763,8 +763,8 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 				for (int i=0; i<2; i++)
 					for (int j=0; j<4; j++)
 					{
-						Colors->Color[i][j].ForegroundColor&=0x00ffffff;
-						Colors->Color[i][j].BackgroundColor&=0x00ffffff;
+						MAKE_TRANSPARENT(Colors->Color[i][j].ForegroundColor);
+						MAKE_TRANSPARENT(Colors->Color[i][j].BackgroundColor);
 					}
 
 				SendDlgMessage(hDlg,DM_SETCHECK,ID_HER_MARKTRANSPARENT,ToPtr(BSTATE_CHECKED));

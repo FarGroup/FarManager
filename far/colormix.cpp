@@ -122,7 +122,7 @@ int Colors::FarColorToConsoleColor(const FarColor& Color)
 			}
 		}
 
-		if(TrueColors[0] != TrueColors[1] && IndexColors[0] == IndexColors[1])
+		if(COLORVALUE(TrueColors[0]) != COLORVALUE(TrueColors[1]) && IndexColors[0] == IndexColors[1])
 		{
 			// oops, unreadable
 			IndexColors[0]&IntensityMask? IndexColors[0]&=~IntensityMask : IndexColors[1]|=IntensityMask;
@@ -139,7 +139,9 @@ int Colors::FarColorToConsoleColor(const FarColor& Color)
 void Colors::ConsoleColorToFarColor(int Color,FarColor& NewColor)
 {
 	NewColor.Flags=FCF_FG_4BIT|FCF_BG_4BIT;
-	NewColor.ForegroundColor=((Color>>ConsoleFgShift)&ConsoleMask)|0xff000000;
-	NewColor.BackgroundColor=((Color>>ConsoleBgShift)&ConsoleMask)|0xff000000;
+	NewColor.ForegroundColor=(Color>>ConsoleFgShift)&ConsoleMask;
+	NewColor.BackgroundColor=(Color>>ConsoleBgShift)&ConsoleMask;
+	MAKE_OPAQUE(NewColor.ForegroundColor);
+	MAKE_OPAQUE(NewColor.BackgroundColor);
 	NewColor.Reserved=nullptr;
 }

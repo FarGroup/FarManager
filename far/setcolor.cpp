@@ -679,10 +679,10 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 	MakeDialogItemsEx(ColorDlgData,ColorDlg);
 	int ExitCode;
 	FarColor CurColor=Color;
-
+	int ConsoleColor = Colors::FarColorToConsoleColor(Color);
 	for (size_t i=2; i<18; i++)
 	{
-		if (((ColorIndex[i-2]&B_MASK)>>4) == (Colors::FarColorToConsoleColor(Color)&F_MASK))
+		if (((ColorIndex[i-2]&B_MASK)>>4) == (ConsoleColor&F_MASK))
 		{
 			ColorDlg[i].Selected=1;
 			ColorDlg[i].Flags|=DIF_FOCUS;
@@ -692,7 +692,7 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 
 	for (size_t i=19; i<35; i++)
 	{
-		if ((ColorIndex[i-19]&B_MASK) == (Colors::FarColorToConsoleColor(Color)&B_MASK))
+		if ((ColorIndex[i-19]&B_MASK) == (ConsoleColor&B_MASK))
 		{
 			ColorDlg[i].Selected=1;
 			break;
@@ -736,8 +736,8 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 			ColorDlg[i].X2+=4;
 		}
 
-		ColorDlg[35].Selected=(Color.ForegroundColor&0xff000000)?0:1;
-		ColorDlg[36].Selected=(Color.BackgroundColor&0xff000000)?0:1;
+		ColorDlg[35].Selected=IS_TRANSPARENT(Color.ForegroundColor);
+		ColorDlg[36].Selected=IS_TRANSPARENT(Color.BackgroundColor);
 	}
 	else
 	{
@@ -760,17 +760,8 @@ bool GetColorDialogInternal(FarColor& Color,bool bCentered,bool bAddTransparent)
 	if (ExitCode==41)
 	{
 		Color=CurColor;
-
-		if (ColorDlg[35].Selected)
-			Color.ForegroundColor&=0x00ffffff;
-		else
-			Color.ForegroundColor|=0xff000000;
-
-		if (ColorDlg[36].Selected)
-			Color.BackgroundColor&=0x00ffffff;
-		else
-			Color.BackgroundColor|=0xff000000;
-
+		ColorDlg[35].Selected? MAKE_TRANSPARENT(Color.ForegroundColor) : MAKE_OPAQUE(Color.ForegroundColor);
+		ColorDlg[36].Selected? MAKE_TRANSPARENT(Color.BackgroundColor) : MAKE_OPAQUE(Color.BackgroundColor);
 		return true;
 	}
 

@@ -234,19 +234,15 @@ void Grabber::DisplayObject()
 			GetText(X1,Y1,X2,Y2,CharBuf,sizeof(FAR_CHAR_INFO)*(X2-X1+1)*(Y2-Y1+1));
 
 			for (int X=X1; X<=X2; X++)
+			{
 				for (int Y=Y1; Y<=Y2; Y++)
 				{
-					FarColor NewColor;
-
-					if ((Colors::FarColorToConsoleColor(PrevBuf[X+Y*(ScrX+1)].Attributes)&B_LIGHTGRAY)==B_LIGHTGRAY)
-						Colors::ConsoleColorToFarColor(B_BLACK|F_LIGHTGRAY, NewColor);
-					else
-						Colors::ConsoleColorToFarColor(B_LIGHTGRAY|F_BLACK, NewColor);
-
 					size_t Pos=(X-X1)+(Y-Y1)*(X2-X1+1);
-					CharBuf[Pos].Attributes=NewColor;
+					const FarColor& CurColor = PrevBuf[X+Y*(ScrX+1)].Attributes;
+					CharBuf[Pos].Attributes.BackgroundColor = (CurColor.Flags&FCF_BG_4BIT? ~INDEXVALUE(CurColor.BackgroundColor) : ~COLORVALUE(CurColor.BackgroundColor)) | ALPHAVALUE(CurColor.BackgroundColor);
+					CharBuf[Pos].Attributes.ForegroundColor = (CurColor.Flags&FCF_FG_4BIT? ~INDEXVALUE(CurColor.ForegroundColor) : ~COLORVALUE(CurColor.ForegroundColor)) | ALPHAVALUE(CurColor.ForegroundColor);
 				}
-
+			}
 			PutText(X1,Y1,X2,Y2,CharBuf);
 			delete[] CharBuf;
 		}
@@ -264,6 +260,11 @@ void Grabber::DisplayObject()
 
 int Grabber::ProcessKey(int Key)
 {
+	if(CloseFAR)
+	{
+		Key = KEY_ESC;
+	}
+
 	/* $ 14.03.2001 SVS
 	  [-] Ќеправильно воспроизводилс€ макрос в режиме граблени€ экрана.
 	      ѕри воспроизведении клавиша Home перемещала курсор в координаты

@@ -327,8 +327,8 @@ void ApplyDefaultStartingColors(HighlightDataColor *Colors)
 	for (int j=0; j<2; j++)
 		for (int i=0; i<4; i++)
 		{
-			Colors->Color[j][i].ForegroundColor=0xff000000;
-			Colors->Color[j][i].BackgroundColor=0x00000000;
+			MAKE_OPAQUE(Colors->Color[j][i].ForegroundColor);
+			MAKE_TRANSPARENT(Colors->Color[j][i].BackgroundColor);
 		}
 
 	Colors->MarkChar=0x00FF0000;
@@ -341,16 +341,16 @@ void ApplyBlackOnBlackColors(HighlightDataColor *Colors)
 		//Применим black on black.
 		//Для файлов возьмем цвета панели не изменяя прозрачность.
 		//Для пометки возьмем цвета файла включая прозрачность.
-		if (!(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor&0x00FFFFFF) && !(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor&0x00FFFFFF))
+		if (!COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor) && !COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor))
 		{
 			FarColor NewColor = Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR];
-			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor=(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor&0xFF000000)|(NewColor.BackgroundColor&0x00FFFFFF);
-			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor=(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor&0xFF000000)|(NewColor.ForegroundColor&0x00FFFFFF);
+			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor)|COLORVALUE(NewColor.BackgroundColor);
+			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor)|COLORVALUE(NewColor.ForegroundColor);
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Flags&=FCF_EXTENDEDFLAGS;
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Flags |= NewColor.Flags;
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Reserved = NewColor.Reserved;
 		}
-		if (!(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor&0x00FFFFFF) && !(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor&0x00FFFFFF))
+		if (!COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor) && !COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor))
 		{
 			FARCOLORFLAGS ExFlags = Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags&=FCF_EXTENDEDFLAGS;
 			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i] = Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i];
@@ -372,12 +372,12 @@ void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
 		{
 			//Если текущие цвета в Src (fore и/или back) не прозрачные
 			//то унаследуем их в Dest.
-			if ((SrcColors->Color[j][i].ForegroundColor&0xff000000)==0xff000000)
+			if (IS_OPAQUE(SrcColors->Color[j][i].ForegroundColor))
 			{
 				DestColors->Color[j][i].ForegroundColor=SrcColors->Color[j][i].ForegroundColor;
 				SrcColors->Color[j][i].Flags&FCF_FG_4BIT? DestColors->Color[j][i].Flags|=FCF_FG_4BIT : DestColors->Color[j][i].Flags&=~FCF_FG_4BIT;
 			}
-			if ((SrcColors->Color[j][i].BackgroundColor&0xff000000)==0xff000000)
+			if (IS_OPAQUE(SrcColors->Color[j][i].BackgroundColor))
 			{
 				DestColors->Color[j][i].BackgroundColor=SrcColors->Color[j][i].BackgroundColor;
 				SrcColors->Color[j][i].Flags&FCF_BG_4BIT? DestColors->Color[j][i].Flags|=FCF_BG_4BIT : DestColors->Color[j][i].Flags&=~FCF_BG_4BIT;
@@ -401,7 +401,7 @@ void ApplyFinalColors(HighlightDataColor *Colors)
 		{
 			//Если какой то из текущих цветов (fore или back) прозрачный
 			//то унаследуем соответствующий цвет с панелей.
-			if(!(Colors->Color[j][i].BackgroundColor&0xff000000))
+			if(IS_TRANSPARENT(Colors->Color[j][i].BackgroundColor))
 			{
 				Colors->Color[j][i].BackgroundColor=Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].BackgroundColor;
 				if(Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_BG_4BIT)
@@ -413,7 +413,7 @@ void ApplyFinalColors(HighlightDataColor *Colors)
 					Colors->Color[j][i].Flags&=~FCF_BG_4BIT;
 				}
 			}
-			if(!(Colors->Color[j][i].ForegroundColor&0xff000000))
+			if(IS_TRANSPARENT(Colors->Color[j][i].ForegroundColor))
 			{
 				Colors->Color[j][i].ForegroundColor=Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].ForegroundColor;
 				if(Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_FG_4BIT)
@@ -1009,9 +1009,9 @@ void SetHighlighting(bool DeleteOld)
 	for (size_t I=0; I < ARRAYSIZE(StdHighlightData); I++)
 	{
 		Colors::ConsoleColorToFarColor(StdHighlightData[I].InitNC, StdHighlightData[I].NormalColor);
-		StdHighlightData[I].NormalColor.BackgroundColor&=0x00ffffff;
+		MAKE_TRANSPARENT(StdHighlightData[I].NormalColor.BackgroundColor);
 		Colors::ConsoleColorToFarColor(StdHighlightData[I].InitCC, StdHighlightData[I].CursorColor);
-		StdHighlightData[I].CursorColor.BackgroundColor&=0x00ffffff;
+		MAKE_TRANSPARENT(StdHighlightData[I].CursorColor.BackgroundColor);
 
 		FormatString strKeyName;
 		strKeyName << L"Group" << I;

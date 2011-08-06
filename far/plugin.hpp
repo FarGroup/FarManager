@@ -88,6 +88,19 @@ struct FarColor
 	void* Reserved;
 };
 
+#define INDEXMASK 0x0000000f
+#define COLORMASK 0x00ffffff
+#define ALPHAMASK 0xff000000
+
+#define INDEXVALUE(x) ((x)&INDEXMASK)
+#define COLORVALUE(x) ((x)&COLORMASK)
+#define ALPHAVALUE(x) ((x)&ALPHAMASK)
+
+#define IS_OPAQUE(x) (ALPHAVALUE(x)==ALPHAMASK)
+#define IS_TRANSPARENT(x) (!ALPHAVALUE(x))
+#define MAKE_OPAQUE(x) (x|=ALPHAMASK)
+#define MAKE_TRANSPARENT(x) (x&=COLORMASK)
+
 typedef unsigned __int64 COLORDIALOGFLAGS;
 static const COLORDIALOGFLAGS
     CDF_NONE = 0;
