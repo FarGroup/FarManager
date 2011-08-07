@@ -3,6 +3,40 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 07.08.2011 00:19:21 +0200 - build 2137
+
+1. Another couple of corrections in color processing.
+
+drkns 06.08.2011 15:58:22 +0200 - build 2136
+
+1. Correction of file highlighting load/save.
+
+drkns 06.08.2011 13:02:39 +0200 - build 2135
+
+1. Dependencies & warnings.
+
+drkns 06.08.2011 11:42:59 +0200 - build 2134
+
+1. Mantis#0001844: Exclusion masks do not work
+
+drkns 05.08.2011 15:10:25 +0200 - build 2133
+
+1. Warnings.
+
+svs 05.08.2011 12:08:57 +0300 - build 2132
+
+1. Mantis#0001832: FarNameToInputRecord / FarInputRecordToName problem
+   (from Maximus)
+   1. now it can also be bound to the right button
+   2. some formatting
+   3. unused KeyMacro::GetRecordSize is commented out with "#if 0" 
+
+drkns 05.08.2011 10:11:19 +0200 - build 2131
+
+1. Crash if there was no write access to databases with WAL Journaling Mode (plugin history/cache).
+
+2. Privilege elevation requests are suppressed on volume change.
+
 drkns 04.08.2011 23:43:18 +0200 - build 2130
 
 1. FarColor.ForegroundColor and FarColor.BackgroundColor - COLORREF. If FCF_<F|B>G_4BIT  flag is not mentioned, then 0xAABBGGRR formatted color is expected.
