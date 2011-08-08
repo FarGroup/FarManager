@@ -628,7 +628,7 @@ void PrepareUnitStr()
 	}
 }
 
-string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, int ViewFlags)
+string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, unsigned __int64 ViewFlags)
 {
 	FormatString strStr;
 	unsigned __int64 Divider;
@@ -640,12 +640,12 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 		PrepareUnitStr();
 	}
 
-	int Commas=(ViewFlags & COLUMN_COMMAS);
-	int FloatSize=(ViewFlags & COLUMN_FLOATSIZE);
-	int Economic=(ViewFlags & COLUMN_ECONOMIC);
-	int UseMinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX);
-	int MinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX_MASK)+1;
-	int ShowBytesIndex=(ViewFlags & COLUMN_SHOWBYTESINDEX);
+	unsigned __int64 Commas=(ViewFlags & COLUMN_COMMAS);
+	unsigned __int64 FloatSize=(ViewFlags & COLUMN_FLOATSIZE);
+	unsigned __int64 Economic=(ViewFlags & COLUMN_ECONOMIC);
+	unsigned __int64 UseMinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX);
+	unsigned __int64 MinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX_MASK)+1;
+	unsigned __int64 ShowBytesIndex=(ViewFlags & COLUMN_SHOWBYTESINDEX);
 
 	if (ViewFlags & COLUMN_THOUSAND)
 	{

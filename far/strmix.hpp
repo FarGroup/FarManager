@@ -35,25 +35,27 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.hpp"
 
-enum
-{
-	COLUMN_MARK           = 0x80000000,
-	COLUMN_NAMEONLY       = 0x40000000,
-	COLUMN_RIGHTALIGN     = 0x20000000,
-	COLUMN_FORMATTED      = 0x10000000,
-	COLUMN_COMMAS         = 0x08000000,
-	COLUMN_THOUSAND       = 0x04000000,
-	COLUMN_BRIEF          = 0x02000000,
-	COLUMN_MONTH          = 0x01000000,
-	COLUMN_FLOATSIZE      = 0x00800000,
-	COLUMN_ECONOMIC       = 0x00400000,
-	COLUMN_MINSIZEINDEX   = 0x00200000,
-	COLUMN_SHOWBYTESINDEX = 0x00100000,
-	COLUMN_FULLOWNER      = 0x00080000,
+typedef unsigned __int64 FILEPANEL_COLUMN_MODES;
+static const FILEPANEL_COLUMN_MODES
+	COLUMN_MARK              = 0x8000000000000000LL,
+	COLUMN_NAMEONLY          = 0x4000000000000000LL,
+	COLUMN_RIGHTALIGN        = 0x2000000000000000LL,
+	COLUMN_FORMATTED         = 0x1000000000000000LL,
+	COLUMN_COMMAS            = 0x0800000000000000LL,
+	COLUMN_THOUSAND          = 0x0400000000000000LL,
+	COLUMN_BRIEF             = 0x0200000000000000LL,
+	COLUMN_MONTH             = 0x0100000000000000LL,
+	COLUMN_FLOATSIZE         = 0x0080000000000000LL,
+	COLUMN_ECONOMIC          = 0x0040000000000000LL,
+	COLUMN_MINSIZEINDEX      = 0x0020000000000000LL,
+	COLUMN_SHOWBYTESINDEX    = 0x0010000000000000LL,
+	COLUMN_FULLOWNER         = 0x0008000000000000LL,
+	COLUMN_NOEXTENSION       = 0x0004000000000000LL,
+	COLUMN_CENTERALIGN       = 0x0002000000000000LL,
+	COLUMN_RIGHTALIGNFORCE   = 0x0001000000000000LL,
 
 	//MINSIZEINDEX может быть только 0, 1, 2 или 3 (K,M,G,T)
-	COLUMN_MINSIZEINDEX_MASK = 0x00000003,
-};
+	COLUMN_MINSIZEINDEX_MASK = 0x0000000000000003LL;
 
 wchar_t* WINAPI QuoteSpace(wchar_t *Str);
 string &QuoteSpace(string &strStr);
@@ -83,7 +85,7 @@ const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator
 string& WINAPI FarFormatText(const wchar_t *SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
 
 void PrepareUnitStr();
-string& __stdcall FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width=-1, int ViewFlags=COLUMN_COMMAS);
+string& __stdcall FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width=-1, unsigned __int64 ViewFlags=COLUMN_COMMAS);
 bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr);
 unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr);
 string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits=0);

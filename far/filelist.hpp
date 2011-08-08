@@ -238,7 +238,7 @@ class FileList:public Panel
 		const FarColor GetShowColor(int Position, int ColorType);
 		void ShowSelectedSize();
 		void ShowTotalSize(OpenPanelInfo &Info);
-		int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, int RightAlign, int ShowStatus, DWORD dwFileAttr);
+		int ConvertName(const wchar_t *SrcName, string &strDest, int MaxLength, unsigned __int64 RightAlign, int ShowStatus, DWORD dwFileAttr);
 
 		void Select(FileListItem *SelPtr,int Selection);
 		long SelectFiles(int Mode,const wchar_t *Mask=nullptr);
@@ -275,7 +275,7 @@ class FileList:public Panel
 		void DeletePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber);
 		HANDLE OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 		int PreparePanelView(PanelViewSettings *PanelView);
-		int PrepareColumnWidths(unsigned int *ColumnTypes,int *ColumnWidths,int *ColumnWidthsTypes,int &ColumnCount,bool FullScreen);
+		int PrepareColumnWidths(unsigned __int64 *ColumnTypes,int *ColumnWidths,int *ColumnWidthsTypes,int &ColumnCount,bool FullScreen,bool StatusLine);
 		void PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo);
 
 		void PluginDelete();

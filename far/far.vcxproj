@@ -946,6 +946,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="farversion.hpp" />
     <ClInclude Include="farwinapi.hpp" />
     <ClInclude Include="nsUniversalDetectorEx.hpp" />
+    <ClInclude Include="panelctype.hpp" />
     <ClInclude Include="shortcuts.hpp" />
     <ClInclude Include="fileattr.hpp" />
     <ClInclude Include="fileedit.hpp" />

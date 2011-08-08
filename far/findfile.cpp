@@ -828,7 +828,7 @@ void AdvancedDialog()
 			if (Opt.FindOpt.strSearchOutFormatWidth.IsEmpty())
 				Opt.FindOpt.strSearchOutFormatWidth=L"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
 
-			TextToViewSettings(Opt.FindOpt.strSearchOutFormat.CPtr(),Opt.FindOpt.strSearchOutFormatWidth.CPtr(),
+			TextToViewSettings(Opt.FindOpt.strSearchOutFormat.CPtr(),Opt.FindOpt.strSearchOutFormatWidth.CPtr(),false,
                                   Opt.FindOpt.OutColumnTypes,Opt.FindOpt.OutColumnWidths,Opt.FindOpt.OutColumnWidthType,
                                   Opt.FindOpt.OutColumnCount);
         }
@@ -2208,7 +2208,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 	string strDateStr, strTimeStr;
 	const wchar_t *DisplayName=FindData.strFileName;
 
-	unsigned int *ColumnType=Opt.FindOpt.OutColumnTypes;
+	unsigned __int64 *ColumnType=Opt.FindOpt.OutColumnTypes;
 	int *ColumnWidth=Opt.FindOpt.OutColumnWidths;
 	int ColumnCount=Opt.FindOpt.OutColumnCount;
 	//int *ColumnWidthType=Opt.FindOpt.OutColumnWidthType;
@@ -2217,7 +2217,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 
 	for (int Count=0; Count < ColumnCount; ++Count)
 	{
-		unsigned int CurColumnType = ColumnType[Count] & 0xFF;
+		int CurColumnType = static_cast<int>(ColumnType[Count] & 0xFF);
 
 		switch (CurColumnType)
 		{

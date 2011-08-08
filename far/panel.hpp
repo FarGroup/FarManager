@@ -40,10 +40,10 @@ class DizList;
 
 struct PanelViewSettings
 {
-	unsigned int ColumnType[PANEL_COLUMNCOUNT];
+	unsigned __int64 ColumnType[PANEL_COLUMNCOUNT];
 	int ColumnWidth[PANEL_COLUMNCOUNT];
 	int ColumnCount;
-	unsigned int StatusColumnType[PANEL_COLUMNCOUNT];
+	unsigned __int64 StatusColumnType[PANEL_COLUMNCOUNT];
 	int StatusColumnWidth[PANEL_COLUMNCOUNT];
 	int StatusColumnCount;
 	DWORD Flags;

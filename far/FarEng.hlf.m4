@@ -3411,13 +3411,17 @@ on. The last item, "Alternative full", corresponds to view mode called with
   - #Column types# - column types are encoded as one or several
 characters, delimited with commas. Allowed column types are:
 
-    N[M,O,R]   - file name
+    N[M,O,R[F],N] - file name
                  where: M - show selection marks;
                         O - show names without paths
                             (intended mainly for plugins);
-                        R - right aligned names;
+                        R - right align names that do not fit in column
+                            where: F - right align all names;
+                        N - do not show extensions in name column;
                  These modifiers may be used in combination,
                  for example NMR
+
+    X          - file extension
 
     S[C,T,F,E] - file size
     P[C,T,F,E] - packed file size

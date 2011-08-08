@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "panelctype.hpp"
+
 //  +CASR_* Поведение Ctrl-Alt-Shift для AllCtrlAltShiftRule
 enum
 {
@@ -402,9 +404,9 @@ struct FindFileOptions
 	string strSearchOutFormat;
 	string strSearchOutFormatWidth;
 	int OutColumnCount;
-	unsigned int OutColumnTypes[20];
-	int OutColumnWidths[20];
-	int OutColumnWidthType[20];
+	unsigned __int64 OutColumnTypes[PANEL_COLUMNCOUNT];
+	int OutColumnWidths[PANEL_COLUMNCOUNT];
+	int OutColumnWidthType[PANEL_COLUMNCOUNT];
 };
 
 struct InfoPanelOptions
