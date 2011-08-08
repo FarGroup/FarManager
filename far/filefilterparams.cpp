@@ -630,11 +630,11 @@ void HighlightDlgUpdateUserControl(FAR_CHAR_INFO *VBufColorExample,HighlightData
 			VBufColorExample[15*i+k].Char=ptr[k];
 			VBufColorExample[15*i+k].Attributes=Color;
 		}
-		// inherit only color mode, not style
-		VBufColorExample[15*i+1].Attributes.Flags = Color.Flags&FCF_4BITMASK;
 
 		if (LOWORD(Colors.MarkChar))
 		{
+			// inherit only color mode, not style
+			VBufColorExample[15*i+1].Attributes.Flags = Color.Flags&FCF_4BITMASK;
 			VBufColorExample[15*i+1].Char=LOWORD(Colors.MarkChar);
 			if (COLORVALUE(Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor) || COLORVALUE(Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor))
 			{
