@@ -7230,10 +7230,12 @@ int KeyMacro::GetIndex(int Key, int CheckMode, bool UseCommon, bool StrictKeys)
 {
 	if (MacroLIB)
 	{
+		int KeyParam=Key;
 		for (int I=0; I < 2; ++I)
 		{
 			int Pos,Len;
 			MacroRecord *MPtr=nullptr;
+			Key=KeyParam;
 
 			if (CheckMode == -1)
 			{

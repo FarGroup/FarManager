@@ -1,3 +1,9 @@
+svs 09.08.2011 23:18:26 +0300 - build 2140
+
+1. Mantis#0001832: Проблема FarNameToInputRecord / FarInputRecordToName
+   (from Maximus)
+   В области Common вместо "правого" выполнялся "левый" макрос 
+
 drkns 08.08.2011 11:37:13 +0200 - build 2139
 
 1.Mantis#0001589: Отображать в колонке панели расширение файла или "Align file extensions"
