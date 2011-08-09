@@ -148,7 +148,7 @@ public:
       throw;
     }
     *panel_items = items;
-    *items_number = static_cast<int>(size);
+    *items_number = size;
   }
 
   static wstring get_separate_dir_path(const wstring& dst_dir, const wstring& arc_name) {

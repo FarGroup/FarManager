@@ -148,7 +148,7 @@ protected:
       dlg.events_enabled = events_enabled;
     }
   };
-  unsigned get_label_len(const wstring& str);
+  unsigned get_label_len(const wstring& str, FARDIALOGITEMFLAGS flags);
   INT_PTR default_dialog_proc(int msg, int param1, void* param2);
   virtual INT_PTR dialog_proc(int msg, int param1, void* param2) {
     return default_dialog_proc(msg, param1, param2);

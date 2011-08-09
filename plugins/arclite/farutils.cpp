@@ -242,12 +242,16 @@ bool input_dlg(const GUID& id, const wstring& title, const wstring& msg, wstring
   return false;
 }
 
-unsigned Dialog::get_label_len(const wstring& str) {
-  unsigned cnt = 0;
-  for (unsigned i = 0; i < str.size(); i++) {
-    if (str[i] != '&') cnt++;
+unsigned Dialog::get_label_len(const wstring& str, FARDIALOGITEMFLAGS flags) {
+  if (flags & DIF_SHOWAMPERSAND)
+    return str.size();
+  else {
+    unsigned cnt = 0;
+    for (unsigned i = 0; i < str.size(); i++) {
+      if (str[i] != '&') cnt++;
+    }
+    return cnt;
   }
-  return cnt;
 }
 
 unsigned Dialog::new_value(const wstring& text) {
@@ -347,7 +351,7 @@ unsigned Dialog::label(const wstring& text, unsigned boxsize, FARDIALOGITEMFLAGS
   di.x1 = x;
   di.y1 = y;
   if (boxsize == AUTO_SIZE)
-    x += get_label_len(text);
+    x += get_label_len(text, flags);
   else
     x += boxsize;
   if (x - c_x_frame > client_xs)
@@ -430,7 +434,7 @@ unsigned Dialog::button(const wstring& text, FARDIALOGITEMFLAGS flags) {
   di.type = DI_BUTTON;
   di.x1 = x;
   di.y1 = y;
-  x += get_label_len(text) + 4;
+  x += get_label_len(text, flags) + 4;
   if (x - c_x_frame > client_xs)
     client_xs = x - c_x_frame;
   di.y2 = y;
@@ -444,7 +448,7 @@ unsigned Dialog::check_box(const wstring& text, int value, FARDIALOGITEMFLAGS fl
   di.type = DI_CHECKBOX;
   di.x1 = x;
   di.y1 = y;
-  x += get_label_len(text) + 4;
+  x += get_label_len(text, flags) + 4;
   if (x - c_x_frame > client_xs)
     client_xs = x - c_x_frame;
   di.y2 = y;
@@ -459,7 +463,7 @@ unsigned Dialog::radio_button(const wstring& text, bool value, FARDIALOGITEMFLAG
   di.type = DI_RADIOBUTTON;
   di.x1 = x;
   di.y1 = y;
-  x += get_label_len(text) + 4;
+  x += get_label_len(text, flags) + 4;
   if (x - c_x_frame > client_xs)
     client_xs = x - c_x_frame;
   di.y2 = y;

@@ -190,7 +190,7 @@ public:
   }
 
   bool show() {
-    label(fit_str(arc_path, c_client_xs));
+    label(fit_str(arc_path, c_client_xs), c_client_xs, DIF_SHOWAMPERSAND);
     new_line();
     label(Far::get_msg(MSG_PASSWORD_PASSWORD));
     password_ctrl_id = pwd_edit_box(password);
@@ -260,7 +260,7 @@ public:
   }
 
   bool show() {
-    label(fit_str(file_path, c_client_xs));
+    label(fit_str(file_path, c_client_xs), c_client_xs, DIF_SHOWAMPERSAND);
     new_line();
     label(Far::get_msg(MSG_OVERWRITE_DLG_QUESTION));
     new_line();
@@ -1458,7 +1458,7 @@ public:
     }
     else {
       const ArcLib& lib = libs.front();
-      label(fit_str(lib.module_path, c_client_xs), c_client_xs);
+      label(fit_str(lib.module_path, c_client_xs), c_client_xs, DIF_SHOWAMPERSAND);
       new_line();
       label(Far::get_msg(MSG_SETTINGS_DLG_LIB_VERSION) + L' ' +
         int_to_str(HIWORD(lib.version >> 32)) + L'.' + int_to_str(LOWORD(lib.version >> 32)) + L'.' +
