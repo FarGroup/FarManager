@@ -352,9 +352,11 @@ void ApplyBlackOnBlackColors(HighlightDataColor *Colors)
 		}
 		if (!COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor) && !COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor))
 		{
-			FARCOLORFLAGS ExFlags = Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags&=FCF_EXTENDEDFLAGS;
-			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i] = Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i];
-			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags=(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags&FCF_4BITMASK)|ExFlags;
+			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].BackgroundColor)|COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor);
+			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].ForegroundColor)|COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor);
+			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags&=FCF_EXTENDEDFLAGS;
+			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Flags |= Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Flags;
+			Colors->Color[HIGHLIGHTCOLORTYPE_MARKCHAR][i].Reserved = Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Reserved;
 		}
 	}
 }
