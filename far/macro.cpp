@@ -658,14 +658,14 @@ void KeyMacro::ReleaseWORKBuffer(BOOL All)
 		}
 		else
 		{
-			if (Work.MacroWORK->BufferSize > 1 && Work.MacroWORK->Buffer)
-				xf_free(Work.MacroWORK->Buffer);
+			if (Work.MacroWORK[0].BufferSize > 1 && Work.MacroWORK[0].Buffer)
+				xf_free(Work.MacroWORK[0].Buffer);
 
-			if (Work.MacroWORK->Src)
-				xf_free(Work.MacroWORK->Src);
+			if (Work.MacroWORK[0].Src)
+				xf_free(Work.MacroWORK[0].Src);
 
-			if (Work.MacroWORK->Description)
-				xf_free(Work.MacroWORK->Description);
+			if (Work.MacroWORK[0].Description)
+				xf_free(Work.MacroWORK[0].Description);
 
 			if (Work.AllocVarTable)
 			{
@@ -4638,7 +4638,7 @@ int KeyMacro::GetKey()
 		*/
 		//if(Work.MacroWORK)
 		{
-			Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
+			Work.Executing=Work.MacroWORK[0].Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
 			Work.ExecLIBPos=0; //?????????????????????????????????
 		}
 		//else
@@ -4726,7 +4726,7 @@ done:
 	}
 
 	if (!Work.ExecLIBPos)
-		Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
+		Work.Executing=Work.MacroWORK[0].Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
 
 	// Mantis#0000581: Добавить возможность прервать выполнение макроса
 	{
@@ -7068,8 +7068,8 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,BOOL
 	*NewMacroWORK=NewMacroWORK2;
 	Work.MacroWORKCount++;
 
-	//Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
-	if (Work.ExecLIBPos == Work.MacroWORK->BufferSize)
+	//Work.Executing=Work.MacroWORK[0].Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
+	if (Work.ExecLIBPos == Work.MacroWORK[0].BufferSize)
 		Work.ExecLIBPos=0;
 
 	return TRUE;
@@ -7123,8 +7123,8 @@ int KeyMacro::PostNewMacro(MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL IsPluginS
 	*NewMacroWORK=NewMacroWORK2;
 	Work.MacroWORKCount++;
 
-	//Work.Executing=Work.MacroWORK->Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
-	if (Work.ExecLIBPos == Work.MacroWORK->BufferSize)
+	//Work.Executing=Work.MacroWORK[0].Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
+	if (Work.ExecLIBPos == Work.MacroWORK[0].BufferSize)
 		Work.ExecLIBPos=0;
 
 	return TRUE;
@@ -7618,7 +7618,7 @@ BOOL KeyMacro::CheckCurMacroFlags(DWORD Flags)
 {
 	if (Work.Executing && Work.MacroWORK)
 	{
-		return (Work.MacroWORK->Flags&Flags)?TRUE:FALSE;
+		return (Work.MacroWORK[0].Flags&Flags)?TRUE:FALSE;
 	}
 
 	return FALSE;
@@ -7746,7 +7746,7 @@ int KeyMacro::IsExecutingLastKey()
 {
 	if (Work.Executing && Work.MacroWORK)
 	{
-		return (Work.ExecLIBPos == Work.MacroWORK->BufferSize-1);
+		return (Work.ExecLIBPos == Work.MacroWORK[0].BufferSize-1);
 	}
 
 	return FALSE;

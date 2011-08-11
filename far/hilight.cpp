@@ -258,7 +258,7 @@ void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams 
 
 	unsigned __int64 MarkChar;
 	if (cfg->GetValue(key,HLS.MarkChar,&MarkChar))
-		Colors.MarkChar=static_cast<wchar_t>(MarkChar);
+		Colors.MarkChar=static_cast<DWORD>(MarkChar);
 	HData->SetColors(&Colors);
 
 	unsigned __int64 ContinueProcessing = 0;

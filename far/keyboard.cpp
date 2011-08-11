@@ -1239,7 +1239,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				return(Key);
 		}
 
-		ShiftPressedLast=RightShiftPressedLast=FALSE;
+		RightShiftPressedLast=FALSE;
 		CtrlPressedLast=RightCtrlPressedLast=FALSE;
 		AltPressedLast=RightAltPressedLast=FALSE;
 		ShiftPressedLast=(KeyCode==VK_SHIFT && rec->Event.KeyEvent.bKeyDown) ||

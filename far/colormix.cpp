@@ -103,7 +103,7 @@ int Colors::FarColorToConsoleColor(const FarColor& Color)
 						IndexColors[i] = 0;
 						if(R)
 						{
-							IndexColors[i] |= RedMask;
+							IndexColors[i]|=RedMask;
 						}
 						if(G)
 						{
