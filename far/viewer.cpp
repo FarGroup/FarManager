@@ -1266,6 +1266,8 @@ int Viewer::ProcessKey(int Key)
 				if (!apiGetFindDataEx(strFullFileName, NewViewFindData))
 					return TRUE;
 
+				ViewFile.GetSize(NewViewFindData.nFileSize); // Required! -- thanks Dzirt2005
+
 				if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime
 				 || ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime
 				 || ViewFindData.nFileSize != NewViewFindData.nFileSize)
