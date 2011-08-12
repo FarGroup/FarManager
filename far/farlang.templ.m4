@@ -1608,6 +1608,24 @@ MConfigShowSortMode
 "Wyświetl l&iterę trybu sortowania"
 "Mostrar letra para &modo de orden"
 
+MConfigHighlightColumnSeparator
+"Подсвечивать разделители колонок"
+"Highlight column separators"
+upd:"Highlight column separators"
+upd:"Highlight column separators"
+upd:"Highlight column separators"
+upd:"Highlight column separators"
+upd:"Highlight column separators"
+
+MConfigDoubleGlobalColumnSeparator
+"Удваивать глобальные разделители колонок"
+"Double global column separators"
+upd:"Double global column separators"
+upd:"Double global column separators"
+upd:"Double global column separators"
+upd:"Double global column separators"
+upd:"Double global column separators"
+
 MConfigInterfaceTitle
 l:
 "Настройки интерфейса"

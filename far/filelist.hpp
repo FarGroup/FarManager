@@ -294,6 +294,7 @@ class FileList:public Panel
 		void ReadSortGroups(bool UpdateFilterCurrentTime=true);
 		void AddParentPoint(FileListItem *CurPtr,long CurFilePos,FILETIME* Times=nullptr,string Owner=L"");
 		int  ProcessOneHostFile(int Idx);
+		void HighlightBorder(int Level, int ListPos);
 
 	protected:
 		virtual void ClearAllItem();

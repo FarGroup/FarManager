@@ -183,6 +183,8 @@ void PanelSettings()
 	Builder.AddCheckbox(MConfigShowScrollbar, &Opt.ShowPanelScrollbar);
 	Builder.AddCheckbox(MConfigShowScreensNumber, &Opt.ShowScreensNumber);
 	Builder.AddCheckbox(MConfigShowSortMode, &Opt.ShowSortMode);
+	Builder.AddCheckbox(MConfigHighlightColumnSeparator, &Opt.HighlightColumnSeparator);
+	Builder.AddCheckbox(MConfigDoubleGlobalColumnSeparator, &Opt.DoubleGlobalColumnSeparator);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -809,6 +811,8 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, NKeyPanelLayout,L"ScrollbarMenu",&Opt.ShowMenuScrollbar,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyPanelLayout,L"ScreensNumber",&Opt.ShowScreensNumber,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyPanelLayout,L"SortMode",&Opt.ShowSortMode,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, NKeyPanelLayout,L"ColoredGlobalColumnSeparator",&Opt.HighlightColumnSeparator,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, NKeyPanelLayout,L"DoubleGlobalColumnSeparator",&Opt.DoubleGlobalColumnSeparator,0, 0},
 
 	{1, GeneralConfig::TYPE_INTEGER, NKeyLayout,L"LeftHeightDecrement",&Opt.LeftHeightDecrement,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyLayout,L"RightHeightDecrement",&Opt.RightHeightDecrement,0, 0},

@@ -528,6 +528,9 @@ struct Options
 	int ShowPanelStatus;
 	int ShowPanelTotals;
 	int ShowPanelFree;
+	int HighlightColumnSeparator;
+	int DoubleGlobalColumnSeparator;
+
 	int ShowPanelScrollbar;
 	int ShowMenuScrollbar; // $ 29.06.2000 SVS Добавлен атрибут показа Scroll Bar в меню.
 	int ShowScreensNumber;

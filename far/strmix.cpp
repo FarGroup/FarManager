@@ -632,7 +632,7 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 {
 	FormatString strStr;
 	unsigned __int64 Divider;
-	int IndexDiv, IndexB;
+	size_t IndexDiv, IndexB;
 
 	// подготовительные мероприятия
 	if (!UnitStr[0][0][0])
