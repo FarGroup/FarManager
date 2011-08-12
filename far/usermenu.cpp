@@ -669,6 +669,13 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 					default:
 						UserMenu.ProcessInput();
 
+						if (MenuPos!=UserMenu.GetSelectPos())
+						{
+							MenuPos=UserMenu.GetSelectPos();
+							userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
+							CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
+						}
+
 						if (Key == KEY_F1)
 							MenuNeedRefresh=true;
 
