@@ -434,6 +434,8 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE SetThumbnailClip(HWND hwnd,RECT *prcClip)=0;
 };
 
+#endif // __ITaskbarList3_INTERFACE_DEFINED__
+
 // will create a compiler error if wrong level of indirection is used.
 template<typename T> void** IID_PPV_ARGS_Helper(T** pp)
 {
@@ -442,15 +444,12 @@ template<typename T> void** IID_PPV_ARGS_Helper(T** pp)
 	return reinterpret_cast<void**>(pp);
 }
 
+#define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
 
 // shellapi.h
 #ifndef SEE_MASK_NOASYNC
 #define SEE_MASK_NOASYNC 0x00000100
 #endif
-
-#define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
-
-#endif // __ITaskbarList3_INTERFACE_DEFINED__
 
 // virtdisk.h
 #ifndef VIRT_DISK_API_DEF
