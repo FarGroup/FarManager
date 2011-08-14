@@ -418,7 +418,7 @@ void Shortcuts::Configure()
 				MenuItemEx* MenuItem = FolderList.GetItemPtr();
 				if (Key == KEY_INS || Key == KEY_NUMPAD0 || Key&KEY_SHIFT)
 				{
-					if(!Item || Key&KEY_SHIFT)
+					if(!Item || !(Key&KEY_SHIFT))
 					{
 						Item = Items[Pos].Push();
 					}

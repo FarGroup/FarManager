@@ -942,7 +942,7 @@ int FileList::ProcessKey(int Key)
 			(Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9) ||
 			(Key>=KEY_RCTRLRALT0 && Key<=KEY_RCTRLRALT9))
 		{
-			bool Add = ((Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9) || (Key>=KEY_RCTRLRALT0 && Key<=KEY_RCTRLRALT9));
+			bool Add = (Key&KEY_SHIFT) == KEY_SHIFT;
 			SaveShortcutFolder((Key&(~(KEY_CTRL|KEY_RCTRL|KEY_ALT|KEY_RALT|KEY_SHIFT|KEY_RSHIFT)))-'0', Add);
 			return TRUE;
 		}
