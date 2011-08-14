@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "config.hpp"
 #include "console.hpp"
+#include "colormix.hpp"
 
 static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2=nullptr);
 

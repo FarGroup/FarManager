@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "interf.hpp"
 #include "configdb.hpp"
+#include "colormix.hpp"
 
 struct HighlightStrings
 {

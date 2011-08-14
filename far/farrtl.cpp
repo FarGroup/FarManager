@@ -8,6 +8,7 @@ farrtl.cpp
 #pragma hdrstop
 
 #include "console.hpp"
+#include "colormix.hpp"
 
 #ifdef _MSC_VER
 #pragma intrinsic (memcpy)
