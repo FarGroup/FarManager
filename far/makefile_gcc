@@ -176,7 +176,7 @@ WINDRES = windres
 DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
 CFLAGS = $(DEBUGFLAGS) -fdiagnostics-show-option -mno-cygwin -pipe $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
 CCFLAGS = $(CFLAGS) -fno-rtti
-LNKFLAGS = -mno-cygwin -static-libgcc -static-libstdc++ $(DEBUGLINKFLAGS) -lmpr -lwinspool -lole32 -lsecur32 -lsetupapi -lpsapi -lrpcrt4
+LNKFLAGS = -mno-cygwin -static-libgcc -static-libstdc++ $(DEBUGLINKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --large-address-aware -Xlinker --dynamicbase -Xlinker --nxcompat -lmpr -lwinspool -lole32 -lsecur32 -lsetupapi -lpsapi -lrpcrt4
 
 .PHONY: all
 all: dirs lng depfile
@@ -203,7 +203,7 @@ build: $(TESTOBJS) $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EX
 
 $(EXEFULLNAME): bootstrap/Far.exe.manifest bootstrap/far.rc bootstrap/copyright.inc bootstrap/farversion.inc $(OBJS)
 	@echo linking $@
-	@$(CXX) -o $@ $(OBJS) $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --large-address-aware
+	@$(CXX) -o $@ $(OBJS) $(LNKFLAGS)
 
 $(OBJDIR)/%.o: %.c
 	@echo compiling $<
