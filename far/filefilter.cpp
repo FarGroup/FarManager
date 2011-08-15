@@ -943,8 +943,8 @@ void FileFilter::SaveFilters()
 		bool bRelative;
 		cfg->SetValue(key,L"UseDate",CurFilterData->GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)?1:0);
 		cfg->SetValue(key,L"DateType",DateType);
-		cfg->SetValue(key,L"DateAfter",(const char *)&DateAfter,(int)sizeof(DateAfter));
-		cfg->SetValue(key,L"DateBefore",(const char *)&DateBefore,(int)sizeof(DateBefore));
+		cfg->SetValue(key,L"DateAfter", &DateAfter, sizeof(DateAfter));
+		cfg->SetValue(key,L"DateBefore", &DateBefore, sizeof(DateBefore));
 		cfg->SetValue(key,L"RelativeDate",bRelative?1:0);
 		const wchar_t *SizeAbove, *SizeBelow;
 		cfg->SetValue(key,L"UseSize",CurFilterData->GetSize(&SizeAbove, &SizeBelow)?1:0);
@@ -959,7 +959,7 @@ void FileFilter::SaveFilters()
 		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
 			Flags[j] = CurFilterData->GetFlags((enumFileFilterFlagsType)j);
 
-		cfg->SetValue(key,L"FFlags",(const char *)Flags,sizeof(Flags));
+		cfg->SetValue(key,L"FFlags", Flags, sizeof(Flags));
 	}
 
 	for (size_t i=0; i<TempFilterData.getCount(); i++)
@@ -978,7 +978,7 @@ void FileFilter::SaveFilters()
 		for (DWORD j=FFFT_FIRST; j < FFFT_COUNT; j++)
 			Flags[j] = CurFilterData->GetFlags((enumFileFilterFlagsType)j);
 
-		cfg->SetValue(key,L"FFlags",(const char *)Flags,(int)sizeof(Flags));
+		cfg->SetValue(key,L"FFlags", Flags, sizeof(Flags));
 	}
 
 	{
@@ -987,7 +987,7 @@ void FileFilter::SaveFilters()
 		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 			Flags[i] = FoldersFilter.GetFlags((enumFileFilterFlagsType)i);
 
-		cfg->SetValue(root,L"FoldersFilterFFlags",(const char *)Flags,(int)sizeof(Flags));
+		cfg->SetValue(root,L"FoldersFilterFFlags", Flags, sizeof(Flags));
 	}
 
 	delete cfg;

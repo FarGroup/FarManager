@@ -163,7 +163,7 @@ public:
 		return *this;
 	}
 
-	SQLiteStmt& Bind(const char *Value, int Size, bool bStatic=true) { sqlite3_bind_blob(pStmt,param++,Value,Size,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT); return *this; }
+	SQLiteStmt& Bind(const void *Value, size_t Size, bool bStatic=true) { sqlite3_bind_blob(pStmt,param++,Value,static_cast<int>(Size),bStatic?SQLITE_STATIC:SQLITE_TRANSIENT); return *this; }
 
 	const wchar_t *GetColText(int Col) { return (const wchar_t *)sqlite3_column_text16(pStmt,Col); }
 
@@ -303,7 +303,7 @@ public:
 		return b;
 	}
 
-	bool SetValue(const wchar_t *Key, const wchar_t *Name, const char *Value, int Size)
+	bool SetValue(const wchar_t *Key, const wchar_t *Name, const void *Value, size_t Size)
 	{
 		bool b = stmtUpdateValue.Bind(Value,Size).Bind(Key).Bind(Name).StepAndReset();
 		if (!b || db.Changes() == 0)
@@ -329,7 +329,7 @@ public:
 		return b;
 	}
 
-	int GetValue(const wchar_t *Key, const wchar_t *Name, char *Value, int Size)
+	int GetValue(const wchar_t *Key, const wchar_t *Name, void *Value, size_t Size)
 	{
 		int realsize = 0;
 		if (stmtGetValue.Bind(Key).Bind(Name).Step())
@@ -337,7 +337,7 @@ public:
 			const char *blob = stmtGetValue.GetColBlob(0);
 			realsize = stmtGetValue.GetColBytes(0);
 			if (Value)
-				memcpy(Value,blob,Min(realsize,Size));
+				memcpy(Value,blob,Min(realsize,static_cast<int>(Size)));
 		}
 		stmtGetValue.Reset();
 		return realsize;
@@ -381,7 +381,7 @@ public:
 		return false;
 	}
 
-	int GetValue(const wchar_t *Key, const wchar_t *Name, char *Value, int Size, const char *Default)
+	int GetValue(const wchar_t *Key, const wchar_t *Name, void *Value, size_t Size, const void *Default)
 	{
 		int s = GetValue(Key,Name,Value,Size);
 		if (s)
@@ -389,7 +389,7 @@ public:
 		if (Default)
 		{
 			memcpy(Value,Default,Size);
-			return Size;
+			return static_cast<int>(Size);
 		}
 		return 0;
 	}
@@ -628,7 +628,7 @@ public:
 		return stmtSetValue.Bind(Root).Bind(Name).Bind(Value).StepAndReset();
 	}
 
-	bool SetValue(unsigned __int64 Root, const wchar_t *Name, const char *Value, int Size)
+	bool SetValue(unsigned __int64 Root, const wchar_t *Name, const void *Value, size_t Size)
 	{
 		return stmtSetValue.Bind(Root).Bind(Name).Bind(Value,Size).StepAndReset();
 	}
@@ -651,7 +651,7 @@ public:
 		return b;
 	}
 
-	int GetValue(unsigned __int64 Root, const wchar_t *Name, char *Value, int Size)
+	int GetValue(unsigned __int64 Root, const wchar_t *Name, void *Value, size_t Size)
 	{
 		int realsize = 0;
 		if (stmtGetValue.Bind(Root).Bind(Name).Step())
@@ -659,7 +659,7 @@ public:
 			const char *blob = stmtGetValue.GetColBlob(0);
 			realsize = stmtGetValue.GetColBytes(0);
 			if (Value)
-				memcpy(Value,blob,Min(realsize,Size));
+				memcpy(Value,blob,Min(realsize,static_cast<int>(Size)));
 		}
 		stmtGetValue.Reset();
 		return realsize;

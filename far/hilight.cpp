@@ -58,30 +58,14 @@ struct HighlightStrings
 	const wchar_t *UseAttr,*IncludeAttributes,*ExcludeAttributes,*AttrSet,*AttrClear,
 	*IgnoreMask,*UseMask,*Mask,
 	
-	*NormalColorF,
-	*NormalColorB,
-	*NormalColorFlags,
-	*SelectedColorF,
-	*SelectedColorB,
-	*SelectedColorFlags,
-	*CursorColorF,
-	*CursorColorB,
-	*CursorColorFlags,
-	*SelectedCursorColorF,
-	*SelectedCursorColorB,
-	*SelectedCursorColorFlags,
-	*MarkCharNormalColorF,
-	*MarkCharNormalColorB,
-	*MarkCharNormalColorFlags,
-	*MarkCharSelectedColorF,
-	*MarkCharSelectedColorB,
-	*MarkCharSelectedColorFlags,
-	*MarkCharCursorColorF,
-	*MarkCharCursorColorB,
-	*MarkCharCursorColorFlags,
-	*MarkCharSelectedCursorColorF,
-	*MarkCharSelectedCursorColorB,
-	*MarkCharSelectedCursorColorFlags,
+	*NormalColor,
+	*SelectedColor,
+	*CursorColor,
+	*SelectedCursorColor,
+	*MarkCharNormalColor,
+	*MarkCharSelectedColor,
+	*MarkCharCursorColor,
+	*MarkCharSelectedCursorColor,
 
 	*MarkChar,
 	*ContinueProcessing,
@@ -95,30 +79,14 @@ static const HighlightStrings HLS=
 	L"UseAttr",L"IncludeAttributes",L"ExcludeAttributes",L"AttrSet",L"AttrClear",
 	L"IgnoreMask",L"UseMask",L"Mask",
 
-	L"NormalColorF",
-	L"NormalColorB",
-	L"NormalColorFlags",
-	L"SelectedColorF",
-	L"SelectedColorB",
-	L"SelectedColorFlags",
-	L"CursorColorF",
-	L"CursorColorB",
-	L"CursorColorFlags",
-	L"SelectedCursorColorF",
-	L"SelectedCursorColorB",
-	L"SelectedCursorColorFlags",
-	L"MarkCharNormalColorF",
-	L"MarkCharNormalColorB",
-	L"MarkCharNormalColorFlags",
-	L"MarkCharSelectedColorF",
-	L"MarkCharSelectedColorB",
-	L"MarkCharSelectedColorFlags",
-	L"MarkCharCursorColorF",
-	L"MarkCharCursorColorB",
-	L"MarkCharCursorColorFlags",
-	L"MarkCharSelectedCursorColorF",
-	L"MarkCharSelectedCursorColorB",
-	L"MarkCharSelectedCursorColorFlags",
+	L"NormalColor",
+	L"SelectedColor",
+	L"CursorColor",
+	L"SelectedCursorColor",
+	L"MarkCharNormalColor",
+	L"MarkCharSelectedColor",
+	L"MarkCharCursorColor",
+	L"MarkCharSelectedCursorColor",
 
 	L"MarkChar",
 	L"ContinueProcessing",
@@ -200,62 +168,14 @@ void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams 
 	HData->SetSortGroup(SortGroup);
 
 	HighlightDataColor Colors = {};
-	unsigned __int64 Value;
-	if (cfg->GetValue(key,HLS.NormalColorF,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL].ForegroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.NormalColorB,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL].BackgroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.NormalColorFlags,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL].Flags = Value;
-
-	if (cfg->GetValue(key,HLS.SelectedColorF,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED].ForegroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.SelectedColorB,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED].BackgroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.SelectedColorFlags,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED].Flags = Value;
-
-	if (cfg->GetValue(key,HLS.CursorColorF,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR].ForegroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.CursorColorB,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR].BackgroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.CursorColorFlags,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR].Flags = Value;
-
-	if (cfg->GetValue(key,HLS.SelectedCursorColorF,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].ForegroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.SelectedCursorColorB,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].BackgroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.SelectedCursorColorFlags,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].Flags = Value;
-
-	if (cfg->GetValue(key,HLS.MarkCharNormalColorF,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL].ForegroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.MarkCharNormalColorB,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL].BackgroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.MarkCharNormalColorFlags,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL].Flags = Value;
-
-	if (cfg->GetValue(key,HLS.MarkCharSelectedColorF,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED].ForegroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.MarkCharSelectedColorB,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED].BackgroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.MarkCharSelectedColorFlags,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED].Flags = Value;
-
-	if (cfg->GetValue(key,HLS.MarkCharCursorColorF,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR].ForegroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.MarkCharCursorColorB,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR].BackgroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.MarkCharCursorColorFlags,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR].Flags = Value;
-
-	if (cfg->GetValue(key,HLS.MarkCharSelectedCursorColorF,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].ForegroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.MarkCharSelectedCursorColorB,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].BackgroundColor=static_cast<COLORREF>(Value);
-	if (cfg->GetValue(key,HLS.MarkCharSelectedCursorColorFlags,&Value))
-		Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].Flags = Value;
+	cfg->GetValue(key,HLS.NormalColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL], sizeof(FarColor));
+	cfg->GetValue(key,HLS.SelectedColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED], sizeof(FarColor));
+	cfg->GetValue(key,HLS.CursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR], sizeof(FarColor));
+	cfg->GetValue(key,HLS.SelectedCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR], sizeof(FarColor));
+	cfg->GetValue(key,HLS.MarkCharNormalColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL], sizeof(FarColor));
+	cfg->GetValue(key,HLS.MarkCharSelectedColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED], sizeof(FarColor));
+	cfg->GetValue(key,HLS.MarkCharCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR], sizeof(FarColor));
+	cfg->GetValue(key,HLS.MarkCharSelectedCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR], sizeof(FarColor));
 
 	unsigned __int64 MarkChar;
 	if (cfg->GetValue(key,HLS.MarkChar,&MarkChar))
@@ -857,8 +777,8 @@ void SaveFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams 
 	bool bRelative;
 	cfg->SetValue(key,HLS.UseDate,CurHiData->GetDate(&DateType, &DateAfter, &DateBefore, &bRelative)?1:0);
 	cfg->SetValue(key,HLS.DateType,DateType);
-	cfg->SetValue(key,HLS.DateAfter,(const char *)&DateAfter,(int)sizeof(DateAfter));
-	cfg->SetValue(key,HLS.DateBefore,(const char *)&DateBefore,(int)sizeof(DateBefore));
+	cfg->SetValue(key,HLS.DateAfter, &DateAfter, sizeof(DateAfter));
+	cfg->SetValue(key,HLS.DateBefore, &DateBefore, sizeof(DateBefore));
 	cfg->SetValue(key,HLS.DateRelative,bRelative?1:0);
 	const wchar_t *SizeAbove, *SizeBelow;
 	cfg->SetValue(key,HLS.UseSize,CurHiData->GetSize(&SizeAbove, &SizeBelow)?1:0);
@@ -870,32 +790,16 @@ void SaveFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams 
 	cfg->SetValue(key,(bSortGroup?HLS.AttrClear:HLS.ExcludeAttributes),AttrClear);
 	HighlightDataColor Colors;
 	CurHiData->GetColors(&Colors);
-	cfg->SetValue(key,HLS.NormalColorF,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL].ForegroundColor);
-	cfg->SetValue(key,HLS.NormalColorB,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL].BackgroundColor);
-	cfg->SetValue(key,HLS.NormalColorFlags,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL].Flags);
-	cfg->SetValue(key,HLS.SelectedColorF,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED].ForegroundColor);
-	cfg->SetValue(key,HLS.SelectedColorB,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED].BackgroundColor);
-	cfg->SetValue(key,HLS.SelectedColorFlags,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED].Flags);
-	cfg->SetValue(key,HLS.CursorColorF,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR].ForegroundColor);
-	cfg->SetValue(key,HLS.CursorColorB,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR].BackgroundColor);
-	cfg->SetValue(key,HLS.CursorColorFlags,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR].Flags);
-	cfg->SetValue(key,HLS.SelectedCursorColorF,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].ForegroundColor);
-	cfg->SetValue(key,HLS.SelectedCursorColorB,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].BackgroundColor);
-	cfg->SetValue(key,HLS.SelectedCursorColorFlags,Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].Flags);
-	cfg->SetValue(key,HLS.MarkCharNormalColorF,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL].ForegroundColor);
-	cfg->SetValue(key,HLS.MarkCharNormalColorB,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL].BackgroundColor);
-	cfg->SetValue(key,HLS.MarkCharNormalColorFlags,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL].Flags);
-	cfg->SetValue(key,HLS.MarkCharSelectedColorF,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED].ForegroundColor);
-	cfg->SetValue(key,HLS.MarkCharSelectedColorB,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED].BackgroundColor);
-	cfg->SetValue(key,HLS.MarkCharSelectedColorFlags,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED].Flags);
-	cfg->SetValue(key,HLS.MarkCharCursorColorF,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR].ForegroundColor);
-	cfg->SetValue(key,HLS.MarkCharCursorColorB,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR].BackgroundColor);
-	cfg->SetValue(key,HLS.MarkCharCursorColorFlags,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR].Flags);
-	cfg->SetValue(key,HLS.MarkCharSelectedCursorColorF,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].ForegroundColor);
-	cfg->SetValue(key,HLS.MarkCharSelectedCursorColorB,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].BackgroundColor);
-	cfg->SetValue(key,HLS.MarkCharSelectedCursorColorFlags,Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR].Flags);
-	cfg->SetValue(key,HLS.MarkChar,Colors.MarkChar);
-	cfg->SetValue(key,HLS.ContinueProcessing,(CurHiData->GetContinueProcessing()?1:0));
+	cfg->SetValue(key,HLS.NormalColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_NORMAL], sizeof(FarColor));
+	cfg->SetValue(key,HLS.SelectedColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTED], sizeof(FarColor));
+	cfg->SetValue(key,HLS.CursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_UNDERCURSOR], sizeof(FarColor));
+	cfg->SetValue(key,HLS.SelectedCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_FILE][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR], sizeof(FarColor));
+	cfg->SetValue(key,HLS.MarkCharNormalColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_NORMAL], sizeof(FarColor));
+	cfg->SetValue(key,HLS.MarkCharSelectedColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTED], sizeof(FarColor));
+	cfg->SetValue(key,HLS.MarkCharCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_UNDERCURSOR], sizeof(FarColor));
+	cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, &Colors.Color[HIGHLIGHTCOLORTYPE_MARKCHAR][HIGHLIGHTCOLOR_SELECTEDUNDERCURSOR], sizeof(FarColor));
+	cfg->SetValue(key,HLS.MarkChar, Colors.MarkChar);
+	cfg->SetValue(key,HLS.ContinueProcessing, CurHiData->GetContinueProcessing()?1:0);
 }
 
 void HighlightFiles::SaveHiData()
@@ -1025,38 +929,16 @@ void SetHighlighting(bool DeleteOld)
 		cfg->SetValue(key,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
 		cfg->SetValue(key,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
 
-		cfg->SetValue(key,HLS.NormalColorF,StdHighlightData[I].NormalColor.ForegroundColor);
-		cfg->SetValue(key,HLS.NormalColorB,StdHighlightData[I].NormalColor.BackgroundColor);
-		cfg->SetValue(key,HLS.NormalColorFlags,StdHighlightData[I].NormalColor.Flags);
+		cfg->SetValue(key,HLS.NormalColor, &StdHighlightData[I].NormalColor, sizeof(FarColor));
+		cfg->SetValue(key,HLS.CursorColor, &StdHighlightData[I].CursorColor, sizeof(FarColor));
 
-		cfg->SetValue(key,HLS.CursorColorF,StdHighlightData[I].CursorColor.ForegroundColor);
-		cfg->SetValue(key,HLS.CursorColorB,StdHighlightData[I].CursorColor.BackgroundColor);
-		cfg->SetValue(key,HLS.CursorColorFlags,StdHighlightData[I].CursorColor.Flags);
-
-		UINT DefaultBlack = 0xff000000, TransparentBlack = 0x00000000;
-		cfg->SetValue(key,HLS.SelectedColorF,DefaultBlack);
-		cfg->SetValue(key,HLS.SelectedColorB,TransparentBlack);
-		cfg->SetValue(key,HLS.SelectedColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
-
-		cfg->SetValue(key,HLS.SelectedCursorColorF,DefaultBlack);
-		cfg->SetValue(key,HLS.SelectedCursorColorB,TransparentBlack);
-		cfg->SetValue(key,HLS.SelectedCursorColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
-
-		cfg->SetValue(key,HLS.MarkCharNormalColorF,DefaultBlack);
-		cfg->SetValue(key,HLS.MarkCharNormalColorB,TransparentBlack);
-		cfg->SetValue(key,HLS.MarkCharNormalColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
-
-		cfg->SetValue(key,HLS.MarkCharSelectedColorF,DefaultBlack);
-		cfg->SetValue(key,HLS.MarkCharSelectedColorB,TransparentBlack);
-		cfg->SetValue(key,HLS.MarkCharSelectedColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
-
-		cfg->SetValue(key,HLS.MarkCharCursorColorF,DefaultBlack);
-		cfg->SetValue(key,HLS.MarkCharCursorColorB,TransparentBlack);
-		cfg->SetValue(key,HLS.MarkCharCursorColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
-
-		cfg->SetValue(key,HLS.MarkCharSelectedCursorColorF,DefaultBlack);
-		cfg->SetValue(key,HLS.MarkCharSelectedCursorColorB,TransparentBlack);
-		cfg->SetValue(key,HLS.MarkCharSelectedCursorColorFlags,FCF_FG_4BIT|FCF_BG_4BIT);
+		const FarColor DefaultColor = {FCF_FG_4BIT|FCF_BG_4BIT, 0xff000000, 0x00000000};
+		cfg->SetValue(key,HLS.SelectedColor, &DefaultColor, sizeof(FarColor));
+		cfg->SetValue(key,HLS.SelectedCursorColor, &DefaultColor, sizeof(FarColor));
+		cfg->SetValue(key,HLS.MarkCharNormalColor, &DefaultColor, sizeof(FarColor));
+		cfg->SetValue(key,HLS.MarkCharSelectedColor, &DefaultColor, sizeof(FarColor));
+		cfg->SetValue(key,HLS.MarkCharCursorColor, &DefaultColor, sizeof(FarColor));
+		cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, &DefaultColor, sizeof(FarColor));
 	}
 
 	delete cfg;

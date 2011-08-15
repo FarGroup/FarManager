@@ -3443,12 +3443,20 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 						ComplMenu.ProcessInput();
 					}
 				}
-				if(Opt.AutoComplete.ModalList)
+				int ExitCode=ComplMenu.GetExitCode();
+
+				// mouse click
+				if(ExitCode>0)
 				{
-					int ExitCode=ComplMenu.GetExitCode();
-					if(ExitCode>0)
+					if(Opt.AutoComplete.ModalList)
 					{
 						SetString(ComplMenu.GetItemPtr(ExitCode)->strName);
+					}
+					else
+					{
+						ComplMenu.Hide();
+						BackKey = KEY_ENTER;
+						Result=1;
 					}
 				}
 			}

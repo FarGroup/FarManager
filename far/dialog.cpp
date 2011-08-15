@@ -418,6 +418,11 @@ void Dialog::InitDialog()
 {
 	CriticalSectionLock Lock(CS);
 
+	if(CloseFAR)
+	{
+		SetDialogMode(DMODE_NOPLUGINS);
+	}
+
 	if (!DialogMode.Check(DMODE_INITOBJECTS))      // самодостаточный вариант, когда
 	{                      //  элементы инициализируются при первом вызове.
 		CheckDialogCoord();

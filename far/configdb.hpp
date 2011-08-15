@@ -61,12 +61,12 @@ public:
 	virtual void EndTransaction() = 0;
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value) = 0;
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 Value) = 0;
-	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const char *Value, int Size) = 0;
+	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const void *Value, size_t Size) = 0;
 	virtual bool GetValue(const wchar_t *Key, const wchar_t *Name, DWORD *Value, DWORD Default) = 0;
 	virtual bool GetValue(const wchar_t *Key, const wchar_t *Name, int *Value, int Default) = 0;
 	virtual int GetValue(const wchar_t *Key, const wchar_t *Name, int Default) = 0;
 	virtual bool GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue, const wchar_t *Default) = 0;
-	virtual int GetValue(const wchar_t *Key, const wchar_t *Name, char *Value, int Size, const char *Default) = 0;
+	virtual int GetValue(const wchar_t *Key, const wchar_t *Name, void *Value, size_t Size, const void *Default) = 0;
 	virtual	bool DeleteValue(const wchar_t *Key, const wchar_t *Name) = 0;
 	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, string &strValue) = 0;
 	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value) = 0;
@@ -89,10 +89,10 @@ public:
 	virtual bool SetKeyDescription(unsigned __int64 Root, const wchar_t *Description) = 0;
 	virtual bool SetValue(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Value) = 0;
 	virtual bool SetValue(unsigned __int64 Root, const wchar_t *Name, unsigned __int64 Value) = 0;
-	virtual bool SetValue(unsigned __int64 Root, const wchar_t *Name, const char *Value, int Size) = 0;
+	virtual bool SetValue(unsigned __int64 Root, const wchar_t *Name, const void *Value, size_t Size) = 0;
 	virtual bool GetValue(unsigned __int64 Root, const wchar_t *Name, unsigned __int64 *Value) = 0;
 	virtual bool GetValue(unsigned __int64 Root, const wchar_t *Name, string &strValue) = 0;
-	virtual int GetValue(unsigned __int64 Root, const wchar_t *Name, char *Value, int Size) = 0;
+	virtual int GetValue(unsigned __int64 Root, const wchar_t *Name, void *Value, size_t Size) = 0;
 	virtual bool DeleteKeyTree(unsigned __int64 KeyID) = 0;
 	virtual bool DeleteValue(unsigned __int64 Root, const wchar_t *Name) = 0;
 	virtual bool EnumKeys(unsigned __int64 Root, DWORD Index, string &strName) = 0;

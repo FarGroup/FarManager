@@ -850,8 +850,10 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		if (Opt.Mouse) // А нужно ли это условие???
 			SetFarConsoleMode();
 
-		if (CloseFAR)
+		static bool ExitInProcess = false;
+		if (CloseFAR && !ExitInProcess)
 		{
+			ExitInProcess = true;
 //      CloseFAR=FALSE;
 			/* $ 30.08.2001 IS
 			   При принудительном закрытии Фара пытаемся вести себя так же, как и при

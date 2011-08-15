@@ -565,7 +565,7 @@ void InitRecodeOutTable()
 			0x256A, 0x2518, 0x250C, 0x2588, 0x2584, 0x258C, 0x2590, 0x2580,
 		};
 		// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-		GeneralCfg->GetValue(L"System",L"BoxSymbols",(char *)BoxSymbols,sizeof(_BoxSymbols),(const char *)_BoxSymbols);
+		GeneralCfg->GetValue(L"System",L"BoxSymbols", BoxSymbols, sizeof(_BoxSymbols), _BoxSymbols);
 
 		if (Opt.NoGraphics)
 		{
