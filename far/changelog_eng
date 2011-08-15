@@ -3,6 +3,67 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.08.2011 14:46:13 +0200 - build 2149
+
+1. File highlighting storage format is changed. The old highlight.db must be deleted.
+
+2. A couple of corrections in processing of console closing.
+
+drkns 14.08.2011 21:42:30 +0200 - build 2148
+
+1. Folder Shortcuts have got new default behavior.
+
+drkns 14.08.2011 16:12:58 +0200 - build 2147
+
+1. Continuation of 908.1 - now it also works with gcc.
+
+drkns 12.08.2011 18:55:54 +0200 - build 2146
+
+1. In 2127, folder shortcuts were broken.
+
+drkns 12.08.2011 15:28:28 +0200 - build 2145
+
+1. A couple of new options in panel settings: "Highlight column separators", "Double global column separators".
+
+svs 12.08.2011 09:36:55 +0300 - build 2144
+
+1. Mantis#0001849: Hotkeys do not work in user menu (F2)
+   (from Maximus)
+   Any hotkey causes one level up transition if the last (empty) item is selected in F2
+
+svs 12.08.2011 09:32:28 +0300 - build 2143
+
+1. Mantis#0001766: Viewer new version
+   (from 2useven10)
+    Another correction for automatic scrolling.
+    'Excessive' code has proved to be useful.
+    Thanks to Dzirt2005 for diagnostics.
+    The problem took part when batch file output was redirected to the file being viewed.
+
+drkns 11.08.2011 16:06:20 +0200 - build 2142
+
+1. Mantis#0001851: "Transparent" flag does not work with default colors for markers in files highlighting.
+
+drkns 11.08.2011 13:44:23 +0200 - build 2141
+
+1. Mantis#0001850: "Transparent" flag state is not saved for marking character in files highlighting.
+
+2. Warnings.
+
+svs 09.08.2011 23:18:26 +0300 - build 2140
+
+1. Mantis#0001832: FarNameToInputRecord / FarInputRecordToName problem
+   (from Maximus)
+   "Left-side" macro was run in Common area instead of "right-side" one 
+
+drkns 08.08.2011 11:37:13 +0200 - build 2139
+
+1.Mantis#0001589: Displaying of file extension in panel column or "Align file extensions"
+
+drkns 08.08.2011 10:51:58 +0200 - build 2138
+
+1. And more.
+
 drkns 07.08.2011 00:19:21 +0200 - build 2137
 
 1. Another couple of corrections in color processing.
@@ -57,7 +118,7 @@ svs 04.08.2011 02:55:52 +0300 - build 2127
    (from Maximus)
    Next...
    - if "right-hand" combinations were not assigned to any reserved actions earlier then FAR acts on them as on "left-hand" ones.
-   - Изыски типа RightCtrlLeftAlt+something are not processed in any special way (meaning Right->Left replacement).
+   - RightCtrlLeftAlt+something are not processed in any special way (meaning Right->Left replacement).
    - In macros, as anywhere else, if nothing is assigned to "right-hand" combination, then handle it like the "left-hand" one.
 
    svs> 255 is changed to 65535
