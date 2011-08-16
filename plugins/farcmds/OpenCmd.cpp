@@ -237,7 +237,7 @@ DWORD WINAPI ThreadWhatUpdateScreen(LPVOID par)
 					*buff = 0;
 
 				const wchar_t *MsgItems[] = { td->title, td->cmd, buff };
-				Info.Message(&MainGuid, 0, NULL, MsgItems, ARRAYSIZE(MsgItems), 0);
+				Info.Message(&MainGuid, nullptr, 0, NULL, MsgItems, ARRAYSIZE(MsgItems), 0);
 			}
 		}
 	}
@@ -789,7 +789,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 
 								if (SequenceText)
 								{
-									MacroSendMacroText mcmd = {sizeof(mcmd), KMFLAGS_DISABLEOUTPUT, 0, SequenceText};
+									MacroSendMacroText mcmd = {sizeof(mcmd), KMFLAGS_DISABLEOUTPUT, {0}, SequenceText};
 									MacroCheckMacroText mcmd2 = {};
 									mcmd2.Text = mcmd;
 
