@@ -106,3 +106,5 @@ extern SYSTEM_INFO SystemInfo;
 extern FormatScreen FS;
 
 extern DWORD ErrorMode;
+
+extern __int64 FarUpTime;

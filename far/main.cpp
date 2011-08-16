@@ -392,8 +392,10 @@ int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	std::set_new_handler(nullptr);
+	QueryPerformanceCounter((LARGE_INTEGER *) &FarUpTime);
+
 	GetVersionEx(&WinVer);
-	
+
 	// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
 	// Applications do not need to enable the LFH for their heaps.
 	if(WinVer.dwMajorVersion<6)
