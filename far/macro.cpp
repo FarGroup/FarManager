@@ -2679,6 +2679,11 @@ static bool menushowFunc(const TMacroFunction*)
 		}
 	}
 
+	Frame *frame;
+
+	if ((frame=FrameManager->GetBottomFrame()) )
+		frame->Lock();
+
 	Menu.Show();
 	int PrevSelectedPos=Menu.GetSelectPos();
 	DWORD Key=0;
@@ -2815,6 +2820,9 @@ static bool menushowFunc(const TMacroFunction*)
 				Result=L"";
 		}
 	}
+
+	if (frame )
+		frame->Unlock();
 
 	VMStack.Push(Result);
 	return true;
