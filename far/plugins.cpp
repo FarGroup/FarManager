@@ -1383,6 +1383,9 @@ void PluginManager::Configure(int StartPos)
 	if (Opt.Policies.DisabledOptions&FFPOL_MAINMENUPLUGINS)
 		return;
 
+	int PrevMacroMode = CtrlObject->Macro.GetMode();
+	CtrlObject->Macro.SetMode(MACRO_MENU);
+
 	{
 		VMenu PluginList(MSG(MPluginConfigTitle),nullptr,0,ScrY-4);
 		PluginList.SetFlags(VMENU_WRAPMODE);
@@ -1478,6 +1481,7 @@ void PluginManager::Configure(int StartPos)
 
 			while (!PluginList.Done())
 			{
+				CtrlObject->Macro.SetMode(MACRO_MENU);
 				DWORD Key=PluginList.ReadInput();
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
@@ -1533,6 +1537,8 @@ void PluginManager::Configure(int StartPos)
 			}
 		}
 	}
+
+	CtrlObject->Macro.SetMode(PrevMacroMode);
 }
 
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
@@ -1656,6 +1662,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 			while (!PluginList.Done())
 			{
+				CtrlObject->Macro.SetMode(MACRO_MENU);
 				DWORD Key=PluginList.ReadInput();
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
