@@ -3,6 +3,22 @@
 #DEBUG - set if a debug build is needed
 #
 
+ifneq (,$(findstring cmd,$(SHELL)))
+CMDSHELL = 1
+else
+ifneq ($(shell echo %comspec%), %comspec%)
+CMDSHELL = 1
+endif
+endif
+
+ifdef CMDSHELL
+define PS
+\\
+endef
+else
+PS=/
+endif
+
 ifndef DEBUG
 DIRNAME=Release
 DEBUGFLAGS=-O3 -DNDEBUG
@@ -14,12 +30,14 @@ DEBUGLINKFLAGS=
 endif
 
 DIRBIT = 32
-OBJDIR = ./$(DIRNAME).$(DIRBIT).gcc/obj
-EXEDIR = ./$(DIRNAME).$(DIRBIT).gcc
+EXEDIR = .$(PS)$(DIRNAME).$(DIRBIT).gcc$(PS)
+OBJDIR = $(EXEDIR)obj$(PS)
+TOOLSDIR = .$(PS)tools$(PS)
+BOOTSTRAPDIR = .$(PS)bootstrap$(PS)
+FARINCLUDE = .$(PS)Include$(PS)
 EXENAME = Far.exe
-EXEFULLNAME = $(EXEDIR)/$(EXENAME)
-FARINCLUDE = ./Include
-DEPFILE = bootstrap/far.gcc.dep
+EXEFULLNAME = $(EXEDIR)$(EXENAME)
+DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
 
 SRCS = \
 	cache.cpp \
@@ -159,23 +177,30 @@ SRCS = \
 	xlat.cpp \
 	hook_wow64.c
 
-OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS))) $(OBJDIR)/far.rc.o
+OBJS = $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS))) $(OBJDIR)far.rc.o
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
-TESTOBJS = $(OBJDIR)/api_test_c.testobj $(OBJDIR)/api_test_c++.testobj
+TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
+
+ifdef CMDSHELL
+MKSCRIPTS = $(shell if not exist $(BOOTSTRAPDIR) md $(BOOTSTRAPDIR)) $(shell echo @del /q %%1>$(BOOTSTRAPDIR)rm.cmd && echo @copy /y %%1 %%2>$(BOOTSTRAPDIR)cp.cmd && echo @if not exist %%1 md %%1>$(BOOTSTRAPDIR)mkdir.cmd)
+MKDIR = $(BOOTSTRAPDIR)mkdir.cmd
+RM = $(BOOTSTRAPDIR)rm.cmd
+CP = $(BOOTSTRAPDIR)cp.cmd
+else
+MKDIR = mkdir -p
+RM = rm -f
+CP = cp -f
+endif
 
 CXX = g++
 CC = gcc
-RM = rm -f
-CP = cp -f
-M4 = tools/m4 -P -DFARBIT=$(DIRBIT)
-GAWK = tools/gawk
-MV = mv -f
-MKDIR = mkdir -p
+M4 = $(TOOLSDIR)m4 -P -DFARBIT=$(DIRBIT)
+GAWK = $(TOOLSDIR)gawk
 WINDRES = windres
 DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
 CFLAGS = $(DEBUGFLAGS) -fdiagnostics-show-option -mno-cygwin -pipe $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
-CCFLAGS = $(CFLAGS) -fno-rtti
+CCFLAGS = $(CFLAGS) -fno-rtti -std=gnu++0x -fpermissive
 LNKFLAGS = -mno-cygwin -static-libgcc -static-libstdc++ $(DEBUGLINKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --large-address-aware -Xlinker --dynamicbase -Xlinker --nxcompat -lmpr -lwinspool -lole32 -lsecur32 -lsetupapi -lpsapi -lrpcrt4
 
 .PHONY: all
@@ -183,109 +208,109 @@ all: dirs lng depfile
 	@$(MAKE) -f makefile_gcc build
 
 .PHONY: lng
-lng: bootstrap/farlang.templ
+lng: $(BOOTSTRAPDIR)farlang.templ
 	@echo generating language files
-	@tools/lng.generator.exe -nc -i bootstrap/lang.ini -ol "$(EXEDIR)" bootstrap/farlang.templ
+	@$(TOOLSDIR)lng.generator.exe -nc -i $(BOOTSTRAPDIR)lang.ini -ol "$(EXEDIR)" $(BOOTSTRAPDIR)farlang.templ
 
 .PHONY: depfile
 depfile:
 	@$(GAWK) -f ./scripts/mkdep.awk -v compiler=gcc mkdep.list > $(DEPFILE)
 
-.PHONY: dirs
-dirs:
+dirs: scripts
+	@$(MKSCRIPTS)
 	@$(MKDIR) $(EXEDIR)
 	@$(MKDIR) $(OBJDIR)
 	@$(MKDIR) $(FARINCLUDE)
-	@$(MKDIR) bootstrap
+	@$(MKDIR) $(BOOTSTRAPDIR)
 
 .PHONY: build
-build: $(TESTOBJS) $(EXEFULLNAME) $(EXEDIR)/FarEng.hlf $(EXEDIR)/FarRus.hlf $(EXEDIR)/FarHun.hlf $(EXEDIR)/File_id.diz $(EXEDIR)/Far.exe.ini $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/PluginW.pas $(FARINCLUDE)/FarColorW.pas
+build: $(TESTOBJS) $(EXEFULLNAME) $(EXEDIR)FarEng.hlf $(EXEDIR)FarRus.hlf $(EXEDIR)FarHun.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.ini $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)plugin.hpp $(FARINCLUDE)PluginW.pas $(FARINCLUDE)FarColorW.pas
 
-$(EXEFULLNAME): bootstrap/Far.exe.manifest bootstrap/far.rc bootstrap/copyright.inc bootstrap/farversion.inc $(OBJS)
+$(EXEFULLNAME): $(BOOTSTRAPDIR)Far.exe.manifest $(BOOTSTRAPDIR)far.rc $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJS)
 	@echo linking $@
 	@$(CXX) -o $@ $(OBJS) $(LNKFLAGS)
 
-$(OBJDIR)/%.o: %.c
+$(OBJDIR)%.o: %.c
 	@echo compiling $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
-$(OBJDIR)/%.o: %.cpp
+$(OBJDIR)%.o: %.cpp
 	@echo compiling $<
-	@$(CXX) $(CCFLAGS) -c -include $(OBJDIR)/headers -o $@ $<
+	@$(CXX) $(CCFLAGS) -c -include $(OBJDIR)headers -o $@ $<
 
-$(OBJDIR)/headers.gch: headers.cpp
+$(OBJDIR)headers.gch: headers.cpp
 	@echo making precompiled headers
 	@$(CXX) -x c++-header -c $(CCFLAGS) -o $@ $<
 
-$(OBJS): $(OBJDIR)/headers.gch
+$(OBJS): $(OBJDIR)headers.gch
 
-$(OBJDIR)/far.rc.o: bootstrap/far.rc res.hpp Far.ico
+$(OBJDIR)far.rc.o: $(BOOTSTRAPDIR)far.rc res.hpp Far.ico
 	@echo compiling resource file
 	@$(WINDRES) -i $< -o $@
 
-$(OBJDIR)/api_test_c.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
+$(OBJDIR)api_test_c.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp api_test.c
 	@echo testing C plugin API
 	@$(CC) -c -x c -o $@ api_test.c
 
-$(OBJDIR)/api_test_c++.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
+$(OBJDIR)api_test_c++.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp api_test.c
 	@echo testing C++ plugin API
 	@$(CXX) -c -x c++ -o $@ api_test.c
 
 MSG=@echo generating $@
 
-bootstrap/Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 tools.m4 vbuild.m4
+$(BOOTSTRAPDIR)Far.exe.manifest: Far.exe.manifest.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(M4) Far.exe.manifest.m4 > $@
 
-bootstrap/far.rc: far.rc.m4 farversion.m4 tools.m4 vbuild.m4 res.hpp bootstrap/Far.exe.manifest
+$(BOOTSTRAPDIR)far.rc: far.rc.m4 farversion.m4 tools.m4 vbuild.m4 res.hpp $(BOOTSTRAPDIR)Far.exe.manifest
 	$(MSG)
 	@$(M4) far.rc.m4 > $@
 
-bootstrap/copyright.inc: copyright.inc.m4 farversion.m4 tools.m4 vbuild.m4
+$(BOOTSTRAPDIR)copyright.inc: copyright.inc.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(M4) copyright.inc.m4 > $@
 
-bootstrap/farversion.inc: farversion.inc.m4 farversion.m4 tools.m4 vbuild.m4
+$(BOOTSTRAPDIR)farversion.inc: farversion.inc.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(M4) farversion.inc.m4 > $@
 
-bootstrap/farlang.templ: farlang.templ.m4 farversion.m4 tools.m4 vbuild.m4
+$(BOOTSTRAPDIR)farlang.templ: farlang.templ.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(M4) farlang.templ.m4 > $@
 
-$(EXEDIR)/FarEng.hlf: FarEng.hlf.m4 farversion.m4 tools.m4 vbuild.m4
+$(EXEDIR)FarEng.hlf: FarEng.hlf.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(GAWK) -f ./scripts/mkhlf.awk FarEng.hlf.m4 | $(M4) > $@
 
-$(EXEDIR)/FarRus.hlf: FarRus.hlf.m4 farversion.m4 tools.m4 vbuild.m4
+$(EXEDIR)FarRus.hlf: FarRus.hlf.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(GAWK) -f ./scripts/mkhlf.awk FarRus.hlf.m4 | $(M4) > $@
 
-$(EXEDIR)/FarHun.hlf: FarHun.hlf.m4 farversion.m4 tools.m4 vbuild.m4
+$(EXEDIR)FarHun.hlf: FarHun.hlf.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(GAWK) -f ./scripts/mkhlf.awk FarHun.hlf.m4 | $(M4) > $@
 
-$(EXEDIR)/File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
+$(EXEDIR)File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(M4) File_id.diz.m4 > $@
 
-$(EXEDIR)/Far.exe.ini: Far.exe.ini
+$(EXEDIR)Far.exe.ini: Far.exe.ini
 	$(MSG)
 	@$(CP) Far.exe.ini $@
 
-$(FARINCLUDE)/farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(M4) -DINPUT=colors.hpp headers.m4 > $@
 
-$(FARINCLUDE)/plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(M4) -DINPUT=plugin.hpp headers.m4 > $@
 
-$(FARINCLUDE)/PluginW.pas: PluginW.pas farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)PluginW.pas: PluginW.pas farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(M4) -DINPUT=PluginW.pas headers.m4 > $@
 
-$(FARINCLUDE)/FarColorW.pas: FarColorW.pas farversion.m4 tools.m4 vbuild.m4
+$(FARINCLUDE)FarColorW.pas: FarColorW.pas farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(M4) -DINPUT=FarColorW.pas headers.m4 > $@
 
@@ -298,10 +323,10 @@ clean:
 	@echo cleaning
 	@$(RM) $(OBJS)
 	@$(RM) $(TESTOBJS)
-	@$(RM) $(OBJDIR)/headers.gch
+	@$(RM) $(OBJDIR)headers.gch
 	@$(RM) $(EXEFULLNAME) $(MAP)
-	@$(RM) bootstrap/*.*
-	@$(RM) $(EXEDIR)/*.lng
-	@$(RM) $(EXEDIR)/*.hlf
-	@$(RM) $(EXEDIR)/File_id.diz
-	@$(RM) $(EXEDIR)/Far.exe.ini
+	@$(RM) $(BOOTSTRAPDIR)*.*
+	@$(RM) $(EXEDIR)*.lng
+	@$(RM) $(EXEDIR)*.hlf
+	@$(RM) $(EXEDIR)File_id.diz
+	@$(RM) $(EXEDIR)Far.exe.ini

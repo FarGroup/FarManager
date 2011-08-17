@@ -114,7 +114,7 @@ virtual bool SetSize(COORD Size) const
 		csbi.srWindow.Right=Size.X-1;
 		csbi.srWindow.Bottom=csbi.dwSize.Y-1;
 		csbi.srWindow.Top=csbi.srWindow.Bottom-(Size.Y-1);
-		COORD WindowCoord={csbi.srWindow.Right-csbi.srWindow.Left+1, csbi.srWindow.Bottom-csbi.srWindow.Top+1};
+		COORD WindowCoord={static_cast<SHORT>(csbi.srWindow.Right-csbi.srWindow.Left+1), static_cast<SHORT>(csbi.srWindow.Bottom-csbi.srWindow.Top+1)};
 		if(WindowCoord.X>csbi.dwSize.X || WindowCoord.Y>csbi.dwSize.Y)
 		{
 			WindowCoord.X=Max(WindowCoord.X,csbi.dwSize.X);
@@ -564,8 +564,8 @@ virtual bool ScrollScreenBuffer(int Lines) const
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
-	SMALL_RECT ScrollRectangle={0, 0, csbi.dwSize.X-1, csbi.dwSize.Y-1};
-	COORD DestinationOrigin={0,-Lines};
+	SMALL_RECT ScrollRectangle={0, 0, static_cast<SHORT>(csbi.dwSize.X-1), static_cast<SHORT>(csbi.dwSize.Y-1)};
+	COORD DestinationOrigin={0,static_cast<SHORT>(-Lines)};
 	CHAR_INFO Fill={L' ', Colors::FarColorToConsoleColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN))};
 	return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, nullptr, DestinationOrigin, &Fill)!=FALSE;
 }
@@ -590,7 +590,7 @@ virtual bool GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent)
 	return GetColorDialogInternal(Color, Centered, AddTransparent);
 }
 
-virtual int GetDelta() const
+virtual short GetDelta() const
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);

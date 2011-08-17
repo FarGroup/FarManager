@@ -1161,10 +1161,10 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 					COORD Size;
 					if(Console.GetSize(Size))
 					{
-						COORD BufferSize = {Size.X, Opt.ShowKeyBar?3:2};
+						COORD BufferSize = {Size.X, static_cast<SHORT>(Opt.ShowKeyBar?3:2)};
 						FAR_CHAR_INFO* Buffer = new FAR_CHAR_INFO[BufferSize.X * BufferSize.Y];
 						COORD BufferCoord = {};
-						SMALL_RECT ReadRegion = {0, Size.Y - BufferSize.Y, Size.X-1, Size.Y-1};
+						SMALL_RECT ReadRegion = {0, static_cast<SHORT>(Size.Y - BufferSize.Y), static_cast<SHORT>(Size.X-1), static_cast<SHORT>(Size.Y-1)};
 						if(Console.ReadOutput(Buffer, BufferSize, BufferCoord, ReadRegion))
 						{
 							FarColor Attributes = Buffer[BufferSize.X*BufferSize.Y-1].Attributes;

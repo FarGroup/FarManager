@@ -2785,7 +2785,7 @@ void DoPrepareFileList(HANDLE hDlg)
 			if (!(DiskMask & 1))
 				continue;
 
-			const wchar_t Root[]={L'A'+CurrentDisk,L':',L'\\',L'\0'};
+			const wchar_t Root[]={static_cast<wchar_t>(L'A'+CurrentDisk),L':',L'\\',L'\0'};
 			int DriveType=FAR_GetDriveType(Root);
 
 			if (DriveType==DRIVE_REMOVABLE || IsDriveTypeCDROM(DriveType) || (DriveType==DRIVE_REMOTE && SearchMode==FINDAREA_ALL_BUTNETWORK))

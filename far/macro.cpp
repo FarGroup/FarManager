@@ -4132,7 +4132,7 @@ static bool chrFunc(const TMacroFunction*)
 
 	if (tmpVar.isInteger())
 	{
-		const wchar_t tmp[]={tmpVar.i()&0xFFFF,L'\0'};
+		const wchar_t tmp[]={static_cast<wchar_t>(tmpVar.i()), L'\0'};
 		tmpVar = tmp;
 		tmpVar.toString();
 	}

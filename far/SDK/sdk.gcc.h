@@ -33,115 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// ntddstor.h
-typedef enum _STORAGE_MEDIA_TYPE {
-    DDS_4mm = 0x20,            // Tape - DAT DDS1,2,... (all vendors)
-    MiniQic,                   // Tape - miniQIC Tape
-    Travan,                    // Tape - Travan TR-1,2,3,...
-    QIC,                       // Tape - QIC
-    MP_8mm,                    // Tape - 8mm Exabyte Metal Particle
-    AME_8mm,                   // Tape - 8mm Exabyte Advanced Metal Evap
-    AIT1_8mm,                  // Tape - 8mm Sony AIT1
-    DLT,                       // Tape - DLT Compact IIIxt, IV
-    NCTP,                      // Tape - Philips NCTP
-    IBM_3480,                  // Tape - IBM 3480
-    IBM_3490E,                 // Tape - IBM 3490E
-    IBM_Magstar_3590,          // Tape - IBM Magstar 3590
-    IBM_Magstar_MP,            // Tape - IBM Magstar MP
-    STK_DATA_D3,               // Tape - STK Data D3
-    SONY_DTF,                  // Tape - Sony DTF
-    DV_6mm,                    // Tape - 6mm Digital Video
-    DMI,                       // Tape - Exabyte DMI and compatibles
-    SONY_D2,                   // Tape - Sony D2S and D2L
-    CLEANER_CARTRIDGE,         // Cleaner - All Drive types that support Drive Cleaners
-    CD_ROM,                    // Opt_Disk - CD
-    CD_R,                      // Opt_Disk - CD-Recordable (Write Once)
-    CD_RW,                     // Opt_Disk - CD-Rewriteable
-    DVD_ROM,                   // Opt_Disk - DVD-ROM
-    DVD_R,                     // Opt_Disk - DVD-Recordable (Write Once)
-    DVD_RW,                    // Opt_Disk - DVD-Rewriteable
-    MO_3_RW,                   // Opt_Disk - 3.5" Rewriteable MO Disk
-    MO_5_WO,                   // Opt_Disk - MO 5.25" Write Once
-    MO_5_RW,                   // Opt_Disk - MO 5.25" Rewriteable (not LIMDOW)
-    MO_5_LIMDOW,               // Opt_Disk - MO 5.25" Rewriteable (LIMDOW)
-    PC_5_WO,                   // Opt_Disk - Phase Change 5.25" Write Once Optical
-    PC_5_RW,                   // Opt_Disk - Phase Change 5.25" Rewriteable
-    PD_5_RW,                   // Opt_Disk - PhaseChange Dual Rewriteable
-    ABL_5_WO,                  // Opt_Disk - Ablative 5.25" Write Once Optical
-    PINNACLE_APEX_5_RW,        // Opt_Disk - Pinnacle Apex 4.6GB Rewriteable Optical
-    SONY_12_WO,                // Opt_Disk - Sony 12" Write Once
-    PHILIPS_12_WO,             // Opt_Disk - Philips/LMS 12" Write Once
-    HITACHI_12_WO,             // Opt_Disk - Hitachi 12" Write Once
-    CYGNET_12_WO,              // Opt_Disk - Cygnet/ATG 12" Write Once
-    KODAK_14_WO,               // Opt_Disk - Kodak 14" Write Once
-    MO_NFR_525,                // Opt_Disk - Near Field Recording (Terastor)
-    NIKON_12_RW,               // Opt_Disk - Nikon 12" Rewriteable
-    IOMEGA_ZIP,                // Mag_Disk - Iomega Zip
-    IOMEGA_JAZ,                // Mag_Disk - Iomega Jaz
-    SYQUEST_EZ135,             // Mag_Disk - Syquest EZ135
-    SYQUEST_EZFLYER,           // Mag_Disk - Syquest EzFlyer
-    SYQUEST_SYJET,             // Mag_Disk - Syquest SyJet
-    AVATAR_F2,                 // Mag_Disk - 2.5" Floppy
-    MP2_8mm,                   // Tape - 8mm Hitachi
-    DST_S,                     // Ampex DST Small Tapes
-    DST_M,                     // Ampex DST Medium Tapes
-    DST_L,                     // Ampex DST Large Tapes
-    VXATape_1,                 // Ecrix 8mm Tape
-    VXATape_2,                 // Ecrix 8mm Tape
-    STK_EAGLE,                 // STK Eagle
-    LTO_Ultrium,               // IBM, HP, Seagate LTO Ultrium
-    LTO_Accelis                // IBM, HP, Seagate LTO Accelis
-} STORAGE_MEDIA_TYPE, *PSTORAGE_MEDIA_TYPE;
-
-typedef struct _DEVICE_MEDIA_INFO {
-    union {
-        struct {
-            LARGE_INTEGER Cylinders;
-            STORAGE_MEDIA_TYPE MediaType;
-            DWORD TracksPerCylinder;
-            DWORD SectorsPerTrack;
-            DWORD BytesPerSector;
-            DWORD NumberMediaSides;
-            DWORD MediaCharacteristics; // Bitmask of MEDIA_XXX values.
-        } DiskInfo;
-
-        struct {
-            LARGE_INTEGER Cylinders;
-            STORAGE_MEDIA_TYPE MediaType;
-            DWORD TracksPerCylinder;
-            DWORD SectorsPerTrack;
-            DWORD BytesPerSector;
-            DWORD NumberMediaSides;
-            DWORD MediaCharacteristics; // Bitmask of MEDIA_XXX values.
-        } RemovableDiskInfo;
-
-        struct {
-            STORAGE_MEDIA_TYPE MediaType;
-            DWORD   MediaCharacteristics; // Bitmask of MEDIA_XXX values.
-            DWORD   CurrentBlockSize;
-            STORAGE_BUS_TYPE BusType;
-
-            //
-            // Bus specific information describing the medium supported.
-            //
-
-            union {
-                struct {
-                    BYTE  MediumType;
-                    BYTE  DensityCode;
-                } ScsiInformation;
-            } BusSpecificData;
-
-        } TapeInfo;
-    } DeviceSpecific;
-} DEVICE_MEDIA_INFO, *PDEVICE_MEDIA_INFO;
-
-typedef struct _GET_MEDIA_TYPES {
-    DWORD DeviceType;              // FILE_DEVICE_XXX values
-    DWORD MediaInfoCount;
-    DEVICE_MEDIA_INFO MediaInfo[1];
-} GET_MEDIA_TYPES, *PGET_MEDIA_TYPES;
-
 typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 
     LARGE_INTEGER FileOffset;
@@ -155,22 +46,14 @@ typedef struct _FILE_SET_SPARSE_BUFFER
 }
 FILE_SET_SPARSE_BUFFER, *PFILE_SET_SPARSE_BUFFER;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #ifndef DecryptFile
- WINBASEAPI BOOL WINAPI DecryptFileW(LPCWSTR,DWORD);
+EXTERN_C WINBASEAPI BOOL WINAPI DecryptFileW(LPCWSTR,DWORD);
  #define DecryptFile DecryptFileW
 #endif
 
 #ifndef GetConsoleAlias
- WINBASEAPI DWORD WINAPI GetConsoleAliasW(LPWSTR,LPWSTR,DWORD,LPWSTR);
+EXTERN_C WINBASEAPI DWORD WINAPI GetConsoleAliasW(LPWSTR,LPWSTR,DWORD,LPWSTR);
  #define GetConsoleAlias GetConsoleAliasW
-#endif
-
-#ifdef __cplusplus
-}
 #endif
 
 // winuser.h
@@ -358,43 +241,18 @@ typedef enum tagASSOCIATIONTYPE
 	AT_MIMETYPE,
 } ASSOCIATIONTYPE;
 
+// shobjidl.h
 
-const IID IID_IApplicationAssociationRegistration = { 0x4E530B0A, 0xE611, 0x4C77, 0xA3, 0xAC, 0x90, 0x31, 0xD0, 0x22, 0x28, 0x1B };
-#define INTERFACE IApplicationAssociationRegistration
+const IID IID_IApplicationAssociationRegistration = {0x4E530B0A, 0xE611, 0x4C77, {0xA3, 0xAC, 0x90, 0x31, 0xD0, 0x22, 0x28, 0x1B}};
 DECLARE_INTERFACE_(IApplicationAssociationRegistration,IUnknown)
 {
-  STDMETHOD(QueryInterface)(THIS_ REFIID,PVOID*) PURE;
-  STDMETHOD_(ULONG,AddRef)(THIS) PURE;
-  STDMETHOD_(ULONG,Release)(THIS) PURE;
-  STDMETHOD(QueryCurrentDefault)(THIS_ LPCWSTR, ASSOCIATIONTYPE, ASSOCIATIONLEVEL, LPWSTR *) PURE;
-  STDMETHOD(QueryAppIsDefault)(THIS_ LPCWSTR, ASSOCIATIONTYPE, ASSOCIATIONLEVEL, LPCWSTR, BOOL *) PURE;
-  STDMETHOD(QueryAppIsDefaultAll)(THIS_ ASSOCIATIONLEVEL, LPCWSTR, BOOL *) PURE;
-  STDMETHOD(SetAppAsDefault)(THIS_ LPCWSTR, LPCWSTR, ASSOCIATIONTYPE) PURE;
-  STDMETHOD(SetAppAsDefaultAll)(THIS_ LPCWSTR) PURE;
-  STDMETHOD(ClearUserAssociations)(THIS) PURE;
+	virtual HRESULT STDMETHODCALLTYPE QueryCurrentDefault(PCWSTR pszQuery, ASSOCIATIONTYPE atQueryType, ASSOCIATIONLEVEL alQueryLevel, LPWSTR *ppszAssociation) = 0;
+	virtual HRESULT STDMETHODCALLTYPE QueryAppIsDefault(LPCWSTR pszQuery, ASSOCIATIONTYPE atQueryType, ASSOCIATIONLEVEL alQueryLevel, LPCWSTR pszAppRegistryName, BOOL *pfDefault) = 0;
+	virtual HRESULT STDMETHODCALLTYPE QueryAppIsDefaultAll(ASSOCIATIONLEVEL alQueryLevel, LPCWSTR pszAppRegistryName, BOOL *pfDefault) = 0;
+	virtual HRESULT STDMETHODCALLTYPE SetAppAsDefault(LPCWSTR pszAppRegistryName, LPCWSTR pszSet, ASSOCIATIONTYPE atSetType) = 0;
+	virtual HRESULT STDMETHODCALLTYPE SetAppAsDefaultAll(LPCWSTR pszAppRegistryName) = 0;
+	virtual HRESULT STDMETHODCALLTYPE ClearUserAssociations() = 0;
 };
-#undef INTERFACE
-
-
-#ifndef __ITaskbarList3_INTERFACE_DEFINED__
-#define __ITaskbarList3_INTERFACE_DEFINED__
-
-typedef enum TBPFLAG
-{
-	TBPF_NOPROGRESS    = 0,
-	TBPF_INDETERMINATE = 0x1,
-	TBPF_NORMAL        = 0x2,
-	TBPF_ERROR         = 0x4,
-	TBPF_PAUSED        = 0x8
-}
-TBPFLAG;
-
-typedef enum TBATFLAG
-{
-	TBATF_USEMDITHUMBNAIL   = 0x1,
-	TBATF_USEMDILIVEPREVIEW = 0x2
-}
-TBATFLAG;
 
 const CLSID CLSID_TaskbarList = {0x56FDF344, 0xFD6D, 0x11d0, {0x95, 0x8A, 0x00, 0x60, 0x97, 0xC9, 0xA0, 0x90}};
 
@@ -416,6 +274,23 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE MarkFullscreenWindow(HWND hwnd,BOOL fFullscreen)=0;
 };
 
+typedef enum TBPFLAG
+{
+	TBPF_NOPROGRESS    = 0,
+	TBPF_INDETERMINATE = 0x1,
+	TBPF_NORMAL        = 0x2,
+	TBPF_ERROR         = 0x4,
+	TBPF_PAUSED        = 0x8
+}
+TBPFLAG;
+
+typedef enum TBATFLAG
+{
+	TBATF_USEMDITHUMBNAIL   = 0x1,
+	TBATF_USEMDILIVEPREVIEW = 0x2
+}
+TBATFLAG;
+
 const IID IID_ITaskbarList3 = {0xEA1AFB91, 0x9E28, 0x4B86, {0x90, 0xE9, 0x9E, 0x9F, 0x8A, 0x5E, 0xEF, 0xAF}};
 DECLARE_INTERFACE_(ITaskbarList3,ITaskbarList2)
 {
@@ -434,17 +309,19 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE SetThumbnailClip(HWND hwnd,RECT *prcClip)=0;
 };
 
-#endif // __ITaskbarList3_INTERFACE_DEFINED__
-
 // will create a compiler error if wrong level of indirection is used.
-template<typename T> void** IID_PPV_ARGS_Helper(T** pp)
+template<typename T>
+void** IID_PPV_ARGS_Helper(T** pp)
 {
 	// make sure everyone derives from IUnknown
 	IUnknown* I = static_cast<IUnknown*>(*pp); I = 0;
 	return reinterpret_cast<void**>(pp);
 }
 
-#define ARRAYSIZE(A) (sizeof(A)/sizeof((A)[0]))
+template <typename T, size_t N>
+char (*RtlpNumberOf(T(&)[N]))[N];
+
+#define ARRAYSIZE(A) (sizeof(*RtlpNumberOf(A)))
 
 // shellapi.h
 #ifndef SEE_MASK_NOASYNC

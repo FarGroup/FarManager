@@ -46,10 +46,10 @@ static unsigned char IsUpperOrLower[256];
 
 void LocalUpperInit()
 {
-	for (unsigned int I=0; I<ARRAYSIZE(LowerToUpper); I++)
+	for (size_t I=0; I<ARRAYSIZE(LowerToUpper); I++)
 	{
-		char CvtStr[]={I,L'\0'},ReverseCvtStr[2];
-		LowerToUpper[I]=UpperToLower[I]=I;
+		char CvtStr[]={static_cast<char>(I), L'\0'}, ReverseCvtStr[2];
+		LowerToUpper[I]=UpperToLower[I]=static_cast<char>(I);
 		OemToCharA(CvtStr,CvtStr);
 		CharToOemA(CvtStr,ReverseCvtStr);
 		IsUpperOrLower[I]=0;
@@ -60,7 +60,7 @@ void LocalUpperInit()
 			CharUpperA(CvtStr);
 			CharToOemA(CvtStr,CvtStr);
 			LowerToUpper[I]=CvtStr[0];
-			CvtStr[0]=I;
+			CvtStr[0]=static_cast<char>(I);
 			OemToCharA(CvtStr,CvtStr);
 			CharLowerA(CvtStr);
 			CharToOemA(CvtStr,CvtStr);

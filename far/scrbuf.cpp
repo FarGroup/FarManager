@@ -110,7 +110,7 @@ void ScreenBuf::FillBuf()
 {
 	CriticalSectionLock Lock(CS);
 	COORD BufferSize={BufX, BufY}, BufferCoord={0, 0};
-	SMALL_RECT ReadRegion={0, 0, BufX-1, BufY-1};
+	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(BufX-1), static_cast<SHORT>(BufY-1)};
 	Console.ReadOutput(Buf, BufferSize, BufferCoord, ReadRegion);
 	memcpy(Shadow,Buf,BufX*BufY*sizeof(FAR_CHAR_INFO));
 	SBFlags.Set(SBFLAGS_USESHADOW);
@@ -404,7 +404,7 @@ void ScreenBuf::Flush()
 				{
 					//Для полного избавления от артефактов ClearType будем перерисовывать на всю ширину.
 					//Чревато тормозами/миганием в зависимости от конфигурации системы.
-					SMALL_RECT WriteRegion={0,0,BufX-1,0};
+					SMALL_RECT WriteRegion={0,0,static_cast<SHORT>(BufX-1),0};
 
 					for (SHORT I=0; I<BufY; I++, PtrBuf+=BufX, PtrShadow+=BufX)
 					{
@@ -429,7 +429,7 @@ void ScreenBuf::Flush()
 				else
 				{
 					bool Started=false;
-					SMALL_RECT WriteRegion={BufX-1,BufY-1,0,0};
+					SMALL_RECT WriteRegion={static_cast<SHORT>(BufX-1),static_cast<SHORT>(BufY-1),0,0};
 
 					for (SHORT I=0; I<BufY; I++)
 					{
@@ -489,7 +489,7 @@ void ScreenBuf::Flush()
 			else
 			{
 				Changes=true;
-				SMALL_RECT WriteRegion={0,0,BufX-1,BufY-1};
+				SMALL_RECT WriteRegion={0,0,static_cast<SHORT>(BufX-1),static_cast<SHORT>(BufY-1)};
 				WriteList.Push(&WriteRegion);
 			}
 

@@ -4442,7 +4442,7 @@ void Dialog::ResizeConsole()
 		Hide();
 	}
 
-	COORD c = {ScrX+1, ScrY+1};
+	COORD c = {static_cast<SHORT>(ScrX+1), static_cast<SHORT>(ScrY+1)};
 	SendDlgMessage(static_cast<HANDLE>(this), DN_RESIZECONSOLE, 0, &c);
 
 	int x1, y1, x2, y2;

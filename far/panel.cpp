@@ -449,7 +449,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if (!(DiskMask & 1))   //нету диска
 				continue;
 
-			wchar_t Drv[]={L'&',L'A'+I,L':',L'\\',L'\0'};
+			wchar_t Drv[]={L'&',static_cast<wchar_t>(L'A'+I),L':',L'\\',L'\0'};
 			strRootDir=Drv+1;
 			Drv[3]=L' ';
 			strMenuText=Drv;

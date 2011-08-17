@@ -1018,7 +1018,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	FF->GetColors(&Colors);
 	HighlightDlgUpdateUserControl(VBufColorExample,Colors);
 	FilterDlg[ID_HER_COLOREXAMPLE].VBuf=VBufColorExample;
-	wchar_t MarkChar[] = {(wchar_t)Colors.MarkChar&0x0000FFFF, 0};
+	wchar_t MarkChar[] = {static_cast<wchar_t>(Colors.MarkChar), 0};
 	FilterDlg[ID_HER_MARKEDIT].strData=MarkChar;
 	FilterDlg[ID_HER_MARKTRANSPARENT].Selected=(Colors.MarkChar&0xFF0000?1:0);
 	FilterDlg[ID_HER_CONTINUEPROCESSING].Selected=(FF->GetContinueProcessing()?1:0);

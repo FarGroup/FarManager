@@ -35,14 +35,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "colormix.hpp"
 
-int Colors::FarColorToConsoleColor(const FarColor& Color)
+WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 {
 	static FARCOLORFLAGS Flags[2] = {FCF_BG_4BIT, FCF_FG_4BIT};
 	static int Shifts[2] = {ConsoleBgShift, ConsoleFgShift};
 	static int BlueMask = 1, GreenMask = 2, RedMask = 4, IntensityMask = 8;
 	static BYTE IndexColors[2] = {};
 	static COLORREF LastTrueColors[2] = {};
-	static int Result = 0;
+	static WORD Result = 0;
 	if(Color.BackgroundColor != LastTrueColors[0] || Color.ForegroundColor != LastTrueColors[1])
 	{
 		COLORREF TrueColors[] = {Color.BackgroundColor, Color.ForegroundColor};
@@ -136,7 +136,7 @@ int Colors::FarColorToConsoleColor(const FarColor& Color)
 	return Result;
 }
 
-void Colors::ConsoleColorToFarColor(int Color,FarColor& NewColor)
+void Colors::ConsoleColorToFarColor(WORD Color,FarColor& NewColor)
 {
 	NewColor.Flags=FCF_FG_4BIT|FCF_BG_4BIT;
 	NewColor.ForegroundColor=(Color>>ConsoleFgShift)&ConsoleMask;

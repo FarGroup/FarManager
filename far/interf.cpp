@@ -277,7 +277,7 @@ void ChangeVideoMode(int Maximized)
 
 void ChangeVideoMode(int NumLines,int NumColumns)
 {
-	int xSize=NumColumns,ySize=NumLines;
+	short xSize=NumColumns,ySize=NumLines;
 
 	COORD Size;
 	Console.GetSize(Size);
@@ -501,7 +501,7 @@ void GetCursorType(bool& Visible, DWORD& Size)
 
 void MoveRealCursor(int X,int Y)
 {
-	COORD C={X,Y};
+	COORD C={static_cast<SHORT>(X),static_cast<SHORT>(Y)};
 	Console.SetCursorPosition(C);
 }
 

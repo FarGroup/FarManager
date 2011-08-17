@@ -400,7 +400,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 	CompletedSize>>=8;
 	TotalSize>>=8;
 	CompletedSize=Min(CompletedSize,TotalSize);
-	COORD BarCoord={Rect.Left+5,Rect.Top+(TotalProgress?8:6)};
+	COORD BarCoord={static_cast<SHORT>(Rect.Left+5),static_cast<SHORT>(Rect.Top+(TotalProgress?8:6))};
 	size_t BarLength=Rect.Right-Rect.Left-9-5; //-5 для процентов
 	size_t Length=TotalSize?static_cast<size_t>((TotalSize<1000000?CompletedSize:CompletedSize/100)*BarLength/(TotalSize<1000000?TotalSize:TotalSize/100)):BarLength;
 
