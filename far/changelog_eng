@@ -3,6 +3,33 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 17.08.2011 15:43:18 +0200 - build 2153
+
+1. Smart ARRAYSIZE() for gcc.
+
+2. Ñ++0x warnings.
+
+3. makefile_gcc can work without msys.
+
+svs 16.08.2011 14:08:31 +0300 - build 2152
+
+1. Mantis#0001843: Panel displaying error on menu.show
+   (from DAtaMan)
+
+     macro:post menu.Show("AAA\r\nBBB")
+     while the menu is active, change something in the folder that is opened on the panel
+     the panel is reread, updated and overwrites the menu partially (over the panel)
+
+svs 16.08.2011 12:50:50 +0300 - build 2151
+
+1. Mantis#0001848: The macro area is corrupted after return from modal editor
+
+svs 16.08.2011 11:17:45 +0300 - build 2150
+
+1. Mantis#0001852: Timer macro command
+   (DAtaMan + svs)
+   "Far.UpTime" variable is added - how much time (in milliseconds) the Far Manager instance has been running.
+
 drkns 15.08.2011 14:46:13 +0200 - build 2149
 
 1. File highlighting storage format is changed. The old highlight.db must be deleted.
