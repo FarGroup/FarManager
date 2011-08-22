@@ -1,31 +1,30 @@
 enum
 {
-  MFileCase,
+	MFileCase,
 
-  MOk,
-  MCancel,
-  MReset,
+	MOk,
+	MCancel,
+	MReset,
 
-  MName,
-  MExtension,
+	MName,
+	MExtension,
 
-  MLower,
-  MUpper,
-  MFirst,
-  MTitle,
-  MNone,
-  MLowerExt,
-  MUpperExt,
-  MFirstExt,
-  MTitleExt,
-  MNoneExt,
+	MLower,
+	MUpper,
+	MFirst,
+	MTitle,
+	MNone,
+	MLowerExt,
+	MUpperExt,
+	MFirstExt,
+	MTitleExt,
+	MNoneExt,
 
-  MSkipMixedCase,
-  MProcessSubDir,
-  MProcessDir,
-  MWordDiv,
+	MSkipMixedCase,
+	MProcessSubDir,
+	MProcessDir,
+	MWordDiv,
 
-  MConverting,
-  MCurRun,
-
+	MConverting,
+	MCurRun,
 };
