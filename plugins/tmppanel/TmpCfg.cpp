@@ -112,7 +112,7 @@ int Config()
 		if (StartupOptFullScreenPanel!=Opt.FullScreenPanel || StartupOptCommonPanel!=Opt.CommonPanel)
 		{
 			const wchar_t *MsgItems[]={GetMsg(MTempPanel),GetMsg(MConfigNewOption),GetMsg(MOk)};
-			Info.Message(&MainGuid,0,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
+			Info.Message(&MainGuid, nullptr,0,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
 		}
 		return TRUE;
 	}

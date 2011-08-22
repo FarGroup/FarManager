@@ -82,7 +82,7 @@ void GoToFile(const wchar_t *Target, BOOL AnotherPanel)
 	PRI.CurrentItem=PInfo.CurrentItem;
 	PRI.TopPanelItem=PInfo.TopPanelItem;
 
-	for (int J=0; J < PInfo.ItemsNumber; J++)
+	for (size_t J=0; J < PInfo.ItemsNumber; J++)
 	{
 		size_t Size=Info.PanelControl(_PANEL_HANDLE,FCTL_GETPANELITEM,J,0);
 		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
@@ -157,7 +157,7 @@ wchar_t* FormNtPath(const wchar_t* path, StrBuf& buf)
 wchar_t* ExpandEnvStrs(const wchar_t* input, StrBuf& output)
 {
 	output.Grow(NT_MAX_PATH);
-	int size = ExpandEnvironmentStrings(input, output, output.Size());
+	size_t size = ExpandEnvironmentStrings(input, output, output.Size());
 
 	if (size > output.Size())
 	{

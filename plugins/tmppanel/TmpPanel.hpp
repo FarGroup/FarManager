@@ -64,7 +64,7 @@ class StrBuf
 {
 	private:
 		wchar_t *ptr;
-		int len;
+		size_t len;
 
 	private:
 		StrBuf(const StrBuf &);
@@ -72,15 +72,15 @@ class StrBuf
 
 	public:
 		StrBuf() { ptr = NULL; len = 0; }
-		StrBuf(int len) { ptr = NULL; Reset(len); }
+		StrBuf(size_t len) { ptr = NULL; Reset(len); }
 		~StrBuf() { free(ptr); }
 
 	public:
-		void Reset(int len) { if (ptr) free(ptr); ptr = (wchar_t *) malloc(len * sizeof(wchar_t)); *ptr = 0; this->len = len; }
-		void Grow(int len) { if (len > this->len) Reset(len); }
+		void Reset(size_t len) { if (ptr) free(ptr); ptr = (wchar_t *) malloc(len * sizeof(wchar_t)); *ptr = 0; this->len = len; }
+		void Grow(size_t len) { if (len > this->len) Reset(len); }
 		operator wchar_t*() { return ptr; }
 		wchar_t *Ptr() { return ptr; }
-		int Size() const { return len; }
+		size_t Size() const { return len; }
 };
 
 class PtrGuard

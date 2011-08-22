@@ -317,7 +317,7 @@ static void ShowMenuFromList(wchar_t *Name)
 		FSF.TruncPathStr(Title,64);
 		FarKey BreakKeys[]={{VK_RETURN,SHIFT_PRESSED}, {0,0}};
 		int BreakCode;
-		int ExitCode=Info.Menu(&MainGuid, -1, -1, 0,
+		int ExitCode=Info.Menu(&MainGuid, nullptr, -1, -1, 0,
 		                       FMENU_WRAPMODE, Title, NULL, L"Contents",
 		                       &BreakKeys[0], &BreakCode, fmi, argc);
 
