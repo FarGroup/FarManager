@@ -2,45 +2,45 @@
  * Константы для извлечения строк из .lng файла
  ****************************************************************************/
 enum CompareLng {
-  MNoLngStringDefined = -1,
+	MNoLngStringDefined = -1,
 
-  MOK,
-  MCancel,
+	MOK,
+	MCancel,
 
-  MCompare,
+	MCompare,
 
-  MCmpTitle,
-  MProcessBox,
-  MProcessSubfolders,
-  MUseMaxScanDepth,
-  MProcessSelected,
-  MCompareBox,
-  MCompareTime,
-  MCompareLowPrecision,
-  MCompareIgnoreTimeZone,
-  MCompareSize,
-  MCompareContents,
-  MCompareContentsIgnore,
-  MCompareIgnoreNewLines,
-  MCompareIgnoreWhitespace,
-  MMessageWhenNoDiff,
+	MCmpTitle,
+	MProcessBox,
+	MProcessSubfolders,
+	MUseMaxScanDepth,
+	MProcessSelected,
+	MCompareBox,
+	MCompareTime,
+	MCompareLowPrecision,
+	MCompareIgnoreTimeZone,
+	MCompareSize,
+	MCompareContents,
+	MCompareContentsIgnore,
+	MCompareIgnoreNewLines,
+	MCompareIgnoreWhitespace,
+	MMessageWhenNoDiff,
 
-  MFilePanelsRequired,
+	MFilePanelsRequired,
 
-  MComparing,
-  MComparingWith,
+	MComparing,
+	MComparingWith,
 
-  MComparingFiles,
+	MComparingFiles,
 
-  MNoDiffTitle,
-  MNoDiffBody,
+	MNoDiffTitle,
+	MNoDiffBody,
 
-  MNoMemTitle,
-  MNoMemBody,
+	MNoMemTitle,
+	MNoMemBody,
 
-  MEscTitle,
-  MEscBody,
+	MEscTitle,
+	MEscBody,
 
-  MOpenErrorTitle,
-  MOpenErrorBody,
+	MOpenErrorTitle,
+	MOpenErrorBody,
 };
