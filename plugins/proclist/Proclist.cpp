@@ -174,7 +174,7 @@ static void dynamic_bind(void)
 
 int Message(unsigned Flags, wchar_t *HelpTopic, LPCTSTR*Items, int nItems, int nButtons)
 {
-	return Info.Message(&MainGuid, Flags, HelpTopic, Items, nItems, nButtons);
+	return Info.Message(&MainGuid, nullptr, Flags, HelpTopic, Items, nItems, nButtons);
 }
 
 //-----------------------------------------------------------------------------

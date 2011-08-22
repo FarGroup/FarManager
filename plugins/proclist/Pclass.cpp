@@ -91,7 +91,7 @@ Plist::Plist()
 
 	int Plist::Menu(unsigned int Flags, const wchar_t *Title, const wchar_t *Bottom, wchar_t *HelpTopic, const struct FarKey *BreakKeys, FarMenuItem *Item, int ItemsNumber)
 	{
-		return (*Info.Menu)(&MainGuid, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys, 0, Item, ItemsNumber);
+		return (*Info.Menu)(&MainGuid, nullptr, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys, 0, Item, ItemsNumber);
 	}
 
 void Plist::InitializePanelModes()
@@ -497,7 +497,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 			cDescMode = p[1];
 	}
 
-	for (int i = 0; i < ItemsNumber; i++)
+	for (size_t i = 0; i < ItemsNumber; i++)
 	{
 		PluginPanelItem &CurItem = pPanelItem[i];
 		ProcessData & pdata = *((ProcessData *)CurItem.UserData);
@@ -1430,7 +1430,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		const int N = ARRAYSIZE(PrClasses);
 		DebugToken token;
 
-		for (int i=0; i<PInfo.SelectedItemsNumber; i++)
+		for (size_t i=0; i<PInfo.SelectedItemsNumber; i++)
 		{
 			PluginPanelItem* _Item=reinterpret_cast<PluginPanelItem*>(Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,0));
 			PluginPanelItem& Item=*_Item;
