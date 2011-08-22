@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2111
+  Plugin API for Far Manager 3.0 build 2154
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2111
+#define FARMANAGERVERSION_BUILD 2154
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -61,16 +61,39 @@ other possible license with no implications from the above license on them.
 
 typedef unsigned __int64 FARCOLORFLAGS;
 static const FARCOLORFLAGS
-	FCF_FG_4BIT  = 0x0000000000000001ULL,
-	FCF_BG_4BIT  = 0x0000000000000002ULL;
+	FCF_NONE          = 0,
+	FCF_FG_4BIT       = 0x0000000000000001ULL,
+	FCF_BG_4BIT       = 0x0000000000000002ULL,
+
+	FCF_4BITMASK      = 0x0000000000000003ULL, // FCF_FG_4BIT|FCF_BG_4BIT
+
+	FCF_EXTENDEDFLAGS = 0xFFFFFFFFFFFFFFFCULL, // ~FCF_4BITMASK
+
+	FCF_FG_BOLD       = 0x1000000000000000ULL,
+	FCF_FG_ITALIC     = 0x2000000000000000ULL,
+	FCF_FG_UNDERLINE  = 0x4000000000000000ULL,
+	FCF_STYLEMASK     = 0x7000000000000000ULL; // FCF_FG_BOLD|FCF_FG_ITALIC|FCF_FG_UNDERLINE
 
 struct FarColor
 {
-	unsigned __int64 Flags;
-	unsigned int ForegroundColor;
-	unsigned int BackgroundColor;
+	FARCOLORFLAGS Flags;
+	COLORREF ForegroundColor;
+	COLORREF BackgroundColor;
 	void* Reserved;
 };
+
+#define INDEXMASK 0x0000000f
+#define COLORMASK 0x00ffffff
+#define ALPHAMASK 0xff000000
+
+#define INDEXVALUE(x) ((x)&INDEXMASK)
+#define COLORVALUE(x) ((x)&COLORMASK)
+#define ALPHAVALUE(x) ((x)&ALPHAMASK)
+
+#define IS_OPAQUE(x) (ALPHAVALUE(x)==ALPHAMASK)
+#define IS_TRANSPARENT(x) (!ALPHAVALUE(x))
+#define MAKE_OPAQUE(x) (x|=ALPHAMASK)
+#define MAKE_TRANSPARENT(x) (x&=COLORMASK)
 
 typedef unsigned __int64 COLORDIALOGFLAGS;
 static const COLORDIALOGFLAGS
@@ -167,6 +190,8 @@ static const FARDIALOGITEMFLAGS
 	DIF_DROPDOWNLIST          = 0x0000000000100000ULL,
 	DIF_USELASTHISTORY        = 0x0000000000200000ULL,
 	DIF_MASKEDIT              = 0x0000000000400000ULL,
+	DIF_LISTTRACKMOUSE        = 0x0000000000400000ULL,
+	DIF_LISTTRACKMOUSEINFOCUS = 0x0000000000800000ULL,
 	DIF_SELECTONENTRY         = 0x0000000000800000ULL,
 	DIF_3STATE                = 0x0000000000800000ULL,
 	DIF_EDITPATH              = 0x0000000001000000ULL,
@@ -246,7 +271,6 @@ enum FARMESSAGE
 	DM_SETITEMDATA,
 
 	DM_LISTSET,
-	DM_LISTSETMOUSEREACTION,
 
 	DM_GETCURSORSIZE,
 	DM_SETCURSORSIZE,
@@ -303,13 +327,6 @@ enum FARCHECKEDSTATE
 	BSTATE_TOGGLE    = 3,
 };
 
-enum FARLISTMOUSEREACTIONTYPE
-{
-	LMRT_ONLYFOCUS   = 0,
-	LMRT_ALWAYS      = 1,
-	LMRT_NEVER       = 2,
-};
-
 enum FARCOMBOBOXEVENTTYPE
 {
 	CBET_KEY         = 0x00000001,
@@ -331,7 +348,7 @@ struct FarListItem
 {
 	LISTITEMFLAGS Flags;
 	const wchar_t *Text;
-	DWORD Reserved[3];
+	DWORD_PTR Reserved[3];
 };
 
 struct FarListUpdate
@@ -369,7 +386,7 @@ struct FarListFind
 	int StartIndex;
 	const wchar_t *Pattern;
 	FARLISTFINDFLAGS Flags;
-	DWORD Reserved;
+	DWORD_PTR Reserved;
 };
 
 struct FarListDelete
@@ -395,7 +412,7 @@ struct FarListInfo
 	int TopPos;
 	int MaxHeight;
 	int MaxLength;
-	DWORD Reserved[6];
+	DWORD_PTR Reserved[6];
 };
 
 struct FarListItemData
@@ -403,7 +420,7 @@ struct FarListItemData
 	int Index;
 	size_t DataSize;
 	void *Data;
-	DWORD Reserved;
+	DWORD_PTR Reserved;
 };
 
 struct FarList
@@ -440,10 +457,10 @@ struct FarDialogItem
 	int X1,Y1,X2,Y2;
 	union
 	{
-		DWORD_PTR Reserved;
 		int Selected;
 		struct FarList *ListItems;
 		struct FAR_CHAR_INFO *VBuf;
+		DWORD_PTR Reserved;
 	}
 #ifndef __cplusplus
 	Param
@@ -487,7 +504,7 @@ struct DialogInfo
 struct FarGetDialogItem
 {
 	size_t Size;
-	FarDialogItem* Item;
+	struct FarDialogItem* Item;
 };
 
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
@@ -560,7 +577,7 @@ typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
     const wchar_t        *HelpTopic,
     const struct FarDialogItem *Item,
     size_t                ItemsNumber,
-    DWORD                 Reserved,
+    DWORD_PTR             Reserved,
     FARDIALOGFLAGS        Flags,
     FARWINDOWPROC         DlgProc,
     void*                 Param
@@ -595,7 +612,7 @@ struct FarMenuItem
 	MENUITEMFLAGS Flags;
 	const wchar_t *Text;
 	DWORD AccelKey;
-	DWORD Reserved;
+	DWORD_PTR Reserved;
 	DWORD_PTR UserData;
 };
 
@@ -657,7 +674,7 @@ struct PluginPanelItem
 struct FarGetPluginPanelItem
 {
 	size_t Size;
-	PluginPanelItem* Item;
+	struct PluginPanelItem* Item;
 };
 
 typedef unsigned __int64 PANELINFOFLAGS;
@@ -721,7 +738,7 @@ struct PanelInfo
 	int ViewMode;
 	enum OPENPANELINFO_SORTMODES SortMode;
 	PANELINFOFLAGS Flags;
-	DWORD Reserved;
+	DWORD_PTR Reserved;
 };
 
 
@@ -782,7 +799,7 @@ enum FILE_CONTROL_COMMANDS
 typedef void (WINAPI *FARAPITEXT)(
     int X,
     int Y,
-    const FarColor* Color,
+    const struct FarColor* Color,
     const wchar_t *Str
 );
 
@@ -1024,7 +1041,6 @@ static const FARKEYMACROFLAGS
 	KMFLAGS_NONE                = 0,
 	KMFLAGS_DISABLEOUTPUT       = 0x0000000000000001,
 	KMFLAGS_NOSENDKEYSTOPLUGINS = 0x0000000000000002,
-	KMFLAGS_REG_MULTI_SZ        = 0x0000000000100000,
 	KMFLAGS_SILENTCHECK         = 0x0000000000000001;
 
 enum FARMACROSENDSTRINGCOMMAND
@@ -1124,7 +1140,7 @@ struct FarSetColors
 	FARSETCOLORFLAGS Flags;
 	size_t StartIndex;
 	size_t ColorsCount;
-	FarColor* Colors;
+	struct FarColor* Colors;
 };
 
 enum WINDOWINFO_TYPE
@@ -1217,7 +1233,7 @@ struct ViewerSetMode
 #endif
 	;
 	VIEWER_SETMODEFLAGS_TYPES Flags;
-	DWORD Reserved;
+	DWORD_PTR Reserved;
 };
 
 struct ViewerSelect
@@ -1246,7 +1262,7 @@ struct ViewerMode
 	int Wrap;
 	int WordWrap;
 	int Hex;
-	DWORD Reserved[4];
+	DWORD_PTR Reserved[4];
 };
 
 struct ViewerInfo
@@ -1365,14 +1381,14 @@ struct EditorSetParameter
 	{
 		int iParam;
 		wchar_t *wszParam;
-		DWORD Reserved1;
+		DWORD_PTR Reserved;
 	}
 #ifndef __cplusplus
 	Param
 #endif
 	;
 	unsigned __int64 Flags;
-	DWORD Size;
+	size_t Size;
 };
 
 
@@ -1467,7 +1483,7 @@ struct EditorInfo
 	int BookMarkCount;
 	DWORD CurState;
 	UINT CodePage;
-	DWORD Reserved[5];
+	DWORD_PTR Reserved[5];
 };
 
 struct EditorBookMarks
@@ -1476,7 +1492,7 @@ struct EditorBookMarks
 	int *Cursor;
 	int *ScreenLine;
 	int *LeftPos;
-	DWORD Reserved[4];
+	DWORD_PTR Reserved[4];
 };
 
 struct EditorSetPosition
