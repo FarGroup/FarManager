@@ -131,7 +131,7 @@ int ShowMenu(int Type)
   int Ret;
   while(1)
   {
-    Ret=Info.Menu(&MainGuid,-1,-1,0,FMENU_WRAPMODE,GetMsg(MTitle),NULL,HelpTopic[Type&1],NULL,NULL,shMenu,ARRAYSIZE(shMenu));
+    Ret=Info.Menu(&MainGuid, nullptr,-1,-1,0,FMENU_WRAPMODE,GetMsg(MTitle),NULL,HelpTopic[Type&1],NULL,NULL,shMenu,ARRAYSIZE(shMenu));
 
     if(Ret == 3)
       Config();
