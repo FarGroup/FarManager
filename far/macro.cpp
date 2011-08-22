@@ -120,6 +120,7 @@ TMacroKeywords MKeywords[] =
 	{2,  L"Far.Height",         MCODE_V_FAR_HEIGHT,0},
 	{2,  L"Far.Title",          MCODE_V_FAR_TITLE,0},
 	{2,  L"Far.UpTime",         MCODE_V_FAR_UPTIME,0},
+	{2,  L"Far.PID",            MCODE_V_FAR_PID,0},
 	{2,  L"MacroArea",          MCODE_V_MACROAREA,0},
 
 	{2,  L"ItemCount",          MCODE_V_ITEMCOUNT,0},  // ItemCount - число элементов в текущем объекте
@@ -1068,6 +1069,9 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_FAR_TITLE:
 					Console.GetTitle(strFileName);
 					Cond=strFileName.CPtr();
+					break;
+				case MCODE_V_FAR_PID:
+					Cond=(__int64)GetCurrentProcessId();
 					break;
 				case MCODE_V_FAR_UPTIME:
 				{

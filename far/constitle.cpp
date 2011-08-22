@@ -52,8 +52,9 @@ static const string& GetFarTitleAddons()
 		%Build    - 1259
 		%Platform - x86
 		%Admin    - MFarTitleAddonsAdmin
+		%PID      - current PID
     */
-	static FormatString strVer, strBuild;
+	static FormatString strVer, strBuild, strPID;
 	static bool bFirstRun = true;
 	static string strTitleAddons;
 
@@ -65,8 +66,10 @@ static const string& GetFarTitleAddons()
 		bFirstRun = false;
 		strVer<<FAR_VERSION.Major<<L"."<<FAR_VERSION.Minor;
 		strBuild<<FAR_VERSION.Build;
+		strPID<<GetCurrentProcessId();
 	}
 
+	ReplaceStrings(strTitleAddons,L"%PID",strPID,-1,true);
 	ReplaceStrings(strTitleAddons,L"%Ver",strVer,-1,true);
 	ReplaceStrings(strTitleAddons,L"%Build",strBuild,-1,true);
 	ReplaceStrings(strTitleAddons,L"%Platform",

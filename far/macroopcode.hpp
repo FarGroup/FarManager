@@ -290,6 +290,7 @@ enum MACRO_OP_CODE
 	MCODE_V_FAR_HEIGHT,               // Far.Height - высота консольного окна
 	MCODE_V_FAR_TITLE,                // Far.Title - текущий заголовок консольного окна
 	MCODE_V_FAR_UPTIME,               // Far.UpTime - время работы Far в миллисекундах
+	MCODE_V_FAR_PID,                  // Far.PID - содержит ИД текущей запущенной копии Far Manager
 	MCODE_V_MACROAREA,                // MacroArea - имя текущей макрос области
 
 	MCODE_V_APANEL_CURRENT,           // APanel.Current - имя файла на активной панели

@@ -2290,10 +2290,12 @@ or the drive selection menu (if the Network plugin is not available).
   #Far window title addons#
   Дополнительная информация, выводимая в заголовке окна консоли.
 Может содержать любой текст, включая следующие переменные:
-  #%Ver# - версия Far;
-  #%Build# - номер сборки Far;
-  #%Platform# - архитектура Far;
-  #%Admin# - слово "Администратор", если Far запущен от имени администратора, иначе пустая строка.
+  - #%Ver# - версия Far;
+  - #%Build# - номер сборки Far;
+  - #%Platform# - архитектура Far;
+  - #%Admin# - ^<wrap>слово "Администратор", если Far запущен от имени администратора, иначе пустая строка.
+  - #%PID# - ИД текущего процесса Far;
+
 
 @DialogSettings
 $ #Settings dialog: dialogs#
