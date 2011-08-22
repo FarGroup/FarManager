@@ -106,7 +106,7 @@ LPCWSTR CPlugin::GetMsg(int nMsgId)
 int CPlugin::Message(DWORD nFlags, LPCWSTR szHelpTopic, const LPCWSTR* pItems, int nItemsNumber, int nButtonsNumber)
 {
   if (m_Silent) return -1;
-  return PluginStartupInfo::Message(&MainGuid, nFlags, szHelpTopic, pItems, nItemsNumber, nButtonsNumber);
+  return PluginStartupInfo::Message(&MainGuid, nullptr, nFlags, szHelpTopic, pItems, nItemsNumber, nButtonsNumber);
 }
 
 INT_PTR WINAPI CPlugin::CfgDlgProcStatic(HANDLE hDlg, int Msg, int Param1, void *Param2)
@@ -644,7 +644,7 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
     *ppFiles=new LPCWSTR[pi.SelectedItemsNumber];
     SelectedItemsCount=(int)pi.SelectedItemsNumber;
     SelectedItems=new PluginPanelItem*[SelectedItemsCount];
-    for (int i=0; i<pi.SelectedItemsNumber; i++)
+    for (size_t i=0; i<pi.SelectedItemsNumber; i++)
     {
       size_t SelSize = PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,i,NULL);
       SelectedItems[i]=(PluginPanelItem*)new char[SelSize];
@@ -851,13 +851,13 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
     }
     if (lstrcmpA(szVerb, "rename")==0)
     {
-      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, 0, L"F6"};
+      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, {0}, L"F6"};
       MacroControl(NULL, MCTL_SENDSTRING, MSSC_POST, &mcmd);
       return DOMENU_CANCELLED;
     }
     if (m_DelUsingFar && lstrcmpA(szVerb, "delete")==0)
     {
-      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, 0, L"F8"};
+      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, {0}, L"F8"};
       if (GetKeyState(VK_LSHIFT)&0x8000 || GetKeyState(VK_RSHIFT)&0x8000)
       {
         mcmd.SequenceText=L"ShiftDel";

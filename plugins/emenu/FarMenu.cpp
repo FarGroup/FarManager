@@ -206,7 +206,7 @@ int CFarMenu::Show(LPCWSTR szTitle, int nSelItem/*=0*/, bool bAtCursorPos/*=fals
   while (1)
   {
     SetSelectedItem(nSelItem);
-    nSelItem=thePlug->Menu(&MainGuid, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, NULL, m_szHelp, pBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
+    nSelItem=thePlug->Menu(&MainGuid, nullptr, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, NULL, m_szHelp, pBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
     if (-1==nBreakCode) return nSelItem;
     assert(-1!=nSelItem);
     switch (pBreakKeys[nBreakCode].VirtualKeyCode)
