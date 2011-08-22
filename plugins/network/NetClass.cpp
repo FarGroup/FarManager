@@ -249,7 +249,7 @@ BOOL NetBrowser::EnumerateNetList()
 		if (PCurResource == NULL)
 		{
 			const wchar_t *MsgItems[]={GetMsg(MError),GetMsg(MNetCannotBrowse),GetMsg(MOk)};
-			Info.Message(&MainGuid,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
+			Info.Message(&MainGuid, nullptr,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
 			return(FALSE);
 		}
 		else
@@ -365,7 +365,7 @@ int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,OP
 		if (!ConnectedList.Enumerate(RESOURCE_CONNECTED,RESOURCETYPE_DISK,0,NULL))
 		{
 			const wchar_t *MsgItems[]={GetMsg(MError),GetMsg(MNetCannotBrowse),GetMsg(MOk)};
-			Info.Message(&MainGuid,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
+			Info.Message(&MainGuid, nullptr,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
 			ReenterGetFindData--;
 			return FALSE;
 		}
@@ -529,7 +529,7 @@ BOOL NetBrowser::CancelConnection(const wchar_t *RemoteName)
 		{
 			const wchar_t *MsgItems[]={GetMsg(MError),MsgText,L"\x1",GetMsg(MOpenFiles),GetMsg(MAskDisconnect),GetMsg(MOk),GetMsg(MCancel)};
 
-			if (Info.Message(&MainGuid,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),2)==0)
+			if (Info.Message(&MainGuid, nullptr,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),2)==0)
 
 				// всегда рвать соединение
 				if (WNetCancelConnection2(LocalName,UpdateProfile,TRUE)!=NO_ERROR)
@@ -541,7 +541,7 @@ BOOL NetBrowser::CancelConnection(const wchar_t *RemoteName)
 		if (Failed)
 		{
 			const wchar_t *MsgItems[]={GetMsg(MError),MsgText,GetMsg(MOk)};
-			Info.Message(&MainGuid,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
+			Info.Message(&MainGuid, nullptr,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
 			return FALSE;
 		}
 	}
@@ -587,7 +587,7 @@ BOOL NetBrowser::GetDriveToDisconnect(const wchar_t *RemoteName, wchar_t *LocalN
 			lstrcat(MsgText, L"\n");
 		}
 
-		int index = Info.Message(&MainGuid, FMSG_ALLINONE, NULL,
+		int index = Info.Message(&MainGuid, nullptr, FMSG_ALLINONE, NULL,
 		                         (const wchar_t **) MsgText, 3+LocalNameCount, LocalNameCount);
 
 		if (index < 0)
@@ -923,7 +923,7 @@ int NetBrowser::SetDirectory(const wchar_t *Dir,OPERATION_MODES OpMode)
 					_sntprintf(szErrBuff, ARRAYSIZE(szErrBuff), L"GetLastError = %d at line %d, file %s", GetLastError(), __LINE__, __FILE__);
 					LogData(szErrBuff);
 #endif
-					Info.Message(&MainGuid, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
+					Info.Message(&MainGuid, nullptr, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
 					             NULL, (const wchar_t **) GetMsg(MError), 0, 0);
 					return FALSE;
 				}
@@ -988,7 +988,7 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t *Dir, int IsFind, int IsExplici
 						lstrcpy(NewDir,LocalName);
 					else
 					{
-						Info.Message(&MainGuid, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
+						Info.Message(&MainGuid, nullptr, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
 						             NULL, (const wchar_t **) GetMsg(MError), 0, 0);
 						return TRUE;
 					}
@@ -1023,7 +1023,7 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t *Dir, int IsFind, int IsExplici
 							ChangeDirSuccess = FALSE;
 
 							if (GetLastError() != ERROR_CANCELLED)
-								Info.Message(&MainGuid, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
+								Info.Message(&MainGuid, nullptr, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
 								             NULL, (const wchar_t **) GetMsg(MError), 0, 0);
 
 							return TRUE;
@@ -1047,7 +1047,7 @@ BOOL NetBrowser::ChangeToDirectory(const wchar_t *Dir, int IsFind, int IsExplici
 				if (!ChangeDirSuccess)
 				{
 					if (GetLastError() != ERROR_CANCELLED)
-						Info.Message(&MainGuid, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
+						Info.Message(&MainGuid, nullptr, FMSG_WARNING | FMSG_ERRORTYPE | FMSG_MB_OK | FMSG_ALLINONE,
 						             NULL, (const wchar_t **) GetMsg(MError), 0, 0);
 
 					return FALSE;
@@ -1351,6 +1351,7 @@ BOOL NetBrowser::EditFavorites()
 			case RESOURCEDISPLAYTYPE_DOMAIN:
 				Info.Message(
 				    &MainGuid,
+				    nullptr,
 				    FMSG_ALLINONE,
 				    L"Data",
 				    (const wchar_t * const *)L"This is a domain",
@@ -1359,6 +1360,7 @@ BOOL NetBrowser::EditFavorites()
 			case RESOURCEDISPLAYTYPE_SERVER:
 				Info.Message(
 				    &MainGuid,
+				    nullptr,
 				    FMSG_ALLINONE,
 				    L"Data",
 				    (const wchar_t * const *)L"This is a SERVER",
@@ -1367,6 +1369,7 @@ BOOL NetBrowser::EditFavorites()
 			default:
 				Info.Message(
 				    &MainGuid,
+				    nullptr,
 				    FMSG_ALLINONE,
 				    L"Data",
 				    (const wchar_t * const *)szPath,
@@ -1531,14 +1534,14 @@ BOOL NetBrowser::MapNetworkDrive(const wchar_t *RemoteName, BOOL AskDrive, BOOL 
 					if (*NewLocalName==0)
 					{
 						const wchar_t *MsgItems[]={GetMsg(MError),GetMsg(MNoFreeLetters),GetMsg(MOk)};
-						Info.Message(&MainGuid,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
+						Info.Message(&MainGuid, nullptr,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
 						return FALSE;
 					}
 				}
 				else
 				{
 					const wchar_t *MsgItems[]={GetMsg(MError),GetMsg(MAlreadyRemembered),GetMsg(MOk)};
-					Info.Message(&MainGuid,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
+					Info.Message(&MainGuid, nullptr,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
 					return FALSE;
 				}
 			}
@@ -1547,7 +1550,7 @@ BOOL NetBrowser::MapNetworkDrive(const wchar_t *RemoteName, BOOL AskDrive, BOOL 
 				wchar_t MsgText[300];
 				FSF.sprintf(MsgText,GetMsg(MNetCannotConnect),RemoteName,NewLocalName);
 				const wchar_t *MsgItems[]={GetMsg(MError),MsgText,GetMsg(MOk)};
-				Info.Message(&MainGuid,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
+				Info.Message(&MainGuid, nullptr,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
 				return FALSE;
 			}
 		}
@@ -1555,7 +1558,7 @@ BOOL NetBrowser::MapNetworkDrive(const wchar_t *RemoteName, BOOL AskDrive, BOOL 
 	else
 	{
 		const wchar_t *MsgItems[]={GetMsg(MError),GetMsg(MNoFreeLetters),GetMsg(MOk)};
-		Info.Message(&MainGuid,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
+		Info.Message(&MainGuid, nullptr,FMSG_WARNING|FMSG_ERRORTYPE,NULL,MsgItems,ARRAYSIZE(MsgItems),1);
 		return FALSE;
 	}
 
@@ -1604,7 +1607,7 @@ BOOL NetBrowser::AskMapDrive(wchar_t *NewLocalName, BOOL &Permanent)
 
 		FarKey BreakKeys[]={{VK_F6,0}, {0,0}};
 		int BreakCode;
-		ExitCode=Info.Menu(&MainGuid,-1,-1,0,0,
+		ExitCode=Info.Menu(&MainGuid, nullptr,-1,-1,0,0,
 		                   MenuTitle,MenuBottom,StrHelpNetBrowse,
 		                   BreakKeys,&BreakCode,MenuItems,MenuItemsNumber);
 
@@ -2079,7 +2082,7 @@ int NetBrowser::GotoComputer(const wchar_t *Dir)
 			if (!((AddConnectionFromFavorites(&res)||AddConnectionExplicit(&res))&&IsResourceReadable(res)))
 			{
 				if (GetLastError() != ERROR_CANCELLED)
-					Info.Message(&MainGuid, FMSG_WARNING|FMSG_ERRORTYPE|FMSG_MB_OK|FMSG_ALLINONE,
+					Info.Message(&MainGuid, nullptr, FMSG_WARNING|FMSG_ERRORTYPE|FMSG_MB_OK|FMSG_ALLINONE,
 					             NULL, (const wchar_t **) GetMsg(MError), 0, 0);
 
 				return FALSE;
@@ -2217,7 +2220,7 @@ void NetBrowser::RemoveItems()
 	Msg[2] = GetMsg(MOk);
 	Msg[3] = GetMsg(MCancel);
 
-	if (0 != Info.Message(&MainGuid, FMSG_WARNING, L"RemoveItemFav", Msg,
+	if (0 != Info.Message(&MainGuid, nullptr, FMSG_WARNING, L"RemoveItemFav", Msg,
 	                      ARRAYSIZE(Msg), 2))
 	{
 		return; // User canceled deletion

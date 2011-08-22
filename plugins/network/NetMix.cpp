@@ -9,7 +9,7 @@ TSaveScreen::TSaveScreen()
 {
 	hScreen=Info.SaveScreen(0,0,-1,-1);
 	const wchar_t *MsgItems[]={GetMsg(MWaitForNetworkBrowse1),GetMsg(MWaitForNetworkBrowse2)};
-	Info.Message(&MainGuid,0,NULL,MsgItems,ARRAYSIZE(MsgItems),0);
+	Info.Message(&MainGuid, nullptr,0,NULL,MsgItems,ARRAYSIZE(MsgItems),0);
 }
 
 TSaveScreen::~TSaveScreen()

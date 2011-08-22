@@ -41,6 +41,7 @@ int WINAPI ConfigureW(const ConfigureInfo* Info)
 BOOL DlgCreateFolder(wchar_t* lpBuffer, int nBufferSize)
 {
 	BOOL res = Info.InputBox(&MainGuid,
+	                         nullptr,
 	                         L"Make Folder",
 	                         L"Folder name:",
 	                         L"NewFolder",
