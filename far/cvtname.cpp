@@ -355,17 +355,17 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 
 	if (Path.GetLength() >= cVolumeGuidLen && Path.IsSubStrAt(0, L"\\\\?\\Volume"))
 	{
-		if (ifn.pfnGetVolumePathNamesForVolumeName)
+		if (ifn.GetVolumePathNamesForVolumeNamePresent())
 		{
 			DWORD BufSize = NT_MAX_PATH;
 			string PathNames;
 			DWORD RetSize;
-			BOOL Res = ifn.pfnGetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+			BOOL Res = ifn.GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
 
 			if (!Res && RetSize > BufSize)
 			{
 				BufSize = RetSize;
-				Res = ifn.pfnGetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
+				Res = ifn.GetVolumePathNamesForVolumeName(ExtractPathRoot(Path), PathNames.GetBuffer(BufSize), BufSize, &RetSize);
 			}
 
 			if (Res)

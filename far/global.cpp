@@ -115,4 +115,4 @@ FormatScreen FS;
 
 DWORD ErrorMode;
 
-__int64 FarUpTime;
+LARGE_INTEGER FarUpTime;

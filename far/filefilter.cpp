@@ -606,9 +606,7 @@ void FileFilter::UpdateCurrentTime()
 	FILETIME cft;
 	GetSystemTime(&cst);
 	SystemTimeToFileTime(&cst, &cft);
-	ULARGE_INTEGER current;
-	current.u.LowPart  = cft.dwLowDateTime;
-	current.u.HighPart = cft.dwHighDateTime;
+	ULARGE_INTEGER current = {cft.dwLowDateTime, cft.dwHighDateTime};
 	CurrentTime = current.QuadPart;
 }
 

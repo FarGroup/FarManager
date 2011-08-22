@@ -33,16 +33,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-class Event
+class Event:NonCopyable
 {
 public:
-	Event(bool ManualReset=false, bool InitialState=false) {hEvent=CreateEvent(nullptr, ManualReset, InitialState, nullptr);};
-	~Event() {CloseHandle(hEvent);};
-	bool Set() const {return SetEvent(hEvent)!=FALSE;};
-	bool Reset() const {return ResetEvent(hEvent)!=FALSE;};
-	bool Wait(DWORD Milliseconds=INFINITE) const {return WaitForSingleObject(hEvent, Milliseconds)==WAIT_OBJECT_0;};
-	bool Signaled() const {return Wait(0);};
-	HANDLE Handle() const {return hEvent;};
+	Event(bool ManualReset=false, bool InitialState=false) {hEvent=CreateEvent(nullptr, ManualReset, InitialState, nullptr);}
+	~Event() {CloseHandle(hEvent);}
+	bool Set() const {return SetEvent(hEvent)!=FALSE;}
+	bool Reset() const {return ResetEvent(hEvent)!=FALSE;}
+	bool Wait(DWORD Milliseconds=INFINITE) const {return WaitForSingleObject(hEvent, Milliseconds)==WAIT_OBJECT_0;}
+	bool Signaled() const {return Wait(0);}
+	HANDLE Handle() const {return hEvent;}
 
 private:
 	HANDLE hEvent;

@@ -310,16 +310,13 @@ void InfoList::DisplayObject()
 		strOutStr.Format(L"%d%%",ms.dwMemoryLoad);
 		PrintInfo(strOutStr);
 
-		if(ifn.pfnGetPhysicallyInstalledSystemMemory)
+		ULONGLONG TotalMemoryInKilobytes=0;
+		if(ifn.GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
 		{
-			ULONGLONG TotalMemoryInKilobytes=0;
-			if(ifn.pfnGetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
-			{
-				GotoXY(X1+2,CurY++);
-				PrintText(MInfoMemoryInstalled);
-				InsertCommas(TotalMemoryInKilobytes<<10,strOutStr);
-				PrintInfo(strOutStr);
-			}
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoMemoryInstalled);
+			InsertCommas(TotalMemoryInKilobytes<<10,strOutStr);
+			PrintInfo(strOutStr);
 		}
 
 		GotoXY(X1+2,CurY++);

@@ -380,7 +380,7 @@ bool File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, L
 
 bool File::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
-	DWORD Result = ifn.pfnGetStorageDependencyInformation?ifn.pfnGetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed):ERROR_CALL_NOT_IMPLEMENTED;
+	DWORD Result = ifn.GetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
@@ -397,8 +397,8 @@ bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 		NameString.MaximumLength = NameString.Length;
 		pNameString = &NameString;
 	}
-	NTSTATUS Result = ifn.pfnNtQueryDirectoryFile?ifn.pfnNtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan):STATUS_NOT_IMPLEMENTED;
-	SetLastError(ifn.pfnRtlNtStatusToDosError(Result));
+	NTSTATUS Result = ifn.NtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
+	SetLastError(ifn.RtlNtStatusToDosError(Result));
 	return Result == STATUS_SUCCESS;
 }
 
@@ -425,7 +425,7 @@ bool File::Eof()
 
 NTSTATUS GetLastNtStatus()
 {
-	return ifn.pfnRtlGetLastNtStatus?ifn.pfnRtlGetLastNtStatus():STATUS_SUCCESS;
+	return ifn.RtlGetLastNtStatusPresent()?ifn.RtlGetLastNtStatus():STATUS_SUCCESS;
 }
 
 BOOL apiDeleteFile(const wchar_t *lpwszFileName)
@@ -872,47 +872,28 @@ BOOL apiGetDiskSize(const wchar_t *Path,unsigned __int64 *TotalSize, unsigned __
 	return ExitCode;
 }
 
-HANDLE apiFindFirstFileName(LPCWSTR lpFileName,DWORD dwFlags,string& strLinkName)
+HANDLE apiFindFirstFileName(LPCWSTR lpFileName, DWORD dwFlags, string& strLinkName)
 {
 	HANDLE hRet=INVALID_HANDLE_VALUE;
-
-	if (ifn.pfnFindFirstFileNameW)
+	DWORD StringLength=0;
+	NTPath strFileName(lpFileName);
+	if (ifn.FindFirstFileNameW(strFileName, 0, &StringLength, nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
 	{
-		DWORD StringLength=0;
-
-		if (ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
-		{
-			hRet=ifn.pfnFindFirstFileNameW(NTPath(lpFileName),0,&StringLength,strLinkName.GetBuffer(StringLength));
-			strLinkName.ReleaseBuffer();
-		}
+		hRet=ifn.FindFirstFileNameW(strFileName, 0, &StringLength, strLinkName.GetBuffer(StringLength));
+		strLinkName.ReleaseBuffer();
 	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	}
-
 	return hRet;
 }
 
-BOOL apiFindNextFileName(HANDLE hFindStream,string& strLinkName)
+BOOL apiFindNextFileName(HANDLE hFindStream, string& strLinkName)
 {
 	BOOL Ret=FALSE;
-
-	if (ifn.pfnFindFirstFileNameW)
+	DWORD StringLength=0;
+	if (!ifn.FindNextFileNameW(hFindStream, &StringLength, nullptr) && GetLastError()==ERROR_MORE_DATA)
 	{
-		DWORD StringLength=0;
-
-		if (!ifn.pfnFindNextFileNameW(hFindStream,&StringLength,nullptr) && GetLastError()==ERROR_MORE_DATA)
-		{
-			Ret=ifn.pfnFindNextFileNameW(hFindStream,&StringLength,strLinkName.GetBuffer(StringLength));
-			strLinkName.ReleaseBuffer();
-		}
+		Ret=ifn.FindNextFileNameW(hFindStream, &StringLength, strLinkName.GetBuffer(StringLength));
+		strLinkName.ReleaseBuffer();
 	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	}
-
 	return Ret;
 }
 
@@ -958,8 +939,7 @@ BOOL apiSetFileAttributes(LPCWSTR lpFileName,DWORD dwFileAttributes)
 
 bool CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags)
 {
-	return ifn.pfnCreateSymbolicLink?
-		ifn.pfnCreateSymbolicLink(Object, Target, dwFlags) != FALSE:
+	return ifn.CreateSymbolicLink(Object, Target, dwFlags) != FALSE ||
 		CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 }
 
@@ -1013,13 +993,13 @@ BOOL apiCreateHardLink(LPCWSTR lpFileName,LPCWSTR lpExistingFileName,LPSECURITY_
 HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
 {
 	HANDLE Ret=INVALID_HANDLE_VALUE;
-	if (ifn.pfnFindFirstStreamW)
+	if(ifn.FindFirstStreamWPresent())
 	{
-		Ret=ifn.pfnFindFirstStreamW(NTPath(lpFileName),InfoLevel,lpFindStreamData,dwFlags);
+		Ret=ifn.FindFirstStreamW(NTPath(lpFileName),InfoLevel,lpFindStreamData,dwFlags);
 	}
 	else
 	{
-		if (InfoLevel==FindStreamInfoStandard && ifn.pfnNtQueryInformationFile)
+		if (InfoLevel==FindStreamInfoStandard)
 		{
 			PSEUDO_HANDLE* Handle=new PSEUDO_HANDLE;
 			if(Handle)
@@ -1045,7 +1025,7 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 							StreamInfo->StreamNameLength = 0;
 
 							IO_STATUS_BLOCK IoStatusBlock;
-							Result = ifn.pfnNtQueryInformationFile(Handle->ObjectHandle, &IoStatusBlock, Handle->BufferBase, Handle->BufferSize, FileStreamInformation);
+							Result = ifn.NtQueryInformationFile(Handle->ObjectHandle, &IoStatusBlock, Handle->BufferBase, Handle->BufferSize, FileStreamInformation);
 						}
 					}
 					while(Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL);
@@ -1077,10 +1057,6 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 				}
 			}
 		}
-		else
-		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-		}
 	}
 
 	return Ret;
@@ -1089,35 +1065,26 @@ HANDLE apiFindFirstStream(LPCWSTR lpFileName,STREAM_INFO_LEVELS InfoLevel,LPVOID
 BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 {
 	BOOL Ret=FALSE;
-
-	if (ifn.pfnFindFirstStreamW)
+	if(ifn.FindFirstStreamWPresent())
 	{
-		Ret=ifn.pfnFindNextStreamW(hFindStream,lpFindStreamData);
+		Ret=ifn.FindNextStreamW(hFindStream,lpFindStreamData);
 	}
 	else
 	{
-		if (ifn.pfnNtQueryInformationFile)
-		{
-			PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(hFindStream);
+		PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(hFindStream);
 
-			if (Handle->NextOffset)
+		if (Handle->NextOffset)
+		{
+			PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(reinterpret_cast<LPBYTE>(Handle->BufferBase)+Handle->NextOffset);
+			PWIN32_FIND_STREAM_DATA pFsd=static_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
+			Handle->NextOffset = pStreamInfo->NextEntryOffset?Handle->NextOffset+pStreamInfo->NextEntryOffset:0;
+			if (pStreamInfo->StreamNameLength && pStreamInfo->StreamNameLength < sizeof(pFsd->cStreamName))
 			{
-				PFILE_STREAM_INFORMATION pStreamInfo=reinterpret_cast<PFILE_STREAM_INFORMATION>(reinterpret_cast<LPBYTE>(Handle->BufferBase)+Handle->NextOffset);
-				PWIN32_FIND_STREAM_DATA pFsd=static_cast<PWIN32_FIND_STREAM_DATA>(lpFindStreamData);
-				Handle->NextOffset = pStreamInfo->NextEntryOffset?Handle->NextOffset+pStreamInfo->NextEntryOffset:0;
-
-				if (pStreamInfo->StreamNameLength && pStreamInfo->StreamNameLength < sizeof(pFsd->cStreamName))
-				{
-					memcpy(pFsd->cStreamName,pStreamInfo->StreamName,pStreamInfo->StreamNameLength);
-					pFsd->cStreamName[pStreamInfo->StreamNameLength/sizeof(WCHAR)]=L'\0';
-					pFsd->StreamSize=pStreamInfo->StreamSize;
-					Ret=TRUE;
-				}
+				memcpy(pFsd->cStreamName,pStreamInfo->StreamName,pStreamInfo->StreamNameLength);
+				pFsd->cStreamName[pStreamInfo->StreamNameLength/sizeof(WCHAR)]=L'\0';
+				pFsd->StreamSize=pStreamInfo->StreamSize;
+				Ret=TRUE;
 			}
-		}
-		else
-		{
-			SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		}
 	}
 
@@ -1128,7 +1095,7 @@ BOOL apiFindStreamClose(HANDLE hFindStream)
 {
 	BOOL Ret=FALSE;
 
-	if (ifn.pfnFindFirstStreamW)
+	if(ifn.FindFirstStreamWPresent())
 	{
 		Ret=FindClose(hFindStream);
 	}
@@ -1165,130 +1132,107 @@ bool apiGetLogicalDriveStrings(string& DriveStrings)
 
 bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
-	if (ifn.pfnNtQueryObject)
+	ULONG RetLen;
+	ULONG BufSize = NT_MAX_PATH;
+	OBJECT_NAME_INFORMATION* oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
+	NTSTATUS Res = ifn.NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+
+	if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
 	{
-		ULONG RetLen;
-		ULONG BufSize = NT_MAX_PATH;
-		OBJECT_NAME_INFORMATION* oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
-		NTSTATUS Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
-
-		if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
-		{
-			BufSize = RetLen;
-			oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
-			Res = ifn.pfnNtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
-		}
-
-		string NtPath;
-
-		if (Res == STATUS_SUCCESS)
-		{
-			NtPath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
-		}
-
-		xf_free(oni);
-
-		FinalFilePath.Clear();
-
-		if (Res == STATUS_SUCCESS)
-		{
-			// simple way to handle network paths
-			if (NtPath.IsSubStrAt(0, L"\\Device\\LanmanRedirector"))
-				FinalFilePath = NtPath.Replace(0, 24, L'\\');
-
-			if (FinalFilePath.IsEmpty())
-			{
-				// try to convert NT path (\Device\HarddiskVolume1) to drive letter
-				string DriveStrings;
-
-				if (apiGetLogicalDriveStrings(DriveStrings))
-				{
-					wchar_t DiskName[3] = L"A:";
-					const wchar_t* Drive = DriveStrings.CPtr();
-
-					while (*Drive)
-					{
-						DiskName[0] = *Drive;
-						int Len = MatchNtPathRoot(NtPath, DiskName);
-
-						if (Len)
-						{
-							if (NtPath.IsSubStrAt(0, L"\\Device\\WinDfs"))
-								FinalFilePath = NtPath.Replace(0, Len, L'\\');
-							else
-								FinalFilePath = NtPath.Replace(0, Len, DiskName);
-							break;
-						}
-
-						Drive += StrLength(Drive) + 1;
-					}
-				}
-			}
-
-			if (FinalFilePath.IsEmpty())
-			{
-				// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
-				wchar_t VolumeName[cVolumeGuidLen + 1 + 1];
-				HANDLE hEnum = FindFirstVolumeW(VolumeName, ARRAYSIZE(VolumeName));
-				BOOL Res = hEnum != INVALID_HANDLE_VALUE;
-
-				while (Res)
-				{
-					if (StrLength(VolumeName) >= (int)cVolumeGuidLen)
-					{
-						DeleteEndSlash(VolumeName);
-						int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
-
-						if (Len)
-						{
-							FinalFilePath = NtPath.Replace(0, Len, VolumeName);
-							break;
-						}
-					}
-
-					Res = FindNextVolumeW(hEnum, VolumeName, ARRAYSIZE(VolumeName));
-				}
-
-				if (hEnum != INVALID_HANDLE_VALUE)
-					FindVolumeClose(hEnum);
-			}
-		}
-
-		return !FinalFilePath.IsEmpty();
+		BufSize = RetLen;
+		oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
+		Res = ifn.NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
 	}
 
+	string NtPath;
+
+	if (Res == STATUS_SUCCESS)
+	{
+		NtPath.Copy(oni->Name.Buffer, oni->Name.Length / sizeof(WCHAR));
+	}
+
+	xf_free(oni);
+
 	FinalFilePath.Clear();
-	return false;
+
+	if (Res == STATUS_SUCCESS)
+	{
+		// simple way to handle network paths
+		if (NtPath.IsSubStrAt(0, L"\\Device\\LanmanRedirector"))
+			FinalFilePath = NtPath.Replace(0, 24, L'\\');
+
+		if (FinalFilePath.IsEmpty())
+		{
+			// try to convert NT path (\Device\HarddiskVolume1) to drive letter
+			string DriveStrings;
+
+			if (apiGetLogicalDriveStrings(DriveStrings))
+			{
+				wchar_t DiskName[3] = L"A:";
+				const wchar_t* Drive = DriveStrings.CPtr();
+
+				while (*Drive)
+				{
+					DiskName[0] = *Drive;
+					int Len = MatchNtPathRoot(NtPath, DiskName);
+
+					if (Len)
+					{
+						if (NtPath.IsSubStrAt(0, L"\\Device\\WinDfs"))
+							FinalFilePath = NtPath.Replace(0, Len, L'\\');
+						else
+							FinalFilePath = NtPath.Replace(0, Len, DiskName);
+						break;
+					}
+
+					Drive += StrLength(Drive) + 1;
+				}
+			}
+		}
+
+		if (FinalFilePath.IsEmpty())
+		{
+			// try to convert NT path (\Device\HarddiskVolume1) to \\?\Volume{...} path
+			wchar_t VolumeName[cVolumeGuidLen + 1 + 1];
+			HANDLE hEnum = FindFirstVolumeW(VolumeName, ARRAYSIZE(VolumeName));
+			BOOL Res = hEnum != INVALID_HANDLE_VALUE;
+
+			while (Res)
+			{
+				if (StrLength(VolumeName) >= (int)cVolumeGuidLen)
+				{
+					DeleteEndSlash(VolumeName);
+					int Len = MatchNtPathRoot(NtPath, VolumeName + 4 /* w/o prefix */);
+
+					if (Len)
+					{
+						FinalFilePath = NtPath.Replace(0, Len, VolumeName);
+						break;
+					}
+				}
+
+				Res = FindNextVolumeW(hEnum, VolumeName, ARRAYSIZE(VolumeName));
+			}
+
+			if (hEnum != INVALID_HANDLE_VALUE)
+				FindVolumeClose(hEnum);
+		}
+	}
+
+	return !FinalFilePath.IsEmpty();
 }
 
 bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
-	if (ifn.pfnGetFinalPathNameByHandle)
+	if (ifn.GetFinalPathNameByHandlePresent())
 	{
 		DWORD BufLen = NT_MAX_PATH;
-		DWORD Len;
-
-		// It is known that GetFinalPathNameByHandle crashes on Windows 7 with Ext2FSD
-		__try
-		{
-			Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
-		}
-		__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
-		{
-			Len = 0;
-		}
+		DWORD Len = ifn.GetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
 
 		if (Len > BufLen)
 		{
 			BufLen = Len;
-			__try
-			{
-				Len = ifn.pfnGetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
-			}
-			__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
-			{
-				Len = 0;
-			}
+			Len = ifn.GetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
 		}
 
 		if (Len <= BufLen)
@@ -1347,7 +1291,8 @@ bool apiGetVolumeNameForVolumeMountPoint(LPCWSTR VolumeMountPoint,string& strVol
 
 void apiEnableLowFragmentationHeap()
 {
-	if (ifn.pfnHeapSetInformation) {
+	if (ifn.HeapSetInformationPresent())
+	{
 		DWORD NumHeaps = GetProcessHeaps(0, nullptr);
 		if (NumHeaps == 0)
 			return;
@@ -1358,7 +1303,7 @@ void apiEnableLowFragmentationHeap()
 		for (DWORD i = 0; i < NumHeaps; i++)
 		{
 			ULONG HeapFragValue = 2;
-			ifn.pfnHeapSetInformation(Heaps[i], HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
+			ifn.HeapSetInformation(Heaps[i], HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
 		}
 		delete[] Heaps;
 	}
@@ -1367,38 +1312,35 @@ void apiEnableLowFragmentationHeap()
 bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccessTime, LPFILETIME LastWriteTime, LPFILETIME ChangeTime)
 {
 	bool Result = false;
-	if(ifn.pfnNtQueryInformationFile)
+	const ULONG Length = 40;
+	BYTE Buffer[Length] = {};
+	PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
+	IO_STATUS_BLOCK IoStatusBlock;
+	NTSTATUS Status = ifn.NtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
+	SetLastError(ifn.RtlNtStatusToDosError(Status));
+	if (Status == STATUS_SUCCESS)
 	{
-		const ULONG Length = 40;
-		BYTE Buffer[Length] = {};
-		PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
-		IO_STATUS_BLOCK IoStatusBlock;
-		NTSTATUS Status = ifn.pfnNtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-		SetLastError(ifn.pfnRtlNtStatusToDosError(Status));
-		if (Status == STATUS_SUCCESS)
+		if(CreationTime)
 		{
-			if(CreationTime)
-			{
-				CreationTime->dwLowDateTime = fbi->CreationTime.LowPart;
-				CreationTime->dwHighDateTime = fbi->CreationTime.HighPart;
-			}
-			if(LastAccessTime)
-			{
-				LastAccessTime->dwLowDateTime = fbi->LastAccessTime.LowPart;
-				LastAccessTime->dwHighDateTime = fbi->LastAccessTime.HighPart;
-			}
-			if(LastWriteTime)
-			{
-				LastWriteTime->dwLowDateTime = fbi->LastWriteTime.LowPart;
-				LastWriteTime->dwHighDateTime = fbi->LastWriteTime.HighPart;
-			}
-			if(ChangeTime)
-			{
-				ChangeTime->dwLowDateTime = fbi->ChangeTime.LowPart;
-				ChangeTime->dwHighDateTime = fbi->ChangeTime.HighPart;
-			}
-			Result = true;
+			CreationTime->dwLowDateTime = fbi->CreationTime.LowPart;
+			CreationTime->dwHighDateTime = fbi->CreationTime.HighPart;
 		}
+		if(LastAccessTime)
+		{
+			LastAccessTime->dwLowDateTime = fbi->LastAccessTime.LowPart;
+			LastAccessTime->dwHighDateTime = fbi->LastAccessTime.HighPart;
+		}
+		if(LastWriteTime)
+		{
+			LastWriteTime->dwLowDateTime = fbi->LastWriteTime.LowPart;
+			LastWriteTime->dwHighDateTime = fbi->LastWriteTime.HighPart;
+		}
+		if(ChangeTime)
+		{
+			ChangeTime->dwLowDateTime = fbi->ChangeTime.LowPart;
+			ChangeTime->dwHighDateTime = fbi->ChangeTime.HighPart;
+		}
+		Result = true;
 	}
 	return Result;
 }
@@ -1406,36 +1348,32 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime)
 {
 	bool Result = false;
-	if(ifn.pfnNtSetInformationFile)
+	const ULONG Length = 40;
+	BYTE Buffer[Length] = {};
+	PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
+	if(CreationTime)
 	{
-		const ULONG Length = 40;
-		BYTE Buffer[Length] = {};
-		PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
-
-		if(CreationTime)
-		{
-			fbi->CreationTime.HighPart = CreationTime->dwHighDateTime;
-			fbi->CreationTime.LowPart = CreationTime->dwLowDateTime;
-		}
-		if(LastAccessTime)
-		{
-			fbi->LastAccessTime.HighPart = LastAccessTime->dwHighDateTime;
-			fbi->LastAccessTime.LowPart = LastAccessTime->dwLowDateTime;
-		}
-		if(LastWriteTime)
-		{
-			fbi->LastWriteTime.HighPart = LastWriteTime->dwHighDateTime;
-			fbi->LastWriteTime.LowPart = LastWriteTime->dwLowDateTime;
-		}
-		if(ChangeTime)
-		{
-			fbi->ChangeTime.HighPart = ChangeTime->dwHighDateTime;
-			fbi->ChangeTime.LowPart = ChangeTime->dwLowDateTime;
-		}
-		IO_STATUS_BLOCK IoStatusBlock;
-		NTSTATUS Status = ifn.pfnNtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-		SetLastError(ifn.pfnRtlNtStatusToDosError(Status));
-		Result = Status == STATUS_SUCCESS;
+		fbi->CreationTime.HighPart = CreationTime->dwHighDateTime;
+		fbi->CreationTime.LowPart = CreationTime->dwLowDateTime;
 	}
+	if(LastAccessTime)
+	{
+		fbi->LastAccessTime.HighPart = LastAccessTime->dwHighDateTime;
+		fbi->LastAccessTime.LowPart = LastAccessTime->dwLowDateTime;
+	}
+	if(LastWriteTime)
+	{
+		fbi->LastWriteTime.HighPart = LastWriteTime->dwHighDateTime;
+		fbi->LastWriteTime.LowPart = LastWriteTime->dwLowDateTime;
+	}
+	if(ChangeTime)
+	{
+		fbi->ChangeTime.HighPart = ChangeTime->dwHighDateTime;
+		fbi->ChangeTime.LowPart = ChangeTime->dwLowDateTime;
+	}
+	IO_STATUS_BLOCK IoStatusBlock;
+	NTSTATUS Status = ifn.NtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
+	SetLastError(ifn.RtlNtStatusToDosError(Status));
+	Result = Status == STATUS_SUCCESS;
 	return Result;
 }

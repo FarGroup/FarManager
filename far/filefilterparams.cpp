@@ -358,9 +358,7 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int6
 					ft=&fde.ftLastWriteTime;
 			}
 
-			ULARGE_INTEGER ftime;
-			ftime.u.LowPart  = ft->dwLowDateTime;
-			ftime.u.HighPart = ft->dwHighDateTime;
+			ULARGE_INTEGER ftime = {ft->dwLowDateTime, ft->dwHighDateTime};
 
 			if (FDate.bRelative)
 			{

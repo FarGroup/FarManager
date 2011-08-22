@@ -107,10 +107,10 @@ private:
 
 	bool ReadData(AutoObject& Data) const;
 	bool WriteData(LPCVOID Data, size_t DataSize) const;
-	bool ReadInt(int& Data) const;
-	bool ReadInt64(INT64& Data) const;
-	bool WriteInt(int Data) const;
-	bool WriteInt64(INT64 Data) const;
+	template<typename T>
+	inline bool Read(T& Data) const;
+	template<typename T>
+	inline bool Write(const T& Data) const;
 	bool SendCommand(ELEVATION_COMMAND Command) const;
 	bool ReceiveLastError() const;
 	bool Initialize();

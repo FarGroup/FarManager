@@ -247,10 +247,10 @@ bool GetShellType(const wchar_t *Ext, string &strType,ASSOCIATIONTYPE aType)
 	bool bVistaType = false;
 	strType.Clear();
 
-	if (WinVer.dwMajorVersion >= 6 && ifn.pfnSHCreateAssociationRegistration)
+	if (WinVer.dwMajorVersion >= 6)
 	{
 		IApplicationAssociationRegistration* pAAR;
-		HRESULT hr = ifn.pfnSHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
+		HRESULT hr = ifn.SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
 
 		if (SUCCEEDED(hr))
 		{
@@ -641,7 +641,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 						RedirectionFlag = KEY_WOW64_32KEY;
 #else
 						BOOL Wow64Process = FALSE;
-						if (ifn.pfnIsWow64Process && ifn.pfnIsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
+						if (ifn.IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
 						{
 							RedirectionFlag = KEY_WOW64_64KEY;
 						}

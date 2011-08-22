@@ -176,7 +176,7 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,Repa
 						DWORD Attr = apiGetFileAttributes(Target);
 						Type = ((Attr != INVALID_FILE_ATTRIBUTES) && (Attr&FILE_ATTRIBUTE_DIRECTORY)? RP_SYMLINKDIR : RP_SYMLINKFILE);
 					}
-					if (ifn.pfnCreateSymbolicLink && !ObjectExist)
+					if (ifn.CreateSymbolicLinkPresent() && !ObjectExist)
 					{
 						Result=apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 					}
@@ -452,33 +452,30 @@ bool GetSubstName(int DriveType,const wchar_t *DeviceName, string &strTargetPath
 bool GetVHDName(const wchar_t *DeviceName, string &strVolumePath)
 {
 	bool Result=false;
-	if(ifn.pfnGetStorageDependencyInformation)
+	File Device;
+	if(Device.Open(DeviceName, FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
 	{
-		File Device;
-		if(Device.Open(DeviceName, FILE_READ_ATTRIBUTES,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+		ULONG Size = 1024;
+		PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo = static_cast<PSTORAGE_DEPENDENCY_INFO>(xf_malloc(Size));
+		if(StorageDependencyInfo)
 		{
-			ULONG Size = 1024;
-			PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo = static_cast<PSTORAGE_DEPENDENCY_INFO>(xf_malloc(Size));
-			if(StorageDependencyInfo)
+			StorageDependencyInfo->Version = STORAGE_DEPENDENCY_INFO_VERSION_2;
+			DWORD Used = 0;
+			Result = Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Size, StorageDependencyInfo, &Used);
+			if(!Result && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 			{
-				StorageDependencyInfo->Version = STORAGE_DEPENDENCY_INFO_VERSION_2;
-				DWORD Used = 0;
-				if(!Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Size, StorageDependencyInfo, &Used) && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+				StorageDependencyInfo = static_cast<PSTORAGE_DEPENDENCY_INFO>(xf_realloc(StorageDependencyInfo, Used));
+				if(StorageDependencyInfo)
 				{
-					StorageDependencyInfo = static_cast<PSTORAGE_DEPENDENCY_INFO>(xf_realloc(StorageDependencyInfo, Used));
-					if(StorageDependencyInfo)
-					{
-						Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Used, StorageDependencyInfo, &Used);
-					}
+					Result = Device.GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG_HOST_VOLUMES, Used, StorageDependencyInfo, &Used);
 				}
-				if(GetLastError() == ERROR_SUCCESS)
+			}
+			if(Result)
+			{
+				if(StorageDependencyInfo->NumberEntries)
 				{
-					Result = true;
-					if(StorageDependencyInfo->NumberEntries)
-					{
-						strVolumePath = StorageDependencyInfo->Version2Entries[0].HostVolumeName;
-						strVolumePath += StorageDependencyInfo->Version2Entries[0].DependentVolumeRelativePath;
-					}
+					strVolumePath = StorageDependencyInfo->Version2Entries[0].HostVolumeName;
+					strVolumePath += StorageDependencyInfo->Version2Entries[0].DependentVolumeRelativePath;
 				}
 			}
 		}

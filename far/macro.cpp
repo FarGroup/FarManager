@@ -1075,10 +1075,10 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 					break;
 				case MCODE_V_FAR_UPTIME:
 				{
-					__int64 Frequency, Counter;
-					QueryPerformanceFrequency((LARGE_INTEGER *) &Frequency);
-					QueryPerformanceCounter((LARGE_INTEGER *) &Counter);
-					Cond=((Counter-FarUpTime)*1000)/Frequency;
+					LARGE_INTEGER Frequency, Counter;
+					QueryPerformanceFrequency(&Frequency);
+					QueryPerformanceCounter(&Counter);
+					Cond=((Counter.QuadPart-FarUpTime.QuadPart)*1000)/Frequency.QuadPart;
 					break;
 				}
 				case MCODE_V_MACROAREA:
@@ -2361,17 +2361,14 @@ static bool kbdLayoutFunc(const TMacroFunction*)
 	DWORD dwLayout = (DWORD)VMStack.Pop().getInteger();
 
 	BOOL Ret=TRUE;
-	HKL  Layout=(HKL)0, RetLayout=(HKL)0;
+	HKL  Layout=0, RetLayout=0;
 
-	if (ifn.pfnGetConsoleKeyboardLayoutName)
+	wchar_t LayoutName[1024]={}; // BUGBUG!!!
+	if (ifn.GetConsoleKeyboardLayoutName(LayoutName))
 	{
-		wchar_t LayoutName[1024]={}; // BUGBUG!!!
-		if (ifn.pfnGetConsoleKeyboardLayoutName(LayoutName))
-		{
-			wchar_t *endptr;
-			DWORD res=(DWORD)wcstoul(LayoutName, &endptr, 16);
-			RetLayout=(HKL)(INT_PTR)(HIWORD(res)? res : MAKELONG(res,res));
-		}
+		wchar_t *endptr;
+		DWORD res=wcstoul(LayoutName, &endptr, 16);
+		RetLayout=(HKL)(INT_PTR)(HIWORD(res)? res : MAKELONG(res,res));
 	}
 
 	HWND hWnd = Console.GetWindow();
@@ -4915,9 +4912,7 @@ done:
 		case MCODE_OP_REP:
 		{
 			// получим текущее значение счетчика
-			LARGE_INTEGER Counter;
-			Counter.u.HighPart=GetOpCode(MR,Work.ExecLIBPos);
-			Counter.u.LowPart=GetOpCode(MR,Work.ExecLIBPos+1);
+			LARGE_INTEGER Counter ={GetOpCode(MR,Work.ExecLIBPos+1), GetOpCode(MR,Work.ExecLIBPos)};
 			// и положим его на вершину стека
 			VMStack.Push(Counter.QuadPart);
 			SetMacroConst(constRCounter,Counter.QuadPart);
@@ -5062,18 +5057,16 @@ done:
 		}
 		case MCODE_OP_PUSHFLOAT:
 		{
-			union { struct { DWORD l, h; }; double d; } u;
-			u.h = GetOpCode(MR,Work.ExecLIBPos++);   //???
-			u.l = GetOpCode(MR,Work.ExecLIBPos++);    //???
+			union { struct { DWORD l, h; }; double d; } u = {GetOpCode(MR,Work.ExecLIBPos+1), GetOpCode(MR,Work.ExecLIBPos)};
+			Work.ExecLIBPos+=2;
 			VMStack.Push(u.d);
 			goto begin;
 		}
 		case MCODE_OP_PUSHUNKNOWN:
 		case MCODE_OP_PUSHINT: // ѕоложить целое значение на стек.
 		{
-			LARGE_INTEGER i64;
-			i64.u.HighPart=GetOpCode(MR,Work.ExecLIBPos++);   //???
-			i64.u.LowPart=GetOpCode(MR,Work.ExecLIBPos++);    //???
+			LARGE_INTEGER i64 = {GetOpCode(MR,Work.ExecLIBPos+1), GetOpCode(MR,Work.ExecLIBPos)};
+			Work.ExecLIBPos+=2;
 			TVar *ptrVar=VMStack.Push(i64.QuadPart);
 			if (Key == MCODE_OP_PUSHUNKNOWN)
 				ptrVar->SetType(vtUnknown);

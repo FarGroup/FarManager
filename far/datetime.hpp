@@ -71,10 +71,6 @@ inline unsigned __int64 GetCurrentUTCTimeInUI64()
 {
 	FILETIME Timestamp;
 	GetSystemTimeAsFileTime(&Timestamp); // in UTC
-
-	ULARGE_INTEGER i;
-	i.LowPart = Timestamp.dwLowDateTime;
-	i.HighPart = Timestamp.dwHighDateTime;
-
+	ULARGE_INTEGER i = {Timestamp.dwLowDateTime, Timestamp.dwHighDateTime};
 	return i.QuadPart;
 }

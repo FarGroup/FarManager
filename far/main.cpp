@@ -392,7 +392,7 @@ int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	std::set_new_handler(nullptr);
-	QueryPerformanceCounter((LARGE_INTEGER *) &FarUpTime);
+	QueryPerformanceCounter(&FarUpTime);
 
 	GetVersionEx(&WinVer);
 

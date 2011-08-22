@@ -725,7 +725,7 @@ int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName)
 		OBJECT_ATTRIBUTES ObjAttrs;
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
 		HANDLE hSymLink;
-		NTSTATUS Res = ifn.pfnNtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
+		NTSTATUS Res = ifn.NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
 
 		if (Res == STATUS_SUCCESS)
 		{
@@ -734,14 +734,14 @@ int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName)
 			UNICODE_STRING LinkTarget;
 			LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
 			LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
-			Res = ifn.pfnNtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr);
+			Res = ifn.NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr);
 
 			if (Res == STATUS_SUCCESS)
 			{
 				TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
 			}
 
-			ifn.pfnNtClose(hSymLink);
+			ifn.NtClose(hSymLink);
 
 			if (PathStartsWith(NtPath, TargetPath))
 				return static_cast<int>(TargetPath.GetLength());

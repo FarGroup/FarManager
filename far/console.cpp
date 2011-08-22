@@ -192,19 +192,12 @@ virtual bool GetKeyboardLayoutName(string &strName) const
 {
 	bool Result=false;
 	strName.Clear();
-	if (ifn.pfnGetConsoleKeyboardLayoutName)
+	wchar_t *p = strName.GetBuffer(KL_NAMELENGTH+1);
+	if (p && ifn.GetConsoleKeyboardLayoutName(p))
 	{
-		wchar_t *p = strName.GetBuffer(KL_NAMELENGTH+1);
-		if (p && ifn.pfnGetConsoleKeyboardLayoutName(p))
-		{
-			Result=true;
-		}
-		strName.ReleaseBuffer();
+		Result=true;
 	}
-	else
-	{
-		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-	}
+	strName.ReleaseBuffer();
 	return Result;
 }
 
@@ -602,24 +595,35 @@ virtual short GetDelta() const
 class ExtendedConsoleCore:public ConsoleCore
 {
 public:
-	ExtendedConsoleCore():Module(LoadLibrary(L"extendedconsole.dll"))
+	ExtendedConsoleCore():
+		Module(LoadLibrary(L"extendedconsole.dll")),
+		ImportsPresent(false)
 	{
 		memset(&Imports, 0, sizeof(Imports));
 		if(Module)
 		{
-			Imports.pReadOutput = reinterpret_cast<READOUTPUT>(GetProcAddress(Module, "ReadOutput"));
-			Imports.pWriteOutput = reinterpret_cast<WRITEOUTPUT>(GetProcAddress(Module, "WriteOutput"));
-			Imports.pCommit = reinterpret_cast<COMMIT>(GetProcAddress(Module, "Commit"));
-			Imports.pGetTextAttributes = reinterpret_cast<GETTEXTATTRIBUTES>(GetProcAddress(Module, "GetTextAttributes"));
-			Imports.pSetTextAttributes = reinterpret_cast<SETTEXTATTRIBUTES>(GetProcAddress(Module, "SetTextAttributes"));
-			Imports.pClearExtraRegions = reinterpret_cast<CLEAREXTRAREGIONS>(GetProcAddress(Module, "ClearExtraRegions"));
-			Imports.pGetColorDialog = reinterpret_cast<GETCOLORDIALOG>(GetProcAddress(Module, "GetColorDialog"));
+			InitImport(Imports.pReadOutput, "ReadOutput");
+			InitImport(Imports.pWriteOutput, "WriteOutput");
+			InitImport(Imports.pCommit, "Commit");
+			InitImport(Imports.pGetTextAttributes, "GetTextAttributes");
+			InitImport(Imports.pSetTextAttributes, "SetTextAttributes");
+			InitImport(Imports.pClearExtraRegions, "ClearExtraRegions");
+			InitImport(Imports.pGetColorDialog, "GetColorDialog");
+
+			if(!ImportsPresent)
+			{
+				FreeLibrary(Module);
+				Module = nullptr;
+			}
 		}
 	}
 
 	virtual ~ExtendedConsoleCore()
 	{
-		FreeLibrary(Module);
+		if(Module)
+		{
+			FreeLibrary(Module);
+		}
 	}
 
 	virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const
@@ -721,8 +725,6 @@ public:
 	}
 
 private:
-	HMODULE Module;
-
 	typedef BOOL (WINAPI *READOUTPUT)(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* ReadRegion);
 	typedef BOOL (WINAPI *WRITEOUTPUT)(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT* WriteRegion);
 	typedef BOOL (WINAPI *COMMIT)();
@@ -742,6 +744,19 @@ private:
 		GETCOLORDIALOG pGetColorDialog;
 	}
 	Imports;
+
+	template<typename T>
+	inline void InitImport(T& Address, const char * ProcName)
+	{
+		Address = reinterpret_cast<T>(GetProcAddress(Module, ProcName));
+		if (!ImportsPresent)
+		{
+			ImportsPresent = Address != nullptr;
+		}
+	}
+
+	HMODULE Module;
+	bool ImportsPresent;
 };
 
 

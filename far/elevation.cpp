@@ -111,22 +111,14 @@ bool RawWritePipe(HANDLE Pipe, LPCVOID Data, size_t DataSize)
 	return WriteFile(Pipe, Data, static_cast<DWORD>(DataSize), &n, nullptr) && n==DataSize;
 }
 
-bool ReadPipeInt(HANDLE Pipe, int& Data)
+template<typename T>
+inline bool ReadPipe(HANDLE Pipe, T& Data)
 {
 	return RawReadPipe(Pipe, &Data, sizeof(Data));
 }
 
-bool ReadPipeInt64(HANDLE Pipe, INT64& Data)
-{
-	return RawReadPipe(Pipe, &Data, sizeof(Data));
-}
-
-bool WritePipeInt(HANDLE Pipe, int Data)
-{
-	return RawWritePipe(Pipe, &Data, sizeof(Data));
-}
-
-bool WritePipeInt64(HANDLE Pipe, INT64 Data)
+template<typename T>
+inline bool WritePipe(HANDLE Pipe, const T& Data)
 {
 	return RawWritePipe(Pipe, &Data, sizeof(Data));
 }
@@ -135,7 +127,7 @@ bool ReadPipeData(HANDLE Pipe, AutoObject& Data)
 {
 	bool Result=false;
 	int DataSize=0;
-	if(ReadPipeInt(Pipe, DataSize))
+	if(ReadPipe(Pipe, DataSize))
 	{
 		if(DataSize)
 		{
@@ -159,7 +151,7 @@ bool ReadPipeData(HANDLE Pipe, AutoObject& Data)
 bool WritePipeData(HANDLE Pipe, LPCVOID Data, size_t DataSize)
 {
 	bool Result=false;
-	if(WritePipeInt(Pipe, static_cast<int>(DataSize)))
+	if(WritePipe(Pipe, static_cast<int>(DataSize)))
 	{
 		if(!DataSize || RawWritePipe(Pipe, Data, DataSize))
 		{
@@ -229,35 +221,27 @@ bool elevation::WriteData(LPCVOID Data,size_t DataSize) const
 	return WritePipeData(Pipe, Data, DataSize);
 }
 
-bool elevation::ReadInt(int& Data) const
+template<typename T>
+inline bool elevation::Read(T& Data) const
 {
-	return ReadPipeInt(Pipe, Data);
+	return ReadPipe(Pipe, Data);
 }
 
-bool elevation::ReadInt64(INT64& Data) const
+template<typename T>
+inline bool elevation::Write(const T& Data) const
 {
-	return ReadPipeInt64(Pipe, Data);
-}
-
-bool elevation::WriteInt(int Data) const
-{
-	return WritePipeInt(Pipe, Data);
-}
-
-bool elevation::WriteInt64(INT64 Data) const
-{
-	return WritePipeInt64(Pipe, Data);
+	return WritePipe(Pipe, Data);
 }
 
 bool elevation::SendCommand(ELEVATION_COMMAND Command) const
 {
-	return WritePipeInt(Pipe, Command);
+	return WritePipe(Pipe, Command);
 }
 
 bool elevation::ReceiveLastError() const
 {
 	int LastError = ERROR_SUCCESS;
-	bool Result = ReadPipeInt(Pipe, LastError);
+	bool Result = ReadPipe(Pipe, LastError);
 	SetLastError(LastError);
 	return Result;
 }
@@ -375,7 +359,7 @@ bool elevation::Initialize()
 					DWORD NumberOfBytesTransferred;
 					if(GetOverlappedResult(Pipe, &Overlapped, &NumberOfBytesTransferred, FALSE))
 					{
-						if(ReadPipeInt(Pipe, PID))
+						if(ReadPipe(Pipe, PID))
 						{
 							Result = true;
 						}
@@ -533,7 +517,7 @@ bool elevation::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSEC
 						{
 							// BUGBUG: SecurityAttributes ignored
 							int OpResult=0;
-							if(ReadInt(OpResult))
+							if(Read(OpResult))
 							{
 								if(ReceiveLastError())
 								{
@@ -569,7 +553,7 @@ bool elevation::fRemoveDirectory(LPCWSTR Object)
 					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
 						int OpResult=0;
-						if(ReadInt(OpResult))
+						if(Read(OpResult))
 						{
 							if(ReceiveLastError())
 							{
@@ -604,7 +588,7 @@ bool elevation::fDeleteFile(LPCWSTR Object)
 					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
 						int OpResult=0;
-						if(ReadInt(OpResult))
+						if(Read(OpResult))
 						{
 							if(ReceiveLastError())
 							{
@@ -636,19 +620,19 @@ void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 					if (ReadData(StreamBytesTransferred))
 					{
 						int StreamNumber=0;
-						if (ReadInt(StreamNumber))
+						if (Read(StreamNumber))
 						{
 							int CallbackReason=0;
-							if (ReadInt(CallbackReason))
+							if (Read(CallbackReason))
 							{
 								// BUGBUG: SourceFile, DestinationFile ignored
 								AutoObject Data;
 								if (ReadData(Data))
 								{
 									int Result=ProgressRoutine(*static_cast<PLARGE_INTEGER>(TotalFileSize.Get()), *static_cast<PLARGE_INTEGER>(TotalBytesTransferred.Get()), *static_cast<PLARGE_INTEGER>(StreamSize.Get()), *static_cast<PLARGE_INTEGER>(StreamBytesTransferred.Get()), StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, Data.Get());
-									if(WriteInt(CallbackMagic))
+									if(Write(CallbackMagic))
 									{
-										WriteInt(Result);
+										Write(Result);
 									}
 								}
 							}
@@ -686,17 +670,17 @@ bool elevation::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progres
 								if (WriteData(&Data, sizeof(Data)))
 								{
 									// BUGBUG: Cancel ignored
-									if(WriteInt(Flags))
+									if(Write(Flags))
 									{
 										int OpResult=0;
-										if(ReadInt(OpResult))
+										if(Read(OpResult))
 										{
 											if (OpResult == CallbackMagic)
 											{
 												while(OpResult == CallbackMagic)
 												{
 													fCallbackRoutine(ProgressRoutine);
-													ReadInt(OpResult);
+													Read(OpResult);
 												}
 											}
 											if(OpResult != CallbackMagic)
@@ -738,10 +722,10 @@ bool elevation::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 					{
 						if(WriteData(To,To?(StrLength(To)+1)*sizeof(WCHAR):0))
 						{
-							if(WriteInt(Flags))
+							if(Write(Flags))
 							{
 								int OpResult=0;
-								if(ReadInt(OpResult))
+								if(Read(OpResult))
 								{
 									if(ReceiveLastError())
 									{
@@ -778,7 +762,7 @@ DWORD elevation::fGetFileAttributes(LPCWSTR Object)
 					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
 						int OpResult=0;
-						if(ReadInt(OpResult))
+						if(Read(OpResult))
 						{
 							if(ReceiveLastError())
 							{
@@ -812,10 +796,10 @@ bool elevation::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 				{
 					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						if(WriteInt(FileAttributes))
+						if(Write(FileAttributes))
 						{
 							int OpResult=0;
-							if(ReadInt(OpResult))
+							if(Read(OpResult))
 							{
 								if(ReceiveLastError())
 								{
@@ -854,7 +838,7 @@ bool elevation::fCreateHardLink(LPCWSTR Object, LPCWSTR Target, LPSECURITY_ATTRI
 						{
 							// BUGBUG: SecurityAttributes ignored.
 							int OpResult=0;
-							if(ReadInt(OpResult))
+							if(Read(OpResult))
 							{
 								if(ReceiveLastError())
 								{
@@ -891,10 +875,10 @@ bool elevation::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 					{
 						if(WriteData(Target,Target?(StrLength(Target)+1)*sizeof(WCHAR):0))
 						{
-							if(WriteInt(Flags))
+							if(Write(Flags))
 							{
 								int OpResult=0;
-								if(ReadInt(OpResult))
+								if(Read(OpResult))
 								{
 									if(ReceiveLastError())
 									{
@@ -936,10 +920,10 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 							if(WriteData(FileOpStruct.pTo,FileOpStruct.pTo?(StrLength(FileOpStruct.pTo)+1+1)*sizeof(WCHAR):0)) // achtung! +1
 							{
 								int OpResult=0;
-								if(ReadInt(OpResult))
+								if(Read(OpResult))
 								{
 									// achtung! no "last error" here
-									if(ReadInt(FileOpStruct.fAnyOperationsAborted))
+									if(Read(FileOpStruct.fAnyOperationsAborted))
 									{
 										Result = OpResult;
 									}
@@ -976,7 +960,7 @@ bool elevation::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 						if(WriteData(Owner,Owner?(StrLength(Owner)+1)*sizeof(WCHAR):0))
 						{
 							int OpResult=0;
-							if(ReadInt(OpResult))
+							if(Read(OpResult))
 							{
 								if(ReceiveLastError())
 								{
@@ -1011,14 +995,14 @@ HANDLE elevation::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 				{
 					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
 					{
-						if(WriteInt(DesiredAccess))
+						if(Write(DesiredAccess))
 						{
-							if(WriteInt(ShareMode))
+							if(Write(ShareMode))
 							{
 								// BUGBUG: SecurityAttributes ignored
-								if(WriteInt(CreationDistribution))
+								if(Write(CreationDistribution))
 								{
-									if(WriteInt(FlagsAndAttributes))
+									if(Write(FlagsAndAttributes))
 									{
 										// BUGBUG: TemplateFile ignored
 										AutoObject OpResult;
@@ -1046,7 +1030,7 @@ bool ElevationRequired(ELEVATION_MODE Mode)
 	bool Result = false;
 	if(Opt.CurrentElevationMode&Mode)
 	{
-		if(ifn.pfnRtlGetLastNtStatus)
+		if(ifn.RtlGetLastNtStatusPresent())
 		{
 			NTSTATUS LastNtStatus = GetLastNtStatus();
 			Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
@@ -1085,7 +1069,7 @@ bool Process(int Command);
 DWORD WINAPI ElevationCopyProgressRoutine(LARGE_INTEGER TotalFileSize, LARGE_INTEGER TotalBytesTransferred, LARGE_INTEGER StreamSize, LARGE_INTEGER StreamBytesTransferred, DWORD StreamNumber, DWORD CallbackReason, HANDLE SourceFile,HANDLE DestinationFile, LPVOID Data)
 {
 	int Result=0;
-	if (WritePipeInt(Pipe, CallbackMagic))
+	if (WritePipe(Pipe, CallbackMagic))
 	{
 		if (WritePipeData(Pipe, &TotalFileSize, sizeof(TotalFileSize)))
 		{
@@ -1095,19 +1079,19 @@ DWORD WINAPI ElevationCopyProgressRoutine(LARGE_INTEGER TotalFileSize, LARGE_INT
 				{
 					if (WritePipeData(Pipe, &StreamBytesTransferred, sizeof(StreamBytesTransferred)))
 					{
-						if (WritePipeInt(Pipe, StreamNumber))
+						if (WritePipe(Pipe, StreamNumber))
 						{
-							if (WritePipeInt(Pipe, CallbackReason))
+							if (WritePipe(Pipe, CallbackReason))
 							{
 								// BUGBUG: SourceFile, DestinationFile ignored
 								if (WritePipeData(Pipe, &Data, sizeof(Data)))
 								{
 									for(;;)
 									{
-										ReadPipeInt(Pipe, Result);
+										ReadPipe(Pipe, Result);
 										if (Result == CallbackMagic)
 										{
-											ReadPipeInt(Pipe, Result);
+											ReadPipe(Pipe, Result);
 											break;
 										}
 										else
@@ -1138,9 +1122,9 @@ void CreateDirectoryExHandler()
 			// BUGBUG, SecurityAttributes ignored
 			int Result = TemplateObject.GetStr()?CreateDirectoryEx(TemplateObject.GetStr(), Object.GetStr(), nullptr):CreateDirectory(Object.GetStr(), nullptr);
 			int LastError = GetLastError();
-			if(WritePipeInt(Pipe, Result))
+			if(WritePipe(Pipe, Result))
 			{
-				WritePipeInt(Pipe, LastError);
+				WritePipe(Pipe, LastError);
 			}
 		}
 	}
@@ -1153,9 +1137,9 @@ void RemoveDirectoryHandler()
 	{
 		int Result = RemoveDirectory(Object.GetStr());
 		int LastError = GetLastError();
-		if(WritePipeInt(Pipe, Result))
+		if(WritePipe(Pipe, Result))
 		{
-			WritePipeInt(Pipe, LastError);
+			WritePipe(Pipe, LastError);
 		}
 	}
 }
@@ -1167,9 +1151,9 @@ void DeleteFileHandler()
 	{
 		int Result = DeleteFile(Object.GetStr());
 		int LastError = GetLastError();
-		if(WritePipeInt(Pipe, Result))
+		if(WritePipe(Pipe, Result))
 		{
-			WritePipeInt(Pipe, LastError);
+			WritePipe(Pipe, LastError);
 		}
 	}
 }
@@ -1189,14 +1173,14 @@ void CopyFileExHandler()
 				if(ReadPipeData(Pipe, Data))
 				{
 					int Flags = 0;
-					if(ReadPipeInt(Pipe, Flags))
+					if(ReadPipe(Pipe, Flags))
 					{
 						// BUGBUG: Cancel ignored
 						int Result = CopyFileEx(From.GetStr(), To.GetStr(), UserCopyProgressRoutine.Get()?ElevationCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags);
 						int LastError = GetLastError();
-						if(WritePipeInt(Pipe, Result))
+						if(WritePipe(Pipe, Result))
 						{
-							WritePipeInt(Pipe, LastError);
+							WritePipe(Pipe, LastError);
 						}
 					}
 				}
@@ -1214,13 +1198,13 @@ void MoveFileExHandler()
 		if(ReadPipeData(Pipe, To))
 		{
 			int Flags = 0;
-			if(ReadPipeInt(Pipe, Flags))
+			if(ReadPipe(Pipe, Flags))
 			{
 				int Result = MoveFileEx(From.GetStr(), To.GetStr(), Flags);
 				int LastError = GetLastError();
-				if(WritePipeInt(Pipe, Result))
+				if(WritePipe(Pipe, Result))
 				{
-					WritePipeInt(Pipe, LastError);
+					WritePipe(Pipe, LastError);
 				}
 			}
 		}
@@ -1234,9 +1218,9 @@ void GetFileAttributesHandler()
 	{
 		int Result = GetFileAttributes(Object.GetStr());
 		int LastError = GetLastError();
-		if(WritePipeInt(Pipe, Result))
+		if(WritePipe(Pipe, Result))
 		{
-			WritePipeInt(Pipe, LastError);
+			WritePipe(Pipe, LastError);
 		}
 	}
 }
@@ -1247,13 +1231,13 @@ void SetFileAttributesHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		int Attributes = 0;
-		if(ReadPipeInt(Pipe, Attributes))
+		if(ReadPipe(Pipe, Attributes))
 		{
 			int Result = SetFileAttributes(Object.GetStr(), Attributes);
 			int LastError = GetLastError();
-			if(WritePipeInt(Pipe, Result))
+			if(WritePipe(Pipe, Result))
 			{
-				WritePipeInt(Pipe, LastError);
+				WritePipe(Pipe, LastError);
 			}
 		}
 	}
@@ -1270,9 +1254,9 @@ void CreateHardLinkHandler()
 			// BUGBUG: SecurityAttributes ignored.
 			int Result = CreateHardLink(Object.GetStr(), Target.GetStr(), nullptr);
 			int LastError = GetLastError();
-			if(WritePipeInt(Pipe, Result))
+			if(WritePipe(Pipe, Result))
 			{
-				WritePipeInt(Pipe, LastError);
+				WritePipe(Pipe, LastError);
 			}
 		}
 	}
@@ -1287,13 +1271,13 @@ void CreateSymbolicLinkHandler()
 		if(ReadPipeData(Pipe, Target))
 		{
 			int Flags = 0;
-			if(ReadPipeInt(Pipe, Flags))
+			if(ReadPipe(Pipe, Flags))
 			{
 				int Result = CreateSymbolicLinkInternal(Object.GetStr(), Target.GetStr(), Flags);
 				int LastError = GetLastError();
-				if(WritePipeInt(Pipe, Result))
+				if(WritePipe(Pipe, Result))
 				{
-					WritePipeInt(Pipe, LastError);
+					WritePipe(Pipe, LastError);
 				}
 			}
 		}
@@ -1314,9 +1298,9 @@ void MoveToRecycleBinHandler()
 				SHFILEOPSTRUCT* FileOpStruct = static_cast<SHFILEOPSTRUCT*>(Struct.Get());
 				FileOpStruct->pFrom = From.GetStr();
 				FileOpStruct->pTo = To.GetStr();
-				if(WritePipeInt(Pipe, SHFileOperation(FileOpStruct)))
+				if(WritePipe(Pipe, SHFileOperation(FileOpStruct)))
 				{
-					WritePipeInt(Pipe, FileOpStruct->fAnyOperationsAborted);
+					WritePipe(Pipe, FileOpStruct->fAnyOperationsAborted);
 				}
 			}
 		}
@@ -1333,9 +1317,9 @@ void SetOwnerHandler()
 		{
 			int Result = SetOwnerInternal(Object.GetStr(), Owner.GetStr());
 			int LastError = GetLastError();
-			if(WritePipeInt(Pipe, Result))
+			if(WritePipe(Pipe, Result))
 			{
-				WritePipeInt(Pipe, LastError);
+				WritePipe(Pipe, LastError);
 			}
 		}
 	}
@@ -1347,17 +1331,17 @@ void CreateFileHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		int DesiredAccess;
-		if(ReadPipeInt(Pipe, DesiredAccess))
+		if(ReadPipe(Pipe, DesiredAccess))
 		{
 			int ShareMode;
-			if(ReadPipeInt(Pipe, ShareMode))
+			if(ReadPipe(Pipe, ShareMode))
 			{
 				// BUGBUG: SecurityAttributes ignored
 				int CreationDistribution;
-				if(ReadPipeInt(Pipe, CreationDistribution))
+				if(ReadPipe(Pipe, CreationDistribution))
 				{
 					int FlagsAndAttributes;
-					if(ReadPipeInt(Pipe, FlagsAndAttributes))
+					if(ReadPipe(Pipe, FlagsAndAttributes))
 					{
 						// BUGBUG: TemplateFile ignored
 						HANDLE Result = apiCreateFile(Object.GetStr(), DesiredAccess, ShareMode, nullptr, CreationDistribution, FlagsAndAttributes, nullptr);
@@ -1377,7 +1361,7 @@ void CreateFileHandler()
 						int LastError = GetLastError();
 						if(WritePipeData(Pipe, &Result, sizeof(Result)))
 						{
-							WritePipeInt(Pipe, LastError);
+							WritePipe(Pipe, LastError);
 						}
 					}
 				}
@@ -1466,7 +1450,7 @@ int ElevationMain(LPCWSTR guid, DWORD PID, bool UsePrivileges)
 	if (Pipe != INVALID_HANDLE_VALUE)
 	{
 		ULONG ServerProcessId;
-		if(!ifn.pfnGetNamedPipeServerProcessId || (ifn.pfnGetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
+		if(!ifn.GetNamedPipeServerProcessIdPresent() || (ifn.GetNamedPipeServerProcessId(Pipe, &ServerProcessId) && ServerProcessId == PID))
 		{
 			HANDLE ParentProcess = OpenProcess(PROCESS_QUERY_INFORMATION|PROCESS_VM_READ, FALSE, PID);
 			if(ParentProcess)
@@ -1476,14 +1460,14 @@ int ElevationMain(LPCWSTR guid, DWORD PID, bool UsePrivileges)
 				CloseHandle(ParentProcess);
 				if(TrustedServer)
 				{
-					if(WritePipeInt(Pipe, GetCurrentProcessId()))
+					if(WritePipe(Pipe, GetCurrentProcessId()))
 					{
 						ParentPID = PID;
 						bool Exit = false;
 						int Command = 0;
 						while(!Exit)
 						{
-							if(ReadPipeInt(Pipe, Command))
+							if(ReadPipe(Pipe, Command))
 							{
 								Exit = Process(Command);
 							}

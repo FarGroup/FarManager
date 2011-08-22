@@ -107,4 +107,4 @@ extern FormatScreen FS;
 
 extern DWORD ErrorMode;
 
-extern __int64 FarUpTime;
+extern LARGE_INTEGER FarUpTime;

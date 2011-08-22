@@ -3167,7 +3167,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 
 		if(pHistory)
 		{
-			pHistory->GetAllSimilar(ComplMenu,strTemp);
+			if(pHistory->GetAllSimilar(ComplMenu,strTemp))
+			{
+				ComplMenu.SetTitle(MSG(MCompletionHistoryTitle));
+			}
 		}
 		else if(pList)
 		{
@@ -3178,10 +3181,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 					ComplMenu.AddItem(pList->Items[i].Text);
 				}
 			}
-		}
-		if (ComplMenu.GetItemCount())
-		{
-			ComplMenu.SetTitle(MSG(MCompletionHistoryTitle));
 		}
 		if(ECFlags.Check(EC_ENABLEFNCOMPLETE))
 		{
@@ -3260,7 +3259,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 								{
 									if(pHistory)
 									{
-										pHistory->GetAllSimilar(ComplMenu,strTemp);
+										if(pHistory->GetAllSimilar(ComplMenu,strTemp))
+										{
+											ComplMenu.SetTitle(MSG(MCompletionHistoryTitle));
+										}
 									}
 									else if(pList)
 									{
@@ -3272,10 +3274,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 											}
 										}
 									}
-								}
-								if (ComplMenu.GetItemCount())
-								{
-									ComplMenu.SetTitle(MSG(MCompletionHistoryTitle));
 								}
 								if(ECFlags.Check(EC_ENABLEFNCOMPLETE))
 								{
