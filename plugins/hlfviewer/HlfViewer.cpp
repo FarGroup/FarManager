@@ -36,12 +36,13 @@ const wchar_t *GetMsg(int MsgId);
 void ShowCurrentHelpTopic();
 void ShowHelpFromTempFile();
 void GetPluginConfig(void);
+static bool inputrecord_compare(const INPUT_RECORD &r1,const INPUT_RECORD &r2);
 
 static struct Options
 {
 	int ProcessEditorInput;
-	wchar_t KeyNameFromReg[34];
-	int Key;
+	wchar_t AssignKeyName[64];
+	INPUT_RECORD RecKey;
 	int Style;
 } Opt;
 
@@ -52,6 +53,8 @@ static struct EditorInfo ei;
 static struct EditorGetString egs;
 static struct EditorSetPosition esp;
 
+
+static INPUT_RECORD _DefKey={KEY_EVENT,{TRUE,1,VK_F1,0x3B,0,0}};
 
 BOOL CheckExtension(const wchar_t *ptrName)
 {
@@ -174,7 +177,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		else
 		{
 			const wchar_t *Items[] = { GetMsg(MTitle), GetMsg(MNotAnHLF), GetMsg(MOk) };
-			Info.Message(&MainGuid, 0, NULL, Items, ARRAYSIZE(Items), 1);
+			Info.Message(&MainGuid, nullptr, 0, NULL, Items, ARRAYSIZE(Items), 1);
 		}
 	}
 
@@ -205,14 +208,13 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 }
 
 int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
-
 {
 	LPWSTR FileName=NULL;
 	BOOL Result=FALSE;
 
 	if (Opt.ProcessEditorInput)
 	{
-		if (InputInfo->Rec.EventType==KEY_EVENT && InputInfo->Rec.Event.KeyEvent.bKeyDown && FSF.FarInputRecordToKey(&InputInfo->Rec)==Opt.Key)
+		if (InputInfo->Rec.EventType==KEY_EVENT && InputInfo->Rec.Event.KeyEvent.bKeyDown && inputrecord_compare(InputInfo->Rec,Opt.RecKey))
 		{
 			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 			size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
@@ -344,7 +346,7 @@ int WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 	Builder.StartColumns();
 	Builder.AddCheckbox(MProcessEditorInput, &Opt.ProcessEditorInput);
 	Builder.ColumnBreak();
-	Builder.AddEditField(Opt.KeyNameFromReg, ARRAYSIZE(Opt.KeyNameFromReg), 20);
+	FarDialogItem *ItemAssignKeyName=Builder.AddEditField(Opt.AssignKeyName, ARRAYSIZE(Opt.AssignKeyName), 20);
 	Builder.EndColumns();
 
     Builder.AddSeparator();
@@ -358,16 +360,17 @@ int WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 
 	if (Builder.ShowDialog())
 	{
-		if ((Opt.Key=FSF.FarNameToKey(Opt.KeyNameFromReg)) == -1)
+		lstrcpyn(Opt.AssignKeyName,ItemAssignKeyName->Data,ARRAYSIZE(Opt.AssignKeyName));
+		if (!FSF.FarNameToInputRecord(Opt.AssignKeyName,&Opt.RecKey))
 		{
-			lstrcpyn(Opt.KeyNameFromReg,L"F1",ARRAYSIZE(Opt.KeyNameFromReg));
-			Opt.Key=VK_F1;
+			lstrcpyn(Opt.AssignKeyName,L"F1",ARRAYSIZE(Opt.AssignKeyName));
+			Opt.RecKey=_DefKey;
 		}
 
 		PluginSettings settings(MainGuid, Info.SettingsControl);
 		settings.Set(0,L"ProcessEditorInput",Opt.ProcessEditorInput);
 		settings.Set(0,L"Style",Opt.Style);
-		settings.Set(0,L"EditorKey",Opt.KeyNameFromReg);
+		settings.Set(0,L"EditorKey",Opt.AssignKeyName);
 		return TRUE;
 	}
 	return FALSE;
@@ -424,7 +427,7 @@ const wchar_t *FindTopic(void)
 		Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 		tmp=egs.StringText;
 
-		if (lstrlen(tmp)>1 && *tmp==_T('@') && *(tmp+1)!=_T('-') && *(tmp+1)!=_T('+'))
+		if (lstrlen(tmp)>1 && *tmp==L'@' && *(tmp+1)!=L'-' && *(tmp+1)!=L'+')
 		{
 			ret=tmp+1;
 			break;
@@ -439,12 +442,38 @@ void GetPluginConfig(void)
 {
 	PluginSettings settings(MainGuid, Info.SettingsControl);
 
-	settings.Get(0,L"EditorKey",Opt.KeyNameFromReg,ARRAYSIZE(Opt.KeyNameFromReg),L"F1");
-	if ((Opt.Key=FSF.FarNameToKey(Opt.KeyNameFromReg)) == -1)
+	settings.Get(0,L"EditorKey",Opt.AssignKeyName,ARRAYSIZE(Opt.AssignKeyName),L"F1");
+
+	if (!FSF.FarNameToInputRecord(Opt.AssignKeyName,&Opt.RecKey))
 	{
-		lstrcpyn(Opt.KeyNameFromReg,L"F1",ARRAYSIZE(Opt.KeyNameFromReg));
-		Opt.Key=VK_F1;
+		lstrcpyn(Opt.AssignKeyName,L"F1",ARRAYSIZE(Opt.AssignKeyName));
+		Opt.RecKey=_DefKey;
 	}
+
 	Opt.ProcessEditorInput=settings.Get(0,L"ProcessEditorInput",1);
 	Opt.Style=settings.Get(0,L"Style",0);
+}
+
+static bool inputrecord_compare(const INPUT_RECORD &r1,const INPUT_RECORD &r2)
+{
+	if (r1.EventType == r2.EventType)
+	{
+		switch(r1.EventType)
+		{
+			case KEY_EVENT:   // Event contains key event record
+				#define RMASK (RIGHT_ALT_PRESSED|LEFT_ALT_PRESSED|RIGHT_CTRL_PRESSED|LEFT_CTRL_PRESSED|SHIFT_PRESSED)
+
+				return r1.Event.KeyEvent.wVirtualKeyCode == r2.Event.KeyEvent.wVirtualKeyCode &&
+					(r1.Event.KeyEvent.dwControlKeyState&RMASK) == (r2.Event.KeyEvent.dwControlKeyState&RMASK);
+
+			case MOUSE_EVENT: // Event contains mouse event record
+				return r1.Event.MouseEvent.dwButtonState == r2.Event.MouseEvent.dwButtonState &&
+					r1.Event.MouseEvent.dwControlKeyState == r2.Event.MouseEvent.dwControlKeyState &&
+					r1.Event.MouseEvent.dwEventFlags == r2.Event.MouseEvent.dwEventFlags;
+		}
+
+		return false;
+	}
+
+	return false;
 }
