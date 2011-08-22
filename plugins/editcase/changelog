@@ -1,3 +1,10 @@
+svs 22.08.2011 12:31:01 +0300 - build 14
+
+1. Far 3 API 2105
+
+2. Форматирование кода
+   AStyle --style=ansi --indent=tab=4 --brackets=break --indent-classes --indent-switches --indent-namespaces --indent-preprocessor --break-blocks --delete-empty-lines --unpad-paren --keep-one-line-statements --keep-one-line-blocks "!\!.!"
+
 t-rex 25.04.2011 11:49:39 +0200 - build 13
 
 1. Far 3.0 API 1988

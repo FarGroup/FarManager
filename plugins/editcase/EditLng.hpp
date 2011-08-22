@@ -1,12 +1,12 @@
 enum
 {
-  MCaseConversion,
-  MCaseLower,
-  MCaseTitle,
-  MCaseUpper,
-  MCaseToggle,
-  MCaseCyclic,
+	MCaseConversion,
+	MCaseLower,
+	MCaseTitle,
+	MCaseUpper,
+	MCaseToggle,
+	MCaseCyclic,
 
-  MOk,
-  MCancel
+	MOk,
+	MCancel
 };

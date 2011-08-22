@@ -20,19 +20,20 @@
 
 #if defined(__GNUC__)
 #ifdef __cplusplus
-extern "C"{
+extern "C"
+{
 #endif
-  BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
+	BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved);
 #ifdef __cplusplus
 };
 #endif
 
 BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 {
-  (void) lpReserved;
-  (void) dwReason;
-  (void) hDll;
-  return TRUE;
+	(void) lpReserved;
+	(void) dwReason;
+	(void) hDll;
+	return TRUE;
 }
 #endif
 
@@ -40,12 +41,13 @@ static struct PluginStartupInfo Info;
 static FARSTANDARDFUNCTIONS FSF;
 
 // Menu item numbers
-enum ENUMCCTYPES {
- CCLower,
- CCTitle,
- CCUpper,
- CCToggle,
- CCCyclic,
+enum ENUMCCTYPES
+{
+	CCLower,
+	CCTitle,
+	CCUpper,
+	CCToggle,
+	CCCyclic,
 };
 
 // This chars aren't letters
@@ -62,443 +64,448 @@ int ChangeCase(wchar_t *NewString, int Start, int End, int CCType);
 
 void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
-  Info->StructSize=sizeof(GlobalInfo);
-  Info->MinFarVersion=FARMANAGERVERSION;
-  Info->Version=PLUGIN_VERSION;
-  Info->Guid=MainGuid;
-  Info->Title=PLUGIN_NAME;
-  Info->Description=PLUGIN_DESC;
-  Info->Author=PLUGIN_AUTHOR;
+	Info->StructSize=sizeof(GlobalInfo);
+	Info->MinFarVersion=FARMANAGERVERSION;
+	Info->Version=PLUGIN_VERSION;
+	Info->Guid=MainGuid;
+	Info->Title=PLUGIN_NAME;
+	Info->Description=PLUGIN_DESC;
+	Info->Author=PLUGIN_AUTHOR;
 }
 
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
-  ::Info=*Info;
-  ::FSF=*Info->FSF;
-  ::Info.FSF=&::FSF;
-
-  PluginSettings settings(MainGuid, ::Info.SettingsControl);
-  //BUGBUG dynamic string
-  WordDivLen=(int)::Info.AdvControl(&MainGuid, ACTL_GETSYSWORDDIV, 0, WordDiv);
-  wchar_t AddWordDiv[ARRAYSIZE(WordDiv)];
-  settings.Get(0,L"AddWordDiv",AddWordDiv,ARRAYSIZE(AddWordDiv),L"#");
-  WordDivLen += lstrlen(AddWordDiv);
-  lstrcat(WordDiv, AddWordDiv);
-  WordDivLen += ARRAYSIZE(L" \n\r\t");
-  lstrcat(WordDiv, L" \n\r\t");
+	::Info=*Info;
+	::FSF=*Info->FSF;
+	::Info.FSF=&::FSF;
+	PluginSettings settings(MainGuid, ::Info.SettingsControl);
+	//BUGBUG dynamic string
+	WordDivLen=(int)::Info.AdvControl(&MainGuid, ACTL_GETSYSWORDDIV, 0, WordDiv);
+	wchar_t AddWordDiv[ARRAYSIZE(WordDiv)];
+	settings.Get(0,L"AddWordDiv",AddWordDiv,ARRAYSIZE(AddWordDiv),L"#");
+	WordDivLen += lstrlen(AddWordDiv);
+	lstrcat(WordDiv, AddWordDiv);
+	WordDivLen += ARRAYSIZE(L" \n\r\t");
+	lstrcat(WordDiv, L" \n\r\t");
 }
 
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
-  size_t i;
-  struct FarMenuItem MenuItems[5] = {}, *MenuItem;
-  int Msgs[]={MCaseLower, MCaseTitle, MCaseUpper, MCaseToggle, MCaseCyclic};
+	size_t i;
+	struct FarMenuItem MenuItems[5] = {}, *MenuItem;
+	int Msgs[]={MCaseLower, MCaseTitle, MCaseUpper, MCaseToggle, MCaseCyclic};
 
-  for (MenuItem=MenuItems,i=0; i < ARRAYSIZE(MenuItems); ++i, ++MenuItem)
-  {
-    MenuItem->Text = GetMsg(Msgs[i]); // Text in menu
-  }
+	for (MenuItem=MenuItems,i=0; i < ARRAYSIZE(MenuItems); ++i, ++MenuItem)
+	{
+		MenuItem->Text = GetMsg(Msgs[i]); // Text in menu
+	}
 
-  // First item is selected
-  MenuItems[0].Flags=MIF_SELECTED;
+	// First item is selected
+	MenuItems[0].Flags=MIF_SELECTED;
+	// Show menu
+	int MenuCode=Info.Menu(&MainGuid, nullptr,-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
+	                       GetMsg(MCaseConversion),NULL,L"Contents",NULL,NULL,
+	                       MenuItems,ARRAYSIZE(MenuItems));
 
-  // Show menu
-  int MenuCode=Info.Menu(&MainGuid,-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
-                         GetMsg(MCaseConversion),NULL,L"Contents",NULL,NULL,
-                         MenuItems,ARRAYSIZE(MenuItems));
-  switch(MenuCode)
-  {
-    // If menu Escaped
-    case -1:
-      break;
+	switch (MenuCode)
+	{
+			// If menu Escaped
+		case -1:
+			break;
+		default:
+			EditorInfo ei;
+			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+			// Current line number
+			int CurLine=ei.CurLine;
+			// Is anything selected
+			bool IsBlock=false;
 
-    default:
-      EditorInfo ei;
-      Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
+			// Nothing selected?
+			if (ei.BlockType!=BTYPE_NONE)
+			{
+				IsBlock=true;
+				CurLine=ei.BlockStartLine;
+			}
 
-      // Current line number
-      int CurLine=ei.CurLine;
-      // Is anything selected
-      bool IsBlock=false;
+			// Type of Case Change
+			int CCType=MenuCode;
+			// Temporary string
+			wchar_t *NewString=0;
 
-      // Nothing selected?
-      if (ei.BlockType!=BTYPE_NONE)
-      {
-        IsBlock=true;
-        CurLine=ei.BlockStartLine;
-      }
+			// Forever :-) (Line processing loop)
+			for (;;)
+			{
+				if (IsBlock)
+				{
+					if (CurLine >= ei.TotalLines)
+						break;
 
-      // Type of Case Change
-      int CCType=MenuCode;
+					struct EditorSetPosition esp = {CurLine++,-1,-1,-1,-1,-1};
+					Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+				}
 
-      // Temporary string
-      wchar_t *NewString=0;
+				struct EditorGetString egs;
 
-      // Forever :-) (Line processing loop)
-      for(;;)
-      {
-        if (IsBlock)
-        {
-          if (CurLine >= ei.TotalLines)
-            break;
-          struct EditorSetPosition esp = {CurLine++,-1,-1,-1,-1,-1};
-          Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
-        }
+				egs.StringNumber=-1;
 
-        struct EditorGetString egs;
+				// If can't get line
+				if (!Info.EditorControl(-1,ECTL_GETSTRING,0,&egs))
+					break; // Exit
 
-        egs.StringNumber=-1;
+				// If last selected line was processed or
+				// nothing selected and line is empty
+				if ((IsBlock && egs.SelStart==-1) || (!IsBlock && egs.StringLength<=0))
+					break; // Exit
 
-        // If can't get line
-        if (!Info.EditorControl(-1,ECTL_GETSTRING,0,&egs))
-          break; // Exit
+				// If something selected, but line is empty
+				if (egs.StringLength<=0)
+					continue; // Get next line
 
-        // If last selected line was processed or
-        // nothing selected and line is empty
-        if ((IsBlock && egs.SelStart==-1) || (!IsBlock && egs.StringLength<=0))
-          break; // Exit
+				// If whole line (with EOL) is selected
+				if (egs.SelEnd==-1 || egs.SelEnd>egs.StringLength)
+				{
+					egs.SelEnd=egs.StringLength;
 
-        // If something selected, but line is empty
-        if (egs.StringLength<=0)
-          continue; // Get next line
+					if (egs.SelEnd<egs.SelStart)
+						egs.SelEnd=egs.SelStart;
+				}
 
-        // If whole line (with EOL) is selected
-        if (egs.SelEnd==-1 || egs.SelEnd>egs.StringLength)
-        {
-          egs.SelEnd=egs.StringLength;
-          if (egs.SelEnd<egs.SelStart)
-            egs.SelEnd=egs.SelStart;
-        }
+				// Memory allocation
+				NewString=(wchar_t *)malloc((egs.StringLength+1)*sizeof(wchar_t));
 
-        // Memory allocation
-        NewString=(wchar_t *)malloc((egs.StringLength+1)*sizeof(wchar_t));
-        // If memory couldn't be allocated
-        if (!NewString)
-          break;
+				// If memory couldn't be allocated
+				if (!NewString)
+					break;
 
-        // If nothing selected - finding word bounds (what'll be converted)
-        if (!IsBlock)
-        {
-          // Making NewString
-          wmemcpy(NewString,egs.StringText,egs.StringLength);
-          NewString[egs.StringLength]=0;
+				// If nothing selected - finding word bounds (what'll be converted)
+				if (!IsBlock)
+				{
+					// Making NewString
+					wmemcpy(NewString,egs.StringText,egs.StringLength);
+					NewString[egs.StringLength]=0;
+					// Like whole line is selected
+					egs.SelStart=0;
+					egs.SelEnd=egs.StringLength;
+					// Finding word bounds (what'll be converted)
+					FindBounds(NewString, egs.StringLength, ei.CurPos, egs.SelStart, egs.SelEnd);
+				}
 
-          // Like whole line is selected
-          egs.SelStart=0;
-          egs.SelEnd=egs.StringLength;
+				// Making NewString
+				wmemcpy(NewString,egs.StringText,egs.StringLength);
+				NewString[egs.StringLength]=0;
 
-          // Finding word bounds (what'll be converted)
-          FindBounds(NewString, egs.StringLength, ei.CurPos, egs.SelStart, egs.SelEnd);
-        }
+				// If Conversion Type is unknown or Cyclic
+				if (CCType==CCCyclic) // Define Conversion Type
+					CCType=GetNextCCType(NewString, egs.StringLength, egs.SelStart, egs.SelEnd);
 
-        // Making NewString
-        wmemcpy(NewString,egs.StringText,egs.StringLength);
-        NewString[egs.StringLength]=0;
+				// NewString contains no words
+				if (CCType!=CCCyclic)
+				{
+					// Do the conversion
+					ChangeCase(NewString, egs.SelStart, egs.SelEnd, CCType);
+					// Put converted string to editor
+					struct EditorSetString ess;
+					ess.StringNumber=-1;
+					ess.StringText=NewString;
+					ess.StringEOL=(wchar_t*)egs.StringEOL;
+					ess.StringLength=egs.StringLength;
+					Info.EditorControl(-1,ECTL_SETSTRING,0,&ess);
+				}
 
-        // If Conversion Type is unknown or Cyclic
-        if (CCType==CCCyclic) // Define Conversion Type
-          CCType=GetNextCCType(NewString, egs.StringLength, egs.SelStart, egs.SelEnd);
+#if 0
 
-        // NewString contains no words
-        if (CCType!=CCCyclic)
-        {
-          // Do the conversion
-          ChangeCase(NewString, egs.SelStart, egs.SelEnd, CCType);
+				if (!IsBlock)
+				{
+					struct EditorSelect esel;
+					esel.BlockType=BTYPE_STREAM;
+					esel.BlockStartLine=-1;
+					esel.BlockStartPos=egs.SelStart;
+					esel.BlockWidth=egs.SelEnd-egs.SelStart;
+					esel.BlockHeight=1;
+					Info.EditorControl(-1,ECTL_SELECT,0,&esel);
+				}
 
-          // Put converted string to editor
-          struct EditorSetString ess;
-          ess.StringNumber=-1;
-          ess.StringText=NewString;
-          ess.StringEOL=(wchar_t*)egs.StringEOL;
-          ess.StringLength=egs.StringLength;
-          Info.EditorControl(-1,ECTL_SETSTRING,0,&ess);
-        }
+#endif
+				// Free memory
+				free(NewString);
 
-        #if 0
-        if (!IsBlock)
-        {
-          struct EditorSelect esel;
-          esel.BlockType=BTYPE_STREAM;
-          esel.BlockStartLine=-1;
-          esel.BlockStartPos=egs.SelStart;
-          esel.BlockWidth=egs.SelEnd-egs.SelStart;
-          esel.BlockHeight=1;
-          Info.EditorControl(-1,ECTL_SELECT,0,&esel);
-        }
-        #endif
-        // Free memory
-        free(NewString);
+				// Exit if nothing was selected (single word was converted)
+				if (!IsBlock)
+					break;
+			}
 
-        // Exit if nothing was selected (single word was converted)
-        if (!IsBlock)
-          break;
-      }
-      if (IsBlock)
-      {
-        struct EditorSetPosition esp = {ei.CurLine,ei.CurPos,-1,ei.TopScreenLine,ei.LeftPos,ei.Overtype};
-        Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
-      }
-  } // switch
+			if (IsBlock)
+			{
+				struct EditorSetPosition esp = {ei.CurLine,ei.CurPos,-1,ei.TopScreenLine,ei.LeftPos,ei.Overtype};
+				Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+			}
+	} // switch
 
-  return INVALID_HANDLE_VALUE;
+	return INVALID_HANDLE_VALUE;
 }
 
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 {
-  Info->StructSize=sizeof(*Info);
-  Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
-  static const wchar_t *PluginMenuStrings[1];
-  PluginMenuStrings[0]=GetMsg(MCaseConversion);
-  Info->PluginMenu.Guids=&MenuGuid;
-  Info->PluginMenu.Strings=PluginMenuStrings;
-  Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
+	Info->StructSize=sizeof(*Info);
+	Info->Flags=PF_EDITOR|PF_DISABLEPANELS;
+	static const wchar_t *PluginMenuStrings[1];
+	PluginMenuStrings[0]=GetMsg(MCaseConversion);
+	Info->PluginMenu.Guids=&MenuGuid;
+	Info->PluginMenu.Strings=PluginMenuStrings;
+	Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
 const wchar_t *GetMsg(int MsgId)
 {
-  return Info.GetMsg(&MainGuid,MsgId);
+	return Info.GetMsg(&MainGuid,MsgId);
 }
 
 // What we consider as letter
 bool MyIsAlpha(int c)
 {
-  return wmemchr(WordDiv, c, WordDivLen)==NULL ? true : false;
+	return wmemchr(WordDiv, c, WordDivLen)==NULL ? true : false;
 }
 
 // Finding word bounds (what'll be converted) (Str is in OEM)
 bool FindBounds(wchar_t *Str, int Len, int Pos, int &Start, int &End)
 {
-  int i=1;
-  bool ret = false;
+	int i=1;
+	bool ret = false;
 
-  // If line isn't empty
-  if (Len>Start)
-  {
-    End=min(End,Len);
+	// If line isn't empty
+	if (Len>Start)
+	{
+		End=min(End,Len);
+		// Pos between [Start, End] ?
+		Pos=max(Pos,Start);
+		Pos=min(End,Pos);
 
-    // Pos between [Start, End] ?
-    Pos=max(Pos,Start);
-    Pos=min(End,Pos);
+		// If current character is non letter
+		if (!MyIsAlpha(Str[Pos]))
+		{
+			// Looking for letter on the left and counting radius
+			while ((Start<=Pos-i) && (!MyIsAlpha(Str[Pos-i])))
+				i++;
 
-    // If current character is non letter
-    if (!MyIsAlpha(Str[Pos]))
-    {
-      // Looking for letter on the left and counting radius
-      while ((Start<=Pos-i) && (!MyIsAlpha(Str[Pos-i])))
-        i++;
+			// Radius
+			int r=MAXINT;
 
-      // Radius
-      int r=MAXINT;
+			// Letter was found on the left
+			if (Start<=Pos-i)
+				r=i; // Storing radius
 
-      // Letter was found on the left
-      if (Start<=Pos-i)
-        r=i; // Storing radius
+			i=1;
 
-      i=1;
-      // Looking for letter on the right and counting radius
-      while ((Pos+i<=End) && (!MyIsAlpha(Str[Pos+i])))
-        i++;
+			// Looking for letter on the right and counting radius
+			while ((Pos+i<=End) && (!MyIsAlpha(Str[Pos+i])))
+				i++;
 
-      // Letter was not found
-      if (Pos+i>End)
-        i=MAXINT;
+			// Letter was not found
+			if (Pos+i>End)
+				i=MAXINT;
 
-      // Here r is left radius and i is right radius
+			// Here r is left radius and i is right radius
 
-      // If no letters was found
-      if (min(r,i)!=MAXINT)
-      {
-        // What radius is less? Left?
-        if (r <= i)
-        {
-          End=Pos-r+1;
-          Start=FindStart(Str, Start, End);
-        }
-        else // Right!
-        {
-          Start=Pos+i;
-          End=FindEnd(Str, Start, End);
-        }
-        ret=true;
-      }
-    }
-    else // Current character is letter!
-    {
-      Start=FindStart(Str, Start, Pos);
-      End=FindEnd(Str, Pos, End);
-      ret=true;
-    }
-  }
+			// If no letters was found
+			if (min(r,i)!=MAXINT)
+			{
+				// What radius is less? Left?
+				if (r <= i)
+				{
+					End=Pos-r+1;
+					Start=FindStart(Str, Start, End);
+				}
+				else // Right!
+				{
+					Start=Pos+i;
+					End=FindEnd(Str, Start, End);
+				}
 
-  if (!ret)
-    Start=End=-1;
+				ret=true;
+			}
+		}
+		else // Current character is letter!
+		{
+			Start=FindStart(Str, Start, Pos);
+			End=FindEnd(Str, Pos, End);
+			ret=true;
+		}
+	}
 
-  return ret;
+	if (!ret)
+		Start=End=-1;
+
+	return ret;
 }
 
 int FindStart(wchar_t *Str, int Start, int End)
 {
-  // Current pos in Str
-  int CurPos=End-1;
+	// Current pos in Str
+	int CurPos=End-1;
 
-  // While current character is letter
-  while( CurPos>=Start && MyIsAlpha(Str[CurPos]) )
-    CurPos--; // Moving to left
+	// While current character is letter
+	while (CurPos>=Start && MyIsAlpha(Str[CurPos]))
+		CurPos--; // Moving to left
 
-  return CurPos+1;
+	return CurPos+1;
 }
 
 int FindEnd(wchar_t *Str, int Start, int End)
 {
-  // Current pos in Str
-  int CurPos=Start;
+	// Current pos in Str
+	int CurPos=Start;
 
-  // While current character is letter
-  while( CurPos<End && MyIsAlpha(Str[CurPos]))
-    CurPos++; // Moving to right
+	// While current character is letter
+	while (CurPos<End && MyIsAlpha(Str[CurPos]))
+		CurPos++; // Moving to right
 
-  return CurPos;
+	return CurPos;
 }
 
 // Changes Case of NewString from position Start till End
 // to CCType and returns amount of changes
 int ChangeCase(wchar_t *NewString, int Start, int End, int CCType)
 {
-  // If previous symbol is letter, then IsPrevSymbAlpha!=0
-  bool IsPrevSymbAlpha=false;
-  // Amount of changes
-  int ChangeCount=0;
+	// If previous symbol is letter, then IsPrevSymbAlpha!=0
+	bool IsPrevSymbAlpha=false;
+	// Amount of changes
+	int ChangeCount=0;
 
-  // Main loop (position inside line)
-  for (int i=Start; i<End; i++)
-  {
-    if (MyIsAlpha(NewString[i]))// && ReverseOem==NewString[i])
-    {
-      switch (CCType)
-      {
-        case CCLower:
-          NewString[i]=(wchar_t)FSF.LLower(NewString[i]);
-          break;
+	// Main loop (position inside line)
+	for (int i=Start; i<End; i++)
+	{
+		if (MyIsAlpha(NewString[i]))// && ReverseOem==NewString[i])
+		{
+			switch (CCType)
+			{
+				case CCLower:
+					NewString[i]=(wchar_t)FSF.LLower(NewString[i]);
+					break;
+				case CCTitle:
 
-        case CCTitle:
-          if(IsPrevSymbAlpha)
-            NewString[i]=(wchar_t)FSF.LLower(NewString[i]);
-          else
-            NewString[i]=(wchar_t)FSF.LUpper(NewString[i]);
-          break;
+					if (IsPrevSymbAlpha)
+						NewString[i]=(wchar_t)FSF.LLower(NewString[i]);
+					else
+						NewString[i]=(wchar_t)FSF.LUpper(NewString[i]);
 
-        case CCUpper:
-          NewString[i]=(wchar_t)FSF.LUpper(NewString[i]);
-          break;
+					break;
+				case CCUpper:
+					NewString[i]=(wchar_t)FSF.LUpper(NewString[i]);
+					break;
+				case CCToggle:
 
-        case CCToggle:
-          if (FSF.LIsLower(NewString[i]))
-            NewString[i]=(wchar_t)FSF.LUpper(NewString[i]);
-          else
-            NewString[i]=(wchar_t)FSF.LLower(NewString[i]);
-          break;
-      }
-      // Put converted letter back to string
-      IsPrevSymbAlpha=true;
-      ChangeCount++;
-    }
-    else
-    {
-      IsPrevSymbAlpha=false;
-    }
-  }
+					if (FSF.LIsLower(NewString[i]))
+						NewString[i]=(wchar_t)FSF.LUpper(NewString[i]);
+					else
+						NewString[i]=(wchar_t)FSF.LLower(NewString[i]);
 
-  return ChangeCount;
+					break;
+			}
+
+			// Put converted letter back to string
+			IsPrevSymbAlpha=true;
+			ChangeCount++;
+		}
+		else
+		{
+			IsPrevSymbAlpha=false;
+		}
+	}
+
+	return ChangeCount;
 }
 
 // Return CCType by rule: lower->Title->UPPER
 // If Str contains no letters, then return CCCyclic
 int GetNextCCType(wchar_t *Str, int StrLen, int Start, int End)
 {
-  int SignalWordStart=Start,
-      SignalWordEnd=End;
-  int SignalWordLen=max(Start,End);
-  // Default conversion is to lower case
-  int CCType=CCLower;
+	int SignalWordStart=Start,
+	                    SignalWordEnd=End;
+	int SignalWordLen=max(Start,End);
+	// Default conversion is to lower case
+	int CCType=CCLower;
+	Start=min(Start,End);
+	End=SignalWordLen;
 
-  Start=min(Start,End);
-  End=SignalWordLen;
+	if (StrLen<Start)
+		return CCCyclic;
 
-  if (StrLen<Start)
-    return CCCyclic;
+	// Looking for SignalWord (the 1-st word)
+	if (!FindBounds(Str, StrLen, SignalWordStart, SignalWordStart, SignalWordEnd))
+		return CCCyclic;
 
-  // Looking for SignalWord (the 1-st word)
-  if (!FindBounds(Str, StrLen, SignalWordStart, SignalWordStart, SignalWordEnd))
-    return CCCyclic;
+	SignalWordLen=SignalWordEnd-SignalWordStart;
+	wchar_t *SignalWord=(wchar_t *)malloc((SignalWordLen+1)*sizeof(wchar_t));
 
-  SignalWordLen=SignalWordEnd-SignalWordStart;
+	if (SignalWord != NULL)
+	{
+		wchar_t *WrappedWord=(wchar_t *)malloc((SignalWordLen+1)*sizeof(wchar_t));
 
-  wchar_t *SignalWord=(wchar_t *)malloc((SignalWordLen+1)*sizeof(wchar_t));
+		if (WrappedWord != NULL)
+		{
+			lstrcpyn(SignalWord, &Str[SignalWordStart], SignalWordLen+1);
+			lstrcpy(WrappedWord, SignalWord);
+			// if UPPER then Title
+			FSF.LUpperBuf(WrappedWord, SignalWordLen);
 
-  if (SignalWord != NULL)
-  {
-    wchar_t *WrappedWord=(wchar_t *)malloc((SignalWordLen+1)*sizeof(wchar_t));
+			if (SignalWordLen == 1 && lstrcmp(SignalWord, WrappedWord)==0)
+			{
+				CCType=CCLower;
+			}
+			else
+			{
+				if (SignalWordLen == 1)
+				{
+					CCType=CCUpper;
+				}
+				else
+				{
+					if (lstrcmp(SignalWord, WrappedWord)==0)
+					{
+						CCType=CCTitle;
+					}
+					else
+					{
+						// if lower then UPPER
+						FSF.LLowerBuf(WrappedWord, SignalWordLen);
 
-    if (WrappedWord != NULL)
-    {
-      lstrcpyn(SignalWord, &Str[SignalWordStart], SignalWordLen+1);
-      lstrcpy(WrappedWord, SignalWord);
+						if (lstrcmp(SignalWord,WrappedWord)==0)
+						{
+							CCType=CCUpper;
+						}
+						else
+						{
+							// if Title then lower
+							WrappedWord[0]=FSF.LUpper(WrappedWord[0]);
 
-      // if UPPER then Title
-      FSF.LUpperBuf(WrappedWord, SignalWordLen);
+							if (lstrcmp(SignalWord,WrappedWord)==0)
+							{
+								CCType=CCLower;
+							}
+							else
+							{
+								// if upper case letters amount more than lower case letters
+								// then tOGGLE
+								FSF.LUpperBuf(WrappedWord, SignalWordLen);
+								int Counter=SignalWordLen/2+1;
 
-      if (SignalWordLen == 1 && lstrcmp(SignalWord, WrappedWord)==0)
-      {
-        CCType=CCLower;
-      }
-      else
-      {
-        if (SignalWordLen == 1)
-        {
-          CCType=CCUpper;
-        }
-        else
-        {
-          if (lstrcmp(SignalWord, WrappedWord)==0)
-          {
-            CCType=CCTitle;
-          }
-          else
-          {
-            // if lower then UPPER
-            FSF.LLowerBuf(WrappedWord, SignalWordLen);
-            if (lstrcmp(SignalWord,WrappedWord)==0)
-            {
-              CCType=CCUpper;
-            }
-            else
-            {
-              // if Title then lower
-              WrappedWord[0]=FSF.LUpper(WrappedWord[0]);
-              if (lstrcmp(SignalWord,WrappedWord)==0)
-              {
-                CCType=CCLower;
-              }
-              else
-              {
-                // if upper case letters amount more than lower case letters
-                // then tOGGLE
-                FSF.LUpperBuf(WrappedWord, SignalWordLen);
-                int Counter=SignalWordLen/2+1;
-                for (int i=0; i<SignalWordLen && Counter; i++)
-                  if (SignalWord[i]==WrappedWord[i])
-                    Counter--;
-                if (!Counter)
-                  CCType=CCToggle;
-              }
-            }
-          }
-        }
-      }
-      free(WrappedWord);
-    }
-    free(SignalWord);
-  }
+								for (int i=0; i<SignalWordLen && Counter; i++)
+									if (SignalWord[i]==WrappedWord[i])
+										Counter--;
 
-  return CCType;
+								if (!Counter)
+									CCType=CCToggle;
+							}
+						}
+					}
+				}
+			}
+
+			free(WrappedWord);
+		}
+
+		free(SignalWord);
+	}
+
+	return CCType;
 }
