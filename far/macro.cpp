@@ -7698,15 +7698,16 @@ bool KeyMacro::IsHistroyEnable(int TypeHistory)
 
 static int __cdecl SortMacros(const MacroRecord *el1,const MacroRecord *el2)
 {
-	int Mode1, Mode2;
-
-	if ((Mode1=(el1->Flags&MFLAGS_MODEMASK)) == (Mode2=(el2->Flags&MFLAGS_MODEMASK)))
-		return 0;
-
-	if (Mode1 < Mode2)
-		return -1;
-
-	return 1;
+	int result=(el1->Flags&MFLAGS_MODEMASK)-(el2->Flags&MFLAGS_MODEMASK);
+	if (result==0)
+	{
+		result=memcmp(&el1->Guid,&el2->Guid,sizeof(GUID));
+		if (result==0)
+		{
+			result=static_cast<char*>(el1->Id)-static_cast<char*>(el2->Id);
+		}
+	}
+	return result;
 }
 
 // Сортировка элементов списка
