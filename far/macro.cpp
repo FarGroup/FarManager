@@ -565,7 +565,33 @@ KeyMacro::~KeyMacro()
 	if (Work.AllocVarTable && Work.locVarTable)
 		xf_free(Work.locVarTable);
 
+	DestroyMacroLib();
+
 	UnregMacroFunction(-1);
+}
+
+void KeyMacro::DestroyMacroLib()
+{
+	if (MacroLIB)
+	{
+		for (int i=0;i<MacroLIBCount;++i)
+		{
+			if (MacroLIB[i].BufferSize > 1 && MacroLIB[i].Buffer)
+				xf_free(MacroLIB[i].Buffer);
+
+			if (MacroLIB[i].Src)
+				xf_free(MacroLIB[i].Src);
+
+			if (MacroLIB[i].Description)
+				xf_free(MacroLIB[i].Description);
+
+			MacroLIB[i].Buffer=nullptr;
+			MacroLIB[i].Src=nullptr;
+			MacroLIB[i].Description=nullptr;
+		}
+		MacroLIB=nullptr;
+		MacroLIBCount=0;
+	}
 }
 
 void KeyMacro::InitInternalLIBVars()
@@ -574,8 +600,10 @@ void KeyMacro::InitInternalLIBVars()
 	{
 		for (int ii=0;ii<MacroLIBCount;)
 		{
-			if (IsEqualGUID(FarGuid,MacroLIB[ii].Guid)) DelMacro(ii);
-			else ++ii;
+			if (IsEqualGUID(FarGuid,MacroLIB[ii].Guid))
+				DelMacro(ii);
+			else
+				++ii;
 		}
 		if (0==MacroLIBCount)
 		{
@@ -594,6 +622,8 @@ void KeyMacro::InitInternalLIBVars()
 	RecBufferSize=0;
 
 	memset(&IndexMode,0,sizeof(IndexMode));
+ 	//MacroLIBCount=0;
+ 	//MacroLIB=nullptr;
 	//LastOpCodeUF=KEY_MACRO_U_BASE;
 }
 
@@ -2436,7 +2466,7 @@ static bool promptFunc(const TMacroFunction*)
 		const wchar_t *title=NullToEmpty(ValTitle.toString());
 		string strDest;
 
-		if (GetString(title,prompt,history,src,strDest,nullptr,Flags&~FIB_CHECKBOX,nullptr,nullptr))
+		if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
 		{
 			Result=strDest.CPtr();
 			Result.toString();

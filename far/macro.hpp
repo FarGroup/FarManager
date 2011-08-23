@@ -233,6 +233,7 @@ class KeyMacro
 		class LockScreen *LockScr;
 
 	private:
+		void DestroyMacroLib();
 		int ReadVarsConst(int ReadMode, string &strBuffer);
 		int ReadMacroFunction(int ReadMode, string &strBuffer);
 		int WriteVarsConst(int WriteMode);
