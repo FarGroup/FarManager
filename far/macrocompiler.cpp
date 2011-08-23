@@ -1390,7 +1390,7 @@ static void printKeyValue(DWORD* k, int& i)
 	else if (Code == MCODE_OP_PUSHFLOAT)
 	{
 		++i;
-		LARGE_INTEGER i64 = {[i+1], k[i]};
+		LARGE_INTEGER i64 = {k[i+1], k[i]};
 		double dval=*(double*)&i64;
 		SysLog(L"%08X: %08X |   %lf", ++ii,k[i],dval);
 		++i;

@@ -759,7 +759,10 @@ int WINAPI FarMenuFn(
 		VMenu FarMenu(Title,nullptr,0,MaxHeight);
 		CtrlObject->Macro.SetMode(MACRO_MENU);
 		FarMenu.SetPosition(X,Y,0,0);
-		FarMenu.SetId(*Id);
+		if(Id)
+		{
+			FarMenu.SetId(*Id);
+		}
 
 		if (BreakCode)
 			*BreakCode=-1;
