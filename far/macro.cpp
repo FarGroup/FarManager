@@ -574,23 +574,9 @@ void KeyMacro::DestroyMacroLib()
 {
 	if (MacroLIB)
 	{
-		for (int i=0;i<MacroLIBCount;++i)
-		{
-			if (MacroLIB[i].BufferSize > 1 && MacroLIB[i].Buffer)
-				xf_free(MacroLIB[i].Buffer);
-
-			if (MacroLIB[i].Src)
-				xf_free(MacroLIB[i].Src);
-
-			if (MacroLIB[i].Description)
-				xf_free(MacroLIB[i].Description);
-
-			MacroLIB[i].Buffer=nullptr;
-			MacroLIB[i].Src=nullptr;
-			MacroLIB[i].Description=nullptr;
-		}
+		while(MacroLIBCount) DelMacro(MacroLIBCount-1);
+		xf_free(MacroLIB);
 		MacroLIB=nullptr;
-		MacroLIBCount=0;
 	}
 }
 
@@ -974,7 +960,6 @@ int KeyMacro::ProcessKey(int Key)
 				if (!CheckAll(Mode,CurFlags))
 					return FALSE;
 
-				if(MacroLIB[I].Callback&&!MacroLIB[I].Callback(MacroLIB[I].Id,AKMFLAGS_NONE)) return FALSE;
 				// Скопируем текущее исполнение в MacroWORK
 				//PostNewMacro(MacroLIB+I);
 				// Подавлять вывод?
@@ -7317,7 +7302,10 @@ int KeyMacro::GetIndex(int Key, int CheckMode, bool UseCommon, bool StrictKeys)
 							//        && (CheckMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == CheckMode))
 							//_SVS(SysLog(L"GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
 							if (!(MPtr->Flags&MFLAGS_DISABLEMACRO))
-								return Pos+((CheckMode >= 0)?IndexMode[CheckMode][0]:0);
+							{
+							    if(!MPtr->Callback||MPtr->Callback(MPtr->Id,AKMFLAGS_NONE))
+							    	return Pos+((CheckMode >= 0)?IndexMode[CheckMode][0]:0);
+							}
 						}
 					}
 					if (!ctrl)
