@@ -4528,7 +4528,7 @@ void Editor::GoToPosition()
 		}
 		else
 		{
-			CurLine->SetTabCurPos(NewCol);
+			CurLine->SetCurPos(NewCol);
 		}
 		Show();
 	}

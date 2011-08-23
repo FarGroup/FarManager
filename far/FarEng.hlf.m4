@@ -2785,17 +2785,17 @@ helps applications to identify the codepage of this file.
 
 
 @EditorGotoPos
-$ #Editor: go to specified line and column#
+$ #Editor: go to specified line and character#
     This dialog allows to change the position in the internal editor.
 
-    You can enter a #row# or a #column#, or both.
+    You can enter a #row# or a #character#, or both.
 
     The first number will be interpreted as a row number, the second as a
-column number. Numbers must be delimited by one of the following characters:
+character number. Numbers must be delimited by one of the following characters:
 "," "." ";" ":" or space.
 
-    If you enter the value in the form ",Col", the editor will jump to the
-specified column in the current line.
+    If you enter the value in the form ",Ch", the editor will jump to the
+specified character in the current line.
 
     If you enter the row with "%" at the end, the editor will jump to the
 specified percent of the file. For example, if you enter #50%#, the editor will

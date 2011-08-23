@@ -2281,8 +2281,7 @@ void FileEditor::ShowStatus()
 	string strLineStr;
 	string strLocalTitle;
 	GetTitle(strLocalTitle);
-	int NameLength = (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)) ? 17:23;
-
+	int NameLength = (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)) ? 15:21;
 	if (X2 > 80)
 		NameLength += (X2-80);
 
@@ -2307,10 +2306,16 @@ void FileEditor::ShowStatus()
 	(m_editor->Flags.Check(FEDITOR_MODIFIED) ? L'*':L' ')<<
 	(m_editor->Flags.Check(FEDITOR_LOCKMODE) ? L'-':L' ')<<
 	(m_editor->Flags.Check(FEDITOR_PROCESSCTRLQ) ? L'"':L' ')<<
-	fmt::Width(5)<<m_codepage<<L' '<<fmt::Width(7)<<MSG(MEditStatusLine)<<L' '<<
+	fmt::Width(5)<<m_codepage<<L' '<<fmt::Width(3)<<MSG(MEditStatusLine)<<L' '<<
 	fmt::Width(SizeLineStr)<<fmt::Precision(SizeLineStr)<<strLineStr<<L' '<<
-	fmt::Width(5)<<MSG(MEditStatusCol)<<L' '<<
+	
+	fmt::Width(3)<<MSG(MEditStatusCol)<<L' '<<
 	fmt::LeftAlign()<<fmt::Width(4)<<m_editor->CurLine->GetTabCurPos()+1<<L' '<<
+
+	fmt::Width(2)<<MSG(MEditStatusChar)<<L' '<<
+	fmt::LeftAlign()<<fmt::Width(4)<<m_editor->CurLine->GetCurPos()+1<<L' '<<
+
+
 	fmt::Width(3)<<strAttr;
 	int StatusWidth=ObjWidth - ((Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))?5:0);
 
