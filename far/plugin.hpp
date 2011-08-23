@@ -1129,6 +1129,8 @@ enum FAR_MACRO_CONTROL_COMMANDS
 	MCTL_SENDSTRING        = 2,
 	MCTL_GETSTATE          = 5,
 	MCTL_GETAREA           = 6,
+	MCTL_ADDMACRO          = 7,
+	MCTL_DELMACRO          = 8,
 };
 
 typedef unsigned __int64 FARKEYMACROFLAGS;
@@ -1223,6 +1225,23 @@ struct MacroCheckMacroText
 	Check
 #endif
 	;
+};
+
+typedef unsigned __int64 FARADDKEYMACROFLAGS;
+static const FARADDKEYMACROFLAGS
+	AKMFLAGS_NONE                = 0;
+
+typedef int (WINAPI *FARMACROCALLBACK)(void* Id,FARADDKEYMACROFLAGS Flags);
+
+struct MacroAddMacro
+{
+	size_t StructSize;
+	FARKEYMACROFLAGS Flags;
+	INPUT_RECORD AKey;
+	const wchar_t *SequenceText;
+	const wchar_t *Description;
+	void* Id;
+	FARMACROCALLBACK Callback;
 };
 
 #ifdef FAR_USE_INTERNALS
@@ -1928,7 +1947,7 @@ typedef INT_PTR (WINAPI *FARAPIEDITORCONTROL)(
 );
 
 typedef INT_PTR (WINAPI *FARAPIMACROCONTROL)(
-    HANDLE hHandle,
+    const GUID* PluginId,
     enum FAR_MACRO_CONTROL_COMMANDS Command,
     int Param1,
     void* Param2

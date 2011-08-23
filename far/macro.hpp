@@ -153,6 +153,9 @@ struct MacroRecord
 	DWORD *Buffer;        // компилированная последовательность (OpCode) макроса
 	wchar_t  *Src;           // оригинальный "текст" макроса
 	wchar_t  *Description;   // описание макроса
+	GUID Guid; //Гуид владельца макроса
+	void* Id; //параметр калбака
+	FARMACROCALLBACK Callback; // каллбак для плагинов
 	DWORD  Reserved[2];   // зарезервировано
 };
 
@@ -334,6 +337,10 @@ class KeyMacro
 		static void RegisterMacroIntFunction();
 		static TMacroFunction *RegisterMacroFunction(const TMacroFunction *tmfunc);
 		static bool UnregMacroFunction(size_t Index);
+
+		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,FARKEYMACROFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
+		int DelMacro(const GUID& PluginId,void* Id);
+		void DelMacro(size_t Index);
 };
 
 BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0);

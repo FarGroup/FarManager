@@ -572,19 +572,20 @@ void KeyMacro::InitInternalLIBVars()
 {
 	if (MacroLIB)
 	{
-		for (int I=0; I<MacroLIBCount; I++)
+		for (int ii=0;ii<MacroLIBCount;)
 		{
-			if (MacroLIB[I].BufferSize > 1 && MacroLIB[I].Buffer)
-				xf_free(MacroLIB[I].Buffer);
-
-			if (MacroLIB[I].Src)
-				xf_free(MacroLIB[I].Src);
-
-			if (MacroLIB[I].Description)
-				xf_free(MacroLIB[I].Description);
+			if (IsEqualGUID(FarGuid,MacroLIB[ii].Guid)) DelMacro(ii);
+			else ++ii;
 		}
-
-		xf_free(MacroLIB);
+		if (0==MacroLIBCount)
+		{
+			xf_free(MacroLIB);
+			MacroLIB=nullptr;
+		}
+	}
+	else
+	{
+		MacroLIBCount=0;
 	}
 
 	if (RecBuffer)
@@ -593,8 +594,6 @@ void KeyMacro::InitInternalLIBVars()
 	RecBufferSize=0;
 
 	memset(&IndexMode,0,sizeof(IndexMode));
-	MacroLIBCount=0;
-	MacroLIB=nullptr;
 	//LastOpCodeUF=KEY_MACRO_U_BASE;
 }
 
@@ -945,6 +944,7 @@ int KeyMacro::ProcessKey(int Key)
 				if (!CheckAll(Mode,CurFlags))
 					return FALSE;
 
+				if(MacroLIB[I].Callback&&!MacroLIB[I].Callback(MacroLIB[I].Id,AKMFLAGS_NONE)) return FALSE;
 				// Скопируем текущее исполнение в MacroWORK
 				//PostNewMacro(MacroLIB+I);
 				// Подавлять вывод?
@@ -5785,6 +5785,8 @@ void KeyMacro::SaveMacros(BOOL AllSaved)
 	{
 		if (!AllSaved  && !(MacroLIB[I].Flags&MFLAGS_NEEDSAVEMACRO))
 			continue;
+		if (!IsEqualGUID(FarGuid,MacroLIB[I].Guid))
+			continue;
 
 		MkRegKeyName(I, strRegKeyName);
 
@@ -7853,4 +7855,57 @@ static LONG _RegWriteString(const wchar_t *Key,const wchar_t *ValueName,const wc
 	}
 
 	return Ret;
+}
+
+int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,FARKEYMACROFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
+{
+	MacroRecord CurMacro={0};
+	CurMacro.Flags=MACRO_COMMON;
+	if (Flags&KMFLAGS_DISABLEOUTPUT) CurMacro.Flags|=MFLAGS_DISABLEOUTPUT;
+	if (Flags&KMFLAGS_NOSENDKEYSTOPLUGINS) CurMacro.Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
+	CurMacro.Key=InputRecordToKey(&AKey);
+	CurMacro.Src=xf_wcsdup(PlainText);
+	CurMacro.Description=xf_wcsdup(Description);
+	CurMacro.Guid=PluginId;
+	CurMacro.Id=Id;
+	CurMacro.Callback=Callback;
+	if (ParseMacroString(&CurMacro,PlainText,false))
+	{
+		MacroRecord *NewMacroLIB=(MacroRecord *)xf_realloc(MacroLIB,sizeof(*MacroLIB)*(MacroLIBCount+1));
+		if (NewMacroLIB)
+		{
+			MacroLIB=NewMacroLIB;
+			MacroLIB[MacroLIBCount]=CurMacro;
+			++MacroLIBCount;
+			KeyMacro::Sort();
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
+{
+	size_t size=IndexMode[MACRO_COMMON][0]+IndexMode[MACRO_COMMON][1];
+	for(size_t ii=IndexMode[MACRO_COMMON][0];ii<size;++ii)
+	{
+		if(MacroLIB[ii].Id==Id&&IsEqualGUID(MacroLIB[ii].Guid,PluginId))
+		{
+			DelMacro(ii);
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+void KeyMacro::DelMacro(size_t Index)
+{
+	if (MacroLIB[Index].BufferSize > 1 && MacroLIB[Index].Buffer)
+		xf_free(MacroLIB[Index].Buffer);
+	if (MacroLIB[Index].Src)
+		xf_free(MacroLIB[Index].Src);
+	if (MacroLIB[Index].Description)
+		xf_free(MacroLIB[Index].Description);
+	memcpy(MacroLIB+Index,MacroLIB+Index+1,(MacroLIBCount-Index-1)*sizeof(MacroLIB[0]));
+	--MacroLIBCount;
 }
