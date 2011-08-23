@@ -7908,4 +7908,5 @@ void KeyMacro::DelMacro(size_t Index)
 		xf_free(MacroLIB[Index].Description);
 	memcpy(MacroLIB+Index,MacroLIB+Index+1,(MacroLIBCount-Index-1)*sizeof(MacroLIB[0]));
 	--MacroLIBCount;
+	KeyMacro::Sort();
 }
