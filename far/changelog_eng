@@ -7,7 +7,7 @@ drkns 17.08.2011 15:43:18 +0200 - build 2153
 
 1. Smart ARRAYSIZE() for gcc.
 
-2. Ñ++0x warnings.
+2. C++0x warnings.
 
 3. makefile_gcc can work without msys.
 

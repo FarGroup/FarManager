@@ -81,6 +81,8 @@ public: bool NAME##Present(){return pfn##NAME != nullptr;}
 	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, OpenVirtualDisk, (PVIRTUAL_STORAGE_TYPE VirtualStorageType, PCWSTR Path, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, POPEN_VIRTUAL_DISK_PARAMETERS Parameters, PHANDLE Handle));
 	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, DetachVirtualDisk, (HANDLE VirtualDiskHandle, DETACH_VIRTUAL_DISK_FLAG Flags, ULONG ProviderSpecificFlags));
 
+#undef DECLARE_IMPORT_FUNCTION
+
 private:
 	HMODULE hVirtDisk;
 };

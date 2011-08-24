@@ -31,6 +31,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "CriticalSections.hpp"
 #include "DList.hpp"
 
 class PluginSynchro
@@ -42,9 +43,9 @@ class PluginSynchro
 			GUID PluginId;
 			void* Param;
 		};
-	private:
-		HANDLE Mutex;
+		CriticalSection CS;
 		DList<SynchroData> Data;
+
 	public:
 		PluginSynchro();
 		~PluginSynchro();

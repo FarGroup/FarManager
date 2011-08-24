@@ -640,12 +640,12 @@ string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Wid
 		PrepareUnitStr();
 	}
 
-	unsigned __int64 Commas=(ViewFlags & COLUMN_COMMAS);
-	unsigned __int64 FloatSize=(ViewFlags & COLUMN_FLOATSIZE);
-	unsigned __int64 Economic=(ViewFlags & COLUMN_ECONOMIC);
-	unsigned __int64 UseMinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX);
-	unsigned __int64 MinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX_MASK)+1;
-	unsigned __int64 ShowBytesIndex=(ViewFlags & COLUMN_SHOWBYTESINDEX);
+	bool Commas=(ViewFlags & COLUMN_COMMAS)!=0;
+	bool FloatSize=(ViewFlags & COLUMN_FLOATSIZE)!=0;
+	bool Economic=(ViewFlags & COLUMN_ECONOMIC)!=0;
+	bool UseMinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX)!=0;
+	size_t MinSizeIndex=(ViewFlags & COLUMN_MINSIZEINDEX_MASK)+1;
+	bool ShowBytesIndex=(ViewFlags & COLUMN_SHOWBYTESINDEX)!=0;
 
 	if (ViewFlags & COLUMN_THOUSAND)
 	{
