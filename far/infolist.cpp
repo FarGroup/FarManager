@@ -644,10 +644,12 @@ void InfoList::ShowPluginDescription()
 			DrawSeparator(Y);
 			TruncStr(strTitle,X2-X1-3);
 			GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,Y);
+			SetColor(COL_PANELTEXT);
 			PrintText(strTitle);
 		}
 		else
 		{
+			SetColor(COL_PANELTEXT);
 			PrintText(NullToEmpty(InfoLine->Text));
 			PrintInfo(NullToEmpty(InfoLine->Data));
 		}
