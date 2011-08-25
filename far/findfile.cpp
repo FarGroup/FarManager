@@ -1537,6 +1537,7 @@ bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD Fi
 
 INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
+	CriticalSectionLock Lock(PluginCS);
 	Vars* v = reinterpret_cast<Vars*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
 	Dialog* Dlg=static_cast<Dialog*>(hDlg);
 	VMenu *ListBox=Dlg->GetAllItem()[FD_LISTBOX]->ListPtr;
@@ -2437,12 +2438,16 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 	int SavePluginsOutput=DisablePluginsOutput;
 	DisablePluginsOutput=TRUE;
 	string strArcName = ArcName;
-	HANDLE hArc=CtrlObject->Plugins.OpenFilePlugin(strArcName, OPM_FIND, OFP_SEARCH);
+	HANDLE hArc;
+	{
+		CriticalSectionLock Lock(PluginCS);
+		hArc = CtrlObject->Plugins.OpenFilePlugin(strArcName, OPM_FIND, OFP_SEARCH);
+	}
 	DisablePluginsOutput=SavePluginsOutput;
 
 	if (hArc==(HANDLE)-2)
 	{
-		StopEvent.Set();
+		//StopEvent.Set(); // ??
 		_ALGO(SysLog(L"return: hArc==(HANDLE)-2"));
 		return;
 	}
