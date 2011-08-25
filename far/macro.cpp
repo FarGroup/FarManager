@@ -861,6 +861,9 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 						StartMode=MacroLIB[Pos].Flags&MFLAGS_MODEMASK;
 
 					MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
+					MacroLIB[Pos].Guid=FarGuid;
+					MacroLIB[Pos].Id=nullptr;
+					MacroLIB[Pos].Callback=nullptr;
 				}
 			}
 
