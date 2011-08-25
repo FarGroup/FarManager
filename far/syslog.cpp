@@ -1940,9 +1940,9 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 		fwprintf(fp,L"%*s %s  ColumnType           = [",12,L"",space);
 
 		for (I=0; I < ARRAYSIZE(ViewSettings.ColumnType)-1; ++I)
-			fwprintf(fp,L"%d, ",ViewSettings.ColumnType[I]);
+			fwprintf(fp,L"%I64d, ",ViewSettings.ColumnType[I]);
 
-		fwprintf(fp,L"%d]\n",ViewSettings.ColumnType[I]);
+		fwprintf(fp,L"%I64d]\n",ViewSettings.ColumnType[I]);
 		fwprintf(fp,L"%*s %s  ColumnWidth          = [",12,L"",space);
 
 		for (I=0; I < ARRAYSIZE(ViewSettings.ColumnWidth)-1; ++I)
@@ -1953,9 +1953,9 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 		fwprintf(fp,L"%*s %s  StatusColumnType     = [",12,L"",space);
 
 		for (I=0; I < ARRAYSIZE(ViewSettings.StatusColumnType)-1; ++I)
-			fwprintf(fp,L"%08X, ",ViewSettings.StatusColumnType[I]);
+			fwprintf(fp,L"%08I64X, ",ViewSettings.StatusColumnType[I]);
 
-		fwprintf(fp,L"%08X]\n",ViewSettings.StatusColumnType[I]);
+		fwprintf(fp,L"%08I64X]\n",ViewSettings.StatusColumnType[I]);
 		fwprintf(fp,L"%*s %s  StatusColumnWidth    = [",12,L"",space);
 
 		for (I=0; I < ARRAYSIZE(ViewSettings.StatusColumnWidth)-1; ++I)

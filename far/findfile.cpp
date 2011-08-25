@@ -3319,7 +3319,7 @@ FindFiles::FindFiles()
 			if (!(Info.Flags & OPIF_REALNAMES))
 				FindAskDlg[FAD_CHECKBOX_ARC].Flags |= DIF_DISABLE;
 
-			if (FADC_ALLDISKS+SearchMode==FADC_ALLDISKS || FADC_ALLDISKS+SearchMode==FADC_ALLBUTNET)
+			if (SearchMode == FINDAREA_ALL || SearchMode == FINDAREA_ALL_BUTNETWORK)
 			{
 				li[FADC_ALLDISKS].Flags=0;
 				li[FADC_ALLBUTNET].Flags=0;
