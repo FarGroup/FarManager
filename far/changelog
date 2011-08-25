@@ -1,3 +1,16 @@
+svs 25.08.2011 16:01:01 +0300 - build 2171
+
+1. Переделка клавиатурного движка. Начало.
+
+   Macro::ProcessKey(int) -> Macro::ProcessEvent(FAR_INPUT_RECORD)
+
+    struct FAR_INPUT_RECORD
+    {
+      DWORD IntKey;
+      INPUT_RECORD Rec;
+    };
+    если IntKey == 0, то смотрим Rec, иначе в IntKey содержится KEY_
+
 drkns 25.08.2011 11:48:38 +0200 - build 2170
 
 1. Опечатка в 2169.

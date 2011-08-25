@@ -652,13 +652,14 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 	DWORD ReadKey=0;
 	int NotMacros=FALSE;
 	static int LastMsClickMacroKey=0;
+	struct FAR_INPUT_RECORD irec={0};
 
 	if (AllowSynchro)
 		PluginSynchroManager.Process();
 
 	if (!ExcludeMacro && CtrlObject && CtrlObject->Cp())
 	{
-//     _KEYMACRO(CleverSysLog SL(L"GetInputRecord()"));
+		//_KEYMACRO(CleverSysLog SL(L"GetInputRecord()"));
 		int VirtKey,ControlState;
 		CtrlObject->Macro.RunStartMacro();
 		int MacroKey=CtrlObject->Macro.GetKey();
@@ -710,9 +711,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		if (!ExcludeMacro && CtrlObject && CtrlObject->Macro.IsRecording() &&
 			(CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_RALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS) || CalcKey == (KEY_RALT|KEY_INS)))
 		{
-			_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
+			_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
 			FrameManager->SetLastInputRecord(rec);
-			if (CtrlObject->Macro.ProcessKey(CalcKey))
+			irec.IntKey=CalcKey;
+			irec.Rec=*rec;
+			if (CtrlObject->Macro.ProcessEvent(&irec))
 			{
 				RunGraber();
 				rec->EventType=0;
@@ -724,9 +727,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 		if (!NotMacros)
 		{
-			_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
+			_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
 			FrameManager->SetLastInputRecord(rec);
-			if (!ExcludeMacro && CtrlObject && CtrlObject->Macro.ProcessKey(CalcKey))
+			irec.IntKey=CalcKey;
+			irec.Rec=*rec;
+			if (!ExcludeMacro && CtrlObject && CtrlObject->Macro.ProcessEvent(&irec))
 			{
 				rec->EventType=0;
 				CalcKey=KEY_NONE;
@@ -792,8 +797,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				continue;
 			}
 
-			// // _SVS(INPUT_RECORD_DumpBuffer());
-#if 0
+			//_SVS(INPUT_RECORD_DumpBuffer());
+			#if 0
 
 			if (rec->EventType==KEY_EVENT)
 			{
@@ -839,7 +844,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				}
 			}
 
-#endif
+			#endif
 			break;
 		}
 
@@ -854,7 +859,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		if (CloseFAR && !ExitInProcess)
 		{
 			ExitInProcess = true;
-//      CloseFAR=FALSE;
+			//CloseFAR=FALSE;
 			/* $ 30.08.2001 IS
 			   ѕри принудительном закрытии ‘ара пытаемс€ вести себ€ так же, как и при
 			   нажатии на F10 в панел€х, только не запрашиваем подтверждение закрыти€,
@@ -949,6 +954,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		LoopCount++;
 	} // while (1)
 
+
 	clock_t CurClock=clock();
 
 	if (rec->EventType==FOCUS_EVENT)
@@ -973,6 +979,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 		return CalcKey;
 	}
+
 
 	if (rec->EventType==KEY_EVENT)
 	{
@@ -1007,10 +1014,10 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		    if(!(rec->Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED) && ShiftState)
 		      rec->Event.KeyEvent.dwControlKeyState|=SHIFT_PRESSED;
 		*/
-//_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"%s",_INPUT_RECORD_Dump(rec)));
+		//_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"%s",_INPUT_RECORD_Dump(rec)));
 		DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
 
-//_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
+		//_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
 		if (CtrlObject && CtrlObject->Macro.IsRecording())
 		{
 			static WORD PrevVKKeyCode=0; // NumLock+Cursor
@@ -1061,15 +1068,17 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		}
 	}
 
-//_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
+	//_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
 	IntKeyState.ReturnAltValue=FALSE;
 	CalcKey=CalcKeyCode(rec,TRUE,&NotMacros);
 	/*
 	  if(CtrlObject && CtrlObject->Macro.IsRecording() && (CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS)))
 	  {
-	  	_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
+	  	_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
 	  	FrameManager->SetLastInputRecord(rec);
-	    if(CtrlObject->Macro.ProcessKey(CalcKey))
+	  	irec.IntKey=CalcKey;
+	  	irec.Rec=*rec;
+	    if(CtrlObject->Macro.ProcessEvent(&irec))
 	    {
 	      RunGraber();
 	      rec->EventType=0;
@@ -1079,12 +1088,14 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 	  }
 	*/
 
-//_SVS(SysLog(L"1) CalcKey=%s",_FARKEY_ToName(CalcKey)));
+	//_SVS(SysLog(L"1) CalcKey=%s",_FARKEY_ToName(CalcKey)));
 	if (IntKeyState.ReturnAltValue && !NotMacros)
 	{
-		_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
+		_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
 		FrameManager->SetLastInputRecord(rec);
-		if (CtrlObject && CtrlObject->Macro.ProcessKey(CalcKey))
+		irec.IntKey=CalcKey;
+		irec.Rec=*rec;
+		if (CtrlObject && CtrlObject->Macro.ProcessEvent(&irec))
 		{
 			rec->EventType=0;
 			CalcKey=KEY_NONE;
@@ -1114,7 +1125,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 	{
 		int PScrX=ScrX;
 		int PScrY=ScrY;
-		//// // _SVS(SysLog(1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT)"));
+		// _SVS(SysLog(1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT)"));
 		Sleep(1);
 		GetVideoMode(CurSize);
 		bool NotIgnore=Opt.WindowMode && (rec->Event.WindowBufferSizeEvent.dwSize.X!=CurSize.X || rec->Event.WindowBufferSizeEvent.dwSize.Y!=CurSize.Y);
@@ -1130,7 +1141,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			}
 			PrevScrX=PScrX;
 			PrevScrY=PScrY;
-			//// // _SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
+			// _SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
 			Sleep(1);
 
 			if (FrameManager)
@@ -1144,7 +1155,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 				FrameManager->ResizeAllFrame();
 				FrameManager->GetCurrentFrame()->Show();
-				//// // _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
+				// _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
 				PreRedrawItem preRedrawItem=PreRedraw.Peek();
 
 				if (preRedrawItem.PreRedrawFunc)
@@ -1187,12 +1198,12 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				if (ShiftPressedLast)
 				{
 					Key=KEY_SHIFT;
-					//// // _SVS(SysLog(L"ShiftPressedLast, Key=KEY_SHIFT"));
+					// _SVS(SysLog(L"ShiftPressedLast, Key=KEY_SHIFT"));
 				}
 				else if (RightShiftPressedLast)
 				{
 					Key=KEY_RSHIFT;
-					//// // _SVS(SysLog(L"RightShiftPressedLast, Key=KEY_RSHIFT"));
+					// _SVS(SysLog(L"RightShiftPressedLast, Key=KEY_RSHIFT"));
 				}
 			}
 
@@ -1201,12 +1212,12 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				if (CtrlPressedLast)
 				{
 					Key=KEY_CTRL;
-					//// // _SVS(SysLog(L"CtrlPressedLast, Key=KEY_CTRL"));
+					// _SVS(SysLog(L"CtrlPressedLast, Key=KEY_CTRL"));
 				}
 				else if (RightCtrlPressedLast)
 				{
 					Key=KEY_RCTRL;
-					//// // _SVS(SysLog(L"CtrlPressedLast, Key=KEY_RCTRL"));
+					// _SVS(SysLog(L"CtrlPressedLast, Key=KEY_RCTRL"));
 				}
 			}
 
@@ -1215,22 +1226,24 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				if (AltPressedLast)
 				{
 					Key=KEY_ALT;
-					//// // _SVS(SysLog(L"AltPressedLast, Key=KEY_ALT"));
+					// _SVS(SysLog(L"AltPressedLast, Key=KEY_ALT"));
 				}
 				else if (RightAltPressedLast)
 				{
 					Key=KEY_RALT;
-					//// // _SVS(SysLog(L"RightAltPressedLast, Key=KEY_RALT"));
+					// _SVS(SysLog(L"RightAltPressedLast, Key=KEY_RALT"));
 				}
 			}
 
 			{
-				_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(Key)));
+				_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(Key)));
 				if(FrameManager)
 				{
 					FrameManager->SetLastInputRecord(rec);
 				}
-				if (Key!=-1 && !NotMacros && CtrlObject && CtrlObject->Macro.ProcessKey(Key))
+				irec.IntKey=Key;
+				irec.Rec=*rec;
+				if (Key!=-1 && !NotMacros && CtrlObject && CtrlObject->Macro.ProcessEvent(&irec))
 				{
 					rec->EventType=0;
 					Key=KEY_NONE;
@@ -1253,12 +1266,12 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				if (CtrlState & RIGHT_CTRL_PRESSED)
 				{
 					RightCtrlPressedLast=TRUE;
-					//// // _SVS(SysLog(L"RightCtrlPressedLast=TRUE;"));
+					// _SVS(SysLog(L"RightCtrlPressedLast=TRUE;"));
 				}
 				else
 				{
 					CtrlPressedLast=TRUE;
-					//// // _SVS(SysLog(L"CtrlPressedLast=TRUE;"));
+					// _SVS(SysLog(L"CtrlPressedLast=TRUE;"));
 				}
 			}
 
@@ -1374,12 +1387,12 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 		if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
 		{
-//// // _SVS(SysLog(L"1. CtrlState=%X IntKeyState.PrevRButtonPressed=%d,RButtonPressed=%d",CtrlState,IntKeyState.PrevRButtonPressed,RButtonPressed));
+			// _SVS(SysLog(L"1. CtrlState=%X IntKeyState.PrevRButtonPressed=%d,RButtonPressed=%d",CtrlState,IntKeyState.PrevRButtonPressed,RButtonPressed));
 			IntKeyState.PrevMouseButtonState=IntKeyState.MouseButtonState;
 		}
 
 		IntKeyState.MouseButtonState=BtnState;
-//// // _SVS(SysLog(L"2. BtnState=%X IntKeyState.PrevRButtonPressed=%d,RButtonPressed=%d",BtnState,IntKeyState.PrevRButtonPressed,RButtonPressed));
+		// _SVS(SysLog(L"2. BtnState=%X IntKeyState.PrevRButtonPressed=%d,RButtonPressed=%d",BtnState,IntKeyState.PrevRButtonPressed,RButtonPressed));
 		IntKeyState.PrevMouseX=IntKeyState.MouseX;
 		IntKeyState.PrevMouseY=IntKeyState.MouseY;
 		IntKeyState.MouseX=rec->Event.MouseEvent.dwMousePosition.X;
@@ -1431,7 +1444,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
 			{
 				DWORD MsCalcKey=0;
-#if 0
+				#if 0
 
 				if (rec->Event.MouseEvent.dwButtonState&RIGHTMOST_BUTTON_PRESSED)
 					MsCalcKey=(IntKeyState.MouseEventFlags == DOUBLE_CLICK)?KEY_MSRDBLCLICK:KEY_MSRCLICK;
@@ -1444,7 +1457,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				else if (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED)
 					MsCalcKey=(IntKeyState.MouseEventFlags == DOUBLE_CLICK)?KEY_MSM3DBLCLICK:KEY_MSM3CLICK;
 
-#else
+				#else
 
 				if (rec->Event.MouseEvent.dwButtonState&RIGHTMOST_BUTTON_PRESSED)
 					MsCalcKey=KEY_MSRCLICK;
@@ -1457,7 +1470,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				else if (rec->Event.MouseEvent.dwButtonState&FROM_LEFT_4TH_BUTTON_PRESSED)
 					MsCalcKey=KEY_MSM3CLICK;
 
-#endif
+				#endif
 
 				if (MsCalcKey)
 				{
@@ -1472,9 +1485,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 						return MsCalcKey;
 					else
 					{
-						_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(MsCalcKey)));
+						_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(MsCalcKey)));
 						FrameManager->SetLastInputRecord(rec);
-						if (CtrlObject->Macro.ProcessKey(MsCalcKey))
+						irec.IntKey=MsCalcKey;
+						irec.Rec=*rec;
+						if (CtrlObject->Macro.ProcessEvent(&irec))
 						{
 							memset(rec,0,sizeof(*rec));
 							return KEY_NONE;
@@ -1491,17 +1506,20 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		CalcKey=ReadKey;
 
 	{
-		_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
+		_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
 		if(FrameManager)
 		{
 			FrameManager->SetLastInputRecord(rec);
 		}
-		if (!NotMacros && CtrlObject && CtrlObject->Macro.ProcessKey(CalcKey))
+		irec.IntKey=CalcKey;
+		irec.Rec=*rec;
+		if (!NotMacros && CtrlObject && CtrlObject->Macro.ProcessEvent(&irec))
 		{
 			rec->EventType=0;
 			CalcKey=KEY_NONE;
 		}
 	}
+
 	return(CalcKey);
 }
 
@@ -1639,7 +1657,7 @@ int CheckForEscSilent()
 	// если в "макросе"...
 	if (CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO && FrameManager->GetCurrentFrame())
 	{
-#if 0
+		#if 0
 
 		// ...но Ё“ќ конец последовательности (не Op-код)...
 		if (CtrlObject->Macro.IsExecutingLastKey() && !CtrlObject->Macro.IsOpCode(CtrlObject->Macro.PeekKey()))
@@ -1647,12 +1665,12 @@ int CheckForEscSilent()
 		else
 			Processed=FALSE;
 
-#else
+		#else
 
 		if (CtrlObject->Macro.IsDsableOutput())
 			Processed=FALSE;
 
-#endif
+		#endif
 	}
 
 	if (Processed && PeekInputRecord(&rec))
@@ -1914,8 +1932,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 			}
 			else
 			{
-#if defined(SYSLOG)
-
+				#if defined(SYSLOG)
 				// Ётот кусок кода нужен только дл€ того, что "спецклавиши" логировались нормально
 				for (I=0; I<ARRAYSIZE(SpecKeyName); I++)
 					if (FKey==SpecKeyName[I].Key)
@@ -1925,7 +1942,8 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 					}
 
 				if (I  == ARRAYSIZE(SpecKeyName))
-#endif
+				#endif
+
 				{
 					FKey=Upper((wchar_t)Key&0xFFFF);
 
@@ -2296,7 +2314,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 	UINT ScanCode=rec->Event.KeyEvent.wVirtualScanCode;
 	UINT KeyCode=rec->Event.KeyEvent.wVirtualKeyCode;
 	WCHAR Char=rec->Event.KeyEvent.uChar.UnicodeChar;
-	//// // _SVS(if(KeyCode == VK_DECIMAL || KeyCode == VK_DELETE) SysLog(L"CalcKeyCode -> CtrlState=%04X KeyCode=%s ScanCode=%08X AsciiChar=%02X IntKeyState.ShiftPressed=%d ShiftPressedLast=%d",CtrlState,_VK_KEY_ToName(KeyCode), ScanCode, Char.AsciiChar,IntKeyState.ShiftPressed,ShiftPressedLast));
+	// _SVS(if(KeyCode == VK_DECIMAL || KeyCode == VK_DELETE) SysLog(L"CalcKeyCode -> CtrlState=%04X KeyCode=%s ScanCode=%08X AsciiChar=%02X IntKeyState.ShiftPressed=%d ShiftPressedLast=%d",CtrlState,_VK_KEY_ToName(KeyCode), ScanCode, Char.AsciiChar,IntKeyState.ShiftPressed,ShiftPressedLast));
 
 	if (NotMacros)
 		*NotMacros=CtrlState&0x80000000?TRUE:FALSE;
@@ -2434,7 +2452,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 				rec->Event.KeyEvent.uChar.UnicodeChar=static_cast<WCHAR>(AltValue);
 			}
 
-			//// // _SVS(SysLog(L"KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
+			// _SVS(SysLog(L"KeyCode==VK_MENU -> AltValue=%X (%c)",AltValue,AltValue));
 			return(AltValue);
 		}
 		else
@@ -2552,8 +2570,10 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			{
 				if (CtrlObject && CtrlObject->Macro.IsRecording())
 				{
-					_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessKey(KEY_INS|KEY_ALT)",__LINE__));
-					CtrlObject->Macro.ProcessKey(KEY_INS|KEY_ALT);
+					_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessEvent(KEY_INS|KEY_ALT)",__LINE__));
+					struct FAR_INPUT_RECORD irec={0,*rec};
+					irec.IntKey=KEY_INS|KEY_ALT;
+					CtrlObject->Macro.ProcessEvent(&irec);
 				}
 
 				// макрос проигрываетс€ и мы "сейчас" в состо€нии выполнени€ функции waitkey? (Mantis#0000968: waitkey() пропускает AltIns)
@@ -2565,13 +2585,13 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			}
 		}
 
-		//// // _SVS(SysLog(L"1 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
+		// _SVS(SysLog(L"1 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
 		if (!(CtrlState & ENHANCED_KEY)
 		        //(CtrlState&NUMLOCK_ON) && KeyCode >= VK_NUMPAD0 && KeyCode <= VK_NUMPAD9 ||
 		        // !(CtrlState&NUMLOCK_ON) && KeyCode < VK_NUMPAD0
 		   )
 		{
-			//// // _SVS(SysLog(L"2 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
+			// _SVS(SysLog(L"2 AltNumPad -> CalcKeyCode -> KeyCode=%s  ScanCode=0x%0X AltValue=0x%0X CtrlState=%X GetAsyncKeyState(VK_SHIFT)=%X",_VK_KEY_ToName(KeyCode),ScanCode,AltValue,CtrlState,GetAsyncKeyState(VK_SHIFT)));
 			static unsigned int ScanCodes[]={82,79,80,81,75,76,77,71,72,73};
 
 			for (int I=0; I<int(ARRAYSIZE(ScanCodes)); I++)

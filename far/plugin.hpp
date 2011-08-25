@@ -60,6 +60,14 @@ other possible license with no implications from the above license on them.
 
 #define FARMACRO_KEY_EVENT  (KEY_EVENT|0x8000)
 
+#ifdef FAR_USE_INTERNALS
+struct FAR_INPUT_RECORD
+{
+	DWORD IntKey;
+	INPUT_RECORD Rec;
+};
+#endif // END FAR_USE_INTERNALS
+
 #define CP_UNICODE 1200
 #define CP_REVERSEBOM 1201
 #define CP_AUTODETECT ((UINT)-1)
@@ -138,23 +146,23 @@ typedef int (WINAPI *FARAPIMESSAGE)(
 
 enum FARDIALOGITEMTYPES
 {
-	DI_TEXT,
-	DI_VTEXT,
-	DI_SINGLEBOX,
-	DI_DOUBLEBOX,
-	DI_EDIT,
-	DI_PSWEDIT,
-	DI_FIXEDIT,
-	DI_BUTTON,
-	DI_CHECKBOX,
-	DI_RADIOBUTTON,
-	DI_COMBOBOX,
-	DI_LISTBOX,
+	DI_TEXT                         =  0,
+	DI_VTEXT                        =  1,
+	DI_SINGLEBOX                    =  2,
+	DI_DOUBLEBOX                    =  3,
+	DI_EDIT                         =  4,
+	DI_PSWEDIT                      =  5,
+	DI_FIXEDIT                      =  6,
+	DI_BUTTON                       =  7,
+	DI_CHECKBOX                     =  8,
+	DI_RADIOBUTTON                  =  9,
+	DI_COMBOBOX                     = 10,
+	DI_LISTBOX                      = 11,
 #ifdef FAR_USE_INTERNALS
 	DI_MEMOEDIT,
 #endif // END FAR_USE_INTERNALS
 
-	DI_USERCONTROL=255,
+	DI_USERCONTROL                  =255,
 };
 
 /*

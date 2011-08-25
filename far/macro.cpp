@@ -750,8 +750,10 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 	return ErrCount?FALSE:TRUE;
 }
 
-int KeyMacro::ProcessKey(int Key)
+int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 {
+	int Key=Rec->IntKey;
+
 	if (InternalInput || Key==KEY_IDLE || Key==KEY_NONE || !FrameManager->GetCurrentFrame())
 		return FALSE;
 
@@ -831,6 +833,7 @@ int KeyMacro::ProcessKey(int Key)
 
 					MacroLIB[Pos].Buffer=nullptr;
 					MacroLIB[Pos].Src=nullptr;
+					MacroLIB[Pos].Callback=nullptr;
 					MacroLIB[Pos].Description=nullptr;
 				}
 
@@ -851,6 +854,7 @@ int KeyMacro::ProcessKey(int Key)
 					MacroLIB[Pos].BufferSize=RecBufferSize;
 					MacroLIB[Pos].Src=RecSrc?RecSrc:MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
 					MacroLIB[Pos].Description=nullptr;
+					MacroLIB[Pos].Callback=nullptr;
 
 					// если удаляем макрос - скорректируем StartMode,
 					// иначе макрос из common получит ту область, в которой его решили удалить.
@@ -980,7 +984,8 @@ int KeyMacro::ProcessKey(int Key)
 				Work.HistroyEnable=0;
 				Work.ExecLIBPos=0;
 				PostNewMacro(MacroLIB+I);
-				Work.cRec=*FrameManager->GetLastInputRecord();
+				//Work.cRec=*FrameManager->GetLastInputRecord();
+				Work.cRec=Rec->Rec;
 				_SVS(FarSysLog_INPUT_RECORD_Dump(L"Macro",&Work.cRec));
 				Work.MacroPC=I;
 				IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
@@ -5265,7 +5270,7 @@ done:
 			DWORD Cmd=(DWORD)VMStack.Pop().getInteger();
 			TVar Val;
 			VMStack.Pop(Val);
-			MacroRecord RBuf;
+			MacroRecord RBuf={0};
 			int KeyPos;
 
 			if (!(Val.isInteger() && !Val.i())) // учитываем только нормальное содержимое строки компиляции

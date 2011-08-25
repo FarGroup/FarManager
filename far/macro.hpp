@@ -267,7 +267,7 @@ class KeyMacro
 		~KeyMacro();
 
 	public:
-		int ProcessKey(int Key);
+		int ProcessEvent(const struct FAR_INPUT_RECORD *Rec);
 		int GetKey();
 		int PeekKey();
 		bool IsOpCode(DWORD p);

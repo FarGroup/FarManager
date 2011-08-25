@@ -3473,7 +3473,8 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 		// BUGBUG, hack
 		int Wait=WaitInMainLoop;
 		WaitInMainLoop=1;
-		if(!CtrlObject->Macro.ProcessKey(Key))
+		struct FAR_INPUT_RECORD irec={Key,{0}};
+		if(!CtrlObject->Macro.ProcessEvent(&irec))
 			pOwner->ProcessKey(Key);
 		WaitInMainLoop=Wait;
 		Show();
