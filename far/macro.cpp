@@ -2467,6 +2467,8 @@ static bool promptFunc(const TMacroFunction*)
 			Result.toString();
 			Ret=true;
 		}
+		else
+			Result=0;
 	}
 
 	VMStack.Push(Result);
