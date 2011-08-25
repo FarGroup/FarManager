@@ -62,22 +62,24 @@ public:
 	LngErrors GetLastError() const {return LastError;}
 
 private:
-	LngErrors LastError;
-	bool LanguageLoaded;
+	void ConvertString(const wchar_t *Src,string &strDest);
+	bool CheckMsgId(int MsgId) const;
+	void Free();
+
+	string strMessageFile;
 	wchar_t **MsgAddr;
 	wchar_t *MsgList;
 #ifndef NO_WRAPPER
 	char **MsgAddrA; //фантастика, да
 	char *MsgListA;
-	bool m_bUnicode;
 #endif // NO_WRAPPER
 	long MsgSize;
 	int MsgCount;
-	string strMessageFile;
-
-	void ConvertString(const wchar_t *Src,string &strDest);
-	bool CheckMsgId(int MsgId) const;
-	void Free();
+	LngErrors LastError;
+	bool LanguageLoaded;
+#ifndef NO_WRAPPER
+	bool m_bUnicode;
+#endif // NO_WRAPPER
 };
 
 extern Language Lang;

@@ -40,23 +40,19 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class ScreenBuf
 {
 	private:
-		BitFlags SBFlags;
-
+		CriticalSection CS;
+		FAR_CHAR_INFO MacroChar;
+		FAR_CHAR_INFO ElevationChar;
 		FAR_CHAR_INFO *Buf;
 		FAR_CHAR_INFO *Shadow;
-		FAR_CHAR_INFO MacroChar;
-		bool MacroCharUsed;
-		FAR_CHAR_INFO ElevationChar;
-		bool ElevationCharUsed;
-
+		BitFlags SBFlags;
+		int LockCount;
+		DWORD CurSize;
 		SHORT BufX,BufY;
 		SHORT CurX,CurY;
+		bool MacroCharUsed;
+		bool ElevationCharUsed;
 		bool CurVisible;
-		DWORD CurSize;
-
-		int LockCount;
-
-		CriticalSection CS;
 
 	public:
 		ScreenBuf();

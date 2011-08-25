@@ -98,18 +98,16 @@ class SaveScreen;
 
 struct MenuItemEx
 {
-	UINT64  Flags;                  // Флаги пункта
-
 	string strName;
-
-	DWORD  AccelKey;
-	size_t UserDataSize;           // Размер пользовательских данных
+	UINT64  Flags;                  // Флаги пункта
 	void *UserData;                // Пользовательские данные:
+	size_t UserDataSize;           // Размер пользовательских данных
+	int   ShowPos;
+	DWORD  AccelKey;
 	short AmpPos;                  // Позиция автоназначенной подсветки
 	short Len[2];                  // размеры 2-х частей
 	short Idx2;                    // начало 2-й части
 
-	int   ShowPos;
 
 	UINT64 SetCheck(int Value)
 	{
@@ -133,16 +131,16 @@ struct MenuItemEx
 
 	void Clear()
 	{
-		Flags = 0;
 		strName.Clear();
-		AccelKey = 0;
-		UserDataSize = 0;
+		Flags = 0;
 		UserData = nullptr;
+		UserDataSize = 0;
+		ShowPos = 0;
+		AccelKey = 0;
 		AmpPos = 0;
 		Len[0] = 0;
 		Len[1] = 0;
 		Idx2 = 0;
-		ShowPos = 0;
 	}
 
 	//UserData не копируется.
@@ -150,16 +148,16 @@ struct MenuItemEx
 	{
 		if (this != &srcMenu)
 		{
-			Flags = srcMenu.Flags;
 			strName = srcMenu.strName;
-			AccelKey = srcMenu.AccelKey;
-			UserDataSize = 0;
+			Flags = srcMenu.Flags;
 			UserData = nullptr;
+			UserDataSize = 0;
+			ShowPos = srcMenu.ShowPos;
+			AccelKey = srcMenu.AccelKey;
 			AmpPos = srcMenu.AmpPos;
 			Len[0] = srcMenu.Len[0];
 			Len[1] = srcMenu.Len[1];
 			Idx2 = srcMenu.Idx2;
-			ShowPos = srcMenu.ShowPos;
 		}
 
 		return *this;

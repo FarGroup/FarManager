@@ -68,11 +68,11 @@ ScreenBuf ScrBuf;
 ScreenBuf::ScreenBuf():
 	Buf(nullptr),
 	Shadow(nullptr),
-	MacroCharUsed(false),
-	ElevationCharUsed(false),
+	LockCount(0),
 	BufX(0),
 	BufY(0),
-	LockCount(0)
+	MacroCharUsed(false),
+	ElevationCharUsed(false)
 {
 	SBFlags.Set(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_FLUSHEDCURTYPE);
 }
@@ -411,7 +411,7 @@ void ScreenBuf::Flush()
 						WriteRegion.Top=I;
 						WriteRegion.Bottom=I-1;
 
-						while (I<BufY && memcmp(PtrBuf,PtrShadow,BufX*sizeof(FAR_CHAR_INFO)))
+						while (I<BufY && memcmp(PtrBuf,PtrShadow,BufX*sizeof(FAR_CHAR_INFO))!=0)
 						{
 							I++;
 							PtrBuf+=BufX;
@@ -435,7 +435,7 @@ void ScreenBuf::Flush()
 					{
 						for (SHORT J=0; J<BufX; J++,++PtrBuf,++PtrShadow)
 						{
-							if (memcmp(PtrBuf,PtrShadow,sizeof(FAR_CHAR_INFO)))
+							if (memcmp(PtrBuf,PtrShadow,sizeof(FAR_CHAR_INFO))!=0)
 							{
 								WriteRegion.Left=Min(WriteRegion.Left,J);
 								WriteRegion.Top=Min(WriteRegion.Top,I);

@@ -331,11 +331,11 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 	};
 	HMenuData MainMenu[]=
 	{
-		MSG(MMenuLeftTitle),1,LeftMenu,ARRAYSIZE(LeftMenu),L"LeftRightMenu",
-		MSG(MMenuFilesTitle),0,FilesMenu,ARRAYSIZE(FilesMenu),L"FilesMenu",
-		MSG(MMenuCommandsTitle),0,CmdMenu,ARRAYSIZE(CmdMenu),L"CmdMenu",
-		MSG(MMenuOptionsTitle),0,OptionsMenu,ARRAYSIZE(OptionsMenu),L"OptMenu",
-		MSG(MMenuRightTitle),0,RightMenu,ARRAYSIZE(RightMenu),L"LeftRightMenu"
+		{MSG(MMenuLeftTitle), L"LeftRightMenu", LeftMenu, ARRAYSIZE(LeftMenu), 1},
+		{MSG(MMenuFilesTitle), L"FilesMenu", FilesMenu, ARRAYSIZE(FilesMenu), 0},
+		{MSG(MMenuCommandsTitle), L"CmdMenu", CmdMenu, ARRAYSIZE(CmdMenu), 0},
+		{MSG(MMenuOptionsTitle), L"OptMenu", OptionsMenu, ARRAYSIZE(OptionsMenu), 0},
+		{MSG(MMenuRightTitle), L"LeftRightMenu", RightMenu, ARRAYSIZE(RightMenu), 0},
 	};
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;

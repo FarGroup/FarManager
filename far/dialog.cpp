@@ -999,7 +999,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 			// диалоговую функцию
 			FarDialogItemData IData;
 			IData.PtrData=const_cast<wchar_t*>(strData.CPtr());
-			IData.PtrLength=(int)strData.GetLength();
+			IData.PtrLength=strData.GetLength();
 			SendDlgMessage(this,DM_SETTEXT,MsgIndex,&IData);
 		}
 	}
@@ -5815,7 +5815,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 					case DI_FIXEDIT:
 					case DI_LISTBOX: // меняет только текущий итем
 						CurItem->strData = did->PtrData;
-						Len = (int)CurItem->strData.GetLength();
+						Len = CurItem->strData.GetLength();
 						break;
 					default:
 						Len=0;

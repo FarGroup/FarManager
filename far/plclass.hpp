@@ -42,7 +42,6 @@ class AncientPlugin
 class PluginManager;
 struct ExecuteStruct
 {
-	int id; //function id
 	union
 	{
 		INT_PTR nResult;
@@ -56,7 +55,7 @@ struct ExecuteStruct
 		HANDLE hDefaultResult;
 		BOOL bDefaultResult;
 	};
-
+	int id; //function id
 	bool bUnloaded;
 };
 

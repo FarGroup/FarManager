@@ -41,16 +41,8 @@ class Manager
 		friend void ManagerClass_Dump(const wchar_t *Title,const Manager *m,FILE *fp);
 #endif
 	private:
-		Frame **ModalStack;     // Стек модальных фреймов
-		int ModalStackCount;    // Размер стека модальных фреймов
-		int ModalStackSize;     // Буфер стека модальных фреймов
-
+		INPUT_RECORD LastInputRecord;
 		int  FrameCount;         // Размер немодальной очереди
-		Frame **FrameList;       // Очередь модальных фреймов
-		int  FrameListSize;      // размер буфера под немодальную очередь
-		int  FramePos;           // Индекс текущий немодального фрейма. Он не всегда совпадает с CurrentFrame
-		// текущий немодальный фрейм можно получить с помощью FrameManager->GetBottomFrame();
-
 		/*$ Претенденты на ... */
 		Frame *InsertedFrame;   // Фрейм, который будет добавлен в конец немодальной очереди
 		Frame *DeletedFrame;    // Фрейм, предназначений для удаления из модальной очереди, из модального стека, либо одиночный (которого нет ни там, ни там)
@@ -63,9 +55,15 @@ class Manager
 
 		Frame *CurrentFrame;     // текущий фрейм. Он может нахлодиться как в немодальной очереди, так и в можальном стеке
 		// его можно получить с помощью FrameManager->GetCurrentFrame();
-		/*Frame **SemiModalBackFrames;
-		int SemiModalBackFramesCount;
-		int SemiModalBackFramesSize;*/
+
+		Frame **ModalStack;     // Стек модальных фреймов
+		Frame **FrameList;       // Очередь модальных фреймов
+		int ModalStackCount;    // Размер стека модальных фреймов
+		int ModalStackSize;     // Буфер стека модальных фреймов
+
+		int  FrameListSize;      // размер буфера под немодальную очередь
+		int  FramePos;           // Индекс текущий немодального фрейма. Он не всегда совпадает с CurrentFrame
+		// текущий немодальный фрейм можно получить с помощью FrameManager->GetBottomFrame();
 
 		/* $ 15.05.2002 SKV
 		  Так как есть полумодалы, что б не было путаницы,
@@ -76,12 +74,9 @@ class Manager
 		  2) не только для editor/viewer'ов.
 		*/
 		int ModalEVCount;
-
 		int  EndLoop;            // Признак выхода из цикла
-		int  StartManager;
-		INPUT_RECORD LastInputRecord;
-
 		int ModalExitCode;
+		int  StartManager;
 
 	private:
 		void StartupMainloop();

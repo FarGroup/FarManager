@@ -4158,7 +4158,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 					xf_free(fn);
 
 				memset(oei,0,sizeof(*oei));
-				size_t FileNameSize=static_cast<int>(NativeInfo.EditorControl(-1,ECTL_GETFILENAME,0,0));
+				size_t FileNameSize=NativeInfo.EditorControl(-1,ECTL_GETFILENAME,0,0);
 
 				if (FileNameSize)
 				{
@@ -4379,7 +4379,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 						newsp.Type = ESPT_GETWORDDIV;
 						newsp.wszParam = nullptr;
 						newsp.Size = 0;
-						newsp.Size = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp));
+						newsp.Size = NativeInfo.EditorControl(-1,ECTL_SETPARAM, 0, &newsp);
 						newsp.wszParam = (wchar_t*)xf_malloc(newsp.Size*sizeof(wchar_t));
 
 						if (newsp.wszParam)

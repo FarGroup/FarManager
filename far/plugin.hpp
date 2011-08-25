@@ -462,9 +462,9 @@ struct FarList
 
 struct FarListTitles
 {
-	int   TitleLen;
+	size_t   TitleLen;
 	const wchar_t *Title;
-	int   BottomLen;
+	size_t   BottomLen;
 	const wchar_t *Bottom;
 };
 
@@ -691,7 +691,6 @@ static const PLUGINPANELITEMFLAGS
 
 struct PluginPanelItem
 {
-	DWORD    FileAttributes;
 	FILETIME CreationTime;
 	FILETIME LastAccessTime;
 	FILETIME LastWriteTime;
@@ -705,15 +704,16 @@ struct PluginPanelItem
 	const wchar_t *FileName;
 	const wchar_t *AlternateFileName;
 #endif // END FAR_USE_INTERNALS
-	PLUGINPANELITEMFLAGS Flags;
-	DWORD         NumberOfLinks;
 	const wchar_t *Description;
 	const wchar_t *Owner;
 	const wchar_t * const *CustomColumnData;
-	size_t           CustomColumnNumber;
-	DWORD_PTR     UserData;
-	DWORD         CRC32;
-	DWORD_PTR     Reserved[2];
+	size_t CustomColumnNumber;
+	DWORD_PTR UserData;
+	PLUGINPANELITEMFLAGS Flags;
+	DWORD FileAttributes;
+	DWORD NumberOfLinks;
+	DWORD CRC32;
+	DWORD_PTR Reserved[2];
 };
 
 struct FarGetPluginPanelItem
@@ -1364,13 +1364,13 @@ struct WindowInfo
 {
 	size_t StructSize;
 	INT_PTR Id;
-	int  Pos;
+	wchar_t *TypeName;
+	wchar_t *Name;
+	int TypeNameSize;
+	int NameSize;
+	int Pos;
 	enum WINDOWINFO_TYPE Type;
 	WINDOWINFO_FLAGS Flags;
-	wchar_t *TypeName;
-	int TypeNameSize;
-	wchar_t *Name;
-	int NameSize;
 };
 
 struct WindowType
@@ -1470,16 +1470,16 @@ struct ViewerMode
 struct ViewerInfo
 {
 	size_t StructSize;
-	int    ViewerID;
-	const wchar_t *FileName;
+	struct ViewerMode CurMode;
 	__int64 FileSize;
 	__int64 FilePos;
-	int    WindowSizeX;
-	int    WindowSizeY;
-	VIEWER_OPTIONS  Options;
-	int    TabSize;
-	struct ViewerMode CurMode;
 	__int64 LeftPos;
+	VIEWER_OPTIONS Options;
+	const wchar_t *FileName;
+	int ViewerID;
+	int WindowSizeX;
+	int WindowSizeY;
+	int TabSize;
 };
 
 enum VIEWER_EVENTS
@@ -1622,6 +1622,7 @@ struct EditorUndoRedo
 struct EditorGetString
 {
 	int StringNumber;
+	int StringLength;
 #ifdef FAR_USE_INTERNALS
 	wchar_t *StringText;
 	wchar_t *StringEOL;
@@ -1629,7 +1630,6 @@ struct EditorGetString
 	const wchar_t *StringText;
 	const wchar_t *StringEOL;
 #endif // END FAR_USE_INTERNALS
-	int StringLength;
 	int SelStart;
 	int SelEnd;
 };
@@ -1638,9 +1638,9 @@ struct EditorGetString
 struct EditorSetString
 {
 	int StringNumber;
+	int StringLength;
 	const wchar_t *StringText;
 	const wchar_t *StringEOL;
-	int StringLength;
 };
 
 enum EXPAND_TABS

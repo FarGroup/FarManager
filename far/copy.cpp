@@ -132,14 +132,14 @@ static BOOL ZoomedState,IconicState;
 
 struct CopyDlgParam
 {
+	string strPluginFormat;
 	ShellCopy *thisClass;
 	int AltF10;
-	DWORD FileAttr;
+	int CopySecurity;
 	int SelCount;
+	DWORD FileAttr;
 	bool FolderPresent;
 	bool FilesPresent;
-	int CopySecurity;
-	string strPluginFormat;
 	bool AskRO;
 };
 
@@ -841,7 +841,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 {
 	Filter=nullptr;
 	DestList.SetParameters(0,0,ULF_UNIQUE);
-	CopyDlgParam CDP={0};
+	CopyDlgParam CDP={};
 	if (!(CDP.SelCount=SrcPanel->GetSelCount()))
 		return;
 

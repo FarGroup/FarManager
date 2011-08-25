@@ -425,13 +425,13 @@ INT_PTR WINAPI ElevationApproveDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 struct EAData
 {
 	Event* pEvent;
-	int Why;
 	LPCWSTR Object;
+	int Why;
 	bool& AskApprove;
 	bool& Approve;
 	bool& DontAskAgain;
-	EAData(Event* pEvent, int Why, LPCWSTR Object, bool& AskApprove, bool& Approve, bool& DontAskAgain):
-		pEvent(pEvent), Why(Why), Object(Object), AskApprove(AskApprove), Approve(Approve), DontAskAgain(DontAskAgain){}
+	EAData(Event* pEvent, LPCWSTR Object, int Why, bool& AskApprove, bool& Approve, bool& DontAskAgain):
+		pEvent(pEvent), Object(Object), Why(Why), AskApprove(AskApprove), Approve(Approve), DontAskAgain(DontAskAgain){}
 };
 
 void ElevationApproveDlgSync(LPVOID Param)
@@ -474,7 +474,7 @@ bool elevation::ElevationApproveDlg(int Why, LPCWSTR Object)
 		Recurse = true;
 		GuardLastError error;
 		TaskBarPause TBP;
-		EAData Data(nullptr, Why, Object, AskApprove, Approve, DontAskAgain);
+		EAData Data(nullptr, Object, Why, AskApprove, Approve, DontAskAgain);
 		if(GetCurrentThreadId()!=MainThreadID)
 		{
 			Data.pEvent=new Event();

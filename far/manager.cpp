@@ -62,13 +62,7 @@ Manager *FrameManager;
 long CurrentWindowType=-1;
 
 Manager::Manager():
-	ModalStack(nullptr),
-	ModalStackCount(0),
-	ModalStackSize(0),
 	FrameCount(0),
-	FrameList(static_cast<Frame **>(xf_malloc(sizeof(Frame*)*(FrameCount+1)))),
-	FrameListSize(0),
-	FramePos(-1),
 	InsertedFrame(nullptr),
 	DeletedFrame(nullptr),
 	ActivatedFrame(nullptr),
@@ -78,6 +72,12 @@ Manager::Manager():
 	DeactivatedFrame(nullptr),
 	ExecutedFrame(nullptr),
 	CurrentFrame(nullptr),
+	ModalStack(nullptr),
+	FrameList(static_cast<Frame **>(xf_malloc(sizeof(Frame*)*(FrameCount+1)))),
+	ModalStackCount(0),
+	ModalStackSize(0),
+	FrameListSize(0),
+	FramePos(-1),
 	ModalEVCount(0),
 	EndLoop(FALSE),
 	StartManager(FALSE)

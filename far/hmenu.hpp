@@ -40,10 +40,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct HMenuData
 {
 	const wchar_t *Name;
-	int Selected;
+	const wchar_t *SubMenuHelp;
 	struct MenuDataEx *SubMenu;
 	int SubMenuSize;
-	const wchar_t *SubMenuHelp;
+	int Selected;
 };
 
 class VMenu;

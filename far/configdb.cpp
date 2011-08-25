@@ -1344,7 +1344,7 @@ public:
 		void *enabled = nullptr;
 		if (stmtGetExportState.Bind(id).Bind(ExportName).Step())
 			if (stmtGetExportState.GetColInt(0) > 0)
-				enabled = (void *)1;
+				enabled = ToPtr(1);
 		stmtGetExportState.Reset();
 		return enabled;
 	}
@@ -1466,12 +1466,12 @@ public:
 
 	bool SetMinFarVersion(unsigned __int64 id, const VersionInfo *Version)
 	{
-		return stmtSetMinFarVersion.Bind(id).Bind((const char *)Version,(int)sizeof(VersionInfo)).StepAndReset();
+		return stmtSetMinFarVersion.Bind(id).Bind(Version, sizeof(VersionInfo)).StepAndReset();
 	}
 
 	bool SetVersion(unsigned __int64 id, const VersionInfo *Version)
 	{
-		return stmtSetVersion.Bind(id).Bind((const char *)Version,(int)sizeof(VersionInfo)).StepAndReset();
+		return stmtSetVersion.Bind(id).Bind(Version,sizeof(VersionInfo)).StepAndReset();
 	}
 
 	bool SetGuid(unsigned __int64 id, const wchar_t *Guid)

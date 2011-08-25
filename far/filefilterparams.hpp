@@ -89,10 +89,10 @@ class FileFilterParams
 
 		struct
 		{
-			bool Used;
-			enumFDateType DateType;
 			ULARGE_INTEGER DateAfter;
 			ULARGE_INTEGER DateBefore;
+			enumFDateType DateType;
+			bool Used;
 			bool bRelative;
 		} FDate;
 

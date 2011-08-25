@@ -129,20 +129,20 @@ enum INTMF_FLAGS{
 struct TMacroFunction
 {
 	const wchar_t *Name;             // имя функции
-	int nParam;                      // количество параметров
-	int oParam;                      // необязательные параметры
-	TMacroOpCode Code;               // байткод функции
 	const wchar_t *fnGUID;           // GUID обработчика функции
 
-	int    BufferSize;               // Размер буфера компилированной последовательности
-	DWORD *Buffer;                   // компилированная последовательность (OpCode) макроса
 	//wchar_t  *Src;                   // оригинальный "текст" макроса
 	//wchar_t  *Description;           // описание макроса
 
 	const wchar_t *Syntax;           // Синтаксис функции
 
-	DWORD IntFlags;                  // флаги из INTMF_FLAGS (в основном отвечающие "как вызывать функцию")
 	INTMACROFUNC Func;               // функция
+	DWORD *Buffer;                   // компилированная последовательность (OpCode) макроса
+	int    BufferSize;               // Размер буфера компилированной последовательности
+	DWORD IntFlags;                  // флаги из INTMF_FLAGS (в основном отвечающие "как вызывать функцию")
+	TMacroOpCode Code;               // байткод функции
+	int nParam;                      // количество параметров
+	int oParam;                      // необязательные параметры
 };
 
 struct MacroRecord
@@ -163,18 +163,17 @@ struct MacroRecord
 
 struct MacroState
 {
-	int KeyProcess;
+	INPUT_RECORD cRec; // "описание реально нажатой клавиши"
 	int Executing;
+	struct MacroRecord *MacroWORK; // т.н. текущее исполнение
+	TVarTable *locVarTable;
+	int KeyProcess;
 	int MacroPC;
 	int ExecLIBPos;
 	int MacroWORKCount;
 	DWORD HistroyEnable;
 	bool UseInternalClipboard;
-	struct MacroRecord *MacroWORK; // т.н. текущее исполнение
-	INPUT_RECORD cRec; // "описание реально нажатой клавиши"
-
 	bool AllocVarTable;
-	TVarTable *locVarTable;
 
 	void Init(TVarTable *tbl);
 };

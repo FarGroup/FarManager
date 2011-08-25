@@ -286,17 +286,19 @@ int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, UINT 
 }
 
 Language::Language():
-	LastError(LERROR_SUCCESS),
-	LanguageLoaded(false),
 	MsgAddr(nullptr),
 	MsgList(nullptr),
 #ifndef NO_WRAPPER
 	MsgAddrA(nullptr),
 	MsgListA(nullptr),
-	m_bUnicode(true),
 #endif // NO_WRAPPER
 	MsgSize(0),
-	MsgCount(0)
+	MsgCount(0),
+	LastError(LERROR_SUCCESS),
+	LanguageLoaded(false),
+#ifndef NO_WRAPPER
+	m_bUnicode(true)
+#endif // NO_WRAPPER
 {
 }
 

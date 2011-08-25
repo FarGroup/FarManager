@@ -170,9 +170,9 @@ struct PluginsListItem
 
 struct PrevDataItem
 {
+	string strPrevName;
 	FileListItem **PrevListData;
 	int PrevFileCount;
-	string strPrevName;
 	int PrevTopFile;
 };
 

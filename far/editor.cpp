@@ -2859,7 +2859,7 @@ int Editor::ProcessKey(int Key)
 						int NewLength;
 						CurLine->GetBinaryString(&NewCmpStr,nullptr,NewLength);
 
-						if (NewLength!=Length || memcmp(CmpStr,NewCmpStr,Length*sizeof(wchar_t)))
+						if (NewLength!=Length || memcmp(CmpStr,NewCmpStr,Length*sizeof(wchar_t))!=0)
 						{
 							AddUndoData(UNDO_EDIT,CmpStr,CurLine->GetEOL(),NumLine,CurPos,Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 							TextChanged(1);

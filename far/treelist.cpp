@@ -588,10 +588,11 @@ void TreeList::SaveTreeFile()
 		}
 		else
 		{
-			DWORD Size=static_cast<DWORD>((ListData[I]->strName.GetLength()-RootLength)*sizeof(WCHAR));
-			Success=Cache.Write(ListData[I]->strName+RootLength,Size);
-			Size=1*sizeof(WCHAR);
-			Success=Cache.Write(L"\n",Size);
+			Success=Cache.Write(ListData[I]->strName+RootLength, static_cast<DWORD>((ListData[I]->strName.GetLength()-RootLength)*sizeof(WCHAR)));
+			if(Success)
+			{
+				Success=Cache.Write(L"\n",1*sizeof(WCHAR));
+			}
 		}
 	}
 	Cache.Flush();

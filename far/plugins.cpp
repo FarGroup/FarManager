@@ -186,7 +186,7 @@ PluginType IsModulePlugin2(
 		if (!dwExportAddr)
 			return NOT_PLUGIN;
 
-		PIMAGE_SECTION_HEADER pSection = (PIMAGE_SECTION_HEADER)IMAGE_FIRST_SECTION(pPEHeader);
+		PIMAGE_SECTION_HEADER pSection = IMAGE_FIRST_SECTION(pPEHeader);
 
 		for (int i = 0; i < pPEHeader->FileHeader.NumberOfSections; i++)
 		{

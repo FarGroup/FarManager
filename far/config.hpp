@@ -182,20 +182,19 @@ struct DizOptions
 
 struct CodeXLAT
 {
+	HKL Layouts[10];
+	string Rules[3]; // правила:
+	// [0] "если предыдущий символ латинский"
+	// [1] "если предыдущий символ нелатинский символ"
+	// [2] "если предыдущий символ не рус/lat"
+	string Table[2]; // [0] non-english буквы, [1] english буквы
+	string strWordDivForXlat;
 	DWORD Flags;       // дополнительные флаги
 
 	/* $ 25.11.2000 IS
 	   Разграничитель слов из реестра для функции Xlat
 	*/
-	string strWordDivForXlat;
-	HKL Layouts[10];
 	int CurrentLayout;
-
-	string Table[2]; // [0] non-english буквы, [1] english буквы
-	string Rules[3]; // правила:
-	// [0] "если предыдущий символ латинский"
-	// [1] "если предыдущий символ нелатинский символ"
-	// [2] "если предыдущий символ не рус/lat"
 };
 
 struct EditorOptions
@@ -377,13 +376,13 @@ struct ScreenSizes
 
 struct LoadPluginsOptions
 {
+	string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
+	string strPersonalPluginsPath;
 //  DWORD TypeLoadPlugins;       // see TYPELOADPLUGINSOPTIONS
 	int MainPluginDir; // TRUE - использовать стандартный путь к основным плагинам
 	int PluginsCacheOnly; // seting by '/co' switch, not saved in registry
 	int PluginsPersonal;
 
-	string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
-	string strPersonalPluginsPath;
 	int SilentLoadPlugin; // при загрузке плагина с кривым...
 #ifndef NO_WRAPPER
 	int OEMPluginsSupport;

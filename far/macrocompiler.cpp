@@ -1489,7 +1489,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	//	MacroSrcList.Reset();
 	//}
 
-	int SizeCurKeyText = (int)(StrLength(BufPtr)*2)*sizeof(wchar_t);
+	size_t SizeCurKeyText = (StrLength(BufPtr)*2)*sizeof(wchar_t);
 	string strCurrKeyText;
 	//- AN ----------------------------------------------
 	//  Буфер под парсинг выражений
