@@ -52,7 +52,7 @@ struct TreeItem
 	TreeItem()
 	{
 		LastCount=MAX_PATH/2;
-		Last=static_cast<int*>(xf_malloc(LastCount*sizeof(int)));
+		Last=static_cast<int*>(xf_malloc(LastCount*sizeof(*Last)));
 		Clear();
 	}
 	~TreeItem()
@@ -63,7 +63,7 @@ struct TreeItem
 	void Clear()
 	{
 		strName.Clear();
-		memset(Last,0,sizeof(LastCount*sizeof(*Last)));
+		memset(Last,0,LastCount*sizeof(*Last));
 		Depth=0;
 	}
 
