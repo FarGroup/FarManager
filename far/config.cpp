@@ -74,7 +74,9 @@ const wchar_t *constBatchExt=L".BAT;.CMD;";
 
 string strKeyNameConsoleDetachKey;
 static const wchar_t szCtrlDot[]=L"Ctrl.";
+static const wchar_t szRCtrlDot[]=L"RCtrl.";
 static const wchar_t szCtrlShiftDot[]=L"CtrlShift.";
+static const wchar_t szRCtrlShiftDot[]=L"RCtrlShift.";
 
 // KeyName
 const wchar_t NKeyColors[]=L"Colors";
@@ -938,14 +940,20 @@ void ReadConfig()
 	string strKeyNameFromCfg;
 
 	GeneralCfg->GetValue(NKeyKeyMacros,L"KeyRecordCtrlDot",strKeyNameFromCfg,szCtrlDot);
-
 	if ((Opt.Macro.KeyMacroCtrlDot=KeyNameToKey(strKeyNameFromCfg)) == (DWORD)-1)
 		Opt.Macro.KeyMacroCtrlDot=KEY_CTRLDOT;
 
-	GeneralCfg->GetValue(NKeyKeyMacros,L"KeyRecordCtrlShiftDot",strKeyNameFromCfg,szCtrlShiftDot);
+	GeneralCfg->GetValue(NKeyKeyMacros,L"KeyRecordRCtrlDot",strKeyNameFromCfg,szRCtrlDot);
+	if ((Opt.Macro.KeyMacroRCtrlDot=KeyNameToKey(strKeyNameFromCfg)) == (DWORD)-1)
+		Opt.Macro.KeyMacroRCtrlDot=KEY_RCTRLDOT;
 
+	GeneralCfg->GetValue(NKeyKeyMacros,L"KeyRecordCtrlShiftDot",strKeyNameFromCfg,szCtrlShiftDot);
 	if ((Opt.Macro.KeyMacroCtrlShiftDot=KeyNameToKey(strKeyNameFromCfg)) == (DWORD)-1)
 		Opt.Macro.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
+
+	GeneralCfg->GetValue(NKeyKeyMacros,L"KeyRecordRCtrlShiftDot",strKeyNameFromCfg,szRCtrlShiftDot);
+	if ((Opt.Macro.KeyMacroRCtrlShiftDot=KeyNameToKey(strKeyNameFromCfg)) == (DWORD)-1)
+		Opt.Macro.KeyMacroRCtrlShiftDot=KEY_RCTRL|KEY_SHIFT|KEY_DOT;
 
 	Opt.EdOpt.strWordDiv = Opt.strWordDiv;
 	FileList::ReadPanelModes();

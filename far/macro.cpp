@@ -757,7 +757,9 @@ int KeyMacro::ProcessKey(int Key)
 
 	if (Recording) // Идет запись?
 	{
-		if ((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot || (unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot) // признак конца записи?
+		// признак конца записи?
+		if ((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlDot
+			|| (unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlShiftDot)
 		{
 			_KEYMACRO(CleverSysLog Clev(L"MACRO End record..."));
 			DWORD MacroKey;
@@ -774,7 +776,8 @@ int KeyMacro::ProcessKey(int Key)
 			// добавим проверку на удаление
 			// если удаляем, то не нужно выдавать диалог настройки.
 			//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
-			if (MacroKey != (DWORD)-1 && (unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot && RecBufferSize)
+			if (MacroKey != (DWORD)-1 && RecBufferSize
+				&& ((unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlShiftDot))
 			{
 				if (!GetMacroSettings(MacroKey,Flags))
 					MacroKey=(DWORD)-1;
@@ -894,7 +897,9 @@ int KeyMacro::ProcessKey(int Key)
 			return FALSE;
 		}
 	}
-	else if ((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot || (unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot) // Начало записи?
+	// Начало записи?
+	else if ((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlDot
+			|| (unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlShiftDot)
 	{
 		_KEYMACRO(CleverSysLog Clev(L"MACRO Begin record..."));
 
@@ -914,7 +919,7 @@ int KeyMacro::ProcessKey(int Key)
 		// тип записи - с вызовом диалога настроек или...
 		// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
 		// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
-		Recording=((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
+		Recording=((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
 
 		if (RecBuffer)
 			xf_free(RecBuffer);

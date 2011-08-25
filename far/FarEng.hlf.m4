@@ -265,7 +265,8 @@ $ #Panel control commands  #
 
     #File panel commands#
 
-  Select/deselect file                        #Ins, Shift-Cursor keys#
+  ~Select/deselect file~@SelectFiles@                        #Ins, Shift-Cursor keys#
+                                                  #Right mouse button#
   Select group                                                #Gray +#
   Deselect group                                              #Gray -#
   Invert selection                                            #Gray *#
@@ -3609,29 +3610,53 @@ and the '|' character separates include masks from exclude masks.
 
 @SelectFiles
 $ #Selecting files#
-    To process several ~file panel~@FilePanel@ files and folders, they may be
-selected using different methods. #Ins# selects the file under the cursor and
-moves the cursor down, #Shift-Cursor keys# move the cursor in different
-directions.
+    Для обработки файлов и папок ~панели файлов~@FilePanel@ они могут быть
+помечены (будет обработана помеченная группа). Если ни один элемент панели не
+помечен, то будет обработан только элемент под курсором.
 
-    #Gray +# and #Gray -# perform group select and deselect, using one or more
-~file masks~@FileMasks@ delimited by commas. #Gray *# inverts the current
-selection. #Restore selection# command (#Ctrl-M#) restores the previously
-selected group.
+ #Пометка с клавиатуры#
 
-    #Ctrl-<Gray +># and #Ctrl-<Gray -># selects and deselects all files with
-the same extension as the file under cursor.
+    #Ins# помечает или снимает пометку с файла или папки под курсором и перемещает курсор вниз,
+#Shift-Клавиши курсора# позволяют перемещать курсор в различных направлениях.
 
-    #Alt-<Gray +># and #Alt-<Gray -># selects and deselects all files with the
-same name as the file under cursor.
+    #Gray +# и #Gray -# выбирают и снимают пометку с группы с использованием
+одной или нескольких разделённых запятыми ~масок файлов~@FileMasks@. #Gray *#
+инвертирует текущую пометку. Если параметр #Пометка папок# в диалоге ~Настроек панели~@PanelSettings@
+включен, то пометка меняется и для папок.
 
-    #Ctrl-<Gray *># inverts the current selection including folders. If #Select#
-#folders# option in ~Panel settings~@PanelSettings@ dialog is on, it has the
-same function as #Gray *#.
+    #Ctrl-<Gray +># и #Ctrl-<Gray -># выбирают и снимают пометку со всех
+файлов с тем же расширением, что и у файла под курсором. Если параметр
+#Пометка папок# в диалоге ~Настроек панели~@PanelSettings@ включен, то
+пометка меняется и для папок.
 
-    #Shift-<Gray +># and #Shift-<Gray -># selects and deselects all files.
+    #Alt-<Gray +># и #Alt-<Gray -># выбирают и снимают пометку со всех файлов
+с тем же именем, что и у файла под курсором. Если параметр #Пометка папок# в диалоге
+~Настроек панели~@PanelSettings@ включен, то пометка меняется и для папок.
 
-    If no files are selected, only the file under the cursor will be processed.
+    #Gray *# инвертирует текущую пометку для файлов, или для файлов и папок,
+если параметр #Пометка папок# в диалоге ~Настроек панели~@PanelSettings@ включен.
+    
+    #Ctrl-<Gray *># инвертирует текущую пометку, включая папки.
+
+    #Shift-<Gray +># и #Shift-<Gray -># выбирают и снимают пометку со всех
+файлов, или для файлов и папок, если параметр #Пометка папок# в диалоге
+~Настроек панели~@PanelSettings@ включен.
+
+    #Ctrl-M# (#Восстановить пометку#) восстанавливает предыдущую
+выделенную группу.
+
+
+ #Пометка мышью#
+
+    #Щелчок правой кнопкой мыши# помечает или снимает пометку с файла или
+папки под курсором мыши.
+
+    Если щелкнуть правой кнопкой мыши над списком файлов (строка
+с заголовками колонок) или под списком файлов (статусная область) то при
+удерживании правой кнопкой мыши список файлов будет прокручиваться вверх
+или вниз помечая или снимая пометку с файлов, по которым пробегает курсор.
+Действие (пометка или снятие пометки) соответствует состоянию файла под
+курсором до начала прокрутки.
 
 
 @CopyFiles
