@@ -148,6 +148,15 @@ inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
 
 inline void* ToPtr(INT_PTR T){ return reinterpret_cast<void*>(T); }
 
+template<typename T>
+inline void ClearStruct(T& s) { memset(&s, 0, sizeof(s)); }
+
+template<typename T>
+inline void ClearStruct(T* s) { T dont_instantiate_this_template_with_pointers = s; }
+
+template<typename T, size_t N>
+inline void ClearArray(T (&a)[N]) { memset(a, 0, sizeof(a[0])*N); }
+
 #define IsPtr(x) ((DWORD_PTR)x>(DWORD_PTR)SystemInfo.lpMinimumApplicationAddress && (DWORD_PTR)x<(DWORD_PTR)SystemInfo.lpMaximumApplicationAddress)
 
 #define SIGN_UNICODE    0xFEFF

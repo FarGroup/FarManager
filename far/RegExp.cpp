@@ -217,7 +217,7 @@ struct UniSet
 	char negative;
 	UniSet()
 	{
-		memset(high,0,sizeof(high));
+		ClearArray(high);
 		types=0;
 		nottypes=0;
 		negative=0;
@@ -527,7 +527,7 @@ struct REOpCode
 #else
 	REOpCode()
 	{
-		memset(this,0,sizeof(*this));
+		ClearStruct(*this);
 	}
 	~REOpCode();
 #endif
@@ -746,7 +746,7 @@ case opClassMinRange:delete [] range.symbolclass; break;
 
 void RegExp::Init(const prechar expr,int options)
 {
-	//memset(this,0,sizeof(*this));
+	//ClearStruct(*this);
 	code=nullptr;
 	brhandler=nullptr;
 	brhdata=nullptr;

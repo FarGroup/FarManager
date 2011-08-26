@@ -554,7 +554,7 @@ KeyMacro::KeyMacro():
 	LockScr(nullptr)
 {
 	Work.Init(nullptr);
-	memset(&IndexMode,0,sizeof(IndexMode));
+	ClearArray(IndexMode);
 }
 
 KeyMacro::~KeyMacro()
@@ -606,7 +606,7 @@ void KeyMacro::InitInternalLIBVars()
 	RecBuffer=nullptr;
 	RecBufferSize=0;
 
-	memset(&IndexMode,0,sizeof(IndexMode));
+	ClearArray(IndexMode);
  	//MacroLIBCount=0;
  	//MacroLIB=nullptr;
 	//LastOpCodeUF=KEY_MACRO_U_BASE;
@@ -1469,7 +1469,7 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 
 					if (SelPanel )
 					{
-						PluginInfo PInfo;
+						PluginInfo PInfo = {sizeof(PInfo)};
 						if (SelPanel->VMProcess(MCODE_V_APANEL_PREFIX,&PInfo))
 							Cond = PInfo.CommandPrefix;
 					}
@@ -7680,7 +7680,7 @@ int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 	if (KeyPos && RBuf)
 	{
 		*KeyPos=Work.Executing?Work.ExecLIBPos:0;
-		memset(RBuf,0,sizeof(MacroRecord));
+		ClearStruct(*RBuf);
 
 		if (Recording == MACROMODE_NOMACRO)
 		{
@@ -7690,7 +7690,7 @@ int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 				return Work.Executing;
 			}
 
-			memset(RBuf,0,sizeof(MacroRecord));
+			ClearStruct(*RBuf);
 			return MACROMODE_NOMACRO;
 		}
 
@@ -7731,7 +7731,7 @@ void KeyMacro::Sort()
 	far_qsort(MacroLIB,MacroLIBCount,sizeof(MacroRecord),(qsort_fn)SortMacros);
 	// перестраиваем индекс начал
 	int CurMode=MACRO_OTHER;
-	memset(IndexMode,0,sizeof(IndexMode));
+	ClearArray(IndexMode);
 
 	for (int I=0; I<MacroLIBCount; I++)
 	{

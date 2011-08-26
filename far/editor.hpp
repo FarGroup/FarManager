@@ -63,7 +63,7 @@ struct EditorUndoData
 
 	EditorUndoData()
 	{
-		memset(this, 0, sizeof(*this));
+		ClearStruct(*this);
 	}
 	~EditorUndoData()
 	{

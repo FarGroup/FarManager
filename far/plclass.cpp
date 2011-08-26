@@ -506,7 +506,7 @@ bool Plugin::SaveToCache()
 		Exports[iGetCustomData]
 	)
 	{
-		PluginInfo Info;
+		PluginInfo Info = {sizeof(Info)};
 		GetPluginInfo(&Info);
 
 		PlCacheCfg->BeginTransaction();
@@ -824,7 +824,7 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 
 		if (!PlCacheCfg->GetVersion(id, &PluginVersion))
 		{
-			memset(&PluginVersion, 0, sizeof(PluginVersion));
+			ClearStruct(PluginVersion);
 		}
 
 		m_strGuid = PlCacheCfg->GetGuid(id);
@@ -881,7 +881,7 @@ int Plugin::Unload(bool bExitFAR)
 
 void Plugin::ClearExports()
 {
-	memset(Exports, 0, sizeof(Exports));
+	ClearArray(Exports);
 }
 
 bool Plugin::IsPanelPlugin()
@@ -930,7 +930,7 @@ bool Plugin::GetGlobalInfo(GlobalInfo *gi)
 {
 	if (Exports[iGetGlobalInfo])
 	{
-		memset(gi, 0, sizeof(GlobalInfo));
+		ClearStruct(*gi);
 		ExecuteStruct es;
 		es.id = EXCEPT_GETGLOBALINFO;
 		EXECUTE_FUNCTION(FUNCTION(iGetGlobalInfo)(gi), es);
@@ -1602,8 +1602,6 @@ int Plugin::Configure(const GUID& Guid)
 
 bool Plugin::GetPluginInfo(PluginInfo *pi)
 {
-	memset(pi, 0, sizeof(PluginInfo));
-
 	if (Exports[iGetPluginInfo] && !ProcessException)
 	{
 		ExecuteStruct es;

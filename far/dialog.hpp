@@ -130,7 +130,7 @@ struct DialogItemEx: public FarDialogItem
 
 	void Clear()
 	{
-		memset(static_cast<FarDialogItem*>(this), 0, sizeof(FarDialogItem));
+		ClearStruct(*static_cast<FarDialogItem*>(this));
 
 		ListPos=0;
 		strHistory.Clear();

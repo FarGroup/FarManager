@@ -177,7 +177,7 @@ void FileList::SetFilePanelModes()
 		if (ExitCode!=MD_BUTTON_OK)
 			continue;
 
-		memset(&NewSettings,0,sizeof(NewSettings));
+		ClearStruct(NewSettings);
 		if (ModeDlg[MD_CHECKBOX_FULLSCREEN].Selected)
 			NewSettings.Flags|=PVS_FULLSCREEN;
 		if (ModeDlg[MD_CHECKBOX_ALIGNFILEEXT].Selected)

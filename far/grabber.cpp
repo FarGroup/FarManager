@@ -53,8 +53,8 @@ Grabber::Grabber()
 	SaveScr=new SaveScreen;
 	PrevMacroMode=CtrlObject->Macro.GetMode();
 	CtrlObject->Macro.SetMode(MACRO_OTHER);
-	memset(&GArea,0,sizeof(GArea));
-	memset(&PrevArea,0,sizeof(PrevArea));
+	ClearStruct(GArea);
+	ClearStruct(PrevArea);
 	bool Visible=false;
 	DWORD Size=0;
 	GetCursorType(Visible,Size);

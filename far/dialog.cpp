@@ -360,7 +360,7 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 	// запоминаем предыдущий заголовок консоли
 	OldTitle=new ConsoleTitle;
 	IdExist=false;
-	memset(&Id,0,sizeof(Id));
+	ClearStruct(Id);
 	bInitOK = true;
 }
 
@@ -3041,8 +3041,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	int MsX,MsY;
 	FARDIALOGITEMTYPES Type;
 	SMALL_RECT Rect;
-	INPUT_RECORD mouse;
-	memset(&mouse,0,sizeof(mouse));
+	INPUT_RECORD mouse = {};
 	mouse.EventType=MOUSE_EVENT;
 	mouse.Event.MouseEvent=*MouseEvent;
 
@@ -4148,7 +4147,10 @@ int Dialog::ProcessHighlighting(int Key,unsigned FocusPos,int Translate)
 	FARDIALOGITEMFLAGS Flags;
 
 	INPUT_RECORD rec;
-	if(!KeyToInputRecord(Key,&rec)) memset(&rec,0,sizeof(rec));
+	if(!KeyToInputRecord(Key,&rec))
+	{
+		ClearStruct(rec);
+	}
 
 	for (unsigned I=0; I<ItemCount; I++)
 	{
@@ -5095,7 +5097,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 							{
 								//ListItems->ItemIndex=1;
 								FarListItem *Item=&ListItems->Item;
-								memset(Item,0,sizeof(FarListItem));
+								ClearStruct(*Item);
 								Item->Flags=ListMenuItem->Flags;
 								Item->Text=ListMenuItem->strName;
 								/*

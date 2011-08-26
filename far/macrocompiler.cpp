@@ -1564,7 +1564,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					BufPtr++;
 				}
 
-				memset(varName, 0, sizeof(varName));
+				ClearArray(varName);
 				KeyCode = MCODE_OP_SAVE;
 				wchar_t* p = varName;
 				const wchar_t* s = strCurrKeyText.CPtr()+1;
@@ -1651,7 +1651,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					{
 						KeyCode=MCODE_OP_SAVE;
 						SizeVarName=1;
-						memset(varName, 0, sizeof(varName));
+						ClearArray(varName);
 					}
 				}
 				else

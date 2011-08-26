@@ -586,7 +586,7 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 		if (DateN[0]==(WORD)-1||DateN[1]==(WORD)-1||DateN[2]==(WORD)-1)
 		{
 			// Пользователь оставил дату пустой, значит обнулим дату и время.
-			memset(&ft,0,sizeof(ft));
+			ClearStruct(ft);
 			return;
 		}
 

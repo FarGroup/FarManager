@@ -231,16 +231,16 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 				if (p)
 				{
 					static PluginStartupInfo LocalStartupInfo;
-					memset(&LocalStartupInfo,0,sizeof(LocalStartupInfo));
+					ClearStruct(LocalStartupInfo);
 					static FarStandardFunctions LocalStandardFunctions;
-					memset(&LocalStandardFunctions,0,sizeof(LocalStandardFunctions));
+					ClearStruct(LocalStandardFunctions);
 					CreatePluginStartupInfo(nullptr, &LocalStartupInfo, &LocalStandardFunctions);
 					LocalStartupInfo.ModuleName = strFarEventSvc;
 					static PLUGINRECORD PlugRec;
 
 					if (Module)
 					{
-						memset(&PlugRec,0,sizeof(PlugRec));
+						ClearStruct(PlugRec);
 						PlugRec.TypeRec=RTYPE_PLUGIN;
 						PlugRec.SizeRec=sizeof(PLUGINRECORD);
 						PlugRec.ModuleName=Module->GetModuleName();

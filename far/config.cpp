@@ -997,7 +997,7 @@ void ReadConfig()
 
 	{
 		Opt.XLat.CurrentLayout=0;
-		memset(Opt.XLat.Layouts,0,sizeof(Opt.XLat.Layouts));
+		ClearArray(Opt.XLat.Layouts);
 		string strXLatLayouts;
 		GeneralCfg->GetValue(NKeyXLat,L"Layouts",strXLatLayouts,L"");
 
@@ -1025,9 +1025,9 @@ void ReadConfig()
 		}
 	}
 
-	memset(Opt.FindOpt.OutColumnTypes,0,sizeof(Opt.FindOpt.OutColumnTypes));
-	memset(Opt.FindOpt.OutColumnWidths,0,sizeof(Opt.FindOpt.OutColumnWidths));
-	memset(Opt.FindOpt.OutColumnWidthType,0,sizeof(Opt.FindOpt.OutColumnWidthType));
+	ClearArray(Opt.FindOpt.OutColumnTypes);
+	ClearArray(Opt.FindOpt.OutColumnWidths);
+	ClearArray(Opt.FindOpt.OutColumnWidthType);
 	Opt.FindOpt.OutColumnCount=0;
 
 

@@ -66,7 +66,7 @@ void Modal::Process()
 int Modal::ReadInput(INPUT_RECORD *GetReadRec)
 {
 	if (GetReadRec)
-		memset(GetReadRec,0,sizeof(INPUT_RECORD));
+		ClearStruct(*GetReadRec);
 
 	if (WriteKey>=0)
 	{

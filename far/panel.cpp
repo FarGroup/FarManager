@@ -2115,7 +2115,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				break;
 
 			PanelInfo *Info=(PanelInfo *)Param2;
-			memset(Info,0,sizeof(*Info));
+			ClearStruct(*Info);
 			UpdateIfRequired();
 			Info->OwnerGuid=FarGuid;
 			Info->PluginHandle=INVALID_HANDLE_VALUE;

@@ -775,7 +775,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		if (!Opt.ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
 			continue;
 
-		//memset(CurListData,0,sizeof(*CurListData));
+		//ClearStruct(*CurListData);
 		PluginToFileListItem(&PanelData[i],CurListData);
 		CurListData->Position=i;
 

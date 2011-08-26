@@ -2312,7 +2312,7 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 								if (CurMacro.BufferSize > 1)
 									xf_free(CurMacro.Buffer);
 
-								memset(&CheckText->Result,0,sizeof(struct MacroParseResult));
+								ClearStruct(CheckText->Result);
 								CheckText->Result.StructSize=sizeof(MacroParseResult);
 							}
 							else

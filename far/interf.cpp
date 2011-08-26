@@ -419,7 +419,7 @@ void ShowTime(int ShowAlways)
 
 	if (ShowAlways==2)
 	{
-		memset(&lasttm,0,sizeof(lasttm));
+		ClearStruct(lasttm);
 		return;
 	}
 

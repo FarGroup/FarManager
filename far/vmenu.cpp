@@ -2872,7 +2872,7 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 		Info->TopPos = TopPos;
 		Info->MaxHeight = MaxHeight;
 		Info->MaxLength = MaxLength;
-		memset(&Info->Reserved,0,sizeof(Info->Reserved));
+		ClearArray(Info->Reserved);
 		return TRUE;
 	}
 
@@ -2991,7 +2991,7 @@ FarListItem *VMenu::MenuItem2FarList(const MenuItemEx *MItem, FarListItem *FItem
 {
 	if (FItem && MItem)
 	{
-		memset(FItem,0,sizeof(FarListItem));
+		ClearStruct(*FItem);
 		FItem->Flags = MItem->Flags;
 		FItem->Text = MItem->strName;
 		return FItem;

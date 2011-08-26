@@ -1823,7 +1823,7 @@ void AnsiDialogItemToUnicodeSafe(oldfar::FarDialogItem &diA, FarDialogItem &di)
 
 void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarList &l)
 {
-	memset(&di,0,sizeof(FarDialogItem));
+	ClearStruct(di);
 	AnsiDialogItemToUnicodeSafe(diA,di);
 
 	switch (di.Type)
@@ -2113,7 +2113,7 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 			xf_free(OneDialogItem);
 
 		OneDialogItem=(oldfar::FarDialogItem*)xf_malloc(sizeof(oldfar::FarDialogItem));
-		memset(OneDialogItem,0,sizeof(oldfar::FarDialogItem));
+		ClearStruct(*OneDialogItem);
 		diA=OneDialogItem;
 	}
 
@@ -3056,7 +3056,7 @@ void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
 	if (PIA->SelectedItems)
 		FreePanelItemA(PIA->SelectedItems,PIA->SelectedItemsNumber);
 
-	memset(PIA,0,sizeof(oldfar::PanelInfo));
+	ClearStruct(*PIA);
 }
 
 int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
@@ -3203,7 +3203,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 			}
 			else
 			{
-				memset((oldfar::PanelInfo*)Param,0,sizeof(oldfar::PanelInfo));
+				ClearStruct(*(oldfar::PanelInfo*)Param);
 			}
 
 			Reenter--;
@@ -3216,7 +3216,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			oldfar::PanelInfo *OldPI=(oldfar::PanelInfo*)Param;
-			memset(OldPI,0,sizeof(oldfar::PanelInfo));
+			ClearStruct(*OldPI);
 
 			if (Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO)
 				hPlugin=PANEL_PASSIVE;
@@ -4157,7 +4157,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				if (fn)
 					xf_free(fn);
 
-				memset(oei,0,sizeof(*oei));
+				ClearStruct(*oei);
 				size_t FileNameSize=NativeInfo.EditorControl(-1,ECTL_GETFILENAME,0,0);
 
 				if (FileNameSize)
@@ -4705,8 +4705,8 @@ PluginA::PluginA(PluginManager *owner, const wchar_t *lpwszModuleName):
 {
 	ExportsNamesW = _ExportsNamesW;
 	ExportsNamesA = _ExportsNamesA;
-	memset(&PI,0,sizeof(PI));
-	memset(&OPI,0,sizeof(OPI));
+	ClearStruct(PI);
+	ClearStruct(OPI);
 }
 
 PluginA::~PluginA()
@@ -5486,7 +5486,7 @@ void PluginA::FreeOpenPanelInfo()
 	if (OPI.ShortcutData)
 		xf_free((void *)OPI.ShortcutData);
 
-	memset(&OPI,0,sizeof(OPI));
+	ClearStruct(OPI);
 }
 
 void PluginA::ConvertOpenPanelInfo(oldfar::OpenPanelInfo &Src, OpenPanelInfo *Dest)
@@ -5662,7 +5662,7 @@ void PluginA::FreePluginInfo()
 	if (PI.CommandPrefix)
 		xf_free((void *)PI.CommandPrefix);
 
-	memset(&PI,0,sizeof(PI));
+	ClearStruct(PI);
 }
 
 void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
@@ -5742,7 +5742,7 @@ void PluginA::ConvertPluginInfo(oldfar::PluginInfo &Src, PluginInfo *Dest)
 
 bool PluginA::GetPluginInfo(PluginInfo *pi)
 {
-	memset(pi, 0, sizeof(PluginInfo));
+	ClearStruct(*pi);
 
 	if (Exports[iGetPluginInfo] && !ProcessException)
 	{

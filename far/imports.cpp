@@ -46,7 +46,7 @@ inline void InitImport(HMODULE Module, T& Address, const char * ProcName)
 
 ImportedFunctions::ImportedFunctions()
 {
-	memset(this,0,sizeof(*this));
+	ClearStruct(*this);
 	HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
 	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");

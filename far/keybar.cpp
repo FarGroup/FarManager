@@ -54,9 +54,9 @@ KeyBar::KeyBar():
 	RegReaded(FALSE)
 {
 	_OT(SysLog(L"[%p] KeyBar::KeyBar()", this));
-	memset(KeyTitles, 0, sizeof(KeyTitles));
-	memset(KeyCounts, 0, sizeof(KeyCounts));
-	memset(RegKeyTitles, 0, sizeof(RegKeyTitles));
+	ClearArray(KeyTitles);
+	ClearArray(KeyCounts);
+	ClearArray(RegKeyTitles);
 }
 
 
@@ -172,7 +172,7 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language)
 		string strRegName;
 		string strValue;
 		string strValueName;
-		memset(RegKeyTitles, 0, sizeof(RegKeyTitles));
+		ClearArray(RegKeyTitles);
 		strLanguage=Language;
 		strRegGroupName=RegGroup;
 		strRegName=L"KeyBarLabels.";
@@ -245,7 +245,7 @@ void KeyBar::SetGroup(int Group,const wchar_t * const *Key,int KeyCount)
 
 void KeyBar::ClearGroup(int Group)
 {
-	memset(KeyTitles[Group], 0, sizeof(KeyTitles[Group]));
+	ClearArray(KeyTitles[Group]);
 	KeyCounts [Group] = 0;
 }
 

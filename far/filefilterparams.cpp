@@ -56,9 +56,9 @@ FileFilterParams::FileFilterParams()
 {
 	SetMask(1,L"*");
 	SetSize(0,L"",L"");
-	memset(&FDate,0,sizeof(FDate));
-	memset(&FAttr,0,sizeof(FAttr));
-	memset(&FHighlight.Colors,0,sizeof(FHighlight.Colors));
+	ClearStruct(FDate);
+	ClearStruct(FAttr);
+	ClearStruct(FHighlight.Colors);
 	for(size_t i = 0; i < 2; ++i)
 	{
 		for(size_t j = 0; j < 4; ++j)

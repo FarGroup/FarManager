@@ -599,7 +599,7 @@ public:
 		Module(LoadLibrary(L"extendedconsole.dll")),
 		ImportsPresent(false)
 	{
-		memset(&Imports, 0, sizeof(Imports));
+		ClearStruct(Imports);
 		if(Module)
 		{
 			InitImport(Imports.pReadOutput, "ReadOutput");

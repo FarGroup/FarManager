@@ -57,10 +57,10 @@ struct FAR_FIND_DATA_EX
 	void Clear()
 	{
 		dwFileAttributes=0;
-		memset(&ftCreationTime,0,sizeof(ftCreationTime));
-		memset(&ftLastAccessTime,0,sizeof(ftLastAccessTime));
-		memset(&ftLastWriteTime,0,sizeof(ftLastWriteTime));
-		memset(&ftChangeTime,0,sizeof(ftChangeTime));
+		ClearStruct(ftCreationTime);
+		ClearStruct(ftLastAccessTime);
+		ClearStruct(ftLastWriteTime);
+		ClearStruct(ftChangeTime);
 		nFileSize=0;
 		nPackSize=0;
 		dwReserved0=0;

@@ -92,7 +92,6 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	for (int i=0; i <= MAXSCRY; i++)
 	{
 		Strings[i] = new ViewerString();
-		memset(Strings[i], 0, sizeof(ViewerString));
 	}
 
 	strLastSearchStr = strGlobalSearchString;
@@ -156,7 +155,7 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	Search_buffer_size = 3 * (MAX_VIEWLINEB < 8000 ? 8000 : MAX_VIEWLINEB);
 	Search_buffer = new wchar_t[Search_buffer_size];
 
-	memset(&vString, 0, sizeof(vString));
+	ClearStruct(vString);
 	vString.lpData = new wchar_t[MAX_VIEWLINEB];
 }
 

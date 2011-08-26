@@ -84,22 +84,20 @@ static CDROM_DeviceCapabilities getCapsUsingProductId(const char* prodID)
 
 static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS* pSptwb)
 {
-	memset(pSptwb, 0, sizeof(SCSI_PASS_THROUGH_WITH_BUFFERS));
-
-	unsigned short sDataLength = sizeof(pSptwb->DataBuf);
+	ClearStruct(*pSptwb);
 
 	pSptwb->Spt.PathId = 0;
 	pSptwb->Spt.TargetId = 1;
 	pSptwb->Spt.Length = sizeof(SCSI_PASS_THROUGH);
 	pSptwb->Spt.SenseInfoLength = 24;
 	pSptwb->Spt.SenseInfoOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, SenseBuf);
-	pSptwb->Spt.DataTransferLength = sDataLength;
+	pSptwb->Spt.DataTransferLength = sizeof(pSptwb->DataBuf);
 	pSptwb->Spt.DataBufferOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, DataBuf);
 	pSptwb->Spt.DataIn = SCSI_IOCTL_DATA_IN;
 	pSptwb->Spt.TimeOutValue = 2;
 
-	memset(pSptwb->DataBuf, 0, sDataLength);
-	memset(pSptwb->Spt.Cdb, 0, sizeof(pSptwb->Spt.Cdb));
+	ClearArray(pSptwb->DataBuf);
+	ClearArray(pSptwb->Spt.Cdb);
 }
 
 static CDROM_DeviceCapabilities getCapsUsingMagic(File& Device)

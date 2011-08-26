@@ -669,8 +669,6 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_V_PPANEL_PREFIX:           // PPanel.Prefix
 		{
 			PluginInfo *PInfo=(PluginInfo *)vParam;
-			memset(PInfo,0,sizeof(PluginInfo));
-			PInfo->StructSize=sizeof(PluginInfo);
 			if (GetMode() == PLUGIN_PANEL && hPlugin != INVALID_HANDLE_VALUE && ((PluginHandle*)hPlugin)->pPlugin)
 				return ((PluginHandle*)hPlugin)->pPlugin->GetPluginInfo(PInfo)?1:0;
 			return 0;
@@ -5019,7 +5017,7 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
 
 		if (!(Info.Flags & OPIF_REALNAMES))
 		{
-			PluginInfo PInfo;
+			PluginInfo PInfo = {sizeof(PInfo)};
 			ph->pPlugin->GetPluginInfo(&PInfo);
 
 			if (PInfo.CommandPrefix && *PInfo.CommandPrefix)

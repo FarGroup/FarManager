@@ -818,9 +818,9 @@ void AdvancedDialog()
 		Opt.FindOpt.strSearchOutFormat = AdvancedDlg[AD_EDIT_COLUMNSFORMAT].strData;
 		Opt.FindOpt.strSearchOutFormatWidth = AdvancedDlg[AD_EDIT_COLUMNSWIDTH].strData;
 
-		memset(Opt.FindOpt.OutColumnTypes,0,sizeof(Opt.FindOpt.OutColumnTypes));
-		memset(Opt.FindOpt.OutColumnWidths,0,sizeof(Opt.FindOpt.OutColumnWidths));
-		memset(Opt.FindOpt.OutColumnWidthType,0,sizeof(Opt.FindOpt.OutColumnWidthType));
+		ClearArray(Opt.FindOpt.OutColumnTypes);
+		ClearArray(Opt.FindOpt.OutColumnWidths);
+		ClearArray(Opt.FindOpt.OutColumnWidthType);
 		Opt.FindOpt.OutColumnCount=0;
 
 		if (!Opt.FindOpt.strSearchOutFormat.IsEmpty())
@@ -3081,7 +3081,7 @@ bool FindFilesProcess(Vars& v)
 								itd.SetFindListItem(i, FindItem);
 							}
 							PluginPanelItem *pi=&PanelItems[ItemsNumber++];
-							memset(pi,0,sizeof(*pi));
+							ClearStruct(*pi);
 							FindDataExToPluginPanelItem(&FindItem.FindData, pi);
 
 							if (IsArchive)

@@ -111,7 +111,7 @@ static void show_help()
 }
 
 static int MainProcess(
-    const wchar_t *lpwszEditName,
+    const wchar_t *lpwszEditName, 
     const wchar_t *lpwszViewName,
     const wchar_t *lpwszDestName1,
     const wchar_t *lpwszDestName2,

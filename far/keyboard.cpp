@@ -356,8 +356,8 @@ void InitKeysArray()
 		}
 	}
 
-	memset(KeyToVKey,0,sizeof(KeyToVKey));
-	memset(VKeyToASCII,0,sizeof(VKeyToASCII));
+	ClearArray(KeyToVKey);
+	ClearArray(VKeyToASCII);
 
 	if (LayoutNumber && LayoutNumber < (int)ARRAYSIZE(Layout))
 	{
@@ -695,7 +695,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 					IntKeyState.ShiftPressed=0;
 
 				//_KEYMACRO(SysLog(L"MacroKey1 =%s",_FARKEY_ToName(MacroKey)));
-				// memset(rec,0,sizeof(*rec));
+				// ClearStruct(*rec);
 				return(MacroKey);
 			}
 		}
@@ -939,7 +939,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			if (!WaitInMainLoop && LoopCount==64)
 			{
 				LastEventIdle=TRUE;
-				memset(rec,0,sizeof(*rec));
+				ClearStruct(*rec);
 				rec->EventType=KEY_EVENT;
 				return(KEY_IDLE);
 			}
@@ -947,7 +947,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 		if (PluginSynchroManager.Process())
 		{
-			memset(rec,0,sizeof(*rec));
+			ClearStruct(*rec);
 			return KEY_NONE;
 		}
 
@@ -969,7 +969,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		PressedLastTime=0;
 		Console.ReadInput(rec, 1, ReadCount);
 		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
-		memset(rec,0,sizeof(*rec));
+		ClearStruct(*rec);
 		rec->EventType=KEY_EVENT;
 		//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
 		if (CalcKey == KEY_GOTFOCUS)
@@ -1415,7 +1415,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			           (CtrlState&RIGHT_CTRL_PRESSED?KEY_RCTRL:0)|
 			           (CtrlState&LEFT_ALT_PRESSED?KEY_ALT:0)|
 			           (CtrlState&RIGHT_ALT_PRESSED?KEY_RALT:0);
-			memset(rec,0,sizeof(*rec));
+			ClearStruct(*rec);
 			rec->Event.KeyEvent.wVirtualKeyCode=VK_F24+(CalcKey==KEY_MSWHEEL_UP?2:1);
 			rec->Event.KeyEvent.dwControlKeyState=CtrlState;
 			rec->Event.KeyEvent.bKeyDown=TRUE;
@@ -1432,7 +1432,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			           (CtrlState&RIGHT_CTRL_PRESSED?KEY_RCTRL:0)|
 			           (CtrlState&LEFT_ALT_PRESSED?KEY_ALT:0)|
 			           (CtrlState&RIGHT_ALT_PRESSED?KEY_RALT:0);
-			memset(rec,0,sizeof(*rec));
+			ClearStruct(*rec);
 			rec->Event.KeyEvent.wVirtualKeyCode=VK_F24+(CalcKey==KEY_MSWHEEL_RIGHT?4:3);
 			rec->Event.KeyEvent.dwControlKeyState=CtrlState;
 			rec->Event.KeyEvent.bKeyDown=TRUE;
@@ -1491,7 +1491,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 						irec.Rec=*rec;
 						if (CtrlObject->Macro.ProcessEvent(&irec))
 						{
-							memset(rec,0,sizeof(*rec));
+							ClearStruct(*rec);
 							return KEY_NONE;
 						}
 					}
@@ -2299,7 +2299,7 @@ int IsShiftKey(DWORD Key)
 DWORD ShieldCalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlCode)
 {
 	FarKeyboardState _IntKeyState=IntKeyState; // нада! ибо CalcKeyCode "портит"... (Mantis#0001760)
-	memset(&IntKeyState,0,sizeof(IntKeyState));
+	ClearStruct(IntKeyState);
 	DWORD Ret=CalcKeyCode(rec,RealKey,NotMacros,ProcessCtrlCode);
 	IntKeyState=_IntKeyState;
 	return Ret;

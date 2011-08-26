@@ -925,8 +925,7 @@ int Manager::ProcessKey(DWORD Key)
 #ifdef _M_IA64
 				case 7:
 				{
-					BYTE temp[10];
-					memset(temp, 0, 10);
+					BYTE temp[10]={};
 					double* val;
 					val = (double*)(&temp[3]);
 					printf("%lf\n", *val);

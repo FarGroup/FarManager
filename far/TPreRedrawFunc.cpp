@@ -97,7 +97,7 @@ PreRedrawItem TPreRedrawFunc::Push(PREREDRAWFUNC Func,PreRedrawParamStruct *Para
 	if (Param)
 		Source.Param=*Param;
 	else
-		memset(&Source.Param,0,sizeof(PreRedrawParamStruct));
+		ClearStruct(Source.Param);
 
 	return Push(Source);
 }

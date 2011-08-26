@@ -1304,7 +1304,7 @@ void PluginManager::GetOpenPanelInfo(
 	if (!Info)
 		return;
 
-	memset(Info, 0, sizeof(*Info));
+	ClearStruct(*Info);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	ph->pPlugin->GetOpenPanelInfo(ph->hPlugin, Info);
 
@@ -1406,7 +1406,7 @@ void PluginManager::Configure(int StartPos)
 				LoadIfCacheAbsent();
 				string strHotKey, strName;
 				GUID guid;
-				PluginInfo Info={0};
+				PluginInfo Info = {sizeof(Info)};
 
 				for (int I=0; I<PluginsCount; I++)
 				{
@@ -1579,7 +1579,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				PluginList.SetPosition(-1,-1,0,0);
 				LoadIfCacheAbsent();
 				string strHotKey, strName;
-				PluginInfo Info={0};
+				PluginInfo Info = {sizeof(Info)};
 				GUID guid;
 
 				for (int I=0; I<PluginsCount; I++)
@@ -1894,7 +1894,7 @@ bool PluginManager::GetDiskMenuItem(
 	}
 	else
 	{
-		PluginInfo Info;
+		PluginInfo Info = {sizeof(Info)};
 
 		if (!pPlugin->GetPluginInfo(&Info) || Info.DiskMenu.Count <= PluginItem)
 		{
@@ -2026,7 +2026,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		}
 		else
 		{
-			PluginInfo Info;
+			PluginInfo Info = {sizeof(Info)};
 
 			if (PluginsData[I]->GetPluginInfo(&Info))
 			{
