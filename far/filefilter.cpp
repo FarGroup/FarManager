@@ -803,7 +803,7 @@ void FileFilter::InitFilter()
 		}
 
 		DWORD Flags[FFFT_COUNT] = {};
-		cfg->GetValue(root,L"FoldersFilterFFlags",(char *)Flags,(int)sizeof(Flags));
+		cfg->GetValue(root,L"FoldersFilterFFlags", Flags, sizeof(Flags));
 
 		for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 			FoldersFilter.SetFlags((enumFileFilterFlagsType)i, Flags[i]);
@@ -833,8 +833,8 @@ void FileFilter::InitFilter()
 			NewFilter->SetMask(UseMask!=0, strMask);
 
 			FILETIME DateAfter = {}, DateBefore = {};
-			cfg->GetValue(key,L"DateAfter",(char *)&DateAfter,(int)sizeof(DateAfter));
-			cfg->GetValue(key,L"DateBefore",(char *)&DateBefore,(int)sizeof(DateBefore));
+			cfg->GetValue(key,L"DateAfter", &DateAfter, sizeof(DateAfter));
+			cfg->GetValue(key,L"DateBefore", &DateBefore, sizeof(DateBefore));
 
 			unsigned __int64 UseDate = 0;
 			cfg->GetValue(key,L"UseDate",&UseDate);
@@ -861,7 +861,7 @@ void FileFilter::InitFilter()
 			NewFilter->SetAttr(UseAttr!=0, (DWORD)AttrSet, (DWORD)AttrClear);
 
 			DWORD Flags[FFFT_COUNT] = {};
-			cfg->GetValue(key,L"FFlags",(char *)Flags,(int)sizeof(Flags));
+			cfg->GetValue(key,L"FFlags", Flags, sizeof(Flags));
 
 			for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 				NewFilter->SetFlags((enumFileFilterFlagsType)i, Flags[i]);
@@ -887,7 +887,7 @@ void FileFilter::InitFilter()
 			//Авто фильтры они только для файлов, папки не должны к ним подходить
 			NewFilter->SetAttr(1,0,FILE_ATTRIBUTE_DIRECTORY);
 			DWORD Flags[FFFT_COUNT] = {};
-			cfg->GetValue(key,L"FFlags",(char *)Flags,(int)sizeof(Flags));
+			cfg->GetValue(key,L"FFlags", Flags, sizeof(Flags));
 
 			for (DWORD i=FFFT_FIRST; i < FFFT_COUNT; i++)
 				NewFilter->SetFlags((enumFileFilterFlagsType)i, Flags[i]);

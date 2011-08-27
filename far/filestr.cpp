@@ -61,14 +61,14 @@ enum EolType
 
 OldGetFileString::OldGetFileString(FILE *SrcFile):
 	SrcFile(SrcFile),
+	wReadBuf(new wchar_t[ReadBufCount]),
+	ReadBuf(new char[ReadBufCount]),
+	m_nwStrLength(DELTA),
+	m_nStrLength(DELTA),
+	wStr(static_cast<wchar_t*>(xf_malloc(m_nwStrLength * sizeof(wchar_t)))),
+	Str(static_cast<char*>(xf_malloc(m_nStrLength))),
 	ReadPos(0),
 	ReadSize(0),
-	ReadBuf(new char[ReadBufCount]),
-	wReadBuf(new wchar_t[ReadBufCount]),
-	m_nStrLength(DELTA),
-	Str(static_cast<char*>(xf_malloc(m_nStrLength))),
-	m_nwStrLength(DELTA),
-	wStr(static_cast<wchar_t*>(xf_malloc(m_nwStrLength * sizeof(wchar_t)))),
 	SomeDataLost(false),
 	bCrCr(false)
 {

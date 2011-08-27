@@ -90,7 +90,7 @@ static void InitSCSIPassThrough(SCSI_PASS_THROUGH_WITH_BUFFERS* pSptwb)
 	pSptwb->Spt.TargetId = 1;
 	pSptwb->Spt.Length = sizeof(SCSI_PASS_THROUGH);
 	pSptwb->Spt.SenseInfoLength = 24;
-	pSptwb->Spt.SenseInfoOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, SenseBuf);
+	pSptwb->Spt.SenseInfoOffset = static_cast<ULONG>(offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, SenseBuf));
 	pSptwb->Spt.DataTransferLength = sizeof(pSptwb->DataBuf);
 	pSptwb->Spt.DataBufferOffset = offsetof(SCSI_PASS_THROUGH_WITH_BUFFERS, DataBuf);
 	pSptwb->Spt.DataIn = SCSI_IOCTL_DATA_IN;

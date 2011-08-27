@@ -297,7 +297,7 @@ void SysLogLastError()
 	{
 		wchar_t timebuf[64];
 		// RemoveUnprintableCharacters(lpMsgBuf);
-		fwprintf(LogStream,L"%s %sGetLastError()=[%d/0x%X] \"%s\"\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),LastErr,LastErr,lpMsgBuf);
+		fwprintf(LogStream,L"%s %sGetLastError()=[%u/0x%X] \"%s\"\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),LastErr,LastErr,lpMsgBuf);
 		fflush(LogStream);
 	}
 
@@ -360,7 +360,7 @@ void SysLog(int l,const wchar_t *fmt,...)
 }
 
 
-void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp)
+void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,unsigned SizeBuf,FILE *fp)
 {
 #if defined(SYSLOG)
 
@@ -392,9 +392,9 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,F
 			fwprintf(fp,L"%s %s ",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace());
 			fwprintf(fp, L" %08X: ",StartAddress+Y*16);
 
-			for (int X=0; X < 16; ++X)
+			for (size_t X=0; X < 16; ++X)
 			{
-				int I=Y*16+X;
+				size_t I=Y*16+X;
 				if ((I < SizeBuf) )
 					fwprintf(fp,L"%02X ",Buf[Y*16+X]&0xFF);
 				else
@@ -569,34 +569,34 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 
 	if (fp)
 	{
-		fwprintf(fp,L"\tStructSize      =%d\n",Info->StructSize);
+		fwprintf(fp,L"\tStructSize      =%u\n",static_cast<unsigned>(Info->StructSize));
 		fwprintf(fp,L"\tFlags           =0x%08I64X\n",Info->Flags);
 		fwprintf(fp,L"\tHostFile        ='%s'\n",NullToEmpty(Info->HostFile));
 		fwprintf(fp,L"\tCurDir          ='%s'\n",NullToEmpty(Info->CurDir));
 		fwprintf(fp,L"\tFormat          ='%s'\n",NullToEmpty(Info->Format));
 		fwprintf(fp,L"\tPanelTitle      ='%s'\n",NullToEmpty(Info->PanelTitle));
 		fwprintf(fp,L"\tInfoLines       =%p\n",Info->InfoLines);
-		fwprintf(fp,L"\tInfoLinesNumber =%d\n",Info->InfoLinesNumber);
+		fwprintf(fp,L"\tInfoLinesNumber =%u\n",static_cast<unsigned>(Info->InfoLinesNumber));
 
 		if (Info->InfoLines)
 		{
 			for (size_t I=0; I<Info->InfoLinesNumber; ++I)
 			{
-				fwprintf(fp,L"\t\t%d) Text=[%s], Data=[%s], Separator=[%d]\n",I,
+				fwprintf(fp,L"\t\t%u) Text=[%s], Data=[%s], Separator=[%d]\n",static_cast<unsigned>(I),
 				         NullToEmpty(Info->InfoLines[I].Text),NullToEmpty(Info->InfoLines[I].Data),Info->InfoLines[I].Separator);
 			}
 		}
 
 		fwprintf(fp,L"\tDescrFiles      =%p\n",Info->DescrFiles);
-		fwprintf(fp,L"\tDescrFilesNumber=%d\n",Info->DescrFilesNumber);
+		fwprintf(fp,L"\tDescrFilesNumber=%u\n",static_cast<unsigned>(Info->DescrFilesNumber));
 		fwprintf(fp,L"\tPanelModesArray =%p\n",Info->PanelModesArray);
-		fwprintf(fp,L"\tPanelModesNumber=%d\n",Info->PanelModesNumber);
+		fwprintf(fp,L"\tPanelModesNumber=%u\n",static_cast<unsigned>(Info->PanelModesNumber));
 
 		if (Info->PanelModesArray)
 		{
 			for (size_t I=0; I<Info->PanelModesNumber; ++I)
 			{
-				fwprintf(fp,L"\t%d) ------------------\n",I);
+				fwprintf(fp,L"\t%u) ------------------\n",static_cast<unsigned>(I));
 				fwprintf(fp,L"\t\tColumnTypes       ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnTypes));
 				fwprintf(fp,L"\t\tColumnWidths      ='%s'\n",NullToEmpty(Info->PanelModesArray[I].ColumnWidths));
 				fwprintf(fp,L"\t\tColumnTitles      =%p\n",Info->PanelModesArray[I].ColumnTitles);
@@ -1609,7 +1609,7 @@ string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
 			    rec->Event.KeyEvent.wRepeatCount,
 			    _VK_KEY_ToName(rec->Event.KeyEvent.wVirtualKeyCode),
 			    rec->Event.KeyEvent.wVirtualScanCode,
-			    (rec->Event.KeyEvent.uChar.UnicodeChar && !(rec->Event.KeyEvent.uChar.UnicodeChar == L'\t' || rec->Event.KeyEvent.uChar.UnicodeChar == L'\r' || rec->Event.KeyEvent.uChar.UnicodeChar == L'\n')?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
+			    ((rec->Event.KeyEvent.uChar.UnicodeChar && !(rec->Event.KeyEvent.uChar.UnicodeChar == L'\t' || rec->Event.KeyEvent.uChar.UnicodeChar == L'\r' || rec->Event.KeyEvent.uChar.UnicodeChar == L'\n'))?rec->Event.KeyEvent.uChar.UnicodeChar:L' '),
 			    rec->Event.KeyEvent.uChar.UnicodeChar,
 			    ((AsciiChar && AsciiChar != '\r' && AsciiChar != '\t' && AsciiChar !='\n')? AsciiChar : ' '),
 			    AsciiChar,
@@ -1669,7 +1669,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 		if (fp)
 		{
 			wchar_t timebuf[64];
-			fwprintf(fp,L"%s %s(Number Of Console Input Events = %d)\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),ReadCount2);
+			fwprintf(fp,L"%s %s(Number Of Console Input Events = %u)\n",PrintTime(timebuf,ARRAYSIZE(timebuf)),MakeSpace(),static_cast<unsigned>(ReadCount2));
 		}
 	}
 
@@ -1686,7 +1686,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 
 				for (DWORD I=0; I < ReadCount2; ++I)
 				{
-					fwprintf(fp,L"             %s%04d: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(TmpRec+I));
+					fwprintf(fp,L"             %s%04u: %s\n",MakeSpace(),I,_INPUT_RECORD_Dump(TmpRec+I));
 				}
 
 				// освободим память
@@ -1880,8 +1880,8 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 		ConvertDate(wfd.ftLastWriteTime,D,T,8,FALSE,FALSE,TRUE);
 		fwprintf(fp,L"%*s %s  ftLastWriteTime       =0x%08X 0x%08X\n",12,L"",space,wfd.ftLastWriteTime.dwHighDateTime,wfd.ftLastWriteTime.dwLowDateTime);
 		LARGE_INTEGER Number = {wfd.nFileSizeLow, wfd.nFileSizeHigh};
-		fwprintf(fp,L"%*s %s  nFileSize             =0x%08X, 0x%08X (%I64u)\n",12,L"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,Number.QuadPart);
-		fwprintf(fp,L"%*s %s  dwReserved0           =0x%08X (%d)\n",12,L"",space,wfd.dwReserved0,wfd.dwReserved0);
+		fwprintf(fp,L"%*s %s  nFileSize             =0x%08X, 0x%08X (%I64u)\n",12,L"",space,wfd.nFileSizeHigh,wfd.nFileSizeLow,static_cast<UINT64>(Number.QuadPart));
+		fwprintf(fp,L"%*s %s  dwReserved0           =0x%08X (%u)\n",12,L"",space,wfd.dwReserved0,wfd.dwReserved0);
 
 		if (wfd.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 		{
@@ -1904,7 +1904,7 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 				fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_DFSR        (0x80000012L)\n",12,L"",space);
 		}
 
-		fwprintf(fp,L"%*s %s  dwReserved1           =0x%08X (%d)\n",12,L"",space,wfd.dwReserved1,wfd.dwReserved1);
+		fwprintf(fp,L"%*s %s  dwReserved1           =0x%08X (%u)\n",12,L"",space,wfd.dwReserved1,wfd.dwReserved1);
 		fwprintf(fp,L"%*s %s  cFileName             =\"%s\"\n",12,L"",space,wfd.cFileName);
 		fwprintf(fp,L"%*s %s  cAlternateFileName    =\"%s\"\n",12,L"",space,wfd.cAlternateFileName);
 		fwprintf(fp,L"%*s %s  }\n",12,L"",space);
@@ -1940,9 +1940,9 @@ void PanelViewSettings_Dump(const wchar_t *Title,const PanelViewSettings &ViewSe
 		fwprintf(fp,L"%*s %s  ColumnType           = [",12,L"",space);
 
 		for (I=0; I < ARRAYSIZE(ViewSettings.ColumnType)-1; ++I)
-			fwprintf(fp,L"%I64d, ",ViewSettings.ColumnType[I]);
+			fwprintf(fp,L"%I64u, ",ViewSettings.ColumnType[I]);
 
-		fwprintf(fp,L"%I64d]\n",ViewSettings.ColumnType[I]);
+		fwprintf(fp,L"%I64u]\n",ViewSettings.ColumnType[I]);
 		fwprintf(fp,L"%*s %s  ColumnWidth          = [",12,L"",space);
 
 		for (I=0; I < ARRAYSIZE(ViewSettings.ColumnWidth)-1; ++I)

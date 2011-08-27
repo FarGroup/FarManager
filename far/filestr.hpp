@@ -38,17 +38,14 @@ class OldGetFileString
 {
 	private:
 		FILE *SrcFile;
-		int ReadPos, ReadSize;
-
-		char* ReadBuf;
 		wchar_t* wReadBuf;
-
-		int m_nStrLength;
-		char *Str;
-
+		char* ReadBuf;
 		int m_nwStrLength;
+		int m_nStrLength;
 		wchar_t *wStr;
-
+		char *Str;
+		int ReadPos;
+		int ReadSize;
 		bool SomeDataLost;
 		bool bCrCr;
 

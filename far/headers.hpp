@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cwchar>
 #include <ctime>
 #include <cmath>
+#include <cfloat>
 
 #ifdef __GNUC__
 #include <cctype>
@@ -48,9 +49,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <malloc.h>
 #endif //__GNUC__
 
+#include <process.h>
 #include <search.h>
 #include <share.h>
-
 
 #ifdef _MSC_VER
 #include <sdkddkver.h>

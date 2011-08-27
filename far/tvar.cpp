@@ -300,42 +300,42 @@ TVar::~TVar()
 }
 
 TVar::TVar(__int64 v) :
-	vType(vtInteger),
 	inum(v),
 	dnum(0.0),
-	str(nullptr)
+	str(nullptr),
+	vType(vtInteger)
 {
 }
 
 TVar::TVar(int v) :
-	vType(vtInteger),
 	inum(v),
 	dnum(0.0),
-	str(nullptr)
+	str(nullptr),
+	vType(vtInteger)
 {
 }
 
 TVar::TVar(double v) :
-	vType(vtDouble),
 	inum(0),
 	dnum(v),
-	str(nullptr)
+	str(nullptr),
+	vType(vtDouble)
 {
 }
 
 TVar::TVar(const wchar_t *v) :
-	vType(vtString),
 	inum(0),
 	dnum(0.0),
-	str(dubstr(v))
+	str(dubstr(v)),
+	vType(vtString)
 {
 }
 
 TVar::TVar(const TVar& v) :
-	vType(v.vType),
 	inum(v.inum),
 	dnum(v.dnum),
-	str(dubstr(v.str))
+	str(dubstr(v.str)),
+	vType(v.vType)
 {
 }
 
@@ -468,7 +468,7 @@ static int _cmp_Ne(TVarType vt,const void *a, const void *b)
 	{
 		case vtUnknown:
 		case vtInteger: r = *(__int64*)a != *(__int64*)b?1:0; break;
-		case vtDouble:  r = *(double*)a != *(double*)b?1:0; break;
+		case vtDouble:  r = fabs(*(double*)a - *(double*)b) > DBL_EPSILON? 1 : 0; break;
 		case vtString:  r = StrCmp((const wchar_t*)a, (const wchar_t*)b) ; break;
 	}
 
@@ -483,7 +483,7 @@ static int _cmp_Eq(TVarType vt,const void *a, const void *b)
 	{
 		case vtUnknown:
 		case vtInteger: r = *(__int64*)a == *(__int64*)b?1:0; break;
-		case vtDouble:  r = *(double*)a == *(double*)b?1:0; break;
+		case vtDouble:  r = fabs(*(double*)a - *(double*)b) < DBL_EPSILON? 1 : 0; break;
 		case vtString:  r = !StrCmp((const wchar_t*)a, (const wchar_t*)b); break;
 	}
 
@@ -910,7 +910,7 @@ TVar operator/(const TVar& a, const TVar& b)
 			{
 				case vtUnknown:
 				case vtInteger: r = b.inum ? (a.inum / b.inum) : 0; break;
-				case vtDouble:  r = b.dnum ? ((double)a.inum / b.dnum) : 0.0; break;
+				case vtDouble:  r = fabs(b.dnum) > DBL_EPSILON? ((double)a.inum / b.dnum) : 0.0; break;
 				case vtString:
 				{
 					switch (checkTypeString(b.str))
@@ -924,7 +924,7 @@ TVar operator/(const TVar& a, const TVar& b)
 						case tsFloat:
 						{
 							double bd=b.d();
-							r = bd ? (double)a.inum / bd : 0.0; break;
+							r = fabs(bd) > DBL_EPSILON? (double)a.inum / bd : 0.0; break;
 						}
 					}
 
@@ -940,7 +940,7 @@ TVar operator/(const TVar& a, const TVar& b)
 			{
 				case vtUnknown:
 				case vtInteger: r = b.inum ? (a.dnum / (double)b.inum) : 0.0; break;
-				case vtDouble:  r = b.dnum ? (a.dnum / b.dnum) : 0.0; break;
+				case vtDouble:  r = fabs(b.dnum) > DBL_EPSILON? (a.dnum / b.dnum) : 0.0; break;
 				case vtString:
 				{
 					switch (checkTypeString(b.str))
@@ -950,7 +950,7 @@ TVar operator/(const TVar& a, const TVar& b)
 						case tsFloat:
 						{
 							double bd=b.d();
-							r = bd ? a.dnum / bd : 0.0; break;
+							r = fabs(bd) > DBL_EPSILON? a.dnum / bd : 0.0; break;
 						}
 					}
 
@@ -981,7 +981,7 @@ TVar operator/(const TVar& a, const TVar& b)
 			else
 			{
 				double bd=b.d();
-				r = bd ? (a.d() / bd) : 0.0;
+				r = fabs(bd) > DBL_EPSILON? (a.d() / bd) : 0.0;
 			}
 
 			break;
@@ -1004,7 +1004,7 @@ TVar operator%(const TVar& a, const TVar& b)
 			{
 				case vtUnknown:
 				case vtInteger: r = b.inum ? (a.inum % b.inum) : 0; break;
-				case vtDouble:  r = b.dnum ? fmod((double)a.inum, b.dnum) : 0.0; break;
+				case vtDouble:  r = fabs(b.dnum) > DBL_EPSILON? fmod((double)a.inum, b.dnum) : 0.0; break;
 				case vtString:
 				{
 					switch (checkTypeString(b.str))
@@ -1018,7 +1018,7 @@ TVar operator%(const TVar& a, const TVar& b)
 						case tsFloat:
 						{
 							double bd=b.d();
-							r = bd ? fmod((double)a.inum, bd) : 0.0; break;
+							r = fabs(bd) > DBL_EPSILON? fmod((double)a.inum, bd) : 0.0; break;
 						}
 					}
 
@@ -1034,7 +1034,7 @@ TVar operator%(const TVar& a, const TVar& b)
 			{
 				case vtUnknown:
 				case vtInteger: r = b.inum ? fmod(a.dnum,(double)b.inum) : 0.0; break;
-				case vtDouble:  r = b.dnum ? fmod(a.dnum,b.dnum) : 0.0; break;
+				case vtDouble:  r = fabs(b.dnum) > DBL_EPSILON? fmod(a.dnum,b.dnum) : 0.0; break;
 				case vtString:
 				{
 					switch (checkTypeString(b.str))
@@ -1044,7 +1044,7 @@ TVar operator%(const TVar& a, const TVar& b)
 						case tsFloat:
 						{
 							double bd=b.d();
-							r = bd ? fmod(a.dnum, bd) : 0.0; break;
+							r = fabs(bd) > DBL_EPSILON? fmod(a.dnum, bd) : 0.0; break;
 						}
 					}
 
@@ -1075,7 +1075,7 @@ TVar operator%(const TVar& a, const TVar& b)
 			else
 			{
 				double bd=b.d();
-				r = bd ? fmod(a.d() , bd) : 0.0;
+				r = fabs(bd) > DBL_EPSILON? fmod(a.d() , bd) : 0.0;
 			}
 
 			break;

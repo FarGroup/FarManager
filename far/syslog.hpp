@@ -265,7 +265,7 @@ struct TUserLog
 	int   Level;
 };
 
-void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,int SizeBuf,FILE *fp=nullptr);
+void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,unsigned SizeBuf,FILE *fp=nullptr);
 
 FILE *OpenLogStream(const wchar_t *file);
 

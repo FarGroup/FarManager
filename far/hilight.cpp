@@ -126,8 +126,8 @@ void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams 
 	}
 
 	FILETIME DateAfter = {}, DateBefore = {};
-	cfg->GetValue(key,HLS.DateAfter,(char *)&DateAfter,(int)sizeof(DateAfter));
-	cfg->GetValue(key,HLS.DateBefore,(char *)&DateBefore,(int)sizeof(DateBefore));
+	cfg->GetValue(key,HLS.DateAfter, &DateAfter, sizeof(DateAfter));
+	cfg->GetValue(key,HLS.DateBefore, &DateBefore, sizeof(DateBefore));
 	unsigned __int64 UseDate = 0;
 	cfg->GetValue(key,HLS.UseDate,&UseDate);
 	unsigned __int64 DateType = 0;

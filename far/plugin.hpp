@@ -708,8 +708,8 @@ struct PluginPanelItem
 	const wchar_t *Owner;
 	const wchar_t * const *CustomColumnData;
 	size_t CustomColumnNumber;
-	DWORD_PTR UserData;
 	PLUGINPANELITEMFLAGS Flags;
+	DWORD_PTR UserData;
 	DWORD FileAttributes;
 	DWORD NumberOfLinks;
 	DWORD CRC32;
@@ -772,17 +772,17 @@ enum OPENPANELINFO_SORTMODES
 struct PanelInfo
 {
 	size_t StructSize;
-	GUID OwnerGuid;
 	HANDLE PluginHandle;
-	enum PANELINFOTYPE PanelType;
-	RECT PanelRect;
+	GUID OwnerGuid;
+	PANELINFOFLAGS Flags;
 	size_t ItemsNumber;
 	size_t SelectedItemsNumber;
+	RECT PanelRect;
 	int CurrentItem;
 	int TopPanelItem;
 	int ViewMode;
+	enum PANELINFOTYPE PanelType;
 	enum OPENPANELINFO_SORTMODES SortMode;
-	PANELINFOFLAGS Flags;
 	DWORD_PTR Reserved;
 };
 
@@ -1244,11 +1244,11 @@ typedef int (WINAPI *FARMACROCALLBACK)(void* Id,FARADDKEYMACROFLAGS Flags);
 struct MacroAddMacro
 {
 	size_t StructSize;
+	void* Id;
 	FARKEYMACROFLAGS Flags;
 	INPUT_RECORD AKey;
 	const wchar_t *SequenceText;
 	const wchar_t *Description;
-	void* Id;
 	FARMACROCALLBACK Callback;
 };
 
@@ -1472,12 +1472,12 @@ struct ViewerInfo
 	size_t StructSize;
 	int ViewerID;
 	int TabSize;
+	const wchar_t *FileName;
 	struct ViewerMode CurMode;
 	__int64 FileSize;
 	__int64 FilePos;
 	__int64 LeftPos;
 	VIEWER_OPTIONS Options;
-	const wchar_t *FileName;
 	int WindowSizeX;
 	int WindowSizeY;
 };
@@ -1752,10 +1752,10 @@ struct EditorColor
 	int ColorItem;
 	int StartPos;
 	int EndPos;
+	unsigned Priority;
 	EDITORCOLORFLAGS Flags;
 	struct FarColor Color;
 	GUID Owner;
-	unsigned Priority;
 };
 
 struct EditorDeleteColor
@@ -2439,8 +2439,8 @@ struct SetDirectoryInfo
 	size_t StructSize;
 	HANDLE hPanel;
 	const wchar_t *Dir;
-	OPERATION_MODES OpMode;
 	INT_PTR UserData;
+	OPERATION_MODES OpMode;
 };
 
 struct SetFindListInfo

@@ -62,16 +62,17 @@ class CallBackStack
 	private:
 		struct ListNode
 		{
-			ListNode *Next;
-
 			UINT64 Flags;             // флаги
-			int   TopStr;            // номер верхней видимой строки темы
-			int   CurX,CurY;         // координаты (???)
+
+			ListNode *Next;
 
 			string strHelpTopic;        // текущий топик
 			string strHelpPath;         // путь к хелпам
 			string strSelTopic;         // текущее выделение
 			string strHelpMask;         // маска
+
+			int   TopStr;            // номер верхней видимой строки темы
+			int   CurX,CurY;         // координаты (???)
 
 			ListNode(const StackHelpData *Data, ListNode* n=nullptr)
 			{

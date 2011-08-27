@@ -205,9 +205,9 @@ static void putstr(const wchar_t *s)
 {
 	_KEYMACRO(CleverSysLog Clev(L"putstr"));
 	_KEYMACRO(SysLog(L"s[%p]='%s'", s,s));
-	int Length = (StrLength(s)+1)*sizeof(wchar_t);
+	size_t Length = (StrLength(s)+1)*sizeof(wchar_t);
 	// строка должна быть выровнена на 4
-	int nSize = Length/sizeof(DWORD);
+	size_t nSize = Length/sizeof(DWORD);
 	memmove(&exprBuff[exprBuffSize],s,Length);
 
 	if (Length == sizeof(wchar_t) || (Length % sizeof(DWORD)) )    // дополнение до sizeof(DWORD) нулями.
@@ -215,7 +215,7 @@ static void putstr(const wchar_t *s)
 
 	memset(&exprBuff[exprBuffSize],0,nSize*sizeof(DWORD));
 	memmove(&exprBuff[exprBuffSize],s,Length);
-	exprBuffSize+=nSize;
+	exprBuffSize+=static_cast<int>(nSize);
 }
 
 static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, const wchar_t *c)
@@ -1579,9 +1579,9 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					*p++ = ch;
 
 				*p = 0;
-				int Length = (int)(StrLength(varName)+1)*sizeof(wchar_t);
+				size_t Length = (StrLength(varName)+1)*sizeof(wchar_t);
 				// строка должна быть выровнена на 4
-				SizeVarName = Length/sizeof(DWORD);
+				SizeVarName = static_cast<int>(Length/sizeof(DWORD));
 
 				if (Length == sizeof(wchar_t) || (Length % sizeof(DWORD)) )    // дополнение до sizeof(DWORD) нулями.
 					SizeVarName++;

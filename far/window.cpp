@@ -93,7 +93,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
 }
 
-DWORD WINAPI WindowThreadRoutine(LPVOID Param)
+unsigned int WINAPI WindowThreadRoutine(LPVOID Param)
 {
 	WNDCLASSEX wc={sizeof(wc)};
 	wc.lpfnWndProc = WndProc;
@@ -139,7 +139,7 @@ void WindowHandler::Check()
 {
 	if(!Thread || WaitForSingleObject(Thread, 0)!=WAIT_TIMEOUT)
 	{
-		Thread=CreateThread(nullptr, 0, WindowThreadRoutine, &Hwnd, 0, nullptr);
+		Thread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, WindowThreadRoutine, &Hwnd, 0, nullptr));
 	}
 }
 

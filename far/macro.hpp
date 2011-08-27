@@ -180,11 +180,11 @@ struct MacroState
 
 
 struct MacroPanelSelect {
+	__int64 Index;
+	TVar    *Item;
 	int     Action;
 	DWORD   ActionFlags;
 	int     Mode;
-	__int64 Index;
-	TVar    *Item;
 };
 
 /* $TODO:

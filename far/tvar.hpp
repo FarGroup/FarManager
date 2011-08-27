@@ -58,10 +58,10 @@ typedef TVarSet *(TVarTable)[V_TABLE_SIZE];
 class TVar
 {
 	private:
-		TVarType vType;
 		__int64 inum;
 		double  dnum;
 		wchar_t *str;
+		TVarType vType;
 
 	private:
 		static int CompAB(const TVar& a, const TVar& b, TVarFuncCmp fcmp);

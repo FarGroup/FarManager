@@ -746,7 +746,6 @@ void Manager::ExitMainLoop(int Ask)
 }
 
 #if defined(FAR_ALPHA_VERSION)
-#include <float.h>
 #if defined(_MSC_VER)
 #pragma warning( push )
 #pragma warning( disable : 4717)

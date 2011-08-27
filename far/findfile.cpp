@@ -2895,7 +2895,7 @@ struct THREADPARAM
 	HANDLE hDlg;
 };
 
-DWORD WINAPI ThreadRoutine(LPVOID Param)
+unsigned int WINAPI ThreadRoutine(LPVOID Param)
 {
 	__try
 	{
@@ -3020,7 +3020,7 @@ bool FindFilesProcess(Vars& v)
 	strLastDirName.Clear();
 
 	THREADPARAM Param={v.PluginMode,static_cast<HANDLE>(&Dlg)};
-	HANDLE Thread = CreateThread(nullptr, 0, ThreadRoutine, &Param, 0, nullptr);
+	HANDLE Thread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, ThreadRoutine, &Param, 0, nullptr));
 	if (Thread)
 	{
 		v.TB=new TaskBar;
