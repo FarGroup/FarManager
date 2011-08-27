@@ -3,6 +3,169 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 27.08.2011 16:40:43 +0200 - build 2177
+
+1. Warnings.
+
+2. The structures are redone again, now for x86 too.
+
+drkns 27.08.2011 11:28:44 +0200 - build 2176
+
+1. Correction of 2175.1.
+
+drkns 26.08.2011 16:54:08 +0200 - build 2175
+
+1. ClearStruct() and ClearArray() templates for zero filling structures and arrays, which set the correct size automatically.
+   <ACHTUNG>Use them instead of memset.</ACHTUNG>
+
+2. The size was not always filled in PluginInfo.
+
+zg 25.08.2011 23:22:28 +0200 - build 2174
+
+1. Mantis#0001864: Debug version crash on recorded macro run.
+
+drkns 25.08.2011 22:47:06 +0200 - build 2173
+
+1. Warnings.
+
+2. Some structures are changed for more optimal layout in x64. The plugins must be rebuilt.
+
+svs 25.08.2011 16:22:47 +0300 - build 2172
+
+1. Mantis#0001858: Return 0 on prompt() dialog close with Esc
+
+svs 25.08.2011 16:01:01 +0300 - build 2171
+
+1. Keyboard engine being rewritten. The beginning.
+
+   Macro::ProcessKey(int) -> Macro::ProcessEvent(FAR_INPUT_RECORD)
+
+    struct FAR_INPUT_RECORD
+    {
+      DWORD IntKey;
+      INPUT_RECORD Rec;
+    };
+    if IntKey == 0, then looking to Rec, else IntKey is containing KEY_
+
+drkns 25.08.2011 11:48:38 +0200 - build 2170
+
+1. Mistype in 2169.
+
+drkns 25.08.2011 11:36:00 +0200 - build 2169
+
+1. Mantis#0001862: Static analysis of the code.
+
+svs 25.08.2011 11:32:30 +0300 - build 2168
+
+1. Mantis#0001861: "File selection" chapter
+   (from Maximus)
+   "File selection" is updated. 
+
+2. Mantis#0001832: FarNameToInputRecord / FarInputRecordToName problem
+   (from Maximus)
+   Right CtrlShiftDot was broken in macro recording.
+
+drkns 25.08.2011 10:05:45 +0200 - build 2167
+
+1. Mantis#0001833: File search is not thread safe.
+
+drkns 25.08.2011 09:54:06 +0200 - build 2166
+
+1. Mantis#0001860: In CtrlL, text labels from plugin are drawn with the border color.
+
+drkns 24.08.2011 23:47:55 +0200 - build 2165
+
+1. A critical section instead of a mutex in PluginSynchro.
+
+2. A couple of minor issues.
+
+svs 24.08.2011 17:15:00 +0300 - build 2164
+
+1. FSF.FarNameToInputRecord returns TRUE even if a non-existing key name is passed, for example, "foobar".
+
+zg 23.08.2011 22:43:26 +0200 - build 2163
+
+1. macros added with MCTL_ADDMACRO are always checked in the same order.
+
+zg 23.08.2011 22:11:33 +0200 - build 2162
+
+1. MCTL_ADDMACRO: correction for several macros bound to the same key.
+
+2. correction of deallocation of memory occupied by macros on FAR exit.
+
+svs 23.08.2011 21:49:44 +0300 - build 2161
+
+1. Mantis#0001858: Return 0 when closing the prompt() dialog with Esc
+   - 0x01 flag is forced, i.e. prompt returns an empty string when Enter is hit on the empty input line
+   - for Esc, numeric 0 is returned instead of a string (implemented in build 2160 :-)
+
+zg 23.08.2011 19:43:46 +0200 - build 2160
+
+1. correction of 2159.3.
+
+zg 23.08.2011 17:33:27 +0200 - build 2159
+
+based on Mantis#0001486
+
+1. MacroControl first parameter is the plugin's GUID.
+
+2. MCTL_ADDMACRO: new API for adding a macro into "memory".
+   Param1 - 0
+   Param2 - MacroAddMacro pointer.
+   MacroAddMacro:
+     Flags - flags as in MCTL_SENDSTRING.
+     AKey - key which the macro is bound to.
+     SequenceText - the text of the macro.
+     Description - the description of the macro.
+     Id - an identifier which is unique throughout the plugin.
+     Callback - a function called before the macro is run. the first parameter is the macro ID. it may check something and return TRUE, meaning whether to run the macro, or FALSE - not to run.
+   all macros are added into the Common area.
+
+3. MCTL_DELMACRO delete a macro. 
+   Param1 - 0
+   Param2 - Id of the macro.
+
+
+drkns 23.08.2011 15:46:49 +0200 - build 2158
+
+1. In editor status line, the character index is displayed in addition to the column index.
+
+2. Now AltF8 in editor jumps to line/character instead of line/column.
+
+drkns 23.08.2011 10:41:13 +0200 - build 2157
+
+1. Mistype in 2155.
+
+2. Correction of 2105 - Menu() second parameter was mandatory.
+
+svs 22.08.2011 17:53:53 +0300 - build 2156
+
+1. Now all enum's in plugin.hpp contain explicit values of public constants (everything inside FAR_USE_INTERNALS is an exception).
+
+   <ACHTUNG>
+
+     Set explicit constant values when adding them into plugin.hpp!
+
+   </ACHTUNG>
+
+   PS.
+     Now one can group the constants meaningfully in bounds of a single enum (for instance, in FARMESSAGE)
+
+drkns 22.08.2011 14:04:40 +0200 - build 2155
+
+1. imports.?pp refactoring
+
+2. Other minor issues.
+
+svs 22.08.2011 11:33:37 +0300 - build 2154
+
+1. Mantis#0001792: Add FAR Process ID to info panel and window header
+   
+   "%PID" variable is added to the header template (Options -> Interface settings -> Far window title addons) containing
+   the process ID of Far Manager current instance.
+
+2. Macro: Far.PID variable is added, containing the process ID of Far Manager current instance.
+
 drkns 17.08.2011 15:43:18 +0200 - build 2153
 
 1. Smart ARRAYSIZE() for gcc.
