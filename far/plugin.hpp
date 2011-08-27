@@ -1470,16 +1470,16 @@ struct ViewerMode
 struct ViewerInfo
 {
 	size_t StructSize;
+	int ViewerID;
+	int TabSize;
 	struct ViewerMode CurMode;
 	__int64 FileSize;
 	__int64 FilePos;
 	__int64 LeftPos;
 	VIEWER_OPTIONS Options;
 	const wchar_t *FileName;
-	int ViewerID;
 	int WindowSizeX;
 	int WindowSizeY;
-	int TabSize;
 };
 
 enum VIEWER_EVENTS

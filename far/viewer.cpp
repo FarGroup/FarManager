@@ -135,7 +135,7 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	vgetc_cb = vgetc_ib = 0;
 	vgetc_composite = L'\0';
 
-	vread_buffer_size = (MAX_VIEWLINEB < 8192 ? 8192 : MAX_VIEWLINEB);
+	vread_buffer_size = Max(MAX_VIEWLINEB, 8192);
 	vread_buffer = new char[vread_buffer_size];
 
 	lcache_first = lcache_last = -1;
@@ -145,14 +145,14 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	lcache_ready = false;
 	lcache_wrap = lcache_wwrap = lcache_width = -1;
 
-	int cached_buffer_size = 64*Max(Opt.ViOpt.MaxLineSize*2, 1024);;
+	int cached_buffer_size = 64*Max(Opt.ViOpt.MaxLineSize*2, 1024);
 	max_backward_size = ViewerOptions::eMaxLineSize*3;
 	if ( max_backward_size > cached_buffer_size/2 )
 		max_backward_size = cached_buffer_size / 2;
 	llengths_size = max_backward_size / 40;
 	llengths = new int[llengths_size];
 
-	Search_buffer_size = 3 * (MAX_VIEWLINEB < 8000 ? 8000 : MAX_VIEWLINEB);
+	Search_buffer_size = 3 * Max(MAX_VIEWLINEB, 8000);
 	Search_buffer = new wchar_t[Search_buffer_size];
 
 	ClearStruct(vString);
