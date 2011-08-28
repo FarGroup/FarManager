@@ -3,6 +3,22 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 28.08.2011 17:57:54 +0200 - build 2179
+
+1. Mantis#0001865: initialization of the colors array in dialog.cpp
+
+2. A couple of minor issues.
+
+svs 28.08.2011 15:26:06 +0300 - build 2178
+
+1. Mantis#0001766: Viewer new version
+   (from 2useven10)
+   Automatic scroll optimization for Win7.
+   The cache is not reset if the file is just growing.
+   On XP, the effect is negligible.
+
+2. Mantis#0001846: Incorrect reaction to mouse click in F1
+
 drkns 27.08.2011 16:40:43 +0200 - build 2177
 
 1. Warnings.
