@@ -83,7 +83,7 @@ static wchar_t nameString[1024];
 static wchar_t *sSrcString;
 static const wchar_t *pSrcString = nullptr;
 static wchar_t *oSrcString = nullptr;
-static wchar_t emptyString[1]={0};
+static wchar_t emptyString[1]={};
 
 static TToken currTok = tNo;
 static TVar currVar;

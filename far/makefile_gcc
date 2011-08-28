@@ -64,7 +64,6 @@ SRCS = \
 	dizlist.cpp \
 	DlgBuilder.cpp \
 	dlgedit.cpp \
-	DlgGuid.cpp \
 	DList.cpp \
 	drivemix.cpp \
 	edit.cpp \
@@ -73,7 +72,6 @@ SRCS = \
 	elevation.cpp \
 	execute.cpp \
 	farexcpt.cpp \
-	FarGuid.cpp \
 	farqueue.cpp \
 	farrtl.cpp \
 	farversion.cpp \
@@ -177,7 +175,7 @@ SRCS = \
 	xlat.cpp \
 	hook_wow64.c
 
-OBJS = $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS))) $(OBJDIR)far.rc.o
+OBJS = $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS))) $(OBJDIR)initguid.o $(OBJDIR)far.rc.o
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
 TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
@@ -233,6 +231,10 @@ $(EXEFULLNAME): $(BOOTSTRAPDIR)Far.exe.manifest $(BOOTSTRAPDIR)far.rc $(BOOTSTRA
 $(OBJDIR)%.o: %.c
 	@echo compiling $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
+
+$(OBJDIR)initguid.o: initguid.cpp
+	@echo compiling $<
+	@$(CXX) $(CCFLAGS) -c -o $@ $<
 
 $(OBJDIR)%.o: %.cpp
 	@echo compiling $<

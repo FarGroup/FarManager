@@ -2066,9 +2066,8 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 						}
 						else
 						{
-							STARTUPINFO si={0};
-							PROCESS_INFORMATION pi={0};
-							si.cb=sizeof(si);
+							STARTUPINFO si={sizeof(si)};
+							PROCESS_INFORMATION pi={};
 							strAction+=URLPath;
 
 							if (!CreateProcess(nullptr,const_cast<wchar_t*>(strAction.CPtr()),nullptr,nullptr,TRUE,0,nullptr,strCurDir,&si,&pi))

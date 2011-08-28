@@ -2122,7 +2122,7 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED)
 	{
 		static int PrevDoubleClick=0;
-		static COORD PrevPosition={0,0};
+		static COORD PrevPosition={};
 
 		if (GetTickCount()-PrevDoubleClick<=GetDoubleClickTime() && MouseEvent->dwEventFlags!=MOUSE_MOVED &&
 		        PrevPosition.X == MouseEvent->dwMousePosition.X && PrevPosition.Y == MouseEvent->dwMousePosition.Y)
@@ -3473,7 +3473,7 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 		// BUGBUG, hack
 		int Wait=WaitInMainLoop;
 		WaitInMainLoop=1;
-		struct FAR_INPUT_RECORD irec={Key,{0}};
+		struct FAR_INPUT_RECORD irec={Key};
 		if(!CtrlObject->Macro.ProcessEvent(&irec))
 			pOwner->ProcessKey(Key);
 		WaitInMainLoop=Wait;

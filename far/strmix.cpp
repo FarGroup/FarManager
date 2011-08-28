@@ -615,7 +615,7 @@ void UnquoteExternal(string &strStr)
 
 #define UNIT_COUNT 7 // byte, kilobyte, megabyte, gigabyte, terabyte, petabyte, exabyte.
 
-static wchar_t UnitStr[UNIT_COUNT][2][MAX_UNITSTR_SIZE]={0};
+static wchar_t UnitStr[UNIT_COUNT][2][MAX_UNITSTR_SIZE]={};
 
 void PrepareUnitStr()
 {

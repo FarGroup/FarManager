@@ -426,7 +426,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				GetFileOwner(strComputerName,strCurDir,TwoDotsOwner);
 			}
 
-			FILETIME TwoDotsTimes[4]={0};
+			FILETIME TwoDotsTimes[4]={};
 			if(apiGetFindDataEx(strCurDir,fdata))
 			{
 				TwoDotsTimes[0]=fdata.ftCreationTime;

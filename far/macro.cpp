@@ -445,7 +445,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"WAITKEY",          nullptr, L"V=Waitkey([N,[T]])",                                        waitkeyFunc,        nullptr, 0, 0,                                      MCODE_F_WAITKEY,          2, 2},
 	{L"WINDOW.SCROLL",    nullptr, L"N=Window.Scroll(Lines[,Axis])",                             windowscrollFunc,   nullptr, 0, 0,                                      MCODE_F_WINDOW_SCROLL,    2, 1},
 	{L"XLAT",             nullptr, L"S=Xlat(S[,Flags])",                                         xlatFunc,           nullptr, 0, 0,                                      MCODE_F_XLAT,             2, 1},
-	{0}
+	{}
 };
 
 
@@ -1447,7 +1447,7 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 					{
 						if (SelPanel->GetMode() == PLUGIN_PANEL)
 						{
-							OpenPanelInfo Info={0};
+							OpenPanelInfo Info={};
 							Info.StructSize=sizeof(OpenPanelInfo);
 							SelPanel->GetOpenPanelInfo(&Info);
 							if (CheckCode == MCODE_V_APANEL_OPIFLAGS || CheckCode == MCODE_V_PPANEL_OPIFLAGS)
@@ -1505,7 +1505,7 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 					{
 						if (SelPanel->GetMode() == PLUGIN_PANEL)
 						{
-							OpenPanelInfo Info={0};
+							OpenPanelInfo Info={};
 							Info.StructSize=sizeof(OpenPanelInfo);
 							SelPanel->GetOpenPanelInfo(&Info);
 							strFileName = Info.CurDir;
@@ -5274,7 +5274,7 @@ done:
 			DWORD Cmd=(DWORD)VMStack.Pop().getInteger();
 			TVar Val;
 			VMStack.Pop(Val);
-			MacroRecord RBuf={0};
+			MacroRecord RBuf={};
 			int KeyPos;
 
 			if (!(Val.isInteger() && !Val.i())) // учитываем только нормальное содержимое строки компил€ции
@@ -6096,7 +6096,7 @@ int KeyMacro::ReadMacroFunction(int ReadMode, string& strBuffer)
 			if (GetRegKey(strRegKeyName,L"Description",strDescription,L"",&regType))
 				RemoveExternalSpaces(strDescription);
 
-			MacroRecord mr={0};
+			MacroRecord mr={};
 			bool UsePluginFunc=true;
 			if (!strBuffer.IsEmpty())
 			{
@@ -6262,7 +6262,7 @@ DWORD KeyMacro::GetNewOpCode()
 int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 {
 	int I, J;
-	MacroRecord CurMacro={0};
+	MacroRecord CurMacro={};
 	string strUpKeyName=L"KeyMacros\\";
 	strUpKeyName+=GetSubKey(ReadMode);
 	string strRegKeyName, strKeyText;
@@ -6817,7 +6817,7 @@ INT_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* 
 
 			if (Param1==MS_BUTTON_OK)
 			{
-				MacroRecord mr={0};
+				MacroRecord mr={};
 				KeyMacro *Macro=KMParam->Handle;
 				LPCWSTR Sequence=(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MS_EDIT_SEQUENCE,0);
 
@@ -6875,7 +6875,7 @@ INT_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* 
 					;
 				else
 				{
-					MacroRecord NewMacroWORK2={0};
+					MacroRecord NewMacroWORK2={};
 					long FileSize=filelen(MacroFile);
 					TextBuffer=(char*)xf_malloc(FileSize);
 
@@ -7029,7 +7029,7 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 
 int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,BOOL onlyCheck)
 {
-	MacroRecord NewMacroWORK2={0};
+	MacroRecord NewMacroWORK2={};
 	wchar_t *Buffer=(wchar_t *)PlainText;
 	bool allocBuffer=false;
 
@@ -7891,7 +7891,7 @@ static LONG _RegWriteString(const wchar_t *Key,const wchar_t *ValueName,const wc
 
 int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,FARKEYMACROFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
 {
-	MacroRecord CurMacro={0};
+	MacroRecord CurMacro={};
 	CurMacro.Flags=MACRO_COMMON;
 	if (Flags&KMFLAGS_DISABLEOUTPUT) CurMacro.Flags|=MFLAGS_DISABLEOUTPUT;
 	if (Flags&KMFLAGS_NOSENDKEYSTOPLUGINS) CurMacro.Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;

@@ -51,7 +51,6 @@ DlgBuilder.cpp
 DlgBuilder.hpp
 dlgedit.cpp
 dlgedit.hpp
-DlgGuid.cpp
 DlgGuid.hpp
 DList.cpp
 DList.hpp
@@ -72,7 +71,6 @@ exitcode.hpp
 FarDlgBuilder.hpp
 farexcpt.cpp
 farexcpt.hpp
-FarGuid.cpp
 FarGuid.hpp
 farqueue.cpp
 farqueue.hpp
@@ -141,6 +139,7 @@ hotplug.cpp
 hotplug.hpp
 imports.cpp
 imports.hpp
+initguid.cpp
 infolist.cpp
 infolist.hpp
 interf.cpp

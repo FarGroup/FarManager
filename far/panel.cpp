@@ -1243,10 +1243,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 			string strVhdPath;
 			if(GetVHDName(DiskLetter, strVhdPath) && !strVhdPath.IsEmpty())
 			{
-				VIRTUAL_STORAGE_TYPE vst;
-				vst.DeviceId=VIRTUAL_STORAGE_TYPE_DEVICE_VHD;
-				const GUID VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT={0xec984aec, 0xa0f9, 0x47e9, 0x90, 0x1f, 0x71, 0x41, 0x5a, 0x66, 0x34, 0x5b};
-				vst.VendorId=VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT;
+				VIRTUAL_STORAGE_TYPE vst = {VIRTUAL_STORAGE_TYPE_DEVICE_VHD, VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT};
 				OPEN_VIRTUAL_DISK_PARAMETERS ovdp = {OPEN_VIRTUAL_DISK_VERSION_1, 0};
 				HANDLE Handle;
 				if(ifn.OpenVirtualDisk(&vst, strVhdPath, VIRTUAL_DISK_ACCESS_DETACH, OPEN_VIRTUAL_DISK_FLAG_NONE, &ovdp, &Handle) == ERROR_SUCCESS)

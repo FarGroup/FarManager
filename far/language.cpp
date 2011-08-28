@@ -325,7 +325,7 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 		return false;
 	}
 
-	wchar_t ReadStr[1024]={0};
+	wchar_t ReadStr[1024]={};
 
 	while (ReadString(LangFile, ReadStr, ARRAYSIZE(ReadStr), nCodePage) )
 	{

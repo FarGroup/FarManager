@@ -485,7 +485,7 @@ virtual bool ClearExtraRegions(const FarColor& Color) const
 	GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
 	DWORD TopSize = csbi.dwSize.X*csbi.srWindow.Top;
 	DWORD CharsWritten;
-	COORD TopCoord={0,0};
+	COORD TopCoord = {};
 	FillConsoleOutputCharacter(GetOutputHandle(), L' ', TopSize, TopCoord, &CharsWritten);
 	WORD ConColor = Colors::FarColorToConsoleColor(Color);
 	FillConsoleOutputAttribute(GetOutputHandle(), ConColor, TopSize, TopCoord, &CharsWritten );

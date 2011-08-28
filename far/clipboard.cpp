@@ -42,7 +42,7 @@ const wchar_t FAR_VerticalBlock_Unicode[] = L"FAR_VerticalBlock_Unicode";
 
 /* ------------------------------------------------------------ */
 // CF_OEMTEXT CF_TEXT CF_UNICODETEXT CF_HDROP
-HGLOBAL Clipboard::hInternalClipboard[5] = {0};
+HGLOBAL Clipboard::hInternalClipboard[5] = {};
 UINT    Clipboard::uInternalClipboardFormat[5] = {0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
 
 bool Clipboard::UseInternalClipboard = false;

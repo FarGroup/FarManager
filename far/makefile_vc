@@ -120,7 +120,6 @@ LINK_OBJS = \
 	"$(INTDIR)\dizlist.obj" \
 	"$(INTDIR)\DlgBuilder.obj" \
 	"$(INTDIR)\dlgedit.obj" \
-	"$(INTDIR)\DlgGuid.obj" \
 	"$(INTDIR)\DList.obj" \
 	"$(INTDIR)\drivemix.obj" \
 	"$(INTDIR)\edit.obj" \
@@ -129,7 +128,6 @@ LINK_OBJS = \
 	"$(INTDIR)\elevation.obj" \
 	"$(INTDIR)\execute.obj" \
 	"$(INTDIR)\farexcpt.obj" \
-	"$(INTDIR)\FarGuid.obj" \
 	"$(INTDIR)\farqueue.obj" \
 	"$(INTDIR)\farrtl.obj" \
 	"$(INTDIR)\farversion.obj" \
@@ -165,6 +163,7 @@ LINK_OBJS = \
 	"$(INTDIR)\hmenu.obj" \
 	"$(INTDIR)\hotplug.obj" \
 	"$(INTDIR)\imports.obj"\
+	"$(INTDIR)\initguid.obj"\
 	"$(INTDIR)\infolist.obj" \
 	"$(INTDIR)\interf.obj" \
 	"$(INTDIR)\keybar.obj" \
@@ -362,6 +361,9 @@ AllDirs:
 $(PCH_FILE): headers.cpp headers.hpp
 	echo making precompiled headers
 	$(CPP) $(CPPFLAGS) headers.cpp /Yc /Fp"$(PCH_FILE)"
+
+$(INTDIR)\initguid.obj: initguid.cpp
+	$(CPP) $(CPPFLAGS) initguid.cpp
 
 .c{$(INTDIR)}.obj::
 	$(CPP) @<<

@@ -67,7 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // "дополнительна€" очередь кодов клавиш
 FarQueue<DWORD> *KeyQueue=nullptr;
 
-FarKeyboardState IntKeyState={0};
+FarKeyboardState IntKeyState={};
 
 /* end √лобальные переменные */
 
@@ -361,7 +361,7 @@ void InitKeysArray()
 
 	if (LayoutNumber && LayoutNumber < (int)ARRAYSIZE(Layout))
 	{
-		BYTE KeyState[0x100]={0};
+		BYTE KeyState[0x100]={};
 		WCHAR buf[1];
 
 		//KeyToVKey - используетс€ чтоб проверить если два символа это одна и таже кнопка на клаве
@@ -652,7 +652,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 	DWORD ReadKey=0;
 	int NotMacros=FALSE;
 	static int LastMsClickMacroKey=0;
-	struct FAR_INPUT_RECORD irec={0};
+	struct FAR_INPUT_RECORD irec={};
 
 	if (AllowSynchro)
 		PluginSynchroManager.Process();
@@ -1368,8 +1368,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		    if(CtrlState != (IntKeyState.CtrlPressed|IntKeyState.AltPressed|IntKeyState.ShiftPressed))
 		    {
 		      static INPUT_RECORD TempRec[2]={
-		        {KEY_EVENT,{1,1,VK_F16,0,{0},0}},
-		        {KEY_EVENT,{0,1,VK_F16,0,{0},0}}
+		        {KEY_EVENT,{1,1,VK_F16,0,{},0}},
+		        {KEY_EVENT,{0,1,VK_F16,0,{},0}}
 		      };
 		      DWORD WriteCount;
 		      TempRec[0].Event.KeyEvent.dwControlKeyState=TempRec[1].Event.KeyEvent.dwControlKeyState=CtrlState;
@@ -1947,7 +1947,7 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 				{
 					FKey=Upper((wchar_t)Key&0xFFFF);
 
-					wchar_t KeyText[2]={0};
+					wchar_t KeyText[2]={};
 
 					if (FKey >= L'A' && FKey <= L'Z')
 					{

@@ -466,7 +466,7 @@ void MenuString(string &strDest, FileFilterParams *FF, bool bHighlightType, int 
 		UseDate=FF->GetDate(nullptr,nullptr,nullptr,&RelativeDate);
 	}
 
-	wchar_t Attr[ARRAYSIZE(AttrC)*2] = {0};
+	wchar_t Attr[ARRAYSIZE(AttrC)*2] = {};
 
 	for (size_t i=0; i<ARRAYSIZE(AttrF); i++)
 	{
@@ -743,7 +743,7 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 				if (!ColorConfig)
 					SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_DIRECTORY,ToPtr(BSTATE_UNCHECKED));
 
-				FarListPos LPos={0,0};
+				FarListPos LPos={};
 				SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID_FF_DATETYPE,&LPos);
 				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHMASK,ToPtr(BSTATE_CHECKED));
 				SendDlgMessage(hDlg,DM_SETCHECK,ID_FF_MATCHSIZE,ToPtr(BSTATE_UNCHECKED));
@@ -1011,7 +1011,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	for (int i=ID_HER_NORMALMARKING; i<=ID_HER_SELECTEDCURSORMARKING; i+=2)
 		FilterDlg[i].X1=FilterDlg[ID_HER_NORMALFILE].X1+(int)FilterDlg[ID_HER_NORMALFILE].strData.GetLength()-(FilterDlg[ID_HER_NORMALFILE].strData.Contains(L'&')?1:0)+1;
 
-	FAR_CHAR_INFO VBufColorExample[15*4]={0};
+	FAR_CHAR_INFO VBufColorExample[15*4]={};
 	HighlightDataColor Colors;
 	FF->GetColors(&Colors);
 	HighlightDlgUpdateUserControl(VBufColorExample,Colors);
@@ -1039,7 +1039,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 
 	// Лист для комбобокса времени файла
 	FarList DateList;
-	FarListItem TableItemDate[FDATE_COUNT]={0};
+	FarListItem TableItemDate[FDATE_COUNT]={};
 	// Настройка списка типов дат файла
 	DateList.Items=TableItemDate;
 	DateList.ItemsNumber=FDATE_COUNT;

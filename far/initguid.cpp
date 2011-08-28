@@ -1,10 +1,10 @@
 /*
-FarGuid.cpp
+initguid.cpp
 
-GUID'ы фара.
+Init GUID's
 */
 /*
-Copyright © 2010 Far Group
+Copyright © 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "headers.hpp"
-#pragma hdrstop
-
 #include <initguid.h>
+
+#include "headers.hpp"
 #include "FarGuid.hpp"
+#include "DlgGuid.hpp"

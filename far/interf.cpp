@@ -63,8 +63,8 @@ static SMALL_RECT windowholder_rect;
 WCHAR Oem2Unicode[256];
 WCHAR BoxSymbols[64];
 
-COORD InitSize={0};
-COORD CurSize={0};
+COORD InitSize={};
+COORD CurSize={};
 SHORT ScrX=0,ScrY=0;
 SHORT PrevScrX=-1,PrevScrY=-1;
 DWORD InitialConsoleMode=0;
@@ -411,7 +411,7 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
 void ShowTime(int ShowAlways)
 {
 	string strClockText;
-	static SYSTEMTIME lasttm={0,0,0,0,0,0,0,0};
+	static SYSTEMTIME lasttm={};
 	SYSTEMTIME tm;
 	GetLocalTime(&tm);
 	FAR_CHAR_INFO ScreenClockText[5];
@@ -635,7 +635,7 @@ void VText(const WCHAR *Str)
 		return;
 
 	int StartCurX=CurX;
-	WCHAR ChrStr[2]={0,0};
+	WCHAR ChrStr[2]={};
 
 	for (int I=0; I<Length; I++)
 	{

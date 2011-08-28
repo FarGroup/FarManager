@@ -1498,7 +1498,7 @@ INT_PTR Dialog::CtlColorDlgItem(FarColor Color[4],int ItemPos,int Type,int Focus
 			break;
 		}
 	}
-	FarDialogItemColors ItemColors = {0};
+	FarDialogItemColors ItemColors = {};
 	ItemColors.ColorsCount=4;
 	ItemColors.Colors=Color;
 	return DlgProc(this, DN_CTLCOLORDLGITEM, ItemPos, &ItemColors);
@@ -1520,7 +1520,7 @@ void Dialog::ShowDialog(unsigned ID)
 	DialogItemEx *CurItem;
 	int X,Y;
 	unsigned I,DrawItemCount;
-	FarColor ItemColor[4];
+	FarColor ItemColor[4] = {};
 
 	//   Если не разрешена отрисовка, то вываливаем.
 	if (IsEnableRedraw ||                // разрешена прорисовка ?
@@ -1951,8 +1951,8 @@ void Dialog::ShowDialog(unsigned ID)
 				if (CurItem->ListPtr)
 				{
 					//   Перед отрисовкой спросим об изменении цветовых атрибутов
-					FarColor RealColors[VMENU_COLOR_COUNT];
-					FarDialogItemColors ListColors={0};
+					FarColor RealColors[VMENU_COLOR_COUNT] = {};
+					FarDialogItemColors ListColors={};
 					ListColors.ColorsCount=VMENU_COLOR_COUNT;
 					ListColors.Colors=RealColors;
 					CurItem->ListPtr->GetColors(&ListColors);
@@ -3915,8 +3915,8 @@ int Dialog::SelectFromComboBox(
 		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 		SetComboBoxPos(CurItem);
 		// Перед отрисовкой спросим об изменении цветовых атрибутов
-		FarColor RealColors[VMENU_COLOR_COUNT];
-		FarDialogItemColors ListColors={0};
+		FarColor RealColors[VMENU_COLOR_COUNT] = {};
+		FarDialogItemColors ListColors={};
 		ListColors.ColorsCount=VMENU_COLOR_COUNT;
 		ListColors.Colors=RealColors;
 		ComboBox->SetColors(nullptr);

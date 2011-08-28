@@ -673,7 +673,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		{DI_BUTTON,0,DlgY-3,0,DlgY-3,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
 	MakeDialogItemsEx(AttrDlgData,AttrDlg);
-	SetAttrDlgParam DlgParam={0};
+	SetAttrDlgParam DlgParam={};
 	int SelCount=SrcPanel?SrcPanel->GetSelCount():1;
 
 	if (!SelCount)
@@ -706,7 +706,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		}
 	}
 
-	FarList NameList={0};
+	FarList NameList={};
 	string *strLinks=nullptr;
 
 	if (!DlgParam.Plugin)

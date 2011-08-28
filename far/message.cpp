@@ -109,7 +109,7 @@ INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			{
 				if (di.Type==DI_EDIT)
 				{
-					COORD pos={0,0};
+					COORD pos={};
 					SendDlgMessage(hDlg,DM_SETCURSORPOS,i,&pos);
 				}
 			}

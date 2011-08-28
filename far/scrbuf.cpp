@@ -109,7 +109,7 @@ void ScreenBuf::AllocBuf(int X,int Y)
 void ScreenBuf::FillBuf()
 {
 	CriticalSectionLock Lock(CS);
-	COORD BufferSize={BufX, BufY}, BufferCoord={0, 0};
+	COORD BufferSize={BufX, BufY}, BufferCoord={};
 	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(BufX-1), static_cast<SHORT>(BufY-1)};
 	Console.ReadOutput(Buf, BufferSize, BufferCoord, ReadRegion);
 	memcpy(Shadow,Buf,BufX*BufY*sizeof(FAR_CHAR_INFO));

@@ -113,9 +113,6 @@
     <ClCompile Include="dlgedit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DlgGuid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -135,9 +132,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="farexcpt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FarGuid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="farqueue.cpp">
@@ -243,6 +237,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="imports.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="initguid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="infolist.cpp">

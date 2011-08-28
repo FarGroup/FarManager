@@ -419,7 +419,7 @@ int VMenu::AddItem(const wchar_t *NewStrItem)
 {
 	CriticalSectionLock Lock(CS);
 
-	FarListItem FarListItem0={0};
+	FarListItem FarListItem0={};
 
 	if (!NewStrItem || NewStrItem[0] == 0x1)
 	{
@@ -2107,7 +2107,7 @@ void VMenu::ShowMenu(bool IsParent)
 		DrawTitles();
 	}
 
-	wchar_t BoxChar[2]={0};
+	wchar_t BoxChar[2]={};
 
 	switch (BoxType)
 	{

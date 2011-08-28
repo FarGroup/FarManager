@@ -287,7 +287,7 @@ TVar& TVar::AppendStr(const TVar& appStr)
 
 TVar& TVar::AppendStr(wchar_t addChr)
 {
-	wchar_t tmp[2]={0,0};
+	wchar_t tmp[2]={};
 	tmp[0]=addChr;
 	vType = vtString;
 	return operator=(addStr(str,tmp));

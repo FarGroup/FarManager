@@ -2304,7 +2304,7 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 						MacroCheckMacroText *CheckText=(MacroCheckMacroText*)Param2;
 						if (CheckText->Text.SequenceText && *CheckText->Text.SequenceText)
 						{
-							MacroRecord CurMacro={0};
+							MacroRecord CurMacro={};
 							int Ret=Macro.ParseMacroString(&CurMacro,CheckText->Text.SequenceText,(CheckText->Text.Flags&KMFLAGS_SILENTCHECK)?TRUE:FALSE);
 
 							if (Ret)

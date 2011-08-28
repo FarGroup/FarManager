@@ -196,7 +196,7 @@ bool IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
 		File file;
 		if(file.Open(name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING))
 		{
-			DISK_GEOMETRY dg={0};
+			DISK_GEOMETRY dg={};
 			DWORD Bytes=0;
 			if(file.IoControl(IOCTL_DISK_GET_DRIVE_GEOMETRY, nullptr, 0, &dg, sizeof(dg), &Bytes))
 			{

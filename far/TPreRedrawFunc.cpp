@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 TPreRedrawFunc PreRedraw;
 
-PreRedrawItem TPreRedrawFunc::errorStack={0};
+PreRedrawItem TPreRedrawFunc::errorStack={};
 
 PreRedrawItem TPreRedrawFunc::Pop()
 {

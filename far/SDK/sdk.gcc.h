@@ -328,6 +328,9 @@ char (*RtlpNumberOf(T(&)[N]))[N];
 #define SEE_MASK_NOASYNC 0x00000100
 #endif
 
+// WinIoCtl.h
+DEFINE_GUID(GUID_DEVINTERFACE_VOLUME, 0x53f5630dL, 0xb6bf, 0x11d0, 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b);
+
 // virtdisk.h
 #ifndef VIRT_DISK_API_DEF
 #define VIRT_DISK_API_DEF
@@ -455,6 +458,8 @@ typedef enum _DETACH_VIRTUAL_DISK_FLAG
 	DETACH_VIRTUAL_DISK_FLAG_NONE = 0x00000000,
 }
 DETACH_VIRTUAL_DISK_FLAG;
+
+DEFINE_GUID(VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT, 0xec984aec, 0xa0f9, 0x47e9, 0x90, 0x1f, 0x71, 0x41, 0x5a, 0x66, 0x34, 0x5b);
 
 #endif
 

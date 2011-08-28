@@ -575,8 +575,8 @@ void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator
 
 void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative)
 {
-	WORD DateN[3]={0},TimeN[4]={0};
-	SYSTEMTIME st={0};
+	WORD DateN[3]={},TimeN[4]={};
+	SYSTEMTIME st={};
 	// Преобразуем введённые пользователем дату и время
 	GetFileDateAndTime(CDate,DateN,ARRAYSIZE(DateN),DateSeparator);
 	GetFileDateAndTime(CTime,TimeN,ARRAYSIZE(TimeN),TimeSeparator);
@@ -640,7 +640,7 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 	}
 	else
 	{
-		FILETIME lft={0};
+		FILETIME lft={};
 
 		if (SystemTimeToFileTime(&st,&lft))
 		{

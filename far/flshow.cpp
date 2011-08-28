@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern PanelViewSettings ViewSettingsArray[];
 extern int ColumnTypeWidth[];
 
-static wchar_t OutCharacter[8]={0,0,0,0,0,0,0,0};
+static wchar_t OutCharacter[8]={};
 
 static int __FormatEndSelectedPhrase(int Count)
 {
@@ -619,7 +619,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,u
 
 void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
 {
-	OpenPanelInfo Info={0};
+	OpenPanelInfo Info={};
 
 	if (PanelMode==PLUGIN_PANEL)
 	{

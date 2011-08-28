@@ -384,7 +384,7 @@ void SysLogDump(const wchar_t *Title,DWORD StartAddress,LPBYTE Buf,unsigned Size
 		if (!InternalLog && Title && *Title)
 			fwprintf(fp,L"%s\n",Title);
 
-		wchar_t TmpBuf[17]={0};
+		wchar_t TmpBuf[17]={};
 
 		for (int Y=0; Y < CY; ++Y)
 		{

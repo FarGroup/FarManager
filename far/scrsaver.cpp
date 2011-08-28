@@ -60,13 +60,13 @@ static struct
 	int Speed;
 } Star[16];
 
-static wchar_t StarSymbol[5][2]=
+static const wchar_t* StarSymbol[]=
 {
-	{0x25A0,0x0000},
-	{0x2219,0x0000},
-	{0x2219,0x0000},
-	{0x00B0,0x0000},
-	{0x00B7,0x0000},
+	L"\x25A0",
+	L"\x2219",
+	L"\x2219",
+	L"\x00B0",
+	L"\x00B7",
 };
 
 static void ShowSaver(int Step)

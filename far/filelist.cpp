@@ -1152,7 +1152,7 @@ int FileList::ProcessKey(int Key)
 
 					if (Key==KEY_CTRLF || Key==KEY_RCTRLF || Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF)
 					{
-						OpenPanelInfo Info={0};
+						OpenPanelInfo Info={};
 
 						if (PanelMode==PLUGIN_PANEL)
 						{
@@ -1433,7 +1433,7 @@ int FileList::ProcessKey(int Key)
 		{
 			_ALGO(CleverSysLog clv(L"Edit/View"));
 			_ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
-			OpenPanelInfo Info={0};
+			OpenPanelInfo Info={};
 			BOOL RefreshedPanel=TRUE;
 
 			if (PanelMode==PLUGIN_PANEL)
@@ -3976,7 +3976,7 @@ void FileList::CopyFiles()
 
 void FileList::CopyNames(bool FillPathName, bool UNC)
 {
-	OpenPanelInfo Info={0};
+	OpenPanelInfo Info={};
 	wchar_t *CopyData=nullptr;
 	long DataSize=0;
 	string strSelName, strSelShortName, strQuotedName;

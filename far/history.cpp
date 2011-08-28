@@ -203,7 +203,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 	unsigned __int64 SelectedRecord = 0;
 	string strSelectedRecordName;
 	int SelectedRecordType = 0;
-	FarListPos Pos={0,0};
+	FarListPos Pos={};
 	int Code=-1;
 	int RetCode=1;
 	bool Done=false;
@@ -307,7 +307,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 			{
 					//  Перед отрисовкой спросим об изменении цветовых атрибутов
 					BYTE RealColors[VMENU_COLOR_COUNT];
-					FarListColors ListColors={0};
+					FarListColors ListColors={};
 					ListColors.ColorCount=VMENU_COLOR_COUNT;
 					ListColors.Colors=RealColors;
 					HistoryMenu.GetColors(&ListColors);

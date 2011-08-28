@@ -490,7 +490,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="dizlist.cpp" />
     <ClCompile Include="DlgBuilder.cpp" />
     <ClCompile Include="dlgedit.cpp" />
-    <ClCompile Include="DlgGuid.cpp" />
     <ClCompile Include="DList.cpp" />
     <ClCompile Include="drivemix.cpp" />
     <ClCompile Include="edit.cpp" />
@@ -498,7 +497,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="eject.cpp" />
     <ClCompile Include="execute.cpp" />
     <ClCompile Include="farexcpt.cpp" />
-    <ClCompile Include="FarGuid.cpp" />
     <ClCompile Include="farqueue.cpp" />
     <ClCompile Include="farrtl.cpp" />
     <ClCompile Include="farversion.cpp" />
@@ -554,6 +552,14 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </ClCompile>
     <ClCompile Include="hotplug.cpp" />
     <ClCompile Include="imports.cpp" />
+    <ClCompile Include="initguid.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="infolist.cpp" />
     <ClCompile Include="interf.cpp" />
     <ClCompile Include="keybar.cpp" />

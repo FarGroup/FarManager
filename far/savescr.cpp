@@ -229,7 +229,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 		if(NewY!=OHe)
 		{
 			COORD Size={static_cast<SHORT>(Max(NewX,OWi)), static_cast<SHORT>(abs(OHe-NewY))};
-			COORD Coord={0, 0};
+			COORD Coord={};
 			FAR_CHAR_INFO* Tmp=new FAR_CHAR_INFO[Size.X*Size.Y];
 			if(NewY>OHe)
 			{
@@ -256,7 +256,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 		if(NewX!=OWi)
 		{
 			COORD Size={static_cast<SHORT>(abs(NewX-OWi)), static_cast<SHORT>(Max(NewY,OHe))};
-			COORD Coord={0, 0};
+			COORD Coord={};
 			FAR_CHAR_INFO* Tmp=new FAR_CHAR_INFO[Size.X*Size.Y];
 			if(NewX>OWi)
 			{

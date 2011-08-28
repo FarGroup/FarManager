@@ -385,7 +385,7 @@ FarStandardFunctions NativeFSF =
 	FarBsearch,
 	FarQsortEx,
 	_snwprintf,
-	{0},
+	{},
 	farIsLower,
 	farIsUpper,
 	farIsAlpha,

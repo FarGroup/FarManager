@@ -48,8 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "window.hpp"
 
-const GUID GUID_DEVINTERFACE_VOLUME = {0x53f5630dL,0xb6bf,0x11d0,0x94,0xf2,0x00,0xa0,0xc9,0x1e,0xfb,0x8b};
-
 struct DeviceInfo
 {
 	DEVINST hDevInst; // device instance
@@ -534,7 +532,7 @@ int __RemoveHotplugDevice(DEVINST hDevInst)
 {
 	PNP_VETO_TYPE pvtVeto = PNP_VetoTypeUnknown;
 	CONFIGRET crResult;
-	wchar_t wszDescription[MAX_PATH]={0}; //BUGBUG
+	wchar_t wszDescription[MAX_PATH]={}; //BUGBUG
 	crResult = CM_Request_Device_Eject(hDevInst, &pvtVeto, (wchar_t*)&wszDescription, MAX_PATH, 0);
 
 	if ((crResult != CR_SUCCESS) || (pvtVeto != PNP_VetoTypeUnknown))   //M$ баг, если есть szDecsription, то даже при ошибке возвращается CR_SUCCESS
