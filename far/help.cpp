@@ -1659,7 +1659,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		ProcessKey(KEY_ENTER);
 	}
 
-	if(MsX != IntKeyState.PrevMouseX || MsY != IntKeyState.PrevMouseY)
+	if(StackData.CurX != MsX-X1-1 || StackData.CurY!=MsY-Y1-1-FixSize)
 	{
 		StackData.CurX=MsX-X1-1;
 		StackData.CurY=MsY-Y1-1-FixSize;

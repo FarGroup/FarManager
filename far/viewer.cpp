@@ -1265,35 +1265,44 @@ int Viewer::ProcessKey(int Key)
 				if (!apiGetFindDataEx(strFullFileName, NewViewFindData))
 					return TRUE;
 
-				ViewFile.GetSize(NewViewFindData.nFileSize); // Required! -- thanks Dzirt2005
-
-				if (ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime
-				 || ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime
-				 || ViewFindData.nFileSize != NewViewFindData.nFileSize)
-				{
+				// Smart file change check -- thanks Dzirt2005
+				//
+				bool changed = (
+					ViewFindData.ftLastWriteTime.dwLowDateTime!=NewViewFindData.ftLastWriteTime.dwLowDateTime ||
+					ViewFindData.ftLastWriteTime.dwHighDateTime!=NewViewFindData.ftLastWriteTime.dwHighDateTime ||
+					ViewFindData.nFileSize != NewViewFindData.nFileSize
+				);
+				if ( changed )
 					ViewFindData = NewViewFindData;
-					SetFileSize();
-
+				else {
+					if ( !ViewFile.GetSize(NewViewFindData.nFileSize) || FileSize == static_cast<__int64>(NewViewFindData.nFileSize) )
+						return TRUE;
+					changed = FileSize > static_cast<__int64>(NewViewFindData.nFileSize); // true if file shrank
+				}
+				
+				SetFileSize();
+				if ( changed ) // do not reset caches if file just enlarged [make sense on Win7, doesn't matter on XP]
+				{
 					Reader.Clear(); // иначе зачем вся эта возня?
 					ViewFile.FlushBuffers();
 					vseek(0, SEEK_CUR); // reset vgetc state
 					lcache_ready = false; // reset start-lines cache
+				}
 
-					if (FilePos>FileSize)
+				if (FilePos > FileSize)
+				{
+					ProcessKey(KEY_CTRLEND);
+				}
+				else
+				{
+					__int64 PrevLastPage=LastPage;
+					LastPage = 0;
+					Show();
+
+					if (PrevLastPage && !LastPage)
 					{
 						ProcessKey(KEY_CTRLEND);
-					}
-					else
-					{
-						__int64 PrevLastPage=LastPage;
-						LastPage = 0;
-						Show();
-
-						if (PrevLastPage && !LastPage)
-						{
-							ProcessKey(KEY_CTRLEND);
-							LastPage=TRUE;
-						}
+						LastPage=TRUE;
 					}
 				}
 			}
