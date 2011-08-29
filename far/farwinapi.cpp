@@ -1298,12 +1298,11 @@ void apiEnableLowFragmentationHeap()
 		DWORD ActualNumHeaps = GetProcessHeaps(NumHeaps, Heaps);
 		if(ActualNumHeaps > NumHeaps)
 		{
-			NumHeaps = ActualNumHeaps;
 			delete[] Heaps;
-			Heaps = new HANDLE[NumHeaps];
-			GetProcessHeaps(NumHeaps, Heaps);
+			Heaps = new HANDLE[ActualNumHeaps];
+			GetProcessHeaps(ActualNumHeaps, Heaps);
 		}
-		for (DWORD i = 0; i < NumHeaps; i++)
+		for (DWORD i = 0; i < ActualNumHeaps; i++)
 		{
 			ULONG HeapFragValue = 2;
 			ifn.HeapSetInformation(Heaps[i], HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
