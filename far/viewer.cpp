@@ -1279,7 +1279,7 @@ int Viewer::ProcessKey(int Key)
 						return TRUE;
 					changed = FileSize > static_cast<__int64>(NewViewFindData.nFileSize); // true if file shrank
 				}
-				
+
 				SetFileSize();
 				if ( changed ) // do not reset caches if file just enlarged [make sense on Win7, doesn't matter on XP]
 				{
@@ -3096,7 +3096,7 @@ void Viewer::Search(int Next,int FirstChar)
 		my.hex_mode = (LastSearchHex != 0);
 		my.recursive = false;
 		//
-		SearchDlg[SD_EDIT_TEXT].UserData = &my;
+		SearchDlg[SD_EDIT_TEXT].UserData = (DWORD_PTR)&my;
 
 		Dialog Dlg(SearchDlg,ARRAYSIZE(SearchDlg),ViewerSearchDlgProc);
 		Dlg.SetPosition(-1,-1,76,13);

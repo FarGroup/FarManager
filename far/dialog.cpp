@@ -6103,14 +6103,14 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			/*****************************************************************/
 		case DM_SETITEMDATA:
 		{
-			void* PrewDataDialog=CurItem->UserData;
-			CurItem->UserData=Param2;
-			return reinterpret_cast<INT_PTR>(PrewDataDialog);
+			DWORD_PTR PrewDataDialog=CurItem->UserData;
+			CurItem->UserData=(DWORD_PTR)Param2;
+			return PrewDataDialog;
 		}
 		/*****************************************************************/
 		case DM_GETITEMDATA:
 		{
-			return reinterpret_cast<INT_PTR>(CurItem->UserData);
+			return CurItem->UserData;
 		}
 		/*****************************************************************/
 		case DM_EDITUNCHANGEDFLAG: // -1 Get, 0 - Skip, 1 - Set; Выделение блока снимается.

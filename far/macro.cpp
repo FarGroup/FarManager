@@ -838,32 +838,34 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 
 				if (Pos < MacroLIBCount)
 				{
-					MacroLIB[Pos].Key=MacroKey;
+					MacroRecord Macro = {0};
+					Macro.Key=MacroKey;
 
 					if (RecBufferSize > 0 && !RecSrc)
 						RecBuffer[RecBufferSize++]=MCODE_OP_ENDKEYS;
 
 					if (RecBufferSize > 1)
-						MacroLIB[Pos].Buffer=RecBuffer;
+						Macro.Buffer=RecBuffer;
 					else if (RecBuffer && RecBufferSize > 0)
-						MacroLIB[Pos].Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*RecBuffer));
+						Macro.Buffer=reinterpret_cast<DWORD*>((DWORD_PTR)(*RecBuffer));
 					else if (!RecBufferSize)
-						MacroLIB[Pos].Buffer=nullptr;
+						Macro.Buffer=nullptr;
 
-					MacroLIB[Pos].BufferSize=RecBufferSize;
-					MacroLIB[Pos].Src=RecSrc?RecSrc:MkTextSequence(MacroLIB[Pos].Buffer,MacroLIB[Pos].BufferSize);
-					MacroLIB[Pos].Description=nullptr;
-					MacroLIB[Pos].Callback=nullptr;
+					Macro.BufferSize=RecBufferSize;
+					Macro.Src=RecSrc?RecSrc:MkTextSequence(Macro.Buffer,Macro.BufferSize);
+					Macro.Description=nullptr;
 
 					// если удаляем макрос - скорректируем StartMode,
 					// иначе макрос из common получит ту область, в которой его решили удалить.
-					if (!MacroLIB[Pos].BufferSize||!MacroLIB[Pos].Src)
-						StartMode=MacroLIB[Pos].Flags&MFLAGS_MODEMASK;
+					if (!Macro.BufferSize||!Macro.Src)
+						StartMode=Macro.Flags&MFLAGS_MODEMASK;
 
-					MacroLIB[Pos].Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
-					MacroLIB[Pos].Guid=FarGuid;
-					MacroLIB[Pos].Id=nullptr;
-					MacroLIB[Pos].Callback=nullptr;
+					Macro.Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
+					Macro.Guid=FarGuid;
+					Macro.Id=nullptr;
+					Macro.Callback=nullptr;
+
+					MacroLIB[Pos]=Macro;
 				}
 			}
 
@@ -6267,6 +6269,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 	strUpKeyName+=GetSubKey(ReadMode);
 	string strRegKeyName, strKeyText;
 	string strDescription;
+	string strGUID;
 	int ErrorCount=0;
 
 	for (I=0;; I++)
@@ -6379,6 +6382,14 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 		{
 			CurMacro.Description=xf_wcsdup(strDescription);
 		}
+
+		GUID Guid=FarGuid;
+		if (GetRegKey(strRegKeyName,L"GUID",strGUID,L"",&regType))
+		{
+			if(!StrToGuid(strGUID,Guid))
+				Guid=FarGuid;
+		}
+		CurMacro.Guid=Guid;
 
 		MacroLIB[MacroLIBCount]=CurMacro;
 		MacroLIBCount++;

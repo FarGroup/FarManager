@@ -502,7 +502,7 @@ struct FarDialogItem
 	FARDIALOGITEMFLAGS Flags;
 	const wchar_t *Data;
 	size_t MaxLength; // terminate 0 not included (if == 0 string size is unlimited)
-	void* UserData;
+	DWORD_PTR UserData;
 };
 
 struct FarDialogItemData
@@ -2439,7 +2439,7 @@ struct SetDirectoryInfo
 	size_t StructSize;
 	HANDLE hPanel;
 	const wchar_t *Dir;
-	INT_PTR UserData;
+	DWORD_PTR UserData;
 	OPERATION_MODES OpMode;
 };
 
