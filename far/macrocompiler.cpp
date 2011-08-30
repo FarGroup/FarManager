@@ -347,6 +347,13 @@ static void calcFunc()
 					if (currTok != tRp)
 						foundparam++;
 
+					if ( currTok == tComma) // Mantis#0001863: Отсутствие строки как параметр функции
+					{
+						put(MCODE_OP_PUSHUNKNOWN);
+						put64(0);
+						continue;
+					}
+
 					expr();
 					xwcsncpy(nameString,nameString0,ARRAYSIZE(nameString));
 

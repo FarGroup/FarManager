@@ -196,7 +196,7 @@ enum MACRO_OP_CODE
 	MCODE_F_FLOCK,                    // N=FLock(N,N)
 	MCODE_F_CALLPLUGIN,               // V=callplugin(SysID[,param])
 	MCODE_F_REPLACE,                  // S=replace(sS,sF,sR[,Count[,Mode]])
-	MCODE_F_PROMPT,                   // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
+	MCODE_F_PROMPT,                   // S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])
 	MCODE_F_BM_ADD,                   // N=BM.Add()  - добавить текущие координаты и обрезать хвост
 	MCODE_F_BM_CLEAR,                 // N=BM.Clear() - очистить все закладки
 	MCODE_F_BM_DEL,                   // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=1...), 0 - удаляет текущую закладку
