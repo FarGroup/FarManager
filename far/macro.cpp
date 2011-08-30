@@ -2431,7 +2431,7 @@ static bool kbdLayoutFunc(const TMacroFunction*)
 	return Ret?true:false;
 }
 
-// S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
+// S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])
 static bool promptFunc(const TMacroFunction*)
 {
 	TVar ValHistory;
@@ -2446,35 +2446,35 @@ static bool promptFunc(const TMacroFunction*)
 	TVar Result(L"");
 	bool Ret=false;
 
+	const wchar_t *history=nullptr;
+	const wchar_t *title=nullptr;
+
 	if (!(ValTitle.isInteger() && !ValTitle.i()))
+		title=ValTitle.s();
+
+	if (!(ValHistory.isInteger() && !ValHistory.i()))
+		history=ValHistory.s();
+
+	const wchar_t *src=L"";
+
+	if (!(ValSrc.isInteger() && !ValSrc.i()))
+		src=ValSrc.s();
+
+	const wchar_t *prompt=L"";
+
+	if (!(ValPrompt.isInteger() && !ValPrompt.i()))
+		prompt=ValPrompt.s();
+
+	string strDest;
+
+	if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
 	{
-		const wchar_t *history=nullptr;
-
-		if (!(ValHistory.isInteger() && !ValHistory.i()))
-			history=ValHistory.s();
-
-		const wchar_t *src=L"";
-
-		if (!(ValSrc.isInteger() && !ValSrc.i()))
-			src=ValSrc.s();
-
-		const wchar_t *prompt=L"";
-
-		if (!(ValPrompt.isInteger() && !ValPrompt.i()))
-			prompt=ValPrompt.s();
-
-		const wchar_t *title=NullToEmpty(ValTitle.toString());
-		string strDest;
-
-		if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
-		{
-			Result=strDest.CPtr();
-			Result.toString();
-			Ret=true;
-		}
-		else
-			Result=0;
+		Result=strDest.CPtr();
+		Result.toString();
+		Ret=true;
 	}
+	else
+		Result=0;
 
 	VMStack.Push(Result);
 	return Ret;
