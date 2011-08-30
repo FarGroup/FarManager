@@ -3,6 +3,38 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 30.08.2011 10:43:11 +0300 - build 2183
+
+1. Mantis#0001866: Make all prompt() parameters optional
+   correction of build 2182
+
+svs 30.08.2011 10:16:23 +0300 - build 2182
+
+1. Mantis#0001863: Omitted string as the parameter of a function
+
+   !!!Highly experimental, tested on `prompt` and `msgbox` only!!!
+
+   Now parameters can be skipped :-)
+
+   For example,
+     prompt("Title","Text",0x08,,"History")
+   works the same way as
+     prompt("Title","Text",0x08,"","History")
+
+2. Mantis#0001866: Make all prompt() parameters optional
+   
+
+svs 29.08.2011 14:39:57 +0300 - build 2181
+
+1. Mantis#0001864: Debug version crash when executng a written macro
+
+2. Mantis#0001856: bringing to common UserData
+   (from samlyukov)
+
+drkns 29.08.2011 08:42:09 +0200 - build 2180
+
+1. Correction of 2179.2.
+
 drkns 28.08.2011 17:57:54 +0200 - build 2179
 
 1. Mantis#0001865: initialization of the colors array in dialog.cpp
