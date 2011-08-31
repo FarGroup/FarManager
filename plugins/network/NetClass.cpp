@@ -1945,7 +1945,7 @@ void NetBrowser::FileNames2Clipboard(BOOL ToCommandLine)
 	{
 		if (DataSize > 0)
 		{
-			wcscat(CopyData+DataSize,L"\r\n");
+			lstrcat(CopyData+DataSize,L"\r\n");
 			DataSize+=2;
 		}
 
@@ -1968,7 +1968,7 @@ void NetBrowser::FileNames2Clipboard(BOOL ToCommandLine)
 			FSF.QuoteSpaceOnly(CurFile);
 			int Length=lstrlen(CurFile);
 
-			wchar_t *NewPtr=(wchar_t *)realloc(CopyData, (DataSize+Length+(ToCommandLine?2:3))*sizeof(wchar_t));
+			wchar_t *NewPtr=(wchar_t *)realloc(CopyData, (DataSize+Length+3)*sizeof(wchar_t));
 	        if (!NewPtr)
 	        {
 	        	if (CopyData)
