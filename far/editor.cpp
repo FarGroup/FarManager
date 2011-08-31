@@ -5921,13 +5921,6 @@ int Editor::EditorControl(int Command,void *Param)
 
 			break;
 		}
-		// должно выполняется в FileEditor::EditorControl()
-		case ECTL_PROCESSKEY:
-		{
-			_ECTLLOG(SysLog(L"Key = %s",_FARKEY_ToName((DWORD)Param)));
-			ProcessKey((int)(INT_PTR)Param);
-			return TRUE;
-		}
 		/* $ 16.02.2001 IS
 		     Изменение некоторых внутренних настроек редактора. Param указывает на
 		     структуру EditorSetParameter

@@ -4253,7 +4253,9 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		}
 		case oldfar::ECTL_PROCESSKEY:
 		{
-			return static_cast<int>(NativeInfo.EditorControl(-1,ECTL_PROCESSKEY, 0, (void*)(DWORD_PTR)OldKeyToKey((DWORD)(DWORD_PTR)Param)));
+			INPUT_RECORD r={};
+			KeyToInputRecord(OldKeyToKey(static_cast<int>(reinterpret_cast<INT_PTR>(Param))),&r);
+			return static_cast<int>(NativeInfo.EditorControl(-1,ECTL_PROCESSINPUT, 0, &r));
 		}
 		case oldfar::ECTL_READINPUT:	//BUGBUG?
 		{

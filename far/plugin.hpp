@@ -1542,7 +1542,7 @@ enum EDITOR_CONTROL_COMMANDS
 	ECTL_SAVEFILE                   = 18,
 	ECTL_QUIT                       = 19,
 	ECTL_SETKEYBAR                  = 20,
-	ECTL_PROCESSKEY                 = 21,
+
 	ECTL_SETPARAM                   = 22,
 	ECTL_GETBOOKMARKS               = 23,
 	ECTL_TURNOFFMARKINGBLOCK        = 24,

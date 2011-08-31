@@ -2727,11 +2727,6 @@ int FileEditor::EditorControl(int Command, void *Param)
 
 			return FALSE;
 		}
-		case ECTL_PROCESSKEY:
-		{
-			ReProcessKey((int)(INT_PTR)Param);
-			return TRUE;
-		}
 		case ECTL_SETPARAM:
 		{
 			if (Param)
