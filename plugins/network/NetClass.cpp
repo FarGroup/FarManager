@@ -1429,12 +1429,17 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 	}
 	else if (Key == L'F' && Ctrl)
 	{
-		PutCurrentFileName(TRUE);
+		FileNames2Clipboard(TRUE);
+		return TRUE;
+	}
+	else if (Key == VK_INSERT && Alt && Shift)
+	{
+		FileNames2Clipboard(FALSE);
 		return TRUE;
 	}
 	else if (Key == VK_INSERT && Alt && Ctrl)
 	{
-		PutCurrentFileName(FALSE);
+		FileNames2Clipboard(FALSE);
 		return TRUE;
 	}
 	else if (Key == VK_F4 && !Alt && !Ctrl && !Shift)
@@ -1894,44 +1899,103 @@ int NetBrowser::GetNameAndPassword(NameAndPassInfo* passInfo)
 }
 
 
-void NetBrowser::PutCurrentFileName(BOOL ToCommandLine)
+void NetBrowser::FileNames2Clipboard(BOOL ToCommandLine)
 {
 	PanelInfo PInfo;
 	Info.PanelControl(this, FCTL_GETPANELINFO,0,&PInfo);
 
-	if (PInfo.ItemsNumber > 0)
+	wchar_t CurFile [MAX_PATH];
+	wchar_t *CopyData=nullptr;
+	long DataSize=0;
+
+	if (ToCommandLine)
 	{
-		wchar_t CurFile [MAX_PATH];
-		size_t Size = Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+		if (PInfo.ItemsNumber > 0)
+		{
+			wchar_t CurFile [MAX_PATH];
+			size_t Size = Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+			PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
+
+			if (PPI)
+			{
+				FarGetPluginPanelItem gpi={Size, PPI};
+				Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
+				lstrcpy(CurFile,PPI->FileName);
+				free(PPI);
+			}
+
+			if (!lstrcmp(CurFile, L".."))
+			{
+				if (PCurResource == NULL)
+					lstrcpy(CurFile, L".\\");
+				else
+					lstrcpy(CurFile, PCurResource->lpRemoteName);
+			}
+
+			FSF.QuoteSpaceOnly(CurFile);
+
+			lstrcat(CurFile, L" ");
+			Info.PanelControl(this, FCTL_INSERTCMDLINE,0,CurFile);
+		}
+
+		return;
+	}
+
+	for (size_t I=0; I < PInfo.SelectedItemsNumber; ++I)
+	{
+		if (DataSize > 0)
+		{
+			wcscat(CopyData+DataSize,L"\r\n");
+			DataSize+=2;
+		}
+
+		size_t Size = Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,0);
 		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
 			FarGetPluginPanelItem gpi={Size, PPI};
-			Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
+			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,&gpi);
+
 			lstrcpy(CurFile,PPI->FileName);
+			if (!lstrcmp(CurFile, L".."))
+			{
+				if (PCurResource == NULL)
+					lstrcpy(CurFile, L".\\");
+				else
+					lstrcpy(CurFile, PCurResource->lpRemoteName);
+			}
+			FSF.QuoteSpaceOnly(CurFile);
+			int Length=lstrlen(CurFile);
+
+			wchar_t *NewPtr=(wchar_t *)realloc(CopyData, (DataSize+Length+(ToCommandLine?2:3))*sizeof(wchar_t));
+	        if (!NewPtr)
+	        {
+	        	if (CopyData)
+				{
+					free(CopyData);
+					CopyData=nullptr;
+				}
+	        }
+	        else
+	        {
+	        	CopyData=NewPtr;
+				CopyData[DataSize]=0;
+				lstrcpy(CopyData+DataSize, CurFile);
+				DataSize+=Length;
+	        }
 			free(PPI);
+
+			if (!CopyData)
+				break;
 		}
 
-		if (!lstrcmp(CurFile, L".."))
-		{
-			if (PCurResource == NULL)
-				lstrcpy(CurFile, L".\\");
-			else
-				lstrcpy(CurFile, PCurResource->lpRemoteName);
-		}
+	}
 
-		FSF.QuoteSpaceOnly(CurFile);
-
-		if (ToCommandLine)
-		{
-			lstrcat(CurFile, L" ");
-			Info.PanelControl(this, FCTL_INSERTCMDLINE,0,CurFile);
-		}
-		else
-		{
-			FSF.CopyToClipboard(CurFile);
-		}
+	if (CopyData)
+	{
+		FSF.CopyToClipboard(CopyData);
+		free(CopyData);
 	}
 }
 

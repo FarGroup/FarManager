@@ -108,7 +108,7 @@ class NetBrowser
 		void SetCursorToShare(wchar_t *Share);
 		BOOL MapNetworkDrive(const wchar_t *RemoteName, BOOL AskDrive, BOOL Permanent);
 		BOOL AskMapDrive(wchar_t *NewLocalName, BOOL &Permanent);
-		void PutCurrentFileName(BOOL ToCommandLine);
+		void FileNames2Clipboard(BOOL ToCommandLine);
 
 	public:
 		NetBrowser();

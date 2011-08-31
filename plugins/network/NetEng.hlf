@@ -44,10 +44,6 @@ $ #Network browser configuration#
  #Add to disks menu#   Enables adding "Network" item to the disks
                      menu.
 
- #Disks menu hotkey#   Hotkey for the network browser item in disks
-                     menu. You may set it from 1 to 9 or leave this
-                     field empty to autoassign.
-
  #Add to plugins menu# Enables adding "Network" item to the plugins
                      menu.
 
