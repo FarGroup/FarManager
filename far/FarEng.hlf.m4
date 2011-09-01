@@ -213,6 +213,20 @@ in the input stream. This will probably be fixed in a later version of Far.
   Disable exception handling. This option has been designed for plugin developers,
 and it is not recommended to specify it during normal operation.
 
+  #/clearcache [profilepath]#
+  Очистить кэш плагинов и завершить работу.
+  Необязательный параметр profilepath задает полный путь к конфигурационным файлам. 
+Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
+
+  #/export <out.xml> [profilepath]#
+  Экспортировать все настройки в файл out.xml и завершить работу.
+  Необязательный параметр profilepath задает полный путь к конфигурационным файлам. 
+Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
+
+  #/import <in.xml> [profilepath]#
+  Импортировать все настройки из файла in.xml и завершить работу.
+  Необязательный параметр profilepath задает полный путь к конфигурационным файлам. 
+Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
 
   It is possible to specify at most two paths (to folders, files or archives) or
 two commands with plugin prefix in the command line. The first path applies to the

@@ -2308,7 +2308,7 @@ void FileEditor::ShowStatus()
 	(m_editor->Flags.Check(FEDITOR_PROCESSCTRLQ) ? L'"':L' ')<<
 	fmt::Width(5)<<m_codepage<<L' '<<fmt::Width(3)<<MSG(MEditStatusLine)<<L' '<<
 	fmt::Width(SizeLineStr)<<fmt::Precision(SizeLineStr)<<strLineStr<<L' '<<
-	
+
 	fmt::Width(3)<<MSG(MEditStatusCol)<<L' '<<
 	fmt::LeftAlign()<<fmt::Width(4)<<m_editor->CurLine->GetTabCurPos()+1<<L' '<<
 
@@ -2679,7 +2679,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 				if (rec->EventType == KEY_EVENT)
 				{
 					SysLog(L"ECTL_READINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
-					       (rec->EventType == FARMACRO_KEY_EVENT?"FARMACRO_KEY_EVENT":"KEY_EVENT"),
+					       (rec->EventType == FARMACRO_KEY_EVENT?L"FARMACRO_KEY_EVENT":L"KEY_EVENT"),
 					       rec->Event.KeyEvent.bKeyDown,
 					       rec->Event.KeyEvent.wRepeatCount,
 					       rec->Event.KeyEvent.wVirtualKeyCode,
@@ -2710,7 +2710,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 					if (!rec->EventType || rec->EventType == KEY_EVENT || rec->EventType == FARMACRO_KEY_EVENT)
 					{
 						SysLog(L"ECTL_PROCESSINPUT={%s,{%d,%d,Vk=0x%04X,0x%08X}}",
-						       (rec->EventType == FARMACRO_KEY_EVENT?"FARMACRO_KEY_EVENT":"KEY_EVENT"),
+						       (rec->EventType == FARMACRO_KEY_EVENT?L"FARMACRO_KEY_EVENT":L"KEY_EVENT"),
 						       rec->Event.KeyEvent.bKeyDown,
 						       rec->Event.KeyEvent.wRepeatCount,
 						       rec->Event.KeyEvent.wVirtualKeyCode,

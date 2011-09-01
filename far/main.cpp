@@ -102,6 +102,12 @@ static void show_help()
 	    L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
 	    L" /w   Stretch to console window instead of console buffer.\n"
 	    L" /x   Disable exception handling.\n"
+	    L" /clearcache [profilepath]\n"
+	    L"      Clear plugins cache.\n"
+	    L" /export <out.xml> [profilepath]\n"
+	    L"      Export settings.\n"
+	    L" /import <in.xml> [profilepath]\n"
+	    L"      Import settings.\n"
 #ifdef _DEBUGEXC
 	    L" /xd  Enable exception handling.\n"
 #endif
@@ -111,7 +117,7 @@ static void show_help()
 }
 
 static int MainProcess(
-    const wchar_t *lpwszEditName, 
+    const wchar_t *lpwszEditName,
     const wchar_t *lpwszViewName,
     const wchar_t *lpwszDestName1,
     const wchar_t *lpwszDestName2,
