@@ -1,10 +1,17 @@
 #pragma once
+#ifndef __DLGBUILDER_HPP__
+#define __DLGBUILDER_HPP__
+
+#ifndef __cplusplus
+#error C++ only
+#endif
 
 /*
-DlgBuilder.hpp
+  DlgBuilder.hpp
 
-Динамическое конструирование диалогов
+  Dynamic construction of dialogs for FAR Manager 3.0 build 2184
 */
+
 /*
 Copyright © 2009 Far Group
 All rights reserved.
@@ -20,7 +27,7 @@ are met:
 3. The name of the authors may not be used to endorse or promote products
    derived from this software without specific prior written permission.
 
-THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR `AS IS' AND ANY EXPRESS OR
 IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
 OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
 IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
@@ -682,7 +689,7 @@ public:
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
 		const wchar_t *DataPtr = (const wchar_t *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
-		lstrcpyn(Value, DataPtr, MaxSize);
+		lstrcpynW(Value, DataPtr, MaxSize);
 	}
 };
 
@@ -744,7 +751,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 
 		virtual int TextWidth(const FarDialogItem &Item)
 		{
-			return lstrlen(Item.Data);
+			return lstrlenW(Item.Data);
 		}
 
 		virtual const wchar_t *GetLangString(int MessageID)
@@ -844,3 +851,4 @@ public:
 			return Item;
 		}
 };
+#endif /* __DLGBUILDER_HPP__ */
