@@ -530,7 +530,7 @@ int WINAPI AnalyseW(const struct AnalyseInfo *Info)
 	if (Info->FileName == nullptr || !Info->BufferSize)
 		return FALSE;
 
-	if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info->FileName, wcslen(Info->FileName),PN_CMPNAMELIST))
+	if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info->FileName, lstrlen(Info->FileName),PN_CMPNAMELIST))
 		return FALSE;
 
 	AnalyseFileName=wcsdup(Info->FileName);
