@@ -1,3 +1,26 @@
+svs 01.09.2011 13:50:07 +0300 - build 20
+
+1. Воспользуемся услугами callplugin.
+
+   Если плагин открывается из макросов с помощью callplugin и ему передается строка,
+   то подразумевается, что это строка макропоследовательности. В этом случае
+   плагин кидает ФАРу эту последовательность для воспроизведения.
+
+   Например, рисуем прямоугольник 10x3:
+     macro:post F4 callplugin("C941E865-9C29-485C-99B3-0C710940F2D8","Home $Rep(10) ShiftRight $End $Rep(3) ShiftDown $End $Rep(10) ShiftLeft $End $Rep(3) ShiftUp $End ShiftRight")
+   без callplugin:
+     macro:post F4 F11 d Home $Rep(10) ShiftRight $End $Rep(3) ShiftDown $End $Rep(10) ShiftLeft $End $Rep(3) ShiftUp $End ShiftRight
+
+   Особенность callplugin: пока вызываемый плагин не вернул управление, 
+                           макропоследовательность после callplugin не будет 
+                           воспроизводится, т.е. макрос:
+
+                             F4 callplugin("C941E865-9C29-485C-99B3-0C710940F2D8") 
+                               Home $Rep(10) ShiftRight $End $Rep(3) ShiftDown $End 
+                               $Rep(10) ShiftLeft $End $Rep(3) ShiftUp $End ShiftRight
+
+                           не нарисует прямоугольник.
+
 svs 01.09.2011 12:34:18 +0300 - build 19
 
 1. Вызов плагина не из редактора приводит к зависанию.

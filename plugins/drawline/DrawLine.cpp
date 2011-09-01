@@ -94,6 +94,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		return INVALID_HANDLE_VALUE;
 	}
 
+	if (OInfo->OpenFrom&OPEN_FROMMACROSTRING)
+	{
+		struct MacroSendMacroText msmt={sizeof(MacroSendMacroText),0,{0},(const wchar_t *)OInfo->Data};
+		Info.MacroControl(&MainGuid,MCTL_SENDSTRING,MSSC_POST,&msmt);
+	}
+
 	struct EditorUndoRedo eur;
 	eur.Command=EUR_BEGIN;
 	Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur);
