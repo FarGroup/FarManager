@@ -319,6 +319,8 @@ class KeyMacro
 		BOOL CheckCurMacroFlags(DWORD Flags);
 
 		bool IsHistroyEnable(int TypeHistory);
+		DWORD SetHistroyEnableMask(DWORD Mask);
+		DWORD GetHistroyEnableMask();
 
 		static const wchar_t* GetSubKey(int Mode);
 		static int   GetSubKey(const wchar_t *Mode);

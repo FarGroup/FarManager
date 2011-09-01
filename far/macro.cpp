@@ -2467,6 +2467,11 @@ static bool promptFunc(const TMacroFunction*)
 
 	string strDest;
 
+	DWORD oldHistroyEnable=CtrlObject->Macro.GetHistroyEnableMask();
+
+	if (*history) // Mantis#0001743: Возможность отключения истории
+		CtrlObject->Macro.SetHistroyEnableMask(8); // если указан history, то принудительно выставляем историю для ЭТОГО prompt()
+
 	if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
 	{
 		Result=strDest.CPtr();
@@ -2475,6 +2480,8 @@ static bool promptFunc(const TMacroFunction*)
 	}
 	else
 		Result=0;
+
+	CtrlObject->Macro.SetHistroyEnableMask(oldHistroyEnable);
 
 	VMStack.Push(Result);
 	return Ret;
@@ -7715,6 +7722,17 @@ int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 	return Recording?(Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON):(Work.Executing?Work.Executing:MACROMODE_NOMACRO);
 }
 
+DWORD KeyMacro::SetHistroyEnableMask(DWORD Mask)
+{
+	DWORD OldHistroyEnable=Work.HistroyEnable;
+	Work.HistroyEnable=Mask;
+	return OldHistroyEnable;
+}
+
+DWORD KeyMacro::GetHistroyEnableMask()
+{
+	return Work.HistroyEnable;
+}
 
 bool KeyMacro::IsHistroyEnable(int TypeHistory)
 {
