@@ -222,7 +222,7 @@ dirs: scripts
 	@$(MKDIR) $(BOOTSTRAPDIR)
 
 .PHONY: build
-build: $(TESTOBJS) $(EXEFULLNAME) $(EXEDIR)FarEng.hlf $(EXEDIR)FarRus.hlf $(EXEDIR)FarHun.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.ini $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)plugin.hpp $(FARINCLUDE)PluginW.pas $(FARINCLUDE)FarColorW.pas
+build: $(TESTOBJS) $(EXEFULLNAME) $(EXEDIR)FarEng.hlf $(EXEDIR)FarRus.hlf $(EXEDIR)FarHun.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.ini $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)plugin.hpp $(FARINCLUDE)DlgBuilder.hpp $(FARINCLUDE)PluginW.pas $(FARINCLUDE)FarColorW.pas
 
 $(EXEFULLNAME): $(BOOTSTRAPDIR)Far.exe.manifest $(BOOTSTRAPDIR)far.rc $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJS)
 	@echo linking $@
@@ -254,7 +254,7 @@ $(OBJDIR)api_test_c.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp a
 	@echo testing C plugin API
 	@$(CC) -c -x c -o $@ api_test.c
 
-$(OBJDIR)api_test_c++.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp api_test.c
+$(OBJDIR)api_test_c++.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)DlgBuilder.hpp api_test.c
 	@echo testing C++ plugin API
 	@$(CXX) -c -x c++ -o $@ api_test.c
 
@@ -307,6 +307,10 @@ $(FARINCLUDE)farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
 $(FARINCLUDE)plugin.hpp: plugin.hpp farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(M4) -DINPUT=plugin.hpp headers.m4 > $@
+
+$(FARINCLUDE)DlgBuilder.hpp: DlgBuilder.hpp farversion.m4 tools.m4 vbuild.m4
+	$(MSG)
+	@$(M4) -DINPUT=DlgBuilder.hpp headers.m4 > $@
 
 $(FARINCLUDE)PluginW.pas: PluginW.pas farversion.m4 tools.m4 vbuild.m4
 	$(MSG)

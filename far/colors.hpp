@@ -16,7 +16,6 @@ colors.hpp
   farcolor.hpp
 
   Colors Index for FAR Manager <%VERSION%>
-  HKCU\Software\Far Manager\Colors\CurrentPalette
 */
 #endif // END FAR_USE_INTERNALS
 

@@ -1,10 +1,20 @@
 #pragma once
+#ifndef __DLGBUILDER_HPP__
+#define __DLGBUILDER_HPP__
+#ifndef FAR_USE_INTERNALS
+#define FAR_USE_INTERNALS
+#endif // END FAR_USE_INTERNALS
+
+#ifndef __cplusplus
+#error C++ only
+#endif
 
 /*
-DlgBuilder.hpp
+  DlgBuilder.hpp
 
-Динамическое конструирование диалогов
+  Dynamic construction of dialogs for FAR Manager <%VERSION%>
 */
+
 /*
 Copyright © 2009 Far Group
 All rights reserved.
@@ -682,7 +692,7 @@ public:
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
 		const wchar_t *DataPtr = (const wchar_t *) Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, 0);
-		lstrcpyn(Value, DataPtr, MaxSize);
+		lstrcpynW(Value, DataPtr, MaxSize);
 	}
 };
 
@@ -744,7 +754,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 
 		virtual int TextWidth(const FarDialogItem &Item)
 		{
-			return lstrlen(Item.Data);
+			return lstrlenW(Item.Data);
 		}
 
 		virtual const wchar_t *GetLangString(int MessageID)
@@ -844,3 +854,4 @@ public:
 			return Item;
 		}
 };
+#endif /* __DLGBUILDER_HPP__ */

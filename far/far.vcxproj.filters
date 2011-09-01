@@ -757,6 +757,9 @@
     <ClInclude Include="Include\plugin.hpp">
       <Filter>Generated Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\DlgBuilder.hpp">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
     <ClInclude Include="infolist.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

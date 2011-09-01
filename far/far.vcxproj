@@ -440,12 +440,12 @@ cl /nologo  /c /Fo"$(IntDir)%(Filename)_c.testobj" /TC api_test.c
 echo testing C++ plugin API
 cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
 </Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Include/plugin.hpp;Include/farcolor.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Include/plugin.hpp;Include/farcolor.hpp;Include/DlgBuilder.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Include/plugin.hpp;Include/farcolor.hpp;Include/DlgBuilder.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Include/plugin.hpp;Include/farcolor.hpp;Include/DlgBuilder.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Include/plugin.hpp;Include/farcolor.hpp;Include/DlgBuilder.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Include/plugin.hpp;Include/farcolor.hpp;Include/DlgBuilder.hpp</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Include/plugin.hpp;Include/farcolor.hpp;Include/DlgBuilder.hpp</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">
       </Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(IntDir)%(Filename)_c.testobj;$(IntDir)%(Filename)_c++.testobj</Outputs>
@@ -933,7 +933,32 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="dirinfo.hpp" />
     <ClInclude Include="dirmix.hpp" />
     <ClInclude Include="dizlist.hpp" />
-    <ClInclude Include="DlgBuilder.hpp" />
+    <CustomBuild Include="DlgBuilder.hpp">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Transforming %(Identity) to redistributable form...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Include\pluDlgBuildergin.hpp;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Transforming %(Identity) to redistributable form...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Include\DlgBuilder.hpp;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Transforming %(Identity) to redistributable form...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Include\DlgBuilder.hpp;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Transforming %(Identity) to redistributable form...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Include\DlgBuilder.hpp;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Transforming %(Identity) to redistributable form...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Include\DlgBuilder.hpp;%(Outputs)</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Transforming %(Identity) to redistributable form...</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Include\DlgBuilder.hpp;%(Outputs)</Outputs>
+    </CustomBuild>
     <ClInclude Include="dlgedit.hpp" />
     <ClInclude Include="DlgGuid.hpp" />
     <ClInclude Include="DList.hpp" />
@@ -1278,6 +1303,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="Include\farcolor.hpp" />
     <ClInclude Include="lang.hpp" />
     <ClInclude Include="Include\plugin.hpp" />
+    <ClInclude Include="Include\DlgBuilder.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="bootstrap\lang.inc" />
