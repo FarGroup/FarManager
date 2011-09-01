@@ -29,7 +29,7 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 
 void ProcessShiftKey(int KeyCode,int LineWidth);
 void GetEnvType(wchar_t *NewString,int StringLength,struct EditorInfo *ei, int &LeftLine,int &UpLine,int &RightLine,int &DownLine);
-void SetTitle(int LineWidth,int IDTitle);
+bool SetTitle(int LineWidth,int IDTitle);
 const wchar_t *GetMsg(int MsgId);
 
 static wchar_t BoxChar[]  =
@@ -76,7 +76,6 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 	::Info=*Info;
 }
 
-
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
 	static bool Reenter=false;
@@ -88,7 +87,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	int LineWidth=1, KeyCode;
 	bool Done=false;
 	INPUT_RECORD rec;
-	SetTitle(LineWidth,(LineWidth==1)?MTitleSingle:MTitleDouble);
+
+	if (!SetTitle(LineWidth,(LineWidth==1)?MTitleSingle:MTitleDouble))
+	{
+		Reenter=false;
+		return INVALID_HANDLE_VALUE;
+	}
 
 	struct EditorUndoRedo eur;
 	eur.Command=EUR_BEGIN;
@@ -96,7 +100,8 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 	while (!Done)
 	{
-		Info.EditorControl(-1,ECTL_READINPUT,0,&rec);
+		if (!Info.EditorControl(-1,ECTL_READINPUT,0,&rec))
+			break;
 
 		if ((rec.EventType&(~0x8000))!=KEY_EVENT || !rec.Event.KeyEvent.bKeyDown)
 		{
@@ -247,7 +252,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 }
 
 
-void SetTitle(int LineWidth,int IDTitle)
+bool SetTitle(int LineWidth,int IDTitle)
 {
 	const DWORD control[] = {0, LEFT_CTRL_PRESSED, LEFT_ALT_PRESSED, SHIFT_PRESSED, SHIFT_PRESSED|LEFT_CTRL_PRESSED, SHIFT_PRESSED|LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED};
 	struct KeyBarLabel kbl[24*7];
@@ -267,8 +272,12 @@ void SetTitle(int LineWidth,int IDTitle)
 	kbl[1-1].Text=kbl[1-1].LongText=GetMsg(MHelp);
 	kbl[2-1].Text=kbl[2-1].LongText=GetMsg((LineWidth==1)?MDouble:MSingle);
 	kbl[10-1].Text=kbl[10-1].LongText=GetMsg(MQuit);
-	Info.EditorControl(-1,ECTL_SETKEYBAR,0,&kbt);
-	Info.EditorControl(-1,ECTL_SETTITLE,0,(void *)GetMsg(IDTitle));
+
+	if (Info.EditorControl(-1,ECTL_SETKEYBAR,0,&kbt))
+		if (Info.EditorControl(-1,ECTL_SETTITLE,0,(void *)GetMsg(IDTitle)))
+			return true;
+
+	return false;
 }
 
 void ProcessShiftKey(int KeyCode,int LineWidth)
@@ -293,9 +302,10 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 
 	if (ei.CurLine>=ei.TotalLines-1)
 	{
-		struct EditorGetString egs;
+		struct EditorGetString egs={};
 		egs.StringNumber=ei.CurLine;
 		Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+
 		struct EditorSetPosition esp;
 		esp.CurLine=ei.CurLine;
 		esp.CurPos=egs.StringLength;
@@ -367,15 +377,18 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 
 	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
-	struct EditorGetString egs;
+	struct EditorGetString egs={};
 	egs.StringNumber=ei.CurLine;
 	Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+
 	int StringLength=egs.StringLength>ei.CurPos ? egs.StringLength:ei.CurPos+1;
 	wchar_t *NewString=(wchar_t *)malloc(StringLength*sizeof(wchar_t));
 
+	if (!NewString)
+		return;
+
 	if (StringLength>egs.StringLength)
 		wmemset(NewString+egs.StringLength,L' ',StringLength-egs.StringLength);
-
 	wmemcpy(NewString,egs.StringText,egs.StringLength);
 
 	int LeftLine,UpLine,RightLine,DownLine;
