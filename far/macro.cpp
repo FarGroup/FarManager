@@ -2469,7 +2469,7 @@ static bool promptFunc(const TMacroFunction*)
 
 	DWORD oldHistroyEnable=CtrlObject->Macro.GetHistroyEnableMask();
 
-	if (*history) // Mantis#0001743: Возможность отключения истории
+	if (history && *history) // Mantis#0001743: Возможность отключения истории
 		CtrlObject->Macro.SetHistroyEnableMask(8); // если указан history, то принудительно выставляем историю для ЭТОГО prompt()
 
 	if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
