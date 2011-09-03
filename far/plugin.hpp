@@ -648,7 +648,7 @@ struct FarMenuItem
 {
 	MENUITEMFLAGS Flags;
 	const wchar_t *Text;
-	DWORD AccelKey;
+	struct FarKey AccelKey;
 	DWORD_PTR Reserved;
 	DWORD_PTR UserData;
 };

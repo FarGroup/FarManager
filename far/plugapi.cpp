@@ -809,7 +809,16 @@ int WINAPI FarMenuFn(
 			}
 
 			CurItem.strName=Item[i].Text;
-			CurItem.AccelKey=(CurItem.Flags&LIF_SEPARATOR)?0:Item[i].AccelKey;
+			if(CurItem.Flags&LIF_SEPARATOR)
+			{
+				CurItem.AccelKey=0;
+			}
+			else
+			{
+				INPUT_RECORD input={0};
+				FarKeyToInputRecord(Item[i].AccelKey,&input);
+				CurItem.AccelKey=InputRecordToKey(&input);
+			}
 			FarMenu.AddItem(&CurItem);
 		}
 

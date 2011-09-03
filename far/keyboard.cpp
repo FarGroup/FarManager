@@ -516,6 +516,23 @@ void ProcessKeyToInputRecord(int Key, unsigned int dwControlState, INPUT_RECORD 
 	}
 }
 
+void FarKeyToInputRecord(const FarKey& Key,INPUT_RECORD* Rec)
+{
+	if (Rec)
+	{
+		Rec->EventType=KEY_EVENT;
+		Rec->Event.KeyEvent.bKeyDown=1;
+		Rec->Event.KeyEvent.wRepeatCount=1;
+		Rec->Event.KeyEvent.wVirtualKeyCode=Key.VirtualKeyCode;
+		Rec->Event.KeyEvent.wVirtualScanCode = MapVirtualKey(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_VSC);
+
+		//BUGBUG
+		Rec->Event.KeyEvent.uChar.UnicodeChar=MapVirtualKey(Rec->Event.KeyEvent.wVirtualKeyCode,MAPVK_VK_TO_CHAR);
+
+ 		Rec->Event.KeyEvent.dwControlKeyState=Key.ControlKeyState;
+	}
+}
+
 DWORD IsMouseButtonPressed()
 {
 	INPUT_RECORD rec;

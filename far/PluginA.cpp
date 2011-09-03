@@ -1407,7 +1407,10 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 			if (p[i].Flags&oldfar::MIF_HIDDEN)
 				mi[i].Flags|=MIF_HIDDEN;
 			mi[i].Text = AnsiToUnicode(p[i].Flags&oldfar::MIF_USETEXTPTR?p[i].TextPtr:p[i].Text);
-			mi[i].AccelKey = OldKeyToKey(p[i].AccelKey);
+			INPUT_RECORD input={0};
+			KeyToInputRecord(OldKeyToKey(p[i].AccelKey),&input);
+			mi[i].AccelKey.VirtualKeyCode = input.Event.KeyEvent.dwControlKeyState;
+			mi[i].AccelKey.ControlKeyState = input.Event.KeyEvent.dwControlKeyState;
 			mi[i].Reserved = p[i].Reserved;
 			mi[i].UserData = p[i].UserData;
 		}
@@ -1439,7 +1442,8 @@ int WINAPI FarMenuFnA(INT_PTR PluginNumber,int X,int Y,int MaxHeight,DWORD Flags
 				mi[i].Text = AnsiToUnicode(Item[i].Text);
 			}
 
-			mi[i].AccelKey = 0;
+			mi[i].AccelKey.VirtualKeyCode = 0;
+			mi[i].AccelKey.ControlKeyState = 0;
 			mi[i].Reserved = 0;
 			mi[i].UserData = 0;
 		}
