@@ -3,6 +3,43 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 04.09.2011 14:40:56 +0200 - build 2190
+
+1. ACTL_WAITKEY: Param1=0, Param2 - pointer to INPUT_RECORD or NULL for any other key.
+
+zg 03.09.2011 13:06:29 +0200 - build 2189
+
+1. FarMenuItem.AccelKey now has FarKey type.
+
+svs 02.09.2011 09:26:36 +0300 - build 2188
+
+1. Correction of build 2187
+
+svs 01.09.2011 22:03:43 +0300 - build 2187
+
+1. Mantis#0001743: Possibility of switching the history off
+   prompt() - if non-empty `history` is given, then force history setting (at the time of calling this function).
+
+svs 01.09.2011 17:34:54 +0300 - build 2186
+
+1. debug compilation minor issues
+
+2. Command line keys /clearcache, /export è /import are included in the help
+
+drkns 01.09.2011 15:07:03 +0200
+
+1. Correction of 2185.2 - manual synchronization.
+
+drkns 01.09.2011 14:15:09 +0200 - build 2185
+
+1. Include\DlgBuilder.hpp is now generated like other headers.
+
+2. On svn_tag_build.bat run a headers synchronization attempt is done in ..\plugins\common\unicode too.
+
+drkns 31.08.2011 15:55:08 +0200 - build 2184
+
+1. ECTL_PROCESSKEY is removed.
+
 svs 30.08.2011 10:43:11 +0300 - build 2183
 
 1. Mantis#0001866: Make all prompt() parameters optional
