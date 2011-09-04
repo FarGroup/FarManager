@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ProcessEditorEventW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>ProcessEditorEventW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>ProcessEditorEventW</dfn> сообщает плагину о событиях, происходящих в редакторе Far Manager.
+</div>
+
+<pre class=syntax>
+int WINAPI ProcessEditorEventW(
+  const struct ProcessEditorEventInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/processeditoreventinfo.html">ProcessEditorEventInfo</a>, Far Manager передает информацию о событии.<br>
+    В начале функции обязательно проверьте, что поле <code>ProcessEditorEventInfo.StructSize >= sizeof(ProcessEditorEventInfo)</code>.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Возвращаемое значение зависит от типа события, смотрите описание событий для уточнения информации.<br>
+Для необрабатываемых плагином событий, функция должна возвращать 0.
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../service_functions/editorcontrol.html">EditorControl</a>
+</div>
+
+</body>
+</html>

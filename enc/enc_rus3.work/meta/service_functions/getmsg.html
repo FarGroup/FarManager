@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>GetMsg</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>GetMsg</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">сервисные функции</a><br>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>GetMsg</dfn> возвращает строку сообщения из <a href="../language/language_files.html">языкового файла</a>.
+Настоятельно рекомендуется использовать эту функцию вместо предопределённого текста в ваших программах, поскольку это позволит локализовать ваш плагин и переключать языки в Far Manager и плагине одновременно.
+</div>
+
+<pre class=syntax>
+const wchar_t* WINAPI GetMsg(
+  const GUID *PluginId,
+  int MsgId
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>PluginId</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле GlobalInfo.Guid функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class=dfn>MsgId</div>
+    <div class=dfndescr>Номер строки сообщения в файле сообщений.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Эта функция возвращает адрес запрашиваемой строки сообщения.
+</div>
+
+<h3>Примечание</h3>
+<div class=descr>
+Все <code>*.lng</code> файлы в каталоге с плагином являются языковыми файлами. Far Manager выбирает необходимый <code>*.lng</code> файл в соответствии с установленным языком.
+При первом использования функции <dfn>GetMsg</dfn> все сообщения загружаются в память, поэтому при последующих вызовах этой функции доступ к сообщениям производится быстрее и вам 
+не надо сохранять полученные строки сообщений в промежуточные буферы.
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Во всех <a href="../other/examples.html">примерах</a>, как вы могли заметить, используется следующая функция:
+<pre class=code>
+// {B076F0B0-90AE-408c-AD09-491606F09435}
+DEFINE_GUID(MainGuid, 0xb076f0b0, 0x90ae, 0x408c, 0xad, 0x9, 0x49, 0x16, 0x6, 0xf0, 0x94, 0x35);
+
+const wchar_t *GetMsg(int MsgId)
+{
+  return(Info.GetMsg(&MainGuid,MsgId));
+}
+</pre>
+
+  Причём, <dfn>Info</dfn> определяется как глобальная переменная:
+
+<pre class=code>struct PluginStartupInfo <dfn>Info</dfn>;
+</pre>
+
+  ...а инициализируется она в функции <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>:
+
+<pre class=code>void WINAPI SetStartupInfoW(struct PluginStartupInfo *Info)
+{
+  ...
+  ::Info=*Info;
+  ...
+}
+</pre>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../language/index.html">Языки и файлы помощи</a> |
+</div>
+
+</body>
+</html>

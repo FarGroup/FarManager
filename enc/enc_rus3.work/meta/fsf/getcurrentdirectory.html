@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FSF.GetCurrentDirectory</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>GetCurrentDirectory</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">FarStandardFunctions</a>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>FSF.GetCurrentDirectory</dfn> позволяет узнать внутренний "текущий каталог" Far Manager.
+</div>
+
+<p class=note><img src="../../images/note.gif" alt="Замечание для GetCurrentDirectory" width="10" height="10"> Внимание!</p>
+<ul class=note><li>
+Не используйте для этих целей функцию <dfn>GetCurrentDirectory</dfn> из Windows API.<br><br>
+Far устанавливает "текущий каталог" процесса исключительно в целях совместимости со старыми плагинами, и никто не гарантирует, что он всегда будет соответствовать каталогу, открытому в текущей панели.</li></ul>
+
+<pre class=syntax>
+size_t WINAPI GetCurrentDirectory(
+  size_t Size,
+  wchar_t* Buffer
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Size</div>
+    <div class=dfndescr>Размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <i>Buffer</i>, включая заключительный нулевой символ.</div>
+  <div class=dfn>Buffer</div>
+    <div class=dfndescr>Указатель на буфер, в который будет помещена строка с текущим каталогом Far Manager.<br>
+    Установите <code>Buffer</code>= NULL для того, чтобы функция вернула необходимый размер буфера. </div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Функция возвращает необходимый размер буфера в символах.
+</div>
+
+<h3>Примечание</h3>
+<div class=descr>
+</div>
+
+</body>
+</html>

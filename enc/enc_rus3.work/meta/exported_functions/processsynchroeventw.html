@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ProcessSynchroEventW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>ProcessSynchroEventW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a>
+</div>
+
+<div class=shortdescr>
+<dfn>ProcessSynchroEventW</dfn> позволяет плагину выполнить код в контексте главного потока Far Manager.
+</div>
+
+<pre class=syntax>
+int WINAPI ProcessSynchroEventW(
+  const struct ProcessSynchroEventInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/processsynchroeventinfo.html">ProcessSynchroEventInfo</a>, Far Manager передает информацию о событии.<br>
+    В начале функции обязательно проверьте, что поле <code>ProcessSynchroEventInfo.StructSize >= sizeof(ProcessSynchroEventInfo)</code>.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Возвращаемое значение зависит от типа события, смотрите описание событий для уточнения информации.<br>
+Для необрабатываемых плагином событий, функция должна возвращать 0.
+</div>
+
+</body>
+</html>

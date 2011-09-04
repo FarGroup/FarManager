@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Menu</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>Menu</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">сервисные функции</a><br>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>Menu</dfn> показывает меню.
+</div>
+
+<pre class=syntax>
+int WINAPI Menu(
+  const GUID* PluginId,
+  const GUID* Id,
+  int X,
+  int Y,
+  int MaxHeight,
+  FARMENUFLAGS Flags,
+  const wchar_t *Title,
+  const wchar_t *Bottom,
+  const wchar_t *HelpTopic,
+  const struct FarKey *BreakKeys,
+  int *BreakCode,
+  const struct FarMenuItem *Item,
+  size_t ItemsNumber
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>PluginId</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле GlobalInfo.Guid функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class=dfn>Id</div>
+    <div class=dfndescr>Указатель на GUID текущего меню. GUID должен быть уникальным.</div>
+  <div class=dfn>X,Y</div>
+    <div class=dfndescr>Координаты верхнего левого угла меню.<br> Чтобы назначить их автоматически, приравняйте их <code>-1</code>.</div>
+  <div class=dfn>MaxHeight</div>
+    <div class=dfndescr>Максимальное количество видимых на экране пунктов меню. Если высота меню меньше, чем число пунктов, то появится полоса прокрутки.<br>
+    Чтобы использовать максимально возможное значение, установите этот параметр равным <code>0</code>.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Может быть комбинацией из следующих значений (перечисление <a name="FARMENUFLAGS">FARMENUFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_AUTOHIGHLIGHT">FMENU_AUTOHIGHLIGHT</a></td>
+    <td class="cont" width="60%">Если указан, то горячие клавиши будут назначены автоматически, начиная с первого пункта.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_CHANGECONSOLETITLE">FMENU_CHANGECONSOLETITLE</a></td>
+    <td class="cont" width="60%">Если указан, то FAR изменит заголовок консоли в значение, указанное в параметре <dfn>Title</dfn> (если Title не пуст).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_SHOWAMPERSAND">FMENU_SHOWAMPERSAND</a></td>
+    <td class="cont" width="60%">При показе меню не использовать амперсанды (<code>&amp;</code>) для определения горячих клавиш.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_REVERSEAUTOHIGHLIGHT">FMENU_REVERSEAUTOHIGHLIGHT</a></td>
+    <td class="cont" width="60%">Если указан, то горячие клавиши будут назначены автоматически, начиная с последнего пункта.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_WRAPMODE">FMENU_WRAPMODE</a></td>
+    <td class="cont" width="60%">Если указан, то попытка перемещения курсора выше первого пункта или ниже последнего будет приводить к перемещению соответственно к последнему или к первому пункту.
+    <p>Этот флаг рекомендуется ставить всегда, когда нет специальных причин его не ставить.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>Title</div>
+    <div class=dfndescr>Заголовок меню. Укажите <code>NULL</code>, если заголовок меню не нужен.</div>
+  <div class=dfn>Bottom</div>
+    <div class=dfndescr>Нижняя строка меню. Укажите <code>NULL</code>, если нижняя строка меню не нужна.</div>
+  <div class=dfn>HelpTopic</div>
+    <div class=dfndescr><a href="../language/helptopic.html">Тема</a> в файле помощи, ассоциированная с меню. Может быть <code>NULL</code>, если подсказка не требуется.</div>
+  <div class=dfn>BreakKeys</div>
+    <div class=dfndescr>Адрес массива с кодами виртуальных клавиш типа <a href="../structures/farkey.html">FarKey</a>, которые будут закрывать меню.
+    Если вам не нужно определять такие клавиши в дополнение к стандартным (<kbd>&lt;Enter&gt;</kbd>, <kbd>&lt;Esc&gt;</kbd> и <kbd>&lt;F10&gt;</kbd>),установите этот параметр в <code>NULL</code>.
+    <p>Например, реакция на нажатие клавиши <kbd>F4</kbd> в меню обрабатывается так:
+    <pre class=code>
+int BreakCode;
+struct FarKey BreakKeys[1]={VK_F4,0};
+ExitCode=Info.Menu(&MainGUID,&MenuGUID,-1,-1,0,FMENU_WRAPMODE,GetMsg(MArcCmdTitle),GetMsg(MSelectF4),L"ArcCmd",<b>BreakKeys</b>,&amp;BreakCode,MenuItems,Count);
+if(ExitCode&gt;=0)
+{
+  if(BreakCode == 0)  // F4 pressed
+  {
+    GetFormatName(MenuItems[0].Text);
+    ConfigCommands(MenuItems[0].Text,2+MenuData[ExitCode].Cmd*2);
+    continue;
+  }
+}
+else
+  return FALSE;
+    </pre></div>
+  <div class=dfn>BreakCode</div>
+    <div class=dfndescr>Адрес переменной, в которую будет записан номер элемента массива <i>BreakKeys</i>, использованного для закрытия меню, или -1, если меню было закрыто одной из стандартных клавиш. Этот параметр может быть равным <code>NULL</code>.</div>
+  <div class=dfn>Item</div>
+    <div class=dfndescr>Адрес массива структур <a href="../structures/farmenuitem.html">FarMenuItem</a>. Каждая структура описывает элемент меню.</div>
+  <div class=dfn>ItemsNumber</div>
+    <div class=dfndescr>Количество структур <a href="../structures/farmenuitem.html">FarMenuItem</a>.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Функция возвращает или -1, если пользователь отменил меню, или номер выбранного элемента меню.
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../structures/farmenuitem.html">FarMenuItem</a>
+</div>
+
+</body>
+</html>

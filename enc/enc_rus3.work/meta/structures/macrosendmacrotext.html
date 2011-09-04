@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>MacroSendMacroText</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>MacroSendMacroText</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>MacroSendMacroText</dfn> используется в функции <a href="../service_functions/macrocontrol.html">MacroControl</a> для передачи макропоследовательности в Far Manager.
+</div>
+
+<pre class=syntax>
+struct MacroSendMacroText
+{
+  size_t StructSize;
+  FARKEYMACROFLAGS Flags;
+  DWORD AKey;
+  const wchar_t *SequenceText;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>MacroSendMacroText</dfn>.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Комбинация флагов (перечисление <a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_DISABLEOUTPUT">KMFLAGS_DISABLEOUTPUT</a></td>
+    <td class="cont" width="60%">Не отображать на экране результат работы каждой клавиши.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_NOSENDKEYSTOPLUGINS">KMFLAGS_NOSENDKEYSTOPLUGINS</a></td>
+    <td class="cont" width="60%">Не передавать клавиши редакторным плагинам (плагинам, экспортирующим функцию <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_REG_MULTI_SZ">KMFLAGS_REG_MULTI_SZ</a></td>
+    <td class="cont" width="60%">Параметр <i>SequenceText</i> представлен в формате <dfn>REG_MULTI_SZ</dfn>.<br>
+    REG_MULTI_SZ в реестре:
+    <pre class=code>
+строка 1\x00
+строка 2\x00
+...
+строка N\x00
+\x00
+    </pre></td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_SILENTCHECK">KMFLAGS_SILENTCHECK</a></td>
+    <td class="cont" width="60%">Не отображать на экране результат проверки макропоследовательности.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>AKey</div>
+    <div class=dfndescr>Клавиша вызова макроса.</div>
+  <div class=dfn>SequenceText</div>
+    <div class=dfndescr>Строка, содержащая макрос в текстовом виде (массив <a href="../defs/farkeycodes.html">клавиш</a>).</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a> |
+</div>
+
+</body>
+</html>

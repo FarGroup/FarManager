@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>OpenPanelInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>OpenPlanelInfo</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>OpenPanelInfo</dfn> возвращает в Far Manager информацию о панели плагина в функции <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.
+</div>
+
+<pre class=syntax>
+struct OpenPanelInfo
+{
+  size_t StructSize;
+  HANDLE hPanel;
+  OPENPANELINFO_FLAGS Flags;
+  const wchar_t *HostFile;
+  const wchar_t *CurDir;
+  const wchar_t *Format;
+  const wchar_t *PanelTitle;
+  const struct InfoPanelLine *InfoLines;
+  size_t InfoLinesNumber;
+  const wchar_t * const *DescrFiles;
+  size_t DescrFilesNumber;
+  const struct PanelMode *PanelModesArray;
+  size_t PanelModesNumber;
+  int StartPanelMode;
+  enum OPENPANELINFO_SORTMODES StartSortMode;
+  int StartSortOrder;
+  const struct KeyBarTitles *KeyBar;
+  const wchar_t *ShortcutData;
+  unsigned __int64 FreeSize;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>OpenPanelInfo</dfn>.</div>
+  <div class=dfn>hPanel</div>
+    <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>. Поле заполнено Far Manager'ом.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Комбинация следующих значений (перечисление <a name="OPENPANELINFO_FLAGS">OPENPANELINFO_FLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_DISABLEFILTER">OPIF_DISABLEFILTER</a></td>
+    <td class="cont" width="60%">Отключить фильтр файлов в панели плагина.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_DISABLESORTGROUPS">OPIF_DISABLESORTGROUPS</a></td>
+    <td class="cont" width="60%">Не использовать группы сортировки в панели плагина.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_DISABLEHIGHLIGHTING">OPIF_DISABLEHIGHLIGHTING</a></td>
+    <td class="cont" width="60%">Не использовать раскраску файлов в панели плагина.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_ADDDOTS">OPIF_ADDDOTS</a></td>
+    <td class="cont" width="60%">Добавить элемент, равный двум точкам (<b><code>..</code></b>), если он отсутствует, автоматически.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_RAWSELECTION">OPIF_RAWSELECTION</a></td>
+    <td class="cont" width="60%">Выбор папок независимо от настроек FAR'а.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_REALNAMES">OPIF_REALNAMES</a></td>
+    <td class="cont" width="60%">Включает использование стандартной обработки файла FAR'ом, если запрошенная операция не поддерживается плагином. Если этот флаг указан, элементы на панели плагина должны быть именами реальных файлов.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHOWNAMESONLY">OPIF_SHOWNAMESONLY</a></td>
+    <td class="cont" width="60%">Показывать по умолчанию имена без путей во всех режимах просмотра.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHOWRIGHTALIGNNAMES">OPIF_SHOWRIGHTALIGNNAMES</a></td>
+    <td class="cont" width="60%">Показывать по умолчанию имена, выровненные по правому краю во всех режимах просмотра.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHOWPRESERVECASE">OPIF_SHOWPRESERVECASE</a></td>
+    <td class="cont" width="60%">Показывать имена файлов в оригинальном регистре независимо от настроек FAR'a.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_COMPAREFATTIME">OPIF_COMPAREFATTIME</a></td>
+    <td class="cont" width="60%">Преобразовывать временные метки в формат FAT при выполнении команды <i>Compare folders</i>. Установите этот флаг, если файловая система плагина не обеспечивает требуемую для стандартного стравнения времени точность.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_EXTERNALGET">OPIF_EXTERNALGET</a><br>
+                                                  <a name="OPIF_EXTERNALPUT">OPIF_EXTERNALPUT</a><br>
+                                                  <a name="OPIF_EXTERNALDELETE">OPIF_EXTERNALDELETE</a><br>
+                                                  <a name="OPIF_EXTERNALMKDIR">OPIF_EXTERNALMKDIR</a></td>
+    <td class="cont" width="60%">Флаги могут быть использованы только с OPIF_REALNAMES. Вынуждает использование соответствующих функций FAR, даже если требуемая функция экспортируется плагином.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_USEATTRHIGHLIGHTING">OPIF_USEATTRHIGHLIGHTING</a></td>
+    <td class="cont" width="60%"> Использовать раскраску файлов в панели плагина только по атрибутам, а имена объектов в раскраске не учитывать. Выбор цвета происходит только среди тех
+    групп раскраски файлов, у которых маски исключены из анализа, т.е. опция "<code>[ ] Совпадение с маской (масками)</code>" в настройках раскраски файлов отключена.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_USECRC32">OPIF_USECRC32</a></td>
+    <td class="cont" width="60%">Флаг указывает, что плагин заполняет поле CRC32 элементов панели <a href="pluginpanelitem.html">PluginPanelItem</a>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_USEFREESIZE">OPIF_USEFREESIZE</a></td>
+    <td class="cont" width="60%">Флаг указывает, что плагин заполняет поле <i>FreeSize</i>. Не у всех эмулированных плагинами файловых системах возможно понятие "свободное место" (например, в плагине ImpEx).</td></tr>
+    </table>
+    </div>
+  <div class=dfn>HostFile</div>
+    <div class=dfndescr>Имя файла, на основе которого эмулируется файловая система на панели. Если плагин не эмулирует файловую систему, основанную на файле, установите эту переменную в NULL.</div>
+  <div class=dfn>CurDir</div>
+    <div class=dfndescr>Текущая директория панели. Если панельный плагин вернёт здесь пустую строку, то при нажатии ENTER на ".." FAR закроет панель плагина автоматически.</div>
+  <div class=dfn>Format</div>
+    <div class=dfndescr>Имя формата панели плагина. Оно показывается в диалоге копирования файла.</div>
+  <div class=dfn>PanelTitle</div>
+    <div class=dfndescr>Заголовок панели плагина.</div>
+  <div class=dfn>InfoLines</div>
+    <div class=dfndescr>Адрес массива структур &nbsp;<a href="infopanelline.html">InfoPanelLine</a>. Каждая структура описывает одну строку в информационной панели. Если вы не нуждаетесь в показе текста, зависимого от плагина в информационной панели, установите <i>InfoLines</i> в NULL.</div>
+  <div class=dfn>InfoLinesNumber</div>
+    <div class=dfndescr>Число структур <i>InfoLine</i>.</div>
+  <div class=dfn>DescrFiles</div>
+    <div class=dfndescr>Адрес массива указателей на имена файлов описаний. FAR попытается прочитать эти файлы (функцией <a href="../exported_functions/getfilesw.html">GetFilesW</a>)
+    при показе описаний и обновить их после обработки файлов, если флаг <dfn>PPIF_PROCESSDESCR</dfn> в структуре <a href="pluginpanelitem.html">PluginPanelItem</a> был
+    установлен. В зависимости от типа плагина, обработка описаний может занять значительное время. Если Вам это не нужно, установите <i>DescrFiles</i> в NULL.</div>
+  <div class=dfn>DescrFilesNumber</div>
+    <div class=dfndescr>Число имён файлов описаний.</div>
+  <div class=dfn>PanelModesArray</div>
+    <div class=dfndescr>Адрес массива структур <a href="panelmode.html">PanelMode</a>. Используя его, вы можете переопределить настройки режимов просмотра. Первая структура описывает режим просмотра номер 0, вторая - 1 и т.д. Если Вам не нужно определение новых режимов просмотра, установите <i>PanelModesArray</i> в NULL.</div>
+  <div class=dfn>PanelModesNumber</div>
+    <div class=dfndescr>Число структур <a href="panelmode.html">PanelMode</a>.</div>
+  <div class=dfn>StartPanelMode</div>
+    <div class=dfndescr>Режим просмотра, который будет установлен после создания панели плагина. Он должен быть в формате <b><code>'0'+&lt;номер режима просмотра&gt;</code></b>. Например, '1' или 0x31 будут устанавливать
+    Краткий режим просмотра. Если вы не хотите менять режим просмотра панели после запуска плагина, установите <i>StartPanelMode</i> в 0.</div>
+  <div class=dfn>StartSortMode</div>
+    <div class=dfndescr><a href="../defs/sortmetods.html">Режим сортировки</a>, который будет установлен после создания панели плагина. Если вы не хотите менять режим сортировки после запуска плагина,
+    установите <i>StartSortMode</i> в SM_DEFAULT или 0.</div>
+  <div class=dfn>StartSortOrder</div>
+    <div class=dfndescr>Если вы указали <i>StartSortMode</i>, в поле <i>StartSortOrder</i> вы должны задать направление сортировки, 0 или 1 (обратная сортировка).</div>
+  <div class=dfn>KeyBar</div>
+    <div class=dfndescr>Адрес структуры <a href="keybartitles.html">KeyBarTitles</a>. Используя его, вы можете переопределить метки функциональных клавиш в строке функциональных клавиш. Если Вам это не нужно, установите <i>KeyBar</i> в NULL.</div>
+  <div class=dfn>ShortcutData</div>
+    <div class=dfndescr>Адрес текстовой строки, оканчивающейся нулём, описывающей текущее состояние панели плагина. Она должна быть не больше значения
+    <dfn><a name="MAXSIZE_SHORTCUTDATA">MAXSIZE_SHORTCUTDATA</a></dfn>. Эта строка передаётся в <a href="../exported_functions/openw.html">OpenW</a>, когда плагин активирован
+    командой ссылки на папку. Например, FTP клиент может поместить сюда текущий хост, логин и пароль. Нет необходимости сохранять здесь текущий каталог,
+    потому что он будет восстановлен самим FAR'ом.<br> Если вы не нуждаетесь в такой дополнительной информации для обработки ссылки на папку, установите данную строку в NULL.</div>
+  <div class=dfn>FreeSize</div>
+    <div class=dfndescr>Количество свободного места в эмулированной плагином файловой системе.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>Все передаваемые в этой структуре данные должны быть правильными после возвращения из <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>,
+таким образом, вы не должны использовать адреса стековых переменных. Используйте статические или глобальные переменные.
+<li>Структура, передаваемая плагину в функцию <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>, уже заполнена 0.
+</ol>
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a> |
+</div>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FarListGetItem</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>FarListGetItem</h1>
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>FarListGetItem</dfn> описывает один элемент типа <a href="farlistitem.html">FarListItem</a> для  элементов диалога <a href="../controls/di_listbox.html">DI_LISTBOX</a> и <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+</div>
+
+<pre class=syntax>
+struct FarListGetItem
+{
+  int ItemIndex;
+  struct FarListItem Item;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>ItemIndex</div>
+    <div class=dfndescr>Индекс элемента из списка.</div>
+  <div class=dfn>Item</div>
+    <div class=dfndescr>Элемент списка типа <a href="farlistitem.html">FarListItem</a>.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a  href="farlistitem.html">FarListItem</a>,
+<a  href="../dmsg/dm_listgetitem.html">DM_LISTGETITEM</a>,
+<a href="../../structures/index.html">структуры</a>
+</div>
+
+</body>
+</html>

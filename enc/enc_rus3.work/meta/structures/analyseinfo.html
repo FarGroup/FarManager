@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>AnalyseInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>AnalyseInfo</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>AnalyseInfo</dfn> используется для возвращения Far Manager'ом данных из начала файла в функции <a href="../exported_functions/analysew.html">AnalyseW</a>.
+</div>
+
+<pre class=syntax>
+struct AnalyseInfo
+{
+  size_t StructSize;
+  const wchar_t *FileName;
+  void *Buffer;
+  size_t BufferSize;
+  OPERATION_MODES OpMode;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле содержит размер структуры <dfn>AnalyseInfo</dfn>.</div>
+  <div class=dfn>FileName</div>
+    <div class=dfndescr>Полное имя обрабатываемого файла.</div>
+  <div class=dfn>Buffer</div>
+    <div class=dfndescr>Указывает на данные из начала файла. Они могут использоваться для определения типа файла. Плагин не должен их изменять.</div>
+  <div class=dfn>BufferSize</div>
+    <div class=dfndescr>Размер переданных данных из начала файла в байтах. В настоящий момент он может быть от 0 до 128Kb, в зависимости от размера файла, но вы должны быть готовы к любому другому значению.</div>
+  <div class=dfn> OpMode</div>
+    <div class=dfndescr>Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<li>Количество читаемых байт можно изменить - TechInfo #63:
+<pre class=code>[HKEY_CURRENT_USER\Software\Far Manager\System]
+"PluginMaxReadData":REG_DWORD
+Параметр "System/PluginMaxReadData" с типом DWORD позволяет задавать максимальный размер читаемых данных из файла в который попытались
+войти из панелей (Enter или Ctrl-PgDn). Считанные данные будут переданы плагинам для определения плагина поддерживающего файл этого типа.
+Диапазон от 0x1000 до 0x80000. По умолчанию 0x20000.</pre>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a>
+</div>
+
+</body>
+</html>

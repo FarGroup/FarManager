@@ -1,0 +1,640 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Свойства и функции для работы с панелями - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Свойства и функции для работы с панелями</h1>
+<div class="navbar">
+<a href="../../../index.html">главная</a> |
+<a href="../../index.html">Макросы</a> |
+<a href="../index.html">Макроязык</a> |
+<a href="index.html">Свойства и функции: по областям</a>
+</div>
+
+<p>Под "панелями" понимаются следующие <a href="../../about/macroarea.html">области</a>: файловые панели (<code>Shell</code>),
+информационная панель (<code>Info</code>), панель быстрого просмотра (<code>QView</code>), панель дерева папок (<code>Tree</code>).</p>
+<p>Все плагиновые панели относятся к файловым (<code>Shell</code>).</p>
+
+<h2>Логические свойства (тип: Boolean)</h2>
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th colspan="2">Файловые панели</th>
+  </tr>
+  <tr>
+    <th>Свойство</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td><a name="APanel.Root">APanel.Root</a><br>
+    <a name="PPanel.Root">PPanel.Root</a></td>
+    <td>на панели корневая папка?</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Bof">APanel.Bof</a><br>
+    <a name="PPanel.Bof">PPanel.Bof</a></td>
+    <td>текущий элемент панели в начале списка?</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Eof">APanel.Eof</a><br>
+    <a name="PPanel.Eof">PPanel.Eof</a></td>
+    <td>текущий элемент панели в конце списка?</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Empty">APanel.Empty</a><br>
+    <a name="PPanel.Empty">PPanel.Empty</a></td>
+    <td>панель пуста?</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Selected">APanel.Selected</a><br>
+    <a name="PPanel.Selected">PPanel.Selected</a></td>
+    <td>на панели есть отмеченные файлы/папки?</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Folder">APanel.Folder</a><br>
+     <a name="PPanel.Folder">PPanel.Folder</a></td>
+    <td>текущий элемент панели - папка?</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.LFN">APanel.LFN</a><br>
+    <a name="PPanel.LFN">PPanel.LFN</a></td>
+    <td>на панели "длинные имена файлов"?</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Filter">APanel.Filter</a><br>
+    <a name="PPanel.Filter">PPanel.Filter</a></td>
+    <td>на панели включён фильтр?</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Plugin">APanel.Plugin</a><br>
+    <a name="PPanel.Plugin">PPanel.Plugin</a></td>
+    <td>плагиновая панель?</td>
+  </tr>
+  <tr>
+    <th colspan="2">Все панели</th>
+  </tr>
+  <tr>
+    <th>Свойство</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td><a name="APanel.FilePanel">APanel.FilePanel</a><br>
+    <a name="PPanel.FilePanel">PPanel.FilePanel</a></td>
+    <td>файловая панель?</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Left">APanel.Left</a><br>
+    <a name="PPanel.Left">PPanel.Left</a></td>
+    <td>панель слева?</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Visible">APanel.Visible</a><br>
+    <a name="PPanel.Visible">PPanel.Visible</a></td>
+    <td>панель видима?</td>
+  </tr>
+</table>
+<h3>Замечания</h3>
+<div class="descr">
+<p>Префикс <em>APanel.</em> относится к активной панели, <em>PPanel.</em> - к пассивной.</p>
+</div>
+
+
+<h2>Свойства</h2>
+<table class="cont2 funcs">
+  <col>
+  <col>
+  <col class="descr">
+  <tr><th colspan="3">Файловые панели</th></tr>
+  <tr><th>Оператор</th><th>Тип</th><th>Описание</th></tr>
+  <tr>
+    <td><a name="APanel.ColumnCount">APanel.ColumnCount</a><br>
+    <a name="PPanel.ColumnCount">PPanel.ColumnCount</a></td>
+    <td>Number</td>
+    <td>количество колонок на панели</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.ItemCount">APanel.ItemCount</a><br>
+    <a name="PPanel.ItemCount">PPanel.ItemCount</a></td>
+    <td>Number</td>
+    <td>содержит количество файловых объектов на панели</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.CurPos">APanel.CurPos</a><br>
+    <a name="PPanel.CurPos">PPanel.CurPos</a></td>
+    <td>Number</td>
+    <td>содержит порядковый номер файлового объекта на панели</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.SelCount">APanel.SelCount</a><br>
+    <a name="PPanel.SelCount">PPanel.SelCount</a></td>
+    <td>Number</td>
+    <td>содержит количество <em>выделенных</em> файлов на панели</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Current">APanel.Current</a><br>
+    <a name="PPanel.Current">PPanel.Current</a></td>
+    <td>String</td>
+    <td>содержит имя файла под курсором</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Path">APanel.Path</a><br>
+    <a name="PPanel.Path">PPanel.Path</a></td>
+    <td>String</td>
+    <td>содержит путь панели (без заключительного '\')</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.UNCPath">APanel.UNCPath</a><br>
+    <a name="PPanel.UNCPath">PPanel.UNCPath</a></td>
+    <td>String</td>
+    <td>содержит UNC-путь панели (без заключительного '\'); для плагиновой панели - <span class="nobr"><var>prefix</var>:[<var>hostfile</var>/]<var>path</var></span></td>
+  </tr>
+
+  <tr>
+    <td><a name="APanel.DriveType">APanel.DriveType</a><br>
+    <a name="PPanel.DriveType">PPanel.DriveType</a></td>
+    <td>Number</td>
+    <td>содержит тип привода на панели:
+      <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr>
+          <th>Значение</th>
+          <th>Описание</th>
+        </tr>
+        <tr>
+          <td>-1</td>
+          <td>Плагиновая панель</td>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>Не удалось определить тип привода</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Сменный привод</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Жёсткий диск</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Сетевой подмапленный диск</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>CDROM</td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td>Виртуальный диск</td>
+        </tr>
+        <tr>
+          <td>15</td>
+          <td>SUBST-диск</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <tr><th colspan="3">Файловые панели плагинов</th></tr>
+  <tr><th>Оператор</th><th>Тип</th><th>Описание</th></tr>
+  <tr>
+    <td><a name="APanel.Path0">APanel.Path0</a><br>
+    <a name="PPanel.Path0">PPanel.Path0</a></td>
+    <td>String</td>
+    <td>содержит путь на реальной файловой системе, до вызова плагинов, создающих свою панель (без заключительного '\')</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.HostFile">APanel.HostFile</a><br>
+    <a name="PPanel.HostFile">PPanel.HostFile</a></td>
+    <td>String</td>
+    <td>содержит имя хост-файла панели плагина (или пусто)</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Prefix">APanel.Prefix</a><br>
+    <a name="PPanel.Prefix">PPanel.Prefix</a></td>
+    <td>String</td>
+    <td>содержит префикс плагина или пусто (или несколько префиксов, разделённых символом ':')</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.OPIFlags">APanel.OPIFlags</a><br>
+    <a name="PPanel.OPIFlags">PPanel.OPIFlags</a></td>
+    <td>Number</td>
+    <td>набор битовых флагов, характеризующих свойства плагиновой панели:
+<table class="cont2 params lite tiny">
+<col class="value">
+<col>
+<tr><th>Флаги</th><th>Описание</th></tr>
+
+        <tr><td>0x00000001</td>
+        <td>используется фильтр на панели</td></tr>
+
+        <tr><td>0x00000002</td>
+        <td>используются группы сортировки на панели</td></tr>
+
+        <tr><td>0x00000004</td>
+        <td>используется раскраска файлов на панели</td></tr>
+
+        <tr><td>0x00000010</td>
+        <td>папки на панели плагина выбираются независимо от настроек FAR</td></tr>
+
+        <tr><td>0x00000020</td>
+        <td>используется стандартная обработка файла FAR'ом, если запрошенная операция не поддерживается плагином; если этот флаг указан, элементы на панели плагина являются именами реальных файлов</td></tr>
+
+        <tr><td>0x00000040</td>
+        <td>показаны имена без путей</td></tr>
+
+        <tr><td>0x00000080</td>
+        <td>имена файлов выровнены по правому краю</td></tr>
+
+        <tr><td>0x00000100</td>
+        <td>имена файлов показаны в оригинальном регистре (независимо от настроек FAR)</td></tr>
+      </table>
+      Если панель не плагиновая, то значение будет = 0
+    </td>
+  </tr>
+  <tr><th colspan="3">Все панели</th></tr>
+  <tr><th>Оператор</th><th>Тип</th><th>Описание</th></tr>
+  <tr>
+    <td><a name="APanel.Height">APanel.Height</a><br>
+    <a name="PPanel.Height">PPanel.Height</a></td>
+    <td>Number</td>
+    <td>содержит высоту панели</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Width">APanel.Width</a><br>
+    <a name="PPanel.Width">PPanel.Width</a></td>
+    <td>Number</td>
+    <td>содержит ширину панели</td>
+  </tr>
+  <tr>
+    <td><a name="APanel.Type">APanel.Type</a><br>
+    <a name="PPanel.Type">PPanel.Type</a></td>
+    <td>Number</td>
+    <td>содержит тип панели:
+      <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr>
+          <th>Значение</th>
+          <th>Описание</th>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>Файловая панель</td>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Дерево папок</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Панель быстрого просмотра</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Информационная панель</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<h3>Замечания</h3>
+<div class="descr">
+<p>Префикс <em>APanel.</em> относится к активной панели, <em>PPanel.</em> - к пассивной.</p>
+</div>
+
+
+<h2>Функции</h2>
+
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Функция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>itemIdx=<dfn><a name="panel.fexist">panel.fexist</a></dfn>(panelType,S)</td>
+    <td><p>Проверяет существование файла/папки <var>S</var> из активной (<var>panelType</var>=0) или пассивной (<var>panelType</var>=1) панели.</p>
+      <p>В параметре <var>S</var> допускается использование символов '*' и '?'. В этом случае функция
+      проверяет только первое вхождение файла/папки.</p>
+      <p>Функция возвращает 0, если такого объекта на панели нет, или индекс элемента.</p>
+      <p>В отличии от <a href="general.html#fexist">fexist()</a>, функция работает только с панелями.</p>
+     </td>
+  </tr>
+  <tr>
+    <td>b=<dfn><a name="panel.fattr">panel.fattr</a></dfn>(panelType,S)</td>
+    <td>Возвращает файловые атрибуты файла/папки <var>S</var> из активной (<var>panelType</var>=0) или пассивной (<var>panelType</var>=1) панели.
+       <!--
+       <table class="cont2 params lite">
+       <col class="value">
+       <col>
+       <tr><th>Атрибут</th><th>Описание</th></tr>
+        <tr><td>0x00000001<br>FILE_ATTRIBUTE_READONLY</td><td>Файл только для чтения. Приложения могут читать такой файл, но не могут записывать или удалять его.</td></tr>
+        <tr><td>0x00000002<br>FILE_ATTRIBUTE_HIDDEN</td><td>Файл скрыт. Такой файл не включается в обычный листинг папки.</td></tr>
+        <tr><td>0x00000004<br>FILE_ATTRIBUTE_SYSTEM</td><td>Этот файл - часть операционной системы.</td></tr>
+        <tr><td>0x00000010<br>FILE_ATTRIBUTE_DIRECTORY</td><td>Это папка.</td></tr>
+        <tr><td>0x00000020<br>FILE_ATTRIBUTE_ARCHIVE</td><td>Это архивный файл. Приложения должны использовать этот флаг для копирования, архивирования или удаления.</td></tr>
+        <tr><td>0x00000080<br>FILE_ATTRIBUTE_NORMAL</td><td>У этого файла не установлены другие атрибуты. Это значение корректно только при использовании без остальных флагов.</td></tr>
+        <tr><td>0x00000100<br>FILE_ATTRIBUTE_TEMPORARY</td><td>Это временный файл. Приложения должны записывать в такой файл только в крайней необходимости. Большая часть данных файла находится в памяти и не сбрасывается на диск, так как файл будет удалён.</td></tr>
+        <tr><td>0x00000200<br>FILE_ATTRIBUTE_SPARSE_FILE</td><td>Файл является разрежённым.</td></tr>
+        <tr><td>0x00000400<br>FILE_ATTRIBUTE_REPARSE_POINT</td><td>Папка является точкой повторной обработки.</td></tr>
+        <tr><td>0x00000800<br>FILE_ATTRIBUTE_COMPRESSED</td><td>Файл или папка сжаты. Для файла это означает, что все данные его сжаты, для папки - что компрессия по умолчанию применяется ко всем ей файлам и подпапкам.</td></tr>
+        <tr><td>0x00001000<br>FILE_ATTRIBUTE_OFFLINE</td><td>Данные файла не доступны непосредственно. Означает, что реальные данные файла были физически перемещены на устройства хранения.</td></tr>
+        <tr><td>0x00002000<br>FILE_ATTRIBUTE_NOT_CONTENT_INDEXED</td><td>Этот файл или папка не будут индексироваться службой индексирования.</td></tr>
+        <tr><td>0x00004000<br>FILE_ATTRIBUTE_ENCRYPTED</td><td>Файл или папка зашифрованы. Для файла это означает, что все данные в файле зашифрованы. Для папки это означает, что шифрование является умолчанием для вновь созданных файлов и подпапок.</td></tr>
+        <tr><td>0x00010000<br>FILE_ATTRIBUTE_VIRTUAL</td><td>Этот файл - виртуальный файл.</td></tr>
+       </table>
+       -->
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th>Атрибут</th><th>Описание</th></tr>
+        <tr><td>0x00000001</td><td>FILE_ATTRIBUTE_READONLY. Файл только для чтения. Приложения могут читать такой файл, но не могут записывать или удалять его.</td></tr>
+        <tr><td>0x00000002</td><td>FILE_ATTRIBUTE_HIDDEN. Файл скрыт. Такой файл не включается в обычный листинг папки.</td></tr>
+        <tr><td>0x00000004</td><td>FILE_ATTRIBUTE_SYSTEM. Этот файл - часть операционной системы.</td></tr>
+        <tr><td>0x00000010</td><td>FILE_ATTRIBUTE_DIRECTORY. Это папка.</td></tr>
+        <tr><td>0x00000020</td><td>FILE_ATTRIBUTE_ARCHIVE. Это архивный файл. Приложения должны использовать этот флаг для копирования, архивирования или удаления.</td></tr>
+        <tr><td>0x00000080</td><td>FILE_ATTRIBUTE_NORMAL. У этого файла не установлены другие атрибуты. Это значение корректно только при использовании без остальных флагов.</td></tr>
+        <tr><td>0x00000100</td><td>FILE_ATTRIBUTE_TEMPORARY. Это временный файл. Приложения должны записывать в такой файл только в крайней необходимости. Большая часть данных файла находится в памяти и не сбрасывается на диск, так как файл будет удалён.</td></tr>
+        <tr><td>0x00000200</td><td>FILE_ATTRIBUTE_SPARSE_FILE. Файл является разрежённым.</td></tr>
+        <tr><td>0x00000400</td><td>FILE_ATTRIBUTE_REPARSE_POINT. Папка является точкой повторной обработки.</td></tr>
+        <tr><td>0x00000800</td><td>FILE_ATTRIBUTE_COMPRESSED. Файл или папка сжаты. Для файла это означает, что все данные его сжаты, для папки - что компрессия по умолчанию применяется ко всем её файлам и подпапкам.</td></tr>
+        <tr><td>0x00001000</td><td>FILE_ATTRIBUTE_OFFLINE. Данные файла не доступны непосредственно. Означает, что реальные данные файла были физически перемещены на устройства хранения.</td></tr>
+        <tr><td>0x00002000</td><td>FILE_ATTRIBUTE_NOT_CONTENT_INDEXED. Этот файл или папки не будут индексироваться службой индексирования.</td></tr>
+        <tr><td>0x00004000</td><td>FILE_ATTRIBUTE_ENCRYPTED. Файл или папка зашифрованы. Для файла это означает, что все данные в файле зашифрованы. Для папки это означает, что шифрование является умолчанием для вновь созданных файлов и подпапок.</td></tr>
+        <tr><td>0x00010000</td><td>FILE_ATTRIBUTE_VIRTUAL. Этот файл - виртуальный файл.</td></tr>
+       </table>
+       <p>Если файловый объект не существует, функция возвращает -1.</p>
+       <p>В параметре <var>S</var> допускается использование символов масок '*' и '?'. В этом случае функция
+       возвращает атрибуты для первого найденного файла/папки.</p>
+       <p>В отличии от <a href="general.html#fattr">fattr()</a>, функция работает только с панелями.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>V=<dfn><a name="panel.item">panel.item</a></dfn>(panelType,itemIdx,Property)</td>
+    <td><p>Возвращает различную информацию для элемента панели <var>itemIdx</var>
+       из активной (<var>panelType</var>=0) или пассивной (<var>panelType</var>=1) панели.</p>
+       <p>В зависимости от запрашиваемого <var>Property</var> функция возвращает следующие свойства элемента:</p>
+       <table class="cont2 params lite">
+       <col class="value">
+       <col>
+       <col>
+       <tr><th><var>Property</var></th><th>Тип</th><th>Описание свойства</th></tr>
+        <tr><td>0</td><td>String</td><td>Имя файла/папки</td></tr>
+        <tr><td>1</td><td>String</td><td>Короткое имя</td></tr>
+        <tr><td>2</td><td>Number</td><td>Файловые атрибуты</td></tr>
+        <tr><td>3</td><td>String</td><td>Дата/время создания</td></tr>
+        <tr><td>15</td><td >Number</td><td>Дата/время создания</td></tr>
+        <tr><td>4</td><td>String</td><td>Дата/время последнего доступа</td></tr>
+        <tr><td>16</td><td >Number</td><td>Дата/время последнего доступа</td></tr>
+        <tr><td>5</td><td>String</td><td>Дата/время модификации</td></tr>
+        <tr><td>17</td><td >Number</td><td>Дата/время модификации</td></tr>
+        <tr><td>20</td><td >String</td><td>Дата/время последнего изменения</td></tr>
+        <tr><td>21</td><td >Number</td><td>Дата/время последнего изменения</td></tr>
+        <tr><td>6</td><td>Number</td><td>Размер</td></tr>
+        <tr><td>7</td><td>Number</td><td>Упакованный размер</td></tr>
+        <tr><td>8</td><td>Number</td><td>"Выделен?"</td></tr>
+        <tr><td>9</td><td>Number</td><td>Количество линков</td></tr>
+        <tr><td>10</td><td>Number</td><td>SortGroup</td></tr>
+        <tr><td>11</td><td>String</td><td>Diz-текст</td></tr>
+        <tr><td>12</td><td>String</td><td>Владелец</td></tr>
+        <tr><td>13</td><td>Number</td><td>CRC32</td></tr>
+        <tr><td>14</td><td>Number</td><td>Позиция элемента в процессе чтения файловой системы</td></tr>
+        <tr><td>18</td><td >Number</td><td>Количество потоков</td></tr>
+        <tr><td>19</td><td >Number</td><td>Размер потоков</td></tr>
+       </table>
+       <p>Для панели "Дерево папок" возвращается только имя файла (<var>Property</var>=0), остальные значения <var>Property</var> игнорируются.</p>
+       <p>Для получения данных о текущем элементе (под курсором) <var>itemIdx</var> должен быть равен 0.</p>
+       <p>Дата/время могут возвращаться в форматах:</p>
+       <ol>
+        <li>как строка вида <code>DD.MM.YYYY HH:MM:SS</code>. Разделители и порядок в дате зависят от региональных настроек.</li>
+        <li>как 64-разрядное число. В старших 32-х битах - дата, в младших - время.</li>
+       </ol>
+       <p>Пример - выделить все файлы/папки новее текущего:</p>
+      <pre class="codesample"><code>%d=Panel.Item(0,0,16);
+%i=1;
+$while (%i&lt;=<a href="#APanel.ItemCount">APanel.ItemCount</a>)
+  $If (panel.item(0,%i,16) > %d)
+    <a href="#panel.select">panel.select</a>(0,1,1,%i)
+  $End
+  %i=%i+1;
+$End</code></pre>
+    </td>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="panel.setpath">panel.setpath</a></dfn>(panelType,path[,filename])</td>
+    <td><p>На активной (<var>panelType</var>=0) или пассивной (<var>panelType</var>=1) панели выставляет путь <var>path</var> и
+      позиционирует курсор на элемент с именем <var>filename</var> (если указан).</p>
+      <p>Возвращает 1 в случае успешной установки пути, и 0, если папка не существует.</p>
+      <p>Например, на активной панели выставить папку "C:\WINDOWS", на пассивной - "C:\Program Files", активную панель сделать слева и установить курсор на папку "FAR":</p>
+      <pre class="codesample"><code>$if(<a href="#APanel.Left">APanel.Left</a>) CtrlU $End
+panel.setpath(1,"C:\\WINDOWS")
+panel.setpath(0,"C:\\Program Files","FAR")</code></pre>
+    </td>
+  </tr>
+  <tr>
+    <td>itemIdx=<dfn><a name="panel.setpos">panel.setpos</a></dfn>(panelType,filename)</td>
+    <td><p>Позиционирует курсор на элемент с именем <var>filename</var> на активной (<var>panelType</var>=0) или пассивной (<var>panelType</var>=1) панели.</p>
+      <p>Возвращает позицию (индекс) элемента или 0, если такого элемента на панели нет.</p>
+      <p>Например, создать папку с именем, соответствующим текущей дате в формате <code>YYYYMMDD</code>, если папка существует - позиционировать на неё курсор:</p>
+      <pre class="codesample"><code>%dt=<a href="general.html#date">date</a>("%Y%m0%d");
+$If (<a href="general.html#fexist">fexist</a>(%dt))
+  panel.setpos(0,%dt)
+$Else
+  F7 <a href="general.html#print">print</a>(%dt) Enter
+$End</code></pre>
+    </td>
+  </tr>
+  <tr>
+    <td>itemIdx=<dfn><a name="panel.setposidx">panel.setposidx</a></dfn>(panelType,PosIdx[,InSelection])</td>
+    <td><p>Позиционирует курсор на элемент с индексом <var>itemIdx</var> на активной (<var>panelType</var>=0) или пассивной (<var>panelType</var>=1) панели.</p>
+        <p>Параметр <var>PosIdx</var> может принимать отрицательные значения, в этом случае
+        элементы панели нумеруются от конца к началу.</p>
+        <p>Если задать <var>itemIdx</var>=0, то перехода не происходит, просто возвращается
+        текущая позиция.</p>
+        <p>С помощью необязательного параметр <var>InSelection</var> можно осуществить
+        позиционирование среди отмеченных элементов (для этого нужно указать <var>InSelection</var>=1).</p>
+        <p>Функция возвращает позицию элемента или 0, если такого элемента на панели нет.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="panel.select">panel.select</a></dfn>(panelType,Action[,Mode[,Items]])</td>
+    <td><p>Операции с выделением элементов на активной (<var>panelType</var>=0) или пассивной (<var>panelType</var>=1) панели.</p>
+      <p><var>Action</var> может быть одним из следующих значений:</p>
+      <table class="cont2 params lite tiny">
+      <col class="value">
+      <col>
+      <tr><th><var>Action</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td>снять выделение</td></tr>
+        <tr><td>1</td><td>выделить</td></tr>
+        <tr><td>2</td><td>инвертировать выделение</td></tr>
+        <tr><td>3</td><td>восстановить выделение (аналог <kbd>Ctrl-M</kbd>). Возвращает количество восстановленных элементов.</td></tr>
+      </table>
+      <p>Необязательный параметр <var>Mode</var> может принимать следующие значения:</p>
+      <table class="cont2 params">
+      <col class="value">
+      <col>
+      <tr><th><var>Mode</var></th><th>Тип <var>Items</var></th><th>Описание</th></tr>
+        <tr><td>0 / или не&nbsp;указан</td>
+            <td>-</td>
+            <td>выполнить действие <var>Action</var> для всех элементов, параметр <var>Items</var> игнорируется</td>
+        </tr>
+        <tr><td>1</td>
+            <td>Number</td>
+            <td><p>Выполнить действие <var>Action</var> для элемента с индексом <var>Items</var>.</p>
+                <p><var>Items</var> является числом - индексом элемента панели.</p>
+                <p>Если <var>Items</var> = 0 (или отсутствует) - выполнить действие <var>Action</var> для текущего элемента.</p>
+            </td>
+        </tr>
+        <tr><td>2</td>
+            <td>String</td>
+            <td><p>Выполнить действие <var>Action</var> для элементов, указанных в <var>Items</var>.</p>
+                <p><var>Items</var> является строкой - списком имён файловых объектов (возможно с полными путями).</p>
+            </td>
+        </tr>
+        <tr><td>3</td>
+            <td>String</td>
+            <td><p>Выполнить действие <var>Action</var> для элементов, подходящих под маски, указанные в <var>Items</var>.</p>
+                <p><var>Items</var> является строкой - списком файловых масок.</p>
+            </td>
+        </tr>
+    <tr><td></td><td colspan="2">
+    <p>Для строковых значений <var>Items</var>:</p>
+    <ul>
+      <li><p>Элементы должны быть разделены с помощью запятой, точки с запятой, <code>Lf</code> ("\n") или <code>CrLf</code> ("\r\n").</p>
+          <p>Имена должны быть в двойных кавычках.</p>
+      </li>
+      <li>В случае если <var>Items</var> равно "" (или отсутствует) - действие не выполняется.</li>
+    </ul>
+    </td>
+    </tr>
+      </table>
+      <!--
+      <p>Необязательный параметр <var>Items</var> может принимать значения, в зависимости от <var>Action</var> и <var>Mode</var>:</p>
+      <ul>
+        <li>для <var>Mode</var>, равного 0 - параметр <var>Items</var> игнорируется</li>
+        <li>для <var>Mode</var>, равного 1:
+          <ul>
+            <li><var>Items</var> равно 0 или отсутствует - выполнить действие <var>Action</var> для текущего элемента</li>
+            <li><var>Items</var> больше 0 - выполнить действие <var>Action</var> для элемента с индексом <var>Items</var></li>
+         </ul>
+        </li>
+        <li>для <var>Mode</var>, равного 2 и 3:
+          <ul>
+            <li><var>Items</var> равно "" или отсутствует - не выполнять никаких действий</li>
+            <li><var>Items</var> отличное от пустой строки - выполнить действие <var>Action</var> для элементов, указанных в <var>Items</var></li>
+          </ul>
+        </li>
+      </ul>
+
+    <p>Для строковых значений содержимое <var>Items</var> должно подчиняться следующим правилам:</p>
+    <ul>
+    <li>разделители - функция ожидает смесь разделителей: точка с запятой, запятая, <code>Lf</code> ("\n") или <code>CrLf</code> ("\r\n");</li>
+    <li>имена в двойных кавычках.</li>
+    </ul>
+      -->
+
+    <p>Функция возвращает количество элементов, над которыми производилось <var>Action</var>.</p>
+
+    <p>Примеры:</p>
+       <dl class="codesamples">
+          <dt><code>Panel.Select(0,0)</code></dt>
+            <dd>полное снятие выделения</dd>
+          <dt><code>Panel.Select(0,1)</code></dt>
+            <dd>выделить все элементы</dd>
+          <dt><code>Panel.Select(0,2)</code></dt>
+            <dd>инверсия всего</dd>
+          <dt><code>Panel.Select(0,2,1)</code></dt>
+            <dd>инверсия того, что под курсором</dd>
+          <dt><code>Panel.Select(0,1,1,10)</code></dt>
+            <dd>"вдогонку" выделить 10-й элемент панели</dd>
+          <dt><code>Panel.Select(0,0,3)</code></dt>
+            <dd>ничего не делать</dd>
+          <dt><code>Panel.Select(0,1,2,<a href="general.html#clip">clip</a>(0))</code></dt>
+            <dd>выделить элементы, имена которых содержатся в буфере обмена</dd>
+       </dl>
+<!--
+       <table>
+        <col class="nobr">
+        <col>
+        <tr>
+          <td><code>Panel.Select(0,0)</code></td>
+          <td>полное снятие выделения</td>
+        </tr>
+        <tr>
+          <td><code>Panel.Select(0,1)</code></td>
+          <td>выделить все элементы</td>
+        </tr>
+        <tr>
+          <td><code>Panel.Select(0,2)</code></td>
+          <td>инверсия всего</td>
+        </tr>
+        <tr>
+          <td><code>Panel.Select(0,2,1)</code></td>
+          <td>инверсия того, что под курсором</td>
+        </tr>
+        <tr>
+          <td><code>Panel.Select(0,1,1,10)</code></td>
+          <td>"вдогонку" выделить 10-й элемент панели</td>
+        </tr>
+        <tr>
+          <td><code>Panel.Select(0,0,3)</code></td>
+          <td>ничего не делать</td>
+        </tr>
+        <tr>
+          <td><code>Panel.Select(0,1,2,clip(0))</code></td>
+          <td>выделить элементы, имена которых содержаться в Буфере Обмена</td>
+        </tr>
+       </table>
+
+       <table class="cont2 params lite tiny">
+       <col>
+       <col>
+       <tr><th>Пример</th><th>Описание</th></tr>
+        <tr><td>Panel.Select(0,0)</td><td>полное снятие выделения</td></tr>
+        <tr><td>Panel.Select(0,1)</td><td>выделить все элементы</td></tr>
+        <tr><td>Panel.Select(0,2)</td><td>инверсия всего</td></tr>
+        <tr><td>Panel.Select(0,2,1)</td><td>инверсия того, что под курсором</td></tr>
+        <tr><td>Panel.Select(0,1,1,10)</td><td>"вдогонку" выделить 10-й элемент панели</td></tr>
+        <tr><td>Panel.Select(0,0,3)</td><td>ничего не делать</td></tr>
+        <tr><td>Panel.Select(0,1,2,clip(0))</td><td>выделить элементы, имена которых содержаться в Буфере Обмена</td></tr>
+       </table>
+-->
+    </td>
+  </tr>
+</table>
+
+<h3>Замечания</h3>
+<div class="descr">
+<ol>
+  <li>Панельные функции работают только с видимыми файловыми элементами, с учётом применённых фильтров на панели.</li>
+  <li>Нумерация элементов начинается с 1.</li>
+
+  <li><p>Во время вызова макрофункций <a href="#panel.setpos">panel.setpos()</a>, <a href="#panel.setpath">panel.setpath()</a> и <a href="#panel.setposidx">panel.setposidx()</a>
+         макросы замораживаются до момента выполнения этих функций.</p>
+      <p>На "больших" папках (например, сетевые, с большим количеством файловых объектов и/или медленных каналах) эти
+         функции могут выводить сообщения о процессе сбора данных о <span class="nobr">файлах/папках</span>, с возможностью отменить процесс по <kbd>Esc</kbd>.</p>
+  </li>
+</ol>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="../../examples.html">Примеры</a>
+</div>
+
+</body>
+
+</html>

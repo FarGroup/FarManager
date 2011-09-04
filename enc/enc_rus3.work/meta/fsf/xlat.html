@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FSF.XLat</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>XLat</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">FarStandardFunctions</a>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>FSF.XLat</dfn> используется для конвертирования части строки из одного набора символов (например, Русский) в другой (например, Латиница).
+</div>
+
+<pre class=syntax>
+wchar_t* WINAPI XLat(
+  wchar_t *Line,
+  int StartPos,
+  int EndPos,
+  XLAT_FLAGS Flags
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Line</div>
+    <div class=dfndescr>Указатель на строку, часть которой будет перекодирована.</div>
+  <div class=dfn>StartPos</div>
+    <div class=dfndescr>Начальная позиция в строке <i>Line</i>.</div>
+  <div class=dfn>EndPos</div>
+    <div class=dfndescr>Конечная позиция в строке <i>Line</i>.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Может быть комбинацией следующих значений (перечисление <a name="XLAT_FLAGS">XLAT_FLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="XLAT_SWITCHKEYBLAYOUT">XLAT_SWITCHKEYBLAYOUT</a></td>
+    <td class="cont" width="60%">Переключает раскладку клавиатуры после обработки строки.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="XLAT_SWITCHKEYBBEEP">XLAT_SWITCHKEYBBEEP</a></td>
+    <td class="cont" width="60%">Выдать звуковой сигнал после переключения раскладки (работает если установлен флаг <code>XLAT_SWITCHKEYBLAYOUT</code>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="XLAT_USEKEYBLAYOUTNAME">XLAT_USEKEYBLAYOUTNAME</a></td>
+    <td class="cont" width="60%">Использовать предопределенные именованные правила для "двойных" клавиш. Параметр в реестре c именем раскладки, например:<br>
+    "HKEY_CURRENT_USER\Software\Far2\XLat/00000409:reg_sz" обозначает "набирали по-русски в английской раскладке"<br>
+    "HKEY_CURRENT_USER\Software\Far2\XLat/00000419:reg_sz" обозначает "набирали по-английски в русской раскладке"<br>
+    и т.п.<br>
+    Так же, если установлен флаг <code>XLAT_SWITCHKEYBLAYOUT</code>, то переключение раскладок происходит только по списку значений, перечисленных в
+    "HKEY_CURRENT_USER\Software\Far2\XLat/Layouts:reg_sz" (перечисление через ';'), независимо от количества установленных в системе раскладок (больше 2).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="XLAT_CONVERTALLCMDLINE">XLAT_CONVERTALLCMDLINE</a></td>
+    <td class="cont" width="60%">Конвертировать всю командную строку при отсутствии выделенного блока.</td></tr>
+    </table>
+    </div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Эта функция возвращает указатель на преобразованную строку.
+</div>
+
+</body>
+</html>

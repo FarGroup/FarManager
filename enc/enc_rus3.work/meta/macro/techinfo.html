@@ -1,0 +1,350 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Технические подробности - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Технические подробности</h1>
+<div class="navbar">
+<a href="../index.html">главная</a> |
+<a href="index.html">Макросы</a>
+</div>
+
+<h3><a name="register">Хранение макросов</a></h3>
+<p>Все макрокоманды хранятся в ветке реестра <code>[HKEY_CURRENT_USER\Software\Far2\[Users\USERNAME\]KeyMacros]</code>
+в текстовом виде.</p>
+<p>Макрокоманды делятся на 17 областей действий (см. <a href="about/macroarea.html">Области действия</a>) и 2 области для хранения глобальных переменных и констант.
+Имя области соответствует ветке реестра:</p>
+<table class="cont2">
+  <col span="2">
+  <tr>
+    <th>Область</th>
+    <th>Назначение</th>
+  </tr>
+  <tr>
+    <td><code>Shell</code></td>
+    <td>Файловые панели</td>
+  </tr>
+  <tr>
+    <td><code>Info</code></td>
+    <td>Информационная панель</td>
+  </tr>
+  <tr>
+    <td><code>QView</code></td>
+    <td>Панель быстрого просмотра</td>
+  </tr>
+  <tr>
+    <td><code>Tree</code></td>
+    <td>Панель дерева папок</td>
+  </tr>
+  <tr>
+    <td><code>Search</code></td>
+    <td>Быстрый поиск в панелях</td>
+  </tr>
+  <tr>
+    <td><code>FindFolder</code></td>
+    <td>Панель поиска папок</td>
+  </tr>
+  <tr>
+    <td><code>Viewer</code></td>
+    <td>Внутренняя программа просмотра</td>
+  </tr>
+  <tr>
+    <td><code>Editor</code></td>
+    <td>Редактор</td>
+  </tr>
+  <tr>
+    <td><code>Dialog</code></td>
+    <td>Диалоги</td>
+  </tr>
+  <tr>
+    <td><code>Menu</code></td>
+    <td>Прочие меню</td>
+  </tr>
+  <tr>
+    <td><code>MainMenu</code></td>
+    <td>Основное меню</td>
+  </tr>
+  <tr>
+    <td><code>UserMenu</code></td>
+    <td>Пользовательское меню</td>
+  </tr>
+  <tr>
+    <td><code>Disks</code></td>
+    <td>Меню выбора диска</td>
+  </tr>
+  <tr>
+    <td><code>AutoCompletion</code></td>
+    <td>Список автодополнения</td>
+  </tr>
+  <tr>
+    <td><code>Help</code></td>
+    <td>Система помощи</td>
+  </tr>
+  <tr>
+    <td><code>Other</code></td>
+    <td>Режим копирования текста с экрана</td>
+  </tr>
+  <tr>
+    <td><code>Common</code></td>
+    <td>Макросы из этой области работают везде. FAR просматривает эту область последней.</td>
+  </tr>
+  <tr>
+    <td><code>Vars</code></td>
+    <td><p>Область для глобальных <a href="macrocmd/vars.html">переменных</a>, которые FAR считывает при старте.</p>
+    <p>В эту область можно писать с помощью функции <a href="macrocmd/prop_func/general.html#msave">msave()</a>.</p></td>
+  </tr>
+  <tr>
+    <td><code>Consts</code></td>
+    <td><p>Область для глобальных <a href="macrocmd/consts.html">констант</a>, которые FAR считывает при старте.</p></td>
+  </tr>
+</table>
+
+<p>Если FAR запущен с ключами /e или /v, то не грузятся макросы из следующих макрообластей: <code>Shell</code>, <code>Info</code>, <code>QView</code>, <code>Tree</code>, <code>Search</code>, <code>FindFolder</code>, <code>MainMenu</code>, <code>Disks</code>.</p>
+
+<p>В областях на каждую макрокоманду в реестре заводится
+отдельная ветвь с именем назначенной клавиши. Макрокоманда
+описывается определённым набором значений:</p>
+<table class="cont2">
+  <col span="4">
+  <tr>
+    <th>Имя</th>
+    <th>Тип</th>
+    <th>Default</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td><code>Sequence</code></td>
+    <td><code>REG_SZ</code><br><code>REG_MULTI_SZ</code></td>
+    <td>&nbsp;</td>
+    <td>Последовательность клавиш.</td>
+  </tr>
+  <tr>
+    <td><code>DisableOutput</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td><p>Запретить на время выполнения вывод на экран.</p>
+      <p>При записи нового макроса значение этого параметра выставляется в 1 (запретить вывод на экран).</p>
+      <p>Если параметр отсутствует, то вывод на экран во время исполнения макроса разрешён.</p></td>
+  </tr>
+  <tr>
+    <td><code>RunAfterFARStart</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Выполнять после запуска FAR. Флаг актуален только для макросов, стартующих в области <code>Shell</code>.</td>
+  </tr>
+  <tr>
+    <td><code>EmptyCommandLine</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Выполнять, только если командная строка пуста</td>
+  </tr>
+  <tr>
+    <td><code>NotEmptyCommandLine</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Выполнять, только если командная строка не
+      пуста</td>
+  </tr>
+  <tr>
+    <td><code>NoFilePanels</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Не выполнять для файловой панели</td>
+  </tr>
+  <tr>
+    <td><code>NoFilePPanels</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Не выполнять если пассивная панель - файловая</td>
+  </tr>
+  <tr>
+    <td><code>NoPluginPanels</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Не выполнять для плагиновой панели</td>
+  </tr>
+  <tr>
+    <td><code>NoPluginPPanels</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Не выполнять если пассивная панель - плагиновая</td>
+  </tr>
+  <tr>
+    <td><code>NoFolders</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Не выполнять если текущий элемент - папка</td>
+  </tr>
+  <tr>
+    <td><code>NoPFolders</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Не выполнять если текущий элемент - папка (пассивная
+      панель)</td>
+  </tr>
+  <tr>
+    <td><code>NoFiles</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Не выполнять если текущий элемент - файл</td>
+  </tr>
+  <tr>
+    <td><code>NoPFiles</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Не выполнять если текущий элемент - файл (пассивная
+      панель)</td>
+  </tr>
+  <tr>
+    <td><code>Selection</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Выполнять, только если на панели есть
+      отмеченные файлы/папки</td>
+  </tr>
+  <tr>
+    <td><code>PSelection</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Выполнять, только если на панели есть
+      отмеченные файлы/папки (пассивная панель)</td>
+  </tr>
+  <tr>
+    <td><code>NoSelection</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Выполнять, если нет отмеченных файлов/папок</td>
+  </tr>
+  <tr>
+    <td><code>NoPSelection</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Выполнять, если нет отмеченных файлов/папок (пассивная панель)</td>
+  </tr>
+  <tr>
+    <td><code>EVSelection</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Выполнять, если отмечен блок в редакторе,
+      программе просмотра, в строках ввода в диалогах.</td>
+  </tr>
+  <tr>
+    <td><code>NoEVSelection</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Выполнять, если не отмечен блок в редакторе,
+      программе просмотра, в строках ввода в диалогах.</td>
+  </tr>
+  <tr>
+    <td><code>NoSendKeysToPlugins</code></td>
+    <td><code>REG_DWORD</code></td>
+    <td>0</td>
+    <td>Специальный режим: нажимаемые клавиши при
+      записи и воспроизведении не будут передаваться плагинам.</td>
+  </tr>
+  <tr>
+    <td><code>Description</code></td>
+    <td><code>REG_SZ</code></td>
+    <td>&nbsp;</td>
+    <td>Комментарий (не используется)</td>
+  </tr>
+</table>
+<p>Обязательным является параметр <code>Sequence</code>, остальные могут
+отсутствовать и принимать значение по умолчанию.</p>
+<p>Последовательность "<code>Sequence</code>" содержит строковое
+представление макрокоманды. Каждая клавиша имеет свой строковый
+эквивалент, разделителем клавиш является пробел, табуляция, или символы конца строки.</p>
+<p>При старте FAR компилирует последовательность "<code>Sequence</code>" во
+внутренний байткод. Если в процессе компиляции обнаружена ошибка,
+то макрос "отбрасывается".
+</p>
+
+<h3><a name="startmacro">Условия запуска макроса</a></h3>
+<p>Перед исполнением макроса FAR проверяет условия запуска в
+следующей последовательности:</p>
+<!--ol>
+  <li>NoSendKeysToPlugins</li>
+  <li>EmptyCommandLine + NotEmptyCommandLine</li>
+  <li>NoFilePanels     + NoPluginPanels</li>
+  <li>NoFilePPanels    + NoPluginPPanels</li>
+  <li>NoFolders        + NoFiles</li>
+  <li>NoPFolders       + NoPFiles</li>
+  <li>Selection        + NoSelection   (если не в <code>Viewer</code>, <code>Editor</code> и <code>Dialog</code>)</li>
+  <li>PSelection       + NoPSelection  (если не в <code>Viewer</code>, <code>Editor</code> и <code>Dialog</code>)</li>
+  <li>EVSelection      + NoEVSelection (если в    <code>Viewer</code>, <code>Editor</code> и <code>Dialog</code>)</li>
+</ol-->
+
+<ol>
+  <li><code>NoSendKeysToPlugins</code></li>
+  <li><code>EmptyCommandLine</code> + <code>NotEmptyCommandLine</code></li>
+  <li><code>NoFilePanels</code>     + <code>NoPluginPanels</code></li>
+  <li><code>NoFilePPanels</code>    + <code>NoPluginPPanels</code></li>
+  <li><code>NoFolders</code>        + <code>NoFiles</code></li>
+  <li><code>NoPFolders</code>       + <code>NoPFiles</code></li>
+  <li>если не в <code>Viewer</code>, <code>Editor</code> и <code>Dialog</code>:
+     <ul>
+      <li><code>Selection</code>        + <code>NoSelection</code></li>
+      <li><code>PSelection</code>       + <code>NoPSelection</code></li>
+     </ul>
+  </li>
+  <li>если в    <code>Viewer</code>, <code>Editor</code> и <code>Dialog</code>:
+      <ul><li><code>EVSelection</code>      + <code>NoEVSelection</code></li></ul>
+  </li>
+</ol>
+
+
+<h3>Дополнительные параметры в реестре</h3>
+<p>Все дополнительные параметры хранятся в ветке реестра <code>[HKEY_CURRENT_USER\Software\Far2\[Users\USERNAME\]KeyMacros]</code>.</p>
+
+<table class="cont2">
+  <col span="4">
+  <tr>
+    <th>Имя</th>
+    <th>Тип</th>
+    <th>Default</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td><code>DateFormat</code></td>
+    <td><code>REG_SZ</code></td>
+    <td><code class="nobr">%a %b %d %H:%M:%S %Z %Y</code></td>
+    <td>Формат вывода даты/времени по умолчанию (см. <a href="macrocmd/prop_func/general.html#date">date()</a>)</td>
+  </tr>
+  <tr>
+    <td><code>CONVFMT</code></td>
+    <td><code>REG_SZ</code></td>
+    <td><code>%.6g</code></td>
+    <td>Формат преобразования чисел (констант и переменных) с плавающей точкой в строку.</td>
+  </tr>
+  <tr>
+    <td><code>KeyRecordCtrlDot</code></td>
+    <td><code>REG_SZ</code></td>
+    <td><code>Ctrl.</code></td>
+    <td>Имя комбинации клавиш для записи макроса в общем режиме (см. "<a href="macrokey/record.html">Запись макроса</a>").</td>
+  </tr>
+  <tr>
+    <td><code>KeyRecordCtrlShiftDot</code></td>
+    <td><code>REG_SZ</code></td>
+    <td><code>CtrlShift.</code></td>
+    <td>Имя комбинации клавиш для записи макроса в специальном режиме (см. "<a href="macrokey/record.html">Запись макроса</a>").</td>
+  </tr>
+</table>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="about/index.html">Общие замечания</a>,
+<a href="macrokey/index.html">Работа с макросами</a>,
+<a href="macrocmd/index.html">Макроязык</a>,
+<a href="examples.html">Примеры</a>
+</div>
+
+</body>
+
+</html>

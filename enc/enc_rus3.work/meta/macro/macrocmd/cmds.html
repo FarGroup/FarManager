@@ -1,0 +1,74 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Макрокоманды - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Макрокоманды</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a>
+</div>
+
+<p>В макроязыке используются специальные макрокоманды.</p>
+
+<h3>Команды, используемые в тексте макросов</h3>
+<table class="cont2">
+  <col span="2">
+  <tr>
+    <th>Макрокоманда</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td><a href="akey.html"><dfn>$AKey</dfn></a></td>
+    <td>Клавиша вызова макроса.</td>
+  </tr>
+  <tr>
+    <td><a href="continue.html"><dfn>$Continue</dfn></a></td>
+    <td>Перейти на следующую итерацию цикла.</td>
+  </tr>
+  <tr>
+    <td><a href="exit.html"><dfn>$Exit</dfn></a></td>
+    <td>Прерывает выполнение макропоследовательности.</td>
+  </tr>
+  <tr>
+    <td><a href="if.html"><dfn>$If</dfn></a> <dfn>(</dfn><var>Expr</var><dfn>)</dfn> <var>TruePart</var> [<dfn>$Else</dfn> <var>FalsePart</var>] <dfn>$End</dfn></td>
+    <td>Позволяет организовать в макросах процесс
+      ветвления макропоследовательности.</td>
+  </tr>
+  <tr>
+    <td><a href="rep.html"><dfn>$Rep</dfn></a> <dfn>(</dfn><var>Expr</var><dfn>)</dfn> <var>Sequence</var> <dfn>$End</dfn></td>
+    <td>Позволяет организовать в макросах циклический
+      процесс - "Выполнить <var>Expr</var> раз последовательность <var>Sequence</var>".</td>
+  </tr>
+  <tr>
+    <td><a href="selword.html"><dfn>$SelWord</dfn></a></td>
+    <td>Выделить слово под курсором.</td>
+  </tr>
+  <tr>
+    <td><a href="text.html"><dfn>$Text</dfn></a> <var>"string"</var></td>
+    <td>Предназначена для вставки произвольного текста.</td>
+  </tr>
+  <tr>
+    <td><a href="while.html"><dfn>$While</dfn></a> <dfn>(</dfn><var>Expr</var><dfn>)</dfn> <var>Sequence</var> <dfn>$End</dfn></td>
+    <td>Позволяет организовать в макросах циклический
+      процесс - "Пока условие <var>Expr</var> истинно выполнять
+      последовательность <var>Sequence</var>".</td>
+  </tr>
+  <tr>
+    <td><a href="xlat.html"><dfn>$XLat</dfn></a></td>
+    <td>Вызывает функцию транслитерации.</td>
+  </tr>
+</table>
+
+</body>
+
+</html>

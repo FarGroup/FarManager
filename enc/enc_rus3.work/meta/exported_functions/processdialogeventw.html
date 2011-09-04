@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ProcessDialogEventW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>ProcessDialogEventW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>ProcessDialogEventW</dfn> сообщает плагину о событиях, происходящих в диалоге Far Manager.
+</div>
+
+<pre class=syntax>
+int WINAPI ProcessDialogEventW(
+  const struct ProcessDialogEventInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/processdialogeventinfo.html">ProcessDialogEventInfo</a>, Far Manager передает информацию о событии.<br>
+    В начале функции обязательно проверьте, что поле <code>ProcessDialogEventInfo.StructSize >= sizeof(ProcessDialogEventInfo)</code>.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+TRUE - плагин самостоятельно обработал событие. Переменная ProcessDialogEventInfo.FarDialogEvent.Result будет использована в качестве возвращаемого значения обработчика диалога.<br>
+FALSE - продолжить обработку события.
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../structures/fardialogevent.html">FarDialogEvent</a>,
+<a href="../dialogapi/dmsg/index_dn.html">события</a>,
+<a href="../dialogapi/index.html">Dialog API</a>
+</div>
+
+</body>
+</html>

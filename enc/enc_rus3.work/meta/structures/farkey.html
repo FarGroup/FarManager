@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FarKey</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>FarKey</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a> |
+<a href="../service_functions/menu.html">Menu</a>
+<br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>FarKey</dfn> описывает код клавиши, используется, например, в функции <a href="../service_functions/menu.html">Menu</a>.
+</div>
+
+<pre class=syntax>
+struct FarKey
+{
+  WORD VirtualKeyCode;
+  DWORD ControlKeyState;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>VirtualKeyCode</div>
+    <div class=dfndescr>Поле аналогично значению <a href="../winapi/key_event_record.html">KEY_EVENT_RECORD.wVirtualKeyCode</a>.</div>
+  <div class=dfn>ControlKeyState</div>
+    <div class=dfndescr>Поле аналогично значению <a href="../winapi/key_event_record.html">KEY_EVENT_RECORD.dwControlKeyState</a>.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a>
+</div>
+
+</body>
+</html>

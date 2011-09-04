@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DN_DRAWDIALOGDONE</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DN_DRAWDIALOGDONE</h1>
+<div class=navbar>
+<a  href="index_dn.html">События</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+Сообщение <dfn>DN_DRAWDIALOGDONE</dfn> посылается после прорисовкой всего диалога.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+0
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+0
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+Не используется.
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Хотя это сообщение и посылается последним, но на момент его посылки виртуальный
+буфер экрана FAR ещё не "сброшен". Т.е. если плагин хочет что-то нарисовать
+поверх диалога, то его изменения могут быть стёрты с экрана при возвращении из
+обработчика этого сообщения.
+
+<p>Чтобы этого не происходило нужно принудительно сбросить виртуальный буфер
+используя вызов функции <nobr><code>Text(0,0,0,NULL)</code></nobr>, а затем
+"нарисовать" своё изображение, например:
+<pre class=code>
+  case  DN_DRAWDIALOGDONE:
+    Info.Text(0,0,0,NULL);
+    // здесь рисуем своё
+    break;
+</pre>
+
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../dialoginit.html">DialogInit</a>,
+<a href="dn_drawdialog.html">DN_DRAWDIALOG</a>
+</div>
+
+</body>
+</html>

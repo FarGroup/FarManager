@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ProcessPanelInputW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>ProcessPanelInputW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>ProcessPanelInputW</dfn> позволяет перекрыть стандартную обработку клавиш и мыши (сейчас не задействовано) на панели плагина.
+</div>
+
+<pre class=syntax>
+int WINAPI ProcessPanelInputW(
+  const struct ProcessPanelInputInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/processpanelinputinfo.html">ProcessPanelInputInfo</a>. Эта структура содержит информацию о последнем событии от клавиатуры или мыши.<br>
+    В начале функции обязательно проверьте, что поле <code>ProcessPanelInputInfo.StructSize >= sizeof(ProcessPanelInputInfo)</code>.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Если плагин должен передать управление в Far Manager, то верните 0.
+Если плагин в полной мере отработал событие или вы хотите, чтобы Far Manager игнорировал это событие, то верните 1.
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>Плагин должен корректно обрабатывать входные события путём анализа поля <code>Info->INPUT_RECORD.EventType</code>
+    и, в случае если плагин данное событие не обрабатывает, вернуть управление в Far Manager.</li>
+<li>Во время "проигрывания" макроса клавиатурные события (KEY_EVENT) имеют "новый" тип - поле <code>Info->INPUT_RECORD.EventType</code> равно значению <code>0x8001</code>.</li>
+</ol>
+</div>
+
+</body>
+</html>

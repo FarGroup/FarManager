@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DIF_HISTORY</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DIF_HISTORY</h1>
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="index.html">Флаги элементов диалога</a><br>
+</div>
+
+<div class=shortdescr>
+<p>Флаг <dfn>DIF_HISTORY</dfn> позволяет вести историю редактирования для
+полей ввода. Если этот флаг установлен, то поле <dfn>History</dfn> должно содержать
+адрес текстовой строки, которая будет использоваться как внутреннее название
+истории редактирования. Если для нескольких полей ввода оно одинаково, они
+используют одну и ту же историю редактирования. Для следующего примера
+(файл ARCPROC.CPP из MultiArc):
+
+<pre class=code>const wchar_t *PathHistoryName=L"<dfn>ExtrDestPath</dfn>";
+struct InitDialogItem InitItems[]={
+ ...
+ DI_EDIT,5,3,70,3,1,(DWORD_PTR)PathHistoryName,DIF_HISTORY,0,DestPath,
+ ...
+};
+</pre>
+
+история будет храниться в реестре (ключ <code>HKCU\Software\Far2\SavedDialogHistory\<em>ExtrDestPath</em></code>)
+</div>
+
+<h3>Элементы</h3>
+<div class=descr>
+
+<p>Флаг <dfn>DIF_HISTORY</dfn> имеет смысл для следующих элементов диалога:<br>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
+<td class="cont" width="60%">строка ввода</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
+<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+</table>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>Флаг <dfn>DIF_HISTORY</dfn> <b><u>НЕ РАБОТАЕТ</u></b> с элементом диалога
+    <a href="../controls/di_pswedit.html">DI_PSWEDIT</a>!
+<li><dfn>DIF_HISTORY</dfn> имеет более высокий приоритет, чем флаг
+    <a href="dif_maskedit.html">DIF_MASKEDIT</a>.
+<li>Если плагин имеет строку ввода с историей, но при
+    этом выход из диалога предполагается осуществлять по Esc (Enter
+    задействован для других целей), то данные не будут попадать в историю,
+    т.к. Esc означает отказ от дальнейшей обработки диалога. В этом случае
+    плагин может сам добавлять нужную строку в историю редактирования. Для
+    этого необходимо послать Менеджеру Диалогов сообщение
+    <a href="../dmsg/dm_addhistory.html">DM_ADDHISTORY</a>.
+<li>Если у элемента выставлен флаг <a href="dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a>,
+    то Менеджер Диалогов не будет по завершении работы диалога добавлять
+    строку в историю редактирования.
+<li>Плагин может также вести совместные с FAR истории, использовав
+    предопределённые наименования:
+    <table border=1>
+    <tr><th>имя</th><th>назначение</th></tr>
+    <tr><td>L"SearchText"</td><td>строки поиска</td></tr>
+    <tr><td>L"ReplaceText"</td><td>строки замены</td></tr>
+    <tr><td>L"PersPath"</td><td>пути к персональным плагинам</td></tr>
+    <tr><td>L"Copy"</td><td>строки назначения в диалоге копирования</td></tr>
+    <tr><td>L"LineNumber"</td><td>переходы в редакторе (Alt-F8)</td></tr>
+    <tr><td>L"ViewerOffset"</td><td>переходы в программе просмотра (Alt-F8)</td></tr>
+    <tr><td>L"NewEdit"</td><td>редактируемые файлы (Shift-F4/Shift-F2)</td></tr>
+    <tr><td>L"Masks"</td><td>маски файлов (пометка, ассоциации, фильтры, поиск файлов)</td></tr>
+    <tr><td>L"UserVarN"</td><td>переменные в подстановках</td></tr>
+    <tr><td>L"ApplyCmd"</td><td>"выполнить команду" (Ctrl-G)</td></tr>
+    <tr><td>L"DizText"</td><td>строки ввода описаний файлов</td></tr>
+    <tr><td>L"NewFolder"</td><td>создание каталогов</td></tr>
+    </table>
+    </li>
+</ol>
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="dif_uselasthistory.html">DIF_USELASTHISTORY</a>,
+<a href="../dmsg/dm_addhistory.html">DM_ADDHISTORY</a>,
+<a href="dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a>.
+
+</div>
+
+</body>
+</html>

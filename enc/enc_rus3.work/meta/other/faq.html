@@ -1,0 +1,406 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ЧАВО - Часто задаваемые вопросы</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src="../links.js" type="text/javascript"></script>
+</head>
+
+<body>
+<a name="top"></a>
+<h1>ЧАВО - Часто задаваемые вопросы</h1>
+<div class=navbar>
+<a href="../index.html">главная</a>
+</div>
+
+
+<h3>Общие вопросы</h3>
+<ol>
+  <li><a href="#cursor1">Как мне спрятать курсор?</a>
+  <li><a href="#cursor2">А как перевести в нужную позицию?</a>
+  <li><a href="#editor1">Чтобы плагин работал и в редакторе и в shell (и на панели) что нужно ставить во флагах: Info->Flags=?????;</a>
+  <li><a href="#start">Возможно динамическое отключение/подключение плагина не перезапуская FAR?</a>
+  <li><a href="#editor2">Plug-in`ы в редакторе срабатывают только при активизации? А можно ли сварганить такой, чтобы в фоновом режиме работал?</a>
+  <li><a href="#many1">А можно в одном DLL-модуле держать несколько плагинов...</a>
+  <li><a href="#many2">... а потом различать что хотел пользователь по параметру Item в функции OpenPlugin - правильно?</a>
+  <li><a href="#background1">Возможно ли при нынешнем API сделать плагин, работающий в фоновом режиме?</a>
+  <li><a href="#file">Есть файл, который можно открыть плагином. Могy ли я как-то об этом yзнать? Лучше всего отдать командy на cd тyда и получить ответ - смогли/не смогли.</a>
+  <li><a href="#path">Как бы это из плагинового модуля получить полный путь до него самого?...</a>
+  <li><a href="#background2">Можно ли из плагина управлять переключением фоновых экранов ФАРа?</a>
+  <li><a href="#clipboard">А как фаp определяет, что в клипборде лежит именно вертикальный блок?</a>
+  <li><a href="#cpos">На чём стоит кypсоp в текущей панели?...</a>
+  <li><a href="#panelcaption">Нельзя ли пpи перерисовке любой панели перерисовывать заголовок окна...</a>
+  <li><a href="#funcCM">Откуда FAR берёт процедуры для копирования/удаления/... файлов?</a>
+  <li><a href="#FARDir">Как можно получить имя каталога, из которого запущен FAR?</a>
+  <li><a href="#PlReduce">А как уменьшить размер DLL?</a>
+  <li><a href="#ClipDup">А что за дупы в клипборде идут, зачем 2 раза одну и ту же в Clipboard помещать?</a>
+  <li><a href="#symlink1">Как определить что есть "связь каталогов"...</a>
+  <li><a href="#symlink2">...что скрывается по именем '\\?\Volume{...'</a>
+  <li><a href="#symlink3">А ещё что нить полезного про символические ссылки можно узнать?</a>
+  <li><a href="#editor3">Можно ли получить для редактируемого файла флаг изменён...</a>
+  <li><a href="#viewer1">Как узнать имя файла, загруженного во вьювер?</a>
+  <li><a href="#fsf1">Возможно ли каким-то способом в FSF.ProcessName...</a>
+  <li><a href="#kbd1">Как Windows "сбрасывает" имя файла из Проводника в консольное окно?</a>
+  <li><a href="#panel1">Почему-то не работает ProcessKey...</a>
+  <li><a href="#panel2">Можно ли из плагина перейти на определённый файл в директории?</a>
+  <li><a href="#exec1">Как из плагина запустить что-нибудь? И как показать вывод этой программы под панелями?</a>
+
+</ol>
+
+<h3>Диалоги</h3>
+<ol>
+  <li><a href="#dialog1">Если я не использую функцию Dialog работы с диалогом, то каким образом обрабатывать ввод данных? Самому писать?</a>
+  <li><a href="#dialog2">Если я использую Dialog, а в нём строку ввода, то будет ли работать функции ProcessEditorInput и ProcessEditorEvent для этого элемента управления?</a>
+  <li><a href="#dialog3">Можно ли динамически в Dialog менять элементы типа Static (их заголовки)?</a>
+  <li><a href="#dialog4">Мне не хватает того набора управляющих элементов, которые обрабатывает FAR...</a>
+  <li><a href="#dialog5">А что это ListBox и ComboBox полуфабрикатные какие-то?</a>
+  <li><a href="#dialog6">Почему в диалоге "нового" стиля не срабатывают кнопки на закрытие окна?</a>
+  <li><a href="#dialog7">И что - мне теперь самому закрывать диалог?</a>
+  <li><a href="#dialog8">А если я мышкой - оно придёт или ещё ловить DN_MOUSECLICK?</a>
+  <li><a href="#dialog9">И DefaultButton самому обрабатывать?</a>
+  <li><a href="#dialog10">SEPARATOR не желает доходить до правого конца рамки...</a>
+  <li><a href="#dialog11">А можно как-нибудь выключить автовыбор элемента мышью в листе...</a>
+</ol>
+
+
+<h3>Общие вопросы</h3>
+<ol>
+  <li><span class=faqq>Q:</span> <a name="cursor1"><span class=faqqb>Как мне спрятать курсор?</span></a>
+  <br><span class=faqa>A:</span> Windows API console API: <a href="win32/setconsolecursorinfo.html">SetConsoleCursorInfo</a>, только не забудь его потом вернуть на место.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="cursor2"><span class=faqqb>А как перевести в нужную позицию?</span></a>
+  <br><span class=faqa>A:</span> Там же: <a href="win32/setconsolecursorposition.html">SetConsoleCursorPosition</a>
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="editor1"><span class=faqqb>Чтобы плагин работал и в редакторе и в shell (и на панели) что нужно ставить во флагах: Info->Flags=?????;</span></a>
+  <br><span class=faqa>A:</span> <a href="../structures/plugininfo.html#PF_EDITOR">PF_EDITOR</a>
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="start"><span class=faqqb>Возможно динамическое отключение/подключение плагина не перезапуская FAR?</span></a>
+  <br><span class=faqa>A:</span> Да. <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="editor2"><span class=faqqb>Плагины в редакторе срабатывают только при активизации? А можно ли сварганить такой, чтобы в фоновом режиме работал?</span></a>
+  <br><span class=faqa>A:</span> Можно. Экспортировать <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a> и ему будет приходить все нажатия клавиш в редакторе.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="many1"><span class=faqqb>А можно в одном DLL-модуле держать несколько плагинов... Несколько функций, так сказать... И чтобы каждый вызывался, как будто бы находился в отдельном DLL-файле (пусть даже с полной загрузкой всего DLL`я)...</span></a>
+  <br><span class=faqa>A:</span> Да. В <a href="../structures/plugininfo.html">PluginInfo</a> можно указать несколько строк, добавляемых к plugins menu. Но
+   это не является <a href="rules.html#RulesMultiMenu">"хорошим тоном"</a>.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="many2"><span class=faqqb>...а потом различать что хотел пользователь по параметру Item в функции OpenPlugin?</span></a>
+  <br><span class=faqa>A:</span> Правильно.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="background1"><span class=faqqb>Возможно ли при нынешнем API сделать плагин, работающий в фоновом режиме?</span></a>
+  <br><span class=faqa>A:</span> Разве что в редакторе. В панелях такое не поддерживается.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="file"><span class=faqqb>Есть файл, который можно открыть плагином. Могу ли я как-то об этом узнать? Лучше всего отдать команду на cd туда и получить ответ - смогли/не смогли.</span></a>
+  <br><span class=faqa>A:</span> Нет, api для взаимодействия между плагинами в FAR отсутствует. Тут одной проверкой на принадлежность файла не обойтись.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="path"><span class=faqqb>Как бы это из плагинового модуля получить полный путь до него самого?...</span></a>
+  <br><span class=faqa>A:</span> В функцию <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a> far передаёт указатель на структуру <a href="../structures/pluginstartupinfo.html">PluginStartupInfo</a>. Полное имя модуля содержится в поле ModuleName оной структуры.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="background2"><span class=faqqb>Можно ли из плагина управлять переключением фоновых экранов FAR?</span></a>
+  <br><span class=faqa>A:</span> Можно.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="clipboard"><span class=faqqb>А как FAR определяет, что в клипборде лежит именно вертикальный блок?</span></a>
+  <br><span class=faqa>A:</span> У вертикального блока clipboard format - "FAR_VerticalBlock"
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="cpos"><span class=faqqb>Скажи, а что - никак нельзя узнать, на чём стоит курсор в текущей панели? Т.е. меня интересует - на каталоге или на файле...</span></a>
+  <br><span class=faqa>A:</span><pre class=code>Control(<a href="../service_functions/control.html#FCTL_GETANOTHERPANELINFO">FCTL_GETANOTHERPANELINFO</a>);
+Control(<a href="../service_functions/control.html#FCTL_GETPANELINFO">FCTL_GETPANELINFO</a>);
+<a href="../structures/panelinfo.html">PanelInfo</a>.PanelItems[PanelInfo.CurrentItem].<a href="../winapi/win32_find_data.html">FindData.dwFileAttributes</a>
+</pre><br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="panelcaption"><span class=faqqb>Нельзя ли пpи перерисовке <u>любой</u> панели перерисовывать заголовок окна? По моему, это будет проще и быстрее, чем плагину вызывать FCTL_REDRAWPANEL</span></a>.
+  <br><span class=faqa>A:</span> Насчёт быстрее - не факт. Если заголовок не изменён плагином, как оно обычно и бывает, FAR перерисует его вхолостую.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="funcCM"><span class=faqqb>Откуда FAR берёт процедуры для копирования/удаления/... файлов?</span></a>
+  <br><span class=faqa>A:</span> Из Windows API.<br>
+  <u>Копирование:</u> <a href="win32/CreateFile.html">CreateFile</a>+<a href="win32/ReadFile.html">ReadFile</a>+<a href="win32/writefile.html">WriteFile</a>+<a href="win32/closehandle.html">CloseHandle</a> или <a href="win32/copyfile.html">CopyFile</a>(Ex), в зависимости от ОС и опции "Use system copy routine".<br>
+  <u>Удаление:</u> <a href="win32/DeleteFile.html">DeleteFile</a> или <a href="win32/shfileoperation.html">SHFileOperation</a> в зависимости от опции "Delete to Recycle Bin"
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="FARDir"><span class=faqqb>Как можно получить имя каталога, из которого запущен FAR?</span></a>
+  <br><span class=faqa>A:</span> <pre class=code>char lpName[_MAX_PATH], lpFullPath[_MAX_PATH];
+LPTSTR lpFile;
+<a href="win32/GetModuleFileName.html">GetModuleFileName</a>(NULL,lpName,sizeof(lpName));
+<a href="win32/GetFullPathName.html">GetFullPathName</a>(lpName,sizeof(lpFullPath),lpFullPath,&amp;lpFile);
+*lpFile='\0';</pre>
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="PlReduce"><span class=faqqb>А как уменьшить размер DLL - уж больно "жирный" модуль получается?</span></a>
+  <br><span class=faqa>A:</span><ol>
+    <li>В разделе "<a href="../articles/index.html">Статьи</a>" есть несколько
+    заметок на эту тему.
+    <li>Плагинописателям, пишущим на Visual C++ и борющимся за уменьшение размера
+    плагинов, настоятельно рекомендуется прочитать:
+    <a href="http://msdn.microsoft.com/msdnmag/issues/01/01/hood/default.aspx">http://msdn.microsoft.com/msdnmag/issues/01/01/hood/default.aspx</a>
+     </ol>
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="ClipDup"><span class=faqqb>А что за дупы в клипборде идут, зачем 2 раза одну и ту же в Clipboard помещать?</span></a>
+  <br><span class=faqa>A:</span> Если поместить текст в clipboard в каком-то одном формате,
+  а программа просит его в другом, то Windows занимается перекодировкой
+  самостоятельно, и очень часто делает это коряво. Псевдографика портится,
+  иногда вместо русских букв остаются одни '?', конкретные глюки зависят
+  от версии Windows и комбинации исходного и запрашиваемого форматов.
+  Если же поместить все форматы сразу, то Windows находит нужный
+  и использует его без всяческих перекодировок.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="symlink1"><span class=faqqb>Как определить что есть "связь каталогов" - простая ссылка на каталог или монтированный диск.</span></a>
+  <br><span class=faqa>A:</span> Основное правило - связи каталогов - <b>ТОЛЬКО ДЛЯ КАТАЛОГОВ!</b>
+   Значит нам нужно узнать - "<em>А не каталог ли ЭТО?</em>".
+   На это указывает файловый атрибут <code>FA_DIREC</code> (или
+   <code>FILE_ATTRIBUTE_DIRECTORY</code>).
+
+  <br>Едем дальше.
+
+  <br>Нам достоверно известно, что любые связи каталогов
+   имеют атрибут <code>FILE_ATTRIBUTE_REPARSE_POINT</code> - проверяем его.
+
+  <br>Вызываем<br>
+     <pre class=code><a href="../fsf/getreparsepointinfo.html">FSF.GetReparsePointInfo</a>(FullFolderName,DestName,sizeof(DestName))</pre>
+  Эта функция возвращает нам для некоторого заданного пути "FullFolderName"
+   некий реальный путь "DestName", который имеет суть:
+   <ol>
+   <li><code>"\??\D:\Junc..."</code><br>
+      симлинк на каталог.
+
+   <li><code>"\\?\Volume{..."</code><br>
+      монтированный диск.
+   </ol>
+
+  <br>ПРИЧЁМ! Нас совершенно не интересуют первые 4 символа! Следовательно
+   достаточно сделать проверку 7 символов, начиная с четвёртого:
+   <pre class=code>if(!strncmp(JuncName+4,"Volume{",7))
+{
+  // это явно монтированный диск!
+}
+else
+{
+  // простая ссылка на каталог
+}</pre>
+  <br><br></li>
+
+
+  <li><span class=faqq>Q:</span> <a name="symlink2"><span class=faqqb>Да. Но ведь интересно знать, что скрывается по именем '\\?\Volume{...'?</span></a>
+  <br><span class=faqa>A:</span> Проще простого. Для этого вызовем функцию
+  <pre class=code><a href="../fsf/getpathroot.html">FSF.GetPathRoot</a>(JuncName,Root);</pre>
+   которая возвращает реальный корень в одной из двух реинкарнаций:
+   <ol>
+   <li><code>"D:\"</code><br>
+   <li><code>"\\?\Volume{..."</code><br>
+   </ol>
+   <br>второй случай - "тяжёлый" :-) - здесь видимо на уровне системы (в
+   менеджере дисков) для данного диска удалили буковку... Ну, что бы не
+   маячила, т.с. ;-)
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="symlink3"><span class=faqqb>А ещё что нить полезного про символические ссылки можно узнать?</span></a>
+  <br><span class=faqa>A:</span> А как же :-) Правда не совсем про символические ссылки, но...
+  <br>Например, мы можем узнать ещё порцию полезностей для монтированных
+   дисков. Здесь всё просто - вызываем стандартную
+   <a href="win32/GetVolumeInformation">GetVolumeInformation()</a>
+   <br>Т.е. нам уже известен корень - <code>"GetPathRoot(JuncName,Root);"</code>,
+   осталось получить информацию (например, возможности файловой системы
+   по поддержке расширенных атрибутов - сжатие и шифрование и тип файловой
+   системы):
+   <pre class=code>DWORD FileSystemFlags;
+char FSysName[MAX_PATH];
+
+if (GetVolumeInformation(Root,NULL,0,NULL,NULL,
+                        &amp;FileSystemFlags,FSysName,sizeof(FSysName)))
+{
+  if (FileSystemFlags &amp; FILE_FILE_COMPRESSION)
+  {
+    // файловая система поддерживает сжатие файлов
+  }
+
+  if (FileSystemFlags &amp; FILE_SUPPORTS_ENCRYPTION)
+  {
+    // файловая система поддерживает шифрование файлов
+  }
+}</pre>
+
+   <br>Типичная функция проверки возможности создания... жёстких ссылок
+   могла бы выглядеть так:
+
+    <pre class=code>BOOL CanCreateHardLinks(char *TargetFile,char *HardLinkName)
+{
+  char RootTarget[MAX_PATH],RootHardLink[MAX_PATH],FSysName[MAX_PATH];
+  GetPathRoot(TargetFile,RootTarget);
+  GetPathRoot(HardLinkName,RootHardLink);
+
+  if(!strcmp(RootTarget,RootHardLink)) // тот же корень (то же диск)?
+  {
+    DWORD FileSystemFlags;
+
+    if(GetVolumeInformation(RootTarget,NULL,0,NULL,NULL,&amp;FileSystemFlags,
+                            NULL,0))
+    {
+      if(FileSystemFlags&amp;FILE_SUPPORTS_HARD_LINKS)
+        return TRUE;
+    }
+  }
+  return FALSE;
+}</pre>
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="editor3"><span class=faqqb>Можно ли получить для редактируемого файла флаг изменён/неизменен? Я сходу не нашёл, а ведь FAR это знает, звёздочку в верхней строке показывает.</span></a>
+  <br><span class=faqa>A:</span> См. описание структуры <a href="../structures/editorinfo.html#ECSTATE_MODIFIED">EditorInfo</a>,
+     конкретно значения поле EditorInfo.CurState.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="viewer1"><span class=faqqb>Как узнать имя файла, загруженного во вьювер?</span></a>
+  <br><span class=faqa>A:</span> Вот такой вот код запросто узнаёт текущее имя в программе просмотра:
+<pre class=code>WindowInfo wi;
+wi.Pos=-1;
+Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,&amp;wi);</pre>
+  всё. в wi.Name лежит имя файла.
+  <br><br></li>
+
+
+  <li><span class=faqq>Q:</span> <a name="fsf1"><span class=faqqb>Возможно ли каким-то способом в FSF.ProcessName, при сравнении маски "OUTBOUND\\????????.MO?" и файла
+   "С:\\FILES\\OUTBOUND\\0000ee2c.mod" получить TRUE,
+   а с файлом "C:\\MUSIC\\assol_1.mod" обломаться?
+   PN_SKIPPATH не подходит. При наличии "\\" в маске он, похоже, никогда не вернёт TRUE.</span></a>
+  <br><span class=faqa>A:</span> Сравнивай с маской "*\\OUTBOUND\\????????.MO?" без использования
+  <a href="../fsf/processname.html#PN_SKIPPATH">PN_SKIPPATH</a>.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="kbd1"><span class=faqqb>Как Windows "сбрасывает" имя файла из Проводника в консольное окно?</span></a>
+  <br><span class=faqa>A:</span>
+  Vasily Titsky: "<em>...Если кратко, то когда в консольное приложение идёт вставка текста
+   (через системное меню, или кидая ярлык) то добрая ОС делает вот что:
+   если в текущем Keyboard Layout приложения и очередной код символа не пересекаются
+   (текущий язык - english, а вставлять надо символ русского алфавита; или наоборот),
+   то она "эмулирует" ввод этого символа через Alt+цифры. Например, при вставке русской
+   'А' , будет сгенерировано: нажатие Alt, нажатие '1', отпускание '1', нажатие '2', отпускание '2',
+   нажатие '8', отпускание '8', отпускание Alt.
+   При вставке символов с кодом, меньшим 99 (? - не проверял) имитируется
+   нажатие 2-х цифр. Остаётся только правильно это обнаружить и обработать...</em>"
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="panel1"><span class=faqqb>Почему-то не работает ProcessKey?</span></a>
+Пишу в Delphi:
+<pre class=code>function ProcessKey(hPlugin: THandle; Key: Integer; ControlState: Word): integer; stdcall;
+begin
+  windows.Beep(300,200);
+  //возвращаем False для дальнейшей обработки FARом
+  result:=0;
+end;
+</pre>
+    По идее должен выдаваться сигнал при любом нажатии клавиши - этого не происходит. То же самое, если делаю это для какой-то конкретной клавиши.
+  <br>
+  <span class=faqa>A:</span> FAR вызывает функцию <a href="../exported_functions/processkeyw.html">ProcessKeyW</a> для активной плагиновой панели.
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="panel2"><span class=faqqb>Можно ли из плагина перейти на определённый файл в директории?</span></a>
+  <br><span class=faqa>A:</span>
+<pre class=code>
+{
+  struct PanelInfo PInfo;
+  Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&amp;PInfo);
+
+  // установить позицию на элементе панели selectItem
+
+  struct PanelRedrawInfo PRI;
+  char Name[MAX_PATH], Dir[MAX_PATH*5];
+  int pathlen;
+
+  strcpy(Name,Info.FSF-&gt;PointToName(selectItem));
+  pathlen=Info.FSF-&gt;PointToName(selectItem)-selectItem;
+
+  if(pathlen)
+    memcpy(Dir,selectItem,pathlen);
+
+  Dir[pathlen]=0;
+  Info.FSF-&gt;Trim(Name);
+  Info.FSF-&gt;Trim(Dir);
+  Info.FSF-&gt;Unquote(Name);
+  Info.FSF-&gt;Unquote(Dir);
+
+  if(*Dir)
+    Info.Control(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,&amp;Dir);
+  Info.Control(INVALID_HANDLE_VALUE,FCTL_GETPANELINFO,&amp;PInfo);
+
+  PRI.CurrentItem=PInfo.CurrentItem;
+  PRI.TopPanelItem=PInfo.TopPanelItem;
+
+  for(int J=0; J &lt; PInfo.ItemsNumber; J++)
+  {
+    if(!Info.FSF-&gt;LStricmp(Name,Info.FSF-&gt;PointToName(PInfo.PanelItems[J].FindData.cFileName)))
+    {
+      PRI.CurrentItem=J;
+      PRI.TopPanelItem=J;
+      break;
+    }
+  }
+  Info.Control(INVALID_HANDLE_VALUE,FCTL_REDRAWPANEL,&amp;PRI);
+}
+</pre>
+  <br><br></li>
+
+  <li><span class=faqq>Q:</span> <a name="exec1"><span class=faqqb>Как из плагина запустить что-нибудь? И как показать вывод этой программы под панелями?</span></a>
+  <br><span class=faqa>A:</span>
+<pre class=code>Info.Control(INVALID_HANDLE_VALUE,FCTL_GETUSERSCREEN,NULL);
+
+if (CreateProcess(NULL,"ls.exe",NULL,NULL,TRUE,0,NULL,NULL,&amp;si,&amp;pi))
+{
+  WaitForSingleObject( pi.hProcess, INFINITE );
+  CloseHandle( pi.hProcess );
+  CloseHandle( pi.hThread );
+}
+
+Info.Control(INVALID_HANDLE_VALUE,FCTL_SETUSERSCREEN,NULL);
+</pre>
+  <br><br></li>
+
+</ol>
+
+
+<div class=seecont><a href="#top">наверх</a><br><br><br></div>
+
+
+<h3>Диалоги</h3>
+<ol>
+   <li><span class=faqq>Q:</span> <a name="dialog1"><span class=faqqb>Если я не использую функцию DialogRun работы с диалогом, то каким образом обрабатывать ввод данных? Самому писать?</span></a>
+  <br><span class=faqa>A:</span> Можно и самому :-) А можно использовать <a href="../dialogapi/index.html">DialogAPI</a>...<br><br>
+   <li><span class=faqq>Q:</span> <a name="dialog3"><span class=faqqb>Можно ли динамически в Dialog менять элементы типа Static (их заголовки)?</span></a>
+  <br><span class=faqa>A:</span> Если воспользоваться функцией-обработчиком диалога <a href="../dialogapi/dialoginit.html">DialogInit</a> -
+      то можно - в функции-обработчике диалога послать ядру DialogAPI сообщение <a href="../dialogapi/dmsg/dm_settext.html">DM_SETTEXT</a>.<br><br>
+  <li><span class=faqq>Q:</span> <a name="dialog4"><span class=faqqb>Ну ладно, воспользовался этим самым DialogAPI, но мне не хватает того набора управляющих элементов, которые обрабатывает FAR. Ась?</span></a>
+  <br><span class=faqa>A:</span> Воспользуйся элементом <a href="../dialogapi/controls/di_usercontrol.html">DI_USERCONTROL</a> - отрисовка элемента и управление им - всё во власти плагина!<br><br>
+  <li><span class=faqq>Q:</span> <a name="dialog5"><span class=faqqb>А что это ListBox и ComboBox полуфабрикатные какие-то? Нормально работать с ними ну ни как нельзя - для добавления/удаления приходится изголяться.</span></a>
+  <br><span class=faqa>A:</span> А что ты хотел от первой версии DialogAPI?<br><br>
+  <li><span class=faqq>Q:</span> <a name="dialog6"><span class=faqqb>Почему в диалоге не срабатывают кнопки на закрытие окна</span></a>
+  <br><span class=faqa>A:</span> Ты сам должен рулить моментом закрытия диалога, исключения: Ctrl-Break - закрывается всегда, Ctrl-Enter - если есть хотя бы одна кнопка с полем DefaultButton=1, то <a href="../dialogapi/dmsg/dm_close.html">запрос на закрытие</a> с Param1 = номеру текущего элемента, Esc и F10   - здесь можно рулить из обработчика - закрывать или нет.<br><br>
+  <li><span class=faqq>Q:</span> <a name="dialog7"><span class=faqqb>И что - мне теперь самому закрывать диалог?</span></a>
+  <br><span class=faqa>A:</span> Если используешь обработчик диалога - то ДА: поймал событие <a href="../dialogapi/dmsg/dn_btnclick.html">DN_BTNCLICK</a>, проверил Param1 на нужный номер и заслал ядру диалога сообщение <a href="../dialogapi/dmsg/dm_close.html">DM_CLOSE</a>.<br><br>
+  <li><span class=faqq>Q:</span> <a name="dialog8"><span class=faqqb>А если я мышкой - оно придёт или ещё ловить DN_MOUSECLICK?</span></a>
+  <br><span class=faqa>A:</span> На твоё усмотрение :-) Сначала мышиное сообщение придёт (проигнорируй его), а за ним и DN_BTNCLICK не задержится...<br><br>
+  <li><span class=faqq>Q:</span> <a name="dialog9"><span class=faqqb>И DefaultButton самому обрабатывать?</span></a>
+  <br><span class=faqa>A:</span> Нет. Для DefaultButton получится следующая цепочка событий: [<a href="../dialogapi/dmsg/dn_mouseclick.html">DN_MOUSECLICK</a> -> ] <a href="../dialogapi/dmsg/dn_btnclick.html">DN_BTNCLICK</a> -> <a href="../dialogapi/dmsg/dm_close.html">DM_CLOSE</a>.<br><br>
+  <li><span class=faqq>Q:</span> <a name="dialog10"><span class=faqqb>Каким-то образом у меня получилось, что SEPARATOR, что бы я не делал не желал доходить до правого конца рамки, когда сделал с нуля - исправилось.</span></a>
+  <br><span class=faqa>A:</span> См. замечания для флага <a href="../dialogapi/flags/dif_separator.html">DIF_SEPARATOR</a><br><br>
+
+  <li><span class=faqq>Q:</span> <a name="dialog11"><span class=faqqb>А можно как-нибудь выключить этот автовыбор элемента мышью в листе (когда мышь над листом выбирает элемент, особенно если лист не текущий).</span></a>
+  <br><span class=faqa>A:</span> Частично. См. <a href="../dialogapi/dmsg/dm_listsetmousereaction.html">DM_LISTSETMOUSEREACTION</a><br><br>
+
+
+</ol>
+
+<div class=seecont><a href="#top">наверх</a></div>
+</body>
+</html>

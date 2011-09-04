@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FSF.MkLink</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>MkLink</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">FarStandardFunctions</a>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>FSF.MkLink</dfn> создаёт жёсткие и символические ссылки, связи каталогов, а также монтирует локальные диски на файловую систему.
+</div>
+
+<pre class=syntax>
+BOOL WINAPI MkLink(
+  const wchar_t *Src,
+  const wchar_t *Dest,
+  enum LINK_TYPE Type,
+  MKLINK_FLAGS Flags
+);
+</pre>
+
+<h3>Параметры</h3>
+
+<div class=descr>
+  <div class=dfn>Src</div>
+    <div class=dfndescr>Имя файлового объекта, на который создаётся ссылка.</div>
+  <div class=dfn>Dest</div>
+    <div class=dfndescr>Имя создаваемой ссылки.</div>
+  <div class=dfn>Type</div>
+    <div class=dfndescr>Тип операции. Одно из (перечисление <a name="LINK_TYPE">LINK_TYPE</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Операция</th><th class="cont" width="60%">Описание</th></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_HARDLINK">FLINK_HARDLINK</a></td>
+    <td class="cont" width="60%">создать жёсткую ссылку (hardlink)</td></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_JUNCTION">FLINK_JUNCTION</a></td>
+    <td class="cont" width="60%">создать связь каталогов (junction)</td></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_VOLMOUNT">FLINK_VOLMOUNT</a></td>
+    <td class="cont" width="60%">монтировать локальный диск на файловую систему</td></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_SYMLINKFILE">FLINK_SYMLINKFILE</a></td>
+    <td class="cont" width="60%">создать символическую ссылку-файл</td></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_SYMLINKDIR">FLINK_SYMLINKDIR</a></td>
+    <td class="cont" width="60%">создать символическую ссылку-каталог</td></tr>
+    <tr><td class="cont" width="40%"><a name="LINK_SYMLINK">FLINK_SYMLINK</a></td>
+    <td class="cont" width="60%">автоматически выбрать тип создаваемой символической ссылки</td></tr>
+    </table>
+    </div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Флаг, одно из (перечисление <a name="MKLINK_FLAGS">MKLINK_FLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr><td class="cont" width="40%"><a name="MLF_SHOWERRMSG">MLF_SHOWERRMSG</a></td>
+    <td class="cont" width="60%">выводить сообщения об ошибках</td></tr>
+    <tr><td class="cont" width="40%"><a name="MLF_DONOTUPDATEPANEL">MLF_DONOTUPDATEPANEL</a></td>
+    <td class="cont" width="60%">после создания ссылки не обновлять панели</td></tr>
+    </table>
+    </div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+<p>1 - ссылка создана.
+<p>0 - ошибка при создании ссылки:
+<ul>
+<li>Для жёстких ссылок:
+  <ul>
+   <li>Src или Dest находятся на разных разделах;
+   <li>раздел не NTFS;
+   <li>раздел не локальный;
+   <li>Src не существует или не является файлом.
+   <li>Dest уже существует;
+  </ul>
+<li>Для связей:
+  <ul>
+   <li>Src или Dest находятся не на локальных разделах;
+   <li>раздел не NTFS 5.0;
+   <li>Src не существует или не является каталогом;
+   <li>Dest существует, но не пустой каталог.
+  </ul>
+<li>Для монтирования дисков:
+  <ul>
+   <li>Src или Dest находятся не на локальных разделах;
+   <li>раздел для Dest не NTFS 5.0;
+   <li>Src не существует или диск является не локальным;
+   <li>Dest существует, но не пустой каталог.
+  </ul>
+</ul>
+</div>
+
+<h3>Примечание</h3>
+<div class=descr>
+<ol>
+<li>Ссылки создаются по следующим правилам:
+  <ul>
+  <li>жёсткие ссылки (hardlink) создаются только для файлов в пределах текущего NTFS-раздела;
+  <li>связи (junction) создаются только для каталогов в пределах локальных NTFS-разделов;
+  <li>монтирование локальных дисков на файловую систему только на NTFS-раздел.
+  </ul>
+<li>Если в качестве Src было передано значение, например L"C:", то вместо связи каталогов будет монтирован диск.
+<li>Если для монтирования диска Dest оканчивается слешем, то в Dest будет создан каталог "disk_N" (где N - буква диска).
+
+<li>В Windows 2000 напрямую делать связи на папки CD-ROM нельзя, но можно это ограничение обойти, смонтировав CD-ROM диск на папку NTFS-раздела 
+(т.н. <a href="../other/dict.html#mountpoints">Mount Points</a>). И уже из этой папки сделать нужную связь.
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="getnumberoflinks.html">GetNumberOfLinks</a>
+</div>
+
+</body>
+</html>

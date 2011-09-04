@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FarMenuItem</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>FarMenuItem</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a> |
+<a href="../service_functions/menu.html">Menu</a>
+<br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>FarMenuItem</dfn> описывает один пункт меню. Массив этих структур передаётся в функцию <a href="../service_functions/menu.html">Menu</a>.
+</div>
+
+<pre class=syntax>
+struct FarMenuItem
+{
+  MENUITEMFLAGS Flags;
+  const wchar_t *Text;
+  struct FarKey AccelKey;
+  DWORD_PTR Reserved;
+  DWORD_PTR UserData;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Комбинация следующих значений (перечисление <a name="MENUITEMFLAGS">MENUITEMFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MIF_SELECTED">MIF_SELECTED</a></td>
+    <td class="cont" width="60%">Признак активности пункта меню. Только один пункт может быть активным.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MIF_CHECKED">MIF_CHECKED</a></td>
+    <td class="cont" width="60%">Признак отмеченного пункта меню. Перед текстом будет отображаться метка выбора.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MIF_SEPARATOR">MIF_SEPARATOR</a></td>
+    <td class="cont" width="60%">Пункт меню отображается как разделитель. Разделитель может содержать текст, выровненный по середине.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MIF_DISABLE">MIF_DISABLE</a></td>
+    <td class="cont" width="60%">Пункт меню недоступен.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MIF_GRAYED">MIF_GRAYED</a></td>
+    <td class="cont" width="60%">Если флаг установлен, то пункт меню доступен в навигации, но не доступен для выбора.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MIF_HIDDEN">MIF_HIDDEN</a></td>
+    <td class="cont" width="60%">Если флаг установлен, то пункт меню не выводится на экран.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>Text</div>
+    <div class=dfndescr>Указатель на текст пункта меню.</div>
+  <div class=dfn>AccelKey</div>
+    <div class=dfndescr>Код клавиши, структура типа <a href="farkey.html">FarKey</a>, для активизации пункта меню (HotKey). Пример работы - в меню Far Manager "Commands" нажатие клавиши <kbd>Ctrl-O</kbd> аналогично выбору пункта "Panels On/Off".</div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Зарезервировано и должно быть рано 0.</div>
+  <div class=dfn>UserData</div>
+    <div class=dfndescr>Пользовательские данные, ассоциированные с пунктом меню. Far Manager не использует это поле.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>В младшем слове <i>Flags</i> можно указывать код символа, который будет использоваться для отображения метки выбора. В этом случае система самостоятельно выставит флаг MIF_CHECKED для данного пункта меню.
+<li>Если младшее слово <i>Flags</i> равно 0 и выставлен флаг MIF_CHECKED, или если младшее слово <i>Flags</i> равно 1, то будет отображаться стандартная метка выбора - символ с кодом 0FBh (<code>&#8730;</code>)
+<li>При использовании флага MIF_SEPARATOR без текста, компонента <i>Text</i> должна быть проинициализирована в 0, например так:
+<pre class=code>struct FarMenuItem Item;
+Item.Flags=MIF_SEPARATOR;
+Item.Text=NULL;</pre>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a>
+</div>
+
+</body>
+</html>

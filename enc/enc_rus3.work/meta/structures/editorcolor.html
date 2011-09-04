@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>EditorColor</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>EditorColor</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>EditorColor</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для того, чтобы
+установить или получить информацию о цветовых областях строк во внутреннем редакторе.
+</div>
+
+<pre class=syntax>
+struct EditorColor
+{
+  size_t StructSize;
+  int StringNumber;
+  int ColorItem;
+  int StartPos;
+  int EndPos;
+  unsigned Priority;
+  EDITORCOLORFLAGS Flags;
+  struct FarColor Color;
+  GUID Owner;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>EditorColor</dfn>.</div>
+  <div class=dfn>StringNumber</div>
+    <div class=dfndescr>Номер строки для обработки или <strong>-1</strong> для текущей строки.</div>
+  <div class=dfn>ColorItem</div>
+    <div class=dfndescr>Номер цветовой области, о которой вы хотите получить информацию. Строка может содержать несколько цветовых областей. Установите
+      <i>ColorItem</i> равным <strong>0</strong> для получения информации о первой цветовой области, <strong>1</strong> - о второй и т.д.<br>
+      Это поле не используется в <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a>.
+      Новый цвет всегда применяется ко всей области от <i>StartPos</i> до <i>EndPos</i>, независимо от существовавших там ранее различных цветовых областей.</div>
+  <div class=dfn>StartPos, EndPos</div>
+    <div class=dfndescr>Область строки для установки цвета.<br>
+      Входной параметр для <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a>
+      и выходной для <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a>.</div>
+  <div class=dfn>Priority</div>
+    <div class=dfndescr>Приоритет наложения цветовых областей.<br>
+      Параметр указывает FarManager'у, в какой последовательности накладывать цвета от разных плагинов. Например, для плагина Colorer значение должно быть установлено в <strong>0</strong>, 
+      т.к. он обеспечивает "базовую" раскраску. Для ANSI плагинов значение установлено в <strong>EDITOR_COLOR_NORMAL_PRIORITY</strong>.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Флаги (перечисление <a name="EDITORCOLORFLAGS">EDITORCOLORFLAGS</a>):
+      <table class="cont">
+      <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="ECF_TAB1">ECF_TAB1</a></td>
+      <td class="cont" width="60%">Если в диапазоне цветовой области встречается символ табуляции, то раскрасить его как 1 символ.</td></tr>
+      </table>
+    </div>
+  <div class=dfn>Color</div>
+    <div class=dfndescr>Установленный или устанавливаемый цвет, структура типа <a href="farcolor.html">FarColor</a>.<br>
+      Входной параметр для <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a> и
+      выходной для <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a>.
+      <p>Far Manager раскрашивает символ табуляции на всю длину, на которую расширяется табуляция. Если необходимо, чтобы символ табуляции для 
+      цветовой области занимал 1 знакоместо, то в дополнении к цвету, необходимо выставить флаг <dfn>ECF_TAB1</dfn>.
+    </div>
+  <div class=dfn>Owner</div>
+    <div class=dfndescr>GUID плагина-владельца цветовой области.</div>
+</div>
+
+
+<h3>Замечания</h3>
+<div class=descr>
+<p>Через параметр <i>Color</i> вы можете задать и цвет фона. Более того, вне зависимости от длины строки вы можете установить область начиная с
+первой видимой позиции и кончая самой правой - при этом вы как бы замените цвет фона в редакторе. Хотя этот метод не сработает на файлах, у которых
+число строк меньше размера экрана :(
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a>|
+<a href="editordeletecolor.html">EditorDeleteColor</a>
+</div>
+
+</body>
+</html>

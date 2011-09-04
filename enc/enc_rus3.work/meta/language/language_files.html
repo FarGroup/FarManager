@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Языковые файлы</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Языковые файлы</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">языковая поддержка</a> |
+<a href="../service_functions/getmsg.html">GetMsg</a>
+</div>
+
+<div class=shortdescr>
+<p>Языковой файл (текстовый файл в кодировке UTF-8 с расширением <code>.LNG</code>) предназначен
+для хранения строковых ресурсов, используемых плагином для вывода сообщений в диалогах и меню.
+
+<p>Сообщения в языковых файлах должны заключаться в двойные кавычки.
+Символ кавычки также может использоваться в сообщениях.
+
+<p>Все сообщения, не начинающиеся с двойной кавычки или точки считаются
+комментариями и игнорируются. Ведущие пробелы перед строкой игнорируются.
+</div>
+
+<pre class=code>.Language=Russian,Russian (Русский)
+&quot;Пожалуйста зарегистрируйте вашу копию&quot;
+&quot;Зарегистрирован&quot;
+&quot;Да&quot;
+&quot;Нет&quot;
+:
+//functional keys - 6 characters max
+&quot;Помощь&quot;
+&quot;ПользМ&quot;
+:
+&quot;Группы&quot;
+&quot;Выбран&quot;
+//End of functional keys
+</pre>
+
+
+<h3>Примечание</h3>
+<div class=descr>
+<ol>
+<li>При использовании кавычек в сообщениях не обязательно ставить обратный слеш
+и дублировать кавычки. FAR Manager, обрабатывая каждую строку из языкового
+файла, смотрит только на начальную и заключительную кавычки. Например,
+<pre class=code>
+"Option "Autodetect character table" is off."
+"Copy \"%.55s\" to"
+</pre>
+обе строки являются корректными;
+
+<li>длина строки - не более 1000 символов;
+<li>строку нельзя разбивать на подстроки;
+<li>допускается применение следующих управляющих символов:
+    <code>'\n', '\r', '\\', '\b', '\t'</code>
+</ol>
+</div>
+
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="control_statements.html">Управляющие элементы</a>,
+<a href="index.html">Языковая поддержка</a>,
+<a href="../service_functions/getmsg.html">GetMsg</a>
+</div>
+
+</body>
+</html>

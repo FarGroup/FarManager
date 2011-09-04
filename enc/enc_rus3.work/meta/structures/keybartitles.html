@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>KeyBarTitles</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>KeyBarTitles</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>KeyBarTitles</dfn> позволяет переопределять заголовки функциональных клавиш. Массив этих структур передаётся в Far Manager функцией <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.
+</div>
+
+<pre class=syntax>
+struct KeyBarTitles
+{
+  size_t CountLabels;
+  struct KeyBarLabel *Labels;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>CountLabels</div>
+    <div class=dfndescr>Количество элементов в массиве <i>Labels</i>.</div>
+  <div class=dfn>Labels</div>
+    <div class=dfndescr>Содержит массив структур типа <a href="keybarlabel.html">KeyBarLabel</a>, с новыми заголовками функциональных клавиш.</div>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../service_functions/editorcontrol.html#ECTL_SETKEYBAR">ECTL_SETKEYBAR</a> |
+<a href="index.html">структуры</a> |
+<a href="keybarlabel.html">KeyBarLabel</a>
+</div>
+
+</body>
+</html>

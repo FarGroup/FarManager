@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Структуры и функции Windows API</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src="../links.js" type="text/javascript"></script>
+</head>
+
+<body>
+<h1>Структуры и функции Windows API</h1>
+<div class=navbar>
+<a href="../index.html">главная</a>
+</div>
+
+
+<p class=plain>В данном разделе приведены "вольные" переводы некоторых часто
+используемых структур и функций из Windows API.</p>
+
+<h3>Функции Windows API:</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="getfiletime.html">GetFileTime</a></td>
+<td class="cont" width="60%">возвращает дату и время создания, модификации и последнего доступа к файлу</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="peekconsoleinput.html">PeekConsoleInput</a></td>
+<td class="cont" width="60%">считывает данные из указанного консольного входного буфера без удаления</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="readconsoleinput.html">ReadConsoleInput</a></td>
+<td class="cont" width="60%">считывает данные из входного буфера консоли и удаляет их оттуда</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="setfiletime.html">SetFileTime</a></td>
+<td class="cont" width="60%">устанавливает дату и время создания, модификации и последнего доступа к файлу</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="writeconsoleinput.html">WriteConsoleInput</a></td>
+<td class="cont" width="60%">записывает данные непосредственно в консольный входной буфер</td>
+</tr>
+</table>
+
+<h3>Структуры Windows API:</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Структура</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="char_info.html">CHAR_INFO</a></div>
+<td class="cont" width="60%">определяет код символа и цветовые атрибуты экранной символьной ячейки</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="console_cursor_info.html">CONSOLE_CURSOR_INFO</a></div>
+<td class="cont" width="60%">содержит информацию о консольном курсоре</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="coord.html">COORD</a></div>
+<td class="cont" width="60%">определяет координаты ячейки символа в консольном буфере экрана</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="filetime.html">FILETIME</a></div>
+<td class="cont" width="60%">число сто-наносекундных интервалов, прошедших с 1 января 1601 года</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="focus_event_record.html">FOCUS_EVENT_RECORD</a></div>
+<td class="cont" width="60%">содержит сообщения фокуса; является членом структуры <a href="input_record.html">INPUT_RECORD</a></td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="input_record.html">INPUT_RECORD</a></div>
+<td class="cont" width="60%">информация о входных сообщениях в консольном входном буфере</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="key_event_record.html">KEY_EVENT_RECORD</a></div>
+<td class="cont" width="60%">клавиатурные события консоли; является членом структуры <a href="input_record.html">INPUT_RECORD</a></td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="menu_event_record.html">MENU_EVENT_RECORD</a></div>
+<td class="cont" width="60%">сообщения меню; является членом структуры <a href="input_record.html">INPUT_RECORD</a></td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="mouse_event_record.html">MOUSE_EVENT_RECORD</a></div>
+<td class="cont" width="60%">информация о сообщениях мыши в консольном окне; является членом структуры <a href="input_record.html">INPUT_RECORD</a></td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="rect.html">RECT</a></div>
+<td class="cont" width="60%">определяет координаты левого верхнего и правого нижнего углов прямоугольника</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="small_rect.html">SMALL_RECT</a></div>
+<td class="cont" width="60%">определяет координаты левого верхнего и правого нижнего углов прямоугольника</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="systemtime.html">SYSTEMTIME</a></div>
+<td class="cont" width="60%">хранит дату и время, используя отдельные поля для месяца, дня, года, дня недели, часов, минут, секунд и миллисекунд</td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="win32_find_data.html">WIN32_FIND_DATA</a></td>
+<td class="cont" width="60%">описывает файл, найденный функциями <strong>FindFirstFile</strong>, <strong>FindFirstFileEx</strong> или <strong>FindNextFile</strong></td>
+</tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="window_buffer_size_record.html">WINDOW_BUFFER_SIZE_RECORD</a></div>
+<td class="cont" width="60%">информация об изменениях размеров экранного буфера консоли; является членом структуры <a href="input_record.html">INPUT_RECORD</a></td>
+</tr>
+</table>
+
+<h3>Константы Windows API:</h3>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont">
+<td class="cont" width="40%"><a href="virtualkeycodes.html">Virtualkeycodes</a></td>
+<td class="cont" width="60%">виртуальные коды клавиш</td>
+</tr>
+</table>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../exported_functions/index.html">Экспортируемые функции</a><br>
+<a href="../service_functions/index.html">Сервисные функции</a><br>
+</div>
+
+</body>
+</html>

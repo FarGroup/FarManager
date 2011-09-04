@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>$Rep - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$Rep</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a> |
+<a href="cmds.html">Макрокоманды</a>
+</div>
+
+<div class="shortdescr">
+Оператор цикла <dfn>$Rep</dfn> позволяет организовать в макросах циклический процесс - "Выполнить Expr раз последовательность Sequence".
+</div>
+
+<pre class="syntax">
+<dfn>$Rep</dfn> <dfn>(</dfn><var>Expr</var><dfn>)</dfn> <var>Sequence</var> <dfn>$End</dfn>
+</pre>
+
+<h3>Элементы</h3>
+
+<div class="descr">
+<div class="dfn">Expr</div>
+<div class="dfndescr">Выражение, вычисляется однократно при инициализации цикла.</div>
+
+<div class="dfn">Sequence</div>
+<div class="dfndescr">Выполняется <dfn>Expr</dfn> раз.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class="descr">
+<p>Цикл завершается, когда внутренний счётчик становится равным 0. Текущее значение счётчика содержится в константе <a href="prop_func/general.html#RCounter">RCounter</a>.</p>
+</div>
+
+
+<h3>Пример</h3>
+<div class="descr">
+<pre class="codesample"><code>REGEDIT4
+
+;выход из FAR'a
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Common\AltX]
+"Sequence"="$If (Editor &amp;&amp; (Editor.State &amp; 0x8)) F2 $End
+$Rep (2) $If (!Shell) Esc $End $End F10"
+"DisableOutput"=dword:00000001
+</code></pre>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="while.html">$While</a>,
+<a href="prop_func/general.html#RCounter">RCounter</a>,
+<a href="continue.html">$Continue</a>,
+<a href="../examples.html">Примеры</a>
+</div>
+
+</body>
+
+</html>

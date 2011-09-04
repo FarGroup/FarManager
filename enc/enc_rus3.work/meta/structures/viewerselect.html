@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ViewerSelect</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+<h1>ViewerSelect</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>ViewerSelect</dfn> используется для выделения области в программе просмотра Far Manager.
+</div>
+
+<pre class=syntax>
+struct ViewerSelect
+{
+  __int64 BlockStartPos;
+  int  BlockLen;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>BlockStartPos</div>
+    <div class=dfndescr>Начало выделения - в символах, а не в байтах. Это означает, что если программа просмотра находится в режиме <b>Unicode</b>, то <i>BlockStartPos</i> будет равно (позиция в файле в байтах / 2).</div>
+  <div class=dfn>BlockLen</div>
+    <div class=dfndescr>Длина выделения в символах.</div>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">Структуры</a>,
+<a href="../service_functions/viewercontrol.html">ViewerControl</a>,
+</div>
+
+</body>
+</html>

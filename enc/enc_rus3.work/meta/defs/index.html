@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Типы и определения</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="JavaScript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Типы и определения</h1>
+
+<div class=navbar>
+<a href="../index.html">главная</a>
+</div>
+
+<h3>Типы</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farwindowproc.html">FARWINDOWPROC</a></td>
+<td class="cont" width="60%">функция-обработчик окна диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="frsuserfunc.html">FRSUSERFUNC</a></td>
+<td class="cont" width="60%">CALLBACK-функция для <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a></td>
+</tr>
+</table>
+
+<h3>Константы</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farcolors.html">COL_*</a></td>
+<td class="cont" width="60%">индексы цветов в цветовой схеме (файл <code>farcolor.hpp</code>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farmacro_key_event.html">FARMACRO_KEY_EVENT</a></td>
+<td class="cont" width="60%">тип входного события, передаваемого во время исполнения макрокоманды</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farmanagerversion.html">FARMANAGERVERSION</a></td>
+<td class="cont" width="60%">номер версии Far Manager</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="operation_mode.html">OPM_*</a></td>
+<td class="cont" width="60%">дополнительная информация о режиме функции и месте, откуда она была вызвана</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farpanelsettings.html">FPS__*</a></td>
+<td class="cont" width="60%">информация о настройках панелей</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farsystemsettings.html">FSS__*</a></td>
+<td class="cont" width="60%">информация о системных настройках</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="fardescriptionsettings.html">FDS__*</a></td>
+<td class="cont" width="60%">информация о настройках описаний файлов</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farconfirmationssettings.html">FCS__*</a></td>
+<td class="cont" width="60%">информация о настройках подтверждений</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="farinterfacesettings.html">FIS__*</a></td>
+<td class="cont" width="60%">информация о настройках интерфейса</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="fardialogsettings.html">FDIS__*</a></td>
+<td class="cont" width="60%">информация о настройках диалогов</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="sortmetods.html">SM_*</a></td>
+<td class="cont" width="60%">метод сортировки</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="winerror.html">ERROR_*</a></td>
+<td class="cont" width="60%">типы ошибок, возвращаемые функцией <dfn>GetLastError</dfn>, известные Far Manager</td>
+</tr>
+</table>
+
+<h3>Макросы</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Макрос</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="makefarversion.html">MAKEFARVERSION</a></td>
+<td class="cont" width="60%">генерация требуемой версии Far Manager</td>
+</tr>
+</table>
+
+<h3>Макросы для Dialog API</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Макрос</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="Dlg_GetDlgData">Dlg_GetDlgData(Info,hDlg)</a></td>
+<td class="cont" width="60%">получить 32-битное значение, связанное с диалогом (<a href="../dialogapi/dmsg/dm_getdlgdata.html">DM_GETDLGDATA</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="Dlg_GetDlgItemData">Dlg_GetDlgItemData(Info,hDlg,ID)</a></td>
+<td class="cont" width="60%">получить 32-битное значение, связанное с элементом диалога (<a href="../dialogapi/dmsg/dm_getitemdata.html">DM_GETITEMDATA</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="Dlg_RedrawDialog">Dlg_RedrawDialog(Info,hDlg)</a></td>
+<td class="cont" width="60%">перерисовать диалоговое окно (<a href="../dialogapi/dmsg/dm_redraw.html">DM_REDRAW</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="Dlg_SetDlgData">Dlg_SetDlgData(Info,hDlg,Data)</a></td>
+<td class="cont" width="60%">установить 32-битное значение связанное с диалогом (<a href="../dialogapi/dmsg/dm_setdlgdata.html">DM_SETDLGDATA</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="Dlg_SetDlgItemData">Dlg_SetDlgItemData(Info,hDlg,ID,Data)</a></td>
+<td class="cont" width="60%">установить 32-битное значение связанное с элементом диалога (<a href="../dialogapi/dmsg/dm_setitemdata.html">DM_SETITEMDATA</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgEdit_AddHistory">DlgEdit_AddHistory(Info,hDlg,ID,Str)</a></td>
+<td class="cont" width="60%">добавить строку в историю поля ввода (<a href="../dialogapi/dmsg/dm_addhistory.html">DM_ADDHISTORY</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgItem_Disable">DlgItem_Disable(Info,hDlg,ID)</a></td>
+<td class="cont" width="60%">установить элемент диалога в состояние Disable (<a href="../dialogapi/dmsg/dm_enable.html">DM_ENABLE</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgItem_Enable">DlgItem_Enable(Info,hDlg,ID)</a></td>
+<td class="cont" width="60%">установить элемент диалога в состояние Enable (<a href="../dialogapi/dmsg/dm_enable.html">DM_ENABLE</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgItem_GetCheck">DlgItem_GetCheck(Info,hDlg,ID)</a></td>
+<td class="cont" width="60%">получить состояние элементов <a href="../dialogapi/controls/di_checkbox.html">DI_CHECKBOX</a> и <a href="../dialogapi/controls/di_radiobutton.html">DI_RADIOBUTTON</a> (<a href="../dialogapi/dmsg/dm_getcheck.html">DM_GETCHECK</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgItem_GetFocus">DlgItem_GetFocus(Info,hDlg)</a></td>
+<td class="cont" width="60%">получить ID элемента диалога, имеющего клавиатурный фокус ввода (<a href="../dialogapi/dmsg/dm_getfocus.html">DM_GETFOCUS</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgItem_IsEnable">DlgItem_IsEnable(Info,hDlg,ID)</a></td>
+<td class="cont" width="60%">элемент заблокирован? (<a href="../dialogapi/dmsg/dm_enable.html">DM_ENABLE</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgItem_SetCheck">DlgItem_SetCheck(Info,hDlg,ID,State)</a></td>
+<td class="cont" width="60%">установить состояние элементов <a href="../dialogapi/controls/di_checkbox.html">DI_CHECKBOX</a> и <a href="../dialogapi/controls/di_radiobutton.html">DI_RADIOBUTTON</a> в одно из трёх состояний (<a href="../dialogapi/dmsg/dm_setcheck.html">DM_SETCHECK</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgItem_SetFocus">DlgItem_SetFocus(Info,hDlg,ID)</a></td>
+<td class="cont" width="60%">установить клавиатурный фокус на заданный элемент диалога (<a href="../dialogapi/dmsg/dm_setfocus.html">DM_SETFOCUS</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgItem_SetText">DlgItem_SetText(Info,hDlg,ID,Str)</a></td>
+<td class="cont" width="60%">установить содержимое строки ввода или заголовка элемента диалога в новое значение (<a href="../dialogapi/dmsg/dm_settextptr.html">DM_SETTEXTPTR</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgList_AddString">DlgList_AddString(Info,hDlg,ID,Str)</a></td>
+<td class="cont" width="60%">добавить строку в список <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a> или <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> (<a href="../dialogapi/dmsg/dm_listaddstr.html">DM_LISTADDSTR</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgList_ClearList">DlgList_ClearList(Info,hDlg,ID)</a></td>
+<td class="cont" width="60%">очистить список <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a> или <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> (<a href="../dialogapi/dmsg/dm_listdelete.html">DM_LISTDELETE</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgList_DeleteItem">DlgList_DeleteItem(Info,hDlg,ID,Index)</a></td>
+<td class="cont" width="60%">удалить элемент из списка <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a> или <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> (<a href="../dialogapi/dmsg/dm_listdelete.html">DM_LISTDELETE</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgList_GetCurPos">DlgList_GetCurPos(Info,hDlg,ID)</a></td>
+<td class="cont" width="60%">получить позицию курсора в списке <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a> или <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> (<a href="../dialogapi/dmsg/dm_listdelete.html">DM_LISTGETCURPOS</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgList_GetItemData">DlgList_GetItemData(Info,hDlg,ID,Index)</a></td>
+<td class="cont" width="60%">получить данные, ассоциированные с элементом списка <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a> или <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> (<a href="../dialogapi/dmsg/dm_listgetdata.html">DM_LISTGETDATA</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgList_SetCurPos">DlgList_SetCurPos(Info,hDlg,ID,NewPos)</a></td>
+<td class="cont" width="60%">установить новую позицию курсора в списке <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a> или <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> (<a href="../dialogapi/dmsg/dm_listsetcurpos.html">DM_LISTSETCURPOS</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgList_SetItemStrAsData">DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str)</a></td>
+<td class="cont" width="60%">ассоциировать строку с элементом списка <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a> или <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> (<a href="../dialogapi/dmsg/dm_listsetdata.html">DM_LISTSETDATA</a>)</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a name="DlgList_SortDown">DlgList_SortDown(Info,hDlg,ID)</a></td>
+<td class="cont" width="60%">сортировать элементы списка <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a> или <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> по убыванию (<a href="../dialogapi/dmsg/dm_listsort.html">DM_LISTSORT</a>)</td>
+</tr>
+<tr><td class="cont" width="40%"><a name="DlgList_SortUp">DlgList_SortUp(Info,hDlg,ID)</a></td>
+<td class="cont" width="60%">сортировать элементы списка <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a> или <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> по возрастанию (<a href="../dialogapi/dmsg/dm_listsort.html">DM_LISTSORT</a>)</td>
+</tr>
+</table>
+Здесь:
+<div class=descr>
+  <div class=dfn>Info</div>
+  <div class=dfndescr>Указатель на структуру <a href="../structures/pluginstartupinfo.html">PluginStartupInfo</a>.</div>
+  <div class=dfn>hDlg</div>
+  <div class=dfndescr>Дескриптор диалога.</div>
+  <div class=dfn>ID</div>
+  <div class=dfndescr>Индекс элемента в массиве структур <a href="../dialogapi/structures/fardialogitem.html">FarDialogItem</a>.</div>
+  <div class=dfn>Data</div>
+  <div class=dfndescr>32-битное значение (число типа DWORD или указатель).</div>
+  <div class=dfn>Str</div>
+  <div class=dfndescr>Строка.</div>
+  <div class=dfn>State</div>
+  <div class=dfndescr>Состояние элемента (одна из констант BSTATE_*, описанная в <a href="../dialogapi/dmsg/dm_setcheck.html">DM_SETCHECK</a>).</div>
+  <div class=dfn>Index</div>
+  <div class=dfndescr>Позиция в списке.</div>
+  <div class=dfn>NewPos</div>
+  <div class=dfndescr>Новая позиция в списке.</div>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../exported_functions/index.html">Экспортируемые функции</a>,
+<a href="../service_functions/index.html">Сервисные функции</a>,
+<a href="../structures/index.html">Структуры</a>
+</div>
+
+</body>
+</html>

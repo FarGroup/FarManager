@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>Восстановление MSDN</title>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<meta http-equiv="Content-Language" content="ru">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<a name="top"></a>
+<h1>Восстановление MSDN</h1>
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">статьи</a>
+</div>
+
+<div align=right><code>
+Sergey Creedence <a href="mailto:Sergey%20Creedence%20<csappsupport@mail2k.ru>?subject=Article%3A%20Восстановление%20MSDN">
+<img src="../../../images/email.gif" border="0" alt="[csappsupport@mail2k.ru]" width="16" height="16" align="middle">csappsupport@mail2k.ru</a>
+<br>Оригинал: <a href="http://www.sources.ru/msdn/msdn_problems.shtml">http://www.sources.ru/msdn/msdn_problems.shtml</a>
+</code></div>
+<hr color="#003399">
+
+
+<p class=plain>Помню, в форуме многих
+интересовали вопросы типа "как восстановить работоспособность MSDN?",
+"как мне перенести MSDN на другой комп" или что-то вроде того.
+Я тоже этим интересовался (один раз перестал запускаться MSDN -
+начинал орать, что невозможно открыть файл "Msdn010.Col" ;).</p>
+
+<p class=plain>Решение такое: всё дело в файле
+<code>"C:\Documents and Settings\All Users\Application Data\Microsoft\HTML Help\HhColreg.Dat"</code>.
+В Вин98 где лежит - не знаю, но можно найти. Он и содержит все прописанные данные о
+коллекциях. Я даже проверял: переименовывал - появляется "моя любимая ошибка"
+о невозможности открытия. Восстанавливал - всё прекрасно работает.</p>
+
+<p class=plain>Ещё по поводу MSDN могу сказать, что все подмножества хранятся в
+файле <code>"C:\Documents and Settings\[username]\Application Data\Microsoft\HTML
+Help\1033\MSDN010.chs"</code>, а избранное - в
+<code>"C:\Documents and Settings\[username]\Application Data\Microsoft\HTML Help\hh.Dat"</code></p>
+
+<p class=plain>Ещё что требуется для MSDN:
+<ul>
+
+<li>Зарегистрировать файл <code>"C:\Program Files\Common Files\Microsoft Shared\MSDN\COOKDOC.DLL"</code> с помощью RegSvr32.</li>
+
+<li>Прописать в Реестре "коллекцию" (пример для моей установки):
+<pre class=code>[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\HTML Help Collections]
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\HTML Help Collections\Developer Collections]
+"Language"="0x0409"
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\HTML Help Collections\Developer Collections\0x0409]
+"Preferred"="0x038b56390"
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\HTML Help Collections\Developer Collections\0x0409\0x038b56390]
+"Filename"="C:\\MSDN Library\\2000APR\\1033\\MSDN010.COL"
+@="MSDN Library - April 2000"
+"Full"=dword:00000001</pre>
+Информация о пути к статусу установки хранится в разделе
+<code>"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\MS Setup (ACME)\Table Files"</code></li>
+
+<li>Прописать файлы COLCHNG.EXE в разделе <code>"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Shared Tools"</code>:
+<pre class=code>[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Shared Tools\colchng.exe(1033)]
+"Path"="C:\\Program Files\\Common Files\\Microsoft Shared\\MSDN\\1033\\COLCHNG.EXE"
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Shared Tools\colchng.exe(1033)\Clients]
+"C:\\MSDN Library\\2000APR\\1033\\PID.EXE"=""
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Shared Tools\cookdoc.dll]
+"Path"="C:\\Program Files\\Common Files\\Microsoft Shared\\MSDN\\COOKDOC.DLL"
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Shared Tools\cookdoc.dll\Clients]
+"C:\\MSDN Library\\2000APR\\1033\\PID.EXE"=""</pre>
+</li>
+
+<li>Указать об установленном продукте в разделе
+<code>"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\6.0\Setup\MSDN Library - April 2000"</code></li>
+
+<li>Прописать все файлы в разделе
+<code>"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs"</code></li>
+</ul>
+
+<p class=plain>Пока MSDN у вас работает корректно, можно сделать резервную копию всех
+ключей реестра и файлов - это поможет потом легко исправить неполадки.</P>
+
+</body>
+</html>

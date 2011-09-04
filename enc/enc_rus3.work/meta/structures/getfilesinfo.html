@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>GetFilesInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>GetFilesInfo</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>GetFilesInfo</dfn> передает информацию Far Manager'у о запрашиваемых файлах из эмулируемой файловой системы в функции <a href="../exported_functions/getfilesw.html">GetFilesW</a>.
+</div>
+
+<pre class=syntax>
+struct GetFilesInfo
+{
+  size_t StructSize;
+  HANDLE hPanel;
+  struct PluginPanelItem *PanelItem;
+  size_t ItemsNumber;
+  BOOL Move;
+  const wchar_t *DestPath;
+  OPERATION_MODES OpMode;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>GetFilesInfo</dfn>.</div>
+  <div class=dfn>hPanel</div>
+    <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.  Поле заполнено Far Manager'ом.</div>
+  <div class=dfn>PanelItem</div>
+    <div class=dfndescr>Указывает на массив структур <a href="pluginpanelitem.html">PluginPanelItem</a>. Каждая структура описывает файл, получаемый из эмулируемой файловой системы.</div>
+  <div class=dfn>ItemsNumber</div>
+    <div class=dfndescr>Количество структур <a href="pluginpanelitem.html">PluginPanelItem</a> в массиве <i>PanelItem</i>.</div>
+  <div class=dfn>Move</div>
+    <div class=dfndescr>Если 0, файл должен быть скопирован, иначе - перемещён.</div>
+  <div class=dfn>DestPath</div>
+    <div class=dfndescr>Указатель на путь назначения (куда получим файлы).
+    Если флаг OPM_SILENT параметра <a href="../defs/operation_mode.html"><i>OpMode</i></a> не установлен, вы можете позволить пользователю изменить его, 
+    но в этом случае <i>DestPath</i> должен указывать на буфер плагина, содержащий новый путь. Буфер должны быть валиден после возвращения из функции <a href="../exported_functions/getfilesw.html">GetFilesW</a>.</div>
+  <div class=dfn>OpMode</div>
+    <div class=dfndescr>Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>. Функция <a href="../exported_functions/getfilesw.html">GetFilesW</a> должна быть готова обработать флаги OPM_SILENT, OPM_FIND, OPM_VIEW, OPM_QUICKVIEW и OPM_EDIT.
+    Также она может обрабатывать OPM_DESCR и OPM_TOPLEVEL для увеличения скорости, если это необходимо.</div>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a>
+</div>
+
+</body>
+</html>

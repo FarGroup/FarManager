@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>$XLat - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$XLat</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a> |
+<a href="cmds.html">Макрокоманды</a>
+</div>
+
+<div class="shortdescr">
+Оператор <dfn>$XLat</dfn> вызывает функцию транслитерации.
+</div>
+
+<pre class="syntax">
+<dfn>$XLat</dfn>
+</pre>
+
+<h3>Пример</h3>
+<div class="descr">
+<pre class="codesample"><code>REGEDIT4
+
+;XLAT переконвертация последнего слова
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\ShiftBS]
+"Sequence"="CtrlShiftLeft $XLat CtrlRight"
+"DisableOutput"=dword:00000001
+"NotEmptyCommandLine"=dword:00000001
+</code></pre>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="prop_func/general.html#xlat">xlat()</a>,
+<a href="../examples.html">Примеры</a>
+</div>
+
+</body>
+
+</html>

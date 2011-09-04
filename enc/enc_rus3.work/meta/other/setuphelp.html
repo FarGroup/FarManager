@@ -1,0 +1,256 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Как установить этот файл</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="JavaScript" src="../links.js" type="text/javascript"></script>
+</head>
+
+<body>
+<h1>Как установить этот файл</h1>
+<div class=navbar>
+<a href="../index.html">главная</a>
+</div>
+
+<!--
+<h3>Borland C++</h3>
+<div class=descr>
+Здесь описана процедура установки файла помощи <code>pluginsr.hlp</code>
+в среду так, чтобы по <code>Ctrl-F1</code>
+открывался нужный раздел:
+
+  <p>Первым делом скопируйте файлы <code>PLUGINSR.*</code>
+    в каталог с HLP-файлами (для BC 5.02 это <code>HELP\</code>).
+  <p>В файл <b>WIN32SDK.CFG</b> добавьте пару строк:<br>
+    <code>:INDEX FAR plugins programming = pluginsr.hlp<br>
+          :LINK pluginsr.hlp
+    </code>
+
+  <p>В файл <b>WIN32SDK.CNT</b>:<br>
+    <code>:INCLUDE PLUGINSR.MST</code>
+  <br>
+Вот собственно и вся установка.
+</div>
+
+<h3>Visual C++</h3>
+<div class=descr>
+Здесь как всегда всё сложнее.
+С файлом pluginsr.hlp проблем много не возникает. Надо повторить схожие действия:
+добавить пару строчек в файл <code>EXTHELP.CNT</code>, который лежит в каталоге
+<code>Help</code> MSDev:<br><br>
+<code>
+:Title Microsoft Developer Studio Extension Help<br>
+:Index Far Plugins Help=c:\path\to\pluginsr.hlp<br>
+:Include c:\path\to\pluginsr.cnt<br>
+</code><br>
+
+<p>Далее, вам надо залезть в реестр:<br>
+<code>HKEY_CURRENT_USER/Software/Microsoft/DevStudio/6.0/Help</code><br>
+<p>В этой ветке поменяйте значение параметра Enable на 1 - после этого
+при запуске VC у вас появится новый пункт в меню Help. Если его
+выбрать(это чек-бокс), то вместо MSDN-а или чего у вас там ещё стоит
+будет запускаться наш файл. Криво, а че делать?
+</div>
+
+-->
+
+<a name=setupmsdn></a><h3>Visual C++ - MSDN</h3>
+<div class=descr>
+
+<p>В случае, если у вас установлена библиотека msdn, можно включить
+Энциклопедию и туда - таким образом можно будет писать в ide, и пользоваться
+одновременно и нашими и vc-шными хелпами. Помог нам в этом
+Serg Bormant (2:5027/12.80@fidonet) - здесь же мы и приводим написанный им
+небольшой &laquo;GuideLine&raquo; (<em>с моими замечаниями</em>, ruiv).
+
+<pre class=code>
+    Просматривая энциклопедию (FarEncyclopedia.ru.chm), обнаружил раздел,
+посвящённый её установке.
+...
+    Раздельные   .chm   и  .chi  хороши  только  тем,  что  можно
+установить  индекс  (.chi)  отдельно,  а текст хранить на сменном
+носителе.  Для  энциклопедии,  учитывая её размер (242641 байт),
+это не актуально. "Монолитный" .chm также содержит в себе индекс,
+поэтому подключить его не составит труда.
+
+    Для подключения в коллекцию надо учитывать следующие моменты.
+*.col описывает представление (логическую структуру) коллекции на
+уровне  разделов/подразделов  (Folders).  Сведения  о  физическом
+расположении файлов хранятся отдельно в файле hhcolreg.dat.
+
+    Вот  полученный  методом  "научного  тыка" способ подключения
+FarEncyclopedia.ru.chm,   не   претендующий  на  абсолютную  идеологическую
+правильность :), но тем не менее успешно работающий...
+
+    0. Исходные...
+w2k eng, vc6 sp3, msdn jan-2000, HTML Help Control 4.74.8702
+
+Энциклопедия:
+D:\Program Files\Far\PlugDoc\
+  FarEncyclopedia.ru.chm
+
+Коллекция (этот путь можно "подсмотреть" в ярлыке к MSDN):
+D:\Program Files\mvs\MSDN\2000JAN\1033\
+  MSDN000.COL
+
+Регистрация коллекций:
+D:\Documents and Settings\All Users\Application Data\Microsoft\HTML Help\
+  hhcolreg.dat
+
+    1. Действуем:
+    1.1. MSDN не загружен...
+    1.2.  В  каталоге  с  MSDN ищем файл *.col (в моём случае это
+msdn000.col),  делаем  его резервную копию (как и всех изменяемых
+нами  файлов).  Идём  в  конец и перед последним тэгом &lt;/Folders&gt;
+добавим (добавленные строчки помечены "&gt;"):
+
+ &lt;XML&gt;
+ &lt;HTMLHelpCollection&gt;
+ &lt;collectionnum value=10003/&gt;
+ ...
+ &lt;Folders&gt;
+ &lt;Folder&gt;
+   &lt;TitleString value="MSDN Library - January 2000"/&gt;
+   &lt;FolderOrder value=1/&gt;
+ ...
+ &lt;/Folder&gt;
+<b>&gt;
+&gt;&lt;Folder&gt;
+&gt;  &lt;TitleString value="Far PlugRinG Help Project"/&gt;
+&gt;&lt;FolderOrder value=2/&gt;
+&gt;  &lt;Folder&gt;
+&gt;    &lt;TitleString value="=pluginsr"/&gt;
+&gt;    &lt;FolderOrder value=1/&gt;
+&gt;    &lt;LangId value=1033/&gt;
+&gt;  &lt;/Folder&gt;
+&gt;&lt;/Folder&gt;
+&gt;</b>
+ &lt;/Folders&gt;
+ &lt;/HTMLHelpCollection&gt;
+ &lt;/XML&gt;
+
+    Обратите  внимание  на  тэги  &lt;collectionnum.../&gt; -- номер
+коллекции и &lt;FolderOrder.../&gt; -- порядковый номер папки внутри
+уровня.
+    (<em>collectionnum  вам  будет нужен при изменении следующего
+файла,  а  вот  FolderOrder  зависит  от того, куда вы вставляете
+кусок.  Его  номер  должен  быть  больше  указанного  в последнем
+разделе Folder</em>)
+
+    1.3.   Ищем   файл   регистрации  коллекций  (их  может  быть
+несколько,    нас   интересует   тот,   в   котором   в   разделе
+&lt;Collections&gt; прописана наша коллекция, и добавим информацию о
+файле в раздел &lt;DocCompilations&gt;:
+(<em>В моём случае этот файл (hhcolreg.dat) находился в каталоге d:\winnt\help\</em>)
+
+ &lt;XML&gt;
+ &lt;HTMLHelpDocInfo&gt;
+ ...
+ &lt;Collections&gt;
+ ...
+ &lt;Collection&gt;
+   &lt;ColNum value=10003/&gt;
+   &lt;ColName value="D:\Program Files\MVS\MSDN\2000JAN\1033\MSDN000.COL"/&gt;
+ &lt;/Collection&gt;
+ &lt;/Collections&gt;
+ &lt;Locations&gt;
+ ...
+ &lt;/Locations&gt;
+ &lt;DocCompilations&gt;
+ &lt;DocCompilation&gt;
+ ...
+ &lt;/DocCompilation&gt;
+<b>&gt;
+&gt;&lt;DocCompilation&gt;
+&gt;&lt;DocCompId value="pluginsr"/&gt;
+&gt;  &lt;DocCompLanguage value=1033/&gt;
+&gt;  &lt;LocationHistory&gt;
+&gt;    &lt;ColNum value=10003/&gt;
+&gt;    &lt;TitleLocation value="D:\Program Files\Far\PlugDoc\FarEncyclopedia.ru.chm"/&gt;
+&gt;    &lt;IndexLocation value="D:\Program Files\Far\PlugDoc\FarEncyclopedia.ru.chm"/&gt;
+&gt;    &lt;QueryLocation value=""/&gt;
+&gt;    &lt;LocationRef value=""/&gt;
+&gt;    &lt;Version value=0/&gt;
+&gt;    &lt;LastPromptedVersion value=0/&gt;
+&gt;    &lt;TitleSampleLocation value=""/&gt;
+&gt;    &lt;TitleQueryLocation value=""/&gt;
+&gt;    &lt;SupportsMerge value=0/&gt;
+&gt;  &lt;/LocationHistory&gt;
+&gt;&lt;/DocCompilation&gt;
+&gt;
+
+</b>
+ &lt;/DocCompilations&gt;
+ &lt;/HTMLHelpDocInfo&gt;
+ &lt;/XML&gt;
+
+    Здесь номер коллекции -- &lt;ColNum.../&gt;
+(<em>Это именно тот номер, который вы запомнили в первом файле</em>)
+
+    1.4.  Грузим MSDN, в Contents наблюдаем новый раздел, щёлкаем
+по  вкладке  Index,  дожидаемся,  пока  новый индекс будет создан
+(процесс  длителен  !), проверяем работоспособность, набрав любое
+ключевое слово, например AF_AVPRESENT.
+
+    2.  Если  не  получилось,  значит где-то допустили ошибку :(,
+попробуйте  всё  вернуть в исходное состояние и повторить сначала :)
+
+Serg Bormant, 2:5027/12.80@fidonet, bormant@chat.ru, bormant@netcity.ru
+
+С уважением, Serg Bormant                           29 июня 2000
+
+--- GoldED+/W32 1.1.4.5
+ * Origin: To be, to be, two beer: without questions... (2:5027/12.80)
+</pre>
+
+<p>Единственным недостатком этого метода является то, что индексы в msdn будут
+перестраиваться после каждого изменения Энциклопедии - то есть после
+каждого выпуска новой версии - занимает это 3-5 минут. Зато теперь у вас
+будут интегрированные хелпы по Plugin API FAR Manager и Win32 API.
+<p>Заметьте также, что такая интегрированная энциклопедия поддерживает линки
+на win32-топики из того же msdn. Соответственно hlp версия
+энциклопедии активно линкуется с win32.hlp. Так что совсем малина.
+
+
+<p>&nbsp;<br>
+И совсем свежее уточнение:
+<pre class=code>
+Date: Wed, 26 Sep 2001 21:40:15 +0400
+From: <a href="mailto:dennis.trachuk&#x40;nm.ru">Dennis Trachuk &lt;dennis.trachuk@nm.ru&gt;</a>
+Subject: MSDN Integration
+
+Hello All!
+
+стататейка по интеграции хтмл-хелп файлов в MSDN
+<a href="http://codeproject.com/winhelp/msdnintegrator.asp" target="_blank">http://codeproject.com/winhelp/msdnintegrator.asp</a>
+<em>(локальная копия статьи прилагается)</em>
+
+а самое приятное, что есть утиль для проведения этого безобразия:
+<a href="http://codeproject.com/winhelp/MSDNIntegrator/MSDNIntegrator.zip">http://codeproject.com/winhelp/MSDNIntegrator/MSDNIntegrator.zip</a>
+ну и то же самое только с исходниками:
+<a href="http://codeproject.com/winhelp/MSDNIntegrator/MSDNIntegrator_src.zip">http://codeproject.com/winhelp/MSDNIntegrator/MSDNIntegrator_src.zip</a>
+</pre>
+
+<p>&nbsp;<br>
+<p>Если есть проблемы с MSDN ("упал", переехал в другое место, etc.), то возможно статья
+<a href="../articles/bonus/repair_msdn.html">"Восстановление MSDN"</a> (by Sergey Creedence)
+поможет справиться с некоторыми проблемами.
+
+</div>
+
+
+
+<h3>FAR Manager</h3>
+<div class=descr>
+Если вы любите "верстать" свои программы, используя редактор FAR`а, то
+воспользуйтесь плагином
+<a target="_blank" href="http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=430">
+"Active-Help"</a>.
+Этот плагин добавляет к редактору возможность вызвать контекстно-зависимую помощь...
+<p>А работает он, кстати(!), как с hlp так и с chm файлами. Более того, вы можете указать
+ему путь к вашей msdn-коллекции (MSDNVS98.COL) - и будет загружаться она!
+</div>
+
+</body>
+</html>

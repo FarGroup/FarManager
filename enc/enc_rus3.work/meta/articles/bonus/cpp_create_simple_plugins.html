@@ -1,0 +1,322 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0057)http://www.sources.ru/cpp/cpp_create_simple_plugins.shtml -->
+<html>
+
+<head>
+<title>Создание простого приложения с плагинами.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<meta http-equiv="Content-Language" content="ru">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<a name="top"></a>
+<h1>Создание простого приложения с плагинами.</h1>
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">статьи</a>
+</div>
+
+<div align=right><code>
+Покрашенко Александр <a href="mailto:bestx@mail.ru?subject=Articles%3AСоздание%20простого%20приложения%20с%20плагинами">
+<img src="../../../images/email.gif" border="0" alt="[bestx@mail.ru]" width="16" height="16" align="middle">bestx@mail.ru</a>
+<br>Оригинал: <a href="http://www.sources.ru/cpp/cpp_create_simple_plugins.shtml">http://www.sources.ru/cpp/cpp_create_simple_plugins.shtml</a>
+</code></div>
+<hr color="#003399">
+
+<p>В этой статье описываются принципы и
+решения, применяемые при проектировании
+приложений, которые будут использовать
+внешние, динамически подключаемые, модули.
+Эта статья более ориентирована на тех, кто
+хочет использовать механизмы подключения/отключения
+функциональности приложения, наподобие
+механизма Aobe Photoshop или FAR Manager, а не просто
+многократного использования кода в разных
+приложениях.</p>
+<p>Динамически подключаемые модули (DLL) - это
+модули, которые содержат функции и данные.
+Эти модули загружаются во время выполнения
+программы, использующей эти модули (хоста).
+В ОС Windows модули содержат внутренние и
+экспортируемые функции (в UNIX подобных
+системах все функции являются
+экспортируемыми). Экспортируемые функции
+доступны для вызова хостом, а внутренние
+нет. Хотя данные тоже могут быть
+экспортируемыми, но обычно используются
+экспортируемые функции для доступа данным.</p>
+<p>Некоторые, особенно начинающие,
+разработчики ПО и не представляют, что при
+создании приложения уже используют
+внешние модули. Хотя при разработке MFC
+приложений этот факт более очевиден. Просто
+компилятор сам вставляет код, который
+загружает системные библиотеки, иначе
+любое Windows приложение было бы на 20-30 Мб
+больше.</p>
+<p>Итак, перейдём непосредственно к созданию
+механизма для использования в Ваших
+приложениях плагинов.</p>
+<p>Создайте новое DLL приложение (Builder и VC
+позволяют выбрать тип при создании нового
+проекта).</p>
+<p>Каждая библиотека имеет точку входа (но
+можно её и не описывать), как функция main() в
+обычном приложении. Вот обычное её описание:</p>
+<pre class=code>HINSTANCE hDllInstance=NULL;
+BOOL APIENTRY DllMain( HANDLE hModule, DWORD ul_reason_for_call, LPVOID lpReserved )
+{
+  if (ul_reason_for_call == DLL_PROCESS_ATTACH)
+    hDllInstance = (HINSTANCE)hModule;
+  return TRUE;
+}</pre>
+<p>При присоединении к вызвавшему её
+процессу, в эту функцию передаётся instance. Т.е.
+Вы сможете использовать ресурсы библиотеки.</p>
+<p>Используйте в этой функции только простые
+задачи по инициализации! Эта функция очень
+уязвимое место в модуле.</p>
+<p>Для связи хоста и модуля предлагаю
+использовать две функции: первая функция
+будет взаимодействовать с хостом при
+инициализации (определять версию,
+совместимость с текущей версией хоста,
+передавать текст для пункта в меню и т.д.), а
+вторая будет обслуживать запросы хоста и
+реагировать на переданные данные:
+анализировать, обрабатывать и возвращать
+результат соей работы.</p>
+<p>Другой подход в написании плагинов -
+использовать несколько различных функций,
+для каждого из действий, но лично мне
+нравится первый.</p>
+<p>Например, один из возможных вариантов
+этих двух функций:</p>
+<pre class=code>#ifdef __cplusplus
+extern &quot;C&quot; {
+#endif
+  __declspec( dllexport ) void GetPluginInfo(PluginInfo* pPluginInfo, DWORD *pdwResult);
+  __declspec( dllexport ) void PluginHandler(DWORD dwCode,HostInfo *pHostInfo,DWORD *pdwResult);
+#ifdef __cplusplus
+}
+#endif</pre>
+<p>Ключевые слова <code>__declspec( dllexport )</code>
+обозначают, что функции являются
+экспортируемыми.</p>
+<p>Этот блок определений можно помещать в
+самом исходном файле, после секции
+подключения заголовочных файлов.</p>
+<p>Вот пример структуры, передаваемой при
+инициализации:</p>
+<pre class=code>struct PluginInfo
+{
+  DWORD m_dwPluginType;  // вид выполняемой плагином операции
+                         //  (если предусматривается несколько типов плагинов)
+  char * m_pcMenuString; // передадим пункт меню для нашего плагина
+  unused[64];
+};</pre>
+<p>А вот пример функции, которая находится в
+плагине и заполняет эту структуру:</p>
+<pre class=code>void GetPluginInfo(PluginInfo* pPluginInfo, DWORD *pdwResult)
+{
+  pPluginInfo-&gt;m_dwPluginType=5;
+  pPluginInfo-&gt;m_pcMenuString=&quot;/Мой плагин&quot;;
+  *pdwResult=0;
+}</pre>
+<p>Функция-обработчик в плагине:</p>
+<pre class=code>void PluginHandler(DWORD dwCode,HostInfo *pHostInfo,DWORD *pdwResult);</pre>
+<p>Первый параметр будет определять цель, с
+которой вызвана функция, второй параметр
+определяет входные данные, причём для
+каждого кода могут быть инициализированы
+различные члены структуры. Ну а третий
+параметр - результат работы.</p>
+<pre class=code>void PluginHandler(DWORD dwCode,HostInfo *pHostInfo,DWORD *pdwResult)
+{
+  switch(dwCode)
+  {
+    case 1:
+      //первое действие
+      *pdwResult=1;
+      break;
+    case 2:
+      //второе действие
+      *pdwResult=1;
+      break;
+    default: *pdwResult=0;
+  }
+}</pre>
+<p>&nbsp;</p>
+<p>Если плагин не знает переданного кода
+операции, он просто вернёт код &quot;Не
+поддерживается&quot; и не выполнит
+некорректных действий.</p>
+<p>Посмотрим, какие действия необходимо
+выполнить в программе-хосте для того, что бы
+воспользоваться функциями, расположенных в
+плагинах.</p>
+<p>Загрузим библиотеку хостом:</p>
+
+<pre class=code>
+// приходится создавать тип для каждой экспортируемой функции
+typedef void (*GetPluginInfoType)(PluginInfo*);
+typedef void (*PluginHandlerType)(HostInfo*);
+
+HMODULE hLib=LoadLibrary(&quot;MyLib.dll&quot;);
+
+if (hLib==NULL)
+{
+  // тут обрабатываем ошибку, если библиотека не загрузилась
+  return FALSE;
+}
+
+GetPluginInfoType GetPluginInfo;
+
+GetPluginInfo=(GetPluginInfoType)GetProcAddress(m_hInstance,&quot;GetPluginInfo&quot;);
+
+if (GetPluginInfo==NULL)
+{
+  FreeLibrary(hLib);
+  return FALSE;
+}
+
+DWORD dwResult;
+PluginInfo PluginNfo;
+
+memset(&amp;PluginNfo,0,sizeof(PluginInfo));
+GetPluginInfo(&amp;PluginNfo,&amp;dwResult);
+
+// тут анализируем заполненную в плагине структуру (создаём меню для
+// плагина, резервируем память и т.д.)
+</pre>
+
+<p>Итак, плагин загружен и готов к работе, ожидаем когда пользователь
+выберет пункт меню.</p>
+
+<p>Помещаем в обработчик меню следующий код:</p>
+<pre class=code>PluginHandlerType PluginHandler;
+
+// получаем адрес функции обработчика в плагине
+PluginHandler=(PluginHandlerType)GetProcAddress(m_hInstance,&quot;PluginHandler&quot;);
+if (PluginHandler==NULL)
+  return FALSE;
+
+HostInfo HostNfo; // подготавливаем структуры с данными,
+                  // которые необходимо передать в плагин для обработки
+memset(&amp;HostNfo,0,sizeof(HostInfo));
+
+// если в плагинах будут создаваться окна, то необходимо передать
+// HWND главного окна в качестве родительского
+HostInfo.m_hHostWnd=theApp-&gt;m_pMainWnd-&gt;GetSafeHwnd();
+
+// передаём адреса функций, реализованных в хосте
+HostInfo.IPShowProgress=::ShowProgress;
+
+DWORD dwResult;
+
+try { // желательно поставить обработчик исключений
+  // вызываем функцию-обработчик в плагине
+  PluginHandler(1,&amp;HostNfo,&amp;dwResult);
+}
+catch(...)
+{
+  AfxMessageBox(&quot;В модуле произошла необрабатываемая ошибка.&quot;);
+  ASSERT(0);
+  return FALSE;
+}
+
+// не забывайте выгружать библиотеки по завершении работы хостом
+FreeLibrary(hLib);
+</pre>
+<p>Вот собственно и всё описание простого
+примера использования плагинов в своих
+программах.</p>
+<p>Я хочу добавить несколько советов для
+разработчиков:
+<ul>
+  <li>если планируется использовать много
+    плагинов, то разумно будет сначала
+    получить первоначальную информацию от
+    плагина, а затем его выгрузить из памяти.
+    И подгружать его в случае надобности.
+  <li>если пользователь вводит некоторые
+    параметры в диалогах плагинов, то разумно
+    разработать механизм централизованного
+    хранения последних введённых параметров.
+  <li>делайте возможность помещения плагинов
+    в произвольные папки внутри папки
+    плагинов. Код рекурсивного поиска
+    плагинов приведён ниже.
+  <li>Задайте своим плагинам отличное от &quot;dll&quot;
+    расширение. Т.к. сами плагины могут
+    использовать внешние dll библиотеки.</li>
+</ul>
+<p>&nbsp;</p>
+<p>А вот пример функции, которая рекурсивно
+находит все файлы в папке с плагинами:</p>
+<pre class=code>
+// Массив со всеми файлами, включая путь
+// относительно папки с плагинами
+CStringArray PluginsArray;
+
+// задаётся путь к папке с плагинами
+CString sPlugInsPath=&quot;Plugins\\&quot;;
+
+void GetPlugInFiles(CString sPath)
+{
+  if (PluginsArray.GetSize()&gt;=512)
+    return;
+
+  CString sStr;
+  CString sCurFullPath=sPlugInsPath;
+
+  sCurFullPath+=sPath;
+  sCurFullPath+=&quot;*&quot;;
+
+  WIN32_FIND_DATA FindData;
+  HANDLE hFindFiles=FindFirstFile(sCurFullPath,&amp;FindData);
+
+  if (hFindFiles==INVALID_HANDLE_VALUE)
+    return;
+
+  for(;;)
+  {
+    if ((strcmp(FindData.cFileName,&quot;.&quot;)!=0) &amp;&amp; (strcmp(FindData.cFileName,&quot;..&quot;)!=0))
+    {
+      if (FindData.dwFileAttributes&amp;FILE_ATTRIBUTE_DIRECTORY)
+      {
+         sStr=sPath;
+         sStr+=FindData.cFileName;
+         sStr+=&quot;\\&quot;;
+         GetPlugInFiles(sStr);
+      }
+      else
+      {
+         char *ptr=strrchr(FindData.cFileName,'.');
+         if (ptr &amp;&amp; strlen(ptr)==4)
+         {
+           if (ptr[1]=='x' &amp;&amp; ptr[2]=='x' &amp;&amp; ptr[3]=='x')
+           {
+             CString sPath1=sPath;
+             sPath1+=FindData.cFileName;
+             PluginsArray.Add(sPath1);
+           }
+         }
+      }
+    }
+
+    if (!FindNextFile(hFindFiles,&amp;FindData)) break;
+  }
+
+  FindClose(hFindFiles);
+}</pre>
+<p>&nbsp;</p>
+<p><code>GetPlugInFiles(&quot;&quot;); // так вызывается функция.</code></p>
+
+<p>После такого вызова массив PluginsArray будет заполнен.</p>
+
+</body>
+
+</html>

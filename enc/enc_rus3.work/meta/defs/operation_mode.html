@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Operation mode</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Operation mode</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">типы и определения</a>
+</div>
+
+<div class=shortdescr>
+Параметр <dfn>OpMode</dfn> передаёт плагину дополнительную информацию о режиме функции и месте, откуда она была вызвана. <dfn>OpMode</dfn> может быть
+комбинацией следующих констант (перечисление <a name="OPERATION_MODES">OPERATION_MODES</a>):
+</div>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Метод</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_SILENT">OPM_SILENT</a></td>
+<td class="cont" width="60%">Плагин должен минимизировать запросы пользователя по возможности, так как вызываемая функция - это часть более комплексной операции.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_FIND">OPM_FIND</a></td>
+<td class="cont" width="60%">Функция плагина была вызвана из Диалога поиска файлов, или другой команды, сканирующей каталоги. Экранный вывод должен быть минимизирован.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_VIEW">OPM_VIEW</a></td>
+<td class="cont" width="60%">Функция плагина вызвана как часть операции просмотра файла. Если файл просматривается на панели быстрого просмотра, то OPM_VIEW используется совместно с OPM_QUICKVIEW.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_QUICKVIEW">OPM_QUICKVIEW</a></td>
+<td class="cont" width="60%">Функция плагина вызвана как часть операции просмотра файла на панели быстрого просмотра (пользователь нажал <kbd>Ctrl-Q</kbd> в панелях).</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_EDIT">OPM_EDIT</a></td>
+<td class="cont" width="60%">Функция плагина вызвана как часть операции редактирования файла.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_DESCR">OPM_DESCR</a></td>
+<td class="cont" width="60%">Функция была вызвана для запроса или для изменения файла и его описания.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_TOPLEVEL">OPM_TOPLEVEL</a></td>
+<td class="cont" width="60%">Все файлы в плагине будут обработаны. Этот флаг устанавливается во время обработки команд <kbd>Shift-F2</kbd> и <kbd>Shift-F3</kbd> вне базового файла плагина.
+Переданный в функцию плагина список также содержит всю необходимую информацию, поэтому плагин может игнорировать этот флаг, или же повысить скорость операции.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="OPM_PGDN">OPM_PGDN</a></td>
+<td class="cont" width="60%">Функция плагина вызвана после нажатия <kbd>Ctrl-PgDn</kbd> в панелях.</td></tr>
+</table>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>,
+<a href="../exported_functions/putfilesw.html">PutFilesW</a>,
+<a href="../exported_functions/processhostfilew.html">ProcessHostFileW</a>,
+<a href="../exported_functions/getfilesw.html">GetFilesW</a>,
+<a href="../exported_functions/deletefilesw.html">DeleteFilesW</a>,
+<a href="../exported_functions/getfinddataw.html">GetFindDataW</a>,
+<a href="../exported_functions/makedirectoryw.html">MakeDirectoryW</a>
+</div>
+
+</body>
+</html>

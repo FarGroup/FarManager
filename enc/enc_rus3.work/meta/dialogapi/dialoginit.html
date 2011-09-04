@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DialogInit</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DialogInit</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">Dialog API</a> |
+<a href="dmsg/index.html">События и сообщения</a><br>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>DialogInit</dfn> инициализирует диалог, для последующего показа на экране функцией <a href="dialogrun.html">DialogRun</a>.
+</div>
+
+<pre class=syntax>
+HANDLE WINAPI DialogInit(
+  const GUID* PluginId,
+  const GUID* Id,
+  int X1,
+  int Y1,
+  int X2,
+  int Y2,
+  const wchar_t *HelpTopic,
+  const struct FarDialogItem *Item,
+  size_t ItemsNumber,
+  DWORD_PTR Reserved,
+  FARDIALOGFLAGS Flags,
+  FARWINDOWPROC DlgProc,
+  void *Param
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>PluginId</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле GlobalInfo.Guid функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class=dfn>Id</div>
+    <div class=dfndescr>Указатель на GUID диалога. GUID должен быть уникальным.</div>
+  <div class=dfn>X1, Y1, X2, Y2</div>
+    <div class=dfndescr>Геометрия диалога. Задайте эти координаты непосредственно или воспользуйтесь формулой <code>"Width x Height"</code> - для этого установите <var>X1</var> и <var>Y1</var> в -1, при этом
+    <var>X2</var> - ширина и <var>Y2</var> - высота диалога. В последнем случае при выводе на экран диалог будет автоматически центрироваться. Параметры <var>X2</var> и <var>Y2</var> не могут быть меньше нуля.</div>
+  <div class=dfn>HelpTopic</div>
+    <div class=dfndescr><a href="../language/helptopic.html">Тема подсказки</a> связанная с данным диалогом. Если подсказка не используется, то установите этот параметр в NULL.</div>
+  <div class=dfn>Item</div>
+    <div class=dfndescr>Указатель на массив структур <a href="structures/fardialogitem.html">FarDialogItem</a>. Каждая структура описывает пункт диалога.</div>
+  <div class=dfn>ItemsNumber</div>
+    <div class=dfndescr>Количество элементов массива <i>FarDialogItem</i>.</div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Зарезервировано. Должно быть рано 0.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Набор флагов, уточняющих некоторые параметры диалога. Может быть комбинацией следующих значений (перечисление <a name="FARDIALOGFLAGS">FARDIALOGFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FDLG_WARNING">FDLG_WARNING</a></td>
+    <td class="cont" width="60%">Задаёт для диалога цветовую схему "Предупреждение".</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FDLG_SMALLDIALOG">FDLG_SMALLDIALOG</a></td>
+    <td class="cont" width="60%">Позволяет создавать диалоги с уменьшенным размером рамки. Для таких диалогов при отрисовке разделительных линий (DIF_SEPARATOR) предполагается 
+    нулевой отступ между границей диалога и окружающей его двойной рамкой.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FDLG_NODRAWSHADOW">FDLG_NODRAWSHADOW</a></td>
+    <td class="cont" width="60%">Не рисовать тень диалога.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FDLG_NODRAWPANEL">FDLG_NODRAWPANEL</a></td>
+    <td class="cont" width="60%">Не рисовать поле диалога.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FDLG_KEEPCONSOLETITLE">FDLG_KEEPCONSOLETITLE</a></td>
+    <td class="cont" width="60%">Отключить установку заголовка консоли Far Manager по заголовку диалога.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>DlgProc</div>
+    <div class=dfndescr>Указатель на функцию-обработчик диалогового окна типа <a href="../defs/farwindowproc.html">FARWINDOWPROC</a>.</div>
+  <div class=dfn>Param</div>
+    <div class=dfndescr>Данные, которые обработчик диалога получит в сообщении <a href="dmsg/dn_initdialog.html">DN_INITDIALOG</a></div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Функция возвращает созданный описатель диалога, либо <i>INVALID_HANDLE_VALUE</i> в случае ошибки. <br>
+После закрытия диалога и получения нужных данных, созданный описатель диалога необходимо освободить в функции <a href="dialogfree.html">DialogFree</a>.</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>Массив элементов Item не корректируется в процессе работы пользователя с этим диалогом, он необходим только для построения самого диалога. FAR перед созданием  диалога преобразует элементы Item во внутреннее представление. </ol>
+</div>
+
+
+<h3>Пример</h3>
+<div class=descr>
+<pre class=code>
+// {B66C436D-E657-419C-86D3-6834B9ACF3D2}
+DEFINE_GUID(MainGuid, 0xb66c436d, 0xe657, 0x419c, 0x86, 0xd3, 0x68, 0x34, 0xb9, 0xac, 0xf3, 0xd2);
+
+// {F6BFA9FC-B2B9-4354-AE47-8FECF59FE65F}
+DEFINE_GUID(DialogGuid, 0xf6bfa9fc, 0xb2b9, 0x4354, 0xae, 0x47, 0x8f, 0xec, 0xf5, 0x9f, 0xe6, 0x5f);
+
+HANDLE hDlg = Info.DialogInit(&MainGuid,&DialogGuid, -1,-1,76,10, L&quot;TempCfg&quot;,DialogItems,sizeof(DialogItems)/sizeof(DialogItems[0]), 0,0,DlgProc,0);
+if (hDlg != INVALID_HANDLE_VALUE)
+{
+  int ExitCode=Info.DialogRun(hDlg);
+  if (ExitCode == 1) // вышли по Ок
+  {
+    // различные вызовы Info.SendDlgMessage() для получения нужных выходных данных из диалога
+  }
+  Info.DialogFree(hDlg);
+  if (ExitCode == 1)
+    return(TRUE);
+}
+return(FALSE);
+</pre>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="dialogrun.html">DialogRun</a> |
+<a href="defdlgproc.html">DefDlgProc</a> |
+<a href="senddlgmessage.html">SendDlgMessage</a> |
+<a href="../service_functions/index.html">сервисные функции</a> |
+<a href="../service_functions/message.html">Message</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>EditorSetParameter</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>EditorSetParameter</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="../index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>EditorSetParameter</dfn> используется в функции <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> для изменения настроек текущего редактора Far Manager.
+</div>
+
+<pre class=syntax>
+struct EditorSetParameter
+{
+  enum EDITOR_SETPARAMETER_TYPES Type;
+  union
+  {
+    int iParam;
+    wchar_t *wszParam;
+    DWORD_PTR Reserved1;
+  }
+<b>#ifndef __cplusplus</b>
+  Param
+<b>#endif</b>
+  ;
+  unsigned __int64 Flags;
+  DWORD Size;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>Type</div>
+    <div class=dfndescr>Тип настройки. Может быть одним из следующих (перечисление <a name="EDITOR_SETPARAMETER_TYPES">EDITOR_SETPARAMETER_TYPES</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Настройка</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_AUTOINDENT">ESPT_AUTOINDENT</a></td>
+    <td class="cont" width="60%">Включение/выключение режима "Автоотступ".<br>
+    <i>iParam</i> соответственно должен быть равен TRUE или FALSE.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_CHARCODEBASE">ESPT_CHARCODEBASE</a></td>
+    <td class="cont" width="60%">Указать формат показа кода текущего символа в статусной строке редактора.<br>
+    <i>iParam</i> может принимать следующие значения:
+      <ul>
+      <li>0 - восьмеричное значение (3 символа с ведущим нулями)
+      <li>1 - десятеричное значение (3 символа с ведущими пробелами)
+      <li>2 - шестнадцатеричное значение (2 символа под цифру + символ '<code>h</code>')
+      </ul>
+    </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_CODEPAGE">ESPT_CODEPAGE</a></td>
+    <td class="cont" width="60%">Изменить текущую кодировку в редакторе.<br>
+    <i>iParam</i> - код устанавливаемой кодировки. В случае неудачи <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> возвращает FALSE, кодировка не изменяется.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_CURSORBEYONDEOL">ESPT_CURSORBEYONDEOL</a></td>
+    <td class="cont" width="60%">Включение/выключение режима "Курсор за пределами строки".<br>
+    <i>iParam</i> соответственно должен быть равен TRUE или FALSE.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_EXPANDTABS">ESPT_EXPANDTABS</a></td>
+    <td class="cont" width="60%">Управление поведением замены пробелов вместо табуляции.<br>
+    <i>iParam</i> может быть одним из следующих режимов (перечисление <a name="EXPAND_TABS">EXPAND_TABS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EXPAND_NOTABS">EXPAND_NOTABS</a></td>
+    <td class="cont" width="60%"></td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EXPAND_ALLTABS">EXPAND_ALLTABS</a></td>
+    <td class="cont" width="60%"></td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EXPAND_NEWTABS">EXPAND_NEWTABS</a></td>
+    <td class="cont" width="60%"></td></tr>
+    </table>
+    <p class=note><img src="../../images/warning.gif" alt="ВНИМАНИЕ!" width="10" height="10"> ВНИМАНИЕ!</p>
+    <UL class=note>
+    <LI>Данная операция необратима, т.е. если в файле были использованы пробелы вместо табуляции, то при переходе к обычным символам табуляции присутствующие в файле
+    идущие подряд пробелы в символы табуляции преобразованы не будут.</LI></UL>
+    </td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_LOCKMODE">ESPT_LOCKMODE</a></td>
+    <td class="cont" width="60%">Включение/выключение запрета модификации текста (аналог <kbd>Ctrl-L</kbd>).<br>
+    Если <i>iParam</i> равен TRUE, то включается запрет модификации текста, если FALSE - запрет отменяется.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_SAVEFILEPOSITION">ESPT_SAVEFILEPOSITION</a></td>
+    <td class="cont" width="60%">Включение/выключение опции "Сохранять позицию файла".<br>
+    <i>iParam</i> соответственно должен быть равен TRUE или FALSE.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_SHOWWHITESPACE">ESPT_SHOWWHITESPACE</a></td>
+    <td class="cont" width="60%">Включение/выключение опции "Пробельные символы".<br>
+    <i>iParam</i> соответственно должен быть равен TRUE или FALSE.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_SETBOM">ESPT_SETBOM</a></td>
+    <td class="cont" width="60%">Включение/выключение опции "Добавить сигнатуру (BOM)" при сохранении файла в кодировке Unicode/UTF8.<br>
+    <i>iParam</i> соответственно должен быть равен TRUE или FALSE.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_SETWORDDIV">ESPT_SETWORDDIV</a></td>
+    <td class="cont" width="60%">Позволяет изменить строку символов-разделителей слов (параметр <i>wszParam</i>) для текущей копии редактора.<br>
+    Если <i>wszParam</i> равен NULL или пустой строке, то в качестве строки разделителей принимается установленное по умолчанию значение - "<code>~!%^&amp;*()+&#124;{}:"&lt;&gt;?`-=\[];',./</code>"
+    Эта строка может содержать не более 255 символов.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_GETWORDDIV">ESPT_GETWORDDIV</a></td>
+    <td class="cont" width="60%">Позволяет получить строку символов-разделителей слов длиною <i>Size</i> (в параметр <i>wszParam</i>) для текущей копии редактора.<br>
+    <i>wszParam</i> должен указывать на буфер выделенный плагином. Если <i>wszParam</i>=NULL, то <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">EditorControl</a> возвращает необходимый размер буфера в символах.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ESPT_TABSIZE">ESPT_TABSIZE</a></td>
+    <td class="cont" width="60%">Изменение размера табуляции.<br>
+    <i>iParam</i> содержит новое значение - от 1 до 512. Значение размера табуляции, выходящее за указанные границы, выставляется равным 8.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>iParam</div>
+    <div class=dfndescr>Содержит число, см. описание по конкретному типу настройки.</div>
+  <div class=dfn>wszParam</div>
+    <div class=dfndescr>Указатель на строку, оканчивающуюся нулём, см. описание по конкретному типу настройки.</div>
+  <div class=dfn>Reserved1</div>
+    <div class=dfndescr>Не используется, зарезервировано для будущего использования.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Содержит дополнительные условия/данные, см. описание по конкретному типу настройки.</div>
+  <div class=dfn>Size</div>
+    <div class=dfndescr>Содержит число, см. описание по конкретному типу настройки.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Если плагин меняет одновременно размер табуляции и состояние режима пробелы вместо табуляции, то имеет смысл применять команды в такой последовательности: сначала <code>ESPT_TABSIZE</code>, потом <code>ESPT_EXPANDTABS</code>.
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a> |
+</div>
+
+</body>
+</html>

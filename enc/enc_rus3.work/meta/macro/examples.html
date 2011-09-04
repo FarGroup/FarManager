@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Примеры - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Примеры</h1>
+<div class="navbar">
+<a href="../index.html">главная</a> |
+<a href="index.html">Макросы</a>
+</div>
+
+<pre class="codesample"><code>REGEDIT4
+
+; переход в меню выбора дисков на противоположной панели
+; включение видимости панели в которой будет происходить смена диска, если её не было
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Disks\Tab]
+"Sequence"="Esc $If (!PPanel.Visible) $If (APanel.Left) CtrlF2 $Else CtrlF1 $End $End Tab F9 Enter End Enter"
+"DisableOutput"=dword:00000001</code></pre>
+
+<pre class="codesample"><code>REGEDIT4
+
+;выделить/(снять выделение) слово(а) под курсором
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Editor\RAlt]
+"Sequence"="RCtrl9 CtrlRight CtrlLeft $If (!Selected) CtrlShiftRight $Else CtrlU $End Ctrl9"
+"DisableOutput"=dword:00000001</code></pre>
+
+<pre class="codesample"><code>REGEDIT4
+
+;создание папки с именем = текущей дате
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlShiftF7]
+"Sequence"="%folder=date(\"%d.%m0.%Y\"); $If (!panel.fexist(0,%folder)) F7 CtrlY $Text %folder Enter $End"
+"DisableOutput"=dword:00000001
+"NoPluginPanels"=dword:00000001</code></pre>
+
+<pre class="codesample"><code>REGEDIT4
+
+;искать тот же файл на другой панели что и на активной
+;F5 ShiftEnter CtrlIns - применено чтобы получить имя файла вне зависимости
+;пусто/непусто в cmdline и сколько выделено на панели файлов
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltLeft]
+"Sequence"="clip(5) $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter
+CtrlIns Esc Tab Home Alt&lt; ShiftIns Esc $End $End"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltRight]
+"Sequence"="clip(5) $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter CtrlIns
+Esc Tab Home Alt&lt; ShiftIns Esc $End $End"
+"DisableOutput"=dword:00000001
+</code></pre>
+
+<pre class="codesample"><code>REGEDIT4
+
+;выделение следующих нижних/верхних 30 файлов
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlDown]
+"Sequence"="$If (!Eof) $Rep (30) $If (Eof) Ins $Exit $Else Ins $End $End $End"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlUp]
+"Sequence"="Up $If (Bof) $If (!APanel.Root) Down $End $Exit $Else Down $End
+$If (Eof) Ins $Else Ins Up $End $Rep (29) Up Ins Up $If (Bof)
+$If (!APanel.Root) Down $End $Exit $End $End Up"
+"DisableOutput"=dword:00000001
+</code></pre>
+
+
+<pre class="codesample"><code>REGEDIT4
+
+;сграбить весь экран в текстовый файл far-screen.out
+;работает в области Dialog
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Dialog\AltP]
+"Sequence"="clip(5) AltIns CtrlHome ShiftEnd ShiftPgDn Enter Esc
+$If (!Shell) Esc $End $If (Shell &amp;&amp; !APanel.Plugin) ShiftF4 CtrlY
+\"far-screen.out\" Enter ShiftIns Enter Enter F2 Esc $End"
+"DisableOutput"=dword:00000001</code></pre>
+
+
+<pre class="codesample"><code>REGEDIT4
+
+;удаление файла/папки по клавише Del
+;если стояли на элементе .. то пытаемся удалить вышестоящую папку
+;если не в конце ком строки то удаляем символы в ней
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\Del]
+"Sequence"="$If (!CmdLine.Eof) Del $Exit $Else
+$If ((APanel.Bof &amp;&amp; !APanel.Selected) &amp;&amp;
+(!APanel.Root || APanel.Plugin)) CtrlPgUp $End F8 $End"
+"DisableOutput"=dword:00000001
+</code></pre>
+
+<pre class="codesample"><code>REGEDIT4
+
+; перед вызовом быстрого просмотра сделать пассивную панель
+; максимально большего размера.
+; для обратной операции восстановить панели.
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlQ]
+"Sequence"="Tab $If (QView) Tab Ctrl2 Tab CtrlClear $Else Tab Ctrl6 Tab
+$If (APanel.Left) $Rep (APanel.width) CtrlRight $End $Else
+$Rep (APanel.width) CtrlLeft $End $End $End Tab CtrlQ"
+"DisableOutput"=dword:00000001
+</code></pre>
+
+
+<h2>Пометить вместе с htm-файлом и парную ему папку:</h2>
+<pre class="codesample"><code>REGEDIT4
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlShiftIns]
+"Sequence"="%Current=APanel.Current; %Ext=substr(%Current,len(%Current)-6);
+$If (%Ext==\"_files\") %Name=substr(%Current,0,len(%Current)-6); $Else
+%Ext=fsplit(%Current,FSPLIT_EXT); %Name=fsplit(%Current,FSPLIT_NAME); $End
+$if (%Ext==\".htm\" || %Ext==\".html\") panel.setpos(ACTIVEPANEL,%Name+\".files\")
+panel.setpos(ACTIVEPANEL,%Name+\"_files\") $end $if (%Ext==\".files\" || %Ext==\"_files\")
+panel.setpos(ACTIVEPANEL,%Name+\".htm\") panel.setpos(ACTIVEPANEL,%Name+\".html\") $End
+$if (APanel.Current!=%Current) $If(!panel.item(ACTIVEPANEL,0,PANELITEM_SELECTED)) Ins $End
+panel.setpos(ACTIVEPANEL,%Current) $If(!panel.item(ACTIVEPANEL,0,PANELITEM_SELECTED))
+Ins $End $End mmode(1,2) mmode(1,2)"
+"DisableOutput"=dword:00000001
+
+;При непустой командной строке макрос не вызывается чтобы можно пользоваться первоначальной
+;функцией сочетания CtrlShiftIns - Поместить помеченные имена в Буфер Обмена
+"EmptyCommandLine"=dword:00000001
+</code></pre>
+
+<h2>Скроллинг текста по горизонтали:</h2>
+<p>При включённом <kbd>ScrollLock</kbd> клавиши <kbd>Left</kbd>/<kbd>Right</kbd> выполняют скроллинг текста по горизонтали</p>
+
+<pre class="codesample">
+<code>[HKEY_CURRENT_USER\Software\far2\KeyMacros\Editor\Right]
+"Sequence"="$if(flock(2,-1) == 1) editor.pos(1,5,editor.pos(0,5)+1); $else Right $end"
+"DisableOutput"=dword:00000001
+
+[HKEY_CURRENT_USER\Software\far2\KeyMacros\Editor\Left]
+"Sequence"="$if(flock(2,-1) == 1) editor.pos(1,5,editor.pos(0,5)-1); $else Left $end"
+"DisableOutput"=dword:00000001</code></pre>
+
+
+<h2>Пример использования <a href="macrocmd/prop_func/general.html#eval">eval()</a>:</h2>
+<p>Требуется по <kbd>F10</kbd> запускать окно проводника для папки на активной панели, содержимое командной строки должно сохраняться.<br>
+В области <code>Vars</code> задаём 2 строковых переменных макропроцедуры, описывающие сохранение и восстановление содержимое командной строки:</p>
+<pre class="codesample">
+<code>%%CmdSave=$If (!CmdLine.Empty) %Flg_Cmd=1;
+          %CmdCurPos=CmdLine.ItemCount-CmdLine.CurPos+1;
+          %CmdVal=CmdLine.Value; Esc $End
+
+%%CmdRestore=$If (%Flg_Cmd==1) $Text %CmdVal
+          %Flg_Cmd=0; %Num=%CmdCurPos;
+          $While (%Num!=0) %Num=%Num-1; CtrlS $End $End
+</code></pre>
+далее на <kbd>F10</kbd> вешаем макрос:
+<pre class="codesample">
+<code>$If (APanel.Visible &amp;&amp; (!APanel.Plugin || (!APanel.Bof &amp;&amp;(APanel.OPIFlags &amp; 0x20))))
+  Eval(%%CmdSave)
+  $If (APanel.Current == "..")
+    .
+    ShiftEnter
+  $Else
+    "%SystemRoot%\\explorer.exe /select,"
+    $If (Apanel.LFN)
+      CtrlN
+    $End
+    CtrlEnter
+    $If (!Apanel.LFN)
+      CtrlN
+    $End
+    Enter
+  $End
+  Eval(%%CmdRestore)
+$End</code></pre>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="about/index.html">Общие замечания</a>,
+<a href="macrokey/index.html">Работа с макросами</a>,
+<a href="macrocmd/index.html">Макроязык</a>,
+<a href="techinfo.html">Технические подробности</a>
+</div>
+
+</body>
+
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>$While - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$While</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a> |
+<a href="cmds.html">Макрокоманды</a>
+</div>
+
+<div class="shortdescr">
+Оператор цикла <dfn>$While</dfn> позволяет организовать в макросах циклический процесс - "Пока условие Expr истинно выполнять последовательность Sequence".
+</div>
+
+<pre class="syntax">
+<dfn>$While</dfn> <dfn>(</dfn><em>Expr</em><dfn>)</dfn> <em>Sequence</em> <dfn>$End</dfn>
+</pre>
+
+<h3>Элементы</h3>
+
+<div class="descr">
+<div class="dfn">Expr</div>
+<div class="dfndescr">Выражение</div>
+
+<div class="dfn">Sequence</div>
+<div class="dfndescr">Выполняется, пока условие <dfn>Expr</dfn> истинно.</div>
+</div>
+
+<h3>Примеры</h3>
+<div class="descr">
+<ol>
+<li>Если под курсором папка, то спозиционировать курсор на первый файл.
+<pre class="codesample"><code>$While (APanel.Folder &amp;&amp; !APanel.Eof)
+  Down
+$End</code></pre>
+</li>
+
+<li>Организация оператора <dfn>for</dfn>: "<em>for (выражение_1;выражение_2;выражение_3) оператор</em>"
+<pre class="codesample"><code>выражение_1
+$While (выражение_2)
+  оператор
+  выражение_3
+$End</code></pre>
+</li>
+</ol>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="rep.html">$Rep</a>,
+<a href="continue.html">$Continue</a>,
+<a href="../examples.html">Примеры</a>
+</div>
+
+</body>
+
+</html>

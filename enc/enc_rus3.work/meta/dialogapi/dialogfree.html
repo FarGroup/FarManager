@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DialogFree</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>DialogFree</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>DialogFree</dfn> освобождает память занятую при создании диалога функцией <a href="dialoginit.html">DialogInit</a>.
+</div>
+
+<pre class=syntax>
+void WINAPI DialogFree(
+  HANDLE hDlg
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>hDlg</div>
+    <div class=dfndescr>Описатель диалога созданный функцией <a href="dialoginit.html">DialogInit</a>. </div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Функция не возвращает значение.
+</div>
+
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+
+
+<h3>Пример</h3>
+<div class=descr>
+См. пример в функции <a href="dialoginit.html">DialogInit</a>.
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="dialoginit.html">DialogInit</a> |
+<a href="defdlgproc.html">DefDlgProc</a> |
+<a href="senddlgmessage.html">SendDlgMessage</a> |
+<a href="../service_functions/index.html">сервисные функции</a> |
+<a href="../service_functions/message.html">Message</a>
+</div>
+
+</body>
+</html>

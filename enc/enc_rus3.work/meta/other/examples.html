@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Примеры</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src="../links.js" type="text/javascript"></script>
+</head>
+
+<body>
+<h1>Примеры</h1>
+<div class=navbar>
+<a href="../index.html">главная</a>
+</div>
+
+
+<div class=smalldescr>
+В данном разделе перечислены примеры плагинов, которые находятся на официальном SVN репозитории.
+</div>
+
+<h3>Работа в редакторе:</h3>
+<div class=descr>
+
+  <div class=dfn>Align</div>
+  <div class=dfndescr>Выравнивание блока в редакторе.<br>
+  Простой плагин из разряда "Вызвали, отработал, завершился" - пример работы с
+  сервисной функцией <a href="../service_functions/editorcontrol.html">EditorControl</a>.
+  </div>
+
+  <div class=dfn>Auto wrap</div>
+  <div class=dfndescr>Auto wrap в редакторе - пример установки "хука" для
+  внутреннего редактора FAR Manager.<br>
+  Во включённом состоянии плагин
+  пропускает через себя все события от клавиатуры и мыши.
+  Используется функция <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>:
+<pre class=code>int WINAPI _export ProcessEditorInputW(const INPUT_RECORD *Rec)
+{
+  // обработка очередного KEY_EVENT
+}</pre>
+
+  </div>
+
+  <div class=dfn>Brackets</div>
+  <div class=dfndescr>Поиск и выделение парных скобок в редакторе.<br>
+  Плагин из разряда "Вызвали, отработал, завершился".<br>
+  Поиск ведётся с помощью <a href="../service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
+  установка курсора на найденную парную скобку - <a href="../service_functions/editorcontrol.html#ECTL_SETPOSITION">ECTL_SETPOSITION</a>,
+  выделение блока - <a href="../service_functions/editorcontrol.html#ECTL_SELECT">ECTL_SELECT</a>.
+  </div>
+
+  <div class=dfn>DrawLine</div>
+  <div class=dfndescr>Рисование линий.<br>
+  Вариант "хука" из разряда "Вызвали, работает, пользователь сам останавливает работу плагина".<br>
+  Используется "бесконечный цикл" с вызовом команд
+  <a href="../service_functions/editorcontrol.html#ECTL_READINPUT">ECTL_READINPUT</a> и
+  <a href="../service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>:
+<pre class=code>HANDLE WINAPI _export OpenPluginW(int OpenFrom,INT_PTR Item)
+{
+  ...
+  while (!Done)
+  {
+    Info.EditorControl(ECTL_READINPUT,&amp;rec);
+    ...
+    Info.EditorControl(ECTL_PROCESSINPUT,&amp;rec);
+  }
+  ...
+}</pre>
+
+  </div>
+
+  <div class=dfn>EditCase</div>
+  <div class=dfndescr>Изменение начертания символов (верхний/нижний регистр).<br>
+  Плагин из разряда "Вызвали, отработал, завершился".<br>
+  Строка берётся с помощью команды <a href="../service_functions/editorcontrol.html#ECTL_GETSTRING">ECTL_GETSTRING</a>,
+  преобразуется и заменяется в редакторе с помощью
+  команды <a href="../service_functions/editorcontrol.html#ECTL_SETSTRING">ECTL_SETSTRING</a>.
+  </div>
+
+  <div class=dfn>HlfViewer</div>
+  <div class=dfndescr>Плагин HlfViewer создан для помощи тем людям, которые
+   создают или изменяют hlf-файлы, а также просто хотят просмотреть тот или
+   иной hlf-файл помощи (обработка клавиши F1 с последующим вызовом
+   редактируемого HLF-файла, обработка перфикса "hlf:").
+  </div>
+</div>
+
+<h3>Прочее:</h3>
+<div class=descr>
+  <div class=dfn>HelloWorld</div>
+  <div class=dfndescr>"Здравствуй, Мир!" Этот модуль FAR предназначен
+    исключительно для учебных целей.<br>
+    Как повелось - изучение любого языка программирования начинается
+    с программы "Hello, World!". Именно это и делает данный плагин.
+  </div>
+
+  <div class=dfn>FAR Commands</div>
+  <div class=dfndescr>Плагин FAR Commands (или FARCmd) предоставляет
+    дополнительные возможности, которые можно использовать в меню пользователя,
+    ассоциаций файлов или командной строке. Показана работа с несколькими
+    префиксами.
+  </div>
+
+  <div class=dfn>FileCase</div>
+  <div class=dfndescr>Эта команда позволяет изменить регистр
+    отмеченных имён файлов в соответствии с любым из
+    нескольких доступных форматов. Это - простой плагин, воспользуйтесь им как
+    шаблоном для создания новых команд для FAR.
+  </div>
+
+
+  <div class=dfn>Network</div>
+  <div class=dfndescr>С помощью модуля просмотра сети вы можете
+    перемещаться по сети, переходить на сетевые
+    диски, отображать их на локальные диски и
+    отменять такое отображение.
+    Нажмите <code>F5</code>, чтобы отобразить выбранные диски на
+    следующие доступные буквы или <code>F6</code>, если вы хотите
+    выбрать буквы сами. <code>F8</code> отменяет уже существующее
+    отображение.
+  </div>
+
+  <div class=dfn>TmpPanel</div>
+  <div class=dfndescr>Временная панель поддерживает аналогичный
+    панели файлов интерфейс и предназначена для облегчения одновременной
+    обработки групп файлов из различных папок.
+    Плагин позволяет использовать до 10 временных панелей, каждая из
+    которых содержит отдельный список файлов.
+
+  </div>
+
+</div>
+
+</body>
+</html>

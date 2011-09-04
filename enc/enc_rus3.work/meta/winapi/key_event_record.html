@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>KEY_EVENT_RECORD</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src="../links.js" type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>KEY_EVENT_RECORD</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="../structures/index.html">структуры</a> |
+<a href="index.html">win32 структуры</a> |
+<a href="input_record.html">INPUT_RECORD</a>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>KEY_EVENT_RECORD</dfn>
+используется для получения входных событий в консольной структуре
+<dfn>INPUT_RECORD</dfn>.
+</div>
+
+<pre class=syntax>
+typedef struct _KEY_EVENT_RECORD {
+    BOOL bKeyDown;
+    WORD wRepeatCount;
+    WORD wVirtualKeyCode;
+    WORD wVirtualScanCode;
+    union {
+        WCHAR UnicodeChar;
+        CHAR  AsciiChar;
+    } uChar;
+    DWORD dwControlKeyState;
+} KEY_EVENT_RECORD;
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+    <div class=dfn>bKeyDown</div>
+    <div class=dfndescr>Равно TRUE если клавиша нажата, иначе FALSE. </div>
+    <div class=dfn>wRepeatCount</div>
+    <div class=dfndescr>Число повторов нажатия клавиши.
+    Например, когда клавиша нажата, вы можете получить пять сообщений с
+    этим членом равным 1, одно сообщение с равным 5, или несколько сообщений
+    с элементом большим, либо равным 1.</div>
+    <div class=dfn>wVirtualKeyCode</div>
+    <div class=dfndescr><a href="virtualkeycodes.html">Виртуальный код</a> клавиши, определяющий данную клавишу в независимой
+    от устройства форме.</div>
+    <div class=dfn>wVirtualScanCode</div>
+    <div class=dfndescr>Виртуальный скан-код клавиши. Определяет устройство-зависимое значение,
+    генерируемое аппаратурой клавиатуры.</div>
+    <div class=dfn>uChar</div>
+    <div class=dfndescr>Переведённый Unicode или ASCII символ, в зависимости от того,
+    использовалась Wide- или ANSI-версия функции <a href="readconsoleinput.html">ReadConsoleInput</a>.</div>
+    <div class=dfn>dwControlKeyState</div>
+    <div class=dfndescr>Состояние управляющих клавиш. Может быть комбинацией следующих значений:
+
+      <table class="cont">
+     <tr class="cont"><th class="cont" width="20%">Клавиша</th><th class="cont" width="20%">Значение</th><th class="cont" width="60%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="20%">CAPSLOCK_ON</td><td class="cont" width="20%">0x0080</td>
+        <td class="cont" width="60%">CAPS LOCK включён.</td>
+        </tr>
+        <tr class="cont"><td class="cont" width="20%">ENHANCED_KEY</td><td class="cont" width="20%">0x0100</td>
+        <td class="cont" width="60%">Клавиша расширенная.</td></tr>
+        <tr class="cont"><td class="cont" width="20%">LEFT_ALT_PRESSED </td><td class="cont" width="20%">0x0002</td>
+        <td class="cont" width="60%">Левый ALT нажат.</td></tr>
+        <tr class="cont"><td class="cont" width="20%">LEFT_CTRL_PRESSED </td><td class="cont" width="20%">0x0008</td>
+        <td class="cont" width="60%">Левый CTRL нажат.</td></tr>
+        <tr class="cont"><td class="cont" width="20%">NUMLOCK_ON </td><td class="cont" width="20%">0x0020</td>
+        <td class="cont" width="60%">NUM LOCK включён.</td></tr>
+        <tr class="cont"><td class="cont" width="20%">RIGHT_ALT_PRESSED </td><td class="cont" width="20%">0x0001</td>
+        <td class="cont" width="60%">Правый ALT нажат.</td></tr>
+        <tr class="cont"><td class="cont" width="20%">RIGHT_CTRL_PRESSED </td><td class="cont" width="20%">0x0004</td>
+        <td class="cont" width="60%">Правый CTRL нажат.</td></tr>
+        <tr class="cont"><td class="cont" width="20%">SCROLLLOCK_ON </td><td class="cont" width="20%">0x0040</td>
+        <td class="cont" width="60%">SCROLL LOCK включён. </td></tr>
+        <tr class="cont"><td class="cont" width="20%">SHIFT_PRESSED </td><td class="cont" width="20%">0x0010</td>
+        <td class="cont" width="60%">Клавиша SHIFT нажата.</td></tr>
+     </table>
+    </div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+  Расширенные клавиши для IBM<sup>&#174;</sup> 101- и 102-х клавишных
+  клавиатур - это INS, DEL, HOME, END, PAGE UP, PAGE DOWN, клавиши курсора,
+  клавиша divide (<code>/</code>) и ENTER на цифровой части.
+  <br>
+  Сообщения клавиатурного ввода генерируются, когда любая клавиша,
+  включая управляющую, нажата или отпущена.
+  Однако, когда клавиша ALT нажимается и отпускается, это имеет специальное значение в Windows
+  и такое событие не передаётся приложению. Также сочетание <code>CTRL+C</code>
+  не передаётся, если хендл входной консоли имеет флаг ENABLE_PROCESSED_INPUT.
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="peekconsoleinput.html">PeekConsoleInput</a>,
+<a href="readconsoleinput.html">ReadConsoleInput</a>,
+<a href="writeconsoleinput.html">WriteConsoleInput</a>,
+<a href="input_record.html">INPUT_RECORD</a>
+</div>
+
+</body>
+</html>

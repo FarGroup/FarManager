@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Области действия - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Области действия</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Общие сведения</a>
+</div>
+
+<p>FAR позволяет создавать независимые макросы (макросы, у которых
+совпадает сочетание клавиш запуска) для различных областей.</p>
+<p class="note"><img src="../../../images/warning.gif" alt="ВНИМАНИЕ!" width="10" height="10"> ВНИМАНИЕ!</p>
+<ul class="note"><li>Область, к которой будет принадлежать макрос, определяется тем местом, где его <b>начали</b> записывать.</li>
+</ul>
+
+<p>В настоящий момент такими независимыми областями являются:</p>
+<ul>
+  <li>файловые панели (<code>Shell</code>);</li>
+  <li>информационная панель (<code>Info</code>);</li>
+  <li>панель быстрого просмотра (<code>QView</code>);</li>
+  <li>панель дерева папок (<code>Tree</code>);</li>
+  <li>быстрый поиск в панелях (<code>Search</code>);</li>
+  <li>поиск папок (<code>FindFolder</code>);</li>
+  <li>внутренняя программа просмотра (<code>Viewer</code>);</li>
+  <li>редактор (<code>Editor</code>);</li>
+  <li>диалоги (<code>Dialog</code>);</li>
+  <li>прочие меню (<code>Menu</code>);</li>
+  <li>основное меню (<code>MainMenu</code>);</li>
+  <li>меню пользователя (<code>UserMenu</code>);</li>
+  <li>меню выбора диска (<code>Disks</code>);</li>
+  <li>список автодополнения (<code>AutoCompletion</code>);</li>
+  <li>система помощи (<code>Help</code>);</li>
+  <li>остальное: режим копирования текста с экрана (<code>Other</code>).</li>
+</ul>
+
+<p>Нельзя назначить на какое-либо сочетание клавиш в одной области
+несколько различных действий (это ограничение иногда можно обойти,
+воспользовавшись <a href="../macrocmd/index.html">примитивным макроязыком</a>). При попытке назначить для нового
+макроса уже используемое сочетание предыдущий макрос будет
+удалён.</p>
+
+<p>Таким образом, вы можете иметь по одному макросу с одинаковым
+сочетанием клавиш запуска в каждой из перечисленных областей.</p>
+
+<p>Имеется так же область <code>Common</code>. Макрос из этой области
+будет работать везде. При этом приоритет отдаётся перечисленным
+выше областям. Макрос из этой области нельзя <a href="../macrokey/record.html">создать</a>
+интерактивно, но можно <a href="../macrokey/delete.html">удалить</a>.</p>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="index.html">Общие замечания</a>,
+<a href="../techinfo.html">Технические подробности</a>
+</div>
+
+</body>
+
+</html>

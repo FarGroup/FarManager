@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FarListPos</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<!-- History of modification:
+-->
+<body>
+
+<h1>FarListPos</h1>
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>FarListPos</dfn> задаёт параметры для позиционирования курсора в <a href="../controls/di_listbox.html">DI_LISTBOX</a> и <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+</div>
+
+<pre class=syntax>
+struct FarListPos
+{
+  int SelectPos;
+  int TopPos;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>SelectPos</div>
+    <div class=dfndescr>Позиция текущего элемента.</div>
+  <div class=dfn>TopPos</div>
+    <div class=dfndescr>Позиция первого видимого элемента, -1 для автоматической подстройки под значение <i>SelectPos</i>.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Нумерация элементов начинается с 0.
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../dmsg/dm_listgetcurpos.html">DM_LISTGETCURPOS</a>,
+<a href="../dmsg/dm_listsetcurpos.html">DM_LISTSETCURPOS</a>,
+<a href="../../structures/index.html">структуры</a>
+</div>
+
+</body>
+</html>

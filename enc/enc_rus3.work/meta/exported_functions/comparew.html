@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>CompareW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>CompareW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a>
+</div>
+
+<div class=shortdescr>
+Плагин может экспортировать функцию <dfn>CompareW</dfn>, чтобы перекрыть используемый по умолчанию алгоритм сортировки файлов.
+</div>
+
+<pre class=syntax>
+int WINAPI CompareW(
+  const struct CompareInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/compareinfo.html">CompareInfo</a> -  информация, переданная Far Manager'ом плагину, для сортировки элементов.<br>
+    В начале функции обязательно проверьте, что поле <code>CompareInfo.StructSize >= sizeof(CompareInfo)</code>.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Эта функция возвращает одно из следующих значений типа <b>int</b>:
+<p><code>-1</code> если <i>CompareInfo.Item1 </i><code>&lt; </code><i>CompareInfo.Item2<br>
+</i><code>&nbsp;0</code> если <i>CompareInfo.Item1</i> <code>==</code> <i>CompareInfo.Item2<br>
+</i><code>&nbsp;1</code> если <i>CompareInfo.Item1</i><code> &gt;</code> <i>CompareInfo.Item2<br>
+</i><code>-2</code> если используется внутренняя функция <dfn>Compare</dfn> для данного метода сортировки.
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Для сортировки элементов Far Manager использует стандартную RTL-функцию <dfn>qsort</dfn>, которая реализует нестабильную сортировку. Иными словами, если элементы массива
+равны с точки зрения функции сравнения, на панели они будут отображаться в произвольном порядке, меняющемся при каждом перечитывании панели.
+</div>
+
+</body>
+</html>

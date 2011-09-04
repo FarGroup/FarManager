@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>CHAR_INFO</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>CHAR_INFO</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="../structures/index.html">структуры</a> |
+<a href="index.html">win32 структуры</a>
+</div>
+
+<div class=shortdescr>
+<P>Структура <B>CHAR_INFO</B> определяет Unicode- или ANSI-код символа и
+цветовые атрибуты (передний план и фон) экранной символьной ячейки.
+Эта структура используется консольными функциями для чтения и записи в
+консольный экранный буфер.
+</P>
+</div>
+
+<pre class=syntax>
+typedef struct _CHAR_INFO {
+  // Unicode or ANSI character
+  union {
+      WCHAR UnicodeChar;
+      CHAR AsciiChar;
+  } Char;
+
+  // Text and background colors
+  WORD Attributes;
+} CHAR_INFO, *PCHAR_INFO;
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+    <div class=dfn>Char</div>
+    <div class=dfndescr>Определяет Unicode- или ANSI-код символа
+      экранной ячейки в зависимости от используемых функций
+      (Unicode или ANSI).
+    </div>
+
+    <div class=dfn>Attributes</div>
+    <div class=dfndescr>
+     Атрибуты можно разделить на два класса: цвет и DBCS. Все константы определены в
+     заголовочном файле <code>Wincon.h</code>:
+
+   <table class="cont"><tr class="cont"><th class="cont" width="40%">Атрибут</th><th class="cont" width="60%">Описание</th></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="FOREGROUND_BLUE">FOREGROUND_BLUE</a></td>
+     <td class="cont" width="60%">Цвет текста содержит синий.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="FOREGROUND_GREEN">FOREGROUND_GREEN</a></td>
+     <td class="cont" width="60%">Цвет текста содержит зелёный.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="FOREGROUND_RED">FOREGROUND_RED</a></td>
+     <td class="cont" width="60%">Цвет текста содержит красный.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="FOREGROUND_INTENSITY">FOREGROUND_INTENSITY</a></td>
+     <td class="cont" width="60%">Цвет текста усилен.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="BACKGROUND_BLUE">BACKGROUND_BLUE</a></td>
+     <td class="cont" width="60%">Цвет фона содержит синий.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="BACKGROUND_GREEN">BACKGROUND_GREEN</a></td>
+     <td class="cont" width="60%">Цвет фона содержит зелёный.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="BACKGROUND_RED">BACKGROUND_RED</a></td>
+     <td class="cont" width="60%">Цвет фона содержит красный.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="BACKGROUND_INTENSITY">BACKGROUND_INTENSITY</a></td>
+     <td class="cont" width="60%">Цвет фона усилен.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="COMMON_LVB_LEADING_BYTE">COMMON_LVB_LEADING_BYTE</a></td>
+     <td class="cont" width="60%">DBCS: Leading byte.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="COMMON_LVB_TRAILING_BYTE">COMMON_LVB_TRAILING_BYTE</a></td>
+     <td class="cont" width="60%">DBCS: Trailing byte.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="COMMON_LVB_GRID_HORIZONTAL">COMMON_LVB_GRID_HORIZONTAL</a></td>
+     <td class="cont" width="60%">DBCS: Grid attribute: top horizontal.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="COMMON_LVB_GRID_LVERTICAL">COMMON_LVB_GRID_LVERTICAL</a></td>
+     <td class="cont" width="60%">DBCS: Grid attribute: left vertical.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="COMMON_LVB_GRID_RVERTICAL">COMMON_LVB_GRID_RVERTICAL</a></td>
+     <td class="cont" width="60%">DBCS: Grid attribute: right vertical.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="COMMON_LVB_REVERSE_VIDEO">COMMON_LVB_REVERSE_VIDEO</a></td>
+     <td class="cont" width="60%">DBCS: Reverse foreground and background attributes.</td></tr>
+     <tr class="cont"><td class="cont" width="40%"><a name="COMMON_LVB_UNDERSCORE">COMMON_LVB_UNDERSCORE</a></td>
+     <td class="cont" width="60%">DBCS: Underscore.</td></tr>
+     </table>
+
+     Атрибуты переднего плана (FOREGROUND_*) определяют цвет текста (символов).
+     Атрибуты фона (BACKGROUND_*) определяют цвет, которым будет заполнена текстовая ячейка.
+     Остальные атрибуты (COMMON_LVB_*) используются с <strong><span title="Double-byte Character Sets">DBCS</span></strong>.
+    </div>
+
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="win32/ReadConsoleOutput">ReadConsoleOutput</a>,
+<a href="win32/ScrollConsoleScreenBuffer">ScrollConsoleScreenBuffer</a>,
+<a href="win32/WriteConsoleOutput">WriteConsoleOutput</a>
+</div>
+
+</body>
+</html>

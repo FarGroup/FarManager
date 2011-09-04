@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>MacroControl</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>MacroControl</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">сервисные функции</a><br>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>MacroControl</dfn> позволяет управлять макрокомандами Far Manager.
+</div>
+
+<pre class=syntax>
+int WINAPI MacroControl(
+  HANDLE hHandle,
+  FAR_MACRO_CONTROL_COMMANDS Command,
+  int Param1,
+  INT_PTR Param2
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>hHandle</div>
+    <div class=dfndescr>Смотрите описание <var>Command</var> (в настоящее время значение игнорируется).</div>
+  <div class=dfn>Command</div>
+    <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_MACRO_CONTROL_COMMANDS">FAR_MACRO_CONTROL_COMMANDS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_LOADALL">MCTL_LOADALL</a></td>
+    <td class="cont" width="60%">Считать из реестра в память FAR все макросы с затиранием предыдущих значений.<br>
+    <var>Param1</var> и <var>Param2</var> игнорируются. <br>
+    Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_SAVEALL">MCTL_SAVEALL</a></td>
+    <td class="cont" width="60%">Принудительное сохранение макросов из памяти FAR в реестр.<br>
+    <var>Param1</var> и <var>Param2</var> игнорируются. <br>
+    Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_SENDSTRING">MCTL_SENDSTRING</a></td>
+    <td class="cont" width="60%">Выполнить или проверить макрос.<br>
+    <var>Param1</var> значение типа <code>FARMACROSENDSTRINGCOMMAND</code>:
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MSSC_POST">MSSC_POST</a></td>
+    <td class="cont" width="60%">Выполнить макрос.<br>
+    <var>Param2</var> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>.
+    Функция возвращает <code>TRUE</code> - макрос проанализирован и помещен в очередь, и <code>FALSE</code> - ошибка (макропоследовательность содержит ошибки). Макропоследовательность начнёт исполняться тогда, когда FAR получит управление.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MSSC_CHECK">MSSC_CHECK</a></td>
+    <td class="cont" width="60%">Проверить макрос.<br>
+    <var>Param2</var> указывает на структуру <a href="../structures/macrocheckmacrotext.html">MacroCheckMacroText</a>. Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
+    </table>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETSTATE">MCTL_GETSTATE</a></td>
+    <td class="cont" width="60%">Получить статус работы макродвижка.<br>
+    <var>Param1</var> и <var>Param2</var> игнорируются. <br>
+    Функция возвращает одно из значений (перечисление <a name="FARMACROSTATE">FARMACROSTATE</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Значение</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_NOMACRO">MACROSTATE_NOMACRO</a></td>
+    <td class="cont" width="60%">макродвижок не выполняет ни какой макрос в текущий момент</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_EXECUTING">MACROSTATE_EXECUTING</a></td>
+    <td class="cont" width="60%">идёт исполнение макроса без передачи кодов клавиш в плагин</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_EXECUTING_COMMON">MACROSTATE_EXECUTING_COMMON</a></td>
+    <td class="cont" width="60%">идёт исполнение макроса; коды клавиш в плагин передаются</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_RECORDING">MACROSTATE_RECORDING</a></td>
+    <td class="cont" width="60%">идёт запись макроса без передачи кодов клавиш в плагин</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_RECORDING_COMMON">MACROSTATE_RECORDING_COMMON</a></td>
+    <td class="cont" width="60%">идёт запись макроса; коды клавиш в плагин передаются</td></tr>
+    </table>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETAREA">MCTL_GETAREA</a></td>
+    <td class="cont" width="60%">Получить текущую макрообласть.<br>
+    <var>Param1</var> и <var>Param2</var> игнорируются. <br>
+    Функция возвращает значение типа <code>FARMACROAREA</code>:
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Значение</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_OTHER</a></td>
+    <td class="cont" width="60%">режим копирования текста с экрана</tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_SHELL</a></td>
+    <td class="cont" width="60%">файловые панели</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_VIEWER</a></td>
+    <td class="cont" width="60%">внутренняя программа просмотра</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_EDITOR</a></td>
+    <td class="cont" width="60%">редактор</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_DIALOG</a></td>
+    <td class="cont" width="60%">диалоги</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_SEARCH</a></td>
+    <td class="cont" width="60%">быстрый поиск в панелях</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_DISKS</a></td>
+    <td class="cont" width="60%">меню выбора дисков</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_MAINMENU</a></td>
+    <td class="cont" width="60%">основное меню</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_MENU</a></td>
+    <td class="cont" width="60%">прочие меню</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_HELP</a></td>
+    <td class="cont" width="60%">система помощи</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_INFOPANEL</a></td>
+    <td class="cont" width="60%">информационная панель</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_QVIEWPANEL</a></td>
+    <td class="cont" width="60%">панель быстрого просмотра</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_TREEPANEL</a></td>
+    <td class="cont" width="60%">панель дерева папок</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_FINDFOLDER</a></td>
+    <td class="cont" width="60%">панель поиска папок</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_USERMENU</a></td>
+    <td class="cont" width="60%">пользовательское меню</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_AUTOCOMPLETION</a></td>
+    <td class="cont" width="60%">список автодополнения</td></tr>
+    </table>
+
+   </table>
+   </div>
+  <div class=dfn>Param1</div>
+    <div class=dfndescr>Указывает на <var>Параметр1</var> команды. Смотрите описание <var>Command</var>.</div>
+  <div class=dfn>Param2</div>
+    <div class=dfndescr>Указывает на <var>Параметр2</var> команды. Смотрите описание <var>Command</var>.</div>
+</div>
+
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Смотрите описание <var>Command</var>.
+</div>
+
+<h3>Пример</h3>
+<pre class=code>
+</pre>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="control.html">Control</a></div>
+</body>
+</html>

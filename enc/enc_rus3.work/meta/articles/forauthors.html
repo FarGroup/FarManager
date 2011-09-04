@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Для авторов</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+
+<body>
+<h1>Для авторов</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">статьи</a>
+</div>
+
+<div class=smalldescr>
+Здесь описываются некоторые моменты оформления и организации статей для Энциклопедии.
+</div>
+
+<ol>
+<li>Ссылка "внутрь" Энциклопедии (например, для структуры PluginStartupInfo):<br><br>
+<code>&lt;a href="mk:@MSITStore:pluginsr.chm::/html/structures/pluginstartupinfo.html"&gt;PluginStartupInfo&lt/a&gt;</code><br><br>
+Здесь следует учесть структуры каталогов pluginsr.chm и принципы наименования статей:<br><br>
+<ul>
+<li>имена html-файлов в основном соответствуют названиям функций и структур;
+<li>все html-файлы внутри pluginsr.chm в нижнем регистре;
+<li>html-файлы раскиданы по подкаталогам в соответствии со своими функциональными назначениями, например, основные структуры
+располагаются в <code>pluginsr.chm::/html/structures/</code>, структуры Dialog API в <code>pluginsr.chm::/html/dialogapi/structures/</code>
+и т.п.
+</ul>
+<br>
+Для анализа структуры Энциклопедии лучше всего воспользоваться плагином
+<a href="http://plugring.farmanager.com/cgi-bin/downld.cgi?Draw=List&Select=PlugIn&SelectPlugIn=59" target="_blank">DocFile browser</a>
+<br>
+<br>
+
+<li>Ссылка на WinAPI функцию (не описанную в Энциклопедии) для Вашей статьи
+(например, для функции GetLastError):<br><br>
+<code>&lt;a href="win32/GetLastError"&gt;GetLastError&lt;/a&gt;</code><br><br>
+специальным скриптом такая ссылка преобразуется в &lt;object&gt;, как указано ниже.
+<br>
+<br>
+
+<li>Ссылка на WinAPI функцию (не описанную в Энциклопедии) для самостоятельного CHM-файла (например, для функции GetLastError):<br><br>
+<code>&lt;a href=JavaScript:<b>linkXXXX</b>.Click()&gt;GetLastError&lt;/a&gt;<br>
+&lt;object id=<b>linkXXXX</b> type="application/x-oleobject" classid="clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11"&gt;<br>
+&lt;param name="Command" value="KLink"&gt;<br>
+&lt;param name="DefaultTopic" value=""&gt;<br>
+&lt;param name="Item1" value=""&gt;<br>
+&lt;param name="Item2" value="GetLastError"&gt;<br>
+&lt;/object&gt;</code><br><br>
+Здесь <b>linkXXXX</b> - уникальный ID объекта в пределах одной HTML-страницы.<br><br>
+При этом, если CHM-файл <a href="../other/setuphelp.html">внедрён в MSDN</a>, то выбор ссылки приведёт к
+открытию соответствующей статьи из MSDN. Если MSDN`а поблизости нет, то пользователь получит сообщение:<br><br>
+<img src="../../images/notfound.gif" width=335 height=119>
+<br>
+<br>
+
+
+<li>Ссылка на WinAPI функцию (не описанную в Энциклопедии) для Интернета (например, для функции GetLastError):<br><br>
+<code>&lt;a href="../other/notfound.html?GetLastError"&gt;GetLastError&lt;/a&gt;</code><br><br>
+
+Предполагается, что "notfound.html" располагается в "корне" проекта и браузер пользователя MSIE 4.x и выше.<br>
+Содержимое файла:
+<pre class=code>
+&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+&lt;title&gt;Внешняя ссылка&lt;/title&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=Windows-1251"&gt;
+&lt;link rel="stylesheet" type="text/css" href="../styles/styles.css"&gt;
+&lt;script language="javascript" type="text/javascript"&gt;&lt;!--
+var roll = document.images != null;
+function DrawNotFound(){
+ if (roll &amp;&amp; navigator.userAgent.indexOf("Mozilla", 0) != -1){
+  var agent = navigator.userAgent.toLowerCase();
+  if(agent.indexOf("msie 4")&gt;0 || agent.indexOf("msie 5")&gt;0 || agent.indexOf("msie 6")&gt;0){
+   f=document.location.href.indexOf("?");
+   if(f &gt; 0){
+    qu=document.location.href.substring(f+1);
+    str=" по &lt;a href='http://search.microsoft.com/default.asp?boolean=ALL&amp;"
+    str=str+"nq=NEW&amp;so=RECCNT&amp;p=1&amp;ig=01&amp;i=00&amp;i=01&amp;i=02&amp;"
+    str=str+"i=03&amp;i=04&amp;i=05&amp;i=06&amp;i=07&amp;i=08&amp;i=09&amp;i=10&amp;"
+    str=str+"i=11&amp;i=12&amp;i=13&amp;i=14&amp;i=15&amp;i=16&amp;i=17&amp;i=18&amp;"
+    str=str+"i=19&amp;i=20&amp;i=21&amp;i=22&amp;i=23&amp;i=24&amp;i=25&amp;i=26&amp;"
+    str=str+"i=27&amp;i=28&amp;i=29&amp;i=30&amp;i=31&amp;i=32&amp;i=33&amp;i=34&amp;"
+    str=str+"i=35&amp;i=36&amp;i=37&amp;i=38&amp;i=39&amp;i=40&amp;i=41&amp;"
+    str=str+"siteid=us/dev&amp;qu=" + qu + "' target='_blank' style='font-weight:bold;'&gt;"
+    str=str+ qu+ "&lt;/a&gt; ";
+    inf.innerHTML=str
+   }
+  }
+ }
+}
+//--&gt;&lt;/script&gt;
+&lt;/head&gt;
+
+&lt;body onload="DrawNotFound()"&gt;
+
+&lt;h1&gt;404 - Информация недоступна&lt;/h1&gt;
+&lt;div class="navbar"&gt;
+  &lt;a href="index.html"&gt;главная&lt;/a&gt;
+&lt;/div&gt;
+
+&lt;div class="descr"&gt;
+Запрашиваемая информация &lt;span id="inf"&gt;&lt;/span&gt; находится где-то в дебрях
+&lt;b&gt;&lt;a href="http://msdn.microsoft.com/library/" target="_blank"&gt;MSDN Library&lt;/a&gt;&lt;/b&gt;.
+
+&lt;/body&gt;
+
+&lt;/html&gt;
+</pre>
+<br>
+<br>
+
+
+</ol>
+
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Editor</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Editor</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">сервисные функции</a><br>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>Editor</dfn> позволяет открыть внутренний редактор Far Manager.
+</div>
+
+<pre class=syntax>
+int WINAPI Editor(
+  const wchar_t *FileName,
+  const wchar_t *Title,
+  int X1,
+  int Y1,
+  int X2,
+  int Y2,
+  EDITOR_FLAGS Flags,
+  int StartLine,
+  int StartChar,
+  UINT CodePage
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>FileName</div>
+    <div class=dfndescr>Файл для редактирования. Если не указан флаг <dfn>EF_CREATENEW</dfn>, то <i>FileName</i> должен содержать имя существующего файла.</div>
+  <div class=dfn>Title</div>
+    <div class=dfndescr>Текстовая строка, которая будет показана вверху окна редактора. Если этот параметр равен <code>NULL</code>, то используется имя файла.</div>
+  <div class=dfn>X1, Y1, X2, Y2</div>
+    <div class=dfndescr>Координаты окна редактора. Если координата <i>X2</i> или <i>Y2</i> равна -1, то она будет замещена соответственно шириной или высотой экрана.
+    Если координата <i>X1</i> или <code>Y1</code> меньше нуля, то считается, что она равна нулю.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Флаги редактора. Может быть комбинацией следующих значений (перечисление <a name="EDITOR_FLAGS">EDITOR_FLAGS</a>):<br>
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_NONMODAL">EF_NONMODAL</a></td>
+    <td class="cont" width="60%">Создать немодальное окно редактора. Если этот флаг присутствует, пользователь сможет переключаться между редактором и другими окнами Far Manager.
+    <p>Плагин получит управление только после закрытия или ухода из открытого редактора (например, пользователь нажал <kbd>Ctrl-Tab</kbd>).
+    Если вам нужно, чтобы плагин получал управление сразу же после открытия редактора, то используйте флаг <dfn>EF_IMMEDIATERETURN</dfn>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_IMMEDIATERETURN">EF_IMMEDIATERETURN</a></td>
+    <td class="cont" width="60%">Позволяет плагину получать управление сразу же после открытия редактора.
+    Открываемый редактор становится активным. Выставлять этот флаг имеет смысл <u>только</u> в паре с флагом <dfn>EF_NONMODAL</dfn>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_DELETEONCLOSE">EF_DELETEONCLOSE</a></td>
+    <td class="cont" width="60%">Поручает Far Manager'у удалить редактируемый файл после закрытия редактора.
+    Если в директории, содержащей редактируемый файл, нет других файлов, она также будет удалена. Если требуется удаление только файла, то используйте <dfn>EF_DELETEONLYFILEONCLOSE</dfn>.<br>
+    Файл не удаляется:
+    <ol>
+       <li>если было произведено переключение по <kbd>F6</kbd> и если существуют другие открытые вьюеры/редакторы с этим же файлом.
+       <li>если файл был сохранён из редактора.
+    </ol></td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_DELETEONLYFILEONCLOSE">EF_DELETEONLYFILEONCLOSE</a></td>
+    <td class="cont" width="60%">Аналог <dfn>EF_DELETEONCLOSE</dfn>, но удаляется только файл. Этот флаг имеет более низкий приоритет при обработке, чем <dfn>EF_DELETEONCLOSE</dfn>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_CREATENEW">EF_CREATENEW</a></td>
+    <td class="cont" width="60%">Создать новый файл на диске. Вызов редактора с этим флагом аналогичен вызову редактора по <kbd>Shift+F4</kbd> в панелях.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_ENABLE_F6">EF_ENABLE_F6</a></td>
+    <td class="cont" width="60%">Разрешает переключение по <kbd>F6</kbd> из редактора во вьюер.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_DISABLEHISTORY">EF_DISABLEHISTORY</a></td>
+    <td class="cont" width="60%">Запретить добавление имени файла в историю редактирования (<kbd>Alt-F11</kbd>). По умолчанию имя в историю добавляется.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_LOCKED">EF_LOCKED</a></td>
+    <td class="cont" width="60%">При открытии файла запретить редактирование. Пользователь сможет снять блокировку с помощью клавиш <kbd>Ctrl-L</kbd>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EF_DISABLESAVEPOS">EF_DISABLESAVEPOS</a></td>
+    <td class="cont" width="60%">Не сохранять позицию в редактируемом файле.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>StartLine</div>
+    <div class=dfndescr>Начальная строка, в которую помещаем курсор. Нумерация строк начинается с 1.</div>
+  <div class=dfn>StartChar</div>
+    <div class=dfndescr>Позиция курсора в строке. Нумерация позиции начинается с 1.</div>
+  <div class=dfn>CodePage</div>
+    <div class=dfndescr>Кодировка в которой будет открыт редактор. Можете установить значение в <var>CP_AUTODETECT</var>.</div>
+  </div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Эта функция возвращает следующие значения (перечисление <a name="EDITOR_EXITCODE">EDITOR_EXITCODE</a>):
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Возвращаемое значение</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="EEC_OPEN_ERROR">EEC_OPEN_ERROR</a></td>
+<td class="cont" width="60%">Ошибка открытия файла. Ошибка возникает в случаях, если:
+<ul>
+<li>FAR не смог выделить достаточно памяти при создании редактора (как объекта);
+<li>в качестве параметра <em>FileName</em> передали пустую строку;
+<li>в качестве параметра <em>FileName</em> было передано имя каталога;
+<li>редактируемый файл имеет RO-атрибут и пользователь в диалоге подтверждения открытия такого файла отказался от дальнейшего редактирования.
+</ul>
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="EEC_MODIFIED">EEC_MODIFIED</a></td>
+<td class="cont" width="60%">Успешное завершение. Файл был изменён. Функция <dfn>Editor</dfn> также возвращает этот код возврата при использовании флага <dfn>EF_NONMODAL</dfn>.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="EEC_NOT_MODIFIED">EEC_NOT_MODIFIED</a></td>
+<td class="cont" width="60%">Успешное завершение. Файл не был изменён.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a name="EEC_LOADING_INTERRUPTED">EEC_LOADING_INTERRUPTED</a></td>
+<td class="cont" width="60%">Загрузка файла прервана пользователем.</td></tr>
+</table>
+</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Если StartLine и StartChar равны -1, то при открытии редактора будет восстановлена предварительно сохранённая позиция в файле (если это включено в настройках).
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="viewer.html">Viewer</a>
+</div>
+
+</body>
+</html>

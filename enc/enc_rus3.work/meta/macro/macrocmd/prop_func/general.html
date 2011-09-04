@@ -1,0 +1,1504 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Общие свойства и функции - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Общие свойства и функции</h1>
+<div class="navbar">
+<a href="../../../index.html">главная</a> |
+<a href="../../index.html">Макросы</a> |
+<a href="../index.html">Макроязык</a> |
+<a href="index.html">Свойства и функции: по областям</a>
+</div>
+
+<p>Эти свойства и функции не зависят от области, в которой исполняется в данный момент макропоследовательность.</p>
+
+<h2>Логические свойства (тип: Boolean)</h2>
+<h3>Проверка области, в которой исполняется в данный момент макропоследовательность</h3>
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Свойство</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td><a name="Shell">Shell</a></td>
+    <td>файловые панели</td>
+  </tr>
+  <tr>
+    <td><a name="Info">Info</a></td>
+    <td>информационная панель</td>
+  </tr>
+  <tr>
+    <td><a name="QView">QView</a></td>
+    <td>панель быстрого просмотра</td>
+  </tr>
+  <tr>
+    <td><a name="Tree">Tree</a></td>
+    <td>панель дерева папок</td>
+  </tr>
+  <tr>
+    <td><a name="Search">Search</a></td>
+    <td>быстрый поиск в панелях</td>
+  </tr>
+  <tr>
+    <td><a name="FindFolder">FindFolder</a></td>
+    <td>поиск папок</td>
+  </tr>
+  <tr>
+    <td><a name="Viewer">Viewer</a></td>
+    <td>внутренняя программа просмотра</td>
+  </tr>
+  <tr>
+    <td><a name="Editor">Editor</a></td>
+    <td>редактор</td>
+  </tr>
+  <tr>
+    <td><a name="Dialog">Dialog</a></td>
+    <td>диалоги</td>
+  </tr>
+  <tr>
+    <td><a name="Menu">Menu</a></td>
+    <td>прочие меню</td>
+  </tr>
+  <tr>
+    <td><a name="MainMenu">MainMenu</a></td>
+    <td>основное меню</td>
+  </tr>
+  <tr>
+    <td><a name="UserMenu">UserMenu</a></td>
+    <td>пользовательское меню</td>
+  </tr>
+  <tr>
+    <td><a name="Disks">Disks</a></td>
+    <td>меню выбора дисков</td>
+  </tr>
+  <tr>
+    <td><a name="Help">Help</a></td>
+    <td>система помощи</td>
+  </tr>
+  <tr>
+    <td><a name="AutoCompletion">AutoCompletion</a></td>
+    <td>список автодополнения</td>
+  </tr>
+  <tr>
+    <td><a name="Other">Other</a></td>
+    <td>режим копирования текста с экрана</td>
+  </tr>
+</table>
+
+<h3>Разное</h3>
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Свойство</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td><a name="IsUserAdmin">IsUserAdmin</a></td>
+    <td>Far Manager запущен под Администратором?</td>
+  </tr>
+  <tr>
+    <td><a name="Fullscreen">Fullscreen</a></td>
+    <td>Far Manager работает в оконном режиме?</td>
+  </tr>
+
+</table>
+
+<h2>Свойства</h2>
+<table class="cont2 funcs">
+  <col>
+  <col>
+  <col class="descr">
+  <tr><th>Оператор</th><th>Тип</th><th>Описание</th></tr>
+  <tr>
+    <td><a name="MacroArea">MacroArea</a></td>
+    <td>String</td>
+    <td>наименование текущей макрообласти исполнения</td>
+  </tr>
+  <tr>
+    <td><a name="Far.Width">Far.Width</a></td>
+    <td>Number</td>
+    <td>ширина консоли, в которой работает Far Manager</td>
+  </tr>
+  <tr>
+    <td><a name="Far.Height">Far.Height</a></td>
+    <td>Number</td>
+    <td>высота консоли, в которой работает Far Manager</td>
+  </tr>
+  <tr>
+    <td><a name="Far.Title">Far.Title</a></td>
+    <td>String</td>
+    <td>текущий заголовок консольного окна Far Manager</td>
+  </tr>
+  <tr>
+    <td><a name="Far.UpTime">Far.UpTime</a></td>
+    <td>Number</td>
+    <td>сколько времени (в миллисекундах) работает Far Manager (своё значение для каждой запущенной копии)</td>
+  </tr>
+  <tr>
+    <td><a name="Far.PID">Far.PID</a></td>
+    <td>Number</td>
+    <td>содержит ИД текущей запущенной копии Far Manager</td>
+  </tr>
+  <tr>
+    <td><a name="Title">Title</a></td>
+    <td>String</td>
+    <td>заголовок текущего объекта</td>
+  </tr>
+  <tr>
+    <td><a name="RCounter">RCounter</a></td>
+    <td>Number</td>
+    <td>Содержит текущее значение счётчика оператора цикла <a href="../rep.html">$Rep</a>. Область видимости - текущий $Rep.
+      За пределами цикла значение константы неопределённое (любое / нет смысла использовать).</td>
+  </tr>
+</table>
+
+<h3>Мышь</h3>
+<table class="cont2 funcs">
+  <col>
+  <col>
+  <col class="descr">
+  <tr><th>Оператор</th><th>Тип</th><th>Описание</th></tr>
+  <tr>
+    <td><a name="MsX">MsX</a></td>
+    <td>Number</td>
+    <td>Координата горизонтального положения курсора мыши с момента последнего поступления мышиного события</td>
+  </tr>
+  <tr>
+    <td><a name="MsY">MsY</a></td>
+    <td>Number</td>
+    <td>Координата вертикального положения курсора мыши с момента последнего поступления мышиного события</td>
+  </tr>
+  <tr>
+    <td><a name="MsButton">MsButton</a></td>
+    <td>Number</td>
+    <td><p>Состояние клавиш мыши.</p>
+    <p>Младший бит соответствует самой левой кнопке, следующий - самой правой,
+    cледующий бит - следующая за левой клавиша.
+    Далее биты соответствуют клавишам слева направо.</p>
+    <p>Если бит установлен - клавиша нажата.</p>
+    <p>Определены следующие константы для первых пяти клавиш мыши:</p>
+      <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr>
+          <th>Значение</th>
+          <th>Описание</th>
+        </tr>
+        <tr>
+          <td>0x0001</td>
+          <td>FROM_LEFT_1ST_BUTTON_PRESSED</td>
+        </tr>
+        <tr>
+          <td>0x0002</td>
+          <td>RIGHTMOST_BUTTON_PRESSED</td>
+        </tr>
+        <tr>
+          <td>0x0004</td>
+          <td>FROM_LEFT_2ND_BUTTON_PRESSED</td>
+        </tr>
+        <tr>
+          <td>0x0008</td>
+          <td>FROM_LEFT_3RD_BUTTON_PRESSED</td>
+        </tr>
+        <tr>
+          <td>0x0010</td>
+          <td>FROM_LEFT_4TH_BUTTON_PRESSED</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td><a name="MsCtrlState">MsCtrlState</a></td>
+    <td>Number</td>
+    <td>Состояние управляющих клавиш. Может быть комбинацией следующих значений:
+      <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr>
+          <th>Значение</th>
+          <th>Описание</th>
+        </tr>
+        <tr>
+          <td>0x0001</td>
+          <td>RIGHT_ALT_PRESSED</td>
+        </tr>
+        <tr>
+          <td>0x0002</td>
+          <td>LEFT_ALT_PRESSED</td>
+        </tr>
+        <tr>
+          <td>0x0004</td>
+          <td>RIGHT_CTRL_PRESSED</td>
+        </tr>
+        <tr>
+          <td>0x0008</td>
+          <td>LEFT_CTRL_PRESSED</td>
+        </tr>
+        <tr>
+          <td>0x0010</td>
+          <td>SHIFT_PRESSED</td>
+        </tr>
+        <tr>
+          <td>0x0020</td>
+          <td>NUMLOCK_ON</td>
+        </tr>
+        <tr>
+          <td>0x0040</td>
+          <td>SCROLLLOCK_ON</td>
+        </tr>
+        <tr>
+          <td>0x0080</td>
+          <td>CAPSLOCK_ON</td>
+        </tr>
+        <tr>
+          <td>0x0100</td>
+          <td>ENHANCED_KEY</td>
+        </tr>
+       </table>
+    </td>
+  </tr>
+  <tr>
+    <td><a name="MsEventFlags">MsEventFlags</a></td>
+    <td>Number</td>
+    <td>Состояние событий мыши:
+      <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr>
+          <th>Значение</th>
+          <th>Описание</th>
+        </tr>
+        <tr>
+          <td>0x0001</td>
+          <td>MOUSE_MOVED<br>Перемещение мыши</td>
+        </tr>
+        <tr>
+          <td>0x0002</td>
+          <td>DOUBLE_CLICK<br>Двойной клик клавиши мыши</td>
+        </tr>
+        <tr>
+          <td>0x0004</td>
+          <td>MOUSE_WHEELED<br>Перемещение колеса по вертикали</td>
+        </tr>
+        <tr>
+          <td>0x0008</td>
+          <td>MOUSE_HWHEELED<br>Перемещение колеса по горизонтали</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<h2>Функции</h2>
+
+<h3>Математические функции</h3>
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Функция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="abs">abs</a></dfn>(V)</td>
+    <td>Возвращает абсолютную величину числового аргумента <var>V</var>.</td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="max">max</a></dfn>(N1,N2)</td>
+    <td>Возвращает максимальное значение между двумя числовыми аргументами <var>N1</var> и <var>N2</var>.</td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="min">min</a></dfn>(N1,N2)</td>
+    <td>Возвращает минимальное значение между двумя числовыми аргументами <var>N1</var> и <var>N2</var>.</td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="mod">mod</a></dfn>(N1,N2)</td>
+    <td>Деление <var>N1</var> по модулю <var>N2</var>.</td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="int">int</a></dfn>(V)</td>
+    <td>Приведение значения выражения <var>V</var> к числу.</td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="float">float</a></dfn>(V)</td>
+    <td>Приведение значения выражения <var>V</var> к числу с плавающей точкой.</td>
+  </tr>
+  <tr>
+    <td>V=<dfn><a name="iif">iif</a></dfn>(Expr,True,False)</td>
+    <td>Условный оператор. Если условие <var>Expr</var> верно,
+      то возвращается <var>True</var>-выражение, иначе <var>False</var>-выражение.<br>
+      Если <var>Expr</var> строка и она не пуста, то возвращается <var>True</var>-выражение, иначе <var>False</var>-выражение.
+      </td>
+  </tr>
+</table>
+
+<h3>Строковые функции</h3>
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Функция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="index">index</a></dfn>(S1,S2[,CaseSensitive])</td>
+    <td><p>Если подстрока <var>S2</var> содержится в строке <var>S1</var>, то возвращается её позиция, иначе -1.</p>
+      <p>Необязательный параметр <var>CaseSensitive</var> задаёт режим сравнения: 0 (по умолчанию) - без учёта регистра, 1 - с учётом регистра.</p>
+      </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="rindex">rindex</a></dfn>(S1,S2[,CaseSensitive])</td>
+    <td><p>Если подстрока <var>S2</var> содержится в строке <var>S1</var>,
+      то возвращается её позиция, иначе -1.</p>
+      <p>Поиск ведётся от конца строки <var>S1</var>.</p>
+      <p>Необязательный параметр <var>CaseSensitive</var> задаёт режим сравнения: 0 (по умолчанию) - без учёта регистра, 1 - с учётом регистра.</p>
+      </td>
+  </tr>
+  <tr>
+    <td>Result=<dfn><a name="replace">replace</a></dfn>(Str,Find,Replace[,Cnt[,CaseSensitive]])</td>
+    <td><p>В строке <var>Str</var> заменить подстроку <var>Find</var> на подстроку <var>Replace</var> <var>Cnt</var> раз.</p>
+      <p>Если параметр <var>Cnt</var> меньше или равен 0, либо опущен, то будут заменены все
+      вхождения <var>Find</var>.</p>
+      <p>Возвращается результат замены.</p>
+      <p>Необязательный параметр <var>CaseSensitive</var> задаёт режим сравнения: 0 (по умолчанию) - без учёта регистра, 1 - с учётом регистра.</p>
+      <p>Замечания:</p>
+      <ul class="nomarker">
+      <li>если <var>Find</var> - пустая строка, то возвращается <var>Str</var> без преобразований;</li>
+      <li>если <var>Replace</var> - пустая строка, то возвращается копия <var>Str</var>, в которой удалены все подстроки <var>Find</var>;</li>
+      <!-- li>если <var>Str</var> - пустая строка, то возвращается... пустая строка.</li -->
+      </ul>
+
+      </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="asc">asc</a></dfn>(S)</td>
+    <td>Возвращает код символа <var>S</var>.</td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="chr">chr</a></dfn>(N)</td>
+    <td>Возвращает символ, заданный кодом <var>N</var>.</td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="itoa">itoa</a></dfn>(N[,Radix])</td>
+    <td><p>Конвертирует целое число <var>N</var> в строку.</p>
+    <p>Значение <var>Radix</var> определяет основание, которое должно использоваться при
+    преобразовании числа <var>N</var>. Допустимые значения <var>Radix</var> от 2 до 36.</p>
+    <p>Если параметр <var>Radix</var> не указан, то подразумевается основание 10.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="atoi">atoi</a></dfn>(S[,Radix])</td>
+    <td><p>Конвертирует строку <var>S</var> в число.</p>
+    <p>Значение <var>Radix</var> определяет основание, которое будет использоваться при
+    преобразовании строки <var>S</var>. Допустимые значения <var>Radix</var> от 2 до 36.</p>
+    <p>Если параметр <var>Radix</var> не указан или равен 0, то функция попытается сама определить, в каком виде представлено строковое представление числа.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="len">len</a></dfn>(S)</td>
+    <td>Возвращает длину строки <var>S</var>.</td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="string">string</a></dfn>(V)</td>
+    <td>Перевод значения выражения <var>V</var> в строку.</td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="substr">substr</a></dfn>(V,start[,length])</td>
+    <td><p>Возвращает подстроку из выражения <var>V</var> начиная с позиции <var>start</var> длиной <var>length</var>.</p>
+      <p>Если <var>start</var> &gt;= 0, то вернётся подстрока, начиная с позиции <var>start</var> от начала строки.</p>
+      <p>Если <var>start</var> &lt; 0, то вернётся подстрока, начиная с позиции <var>start</var> от конца строки.</p>
+      <p>Если <var>length</var> &gt; 0, то возвращаемая подстрока будет состоять максимум из <var>length</var> символов исходной строки начиная с позиции <var>start</var>.</p>
+      <p>Если <var>length</var> &lt; 0, то в возвращаемой подстроке будет отсутствовать <var>length</var> символов от конца исходной строки, при том, что она будет начинаться с позиции <var>start</var>.</p>
+      <p>Если <var>length</var> = 0, то возвращается пустая строка.</p>
+      <p>Примеры</p>
+      <table class="cont2 params lite tiny">
+        <col>
+        <col>
+        <tr>
+          <th>Вызов</th>
+          <th>Результат</th>
+        </tr>
+         <tr><td>substr("abcdef", 1)</td><td>возвращает "bcdef"</td></tr>
+         <tr><td>substr("abcdef", 1, 3)</td><td>возвращает "bcd"</td></tr>
+         <tr><td>substr("abcdef", 0, 4)</td><td>возвращает "abcd"</td></tr>
+         <tr><td>substr("abcdef", 0, 8)</td><td>возвращает "abcdef"</td></tr>
+
+         <tr><td>substr("abcdef", -1)</td><td>возвращает "f"</td></tr>
+         <tr><td>substr("abcdef", -2)</td><td>возвращает "ef"</td></tr>
+         <tr><td>substr("abcdef", -3, 1)</td><td>возвращает "d"</td></tr>
+
+         <tr><td>substr("abcdef", 0, -1)</td><td>возвращает "abcde"</td></tr>
+         <tr><td>substr("abcdef", 2, -1)</td><td>возвращает "cde"</td></tr>
+         <tr><td>substr("abcdef", 4, -4)</td><td>возвращает ""</td></tr>
+
+         <tr><td>substr("abcdef", -3, -1)</td><td>возвращает "de"</td></tr>
+      </table>
+
+      </td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="trim">trim</a></dfn>(V[,N])</td>
+    <td>Удаляет все пробельные символы (пробелы, табуляции,
+      переводы строк и возвраты каретки) из строки <var>V</var> снаружи (<var>N</var>=0 или не указан), слева (<var>N</var>=1) или справа (<var>N</var>=2).
+      </td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="xlat">xlat</a></dfn>(S[,Flags])</td>
+    <td><p>Возвращает транслитерируемую строку <var>S</var>.</p>
+      <p>Функция аналогична макрокоманде <a href="../xlat.html">$XLat</a>, но используется в
+      выражениях. Необязательный аргумент <var>Flags</var> позволяет уточнять поведение функции:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Flags</var></th><th>Описание</th></tr>
+        <tr><td>1</td><td>переключить раскладку клавиатуры</td></tr>
+        <tr><td>2</td><td>издать системный звук</td></tr>
+       </table>
+    </td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="lcase">lcase</a></dfn>(S)</td>
+    <td>Преобразует строку <var>S</var> в нижний регистр.</td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="ucase">ucase</a></dfn>(S)</td>
+    <td>Преобразует строку <var>S</var> в верхний регистр.</td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="date">date</a></dfn>([format])</td>
+    <td><p>Возвращает текущую дату/время по формату <var>format</var>. Этот формат подобен тому, что выдаёт утилита date (Unix).</p>
+      <p>Функция поддерживает следующую спецификацию формата даты (подобен формату функции strftime):</p>
+      <table class="cont2 params lite">
+        <col class="value">
+        <col>
+        <tr>
+          <th>Формат</th>
+          <th>Описание</th>
+        </tr>
+        <tr>
+          <td>%%</td>
+          <td>символ %</td>
+        </tr>
+        <tr>
+          <td>%a</td>
+          <td>Краткое имя дня недели (<samp>Sun</samp> или <samp>Вск</samp>)</td>
+        </tr>
+        <tr>
+          <td>%A</td>
+          <td>Полное имя дня недели (<samp>Sunday</samp> или <samp>Воскресенье</samp>)</td>
+        </tr>
+        <tr>
+          <td>%b</td>
+          <td>Краткое имя месяца (<samp>Jan</samp> или <samp>Янв</samp>)</td>
+        </tr>
+        <tr>
+          <td>%B</td>
+          <td>Полное имя месяца (<samp>January</samp> или <samp>Январь</samp>)</td>
+        </tr>
+        <tr>
+          <td>%c</td>
+          <td>Дата и время в формате <code class="nobr">WDay Mnt Day HH:MM:SS yyyy</code> (<samp class="nobr">Mon Jan 10 04:11:54 2000</samp> или <samp class="nobr">Пнд Янв 10 04:11:54 2000</samp>)</td>
+        </tr>
+        <tr>
+          <td>%C</td>
+          <td>Столетие как десятичное число (00-99). 1992 =&gt; 19</td>
+        </tr>
+        <tr>
+          <td>%d</td>
+          <td>Две цифры дня месяца (01-31)</td>
+        </tr>
+        <tr>
+          <td>%D</td>
+          <td>Синоним для <code>%x</code></td>
+        </tr>
+        <tr>
+          <td>%e</td>
+          <td>Синоним для <code>%d</code>, но вместо ведущего нуля будет стоять пробел.</td>
+        </tr>
+        <tr>
+          <td>%h</td>
+          <td>Синоним для <code>%b</code></td>
+        </tr>
+        <tr>
+          <td>%H</td>
+          <td>Две цифры часа (00-23)</td>
+        </tr>
+        <tr>
+          <td>%I</td>
+          <td>Две цифры часа (01-12)</td>
+        </tr>
+        <tr>
+          <td>%j</td>
+          <td>Три цифры дня в году (001-366)</td>
+        </tr>
+        <tr>
+          <td>%k</td>
+          <td>Синоним для <code>%H</code>, но вместо ведущего нуля будет стоять пробел.</td>
+        </tr>
+        <tr>
+          <td>%l</td>
+          <td>Синоним для <code>%I</code>, но вместо ведущего нуля будет стоять пробел.</td>
+        </tr>
+        <tr>
+          <td>%L</td>
+          <td><p>Триггер, переключающий язык названий
+            месяцев и дней недели - английский/локальный.</p>
+            <p>Far Manager запрашивает у системы 2 набора наименований:</p>
+            <p>1) английские наименования месяцев и дней недели</p>
+            <p>2) наименования, соответствующие настройкам текущего
+            пользователя (<code>LOCALE_USER_DEFAULT</code>)</p>
+            <p>По умолчанию выставляются английские наименования.</p></td>
+        </tr>
+        <tr>
+          <td>%m</td>
+          <td>Месяц, как десятичное число (1-12)</td>
+        </tr>
+        <tr>
+          <td>%m0</td>
+          <td>Подобно <code>%m</code>, но с ведущим нулём (01-12)</td>
+        </tr>
+        <tr>
+          <td>%mh</td>
+          <td>Одна цифра месяца, как шестнадцатеричное число (1-C)</td>
+        </tr>
+        <tr>
+          <td>%M</td>
+          <td>Две цифры минут (00-59)</td>
+        </tr>
+        <tr>
+          <td>%n</td>
+          <td><p>Подобно переводу строки `\\n'</p>
+              <p>Внимание! В редакторе автоотступ не работает.</p></td>
+        </tr>
+        <tr>
+          <td>%p</td>
+          <td><code>AM</code> или <code>PM</code></td>
+        </tr>
+        <tr>
+          <td>%r</td>
+          <td>Подобно <code>%I:%M:%S %p</code></td>
+        </tr>
+        <tr>
+          <td>%R</td>
+          <td>Подобно <code>%H:%M</code></td>
+        </tr>
+        <tr>
+          <td>%S</td>
+          <td>Две цифры секунд (00-59)</td>
+        </tr>
+        <tr>
+          <td>%t</td>
+          <td>Подобно символу табуляции `\\t'</td>
+        </tr>
+        <tr>
+          <td>%T</td>
+          <td>Синоним <code>%X</code></td>
+        </tr>
+        <tr>
+          <td>%U</td>
+          <td>Две цифры номера недели, где Воскресенье (Sunday) является первым днём недели (00-53)</td>
+        </tr>
+        <tr>
+          <td>%v</td>
+          <td>Дата в формате <code>dd-mmm-yyyy</code> (<code>mmm</code> - в верхнем регистре)</td>
+        </tr>
+        <tr>
+          <td>%V</td>
+          <td>Неделя года в соответствии с ISO 8601:
+              <q>Если неделя, содержащая 1 Января, имеет &gt;= 4 дней в течение нового года, тогда это неделя 1; в противном случае это самая последняя нумерованная неделя прошлого года (52 или 53)</q></td>
+        </tr>
+        <tr>
+          <td>%w</td>
+          <td>День недели где 0 - Воскресенье (Sunday) (0-6)</td>
+        </tr>
+        <tr>
+          <td>%W</td>
+          <td>Две цифры номера недели, где Понедельник (Monday) является первым днём недели (00-53)</td>
+        </tr>
+        <tr>
+          <td>%x</td>
+          <td>Дата в формате подобно <code>dd&lt;sep&gt;mm&lt;sep&gt;yyyy</code> (разделитель <code>&lt;sep&gt;</code> зависит от локальных настроек; порядок дня, месяца и года зависит от локальных настроек)</td>
+        </tr>
+        <tr>
+          <td>%X</td>
+          <td>Время в формате <code>HH&lt;sep&gt;MM&lt;sep&gt;SS</code> (разделитель <code>&lt;sep&gt;</code> зависит от локальных настроек)</td>
+        </tr>
+        <tr>
+          <td>%y</td>
+          <td>Две цифры года без столетия (00-99)</td>
+        </tr>
+        <tr>
+          <td>%Y</td>
+          <td>Год со столетием (19yy-20yy)</td>
+        </tr>
+        <tr>
+          <td>%Z</td>
+          <td>Имя часового пояса или пусто, если часовой пояс не задан</td>
+        </tr>
+      </table>
+
+      В функции <dfn>date</dfn> допускается применение следующих escape-последовательностей:
+      <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr>
+          <th>Формат</th>
+          <th>Описание</th>
+        </tr>
+        <tr>
+          <td>\"</td>
+          <td>Символ "</td>
+        </tr>
+        <tr>
+          <td>\'</td>
+          <td>Символ '</td>
+        </tr>
+        <tr>
+          <td>\\</td>
+          <td>Символ '\'</td>
+        </tr>
+        <tr>
+          <td>\n</td>
+          <td>Перевод строки `\n'</td>
+        </tr>
+        <tr>
+          <td>\t</td>
+          <td>Символ табуляции `\t'</td>
+        </tr>
+        <tr>
+          <td>\a</td>
+          <td>bell</td>
+        </tr>
+        <tr>
+          <td>\b</td>
+          <td>`\b'</td>
+        </tr>
+        <tr>
+          <td>\f</td>
+          <td>`\f'</td>
+        </tr>
+        <tr>
+          <td>\v</td>
+          <td>`\v'</td>
+        </tr>
+        <tr>
+          <td>\N<br>\NN<br>\NNN</td>
+          <td>8-ричные символы из OEM кодировки</td>
+        </tr>
+        <tr>
+          <td>\xNN</td>
+          <td>16-ричные символы из OEM кодировки</td>
+        </tr>
+      </table>
+      Если аргумент <var>format</var> не указан, то Far Manager будет использовать форматную строку <code><span class="nobr">"%a %b %d %H:%M:%S %Z %Y"</span></code> (см.).
+      <!--Если аргумент <var>format</var> не указан, то Far Manager будет использовать форматную
+      строку "%a&nbsp;%b&nbsp;%d&nbsp;%H:%M:%S&nbsp;%Z&nbsp;%Y" (см.).-->
+      </td>
+  </tr>
+</table>
+
+<h3>Файловые функции</h3>
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Функция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="fsplit">fsplit</a></dfn>(path,Flags)</td>
+    <td>Разбивает путь <var>path</var> на компоненты и возвращает их комбинацию, в
+     зависимости от набора флагов <var>Flags</var>:
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th>Флаги</th><th>Описание</th></tr>
+        <tr><td>0x00000001</td><td><p>Текущий диск в формате "C:".</p>
+                                   <p>Для сетевых папок - "\\server\share"</p></td></tr>
+        <tr><td>0x00000002</td><td>Путь в формате "\Program Files\Far\"</td></tr>
+        <tr><td>0x00000004</td><td>Имя</td></tr>
+        <tr><td>0x00000008</td><td>Расширение в формате ".EXT" или пусто, если расширения нет.</td></tr>
+       </table>
+    </td>
+  </tr>
+  <tr>
+    <td>B=<dfn><a name="fexist">fexist</a></dfn>(S)</td>
+    <td><p>Проверяет существование файла/папки <var>S</var> (возвращает 0 или 1).</p>
+      <p>В параметр <var>S</var> допускается использование символов '*' и '?'. В этом случае функция
+      проверяет только первое вхождение файла/папки.</p>
+      <p>В отличии от <a href="panels.html#panel.fexist">panel.fexist()</a>, функция не работает с панелями.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="testfolder">testfolder</a></dfn>(S)</td>
+    <td><p>Тестирует папку <var>S</var>.</p>
+       <p>Возвращает:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th>Значение</th><th>Описание</th></tr>
+        <tr><td> 2</td><td>папка не пустая</td></tr>
+        <tr><td> 1</td><td>папка пустая</td></tr>
+        <tr><td> 0</td><td>папка не существует</td></tr>
+        <tr><td>-1</td><td>нет доступа</td></tr>
+        <tr><td>-2</td><td>ошибка (некорректный параметр или внутренние проблемы с выделением памяти)</td></tr>
+       </table>
+       <p>Если &gt; 0 - существует и доступна</p>
+       <p>Если = 0 - не существует, но можно попробовать создать</p>
+       <p>Если &lt; 0 - ничего обнадеживающего функция не сообщает</p>
+    </td>
+  </tr>
+  <tr>
+    <td>b=<dfn><a name="fattr">fattr</a></dfn>(S)</td>
+    <td><p>Возвращает файловые атрибуты файла/папки <var>S</var>:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th>Атрибут</th><th>Описание</th></tr>
+        <tr><td>0x00000001</td><td>FILE_ATTRIBUTE_READONLY. Файл только для чтения. Приложения могут читать такой файл, но не могут записывать или удалять его.</td></tr>
+        <tr><td>0x00000002</td><td>FILE_ATTRIBUTE_HIDDEN. Файл скрыт. Такой файл не включается в обычный листинг папки.</td></tr>
+        <tr><td>0x00000004</td><td>FILE_ATTRIBUTE_SYSTEM. Этот файл - часть операционной системы.</td></tr>
+        <tr><td>0x00000010</td><td>FILE_ATTRIBUTE_DIRECTORY. Это папка.</td></tr>
+        <tr><td>0x00000020</td><td>FILE_ATTRIBUTE_ARCHIVE. Это архивный файл. Приложения должны использовать этот флаг для копирования, архивирования или удаления.</td></tr>
+        <tr><td>0x00000080</td><td>FILE_ATTRIBUTE_NORMAL. У этого файла не установлены другие атрибуты. Это значение корректно только при использовании без остальных флагов.</td></tr>
+        <tr><td>0x00000100</td><td>FILE_ATTRIBUTE_TEMPORARY. Это временный файл. Приложения должны записывать в такой файл только в крайней необходимости. Большая часть данных файла находится в памяти и не сбрасывается на диск, так как файл будет удалён.</td></tr>
+        <tr><td>0x00000200</td><td>FILE_ATTRIBUTE_SPARSE_FILE. Файл является разрежённым.</td></tr>
+        <tr><td>0x00000400</td><td>FILE_ATTRIBUTE_REPARSE_POINT. Папка является точкой повторной обработки.</td></tr>
+        <tr><td>0x00000800</td><td>FILE_ATTRIBUTE_COMPRESSED. Файл или папка сжаты. Для файла это означает, что все данные его сжаты, для папки - что компрессия по умолчанию применяется ко всем её файлам и подпапкам.</td></tr>
+        <tr><td>0x00001000</td><td>FILE_ATTRIBUTE_OFFLINE. Данные файла не доступны непосредственно. Означает, что реальные данные файла были физически перемещены на устройства хранения.</td></tr>
+        <tr><td>0x00002000</td><td>FILE_ATTRIBUTE_NOT_CONTENT_INDEXED. Этот файл или папка не будут индексироваться службой индексирования.</td></tr>
+        <tr><td>0x00004000</td><td>FILE_ATTRIBUTE_ENCRYPTED. Файл или папка зашифрованы. Для файла это означает, что все данные в файле зашифрованы. Для папки это означает, что шифрование является умолчанием для вновь созданных файлов и подпапок.</td></tr>
+        <tr><td>0x00010000</td><td>FILE_ATTRIBUTE_VIRTUAL. Этот файл - виртуальный файл.</td></tr>
+
+       </table>
+       <p>Если файловый объект не существует, функция возвращает -1.</p>
+       <p>В параметре <var>S</var> допускается использование символов масок '*' и '?'. В этом случае функция
+       возвращает атрибуты только для первого найденного файла/папки.</p>
+       <p>В отличии от <a href="panels.html#panel.fattr">panel.fattr()</a>, функция не работает с панелями.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="fmatch">fmatch</a></dfn>(S,Mask)</td>
+    <td><p>Тестирует строку <var>S</var> на соответствие маске <var>Mask</var>.</p>
+       <p><var>Mask</var> может быть:</p>
+       <p> - маской</p>
+       <p> - списком масок (разделённых запятой или точкой с запятой)</p>
+       <p> - маской исключения - одной или несколькими масками файлов, которой не должна соответствовать строка <var>S</var>.
+       Маска исключения отделяется от основной маски символом |</p>
+       <p> - регулярным выражением. Текст регулярного выражения должен быть окружён символами /</p>
+       <p>Возвращает:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th>Значение</th><th>Описание</th></tr>
+        <tr><td> 1</td><td>строка соответствует маске</td></tr>
+        <tr><td> 0</td><td>строка не соответствует маске</td></tr>
+        <tr><td>-1</td><td>ошибка в регулярном выражении</td></tr>
+       </table>
+       <p>Примеры</p>
+       <table class="cont2 params lite tiny">
+         <col>
+         <col>
+         <tr>
+           <th>Вызов</th>
+           <th>Результат</th>
+         </tr>
+          <tr><td>FMatch("Readme.txt", "*.txt")</td><td>возвращает 1</td></tr>
+          <tr><td>FMatch("Readme.txt", "Readme.*|*.txt")</td><td>возвращает 0</td></tr>
+          <tr><td>FMatch(@"c:\Readme.txt", @"/txt$/i")</td><td>возвращает 1</td></tr>
+          <tr><td>FMatch(@"c:\Readme.txt", @"/txt$")</td><td>возвращает -1</td></tr>
+       </table>
+    </td>
+  </tr>
+</table>
+
+<h3>Взаимодействие с пользователем</h3>
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Функция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="beep">beep</a></dfn>([N])</td>
+    <td>Воспроизвести один из системных звуковых сигналов <var>N</var>.
+      <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+        <tr><th><var>N</var></th><th>Описание</th></tr>
+        <tr><td>0x00000040</td><td>Звук Звёздочка</td></tr>
+        <tr><td>0x00000030</td><td>Звук Восклицание</td></tr>
+        <tr><td>0x00000010</td><td>Звук Критическая ошибка</td></tr>
+        <tr><td>0x00000020</td><td>Звук Вопрос</td></tr>
+        <tr><td>0x0</td><td>Стандартный звук</td></tr>
+        <tr><td>0xFFFFFFFF</td><td>Стандартный звук на встроенный динамик</td></tr>
+      </table>
+       Функция возвращает 1 или 0 (в случае неудачи).
+    </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="msgbox">msgbox</a></dfn>([Title[,Text[,Flags]]])</td>
+    <td>
+      <p>Показывает сообщение <var>Text</var> с заголовком <var>Title</var>.</p>
+      <p>В параметре <var>Text</var> строки разбиваются символом '\n'.</p>
+      <p><var>Flags</var> может быть набором следующих значений:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Flags</var></th><th>Описание</th></tr>
+        <tr><td>0x00000001</td><td>Используются цвета "Предупреждения" (обычно белые буквы на красном фоне).</td></tr>
+        <!--tr><td>0x00000008</td><td>Показать сообщение двумя строками ниже.</td></tr-->
+        <tr><td>0x00000008</td><td>Использовать для строк сообщения выравнивание влево (по умолчанию строки выводятся по центру).</td></tr>
+        <tr><td>0x00010000</td><td>Выводится кнопка &lt;Ok&gt;</td></tr>
+        <tr><td>0x00020000</td><td>Выводятся кнопки &lt;Ok&gt; и &lt;Cancel&gt;</td></tr>
+        <tr><td>0x00030000</td><td>Выводятся кнопки &lt;Abort&gt;, &lt;Retry&gt; и &lt;Ignore&gt;</td></tr>
+        <tr><td>0x00040000</td><td>Выводятся кнопки &lt;Yes&gt; и &lt;No&gt;</td></tr>
+        <tr><td>0x00050000</td><td>Выводятся кнопки &lt;Yes&gt;, &lt;No&gt; и &lt;Cancel&gt;</td></tr>
+        <tr><td>0x00060000</td><td>Выводятся кнопки &lt;Retry&gt; и &lt;Cancel&gt;</td></tr>
+       </table>
+       <p>Если параметр <var>Flags</var> равен 0 (или не указан), то выводится стандартный диалог с кнопкой &lt;Ok&gt;</p>
+       <p>Функция возвращает номер выбранной кнопки (начиная с 1), или 0, если пользователь отменил сообщение</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>S=<dfn><a name="prompt">prompt</a></dfn>(Title[,Prompt[,Flags[,Src[,History]]]])</td>
+    <td><p>Функция позволяет ввести одну строку текста.</p>
+      <p>Параметры: <var>Title</var> - заголовок диалога, <var>Prompt</var> - приглашения для ввода, <var>Src</var> - начальное значение строки ввода, <var>History</var> - имя истории ввода.</p>
+      <p><var>Flags</var> может быть набором следующих значений (аналогичных константам <a href="../../../service_functions/inputbox.html#INPUTBOXFLAGS">FIB_*</a>):</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Flags</var></th><th>Описание</th></tr>
+           <tr><td>0x00000001</td><td>Даже если строка ввода пуста, функция вернёт значение (пустую строку).</td></tr>
+           <tr><td>0x00000002</td><td>Используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code>.</td></tr>
+           <tr><td>0x00000004</td><td>После успешного ввода, в результирующем значении <var>S</var> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввёл '%TEMP%', то результат будет содержать 'C:\TEMP'.</td></tr>
+           <tr><td>0x00000008</td><td>Не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если указан непустой параметр <var>History</var>.</td></tr>
+           <tr><td>0x00000010</td><td><p>Показать разделительную линию и кнопки <samp>[&nbsp;Ok&nbsp;]</samp> и <samp>[&nbsp;Cancel&nbsp;]</samp>.
+                                      Диалог увеличится на 2 строки.</p></td></tr>
+           <tr><td>0x00000020</td><td>Не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши.</td></tr>
+       </table>
+       <p>Функция возвращает строку - введённое пользователем значение.</p>
+       <p>Например, запросить пароль и вывести его:</p>
+      <pre class="codesample"><code>%s=prompt("Password","Input password:",0x02); <a href="#print">print</a>(%s)</code></pre>
+    </td>
+  </tr>
+
+  <tr>
+    <td>E=<dfn><a name="print">print</a></dfn>(Str)</td>
+    <td><p>Функция предназначена для вставки произвольного текста <var>Str</var> в редактор, командную строку, элементы ввода в диалогах, etc.</p>
+     <p> Допускается применение следующих escape-последовательностей:</p>
+      <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+        <tr><th>Формат</th><th>Описание</th></tr>
+        <tr><td>\"</td><td>Символ '"'</td></tr>
+        <tr><td>\'</td><td>Символ '''</td></tr>
+        <tr><td>\\</td><td>Символ '\'</td></tr>
+        <tr><td>\n</td><td>Переводу строки `\n'</td></tr>
+        <tr><td>\t</td><td>Табуляции `\t'</td></tr>
+        <tr><td>\a</td><td>bell</td></tr>
+        <tr><td>\b</td><td>`\b'</td></tr>
+        <tr><td>\f</td><td>`\f'</td></tr>
+        <tr><td>\v</td><td>`\v'</td></tr>
+        <tr><td>\N<br>\NN<br>\NNN</td><td>8-ричный код символа</td></tr>
+        <tr><td>\xNN</td><td>16-ричный код символа</td></tr>
+      </table>
+     <p>Функция возвращает 1.</p>
+     <p>Например, создание папки с именем, равным текущей дате:</p>
+     <pre class="codesample"><code>%Folder=<a href="#date">date</a>("%d.%m0.%Y");
+$If (!<a href="panels.html#panel.fexist">panel.fexist</a>(0,%Folder))
+  F7
+  print(%Folder)
+  Enter
+$End</code></pre>
+    </td>
+  </tr>
+  <tr>
+    <td>V=<dfn><a name="waitkey">waitkey</a></dfn>([N[,T]])</td>
+    <td><p>Ожидает любую клавишу и возвращает её название (<var>T</var>=0) или значение (<var>T</var>=1).</p>
+     <p>Если время ожидания <var>N</var> (миллисекунды) истекло, функция возвращает пустую строку (<var>T</var>=0) или 0 (<var>T</var>=1).</p>
+     <p>Если параметр <var>N</var> не указан или равен 0, то функция будет бесконечно ждать нажатия клавиши.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="key">key</a></dfn>(V)</td>
+    <td><p>Преобразует параметр <var>V</var> в строковый эквивалент названия клавиши.</p>
+     <p>Если <var>V</var> - строка, то проверяется правильность написания клавиши и она же возвращается.</p>
+     <p>Если <var>V</var> - число, то происходит попытка преобразовать значение в текстовый эквивалент названия клавиши.</p>
+     <p>В случае ошибок - возвращается пустая строка.</p>
+    </td>
+  </tr>
+</table>
+
+<h3>Взаимодействие с системой</h3>
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Функция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="env">env</a></dfn>(V)</td>
+    <td><p>Возвращает значение переменной среды <var>V</var>,
+      например,</p>
+      <pre class="codesample"><code>$if (Env("FARLANG") == "English") <em>что-то делаем</em> $end</code></pre></td>
+  </tr>
+  <tr>
+    <td>V=<dfn><a name="clip">clip</a></dfn>(Cmd[,Value])</td>
+    <td>Позволяет производить разнообразные манипуляции с Clipboard в зависимости от заданного действия <var>Action</var>:
+       <table class="cont2 params">
+       <col class="value">
+       <col>
+       <tr><th><var>Action</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td>Возвращает данные из Clipboard; параметр <var>Value</var> игнорируется; в случае ошибки возвращает 0</td></tr>
+        <tr><td>1</td><td>Поместить строку <var>Value</var> в Clipboard; в случае ошибки возвращает 0</td></tr>
+        <tr><td>2</td><td>Добавить строку <var>Value</var> к Clipboard; в случае ошибки возвращает 0</td></tr>
+        <tr><td>3</td><td>Копировать Windows Clipboard во внутренний буфер обмена; параметр <var>Value</var> игнорируется; в случае ошибки возвращает 0</td></tr>
+        <tr><td>4</td><td>Копировать внутренний буфер обмена в Windows Clipboard; параметр <var>Value</var> игнорируется; в случае ошибки возвращает 0</td></tr>
+        <tr><td>5</td><td><p>Режимы работы с буфером обмена.</p>
+          <p>По умолчанию в операциях запоминания/вставки данных Far Manager работает с буфером обмена Windows.</p>
+          <p>Функция '<code>clip(5)</code>' позволяет в пределах одного макроса переключать внутренние механизмы Far Manager для работы с/без использования буфера обмена Windows.</p>
+          <p><var>Value</var> может быть одним из:</p>
+          <table class="cont2 params lite tiny">
+          <col class="value">
+          <col>
+          <tr><th><var>Value</var></th><th>Описание</th></tr>
+            <tr><td>-1</td><td>Какой буфер обмена сейчас используется</td></tr>
+            <tr><td> 0</td><td>Переключить работу с буфера обмена OS на внутренний буфер и наоборот (работает как триггер).</td></tr>
+            <tr><td> 1</td><td>Включить буфер обмена OS</td></tr>
+            <tr><td> 2</td><td>Включить внутренний буфер обмена</td></tr>
+          </table>
+          <p>Функция возвращает предыдущее значение: 1 - буфер обмена OS, 2 - внутренний буфер.</p>
+          <p>Пример см. в разделе <a href="../../examples.html">Примеры</a>.</p>
+        </td></tr>
+       </table>
+       Например, поместить в Clipboard список отмеченных файлов в формате CSV (имя и размер):
+       <pre class="codesample"><code>сlip(1,"Name;Size\r\n")
+Home
+$While(!<a href="panels.html#APanel.Eof">APanel.Eof</a>)
+  $If(!<a href="panels.html#APanel.Folder">APanel.Folder</a> &amp;&amp; <a href="panels.html#Panel.Item">panel.item</a>(0,0,8))
+     clip(2,panel.item(0,0,0)+";"+panel.item(0,0,6)+"\r\n")
+  $End
+  Down
+$End</code></pre>
+    </td>
+  </tr>
+  <tr>
+    <td>V=<dfn><a name="flock">flock</a></dfn>(Lkey,Action)</td>
+    <td><p>Позволяет переключить состояние Lock-клавиш (<kbd>NumLock</kbd>, <kbd>CapsLock</kbd> и <kbd>ScrollLock</kbd>).</p>
+    <p>Клавиша <var>Lkey</var>:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Lkey</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td><kbd>NumLock</kbd></td></tr>
+        <tr><td>1</td><td><kbd>CapsLock</kbd></td></tr>
+        <tr><td>2</td><td><kbd>ScrollLock</kbd></td></tr>
+       </table>
+    Действие <var>Action</var>:
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Action</var></th><th>Описание</th></tr>
+        <tr><td>-1</td><td>получить состояние клавиши</td></tr>
+        <tr><td> 0</td><td>погасить индикатор</td></tr>
+        <tr><td> 1</td><td>включить индикатор</td></tr>
+        <tr><td> 2</td><td>переключить индикатор в противоположное состояние</td></tr>
+       </table>
+    <p>Функция в младшем бите возвращает предыдущее значение выбранной клавиши (или текущее, если <var>Action</var>=-1).</p>
+
+    <p>Функция капризная (возможно зависание компьютера), поэтому пользоваться ей надо осторожно.</p>
+    <p>Например, макрос, повешенный на <kbd>CtrlCapsLock</kbd> (переключение между окнами) должен иметь некую обвязку:</p>
+       <pre class="codesample"><code>CtrlShiftTab
+%a=flock(1,-1)&amp;1;
+$while((flock(1,-1)&amp;1)==%a)
+  <a href="#sleep">sleep</a>(50)
+  flock(1,2)
+$end</code></pre>
+    </td>
+  </tr>
+
+  <tr>
+    <td>N=<dfn><a name="kbdlayout">kbdlayout</a></dfn>([V])</td>
+    <td><p>Управление раскладкой клавиатуры.</p>
+      <p>Параметр <var>V</var>:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>V</var></th><th>Описание</th></tr>
+        <tr><td> 0</td><td>Вернуть текущее значение раскладки</td></tr>
+        <tr><td> 1</td><td>Переключиться на следующую раскладку (по кругу)</td></tr>
+        <tr><td>-1</td><td>Переключиться на предыдущую раскладку (по кругу)</td></tr>
+        <tr>
+         <td>Прочие значения</td><td>
+       <p>Переключиться в конкретную раскладку (например, <code>0x0409</code> или <code>0x4090409</code> - английская, <code>0x0419</code> или <code>0x04190419</code> - русская)</p>
+       <p>В случае указания несуществующей раскладки функция ошибку не выдаст и просто вернёт текущую раскладку.</p>
+         </td>
+        </tr>
+       </table>
+       <p>Функция возвращает предыдущее значение раскладки или 0 в случае ошибки (не удалось определить имя текущей раскладки для консоли или не удалось получить описатель консольного окна).</p>
+       <p>Например:</p>
+       <dl class="codesamples">
+         <dt><code><a href="#print">print</a>(<a href="#itoa">itoa</a>(kbdLayout(0x421),16))</code></dt>
+           <dd>при текущей русской раскладке просто вернёт <samp>4190419</samp></dd>
+         <dt><code>print(itoa(kbdLayout(),16))</code></dt>
+           <dd>при текущей русской раскладке вернёт <samp>4190419</samp></dd>
+         <dt><code>print(itoa(kbdLayout(0x409),16))</code></dt>
+           <dd>при текущей русской раскладке вернёт <samp>4190419</samp> и переключит рaскладку на английскую</dd>
+         <dt><code>print(itoa(kbdLayout(1),16))</code></dt>
+           <dd>при текущей русской раскладке вернёт <samp>4190419</samp> и переключит на следующую рaскладку (по кругу)</dd>
+        </dl>
+<!--
+       <table>
+         <col class="nobr">
+         <col>
+         <tr>
+           <td><code>print(itoa(kbdLayout(0x421),16))</code></td>
+           <td>при текущей русской раскладке просто вернёт <samp>4190419</samp></td>
+         </tr>
+         <tr>
+           <td><code>print(itoa(kbdLayout(),16))</code></td>
+           <td>при текущей русской раскладке вернёт <samp>4190419</samp></td>
+         </tr>
+         <tr>
+           <td><code>print(itoa(kbdLayout(0x409),16))</code></td>
+           <td>при текущей русской раскладке вернёт <samp>4190419</samp> и переключит рaскладку на английскую</td>
+         </tr>
+         <tr>
+           <td><code>print(itoa(kbdLayout(1),16))</code></td>
+           <td>при текущей русской раскладке вернёт <samp>4190419</samp> и переключит на следующую рaскладку (по кругу)</td>
+         </tr>
+       </table>
+        <pre class="codesample"><code>print(itoa(kbdLayout(0x421),16))</code></pre>
+        при текущей русской раскладке просто вернёт <samp>4190419</samp>
+        <pre class="codesample"><code>print(itoa(kbdLayout(),16))</code></pre>
+        при текущей русской раскладке вернёт <samp>4190419</samp>
+        <pre class="codesample"><code>print(itoa(kbdLayout(0x409),16))</code></pre>
+        при текущей русской раскладке вернёт <samp>4190419</samp> и переключит рaскладку на английскую
+        <pre class="codesample"><code>print(itoa(kbdLayout(1),16))</code></pre>
+        при текущей русской раскладке вернёт <samp>4190419</samp> и переключит на следующую рaскладку (по кругу)
+-->
+    </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="Window.Scroll">Window.Scroll</a></dfn>(Lines[,Axis])</td>
+    <td>Функция позволяет перемещать консольное окно по буферу.<br>
+      <var>Lines</var> - количество позиций для прокрутки: положительное число - вперёд (вниз/вправо), отрицательное - назад (вверх/влево).<br>
+      <var>Axis</var> - направление прокрутки (необязательный параметр): 0 - вертикаль (по умолчанию), 1 - горизонталь.<br>
+       Функция возвращает 0 - перемотка не состоялась (например, <var>Lines</var> был равен 0), иначе 1<br>
+
+    </td>
+  </tr>
+</table>
+
+<h3>Среда исполнения</h3>
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Функция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="sleep">sleep</a></dfn>(N)</td>
+    <td>Организация задержки в макросе на <var>N</var> миллисекунд.
+     Отрицательное значение задержки считается ошибкой и функция возвращает 0.
+    </td>
+  </tr>
+
+  <tr>
+    <td>E=<dfn><a name="msave">msave</a></dfn>(S)</td>
+    <td><p>Сохраняет значение глобальной переменной с именем <var>S</var> в область <code>Vars</code>.</p>
+     <p>Числовые значения с плавающей точкой сохраняются в реестре в виде строки.</p>
+     <p>В случае неудачи возвращает 0.</p>
+     Например, после выполения последовательности
+     <code class="sample">%%GlobalVars="Foo Bar"; %a=msave("%%GlobalVars");</code>
+     в реестре появится значение <var>%%GlobalVars</var>, содержащее "Foo Bar" (<code>REG_SZ</code>).
+    </td>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="mload">mload</a></dfn>(S)</td>
+    <td><p>Считать значение глобальной переменной с именем <var>S</var> из реестра (область <code>Vars</code>).</p>
+     <p>Функция вернёт 1 - есть такая переменная и она успешно считана в память, 0 - неудача, нет такой
+     переменной в реестре (в этом случае переменная не создаётся).
+     Если переменная была в памяти, а из реестра запись удалили, то значение в памяти не изменяется.</p>
+     Например, в реестре была переменная "<var>%%GlobalVars</var>" со значением 20 (<code>REG_QWORD</code>). После выполения последовательности
+     <code class="sample">%%GlobalVars="Foo Bar"; %a=mload("%%GlobalVars");</code>
+     <var>%%GlobalVars</var> будет равна 20.
+    </td>
+  </tr>
+  <tr>
+    <td>V=<dfn><a name="akey">akey</a></dfn>(Mode[,Type])</td>
+    <td><p>Возвращает название или код клавиши, вызвавшей макропоследовательность.</p>
+       <p><var>Mode</var> = 0 - возвращается код клавиши, <var>Mode</var> = 1 - возвращается наименование клавиши.</p>
+       <p><var>Type</var> = 0 - возвращает реально нажатое сочетание, которым вызывался макрос, <var>Type</var> = 1 - возвращает клавишу, на которую назначен макрос.</p>
+       <p>Пример см. в описании <code><a href="../akey.html">$AKey</a></code>.</p></td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="callplugin">callplugin</a></dfn>(SysID[,param])</td>
+    <td>Вызвать плагин <em>SysID</em> с параметром <em>param</em>.<br>
+     Callplugin вызывает экспортируемую функцию <a href="../../../exported_functions/openpluginw.html">OpenPluginW</a> требуемого плагина;
+     в процессе вызова никаких дополнительных прорисовок и обновлений со стороны Far Manager не производится.<br>
+     Параметр <em>param</em> может быть числом или строкой и будет передан плагину в
+     функцию OpenPluginW как есть. Дальнейшие действия зависят от того, как плагин обработал этот параметр.<br>
+     Функция возвращает 0, если вызываемого плагина нет или плагин вернул 0. В других случаях функция возвращает значение, отличное от 0.<br>
+
+     <p class=note><img src="../../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!<br><br></p>
+     <UL class=note><LI>Функция - экспериментальный прототип планируемого функционала по взаимодействию макросов и плагинов.
+     Вы используете ее на свой страх и риск. Поддержка функционала со стороны разработчиков не гарантирована.
+     После появления необходимого фунцкионала callplugin будет удалена.</LI></UL>
+     </div>
+    </td>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="eval">eval</a></dfn>(S[,Mode])</td>
+    <td>Выполнить или проверить макропоследовательность.
+       <table class="cont2 params">
+        <col class="value">
+        <col>
+        <tr><th><var>Mode</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td><p>Выполнить макропоследовательность, заданную строкой <var>S</var>.</p>
+          <p>Если <var>S</var> содержит синтаксические ошибки, то макропоследовательность исполняться не будет.</p>
+          <p>Far Manager компилирует последовательность <var>S</var>. Если нет ошибок, то состояние текущего макроса сохраняется
+          и начинает выполняться последовательность <var>S</var>. После исполнения <var>S</var> прерванный макрос продолжает работать.</p>
+          </td></tr>
+        <tr><td>1</td><td>Проверить макропоследовательность, заданную строкой <var>S</var>,
+          и вернуть код ошибки компиляции. Последовательность <var>S</var> исполняться не будет.
+          </td></tr>
+        <tr><td>2</td><td><p>Выполнить макрос, назначенный на сочетание клавиш <var>S</var>.</p>
+          <p>Параметр <var>S</var> задаётся форматом "[<var>Area</var>/]<var>Key</var>".
+          Здесь "<var>Area</var>" - макрообласть, из которой будет исполнен макрос;
+          "<em>/</em>" - разделитель;
+          "<var>Key</var>" - название клавиши.</p>
+          <ul>
+            <li><p>Если "<var>Area</var>/" указан, то будет вызван макрос, назначенный
+                на "<var>Key</var>" только в указанной области "<var>Area</var>".</p>
+                <p>Пример: <code class="sample">eval("Shell/CtrlP",2)</code></p>
+            </li>
+            <li><p>Если в качестве "<var>Area</var>/" указана строка "./", то будет вызван
+                макрос, назначенный на "<var>Key</var>" только в текущей области.</p>
+                <p>Пример: <code class="sample">eval("./CtrlP",2)</code></p>
+            </li>
+            <li><p>Если "<var>Area</var>/" не указан, то будет вызван макрос, назначенный
+                на "<var>Key</var>" в текущей области.
+                Если в текущей области "<var>Key</var>" не обнаружен, то будет выполнен
+                макрос, назначенный на "<var>Key</var>" из области <code>Common</code>.</p>
+                <p>Пример: <code class="sample">eval("CtrlP",2)</code></p>
+            </li>
+          </ul>
+            <!--
+          <p>Примеры:</p>
+          <dl class="codesamples">
+            <dt><code>eval("Shell/CtrlP",2)</code></dt>
+              <dd>вызвать макрос, назначенный на сочетание "<kbd>CtrlP</kbd>" из области "<code>Shell</code>"</dd>
+            <dt><code>eval("./CtrlP",2)</code></dt>
+              <dd>вызвать макрос, назначенный на сочетание "<kbd>CtrlP</kbd>" только из текущей макрообласти</dd>
+            <dt><code>eval("CtrlP",2)</code></dt>
+              <dd>вызвать макрос, назначенный на сочетание "<kbd>CtrlP</kbd>" из текущей макрообласти, если в текущей области "<kbd>CtrlP</kbd>" нет, то вызвать макрос из области "<code>Common</code>"</dd>
+            <dt><code>eval("Shell/Alt/",2)</code></dt>
+              <dd>вызвать макрос, назначенный на сочетание "<kbd>Alt/</kbd>" из области "<code>Shell</code>"</dd>
+            <dt><code>eval("Alt/",2)</code></dt>
+              <dd>вызвать макрос, назначенный на сочетание "<kbd>Alt/</kbd>" из текущей макрообласти, если в текущей области "<kbd>Alt/</kbd>" нет, то вызвать макрос из области "<code>Common</code>"</dd>
+            <dt><code>eval("./Alt/",2)</code></dt>
+              <dd>вызвать макрос, назначенный на сочетание "<kbd>Alt/</kbd>" только из текущей макрообласти</dd>
+          </dl>
+            -->
+          <p>Если "<var>Key</var>" не обнаружен, то функция вернёт значение "-2".</p>
+          <p>Если "<var>Key</var>" обнаружен, то состояние текущего макроса сохраняется и начинает выполняться макрос, назначенный на сочетание клавиш <var>S</var>.
+          После исполнения <var>S</var> прерванный макрос продолжает работать.</p>
+          </td></tr>
+       </table>
+
+     <p>Функция возвращает 0 в случае успешной компиляции последовательности <var>S</var> или код ошибки:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th>Ошибка</th><th>Описание</th></tr>
+        <tr><td>-1</td><td>Указаны недопустимые параметры функции</td></tr>
+        <tr><td>-2</td><td>Для <var>Mode</var>=2 сочетание клавиш <var>S</var> не найдено или макрос заблокирован</td></tr>
+        <tr><td> 1</td><td>Неизвестное ключевое слово '<em>ключевое слово</em>'</td></tr>
+        <tr><td> 2</td><td>Неизвестная функция '<em>функция</em>'</td></tr>
+        <tr><td> 3</td><td>Неверное количество параметров у функции '<em>функция</em>'</td></tr>
+        <tr><td> 4</td><td>Неожиданное появление $Else</td></tr>
+        <tr><td> 5</td><td>Неожиданное появление $End</td></tr>
+        <tr><td> 6</td><td>Неожиданный конец строки</td></tr>
+        <tr><td> 7</td><td>Ожидается '<em>ключевое слово</em>'</td></tr>
+        <tr><td> 8</td><td>Неизвестный шестнадцатеричный управляющий символ</td></tr>
+        <tr><td> 9</td><td>Неправильный управляющий символ</td></tr>
+        <tr><td>10</td><td>Переменная '<em>переменная</em>' не найдена</td></tr>
+        <tr><td>11</td><td>Ошибка синтаксиса</td></tr>
+        <tr><td>12</td><td>Пустая макропоследовательность</td></tr>
+       </table>
+     <p>Локальные переменные - общие для текущего исполняемого макроса и макропоследовательности, исполняемой функцией <dfn>eval</dfn>.</p>
+     <p>Пример см. в разделе <a href="../../examples.html">Примеры</a>.</p>
+<!--
+      <br>
+      <p>Примеры для <var>Mode</var> = 2:</p>
+      <table>
+        <col class="nobr">
+        <col>
+        <tr>
+           <td><code>eval("Shell/CtrlP",2)</code></td>
+           <td>вызвать макрос, назначенный на сочетание "<kbd>CtrlP</kbd>" из области "<code>Shell</code>"</td>
+        </tr>
+        <tr>
+           <td><code>eval("CtrlP",2)</code></td>
+           <td>вызвать макрос, назначенный на сочетание "<kbd>CtrlP</kbd>" из текущей макрообласти, если в текущей области "<kbd>CtrlP</kbd>" нет, то вызвать макрос из области "<code>Common</code>"</td>
+        </tr>
+        <tr>
+           <td><code>eval("./CtrlP",2)</code></td>
+           <td>вызвать макрос, назначенный на сочетание "<kbd>CtrlP</kbd>" только из текущей макрообласти</td>
+        </tr>
+        <tr>
+           <td><code>eval("Shell/Alt/",2)</code></td>
+           <td>вызвать макрос, назначенный на сочетание "<kbd>Alt/</kbd>" из области "<code>Shell</code>"</td>
+        </tr>
+        <tr>
+           <td><code>eval("Alt/",2)</code></td>
+           <td>вызвать макрос, назначенный на сочетание "<kbd>Alt/</kbd>" из текущей макрообласти, если в текущей области "<kbd>Alt/</kbd>" нет, то вызвать макрос из области "<code>Common</code>"</td>
+        </tr>
+        <tr>
+           <td><code>eval("./Alt/",2)</code></td>
+           <td>вызвать макрос, назначенный на сочетание "<kbd>Alt/</kbd>" только из текущей макрообласти</td>
+        </tr>
+      </table>
+
+      <ul>
+       <li>вызвать макрос, назначенный на сочетание "<kbd>CtrlP</kbd>" из области "<code>Shell</code>"<br><code>eval("Shell/CtrlP",2)</code></li>
+       <li>вызвать макрос, назначенный на сочетание "<kbd>CtrlP</kbd>" из текущей макрообласти, если в текущей области "<kbd>CtrlP</kbd>" нет, то вызвать макрос из области "<code>Common</code>"<br><code>eval("CtrlP",2)</code></li>
+       <li>вызвать макрос, назначенный на сочетание "<kbd>CtrlP</kbd>" только из текущей макрообласти<br><code>eval("./CtrlP",2)</code><br><br></li>
+
+       <li>вызвать макрос, назначенный на сочетание "<kbd>Alt/</kbd>" из области "<code>Shell</code>"<br><code>eval("Shell/Alt/",2)</code></li>
+       <li>вызвать макрос, назначенный на сочетание "<kbd>Alt/</kbd>" из текущей макрообласти, если в текущей области "<kbd>Alt/</kbd>" нет, то вызвать макрос из области "<code>Common</code>"<br><code>eval("Alt/",2)</code></li>
+       <li>вызвать макрос, назначенный на сочетание "<kbd>Alt/</kbd>" только из текущей макрообласти<br><code>eval("./Alt/",2)</code><br><br></li>
+      </ul>
+-->
+    </td>
+  </tr>
+
+  <tr>
+    <td>N=<dfn><a name="mmode">mmode</a></dfn>(Action[,Value])</td>
+    <td><p>Управление параметрами текущего макроса.</p>
+      <p>Параметр <var>Action</var>:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Action</var></th><th>Описание</th></tr>
+        <tr><td>1</td><td>позволяет изменять режим перерисовки экрана во время проигрывания макропоследовательности (запрещает вывод)</td></tr>
+       </table>
+      <p>Параметр <var>Value</var>:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Value</var></th><th>Описание</th></tr>
+        <tr><td>-1</td><td>получить текущее значение</td></tr>
+        <tr><td> 0</td><td>выключить значение <var>Action</var></td></tr>
+        <tr><td> 1</td><td>включить значение <var>Action</var></td></tr>
+        <tr><td> 2</td><td>переключить значение <var>Action</var> (триггер)</td></tr>
+       </table>
+       Функция возвращает предыдущее значение.
+    </td>
+  </tr>
+
+    <tr>
+    <td>N=<dfn><a name="history.enable">history.enable</a></dfn>([State])</td>
+    <td><p>Позволяет включать добавление пунктов в истории во время воспроизведения текущего макроса.</p>
+      <p>Необязательный параметр <var>State</var>:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th>Бит</th><th>Описание</th></tr>
+        <tr><td>0</td><td>история командной строки</td></tr>
+        <tr><td>1</td><td>история папок</td></tr>
+        <tr><td>2</td><td>история редактора/вьювера</td></tr>
+        <tr><td>3</td><td>история диалогов</td></tr>
+       </table>
+       <p>Если соответствующий бит выставлен, то история разблокируется.</p>
+       <p>Если параметр не указан, то просто возвращает текущую маску.</p>
+       <p>Функция возвращает предыдущее значение.</p>
+       <p>При старте макроса запрещено добавление во все истории.</p>
+       <p>Примеры</p>
+       <table class="cont2 params lite tiny">
+        <col>
+        <col>
+        <tr>
+          <th>Вызов</th>
+          <th>Результат</th>
+        </tr>
+         <tr><td>history.enable()</td><td>получить текущее состояние блокировок историй</td></tr>
+         <tr><td>history.enable(-1)</td><td>включить все истории</td></tr>
+         <tr><td>history.enable(5)</td><td>включить истории командной строки и редактора/вьювера, остальные отключить</td></tr>
+      </table>
+    </td>
+  </tr>
+
+    <tr>
+    <td>N=<dfn><a name="keybar.show">keybar.show</a></dfn>([Mode])</td>
+    <td><p>Позволяет управлять видимостью линейки функциональных клавиш.</p>
+      <p>Необязательный параметр <var>Mode</var>:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Mode</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td>получить состояние видимости</td></tr>
+        <tr><td>1</td><td>показать линейку</td></tr>
+        <tr><td>2</td><td>скрыть линейку</td></tr>
+        <tr><td>3</td><td>изменить состояние видимости на обратное</td></tr>
+       </table>
+       <p>Функция возвращает предыдущее состояние видимости линейки:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th>Value</th><th>Описание</th></tr>
+        <tr><td>0</td><td>скрыта</td></tr>
+        <tr><td>1</td><td>показана</td></tr>
+        <tr><td>-1</td><td>в этой макрообласти линейка клавиш не найдена</td></tr>
+       </table>
+       Действие функции актуально только для текущих панелей, редакторов, вьюверов.
+
+       <p>Например, Esc при погашенных панелях гасить и кейбар:
+       <pre class="codesample"><code>CtrlO $if (APanel.Visible &amp;&amp; PPanel.Visible) KeyBar.Show(1) $else KeyBar.Show(2) $end</code></pre>
+    </td>
+  </tr>
+
+  <tr>
+    <td>N=<dfn><a name="plugin.load">plugin.load</a></dfn>(DllPath[,ForceLoad])</td>
+    <td><p>Загрузить плагин с именем dll-модуля <var>DllPath</var>. Если указан <var>ForceLoad</var>, отличный от 0, то плагин загружается сразу в память.</p>
+       <p>Функция возвращает 1 - плагин загружен или 0 - в случае ошибки.</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>N=<dfn><a name="plugin.unload">plugin.unload</a></dfn>(DllPath)</td>
+    <td><p>Выгрузить плагин с именем dll-модуля <var>DllPath</var>.</p>
+       <p>Функция возвращает 1 - плагин выгружен или 0 - в случае ошибки.</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>V=<dfn><a name="Menu.Show">Menu.Show</a></dfn>(Items<br>[,TitleAndFooter<br>[,Flags<br>[,SelectOrFilter<br>[,X<br>[,Y]]]]])</td>
+    <td><p>Создаёт и отображает на экране меню.</p>
+      <p>Параметр <var>Items</var>: пункты меню, разделённые <code>Lf</code> ("\n") или <code>CrLf</code> ("\r\n")</p>
+      <p>Могут начинаться (возможны некоторые комбинации) со специальных символов:</p>
+                                                <table class="cont2 params lite tiny">
+                                                <col class="widevalue">
+                                                  <tr><th>Символ+пробел</th><th>Описание</th></tr>
+                                                  <tr><td><code>\1</code></td><td>сепаратор; не участвует в автонумерации/сортировке/удалении дубликатов.</td></tr>
+                                                  <tr><td><code>\2</code></td><td>пункт отмечен (возможна комбинация с \3 и \4)</td></tr>
+                                                  <tr><td><code>\3</code></td><td>пункт недоступен для навигации и выбора</td></tr>
+                                                  <tr><td><code>\4</code></td><td>серый, недоступен для выбора</td></tr>
+                                                </table>
+      <p>Необязательный параметр <var>TitleAndFooter</var>: заголовок и футер меню, разделённые <code>Lf</code> ("\n") или <code>CrLf</code> ("\r\n"). Один или оба могут отсутствовать.</p>
+      <p>Необязательный параметр <var>Flags</var> - набор битов, управляющих поведением и отображением меню:</p>
+                            <table class="cont2 params lite tiny">
+                            <col class="widevalue">
+                            <tr><th>Бит<br>установлен(ы)</th></col><th>Описание</th></tr>
+                                            <tr><td><code>0-2</code></td><td>Тип рамки меню: (по умолчанию == 100)
+                                                                <table class="cont2 params lite tiny">
+                                                                <col class="widevalue">
+                                                                  <tr><th>Value</th><th>Описание</th></tr>
+                                                                  <tr><td><code>001 (0x1)</code></td><td>без рамки</td></tr>
+                                                                  <tr><td><code>010 (0x2)</code></td><td>одинарная, с окружающими пробелами</td></tr>
+                                                                  <tr><td><code>011 (0x3)</code></td><td>одинарная, без окружающих пробелов</td></tr>
+                                                                  <tr><td><code>100 (0x4)</code></td><td>двойная, с окружающими пробелами</td></tr>
+                                                                  <tr><td><code>101 (0x5)</code></td><td>двойная, без окружающих пробелов</td></tr>
+                                                                </table>
+                                            </td></tr>
+        <tr><td><code>3 (0x8)</code></td><td>возвращаемый результат - индекс выбранного пункта меню</td></tr>
+        <tr><td><code>4 (0x10)</code></td><td>разрешена отметка нескольких пунктов и её снятие</td></tr>
+        <tr><td><code>5 (0x20)</code></td><td>отсортировать (производится регистронезависимая числовая сортировка)</td></tr>
+        <tr><td><code>6 (0x40)</code></td><td>убрать дублирующиеся пункты меню (с учетом регистра)</td></tr>
+        <tr><td><code>7 (0x80)</code></td><td>автоматически назначить "горячие" клавиши</td></tr>
+        <tr><td><code>8 (0x100)</code></td><td>как трактовать <var>SelectOrFilter</var>: (по умолчанию == 0)
+                                            <table class="cont2 params lite tiny">
+                                            <col class="value">
+                                              <tr><th>Value</th><th>Описание</th></tr>
+                                              <tr><td>0</td><td>позиционировать (если <var>SelectOrFilter</var> - число), <br>либо найти  (если <var>SelectOrFilter</var> - строка) пункт меню</td></tr>
+                                              <tr><td>1</td><td>установить фильтр меню</td></tr>
+                                            </table></td></tr>
+        <tr><td><code>9 (0x200)</code></td><td>автоматически пронумеровать пункты меню</td></tr>
+        <tr><td><code>10 (0x400)</code></td><td>выйти из меню при изменении выбранного пункта</td></tr>
+       </table>
+      <p>Необязательный параметр <var>SelectOrFilter</var> - на какой пункт меню позиционировать курсор, либо фильтрация пунктов. <br>Может быть:</p>
+                                            <table class="cont2 params lite tiny">
+                                            <col class="value">
+                                              <tr><th>Value</th><th>Описание</th></tr>
+                                              <tr><td>числом</td><td>если бит 8 == 0, то позиционировать на указанный пункт меню.
+                                                                  <br>Если число отрицательное, то отсчёт ведётся с конца меню</td></tr>
+                                              <tr><td>строкой</td><td>если бит 8 == 0, то найти пункт меню.
+                                              <br>Поиск регистронезависим, возможны маски</td></tr>
+                                              <tr><td>строкой</td><td>если бит 8 == 1, то установить фильтр меню</td></tr>
+                                            </table>
+      <p>Необязательные параметры <var>X</var> и <var>Y</var> - координаты левого верхнего угла меню. Если одна (или обе) равны -1 (по умолчанию), то производится центрирование меню по этой координате.</p>
+      <p>Возвращаемый результат функции:</p>
+                                       <table class="cont2 params lite tiny">
+                                       <col class="widevalue">
+                                       <tr><th>Тип</th><th>Описание</th></tr>
+                                       <tr><td>пустая строка</td><td>выход из меню по <code>Esc</code>, <code>F10</code> или при клике вне меню</td></tr>
+                                       <tr><td>число == 0 (если установлен бит 3)</td><td>выход из меню по <code>Esc</code>, <code>F10</code> или при клике вне меню</td></tr>
+                                       <tr><td>число > 0</td><td>индекс выбранного пункта</td></tr>
+                                       <tr><td>число < 0</td><td>если установлен бит 10, то индекс выбранного пункта со знаком минус</td></tr>
+                                       <tr><td>строка</td><td>выбранный пункт меню.<br>Если установлен бит 4, то список отмеченных пунктов меню, разделённых \n.<br>Если установлены и бит 3 и бит 4, то список индексов отмеченных пунктов меню, разделённых \n</td></tr>
+                                       </table>
+      <p>В меню доступны следующие сочетания клавиш: (пометка возможна только при установленном бите 4)</p>
+                                       <table class="cont2 params lite tiny">
+                                       <col class="widevalue">
+                                       <tr><th>Сочетание</th><th>Действие</th></tr>
+                                       <tr><td><code>Ins</code></td><td>пометка пункта</td></tr>
+                                       <tr><td><code>Ctrl-Add</code></td><td>пометка всех видимых пунктов</td></tr>
+                                       <tr><td><code>Ctrl-Subtract</code></td><td>снятие пометки со всех видимых пунктов</td></tr>
+                                       <tr><td><code>Ctrl-Multiply</code></td><td>инверсия пометки у всех видимых пунктов</td></tr>
+                                       <tr><td><code>Ctrl-A</code></td><td>подогнать меню по высоте</td></tr>
+                                       </table>
+             Пример использования - навигация по установленным закладкам редактора:
+             <pre class="codesample"><code>%I = 1;
+%S = "";
+$While (%I &lt;= Bm.Stat(0))
+  Bm.Goto(%I);
+  %S = %S + Editor.Value + "\n";
+  %I = %I + 1;
+$End
+
+%I = 1;
+$While (%I!=0)
+  %I=Menu.Show(%S, "Стековые закладки\nНавигация - Up/Down, Выход - Esc, F10", 0x600, abs(%I),80,FAR.Height-Bm.Stat(0)-5);
+  $If (%I &gt; 0)
+    Bm.Goto(%I);
+    $SelWord;
+  $Else
+    %I=0;
+  $End
+$End</code></pre>
+
+    </td>
+  </tr>
+
+</table>
+
+<h3>Замечания</h3>
+<div class="descr">
+<p>Для строковых функций: нумерация символов в строке начинается с 0 (см. <a href="#index">index()</a>, <a href="#rindex">rindex()</a>, <a href="#substr">substr()</a>).</p>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="../../examples.html">Примеры</a>
+</div>
+
+</body>
+
+</html>

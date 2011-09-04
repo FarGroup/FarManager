@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DI_RADIOBUTTON</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DI_RADIOBUTTON</h1>
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="index.html">Элементы диалога</a><br>
+</div>
+
+<div class=shortdescr>
+Элемент диалога <dfn>DI_RADIOBUTTON</dfn> описывает селекторную кнопку (Radio Button).
+Также он называется кнопкой с зависимой фиксацией. Похож на CheckBox, за
+исключением того, что, если у первого из несколько идущих подряд подобных элементов
+установлен флаг <a href="../flags/dif_group.html">DIF_GROUP</a>, то они
+являются взаимоисключающими: если одна кнопка включена, другие обязательно
+выключены.</div>
+
+<pre class=syntax>
+struct FarDialogItem
+{
+  int Type          = <b>DI_RADIOBUTTON</b>
+  int X1            = <b>X</b>
+  int Y1            = <b>Y</b>
+  int X2            = <b>0</b> 
+  int Y2            = <b>Y</b> (равен значению Y1)
+  int Focus         = <b>Focus</b>
+  int Selected      = <b>Selected</b>
+  DWORD Flags       = <b>Flags</b>
+  int DefaultButton = <b>DefaultButton</b>
+  const wchar_t *PtrData  = <b>надпись кнопки</b>
+};
+</pre>
+<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
+<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+
+<h3>Focus</h3>
+<div class=descr>
+Определяет имеет ли элемент клавиатурный фокус ввода.
+</div>
+
+<h3>Selected</h3>
+<div class=descr>
+Определяет состояние элемента - отмечен или нет.
+</div>
+
+<h3>Флаги</h3>
+<div class=descr>
+Для элемента <dfn>DI_RADIOBUTTON</dfn> имеют значения следующие флаги:<br>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a></td>
+ <td class="cont" width="60%">
+ определить цвет элемента (младший байт параметра <dfn>Flags</dfn> должен
+ содержать атрибут текста кнопки)
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_group.html">DIF_GROUP</a></td>
+ <td class="cont" width="60%">группировка последовательно объявленных селекторных кнопок
+   (укажите этот флаг для первого элемента в группе).
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_moveselect.html">DIF_MOVESELECT</a></td>
+ <td class="cont" width="60%">изменить выбор внутри группы при изменении фокуса ввода;
+ также элемент будет отображаться без ограничительных круглых скобок (пример -
+ диалог выбора цвета в FAR Manager - Options|Colors).
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
+ <td class="cont" width="60%">центрирование идущих подряд переключателей с одинаковой вертикальной позицией (параметр <dfn>X</dfn> игнорируется)
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
+ <td class="cont" width="60%">Элемент является недоступным.
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
+ <td class="cont" width="60%">Управляющий элемент не получает клавиатурный фокус ввода.
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
+ <td class="cont" width="60%">
+ показывать в заголовке рамки амперсанд не используя его для определения горячей клавиши
+ </td></tr>
+</table>
+</div>
+
+<h3>События</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+ <td class="cont" width="60%">начало отрисовки текстовой строки</td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+ <td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; Param2:
+<pre>LoWord LoByte - текст кнопки
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGTEXT">COL_WARNDIALOGBUTTON</a> или
+                 <a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>)
+LoWord HiByte - выделенный текст (highlighting text)
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTTEXT">COL_WARNDIALOGHIGHLIGHTTEXT</a> или
+                 <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTTEXT">COL_DIALOGHIGHLIGHTTEXT</a>)
+HiWord LoByte - 0
+HiWord HiByte - 0</pre>
+Если используется заказной атрибут (флаг <a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a>),
+то текст кнопки (LoWord LoByte) будет тем, что указали.
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
+ <td class="cont" width="60%">горячая клавиша (Alt-Символ)
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_btnclick.html">DN_BTNCLICK</a></td>
+ <td class="cont" width="60%">нажата кнопка
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
+ <td class="cont" width="60%">нажали клавишу.
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
+ <td class="cont" width="60%">"кликнули" клавишей мыши
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
+ <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
+ <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ </td></tr>
+
+</table>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Хотя координаты <var>X2</var> и <var>Y2</var> в Dialog API не используется,
+но для нормальной работы в будущих версиях FAR желательно корректно заполнить
+значения этих полей.
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="di_checkbox.html">DI_CHECKBOX</a>,
+<a href="di_button.html">DI_BUTTON</a>,
+<a href="../structures/fardialogitem.html">FarDialogItem</a>
+
+</div>
+
+</body>
+</html>

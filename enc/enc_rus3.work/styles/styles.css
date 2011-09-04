@@ -1,0 +1,476 @@
+BODY
+{
+    PADDING-LEFT: 18px;
+    FONT-SIZE: 70%;
+    BACKGROUND: #ffffff;
+    COLOR: #000000;
+    FONT-FAMILY: verdana,arial, tahoma, helvetica
+}
+P
+{
+    COLOR: #000000;
+    MARGIN-TOP: 8pt;
+    MARGIN-BOTTOM: 6pt;
+    FONT-FAMILY: verdana, tahoma, arial, helvetica
+}
+BLOCKQUOTE
+{
+    MARGIN-TOP: 4pt;
+    MARGIN-BOTTOM: 4pt
+}
+P.just
+{
+    MARGIN-TOP: 8pt;
+    MARGIN-BOTTOM: 4pt;
+    TEXT-INDENT: 2%;
+    TEXT-ALIGN: justify
+}
+P.justi
+{
+    MARGIN-TOP: 6pt;
+    MARGIN-BOTTOM: 4pt;
+    TEXT-INDENT: 2%;
+    TEXT-ALIGN: justify
+}
+PRE
+{
+    COLOR: #101030;
+    FONT-FAMILY: Courier New, Lucida Console, Courier, monospace;
+    TEXT-ALIGN: left
+}
+P.plain
+{
+    MARGIN-TOP: 4pt;
+    MARGIN-BOTTOM: 4pt
+}
+.gray
+{
+    FONT-SIZE: 80%;
+    BACKGROUND: #e0e0e0;
+    VERTICAL-ALIGN: top
+}
+.white
+{
+    FONT-SIZE: 80%;
+    BACKGROUND: #ffffff;
+    VERTICAL-ALIGN: top
+}
+TABLE
+{
+}
+TD
+{
+    FONT-SIZE: 80%;
+    VERTICAL-ALIGN: top
+}
+TH
+{
+    FONT-SIZE: 80%;
+    BACKGROUND: #b0b0b0;
+    VERTICAL-ALIGN: bottom;
+    COLOR: #000000;
+    FONT-FAMILY: verdana, tahoma, arial, helvetica
+}
+TABLE.cont
+{
+    MARGIN-TOP: 0.6em;
+    BACKGROUND: #999999;
+    MARGIN-BOTTOM: 0.3em;
+    WIDTH: 90%
+}
+TR.cont
+{
+    VERTICAL-ALIGN: top
+}
+TH.cont
+{
+    PADDING-RIGHT: 8px;
+    PADDING-LEFT: 8px;
+    FONT-SIZE: 70%;
+    BACKGROUND: #cccccc;
+    PADDING-BOTTOM: 4px;
+    VERTICAL-ALIGN: bottom;
+    PADDING-TOP: 4px;
+    TEXT-ALIGN: left
+}
+TD.cont
+{
+    PADDING-RIGHT: 8px;
+    PADDING-LEFT: 8px;
+    FONT-SIZE: 70%;
+    BACKGROUND: #ffffff;
+    PADDING-BOTTOM: 4px;
+    VERTICAL-ALIGN: top;
+    PADDING-TOP: 4px
+}
+A.pre
+{
+    FONT-WEIGHT: bold;
+    FONT-FAMILY: Courier New, Courier, monospace;
+    TEXT-DECORATION: none
+}
+A
+{
+}
+A:link
+{
+    BACKGROUND: none transparent scroll repeat 0% 0%;
+    COLOR: #0066ff
+}
+A:visited
+{
+    BACKGROUND: none transparent scroll repeat 0% 0%;
+    COLOR: #996600
+}
+A:active
+{
+    BACKGROUND: none transparent scroll repeat 0% 0%
+}
+A:hover
+{
+    COLOR: #cc9900
+}
+H1
+{
+    MARGIN-TOP: 5pt;
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 170%;
+    MARGIN-BOTTOM: 0pt;
+    MARGIN-LEFT: -18px;
+    FONT-FAMILY: Arial, Verdana, Helvetica, sans-serif
+}
+H2
+{
+    MARGIN-TOP: 1em;
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 150%;
+    MARGIN-BOTTOM: 1em;
+    MARGIN-LEFT: -18px;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
+}
+H3
+{
+    MARGIN-TOP: 10pt;
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 120%;
+    MARGIN-BOTTOM: 4pt;
+    MARGIN-LEFT: -18px;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
+}
+H4
+{
+    MARGIN-TOP: 6pt;
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 110%;
+    MARGIN-BOTTOM: 2pt;
+    MARGIN-LEFT: -18px;
+    TEXT-INDENT: 10pt;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
+}
+H5
+{
+    MARGIN-TOP: 1em;
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 100%;
+    MARGIN-BOTTOM: 1em;
+    MARGIN-LEFT: -18px;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
+}
+H6
+{
+    MARGIN-TOP: 1em;
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 90%;
+    MARGIN-BOTTOM: 1em;
+    MARGIN-LEFT: -18px;
+    FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
+}
+DFN
+{
+    FONT-WEIGHT: bold;
+    FONT-STYLE: normal;
+    FONT-FAMILY: verdana, tahoma, Lucida console,  Courier, arial, helvetica
+}
+DIV.shortdescr
+{
+    MARGIN-TOP: 0pt;
+    MARGIN-BOTTOM: 0pt;
+    MARGIN-LEFT: 0px
+}
+DIV.descr
+{
+    MARGIN-TOP: 0px;
+    MARGIN-BOTTOM: 6pt;
+    MARGIN-LEFT: 10pt
+}
+DIV.dfn
+{
+    MARGIN-TOP: 6pt;
+    MARGIN-BOTTOM: 2pt;
+    MARGIN-LEFT: 0px;
+    FONT-WEIGHT: bold;
+    FONT-FAMILY: verdana,arial,tahoma, Lucida console,  helvetica
+}
+DIV.dfndescr
+{
+    MARGIN-TOP: 4pt;
+    MARGIN-BOTTOM: 4pt;
+    MARGIN-LEFT: 14pt
+}
+DIV.navbar
+{
+    MARGIN-TOP: 0pt;
+    FONT-SIZE: 90%;
+    MARGIN-BOTTOM: 6pt;
+    MARGIN-LEFT: -17px;
+    COLOR: #7389a1
+}
+DIV.see
+{
+    MARGIN-TOP: 20pt;
+    FONT-WEIGHT: 600;
+    MARGIN-BOTTOM: 0pt;
+    MARGIN-LEFT: -18px
+}
+DIV.seecont
+{
+    MARGIN-TOP: 0pt;
+    FONT-SIZE: 90%;
+    MARGIN-BOTTOM: 0pt;
+    MARGIN-LEFT: 0px;
+    WIDTH: 400px
+}
+DIV.alert
+{
+    FONT-WEIGHT: bold;
+    FONT-SIZE: 70%;
+    LEFT: 0pt;
+    COLOR: #ff4080;
+    MARGIN-RIGHT: 10pt;
+    FONT-FAMILY: tahoma,Lucida console, verdana,  Courier, arial, helvetica;
+    POSITION: absolute;
+    TOP: 0pt
+}
+DIV.alert2
+{
+    FONT-WEIGHT: bold;
+    LEFT: 0pt;
+    MARGIN-LEFT: 20pt;
+    COLOR: #ff4080;
+    MARGIN-RIGHT: 40pt;
+    FONT-FAMILY: tahoma,Lucida console, verdana, tahoma, Courier, arial, helvetica;
+    TOP: 0pt
+}
+.alert3
+{
+    FONT-WEIGHT: bold;
+    COLOR: #ff4080;
+    FONT-FAMILY: verdana, Lucida console, tahoma, Courier, arial, helvetica
+}
+DIV.idea
+{
+    PADDING-RIGHT: 4pt;
+    PADDING-LEFT: 4pt;
+    PADDING-BOTTOM: 4pt;
+    MARGIN-LEFT: 20pt;
+    MARGIN-RIGHT: 20pt;
+    PADDING-TOP: 4pt;
+    BACKGROUND-COLOR: #b3c9e1;
+    TEXT-DECORATION: none
+}
+DIV.articlenotes
+{
+    MARGIN-TOP: 20pt;
+    MARGIN-LEFT: 10pt;
+    MARGIN-RIGHT: 0pt;
+    TEXT-ALIGN: right
+}
+PRE.code
+{
+    PADDING-RIGHT: 4pt;
+    MARGIN-TOP: 4pt;
+    PADDING-LEFT: 4pt;
+    MARGIN-BOTTOM: 4pt;
+    PADDING-BOTTOM: 4pt;
+    MARGIN-LEFT: 10pt;
+    PADDING-TOP: 4pt;
+    FONT-FAMILY: Courier New,Lucida Console, Courier New, Courier, monospace;
+    BACKGROUND-COLOR: #f2f2f2
+}
+PRE.syntax
+{
+    PADDING-RIGHT: 4pt;
+    PADDING-LEFT: 4pt;
+    BACKGROUND: #eeeeee;
+    PADDING-BOTTOM: 2pt;
+    CURSOR: text;
+    COLOR: #101030;
+    PADDING-TOP: 2pt;
+    FONT-FAMILY: Courier New,Lucida Console, Courier New, Courier, monospace
+}
+CODE
+{
+    FONT-FAMILY: Courier New,Lucida Console, Courier, monospace
+}
+KBD
+{
+    FONT-FAMILY: Courier New, Lucida Console, Courier, monospace;
+}
+P.note
+{
+    CLEAR: both;
+    MARGIN-TOP: 1em;
+    FONT-WEIGHT: bold;
+    MARGIN-BOTTOM: -1.0em;
+    FONT-FAMILY: tahoma, arial, helvetica;
+    MARGIN-LEFT: 0.1em
+}
+UL.note
+{
+    MARGIN-LEFT: 1.5em;
+    FONT-FAMILY: tahoma, arial, helvetica;
+    LIST-STYLE-TYPE: none
+}
+SPAN.faqq
+{
+    FONT-WEIGHT: bolder;
+    FONT-SIZE: larger;
+    FONT-FAMILY: verdana, tahoma, arial, helvetica;
+    COLOR: #CC0000
+}
+SPAN.faqqb
+{
+    FONT-WEIGHT: bolder;
+    COLOR: black
+}
+SPAN.faqa
+{
+    FONT-WEIGHT: bolder;
+    FONT-SIZE: larger;
+    FONT-FAMILY: verdana, tahoma, arial, helvetica;
+    COLOR: #000080
+}
+
+.nobr { white-space:nowrap; }
+
+table p { margin-top: 0em; margin-bottom: 0.364em}
+table ul { margin-top: 0.364em; margin-bottom: 0.364em}
+li p { margin-top: 0em; margin-bottom: 0.364em}
+
+ul.nomarker{list-style:none; margin-left: 0em; padding-left: 1.2em}
+
+code.sample
+{
+    padding: 0.136em 0.238em;
+    background-color: #EEEEEE;
+}
+
+pre.codesample
+{
+    padding: 0.273em;
+    margin: 0.273em 0em 0.273em 1.182em;
+    background-color: #EEEEEE;
+    border: 1px dashed gray;
+
+}
+
+dl.codesamples { margin: 0.3em 0em }
+dl.codesamples dd { margin-bottom: 0.8em }
+dl.codesamples dt { background-color: #EEEEEE; padding: 0.2em }
+
+code a
+{
+    text-decoration: none;
+    border-bottom: 1px solid #0066ff;
+}
+code a:link { color: inherit; }
+code a:visited { color: inherit; border-bottom-color: #996600 }
+code a:hover { border-bottom-color: #cc9900}
+
+
+/* общий класс таблиц*/
+table.cont2
+{
+    margin-top: 0.6em;
+    margin-bottom: 0.3em;
+    border-collapse: collapse;
+}
+
+table.cont2 th, table.cont2 td
+{
+    border: 2px solid #999999;
+    padding: 0.364em 0.727em;
+    font-size: 100%; /* обходим старые правила TD и TH */
+}
+
+table.cont2 th
+{
+    background: #cccccc;
+    text-align: left;
+}
+
+/* таблицы с описаниями значений параметров */
+table.params
+{
+    margin: 0.545em 0em 0.727em;
+}
+
+table.params td, table.params th
+{
+    border-width: 1px;
+    /*padding: 0.364em 0.727em*/
+}
+
+/* облегчённый стиль*/
+table.lite td, table.lite th
+{
+    background:transparent;
+    padding: 0.182em 0.727em;
+}
+
+/* без границ */
+table.tiny
+{
+    border: transparent hidden;
+    width: auto;
+}
+
+table.tiny td, table.tiny th
+{
+    border-style: none;
+}
+
+table.tiny td:first-child, table.tiny th:first-child
+{
+    border-right-style: solid;
+}
+
+/* ширина таблиц */
+table.cont2   {width: 90%}
+table.funcs   {width: 99%}
+table.params  {width: 97%}
+table.tiny {width: auto}
+
+/* ширина колонок в таблицах */
+table.funcs   col.descr {width: 80%}
+table.params  col.value {width: 5%}
+table.params  col.widevalue {width: 25%}
+
+/*
+http://riddle.pl/emcalc/
+http://pxtoem.com/
+
+0.5px=0.045em
+0.75px=0.068em
+1px=0.091em
+1.5px=0.136em
+2px=0.182em
+3px=0.273em
+4px=0.364em
+5px=0.455em
+6px=0.545em
+7px=0.636em
+8px=0.727em
+9px=0.818em
+10px=0.909em
+*/

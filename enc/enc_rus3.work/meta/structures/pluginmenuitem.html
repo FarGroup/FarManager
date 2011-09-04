@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>PluginMenuItem</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>PluginMenuItem</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>PluginMenuItem</dfn> используется в функции <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a>.
+</div>
+
+<pre class=syntax>
+struct PluginMenuItem
+{
+  const GUID *Guids;
+  const wchar_t * const *Strings;
+  int Count;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>Guids</div>
+    <div class=dfndescr>Поле должно содержать адрес массива GUID'ов, добавляемых в меню строк <i>Strings</i>. GUID будет передаваться аргументом, при вызове функции <a href="../exported_functions/openpanelw.html">OpenPanelW</a> и <a href="../exported_functions/configurew.html">ConfigureW</a>.
+    <p class=note><img src="../../images/note.gif" alt="Замечание для Guids" width="10" height="10">Внимание!</p>
+    <UL class=note><LI>Все GUID'ы добавленных строк должны быть уникальны для одного плагина в пределах одного меню.</LI></UL></td></div>
+  <div class=dfn>Strings</div>
+    <div class=dfndescr>Поле должно быть равным адресу массива указателей на строки меню.</div>
+  <div class=dfn>Count</div>
+    <div class=dfndescr>Количество добавляемых в меню строк <i>Strings</i>.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Все передаваемые в этой структуре данные должны быть правильными после возвращения из <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a>,
+таким образом вы не должны использовать автоматически создаваемые адреса переменных. Используйте статические или глобальные переменные.
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a>
+</div>
+
+</body>
+</html>

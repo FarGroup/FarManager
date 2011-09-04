@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>GetGlobalInfoW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>GetGlobalInfoW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a>
+</div>
+
+<div class=shortdescr>
+Far Manager вызывает функцию <dfn>GetGlobalInfoW</dfn> в первую очередь, для получения основной информации о плагине. Функция вызывается один раз.
+</div>
+
+<pre class=syntax>
+void WINAPI GetGlobalInfoW(
+  struct GlobalInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a  href="../structures/globalinfo.html">GlobalInfo</a>. Плагин заполняет структуру в этой функции.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Нет.
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Все поля структуры <a  href="../structures/globalinfo.html">GlobalInfo</a> должны быть заполнены.
+Если в поле GlobalInfo.MinFarVersion указана версия Far Manager больше, чем текущая (включая номер билда) - выводится сообщение об ошибке и плагин не загружается.
+</div>
+
+
+<h3>Пример</h3>
+<div class=descr>
+<pre class=code>
+// {B076F0B0-90AE-408c-AD09-491606F09435}
+DEFINE_GUID(MainGuid, 0xb076f0b0, 0x90ae, 0x408c, 0xad, 0x9, 0x49, 0x16, 0x6, 0xf0, 0x94, 0x35);
+
+void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
+{
+  Info->StructSize=sizeof(struct GlobalInfo);
+  Info->MinFarVersion=FARMANAGERVERSION;          //минимально необходимая версия Far Manager, определена в файле plugin.hpp
+  Info->Version=MAKEFARVERSION(3,0,0,21,VS_RC);   //текущая версия плагина 3.0.0.21, релиз-кандидат
+  Info->Guid=MainGuid;
+  Info->Title=L"Align";
+  Info->Description=L"Align block for Far Manager";
+  Info->Author=L"Eugene Roshal & Far Group";
+}
+</pre>
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../defs/farmanagerversion.html">FARMANAGERVERSION</a>,
+<a href="../defs/makefarversion.html">MAKEFARVERSION</a>
+</div>
+
+</body>
+</html>

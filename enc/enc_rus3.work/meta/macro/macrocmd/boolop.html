@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Условные операторы - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Условные операторы</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a>
+</div>
+
+<p>В макрокомандах <a href="if.html">$If</a> и <a href="while.html">$While</a> в качестве условия <dfn>Expr</dfn>
+могут использоваться операции сравнения:</p>
+<table class="cont2">
+  <col span="2">
+  <tr>
+    <th>Оператор</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>==</td>
+    <td>Равно</td>
+  </tr>
+  <tr>
+    <td>!=</td>
+    <td>Не равно</td>
+  </tr>
+  <tr>
+    <td>&lt;</td>
+    <td>Меньше</td>
+  </tr>
+  <tr>
+    <td>&gt;</td>
+    <td>Больше</td>
+  </tr>
+  <tr>
+    <td>&lt;=</td>
+    <td>Меньше или равно</td>
+  </tr>
+  <tr>
+    <td>&gt;=</td>
+    <td>Больше или равно</td>
+  </tr>
+</table>
+
+<p class="note"><img src="../../../images/warning.gif" alt="ВНИМАНИЕ!" width="10" height="10"> ВНИМАНИЕ!</p>
+<ul class="note"><li>Операции сравнения для строковых переменных регистрозависимы.</li></ul>
+
+<p>Булевое выражение <dfn>Expr</dfn> может быть сложным. В этом случае
+простые выражения объединяются с помощью следующих операторов:</p>
+<table class="cont2">
+  <col span="2">
+  <tr>
+    <th>Оператор</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>&amp;&amp;</td>
+    <td>Логическое И (А И B)</td>
+  </tr>
+  <tr>
+    <td>||</td>
+    <td>Логическое ИЛИ (А ИЛИ B)</td>
+  </tr>
+  <tr>
+    <td>^^</td>
+    <td>Исключающее ИЛИ (А ИЛИ B, но не оба сразу)</td>
+  </tr>
+</table>
+
+<p>Простые выражения могут заключаться в круглые скобки.</p>
+
+</body>
+
+</html>

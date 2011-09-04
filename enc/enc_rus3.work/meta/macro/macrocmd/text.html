@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>$Text - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$Text</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a> |
+<a href="cmds.html">Макрокоманды</a>
+</div>
+
+<div class="shortdescr">
+Оператор <dfn>$Text</dfn> предназначена для вставки произвольного текста.
+</div>
+
+<pre class="syntax">
+<dfn>$Text</dfn> <var>"string"</var>
+</pre>
+
+<h3>Элементы</h3>
+<div class="descr">
+<div class="dfn">string</div>
+<div class="dfndescr">
+      Допускается применение следующих escape-последовательностей:
+      <table class="cont2">
+        <tr><th>Формат</th><th>Описание</th></tr>
+        <tr><td>\"</td><td>Символ "</td></tr>
+        <tr><td>\'</td><td>Символ '</td></tr>
+        <tr><td>\\</td><td>Символ '\'</td></tr>
+        <tr><td>\n</td><td>Переводу строки `\n'</td></tr>
+        <tr><td>\t</td><td>Табуляции `\t'</td></tr>
+        <tr><td>\a</td><td>bell</td></tr>
+        <tr><td>\b</td><td>`\b'</td></tr>
+        <tr><td>\f</td><td>`\f'</td></tr>
+        <tr><td>\v</td><td>`\v'</td></tr>
+        <tr><td>\N<br>\NN<br>\NNN</td><td>8-ричный код символа</td></tr>
+        <tr><td>\xNN</td><td>16-ричный код символа</td></tr>
+      </table>
+</div>
+</div>
+
+<h3>Замечания</h3>
+<div class="descr">
+<ol>
+  <li>Макрокоманда '$Text' позволяет сократить расход памяти при
+     хранении длинной макропоследовательности, вставляющей
+     некоторый текст, и сделать её более наглядной.</li>
+  <li>Фразу "$Text" можно не указывать, т.&nbsp;е. произвольный текст в
+     двойных кавычках макродвижок воспримет как $Text. Исключение составляет ситуация,
+     когда после двойной кавычки идёт пробел - в этом случае "$Text" указывать обязательно.</li>
+</ol>
+</div>
+
+
+<h3>Пример</h3>
+<div class="descr">
+<pre class="codesample"><code>REGEDIT
+
+;создание папки с именем = текущей дате
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlShiftF7]
+"Sequence"="%Folder=date(\"%d.%m0.%Y\"); $If (!panel.fexist(0,%Folder)) F7 $Text %Folder Enter $End"
+"DisableOutput"=dword:00000001
+"NoPluginPanels"=dword:00000001
+</code></pre>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="prop_func/general.html#print">print()</a>,
+<a href="../examples.html">Примеры</a>
+</div>
+
+</body>
+
+</html>

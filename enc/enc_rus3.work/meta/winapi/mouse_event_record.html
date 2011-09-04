@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>MOUSE_EVENT_RECORD</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src="../links.js" type="text/javascript"></script>
+</head>
+<!--history
+  Tue 14 Dec 21:34:12 1999
+    Igor Ruskih <ruiv@uic.nnov.ru>
+    перевёл
+  Thu 19 Apr 13:40:00 2001
+    VVM <vmoshninov@newmail.ru>
+    дополнение про MOUSE_WHEELED
+-->
+<body>
+
+<h1>MOUSE_EVENT_RECORD</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="../structures/index.html">структуры</a> |
+<a href="index.html">win32 структуры</a> |
+<a href="input_record.html">input_record</a>
+</div>
+
+<div class=shortdescr>
+Структура <strong>MOUSE_EVENT_RECORD</strong> используется
+консольной структурой <strong>INPUT_RECORD</strong>
+для получения сообщений мыши.
+</div>
+
+<pre class=syntax>
+typedef struct _MOUSE_EVENT_RECORD {
+    COORD dwMousePosition;
+    DWORD dwButtonState;
+    DWORD dwControlKeyState;
+    DWORD dwEventFlags;
+} MOUSE_EVENT_RECORD;
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+    <div class=dfn>dwMousePosition</div>
+    <div class=dfndescr>Положение курсора в координатах экранного буфера (структура <a href="coord.html">COORD</a>).</div>
+    <div class=dfn>dwButtonState</div>
+    <div class=dfndescr>Состояние клавиш мыши.
+    Младший бит соответствует самой левой кнопке, следующий - самой правой,
+    Следующий бит - следующая за левой клавиша.
+    Далее биты соответствуют клавишам слева направо. Если бит установлен - клавиша нажата.<br>
+    Определены следующие константы для первых пяти клавиш мыши:<br>
+    <br>
+      <a name="FROM_LEFT_1ST_BUTTON_PRESSED">FROM_LEFT_1ST_BUTTON_PRESSED</a><br>
+      <a name="RIGHTMOST_BUTTON_PRESSED">RIGHTMOST_BUTTON_PRESSED</a><br>
+      <a name="FROM_LEFT_2ND_BUTTON_PRESSED">FROM_LEFT_2ND_BUTTON_PRESSED</a><br>
+      <a name="FROM_LEFT_3RD_BUTTON_PRESSED">FROM_LEFT_3RD_BUTTON_PRESSED</a><br>
+      <a name="FROM_LEFT_4TH_BUTTON_PRESSED">FROM_LEFT_4TH_BUTTON_PRESSED</a></div>
+    <div class=dfn>dwControlKeyState</div>
+    <div class=dfndescr>Состояние управляющих клавиш. Может быть комбинацией следующих значений:
+
+      <table class="cont">
+     <tr class="cont"><th class="cont" width="40%">Клавиша</th><th class="cont" width="60%">Описание</th></tr>
+        <tr class="cont"><td class="cont" width="40%">CAPSLOCK_ON</td>
+        <td class="cont" width="60%">CAPS LOCK включён.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">ENHANCED_KEY</td>
+        <td class="cont" width="60%">Клавиша расширенная.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">LEFT_ALT_PRESSED </td>
+        <td class="cont" width="60%">Левый ALT нажат.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">LEFT_CTRL_PRESSED </td>
+        <td class="cont" width="60%">Левый CTRL нажат.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">NUMLOCK_ON </td>
+        <td class="cont" width="60%">NUM LOCK включён. </td></tr>
+        <tr class="cont"><td class="cont" width="40%">RIGHT_ALT_PRESSED </td>
+        <td class="cont" width="60%">Правый ALT нажат.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">RIGHT_CTRL_PRESSED </td>
+        <td class="cont" width="60%">Правый CTRL нажат.</td></tr>
+        <tr class="cont"><td class="cont" width="40%">SCROLLLOCK_ON </td>
+        <td class="cont" width="60%">SCROLL LOCK включён. </td></tr>
+        <tr class="cont"><td class="cont" width="40%">SHIFT_PRESSED </td>
+        <td class="cont" width="60%">Клавиша SHIFT нажата. </td></tr>
+     </table>
+
+    </div>
+    <div class=dfn>dwEventFlags</div>
+    <div class=dfndescr>Тип сообщения мыши. Если ноль, то кнопка мыши была нажата или отпущена.
+      Иначе одно из следующих значений:
+       <table class="cont">
+       <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+       <tr class="cont"><td class="cont" width="40%">DOUBLE_CLICK</td>
+       <td class="cont" width="60%">Второе нажатие при двойном щелчке (первое нажатие приходит как обычное сообщение).</td>
+       </tr>
+       <tr class="cont"><td class="cont" width="40%">MOUSE_MOVED</td>
+       <td class="cont" width="60%">Позиция мыши изменилась.</td></tr>
+       <tr class="cont"><td class="cont" width="40%">MOUSE_WHEELED</td>
+       <td class="cont" width="60%">Устанавливается при вертикальной прокрутке колёсика
+           на мышке. Если установлен этот флаг, то в старшем слове <b>dwButtonState</b> содержтся
+           значение, кратное WHEEL_DELTA. По умолчанию это значение равно 120, но может
+           изменяться в зависимости от драйвера мыши.</td>
+       </tr>
+       <tr class="cont"><td class="cont" width="40%">MOUSE_HWHEELED</td>
+       <td class="cont" width="60%"><strong>Windows Vista/2008/7:</strong> Устанавливается при горизонтальной прокрутке колёсика
+           на мышке. Если установлен этот флаг, то в старшем слове <b>dwButtonState</b> содержтся
+           значение, кратное WHEEL_DELTA. По умолчанию это значение равно 120, но может
+           изменяться в зависимости от драйвера мыши.</td>
+       </tr>
+       </table>
+    </div>
+
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+  Сообщения мыши помещаются во входной буфер, когда консоль имеет установленный
+  флаг <strong>ENABLE_MOUSE_INPUT</strong>.<br>
+  Сообщения мыши посылаются в буфер, только если консоль имеет активный
+  клавиатурный фокус и курсор находится в границах консольного окна.
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+  <a href="coord.html">COORD</a>,
+  <a href="peekconsoleinput.html">PeekConsoleInput</a>,
+  <a href="readconsoleinput.html">ReadConsoleInput</a>,
+  <a href="writeconsoleinput.html">WriteConsoleInput</a>,
+  <a href="input_record.html">INPUT_RECORD</a>
+</div>
+
+</body>
+</html>

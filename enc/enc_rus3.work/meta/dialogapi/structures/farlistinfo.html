@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FarListInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>FarListInfo</h1>
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>FarListInfo</dfn> описывает состояние элементов <a href="../controls/di_listbox.html">DI_LISTBOX</a> и <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+</div>
+
+<pre class=syntax>
+struct FarListInfo
+{
+  FARLISTINFOFLAGS Flags;
+  int ItemsNumber;
+  int SelectPos;
+  int TopPos;
+  int MaxHeight;
+  int MaxLength;
+  DWORD Reserved[6];
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Набор битовых флагов (перечисление <a name="FARLISTINFOFLAGS">FARLISTINFOFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LINFO_SHOWNOBOX">LINFO_SHOWNOBOX</a></td>
+    <td class="cont" width="60%">управляющий элемент <a href="../controls/di_listbox.html">DI_LISTBOX</a> с выставленным флагом <a href="../flags/dif_listnobox.html">DIF_LISTNOBOX</a> рисуется без рамки</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LINFO_AUTOHIGHLIGHT">LINFO_AUTOHIGHLIGHT</a></td>
+    <td class="cont" width="60%">горячие клавиши будут назначены автоматически, начиная с первого пункта</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LINFO_REVERSEHIGHLIGHT">LINFO_REVERSEHIGHLIGHT</a></td>
+    <td class="cont" width="60%">горячие клавиши будут назначены автоматически, начиная с последнего пункта</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LINFO_WRAPMODE">LINFO_WRAPMODE</a></td>
+    <td class="cont" width="60%">попытка перемещения курсора выше первого пункта или ниже последнего будет приводить к перемещению соответственно к последнему или к первому пункту списка</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LINFO_SHOWAMPERSAND">LINFO_SHOWAMPERSAND</a></td>
+    <td class="cont" width="60%">показать амперсанды (&amp;), без этого флага амперсанды используются для определения горячей клавиши пункта</td></tr>
+    </table>
+    </div>
+  <div class=dfn>ItemsNumber</div>
+    <div class=dfndescr>Количество пунктов в списке.</div>
+  <div class=dfn>SelectPos</div>
+    <div class=dfndescr>Индекс текущего пункта.</div>
+  <div class=dfn>TopPos</div>
+    <div class=dfndescr>Индекс верхнего видимого пункта списка.</div>
+  <div class=dfn>MaxHeight</div>
+    <div class=dfndescr>Максимальная видимая высота списка.</div>
+  <div class=dfn>MaxLength</div>
+    <div class=dfndescr>Максимальный видимый размер строки.</div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Резерв.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../dmsg/dm_listinfo.html">DM_LISTINFO</a>,
+<a href="../../structures/index.html">структуры</a><br>
+</div>
+
+</body>
+</html>

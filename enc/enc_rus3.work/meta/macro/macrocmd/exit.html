@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>$Exit - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$Exit</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a> |
+<a href="cmds.html">Макрокоманды</a>
+</div>
+
+<div class="shortdescr">
+Оператор <dfn>$Exit</dfn> прерывает выполнение макропоследовательности.
+</div>
+
+<pre class="syntax">
+<dfn>$Exit</dfn>
+</pre>
+
+<h3>Пример</h3>
+<div class="descr">
+<pre class="codesample"><code>REGEDIT4
+
+;удаление выделенных символов в командной строке
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Common\ShiftDel]
+"Sequence"="$If (Qview || Shell)
+$If (!APanel.Visible) ShiftDel $Exit $End CtrlO ShiftDel CtrlO
+$Else ShiftDel $End"
+"DisableOutput"=dword:00000001
+"NotEmptyCommandLine"=dword:00000001
+</code></pre>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="../examples.html">Примеры</a>
+</div>
+
+
+</body>
+
+</html>

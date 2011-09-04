@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FarListItem</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+<body>
+
+<h1>FarListItem</h1>
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>FarListItem</dfn> описывает один элемент списка <a href="../controls/di_listbox.html">DI_LISTBOX</a> или <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+</div>
+
+<pre class=syntax>
+struct FarListItem
+{
+  LISTITEMFLAGS Flags;
+  const wchar_t *Text;
+  DWORD Reserved[3];
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Комбинация следующих значений (перечисление <a name="LISTITEMFLAGS">LISTITEMFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LIF_SELECTED">LIF_SELECTED</a></td>
+    <td class="cont" width="60%">Флаг активности пункта списка. Только один пункт может быть активным.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LIF_CHECKED">LIF_CHECKED</a></td>
+    <td class="cont" width="60%">Если флаг установлен, то перед текстом пункта отображается символ пометки (например, символ с кодом 0xFB).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LIF_SEPARATOR">LIF_SEPARATOR</a></td>
+    <td class="cont" width="60%">Если флаг установлен, то пункт отображается как разделитель. Разделитель может иметь непустой текст, который будет отображаться поверх разделительной линии.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LIF_DISABLE">LIF_DISABLE</a></td>
+    <td class="cont" width="60%">Если флаг установлен, то пункт недоступен.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LIF_GRAYED">LIF_GRAYED</a></td>
+    <td class="cont" width="60%">Если флаг установлен, то пункт доступен в навигации, но не доступен для выбора.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LIF_HIDDEN">LIF_HIDDEN</a></td>
+    <td class="cont" width="60%">Если флаг установлен, то пункт не выводится на экран.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LIF_DELETEUSERDATA">LIF_DELETEUSERDATA</a></td>
+    <td class="cont" width="60%">Этот флаг устанавливается в параметре Item соoбщения <a href="../dmsg/dm_listupdate.html">DM_LISTUPDATE</a>, если при обновлении элемента списка необходимо удалить связанные с этим элементом данные.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>Text</div>
+    <div class=dfndescr>Текст элемента списка.</div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Зарезервировано, должно быть равно 0.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a  href="farlist.html">FarList</a>,
+<a href="../dmsg/dm_listgetitem.html">DM_LISTGETITEM</a>,
+<a  href="farlistinsert.html">FarListInsert</a>,
+<a  href="farlistupdate.html">FarListUpdate</a>,
+<a href="../../structures/index.html">структуры</a>
+</div>
+
+</body>
+</html>

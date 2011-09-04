@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>OpenInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>OpenInfo</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>OpenInfo</dfn> используется для возвращения Far Manager'ом информации о плагине в функцию <a href="../exported_functions/openw.html">OpenW</a>.
+</div>
+
+<pre class=syntax>
+struct OpenInfo
+{
+  size_t StructSize;
+  enum OPENFROM OpenFrom;
+  const GUID *Guid;
+  INT_PTR Data;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле содержит размер структуры <dfn>OpenInfo</dfn>.</div>
+  <div class=dfn>OpenFrom</div>
+    <div class=dfndescr>Идентификатор, определяющий, откуда был вызван плагин. Может принимать одно из следующих значений (перечисление <a name="OPENFROM">OPENFROM</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_LEFTDISKMENU">OPEN_LEFTDISKMENU</a></td>
+    <td class="cont" width="60%">Открыт из левого меню "Сменить диск" (<kbd>Alt-F1</kbd>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_PLUGINSMENU">OPEN_PLUGINSMENU</a></td>
+    <td class="cont" width="60%">Открыт из меню "Команды внешних модулей" (<kbd>F11</kbd>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FINDLIST">OPEN_FINDLIST</a></td>
+    <td class="cont" width="60%">Открыт из диалога "Поиск файла". Этот идентификатор плагин получит только в том случае, если он экспортирует функцию <a href="setfindlistw.html">SetFindListW</a>.
+    Последующий вызов функции <a href="setfindlistw.html">SetFindListW</a> произойдёт только в том случае, если функция <dfn>OpenPanelW</dfn> вернёт значение отличное от <code>INVALID_HANDLE_VALUE</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
+    <td class="cont" width="60%">Открыт через ссылку на папку в меню "Команды" - "Ссылки на папки".</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_COMMANDLINE">OPEN_COMMANDLINE</a></td>
+    <td class="cont" width="60%">Был открыт из командной строки. Этот параметр может использоваться, только если плагин определил вызывающий префикс в функции
+    <a href="getplugininfow.html">GetPluginInfoW</a> и этот префикс, с двоеточием после него, был указан в командной строке.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_EDITOR">OPEN_EDITOR</a></td>
+    <td class="cont" width="60%">Открыт из редактора.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
+    <td class="cont" width="60%">Открыт из встроенной программы просмотра.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FILEPANEL">OPEN_FILEPANEL</a></td>
+    <td class="cont" width="60%">Открыт из панелей.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_DIALOG">OPEN_DIALOG</a></td>
+    <td class="cont" width="60%">Открыт из диалога.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_ANALYSE">OPEN_ANALYSE</a></td>
+    <td class="cont" width="60%">Открыт после анализа содержимого файла (например, архива)</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_RIGHTDISKMENU">OPEN_RIGHTDISKMENU</a></td>
+    <td class="cont" width="60%">Открыт из правого меню "Сменить диск" (<kbd>Alt-F2</kbd>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROMMACRO">OPEN_FROMMACRO</a></td>
+    <td class="cont" width="60%">Открыт из макрокоманды функцией <a href="../macro/macrocmd/prop_func/general.html#callplugin">callplugin</a>; <i>Data</i> является числом.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROMMACROSTRING">OPEN_FROMMACROSTRING</a></td>
+    <td class="cont" width="60%">Открыт из макрокоманды. <i>Item</i> содержит указатель на строку. Этот флаг всегда идет с флагом OPEN_FROMMACRO, уточняет тип значения <i>Data</i>.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>Guid</div>
+    <div class=dfndescr>GUID выбранного элемента в списке пунктов, экспортированном данным плагином в меню "Диск", "Команды внешних модулей".</div>
+  <div class=dfn>Data</div>
+    <div class=dfndescr>Интерпретация параметра зависит от <i>OpenFrom</i>:
+    <ul>
+    <li>Если в параметре OpenFrom выставлен флаг OPEN_FROMMACRO, то значения в младшем слове содержат не идентификатор из перечисления OPENPLUGIN_OPENFROM, 
+    а номер текущей макрообласти, определенной в перечислении <a href="../service_functions/macrocontrol.html">FARMACROAREA</a>.
+    <li>Для параметров OPEN_DISKMENU, OPEN_PLUGINSMENU, OPEN_EDITOR и OPEN_VIEWER <i>Data</i> - это номер выбранного пункта в меню из зарегистрированных
+    плагином пунктов. Если плагин экспортирует только один элемент, этот параметр всегда равен нулю.
+    <li>Для OPEN_FINDLIST <i>Data</i> всегда 0.
+    <li>Для OPEN_SHORTCUT <i>Data</i> содержит адрес строки, которая была передана в элемент ShortcutData структуры <a href="../structures/openpanelinfo.html">OpenPlanelInfo</a>
+    в момент сохранения горячей клавиши. Плагин может использовать это поле для сохранения дополнительной информации о текущем состоянии.
+    Не обязательно сохранять в нём информацию о текущей директории, так как этим занимается сам FAR.
+    <li>Для OPEN_DIALOG <i>Data</i> содержит адрес структуры <a href="../structures/opendlgplugindata.html">OpenDlgPluginData</a>.
+    <li>Для OPEN_COMMANDLINE <i>Data</i> содержит адрес введённого пользователем в командной строке выражения. Если плагин не установил флаг <a href="../structures/plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>,
+    то командный префикс плагина в командную строку не включается. При установленном флаге <a href="../structures/plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>
+    плагину передаётся полная строка (с командным префиксом).<br>
+    К примеру, если плагин устанавливает префикс <em>ftp</em> и пользователь вводит <code>ftp://ftp.abc.com</code>, <i>Data</i> будет указывать на
+    строку: "<code>//ftp.abc.com</code>" при НЕустановленном флаге PF_FULLCMDLINE и "<code>ftp://ftp.abc.com</code>" если флаг PF_FULLCMDLINE установили.<br>
+    </ul>
+    </div>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a>
+</div>
+
+</body>
+</html>

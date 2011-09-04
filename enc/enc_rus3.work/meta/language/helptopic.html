@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Синтаксис тем помощи</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Синтаксис тем помощи</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="help_files.html">Файлы помощи</a>
+</div>
+
+<div class=shortdescr>
+Параметр <var>HelpTopic</var>, описывающий тему помощи, может имеет один из следующих форматов:
+</div>
+
+<div class=descr>
+  <table class="cont">
+  <tr class="cont"><th class="cont" width="40%">Формат</th><th class="cont" width="60%">Описание</th></tr>
+
+  <tr class="cont"><td class="cont" width="40%">"Topic"</td>
+  <td class="cont" width="60%">Ссылка на тему в файле помощи плагина.
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">":Topic"</td>
+  <td class="cont" width="60%">Ссылка на тему из основного файла помощи FAR.
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">"&lt;FullPath&gt;Topic"</td>
+  <td class="cont" width="60%">Абсолютная ссылка на тему в файле помощи, находящемся
+    в каталоге <dfn>FullPath</dfn>. Путь задаётся c заключительным слешем.
+    Например, плагин Foo располагается в каталоге 'D:\FAR\Plugins\Foo' и
+    нам надо показать тему помощи 'FooInfo' из хелпа по этому плагину:
+    <pre class=code>"&lt;D:\FAR\Plugins\Foo\&gt;FooInfo"</pre>
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">"&lt;FullModuleName&gt;Topic"</td>
+  <td class="cont" width="60%">Абсолютная ссылка на тему в файле помощи, находящемся
+    в том же каталоге, где находится плагин с именем DLL-модуля
+    <dfn>FullModuleName</dfn>.
+    Например, для плагина Foo 'D:\FAR\Plugins\Foo\Foo.dll' необходимо показать
+    тему помощи 'FooInfo' из хелпа по этому плагину:
+    <pre class=code>"&lt;D:\FAR\Plugins\Foo\Foo.dll&gt;FooInfo"</pre>
+  </td></tr>
+  </table>
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../service_functions/showhelp.html">ShowHelp</a>,
+<a href="../dialogapi/dialoginit.html">DialogInit</a>,
+<a href="../dialogapi/dmsg/dn_help.html">DN_HELP</a>,
+<a href="../service_functions/inputbox.html">InputBox</a>,
+<a href="../service_functions/menu.html">Menu</a>,
+<a href="../service_functions/message.html">Message</a>
+
+</div>
+
+
+</body>
+</html>

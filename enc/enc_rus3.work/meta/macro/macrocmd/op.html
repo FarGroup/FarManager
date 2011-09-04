@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Операции - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<a name="op"></a>
+<h1>Операции</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a>
+</div>
+
+<h3>Введение</h3>
+<p>Над значениями можно производить следующие операции:</p>
+
+<table class="cont2">
+  <col span="2">
+  <tr>
+    <th>Операция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>+</td>
+    <td>Числовое сложение или сцепление строк</td>
+  </tr>
+  <tr>
+    <td>-</td>
+    <td>Числовое вычитание или унарный минус</td>
+  </tr>
+  <tr>
+    <td>*</td>
+    <td>Числовое умножение</td>
+  </tr>
+  <tr>
+    <td>/</td>
+    <td>Числовое деление. FAR прерывает исполнение макроса, если происходит деление на&nbsp;0</td>
+  </tr>
+  <tr>
+    <td>&amp;</td>
+    <td>Битовое умножение</td>
+  </tr>
+  <tr>
+    <td>^</td>
+    <td>Битовое Исключающее ИЛИ (XOR)</td>
+  </tr>
+  <tr>
+    <td>|</td>
+    <td>Битовое сложение</td>
+  </tr>
+  <tr>
+    <td>&lt;&lt;</td>
+    <td>Битовый сдвиг влево</td>
+  </tr>
+  <tr>
+    <td>&gt;&gt;</td>
+    <td>Битовый сдвиг вправо</td>
+  </tr>
+  <tr>
+    <td>!</td>
+    <td>Логическое отрицание</td>
+  </tr>
+  <tr>
+    <td>~</td>
+    <td>Битовое отрицание</td>
+  </tr>
+</table>
+
+<h3>Детальное описание</h3>
+<p>Для разбора операций определимся с определениями:</p>
+<ul>
+  <li><code>Int</code> - целое число;</li>
+  <li><code>Dbl</code> - вещественное число;</li>
+  <li><code>StrInt</code> - строка, которая полностью преобразуется в <code>Int</code>;</li>
+  <li><code>StrDbl</code> - строка, которая полностью преобразуется в <code>Dbl</code>;</li>
+  <li><code>Str</code> - строка, которая не может быть полностью преобразована в <code>Int</code> или <code>Dbl</code> (собственно, просто набор символов).</li>
+</ul>
+
+<p>В соответствии с этими определениями, там, где это возможно, происходит
+преобразование строки в число и выполнение операции.</p>
+<p>Далее приведены таблицы, показывающие результаты работы операций над значениями A и B:</p>
+
+<table class="cont2">
+  <col width="15%">
+  <col span="5" width="17%">
+  <tr><th>+</th><th>B.Int</th><th>B.Dbl</th><th>B.StrInt</th><th>B.StrDbl</th><th>B.Str</th></tr>
+  <tr><th>A.Int</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.Dbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.StrInt</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.StrDbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Str</td></tr>
+  <tr><th>A.Str</th><td>Str</td><td>Str</td><td>Str</td><td>Str</td><td>Str</td></tr>
+</table>
+<p>Здесь Str обозначает конкатенацию двух операндов.</p>
+
+<table class="cont2">
+  <col width="15%">
+  <col span="5" width="17%">
+  <tr><th>- * / %</th><th>B.Int</th><th>B.Dbl</th><th>B.StrInt</th><th>B.StrDbl</th><th>B.Str</th></tr>
+  <tr><th>A.Int</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.Dbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.StrInt</th><td>Int</td><td>Dbl</td><td>Int</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.StrDbl</th><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>Dbl</td><td>A.Str</td></tr>
+  <tr><th>A.Str</th><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td></tr>
+</table>
+<p>Здесь A.Str - возвращается значение операнда A.</p>
+
+<p>Для бинарных операций операнды Dbl или StrDbl предварительно преобразуется к Int.</p>
+<table class="cont2">
+  <col width="15%">
+  <col span="5" width="17%">
+  <tr><th><em>| &amp; ^ &lt;&lt; &gt;&gt;</em></th><th>B.Int</th><th>B.Dbl</th><th>B.StrInt</th><th>B.StrDbl</th><th>B.Str</th></tr>
+  <tr><th>A.Int</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.Dbl</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.StrInt</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.StrDbl</th><td>Int</td><td>Int</td><td>Int</td><td>Int</td><td>A.Str</td></tr>
+  <tr><th>A.Str</th><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td><td>A.Str</td></tr>
+</table>
+<p>Здесь A.Str - возвращается значение операнда A.</p>
+
+<p>В операциях сравнения (==, !=, &lt;, &lt;=, &gt;, &gt;=) операнды преобразуются (там, где это возможно) и сравниваются.</p>
+<p>В логических OR и AND операнды сравниваются как есть, строки не преобразуются в StrInt и StrDbl, а проверяются на не пустую строку.</p>
+
+<h3>Приоритеты операций в выражениях</h3>
+<table class="cont2">
+  <col span="2">
+  <tr>
+    <th>Операция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>!  ~  -</td>
+    <td>Унарные (R-&gt;L)</td>
+  </tr>
+  <tr>
+    <td>* /</td>
+    <td>арифметические</td>
+  </tr>
+  <tr>
+    <td>+ -</td>
+    <td>арифметические</td>
+  </tr>
+  <tr>
+    <td>&lt;&lt; &gt;&gt;</td>
+    <td>Битовый сдвиг</td>
+  </tr>
+  <tr>
+    <td>&lt;  &lt;=  &gt;  =&gt;</td>
+    <td>Логическое сравнение</td>
+  </tr>
+  <tr>
+    <td>== !=</td>
+    <td>Логическое сравнение</td>
+  </tr>
+  <tr>
+    <td>&amp;</td>
+    <td>Битовая (and)</td>
+  </tr>
+  <tr>
+    <td>^</td>
+    <td>Битовая (xor)</td>
+  </tr>
+  <tr>
+    <td>|</td>
+    <td>Битовая (or)</td>
+  </tr>
+  <tr>
+    <td>&amp;&amp;</td>
+    <td>Логическая (and)</td>
+  </tr>
+  <tr>
+    <td>^^</td>
+    <td>Логическая (xor)</td>
+  </tr>
+  <tr>
+    <td>||</td>
+    <td>Логическая (or)</td>
+  </tr>
+</table>
+
+</body>
+
+</html>

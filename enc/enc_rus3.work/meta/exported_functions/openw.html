@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>OpenW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>OpenW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>OpenW</dfn> вызывается Far Manager'ом при создании новой копии плагина.
+</div>
+
+<pre class=syntax>
+HANDLE WINAPI OpenW(
+  const struct OpenInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/openinfo.html">OpenInfo</a>, Far Manager передает служебную информацию об открытом плагине.<br>
+    В начале функции обязательно проверьте, что поле <code>OpenInfo.StructSize >= sizeof(OpenInfo)</code>.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Если функция завершается успешно, то возвращаемое значение - описатель плагина. Этот описатель позже будет передаваться другим функциям плагина для того, 
+чтобы позволить им различать различные копии загруженного плагина. Формат и содержание описателя не важны для Far Manager'а - они могут быть, к примеру,
+адресом внутреннего объекта плагина, или адресом структуры с данными плагина или любым другим уникальным идентификатором, отличным от нуля.
+<p>В случае неудачного завершения функции, возвращаемое значение должно равняться <code>INVALID_HANDLE_VALUE</code>.</p>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>Вы можете использовать эту функцию для реализации плагинов, работающих без создания файловых панелей. Просто выполните все необходимые действия и верните INVALID_HANDLE_VALUE.
+</ol>
+</div>
+
+</body>
+</html>

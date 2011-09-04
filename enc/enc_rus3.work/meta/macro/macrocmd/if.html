@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>$If - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$If</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a> |
+<a href="cmds.html">Макрокоманды</a>
+</div>
+
+<div class="shortdescr">
+Условный оператор <dfn>$If</dfn> позволяет организовать в макросах процесс ветвления макропоследовательности.
+</div>
+
+<pre class="syntax">
+<dfn>$If</dfn> <dfn>(</dfn><var>Expr</var><dfn>)</dfn> <var>TruePart</var> [<dfn>$Else</dfn> <var>FalsePart</var>] <dfn>$End</dfn>
+</pre>
+
+<h3>Элементы</h3>
+<div class="descr">
+<div class="dfn">Expr</div>
+<div class="dfndescr">Выражение</div>
+
+<div class="dfn">TruePart</div>
+<div class="dfndescr">Выполняется, если выражение <dfn>Expr</dfn> истинно.</div>
+
+<div class="dfn">FalsePart</div>
+<div class="dfndescr">Выполняется, если выражение <dfn>Expr</dfn> ложно.</div>
+</div>
+
+
+<h3>Замечания</h3>
+<div class="descr">
+<ol>
+<li>Часть <dfn>$Else</dfn> можно не указывать.</li>
+<li>Если <var>Expr</var> строка и она не пуста, то выполняется <var>TruePart</var>, иначе <var>FalsePart</var>.
+</ol>
+</div>
+
+<h3>Пример</h3>
+<div class="descr">
+<pre class="codesample"><code>REGEDIT4
+
+;для удобной навигации с нажатым Alt'oм
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Common\AltUp]
+"Sequence"="$If (Viewer || Qview) Up $Else AltUp $End"
+"DisableOutput"=dword:00000001
+</code></pre>
+
+Будет напечатано "false":
+<pre class="codesample"><code>
+$If ("") print("true") $else print("false") $End
+$If (0) print("true") $else print("false") $End
+</code></pre>
+
+Будет напечатано "true":
+<pre class="codesample"><code>
+$If (123) print("true") $else print("false") $End
+$If ("0") print("true") $else print("false") $End
+$If ("abc") print("true") $else print("false") $End
+</code></pre>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="prop_func/general.html#iif">iif()</a>,
+<a href="../examples.html">Примеры</a>
+</div>
+
+
+</body>
+
+</html>

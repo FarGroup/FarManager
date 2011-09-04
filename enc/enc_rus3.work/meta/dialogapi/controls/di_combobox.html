@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DI_COMBOBOX</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DI_COMBOBOX</h1>
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="index.html">Элементы диалога</a><br>
+</div>
+
+<div class=shortdescr>
+Элемент диалога <dfn>DI_COMBOBOX</dfn> описывает поле ввода со списком (комбинированный список).
+</div>
+
+<pre class=syntax>
+struct FarDialogItem
+{
+  int Type             = <b>DI_COMBOBOX</b>
+  int X1               = <b>X1</b>
+  int Y1               = <b>Y</b>
+  int X2               = <b>X2</b>
+  int Y2               = <b>Y</b> (равен значению Y1)
+  int Focus            = <b>Focus</b>
+  union {
+    FarList *ListItems = <b>ListItems</b>  [передаётся]
+    int ListPos        = <b>ListPos</b>    [возвращается]
+  };
+  DWORD Flags          = <b>Flags</b>
+  int DefaultButton    = <b>DefaultButton</b>
+  const wchar_t *PtrData  = <b>редактируемый текст</b>
+};
+</pre>
+<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
+<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+
+<h3>Focus</h3>
+<div class=descr>
+Определяет, имеет ли поле ввода клавиатурный фокус ввода.
+</div>
+
+<h3>ListItems</h3>
+<div class=descr>
+<p>Указатель на структуру <a href="../structures/farlist.html">FarList</a>,
+описывающую пункты для начальной инициализации комбинированного списка.
+Редактируемое поле заполняется значением
+первого пункта списка с установленным флагом <a href="../structures/farlistitem.html#LIF_SELECTED">LIF_SELECTED</a>
+при условии, что <dfn>PtrData</dfn> не содержит "<em>редактируемый текст</em>" и есть хотя бы
+один элемент списка с таким флагом. Если таких пунктов несколько, берётся
+первый.
+<p>Если значение = NULL, то список выводится не будет.
+</div>
+
+<h3>ListPos</h3>
+<div class=descr>
+<p>Текущая позиция в списке <a href="../structures/farlist.html">ListItems.Items</a>.
+В Plugins API v1.0 после закрытия диалога это поле содержало позицию выбранного пользователем элемента списка.
+В Plugins API v2.0 для получения позиции выбранного пользователем элемента списка воспользуйтесь сообщением <a href="../dmsg/dm_listgetcurpos.html">DM_LISTGETCURPOS</a>.
+</div>
+
+<h3>Флаги</h3>
+<div class=descr>
+Для элемента <dfn>DI_COMBOBOX</dfn> имеют значения следующие флаги (про флаги
+списка см. <a href="../structures/farlistitem.html">FarListItem</a>):<br>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a></td>
+ <td class="cont" width="60%">стиль нередактируемого раскрывающегося списка - DropDownList
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_editexpand.html">DIF_EDITEXPAND</a></td>
+ <td class="cont" width="60%">"расширять" переменные среды
+ </td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_editpath.html">DIF_EDITPATH</a></td>
+<td class="cont" width="60%">строка ввода будет содержать имена реальных файловых объектов
+</td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listautohighlight.html">DIF_LISTAUTOHIGHLIGHT</a></td>
+ <td class="cont" width="60%">горячие клавиши будут назначены автоматически
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnoampersand.html">DIF_LISTNOAMPERSAND</a></td>
+ <td class="cont" width="60%">показывать горячие клавиши в списке
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listwrapmode.html">DIF_LISTWRAPMODE</a></td>
+ <td class="cont" width="60%">"заворачивает" список при навигации по списку
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
+ <td class="cont" width="60%">элемент является недоступным
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_readonly.html">DIF_READONLY</a></td>
+ <td class="cont" width="60%">переводит строки редактирования в состояние "только для чтения"
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_selectonentry.html">DIF_SELECTONENTRY</a></td>
+ <td class="cont" width="60%">выделить редактируемый текст при получении фокуса ввода
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
+ <td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода
+ </td></tr>
+</table>
+</div>
+
+<h3>События</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+ <td class="cont" width="60%">начало отрисовки текстовой строки
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+ <td class="cont" width="60%">запрос цветовых атрибутов для отрисовки строки редактирования
+   комбинированного списка; Param2:
+<pre>LoWord LoByte - редактируемый текст
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGEDIT">COL_WARNDIALOGEDIT</a> или
+                 <a href="../../defs/farcolors.html#COL_DIALOGEDIT">COL_DIALOGEDIT</a>)
+LoWord HiByte - выделенный текст
+                (<a href="../../defs/farcolors.html#COL_DIALOGEDITSELECTED">COL_DIALOGEDITSELECTED</a>)
+HiWord LoByte - неизмененный текст (UnChanched)
+                (<a href="../../defs/farcolors.html#COL_DIALOGEDITUNCHANGED">COL_DIALOGEDITUNCHANGED</a>)
+HiWord HiByte - цвет символа для вызова списка
+                (<a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>)
+
+Param2 (при флаге <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a>):
+
+LoWord LoByte - редактируемый текст
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGEDIT">COL_WARNDIALOGEDIT</a> или
+                 <a href="../../defs/farcolors.html#COL_DIALOGEDIT">COL_DIALOGEDIT</a>)
+LoWord HiByte - выделенный текст
+                (<a href="../../defs/farcolors.html#COL_DIALOGEDIT">COL_DIALOGEDIT</a>
+                элемент в фокусе
+                <a href="../../defs/farcolors.html#COL_DIALOGEDITSELECTED">COL_DIALOGEDITSELECTED</a>)
+HiWord LoByte - неизмененный текст (UnChanched)
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGEDIT">COL_WARNDIALOGEDIT</a> или
+                 <a href="../../defs/farcolors.html#COL_DIALOGEDIT">COL_DIALOGEDIT</a>)
+HiWord HiByte - цвет символа для вызова списка
+                (<a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>)</pre>
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a></td>
+ <td class="cont" width="60%">запрос цветовых атрибутов перед отрисовкой открытого комбинированного списка
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
+ <td class="cont" width="60%">нажали клавишу
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listhotkey.html">DN_LISTHOTKEY</a></td>
+ <td class="cont" width="60%">пользователь для смены пункта в открытом комбинированном списке воспользовался горячими клавишами
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
+ <td class="cont" width="60%">"кликнули" клавишей мыши
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_editchange.html">DN_EDITCHANGE</a></td>
+ <td class="cont" width="60%">текст изменён
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
+ <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_gotfocus.html">DN_GOTFOCUS</a></td>
+ <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
+ </td></tr>
+
+</table>
+
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<p></p>
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="di_listbox.html">DI_LISTBOX</a>,
+<a href="../structures/fardialogitem.html">FarDialogItem</a>
+
+</div>
+
+</body>
+</html>

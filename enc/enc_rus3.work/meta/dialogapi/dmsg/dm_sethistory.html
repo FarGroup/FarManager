@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DM_SETHISTORY</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DM_SETHISTORY</h1>
+<div class=navbar>
+<a  href="index_dm.html">Сообщения</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+Сообщение <dfn>DM_SETHISTORY</dfn> позволяет управлять наличием
+истории в строках ввода.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+ID элемента диалога.
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Указатель на строку, содержащую название истории ввода или <code>NULL</code>,
+если необходимо отключить историю в строке ввода.
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+<code>FALSE</code> - указанный элемент диалога <var>Param1</var> не
+поддерживает работу с историей.<br>
+<code>TRUE</code> - история успешно назначена элементу диалога <var>Param1</var>.
+</div>
+
+<h3>Элементы</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
+<td class="cont" width="60%">строка ввода</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
+<td class="cont" width="60%">поле ввода фиксированного размера</td></tr>
+</table>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Если строка ввода пуста и у элемента <a href="../controls/di_edit.html">DI_EDIT</a>
+выставлен флаг <a href="../flags/dif_uselasthistory.html">DIF_USELASTHISTORY</a>,
+то FAR сам подставит первое значение из истории в строку ввода.
+</div>
+
+
+<h3>Пример</h3>
+<div class=descr>
+Применение данного сообщения можно увидеть в исходных текстах плагина MultiArc.
+
+<p>Следующий пример выставляет историю и очищает строку ввода:
+<pre class=code>
+...
+  else if(Msg == MAM_ARCSWITCHES)
+  {
+    static wchar_t SwHistoryName[MAX_PATH];
+    FSF.sprintf(SwHistoryName,L"ArcSwitches\\%s",pdd-&gt;ArcFormat);
+    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(LONG_PTR)SwHistoryName);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(LONG_PTR)L"");
+  }
+...
+</pre>
+
+<p>Для того, чтобы FAR сам подставил первую строку из истории ключей, необходимо
+приведённый выше код переписать так:
+<pre class=code>
+...
+  else if(Msg == MAM_ARCSWITCHES)
+  {
+    static wchar_t SwHistoryName[MAX_PATH];
+    FSF.sprintf(SwHistoryName,L"ArcSwitches\\%s",pdd-&gt;ArcFormat);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(LONG_PTR)L"");
+    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(LONG_PTR)SwHistoryName);
+  }
+...
+</pre>
+<p>Т.е. сначала строка ввода очищается, потом происходит назначение истории
+для элемента.
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../dialoginit.html">DialogInit</a>,
+<a href="dm_addhistory.html">DM_ADDHISTORY</a>,
+<a href="../flags/dif_history.html">DIF_HISTORY</a>
+</div>
+
+</body>
+</html>

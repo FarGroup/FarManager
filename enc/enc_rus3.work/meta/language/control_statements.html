@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Управляющие элементы</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Управляющие элементы</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">языковая поддержка</a>
+</div>
+
+
+<div class=shortdescr>
+В начале языковых файлов и в файлах подсказки могут содержаться следующие
+управляющие элементы, начинающиеся с точки.
+</div>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Управляющий элемент</th><th class="cont" width="60%">Описание</th></tr>
+
+<a name="Language"></a>
+<tr class="cont"><td class="cont" width="40%"><a name=".Language">.Language</a></td>
+<td class="cont" width="60%">
+<pre class=code>.Language=&lt;Language name&gt;,&lt;Language description&gt;</pre>
+  Этим элементом должен начинаться любой файл помощи или поддержки языка.
+  <div class=dfn><dfn>&lt;Language name&gt;</dfn></div>
+  <div class=dfndescr>описывает файловый язык и должен быть стандартным языковым
+  именем (на английском). Все файлы с тем же языком должны иметь то же значение
+  <code>&lt;Language name&gt;</code>.
+  </div>
+
+  <div class=dfn><dfn>&lt;Language description&gt;</dfn></div>
+  <div class=dfndescr>может содержать языковое описание в любой форме.
+  Эта строка отобразится в меню <code>Languages</code> (<code>Языки</code>).</div>
+</td></tr>
+
+<a name="PluginContents"></a>
+<tr class="cont"><td class="cont" width="40%"><a name=".PluginContents">.PluginContents</a></td>
+<td class="cont" width="60%">
+  <pre class=code>.PluginContents=&lt;Contents topic name&gt;</pre>
+  <p>Это дополнительное утверждение может
+  использоваться для добавления <i>&lt;Contents topic name&gt;</i>
+  в список помощи плагинов (отображается в помощи
+  FAR нажатием <code>Shift-F2)</code>.
+  После выбора этого пункта будет показана тема <code>Contents</code>
+  (см. раздел <a href="help_files.html">&quot;Файлы помощи&quot;</a>
+  относительно темы <code>Contents</code>).
+</td></tr>
+
+<a name="Options"></a>
+<tr class="cont"><td class="cont" width="40%"><a name=".Options">.Options</a></td>
+<td class="cont" width="60%">
+  <pre class=code>.Options &lt;KeyName&gt;=&lt;Value&gt;</pre>
+  Это дополнительное утверждение может использоваться для указания
+  дополнительных опций в файлах помощи. Таких утверждений может быть
+  несколько.
+  <div class=dfn>&lt;KeyName&gt;</div>
+  <div class=dfndescr>Одно из следующих значений:<ul>
+    <li><a name="CtrlColorChar">CtrlColorChar</a><br>
+      Значение &lt;Value&gt; содержит символ, с помощью которого
+      будет указан цветовой атрибут (см. раздел <a href="help_files.html">&quot;Файлы помощи&quot;</a>
+      относительно темы <code>CtrlColorChar</code>). Например, утверждение:
+      <pre class=code>.Options CtrlColorChar=\</pre>
+      говорит о том, что для спецсимвола, указывающего на цветовые атрибуты
+      будет использоваться символ <b><code>\</code></b>.<br><br>
+    <li><a name="TabSize">TabSize</a><br>
+      &lt;Value&gt; указывает на размер табуляции в HLF-файле.
+      Может быть от 1 до 16. По умолчанию равно 8.<br><br>
+    <li><a name="CtrlStartPosChar">CtrlStartPosChar</a><br>
+      Значение &lt;Value&gt; содержит символ, с помощью которого
+      будет указано с какой позиции начинать последующие строки. Например, утверждение:
+      <pre class=code>.Options CtrlStartPosChar=&amp;</pre>
+      говорит о том, что спецсимволом позиции переноса будет символ '&amp;', тогда
+      <pre class=code>пункт 1 - &папа у Васи силён в математике, учится папа за Васю весь год.</pre>
+      выравнивается так:
+
+<pre class=code>_пункт 1 - папа у Васи силён в математике, учится папа
+           за Васю весь год.</pre>
+      <br><br>
+  </ul>
+  </div>
+</td></tr></table>
+
+
+
+<h3>Пример:</h3>
+<div class=descr>
+<pre class=code><b>.Language</b>=Russian,Russian (Русский)
+<b>.PluginContents</b>=FTP клиент
+<b>@Contents
+</b>$ #FTP клиент#
+   ~Подключение к FTP серверу~@FTPConnect@
+
+   ~Работа с именами серверов~@FTPNames@
+
+   ~Команды FTP клиента~@FTPCmd@
+
+   ~Конфигурация FTP клиента~@FTPCfg@
+
+   ~Режимы панели FTP клиента~@FTPPanel
+</pre>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">Языковая поддержка</a>,
+<a href="help_files.html">Файлы помощи</a>
+</div>
+
+</body>
+</html>

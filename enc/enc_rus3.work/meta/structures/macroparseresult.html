@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>MacroParseResult</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>MacroParseResult</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>MacroParseResult</dfn> используется в функции <a href="../service_functions/macrocontrol.html">MacroControl</a> для возврата плагину результатов проверки макропоследовательности.
+</div>
+
+<pre class=syntax>
+struct MacroParseResult
+{
+  size_t StructSize;
+  DWORD ErrCode;
+  COORD ErrPos;
+  const wchar_t *ErrSrc;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>MacroParseResult</dfn>.</div>
+  <div class=dfn>ErrCode</div>
+    <div class=dfndescr>Результат проверки (перечисление <a name="FARMACROPARSEERRORCODE">FARMACROPARSEERRORCODE</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_SUCCESS">MPEC_SUCCESS</a></td>
+    <td class="cont" width="60%">Ошибок нет</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_UNRECOGNIZED_KEYWORD">MPEC_UNRECOGNIZED_KEYWORD</a></td>
+    <td class="cont" width="60%">Неизвестное ключевое слово '%s'</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_UNRECOGNIZED_FUNCTION">MPEC_UNRECOGNIZED_FUNCTION</a></td>
+    <td class="cont" width="60%">Неизвестная функция '%s'</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_FUNC_PARAM">MPEC_FUNC_PARAM</a></td>
+    <td class="cont" width="60%">Неверное количество параметров у функции '%s'</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_NOT_EXPECTED_ELSE">MPEC_NOT_EXPECTED_ELSE</a></td>
+    <td class="cont" width="60%">Неожиданное появление $Else</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_NOT_EXPECTED_END">MPEC_NOT_EXPECTED_END</a></td>
+    <td class="cont" width="60%">Неожиданное появление $End</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_UNEXPECTED_EOS">MPEC_UNEXPECTED_EOS</a></td>
+    <td class="cont" width="60%">Неожиданный конец строки</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_EXPECTED_TOKEN">MPEC_EXPECTED_TOKEN</a></td>
+    <td class="cont" width="60%">Ожидается '%s'</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_BAD_HEX_CONTROL_CHAR">MPEC_BAD_HEX_CONTROL_CHAR</a></td>
+    <td class="cont" width="60%">Неизвестный шестнадцатеричный управляющий символ</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_BAD_CONTROL_CHAR">MPEC_BAD_CONTROL_CHAR</a></td>
+    <td class="cont" width="60%">Неправильный управляющий символ</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_VAR_EXPECTED">MPEC_VAR_EXPECTED</a></td>
+    <td class="cont" width="60%">Переменная '%s' не найдена</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_EXPR_EXPECTED">MPEC_EXPR_EXPECTED</a></td>
+    <td class="cont" width="60%">Ошибка синтаксиса</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_ZEROLENGTHMACRO">MPEC_ZEROLENGTHMACRO</a></td>
+    <td class="cont" width="60%">Пустая макропоследовательность</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_INTPARSERERROR">MPEC_INTPARSERERROR</a></td>
+    <td class="cont" width="60%">Внутренняя ошибка парсера</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="MPEC_CONTINUE_OTL">MPEC_CONTINUE_OTL</a></td>
+    <td class="cont" width="60%">Оператор $Continue вне цикла</td></tr>
+    </table>
+    </div>
+  <div class=dfn>ErrPos</div>
+    <div class=dfndescr>Позиция ошибки в исходном тексте.</div>
+  <div class=dfn>ErrSrc</div>
+    <div class=dfndescr>"Слово" вызвавщее ошибку, может быть пустым, в зависимости от кода ошибки.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a> |
+</div>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>EditorSelect</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>EditorSelect</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>EditorSelect</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для выделения или снятия выделения с текста в редакторе Far Manager.
+</div>
+
+<pre class=syntax>
+struct EditorSelect
+{
+  int BlockType;
+  int BlockStartLine;
+  int BlockStartPos;
+  int BlockWidth;
+  int BlockHeight;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>BlockType</div>
+    <div class=dfndescr>Одно из следующих значений (перечисление <a name="EDITOR_BLOCK_TYPES">EDITOR_BLOCK_TYPES</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Тип блока</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_NONE">BTYPE_NONE</a></td>
+    <td class="cont" width="60%">снять выделение с блока</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_STREAM">BTYPE_STREAM</a></td>
+    <td class="cont" width="60%">выделить строковой блок</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_COLUMN">BTYPE_COLUMN</a></td>
+    <td class="cont" width="60%">выделить вертикальный блок</td></tr>
+    </table>
+    Если <i>BlockType</i> равен BTYPE_NONE, другие поля этой структуры не важны.
+    </div>
+  <div class=dfn>BlockStartLine</div>
+    <div class=dfndescr>Первая строка блока. Можно установить это поле в <code>-1</code> - началом блока будет текущая строка.</div>
+  <div class=dfn>BlockStartPos</div>
+    <div class=dfndescr>Начальная позиция блока. Если <i>BlockStartPos</i> = -1, то выделение блока снимается.</div>
+  <div class=dfn>BlockWidth</div>
+    <div class=dfndescr>Ширина блока. Может быть отрицательной величиной.</div>
+  <div class=dfn>BlockHeight</div>
+    <div class=dfndescr>Высота блока. Должна быть &gt;= 1.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>Функция <a href="../service_functions/editorcontrol.html">EditorControl</a> вернёт FALSE, если:
+<ul>
+<li>размер передаваемой переменной меньше размера структуры <dfn>EditorSelect</dfn>;
+<li><i>BlockHeight</i> меньше 1;
+<li><i>BlockStartLine</i> больше количества строк в редакторе.
+</ul>
+</li>
+</ol>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Программно строковый блок от (X1,Y1) до (X2,Y2) можно выделить так:
+<pre class=code>es.BlockType=BTYPE_STREAM;
+es.BlockStartLine=min(Y2,Y1);
+es.BlockStartPos=(Y1 &lt; Y2?X1:X2);
+
+// небольшая коррекция, если позиции равны
+if(X1 == X2)
+  es.BlockStartPos+=(Y1 &lt; Y2?1:-1);
+
+es.BlockHeight=max(Y1,Y2)-min(Y1,Y2)+1;
+
+if(Y1 &lt; Y2)
+  es.BlockWidth=X2-X1+1;
+else
+  es.BlockWidth=X1-X2+1;
+
+if(X1 == X2)
+{
+  if(Y1 &lt; Y2)
+    es.BlockStartPos--;
+  else
+    es.BlockStartPos++;
+}
+
+Info.EditorControl(-1,ECTL_SELECT,0,(void*)&amp;es);</pre>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a> |
+</div>
+
+</body>
+</html>

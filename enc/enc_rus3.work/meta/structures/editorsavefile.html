@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>EditorSaveFile</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>EditorSaveFile</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>EditorSaveFile</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a>
+для сохранения редактируемого файла (команда <a href="../service_functions/editorcontrol.html#ECTL_SAVEFILE">ECTL_SAVEFILE</a>).
+</div>
+
+<pre class=syntax>
+struct EditorSaveFile
+{
+  const wchar_t *FileName;
+  const wchar_t *FileEOL;
+  UINT CodePage;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>FileName</div>
+    <div class=dfndescr>Здесь вы можете определить новое имя для сохраняемого файла. Имейте в виду, что имя файла должно быть полным, включая директорию. Если вы не желаете изменять имя редактируемого файла, то установите значение в <code>NULL</code>.</div>
+  <div class=dfn>FileEOL</div>
+    <div class=dfndescr>Последовательность, обозначающая конец строки. Может быть <code>NULL</code> (оставить исходную EOL-последовательность), <code>\r\n</code> или <code>\n</code>.</div>
+  <div class=dfn>CodePage</div>
+    <div class=dfndescr>Кодовая страница в которой будет сохранён файл.</div>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a> |
+</div>
+
+</body>
+</html>

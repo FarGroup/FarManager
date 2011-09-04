@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>EditorUndoRedo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>EditorUndoRedo</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>EditorUndoRedo</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для управления поведением операции Отмена-Возврат действия, т.н. Undo-Redo в редакторе Far Manager.
+</div>
+
+<pre class=syntax>
+struct EditorUndoRedo
+{
+  enum EDITOR_UNDOREDO_COMMANDS Command;
+  DWORD_PTR Reserved[3];
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>Command</div>
+    <div class=dfndescr>Одно из следующих значений (перечисление <a name="EDITOR_UNDOREDO_COMMANDS">EDITOR_UNDOREDO_COMMANDS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EUR_BEGIN">EUR_BEGIN</a></td>
+    <td class="cont" width="60%">начало блочной операции</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EUR_END">EUR_END</a></td>
+    <td class="cont" width="60%">конец блочной операции</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EUR_UNDO">EUR_UNDO</a></td>
+    <td class="cont" width="60%">сделать отмену действия (Undo) от EUR_END до EUR_BEGIN</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EUR_REDO">EUR_REDO</a></td>
+    <td class="cont" width="60%">вернуть действие назад (Redo) от EUR_BEGIN до EUR_END</td></tr>
+    </table>
+    </div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Не используется, зарезервировано для будущих нужд.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+</ol>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a>
+</div>
+
+</body>
+</html>

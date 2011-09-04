@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DM_LISTDELETE</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DM_LISTDELETE</h1>
+<div class=navbar>
+<a  href="index_dm.html">Сообщения</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+Сообщение <dfn>DM_LISTDELETE</dfn> посылается Менеджеру диалогов для удаления
+элементов из списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
+<a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+ID требуемого элемента диалога.
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Указатель на структуру типа <a href="../structures/farlistdelete.html">FarListDelete</a>, описывающую параметры удаления, или NULL.
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+TRUE - данные удалены из списка.<br>
+FALSE - ошибка при удалении данных.
+</div>
+
+<h3>Элементы</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
+<td class="cont" width="60%">список</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
+<td class="cont" width="60%">комбинированный список</td></tr>
+</table>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Если в качестве <dfn>Param2</dfn> задано значение <code>NULL</code>, то из списка будут удалены все элементы.
+Данные, которые плагин ассоциировал с элементом списка с помощью сообщения <a href="dm_listsetdata.html">DM_LISTSETDATA</a> также будут удалены.
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+<pre class=code>
+// *** УДАЛИТЬ ПЕРВЫЕ ДВА ЭЛЕМЕНТА СПИСКА ***
+struct FarListDelete FLDItem;
+FLDItem.StartIndex=0;
+FLDItem.Count=2;
+Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)&amp;FLDItem);
+
+// *** ОЧИСТИТЬ ВЕСЬ СПИСОК ***
+  //   Способ 1:
+  struct FarListDelete FLDItem={0,<b>0</b>};
+  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)&amp;FLDItem);
+
+  //   Способ 2:
+  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)<b>NULL</b>);
+</pre>
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../dialoginit.html">DialogInit</a>,
+<a href="../structures/farlistdelete.html">FarListDelete</a>
+</div>
+
+</body>
+</html>

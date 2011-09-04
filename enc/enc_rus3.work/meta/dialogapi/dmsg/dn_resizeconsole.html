@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DN_RESIZECONSOLE</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DN_RESIZECONSOLE</h1>
+<div class=navbar>
+<a  href="index_dn.html">События</a> |
+<a href="../index.html">Dialog API</a><br>
+</div>
+
+<div class=shortdescr>
+Сообщение <dfn>DN_RESIZECONSOLE</dfn> передаётся процедуре обработки диалога
+после изменения размера консоли (например, после того, как пользователь
+нажал <kbd>Alt-F9</kbd>).
+</div>
+
+<h3>Param1</h3>
+<div class=descr>
+0
+</div>
+
+<h3>Param2</h3>
+<div class=descr>
+Указатель на структуру <a href="../../winapi/coord.html">COORD</a>, в
+которой указаны текущие размеры консоли.
+</div>
+
+<h3>Return</h3>
+<div class=descr>
+<code>TRUE</code>.
+</div>
+
+<h3>Элементы</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%">Диалог</td>
+<td class="cont" width="60%">сообщение затрагивает только диалог</td></tr>
+</table>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Сообщение <dfn>DN_RESIZECONSOLE</dfn> полезно в том случае, когда плагин умеет
+подстраиваться под текущие размеры консоли. Пример работы данного сообщения
+можно наблюдать в диалоге поиска файлов (<kbd>Alt-F7</kbd>).
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Изменение размеров диалога поиска (<kbd>Alt-F7</kbd>) при изменении
+размеров консоли.
+<pre class=code>
+case DN_RESIZECONSOLE:
+{
+  COORD coord=(*(COORD*)Param2);
+  SMALL_RECT rect;
+  int IncY=coord.Y-DlgHeight-4;
+
+  ...
+
+  Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
+
+  Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&amp;rect);
+  coord.X=rect.Right-rect.Left+1;
+  DlgHeight+=IncY;
+  coord.Y=DlgHeight;
+
+  if (IncY &gt; 0)
+    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(LONG_PTR)&amp;coord);
+
+  for (I=0; I &lt; 2; I++)
+  {
+    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(LONG_PTR)&amp;rect);
+    rect.Bottom+=(short)IncY;
+    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(LONG_PTR)&amp;rect);
+  }
+
+  for (I=2; I &lt; 10; I++)
+  {
+    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(LONG_PTR)&amp;rect);
+    if (I==2)
+      rect.Left=-1;
+    rect.Top+=(short)IncY;
+    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(LONG_PTR)&amp;rect);
+  }
+
+  if (IncY &lt;= 0)
+    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(LONG_PTR)&amp;coord);
+
+  Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+
+  ...
+
+  return TRUE;
+}</pre>
+
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../dialoginit.html">DialogInit</a><br>
+</div>
+
+</body>
+</html>

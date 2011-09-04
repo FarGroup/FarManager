@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>InputBox</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>InputBox</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">сервисные функции</a><br>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>InputBox</dfn> позволяет ввести одну строку текста.
+</div>
+
+<pre class=syntax>
+int WINAPI InputBox(
+  const GUID *PluginId,
+  const GUID *Id,
+  const wchar_t *Title,
+  const wchar_t *SubTitle,
+  const wchar_t *HistoryName,
+  const wchar_t *SrcText,
+  wchar_t *DestText,
+  int   DestLength,
+  const wchar_t *HelpTopic,
+  INPUTBOXFLAGS Flags
+);
+</pre>
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>PluginId</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле GlobalInfo.Guid функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class=dfn>Id</div>
+    <div class=dfndescr>Указатель на GUID текущего сообщения. GUID должен быть уникальным.</div>
+  <div class=dfn>Title</div>
+    <div class=dfndescr>Заголовок окна ввода. Может быть равен NULL или L"".</div>
+  <div class=dfn>SubTitle</div>
+    <div class=dfndescr>Приглашение на ввод данных. Может быть равен NULL или L"".</div>
+  <div class=dfn>HistoryName</div>
+    <div class=dfndescr>Адрес строки для "истории". Установите в NULL если "история" ввода не используется.</div>
+  <div class=dfn>SrcText</div>
+    <div class=dfndescr>Исходные данные для ввода и редактирования. Может быть равен NULL или L"".</div>
+  <div class=dfn>DestText</div>
+    <div class=dfndescr>"Приёмник" введённых данных. Может указать на ту же область памяти что и <dfn>SrcText</dfn>.</div>
+  <div class=dfn>DestLength</div>
+    <div class=dfndescr>Размер "приёмника".</div>
+  <div class=dfn>HelpTopic</div>
+    <div class=dfndescr>Адрес строки с <a href="../language/helptopic.html">названием темы</a> помощи в формате "&lt;FullPath&gt;Topic", например:
+    <pre class=code>L"&lt;D:\\FAR\\Plugins\\Foo\\&gt;FooInfo"</pre>
+    <br>Установите в NULL если подсказка не используется.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Может быть комбинацией следующих значений (перечисление <a name="INPUTBOXFLAGS">INPUTBOXFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FIB_ENABLEEMPTY">FIB_ENABLEEMPTY</a></td>
+    <td class="cont" width="60%">даже если строка ввода пуста функция вернёт значение TRUE</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FIB_PASSWORD">FIB_PASSWORD</a></td>
+    <td class="cont" width="60%">используется для ввода пароля - вводимый текст на экране отрисовывается символами <code>'*'</code></td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FIB_EXPANDENV">FIB_EXPANDENV</a></td>
+    <td class="cont" width="60%">после успешного ввода, в строке <dfn>DestText</dfn> идентификаторы переменных окружения заменяются на их значения, например, если пользователь ввёл '<code>%TEMP%</code>', то <dfn>DestText</dfn> будет содержать '<code>C:\TEMP</code>'</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FIB_NOUSELASTHISTORY">FIB_NOUSELASTHISTORY</a></td>
+    <td class="cont" width="60%">не использовать предыдущее значение из истории, оставить строку ввода пустой; актуален, если параметр <dfn>HistoryName</dfn> не равен NULL</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FIB_BUTTONS">FIB_BUTTONS</a></td>
+    <td class="cont" width="60%">показать разделительную линию и кнопки [Ok] и [Cancel]. Диалог увеличится на 2 строки</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FIB_NOAMPERSAND">FIB_NOAMPERSAND</a></td>
+    <td class="cont" width="60%">не показывать в приглашении ввода амперсанд, использовать его для определения горячей клавиши</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FIB_EDITPATH">FIB_EDITPATH</a></td>
+    <td class="cont" width="60%">говорит, что строка ввода будет содержать имена реальных файловых объектов</td></tr>
+    </table>
+    </div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Функция возвращает TRUE в случае успешного ввода строки и FALSE, если пользователь прервал ввод.
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+Far Manager использует данную функцию, когда пользователь пытается создать папку:<br>
+<img src="../../images/inputbox.gif">
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../dialogapi/dialoginit.html">DialogInit</a>
+</div>
+
+</body>
+</html>

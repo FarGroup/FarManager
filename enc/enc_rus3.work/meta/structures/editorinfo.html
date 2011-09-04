@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>EditorInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>EditorInfo</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>EditorInfo</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для получения информации о текущем состоянии редактора Far Manager.
+</div>
+
+<pre class=syntax>
+struct EditorInfo
+{
+  int EditorID;
+  int WindowSizeX;
+  int WindowSizeY;
+  int TotalLines;
+  int CurLine;
+  int CurPos;
+  int CurTabPos;
+  int TopScreenLine;
+  int LeftPos;
+  int Overtype;
+  int BlockType;
+  int BlockStartLine;
+  DWORD Options;
+  int TabSize;
+  int BookMarkCount;
+  DWORD CurState;
+  UINT CodePage;
+  DWORD_PTR Reserved[5];
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>EditorID</div>
+    <div class=dfndescr>Идентификатор экземпляра редактора. Каждый экземпляр редактора имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
+  <div class=dfn>WindowSizeX, WindowSizeY</div>
+    <div class=dfndescr>Ширина и высота окна редактора.</div>
+  <div class=dfn>TotalLines</div>
+    <div class=dfndescr>Количество строк в редактируемом тексте.</div>
+  <div class=dfn>CurLine</div>
+    <div class=dfndescr>Номер текущей строки. Нумерация начинается с 0.</div>
+  <div class=dfn>CurPos</div>
+    <div class=dfndescr>Позиция курсора в текущей строке. Нумерация начинается с 0.</div>
+  <div class=dfn>CurTabPos</div>
+    <div class=dfndescr>Экранная позиция курсора в текущей строке. Нумерация начинается с 0. Если строка не содержит символов табуляции, <i>CurTabPos</i> эквивалентна <i>CurPos</i>.</div>
+  <div class=dfn>TopScreenLine</div>
+    <div class=dfndescr>Номер строки вверху экрана. Нумерация начинается с 0.</div>
+  <div class=dfn>LeftPos</div>
+    <div class=dfndescr>Позиция левой границы окна редактора в редактируемом тексте. Нумерация начинается с 0.</div>
+  <div class=dfn>Overtype</div>
+    <div class=dfndescr>0 - режим вставки, 1 - замены.</div>
+  <div class=dfn>BlockType</div>
+    <div class=dfndescr>Тип выбранного блока. Одно из следующих значений (перечисление <a name="EDITOR_BLOCK_TYPES">EDITOR_BLOCK_TYPES</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Тип блока</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_NONE">BTYPE_NONE</a></td>
+    <td class="cont" width="60%">снять выделение с блока</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_STREAM">BTYPE_STREAM</a></td>
+    <td class="cont" width="60%">выделить строковой блок</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="BTYPE_COLUMN">BTYPE_COLUMN</a></td>
+    <td class="cont" width="60%">выделить вертикальный блок</td></tr>
+    </table>
+    </div>
+  <div class=dfn>BlockStartLine</div>
+    <div class=dfndescr>Номер первой строки блока. Нумерация начинается с 0.</div>
+  <div class=dfn>Options</div>
+    <div class=dfndescr>Описывает состояние настроек редактора. Может быть комбинацией следующих флагов (перечисление <a name="EDITOR_OPTIONS">EDITOR_OPTIONS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EOPT_EXPANDALLTABS">EOPT_EXPANDALLTABS</a></td>
+    <td class="cont" width="60%">Включена опция &quot;Преобразовывать все символы табуляции в пробелы&quot;.
+    При открытии документа в редакторе все символы Tab заменить на соответствующее количество пробелов.<br>
+    Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a> (<a href="editorsetparameter.html#ESPT_EXPANDTABS">ESPT_EXPANDTABS</a>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EOPT_EXPANDONLYNEWTABS">EOPT_EXPANDONLYNEWTABS</a></td>
+    <td class="cont" width="60%">Включена опция &quot;Преобразовывать новые символы табуляции в пробелы&quot;.
+    При редактировании документа введённый символ Tab заменять на соответствующее количество пробелов. Остальные символы Tab не преобразовывать.<br>
+    Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a> (<a href="editorsetparameter.html#ESPT_EXPANDTABS">ESPT_EXPANDTABS</a>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EOPT_PERSISTENTBLOCKS">EOPT_PERSISTENTBLOCKS</a></td>
+    <td class="cont" width="60%">Включена опция &quot;Постоянные блоки&quot;.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EOPT_DELREMOVESBLOCKS">EOPT_DELREMOVESBLOCKS</a></td>
+    <td class="cont" width="60%">Включена опция &quot;Del удаляет блоки&quot;.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EOPT_AUTOINDENT">EOPT_AUTOINDENT</a></td>
+    <td class="cont" width="60%">Включена опция &quot;Автоотступ&quot;.<br>
+    Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a> (<a href="editorsetparameter.html#ESPT_AUTOINDENT">ESPT_AUTOINDENT</a>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EOPT_AUTODETECTCODEPAGE">EOPT_AUTODETECTCODEPAGE</a></td>
+    <td class="cont" width="60%">Включена опция &quot;Автоопределение кодовой страницы&quot;.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EOPT_CURSORBEYONDEOL">EOPT_CURSORBEYONDEOL</a></td>
+    <td class="cont" width="60%">Включена опция &quot;Курсор за пределами строки&quot;.<br>
+    Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a> (<a href="editorsetparameter.html#ESPT_CURSORBEYONDEOL">ESPT_CURSORBEYONDEOL</a>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EOPT_SAVEFILEPOSITION">EOPT_SAVEFILEPOSITION</a></td>
+    <td class="cont" width="60%">Включена опция &quot;Сохранять позицию файла&quot;.<br>
+    Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a> (<a href="editorsetparameter.html#ESPT_SAVEFILEPOSITION">ESPT_SAVEFILEPOSITION</a>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EOPT_SHOWWHITESPACE">EOPT_SHOWWHITESPACE</a></td>
+    <td class="cont" width="60%">Включена опция &quot;Пробельные символы&quot;.<br>
+    Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a> (<a href="editorsetparameter.html#ESPT_SHOWWHITESPACE">ESPT_SHOWWHITESPACE</a>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EOPT_BOM">EOPT_BOM</a></td>
+    <td class="cont" width="60%">Установлена опция &quot;Добавить сигнатуру (BOM)&quot; для файлов в кодировке Unicode/UTF8.<br>
+    Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a> (<a href="editorsetparameter.html#ESPT_SETBOM">ESPT_SETBOM</a>).</td></tr>
+    </table>
+    </div>
+  <div class=dfn>TabSize</div>
+    <div class=dfndescr>Размер табуляции. Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>.</div>
+  <div class=dfn>BookMarkCount</div>
+    <div class=dfndescr>Количество закладок в редакторе. Для получения информации о закладках используйте команду <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a>.</div>
+  <div class=dfn>CurState</div>
+    <div class=dfndescr>Текущее состояние редактируемого текста. 
+    Может быть набором из следующих значений (перечисление <a name="EDITOR_CURRENTSTATE">EDITOR_CURRENTSTATE</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ECSTATE_MODIFIED">ECSTATE_MODIFIED</a></td>
+    <td class="cont" width="60%">модифицирован</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ECSTATE_SAVED">ECSTATE_SAVED</a></td>
+    <td class="cont" width="60%">сохранён</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="ECSTATE_LOCKED">ECSTATE_LOCKED</a></td>
+    <td class="cont" width="60%">заблокирован (Ctrl-L)</td></tr>
+    </table>
+    </div>
+  <div class=dfn>CodePage</div>
+    <div class=dfndescr>Номер текущей используемой кодовой страницы символов в редакторе. </div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Зарезервировано для будущего использования.</div>
+</div>
+
+<h3>Замечания</h3>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a>
+</div>
+
+</body>
+</html>

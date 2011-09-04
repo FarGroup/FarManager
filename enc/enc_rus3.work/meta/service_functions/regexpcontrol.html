@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>RegExpControl</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>RegExpControl</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">сервисные функции</a><br>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>RegExpControl</dfn> позволяет управлять Регулярными выражениями.
+</div>
+
+<pre class=syntax>
+INT_PTR WINAPI RegExpControl(
+  HANDLE hHandle,
+  enum FAR_REGEXP_CONTROL_COMMANDS Command,
+  int Param1,
+  void *Param2
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>hHandle</div>
+    <div class=dfndescr>Смотрите описание <var>Command</var>. (в настоящее время значение игнорируется).</div>
+  <div class=dfn>Command</div>
+    <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_REGEXP_CONTROL_COMMANDS">FAR_REGEXP_CONTROL_COMMANDS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_CREATE">RECTL_CREATE</a></td>
+    <td class="cont" width="60%"> Создаёт структуры под Регулярные выражения.<br>
+    <var>hHandle</var> должен быть установлен в значение <code>NULL</code>. <br>
+    <var>Param1</var> = 0 (не используется). <br>
+    <var>Param2</var> - указатель типа <code>HANDLE</code>, в который запишется созданный описатель Регулярных выражений.<br>
+    Функция при неудаче вернёт <code>FALSE</code> и <var>Param2</var>=<code>INVALID_HANDLE_VALUE</code>.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_FREE">RECTL_FREE</a></td>
+    <td class="cont" width="60%"> Освобождает память занятую при создании Регулярных выражений. <br>
+    <var>hHandle</var> -  <code>HANDLE</code> Регулярных выражений, созданный по команде <dfn>RECTL_CREATE</dfn>.<br>
+    <var>Param1</var> = 0 (не используется). <br>
+    <var>Param2</var> = 0 (не используется).<br>
+    Функция возвращает <code>TRUE</code>. </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_COMPILE">RECTL_COMPILE</a></td>
+    <td class="cont" width="60%"> Инициализирует Регулярные выражения. <br>
+    <var>hHandle</var> -  <code>HANDLE</code> Регулярных выражений, созданный по команде <dfn>RECTL_CREATE</dfn>.<br>
+    <var>Param1</var> = 0 (не используется). <br>
+    <var>Param2</var> - указатель на строку с Регулярными выражениями. <br>
+    Функция возвращает <code>TRUE</code> при удачной компиляции строки. </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_OPTIMIZE">RECTL_OPTIMIZE</a></td>
+    <td class="cont" width="60%"> Оптимизирует Регулярные выражения после инициализации, применяется после <dfn>RECTL_COMPILE</dfn>. <br>
+    <var>hHandle</var> -  <code>HANDLE</code> Регулярных выражений, созданный по команде <dfn>RECTL_CREATE</dfn>.<br>
+    <var>Param1</var> = 0 (не используется).<br>
+    <var>Param2</var> = 0 (не используется).<br>
+    Функция возвращает <code>TRUE</code> при удачной оптимизации. </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_MATCHEX">RECTL_MATCHEX</a></td>
+    <td class="cont" width="60%"> Сопоставляет Регулярное выражение строке. <br>
+    <var>hHandle</var> -  <code>HANDLE</code> Регулярных выражений, созданный по команде <dfn>RECTL_CREATE</dfn>.<br>
+    <var>Param1</var> = 0 (не используется).<br>
+    <var>Param2</var> указатель на заполненную структуру <a href="../structures/regexpsearch.html">RegExpSearch</a>. <br>
+    Функция возвращает <code>TRUE</code> при удачной операции сопоставления. </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_SEARCHEX">RECTL_SEARCHEX</a></td>
+    <td class="cont" width="60%"> Ищет в строке подстроки заданные Регулярным выражением. <br>
+    <var>hHandle</var> -  <code>HANDLE</code> Регулярных выражений, созданный по команде <dfn>RECTL_CREATE</dfn>.<br>
+    <var>Param1</var> = 0 (не используется).<br>
+    <var>Param2</var> указатель на заполненную структуру <a href="../structures/regexpsearch.html">RegExpSearch</a>. <br>
+    Функция возвращает <code>TRUE</code>, если удалось найти подстроки. </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="RECTL_BRACKETSCOUNT">RECTL_BRACKETSCOUNT</a></td>
+    <td class="cont" width="60%"> Количество скобок () в Регуляном выражении. <br>
+    <var>hHandle</var> -  <code>HANDLE</code> Регулярных выражений, созданный по команде <dfn>RECTL_CREATE</dfn>.<br>
+    <var>Param1</var> = 0 (не используется).<br>
+    <var>Param2</var> = 0 (не используется).<br>
+    Функция возвращает количество скобок в Регуляном выражении, при этом всё выражение целиком интерпретируется в качестве первой скобки.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>Param1</div>
+    <div class=dfndescr>Указывает на параметры1 команды. Смотрите описание <dfn>Command</dfn>.</div>
+  <div class=dfn>Param2</div>
+    <div class=dfndescr>Указывает на параметры2 команды. Смотрите описание <dfn>Command</dfn>.</div>
+</div>
+
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Смотрите описание <var>Command</var>
+</div>
+
+<h3>Пример</h3>
+<pre class=code>
+HANDLE re;
+if (Info.RegExpControl(0,RECTL_CREATE,0,&re))
+{
+  if (Info.RegExpControl(re,RECTL_COMPILE,0,(void*)L"/[0-9]+/"))
+  {
+    int brackets=Info.RegExpControl(re,RECTL_BRACKETSCOUNT,0,0);
+
+    FILE *log=fopen("c:\\plugins.log","at");
+    fprintf(log,"br: %d\n",brackets);
+    fclose(log);
+
+    if (!brackets) 
+    {
+      Info.RegExpControl(re,RECTL_FREE,0,0);
+      return;
+    }
+
+    RegExpMatch *match=(RegExpMatch*)malloc(brackets*sizeof(RegExpMatch));
+
+    RegExpSearch search={
+      L"test 123 test",
+      0,
+      13,
+      match,
+      brackets,
+      0
+    };
+
+    if (Info.RegExpControl(re,RECTL_SEARCHEX,0,&search))
+    {
+      FILE *log=fopen("c:\\plugins.log","at");
+      fprintf(log,"found: %d %d\n",match[0].start,match[0].end);
+      fclose(log);
+    }
+    else
+    {
+      FILE *log=fopen("c:\\plugins.log","at");
+      fprintf(log,"not found\n");
+      fclose(log);
+    }
+    free(match);
+  }
+  Info.RegExpControl(re,RECTL_FREE,0,0);
+}
+</pre>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="control.html">Control</a></div>
+</body>
+</html>

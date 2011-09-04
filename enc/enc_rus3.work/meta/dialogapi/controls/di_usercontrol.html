@@ -1,0 +1,185 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DI_USERCONTROL</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<!-- History of modification:
+-->
+<body>
+
+<h1>DI_USERCONTROL</h1>
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="index.html">Элементы диалога</a><br>
+</div>
+
+<div class=shortdescr>
+<em>Свобода выбора!</em>
+Элемент диалога <dfn>DI_USERCONTROL</dfn> описывает элемент управления,
+определяемый программистом:  отрисовка, реагирование на события и прочие
+операции с элементом - всё это возлагается "на хрупкие плечи" плагина.<br>
+</div>
+
+<pre class=syntax>
+struct FarDialogItem
+{
+  int Type          = <b>DI_USERCONTROL</b>
+  int X1            = <b>X1</b>
+  int Y1            = <b>Y1</b>
+  int X2            = <b>X2</b>
+  int Y2            = <b>Y2</b>
+  int Focus         = <b>User Defined</b>
+  CHAR_INFO *VBuf   = <b>виртуальный буфер отрисовки</b>
+  DWORD Flags       = <b>Flags</b>
+  int DefaultButton = <b>0</b>
+  const wchar_t *PtrData  = <b>User Defined</b>
+};
+</pre>
+<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
+<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+
+<a name="virtbuf"></a>
+<h3>Виртуальный буфер отрисовки</h3>
+<div class=descr>
+<p>Параметр <dfn>VBuf</dfn> задаёт адрес виртуального буфера типа <a href="../../winapi/char_info.html">CHAR_INFO</a>.
+
+<p>Если значение <dfn>VBuf</dfn> = NULL, то это значит, что плагин сам должен
+отрисовывать элемент <dfn>DI_USERCONTROL</dfn> после прихода события
+<a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a>, используя
+сервисную функцию <a href="../../service_functions/text.html">Text</a>.<br>
+
+<p>Если <dfn>VBuf</dfn> не равен NULL, то Менеджер Диалогов считает, что это
+адрес буфера типа <a href="../../winapi/char_info.html">CHAR_INFO</a>. Здесь обработчик
+диалога, в ответ на событие <a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a>,
+должен отрисовать этот элемент в виртуальный буфер, после чего Менеджер
+Диалогов выдаст содержимое <dfn>VBuf</dfn> на экран.
+
+<p>Типичный сценарий следующий (см. плагин <a href="http://plugring.farmanager.com/downld/files/reversi.rar">Reversi</a>):
+<pre class=code>
+<font color=#808080>// перед вызовом DialogInit, распределим память под виртуальный буфер</font>
+<font color=#008000>#define DIM(Item) (((Item).X2-(Item).X1+1)*((Item).Y2-(Item).Y1+1))</font>
+CHAR_INFO *VBuf=new CHAR_INFO[DIM(DialogItems[11])];
+DialogItems[11].VBuf=VBuf;
+  .
+  .
+  .
+<font color=#808080>// в обработчике диалога</font>
+struct FarDialogItem DialogItem;
+
+case DN_DRAWDLGITEM:
+  if(Param1 == 11)
+  {
+    wchar_t Face[4]=L"   ";
+    SMALL_RECT Rect;
+    BYTE AddColor=0x00;
+
+    <font color=#808080>// получим координаты диалога и описание самого элемента</font>
+    Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&amp;Rect);
+    Info.SendDlgMessage(hDlg,DM_GETDLGITEM,11,(LONG_PTR)&amp;DialogItem);
+
+    <font color=#808080>// цикл отрисовки игрового поля</font>
+    for(Y=0; Y &lt; 8; ++Y)
+    {
+      for(X=0; X &lt; 8; ++X)
+      {
+        <font color=#808080>// подготовим один прямоугольник</font>
+
+        <font color=#808080>// если ячейка не занята...</font>
+        if (GAME[0].Field[Y*8+X]==0)
+          Face[1]=L' ';
+        <font color=#808080>// для белого игрока</font>
+        else if (GAME[0].Field[Y*8+X]==GAME[0].Pl1)
+        {
+          Face[1]=FaceWhite;
+          AddColor=0x00;
+        }
+        <font color=#808080>// для чёрного игрока</font>
+        else if (GAME[0].Field[Y*8+X]==GAME[0].Pl2)
+        {
+          Face[1]=FaceBlack;
+          AddColor=0x0F;
+        }
+
+        <font color=#808080>// если не получилось когда-то выделить память</font>
+        <font color=#808080>// то рисуем с использованием Text</font>
+        if(!DialogItem.VBuf)
+        {
+          Info.Text(Rect.Left+DialogItem.X1+X*3,
+                   Rect.Top+DialogItem.Y1+Y,
+                  ColorsPanel[Y&amp;1][X&amp;1]|AddColor,
+                  Face);
+        }
+        else <font color=#808080>// рисуем прямо в виртуальный буфер</font>
+        {
+          CHAR_INFO *VBuf=&amp;DialogItem.VBuf[Y*8*3+X*3];
+
+          VBuf[0].Char.UnicodeChar=Face[0];
+          VBuf[1].Char.UnicodeChar=Face[1];
+          VBuf[2].Char.UnicodeChar=Face[2];
+
+          VBuf[0].Attributes=
+             VBuf[1].Attributes=
+             VBuf[2].Attributes=ColorsPanel[Y&amp;1][X&amp;1]|AddColor;
+        }
+      }
+    }
+  }
+  return TRUE;
+</pre>
+</div>
+
+<h3>Флаги</h3>
+<div class=descr>
+Для элемента <dfn>DI_USERCONTROL</dfn> имеют значения следующие флаги:<br>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
+ <td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
+ <td class="cont" width="60%">элемент является недоступным.
+ </td></tr>
+</table>
+</div>
+
+<h3>События</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+ <td class="cont" width="60%">начало отрисовки элемента
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
+ <td class="cont" width="60%">нажата клавиша.
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
+ <td class="cont" width="60%">"кликнули" клавишей мыши; начало координат - левый верхний угол элемента
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
+ <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ </td></tr>
+ <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
+ <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ </td></tr>
+
+</table>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>Замечания по работе с курсором см. в описании сообщений <a href="../dmsg/dm_getcursorpos.html">DM_GETCURSORPOS</a> или <a href="../dmsg/dm_setcursorpos.html">DM_SETCURSORPOS</a>.
+</ol>
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../structures/fardialogitem.html">FarDialogItem</a>
+</div>
+
+</body>
+</html>

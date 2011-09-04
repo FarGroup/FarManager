@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>GetPluginInfoW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>GetPluginInfoW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>GetPluginInfoW</dfn> вызывается Far Manager для получения дополнительной информации о плагине.
+</div>
+
+<pre class=syntax>
+void WINAPI GetPluginInfoW(
+  struct PluginInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/plugininfo.html">PluginInfo</a>. Плагин заполняет структуру в этой функции.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Нет.
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>Функция вызывается для получения информации о плагине перед выполнением следующих действий:
+<ul>
+<li>перед показом меню конфигурации (Alt-Shift-F9) из функции <a href="configurew.html">ConfigureW</a></li>
+<li>перед показом меню плагинов (F11)</li>
+<li>перед показом меню выбора дисков (Alt-F1/Alt-F2)</li>
+<li>из командной строки по префиксу (например, <code>net:\\share</code>)</li>
+</ul>
+<li>Структура <a href="../structures/plugininfo.html">PluginInfo</a>, передаваемая функции <dfn>GetPluginInfoW</dfn>, уже заполнена 0. Плагин обязательно должен заполнить поле PluginInfo.StructSize</li>
+<li>Far Manager вызывает функцию <dfn>GetPluginInfoW</dfn> достаточно часто, поэтому при проектировании плагина необходимо минимизировать "расчёты", производимые в этой функции.</li>
+</ol>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+<pre class=code>
+// {A540CD77-CAD0-4E96-ADA0-2BAAC8182237}
+DEFINE_GUID(MenuGuid, 0xa540cd77, 0xcad0, 0x4e96, 0xad, 0xa0, 0x2b, 0xaa, 0xc8, 0x18, 0x22, 0x37);
+
+void WINAPI GetPluginInfoW(struct PluginInfo *Info)
+{
+  static const wchar_t *PluginMenuStrings[1];
+  PluginMenuStrings[0]=GetMsg(MTitle);
+
+  Info-&gt;StructSize=sizeof(struct PluginInfo);
+  Info-&gt;Flags=PF_EDITOR|PF_DISABLEPANELS;
+  Info-&gt;PluginMenu.Guids=&MenuGuid;
+  Info-&gt;PluginMenu.Strings=PluginMenuStrings;
+  Info-&gt;PluginMenu.Count=sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0]);
+  Info-&gt;PluginConfig.Guids=&MenuGuid;
+  Info-&gt;PluginConfig.Strings=PluginMenuStrings;
+  Info-&gt;PluginConfig.Count=sizeof(PluginMenuStrings)/sizeof(PluginMenuStrings[0]);
+}
+</pre>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../structures/plugininfo.html">PluginInfo</a>
+</div>
+
+</body>
+</html>

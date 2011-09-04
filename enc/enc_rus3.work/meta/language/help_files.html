@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Файлы помощи</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+
+<body>
+<h1>Файлы помощи</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">языковая поддержка</a>
+</div>
+
+<h3>Синтаксис Help-файла.</h3>
+
+<div class=shortdescr>
+В файлах подсказки могут содержаться следующие управляющие элементы.
+</div>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Управляющий элемент</th><th class="cont" width="60%">Описание</th></tr>
+
+  <tr class="cont"><td class="cont" width="40%">@Topic (в начале строки)</td>
+  <td class="cont" width="60%">
+    Начать определение темы <dfn>Topic</dfn>. Существуют 4 предопределённых
+    темы:
+    <ol>
+    <li>Тема с именем <dfn>Contents</dfn> имеет специальное
+    назначение. Она вызывается при нажатии клавиши <code>F1</code>
+    из командной строки FAR или при выборе пункта из
+    списка помощи плагинов.
+    <li>Если плагин "умеет настраиваться", то желательно в качестве
+    имени темы помощи для диалога настройки указать <dfn>Config</dfn>.
+    Эта тема будет также вызываться , когда пользователь нажмёт клавишу
+    <code>F1</code> в меню конфигурации плагинов (Options|Plugins configuration)
+    <li>Если плагин умеет работать и в панелях и в редакторе/программе просмотра, но при
+    этом выполняет разные действия, то имеет смысл в HLF-файлах использовать
+    две предопределённых темы: <dfn>Editor</dfn> и <dfn>Viewer</dfn> (для
+    редактора и программы просмотра, соответственно). В этом случае <code>Shift-F1</code>
+    в списке плагинов в редакторе/программе просмотра покажет тему помощи
+    <code>Editor</code>/<code>Viewer</code>.
+    </ol>
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">$Text (в начале строки)</td>
+  <td class="cont" width="60%">Определяет непрокручиваемую область помощи.
+    Можно указывать несколько идущих подряд строк для не прокручиваемой
+    области, но все эти строки должны идти сразу после определения темы
+    (символа '@').
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">~Text~@Topic@</td>
+  <td class="cont" width="60%">Ссылка на тему.
+    Если вы желаете поставить ссылку на тему из основного
+    файла помощи FAR, то перед именем темы поставьте
+    символ '<code>:</code>'.<br>
+    Ссылка должна располагаться в одной строке.
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">~Text~@&lt;FullPath&gt;Topic@</td>
+  <td class="cont" width="60%">Абсолютная или относительная ссылка на тему в файле помощи, находящемся
+    в каталоге <dfn>FullPath</dfn>. Путь задаётся c заключительным слешем.<br>
+    Ссылка должна располагаться в одной строке.<br>
+    Например, плагин Foo располагается в каталоге 'D:\FAR\Plugins\Foo' и
+    нам надо показать тему помощи 'FooInfo' из хелпа по этому плагину.
+    <pre class=code>~Информации о плагине Foo~@&lt;D:\FAR\Plugins\Foo\&gt;FooInfo@</pre>
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">~Text~@&lt;FullModuleName&gt;Topic@</td>
+  <td class="cont" width="60%">Абсолютная или относительная ссылка на тему в файле помощи, находящемся
+    в том же каталоге, где находится плагин <dfn>FullModuleName</dfn>.<br>
+    Ссылка должна располагаться в одной строке.<br>
+    Например, для плагина Foo 'D:\FAR\Plugins\Foo\Foo.dll' необходимо показать
+    тему помощи 'FooInfo' из хелпа по этому плагину.
+    <pre class=code>~Информации о плагине Foo~@&lt;D:\FAR\Plugins\Foo\Foo.dll&gt;FooInfo@</pre>
+  </td></tr>
+
+
+  <tr class="cont"><td class="cont" width="40%">~Text~@URL@</td>
+  <td class="cont" width="60%">URL-активатор - запуск приложений, поддерживающих
+    URL-протоколы. Под URL-приложениями понимаются такие приложения,
+    которые поддерживают протоколы, подобные этим:
+<pre class=code>~доступ к файлам~@<b>file</b>://C:\Program Files\Far\License.xUSSR.txt@
+~передача файлов по FTP~@<b>ftp</b>://ftp.kgb.ru/WinUtil/Rar/@
+~HTTP~@<b>http</b>://plugring.farmanager.com/@
+~MailTo~@<b>mailto</b>:vskirdin@@mail.ru@
+~News~@<b>news</b>://fido7.far.support@
+~Telnet~@<b>telnet</b>://fido7.far.support@</pre>
+    Должно располагаться в одной строке.
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">#Text#</div>
+  <td class="cont" width="60%">Выделенный текст <dfn>Text</dfn>.
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">^ (в начале строки или после $)</td>
+  <td class="cont" width="60%">Центрирование строки.
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">@- (в начале строки)</td>
+  <td class="cont" width="60%">Отключает автоформатирование текста.
+    По умолчанию FAR форматирует все строки, которые
+    в тексте начинаются с первой позиции.
+    Должен находится в отдельной строке.
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">@+ (в начале строки)</td>
+  <td class="cont" width="60%">Включает автоформатирование текста.
+    Должен находится в отдельной строке.
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">&lt;CtrlColorChar&gt;XX</td>
+  <td class="cont" width="60%">Задаёт цветовые атрибуты, которыми будет отрисован
+    следующий за этой конструкцией текст. Цветовые атрибуты XX - две
+    шестнадцатеричных цифры (0-9A-F).<br>
+    Например, в качестве управляющего кода
+    <dfn>&lt;CtrlColorChar&gt;</dfn> был задан символ '\'. Тогда конструкция
+    <code>\4F</code> заставит менеджер помощи рисовать следующий за
+    приведённой конструкцией текст белыми буквами на тёмно-красном фоне.
+    <br>(см. <a href="control_statements.html#CtrlColorChar">CtrlColorChar</a>)
+  </td></tr>
+
+  <tr class="cont"><td class="cont" width="40%">&lt;CtrlColorChar&gt;-</td>
+  <td class="cont" width="60%">Устанавливает цветовые атрибуты в предустановленный цвет.
+    <br>(см. <a href="control_statements.html#CtrlColorChar">CtrlColorChar</a>)
+  </td></tr>
+</table>
+
+<h3>Замечания:</h3>
+<div class=descr>
+<ol>
+<li>Длина каждой строки в hlf-файле не должна превышать 300 символов.<br>
+<li>Если Вам необходимо показать символы <b>~</b>, <b>#</b> или <b>@</b>,
+    то продублируйте их.
+<li>Для URL-активаторов в ссылке (поле &lt;URL&gt;) символы <b>~</b> и <b>#</b>
+    могут дублироваться или не дублироваться, символ <b>@</b> -  - всегда
+    дублируется. Если в ссылке должно присутствовать два идущих подряд
+    символа <b>~</b> или <b>#</b>, то укажите последовательность из 3 или 4 символов (например, <b>~~~</b>
+    или <b>~~~~</b> будет восприниматься как <b>~~</b>)
+<li>Не используйте внутри ссылки (если ссылка не URL-активатор!) служебные
+    символы (<b>~</b>, <b>#</b> и <b>@</b>).
+</ol>
+</div>
+
+<h3>Пример:</h3>
+<div class=descr>
+  Данный пример взят из файла <code>FarRus.hlf</code>.
+
+<pre class=code>@FolderShortcuts
+$ #Ссылки на папки#
+    Ссылки на папки позволяют обеспечить быстрый доступ к часто
+используемым папкам. Для создания ссылки на текущую папку нужно
+нажать Ctrl-Shift-&lt;N&gt;, где N - '0'..'9'. После этого, чтобы перейти
+в папку, записанную в ссылке, достаточно нажать ПравыйCtrl-&lt;N&gt;.
+
+    Пункт #Ссылки на папки# в <b>~Меню команд~@CmdMenu@</b> позволяет
+просматривать, устанавливать, редактировать и удалять ссылки на папки.
+</pre>
+
+  Это выглядит так:<br>
+  <img src="../../images/help1.gif" alt="" border="0" width="503" height="228">
+
+<p>Следующие примеры показывают оформление URL-активаторов.<br>
+Активизация E-mail клиента:
+<pre class=code>~vskirdin@@mail.ru~@mailto:vskirdin@@mail.ru@</pre>
+
+<p>Активизация браузера:
+<pre class=code>~http://plugring.farmanager.com/~@plugring.farmanager.com/@</pre>
+или
+<pre class=code>~http://www.uic.nnov.ru/~~ruiv/plugring/~@http://www.uic.nnov.ru/~ruiv/plugring/@</pre>
+
+
+<p>Следующие примеры показывают использование цветовых атрибутов:<br>
+<pre class=code>.Language=Russian,Russian (Русский)
+.PluginContents=Игра Реверси
+<b>.Options CtrlColorChar=\</b>
+
+...
+
+@-
+         Реверси, также известная как Othello, является игрой
+ <b>\70 B \-\2F W \-</b>  стратегией, в которую играют два игрока:  Чёрный и
+ <b>\2F W \-\70 B \-</b>  #Белый#.  Игра происходит на поле 8х8 клеток с
+         применением 64-х двухцветных фишек.
+@+
+
+</pre>
+  Это выглядит так:<br>
+  <img src="../../images/helpattr.gif" alt="" border="0" width="108" height="84">
+
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="control_statements.html">Управляющие элементы</a>,
+<a href="language_files.html">Языковые файлы</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,304 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Сообщения Dialog API</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="JavaScript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Сообщения Dialog API</h1>
+
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="index_dn.html">События</a>
+</div>
+
+<div class=shortdescr>
+</div>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Сообщение</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_addhistory.html">DM_ADDHISTORY</a></td>
+<td class="cont" width="60%">добавить строку в историю</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_close.html">DM_CLOSE</a></td>
+<td class="cont" width="60%">сигнал на закрытие диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_editunchangedflag.html">DM_EDITUNCHANGEDFLAG</a></td>
+<td class="cont" width="60%">управление состоянием "неизмененный текст" строки редактирования</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_enable.html">DM_ENABLE</a></td>
+<td class="cont" width="60%">переключение/получение состояния Enable/Disable элемента</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_enableredraw.html">DM_ENABLEREDRAW</a></td>
+<td class="cont" width="60%">отключение/включение перерисовки всего диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getcheck.html">DM_GETCHECK</a></td>
+<td class="cont" width="60%">получить состояние элементов DI_CHECKBOX и DI_RADIOBUTTON</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getcomboboxevent.html">DM_GETCOMBOBOXEVENT</a></td>
+<td class="cont" width="60%">получить состояние посылки событий для открытого combo box</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getconsttextptr.html">DM_GETCONSTTEXTPTR</a></td>
+<td class="cont" width="60%">получить указатель на внутренний буфер FARа, содержащий строку ввода</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getcursorpos.html">DM_GETCURSORPOS</a></td>
+<td class="cont" width="60%">получить позицию курсора</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getcursorsize.html">DM_GETCURSORSIZE</a></td>
+<td class="cont" width="60%">получить размеры курсора</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getdialoginfo.html">DM_GETDIALOGINFO</a></td>
+<td class="cont" width="60%">получить информацию о диалоге FAR Manager'а или другого плагина</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getdlgdata.html">DM_GETDLGDATA</a></td>
+<td class="cont" width="60%">получить данные, ассоциированные с диалогом</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getdlgitem.html">DM_GETDLGITEM</a></td>
+<td class="cont" width="60%">получение полной информации о элементе</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getdlgitemshort.html">DM_GETDLGITEMSHORT</a></td>
+<td class="cont" width="60%">получение информации о элементе</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getdlgrect.html">DM_GETDLGRECT</a></td>
+<td class="cont" width="60%">получить координаты диалогового окна</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getdropdownopened.html">DM_GETDROPDOWNOPENED</a></td>
+<td class="cont" width="60%">определить - есть ли в диалоге раскрытый комбобокс или история</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_geteditposition.html">DM_GETEDITPOSITION</a></td>
+<td class="cont" width="60%">получить позицию курсора в строках ввода</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getfocus.html">DM_GETFOCUS</a></td>
+<td class="cont" width="60%">получить индекс элемента, имеющего фокус ввода</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getitemdata.html">DM_GETITEMDATA</a></td>
+<td class="cont" width="60%">получить данные, ассоциированные с элементом диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getitemposition.html">DM_GETITEMPOSITION</a></td>
+<td class="cont" width="60%">получить позицию и размер элемента</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_getselection.html">DM_GETSELECTION</a></td>
+<td class="cont" width="60%">получить параметры выделения в строках редактирования диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_gettext.html">DM_GETTEXT</a></td>
+<td class="cont" width="60%">получение строки ввода или заголовка элементов</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_gettextlength.html">DM_GETTEXTLENGTH</a></td>
+<td class="cont" width="60%">получить размер строки</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_gettextptr.html">DM_GETTEXTPTR</a></td>
+<td class="cont" width="60%">получение строки ввода или заголовка элементов</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_key.html">DM_KEY</a></td>
+<td class="cont" width="60%">передать массив клавиш обработчику диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listadd.html">DM_LISTADD</a></td>
+<td class="cont" width="60%">добавить в список новый элемент</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listaddstr.html">DM_LISTADDSTR</a></td>
+<td class="cont" width="60%">добавить в список строку</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listdelete.html">DM_LISTDELETE</a></td>
+<td class="cont" width="60%">удалить элементы списка</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listfindstring.html">DM_LISTFINDSTRING</a></td>
+<td class="cont" width="60%">найти элемент списка</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listgetcurpos.html">DM_LISTGETCURPOS</a></td>
+<td class="cont" width="60%">получить текущую позицию в списке</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listgetdata.html">DM_LISTGETDATA</a></td>
+<td class="cont" width="60%">получить данные, ассоциированные с элементом списка</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listgetdatasize.html">DM_LISTGETDATASIZE</a></td>
+<td class="cont" width="60%">получить размер данных, ассоциированных с элементом списка</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listgetitem.html">DM_LISTGETITEM</a></td>
+<td class="cont" width="60%">получить один элемент списка</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listgettitles.html">DM_LISTGETTITLES</a></td>
+<td class="cont" width="60%">получить заголовки списка</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listinfo.html">DM_LISTINFO</a></td>
+<td class="cont" width="60%">получить информацию о списке</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listinsert.html">DM_LISTINSERT</a></td>
+<td class="cont" width="60%">вставить элемент в список</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listset.html">DM_LISTSET</a></td>
+<td class="cont" width="60%">добавление элементов в список с удалением предыдущих элементов</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listsetcurpos.html">DM_LISTSETCURPOS</a></td>
+<td class="cont" width="60%">установить позицию в списке</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listsetdata.html">DM_LISTSETDATA</a></td>
+<td class="cont" width="60%">установить данные, ассоциированные с элементом списка</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listsetmousereaction.html">DM_LISTSETMOUSEREACTION</a></td>
+<td class="cont" width="60%">управление реакцией движения мыши в списке DI_LISTBOX</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listsettitles.html">DM_LISTSETTITLES</a></td>
+<td class="cont" width="60%">установить заголовки списка</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listsort.html">DM_LISTSORT</a></td>
+<td class="cont" width="60%">сортировать элементы списка</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_listupdate.html">DM_LISTUPDATE</a></td>
+<td class="cont" width="60%">обновить элемент в списке</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_movedialog.html">DM_MOVEDIALOG</a></td>
+<td class="cont" width="60%">переместить диалог</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_redraw.html">DM_REDRAW</a></td>
+<td class="cont" width="60%">перерисовать весь диалог</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_resizedialog.html">DM_RESIZEDIALOG</a></td>
+<td class="cont" width="60%">изменить размеры диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_set3state.html">DM_SET3STATE</a></td>
+<td class="cont" width="60%">изменить стиль DI_CHECKBOX</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setcheck.html">DM_SETCHECK</a></td>
+<td class="cont" width="60%">установить состояние элементов  DI_CHECKBOX и DI_RADIOBUTTON</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setcomboboxevent.html">DM_SETCOMBOBOXEVENT</a></td>
+<td class="cont" width="60%">включить или отключить посылку сообщений DN_KEY или DN_MOUSEEVENT для открытого combo box</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setcursorpos.html">DM_SETCURSORPOS</a></td>
+<td class="cont" width="60%">позиционировать курсор</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setcursorsize.html">DM_SETCURSORSIZE</a></td>
+<td class="cont" width="60%">установить размер курсора</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setdlgdata.html">DM_SETDLGDATA</a></td>
+<td class="cont" width="60%">ассоциировать данные с диалогом</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setdlgitem.html">DM_SETDLGITEM</a></td>
+<td class="cont" width="60%">для изменения информации о заданном элементе</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setdlgitemshort.html">DM_SETDLGITEMSHORT</a></td>
+<td class="cont" width="60%">для изменения информации о заданном элементе</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setdropdownopened.html">DM_SETDROPDOWNOPENED</a></td>
+<td class="cont" width="60%">программное раскрытие/закрытие комбобокса или истории</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_seteditposition.html">DM_SETEDITPOSITION</a></td>
+<td class="cont" width="60%">управление позицией курсора в строках ввода</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setfocus.html">DM_SETFOCUS</a></td>
+<td class="cont" width="60%">устанавливает клавиатурный фокус на заданный элемент диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_sethistory.html">DM_SETHISTORY</a></td>
+<td class="cont" width="60%">управление наличием истории.</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setitemdata.html">DM_SETITEMDATA</a></td>
+<td class="cont" width="60%">ассоциировать данные с элементом диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setitemposition.html">DM_SETITEMPOSITION</a></td>
+<td class="cont" width="60%">изменить позицию элемента</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setmaxtextlength.html">DM_SETMAXTEXTLENGTH</a></td>
+<td class="cont" width="60%">задать максимальный размер редактируемой строки или заголовка элемента</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setmouseeventnotify.html">DM_SETMOUSEEVENTNOTIFY</a></td>
+<td class="cont" width="60%">управление первичным событием мыши</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_setselection.html">DM_SETSELECTION</a></td>
+<td class="cont" width="60%">выделить блок в строках редактирования диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_settext.html">DM_SETTEXT</a></td>
+<td class="cont" width="60%">установить строку ввода или заголовок элемента</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_settextptr.html">DM_SETTEXTPTR</a></td>
+<td class="cont" width="60%">установить строку ввода или заголовок элемента</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_showdialog.html">DM_SHOWDIALOG</a></td>
+<td class="cont" width="60%">показать/спрятать диалоговое окно</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_showitem.html">DM_SHOWITEM</a></td>
+<td class="cont" width="60%">показать/спрятать элемент диалога</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="dm_user.html">DM_USER</a></td>
+<td class="cont" width="60%">отправная точка для пользовательских сообщений</td>
+</tr>
+</table>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index_dn.html">События Dialog API</a>
+</div>
+
+</body>
+</html>

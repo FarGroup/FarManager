@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>SetDirectoryInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>SetDirectoryInfo</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>SetDirectoryInfo</dfn> передает информацию о новом каталоге в функцию <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>.
+</div>
+
+<pre class=syntax>
+struct SetDirectoryInfo
+{
+  size_t StructSize;
+  HANDLE hPanel;
+  const wchar_t *Dir;
+  DWORD_PTR UserData;
+  OPERATION_MODES OpMode;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле содержит размер структуры <dfn>SetDirectoryInfo</dfn>.</div>
+  <div class=dfn>hPanel</div>
+    <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
+  <div class=dfn>Dir</div>
+    <div class=dfndescr>Имя каталога. Обычно только имя без полного пути. Для предоставления базовых возможностей плагин обязан воспринимать имена <code>'..'</code> и <code>'\'</code>.<br>
+    Для корректного восстановления каталога после использования <code>"Искать по всему диску"</code> в Диалоге поиска файлов, плагин должен воспринимать полное имя каталога,
+    которое возвращается в функции <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>. Это не обязательно для выставленного режима "<code>Искать, начиная с текущей папки</code>" в диалоге поиска файлов .</div>
+  <div class=dfn>UserData</div>
+    <div class=dfndescr>Это поле аналогично значению <i>PluginPanelItem.UserData</i> и может быть использовано плагином для хранения 32-битного значения или указателя на структуру данных.
+    В последнем случае, когда <i>UserData</i> указывает на структуру данных, первое поле этой структуры должно быть 32-битным значением, равным размеру структуры.
+    Это позволит Far Manager'у правильно скопировать структуру во внутренний буфер Far Manager'а и позже передать её плагину. Плагин должен освободить память, занятую такими дополнительными структурами.</div>
+  <div class=dfn>OpMode</div>
+    <div class=dfndescr>Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>.
+    Функция <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a> должна быть готова принимать флаг <a href="../defs/operation_mode.html#OPM_FIND">OPM_FIND</a>. Если этот флаг установлен, плагин не должен совершать других действий,
+    кроме смены каталога (так, при установленном <a href="../defs/operation_mode.html#OPM_FIND">OPM_FIND</a>, плагин не должен пытаться обновить или закрыть панели, спрашивать
+    подтверждения у пользователя, выводить сообщения и т.д.).</div>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a>
+</div>
+
+</body>
+</html>

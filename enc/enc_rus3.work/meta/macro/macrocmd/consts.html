@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Константы - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Константы</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a>
+</div>
+
+<div class="shortdescr">
+Константы позволяют задавать имена значениям и обращаться к ним позже.
+</div>
+
+<h3>Именование</h3>
+<div class="descr">
+<p>Имена константам можно задавать произвольные, но при этом соблюдать следующие правила:</p>
+<ol>
+  <li>Имя начинается с буквы латинского алфавита, дальше в произвольном порядке идут буквы латинского алфавита, цифры и символ '_'.</li>
+  <li>Имена констант не должны совпадать с названиями клавиш и именами предопределённых <a href="prop_func/index.html">свойств и макрофункций</a>.</li>
+</ol>
+
+</div>
+
+<h3>Типы</h3>
+<div class="descr">
+<p>Константы могут быть двух типов - целое число или строка.</p>
+<p>Целочисленные константы: <code><var>NNN</var></code> - 10-ричная константа, <code>0<var>NNN</var></code> - 8-ричная константа, <code>0x<var>NNN</var></code> - 16-ричная константа.</p>
+<p>Целочисленные константы 64-разрядные.</p>
+<p>Константы с плавающей точкой - двойной точности 64-разрядные (double).</p>
+</div>
+
+<h3>Область действия</h3>
+<div class="descr">
+<p>При старте FAR считывает константы из специальной области <code>Consts</code>.</p>
+</div>
+
+<h3>Представление в реестре</h3>
+<div class="descr">
+<p>В реестре константы располагаются в специальной ветке <code>[HKEY_CURRENT_USER\Software\Far2\[Users\USERNAME\]KeyMacros\Consts]</code>.</p>
+<p>Каждая константа имеет имя и может быть четырёх типов:</p>
+<ul>
+  <li><code>REG_MULTI_SZ</code> - для строковых констант</li>
+  <li><code>REG_SZ</code> - для строковых констант и констант с плавающей точкой</li>
+  <li><code>REG_DWORD</code> - для целочисленных констант</li>
+  <li><code>REG_QDWORD</code> - для целочисленных констант</li>
+</ul>
+<p>Преобразование чисел с плавающей точкой в строку осуществляется по формату "<code>KeyMacro/CONVFMT:REG_SZ</code>" (по умолчанию "<code>%.6g</code>")</p>
+</div>
+
+<h3>Пример</h3>
+<div class="descr">
+Пример применения константы FIB_PASSWORD (0x00000002) для функции <a href="prop_func/general.html#prompt">prompt()</a>.
+<pre class="codesample"><code>REGEDIT
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Consts]
+"FIB_PASSWORD"=dword:00000002
+
+[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Editor\CtrlP]
+"Sequence"="%s=prompt(\"Password\",\"Input password:\",FIB_PASSWORD); $Text %s"
+"DisableOutput"=dword:00000001
+</code></pre>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="vars.html">Переменные</a>
+</div>
+
+</body>
+
+</html>

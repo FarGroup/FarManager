@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>AnalyseW</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>AnalyseW</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">экспортируемые функции</a>
+</div>
+
+
+<div class=shortdescr>
+Far Manager вызывает функцию <dfn>AnalyseW</dfn> для открытия панели плагина, эмулирующего файловую систему на базе переданного этой функции файла (например, архива).
+</div>
+
+
+<pre class=syntax>
+int WINAPI AnalyseW(
+  const struct AnalyseInfo *Info
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Info</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/analyseinfo.html">AnalyseInfo</a> -  информация, переданная Far Manager'ом, для анализа плагином содержимого файла.<br>
+    В начале функции обязательно проверьте, что поле <code>AnalyseInfo.StructSize >= sizeof(AnalyseInfo)</code>.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Если плагин обрабатывает переданный файл и на базе него эмулирует файловую систему, возвращаемое значение должно быть TRUE. Иначе функция должна возвращать FALSE.
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+<li>Если плагин будет эмулировать файловую систему, то необходимо сохранить значение поля AnalyseInfo.FileName во внутренних переменных, т.к. позже оно может понадобиться плагину.
+<li>Far Manager при нажатии &lt;Enter&gt; на выбранном файле опрашивает все плагины, экспортирующих эту функцию. Плагины просматриваются в алфавитном порядке (по имени DLL-модуля) и 
+кто первый вернул значение, отличное от FALSE - тому и отдаётся управление. Данное поведение по умолчанию дополнительно регулируется опцией "Параметры менеджера плагинов" - "Обработка файла", 
+если опция включена, то будет показано меню со всеми плагинами, экспортирующими эту функцию.
+</ol>
+</div>
+
+</body>
+</html>

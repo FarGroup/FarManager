@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ProcessPanelEventInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>ProcessPanelEventInfo</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>ProcessPanelEventInfo</dfn> содержит информацию о событии, поступающем в функцию <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a>.
+</div>
+
+<pre class=syntax>
+struct ProcessPanelEventInfo
+{
+  size_t StructSize;
+  HANDLE hPanel;
+  int Event;
+  void *Param;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле содержит размер структуры <dfn>ProcessPanelEventInfo</dfn>.</div>
+  <div class=dfn>hPanel</div>
+    <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
+  <div class=dfn>Event</div>
+    <div class=dfndescr>Тип события. Одно из следующих значений (перечисление <a name="FAR_EVENTS">FAR_EVENTS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FE_CHANGEVIEWMODE">FE_CHANGEVIEWMODE</a></td>
+    <td class="cont" width="60%">Сменился режим просмотра панели.<br>
+    <i>Param</i> указывает на строку <a href="../other/dict.html#panelcolumntype">типов колонок</a>, оканчивающуюся нулём, например <b>N,S,D,T</b>.<br>
+    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть FALSE.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FE_REDRAW">FE_REDRAW</a></td>
+    <td class="cont" width="60%">Панель должна перерисоваться.<br>
+    <i>Param</i> равен NULL.<br>
+    Верните в <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> FALSE, чтобы использовать функцию перерисовки FAR'a, или TRUE, чтобы отключить её. В последнем случае плагин должен перерисовать панель сам.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FE_IDLE">FE_IDLE</a></td>
+    <td class="cont" width="60%">Посылается с интервалом в несколько секунд. Плагин может использовать это событие, чтобы вызвать обновление панели и её перерисовку, если это необходимо.<br>
+    <i>Param</i> равен NULL.<br>
+    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть FALSE.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FE_CLOSE">FE_CLOSE</a></td>
+    <td class="cont" width="60%">Панель закрывается.<br>
+    <i>Param</i> равен NULL.<br>
+    Верните в <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> FALSE для закрытия панели или TRUE для отмены этого.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FE_BREAK">FE_BREAK</a></td>
+    <td class="cont" width="60%">Нажатие Ctrl-Break.<br>
+    <i>Param</i> может быть только <code>(int)CTRL_BREAK_EVENT</code><br>
+    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть FALSE.<br>
+    Обработка этого события выполнена в отдельном потоке, поэтому плагин должен быть осторожным при выполнении операций ввода-вывода и не должен использовать сервисные функции FAR'a.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FE_COMMAND">FE_COMMAND</a></td>
+    <td class="cont" width="60%">Перед запуском команды в командной строке FAR'a.<br>
+    <i>Param</i> указывает на текст команды.<br>
+    Для разрешения стандартной обработки команды плагин должен вернуть в <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> FALSE.<br>
+    Если плагин собирается обработать команду сам, то он должен вернуть TRUE.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FE_KILLFOCUS">FE_KILLFOCUS</a></td>
+    <td class="cont" width="60%">Панель потеряла фокус ввода.<br>
+    <i>Param</i> = NULL.<br>
+    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть FALSE.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FE_GOTFOCUS">FE_GOTFOCUS</a></td>
+    <td class="cont" width="60%">Панель получила фокус ввода.<br>Активная панель получает событие FE_GOTFOCUS сразу после создания.<br><i>Param</i> = NULL.<br>
+    Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть FALSE.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>Param</div>
+    <div class=dfndescr>Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">Структуры</a>|
+<a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a>
+</div>
+
+</body>
+</html>

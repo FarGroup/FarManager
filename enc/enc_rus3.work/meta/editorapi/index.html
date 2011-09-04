@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Editor API</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="JavaScript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>Editor API</h1>
+
+<div class=navbar>
+<a href="../index.html">главная</a>
+</div>
+
+<div class=shortdescr>
+  <p>Краткое описание <a href="about.html">Editor API</a>
+</div>
+
+<h3>Экспортируемые функции, т.е. те которые плагины экспортируют для Far Manager</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a></td>
+<td class="cont" width="60%">обработка событий клавиатуры и мыши</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a></td>
+<td class="cont" width="60%">обработка событий редактора</td>
+</tr>
+</table>
+
+<h3>Сервисные функции, указатели на эти функции плагины получают от Far Manager в функции
+  <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a></h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/editor.html">Editor</a></td>
+<td class="cont" width="60%">обеспечивает доступ к внутреннему редактору FAR'a</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/editorcontrol.html">EditorControl</a></td>
+<td class="cont" width="60%">обеспечивает доступ на низком уровне к API редактора FAR'a</td>
+</tr>
+</table>
+
+<h3>Структуры</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Структура</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editorbookmarks.html">EditorBookMarks</a></td>
+<td class="cont" width="60%">информация о закладках текущего редактируемого файла</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editorcolor.html">EditorColor</a></td>
+<td class="cont" width="60%">установить или получить информацию о цветовых областях строк</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editorconvertpos.html">EditorConvertPos</a></td>
+<td class="cont" width="60%">преобразование между реальным и экранным положением курсора в редакторе</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editordeletecolor.html">EditorDeleteColor</a></td>
+<td class="cont" width="60%">удалить цветовую область в редакторе</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editorgetstring.html">EditorGetString</a></td>
+<td class="cont" width="60%">запрос строки из редактора</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editorinfo.html">EditorInfo</a></td>
+<td class="cont" width="60%">текущее состояние редактора</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editorsavefile.html">EditorSaveFile</a></td>
+<td class="cont" width="60%">сохранение редактируемого файла</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editorselect.html">EditorSelect</a></td>
+<td class="cont" width="60%">выделение или сброс выделения блока в редакторе</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editorsetparameter.html">EditorSetParameter</a></td>
+<td class="cont" width="60%">установка параметров редактора</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editorsetposition.html">EditorSetPosition</a></td>
+<td class="cont" width="60%">установка позиции в редакторе</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editorsetstring.html">EditorSetString</a></td>
+<td class="cont" width="60%">установка или вставка строки в редакторе</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/editorundoredo.html">EditorUndoRedo</a></td>
+<td class="cont" width="60%">управление поведением операции Отмена-Возврат действия, т.н. Undo-Redo</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/processeditoreventinfo.html">ProcessEditorEventInfo</a></td>
+<td class="cont" width="60%">информация о событии в редакторе</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/processeditorinputinfo.html">ProcessEditorInputInfo</a></td>
+<td class="cont" width="60%">информация о событии в редакторе</td>
+</tr>
+</table>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../defs/index.html">Типы и определения</a>
+</div>
+
+</body>
+</html>

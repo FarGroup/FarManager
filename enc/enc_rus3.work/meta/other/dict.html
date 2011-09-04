@@ -1,0 +1,359 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Словарь</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+<img src="../../images/bookmarks.png" align=right width=48 height=48 alt="">
+<h1>Словарь</h1>
+<div class=navbar>
+<a href="../index.html">главная</a>
+</div>
+
+<div class=shortdescr>
+Часть материалов, описывающих свойства файловой системы взяты с сайта
+<a href="http://www.windowsfaq.ru/" target="_blank" title="WindowsFAQ.ru">http://www.windowsfaq.ru/</a>.
+Все ссылки на MSDN, упомянутые в <em>Словаре</em>, открываются в отдельном окне в виде результатов поиска по сайту <a href="http://msdn.microsoft.com/" target="_blank">msdn.microsoft.com</a> (см. так же <a href="http://msdn.microsoft.com/ru-ru/" target="_blank">MSDN по русски</a>).
+</div>
+
+<div class=dfn><h3><a name="plugin">Plugin - плагин</a></h3></div>
+<div class=dfndescr>
+Программный компонент-добавка к Far Manager, позволяющая реализовать
+дополнительные функции. Плагин фактически - обычная библиотека,
+которая выполняется в контексте консольного процесса - так что ваш плагин может
+делать всё (ну или почти всё), что может делать обычное консольное Windows
+приложение. Сама идея плагинов позволяет настраивать оболочку под себя,
+добавляя нужное и выкидывая лишнее.
+<br>
+<br>
+</div>
+
+
+<div class=dfn><h3><a name="reparsepoints">Reparse Points</a></h3></div>
+<div class=dfndescr>
+Большая часть нововведений в
+файловой системе Windows 2000 стала возможной
+благодаря введению концепции Reparse Points,
+специальных "крючков" в файловой
+системе, позволяющих подключать
+дополнительные подсистемы хранения данных
+без использования дополнительных программ.
+<p>Reparse Points в действительности являются
+специальными объектами файловой системы,
+обладающими специальными атрибутами,
+которые позволяют использовать
+дополнительную функциональность
+подсистемы хранения данных. Любой файл или
+папка может иметь Reparse Point, что означает, что
+по одному и тому же пути при обращении к
+ресурсу могут быть доступны сразу
+несколько видов расширенной
+функциональности.
+
+<br>
+См. так же:
+<a title="MSDN: Reparse Points" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Reparse+Points" target="_blank">MSDN: Reparse Points</a>
+
+<br>
+<br>
+</div>
+
+
+<div class=dfn><h3><a name="directoryjunctions">Directory Junctions</a></h3></div>
+<div class=dfndescr>
+Directory Junctions (слияния папок) позволяют
+соединять папки вместе таким образом, что
+вы можете привязать любую имеющуюся папку к
+любой другой локальной папке. Например,
+если имеются три папки, c:\folder1, c:\folder2 и
+c:\documents, то можно создать точки перехода к
+папке c:\documents таким образом, что она будет
+казаться подпапкой других двух папок, т.е.
+на диске будут существовать папки
+c:\folder1\documents и c:\folder2\documents.</P>
+
+<p>Изначально предполагалось, что в поставку
+будет входить специальная утилита linkd.exe,
+предназначенная для создания Directory Junctions,
+однако сейчас эта программа не включена в
+Win2000 и поставляется в составе Resource Kit. Также Directory
+Junctions могут быть созданы при помощи API,
+однако это потребует написания собственной
+программы.
+
+<p>На первый взгляд, Directory Junctions и Distributed File System
+выполняют одни и те же задачи, так как оба
+этих сервиса создают видимость единого
+дерева папок, в действительности состоящих
+из множества распределённых папок. Однако
+между ними есть несколько существенных
+различий:</p>
+<ul>
+  <li>Система DFS использует службу Active Directory
+    для хранения своей информации</li>
+  <li>Благодаря использованию Active Directory
+    система DFS может обеспечивать защиту от
+    сбоев и выравнивание нагрузки на систему,
+    в то время как Directory Junctions не обеспечивают
+    ни того, ни другого, хотя это и не является
+    необходимым в контексте локального
+    компьютера</li>
+  <li>Система DFS в основном нацелена на
+    объединение сетевых ресурсов в единое
+    пространство имён, в то время как Directory
+    Junctions связывают только локальные ресурсы</li>
+  <li>DFS может работать с использованием
+    нескольких файловых систем, а Directory Junctions
+    основаны только на NTFS
+    5.0</li>
+<li>Система DFS требует программы-клиента, а
+  Directory Junctions - нет.</li>
+</ul>
+<br>
+См. так же:
+<a title="MSDN: Directory Junctions" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Directory+Junctions" target="_blank">MSDN: Directory Junctions</a>,
+<a title="MSDN: Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp" target="_blank">MSDN: Inside Win2K NTFS, Part 1</a>.
+<br>
+<br>
+</div>
+
+
+<div class=dfn><h3><a name="mountpoints">Mount Points - точки подключения томов</a></h3></div>
+<div class=dfndescr>
+Mount Points (точки подключения) по сути
+являются тем же самым, что и Directory Junctions,
+однако позволяют лишь подключать корневую
+папку одного раздела к папке на другом
+разделе диска. Mount Points создаются с
+использованием Reparse Points, и, следовательно,
+нуждаются в NTFS 5.0.</p>
+<p>Mount Points полезны для увеличения размеров
+раздела без фактического изменения
+структуры разделов на диске. Например,
+можно создать точку подключения диска D: в
+качестве папки C:\Documents, что приведёт в итоге
+к видимости увеличения доступного на диске
+C: пространства.
+<br>
+См. так же:
+<a title="MSDN: Volume Mount Points" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Volume+Mount+Points" target="_blank">MSDN: Volume Mount Points</a>
+
+<br>
+<br>
+</div>
+
+<div class=dfn><h3><a name="hardlinks">Hard Links - жёсткие ссылки</a></h3></div>
+<div class=dfndescr>
+Hard Link - это когда один и тот же файл имеет два имени. Допустим, один и
+тот же файл имеет имена 1.txt и 2.txt: если пользователь сотрёт файл 1,
+останется файл 2. Если сотрёт 2 - останется файл 1, то есть оба имени, с
+момента создания, совершенно равноправны. Файл физически стирается лишь
+тогда, когда будет удалено его последнее имя.
+Жёсткая ссылка может быть создана только в пределах одного раздела диска
+(естественно, файловая система должна поддерживать жёсткие ссылки).
+<br>
+См. так же:
+<a title="MSDN: Hard Links" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Hard+Links" target="_blank">MSDN: Hard Links</a>,
+<a title="Q106166 - Windows NT Backup and Hard Links" href="http://support.microsoft.com/support/kb/articles/Q106/1/66.asp" target="_blank">Q106166 - Windows NT Backup and Hard Links</a>.
+<br>
+<br>
+</div>
+
+<div class=dfn><h3><a name="symboliclinks">Symbolic Links - символическая ссылка</a></h3></div>
+<div class=dfndescr>
+<p>Гораздо более практичная возможность, позволяющая делать виртуальные
+каталоги - ровно так же, как и виртуальные диски командой subst в DOSе.
+Применения достаточно разнообразны: во-первых, упрощение системы каталогов.
+Если вам не нравится каталог "<code>Documents and settings\Administrator\Documents</code>",
+вы можете прилинковать его в корневой каталог - система будет по прежнему
+общаться с каталогом с дремучим путём, а вы - с гораздо более коротким именем,
+полностью ему эквивалентным.</p>
+<p>Символические ссылки (SymLink) на NTFS поддерживаются, начиная с
+Windows Vista (NT 6.0). Они представляют собой улучшеный вариант
+связей каталогов - символические ссылки могут указывать как на
+папки, так и на файлы, как на локальные, так и на сетевые, при этом
+поддерживаются относительные пути.</p>
+<br>
+См. так же:
+<a title="MSDN: Symbolic Links" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Symbolic+Links" target="_blank">MSDN: Symbolic Links</a>,
+<a title="Inside Win2K NTFS, Part 1" href="http://msdn.microsoft.com/library/default.asp?url=/library/en-us/dnw2kmag00/html/NTFSPart1.asp" target="_blank">Windows 2000 Magazine: Inside Win2K NTFS, Part 1</a>.
+<br>
+<br>
+</div>
+
+<div class=dfn><h3><a name="sparsefile">Sparse File - разрежённый (распределённые) файл</a></h3></div>
+<div class=dfndescr>
+NTFS5 поддерживает разрежённые файлы, которые состоят из больших
+областей последовательных нулевых разрядов. Такой файл можно пометить
+как разрежённый и дать файловой системе возможность выделять место для
+хранения только значимых разрядов данного файла. NTFS хранит
+информацию только о том, где размещены значимые данные. Подобный
+способ позволяет оптимально распределять дисковую память на томах NTFS
+при хранении разрежённых файлов и обработке этих файлов приложениями.
+<br>
+См. так же:
+<a title="MSDN: Sparse Files" href="http://search.microsoft.com/Results.aspx?qsc0=3&FORM=QBMH2&l=2&q=Sparse+Files" target="_blank">MSDN: Sparse Files</a>,
+<a title="Возможности NTFS (на osp.ru)" href="http://www.osp.ru/win2000/2001/07/175039/" target="_blank">Возможности NTFS</a>.
+<br>
+<br>
+</div>
+
+
+<div class=dfn><h3><a name="numericsort">Числовая сортировка</a></h3></div>
+<div class=dfndescr>В Windows XP изменён алгоритм сортировки, который операционная система использует при
+выводе списка файлов. Выполняется не строковая сортировка, а числовая. FAR так же позволяет
+использовать числовую сортировки в стиле Windows XP - ведущие нули в имени файла не учитываются.
+Следующий пример показывает как сортируются файлы:
+<table class="cont"><tr class="cont"><th class="cont" width="50%">Режим включён (Windows XP)</th><th class="cont" width="50%">Режим выключен (Windows 2000)</th></tr>
+<tr class="cont"><td class="cont" width="50%">Ie4_01</td><td class="cont" width="50%">Ie4_01</td></tr>
+<tr class="cont"><td class="cont" width="50%">Ie4_128</td><td class="cont" width="50%">Ie4_128</td></tr>
+<tr class="cont"><td class="cont" width="50%">Ie5</td><td class="cont" width="50%">Ie401sp2</td></tr>
+<tr class="cont"><td class="cont" width="50%">Ie6</td><td class="cont" width="50%">Ie5</td></tr>
+<tr class="cont"><td class="cont" width="50%">Ie401sp2</td><td class="cont" width="50%">Ie501sp2</td></tr>
+<tr class="cont"><td class="cont" width="50%">Ie501sp2</td><td class="cont" width="50%">Ie6</td></tr>
+<tr class="cont"><td class="cont" width="50%">5.txt</td><td class="cont" width="50%">11.txt</td></tr>
+<tr class="cont"><td class="cont" width="50%">11.txt</td><td class="cont" width="50%">5.txt</td></tr>
+<tr class="cont"><td class="cont" width="50%">88.txt</td><td class="cont" width="50%">88.txt </td></tr>
+</table>
+<br>
+См. так же:
+<a title="Q319827: The Sort Order for Files and Folders Whose..." href="http://support.microsoft.com/default.aspx?kbid=319827" target="_blank">Q319827 - The Sort Order for Files and Folders Whose Names...</a>.
+<br>
+<br>
+</div>
+
+
+<div class=dfn><h3><a name="filemasks">Маски файлов</a></h3></div>
+<div class=dfndescr>Маски файлов часто используются в командах FAR для выбора отдельных
+файлов и папок или их групп. Маски могут включать обычные допустимые
+в именах файлов символы, '<code>*</code>' и '<code>?</code>', а также
+специальные выражения:
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Метасимвол</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><code>*</code></td>
+    <td class="cont" width="60%">Любое количество символов</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><code>?</code></td>
+    <td class="cont" width="60%">Любой символ</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><code>[c,x-z]</code></td>
+    <td class="cont" width="60%">Любой символ из находящихся в квадратных скобках.
+      Допускаются и отдельные символы, и их диапазоны.</td></tr>
+</table>
+
+Например, файлы <code>ftp.exe</code>, <code>fc.exe</code> и <code>f.ext</code>
+могут быть выбраны с помощью маски <code>f*.ex?</code>, маска <code>*co*</code>
+выберет и <code>color.ini</code>, и <code>edit.com</code>, маска <code>[c-f,t]*.txt</code>
+может выбрать <code>config.txt</code>, <code>demo.txt</code>, <code>faq.txt</code>
+и <code>tips.txt</code>.
+
+<p>Во многих командах FAR можно задать несколько разделённых запятыми
+или точкой с запятой масок. Например, чтобы выбрать все документы, вы можете
+ввести <code>*.doc,*.txt,*.wri</code> в команде "Пометить группу". </p>
+
+<p>Допускается заключать любую из масок (но не весь список) в кавычки.
+Например, это нужно делать, когда маска содержит один из символов-разделителей
+(запятую или точку с запятой), чтобы такая маска не была спутана со списком.</p>
+
+<p>В некоторых ситуациях (поиск файлов, пометка файлов, ассоциации
+файлов, группы сортировки и раскраска файлов) можно использовать маски
+исключения. <b>Маска исключения</b> есть одна или несколько масок
+файлов, которой не должны соответствовать имена требуемых файлов, она
+отделяется от основной маски символом '<code><b>|</b></code>'.</p>
+
+Примеры использования масок исключения:
+<ol>
+<li><code><b>*.cpp</b></code><br>Все файлы с расширением cpp.</li>
+<li><code><b>*.*|*.bak,*.tmp</b></code><br>Все файлы, кроме файлов с расширением bak и tmp.</li>
+<li><code><b>*.*|</b></code><br>Ошибка - введён спецсимвол '<code><b>|</b></code>', но сама маска исключения не указана.</li>
+<li><code><b>*.*|*.bak|*.tmp</b></code><br>Ошибка - спецсимвол '<code><b>|</b></code>' не может встречаться более одного раза.</li>
+<li><code><b>|*.bak</b></code><br>Обрабатывается как '<code>*|*.bak</code>'</li>
+</ol>
+</div>
+
+<div class=dfn><h3><a name="panelcolumntype">Типы колонок</a></h3></div>
+<div class=shortdescr>
+  Допускаются следующие типы колонок:
+</div>
+
+<div class=descr>
+    <div class=dfn>N - имя файла, допускаются модификаторы (например "<b>NMR&quot;</b>):</div>
+    <div class=dfndescr>M - показывать символы пометки;<br>
+    O - показывать имена без путей (предназначено в основном для подключаемых модулей);<br>
+    R - выравнивать имена по правому краю.
+    </div>
+
+    <div class=dfn>S - размер файла.</div>
+    <div class=dfndescr>Для размеров допускаются модификаторы:<br>
+     C - форматировать размер файла запятыми;<br>
+     T - использовать 1000 вместо 1024 как делитель, если ширины колонки не хватает для показа полного размера файла.<br>
+     F - размер файла выводится в стиле Windows Explorer (т.е. 999 байт отображается как 999, а 1000 байт - как 0.97 KB);<br>
+     E - экономичный режим, между размером и суффиксом пробел не ставится<br>
+    </div>
+
+    <div class=dfn>P - упакованный размер файла.</div>
+    <div class=dfndescr>Для размеров допускаются модификаторы:<br>
+     C - форматировать размер файла запятыми;<br>
+     T - использовать 1000 вместо 1024 как делитель, если ширины колонки не хватает для показа полного размера файла.<br>
+     F - размер файла выводится в стиле Windows Explorer (т.е. 999 байт отображается как 999, а 1000 байт - как 0.97 KB);<br>
+     E - экономичный режим, между размером и суффиксом пробел не ставится<br>
+    </div>
+    <div class=dfn>D - дата модификации файла</div>
+    <div class=dfn>T - время модификации файла</div>
+    <div class=dfn>DM - дата и время модификации файла</div>
+    <div class=dfndescr>Допускаются модификаторы:<br>
+    B - краткий (в стиле Unix) формат времени файла;<br>
+      M - использование текстовых имён месяцев;</div>
+    <div class=dfn>DC - дата и время создания файла</div>
+    <div class=dfndescr>Допускаются модификаторы:<br>
+    B - краткий (в стиле Unix) формат времени файла;<br>
+      M - использование текстовых имён месяцев;</div>
+    <div class=dfn>DA - дата и время последнего доступа к файлу</div>
+    <div class=dfndescr>Допускаются модификаторы:<br>
+    B - краткий (в стиле Unix) формат времени файла;<br>
+      M - использование текстовых имён месяцев;</div>
+    <div class=dfn>A - атрибуты файла</div>
+    <div class=dfn>Z - описание файла</div>
+    <div class=dfn>O - владелец файла</div>
+    <div class=dfn>LN - количество жёстких ссылок</div>
+    <div class=dfn>C0..C9 - пользовательские типы колонок.</div>
+</div>
+
+<div class=shortdescr>
+Если описание типов колонок содержит более одной колонки имени файла,
+панель файлов будет отображаться в многоколоночной форме.</div>
+
+
+<div class=dfn><h3><a name="columnwidths">Ширина колонок</a></h3></div>
+<div class=shortdescr>
+<p>Строка <dfn>ColumnWidths</dfn> в структуре
+<a href="../structures/panelmode.html">PanelMode</a> описывает ширину колонок панели
+(например, &quot;<code><b>0,8,0,5&quot;</b></code>).
+
+<p>Формат строки простой - числа (представляющие ширину колонки) разделённые
+запятой.
+
+<p>Если ширина равна 0, то используется значение по умолчанию.
+Если ширина колонки с именем, описанием или
+владельцем равна 0, она будет подсчитана
+автоматически, в зависимости от ширины панели.
+Для правильной работы с различной шириной экрана
+настоятельно рекомендуется, чтобы в каждом
+режиме просмотра была хотя бы одна колонка с
+автоматически вычисляемой шириной.</p>
+
+<p>При использовании 12-часового формата времени
+надо увеличить на единицу стандартную ширину
+колонки времени файла или колонки времени и даты
+файла. После дальнейшего увеличения в этих
+колонках также будут показаны секунды и
+миллисекунды.</p>
+
+<p>Для показа года в 4-хсимвольном формате нужно
+увеличить ширину колонки даты на 2. </p>
+</div>
+
+
+</body>
+</html>

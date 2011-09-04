@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>WINDOW_BUFFER_SIZE_RECORD</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<!--history
+  Fri 10 Dec 00:34:06 1999
+    Igor Ruskih <ruiv@uic.nnov.ru>
+    перевёл...
+-->
+<body>
+
+<h1>WINDOW_BUFFER_SIZE_RECORD</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="../structures/index.html">структуры</a> |
+<a href="index.html">win32 структуры</a>
+</div>
+
+<div class=shortdescr>
+Структура <strong>WINDOW_BUFFER_SIZE_RECORD</strong>
+используется консольной структурой <strong>INPUT_RECORD</strong>
+для информирования о смене в размере экранного буфера консоли.
+</div>
+
+<pre class=syntax>
+typedef struct _WINDOW_BUFFER_SIZE_RECORD {
+    COORD dwSize;
+} WINDOW_BUFFER_SIZE_RECORD;
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+
+    <div class=dfn>dwSize</div>
+    <div class=dfndescr>Указывает новый размер экранного буфера в символах (структура <a href="coord.html">COORD</a>).</div>
+
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+  <p>Эти сообщения добавляются во входной буфер, когда консоль находится
+  в режиме window-aware (<strong>ENABLE_WINDOW_INPUT</strong>).</p>
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="input_record.html">INPUT_RECORD</a>,
+<a href="coord.html">COORD</a>,
+<a href="readconsoleinput.html">ReadConsoleInput</a>
+</div>
+
+</body>
+</html>

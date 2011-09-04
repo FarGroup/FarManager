@@ -1,0 +1,46 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FSF.TruncPathStr</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>TruncPathStr</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">FarStandardFunctions</a>
+</div>
+
+<div class=shortdescr>
+Функция <dfn>FSF.TruncPathStr</dfn> усекает указанный путь до требуемого размера и вставляет при надобности многоточие вместо отрезанной части.
+</div>
+
+<pre class=syntax>
+wchar_t* WINAPI TruncPathStr(
+  wchar_t *Str,
+  int MaxLength
+);
+</pre>
+
+<h3>Параметры</h3>
+<div class=descr>
+  <div class=dfn>Str</div>
+    <div class=dfndescr>Указатель на строку, содержащую путь. Результат работы будет помещён в неё же.</div>
+  <div class=dfn>MaxLength</div>
+    <div class=dfndescr>Размер, до которого нужно обрезать путь.</div>
+</div>
+
+<h3>Возвращаемое значение</h3>
+<div class=descr>
+Указатель на результирующую строку.
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="truncstr.html">FSF.TruncStr</a>
+</div>
+
+</body>
+</html>

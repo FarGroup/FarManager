@@ -1,0 +1,448 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Свойства и функции для работы с редактором - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>Свойства и функции для работы с редактором</h1>
+<div class="navbar">
+<a href="../../../index.html">главная</a> |
+<a href="../../index.html">Макросы</a> |
+<a href="../index.html">Макроязык</a> |
+<a href="index.html">Свойства и функции: по областям</a>
+</div>
+
+<h2>Свойства</h2>
+<table class="cont2 funcs">
+  <col>
+  <col>
+  <col class="descr">
+  <tr><th>Оператор</th><th>Тип</th><th>Описание</th></tr>
+  <tr>
+    <td><a name="Editor.FileName">Editor.FileName</a></td>
+    <td>String</td>
+    <td>полное имя редактируемого файла</td>
+  </tr>
+  <tr>
+    <td><a name="Editor.Lines">Editor.Lines</a></td>
+    <td>Number</td>
+    <td>количество строк в редакторе</td>
+  </tr>
+  <tr>
+    <td><a name="Editor.CurLine">Editor.CurLine</a></td>
+    <td>Number</td>
+    <td>номер текущей строки</td>
+  </tr>
+  <tr>
+    <td><a name="Editor.CurPos">Editor.CurPos</a></td>
+    <td>Number</td>
+    <td>текущая позиция курсора в строке; учитывается размер табуляции</td>
+  </tr>
+  <tr>
+    <td><a name="Editor.RealPos">Editor.RealPos</a></td>
+    <td>Number</td>
+    <td>текущая позиция курсора в строке без привязки к размеру табуляции (табуляция считается за 1 символ)</td>
+  </tr>
+  <tr>
+    <td><a name="Editor.Value">Editor.Value</a></td>
+    <td>Value</td>
+    <td><p>содержимое текущей строки в редакторе под курсором.</p>
+      <p>Например, показать текущий символ под курсором:</p>
+      <pre class="codesample">
+<code><a href="general.html#msgbox">msgbox</a>(<a href="general.html#substr">substr</a>(Editor.Value,Editor.CurPos-1,1),Editor.FileName,0)</code></pre>
+    </td>
+  </tr>
+  <tr>
+    <td><a name="Editor.SelValue">Editor.SelValue</a></td>
+    <td>String</td>
+    <td><p>содержимое выделенного блока.</p>
+        <p>Аналогично тому, как Far поместил бы в clipboard (блок текста с наличием <code>crlf</code> в конце строк).</p>
+    </td>
+  </tr>
+  <tr>
+    <td><a name="Editor.State">Editor.State</a></td>
+    <td>Number</td>
+    <td>различные состояния текущего редактора - набор
+      битовых флагов:
+      <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr>
+          <th>Значение</th>
+          <th>Описание</th>
+        </tr>
+        <tr>
+          <td>0x00000001</td>
+          <td>файл совершенно новый либо его успели удалить</td>
+        </tr>
+        <tr>
+          <td>0x00000002</td>
+          <td>разрешено переключение на программу просмотра по <kbd>F6</kbd></td>
+        </tr>
+        <tr>
+          <td>0x00000004</td>
+          <td>после закрытия редактора удалить файл</td>
+        </tr>
+        <tr>
+          <td>0x00000008</td>
+          <td>редактируемый файл модифицирован (в статусной строке редактора присутствует символ '*')</td>
+        </tr>
+        <tr>
+          <td>0x00000010</td>
+          <td><p>в наличии есть выделенный поточный блок</p>
+              <p>(альтернативный вариант - функция <a href="#editor.sel">Editor.Sel(0,4)</a>)</p></td>
+        </tr>
+        <tr>
+          <td>0x00000020</td>
+          <td><p>в наличии есть выделенный вертикальный блок</p>
+              <p>(альтернативный вариант - функция <a href="#editor.sel">Editor.Sel(0,4)</a>)</p></td>
+        </tr>
+        <tr>
+          <td>0x00000040</td>
+          <td>редактируемый файл изменялся в сеансе редактирования</td>
+        </tr>
+        <tr>
+          <td>0x00000080</td>
+          <td>курсор в режиме замены</td>
+        </tr>
+        <tr>
+          <td>0x00000100</td>
+          <td>позиция курсора была изменена плагином</td>
+        </tr>
+        <tr>
+          <td>0x00000200</td>
+          <td>редактор заблокирован (ReadOnly)</td>
+        </tr>
+        <tr>
+          <td>0x00000400</td>
+          <td>используются постоянные блоки</td>
+        </tr>
+        <tr>
+          <td>0x00000800</td>
+          <td>модальный редактор</td>
+        </tr>
+        <tr>
+          <td>0x08000000</td>
+          <td>FAR запущен с ключом /e</td>
+        </tr>
+      </table>
+      Например,
+      <pre class="codesample"><code>$If (Editor.State &amp; 0x8) <em>выполнить действия, если файл модифицирован</em> $End</code></pre>
+    </td>
+  </tr>
+
+</table>
+
+<h2>Функции</h2>
+
+<table class="cont2 funcs">
+  <col>
+  <col class="descr">
+  <tr>
+    <th>Функция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="editor.undo">editor.undo</a></dfn>(Action)</td>
+    <td>Работа с Undo/Redo. Здесь <var>N</var> - одно из:
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Action</var></th><th>Описание</th></tr>
+       <tr><td>0</td><td>начало блочной операции</td></tr>
+       <tr><td>1</td><td>конец блочной операции</td></tr>
+       <tr><td>2</td><td>выполнить Undo</td></tr>
+       <tr><td>3</td><td>выполнить Redo</td></tr>
+       </table>
+       Возвращает 1 для успешно выполненной операции или 0 в случае ошибки.
+    </td>
+  </tr>
+
+  <tr>
+    <td>E=<dfn><a name="editor.settitle">editor.settitle</a></dfn>([Title])</td>
+    <td><p>Установка заголовка в статусной строке редактора.</p>
+        <p>Если параметр <var>Title</var> отсутствует или равен пустой строке, то восстанавливается предыдущее значение статусной строки.</p>
+        <p>При показе заголовок будет усечён до размера, не затрагивающего служебную информацию (кодировка, позиция, etc.)</p>
+        <p>Возвращает 1 для успешно выполненной операции или 0 - редактор не в фокусе.</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>N=<dfn><a name="editor.pos">editor.pos</a></dfn>(Action,Object[,Value])</td>
+    <td><p>Получение/установка позиций в редакторе.</p>
+      <p>Параметр <var>Action</var> задаёт поведение функции:</p>
+       <table class="cont2 params">
+       <col class="value">
+       <col>
+       <col>
+       <tr><th><var>Action</var></th><th>Описание</th><th>Возвращает (<var>N</var>)</th></tr>
+       <tr><td>0</td><td>получить данные</td><td>текущее значение</td></tr>
+       <tr><td>1</td><td>установить данные</td><td>1/0 - успешно/неуспешно выполнена установка</td></tr>
+       </table>
+      <p>Функция возвращает -1 в случае прочих ошибок (например, неверные параметры, или функция вызвана не из редактора).</p>
+
+      <p>Параметр <var>Object</var> - над чем выполняется операция:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+       <tr><th><var>Object</var></th><th>Описание</th></tr>
+       <tr><td>1</td><td>строка</td></tr>
+       <tr><td>2</td><td>положение курсора в строке</td></tr>
+       <tr><td>3</td><td>экранная позиция курсора</td></tr>
+       <tr><td>4</td><td>новая строка вверху экрана</td></tr>
+       <tr><td>5</td><td>позиция левой границы окна редактора</td></tr>
+       <tr><td>6</td><td>режим вставки</td></tr>
+       </table>
+     <p>Пример см. в разделе <a href="../../examples.html">Примеры</a>.</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>V=<dfn><a name="editor.sel">editor.sel</a></dfn>(Action[,Opt])</td>
+    <td>Функция позволяет производить некоторые операции с блоками в тексте (в редакторе, в строках ввода в диалогах, в командной строке).
+       <table class="cont2 params">
+       <col class="value">
+       <col>
+       <tr><th><var>Action</var></th><th>Описание действия (в зависимости от значения <var>Opt</var>)</th></tr>
+        <tr><td>0</td><td><b>получить параметры текущего блока</b>
+        <table class="cont2 params lite tiny">
+          <col class="value">
+          <col>
+          <!--tr><th><var>Opt</var></th><th>Описание</th></tr-->
+          <tr><td>0</td><td>вернуть номер строки начала блока</td></tr>
+          <tr><td>1</td><td>вернуть номер позиции в строке начала блока</td></tr>
+          <tr><td>2</td><td>вернуть номер строки конца блока</td></tr>
+          <tr><td>3</td><td>вернуть номер позиции в строке конца блока</td></tr>
+          <tr><td>4</td><td><p>вернуть тип выделенного блока:</p>
+            <p>0 - блок не выделен, 1 - обычный блок, 2 - вертикальный блок</p>
+            <p>(альтернативный вариант - свойство <a href="#Editor.State">Editor.State</a>)</p></td></tr>
+        </table>
+        </td></tr>
+        <tr><td>1</td><td><b>позиционировать курсор внутри текущего блока</b>
+        <table class="cont2 params lite tiny">
+          <col class="value">
+          <col>
+          <!--tr><th><var>Opt</var></th><th>Описание</th></tr-->
+          <tr><td>0</td><td>установить курсор в начало отмеченного блока</td></tr>
+          <tr><td>1</td><td>установить курсор в конец отмеченного блока</td></tr>
+        </table>
+        <p>При позиционировании курсора состояние блока не изменяется.</p>
+        </td></tr>
+        <tr><td>2</td><td><b>установка позиций блока</b>
+        <table class="cont2 params lite tiny">
+          <col class="value">
+          <col>
+          <!--tr><th><var>Opt</var></th><th>Описание</th></tr-->
+          <tr><td>0</td><td>отметить позицию начала блока</td></tr>
+          <tr><td>1</td><td>отметить позицию конца блока</td></tr>
+        </table>
+        <p>Позицией начала/конца блока считается текущая позиция курсора.</p>
+        <p>Блок помечается только после указания конечной позиции (<var>Opt</var>=1), с ранее выделенного блока пометка снимается.</p>
+        <p>Если позиция начала и конца блока совпадают, то эта операция равносильна снятию пометки блока.</p>
+        </td></tr>
+        <tr><td>3</td><td><b>установка позиций вертикального блока</b>
+        <table class="cont2 params lite tiny">
+          <col class="value">
+          <col>
+          <!--tr><th><var>Opt</var></th><th>Описание</th></tr-->
+          <tr><td>0</td><td>отметить позицию начала вертикального блока</td></tr>
+          <tr><td>1</td><td>отметить позицию конца вертикального блока</td></tr>
+        </table>
+        <p>Позицией начала/конца блока считается текущая позиция курсора.</p>
+        <p>Блок помечается только после указания конечной позиции (<var>Opt</var>=1), с ранее выделенного блока пометка снимается.</p>
+        <p>Если позиция начала и конца блока совпадают, то эта операция равносильна снятию пометки блока.</p>
+        </td></tr>
+        <tr><td>4</td><td><p><b>снять выделение с блока</b>.</p>
+        <p>Параметр <var>Opt</var> игнорируется.</p>
+        <p>Всегда возвращается 1.</p>
+        </td></tr>
+       </table>
+       <p>В случае ошибки (в т.&nbsp;ч. функция вызвана не из "редактора") возвращаемое значение равно 0, иначе 1.</p>
+       <p>Для <var>Action</var>=0 возвращается запрошенное значение.</p>
+      <br>
+      <p>Например, повторим некоторые сочетания клавиш из Turbo-сред (макрос на сочетание <kbd>Ctrl-K</kbd>):</p>
+      <pre class="codesample"><code>%k=<a href="general.html#waitkey">waitkey</a>(0,1);
+$if(%k==B || %k==b || %k==CtrlB)
+  editor.sel(2,0)
+$else
+  $if(%k==K || %k==k || %k==CtrlK)
+    editor.sel(2,1)
+  $else
+    $if((%k==C || %k==c || %k==CtrlC) &amp;&amp; <a href="context_dep.html#Selected">Selected</a>)
+      CtrlC
+    $else
+      $if((%k==Y || %k==y || %k==CtrlY) &amp;&amp; Selected)
+        CtrlD
+      $else
+        <a href="general.html#eval">eval</a>("F1")
+      $end
+    $end
+  $end
+$end</code></pre>
+    </td>
+  </tr>
+
+  <tr>
+    <td>V=<dfn><a name="editor.set">editor.set</a></dfn>(Option,Value)</td>
+    <td>Для текущей копии редактора изменить настройки.
+       <table class="cont2 params lite">
+       <col class="value">
+       <col>
+       <col>
+       <tr><th><var>Option</var></th><th>Тип <var>Value</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td>Number</td><td>Размер табуляции</td></tr>
+        <tr><td>1</td><td>Number</td><td>Преобразование табуляции</td></tr>
+        <tr><td>2</td><td>Number</td><td>Постоянные блоки</td></tr>
+        <tr><td>3</td><td>Number</td><td><kbd>Del</kbd> удаляет блоки</td></tr>
+        <tr><td>4</td><td>Number</td><td>Автоотступ</td></tr>
+        <tr><td>5</td><td>Number</td><td>Автоопределение таблицы символов</td></tr>
+        <tr><td>6</td><td>Number</td><td><code>AnsiTableForNewFile</code></td></tr>
+        <tr><td>7</td><td>Number</td><td>Курсор за пределами строки</td></tr>
+        <tr><td>8</td><td>Number</td><td>Поведение клавиши <kbd>BackSpace</kbd> (TechInfo&nbsp;#13)</td></tr>
+        <tr><td>9</td><td>Number</td><td>Представление кода символа под курсором в статусной строке (TechInfo&nbsp;#32)</td></tr>
+        <tr><td>10</td><td>Number</td><td>Сохранять позицию файла</td></tr>
+        <tr><td>11</td><td>Number</td><td>Сохранять закладки</td></tr>
+        <tr><td>12</td><td>String</td><td>Символы разделители слов (TechInfo&nbsp;#1)</td></tr>
+        <tr><td>13</td><td>Number</td><td><code>EditorF7Rules</code> (TechInfo&nbsp;#18)</td></tr>
+        <tr><td>14</td><td>Number</td><td><code>AllowEmptySpaceAfterEof</code> (TechInfo&nbsp;#67)</td></tr>
+        <tr><td>15</td><td>Number</td><td><code>ShowScrollBar</code></td></tr>
+        <tr><td>16</td><td>Number</td><td><code>EditOpenedForWrite</code></td></tr>
+        <tr><td>17</td><td>Number</td><td><code>SearchSelFound</code></td></tr>
+        <tr><td>18</td><td>Number</td><td><code>SearchRegexp</code></td></tr>
+        <tr><td>19</td><td>Number</td><td><code>SearchPickUpWord</code></td></tr>
+        <tr><td>20</td><td>Number</td><td><code>ShowWhiteSpace</code></td></tr>
+       </table>
+       <p>Значение <var>Value</var> может быть равно -1, в этом случае функция ничего не изменит, а вернёт текущее значение настройки.</p>
+       <p>Возвращает предыдущее значение опций или -1, если данные указаны некорректно.</p>
+       <p>Например, макрос, перемещающий выделенный фрагмент на одну строку вниз
+          (сохраняет выделение вне зависимости от настрок постоянных блоков):</p>
+       <pre class="codesample"><code><a href="general.html#clip">clip</a>(5) CtrlX %a=editor.set(2,1); Down CtrlV %a=editor.set(2,%a);</code></pre>
+    </td>
+  </tr>
+
+  <tr><th colspan="2">Стековые закладки</th></tr>
+  <tr>
+    <th>Функция</th>
+    <th>Описание</th>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="bm.push">bm.push</a></dfn>()</td>
+    <td>Добавить закладку с текущими параметрами.</td>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="bm.pop">bm.pop</a></dfn>()</td>
+    <td>Восстановить параметры из последней закладки и удалить её.</td>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="bm.add">bm.add</a></dfn>()</td>
+    <td>Добавить закладку с текущими параметрами и обрезать "хвост" (все закладки с индексом больше текущего).</td>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="bm.del">bm.del</a></dfn>([Idx])</td>
+    <td><p>Удалить закладку с указанным индексом <var>Idx</var>.</p>
+        <p>Если параметр <var>Idx</var> не указан или равен 0 - удаляется текущая закладка.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="bm.clear">bm.clear</a></dfn>()</td>
+    <td>Очистить все закладки.</td>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="bm.next">bm.next</a></dfn>()</td>
+    <td>Перейти на следующую закладку.</td>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="bm.prev">bm.prev</a></dfn>()</td>
+    <td>Перейти на предыдущую закладку.</td>
+  </tr>
+  <tr>
+    <td>E=<dfn><a name="bm.back">bm.back</a></dfn>()</td>
+    <td><p>Перейти на предыдущую закладку.</p>
+        <p>Если непосредственно перед ней была вызвана <dfn>bm.add</dfn> - добавить перед переходом закладку с текущими параметрами.</td></p>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="bm.goto">bm.goto</a></dfn>([Idx])</td>
+    <td><p>Перейти на закладку с указанным индексом <var>Idx</var>.</p>
+        <p>Если параметр <var>Idx</var> не указан или равен 0 - переход на текущую закладку.</p>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="bm.get">bm.get</a></dfn>(Idx,Param)</td>
+    <td><p>Получить параметры закладки с индексом <var>Idx</var>. Idx=0 - текущая закладка.</p>
+      <p>Параметр <var>Param</var> может быть одним из следующих:</p>
+       <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr><th><var>Param</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td>номер текущей строки</td></tr>
+        <tr><td>1</td><td>номер текущей колонки</td></tr>
+        <tr><td>2</td><td>номер первой видимой колонки на экране</td></tr>
+        <tr><td>3</td><td>номер первой видимой строки на экране</td></tr>
+       </table>
+    </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="bm.stat">bm.stat</a></dfn>([Param])</td>
+    <td><p>Получить информацию о закладках.</p>
+      <p>Параметр <var>Param</var> может быть одним из следующих:</p>
+       <table class="cont2 params lite tiny">
+        <col class="value">
+        <col>
+        <tr><th><var>Param</var></th><th>Описание</th></tr>
+        <tr><td>0</td><td>текущее количество закладок</td></tr>
+        <tr><td>1</td><td>индекс текущей закладки (возвращает 0 если закладок нет)</td></tr>
+       </table>
+    </td>
+  </tr>
+  <tr><td colspan="2"><p>Пример работы с закладками:</p>
+Для редактируемого файла <code>newarc.ModuleManager.cpp</code> вставляет в начало
+<pre>
+<code>#ifndef __NEWARC_MODULEMANAGER_CPP__
+#define __NEWARC_MODULEMANAGER_CPP__</code>
+</pre>
+в конец
+<pre>
+<code>#endif //! __NEWARC_MODULEMANAGER_CPP__</code>
+</pre>
+при наличии строки "<code>#pragma once</code>" в начале файла, строки вставляются после неё.
+
+  <pre class="codesample"><code>
+%d = "__" + UCase(Replace(FSplit(Editor.FileName,12),".","_"))+"__";
+bm.add()
+CtrlHome
+$If (LCase(Trim(Editor.Value))=="#pragma once")
+  Down
+$End
+print("#ifndef " + %d + "\n\t#define " + %d + "\n")
+CtrlEnd
+Enter
+Home
+print("#endif //! " + %d + "\n")
+bm.next()
+bm.del()
+
+  </code></pre></td></tr>
+</table>
+
+<h3>Замечания</h3>
+<div class="descr">
+<ol>
+<li>Нумерация строк в редакторе начинается с 1.</li>
+<li>Нумерация колонок (позиций курсора в строке) начинается с 1.</li>
+<li>Нумерация закладок начинается с 1.</li>
+</ol>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="../../examples.html">Примеры</a>
+</div>
+
+</body>
+
+</html>

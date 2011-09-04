@@ -1,0 +1,70 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>ProcessViewerEventInfo</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>ProcessViewerEventInfo</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>ProcessViewerEventInfo</dfn> содержит информацию о событии, поступающем в функцию <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a>.
+</div>
+
+<pre class=syntax>
+struct ProcessViewerEventInfo
+{
+  size_t StructSize;
+  int Event;
+  void *Param;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле содержит размер структуры <dfn>ProcessViewerEventInfo</dfn>.</div>
+  <div class=dfn>Event</div>
+    <div class=dfndescr>Тип события.<br> Может быть одной из следующих величин (перечисление <a name="VIEWER_EVENTS">VIEWER_EVENTS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VE_CLOSE" title="1">VE_CLOSE</a></td>
+    <td class="cont" width="60%">Одно из окон программы просмотра закрывается. Плагин может использовать это сообщение для освобождения внутренних структур данных. Заметьте, что несколько окон программы просмотра
+    могут работать одновременно. Параметр <i>Param</i> указывает на переменную, содержащую значение ViewerID закрываемой программы просмотра. ViewerID может быть получен ранее с использованием
+    <a href="../service_functions/viewercontrol.html#VCTL_GETINFO">VCTL_GETINFO</a> команды <a href="../service_functions/viewercontrol.html">ViewerControl</a>.
+    Но плагин не должен вызывать ViewerControl при обработке этого сообщения потому что программа просмотра уже закрыта.<br>
+    Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть 0.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VE_READ" title="0">VE_READ</a></td>
+    <td class="cont" width="60%">Новый файл загружен в программу просмотра.<br>
+    <i>Param</i> = NULL.<br>Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть 0.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VE_KILLFOCUS">VE_KILLFOCUS</a></td>
+    <td class="cont" width="60%">Программа просмотра потеряла фокус ввода.<br>
+    <i>Param</i> указывает на переменную, содержащую значение ViewerID вьювера, теряющего фокус.<br>Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть 0.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VE_GOTFOCUS">VE_GOTFOCUS</a></td>
+    <td class="cont" width="60%">Программа просмотра получила фокус ввода.<br>
+    <i>Param</i> указывает на переменную, содержащую значение ViewerID вьювера, получающего фокус.<br>Функция <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a> должна вернуть 0.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>Param</div>
+    <div class=dfndescr>Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<li>VE_READ вызывается только один раз для файла. </li>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">Структуры</a>|
+<a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a>
+</div>
+
+</body>
+</html>

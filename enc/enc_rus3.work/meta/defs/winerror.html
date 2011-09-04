@@ -1,0 +1,255 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<title>ERROR_*</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+
+<body>
+
+<h1>ERROR_*</h1>
+<div class="navbar">
+<a href="../index.html">главная</a> | <a href="index.html">типы и определения</a>
+</div>
+
+
+<div class="shortdescr">
+Перечислены типы ошибок, возвращаемые функцией <dfn>GetLastError</dfn>,
+известные FAR (см. <a href="../service_functions/message.html#FMSG_ERRORTYPE">FMSG_ERRORTYPE</a>):
+</div>
+
+<br>
+<table border="0" cellspacing="1" cellpadding="3" width="100%">
+  <tr>
+    <th align="left"><small>Константа из winerror.h</small></th>
+    <th align="left"><small>Строковые константы из Far*.lng</small></th>
+  </tr>
+  <tr>
+    <td>ERROR_INVALID_FUNCTION</td>
+    <td>&quot;Некорректная функция&quot;
+      <p>&quot;Incorrect function&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_BAD_COMMAND, ERROR_CALL_NOT_IMPLEMENTED</td>
+    <td class="gray">&quot;Команда не распознана&quot;
+      <p>&quot;Command not recognized&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_FILE_NOT_FOUND</td>
+    <td>&quot;Файл не найден&quot;
+      <p>&quot;File not found&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_PATH_NOT_FOUND</td>
+    <td class="gray">&quot;Путь не найден&quot;
+      <p>&quot;Path not found&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_TOO_MANY_OPEN_FILES</td>
+    <td>&quot;Слишком много открытых
+      файлов&quot;
+      <p>&quot;Too many open files&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_ACCESS_DENIED</td>
+    <td class="gray">&quot;Доступ запрещён&quot;
+      <p>&quot;Access denied&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_NOT_ENOUGH_MEMORY, ERROR_OUTOFMEMORY</td>
+    <td>&quot;Недостаточно памяти&quot;
+      <p>&quot;Not enough memory&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_WRITE_PROTECT</td>
+    <td class="gray">&quot;Попытка записи на
+      защищённый от записи диск&quot;
+      <p>&quot;Cannot write to write protected disk&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_NOT_READY</td>
+    <td>&quot;Устройство не готово&quot;
+      <p>&quot;The device is not ready&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_NOT_DOS_DISK</td>
+    <td class="gray">&quot;Доступ к диску невозможен&quot;
+      <p>&quot;Disk cannot be accessed&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_SECTOR_NOT_FOUND</td>
+    <td>&quot;Сектор не найден&quot;
+      <p>&quot;Sector not found&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_OUT_OF_PAPER</td>
+    <td class="gray">&quot;В принтере нет бумаги&quot;
+      <p>&quot;The printer is out of paper&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_WRITE_FAULT</td>
+    <td>&quot;Ошибка записи&quot;
+      <p>&quot;Write fault error&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_READ_FAULT</td>
+    <td class="gray">&quot;Ошибка чтения&quot;
+      <p>&quot;Read fault error&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_GEN_FAILURE</td>
+    <td>&quot;Общая ошибка устройства&quot;
+      <p>&quot;Device general failure&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_SHARING_VIOLATION, ERROR_LOCK_VIOLATION</td>
+    <td class="gray">&quot;Нарушение совместного доступа к файлу&quot;
+      <p>&quot;File sharing violation&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_BAD_NETPATH</td>
+    <td>&quot;Сетевой путь не найден&quot;
+      <p>&quot;The network path was not found&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_NETWORK_BUSY</td>
+    <td class="gray">&quot;Сеть занята&quot;
+      <p>&quot;The network is busy&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_NETWORK_ACCESS_DENIED</td>
+    <td>&quot;Сетевой доступ запрещён&quot;
+      <p>&quot;Network access is denied&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_NET_WRITE_FAULT</td>
+    <td class="gray">&quot;Ошибка записи в сети&quot;
+      <p>&quot;A write fault occurred on the network&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_DRIVE_LOCKED</td>
+    <td>&quot;Диск используется или заблокирован другим процессом&quot;
+      <p>&quot;The disk is in use or locked by another process&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_ALREADY_EXISTS</td>
+    <td class="gray">&quot;Файл или папка уже существует&quot;
+      <p>&quot;File or folder already exists&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_BAD_PATHNAME, ERROR_INVALID_NAME</td>
+    <td>&quot;Указанное имя неверно&quot;
+      <p>&quot;The specified name is invalid&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_DISK_FULL, ERROR_HANDLE_DISK_FULL</td>
+    <td class="gray">&quot;Нет места на диске&quot;
+      <p>&quot;Insufficient disk space&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_DIR_NOT_EMPTY</td>
+    <td>&quot;Папка не пустая&quot;
+      <p>&quot;The folder is not empty&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_INTERNET_INCORRECT_USER_NAME</td>
+    <td class="gray">&quot;Неверное имя пользователя&quot;
+      <p>&quot;Incorrect user name&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_INTERNET_INCORRECT_PASSWORD</td>
+    <td>&quot;Неверный пароль&quot;
+      <p>&quot;Incorrect password&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_INTERNET_LOGIN_FAILURE</td>
+    <td class="gray">&quot;Ошибка регистрации&quot;
+      <p>&quot;Login failure&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_INTERNET_CONNECTION_ABORTED</td>
+    <td>&quot;Соединение разорвано&quot;
+      <p>&quot;Connection aborted&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_CANCELLED</td>
+    <td class="gray">&quot;Операция отменена&quot;
+      <p>&quot;Operation cancelled&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_NO_NETWORK</td>
+    <td>&quot;Сеть отсутствует&quot;
+      <p>&quot;No network present&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_DEVICE_IN_USE</td>
+    <td class="gray">&quot;Устройство используется и
+      не может быть отсоединено&quot;
+      <p>&quot;Device is in use and cannot be disconnected&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_OPEN_FILES</td>
+    <td>&quot;На сетевом диске есть открытые файлы&quot;
+      <p>&quot;This network connection has open files&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_ALREADY_ASSIGNED</td>
+    <td class="gray">&quot;Имя локального устройства уже использовано&quot;
+      <p>&quot;The local device name is already in use&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_DEVICE_ALREADY_REMEMBERED</td>
+    <td>&quot;Имя локального устройства уже находится в профайле пользователя&quot;
+      <p>&quot;The local device is already in the user profile&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_NOT_LOGGED_ON</td>
+    <td class="gray">&quot;Пользователь не зарегистрирован в сети&quot;
+      <p>&quot;User has not logged on to the network&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_INVALID_PASSWORD</td>
+    <td>&quot;Неверный пароль
+      пользователя&quot;
+      <p>&quot;The user password is invalid&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_NO_RECOVERY_POLICY</td>
+    <td class="gray">&quot;Для этой системы
+      отсутствует политика надёжного
+      восстановления шифрования&quot;
+      <p>&quot;There is no valid encryption recovery policy configured for
+      this system&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_ENCRYPTION_FAILED</td>
+    <td>&quot;Ошибка при попытке
+      шифрования файла&quot;
+      <p>&quot;The specified file could not be encrypted&quot;</td>
+  </tr>
+  <tr>
+    <td class="gray">ERROR_DECRYPTION_FAILED</td>
+    <td class="gray">&quot;Ошибка при попытке
+      расшифровки файла&quot;
+      <p>&quot;The specified file could not be decrypted&quot;</td>
+  </tr>
+  <tr>
+    <td>ERROR_FILE_NOT_ENCRYPTED</td>
+    <td>&quot;Указанный файл не
+      зашифрован&quot;
+      <p>&quot;The specified file is not encrypted&quot;</td>
+  </tr>
+</table>
+<div class="see">
+  Смотрите также:
+</div>
+<div class="seecont">
+  <a href="../service_functions/message.html">Message</a>
+</div>
+
+</body>
+
+</html>

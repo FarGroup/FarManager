@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>RegExpSearch</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>RegExpSearch</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a><br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>RegExpSearch</dfn> используется в функции <a href="../service_functions/regexpcontrol.html">RegExpControl</a> Регулярных выражений Far Manager.
+</div>
+
+<pre class=syntax>
+struct RegExpSearch
+{
+  const wchar_t *Text;
+  int Position;
+  int Length;
+  struct RegExpMatch *Match;
+  int Count;
+  void *Reserved;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>Text</div>
+    <div class=dfndescr>Исходная строка, в которой будет производиться поиск с использованием Регулярных выражений.</div>
+  <div class=dfn>Position</div>
+    <div class=dfndescr>Позиция в строке с которой будет осуществляться поиск.</div>
+  <div class=dfn>Length</div>
+    <div class=dfndescr>Длина строки.</div>
+  <div class=dfn>Match</div>
+    <div class=dfndescr>Скобки, массив структур <a href="regexpmatch.html">RegExpMatch</a>.</div>
+  <div class=dfn>Count</div>
+    <div class=dfndescr>Количество скобок.</div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Зарезервировано для будущих нужд, обязательно должено быть NULL.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+<ol>
+</ol>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a> |
+<a href="regexpmatch.html">RegExpMatch</a>
+</div>
+
+</body>
+</html>

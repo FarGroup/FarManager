@@ -1,0 +1,58 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>$AKey - Макросы</title>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+</head>
+
+<body>
+
+<h1>$AKey</h1>
+<div class="navbar">
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Макросы</a> |
+<a href="index.html">Макроязык</a> |
+<a href="cmds.html">Макрокоманды</a>
+</div>
+
+<div class="shortdescr">
+Оператор <dfn>$AKey</dfn> предназначен для вставки во входной буфер клавиши, вызвавшей макрос (реально нажатое сочетание, которым вызывался макрос).
+</div>
+
+<pre class="syntax">
+<dfn>$AKey</dfn>
+</pre>
+
+<h3>Пример</h3>
+<div class="descr">
+Макрос для переключения между экранами. В разделе Common вводятся 10 однотипных макросов AltЦифра:
+<pre class="codesample"><code>
+$If ( Dialog || MainMenu || Menu || UserMenu || Search )
+  $AKey
+$Else
+  %s = AKey ( 1 );
+  %c = substr ( %s, len ( %s ) - 1, 1 );
+  F12
+  $If ( CheckHotkey ( %c ) )
+    eval ( %c )
+  $Else
+    Esc
+    $AKey
+  $End
+$End
+</code></pre>
+</div>
+
+<div class="see">Смотрите также:</div><div class="seecont">
+<a href="prop_func/general.html#akey">akey()</a>,
+<a href="../examples.html">Примеры</a>
+</div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>DIF_3STATE</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<script language="javascript" src='../../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>DIF_3STATE</h1>
+<div class=navbar>
+<a href="../../index.html">главная</a> |
+<a href="../index.html">Dialog API</a> |
+<a href="index.html">Флаги элементов диалога</a><br>
+</div>
+
+<div class=shortdescr>
+Флаг <dfn>DIF_3STATE</dfn> указывает на то, что элемент <a href="../controls/di_checkbox.html">DI_CHECKBOX</a> будет иметь 3 состояния:
+<pre>
+[ ] - выключено     (FarDialogItem.Selected = 0)
+[x] - включено      (FarDialogItem.Selected = 1)
+[?] - неопределённо (FarDialogItem.Selected = 2)
+</pre>
+</div>
+
+<h3>Элементы</h3>
+<div class=descr>
+<p>Флаг <dfn>DIF_3STATE</dfn> имеет смысл для следующих элементов диалога:<br>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_checkbox.html">DI_CHECKBOX</a></td>
+<td class="cont" width="60%">контрольный переключатель (Check Box).</td></tr>
+</table>
+</div>
+
+
+<h3>Замечания</h3>
+<div class=descr>
+<p>Применяя флаг <dfn>DIF_3STATE</dfn>, необходимо помнить о том, что ожидает
+пользователь, работая с таким CheckBox`ом. Т.е. если пользователь выбрал
+неопределённое состояние чекбокса, то опция, которой управляет этот чекбокс,
+должна вообще игнорироваться при дальнейшей работе. Ярким примером является
+диалог работы с файловыми атрибутами:
+<pre>[ ] - сбросить атрибут
+[+] - установить атрибут
+[?] - ничего с данным атрибутом не делать</pre>
+</p>
+</div>
+
+
+<div class=see>Смотрите также:</div><div class=seecont>
+</div>
+
+</body>
+</html>
