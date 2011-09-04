@@ -1,3 +1,7 @@
+zg 04.09.2011 14:40:56 +0200 - build 2190
+
+1. ACTL_WAITKEY: Param1=0, Param2 - указатель на INPUT_RECORD или NULL для любой клавиши.
+
 zg 03.09.2011 13:06:29 +0200 - build 2189
 
 1. FarMenuItem.AccelKey теперь имеет тип FarKey.

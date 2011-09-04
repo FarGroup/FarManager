@@ -285,13 +285,13 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 		}
 		/* $ 24.08.2000 SVS
 		   ожидать определенную (или любую) клавишу
-		   (int)Param - внутренний код клавиши, которую ожидаем, или -1
+		   (const INPUT_RECORD*)Param2 - код клавиши, которую ожидаем, или NULL
 		   если все равно какую клавишу ждать.
 		   возвращает 0;
 		*/
 		case ACTL_WAITKEY:
 		{
-			return WaitKey(Param1?Param1:-1,0,false);
+			return WaitKey(Param2?InputRecordToKey((const INPUT_RECORD*)Param2):-1,0,false);
 		}
 		/* $ 04.12.2000 SVS
 		  ACTL_GETCOLOR - получить определенный цвет по индексу, определенному

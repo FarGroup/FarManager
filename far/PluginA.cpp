@@ -3549,7 +3549,12 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 			return Length;
 		}
 		case oldfar::ACTL_WAITKEY:
-			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_WAITKEY, 0, Param);
+			{
+				INPUT_RECORD input={0};
+				KeyToInputRecord(OldKeyToKey(static_cast<int>(reinterpret_cast<INT_PTR>(Param))),&input);
+				return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_WAITKEY, 0, &input);
+			}
+			break;
 
 		case oldfar::ACTL_GETCOLOR:
 			{
