@@ -23,13 +23,13 @@ struct WindowInfo
 {
   size_t StructSize;
   INT_PTR Id;
-  int Pos;
-  WINDOWINFO_TYPE Type;
-  WINDOWINFO_FLAGS Flags;
   wchar_t *TypeName;
-  int TypeNameSize;
   wchar_t *Name;
+  int TypeNameSize;
   int NameSize;
+  int Pos;
+  enum WINDOWINFO_TYPE Type;
+  WINDOWINFO_FLAGS Flags;
 };
 </pre>
 
@@ -39,6 +39,17 @@ struct WindowInfo
     <div class=dfndescr>Это поле должно содержать размер структуры <dfn>WindowInfo</dfn>.</div>
   <div class=dfn>Id</div>
     <div class=dfndescr>Это поле содержит для диалога хэндл, для программы просмотра и редактора - ID.</div>
+  <div class=dfn>TypeName</div>
+    <div class=dfndescr>Имя типа окна (Panels,View,Edit,Help,VMenu), зависит от текущего языка.</div>
+  <div class=dfn>Name</div>
+    <div class=dfndescr>Имя окна. Для окон типа WTYPE_VIEWER, WTYPE_EDITOR содержит имя файла.<br>
+    Для панелей - имя текущего файлового объекта.<br>
+    Для окна помощи - полный путь к просматриваемому HLF-файлу.<br>
+    Для диалогов и меню - заголовок.<br></div>
+  <div class=dfn>TypeNameSize</div>
+    <div class=dfndescr>Размер буфера <i>TypeName</i> с учётом завершающего '\0'.</div>
+  <div class=dfn>NameSize</div>
+    <div class=dfndescr>Размер буфера <i>Name</i> с учётом завершающего '\0'.</div>
   <div class=dfn>Pos</div>
     <div class=dfndescr>Номер окна, о котором нужно узнать информацию. Нумерация идёт с 0. <i>Pos</i> = -1 вернёт информацию о текущем окне.</div>
   <div class=dfn>Type</div>
@@ -69,17 +80,6 @@ struct WindowInfo
     <td class="cont" width="60%">признак является ли окно текущим</td></tr>
     </table>
     </div>
-  <div class=dfn>TypeName</div>
-    <div class=dfndescr>Имя типа окна (Panels,View,Edit,Help,VMenu), зависит от текущего языка.</div>
-  <div class=dfn>TypeNameSize</div>
-    <div class=dfndescr>Размер буфера <i>TypeName</i> с учётом завершающего '\0'.</div>
-  <div class=dfn>Name</div>
-    <div class=dfndescr>Имя окна. Для окон типа WTYPE_VIEWER, WTYPE_EDITOR содержит имя файла.<br>
-    Для панелей - имя текущего файлового объекта.<br>
-    Для окна помощи - полный путь к просматриваемому HLF-файлу.<br>
-    Для диалогов и меню - заголовок.<br></div>
-  <div class=dfn>NameSize</div>
-    <div class=dfndescr>Размер буфера <i>Name</i> с учётом завершающего '\0'.</div>
 </div>
 
 <h3>Пример</h3>
@@ -96,7 +96,7 @@ void GetFarWindowInfo()
       return ;
 
   // запросили число окон
-  CountWindow=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWCOUNT,NULL);
+  CountWindow=(int)Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWCOUNT,0,NULL);
   fwprintf(Fp,L"WindowCount=%i\n",CountWindow);
 
   for ( I=0; I &lt; CountWindow; I++ )
@@ -108,13 +108,13 @@ void GetFarWindowInfo()
     WInfo.Name=NULL;
 
     // запросили информацию об размере буферов
-    Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,(void*)&amp;WInfo);
+    Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,0,(void*)&amp;WInfo);
 
     WInfo.TypeName=(wchar_t *) malloc(WInfo.TypeNameSize);
     WInfo.Name=(wchar_t *) malloc(WInfo.NameSize);
 
     // запросили информацию
-    Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,(void*)&amp;WInfo);
+    Info.AdvControl(Info.ModuleNumber,ACTL_GETWINDOWINFO,0,(void*)&amp;WInfo);
     
     // распечатали её
     fwprintf(Fp,L"Window[%i], Type=%i (%s), File=[%s] Current=%i, Modified=%i\n",
@@ -128,7 +128,7 @@ void GetFarWindowInfo()
   fclose(Fp);
 
   // установили окно номер 1 (то есть второе)
-  Info.AdvControl(Info.ModuleNumber,ACTL_SETCURRENTWINDOW,(void*)1);
+  Info.AdvControl(Info.ModuleNumber,ACTL_SETCURRENTWINDOW,0,(void*)1);
 }
 </pre>
 </div>

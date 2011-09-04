@@ -22,19 +22,19 @@
 struct FarSetColors
 {
   FARCOLORFLAGS Flags;
-  int StartIndex;
-  int ColorItem;
-  LPBYTE Colors;
+  size_t StartIndex;
+  size_t ColorItem;
+  struct FarColor *Colors;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация флагов (перечисление <a name="FARCOLORFLAGS">FARCOLORFLAGS</a>):
+    <div class=dfndescr>Комбинация флагов (перечисление <a name="FARSETCOLORFLAGS">FARSETCOLORFLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="FCLR_REDRAW">FCLR_REDRAW</a></td>
+    <tr class="cont"><td class="cont" width="40%"><a name="FSETCLR_REDRAW">FSETCLR_REDRAW</a></td>
     <td class="cont" width="60%">после изменений цветовой схемы обновить экран</td></tr>
     </table>
     </div>
@@ -43,7 +43,7 @@ struct FarSetColors
   <div class=dfn>ColorItem</div>
     <div class=dfndescr>Количество позиций цветовой для замены.</div>
   <div class=dfn>Colors</div>
-    <div class=dfndescr>Указатель на массив цветовой схемы - байтовый массив <a href="../defs/farcolors.html">цветовых атрибутов</a>.</div>
+    <div class=dfndescr>Указатель на массив цветовой схемы - массив структур <a href="../structures/farcolor.html">FarColor</a> <a href="../defs/farcolors.html">цветовых атрибутов</a>.</div>
 </div>
 
 <h3>Замечания</h3>
@@ -52,7 +52,7 @@ struct FarSetColors
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="index.html">структуры</a> |
-<a href="../service_functions/advcontrol.html#ACTL_SETARRAYCOLOR">ACTL_SETARRAYCOLOR</a> |
+<a href="../service_functions/advcontrol.html#ACTL_SETARRAYCOLOR">ACTL_SETARRAYCOLOR</a>
 </div>
 
 </body>

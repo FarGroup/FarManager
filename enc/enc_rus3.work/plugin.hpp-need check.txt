@@ -1,0 +1,510 @@
+/*
+  plugin.hpp
+
+  Plugin API for Far Manager 3.0 build 2188
+*/
+
+enum FARDIALOGITEMTYPES
+{
+	DI_TEXT                         =  0,
+	DI_VTEXT                        =  1,
+	DI_SINGLEBOX                    =  2,
+	DI_DOUBLEBOX                    =  3,
+	DI_EDIT                         =  4,
+	DI_PSWEDIT                      =  5,
+	DI_FIXEDIT                      =  6,
+	DI_BUTTON                       =  7,
+	DI_CHECKBOX                     =  8,
+	DI_RADIOBUTTON                  =  9,
+	DI_COMBOBOX                     = 10,
+	DI_LISTBOX                      = 11,
+
+	DI_USERCONTROL                  =255,
+};
+
+/*
+   Check diagol element type has inputstring?
+   (DI_EDIT, DI_FIXEDIT, DI_PSWEDIT, etc)
+*/
+static __inline BOOL IsEdit(enum FARDIALOGITEMTYPES Type)
+{
+	switch (Type)
+	{
+		case DI_EDIT:
+		case DI_FIXEDIT:
+		case DI_PSWEDIT:
+		case DI_COMBOBOX:
+			return TRUE;
+		default:
+			return FALSE;
+	}
+}
+
+typedef unsigned __int64 FARDIALOGITEMFLAGS;
+static const FARDIALOGITEMFLAGS
+	DIF_NONE                  = 0,
+	DIF_BOXCOLOR              = 0x0000000000000200ULL,
+	DIF_GROUP                 = 0x0000000000000400ULL,
+	DIF_LEFTTEXT              = 0x0000000000000800ULL,
+	DIF_MOVESELECT            = 0x0000000000001000ULL,
+	DIF_SHOWAMPERSAND         = 0x0000000000002000ULL,
+	DIF_CENTERGROUP           = 0x0000000000004000ULL,
+	DIF_NOBRACKETS            = 0x0000000000008000ULL,
+	DIF_MANUALADDHISTORY      = 0x0000000000008000ULL,
+	DIF_SEPARATOR             = 0x0000000000010000ULL,
+	DIF_SEPARATOR2            = 0x0000000000020000ULL,
+	DIF_EDITOR                = 0x0000000000020000ULL,
+	DIF_LISTNOAMPERSAND       = 0x0000000000020000ULL,
+	DIF_LISTNOBOX             = 0x0000000000040000ULL,
+	DIF_HISTORY               = 0x0000000000040000ULL,
+	DIF_BTNNOCLOSE            = 0x0000000000040000ULL,
+	DIF_CENTERTEXT            = 0x0000000000040000ULL,
+	DIF_SETSHIELD             = 0x0000000000080000ULL,
+	DIF_EDITEXPAND            = 0x0000000000080000ULL,
+	DIF_DROPDOWNLIST          = 0x0000000000100000ULL,
+	DIF_USELASTHISTORY        = 0x0000000000200000ULL,
+	DIF_MASKEDIT              = 0x0000000000400000ULL,
+	DIF_LISTTRACKMOUSE        = 0x0000000000400000ULL,
+	DIF_LISTTRACKMOUSEINFOCUS = 0x0000000000800000ULL,
+	DIF_SELECTONENTRY         = 0x0000000000800000ULL,
+	DIF_3STATE                = 0x0000000000800000ULL,
+	DIF_EDITPATH              = 0x0000000001000000ULL,
+	DIF_LISTWRAPMODE          = 0x0000000001000000ULL,
+	DIF_NOAUTOCOMPLETE        = 0x0000000002000000ULL,
+	DIF_LISTAUTOHIGHLIGHT     = 0x0000000002000000ULL,
+	DIF_LISTNOCLOSE           = 0x0000000004000000ULL,
+	DIF_HIDDEN                = 0x0000000010000000ULL,
+	DIF_READONLY              = 0x0000000020000000ULL,
+	DIF_NOFOCUS               = 0x0000000040000000ULL,
+	DIF_DISABLE               = 0x0000000080000000ULL,
+	DIF_DEFAULTBUTTON         = 0x0000000100000000ULL,
+	DIF_FOCUS                 = 0x0000000200000000ULL;
+
+enum FARMESSAGE
+{
+	DM_FIRST                        = 0,
+	DM_CLOSE                        = 1,
+	DM_ENABLE                       = 2,
+	DM_ENABLEREDRAW                 = 3,
+	DM_GETDLGDATA                   = 4,
+	DM_GETDLGITEM                   = 5,
+	DM_GETDLGRECT                   = 6,
+	DM_GETTEXT                      = 7,
+	DM_GETTEXTLENGTH                = 8,
+	DM_KEY                          = 9,
+	DM_MOVEDIALOG                   = 10,
+	DM_SETDLGDATA                   = 11,
+	DM_SETDLGITEM                   = 12,
+	DM_SETFOCUS                     = 13,
+	DM_REDRAW                       = 14,
+	DM_SETTEXT                      = 15,
+	DM_SETMAXTEXTLENGTH             = 16,
+	DM_SHOWDIALOG                   = 17,
+	DM_GETFOCUS                     = 18,
+	DM_GETCURSORPOS                 = 19,
+	DM_SETCURSORPOS                 = 20,
+	DM_GETTEXTPTR                   = 21,
+	DM_SETTEXTPTR                   = 22,
+	DM_SHOWITEM                     = 23,
+	DM_ADDHISTORY                   = 24,
+
+	DM_GETCHECK                     = 25,
+	DM_SETCHECK                     = 26,
+	DM_SET3STATE                    = 27,
+
+	DM_LISTSORT                     = 28,
+	DM_LISTGETITEM                  = 29,
+	DM_LISTGETCURPOS                = 30,
+	DM_LISTSETCURPOS                = 31,
+	DM_LISTDELETE                   = 32,
+	DM_LISTADD                      = 33,
+	DM_LISTADDSTR                   = 34,
+	DM_LISTUPDATE                   = 35,
+	DM_LISTINSERT                   = 36,
+	DM_LISTFINDSTRING               = 37,
+	DM_LISTINFO                     = 38,
+	DM_LISTGETDATA                  = 39,
+	DM_LISTSETDATA                  = 40,
+	DM_LISTSETTITLES                = 41,
+	DM_LISTGETTITLES                = 42,
+
+	DM_RESIZEDIALOG                 = 43,
+	DM_SETITEMPOSITION              = 44,
+
+	DM_GETDROPDOWNOPENED            = 45,
+	DM_SETDROPDOWNOPENED            = 46,
+
+	DM_SETHISTORY                   = 47,
+
+	DM_GETITEMPOSITION              = 48,
+	DM_SETMOUSEEVENTNOTIFY          = 49,
+
+	DM_EDITUNCHANGEDFLAG            = 50,
+
+	DM_GETITEMDATA                  = 51,
+	DM_SETITEMDATA                  = 52,
+
+	DM_LISTSET                      = 53,
+
+	DM_GETCURSORSIZE                = 54,
+	DM_SETCURSORSIZE                = 55,
+
+	DM_LISTGETDATASIZE              = 56,
+
+	DM_GETSELECTION                 = 57,
+	DM_SETSELECTION                 = 58,
+
+	DM_GETEDITPOSITION              = 59,
+	DM_SETEDITPOSITION              = 60,
+
+	DM_SETCOMBOBOXEVENT             = 61,
+	DM_GETCOMBOBOXEVENT             = 62,
+
+	DM_GETCONSTTEXTPTR              = 63,
+	DM_GETDLGITEMSHORT              = 64,
+	DM_SETDLGITEMSHORT              = 65,
+
+	DM_GETDIALOGINFO                = 66,
+
+	DN_FIRST                        = 4096,
+	DN_BTNCLICK                     = 4097,
+	DN_CTLCOLORDIALOG               = 4098,
+	DN_CTLCOLORDLGITEM              = 4099,
+	DN_CTLCOLORDLGLIST              = 4100,
+	DN_DRAWDIALOG                   = 4101,
+	DN_DRAWDLGITEM                  = 4102,
+	DN_EDITCHANGE                   = 4103,
+	DN_ENTERIDLE                    = 4104,
+	DN_GOTFOCUS                     = 4105,
+	DN_HELP                         = 4106,
+	DN_HOTKEY                       = 4107,
+	DN_INITDIALOG                   = 4108,
+	DN_KILLFOCUS                    = 4109,
+	DN_LISTCHANGE                   = 4110,
+	DN_DRAGGED                      = 4111,
+	DN_RESIZECONSOLE                = 4112,
+	DN_DRAWDIALOGDONE               = 4113,
+	DN_LISTHOTKEY                   = 4114,
+	DN_INPUT                        = 4115,
+	DN_CONTROLINPUT                 = 4116,
+	DN_CLOSE                        = 4117,
+
+	DM_USER                         = 0x4000,
+
+};
+
+enum FARCHECKEDSTATE
+{
+	BSTATE_UNCHECKED = 0,
+	BSTATE_CHECKED   = 1,
+	BSTATE_3STATE    = 2,
+	BSTATE_TOGGLE    = 3,
+};
+
+enum FARCOMBOBOXEVENTTYPE
+{
+	CBET_KEY         = 0x00000001,
+	CBET_MOUSE       = 0x00000002,
+};
+
+typedef unsigned __int64 LISTITEMFLAGS;
+static const LISTITEMFLAGS
+	LIF_NONE               = 0,
+	LIF_SELECTED           = 0x0000000000010000ULL,
+	LIF_CHECKED            = 0x0000000000020000ULL,
+	LIF_SEPARATOR          = 0x0000000000040000ULL,
+	LIF_DISABLE            = 0x0000000000080000ULL,
+	LIF_GRAYED             = 0x0000000000100000ULL,
+	LIF_HIDDEN             = 0x0000000000200000ULL,
+	LIF_DELETEUSERDATA     = 0x0000000080000000ULL;
+
+struct FarListItem
+{
+	LISTITEMFLAGS Flags;
+	const wchar_t *Text;
+	DWORD_PTR Reserved[3];
+};
+
+struct FarListUpdate
+{
+	int Index;
+	struct FarListItem Item;
+};
+
+struct FarListInsert
+{
+	int Index;
+	struct FarListItem Item;
+};
+
+struct FarListGetItem
+{
+	int ItemIndex;
+	struct FarListItem Item;
+};
+
+struct FarListPos
+{
+	int SelectPos;
+	int TopPos;
+};
+
+typedef unsigned __int64 FARLISTFINDFLAGS;
+static const FARLISTFINDFLAGS
+	LIFIND_NONE       = 0,
+	LIFIND_EXACTMATCH = 0x0000000000000001ULL;
+
+
+struct FarListFind
+{
+	int StartIndex;
+	const wchar_t *Pattern;
+	FARLISTFINDFLAGS Flags;
+	DWORD_PTR Reserved;
+};
+
+struct FarListDelete
+{
+	int StartIndex;
+	int Count;
+};
+
+typedef unsigned __int64 FARLISTINFOFLAGS;
+static const FARLISTINFOFLAGS
+	LINFO_NONE                  = 0,
+	LINFO_SHOWNOBOX             = 0x0000000000000400ULL,
+	LINFO_AUTOHIGHLIGHT         = 0x0000000000000800ULL,
+	LINFO_REVERSEHIGHLIGHT      = 0x0000000000001000ULL,
+	LINFO_WRAPMODE              = 0x0000000000008000ULL,
+	LINFO_SHOWAMPERSAND         = 0x0000000000010000ULL;
+
+struct FarListInfo
+{
+	FARLISTINFOFLAGS Flags;
+	size_t ItemsNumber;
+	int SelectPos;
+	int TopPos;
+	int MaxHeight;
+	int MaxLength;
+	DWORD_PTR Reserved[6];
+};
+
+struct FarListItemData
+{
+	int Index;
+	size_t DataSize;
+	void *Data;
+	DWORD_PTR Reserved;
+};
+
+struct FarList
+{
+	size_t ItemsNumber;
+	struct FarListItem *Items;
+};
+
+struct FarListTitles
+{
+	size_t   TitleLen;
+	const wchar_t *Title;
+	size_t   BottomLen;
+	const wchar_t *Bottom;
+};
+
+struct FarDialogItemColors
+{
+	unsigned __int64 Flags;
+	size_t ColorsCount;
+	struct FarColor* Colors;
+	void* Reserved;
+};
+
+struct FAR_CHAR_INFO
+{
+	WCHAR Char;
+	struct FarColor Attributes;
+};
+
+struct FarDialogItem
+{
+	enum FARDIALOGITEMTYPES Type;
+	int X1,Y1,X2,Y2;
+	union
+	{
+		int Selected;
+		struct FarList *ListItems;
+		struct FAR_CHAR_INFO *VBuf;
+		DWORD_PTR Reserved;
+	}
+#ifndef __cplusplus
+	Param
+#endif
+	;
+	const wchar_t *History;
+	const wchar_t *Mask;
+	FARDIALOGITEMFLAGS Flags;
+	const wchar_t *Data;
+	size_t MaxLength; // terminate 0 not included (if == 0 string size is unlimited)
+	DWORD_PTR UserData;
+};
+
+struct FarDialogItemData
+{
+	size_t  PtrLength;
+	wchar_t *PtrData;
+};
+
+struct FarDialogEvent
+{
+	HANDLE hDlg;
+	int Msg;
+	int Param1;
+	void* Param2;
+	INT_PTR Result;
+};
+
+struct OpenDlgPluginData
+{
+	HANDLE hDlg;
+};
+
+struct DialogInfo
+{
+	size_t StructSize;
+	GUID Id;
+	GUID Owner;
+};
+
+struct FarGetDialogItem
+{
+	size_t Size;
+	struct FarDialogItem* Item;
+};
+
+
+enum FAR_MACRO_CONTROL_COMMANDS
+{
+	MCTL_LOADALL           = 0,
+	MCTL_SAVEALL           = 1,
+	MCTL_SENDSTRING        = 2,
+	MCTL_GETSTATE          = 5,
+	MCTL_GETAREA           = 6,
+	MCTL_ADDMACRO          = 7,
+	MCTL_DELMACRO          = 8,
+};
+
+typedef unsigned __int64 FARKEYMACROFLAGS;
+static const FARKEYMACROFLAGS
+	KMFLAGS_NONE                = 0,
+	KMFLAGS_DISABLEOUTPUT       = 0x0000000000000001,
+	KMFLAGS_NOSENDKEYSTOPLUGINS = 0x0000000000000002,
+	KMFLAGS_SILENTCHECK         = 0x0000000000000001;
+
+enum FARMACROSENDSTRINGCOMMAND
+{
+	MSSC_POST              =0,
+	MSSC_CHECK             =2,
+};
+
+enum FARMACROAREA
+{
+	MACROAREA_OTHER             = 0,
+	MACROAREA_SHELL             = 1,
+	MACROAREA_VIEWER            = 2,
+	MACROAREA_EDITOR            = 3,
+	MACROAREA_DIALOG            = 4,
+	MACROAREA_SEARCH            = 5,
+	MACROAREA_DISKS             = 6,
+	MACROAREA_MAINMENU          = 7,
+	MACROAREA_MENU              = 8,
+	MACROAREA_HELP              = 9,
+	MACROAREA_INFOPANEL         =10,
+	MACROAREA_QVIEWPANEL        =11,
+	MACROAREA_TREEPANEL         =12,
+	MACROAREA_FINDFOLDER        =13,
+	MACROAREA_USERMENU          =14,
+	MACROAREA_AUTOCOMPLETION    =15,
+};
+
+enum FARMACROSTATE
+{
+	MACROSTATE_NOMACRO          = 0,
+	MACROSTATE_EXECUTING        = 1,
+	MACROSTATE_EXECUTING_COMMON = 2,
+	MACROSTATE_RECORDING        = 3,
+	MACROSTATE_RECORDING_COMMON = 4,
+};
+
+enum FARMACROPARSEERRORCODE
+{
+	MPEC_SUCCESS                = 0,
+	MPEC_UNRECOGNIZED_KEYWORD   = 1,
+	MPEC_UNRECOGNIZED_FUNCTION  = 2,
+	MPEC_FUNC_PARAM             = 3,
+	MPEC_NOT_EXPECTED_ELSE      = 4,
+	MPEC_NOT_EXPECTED_END       = 5,
+	MPEC_UNEXPECTED_EOS         = 6,
+	MPEC_EXPECTED_TOKEN         = 7,
+	MPEC_BAD_HEX_CONTROL_CHAR   = 8,
+	MPEC_BAD_CONTROL_CHAR       = 9,
+	MPEC_VAR_EXPECTED           =10,
+	MPEC_EXPR_EXPECTED          =11,
+	MPEC_ZEROLENGTHMACRO        =12,
+	MPEC_INTPARSERERROR         =13,
+	MPEC_CONTINUE_OTL           =14,
+};
+
+struct MacroParseResult
+{
+	size_t StructSize;
+	DWORD ErrCode;
+	COORD ErrPos;
+	const wchar_t *ErrSrc;
+};
+
+
+struct MacroSendMacroText
+{
+	size_t StructSize;
+	FARKEYMACROFLAGS Flags;
+	INPUT_RECORD AKey;
+	const wchar_t *SequenceText;
+};
+
+struct MacroCheckMacroText
+{
+	union
+	{
+		struct MacroSendMacroText Text;
+		struct MacroParseResult   Result;
+	}
+#ifndef __cplusplus
+	Check
+#endif
+	;
+};
+
+typedef unsigned __int64 FARADDKEYMACROFLAGS;
+static const FARADDKEYMACROFLAGS
+	AKMFLAGS_NONE                = 0;
+
+typedef int (WINAPI *FARMACROCALLBACK)(void* Id,FARADDKEYMACROFLAGS Flags);
+
+struct MacroAddMacro
+{
+	size_t StructSize;
+	void* Id;
+	FARKEYMACROFLAGS Flags;
+	INPUT_RECORD AKey;
+	const wchar_t *SequenceText;
+	const wchar_t *Description;
+	FARMACROCALLBACK Callback;
+};
+
+
+typedef INT_PTR (WINAPI *FARAPIMACROCONTROL)(
+    const GUID* PluginId,
+    enum FAR_MACRO_CONTROL_COMMANDS Command,
+    int Param1,
+    void* Param2
+);

@@ -41,13 +41,13 @@ struct OpenInfo
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_PLUGINSMENU">OPEN_PLUGINSMENU</a></td>
     <td class="cont" width="60%">Открыт из меню "Команды внешних модулей" (<kbd>F11</kbd>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FINDLIST">OPEN_FINDLIST</a></td>
-    <td class="cont" width="60%">Открыт из диалога "Поиск файла". Этот идентификатор плагин получит только в том случае, если он экспортирует функцию <a href="setfindlistw.html">SetFindListW</a>.
-    Последующий вызов функции <a href="setfindlistw.html">SetFindListW</a> произойдёт только в том случае, если функция <dfn>OpenPanelW</dfn> вернёт значение отличное от <code>INVALID_HANDLE_VALUE</code>.</td></tr>
+    <td class="cont" width="60%">Открыт из диалога "Поиск файла". Этот идентификатор плагин получит только в том случае, если он экспортирует функцию <a href="../exported_functions/setfindlistw.html">SetFindListW</a>.
+    Последующий вызов функции <a href="../exported_functions/setfindlistw.html">SetFindListW</a> произойдёт только в том случае, если функция <dfn>OpenW</dfn> вернёт значение отличное от <code>INVALID_HANDLE_VALUE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
     <td class="cont" width="60%">Открыт через ссылку на папку в меню "Команды" - "Ссылки на папки".</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_COMMANDLINE">OPEN_COMMANDLINE</a></td>
     <td class="cont" width="60%">Был открыт из командной строки. Этот параметр может использоваться, только если плагин определил вызывающий префикс в функции
-    <a href="getplugininfow.html">GetPluginInfoW</a> и этот префикс, с двоеточием после него, был указан в командной строке.</td></tr>
+    <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a> и этот префикс, с двоеточием после него, был указан в командной строке.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_EDITOR">OPEN_EDITOR</a></td>
     <td class="cont" width="60%">Открыт из редактора.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
