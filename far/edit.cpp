@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "chgmmode.hpp"
 #include "colormix.hpp"
 #include "lang.hpp"
+#include "fileedit.hpp"
 
 static int Recurse=0;
 
@@ -389,10 +390,11 @@ void Edit::FastShow()
 			if (*p == L'\t')
 			{
 				int S=TabSize-((LeftPos+OutStrLength) % TabSize);
-
-				for (int i=0; i<S && OutStrLength<EditLength; i++,OutStrLength++)
+				OutStr[OutStrLength]=(Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE))?L'\x2192':L' ';
+				OutStrLength++;
+				for (int i=1; i<S && OutStrLength<EditLength; i++,OutStrLength++)
 				{
-					OutStr[OutStrLength]=(Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE) && !i)?L'\x2192':L' ';
+					OutStr[OutStrLength]=L' ';
 				}
 			}
 			else
@@ -2664,6 +2666,14 @@ void Edit::ApplyColor()
 	// Для оптимизации сохраняем вычисленные позиции между итерациями цикла
 	int Pos = INT_MIN, TabPos = INT_MIN, TabEditorPos = INT_MIN;
 
+	int XPos = 0;
+	if(Flags.Check(FEDITLINE_EDITORMODE))
+	{
+		EditorInfo ei={};
+		CtrlObject->Plugins.CurEditor->EditorControl(ECTL_GETINFO, &ei);
+		XPos = ei.CurTabPos;
+	}
+
 	// Обрабатываем элементы ракраски
 	for (int Col = 0; Col < ColorCount; Col++)
 	{
@@ -2715,12 +2725,14 @@ void Edit::ApplyColor()
 		if (Start > X2)
 			continue;
 
-		// Корректировка относительно табов (отключается, если присутвует флаг ECF_TAB1)
-		int CorrectPos = CurItem->Flags & ECF_TAB1 ? 0 : 1;
+		// Корректировка относительно табов (отключается, если присутвует флаг ECF_TABMARKFIRST)
+		int CorrectPos = CurItem->Flags & ECF_TABMARKFIRST ? 0 : 1;
 
 		// Получаем конечную позицию
 		int EndPos = CurItem->EndPos;
 		int RealEnd, End;
+
+		bool TabMarkCurrent=false;
 
 		// Обрабатываем случай, когда предыдущая позиция равна текущей, то есть
 		// длина раскрашиваемой строкии равна 1
@@ -2733,6 +2745,7 @@ void Edit::ApplyColor()
 			{
 				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos, nullptr);
 				End = RealEnd-LeftPos;
+				TabMarkCurrent = (CurItem->Flags & ECF_TABMARKCURRENT) && XPos>=Start && XPos<End;
 			}
 			else
 			{
@@ -2754,7 +2767,7 @@ void Edit::ApplyColor()
 		// корректировки относительно табов)
 		else
 		{
-			// Mantis#0001718: Отсутствие ECF_TAB1 не всегда корректно отрабатывает
+			// Mantis#0001718: Отсутствие ECF_TABMARKFIRST не всегда корректно отрабатывает
 			// Коррекция с учетом последнего таба
 			if (CorrectPos && EndPos < StrSize && Str[EndPos] == L'\t')
 				RealEnd = RealPosToTab(TabPos, Pos, ++EndPos, nullptr);
@@ -2781,6 +2794,12 @@ void Edit::ApplyColor()
 
 		if (End > X2)
 			End = X2;
+
+		if(TabMarkCurrent)
+		{
+			Start = XPos;
+			End = XPos+1;
+		}
 
 		// Устанавливаем длину раскрашиваемого элемента
 		Length = End-Start+1;

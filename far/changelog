@@ -1,3 +1,9 @@
+drkns 05.09.2011 09:11:02 +0200 - build 
+
+1. Новый флаг в EDITORCOLORFLAGS: ECF_TABMARKCURRENT. Подобен ECF_TAB1, но раскрашивается не первый символ табуляции, а совпадающий с горизонтальной координатой курсора редактора.
+
+2. ECF_TAB1 переименован в ECF_TABMARKFIRST.
+
 zg 04.09.2011 14:40:56 +0200 - build 2190
 
 1. ACTL_WAITKEY: Param1=0, Param2 - указатель на INPUT_RECORD или NULL для любой клавиши.
