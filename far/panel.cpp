@@ -1752,7 +1752,7 @@ int Panel::GetCurDir(string &strCurDir)
 
 
 
-BOOL Panel::SetCurDir(const wchar_t *CurDir,int ClosePanel)
+BOOL Panel::SetCurDir(const wchar_t *CurDir,int ClosePanel,BOOL /*IsUpdated*/)
 {
 	if (StrCmpI(strCurDir,CurDir) || !TestCurrentDirectory(CurDir))
 	{

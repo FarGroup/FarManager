@@ -701,6 +701,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			{
 				if (mps->Mode == 2)
 				{
+					//itemsList=new UserDefinedList(L'\n',L'\r',ULF_UNIQUE);
 					itemsList=new UserDefinedList(L';',L',',ULF_UNIQUE);
 					if (!itemsList->Set(mps->Item->s()))
 						return Result;
@@ -935,8 +936,8 @@ int FileList::ProcessKey(int Key)
 	if ( !InternalProcessKey )
 	{
 		// Create a folder shortcut?
-		if ((Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || 
-			(Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9) || 
+		if ((Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) ||
+			(Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9) ||
 			(Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9) ||
 			(Key>=KEY_RCTRLRALT0 && Key<=KEY_RCTRLRALT9))
 		{
@@ -2499,7 +2500,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 }
 
 
-BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePanel)
+BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePanel,BOOL IsUpdated)
 {
 	bool CheckFullScreen=false;
 
@@ -2526,7 +2527,7 @@ BOOL FileList::SetCurDir(const wchar_t *NewDir,int ClosePanel)
 
 	if ((NewDir) && (*NewDir))
 	{
-		return ChangeDir(NewDir);
+		return ChangeDir(NewDir,IsUpdated);
 	}
 
 	return FALSE;

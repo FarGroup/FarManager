@@ -148,7 +148,7 @@ class TreeList: public Panel
 		virtual void Update(int Mode);
 		int  ReadTree();
 
-		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePanel);
+		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
 
 		void SetRootDir(const wchar_t *NewRootDir);
 
