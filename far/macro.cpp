@@ -2917,10 +2917,8 @@ static bool panelselectFunc(const TMacroFunction*)
 		if (Mode == 2 || Mode == 3)
 		{
 			string strStr=ValItems.s();
-			//ReplaceStrings(strStr,L"\r\n",L"\n");
-			//ReplaceStrings(strStr,L"\n\n",L"\n");
-			ReplaceStrings(strStr,L"\r\n",L";");
-			ReplaceStrings(strStr,L"\n",L";");
+			ReplaceStrings(strStr,L"\r",L"\n");
+			ReplaceStrings(strStr,L"\n\n",L"\n");
 			ValItems=strStr.CPtr();
 		}
 

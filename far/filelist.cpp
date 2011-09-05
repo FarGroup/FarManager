@@ -701,8 +701,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			{
 				if (mps->Mode == 2)
 				{
-					//itemsList=new UserDefinedList(L'\n',L'\r',ULF_UNIQUE);
-					itemsList=new UserDefinedList(L';',L',',ULF_UNIQUE);
+					itemsList=new UserDefinedList(L'\n',L'\r',ULF_UNIQUE);
 					if (!itemsList->Set(mps->Item->s()))
 						return Result;
 				}
