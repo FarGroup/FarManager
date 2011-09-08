@@ -158,6 +158,11 @@ bool COutFile::Open ()
 		m_hFile = hFile;
 		return true;
 	}
+/*	else
+	{
+		int error = GetLastError();
+		return false;
+	}*/
 
 	return false;
 }

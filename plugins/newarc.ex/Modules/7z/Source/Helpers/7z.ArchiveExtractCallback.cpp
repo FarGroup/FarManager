@@ -116,6 +116,7 @@ HRESULT __stdcall CArchiveExtractCallback::GetStream(
 	*outStream = nullptr;
 
 	ArchiveItem item;
+	memset(&item, 0, sizeof(ArchiveItem));
 
 	if ( !m_pArchive->GetArchiveItem(index, &item) )
 		return S_OK;
