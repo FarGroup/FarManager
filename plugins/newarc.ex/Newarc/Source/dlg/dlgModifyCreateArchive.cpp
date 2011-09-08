@@ -406,6 +406,8 @@ bool dlgModifyCreateArchive(
 	D.Separator(17);
 
 	D.Button(-1, 18, _T("Ok"));
+	D.DefaultButton();
+
 	D.Button(-1, 18, _T("Cancel"));
 
 	ArchiveTemplate tpl;
