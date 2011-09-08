@@ -176,10 +176,12 @@ int ObserverPlugin::GetStorageItem(HANDLE hArchive, int nIndex, ArchiveItem* pIt
 
 	if ( m_pfnGetStorageItem )
 	{
-		WIN32_FIND_DATAW fdata;
-		wchar_t wszTempBuffer[4096];
+		StorageItemInfo item;
+		//WIN32_FIND_DATAW fdata;
+		//wchar_t wszTempBuffer[4096];
 
-		nResult = m_pfnGetStorageItem(hArchive, nIndex, &fdata, wszTempBuffer, sizeof(wszTempBuffer));
+		nResult = m_pfnGetStorageItem(hArchive, nIndex, &item);
+		//fdata, wszTempBuffer, sizeof(wszTempBuffer));
 
 		if ( nResult == GET_ITEM_NOMOREITEMS )
 			return E_EOF;
@@ -189,16 +191,16 @@ int ObserverPlugin::GetStorageItem(HANDLE hArchive, int nIndex, ArchiveItem* pIt
 			memset(pItem, 0, sizeof(ArchiveItem));
 
 #ifdef UNICODE
-			pItem->lpFileName = StrDuplicate(wszTempBuffer);
+			pItem->lpFileName = StrDuplicate(item.Path);
 #else
-			pItem->lpFileName = UnicodeToAnsi(wszTempBuffer); 
+			pItem->lpFileName = UnicodeToAnsi(item.Path); 
 #endif
-			pItem->dwFileAttributes = fdata.dwFileAttributes;
-			pItem->nFileSize = ((__int64)fdata.nFileSizeHigh << 32)+(__int64)fdata.nFileSizeLow;
+			pItem->dwFileAttributes = item.Attributes;
+			pItem->nFileSize = item.Size;
 				
-			memcpy(&pItem->ftCreationTime, &fdata.ftCreationTime, sizeof(FILETIME));
-			memcpy(&pItem->ftLastAccessTime, &fdata.ftLastAccessTime, sizeof(FILETIME));
-			memcpy(&pItem->ftLastWriteTime, &fdata.ftLastWriteTime, sizeof(FILETIME));
+			memcpy(&pItem->ftCreationTime, &item.CreationTime, sizeof(FILETIME));
+			//memcpy(&pItem->ftLastAccessTime, &fdata.ftLastAccessTime, sizeof(FILETIME));
+			memcpy(&pItem->ftLastWriteTime, &item.ModificationTime, sizeof(FILETIME));
 			
 		    pItem->UserData = nIndex+1; 
 

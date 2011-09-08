@@ -39,7 +39,7 @@ struct ExtractProcessCallbacks
 	ExtractProgressFunc FileProgress;
 };
 
-#define ACTUAL_API_VERSION 2
+#define ACTUAL_API_VERSION 3
 #define STORAGE_FORMAT_NAME_MAX_LEN 32
 #define STORAGE_PARAM_MAX_LEN 64
 
@@ -57,6 +57,15 @@ struct StorageOpenParams
 	const char* Password;
 };
 
+struct StorageItemInfo
+{
+	DWORD Attributes;
+	__int64 Size;
+	FILETIME CreationTime;
+	FILETIME ModificationTime;
+	wchar_t Path[1024];
+};
+
 struct ExtractOperationParams 
 {
 	int item;
@@ -67,7 +76,7 @@ struct ExtractOperationParams
 
 typedef int (MODULE_EXPORT *OpenStorageFunc)(StorageOpenParams, HANDLE*, StorageGeneralInfo*);
 typedef void (MODULE_EXPORT *CloseStorageFunc)(HANDLE);
-typedef int (MODULE_EXPORT *GetItemFunc)(HANDLE, int, LPWIN32_FIND_DATAW, wchar_t*, size_t);
+typedef int (MODULE_EXPORT *GetItemFunc)(HANDLE, int, StorageItemInfo*);
 typedef int (MODULE_EXPORT *ExtractFunc)(HANDLE, ExtractOperationParams params);
 
 struct ModuleLoadParameters
@@ -88,6 +97,7 @@ typedef int (MODULE_EXPORT *LoadSubModuleFunc)(ModuleLoadParameters*);
 typedef void (MODULE_EXPORT *UnloadSubModuleFunc)(void);
 
 #define MAKEMODULEVERSION(mj,mn) ((mj << 16) | mn)
+#define STRBUF_SIZE(x) ( sizeof(x) / sizeof(x[0]) )
 
 // Open storage return results
 #define SOR_INVALID_FILE 0
