@@ -3262,6 +3262,7 @@ bool FileList::FileInFilter(long idxItem)
 // $ 02.08.2000 IG  Wish.Mix #21 - при нажатии '/' или '\' в QuickSerach переходим на директорию
 int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSets)
 {
+#if !defined(Mantis_698)
 	int DirFind = 0;
 	int Length = StrLength(Name);
 	string strMask;
@@ -3317,8 +3318,243 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 	}
 
 	return FALSE;
+#else
+	// Mantis_698
+	// АХТУНГ! В разработке
+	string Dest;
+	int DirFind = 0;
+	int Length = StrLength(Name);
+	string strMask;
+	strMask = Name;
+	strMask.Upper();
+
+	if (Length > 0 && IsSlash(Name[Length-1]))
+	{
+		DirFind = 1;
+		strMask.SetLength(strMask.GetLength()-1);
+	}
+
+/*
+	strMask += L"*";
+
+	if (ExcludeSets)
+	{
+		ReplaceStrings(strMask,L"[",L"<[%>",-1,1);
+		ReplaceStrings(strMask,L"]",L"[]]",-1,1);
+		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,1);
+	}
+*/
+
+	for (int I=CurFile+(Next?Direct:0); I >= 0 && I < FileCount; I+=Direct)
+	{
+		if (GetPlainString(Dest,I) && Dest.Upper().Contains(strMask))
+		//if (CmpName(strMask,ListData[I]->strName,true,I==CurFile))
+		{
+			if (!TestParentFolderName(ListData[I]->strName))
+			{
+				if (!DirFind || (ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+				{
+					CurFile=I;
+					CurTopFile=CurFile-(Y2-Y1)/2;
+					ShowFileList(TRUE);
+					return TRUE;
+				}
+			}
+		}
+	}
+
+	for (int I=(Direct > 0)?0:FileCount-1; (Direct > 0) ? I < CurFile:I > CurFile; I+=Direct)
+	{
+		if (GetPlainString(Dest,I) && Dest.Upper().Contains(strMask))
+		{
+			if (!TestParentFolderName(ListData[I]->strName))
+			{
+				if (!DirFind || (ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+				{
+					CurFile=I;
+					CurTopFile=CurFile-(Y2-Y1)/2;
+					ShowFileList(TRUE);
+					return TRUE;
+				}
+			}
+		}
+	}
+
+	return FALSE;
+#endif
 }
 
+// собрать в одну строку все данные в отображаемых колонках
+bool FileList::GetPlainString(string& Dest,int ListPos)
+{
+	Dest=L"";
+#if defined(Mantis_698)
+	if (ListPos < FileCount)
+	{
+		unsigned __int64 *ColumnTypes=ViewSettings.ColumnType;
+		int ColumnCount=ViewSettings.ColumnCount;
+		int *ColumnWidths=ViewSettings.ColumnWidth;
+
+		for (int K=0; K<ColumnCount; K++)
+		{
+			int ColumnType=static_cast<int>(ColumnTypes[K] & 0xff);
+			int ColumnWidth=ColumnWidths[K];
+			if (ColumnType>=CUSTOM_COLUMN0 && ColumnType<=CUSTOM_COLUMN9)
+			{
+				size_t ColumnNumber=ColumnType-CUSTOM_COLUMN0;
+				const wchar_t *ColumnData=nullptr;
+
+				if (ColumnNumber<ListData[ListPos]->CustomColumnNumber)
+					ColumnData=ListData[ListPos]->CustomColumnData[ColumnNumber];
+
+				if (!ColumnData)
+				{
+					ColumnData=ListData[ListPos]->strCustomData;//L"";
+				}
+				Dest.Append(ColumnData);
+			}
+			else
+			{
+				switch (ColumnType)
+				{
+					case NAME_COLUMN:
+					{
+						unsigned __int64 ViewFlags=ColumnTypes[K];
+						const wchar_t *NamePtr = ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty() ? ListData[ListPos]->strShortName:ListData[ListPos]->strName;
+
+						string strNameCopy;
+						if (!(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
+						{
+							const wchar_t *ExtPtr = PointToExt(NamePtr);
+							if (ExtPtr)
+							{
+								strNameCopy.Copy(NamePtr, ExtPtr-NamePtr);
+								NamePtr = strNameCopy;
+							}
+						}
+
+						const wchar_t *NameCopy = NamePtr;
+
+						if (ViewFlags & COLUMN_NAMEONLY)
+						{
+							//BUGBUG!!!
+							// !!! НЕ УВЕРЕН, но то, что отображается пустое
+							// пространство вместо названия - бага
+							NamePtr=PointToFolderNameIfFolder(NamePtr);
+						}
+
+						Dest.Append(NamePtr);
+						break;
+					}
+
+					case EXTENSION_COLUMN:
+					{
+						const wchar_t *ExtPtr = nullptr;
+						if (!(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+						{
+							const wchar_t *NamePtr = ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty()? ListData[ListPos]->strShortName:ListData[ListPos]->strName;
+							ExtPtr = PointToExt(NamePtr);
+						}
+						if (ExtPtr && *ExtPtr) ExtPtr++; else ExtPtr = L"";
+
+						Dest.Append(ExtPtr);
+						break;
+					}
+
+					case SIZE_COLUMN:
+					case PACKED_COLUMN:
+					case STREAMSSIZE_COLUMN:
+					{
+						Dest.Append(FormatStr_Size(
+							ListData[ListPos]->UnpSize,
+							ListData[ListPos]->PackSize,
+							ListData[ListPos]->StreamsSize,
+							ListData[ListPos]->strName,
+							ListData[ListPos]->FileAttr,
+							ListData[ListPos]->ShowFolderSize,
+							ListData[ListPos]->ReparseTag,
+							ColumnType,
+							ColumnTypes[K],
+							ColumnWidth));
+						break;
+					}
+
+					case DATE_COLUMN:
+					case TIME_COLUMN:
+					case WDATE_COLUMN:
+					case CDATE_COLUMN:
+					case ADATE_COLUMN:
+					case CHDATE_COLUMN:
+					{
+						FILETIME *FileTime;
+
+						switch (ColumnType)
+						{
+							case CDATE_COLUMN:
+								FileTime=&ListData[ListPos]->CreationTime;
+								break;
+							case ADATE_COLUMN:
+								FileTime=&ListData[ListPos]->AccessTime;
+								break;
+							case CHDATE_COLUMN:
+								FileTime=&ListData[ListPos]->ChangeTime;
+								break;
+							case DATE_COLUMN:
+							case TIME_COLUMN:
+							case WDATE_COLUMN:
+							default:
+								FileTime=&ListData[ListPos]->WriteTime;
+								break;
+						}
+
+						Dest.Append(FormatStr_DateTime(FileTime,ColumnType,ColumnTypes[K],ColumnWidth));
+						break;
+					}
+
+					case ATTR_COLUMN:
+					{
+						Dest.Append(FormatStr_Attribute(ListData[ListPos]->FileAttr,ColumnWidth));
+						break;
+					}
+
+					case DIZ_COLUMN:
+					{
+						string strDizText=ListData[ListPos]->DizText ? ListData[ListPos]->DizText:L"";
+						Dest.Append(strDizText);
+						break;
+					}
+
+					case OWNER_COLUMN:
+					{
+						Dest.Append(ListData[ListPos]->strOwner);
+						break;
+					}
+
+					case NUMLINK_COLUMN:
+					{
+						string s;
+						s.Format(L"%d",ListData[ListPos]->NumberOfLinks);
+						Dest.Append(s);
+						break;
+					}
+
+					case NUMSTREAMS_COLUMN:
+					{
+						string s;
+						s.Format(L"%d",ListData[ListPos]->NumberOfStreams);
+						Dest.Append(s);
+						break;
+					}
+
+				}
+			}
+		}
+
+		return true;
+	}
+#endif
+	return false;
+}
 
 int FileList::GetSelCount()
 {

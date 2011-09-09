@@ -200,6 +200,8 @@ class Panel:public ScreenObject
 
 		virtual void CloseChangeNotification() {}
 		virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0) {return FALSE;}
+		virtual bool GetPlainString(string& Dest,int ListPos){return false;}
+
 
 		virtual int GoToFile(long idxItem) {return TRUE;}
 		virtual int GoToFile(const wchar_t *Name,BOOL OnlyPartName=FALSE) {return TRUE;}

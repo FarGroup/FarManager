@@ -1566,6 +1566,19 @@ int TreeList::ReadTreeFile()
 }
 
 
+bool TreeList::GetPlainString(string& Dest,int ListPos)
+{
+	Dest=L"";
+#if defined(Mantis_698)
+	if (ListPos<TreeCount)
+	{
+		Dest=ListData[ListPos]->strName;
+		return true;
+	}
+#endif
+	return false;
+}
+
 int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSets)
 {
 	string strMask;

@@ -345,6 +345,7 @@ class FileList:public Panel
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
 		virtual int GetCurrentPos();
 		virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0);
+		virtual bool GetPlainString(string& Dest,int ListPos);
 		long FindFile(const char *Name,BOOL OnlyPartName=FALSE);
 
 		virtual int GoToFile(long idxItem);

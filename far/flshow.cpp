@@ -225,7 +225,7 @@ void FileList::ShowFileList(int Fast)
 		SetColor(COL_PANELBOX);
 		ColumnPos+=ViewSettings.ColumnWidth[I];
 		GotoXY(ColumnPos,Y1);
-		
+
 		bool DoubleLine = Opt.DoubleGlobalColumnSeparator && (!((I+1)%ColumnsInGlobal));
 
 		BoxText(BoxSymbols[DoubleLine?BS_T_H2V2:BS_T_H2V1]);
@@ -1025,7 +1025,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							}
 
 							const wchar_t *NamePtr = ShowShortNames && !ListData[ListPos]->strShortName.IsEmpty() && !ShowStatus ? ListData[ListPos]->strShortName:ListData[ListPos]->strName;
-							
+
 							string strNameCopy;
 							if (!(ListData[ListPos]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (ViewFlags & COLUMN_NOEXTENSION))
 							{
@@ -1122,7 +1122,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							if (!ShowStatus)
 							{
 								int NameX=WhereX();
-								
+
 								if (LeftBracket)
 								{
 									GotoXY(CurX-1,CurY);
