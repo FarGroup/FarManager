@@ -20,30 +20,30 @@
 </div>
 
 <pre class=syntax>
-int WINAPI MacroControl(
-  HANDLE hHandle,
-  FAR_MACRO_CONTROL_COMMANDS Command,
+INT_PTR WINAPI MacroControl(
+  const GUID* PluginId,
+  enum FAR_MACRO_CONTROL_COMMANDS Command,
   int Param1,
-  INT_PTR Param2
+  void *Param2
 );
 </pre>
 
 <h3>Параметры</h3>
 <div class=descr>
-  <div class=dfn>hHandle</div>
-    <div class=dfndescr>Смотрите описание <var>Command</var> (в настоящее время значение игнорируется).</div>
+  <div class=dfn>PluginId</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле GlobalInfo.Guid функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
   <div class=dfn>Command</div>
     <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_MACRO_CONTROL_COMMANDS">FAR_MACRO_CONTROL_COMMANDS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_LOADALL">MCTL_LOADALL</a></td>
-    <td class="cont" width="60%">Считать из реестра в память FAR все макросы с затиранием предыдущих значений.<br>
+    <td class="cont" width="60%">Считать из реестра в память Far Manager все макросы с затиранием предыдущих значений.<br>
     <var>Param1</var> и <var>Param2</var> игнорируются. <br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_SAVEALL">MCTL_SAVEALL</a></td>
-    <td class="cont" width="60%">Принудительное сохранение макросов из памяти FAR в реестр.<br>
+    <td class="cont" width="60%">Принудительное сохранение макросов из памяти Far Manager в реестр.<br>
     <var>Param1</var> и <var>Param2</var> игнорируются. <br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
@@ -55,7 +55,7 @@ int WINAPI MacroControl(
     <tr class="cont"><td class="cont" width="40%"><a name="MSSC_POST">MSSC_POST</a></td>
     <td class="cont" width="60%">Выполнить макрос.<br>
     <var>Param2</var> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>.
-    Функция возвращает <code>TRUE</code> - макрос проанализирован и помещен в очередь, и <code>FALSE</code> - ошибка (макропоследовательность содержит ошибки). Макропоследовательность начнёт исполняться тогда, когда FAR получит управление.</td></tr>
+    Функция возвращает <code>TRUE</code> - макрос проанализирован и помещен в очередь, и <code>FALSE</code> - ошибка (макропоследовательность содержит ошибки). Макропоследовательность начнёт исполняться тогда, когда Far Manager получит управление.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="MSSC_CHECK">MSSC_CHECK</a></td>
     <td class="cont" width="60%">Проверить макрос.<br>
     <var>Param2</var> указывает на структуру <a href="../structures/macrocheckmacrotext.html">MacroCheckMacroText</a>. Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
@@ -118,6 +118,18 @@ int WINAPI MacroControl(
     <tr class="cont"><td class="cont" width="40%"><a name="">MACROAREA_AUTOCOMPLETION</a></td>
     <td class="cont" width="60%">список автодополнения</td></tr>
     </table>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_ADDMACRO">MCTL_ADDMACRO</a></td>
+    <td class="cont" width="60%">Добавить в память Far Manager макрос. Макросы добавляются в область "Common".<br>
+    <var>Param1</var> игнорируется. <br>
+    <var>Param2</var> указывает на структуру <a href="../structures/macroaddmacro.html">MacroAddMacro</a>.
+    Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_DELMACRO">MCTL_DELMACRO</a></td>
+    <td class="cont" width="60%">Удалить из памяти Far Manager определенный макрос.<br>
+    <var>Param1</var> игнорируется. <br>
+    <var>Param2</var> указывает на идентификатор удаляемого макроса, поле <a href="../structures/macroaddmacro.html">MacroAddMacro.Id</a>.
+    Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
    </table>
    </div>

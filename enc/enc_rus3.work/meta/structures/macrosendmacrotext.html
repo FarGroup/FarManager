@@ -23,7 +23,7 @@ struct MacroSendMacroText
 {
   size_t StructSize;
   FARKEYMACROFLAGS Flags;
-  DWORD AKey;
+  INPUT_RECORD AKey;
   const wchar_t *SequenceText;
 };
 </pre>
@@ -40,24 +40,14 @@ struct MacroSendMacroText
     <td class="cont" width="60%">Не отображать на экране результат работы каждой клавиши.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_NOSENDKEYSTOPLUGINS">KMFLAGS_NOSENDKEYSTOPLUGINS</a></td>
     <td class="cont" width="60%">Не передавать клавиши редакторным плагинам (плагинам, экспортирующим функцию <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>).</td></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_REG_MULTI_SZ">KMFLAGS_REG_MULTI_SZ</a></td>
-    <td class="cont" width="60%">Параметр <i>SequenceText</i> представлен в формате <dfn>REG_MULTI_SZ</dfn>.<br>
-    REG_MULTI_SZ в реестре:
-    <pre class=code>
-строка 1\x00
-строка 2\x00
-...
-строка N\x00
-\x00
-    </pre></td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_SILENTCHECK">KMFLAGS_SILENTCHECK</a></td>
     <td class="cont" width="60%">Не отображать на экране результат проверки макропоследовательности.</td></tr>
     </table>
     </div>
   <div class=dfn>AKey</div>
-    <div class=dfndescr>Клавиша вызова макроса.</div>
+    <div class=dfndescr>Клавиша вызова макроса, структура <a href="../winapi/input_record.html">INPUT_RECORD</a>.</div>
   <div class=dfn>SequenceText</div>
-    <div class=dfndescr>Строка, содержащая макрос в текстовом виде (массив <a href="../defs/farkeycodes.html">клавиш</a>).</div>
+    <div class=dfndescr>Строка, содержащая макрос в текстовом виде (массив клавиш во внутреннем представлении Far Manager).</div>
 </div>
 
 <h3>Замечания</h3>

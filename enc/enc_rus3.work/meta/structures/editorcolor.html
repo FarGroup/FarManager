@@ -57,8 +57,10 @@ struct EditorColor
     <div class=dfndescr>‘лаги (перечисление <a name="EDITORCOLORFLAGS">EDITORCOLORFLAGS</a>):
       <table class="cont">
       <tr class="cont"><th class="cont" width="40%">‘лаг</th><th class="cont" width="60%">ќписание</th></tr>
-      <tr class="cont"><td class="cont" width="40%"><a name="ECF_TAB1">ECF_TAB1</a></td>
-      <td class="cont" width="60%">≈сли в диапазоне цветовой области встречаетс€ символ табул€ции, то раскрасить его как 1 символ.</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="ECF_TABMARKFIRST">ECF_TABMARKFIRST</a></td>
+      <td class="cont" width="60%">если в диапазоне цветовой области встречаетс€ символ табул€ции, то раскрасить его как 1 символ</td></tr>
+      <tr class="cont"><td class="cont" width="40%"><a name="ECF_TABMARKCURRENT">ECF_TABMARKCURRENT</a></td>
+      <td class="cont" width="60%">если в диапазоне цветовой области встречаетс€ символ табул€ции, то раскрасить не первый символ табул€ции, а тот, который совпадает с текущей горизонтальной позицией курсора</td></tr>
       </table>
     </div>
   <div class=dfn>Color</div>
@@ -66,7 +68,7 @@ struct EditorColor
       ¬ходной параметр дл€ <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a> и
       выходной дл€ <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a>.
       <p>Far Manager раскрашивает символ табул€ции на всю длину, на которую расшир€етс€ табул€ци€. ≈сли необходимо, чтобы символ табул€ции дл€ 
-      цветовой области занимал 1 знакоместо, то в дополнении к цвету, необходимо выставить флаг <dfn>ECF_TAB1</dfn>.
+      цветовой области занимал 1 знакоместо, то в дополнении к цвету, необходимо выставить флаг <dfn>ECF_TABMARKFIRST</dfn> или <dfn>ECF_TABMARKCURRENT</dfn>.
     </div>
   <div class=dfn>Owner</div>
     <div class=dfndescr>GUID плагина-владельца цветовой области.</div>
