@@ -178,7 +178,7 @@ bool Array<type>::remove()
 template <typename type>
 bool Array<type>::remove(unsigned int index, bool freeitem)
 {
-	if ( (index >= 0) && (index < m_uCount) && (index != INVALID_INDEX) )
+	if ( (index < m_uCount) && (index != INVALID_INDEX) )
 	{
 		if ( freeitem )
 			FreeItem(index);
@@ -212,7 +212,7 @@ unsigned int Array<type>::indexof(const type& item) const
 template <typename type>
 type& Array<type>::at(unsigned int index) const
 {
-	if ( (index >= 0) && (index < m_uCount) )
+	if ( index < m_uCount )
 		return m_data[index];
 
 	static type result;

@@ -19,7 +19,7 @@ const TCHAR* Language::GetLanguage()
 
 const TCHAR* Language::GetMsg(unsigned int uID)
 {
-	if ( (uID >= 0) && (uID < strings.count()) )
+	if ( uID < strings.count() )
 		return strings[uID];
 
 	return nullptr;
@@ -81,7 +81,7 @@ void Language::ParseString(const TCHAR* lpStr)
 
 	if ( strTemp.GetLength() > 1 )
 	{
-		if ( strTemp.At(0) == _T('.') ); //param
+		if ( strTemp.At(0) == _T('.') ) //param
 		{
 			const TCHAR* lpTemp = strTemp;
 			const TCHAR* lpEqual = _tcschr(strTemp, _T('='));

@@ -72,6 +72,8 @@ HANDLE __stdcall EXP_NAME(OpenPlugin) (
 	{
 		if ( OpenFrom == OPEN_SHORTCUT )
 		{
+			/* не работает
+			 
 			const TCHAR* lpShortcutData = (const TCHAR*)Item;
 			TCHAR szGUID[64];
 
@@ -82,10 +84,10 @@ HANDLE __stdcall EXP_NAME(OpenPlugin) (
 			memcpy(szGUID, lpShortcutData, sizeof(szGUID));
 			uidFormat = STR2GUID(szGUID);
 
-			memcpy(&szGUID[64], &lpShortcutData[64], sizeof(szGUID));
+			memcpy(szGUID, &lpShortcutData[64], sizeof(szGUID));
 			uidPlugin = STR2GUID(szGUID);
 
-			memcpy(&szGUID[128], &lpShortcutData[128], sizeof(szGUID));
+			memcpy(szGUID, &lpShortcutData[128], sizeof(szGUID));
 			uidModule = STR2GUID(szGUID);
 
 			ArchiveFormat* pFormat = pManager->GetFormat(uidFormat, uidPlugin, uidModule);
@@ -93,7 +95,7 @@ HANDLE __stdcall EXP_NAME(OpenPlugin) (
 			if ( pFormat )
 			{
 				__debug(_T("%s"), pFormat->GetName());
-			}
+			}*/
 
 			return INVALID_HANDLE_VALUE;
 		}

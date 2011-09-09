@@ -704,7 +704,7 @@ int SevenZipArchive::AddFiles(
 		if ( bAddDialogOk )
 		{
 			TCHAR szPassword[512];
-			memset(szPassword, 0, 512);
+			memset(szPassword, 0, sizeof(szPassword));
 
 			OnPasswordOperation(PASSWORD_COMPRESSION, szPassword, 512);
 

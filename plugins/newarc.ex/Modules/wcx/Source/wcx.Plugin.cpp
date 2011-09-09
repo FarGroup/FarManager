@@ -333,11 +333,9 @@ int WcxPlugin::GetArchiveItem(HANDLE hArchive, ArchiveItem* pItem)
 			DosDateTimeToFileTime ((WORD)((DWORD)HeaderData.FileTime >> 16), (WORD)HeaderData.FileTime, &filetime);
 			LocalFileTimeToFileTime (&filetime, &pItem->ftLastWriteTime);
 	
-	        //???
+			//???
 			pItem->ftCreationTime = pItem->ftLastAccessTime = pItem->ftLastWriteTime;
 			pItem->dwCRC32 = HeaderData.FileCRC;
-
-			memcpy(pItem, pItem, sizeof(ArchiveItem));
 
 			return E_SUCCESS;
 		}
