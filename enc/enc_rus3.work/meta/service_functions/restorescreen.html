@@ -41,7 +41,7 @@ void WINAPI RestoreScreen(
 Для увеличения скорости <dfn>RestoreScreen</dfn> перерисовывает только изменённую область экрана. <dfn>RestoreScreen</dfn> не может корректно определить эту область, если область экрана была изменена не функцией
 Far Manager (например, запущенной из плагина внешней  программой).
 
-В этом случае сначала вы должны вызвать <dfn>RestoreScreen</dfn> с параметром <code>NULL</code>, чтобы показать FAR'у, что экран изменён, а затем вызвать <dfn>RestoreScreen</dfn>
+В этом случае сначала вы должны вызвать <dfn>RestoreScreen</dfn> с параметром <code>NULL</code>, чтобы показать Far Manager'у, что экран изменён, а затем вызвать <dfn>RestoreScreen</dfn>
 как обычно - с описателем от <a href="savescreen.html">SaveScreen</a>.
 </div>
 

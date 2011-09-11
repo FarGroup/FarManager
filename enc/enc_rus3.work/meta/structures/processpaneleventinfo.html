@@ -45,7 +45,7 @@ struct ProcessPanelEventInfo
     <tr class="cont"><td class="cont" width="40%"><a name="FE_REDRAW">FE_REDRAW</a></td>
     <td class="cont" width="60%">Панель должна перерисоваться.<br>
     <i>Param</i> равен NULL.<br>
-    Верните в <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> FALSE, чтобы использовать функцию перерисовки FAR'a, или TRUE, чтобы отключить её. В последнем случае плагин должен перерисовать панель сам.</td></tr>
+    Верните в <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> FALSE, чтобы использовать функцию перерисовки Far Manager'a, или TRUE, чтобы отключить её. В последнем случае плагин должен перерисовать панель сам.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_IDLE">FE_IDLE</a></td>
     <td class="cont" width="60%">Посылается с интервалом в несколько секунд. Плагин может использовать это событие, чтобы вызвать обновление панели и её перерисовку, если это необходимо.<br>
     <i>Param</i> равен NULL.<br>
@@ -58,9 +58,9 @@ struct ProcessPanelEventInfo
     <td class="cont" width="60%">Нажатие Ctrl-Break.<br>
     <i>Param</i> может быть только <code>(int)CTRL_BREAK_EVENT</code><br>
     Функция <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> должна вернуть FALSE.<br>
-    Обработка этого события выполнена в отдельном потоке, поэтому плагин должен быть осторожным при выполнении операций ввода-вывода и не должен использовать сервисные функции FAR'a.</td></tr>
+    Обработка этого события выполнена в отдельном потоке, поэтому плагин должен быть осторожным при выполнении операций ввода-вывода и не должен использовать сервисные функции Far Manager'a.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FE_COMMAND">FE_COMMAND</a></td>
-    <td class="cont" width="60%">Перед запуском команды в командной строке FAR'a.<br>
+    <td class="cont" width="60%">Перед запуском команды в командной строке Far Manager'a.<br>
     <i>Param</i> указывает на текст команды.<br>
     Для разрешения стандартной обработки команды плагин должен вернуть в <a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a> FALSE.<br>
     Если плагин собирается обработать команду сам, то он должен вернуть TRUE.</td></tr>

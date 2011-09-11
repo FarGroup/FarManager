@@ -63,11 +63,17 @@ INT_PTR WINAPI SettingsControl(
     <var>Param1</var> игнорируется. <var>Param2</var> - указатель на структуру <a href="../structures/farsettingsitem.html">FarSettingsItem</a>.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="SCTL_SUBKEY">SCTL_SUBKEY</a></td>
-    <td class="cont" width="60%">Загрузить настройки.<br>
+    <tr class="cont"><td class="cont" width="40%"><a name="SCTL_CREATESUBKEY">SCTL_CREATESUBKEY</a></td>
+    <td class="cont" width="60%">Открыть ключ настроек. Если такого ключа нет, то создать его.<br>
     <var>hHandle</var> - <code>HANDLE</code> настроек, созданный по команде <dfn>SCTL_CREATE</dfn> (поле <code>FarSettingsCreate.Handle</code>).<br>
     <var>Param1</var> игнорируется. <var>Param2</var> - указатель на структуру <a href="../structures/farsettingsvalue.html">FarSettingsValue</a>.<br>
-    Функция возвращает ..... </td></tr>
+    Функция возвращает уровень вложенности ключа (!! требуется уточнение !!).</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="SCTL_OPENSUBKEY">SCTL_OPENSUBKEY</a></td>
+    <td class="cont" width="60%">Открыть существующий ключ настроек.<br>
+    <var>hHandle</var> - <code>HANDLE</code> настроек, созданный по команде <dfn>SCTL_CREATE</dfn> (поле <code>FarSettingsCreate.Handle</code>).<br>
+    <var>Param1</var> игнорируется. <var>Param2</var> - указатель на структуру <a href="../structures/farsettingsvalue.html">FarSettingsValue</a>.<br>
+    Функция возвращает уровень вложенности ключа (!! требуется уточнение !!).</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="SCTL_ENUM">SCTL_ENUM</a></td>
     <td class="cont" width="60%">Получить список подключей и значений.<br>

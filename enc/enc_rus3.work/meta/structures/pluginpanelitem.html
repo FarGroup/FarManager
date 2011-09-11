@@ -65,10 +65,10 @@ struct PluginPanelItem
   <div class=dfn>AlternateFileName</div>
     <div class=dfndescr>Указатель на строку с альтернативным именем файла. </div>
   <div class=dfn>Description</div>
-    <div class=dfndescr>Указывает на описание файла. Плагин может использовать это поле для передачи описания файла FAR'у. Если вы не хотите указывать описания, установите <i>Description</i> в NULL. Если плагин
-    использует стандартную обработку описаний FAR'а, и передал имена описаний FAR'у в функции <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>, это поле также должно быть NULL.</div>
+    <div class=dfndescr>Указывает на описание файла. Плагин может использовать это поле для передачи описания файла Far Manager'у. Если вы не хотите указывать описания, установите <i>Description</i> в NULL. Если плагин
+    использует стандартную обработку описаний Far Manager'а, и передал имена описаний Far Manager'у в функции <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>, это поле также должно быть NULL.</div>
   <div class=dfn>Owner</div>
-    <div class=dfndescr>Указывает на имя владельца файла. Плагин может использовать это поле для передачи имён владельцев файлов FAR'у. Если Вам это не нужно, установите это поле в NULL.</div>
+    <div class=dfndescr>Указывает на имя владельца файла. Плагин может использовать это поле для передачи имён владельцев файлов Far MAnager'у. Если Вам это не нужно, установите это поле в NULL.</div>
   <div class=dfn>CustomColumnData</div>
     <div class=dfndescr>Указывает на массив адресов строк для определённых плагином типов колонок. Первая строка содержит данные для типа колонки C0, вторая - для C1 и т.д. Может быть задано до 10 дополнительных типов колонок от <b><code>C0</code></b>
     до <b><code>C9</code></b>. Если вы не нуждаетесь в дополнительных типах колонок, установите это поле в NULL.</div>
@@ -79,23 +79,23 @@ struct PluginPanelItem
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PPIF_PROCESSDESCR">PPIF_PROCESSDESCR</a></td>
-    <td class="cont" width="60%">Использовать внутреннюю обработку описаний FAR'а.<br>
+    <td class="cont" width="60%">Использовать внутреннюю обработку описаний Far Manager'а.<br>
     Этот флаг может быть установлен для обрабатываемых файлов в функциях  <a href="../exported_functions/deletefilesw.html">DeleteFilesW</a>, <a href="../exported_functions/getfilesw.html">GetFilesW</a> и
-    <a href="../exported_functions/putfilesw.html">PutFilesW</a>. В этом случае FAR будет обновлять файлы описаний с именами, возвращёнными в функции <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.</td></tr>
+    <a href="../exported_functions/putfilesw.html">PutFilesW</a>. В этом случае Far Manager будет обновлять файлы описаний с именами, возвращёнными в функции <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PPIF_SELECTED">PPIF_SELECTED</a></td>
     <td class="cont" width="60%">Этот флаг отвечает за выделение элемента.<br>
     В функциях <a href="../exported_functions/putfilesw.html">PutFilesW</a>, <a href="../exported_functions/getfilesw.html">GetFilesW</a> и <a href="../exported_functions/processhostfilew.html">ProcessHostFileW</a>, если операция не удалась,
     но часть файлов была успешно обработана, плагин может убрать выделение только с обработанных файлов.<br>
     Для этого плагин должен очистить флаг PPIF_SELECTED у обрабатываемых элементов в переданном функции списке <dfn>PluginPanelItem<dfn>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PPIF_USERDATA">PPIF_USERDATA</a></td>
-    <td class="cont" width="60%">Если этот флаг установлен, FAR считает поле <i>UserData</i> указателем на структуру пользовательских данных.
+    <td class="cont" width="60%">Если этот флаг установлен, Far Manager считает поле <i>UserData</i> указателем на структуру пользовательских данных.
     Читайте описание <i>UserData</i> для уточнения информации. <p>Младшее слово параметра <i>Flags/<i> может быть использовано плагином для своих собственных флагов.</td></tr>
     </table>
     </div>
   <div class=dfn>UserData</div>
     <div class=dfndescr>Это поле может быть использовано плагином для хранения 32-битного значения или указателя на структуру данных.
     В последнем случае, когда <i>UserData</i> указывает на структуру данных, первое поле этой структуры должно быть 32-битным значением, равным размеру структуры, и плагин должен установить флаг PPIF_USERDATA в
-    поле <i>Flags</i>. Это позволит FAR'у правильно скопировать структуру во внутренний буфер FAR'а и позже передать её плагину в списках <dfn>PluginPanelItem</dfn>. В функции <a href="../exported_functions/freefinddataw.html">FreeFindDataW</a> 
+    поле <i>Flags</i>. Это позволит Far Manager'у правильно скопировать структуру во внутренний буфер Far MAnager'а и позже передать её плагину в списках <dfn>PluginPanelItem</dfn>. В функции <a href="../exported_functions/freefinddataw.html">FreeFindDataW</a> 
     плагин должен освободить память, занятую такими дополнительными структурами.</div>
   <div class=dfn>FileAttributes</div>
     <div class=dfndescr>Указывает атрибуты найденного файла. Этот элемент может быть комбинацией следующих значений:
@@ -134,7 +134,7 @@ struct PluginPanelItem
   <div class=dfn>NumberOfLinks</div>
     <div class=dfndescr>Количество жёстких ссылок.</div>
   <div class=dfn>CRC32</div>
-    <div class=dfndescr>Контрольная сумма. FAR не использует это поле. Если плагин использует это поле, необходимо выставить флаг <a href="openpanelinfo.html">OPIF_USECRC32</a>.</div>
+    <div class=dfndescr>Контрольная сумма. Far Manager не использует это поле. Если плагин использует это поле, необходимо выставить флаг <a href="openpanelinfo.html">OPIF_USECRC32</a>.</div>
   <div class=dfn>Reserved</div>
     <div class=dfndescr>Зарезервировано для будущего использования. Установите в 0.</div>
 </div>
@@ -143,12 +143,12 @@ struct PluginPanelItem
 <div class=descr>
 <ol>
 <li>Все данные, выделенные плагином для членов <i>FileName</i>, <i>AlternateFileName</i>, <i>Description</i>, <i>Owner</i> и <i>CustomColumnData</i>, должны быть освобождены им.
-FAR создаёт копии этих данных в своих внутренних структурах. Таким образом они могут быть освобождены в любой момент после передачи FAR'у в
+Far Manager создаёт копии этих данных в своих внутренних структурах. Таким образом они могут быть освобождены в любой момент после передачи Far Manager'у в
 функции <a href="../exported_functions/getfinddataw.html">GetFindDataW</a>.
 <li>Если плагин использует, например, <i>UserData</i> для получения данных о файле, то плагинописатель должен удостовериться в валидности этих
-данных. Это связано с тем, что при вызове <a href="../exported_functions/getfilesw.html">GetFilesW</a> из списка найденных файлов  FAR передаёт плагину элементы  <dfn>PluginPanelItem</dfn>
+данных. Это связано с тем, что при вызове <a href="../exported_functions/getfilesw.html">GetFilesW</a> из списка найденных файлов  Far Manager передаёт плагину элементы  <dfn>PluginPanelItem</dfn>
 только с следующими правильно заполненными членами - <i>FileName</i>, <i>FileAttributes</i>, <i>CreationTime</i>, <i>LastAccessTime</i>, <i>LastWriteTime</i>, <i>FileSize</i>, <i>PackSize</i>, остальные члены установлены в <code>NULL</code>.
-<li>При запросе файлового объекта с панели FAR'а - если файл имеет длинное имя, то полное имя возвращается в элементе <i>FileName</i>, а усеченная версия формата 8.3 сохраняется в <i>AlternateFileName</i>. Иначе <i>AlternateFileName</i> пусто.
+<li>При запросе файлового объекта с панели Far Manager'а - если файл имеет длинное имя, то полное имя возвращается в элементе <i>FileName</i>, а усеченная версия формата 8.3 сохраняется в <i>AlternateFileName</i>. Иначе <i>AlternateFileName</i> пусто.
 <li>При запросе файлового объекта с панели плагина - <i>AlternateFileName</i> может содержать любую строку сформированную плагином, т.е. за содержимое отвечает опрашиваемый плагин.
 <li>Не все файловые системы позволяют хранить время создания файла и последнего доступа к нему, и не все системы хранят их одинаково. Например, в файловой системе FAT под Windows NT время создания файла записывается с
 разрешением 10 миллисекунд, время последней модификации - 2 секунды, а время доступа - 1 день (то есть, фактически, записывается только дата доступа). На файловой системе NTFS время доступа имеет разрешение 1 час.

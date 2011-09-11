@@ -78,7 +78,7 @@ struct OpenInfo
     <li>Для OPEN_FINDLIST <i>Data</i> всегда 0.
     <li>Для OPEN_SHORTCUT <i>Data</i> содержит адрес строки, которая была передана в элемент ShortcutData структуры <a href="../structures/openpanelinfo.html">OpenPlanelInfo</a>
     в момент сохранения горячей клавиши. Плагин может использовать это поле для сохранения дополнительной информации о текущем состоянии.
-    Не обязательно сохранять в нём информацию о текущей директории, так как этим занимается сам FAR.
+    Не обязательно сохранять в нём информацию о текущей директории, так как этим занимается сам Far Manager.
     <li>Для OPEN_DIALOG <i>Data</i> содержит адрес структуры <a href="../structures/opendlgplugindata.html">OpenDlgPluginData</a>.
     <li>Для OPEN_COMMANDLINE <i>Data</i> содержит адрес введённого пользователем в командной строке выражения. Если плагин не установил флаг <a href="../structures/plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>,
     то командный префикс плагина в командную строку не включается. При установленном флаге <a href="../structures/plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>

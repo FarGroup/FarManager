@@ -62,22 +62,22 @@ struct OpenPanelInfo
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_ADDDOTS">OPIF_ADDDOTS</a></td>
     <td class="cont" width="60%">Добавить элемент, равный двум точкам (<b><code>..</code></b>), если он отсутствует, автоматически.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_RAWSELECTION">OPIF_RAWSELECTION</a></td>
-    <td class="cont" width="60%">Выбор папок независимо от настроек FAR'а.</td></tr>
+    <td class="cont" width="60%">Выбор папок независимо от настроек Far Manager'а.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_REALNAMES">OPIF_REALNAMES</a></td>
-    <td class="cont" width="60%">Включает использование стандартной обработки файла FAR'ом, если запрошенная операция не поддерживается плагином. Если этот флаг указан, элементы на панели плагина должны быть именами реальных файлов.</td></tr>
+    <td class="cont" width="60%">Включает использование стандартной обработки файла Far Manager'ом, если запрошенная операция не поддерживается плагином. Если этот флаг указан, элементы на панели плагина должны быть именами реальных файлов.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHOWNAMESONLY">OPIF_SHOWNAMESONLY</a></td>
     <td class="cont" width="60%">Показывать по умолчанию имена без путей во всех режимах просмотра.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHOWRIGHTALIGNNAMES">OPIF_SHOWRIGHTALIGNNAMES</a></td>
     <td class="cont" width="60%">Показывать по умолчанию имена, выровненные по правому краю во всех режимах просмотра.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHOWPRESERVECASE">OPIF_SHOWPRESERVECASE</a></td>
-    <td class="cont" width="60%">Показывать имена файлов в оригинальном регистре независимо от настроек FAR'a.</td></tr>
+    <td class="cont" width="60%">Показывать имена файлов в оригинальном регистре независимо от настроек Far Manager'a.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_COMPAREFATTIME">OPIF_COMPAREFATTIME</a></td>
     <td class="cont" width="60%">Преобразовывать временные метки в формат FAT при выполнении команды <i>Compare folders</i>. Установите этот флаг, если файловая система плагина не обеспечивает требуемую для стандартного стравнения времени точность.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_EXTERNALGET">OPIF_EXTERNALGET</a><br>
                                                   <a name="OPIF_EXTERNALPUT">OPIF_EXTERNALPUT</a><br>
                                                   <a name="OPIF_EXTERNALDELETE">OPIF_EXTERNALDELETE</a><br>
                                                   <a name="OPIF_EXTERNALMKDIR">OPIF_EXTERNALMKDIR</a></td>
-    <td class="cont" width="60%">Флаги могут быть использованы только с OPIF_REALNAMES. Вынуждает использование соответствующих функций FAR, даже если требуемая функция экспортируется плагином.</td></tr>
+    <td class="cont" width="60%">Флаги могут быть использованы только с OPIF_REALNAMES. Вынуждает использование соответствующих функций Far MAnager, даже если требуемая функция экспортируется плагином.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_USEATTRHIGHLIGHTING">OPIF_USEATTRHIGHLIGHTING</a></td>
     <td class="cont" width="60%"> Использовать раскраску файлов в панели плагина только по атрибутам, а имена объектов в раскраске не учитывать. Выбор цвета происходит только среди тех
     групп раскраски файлов, у которых маски исключены из анализа, т.е. опция "<code>[ ] Совпадение с маской (масками)</code>" в настройках раскраски файлов отключена.</td></tr>
@@ -90,7 +90,7 @@ struct OpenPanelInfo
   <div class=dfn>HostFile</div>
     <div class=dfndescr>Имя файла, на основе которого эмулируется файловая система на панели. Если плагин не эмулирует файловую систему, основанную на файле, установите эту переменную в NULL.</div>
   <div class=dfn>CurDir</div>
-    <div class=dfndescr>Текущая директория панели. Если панельный плагин вернёт здесь пустую строку, то при нажатии ENTER на ".." FAR закроет панель плагина автоматически.</div>
+    <div class=dfndescr>Текущая директория панели. Если панельный плагин вернёт здесь пустую строку, то при нажатии ENTER на ".." Far MAnager закроет панель плагина автоматически.</div>
   <div class=dfn>Format</div>
     <div class=dfndescr>Имя формата панели плагина. Оно показывается в диалоге копирования файла.</div>
   <div class=dfn>PanelTitle</div>
@@ -100,7 +100,7 @@ struct OpenPanelInfo
   <div class=dfn>InfoLinesNumber</div>
     <div class=dfndescr>Число структур <i>InfoLine</i>.</div>
   <div class=dfn>DescrFiles</div>
-    <div class=dfndescr>Адрес массива указателей на имена файлов описаний. FAR попытается прочитать эти файлы (функцией <a href="../exported_functions/getfilesw.html">GetFilesW</a>)
+    <div class=dfndescr>Адрес массива указателей на имена файлов описаний. Far Manager попытается прочитать эти файлы (функцией <a href="../exported_functions/getfilesw.html">GetFilesW</a>)
     при показе описаний и обновить их после обработки файлов, если флаг <dfn>PPIF_PROCESSDESCR</dfn> в структуре <a href="pluginpanelitem.html">PluginPanelItem</a> был
     установлен. В зависимости от типа плагина, обработка описаний может занять значительное время. Если Вам это не нужно, установите <i>DescrFiles</i> в NULL.</div>
   <div class=dfn>DescrFilesNumber</div>
@@ -123,7 +123,7 @@ struct OpenPanelInfo
     <div class=dfndescr>Адрес текстовой строки, оканчивающейся нулём, описывающей текущее состояние панели плагина. Она должна быть не больше значения
     <dfn><a name="MAXSIZE_SHORTCUTDATA">MAXSIZE_SHORTCUTDATA</a></dfn>. Эта строка передаётся в <a href="../exported_functions/openw.html">OpenW</a>, когда плагин активирован
     командой ссылки на папку. Например, FTP клиент может поместить сюда текущий хост, логин и пароль. Нет необходимости сохранять здесь текущий каталог,
-    потому что он будет восстановлен самим FAR'ом.<br> Если вы не нуждаетесь в такой дополнительной информации для обработки ссылки на папку, установите данную строку в NULL.</div>
+    потому что он будет восстановлен самим Far Manager'ом.<br> Если вы не нуждаетесь в такой дополнительной информации для обработки ссылки на папку, установите данную строку в NULL.</div>
   <div class=dfn>FreeSize</div>
     <div class=dfndescr>Количество свободного места в эмулированной плагином файловой системе.</div>
 </div>

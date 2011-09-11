@@ -22,16 +22,16 @@
 struct FarSettingsItem
 {
   size_t Root;
-  const wchar_t* Name;
+  const wchar_t *Name;
   enum FARSETTINGSTYPES Type;
   union
   {
     unsigned __int64 Number;
-    const wchar_t* String;
+    const wchar_t *String;
     struct
     {
       size_t Size;
-      const void* Data;
+      const void *Data;
     } Data;
   }
 <b>#ifndef __cplusplus</b>
