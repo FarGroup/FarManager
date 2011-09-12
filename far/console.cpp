@@ -293,17 +293,19 @@ virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoo
 
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
+		SHORT SavedY = BufferSize.Y;
 		BufferSize.Y=static_cast<SHORT>(Max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1));
 		int Height=ReadRegion.Bottom-ReadRegion.Top+1;
 		int Start=ReadRegion.Top;
-		SMALL_RECT SavedWriteRegion=ReadRegion;
+		SMALL_RECT SavedReadRegion=ReadRegion;
 		for(int i=0;i<Height;i+=BufferSize.Y)
 		{
-			ReadRegion=SavedWriteRegion;
+			ReadRegion=SavedReadRegion;
 			ReadRegion.Top=Start+i;
 			PCHAR_INFO BufPtr=ConsoleBuffer+i*BufferSize.X;
 			Result=ReadConsoleOutput(GetOutputHandle(), BufPtr, BufferSize, BufferCoord, &ReadRegion)!=FALSE;
 		}
+		BufferSize.Y = SavedY;
 	}
 	else
 	{
@@ -348,6 +350,7 @@ virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD Bu
 
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
+		SHORT SavedY = BufferSize.Y;
 		BufferSize.Y=static_cast<SHORT>(Max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1));
 		int Height=WriteRegion.Bottom-WriteRegion.Top+1;
 		int Start=WriteRegion.Top;
@@ -359,6 +362,7 @@ virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD Bu
 			const CHAR_INFO* BufPtr=ConsoleBuffer+i*BufferSize.X;
 			Result=WriteConsoleOutput(GetOutputHandle(), BufPtr, BufferSize, BufferCoord, &WriteRegion)!=FALSE;
 		}
+		BufferSize.Y = SavedY;
 	}
 	else
 	{
