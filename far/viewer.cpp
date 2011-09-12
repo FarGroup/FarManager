@@ -330,6 +330,8 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 			CachedCodePage = 0;
 		LastSelectPos=FilePos=NewFilePos;
 		LeftPos=NewLeftPos;
+
+		AdjustFilePos();
 	}
 	else
 	{
