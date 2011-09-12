@@ -1365,7 +1365,7 @@ MConfigSaveHistory
 "Guardar &historial de comandos"
 
 MConfigSaveFoldersHistory
-"Сохранять историю п&апок"
+"Сохра&нять историю папок"
 "Save &folders history"
 "Ukládat historii &adresářů"
 "&Ordnerhistorie speichern"
@@ -1401,7 +1401,7 @@ MConfigCloseCDGate
 "CD-ROM: automontar unidad"
 
 MConfigUpdateEnvironment
-"Автообновление переменных окружения"
+"Автообновл&ение переменных окружения"
 "Automatic update of environment variables"
 upd:"Automatic update of environment variables"
 upd:"Automatic update of environment variables"
@@ -1419,7 +1419,7 @@ upd:"request administrator rights:"
 upd:"request administrator rights:"
 
 MConfigElevationModify
-"для изменения"
+"д&ля изменения"
 "for modification"
 upd:"for modification"
 upd:"for modification"
@@ -1428,7 +1428,7 @@ upd:"for modification"
 upd:"for modification"
 
 MConfigElevationRead
-"для чтения"
+"для &чтения"
 "for read"
 upd:"for read"
 upd:"for read"
@@ -1437,7 +1437,7 @@ upd:"for read"
 upd:"for read"
 
 MConfigElevationUsePrivileges
-"использовать дополнительные привилегии"
+"исп&ользовать дополнительные привилегии"
 "use additional privileges"
 upd:"use additional privileges"
 upd:"use additional privileges"
@@ -1718,8 +1718,8 @@ MConfigCopyTimeRule
 "Mostrar información de tiempo de copiado"
 
 MConfigDeleteTotal
-"Показывать общий индикатор удаления"
-"Show total delete progress indicator"
+"Показывать общий индикатор &удаления"
+"Show total &delete progress indicator"
 upd:"Show total delete progress indicator"
 upd:"Show total delete progress indicator"
 upd:"Show total delete progress indicator"
@@ -1736,8 +1736,8 @@ MConfigPgUpChangeDisk
 "Usar Ctrl-Pg&Up para cambiar unidad"
 
 MConfigClearType
-upd:"ClearType friendly redraw (can be slow)"
-"ClearType friendly redraw (can be slow)"
+"Уч&итывать состояние ClearType"
+"Cl&earType friendly redraw (can be slow)"
 upd:"ClearType friendly redraw (can be slow)"
 upd:"ClearType friendly redraw (can be slow)"
 upd:"ClearType friendly redraw (can be slow)"
@@ -1745,8 +1745,8 @@ upd:"ClearType friendly redraw (can be slow)"
 "Limpiar rediseño (puede ser lento)"
 
 MConfigTitleAddons
-upd:"Far window title addons:"
-"Far window title addons:"
+"Дополнительная информация для &заголовка окна:"
+"Far &window title addons:"
 upd:"Far window title addons:"
 upd:"Far window title addons:"
 upd:"Far window title addons:"
@@ -2104,7 +2104,7 @@ upd:"Sam Compatible"
 "Compatible con Sam"
 
 MConfigInfoPanelUNDisplay
-upd:"Display Name"
+"Отображаемое имя"
 upd:"Display Name"
 upd:"Display Name"
 upd:"Display Name"
