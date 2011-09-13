@@ -724,11 +724,12 @@ $ #Общие команды#
 
  #Меню и выпадающие списки#
 
-  Enable/disable filtering mode                           #Ctrl-Alt-F#
-  Lock/unlock filter                                      #Ctrl-Alt-L#
+  Включить/выключить режим фильтрации                     #Ctrl-Alt-F#
+  Заблокировать/разблокировать фильтр                     #Ctrl-Alt-L#
 
-  When in filter mode, you can filter the displayed items by entering
-text.
+  Режим фильтрации динамически изменяет список меню по мере ввода символов.
+Сочетание #Ctrl-Alt-L# позволяет не сбрасывая фильтра использовать 
+горячие клавиши.
 
  #Диалоги#
 
@@ -1960,11 +1961,10 @@ $ #Меню пользователя#
     При редактировании или создании вложенного меню достаточно ввести заголовок
 вложенного меню и, при необходимости, горячую клавишу.
 
-    User menus are stored in text files named #FarMenu.Ini#:
-    - Global user menu, by default, is located in the Far Manager folder.
-      If global user menu file exists it will override the user specific menu.
-    - User specifc user menu is located in the user profile.
-    - Local user menu is located in the current folder.
+    Меню пользователя размещается в текстовых файлах #FarMenu.Ini# и может быть трех типов:
+    - ^<wrap>"Пользовательское меню" располагается в профиле пользователя.
+    - ^<wrap>"Глобальное меню" располагается в папке Far Manager и имеет приоритет над "Пользовательским меню".
+    - ^<wrap>"Локальное меню" располагается в текущем каталоге и имеет приоритет над прочими меню.
 
     Вы можете закрыть меню на любом уровне вложенности нажав #Shift-F10#.
 

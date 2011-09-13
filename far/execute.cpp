@@ -752,6 +752,7 @@ int PartCmdLine(const wchar_t *CmdStr, string &strNewCmdStr, string &strNewCmdPa
 			        *CmdPtr == L'<' ||
 			        *CmdPtr == L'|' ||
 			        *CmdPtr == L' ' ||
+			        *CmdPtr == L'/' || // вариант "far.exe/?"
 			        *CmdPtr == L'&'    // обработаем разделитель команд
 			   )
 			{
@@ -823,13 +824,6 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 	string strNewCmdStr;
 	string strNewCmdPar;
 	PartCmdLine(CmdStr, strNewCmdStr, strNewCmdPar);
-
-	/*
-	if(strNewCmdPar.IsEmpty())
-	{
-		DirectRun = true;
-	}
-	*/
 
 	DWORD dwAttr = apiGetFileAttributes(strNewCmdStr);
 
