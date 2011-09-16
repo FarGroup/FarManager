@@ -1,26 +1,27 @@
 enum
 {
-  MTitle,
-  MBrackMath,
-  MBrackSelect,
+	MTitle,
 
-  MBForward,
-  MBBackward,
+	MBrackMath,
+	MBrackSelect,
 
-  MConfigure,
+	MBForward,
+	MBBackward,
 
-  MTitleConfig,
-  MRules,
-  MIgnoreQuotation,
-  MIgnoreAfter,
-  MPriority,
-  MJumpToPair,
-  MBeep,
-  MDescriptions,
-  MTypeQuotes,
-  MDescript1,
-  MDescript2,
+	MConfigure,
 
-  MSave,
-  MCancel,
+	MTitleConfig,
+	MRules,
+	MIgnoreQuotation,
+	MIgnoreAfter,
+	MPriority,
+	MJumpToPair,
+	MBeep,
+	MDescriptions,
+	MTypeQuotes,
+	MDescript1,
+	MDescript2,
+
+	MSave,
+	MCancel,
 };

@@ -1,3 +1,24 @@
+svs 16.09.2011 14:46:48 +0400 - build 23
+
+1. callplugin. Добавлена поддержка
+   Плагин при вызове через callplugin ожидает в качестве параметра только число:
+     0 - поиск вперед
+     1 - поиск назад
+     2 - выделить вперед
+     3 - выделить назад
+     4 - вызвать диалог конфигурации и выйти
+
+   Если параметр строка - плагин завершает свою работу.
+
+   Различие между вперед и назад актуально только для кавычек.
+
+   Например, 
+     поиск назад
+       callplugin("B66C436D-E657-419C-86D3-6834B9ACF3D2",1)
+
+2. Немного форматирования кода
+   AStyle --style=ansi --indent=tab=4 --brackets=break --indent-classes --indent-switches --indent-namespaces --indent-preprocessor --break-blocks --delete-empty-lines --unpad-paren --keep-one-line-statements --keep-one-line-blocks !.!
+
 svs 22.08.2011 12:21:45 +0300 - build 22
 
 1. Far 3 API 2105
