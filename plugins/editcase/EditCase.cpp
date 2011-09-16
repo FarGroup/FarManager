@@ -91,21 +91,38 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
-	size_t i;
-	struct FarMenuItem MenuItems[5] = {}, *MenuItem;
-	int Msgs[]={MCaseLower, MCaseTitle, MCaseUpper, MCaseToggle, MCaseCyclic};
+	int MenuCode=-1;
 
-	for (MenuItem=MenuItems,i=0; i < ARRAYSIZE(MenuItems); ++i, ++MenuItem)
+	if (OInfo->OpenFrom&OPEN_FROMMACRO)
 	{
-		MenuItem->Text = GetMsg(Msgs[i]); // Text in menu
+		if (!(OInfo->OpenFrom&OPEN_FROMMACROSTRING))
+		{
+			MenuCode=(int)OInfo->Data;
+			if (MenuCode < 0 || MenuCode > 4)
+				return INVALID_HANDLE_VALUE;
+		}
+		else
+			return INVALID_HANDLE_VALUE;
 	}
 
-	// First item is selected
-	MenuItems[0].Flags=MIF_SELECTED;
-	// Show menu
-	int MenuCode=Info.Menu(&MainGuid, nullptr,-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
-	                       GetMsg(MCaseConversion),NULL,L"Contents",NULL,NULL,
-	                       MenuItems,ARRAYSIZE(MenuItems));
+	if (MenuCode == -1)
+	{
+		size_t i;
+		struct FarMenuItem MenuItems[5] = {}, *MenuItem;
+		int Msgs[]={MCaseLower, MCaseTitle, MCaseUpper, MCaseToggle, MCaseCyclic};
+
+		for (MenuItem=MenuItems,i=0; i < ARRAYSIZE(MenuItems); ++i, ++MenuItem)
+		{
+			MenuItem->Text = GetMsg(Msgs[i]); // Text in menu
+		}
+
+		// First item is selected
+		MenuItems[0].Flags=MIF_SELECTED;
+		// Show menu
+		MenuCode=Info.Menu(&MainGuid, nullptr,-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
+		                       GetMsg(MCaseConversion),NULL,L"Contents",NULL,NULL,
+		                       MenuItems,ARRAYSIZE(MenuItems));
+	}
 
 	switch (MenuCode)
 	{

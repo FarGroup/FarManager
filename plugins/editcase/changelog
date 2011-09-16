@@ -1,3 +1,21 @@
+svs 16.09.2011 14:56:33 +0400 - build 15
+
+1. callplugin. Добавлена поддержка.
+   Плагин при вызове через callplugin ожидает в качестве параметра только число:
+
+     0 - lower case
+     1 - Title Case
+     2 - UPPER CASE
+     3 - tOGGLE cASE
+     4 - Cyclic change
+
+   Если параметр строка - плагин завершает свою работу.
+
+   Например, 
+     Title Case
+       callplugin("0E92FC81-4888-4297-A85D-31C79E0E0CEE",1)
+
+
 svs 22.08.2011 12:31:01 +0300 - build 14
 
 1. Far 3 API 2105
