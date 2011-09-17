@@ -1,3 +1,7 @@
+yjh 18.09.2011 03:55:18 +0400 - build 44
+
+1. Mangling difference (ExitFarW does'n export)
+
 svs 22.08.2011 21:14:55 +0300 - build 43
 
 1. Far 3 API 2105

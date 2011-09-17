@@ -72,7 +72,7 @@ int WINAPI ConfigureW(const ConfigureInfo* Info)
   return thePlug->Configure();
 }
 
-void WINAPI ExitFARW(ExitInfo* Info)
+void WINAPI ExitFARW(const ExitInfo* Info)
 {
   thePlug->ExitFAR();
 
