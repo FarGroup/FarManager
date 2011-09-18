@@ -3,6 +3,60 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 13.09.2011 15:28:38 +0400 - build 2198
+
+1. Mantis#0001785: A problem with launch if the command line contains "="
+   (from 2useven10)
+
+svs 12.09.2011 14:35:48 +0400 - build 2197
+
+1. Mantis#0001873: Highlighted keys in Options - System settings
+   (from Raistlin)
+
+2. Some corrections in lng (translation, hotkeys)
+
+drkns 12.09.2011 13:23:34 +0200 - build 2196
+
+1. In some cases, console output could be lost partially after applications run.
+
+svs 12.09.2011 09:46:52 +0400 - build 2195
+
+1. Mantis#0001766: Viewer new version
+   (from 2useven10)
+
+   "...started noticing the last viewer version incorrectly display
+   first lines when '[x] Save view and edit history' is on. 
+   i'm watching it in changelog, i.e. watch the current revision, then
+   do "svn up" in a few days, open changelog in viewer - 
+   first lines float all over the screen in some incomprehensible manner. 
+   After Home and reopen it settles down..."
+
+svs 09.09.2011 17:32:26 +0400 - build 2194
+
+1. Mantis#0000698: Fast search improvement
+   The first approximation. So far, it is not included into main compilation (until Mantis_698 define is specified)
+   Fast search is implemented for all visible fields.
+
+svs 05.09.2011 19:46:49 +0400 - build 2193
+
+1. Mantis#0001869: panel.select(0,1,2,clip(0)) does not mark files with names containing a comma
+   <ACHTUNG>
+
+      For Items string values in panel.select():
+      Elements must be separated with Lf ("\n") or CrLf ("\r\n").
+
+   </ACHTUNG>
+
+svs 05.09.2011 19:05:38 +0400 - build 2192
+
+1. Mantis#0001871: Drawing bug in editor
+   
+drkns 05.09.2011 09:11:02 +0200 - build 2191
+
+1. A new flag in EDITORCOLORFLAGS: ECF_TABMARKCURRENT. It is similar to ECF_TAB1, but instead of first TAB character, the one matching to editor's cursor horizontal coordinate is colored.
+
+2. ECF_TAB1 is renamed to ECF_TABMARKFIRST.
+
 zg 04.09.2011 14:40:56 +0200 - build 2190
 
 1. ACTL_WAITKEY: Param1=0, Param2 - pointer to INPUT_RECORD or NULL for any other key.
