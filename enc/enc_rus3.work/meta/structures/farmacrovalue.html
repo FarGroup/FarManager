@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FarMacroValue</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+</head>
+<body>
+
+<h1>FarMacroValue</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a  href="index.html">структуры</a>
+<br>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>FarMacroValue</dfn> описывает макропеременную.
+</div>
+
+<pre class=syntax>
+struct FarMacroValue
+{
+  enum FARMACROVARTYPE type;
+  union
+  {
+    __int64  i;
+    double   d;
+    const wchar_t *s;
+  }
+<b>#ifndef __cplusplus</b>
+  Value
+<b>#endif</b>
+  ;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>type</div>
+    <div class=dfndescr>Тип переменной, одно из следующих значений (перечисление <a name="FARMACROVARTYPE">FARMACROVARTYPE</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMVT_UNKNOWN">FMVT_UNKNOWN</a></td>
+    <td class="cont" width="60%">Неопределнный тип. <em>Value.i</em> = 0.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMVT_INTEGER">FMVT_INTEGER</a></td>
+    <td class="cont" width="60%">Число. Компонента <em>Value.i</em>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMVT_STRING">FMVT_STRING</a></td>
+    <td class="cont" width="60%">Строка. Компонента <em>Value.s</em>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMVT_DOUBLE">FMVT_DOUBLE</a></td>
+    <td class="cont" width="60%">Вещественное значение. Компонента <em>Value.d</em>.</td></tr>
+    </table>
+    </div>
+  <div class=dfn>Value</div>
+    <div class=dfndescr>Значение.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="index.html">структуры</a>
+</div>
+
+</body>
+</html>

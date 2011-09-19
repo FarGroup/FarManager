@@ -151,8 +151,11 @@
         <tr><td>9</td><td>Number</td><td>Все</td><td>Флаг, означающий, что данный элемент диалога является "элементом по умолчанию"</td></tr>
 
         <tr><td>10</td><td>String</td><td>Остальные</td><td>Текстовое значение (поле <a href="../../../dialogapi/structures/fardialogitem.html">FarDialogItem.Data</a>)</td></tr>
+        <tr><td rowspan="2">11</td><td>Number</td><td>List box</td><td>Количество элементов списка</td></tr>
+        <tr>          <td>Number</td><td>Combo box</td><td>Количество элементов списка</td></tr>
        </table>
-       Возвращает -1, если <var>Pos</var> больше количества элементов диалога или значение <var>Type</var> не поддерживается.
+       Возвращает -1, если <var>Pos</var> больше количества элементов диалога или значение <var>Type</var> не поддерживается.</br>
+       Если текущий объект плагиновый диалог, то плагин может возвращать модифицированные данные (см. <a href="../../../dialogapi/dmsg/dn_getvalue.html">DN_GETVALUE</a>).
     </td>
   </tr>
 
