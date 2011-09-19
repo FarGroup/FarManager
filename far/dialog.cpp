@@ -2305,33 +2305,56 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_V_ITEMCOUNT:
 		case MCODE_V_CURPOS:
 		{
+			__int64 Ret=0;
 			switch (Item[FocusPos]->Type)
 			{
 				case DI_COMBOBOX:
 
 					if (DropDownOpened || (Item[FocusPos]->Flags & DIF_DROPDOWNLIST))
-						return Item[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
+					{
+						Ret=Item[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
+						break;
+					}
 
 				case DI_EDIT:
 				case DI_PSWEDIT:
 				case DI_FIXEDIT:
 					return ((DlgEdit *)(Item[FocusPos]->ObjPtr))->VMProcess(OpCode,vParam,iParam);
+
 				case DI_LISTBOX:
-					return Item[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
+					Ret=Item[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
+
 				case DI_USERCONTROL:
-
+				{
 					if (OpCode == MCODE_V_CURPOS)
-						return Item[FocusPos]->UCData->CursorPos.X;
-
+						Ret=Item[FocusPos]->UCData->CursorPos.X;
+					break;
+				}
 				case DI_BUTTON:
 				case DI_CHECKBOX:
 				case DI_RADIOBUTTON:
 					return 0;
 				default:
-					break;
+					return 0;
 			}
 
-			return 0;
+			TFarGetValue fgv={OpCode==MCODE_V_ITEMCOUNT?11:7,{FMVT_INTEGER}};
+			fgv.Val.i=Ret;
+
+			if (SendDlgMessage((HANDLE)this,DN_GETVALUE,FocusPos,&fgv))
+			{
+				switch (fgv.Val.type)
+				{
+					case FMVT_INTEGER:
+						Ret=fgv.Val.i;
+						break;
+					default:
+						Ret=0;
+						break;
+				}
+			}
+
+			return Ret;
 		}
 		case MCODE_F_EDITOR_SEL:
 		{

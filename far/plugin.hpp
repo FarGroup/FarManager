@@ -340,6 +340,7 @@ enum FARMESSAGE
 	DN_INPUT                        = 4115,
 	DN_CONTROLINPUT                 = 4116,
 	DN_CLOSE                        = 4117,
+	DN_GETVALUE                     = 4118,
 
 	DM_USER                         = 0x4000,
 
@@ -374,6 +375,8 @@ static const LISTITEMFLAGS
 	LIF_GRAYED             = 0x0000000000100000ULL,
 	LIF_HIDDEN             = 0x0000000000200000ULL,
 	LIF_DELETEUSERDATA     = 0x0000000080000000ULL;
+
+
 
 struct FarListItem
 {
@@ -1252,8 +1255,6 @@ struct MacroAddMacro
 	FARMACROCALLBACK Callback;
 };
 
-#ifdef FAR_USE_INTERNALS
-#if defined(MANTIS_0000466)
 enum FARMACROVARTYPE
 {
 	FMVT_UNKNOWN                = -1,
@@ -1264,7 +1265,7 @@ enum FARMACROVARTYPE
 
 struct FarMacroValue
 {
-	FARMACROVARTYPE type;
+	enum FARMACROVARTYPE type;
 	union
 	{
 		__int64  i;
@@ -1277,6 +1278,8 @@ struct FarMacroValue
 	;
 };
 
+#ifdef FAR_USE_INTERNALS
+#if defined(MANTIS_0000466)
 struct FarMacroFunction
 {
 	unsigned __int64 Flags;
@@ -1293,7 +1296,7 @@ struct ProcessMacroFuncInfo
 	const wchar_t *Name;
 	const FarMacroValue *Params;
 	int nParams;
-	FarMacroValue *Results;
+	struct FarMacroValue *Results;
 	int nResults;
 };
 
@@ -1306,9 +1309,9 @@ enum FAR_MACROINFOTYPE
 struct ProcessMacroInfo
 {
 	size_t StructSize;
-	FAR_MACROINFOTYPE Type;
+	enum FAR_MACROINFOTYPE Type;
 	union {
-		ProcessMacroFuncInfo Func;
+		struct ProcessMacroFuncInfo Func;
 	}
 #ifndef __cplusplus
 	Value
@@ -1319,6 +1322,11 @@ struct ProcessMacroInfo
 #endif
 #endif // END FAR_USE_INTERNALS
 
+struct TFarGetValue
+{
+	int GetType;
+	struct FarMacroValue Val;
+};
 
 typedef unsigned __int64 FARSETCOLORFLAGS;
 static const FARSETCOLORFLAGS

@@ -3169,7 +3169,54 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 
 					break;
 				}
+				case 11:
+				{
+					if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
+					{
+						Ret=(__int64)(Item->ListPtr->GetItemCount());
+					}
+					break;
+				}
 			}
+
+			//if (ItemType == DI_USERCONTROL)
+			{
+				TFarGetValue fgv={TypeInf,{(FARMACROVARTYPE)Ret.type()}};
+				switch (Ret.type())
+				{
+					case vtUnknown:
+					case vtInteger:
+						fgv.Val.i=Ret.i();
+						break;
+					case vtString:
+						fgv.Val.s=Ret.s();
+						break;
+					case vtDouble:
+						fgv.Val.d=Ret.d();
+						break;
+				}
+
+				if (SendDlgMessage((HANDLE)CurFrame,DN_GETVALUE,Index,&fgv))
+				{
+					switch (fgv.Val.type)
+					{
+						case FMVT_UNKNOWN:
+						case FMVT_INTEGER:
+							Ret=fgv.Val.i;
+							break;
+						case FMVT_DOUBLE:
+							Ret=fgv.Val.d;
+							break;
+						case FMVT_STRING:
+							Ret=fgv.Val.s;
+							break;
+						default:
+							Ret=-1;
+							break;
+					}
+				}
+			}
+
 		}
 	}
 
