@@ -1220,30 +1220,30 @@ int Execute(const wchar_t *CmdStr, // Ком.строка для исполнения
 		}
 	}
 
-	if(!Silent)
+	SetFarConsoleMode(TRUE);
+	/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
+	    вследствие своей оптимизации, которая в данном случае выходит боком.
+	*/
+	SetCursorType(Visible,Size);
+	CONSOLE_CURSOR_INFO cci={Size, Visible};
+	Console.SetCursorInfo(cci);
+
+	COORD ConSize;
+	Console.GetSize(ConSize);
+	if(ConSize.X!=ScrX+1 || ConSize.Y!=ScrY+1)
 	{
-		SetFarConsoleMode(TRUE);
-		/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
-		    вследствие своей оптимизации, которая в данном случае выходит боком.
-		*/
-		SetCursorType(Visible,Size);
-		CONSOLE_CURSOR_INFO cci={Size, Visible};
-		Console.SetCursorInfo(cci);
-
-		COORD ConSize;
-		Console.GetSize(ConSize);
-		if(ConSize.X!=ScrX+1 || ConSize.Y!=ScrY+1)
-		{
-			ChangeVideoMode(ConSize.Y, ConSize.X);
-		}
-
-		if (Opt.RestoreCPAfterExecute)
-		{
-			// восстановим CP-консоли после исполнения проги
-			Console.SetInputCodepage(ConsoleCP);
-			Console.SetOutputCodepage(ConsoleOutputCP);
-		}
+		ChangeVideoMode(ConSize.Y, ConSize.X);
 	}
+
+	if (Opt.RestoreCPAfterExecute)
+	{
+		// восстановим CP-консоли после исполнения проги
+		Console.SetInputCodepage(ConsoleCP);
+		Console.SetOutputCodepage(ConsoleOutputCP);
+	}
+
+	Console.SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+
 	return nResult;
 }
 
