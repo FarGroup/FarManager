@@ -1597,7 +1597,7 @@ DWORD WaitKey(DWORD KeyWait,DWORD delayMS,bool ExcludeMacro)
 
 		if (KeyWait == (DWORD)-1)
 		{
-			if ((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY || IS_INTERNAL_KEY_REAL(Key&(~KEY_CTRLMASK)))
+			if ((Key&(~KEY_CTRLMASK)) < KEY_END_FKEY || IsInternalKeyReal(Key&(~KEY_CTRLMASK)))
 				break;
 		}
 		else if (Key == KeyWait)

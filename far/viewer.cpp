@@ -1770,7 +1770,7 @@ int Viewer::ProcessKey(int Key)
 			return TRUE;
 		default:
 
-			if (Key>=L' ' && Key<0x10000)
+			if (IsCharKey(Key))
 			{
 				Search(0,Key);
 				return TRUE;

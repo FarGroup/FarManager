@@ -2692,8 +2692,7 @@ int Editor::ProcessKey(int Key)
 				}
 
 				if (!Pasting && !EdOpt.PersistentBlocks && BlockStart)
-					if ((Key>=32 && Key<0x10000) || Key==KEY_ADD || Key==KEY_SUBTRACT || // ??? 256 ???
-					        Key==KEY_MULTIPLY || Key==KEY_DIVIDE || Key==KEY_TAB)
+					if (IsCharKey(Key))
 					{
 						DeleteBlock();
 						/* $ 19.09.2002 SKV
@@ -2772,7 +2771,7 @@ int Editor::ProcessKey(int Key)
 
 				CurPos=CurLine->GetCurPos();
 
-				if (Key<0x10000 && CurPos>0 && !Length)
+				if (IsCharKey(Key) && CurPos>0 && !Length)
 				{
 					Edit *PrevLine=CurLine->m_prev;
 

@@ -158,8 +158,6 @@ inline void ClearStruct(T* s) { T dont_instantiate_this_template_with_pointers =
 template<typename T, size_t N>
 inline void ClearArray(T (&a)[N]) { memset(a, 0, sizeof(a[0])*N); }
 
-#define IsPtr(x) ((DWORD_PTR)x>(DWORD_PTR)SystemInfo.lpMinimumApplicationAddress && (DWORD_PTR)x<(DWORD_PTR)SystemInfo.lpMaximumApplicationAddress)
-
 #define SIGN_UNICODE    0xFEFF
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF

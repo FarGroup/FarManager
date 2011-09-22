@@ -847,7 +847,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 	DWORD FNAttr;
 
-	if (Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IS_INTERNAL_KEY_REAL((unsigned int)Key & 0x00ffffff)))
+	if (Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)Key & 0x00ffffff)))
 		ShowConsoleTitle();
 
 	// BugZ#488 - Shift=enter

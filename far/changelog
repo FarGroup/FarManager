@@ -1,3 +1,7 @@
+drkns 22.09.2011 11:03:59 +0200 - build 2201
+
+1. Mantis#0001883: Spaces generated in editor when using numeric keypad.
+
 drkns 20.09.2011 11:28:28 +0200 - build 2200
 
 1. После запуска программ восстанавливается цвет консоли, который был до запуска.

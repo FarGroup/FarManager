@@ -1139,17 +1139,17 @@ enum AddDefKeyboard
 	KEY_RALTSHIFT_BASE       =KEY_RALT|KEY_SHIFT,
 };
 
-#define IS_INTERNAL_KEY_REAL(Key)\
-	(\
-	 (Key)==KEY_MSWHEEL_UP||\
-	 (Key)==KEY_MSWHEEL_DOWN||\
-	 (Key)==KEY_NUMDEL||\
-	 (Key)==KEY_NUMENTER||\
-	 (Key)==KEY_MSWHEEL_LEFT||\
-	 (Key)==KEY_MSWHEEL_RIGHT||\
-	 (Key)==KEY_MSLCLICK||\
-	 (Key)==KEY_MSRCLICK||\
-	 (Key)==KEY_MSM1CLICK||\
-	 (Key)==KEY_MSM2CLICK||\
-	 (Key)==KEY_MSM3CLICK\
-	)
+inline bool IsInternalKeyReal(unsigned int Key)
+{
+	return Key==KEY_NUMDEL|| Key==KEY_NUMENTER||
+		Key==KEY_MSWHEEL_UP || Key==KEY_MSWHEEL_DOWN||
+		Key==KEY_MSWHEEL_LEFT || Key==KEY_MSWHEEL_RIGHT||
+		Key==KEY_MSLCLICK || Key==KEY_MSRCLICK ||
+		Key==KEY_MSM1CLICK || Key==KEY_MSM2CLICK || Key==KEY_MSM3CLICK;
+}
+
+inline bool IsCharKey(unsigned int Key)
+{
+	return Key < 0x1000 || (Key >= KEY_NUMPAD0 && Key <= KEY_DIVIDE);
+}
+
