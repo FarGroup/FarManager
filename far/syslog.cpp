@@ -1023,6 +1023,7 @@ string __FCTL_ToName(int Command)
 		DEF_FCTL_(SETDIRECTORIESFIRST),
 		DEF_FCTL_(GETPANELFORMAT),
 		DEF_FCTL_(GETPANELHOSTFILE),
+		DEF_FCTL_(GETPANELPREFIX),
 
 	};
 	return _XXX_ToName(Command,L"FCTL",FCTL,ARRAYSIZE(FCTL));
@@ -1333,6 +1334,8 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_MENU_FILTER),              // N=Menu.Filter(Action[,Mode])
 		DEF_MCODE_(F_MENU_FILTERSTR),           // S=Menu.FilterStr([Action[,S]])
 		DEF_MCODE_(V_FAR_PID), // Far.PID
+		DEF_MCODE_(V_APANEL_FORMAT),            // APanel.Format
+		DEF_MCODE_(V_PPANEL_FORMAT),            // PPanel.Format
 
 	};
 	string Name;

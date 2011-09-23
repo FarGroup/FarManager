@@ -184,6 +184,8 @@ TMacroKeywords MKeywords[] =
 	{2,  L"PPanel.HostFile",    MCODE_V_PPANEL_HOSTFILE,0},
 	{2,  L"APanel.Prefix",      MCODE_V_APANEL_PREFIX,0},
 	{2,  L"PPanel.Prefix",      MCODE_V_PPANEL_PREFIX,0},
+	{2,  L"APanel.Format",      MCODE_V_APANEL_FORMAT,0},
+	{2,  L"PPanel.Format",      MCODE_V_PPANEL_FORMAT,0},
 
 	{2,  L"CmdLine.Bof",        MCODE_C_CMDLINE_BOF,0}, // курсор в начале cmd-строки редактирования?
 	{2,  L"CmdLine.Eof",        MCODE_C_CMDLINE_EOF,0}, // курсор в конеце cmd-строки редактирования?
@@ -1440,10 +1442,16 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_PPANEL_OPIFLAGS:  // PPanel.OPIFlags
 				case MCODE_V_APANEL_HOSTFILE: // APanel.HostFile
 				case MCODE_V_PPANEL_HOSTFILE: // PPanel.HostFile
+				case MCODE_V_APANEL_FORMAT:           // APanel.Format
+				case MCODE_V_PPANEL_FORMAT:           // PPanel.Format
 				{
-					Panel *SelPanel = CheckCode == MCODE_V_APANEL_OPIFLAGS || CheckCode == MCODE_V_APANEL_HOSTFILE? ActivePanel : PassivePanel;
+					Panel *SelPanel =
+							CheckCode == MCODE_V_APANEL_OPIFLAGS ||
+							CheckCode == MCODE_V_APANEL_HOSTFILE ||
+							CheckCode == MCODE_V_APANEL_FORMAT? ActivePanel : PassivePanel;
 
-					if (CheckCode == MCODE_V_APANEL_HOSTFILE || CheckCode == MCODE_V_PPANEL_HOSTFILE)
+					if (CheckCode == MCODE_V_APANEL_HOSTFILE || CheckCode == MCODE_V_PPANEL_HOSTFILE ||
+						CheckCode == MCODE_V_APANEL_FORMAT || CheckCode == MCODE_V_PPANEL_FORMAT)
 						Cond = L"";
 
 					if (SelPanel )
@@ -1453,10 +1461,21 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 							OpenPanelInfo Info={};
 							Info.StructSize=sizeof(OpenPanelInfo);
 							SelPanel->GetOpenPanelInfo(&Info);
-							if (CheckCode == MCODE_V_APANEL_OPIFLAGS || CheckCode == MCODE_V_PPANEL_OPIFLAGS)
-								Cond = (__int64)Info.Flags;
-							else
-								Cond = Info.HostFile;
+							switch (CheckCode)
+							{
+								case MCODE_V_APANEL_OPIFLAGS:
+								case MCODE_V_PPANEL_OPIFLAGS:
+									Cond = (__int64)Info.Flags;
+									break;
+								case MCODE_V_APANEL_HOSTFILE:
+								case MCODE_V_PPANEL_HOSTFILE:
+									Cond = Info.HostFile;
+									break;
+								case MCODE_V_APANEL_FORMAT:
+								case MCODE_V_PPANEL_FORMAT:
+									Cond = Info.Format;
+									break;
+							}
 						}
 					}
 

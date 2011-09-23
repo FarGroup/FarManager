@@ -1,3 +1,10 @@
+svs 23.09.2011 10:29:38 +0400 - build 2202
+
+1. Mantis#0001888: [A|P]Panel.Format
+
+2. Mantis#0001887: FCTL_GETPANELPREFIX
+   Panel API: добавлен FCTL_GETPANELPREFIX
+
 drkns 22.09.2011 11:03:59 +0200 - build 2201
 
 1. Mantis#0001883: Spaces generated in editor when using numeric keypad.

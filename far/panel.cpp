@@ -2210,6 +2210,25 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			break;
 		}
 
+		case FCTL_GETPANELPREFIX:
+		{
+			string strTemp;
+
+			if (GetType()==FILE_PANEL && GetMode() == PLUGIN_PANEL)
+			{
+				PluginInfo PInfo = {sizeof(PInfo)};
+				FileList *DestPanel = ((FileList*)this);
+				if (DestPanel->VMProcess(MCODE_V_APANEL_PREFIX,&PInfo))
+					strTemp = PInfo.CommandPrefix;
+			}
+
+			if (Param1&&Param2)
+				xwcsncpy((wchar_t*)Param2,strTemp,Param1);
+
+			Result=(int)strTemp.GetLength()+1;
+			break;
+		}
+
 		case FCTL_GETPANELHOSTFILE:
 		case FCTL_GETPANELFORMAT:
 		case FCTL_GETPANELDIR:

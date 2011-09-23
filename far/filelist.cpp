@@ -674,6 +674,18 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return 0;
 		}
 
+		case MCODE_V_APANEL_FORMAT:           // APanel.Format
+		case MCODE_V_PPANEL_FORMAT:           // PPanel.Format
+		{
+			OpenPanelInfo *PInfo=(OpenPanelInfo *)vParam;
+			if (GetMode() == PLUGIN_PANEL && hPlugin != INVALID_HANDLE_VALUE)
+			{
+				CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,PInfo);
+				return 1;
+			}
+			return 0;
+		}
+
 		case MCODE_V_APANEL_PATH0:
 		case MCODE_V_PPANEL_PATH0:
 		{
