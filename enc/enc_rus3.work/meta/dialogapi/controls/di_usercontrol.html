@@ -6,58 +6,51 @@
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="javascript" src='../../links.js' type="text/javascript"></script>
 </head>
-<!-- History of modification:
--->
 <body>
 
 <h1>DI_USERCONTROL</h1>
 <div class=navbar>
 <a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a> |
-<a href="index.html">Элементы диалога</a><br>
+<a href="index.html">элементы диалога</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
 <em>Свобода выбора!</em>
-Элемент диалога <dfn>DI_USERCONTROL</dfn> описывает элемент управления,
-определяемый программистом:  отрисовка, реагирование на события и прочие
-операции с элементом - всё это возлагается "на хрупкие плечи" плагина.<br>
+Элемент диалога <dfn>DI_USERCONTROL</dfn> описывает элемент управления, определяемый программистом:  отрисовка, реагирование на события и прочие
+операции с элементом - всё это возлагается "на хрупкие плечи" плагина.
 </div>
 
 <pre class=syntax>
 struct FarDialogItem
 {
-  int Type          = <b>DI_USERCONTROL</b>
-  int X1            = <b>X1</b>
-  int Y1            = <b>Y1</b>
-  int X2            = <b>X2</b>
-  int Y2            = <b>Y2</b>
-  int Focus         = <b>User Defined</b>
-  CHAR_INFO *VBuf   = <b>виртуальный буфер отрисовки</b>
-  DWORD Flags       = <b>Flags</b>
-  int DefaultButton = <b>0</b>
-  const wchar_t *PtrData  = <b>User Defined</b>
+  enum FARDIALOGITEMTYPES Type = <b>DI_USERCONTROL</b>
+  int X1                       = <b>X1</b>
+  int Y1                       = <b>Y1</b>
+  int X2                       = <b>X2</b>
+  int Y2                       = <b>Y2</b>
+  struct FAR_CHAR_INFO *VBuf   = <b>виртуальный буфер отрисовки</b>
+  FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
+  const wchar_t *Data          = <b>User Defined</b>
 };
 </pre>
+
 <p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
 <a name="virtbuf"></a>
 <h3>Виртуальный буфер отрисовки</h3>
 <div class=descr>
-<p>Параметр <dfn>VBuf</dfn> задаёт адрес виртуального буфера типа <a href="../../winapi/char_info.html">CHAR_INFO</a>.
+<p>Параметр <dfn>VBuf</dfn> задаёт адрес виртуального буфера типа <a href="../../structures/far_char_info.html">FAR_CHAR_INFO</a>.
 
-<p>Если значение <dfn>VBuf</dfn> = NULL, то это значит, что плагин сам должен
-отрисовывать элемент <dfn>DI_USERCONTROL</dfn> после прихода события
-<a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a>, используя
-сервисную функцию <a href="../../service_functions/text.html">Text</a>.<br>
+<p>Если значение <dfn>VBuf</dfn> = NULL, то это значит, что плагин сам должен отрисовывать элемент <dfn>DI_USERCONTROL</dfn> после прихода события
+<a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a>, используя сервисную функцию <a href="../../service_functions/text.html">Text</a>.
 
-<p>Если <dfn>VBuf</dfn> не равен NULL, то Менеджер Диалогов считает, что это
-адрес буфера типа <a href="../../winapi/char_info.html">CHAR_INFO</a>. Здесь обработчик
-диалога, в ответ на событие <a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a>,
-должен отрисовать этот элемент в виртуальный буфер, после чего Менеджер
+<p>Если <dfn>VBuf</dfn> не равен NULL, то Менеджер Диалогов считает, что это адрес буфера типа <a href="../../structures/far_char_info.html">FAR_CHAR_INFO</a>.
+Здесь обработчик диалога, в ответ на событие <a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a>, должен отрисовать этот элемент в виртуальный буфер, после чего Менеджер
 Диалогов выдаст содержимое <dfn>VBuf</dfn> на экран.
 
+<!---
 <p>Типичный сценарий следующий (см. плагин <a href="http://plugring.farmanager.com/downld/files/reversi.rar">Reversi</a>):
 <pre class=code>
 <font color=#808080>// перед вызовом DialogInit, распределим память под виртуальный буфер</font>
@@ -130,18 +123,19 @@ case DN_DRAWDLGITEM:
   }
   return TRUE;
 </pre>
+--->
 </div>
 
 <h3>Флаги</h3>
 <div class=descr>
-Для элемента <dfn>DI_USERCONTROL</dfn> имеют значения следующие флаги:<br>
+Для элемента <dfn>DI_USERCONTROL</dfn> имеют значения следующие флаги:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
  <td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
- <td class="cont" width="60%">элемент является недоступным.
+ <td class="cont" width="60%">элемент является недоступным
  </td></tr>
 </table>
 </div>
@@ -154,16 +148,16 @@ case DN_DRAWDLGITEM:
  <td class="cont" width="60%">начало отрисовки элемента
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
- <td class="cont" width="60%">нажата клавиша.
+ <td class="cont" width="60%">нажата клавиша
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
  <td class="cont" width="60%">"кликнули" клавишей мыши; начало координат - левый верхний угол элемента
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
- <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
- <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
  </td></tr>
 
 </table>
@@ -178,7 +172,7 @@ case DN_DRAWDLGITEM:
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../structures/fardialogitem.html">FarDialogItem</a>
+<a href="../../structures/fardialogitem.html">FarDialogItem</a>
 </div>
 
 </body>

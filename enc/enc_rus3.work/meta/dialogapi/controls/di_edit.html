@@ -11,8 +11,8 @@
 <h1>DI_EDIT</h1>
 <div class=navbar>
 <a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a> |
-<a href="index.html">Элементы диалога</a><br>
+<a href="index.html">элементы диалога</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
@@ -22,38 +22,36 @@
 <pre class=syntax>
 struct FarDialogItem
 {
-  int Type             = <b>DI_EDIT</b>
-  int X1               = <b>X1</b>
-  int Y1               = <b>Y</b>
-  int X2               = <b>X2</b>
-  int Y2               = <b>Y</b> (равен значению Y1)
-  int Focus            = <b>Focus</b>
-  const wchar_t *History  = <b>History</b>
-  DWORD Flags          = <b>Flags</b>
-  int DefaultButton    = <b>DefaultButton</b>
-  const wchar_t *PtrData  = <b>редактируемый текст</b>
+  enum FARDIALOGITEMTYPES Type = <b>DI_EDIT</b>
+  int X1                       = <b>X1</b>
+  int Y1                       = <b>Y</b>
+  int X2                       = <b>X2</b>
+  int Y2                       = <b>Y</b> (равен значению Y1)
+  const wchar_t *History       = <b>History</b>
+  FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
+  const wchar_t *Data          = <b>редактируемый текст</b>
 };
 </pre>
-<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
-<h3>Focus</h3>
-<div class=descr>
-Определяет имеет ли поле ввода клавиатурный фокус ввода.
-</div>
+<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
+<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
 <h3>History</h3>
 <div class=descr>
-Адрес текстовой строки, которая будет использоваться как внутреннее название
-истории редактирования (см. также флаг <a href="../flags/dif_history.html">DIF_HISTORY</a>).
-Если значение = NULL, то поле ввода не имеет истории.
-</div>
+  Адрес текстовой строки, которая будет использоваться как внутреннее название истории редактирования (см. также флаг <a href="../flags/dif_history.html">DIF_HISTORY</a>).
+  Если значение = NULL, то поле ввода не имеет истории.</div>
 
 <h3>Флаги</h3>
 <div class=descr>
-Для элемента <dfn>DI_EDIT</dfn> имеют значения следующие флаги:<br>
+Для элемента <dfn>DI_EDIT</dfn> имеют значения следующие флаги:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
+<td class="cont" width="60%">флаг, означающий, что данный элемент диалога является "элементом по умолчанию"
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
+<td class="cont" width="60%">определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент
+</td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_editor.html">DIF_EDITOR</a></td>
  <td class="cont" width="60%">последовательно определённые поля ввода группируются в редактор с возможностью вставки и удаления строк
  </td></tr>
@@ -130,7 +128,7 @@ HiWord HiByte - цвет символа для History
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="di_pswedit.html">DI_PSWEDIT</a>,
 <a href="di_fixedit.html">DI_FIXEDIT</a>,
-<a href="../structures/fardialogitem.html">FarDialogItem</a>
+<a href="../../structures/fardialogitem.html">FarDialogItem</a>
 
 </div>
 

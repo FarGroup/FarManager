@@ -13,68 +13,53 @@
 <h1>DI_TEXT</h1>
 <div class=navbar>
 <a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a> |
-<a href="index.html">Элементы диалога</a><br>
+<a href="index.html">элементы диалога</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Элемент диалога <dfn>DI_TEXT</dfn> описывает статическую текстовую строку.
-В понятиях WinAPI это управляющий элемент STATIC.<br>
+Элемент диалога <dfn>DI_TEXT</dfn> описывает статическую текстовую строку. В понятиях WinAPI это управляющий элемент STATIC.
 </div>
 
 <pre class=syntax>
 struct FarDialogItem
 {
-  int Type          = <b>DI_TEXT</b>
-  int X1            = <b>X1</b>
-  int Y1            = <b>Y</b>
-  int X2            = <b>X2</b>
-  int Y2            = <b>Y</b> (в Dialog API не используется, должно быть равно значению Y1)
-  int Focus         = <b>0</b>
-  int Selected      = <b>0</b>
-  DWORD Flags       = <b>Flags</b>
-  int DefaultButton = <b>0</b>
-  const wchar_t *PtrData = <b>выводимый текст</b>
+  enum FARDIALOGITEMTYPES Type = <b>DI_TEXT</b>
+  int X1                       = <b>X1</b>
+  int Y1                       = <b>Y</b>
+  int X2                       = <b>X2</b>
+  int Y2                       = <b>Y</b> (равен значению Y1)
+  FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
+  const wchar_t *Data          = <b>выводимый текст</b>
 };
 </pre>
+
 <p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
 <h3>Флаги</h3>
 <div class=descr>
-Для элемента <dfn>DI_TEXT</dfn> имеют значения следующие флаги:<br>
+Для элемента <dfn>DI_TEXT</dfn> имеют значения следующие флаги:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a></td>
- <td class="cont" width="60%">
- определить цвет элемента (младший байт параметра <dfn>Flags</dfn> должен
- содержать атрибут выводимого текста)
- </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_boxcolor.html">DIF_BOXCOLOR</a></td>
- <td class="cont" width="60%">
- текст будет иметь цвет рамок (<a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a> или <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a>)
+ <td class="cont" width="60%">текст будет иметь цвет рамок (<a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a> или <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a>)
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
- <td class="cont" width="60%">
- центрирование двух текстовых строк с одинаковой вертикальной позицией (параметр <dfn>X1</dfn> игнорируется)
+ <td class="cont" width="60%">центрирование двух текстовых строк с одинаковой вертикальной позицией (параметр <dfn>X1</dfn> игнорируется)
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator.html">DIF_SEPARATOR</a></td>
- <td class="cont" width="60%">
- горизонтальный разделитель диалога (одинарная линия); координата <dfn>X1</dfn> не используется для
+ <td class="cont" width="60%">горизонтальный разделитель диалога (одинарная линия); координата <dfn>X1</dfn> не используется для
  случая, когда <dfn>Data</dfn> пустая строка;<br>
- если <dfn>Data</dfn> не пустая строка, то она также будет отрисована (для
- вывода строки будет использована координата <dfn>X1</dfn>);<br>
+ если <dfn>Data</dfn> не пустая строка, то она также будет отрисована (для вывода строки будет использована координата <dfn>X1</dfn>);
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator2.html">DIF_SEPARATOR2</a></td>
- <td class="cont" width="60%">
- горизонтальный разделитель диалога (двойная линия); координата <dfn>X1</dfn> не
+ <td class="cont" width="60%">горизонтальный разделитель диалога (двойная линия); координата <dfn>X1</dfn> не
  используется для случая, когда <dfn>Data</dfn> пустая строка;<br>
- если <dfn>Data</dfn> не пустая строка, то она также будет отрисована (для
- вывода строки будет использована координата <dfn>X1</dfn>);<br>
+ если <dfn>Data</dfn> не пустая строка, то она также будет отрисована (для вывода строки будет использована координата <dfn>X1</dfn>);
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
- <td class="cont" width="60%">
- показывать в текстовой строке амперсанд не используя его для определения горячей клавиши
+ <td class="cont" width="60%">показывать в текстовой строке амперсанд не используя его для определения горячей клавиши
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a></td>
  <td class="cont" width="60%">выравнивать текст по центру относительно координат <var>X1</var> и <var>X2</var>
@@ -86,7 +71,6 @@ struct FarDialogItem
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
-
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
  <td class="cont" width="60%">начало отрисовки текстовой строки
  </td></tr>
@@ -120,32 +104,26 @@ HiWord HiByte - 0 (не используется)</pre>
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Хотя координата <var>Y2</var> в Dialog API не используется,
-но для нормальной работы в будущих версиях FAR желательно корректно заполнить
+<li>Хотя координата <var>Y2</var> в Dialog API не используется, но для нормальной работы в будущих версиях Far Manager желательно корректно заполнить
 значение этого поля. Укажите то же значение координаты, что и <var>Y1</var>.
 
-<li>Если указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, то
-координата <var>X2</var> должна быть обязательно указана, в противном случае
+<li>Если указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, то координата <var>X2</var> должна быть обязательно указана, в противном случае
 действие флага не будет иметь действия.
 
-<li>Если не указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>,
-то FAR самостоятельно перерасчитает координаты <var>X2</var> и <var>Y2</var>, исходя
+<li>Если не указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, то Far Manager самостоятельно перерасчитает координаты <var>X2</var> и <var>Y2</var>, исходя
 из размера строки и размера диалога.
 
-<li>Если элемент в массиве управляющих элементов стоит первым, то консольное окно
-FAR Manager будет содержать заголовок "<em>выводимый текст</em>".</li>
+<li>Если элемент в массиве управляющих элементов стоит первым, то консольное окно Far Manager будет содержать заголовок "<em>выводимый текст</em>".</li>
 
-<li>Если в тексте элемента <dfn>DI_TEXT</dfn> имеется "горячая клавиша" (HotKey) и
-не выставлен флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a>,
-то при нажатии в диалоге <b>Alt-Символ</b> клавиатурный фокус ввода перейдёт
-на следующий элемент, который может иметь <a href="../keybfocus.html">фокус ввода</a>
+<li>Если в тексте элемента <dfn>DI_TEXT</dfn> имеется "горячая клавиша" (HotKey) и не выставлен флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a>,
+то при нажатии в диалоге <b>Alt-Символ</b> клавиатурный фокус ввода перейдёт на следующий элемент, который может иметь <a href="../keybfocus.html">фокус ввода</a>
 </ol>
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="di_vtext.html">DI_VTEXT</a>,
-<a href="../structures/fardialogitem.html">FarDialogItem</a>
+<a href="../../structures/fardialogitem.html">FarDialogItem</a>
 
 </div>
 

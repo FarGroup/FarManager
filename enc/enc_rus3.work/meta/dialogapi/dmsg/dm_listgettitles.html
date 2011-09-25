@@ -55,10 +55,10 @@ wchar_t Title[100];
 wchar_t Bottom[100];
 FarListTitles ListTitle;
 ListTitle.Title=Title;
-ListTitle.TitleLen=sizeof(Title);
+ListTitle.TitleSize=sizeof(Title);
 ListTitle.Bottom=Bottom;
-ListTitle.BottomLen=sizeof(Bottom);
-Info.SendDlgMessage(hDlg,DM_LISTGETTITLES,ID,(LONG_PTR)&amp;ListTitle);
+ListTitle.BottomSize=sizeof(Bottom);
+Info.SendDlgMessage(hDlg,DM_LISTGETTITLES,ID,&amp;ListTitle);
 </code>
 </div>
 

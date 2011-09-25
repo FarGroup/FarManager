@@ -11,8 +11,8 @@
 <h1>DI_LISTBOX</h1>
 <div class=navbar>
 <a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a> |
-<a href="index.html">Элементы диалога</a><br>
+<a href="index.html">элементы диалога</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
@@ -22,64 +22,60 @@
 <pre class=syntax>
 struct FarDialogItem
 {
-  int Type          = <b>DI_LISTBOX</b>
-  int X1            = <b>X1</b>
-  int Y1            = <b>Y1</b>
-  int X2            = <b>X2</b>
-  int Y2            = <b>Y2</b>
-  int Focus         = <b>Focus</b>
-  union {
-    FarList *ListItems= <b>ListItems</b>  [передаётся]
-    int ListPos       = <b>ListPos</b>    [возвращается]
-  };
-  DWORD Flags       = <b>Flags</b>
-  int DefaultButton = <b>DefaultButton</b>
-  const wchar_t *PtrData  = <b>Верхний заголовок списка</b>
+  enum FARDIALOGITEMTYPES Type = <b>DI_LISTBOX</b>
+  int X1                       = <b>X1</b>
+  int Y1                       = <b>Y1</b>
+  int X2                       = <b>X2</b>
+  int Y2                       = <b>Y2</b>
+  struct FarList *ListItems    = <b>ListItems</b>
+  FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
+  const wchar_t *Data          = <b>верхний заголовок списка</b>
 };
 </pre>
+
 <p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
+<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
 <h3>ListItems</h3>
-<div class=descr>
-<p>Указатель на структуру <a href="../structures/farlist.html">FarList</a>,
-описывающую пункты для начальной инициализации списка.
-</div>
-
-<h3>ListPos</h3>
-<div class=descr>
-<p>Текущая позиция в списке <a href="../structures/farlist.html">ListItems.Items</a>.
-В Plugins API v1.0 после закрытия диалога это поле содержало позицию выбранного пользователем элемента списка.
-В Plugins API v2.0 для получения позиции выбранного пользователем элемента списка воспользуйтесь сообщением <a href="../dmsg/dm_listgetcurpos.html">DM_LISTGETCURPOS</a>.
-</div>
-
+  <div class=descr>Указатель на структуру <a href="../../structures/farlist.html">FarList</a>, описывающую пункты для начальной инициализации списка.</div>
 
 <h3>Флаги</h3>
 <div class=descr>
-Для элемента <dfn>DI_LISTBOX</dfn> имеют значения следующие флаги (про флаги
-списка см. <a href="../structures/farlistitem.html">FarListItem</a>):<br>
+Для элемента <dfn>DI_LISTBOX</dfn> имеют значения следующие флаги (про флаги списка см. <a href="../../structures/farlistitem.html">FarListItem</a>):
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
+<td class="cont" width="60%">флаг, означающий, что данный элемент диалога является "элементом по умолчанию"
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
+<td class="cont" width="60%">определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент
+</td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listautohighlight.html">DIF_LISTAUTOHIGHLIGHT</a></td>
- <td class="cont" width="60%">Горячие клавиши будут назначены автоматически.
+ <td class="cont" width="60%">горячие клавиши будут назначены автоматически
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnoampersand.html">DIF_LISTNOAMPERSAND</a></td>
- <td class="cont" width="60%">Показывать горячие клавиши в списке.
+ <td class="cont" width="60%">показывать горячие клавиши в списке
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listwrapmode.html">DIF_LISTWRAPMODE</a></td>
- <td class="cont" width="60%">"Заворачивает" список при навигации по списку.
+ <td class="cont" width="60%">"заворачивает" список при навигации по списку
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnoclose.html">DIF_LISTNOCLOSE</a></td>
- <td class="cont" width="60%">Не закрывать диалог при выборе элемента в списке.
+ <td class="cont" width="60%">не закрывать диалог при выборе элемента в списке
+ </td></tr>
+ <tr><td class="cont" width="40%"><a href="../flags/dif_listtrackmouse.html">DIF_LISTTRACKMOUSE</a></td>
+ <td class="cont" width="60%">реагировать на движение мыши в списке
+ </td></tr>
+ <tr><td class="cont" width="40%"><a href="../flags/dif_listtrackmouseinfocus.html">DIF_LISTTRACKMOUSEINFOCUS</a></td>
+ <td class="cont" width="60%">реагировать на движение мыши в списке только если элемент находится в фокусе
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
- <td class="cont" width="60%">Элемент является недоступным.
+ <td class="cont" width="60%">элемент является недоступным
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
- <td class="cont" width="60%">Управляющий элемент не получает клавиатурный фокус ввода.
+ <td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_listnobox.html">DIF_LISTNOBOX</a></td>
- <td class="cont" width="60%">Отключает прорисовку рамки вокруг списка. В этом случае <b>Data</b> игнорируется.
+ <td class="cont" width="60%">отключает прорисовку рамки вокруг списка. В этом случае <b>Data</b> игнорируется
  </td></tr>
 </table>
 </div>
@@ -92,13 +88,13 @@ struct FarDialogItem
  <td class="cont" width="60%">начало отрисовки элемента
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a></td>
- <td class="cont" width="60%">запрос цветовых атрибутов для отрисовки списка.
+ <td class="cont" width="60%">запрос цветовых атрибутов для отрисовки списка
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listchange.html">DN_LISTCHANGE</a></td>
  <td class="cont" width="60%">изменилась позиция в списке
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_listhotkey.html">DN_LISTHOTKEY</a></td>
- <td class="cont" width="60%">пользователь для смены пункта в списке воспользовался горячими клавишами.
+ <td class="cont" width="60%">пользователь для смены пункта в списке воспользовался горячими клавишами
 </td></tr>
 </table>
 </div>
@@ -106,7 +102,7 @@ struct FarDialogItem
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="di_combobox.html">DI_COMBOBOX</a>,
-<a href="../structures/fardialogitem.html">FarDialogItem</a>
+<a href="../../structures/fardialogitem.html">FarDialogItem</a>
 
 </div>
 

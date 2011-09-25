@@ -11,7 +11,8 @@
 <h1>FarDialogEvent</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
-<a href="index.html">структуры</a><br>
+<a href="index.html">структуры</a> |
+<a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
@@ -24,7 +25,7 @@ struct FarDialogEvent
   HANDLE hDlg;
   int Msg;
   int Param1;
-  INT_PTR Param2;
+  void *Param2;
   INT_PTR Result;
 };
 </pre>
@@ -47,10 +48,9 @@ struct FarDialogEvent
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">Структуры</a>|
-<a href="../exported_functions/processdialogeventw.html">ProcessDialogEventW</a>|
-<a href="../dialogapi/index.html">Dialog API</a>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../exported_functions/processdialogeventw.html">ProcessDialogEventW</a>
 </div>
 
 </body>

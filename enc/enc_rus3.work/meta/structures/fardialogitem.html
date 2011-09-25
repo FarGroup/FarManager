@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>FarDialogItem</title>
+<meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
+</head>
+<body>
+
+<h1>FarDialogItem</h1>
+<div class=navbar>
+<a href="../index.html">главная</a> |
+<a href="index.html">структуры</a> |
+<a href="../dialogapi/index.html">Dialog API</a>
+</div>
+
+<div class=shortdescr>
+Структура <dfn>FarDialogItem</dfn> описывает один элемент диалога. Массив этих структур передаётся в функции <a href="../service_functions/dialoginit.html">DialogInit</a>.
+</div>
+
+<pre class=syntax>
+struct FarDialogItem
+{
+  enum FARDIALOGITEMTYPES Type;
+  int X1,Y1,X2,Y2;
+  union
+  {
+    int Selected;
+    struct FarList *ListItems;
+    struct FAR_CHAR_INFO *VBuf;
+    DWORD_PTR Reserved;
+  }
+<b>#ifndef __cplusplus</b>
+  Param
+<b>#endif</b>
+  ;
+  const wchar_t *History;
+  const wchar_t *Mask;
+  FARDIALOGITEMFLAGS Flags;
+  const wchar_t *Data;
+  size_t MaxLength;
+  DWORD_PTR UserData;
+};
+</pre>
+
+<h3>Элементы</h3>
+<div class=descr>
+  <div class=dfn>Type</div>
+    <div class=dfndescr>Тип элемента диалога. Может принимать одно значений (перечисление <a name="FARDIALOGITEMTYPES">FARDIALOGITEMTYPES</a>) указанных в "<a href="../dialogapi/controls/index.html">Элементы диалога</a>"</div>
+  <div class=dfn>X1,Y1,X2,Y2</div>
+    <div class=dfndescr>Координаты, определяющие позицию элемента, относительно диалогового окна (начало отсчёта - левый верхний угол диалогового окна, (<code>0,0</code>)). Более подробно о координатах см. описание каждого <a href="../dialogapi/controls/index.html">элемента диалога</a>.</div>
+  <div class=dfn>Selected</div>
+    <div class=dfndescr>Определяет состояние элементов <a href="../dialogapi/controls/di_checkbox.html">DI_CHECKBOX</a> и <a href="../dialogapi/controls/di_radiobutton.html">DI_RADIOBUTTON</a> диалога - включён/выключен.</div>
+  <div class=dfn>ListItems</div>
+    <div class=dfndescr>Указатель на структуру <a href="farlist.html">FarList</a>, описывающую список для элементов <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a> и <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a>.</div>
+  <div class=dfn>VBuf</div>
+    <div class=dfndescr>Указатель на структуру <a href="far_char_info.html">FAR_CHAR_INFO</a>, описывающую виртуальный буфер для элемента <a href="../dialogapi/controls/di_usercontrol.html">DI_USERCONTROL</a>.</div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Размер этого параметра всегда равен размеру объединения Param, что позволяет использовать этот параметр для платформенно-независимой инициализации.</div>
+  <div class=dfn>History</div>
+    <div class=dfndescr>Адрес текстовой строки, которая будет использоваться как внутреннее название истории редактирования (см. также флаг <a href="../dialogapi/flags/dif_history.html">DIF_HISTORY</a>).</div>
+  <div class=dfn>Mask</div>
+    <div class=dfndescr>Адрес текстовой строки с маской ввода. Используется только с элементом <a href="../dialogapi/controls/di_fixedit.html">DI_FIXEDIT</a>.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Комбинация значений (перечисление <a name="FARDIALOGITEMFLAGS">FARDIALOGITEMFLAGS</a>), перечисленных в разделе "<a href="../dialogapi/flags/index.html">Флаги элементов диалога</a>".</div>
+  <div class=dfn>Data</div>
+    <div class=dfndescr>Строка, используемая для инициализации элемента диалога. Подробности использования в описаниях типов <a href="../dialogapi/controls/index.html">элементов диалога</a>.</div>
+  <div class=dfn>MaxLen</div>
+    <div class=dfndescr>Устанавливает максимальный размер строки <var>Data</var>, без завершающего '\0'. Плагин не сможет работать с данными в строке <i>Data</i> за пределами <i>MaxLen</i>.<br>
+    Если <i>MaxLen</i> равен 0, то такого ограничения нет.</div>
+  <div class=dfn>UserParam</div>
+    <div class=dfndescr>Указатель на значение связанное с элементом диалога, данные можно получить с помощью <a href="../dialogapi/dmsg/dm_getdlgdata.html">DM_GETITEMDATA</a>.</div>
+</div>
+
+<h3>Замечания</h3>
+<div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div><div class=seecont>
+<a href="../dialogapi/flags/index.html">Флаги элементов диалога</a>,
+<a href="../dialogapi/controls/index.html">Элементы диалога</a>
+</div>
+
+</body>
+</html>

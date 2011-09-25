@@ -11,55 +11,52 @@
 <h1>DI_PSWEDIT</h1>
 <div class=navbar>
 <a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a> |
-<a href="index.html">Элементы диалога</a><br>
+<a href="index.html">элементы диалога</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Элемент диалога <dfn>DI_PSWEDIT</dfn> описывает поле ввода пароля -
-то же, что и элемент <a href="di_edit.html">DI_EDIT</a>, но вводимый текст
-на экране отрисовывается символами '*'.
+Элемент диалога <dfn>DI_PSWEDIT</dfn> описывает поле ввода пароля - то же, что и элемент <a href="di_edit.html">DI_EDIT</a>, но вводимый текст на экране отрисовывается символами '*'.
 </div>
 
 <pre class=syntax>
 struct FarDialogItem
 {
-  int Type          = <b>DI_PSWEDIT</b>
-  int X1            = <b>X1</b>
-  int Y1            = <b>Y</b>
-  int X2            = <b>X2</b>
-  int Y2            = <b>Y</b> (равен значению Y1)
-  int Focus         = <b>Focus</b>
-  int Selected      = <b>0</b>
-  DWORD Flags       = <b>Flags</b>
-  int DefaultButton = <b>DefaultButton</b>
-  const wchar_t *PtrData = <b>редактируемый текст</b>
+  enum FARDIALOGITEMTYPES Type = <b>DI_PSWEDIT</b>
+  int X1                       = <b>X1</b>
+  int Y1                       = <b>Y</b>
+  int X2                       = <b>X2</b>
+  int Y2                       = <b>Y</b> (равен значению Y1)
+  FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
+  const wchar_t *Data          = <b>редактируемый текст</b>
 };
 </pre>
-<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
-<h3>Focus</h3>
-<div class=descr>
-Определяет имеет ли поле ввода клавиатурный фокус ввода.
-</div>
+<p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
+<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
 <h3>Флаги</h3>
 <div class=descr>
-Для элемента <dfn>DI_PSWEDIT</dfn> имеют значения следующие флаги:<br>
+Для элемента <dfn>DI_PSWEDIT</dfn> имеют значения следующие флаги:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
+<td class="cont" width="60%">флаг, означающий, что данный элемент диалога является "элементом по умолчанию"
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
+<td class="cont" width="60%">определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент
+</td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
- <td class="cont" width="60%">Элемент является недоступным.
+ <td class="cont" width="60%">элемент является недоступным
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_readonly.html">DIF_READONLY</a></td>
- <td class="cont" width="60%">Переводит строки редактирования в состояние "только для чтения"
+ <td class="cont" width="60%">переводит строки редактирования в состояние "только для чтения"
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_selectonentry.html">DIF_SELECTONENTRY</a></td>
- <td class="cont" width="60%">Выделить  редактируемый текст при получении фокуса ввода.
+ <td class="cont" width="60%">выделить редактируемый текст при получении фокуса ввода
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
- <td class="cont" width="60%">Управляющий элемент не получает клавиатурный фокус ввода.
+ <td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода
  </td></tr>
 </table>
 </div>
@@ -83,7 +80,7 @@ HiWord LoByte - неизмененный текст (UnChanched)
 HiWord HiByte - 0 (не используется)</pre>
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
- <td class="cont" width="60%">нажали клавишу.
+ <td class="cont" width="60%">нажали клавишу
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
  <td class="cont" width="60%">"кликнули" клавишей мыши
@@ -92,10 +89,10 @@ HiWord HiByte - 0 (не используется)</pre>
  <td class="cont" width="60%">текст изменён
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
- <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
- <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
  </td></tr>
 
 </table>
@@ -103,16 +100,14 @@ HiWord HiByte - 0 (не используется)</pre>
 
 <h3>Замечания</h3>
 <div class=descr>
-<p>Элемент <dfn>DI_PSWEDIT</dfn> позволяет только вставлять текст в поле
-редактирования. Копирование текста в буфер обмена (Ctrl-Ins
-или Ctrl-C) для данного элемента не поддерживаются.</p>
+<p>Элемент <dfn>DI_PSWEDIT</dfn> позволяет только вставлять текст в поле редактирования. Копирование текста в буфер обмена (Ctrl-Ins или Ctrl-C) для данного элемента не поддерживаются.</p>
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="di_edit.html">DI_EDIT</a>,
 <a href="di_fixedit.html">DI_FIXEDIT</a>,
-<a href="../structures/fardialogitem.html">FarDialogItem</a>
+<a href="../../structures/fardialogitem.html">FarDialogItem</a>
 
 </div>
 

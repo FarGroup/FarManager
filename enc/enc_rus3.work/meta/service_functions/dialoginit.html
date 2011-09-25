@@ -11,8 +11,8 @@
 <h1>DialogInit</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
-<a href="index.html">Dialog API</a> |
-<a href="dmsg/index.html">События и сообщения</a><br>
+<a href="index.html">сервисные функции</a> |
+<a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
@@ -49,7 +49,7 @@ HANDLE WINAPI DialogInit(
   <div class=dfn>HelpTopic</div>
     <div class=dfndescr><a href="../language/helptopic.html">Тема подсказки</a> связанная с данным диалогом. Если подсказка не используется, то установите этот параметр в NULL.</div>
   <div class=dfn>Item</div>
-    <div class=dfndescr>Указатель на массив структур <a href="structures/fardialogitem.html">FarDialogItem</a>. Каждая структура описывает пункт диалога.</div>
+    <div class=dfndescr>Указатель на массив структур <a href="../structures/fardialogitem.html">FarDialogItem</a>. Каждая структура описывает пункт диалога.</div>
   <div class=dfn>ItemsNumber</div>
     <div class=dfndescr>Количество элементов массива <i>FarDialogItem</i>.</div>
   <div class=dfn>Reserved</div>
@@ -74,7 +74,7 @@ HANDLE WINAPI DialogInit(
   <div class=dfn>DlgProc</div>
     <div class=dfndescr>Указатель на функцию-обработчик диалогового окна типа <a href="../defs/farwindowproc.html">FARWINDOWPROC</a>.</div>
   <div class=dfn>Param</div>
-    <div class=dfndescr>Данные, которые обработчик диалога получит в сообщении <a href="dmsg/dn_initdialog.html">DN_INITDIALOG</a></div>
+    <div class=dfndescr>Данные, которые обработчик диалога получит в сообщении <a href="../dialogapi/dmsg/dn_initdialog.html">DN_INITDIALOG</a></div>
 </div>
 
 <h3>Возвращаемое значение</h3>

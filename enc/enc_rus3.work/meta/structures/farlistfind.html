@@ -3,19 +3,20 @@
 <head>
 <title>FarListFind</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
-<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
-<script language="javascript" src='../../links.js' type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 <body>
 
 <h1>FarListFind</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../index.html">главная</a> |
+<a href="index.html">структуры</a> |
+<a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListFind</dfn> задаёт параметры для поиска элемента в <a href="../controls/di_listbox.html">DI_LISTBOX</a> и <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+Структура <dfn>FarListFind</dfn> задаёт параметры для поиска элемента в <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <pre class=syntax>
@@ -24,7 +25,7 @@ struct FarListFind
   int StartIndex;
   const wchar_t *Pattern;
   FARLISTFINDFLAGS Flags;
-  DWORD Reserved;
+  DWORD_PTR Reserved;
 };
 </pre>
 
@@ -33,7 +34,7 @@ struct FarListFind
   <div class=dfn>StartIndex</div>
     <div class=dfndescr>Индекс элемента, с которого начинается поиск.</div>
   <div class=dfn>Pattern</div>
-  <div class=dfndescr>Шаблон для поиска по правилам функции <a href="../../fsf/processname.html">FSF.ProcessName</a>.</div>
+  <div class=dfndescr>Шаблон для поиска по правилам функции <a href="../fsf/processname.html">FSF.ProcessName</a>.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Дополнительные флаги. Одно из следующих значений (перечисление <a name="FARLISTFINDFLAGS">FARLISTFINDFLAGS</a>):
     <table class="cont">
@@ -51,8 +52,7 @@ struct FarListFind
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dmsg/dm_listfindstring.html">DM_LISTFINDSTRING</a>,
-<a href="../../structures/index.html">структуры</a>
+<a href="../dialogapi/dmsg/dm_listfindstring.html">DM_LISTFINDSTRING</a>
 </div>
 
 </body>

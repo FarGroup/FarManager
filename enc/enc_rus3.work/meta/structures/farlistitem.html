@@ -3,18 +3,20 @@
 <head>
 <title>FarListItem</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
-<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 <body>
 
 <h1>FarListItem</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../index.html">главная</a> |
+<a href="index.html">структуры</a> |
+<a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListItem</dfn> описывает один элемент списка <a href="../controls/di_listbox.html">DI_LISTBOX</a> или <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+Структура <dfn>FarListItem</dfn> описывает один элемент списка <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> или <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <pre class=syntax>
@@ -22,7 +24,7 @@ struct FarListItem
 {
   LISTITEMFLAGS Flags;
   const wchar_t *Text;
-  DWORD Reserved[3];
+  DWORD_PTR Reserved[3];
 };
 </pre>
 
@@ -45,7 +47,7 @@ struct FarListItem
     <tr class="cont"><td class="cont" width="40%"><a name="LIF_HIDDEN">LIF_HIDDEN</a></td>
     <td class="cont" width="60%">Если флаг установлен, то пункт не выводится на экран.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LIF_DELETEUSERDATA">LIF_DELETEUSERDATA</a></td>
-    <td class="cont" width="60%">Этот флаг устанавливается в параметре Item соoбщения <a href="../dmsg/dm_listupdate.html">DM_LISTUPDATE</a>, если при обновлении элемента списка необходимо удалить связанные с этим элементом данные.</td></tr>
+    <td class="cont" width="60%">Этот флаг устанавливается в параметре Item соoбщения <a href="../dialogapi/dmsg/dm_listupdate.html">DM_LISTUPDATE</a>, если при обновлении элемента списка необходимо удалить связанные с этим элементом данные.</td></tr>
     </table>
     </div>
   <div class=dfn>Text</div>
@@ -60,10 +62,9 @@ struct FarListItem
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a  href="farlist.html">FarList</a>,
-<a href="../dmsg/dm_listgetitem.html">DM_LISTGETITEM</a>,
+<a href="../dialogapi/dmsg/dm_listgetitem.html">DM_LISTGETITEM</a>,
 <a  href="farlistinsert.html">FarListInsert</a>,
-<a  href="farlistupdate.html">FarListUpdate</a>,
-<a href="../../structures/index.html">структуры</a>
+<a  href="farlistupdate.html">FarListUpdate</a>
 </div>
 
 </body>

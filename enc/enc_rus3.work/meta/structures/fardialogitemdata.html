@@ -3,25 +3,26 @@
 <head>
 <title>FarDialogItemData</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
-<link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
-<script language="javascript" src='../../links.js' type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="../../styles/styles.css">
+<script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
 <body>
 
 <h1>FarDialogItemData</h1>
 <div class=navbar>
-<a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../index.html">главная</a> |
+<a href="index.html">структуры</a> |
+<a href="../dialogapi/index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarDialogItemData</dfn> описывает данные, передаваемые (получаемые) элементу(ом) диалога сообщением <a href="../dmsg/dm_settext.html">DM_SETTEXT</a> (<a href="../dmsg/dm_gettext.html">DM_GETTEXT</a>) в качестве параметра Param2.
+Структура <dfn>FarDialogItemData</dfn> описывает данные, передаваемые (получаемые) элементу(ом) диалога сообщением <a href="../dialogapi/dmsg/dm_settext.html">DM_SETTEXT</a> (<a href="../dialogapi/dmsg/dm_gettext.html">DM_GETTEXT</a>) в качестве параметра Param2.
 </div>
 
 <pre class=syntax>
 struct FarDialogItemData
 {
-  size_t   PtrLength;
+  size_t PtrLength;
   wchar_t *PtrData;
 };
 </pre>
@@ -39,9 +40,8 @@ struct FarDialogItemData
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dmsg/dm_gettext.html">DM_GETTEXT</a>,
-<a href="../dmsg/dm_settext.html">DM_SETTEXT</a>,
-<a href="../../structures/index.html">структуры</a>
+<a href="../dialogapi/dmsg/dm_gettext.html">DM_GETTEXT</a>,
+<a href="../dialogapi/dmsg/dm_settext.html">DM_SETTEXT</a>
 </div>
 
 </body>

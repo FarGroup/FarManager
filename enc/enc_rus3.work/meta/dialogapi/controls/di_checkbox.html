@@ -11,65 +11,57 @@
 <h1>DI_CHECKBOX</h1>
 <div class=navbar>
 <a href="../../index.html">главная</a> |
-<a href="../index.html">Dialog API</a> |
-<a href="index.html">Элементы диалога</a><br>
+<a href="index.html">элементы диалога</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Элемент диалога <dfn>DI_CHECKBOX</dfn> описывает контрольный переключатель
-(Check Box). также он называется кнопкой с независимой фиксацией
-(переключатель вкл./выкл., который может переключаться пользователем).
-Переключатель "включён", если у элемента поле Selected отлично от нуля.
+Элемент диалога <dfn>DI_CHECKBOX</dfn> описывает контрольный переключатель (Check Box). также он называется кнопкой с независимой фиксацией
+(переключатель вкл./выкл., который может переключаться пользователем). Переключатель "включён", если у элемента поле Selected отлично от нуля.
 </div>
 
 <pre class=syntax>
 struct FarDialogItem
 {
-  int Type          = <b>DI_CHECKBOX</b>
-  int X1            = <b>X</b>
-  int Y1            = <b>Y</b>
-  int X2            = <b>0</b> 
-  int Y2            = <b>Y</b> (равен значению Y1)
-  int Focus         = <b>Focus</b>
-  int Selected      = <b>Selected</b>
-  DWORD Flags       = <b>Flags</b>
-  int DefaultButton = <b>DefaultButton</b>
-  const wchar_t *PtrData = <b>надпись переключателя</b>
+  enum FARDIALOGITEMTYPES Type = <b>DI_CHECKBOX</b>
+  int X1                       = <b>X</b>
+  int Y1                       = <b>Y</b>
+  int X2                       = <b>0</b>
+  int Y2                       = <b>Y</b> (равен значению Y1)
+  int Selected                 = <b>Selected</b>
+  FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
+  const wchar_t *Data          = <b>надпись переключателя</b>
 };
 </pre>
 
 <p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
-<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
-
-<h3>Focus</h3>
-<div class=descr>
-Определяет имеет ли элемент клавиатурный фокус ввода.
-</div>
+<UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
 <h3>Selected</h3>
-<div class=descr>
-Определяет состояние элемента - отмечен или нет.
-</div>
+  <div class=descr>Определяет состояние элемента - отмечен или нет.</div>
 
 <h3>Флаги</h3>
 <div class=descr>
-Для элемента <dfn>DI_CHECKBOX</dfn> имеют значения следующие флаги:<br>
+Для элемента <dfn>DI_CHECKBOX</dfn> имеют значения следующие флаги:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
+<td class="cont" width="60%">флаг, означающий, что данный элемент диалога является "элементом по умолчанию"
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
+<td class="cont" width="60%">определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент
+</td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
  <td class="cont" width="60%">центрирование идущих подряд переключателей с одинаковой вертикальной позицией (параметр <dfn>X</dfn> игнорируется)
  </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a></td>
- <td class="cont" width="60%">определить цвет элемента (младший байт параметра <dfn>Flags</dfn> должен содержать атрибут текста кнопки)
- </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
- <td class="cont" width="60%">Элемент является недоступным.
+ <td class="cont" width="60%">элемент является недоступным
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
- <td class="cont" width="60%">Управляющий элемент не получает клавиатурный фокус ввода.
+ <td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_3state.html">DIF_3STATE</a></td>
- <td class="cont" width="60%">Контрольный переключатель будет иметь 3 состояния: "выключен", "включён", "неопределено".
+ <td class="cont" width="60%">контрольный переключатель будет иметь 3 состояния: "выключен", "включён", "неопределено"
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
  <td class="cont" width="60%">показывать в заголовке рамки амперсанд не используя его для определения горячей клавиши
@@ -111,10 +103,10 @@ HiWord HiByte - 0</pre>
  <td class="cont" width="60%">"кликнули" клавишей мыши
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
- <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
- <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>).
+ <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
  </td></tr>
 
 </table>
@@ -131,7 +123,7 @@ HiWord HiByte - 0</pre>
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="di_radiobutton.html">DI_RADIOBUTTON</a>,
 <a href="di_button.html">DI_BUTTON</a>,
-<a href="../structures/fardialogitem.html">FarDialogItem</a>
+<a href="../../structures/fardialogitem.html">FarDialogItem</a>
 
 </div>
 
