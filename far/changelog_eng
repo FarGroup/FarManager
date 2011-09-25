@@ -3,6 +3,72 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 25.09.2011 19:11:11 +0200 - build 2203
+
+1. FarListTitles.TitleLen => FarListTitles.TitleSize,
+   FarListTitles.BottomLen => FarListTitles.BottomSize.
+
+svs 23.09.2011 10:29:38 +0400 - build 2202
+
+1. Mantis#0001888: [A|P]Panel.Format
+
+2. Mantis#0001887: FCTL_GETPANELPREFIX
+   Panel API: added FCTL_GETPANELPREFIX
+
+drkns 22.09.2011 11:03:59 +0200 - build 2201
+
+1. Mantis#0001883: Spaces generated in editor when using numeric keypad.
+
+drkns 20.09.2011 11:28:28 +0200 - build 2200
+
+1. Console color is restored after applications launch.
+
+svs 19.09.2011 09:48:39 +0400 - build 2199
+
+1. Mantis#0001882: Enable "interception" of Dlg.GetValue and ItemCount/CurPos macrofunctions in dialogs.
+
+   A new notification message for dialog procedures is added: DN_GETVALUE (=4118)
+   DN_GETVALUE is sent to the dialog procedure each time when Dlg.GetValue(), ItemCount and CurPos occur in macros. 
+
+     Param1 = dialog item number
+     Param2 = pointer to TFarGetValue structure (filled in)
+
+     The plugin returns:
+       0 - macro engine ignores it
+       1 - Param2 contains modified data - macro engine takes the data.
+
+     Here TFarGetValue is:
+
+      struct FarMacroValue
+      {
+      	enum FARMACROVARTYPE type;
+      	union
+      	{
+      		__int64  i;
+      		double   d;
+      		const wchar_t *s;
+      	} Value;
+      };
+
+     the type of the variable:
+
+      enum FARMACROVARTYPE
+      {
+      	FMVT_UNKNOWN                = -1,
+      	FMVT_INTEGER                = 0,
+      	FMVT_STRING                 = 1,
+      	FMVT_DOUBLE                 = 2,
+      };
+
+   Dlg.GetValue() call is done for any dialog item.
+   ItemCount and CurPos - for ListBox, opened Combobox and usercontrol only.
+   Macro engine "calculates" needed data at first, then asks the dialog procedure
+   for confirmation "is it right? if it isn't then correct it". In case of positive answer (!= 0)
+   it places data returned by the dialog procedure into the stack.
+
+2. Macro: For Dlg.GetValue(), Type = 11 is added for ListBox and opened Combobox: 
+    Number, "return list items number".
+
 svs 13.09.2011 15:28:38 +0400 - build 2198
 
 1. Mantis#0001785: A problem with launch if the command line contains "="
@@ -78,7 +144,7 @@ svs 01.09.2011 17:34:54 +0300 - build 2186
 
 1. debug compilation minor issues
 
-2. Command line keys /clearcache, /export è /import are included in the help
+2. Command line keys /clearcache, /export and /import are included in the help
 
 drkns 01.09.2011 15:07:03 +0200
 
