@@ -5036,8 +5036,8 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
 		case DM_LISTGETDATA: // Param1=ID Param2=Index
 		case DM_LISTSETDATA: // Param1=ID Param2=FarListItemData
-		case DM_LISTSETTITLES: // Param1=ID Param2=FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
-		case DM_LISTGETTITLES: // Param1=ID Param2=FarListTitles: TitleLen=strlen(Title), BottomLen=strlen(Bottom)
+		case DM_LISTSETTITLES: // Param1=ID Param2=FarListTitles
+		case DM_LISTGETTITLES: // Param1=ID Param2=FarListTitles
 		case DM_LISTGETDATASIZE: // Param1=ID Param2=Index
 		case DM_SETCOMBOBOXEVENT: // Param1=ID Param2=FARCOMBOBOXEVENTTYPE Ret=OldSets
 		case DM_GETCOMBOBOXEVENT: // Param1=ID Param2=0 Ret=Sets
@@ -5186,29 +5186,25 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						}
 						case DM_LISTGETTITLES: // Param1=ID Param2=FarListTitles
 						{
-							if (Param2)
+							
+							FarListTitles *ListTitle=(FarListTitles *)Param2;
+							string strTitle,strBottomTitle;
+							ListBox->GetTitle(strTitle);
+							ListBox->GetBottomTitle(strBottomTitle);
+
+							if (!strTitle.IsEmpty()||!strBottomTitle.IsEmpty())
 							{
-								FarListTitles *ListTitle=(FarListTitles *)Param2;
-								string strTitle,strBottomTitle;
-								ListBox->GetTitle(strTitle);
-								ListBox->GetBottomTitle(strBottomTitle);
+								if (ListTitle->Title&&ListTitle->TitleSize)
+									xwcsncpy((wchar_t*)ListTitle->Title,strTitle,ListTitle->TitleSize);
+								else
+									ListTitle->TitleSize=strTitle.GetLength()+1;
 
-								if (!strTitle.IsEmpty()||!strBottomTitle.IsEmpty())
-								{
-									if (ListTitle->Title&&ListTitle->TitleLen)
-										xwcsncpy((wchar_t*)ListTitle->Title,strTitle,ListTitle->TitleLen);
-									else
-										ListTitle->TitleLen=(int)strTitle.GetLength()+1;
-
-									if (ListTitle->Bottom&&ListTitle->BottomLen)
-										xwcsncpy((wchar_t*)ListTitle->Bottom,strBottomTitle,ListTitle->BottomLen);
-									else
-										ListTitle->BottomLen=(int)strBottomTitle.GetLength()+1;
-
-									return TRUE;
-								}
+								if (ListTitle->Bottom&&ListTitle->BottomSize)
+									xwcsncpy((wchar_t*)ListTitle->Bottom,strBottomTitle,ListTitle->BottomSize);
+								else
+									ListTitle->BottomSize=strBottomTitle.GetLength()+1;
+								return TRUE;
 							}
-
 							return FALSE;
 						}
 						case DM_LISTGETCURPOS: // Param1=ID Param2=FarListPos

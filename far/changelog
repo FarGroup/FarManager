@@ -1,3 +1,8 @@
+drkns 25.09.2011 19:11:11 +0200 - build 2203
+
+1. FarListTitles.TitleLen => FarListTitles.TitleSize,
+   FarListTitles.BottomLen => FarListTitles.BottomSize.
+
 svs 23.09.2011 10:29:38 +0400 - build 2202
 
 1. Mantis#0001888: [A|P]Panel.Format

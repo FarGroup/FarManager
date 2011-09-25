@@ -465,9 +465,9 @@ struct FarList
 
 struct FarListTitles
 {
-	size_t   TitleLen;
+	size_t TitleSize;
 	const wchar_t *Title;
-	size_t   BottomLen;
+	size_t BottomSize;
 	const wchar_t *Bottom;
 };
 

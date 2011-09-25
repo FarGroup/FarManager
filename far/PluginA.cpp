@@ -2709,14 +2709,14 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 				if (OldListTitle->Title)
 				{
-					ListTitle.TitleLen=OldListTitle->TitleLen;
-					ListTitle.Title=(wchar_t *)xf_malloc(sizeof(wchar_t)*ListTitle.TitleLen);
+					ListTitle.TitleSize=OldListTitle->TitleLen+1;
+					ListTitle.Title=(wchar_t *)xf_malloc(sizeof(wchar_t)*ListTitle.TitleSize);
 				}
 
-				if (OldListTitle->BottomLen)
+				if (OldListTitle->Bottom)
 				{
-					ListTitle.BottomLen=OldListTitle->BottomLen;
-					ListTitle.Bottom=(wchar_t *)xf_malloc(sizeof(wchar_t)*ListTitle.BottomLen);
+					ListTitle.BottomSize=OldListTitle->BottomLen+1;
+					ListTitle.Bottom=(wchar_t *)xf_malloc(sizeof(wchar_t)*ListTitle.BottomSize);
 				}
 
 				INT_PTR Ret=NativeInfo.SendDlgMessage(hDlg,DM_LISTGETTITLES,Param1,&ListTitle);
