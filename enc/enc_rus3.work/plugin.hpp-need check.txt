@@ -139,12 +139,6 @@ struct FarDialogItemColors
 	void* Reserved;
 };
 
-struct FAR_CHAR_INFO
-{
-	WCHAR Char;
-	struct FarColor Attributes;
-};
-
 struct FarGetDialogItem
 {
 	size_t Size;
