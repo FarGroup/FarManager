@@ -2316,7 +2316,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			PanelInfo Info;
 			FileList *DestPanel = ((FileList*)this);
 			DestPanel->PluginGetPanelInfo(Info);
-			Result = (int)DestPanel->PluginGetPanelItem(Info.CurrentItem,(FarGetPluginPanelItem*)Param2);
+			Result = (int)DestPanel->PluginGetPanelItem(static_cast<int>(Info.CurrentItem),(FarGetPluginPanelItem*)Param2);
 			break;
 		}
 
@@ -2375,8 +2375,8 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			if (Info)
 			{
-				CurFile=Info->CurrentItem;
-				CurTopFile=Info->TopPanelItem;
+				CurFile=static_cast<int>(Info->CurrentItem);
+				CurTopFile=static_cast<int>(Info->TopPanelItem);
 			}
 
 			// $ 12.05.2001 DJ перерисовываемся только в том случае, если мы - текущий фрейм

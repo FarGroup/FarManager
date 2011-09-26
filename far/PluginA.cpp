@@ -3005,8 +3005,8 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA)
 	PIA->SelectedItemsNumber = static_cast<int>(PIW->SelectedItemsNumber);
 	PIA->PanelItems = nullptr;
 	PIA->SelectedItems = nullptr;
-	PIA->CurrentItem = PIW->CurrentItem;
-	PIA->TopPanelItem = PIW->TopPanelItem;
+	PIA->CurrentItem = static_cast<int>(PIW->CurrentItem);
+	PIA->TopPanelItem = static_cast<int>(PIW->TopPanelItem);
 	PIA->Visible = (PIW->Flags&PFLAGS_VISIBLE)?1:0;;
 	PIA->Focus = (PIW->Flags&PFLAGS_FOCUS)?1:0;;
 	PIA->ViewMode = PIW->ViewMode;
