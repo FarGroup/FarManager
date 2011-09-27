@@ -1406,7 +1406,6 @@ void PluginManager::Configure(int StartPos)
 				LoadIfCacheAbsent();
 				string strHotKey, strName;
 				GUID guid;
-				PluginInfo Info = {sizeof(Info)};
 
 				for (int I=0; I<PluginsCount; I++)
 				{
@@ -1414,6 +1413,7 @@ void PluginManager::Configure(int StartPos)
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
 					unsigned __int64 id = 0;
 
+					PluginInfo Info = {sizeof(Info)};
 					if (bCached)
 					{
 						id = PlCacheCfg->GetCacheID(pPlugin->GetCacheName());
@@ -1579,7 +1579,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				PluginList.SetPosition(-1,-1,0,0);
 				LoadIfCacheAbsent();
 				string strHotKey, strName;
-				PluginInfo Info = {sizeof(Info)};
 				GUID guid;
 
 				for (int I=0; I<PluginsCount; I++)
@@ -1589,6 +1588,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					UINT64 IFlags;
 					unsigned __int64 id = 0;
 
+					PluginInfo Info = {sizeof(Info)};
 					if (bCached)
 					{
 						id = PlCacheCfg->GetCacheID(pPlugin->GetCacheName());
