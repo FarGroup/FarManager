@@ -309,7 +309,7 @@ class KeyMacro
 		bool GetPlainText(string& Dest);
 		int  GetPlainTextSize();
 
-		void SetRedrawEditor(int Sets) {IsRedrawEditor=Sets;}
+		//void SetRedrawEditor(int Sets) {IsRedrawEditor=Sets;}
 
 		void RestartAutoMacro(int Mode);
 

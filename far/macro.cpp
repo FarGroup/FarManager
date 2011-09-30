@@ -554,7 +554,8 @@ KeyMacro::KeyMacro():
 	RecBufferSize(0),
 	RecBuffer(nullptr),
 	RecSrc(nullptr),
-	LockScr(nullptr)
+	LockScr(nullptr),
+	IsRedrawEditor(TRUE)
 {
 	Work.Init(nullptr);
 	ClearArray(IndexMode);
@@ -3475,6 +3476,8 @@ static bool editorsetFunc(const TMacroFunction*)
 
 			CtrlObject->Plugins.CurEditor->SetEditorOptions(EdOpt);
 			CtrlObject->Plugins.CurEditor->ShowStatus();
+			if (Index == 0 || Index == 12 || Index == 15 || Index == 20)
+				CtrlObject->Plugins.CurEditor->Show();
 		}
 	}
 
@@ -4791,8 +4794,8 @@ done:
 		/*$ 10.08.2000 skv
 			If we are in editor mode, and CurEditor defined,
 			we need to call this events.
-			EE_REDRAW 2 - to notify that text changed.
-			EE_REDRAW 0 - to notify that whole screen updated
+			EE_REDRAW EEREDRAW_CHANGE - to notify that text changed.
+			EE_REDRAW EEREDRAW_ALL    - to notify that whole screen updated
 			->Show() to actually update screen.
 
 			This duplication take place since ShowEditor method
