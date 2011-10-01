@@ -2296,7 +2296,7 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 						MacroSendMacroText *PlainText=(MacroSendMacroText*)Param2;
 						if (PlainText->SequenceText && *PlainText->SequenceText)
 						{
-							return Macro.PostNewMacro(PlainText->SequenceText,(PlainText->Flags|MFLAGS_POSTFROMPLUGIN)<<8,InputRecordToKey(&PlainText->AKey));
+							return Macro.PostNewMacro(PlainText->SequenceText,(PlainText->Flags<<8)|MFLAGS_POSTFROMPLUGIN,InputRecordToKey(&PlainText->AKey));
 						}
 
 						break;
