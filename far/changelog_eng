@@ -3,6 +3,28 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 01.10.2011 10:20:58 +0400 - build 2208
+
+1. Mantis#0001677: Set "starting" key code with MCMD_POSTMACROSTRING on macro start
+
+svs 30.09.2011 15:09:04 +0400 - build 2207
+
+1. Mantis#0001898: bugs in editor drawing after macro finish
+   (from Maximus)
+
+svs 29.09.2011 09:49:28 +0400 - build 2206
+
+1. Mantis#0001766: Viewer new version
+   (from 2useven10)
+
+drkns 27.09.2011 21:38:14 +0200 - build 2205
+
+1. Mantis#0001894: Plugin list display inaccuracy.
+
+drkns 26.09.2011 08:58:57 +0200 - build 2204
+
+1. Correction of types in plugin.hpp
+
 drkns 25.09.2011 19:11:11 +0200 - build 2203
 
 1. FarListTitles.TitleLen => FarListTitles.TitleSize,
