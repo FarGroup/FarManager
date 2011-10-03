@@ -58,6 +58,6 @@ static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
 }
 
 //----------------------------------------------------------------------------
-PfnDliHook __pfnDliFailureHook2 = delayFailureHook;
+PfnDliHook __pfnDliFailureHook2 = (PfnDliHook)delayFailureHook;
 
 //----------------------------------------------------------------------------

@@ -3264,6 +3264,11 @@ int FileList::IsSelected(long idxItem)
 	return FALSE;
 }
 
+bool FileList::FilterIsEnabled()
+{
+	return Filter && Filter->IsEnabledOnPanel()?true:false;
+}
+
 bool FileList::FileInFilter(long idxItem)
 {
 	if ( ( (DWORD)idxItem < (DWORD)FileCount ) && ( !Filter || !Filter->IsEnabledOnPanel() || Filter->FileInFilter(*ListData[idxItem]) ) )

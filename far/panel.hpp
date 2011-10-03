@@ -257,6 +257,7 @@ class Panel:public ScreenObject
 		virtual void SortFileList(int KeepPosition) {}
 		virtual void EditFilter() {}
 		virtual bool FileInFilter(long idxItem) {return true;}
+		virtual bool FilterIsEnabled() {return false;}
 		virtual void ReadDiz(struct PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) {}
 		virtual void DeleteDiz(const wchar_t *Name,const wchar_t *ShortName) {}
 		virtual void GetDizName(string &strDizName) {}

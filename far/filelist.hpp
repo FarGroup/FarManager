@@ -366,6 +366,7 @@ class FileList:public Panel
 		virtual void RestoreSelection();
 		virtual void EditFilter();
 		virtual bool FileInFilter(long idxItem);
+		virtual bool FilterIsEnabled();
 		virtual void ReadDiz(PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0);
 		virtual void DeleteDiz(const wchar_t *Name, const wchar_t *ShortName);
 		virtual void FlushDiz();
