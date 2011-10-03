@@ -247,7 +247,7 @@ public:
   PropVariant& set_binary(const void* val, size_t size) {
     clear();
     vt = VT_BSTR;
-    bstrVal = SysAllocStringByteLen(reinterpret_cast<LPCSTR>(val), size);
+    bstrVal = SysAllocStringByteLen(reinterpret_cast<LPCSTR>(val), static_cast<UINT>(size));
     if (bstrVal == nullptr) {
       vt = VT_ERROR;
       FAIL(E_OUTOFMEMORY);

@@ -1,7 +1,5 @@
 #pragma once
 
-extern const wchar_t* c_plugin_key_name;
-
 struct Options {
   bool handle_create;
   bool handle_commands;

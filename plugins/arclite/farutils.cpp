@@ -39,7 +39,7 @@ unsigned get_optimal_msg_width() {
   return 60;
 }
 
-int message(const GUID& id, const wstring& msg, int button_cnt, unsigned __int64 flags) {
+int message(const GUID& id, const wstring& msg, int button_cnt, FARMESSAGEFLAGS flags) {
   return g_far.Message(&c_plugin_guid, &id, flags | FMSG_ALLINONE, NULL, reinterpret_cast<const wchar_t* const*>(msg.c_str()), 0, button_cnt);
 }
 
@@ -119,11 +119,11 @@ void flush_screen() {
   g_far.AdvControl(&c_plugin_guid, ACTL_REDRAWALL, 0, nullptr);
 }
 
-int viewer(const wstring& file_name, const wstring& title, unsigned __int64 flags) {
+int viewer(const wstring& file_name, const wstring& title, VIEWER_FLAGS flags) {
   return g_far.Viewer(file_name.c_str(), title.c_str(), 0, 0, -1, -1, flags, CP_AUTODETECT);
 }
 
-int editor(const wstring& file_name, const wstring& title, unsigned __int64 flags) {
+int editor(const wstring& file_name, const wstring& title, EDITOR_FLAGS flags) {
   return g_far.Editor(file_name.c_str(), title.c_str(), 0, 0, -1, -1, flags, 1, 1, CP_AUTODETECT);
 }
 
@@ -233,7 +233,7 @@ void info_dlg(const GUID& id, const wstring& title, const wstring& msg) {
   message(id, title + L'\n' + msg, 0, FMSG_MB_OK);
 }
 
-bool input_dlg(const GUID& id, const wstring& title, const wstring& msg, wstring& text, unsigned __int64 flags) {
+bool input_dlg(const GUID& id, const wstring& title, const wstring& msg, wstring& text, INPUTBOXFLAGS flags) {
   Buffer<wchar_t> buf(1024);
   if (g_far.InputBox(&c_plugin_guid, &id, title.c_str(), msg.c_str(), nullptr, text.c_str(), buf.data(), static_cast<int>(buf.size()), nullptr, flags)) {
     text.assign(buf.data());
@@ -639,12 +639,12 @@ Regex::Regex(): h_regex(INVALID_HANDLE_VALUE) {
 
 Regex::~Regex() {
   if (h_regex != INVALID_HANDLE_VALUE)
-    CHECK(g_far.RegExpControl(h_regex, RECTL_FREE, 0, 0));
+    CHECK(g_far.RegExpControl(h_regex, RECTL_FREE, 0, nullptr));
 }
 
 size_t Regex::search(const wstring& expr, const wstring& text) {
   CHECK(g_far.RegExpControl(h_regex, RECTL_COMPILE, 0, const_cast<wchar_t*>((L"/" + expr + L"/").c_str())));
-  CHECK(g_far.RegExpControl(h_regex, RECTL_OPTIMIZE, 0, 0));
+  CHECK(g_far.RegExpControl(h_regex, RECTL_OPTIMIZE, 0, nullptr));
   RegExpSearch regex_search;
   memzero(regex_search);
   regex_search.Text = text.c_str();

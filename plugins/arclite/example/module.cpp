@@ -169,7 +169,7 @@ public:
   // number of items in archives
   STDMETHODIMP GetNumberOfItems(UInt32* num_items) {
     COM_ERROR_HANDLER_BEGIN
-    *num_items = files.size();
+    *num_items = static_cast<UInt32>(files.size());
     return S_OK;
     COM_ERROR_HANDLER_END
   }
@@ -224,7 +224,7 @@ public:
     COM_ERROR_HANDLER_BEGIN
     Int32 ask_extract_mode = test_mode ? NArchive::NExtract::NAskMode::kTest : NArchive::NExtract::NAskMode::kExtract;
     // num_items == -1 means extract all items
-    UInt32 total_items = num_items != -1 ? num_items : files.size();
+    UInt32 total_items = num_items != -1 ? num_items : static_cast<UInt32>(files.size());
     UInt64 total_size = 0;
     for (UInt32 i = 0; i < total_items; i++) {
       UInt32 file_index = num_items != -1 ? indices[i] : i;
@@ -367,9 +367,9 @@ public:
           continue;
       }
        
-      UInt32 path_size = file_info.path.size();
+      UInt32 path_size = static_cast<UInt32>(file_info.path.size());
       write_stream(out_stream, &path_size, sizeof(path_size));
-      write_stream(out_stream, file_info.path.data(), file_info.path.size() * sizeof(wchar_t));
+      write_stream(out_stream, file_info.path.data(), static_cast<UInt32>(file_info.path.size() * sizeof(wchar_t)));
 
       const UInt32 c_buffer_size = 1024 * 1024;
       unique_ptr<unsigned char[]> buffer(new unsigned char[c_buffer_size]);

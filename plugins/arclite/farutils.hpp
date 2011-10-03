@@ -37,7 +37,7 @@ const wchar_t* msg_ptr(int id);
 wstring get_msg(int id);
 
 unsigned get_optimal_msg_width();
-int message(const GUID& id, const wstring& msg, int button_cnt = 0, unsigned __int64 flags = 0);
+int message(const GUID& id, const wstring& msg, int button_cnt = 0, FARMESSAGEFLAGS flags = 0);
 
 class MenuItems: public vector<wstring> {
 public:
@@ -58,8 +58,8 @@ HANDLE save_screen();
 void restore_screen(HANDLE h_scr);
 void flush_screen();
 
-int viewer(const wstring& file_name, const wstring& title, unsigned __int64 flags = 0);
-int editor(const wstring& file_name, const wstring& title, unsigned __int64 flags = 0);
+int viewer(const wstring& file_name, const wstring& title, VIEWER_FLAGS flags = 0);
+int editor(const wstring& file_name, const wstring& title, EDITOR_FLAGS flags = 0);
 
 void update_panel(HANDLE h_panel, bool keep_selection);
 void set_view_mode(HANDLE h_panel, unsigned view_mode);
@@ -90,7 +90,7 @@ PanelItem get_selected_panel_item(HANDLE h_panel, size_t index);
 
 void error_dlg(const wstring& title, const Error& e);
 void info_dlg(const GUID& id, const wstring& title, const wstring& msg);
-bool input_dlg(const GUID& id, const wstring& title, const wstring& msg, wstring& text, unsigned __int64 flags = 0);
+bool input_dlg(const GUID& id, const wstring& title, const wstring& msg, wstring& text, INPUTBOXFLAGS flags = 0);
 
 #define AUTO_SIZE (-1)
 const unsigned c_x_frame = 5;
