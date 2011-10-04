@@ -1833,12 +1833,44 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	¦ _                                                      ¦
 	L========================================================-
 	*/
+	string strPluginGuid = GuidToStr(pPlugin->GetGUID());
+	string strItemGuid = GuidToStr(Guid);
+	string strPluginPrefix;
+	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
+	{
+		unsigned __int64 id = PlCacheCfg->GetCacheID(pPlugin->GetCacheName());
+		strPluginPrefix = PlCacheCfg->GetCommandPrefix(id);
+	}
+	else
+	{
+		PluginInfo Info = {sizeof(Info)};
+		if (pPlugin->GetPluginInfo(&Info))
+		{
+			strPluginPrefix = Info.CommandPrefix;
+		}
+	}
+
 	FarDialogItem PluginDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,60,4,0,nullptr,nullptr,0,MSG(MPluginHotKeyTitle)},
+		{DI_DOUBLEBOX,3,1,60,19,0,nullptr,nullptr,0,MSG(MPluginHotKeyTitle)},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MPluginHotKey)},
 		{DI_FIXEDIT,5,3,5,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
 		{DI_TEXT,8,3,58,3,0,nullptr,nullptr,0,DlgPluginTitle},
+		{DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,MSG(MPluginInformation)},
+		{DI_TEXT,5,5,0,5,0,nullptr,nullptr,0,MSG(MPluginModuleTitle)},
+		{DI_EDIT,5,6,58,6,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetTitle()},
+		{DI_TEXT,5,7,0,7,0,nullptr,nullptr,0,MSG(MPluginDescription)},
+		{DI_EDIT,5,8,58,8,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetDescription()},
+		{DI_TEXT,5,9,0,9,0,nullptr,nullptr,0,MSG(MPluginAuthor)},
+		{DI_EDIT,5,10,58,10,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetAuthor()},
+		{DI_TEXT,5,11,0,11,0,nullptr,nullptr,0,MSG(MPluginModulePath)},
+		{DI_EDIT,5,12,58,12,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetModuleName().CPtr()},
+		{DI_TEXT,5,13,0,13,0,nullptr,nullptr,0,MSG(MPluginGUID)},
+		{DI_EDIT,5,14,58,14,0,nullptr,nullptr,DIF_READONLY,strPluginGuid.CPtr()},
+		{DI_TEXT,5,15,0,15,0,nullptr,nullptr,0,MSG(MPluginItemGUID)},
+		{DI_EDIT,5,16,58,16,0,nullptr,nullptr,DIF_READONLY,strItemGuid.CPtr()},
+		{DI_TEXT,5,17,0,15,0,nullptr,nullptr,0,MSG(MPluginPrefix)},
+		{DI_EDIT,5,18,58,16,0,nullptr,nullptr,DIF_READONLY,strPluginPrefix.CPtr()},
 	};
 	MakeDialogItemsEx(PluginDlgData,PluginDlg);
 
@@ -1850,7 +1882,7 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	int ExitCode;
 	{
 		Dialog Dlg(PluginDlg,ARRAYSIZE(PluginDlg));
-		Dlg.SetPosition(-1,-1,64,6);
+		Dlg.SetPosition(-1,-1,64,21);
 		Dlg.Process();
 		ExitCode=Dlg.GetExitCode();
 	}

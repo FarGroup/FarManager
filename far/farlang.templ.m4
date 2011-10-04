@@ -15335,6 +15335,78 @@ MPluginHotKey
 "Podaj klawisz skrótu (litera lub cyfra)"
 "Entrar tecla rápida (letra o dígito)"
 
+MPluginInformation
+"Информация о плагине"
+"Plugin information"
+upd:"Plugin information"
+upd:"Plugin information"
+upd:"Plugin information"
+upd:"Plugin information"
+upd:"Plugin information"
+
+MPluginModuleTitle
+"Название"
+"Title"
+upd:"Title"
+upd:"Title"
+upd:"Title"
+upd:"Title"
+upd:"Title"
+
+MPluginDescription
+"Описание"
+"Description"
+upd:"Description"
+upd:"Description"
+upd:"Description"
+upd:"Description"
+upd:"Description"
+
+MPluginAuthor
+"Автор"
+"Author"
+upd:"Author"
+upd:"Author"
+upd:"Author"
+upd:"Author"
+upd:"Author"
+
+MPluginModulePath
+"Файл плагина"
+"Module path"
+upd:"Module path"
+upd:"Module path"
+upd:"Module path"
+upd:"Module path"
+upd:"Module path"
+
+MPluginGUID
+"GUID плагина"
+"Plugin GUID"
+upd:"Plugin GUID"
+upd:"Plugin GUID"
+upd:"Plugin GUID"
+upd:"Plugin GUID"
+upd:"Plugin GUID"
+
+MPluginItemGUID
+"GUID пункта"
+"Plugin item GUID"
+upd:"Plugin item GUID"
+upd:"Plugin item GUID"
+upd:"Plugin item GUID"
+upd:"Plugin item GUID"
+upd:"Plugin item GUID"
+
+MPluginPrefix
+"Префикс плагина"
+"Plugin prefix"
+upd:"Plugin prefix"
+upd:"Plugin prefix"
+upd:"Plugin prefix"
+upd:"Plugin prefix"
+upd:"Plugin prefix"
+
 MPluginHotKeyBottom
 "F4 - задать горячую клавишу"
 "F4 - set hot key"

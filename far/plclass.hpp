@@ -232,6 +232,8 @@ public:
 	const string &GetModuleName() const { return m_strModuleName; }
 	const wchar_t *GetCacheName() const  { return m_strCacheName; }
 	const wchar_t* GetTitle(void) const { return strTitle.CPtr(); }
+	const wchar_t* GetDescription(void) const { return strDescription.CPtr(); }
+	const wchar_t* GetAuthor(void) const { return strAuthor.CPtr(); }
 	const GUID& GetGUID(void) const { return m_Guid; }
 	const wchar_t *GetMsg(int nID) const { return PluginLang.GetMsg(nID); }
 
