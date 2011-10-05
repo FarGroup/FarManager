@@ -226,6 +226,7 @@ class PluginManager
 		int ProcessCommandLine(const wchar_t *Command,Panel *Target=nullptr);
 
 		bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const wchar_t *DlgPluginTitle);
+		void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid, const wchar_t *DlgPluginTitle);
 
 		// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 		int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, int *Ret=nullptr);

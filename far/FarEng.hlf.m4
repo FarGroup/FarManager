@@ -884,6 +884,7 @@ in filenames and in editor).
                   that owns the menu item.
     #F4#          - assign a hotkey for selected menu item. If #Space# is
                   entered, then Far sets the hotkey automatically.
+    #F3#          - показать техническую информацию по плагину.
     #Shift-F9#    - settings of the selected plugin.
     #Alt-Shift-F9# - open ~"Plugins configuration"~@PluginsConfig@ menu.
 
@@ -910,6 +911,8 @@ displayed left to the item. The #A# symbol in leftmost menu column means that
 the corresponding plugin is written for Far 1.7x and it does not support all
 possibilities available in Far 2 (these are, in particular, Unicode characters
 in filenames and in editor).
+
+    Клавиша #F3# позволяет посмотреть техническую информацию по плагину.
 
 
 @PluginsReviews

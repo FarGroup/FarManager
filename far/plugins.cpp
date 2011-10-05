@@ -1498,6 +1498,18 @@ void PluginManager::Configure(int StartPos)
 						}
 						break;
 
+					case KEY_F3:
+						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
+						{
+							string strTitle;
+							int nOffset = HotKeysPresent?3:0;
+							strTitle = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
+							RemoveExternalSpaces(strTitle);
+
+							ShowPluginInfo(item->pPlugin, item->Guid, strTitle);
+						}
+						break;
+
 					case KEY_F4:
 						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
 						{
@@ -1679,6 +1691,19 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						WriteEvent(FLOG_PLUGINSINFO);
 						break;
 
+
+					case KEY_F3:
+						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
+						{
+							string strTitle;
+							int nOffset = HotKeysPresent?3:0;
+							strTitle = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
+							RemoveExternalSpaces(strTitle);
+
+							ShowPluginInfo(item->pPlugin, item->Guid, strTitle);
+						}
+						break;
+
 					case KEY_F4:
 						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
 						{
@@ -1833,6 +1858,65 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	¦ _                                                      ¦
 	L========================================================-
 	*/
+
+	FarDialogItem PluginDlgData[]=
+	{
+		{DI_DOUBLEBOX,3,1,60,4,0,nullptr,nullptr,0,MSG(MPluginHotKeyTitle)},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MPluginHotKey)},
+		{DI_FIXEDIT,5,3,5,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
+		{DI_TEXT,8,3,58,3,0,nullptr,nullptr,0,DlgPluginTitle},
+	};
+	MakeDialogItemsEx(PluginDlgData,PluginDlg);
+
+	string strPluginKey;
+	GetHotKeyPluginKey(pPlugin, strPluginKey);
+	string strGuid = GuidToStr(Guid);
+	PluginDlg[2].strData = PlHotkeyCfg->GetHotkey(strPluginKey, strGuid, HotKeyType);
+
+	int ExitCode;
+	{
+		Dialog Dlg(PluginDlg,ARRAYSIZE(PluginDlg));
+		Dlg.SetPosition(-1,-1,64,6);
+		Dlg.Process();
+		ExitCode=Dlg.GetExitCode();
+	}
+
+	if (ExitCode==2)
+	{
+		PluginDlg[2].strData.SetLength(1);
+		RemoveLeadingSpaces(PluginDlg[2].strData);
+
+		if (PluginDlg[2].strData.IsEmpty())
+			PlHotkeyCfg->DelHotkey(strPluginKey, strGuid, HotKeyType);
+		else
+			PlHotkeyCfg->SetHotkey(strPluginKey, strGuid, HotKeyType, PluginDlg[2].strData);
+
+		return true;
+	}
+
+	return false;
+}
+
+void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid, const wchar_t *DlgPluginTitle)
+{
+	/*
+	ã======================== ConEmu ========================¬
+    ¦ Title                                                  ¦
+    ¦                                                        ¦
+    ¦ Description                                            ¦
+    ¦                                                        ¦
+    ¦ Author                                                 ¦
+    ¦                                                        ¦
+    ¦ Module path                                            ¦
+    ¦                                                        ¦
+    ¦ Plugin GUID                                            ¦
+    ¦                                                        ¦
+    ¦ Plugin item GUID                                       ¦
+    ¦                                                        ¦
+    ¦ Plugin prefix                                          ¦
+    ¦                                                        ¦
+    L========================================================-
+	*/
 	string strPluginGuid = GuidToStr(pPlugin->GetGUID());
 	string strItemGuid = GuidToStr(Guid);
 	string strPluginPrefix;
@@ -1852,55 +1936,31 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 
 	FarDialogItem PluginDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,60,19,0,nullptr,nullptr,0,MSG(MPluginHotKeyTitle)},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MPluginHotKey)},
-		{DI_FIXEDIT,5,3,5,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
-		{DI_TEXT,8,3,58,3,0,nullptr,nullptr,0,DlgPluginTitle},
-		{DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,MSG(MPluginInformation)},
-		{DI_TEXT,5,5,0,5,0,nullptr,nullptr,0,MSG(MPluginModuleTitle)},
-		{DI_EDIT,5,6,58,6,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetTitle()},
-		{DI_TEXT,5,7,0,7,0,nullptr,nullptr,0,MSG(MPluginDescription)},
-		{DI_EDIT,5,8,58,8,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetDescription()},
-		{DI_TEXT,5,9,0,9,0,nullptr,nullptr,0,MSG(MPluginAuthor)},
-		{DI_EDIT,5,10,58,10,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetAuthor()},
-		{DI_TEXT,5,11,0,11,0,nullptr,nullptr,0,MSG(MPluginModulePath)},
-		{DI_EDIT,5,12,58,12,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetModuleName().CPtr()},
-		{DI_TEXT,5,13,0,13,0,nullptr,nullptr,0,MSG(MPluginGUID)},
-		{DI_EDIT,5,14,58,14,0,nullptr,nullptr,DIF_READONLY,strPluginGuid.CPtr()},
-		{DI_TEXT,5,15,0,15,0,nullptr,nullptr,0,MSG(MPluginItemGUID)},
-		{DI_EDIT,5,16,58,16,0,nullptr,nullptr,DIF_READONLY,strItemGuid.CPtr()},
-		{DI_TEXT,5,17,0,15,0,nullptr,nullptr,0,MSG(MPluginPrefix)},
-		{DI_EDIT,5,18,58,16,0,nullptr,nullptr,DIF_READONLY,strPluginPrefix.CPtr()},
+		{DI_DOUBLEBOX,3,1,60,16,0,nullptr,nullptr,0,DlgPluginTitle},
+		{DI_TEXT,5,2,0,5,0,nullptr,nullptr,0,MSG(MPluginModuleTitle)},
+		{DI_EDIT,5,3,58,6,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetTitle()},
+		{DI_TEXT,5,4,0,7,0,nullptr,nullptr,0,MSG(MPluginDescription)},
+		{DI_EDIT,5,5,58,8,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetDescription()},
+		{DI_TEXT,5,6,0,9,0,nullptr,nullptr,0,MSG(MPluginAuthor)},
+		{DI_EDIT,5,7,58,10,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetAuthor()},
+		{DI_TEXT,5,8,0,11,0,nullptr,nullptr,0,MSG(MPluginModulePath)},
+		{DI_EDIT,5,9,58,12,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetModuleName().CPtr()},
+		{DI_TEXT,5,10,0,13,0,nullptr,nullptr,0,MSG(MPluginGUID)},
+		{DI_EDIT,5,11,58,14,0,nullptr,nullptr,DIF_READONLY,strPluginGuid.CPtr()},
+		{DI_TEXT,5,12,0,15,0,nullptr,nullptr,0,MSG(MPluginItemGUID)},
+		{DI_EDIT,5,13,58,16,0,nullptr,nullptr,DIF_READONLY,strItemGuid.CPtr()},
+		{DI_TEXT,5,14,0,15,0,nullptr,nullptr,0,MSG(MPluginPrefix)},
+		{DI_EDIT,5,15,58,16,0,nullptr,nullptr,DIF_READONLY,strPluginPrefix.CPtr()},
 	};
 	MakeDialogItemsEx(PluginDlgData,PluginDlg);
-
-	string strPluginKey;
-	GetHotKeyPluginKey(pPlugin, strPluginKey);
-	string strGuid = GuidToStr(Guid);
-	PluginDlg[2].strData = PlHotkeyCfg->GetHotkey(strPluginKey, strGuid, HotKeyType);
 
 	int ExitCode;
 	{
 		Dialog Dlg(PluginDlg,ARRAYSIZE(PluginDlg));
-		Dlg.SetPosition(-1,-1,64,21);
+		Dlg.SetPosition(-1,-1,64,18);
 		Dlg.Process();
 		ExitCode=Dlg.GetExitCode();
 	}
-
-	if (ExitCode==2)
-	{
-		PluginDlg[2].strData.SetLength(1);
-		RemoveLeadingSpaces(PluginDlg[2].strData);
-
-		if (PluginDlg[2].strData.IsEmpty())
-			PlHotkeyCfg->DelHotkey(strPluginKey, strGuid, HotKeyType);
-		else
-			PlHotkeyCfg->SetHotkey(strPluginKey, strGuid, HotKeyType, PluginDlg[2].strData);
-
-		return true;
-	}
-
-	return false;
 }
 
 bool PluginManager::GetDiskMenuItem(
