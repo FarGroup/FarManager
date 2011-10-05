@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "FarGuid.hpp"
 #include "configdb.hpp"
+#include "FarDlgBuilder.hpp"
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 
@@ -1501,12 +1502,7 @@ void PluginManager::Configure(int StartPos)
 					case KEY_F3:
 						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
 						{
-							string strTitle;
-							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
-							RemoveExternalSpaces(strTitle);
-
-							ShowPluginInfo(item->pPlugin, item->Guid, strTitle);
+							ShowPluginInfo(item->pPlugin, item->Guid);
 						}
 						break;
 
@@ -1695,12 +1691,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					case KEY_F3:
 						if (PluginList.GetItemCount() > 0 && SelPos<MenuItemNumber)
 						{
-							string strTitle;
-							int nOffset = HotKeysPresent?3:0;
-							strTitle = PluginList.GetItemPtr()->strName.CPtr()+nOffset;
-							RemoveExternalSpaces(strTitle);
-
-							ShowPluginInfo(item->pPlugin, item->Guid, strTitle);
+							ShowPluginInfo(item->pPlugin, item->Guid);
 						}
 						break;
 
@@ -1897,26 +1888,8 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	return false;
 }
 
-void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid, const wchar_t *DlgPluginTitle)
+void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 {
-	/*
-	ã======================== ConEmu ========================¬
-    ¦ Title                                                  ¦
-    ¦                                                        ¦
-    ¦ Description                                            ¦
-    ¦                                                        ¦
-    ¦ Author                                                 ¦
-    ¦                                                        ¦
-    ¦ Module path                                            ¦
-    ¦                                                        ¦
-    ¦ Plugin GUID                                            ¦
-    ¦                                                        ¦
-    ¦ Plugin item GUID                                       ¦
-    ¦                                                        ¦
-    ¦ Plugin prefix                                          ¦
-    ¦                                                        ¦
-    L========================================================-
-	*/
 	string strPluginGuid = GuidToStr(pPlugin->GetGUID());
 	string strItemGuid = GuidToStr(Guid);
 	string strPluginPrefix;
@@ -1933,34 +1906,26 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid, const wcha
 			strPluginPrefix = Info.CommandPrefix;
 		}
 	}
-
-	FarDialogItem PluginDlgData[]=
-	{
-		{DI_DOUBLEBOX,3,1,60,16,0,nullptr,nullptr,0,DlgPluginTitle},
-		{DI_TEXT,5,2,0,5,0,nullptr,nullptr,0,MSG(MPluginModuleTitle)},
-		{DI_EDIT,5,3,58,6,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetTitle()},
-		{DI_TEXT,5,4,0,7,0,nullptr,nullptr,0,MSG(MPluginDescription)},
-		{DI_EDIT,5,5,58,8,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetDescription()},
-		{DI_TEXT,5,6,0,9,0,nullptr,nullptr,0,MSG(MPluginAuthor)},
-		{DI_EDIT,5,7,58,10,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetAuthor()},
-		{DI_TEXT,5,8,0,11,0,nullptr,nullptr,0,MSG(MPluginModulePath)},
-		{DI_EDIT,5,9,58,12,0,nullptr,nullptr,DIF_READONLY,pPlugin->GetModuleName().CPtr()},
-		{DI_TEXT,5,10,0,13,0,nullptr,nullptr,0,MSG(MPluginGUID)},
-		{DI_EDIT,5,11,58,14,0,nullptr,nullptr,DIF_READONLY,strPluginGuid.CPtr()},
-		{DI_TEXT,5,12,0,15,0,nullptr,nullptr,0,MSG(MPluginItemGUID)},
-		{DI_EDIT,5,13,58,16,0,nullptr,nullptr,DIF_READONLY,strItemGuid.CPtr()},
-		{DI_TEXT,5,14,0,15,0,nullptr,nullptr,0,MSG(MPluginPrefix)},
-		{DI_EDIT,5,15,58,16,0,nullptr,nullptr,DIF_READONLY,strPluginPrefix.CPtr()},
-	};
-	MakeDialogItemsEx(PluginDlgData,PluginDlg);
-
-	int ExitCode;
-	{
-		Dialog Dlg(PluginDlg,ARRAYSIZE(PluginDlg));
-		Dlg.SetPosition(-1,-1,64,18);
-		Dlg.Process();
-		ExitCode=Dlg.GetExitCode();
-	}
+	const int Width = 36;
+	DialogBuilder Builder(MPluginInformation, L"ShowPluginInfo");
+	Builder.AddText(MPluginModuleTitle);
+	Builder.AddConstEditField(pPlugin->GetTitle(), Width);
+	Builder.AddText(MPluginDescription);
+	Builder.AddConstEditField(pPlugin->GetDescription(), Width);
+	Builder.AddText(MPluginAuthor);
+	Builder.AddConstEditField(pPlugin->GetAuthor(), Width);
+	Builder.AddText(MPluginVersion);
+	Builder.AddConstEditField(pPlugin->GetVersionString(), Width);
+	Builder.AddText(MPluginModulePath);
+	Builder.AddConstEditField(pPlugin->GetModuleName(), Width);
+	Builder.AddText(MPluginGUID);
+	Builder.AddConstEditField(strPluginGuid, Width);
+	Builder.AddText(MPluginItemGUID);
+	Builder.AddConstEditField(strItemGuid, Width);
+	Builder.AddText(MPluginPrefix);
+	Builder.AddConstEditField(strPluginPrefix, Width);
+	Builder.AddOKCancel();
+	Builder.ShowDialog();
 }
 
 bool PluginManager::GetDiskMenuItem(

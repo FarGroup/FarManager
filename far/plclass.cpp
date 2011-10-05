@@ -736,6 +736,15 @@ bool Plugin::LoadData()
 		strDescription = Info.Description;
 		strAuthor = Info.Author;
 
+		const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
+		FormatString strVersion;
+		strVersion << PluginVersion.Major << L"." << PluginVersion.Minor << L"." << PluginVersion.Revision << L" (build " << PluginVersion.Build <<L")";
+		if(PluginVersion.Stage != VS_RELEASE && PluginVersion.Stage < ARRAYSIZE(Stage))
+		{
+			strVersion << Stage[PluginVersion.Stage];
+		}
+		VersionString = strVersion;
+
 		bool ok=true;
 		if(m_Guid != FarGuid && m_Guid != Info.Guid)
 		{

@@ -142,6 +142,15 @@ DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_
 	return Item;
 }
 
+DialogItemEx *DialogBuilder::AddConstEditField(const wchar_t* Value, int Width, FARDIALOGITEMFLAGS Flags)
+{
+	DialogItemEx *Item = AddDialogItem(DI_EDIT, Value);
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width;
+	Item->Flags |= Flags|DIF_READONLY;
+	return Item;
+}
+
 DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 {
 	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, L"");

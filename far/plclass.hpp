@@ -231,10 +231,12 @@ public:
 
 	const string &GetModuleName() const { return m_strModuleName; }
 	const wchar_t *GetCacheName() const  { return m_strCacheName; }
-	const wchar_t* GetTitle(void) const { return strTitle.CPtr(); }
-	const wchar_t* GetDescription(void) const { return strDescription.CPtr(); }
-	const wchar_t* GetAuthor(void) const { return strAuthor.CPtr(); }
-	const GUID& GetGUID(void) const { return m_Guid; }
+	const wchar_t* GetTitle() const { return strTitle.CPtr(); }
+	const wchar_t* GetDescription() const { return strDescription.CPtr(); }
+	const wchar_t* GetAuthor() const { return strAuthor.CPtr(); }
+	const VersionInfo& GetVersion() { return PluginVersion; }
+	const wchar_t* GetVersionString() { return VersionString; }
+	const GUID& GetGUID() const { return m_Guid; }
 	const wchar_t *GetMsg(int nID) const { return PluginLang.GetMsg(nID); }
 
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags)==TRUE; }
@@ -278,6 +280,8 @@ private:
 
 	VersionInfo MinFarVersion;
 	VersionInfo PluginVersion;
+
+	string VersionString;
 
 	GUID m_Guid;
 	string m_strGuid;
