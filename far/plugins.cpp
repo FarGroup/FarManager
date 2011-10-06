@@ -1843,48 +1843,23 @@ void PluginManager::GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHo
 
 bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const wchar_t *DlgPluginTitle)
 {
-	/*
-	ã================ Assign plugin hot key =================¬
-	¦ Enter hot key (letter or digit)                        ¦
-	¦ _                                                      ¦
-	L========================================================-
-	*/
-
-	FarDialogItem PluginDlgData[]=
-	{
-		{DI_DOUBLEBOX,3,1,60,4,0,nullptr,nullptr,0,MSG(MPluginHotKeyTitle)},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MPluginHotKey)},
-		{DI_FIXEDIT,5,3,5,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
-		{DI_TEXT,8,3,58,3,0,nullptr,nullptr,0,DlgPluginTitle},
-	};
-	MakeDialogItemsEx(PluginDlgData,PluginDlg);
-
 	string strPluginKey;
 	GetHotKeyPluginKey(pPlugin, strPluginKey);
 	string strGuid = GuidToStr(Guid);
-	PluginDlg[2].strData = PlHotkeyCfg->GetHotkey(strPluginKey, strGuid, HotKeyType);
+	string strHotKey = PlHotkeyCfg->GetHotkey(strPluginKey, strGuid, HotKeyType);
 
-	int ExitCode;
+	DialogBuilder Builder(MPluginHotKeyTitle, L"SetHotKeyDialog");
+	Builder.AddText(MPluginHotKey);
+	Builder.AddTextAfter(Builder.AddFixEditField(&strHotKey, 1), DlgPluginTitle);
+	Builder.AddOKCancel();
+	if(Builder.ShowDialog())
 	{
-		Dialog Dlg(PluginDlg,ARRAYSIZE(PluginDlg));
-		Dlg.SetPosition(-1,-1,64,6);
-		Dlg.Process();
-		ExitCode=Dlg.GetExitCode();
-	}
-
-	if (ExitCode==2)
-	{
-		PluginDlg[2].strData.SetLength(1);
-		RemoveLeadingSpaces(PluginDlg[2].strData);
-
-		if (PluginDlg[2].strData.IsEmpty())
-			PlHotkeyCfg->DelHotkey(strPluginKey, strGuid, HotKeyType);
+		if (!strHotKey.IsEmpty() && strHotKey.At(0) != L' ')
+			PlHotkeyCfg->SetHotkey(strPluginKey, strGuid, HotKeyType, strHotKey);
 		else
-			PlHotkeyCfg->SetHotkey(strPluginKey, strGuid, HotKeyType, PluginDlg[2].strData);
-
+			PlHotkeyCfg->DelHotkey(strPluginKey, strGuid, HotKeyType);
 		return true;
 	}
-
 	return false;
 }
 
@@ -1924,7 +1899,7 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 	Builder.AddConstEditField(strItemGuid, Width);
 	Builder.AddText(MPluginPrefix);
 	Builder.AddConstEditField(strPluginPrefix, Width);
-	Builder.AddOKCancel();
+	Builder.AddOK();
 	Builder.ShowDialog();
 }
 

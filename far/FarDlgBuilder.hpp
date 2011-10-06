@@ -69,6 +69,9 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.
 		DialogItemEx *AddEditField(string *Value, int Width, const wchar_t *HistoryID = nullptr, FARDIALOGITEMFLAGS Flags = 0);
 
+		// Добавляет поле типа DI_FIXEDIT для редактирования указанного строкового значения.
+		DialogItemEx *AddFixEditField(string *Value, int Width, const wchar_t *Mask = nullptr);
+
 		// Добавляет неизменяемое поле типа DI_EDIT для посмотра указанного строкового значения.
 		DialogItemEx *AddConstEditField(const wchar_t* Value, int Width, FARDIALOGITEMFLAGS Flags = 0);
 
@@ -88,5 +91,10 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		void AddOKCancel()
 		{
 			DialogBuilderBase<DialogItemEx>::AddOKCancel(MOk, MCancel);
+		}
+
+		void AddOK()
+		{
+			DialogBuilderBase<DialogItemEx>::AddOKCancel(MOk, -1);
 		}
 };

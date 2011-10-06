@@ -142,6 +142,21 @@ DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_
 	return Item;
 }
 
+DialogItemEx *DialogBuilder::AddFixEditField(string *Value, int Width, const wchar_t *Mask)
+{
+	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, *Value);
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width - 1;
+	if (Mask)
+	{
+		Item->Mask = Mask;
+		Item->Flags |= DIF_MASKEDIT;
+	}
+
+	SetLastItemBinding(new EditFieldBinding(Value));
+	return Item;
+}
+
 DialogItemEx *DialogBuilder::AddConstEditField(const wchar_t* Value, int Width, FARDIALOGITEMFLAGS Flags)
 {
 	DialogItemEx *Item = AddDialogItem(DI_EDIT, Value);

@@ -486,9 +486,9 @@ class DialogBuilderBase
 		}
 
 		// Добавляет указанную текстовую строку справа от элемента RelativeTo.
-		T *AddTextAfter(T *RelativeTo, int LabelId)
+		T *AddTextAfter(T *RelativeTo, const wchar_t* Label)
 		{
-			T *Item = AddDialogItem(DI_TEXT, GetLangString(LabelId));
+			T *Item = AddDialogItem(DI_TEXT, Label);
 			Item->Y1 = Item->Y2 = RelativeTo->Y1;
 			Item->X1 = RelativeTo->X1 + ItemWidth(*RelativeTo) - 1 + 2;
 
@@ -497,6 +497,11 @@ class DialogBuilderBase
 				Binding->AfterLabelID = GetItemID(Item);
 
 			return Item;
+		}
+
+		T *AddTextAfter(T *RelativeTo, int LabelId)
+		{
+			return AddTextAfter(RelativeTo, GetLangString(LabelId));
 		}
 
 		// Добавляет кнопку справа от элемента RelativeTo.
@@ -595,9 +600,12 @@ class DialogBuilderBase
 			OKButton->Y1 = OKButton->Y2 = NextY++;
 			OKButtonID = DialogItemsCount-1;
 
-			T *CancelButton = AddDialogItem(DI_BUTTON, GetLangString(CancelMessageId));
-			CancelButton->Flags = DIF_CENTERGROUP;
-			CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;
+			if(CancelMessageId != -1)
+			{
+				T *CancelButton = AddDialogItem(DI_BUTTON, GetLangString(CancelMessageId));
+				CancelButton->Flags = DIF_CENTERGROUP;
+				CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;
+			}
 		}
 
 		bool ShowDialog()

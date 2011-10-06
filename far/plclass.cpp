@@ -671,6 +671,18 @@ void Plugin::SetGuid(const GUID& Guid)
 	m_strGuid = GuidToStr(m_Guid);
 }
 
+void InitVersionString(const VersionInfo& PluginVersion, string& VersionString)
+{
+		const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
+		FormatString strVersion;
+		strVersion << PluginVersion.Major << L"." << PluginVersion.Minor << L"." << PluginVersion.Revision << L" (build " << PluginVersion.Build <<L")";
+		if(PluginVersion.Stage != VS_RELEASE && PluginVersion.Stage < ARRAYSIZE(Stage))
+		{
+			strVersion << Stage[PluginVersion.Stage];
+		}
+		VersionString = strVersion;
+}
+
 bool Plugin::LoadData()
 {
 	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
@@ -732,18 +744,10 @@ bool Plugin::LoadData()
 	{
 		MinFarVersion = Info.MinFarVersion;
 		PluginVersion = Info.Version;
+		InitVersionString(PluginVersion, VersionString);
 		strTitle = Info.Title;
 		strDescription = Info.Description;
 		strAuthor = Info.Author;
-
-		const wchar_t* Stage[] = { L" Release", L" Alpha", L" Beta", L" RC"};
-		FormatString strVersion;
-		strVersion << PluginVersion.Major << L"." << PluginVersion.Minor << L"." << PluginVersion.Revision << L" (build " << PluginVersion.Build <<L")";
-		if(PluginVersion.Stage != VS_RELEASE && PluginVersion.Stage < ARRAYSIZE(Stage))
-		{
-			strVersion << Stage[PluginVersion.Stage];
-		}
-		VersionString = strVersion;
 
 		bool ok=true;
 		if(m_Guid != FarGuid && m_Guid != Info.Guid)
@@ -835,6 +839,7 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 		{
 			ClearStruct(PluginVersion);
 		}
+		InitVersionString(PluginVersion, VersionString);
 
 		m_strGuid = PlCacheCfg->GetGuid(id);
 		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
