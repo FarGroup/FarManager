@@ -1,3 +1,9 @@
+svs 09.10.2011 15:29:43 +0400 - build 2215
+
+1. Mantis#0001832: Проблема FarNameToInputRecord / FarInputRecordToName
+   (from shmuel)
+   "...отвалился ввод букв в русской раскладке в одном из плагинов..."
+
 svs 06.10.2011 16:08:21 +0400 - build 2214
 
 1. Mantis#0001832: Проблема FarNameToInputRecord / FarInputRecordToName
