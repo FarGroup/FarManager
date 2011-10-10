@@ -267,7 +267,7 @@ static size_t WINAPI InputRecordToKeyName(const INPUT_RECORD* Key, wchar_t *KeyT
 static BOOL WINAPI KeyNameToInputRecord(const wchar_t *Name,INPUT_RECORD* RecKey)
 {
 	int Key=KeyNameToKeyW(Name);
-	return Key > 0?(KeyToInputRecord(Key,RecKey)>=0?TRUE:FALSE):FALSE;
+	return Key > 0?(KeyToInputRecord(Key,RecKey)!=0?TRUE:FALSE):FALSE;
 }
 
 #define GetPluginNumber(Id) (CtrlObject?CtrlObject->Plugins.PluginGuidToPluginNumber(*Id):-1)
