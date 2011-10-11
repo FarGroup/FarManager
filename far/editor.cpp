@@ -4807,21 +4807,35 @@ BOOL Editor::IsFileModified() const
 }
 
 // используется в FileEditor
-long Editor::GetCurPos()
+long Editor::GetCurPos( bool file_pos, bool add_bom )
 {
 	Edit *CurPtr=TopList;
 	long TotalSize=0;
+	int mult = 1, bom = 0;
+	if ( file_pos ) {
+		if ( m_codepage == CP_UNICODE || m_codepage == CP_REVERSEBOM ) {
+			mult = 2;
+			if ( add_bom ) bom += 2;
+		}
+		else if ( m_codepage == CP_UTF8 ) {
+			mult = -1;
+			if ( add_bom ) bom += 3;
+		}
+	}
 
 	while (CurPtr!=TopScreen)
 	{
 		const wchar_t *SaveStr,*EndSeq;
 		int Length;
 		CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-		TotalSize+=Length+StrLength(EndSeq);
+		if ( mult > 0 )
+			TotalSize += Length + StrLength(EndSeq);
+		else
+			TotalSize -= WideCharToMultiByte(CP_UTF8,0,SaveStr,Length,nullptr,0,nullptr,nullptr)+StrLength(EndSeq);
 		CurPtr=CurPtr->m_next;
 	}
 
-	return(TotalSize);
+	return TotalSize * mult + bom;
 }
 
 
@@ -6903,7 +6917,7 @@ Edit *Editor::InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter, i
 }
 
 
-void Editor::SetCacheParams(EditorPosCache &pc)
+void Editor::SetCacheParams(EditorPosCache &pc, bool count_bom)
 {
 	bool translateTabs=false;
 	SavePos=pc.bm;
@@ -6913,13 +6927,28 @@ void Editor::SetCacheParams(EditorPosCache &pc)
 	{
 		Edit *CurPtr=TopList;
 		long TotalSize=0;
+		bool utf8 = false;
+
+		if ( m_codepage == CP_UNICODE || m_codepage == CP_REVERSEBOM ) {
+			StartChar /= 2;
+			if ( count_bom )
+				--StartChar;
+		}
+		else if ( m_codepage == CP_UTF8 ) {
+			utf8 = true;
+			if ( count_bom )
+				StartChar -= 3;
+		}
 
 		while (CurPtr && CurPtr->m_next)
 		{
 			const wchar_t *SaveStr,*EndSeq;
 			int Length;
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
-			TotalSize+=Length+StrLength(EndSeq);
+			if ( utf8 )
+				Length = WideCharToMultiByte(CP_UTF8,0, SaveStr,Length, nullptr,0, nullptr,nullptr);
+
+			TotalSize += Length + StrLength(EndSeq);
 
 			if (TotalSize > StartChar)
 				break;

@@ -283,7 +283,7 @@ class Editor:public ScreenObject
 
 	public:
 
-		void SetCacheParams(EditorPosCache &pc);
+		void SetCacheParams(EditorPosCache &pc, bool count_bom=false);
 		void GetCacheParams(EditorPosCache &pc);
 
 		bool SetCodePage(UINT codepage);  //BUGBUG
@@ -301,7 +301,7 @@ class Editor:public ScreenObject
 		BOOL IsFileModified() const;
 		BOOL IsFileChanged() const;
 		void SetTitle(const wchar_t *Title);
-		long GetCurPos();
+		long GetCurPos( bool file_pos=false, bool add_bom=false );
 		int EditorControl(int Command,void *Param);
 		void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
 		static void SetReplaceMode(int Mode);
