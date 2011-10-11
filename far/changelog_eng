@@ -3,6 +3,56 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 11.10.2011 13:49:00 +0400 - build 2217
+
+1. Mantis#1901: Position saved on F6 switching (editor/viewer)
+
+2. Mantis#1766: viewer new version
+   Removal of artifacts when searched text gets into WWrap area
+
+svs 10.10.2011 17:21:48 +0400 - build 2216
+
+1. Mantis#0001832: FarNameToInputRecord / FarInputRecordToName  problem
+   (from Maximus)
+
+svs 09.10.2011 15:29:43 +0400 - build 2215
+
+1. Mantis#0001832: FarNameToInputRecord / FarInputRecordToName problem
+   (from shmuel)
+   "...broken input with Russian keyboard layout in a plugin..."
+
+svs 06.10.2011 16:08:21 +0400 - build 2214
+
+1. Mantis#0001832: FarNameToInputRecord / FarInputRecordToName problem
+   (from Maximus)
+
+drkns 06.10.2011 13:33:04 +0200 - build 2213
+
+1. And more.
+
+drkns 05.10.2011 16:46:24 +0200 - build 2212
+
+1. More on #1899.
+
+svs 05.10.2011 11:40:27 +0400 - build 2211
+
+1. Mantis#0001899: Show information on plugin (GUID etc.) in F11/F4
+   (from Maximus)
+   F3 invokes a dialog containing technical information on the plugin.
+
+svs 04.10.2011 10:07:48 +0400 - build 2210
+
+1. Mantis#0001766: Viewer new version
+   (from 2useven10)
+
+svs 03.10.2011 12:02:41 +0400 - build 2209
+
+1. Mantis#0001529: Incorrect action of setposidx macrofunction
+
+2. SQLite updated to "3.7.8"
+
+3. In the wake of "0001897: cannot build Far 3.0 with gcc" - "Include".
+
 svs 01.10.2011 10:20:58 +0400 - build 2208
 
 1. Mantis#0001677: Set "starting" key code with MCMD_POSTMACROSTRING on macro start
