@@ -289,7 +289,26 @@ void InfoPanelSettings()
 	Builder.AddText(MConfigInfoPanelUNTitle);
 	Builder.AddComboBox((int *) &Opt.InfoPanel.UserNameFormat, 50, UNListItems, ARRAYSIZE(UNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddOKCancel();
-	Builder.ShowDialog();
+
+	if (Builder.ShowDialog())
+	{
+		bool needRedraw=false;
+		if (CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
+		{
+			CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+			needRedraw=true;
+		}
+		if (CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)
+		{
+			CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+			needRedraw=true;
+		}
+		if (needRedraw)
+		{
+			//CtrlObject->Cp()->SetScreenPosition();
+			CtrlObject->Cp()->Redraw();
+		}
+	}
 }
 
 void DialogSettings()
