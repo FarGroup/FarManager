@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 12.10.2011 11:38:10 +0400 - build 2218
+
+1. Info panel was not updated after changes made in info panel settings dialog.
+
 w17 11.10.2011 13:49:00 +0400 - build 2217
 
 1. Mantis#1901: Position saved on F6 switching (editor/viewer)
