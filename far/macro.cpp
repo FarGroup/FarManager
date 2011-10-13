@@ -3076,7 +3076,7 @@ static bool flockFunc(const TMacroFunction*)
 	return Ret.i()!=-1;
 }
 
-// V=Dlg.GetValue(ID,N)
+// V=Dlg.GetValue(Index,TypeInf)
 static bool dlggetvalueFunc(const TMacroFunction*)
 {
 	TVar Ret(-1);
@@ -3086,8 +3086,10 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 
 	if (CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
 	{
+		TFarGetValue fgv={TypeInf,FMVT_UNKNOWN};
 		unsigned DlgItemCount=((Dialog*)CurFrame)->GetAllItemCount();
 		const DialogItemEx **DlgItem=((Dialog*)CurFrame)->GetAllItem();
+		bool CallDialog=true;
 
 		if (Index == (unsigned)-1)
 		{
@@ -3103,6 +3105,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 					case 4: Ret=(__int64)Rect.Right; break;
 					case 5: Ret=(__int64)Rect.Bottom; break;
 					case 6: Ret=(__int64)(((Dialog*)CurFrame)->GetDlgFocusPos()+1); break;
+					default: Ret=0; Ret.SetType(vtUnknown); break;
 				}
 			}
 		}
@@ -3198,45 +3201,50 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 					break;
 				}
 			}
+		}
+		else if (Index >= DlgItemCount)
+		{
+			Ret=(__int64)TypeInf;
+		}
+		else
+			CallDialog=false;
 
-			//if (ItemType == DI_USERCONTROL)
+		if (CallDialog)
+		{
+			fgv.Val.type=(FARMACROVARTYPE)Ret.type();
+			switch (Ret.type())
 			{
-				TFarGetValue fgv={TypeInf,{(FARMACROVARTYPE)Ret.type()}};
-				switch (Ret.type())
-				{
-					case vtUnknown:
-					case vtInteger:
-						fgv.Val.i=Ret.i();
-						break;
-					case vtString:
-						fgv.Val.s=Ret.s();
-						break;
-					case vtDouble:
-						fgv.Val.d=Ret.d();
-						break;
-				}
-
-				if (SendDlgMessage((HANDLE)CurFrame,DN_GETVALUE,Index,&fgv))
-				{
-					switch (fgv.Val.type)
-					{
-						case FMVT_UNKNOWN:
-						case FMVT_INTEGER:
-							Ret=fgv.Val.i;
-							break;
-						case FMVT_DOUBLE:
-							Ret=fgv.Val.d;
-							break;
-						case FMVT_STRING:
-							Ret=fgv.Val.s;
-							break;
-						default:
-							Ret=-1;
-							break;
-					}
-				}
+				case vtUnknown:
+				case vtInteger:
+					fgv.Val.i=Ret.i();
+					break;
+				case vtString:
+					fgv.Val.s=Ret.s();
+					break;
+				case vtDouble:
+					fgv.Val.d=Ret.d();
+					break;
 			}
 
+			if (SendDlgMessage((HANDLE)CurFrame,DN_GETVALUE,Index,&fgv))
+			{
+				switch (fgv.Val.type)
+				{
+					case FMVT_UNKNOWN:
+					case FMVT_INTEGER:
+						Ret=fgv.Val.i;
+						break;
+					case FMVT_DOUBLE:
+						Ret=fgv.Val.d;
+						break;
+					case FMVT_STRING:
+						Ret=fgv.Val.s;
+						break;
+					default:
+						Ret=-1;
+						break;
+				}
+			}
 		}
 	}
 
