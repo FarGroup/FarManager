@@ -4806,8 +4806,8 @@ done:
 		if (Mode==MACRO_EDITOR &&
 		        IsRedrawEditor &&
 		        CtrlObject->Plugins.CurEditor &&
-		        CtrlObject->Plugins.CurEditor->IsVisible() &&
-		        LockScr)
+		        CtrlObject->Plugins.CurEditor->IsVisible()
+		        /* && LockScr*/) // Mantis#0001595
 		{
 			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
 			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
