@@ -54,6 +54,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "TaskBar.hpp"
 #include "cddrv.hpp"
+#include "drivemix.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
@@ -397,16 +398,15 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	last_update_check = GetTickCount();
 	string strRoot;
 	GetPathRoot(strFullFileName, strRoot);
-	int DriveType = FAR_GetDriveType(strRoot);
-	if (IsDriveTypeCDROM(DriveType))
-		DriveType = DRIVE_CDROM;
+	int DriveType = FAR_GetDriveType(strRoot, nullptr, 2); // media inserted here
 	switch (DriveType) //??? make it configurable
 	{
-		case DRIVE_REMOVABLE: update_check_period = -1;  break; // flash drive or floppy: never
+		case DRIVE_REMOVABLE: update_check_period = -1;  break; // floppy: never
+		case DRIVE_USBDRIVE:  update_check_period = 500; break; // flash drive: 0.5 sec
 		case DRIVE_FIXED:     update_check_period = +1;  break; // hard disk: 1 msec
 		case DRIVE_REMOTE:    update_check_period = 500; break; // network drive: 0.5 sec
 		case DRIVE_CDROM:     update_check_period = -1;  break; // cd/dvd: never
-		case DRIVE_RAMDISK:   update_check_period = +1;  break; // ramdrive: 1 msec
+		case DRIVE_RAMDISK:   update_check_period = +1;  break; // ram-drive: 1 msec
 		default:              update_check_period = -1;  break; // unknown: never
 	}
 

@@ -371,14 +371,34 @@ UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCapabilities *Caps, DW
 		if (DrvType == DRIVE_UNKNOWN) // фигня могла кака-нить произойти, посему...
 			DrvType=DRIVE_CDROM;       // ...вертаем в зад сидюк.
 	}
-
-//  if((Detect&2) && IsDriveUsb(*LocalName,nullptr)) //DrvType == DRIVE_REMOVABLE
-//    DrvType=DRIVE_USBDRIVE;
-//  if((Detect&4) && GetSubstName(DrvType,LocalName,nullptr,0))
-//    DrvType=DRIVE_SUBSTITUTE;
-
 	if (Caps)
 		*Caps=caps;
+
+	if ( 0 != (Detect & 2) && DrvType == DRIVE_REMOVABLE )
+	{
+		// media have to be inserted!
+		//
+		string drive = HasPathPrefix(strRootDir) ? strRootDir : L"\\\\?\\" + strRootDir;
+		DeleteEndSlash(drive, false);
+
+		HANDLE hDevice = ::CreateFileW(
+			drive.CPtr(),
+			GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0, nullptr
+		);
+		if ( INVALID_HANDLE_VALUE != hDevice )
+		{
+			DISK_GEOMETRY g;
+			DWORD dwOutBytes;
+			if ( DeviceIoControl(hDevice,IOCTL_DISK_GET_DRIVE_GEOMETRY,nullptr,0,&g,(DWORD)sizeof(g),&dwOutBytes,NULL) )
+				if ( g.MediaType == FixedMedia || g.MediaType == RemovableMedia )
+					DrvType = DRIVE_USBDRIVE;
+			CloseHandle(hDevice);
+		}
+	}
+//	if((Detect&2) && IsDriveUsb(*LocalName,nullptr)) //DrvType == DRIVE_REMOVABLE
+//		DrvType=DRIVE_USBDRIVE;
+//	if((Detect&4) && GetSubstName(DrvType,LocalName,nullptr,0))
+//		DrvType=DRIVE_SUBSTITUTE;
 
 	return DrvType;
 }
