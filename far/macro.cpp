@@ -547,6 +547,7 @@ int WINAPI KeyNameMacroToKey(const wchar_t *Name)
 KeyMacro::KeyMacro():
 	MacroVersion(GetRegKey(L"KeyMacros",L"MacroVersion",0)),
 	Recording(MACROMODE_NOMACRO),
+	IsRedrawEditor(TRUE),
 	Mode(MACRO_SHELL),
 	CurPCStack(-1),
 	StopMacro(false),
@@ -554,8 +555,7 @@ KeyMacro::KeyMacro():
 	RecBufferSize(0),
 	RecBuffer(nullptr),
 	RecSrc(nullptr),
-	LockScr(nullptr),
-	IsRedrawEditor(TRUE)
+	LockScr(nullptr)
 {
 	Work.Init(nullptr);
 	ClearArray(IndexMode);

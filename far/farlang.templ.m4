@@ -1337,24 +1337,6 @@ MConfigCreateUppercaseFolders
 "Nazwy katalogów &WIELKIMI LITERAMI"
 "Crear directorios en ma&yúsculas"
 
-MConfigInactivity
-"&Время бездействия"
-"&Inactivity time"
-"&Doba nečinnosti"
-"Inaktivitäts&zeit"
-"A FAR kilé&p"
-"Czas &bezczynności"
-"Desact&ivar FAR en..."
-
-MConfigInactivityMinutes
-"минут"
-"minutes"
-"minut"
-"Minuten"
-"perc tétlenség után"
-"&minut"
-"minutos"
-
 MConfigSaveHistory
 "Сохранять &историю команд"
 "Save commands &history"

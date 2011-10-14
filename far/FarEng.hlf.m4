@@ -2158,10 +2158,6 @@ determining the total file size in the sub-folders.
   #Create folders in uppercase#
   If the name of a new folder contains only lowercase letters and this option is on, the folder will be created in uppercase.
 
-  #Inactivity time#
-  Terminate Far after a specified interval without keyboard or mouse activity. This works only if Far waits for command line
-input without viewer or editor screens in the background.
-
   #Save commands history#
   Forces saving ~commands history~@History@ before exit and restoring after starting Far.
 

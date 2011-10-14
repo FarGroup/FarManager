@@ -131,12 +131,6 @@ void SystemSettings()
 	Builder.AddCheckbox(MConfigScanJunction, &Opt.ScanJunction);
 	Builder.AddCheckbox(MConfigCreateUppercaseFolders, &Opt.CreateUppercaseFolders);
 
-	DialogItemEx *InactivityExit = Builder.AddCheckbox(MConfigInactivity, &Opt.InactivityExit);
-	DialogItemEx *InactivityExitTime = Builder.AddIntEditField(&Opt.InactivityExitTime, 2);
-	InactivityExitTime->Indent(4);
-	Builder.AddTextAfter(InactivityExitTime, MConfigInactivityMinutes);
-	Builder.LinkFlags(InactivityExit, InactivityExitTime, DIF_DISABLE);
-
 	Builder.AddCheckbox(MConfigSaveHistory, &Opt.SaveHistory);
 	Builder.AddCheckbox(MConfigSaveFoldersHistory, &Opt.SaveFoldersHistory);
 	Builder.AddCheckbox(MConfigSaveViewHistory, &Opt.SaveViewHistory);
@@ -694,8 +688,6 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"CopyTimeRule",  &Opt.CMOpt.CopyTimeRule, 3, 0},
 
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"InactivityExit",&Opt.InactivityExit,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"InactivityExitTime",&Opt.InactivityExitTime,15, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT|DRIVE_SHOW_CDROM, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"DriveDisconnetMode",&Opt.ChangeDriveDisconnetMode,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"AutoUpdateRemoteDrive",&Opt.AutoUpdateRemoteDrive,1, 0},

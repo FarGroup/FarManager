@@ -899,14 +899,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 			if (WaitInMainLoop)
 			{
-				if (Opt.InactivityExit && Opt.InactivityExitTime>0 &&
-				        CurTime-StartIdleTime>Opt.InactivityExitTime*60000 &&
-				        FrameManager->GetFrameCount()==1)
-				{
-					FrameManager->ExitMainLoop(FALSE);
-					return(KEY_NONE);
-				}
-
 				if (!(LoopCount & 63))
 				{
 					static int Reenter=0;

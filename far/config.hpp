@@ -461,8 +461,6 @@ struct Options
 	int ScreenSaver;
 	int ScreenSaverTime;
 	int UseVk_oem_x;
-	int InactivityExit;
-	int InactivityExitTime;
 	int ShowHidden;
 	int Highlight;
 
