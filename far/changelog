@@ -1,3 +1,7 @@
+w17 16.10.2011 12:39:32 +0400 build - 2223
+
+1. Mantis#1791: "Cannot find the file" по F5 после Ctrl+Tab из сохранённого в редакторе файла
+
 drkns 14.10.2011 18:30:56 +0200 - build 2222
 
 1. Опции "Inactivity time" больше нет.

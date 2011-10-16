@@ -1076,6 +1076,7 @@ void FilePanels::OnChangeFocus(int f)
 		    Redraw גûחûגאועסÿ סכוהמל גמ Frame::OnChangeFocus.
 		*/
 //    Redraw();
+		ActivePanel->SetCurPath();
 		Frame::OnChangeFocus(1);
 	}
 }
