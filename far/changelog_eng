@@ -3,6 +3,83 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 16.10.2011 12:39:32 +0400 build - 2223
+
+1. Mantis#1791: "Cannot find the file" on F5 after Ctrl+Tab from a file saved in editor
+
+drkns 14.10.2011 18:30:56 +0200 - build 2222
+
+1. "Inactivity time" option no longer exists.
+
+w17 14.10.2011 18:01:33 +0400 - build 2221
+
+1. Mantis#1823: Viewer auto-update on flash drives
+
+svs 13.10.2011 17:44:03 +0400 - build 2220
+
+1. Mantis#0001882: Enable "hooking" of Dlg.GetValue and ItemCount/CurPos macrofunctions in dialogs.
+
+   Correction of DN_GETVALUE
+
+   ACHTUNG!
+      Indices in macros start with 1, opposed to 0 in API.
+
+   In macros: dlg.getvalue(Index,TypeInf)
+
+     If (Index > 0  && Index <= DlgItemCount)
+     {
+        see dlg.getvalue description (just consider that the plugin receives Index-1)
+        /*
+           DlgItemCount is got via dlggetvalueFunc(0,0)
+        */
+        It returns to the macro exactly what the plugin has returned.
+        /*
+          Here the plugin can return FMVT_INTEGER/FMVT_UNKNOWN or FMVT_DOUBLE or FMVT_STRING.
+        */
+     }
+     
+     If (Index > DlgItemCount)
+     {
+        1) the plugin receives (DN_GETVALUE,Index-1,{FMVT_INTEGER,TypeInf}) in its dialog procedure.
+           /*
+              FMVT_INTEGER - exactly, in order to simplify the description :-)
+           */
+        2) The macro receives exactly what the plugin has returned.
+           /*
+             Here the plugin can return FMVT_INTEGER/FMVT_UNKNOWN or FMVT_DOUBLE or FMVT_STRING.
+           */
+     }
+
+     If (Index == 0) // this is about the dialog
+     {
+        If (TypeInf is 0 to 6)   // "6" - so far, may be expanded in the future :-)
+        {
+           see dlg.getvalue description (just consider that the plugin receives Index-1, i.e. -1)
+           The macro receives exactly what the plugin has returned.
+           /*
+             Here the plugin can return FMVT_INTEGER/FMVT_UNKNOWN or FMVT_DOUBLE or FMVT_STRING.
+           */
+        }
+        Else 
+        {
+           the dialog procedure receives the value {FMVT_UNKNOWN, 0} (the plugin gets Index-1, i.e. -1)
+        }
+     }
+
+     If (the current domain is not a dialog) or (Index < DlgItemCount and an inner error has taken place)
+     {
+        the plugin does not get DN_GETVALUE. 
+     }
+
+
+svs 13.10.2011 15:23:12 +0400 - build 2219
+
+1. Mantis#0001595: Problems with mmode(1,0) in editor
+    mmode(1,0) enables screen displaying.
+    Nevertheless, in some cases it's been the case of the editor stay uncolored.
+
+   Catching bugs so far ;-)
+
 svs 12.10.2011 11:38:10 +0400 - build 2218
 
 1. Info panel was not updated after changes made in info panel settings dialog.
