@@ -203,8 +203,8 @@ user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
   For example, "dir|far /v -" will view dir command output.
 
   If the input stream is empty when using '-' (for example, you have not specified
-the "dir" command in the provided example), Far will wait forever for the end of data
-in the input stream. This will probably be fixed in a later version of Far.
+the "dir" command in the provided example), Far will wait for the end of data
+in the input stream until you press Ctrl-Break.
 
   #/w#
   Stretch to console window instead of console buffer.
