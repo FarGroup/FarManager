@@ -66,6 +66,7 @@ ImportedFunctions::ImportedFunctions()
 		InitImport(hKernel, pfnHeapSetInformation, "HeapSetInformation");
 		InitImport(hKernel, pfnIsWow64Process, "IsWow64Process");
 		InitImport(hKernel, pfnGetNamedPipeServerProcessId, "GetNamedPipeServerProcessId");
+		InitImport(hKernel, pfnCancelSynchronousIo, "CancelSynchronousIo");
 	}
 
 	if (hNtdll)
@@ -267,6 +268,18 @@ BOOL ImportedFunctions::GetNamedPipeServerProcessId(HANDLE Pipe, PULONG ServerPr
 	}
 }
 
+BOOL ImportedFunctions::CancelSynchronousIo(HANDLE Thread)
+{
+	if(pfnCancelSynchronousIo)
+	{
+		return pfnCancelSynchronousIo(Thread);
+	}
+	else
+	{
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		return FALSE;
+	}
+}
 
 NTSTATUS ImportedFunctions::NtQueryDirectoryFile(HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan)
 {

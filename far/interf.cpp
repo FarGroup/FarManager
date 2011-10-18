@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "configdb.hpp"
 #include "colormix.hpp"
+#include "imports.hpp"
 
 BOOL __stdcall CtrlHandler(DWORD CtrlType);
 
@@ -371,7 +372,10 @@ BOOL __stdcall CtrlHandler(DWORD CtrlType)
 	if (CtrlType==CTRL_C_EVENT || CtrlType==CTRL_BREAK_EVENT)
 	{
 		if (CtrlType==CTRL_BREAK_EVENT)
+		{
+			ifn.CancelSynchronousIo(MainThreadHandle);
 			WriteInput(KEY_BREAK);
+		}
 
 		if (CtrlObject && CtrlObject->Cp())
 		{

@@ -2901,7 +2901,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			case VK_MULTIPLY:
 				return(Modif|KEY_MULTIPLY);
 			case VK_CANCEL:
-				return(Modif|KEY_PAUSE);
+				return(Modif|KEY_BREAK);
 			case VK_SLEEP:
 				return(Modif|KEY_STANDBY);
 			case VK_SNAPSHOT:
@@ -2963,13 +2963,10 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			case VK_MULTIPLY:
 				return(Modif|KEY_MULTIPLY);
 				// KEY_EVENT_RECORD: Dn, 1, Vk="VK_CANCEL" [3/0x0003], Scan=0x0046 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x0000014A (CAsac - EcnS)
-				//case VK_PAUSE:
-			case VK_CANCEL: // Ctrl-Alt-Pause
-
-				if (!IntKeyState.ShiftPressed && (CtrlState&ENHANCED_KEY))
-					return(Modif|KEY_PAUSE);
-
-				return KEY_NONE;
+			case VK_PAUSE:
+				return Modif|KEY_PAUSE;
+			case VK_CANCEL:
+				return Modif|KEY_BREAK;
 			case VK_SLEEP:
 				return(Modif|KEY_STANDBY);
 			case VK_SNAPSHOT:

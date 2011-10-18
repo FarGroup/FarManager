@@ -112,3 +112,5 @@ extern FormatScreen FS;
 extern DWORD ErrorMode;
 
 extern LARGE_INTEGER FarUpTime;
+
+extern HANDLE MainThreadHandle;

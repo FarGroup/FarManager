@@ -400,6 +400,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	std::set_new_handler(nullptr);
 	QueryPerformanceCounter(&FarUpTime);
 
+	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &MainThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
 	GetVersionEx(&WinVer);
 
 	// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
@@ -740,6 +741,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	ReleaseDb();
 
 	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
+	CloseHandle(MainThreadHandle);
 	return Result;
 }
 

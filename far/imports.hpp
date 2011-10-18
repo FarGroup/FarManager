@@ -61,6 +61,7 @@ public: bool NAME##Present(){return pfn##NAME != nullptr;}
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, HeapSetInformation, (HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, IsWow64Process, (HANDLE Process, PBOOL Wow64Process));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetNamedPipeServerProcessId, (HANDLE Pipe, PULONG ServerProcessId));
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, CancelSynchronousIo, (HANDLE Thread));
 
 	// ntdll
 	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryDirectoryFile, (HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan));
