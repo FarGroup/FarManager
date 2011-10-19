@@ -2670,7 +2670,13 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			return NativeInfo.SendDlgMessage(hDlg, DM_LISTINFO, Param1, Param2);
 		}
-		case oldfar::DM_LISTGETDATA:	Msg = DM_LISTGETDATA; break;
+		case oldfar::DM_LISTGETDATA:
+		{
+			INT_PTR Size = NativeInfo.SendDlgMessage(hDlg, DM_LISTGETDATASIZE, Param1, Param2);
+			INT_PTR Data = NativeInfo.SendDlgMessage(hDlg, DM_LISTGETDATA, Param1, Param2);
+			if(Size<=4) Data=Data?*reinterpret_cast<UINT*>(Data):0;
+			return Data;
+		}
 		case oldfar::DM_LISTSETDATA:
 		{
 			FarListItemData newlid = {};
@@ -2681,6 +2687,14 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				newlid.Index=oldlid->Index;
 				newlid.DataSize=oldlid->DataSize;
 				newlid.Data=oldlid->Data;
+				if(0==newlid.DataSize)
+				{
+					newlid.DataSize=(wcslen((wchar_t*)oldlid->Data)+1)*sizeof(wchar_t);
+				}
+				else if(newlid.DataSize<=4)
+				{
+					newlid.Data=&oldlid->Data;
+				}
 			}
 
 			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTSETDATA, Param1, Param2?&newlid:0);

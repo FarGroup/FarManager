@@ -1,3 +1,7 @@
+zg 19.10.2011 14:50:58 +0200 - build 2228
+
+1. враппер: испрвлены DM_LISTGETDATA и DM_LISTSETDATA.
+
 drkns 19.10.2011 08:39:52 +0300 - build 2227
 
 1. [x] Clock in viewer and editor
