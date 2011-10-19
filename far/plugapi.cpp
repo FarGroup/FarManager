@@ -76,6 +76,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugsettings.hpp"
 #include "farversion.hpp"
 #include "mix.hpp"
+#include "FarGuid.hpp"
 
 wchar_t *WINAPI FarItoa(int value, wchar_t *string, int radix)
 {
@@ -2542,14 +2543,14 @@ INT_PTR WINAPI farRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Comm
 
 INT_PTR WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
-	PluginSettings* settings=nullptr;
+	AbstractSettings* settings=nullptr;
 
 	if (Command != SCTL_CREATE)
 	{
 		if (hHandle == INVALID_HANDLE_VALUE)
 			return FALSE;
 
-		settings = (PluginSettings*)hHandle;
+		settings = (AbstractSettings*)hHandle;
 	}
 
 	switch (Command)
@@ -2563,7 +2564,8 @@ INT_PTR WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS 
 			    FarSettingsCreate* data = (FarSettingsCreate*)Param2;
 				if (data->StructSize>=sizeof(FarSettingsCreate))
 				{
-					settings=new PluginSettings(data->Guid);
+					if(IsEqualGUID(FarGuid,data->Guid)) settings=new FarSettings();
+					else settings=new PluginSettings(data->Guid);
 					if (settings->IsValid())
 					{
 						data->Handle=settings;

@@ -65,18 +65,46 @@ template <class Object> class Vector
 		Object* GetItems(void) { return Items; }
 };
 
-class PluginSettings
+class AbstractSettings
+{
+    protected:
+		TPointerArray<Vector<FarSettingsName> > m_Enum;
+	public:
+		virtual ~AbstractSettings();
+		virtual bool IsValid(void);
+		virtual int Set(const FarSettingsItem& Item)=0;
+		virtual int Get(FarSettingsItem& Item)=0;
+		virtual int Enum(FarSettingsEnum& Enum)=0;
+		virtual int Delete(const FarSettingsValue& Value)=0;
+		virtual int SubKey(const FarSettingsValue& Value, bool bCreate)=0;
+};
+
+class PluginSettings: public AbstractSettings
 {
 	private:
 		TPointerArray<unsigned __int64> m_Keys;
 		TPointerArray<char*> m_Data;
-		TPointerArray<Vector<FarSettingsName> > m_Enum;
 		HierarchicalConfig *PluginsCfg;
 		PluginSettings();
 	public:
 		PluginSettings(const GUID& Guid);
 		~PluginSettings();
-		bool IsValid(void) {return m_Keys.getCount()!=0;}
+		bool IsValid(void);
+		int Set(const FarSettingsItem& Item);
+		int Get(FarSettingsItem& Item);
+		int Enum(FarSettingsEnum& Enum);
+		int Delete(const FarSettingsValue& Value);
+		int SubKey(const FarSettingsValue& Value, bool bCreate);
+};
+
+class FarSettings: public AbstractSettings
+{
+	private:
+		typedef bool (*HistoryFilter)(int Type);
+		int FillHistory(int Type,FarSettingsEnum& Enum,HistoryFilter Filter);
+	public:
+		FarSettings();
+		~FarSettings();
 		int Set(const FarSettingsItem& Item);
 		int Get(FarSettingsItem& Item);
 		int Enum(FarSettingsEnum& Enum);

@@ -1889,6 +1889,16 @@ enum FARSETTINGSTYPES
 	FST_DATA                        = 4,
 };
 
+enum FARSETTINGS_SUBFOLDERS
+{
+	FSSF_ROOT                       = 0,
+	FSSF_HISTORY_CMD                = 1,
+	FSSF_HISTORY_FOLDER             = 2,
+	FSSF_HISTORY_VIEW               = 3,
+	FSSF_HISTORY_EDIT               = 4,
+	FSSF_HISTORY_EXTERNAL           = 5,
+};
+
 struct FarSettingsCreate
 {
 	size_t StructSize;

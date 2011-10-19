@@ -36,6 +36,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugsettings.hpp"
 #include "ctrlobj.hpp"
 #include "strmix.hpp"
+#include "history.hpp"
+
+AbstractSettings::~AbstractSettings()
+{
+	for(size_t ii=0;ii<m_Enum.getCount();++ii)
+	{
+		FarSettingsName* array=m_Enum.getItem(ii)->GetItems();
+		for(size_t jj=0;jj<m_Enum.getItem(ii)->GetSize();++jj)
+		{
+			delete [] array[jj].Name;
+		}
+	}
+}
+
+bool AbstractSettings::IsValid(void)
+{
+	return true;
+}
 
 PluginSettings::PluginSettings(const GUID& Guid) : PluginsCfg(nullptr)
 {
@@ -60,14 +78,11 @@ PluginSettings::~PluginSettings()
 	{
 		delete [] *m_Data.getItem(ii);
 	}
-	for(size_t ii=0;ii<m_Enum.getCount();++ii)
-	{
-		FarSettingsName* array=m_Enum.getItem(ii)->GetItems();
-		for(size_t jj=0;jj<m_Enum.getItem(ii)->GetSize();++jj)
-		{
-			delete [] array[jj].Name;
-		}
-	}
+}
+
+bool PluginSettings::IsValid(void)
+{
+	return m_Keys.getCount()!=0;
 }
 
 int PluginSettings::Set(const FarSettingsItem& Item)
@@ -170,7 +185,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 		Vector<FarSettingsName>& array=*m_Enum.addItem();
 		FarSettingsName item;
 		DWORD Index=0,Type;
-		string strName,strValue;
+		string strName;
 
 		unsigned __int64 root = *m_Keys.getItem(Enum.Root);
 		item.Type=FST_SUBKEY;
@@ -242,4 +257,90 @@ int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 		}
 	}
 	return result;
+}
+
+FarSettings::FarSettings()
+{
+}
+
+FarSettings::~FarSettings()
+{
+}
+
+int FarSettings::Set(const FarSettingsItem& Item)
+{
+	return FALSE;
+}
+
+int FarSettings::Get(FarSettingsItem& Item)
+{
+	return FALSE;
+}
+
+static bool FilterNone(int)
+{
+	return true;
+}
+
+static bool FilterView(int Type)
+{
+	return (Type==0)?true:false;
+}
+
+static bool FilterEdit(int Type)
+{
+	return (Type==1||Type==4)?true:false;
+}
+
+static bool FilterExt(int Type)
+{
+	return (Type==2||Type==3)?true:false;
+}
+
+int FarSettings::Enum(FarSettingsEnum& Enum)
+{
+    switch(Enum.Root)
+    {
+    	case FSSF_HISTORY_CMD:
+    		return FillHistory(HISTORYTYPE_CMD,Enum,FilterNone);
+    	case FSSF_HISTORY_FOLDER:
+    		return FillHistory(HISTORYTYPE_FOLDER,Enum,FilterNone);
+    	case FSSF_HISTORY_VIEW:
+    		return FillHistory(HISTORYTYPE_VIEW,Enum,FilterView);
+    	case FSSF_HISTORY_EDIT:
+    		return FillHistory(HISTORYTYPE_VIEW,Enum,FilterEdit);
+    	case FSSF_HISTORY_EXTERNAL:
+    		return FillHistory(HISTORYTYPE_VIEW,Enum,FilterExt);
+    }
+	return FALSE;
+}
+
+int FarSettings::Delete(const FarSettingsValue& Value)
+{
+	return FALSE;
+}
+
+int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
+{
+	return FALSE;
+}
+
+int FarSettings::FillHistory(int Type,FarSettingsEnum& Enum,HistoryFilter Filter)
+{
+	Vector<FarSettingsName>& array=*m_Enum.addItem();
+	FarSettingsName item;
+	DWORD Index=0;
+	string strName,strHistoryName;
+
+	unsigned __int64 id;
+	int HType;
+	bool HLock;
+	unsigned __int64 Time;
+	while(HistoryCfg->Enum(Index++,Type,strHistoryName,&id,strName,&HType,&HLock,&Time,false))
+	{
+	    if(Filter(HType)) AddString(array,item,strName);
+	}
+	Enum.Count=array.GetSize();
+	Enum.Items=array.GetItems();
+	return TRUE;
 }
