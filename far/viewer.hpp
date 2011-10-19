@@ -72,7 +72,8 @@ enum SHOW_MODES
 	SHOW_RELOAD,
 	SHOW_HEX,
 	SHOW_UP,
-	SHOW_DOWN
+	SHOW_DOWN,
+	SHOW_DUMP
 };
 
 class Viewer:public ScreenObject
@@ -174,6 +175,8 @@ class Viewer:public ScreenObject
 		int  vgetc_ib;
 		wchar_t vgetc_composite;
 
+		int dump_text_mode;
+
 	private:
 		virtual void DisplayObject();
 
@@ -184,6 +187,7 @@ class Viewer:public ScreenObject
 		int CacheFindUp(__int64 start);
 
 		void ShowHex();
+		void ShowDump();
 		void ShowStatus();
 		/* $ 27.04.2001 DJ
 		   функции для рисования скроллбара, для корректировки ширины в
@@ -222,6 +226,7 @@ class Viewer:public ScreenObject
 
 		void SetFileSize();
 		int GetStrBytesNum(const wchar_t *Str, int Length);
+		bool isBinaryFile();
 
 	public:
 		Viewer(bool bQuickView = false, UINT aCodePage = CP_AUTODETECT);
@@ -266,20 +271,8 @@ class Viewer:public ScreenObject
 		// Функция выделения - как самостоятельная функция
 		void SelectText(const __int64 &MatchPos,const __int64 &SearchLength, const DWORD Flags=0x1);
 
-		int GetTabSize() const { return ViOpt.TabSize; }
-		void SetTabSize(int newValue) { ViOpt.TabSize=newValue; }
-
-		int GetAutoDetectCodePage() const { return ViOpt.AutoDetectCodePage; }
-		void SetAutoDetectCodePage(int newValue) { ViOpt.AutoDetectCodePage=newValue; }
-
 		int GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
 		void SetShowScrollbar(int newValue) { ViOpt.ShowScrollbar=newValue; }
-
-		int GetShowArrows() const { return ViOpt.ShowArrows; }
-		void SetShowArrows(int newValue) { ViOpt.ShowArrows=newValue; }
-		/* IS $ */
-		int GetPersistentBlocks() const { return ViOpt.PersistentBlocks; }
-		void SetPersistentBlocks(int newValue) { ViOpt.PersistentBlocks=newValue; }
 
 		int GetHexMode() const { return VM.Hex; }
 

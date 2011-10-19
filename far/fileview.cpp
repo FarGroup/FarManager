@@ -363,18 +363,7 @@ int FileViewer::ProcessKey(int Key)
 		case KEY_ALTSHIFTF9:
 		case KEY_RALTSHIFTF9:
 			// Работа с локальной копией ViewerOptions
-			ViewerOptions ViOpt;
-			ViOpt.TabSize=View.GetTabSize();
-			ViOpt.AutoDetectCodePage=View.GetAutoDetectCodePage();
-			ViOpt.ShowScrollbar=View.GetShowScrollbar();
-			ViOpt.ShowArrows=View.GetShowArrows();
-			ViOpt.PersistentBlocks=View.GetPersistentBlocks();
-			ViewerConfig(ViOpt,true);
-			View.SetTabSize(ViOpt.TabSize);
-			View.SetAutoDetectCodePage(ViOpt.AutoDetectCodePage);
-			View.SetShowScrollbar(ViOpt.ShowScrollbar);
-			View.SetShowArrows(ViOpt.ShowArrows);
-			View.SetPersistentBlocks(ViOpt.PersistentBlocks);
+			ViewerConfig(View.ViOpt, true);
 
 			if (Opt.ViOpt.ShowKeyBar)
 				ViewKeyBar.Show();
@@ -491,7 +480,7 @@ void FileViewer::ShowStatus()
 		return;
 
 	GetTitle(strName);
-	int NameLength=ScrX-43; //???41
+	int NameLength=ScrX-43-1; //???-41-1
 
 	if (Opt.ViewerEditorClock && IsFullScreen())
 		NameLength-=6;
@@ -500,11 +489,12 @@ void FileViewer::ShowStatus()
 		NameLength=20;
 
 	TruncPathStr(strName, NameLength);
-	const wchar_t *lpwszStatusFormat = L"%-*s %5u %13I64u %7.7s %-4I64d %s%3d%%";
+	const wchar_t *lpwszStatusFormat = L"%-*s %c%5u %13I64u %7.7s %-4I64d %s%3d%%";
 	strStatus.Format(
 	    lpwszStatusFormat,
 	    NameLength,
 	    strName.CPtr(),
+		 L"thd"[View.VM.Hex],
 	    View.VM.CodePage,
 	    View.FileSize,
 	    MSG(MViewerStatusCol),

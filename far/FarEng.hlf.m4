@@ -2505,7 +2505,8 @@ $ #Viewer: control keys#
     #F1#                 Help
     #F2#                 Toggle line wrap/unwrap
     #Shift-F2#           Toggle wrap type (letters/words)
-    #F4#                 Toggle text/hex mode
+    #F4#                 Toggle text/hex or dump/hex mode
+    #Shift-F4#           Select viewer mode (text/hex/dump)
     #F6#                 Switch to ~editor~@Editor@
     #Alt-F5#             Print the file
                        ("Print manager" plugin is used).
@@ -2516,7 +2517,7 @@ $ #Viewer: control keys#
     #Shift-F8#           Select code page
     #Alt-F8#             ~Change current position~@ViewerGotoPos@
     #Alt-F9#             Toggles the size of the Far console window
-    #Alt-Shift-F9#       Call ~Viewer settings~@EditorSettings@ dialog
+    #Alt-Shift-F9#       Call ~Viewer settings~@ViewerSettings@ dialog
     #Numpad5,F3,F10,Esc# Quit
     #Ctrl-F10#           Position to the current file.
     #F11#                Call "~Plugin commands~@Plugins@" menu
@@ -2552,9 +2553,8 @@ $ #Viewer: control keys#
        the viewer is closed, but any operations on the deleted
        file fail - this is a Windows feature.
 
-    3. The current version of Far has a limitation on the maximum
-       number of columns in the internal viewer - the number
-       cannot exceed 2048. If a file contains a line that does not
+    3. You can configure the maximum number of columns in the internal viewer
+       (range is 100..100000, default 10000). If a file contains a line that does not
        fit in this number of columns, it will be split into several
        lines, even if the word wrap mode is turned off.
 
@@ -3090,6 +3090,12 @@ $ #Settings dialog: viewer#
 
     Internal viewer
 
+  #Persistent selection#    Do not remove block selection after
+                          moving the cursor.
+
+  #Show arrows#             Show scrolling arrows in viewer if the text
+                          doesn't fit in the window horizontally.
+
   #Save file position#      Save and restore positions in the recently
                           viewed files. This option also forces
                           restoring of code page, if the page
@@ -3101,8 +3107,11 @@ $ #Settings dialog: viewer#
                           (created with #RightCtrl-0..9# or
                           #Ctrl-Shift-0..9#)
 
-  #Auto detect#             ~Auto detect~@CodePage@ the code page of
-  #code page#               the file being viewed.
+  #Search dialog#           Always returns focus to search text field in
+  #auto-focus#              the ~Viewer~@Viewer@ search dialog.
+
+  #Visible '\0'#            Shows white circle sign instead of space for '\0'
+                          character in hex/dump viewer modes.
 
   #Tab size#                Number of spaces in a tab character.
 
@@ -3110,11 +3119,11 @@ $ #Settings dialog: viewer#
                           option can also be switched by pressing
                           #Ctrl-S# in the internal viewer.
 
-  #Show arrows#             Show scrolling arrows in viewer if the text
-                          doesn't fit in the window horizontally.
+  #Maximum line width#      Maximum number of columns for text mode viewer.
+                          Min=100, Max=100000, Default=10000.
 
-  #Persistent selection#    Do not remove block selection after
-                          moving the cursor.
+  #Auto detect#             ~Auto detect~@CodePage@ the code page of
+  #code page#               the file being viewed.
 
   #Use ANSI code page#      Use ANSI code page for viewing files,
   #by default#              instead of OEM.

@@ -72,8 +72,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 static void PR_ViewerSearchMsg();
 static void ViewerSearchMsg(const wchar_t *name, int percent, int search_hex);
 
-//static int InitHex=FALSE,SearchHex=FALSE;
-
 static int ViewerID=0;
 
 static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int wlen, int &tail);
@@ -81,6 +79,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 #define REPLACE_CHAR  0xFFFD // Replacement
 #define CONTINUE_CHAR 0x203A // Single Right-Pointing Angle Quotation Mark
 #define BOM_CHAR      0xFEFF // Zero Length Space
+#define ZERO_CHAR     (ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? (wchar_t)(ViOpt.ZeroChar) : L' ')
 
 Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	ViOpt(Opt.ViOpt),
@@ -107,7 +106,7 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	// ¬спомним тип врапа
 	VM.Wrap=Opt.ViOpt.ViewerIsWrap;
 	VM.WordWrap=Opt.ViOpt.ViewerWrap;
-	VM.Hex = FALSE; //InitHex;
+	VM.Hex = dump_text_mode = -1;
 	ViewKeyBar=nullptr;
 	FilePos=0;
 	LeftPos=0;
@@ -319,10 +318,14 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
 		ViewerPosCache poscache;
 
-		FilePositionCache::GetPosition(strCacheName,poscache);
+		bool found = FilePositionCache::GetPosition(strCacheName,poscache);
 		NewFilePos=poscache.FilePos;
 		NewLeftPos=poscache.LeftPos;
-		VM.Hex=poscache.Hex;
+		if ( found && VM.Hex == -1 ) // keep VM.Hex if file listed (Grey+ / Gray-)
+		{
+			if ( 1 != (VM.Hex = poscache.Hex) )
+				dump_text_mode = VM.Hex;
+		}
 		CachedCodePage=poscache.CodePage;
 		BMSavePos=poscache.bm;
 
@@ -382,6 +385,11 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	}
 	SetFileSize();
 
+	if ( -1 == dump_text_mode )
+		dump_text_mode = isBinaryFile() ? 2 : 0;
+	if ( -1 == VM.Hex )
+		VM.Hex = dump_text_mode;
+
 	if (FilePos > FileSize)
 		FilePos=0;
 	if ( FilePos )
@@ -413,6 +421,29 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	return TRUE;
 }
 
+bool Viewer::isBinaryFile() // very approximate: looks for 0x00,0x00 in first 2048 bytes
+{
+	unsigned char bf[2048+1]; // not fit to any device sector size
+	DWORD nb = static_cast<DWORD>(sizeof(bf)), nr = 0;
+
+	__int64 fpos = vtell();
+	vseek(0, FILE_BEGIN);
+	bool ok_read = ViewFile.Read(bf, nb, nr, nullptr);
+	vseek(fpos, FILE_BEGIN);
+
+	if ( !ok_read )
+		return true; // special files like '\\?\C:' are binary
+
+	if ( nr < 2 )
+		return (nr > 0 && !bf[0]);
+
+	for (nb = 0; nb+1 < nr; ++nb)
+		if ( !bf[nb] && !bf[nb+1] )
+			return true;
+
+	return false;
+}
+
 /* $ 27.04.2001 DJ
    функци€ вычислени€ ширины в зависимости от наличи€ скроллбара
 */
@@ -435,7 +466,7 @@ void Viewer::ShowPage(int nMode)
 
 	if (!ViewFile.Opened())
 	{
-		if (!strFileName.IsEmpty() && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)))
+		if (!strFileName.IsEmpty() && ((nMode == SHOW_RELOAD) || (nMode == SHOW_HEX)|| (nMode == SHOW_DUMP)))
 		{
 			SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor(COL_VIEWERTEXT));
 			GotoXY(X1,Y1);
@@ -461,6 +492,10 @@ void Viewer::ShowPage(int nMode)
 		case SHOW_HEX:
 			CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
 			ShowHex();
+			break;
+		case SHOW_DUMP:
+			CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
+			ShowDump();
 			break;
 		case SHOW_RELOAD:
 			CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
@@ -501,7 +536,7 @@ void Viewer::ShowPage(int nMode)
 			break;
 	}
 
-	if (nMode != SHOW_HEX)
+	if (nMode != SHOW_HEX && nMode != SHOW_DUMP)
 	{
 		for (I=0,Y=Y1; Y<=Y2; Y++,I++)
 		{
@@ -575,7 +610,136 @@ void Viewer::ShowPage(int nMode)
 
 void Viewer::DisplayObject()
 {
-	ShowPage(VM.Hex?SHOW_HEX:SHOW_RELOAD);
+	ShowPage(VM.Hex ? (VM.Hex > 1 ? SHOW_DUMP : SHOW_HEX) : SHOW_RELOAD);
+}
+
+
+static inline int getCharSize( UINT cp )
+{
+	if ( CP_UTF8 == cp )
+		return -1;
+	else if ( CP_UNICODE == cp || CP_REVERSEBOM == cp )
+		return +2;
+	else
+		return +1;
+}
+
+static inline int getChSize( UINT cp )
+{
+	if ( CP_UNICODE == cp || CP_REVERSEBOM == cp )
+		return +2;
+	else
+		return +1;
+}
+
+static const int mline = 512;
+
+static void txt_dump(
+	UINT cp, const unsigned char *line, DWORD nr, int width, wchar_t *outstr, wchar_t zch )
+{
+	int tail, nw, ib, iw;
+	wchar_t w1[mline], w2[mline];
+
+	if ( cp == CP_UNICODE )
+	{
+		ib = (int)(nr / 2);
+		memcpy(outstr, line, ib*2);
+		if ( nr & 1)
+			outstr[ib++] = REPLACE_CHAR;
+	}
+	else if ( cp == CP_REVERSEBOM )
+	{
+		ib = (int)(nr / 2);
+		for ( iw=0; iw < ib; ++iw )
+			outstr[iw] = (wchar_t)((line[iw*2] << 8) | line[iw*2+1]);
+		if ( nr & 1)
+			outstr[ib++] = REPLACE_CHAR;
+	}
+	else if ( cp != CP_UTF8 )
+	{
+		ib = MultiByteToWideChar(cp,0, (const char *)line,nr, outstr,width);
+		if ( ib < 0)
+			ib = 0;
+	}
+	else
+	{
+		ib = iw = 0;
+		nw = utf8_to_WideChar((char *)line, (int)nr, w1, w2, width, tail);
+		bool first = true;
+		while (ib < width && iw < nw)
+		{
+			if (first && w1[iw] == REPLACE_CHAR && w2[iw] == L'?')
+			{
+				outstr[ib++] = CONTINUE_CHAR; // это может быть не совсем корректно дл€ 'плохих' utf-8
+			}                                 // но усложн€ть из-за этого код на мой взг€д не стоит...
+			else
+			{
+				first = false;
+				outstr[ib++] = w1[iw];
+			}
+			int clen = WideCharToMultiByte(CP_UTF8, 0, w2+iw, 1, NULL,0, NULL,NULL);
+			while (--clen > 0 && ib < width)
+				outstr[ib++] = CONTINUE_CHAR;
+			++iw;
+		}
+	}
+
+	for ( iw = 0; iw < width; ++iw ) {
+		if ( iw >= ib )
+			outstr[iw] = L' ';
+		else if ( !outstr[iw] )
+			outstr[iw] = zch;
+	}
+	outstr[width] = L'\0';
+}
+
+
+void Viewer::ShowDump()
+{
+	int Y, EndFile = 0, ch_size = getChSize(VM.CodePage);
+	int utf8 = VM.CodePage == CP_UTF8 ? 1 : 0;
+
+	assert(Width <= mline);
+	unsigned char line[mline*2];
+	wchar_t OutStr[mline+1];
+	DWORD nr, nb = (DWORD)Width*ch_size + 3*utf8, mb = (DWORD)Width*ch_size;
+	__int64 bpos;
+
+	FilePos -= FilePos % ch_size;
+	vseek(SEEK_SET, SecondPos = FilePos);
+
+	for (EndFile=0,Y=Y1; Y<=Y2; Y++)
+	{
+		SetColor(COL_VIEWERTEXT);
+		GotoXY(X1, Y);
+
+		if (EndFile)
+		{
+			FS<<fmt::Width(ObjWidth)<<L"";
+			continue;
+		}
+		bpos = vtell();
+		if (Y == Y1+1)
+			SecondPos = bpos;
+
+		nr = 0;
+		Reader.Read(line, nb, &nr);
+		if (nr > mb)
+			Reader.Unread(nr-mb);
+		else
+			LastPage = EndFile = veof() ? 1 : 0;
+
+		txt_dump(VM.CodePage, line, nr, Width, OutStr, ZERO_CHAR);
+
+		FS<<fmt::Width(ObjWidth)<<OutStr;
+		if ( SelectSize > 0 && bpos < SelectPos+SelectSize && bpos+mb > SelectPos ) {
+			int bsel = SelectPos > bpos ? (int)(SelectPos-bpos) / ch_size : 0;
+			int esel = SelectPos+SelectSize < bpos+mb ? ((int)(SelectPos+SelectSize-bpos)+ch_size-1)/ch_size: Width;
+			SetColor(COL_VIEWERSELECTEDTEXT);
+			GotoXY(bsel, Y);
+			FS<<fmt::Precision(esel-bsel)<<OutStr+bsel;
+		}
+	}
 }
 
 void Viewer::ShowHex()
@@ -591,7 +755,7 @@ void Viewer::ShowHex()
 	const wchar_t BorderLine[] = {BoxSymbols[BS_V1],L' ',0};
 	int border_len = (int)wcslen(BorderLine);
 
-	for (EndFile=0,Y=Y1; Y<=Y2; Y++)
+	for (LastPage=EndFile=0,Y=Y1; Y<=Y2; Y++)
 	{
 		bSelStartFound = false;
 		bSelEndFound = false;
@@ -628,8 +792,8 @@ void Viewer::ShowHex()
 		Reader.Read(line, nb, &nr);
 		if (nr > 16)
 			Reader.Unread(nr-16);
-
-		LastPage = EndFile = (nr <= nb) && veof() ? 1 : 0;
+		else
+			LastPage = EndFile = veof() ? 1 : 0;
 
 		if (nr <= 0)
 		{
@@ -669,7 +833,7 @@ void Viewer::ShowHex()
 					{
 						unsigned ch = line[X+be] + (line[X+1-be] << 8);
 						_snwprintf(OutStr+out_len, ARRAYSIZE(OutStr)-out_len, L"%04X ", ch);
-						TextStr[TextPos++] = ch ? (wchar_t)ch : L' ';
+						TextStr[TextPos++] = ch ? (wchar_t)ch : ZERO_CHAR;
 					}
 					else if ((DWORD)X == nr-1) // half character only
 					{
@@ -730,35 +894,10 @@ void Viewer::ShowHex()
 						_snwprintf(OutStr+off, ARRAYSIZE(OutStr)-off, L"%02X ", (int)line[X]);
 					else
 						wcscpy(OutStr+off, L"   ");
-					TextStr[X] = L' ';
-					if (CP_UTF8 != VM.CodePage && X < (int)nr && line[X])
-						MultiByteToWideChar(VM.CodePage, 0, (LPCSTR)line+X, 1, TextStr+X, 1);
 				}
 				out_len += 3*16 + border_len;
 
-				if (CP_UTF8 == VM.CodePage)
-				{
-					wchar_t w1[16], w2[16];
-					int tail, nw, ib=0, iw=0;
-					nw = utf8_to_WideChar((char *)line, (int)nr, w1, w2, 16, tail);
-					bool first = true;
-					while (ib < 16 && iw < nw)
-					{
-						if (first && w1[iw] == REPLACE_CHAR && w2[iw] == L'?')
-						{
-							TextStr[ib++] = CONTINUE_CHAR; // это может быть не совсем корректно дл€ 'плохих' utf-8
-						}                                 // но усложн€ть из-за этого код на мой взг€д не стоит...
-						else
-						{
-							first = false;
-							TextStr[ib++] = w1[iw] ? w1[iw] : L' ';
-						}
-						int clen = WideCharToMultiByte(CP_UTF8, 0, w2+iw, 1, NULL,0, NULL,NULL);
-						while (--clen > 0 && ib < 16)
-							TextStr[ib++] = CONTINUE_CHAR;
-						++iw;
-					}
-				}
+				txt_dump(VM.CodePage, line, nr, 16, TextStr, ZERO_CHAR);
 				TextPos = 16;
 			}
 		}
@@ -794,7 +933,6 @@ void Viewer::ShowHex()
 /* $ 27.04.2001 DJ
    отрисовка скроллбара - в отдельную функцию
 */
-
 void Viewer::DrawScrollbar()
 {
 	if (ViOpt.ShowScrollbar)
@@ -808,10 +946,11 @@ void Viewer::DrawScrollbar()
 		{
 			ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage ? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
 		}
-		else
+		else if ( VM.Hex )
 		{
-			UINT64 Total=FileSize/16+((FileSize%16)?1:0);
-			UINT64 Top=FilePos/16+((FilePos%16)?1:0);
+			int lin_size = VM.Hex < 2 ? 16 : Width*getChSize(VM.CodePage);
+			UINT64 Total=FileSize/lin_size+((FileSize%lin_size)?1:0);
+			UINT64 Top=FilePos/lin_size+((FilePos%lin_size)?1:0);
 			ScrollBarEx(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,LastPage?Top?Total:0:Top,Total);
 		}
 	}
@@ -881,16 +1020,6 @@ static inline int wrapped_char( const wchar_t ch )
 		return -1;
 }
 
-static inline int getCharSize( UINT cp )
-{
-	if ( CP_UTF8 == cp )
-		return -1;
-	else if ( CP_UNICODE == cp || CP_REVERSEBOM == cp )
-		return +2;
-	else
-		return +1;
-}
-
 void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 {
 	AdjustWidth();
@@ -905,7 +1034,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 
 	if (VM.Hex)
 	{
-		vseek(16, FILE_CURRENT);
+		vseek(VM.Hex < 2 ? 16 : Width*getChSize(VM.CodePage), FILE_CURRENT);
 		pString->lpData[OutPtr] = L'\0';
 		LastPage = veof();
 		return;
@@ -961,7 +1090,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 			break;
 		}
 
-		pString->lpData[OutPtr++] = ch ? ch : L' ';
+		pString->lpData[OutPtr++] = ch ? ch : ZERO_CHAR;
 		if ( !VM.Wrap )
 			continue;
 
@@ -1019,8 +1148,9 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 
 			if (ch != L'\n')
 				vgetc_ib = ib; // ungetc()
+			else
+				eol_char = ch;
 
-			eol_char = ch;
 			break;
 		}
 	}
@@ -1086,7 +1216,7 @@ __int64 Viewer::EndOfScreen( int line )
 		}
 	}
 	else
-		pos =	FilePos + 16 * (Y2-Y1+1+line);
+		pos =	FilePos + (VM.Hex < 2 ? 16 : Width*getChSize(VM.CodePage)) * (Y2-Y1+1+line);
 
 	if (pos < 0)
 		pos = 0;
@@ -1147,11 +1277,15 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_V_VIEWERSTATE:
 		{
 			DWORD MacroViewerState=0;
-			MacroViewerState|=VM.Wrap?0x00000008:0;
-			MacroViewerState|=VM.WordWrap?0x00000010:0;
-			MacroViewerState|=VM.Hex?0x00000020:0;
-			MacroViewerState|=Opt.OnlyEditorViewerUsed?0x08000000|0x00000800:0;
-			MacroViewerState|=HostFileViewer && !HostFileViewer->GetCanLoseFocus()?0x00000800:0;
+			MacroViewerState |= ViOpt.AutoDetectCodePage     ? 0x00000001 : 0; //autodetect
+			MacroViewerState |= !ViOpt.AnsiCodePageAsDefault ? 0x00000002 : 0; //not use ANSI as default
+			MacroViewerState |=                                0x00000004;     //? always UNICODE
+			MacroViewerState |= VM.Wrap                      ? 0x00000008 : 0; //wrap mode
+			MacroViewerState |= VM.WordWrap                  ? 0x00000010 : 0; //word wrap
+			MacroViewerState |= VM.Hex == 1                  ? 0x00000020 : 0; //hex mode
+			MacroViewerState |= VM.Hex  > 1                  ? 0x00000040 : 0; //dump mode -- !!!update help
+			MacroViewerState |= Opt.OnlyEditorViewerUsed?0x08000000|0x00000800:0;
+			MacroViewerState |= HostFileViewer && !HostFileViewer->GetCanLoseFocus()?0x00000800:0;
 			return (__int64)MacroViewerState;
 		}
 		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
@@ -1419,7 +1553,32 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_F4:
 		{
-			ProcessHexMode(!VM.Hex);
+			VM.Hex = VM.Hex != 1 ? 1 : (dump_text_mode ? 2 : 0);
+			ProcessHexMode(VM.Hex);
+			return TRUE;
+		}
+		case KEY_SHIFTF4:
+		{
+			MenuDataEx ModeListMenu[] = {
+				MSG(MViewF4Text),0,0, // Text
+				MSG(MViewF4),0,0,     // Hex
+				MSG(MViewF4Dump),0,0  // Dump
+			};
+			int mode;
+			{
+				VMenu vModes(MSG(MViewMode),ModeListMenu,ARRAYSIZE(ModeListMenu),ScrY-4);
+				vModes.SetFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
+				vModes.SetPosition(-1,-1,0,0);
+				vModes.SetSelectPos(VM.Hex, +1);
+				vModes.Process();
+				mode = vModes.Modal::GetExitCode();
+			}
+			if ( mode >= 0 && mode != VM.Hex )
+			{
+				if ( mode != 1 )
+					dump_text_mode = (mode == 2);
+				ProcessHexMode(VM.Hex = mode);
+			}
 			return TRUE;
 		}
 		case KEY_F7:
@@ -1613,7 +1772,7 @@ int Viewer::ProcessKey(int Key)
 		{
 			if (LeftPos>0 && ViewFile.Opened())
 			{
-				if (VM.Hex && LeftPos>80-Width)
+				if (VM.Hex == 1 && LeftPos > 80-Width)
 					LeftPos=Max(80-Width,1);
 
 				LeftPos--;
@@ -1639,7 +1798,9 @@ int Viewer::ProcessKey(int Key)
 			{
 				if (VM.Hex)
 				{
-					FilePos = FilePos > 0 ? FilePos-1 : 0;
+					int ch_size = VM.Hex < 2 ? 1 : getChSize(VM.CodePage);
+					FilePos = FilePos > ch_size ? FilePos-ch_size : 0;
+					FilePos -= FilePos % ch_size;
 				}
 				else
 				{
@@ -1658,7 +1819,10 @@ int Viewer::ProcessKey(int Key)
 			{
 				if (VM.Hex)
 				{
-					FilePos = FilePos < FileSize-1 ? FilePos+1 : FileSize-1;
+					int ch_size = VM.Hex < 2 ? 1 : getChSize(VM.CodePage);
+					FilePos -= FilePos % ch_size;
+					FilePos = FilePos < FileSize-ch_size ? FilePos+ch_size : FileSize-1;
+					FilePos -= FilePos % ch_size;
 				}
 				else if (!VM.Wrap)
 				{
@@ -1748,21 +1912,23 @@ int Viewer::ProcessKey(int Key)
 				   Down.
 				*/
 				int max_counter = Y2 - Y1;
+				int ch_size = getChSize(VM.CodePage);
 
 				if (VM.Hex)
 				{
+					int lin_siz = VM.Hex < 2 ? 16 : Width*ch_size;
 					vseek(0,SEEK_END);
 					FilePos = vtell();
-					if ((FilePos % 16) == 0)
-						FilePos -= 16 * (Y2 - Y1 + 1);
+					FilePos -= FilePos % ch_size;
+					if ((FilePos % lin_siz) == 0)
+						FilePos -= lin_siz * (Y2 - Y1 + 1);
 					else
-						FilePos -= (FilePos % 16) + 16 * (Y2 - Y1);
+						FilePos -= (FilePos % lin_siz) + lin_siz * (Y2 - Y1);
 					if (FilePos < 0)
 						FilePos = 0;
 				}
 				else
 				{
-					int ch_size = getCharSize(VM.CodePage);
 					wchar_t LastSym = L'\0';
 
 					vseek(0, SEEK_END);
@@ -1985,18 +2151,30 @@ void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 	}
 	else
 	{
+		int i, j;
+		bool reset = (start < lcache_first || start+length > lcache_last);
+		if ( reset )
+		{
+			i = CacheFindUp(start+length);
+			reset = (i < 0 || _abs64(lcache_lines[i]) != start);
+         if ( !reset )
+			{
+				j = (i + 1) % lcache_size;
+				reset = (_abs64(lcache_lines[j]) != start+length);
+			}
+		}
 #if defined(_DEBUG) && 1 // it is legal case if file changed...
-		assert(start >= lcache_first && start+length <= lcache_last);
-		int i = CacheFindUp(start+length);
-		assert(i >= 0 && _abs64(lcache_lines[i]) == start);
+		assert( !reset );
 #endif
-		lcache_first = start;
-		lcache_last = start + length;
-
-		lcache_count = 2;
-		lcache_base = 0;
-		lcache_lines[0] = (have_eol ? -start : +start);
-		lcache_lines[1] = start + length;
+		if ( reset )
+		{
+			lcache_first = start;
+			lcache_last = start + length;
+			lcache_count = 2;
+			lcache_base = 0;
+			lcache_lines[0] = (have_eol ? -start : +start);
+			lcache_lines[1] = start + length;
+		}
 	}
 }
 
@@ -2039,7 +2217,8 @@ void Viewer::Up( int nlines )
 
 	if (VM.Hex)
 	{
-		FilePos = FilePos > 16*nlines ? FilePos-16*nlines : 0;
+		int lin_siz = VM.Hex < 2 ? 16 : Width*getChSize(VM.CodePage);
+		FilePos = FilePos > lin_siz*nlines ? FilePos-lin_siz*nlines : 0;
 		return;
 	}
 
@@ -2086,6 +2265,8 @@ void Viewer::Up( int nlines )
 		for ( j = 0; j < max_backward_size/portion_size; ++j )
 		{
 			buff_size = (fpos > (__int64)portion_size ? portion_size : (int)fpos);
+			if ( buff_size <= 0 )
+				break;
 			fpos -= buff_size;
 			vseek(fpos, SEEK_SET);
 
@@ -2216,10 +2397,7 @@ void Viewer::ChangeViewKeyBar()
 				        :MViewF2Unwrap),1);
 		ViewKeyBar->Change(KBL_SHIFT,MSG((VM.WordWrap)?MViewF2:MViewShiftF2),1);
 
-		if (VM.Hex)
-			ViewKeyBar->Change(MSG(MViewF4Text),3);
-		else
-			ViewKeyBar->Change(MSG(MViewF4),3);
+		ViewKeyBar->Change(MSG(VM.Hex != 1 ? MViewF4 : (dump_text_mode ? MViewF4Dump : MViewF4Text)), 3);
 
 		if (VM.CodePage != GetOEMCP())
 			ViewKeyBar->Change(MSG(MViewF8DOS),7);
@@ -3934,8 +4112,10 @@ void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, cons
 
 	if ( VM.Hex )
 	{
-		 FilePos = (FilePos & 0xf) | (SelectPos & ~0xf);
-		 FilePos = (FilePos < SelectPos ? FilePos : (FilePos > 16 ? FilePos-16 : 0));
+		int lin_siz = VM.Hex < 2 ? 16 : Width;
+
+		FilePos = (FilePos % lin_siz) + lin_siz*(SelectPos / lin_siz);
+		FilePos = (FilePos < SelectPos ? FilePos : (FilePos > lin_siz ? FilePos-lin_siz : 0));
 	}
 	else
 	{
@@ -4154,7 +4334,7 @@ BOOL Viewer::isTemporary()
 int Viewer::ProcessHexMode(int newMode, bool isRedraw)
 {
 	int oldHex=VM.Hex;
-	VM.Hex=newMode&1;
+	VM.Hex=newMode % 3;
 
 	if (!VM.Hex)
 		AdjustFilePos();

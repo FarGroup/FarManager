@@ -2204,8 +2204,8 @@ upd:"Zeichentabelle &automatisch erkennen"
 "&Autodetectar tabla de caracteres"
 
 MViewConfigTabSize
-"Раз&мер табуляции"
-"Tab si&ze"
+"Размер &табуляции"
+"&Tab size"
 "Velikost &Tabulátoru"
 "Ta&bulatorgröße"
 "Ta&bulátor mérete"
@@ -2247,6 +2247,33 @@ upd:"Dateien standardmäßig mit Windows-Kod&ierung öffnen"
 "Fájlok eredeti megnyitása ANS&I kódlappal"
 "&Otwieraj pliki w kodowaniu Windows"
 "Usar código ANS&I por defecto"
+
+MViewConfigMaxLineSize
+"&Максимальная ширина строки"
+"&Maximum line width"
+upd:"Maximum line width"
+upd:"Maximum line width"
+upd:"Maximum line width"
+upd:"Maximum line width"
+upd:"Maximum line width"
+
+MViewConfigVisible0x00
+"Показывать '\\&0'"
+"Visible '\\&0'"
+upd:"Visible '\\0'"
+upd:"Visible '\\0'"
+upd:"Visible '\\0'"
+upd:"Visible '\\0'"
+upd:"Visible '\\0'"
+
+MViewConfigEditAutofocus
+"Авто-&фокус в диалоге поиска"
+"Search dialog auto-&focus"
+upd:"Search dialog auto-focus"
+upd:"Search dialog auto-focus"
+upd:"Search dialog auto-focus"
+upd:"Search dialog auto-focus"
+upd:"Search dialog auto-focus"
 
 MEditConfigTitle
 l:
@@ -7112,6 +7139,24 @@ l:// this is another text for F4
 "Tekst"
 "Text"
 
+MViewF4Dump
+"Дамп"
+"Dump"
+upd:"Dump"
+upd:"Dump"
+upd:"Dump"
+upd:"Dump"
+upd:"Dump"
+
+MViewMode
+"Режим просмотра"
+"View mode"
+upd:"View mode"
+upd:"View mode"
+upd:"View mode"
+upd:"View mode"
+upd:"View mode"
+
 MViewF8DOS
 "OEM"
 "OEM"
@@ -7151,13 +7196,13 @@ MViewShiftF3
 ""
 
 MViewShiftF4
-""
-""
-""
-""
-""
-""
-""
+"Режим"
+"Mode"
+upd:"Mode"
+upd:"Mode"
+upd:"Mode"
+upd:"Mode"
+upd:"Mode"
 
 MViewShiftF5
 ""

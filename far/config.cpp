@@ -448,27 +448,37 @@ void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 
 	Builder.StartColumns();
 	Builder.AddCheckbox(MViewConfigPersistentSelection, &ViOpt.PersistentBlocks);
-	DialogItemEx *SavePos = Builder.AddCheckbox(MViewConfigSavePos, &Opt.ViOpt.SavePos);
+	DialogItemEx *SavePos = Builder.AddCheckbox(MViewConfigSavePos, &Opt.ViOpt.SavePos); // can't be local
+	Builder.AddCheckbox(MViewConfigEditAutofocus, &ViOpt.SearchEditFocus);
 	DialogItemEx *TabSize = Builder.AddIntEditField(&ViOpt.TabSize, 3);
 	Builder.AddTextAfter(TabSize, MViewConfigTabSize);
 	Builder.ColumnBreak();
 	Builder.AddCheckbox(MViewConfigArrows, &ViOpt.ShowArrows);
-	DialogItemEx *SaveShortPos = Builder.AddCheckbox(MViewConfigSaveShortPos, &Opt.ViOpt.SaveShortPos);
+	DialogItemEx *SaveShortPos = Builder.AddCheckbox(MViewConfigSaveShortPos, &Opt.ViOpt.SaveShortPos); // can't be local
 	Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
+	Builder.AddCheckbox(MViewConfigVisible0x00, &ViOpt.Visible0x00);
 	Builder.AddCheckbox(MViewConfigScrollbar, &ViOpt.ShowScrollbar);
 	Builder.EndColumns();
 
 	if (!Local)
 	{
 		Builder.AddEmptyLine();
-		Builder.AddCheckbox(MViewAutoDetectCodePage, &ViOpt.AutoDetectCodePage);
-		Builder.AddCheckbox(MViewConfigAnsiCodePageAsDefault, &ViOpt.AnsiCodePageAsDefault);
+		DialogItemEx *MaxLineSize = Builder.AddIntEditField(&Opt.ViOpt.MaxLineSize, 6);
+		Builder.AddTextAfter(MaxLineSize, MViewConfigMaxLineSize);
+		Builder.AddCheckbox(MViewAutoDetectCodePage, &Opt.ViOpt.AutoDetectCodePage);
+		Builder.AddCheckbox(MViewConfigAnsiCodePageAsDefault, &Opt.ViOpt.AnsiCodePageAsDefault);
 	}
 	Builder.AddOKCancel();
 	if (Builder.ShowDialog())
 	{
 		if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
 			ViOpt.TabSize=8;
+		if (!Opt.ViOpt.MaxLineSize)
+			Opt.ViOpt.MaxLineSize = ViewerOptions::eDefLineSize;
+		else if (Opt.ViOpt.MaxLineSize < ViewerOptions::eMinLineSize)
+			Opt.ViOpt.MaxLineSize = ViewerOptions::eMinLineSize;
+		else if (Opt.ViOpt.MaxLineSize > ViewerOptions::eMaxLineSize)
+			Opt.ViOpt.MaxLineSize = ViewerOptions::eMaxLineSize;
 	}
 }
 
@@ -612,8 +622,10 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"AnsiCodePageAsDefault",&Opt.ViOpt.AnsiCodePageAsDefault,1, 0},
 
-	{0, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"MaxLineSize",&Opt.ViOpt.MaxLineSize,ViewerOptions::eDefLineSize, 0},
-	{0, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"SearchEditFocus",&Opt.ViOpt.SearchEditFocus,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"MaxLineSize",&Opt.ViOpt.MaxLineSize,ViewerOptions::eDefLineSize, 0},
+	{1, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"SearchEditFocus",&Opt.ViOpt.SearchEditFocus,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"Visible0x00",&Opt.ViOpt.Visible0x00,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, NKeyViewer,L"ZeroChar",&Opt.ViOpt.ZeroChar,0x00B7, 0}, // middle dot
 
 	{1, GeneralConfig::TYPE_INTEGER, NKeyDialog, L"EditHistory",&Opt.Dialogs.EditHistory,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyDialog, L"EditBlock",&Opt.Dialogs.EditBlock,0, 0},
@@ -929,6 +941,7 @@ void ReadConfig()
 	else if (Opt.ViOpt.MaxLineSize > ViewerOptions::eMaxLineSize)
 		Opt.ViOpt.MaxLineSize = ViewerOptions::eMaxLineSize;
 	Opt.ViOpt.SearchEditFocus &= 1;
+	Opt.ViOpt.Visible0x00 &= 1;
 
 	// Исключаем случайное стирание разделителей ;-)
 	if (Opt.strWordDiv.IsEmpty())
