@@ -3110,7 +3110,7 @@ $ #Settings dialog: viewer#
   #Search dialog#           Always returns focus to search text field in
   #auto-focus#              the ~Viewer~@Viewer@ search dialog.
 
-  #Visible '\0'#            Shows white circle sign instead of space for '\0'
+  #Visible '\0'#            Shows visible character (configurable) instead of space for '\0'
                           character in hex/dump viewer modes.
 
   #Tab size#                Number of spaces in a tab character.
