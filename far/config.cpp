@@ -561,7 +561,7 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_BLOB,    NKeyColors, L"CurrentPalette",(char*)Opt.Palette.CurrentPalette,static_cast<DWORD>(Opt.Palette.SizeArrayPalette*sizeof(FarColor)),(const wchar_t*)Opt.Palette.DefaultPalette},
 
 	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"Clock", &Opt.Clock, 1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"ViewerEditorClock",&Opt.ViewerEditorClock,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"ViewerEditorClock",&Opt.ViewerEditorClock,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"KeyBar",&Opt.ShowKeyBar,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"ScreenSaver",&Opt.ScreenSaver, 0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"ScreenSaverTime",&Opt.ScreenSaverTime,5, 0},
