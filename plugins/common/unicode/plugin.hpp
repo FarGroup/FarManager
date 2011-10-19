@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2203
+  Plugin API for Far Manager 3.0 build 2232
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2203
+#define FARMANAGERVERSION_BUILD 2232
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1710,6 +1710,16 @@ enum FARSETTINGSTYPES
 	FST_QWORD                       = 2,
 	FST_STRING                      = 3,
 	FST_DATA                        = 4,
+};
+
+enum FARSETTINGS_SUBFOLDERS
+{
+	FSSF_ROOT                       = 0,
+	FSSF_HISTORY_CMD                = 1,
+	FSSF_HISTORY_FOLDER             = 2,
+	FSSF_HISTORY_VIEW               = 3,
+	FSSF_HISTORY_EDIT               = 4,
+	FSSF_HISTORY_EXTERNAL           = 5,
 };
 
 struct FarSettingsCreate
