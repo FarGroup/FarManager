@@ -2787,7 +2787,7 @@ void FileEditor::SaveToCache()
 
 	if (!Flags.Check(FFILEEDIT_OPENFAILED))   //????
 	{
-		pc.CodePage = Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER)?m_codepage:0;
+		pc.CodePage = (Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER) && !BadConversion)?m_codepage:0;
 
 		FilePositionCache::AddPosition(strCacheName, pc);
 	}
@@ -2801,10 +2801,10 @@ void FileEditor::SetCodePage(UINT codepage)
 
 		if (m_editor)
 		{
-			if (!m_editor->SetCodePage(m_codepage))
+			BadConversion = !m_editor->SetCodePage(m_codepage);
+			if (BadConversion)
 			{
 				Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditorSwitchCPWarn1),MSG(MEditorSwitchCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MOk));
-				BadConversion = true;
 			}
 
 			ChangeEditKeyBar(); //???
