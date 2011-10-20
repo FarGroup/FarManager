@@ -1305,9 +1305,9 @@ int Viewer::ProcessKey(int Key)
 	/* $ 22.01.2001 IS
 	     Происходят какие-то манипуляции -> снимем выделение
 	*/
-	if (!ViOpt.PersistentBlocks &&
-	        Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_RCTRLINS||Key==KEY_CTRLNUMPAD0||Key==KEY_RCTRLNUMPAD0) &&
-	        Key!=KEY_CTRLC && Key!=KEY_RCTRLC)
+	if ( !ViOpt.PersistentBlocks &&
+			Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_RCTRLINS||Key==KEY_CTRLNUMPAD0||Key==KEY_RCTRLNUMPAD0) &&
+			Key!=KEY_CTRLC && Key!=KEY_RCTRLC )
 		SelectSize = -1;
 
 	if (!InternalKey && !LastKeyUndo && (FilePos!=UndoData[0].UndoAddr || LeftPos!=UndoData[0].UndoLeft))
@@ -1698,7 +1698,7 @@ int Viewer::ProcessKey(int Key)
 		{
 			if (FilePos>0 && ViewFile.Opened())
 			{
- 				Up(1);	// LastPage = 0
+				Up(1); // LastPage = 0
 
 				if (VM.Hex)
 				{
@@ -3958,9 +3958,9 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 				GoToDlg[RB_PRC].Selected=1;
 			}
 			else if (!StrCmpNI(GoToDlg[1].strData,L"0x",2)
-			         || GoToDlg[1].strData.At(0)==L'$'
-			         || GoToDlg[1].strData.Contains(L'h')
-			         || GoToDlg[1].strData.Contains(L'H'))  // он умный - hex код ввел!
+					 || GoToDlg[1].strData.At(0)==L'$'
+					 || GoToDlg[1].strData.Contains(L'h')
+					 || GoToDlg[1].strData.Contains(L'H'))  // он умный - hex код ввел!
 			{
 				GoToDlg[RB_PRC].Selected=GoToDlg[RB_DEC].Selected=0;
 				GoToDlg[RB_HEX].Selected=1;

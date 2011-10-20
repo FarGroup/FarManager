@@ -40,7 +40,6 @@ CachedRead::CachedRead(File& file, DWORD buffer_size):
 	ReadSize(0),
 	BytesLeft(0),
 	LastPtr(0),
-	BufferSize(DefaultBufferSize),
 	Alignment(512)
 {
 	BufferSize = (buffer_size ? (buffer_size+Alignment-1) & ~(Alignment-1) : DefaultBufferSize);
@@ -72,8 +71,7 @@ bool CachedRead::AdjustAlignment()
 
 	if (buff_size > BufferSize)
 	{
-		if (Buffer)
-			xf_free(Buffer);
+		xf_free(Buffer);
 		Buffer = static_cast<LPBYTE>(xf_malloc(BufferSize = buff_size));
 	}
 

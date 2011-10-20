@@ -480,7 +480,7 @@ void FileViewer::ShowStatus()
 		return;
 
 	GetTitle(strName);
-	int NameLength=ScrX-43-1; //???-41-1
+	int NameLength=ScrX-43-2; //???-41-2
 
 	if (Opt.ViewerEditorClock && IsFullScreen())
 		NameLength-=6;
@@ -489,7 +489,7 @@ void FileViewer::ShowStatus()
 		NameLength=20;
 
 	TruncPathStr(strName, NameLength);
-	const wchar_t *lpwszStatusFormat = L"%-*s %c%5u %13I64u %7.7s %-4I64d %s%3d%%";
+	const wchar_t *lpwszStatusFormat = L"%-*s %c %5u %13I64u %7.7s %-4I64d %s%3d%%";
 	strStatus.Format(
 	    lpwszStatusFormat,
 	    NameLength,
