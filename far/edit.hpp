@@ -191,7 +191,7 @@ class Edit:public ScreenObject
 
 	public:
 
-		DWORD SetCodePage(UINT codepage);  //BUGBUG
+		DWORD SetCodePage(UINT codepage, bool Set = true);  //BUGBUG
 		UINT GetCodePage();  //BUGBUG
 
 		virtual void  FastShow();

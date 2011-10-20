@@ -1299,11 +1299,12 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			{
 				if (!IsUnicodeCodePage(m_codepage))
 				{
-					SetCodePage(m_codepage==GetOEMCP()?GetACP():GetOEMCP());
-					Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
-					ChangeEditKeyBar();
+					if(SetCodePage(m_codepage==GetOEMCP()?GetACP():GetOEMCP()))
+					{
+						Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
+						ChangeEditKeyBar();
+					}
 				}
-
 				return TRUE;
 			}
 			case KEY_SHIFTF8:
@@ -2793,23 +2794,28 @@ void FileEditor::SaveToCache()
 	}
 }
 
-void FileEditor::SetCodePage(UINT codepage)
+bool FileEditor::SetCodePage(UINT codepage)
 {
+	bool Result = false;
 	if (codepage != m_codepage)
 	{
-		m_codepage = codepage;
-
 		if (m_editor)
 		{
-			BadConversion = !m_editor->SetCodePage(m_codepage);
+			BadConversion = !m_editor->SetCodePage(codepage, false);
+			bool Process = true;
 			if (BadConversion)
 			{
-				Message(MSG_WARNING,1,MSG(MWarning),MSG(MEditorSwitchCPWarn1),MSG(MEditorSwitchCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MOk));
+				Process = !Message(MSG_WARNING, 2, MSG(MWarning), MSG(MEditorSwitchCPWarn1), MSG(MEditorSwitchCPWarn2), MSG(MEditorSwitchCPConfirm), MSG(MOk), MSG(MCancel));
 			}
-
-			ChangeEditKeyBar(); //???
+			if (Process)
+			{
+				m_codepage = codepage;
+				BadConversion = !m_editor->SetCodePage(m_codepage);
+				Result = true;
+			}
 		}
 	}
+	return Result;
 }
 
 bool FileEditor::AskOverwrite(const string& FileName)

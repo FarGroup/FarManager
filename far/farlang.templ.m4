@@ -6488,6 +6488,15 @@ upd:"correctly translated using selected codepage."
 upd:"correctly translated using selected codepage."
 "correctamente traducidos con la tabla (codepage) seleccionada."
 
+MEditorSwitchCPConfirm
+"Продолжить?"
+"Continue?"
+upd:"Continue?"
+upd:"Continue?"
+upd:"Continue?"
+upd:"Continue?"
+upd:"Continue?"
+
 MEditDataLostWarn
 "Во время редактирования файла некоторые данные были утеряны."
 "During file editing some data was lost."

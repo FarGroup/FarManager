@@ -120,7 +120,7 @@ Edit::~Edit()
 		xf_free(Str);
 }
 
-DWORD Edit::SetCodePage(UINT codepage)
+DWORD Edit::SetCodePage(UINT codepage, bool Set)
 {
 	DWORD Ret=SETCP_NOERROR;
 	DWORD wc2mbFlags=WC_NO_BEST_FIT_CHARS;
@@ -146,48 +146,39 @@ DWORD Edit::SetCodePage(UINT codepage)
 		{
 			//m_codepage = codepage;
 			int length = WideCharToMultiByte(m_codepage, wc2mbFlags, Str, StrSize, nullptr, 0, nullptr, lpUsedDefaultChar);
-
 			if (UsedDefaultChar)
+			{
 				Ret|=SETCP_WC2MBERROR;
-
-			char *decoded = (char*)xf_malloc(length);
-
-			if (!decoded)
-			{
-				Ret|=SETCP_OTHERERROR;
-				return Ret;
 			}
-
-			WideCharToMultiByte(m_codepage, 0, Str, StrSize, decoded, length, nullptr, nullptr);
-			int length2 = MultiByteToWideChar(codepage, mb2wcFlags, decoded, length, nullptr, 0);
-
-			if (!length2 && GetLastError()==ERROR_NO_UNICODE_TRANSLATION)
+			if ((Ret == SETCP_NOERROR) || (Ret!=SETCP_NOERROR && Set))
 			{
-				Ret|=SETCP_MB2WCERROR;
-				length2 = MultiByteToWideChar(codepage, 0, decoded, length, nullptr, 0);
-			}
-
-			wchar_t *encoded = (wchar_t*)xf_malloc((length2+1)*sizeof(wchar_t));
-
-			if (!encoded)
-			{
+				char *decoded = (char*)xf_malloc(length);
+				WideCharToMultiByte(m_codepage, 0, Str, StrSize, decoded, length, nullptr, nullptr);
+				int length2 = MultiByteToWideChar(codepage, mb2wcFlags, decoded, length, nullptr, 0);
+				if (!length2 && GetLastError()==ERROR_NO_UNICODE_TRANSLATION)
+				{
+					Ret|=SETCP_MB2WCERROR;
+					length2 = MultiByteToWideChar(codepage, 0, decoded, length, nullptr, 0);
+				}
+				if (Set)
+				{
+					wchar_t *encoded = (wchar_t*)xf_malloc((length2+1)*sizeof(wchar_t));
+					length2 = MultiByteToWideChar(codepage, 0, decoded, length, encoded, length2);
+					encoded[length2] = L'\0';
+					xf_free(Str);
+					Str = encoded;
+					StrSize = length2;
+					m_codepage = codepage;
+					Changed();
+				}
 				xf_free(decoded);
-				Ret|=SETCP_OTHERERROR;
-				return Ret;
 			}
-
-			length2 = MultiByteToWideChar(codepage, 0, decoded, length, encoded, length2);
-			encoded[length2] = L'\0';
-			xf_free(decoded);
-			xf_free(Str);
-			Str = encoded;
-			StrSize = length2;
 		}
-
-		m_codepage = codepage;
-		Changed();
+		else
+		{
+			m_codepage = codepage;
+		}
 	}
-
 	return Ret;
 }
 

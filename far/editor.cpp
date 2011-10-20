@@ -88,7 +88,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	LastSearchReverse(GlobalSearchReverse),
 	LastSearchSelFound(Opt.EdOpt.SearchSelFound),
 	LastSearchRegexp(Opt.EdOpt.SearchRegexp),
-	m_codepage(CP_OEMCP),
+	m_codepage(CP_AUTODETECT),
 	StartLine(-1),
 	StartChar(-1),
 	StackPos(0),
@@ -7021,21 +7021,26 @@ void Editor::GetCacheParams(EditorPosCache &pc)
 }
 
 
-bool Editor::SetCodePage(UINT codepage)
+bool Editor::SetCodePage(UINT codepage, bool Set)
 {
 	if (m_codepage != codepage)
 	{
-		m_codepage = codepage;
+		if(Set)
+		{
+			m_codepage = codepage;
+		}
 		Edit *current = TopList;
 		DWORD Result=0;
 
 		while (current)
 		{
-			Result|=current->SetCodePage(m_codepage);
+			Result|=current->SetCodePage(codepage, Set);
 			current = current->m_next;
 		}
-
-		Show();
+		if(Set)
+		{
+			Show();
+		}
 		return !Result; // BUGBUG, more details
 	}
 
