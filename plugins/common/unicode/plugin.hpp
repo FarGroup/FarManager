@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2232
+  Plugin API for Far Manager 3.0 build 2236
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2232
+#define FARMANAGERVERSION_BUILD 2236
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1756,11 +1756,26 @@ struct FarSettingsName
 	enum FARSETTINGSTYPES Type;
 };
 
+struct FarSettingsHistory
+{
+	const wchar_t* Name;
+	FILETIME Time;
+	BOOL Lock;
+};
+
 struct FarSettingsEnum
 {
 	size_t Root;
 	size_t Count;
-	const struct FarSettingsName* Items;
+	union
+	{
+		const struct FarSettingsName* Items;
+		const struct FarSettingsHistory* Histories;
+	}
+#ifndef __cplusplus
+	Value
+#endif
+	;
 };
 
 struct FarSettingsValue
