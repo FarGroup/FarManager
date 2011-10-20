@@ -62,12 +62,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __GNUC__
 #include <w32api.h>
+#ifdef __MINGW64__
+#if __W32API_MAJOR_VERSION<3 || (__W32API_MAJOR_VERSION==3 && (__W32API_MINOR_VERSION<14))
+#error w32api-3.14 (or higher) required
+#endif
+#else
 #if __W32API_MAJOR_VERSION<3 || (__W32API_MAJOR_VERSION==3 && (__W32API_MINOR_VERSION<17))
 #error w32api-3.17 (or higher) required
 #endif
+#endif //__MINGW64__
 #endif // __GNUC__
 
 #ifdef __GNUC__
+#ifdef __MINGW64__
+#undef WINVER
+#undef _WIN32_WINNT
+#endif
 #define WINVER       0x0601
 #define _WIN32_WINNT 0x0601
 #define _WIN32_IE    0x0601
@@ -106,12 +116,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef __GNUC__
 #define __NTDDK_H
+#ifdef __MINGW64__
+#include <ntstatus.h>
+#include <cfgmgr32.h>
+#else
 #include <ddk/ntstatus.h>
 #include <ddk/cfgmgr32.h>
+#endif
 struct _ADAPTER_OBJECT;
 typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
+#ifdef __MINGW64__
+#include <ntddscsi.h>
+#else
 #include <ddk/ntddscsi.h>
 #include <ntdef.h>
+#endif
 #endif // __GNUC__
 
 
@@ -131,7 +150,9 @@ typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
 #endif // __GNUC__
 
 #ifdef __GNUC__
+#ifndef __MINGW64__
 #define __try
+#endif //__MINGW64__
 #define __except(a) if(false)
 #endif // __GNUC__
 

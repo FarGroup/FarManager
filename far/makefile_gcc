@@ -29,7 +29,7 @@ DEBUGFLAGS=-g -D_DEBUG
 DEBUGLINKFLAGS=
 endif
 
-DIRBIT = 32
+DIRBIT ?= 32
 EXEDIR = .$(PS)$(DIRNAME).$(DIRBIT).gcc$(PS)
 OBJDIR = $(EXEDIR)obj$(PS)
 TOOLSDIR = .$(PS)tools$(PS)
@@ -172,8 +172,10 @@ SRCS = \
 	viewer.cpp \
 	vmenu.cpp \
 	window.cpp \
-	xlat.cpp \
-	hook_wow64.c
+	xlat.cpp
+ifeq ($(DIRBIT),32)
+	SRCS += hook_wow64.c
+endif
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS))) $(OBJDIR)initguid.o $(OBJDIR)far.rc.o
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
@@ -197,9 +199,15 @@ M4 = $(TOOLSDIR)m4 -P -DFARBIT=$(DIRBIT)
 GAWK = $(TOOLSDIR)gawk
 WINDRES = windres
 DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
-CFLAGS = $(DEBUGFLAGS) -fdiagnostics-show-option -mno-cygwin -pipe $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
+CFLAGS = $(DEBUGFLAGS) -fdiagnostics-show-option -pipe $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
+ifeq ($(DIRBIT),32)
+	CFLAGS += -mno-cygwin
+endif
 CCFLAGS = $(CFLAGS) -fno-rtti -std=gnu++0x -fpermissive
-LNKFLAGS = -mno-cygwin -static-libgcc -static-libstdc++ $(DEBUGLINKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --large-address-aware -Xlinker --dynamicbase -Xlinker --nxcompat -lmpr -lwinspool -lole32 -lsecur32 -lsetupapi -lpsapi -lrpcrt4
+LNKFLAGS = -mno-cygwin -static-libgcc $(DEBUGLINKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --dynamicbase -Xlinker --nxcompat -lmpr -lwinspool -lole32 -lsecur32 -lsetupapi -lpsapi -lrpcrt4
+ifeq ($(DIRBIT),32)
+	LNKFLAGS +=  -static-libstdc++ -Xlinker --large-address-aware
+endif
 
 .PHONY: all
 all: dirs lng depfile

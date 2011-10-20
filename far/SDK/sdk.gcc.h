@@ -33,6 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifndef __MINGW64__
 typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 
     LARGE_INTEGER FileOffset;
@@ -77,6 +78,7 @@ typedef struct _WIN32_FIND_STREAM_DATA
 	WCHAR cStreamName[MAX_PATH+36];
 }
 WIN32_FIND_STREAM_DATA,*PWIN32_FIND_STREAM_DATA;
+#endif //__MINGW64__
 
 typedef struct _IO_STATUS_BLOCK
 {
@@ -225,6 +227,7 @@ typedef enum _FILE_INFORMATION_CLASS
 }
 FILE_INFORMATION_CLASS, *PFILE_INFORMATION_CLASS;
 
+#ifndef __MINGW64__
 // ShObjIdl.h
 typedef enum tagASSOCIATIONLEVEL
 {
@@ -317,10 +320,14 @@ void** IID_PPV_ARGS_Helper(T** pp)
 	IUnknown* I = static_cast<IUnknown*>(*pp); I = 0;
 	return reinterpret_cast<void**>(pp);
 }
+#endif //__MINGW64__
 
 template <typename T, size_t N>
 char (*RtlpNumberOf(T(&)[N]))[N];
 
+#ifdef __MINGW64__
+#undef ARRAYSIZE
+#endif
 #define ARRAYSIZE(A) (sizeof(*RtlpNumberOf(A)))
 
 // shellapi.h
@@ -328,12 +335,15 @@ char (*RtlpNumberOf(T(&)[N]))[N];
 #define SEE_MASK_NOASYNC 0x00000100
 #endif
 
+#ifndef __MINGW64__
 // WinIoCtl.h
 DEFINE_GUID(GUID_DEVINTERFACE_VOLUME, 0x53f5630dL, 0xb6bf, 0x11d0, 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b);
+#endif
 
 // virtdisk.h
-#ifndef VIRT_DISK_API_DEF
+#if !defined(VIRT_DISK_API_DEF) && !defined(_INC_VIRTDISK)
 #define VIRT_DISK_API_DEF
+#define _INC_VIRTDISK
 typedef enum _GET_STORAGE_DEPENDENCY_FLAG
 {
 	GET_STORAGE_DEPENDENCY_FLAG_NONE         = 0x00000000,
@@ -363,7 +373,7 @@ typedef enum _DEPENDENT_DISK_FLAG
 	DEPENDENT_DISK_FLAG_NO_DRIVE_LETTER      = 0x00000080,
 	DEPENDENT_DISK_FLAG_PARENT               = 0x00000100,
 	DEPENDENT_DISK_FLAG_NO_HOST_DISK         = 0x00000200,
-	DEPENDENT_DISK_FLAG_PERMANENT_LIFETIME   = 0x00000400 
+	DEPENDENT_DISK_FLAG_PERMANENT_LIFETIME   = 0x00000400
 }
 DEPENDENT_DISK_FLAG;
 
@@ -463,3 +473,65 @@ DEFINE_GUID(VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT, 0xec984aec, 0xa0f9, 0x47e9, 0
 
 #endif
 
+#ifdef __MINGW64__
+/* Object Attributes */
+typedef struct _OBJECT_ATTRIBUTES {
+  ULONG Length;
+  HANDLE RootDirectory;
+  PUNICODE_STRING ObjectName;
+  ULONG Attributes;
+  PVOID SecurityDescriptor;
+  PVOID SecurityQualityOfService;
+} OBJECT_ATTRIBUTES, *POBJECT_ATTRIBUTES;
+typedef CONST OBJECT_ATTRIBUTES *PCOBJECT_ATTRIBUTES;
+
+/* Helper Macro */
+#define InitializeObjectAttributes(p,n,a,r,s) { \
+  (p)->Length = sizeof(OBJECT_ATTRIBUTES); \
+  (p)->RootDirectory = (r); \
+  (p)->Attributes = (a); \
+  (p)->ObjectName = (n); \
+  (p)->SecurityDescriptor = (s); \
+  (p)->SecurityQualityOfService = NULL; \
+}
+
+typedef struct _REPARSE_DATA_BUFFER {
+  ULONG ReparseTag;
+  USHORT ReparseDataLength;
+  USHORT Reserved;
+  _ANONYMOUS_UNION union {
+    struct {
+      USHORT SubstituteNameOffset;
+      USHORT SubstituteNameLength;
+      USHORT PrintNameOffset;
+      USHORT PrintNameLength;
+      ULONG Flags;
+      WCHAR PathBuffer[1];
+    } SymbolicLinkReparseBuffer;
+    struct {
+      USHORT SubstituteNameOffset;
+      USHORT SubstituteNameLength;
+      USHORT PrintNameOffset;
+      USHORT PrintNameLength;
+      WCHAR PathBuffer[1];
+    } MountPointReparseBuffer;
+    struct {
+      UCHAR DataBuffer[1];
+    } GenericReparseBuffer;
+  } DUMMYUNIONNAME;
+} REPARSE_DATA_BUFFER, *PREPARSE_DATA_BUFFER;
+
+#define REPARSE_DATA_BUFFER_HEADER_SIZE   FIELD_OFFSET(REPARSE_DATA_BUFFER, GenericReparseBuffer)
+
+/* Reserved reparse tags */
+#define IO_REPARSE_TAG_RESERVED_ZERO            (0)
+#define IO_REPARSE_TAG_RESERVED_ONE             (1)
+#define IO_REPARSE_TAG_RESERVED_RANGE           IO_REPARSE_TAG_RESERVED_ONE
+
+#define IO_REPARSE_TAG_VALID_VALUES             (0xF000FFFF)
+
+#define IsReparseTagValid(tag) (                               \
+                  !((tag) & ~IO_REPARSE_TAG_VALID_VALUES) &&   \
+                  ((tag) > IO_REPARSE_TAG_RESERVED_RANGE)      \
+                )
+#endif
