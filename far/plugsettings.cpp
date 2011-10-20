@@ -37,17 +37,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "strmix.hpp"
 #include "history.hpp"
+#include "datetime.hpp"
 
 AbstractSettings::~AbstractSettings()
 {
-	for(size_t ii=0;ii<m_Enum.getCount();++ii)
-	{
-		FarSettingsName* array=m_Enum.getItem(ii)->GetItems();
-		for(size_t jj=0;jj<m_Enum.getItem(ii)->GetSize();++jj)
-		{
-			delete [] array[jj].Name;
-		}
-	}
 }
 
 bool AbstractSettings::IsValid(void)
@@ -169,7 +162,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 	return result;
 }
 
-static void AddString(Vector<FarSettingsName>& Array, FarSettingsName& Item, string& String)
+template <class Object> void AddString(Vector<Object>& Array, Object& Item, string& String)
 {
 	size_t size=String.GetLength()+1;
 	Item.Name=new wchar_t[size];
@@ -299,19 +292,19 @@ static bool FilterExt(int Type)
 
 int FarSettings::Enum(FarSettingsEnum& Enum)
 {
-    switch(Enum.Root)
-    {
-    	case FSSF_HISTORY_CMD:
-    		return FillHistory(HISTORYTYPE_CMD,Enum,FilterNone);
-    	case FSSF_HISTORY_FOLDER:
-    		return FillHistory(HISTORYTYPE_FOLDER,Enum,FilterNone);
-    	case FSSF_HISTORY_VIEW:
-    		return FillHistory(HISTORYTYPE_VIEW,Enum,FilterView);
-    	case FSSF_HISTORY_EDIT:
-    		return FillHistory(HISTORYTYPE_VIEW,Enum,FilterEdit);
-    	case FSSF_HISTORY_EXTERNAL:
-    		return FillHistory(HISTORYTYPE_VIEW,Enum,FilterExt);
-    }
+	switch(Enum.Root)
+	{
+		case FSSF_HISTORY_CMD:
+			return FillHistory(HISTORYTYPE_CMD,Enum,FilterNone);
+		case FSSF_HISTORY_FOLDER:
+			return FillHistory(HISTORYTYPE_FOLDER,Enum,FilterNone);
+		case FSSF_HISTORY_VIEW:
+			return FillHistory(HISTORYTYPE_VIEW,Enum,FilterView);
+		case FSSF_HISTORY_EDIT:
+			return FillHistory(HISTORYTYPE_VIEW,Enum,FilterEdit);
+		case FSSF_HISTORY_EXTERNAL:
+			return FillHistory(HISTORYTYPE_VIEW,Enum,FilterExt);
+	}
 	return FALSE;
 }
 
@@ -327,8 +320,8 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 
 int FarSettings::FillHistory(int Type,FarSettingsEnum& Enum,HistoryFilter Filter)
 {
-	Vector<FarSettingsName>& array=*m_Enum.addItem();
-	FarSettingsName item;
+	Vector<FarSettingsHistory>& array=*m_Enum.addItem();
+	FarSettingsHistory item;
 	DWORD Index=0;
 	string strName,strHistoryName;
 
@@ -338,9 +331,14 @@ int FarSettings::FillHistory(int Type,FarSettingsEnum& Enum,HistoryFilter Filter
 	unsigned __int64 Time;
 	while(HistoryCfg->Enum(Index++,Type,strHistoryName,&id,strName,&HType,&HLock,&Time,false))
 	{
-	    if(Filter(HType)) AddString(array,item,strName);
+		if(Filter(HType))
+		{
+			UI64ToFileTime(Time,&item.Time);
+			item.Lock=HLock;
+			AddString(array,item,strName);
+		}
 	}
 	Enum.Count=array.GetSize();
-	Enum.Items=array.GetItems();
+	Enum.Histories=array.GetItems();
 	return TRUE;
 }

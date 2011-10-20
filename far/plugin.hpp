@@ -1933,11 +1933,26 @@ struct FarSettingsName
 	enum FARSETTINGSTYPES Type;
 };
 
+struct FarSettingsHistory
+{
+	const wchar_t* Name;
+	FILETIME Time;
+	BOOL Lock;
+};
+
 struct FarSettingsEnum
 {
 	size_t Root;
 	size_t Count;
-	const struct FarSettingsName* Items;
+	union
+	{
+		const struct FarSettingsName* Items;
+		const struct FarSettingsHistory* Histories;
+	}
+#ifndef __cplusplus
+	Value
+#endif
+	;
 };
 
 struct FarSettingsValue

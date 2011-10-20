@@ -36,6 +36,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "configdb.hpp"
 
+template <class Object> void DeleteItems(Object* Items,size_t Size)
+{
+	for(size_t ii=0;ii<Size;++ii)
+	{
+		delete [] Items[ii].Name;
+	}
+}
+
 template <class Object> class Vector
 {
 	private:
@@ -44,7 +52,12 @@ template <class Object> class Vector
 
 	public:
 		Vector():InternalCount(0), Count(0), Delta(8), Items(nullptr) {}
-		~Vector() { delete [] Items; Items=nullptr; }
+		~Vector()
+		{
+			DeleteItems(Items,Count);
+			delete [] Items;
+			Items=nullptr;
+		}
 		size_t GetSize(void) const { return Count; }
 		Object& AddItem(const Object &anItem)
 		{
@@ -67,8 +80,6 @@ template <class Object> class Vector
 
 class AbstractSettings
 {
-    protected:
-		TPointerArray<Vector<FarSettingsName> > m_Enum;
 	public:
 		virtual ~AbstractSettings();
 		virtual bool IsValid(void);
@@ -82,6 +93,7 @@ class AbstractSettings
 class PluginSettings: public AbstractSettings
 {
 	private:
+		TPointerArray<Vector<FarSettingsName> > m_Enum;
 		TPointerArray<unsigned __int64> m_Keys;
 		TPointerArray<char*> m_Data;
 		HierarchicalConfig *PluginsCfg;
@@ -100,6 +112,7 @@ class PluginSettings: public AbstractSettings
 class FarSettings: public AbstractSettings
 {
 	private:
+		TPointerArray<Vector<FarSettingsHistory> > m_Enum;
 		typedef bool (*HistoryFilter)(int Type);
 		int FillHistory(int Type,FarSettingsEnum& Enum,HistoryFilter Filter);
 	public:
