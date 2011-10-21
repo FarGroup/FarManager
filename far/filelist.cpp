@@ -181,13 +181,7 @@ FileList::~FileList()
 	_OT(SysLog(L"[%p] FileList::~FileList()", this));
 	CloseChangeNotification();
 
-	for (PrevDataItem **i=PrevDataList.First();i;i=PrevDataList.Next(i))
-	{
-		DeleteListData((*i)->PrevListData,(*i)->PrevFileCount);
-		delete *i;
-	}
-
-	PrevDataList.Clear();
+	ClearAllItem();
 
 	DeleteListData(ListData,FileCount);
 
@@ -2595,10 +2589,10 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		/* $ 16.01.2002 VVM
 		  + Если у плагина нет OPIF_REALNAMES, то история папок не пишется в реестр */
 		string strInfoCurDir=Info.CurDir;
-		string strInfoFormat=Info.Format;
+		//string strInfoFormat=Info.Format;
 		string strInfoHostFile=Info.HostFile;
-		CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,1,strInfoFormat,
-		                                        (Info.Flags & OPIF_REALNAMES)?false:(Opt.SavePluginFoldersHistory?false:true));
+		string strInfoData=Info.ShortcutData;
+		CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,1,&PluginManager::GetGUID(hPlugin),strInfoHostFile,strInfoData);
 		/* $ 25.04.01 DJ
 		   при неудаче SetDirectory не сбрасываем выделение
 		*/
@@ -5337,12 +5331,11 @@ BOOL FileList::GetItem(int Index,void *Dest)
 
 void FileList::ClearAllItem()
 {
-	// удалим пред.значение.
-	if (!PrevDataList.Empty()) //???
+	for (PrevDataItem **i=PrevDataList.First();i;i=PrevDataList.Next(i))
 	{
-		for(PrevDataItem* i=*PrevDataList.Last();i;i=*PrevDataList.Prev(&i))
-		{
-			DeleteListData(i->PrevListData,i->PrevFileCount); //???
-		}
+		DeleteListData((*i)->PrevListData,(*i)->PrevFileCount);
+		delete *i;
 	}
+
+	PrevDataList.Clear();
 }

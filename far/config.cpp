@@ -684,7 +684,6 @@ static struct FARConfig
 
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"SaveHistory",&Opt.SaveHistory,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"SaveFoldersHistory",&Opt.SaveFoldersHistory,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, NKeySystem,L"SavePluginFoldersHistory",&Opt.SavePluginFoldersHistory,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"SaveViewHistory",&Opt.SaveViewHistory,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"UseRegisteredTypes",&Opt.UseRegisteredTypes,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"AutoSaveSetup",&Opt.AutoSaveSetup,0, 0},

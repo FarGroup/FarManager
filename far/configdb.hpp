@@ -188,14 +188,14 @@ public:
 	virtual void EndTransaction() = 0;
 
 	//command,view,edit,folder,dialog history
-	virtual bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, bool Reverse=false) = 0;
+	virtual bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
 	virtual bool Delete(unsigned __int64 id) = 0;
 	virtual bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, int DaysToKeep, int MinimunEntries) = 0;
 	virtual bool EnumLargeHistories(DWORD index, int MinimunEntries, DWORD TypeHistory, string &strHistoryName) = 0;
-	virtual bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock) = 0;
+	virtual bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
 	virtual bool GetNewest(DWORD TypeHistory, const wchar_t *HistoryName, string &strName) = 0;
 	virtual bool Get(unsigned __int64 id, string &strName) = 0;
-	virtual bool Get(unsigned __int64 id, string &strName, int *Type) = 0;
+	virtual bool Get(unsigned __int64 id, string &strName, int *Type, string &strGuid, string &strFile, string &strData) = 0;
 	virtual DWORD Count(DWORD TypeHistory, const wchar_t *HistoryName) = 0;
 	virtual bool FlipLock(unsigned __int64 id) = 0;
 	virtual bool IsLocked(unsigned __int64 id) = 0;

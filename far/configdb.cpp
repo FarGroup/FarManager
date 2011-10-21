@@ -1727,7 +1727,7 @@ public:
 		db.EnableForeignKeysConstraints();
 		//command,view,edit,folder,dialog history
 		db.Exec(
-			"CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, kind INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, lock INTEGER NOT NULL, name TEXT NOT NULL, time INTEGER NOT NULL);"
+			"CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, kind INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, lock INTEGER NOT NULL, name TEXT NOT NULL, time INTEGER NOT NULL, guid TEXT NOT NULL, file TEXT NOT NULL, data TEXT NOT NULL);"
 			"CREATE INDEX IF NOT EXISTS history_idx1 ON history (kind, key);"
 			"CREATE INDEX IF NOT EXISTS history_idx2 ON history (kind, key, time);"
 			"CREATE INDEX IF NOT EXISTS history_idx3 ON history (kind, key, lock DESC, time DESC);"
@@ -1744,10 +1744,10 @@ public:
 		);
 
 		//enum items order by time statement
-		db.InitStmt(stmtEnum, L"SELECT id, name, type, lock, time FROM history WHERE kind=?1 AND key=?2 ORDER BY time;");
+		db.InitStmt(stmtEnum, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;");
 
 		//enum items order by time DESC and lock DESC statement
-		db.InitStmt(stmtEnumDesc, L"SELECT id, name, type, lock, time FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;");
+		db.InitStmt(stmtEnumDesc, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;");
 
 		//delete item statement
 		db.InitStmt(stmtDel, L"DELETE FROM history WHERE id=?1;");
@@ -1759,13 +1759,13 @@ public:
 		db.InitStmt(stmtEnumLargeHistories, L"SELECT key FROM (SELECT key, num FROM (SELECT key, count(id) as num FROM history WHERE kind=?1 GROUP BY key)) WHERE num > ?2;");
 
 		//add item statement
-		db.InitStmt(stmtAdd, L"INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6);");
+		db.InitStmt(stmtAdd, L"INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7,?8,?9);");
 
 		//get item name statement
 		db.InitStmt(stmtGetName, L"SELECT name FROM history WHERE id=?1;");
 
 		//get item name and type statement
-		db.InitStmt(stmtGetNameAndType, L"SELECT name, type FROM history WHERE id=?1;");
+		db.InitStmt(stmtGetNameAndType, L"SELECT name, type, guid, file, data FROM history WHERE id=?1;");
 
 		//get newest item (locked items go first) name statement
 		db.InitStmt(stmtGetNewestName, L"SELECT name FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT 1;");
@@ -1828,7 +1828,7 @@ public:
 
 	void EndTransaction() { db.EndTransaction(); }
 
-	bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, bool Reverse=false)
+	bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false)
 	{
 		SQLiteStmt &stmt = Reverse ? stmtEnumDesc : stmtEnum;
 
@@ -1842,6 +1842,9 @@ public:
 			*Type = stmt.GetColInt(2);
 			*Lock = stmt.GetColInt(3) ? true : false;
 			*Time = stmt.GetColInt64(4);
+			strGuid = stmt.GetColText(5);
+			strFile = stmt.GetColText(6);
+			strData = stmt.GetColText(7);
 			return true;
 		}
 
@@ -1876,9 +1879,9 @@ public:
 		return false;
 	}
 
-	bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock)
+	bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData)
 	{
-		return stmtAdd.Bind((int)TypeHistory).Bind(HistoryName).Bind(Type).Bind(Lock?1:0).Bind(strName).Bind(GetCurrentUTCTimeInUI64()).StepAndReset();
+		return stmtAdd.Bind((int)TypeHistory).Bind(HistoryName).Bind(Type).Bind(Lock?1:0).Bind(strName).Bind(GetCurrentUTCTimeInUI64()).Bind(strGuid).Bind(strFile).Bind(strData).StepAndReset();
 	}
 
 	bool GetNewest(DWORD TypeHistory, const wchar_t *HistoryName, string &strName)
@@ -1903,13 +1906,16 @@ public:
 		return b;
 	}
 
-	bool Get(unsigned __int64 id, string &strName, int *Type)
+	bool Get(unsigned __int64 id, string &strName, int *Type, string &strGuid, string &strFile, string &strData)
 	{
 		bool b = stmtGetNameAndType.Bind(id).Step();
 		if (b)
 		{
 			strName = stmtGetNameAndType.GetColText(0);
 			*Type = stmtGetNameAndType.GetColInt(1);
+			strGuid = stmtGetNameAndType.GetColText(2);
+			strFile = stmtGetNameAndType.GetColText(3);
+			strData = stmtGetNameAndType.GetColText(4);
 		}
 		stmtGetNameAndType.Reset();
 		return b;

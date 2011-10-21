@@ -323,13 +323,13 @@ int FarSettings::FillHistory(int Type,FarSettingsEnum& Enum,HistoryFilter Filter
 	Vector<FarSettingsHistory>& array=*m_Enum.addItem();
 	FarSettingsHistory item;
 	DWORD Index=0;
-	string strName,strHistoryName;
+	string strName,strHistoryName,strGuid,strFile,strData;
 
 	unsigned __int64 id;
 	int HType;
 	bool HLock;
 	unsigned __int64 Time;
-	while(HistoryCfg->Enum(Index++,Type,strHistoryName,&id,strName,&HType,&HLock,&Time,false))
+	while(HistoryCfg->Enum(Index++,Type,strHistoryName,&id,strName,&HType,&HLock,&Time,strGuid,strFile,strData,false))
 	{
 		if(Filter(HType))
 		{

@@ -58,14 +58,14 @@ class History
 	private:
 		bool EqualType(int Type1, int Type2);
 		const wchar_t *GetTitle(int Type);
-		int ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg);
+		int ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg);
 
 	public:
 		History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, size_t HistoryCount, const int *EnableSave, bool SaveType);
 		~History();
 
-		void AddToHistory(const wchar_t *Str, int Type=0, const wchar_t *Prefix=nullptr, bool SaveForbid=false);
-		int  Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type);
+		void AddToHistory(const wchar_t *Str, int Type=0, const GUID* Guid=nullptr, const wchar_t *File=nullptr, const wchar_t *Data=nullptr, bool SaveForbid=false);
+		int  Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type, GUID* Guid=nullptr, string *File=nullptr, string *Data=nullptr);
 		int  Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
 		void GetPrev(string &strStr);
 		void GetNext(string &strStr);

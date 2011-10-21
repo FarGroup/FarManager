@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "configdb.hpp"
 #include "datetime.hpp"
+#include "FarGuid.hpp"
 
 History::History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, size_t HistoryCount, const int *EnableSave, bool SaveType):
 	strHistoryName(HistoryName),
@@ -88,7 +89,7 @@ void History::CompactHistory()
    SaveForbid - принудительно запретить запись добавляемой строки.
                 Используется на панели плагина
 */
-void History::AddToHistory(const wchar_t *Str, int Type, const wchar_t *Prefix, bool SaveForbid)
+void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const wchar_t *File, const wchar_t *Data, bool SaveForbid)
 {
 	if (!EnableAdd || !*EnableSave || SaveForbid)
 		return;
@@ -96,35 +97,30 @@ void History::AddToHistory(const wchar_t *Str, int Type, const wchar_t *Prefix, 
 	if (CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsHistroyEnable((int)TypeHistory))
 		return;
 
-	if (!Str || !*Str)
+	if ((Type!=HISTORYTYPE_FOLDER || !Guid || IsEqualGUID(FarGuid,*Guid)) && (!Str || !*Str))
 		return;
 
 	bool Lock = false;
-	string strName;
-
-	if (TypeHistory == HISTORYTYPE_FOLDER && Prefix && *Prefix)
-	{
-		strName = Prefix;
-		strName += L":";
-	}
-
-	strName += Str;
+	string strName(Str),strGuid,strFile(File),strData(Data);
+	if(Guid) strGuid=GuidToStr(*Guid);
 
 	HistoryCfg->BeginTransaction();
 
 	if (RemoveDups) // удалять дубликаты?
 	{
 		DWORD index=0;
-		string strHName;
+		string strHName,strHGuid,strHFile,strHData;
 		int HType;
 		bool HLock;
 		unsigned __int64 id;
 		unsigned __int64 Time;
-		while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time))
+		while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
 		{
 			if (EqualType(Type,HType))
 			{
-				if ((RemoveDups==1 && !StrCmp(strName,strHName)) || (RemoveDups==2 && !StrCmpI(strName,strHName)))
+				int (__cdecl* StrCmpFn)(const wchar_t*,const wchar_t*)=(RemoveDups==2)?StrCmpI:StrCmp;
+
+				if (!StrCmpFn(strName,strHName)&&!StrCmpFn(strGuid,strHGuid)&&!StrCmpFn(strFile,strHFile)&&!StrCmpFn(strData,strHData))
 				{
 					Lock = Lock || HLock;
 					HistoryCfg->Delete(id);
@@ -134,7 +130,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const wchar_t *Prefix, 
 		}
 	}
 
-	HistoryCfg->Add(TypeHistory, strHistoryName, strName, Type, Lock);
+	HistoryCfg->Add(TypeHistory, strHistoryName, strName, Type, Lock, strGuid, strFile, strData);
 
 	ResetPosition();
 
@@ -164,7 +160,7 @@ const wchar_t *History::GetTitle(int Type)
 	return L"";
 }
 
-int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type)
+int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type, GUID* Guid, string *File, string *Data)
 {
 	int Height=ScrY-8;
 	VMenu HistoryMenu(Title,nullptr,0,Height);
@@ -175,13 +171,13 @@ int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strS
 
 	HistoryMenu.SetPosition(-1,-1,0,0);
 	HistoryMenu.AssignHighlights(TRUE);
-	return ProcessMenu(strStr, Title, HistoryMenu, Height, Type, nullptr);
+	return ProcessMenu(strStr, Guid, File, Data, Title, HistoryMenu, Height, Type, nullptr);
 }
 
 int History::Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
 {
 	int Type=0;
-	return ProcessMenu(strStr, nullptr, HistoryMenu, Height, Type, Dlg);
+	return ProcessMenu(strStr,nullptr ,nullptr ,nullptr , nullptr, HistoryMenu, Height, Type, Dlg);
 }
 
 /*
@@ -197,11 +193,11 @@ int History::Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
    7 - Ctrl-Alt-Enter
 */
 
-int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg)
+int History::ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg)
 {
 	MenuItemEx MenuItem;
 	unsigned __int64 SelectedRecord = 0;
-	string strSelectedRecordName;
+	string strSelectedRecordName,strSelectedRecordGuid,strSelectedRecordFile,strSelectedRecordData;
 	int SelectedRecordType = 0;
 	FarListPos Pos={};
 	int Code=-1;
@@ -221,7 +217,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 		{
 			bool bSelected=false;
 			DWORD index=0;
-			string strHName;
+			string strHName,strHGuid,strHFile,strHData;
 			int HType;
 			bool HLock;
 			unsigned __int64 id;
@@ -229,7 +225,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 			SYSTEMTIME st;
 			GetLocalTime(&st);
 			int LastDay=0, LastMonth = 0, LastYear = 0;
-			while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,TypeHistory==HISTORYTYPE_DIALOG))
+			while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,TypeHistory==HISTORYTYPE_DIALOG))
 			{
 				string strRecord;
 
@@ -238,6 +234,24 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 					strRecord += GetTitle(HType);
 					strRecord += L":";
 					strRecord += (HType==4?L"-":L" ");
+				}
+				if (TypeHistory == HISTORYTYPE_FOLDER)
+				{
+					GUID HGuid;
+					if(StrToGuid(strHGuid,HGuid)&&!IsEqualGUID(FarGuid,HGuid))
+					{
+						Plugin *pPlugin = CtrlObject->Plugins.FindPlugin(HGuid);
+						if(pPlugin)
+						{
+							strRecord += pPlugin->GetTitle();
+							strRecord += L":";
+							if(!strHFile.IsEmpty())
+							{
+								strRecord += strHFile;
+								strRecord += L":";
+							}
+						}
+					}
 				}
 				SYSTEMTIME SavedTime;
 				FILETIME FTTime;
@@ -349,18 +363,28 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 						HistoryCfg->BeginTransaction();
 
 						DWORD index=0;
-						string strHName;
+						string strHName,strHGuid,strHFile,strHData;
 						int HType;
 						bool HLock;
 						unsigned __int64 id;
 						unsigned __int64 Time;
-						while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time))
+						while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
 						{
 							if (HLock) // залоченные не трогаем
 								continue;
 
 							// убить запись из истории
-							if (apiGetFileAttributes(strHName) == INVALID_FILE_ATTRIBUTES)
+							bool kill=false;
+							GUID HGuid;
+							if(StrToGuid(strHGuid,HGuid)&&!IsEqualGUID(FarGuid,HGuid))
+							{
+								Plugin *pPlugin = CtrlObject->Plugins.FindPlugin(HGuid);
+								if(!pPlugin) kill=true;
+								else if (!strHFile.IsEmpty()&&apiGetFileAttributes(strHFile) == INVALID_FILE_ATTRIBUTES) kill=true;
+							}
+							else if (apiGetFileAttributes(strHName) == INVALID_FILE_ATTRIBUTES) kill=true;
+
+							if(kill)
 							{
 								HistoryCfg->Delete(id);
 								ModifiedHistory=true;
@@ -509,7 +533,7 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 				return -1;
 
 
-			if (!HistoryCfg->Get(SelectedRecord, strSelectedRecordName, &SelectedRecordType))
+			if (!HistoryCfg->Get(SelectedRecord, strSelectedRecordName, &SelectedRecordType, strSelectedRecordGuid, strSelectedRecordFile, strSelectedRecordData))
 				return -1;
 
 			//BUGUBUG: eliminate those magic numbers!
@@ -545,6 +569,12 @@ int History::ProcessMenu(string &strStr, const wchar_t *Title, VMenu &HistoryMen
 	}
 
 	strStr = strSelectedRecordName;
+	if(Guid)
+	{
+		if(!StrToGuid(strSelectedRecordGuid,*Guid)) *Guid = FarGuid;
+	}
+	if(File) *File = strSelectedRecordFile;
+	if(Data) *Data = strSelectedRecordData;
 
 	if (RetCode < 4 || RetCode == 6 || RetCode == 7)
 	{
@@ -622,12 +652,12 @@ bool History::GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str)
 {
 	int Length=StrLength(Str);
 	DWORD index=0;
-	string strHName;
+	string strHName,strHGuid,strHFile,strHData;
 	int HType;
 	bool HLock;
 	unsigned __int64 id;
 	unsigned __int64 Time;
-	while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,true))
+	while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
 	{
 		if (!StrCmpNI(Str,strHName,Length))
 		{

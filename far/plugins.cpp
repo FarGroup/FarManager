@@ -2297,3 +2297,9 @@ void PluginManager::GetCustomData(FileListItem *ListItem)
 		}
 	}
 }
+
+const GUID& PluginManager::GetGUID(HANDLE hPlugin)
+{
+	PluginHandle *ph = (PluginHandle*)hPlugin;
+	return ph->pPlugin->GetGUID();
+}

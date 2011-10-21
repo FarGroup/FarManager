@@ -317,7 +317,8 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_RALTF12:
 		{
 			int Type;
-			int SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),L"HistoryFolders",strStr,Type);
+			GUID Guid; string strFile, strData;
+			int SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),L"HistoryFolders",strStr,Type,&Guid,&strFile,&strData);
 
 			/*
 			   SelectType = 0 - Esc
@@ -339,22 +340,13 @@ int CommandLine::ProcessKey(int Key)
 
 				//Type==1 - плагиновый путь
 				//Type==0 - обычный путь
-				//если путь плагиновый то сначала попробуем запустить его (а вдруг там префикс)
-				//ну а если путь не плагиновый то запускать его точно не надо
-				if (!Type || !CtrlObject->Plugins.ProcessCommandLine(strStr,Panel))
+				Panel->ExecShortcutFolder(strStr,Guid,strFile,strData);
+				if(SelectType == 6)
 				{
-					if (Panel->GetMode() == PLUGIN_PANEL || CheckShortcutFolder(&strStr,FALSE))
-					{
-						Panel->SetCurDir(strStr,Type ? FALSE:TRUE);
-						// restore current directory to active panel path
-						if(SelectType == 6)
-						{
-							CtrlObject->Cp()->ActivePanel->SetCurPath();
-						}
-						Panel->Redraw();
-						CtrlObject->FolderHistory->SetAddMode(true,2,true);
-					}
+					CtrlObject->Cp()->ActivePanel->SetCurPath();
 				}
+				Panel->Redraw();
+				CtrlObject->FolderHistory->SetAddMode(true,2,true);
 			}
 			else if (SelectType==3)
 				SetString(strStr);

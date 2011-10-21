@@ -513,7 +513,6 @@ struct Options
 	int SaveHistory;
 	int HistoryCount;
 	int SaveFoldersHistory;
-	int SavePluginFoldersHistory;
 	int FoldersHistoryCount;
 	int DialogsHistoryCount;
 

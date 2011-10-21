@@ -232,6 +232,7 @@ class PluginManager
 		int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, int *Ret=nullptr);
 		Plugin *FindPlugin(const GUID& SysID);
 		INT_PTR PluginGuidToPluginNumber(const GUID& PluginId);
+		static const GUID& GetGUID(HANDLE hPlugin);
 
 //api functions
 
