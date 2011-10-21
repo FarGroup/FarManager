@@ -38,9 +38,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 struct ShortcutItem
 {
 	string strFolder;
-	string strPluginModule;
+	GUID PluginGuid;
 	string strPluginFile;
 	string strPluginData;
+	ShortcutItem();
 };
 
 class VMenu;
@@ -51,9 +52,9 @@ class Shortcuts
 public:
 	Shortcuts();
 	~Shortcuts();
-	bool Get(size_t Pos, string* Folder, string* PluginModule, string* PluginFile, string* PluginData);
-	void Set(size_t Pos, const wchar_t* Folder, const wchar_t* PluginModule, const wchar_t* PluginFile, const wchar_t* PluginData);
-	void Add(size_t Pos, const wchar_t* Folder, const wchar_t* PluginModule, const wchar_t* PluginFile, const wchar_t* PluginData);
+	bool Get(size_t Pos, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData);
+	void Set(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, const wchar_t* PluginFile, const wchar_t* PluginData);
+	void Add(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, const wchar_t* PluginFile, const wchar_t* PluginData);
 	void Configure();
 
 private:

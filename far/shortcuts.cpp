@@ -51,11 +51,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "plugins.hpp"
 #include "configdb.hpp"
+#include "FarGuid.hpp"
 
 enum PSCR_RECTYPE
 {
 	PSCR_RT_SHORTCUT,
-	PSCR_RT_PLUGINMODULE,
+	PSCR_RT_PLUGINGUID,
 	PSCR_RT_PLUGINFILE,
 	PSCR_RT_PLUGINDATA,
 };
@@ -63,7 +64,7 @@ enum PSCR_RECTYPE
 static const wchar_t *RecTypeName[]=
 {
 	L"Shortcut",
-	L"PluginModule",
+	L"PluginGuid",
 	L"PluginFile",
 	L"PluginData",
 };
@@ -71,6 +72,11 @@ static const wchar_t *RecTypeName[]=
 static const wchar_t* FolderShortcutsKey = L"Shortcuts";
 static const wchar_t* HelpFolderShortcuts = L"FolderShortcuts";
 
+
+ShortcutItem::ShortcutItem()
+{
+	PluginGuid=FarGuid;
+}
 
 Shortcuts::Shortcuts()
 {
@@ -98,8 +104,10 @@ Shortcuts::Shortcuts()
 				ValueName.Clear();
 				ShortcutItem* Item = Items[i].Push();
 				Item->strFolder = strValue;
-				ValueName << RecTypeName[PSCR_RT_PLUGINMODULE] << j;
-				cfg->GetValue(key, ValueName, Item->strPluginModule);
+				ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << j;
+				string strPluginGuid;
+				cfg->GetValue(key, ValueName, strPluginGuid);
+				if(!StrToGuid(strPluginGuid,Item->PluginGuid)) Item->PluginGuid=FarGuid;
 				ValueName.Clear();
 				ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << j;
 				cfg->GetValue(key, ValueName, Item->strPluginFile);
@@ -139,11 +147,12 @@ Shortcuts::~Shortcuts()
 				FormatString ValueName;
 				ValueName << RecTypeName[PSCR_RT_SHORTCUT] << index;
 				cfg->SetValue(key, ValueName, j->strFolder);
-				if(!j->strPluginModule.IsEmpty())
+				if(!IsEqualGUID(FarGuid,j->PluginGuid))
 				{
 					ValueName.Clear();
-					ValueName << RecTypeName[PSCR_RT_PLUGINMODULE] << index;
-					cfg->SetValue(key, ValueName, j->strPluginModule);
+					ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << index;
+					string strPluginGuid=GuidToStr(j->PluginGuid);
+					cfg->SetValue(key, ValueName, strPluginGuid);
 				}
 				if(!j->strPluginFile.IsEmpty())
 				{
@@ -164,7 +173,7 @@ Shortcuts::~Shortcuts()
 	delete cfg;
 }
 
-bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* PluginFile, string* PluginData)
+bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData)
 {
 	bool Result = false;
 	if(!Items[Pos].Empty())
@@ -187,7 +196,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 				}
 				else
 				{
-					strFolderName = MSG(i->strPluginModule.IsEmpty()?MShortcutNone:MShortcutPlugin);
+					strFolderName = MSG(IsEqualGUID(FarGuid,i->PluginGuid)?MShortcutNone:MShortcutPlugin);
 				}
 				ListItem.strName = strFolderName;
 				ListItem.UserData = &i;
@@ -219,7 +228,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 								ActivePanel->GetOpenPanelInfo(&Info);
 								string strTemp;
 								PluginHandle *ph = (PluginHandle*)ActivePanel->GetPluginHandle();
-								NewItem->strPluginModule = ph->pPlugin->GetModuleName();
+								NewItem->PluginGuid = ph->pPlugin->GetGUID();
 								NewItem->strPluginFile = Info.HostFile;
 								NewItem->strPluginData = Info.ShortcutData;
 							}
@@ -274,9 +283,9 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 				*Folder = RetItem->strFolder;
 				apiExpandEnvironmentStrings(*Folder, *Folder);
 			}
-			if(PluginModule)
+			if(PluginGuid)
 			{
-				*PluginModule = RetItem->strPluginModule;
+				*PluginGuid = RetItem->PluginGuid;
 			}
 			if(PluginFile)
 			{
@@ -292,20 +301,20 @@ bool Shortcuts::Get(size_t Pos, string* Folder, string* PluginModule, string* Pl
 	return Result;
 }
 
-void Shortcuts::Set(size_t Pos, const wchar_t* Folder, const wchar_t* PluginModule, const wchar_t* PluginFile, const wchar_t* PluginData)
+void Shortcuts::Set(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, const wchar_t* PluginFile, const wchar_t* PluginData)
 {
 	ShortcutItem* Item = Items[Pos].Empty()?Items[Pos].Push():Items[Pos].First();
 	Item->strFolder = Folder;
-	Item->strPluginModule = PluginModule;
+	Item->PluginGuid = PluginGuid;
 	Item->strPluginFile = PluginFile;
 	Item->strPluginData = PluginData;
 }
 
-void Shortcuts::Add(size_t Pos, const wchar_t* Folder, const wchar_t* PluginModule, const wchar_t* PluginFile, const wchar_t* PluginData)
+void Shortcuts::Add(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, const wchar_t* PluginFile, const wchar_t* PluginData)
 {
 	ShortcutItem* Item = Items[Pos].Push();
 	Item->strFolder = Folder;
-	Item->strPluginModule = PluginModule;
+	Item->PluginGuid = PluginGuid;
 	Item->strPluginFile = PluginFile;
 	Item->strPluginData = PluginData;
 }
@@ -321,7 +330,7 @@ void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 		}
 		else
 		{
-			Ptr = MSG(Items[Pos].First()->strPluginModule.IsEmpty()?MShortcutNone:MShortcutPlugin);
+			Ptr = MSG(IsEqualGUID(FarGuid,Items[Pos].First()->PluginGuid)?MShortcutNone:MShortcutPlugin);
 		}
 	}
 
@@ -367,9 +376,9 @@ void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 		{
 			Item->strPluginData.Clear();
 			Item->strPluginFile.Clear();
-			Item->strPluginModule.Clear();
+			Item->PluginGuid=FarGuid;
 			Item->strFolder = strNewDir;
-			
+
 			MenuItemEx* MenuItem = Menu->GetItemPtr();
 			MenuItem->strName = Item->strFolder;
 			if(Root)
@@ -430,7 +439,7 @@ void Shortcuts::Configure()
 						ActivePanel->GetOpenPanelInfo(&Info);
 						string strTemp;
 						PluginHandle *ph = (PluginHandle*)ActivePanel->GetPluginHandle();
-						Item->strPluginModule = ph->pPlugin->GetModuleName();
+						Item->PluginGuid = ph->pPlugin->GetGUID();
 						Item->strPluginFile = Info.HostFile;
 						Item->strPluginData = Info.ShortcutData;
 					}

@@ -2524,13 +2524,14 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 
 bool Panel::SaveShortcutFolder(int Pos, bool Add)
 {
-	string strShortcutFolder,strPluginModule,strPluginFile,strPluginData;
+	string strShortcutFolder,strPluginFile,strPluginData;
+	GUID PluginGuid;
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		HANDLE hPlugin=GetPluginHandle();
 		PluginHandle *ph = (PluginHandle*)hPlugin;
-		strPluginModule = ph->pPlugin->GetModuleName();
+		PluginGuid = ph->pPlugin->GetGUID();
 		OpenPanelInfo Info;
 		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
 		strPluginFile = Info.HostFile;
@@ -2539,7 +2540,7 @@ bool Panel::SaveShortcutFolder(int Pos, bool Add)
 	}
 	else
 	{
-		strPluginModule.Clear();
+		PluginGuid=FarGuid;
 		strPluginFile.Clear();
 		strPluginData.Clear();
 		strShortcutFolder = strCurDir;
@@ -2547,11 +2548,11 @@ bool Panel::SaveShortcutFolder(int Pos, bool Add)
 
 	if(Add)
 	{
-		CtrlObject->FolderShortcuts->Add(Pos,strShortcutFolder, strPluginModule, strPluginFile, strPluginData);
+		CtrlObject->FolderShortcuts->Add(Pos,strShortcutFolder, PluginGuid, strPluginFile, strPluginData);
 	}
 	else
 	{
-		CtrlObject->FolderShortcuts->Set(Pos,strShortcutFolder, strPluginModule, strPluginFile, strPluginData);
+		CtrlObject->FolderShortcuts->Set(Pos,strShortcutFolder, PluginGuid, strPluginFile, strPluginData);
 	}
 
 
@@ -2598,9 +2599,10 @@ int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
 
 bool Panel::ExecShortcutFolder(int Pos)
 {
-	string strShortcutFolder,strPluginModule,strPluginFile,strPluginData;
+	string strShortcutFolder,strPluginFile,strPluginData;
+	GUID PluginGuid;
 
-	if (CtrlObject->FolderShortcuts->Get(Pos,&strShortcutFolder, &strPluginModule, &strPluginFile, &strPluginData))
+	if (CtrlObject->FolderShortcuts->Get(Pos,&strShortcutFolder, &PluginGuid, &strPluginFile, &strPluginData))
 	{
 		Panel *SrcPanel=this;
 		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -2623,7 +2625,7 @@ bool Panel::ExecShortcutFolder(int Pos)
 
 		bool CheckFullScreen=SrcPanel->IsFullScreen();
 
-		if (!strPluginModule.IsEmpty())
+		if (!IsEqualGUID(FarGuid,PluginGuid))
 		{
 			if (!strPluginFile.IsEmpty())
 			{
@@ -2665,32 +2667,27 @@ bool Panel::ExecShortcutFolder(int Pos)
 						return true;
 				}
 
-				for (int I=0; I<CtrlObject->Plugins.GetPluginsCount(); I++)
+				Plugin *pPlugin = CtrlObject->Plugins.FindPlugin(PluginGuid);
+
+				if (pPlugin)
 				{
-					Plugin *pPlugin = CtrlObject->Plugins.GetPlugin(I);
-
-					if (!StrCmpI(pPlugin->GetModuleName(),strPluginModule))
+					if (pPlugin->HasOpenPanel())
 					{
-						if (pPlugin->HasOpenPanel())
+						HANDLE hNewPlugin=CtrlObject->Plugins.Open(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)strPluginData.CPtr());
+
+						if (hNewPlugin!=INVALID_HANDLE_VALUE)
 						{
-							HANDLE hNewPlugin=CtrlObject->Plugins.Open(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)strPluginData.CPtr());
+							int CurFocus=SrcPanel->GetFocus();
 
-							if (hNewPlugin!=INVALID_HANDLE_VALUE)
-							{
-								int CurFocus=SrcPanel->GetFocus();
+							Panel *NewPanel=CtrlObject->Cp()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
+							NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
 
-								Panel *NewPanel=CtrlObject->Cp()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
-								NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
+							if (!strShortcutFolder.IsEmpty())
+								CtrlObject->Plugins.SetDirectory(hNewPlugin,strShortcutFolder,0);
 
-								if (!strShortcutFolder.IsEmpty())
-									CtrlObject->Plugins.SetDirectory(hNewPlugin,strShortcutFolder,0);
-
-								NewPanel->Update(0);
-								NewPanel->Show();
-							}
+							NewPanel->Update(0);
+							NewPanel->Show();
 						}
-
-						break;
 					}
 				}
 
