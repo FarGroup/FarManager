@@ -40,3 +40,5 @@ long filelen(FILE *FPtr);
 __int64 filelen64(FILE *FPtr);
 __int64 ftell64(FILE *fp);
 int fseek64(FILE *fp, __int64 offset, int whence);
+
+#define ALIGN(value) ((value+(sizeof(void*)-1))&~(sizeof(void*)-1))

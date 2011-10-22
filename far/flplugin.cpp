@@ -223,32 +223,27 @@ void FileList::FreePluginPanelItem(PluginPanelItem *pi)
 
 size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *gpi)
 {
-	size_t size=sizeof(PluginPanelItem);
+	size_t size=ALIGN(sizeof(PluginPanelItem)),offset=size;
+	size+=fi->CustomColumnNumber*sizeof(wchar_t*);
+	if (fi->UserData && (fi->UserFlags & PPIF_USERDATA))
+	{
+		size+=ALIGN(*(DWORD *)fi->UserData);
+	}
 	size+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
 	size+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
-	size+=fi->strOwner.IsEmpty()?0:sizeof(wchar_t)*(fi->strOwner.GetLength()+1);
-	size+=fi->DizText?sizeof(wchar_t)*(wcslen(fi->DizText)+1):0;
-	size+=fi->CustomColumnNumber*sizeof(wchar_t*);
-
 	for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
 	{
 		size+=fi->CustomColumnData[ii]?sizeof(wchar_t)*(wcslen(fi->CustomColumnData[ii])+1):0;
 	}
-
-	if (fi->UserData && (fi->UserFlags & PPIF_USERDATA))
-	{
-		size+=*(DWORD *)fi->UserData;
-	}
+	size+=fi->DizText?sizeof(wchar_t)*(wcslen(fi->DizText)+1):0;
+	size+=fi->strOwner.IsEmpty()?0:sizeof(wchar_t)*(fi->strOwner.GetLength()+1);
 
 	if (gpi)
 	{
 		if(gpi->Item && gpi->Size >= size)
 		{
-			char* data=(char*)(gpi->Item+1);
-			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName);
-			data+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
-			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName);
-			data+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
+			char* data=(char*)(gpi->Item)+offset;
+
 			gpi->Item->FileSize=fi->UnpSize;
 			gpi->Item->PackSize=fi->PackSize;
 			gpi->Item->FileAttributes=fi->FileAttr;
@@ -260,8 +255,27 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 			if (fi->Selected)
 				gpi->Item->Flags|=PPIF_SELECTED;
 			gpi->Item->CustomColumnNumber=fi->CustomColumnNumber;
+			gpi->Item->CRC32=fi->CRC32;
+			gpi->Item->Reserved[0]=gpi->Item->Reserved[1]=0;
+
 			gpi->Item->CustomColumnData=(wchar_t**)data;
 			data+=fi->CustomColumnNumber*sizeof(wchar_t*);
+
+			if (fi->UserData&&(fi->UserFlags&PPIF_USERDATA))
+			{
+				DWORD Size=*(DWORD *)fi->UserData;
+				gpi->Item->UserData=(DWORD_PTR)data;
+				memcpy((void *)gpi->Item->UserData,(void *)fi->UserData,Size);
+				data+=ALIGN(Size);
+			}
+			else
+				gpi->Item->UserData=fi->UserData;
+
+			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName);
+			data+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
+
+			gpi->Item->AlternateFileName=wcscpy((wchar_t*)data,fi->strShortName);
+			data+=sizeof(wchar_t)*(fi->strShortName.GetLength()+1);
 
 			for (size_t ii=0; ii<fi->CustomColumnNumber; ii++)
 			{
@@ -286,18 +300,6 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 				data+=sizeof(wchar_t)*(wcslen(fi->DizText)+1);
 			}
 
-			if (fi->UserData&&(fi->UserFlags&PPIF_USERDATA))
-			{
-				DWORD Size=*(DWORD *)fi->UserData;
-				gpi->Item->UserData=(DWORD_PTR)data;
-				memcpy((void *)gpi->Item->UserData,(void *)fi->UserData,Size);
-				data+=Size;
-			}
-			else
-				gpi->Item->UserData=fi->UserData;
-
-			gpi->Item->CRC32=fi->CRC32;
-			gpi->Item->Reserved[0]=gpi->Item->Reserved[1]=0;
 
 			if (fi->strOwner.IsEmpty())
 			{
