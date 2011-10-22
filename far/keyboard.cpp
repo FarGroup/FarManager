@@ -1333,7 +1333,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 									return (KEY_RCTRLALTSHIFTPRESS);
 								}
 							}
-							else if (Opt.CASRule&1)
+							else if (Opt.CASRule&1 && !(IntKeyState.RightCtrlPressed || IntKeyState.RightAltPressed))
 							{
 								IsKeyCASPressed=TRUE;
 								return (KEY_CTRLALTSHIFTPRESS);
@@ -2022,7 +2022,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 			else
 			{
 				VirtKey = Vk&0xFF;
-				if (HIBYTE(Vk))
+				if (HIBYTE(Vk)&&HIBYTE(Vk)!=6) //RAlt-E в немецкой раскладке это евро, а не CtrlRAltЕвро
 				{
 					FShift|=
 							(HIBYTE(Vk)&1?KEY_SHIFT:0)|
@@ -2458,15 +2458,31 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			return(KEY_NONE);
 	}
 
-/*	-- Уберем пока это шаманство
+	//прежде, чем убирать это шаманство, поставьте себе раскладку, в которой по ralt+символ можно вводить символы.
+	//например немецкую:
+	//ralt+m - мю
+	//ralt+q - @
+	//ralt+e - евро
+	//ralt+] - ~
+	//ralt+2 - квадрат
+	//ralt+3 - куб
+	//ralt+7 - {
+	//ralt+8 - [
+	//ralt+9 - ]
+	//ralt+0 - }
+	//ralt+- - "\"
+	//или латышскую:
+	//ralt+4 - евро
+	//ralt+a/ralt+shift+a
+	//ralt+c/ralt+shift+c
+	//и т.д.
 	if ((CtrlState & 9)==9)
 	{
-		if (Char)
+		if (Char>=' ')
 			return Char;
 		else
 			IntKeyState.CtrlPressed=0;
 	}
-*/
 
 	if (KeyCode==VK_MENU)
 		AltValue=0;
