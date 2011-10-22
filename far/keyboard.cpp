@@ -2022,7 +2022,7 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 			else
 			{
 				VirtKey = Vk&0xFF;
-				if (HIBYTE(Vk)&&HIBYTE(Vk)!=6) //RAlt-E в немецкой раскладке это евро, а не CtrlRAltЕвро
+				if (HIBYTE(Vk)&&(HIBYTE(Vk)&6)!=6) //RAlt-E в немецкой раскладке это евро, а не CtrlRAltЕвро
 				{
 					FShift|=
 							(HIBYTE(Vk)&1?KEY_SHIFT:0)|
