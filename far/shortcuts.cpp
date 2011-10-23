@@ -253,6 +253,12 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 								NewItem->strPluginFile = Info.HostFile;
 								NewItem->strPluginData = Info.ShortcutData;
 							}
+							else
+							{
+								Item->PluginGuid = FarGuid;
+								Item->strPluginFile = L"";
+								Item->strPluginData = L"";
+							}
 							MenuItemEx NewMenuItem = {};
 							NewMenuItem.strName = NewItem->strFolder;
 							NewMenuItem.UserData = &NewItem;
@@ -456,6 +462,12 @@ void Shortcuts::Configure()
 						Item->PluginGuid = ph->pPlugin->GetGUID();
 						Item->strPluginFile = Info.HostFile;
 						Item->strPluginData = Info.ShortcutData;
+					}
+					else
+					{
+						Item->PluginGuid = FarGuid;
+						Item->strPluginFile = L"";
+						Item->strPluginData = L"";
 					}
 					MakeItemName(Pos, MenuItem);
 				}
