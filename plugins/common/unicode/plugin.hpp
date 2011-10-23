@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2244
+  Plugin API for Far Manager 3.0 build 2246
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2244
+#define FARMANAGERVERSION_BUILD 2246
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1153,20 +1153,20 @@ struct MacroAddMacro
 
 enum FARMACROVARTYPE
 {
-	FMVT_UNKNOWN                = -1,
-	FMVT_INTEGER                = 0,
-	FMVT_STRING                 = 1,
-	FMVT_DOUBLE                 = 2,
+	FMVT_UNKNOWN                = 0,
+	FMVT_INTEGER                = 1,
+	FMVT_STRING                 = 2,
+	FMVT_DOUBLE                 = 3,
 };
 
 struct FarMacroValue
 {
-	enum FARMACROVARTYPE type;
+	enum FARMACROVARTYPE Type;
 	union
 	{
-		__int64  i;
-		double   d;
-		const wchar_t *s;
+		__int64  Integer;
+		double   Double;
+		const wchar_t *String;
 	}
 #ifndef __cplusplus
 	Value
@@ -1175,10 +1175,10 @@ struct FarMacroValue
 };
 
 
-struct TFarGetValue
+struct FarGetValue
 {
-	int GetType;
-	struct FarMacroValue Val;
+	int Type;
+	struct FarMacroValue Value;
 };
 
 typedef unsigned __int64 FARSETCOLORFLAGS;
@@ -1770,7 +1770,7 @@ struct FarSettingsHistory
 {
 	const wchar_t* Name;
 	const wchar_t* Param;
-	GUID Plugin;
+	GUID PluginId;
 	const wchar_t* File;
 	FILETIME Time;
 	BOOL Lock;
