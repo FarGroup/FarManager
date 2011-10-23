@@ -192,7 +192,7 @@ static void AddItem(Vector<FarSettingsHistory>& Array, FarSettingsHistory& Item,
 {
 	Item.Name=AddString(Name);
 	Item.Param=AddString(Param);
-	Item.Plugin=Guid;
+	Item.PluginId=Guid;
 	Item.File=AddString(File);
 	Array.AddItem(Item);
 }

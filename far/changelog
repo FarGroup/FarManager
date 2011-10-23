@@ -1,3 +1,11 @@
+zg 24.10.2011 00:38:08 +0200 - build 2246
+
+1. человеческие имена для структур и их полей, связанных с DN_GETVALUE.
+
+2. FarSettingsHistoryPlugin.->FarSettingsHistory.PluginId.
+
+3. FARMACROVARTYPE нумеруется с 0.
+
 zg 23.10.2011 21:11:21 +0200 - build 2245
 
 1. при замене "folder shorcuts" с плагинового на реальный путь не все поля очищались.

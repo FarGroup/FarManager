@@ -3086,7 +3086,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 
 	if (CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
 	{
-		TFarGetValue fgv={TypeInf,FMVT_UNKNOWN};
+		FarGetValue fgv={TypeInf,FMVT_UNKNOWN};
 		unsigned DlgItemCount=((Dialog*)CurFrame)->GetAllItemCount();
 		const DialogItemEx **DlgItem=((Dialog*)CurFrame)->GetAllItem();
 		bool CallDialog=true;
@@ -3211,34 +3211,36 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 
 		if (CallDialog)
 		{
-			fgv.Val.type=(FARMACROVARTYPE)Ret.type();
+			fgv.Value.Type=(FARMACROVARTYPE)Ret.type();
 			switch (Ret.type())
 			{
 				case vtUnknown:
 				case vtInteger:
-					fgv.Val.i=Ret.i();
+					fgv.Value.Integer=Ret.i();
 					break;
 				case vtString:
-					fgv.Val.s=Ret.s();
+					fgv.Value.String=Ret.s();
 					break;
 				case vtDouble:
-					fgv.Val.d=Ret.d();
+					fgv.Value.Double=Ret.d();
 					break;
 			}
 
 			if (SendDlgMessage((HANDLE)CurFrame,DN_GETVALUE,Index,&fgv))
 			{
-				switch (fgv.Val.type)
+				switch (fgv.Value.Type)
 				{
 					case FMVT_UNKNOWN:
+						Ret=0;
+						break;
 					case FMVT_INTEGER:
-						Ret=fgv.Val.i;
+						Ret=fgv.Value.Integer;
 						break;
 					case FMVT_DOUBLE:
-						Ret=fgv.Val.d;
+						Ret=fgv.Value.Double;
 						break;
 					case FMVT_STRING:
-						Ret=fgv.Val.s;
+						Ret=fgv.Value.String;
 						break;
 					default:
 						Ret=-1;

@@ -1258,20 +1258,20 @@ struct MacroAddMacro
 
 enum FARMACROVARTYPE
 {
-	FMVT_UNKNOWN                = -1,
-	FMVT_INTEGER                = 0,
-	FMVT_STRING                 = 1,
-	FMVT_DOUBLE                 = 2,
+	FMVT_UNKNOWN                = 0,
+	FMVT_INTEGER                = 1,
+	FMVT_STRING                 = 2,
+	FMVT_DOUBLE                 = 3,
 };
 
 struct FarMacroValue
 {
-	enum FARMACROVARTYPE type;
+	enum FARMACROVARTYPE Type;
 	union
 	{
-		__int64  i;
-		double   d;
-		const wchar_t *s;
+		__int64  Integer;
+		double   Double;
+		const wchar_t *String;
 	}
 #ifndef __cplusplus
 	Value
@@ -1323,10 +1323,10 @@ struct ProcessMacroInfo
 #endif
 #endif // END FAR_USE_INTERNALS
 
-struct TFarGetValue
+struct FarGetValue
 {
-	int GetType;
-	struct FarMacroValue Val;
+	int Type;
+	struct FarMacroValue Value;
 };
 
 typedef unsigned __int64 FARSETCOLORFLAGS;
@@ -1947,7 +1947,7 @@ struct FarSettingsHistory
 {
 	const wchar_t* Name;
 	const wchar_t* Param;
-	GUID Plugin;
+	GUID PluginId;
 	const wchar_t* File;
 	FILETIME Time;
 	BOOL Lock;
