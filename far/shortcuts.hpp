@@ -53,6 +53,7 @@ public:
 	Shortcuts();
 	~Shortcuts();
 	bool Get(size_t Pos, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData);
+	bool Get(size_t Pos, size_t Index, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData);
 	void Set(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, const wchar_t* PluginFile, const wchar_t* PluginData);
 	void Add(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, const wchar_t* PluginFile, const wchar_t* PluginData);
 	void Configure();

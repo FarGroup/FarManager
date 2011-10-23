@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "history.hpp"
 #include "datetime.hpp"
 #include "FarGuid.hpp"
+#include "shortcuts.hpp"
 
 template<> void DeleteItems<FarSettingsHistory>(FarSettingsHistory* Items,size_t Size)
 {
@@ -187,11 +188,11 @@ static void AddItem(Vector<FarSettingsName>& Array, FarSettingsName& Item, const
 	Array.AddItem(Item);
 }
 
-static void AddItem(Vector<FarSettingsHistory>& Array, FarSettingsHistory& Item, const string& Name, const string& Param, const string& Guid, const string& File)
+static void AddItem(Vector<FarSettingsHistory>& Array, FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
 {
 	Item.Name=AddString(Name);
 	Item.Param=AddString(Param);
-	if(Guid.IsEmpty()||!StrToGuid(Guid,Item.Plugin)) Item.Plugin=FarGuid;
+	Item.Plugin=Guid;
 	Item.File=AddString(File);
 	Array.AddItem(Item);
 }
@@ -330,6 +331,30 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 			return FillHistory(HISTORYTYPE_VIEW,Enum,FilterEdit);
 		case FSSF_HISTORY_EXTERNAL:
 			return FillHistory(HISTORYTYPE_VIEW,Enum,FilterExt);
+		case FSSF_FOLDERSHORTCUT_0:
+		case FSSF_FOLDERSHORTCUT_1:
+		case FSSF_FOLDERSHORTCUT_2:
+		case FSSF_FOLDERSHORTCUT_3:
+		case FSSF_FOLDERSHORTCUT_4:
+		case FSSF_FOLDERSHORTCUT_5:
+		case FSSF_FOLDERSHORTCUT_6:
+		case FSSF_FOLDERSHORTCUT_7:
+		case FSSF_FOLDERSHORTCUT_8:
+		case FSSF_FOLDERSHORTCUT_9:
+			{
+				Vector<FarSettingsHistory>& array=*m_Enum.addItem();
+				FarSettingsHistory item={0};
+				string strName,strFile,strData;
+				GUID plugin; size_t index=0;
+				while(CtrlObject->FolderShortcuts->Get(Enum.Root-FSSF_FOLDERSHORTCUT_0,index++,&strName,&plugin,&strFile,&strData))
+				{
+					AddItem(array,item,strName,strData,plugin,strFile);
+				}
+				Enum.Count=array.GetSize();
+				Enum.Histories=array.GetItems();
+				return TRUE;
+			}
+			break;
 	}
 	return FALSE;
 }
@@ -347,7 +372,7 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 int FarSettings::FillHistory(int Type,FarSettingsEnum& Enum,HistoryFilter Filter)
 {
 	Vector<FarSettingsHistory>& array=*m_Enum.addItem();
-	FarSettingsHistory item;
+	FarSettingsHistory item={0};
 	DWORD Index=0;
 	string strName,strHistoryName,strGuid,strFile,strData;
 
@@ -361,7 +386,9 @@ int FarSettings::FillHistory(int Type,FarSettingsEnum& Enum,HistoryFilter Filter
 		{
 			UI64ToFileTime(Time,&item.Time);
 			item.Lock=HLock;
-			AddItem(array,item,strName,strData,strGuid,strFile);
+			GUID Guid;
+			if(strGuid.IsEmpty()||!StrToGuid(strGuid,Guid)) Guid=FarGuid;
+			AddItem(array,item,strName,strData,Guid,strFile);
 		}
 	}
 	Enum.Count=array.GetSize();
