@@ -38,6 +38,17 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "history.hpp"
 #include "datetime.hpp"
+#include "FarGuid.hpp"
+
+template<> void DeleteItems<FarSettingsHistory>(FarSettingsHistory* Items,size_t Size)
+{
+	for(size_t ii=0;ii<Size;++ii)
+	{
+		delete [] Items[ii].Name;
+		delete [] Items[ii].Param;
+		delete [] Items[ii].File;
+	}
+}
 
 AbstractSettings::~AbstractSettings()
 {
@@ -162,11 +173,26 @@ int PluginSettings::Get(FarSettingsItem& Item)
 	return result;
 }
 
-template <class Object> void AddString(Vector<Object>& Array, Object& Item, string& String)
+static wchar_t* AddString(const string& String)
 {
 	size_t size=String.GetLength()+1;
-	Item.Name=new wchar_t[size];
-	wmemcpy((wchar_t*)Item.Name,String.CPtr(),size);
+	wchar_t* result=new wchar_t[size];
+	wmemcpy(result,String.CPtr(),size);
+	return result;
+}
+
+static void AddItem(Vector<FarSettingsName>& Array, FarSettingsName& Item, const string& String)
+{
+	Item.Name=AddString(String);
+	Array.AddItem(Item);
+}
+
+static void AddItem(Vector<FarSettingsHistory>& Array, FarSettingsHistory& Item, const string& Name, const string& Param, const string& Guid, const string& File)
+{
+	Item.Name=AddString(Name);
+	Item.Param=AddString(Param);
+	if(Guid.IsEmpty()||!StrToGuid(Guid,Item.Plugin)) Item.Plugin=FarGuid;
+	Item.File=AddString(File);
 	Array.AddItem(Item);
 }
 
@@ -184,7 +210,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 		item.Type=FST_SUBKEY;
 		while (PluginsCfg->EnumKeys(root,Index++,strName))
 		{
-			AddString(array,item,strName);
+			AddItem(array,item,strName);
 		}
 		Index=0;
 		while (PluginsCfg->EnumValues(root,Index++,strName,&Type))
@@ -204,7 +230,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 			}
 			if(item.Type!=FST_UNKNOWN)
 			{
-				AddString(array,item,strName);
+				AddItem(array,item,strName);
 			}
 		}
 		Enum.Count=array.GetSize();
@@ -335,7 +361,7 @@ int FarSettings::FillHistory(int Type,FarSettingsEnum& Enum,HistoryFilter Filter
 		{
 			UI64ToFileTime(Time,&item.Time);
 			item.Lock=HLock;
-			AddString(array,item,strName);
+			AddItem(array,item,strName,strData,strGuid,strFile);
 		}
 	}
 	Enum.Count=array.GetSize();

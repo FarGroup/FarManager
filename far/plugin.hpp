@@ -1936,6 +1936,9 @@ struct FarSettingsName
 struct FarSettingsHistory
 {
 	const wchar_t* Name;
+	const wchar_t* Param;
+	GUID Plugin;
+	const wchar_t* File;
 	FILETIME Time;
 	BOOL Lock;
 };
