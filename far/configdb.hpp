@@ -32,9 +32,108 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "sqlite.h"
+
 struct VersionInfo;
 class TiXmlElement;
 class TiXmlHandle;
+
+class SQLiteStmt {
+	int param;
+
+protected:
+	sqlite3_stmt *pStmt;
+
+public:
+
+	SQLiteStmt() : param(1), pStmt(nullptr) { }
+
+	~SQLiteStmt() { sqlite3_finalize(pStmt); }
+
+	SQLiteStmt& Reset() { param=1; sqlite3_clear_bindings(pStmt); sqlite3_reset(pStmt); return *this; }
+
+	bool Step() { return sqlite3_step(pStmt) == SQLITE_ROW; }
+
+	bool StepAndReset() { bool b = sqlite3_step(pStmt) == SQLITE_DONE; Reset(); return b; }
+
+	SQLiteStmt& Bind(int Value) { sqlite3_bind_int(pStmt,param++,Value); return *this; }
+
+	SQLiteStmt& Bind(unsigned __int64 Value) { sqlite3_bind_int64(pStmt,param++,Value); return *this; }
+
+	SQLiteStmt& Bind(__int64 Value) { sqlite3_bind_int64(pStmt,param++,Value); return *this; }
+
+	SQLiteStmt& Bind(const wchar_t *Value, bool bStatic=true)
+	{
+		if (Value)
+			sqlite3_bind_text16(pStmt,param++,Value,-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
+		else
+			sqlite3_bind_null(pStmt,param++);
+		return *this;
+	}
+
+	SQLiteStmt& Bind(const void *Value, size_t Size, bool bStatic=true) { sqlite3_bind_blob(pStmt,param++,Value,static_cast<int>(Size),bStatic?SQLITE_STATIC:SQLITE_TRANSIENT); return *this; }
+
+	const wchar_t *GetColText(int Col) { return (const wchar_t *)sqlite3_column_text16(pStmt,Col); }
+
+	const char *GetColTextUTF8(int Col) { return (const char *)sqlite3_column_text(pStmt,Col); }
+
+	int GetColBytes(int Col) { return sqlite3_column_bytes(pStmt,Col); }
+
+	int GetColInt(int Col) { return sqlite3_column_int(pStmt,Col); }
+
+	unsigned __int64 GetColInt64(int Col) { return sqlite3_column_int64(pStmt,Col); }
+
+	const char *GetColBlob(int Col) { return (const char *)sqlite3_column_blob(pStmt,Col); }
+
+	int GetColType(int Col) { return sqlite3_column_type(pStmt,Col); }
+
+	friend class SQLiteDb;
+};
+
+class SQLiteDb {
+	sqlite3 *pDb;
+	string strPath;
+
+public:
+
+	SQLiteDb() : pDb(nullptr) { };
+
+	virtual ~SQLiteDb() { Close(); }
+
+	bool Open(const wchar_t *DbFile, bool Local = false);
+
+	void Initialize(const wchar_t* DbName);
+
+	bool Exec(const char *Command) { return sqlite3_exec(pDb, Command, nullptr, nullptr, nullptr) == SQLITE_OK; }
+
+	bool BeginTransaction() { return Exec("BEGIN TRANSACTION;"); }
+
+	bool EndTransaction() { return Exec("END TRANSACTION;"); }
+
+	bool IsOpen() { return pDb != nullptr; }
+
+	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt)
+	{
+		return sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK;
+	}
+
+	int Changes() { return sqlite3_changes(pDb); }
+
+	unsigned __int64 LastInsertRowID() { return sqlite3_last_insert_rowid(pDb); }
+
+	bool Close()
+	{
+		bool Result = sqlite3_close(pDb) == SQLITE_OK;
+		pDb = nullptr;
+		return Result;
+	}
+
+	bool SetWALJournalingMode() { return Exec("PRAGMA journal_mode = WAL;"); }
+
+	bool EnableForeignKeysConstraints() { return Exec("PRAGMA foreign_keys = ON;"); }
+
+	virtual bool InitializeImpl(const wchar_t* DbName) = 0;
+};
 
 class XmlConfig {
 
@@ -45,7 +144,7 @@ public:
 	virtual bool Import(const TiXmlHandle &root) = 0;
 };
 
-class GeneralConfig: public XmlConfig {
+class GeneralConfig: public XmlConfig, public SQLiteDb {
 
 public:
 
@@ -57,8 +156,6 @@ public:
 	};
 
 	virtual ~GeneralConfig() {}
-	virtual void BeginTransaction() = 0;
-	virtual void EndTransaction() = 0;
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value) = 0;
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 Value) = 0;
 	virtual bool SetValue(const wchar_t *Key, const wchar_t *Name, const void *Value, size_t Size) = 0;
@@ -72,7 +169,7 @@ public:
 	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value) = 0;
 };
 
-class HierarchicalConfig: public XmlConfig {
+class HierarchicalConfig: public XmlConfig, public SQLiteDb {
 
 public:
 
@@ -100,13 +197,11 @@ public:
 	virtual bool Flush() = 0;
 };
 
-class AssociationsConfig: public XmlConfig {
+class AssociationsConfig: public XmlConfig, public SQLiteDb {
 
 public:
 
 	virtual ~AssociationsConfig() {}
-	virtual void BeginTransaction() = 0;
-	virtual void EndTransaction() = 0;
 	virtual bool EnumMasks(DWORD Index, unsigned __int64 *id, string &strMask) = 0;
 	virtual bool EnumMasksForType(int Type, DWORD Index, unsigned __int64 *id, string &strMask) = 0;
 	virtual bool GetMask(unsigned __int64 id, string &strMask) = 0;
@@ -119,13 +214,11 @@ public:
 	virtual bool DelType(unsigned __int64 id) = 0;
 };
 
-class PluginsCacheConfig {
+class PluginsCacheConfig: public SQLiteDb  {
 
 public:
 
 	virtual ~PluginsCacheConfig() {}
-	virtual void BeginTransaction() = 0;
-	virtual void EndTransaction() = 0;
 	virtual unsigned __int64 CreateCache(const wchar_t *CacheName) = 0;
 	virtual unsigned __int64 GetCacheID(const wchar_t *CacheName) = 0;
 	virtual bool DeleteCache(const wchar_t *CacheName) = 0;
@@ -162,7 +255,7 @@ public:
 	virtual bool IsCacheEmpty() = 0;
 };
 
-class PluginsHotkeysConfig: public XmlConfig {
+class PluginsHotkeysConfig: public XmlConfig, public SQLiteDb  {
 
 public:
 
@@ -179,13 +272,11 @@ public:
 	virtual bool DelHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
 };
 
-class HistoryConfig {
+class HistoryConfig: public SQLiteDb  {
 
 public:
 
 	virtual ~HistoryConfig() {}
-	virtual void BeginTransaction() = 0;
-	virtual void EndTransaction() = 0;
 
 	//command,view,edit,folder,dialog history
 	virtual bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;

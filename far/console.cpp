@@ -380,6 +380,11 @@ virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD Bu
 	return Result;
 }
 
+virtual bool Write(LPCWSTR Buffer) const
+{
+	return Write(Buffer, StrLength(Buffer));
+}
+
 virtual bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const
 {
 	DWORD NumberOfCharsWritten;

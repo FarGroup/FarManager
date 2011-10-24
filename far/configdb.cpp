@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "strmix.hpp"
 #include "pathmix.hpp"
-#include "sqlite.h"
 #include "config.hpp"
 #include "datetime.hpp"
 #include "tinyxml.hpp"
@@ -137,110 +136,25 @@ void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
 	}
 }
 
-class SQLiteStmt {
-	int param;
+bool SQLiteDb::Open(const wchar_t *DbFile, bool Local)
+{
+	GetDatabasePath(DbFile, strPath, Local);
+	return sqlite3_open16(strPath.CPtr(),&pDb) == SQLITE_OK;
+}
 
-protected:
-	sqlite3_stmt *pStmt;
-
-public:
-
-	SQLiteStmt() : param(1), pStmt(nullptr) { }
-
-	~SQLiteStmt() { sqlite3_finalize(pStmt); }
-
-	SQLiteStmt& Reset() { param=1; sqlite3_clear_bindings(pStmt); sqlite3_reset(pStmt); return *this; }
-
-	bool Step() { return sqlite3_step(pStmt) == SQLITE_ROW; }
-
-	bool StepAndReset() { bool b = sqlite3_step(pStmt) == SQLITE_DONE; Reset(); return b; }
-
-	SQLiteStmt& Bind(int Value) { sqlite3_bind_int(pStmt,param++,Value); return *this; }
-
-	SQLiteStmt& Bind(unsigned __int64 Value) { sqlite3_bind_int64(pStmt,param++,Value); return *this; }
-
-	SQLiteStmt& Bind(__int64 Value) { sqlite3_bind_int64(pStmt,param++,Value); return *this; }
-
-	SQLiteStmt& Bind(const wchar_t *Value, bool bStatic=true)
-	{
-		if (Value)
-			sqlite3_bind_text16(pStmt,param++,Value,-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
-		else
-			sqlite3_bind_null(pStmt,param++);
-		return *this;
-	}
-
-	SQLiteStmt& Bind(const void *Value, size_t Size, bool bStatic=true) { sqlite3_bind_blob(pStmt,param++,Value,static_cast<int>(Size),bStatic?SQLITE_STATIC:SQLITE_TRANSIENT); return *this; }
-
-	const wchar_t *GetColText(int Col) { return (const wchar_t *)sqlite3_column_text16(pStmt,Col); }
-
-	const char *GetColTextUTF8(int Col) { return (const char *)sqlite3_column_text(pStmt,Col); }
-
-	int GetColBytes(int Col) { return sqlite3_column_bytes(pStmt,Col); }
-
-	int GetColInt(int Col) { return sqlite3_column_int(pStmt,Col); }
-
-	unsigned __int64 GetColInt64(int Col) { return sqlite3_column_int64(pStmt,Col); }
-
-	const char *GetColBlob(int Col) { return (const char *)sqlite3_column_blob(pStmt,Col); }
-
-	int GetColType(int Col) { return sqlite3_column_type(pStmt,Col); }
-
-	friend class SQLiteDb;
-};
-
-class SQLiteDb {
-	sqlite3 *pDb;
-	string strPath;
-public:
-
-	SQLiteDb() : pDb(nullptr) { };
-
-	~SQLiteDb()	{ Close(); }
-
-	bool Open(const wchar_t *DbFile, bool Local = false)
-	{
-		GetDatabasePath(DbFile, strPath, Local);
-		return sqlite3_open16(strPath.CPtr(),&pDb) == SQLITE_OK;
-	}
-
-	bool MarkAsBad(const wchar_t *DbFile)
+void SQLiteDb::Initialize(const wchar_t* DbName)
+{
+	if (!InitializeImpl(DbName))
 	{
 		Close();
-		return MoveFileEx(strPath, strPath+L".bad", MOVEFILE_REPLACE_EXISTING) != FALSE;
+		if (!apiMoveFileEx(strPath, strPath+L".bad", MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName))
+		{
+			InitializeImpl(L":memory:");
+		}
 	}
-
-	bool Exec(const char *Command) { return sqlite3_exec(pDb, Command, nullptr, nullptr, nullptr) == SQLITE_OK; }
-
-	bool BeginTransaction() { return Exec("BEGIN TRANSACTION;"); }
-
-	bool EndTransaction() { return Exec("END TRANSACTION;"); }
-
-	bool IsOpen() { return pDb != nullptr; }
-
-	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt)
-	{
-		return sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK;
-	}
-
-	int Changes() { return sqlite3_changes(pDb); }
-
-	unsigned __int64 LastInsertRowID() { return sqlite3_last_insert_rowid(pDb); }
-
-	bool Close()
-	{
-		bool Result = sqlite3_close(pDb) == SQLITE_OK;
-		pDb = nullptr;
-		return Result;
-	}
-
-	bool SetWALJournalingMode() { return Exec("PRAGMA journal_mode = WAL;"); }
-
-	bool EnableForeignKeysConstraints() { return Exec("PRAGMA foreign_keys = ON;"); }
-};
+}
 
 class GeneralConfigDb: public GeneralConfig {
-	SQLiteDb   db;
 	SQLiteStmt stmtUpdateValue;
 	SQLiteStmt stmtInsertValue;
 	SQLiteStmt stmtGetValue;
@@ -251,51 +165,40 @@ public:
 
 	GeneralConfigDb()
 	{
-		const wchar_t* DbName = L"generalconfig.db";
-		if (!Initialize(DbName))
-		{
-			if(!db.MarkAsBad(DbName) || !Initialize(DbName))
-			{
-				Initialize(L":memory:");
-			}
-		}
+		Initialize(L"generalconfig.db");
 	}
 
-	bool Initialize(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName)
 	{
 		return 
-			db.Open(DbName) && 
+			Open(DbName) && 
 
 			//schema
-			db.Exec("CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));") &&
+			Exec("CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));") &&
 
 			//update value statement
-			db.InitStmt(stmtUpdateValue, L"UPDATE general_config SET value=?1 WHERE key=?2 AND name=?3;") &&
+			InitStmt(stmtUpdateValue, L"UPDATE general_config SET value=?1 WHERE key=?2 AND name=?3;") &&
 
 			//insert value statement
-			db.InitStmt(stmtInsertValue, L"INSERT INTO general_config VALUES (?1,?2,?3);") &&
+			InitStmt(stmtInsertValue, L"INSERT INTO general_config VALUES (?1,?2,?3);") &&
 
 			//get value statement
-			db.InitStmt(stmtGetValue, L"SELECT value FROM general_config WHERE key=?1 AND name=?2;") &&
+			InitStmt(stmtGetValue, L"SELECT value FROM general_config WHERE key=?1 AND name=?2;") &&
 
 			//delete value statement
-			db.InitStmt(stmtDelValue, L"DELETE FROM general_config WHERE key=?1 AND name=?2;") &&
+			InitStmt(stmtDelValue, L"DELETE FROM general_config WHERE key=?1 AND name=?2;") &&
 
 			//enum values statement
-			db.InitStmt(stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;")
+			InitStmt(stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;")
 		;
 	}
 
 	virtual ~GeneralConfigDb() { }
 
-	void BeginTransaction() { db.BeginTransaction(); }
-
-	void EndTransaction() { db.EndTransaction(); }
-
 	bool SetValue(const wchar_t *Key, const wchar_t *Name, const wchar_t *Value)
 	{
 		bool b = stmtUpdateValue.Bind(Value).Bind(Key).Bind(Name).StepAndReset();
-		if (!b || db.Changes() == 0)
+		if (!b || Changes() == 0)
 			b = stmtInsertValue.Bind(Key).Bind(Name).Bind(Value).StepAndReset();
 		return b;
 	}
@@ -303,7 +206,7 @@ public:
 	bool SetValue(const wchar_t *Key, const wchar_t *Name, unsigned __int64 Value)
 	{
 		bool b = stmtUpdateValue.Bind(Value).Bind(Key).Bind(Name).StepAndReset();
-		if (!b || db.Changes() == 0)
+		if (!b || Changes() == 0)
 			b = stmtInsertValue.Bind(Key).Bind(Name).Bind(Value).StepAndReset();
 		return b;
 	}
@@ -311,7 +214,7 @@ public:
 	bool SetValue(const wchar_t *Key, const wchar_t *Name, const void *Value, size_t Size)
 	{
 		bool b = stmtUpdateValue.Bind(Value,Size).Bind(Key).Bind(Name).StepAndReset();
-		if (!b || db.Changes() == 0)
+		if (!b || Changes() == 0)
 			b = stmtInsertValue.Bind(Key).Bind(Name).Bind(Value,Size).StepAndReset();
 		return b;
 	}
@@ -443,7 +346,7 @@ public:
 			return nullptr;
 
 		SQLiteStmt stmtEnumAllValues;
-		db.InitStmt(stmtEnumAllValues, L"SELECT key, name, value FROM general_config ORDER BY key, name;");
+		InitStmt(stmtEnumAllValues, L"SELECT key, name, value FROM general_config ORDER BY key, name;");
 
 		while (stmtEnumAllValues.Step())
 		{
@@ -528,7 +431,6 @@ public:
 };
 
 class HierarchicalConfigDb: public HierarchicalConfig {
-	SQLiteDb   db;
 	SQLiteStmt stmtCreateKey;
 	SQLiteStmt stmtFindKey;
 	SQLiteStmt stmtSetKeyDescription;
@@ -545,76 +447,70 @@ public:
 
 	explicit HierarchicalConfigDb(const wchar_t *DbName)
 	{
-		if (!Initialize(DbName))
-		{
-			if(!db.MarkAsBad(DbName) || !Initialize(DbName))
-			{
-				Initialize(L":memory:");
-			}
-		}
+		Initialize(DbName);
 	}
 
-	bool Initialize(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName)
 	{
-		db.Close();
+		Close();
 		return
-			db.Open(DbName) &&
+			Open(DbName) &&
 
 			//schema
-			db.EnableForeignKeysConstraints() &&
+			EnableForeignKeysConstraints() &&
 
-			db.Exec(
+			Exec(
 				"CREATE TABLE IF NOT EXISTS table_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
 				"CREATE TABLE IF NOT EXISTS table_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id <> 0));"
 			) &&
 
 			//root key (needs to be before the transaction start)
-			db.Exec("INSERT OR REPLACE INTO table_keys VALUES (0,0,\"\",\"Root - do not edit\");") &&
+			Exec("INSERT OR IGNORE INTO table_keys VALUES (0,0,\"\",\"Root - do not edit\");") &&
 
-			db.BeginTransaction() &&
+			BeginTransaction() &&
 
 			//create key statement
-			db.InitStmt(stmtCreateKey, L"INSERT INTO table_keys VALUES (NULL,?1,?2,?3);") &&
+			InitStmt(stmtCreateKey, L"INSERT INTO table_keys VALUES (NULL,?1,?2,?3);") &&
 
 			//find key statement
-			db.InitStmt(stmtFindKey, L"SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;") &&
+			InitStmt(stmtFindKey, L"SELECT id FROM table_keys WHERE parent_id=?1 AND name=?2 AND id<>0;") &&
 
 			//set key description statement
-			db.InitStmt(stmtSetKeyDescription, L"UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;") &&
+			InitStmt(stmtSetKeyDescription, L"UPDATE table_keys SET description=?1 WHERE id=?2 AND id<>0 AND description<>?1;") &&
 
 			//set value statement
-			db.InitStmt(stmtSetValue, L"INSERT OR REPLACE INTO table_values VALUES (?1,?2,?3);") &&
+			InitStmt(stmtSetValue, L"INSERT OR REPLACE INTO table_values VALUES (?1,?2,?3);") &&
 
 			//get value statement
-			db.InitStmt(stmtGetValue, L"SELECT value FROM table_values WHERE key_id=?1 AND name=?2;") &&
+			InitStmt(stmtGetValue, L"SELECT value FROM table_values WHERE key_id=?1 AND name=?2;") &&
 
 			//enum keys statement
-			db.InitStmt(stmtEnumKeys, L"SELECT name FROM table_keys WHERE parent_id=?1 AND id<>0;") &&
+			InitStmt(stmtEnumKeys, L"SELECT name FROM table_keys WHERE parent_id=?1 AND id<>0;") &&
 
 			//enum values statement
-			db.InitStmt(stmtEnumValues, L"SELECT name, value FROM table_values WHERE key_id=?1;") &&
+			InitStmt(stmtEnumValues, L"SELECT name, value FROM table_values WHERE key_id=?1;") &&
 
 			//delete value statement
-			db.InitStmt(stmtDelValue, L"DELETE FROM table_values WHERE key_id=?1 AND name=?2;") &&
+			InitStmt(stmtDelValue, L"DELETE FROM table_values WHERE key_id=?1 AND name=?2;") &&
 
 			//delete tree statement
-			db.InitStmt(stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;")
+			InitStmt(stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;")
 		;
 	}
 
-	virtual ~HierarchicalConfigDb() { db.EndTransaction(); }
+	virtual ~HierarchicalConfigDb() { EndTransaction(); }
 
 	bool Flush()
 	{
-		bool b = db.EndTransaction();
-		db.BeginTransaction();
+		bool b = EndTransaction();
+		BeginTransaction();
 		return b;
 	}
 
 	unsigned __int64 CreateKey(unsigned __int64 Root, const wchar_t *Name, const wchar_t *Description=nullptr)
 	{
 		if (stmtCreateKey.Bind(Root).Bind(Name).Bind(Description).StepAndReset())
-			return db.LastInsertRowID();
+			return LastInsertRowID();
 		unsigned __int64 id = GetKeyID(Root,Name);
 		if (id && Description)
 			SetKeyDescription(id,Description);
@@ -769,7 +665,7 @@ public:
 		stmtEnumValues.Reset();
 
 		SQLiteStmt stmtEnumSubKeys;
-		db.InitStmt(stmtEnumSubKeys, L"SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;");
+		InitStmt(stmtEnumSubKeys, L"SELECT id, name, description FROM table_keys WHERE parent_id=?1 AND id<>0;");
 
 		stmtEnumSubKeys.Bind(id);
 		while (stmtEnumSubKeys.Step())
@@ -862,18 +758,17 @@ public:
 
 	bool Import(const TiXmlHandle &root)
 	{
-		db.BeginTransaction();
+		BeginTransaction();
 		for (const TiXmlElement *e = root.FirstChild("hierarchicalconfig").FirstChildElement("key").Element(); e; e=e->NextSiblingElement("key"))
 		{
 			Import(0, e);
 		}
-		db.EndTransaction();
+		EndTransaction();
 		return true;
 	}
 };
 
 class AssociationsConfigDb: public AssociationsConfig {
-	SQLiteDb   db;
 	SQLiteStmt stmtReorder;
 	SQLiteStmt stmtAddType;
 	SQLiteStmt stmtGetMask;
@@ -892,72 +787,61 @@ public:
 
 	AssociationsConfigDb()
 	{
-		const wchar_t* DbName = L"associations.db";
-		if(!Initialize(DbName))
-		{
-			if(!db.MarkAsBad(DbName) || !Initialize(DbName))
-			{
-				Initialize(L":memory:");
-			}
-		}
+		Initialize(L"associations.db");
 	}
 
 	virtual ~AssociationsConfigDb() { }
 
-	bool Initialize(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName)
 	{
-		db.Close();
+		Close();
 		return
-			db.Open(DbName) &&
+			Open(DbName) &&
 
 			//schema
-			db.EnableForeignKeysConstraints() &&
-			db.Exec(
+			EnableForeignKeysConstraints() &&
+			Exec(
 			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY, weight INTEGER NOT NULL, mask TEXT, description TEXT);"
 			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, enabled INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"
 			) &&
 
 			//add new type and reorder statements
-			db.InitStmt(stmtReorder, L"UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);") &&
-			db.InitStmt(stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);") &&
+			InitStmt(stmtReorder, L"UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);") &&
+			InitStmt(stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);") &&
 
 			//get mask statement
-			db.InitStmt(stmtGetMask, L"SELECT mask FROM filetypes WHERE id=?1;") &&
+			InitStmt(stmtGetMask, L"SELECT mask FROM filetypes WHERE id=?1;") &&
 
 			//get description statement
-			db.InitStmt(stmtGetDescription, L"SELECT description FROM filetypes WHERE id=?1;") &&
+			InitStmt(stmtGetDescription, L"SELECT description FROM filetypes WHERE id=?1;") &&
 
 			//update type statement
-			db.InitStmt(stmtUpdateType, L"UPDATE filetypes SET mask=?1, description=?2 WHERE id=?3;") &&
+			InitStmt(stmtUpdateType, L"UPDATE filetypes SET mask=?1, description=?2 WHERE id=?3;") &&
 
 			//set association statement
-			db.InitStmt(stmtSetCommand, L"INSERT OR REPLACE INTO commands VALUES (?1,?2,?3,?4);") &&
+			InitStmt(stmtSetCommand, L"INSERT OR REPLACE INTO commands VALUES (?1,?2,?3,?4);") &&
 
 			//get association statement
-			db.InitStmt(stmtGetCommand, L"SELECT command, enabled FROM commands WHERE ft_id=?1 AND type=?2;") &&
+			InitStmt(stmtGetCommand, L"SELECT command, enabled FROM commands WHERE ft_id=?1 AND type=?2;") &&
 
 			//enum types statement
-			db.InitStmt(stmtEnumTypes, L"SELECT id, description FROM filetypes ORDER BY weight;") &&
+			InitStmt(stmtEnumTypes, L"SELECT id, description FROM filetypes ORDER BY weight;") &&
 
 			//enum masks statement
-			db.InitStmt(stmtEnumMasks, L"SELECT id, mask FROM filetypes ORDER BY weight;") &&
+			InitStmt(stmtEnumMasks, L"SELECT id, mask FROM filetypes ORDER BY weight;") &&
 
 			//enum masks with a specific type on statement
-			db.InitStmt(stmtEnumMasksForType, L"SELECT id, mask FROM filetypes, commands WHERE id=ft_id AND type=?1 AND enabled<>0 ORDER BY weight;") &&
+			InitStmt(stmtEnumMasksForType, L"SELECT id, mask FROM filetypes, commands WHERE id=ft_id AND type=?1 AND enabled<>0 ORDER BY weight;") &&
 
 			//delete type statement
-			db.InitStmt(stmtDelType, L"DELETE FROM filetypes WHERE id=?1;") &&
+			InitStmt(stmtDelType, L"DELETE FROM filetypes WHERE id=?1;") &&
 
 			//get weight and set weight statements
-			db.InitStmt(stmtGetWeight, L"SELECT weight FROM filetypes WHERE id=?1;") &&
-			db.InitStmt(stmtSetWeight, L"UPDATE filetypes SET weight=?1 WHERE id=?2;")
+			InitStmt(stmtGetWeight, L"SELECT weight FROM filetypes WHERE id=?1;") &&
+			InitStmt(stmtSetWeight, L"UPDATE filetypes SET weight=?1 WHERE id=?2;")
 		;
 	}
 
-
-	void BeginTransaction() { db.BeginTransaction(); }
-
-	void EndTransaction() { db.EndTransaction(); }
 
 	bool EnumMasks(DWORD Index, unsigned __int64 *id, string &strMask)
 	{
@@ -1047,7 +931,7 @@ public:
 	unsigned __int64 AddType(unsigned __int64 after_id, const wchar_t *Mask, const wchar_t *Description)
 	{
 		if (stmtReorder.Bind(after_id).StepAndReset() && stmtAddType.Bind(after_id).Bind(Mask).Bind(Description).StepAndReset())
-			return db.LastInsertRowID();
+			return LastInsertRowID();
 		return 0;
 	}
 
@@ -1068,9 +952,9 @@ public:
 			return nullptr;
 
 		SQLiteStmt stmtEnumAllTypes;
-		db.InitStmt(stmtEnumAllTypes, L"SELECT id, mask, description FROM filetypes ORDER BY weight;");
+		InitStmt(stmtEnumAllTypes, L"SELECT id, mask, description FROM filetypes ORDER BY weight;");
 		SQLiteStmt stmtEnumCommandsPerFiletype;
-		db.InitStmt(stmtEnumCommandsPerFiletype, L"SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;");
+		InitStmt(stmtEnumCommandsPerFiletype, L"SELECT type, enabled, command FROM commands WHERE ft_id=?1 ORDER BY type;");
 
 		while (stmtEnumAllTypes.Step())
 		{
@@ -1110,7 +994,7 @@ public:
 			return false;
 
 		BeginTransaction();
-		db.Exec("DELETE FROM filetypes;"); //delete all before importing
+		Exec("DELETE FROM filetypes;"); //delete all before importing
 		unsigned __int64 id = 0;
 		for (const TiXmlElement *e = base.FirstChildElement("filetype").Element(); e; e=e->NextSiblingElement("filetype"))
 		{
@@ -1150,7 +1034,6 @@ public:
 };
 
 class PluginsCacheConfigDb: public PluginsCacheConfig {
-	SQLiteDb   db;
 	SQLiteStmt stmtCreateCache;
 	SQLiteStmt stmtFindCacheName;
 	SQLiteStmt stmtDelCache;
@@ -1217,28 +1100,21 @@ public:
 
 	PluginsCacheConfigDb()
 	{
-		const wchar_t* DbName = L"plugincache.db";
-		if (!Initialize(DbName))
-		{
-			if(!db.MarkAsBad(DbName) || !Initialize(DbName))
-			{
-				Initialize(L":memory:");
-			}
-		}
+		Initialize(L"plugincache.db");
 	}
 
-	bool Initialize(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName)
 	{
-		db.Close();
+		Close();
 		return
-			db.Open(DbName, true) &&
+			Open(DbName, true) &&
 
 			//schema
-			db.SetWALJournalingMode() &&
+			SetWALJournalingMode() &&
 
-			db.EnableForeignKeysConstraints() &&
+			EnableForeignKeysConstraints() &&
 
-			db.Exec(
+			Exec(
 				"CREATE TABLE IF NOT EXISTS cachename(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);"
 				"CREATE TABLE IF NOT EXISTS preload(cid INTEGER NOT NULL PRIMARY KEY, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
 				"CREATE TABLE IF NOT EXISTS signatures(cid INTEGER NOT NULL PRIMARY KEY, signature TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
@@ -1255,104 +1131,100 @@ public:
 			) &&
 
 			//get menu item text and guid statement
-			db.InitStmt(stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;") &&
+			InitStmt(stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;") &&
 
 			//set menu item statement
-			db.InitStmt(stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);") &&
+			InitStmt(stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);") &&
 
 			//add new cache name statement
-			db.InitStmt(stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);") &&
+			InitStmt(stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);") &&
 
 			//get cache id by name statement
-			db.InitStmt(stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;") &&
+			InitStmt(stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;") &&
 
 			//del cache by name statement
-			db.InitStmt(stmtDelCache, L"DELETE FROM cachename WHERE name=?1;") &&
+			InitStmt(stmtDelCache, L"DELETE FROM cachename WHERE name=?1;") &&
 
 			//count cache names statement
-			db.InitStmt(stmtCountCacheNames, L"SELECT count(name) FROM cachename") &&
+			InitStmt(stmtCountCacheNames, L"SELECT count(name) FROM cachename") &&
 
 			//get preload state statement
-			db.InitStmt(stmtGetPreloadState, L"SELECT enabled FROM preload WHERE cid=?1;") &&
+			InitStmt(stmtGetPreloadState, L"SELECT enabled FROM preload WHERE cid=?1;") &&
 
 			//get signature statement
-			db.InitStmt(stmtGetSignature, L"SELECT signature FROM signatures WHERE cid=?1;") &&
+			InitStmt(stmtGetSignature, L"SELECT signature FROM signatures WHERE cid=?1;") &&
 
 			//get export state statement
-			db.InitStmt(stmtGetExportState, L"SELECT enabled FROM exports WHERE cid=?1 and export=?2;") &&
+			InitStmt(stmtGetExportState, L"SELECT enabled FROM exports WHERE cid=?1 and export=?2;") &&
 
 			//get guid statement
-			db.InitStmt(stmtGetGuid, L"SELECT guid FROM guids WHERE cid=?1;") &&
+			InitStmt(stmtGetGuid, L"SELECT guid FROM guids WHERE cid=?1;") &&
 
 			//get title statement
-			db.InitStmt(stmtGetTitle, L"SELECT title FROM titles WHERE cid=?1;") &&
+			InitStmt(stmtGetTitle, L"SELECT title FROM titles WHERE cid=?1;") &&
 
 			//get author statement
-			db.InitStmt(stmtGetAuthor, L"SELECT author FROM authors WHERE cid=?1;") &&
+			InitStmt(stmtGetAuthor, L"SELECT author FROM authors WHERE cid=?1;") &&
 
 			//get description statement
-			db.InitStmt(stmtGetDescription, L"SELECT description FROM descriptions WHERE cid=?1;") &&
+			InitStmt(stmtGetDescription, L"SELECT description FROM descriptions WHERE cid=?1;") &&
 
 			//get command prefix statement
-			db.InitStmt(stmtGetPrefix, L"SELECT prefix FROM prefixes WHERE cid=?1;") &&
+			InitStmt(stmtGetPrefix, L"SELECT prefix FROM prefixes WHERE cid=?1;") &&
 
 			//get flags statement
-			db.InitStmt(stmtGetFlags, L"SELECT bitmask FROM flags WHERE cid=?1;") &&
+			InitStmt(stmtGetFlags, L"SELECT bitmask FROM flags WHERE cid=?1;") &&
 
 			//get MinFarVersion statement
-			db.InitStmt(stmtGetMinFarVersion, L"SELECT version FROM minfarversions WHERE cid=?1;") &&
+			InitStmt(stmtGetMinFarVersion, L"SELECT version FROM minfarversions WHERE cid=?1;") &&
 
 			//get plugin version statement
-			db.InitStmt(stmtGetVersion, L"SELECT version FROM pluginversions WHERE cid=?1;") &&
+			InitStmt(stmtGetVersion, L"SELECT version FROM pluginversions WHERE cid=?1;") &&
 
 			//set preload state statement
-			db.InitStmt(stmtSetPreloadState, L"INSERT OR REPLACE INTO preload VALUES (?1,?2);") &&
+			InitStmt(stmtSetPreloadState, L"INSERT OR REPLACE INTO preload VALUES (?1,?2);") &&
 
 			//set signature statement
-			db.InitStmt(stmtSetSignature, L"INSERT OR REPLACE INTO signatures VALUES (?1,?2);") &&
+			InitStmt(stmtSetSignature, L"INSERT OR REPLACE INTO signatures VALUES (?1,?2);") &&
 
 			//set export state statement
-			db.InitStmt(stmtSetExportState, L"INSERT OR REPLACE INTO exports VALUES (?1,?2,?3);") &&
+			InitStmt(stmtSetExportState, L"INSERT OR REPLACE INTO exports VALUES (?1,?2,?3);") &&
 
 			//set guid statement
-			db.InitStmt(stmtSetGuid, L"INSERT OR REPLACE INTO guids VALUES (?1,?2);") &&
+			InitStmt(stmtSetGuid, L"INSERT OR REPLACE INTO guids VALUES (?1,?2);") &&
 
 			//set title statement
-			db.InitStmt(stmtSetTitle, L"INSERT OR REPLACE INTO titles VALUES (?1,?2);") &&
+			InitStmt(stmtSetTitle, L"INSERT OR REPLACE INTO titles VALUES (?1,?2);") &&
 
 			//set author statement
-			db.InitStmt(stmtSetAuthor, L"INSERT OR REPLACE INTO authors VALUES (?1,?2);") &&
+			InitStmt(stmtSetAuthor, L"INSERT OR REPLACE INTO authors VALUES (?1,?2);") &&
 
 			//set description statement
-			db.InitStmt(stmtSetDescription, L"INSERT OR REPLACE INTO descriptions VALUES (?1,?2);") &&
+			InitStmt(stmtSetDescription, L"INSERT OR REPLACE INTO descriptions VALUES (?1,?2);") &&
 
 			//set command prefix statement
-			db.InitStmt(stmtSetPrefix, L"INSERT OR REPLACE INTO prefixes VALUES (?1,?2);") &&
+			InitStmt(stmtSetPrefix, L"INSERT OR REPLACE INTO prefixes VALUES (?1,?2);") &&
 
 			//set flags statement
-			db.InitStmt(stmtSetFlags, L"INSERT OR REPLACE INTO flags VALUES (?1,?2);") &&
+			InitStmt(stmtSetFlags, L"INSERT OR REPLACE INTO flags VALUES (?1,?2);") &&
 
 			//set MinFarVersion statement
-			db.InitStmt(stmtSetMinFarVersion, L"INSERT OR REPLACE INTO minfarversions VALUES (?1,?2);") &&
+			InitStmt(stmtSetMinFarVersion, L"INSERT OR REPLACE INTO minfarversions VALUES (?1,?2);") &&
 
 			//set plugin version statement
-			db.InitStmt(stmtSetVersion, L"INSERT OR REPLACE INTO pluginversions VALUES (?1,?2);") &&
+			InitStmt(stmtSetVersion, L"INSERT OR REPLACE INTO pluginversions VALUES (?1,?2);") &&
 
 			//enum cache names statement
-			db.InitStmt(stmtEnumCache, L"SELECT name FROM cachename ORDER BY name;")
+			InitStmt(stmtEnumCache, L"SELECT name FROM cachename ORDER BY name;")
 		;
 	}
 
 	virtual ~PluginsCacheConfigDb() {}
 
-	void BeginTransaction() { db.BeginTransaction(); }
-
-	void EndTransaction() { db.EndTransaction(); }
-
 	unsigned __int64 CreateCache(const wchar_t *CacheName)
 	{
 		if (stmtCreateCache.Bind(CacheName).StepAndReset())
-			return db.LastInsertRowID();
+			return LastInsertRowID();
 		return 0;
 	}
 
@@ -1557,9 +1429,9 @@ public:
 
 	bool DiscardCache()
 	{
-		db.BeginTransaction();
-		bool ret = db.Exec("DELETE FROM cachename");
-		db.EndTransaction();
+		BeginTransaction();
+		bool ret = Exec("DELETE FROM cachename");
+		EndTransaction();
 		return ret;
 	}
 
@@ -1574,7 +1446,6 @@ public:
 };
 
 class PluginsHotkeysConfigDb: public PluginsHotkeysConfig {
-	SQLiteDb   db;
 	SQLiteStmt stmtGetHotkey;
 	SQLiteStmt stmtSetHotkey;
 	SQLiteStmt stmtDelHotkey;
@@ -1584,36 +1455,29 @@ public:
 
 	PluginsHotkeysConfigDb()
 	{
-		const wchar_t* DbName = L"pluginhotkeys.db";
-		if (!Initialize(DbName))
-		{
-			if(!db.MarkAsBad(DbName) || !Initialize(DbName))
-			{
-				Initialize(L":memory:");
-			}
-		}
+		Initialize(L"pluginhotkeys.db");
 	}
 
-	bool Initialize(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName)
 	{
-		db.Close();
+		Close();
 		return
-			db.Open(DbName) &&
+			Open(DbName) &&
 
 			//schema
-			db.Exec("CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));") &&
+			Exec("CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));") &&
 
 			//get hotkey statement
-			db.InitStmt(stmtGetHotkey, L"SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;") &&
+			InitStmt(stmtGetHotkey, L"SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;") &&
 
 			//set hotkey statement
-			db.InitStmt(stmtSetHotkey, L"INSERT OR REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);") &&
+			InitStmt(stmtSetHotkey, L"INSERT OR REPLACE INTO pluginhotkeys VALUES (?1,?2,?3,?4);") &&
 
 			//delete hotkey statement
-			db.InitStmt(stmtDelHotkey, L"DELETE FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;") &&
+			InitStmt(stmtDelHotkey, L"DELETE FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;") &&
 
 			//check if exist hotkeys of specific type statement
-			db.InitStmt(stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1")
+			InitStmt(stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1")
 		;
 	}
 
@@ -1654,9 +1518,9 @@ public:
 			return nullptr;
 
 		SQLiteStmt stmtEnumAllPluginKeys;
-		db.InitStmt(stmtEnumAllPluginKeys, L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;");
+		InitStmt(stmtEnumAllPluginKeys, L"SELECT pluginkey FROM pluginhotkeys GROUP BY pluginkey;");
 		SQLiteStmt stmtEnumAllHotkeysPerKey;
-		db.InitStmt(stmtEnumAllHotkeysPerKey, L"SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;");
+		InitStmt(stmtEnumAllHotkeysPerKey, L"SELECT menuguid, type, hotkey FROM pluginhotkeys WHERE pluginkey=$1;");
 
 		while (stmtEnumAllPluginKeys.Step())
 		{
@@ -1699,7 +1563,7 @@ public:
 
 	bool Import(const TiXmlHandle &root)
 	{
-		db.BeginTransaction();
+		BeginTransaction();
 		for (const TiXmlElement *e = root.FirstChild("pluginhotkeys").FirstChildElement("plugin").Element(); e; e=e->NextSiblingElement("plugin"))
 		{
 			const char *key = e->Attribute("key");
@@ -1731,14 +1595,13 @@ public:
 			}
 
 		}
-		db.EndTransaction();
+		EndTransaction();
 
 		return true;
 	}
 };
 
 class HistoryConfigDb: public HistoryConfig {
-	SQLiteDb   db;
 	SQLiteStmt stmtEnum;
 	SQLiteStmt stmtEnumDesc;
 	SQLiteStmt stmtDel;
@@ -1775,28 +1638,21 @@ public:
 
 	HistoryConfigDb()
 	{
-		const wchar_t* DbName = L"history.db";
-		if (!Initialize(DbName))
-		{
-			if(!db.MarkAsBad(DbName) || !Initialize(DbName))
-			{
-				Initialize(L":memory:");
-			}
-		}
+		Initialize(L"history.db");
 	}
 
-	bool Initialize(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName)
 	{
-		db.Close();
+		Close();
 		return
-			db.Open(DbName, true) &&
+			Open(DbName, true) &&
 
 			//schema
-			db.SetWALJournalingMode() &&
+			SetWALJournalingMode() &&
 
-			db.EnableForeignKeysConstraints() &&
+			EnableForeignKeysConstraints() &&
 			//command,view,edit,folder,dialog history
-			db.Exec(
+			Exec(
 				"CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, kind INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, lock INTEGER NOT NULL, name TEXT NOT NULL, time INTEGER NOT NULL, guid TEXT NOT NULL, file TEXT NOT NULL, data TEXT NOT NULL);"
 				"CREATE INDEX IF NOT EXISTS history_idx1 ON history (kind, key);"
 				"CREATE INDEX IF NOT EXISTS history_idx2 ON history (kind, key, time);"
@@ -1804,7 +1660,7 @@ public:
 				"CREATE INDEX IF NOT EXISTS history_idx4 ON history (kind, key, time DESC);"
 			) &&
 			//view,edit file positions and bookmarks history
-			db.Exec(
+			Exec(
 				"CREATE TABLE IF NOT EXISTS editorposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, time INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, codepage INTEGER NOT NULL);"
 				"CREATE TABLE IF NOT EXISTS editorbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES editorposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"
 				"CREATE INDEX IF NOT EXISTS editorposition_history_idx1 ON editorposition_history (time DESC);"
@@ -1814,90 +1670,86 @@ public:
 			) &&
 
 			//enum items order by time statement
-			db.InitStmt(stmtEnum, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;") &&
+			InitStmt(stmtEnum, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;") &&
 
 			//enum items order by time DESC and lock DESC statement
-			db.InitStmt(stmtEnumDesc, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;") &&
+			InitStmt(stmtEnumDesc, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC;") &&
 
 			//delete item statement
-			db.InitStmt(stmtDel, L"DELETE FROM history WHERE id=?1;") &&
+			InitStmt(stmtDel, L"DELETE FROM history WHERE id=?1;") &&
 
 			//delete old unlocked items statement
-			db.InitStmt(stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3 AND id NOT IN (SELECT id FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT ?4);") &&
+			InitStmt(stmtDeleteOldUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0 AND time<?3 AND id NOT IN (SELECT id FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT ?4);") &&
 
 			//enum histories with more than X entries statement
-			db.InitStmt(stmtEnumLargeHistories, L"SELECT key FROM (SELECT key, num FROM (SELECT key, count(id) as num FROM history WHERE kind=?1 GROUP BY key)) WHERE num > ?2;") &&
+			InitStmt(stmtEnumLargeHistories, L"SELECT key FROM (SELECT key, num FROM (SELECT key, count(id) as num FROM history WHERE kind=?1 GROUP BY key)) WHERE num > ?2;") &&
 
 			//add item statement
-			db.InitStmt(stmtAdd, L"INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7,?8,?9);") &&
+			InitStmt(stmtAdd, L"INSERT INTO history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7,?8,?9);") &&
 
 			//get item name statement
-			db.InitStmt(stmtGetName, L"SELECT name FROM history WHERE id=?1;") &&
+			InitStmt(stmtGetName, L"SELECT name FROM history WHERE id=?1;") &&
 
 			//get item name and type statement
-			db.InitStmt(stmtGetNameAndType, L"SELECT name, type, guid, file, data FROM history WHERE id=?1;") &&
+			InitStmt(stmtGetNameAndType, L"SELECT name, type, guid, file, data FROM history WHERE id=?1;") &&
 
 			//get newest item (locked items go first) name statement
-			db.InitStmt(stmtGetNewestName, L"SELECT name FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT 1;") &&
+			InitStmt(stmtGetNewestName, L"SELECT name FROM history WHERE kind=?1 AND key=?2 ORDER BY lock DESC, time DESC LIMIT 1;") &&
 
 			//count items statement
-			db.InitStmt(stmtCount, L"SELECT count(id) FROM history WHERE kind=?1 AND key=?2;") &&
+			InitStmt(stmtCount, L"SELECT count(id) FROM history WHERE kind=?1 AND key=?2;") &&
 
 			//delete unlocked items statement
-			db.InitStmt(stmtDelUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0;") &&
+			InitStmt(stmtDelUnlocked, L"DELETE FROM history WHERE kind=?1 AND key=?2 AND lock=0;") &&
 
 			//get item lock statement
-			db.InitStmt(stmtGetLock, L"SELECT lock FROM history WHERE id=?1;") &&
+			InitStmt(stmtGetLock, L"SELECT lock FROM history WHERE id=?1;") &&
 
 			//set item lock statement
-			db.InitStmt(stmtSetLock, L"UPDATE history SET lock=?1 WHERE id=?2") &&
+			InitStmt(stmtSetLock, L"UPDATE history SET lock=?1 WHERE id=?2") &&
 
 			//get next (newer than current) item statement
-			db.InitStmt(stmtGetNext, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time>b.time ORDER BY a.time LIMIT 1;") &&
+			InitStmt(stmtGetNext, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time>b.time ORDER BY a.time LIMIT 1;") &&
 
 			//get prev (older than current) item statement
-			db.InitStmt(stmtGetPrev, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time<b.time ORDER BY a.time DESC LIMIT 1;") &&
+			InitStmt(stmtGetPrev, L"SELECT a.id, a.name FROM history AS a, history AS b WHERE b.id=?1 AND a.kind=?2 AND a.key=?3 AND a.time<b.time ORDER BY a.time DESC LIMIT 1;") &&
 
 			//get newest item name statement
-			db.InitStmt(stmtGetNewest, L"SELECT id, name FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;") &&
+			InitStmt(stmtGetNewest, L"SELECT id, name FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;") &&
 
 			//set editor position statement
-			db.InitStmt(stmtSetEditorPos, L"INSERT OR REPLACE INTO editorposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7);") &&
+			InitStmt(stmtSetEditorPos, L"INSERT OR REPLACE INTO editorposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7);") &&
 
 			//set editor bookmark statement
-			db.InitStmt(stmtSetEditorBookmark, L"INSERT OR REPLACE INTO editorbookmarks_history VALUES (?1,?2,?3,?4,?5,?6);") &&
+			InitStmt(stmtSetEditorBookmark, L"INSERT OR REPLACE INTO editorbookmarks_history VALUES (?1,?2,?3,?4,?5,?6);") &&
 
 			//get editor position statement
-			db.InitStmt(stmtGetEditorPos, L"SELECT id, line, linepos, screenline, leftpos, codepage FROM editorposition_history WHERE name=?1;") &&
+			InitStmt(stmtGetEditorPos, L"SELECT id, line, linepos, screenline, leftpos, codepage FROM editorposition_history WHERE name=?1;") &&
 
 			//get editor bookmark statement
-			db.InitStmt(stmtGetEditorBookmark, L"SELECT line, linepos, screenline, leftpos FROM editorbookmarks_history WHERE pid=?1 AND num=?2;") &&
+			InitStmt(stmtGetEditorBookmark, L"SELECT line, linepos, screenline, leftpos FROM editorbookmarks_history WHERE pid=?1 AND num=?2;") &&
 
 			//set viewer position statement
-			db.InitStmt(stmtSetViewerPos, L"INSERT OR REPLACE INTO viewerposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6);") &&
+			InitStmt(stmtSetViewerPos, L"INSERT OR REPLACE INTO viewerposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6);") &&
 
 			//set viewer bookmark statement
-			db.InitStmt(stmtSetViewerBookmark, L"INSERT OR REPLACE INTO viewerbookmarks_history VALUES (?1,?2,?3,?4);") &&
+			InitStmt(stmtSetViewerBookmark, L"INSERT OR REPLACE INTO viewerbookmarks_history VALUES (?1,?2,?3,?4);") &&
 
 			//get viewer position statement
-			db.InitStmt(stmtGetViewerPos, L"SELECT id, filepos, leftpos, hex, codepage FROM viewerposition_history WHERE name=?1;") &&
+			InitStmt(stmtGetViewerPos, L"SELECT id, filepos, leftpos, hex, codepage FROM viewerposition_history WHERE name=?1;") &&
 
 			//get viewer bookmark statement
-			db.InitStmt(stmtGetViewerBookmark, L"SELECT filepos, leftpos FROM viewerbookmarks_history WHERE pid=?1 AND num=?2;") &&
+			InitStmt(stmtGetViewerBookmark, L"SELECT filepos, leftpos FROM viewerbookmarks_history WHERE pid=?1 AND num=?2;") &&
 
 			//delete old editor positions statement
-			db.InitStmt(stmtDeleteOldEditor, L"DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);") &&
+			InitStmt(stmtDeleteOldEditor, L"DELETE FROM editorposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM editorposition_history ORDER BY time DESC LIMIT ?2);") &&
 
 			//delete old viewer positions statement
-			db.InitStmt(stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);")
+			InitStmt(stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);")
 		;
 	}
 
 	virtual ~HistoryConfigDb() {}
-
-	void BeginTransaction() { db.BeginTransaction(); }
-
-	void EndTransaction() { db.EndTransaction(); }
 
 	bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false)
 	{
@@ -2092,7 +1944,7 @@ public:
 	unsigned __int64 SetEditorPos(const wchar_t *Name, int Line, int LinePos, int ScreenLine, int LeftPos, UINT CodePage)
 	{
 		if (stmtSetEditorPos.Bind(Name).Bind(GetCurrentUTCTimeInUI64()).Bind(Line).Bind(LinePos).Bind(ScreenLine).Bind(LeftPos).Bind((int)CodePage).StepAndReset())
-			return db.LastInsertRowID();
+			return LastInsertRowID();
 		return 0;
 	}
 
@@ -2134,7 +1986,7 @@ public:
 	unsigned __int64 SetViewerPos(const wchar_t *Name, __int64 FilePos, __int64 LeftPos, int Hex, UINT CodePage)
 	{
 		if (stmtSetViewerPos.Bind(Name).Bind(GetCurrentUTCTimeInUI64()).Bind(FilePos).Bind(LeftPos).Bind(Hex).Bind((int)CodePage).StepAndReset())
-			return db.LastInsertRowID();
+			return LastInsertRowID();
 		return 0;
 	}
 
