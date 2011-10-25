@@ -230,7 +230,7 @@ dirs: scripts
 	@$(MKDIR) $(BOOTSTRAPDIR)
 
 .PHONY: build
-build: $(TESTOBJS) $(EXEFULLNAME) $(EXEDIR)FarEng.hlf $(EXEDIR)FarRus.hlf $(EXEDIR)FarHun.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.ini $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)plugin.hpp $(FARINCLUDE)DlgBuilder.hpp $(FARINCLUDE)PluginW.pas $(FARINCLUDE)FarColorW.pas
+build: $(TESTOBJS) $(EXEFULLNAME) $(EXEDIR)FarEng.hlf $(EXEDIR)FarRus.hlf $(EXEDIR)FarHun.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.example.ini $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)plugin.hpp $(FARINCLUDE)DlgBuilder.hpp $(FARINCLUDE)PluginW.pas $(FARINCLUDE)FarColorW.pas
 
 $(EXEFULLNAME): $(BOOTSTRAPDIR)Far.exe.manifest $(BOOTSTRAPDIR)far.rc $(BOOTSTRAPDIR)copyright.inc $(BOOTSTRAPDIR)farversion.inc $(OBJS)
 	@echo linking $@
@@ -304,9 +304,9 @@ $(EXEDIR)File_id.diz: File_id.diz.m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	@$(M4) File_id.diz.m4 > $@
 
-$(EXEDIR)Far.exe.ini: Far.exe.ini
+$(EXEDIR)Far.exe.example.ini: Far.exe.example.ini
 	$(MSG)
-	@$(CP) Far.exe.ini $@
+	@$(CP) Far.exe.example.ini $@
 
 $(FARINCLUDE)farcolor.hpp: colors.hpp farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
@@ -343,4 +343,4 @@ clean:
 	@$(RM) $(EXEDIR)*.lng
 	@$(RM) $(EXEDIR)*.hlf
 	@$(RM) $(EXEDIR)File_id.diz
-	@$(RM) $(EXEDIR)Far.exe.ini
+	@$(RM) $(EXEDIR)Far.exe.example.ini

@@ -331,7 +331,7 @@ depfile:
 	$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
 
 .PHONY: build
-build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp" "$(FARINCLUDE)\DlgBuilder.hpp"
+build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.example.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp" "$(FARINCLUDE)\DlgBuilder.hpp"
 
 .PHONY: AllDirs
 AllDirs:
@@ -423,7 +423,7 @@ $(OUTDIR)\FarHun.hlf: $(@F).m4 farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(GAWK) -f .\scripts\mkhlf.awk $(@F).m4 | $(M4) > $@
 
-$(OUTDIR)\Far.exe.ini: $(@F)
+$(OUTDIR)\Far.exe.example.ini: $(@F)
 	$(MSG)
 	copy /Y $(@F) $@ > nul
 
@@ -447,5 +447,5 @@ CLEAN:
 	"$(OUTDIR)\*.hlf"\
 	"$(OUTDIR)\*.lng"\
 	"$(OUTDIR)\File_id.diz"\
-	"$(OUTDIR)\Far.exe.ini"\
+	"$(OUTDIR)\Far.exe.example.ini"\
 	) do @if exist %%i del /q /f %%i

@@ -1307,7 +1307,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
   </ItemGroup>
   <ItemGroup>
     <None Include="bootstrap\lang.inc" />
-    <CustomBuild Include="Far.exe.ini">
+    <CustomBuild Include="Far.exe.example.ini">
       <FileType>Document</FileType>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>

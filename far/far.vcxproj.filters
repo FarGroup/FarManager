@@ -1157,7 +1157,7 @@
     <CustomBuild Include="plugin.hpp">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="Far.exe.ini">
+    <CustomBuild Include="Far.exe.example.ini">
       <Filter>Dependencies</Filter>
     </CustomBuild>
     <CustomBuild Include="api_test.c">
