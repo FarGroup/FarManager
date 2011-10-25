@@ -926,49 +926,68 @@ bool ScrollBarRequired(UINT Length, UINT64 ItemsCount)
 
 bool ScrollBarEx(UINT X1,UINT Y1,UINT Length,UINT64 TopItem,UINT64 ItemsCount)
 {
-	if (ScrollBarRequired(Length, ItemsCount))
+	if ( !ScrollBarRequired(Length, ItemsCount) )
+		return false;
+	return
+		ScrollBarEx3(X1, Y1, Length, TopItem,TopItem+Length,ItemsCount);
+}
+
+bool ScrollBarEx3(UINT X1,UINT Y1,UINT Length, UINT64 Start,UINT64 End,UINT64 Size)
+{
+	WCHAR StackBuffer[4000/sizeof(WCHAR)], *Buffer = StackBuffer;
+	if ( Length <= 2 || End < Start )
+		return false;
+	if ( Length >= ARRAYSIZE(StackBuffer) )
+		Buffer = new WCHAR[Length + 1];
+
+	Buffer[0] = Oem2Unicode[0x1E];
+	Buffer[Length--] = L'\0';
+	Buffer[Length--] = Oem2Unicode[0x1F];
+	WCHAR b0 = BoxSymbols[BS_X_B0], b2 = BoxSymbols[BS_X_B2];
+	UINT i, i1, i2;
+
+	if ( End > Size )
+		End = Size;
+
+	if ( !Size || Start >= End )
 	{
-		Length-=2;
-		ItemsCount-=2;
-		UINT CaretPos=static_cast<UINT>(Round(Length*TopItem,ItemsCount));
-		UINT CaretLength=Max(1U,static_cast<UINT>(Round(static_cast<UINT64>(Length*Length),ItemsCount)));
+		i1 = Length+1;
+		i2 = 0;
+	}
+	else
+	{
+		UINT thickness = static_cast<UINT>(((End - Start) * Length) / Size);
+		if ( !thickness )
+			++thickness;
 
-		if (!CaretPos && TopItem)
+		if ( thickness >= Length )
+			i2 = (i1 = 1) + Length;
+		else if ( End >= Size )
+			i1 = (i2 = 1 + Length) - thickness;
+		else
 		{
-			CaretPos++;
+			i1 = 1 + static_cast<UINT>((Start*Length + Size/2)/ Size);
+			if ( i1 == 1 && Start > 0 )
+				++i1;
+			i2 = i1 + thickness;
+			if ( i2 >= Length+1 )
+			{
+				i2 = Length + 1;
+			   if ( i1 < i2-1 )
+					--i2;
+			}
 		}
-		else if (CaretPos+CaretLength==Length && TopItem+2+Length<ItemsCount)
-		{
-			CaretPos--;
-		}
-
-		CaretPos=Min(CaretPos,Length-CaretLength);
-		WCHAR StackBuffer[StackBufferSize/sizeof(WCHAR)];
-		LPWSTR HeapBuffer=nullptr;
-		LPWSTR BufPtr=StackBuffer;
-		if(Length+3>=StackBufferSize/sizeof(WCHAR))
-		{
-			HeapBuffer=new WCHAR[Length+3];
-			BufPtr=HeapBuffer;
-		}
-		wmemset(BufPtr+1,BoxSymbols[BS_X_B0],Length);
-		BufPtr[0]=Oem2Unicode[0x1E];
-
-		for (size_t i=0; i<CaretLength; i++)
-			BufPtr[CaretPos+1+i]=BoxSymbols[BS_X_B2];
-
-		BufPtr[Length+1]=Oem2Unicode[0x1F];
-		BufPtr[Length+2]=0;
-		GotoXY(X1,Y1);
-		VText(BufPtr);
-		if(HeapBuffer)
-		{
-			delete[] HeapBuffer;
-		}
-		return true;
 	}
 
-	return false;
+	for (i = 1; i <= Length; i++)
+		Buffer[i] = (i >= i1 && i < i2 ? b2 : b0);
+
+	GotoXY(X1, Y1);
+	VText(Buffer);
+	if ( Buffer != StackBuffer )
+		delete[] Buffer;
+
+	return true;
 }
 
 void ScrollBar(int X1,int Y1,int Length,unsigned long Current,unsigned long Total)

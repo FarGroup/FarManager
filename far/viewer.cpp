@@ -731,7 +731,7 @@ void Viewer::ShowDump()
 
 		txt_dump(VM.CodePage, line, nr, Width, OutStr, ZERO_CHAR);
 
-		FS<<fmt::Width(ObjWidth)<<OutStr;
+		FS<<fmt::LeftAlign()<<fmt::Width(ObjWidth)<<OutStr;
 		if ( SelectSize > 0 && bpos < SelectPos+SelectSize && bpos+mb > SelectPos ) {
 			int bsel = SelectPos > bpos ? (int)(SelectPos-bpos) / ch_size : 0;
 			int esel = SelectPos+SelectSize < bpos+mb ? ((int)(SelectPos+SelectSize-bpos)+ch_size-1)/ch_size: Width;
@@ -942,17 +942,27 @@ void Viewer::DrawScrollbar()
 		else
 			SetColor(COL_VIEWERSCROLLBAR);
 
-		if (!VM.Hex)
+		UINT x = X2 + (m_bQuickView ? 1 : 0);
+		UINT h = Y2 - Y1 + 1;
+		UINT64 start, end, total;
+
+		if ( !VM.Hex )
 		{
-			ScrollBar(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,(LastPage ? (!FilePos?0:100):ToPercent64(FilePos,FileSize)),100);
+			total = static_cast<UINT64>(FileSize);
+			start = static_cast<UINT64>(FilePos);
+			ViewerString *last_line = Strings[Y2-Y1];
+			end = last_line->nFilePos + last_line->linesize;
+			if ( end == static_cast<UINT64>(FileSize) && last_line->linesize > 0 && last_line->have_eol )
+				++total;
 		}
-		else if ( VM.Hex )
+		else
 		{
 			int lin_size = VM.Hex < 2 ? 16 : Width*getChSize(VM.CodePage);
-			UINT64 Total=FileSize/lin_size+((FileSize%lin_size)?1:0);
-			UINT64 Top=FilePos/lin_size+((FilePos%lin_size)?1:0);
-			ScrollBarEx(X2+(m_bQuickView?1:0),Y1,Y2-Y1+1,LastPage?Top?Total:0:Top,Total);
+			total = FileSize/lin_size + ((FileSize% lin_size) ? 1 : 0);
+			start = FilePos /lin_size + ((FilePos % lin_size) ? 1 : 0);
+			end = start + h;
 		}
+		ScrollBarEx3(x,Y1,h, start,end,total);
 	}
 }
 
@@ -3924,13 +3934,13 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 		{DI_RADIOBUTTON,5,6,0,6,0,nullptr,nullptr,0,MSG(MGoToDecimal)},
 	};
 	MakeDialogItemsEx(GoToDlgData,GoToDlg);
-	static int PrevMode=0;
-	GoToDlg[3].Selected=GoToDlg[4].Selected=GoToDlg[5].Selected=0;
 
-	if (VM.Hex)
-		PrevMode=1;
+	static int PrevMode = -1;
+	if ( PrevMode < 0 )
+		PrevMode = (VM.Hex == 1 ? RB_HEX : RB_DEC);
 
-	GoToDlg[PrevMode+3].Selected=TRUE;
+	GoToDlg[RB_PRC].Selected = GoToDlg[RB_HEX].Selected = GoToDlg[RB_DEC].Selected = 0;
+	GoToDlg[PrevMode].Selected = 1;
 	{
 		if (ShowDlg)
 		{
@@ -3954,8 +3964,8 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 
 			if (GoToDlg[1].strData.Contains(L'%'))     // он хочет процентов
 			{
-				GoToDlg[RB_HEX].Selected=GoToDlg[RB_DEC].Selected=0;
-				GoToDlg[RB_PRC].Selected=1;
+				GoToDlg[RB_HEX].Selected = GoToDlg[RB_DEC].Selected = 0;
+				GoToDlg[RB_PRC].Selected = 1;
 			}
 			else if (!StrCmpNI(GoToDlg[1].strData,L"0x",2)
 					 || GoToDlg[1].strData.At(0)==L'$'
@@ -3976,7 +3986,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 			if (GoToDlg[RB_PRC].Selected)
 			{
 				//int cPercent=ToPercent64(FilePos,FileSize);
-				PrevMode=0;
+				PrevMode = RB_PRC;
 				int Percent=_wtoi(GoToDlg[1].strData);
 
 				//if ( Relative  && (cPercent+Percent*Relative<0) || (cPercent+Percent*Relative>100)) // за пределы - низя
@@ -3994,13 +4004,13 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 
 			if (GoToDlg[RB_HEX].Selected)
 			{
-				PrevMode=1;
+				PrevMode = RB_HEX;
 				swscanf(GoToDlg[1].strData,L"%I64x",&Offset);
 			}
 
 			if (GoToDlg[RB_DEC].Selected)
 			{
-				PrevMode=2;
+				PrevMode = RB_DEC;
 				swscanf(GoToDlg[1].strData,L"%I64d",&Offset);
 			}
 		}// ShowDlg
