@@ -265,11 +265,11 @@ DEFINES=\
 MINVER=,5.0
 !endif
 
-DISABLED_WARNINGS=/wd4054 /wd4061 /wd4100 /wd4127 /wd4191 /wd4242 /wd4244 /wd4245 /wd4255 /wd4365 /wd4512 /wd4514 /wd4625 /wd4626 /wd4640 /wd4668 /wd4706 /wd4710 /wd4711 /wd4738 /wd4820 /wd4917
+DISABLED_WARNINGS=/wd4054 /wd4061 /wd4100 /wd4127 /wd4191 /wd4204 /wd4242 /wd4244 /wd4245 /wd4255 /wd4365 /wd4512 /wd4514 /wd4625 /wd4626 /wd4640 /wd4668 /wd4706 /wd4710 /wd4711 /wd4738 /wd4820 /wd4917
 
 # common
-CPPFLAGS=/nologo $(MP) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) /EHs-c- $(DEFINES) /GS- /GR- /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c
-LINKFLAGS=/nologo /subsystem:console$(MINVER) /release /nxcompat /largeaddressaware /dynamicbase /map:"$(OUTDIR)\far.map" /pdb:"$(OUTDIR)\far.pdb" /out:"$(OUTDIR)\Far.exe"
+CPPFLAGS=/nologo $(MP) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHs-c- /GR- /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c
+LINKFLAGS=/nologo /subsystem:console$(MINVER) /release /nxcompat /largeaddressaware /dynamicbase /map /out:"$(OUTDIR)\Far.exe"
 ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
 RFLAGS=/l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
 
@@ -388,11 +388,11 @@ $(RES_FILE): bootstrap\far.rc res.hpp Far.ico
 
 $(INTDIR)\api_test_c.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
 	echo testing C plugin API
-	$(CPP) /nologo /c /Fo"$@" /TC api_test.c
+	$(CPP) /nologo /c $(CPPFLAGS) /Fo"$@" /TC api_test.c
 
 $(INTDIR)\api_test_c++.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/DlgBuilder.hpp api_test.c
 	echo testing C++ plugin API
-	$(CPP) /nologo /c /Fo"$@" /TP api_test.c
+	$(CPP) /nologo /c $(CPPFLAGS) /Fo"$@" /TP api_test.c
 
 MSG=echo generating $@
 

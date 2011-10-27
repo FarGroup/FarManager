@@ -619,9 +619,6 @@
     <ClInclude Include="dizlist.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DlgBuilder.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dlgedit.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1162,6 +1159,9 @@
     </CustomBuild>
     <CustomBuild Include="api_test.c">
       <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="DlgBuilder.hpp">
+      <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

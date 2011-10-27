@@ -138,13 +138,12 @@ if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>
       </ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -152,11 +151,11 @@ if not exist bootstrap mkdir bootstrap</Command>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
-      <ProgramDataBaseFileName>$(OutDir)far.pdb</ProgramDataBaseFileName>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
       <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -168,9 +167,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <ProgramDatabaseFile>$(OutDir)far.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
@@ -185,14 +182,13 @@ if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;_WIN64;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -200,10 +196,10 @@ if not exist bootstrap mkdir bootstrap</Command>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
-      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -215,9 +211,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <ProgramDatabaseFile>$(OutDir)far.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
@@ -231,14 +225,13 @@ if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;_WIN64;_M_IA64;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>
       </ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -246,10 +239,10 @@ if not exist bootstrap mkdir bootstrap</Command>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
-      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -261,9 +254,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <ProgramDatabaseFile>$(OutDir)far.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <LargeAddressAware>true</LargeAddressAware>
@@ -277,7 +268,7 @@ if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ExceptionHandling>
@@ -291,11 +282,11 @@ if not exist bootstrap mkdir bootstrap</Command>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
-      <ProgramDataBaseFileName>$(OutDir)far.pdb</ProgramDataBaseFileName>
       <WarningLevel>EnableAllWarnings</WarningLevel>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
       <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -308,9 +299,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)far.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
       <MinimumRequiredVersion>5.0</MinimumRequiredVersion>
@@ -324,7 +313,7 @@ if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WIN64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
@@ -338,11 +327,11 @@ if not exist bootstrap mkdir bootstrap</Command>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
-      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -355,9 +344,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)far.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
@@ -370,7 +357,7 @@ if not exist Include mkdir Include
 if not exist bootstrap mkdir bootstrap</Command>
     </PreBuildEvent>
     <ClCompile>
-      <AdditionalOptions>/MP /J %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WIN64;_M_IA64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
@@ -385,10 +372,10 @@ if not exist bootstrap mkdir bootstrap</Command>
       <PrecompiledHeaderOutputFile>$(IntDir)headers.pch</PrecompiledHeaderOutputFile>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
-      <ProgramDataBaseFileName>$(IntDir)</ProgramDataBaseFileName>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4917</DisableSpecificWarnings>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -401,9 +388,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)far.pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
-      <MapFileName>$(OutDir)far.map</MapFileName>
       <SubSystem>Console</SubSystem>
       <LargeAddressAware>true</LargeAddressAware>
     </Link>
