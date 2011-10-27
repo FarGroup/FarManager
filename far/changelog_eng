@@ -3,6 +3,136 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 27.10.2011 13:08:21 +0300 - build 2250
+
+1. Mantis#0001918: FAR crash on "Standard association" choice
+
+drkns 25.10.2011 20:14:28 +0200
+
+1. Far.exe.ini -> Far.exe.example.ini
+
+w17 25.10.2011 17:09:29 +0400 build - 2249
+
+1. Viewer - errors are fixed, scroll bar drawing is normalized.
+
+2. Viewer - Simplification of previous mode saving logic in Goto dialog (AltF8)
+
+drkns 24.10.2011 15:07:04 +0300 - build 2248
+
+1. Continuation of 2247.1.
+
+drkns 24.10.2011 12:05:37 +0300 - build 2247
+
+1. Mantis#0001916: Far silent crash on sqlite format incompatibility.
+   Now "at incompatibility" we try old database backup and create a correct one, if this also fails, the base is opened in memory.
+
+zg 24.10.2011 00:38:08 +0200 - build 2246
+
+1. human readable names for structures and their fields connected with DN_GETVALUE.
+
+2. FarSettingsHistoryPlugin.->FarSettingsHistory.PluginId.
+
+3. FARMACROVARTYPE is numbered from 0.
+
+zg 23.10.2011 21:11:21 +0200 - build 2245
+
+1. when replacing "folder shorcuts" from plugin's one to real path, not all fields were cleared.
+
+zg 23.10.2011 20:56:26 +0200 - build 2244
+
+1. obtain information on "folder shorcuts" in the same manner as for histories.
+
+zg 23.10.2011 19:47:51 +0200 - build 2243
+
+1. additional parameters are returned for histories.
+
+zg 22.10.2011 23:54:52 +0200 - build 2242
+
+1. alignment of data returned by FCTL_GET*PANELITEM.
+
+zg 22.10.2011 03:52:53 +0200 - build 2241
+
+1. correction of 2240.2 for capital letters.
+
+zg 22.10.2011 03:17:46 +0200 - build 2240
+
+1. input of RAlt+character was broken in 2127.
+
+2. ibid, CtrlRAlt started adding to characters typed in with RAlt.
+
+3. KEY_CTRLALTSHIFTPRESS does not arrive when RAlt or RCtrl is pressed.
+
+zg 21.10.2011 23:56:07 +0200 - build 2239
+
+1. SavePluginFoldersHistory option is removed.
+
+2. plugins are always added to history and if a plugin behaves correctly then jump from history is available.
+   old history.db must be deleted.
+
+3. fix for a crash when jumping from inside a file with a folder shortcut into another file processed with the same plugin. 
+
+zg 21.10.2011 09:36:48 +0200 - build 2238
+
+1. Folder Shortcuts stores Guid for plugins, not a module name.
+
+zg 20.10.2011 17:25:55 +0200 - build 2237
+
+1. correction of 2232.1. return time in UTC and the lock flag.
+
+zg 20.10.2011 15:58:27 +0200 - build 2236
+
+1. tdm64-gcc build: make DIRBIT=64 -f makefile_gcc.
+
+drkns 20.10.2011 14:15:52 +0300 - build 2235
+
+1. Before codepage change, conversion correctness check is performed.
+
+drkns 20.10.2011 09:40:46 +0300 - build 2234
+
+1. If codepage change in editor has messed up the text, do not remember the codepage.
+
+w17 20.10.2011 09:49:18 +0400 build - 2233
+
+1. Makeup for #1905
+
+zg 20.10.2011 01:33:55 +0200 - build 2232
+
+1. experimental obtaining of FAR settings via SettingsControl. History only so far.
+   id must be set to FarGuid, the command is SCTL_ENUM, Root must be set to one of
+   FARSETTINGS_SUBFOLDERS values.
+
+w17 19.10.2011 22:36:30 +0400 build - 2231
+
+1. Mantis #1905 again
+
+zg 19.10.2011 17:15:15 +0200 - build 2230
+
+1. DM_ADDHISTORY crashed for created but not shown dialog.
+
+w17 19.10.2011 18:02:30 +0400 build - 2229
+
+1. 1905: viewer dump mode
+
+zg 19.10.2011 14:50:58 +0200 - build 2228
+
+1. wrapper: correction of DM_LISTGETDATA and DM_LISTSETDATA.
+
+drkns 19.10.2011 08:39:52 +0300 - build 2227
+
+1. [x] Clock in viewer and editor
+
+drkns 18.10.2011 19:17:20 +0200 - build 2226
+
+1. Waiting cancellation possibility for "far /v -".
+
+drkns 18.10.2011 19:03:32 +0200 - build 2225
+
+1. Correction of 2224.1.
+
+drkns 18.10.2011 14:33:06 +0300 - build 2224
+
+1. Now synchronous I/O operations can be interrupted (hello goes to Network plugin). Ctrl-Break.
+
 w17 16.10.2011 12:39:32 +0400 build - 2223
 
 1. Mantis#1791: "Cannot find the file" on F5 after Ctrl+Tab from a file saved in editor
