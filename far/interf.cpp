@@ -380,7 +380,11 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 			if(!CancelIoInProgress.Signaled())
 			{
 				CancelIoInProgress.Set();
-				CreateThread(nullptr, 0, CancelSynchronousIoWrapper, MainThreadHandle, 0, nullptr);
+				HANDLE Thread = CreateThread(nullptr, 0, CancelSynchronousIoWrapper, MainThreadHandle, 0, nullptr);
+				if (Thread)
+				{
+					CloseHandle(Thread);
+				}
 			}
 			WriteInput(KEY_BREAK);
 		}
