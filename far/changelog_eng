@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 31.10.2011 13:24:03 +0200 - build 2251
+
+1. Correction of 2224.1.
+
 drkns 27.10.2011 13:08:21 +0300 - build 2250
 
 1. Mantis#0001918: FAR crash on "Standard association" choice
