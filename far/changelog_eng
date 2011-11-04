@@ -3,6 +3,46 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 04.11.2011 20:09:02 +0400 build - 2258
+
+1. A fix for 2257.2 (__GNUC_MINOR__)
+
+w17 04.11.2011 20:05:17 +0400 build - 2257
+
+1. Correction of 2252.2
+
+2. nullptr for gcc < 4.6.1
+
+drkns 04.11.2011 14:10:46 +0200 - build 2256
+
+1. An attempt of UnicodeString speeding up with the use of a stack buffer.
+
+2. Minor things.
+
+w17 04.11.2011 14:53:20 +0400 build - 2255
+
+1. Correction of 2252.2
+
+w17 04.11.2011 14:14:30 +0400 build - 2254
+
+1. Correction of 2252.2
+
+w17 04.11.2011 14:10:35 +0400 build - 2253
+
+1. Correction of 2252.1
+
+w17 04.11.2011 11:14:20 +0400 build - 2252
+
+MinGW gcc build 
+   The following ones are supposed to be functional:
+    Windows builds with tdm-gcc 32/64, including far32 build with tdm64;
+    Cygwin/Linux builds with MinGW 32/64 cross compiler, 32-32 and 64-64 only;
+
+   The checked ones are MinGW 4.5.2 (gcc header file must be edited), 4.6.1, 4.6.2
+
+   ACHTUNG!
+   -mno-cygwin flag is removed, MinGW does not need it, cygwin gcc does not support it since 1.7.6
+
 drkns 31.10.2011 13:24:03 +0200 - build 2251
 
 1. Correction of 2224.1.
