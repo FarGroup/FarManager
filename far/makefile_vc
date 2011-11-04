@@ -81,7 +81,7 @@ FARINCLUDE=Include
 
 LINK=link.exe
 ULINK=ulink.exe
-M4=tools\m4 -P -DFARBIT=$(DIRBIT)
+M4=tools\m4 -P -DFARBIT=$(DIRBIT) -DHOSTTYPE=Windows
 GAWK=tools\gawk
 
 INTDIR=$(OUTDIR)\obj
@@ -450,4 +450,5 @@ CLEAN:
 	"$(OUTDIR)\*.lng"\
 	"$(OUTDIR)\File_id.diz"\
 	"$(OUTDIR)\Far.exe.example.ini"\
+	"Include\*.*"\
 	) do @if exist %%i del /q /f %%i

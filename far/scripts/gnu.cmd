@@ -1,5 +1,5 @@
 @echo off
-  rem cmd.cmd {cp|mv|rm|mkdir} [-vfpr] param1 [param2 ...]
+  rem gnu.cmd {cp|mv|rm|mkdir} [-vfpr] param1 [param2 ...]
   rem ==================================================++
   for %%o in (v f p r) do set opt%%o=N
   for %%v in (mode last list terr) do set %%v=& rem
