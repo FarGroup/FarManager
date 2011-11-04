@@ -770,7 +770,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		StartIdleTime=clock();
 
 	LastEventIdle=FALSE;
-	SetFarConsoleMode();
+
 	BOOL ZoomedState=IsZoomed(Console.GetWindow());
 	BOOL IconicState=IsIconic(Console.GetWindow());
 
@@ -867,10 +867,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 		ScrBuf.Flush();
 		Sleep(1);
-
-		// Позволяет избежать ситуации блокирования мыши
-		if (Opt.Mouse) // А нужно ли это условие???
-			SetFarConsoleMode();
 
 		static bool ExitInProcess = false;
 		if (CloseFAR && !ExitInProcess)

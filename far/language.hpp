@@ -62,7 +62,6 @@ public:
 	LngErrors GetLastError() const {return LastError;}
 
 private:
-	void ConvertString(const wchar_t *Src,string &strDest);
 	bool CheckMsgId(int MsgId) const;
 	void Free();
 

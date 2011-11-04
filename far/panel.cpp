@@ -1272,19 +1272,15 @@ void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLas
 		wcscat(Ptr,Src);
 		Unquote(EndPtr);
 		EndPtr=Ptr+StrLength(Ptr);
-		//DWORD Key;
-
 		for (;;)
 		{
 			if (EndPtr == Ptr)
 			{
-				//Key=KEY_NONE;
 				break;
 			}
 
 			if (FindPartName(Ptr,FALSE,1,1))
 			{
-				//Key=*(EndPtr-1);
 				*EndPtr=0;
 				FindEdit->SetString(Ptr);
 				strLastName = Ptr;

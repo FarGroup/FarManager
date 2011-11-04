@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "local.hpp"
 
-#define __US_DELTA 20
+const size_t __US_DELTA = 20;
 
 class UnicodeStringData
 {
@@ -45,20 +45,27 @@ class UnicodeStringData
 		size_t m_nDelta;
 		int m_nRefCount;
 		wchar_t *m_pData;
+		wchar_t StackBuffer[__US_DELTA];
 
-		wchar_t *AllocData(size_t nSize, size_t *nNewSize)
+		wchar_t *AllocData(size_t nSize, size_t& nNewSize)
 		{
 			if (nSize <= m_nDelta)
-				*nNewSize = m_nDelta;
+				nNewSize = m_nDelta;
 			else if (nSize%m_nDelta > 0)
-				*nNewSize = (nSize/m_nDelta + 1) * m_nDelta;
+				nNewSize = (nSize/m_nDelta + 1) * m_nDelta;
 			else
-				*nNewSize = nSize;
+				nNewSize = nSize;
 
-			return new wchar_t[*nNewSize];
+			return nNewSize > __US_DELTA? new wchar_t[nNewSize] : StackBuffer;
 		}
 
-		void FreeData(wchar_t *pData) { delete [] pData; }
+		void FreeData(wchar_t *pData)
+		{
+			if (pData != StackBuffer)
+			{
+				delete [] pData;
+			}
+		}
 
 	public:
 		UnicodeStringData(size_t nSize=0, size_t nDelta=0)
@@ -66,7 +73,7 @@ class UnicodeStringData
 			m_nDelta = nDelta? nDelta : __US_DELTA;
 			m_nLength = 0;
 			m_nRefCount = 1;
-			m_pData = AllocData(nSize,&m_nSize);
+			m_pData = AllocData(nSize, m_nSize);
 			//Так как ни где выше в коде мы не готовы на случай что памяти не хватит
 			//то уж лучше и здесь не проверять а сразу падать
 			*m_pData = 0;
@@ -93,7 +100,7 @@ class UnicodeStringData
 				nSize = (nSize/m_nDelta + 1) * m_nDelta;
 
 			wchar_t *pOldData = m_pData;
-			m_pData = AllocData(nSize,&m_nSize);
+			m_pData = AllocData(nSize, m_nSize);
 			//Так как ни где выше в коде мы не готовы на случай что памяти не хватит
 			//то уж лучше и здесь не проверять а сразу падать
 			wmemcpy(m_pData,pOldData,m_nLength);

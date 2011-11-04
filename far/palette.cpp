@@ -434,21 +434,3 @@ const FarColor ColorIndexToColor(PaletteColors ColorIndex)
 	}
 	return Result;
 }
-
-/*
-  1.65            - 0x52
-  1.70 b1 (272)   - 0x54
-  1.70 b2 (321)   - 0x54
-  1.70 b3 (591)   - 0x54
-  1.70 b4 (1282)  - 0x60
-  1.70 b5 ()      - 0x70
-
-  1.71 a4 (2468)  - 0x81
-  1.80    (606)   - 0x81
-  1.75 rc1 (2555) - 0x8B
-  2.0 (848)       - 0x8B
-*/
-void ConvertCurrentPalette()
-{
-//  DWORD Size=GetRegKeySize("Colors","CurrentPalette");
-}

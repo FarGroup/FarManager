@@ -2089,11 +2089,8 @@ void VMenu::ShowMenu(bool IsParent)
 			BoxType = SHORT_DOUBLE_BOX;
 		else
 			BoxType = SHORT_SINGLE_BOX;
-	}
 
-	if (CheckFlags(VMENU_LISTBOX))
-	{
-		if ((!IsParent || !GetShowItemCount()))
+		if (!IsParent || !GetShowItemCount())
 		{
 			if (GetShowItemCount())
 				BoxType=CheckFlags(VMENU_SHOWNOBOX)?NO_BOX:SHORT_SINGLE_BOX;

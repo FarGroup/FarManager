@@ -172,7 +172,7 @@ inline void ClearArray(T (&a)[N]) { memset(a, 0, sizeof(a[0])*N); }
 #define SIGN_REVERSEBOM 0xFFFE
 #define SIGN_UTF8       0xBFBBEF
 
-#if (defined(__GNUC__)) || (defined(_MSC_VER) && _MSC_VER<1600)
+#if (defined(_MSC_VER) && _MSC_VER<1600)
 #define nullptr NULL
 #endif
 

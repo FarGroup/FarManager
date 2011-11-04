@@ -125,7 +125,7 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 		}
 		for(size_t i=0;i<2;i++)
 		{
-			if (fObject.Open(Object,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,FILE_FLAG_OPEN_REPARSE_POINT,nullptr,ForceElevation))
+			if (fObject.Open(Object, FILE_WRITE_ATTRIBUTES, 0, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, nullptr, ForceElevation))
 			{
 				DWORD dwBytesReturned;
 				if (fObject.IoControl(FSCTL_SET_REPARSE_POINT,rdb,rdb->ReparseDataLength+REPARSE_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytesReturned))
@@ -266,24 +266,6 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,Repa
 	return Result;
 }
 
-bool WINAPI DeleteReparsePoint(const wchar_t *Object)
-{
-	bool Result=false;
-	DWORD ReparseTag;
-	string strTmp;
-	GetReparsePointInfo(Object,strTmp,&ReparseTag);
-	File fObject;
-	if (fObject.Open(Object, GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
-	{
-		REPARSE_GUID_DATA_BUFFER rgdb={ReparseTag};
-		DWORD dwBytes;
-		Result=fObject.IoControl(FSCTL_DELETE_REPARSE_POINT,&rgdb,REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytes);
-		fObject.Close();
-	}
-
-	return Result;
-}
-
 bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 {
 	bool Result=false;
@@ -303,6 +285,28 @@ bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 		}
 	}
 
+	return Result;
+}
+
+bool WINAPI DeleteReparsePoint(const wchar_t *Object)
+{
+	bool Result=false;
+	LPBYTE Buff=new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+	if(Buff)
+	{
+		PREPARSE_DATA_BUFFER rdb = reinterpret_cast<PREPARSE_DATA_BUFFER>(Buff);
+		if (GetREPARSE_DATA_BUFFER(Object,rdb))
+		{
+			File fObject;
+			if (fObject.Open(Object, FILE_WRITE_ATTRIBUTES, 0, 0, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
+			{
+				DWORD dwBytes;
+				REPARSE_GUID_DATA_BUFFER rgdb = {rdb->ReparseTag};
+				Result=fObject.IoControl(FSCTL_DELETE_REPARSE_POINT,&rgdb,REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,nullptr,0,&dwBytes);
+				fObject.Close();
+			}
+		}
+	}
 	return Result;
 }
 

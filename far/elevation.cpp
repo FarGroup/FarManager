@@ -190,11 +190,17 @@ elevation::elevation():
 
 elevation::~elevation()
 {
-	SendCommand(C_SERVICE_EXIT);
-	DisconnectNamedPipe(Pipe);
-	PID=0;
-	CloseHandle(Pipe);
-	CloseHandle(Job);
+	if(Pipe != INVALID_HANDLE_VALUE)
+	{
+		SendCommand(C_SERVICE_EXIT);
+		DisconnectNamedPipe(Pipe);
+		CloseHandle(Pipe);
+	}
+
+	if(Job)
+	{
+		CloseHandle(Job);
+	}
 }
 
 void elevation::ResetApprove()
@@ -271,7 +277,7 @@ bool elevation::Initialize()
 						ea.grfInheritance= NO_INHERITANCE;
 						ea.Trustee.TrusteeForm = TRUSTEE_IS_SID;
 						ea.Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;
-						ea.Trustee.ptstrName = static_cast<LPTSTR>(AdminSID);
+						ea.Trustee.ptstrName = static_cast<LPWSTR>(AdminSID);
 						if(SetEntriesInAcl(1, &ea, nullptr, &pACL) == ERROR_SUCCESS)
 						{
 							if(SetSecurityDescriptorDacl(pSD, TRUE, pACL, FALSE))
@@ -346,7 +352,7 @@ bool elevation::Initialize()
 			if(ShellExecuteEx(&info))
 			{
 				Process = info.hProcess;
-				if(!InJob)
+				if(!InJob && Job)
 				{
 					AssignProcessToJobObject(Job, Process);
 				}
@@ -372,8 +378,11 @@ bool elevation::Initialize()
 						TerminateProcess(Process, 0);
 						CloseHandle(Process);
 						Process = nullptr;
-						CloseHandle(Job);
-						Job = nullptr;
+						if(Job)
+						{
+							CloseHandle(Job);
+							Job = nullptr;
+						}
 					}
 					SetLastError(ERROR_PROCESS_ABORTED);
 				}

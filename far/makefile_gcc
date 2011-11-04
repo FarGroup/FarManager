@@ -260,11 +260,11 @@ $(OBJDIR)far.rc.o: $(BOOTSTRAPDIR)far.rc res.hpp Far.ico
 
 $(OBJDIR)api_test_c.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp api_test.c
 	@echo testing C plugin API
-	@$(CC) -c -x c -o $@ api_test.c
+	@$(CC) $(CFLAGS) -c -x c -o $@ api_test.c
 
 $(OBJDIR)api_test_c++.testobj: $(FARINCLUDE)plugin.hpp $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)DlgBuilder.hpp api_test.c
 	@echo testing C++ plugin API
-	@$(CXX) -c -x c++ -o $@ api_test.c
+	@$(CXX) $(CCFLAGS) -c -x c++ -o $@ api_test.c
 
 MSG=@echo generating $@
 

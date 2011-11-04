@@ -3249,7 +3249,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 					}
 					else if(ir.EventType==KEY_EVENT || ir.EventType==FARMACRO_KEY_EVENT)
 					{
-						int MenuKey=InputRecordToKey(&ir);
+						unsigned MenuKey=InputRecordToKey(&ir);
 
 						// ввод
 						if((MenuKey>=L' ' && MenuKey<=static_cast<int>(WCHAR_MAX)) || MenuKey==KEY_BS || MenuKey==KEY_DEL || MenuKey==KEY_NUMDEL)

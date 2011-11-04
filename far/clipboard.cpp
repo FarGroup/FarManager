@@ -288,7 +288,7 @@ bool Clipboard::CopyFormat(const wchar_t *Format, const wchar_t *Data)
 		HGLOBAL hData;
 		void *GData;
 
-		int BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
+		size_t BufferSize=(StrLength(Data)+1)*sizeof(wchar_t);
 
 		if ((hData=GlobalAlloc(GMEM_MOVEABLE,BufferSize)))
 		{
@@ -297,7 +297,7 @@ bool Clipboard::CopyFormat(const wchar_t *Format, const wchar_t *Data)
 				memcpy(GData,Data,BufferSize);
 				GlobalUnlock(hData);
 
-				if (!SetData(FormatType,(HANDLE)hData))
+				if (!SetData(FormatType, hData))
 					GlobalFree(hData);
 			}
 			else

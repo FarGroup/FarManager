@@ -302,6 +302,60 @@ Language::Language():
 {
 }
 
+void ConvertString(const wchar_t *Src,string &strDest)
+{
+	wchar_t *Dest = strDest.GetBuffer(wcslen(Src)*2);
+	while (*Src)
+	{
+		switch (*Src)
+		{
+		case L'\\':
+			switch (Src[1])
+			{
+			case L'\\':
+				*(Dest++)=L'\\';
+				Src+=2;
+				break;
+			case L'\"':
+				*(Dest++)=L'\"';
+				Src+=2;
+				break;
+			case L'n':
+				*(Dest++)=L'\n';
+				Src+=2;
+				break;
+			case L'r':
+				*(Dest++)=L'\r';
+				Src+=2;
+				break;
+			case L'b':
+				*(Dest++)=L'\b';
+				Src+=2;
+				break;
+			case L't':
+				*(Dest++)=L'\t';
+				Src+=2;
+				break;
+			default:
+				*(Dest++)=L'\\';
+				Src++;
+				break;
+			}
+			break;
+		case L'"':
+			*(Dest++)=L'"';
+			Src+=(Src[1]==L'"') ? 2:1;
+			break;
+		default:
+			*(Dest++)=*(Src++);
+			break;
+		}
+
+		*Dest=0;
+		strDest.ReleaseBuffer();
+	}
+}
+
 bool Language::Init(const wchar_t *Path, int CountNeed)
 {
 	if (MsgList
@@ -408,8 +462,6 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 
 		if (!MsgAddrA)
 		{
-			delete[] MsgAddr;
-			MsgAddr=nullptr;
 			fclose(LangFile);
 			return false;
 		}
@@ -501,62 +553,6 @@ void Language::Close()
 	MsgCount=0;
 	MsgSize=0;
 	LanguageLoaded=false;
-}
-
-
-void Language::ConvertString(const wchar_t *Src,string &strDest)
-{
-	wchar_t *Dest = strDest.GetBuffer(wcslen(Src)*2);
-
-	while (*Src)
-		switch (*Src)
-		{
-			case L'\\':
-
-				switch (Src[1])
-				{
-					case L'\\':
-						*(Dest++)=L'\\';
-						Src+=2;
-						break;
-					case L'\"':
-						*(Dest++)=L'\"';
-						Src+=2;
-						break;
-					case L'n':
-						*(Dest++)=L'\n';
-						Src+=2;
-						break;
-					case L'r':
-						*(Dest++)=L'\r';
-						Src+=2;
-						break;
-					case L'b':
-						*(Dest++)=L'\b';
-						Src+=2;
-						break;
-					case L't':
-						*(Dest++)=L'\t';
-						Src+=2;
-						break;
-					default:
-						*(Dest++)=L'\\';
-						Src++;
-						break;
-				}
-
-				break;
-			case L'"':
-				*(Dest++)=L'"';
-				Src+=(Src[1]==L'"') ? 2:1;
-				break;
-			default:
-				*(Dest++)=*(Src++);
-				break;
-		}
-
-	*Dest=0;
-	strDest.ReleaseBuffer();
 }
 
 bool Language::CheckMsgId(int MsgId) const

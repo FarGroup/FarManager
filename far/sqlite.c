@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wstrict-overflow"
 #pragma GCC diagnostic ignored "-Wuninitialized"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif // __GNUC__
 
 //to enable DESC indexes

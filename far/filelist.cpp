@@ -4016,7 +4016,6 @@ void FileList::CompareDir()
 	Another->ClearSelection();
 	string strTempName1, strTempName2;
 	const wchar_t *PtrTempName1, *PtrTempName2;
-	//BOOL OpifRealnames1=FALSE, OpifRealnames2=FALSE;
 
 	// помечаем ВСЕ, кроме каталогов на активной панели
 	for (int I=0; I < FileCount; I++)
@@ -4042,7 +4041,6 @@ void FileList::CompareDir()
 		if (Info.Flags & OPIF_COMPAREFATTIME)
 			CompareFatTime=TRUE;
 
-		//OpifRealnames1=Info.Flags & OPIF_REALNAMES;
 	}
 
 	if (Another->PanelMode==PLUGIN_PANEL && !CompareFatTime)
@@ -4053,7 +4051,6 @@ void FileList::CompareDir()
 		if (Info.Flags & OPIF_COMPAREFATTIME)
 			CompareFatTime=TRUE;
 
-		//OpifRealnames2=Info.Flags & OPIF_REALNAMES;
 	}
 
 	if (PanelMode==NORMAL_PANEL && Another->PanelMode==NORMAL_PANEL)
@@ -4077,37 +4074,8 @@ void FileList::CompareDir()
 		for (int J=0; J < Another->FileCount; J++)
 		{
 			int Cmp=0;
-#if 0
-			PtrTempName1=ListData[I]->Name;
-			PtrTempName2=Another->ListData[J]->Name;
-			int fp1=strpbrk(ListData[I]->Name,":\\/");
-			int fp2=strpbrk(Another->ListData[J]->Name,":\\/");
-
-			if (fp1 && !fp2 && strcmp(PtrTempName2,".."))
-			{
-				UnicodeToAnsi(Another->strCurDir, TempName2);  //BUGBUG
-				AddEndSlash(TempName2);
-				strncat(TempName2,Another->ListData[J]->Name,sizeof(TempName2)-1);
-				PtrTempName2=TempName2;
-			}
-			else if (!fp1 && fp2 && strcmp(PtrTempName1,".."))
-			{
-				strcpy(TempName1,CurDir);
-				AddEndSlash(TempName1);
-				strncat(TempName1,ListData[I]->Name,sizeof(TempName1)-1);
-				PtrTempName1=TempName1;
-			}
-
-			if (OpifRealnames1 || OpifRealnames2)
-			{
-				PtrTempName1=PointToName(ListData[I]->Name);
-				PtrTempName2=PointToName(Another->ListData[J]->Name);
-			}
-
-#else
 			PtrTempName1=PointToName(ListData[I]->strName);
 			PtrTempName2=PointToName(Another->ListData[J]->strName);
-#endif
 
 			if (!StrCmpI(PtrTempName1,PtrTempName2))
 			{

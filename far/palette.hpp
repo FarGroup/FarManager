@@ -48,4 +48,3 @@ public:
 };
 
 const FarColor ColorIndexToColor(PaletteColors ColorIndex);
-void ConvertCurrentPalette();
