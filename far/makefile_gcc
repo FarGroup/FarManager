@@ -38,6 +38,9 @@ else
    HOST_TYPE = Unix
    WINE_CMD = wine #space required
   endif
+ else
+  TOOLS_PREFIX = $(TOOLSDIR)
+  HOST_TYPE = Windows
  endif
 endif
 
