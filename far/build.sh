@@ -31,9 +31,9 @@ if [ "Y" = "${deb_b}" ]; then m="${m} DEBUG=1" ; fi
 for dirbit in $nbits
 do
   case "${dirbit}" in
-    32)    ${GCC_PREFIX_32} ; nbit=32 ;;
-    64)    ${GCC_PREFIX_64} ; nbit=64 ;;
-    32/64) ${GCC_PREFIX_64} ; nbit=32 ;;
+    32)    pref=${GCC_PREFIX_32} ; nbit=32 ;;
+    64)    pref=${GCC_PREFIX_64} ; nbit=64 ;;
+    32/64) pref=${GCC_PREFIX_64} ; nbit=32 ;;
   esac
   [ "Y" = "${clean}" ] && $m GCC_PREFIX=${pref} DIRBIT=${nbit} clean
   ${m} GCC_PREFIX=${pref} DIRBIT=${nbit}
