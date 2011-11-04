@@ -33,9 +33,11 @@ ifneq ($(shell echo %comspec%),%comspec%)
 else
  os_name = $(1)
  HOST_TYPE = $(shell uname -o)
- ifneq (Cygwin,$(HOST_TYPE))
-  HOST_TYPE = Unix
-  WINE_CMD = wine #space required
+ ifneq (Msys,$(HOST_TYPE))
+  ifneq (Cygwin,$(HOST_TYPE))
+   HOST_TYPE = Unix
+   WINE_CMD = wine #space required
+  endif
  endif
 endif
 

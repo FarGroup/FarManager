@@ -22,8 +22,13 @@ done
 #-----------------------------------------------------------------
 [ -f ./build_settings.sh ] && source ./build_settings.sh
 [ -z "${GMAKE}" ] && GMAKE=make
-[ -z "${GCC_PREFIX_32}" ] && GCC_PREFIX_32=i686-w64-mingw32-
-[ -z "${GCC_PREFIX_64}" ] && GCC_PREFIX_32=x86_64-w64-mingw32-
+case `uname -o` in
+  Msys) ;;
+  *)
+    [ -z "${GCC_PREFIX_32}" ] && GCC_PREFIX_32=i686-w64-mingw32-
+    [ -z "${GCC_PREFIX_64}" ] && GCC_PREFIX_64=x86_64-w64-mingw32-
+  ;;
+esac
 #-----------------------------------------------------------------
 m="${GMAKE} --no-print-directory -f makefile_gcc"
 if [ "Y" = "${deb_b}" ]; then m="${m} DEBUG=1" ; fi
@@ -35,6 +40,7 @@ do
     64)    pref=${GCC_PREFIX_64} ; nbit=64 ;;
     32/64) pref=${GCC_PREFIX_64} ; nbit=32 ;;
   esac
-  [ "Y" = "${clean}" ] && $m GCC_PREFIX=${pref} DIRBIT=${nbit} clean
-  ${m} GCC_PREFIX=${pref} DIRBIT=${nbit}
+  [ -z "${pref}" ] || m="${m} GCC_PREFIX=${pref}"
+  [ "Y" = "${clean}" ] && $m DIRBIT=${nbit} clean
+  ${m} DIRBIT=${nbit}
 done
