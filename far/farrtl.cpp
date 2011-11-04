@@ -57,6 +57,7 @@ struct MEMINFO
 	};
 };
 #endif
+
 void *__cdecl xf_malloc(size_t size)
 {
 #ifdef MEMORY_CHECK
