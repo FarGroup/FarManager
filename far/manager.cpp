@@ -868,7 +868,7 @@ int Manager::ProcessKey(DWORD Key)
 				int     i;
 				int     *iptr;
 				double  d;
-			} zero_const, refers;
+			} zero_const; //, refers;
 			zero_const.i=0L;
 			MenuItemEx ModalMenuItem;
 			ModalMenuItem.Clear();
@@ -916,7 +916,7 @@ int Manager::ProcessKey(DWORD Key)
 					Test_EXCEPTION_STACK_OVERFLOW(nullptr);
 					break;
 				case 5:
-					refers.d = 1.0/zero_const.d;
+					//refers.d = 1.0/zero_const.d;
 					break;
 				case 6:
 					DebugBreak();

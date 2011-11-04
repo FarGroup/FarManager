@@ -1770,12 +1770,13 @@ int RegExp::InnerCompile(const prechar src,int srclength,int options)
 #ifdef UNICODE
 				op->symbolclass=new UniSet();
 				tmpclass=op->symbolclass;
+           #define IF_U(t)
 #else
 
 				for (j=0; j<8; j++)itmpclass[j]=0;
-
-#endif
 				int classindex=0;
+           #define IF_U(t) t
+#endif
 
 				for (; src[i]!=']'; i++)
 				{
@@ -1789,17 +1790,17 @@ int RegExp::InnerCompile(const prechar src,int srclength,int options)
 						switch (src[i])
 						{
 							case 'D':isnottype=1;
-							case 'd':type=TYPE_DIGITCHAR; classindex=0; break;
+							case 'd':type=TYPE_DIGITCHAR; IF_U(classindex=0); break;
 							case 'W':isnottype=1;
-							case 'w':type=TYPE_WORDCHAR; classindex=64; break;
+							case 'w':type=TYPE_WORDCHAR; IF_U(classindex=64); break;
 							case 'S':isnottype=1;
-							case 's':type=TYPE_SPACECHAR; classindex=32; break;
+							case 's':type=TYPE_SPACECHAR; IF_U(classindex=32); break;
 							case 'L':isnottype=1;
-							case 'l':type=TYPE_LOWCASE; classindex=96; break;
+							case 'l':type=TYPE_LOWCASE; IF_U(lassindex=96); break;
 							case 'U':isnottype=1;
-							case 'u':type=TYPE_UPCASE; classindex=128; break;
+							case 'u':type=TYPE_UPCASE; IF_U(classindex=128); break;
 							case 'I':isnottype=1;
-							case 'i':type=TYPE_ALPHACHAR; classindex=160; break;
+							case 'i':type=TYPE_ALPHACHAR; IF_U(classindex=160); break;
 							case 'n':lastchar='\n'; break;
 							case 'r':lastchar='\r'; break;
 							case 't':lastchar='\t'; break;

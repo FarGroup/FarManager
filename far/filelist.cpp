@@ -4016,7 +4016,7 @@ void FileList::CompareDir()
 	Another->ClearSelection();
 	string strTempName1, strTempName2;
 	const wchar_t *PtrTempName1, *PtrTempName2;
-	BOOL OpifRealnames1=FALSE, OpifRealnames2=FALSE;
+	//BOOL OpifRealnames1=FALSE, OpifRealnames2=FALSE;
 
 	// помечаем ВСЕ, кроме каталогов на активной панели
 	for (int I=0; I < FileCount; I++)
@@ -4042,7 +4042,7 @@ void FileList::CompareDir()
 		if (Info.Flags & OPIF_COMPAREFATTIME)
 			CompareFatTime=TRUE;
 
-		OpifRealnames1=Info.Flags & OPIF_REALNAMES;
+		//OpifRealnames1=Info.Flags & OPIF_REALNAMES;
 	}
 
 	if (Another->PanelMode==PLUGIN_PANEL && !CompareFatTime)
@@ -4053,7 +4053,7 @@ void FileList::CompareDir()
 		if (Info.Flags & OPIF_COMPAREFATTIME)
 			CompareFatTime=TRUE;
 
-		OpifRealnames2=Info.Flags & OPIF_REALNAMES;
+		//OpifRealnames2=Info.Flags & OPIF_REALNAMES;
 	}
 
 	if (PanelMode==NORMAL_PANEL && Another->PanelMode==NORMAL_PANEL)

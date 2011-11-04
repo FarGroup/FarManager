@@ -82,7 +82,7 @@ class UserDefinedList:NonCopyable
 		bool CheckSeparators() const; // проверка разделителей на корректность
 		void SetDefaultSeparators();
 		const wchar_t *Skip(const wchar_t *Str, int &Length, int &RealLength, bool &Error);
-		static int __cdecl CmpItems(const UserDefinedListItem **el1,
+		static int CDECL CmpItems(const UserDefinedListItem **el1,
 		                            const UserDefinedListItem **el2);
 
 	public:

@@ -35,3 +35,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #include "FarGuid.hpp"
 #include "DlgGuid.hpp"
+
+#ifdef _W32API_OLD
+#if _GCC_VER < GCC_VER_(4,5,3)
+const CLSID CLSID_TaskbarList = {0x56FDF344, 0xFD6D, 0x11d0, {0x95, 0x8A, 0x00, 0x60, 0x97, 0xC9, 0xA0, 0x90}};
+#endif
+#endif

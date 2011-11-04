@@ -53,36 +53,33 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <search.h>
 #include <share.h>
 
+#undef _W32API_OLD
+
 #ifdef _MSC_VER
-#include <sdkddkver.h>
-#if _WIN32_WINNT<0x0601
-#error Windows SDK v7.0 (or higher) required
-#endif
+# include <sdkddkver.h>
+# if _WIN32_WINNT < 0x0601
+#  error Windows SDK v7.0 (or higher) required
+# endif
 #endif //_MSC_VER
 
 #ifdef __GNUC__
-#include <w32api.h>
-#ifdef __MINGW64__
-#if __W32API_MAJOR_VERSION<3 || (__W32API_MAJOR_VERSION==3 && (__W32API_MINOR_VERSION<14))
-#error w32api-3.14 (or higher) required
-#endif
-#else
-#if __W32API_MAJOR_VERSION<3 || (__W32API_MAJOR_VERSION==3 && (__W32API_MINOR_VERSION<17))
-#error w32api-3.17 (or higher) required
-#endif
-#endif //__MINGW64__
+# define GCC_VER_(gcc_major,gcc_minor,gcc_patch) (100*(gcc_major) + 10*(gcc_minor) + (gcc_patch))
+# define _GCC_VER GCC_VER_(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
+# include <w32api.h>
+# define _W32API_VER (100*(__W32API_MAJOR_VERSION) + (__W32API_MINOR_VERSION))
+# if _W32API_VER < 314
+#  error w32api-3.14 (or higher) required
+# endif
+# if _W32API_VER < 317
+#  define _W32API_OLD 1
+# endif
+# undef WINVER
+# undef _WIN32_WINNT
+# undef _WIN32_IE
+# define WINVER       0x0601
+# define _WIN32_WINNT 0x0601
+# define _WIN32_IE    0x0700
 #endif // __GNUC__
-
-#ifdef __GNUC__
-#ifdef __MINGW64__
-#undef WINVER
-#undef _WIN32_WINNT
-#endif
-#define WINVER       0x0601
-#define _WIN32_WINNT 0x0601
-#define _WIN32_IE    0x0601
-#endif // __GNUC__
-
 
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
@@ -106,56 +103,48 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <shellapi.h>
 
 #ifdef _MSC_VER
-#include <ntstatus.h>
-#include <shobjidl.h>
-#include <winternl.h>
-#include <cfgmgr32.h>
-#include <ntddscsi.h>
-#include <virtdisk.h>
+# include <ntstatus.h>
+# include <shobjidl.h>
+# include <winternl.h>
+# include <cfgmgr32.h>
+# include <ntddscsi.h>
+# include <virtdisk.h>
 #endif // _MSC_VER
 
 #ifdef __GNUC__
-#define __NTDDK_H
-#ifdef __MINGW64__
-#include <ntstatus.h>
-#include <cfgmgr32.h>
-#else
-#include <ddk/ntstatus.h>
-#include <ddk/cfgmgr32.h>
-#endif
-struct _ADAPTER_OBJECT;
-typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
-#ifdef __MINGW64__
-#include <ntddscsi.h>
-#else
-#include <ddk/ntddscsi.h>
-#include <ntdef.h>
-#endif
+# define __NTDDK_H
+  struct _ADAPTER_OBJECT;
+  typedef struct _ADAPTER_OBJECT ADAPTER_OBJECT,*PADAPTER_OBJECT;
+# ifdef _W32API_OLD
+#  include <ntstatus.h>
+#  include <cfgmgr32.h>
+#  include <ntddscsi.h>
+# else
+#  include <ddk/ntstatus.h>
+#  include <ddk/cfgmgr32.h>
+#  include <ddk/ntddscsi.h>
+#  include <ntdef.h>
+# endif
+# ifndef offsetof
+#  define offsetof(Type, Field) __builtin_offsetof(Type, Field)
+# endif
 #endif // __GNUC__
-
 
 #include "SDK/sdk.common.h"
 
 #ifdef _MSC_VER
-#include "SDK/sdk.vc.h"
+# include "SDK/sdk.vc.h"
 #endif // _MSC_VER
 
 #ifdef __GNUC__
-#include "SDK/sdk.gcc.h"
+# include "SDK/sdk.gcc.h"
+# define _abs64 llabs
+# define _wcstoi64 wcstoll
+# if !defined(__try)
+#  define __try
+# endif
+# define __except(a) if(false)
 #endif // __GNUC__
-
-#ifdef __GNUC__
-#define _abs64 llabs
-#define _wcstoi64 wcstoll
-#endif // __GNUC__
-
-#ifdef __GNUC__
-#ifndef __MINGW64__
-#define __try
-#endif //__MINGW64__
-#define __except(a) if(false)
-#endif // __GNUC__
-
 
 #define NullToEmpty(s) (s?s:L"")
 
@@ -198,7 +187,6 @@ inline void ClearArray(T (&a)[N]) { memset(a, 0, sizeof(a[0])*N); }
 
 #include "colors.hpp"
 #include "palette.hpp"
-
 
 #ifdef _DEBUG
 #define SELF_TEST(code) \

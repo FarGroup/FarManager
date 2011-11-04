@@ -268,32 +268,32 @@ MINVER=,5.0
 DISABLED_WARNINGS=/wd4054 /wd4061 /wd4100 /wd4127 /wd4191 /wd4204 /wd4242 /wd4244 /wd4245 /wd4255 /wd4365 /wd4512 /wd4514 /wd4625 /wd4626 /wd4640 /wd4668 /wd4706 /wd4710 /wd4711 /wd4738 /wd4820 /wd4917
 
 # common
-CPPFLAGS=/nologo $(MP) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHs-c- /GR- /Gy /GF /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /J /c
+CPPFLAG1=/nologo $(MP) /Wall $(DISABLED_WARNINGS) $(DEFUSERFLAGS) $(FARSYSLOG) $(DEFINES) /EHs-c- /GR- /Gy /GF /Fd"$(INTDIR)\\" /J /c
 LINKFLAGS=/nologo /subsystem:console$(MINVER) /release /nxcompat /largeaddressaware /dynamicbase /map /out:"$(OUTDIR)\Far.exe"
 ULINKFLAGS=-q -m- -ap -Gz -O- -o- -Gh -Gh- -GF:LARGEADDRESSAWARE -d*kernel32
 RFLAGS=/l 0x409 /fo"$(RES_FILE)" /d $(USEDEBUG)
 
 # config-cpecific
 !ifdef DEBUG
-CPPFLAGS=$(CPPFLAGS) /MTd /Od /Zi
+CPPFLAG1=$(CPPFLAG1) /MTd /Od /Zi
 LINKFLAGS=$(LINKFLAGS) /debug
 ULINKFLAGS=$(ULINKFLAGS) -v
 !else
-CPPFLAGS=$(CPPFLAGS) /MT /O2
+CPPFLAG1=$(CPPFLAG1) /MT /O2
 !ifndef NO_RELEASE_PDB
-CPPFLAGS=$(CPPFLAGS) /Zi
+CPPFLAG1=$(CPPFLAG1) /Zi
 LINKFLAGS=$(LINKFLAGS) /debug
 !endif
 LINKFLAGS=$(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF
 !endif
 !ifdef ASM_LISTING
-CPPFLAGS=$(CPPFLAGS) /FAcs /Fa"$(CODDIR)\\"
+CPPFLAG1=$(CPPFLAG1) /FAcs /Fa"$(CODDIR)\\"
 !endif
 
 # platform-cpecific
 !ifdef X86
 !ifndef DEBUG
-CPPFLAGS=$(CPPFLAGS) /Oy-
+CPPFLAG1=$(CPPFLAG1) /Oy-
 !endif
 LINKFLAGS=$(LINKFLAGS) /machine:i386
 !elseifdef AMD64
@@ -305,7 +305,7 @@ LINKFLAGS=$(LINKFLAGS) /machine:IA64
 
 # compiler-cpecific
 !if "$(VC)"=="8"
-CPPFLAGS=$(CPPFLAGS) /Wp64
+CPPFLAG1=$(CPPFLAG1) /Wp64
 LINKFLAGS=$(LINKFLAGS) /opt:nowin98
 !else
 RFLAGS=$(RFLAGS) /nologo
@@ -315,8 +315,10 @@ RFLAGS=$(RFLAGS) /nologo
 CPP = icl
 LINK = xilink
 DEFINES = $(DEFINES) /D"nullptr=NULL"
-CPPFLAGS = $(CPPFLAGS) /Qvec-report0 -wd672,869,1552,1879
+CPPFLAG1 = $(CPPFLAG1) /Qvec-report0 -wd672,869,1552,1879
 !endif
+
+CPPFLAGS = $(CPPFLAG1) /Fo"$(INTDIR)\\"
 
 ALL: AllDirs lng depfile
 	$(MAKE) /nologo /f makefile_vc build USEDEPS=1
@@ -388,11 +390,11 @@ $(RES_FILE): bootstrap\far.rc res.hpp Far.ico
 
 $(INTDIR)\api_test_c.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp api_test.c
 	echo testing C plugin API
-	$(CPP) /nologo /c $(CPPFLAGS) /Fo"$@" /TC api_test.c
+	$(CPP) /nologo /c $(CPPFLAG1) /Fo"$@" /TC api_test.c
 
 $(INTDIR)\api_test_c++.testobj: $(FARINCLUDE)/plugin.hpp $(FARINCLUDE)/farcolor.hpp $(FARINCLUDE)/DlgBuilder.hpp api_test.c
 	echo testing C++ plugin API
-	$(CPP) /nologo /c $(CPPFLAGS) /Fo"$@" /TP api_test.c
+	$(CPP) /nologo /c $(CPPFLAG1) /Fo"$@" /TP api_test.c
 
 MSG=echo generating $@
 

@@ -3252,7 +3252,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 						int MenuKey=InputRecordToKey(&ir);
 
 						// ввод
-						if((MenuKey>=L' ' && MenuKey<=WCHAR_MAX) || MenuKey==KEY_BS || MenuKey==KEY_DEL || MenuKey==KEY_NUMDEL)
+						if((MenuKey>=L' ' && MenuKey<=static_cast<int>(WCHAR_MAX)) || MenuKey==KEY_BS || MenuKey==KEY_DEL || MenuKey==KEY_NUMDEL)
 						{
 							string strPrev;
 							DeleteBlock();

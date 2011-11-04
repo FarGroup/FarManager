@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef __MINGW64__
+#ifndef _W32API_OLD
 typedef struct _FILE_ALLOCATED_RANGE_BUFFER {
 
     LARGE_INTEGER FileOffset;
@@ -78,7 +78,7 @@ typedef struct _WIN32_FIND_STREAM_DATA
 	WCHAR cStreamName[MAX_PATH+36];
 }
 WIN32_FIND_STREAM_DATA,*PWIN32_FIND_STREAM_DATA;
-#endif //__MINGW64__
+#endif //_W32API_OLD
 
 typedef struct _IO_STATUS_BLOCK
 {
@@ -227,7 +227,7 @@ typedef enum _FILE_INFORMATION_CLASS
 }
 FILE_INFORMATION_CLASS, *PFILE_INFORMATION_CLASS;
 
-#ifndef __MINGW64__
+#if !defined(_W32API_OLD) || (_GCC_VER < GCC_VER_(4,5,3))
 // ShObjIdl.h
 typedef enum tagASSOCIATIONLEVEL
 {
@@ -256,7 +256,9 @@ DECLARE_INTERFACE_(IApplicationAssociationRegistration,IUnknown)
 	virtual HRESULT STDMETHODCALLTYPE SetAppAsDefaultAll(LPCWSTR pszAppRegistryName) = 0;
 	virtual HRESULT STDMETHODCALLTYPE ClearUserAssociations() = 0;
 };
+#endif
 
+#if !defined(_W32API_OLD)
 const CLSID CLSID_TaskbarList = {0x56FDF344, 0xFD6D, 0x11d0, {0x95, 0x8A, 0x00, 0x60, 0x97, 0xC9, 0xA0, 0x90}};
 
 const IID IID_ITaskbarList = {0x56FDF342, 0xFD6D, 0x11d0, {0x95, 0x8A, 0x00, 0x60, 0x97, 0xC9, 0xA0, 0x90}};
@@ -276,7 +278,9 @@ DECLARE_INTERFACE_(ITaskbarList2,ITaskbarList)
 public:
 	virtual HRESULT STDMETHODCALLTYPE MarkFullscreenWindow(HWND hwnd,BOOL fFullscreen)=0;
 };
+#endif
 
+#if !defined(_W32API_OLD) || (_GCC_VER < GCC_VER_(4,5,3))
 typedef enum TBPFLAG
 {
 	TBPF_NOPROGRESS    = 0,
@@ -317,17 +321,14 @@ template<typename T>
 void** IID_PPV_ARGS_Helper(T** pp)
 {
 	// make sure everyone derives from IUnknown
-	IUnknown* I = static_cast<IUnknown*>(*pp); I = 0;
+	IUnknown* I = static_cast<IUnknown*>(*pp); I = 0; (void)I;
 	return reinterpret_cast<void**>(pp);
 }
-#endif //__MINGW64__
+#endif //_W32API_OLD
 
 template <typename T, size_t N>
 char (*RtlpNumberOf(T(&)[N]))[N];
-
-#ifdef __MINGW64__
 #undef ARRAYSIZE
-#endif
 #define ARRAYSIZE(A) (sizeof(*RtlpNumberOf(A)))
 
 // shellapi.h
@@ -335,8 +336,8 @@ char (*RtlpNumberOf(T(&)[N]))[N];
 #define SEE_MASK_NOASYNC 0x00000100
 #endif
 
-#ifndef __MINGW64__
 // WinIoCtl.h
+#ifndef VolumeClassGuid
 DEFINE_GUID(GUID_DEVINTERFACE_VOLUME, 0x53f5630dL, 0xb6bf, 0x11d0, 0x94, 0xf2, 0x00, 0xa0, 0xc9, 0x1e, 0xfb, 0x8b);
 #endif
 
@@ -473,7 +474,7 @@ DEFINE_GUID(VIRTUAL_STORAGE_TYPE_VENDOR_MICROSOFT, 0xec984aec, 0xa0f9, 0x47e9, 0
 
 #endif
 
-#ifdef __MINGW64__
+#ifdef _W32API_OLD
 /* Object Attributes */
 typedef struct _OBJECT_ATTRIBUTES {
   ULONG Length;
@@ -535,3 +536,9 @@ typedef struct _REPARSE_DATA_BUFFER {
                   ((tag) > IO_REPARSE_TAG_RESERVED_RANGE)      \
                 )
 #endif
+
+#ifndef ENABLE_EXTENDED_FLAGS
+# define ENABLE_QUICK_EDIT_MODE 64
+# define ENABLE_EXTENDED_FLAGS  128
+#endif
+

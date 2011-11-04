@@ -330,7 +330,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 	return rc;
 }
 
-int __cdecl UserDefinedList::CmpItems(const UserDefinedListItem **el1,
+int CDECL UserDefinedList::CmpItems(const UserDefinedListItem **el1,
                                       const UserDefinedListItem **el2)
 {
 	if (el1==el2)

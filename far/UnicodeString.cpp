@@ -267,7 +267,7 @@ UnicodeString& UnicodeString::Clear()
 	return *this;
 }
 
-int __cdecl UnicodeString::Format(const wchar_t * format, ...)
+int CDECL UnicodeString::Format(const wchar_t * format, ...)
 {
 	wchar_t *buffer = nullptr;
 	size_t Size = MAX_PATH;

@@ -1,43 +1,71 @@
+THIS_MAKE = $(lastword $(MAKEFILE_LIST))
+
 #The following variables can be set by the user:
 #
 #DEBUG - set if a debug build is needed
 #
-
-ifneq (,$(findstring cmd,$(SHELL)))
-CMDSHELL = 1
-else
-ifneq ($(shell echo %comspec%), %comspec%)
-CMDSHELL = 1
-endif
-endif
-
-ifdef CMDSHELL
-define PS
-\\
-endef
-else
-PS=/
-endif
+DIRBIT ?= 32
 
 ifndef DEBUG
-DIRNAME=Release
-DEBUGFLAGS=-O3 -DNDEBUG
-DEBUGLINKFLAGS=-s
+ DIRNAME=Release
+ DEBUGFLAGS=-Os -DNDEBUG
+ DEBUGLINKFLAGS=-Xlinker -s -Xlinker -x -Xlinker --gc-sections
 else
-DIRNAME=Debug
-DEBUGFLAGS=-g -D_DEBUG
-DEBUGLINKFLAGS=
+ DIRNAME=Debug
+ DEBUGFLAGS=-g -D_DEBUG
+ DEBUGLINKFLAGS=
 endif
 
-DIRBIT ?= 32
-EXEDIR = .$(PS)$(DIRNAME).$(DIRBIT).gcc$(PS)
-OBJDIR = $(EXEDIR)obj$(PS)
-TOOLSDIR = .$(PS)tools$(PS)
-BOOTSTRAPDIR = .$(PS)bootstrap$(PS)
-FARINCLUDE = .$(PS)Include$(PS)
+EXEDIR = ./$(DIRNAME).$(DIRBIT).gcc/
+OBJDIR = $(EXEDIR)obj/
+TOOLSDIR = ./tools/
+BOOTSTRAPDIR = ./bootstrap/
+FARINCLUDE = ./Include/
 EXENAME = Far.exe
 EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
+
+ifneq ($(shell echo %comspec%),%comspec%)
+ os_name = $(subst /,\,$(1))
+ UTILS_PREFIX = $(call os_name,./scripts/gnu.cmd )
+ TOOLS_PREFIX = $(TOOLSDIR)
+ HOST_TYPE = Windows
+else
+ os_name = $(1)
+ HOST_TYPE = $(shell uname -o)
+ ifneq (Cygwin,$(HOST_TYPE))
+  HOST_TYPE = Unix
+  WINE_CMD = wine #space required
+ endif
+endif
+
+MKDIR = $(UTILS_PREFIX)mkdir -pv
+RM = $(UTILS_PREFIX)rm -fv
+CP = $(UTILS_PREFIX)cp -fv
+MV = $(UTILS_PREFIX)mv -fv
+
+CXX = $(GCC_PREFIX)g++$(DW2)
+CC = $(GCC_PREFIX)gcc$(DW2)
+WINDRES = $(GCC_PREFIX)windres
+DLLTOOL = $(GCC_PREFIX)dlltool
+RANLIB = $(GCC_PREFIX)ranlib
+
+M4 = $(strip $(call os_name, $(TOOLS_PREFIX)m4)) -P -DFARBIT=$(DIRBIT) -DHOSTTYPE=$(HOST_TYPE)
+GAWK = $(strip $(call os_name, $(TOOLS_PREFIX)gawk))
+LGEN = $(WINE_CMD)$(strip $(call os_name, $(TOOLSDIR)lng.generator.exe))
+
+DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
+CFLAGS = -m$(DIRBIT) $(DEBUGFLAGS) -fdiagnostics-show-option -pipe -funsigned-char $(DEFINES)
+CFLAGS += -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
+CCFLAGS = $(CFLAGS) -fno-rtti -std=gnu++0x -fpermissive
+
+LNKFLAGS = -m$(DIRBIT) -static-libgcc -static $(DEBUGLINKFLAGS)
+LNKFLAGS += -Xlinker -Map -Xlinker $(MAP) -Xlinker --dynamicbase -Xlinker --nxcompat
+ifeq ($(DIRBIT),32)
+ LNKFLAGS += -Xlinker --large-address-aware
+ WINDRES += -F pe-i386
+endif
+LNKFLAGS += -ladvapi32 -lmpr -lwinspool -lole32 -lsecur32 -lsetupapi -lpsapi -lrpcrt4
 
 SRCS = \
 	cache.cpp \
@@ -172,62 +200,34 @@ SRCS = \
 	viewer.cpp \
 	vmenu.cpp \
 	window.cpp \
-	xlat.cpp
+	xlat.cpp \
+
 ifeq ($(DIRBIT),32)
 	SRCS += hook_wow64.c
 endif
 
-OBJS = $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS))) $(OBJDIR)initguid.o $(OBJDIR)far.rc.o
+OBJS = $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS)))
+OBJS += $(OBJDIR)initguid.o $(OBJDIR)far.rc.o
+
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
 TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
 
-ifdef CMDSHELL
-MKSCRIPTS = $(shell if not exist $(BOOTSTRAPDIR) md $(BOOTSTRAPDIR)) $(shell echo @del /q %%1>$(BOOTSTRAPDIR)rm.cmd && echo @copy /y %%1 %%2>$(BOOTSTRAPDIR)cp.cmd && echo @if not exist %%1 md %%1>$(BOOTSTRAPDIR)mkdir.cmd)
-MKDIR = $(BOOTSTRAPDIR)mkdir.cmd
-RM = $(BOOTSTRAPDIR)rm.cmd
-CP = $(BOOTSTRAPDIR)cp.cmd
-else
-MKDIR = mkdir -p
-RM = rm -f
-CP = cp -f
-endif
-
-CXX = g++
-CC = gcc
-M4 = $(TOOLSDIR)m4 -P -DFARBIT=$(DIRBIT)
-GAWK = $(TOOLSDIR)gawk
-WINDRES = windres
-DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
-CFLAGS = $(DEBUGFLAGS) -fdiagnostics-show-option -pipe $(DEFINES) -funsigned-char -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
-ifeq ($(DIRBIT),32)
-	CFLAGS += -mno-cygwin
-endif
-CCFLAGS = $(CFLAGS) -fno-rtti -std=gnu++0x -fpermissive
-LNKFLAGS = -mno-cygwin -static-libgcc $(DEBUGLINKFLAGS) -Xlinker -Map -Xlinker $(MAP) -Xlinker --dynamicbase -Xlinker --nxcompat -lmpr -lwinspool -lole32 -lsecur32 -lsetupapi -lpsapi -lrpcrt4
-ifeq ($(DIRBIT),32)
-	LNKFLAGS +=  -static-libstdc++ -Xlinker --large-address-aware
-endif
-
-.PHONY: all
+.PHONY: all dirs
 all: dirs lng depfile
-	@$(MAKE) -f makefile_gcc build
+	@$(MAKE) -f $(THIS_MAKE) $(MAKEFLAGS) build
 
 .PHONY: lng
 lng: $(BOOTSTRAPDIR)farlang.templ
 	@echo generating language files
-	@$(TOOLSDIR)lng.generator.exe -nc -i $(BOOTSTRAPDIR)lang.ini -ol "$(EXEDIR)" $(BOOTSTRAPDIR)farlang.templ
+	@$(LGEN) -nc -i $(BOOTSTRAPDIR)lang.ini -ol "$(EXEDIR)" $(BOOTSTRAPDIR)farlang.templ
 
 .PHONY: depfile
 depfile:
 	@$(GAWK) -f ./scripts/mkdep.awk -v compiler=gcc mkdep.list > $(DEPFILE)
 
-dirs: scripts
-	@$(MKSCRIPTS)
-	@$(MKDIR) $(EXEDIR)
-	@$(MKDIR) $(OBJDIR)
-	@$(MKDIR) $(FARINCLUDE)
-	@$(MKDIR) $(BOOTSTRAPDIR)
+dirs:
+	@$(MKDIR) $(EXEDIR) $(OBJDIR) $(FARINCLUDE) $(BOOTSTRAPDIR)
 
 .PHONY: build
 build: $(TESTOBJS) $(EXEFULLNAME) $(EXEDIR)FarEng.hlf $(EXEDIR)FarRus.hlf $(EXEDIR)FarHun.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.example.ini $(FARINCLUDE)farcolor.hpp $(FARINCLUDE)plugin.hpp $(FARINCLUDE)DlgBuilder.hpp $(FARINCLUDE)PluginW.pas $(FARINCLUDE)FarColorW.pas
@@ -329,18 +329,13 @@ $(FARINCLUDE)FarColorW.pas: FarColorW.pas farversion.m4 tools.m4 vbuild.m4
 	@$(M4) -DINPUT=FarColorW.pas headers.m4 > $@
 
 ifeq ($(MAKECMDGOALS),build)
-include $(DEPFILE)
+ include $(DEPFILE)
 endif
 
 .PHONY: clean
 clean:
 	@echo cleaning
-	@$(RM) $(OBJS)
-	@$(RM) $(TESTOBJS)
-	@$(RM) $(OBJDIR)headers.gch
-	@$(RM) $(EXEFULLNAME) $(MAP)
-	@$(RM) $(BOOTSTRAPDIR)*.*
-	@$(RM) $(EXEDIR)*.lng
-	@$(RM) $(EXEDIR)*.hlf
-	@$(RM) $(EXEDIR)File_id.diz
-	@$(RM) $(EXEDIR)Far.exe.example.ini
+	@$(RM) $(OBJS) $(TESTOBJS) $(OBJDIR)headers.gch
+	@$(RM) $(EXEFULLNAME) $(MAP) 
+	@$(RM) $(BOOTSTRAPDIR)*.*  $(FARINCLUDE)*.*
+	@$(RM) $(EXEDIR)*.lng $(EXEDIR)*.hlf $(EXEDIR)File_id.diz $(EXEDIR)Far.exe.example.ini

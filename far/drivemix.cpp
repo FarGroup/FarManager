@@ -81,7 +81,6 @@ DWORD WINAPI FarGetLogicalDrives()
 int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType)
 {
 	string strSrcRoot, strDestRoot;
-	int SrcDriveType, DestDriveType;
 	DWORD SrcVolumeNumber=0, DestVolumeNumber=0;
 	string strSrcVolumeName, strDestVolumeName;
 	string strSrcFileSystemName, strDestFileSystemName;
@@ -93,8 +92,8 @@ int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedTy
 	ConvertNameToUNC(strDestRoot);
 	GetPathRoot(strSrcRoot,strSrcRoot);
 	GetPathRoot(strDestRoot,strDestRoot);
-	SrcDriveType=FAR_GetDriveType(strSrcRoot,nullptr,TRUE);
-	DestDriveType=FAR_GetDriveType(strDestRoot,nullptr,TRUE);
+	//int SrcDriveType=FAR_GetDriveType(strSrcRoot,nullptr,TRUE);
+	int DestDriveType=FAR_GetDriveType(strDestRoot,nullptr,TRUE);
 
 	if (!apiGetVolumeInformation(strSrcRoot,&strSrcVolumeName,&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,&strSrcFileSystemName))
 		return FALSE;

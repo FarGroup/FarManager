@@ -151,7 +151,7 @@ typedef class UnicodeString
 
 		size_t GetCharString(char *lpszStr, size_t nSize, UINT CodePage=CP_OEMCP) const;
 
-		int __cdecl Format(const wchar_t * format, ...);
+		int CDECL Format(const wchar_t * format, ...);
 
 		UnicodeString& Replace(size_t Pos, size_t Len, const wchar_t* Data, size_t DataLen);
 		UnicodeString& Replace(size_t Pos, size_t Len, const UnicodeString& Str) { return Replace(Pos, Len, Str.CPtr(), Str.GetLength()); }

@@ -61,13 +61,13 @@ static TypeString checkTypeString(const wchar_t *TestStr)
 		const wchar_t *ptrTestStr=TestStr;
 		wchar_t ch, ch2;
 		bool isNum     = true;
-		bool isDec     = false;
+//		bool isDec     = false;
 		bool isBegDec  = false;
-		bool isHex     = false;
+//		bool isHex     = false;
 		bool isBegHex  = false;
-		bool isOct     = false;
+//		bool isOct     = false;
 		bool isBegOct  = false;
-		bool isE       = false;
+//		bool isE       = false;
 		bool isExp     = false;
 		bool isPoint   = false;
 		bool isSign    = false;
@@ -151,8 +151,8 @@ static TypeString checkTypeString(const wchar_t *TestStr)
 					break;
 				case L'e':
 				case L'E':
-					isHex=true;
-					isE=true;
+					//isHex=true;
+					//isE=true;
 					ch2=*ptrTestStr++;
 
 					if (ch2 == L'-' || ch2 == L'+')  // E+D
@@ -201,10 +201,10 @@ static TypeString checkTypeString(const wchar_t *TestStr)
 						break;
 					}
 
-					isHex=true;
+					//isHex=true;
 					break;
 				case L'0': case L'1': case L'2': case L'3': case L'4': case L'5': case L'6': case L'7':
-					isOct=true;
+					//isOct=true;
 				case L'8': case L'9':
 
 					if (isBegOct && (ch == L'8' || ch == L'9'))
@@ -213,7 +213,7 @@ static TypeString checkTypeString(const wchar_t *TestStr)
 						break;
 					}
 
-					isDec=true;
+					//isDec=true;
 					break;
 				default:
 					isNum=false;
