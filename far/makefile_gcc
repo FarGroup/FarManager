@@ -8,7 +8,7 @@ DIRBIT ?= 32
 
 ifndef DEBUG
  DIRNAME=Release
- DEBUGFLAGS=-Os -DNDEBUG
+ DEBUGFLAGS=-O3 -DNDEBUG
  DEBUGLINKFLAGS=-Xlinker -s -Xlinker -x -Xlinker --gc-sections
 else
  DIRNAME=Debug
