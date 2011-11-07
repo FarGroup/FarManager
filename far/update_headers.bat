@@ -1,1 +1,1 @@
-@tools\m4 -P -DHOSTTYPE=Windows update_headers.m4
+@tools\m4 -P update_headers.m4

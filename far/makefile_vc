@@ -81,7 +81,7 @@ FARINCLUDE=Include
 
 LINK=link.exe
 ULINK=ulink.exe
-M4=tools\m4 -P -DFARBIT=$(DIRBIT) -DHOSTTYPE=Windows
+M4=tools\m4 -P -DFARBIT=$(DIRBIT)
 GAWK=tools\gawk
 
 INTDIR=$(OUTDIR)\obj

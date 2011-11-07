@@ -14,4 +14,4 @@
 @echo --------------------------------------------------------------------
 @pause
 @echo.
-@tools\m4 -P -DHOSTTYPE=Windows svn_tag_build.m4
+@tools\m4 -P svn_tag_build.m4
