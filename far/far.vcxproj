@@ -881,27 +881,27 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="colormix.hpp" />
     <CustomBuild Include="colors.hpp">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Include\farcolor.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Include\farcolor.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Include\farcolor.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Include\farcolor.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Include\farcolor.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\farcolor.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Include\farcolor.hpp;%(Outputs)</Outputs>
     </CustomBuild>
@@ -920,27 +920,27 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="dizlist.hpp" />
     <CustomBuild Include="DlgBuilder.hpp">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Include\pluDlgBuildergin.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Include\DlgBuilder.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Include\DlgBuilder.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Include\DlgBuilder.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Include\DlgBuilder.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\DlgBuilder.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Include\DlgBuilder.hpp;%(Outputs)</Outputs>
     </CustomBuild>
@@ -1024,27 +1024,27 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="plugapi.hpp" />
     <CustomBuild Include="plugin.hpp">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Include\plugin.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Include\plugin.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Include\plugin.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Include\plugin.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Include\plugin.hpp;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Transforming %(Identity) to redistributable form...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows -DINPUT=%(Identity) headers.m4 &gt; Include\plugin.hpp</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">headers.m4;farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Include\plugin.hpp;%(Outputs)</Outputs>
     </CustomBuild>
@@ -1317,210 +1317,210 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <CustomBuild Include="copyright.inc.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="Far.exe.manifest.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="far.rc.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FarEng.hlf.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FarHun.hlf.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="farlang.templ.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 %(Identity) -DHOSTTYPE=Windows &gt; bootstrap\%(FileName)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="FarRus.hlf.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\gawk -f scripts\mkhlf.awk %(Identity) | tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
     <CustomBuild Include="farversion.inc.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bootstrap\%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; bootstrap\%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows %(Identity) &gt; bootstrap\%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bootstrap\%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
@@ -1528,27 +1528,27 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <CustomBuild Include="File_id.diz.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows %(Identity) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 %(Identity) &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\m4 -P -DFARBIT=IA64 -DHOSTTYPE=Windows %(Identity) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 %(Identity) &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\m4 -P -DFARBIT=32 -DHOSTTYPE=Windows %(Identity) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)%(FileName);%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compiling %(Identity)...</Message>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 %(Identity) &gt; $(OutDir)%(FileName)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\m4 -P -DFARBIT=64 -DHOSTTYPE=Windows %(Identity) &gt; $(OutDir)%(FileName)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">farversion.m4;vbuild.m4;%(AdditionalInputs)</AdditionalInputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(FileName);%(Outputs)</Outputs>
     </CustomBuild>
