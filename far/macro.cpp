@@ -4592,18 +4592,18 @@ struct FarMacroValue
 			for (I=nParam-1; I >= 0; --I)
 			{
 				VMStack.Pop(V);
-				(vParams+I)->type=(FARMACROVARTYPE)V.type();
+				(vParams+I)->Type=(FARMACROVARTYPE)V.type();
 				switch(V.type())
 				{
 					case vtUnknown:
 					case vtInteger:
-						(vParams+I)->i=V.i();
+						(vParams+I)->Integer=V.i();
 						break;
 					case vtString:
-						(vParams+I)->s=xf_wcsdup(V.s());
+						(vParams+I)->String=xf_wcsdup(V.s());
 						break;
 					case vtDouble:
-						(vParams+I)->d=V.d();
+						(vParams+I)->Double=V.d();
 						break;
 					//case vtUnknown:
 					//	break;
@@ -4623,17 +4623,17 @@ struct FarMacroValue
 					for (I=0; I < Info.Func.nResults; ++I)
 					//for (I=nResults-1; I >= 0; --I)
 					{
-						//V.type()=(TVarType)(Results+I)->type;
-						switch((Info.Func.Results+I)->type)
+						//V.type()=(TVarType)(Results+I)->Type;
+						switch((Info.Func.Results+I)->Type)
 						{
 							case FMVT_INTEGER:
-								V=(Info.Func.Results+I)->i;
+								V=(Info.Func.Results+I)->Integer;
 								break;
 							case FMVT_STRING:
-								V=(Info.Func.Results+I)->s;
+								V=(Info.Func.Results+I)->String;
 								break;
 							case FMVT_DOUBLE:
-								V=(Info.Func.Results+I)->d;
+								V=(Info.Func.Results+I)->Double;
 								break;
 							case FMVT_UNKNOWN:
 								V=0;
@@ -4645,8 +4645,8 @@ struct FarMacroValue
 			}
 
 			for (I=0; I < nParam; ++I)
-				if((vParams+I)->type == vtString && (vParams+I)->s)
-					xf_free((void*)(vParams+I)->s);
+				if((vParams+I)->Type == vtString && (vParams+I)->String)
+					xf_free((void*)(vParams+I)->String);
 
 			delete[] vParams;
 		}
