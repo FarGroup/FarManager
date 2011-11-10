@@ -102,10 +102,104 @@ static const wchar_t fmtLastGroup[]=L"LastGroup%d";
 static const wchar_t SortGroupsKeyName[]=L"SortGroups";
 static const wchar_t HighlightKeyName[]=L"Highlight";
 
+void SetHighlighting(bool DeleteOld = false, HierarchicalConfig *ExternCfg = nullptr)
+{
+	unsigned __int64 root;
+	HierarchicalConfig *cfg = ExternCfg?ExternCfg:CreateHighlightConfig();
+
+	if (DeleteOld)
+	{
+		root = cfg->GetKeyID(0, HighlightKeyName);
+		if (root)
+			cfg->DeleteKeyTree(root);
+	}
+
+	if (!cfg->GetKeyID(0, HighlightKeyName))
+	{
+		root = cfg->CreateKey(0,HighlightKeyName);
+		if (root)
+		{
+			static const wchar_t *Masks[]=
+			{
+				/* 0 */ L"*.*",
+				/* 1 */ L"*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz",
+				/* 2 */ L"*.bak,*.tmp",                                                                                                                                                                                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> может к терапевту? ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				/* $ 25.09.2001  IS
+					Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
+					являются родительскими (их имена - две точки).
+				*/
+				/* 3 */ L"*.*|..", // маска для каталогов
+				/* 4 */ L"..",     // такие каталоги окрашивать как простые файлы
+				/* 5 */ L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%",
+			};
+			static struct DefaultData
+			{
+				const wchar_t *Mask;
+				int IgnoreMask;
+				DWORD IncludeAttr;
+				BYTE InitNC;
+				BYTE InitCC;
+				FarColor NormalColor;
+				FarColor CursorColor;
+			}
+
+
+			StdHighlightData[]=
+			{
+				/* 0 */{Masks[0], 0, 0x0002, 0x13, 0x38},
+				/* 1 */{Masks[0], 0, 0x0004, 0x13, 0x38},
+				/* 2 */{Masks[3], 0, 0x0010, 0x1F, 0x3F},
+				/* 3 */{Masks[4], 0, 0x0010, 0x00, 0x00},
+				/* 4 */{Masks[5], 0, 0x0000, 0x1A, 0x3A},
+				/* 5 */{Masks[1], 0, 0x0000, 0x1D, 0x3D},
+				/* 6 */{Masks[2], 0, 0x0000, 0x16, 0x36},
+				// это настройка для каталогов на тех панелях, которые должны раскрашиваться
+				// без учета масок (например, список хостов в "far navigator")
+				/* 7 */{Masks[0], 1, 0x0010, 0x1F, 0x3F},
+			};
+
+			for (size_t I=0; I < ARRAYSIZE(StdHighlightData); I++)
+			{
+				Colors::ConsoleColorToFarColor(StdHighlightData[I].InitNC, StdHighlightData[I].NormalColor);
+				MAKE_TRANSPARENT(StdHighlightData[I].NormalColor.BackgroundColor);
+				Colors::ConsoleColorToFarColor(StdHighlightData[I].InitCC, StdHighlightData[I].CursorColor);
+				MAKE_TRANSPARENT(StdHighlightData[I].CursorColor.BackgroundColor);
+
+				FormatString strKeyName;
+				strKeyName << L"Group" << I;
+				unsigned __int64 key = cfg->CreateKey(root,strKeyName);
+				if (!key)
+					break;
+				cfg->SetValue(key,HLS.Mask,StdHighlightData[I].Mask);
+				cfg->SetValue(key,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
+				cfg->SetValue(key,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
+
+				cfg->SetValue(key,HLS.NormalColor, &StdHighlightData[I].NormalColor, sizeof(FarColor));
+				cfg->SetValue(key,HLS.CursorColor, &StdHighlightData[I].CursorColor, sizeof(FarColor));
+
+				const FarColor DefaultColor = {FCF_FG_4BIT|FCF_BG_4BIT, 0xff000000, 0x00000000};
+				cfg->SetValue(key,HLS.SelectedColor, &DefaultColor, sizeof(FarColor));
+				cfg->SetValue(key,HLS.SelectedCursorColor, &DefaultColor, sizeof(FarColor));
+				cfg->SetValue(key,HLS.MarkCharNormalColor, &DefaultColor, sizeof(FarColor));
+				cfg->SetValue(key,HLS.MarkCharSelectedColor, &DefaultColor, sizeof(FarColor));
+				cfg->SetValue(key,HLS.MarkCharCursorColor, &DefaultColor, sizeof(FarColor));
+				cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, &DefaultColor, sizeof(FarColor));
+			}
+		}
+	}
+	if(cfg!=ExternCfg)
+	{
+		delete cfg;
+	}
+}
+
 HighlightFiles::HighlightFiles()
 {
-	InitHighlightFiles();
+	HierarchicalConfig *cfg = CreateHighlightConfig();
+	SetHighlighting(false, cfg);
+	InitHighlightFiles(cfg);
 	UpdateCurrentTime();
+	delete cfg;
 }
 
 void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams *HData, const wchar_t *Mask, int SortGroup, bool bSortGroup)
@@ -187,7 +281,7 @@ void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams 
 	HData->SetContinueProcessing(ContinueProcessing!=0);
 }
 
-void HighlightFiles::InitHighlightFiles()
+void HighlightFiles::InitHighlightFiles(HierarchicalConfig *ExternCfg)
 {
 	string strGroupName, strMask;
 	const int GroupDelta[4]={DEFAULT_SORT_GROUP,0,DEFAULT_SORT_GROUP+1,DEFAULT_SORT_GROUP};
@@ -196,7 +290,7 @@ void HighlightFiles::InitHighlightFiles()
 	int  *Count[4] = {&FirstCount,&UpperCount,&LowerCount,&LastCount};
 	HiData.Free();
 	FirstCount=UpperCount=LowerCount=LastCount=0;
-	HierarchicalConfig *cfg = CreateHighlightConfig();
+	HierarchicalConfig *cfg = ExternCfg? ExternCfg : CreateHighlightConfig();
 
 	for (int j=0; j<4; j++)
 	{
@@ -226,7 +320,10 @@ void HighlightFiles::InitHighlightFiles()
 		}
 	}
 
-	delete cfg;
+	if(cfg != ExternCfg)
+	{
+		delete cfg;
+	}
 }
 
 
@@ -545,10 +642,12 @@ void HighlightFiles::HiEdit(int MenuPos)
 					            MSG(MYes),MSG(MCancel)))
 						break;
 
-					SetHighlighting(true); //delete old settings
+					HierarchicalConfig *cfg = CreateHighlightConfig();
+					SetHighlighting(true, cfg); //delete old settings
 					HiMenu.Hide();
 					ClearData();
-					InitHighlightFiles();
+					InitHighlightFiles(cfg);
+					delete cfg;
 					NeedUpdate=TRUE;
 					break;
 				}
@@ -839,104 +938,6 @@ void HighlightFiles::SaveHiData()
 
 			SaveFilter(cfg,key,CurHiData,(!j || j==3)?false:true);
 		}
-	}
-
-	delete cfg;
-}
-
-void SetHighlighting(bool DeleteOld)
-{
-	unsigned __int64 root;
-	HierarchicalConfig *cfg = CreateHighlightConfig();
-
-	if (DeleteOld)
-	{
-		root = cfg->GetKeyID(0, HighlightKeyName);
-		if (root)
-			cfg->DeleteKeyTree(root);
-	}
-
-	if (cfg->GetKeyID(0, HighlightKeyName))
-	{
-		delete cfg;
-		return;
-	}
-
-	root = cfg->CreateKey(0,HighlightKeyName);
-	if (!root)
-	{
-		delete cfg;
-		return;
-	}
-
-	static const wchar_t *Masks[]=
-	{
-		/* 0 */ L"*.*",
-		/* 1 */ L"*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz",
-		/* 2 */ L"*.bak,*.tmp",                                                                                                                                                                                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> может к терапевту? ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-		/* $ 25.09.2001  IS
-		    Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
-		    являются родительскими (их имена - две точки).
-		*/
-		/* 3 */ L"*.*|..", // маска для каталогов
-		/* 4 */ L"..",     // такие каталоги окрашивать как простые файлы
-		/* 5 */ L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%",
-	};
-	static struct DefaultData
-	{
-		const wchar_t *Mask;
-		int IgnoreMask;
-		DWORD IncludeAttr;
-		BYTE InitNC;
-		BYTE InitCC;
-		FarColor NormalColor;
-		FarColor CursorColor;
-	}
-
-
-	StdHighlightData[]=
-	    { /*
-             Mask                NormalColor
-                          IncludeAttributes
-                       IgnoreMask       CursorColor             */
-	        /* 0 */{Masks[0], 0, 0x0002, 0x13, 0x38},
-	        /* 1 */{Masks[0], 0, 0x0004, 0x13, 0x38},
-	        /* 2 */{Masks[3], 0, 0x0010, 0x1F, 0x3F},
-	        /* 3 */{Masks[4], 0, 0x0010, 0x00, 0x00},
-	        /* 4 */{Masks[5], 0, 0x0000, 0x1A, 0x3A},
-	        /* 5 */{Masks[1], 0, 0x0000, 0x1D, 0x3D},
-	        /* 6 */{Masks[2], 0, 0x0000, 0x16, 0x36},
-	        // это настройка для каталогов на тех панелях, которые должны раскрашиваться
-	        // без учета масок (например, список хостов в "far navigator")
-	        /* 7 */{Masks[0], 1, 0x0010, 0x1F, 0x3F},
-	    };
-
-	for (size_t I=0; I < ARRAYSIZE(StdHighlightData); I++)
-	{
-		Colors::ConsoleColorToFarColor(StdHighlightData[I].InitNC, StdHighlightData[I].NormalColor);
-		MAKE_TRANSPARENT(StdHighlightData[I].NormalColor.BackgroundColor);
-		Colors::ConsoleColorToFarColor(StdHighlightData[I].InitCC, StdHighlightData[I].CursorColor);
-		MAKE_TRANSPARENT(StdHighlightData[I].CursorColor.BackgroundColor);
-
-		FormatString strKeyName;
-		strKeyName << L"Group" << I;
-		unsigned __int64 key = cfg->CreateKey(root,strKeyName);
-		if (!key)
-			break;
-		cfg->SetValue(key,HLS.Mask,StdHighlightData[I].Mask);
-		cfg->SetValue(key,HLS.IgnoreMask,StdHighlightData[I].IgnoreMask);
-		cfg->SetValue(key,HLS.IncludeAttributes,StdHighlightData[I].IncludeAttr);
-
-		cfg->SetValue(key,HLS.NormalColor, &StdHighlightData[I].NormalColor, sizeof(FarColor));
-		cfg->SetValue(key,HLS.CursorColor, &StdHighlightData[I].CursorColor, sizeof(FarColor));
-
-		const FarColor DefaultColor = {FCF_FG_4BIT|FCF_BG_4BIT, 0xff000000, 0x00000000};
-		cfg->SetValue(key,HLS.SelectedColor, &DefaultColor, sizeof(FarColor));
-		cfg->SetValue(key,HLS.SelectedCursorColor, &DefaultColor, sizeof(FarColor));
-		cfg->SetValue(key,HLS.MarkCharNormalColor, &DefaultColor, sizeof(FarColor));
-		cfg->SetValue(key,HLS.MarkCharSelectedColor, &DefaultColor, sizeof(FarColor));
-		cfg->SetValue(key,HLS.MarkCharCursorColor, &DefaultColor, sizeof(FarColor));
-		cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, &DefaultColor, sizeof(FarColor));
 	}
 
 	delete cfg;

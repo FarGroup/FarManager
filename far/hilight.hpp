@@ -65,7 +65,7 @@ class HighlightFiles
 		unsigned __int64 CurrentTime;
 
 	private:
-		void InitHighlightFiles();
+		void InitHighlightFiles(class HierarchicalConfig *ExternCfg = nullptr);
 		void ClearData();
 
 		int  MenuPosToRealPos(int MenuPos, int **Count, bool Insert=false);
@@ -84,5 +84,3 @@ class HighlightFiles
 
 		void SaveHiData();
 };
-
-void SetHighlighting(bool DeleteOld=false);

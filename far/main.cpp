@@ -722,7 +722,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	}
 
 	SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
-	SetHighlighting();
+
 	initMacroVarTable(1);
 
 	if (Opt.ExceptRules == -1)
