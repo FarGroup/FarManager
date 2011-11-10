@@ -345,6 +345,18 @@ class Editor:public ScreenObject
 		void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
 		const wchar_t *GetWordDiv() { return EdOpt.strWordDiv; }
 
+		void SetF7Rules(int NewMode) { EdOpt.F7Rules = NewMode; }
+		int GetF7Rules() { return EdOpt.F7Rules; }
+
+		void SetAllowEmptySpaceAfterEof(int NewMode) { EdOpt.AllowEmptySpaceAfterEof = NewMode; }
+		int GetAllowEmptySpaceAfterEof() { return EdOpt.AllowEmptySpaceAfterEof; }
+
+		void SetSearchSelFound(int NewMode) { EdOpt.SearchSelFound = NewMode; }
+		int GetSearchSelFound() { return EdOpt.SearchSelFound; }
+
+		void SetSearchRegexp(int NewMode) { EdOpt.SearchRegexp = NewMode; }
+		int GetSearchRegexp() { return EdOpt.SearchRegexp; }
+
 		void SetShowWhiteSpace(int NewMode);
 
 		void GetSavePosMode(int &SavePos, int &SaveShortPos);

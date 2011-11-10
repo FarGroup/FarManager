@@ -2466,7 +2466,12 @@ void FileEditor::SetEditorOptions(EditorOptions& EdOpt)
 	m_editor->SetShowScrollBar(EdOpt.ShowScrollBar);
 	m_editor->SetShowWhiteSpace(EdOpt.ShowWhiteSpace);
 	m_editor->SetSearchPickUpWord(EdOpt.SearchPickUpWord);
-	//m_editor->SetBSLikeDel(EdOpt.BSLikeDel);
+	m_editor->SetBSLikeDel(EdOpt.BSLikeDel);
+	m_editor->SetWordDiv(EdOpt.strWordDiv);
+	m_editor->SetF7Rules(EdOpt.F7Rules);
+	m_editor->SetAllowEmptySpaceAfterEof(EdOpt.AllowEmptySpaceAfterEof);
+	m_editor->SetSearchSelFound(EdOpt.SearchSelFound);
+	m_editor->SetSearchRegexp(EdOpt.SearchRegexp);
 }
 
 void FileEditor::OnChangeFocus(int focus)

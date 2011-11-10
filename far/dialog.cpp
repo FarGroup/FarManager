@@ -2285,6 +2285,10 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		{
 			return FocusPos+1;
 		}
+		case MCODE_V_DLGPREVPOS:    // Dlg.PrevPos
+		{
+			return PrevFocusPos+1;
+		}
 		case MCODE_V_DLGINFOID:        // Dlg.Info.Id
 		{
 			static string strId;

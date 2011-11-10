@@ -207,6 +207,7 @@ TMacroKeywords MKeywords[] =
 	{2,  L"Dlg.ItemType",       MCODE_V_DLGITEMTYPE,0},
 	{2,  L"Dlg.ItemCount",      MCODE_V_DLGITEMCOUNT,0},
 	{2,  L"Dlg.CurPos",         MCODE_V_DLGCURPOS,0},
+	{2,  L"Dlg.PrevPos",        MCODE_V_DLGPREVPOS,0},
 	{2,  L"Dlg.Info.Id",        MCODE_V_DLGINFOID,0},
 	{2,  L"Dlg.Info.Owner",     MCODE_V_DLGINFOOWNER,0},
 
@@ -308,6 +309,7 @@ static bool chrFunc(const TMacroFunction*);
 static bool clipFunc(const TMacroFunction*);
 static bool dateFunc(const TMacroFunction*);
 static bool dlggetvalueFunc(const TMacroFunction*);
+static bool dlgsetfocusFunc(const TMacroFunction*);
 static bool editorposFunc(const TMacroFunction*);
 static bool editorselFunc(const TMacroFunction*);
 static bool editorsetFunc(const TMacroFunction*);
@@ -388,6 +390,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"CLIP",             nullptr, L"V=Clip(N[,V])",                                             clipFunc,           nullptr, 0, 0,                                      MCODE_F_CLIP,             2, 1},
 	{L"DATE",             nullptr, L"S=Date([S])",                                               dateFunc,           nullptr, 0, 0,                                      MCODE_F_DATE,             1, 1},
 	{L"DLG.GETVALUE",     nullptr, L"V=Dlg.GetValue(ID,N)",                                      dlggetvalueFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_GETVALUE,     2, 0},
+	{L"DLG.SETFOCUS",     nullptr, L"N=Dlg.SetFocus([ID])",                                      dlgsetfocusFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_SETFOCUS,     1, 1},
 	{L"EDITOR.POS",       nullptr, L"N=Editor.Pos(Op,What[,Where])",                             editorposFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_POS,       3, 1},
 	{L"EDITOR.SEL",       nullptr, L"V=Editor.Sel(Action[,Opt])",                                editorselFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SEL,       2, 1},
 	{L"EDITOR.SET",       nullptr, L"N=Editor.Set(N,Var)",                                       editorsetFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SET,       2, 0},
@@ -1253,6 +1256,7 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 				case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
 				case MCODE_V_DLGCURPOS:    // Dlg.CurPos
 				case MCODE_V_DLGITEMTYPE:  // Dlg.ItemType
+				case MCODE_V_DLGPREVPOS:   // Dlg.PrevPos
 				{
 					if (CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG) // ?? Mode == MACRO_DIALOG ??
 						Cond=(__int64)CurFrame->VMProcess(CheckCode);
@@ -3076,6 +3080,27 @@ static bool flockFunc(const TMacroFunction*)
 	return Ret.i()!=-1;
 }
 
+// N=Dlg.SetFocus([ID])
+static bool dlgsetfocusFunc(const TMacroFunction*)
+{
+	TVar Ret(-1);
+	unsigned Index=(unsigned)VMStack.Pop().getInteger()-1;
+	Frame* CurFrame=FrameManager->GetCurrentFrame();
+
+	if (CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
+	{
+		Ret=(__int64)CurFrame->VMProcess(MCODE_V_DLGCURPOS);
+		if ((int)Index >= 0)
+		{
+			if(!SendDlgMessage((HANDLE)CurFrame,DM_SETFOCUS,Index,0))
+				Ret=0;
+		}
+	}
+
+	VMStack.Push(Ret);
+	return Ret.i()!=-1; // ?? <= 0 ??
+}
+
 // V=Dlg.GetValue(Index,TypeInf)
 static bool dlggetvalueFunc(const TMacroFunction*)
 {
@@ -3486,7 +3511,7 @@ static bool editorsetFunc(const TMacroFunction*)
 
 			CtrlObject->Plugins.CurEditor->SetEditorOptions(EdOpt);
 			CtrlObject->Plugins.CurEditor->ShowStatus();
-			if (Index == 0 || Index == 12 || Index == 15 || Index == 20)
+			if (Index == 0 || Index == 12 || Index == 14 || Index == 15 || Index == 20)
 				CtrlObject->Plugins.CurEditor->Show();
 		}
 	}

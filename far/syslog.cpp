@@ -1272,6 +1272,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(V_CMDLINE_VALUE),
 		DEF_MCODE_(V_CURPOS),
 		DEF_MCODE_(V_DLGCURPOS),
+		DEF_MCODE_(V_DLGPREVPOS),
 		DEF_MCODE_(V_DLGINFOID),
 		DEF_MCODE_(V_DLGINFOOWNER),
 		DEF_MCODE_(V_DLGITEMCOUNT),
@@ -1336,6 +1337,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(V_FAR_PID), // Far.PID
 		DEF_MCODE_(V_APANEL_FORMAT),            // APanel.Format
 		DEF_MCODE_(V_PPANEL_FORMAT),            // PPanel.Format
+		DEF_MCODE_(F_DLG_SETFOCUS),             // N=Dlg.SetFocus(ID)
 
 	};
 	string Name;
