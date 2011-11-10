@@ -298,29 +298,51 @@ $end</code></pre>
        <col>
        <tr><th><var>Option</var></th><th>Тип <var>Value</var></th><th>Описание</th></tr>
         <tr><td>0</td><td>Number</td><td>Размер табуляции</td></tr>
-        <tr><td>1</td><td>Number</td><td>Преобразование табуляции</td></tr>
+        <tr><td>1</td><td>Number</td><td>Преобразование табуляции:<br>
+           0 - не преобразовывать табуляцию<br>
+           1 - преобразовывать новые символы табуляции в пробелы<br>
+           2 - преобразовывать все символы табуляции в пробелы</td></tr>
         <tr><td>2</td><td>Number</td><td>Постоянные блоки</td></tr>
-        <tr><td>3</td><td>Number</td><td><kbd>Del</kbd> удаляет блоки</td></tr>
-        <tr><td>4</td><td>Number</td><td>Автоотступ</td></tr>
+        <tr><td>3</td><td>Number</td><td>Клавиша <kbd>Delete</kbd> удаляет блоки. Если есть помеченный блок, <kbd>Delete</kbd> будет удалять этот блок, а не символ под курсором.</td></tr>
+        <tr><td>4</td><td>Number</td><td>Автоотступ. Включает режим автоотступа при вводе текста.</td></tr>
         <tr><td>5</td><td>Number</td><td>Автоопределение таблицы символов</td></tr>
-        <tr><td>6</td><td>Number</td><td><code>AnsiTableForNewFile</code></td></tr>
+        <tr><td>6</td><td>Number</td><td>Использовать кодовую страницу ANSI при создании новых файлов.</td></tr>
         <tr><td>7</td><td>Number</td><td>Курсор за пределами строки</td></tr>
-        <tr><td>8</td><td>Number</td><td>Поведение клавиши <kbd>BackSpace</kbd> (TechInfo&nbsp;#13)</td></tr>
-        <tr><td>9</td><td>Number</td><td>Представление кода символа под курсором в статусной строке (TechInfo&nbsp;#32)</td></tr>
+        <tr><td>8</td><td>Number</td><td>Поведение клавиши <kbd>BackSpace</kbd> (TechInfo&nbsp;#13).<br>
+          Задает поведение клавиши <kbd>BackSpace</kbd> в редакторе, когда выделен вертикальный блок.
+          Если значение отлично от 0, то <kbd>BackSpace</kbd> удаляет вертикальный блок подобно клавише <kbd>Delete</kbd>.</td></tr>
+        <tr><td>9</td><td>Number</td><td>Представление кода символа под курсором в статусной строке (TechInfo&nbsp;#32)<br>
+          Может принимать следующие значения:<br>
+           0 - восьмеричное значение (3 символа с ведущим нулями)<br>
+           1 - десятеричное значение (3 символа с ведущими пробелами)<br>
+           2 - шестнадцатеричное значение (2 символа под цифру + символ 'h')</td></tr>
         <tr><td>10</td><td>Number</td><td>Сохранять позицию файла</td></tr>
         <tr><td>11</td><td>Number</td><td>Сохранять закладки</td></tr>
-        <tr><td>12</td><td>String</td><td>Символы разделители слов (TechInfo&nbsp;#1)</td></tr>
-        <tr><td>13</td><td>Number</td><td><code>EditorF7Rules</code> (TechInfo&nbsp;#18)</td></tr>
-        <tr><td>14</td><td>Number</td><td><code>AllowEmptySpaceAfterEof</code> (TechInfo&nbsp;#67)</td></tr>
-        <tr><td>15</td><td>Number</td><td><code>ShowScrollBar</code></td></tr>
-        <tr><td>16</td><td>Number</td><td><code>EditOpenedForWrite</code></td></tr>
-        <tr><td>17</td><td>Number</td><td><code>SearchSelFound</code></td></tr>
-        <tr><td>18</td><td>Number</td><td><code>SearchRegexp</code></td></tr>
-        <tr><td>19</td><td>Number</td><td><code>SearchPickUpWord</code></td></tr>
-        <tr><td>20</td><td>Number</td><td><code>ShowWhiteSpace</code></td></tr>
+        <tr><td>12</td><td>String</td><td>Символы разделители слов (TechInfo&nbsp;#1)<br>
+          По умолчанию: ~!%^&amp;*()+|{}:"&lt;&gt;?`-=\[];',./</td></tr>
+        <tr><td>13</td><td>Number</td><td><code>EditorF7Rules</code> (TechInfo&nbsp;#18)<br>
+          Если значение <var>Value</var> равно 1, то прямой поиск (F7, опция "Обратный  поиск" отключена)
+          будет начинаться со следующей позиции курсора, если  значение <var>Value</var> равно 0, то
+          указанный поиск будет начинаться с текущей позиции курсора.</td></tr>
+        <tr><td>14</td><td>Number</td><td><code>AllowEmptySpaceAfterEof</code> (TechInfo&nbsp;#67)<br>
+          Окончание файла в редакторе всегда находится внизу экрана, если строк в файле больше чем строк экрана.
+          При построчном скроллировании вниз (например, с помощью Ctrl-Down), скроллирование прекращается, когда
+          показывается последняя строка.<br>
+          <var>Value</var> может принимать следующие значения:<br>
+            0 - прекратить скроллинг, если последняя строка внизу экрана<br>
+            1 - продолжать скроллинг, при этом:<br>
+            a) поместить курсор за пределы файла по прежнему нельзя<br>
+            b) скроллинг с помощью Ctrl-Down сдвинет текст до курсора</td></tr>
+        <tr><td>15</td><td>Number</td><td>Показать полосу прокрутки в редакторе</td></tr>
+        <tr><td>16</td><td>Number</td><td>Редактировать открытые на запись файлы</td></tr>
+        <tr><td>17</td><td>Number</td><td>Выделять найденное - найденные последовательности будут выделены.</td></tr>
+        <tr><td>18</td><td>Number</td><td>Вести поиск с использованием регулярных выражений</td></tr>
+        <tr><td>19</td><td>Number</td><td>Cлово под курсором. При вызове диалога поиска/замены в строку поиска будет подставляться слово, на котором стоит курсор.</td></tr>
+        <tr><td>20</td><td>Number</td><td>Показывать в редакторе пробельные символы.</td></tr>
        </table>
        <p>Значение <var>Value</var> может быть равно -1, в этом случае функция ничего не изменит, а вернёт текущее значение настройки.</p>
        <p>Возвращает предыдущее значение опций или -1, если данные указаны некорректно.</p>
+       <p>Значения опций 6 и 16 изменить нельзя.</p>
        <p>Например, макрос, перемещающий выделенный фрагмент на одну строку вниз
           (сохраняет выделение вне зависимости от настрок постоянных блоков):</p>
        <pre class="codesample"><code><a href="general.html#clip">clip</a>(5) CtrlX %a=editor.set(2,1); Down CtrlV %a=editor.set(2,%a);</code></pre>
