@@ -827,7 +827,7 @@ int Manager::ProcessKey(DWORD Key)
 #if defined(FAR_ALPHA_VERSION)
 
 // сей код для проверки исключатор, просьба не трогать :-)
-		if (Key == (KEY_APPS|KEY_CTRL|KEY_ALT) && GeneralCfg->GetValue(L"System.Exception",L"Used",0))
+		if (Key == KEY_CTRLALTAPPS || Key == KEY_RCTRLRALTAPPS)
 		{
 			struct __ECODE
 			{

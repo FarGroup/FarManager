@@ -300,6 +300,11 @@ static int MainProcess(
 	return 0;
 }
 
+LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
+{
+	return xfilter(EXCEPT_KERNEL, ExceptionInfo, nullptr, 1);
+}
+
 int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,string& DestName2,int StartLine,int StartChar)
 {
 	int Result=0;
@@ -307,7 +312,7 @@ int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,str
 	{
 		Result=MainProcess(strEditName,strViewName,DestName1,DestName2,StartLine,StartChar);
 	}
-	__except(xfilter((int)(INT_PTR)INVALID_HANDLE_VALUE,GetExceptionInformation(),nullptr,1))
+	__except(xfilter(EXCEPT_KERNEL, GetExceptionInformation(), nullptr, 1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}
@@ -478,10 +483,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	Opt.ExceptRules=-1;
 #else
 	Opt.ExceptRules=IsDebuggerPresent()?0:-1;
-#endif
-
-#ifdef __GNUC__
-	Opt.ExceptRules=0;
 #endif
 
 	SetRegRootKey(HKEY_CURRENT_USER);
@@ -732,6 +733,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Opt.ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(GeneralCfg->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
 	SetErrorMode(ErrorMode);
+	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 
 	int Result=MainProcessSEH(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
 
