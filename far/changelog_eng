@@ -3,6 +3,59 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 13.11.2011 00:51:23 +0200 - build 2267
+
+1. Using SetUnhandledExceptionFilter.
+
+drkns 10.11.2011 16:28:04 +0200 - build 2266
+
+1. The default file highlighting was not applied if highlight.db was opened in memory.
+
+svs 10.11.2011 12:29:47 +0400 - build 2265
+
+1. Mantis#0001198: Bugs in Editor.Set
+   The following options have become RW for Editor.Set(): 8, 12, 13, 14, 17, 18
+
+2. Mantis#0001912: The macrofunction to assign the input focus to the dialog item which had been focused before the current one.
+   Additions:
+    1. Dlg.PrevPos - previous focused item number (in addition to Dlg.CurPos)
+    2. N=Dlg.SetFocus([ID]) - set the focus to the item with number ID
+       If ID is not given, it returns the focused item number
+       Return:
+         -1 - inner error or the function is called outside a dialog
+          0 - an attempt to position to an unfocused item
+         >0 - previous focused item number
+
+svs 09.11.2011 06:42:02 +0400 - build 2264
+
+1. SQLite 3.7.9
+
+2. Correction of build 2246
+
+w17 07.11.2011 22:30:08 +0400 build - 2263
+
+1. HOSTTYPE is Windows by default, Cygwin != Unix
+
+drkns 07.11.2011 09:41:27 +0200
+
+1. HOSTTYPE is Windows by default.
+
+w17 07.11.2011 11:30:15 +0400 build - 2262
+
+1. 2252 - Vstudio build repaired
+
+w17 07.11.2011 03:58:15 +0400 build - 2261
+
+1. 2252 one more time - the return of -O3
+
+w17 05.11.2011 01:02:42 +0400 build - 2260
+
+1. gcc #pragma for 4.6 only
+
+w17 04.11.2011 21:49:00 +0400 build - 2259
+
+1. Again, a fix for 2252 - msys mingw fix
+
 w17 04.11.2011 20:09:02 +0400 build - 2258
 
 1. A fix for 2257.2 (__GNUC_MINOR__)
