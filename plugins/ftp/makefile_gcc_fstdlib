@@ -1,6 +1,8 @@
 ANSI = 1
 USERCPP = -I ./FStdLib -D__NOMEM__=1 -D__USEASSERT__=1 -Wno-unknown-pragmas -Wno-switch -Wno-missing-braces -Wno-parentheses
 
+include ../../unicode_far/makefile_gcc_common
+
 include ../makefile_gcc_def_inc
 
 DLLNAME = libFARStd.a
@@ -20,11 +22,17 @@ DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
 
 all: $(DLLFULLNAME)
 
-$(OBJDIR)/%.d: ./FStdLib/FARStdlib/%.cpp
+ifndef DISABLEAUTODEPS
+ifeq ($(findstring clean,$(MAKECMDGOALS)),)
+$(OBJDIR)%.d: ./FStdLib/FARStdlib/%.cpp
 	@echo making depends for $<
-	@$(MKDIR) -p $(@D)
-	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
-                | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
+	@$(MKDIR) $(@D)
+	@echo {gsub(/^^$(notdir $(basename $@)).o[ \t]*:/,"$(OBJDIR)$(notdir $(basename $@)).o $(OBJDIR)$(notdir $@):"); print;}> _dep.awk
+	@$(CXX) -c -MM $(CXXFLAGS) $< | $(GAWK) -f _dep.awk > $(call os_name,$@)
+	@$(RM) _dep.awk
+endif
+endif
+
 
 $(OBJDIR)/%.o: ./FStdLib/FARStdlib/%.cpp
 	@echo compiling $<

@@ -1,6 +1,8 @@
 ANSI = 1
 USERCPP = -DWIN32 -DPCRE_STATIC -D_WIN32
 
+include ../../unicode_far/makefile_gcc_common
+
 include ../makefile_gcc_def_inc
 
 DLLNAME = libPCRE.a
@@ -12,11 +14,16 @@ DEPS = $(patsubst %.c,$(OBJDIR)/%.d,$(filter %.c,$(SRCS)))
 
 all: $(DLLFULLNAME)
 
+ifndef DISABLEAUTODEPS
+ifeq ($(findstring clean,$(MAKECMDGOALS)),)
 $(OBJDIR)/%.d: ./libpcre/%.c
 	@echo making depends for $<
-	@$(MKDIR) -p $(@D)
-	@$(SHELL) -ec '$(CC) -c -MM $(CPPFLAGS) $< \
-                | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
+	@$(MKDIR) $(@D)
+	@echo {gsub(/^^$(notdir $(basename $@)).o[ \t]*:/,"$(OBJDIR)$(notdir $(basename $@)).o $(OBJDIR)$(notdir $@):"); print;}> _dep.awk
+	@$(CXX) -c -MM $(CXXFLAGS) $< | $(GAWK) -f _dep.awk > $(call os_name,$@)
+	@$(RM) _dep.awk
+endif
+endif
 
 $(OBJDIR)/%.o: ./libpcre/%.c
 	@echo compiling $<

@@ -13,6 +13,8 @@ arcreg.cpp \
 global.cpp
 DOCS = arceng.hlf arcrus.hlf arceng.lng arcrus.lng
 
+include ../../unicode_far/makefile_gcc_common
+
 include ../makefile_gcc_def_inc
 
 include ../makefile_gcc_target_inc

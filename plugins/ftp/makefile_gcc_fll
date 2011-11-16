@@ -2,6 +2,8 @@ ifndef FLL
 $(error An invalid FLL-target)
 endif
 
+include ../../unicode_far/makefile_gcc_common
+
 ANSI = 1
 NAME = ftp$(FLL)
 EXT = fll

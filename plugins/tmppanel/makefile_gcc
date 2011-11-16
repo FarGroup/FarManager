@@ -5,6 +5,8 @@ TmpClass.cpp \
 TmpMix.cpp
 DOCS = TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng shortcuts.eng.reg shortcuts.rus.reg disks.eng.temp disks.rus.temp shortcuts.eng.temp shortcuts.rus.temp
 
+include ../../unicode_far/makefile_gcc_common
+
 include ../makefile_gcc_def_inc
 
 include ../makefile_gcc_target_inc

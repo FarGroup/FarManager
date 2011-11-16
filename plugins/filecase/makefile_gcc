@@ -2,6 +2,8 @@ NAME = FileCase
 SRCS = FileCase.cpp
 DOCS = CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng
 
+include ../../unicode_far/makefile_gcc_common
+
 include ../makefile_gcc_def_inc
 
 include ../makefile_gcc_target_inc

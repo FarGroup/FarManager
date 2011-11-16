@@ -1,11 +1,14 @@
 all: $(DLLFULLNAME)
 
 ifndef DISABLEAUTODEPS
-$(OBJDIR)/%.d: %.cpp
+ifeq ($(findstring clean,$(MAKECMDGOALS)),)
+$(OBJDIR)%.d: %.cpp
 	@echo making depends for $<
-	@$(MKDIR) -p $(@D)
-	@$(SHELL) -ec '$(CXX) -c -MM $(CXXFLAGS) $< \
-                | sed '\''s/\($*\)\.o[ :]*/$(REOBJDIR)\1.o $(REOBJDIR)\1.d: /g'\'' > $@; [ -s $@ ] || $(RM) $@'
+	@$(MKDIR) $(@D)
+	@echo {gsub(/^^$(notdir $(basename $@)).o[ \t]*:/,"$(OBJDIR)$(notdir $(basename $@)).o $(OBJDIR)$(notdir $@):"); print;}> _dep.awk
+	@$(CXX) -c -MM $(CXXFLAGS) $< | $(GAWK) -f _dep.awk > $(call os_name,$@)
+	@$(RM) _dep.awk
+endif
 endif
 
 $(OBJDIR)/%.o: %.cpp

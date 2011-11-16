@@ -2,6 +2,8 @@ NAME = DrawLine
 SRCS = DrawLine.cpp
 DOCS = DrawEng.hlf DrawRus.hlf DrawEng.lng DrawRus.lng
 
+include ../../unicode_far/makefile_gcc_common
+
 include ../makefile_gcc_def_inc
 
 include ../makefile_gcc_target_inc

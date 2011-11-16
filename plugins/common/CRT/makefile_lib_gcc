@@ -1,6 +1,8 @@
-OBJDIR = ./obj.32.gcc
+include ../../../unicode_far/makefile_gcc_common
+
+OBJDIR = ./obj.$(DIRBIT).gcc
 OBJDIRW = $(OBJDIR)/w
-REOBJDIR = \.\/obj\.32\.gcc\/
+REOBJDIR = \.\/obj\.$(DIRBIT)\.gcc\/
 DLLDIR = ..
 DLLNAME = libCRT.a
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
@@ -48,16 +50,7 @@ strstr.cpp \
 strtok.cpp \
 strtol.cpp
 
-CXX = g++
-DLLTOOL = dlltool
-RM = rm -f
-CP = cp -f
-M4 = m4 -P
-MV = mv -f
-MKDIR = mkdir -p
-AR = ar
-RANLIB = ranlib
-CXXFLAGS = -mno-cygwin -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
+CXXFLAGS = -m$(DIRBIT) -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
 OBJSW = $(patsubst %.cpp,$(OBJDIRW)/%_w.o,$(filter %.cpp,$(SRCSW)))

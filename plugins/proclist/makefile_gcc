@@ -13,6 +13,8 @@ DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng
 USERCPP = -I ./WMI
 USERLIBS = -lversion -lmpr -lole32 -loleaut32
 
+include ../../unicode_far/makefile_gcc_common
+
 include ../makefile_gcc_def_inc
 
 include ../makefile_gcc_target_inc

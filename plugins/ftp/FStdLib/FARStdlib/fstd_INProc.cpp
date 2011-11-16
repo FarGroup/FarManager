@@ -66,7 +66,7 @@ FARINProc::~FARINProc()
 	FP_FILELog("%*c}<%s>", Counter*2,' ',Name);
 }
 
-void WINAPI FARINProc::Say(LPCSTR s,...)
+void _cdecl FARINProc::Say(LPCSTR s,...)
 {
 	va_list ap;
 	va_start(ap,s);
