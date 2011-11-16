@@ -68,3 +68,9 @@ ifeq ($(DIRBIT),32)
  WINDRES += -F pe-i386
 endif
 LNKFLAGS += -ladvapi32 -lmpr -lwinspool -lole32 -lsecur32 -lsetupapi -lpsapi -lrpcrt4
+
+ifeq ($(findstring ----,---$(strip $(MAKEFLAGS))-),)
+ MK_FLAGS := -$(strip $(MAKEFLAGS))
+else
+ MK_FLAGS := $(strip $(MAKEFLAGS))
+endif

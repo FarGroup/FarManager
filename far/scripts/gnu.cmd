@@ -55,7 +55,7 @@ goto :EOF
 goto :EOF
 
 :do_rm
-  if "" == "%last%" goto :param_errors
+  rem if "" == "%last%" goto :param_errors
   for %%a in (%list% %last%) do call :show_op delete %%a& call :rm_one %%a
 goto :EOF
 :rm_one

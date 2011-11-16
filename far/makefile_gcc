@@ -156,7 +156,7 @@ TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
 
 .PHONY: all dirs
 all: dirs lng depfile
-	@$(MAKE) -f $(THIS_MAKE) $(MAKEFLAGS) build
+	@$(MAKE) -f $(THIS_MAKE) $(MK_FLAGS) build
 
 .PHONY: lng
 lng: $(BOOTSTRAPDIR)farlang.templ
