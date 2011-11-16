@@ -2,12 +2,10 @@ all: $(DLLFULLNAME)
 
 ifndef DISABLEAUTODEPS
 ifeq ($(findstring clean,$(MAKECMDGOALS)),)
-$(OBJDIR)%.d: %.cpp
+$(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
 	@$(MKDIR) $(@D)
-	@echo {gsub(/^^$(notdir $(basename $@)).o[ \t]*:/,"$(OBJDIR)$(notdir $(basename $@)).o $(OBJDIR)$(notdir $@):"); print;}> _dep.awk
-	@$(CXX) -c -MM $(CXXFLAGS) $< | $(GAWK) -f _dep.awk > $(call os_name,$@)
-	@$(RM) _dep.awk
+	@$(CXX) -c -MM $(CXXFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
 endif
 endif
 
@@ -26,13 +24,16 @@ $(DLLFULLNAME): $(OBJS) $(DEF)
 	@$(MKDIR) -p $(@D)
 	@$(CXX) -mdll -o $(DLLNAME) -Xlinker --base-file -Xlinker $(DLLNAME).base $(OBJS) $(LNKFLAGS)
 	@$(DLLTOOL) --dllname $(DLLNAME) --base-file $(DLLNAME).base --output-exp $(DLLNAME).exp --def $(DEF)
-	@$(CXX) -mdll  -o $(DLLNAME) $(OBJS) $(DLLNAME).exp $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
+	@$(CXX) -mdll -o $(DLLNAME) $(OBJS) $(DLLNAME).exp $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
 	@$(MV) $(DLLNAME) $(DLLDIR)
 	@$(RM) $(DLLNAME).base
 	@$(RM) $(DLLNAME).exp
 ifdef DOCS
 	@$(CP) $(DOCS) $(DLLDIR)
 endif
+
+clean:
+	@$(RM) -r $(BASEDIR)/obj $(BASEDIR)/lib $(BASEDIR)/Formats $(BASEDIR)/*
 
 ifndef DISABLEAUTODEPS
 -include $(DEPS)

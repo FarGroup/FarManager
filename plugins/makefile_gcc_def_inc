@@ -32,6 +32,8 @@
 #ANSI - set for ansi build
 #
 
+DEP_FILTER := $(dir $(lastword $(MAKEFILE_LIST)))dep_filter.awk
+
 ifndef ANSI
 DIRSURF = W
 RCWIDE = -D UNICODE -D _UNICODE
@@ -39,9 +41,10 @@ CXXWIDE = -D UNICODE -D _UNICODE
 CCWIDE = -D UNICODE -D _UNICODE
 endif
 
-OBJDIR = ./final.$(DIRBIT)$(DIRSURF).gcc/obj
+BASEDIR = ./final.$(DIRBIT)$(DIRSURF).gcc
+OBJDIR = $(BASEDIR)/obj
 REOBJDIR = \.\/final\.$(DIRBIT)$(DIRSURF)\.gcc\/obj\/
-DLLDIR = ./final.$(DIRBIT)$(DIRSURF).gcc$(ADDOUTDIR)
+DLLDIR = $(BASEDIR)$(ADDOUTDIR)
 ifndef COMMON
 COMMON = ../common
 endif

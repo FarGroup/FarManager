@@ -24,15 +24,12 @@ all: $(DLLFULLNAME)
 
 ifndef DISABLEAUTODEPS
 ifeq ($(findstring clean,$(MAKECMDGOALS)),)
-$(OBJDIR)%.d: ./FStdLib/FARStdlib/%.cpp
+$(OBJDIR)/%.d: ./FStdLib/FARStdlib/%.cpp
 	@echo making depends for $<
 	@$(MKDIR) $(@D)
-	@echo {gsub(/^^$(notdir $(basename $@)).o[ \t]*:/,"$(OBJDIR)$(notdir $(basename $@)).o $(OBJDIR)$(notdir $@):"); print;}> _dep.awk
-	@$(CXX) -c -MM $(CXXFLAGS) $< | $(GAWK) -f _dep.awk > $(call os_name,$@)
-	@$(RM) _dep.awk
+	@$(CXX) -c -MM $(CXXFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
 endif
 endif
-
 
 $(OBJDIR)/%.o: ./FStdLib/FARStdlib/%.cpp
 	@echo compiling $<

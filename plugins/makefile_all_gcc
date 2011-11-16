@@ -1,15 +1,23 @@
 ALLDIRS = align autowrap brackets compare drawline editcase farcmds \
           filecase hlfviewer network proclist tmppanel ftp multiarc macroview
 
-all: libcrt $(ALLDIRS)
+.PHONY: all clean libcrt $(ALLDIRS)
+
+all clean: libcrt $(ALLDIRS)
 
 FICTIVE=_fictive_
 $(FICTIVE):
 
+ifeq ($(findstring ----,---$(strip $(MAKEFLAGS))-),)
+ MK_FLAGS := -$(strip $(MAKEFLAGS))
+else
+ MK_FLAGS := $(strip $(MAKEFLAGS))
+endif
+
 libcrt: $(FICTIVE)
-	@echo ===========CRT library
-	@$(MAKE) -C common/CRT -f makefile_lib_gcc
+	@echo ===========CRT library $(MAKECMDGOALS)
+	@$(MAKE) -C common/CRT -f makefile_lib_gcc $(MK_FLAGS) $(MAKECMDGOALS)
 
 $(ALLDIRS): $(FICTIVE)
-	@echo ===========$@
-	@$(MAKE) -C $@ -f makefile_gcc
+	@echo ===========$@ $(MAKECMDGOALS)
+	@$(MAKE) -C $@ -f makefile_gcc $(MK_FLAGS) $(MAKECMDGOALS)

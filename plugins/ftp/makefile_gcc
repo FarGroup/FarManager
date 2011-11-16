@@ -14,10 +14,14 @@ NEEDENTRY=1
 EXCLUDECRT=1
 
 USERCPP = -I ./FStdLib -D__NOMEM__=1 -D__USEASSERT__=1 -Wno-unknown-pragmas -Wno-switch -Wno-missing-braces -Wno-parentheses
-USERLIBSFIRST = -L $(OBJDIR) -lFARStd
-USERLIBS = -lwsock32 -lwinmm
 
 include ../../unicode_far/makefile_gcc_common
+
+ifneq ($(findstring --with-dwarf2,$(shell $(CC) -v 2>&1)),)
+ USERLIBSFIRST = -static-libgcc -static-libstdc++
+endif
+USERLIBSFIRST += -L $(OBJDIR) -lFARStd
+USERLIBS = -lwsock32 -lwinmm
 
 include ../makefile_gcc_def_inc
 
@@ -27,7 +31,7 @@ include ../makefile_gcc_target_inc
 
 .PHONY: fstdlib
 fstdlib:
-	$(MAKE) -f makefile_gcc_fstdlib
+	$(MAKE) -f makefile_gcc_fstdlib $(MK_FLAGS)
 
 all: fll
 
@@ -35,6 +39,6 @@ $(RES): version.hpp
 
 .PHONY: fll
 fll:
-	$(MAKE) -f makefile_gcc_fll FLL=DirList
-	$(MAKE) -f makefile_gcc_fll FLL=Progress
-	$(MAKE) -f makefile_gcc_fll FLL=Notify
+	$(MAKE) -f makefile_gcc_fll FLL=DirList $(MK_FLAGS)
+	$(MAKE) -f makefile_gcc_fll FLL=Progress $(MK_FLAGS)
+	$(MAKE) -f makefile_gcc_fll FLL=Notify $(MK_FLAGS)

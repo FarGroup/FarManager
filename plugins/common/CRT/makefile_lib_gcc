@@ -76,3 +76,6 @@ $(DLLFULLNAME): $(OBJS) $(OBJSW)
 	@$(MV) $(DLLNAME) $(DLLDIR)
 
 $(OBJS) $(OBJSW): crt.hpp
+
+clean:
+	@$(RM) -r $(OBJDIRW) $(OBJDIR)/*
