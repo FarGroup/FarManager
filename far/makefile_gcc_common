@@ -1,0 +1,70 @@
+TOP_MAKEFILE := $(firstword $(MAKEFILE_LIST))
+COMMON_MAKEFILE := $(lastword $(MAKEFILE_LIST))
+FARDIR := $(dir $(COMMON_MAKEFILE))
+
+#The following variables can be set by the user:
+#
+#DEBUG - set if a debug build is needed
+#
+DIRBIT ?= 32
+
+ifndef DEBUG
+ DIRNAME=Release
+ DEBUGFLAGS=-O3 -DNDEBUG
+ DEBUGLINKFLAGS=-Xlinker -s -Xlinker -x -Xlinker --gc-sections
+else
+ DIRNAME=Debug
+ DEBUGFLAGS=-g -D_DEBUG
+ DEBUGLINKFLAGS=
+endif
+
+TOOLSDIR = $(FARDIR)tools/
+FARINCLUDE = $(FARDIR)Include/
+
+ifneq ($(shell echo %comspec%),%comspec%)
+ os_name = $(subst /,\,$(1))
+ UTILS_PREFIX = $(call os_name,$(FARDIR)scripts/gnu.cmd )
+ TOOLS_PREFIX = $(TOOLSDIR)
+ HOST_TYPE = Windows
+else
+ os_name = $(1)
+ HOST_TYPE = $(shell uname -o)
+ ifneq (Msys,$(HOST_TYPE))
+  ifneq (Cygwin,$(HOST_TYPE))
+   HOST_TYPE = Unix
+   WINE_CMD = wine #space required
+  endif
+ else
+  TOOLS_PREFIX = $(TOOLSDIR)
+  HOST_TYPE = Windows
+ endif
+endif
+
+MKDIR = $(UTILS_PREFIX)mkdir -pv
+RM = $(UTILS_PREFIX)rm -fv
+CP = $(UTILS_PREFIX)cp -fv
+MV = $(UTILS_PREFIX)mv -fv
+
+CXX = $(GCC_PREFIX)g++$(DW2)
+CC = $(GCC_PREFIX)gcc$(DW2)
+WINDRES = $(GCC_PREFIX)windres
+DLLTOOL = $(GCC_PREFIX)dlltool
+RANLIB = $(GCC_PREFIX)ranlib
+AR = $(GCC_PREFIX)ar
+
+M4 = $(strip $(call os_name, $(TOOLS_PREFIX)m4)) -P -DFARBIT=$(DIRBIT) -DHOSTTYPE=$(HOST_TYPE)
+GAWK = $(strip $(call os_name, $(TOOLS_PREFIX)gawk))
+LGEN = $(WINE_CMD)$(strip $(call os_name, $(TOOLSDIR)lng.generator.exe))
+
+DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
+CFLAGS = -m$(DIRBIT) $(DEBUGFLAGS) -fdiagnostics-show-option -pipe -funsigned-char $(DEFINES)
+CFLAGS += -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
+CCFLAGS = $(CFLAGS) -fno-rtti -std=gnu++0x -fpermissive
+
+LNKFLAGS = -m$(DIRBIT) -static-libgcc -static $(DEBUGLINKFLAGS)
+LNKFLAGS += -Xlinker -Map -Xlinker $(MAP) -Xlinker --dynamicbase -Xlinker --nxcompat
+ifeq ($(DIRBIT),32)
+ LNKFLAGS += -Xlinker --large-address-aware
+ WINDRES += -F pe-i386
+endif
+LNKFLAGS += -ladvapi32 -lmpr -lwinspool -lole32 -lsecur32 -lsetupapi -lpsapi -lrpcrt4
