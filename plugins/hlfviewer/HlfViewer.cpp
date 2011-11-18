@@ -1,5 +1,5 @@
-#include <plugin.hpp>
 #include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
 #include "Lang.hpp"
@@ -54,7 +54,7 @@ static struct EditorGetString egs;
 static struct EditorSetPosition esp;
 
 
-static INPUT_RECORD _DefKey={KEY_EVENT,{TRUE,1,VK_F1,0x3B,0,0}};
+static INPUT_RECORD _DefKey={KEY_EVENT,{{TRUE,1,VK_F1,0x3B,{0},0}}};
 
 BOOL CheckExtension(const wchar_t *ptrName)
 {

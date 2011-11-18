@@ -10,10 +10,10 @@
 //#define USE_TAR_H
 
 
+#include <CRT/crt.hpp>
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include <CRT/crt.hpp>
 #include <plugin.hpp>
 #include "fmt.hpp"
 
@@ -399,7 +399,7 @@ int GetArcItemTAR(struct PluginPanelItem *Item,struct ArcItemInfo *Info)
           Item->FindData.dwReserved0=IO_REPARSE_TAG_SYMLINK;
         }
 
-        if((Item->UserData=(DWORD_PTR)MA_malloc(lstrlen(TAR_hdr.header.linkname)+2)) != NULL)
+        if((Item->UserData=(DWORD_PTR)MA_malloc(lstrlen(TAR_hdr.header.linkname)+2)) != 0)
         {
           EndPos = AdjustTARFileName (TAR_hdr.header.linkname);
           if(TAR_hdr.header.typeflag == LNKTYPE)
@@ -844,7 +844,7 @@ static unsigned __int64 __cdecl _strtoxq (const char *nptr,const char **endptr,i
     }
     else if ( (flags & FL_OVERFLOW) ||
               ( !(flags & FL_UNSIGNED) &&
-                ( ( (flags & FL_NEG) && (number > -_I64_MIN) ) ||
+                ( ( (flags & FL_NEG) && (number > 0-(unsigned __int64)_I64_MIN) ) ||
                   ( !(flags & FL_NEG) && (number > _I64_MAX) ) ) ) )
     {
         /* overflow or signed overflow occurred */

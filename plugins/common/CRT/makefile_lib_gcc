@@ -55,7 +55,7 @@ CXXFLAGS = -m$(DIRBIT) -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasin
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
 OBJSW = $(patsubst %.cpp,$(OBJDIRW)/%_w.o,$(filter %.cpp,$(SRCSW)))
 
-all: $(DLLFULLNAME)
+all libcrt: $(DLLFULLNAME)
 
 $(OBJDIR)/%.o: %.cpp
 	@echo compiling $<

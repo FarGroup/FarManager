@@ -1,3 +1,4 @@
+#include <CRT/crt.hpp>
 #include <stdio.h>
 #include <time.h>
 #include <initguid.h>

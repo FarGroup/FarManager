@@ -6,10 +6,10 @@
   Copyrigth (c) 2004 FAR group
 */
 
+#include <CRT/crt.hpp>
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include <CRT/crt.hpp>
 #include <plugin.hpp>
 #include "fmt.hpp"
 

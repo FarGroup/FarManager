@@ -1,7 +1,7 @@
 #define _FAR_NO_NAMELESS_UNIONS
 #define _FAR_USE_FARFINDDATA
+#include <CRT/crt.hpp>
 #include "plugin.hpp"
-#include "CRT/crt.hpp"
 
 #include "MacroLng.hpp"
 #include "MacroView.hpp"

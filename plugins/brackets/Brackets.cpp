@@ -1,5 +1,5 @@
-#include <plugin.hpp>
 #include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
 #include "Brackets.hpp"
@@ -536,9 +536,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		if(isSelect)
 		{
 			es.BlockType=BTYPE_STREAM;
-			es.BlockStartLine=min(esp.CurLine,espo.CurLine);
+			es.BlockStartLine=Min(esp.CurLine,espo.CurLine);
 			es.BlockStartPos=(Direction > 0?espo.CurPos:esp.CurPos);
-			es.BlockHeight=max(esp.CurLine,espo.CurLine)-min(esp.CurLine,espo.CurLine)+1;
+			es.BlockHeight=Max(esp.CurLine,espo.CurLine)-Min(esp.CurLine,espo.CurLine)+1;
 
 			if(Direction > 0)
 				es.BlockWidth=esp.CurPos-espo.CurPos+1;

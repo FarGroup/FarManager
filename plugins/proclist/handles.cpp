@@ -1,5 +1,6 @@
 // Based on Zoltan Csizmadia's TaskManagerEx source, zoltan_csizmadia@yahoo.com
 
+#include <CRT/crt.hpp>
 #include <stdio.h>
 #include "Proclist.hpp"
 #include "perfthread.hpp" // fot GetProcessData

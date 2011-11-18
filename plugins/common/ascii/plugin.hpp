@@ -58,26 +58,30 @@
 #endif
 
 #if defined(__BORLANDC__)
-#ifndef _WIN64
-#pragma option -a2
-#endif
+# ifndef _WIN64
+#  pragma option -a2
+# endif
 #elif defined(__GNUC__) || (defined(__WATCOMC__) && (__WATCOMC__ < 1100)) || defined(__LCC__)
-#ifndef _WIN64
-#pragma pack(2)
-#endif
-#if defined(__LCC__)
-#define _export __declspec(dllexport)
-#endif
+# ifndef _WIN64
+#  pragma pack(2)
+# endif
+# if defined(__LCC__)
+#  define _export __declspec(dllexport)
+# endif
 #else
-#ifndef _WIN64
-#pragma pack(push,2)
+# ifndef _WIN64
+#  pragma pack(push,2)
+# endif
+# if _MSC_VER
+#  ifdef _export
+#   undef _export
+#  endif
+#  define _export
+# endif
 #endif
-#if _MSC_VER
-#ifdef _export
-#undef _export
-#endif
-#define _export
-#endif
+
+#if defined(_WIN64) && defined(__GNUC__) && !defined(_export)
+# define _export
 #endif
 
 #define NM 260

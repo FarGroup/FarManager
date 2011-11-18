@@ -9,10 +9,10 @@
 
 #define STRICT
 
+#include <CRT/crt.hpp>
 #include <windows.h>
 #include <string.h>
 #include <dos.h>
-#include <CRT/crt.hpp>
 #include <plugin.hpp>
 #include "fmt.hpp"
 #include "marclng.hpp"

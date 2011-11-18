@@ -1,5 +1,5 @@
-#include <plugin.hpp>
 #include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
 #include "WrapLng.hpp"

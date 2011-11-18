@@ -77,10 +77,11 @@ ifdef EXCLUDECRT
 COMMONLIB = 
 endif
 
-CXXFLAGS = -m$(DIRBIT) -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-rtti -fno-exceptions $(CXXWIDE) $(USERCPP)
-CCFLAGS = -m$(DIRBIT) -I $(COMMON) -I $(COMINC) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions $(CCWIDE) $(USERCPP)
+C_FLAGS  = -m$(DIRBIT) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions
+CXXFLAGS = $(C_FLAGS) -std=gnu++0x -fno-rtti -I $(COMMON) -I $(COMINC) $(CXXWIDE) $(USERCPP)
+CCFLAGS  = $(C_FLAGS) -I $(COMMON) -I $(COMINC) $(CCWIDE) $(USERCPP)
 LNKFLAGS = -m$(DIRBIT) -mdll -s $(NOSTART) $(NODEFLIBS) -lgcc $(USERLIBSFIRST) $(COMMONLIB) -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
-RCFLAGS = -I $(COMINC) $(RCWIDE) $(USERRC)
+RCFLAGS  = -I $(COMINC) $(RCWIDE) $(USERRC)
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(RES)
 ifndef DISABLEAUTODEPS

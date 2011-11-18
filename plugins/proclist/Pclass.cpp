@@ -640,7 +640,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 						continue;
 
 					((wchar_t**)(CurItem.CustomColumnData))[nCustomCols] = pData;
-					int nBufSize = max(nColWidth+1, 16);  // to provide space for itoa
+					int nBufSize = Max(nColWidth+1, 16);  // to provide space for itoa
 					Array<wchar_t> buf(nBufSize);
 
 					if ( c >= L'A') // Not a performance counter

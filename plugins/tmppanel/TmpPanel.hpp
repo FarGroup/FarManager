@@ -8,8 +8,8 @@ Temporary panel header file
 #ifndef __TMPPANEL_HPP__
 #define __TMPPANEL_HPP__
 
+#include <CRT/crt.hpp>
 #include "plugin.hpp"
-#include "CRT/crt.hpp"
 #include <shellapi.h>
 
 #include "TmpLng.hpp"

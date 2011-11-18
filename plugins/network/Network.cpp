@@ -1,3 +1,4 @@
+#include <CRT/crt.hpp>
 #include <initguid.h>
 #include "Network.hpp"
 #include "version.hpp"

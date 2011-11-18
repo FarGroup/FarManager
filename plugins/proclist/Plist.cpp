@@ -406,7 +406,7 @@ void GetOpenProcessData(HANDLE hProcess, wchar_t* pProcessName, DWORD cbProcessN
 
 			if (ReadProcessMemory(hProcess, &pProcessParams->CommandLine, &pCmd, sizeof(pCmd), 0))
 			{
-				SIZE_T sz = min(cbCommandLine, (ULONG)pCmd.Length/sizeof(WCHAR) + 1);
+				SIZE_T sz = Min(cbCommandLine, (ULONG)pCmd.Length/sizeof(WCHAR) + 1);
 				Array<WCHAR> sCommandLine((DWORD)sz);
 				*pCommandLine = 0;
 

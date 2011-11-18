@@ -448,7 +448,7 @@ int NetBrowser::ProcessEvent(int Event, void* /*Param*/)
 		{
 			struct PanelInfo PInfo;
 			Info.PanelControl(this, FCTL_GETPANELINFO,0,&PInfo);
-			wchar_t Mode[2] = { PInfo.ViewMode + 0x30, 0 };
+			wchar_t Mode[2] = { static_cast<wchar_t>(PInfo.ViewMode + 0x30), 0 };
 			PluginSettings settings(MainGuid, Info.SettingsControl);
 			settings.Set(0,StrPanelMode,Mode);
 		}

@@ -1,44 +1,56 @@
 #ifndef __CRT_HPP__
 #define __CRT_HPP__
 
-#if (defined(_MSC_VER) && _MSC_VER > 1000)
-#pragma once
-#if _MSC_VER >= 1400
-#undef _USE_DECLSPECS_FOR_SAL
-#define _USE_DECLSPECS_FOR_SAL 1
+#define MSC_VER2(major,minor) (100*(major) + 10*(minor) + 600)
+#define PREREQ_MSC(major,minor) (defined(_MSC_VER) && _MSC_VER >= MSC_VER2(major,minor))
+
+#define GCC_VER2(major,minor) (100*(major) + 10*(minor))
+#define _GCC_VER GCC_VER2(__GNUC__, __GNUC_MINOR__)
+#define PREREQ_GCC(major,minor) (defined(__GNUC__) && _GCC_VER >= GCC_VER2(major,minor))
+
+#if PREREQ_GCC(4,5)
+# define _CRTIMP
+# define __CRT__NO_INLINE
 #endif
+
+#if PREREQ_MSC(5,0)
+# pragma once
+# if PREREQ_MSC(8,0)
+#  undef _USE_DECLSPECS_FOR_SAL
+#  define _USE_DECLSPECS_FOR_SAL 1
+# endif
 #endif
 
 #include <stdlib.h>
 #include <stddef.h>
-#if defined(_MSC_VER) && _MSC_VER < 1400
-#define _WCTYPE_INLINE_DEFINED
+#if defined(_MSC_VER) && !PREREQ_MSC(8,0)
+# define _WCTYPE_INLINE_DEFINED
 #elif defined(__GNUC__)
-#define __WCTYPE_INLINES_DEFINED
+# define __WCTYPE_INLINES_DEFINED
 #endif
 #include <wchar.h>
 #include <tchar.h>
 
 #ifndef _CONST_RETURN
-#define _CONST_RETURN
-#define _CONST_RETURN_W
-#define __cdecl_inline  __cdecl
-#if defined(_MSC_VER) && _MSC_VER >= 1300
-#if defined(__cplusplus) || _MSC_VER < 1400
-#undef __cdecl_inline
-#define __cdecl_inline
-#undef _CONST_RETURN_W
-#define _CONST_RETURN_W const
-#endif
-#if defined(__cplusplus) && _MSC_VER >= 1400
-#undef _CONST_RETURN
-#define _CONST_RETURN const
-#define _CRT_CONST_CORRECT_OVERLOADS
-#endif
-#endif
+# define _CONST_RETURN
+# define _CONST_RETURN_W
+# define __cdecl_inline  __cdecl
+# if PREREQ_MSC(7,0)
+#  if defined(__cplusplus) || _MSC_VER < MSC_VER2(8,0)
+#   undef __cdecl_inline
+#   define __cdecl_inline
+#   undef _CONST_RETURN_W
+#   define _CONST_RETURN_W const
+#  endif
+#  if defined(__cplusplus) && _MSC_VER >= MSC_VER2(8,0)
+#   undef _CONST_RETURN
+#   define _CONST_RETURN const
+#   define _CRT_CONST_CORRECT_OVERLOADS
+#  endif
+# endif
 #elif !defined(_CONST_RETURN_W)
-#define _CONST_RETURN_W _CONST_RETURN
-#define __cdecl_inline  __cdecl
+# define _CONST_RETURN_W _CONST_RETURN
+# define __cdecl_inline  __cdecl
 #endif
 
 #ifndef __BORLANDC__
@@ -54,6 +66,12 @@
   void __cdecl operator delete[] (void *ptr);
   void * __cdecl operator new(size_t size);
   void * __cdecl operator new[] (size_t size);
+
+  template <class T>
+  inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
+
+  template <class T>
+  inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 #endif
 
 #ifdef __cplusplus
@@ -154,7 +172,7 @@ extern "C"
   unsigned long __cdecl strtoul(const char *nptr, char **endptr, int ibase);
   unsigned long __cdecl wcstoul(const wchar_t *nptr, wchar_t **endptr, int ibase);
   void __cdecl swab
-#ifdef __GNUC__
+#if defined(__GNUC__) & !defined(_CRT_SWAB_DEFINED)
                    (const char* b1,char* b2,size_t length);
 #else
                    (char* b1,char* b2,int length);
@@ -163,7 +181,7 @@ extern "C"
 };
 #endif
 
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(ARRAYSIZE)
 #define ARRAYSIZE(a)  (sizeof(a)/sizeof(a[0]))
 #endif
 
@@ -177,8 +195,8 @@ extern "C"
 #define _ui64(n)  n ## ui64
 #endif
 
-#if (defined(__GNUC__)) || (defined(_MSC_VER) && _MSC_VER<1600)
-#define nullptr NULL
+#if !PREREQ_GCC(4,6) && !PREREQ_MSC(10,0)
+# define nullptr NULL
 #endif
 
 #endif

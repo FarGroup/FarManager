@@ -176,7 +176,6 @@ int TmpPanel::PutDirectoryContents(const wchar_t* Path)
 
 		TmpPanelItem=NewPanelItem;
 		memset(&TmpPanelItem[TmpItemsNumber],0,sizeof(*TmpPanelItem)*DirItemsNumber);
-		size_t PathLen = lstrlen(Path);
 
 		for (size_t i=0; i<DirItemsNumber; i++)
 		{

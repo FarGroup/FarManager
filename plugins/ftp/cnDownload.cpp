@@ -201,7 +201,7 @@ void Connection::recvrequestINT(char *cmd, char *local, char *remote, const char
 
 			if(!wsz || (wsz > b_ost && (wsz /= 2) > b_ost)) wsz = 512;
 
-			ind = min(1024*1024, max(4*wsz, 256*1024));  // 256K - 1M
+			ind = Min(1024*1024, Max(4*wsz, 256*1024));  // 256K - 1M
 			setsockopt(din, SOL_SOCKET, SO_RCVBUF, (char*)&ind, sizeof(ind));
 			b_done = ind = 0;
 			totalValue = 0;

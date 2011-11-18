@@ -1,7 +1,7 @@
 #include "crt.hpp"
 
 void __cdecl swab
-#ifdef __GNUC__
+#if defined(__GNUC__) & !defined(_CRT_SWAB_DEFINED)
                  (const char* b1,char* b2,size_t length)
 #else
                  (char* b1,char* b2,int length)

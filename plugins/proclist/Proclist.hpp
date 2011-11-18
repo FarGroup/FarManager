@@ -1,6 +1,6 @@
+#include <CRT/crt.hpp>
 #include <stdio.h>
 #include <plugin.hpp>
-#include <CRT/crt.hpp>
 
 #define WCONST const
 #define WTYPE wchar_t**

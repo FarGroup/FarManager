@@ -96,12 +96,12 @@ typedef wchar_t   uchar_t;
       p = nptr;
     number = 0L;
   }
-  else if ( (flags & FL_OVERFLOW) || ( !(flags & FL_UNSIGNED) && ( ( (flags & FL_NEG) && (number > -LONG_MIN) ) || ( !(flags & FL_NEG) && (number > LONG_MAX) ) ) ) )
+  else if ( (flags & FL_OVERFLOW) || ( !(flags & FL_UNSIGNED) && ( ( (flags & FL_NEG) && (number > 0-(unsigned long)LONG_MIN) ) || ( !(flags & FL_NEG) && (number > LONG_MAX) ) ) ) )
   {
     if ( flags & FL_UNSIGNED )
       number = ULONG_MAX;
     else if ( flags & FL_NEG )
-      number = (unsigned long)(-LONG_MIN);
+      number = 0-(unsigned long)(LONG_MIN);
     else
       number = LONG_MAX;
   }

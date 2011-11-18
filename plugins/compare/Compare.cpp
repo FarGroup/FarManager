@@ -1,5 +1,5 @@
-#include <plugin.hpp>
 #include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include <SimpleString.hpp>
 #include "CompareLng.hpp"
@@ -716,8 +716,8 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 					if (AData->LastWriteTime.dwHighDateTime == PData->LastWriteTime.dwHighDateTime)
 					{
 						TimeDelta.hilo.hi = 0;
-						TimeDelta.hilo.lo = max(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime)-
-						                    min(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime);
+						TimeDelta.hilo.lo = Max(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime)-
+						                    Min(PData->LastWriteTime.dwLowDateTime,AData->LastWriteTime.dwLowDateTime);
 					}
 					else
 					{
@@ -750,7 +750,7 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 					if (counter<=26*4 && TimeDelta.hilo.hi == Difference.hilo.hi)
 					{
 						TimeDelta.hilo.hi = 0;
-						TimeDelta.hilo.lo = max(TimeDelta.hilo.lo,Difference.hilo.lo) - min(TimeDelta.hilo.lo,Difference.hilo.lo);
+						TimeDelta.hilo.lo = Max(TimeDelta.hilo.lo,Difference.hilo.lo) - Min(TimeDelta.hilo.lo,Difference.hilo.lo);
 					}
 				}
 

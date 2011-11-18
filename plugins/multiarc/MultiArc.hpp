@@ -242,7 +242,10 @@ struct MAAdvFlags
   unsigned                      :25;
 
   operator int(){return *((int *)this);}
-  MAAdvFlags &operator=(int Flags){return *this=*((MAAdvFlags *)&Flags);}
+  MAAdvFlags &operator=(int Flags){
+	  *((int *)this) = Flags;
+	  return *this;
+  }
 };
 
 struct Options

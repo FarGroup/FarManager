@@ -2,8 +2,8 @@
 // or current (nearest) word in the internal editor.
 // This plugin can change case to: lower case, Title Case, UPPER CASE and tOGGLE cASE
 // Besides, it has ability of cyclic case change like MS Word by ShiftF3
-#include <plugin.hpp>
 #include <CRT/crt.hpp>
+#include <plugin.hpp>
 #include <PluginSettings.hpp>
 #include "EditLng.hpp"
 #include "version.hpp"
@@ -292,10 +292,10 @@ bool FindBounds(wchar_t *Str, int Len, int Pos, int &Start, int &End)
 	// If line isn't empty
 	if (Len>Start)
 	{
-		End=min(End,Len);
+		End=Min(End,Len);
 		// Pos between [Start, End] ?
-		Pos=max(Pos,Start);
-		Pos=min(End,Pos);
+		Pos=Max(Pos,Start);
+		Pos=Min(End,Pos);
 
 		// If current character is non letter
 		if (!MyIsAlpha(Str[Pos]))
@@ -324,7 +324,7 @@ bool FindBounds(wchar_t *Str, int Len, int Pos, int &Start, int &End)
 			// Here r is left radius and i is right radius
 
 			// If no letters was found
-			if (min(r,i)!=MAXINT)
+			if (Min(r,i)!=MAXINT)
 			{
 				// What radius is less? Left?
 				if (r <= i)
@@ -438,10 +438,10 @@ int GetNextCCType(wchar_t *Str, int StrLen, int Start, int End)
 {
 	int SignalWordStart=Start,
 	                    SignalWordEnd=End;
-	int SignalWordLen=max(Start,End);
+	int SignalWordLen=Max(Start,End);
 	// Default conversion is to lower case
 	int CCType=CCLower;
-	Start=min(Start,End);
+	Start=Min(Start,End);
 	End=SignalWordLen;
 
 	if (StrLen<Start)
