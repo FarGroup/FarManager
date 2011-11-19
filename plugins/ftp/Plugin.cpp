@@ -251,7 +251,7 @@ BOOL InitPlugins(void)
 		          "You can not use FTP plugin.",
 		          StdPlugins[n].Description, StdPlugins[n].Name,
 		          m ? "is not valid FTP plugin" : "can not be found");
-		FP_Info->Message(0, FMSG_WARNING | FMSG_DOWN | FMSG_LEFTALIGN | FMSG_MB_OK | FMSG_ALLINONE,
+		FP_Info->Message(FP_Info->ModuleNumber, FMSG_WARNING | FMSG_DOWN | FMSG_LEFTALIGN | FMSG_MB_OK | FMSG_ALLINONE,
 		                 NULL, (LPCSTR  const *)str, 0, 0);
 		FreePlugins();
 		return FALSE;
