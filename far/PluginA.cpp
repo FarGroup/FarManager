@@ -1328,18 +1328,28 @@ int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
 		NewFlags|=FMSG_LEFTALIGN;
 	if (Flags&oldfar::FMSG_ALLINONE)
 		NewFlags|=FMSG_ALLINONE;
-	if (Flags&oldfar::FMSG_MB_OK)
+
+	switch(Flags&0x000f0000)
+	{
+	case oldfar::FMSG_MB_OK:
 		NewFlags|=FMSG_MB_OK;
-	if (Flags&oldfar::FMSG_MB_OKCANCEL)
+		break;
+	case oldfar::FMSG_MB_OKCANCEL:
 		NewFlags|=FMSG_MB_OKCANCEL;
-	if (Flags&oldfar::FMSG_MB_ABORTRETRYIGNORE)
+		break;
+	case oldfar::FMSG_MB_ABORTRETRYIGNORE:
 		NewFlags|=FMSG_MB_ABORTRETRYIGNORE;
-	if (Flags&oldfar::FMSG_MB_YESNO)
+		break;
+	case oldfar::FMSG_MB_YESNO:
 		NewFlags|=FMSG_MB_YESNO;
-	if (Flags&oldfar::FMSG_MB_YESNOCANCEL)
+		break;
+	case oldfar::FMSG_MB_YESNOCANCEL:
 		NewFlags|=FMSG_MB_YESNOCANCEL;
-	if (Flags&oldfar::FMSG_MB_RETRYCANCEL)
+		break;
+	case oldfar::FMSG_MB_RETRYCANCEL:
 		NewFlags|=FMSG_MB_RETRYCANCEL;
+		break;
+	}
 
 	int ret = NativeInfo.Message(GetPluginGuid(PluginNumber),&FarGuid,NewFlags,(HelpTopic?strHT.CPtr():nullptr),p,ItemsNumber,ButtonsNumber);
 
