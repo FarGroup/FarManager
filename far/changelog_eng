@@ -3,6 +3,18 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 19.11.2011 23:35:25 +0200 - build 2270
+
+1. Incorrect processing of FMSG_MB_* flags in the wrapper.
+
+w17 17.11.2011 02:55:35 +0400 build - 2269
+
+1. Continuation of 2268
+
+w17 16.11.2011 13:43:39 +0400 build - 2268
+
+1. Common code is taken out of makefile_gcc in order to use it for building plugins.
+
 drkns 13.11.2011 00:51:23 +0200 - build 2267
 
 1. Using SetUnhandledExceptionFilter.
