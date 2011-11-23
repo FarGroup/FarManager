@@ -3783,7 +3783,9 @@ BOOL Editor::Search(int Next)
 						Show();
 						SHORT CurX,CurY;
 						GetCursorPos(CurX,CurY);
-						ChangeBlockColor(CurX,CurY,CurPtr->RealPosToTab(CurPtr->TabPosToReal(CurX)+SearchLength)-1,CurY,ColorIndexToColor(COL_EDITORSELECTEDTEXT));
+						int lpos = CurPtr->LeftPos;
+						int endX = CurPtr->RealPosToTab(CurPtr->TabPosToReal(lpos + CurX) + SearchLength - 1) - lpos;
+						ChangeBlockColor(CurX,CurY, endX,CurY, ColorIndexToColor(COL_EDITORSELECTEDTEXT));
 						string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
 						InsertQuote(strQSearchStr);
 						InsertQuote(strQReplaceStr);
