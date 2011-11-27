@@ -20000,6 +20000,15 @@ upd:"to open this object:"
 upd:"to open this object:"
 "para abrir este objeto:"
 
+MElevationRequiredGetCompressedSize
+"для получения упакованного размера этого объекта:"
+"to get compressed size of this object:"
+upd:"to get compressed size of this object:"
+upd:"to get compressed size of this object:"
+upd:"to get compressed size of this object:"
+upd:"to get compressed size of this object:"
+upd:"to get compressed size of this object:"
+
 MElevationDoForAll
 "Выполнить это действие для &всех текущих объектов"
 "Do this for &all current objects"

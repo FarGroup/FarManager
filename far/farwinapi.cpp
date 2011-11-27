@@ -948,28 +948,38 @@ bool apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DW
 	bool Result=false;
 	NTPath strSymlinkFileName(lpSymlinkFileName);
 	Result=CreateSymbolicLinkInternal(strSymlinkFileName, lpTargetFileName, dwFlags);
-	if (!Result)
+	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
-		{
-			Result=Elevation.fCreateSymbolicLink(strSymlinkFileName, lpTargetFileName, dwFlags);
-		}
+		Result=Elevation.fCreateSymbolicLink(strSymlinkFileName, lpTargetFileName, dwFlags);
 	}
+	return Result;
+}
+
+bool apiGetCompressedFileSizeInternal(LPCWSTR FileName,UINT64& Size)
+{
+	bool Result=false;
+
+	DWORD High = 0, Low = GetCompressedFileSize(FileName, &High);
+
+	if ((Low != INVALID_FILE_SIZE) || (GetLastError() == NO_ERROR))
+	{
+		ULARGE_INTEGER i = {Low, High};
+		Size = i.QuadPart;
+		Result = true;
+	}
+
 	return Result;
 }
 
 bool apiGetCompressedFileSize(LPCWSTR lpFileName,UINT64& Size)
 {
 	bool Result=false;
-	DWORD High=0,Low=GetCompressedFileSize(NTPath(lpFileName),&High);
-
-	if ((Low!=INVALID_FILE_SIZE)||(GetLastError()!=NO_ERROR))
+	NTPath strFileName(lpFileName);
+	Result = apiGetCompressedFileSizeInternal(strFileName, Size);
+	if(!Result && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
-		ULARGE_INTEGER i={Low,High};
-		Size=i.QuadPart;
-		Result=true;
+		Result=Elevation.fGetCompressedFileSize(strFileName, Size);
 	}
-
 	return Result;
 }
 

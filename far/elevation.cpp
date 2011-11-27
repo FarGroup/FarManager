@@ -1034,6 +1034,45 @@ HANDLE elevation::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 	return Result;
 }
 
+bool elevation::fGetCompressedFileSize(LPCWSTR Object,UINT64& Size)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result=false;
+	if(ElevationApproveDlg(MElevationRequiredGetCompressedSize, Object))
+	{
+		if(Opt.IsUserAdmin)
+		{
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = apiGetCompressedFileSizeInternal(Object, Size);
+		}
+		else
+		{
+			if(Initialize())
+			{
+				if(SendCommand(C_FUNCTION_GETCOMPRESSEDFILESIZE))
+				{
+					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+					{
+						bool OpResult=false;
+						if(Read(OpResult))
+						{
+							if(OpResult)
+							{
+								Read(Size);
+							}
+							if(ReceiveLastError())
+							{
+								Result = OpResult;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+}
+
 bool ElevationRequired(ELEVATION_MODE Mode)
 {
 	bool Result = false;
@@ -1379,6 +1418,25 @@ void CreateFileHandler()
 	}
 }
 
+void GetCompressedFileSizeHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		UINT64 Size;
+		bool Result = apiGetCompressedFileSizeInternal(Object.GetStr(), Size);
+		int LastError = GetLastError();
+		if(WritePipe(Pipe, Result))
+		{
+			if(Result)
+			{
+				WritePipe(Pipe, Size);
+			}
+			WritePipe(Pipe, LastError);
+		}
+	}
+}
+
 bool Process(int Command)
 {
 	bool Exit=false;
@@ -1434,6 +1492,9 @@ bool Process(int Command)
 
 	case C_FUNCTION_CREATEFILE:
 		CreateFileHandler();
+		break;
+	case C_FUNCTION_GETCOMPRESSEDFILESIZE:
+		GetCompressedFileSizeHandler();
 		break;
 	}
 	return Exit;

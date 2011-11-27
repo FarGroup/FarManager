@@ -56,6 +56,7 @@ enum ELEVATION_COMMAND
 	C_FUNCTION_MOVETORECYCLEBIN,
 	C_FUNCTION_SETOWNER,
 	C_FUNCTION_CREATEFILE,
+	C_FUNCTION_GETCOMPRESSEDFILESIZE,
 };
 
 class AutoObject;
@@ -90,6 +91,7 @@ public:
 	int fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct);
 	bool fSetOwner(LPCWSTR Object, LPCWSTR Owner);
 	HANDLE fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
+	bool fGetCompressedFileSize(LPCWSTR Object,UINT64& Size);
 
 private:
 	HANDLE Pipe;

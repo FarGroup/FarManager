@@ -295,6 +295,7 @@ BOOL apiSetCurrentDirectory(
 
 // for elevation only, dont' use outside.
 bool CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags);
+bool apiGetCompressedFileSizeInternal(LPCWSTR FileName,UINT64& Size);
 
 bool apiCreateSymbolicLink(
     LPCWSTR lpSymlinkFileName,
