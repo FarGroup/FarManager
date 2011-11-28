@@ -968,7 +968,16 @@ bool CPlugin::GetAdditionalString(IContextMenu* pContextMenu, UINT nID, EAdditio
     return false;
   }
   WCHAR szwAddInfo[200]=L"\0";
-  if (FAILED(pContextMenu->GetCommandString(nID, nType, NULL, reinterpret_cast<LPSTR>(szwAddInfo), ARRAYSIZE(szwAddInfo))))
+  HRESULT hr;
+  __try
+  {
+    hr = pContextMenu->GetCommandString(nID, nType, NULL, reinterpret_cast<LPSTR>(szwAddInfo), ARRAYSIZE(szwAddInfo));
+  }
+  __except(EXCEPTION_EXECUTE_HANDLER)
+  {
+    hr = E_UNEXPECTED;
+  }
+  if (FAILED(hr))
   {
     return false;
   }
