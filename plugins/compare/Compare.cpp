@@ -471,9 +471,8 @@ static bool CheckForEsc(void)
 /****************************************************************************
  * Строит полное имя файла из пути и имени
  ****************************************************************************/
-static wchar_t *BuildFullFilename(const wchar_t *cpDir, const wchar_t *cpFileName)
+static wchar_t *BuildFullFilename(wchar_t cName[MAX_PATH], const wchar_t *cpDir, const wchar_t *cpFileName)
 {
-	static wchar_t cName[MAX_PATH];
 	FSF.AddEndSlash(lstrcpy(cName, cpDir));
 	return lstrcat(cName, cpFileName);
 }
@@ -651,6 +650,8 @@ bool isnewline(int c)
 static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PData,
                          const wchar_t *ACurDir, const wchar_t *PCurDir, int ScanDepth)
 {
+	wchar_t cpFileA[MAX_PATH], cpFileP[MAX_PATH];
+
 	if (AData->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 	{
 		// Здесь сравниваем два подкаталога
@@ -665,8 +666,8 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 			memset(&PInfo, 0, sizeof(PInfo));
 			bool bEqual;
 
-			if (!GetDirList(&AInfo, BuildFullFilename(ACurDir, AData->FileName))
-			        || !GetDirList(&PInfo, BuildFullFilename(PCurDir, PData->FileName)))
+			if (!GetDirList(&AInfo, BuildFullFilename(cpFileA, ACurDir, AData->FileName))
+			        || !GetDirList(&PInfo, BuildFullFilename(cpFileP, PCurDir, PData->FileName)))
 			{
 				bBrokenByEsc = true; // То ли юзер прервал, то ли ошибка чтения
 				bEqual = false; // Остановим сравнение
@@ -766,9 +767,8 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 		if (Opt.CompareContents)
 		{
 			HANDLE hFileA, hFileP;
-			wchar_t cpFileA[MAX_PATH], cpFileP[MAX_PATH];
-			ShowMessage(lstrcpy(cpFileA, BuildFullFilename(ACurDir, AData->FileName)),
-			            lstrcpy(cpFileP, BuildFullFilename(PCurDir, PData->FileName)));
+			ShowMessage(BuildFullFilename(cpFileA, ACurDir, AData->FileName),
+			            BuildFullFilename(cpFileP, PCurDir, PData->FileName));
 
 			if ((hFileA = CreateFile(cpFileA, GENERIC_READ, FILE_SHARE_READ , NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE)
 			{
@@ -951,8 +951,8 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
 	// Строим индексы файлов для быстрого сравнения
 	struct FileIndex sfiA, sfiP;
 	wchar_t DirA[MAX_PATH], DirP[MAX_PATH];
-	ShowMessage(lstrcpy(DirA, BuildFullFilename(AInfo->lpwszCurDir, L"*")),
-	            lstrcpy(DirP, BuildFullFilename(PInfo->lpwszCurDir, L"*")));
+	ShowMessage(BuildFullFilename(DirA, AInfo->lpwszCurDir, L"*"),
+	            BuildFullFilename(DirP, PInfo->lpwszCurDir, L"*"));
 
 	if (!BuildPanelIndex(AInfo, &sfiA, AFilter) || !BuildPanelIndex(PInfo, &sfiP, PFilter))
 	{
