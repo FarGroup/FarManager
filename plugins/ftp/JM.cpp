@@ -343,10 +343,11 @@ BOOL WINAPI IsCmdLogFile(void)
 	return Opt.CmdLogFile[0] != 0;
 }
 
+extern char *FP_PluginStartPath;
+
 LPCSTR WINAPI GetCmdLogFile(void)
 {
 	static char str[MAX_PATH] = {0};
-	HMODULE m;
 
 	if(Opt.CmdLogFile[0])
 	{
@@ -356,10 +357,9 @@ LPCSTR WINAPI GetCmdLogFile(void)
 			return str;
 		else
 		{
-			m = GetModuleHandle(FP_GetPluginName());
-			str[GetModuleFileName(m,str,ARRAYSIZE(str))] = 0;
-			strrchr(str,'\\')[1] = 0;
-			StrCat(str,Opt.CmdLogFile,ARRAYSIZE(str));
+			StrCpy(str, FP_PluginStartPath, ARRAYSIZE(str));
+			StrCat(str, "\\",               ARRAYSIZE(str));
+			StrCat(str,Opt.CmdLogFile,      ARRAYSIZE(str));
 			return str;
 		}
 	}

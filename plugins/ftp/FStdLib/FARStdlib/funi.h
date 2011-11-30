@@ -145,9 +145,6 @@ extern char                       *FP_PluginStartPath;
 
     Plugin must define this function.
 */
-#if !defined(__FP_NOT_FUNCTIONS__)
-extern LPCSTR WINAPI FP_GetPluginName(void);
-#endif
 
 /** @defgroup DefDialog Dialog description
     @{

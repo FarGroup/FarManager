@@ -25,8 +25,7 @@ static void _cdecl idAtExit(void)
 void WINAPI FP_SetStartupInfo(const PluginStartupInfo *Info,const char *KeyName)
 {
 //Info
-	FP_HModule = GetModuleHandle(FP_GetPluginName());
-	FP_Info    = new PluginStartupInfo;
+	FP_Info = new PluginStartupInfo;
 	memcpy(FP_Info,Info,sizeof(*Info));
 //FSF
 	FP_FSF = new FarStandardFunctions;
@@ -43,9 +42,8 @@ void WINAPI FP_SetStartupInfo(const PluginStartupInfo *Info,const char *KeyName)
 	StrCat(FP_PluginRootKey,KeyName,FAR_MAX_REG);
 //Start path
 	FP_PluginStartPath = new char[MAX_PATH];
-	FP_PluginStartPath[ GetModuleFileName(FP_HModule,FP_PluginStartPath,MAX_PATH)] = 0;
+	FP_PluginStartPath[GetModuleFileName(FP_HModule,FP_PluginStartPath,MAX_PATH)] = '\0';
 	char *m = strrchr(FP_PluginStartPath,'\\');
-
 	if(m) *m = 0;
 }
 
@@ -53,7 +51,7 @@ BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID ptr)
 {
 	if(reason == DLL_PROCESS_ATTACH)
 	{
-		FP_HModule = GetModuleHandle(FP_GetPluginName());
+		FP_HModule = (HMODULE)hinst;
 		AtExit(idAtExit);
 	}
 

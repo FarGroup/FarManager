@@ -151,92 +151,73 @@ struct FTPPluginsInfo
 {
 
 	/*PLUGIN_xxx*/
-	/*PLUGIN_PROGRESS*/ { FTP_PROGRESS_MAGIC, NULL, StdCreator, "ftpProgress.fll", FMSG("Ftp plugin progress dialog") },
-	/*PLUGIN_DIRLIST*/  { FTP_DIRLIST_MAGIC,  NULL, StdCreator, "ftpDirList.fll",  FMSG("Ftp plugin directory listing parcer") },
-	/*PLUGIN_NOTIFY*/   { FTP_NOTIFY_MAGIC,   NULL, StdCreator, "ftpNotify.fll",   NULL },
+	/*PLUGIN_PROGRESS*/ { FTP_PROGRESS_MAGIC, NULL, StdCreator, "ftpProgress", FMSG("Ftp plugin progress dialog") },
+	/*PLUGIN_DIRLIST*/  { FTP_DIRLIST_MAGIC,  NULL, StdCreator, "ftpDirList",  FMSG("Ftp plugin directory listing parcer") },
+	/*PLUGIN_NOTIFY*/   { FTP_NOTIFY_MAGIC,   NULL, StdCreator, "ftpNotify",   NULL },
 
 	{ 0,NULL,NULL,NULL }
 };
 
 //------------------------------------------------------------------------
+
 BOOL InitPlugins(void)
 {
+	if(InterfaceInited) return TRUE;
+	CreateFTPInterface();
+
 	HMODULE m = NULL;
-	char    str[MAX_PATH],*tmp;
+	char    str[MAX_PATH], *dll_path, *suffix;
 	int     n;
 
-	if(InterfaceInited) return TRUE;
-
-	CreateFTPInterface();
+	StrCpy(str, dll_path = Interface.Info->ModuleName, ARRAYSIZE(str));
+	suffix = dll_path + lstrlen(dll_path) - 4;
+	while ( suffix > dll_path && nullptr != strchr(".-_x86432", suffix[-1]) ) --suffix;
 
 	for(n = 0; StdPlugins[n].Magic; n++)
 	{
-		//FAR root
-		str[ GetModuleFileName(NULL,str,ARRAYSIZE(str))] = 0;
-		tmp = strrchr(str,'\\');
-
-		if(tmp) tmp[1] = 0;
-
+		StrCpy(str, FP_PluginStartPath, ARRAYSIZE(str));
+		StrCat(str, "\\",               ARRAYSIZE(str));
 		StrCat(str, StdPlugins[n].Name, ARRAYSIZE(str));
+		StrCat(str, suffix,             ARRAYSIZE(str));
+		str[lstrlen(str)-3] = 'f'; // "*.dll" => "*.fll"
 		m = LoadLibrary(str);
-
+		if ( !m )
+		{
+			StrCpy(str, FP_PluginStartPath, ARRAYSIZE(str));
+			StrCat(str, "\\lib\\",          ARRAYSIZE(str));
+			StrCat(str, StdPlugins[n].Name, ARRAYSIZE(str));
+			StrCat(str, suffix,             ARRAYSIZE(str));
+			str[lstrlen(str)-3] = 'f';
+			m = LoadLibrary(str);
+		}
 		if(!m)
 		{
-			//System-wide
-			m = LoadLibrary(StdPlugins[n].Name);
-
-			if(!m)
-			{
-				//Plugin path
-				StrCpy(str, FP_PluginStartPath, ARRAYSIZE(str));
-				StrCat(str, "\\",               ARRAYSIZE(str));
-				StrCat(str, StdPlugins[n].Name, ARRAYSIZE(str));
-				m = LoadLibrary(str);
-
-				if(!m)
-				{
-					//Plugin lib path
-					StrCpy(str, FP_PluginStartPath, ARRAYSIZE(str));
-					StrCat(str, "\\Lib\\",          ARRAYSIZE(str));
-					StrCat(str, StdPlugins[n].Name, ARRAYSIZE(str));
-					m = LoadLibrary(str);
-
-					if(!m)
-					{
-						if(StdPlugins[n].Description)
-							break;
-						else
-							continue;
-					}
-				}
-			}
+			if(StdPlugins[n].Description)
+				break;
+			else
+				continue;
 		}
 
 		BOOL err = TRUE;
-
-		do
-		{
+		do {
 			FTPQueryInterface_t p = (FTPQueryInterface_t)GetProcAddress(m,"FTPQueryInterface");
-
-			if(!p) break;
+			if(!p)
+				break;
 
 			FTPPluginInterface* inf = p(&Interface);
-
-			if(!inf || inf->Magic != StdPlugins[n].Magic)
+			if( !inf || inf->Magic != StdPlugins[n].Magic )
 				break;
 
 			StdPlugins[n].Holder = StdPlugins[n].Creator(m,inf);
-
-			if(!StdPlugins[n].Holder)
+			if( !StdPlugins[n].Holder )
 				break;
 
 			err = FALSE;
 		}
 		while(0);
-
-		if(err && StdPlugins[n].Description)
+		if ( err && StdPlugins[n].Description )
 			break;
-	}/*for*/
+	}
 
 	if(StdPlugins[n].Magic)
 	{

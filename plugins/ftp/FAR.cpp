@@ -3,10 +3,6 @@
 
 #include "Int.h"
 
-LPCSTR WINAPI FP_GetPluginName(void)
-{
-	return "FarFtp.dll";
-}
 LPCSTR WINAPI FP_GetPluginLogName(void)
 {
 	return "farftp.log";

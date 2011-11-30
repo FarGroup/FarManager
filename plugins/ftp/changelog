@@ -1,3 +1,9 @@
+w17 30.11.2011 12:46:03 +0400 - build 270
+
+1. Можно переименовывать FarFtp.dll.
+   Если dll =~ /\w+([-._x86432]+)\.dll/ fll: OriginalName\1.fll
+   Например: Ftp-x64.dll, ftpProgress-x64.fll, ...
+
 drkns 19.11.2011 23:38:03 +0200 - build 269
 
 1. Некорректный вызов Info.Message при отсутствии fll.
