@@ -40,6 +40,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "FarGuid.hpp"
 #include "shortcuts.hpp"
+#include "dizlist.hpp"
+#include "config.hpp"
 
 template<> void DeleteItems<FarSettingsHistory>(FarSettingsHistory* Items,size_t Size)
 {
@@ -71,6 +73,18 @@ PluginSettings::PluginSettings(const GUID& Guid) : PluginsCfg(nullptr)
 		PluginsCfg = CreatePluginsConfig(strGuid);
 		unsigned __int64& root(*m_Keys.insertItem(0));
 		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
+
+		DizList Diz;
+		string strDbPath = Opt.ProfilePath + L"\\PluginsData\\";
+		Diz.Read(strDbPath);
+		string strDbName = strGuid + L".db";
+		string Description =  string(pPlugin->GetTitle()) + L" (" + pPlugin->GetDescription() + L")";
+		if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description))
+		{
+			Diz.AddDizText(strDbName, L"", Description);
+			Diz.Flush(strDbPath);
+		}
+
 	}
 }
 
