@@ -25,6 +25,8 @@ static void _cdecl idAtExit(void)
 void WINAPI FP_SetStartupInfo(const PluginStartupInfo *Info,const char *KeyName)
 {
 //Info
+   if ( !FP_HModule )
+		FP_HModule = GetModuleHandle(Info->ModuleName);
 	FP_Info = new PluginStartupInfo;
 	memcpy(FP_Info,Info,sizeof(*Info));
 //FSF
