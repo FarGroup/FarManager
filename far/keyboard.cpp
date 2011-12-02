@@ -592,10 +592,8 @@ void ReloadEnvironment()
 		{HKEY_CURRENT_USER, L"Environment"},
 		{HKEY_CURRENT_USER, L"Volatile Environment"}
 	};
-	string strName, strData;
-	string strOptRegRoot(Opt.strRegRoot);
-	Opt.strRegRoot.Clear();
 
+	string strName, strData;
 	for(size_t i=0; i<ARRAYSIZE(Addr); i++)
 	{
 		DWORD Types[]={REG_SZ,REG_EXPAND_SZ}; // REG_SZ first
@@ -629,8 +627,6 @@ void ReloadEnvironment()
 			}
 		}
 	}
-
-	Opt.strRegRoot=strOptRegRoot;
 }
 
 #if defined(MANTIS_0001687)

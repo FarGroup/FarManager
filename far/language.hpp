@@ -75,10 +75,10 @@ private:
 	long MsgSize;
 	int MsgCount;
 	LngErrors LastError;
-	bool LanguageLoaded;
 #ifndef NO_WRAPPER
 	bool m_bUnicode;
 #endif // NO_WRAPPER
+	bool LanguageLoaded;
 };
 
 extern Language Lang;

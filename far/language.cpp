@@ -295,10 +295,10 @@ Language::Language():
 	MsgSize(0),
 	MsgCount(0),
 	LastError(LERROR_SUCCESS),
-	LanguageLoaded(false),
 #ifndef NO_WRAPPER
-	m_bUnicode(true)
+	m_bUnicode(true),
 #endif // NO_WRAPPER
+	LanguageLoaded(false)
 {
 }
 

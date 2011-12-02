@@ -94,9 +94,11 @@ static void show_help()
 	    L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
 	    L" /s <path>\n"
 	    L"      Custom location for Far configuration files - overrides Far.exe.ini.\n"
+#ifndef NO_WRAPPER
 	    L" /u <username>\n"
 	    L"      Allows to have separate registry settings for different users.\n"
 	    L"      Affects only 1.x Far Manager plugins\n"
+#endif // NO_WRAPPER
 	    L" /v <filename>\n"
 	    L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
 	    L" /w   Stretch to console window instead of console buffer.\n"
@@ -489,7 +491,9 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 #else
 	Opt.ExceptRules=IsDebuggerPresent()?0:-1;
 #endif
-
+#ifndef NO_WRAPPER
+	Opt.strRegRoot = L"Software\\Far Manager";
+#endif // NO_WRAPPER
 	// ѕо умолчанию - брать плагины из основного каталога
 	Opt.LoadPlug.MainPluginDir=TRUE;
 	Opt.LoadPlug.PluginsPersonal=TRUE;
@@ -577,6 +581,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 #endif
 					break;
+
+#ifndef NO_WRAPPER
 				case L'U':
 
 					if (I+1<Argc)
@@ -588,6 +594,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 						I++;
 					}
 					break;
+#endif // NO_WRAPPER
 
 				case L'S':
 
