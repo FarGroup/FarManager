@@ -247,7 +247,7 @@ void FlushInputBuffer()
 
 void SetVideoMode()
 {
-	if (!IsFullscreen() && Opt.AltF9)
+	if (!IsConsoleFullscreen() && Opt.AltF9)
 	{
 		ChangeVideoMode(InitSize.X==CurSize.X && InitSize.Y==CurSize.Y);
 	}
@@ -496,7 +496,7 @@ void GetCursorPos(SHORT& X,SHORT& Y)
 void SetCursorType(bool Visible, DWORD Size)
 {
 	if (Size==(DWORD)-1 || !Visible)
-		Size=IsFullscreen()?
+		Size=IsConsoleFullscreen()?
 		     (Opt.CursorSize[1]?Opt.CursorSize[1]:InitialCursorInfo.dwSize):
 				     (Opt.CursorSize[0]?Opt.CursorSize[0]:InitialCursorInfo.dwSize);
 
@@ -1289,13 +1289,17 @@ int HiFindNextVisualPos(const wchar_t *Str, int Pos, int Direct)
 	return 0;
 }
 
-bool IsFullscreen()
+bool IsConsoleFullscreen()
 {
 	bool Result=false;
-	DWORD ModeFlags=0;
-	if(Console.GetDisplayMode(ModeFlags) && ModeFlags&CONSOLE_FULLSCREEN_HARDWARE)
+	static bool Supported = Console.IsFullscreenSupported();
+	if(Supported)
 	{
-		Result=true;
+		DWORD ModeFlags=0;
+		if(Console.GetDisplayMode(ModeFlags) && ModeFlags&CONSOLE_FULLSCREEN_HARDWARE)
+		{
+			Result=true;
+		}
 	}
 	return Result;
 }

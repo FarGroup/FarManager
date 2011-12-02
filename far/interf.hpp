@@ -180,4 +180,4 @@ int HiFindNextVisualPos(const wchar_t *Str, int Pos, int Direct);
 string& HiText2Str(string& strDest, const wchar_t *Str);
 #define RemoveHighlights(Str) RemoveChar(Str,L'&')
 
-bool IsFullscreen();
+bool IsConsoleFullscreen();

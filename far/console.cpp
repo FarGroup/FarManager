@@ -572,6 +572,22 @@ virtual bool ScrollScreenBuffer(int Lines) const
 	return ScrollConsoleScreenBuffer(GetOutputHandle(), &ScrollRectangle, nullptr, DestinationOrigin, &Fill)!=FALSE;
 }
 
+virtual bool IsFullscreenSupported() const
+{
+#ifdef _WIN64
+	return false;
+#else
+	bool Result = true;
+	CONSOLE_SCREEN_BUFFER_INFOEX csbiex = {sizeof(csbiex)};
+	if(ifn.GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
+	{
+		Result = csbiex.bFullscreenSupported != FALSE;
+	}
+	return Result;
+#endif
+}
+
+
 virtual bool ResetPosition() const
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -824,5 +840,6 @@ bool console::SetActiveScreenBuffer(HANDLE ConsoleOutput) const {return Core->Se
 bool console::ClearExtraRegions(const FarColor& Color) const {return Core->ClearExtraRegions(Color);}
 bool console::ScrollWindow(int Lines, int Columns) const {return Core->ScrollWindow(Lines, Columns);}
 bool console::ScrollScreenBuffer(int Lines) const {return Core->ScrollScreenBuffer(Lines);}
+bool console::IsFullscreenSupported() const {return Core->IsFullscreenSupported();}
 bool console::ResetPosition() const {return Core->ResetPosition();}
 bool console::GetColorDialog(FarColor& Color, bool Centered, bool AddTransparent) const {return Core->GetColorDialog(Color, Centered, AddTransparent);}

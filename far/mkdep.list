@@ -227,8 +227,6 @@ RefreshFrameManager.cpp
 RefreshFrameManager.hpp
 RegExp.cpp
 RegExp.hpp
-registry.cpp
-registry.hpp
 res.hpp
 savescr.cpp
 savescr.hpp

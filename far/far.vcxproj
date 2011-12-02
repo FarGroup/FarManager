@@ -583,7 +583,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="rdrwdsk.cpp" />
     <ClCompile Include="RefreshFrameManager.cpp" />
     <ClCompile Include="RegExp.cpp" />
-    <ClCompile Include="registry.cpp" />
     <ClCompile Include="savescr.cpp" />
     <ClCompile Include="scantree.cpp" />
     <ClCompile Include="scrbuf.cpp" />
@@ -1060,7 +1059,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClInclude Include="rdrwdsk.hpp" />
     <ClInclude Include="RefreshFrameManager.hpp" />
     <ClInclude Include="RegExp.hpp" />
-    <ClInclude Include="registry.hpp" />
     <ClInclude Include="res.hpp" />
     <ClInclude Include="savescr.hpp" />
     <ClInclude Include="scantree.hpp" />

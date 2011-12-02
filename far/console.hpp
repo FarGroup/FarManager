@@ -107,6 +107,8 @@ public:
 
 	bool ScrollScreenBuffer(int Lines) const;
 
+	bool IsFullscreenSupported() const;
+
 	bool ResetPosition() const;
 
 	bool GetColorDialog(FarColor& Color, bool Centered = false, bool AddTransparent = false) const;

@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "imports.hpp"
 #include "syslog.hpp"
-#include "registry.hpp"
 #include "localOEM.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
@@ -415,6 +414,12 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		apiEnableLowFragmentationHeap();
 	}
 
+	if(!Console.IsFullscreenSupported())
+	{
+		// 0x8 - AltEnter
+		ifn.SetConsoleKeyShortcuts(TRUE, 0x8, nullptr, 0);
+	}
+
 	InitCurrentDirectory();
 
 	if (apiGetModuleFileName(nullptr, g_strFarModuleName))
@@ -485,8 +490,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	Opt.ExceptRules=IsDebuggerPresent()?0:-1;
 #endif
 
-	SetRegRootKey(HKEY_CURRENT_USER);
-	Opt.strRegRoot = L"Software\\Far Manager";
 	// ѕо умолчанию - брать плагины из основного каталога
 	Opt.LoadPlug.MainPluginDir=TRUE;
 	Opt.LoadPlug.PluginsPersonal=TRUE;

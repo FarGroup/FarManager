@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "viewer.hpp"
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
-#include "registry.hpp"
 #include "interf.hpp"
 #include "execute.hpp"
 #include "dirinfo.hpp"

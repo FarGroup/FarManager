@@ -41,12 +41,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tinyxml.hpp"
 #include "farversion.hpp"
 #include "RegExp.hpp"
+#include "keyboard.hpp"
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
 PluginsCacheConfig *PlCacheCfg;
 PluginsHotkeysConfig *PlHotkeyCfg;
 HistoryConfig *HistoryCfg;
+MacroConfig *MacroCfg;
 
 int IntToHex(int h)
 {
@@ -120,6 +122,18 @@ unsigned __int64 HexStringToInt64(const char *Hex)
 		Hex++;
 	}
 	return x;
+}
+
+const char *KeyToNameChar(unsigned __int64 Key)
+{
+	static char KeyName[256];
+	string strKeyName;
+	if(KeyToText(Key, strKeyName))
+	{
+		strKeyName.GetCharString(KeyName, 256);
+		return KeyName;
+	}
+	return nullptr;
 }
 
 void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
@@ -2032,6 +2046,308 @@ public:
 
 };
 
+class MacroConfigDb: public MacroConfig {
+	SQLiteStmt stmtConstsEnum;
+	SQLiteStmt stmtGetConstValue;
+	SQLiteStmt stmtSetConstValue;
+	SQLiteStmt stmtDelConst;
+
+	SQLiteStmt stmtVarsEnum;
+	SQLiteStmt stmtGetVarValue;
+	SQLiteStmt stmtSetVarValue;
+	SQLiteStmt stmtDelVar;
+
+	SQLiteStmt stmtPluginFunctionsEnum;
+	SQLiteStmt stmtSetPluginFunction;
+
+	SQLiteStmt stmtKeyMacrosEnum;
+	SQLiteStmt stmtSetKeyMacro;
+	SQLiteStmt stmtDelKeyMacro;
+
+public:
+
+	MacroConfigDb()
+	{
+		Initialize(L"macros.db");
+	}
+
+	bool InitializeImpl(const wchar_t* DbName)
+	{
+		Close();
+		return
+			Open(DbName) &&
+
+			//schema
+			Exec(
+				"CREATE TABLE IF NOT EXISTS constants(name TEXT NOT NULL, value TEXT, PRIMARY KEY (name));"
+				"CREATE TABLE IF NOT EXISTS variables(name TEXT NOT NULL, value TEXT, PRIMARY KEY (name));"
+				"CREATE TABLE IF NOT EXISTS plugin_functions(plugin_guid TEXT NOT NULL, function_name TEXT NOT NULL, nparam INTEGER NOT NULL, oparam INTEGER NOT NULL, flags INTEGER NOT NULL, sequence TEXT, syntax TEXT NOT NULL, description TEXT, PRIMARY KEY (plugin_guid, function_name));"
+				"CREATE TABLE IF NOT EXISTS key_macros(area INTEGER NOT NULL, key INTEGER NOT NULL, flags INTEGER NOT NULL, sequence TEXT, description TEXT, PRIMARY KEY (area, key));"
+			) &&
+
+			InitStmt(stmtConstsEnum, L"SELECT name, value FROM constants ORDER BY name;") &&
+			InitStmt(stmtGetConstValue, L"SELECT value FROM constants WHERE name=?1;") &&
+			InitStmt(stmtSetConstValue, L"INSERT OR REPLACE INTO constants VALUES (?1,?2);") &&
+			InitStmt(stmtDelConst, L"DELETE FROM constants WHERE name=?1;") &&
+
+			InitStmt(stmtVarsEnum, L"SELECT name, value FROM variables ORDER BY name;") &&
+			InitStmt(stmtGetVarValue, L"SELECT value FROM variables WHERE name=?1;") &&
+			InitStmt(stmtSetVarValue, L"INSERT OR REPLACE INTO variables VALUES (?1,?2);") &&
+			InitStmt(stmtDelVar, L"DELETE FROM variables WHERE name=?1;") &&
+
+			InitStmt(stmtPluginFunctionsEnum, L"SELECT plugin_guid, function_name, nparam, oparam, flags, sequence, syntax, description FROM plugin_functions ORDER BY plugin_guid, function_name;") &&
+			InitStmt(stmtSetPluginFunction, L"INSERT OR REPLACE INTO plugin_functions VALUES (?1,?2,?3,?4,?5,?6,?7,?8);") &&
+
+			InitStmt(stmtKeyMacrosEnum, L"SELECT key, flags, sequence, description FROM key_macros WHERE area=?1 ORDER BY key;") &&
+			InitStmt(stmtSetKeyMacro, L"INSERT OR REPLACE INTO key_macros VALUES (?1,?2,?3,?4,?5);") &&
+			InitStmt(stmtDelKeyMacro, L"DELETE FROM key_macros WHERE area=?1 AND key=?2;")
+		;
+	}
+
+	virtual ~MacroConfigDb() { }
+
+	bool EnumConsts(string &strName, string &Value)
+	{
+		if (stmtConstsEnum.Step())
+		{
+			strName = stmtConstsEnum.GetColText(0);
+			Value = stmtConstsEnum.GetColText(1);
+			return true;
+		}
+
+		stmtConstsEnum.Reset();
+		return false;
+	}
+
+	bool GetConstValue(const wchar_t *Name, string &Value)
+	{
+		bool b = stmtGetConstValue.Bind(Name).Step();
+		if (b)
+		{
+			Value = stmtGetConstValue.GetColText(0);
+		}
+		stmtGetConstValue.Reset();
+		return b;
+	}
+
+	unsigned __int64 SetConstValue(const wchar_t *Name, const wchar_t *Value)
+	{
+		if (stmtSetConstValue.Bind(Name).Bind(Value).StepAndReset())
+			return LastInsertRowID();
+		return 0;
+	}
+
+	bool DeleteConst(const wchar_t *Name)
+	{
+		return stmtDelConst.Bind(Name).StepAndReset();
+	}
+
+	bool EnumVars(string &strName, string &Value)
+	{
+		if (stmtVarsEnum.Step())
+		{
+			strName = stmtVarsEnum.GetColText(0);
+			Value = stmtVarsEnum.GetColText(1);
+			return true;
+		}
+
+		stmtVarsEnum.Reset();
+		return false;
+	}
+
+	bool GetVarValue(const wchar_t *Name, string &Value)
+	{
+		bool b = stmtGetVarValue.Bind(Name).Step();
+		if (b)
+		{
+			Value = stmtGetVarValue.GetColText(0);
+		}
+		stmtGetVarValue.Reset();
+		return b;
+	}
+
+	unsigned __int64 SetVarValue(const wchar_t *Name, const wchar_t *Value)
+	{
+		if (stmtSetVarValue.Bind(Name).Bind(Value).StepAndReset())
+			return LastInsertRowID();
+		return 0;
+	}
+
+	bool DeleteVar(const wchar_t *Name)
+	{
+		return stmtDelVar.Bind(Name).StepAndReset();
+	}
+
+	bool EnumPluginFunctions(string &strPluginGuid, string &strFunctionName, int *nParam, int *oParam, unsigned __int64 *Flags, string &strSequence, string &strSyntax, string &strDescription)
+	{
+		if (stmtPluginFunctionsEnum.Step())
+		{
+			strPluginGuid = stmtPluginFunctionsEnum.GetColText(0);
+			strFunctionName = stmtPluginFunctionsEnum.GetColText(1);
+			*nParam = stmtPluginFunctionsEnum.GetColInt64(2);
+			*oParam = stmtPluginFunctionsEnum.GetColInt64(3);
+			*Flags = stmtPluginFunctionsEnum.GetColInt64(4);
+			strSequence = stmtPluginFunctionsEnum.GetColText(5);
+			strSyntax = stmtPluginFunctionsEnum.GetColText(6);
+			strDescription = stmtPluginFunctionsEnum.GetColText(7);
+			return true;
+		}
+
+		stmtKeyMacrosEnum.Reset();
+		return false;
+	}
+
+	unsigned __int64 SetPluginFunction(const wchar_t *PluginGuid, const wchar_t *FunctionName, unsigned __int64 nParam, unsigned __int64 oParam, unsigned __int64 Flags, const wchar_t *Sequence, const wchar_t *Syntax, const wchar_t *Description)
+	{
+		if (stmtSetPluginFunction.Bind(PluginGuid).Bind(FunctionName).Bind(nParam).Bind(oParam).Bind(Flags).Bind(Sequence).Bind(Syntax).Bind(Description).StepAndReset())
+			return LastInsertRowID();
+		return 0;
+	}
+
+	bool EnumKeyMacros(int Area, int *Key, unsigned __int64 *Flags, string &strSequence, string &strDescription)
+	{
+		stmtKeyMacrosEnum.Bind(Area);
+		if (stmtKeyMacrosEnum.Step())
+		{
+			*Key = stmtKeyMacrosEnum.GetColInt64(0);
+			*Flags = stmtKeyMacrosEnum.GetColInt64(1);
+			strSequence = stmtKeyMacrosEnum.GetColText(2);
+			strDescription = stmtKeyMacrosEnum.GetColText(3);
+			return true;
+		}
+
+		stmtKeyMacrosEnum.Reset();
+		return false;
+	}
+
+	unsigned __int64 SetKeyMacro(unsigned __int64 Area, unsigned __int64 Key, unsigned __int64 Flags, const wchar_t *Sequence, const wchar_t *Description)
+	{
+		if (stmtSetKeyMacro.Bind(Area).Bind(Key).Bind(Flags).Bind(Sequence).Bind(Description).StepAndReset())
+			return LastInsertRowID();
+		return 0;
+	}
+
+	bool DeleteKeyMacro(unsigned __int64 Area, unsigned __int64 Key)
+	{
+		return stmtDelKeyMacro.Bind(Area).Bind(Key).StepAndReset();
+	}
+
+	TiXmlElement *Export()
+	{
+		TiXmlElement * root = new TiXmlElement("macro");
+		if (!root)
+			return nullptr;
+
+		TiXmlElement *e;
+		TiXmlElement *se;
+
+		SQLiteStmt stmtEnumAllConsts;
+		InitStmt(stmtEnumAllConsts, L"SELECT name, value FROM constants ORDER BY name;");
+
+		SQLiteStmt stmtEnumAllVars;
+		InitStmt(stmtEnumAllVars, L"SELECT name, value FROM variables ORDER BY name;");
+
+		SQLiteStmt stmtEnumAllPluginFunctions;
+		InitStmt(stmtEnumAllPluginFunctions, L"SELECT plugin_guid, function_name, nparam, oparam, flags, sequence, syntax, description FROM plugin_functions ORDER BY plugin_guid, function_name;");
+
+		SQLiteStmt stmtEnumAllKeyMacros;
+		InitStmt(stmtEnumAllKeyMacros, L"SELECT area, key, flags, sequence, description FROM key_macros ORDER BY area, key;");
+
+		e = new TiXmlElement("constants");
+		if (!e)
+			return nullptr;
+
+		while (stmtEnumAllConsts.Step())
+		{
+			se = new TiXmlElement("constant");
+			if (!se)
+				break;
+
+			se->SetAttribute("name", stmtEnumAllConsts.GetColTextUTF8(0));
+			se->SetAttribute("value", stmtEnumAllConsts.GetColTextUTF8(1));
+			e->LinkEndChild(se);
+		}
+		stmtEnumAllConsts.Reset();
+
+		root->LinkEndChild(e);
+
+		e = new TiXmlElement("variables");
+		if (!e)
+			return nullptr;
+
+		while (stmtEnumAllVars.Step())
+		{
+			se = new TiXmlElement("variable");
+			if (!se)
+				break;
+
+			se->SetAttribute("name", stmtEnumAllVars.GetColTextUTF8(0));
+			se->SetAttribute("value", stmtEnumAllVars.GetColTextUTF8(1));
+			e->LinkEndChild(se);
+		}
+		stmtEnumAllVars.Reset();
+
+		root->LinkEndChild(e);
+
+		e = new TiXmlElement("pluginfunctions");
+		if (!e)
+			return nullptr;
+
+		while (stmtEnumAllPluginFunctions.Step())
+		{
+			se = new TiXmlElement("plugin");
+			if (!se)
+				break;
+
+			se->SetAttribute("Guid", stmtEnumAllPluginFunctions.GetColTextUTF8(0));
+			se->SetAttribute("function name", stmtEnumAllPluginFunctions.GetColTextUTF8(1));
+			se->SetAttribute("nparam", stmtEnumAllPluginFunctions.GetColInt(2));
+			se->SetAttribute("oparam", stmtEnumAllPluginFunctions.GetColInt(3));
+			se->SetAttribute("flags", Int64ToHexString(stmtEnumAllPluginFunctions.GetColInt64(4)));
+			se->SetAttribute("sequence", stmtEnumAllPluginFunctions.GetColTextUTF8(5));
+			se->SetAttribute("syntax", stmtEnumAllPluginFunctions.GetColTextUTF8(6));
+			se->SetAttribute("description", stmtEnumAllPluginFunctions.GetColTextUTF8(7));
+			e->LinkEndChild(se);
+		}
+		stmtEnumAllPluginFunctions.Reset();
+
+		root->LinkEndChild(e);
+
+		e = new TiXmlElement("keymacros");
+
+		if (!e)
+			return nullptr;
+
+		unsigned __int64 Key;
+
+		while (stmtEnumAllKeyMacros.Step())
+		{
+			se = new TiXmlElement("macro");
+			if (!se)
+				break;
+
+			se->SetAttribute("area", stmtEnumAllKeyMacros.GetColInt64(0));
+			Key=stmtEnumAllKeyMacros.GetColInt64(1);
+			se->SetAttribute("key", Int64ToHexString(Key));
+			se->SetAttribute("keyname", KeyToNameChar(Key));
+			se->SetAttribute("flags", Int64ToHexString(stmtEnumAllKeyMacros.GetColInt64(2)));
+			se->SetAttribute("sequence", stmtEnumAllKeyMacros.GetColTextUTF8(3));
+			//se->SetAttribute("description", stmtEnumAllKeyMacros.GetColTextUTF8(4));
+			e->LinkEndChild(se);
+		}
+		stmtEnumAllKeyMacros.Reset();
+
+		root->LinkEndChild(e);
+
+		return root;
+	}
+
+	bool Import(const TiXmlHandle &root)
+	{
+		return true;
+	}
+};
+
 HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid)
 {
 	string strDbName = L"PluginsData\\";
@@ -2067,6 +2383,7 @@ void InitDb()
 	PlCacheCfg = new PluginsCacheConfigDb();
 	PlHotkeyCfg = new PluginsHotkeysConfigDb();
 	HistoryCfg = new HistoryConfigDb();
+	MacroCfg = new MacroConfigDb();
 }
 
 void ReleaseDb()
@@ -2076,6 +2393,7 @@ void ReleaseDb()
 	delete PlCacheCfg;
 	delete PlHotkeyCfg;
 	delete HistoryCfg;
+	delete MacroCfg;
 }
 
 bool ExportImportConfig(bool Export, const wchar_t *XML)
@@ -2161,6 +2479,8 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 			root->LinkEndChild(e);
 		}
 
+		root->LinkEndChild(MacroCfg->Export());
+
 		doc.LinkEndChild(root);
 		ret = doc.SaveFile(XmlFile);
 	}
@@ -2213,6 +2533,8 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 						delete cfg;
 					}
 				}
+
+				MacroCfg->Import(root);
 
 				ret = true;
 			}

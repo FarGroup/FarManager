@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "network.hpp"
 #include "language.hpp"
 #include "lang.hpp"
-#include "registry.hpp"
 #include "message.hpp"
 #include "stddlg.hpp"
 #include "drivemix.hpp"
@@ -53,7 +52,7 @@ void GetStoredUserName(wchar_t cDrive, string &strUserName)
 
 	if (RegOpenKeyEx(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
 	{
-		RegQueryStringValueEx(hKey, L"UserName", strUserName);
+		RegQueryStringValue(hKey, L"UserName", strUserName);
 		RegCloseKey(hKey);
 	}
 }

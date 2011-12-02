@@ -116,7 +116,6 @@ SRCS = \
 	rdrwdsk.cpp \
 	RefreshFrameManager.cpp \
 	RegExp.cpp \
-	registry.cpp \
 	savescr.cpp \
 	scantree.cpp \
 	scrbuf.cpp \

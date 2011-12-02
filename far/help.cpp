@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "macroopcode.hpp"
 #include "syslog.hpp"
-#include "registry.hpp"
 #include "interf.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -346,7 +345,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 			string strKeyName;
 			string strOutTemp;
 
-			if (CtrlObject->Macro.GetMacroKeyInfo(false,CtrlObject->Macro.GetSubKey(strMacroArea),MI,strKeyName,strDescription) == -1)
+			if (CtrlObject->Macro.GetMacroKeyInfo(false,CtrlObject->Macro.GetAreaCode(strMacroArea),MI,strKeyName,strDescription) == -1)
 			{
 				MacroProcess=false;
 				MI=0;
@@ -374,7 +373,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 				ReplaceStrings(strDescription,L"~",L"~~",-1);
 				ReplaceStrings(strDescription,L"@",L"@@",-1);
 				strOutTemp+=strCtrlStartPosChar;
-				strOutTemp+=TruncStrFromEnd(strDescription,300);
+				strOutTemp+=strDescription;
 			}
 
 			strReadStr=strOutTemp;
@@ -464,7 +463,7 @@ m1:
 					MacroProcess=true;
 					MI=0;
 					string strDescription,strKeyName;
-					while (CtrlObject->Macro.GetMacroKeyInfo(false,CtrlObject->Macro.GetSubKey(strMacroArea),MI,strKeyName,strDescription) != -1)
+					while (CtrlObject->Macro.GetMacroKeyInfo(false,CtrlObject->Macro.GetAreaCode(strMacroArea),MI,strKeyName,strDescription) != -1)
 					{
 						SizeKeyName=Max(SizeKeyName,strKeyName.GetLength());
 						MI++;
@@ -1987,7 +1986,7 @@ static int RunURL(const wchar_t *Protocol, wchar_t *URLPath)
 			if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strType,0,KEY_READ,&hKey) == ERROR_SUCCESS)
 			{
 				string strAction;
-				int Disposition=RegQueryStringValueEx(hKey,L"",strAction,L"");
+				int Disposition=RegQueryStringValue(hKey,L"",strAction,L"");
 				RegCloseKey(hKey);
 				apiExpandEnvironmentStrings(strAction, strAction);
 

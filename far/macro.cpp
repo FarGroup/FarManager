@@ -57,7 +57,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "TStack.hpp"
 #include "syslog.hpp"
-#include "registry.hpp"
 #include "plugapi.hpp"
 #include "plugin.hpp"
 #include "plugins.hpp"
@@ -81,6 +80,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "elevation.hpp"
 #include "FarGuid.hpp"
+#include "configdb.hpp"
 
 // для диалога назначения клавиши
 struct DlgParam
@@ -363,8 +363,6 @@ static bool xlatFunc(const TMacroFunction*);
 static bool pluginloadFunc(const TMacroFunction*);
 static bool pluginunloadFunc(const TMacroFunction*);
 
-static bool __CheckCondForSkip(DWORD Op);
-
 static TMacroFunction intMacroFunction[]=
 {
 	//Name                fnGUID   Syntax                                                        Func                Buffer BufferSize IntFlags                          Code                      nParam oParam
@@ -465,51 +463,34 @@ TMacroFunction *KeyMacro::AMacroFunction=nullptr;
 
 TVarTable glbVarTable;
 TVarTable glbConstTable;
+TVMStack VMStack;
 
 static TVar __varTextDate;
 
-class TVMStack: public TStack<TVar>
+bool __CheckCondForSkip(DWORD Op)
 {
-	private:
-		const TVar Error;
+	TVar tmpVar=VMStack.Pop();
+	if (tmpVar.isString() && *tmpVar.s())
+		return false;
 
-	public:
-		TVMStack() {}
-		~TVMStack() {}
-
-	public:
-		const TVar &Pop()
-		{
-			static TVar temp; //чтоб можно было вернуть по референс.
-
-			if (TStack<TVar>::Pop(temp))
-				return temp;
-
-			return Error;
-		}
-
-		TVar &Pop(TVar &dest)
-		{
-			if (!TStack<TVar>::Pop(dest))
-				dest=Error;
-
-			return dest;
-		}
-
-		const TVar &Peek()
-		{
-			TVar *var = TStack<TVar>::Peek();
-
-			if (var)
-				return *var;
-
-			return Error;
-		}
-};
-
-TVMStack VMStack;
-
-static LONG _RegWriteString(const wchar_t *Key,const wchar_t *ValueName,const wchar_t *Data);
+	__int64 res=tmpVar.getInteger();
+	switch(Op)
+	{
+		case MCODE_OP_JZ:
+			return !res?true:false;
+		case MCODE_OP_JNZ:
+			return res?true:false;
+		case MCODE_OP_JLT:
+			return res < 0?true:false;
+		case MCODE_OP_JLE:
+			return res <= 0?true:false;
+		case MCODE_OP_JGT:
+			return res > 0?true:false;
+		case MCODE_OP_JGE:
+			return res >= 0?true:false;
+	}
+	return false;
+}
 
 // функция преобразования кода макроклавиши в текст
 BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
@@ -547,8 +528,35 @@ int WINAPI KeyNameMacroToKey(const wchar_t *Name)
 	return -1;
 }
 
+const TVar& TVMStack::Pop()
+{
+	static TVar temp; //чтоб можно было вернуть по референс.
+
+	if (TStack<TVar>::Pop(temp))
+		return temp;
+
+	return Error;
+};
+
+TVar& TVMStack::Pop(TVar &dest)
+{
+	if (!TStack<TVar>::Pop(dest))
+		dest=Error;
+
+	return dest;
+};
+
+const TVar& TVMStack::Peek()
+{
+	TVar *var = TStack<TVar>::Peek();
+
+	if (var)
+		return *var;
+
+	return Error;
+};
+
 KeyMacro::KeyMacro():
-	MacroVersion(GetRegKey(L"KeyMacros",L"MacroVersion",0)),
 	Recording(MACROMODE_NOMACRO),
 	IsRedrawEditor(TRUE),
 	Mode(MACRO_SHELL),
@@ -599,9 +607,9 @@ void KeyMacro::InitInternalLIBVars()
 		}
 		if (0==MacroLIBCount)
 		{
-			xf_free(MacroLIB);
+		xf_free(MacroLIB);
 			MacroLIB=nullptr;
-		}
+	}
 	}
 	else
 	{
@@ -715,9 +723,8 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 		return FALSE;
 
 	string strBuffer;
-	ReadVarsConst(MACRO_VARS,strBuffer);
-	ReadVarsConst(MACRO_CONSTS,strBuffer);
-	ReadMacroFunction(MACRO_FUNCS,strBuffer);
+	ReadVarsConsts();
+	ReadPluginFunctions();
 
 	int Areas[MACRO_LAST];
 
@@ -745,7 +752,7 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 		if (Areas[i] == MACRO_LAST)
 			continue;
 
-		if (!ReadMacros(i,strBuffer))
+		if (!ReadKeyMacro(i))
 		{
 			ErrCount++;
 		}
@@ -885,7 +892,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			KeyMacro::Sort();
 
 			if (Opt.AutoSaveSetup)
-				SaveMacros(FALSE); // записать только изменения!
+				WriteMacroRecords(); // записать только изменения!
 
 			return TRUE;
 		}
@@ -1118,10 +1125,10 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 					break;
 				}
 				case MCODE_V_MACROAREA:
-					Cond=GetSubKey(CtrlObject->Macro.GetMode());
+					Cond=GetAreaName(CtrlObject->Macro.GetMode());
 					break;
 				case MCODE_C_FULLSCREENMODE: // Fullscreen?
-					Cond=IsFullscreen()?1:0;
+					Cond=IsConsoleFullscreen()?1:0;
 					break;
 				case MCODE_C_ISUSERADMIN: // IsUserAdmin?
 					Cond=(__int64)Opt.IsUserAdmin;
@@ -1470,18 +1477,18 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 							{
 								case MCODE_V_APANEL_OPIFLAGS:
 								case MCODE_V_PPANEL_OPIFLAGS:
-									Cond = (__int64)Info.Flags;
+								Cond = (__int64)Info.Flags;
 									break;
 								case MCODE_V_APANEL_HOSTFILE:
 								case MCODE_V_PPANEL_HOSTFILE:
-									Cond = Info.HostFile;
+								Cond = Info.HostFile;
 									break;
 								case MCODE_V_APANEL_FORMAT:
 								case MCODE_V_PPANEL_FORMAT:
 									Cond = Info.Format;
 									break;
-							}
 						}
+					}
 					}
 
 					break;
@@ -2417,13 +2424,13 @@ static bool kbdLayoutFunc(const TMacroFunction*)
 	BOOL Ret=TRUE;
 	HKL  Layout=0, RetLayout=0;
 
-	wchar_t LayoutName[1024]={}; // BUGBUG!!!
+		wchar_t LayoutName[1024]={}; // BUGBUG!!!
 	if (ifn.GetConsoleKeyboardLayoutName(LayoutName))
-	{
-		wchar_t *endptr;
+		{
+			wchar_t *endptr;
 		DWORD res=wcstoul(LayoutName, &endptr, 16);
-		RetLayout=(HKL)(INT_PTR)(HIWORD(res)? res : MAKELONG(res,res));
-	}
+			RetLayout=(HKL)(INT_PTR)(HIWORD(res)? res : MAKELONG(res,res));
+		}
 
 	HWND hWnd = Console.GetWindow();
 
@@ -2470,26 +2477,26 @@ static bool promptFunc(const TMacroFunction*)
 	TVar Result(L"");
 	bool Ret=false;
 
-	const wchar_t *history=nullptr;
+		const wchar_t *history=nullptr;
 	const wchar_t *title=nullptr;
 
 	if (!(ValTitle.isInteger() && !ValTitle.i()))
 		title=ValTitle.s();
 
-	if (!(ValHistory.isInteger() && !ValHistory.i()))
-		history=ValHistory.s();
+		if (!(ValHistory.isInteger() && !ValHistory.i()))
+			history=ValHistory.s();
 
-	const wchar_t *src=L"";
+		const wchar_t *src=L"";
 
-	if (!(ValSrc.isInteger() && !ValSrc.i()))
-		src=ValSrc.s();
+		if (!(ValSrc.isInteger() && !ValSrc.i()))
+			src=ValSrc.s();
 
-	const wchar_t *prompt=L"";
+		const wchar_t *prompt=L"";
 
-	if (!(ValPrompt.isInteger() && !ValPrompt.i()))
-		prompt=ValPrompt.s();
+		if (!(ValPrompt.isInteger() && !ValPrompt.i()))
+			prompt=ValPrompt.s();
 
-	string strDest;
+		string strDest;
 
 	DWORD oldHistroyEnable=CtrlObject->Macro.GetHistroyEnableMask();
 
@@ -2497,11 +2504,11 @@ static bool promptFunc(const TMacroFunction*)
 		CtrlObject->Macro.SetHistroyEnableMask(8); // если указан history, то принудительно выставляем историю для ЭТОГО prompt()
 
 	if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
-	{
-		Result=strDest.CPtr();
-		Result.toString();
-		Ret=true;
-	}
+		{
+			Result=strDest.CPtr();
+			Result.toString();
+			Ret=true;
+		}
 	else
 		Result=0;
 
@@ -2653,39 +2660,39 @@ static bool menushowFunc(const TMacroFunction*)
 
 		if (NewItem.strName!=L"\n")
 		{
-			wchar_t *CurrentChar=(wchar_t *)NewItem.strName.CPtr();
-			bool bContunue=(*CurrentChar<=L'\x4');
-			while(*CurrentChar && bContunue)
+		wchar_t *CurrentChar=(wchar_t *)NewItem.strName.CPtr();
+		bool bContunue=(*CurrentChar<=L'\x4');
+		while(*CurrentChar && bContunue)
+		{
+			switch (*CurrentChar)
 			{
-				switch (*CurrentChar)
-				{
-					case L'\x1':
-						NewItem.Flags|=LIF_SEPARATOR;
-						CurrentChar++;
-						break;
+				case L'\x1':
+					NewItem.Flags|=LIF_SEPARATOR;
+					CurrentChar++;
+					break;
 
-					case L'\x2':
-						NewItem.Flags|=LIF_CHECKED;
-						CurrentChar++;
-						break;
+				case L'\x2':
+					NewItem.Flags|=LIF_CHECKED;
+					CurrentChar++;
+					break;
 
-					case L'\x3':
-						NewItem.Flags|=LIF_DISABLE;
-						CurrentChar++;
-						break;
+				case L'\x3':
+					NewItem.Flags|=LIF_DISABLE;
+					CurrentChar++;
+					break;
 
-					case L'\x4':
-						NewItem.Flags|=LIF_GRAYED;
-						CurrentChar++;
-						break;
+				case L'\x4':
+					NewItem.Flags|=LIF_GRAYED;
+					CurrentChar++;
+					break;
 
-					default:
-						bContunue=false;
-						CurrentChar++;
-						break;
-				}
+				default:
+				bContunue=false;
+				CurrentChar++;
+				break;
 			}
-			NewItem.strName=CurrentChar;
+		}
+		NewItem.strName=CurrentChar;
 		}
 		else
 			NewItem.strName.Clear();
@@ -3222,10 +3229,10 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 					if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
 					{
 						Ret=(__int64)(Item->ListPtr->GetItemCount());
-					}
-					break;
-				}
 			}
+					break;
+		}
+	}
 		}
 		else if (Index >= DlgItemCount)
 		{
@@ -3521,11 +3528,11 @@ static bool editorsetFunc(const TMacroFunction*)
 }
 
 // b=mload(var)
-static bool mloadFunc(const TMacroFunction*)
+bool mloadFunc(const TMacroFunction*)
 {
 	TVar Val;
+	TVar TempVar;
 	VMStack.Pop(Val);
-	TVarTable *t = &glbVarTable;
 	const wchar_t *Name=Val.s();
 
 	if (!Name || *Name!= L'%')
@@ -3534,63 +3541,17 @@ static bool mloadFunc(const TMacroFunction*)
 		return false;
 	}
 
-	DWORD Ret=(DWORD)-1;
-	DWORD ValType;
+	__int64 Ret=CtrlObject->Macro.LoadVarFromDB(Name, TempVar);
 
-	if (CheckRegValue(L"KeyMacros\\Vars",Name, &ValType))
-	{
-		switch(ValType)
-		{
-			case REG_SZ:
-			case REG_MULTI_SZ:
-			{
-				string strSData;
-				strSData.Clear();
-				GetRegKey(L"KeyMacros\\Vars",Name,strSData,L"");
+	if(Ret)
+		varInsert(glbVarTable, Name+1)->value = TempVar.s();
 
-				if (ValType == REG_MULTI_SZ)
-				{
-					wchar_t *ptrSData = strSData.GetBuffer();
-					for (;;)
-					{
-						ptrSData+=StrLength(ptrSData);
-
-						if (!ptrSData[0] && !ptrSData[1])
-							break;
-
-						*ptrSData=L'\n';
-					}
-					strSData.ReleaseBuffer();
-				}
-
-				varInsert(*t, Name+1)->value = strSData.CPtr();
-
-				Ret=ERROR_SUCCESS;
-
-				break;
-			}
-			case REG_DWORD:
-			{
-				varInsert(*t, Name+1)->value = GetRegKey(L"KeyMacros\\Vars",Name,0);
-				Ret=ERROR_SUCCESS;
-				break;
-			}
-			case REG_QWORD:
-			{
-				varInsert(*t, Name+1)->value = GetRegKey64(L"KeyMacros\\Vars",Name,0);
-				Ret=ERROR_SUCCESS;
-				break;
-			}
-
-		}
-	}
-
-	VMStack.Push(TVar(Ret==ERROR_SUCCESS?1:0));
-	return Ret==ERROR_SUCCESS;
+	VMStack.Push(Ret);
+	return Ret != 0;
 }
 
 // b=msave(var)
-static bool msaveFunc(const TMacroFunction*)
+bool msaveFunc(const TMacroFunction*)
 {
 	TVar Val;
 	VMStack.Pop(Val);
@@ -3611,34 +3572,12 @@ static bool msaveFunc(const TMacroFunction*)
 		return false;
 	}
 
-	TVar Result=tmpVarSet->value;
-	DWORD Ret=(DWORD)-1;
 	string strValueName = Val.s();
 
-	switch (Result.type())
-	{
-		case vtInteger:
-		{
-			__int64 rrr=Result.toInteger();
-			Ret=SetRegKey64(L"KeyMacros\\Vars",strValueName,rrr);
-			break;
-		}
-		case vtDouble:
-		{
-			Ret=(DWORD)_RegWriteString(L"KeyMacros\\Vars",strValueName,Result.toString());
-			break;
-		}
-		case vtString:
-		{
-			Ret=(DWORD)_RegWriteString(L"KeyMacros\\Vars",strValueName,Result.toString());
-			break;
-		}
-		default:
-			break;
-	}
+	__int64 Ret=CtrlObject->Macro.SaveVarToDB(strValueName, tmpVarSet->value);
 
-	VMStack.Push(TVar(Ret==ERROR_SUCCESS?1:0));
-	return Ret==ERROR_SUCCESS;
+	VMStack.Push(Ret);
+	return Ret != 0;
 }
 
 // V=Clip(N[,V])
@@ -4711,32 +4650,6 @@ const wchar_t *eStackAsString(int)
 	return !s?L"":s;
 }
 
-static bool __CheckCondForSkip(DWORD Op)
-{
-	TVar tmpVar=VMStack.Pop();
-	if (tmpVar.isString() && *tmpVar.s())
-		return false;
-
-	__int64 res=tmpVar.getInteger();
-	switch(Op)
-	{
-		case MCODE_OP_JZ:
-			return !res?true:false;
-		case MCODE_OP_JNZ:
-			return res?true:false;
-		case MCODE_OP_JLT:
-			return res < 0?true:false;
-		case MCODE_OP_JLE:
-			return res <= 0?true:false;
-		case MCODE_OP_JGT:
-			return res > 0?true:false;
-		case MCODE_OP_JGE:
-			return res >= 0?true:false;
-	}
-	return false;
-}
-
-
 int KeyMacro::GetKey()
 {
 	MacroRecord *MR;
@@ -4895,7 +4808,8 @@ done:
 	{
 		INPUT_RECORD rec;
 
-		if (StopMacro || (PeekInputRecord(&rec) && rec.EventType==KEY_EVENT && rec.Event.KeyEvent.wVirtualKeyCode == VK_CANCEL))
+		//if (PeekInputRecord(&rec) && rec.EventType==KEY_EVENT && rec.Event.KeyEvent.wVirtualKeyCode == VK_CANCEL)
+		if (StopMacro)
 		{
 			GetInputRecord(&rec,true);  // удаляем из очереди эту "клавишу"...
 			Work.KeyProcess=0;
@@ -5407,7 +5321,7 @@ done:
 						if (!(MR->Flags&MFLAGS_DISABLEOUTPUT))
 							RBuf.Flags &= ~MFLAGS_DISABLEOUTPUT;
 
-						if (!PostNewMacro(Val.toString(),RBuf.Flags&(~MFLAGS_REG_MULTI_SZ),RBuf.Key))
+						if (!PostNewMacro(Val.toString(),RBuf.Flags,RBuf.Key))
 							PopState();
 						else
 							Ret=1;
@@ -5453,7 +5367,7 @@ done:
 						if (p  && p[1])
 						{
 							*p++=0;
-							if ((_Mode = GetSubKey(lpwszVal)) < MACRO_FUNCS)
+							if ((_Mode = GetAreaCode(lpwszVal)) < MACRO_FUNCS)
 							{
 								_Mode=GetMode();
 								if (lpwszVal[0] == L'.' && !lpwszVal[1]) // вариант "./Key" не подразумевает поиск в Common`е
@@ -5837,23 +5751,6 @@ UINT64 KeyMacro::SwitchFlags(UINT64& Flags,UINT64 Value)
 }
 
 
-string &KeyMacro::MkRegKeyName(int IdxMacro, string &strRegKeyName)
-{
-	string strKeyText;
-	KeyToText(MacroLIB[IdxMacro].Key, strKeyText);
-	strRegKeyName=L"KeyMacros\\";
-	strRegKeyName+=GetSubKey(MacroLIB[IdxMacro].Flags&MFLAGS_MODEMASK);
-	AddEndSlash(strRegKeyName);
-
-	if (MacroLIB[IdxMacro].Flags&MFLAGS_DISABLEMACRO)
-	{
-		strRegKeyName+=L"~";
-	}
-
-	strRegKeyName+=strKeyText;
-	return strRegKeyName;
-}
-
 /*
   после вызова этой функции нужно удалить память!!!
   функция декомпилит только простые последовательности, т.к.... клавиши
@@ -5919,185 +5816,158 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
 	return nullptr;
 }
 
+bool KeyMacro::LoadVarFromDB(const wchar_t *Name, TVar &Value)
+{
+	bool Ret;
+	string TempValue;
+
+	Ret=MacroCfg->GetVarValue(Name, TempValue);
+
+	if(Ret)
+	{
+		Value=TempValue.CPtr();
+	}
+
+	return Ret;
+}
+
+bool KeyMacro::SaveVarToDB(const wchar_t *Name, TVar Value)
+{
+	bool Ret;
+
+	MacroCfg->BeginTransaction();
+	Ret = MacroCfg->SetVarValue(Name, Value.s()) != 0;
+	MacroCfg->EndTransaction();
+
+	return Ret;
+}
+
+void KeyMacro::WriteVarsConsts()
+{
+	string strValueName;
+	TVarTable *t = &glbConstTable;
+
+	MacroCfg->BeginTransaction();
+		for (int I=0; ; I++)
+		{
+			TVarSet *var=varEnum(*t,I);
+
+			if (!var)
+				break;
+
+			strValueName = var->str;
+			if(strValueName==constMsX || strValueName==constMsY || strValueName==constMsButton ||
+         strValueName==constMsCtrlState || strValueName==constMsEventFlags || strValueName==constRCounter)
+				continue;
+			MacroCfg->SetConstValue(strValueName, var->value.s());
+		}
+	MacroCfg->EndTransaction();
+
+	t = &glbVarTable;
+
+	MacroCfg->BeginTransaction();
+		for (int I=0; ; I++)
+		{
+			TVarSet *var=varEnum(*t,I);
+
+			if (!var)
+				break;
+
+			strValueName = var->str;
+			strValueName = L"%"+strValueName;
+			MacroCfg->SetVarValue(strValueName, var->value.s());
+		}
+	MacroCfg->EndTransaction();
+}
+
+void KeyMacro::SavePluginFunctionToDB(const TMacroFunction *MF)
+{
+	// раскомментировать для теста записи встроенных функций
+	//MacroCfg->SetPluginFunction(MF->Syntax, MF->Name, MF->nParam, MF->oParam, MF->IntFlags, MF->Name, MF->Name, MF->Name);
+
+	// закомментировать для теста записи встроенных функций
+	if(MF->fnGUID && MF->Name)
+		MacroCfg->SetPluginFunction(MF->fnGUID, MF->Name, MF->nParam, MF->oParam, MF->IntFlags, nullptr, MF->Syntax, nullptr);
+}
+
+void KeyMacro::WritePluginFunctions()
+{
+	const TMacroFunction *Func;
+	MacroCfg->BeginTransaction();
+		for (size_t I=0; I < CMacroFunction; ++I)
+		{
+			Func=GetMacroFunction(I);
+			if(Func)
+			{
+				SavePluginFunctionToDB(Func);
+			}
+		}
+	MacroCfg->EndTransaction();
+}
+
+void KeyMacro::SaveMacroRecordToDB(const MacroRecord *MR)
+{
+	int Area;
+	DWORD Flags;
+
+	Flags=MR->Flags;
+
+	Area=Flags & MFLAGS_MODEMASK;
+	Flags &= ~(MFLAGS_MODEMASK|MFLAGS_NEEDSAVEMACRO);
+
+	MacroCfg->SetKeyMacro(Area, MR->Key, Flags, MR->Src, MR->Description);
+}
+
+void KeyMacro::WriteMacroRecords()
+{
+	MacroCfg->BeginTransaction();
+		for (int I=0; I<MacroLIBCount; I++)
+		{
+			if (!MacroLIB[I].BufferSize || !MacroLIB[I].Src)
+			{
+				MacroCfg->DeleteKeyMacro(MacroLIB[I].Flags & MFLAGS_MODEMASK, MacroLIB[I].Key);
+				continue;
+			}
+
+			if (!(MacroLIB[I].Flags&MFLAGS_NEEDSAVEMACRO))
+				continue;
+
+			SaveMacroRecordToDB(&MacroLIB[I]);
+			MacroLIB[I].Flags &= ~MFLAGS_NEEDSAVEMACRO;
+		}
+	MacroCfg->EndTransaction();
+}
+
 // Сохранение ВСЕХ макросов
-void KeyMacro::SaveMacros(BOOL AllSaved)
+void KeyMacro::SaveMacros()
 {
-	string strRegKeyName;
-	//WriteVarsConst(MACRO_VARS);
-	//WriteVarsConst(MACRO_CONSTS);
-
-	for (int I=0; I<MacroLIBCount; I++)
-	{
-		if (!AllSaved  && !(MacroLIB[I].Flags&MFLAGS_NEEDSAVEMACRO))
-			continue;
-		if (!IsEqualGUID(FarGuid,MacroLIB[I].Guid))
-			continue;
-
-		MkRegKeyName(I, strRegKeyName);
-
-		if (!MacroLIB[I].BufferSize || !MacroLIB[I].Src)
-		{
-			DeleteRegKey(strRegKeyName);
-			continue;
-		}
-
-#if 0
-
-		if (!(TextBuffer=MkTextSequence(MacroLIB[I].Buffer,MacroLIB[I].BufferSize,MacroLIB[I].Src)))
-			continue;
-
-		SetRegKey(RegKeyName,"Sequence",TextBuffer);
-
-		//_SVS(SysLog(L"%3d) %s|Sequence='%s'",I,RegKeyName,TextBuffer));
-		if (TextBuffer)
-			xf_free(TextBuffer);
-
-#endif
-		BOOL Ok=TRUE;
-
-		if (MacroLIB[I].Flags&MFLAGS_REG_MULTI_SZ)
-		{
-			int Len=StrLength(MacroLIB[I].Src)+2;
-			wchar_t *ptrSrc=new wchar_t[Len];
-
-			if (ptrSrc)
-			{
-				wcscpy(ptrSrc,MacroLIB[I].Src);
-
-				for (int J=0; ptrSrc[J]; ++J)
-					if (ptrSrc[J] == L'\n')
-						ptrSrc[J]=0;
-
-				ptrSrc[Len-1]=0;
-				SetRegKey(strRegKeyName,L"Sequence",ptrSrc,Len*sizeof(wchar_t),REG_MULTI_SZ);
-				delete[] ptrSrc;
-				Ok=FALSE;
-			}
-		}
-
-		if (Ok)
-			SetRegKey(strRegKeyName,L"Sequence",MacroLIB[I].Src);
-
-		if (MacroLIB[I].Description)
-			SetRegKey(strRegKeyName,L"Description",MacroLIB[I].Description);
-		else
-			DeleteRegValue(strRegKeyName,L"Description");
-
-		// подсократим кодУ...
-		for (size_t J=0; J < ARRAYSIZE(MKeywordsFlags); ++J)
-		{
-			if (MacroLIB[I].Flags & MKeywordsFlags[J].Value)
-				SetRegKey(strRegKeyName,MKeywordsFlags[J].Name,1);
-			else
-				DeleteRegValue(strRegKeyName,MKeywordsFlags[J].Name);
-		}
-	}
+	WriteVarsConsts();
+	WritePluginFunctions();
+	WriteMacroRecords();
 }
 
-
-int KeyMacro::WriteVarsConst(int WriteMode)
+void KeyMacro::ReadVarsConsts()
 {
-	string strUpKeyName=L"KeyMacros\\";
-	strUpKeyName+=(WriteMode==MACRO_VARS?L"Vars":L"Consts");
-	string strValueName;
-	TVarTable *t = (WriteMode==MACRO_VARS)?&glbVarTable:&glbConstTable;
+	string strName;
+	string Value;
 
-	for (int I=0; ; I++)
+	while (MacroCfg->EnumConsts(strName, Value))
 	{
-		TVarSet *var=varEnum(*t,I);
-
-		if (!var)
-			break;
-
-		strValueName = var->str;
-		strValueName = (WriteMode==MACRO_VARS?L"%":L"")+strValueName;
-
-		switch (var->value.type())
-		{
-			case vtInteger:
-				SetRegKey64(strUpKeyName,strValueName,var->value.i());
-				break;
-			case vtDouble:
-				//_RegWriteString(strUpKeyName,strValueName,var->value.d());
-				break;
-			case vtString:
-				_RegWriteString(strUpKeyName,strValueName,var->value.s());
-				break;
-			default:
-				break;
-		}
+		varInsert(glbConstTable, strName)->value = Value.CPtr();
 	}
 
-	return TRUE;
-}
-
-/*
-   KeyMacros\\Vars
-     "StringName":REG_SZ
-     "IntName":REG_DWORD
-*/
-int KeyMacro::ReadVarsConst(int ReadMode, string &strSData)
-{
-	string strValueName;
-	long IData;
-	__int64 IData64;
-	string strUpKeyName=L"KeyMacros\\";
-	strUpKeyName+=(ReadMode==MACRO_VARS?L"Vars":L"Consts");
-	TVarTable *t = (ReadMode==MACRO_VARS)?&glbVarTable:&glbConstTable;
-
-	for (int i=0; ; i++)
+	while (MacroCfg->EnumVars(strName, Value))
 	{
-		IData=0;
-		strValueName.Clear();
-		strSData.Clear();
-		int Type=EnumRegValueEx(strUpKeyName,i,strValueName,strSData,(LPDWORD)&IData,(__int64*)&IData64);
-
-		if (Type == REG_NONE)
-			break;
-
-		if (ReadMode == MACRO_VARS &&  !(strValueName.At(0) == L'%' && strValueName.At(1) == L'%'))
-			continue;
-
-		const wchar_t *lpwszValueName=strValueName.CPtr()+(ReadMode==MACRO_VARS);
-
-		if (Type == REG_SZ)
-			varInsert(*t, lpwszValueName)->value = strSData.CPtr();
-		else if (Type == REG_MULTI_SZ)
-		{
-			// Различаем так же REG_MULTI_SZ
-			wchar_t *ptrSData = strSData.GetBuffer();
-
-			for (;;)
-			{
-				ptrSData+=StrLength(ptrSData);
-
-				if (!ptrSData[0] && !ptrSData[1])
-					break;
-
-				*ptrSData=L'\n';
-			}
-
-			strSData.ReleaseBuffer();
-			varInsert(*t, lpwszValueName)->value = strSData.CPtr();
-		}
-		else if (Type == REG_DWORD)
-			varInsert(*t, lpwszValueName)->value = (__int64)IData;
-		else if (Type == REG_QWORD)
-			varInsert(*t, lpwszValueName)->value = IData64;
+		varInsert(glbVarTable, strName.CPtr()+1)->value = Value.CPtr();
 	}
 
-	if (ReadMode == MACRO_CONSTS)
-	{
-		INT64 Value=0;
-		SetMacroConst(constMsX,Value);
-		SetMacroConst(constMsY,Value);
-		SetMacroConst(constMsButton,Value);
-		SetMacroConst(constMsCtrlState,Value);
-		SetMacroConst(constMsEventFlags,Value);
-		SetMacroConst(constRCounter,Value);
-	}
-
-	return TRUE;
+	INT64 TempValue=0;
+	SetMacroConst(constMsX,TempValue);
+	SetMacroConst(constMsY,TempValue);
+	SetMacroConst(constMsButton,TempValue);
+	SetMacroConst(constMsCtrlState,TempValue);
+	SetMacroConst(constMsEventFlags,TempValue);
+	SetMacroConst(constRCounter,TempValue);
 }
 
 void KeyMacro::SetMacroConst(const wchar_t *ConstName, const TVar& Value)
@@ -6108,7 +5978,7 @@ void KeyMacro::SetMacroConst(const wchar_t *ConstName, const TVar& Value)
 /*
    KeyMacros\Function
 */
-int KeyMacro::ReadMacroFunction(int ReadMode, string& strBuffer)
+void KeyMacro::ReadPluginFunctions()
 {
 	/*
 	 В реестре держать раздел "KeyMacros\Funcs" - библиотека макрофункций, экспортируемых плагинами (ProcessMacroW)
@@ -6149,109 +6019,60 @@ int KeyMacro::ReadMacroFunction(int ReadMode, string& strBuffer)
 
 	$1, $2, $3 - параметры
 	*/
-	if (ReadMode == MACRO_FUNCS)
-	{
 #if 1
-		int I;
-		string strUpKeyName=L"KeyMacros\\Funcs";
-		string strRegKeyName;
-		string strFuncName;
-		string strSyntax;
-		DWORD  nParams;
-		DWORD  oParams;
-		DWORD  Flags;
-		string strGUID;
-		string strDescription;
-		DWORD regType=0;
+	string strPluginGUID;
+	string strFunctionName;
+	int nParam;
+	int oParam;
+	unsigned __int64 Flags;
+	string strSequence;
+	string strSyntax;
+	string strDescription;
 
-		for (I=0;; I++)
-		{
-			if (!EnumRegKey(strUpKeyName,I,strRegKeyName))
-				break;
-
-			size_t pos;
-
-			strRegKeyName.RPos(pos,L'\\');
-			strFuncName = strRegKeyName;
-			strFuncName.LShift(pos+1);
-
-			if (GetRegKey(strRegKeyName,L"Sequence",strBuffer,L"",&regType) && regType == REG_MULTI_SZ)
-			{
-				wchar_t *ptrBuffer = strBuffer.GetBuffer();
-
-				while (1)
-				{
-					ptrBuffer+=StrLength(ptrBuffer);
-
-					if (!ptrBuffer[0] && !ptrBuffer[1])
-						break;
-
-					*ptrBuffer=L'\n';
-				}
-
-				strBuffer.ReleaseBuffer();
-			}
-
-			RemoveExternalSpaces(strBuffer);
-			nParams=GetRegKey(strRegKeyName,L"nParams",0);
-			oParams=GetRegKey(strRegKeyName,L"oParams",0);
-			Flags=GetRegKey(strRegKeyName,L"Flags",0);
-
-			regType=0;
-
-			if (GetRegKey(strRegKeyName,L"GUID",strGUID,L"",&regType))
-				RemoveExternalSpaces(strGUID);
-
-			regType=0;
-
-			if (GetRegKey(strRegKeyName,L"Syntax",strSyntax,L"",&regType))
-				RemoveExternalSpaces(strSyntax);
-
-			regType=0;
-
-			if (GetRegKey(strRegKeyName,L"Description",strDescription,L"",&regType))
-				RemoveExternalSpaces(strDescription);
+	while (MacroCfg->EnumPluginFunctions(strPluginGUID, strFunctionName, &nParam, &oParam, &Flags, strSequence, strSyntax, strDescription))
+	{
+		RemoveExternalSpaces(strPluginGUID);
+		RemoveExternalSpaces(strFunctionName);
+		RemoveExternalSpaces(strSequence);
+		RemoveExternalSpaces(strSyntax);
+		//RemoveExternalSpaces(strDescription); //пока не задействовано
 
 			MacroRecord mr={};
-			bool UsePluginFunc=true;
-			if (!strBuffer.IsEmpty())
-			{
-				if (!ParseMacroString(&mr,strBuffer.CPtr()))
-					mr.Buffer=0;
-			}
-
-			// использовать Sequence вместо плагина; оно же будет юзаться, если GUID пуст
-			if ((Flags & 2) && (mr.Buffer || strGUID.IsEmpty()))
-			{
-				UsePluginFunc=false;
-			}
-
-			// зарегистрировать функцию
-			TMacroFunction MFunc={
-				strFuncName.CPtr(),
-				strGUID.CPtr(),
-				strSyntax.CPtr(),
-				(UsePluginFunc?pluginsFunc:usersFunc),
-				mr.Buffer,
-				mr.BufferSize,
-				0,
-				MCODE_F_NOFUNC,
-				(int)nParams,
-				(int)oParams
-			};
-
-			KeyMacro::RegisterMacroFunction(&MFunc);
-
-			if (mr.Buffer)
-				xf_free(mr.Buffer);
-
+		bool UsePluginFunc=true;
+		if (!strSequence.IsEmpty())
+		{
+			if (!ParseMacroString(&mr,strSequence.CPtr()))
+				mr.Buffer=0;
 		}
 
-#endif
-		return TRUE;
+		// использовать Sequence вместо плагина; оно же будет юзаться, если GUID пуст
+		if ((Flags & 2) && (mr.Buffer || strPluginGUID.IsEmpty()))
+		{
+			UsePluginFunc=false;
+		}
+
+		// зарегистрировать функцию
+		TMacroFunction MFunc={
+			strFunctionName.CPtr(),
+			strPluginGUID.CPtr(),
+			strSyntax.CPtr(),
+			(UsePluginFunc?pluginsFunc:usersFunc),
+			mr.Buffer,
+			mr.BufferSize,
+			0,
+			MCODE_F_NOFUNC,
+			nParam,
+			oParam,
+		};
+
+		RegisterMacroFunction(&MFunc);
+
+		if (mr.Buffer)
+			xf_free(mr.Buffer);
+
 	}
 
-	return FALSE;
+#endif
 }
 
 void KeyMacro::RegisterMacroIntFunction()
@@ -6375,92 +6196,37 @@ DWORD KeyMacro::GetNewOpCode()
 	return LastOpCodeUF++;
 }
 
-int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
+int KeyMacro::ReadKeyMacro(int Area)
 {
-	int I, J;
 	MacroRecord CurMacro={};
-	string strUpKeyName=L"KeyMacros\\";
-	strUpKeyName+=GetSubKey(ReadMode);
-	string strRegKeyName, strKeyText;
-	string strDescription;
+	int Key;
+	unsigned __int64 MFlags=0;
+	string strSequence, strDescription;
 	string strGUID;
 	int ErrorCount=0;
 
-	for (I=0;; I++)
+	while(MacroCfg->EnumKeyMacros(Area, &Key, &MFlags, strSequence, strDescription))
 	{
-		DWORD MFlags=0;
-
-		if (!EnumRegKey(strUpKeyName,I,strRegKeyName))
-			break;
-
-		size_t pos;
-
-		if (strRegKeyName.RPos(pos,L'\\'))
-		{
-			strKeyText = strRegKeyName;
-			strKeyText.LShift(pos+1);
-
-			// ПОМНИМ! что название макроса, начинающееся на символ ~ - это
-			// блокированный макрос!!!
-			if (strKeyText.At(0) == L'~' && strKeyText.At(1))
-			{
-				pos = 1;
-
-				while (strKeyText.At(pos) && strKeyText.At(pos) == L'~')// && IsSpace(KeyText[1]))
-					++pos;
-
-				strKeyText.LShift(pos);
-				MFlags|=MFLAGS_DISABLEMACRO;
-			}
-		}
-		else
-			strKeyText.Clear();
-
-		int KeyCode=KeyNameToKey(strKeyText);
-
-		if (KeyCode==-1)
+		if (Key==-1)
 			continue;
 
-		DWORD regType=0;
+		RemoveExternalSpaces(strSequence);
+		RemoveExternalSpaces(strDescription);
 
-		if (GetRegKey(strRegKeyName,L"Sequence",strBuffer,L"",&regType) && regType == REG_MULTI_SZ)
-		{
-			//BUGBUG а каким боком REG_MULTI_SZ засунули в string?
-			// Различаем так же REG_MULTI_SZ
-			wchar_t *ptrBuffer = strBuffer.GetBuffer();
-
-			for (;;)
-			{
-				ptrBuffer+=StrLength(ptrBuffer);
-
-				if (!ptrBuffer[0] && !ptrBuffer[1])
-					break;
-
-				*ptrBuffer=L'\n';
-			}
-
-			strBuffer.ReleaseBuffer();
-		}
-
-		RemoveExternalSpaces(strBuffer);
-
-		if (strBuffer.IsEmpty())
+		if (strSequence.IsEmpty())
 		{
 			//ErrorCount++; // Раскомментить, если не допускается пустой "Sequence"
 			continue;
 		}
 
-		CurMacro.Key=KeyCode;
+		CurMacro.Key=Key;
 		CurMacro.Buffer=nullptr;
 		CurMacro.Src=nullptr;
 		CurMacro.Description=nullptr;
 		CurMacro.BufferSize=0;
-		CurMacro.Flags=MFlags|(ReadMode&MFLAGS_MODEMASK)|(regType == REG_MULTI_SZ?MFLAGS_REG_MULTI_SZ:0);
+		CurMacro.Flags=MFlags|(Area&MFLAGS_MODEMASK);
 
-		for (J=0; J < int(ARRAYSIZE(MKeywordsFlags)); ++J)
-			CurMacro.Flags|=GetRegKey(strRegKeyName,MKeywordsFlags[J].Name,0)?MKeywordsFlags[J].Value:0;
-
-		if (ReadMode == MACRO_EDITOR || ReadMode == MACRO_DIALOG || ReadMode == MACRO_VIEWER)
+		if (Area == MACRO_EDITOR || Area == MACRO_DIALOG || Area == MACRO_VIEWER)
 		{
 			if (CurMacro.Flags&MFLAGS_SELECTION)
 			{
@@ -6475,7 +6241,7 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 			}
 		}
 
-		if (!ParseMacroString(&CurMacro,strBuffer))
+		if (!ParseMacroString(&CurMacro,strSequence))
 		{
 			ErrorCount++;
 			continue;
@@ -6489,20 +6255,19 @@ int KeyMacro::ReadMacros(int ReadMode, string &strBuffer)
 		}
 
 		MacroLIB=NewMacros;
-		CurMacro.Src=xf_wcsdup(strBuffer);
-		regType=0;
-
-		if (GetRegKey(strRegKeyName,L"Description",strDescription,L"",&regType))
+		CurMacro.Src=xf_wcsdup(strSequence);
+		if (!strDescription.IsEmpty())
 		{
 			CurMacro.Description=xf_wcsdup(strDescription);
 		}
 
 		GUID Guid=FarGuid;
-		if (GetRegKey(strRegKeyName,L"GUID",strGUID,L"",&regType))
+		// BUGBUG!
+		/*if (GetRegKey(strRegKeyName,L"GUID",strGUID,L"",&regType))
 		{
 			if(!StrToGuid(strGUID,Guid))
 				Guid=FarGuid;
-		}
+		}*/
 		CurMacro.Guid=Guid;
 
 		MacroLIB[MacroLIBCount]=CurMacro;
@@ -6548,7 +6313,7 @@ void KeyMacro::RunStartMacro()
 	if (Opt.Macro.DisableMacro&MDOL_AUTOSTART)
 		return;
 
-	// временно отсавим старый вариант
+	// временно оставим старый вариант
 #if 1
 
 	if (!(CtrlObject->Cp() && CtrlObject->Cp()->ActivePanel && !Opt.OnlyEditorViewerUsed && CtrlObject->Plugins.IsPluginsLoaded()))
@@ -6780,9 +6545,6 @@ M1:
 			// общие макросы учитываем только при удалении.
 			if (!MacroDlg->RecBuffer || !MacroDlg->RecBufferSize || (Mac->Flags&0xFF)!=MACRO_COMMON)
 			{
-				string strRegKeyName;
-				MacroDlg->MkRegKeyName(Index, strRegKeyName);
-
 				string strBufKey;
 				if (Mac->Src )
 				{
@@ -6792,7 +6554,7 @@ M1:
 
 				DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
 				string strBuf;
-				if ((Mac->Flags&0xFF)==MACRO_COMMON)
+				if ((Mac->Flags&MFLAGS_MODEMASK)==MACRO_COMMON)
 					strBuf.Format(MSG(!MacroDlg->RecBufferSize?
 					                  (DisFlags?MMacroCommonDeleteAssign:MMacroCommonDeleteKey):
 							                  MMacroCommonReDefinedKey), strKeyText.CPtr());
@@ -6824,19 +6586,24 @@ M1:
 				{
 					if (DisFlags)
 					{
-						// удаляем из реестра только если включен автосейв
-						if (Opt.AutoSaveSetup)
-						{
-							// удалим старую запись из реестра
-							DeleteRegKey(strRegKeyName);
-						}
 						// раздисаблим
-						Mac->Flags&=~MFLAGS_DISABLEMACRO;
+						Mac->Flags&=~(MFLAGS_DISABLEMACRO|MFLAGS_NEEDSAVEMACRO);
 					}
 
 					// в любом случае - вываливаемся
 					SendDlgMessage(hDlg,DM_CLOSE,1,0);
 					return TRUE;
+				}
+				else
+				{
+					// удаляем из DB только если включен автосейв
+					if (Opt.AutoSaveSetup)
+					{
+						MacroCfg->BeginTransaction();
+							// удалим старую запись из DB
+							MacroCfg->DeleteKeyMacro(Mac->Flags&MFLAGS_MODEMASK, Mac->Key);
+						MacroCfg->EndTransaction();
+					}
 				}
 
 				// здесь - здесь мы нажимали "Нет", ну а на нет и суда нет
@@ -7158,45 +6925,6 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,BOOL
 	wchar_t *Buffer=(wchar_t *)PlainText;
 	bool allocBuffer=false;
 
-	if (Flags&MFLAGS_REG_MULTI_SZ) // Различаем так же REG_MULTI_SZ
-	{
-		int lenPlainText=0;
-
-		for (;;)
-		{
-			if (!PlainText[lenPlainText] && !PlainText[lenPlainText+1])
-			{
-				lenPlainText+=2;
-				break;
-			}
-
-			lenPlainText++;
-		}
-
-		//lenPlainText++;
-		Buffer=(wchar_t*)xf_malloc((lenPlainText+1)*(int)sizeof(wchar_t));
-
-		if (Buffer)
-		{
-			allocBuffer=true;
-			wmemmove(Buffer,PlainText,lenPlainText);
-			Buffer[lenPlainText]=0; // +1
-			wchar_t *ptrBuffer=Buffer;
-
-			for (;;)
-			{
-				ptrBuffer+=StrLength(ptrBuffer);
-
-				if (!ptrBuffer[0] && !ptrBuffer[1])
-					break;
-
-				*ptrBuffer=L'\n';
-			}
-		}
-		else
-			return FALSE;
-	}
-
 	// сначала смотрим на парсер
 	BOOL parsResult=ParseMacroString(&NewMacroWORK2,Buffer,onlyCheck);
 
@@ -7329,7 +7057,7 @@ int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL 
 				strTitle+=L" ";
 				string strKey;
 				KeyToText(CurMacro->Key,strKey);
-				strTitle.Append(GetSubKey(LOBYTE(LOWORD(CurMacro->Flags)))).Append(L"\\").Append(strKey);
+				strTitle.Append(GetAreaName(CurMacro->Flags&MFLAGS_MODEMASK)).Append(L"\\").Append(strKey);
 			}
 			Message(MSG_WARNING|MSG_LEFTALIGN,1,strTitle,ErrMsg[3]+L":",ErrMsg[0],L"\x1",ErrMsg[1],ErrMsg[2],L"\x1",MSG(MOk));
 			//else
@@ -7431,21 +7159,21 @@ int KeyMacro::GetIndex(int Key, int CheckMode, bool UseCommon, bool StrictKeys)
 				MacroRecord *MPtrSave=MPtr;
 				for (; ctrl < 2; ctrl++)
 				{
-					for (Pos=0; Pos < Len; ++Pos, ++MPtr)
+				for (Pos=0; Pos < Len; ++Pos, ++MPtr)
+				{
+					if (!((MPtr->Key ^ Key) & ~0xFFFF) &&
+					        (Upper(static_cast<WCHAR>(MPtr->Key))==Upper(static_cast<WCHAR>(Key))) &&
+					        (MPtr->BufferSize > 0))
 					{
-						if (!((MPtr->Key ^ Key) & ~0xFFFF) &&
-								(Upper(static_cast<WCHAR>(MPtr->Key))==Upper(static_cast<WCHAR>(Key))) &&
-								(MPtr->BufferSize > 0))
-						{
 							//        && (CheckMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == CheckMode))
-							//_SVS(SysLog(L"GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
-							if (!(MPtr->Flags&MFLAGS_DISABLEMACRO))
+						//_SVS(SysLog(L"GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
+						if (!(MPtr->Flags&MFLAGS_DISABLEMACRO))
 							{
 							    if(!MPtr->Callback||MPtr->Callback(MPtr->Id,AKMFLAGS_NONE))
 							    	return Pos+((CheckMode >= 0)?IndexMode[CheckMode][0]:0);
-							}
-						}
 					}
+				}
+			}
 					if (!ctrl)
 					{
 						if (Key & KEY_RCTRL)
@@ -7491,59 +7219,30 @@ int KeyMacro::GetRecordSize(int Key, int CheckMode)
 #endif
 
 // получить название моды по коду
-const wchar_t* KeyMacro::GetSubKey(int Mode)
+const wchar_t* KeyMacro::GetAreaName(int AreaCode)
 {
-	return (Mode >= MACRO_FUNCS && Mode < MACRO_LAST)?MKeywordsArea[Mode+3].Name:L"";
+	return (AreaCode >= MACRO_FUNCS && AreaCode < MACRO_LAST)?MKeywordsArea[AreaCode+3].Name:L"";
 }
 
 // получить код моды по имени
-int KeyMacro::GetSubKey(const wchar_t *Mode)
+int KeyMacro::GetAreaCode(const wchar_t *AreaName)
 {
 	for (int i=MACRO_FUNCS; i < MACRO_LAST; i++)
-		if (!StrCmpI(MKeywordsArea[i+3].Name,Mode))
+		if (!StrCmpI(MKeywordsArea[i+3].Name,AreaName))
 			return i;
 
 	return MACRO_FUNCS-1;
 }
 
-int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName, string &strDescription)
+int KeyMacro::GetMacroKeyInfo(bool FromDB, int Mode, int Pos, string &strKeyName, string &strDescription)
 {
 	if (Mode >= MACRO_FUNCS && Mode < MACRO_LAST)
 	{
-		if (FromReg)
+		if (FromDB)
 		{
-			FormatString strUpKeyName;
-			string strRegKeyName;
-			strUpKeyName << L"KeyMacros\\" << GetSubKey(Mode);
-
 			if (Mode >= MACRO_OTHER)
 			{
-				string strSyntax, strDescr;
-
-				if (!EnumRegKey(strUpKeyName,Pos,strRegKeyName))
-					return -1;
-
-				DWORD regType=0;
-				GetRegKey(strRegKeyName,L"Description",strDescr,L"",&regType);
-
-				if (Mode == MACRO_FUNCS)
-				{
-					regType=0;
-					GetRegKey(strRegKeyName,L"Syntax",strSyntax,L"",&regType);
-					strDescription = strSyntax + (strSyntax.GetLength() > 0 ? L" - " : L"") + strDescr;
-				}
-				else
-				{
-					strDescription = strDescr;
-				}
-
-				size_t pos;
-
-				if (strRegKeyName.RPos(pos,L'\\'))
-					strKeyName = strRegKeyName.SubStr(pos+1);
-				else
-					strKeyName.Clear();
-
+				// TODO
 				return Pos+1;
 			}
 			else if (Mode == MACRO_FUNCS)
@@ -7553,31 +7252,7 @@ int KeyMacro::GetMacroKeyInfo(bool FromReg,int Mode,int Pos, string &strKeyName,
 			}
 			else
 			{
-				string strSData;
-				DWORD IData;
-				__int64 IData64;
-				DWORD Type;
-
-				if (!EnumRegValueEx(strUpKeyName,Pos,strRegKeyName,strSData, &IData, &IData64, &Type))
-					return -1;
-
-				strKeyName = strRegKeyName;
-
-				switch (Type)
-				{
-					case REG_DWORD:
-						strDescription.Format(MSG(MMacroOutputFormatForHelpDWord), IData, IData);
-						break;
-					case REG_QWORD:
-						strDescription.Format(MSG(MMacroOutputFormatForHelpQWord), IData64, IData64);
-						break;
-					case REG_SZ:
-					case REG_EXPAND_SZ:
-					case REG_MULTI_SZ:
-						strDescription.Format(MSG(MMacroOutputFormatForHelpSz), strSData.CPtr());
-						break;
-				}
-
+				// TODO
 				return Pos+1;
 			}
 		}
@@ -7854,7 +7529,7 @@ static int __cdecl SortMacros(const MacroRecord *el1,const MacroRecord *el2)
 		if (result==0)
 		{
 			result=static_cast<int>(static_cast<char*>(el1->Id)-static_cast<char*>(el2->Id));
-		}
+}
 	}
 	return result;
 }
@@ -7882,7 +7557,7 @@ void KeyMacro::Sort()
 		IndexMode[J][1]++;
 	}
 
-	//_SVS(for(I=0; I < ARRAYSIZE(IndexMode); ++I)SysLog(L"IndexMode[%02d.%s]=%d,%d",I,GetSubKey(I),IndexMode[I][0],IndexMode[I][1]));
+	//_SVS(for(I=0; I < ARRAYSIZE(IndexMode); ++I)SysLog(L"IndexMode[%02d.%s]=%d,%d",I,GetAreaName(I),IndexMode[I][0],IndexMode[I][1]));
 }
 
 DWORD KeyMacro::GetOpCode(MacroRecord *MR,int PC)
@@ -7993,36 +7668,6 @@ BOOL KeyMacro::GetMacroParseError(string *Err1, string *Err2, string *Err3, stri
 bool KeyMacro::IsOpCode(DWORD p)
 {
 	return (!(p&KEY_MACRO_BASE) || p == MCODE_OP_ENDKEYS)?false:true;
-}
-
-static LONG _RegWriteString(const wchar_t *Key,const wchar_t *ValueName,const wchar_t *Data)
-{
-	LONG Ret=-1;
-
-	if (wcschr(Data,L'\n'))
-	{
-		int Len=StrLength(Data)+2;
-		wchar_t *ptrSrc=(wchar_t *)xf_malloc(Len*sizeof(wchar_t));
-
-		if (ptrSrc)
-		{
-			wcscpy(ptrSrc,Data);
-
-			for (int J=0; ptrSrc[J]; ++J)
-				if (ptrSrc[J] == L'\n')
-					ptrSrc[J]=0;
-
-			ptrSrc[Len-1]=0;
-			Ret=SetRegKey(Key,ValueName,ptrSrc,(DWORD)Len*sizeof(wchar_t),REG_MULTI_SZ);
-			xf_free(ptrSrc);
-		}
-	}
-	else
-	{
-		Ret=SetRegKey(Key,ValueName,Data);
-	}
-
-	return Ret;
 }
 
 int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,FARKEYMACROFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)

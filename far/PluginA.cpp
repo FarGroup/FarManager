@@ -3556,7 +3556,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 			return FarVer;
 		}
 		case oldfar::ACTL_CONSOLEMODE:
-			return IsFullscreen()?TRUE:FALSE;
+			return IsConsoleFullscreen()?TRUE:FALSE;
 
 		case oldfar::ACTL_GETSYSWORDDIV:
 		{

@@ -67,6 +67,8 @@ ImportedFunctions::ImportedFunctions()
 		InitImport(hKernel, pfnIsWow64Process, "IsWow64Process");
 		InitImport(hKernel, pfnGetNamedPipeServerProcessId, "GetNamedPipeServerProcessId");
 		InitImport(hKernel, pfnCancelSynchronousIo, "CancelSynchronousIo");
+		InitImport(hKernel, pfnSetConsoleKeyShortcuts, "SetConsoleKeyShortcuts");
+		InitImport(hKernel, pfnGetConsoleScreenBufferInfoEx, "GetConsoleScreenBufferInfoEx");
 	}
 
 	if (hNtdll)
@@ -273,6 +275,32 @@ BOOL ImportedFunctions::CancelSynchronousIo(HANDLE Thread)
 	if(pfnCancelSynchronousIo)
 	{
 		return pfnCancelSynchronousIo(Thread);
+	}
+	else
+	{
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		return FALSE;
+	}
+}
+
+BOOL ImportedFunctions::SetConsoleKeyShortcuts(BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys)
+{
+	if(pfnSetConsoleKeyShortcuts)
+	{
+		return pfnSetConsoleKeyShortcuts(Set, ReserveKeys, AppKeys, NumAppKeys);
+	}
+	else
+	{
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		return FALSE;
+	}
+}
+
+BOOL ImportedFunctions::GetConsoleScreenBufferInfoEx(HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx)
+{
+	if(pfnGetConsoleScreenBufferInfoEx)
+	{
+		return pfnGetConsoleScreenBufferInfoEx(ConsoleOutput, ConsoleScreenBufferInfoEx);
 	}
 	else
 	{

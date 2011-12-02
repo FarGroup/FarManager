@@ -1655,7 +1655,7 @@ string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
 	}
 
 	FormatString tmp;
-	tmp << L" (" << (IsFullscreen()?L"Fullscreen":L"Widowed") << L")";
+	tmp << L" (" << (IsConsoleFullscreen()?L"Fullscreen":L"Widowed") << L")";
 	Records+=tmp;
 	return Records;
 #else

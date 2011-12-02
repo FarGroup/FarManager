@@ -357,3 +357,6 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* LastAccessTime, const FILETIME* LastWriteTime, const FILETIME* ChangeTime);
 
 void apiEnableLowFragmentationHeap();
+
+int RegQueryStringValue(HKEY hKey, const wchar_t *lpwszSubKey, string &strData, const wchar_t *lpwszDefault = L"");
+int EnumRegValueEx(HKEY hRegRootKey, const wchar_t *Key,DWORD Index, string &strDestName, string &strData, LPDWORD IData=nullptr,__int64* IData64=nullptr, DWORD *Type=nullptr);

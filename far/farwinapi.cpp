@@ -1389,3 +1389,113 @@ bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* 
 	Result = Status == STATUS_SUCCESS;
 	return Result;
 }
+
+int RegQueryStringValue(HKEY hKey, const wchar_t *lpwszValueName, string &strData, const wchar_t *lpwszDefault)
+{
+	DWORD cbSize = 0;
+	int nResult = RegQueryValueEx(hKey, lpwszValueName, nullptr, nullptr, nullptr, &cbSize);
+
+	if (nResult == ERROR_SUCCESS)
+	{
+		wchar_t *lpwszData = strData.GetBuffer(cbSize/sizeof(wchar_t)+1);
+		DWORD Type=REG_SZ;
+		nResult = RegQueryValueEx(hKey, lpwszValueName, nullptr, &Type, reinterpret_cast<LPBYTE>(lpwszData), &cbSize);
+		int Size=cbSize/sizeof(wchar_t);
+
+		if (Type==REG_SZ||Type==REG_EXPAND_SZ||Type==REG_MULTI_SZ)
+		{
+			if (!lpwszData[Size-1])
+				Size--;
+
+			strData.ReleaseBuffer(Size);
+		}
+		else
+		{
+			lpwszData[Size] = 0;
+			strData.ReleaseBuffer();
+		}
+	}
+
+	if (nResult != ERROR_SUCCESS)
+	{
+		strData = lpwszDefault;
+	}
+
+	return nResult;
+}
+
+
+int EnumRegValueEx(HKEY hRegRootKey, const wchar_t *Key,DWORD Index, string &strDestName, string &strSData, LPDWORD IData, __int64* IData64, DWORD *lpType)
+{
+	HKEY hKey;
+	int RetCode=REG_NONE;
+	DWORD Type=(DWORD)-1;
+	if(RegOpenKeyEx(hRegRootKey, Key, 0, KEY_QUERY_VALUE|KEY_ENUMERATE_SUB_KEYS, &hKey) == ERROR_SUCCESS)
+	{
+		string strValueName;
+		DWORD ValNameSize=512, ValNameSize0;
+		LONG ExitCode=ERROR_MORE_DATA;
+
+		// get size value name
+		for (; ExitCode==ERROR_MORE_DATA; ValNameSize<<=1)
+		{
+			wchar_t *Name=strValueName.GetBuffer(ValNameSize);
+			ValNameSize0=ValNameSize;
+			ExitCode=RegEnumValue(hKey,Index,Name,&ValNameSize0,nullptr,nullptr,nullptr,nullptr);
+			strValueName.ReleaseBuffer();
+		}
+
+		if (ExitCode != ERROR_NO_MORE_ITEMS)
+		{
+			DWORD Size = 0, Size0;
+			ValNameSize0=ValNameSize;
+			// Get DataSize
+			/*ExitCode = */RegEnumValue(hKey,Index,(LPWSTR)strValueName.CPtr(),&ValNameSize0, nullptr, &Type, nullptr, &Size);
+			// здесь ExitCode == ERROR_SUCCESS
+
+			// корректировка размера
+			if (Type == REG_DWORD)
+			{
+				if (Size < sizeof(DWORD))
+					Size = sizeof(DWORD);
+			}
+			else if (Type == REG_QWORD)
+			{
+				if (Size < sizeof(__int64))
+					Size = sizeof(__int64);
+			}
+
+			wchar_t *Data = strSData.GetBuffer(Size/sizeof(wchar_t)+1);
+			wmemset(Data,0,Size/sizeof(wchar_t)+1);
+			ValNameSize0=ValNameSize;
+			Size0=Size;
+			ExitCode=RegEnumValue(hKey,Index,(LPWSTR)strValueName.CPtr(),&ValNameSize0,nullptr,&Type,(LPBYTE)Data,&Size0);
+
+			if (ExitCode == ERROR_SUCCESS)
+			{
+				if (Type == REG_DWORD)
+				{
+					if (IData)
+						*IData=*(DWORD*)Data;
+				}
+				else if (Type == REG_QWORD)
+				{
+					if (IData64)
+						*IData64=*(__int64*)Data;
+				}
+
+				RetCode=Type;
+				strDestName = strValueName;
+			}
+
+			strSData.ReleaseBuffer(Size/sizeof(wchar_t));
+		}
+
+		RegCloseKey(hKey);
+	}
+	if (lpType)
+	{
+		*lpType=Type;
+	}
+	return RetCode;
+}

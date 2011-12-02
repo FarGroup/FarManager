@@ -33,6 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "TStack.hpp"
 #include "macrocompiler.hpp"
 #include "tvar.hpp"
 #include "macroopcode.hpp"
@@ -99,7 +100,6 @@ enum MACROFLAGS_MFLAGS
 	MFLAGS_NOFILES             =0x04000000, // активная:  запускать, если текущий объект "папка"
 	MFLAGS_PNOFILES            =0x08000000, // пассивная: запускать, если текущий объект "папка"
 
-	MFLAGS_REG_MULTI_SZ        =0x10000000, // текст макроса многострочный (REG_MULTI_SZ)
 	MFLAGS_POSTFROMPLUGIN      =0x20000000, // последовательность пришла от АПИ
 	MFLAGS_NEEDSAVEMACRO       =0x40000000, // необходимо этот макрос запомнить
 	MFLAGS_DISABLEMACRO        =0x80000000, // этот макрос отключен
@@ -237,6 +237,15 @@ class KeyMacro
 		int ReadMacroFunction(int ReadMode, string &strBuffer);
 		int WriteVarsConst(int WriteMode);
 		int ReadMacros(int ReadMode, string &strBuffer);
+		void SavePluginFunctionToDB(const TMacroFunction *MF);
+		void SaveMacroRecordToDB(const MacroRecord *MR);
+		void ReadVarsConsts();
+		void ReadPluginFunctions();
+		int ReadKeyMacro(int Area);
+
+		void WriteVarsConsts();
+		void WritePluginFunctions();
+		void WriteMacroRecords();
 		DWORD AssignMacroKey();
 		int GetMacroSettings(int Key,DWORD &Flags);
 		void InitInternalVars(BOOL InitedRAM=TRUE);
@@ -244,7 +253,6 @@ class KeyMacro
 		void ReleaseWORKBuffer(BOOL All=FALSE); // удалить временный буфер
 
 		UINT64 SwitchFlags(UINT64& Flags,UINT64 Value);
-		string &MkRegKeyName(int IdxMacro,string &strRegKeyName);
 
 		BOOL CheckEditSelected(UINT64 CurFlags);
 		BOOL CheckInsidePlugin(UINT64 CurFlags);
@@ -295,8 +303,11 @@ class KeyMacro
 		// Поместить временный рекорд (бинарное представление)
 		int PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag=0,BOOL IsPluginSend=FALSE);
 
+		bool LoadVarFromDB(const wchar_t *Name, TVar &Value);
+		bool SaveVarToDB(const wchar_t *Name, TVar Value);
+
 		int  LoadMacros(BOOL InitedRAM=TRUE,BOOL LoadAll=TRUE);
-		void SaveMacros(BOOL AllSaved=TRUE);
+		void SaveMacros();
 
 		int GetStartIndex(int Mode) {return IndexMode[Mode<MACRO_LAST-1?Mode:MACRO_LAST-1][0];}
 		// Функция получения индекса нужного макроса в массиве
@@ -322,9 +333,9 @@ class KeyMacro
 		DWORD SetHistroyEnableMask(DWORD Mask);
 		DWORD GetHistroyEnableMask();
 
-		static const wchar_t* GetSubKey(int Mode);
-		static int   GetSubKey(const wchar_t *Mode);
-		static int   GetMacroKeyInfo(bool FromReg,int Mode,int Pos,string &strKeyName,string &strDescription);
+		static const wchar_t* GetAreaName(int AreaCode);
+		static int   GetAreaCode(const wchar_t *AreaName);
+		static int   GetMacroKeyInfo(bool FromDB,int Mode,int Pos,string &strKeyName,string &strDescription);
 		static wchar_t *MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Src=nullptr);
 		// из строкового представления макроса сделать MacroRecord
 		int ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL onlyCheck=FALSE);
@@ -353,3 +364,22 @@ bool checkMacroConst(const wchar_t *name);
 const wchar_t *eStackAsString(int Pos=0);
 
 inline bool IsMenuArea(int Area){return Area==MACRO_MAINMENU || Area==MACRO_MENU || Area==MACRO_DISKS || Area==MACRO_USERMENU || Area==MACRO_AUTOCOMPLETION;}
+
+class TVMStack: public TStack<TVar>
+{
+	private:
+		const TVar Error;
+
+	public:
+		TVMStack() {}
+		~TVMStack() {}
+
+	public:
+		const TVar &Pop();
+		TVar &Pop(TVar &dest);
+		const TVar &Peek();
+};
+
+extern TVarTable glbVarTable;
+extern TVarTable glbConstTable;
+extern TVMStack VMStack;
