@@ -42,6 +42,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farversion.hpp"
 #include "RegExp.hpp"
 #include "keyboard.hpp"
+#include "macro.hpp"
+#include "udlist.hpp"
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
@@ -49,6 +51,41 @@ PluginsCacheConfig *PlCacheCfg;
 PluginsHotkeysConfig *PlHotkeyCfg;
 HistoryConfig *HistoryCfg;
 MacroConfig *MacroCfg;
+
+class Utf8String
+{
+public:
+	Utf8String(const wchar_t* Str)
+	{
+		Init(Str, StrLength(Str));
+	}
+
+	Utf8String(const string& Str)
+	{
+		Init(Str, Str.GetLength());
+	}
+	
+	~Utf8String()
+	{
+		delete[] Data;
+	}
+
+	operator const char*() const {return Data;}
+	size_t size() const {return Size;}
+
+
+private:
+	void Init(const wchar_t* Str, size_t Length)
+	{
+		Size = WideCharToMultiByte(CP_UTF8, 0, Str, Length, nullptr, 0, nullptr, nullptr) + 1;
+		Data = new char[Size];
+		WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), Data, static_cast<int>(Size-1), nullptr, nullptr);
+		Data[Size-1] = 0;
+	}
+
+	char* Data;
+	size_t Size;
+};
 
 int IntToHex(int h)
 {
@@ -2326,13 +2363,32 @@ public:
 			if (!se)
 				break;
 
-			se->SetAttribute("area", stmtEnumAllKeyMacros.GetColInt64(0));
+			se->SetAttribute("area", Utf8String(GetAreaName(static_cast<MACROMODEAREA>(stmtEnumAllKeyMacros.GetColInt64(0)))));
 			Key=stmtEnumAllKeyMacros.GetColInt64(1);
-			se->SetAttribute("key", Int64ToHexString(Key));
-			se->SetAttribute("keyname", KeyToNameChar(Key));
-			se->SetAttribute("flags", Int64ToHexString(stmtEnumAllKeyMacros.GetColInt64(2)));
+			se->SetAttribute("key", KeyToNameChar(Key));
+			DWORD Flags = static_cast<DWORD>(stmtEnumAllKeyMacros.GetColInt64(2));
+			string strFlags;
+			for(size_t i = 0; 1u << i <= Flags; ++i)
+			{
+				if(Flags&(1u<<i))
+				{
+					if(!strFlags.IsEmpty())
+					{
+						strFlags += L"|";
+					}
+					strFlags+=GetFlagName(Flags&(1u<<i));
+				}
+			}
+			if(!strFlags.IsEmpty())
+			{
+				se->SetAttribute("flags", Utf8String(strFlags));
+			}
 			se->SetAttribute("sequence", stmtEnumAllKeyMacros.GetColTextUTF8(3));
-			//se->SetAttribute("description", stmtEnumAllKeyMacros.GetColTextUTF8(4));
+			const char* Description = stmtEnumAllKeyMacros.GetColTextUTF8(4);
+			if(Description && *Description)
+			{
+				se->SetAttribute("description", Description);
+			}
 			e->LinkEndChild(se);
 		}
 		stmtEnumAllKeyMacros.Reset();
@@ -2344,6 +2400,76 @@ public:
 
 	bool Import(const TiXmlHandle &root)
 	{
+		BeginTransaction();
+
+		for (const TiXmlElement *e = root.FirstChild("macro").FirstChild("constants").FirstChildElement("constant").Element(); e; e=e->NextSiblingElement("constant"))
+		{
+			const char* name = e->Attribute("name");
+			const char* value = e->Attribute("value");
+			if(name && value)
+			{
+				SetConstValue(string(name, CP_UTF8),string(value, CP_UTF8));
+			}
+		}
+
+		for (const TiXmlElement *e = root.FirstChild("macro").FirstChild("variables").FirstChildElement("variable").Element(); e; e=e->NextSiblingElement("variable"))
+		{
+			const char* name = e->Attribute("name");
+			const char* value = e->Attribute("value");
+			if(name && value)
+			{
+				SetConstValue(string(name, CP_UTF8),string(value, CP_UTF8));
+			}
+		}
+
+		for (const TiXmlElement *e = root.FirstChild("macro").FirstChild("pluginfunctions").FirstChildElement("plugin").Element(); e; e=e->NextSiblingElement("pluginfunctions"))
+		{
+			const char* guid = e->Attribute("Guid");
+			const char* fname = e->Attribute("function name");
+			const char* nparam = e->Attribute("nparam");
+			const char* oparam = e->Attribute("oparam");
+			const char* flags = e->Attribute("flags");
+			const char* sequence = e->Attribute("sequence");
+			const char* syntax = e->Attribute("syntax");
+			const char* description = e->Attribute("description");
+
+			// BUGBUG, params can be optional
+			if(guid && fname && nparam && oparam && flags && sequence && syntax)
+			{
+				SetPluginFunction(string(guid, CP_UTF8), string(fname, CP_UTF8), HexStringToInt64(nparam), HexStringToInt64(oparam), HexStringToInt64(flags), string(sequence, CP_UTF8), string(syntax, CP_UTF8), string(description, CP_UTF8));
+			}
+		}
+
+		for (const TiXmlElement *e = root.FirstChild("macro").FirstChild("keymacros").FirstChildElement("macro").Element(); e; e=e->NextSiblingElement("macro"))
+		{
+			const char* area = e->Attribute("area");
+			const char* key = e->Attribute("key");
+			const char* flags = e->Attribute("flags"); // optional
+			const char* sequence = e->Attribute("sequence");
+			const char* description = e->Attribute("description"); // optional
+
+			if (area && key && sequence)
+			{
+				UINT64 Key = KeyNameToKey(string(key, CP_UTF8));
+				if(Key != static_cast<DWORD>(-1))
+				{
+					DWORD Flags = 0;
+					if(flags && *flags)
+					{
+						UserDefinedList FlagList(L'|', L'|', ULF_UNIQUE);
+						FlagList.Set(string(flags, CP_UTF8));
+						string Flag;
+						while(!FlagList.IsEmpty())
+						{
+							Flags |= GetFlagValue(FlagList.GetNext());
+						}
+					}
+					SetKeyMacro(GetAreaValue(string(area, CP_UTF8)), Key, Flags, string(sequence, CP_UTF8), description? string(description, CP_UTF8) : L"");
+				}
+			}
+		}
+
+		EndTransaction();
 		return true;
 	}
 };

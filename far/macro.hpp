@@ -365,6 +365,12 @@ const wchar_t *eStackAsString(int Pos=0);
 
 inline bool IsMenuArea(int Area){return Area==MACRO_MAINMENU || Area==MACRO_MENU || Area==MACRO_DISKS || Area==MACRO_USERMENU || Area==MACRO_AUTOCOMPLETION;}
 
+const wchar_t* GetAreaName(DWORD AreaValue);
+DWORD GetAreaValue(const wchar_t* AreaName);
+
+const wchar_t* GetFlagName(DWORD FlagValue);
+DWORD GetFlagValue(const wchar_t* FlagName);
+
 class TVMStack: public TStack<TVar>
 {
 	private:

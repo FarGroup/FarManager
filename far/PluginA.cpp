@@ -1317,7 +1317,7 @@ int WINAPI FarMessageFnA(INT_PTR PluginNumber,DWORD Flags,const char *HelpTopic,
 			p[i] = AnsiToUnicode(Items[i]);
 	}
 
-	DWORD NewFlags=0;
+	FARMESSAGEFLAGS NewFlags = FMSG_NONE;
 	if (Flags&oldfar::FMSG_WARNING)
 		NewFlags|=FMSG_WARNING;
 	if (Flags&oldfar::FMSG_ERRORTYPE)

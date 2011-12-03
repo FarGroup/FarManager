@@ -279,6 +279,38 @@ TMacroKeywords MKeywordsFlags[] =
 	{1,  L"NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS,0},
 };
 
+template<typename T>
+const wchar_t* GetNameOfValue(DWORD Value, const T& From)
+{
+	for(size_t i = 0; i < ARRAYSIZE(From); ++i)
+	{
+		if(From[i].Value == Value)
+		{
+			return From[i].Name;
+		}
+	}
+	return L"";
+}
+
+template<typename T>
+DWORD GetValueOfVame(const wchar_t* Name, const T& From)
+{
+	for(size_t i = 0; i < ARRAYSIZE(From); ++i)
+	{
+		if(!StrCmpI(From[i].Name, Name))
+		{
+			return From[i].Value;
+		}
+	}
+	return 0;
+}
+
+const wchar_t* GetAreaName(DWORD AreaValue) {return GetNameOfValue(AreaValue, MKeywordsArea);}
+DWORD GetAreaValue(const wchar_t* AreaName) {return GetValueOfVame(AreaName, MKeywordsArea);}
+
+const wchar_t* GetFlagName(DWORD FlagValue) {return GetNameOfValue(FlagValue, MKeywordsFlags);}
+DWORD GetFlagValue(const wchar_t* FlagName) {return GetValueOfVame(FlagName, MKeywordsFlags);}
+
 // транслирующая таблица - имя <-> код макроклавиши
 static struct TKeyCodeName
 {
