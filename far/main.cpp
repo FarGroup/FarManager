@@ -438,9 +438,11 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	Opt.IsUserAdmin=IsUserAdmin();
 
+#ifndef NO_WRAPPER
 	// don't inherit from parent process in any case
 	// for OEM plugins only!
 	SetEnvironmentVariable(L"FARUSER", nullptr);
+#endif // NO_WRAPPER
 
 	SetEnvironmentVariable(L"FARADMINMODE", Opt.IsUserAdmin?L"1":nullptr);
 

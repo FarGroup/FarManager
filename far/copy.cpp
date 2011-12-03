@@ -1148,7 +1148,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	{
 		if (UseFilter)
 		{
-			if (!Filter->FileInFilter(fd))
+			if (!Filter->FileInFilter(fd, nullptr, fd.strFileName))
 				continue;
 		}
 
@@ -2177,7 +2177,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	if (UseFilter)
 	{
-		if (!Filter->FileInFilter(SrcData))
+		if (!Filter->FileInFilter(SrcData, nullptr, Src))
 			return COPY_NOFILTER;
 	}
 
@@ -4079,7 +4079,7 @@ bool ShellCopy::CalcTotalSize()
 			//  Подсчитаем количество файлов
 			if (UseFilter)
 			{
-				if (!Filter->FileInFilter(fd))
+				if (!Filter->FileInFilter(fd, nullptr, fd.strFileName))
 					continue;
 			}
 

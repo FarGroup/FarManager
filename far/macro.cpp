@@ -872,7 +872,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 					// если удал€ем макрос - скорректируем StartMode,
 					// иначе макрос из common получит ту область, в которой его решили удалить.
 					if (!Macro.BufferSize||!Macro.Src)
-						StartMode=Macro.Flags&MFLAGS_MODEMASK;
+						StartMode=MacroLIB[Pos].Flags&MFLAGS_MODEMASK;
 
 					Macro.Flags=Flags|(StartMode&MFLAGS_MODEMASK)|MFLAGS_NEEDSAVEMACRO|(Recording==MACROMODE_RECORDING_COMMON?0:MFLAGS_NOSENDKEYSTOPLUGINS);
 					Macro.Guid=FarGuid;
@@ -5921,20 +5921,20 @@ void KeyMacro::SaveMacroRecordToDB(const MacroRecord *MR)
 void KeyMacro::WriteMacroRecords()
 {
 	MacroCfg->BeginTransaction();
-		for (int I=0; I<MacroLIBCount; I++)
+	for (int I=0; I<MacroLIBCount; I++)
+	{
+		if (!MacroLIB[I].BufferSize || !MacroLIB[I].Src)
 		{
-			if (!MacroLIB[I].BufferSize || !MacroLIB[I].Src)
-			{
-				MacroCfg->DeleteKeyMacro(MacroLIB[I].Flags & MFLAGS_MODEMASK, MacroLIB[I].Key);
-				continue;
-			}
-
-			if (!(MacroLIB[I].Flags&MFLAGS_NEEDSAVEMACRO))
-				continue;
-
-			SaveMacroRecordToDB(&MacroLIB[I]);
-			MacroLIB[I].Flags &= ~MFLAGS_NEEDSAVEMACRO;
+			MacroCfg->DeleteKeyMacro(MacroLIB[I].Flags & MFLAGS_MODEMASK, MacroLIB[I].Key);
+			continue;
 		}
+
+		if (!(MacroLIB[I].Flags&MFLAGS_NEEDSAVEMACRO))
+			continue;
+
+		SaveMacroRecordToDB(&MacroLIB[I]);
+		MacroLIB[I].Flags &= ~MFLAGS_NEEDSAVEMACRO;
+	}
 	MacroCfg->EndTransaction();
 }
 
@@ -6586,6 +6586,14 @@ M1:
 				{
 					if (DisFlags)
 					{
+						// удал€ем из DB только если включен автосейв
+						if (Opt.AutoSaveSetup)
+						{
+							MacroCfg->BeginTransaction();
+							// удалим старую запись из DB
+							MacroCfg->DeleteKeyMacro(Mac->Flags&MFLAGS_MODEMASK, Mac->Key);
+							MacroCfg->EndTransaction();
+						}
 						// раздисаблим
 						Mac->Flags&=~(MFLAGS_DISABLEMACRO|MFLAGS_NEEDSAVEMACRO);
 					}
@@ -6593,17 +6601,6 @@ M1:
 					// в любом случае - вываливаемс€
 					SendDlgMessage(hDlg,DM_CLOSE,1,0);
 					return TRUE;
-				}
-				else
-				{
-					// удал€ем из DB только если включен автосейв
-					if (Opt.AutoSaveSetup)
-					{
-						MacroCfg->BeginTransaction();
-							// удалим старую запись из DB
-							MacroCfg->DeleteKeyMacro(Mac->Flags&MFLAGS_MODEMASK, Mac->Key);
-						MacroCfg->EndTransaction();
-					}
 				}
 
 				// здесь - здесь мы нажимали "Ќет", ну а на нет и суда нет

@@ -105,6 +105,13 @@ class FileFilterParams
 			bool Used;
 		} FSize;
 
+		struct // Новая структура в фильтре, чтобы считать количество жестких ссылок. Пока что реально используем только флаг Used и априорно заданное условие "ссылок больше чем одна"
+		{
+			bool Used;
+			DWORD CountAbove;
+			DWORD CountBelow; 
+		} FHardLinks;
+
 		struct
 		{
 			bool Used;
@@ -131,6 +138,7 @@ class FileFilterParams
 		void SetMask(bool Used, const wchar_t *Mask);
 		void SetDate(bool Used, DWORD DateType, FILETIME DateAfter, FILETIME DateBefore, bool bRelative);
 		void SetSize(bool Used, const wchar_t *SizeAbove, const wchar_t *SizeBelow);
+		void SetHardLinks(bool Used,DWORD HardLinksAbove, DWORD HardLinksBelow);
 		void SetAttr(bool Used, DWORD AttrSet, DWORD AttrClear);
 		void SetColors(HighlightDataColor *Colors);
 		void SetSortGroup(int SortGroup) { FHighlight.SortGroup = SortGroup; }
@@ -142,6 +150,7 @@ class FileFilterParams
 		bool  GetMask(const wchar_t **Mask) const;
 		bool  GetDate(DWORD *DateType, FILETIME *DateAfter, FILETIME *DateBefore, bool *bRelative) const;
 		bool  GetSize(const wchar_t **SizeAbove, const wchar_t **SizeBelow) const;
+		bool  GetHardLinks(DWORD *HardLinksAbove, DWORD *HardLinksBelow) const;
 		bool  GetAttr(DWORD *AttrSet, DWORD *AttrClear) const;
 		void  GetColors(HighlightDataColor *Colors) const;
 		int   GetMarkChar() const;
@@ -154,7 +163,7 @@ class FileFilterParams
 		// Возвращает true  - попадает;
 		//            false - не попадает.
 		bool FileInFilter(const FileListItem& fli, unsigned __int64 CurrentTime);
-		bool FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int64 CurrentTime);
+		bool FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int64 CurrentTime,const wchar_t* FullName=nullptr); //Used in dirinfo, copy, findfile
 		bool FileInFilter(const PluginPanelItem& fd, unsigned __int64 CurrentTime);
 };
 

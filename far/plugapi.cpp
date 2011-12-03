@@ -2472,8 +2472,7 @@ INT_PTR WINAPI farFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMM
 		{
 			if (!Param2)
 				break;
-
-			return Filter->FileInFilter(*(const PluginPanelItem *)Param2) ? TRUE : FALSE;
+			return Filter->FileInFilter(*reinterpret_cast<const PluginPanelItem*>(Param2)) ? TRUE : FALSE;
 		}
 	}
 

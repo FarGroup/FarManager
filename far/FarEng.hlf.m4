@@ -1737,6 +1737,13 @@ rule sets.
                    #Virtual# attribute is not used in Windows
                    2000/XP/2003.
 
+   #Has more than one hardlink#
+
+                   Used only on disks with NTFS file system. Condition 
+                   evaluates to true, if piece of data, which current 
+                   file is pointing, is also pointed by, at least, 
+                   one another file.
+
 
     To quickly disable one or several conditions, uncheck the corresponding
 checkboxes. The #Reset# button will clear all of the filter conditions.

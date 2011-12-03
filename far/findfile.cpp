@@ -2597,7 +2597,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 				{
 					enumFileInFilterType foundType;
 
-					if (!Filter->FileInFilter(FindData,&foundType))
+					if (!Filter->FileInFilter(FindData, &foundType, strFullName))
 					{
 						// сюда заходим, если не попали в фильтр или попали в Exclude-фильтр
 						if ((FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY) && foundType==FIFT_EXCLUDE)
@@ -2695,7 +2695,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 			strFullName = strPluginSearchPath;
 			strFullName += strCurName;
 
-			if (!UseFilter || Filter->FileInFilter(*CurPanelItem))
+			if (!UseFilter || Filter->FileInFilter(*CurPanelItem,nullptr, strFullName))
 			{
 				if (((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && strFindStr.IsEmpty()) ||
 				        (!(CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) && !strFindStr.IsEmpty()))
@@ -2717,22 +2717,21 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 		for (size_t I=0; I<ItemCount && !StopEvent.Signaled(); I++)
 		{
 			PluginPanelItem *CurPanelItem=PanelData+I;
-			string strCurName=CurPanelItem->FileName;
 
 			if ((CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
-			        StrCmp(strCurName,L".") && !TestParentFolderName(strCurName) &&
+			        StrCmp(CurPanelItem->FileName, L".") && !TestParentFolderName(CurPanelItem->FileName) &&
 			        (!UseFilter || Filter->FileInFilter(*CurPanelItem)) &&
 			        (SearchMode!=FINDAREA_SELECTED || RecurseLevel!=1 ||
-			         CtrlObject->Cp()->ActivePanel->IsSelected(strCurName)))
+			         CtrlObject->Cp()->ActivePanel->IsSelected(CurPanelItem->FileName)))
 			{
 				bool SetDirectoryResult=false;
 				{
 					CriticalSectionLock Lock(PluginCS);
-					SetDirectoryResult=CtrlObject->Plugins.SetDirectory(hPlugin,strCurName,OPM_FIND)!=FALSE;
+					SetDirectoryResult=CtrlObject->Plugins.SetDirectory(hPlugin, CurPanelItem->FileName, OPM_FIND)!=FALSE;
 				}
 				if (SetDirectoryResult)
 				{
-					strPluginSearchPath += strCurName;
+					strPluginSearchPath += CurPanelItem->FileName;
 					strPluginSearchPath += L"\\";
 					ScanPluginTree(hDlg, hPlugin, Flags, RecurseLevel);
 

@@ -71,6 +71,7 @@ struct HighlightStrings
 	*ContinueProcessing,
 	*UseDate,*DateType,*DateAfter,*DateBefore,*DateRelative,
 	*UseSize,*SizeAbove,*SizeBelow,
+	*UseHardLinks,*HardLinksAbove,*HardLinksBelow,
 	*HighlightEdit,*HighlightList;
 };
 
@@ -92,6 +93,7 @@ static const HighlightStrings HLS=
 	L"ContinueProcessing",
 	L"UseDate",L"DateType",L"DateAfter",L"DateBefore",L"DateRelative",
 	L"UseSize",L"SizeAboveS",L"SizeBelowS",
+	L"UseHardLinks",L"HardLinksAbove",L"HardLinksBelow",
 	L"HighlightEdit",L"HighlightList"
 };
 
@@ -237,6 +239,14 @@ void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams 
 	unsigned __int64 UseSize = 0;
 	cfg->GetValue(key,HLS.UseSize,&UseSize);
 	HData->SetSize(UseSize!=0, strSizeAbove, strSizeBelow);
+
+	unsigned __int64 UseHardLinks = 0;
+	unsigned __int64 HardLinksAbove = 0;
+	unsigned __int64 HardLinksBelow = 0;
+	cfg->GetValue(key,HLS.UseHardLinks,&UseHardLinks);
+	cfg->GetValue(key,HLS.HardLinksAbove,&HardLinksAbove);
+	cfg->GetValue(key,HLS.HardLinksBelow,&HardLinksBelow);
+	HData->SetHardLinks(UseHardLinks!=0,HardLinksAbove,HardLinksBelow);
 
 	if (bSortGroup)
 	{
@@ -881,6 +891,10 @@ void SaveFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams 
 	cfg->SetValue(key,HLS.UseSize,CurHiData->GetSize(&SizeAbove, &SizeBelow)?1:0);
 	cfg->SetValue(key,HLS.SizeAbove,SizeAbove);
 	cfg->SetValue(key,HLS.SizeBelow,SizeBelow);
+	DWORD HardLinksAbove, HardLinksBelow;
+	cfg->SetValue(key,HLS.UseHardLinks,CurHiData->GetHardLinks(&HardLinksAbove, &HardLinksBelow)?1:0);
+	cfg->SetValue(key,HLS.HardLinksAbove,HardLinksAbove);
+	cfg->SetValue(key,HLS.HardLinksBelow,HardLinksBelow);
 	DWORD AttrSet, AttrClear;
 	cfg->SetValue(key,HLS.UseAttr,CurHiData->GetAttr(&AttrSet, &AttrClear)?1:0);
 	cfg->SetValue(key,(bSortGroup?HLS.AttrSet:HLS.IncludeAttributes),AttrSet);

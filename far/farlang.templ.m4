@@ -19603,6 +19603,15 @@ MFileFilterSizeToSign
 "<="
 "<="
 
+MFileHardLinksCount
+"Болee одной жёсткой ссылки"
+"Has more than one hardlink"
+upd:"Has more than one hardlink"
+upd:"Has more than one hardlink"
+upd:"Has more than one hardlink"
+upd:"Has more than one hardlink"
+upd:"Has more than one hardlink"
+
 MFileFilterDate
 "&Дата/Время:"
 "Da&te/Time:"

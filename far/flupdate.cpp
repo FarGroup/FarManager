@@ -767,9 +767,11 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		CurListData->Clear();
 
 		if (UseFilter && !(Info.Flags & OPIF_DISABLEFILTER))
+		{
 			//if (!(CurPanelData->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			if (!Filter->FileInFilter(PanelData[i]))
 				continue;
+		}
 
 		if (!Opt.ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
 			continue;

@@ -197,7 +197,7 @@ int GetDirInfo(const wchar_t *Title,
 			*/
 			if ((Flags&GETDIRINFO_USEFILTER))
 			{
-				if (!Filter->FileInFilter(FindData))
+				if (!Filter->FileInFilter(FindData,nullptr, strFullName))
 					continue;
 			}
 
