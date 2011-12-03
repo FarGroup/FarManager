@@ -6561,9 +6561,10 @@ M1:
 		if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
 			key=KeyToKeyLayout((int)(key&0x0000FFFF))|(DWORD)(key&(~0x0000FFFF));
 
-		//косметика
 		if (key<0xFFFF)
-			key=Upper((wchar_t)(key&0x0000FFFF))|(key&(~0x0000FFFF));
+		{
+			key=Upper(static_cast<wchar_t>(key));
+		}
 
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
 		KMParam->Key=(DWORD)key;

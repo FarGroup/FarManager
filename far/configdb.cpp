@@ -2450,9 +2450,13 @@ public:
 
 			if (area && key && sequence)
 			{
-				UINT64 Key = KeyNameToKey(string(key, CP_UTF8));
-				if(Key != static_cast<DWORD>(-1))
+				int Key = KeyNameToKey(string(key, CP_UTF8));
+				if(Key != -1)
 				{
+					if (Key<0xFFFF)
+					{
+						Key=Upper(static_cast<wchar_t>(Key));
+					}
 					DWORD Flags = 0;
 					if(flags && *flags)
 					{
