@@ -2445,30 +2445,37 @@ public:
 			const char* area = e->Attribute("area");
 			const char* key = e->Attribute("key");
 			const char* flags = e->Attribute("flags"); // optional
-			const char* sequence = e->Attribute("sequence");
+			const char* sequence = e->Attribute("sequence"); // delete macro if sequence is empty or absent
 			const char* description = e->Attribute("description"); // optional
 
-			if (area && key && sequence)
+			if (area && key)
 			{
 				int Key = KeyNameToKey(string(key, CP_UTF8));
-				if(Key != -1)
+				if(sequence && *sequence)
 				{
-					if (Key<0xFFFF)
+					if(Key != -1)
 					{
-						Key=Upper(static_cast<wchar_t>(Key));
-					}
-					DWORD Flags = 0;
-					if(flags && *flags)
-					{
-						UserDefinedList FlagList(L'|', L'|', ULF_UNIQUE);
-						FlagList.Set(string(flags, CP_UTF8));
-						string Flag;
-						while(!FlagList.IsEmpty())
+						if (Key<0xFFFF)
 						{
-							Flags |= GetFlagValue(FlagList.GetNext());
+							Key=Upper(static_cast<wchar_t>(Key));
 						}
+						DWORD Flags = 0;
+						if(flags && *flags)
+						{
+							UserDefinedList FlagList(L'|', L'|', ULF_UNIQUE);
+							FlagList.Set(string(flags, CP_UTF8));
+							string Flag;
+							while(!FlagList.IsEmpty())
+							{
+								Flags |= GetFlagValue(FlagList.GetNext());
+							}
+						}
+						SetKeyMacro(GetAreaValue(string(area, CP_UTF8)), Key, Flags, string(sequence, CP_UTF8), description? string(description, CP_UTF8) : L"");
 					}
-					SetKeyMacro(GetAreaValue(string(area, CP_UTF8)), Key, Flags, string(sequence, CP_UTF8), description? string(description, CP_UTF8) : L"");
+				}
+				else
+				{
+					DeleteKeyMacro(GetAreaValue(string(area, CP_UTF8)), Key);
 				}
 			}
 		}
