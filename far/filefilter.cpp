@@ -610,7 +610,7 @@ void FileFilter::UpdateCurrentTime()
 	CurrentTime = current.QuadPart;
 }
 
-bool FileFilter::FileInFilter(const FileListItem& fli,enumFileInFilterType *foundType, const wchar_t* FullName)
+bool FileFilter::FileInFilter(const FileListItem& fli,enumFileInFilterType *foundType)
 {
 	FAR_FIND_DATA_EX fde;
 	fde.dwFileAttributes=fli.FileAttr;
@@ -622,7 +622,7 @@ bool FileFilter::FileInFilter(const FileListItem& fli,enumFileInFilterType *foun
 	fde.nPackSize=fli.PackSize;
 	fde.strFileName=fli.strName;
 	fde.strAlternateFileName=fli.strShortName;
-	return FileInFilter(fde, foundType, FullName);
+	return FileInFilter(fde, foundType, fli.strName);
 }
 
 bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX& fde,enumFileInFilterType *foundType, const wchar_t* FullName)
@@ -749,11 +749,11 @@ final:
 	return !bAnyIncludeFound;
 }
 
-bool FileFilter::FileInFilter(const PluginPanelItem& fd,enumFileInFilterType *foundType,const wchar_t* FullName)
+bool FileFilter::FileInFilter(const PluginPanelItem& fd,enumFileInFilterType *foundType)
 {
 	FAR_FIND_DATA_EX fde;
 	PluginPanelItemToFindDataEx(&fd,&fde);
-	return FileInFilter(fde, foundType, FullName);
+	return FileInFilter(fde, foundType, fd.FileName);
 }
 
 bool FileFilter::IsEnabledOnPanel()

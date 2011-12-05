@@ -318,7 +318,7 @@ bool FileFilterParams::FileInFilter(const FileListItem& fli, unsigned __int64 Cu
 	fde.nPackSize=fli.PackSize;
 	fde.strFileName=fli.strName;
 	fde.strAlternateFileName=fli.strShortName;
-	return FileInFilter(fde, CurrentTime);
+	return FileInFilter(fde, CurrentTime, fli.strName);
 }
 
 bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int64 CurrentTime,const wchar_t* FullName)
@@ -360,8 +360,7 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int6
 			return false;
 		}
 
-		const wchar_t* Name = FullName? FullName : fde.strFileName.CPtr();
-		if (GetNumberOfLinks(Name) < 2)
+		if (!FullName || GetNumberOfLinks(FullName) < 2)
 		{
 			return false;
 		}
@@ -441,7 +440,7 @@ bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 
 {
 	FAR_FIND_DATA_EX fde;
 	PluginPanelItemToFindDataEx(&fd, &fde);
-	return FileInFilter(fde, CurrentTime);
+	return FileInFilter(fde, CurrentTime, fd.FileName);
 }
 
 //Централизованная функция для создания строк меню различных фильтров.
