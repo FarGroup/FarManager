@@ -2023,7 +2023,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 					// ѕросто пропустить каталог недостаточно - если каталог помечен в
 					// фильтре как некопируемый, то следует пропускать и его и всЄ его
 					// содержимое.
-					if (!Filter->FileInFilter(SrcData))
+					if (!Filter->FileInFilter(SrcData, nullptr, strFullName))
 					{
 						ScTree.SkipDir();
 						continue;

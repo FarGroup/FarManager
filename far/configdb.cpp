@@ -2424,7 +2424,7 @@ public:
 			const char* value = e->Attribute("value");
 			if(name && value)
 			{
-				SetConstValue(string(name, CP_UTF8),string(value, CP_UTF8));
+				SetVarValue(string(name, CP_UTF8),string(value, CP_UTF8));
 			}
 		}
 
