@@ -1,3 +1,7 @@
+drkns 05.12.2011 13:31:54 +0200
+
+1. Mantis#0001934: CRT implementation of strncpy/wcsncpy overruns target buffer, resulting in app crash
+
 t-rex 10.02.2011 21:24:11 +0200
 
 1. Убираем EXP_NAME и _t* функи.

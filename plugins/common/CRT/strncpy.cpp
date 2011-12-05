@@ -10,8 +10,12 @@ TCHAR * __cdecl
 {
   TCHAR *start = dest;
 
-  while (count-- && (*dest++ = *src++));
-  while (count--) *dest++=_T('\0') ;
+  while (count && (*dest++ = *src++))
+    count--;
+
+  if (count)
+    while (--count)
+      *dest++ = _T('\0');
 
   return(start);
 }
