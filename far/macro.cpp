@@ -373,7 +373,6 @@ static bool msgBoxFunc(const TMacroFunction*);
 static bool panelfattrFunc(const TMacroFunction*);
 static bool panelfexistFunc(const TMacroFunction*);
 static bool panelitemFunc(const TMacroFunction*);
-static bool panelitemFunc(const TMacroFunction*);
 static bool panelselectFunc(const TMacroFunction*);
 static bool panelsetpathFunc(const TMacroFunction*);
 static bool panelsetposFunc(const TMacroFunction*);

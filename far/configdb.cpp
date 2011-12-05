@@ -77,7 +77,7 @@ public:
 private:
 	void Init(const wchar_t* Str, size_t Length)
 	{
-		Size = WideCharToMultiByte(CP_UTF8, 0, Str, Length, nullptr, 0, nullptr, nullptr) + 1;
+		Size = WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), nullptr, 0, nullptr, nullptr) + 1;
 		Data = new char[Size];
 		WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), Data, static_cast<int>(Size-1), nullptr, nullptr);
 		Data[Size-1] = 0;
@@ -2383,12 +2383,18 @@ public:
 			{
 				se->SetAttribute("flags", Utf8String(strFlags));
 			}
-			se->SetAttribute("sequence", stmtEnumAllKeyMacros.GetColTextUTF8(3));
 			const char* Description = stmtEnumAllKeyMacros.GetColTextUTF8(4);
 			if(Description && *Description)
 			{
 				se->SetAttribute("description", Description);
 			}
+			const char* sequence = stmtEnumAllKeyMacros.GetColTextUTF8(3);
+			TiXmlText* text = new TiXmlText(sequence);
+			if(strpbrk(sequence,"\"<>&\r\n"))
+			{
+				text->SetCDATA(true);
+			}
+			se->LinkEndChild(text);
 			e->LinkEndChild(se);
 		}
 		stmtEnumAllKeyMacros.Reset();
@@ -2445,9 +2451,8 @@ public:
 			const char* area = e->Attribute("area");
 			const char* key = e->Attribute("key");
 			const char* flags = e->Attribute("flags"); // optional
-			const char* sequence = e->Attribute("sequence"); // delete macro if sequence is empty or absent
 			const char* description = e->Attribute("description"); // optional
-
+			const char* sequence = e->GetText(); // delete macro if sequence is absent
 			if (area && key)
 			{
 				int Key = KeyNameToKey(string(key, CP_UTF8));
