@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+	<macro>
+		<keymacros>
+			<macro area="Common" key="AltR" description="Use hotkey &lt;Alt-R&gt; to perform XLat function." flags="DisableOutput">$XLat</macro>
+		</keymacros>
+	</macro>
+</farconfig>

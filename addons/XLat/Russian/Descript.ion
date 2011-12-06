@@ -5,3 +5,7 @@ CtrlShiftX.reg Use hotkey <Ctrl-Shift-X> to perform XLat function.
 Descript.ion File descriptions
 Qwerty.reg QWERTY<->âñìäÖç Xlat tables (Russian)
 Qwerty.xml QWERTY<->âñìäÖç Xlat tables (Russian)
+AltR.xml Use hotkey <Alt-R> to perform XLat function.
+Apps.xml Use hotkey <Apps> to perform XLat function.
+CtrlR.xml Use hotkey <Ctrl-R> to perform XLat function.
+CtrlShiftX.xml Use hotkey <Ctrl-Shift-X> to perform XLat function.
