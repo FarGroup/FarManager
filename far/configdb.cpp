@@ -64,7 +64,7 @@ public:
 	{
 		Init(Str, Str.GetLength());
 	}
-	
+
 	~Utf8String()
 	{
 		delete[] Data;
@@ -221,8 +221,8 @@ public:
 
 	bool InitializeImpl(const wchar_t* DbName)
 	{
-		return 
-			Open(DbName) && 
+		return
+			Open(DbName) &&
 
 			//schema
 			Exec("CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));") &&
@@ -2118,8 +2118,8 @@ public:
 			Exec(
 				"CREATE TABLE IF NOT EXISTS constants(name TEXT NOT NULL, value TEXT, PRIMARY KEY (name));"
 				"CREATE TABLE IF NOT EXISTS variables(name TEXT NOT NULL, value TEXT, PRIMARY KEY (name));"
-				"CREATE TABLE IF NOT EXISTS plugin_functions(plugin_guid TEXT NOT NULL, function_name TEXT NOT NULL, nparam INTEGER NOT NULL, oparam INTEGER NOT NULL, flags INTEGER NOT NULL, sequence TEXT, syntax TEXT NOT NULL, description TEXT, PRIMARY KEY (plugin_guid, function_name));"
-				"CREATE TABLE IF NOT EXISTS key_macros(area INTEGER NOT NULL, key INTEGER NOT NULL, flags INTEGER NOT NULL, sequence TEXT, description TEXT, PRIMARY KEY (area, key));"
+				"CREATE TABLE IF NOT EXISTS plugin_functions(plugin_guid TEXT NOT NULL, function_name TEXT NOT NULL, nparam INTEGER NOT NULL, oparam INTEGER NOT NULL, flags TEXT, sequence TEXT, syntax TEXT NOT NULL, description TEXT, PRIMARY KEY (plugin_guid, function_name));"
+				"CREATE TABLE IF NOT EXISTS key_macros(area TEXT NOT NULL, key TEXT NOT NULL, flags TEXT, sequence TEXT, description TEXT, PRIMARY KEY (area, key));"
 			) &&
 
 			InitStmt(stmtConstsEnum, L"SELECT name, value FROM constants ORDER BY name;") &&
@@ -2215,7 +2215,7 @@ public:
 		return stmtDelVar.Bind(Name).StepAndReset();
 	}
 
-	bool EnumPluginFunctions(string &strPluginGuid, string &strFunctionName, int *nParam, int *oParam, unsigned __int64 *Flags, string &strSequence, string &strSyntax, string &strDescription)
+	bool EnumPluginFunctions(string &strPluginGuid, string &strFunctionName, int *nParam, int *oParam, string &strFlags, string &strSequence, string &strSyntax, string &strDescription)
 	{
 		if (stmtPluginFunctionsEnum.Step())
 		{
@@ -2223,7 +2223,7 @@ public:
 			strFunctionName = stmtPluginFunctionsEnum.GetColText(1);
 			*nParam = stmtPluginFunctionsEnum.GetColInt64(2);
 			*oParam = stmtPluginFunctionsEnum.GetColInt64(3);
-			*Flags = stmtPluginFunctionsEnum.GetColInt64(4);
+			strFlags = stmtPluginFunctionsEnum.GetColText(4);
 			strSequence = stmtPluginFunctionsEnum.GetColText(5);
 			strSyntax = stmtPluginFunctionsEnum.GetColText(6);
 			strDescription = stmtPluginFunctionsEnum.GetColText(7);
@@ -2234,20 +2234,20 @@ public:
 		return false;
 	}
 
-	unsigned __int64 SetPluginFunction(const wchar_t *PluginGuid, const wchar_t *FunctionName, unsigned __int64 nParam, unsigned __int64 oParam, unsigned __int64 Flags, const wchar_t *Sequence, const wchar_t *Syntax, const wchar_t *Description)
+	unsigned __int64 SetPluginFunction(const wchar_t *PluginGuid, const wchar_t *FunctionName, unsigned __int64 nParam, unsigned __int64 oParam, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Syntax, const wchar_t *Description)
 	{
 		if (stmtSetPluginFunction.Bind(PluginGuid).Bind(FunctionName).Bind(nParam).Bind(oParam).Bind(Flags).Bind(Sequence).Bind(Syntax).Bind(Description).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
-	bool EnumKeyMacros(int Area, int *Key, unsigned __int64 *Flags, string &strSequence, string &strDescription)
+	bool EnumKeyMacros(string &strArea, string &strKey, string &strFlags, string &strSequence, string &strDescription)
 	{
-		stmtKeyMacrosEnum.Bind(Area);
+		stmtKeyMacrosEnum.Bind(strArea);
 		if (stmtKeyMacrosEnum.Step())
 		{
-			*Key = stmtKeyMacrosEnum.GetColInt64(0);
-			*Flags = stmtKeyMacrosEnum.GetColInt64(1);
+			strKey = stmtKeyMacrosEnum.GetColText(0);
+			strFlags = stmtKeyMacrosEnum.GetColText(1);
 			strSequence = stmtKeyMacrosEnum.GetColText(2);
 			strDescription = stmtKeyMacrosEnum.GetColText(3);
 			return true;
@@ -2257,14 +2257,14 @@ public:
 		return false;
 	}
 
-	unsigned __int64 SetKeyMacro(unsigned __int64 Area, unsigned __int64 Key, unsigned __int64 Flags, const wchar_t *Sequence, const wchar_t *Description)
+	unsigned __int64 SetKeyMacro(const wchar_t *Area, const wchar_t *Key, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Description)
 	{
 		if (stmtSetKeyMacro.Bind(Area).Bind(Key).Bind(Flags).Bind(Sequence).Bind(Description).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
-	bool DeleteKeyMacro(unsigned __int64 Area, unsigned __int64 Key)
+	bool DeleteKeyMacro(const wchar_t *Area, const wchar_t *Key)
 	{
 		return stmtDelKeyMacro.Bind(Area).Bind(Key).StepAndReset();
 	}
@@ -2340,7 +2340,7 @@ public:
 			se->SetAttribute("function name", stmtEnumAllPluginFunctions.GetColTextUTF8(1));
 			se->SetAttribute("nparam", stmtEnumAllPluginFunctions.GetColInt(2));
 			se->SetAttribute("oparam", stmtEnumAllPluginFunctions.GetColInt(3));
-			se->SetAttribute("flags", Int64ToHexString(stmtEnumAllPluginFunctions.GetColInt64(4)));
+			se->SetAttribute("flags", stmtEnumAllPluginFunctions.GetColTextUTF8(4));
 			se->SetAttribute("sequence", stmtEnumAllPluginFunctions.GetColTextUTF8(5));
 			se->SetAttribute("syntax", stmtEnumAllPluginFunctions.GetColTextUTF8(6));
 			se->SetAttribute("description", stmtEnumAllPluginFunctions.GetColTextUTF8(7));
@@ -2355,30 +2355,15 @@ public:
 		if (!e)
 			return nullptr;
 
-		unsigned __int64 Key;
-
 		while (stmtEnumAllKeyMacros.Step())
 		{
 			se = new TiXmlElement("macro");
 			if (!se)
 				break;
 
-			se->SetAttribute("area", Utf8String(GetAreaName(static_cast<MACROMODEAREA>(stmtEnumAllKeyMacros.GetColInt64(0)))));
-			Key=stmtEnumAllKeyMacros.GetColInt64(1);
-			se->SetAttribute("key", KeyToNameChar(Key));
-			DWORD Flags = static_cast<DWORD>(stmtEnumAllKeyMacros.GetColInt64(2));
-			string strFlags;
-			for(size_t i = 0; 1u << i <= Flags; ++i)
-			{
-				if(Flags&(1u<<i))
-				{
-					if(!strFlags.IsEmpty())
-					{
-						strFlags += L"|";
-					}
-					strFlags+=GetFlagName(Flags&(1u<<i));
-				}
-			}
+			se->SetAttribute("area", stmtEnumAllKeyMacros.GetColTextUTF8(0));
+			se->SetAttribute("key", stmtEnumAllKeyMacros.GetColTextUTF8(1));
+			string strFlags = stmtEnumAllKeyMacros.GetColTextUTF8(2);
 			if(!strFlags.IsEmpty())
 			{
 				se->SetAttribute("flags", Utf8String(strFlags));
@@ -2440,9 +2425,9 @@ public:
 			const char* description = e->Attribute("description");
 
 			// BUGBUG, params can be optional
-			if(guid && fname && nparam && oparam && flags && sequence && syntax)
+			if(guid && fname && nparam && oparam && sequence && syntax)
 			{
-				SetPluginFunction(string(guid, CP_UTF8), string(fname, CP_UTF8), HexStringToInt64(nparam), HexStringToInt64(oparam), HexStringToInt64(flags), string(sequence, CP_UTF8), string(syntax, CP_UTF8), string(description, CP_UTF8));
+				SetPluginFunction(string(guid, CP_UTF8), string(fname, CP_UTF8), HexStringToInt64(nparam), HexStringToInt64(oparam), string(flags, CP_UTF8), string(sequence, CP_UTF8), string(syntax, CP_UTF8), string(description, CP_UTF8));
 			}
 		}
 
@@ -2455,32 +2440,13 @@ public:
 			const char* sequence = e->GetText(); // delete macro if sequence is absent
 			if (area && key)
 			{
-				int Key = KeyNameToKey(string(key, CP_UTF8));
 				if(sequence && *sequence)
 				{
-					if(Key != -1)
-					{
-						if (Key<0xFFFF)
-						{
-							Key=Upper(static_cast<wchar_t>(Key));
-						}
-						DWORD Flags = 0;
-						if(flags && *flags)
-						{
-							UserDefinedList FlagList(L'|', L'|', ULF_UNIQUE);
-							FlagList.Set(string(flags, CP_UTF8));
-							string Flag;
-							while(!FlagList.IsEmpty())
-							{
-								Flags |= GetFlagValue(FlagList.GetNext());
-							}
-						}
-						SetKeyMacro(GetAreaValue(string(area, CP_UTF8)), Key, Flags, string(sequence, CP_UTF8), description? string(description, CP_UTF8) : L"");
-					}
+					SetKeyMacro(string(area, CP_UTF8), string(key, CP_UTF8), flags? string(flags, CP_UTF8) : L"", string(sequence, CP_UTF8), description? string(description, CP_UTF8) : L"");
 				}
 				else
 				{
-					DeleteKeyMacro(GetAreaValue(string(area, CP_UTF8)), Key);
+					DeleteKeyMacro(string(area, CP_UTF8), string(key, CP_UTF8));
 				}
 			}
 		}

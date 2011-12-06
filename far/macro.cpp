@@ -311,6 +311,39 @@ DWORD GetAreaValue(const wchar_t* AreaName) {return GetValueOfVame(AreaName, MKe
 const wchar_t* GetFlagName(DWORD FlagValue) {return GetNameOfValue(FlagValue, MKeywordsFlags);}
 DWORD GetFlagValue(const wchar_t* FlagName) {return GetValueOfVame(FlagName, MKeywordsFlags);}
 
+const string Flags2String(DWORD Flags)
+{
+	string strFlags;
+	for(size_t i = 0; 1u << i <= Flags; ++i)
+	{
+		if(Flags&(1u<<i))
+		{
+			if(!strFlags.IsEmpty())
+			{
+				strFlags += L"|";
+			}
+			strFlags+=GetFlagName(Flags&(1u<<i));
+		}
+	}
+	return strFlags;
+}
+
+DWORD String2Flags(const string strFlags)
+{
+	DWORD Flags=0;
+	if(!strFlags.IsEmpty())
+	{
+		UserDefinedList FlagList(L'|', L'|', ULF_UNIQUE);
+		FlagList.Set(string(strFlags, CP_UTF8));
+		while(!FlagList.IsEmpty())
+		{
+			Flags |= GetFlagValue(FlagList.GetNext());
+		}
+	}
+	return Flags;
+}
+
+
 // транслирующая таблица - имя <-> код макроклавиши
 static struct TKeyCodeName
 {
@@ -5879,35 +5912,35 @@ void KeyMacro::WriteVarsConsts()
 	TVarTable *t = &glbConstTable;
 
 	MacroCfg->BeginTransaction();
-		for (int I=0; ; I++)
-		{
-			TVarSet *var=varEnum(*t,I);
+	for (int I=0; ; I++)
+	{
+		TVarSet *var=varEnum(*t,I);
 
-			if (!var)
-				break;
+		if (!var)
+			break;
 
-			strValueName = var->str;
-			if(strValueName==constMsX || strValueName==constMsY || strValueName==constMsButton ||
-         strValueName==constMsCtrlState || strValueName==constMsEventFlags || strValueName==constRCounter)
-				continue;
+		strValueName = var->str;
+		if(strValueName==constMsX || strValueName==constMsY || strValueName==constMsButton ||
+			strValueName==constMsCtrlState || strValueName==constMsEventFlags || strValueName==constRCounter)
+			continue;
 			MacroCfg->SetConstValue(strValueName, var->value.s());
-		}
+	}
 	MacroCfg->EndTransaction();
 
 	t = &glbVarTable;
 
 	MacroCfg->BeginTransaction();
-		for (int I=0; ; I++)
-		{
-			TVarSet *var=varEnum(*t,I);
+	for (int I=0; ; I++)
+	{
+		TVarSet *var=varEnum(*t,I);
 
-			if (!var)
-				break;
+		if (!var)
+			break;
 
-			strValueName = var->str;
-			strValueName = L"%"+strValueName;
-			MacroCfg->SetVarValue(strValueName, var->value.s());
-		}
+		strValueName = var->str;
+		strValueName = L"%"+strValueName;
+		MacroCfg->SetVarValue(strValueName, var->value.s());
+	}
 	MacroCfg->EndTransaction();
 }
 
@@ -5918,7 +5951,7 @@ void KeyMacro::SavePluginFunctionToDB(const TMacroFunction *MF)
 
 	// закомментировать для теста записи встроенных функций
 	if(MF->fnGUID && MF->Name)
-		MacroCfg->SetPluginFunction(MF->fnGUID, MF->Name, MF->nParam, MF->oParam, MF->IntFlags, nullptr, MF->Syntax, nullptr);
+		MacroCfg->SetPluginFunction(MF->fnGUID, MF->Name, MF->nParam, MF->oParam, Flags2String(MF->IntFlags), nullptr, MF->Syntax, nullptr);
 }
 
 void KeyMacro::WritePluginFunctions()
@@ -5945,8 +5978,9 @@ void KeyMacro::SaveMacroRecordToDB(const MacroRecord *MR)
 
 	Area=Flags & MFLAGS_MODEMASK;
 	Flags &= ~(MFLAGS_MODEMASK|MFLAGS_NEEDSAVEMACRO);
-
-	MacroCfg->SetKeyMacro(Area, MR->Key, Flags, MR->Src, MR->Description);
+	string strKeyName;
+	KeyToText(MR->Key, strKeyName);
+	MacroCfg->SetKeyMacro(GetAreaName(Area), strKeyName, Flags2String(Flags), MR->Src, MR->Description);
 }
 
 void KeyMacro::WriteMacroRecords()
@@ -5956,7 +5990,9 @@ void KeyMacro::WriteMacroRecords()
 	{
 		if (!MacroLIB[I].BufferSize || !MacroLIB[I].Src)
 		{
-			MacroCfg->DeleteKeyMacro(MacroLIB[I].Flags & MFLAGS_MODEMASK, MacroLIB[I].Key);
+			string strKeyName;
+			KeyToText(MacroLIB[I].Key, strKeyName);
+			MacroCfg->DeleteKeyMacro(GetAreaName(MacroLIB[I].Flags & MFLAGS_MODEMASK), strKeyName);
 			continue;
 		}
 
@@ -6056,11 +6092,11 @@ void KeyMacro::ReadPluginFunctions()
 	int nParam;
 	int oParam;
 	unsigned __int64 Flags;
-	string strSequence;
+	string strSequence, strFlags;
 	string strSyntax;
 	string strDescription;
 
-	while (MacroCfg->EnumPluginFunctions(strPluginGUID, strFunctionName, &nParam, &oParam, &Flags, strSequence, strSyntax, strDescription))
+	while (MacroCfg->EnumPluginFunctions(strPluginGUID, strFunctionName, &nParam, &oParam, strFlags, strSequence, strSyntax, strDescription))
 	{
 		RemoveExternalSpaces(strPluginGUID);
 		RemoveExternalSpaces(strFunctionName);
@@ -6068,7 +6104,7 @@ void KeyMacro::ReadPluginFunctions()
 		RemoveExternalSpaces(strSyntax);
 		//RemoveExternalSpaces(strDescription); //пока не задействовано
 
-			MacroRecord mr={};
+		MacroRecord mr={};
 		bool UsePluginFunc=true;
 		if (!strSequence.IsEmpty())
 		{
@@ -6076,6 +6112,7 @@ void KeyMacro::ReadPluginFunctions()
 				mr.Buffer=0;
 		}
 
+		Flags=String2Flags(strFlags);
 		// использовать Sequence вместо плагина; оно же будет юзаться, если GUID пуст
 		if ((Flags & 2) && (mr.Buffer || strPluginGUID.IsEmpty()))
 		{
@@ -6232,12 +6269,16 @@ int KeyMacro::ReadKeyMacro(int Area)
 	MacroRecord CurMacro={};
 	int Key;
 	unsigned __int64 MFlags=0;
+	string strKey,strArea,strMFlags;
 	string strSequence, strDescription;
 	string strGUID;
 	int ErrorCount=0;
 
-	while(MacroCfg->EnumKeyMacros(Area, &Key, &MFlags, strSequence, strDescription))
+	strArea=GetAreaName(static_cast<MACROMODEAREA>(Area));
+
+	while(MacroCfg->EnumKeyMacros(strArea, strKey, strMFlags, strSequence, strDescription))
 	{
+		Key=KeyNameToKey(strKey);
 		if (Key==-1)
 			continue;
 
@@ -6249,6 +6290,8 @@ int KeyMacro::ReadKeyMacro(int Area)
 			//ErrorCount++; // Раскомментить, если не допускается пустой "Sequence"
 			continue;
 		}
+
+		MFlags=String2Flags(strMFlags);
 
 		CurMacro.Key=Key;
 		CurMacro.Buffer=nullptr;
@@ -6623,7 +6666,9 @@ M1:
 						{
 							MacroCfg->BeginTransaction();
 							// удалим старую запись из DB
-							MacroCfg->DeleteKeyMacro(Mac->Flags&MFLAGS_MODEMASK, Mac->Key);
+							string strKeyName;
+							KeyToText(Mac->Key, strKeyName);
+							MacroCfg->DeleteKeyMacro(GetAreaName(Mac->Flags&MFLAGS_MODEMASK), strKeyName);
 							MacroCfg->EndTransaction();
 						}
 						// раздисаблим
