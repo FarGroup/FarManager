@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+    <generalconfig>
+    	<!-- Windows GUI like behaviour for FAR -->
+    	<!-- turn off persistent blocks and turn on selection deletion with Del -->
+        <setting key="Editor" name="PersistentBlocks" type="qword" value="0000000000000000" />
+        <setting key="Editor" name="DelRemovesBlocks" type="qword" value="0000000000000001" />
+        <!-- BkSpace will clear unchanged input lines -->
+        <setting key="Dialog" name="EULBsClear" type="qword" value="0000000000000001" />
+        <!-- turn off persistent blocks in input lines -->
+        <setting key="Dialog" name="EditBlock" type="qword" value="0000000000000001" />
+    </generalconfig>
+    <macro>
+        <keymacros>
+           <macro area="Dialog" key="AltDown" description="Alt+Down will open history in input lines" flags="DisableOutput">CtrlDown</macro>
+           <macro area="Shell" key="Del" description="Del will delete files in the shell" flags="DisableOutput|EmptyCommandLine">F8</macro>
+           <macro area="Editor" key="CtrlDel" description="Ctrl-Del will delete selection or words in the editor" flags="DisableOutput|Selection">CtrlD</macro>
+           <macro area="Editor" key="CtrlPgDn" description="Ctrl-PgDn will move cursor to the end of the page" flags="DisableOutput">CtrlE</macro>
+           <macro area="Editor" key="CtrlPgUp" description="Ctrl-PgUp will move cursor to the beginning of the page" flags="DisableOutput">CtrlN</macro>
+           <macro area="Editor" key="CtrlS" description="Ctrl-S will save the file in the editor" flags="DisableOutput">F2</macro>
+           <macro area="Editor" key="CtrlF" description="Ctrl-F will open search dialog in the editor" flags="DisableOutput">F7</macro>
+           <macro area="Editor" key="F3" description="F3 will continue search" flags="DisableOutput">ShiftF7</macro>
+        </keymacros>
+    </macro>
+</farconfig>
