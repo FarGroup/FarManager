@@ -958,13 +958,14 @@ int Manager::ProcessKey(DWORD Key)
 
 		/*** А вот здесь - все остальное! ***/
 		if (!IsProcessAssignMacroKey)
-			// в любом случае если кому-то ненужны все клавиши или
+			// в любом случае если кому-то не нужны все клавиши или
 		{
-			bool scrollable = (
-				(0 != Opt.WindowMode) &&
-				(LastInputRecord.EventType == KEY_EVENT) &&
-				(0 != (LastInputRecord.Event.KeyEvent.dwControlKeyState & SCROLLLOCK_ON))
-			);
+			bool scrollable = false;
+			if ( Opt.WindowMode )
+			{
+				int frame_type = CurrentFrame->GetType();
+				scrollable = frame_type != MODALTYPE_EDITOR && frame_type != MODALTYPE_VIEWER;
+			};
 
 			switch (Key)
 			{
