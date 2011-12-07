@@ -328,13 +328,13 @@ const string Flags2String(DWORD Flags)
 	return strFlags;
 }
 
-DWORD String2Flags(const string strFlags)
+DWORD String2Flags(const string& strFlags)
 {
 	DWORD Flags=0;
 	if(!strFlags.IsEmpty())
 	{
 		UserDefinedList FlagList(L'|', L'|', ULF_UNIQUE);
-		FlagList.Set(string(strFlags, CP_UTF8));
+		FlagList.Set(strFlags);
 		while(!FlagList.IsEmpty())
 		{
 			Flags |= GetFlagValue(FlagList.GetNext());
