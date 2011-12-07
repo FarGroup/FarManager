@@ -960,12 +960,18 @@ int Manager::ProcessKey(DWORD Key)
 		if (!IsProcessAssignMacroKey)
 			// в любом случае если кому-то ненужны все клавиши или
 		{
+			bool scrollable = (
+				(0 != Opt.WindowMode) &&
+				(LastInputRecord.EventType == KEY_EVENT) &&
+				(0 != (LastInputRecord.Event.KeyEvent.dwControlKeyState & SCROLLLOCK_ON))
+			);
+
 			switch (Key)
 			{
 				// <Удалить после появления макрофункции Scroll>
 				case KEY_CTRLALTUP:
 				case KEY_RCTRLRALTUP:
-					if(Opt.WindowMode)
+					if(scrollable)
 					{
 						Console.ScrollWindow(-1);
 						return TRUE;
@@ -974,7 +980,7 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLALTDOWN:
 				case KEY_RCTRLRALTDOWN:
-					if(Opt.WindowMode)
+					if(scrollable)
 					{
 						Console.ScrollWindow(1);
 						return TRUE;
@@ -983,7 +989,7 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLALTPGUP:
 				case KEY_RCTRLRALTPGUP:
-					if(Opt.WindowMode)
+					if(scrollable)
 					{
 						Console.ScrollWindow(-ScrY);
 						return TRUE;
@@ -992,7 +998,7 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLALTHOME:
 				case KEY_RCTRLRALTHOME:
-					if(Opt.WindowMode)
+					if(scrollable)
 					{
 						while(Console.ScrollWindow(-ScrY));
 						return TRUE;
@@ -1001,7 +1007,7 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLALTPGDN:
 				case KEY_RCTRLRALTPGDN:
-					if(Opt.WindowMode)
+					if(scrollable)
 					{
 						Console.ScrollWindow(ScrY);
 						return TRUE;
@@ -1010,7 +1016,7 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLALTEND:
 				case KEY_RCTRLRALTEND:
-					if(Opt.WindowMode)
+					if(scrollable)
 					{
 						while(Console.ScrollWindow(ScrY));
 						return TRUE;

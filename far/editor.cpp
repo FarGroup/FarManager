@@ -824,16 +824,28 @@ int Editor::ProcessKey(int Key)
 	if (Key==KEY_NONE)
 		return TRUE;
 
+	switch (Key)
+	{
+		case KEY_CTRLSHIFTUP:   case KEY_CTRLSHIFTNUMPAD8:	Key = KEY_SHIFTUP;   break;
+		case KEY_CTRLSHIFTDOWN:	case KEY_CTRLSHIFTNUMPAD2: Key = KEY_SHIFTDOWN; break;
+		case KEY_CTRLALTUP:		case KEY_RCTRLRALTUP:      Key = KEY_ALTUP;     break;
+		case KEY_CTRLALTDOWN:   case KEY_RCTRLRALTDOWN:    Key = KEY_ALTDOWN;   break;
+	}
+
 	_KEYMACRO(CleverSysLog SL(L"Editor::ProcessKey()"));
 	_KEYMACRO(SysLog(L"Key=%s",_FARKEY_ToName(Key)));
 	int CurPos,CurVisPos;
 	CurPos=CurLine->GetCurPos();
 	CurVisPos=GetLineCurPos();
-	int isk=IsShiftKey(Key);
+	int isk = IsShiftKey(Key);
+	int ick = (Key==KEY_CTRLC || Key==KEY_RCTRLC || Key==KEY_CTRLINS || Key==KEY_CTRLNUMPAD0 || Key==KEY_RCTRLINS || Key==KEY_RCTRLNUMPAD0);
+	int imk = ((unsigned int)Key >= KEY_MACRO_BASE && (unsigned int)Key <= KEY_MACRO_ENDBASE);
+	int ipk = ((unsigned int)Key >= KEY_OP_BASE && (unsigned int)Key <= KEY_OP_ENDBASE);
+  
 	_SVS(SysLog(L"[%d] isk=%d",__LINE__,isk));
 
 	//if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
-	if (!isk && !Pasting && !(((unsigned int)Key >= KEY_MACRO_BASE && (unsigned int)Key <= KEY_MACRO_ENDBASE) || ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)))
+	if (!isk && !Pasting && !ick && !imk && !ipk )
 	{
 		_SVS(SysLog(L"[%d] BlockStart=(%d,%d)",__LINE__,BlockStart,VBlockStart));
 
@@ -910,17 +922,20 @@ int Editor::ProcessKey(int Key)
 	int SelFirst=FALSE;
 	int SelAtBeginning=FALSE;
 	EditorBlockGuard _bg(*this,&Editor::UnmarkEmptyBlock);
+	bool fast = false;
 
 	switch (Key)
 	{
-		case KEY_SHIFTLEFT:      case KEY_SHIFTRIGHT:
-		case KEY_SHIFTUP:        case KEY_SHIFTDOWN:
-		case KEY_SHIFTHOME:      case KEY_SHIFTEND:
-		case KEY_SHIFTNUMPAD4:   case KEY_SHIFTNUMPAD6:
-		case KEY_SHIFTNUMPAD8:   case KEY_SHIFTNUMPAD2:
-		case KEY_SHIFTNUMPAD7:   case KEY_SHIFTNUMPAD1:
-		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:   /* 12.11.2002 DJ */
-		case KEY_RCTRLSHIFTLEFT: case KEY_RCTRLSHIFTNUMPAD4:
+		case KEY_SHIFTLEFT:       case KEY_SHIFTRIGHT:
+		case KEY_SHIFTUP:         case KEY_SHIFTDOWN:
+		case KEY_SHIFTHOME:       case KEY_SHIFTEND:
+		case KEY_SHIFTNUMPAD4:    case KEY_SHIFTNUMPAD6:
+		case KEY_SHIFTNUMPAD8:    case KEY_SHIFTNUMPAD2:
+		case KEY_SHIFTNUMPAD7:    case KEY_SHIFTNUMPAD1:
+		case KEY_CTRLSHIFTLEFT:   case KEY_CTRLSHIFTNUMPAD4:   /* 12.11.2002 DJ */
+		case KEY_RCTRLSHIFTLEFT:  case KEY_RCTRLSHIFTNUMPAD4:
+		case KEY_CTRLSHIFTRIGHT:  case KEY_CTRLSHIFTNUMPAD6:
+		case KEY_RCTRLSHIFTRIGHT: case KEY_RCTRLSHIFTNUMPAD6:
 		{
 			_KEYMACRO(CleverSysLog SL(L"Editor::ProcessKey(KEY_SHIFT*)"));
 			_SVS(SysLog(L"[%d] SelStart=%d, SelEnd=%d",__LINE__,SelStart,SelEnd));
@@ -1129,199 +1144,135 @@ int Editor::ProcessKey(int Key)
 			}
 			return TRUE;
 		}
-		case KEY_SHIFTLEFT:  case KEY_SHIFTNUMPAD4:
-		{
-			_SVS(CleverSysLog SL(L"case KEY_SHIFTLEFT"));
 
-			if (!CurPos && !CurLine->m_prev)return TRUE;
-
-			if (!CurPos) //курсор в начале строки
-			{
-				if (SelAtBeginning) //курсор в начале блока
-				{
-					BlockStart=CurLine->m_prev;
-					CurLine->m_prev->Select(CurLine->m_prev->GetLength(),-1);
-				}
-				else // курсор в конце блока
-				{
-					CurLine->Select(-1,0);
-					CurLine->m_prev->GetRealSelection(SelStart,SelEnd);
-					CurLine->m_prev->Select(SelStart,CurLine->m_prev->GetLength());
-				}
-			}
-			else
-			{
-				if (SelAtBeginning || SelFirst)
-				{
-					CurLine->Select(SelStart-1,SelEnd);
-				}
-				else
-				{
-					CurLine->Select(SelStart,SelEnd-1);
-				}
-			}
-
-			int LeftPos=CurLine->GetLeftPos();
-			Edit *OldCur=CurLine;
-			int _OldNumLine=NumLine;
-			Pasting++;
-			ProcessKey(KEY_LEFT);
-			Pasting--;
-
-			if (_OldNumLine!=NumLine)
-			{
-				BlockStartLine=NumLine;
-			}
-
-			ShowEditor(OldCur==CurLine && LeftPos==CurLine->GetLeftPos());
-			return TRUE;
-		}
-		case KEY_SHIFTRIGHT:  case KEY_SHIFTNUMPAD6:
-		{
-			_SVS(CleverSysLog SL(L"case KEY_SHIFTRIGHT"));
-
-			if (!CurLine->m_next && CurPos==CurLine->GetLength() && !EdOpt.CursorBeyondEOL)
-			{
-				return TRUE;
-			}
-
-			if (SelAtBeginning)
-			{
-				CurLine->Select(SelStart+1,SelEnd);
-			}
-			else
-			{
-				CurLine->Select(SelStart,SelEnd+1);
-			}
-
-			Edit *OldCur=CurLine;
-			int OldLeft=CurLine->GetLeftPos();
-			Pasting++;
-			ProcessKey(KEY_RIGHT);
-			Pasting--;
-
-			if (OldCur!=CurLine)
-			{
-				if (SelAtBeginning)
-				{
-					OldCur->Select(-1,0);
-					BlockStart=CurLine;
-					BlockStartLine=NumLine;
-				}
-				else
-				{
-					OldCur->Select(SelStart,-1);
-				}
-			}
-
-			ShowEditor(OldCur==CurLine && OldLeft==CurLine->GetLeftPos());
-			return TRUE;
-		}
 		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
 		case KEY_RCTRLSHIFTLEFT: case KEY_RCTRLSHIFTNUMPAD4:
+			fast = true;
+		case KEY_SHIFTLEFT:  case KEY_SHIFTNUMPAD4:
 		{
-			_SVS(CleverSysLog SL(L"case KEY_CTRLSHIFTLEFT"));
-			_SVS(SysLog(L"[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,SelEnd));
+			_SVS(CleverSysLog SL(fast ? L"case KEY_CTRLSHIFTLEFT" : L"case KEY_SHIFTLEFT"));
+
+			Edit *clin = CurLine;
+			int nlin = NumLine;
+			int lpos = CurLine->GetLeftPos();
+			int cpos = CurLine->GetCurPos();
+			int clen = CurLine->GetLength();
+
+			int mkey = fast ? (cpos > clen ? static_cast<int>(KEY_END) : static_cast<int>(KEY_CTRLLEFT)) : static_cast<int>(KEY_LEFT);
+			++Pasting;
+			ProcessKey(mkey);
+			--Pasting;
+			
+			int cpos1 = CurLine->GetCurPos();
+			if (nlin != NumLine)
 			{
-				int SkipSpace=TRUE;
-				Pasting++;
-				Lock();
-				int CurPos;
-
-				for (;;)
+				if ( SelAtBeginning )
 				{
-					const wchar_t *Str;
-					int Length;
-					CurLine->GetBinaryString(&Str,nullptr,Length);
-					/* $ 12.11.2002 DJ
-					   обеспечим корректную работу Ctrl-Shift-Left за концом строки
-					*/
-					CurPos=CurLine->GetCurPos();
-
-					if (CurPos>Length)
-					{
-						int SelStartPos = CurPos;
-						CurLine->ProcessKey(KEY_END);
-						CurPos=CurLine->GetCurPos();
-
-						if (CurLine->SelStart >= 0)
-						{
-							if (!SelAtBeginning)
-								CurLine->Select(CurLine->SelStart, CurPos);
-							else
-								CurLine->Select(CurPos, CurLine->SelEnd);
-						}
-						else
-							CurLine->Select(CurPos, SelStartPos);
-					}
-
-					if (!CurPos)
-						break;
-
-					if (IsSpace(Str[CurPos-1]) || IsWordDiv(EdOpt.strWordDiv,Str[CurPos-1]))
-					{
-						if (SkipSpace)
-						{
-							ProcessKey(KEY_SHIFTLEFT);
-							continue;
-						}
-						else
-							break;
-					}
-
-					SkipSpace=FALSE;
-					ProcessKey(KEY_SHIFTLEFT);
+					BlockStartLine = NumLine;
+					BlockStart = CurLine;
+					CurLine->Select(cpos1, -1);
+					clin->Select(0, SelEnd);
 				}
-
-				Pasting--;
-				Unlock();
-				Show();
+				else
+				{
+					if ( CurLine == BlockStart && cpos1 < CurLine->SelStart )
+						CurLine->SetCurPos(cpos1 = CurLine->SelStart);
+					CurLine->Select(CurLine->SelStart, cpos1);
+					clin->Select(-1, 0);
+				}
 			}
+			else
+			{
+				if ( SelAtBeginning || SelFirst )
+					CurLine->Select(cpos1, SelEnd);
+				else
+				{
+					if ( cpos1 < SelStart && cpos > SelStart )
+						CurLine->SetCurPos(cpos1 = SelStart);
+					CurLine->Select(SelStart, cpos1);
+				}
+			}
+
+			ShowEditor(clin == CurLine && lpos == CurLine->GetLeftPos());
 			return TRUE;
 		}
+
 		case KEY_CTRLSHIFTRIGHT:  case KEY_CTRLSHIFTNUMPAD6:
 		case KEY_RCTRLSHIFTRIGHT: case KEY_RCTRLSHIFTNUMPAD6:
+			fast = true;
+		case KEY_SHIFTRIGHT:  case KEY_SHIFTNUMPAD6:
 		{
-			_SVS(CleverSysLog SL(L"case KEY_CTRLSHIFTRIGHT"));
-			_SVS(SysLog(L"[%d] Pasting=%d, SelEnd=%d",__LINE__,Pasting,SelEnd));
+			_SVS(CleverSysLog SL(fast ? L"case KEY_CTRLSHIFTRIGHT" : L"case KEY_SHIFTRIGHT"));
+
+			Edit *clin = CurLine;
+			int nlin = NumLine;
+			int lpos = CurLine->GetLeftPos();
+			int cpos = CurLine->GetCurPos();
+			int clen = CurLine->GetLength();
+			int cpos1 = 0, mkey = KEY_CTRLRIGHT;
+
+			bool can_fast_deselect = false;
+			bool start_beyond_eol = (SelAtBeginning && SelEnd > 0 && cpos < SelEnd);
+			if ( fast && start_beyond_eol )
 			{
-				int SkipSpace=TRUE;
-				Pasting++;
-				Lock();
-				int CurPos;
-
-				for (;;)
-				{
-					const wchar_t *Str;
-					int Length;
-					CurLine->GetBinaryString(&Str,nullptr,Length);
-					CurPos=CurLine->GetCurPos();
-
-					if (CurPos>=Length)
-						break;
-
-					if (IsSpace(Str[CurPos]) || IsWordDiv(EdOpt.strWordDiv,Str[CurPos]))
-					{
-						if (SkipSpace)
-						{
-							ProcessKey(KEY_SHIFTRIGHT);
-							continue;
-						}
-						else
-							break;
-					}
-
-					SkipSpace=FALSE;
-					ProcessKey(KEY_SHIFTRIGHT);
-				}
-
-				Pasting--;
-				Unlock();
-				Show();
+				Edit *next = CurLine->m_next;
+				can_fast_deselect = !next || (next->SelStart < 0 && next->SelEnd == 0);
 			}
+
+			if ( cpos < clen )
+				mkey = fast ? static_cast<int>(KEY_CTRLRIGHT) : static_cast<int>(KEY_RIGHT);
+			else if ( can_fast_deselect )	{
+				CurLine->SetCurPos(cpos1 = SelEnd);
+				mkey = 0;
+			}
+			else if ( !fast && start_beyond_eol )	{
+				CurLine->SetCurPos(cpos1 = cpos+1);
+				mkey = 0;
+			}
+
+			if ( mkey )
+			{
+				++Pasting;
+				ProcessKey(mkey);
+				--Pasting;
+				cpos1 = CurLine->GetCurPos();
+				if ( can_fast_deselect && cpos1 < SelEnd && cpos1 > SelEnd )
+					CurLine->SetCurPos(cpos1 = SelEnd);
+			}
+
+			if ( SelAtBeginning )
+			{
+				if ( nlin == NumLine )
+				{
+					if ( cpos1 > SelEnd && cpos < SelEnd )
+						CurLine->SetCurPos(cpos1 = SelEnd);
+					CurLine->Select(cpos1, SelEnd);
+				}
+				else
+				{
+					BlockStart = CurLine;
+					BlockStartLine = NumLine;
+					clin->Select(-1, 0);
+					bool was_selected = CurLine->SelEnd != 0 || CurLine->SelStart >= 0;
+					CurLine->Select(cpos1, was_selected ? CurLine->SelEnd : cpos1);
+				}
+			}
+			else
+			{
+				if ( nlin == NumLine )
+					CurLine->Select(SelStart, cpos1);
+				else
+				{
+					clin->Select(SelStart, -1);
+					CurLine->Select(0, cpos1);
+				}
+			}
+
+			ShowEditor(clin == CurLine && lpos == CurLine->GetLeftPos());
 			return TRUE;
 		}
-		case KEY_SHIFTDOWN:  case KEY_SHIFTNUMPAD2:
+
+		case KEY_SHIFTDOWN:     case KEY_SHIFTNUMPAD2:
 		{
 			if (!CurLine->m_next)return TRUE;
 
@@ -2176,6 +2127,10 @@ int Editor::ProcessKey(int Key)
 
 			return TRUE;
 		}
+
+		case KEY_CTRLALTLEFT:   case KEY_CTRLALTNUMPAD4:
+		case KEY_RCTRLRALTLEFT: case KEY_RCTRLRALTNUMPAD4:
+			fast = true;
 		case KEY_ALTSHIFTLEFT:  case KEY_ALTSHIFTNUMPAD4:
 		case KEY_RALTSHIFTLEFT: case KEY_RALTSHIFTNUMPAD4:
 		case KEY_ALTLEFT:
@@ -2187,176 +2142,85 @@ int Editor::ProcessKey(int Key)
 			if (!Flags.Check(FEDITOR_MARKINGVBLOCK))
 				BeginVBlockMarking();
 
-			Pasting++;
+			++Pasting;
 			{
-				int Delta=CurLine->GetTabCurPos()-CurLine->RealPosToTab(CurPos-1);
+				int tpos = CurLine->GetTabCurPos();
+				int mkey = KEY_LEFT;
+				if ( fast )
+					mkey = CurPos <= CurLine->GetLength() ? static_cast<int>(KEY_CTRLLEFT) : static_cast<int>(KEY_END);
 
-				if (CurLine->GetTabCurPos()>VBlockX)
-					VBlockSizeX-=Delta;
+				ProcessKey(mkey);
+				int tpos1 = CurLine->GetTabCurPos();
+
+				if ( VBlockSizeX && tpos == VBlockX + VBlockSizeX && tpos1 < VBlockX )
+				{
+					CurLine->SetTabCurPos(tpos1 = VBlockX);
+					VBlockSizeX = 0;
+				}
 				else
 				{
-					VBlockX-=Delta;
-					VBlockSizeX+=Delta;
+					if ( tpos > VBlockX )
+						VBlockSizeX -= (tpos - tpos1);
+					else
+						VBlockSizeX += (tpos - (VBlockX = tpos1));
 				}
-
-				/* $ 25.07.2000 tran
-				   остатки бага 22 - подправка при перебега за границу блока */
-				if (VBlockSizeX<0)
-				{
-					VBlockSizeX=-VBlockSizeX;
-					VBlockX-=VBlockSizeX;
-				}
-
-				ProcessKey(KEY_LEFT);
 			}
-			Pasting--;
+			--Pasting;
 			Show();
-			//_D(SysLog(L"VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos()));
-			//_D(SysLog(L"~~~~~~~~~~~~~~~~ KEY_ALTLEFT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return TRUE;
 		}
+		case KEY_CTRLALTRIGHT:   case KEY_CTRLALTNUMPAD6:
+		case KEY_RCTRLRALTRIGHT: case KEY_RCTRLRALTNUMPAD6:
+			fast = true;
 		case KEY_ALTSHIFTRIGHT:  case KEY_ALTSHIFTNUMPAD6:
 		case KEY_RALTSHIFTRIGHT: case KEY_RALTSHIFTNUMPAD6:
 		case KEY_ALTRIGHT:
 		case KEY_RALTRIGHT:
 		{
-			/* $ 23.10.2000 tran
-			   вместо GetTabCurPos надо вызывать GetCurPos -
-			   сравнивать реальную позицию с реальной длиной
-			   а было сравнение видимой позицией с реальной длиной*/
-			if (!EdOpt.CursorBeyondEOL && CurLine->GetCurPos()>=CurLine->GetLength())
-				return TRUE;
-
 			if (!Flags.Check(FEDITOR_MARKINGVBLOCK))
 				BeginVBlockMarking();
 
-			//_D(SysLog(L"---------------- KEY_ALTRIGHT, getLineCurPos=%i",GetLineCurPos()));
-			Pasting++;
-			{
-				int Delta;
-				/* $ 18.07.2000 tran
-				     встань в начало текста, нажми alt-right, alt-pagedown,
-				     выделится блок шириной в 1 колонку, нажми еще alt-right
-				     выделение сбросится
-				*/
-				int VisPos=CurLine->RealPosToTab(CurPos),
-				           NextVisPos=CurLine->RealPosToTab(CurPos+1);
-				//_D(SysLog(L"CurPos=%i, VisPos=%i, NextVisPos=%i",
-				//    CurPos,VisPos, NextVisPos); //,CurLine->GetTabCurPos()));
-				Delta=NextVisPos-VisPos;
-				//_D(SysLog(L"Delta=%i",Delta));
+			int tpos = CurLine->GetTabCurPos();
 
-				if (CurLine->GetTabCurPos()>=VBlockX+VBlockSizeX)
-					VBlockSizeX+=Delta;
+			if ( CurPos >= CurLine->GetLength() )
+			{
+				if ( tpos > VBlockX || !VBlockSizeX )
+				{
+					++VBlockSizeX;
+					CurLine->SetTabCurPos(VBlockX + VBlockSizeX);
+				}
 				else
 				{
-					VBlockX+=Delta;
-					VBlockSizeX-=Delta;
+					int shift = fast ? VBlockSizeX : 1;
+					CurLine->SetTabCurPos(VBlockX += shift);
+					VBlockSizeX -= shift;
 				}
-
-				/* $ 25.07.2000 tran
-				   остатки бага 22 - подправка при перебега за границу блока */
-				if (VBlockSizeX<0)
-				{
-					VBlockSizeX=-VBlockSizeX;
-					VBlockX-=VBlockSizeX;
-				}
-
-				ProcessKey(KEY_RIGHT);
-				//_D(SysLog(L"VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos()));
 			}
-			Pasting--;
+			else
+			{
+				int mkey = fast ? static_cast<int>(KEY_CTRLRIGHT) : static_cast<int>(KEY_RIGHT);
+				++Pasting;
+				ProcessKey(mkey);
+				--Pasting;
+				int tpos1 = CurLine->GetTabCurPos();
+
+				if ( VBlockSizeX && tpos == VBlockX )
+				{
+					if ( tpos1 > VBlockX+VBlockSizeX )
+					{
+						CurLine->SetTabCurPos(VBlockX += VBlockSizeX);
+						VBlockSizeX = 0;
+					}
+					else
+						VBlockSizeX -= (VBlockX = tpos1) - tpos;
+				}
+				else
+					VBlockSizeX += tpos1 - tpos;
+			}
 			Show();
-			//_D(SysLog(L"~~~~~~~~~~~~~~~~ KEY_ALTRIGHT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
 			return TRUE;
 		}
-		/* $ 29.06.2000 IG
-		  + CtrlAltLeft, CtrlAltRight для вертикальный блоков
-		*/
-		case KEY_CTRLALTLEFT:   case KEY_CTRLALTNUMPAD4:
-		case KEY_RCTRLRALTLEFT: case KEY_RCTRLRALTNUMPAD4:
-		{
-			{
-				int SkipSpace=TRUE;
-				Pasting++;
-				Lock();
 
-				for (;;)
-				{
-					const wchar_t *Str;
-					int Length;
-					CurLine->GetBinaryString(&Str,nullptr,Length);
-					int CurPos=CurLine->GetCurPos();
-
-					if (CurPos>Length)
-					{
-						CurLine->ProcessKey(KEY_END);
-						CurPos=CurLine->GetCurPos();
-					}
-
-					if (!CurPos)
-						break;
-
-					if (IsSpace(Str[CurPos-1]) || IsWordDiv(EdOpt.strWordDiv,Str[CurPos-1]))
-					{
-						if (SkipSpace)
-						{
-							ProcessKey(KEY_ALTSHIFTLEFT);
-							continue;
-						}
-						else
-							break;
-					}
-
-					SkipSpace=FALSE;
-					ProcessKey(KEY_ALTSHIFTLEFT);
-				}
-
-				Pasting--;
-				Unlock();
-				Show();
-			}
-			return TRUE;
-		}
-		case KEY_CTRLALTRIGHT:   case KEY_CTRLALTNUMPAD6:
-		case KEY_RCTRLRALTRIGHT: case KEY_RCTRLRALTNUMPAD6:
-		{
-			{
-				int SkipSpace=TRUE;
-				Pasting++;
-				Lock();
-
-				for (;;)
-				{
-					const wchar_t *Str;
-					int Length;
-					CurLine->GetBinaryString(&Str,nullptr,Length);
-					int CurPos=CurLine->GetCurPos();
-
-					if (CurPos>=Length)
-						break;
-
-					if (IsSpace(Str[CurPos]) || IsWordDiv(EdOpt.strWordDiv,Str[CurPos]))
-					{
-						if (SkipSpace)
-						{
-							ProcessKey(KEY_ALTSHIFTRIGHT);
-							continue;
-						}
-						else
-							break;
-					}
-
-					SkipSpace=FALSE;
-					ProcessKey(KEY_ALTSHIFTRIGHT);
-				}
-
-				Pasting--;
-				Unlock();
-				Show();
-			}
-			return TRUE;
-		}
 		case KEY_ALTSHIFTUP:    case KEY_ALTSHIFTNUMPAD8:
 		case KEY_RALTSHIFTUP:   case KEY_RALTSHIFTNUMPAD8:
 		case KEY_ALTUP:
