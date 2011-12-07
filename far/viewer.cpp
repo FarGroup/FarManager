@@ -3441,6 +3441,7 @@ void Viewer::Search(int Next,int FirstChar)
 	sd.CurPos = LastSelectPos;
 	if ( !found )
 	{
+		TaskBar TB;
 		TPreRedrawFuncGuard preRedrawFuncGuard(PR_ViewerSearchMsg);
 		SetCursorType(FALSE,0);
 
