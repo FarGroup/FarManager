@@ -1,11 +1,7 @@
-Default165.reg Default options (FAR 1.65)
 Descript.ion File descriptions
-WindowsGUI.reg Windows GUI like behaviour for FAR
-Executor.CMD.reg ExcludeCmds (TI#54) for cmd.exe (NT)
-Executor.COMMAND.reg ExcludeCmds (TI#54) for command.com (Win9x/ME)
-Executor.4NT.reg ExcludeCmds (TI#54) for 4NT (ver. 4.0, 5.0)
 Default165.xml Default options (FAR 1.65)
 WindowsGUI.xml Windows GUI like behaviour for FAR
 Executor.4NT.xml Windows GUI like behaviour for FAR
 Executor.CMD.xml Windows GUI like behaviour for FAR
 Executor.COMMAND.xml Windows GUI like behaviour for FAR
+reg REG-files
