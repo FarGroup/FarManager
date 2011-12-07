@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Shell" key="CtrlS" flags="DisableOutput" description="Panel: Use Ctrl-S to select files from Clipboard">Panel.Select(0,1,2,clip(0))</macro>
+    </keymacros>
+  </macro>
+</farconfig>

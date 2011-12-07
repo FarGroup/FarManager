@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <generalconfig>
+    <!-- turn off persistent blocks and turn on selection deletion with Del -->
+    <setting key="Editor" name="DelRemovesBlocks" type="qword" value="0000000000000001" />
+    <setting key="Editor" name="PersistentBlocks" type="qword" value="0000000000000000" />
+  </generalconfig>
+  <macro>
+    <keymacros>
+      <macro area="Editor" key="CtrlF" flags="DisableOutput" description="Editor: Find...">F7</macro>
+      <macro area="Editor" key="F3" flags="DisableOutput" description="Editor: Find Next">ShiftF7</macro>
+      <macro area="Editor" key="CtrlH" flags="DisableOutput" description="Editor: Replace...">CtrlF7</macro>
+      <macro area="Editor" key="CtrlG" flags="DisableOutput" description="Editor: Go To...">AltF8</macro>
+      <macro area="Editor" key="F5" flags="DisableOutput" description="Editor: Paste Time/Date">print(date("%R %x"))</macro>
+      <macro area="Editor" key="CtrlN" flags="DisableOutput" description="Editor: New File">ShiftF4 Enter</macro>
+      <macro area="Editor" key="CtrlO" flags="DisableOutput" description="Editor: Open...">ShiftF4</macro>
+      <macro area="Editor" key="CtrlS" flags="DisableOutput" description="Editor: Save File">F2</macro>
+    </keymacros>
+  </macro>
+</farconfig>

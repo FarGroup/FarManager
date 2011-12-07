@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Editor" key="CtrlDel" flags="DisableOutput|Selection" description="Ctrl-Del removes selected editor block">CtrlD</macro>
+      <macro area="Editor" key="CtrlNumDel" flags="DisableOutput|Selection" description="Ctrl-Del removes selected editor block">CtrlD</macro>
+    </keymacros>
+  </macro>
+</farconfig>

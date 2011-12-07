@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Shell" key="Ctrl&quot;" flags="DisableOutput" description="Opening last view/edit of a file">AltF11 Up Enter</macro>
+      <macro area="Viewer" key="Ctrl&quot;" flags="DisableOutput" description="Opening last view/edit of a file">AltF11 Up Enter</macro>
+      <macro area="Editor" key="Ctrl&quot;" flags="DisableOutput" description="Opening last view/edit of a file">AltF11 Up Enter</macro>
+    </keymacros>
+  </macro>
+</farconfig>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Shell" key="F3" flags="DisableOutput|NoPluginPanels|NoFolders" description="Use internal editor as viewer">
+<![CDATA[
+F4 $If (Dialog) Enter $End $If (Editor && !(Editor.State&0x200)) CtrlL $End
+]]>
+      </macro>
+    </keymacros>
+  </macro>
+</farconfig>

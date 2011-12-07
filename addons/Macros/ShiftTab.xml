@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Editor" key="ShiftTab" flags="DisableOutput" description="^Ctrl-Tab">CtrlShiftTab</macro>
+      <macro area="Shell" key="ShiftTab" flags="DisableOutput" description="^Ctrl-Tab">CtrlShiftTab</macro>
+      <macro area="Viewer" key="ShiftTab" flags="DisableOutput" description="^Ctrl-Tab">CtrlShiftTab</macro>
+    </keymacros>
+  </macro>
+</farconfig>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Shell" key="CtrlIns" flags="DisableOutput|EmptyCommandLine|NoPluginPanels" description="If CtrlIns was pressed while on .. and command line is empty then copy to clipboard the path of the current folder">
+<![CDATA[
+$If (APanel.Bof && !APanel.Selected && !APanel.Root) F7 CtrlShift[ CtrlIns Esc $Exit $Else CtrlIns $End
+]]>
+      </macro>
+    </keymacros>
+  </macro>
+</farconfig>

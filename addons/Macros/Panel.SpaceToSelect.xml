@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="" key="Space" flags="DisableOutput|EmptyCommandLine" description="Panel: Use Space to select files">Ins</macro>
+    </keymacros>
+  </macro>
+</farconfig>

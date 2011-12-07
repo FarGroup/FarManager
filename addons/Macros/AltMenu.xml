@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Shell" key="Alt" flags="DisableOutput" description="Use Alt to activate menu">F9</macro>
+      <macro area="Shell" key="RAlt" flags="DisableOutput" description="Use Right Alt to activate menu">F9</macro>
+      <macro area="MainMenu" key="Alt" flags="DisableOutput" description="Use Alt to activate menu">F9</macro>
+      <macro area="MainMenu" key="RAlt" flags="DisableOutput" description="Use Right Alt to activate menu">F9</macro>
+    </keymacros>
+  </macro>
+</farconfig>

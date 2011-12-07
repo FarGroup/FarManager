@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Viewer" key="Space" flags="DisableOutput" description="Use Space for listing in the viewer (like in Outlook Express or The Bat!)">$If (Eof) CtrlF10 Shift $If (APanel.Eof) $Exit $Else Add Home $End $Else PgDn $End</macro>
+    </keymacros>
+  </macro>
+</farconfig>

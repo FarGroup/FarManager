@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Editor" key="AltX" flags="DisableOutput" description="Close editor">F10</macro>
+      <macro area="Search" key="AltX" flags="DisableOutput" description="Exit FAR">F10</macro>
+      <macro area="Shell" key="AltX" flags="DisableOutput" description="Exit FAR">F10</macro>
+      <macro area="Viewer" key="AltX" flags="DisableOutput" description="Close viewer">F10</macro>
+    </keymacros>
+  </macro>
+</farconfig>

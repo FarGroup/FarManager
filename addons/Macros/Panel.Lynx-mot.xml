@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Shell" key="Left" flags="DisableOutput|EmptyCommandLine" description="LYNX-style motion">CtrlPgUp</macro>
+      <macro area="Shell" key="Right" flags="DisableOutput|EmptyCommandLine" description="LYNX-style motion">CtrlPgDn</macro>
+    </keymacros>
+  </macro>
+</farconfig>

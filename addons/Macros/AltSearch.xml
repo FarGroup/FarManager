@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Shell" key="Alt" flags="DisableOutput" description="Use Alt for search by name (activate)">
+<![CDATA[
+Alt<
+]]>
+      </macro>
+      <macro area="Shell" key="RAlt" flags="DisableOutput" description="Use Right Alt for search by name (activate)">
+<![CDATA[
+Alt<
+]]>
+      </macro>
+      <macro area="Search" key="Alt" flags="" description="Use Alt for search by name (deactivate)">Esc</macro>
+      <macro area="Search" key="RAlt" flags="" description="Use Right Alt for search by name (deactivate)">Esc</macro>
+    </keymacros>
+  </macro>
+</farconfig>

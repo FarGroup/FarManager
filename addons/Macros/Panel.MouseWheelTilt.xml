@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Shell" key="MsM2Click" flags="DisableOutput" description="Tilt mouse wheel Left">CtrlPgUp</macro>
+      <macro area="Shell" key="MsM3Click" flags="DisableOutput" description="Tilt mouse wheel Right">CtrlPgDn</macro>
+    </keymacros>
+  </macro>
+</farconfig>

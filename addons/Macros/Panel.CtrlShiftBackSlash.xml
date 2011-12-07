@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Shell" key="CtrlShiftBackSlash" flags="DisableOutput" description="Activate the same folder in the passive panel as in the active panel.">F9 Tab Enter Up Enter Enter</macro>
+    </keymacros>
+  </macro>
+</farconfig>

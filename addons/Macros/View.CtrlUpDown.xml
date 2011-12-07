@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Viewer" key="CtrlDown" flags="DisableOutput" description="Scroll Down text in internal viewer">Down</macro>
+      <macro area="Viewer" key="CtrlUp" flags="DisableOutput" description="Scroll Up text in internal viewer">Up</macro>
+    </keymacros>
+  </macro>
+</farconfig>

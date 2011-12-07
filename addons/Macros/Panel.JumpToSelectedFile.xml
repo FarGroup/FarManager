@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Shell" key="CtrlShiftDown" flags="DisableOutput|Selection" description="Jump to the next selected file">
+<![CDATA[
+$If ((APanel.SelCount==1) && (panelitem(0,0,8))) $Exit $End %i=APanel.CurPos+1; $While (%i<APanel.ItemCount && !panelitem(0,%i,8)) %i=%i+1; $End $If (%i>=APanel.ItemCount && !panelitem(0,%i,8)) %i=1; $While (%i<APanel.ItemCount && !panelitem(0,%i,8)) %i=%i+1; $End $End Panel.SetPosIdx(0,%i)
+]]>
+      </macro>
+      <macro area="Shell" key="CtrlShiftEnd" flags="DisableOutput|Selection" description="Jump to the last selected file">
+<![CDATA[
+$If ((APanel.SelCount==1) && (panelitem(0,0,8))) $Exit $End End %i=APanel.CurPos; $While (%i>1 && !panelitem(0,%i,8)) %i=%i-1; $End Panel.SetPosIdx(0,%i)
+]]>
+      </macro>
+      <macro area="Shell" key="CtrlShiftHome" flags="DisableOutput|Selection" description="Jump to the first selected file">
+<![CDATA[
+$If ((APanel.SelCount==1) && (panelitem(0,0,8))) $Exit $End Home %i=APanel.CurPos; $While (%i<APanel.ItemCount && !panelitem(0,%i,8)) %i=%i+1; $End Panel.SetPosIdx(0,%i)
+]]>
+      </macro>
+      <macro area="Shell" key="CtrlShiftUp" flags="DisableOutput|Selection" description="Jump to the previous selected file">
+<![CDATA[
+$If ((APanel.SelCount==1) && (panelitem(0,0,8))) $Exit $End %i=APanel.CurPos-1; $if (%i<1) %i=APanel.ItemCount; $End $While (%i>1 && !panelitem(0,%i,8)) %i=%i-1; $End $If (%i<=1 && !panelitem(0,%i,8)) %i=APanel.ItemCount; $While (%i>1 && !panelitem(0,%i,8)) %i=%i-1; $End $End Panel.SetPosIdx(0,%i)
+]]>
+      </macro>
+    </keymacros>
+  </macro>
+</farconfig>

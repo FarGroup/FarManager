@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Editor" key="ShiftMsWheelUp" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens">F12 Up Enter</macro>
+      <macro area="Shell" key="ShiftMsWheelUp" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens">F12 Up Enter</macro>
+      <macro area="Viewer" key="ShiftMsWheelUp" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens">F12 Up Enter</macro>
+      <macro area="Editor" key="ShiftMsWheelDown" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens">F12 Down Enter</macro>
+      <macro area="Shell" key="ShiftMsWheelDown" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens">F12 Down Enter</macro>
+      <macro area="Viewer" key="ShiftMsWheelDown" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens">F12 Down Enter</macro>
+    </keymacros>
+  </macro>
+</farconfig>

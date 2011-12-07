@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Shell" key="Esc" flags="DisableOutput|EmptyCommandLine" description="Use Esc to toggle panels on/off">CtrlO</macro>
+      <macro area="Info" key="Esc" flags="DisableOutput|EmptyCommandLine" description="Use Esc to toggle panels on/off">CtrlO</macro>
+      <macro area="QView" key="Esc" flags="DisableOutput|EmptyCommandLine" description="Use Esc to toggle panels on/off">CtrlO</macro>
+      <macro area="Tree" key="Esc" flags="DisableOutput|EmptyCommandLine" description="Use Esc to toggle panels on/off">CtrlO</macro>
+    </keymacros>
+  </macro>
+</farconfig>

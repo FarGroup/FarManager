@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+  <macro>
+    <keymacros>
+      <macro area="Editor" key="CtrlW" flags="DisableOutput" description="Editor: Save File and Exit">ShiftF10</macro>
+    </keymacros>
+  </macro>
+</farconfig>
