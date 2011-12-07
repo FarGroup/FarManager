@@ -2116,20 +2116,20 @@ public:
 
 			//schema
 			Exec(
-				"CREATE TABLE IF NOT EXISTS constants(name TEXT NOT NULL, value TEXT, PRIMARY KEY (name));"
-				"CREATE TABLE IF NOT EXISTS variables(name TEXT NOT NULL, value TEXT, PRIMARY KEY (name));"
+				"CREATE TABLE IF NOT EXISTS constants(name TEXT NOT NULL, value TEXT, type TEXT NOT NULL, PRIMARY KEY (name));"
+				"CREATE TABLE IF NOT EXISTS variables(name TEXT NOT NULL, value TEXT, type TEXT NOT NULL, PRIMARY KEY (name));"
 				"CREATE TABLE IF NOT EXISTS plugin_functions(plugin_guid TEXT NOT NULL, function_name TEXT NOT NULL, nparam INTEGER NOT NULL, oparam INTEGER NOT NULL, flags TEXT, sequence TEXT, syntax TEXT NOT NULL, description TEXT, PRIMARY KEY (plugin_guid, function_name));"
 				"CREATE TABLE IF NOT EXISTS key_macros(area TEXT NOT NULL, key TEXT NOT NULL, flags TEXT, sequence TEXT, description TEXT, PRIMARY KEY (area, key));"
 			) &&
 
-			InitStmt(stmtConstsEnum, L"SELECT name, value FROM constants ORDER BY name;") &&
-			InitStmt(stmtGetConstValue, L"SELECT value FROM constants WHERE name=?1;") &&
-			InitStmt(stmtSetConstValue, L"INSERT OR REPLACE INTO constants VALUES (?1,?2);") &&
+			InitStmt(stmtConstsEnum, L"SELECT name, value, type FROM constants ORDER BY name;") &&
+			InitStmt(stmtGetConstValue, L"SELECT value, type FROM constants WHERE name=?1;") &&
+			InitStmt(stmtSetConstValue, L"INSERT OR REPLACE INTO constants VALUES (?1,?2,?3);") &&
 			InitStmt(stmtDelConst, L"DELETE FROM constants WHERE name=?1;") &&
 
-			InitStmt(stmtVarsEnum, L"SELECT name, value FROM variables ORDER BY name;") &&
-			InitStmt(stmtGetVarValue, L"SELECT value FROM variables WHERE name=?1;") &&
-			InitStmt(stmtSetVarValue, L"INSERT OR REPLACE INTO variables VALUES (?1,?2);") &&
+			InitStmt(stmtVarsEnum, L"SELECT name, value, type FROM variables ORDER BY name;") &&
+			InitStmt(stmtGetVarValue, L"SELECT value,type FROM variables WHERE name=?1;") &&
+			InitStmt(stmtSetVarValue, L"INSERT OR REPLACE INTO variables VALUES (?1,?2,?3);") &&
 			InitStmt(stmtDelVar, L"DELETE FROM variables WHERE name=?1;") &&
 
 			InitStmt(stmtPluginFunctionsEnum, L"SELECT plugin_guid, function_name, nparam, oparam, flags, sequence, syntax, description FROM plugin_functions ORDER BY plugin_guid, function_name;") &&
@@ -2143,12 +2143,13 @@ public:
 
 	virtual ~MacroConfigDb() { }
 
-	bool EnumConsts(string &strName, string &Value)
+	bool EnumConsts(string &strName, string &Value, string &Type)
 	{
 		if (stmtConstsEnum.Step())
 		{
 			strName = stmtConstsEnum.GetColText(0);
 			Value = stmtConstsEnum.GetColText(1);
+			Type = stmtConstsEnum.GetColText(2);
 			return true;
 		}
 
@@ -2156,20 +2157,21 @@ public:
 		return false;
 	}
 
-	bool GetConstValue(const wchar_t *Name, string &Value)
+	bool GetConstValue(const wchar_t *Name, string &Value, string &Type)
 	{
 		bool b = stmtGetConstValue.Bind(Name).Step();
 		if (b)
 		{
 			Value = stmtGetConstValue.GetColText(0);
+			Type  = stmtGetConstValue.GetColText(1);
 		}
 		stmtGetConstValue.Reset();
 		return b;
 	}
 
-	unsigned __int64 SetConstValue(const wchar_t *Name, const wchar_t *Value)
+	unsigned __int64 SetConstValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *Type)
 	{
-		if (stmtSetConstValue.Bind(Name).Bind(Value).StepAndReset())
+		if (stmtSetConstValue.Bind(Name).Bind(Value).Bind(Type).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
@@ -2179,12 +2181,13 @@ public:
 		return stmtDelConst.Bind(Name).StepAndReset();
 	}
 
-	bool EnumVars(string &strName, string &Value)
+	bool EnumVars(string &strName, string &Value, string &Type)
 	{
 		if (stmtVarsEnum.Step())
 		{
 			strName = stmtVarsEnum.GetColText(0);
 			Value = stmtVarsEnum.GetColText(1);
+			Type = stmtVarsEnum.GetColText(2);
 			return true;
 		}
 
@@ -2192,20 +2195,21 @@ public:
 		return false;
 	}
 
-	bool GetVarValue(const wchar_t *Name, string &Value)
+	bool GetVarValue(const wchar_t *Name, string &Value, string &Type)
 	{
 		bool b = stmtGetVarValue.Bind(Name).Step();
 		if (b)
 		{
 			Value = stmtGetVarValue.GetColText(0);
+			Type  = stmtGetVarValue.GetColText(1);
 		}
 		stmtGetVarValue.Reset();
 		return b;
 	}
 
-	unsigned __int64 SetVarValue(const wchar_t *Name, const wchar_t *Value)
+	unsigned __int64 SetVarValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *Type)
 	{
-		if (stmtSetVarValue.Bind(Name).Bind(Value).StepAndReset())
+		if (stmtSetVarValue.Bind(Name).Bind(Value).Bind(Type).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
@@ -2279,10 +2283,10 @@ public:
 		TiXmlElement *se;
 
 		SQLiteStmt stmtEnumAllConsts;
-		InitStmt(stmtEnumAllConsts, L"SELECT name, value FROM constants ORDER BY name;");
+		InitStmt(stmtEnumAllConsts, L"SELECT name, value, type FROM constants ORDER BY name;");
 
 		SQLiteStmt stmtEnumAllVars;
-		InitStmt(stmtEnumAllVars, L"SELECT name, value FROM variables ORDER BY name;");
+		InitStmt(stmtEnumAllVars, L"SELECT name, value, type FROM variables ORDER BY name;");
 
 		SQLiteStmt stmtEnumAllPluginFunctions;
 		InitStmt(stmtEnumAllPluginFunctions, L"SELECT plugin_guid, function_name, nparam, oparam, flags, sequence, syntax, description FROM plugin_functions ORDER BY plugin_guid, function_name;");
@@ -2302,6 +2306,7 @@ public:
 
 			se->SetAttribute("name", stmtEnumAllConsts.GetColTextUTF8(0));
 			se->SetAttribute("value", stmtEnumAllConsts.GetColTextUTF8(1));
+			se->SetAttribute("type", stmtEnumAllConsts.GetColTextUTF8(2));
 			e->LinkEndChild(se);
 		}
 		stmtEnumAllConsts.Reset();
@@ -2320,6 +2325,7 @@ public:
 
 			se->SetAttribute("name", stmtEnumAllVars.GetColTextUTF8(0));
 			se->SetAttribute("value", stmtEnumAllVars.GetColTextUTF8(1));
+			se->SetAttribute("type", stmtEnumAllVars.GetColTextUTF8(2));
 			e->LinkEndChild(se);
 		}
 		stmtEnumAllVars.Reset();
@@ -2397,9 +2403,10 @@ public:
 		{
 			const char* name = e->Attribute("name");
 			const char* value = e->Attribute("value");
+			const char* type = e->Attribute("type");
 			if(name && value)
 			{
-				SetConstValue(string(name, CP_UTF8),string(value, CP_UTF8));
+				SetConstValue(string(name, CP_UTF8),string(value, CP_UTF8),string(type, CP_UTF8));
 			}
 		}
 
@@ -2407,9 +2414,10 @@ public:
 		{
 			const char* name = e->Attribute("name");
 			const char* value = e->Attribute("value");
+			const char* type = e->Attribute("type");
 			if(name && value)
 			{
-				SetVarValue(string(name, CP_UTF8),string(value, CP_UTF8));
+				SetVarValue(string(name, CP_UTF8),string(value, CP_UTF8),string(type, CP_UTF8));
 			}
 		}
 
@@ -2442,7 +2450,9 @@ public:
 			{
 				if(sequence && *sequence)
 				{
-					SetKeyMacro(string(area, CP_UTF8), string(key, CP_UTF8), flags? string(flags, CP_UTF8) : L"", string(sequence, CP_UTF8), description? string(description, CP_UTF8) : L"");
+					string strSequence=string(sequence, CP_UTF8);
+					string strFlags=string(flags? string(flags, CP_UTF8) : L"", CP_UTF8);
+					SetKeyMacro(string(area, CP_UTF8), string(key, CP_UTF8), RemoveExternalSpaces(strFlags), RemoveExternalSpaces(strSequence), description? string(description, CP_UTF8) : L"");
 				}
 				else
 				{
@@ -2592,7 +2602,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		doc.LinkEndChild(root);
 		ret = doc.SaveFile(XmlFile);
 	}
-	else
+	else // Import
 	{
 		TiXmlDocument doc;
 		if (doc.LoadFile(XmlFile))

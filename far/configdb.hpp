@@ -313,14 +313,14 @@ public:
 
 	virtual ~MacroConfig() {}
 
-	virtual bool EnumConsts(string &strName, string &Value) = 0;
-	virtual bool GetConstValue(const wchar_t *Name, string &Value) = 0;
-	virtual unsigned __int64 SetConstValue(const wchar_t *Name, const wchar_t *Value) = 0;
+	virtual bool EnumConsts(string &strName, string &Value, string &Type) = 0;
+	virtual bool GetConstValue(const wchar_t *Name, string &Value, string &Type) = 0;
+	virtual unsigned __int64 SetConstValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *type) = 0;
 	virtual bool DeleteConst(const wchar_t *Name) = 0;
 
-	virtual bool EnumVars(string &strName, string &Value) = 0;
-	virtual bool GetVarValue(const wchar_t *Name, string &Value) = 0;
-	virtual unsigned __int64 SetVarValue(const wchar_t *Name, const wchar_t *Value) = 0;
+	virtual bool EnumVars(string &strName, string &Value, string &Type) = 0;
+	virtual bool GetVarValue(const wchar_t *Name, string &Value, string &Type) = 0;
+	virtual unsigned __int64 SetVarValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *Type) = 0;
 	virtual bool DeleteVar(const wchar_t *Name) = 0;
 
 	virtual bool EnumPluginFunctions(string &strPluginGuid, string &strFunctionName, int *nParam, int *oParam, string &Flags, string &strSequence, string &strSyntax, string &strDescription) = 0;

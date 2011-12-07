@@ -252,6 +252,14 @@ TMacroKeywords MKeywordsArea[] =
 	{0,  L"Common",             MACRO_COMMON,0},
 };
 
+TMacroKeywords MKeywordsVarType[] =
+{
+	{3,  L"unknown",   0, 0},
+	{3,  L"integer",   1, 0},
+	{3,  L"text",      2, 0},
+	{3,  L"real",      3, 0},
+};
+
 TMacroKeywords MKeywordsFlags[] =
 {
 	// ÔËÀÃÈ
@@ -310,6 +318,10 @@ DWORD GetAreaValue(const wchar_t* AreaName) {return GetValueOfVame(AreaName, MKe
 
 const wchar_t* GetFlagName(DWORD FlagValue) {return GetNameOfValue(FlagValue, MKeywordsFlags);}
 DWORD GetFlagValue(const wchar_t* FlagName) {return GetValueOfVame(FlagName, MKeywordsFlags);}
+
+const wchar_t* GetVarTypeName(DWORD ValueType) {return GetNameOfValue(ValueType, MKeywordsVarType);}
+DWORD GetVarTypeValue(const wchar_t* ValueName) {return GetValueOfVame(ValueName, MKeywordsVarType);}
+
 
 const string Flags2String(DWORD Flags)
 {
@@ -5883,13 +5895,32 @@ wchar_t *KeyMacro::MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Sr
 bool KeyMacro::LoadVarFromDB(const wchar_t *Name, TVar &Value)
 {
 	bool Ret;
-	string TempValue;
+	string TempValue, strType;
 
-	Ret=MacroCfg->GetVarValue(Name, TempValue);
+	Ret=MacroCfg->GetVarValue(Name, TempValue, strType);
 
 	if(Ret)
 	{
 		Value=TempValue.CPtr();
+		switch (GetVarTypeValue(strType))
+		{
+			case vtUnknown:
+				Value.toInteger();
+				Value.SetType(vtUnknown);
+				break;
+			case vtInteger:
+				Value.toInteger();
+				break;
+			case vtDouble:
+				Value.toDouble();
+				break;
+			case vtString:
+				break;
+			default:
+				Value.toString();
+				break;
+		}
+
 	}
 
 	return Ret;
@@ -5900,7 +5931,8 @@ bool KeyMacro::SaveVarToDB(const wchar_t *Name, TVar Value)
 	bool Ret;
 
 	MacroCfg->BeginTransaction();
-	Ret = MacroCfg->SetVarValue(Name, Value.s()) != 0;
+	TVarType type=Value.type();
+	Ret = MacroCfg->SetVarValue(Name, Value.s(), GetVarTypeName((DWORD)type)) != 0;
 	MacroCfg->EndTransaction();
 
 	return Ret;
@@ -5923,7 +5955,8 @@ void KeyMacro::WriteVarsConsts()
 		if(strValueName==constMsX || strValueName==constMsY || strValueName==constMsButton ||
 			strValueName==constMsCtrlState || strValueName==constMsEventFlags || strValueName==constRCounter)
 			continue;
-			MacroCfg->SetConstValue(strValueName, var->value.s());
+		TVarType type=var->value.type();
+		MacroCfg->SetConstValue(strValueName, var->value.s(), GetVarTypeName((DWORD)type));
 	}
 	MacroCfg->EndTransaction();
 
@@ -5939,7 +5972,8 @@ void KeyMacro::WriteVarsConsts()
 
 		strValueName = var->str;
 		strValueName = L"%"+strValueName;
-		MacroCfg->SetVarValue(strValueName, var->value.s());
+		TVarType type=var->value.type();
+		MacroCfg->SetVarValue(strValueName, var->value.s(), GetVarTypeName((DWORD)type));
 	}
 	MacroCfg->EndTransaction();
 }
@@ -6016,16 +6050,54 @@ void KeyMacro::SaveMacros()
 void KeyMacro::ReadVarsConsts()
 {
 	string strName;
-	string Value;
+	string Value, strType;
 
-	while (MacroCfg->EnumConsts(strName, Value))
+	while (MacroCfg->EnumConsts(strName, Value, strType))
 	{
-		varInsert(glbConstTable, strName)->value = Value.CPtr();
+		TVarSet *NewSet=varInsert(glbConstTable, strName);
+		NewSet->value = Value.CPtr();
+		switch (GetVarTypeValue(strType))
+		{
+			case vtUnknown:
+				NewSet->value.toInteger();
+				NewSet->value.SetType(vtUnknown);
+				break;
+			case vtInteger:
+				NewSet->value.toInteger();
+				break;
+			case vtDouble:
+				NewSet->value.toDouble();
+				break;
+			case vtString:
+				break;
+			default:
+				NewSet->value.toString();
+				break;
+		}
 	}
 
-	while (MacroCfg->EnumVars(strName, Value))
+	while (MacroCfg->EnumVars(strName, Value, strType))
 	{
-		varInsert(glbVarTable, strName.CPtr()+1)->value = Value.CPtr();
+		TVarSet *NewSet=varInsert(glbVarTable, strName.CPtr()+1);
+		NewSet->value = Value.CPtr();
+		switch (GetVarTypeValue(strType))
+		{
+			case vtUnknown:
+				NewSet->value.toInteger();
+				NewSet->value.SetType(vtUnknown);
+				break;
+			case vtInteger:
+				NewSet->value.toInteger();
+				break;
+			case vtDouble:
+				NewSet->value.toDouble();
+				break;
+			case vtString:
+				break;
+			default:
+				NewSet->value.toString();
+				break;
+		}
 	}
 
 	INT64 TempValue=0;
