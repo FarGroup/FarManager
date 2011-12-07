@@ -1,0 +1,1012 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+    <generalconfig>
+        <setting key="Colors" name="CurrentPalette" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,08,00,00,00,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,02,00,00,00,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0B,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0B,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0B,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,02,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,0F,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,0F,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0A,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0A,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0B,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,07,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,08,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,03,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0F,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,00,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00,03,00,00,00,00,00,00,00,0E,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+    </generalconfig>
+    <highlight>
+        <hierarchicalconfig>
+            <key name="Highlight">
+                <key name="Group0">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000410" />
+                    <value name="MarkChar" type="qword" value="000000000000005C" />
+                    <value name="Mask" type="text" value="*" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0F,00,00,FF,05,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group1">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000400" />
+                    <value name="MarkChar" type="qword" value="0000000000000020" />
+                    <value name="Mask" type="text" value="*" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,07,00,00,FF,05,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group2">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000012" />
+                    <value name="MarkChar" type="qword" value="000000000000005C" />
+                    <value name="Mask" type="text" value="*" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0F,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group3">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000014" />
+                    <value name="MarkChar" type="qword" value="000000000000005C" />
+                    <value name="Mask" type="text" value="*" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0F,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group4">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000011" />
+                    <value name="MarkChar" type="qword" value="000000000000005C" />
+                    <value name="Mask" type="text" value="*" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0F,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group5">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0F,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000010" />
+                    <value name="MarkChar" type="qword" value="000000000000005C" />
+                    <value name="Mask" type="text" value="*" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0F,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group6">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.xls" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group7">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.xls" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group8">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.xls" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group9">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.xls" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group10">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.doc,*.wri,*.rtf,*.dot" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group11">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.doc,*.wri,*.rtf,*.dot" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group12">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.doc,*.wri,*.rtf,*.dot" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group13">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.doc,*.wri,*.rtf,*.dot" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group14">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="000000000000001D" />
+                    <value name="Mask" type="text" value="*.pdf" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group15">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="000000000000001D" />
+                    <value name="Mask" type="text" value="*.pdf" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group16">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="000000000000001D" />
+                    <value name="Mask" type="text" value="*.pdf" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group17">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="000000000000001D" />
+                    <value name="Mask" type="text" value="*.pdf" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group18">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.htm,*.html" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group19">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.htm,*.html" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group20">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.htm,*.html" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group21">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.htm,*.html" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group22">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="0000000000000019" />
+                    <value name="Mask" type="text" value="*.xml,*.xhtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group23">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="0000000000000019" />
+                    <value name="Mask" type="text" value="*.xml,*.xhtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group24">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="0000000000000019" />
+                    <value name="Mask" type="text" value="*.xml,*.xhtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group25">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="0000000000000019" />
+                    <value name="Mask" type="text" value="*.xml,*.xhtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group26">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="00000000000000FA" />
+                    <value name="Mask" type="text" value="*.shtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group27">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="00000000000000FA" />
+                    <value name="Mask" type="text" value="*.shtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group28">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="00000000000000FA" />
+                    <value name="Mask" type="text" value="*.shtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group29">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="00000000000000FA" />
+                    <value name="Mask" type="text" value="*.shtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group30">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="00000000000000FB" />
+                    <value name="Mask" type="text" value="*.jsp,*.asp,*.php,*.jhtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group31">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="00000000000000FB" />
+                    <value name="Mask" type="text" value="*.jsp,*.asp,*.php,*.jhtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group32">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="00000000000000FB" />
+                    <value name="Mask" type="text" value="*.jsp,*.asp,*.php,*.jhtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group33">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="00000000000000FB" />
+                    <value name="Mask" type="text" value="*.jsp,*.asp,*.php,*.jhtml" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group34">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="00000000000000FE" />
+                    <value name="Mask" type="text" value="*.css" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group35">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="00000000000000FE" />
+                    <value name="Mask" type="text" value="*.css" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group36">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="00000000000000FE" />
+                    <value name="Mask" type="text" value="*.css" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group37">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="00000000000000FE" />
+                    <value name="Mask" type="text" value="*.css" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group38">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="000000000000000F" />
+                    <value name="Mask" type="text" value="*.eml,*.msg" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group39">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="000000000000000F" />
+                    <value name="Mask" type="text" value="*.eml,*.msg" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group40">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="000000000000000F" />
+                    <value name="Mask" type="text" value="*.eml,*.msg" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group41">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="000000000000000F" />
+                    <value name="Mask" type="text" value="*.eml,*.msg" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group42">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="000000000000003A" />
+                    <value name="Mask" type="text" value="*.in[if],*.reg" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group43">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="000000000000003A" />
+                    <value name="Mask" type="text" value="*.in[if],*.reg" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group44">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="000000000000003A" />
+                    <value name="Mask" type="text" value="*.in[if],*.reg" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group45">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="000000000000003A" />
+                    <value name="Mask" type="text" value="*.in[if],*.reg" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group46">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="0000000000000012" />
+                    <value name="Mask" type="text" value="*.cfg,*.ctl,*.lst,*.properties" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group47">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="0000000000000012" />
+                    <value name="Mask" type="text" value="*.cfg,*.ctl,*.lst,*.properties" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group48">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="0000000000000012" />
+                    <value name="Mask" type="text" value="*.cfg,*.ctl,*.lst,*.properties" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group49">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="0000000000000012" />
+                    <value name="Mask" type="text" value="*.cfg,*.ctl,*.lst,*.properties" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group50">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="0000000000000018" />
+                    <value name="Mask" type="text" value="*.url" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group51">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="0000000000000018" />
+                    <value name="Mask" type="text" value="*.url" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group52">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="0000000000000018" />
+                    <value name="Mask" type="text" value="*.url" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group53">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="0000000000000018" />
+                    <value name="Mask" type="text" value="*.url" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group54">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="000000000000001C" />
+                    <value name="Mask" type="text" value="*.log" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group55">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="000000000000001C" />
+                    <value name="Mask" type="text" value="*.log" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group56">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="000000000000001C" />
+                    <value name="Mask" type="text" value="*.log" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group57">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="000000000000001C" />
+                    <value name="Mask" type="text" value="*.log" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group58">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="0000000000000020" />
+                    <value name="Mask" type="text" value="*.txt,*.me,*.rus,*.eng,*.faq" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group59">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="0000000000000020" />
+                    <value name="Mask" type="text" value="*.txt,*.me,*.rus,*.eng,*.faq" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group60">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="0000000000000020" />
+                    <value name="Mask" type="text" value="*.txt,*.me,*.rus,*.eng,*.faq" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group61">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="0000000000000020" />
+                    <value name="Mask" type="text" value="*.txt,*.me,*.rus,*.eng,*.faq" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,06,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group62">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.bat,*.cmd" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group63">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.bat,*.cmd" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group64">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.bat,*.cmd" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group65">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.bat,*.cmd" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group66">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.pif,*.lnk" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group67">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.pif,*.lnk" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group68">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.pif,*.lnk" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group69">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,08,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.pif,*.lnk" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group70">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="0000000000000020" />
+                    <value name="Mask" type="text" value="*.exe,*.com" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group71">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="0000000000000020" />
+                    <value name="Mask" type="text" value="*.exe,*.com" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group72">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="0000000000000020" />
+                    <value name="Mask" type="text" value="*.exe,*.com" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group73">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="0000000000000020" />
+                    <value name="Mask" type="text" value="*.exe,*.com" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group74">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.vbs,*.vbe,*.js,*.jse,*.wsf,*.wsh,%PATHEXT%" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group75">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.vbs,*.vbe,*.js,*.jse,*.wsf,*.wsh,%PATHEXT%" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group76">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.vbs,*.vbe,*.js,*.jse,*.wsf,*.wsh,%PATHEXT%" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group77">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.vbs,*.vbe,*.js,*.jse,*.wsf,*.wsh,%PATHEXT%" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0B,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group78">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.rar,*.r[0-9][0-9]" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group79">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.rar,*.r[0-9][0-9]" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group80">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.rar,*.r[0-9][0-9]" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group81">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="0000000000000010" />
+                    <value name="Mask" type="text" value="*.rar,*.r[0-9][0-9]" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group82">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.zip,*.jar" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group83">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.zip,*.jar" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group84">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.zip,*.jar" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group85">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="000000000000003E" />
+                    <value name="Mask" type="text" value="*.zip,*.jar" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group86">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.cab" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group87">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.cab" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group88">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.cab" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group89">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="000000000000001A" />
+                    <value name="Mask" type="text" value="*.cab" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group90">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="00000000000000FA" />
+                    <value name="Mask" type="text" value="*.arj,*.a[0-9][0-9]" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group91">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="00000000000000FA" />
+                    <value name="Mask" type="text" value="*.arj,*.a[0-9][0-9]" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group92">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="00000000000000FA" />
+                    <value name="Mask" type="text" value="*.arj,*.a[0-9][0-9]" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group93">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="00000000000000FA" />
+                    <value name="Mask" type="text" value="*.arj,*.a[0-9][0-9]" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group94">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="000000000000001D" />
+                    <value name="Mask" type="text" value="*.gz,*.tar,*.t[ag]z,*.bz,*.bzip,*.bz2" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group95">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="000000000000001D" />
+                    <value name="Mask" type="text" value="*.gz,*.tar,*.t[ag]z,*.bz,*.bzip,*.bz2" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group96">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000001" />
+                    <value name="MarkChar" type="qword" value="000000000000001D" />
+                    <value name="Mask" type="text" value="*.gz,*.tar,*.t[ag]z,*.bz,*.bzip,*.bz2" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group97">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="MarkChar" type="qword" value="000000000000001D" />
+                    <value name="Mask" type="text" value="*.gz,*.tar,*.t[ag]z,*.bz,*.bzip,*.bz2" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,08,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group98">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000002" />
+                    <value name="MarkChar" type="qword" value="00000000000000FB" />
+                    <value name="Mask" type="text" value="*.ha" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,01,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+                <key name="Group99">
+                    <value name="CursorColor" type="hex" value="03,00,00,00,00,00,00,00,02,00,00,FF,07,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="ExcludeAttributes" type="qword" value="0000000000000000" />
+                    <value name="IncludeAttributes" type="qword" value="0000000000000004" />
+                    <value name="MarkChar" type="qword" value="00000000000000FB" />
+                    <value name="Mask" type="text" value="*.ha" />
+                    <value name="NormalColor" type="hex" value="03,00,00,00,00,00,00,00,0A,00,00,FF,04,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                    <value name="SelectedCursorColor" type="hex" value="03,00,00,00,00,00,00,00,00,00,00,FF,00,00,00,FF,00,00,00,00,00,00,00,00" />
+                </key>
+            </key>
+        </hierarchicalconfig>
+    </highlight>
+</farconfig>
