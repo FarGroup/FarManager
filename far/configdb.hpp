@@ -323,8 +323,9 @@ public:
 	virtual unsigned __int64 SetVarValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *Type) = 0;
 	virtual bool DeleteVar(const wchar_t *Name) = 0;
 
-	virtual bool EnumPluginFunctions(string &strPluginGuid, string &strFunctionName, int *nParam, int *oParam, string &Flags, string &strSequence, string &strSyntax, string &strDescription) = 0;
-	virtual unsigned __int64 SetPluginFunction(const wchar_t *PluginGuid, const wchar_t *FunctionName, unsigned __int64 nParam, unsigned __int64 oParam, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Syntax, const wchar_t *Description) = 0;
+	virtual bool EnumFunctions(string &strGuid, string &strFunctionName, int *nParam, int *oParam, string &Flags, string &strSequence, string &strSyntax, string &strDescription) = 0;
+	virtual unsigned __int64 SetFunction(const wchar_t *Guid, const wchar_t *FunctionName, unsigned __int64 nParam, unsigned __int64 oParam, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Syntax, const wchar_t *Description) = 0;
+	virtual bool DeleteFunction(const wchar_t *Guid, const wchar_t *Name) = 0;
 
 	virtual bool EnumKeyMacros(string &strArea, string &strKey, string &strFlags, string &strSequence, string &strDescription) = 0;
 	virtual unsigned __int64 SetKeyMacro(const wchar_t *Area, const wchar_t *Key, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Description) = 0;

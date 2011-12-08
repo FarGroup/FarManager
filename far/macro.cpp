@@ -863,7 +863,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			FrameManager->ResetLastInputRecord();
 			FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
 			// выставл€ем флаги по умолчанию.
-			DWORD Flags=MFLAGS_DISABLEOUTPUT; // ???
+			UINT64 Flags=MFLAGS_DISABLEOUTPUT; // ???
 			// добавим проверку на удаление
 			// если удал€ем, то не нужно выдавать диалог настройки.
 			//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
@@ -5981,11 +5981,11 @@ void KeyMacro::WriteVarsConsts()
 void KeyMacro::SavePluginFunctionToDB(const TMacroFunction *MF)
 {
 	// раскомментировать дл€ теста записи встроенных функций
-	//MacroCfg->SetPluginFunction(MF->Syntax, MF->Name, MF->nParam, MF->oParam, MF->IntFlags, MF->Name, MF->Name, MF->Name);
+	//MacroCfg->SetFunction(MF->Syntax, MF->Name, MF->nParam, MF->oParam, MF->IntFlags, MF->Name, MF->Name, MF->Name);
 
 	// закомментировать дл€ теста записи встроенных функций
 	if(MF->fnGUID && MF->Name)
-		MacroCfg->SetPluginFunction(MF->fnGUID, MF->Name, MF->nParam, MF->oParam, Flags2String(MF->IntFlags), nullptr, MF->Syntax, nullptr);
+		MacroCfg->SetFunction(MF->fnGUID, MF->Name, MF->nParam, MF->oParam, Flags2String(MF->IntFlags), nullptr, MF->Syntax, nullptr);
 }
 
 void KeyMacro::WritePluginFunctions()
@@ -6150,6 +6150,14 @@ void KeyMacro::ReadPluginFunctions()
 	"GUID"="C:/Program Files/Far2/Plugins/Calc/bin/calc.dll"
 	"Description"="¬ычисление значени€ синуса в военное врем€"
 
+	plugin_guid TEXT NOT NULL,
+	function_name TEXT NOT NULL,
+	nparam INTEGER NOT NULL,
+	oparam INTEGER NOT NULL,
+	flags TEXT, sequence TEXT,
+	syntax TEXT NOT NULL,
+	description TEXT
+
 	Flags:
 		биты:
 			0: в GUID путь к плагину, как в PluginsCache иначе GUID
@@ -6168,13 +6176,13 @@ void KeyMacro::ReadPluginFunctions()
 	string strSyntax;
 	string strDescription;
 
-	while (MacroCfg->EnumPluginFunctions(strPluginGUID, strFunctionName, &nParam, &oParam, strFlags, strSequence, strSyntax, strDescription))
+	while (MacroCfg->EnumFunctions(strPluginGUID, strFunctionName, &nParam, &oParam, strFlags, strSequence, strSyntax, strDescription))
 	{
 		RemoveExternalSpaces(strPluginGUID);
 		RemoveExternalSpaces(strFunctionName);
 		RemoveExternalSpaces(strSequence);
 		RemoveExternalSpaces(strSyntax);
-		//RemoveExternalSpaces(strDescription); //пока не задействовано
+		RemoveExternalSpaces(strDescription); //пока не задействовано
 
 		MacroRecord mr={};
 		bool UsePluginFunc=true;
@@ -6720,14 +6728,17 @@ M1:
 				            (Mac->BufferSize == 1 && (DWORD)(DWORD_PTR)Mac->Buffer == (DWORD)(DWORD_PTR)MacroDlg->RecBuffer)
 				        )
 				   ))
-					Result=Message(MSG_WARNING,2,MSG(MWarning),
+				{
+					Result=Message(MSG_WARNING,!MacroDlg->RecBufferSize?3:2,MSG(MWarning),
 					          strBuf,
 					          MSG(MMacroSequence),
 					          strBufKey,
 					          MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:
 					              (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
 					          MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
-					          MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo));
+					          MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo),
+					          !MacroDlg->RecBufferSize?MSG(MMacroEditKey):nullptr);
+				}
 
 				if (!Result)
 				{
@@ -6750,6 +6761,18 @@ M1:
 					// в любом случае - вываливаемс€
 					SendDlgMessage(hDlg,DM_CLOSE,1,0);
 					return TRUE;
+				}
+				else if (Result == 2)
+				{
+					if ( Mac->Src )
+						strBufKey=Mac->Src;
+
+					if (MacroDlg->GetMacroSettings(key,Mac->Flags,strBufKey))
+					{
+						// в любом случае - вываливаемс€
+						SendDlgMessage(hDlg,DM_CLOSE,1,0);
+						return TRUE;
+					}
 				}
 
 				// здесь - здесь мы нажимали "Ќет", ну а на нет и суда нет
@@ -6950,7 +6973,7 @@ INT_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* 
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
+int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src)
 {
 	/*
 	          1         2         3         4         5         6
@@ -7014,9 +7037,16 @@ int KeyMacro::GetMacroSettings(int Key,DWORD &Flags)
 	MacroSettingsDlg[MS_CHECKBOX_P_SELECTION].Selected=Set3State(Flags,MFLAGS_PSELECTION,MFLAGS_PNOSELECTION);
 	MacroSettingsDlg[MS_CHECKBOX_CMDLINE].Selected=Set3State(Flags,MFLAGS_EMPTYCOMMANDLINE,MFLAGS_NOTEMPTYCOMMANDLINE);
 	MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected=Set3State(Flags,MFLAGS_EDITSELECTION,MFLAGS_EDITNOSELECTION);
-	LPWSTR Sequence=MkTextSequence(RecBuffer,RecBufferSize);
-	MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=Sequence;
-	xf_free(Sequence);
+	if (Src && *Src)
+	{
+		MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=Src;
+	}
+	else
+	{
+		LPWSTR Sequence=MkTextSequence(RecBuffer,RecBufferSize);
+		MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=Sequence;
+		xf_free(Sequence);
+	}
 	DlgParam Param={this,0,0,0};
 	Dialog Dlg(MacroSettingsDlg,ARRAYSIZE(MacroSettingsDlg),ParamMacroDlgProc,&Param);
 	Dlg.SetPosition(-1,-1,73,19);

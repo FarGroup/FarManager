@@ -247,7 +247,7 @@ class KeyMacro
 		void WritePluginFunctions();
 		void WriteMacroRecords();
 		DWORD AssignMacroKey();
-		int GetMacroSettings(int Key,DWORD &Flags);
+		int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr);
 		void InitInternalVars(BOOL InitedRAM=TRUE);
 		void InitInternalLIBVars();
 		void ReleaseWORKBuffer(BOOL All=FALSE); // удалить временный буфер

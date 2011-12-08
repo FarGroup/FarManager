@@ -2094,8 +2094,9 @@ class MacroConfigDb: public MacroConfig {
 	SQLiteStmt stmtSetVarValue;
 	SQLiteStmt stmtDelVar;
 
-	SQLiteStmt stmtPluginFunctionsEnum;
-	SQLiteStmt stmtSetPluginFunction;
+	SQLiteStmt stmtFunctionsEnum;
+	SQLiteStmt stmtSetFunction;
+	SQLiteStmt stmtDelFunction;
 
 	SQLiteStmt stmtKeyMacrosEnum;
 	SQLiteStmt stmtSetKeyMacro;
@@ -2118,7 +2119,7 @@ public:
 			Exec(
 				"CREATE TABLE IF NOT EXISTS constants(name TEXT NOT NULL, value TEXT, type TEXT NOT NULL, PRIMARY KEY (name));"
 				"CREATE TABLE IF NOT EXISTS variables(name TEXT NOT NULL, value TEXT, type TEXT NOT NULL, PRIMARY KEY (name));"
-				"CREATE TABLE IF NOT EXISTS plugin_functions(plugin_guid TEXT NOT NULL, function_name TEXT NOT NULL, nparam INTEGER NOT NULL, oparam INTEGER NOT NULL, flags TEXT, sequence TEXT, syntax TEXT NOT NULL, description TEXT, PRIMARY KEY (plugin_guid, function_name));"
+				"CREATE TABLE IF NOT EXISTS functions(guid TEXT NOT NULL, name TEXT NOT NULL, nparam INTEGER NOT NULL, oparam INTEGER NOT NULL, flags TEXT, sequence TEXT, syntax TEXT NOT NULL, description TEXT, PRIMARY KEY (guid, name));"
 				"CREATE TABLE IF NOT EXISTS key_macros(area TEXT NOT NULL, key TEXT NOT NULL, flags TEXT, sequence TEXT, description TEXT, PRIMARY KEY (area, key));"
 			) &&
 
@@ -2132,8 +2133,9 @@ public:
 			InitStmt(stmtSetVarValue, L"INSERT OR REPLACE INTO variables VALUES (?1,?2,?3);") &&
 			InitStmt(stmtDelVar, L"DELETE FROM variables WHERE name=?1;") &&
 
-			InitStmt(stmtPluginFunctionsEnum, L"SELECT plugin_guid, function_name, nparam, oparam, flags, sequence, syntax, description FROM plugin_functions ORDER BY plugin_guid, function_name;") &&
-			InitStmt(stmtSetPluginFunction, L"INSERT OR REPLACE INTO plugin_functions VALUES (?1,?2,?3,?4,?5,?6,?7,?8);") &&
+			InitStmt(stmtFunctionsEnum, L"SELECT guid, name, nparam, oparam, flags, sequence, syntax, description FROM functions ORDER BY guid, name;") &&
+			InitStmt(stmtSetFunction, L"INSERT OR REPLACE INTO functions VALUES (?1,?2,?3,?4,?5,?6,?7,?8);") &&
+			InitStmt(stmtDelFunction, L"DELETE FROM functions WHERE guid=?1 AND name=?2;") &&
 
 			InitStmt(stmtKeyMacrosEnum, L"SELECT key, flags, sequence, description FROM key_macros WHERE area=?1 ORDER BY key;") &&
 			InitStmt(stmtSetKeyMacro, L"INSERT OR REPLACE INTO key_macros VALUES (?1,?2,?3,?4,?5);") &&
@@ -2143,6 +2145,7 @@ public:
 
 	virtual ~MacroConfigDb() { }
 
+	/* *************** */
 	bool EnumConsts(string &strName, string &Value, string &Type)
 	{
 		if (stmtConstsEnum.Step())
@@ -2181,6 +2184,7 @@ public:
 		return stmtDelConst.Bind(Name).StepAndReset();
 	}
 
+	/* *************** */
 	bool EnumVars(string &strName, string &Value, string &Type)
 	{
 		if (stmtVarsEnum.Step())
@@ -2219,18 +2223,19 @@ public:
 		return stmtDelVar.Bind(Name).StepAndReset();
 	}
 
-	bool EnumPluginFunctions(string &strPluginGuid, string &strFunctionName, int *nParam, int *oParam, string &strFlags, string &strSequence, string &strSyntax, string &strDescription)
+	/* *************** */
+	bool EnumFunctions(string &strGuid, string &strFunctionName, int *nParam, int *oParam, string &strFlags, string &strSequence, string &strSyntax, string &strDescription)
 	{
-		if (stmtPluginFunctionsEnum.Step())
+		if (stmtFunctionsEnum.Step())
 		{
-			strPluginGuid = stmtPluginFunctionsEnum.GetColText(0);
-			strFunctionName = stmtPluginFunctionsEnum.GetColText(1);
-			*nParam = stmtPluginFunctionsEnum.GetColInt64(2);
-			*oParam = stmtPluginFunctionsEnum.GetColInt64(3);
-			strFlags = stmtPluginFunctionsEnum.GetColText(4);
-			strSequence = stmtPluginFunctionsEnum.GetColText(5);
-			strSyntax = stmtPluginFunctionsEnum.GetColText(6);
-			strDescription = stmtPluginFunctionsEnum.GetColText(7);
+			strGuid = stmtFunctionsEnum.GetColText(0);
+			strFunctionName = stmtFunctionsEnum.GetColText(1);
+			*nParam = stmtFunctionsEnum.GetColInt64(2);
+			*oParam = stmtFunctionsEnum.GetColInt64(3);
+			strFlags = stmtFunctionsEnum.GetColText(4);
+			strSequence = stmtFunctionsEnum.GetColText(5);
+			strSyntax = stmtFunctionsEnum.GetColText(6);
+			strDescription = stmtFunctionsEnum.GetColText(7);
 			return true;
 		}
 
@@ -2238,13 +2243,19 @@ public:
 		return false;
 	}
 
-	unsigned __int64 SetPluginFunction(const wchar_t *PluginGuid, const wchar_t *FunctionName, unsigned __int64 nParam, unsigned __int64 oParam, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Syntax, const wchar_t *Description)
+	unsigned __int64 SetFunction(const wchar_t *Guid, const wchar_t *FunctionName, unsigned __int64 nParam, unsigned __int64 oParam, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Syntax, const wchar_t *Description)
 	{
-		if (stmtSetPluginFunction.Bind(PluginGuid).Bind(FunctionName).Bind(nParam).Bind(oParam).Bind(Flags).Bind(Sequence).Bind(Syntax).Bind(Description).StepAndReset())
+		if (stmtSetFunction.Bind(Guid).Bind(FunctionName).Bind(nParam).Bind(oParam).Bind(Flags).Bind(Sequence).Bind(Syntax).Bind(Description).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
+	bool DeleteFunction(const wchar_t *Guid, const wchar_t *Name)
+	{
+		return stmtDelFunction.Bind(Guid).Bind(Name).StepAndReset();
+	}
+
+	/* *************** */
 	bool EnumKeyMacros(string &strArea, string &strKey, string &strFlags, string &strSequence, string &strDescription)
 	{
 		stmtKeyMacrosEnum.Bind(strArea);
@@ -2273,6 +2284,7 @@ public:
 		return stmtDelKeyMacro.Bind(Area).Bind(Key).StepAndReset();
 	}
 
+	/* *************** */
 	TiXmlElement *Export()
 	{
 		TiXmlElement * root = new TiXmlElement("macro");
@@ -2288,8 +2300,8 @@ public:
 		SQLiteStmt stmtEnumAllVars;
 		InitStmt(stmtEnumAllVars, L"SELECT name, value, type FROM variables ORDER BY name;");
 
-		SQLiteStmt stmtEnumAllPluginFunctions;
-		InitStmt(stmtEnumAllPluginFunctions, L"SELECT plugin_guid, function_name, nparam, oparam, flags, sequence, syntax, description FROM plugin_functions ORDER BY plugin_guid, function_name;");
+		SQLiteStmt stmtEnumAllFunctions;
+		InitStmt(stmtEnumAllFunctions, L"SELECT guid, name, nparam, oparam, flags, sequence, syntax, description FROM functions ORDER BY guid, name;");
 
 		SQLiteStmt stmtEnumAllKeyMacros;
 		InitStmt(stmtEnumAllKeyMacros, L"SELECT area, key, flags, sequence, description FROM key_macros ORDER BY area, key;");
@@ -2332,27 +2344,27 @@ public:
 
 		root->LinkEndChild(e);
 
-		e = new TiXmlElement("pluginfunctions");
+		e = new TiXmlElement("functions");
 		if (!e)
 			return nullptr;
 
-		while (stmtEnumAllPluginFunctions.Step())
+		while (stmtEnumAllFunctions.Step())
 		{
-			se = new TiXmlElement("plugin");
+			se = new TiXmlElement("function");
 			if (!se)
 				break;
 
-			se->SetAttribute("Guid", stmtEnumAllPluginFunctions.GetColTextUTF8(0));
-			se->SetAttribute("function name", stmtEnumAllPluginFunctions.GetColTextUTF8(1));
-			se->SetAttribute("nparam", stmtEnumAllPluginFunctions.GetColInt(2));
-			se->SetAttribute("oparam", stmtEnumAllPluginFunctions.GetColInt(3));
-			se->SetAttribute("flags", stmtEnumAllPluginFunctions.GetColTextUTF8(4));
-			se->SetAttribute("sequence", stmtEnumAllPluginFunctions.GetColTextUTF8(5));
-			se->SetAttribute("syntax", stmtEnumAllPluginFunctions.GetColTextUTF8(6));
-			se->SetAttribute("description", stmtEnumAllPluginFunctions.GetColTextUTF8(7));
+			se->SetAttribute("guid", stmtEnumAllFunctions.GetColTextUTF8(0));
+			se->SetAttribute("name", stmtEnumAllFunctions.GetColTextUTF8(1));
+			se->SetAttribute("nparam", stmtEnumAllFunctions.GetColInt(2));
+			se->SetAttribute("oparam", stmtEnumAllFunctions.GetColInt(3));
+			se->SetAttribute("flags", stmtEnumAllFunctions.GetColTextUTF8(4));
+			se->SetAttribute("sequence", stmtEnumAllFunctions.GetColTextUTF8(5));
+			se->SetAttribute("syntax", stmtEnumAllFunctions.GetColTextUTF8(6));
+			se->SetAttribute("description", stmtEnumAllFunctions.GetColTextUTF8(7));
 			e->LinkEndChild(se);
 		}
-		stmtEnumAllPluginFunctions.Reset();
+		stmtEnumAllFunctions.Reset();
 
 		root->LinkEndChild(e);
 
@@ -2395,6 +2407,7 @@ public:
 		return root;
 	}
 
+	/* *************** */
 	bool Import(const TiXmlHandle &root)
 	{
 		BeginTransaction();
@@ -2421,10 +2434,10 @@ public:
 			}
 		}
 
-		for (const TiXmlElement *e = root.FirstChild("macro").FirstChild("pluginfunctions").FirstChildElement("plugin").Element(); e; e=e->NextSiblingElement("pluginfunctions"))
+		for (const TiXmlElement *e = root.FirstChild("macro").FirstChild("functions").FirstChildElement("function").Element(); e; e=e->NextSiblingElement("functions"))
 		{
-			const char* guid = e->Attribute("Guid");
-			const char* fname = e->Attribute("function name");
+			const char* guid = e->Attribute("guid");
+			const char* fname = e->Attribute("name");
 			const char* nparam = e->Attribute("nparam");
 			const char* oparam = e->Attribute("oparam");
 			const char* flags = e->Attribute("flags");
@@ -2435,7 +2448,7 @@ public:
 			// BUGBUG, params can be optional
 			if(guid && fname && nparam && oparam && sequence && syntax)
 			{
-				SetPluginFunction(string(guid, CP_UTF8), string(fname, CP_UTF8), HexStringToInt64(nparam), HexStringToInt64(oparam), string(flags, CP_UTF8), string(sequence, CP_UTF8), string(syntax, CP_UTF8), string(description, CP_UTF8));
+				SetFunction(string(guid, CP_UTF8), string(fname, CP_UTF8), HexStringToInt64(nparam), HexStringToInt64(oparam), string(flags, CP_UTF8), string(sequence, CP_UTF8), string(syntax, CP_UTF8), string(description, CP_UTF8));
 			}
 		}
 

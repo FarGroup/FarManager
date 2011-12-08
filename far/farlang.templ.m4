@@ -14947,6 +14947,15 @@ MMacroDisAnotherKey
 "Spróbuj inny klawisz"
 "Intente otra tecla"
 
+MMacroEditKey
+"Изменить"
+"Change"
+upd:"Change?"
+upd:"Change?"
+upd:"Change?"
+upd:"Change?"
+upd:"Change?"
+
 MMacroSettingsTitle
 l:
 "Параметры макрокоманды для '%s'"
