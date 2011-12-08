@@ -6720,6 +6720,7 @@ M1:
 
 				// проверим "а не совпадает ли всё?"
 				int Result=0;
+				bool SetChange=!MacroDlg->RecBufferSize;
 				if (!(!DisFlags &&
 				        Mac->Buffer && MacroDlg->RecBuffer &&
 				        Mac->BufferSize == MacroDlg->RecBufferSize &&
@@ -6729,15 +6730,16 @@ M1:
 				        )
 				   ))
 				{
-					Result=Message(MSG_WARNING,!MacroDlg->RecBufferSize?3:2,MSG(MWarning),
+					const wchar_t* NoKey=MSG(DisFlags && !SetChange?MMacroDisAnotherKey:MNo);
+					Result=Message(MSG_WARNING,SetChange?3:2,MSG(MWarning),
 					          strBuf,
 					          MSG(MMacroSequence),
 					          strBufKey,
-					          MSG(!MacroDlg->RecBufferSize?MMacroDeleteKey2:
+					          MSG(SetChange?MMacroDeleteKey2:
 					              (DisFlags?MMacroDisDisabledKey:MMacroReDefinedKey2)),
-					          MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisOverwrite:MYes),
-					          MSG(DisFlags && MacroDlg->RecBufferSize?MMacroDisAnotherKey:MNo),
-					          !MacroDlg->RecBufferSize?MSG(MMacroEditKey):nullptr);
+					          MSG(DisFlags && !SetChange?MMacroDisOverwrite:MYes),
+					          (SetChange?MSG(MMacroEditKey):NoKey),
+					          (!SetChange?nullptr:NoKey));
 				}
 
 				if (!Result)
@@ -6762,7 +6764,7 @@ M1:
 					SendDlgMessage(hDlg,DM_CLOSE,1,0);
 					return TRUE;
 				}
-				else if (Result == 2)
+				else if (SetChange && Result == 1)
 				{
 					if ( Mac->Src )
 						strBufKey=Mac->Src;
