@@ -5399,6 +5399,9 @@ int Editor::EditorControl(int Command,void *Param)
 			}
 
 			DeleteString(CurLine,NumLine,FALSE,NumLine);
+			if ( !BlockStart )
+				Flags.Clear(FEDITOR_MARKINGBLOCK);
+
 			return TRUE;
 		}
 		case ECTL_DELETECHAR:
