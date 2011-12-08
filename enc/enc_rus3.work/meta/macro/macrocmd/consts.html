@@ -34,7 +34,7 @@
 
 <h3>“ипы</h3>
 <div class="descr">
-<p> онстанты могут быть двух типов - целое число или строка.</p>
+<p> онстанты могут быть трех типов - целое число, вещественное (разделитель целой и дробной частей - точка) или строка.</p>
 <p>÷елочисленные константы: <code><var>NNN</var></code> - 10-рична€ константа, <code>0<var>NNN</var></code> - 8-рична€ константа, <code>0x<var>NNN</var></code> - 16-рична€ константа.</p>
 <p>÷елочисленные константы 64-разр€дные.</p>
 <p> онстанты с плавающей точкой - двойной точности 64-разр€дные (double).</p>
@@ -42,33 +42,36 @@
 
 <h3>ќбласть действи€</h3>
 <div class="descr">
-<p>ѕри старте FAR считывает константы из специальной области <code>Consts</code>.</p>
+<p>ѕри старте FAR считывает константы из базы macros.db (таблица constants).</p>
 </div>
 
-<h3>ѕредставление в реестре</h3>
+<h3>ѕредставление в базе</h3>
 <div class="descr">
-<p>¬ реестре константы располагаютс€ в специальной ветке <code>[HKEY_CURRENT_USER\Software\Far2\[Users\USERNAME\]KeyMacros\Consts]</code>.</p>
-<p> ажда€ константа имеет им€ и может быть четырЄх типов:</p>
+<p>¬ базе константы располагаютс€ в таблице  <code>constants</code>.</p>
+<p> ажда€ константа имеет им€, значение и тип. «начение в базе всегда хранитс€ в виде текста. ѕоле type уточн€ет тип содержимого в поле value:</p>
 <ul>
-  <li><code>REG_MULTI_SZ</code> - дл€ строковых констант</li>
-  <li><code>REG_SZ</code> - дл€ строковых констант и констант с плавающей точкой</li>
-  <li><code>REG_DWORD</code> - дл€ целочисленных констант</li>
-  <li><code>REG_QDWORD</code> - дл€ целочисленных констант</li>
+  <li><code>text</code> - строковые константы</li>
+  <li><code>real</code> - константы с плавающей точкой</li>
+  <li><code>integer</code> - целочисленные константы</li>
 </ul>
-<p>ѕреобразование чисел с плавающей точкой в строку осуществл€етс€ по формату "<code>KeyMacro/CONVFMT:REG_SZ</code>" (по умолчанию "<code>%.6g</code>")</p>
+<p>ѕреобразование чисел с плавающей точкой в строку осуществл€етс€ по формату "<code>KeyMacros/CONVFMT</code>". ѕо умолчанию "<code>%.6g</code>"</p>
 </div>
 
 <h3>ѕример</h3>
 <div class="descr">
-ѕример применени€ константы FIB_PASSWORD (0x00000002) дл€ функции <a href="prop_func/general.html#prompt">prompt()</a>.
-<pre class="codesample"><code>REGEDIT
+ѕример описани€ вещественной константы PI и применени€ константы FIB_PASSWORD (0x00000002) дл€ функции <a href="prop_func/general.html#prompt">prompt()</a>.
+<pre class="codesample">
+&lt;constants&gt;
+  &lt;constant name="FIB_PASSWORD", value="0x00000002", type="integer"/&gt;
+  &lt;constant name="PI" value="3.14159265358979323846" type="real"/&gt;
+&lt;/constants&gt;
 
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Consts]
-"FIB_PASSWORD"=dword:00000002
-
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Editor\CtrlP]
-"Sequence"="%s=prompt(\"Password\",\"Input password:\",FIB_PASSWORD); $Text %s"
-"DisableOutput"=dword:00000001
+&lt;keymacros&gt;
+  &lt;macro area="Editor" key="CtrlP" flags="DisableOutput">
+    %s=prompt("Password","Input password:",FIB_PASSWORD);
+    $Text %s
+  &lt;/macro&gt;
+&lt;/keymacros&gt;
 </code></pre>
 </div>
 
