@@ -4,6 +4,14 @@ ObserverPlugin::ObserverPlugin(const GUID& uid)
 {
 	m_pFormatInfo = NULL;
 	m_uid = uid;
+
+	m_pfnLoadSubModule = nullptr;
+	m_pfnUnloadSubModule = nullptr;
+
+	m_pfnOpenStorage = nullptr;
+	m_pfnCloseStorage = nullptr;
+	m_pfnGetStorageItem = nullptr;
+	m_pfnExtract = nullptr;
 }
 
 bool ObserverPlugin::Load(const TCHAR* lpModuleName)
