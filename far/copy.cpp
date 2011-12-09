@@ -1777,13 +1777,32 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 			ConvertWildcards(strSelName, strDest, SelectedFolderNameLength);
 		}
 
-		DestAttr=apiGetFileAttributes(strDest);
+		DestAttr = apiGetFileAttributes(strDest);
 
 		// получим данные о месте назначения
 		if (strDestDriveRoot.IsEmpty())
 		{
 			GetPathRoot(strDest,strDestDriveRoot);
 			DestDriveType=FAR_GetDriveType(wcschr(strDest,L'\\') ? strDestDriveRoot.CPtr():nullptr);
+		}
+
+		if ( INVALID_FILE_ATTRIBUTES == DestAttr )
+		{
+			DWORD rattr1 = apiGetFileAttributes(strDestDriveRoot);
+			DWORD rattr2 = rattr1;
+			while ( INVALID_FILE_ATTRIBUTES == rattr2 )
+			{
+				int mr = Message(MSG_WARNING, 2, MSG(MError),
+					MSG(MErrorDeviceNotReady), strDestDriveRoot,
+					MSG(MRetry), MSG(MCancel)
+				);
+				if ( mr )
+					return COPY_CANCEL;
+
+				rattr2 = apiGetFileAttributes(strDestDriveRoot);
+			}
+			if ( INVALID_FILE_ATTRIBUTES == rattr1 && INVALID_FILE_ATTRIBUTES != rattr2 )
+				DestAttr = apiGetFileAttributes(strDest);
 		}
 	}
 
