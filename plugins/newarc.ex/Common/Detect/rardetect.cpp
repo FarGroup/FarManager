@@ -8,18 +8,23 @@
   #pragma pack(push,1)
 #endif
 
-int IsRarHeader(const unsigned char *Data, unsigned int DataSize)
+const size_t MIN_HEADER_LEN = 32; //???
+
+int IsRarHeader(const unsigned char *Data, unsigned int uDataSize)
 {
-	for (int I=0;I<DataSize-7;I++)
+	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+		return -1;
+
+	for (unsigned int i = 0; i < uDataSize-7; i++)
 	{
-		const unsigned char *D=Data+I;
-		if (D[0]==0x52 && D[1]==0x45 && D[2]==0x7e && D[3]==0x5e &&
-			(I==0 || (DataSize>31 && Data[28]==0x52 && Data[29]==0x53 &&
-			Data[30]==0x46 && Data[31]==0x58)))
+		const unsigned char* D = Data+i;
+
+		if ( (D[0] == 0x52) && (D[1] == 0x45) && (D[2] == 0x7e) && (D[3] == 0x5e) && 
+			 (i==0 || (Data[28]==0x52 && Data[29]==0x53 && Data[30]==0x46 && Data[31]==0x58)))
 			//if (D[0]==0x52 && D[1]==0x45 && D[2]==0x7e && D[3]==0x5e)
 		{
 			//OldFormat=TRUE;
-			return I;
+			return i;
 		}
 		// check marker block
 		// The marker block is actually considered as a fixed byte sequence: 0x52 0x61 0x72 0x21 0x1a 0x07 0x00
@@ -30,7 +35,7 @@ int IsRarHeader(const unsigned char *Data, unsigned int DataSize)
 			//if(D[10]&0x80)
 				//NeedUsedUnRAR_DLL=TRUE;
 			//OldFormat=FALSE;
-			return I;
+			return i;
 		}
 	}
 	return -1;
