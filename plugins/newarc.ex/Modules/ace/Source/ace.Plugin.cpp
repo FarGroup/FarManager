@@ -8,6 +8,14 @@ extern "C" const GUID CLSID_FormatACE;
 AcePlugin::AcePlugin()
 {
 	m_pFormatInfo = NULL;
+
+	m_pfnInitDll = nullptr;
+	m_pfnReadArchiveData = nullptr;
+	m_pfnList = nullptr;
+	m_pfnTest = nullptr;
+	m_pfnExtract = nullptr;
+	m_pfnAdd = nullptr;
+	m_pfnDelete = nullptr;
 };
 
 const GUID& AcePlugin::GetUID()

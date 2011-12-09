@@ -3,17 +3,17 @@
 MaPlugin::MaPlugin(const GUID& uid)
 {
 	m_uid = uid;
-
 	m_hModule = NULL;
-	m_pfnLoadFormatModule = NULL;
-	m_pfnIsArchive = NULL;
-	m_pfnOpenArchive = NULL;
-	m_pfnGetArcItem = NULL;
-	m_pfnCloseArchive = NULL;
-	m_pfnGetFormatName = NULL;
-	m_pfnGetDefaultCommands = NULL;
-	m_pfnSetFarInfo = NULL;
-	m_pfnGetSFXPos = NULL;
+
+	m_pfnLoadFormatModule = nullptr;
+	m_pfnIsArchive = nullptr;
+	m_pfnOpenArchive = nullptr;
+	m_pfnGetArcItem = nullptr;
+	m_pfnCloseArchive = nullptr;
+	m_pfnGetFormatName = nullptr;
+	m_pfnGetDefaultCommands = nullptr;
+	m_pfnSetFarInfo = nullptr;
+	m_pfnGetSFXPos = nullptr;
 }
 
 bool MaPlugin::Load(

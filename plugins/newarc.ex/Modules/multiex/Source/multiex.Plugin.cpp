@@ -3,6 +3,34 @@
 MultiExPlugin::MultiExPlugin(const GUID& uid)
 {
 	m_uid = uid;
+
+	m_pfnMpGetInterfaceVersion = nullptr;
+	m_pfnMpGetPluginInfo = nullptr;
+	m_pfnMpGetFormatCount = nullptr;
+	m_pfnMpGetFormatInfo = nullptr;
+	m_pfnMpGetOptions = nullptr;
+	m_pfnMpSetOption = nullptr;
+	m_pfnMpOpenArchive = nullptr;
+	m_pfnMpOpenArchiveBindStream = nullptr;
+	m_pfnMpCloseArchive = nullptr;
+	m_pfnMpIndexCount = nullptr;
+	m_pfnMpIndexedInfo = nullptr;
+	m_pfnMpFindInfo = nullptr;
+	m_pfnMpFindFirstFile = nullptr;
+	m_pfnMpFindNextFile = nullptr;
+	m_pfnMpFindClose = nullptr;
+	m_pfnMpIsFileAnArchive = nullptr;
+	m_pfnMpIsStreamAnArchive = nullptr;
+	m_pfnMpExportFileByNameToFile = nullptr;
+	m_pfnMpExportFileByIndexToFile = nullptr;
+	m_pfnMpExportFileByNameToStream = nullptr;
+	m_pfnMpExportFileByIndexToStream = nullptr;
+	m_pfnMpImportFileFromFile = nullptr;
+	m_pfnMpImportFileFromStream = nullptr;
+	m_pfnMpRemoveFileByName = nullptr;
+	m_pfnMpRemoveFileByIndex = nullptr;
+	m_pfnMpGetLastError = nullptr;
+	m_pfnMpGetErrorText = nullptr;
 }
 
 bool MultiExPlugin::Load(const TCHAR* lpModuleName)

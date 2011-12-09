@@ -173,6 +173,11 @@ SevenZipPlugin::SevenZipPlugin(const GUID& uid, const TCHAR* lpModuleName)
 {
 	m_strModuleName = lpModuleName;
 	m_uid = uid;
+
+	m_pfnCreateObject = nullptr;
+	m_pfnGetHandlerProperty = nullptr;
+	m_pfnGetHandlerProperty2 = nullptr;
+	m_pfnGetNumberOfFormats = nullptr;
 }
 
 const GUID& SevenZipPlugin::GetUID()

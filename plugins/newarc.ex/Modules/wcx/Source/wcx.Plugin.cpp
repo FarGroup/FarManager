@@ -4,6 +4,34 @@ WcxPlugin::WcxPlugin(const GUID& uid)
 {
 	m_uid = uid;
 	m_pFormatInfo = NULL;
+
+	m_pfnOpenArchive = nullptr;
+	m_pfnOpenArchiveW = nullptr;
+
+	m_pfnReadHeader = nullptr;
+	m_pfnReadHeaderEx = nullptr;
+	m_pfnReadHeaderExW = nullptr;
+
+	m_pfnProcessFile = nullptr;
+	m_pfnProcessFileW = nullptr;
+
+	m_pfnPackFiles = nullptr;
+	m_pfnPackFilesW = nullptr;
+	m_pfnDeleteFiles = nullptr;
+	m_pfnDeleteFilesW = nullptr;
+
+	m_pfnSetChangeVolProc = nullptr;
+	m_pfnSetChangeVolProcW = nullptr;
+	m_pfnSetProcessDataProc = nullptr;
+	m_pfnSetProcessDataProcW = nullptr;
+
+	m_pfnCanYouHandleThisFile = nullptr;
+	m_pfnCanYouHandleThisFileW = nullptr;
+	
+	m_pfnCloseArchive = nullptr;
+	m_pfnConfigurePacker = nullptr;
+	m_pfnGetPackerCaps = nullptr;
+	m_pfnPackSetDefaultParams = nullptr;
 }
 
 bool WcxPlugin::Load(const TCHAR* lpModuleName)
