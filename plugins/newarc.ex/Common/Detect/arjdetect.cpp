@@ -9,7 +9,7 @@
   #pragma pack(push,1)
 #endif
 
-const size_t MIN_HEADER_LEN = 11; //???
+const unsigned int MIN_HEADER_LEN = 11; //???
 
 #ifndef FNAME_MAX
 #define FNAME_MAX           512
@@ -54,7 +54,7 @@ static void crc_buf(const char *str, int len)
 
 int IsArjHeader(const unsigned char *Data, unsigned int uDataSize)
 {
-	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+	if ( uDataSize < MIN_HEADER_LEN )
 		return -1;
 
 	static bool CRCInit = false;

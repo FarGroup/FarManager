@@ -26,11 +26,11 @@ struct CFHEADER
 	WORD iCabinet;        /* number of this cabinet file in a set */
 };
 
-const size_t MIN_HEADER_LEN = sizeof(CFHEADER);
+const unsigned int MIN_HEADER_LEN = sizeof(CFHEADER);
 
 int IsCabHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+	if ( uDataSize < MIN_HEADER_LEN )
 		return -1;
 
 	const unsigned char* pMaxData = pData+uDataSize-MIN_HEADER_LEN;

@@ -8,11 +8,11 @@
   #pragma pack(push,1)
 #endif
 
-const size_t MIN_HEADER_LEN = 4;
+const unsigned int MIN_HEADER_LEN = 4;
 
 int IsMachoHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+	if ( uDataSize < MIN_HEADER_LEN )
 		return -1;
 
 	DWORD dwSignature = *((DWORD*)pData);

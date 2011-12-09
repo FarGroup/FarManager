@@ -20,7 +20,7 @@ struct SevenZipHeader {
 	DWORD dwNextHeaderCRC;
 	};
 
-const size_t MIN_HEADER_LEN = sizeof (SevenZipHeader);
+const unsigned int MIN_HEADER_LEN = sizeof (SevenZipHeader);
 
 
 static inline BOOL IsValidHeader(const unsigned char *Data)
@@ -34,17 +34,17 @@ static inline BOOL IsValidHeader(const unsigned char *Data)
 	return !memcmp (&header->Signature, &sevenzip_signature, sizeof (sevenzip_signature)) && (crc == header->dwHeaderCRC);
 }
 
-int Is7zHeader(const unsigned char *Data, unsigned int DataSize)
+int Is7zHeader(const unsigned char *Data, unsigned int uDataSize)
 {
-	if ( (size_t)DataSize < MIN_HEADER_LEN )
+	if ( uDataSize < MIN_HEADER_LEN )
 		return -1;
 
-	const unsigned char *MaxData=Data+DataSize-MIN_HEADER_LEN;
+	const unsigned char *MaxData=Data+uDataSize-MIN_HEADER_LEN;
 	//const unsigned char *DataEnd=Data+DataSize;
 
 	for (const unsigned char *CurData=Data; CurData<MaxData; CurData++)
 	{
-		if ( IsValidHeader (CurData) )
+		if ( IsValidHeader(CurData) )
 			return (int)(CurData-Data);
 	}
 	return -1;

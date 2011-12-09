@@ -19,7 +19,7 @@ struct NSISHeader //об€зан быть на позиции в файле, кратной 512 байт (перед ним 
 	DWORD dwArchiveSize;
 };
 
-const size_t MIN_HEADER_LEN = sizeof (NSISHeader);
+const unsigned int MIN_HEADER_LEN = sizeof (NSISHeader);
 
 
 static inline BOOL IsValidHeader(const unsigned char* pData)
@@ -30,7 +30,7 @@ static inline BOOL IsValidHeader(const unsigned char* pData)
 
 int IsNSISHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+	if ( uDataSize < MIN_HEADER_LEN )
 		return -1;
 
 	const unsigned char* pMaxData = pData+uDataSize-MIN_HEADER_LEN;

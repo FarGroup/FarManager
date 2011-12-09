@@ -8,7 +8,7 @@
   #pragma pack(push,1)
 #endif
 
-const size_t MIN_HEADER_LEN = 5 + 10;
+const unsigned int MIN_HEADER_LEN = 5 + 10;
 
 struct CHeader
 {
@@ -27,9 +27,9 @@ static bool CheckDictSize(DWORD dicSize)
 	return false;
 }
 
-int IsLzmaHeader(const unsigned char *Data, unsigned int DataSize)
+int IsLzmaHeader(const unsigned char *Data, unsigned int uDataSize)
 {
-	if ( (size_t)DataSize < MIN_HEADER_LEN )
+	if ( uDataSize < MIN_HEADER_LEN )
 		return -1;
 
 	if (Data[0] > 5 * 5 * 9 - 1)

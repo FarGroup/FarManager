@@ -25,7 +25,7 @@ struct ZipHeader
   // ExtraField[];
 };
 
-const size_t MIN_HEADER_LEN=sizeof(ZipHeader);
+const unsigned int MIN_HEADER_LEN=sizeof(ZipHeader);
 
 static inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char *DataEnd)
 {
@@ -37,18 +37,18 @@ static inline BOOL IsValidHeader(const unsigned char *Data, const unsigned char 
     && Data+MIN_HEADER_LEN+pHdr->FileNameLen+pHdr->ExtraFieldLen<DataEnd);
 }
 
-int IsZipHeader(const unsigned char *Data, unsigned int DataSize)
+int IsZipHeader(const unsigned char *Data, unsigned int uDataSize)
 {
-	if ((size_t)DataSize<MIN_HEADER_LEN)
+	if ( uDataSize < MIN_HEADER_LEN)
 		return -1;
 
-	if (DataSize>=4 && Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)
+	if (uDataSize>=4 && Data[0]=='P' && Data[1]=='K' && Data[2]==5 && Data[3]==6)
 	{
 		return 0;
 	}
 
-	const unsigned char *MaxData=Data+DataSize-MIN_HEADER_LEN;
-	const unsigned char *DataEnd=Data+DataSize;
+	const unsigned char *MaxData=Data+uDataSize-MIN_HEADER_LEN;
+	const unsigned char *DataEnd=Data+uDataSize;
 
 	for (const unsigned char *CurData=Data; CurData<MaxData; CurData++)
 	{

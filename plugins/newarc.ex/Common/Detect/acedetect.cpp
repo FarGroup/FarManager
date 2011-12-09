@@ -24,12 +24,12 @@ struct ACEHEADER
 	BYTE  Reserved[8];  // 8 bytes reserved for the future
 };
 
-const size_t MIN_HEADER_LEN = sizeof(ACEHEADER);
+const unsigned int MIN_HEADER_LEN = sizeof(ACEHEADER);
 
 //too simple
 bool IsAceHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+	if ( uDataSize < MIN_HEADER_LEN )
 		return -1;
 
 	const unsigned char* pMaxData = pData+uDataSize-MIN_HEADER_LEN;

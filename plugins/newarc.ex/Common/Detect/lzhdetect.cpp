@@ -29,7 +29,7 @@ Level 0
 */
 };
 
-const size_t MIN_HEADER_LEN = sizeof(LZH_Level0)+2; //2 bytes, lengths
+const unsigned int MIN_HEADER_LEN = sizeof(LZH_Level0)+2; //2 bytes, lengths
 
 bool CheckLZHHeader(LZH_Level0 *lzh)
 {
@@ -45,7 +45,7 @@ bool CheckLZHHeader(LZH_Level0 *lzh)
 
 int IsLzhHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+	if ( uDataSize < MIN_HEADER_LEN )
 		return -1;
 
 	const unsigned char* pMaxData = pData+uDataSize-MIN_HEADER_LEN;

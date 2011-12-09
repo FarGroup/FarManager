@@ -10,11 +10,11 @@
 
 const unsigned char iso_signature[] = {'C', 'D', '0', '0', '1', 0x1};
 
-const size_t MIN_HEADER_LEN = 0x8000+sizeof(iso_signature)+1;
+const unsigned int MIN_HEADER_LEN = 0x8000+sizeof(iso_signature)+1;
 
 int IsIsoHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+	if ( uDataSize < MIN_HEADER_LEN )
 		return -1;
 
 	if ( !memcmp(pData+0x8000+1, &iso_signature, sizeof(iso_signature)) )

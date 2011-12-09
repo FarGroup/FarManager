@@ -8,11 +8,11 @@
   #pragma pack(push,1)
 #endif
 
-const size_t MIN_HEADER_LEN = sizeof(IMAGE_DOS_HEADER);
+const unsigned int MIN_HEADER_LEN = sizeof(IMAGE_DOS_HEADER);
 
 int IsPEHeader(const unsigned char* pData, unsigned int uDataSize)
 {
-	if ( (size_t)uDataSize < MIN_HEADER_LEN )
+	if ( uDataSize < MIN_HEADER_LEN )
 		return -1;
 
 	PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)pData;
