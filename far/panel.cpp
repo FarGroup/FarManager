@@ -660,7 +660,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					if (item && !item->bIsPlugin)
 					{
 						wchar_t DosDeviceName[]={item->cDrive,L':',L'\\',L'\0'};
-						Execute(DosDeviceName,FALSE,TRUE,TRUE);
+						Execute(DosDeviceName, false, false, true, true, false, true, false);
 					}
 				}
 				break;
