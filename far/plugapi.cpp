@@ -1128,7 +1128,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Fla
 		{
 			*MsgTemp=L'\0';
 			MsgItems[I]=Msg;
-			Msg+=StrLength(Msg)+1;
+			Msg=MsgTemp+1;
 
 			if (*Msg == L'\0')
 				break;
@@ -1145,12 +1145,6 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Fla
 	{
 		for (size_t i=0; i < ItemsNumber; i++)
 			MsgItems[i]=Items[i];
-	}
-
-	// ограничение на строки
-	if (ItemsNumber > static_cast<SIZE_T>(ScrY-2))
-	{
-		ItemsNumber=ScrY-2-(Flags&0x000F0000?1:0);
 	}
 
 	/* $ 22.03.2001 tran
@@ -1189,6 +1183,16 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Fla
 			MsgItems[ItemsNumber++]=MSG(MRetry);
 			MsgItems[ItemsNumber++]=MSG(MCancel);
 			break;
+	}
+
+	// ограничение на строки
+	size_t MaxLinesNumber = static_cast<size_t>(ScrY-3-(ButtonsNumber?1:0));
+	size_t LinesNumber = ItemsNumber-ButtonsNumber-1;
+	if (LinesNumber > MaxLinesNumber)
+	{
+		ItemsNumber -= (LinesNumber-MaxLinesNumber);
+		for (int i=1; i <= ButtonsNumber; i++)
+			MsgItems[MaxLinesNumber+i]=MsgItems[LinesNumber+i];
 	}
 
 	// запоминаем топик

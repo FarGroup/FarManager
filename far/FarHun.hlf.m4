@@ -1042,6 +1042,12 @@ parancssorból a #secpol.msc# parancs kiadásával is elindíthatjuk.
     Virtuális lemezeknél (SUBST-disk) az info panelről a gazdalemez
 jellemzőit olvashatjuk le.
 
+@InfoPanelShowMode
+$ #Режимы отображения информационной панели#
+
+@InfoPanelSettings
+$ #Настройка информационной панели#
+
 @QViewPanel
 $ #Panelek: gyorsnézet panel#
     A gyorsnézet panel a ~fájlpanel~@FilePanel@ vagy a ~fastruktúra panel~@TreePanel@
@@ -2195,9 +2201,6 @@ végrehajtása átmenetileg letiltja az automatikus kiegészítést.
   #ablakon kívül=bezárja#   párbeszédablak területén túl, bezárul az
                           ^<wrap>ablak (lásd ~egyebek~@MiscCmd@). Az
 opcióval letilthatjuk ezt a működést.
-
-@InfoPanelSettings
-$ #Настройка информационной панели#
 
 
 @CommandPrompt

@@ -57,6 +57,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "mix.hpp"
 #include "palette.hpp"
+#include "vmenu.hpp"
+#include "datetime.hpp"
 
 static int LastDizWrapMode = -1;
 static int LastDizWrapType = -1;
@@ -67,6 +69,18 @@ InfoList::InfoList():
 	PrevMacroMode(-1)
 {
 	Type=INFO_PANEL;
+
+	if (Opt.InfoPanel.strShowStatusInfo.GetLength() == 0)
+	{
+		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
+			SectionState[i].Show=true;
+	}
+	else
+	{
+		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
+			SectionState[i].Show=Opt.InfoPanel.strShowStatusInfo.At(i) == '0'?false:true;
+	}
+
 	if (LastDizWrapMode < 0)
 	{
 		LastDizWrapMode = Opt.ViOpt.ViewerIsWrap;
@@ -99,6 +113,20 @@ string &InfoList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 	return strTitle;
 }
 
+void InfoList::DrawTitle(string &strTitle,int Id,int &CurY)
+{
+	SetColor(COL_PANELBOX);
+	DrawSeparator(CurY);
+	SetColor(COL_PANELTEXT);
+	TruncStr(strTitle,X2-X1-3);
+	GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,CurY);
+	PrintText(strTitle);
+	GotoXY(X1+1,CurY);
+	PrintText(SectionState[Id].Show?L"[-]":L"[+]");
+	SectionState[Id].Y=CurY;
+	CurY++;
+}
+
 void InfoList::DisplayObject()
 {
 	string strTitle;
@@ -126,7 +154,6 @@ void InfoList::DisplayObject()
 	int CurY=Y1+1;
 
 	/* #1 - computer name/user name */
-
 	{
 		string strComputerName, strUserName;
 		DWORD dwSize = 256; //MAX_COMPUTERNAME_LENGTH+1;
@@ -157,203 +184,297 @@ void InfoList::DisplayObject()
 	}
 
 	/* #2 - disk info */
-
-	SetColor(COL_PANELBOX);
-	DrawSeparator(CurY);
-	SetColor(COL_PANELTEXT);
-
-	AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-	AnotherPanel->GetCurDir(strCurDir);
-
-	if (strCurDir.IsEmpty())
-		apiGetCurrentDirectory(strCurDir);
-
-	/*
-		Корректно отображать инфу при заходе в Juction каталог
-		Рут-диск может быть другим
-	*/
-	if ((apiGetFileAttributes(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
+	if (SectionState[ILSS_DISKINFO].Show)
 	{
-		string strJuncName;
+		AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+		AnotherPanel->GetCurDir(strCurDir);
 
-		if (GetReparsePointInfo(strCurDir, strJuncName))
+		if (strCurDir.IsEmpty())
+			apiGetCurrentDirectory(strCurDir);
+
+		/*
+			Корректно отображать инфу при заходе в Juction каталог
+			Рут-диск может быть другим
+		*/
+		if ((apiGetFileAttributes(strCurDir)&FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT)
 		{
-			NormalizeSymlinkName(strJuncName);
-			GetPathRoot(strJuncName,strDriveRoot); //"\??\D:\Junc\Src\"
-		}
-	}
-	else
-		GetPathRoot(strCurDir, strDriveRoot);
+			string strJuncName;
 
-	if (apiGetVolumeInformation(strDriveRoot,&strVolumeName,
-	                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
-	                            &strFileSystemName))
-	{
-		int IdxMsgID=-1;
-		int DriveType=FAR_GetDriveType(strDriveRoot,nullptr,TRUE);
-
-		switch (DriveType)
-		{
-			case DRIVE_REMOVABLE:
-				IdxMsgID=MInfoRemovable;
-				break;
-			case DRIVE_FIXED:
-				IdxMsgID=MInfoFixed;
-				break;
-			case DRIVE_REMOTE:
-				IdxMsgID=MInfoNetwork;
-				break;
-			case DRIVE_CDROM:
-				IdxMsgID=MInfoCDROM;
-				break;
-			case DRIVE_RAMDISK:
-				IdxMsgID=MInfoRAM;
-				break;
-			default:
-
-				if (IsDriveTypeCDROM(DriveType))
-					IdxMsgID=DriveType-DRIVE_CD_RW+MInfoCD_RW;
-
-				break;
-		}
-
-		LPCWSTR DiskType=(IdxMsgID!=-1)?MSG(IdxMsgID):L"";
-		string strAssocPath;
-
-		if (GetSubstName(DriveType,strDriveRoot,strAssocPath))
-		{
-			DiskType = MSG(MInfoSUBST);
-			DriveType=DRIVE_SUBSTITUTE;
-		}
-		else if(DriveType == DRIVE_FIXED && GetVHDName(strDriveRoot,strAssocPath))
-		{
-			DiskType = MSG(MInfoVirtual);
-			DriveType=DRIVE_VIRTUAL;
-		}
-
-
-		strTitle=string(L" ")+DiskType+L" "+MSG(MInfoDisk)+L" "+strDriveRoot+L" ("+strFileSystemName+L") ";
-
-		switch(DriveType)
-		{
-		case DRIVE_REMOTE:
+			if (GetReparsePointInfo(strCurDir, strJuncName))
 			{
-				apiWNetGetConnection(strDriveRoot, strAssocPath);
+				NormalizeSymlinkName(strJuncName);
+				GetPathRoot(strJuncName,strDriveRoot); //"\??\D:\Junc\Src\"
 			}
-			break;
-
-		case DRIVE_SUBSTITUTE:
-		case DRIVE_VIRTUAL:
-			{
-				strTitle += strAssocPath;
-				strTitle += L" ";
-			}
-			break;
 		}
+		else
+			GetPathRoot(strCurDir, strDriveRoot);
 
-		strDiskNumber <<
-			fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(16) << HIWORD(VolumeNumber) << L'-' <<
-			fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(VolumeNumber);
+		if (apiGetVolumeInformation(strDriveRoot,&strVolumeName,
+		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
+		                            &strFileSystemName))
+		{
+			int IdxMsgID=-1;
+			int DriveType=FAR_GetDriveType(strDriveRoot,nullptr,TRUE);
+
+			switch (DriveType)
+			{
+				case DRIVE_REMOVABLE:
+					IdxMsgID=MInfoRemovable;
+					break;
+				case DRIVE_FIXED:
+					IdxMsgID=MInfoFixed;
+					break;
+				case DRIVE_REMOTE:
+					IdxMsgID=MInfoNetwork;
+					break;
+				case DRIVE_CDROM:
+					IdxMsgID=MInfoCDROM;
+					break;
+				case DRIVE_RAMDISK:
+					IdxMsgID=MInfoRAM;
+					break;
+				default:
+
+					if (IsDriveTypeCDROM(DriveType))
+						IdxMsgID=DriveType-DRIVE_CD_RW+MInfoCD_RW;
+
+					break;
+			}
+
+			LPCWSTR DiskType=(IdxMsgID!=-1)?MSG(IdxMsgID):L"";
+			string strAssocPath;
+
+			if (GetSubstName(DriveType,strDriveRoot,strAssocPath))
+			{
+				DiskType = MSG(MInfoSUBST);
+				DriveType=DRIVE_SUBSTITUTE;
+			}
+			else if(DriveType == DRIVE_FIXED && GetVHDName(strDriveRoot,strAssocPath))
+			{
+				DiskType = MSG(MInfoVirtual);
+				DriveType=DRIVE_VIRTUAL;
+			}
+
+			strTitle=string(L" ")+DiskType+L" "+MSG(MInfoDisk)+L" "+strDriveRoot+L" ("+strFileSystemName+L") ";
+
+			switch(DriveType)
+			{
+				case DRIVE_REMOTE:
+				{
+					apiWNetGetConnection(strDriveRoot, strAssocPath);
+				}
+				break;
+
+				case DRIVE_SUBSTITUTE:
+				case DRIVE_VIRTUAL:
+				{
+					strTitle += strAssocPath;
+					strTitle += L" ";
+				}
+				break;
+			}
+
+			strDiskNumber <<
+				fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(16) << HIWORD(VolumeNumber) << L'-' <<
+				fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(VolumeNumber);
+		}
+		else // Error!
+			strTitle = strDriveRoot;
 	}
-	else // Error!
-		strTitle = strDriveRoot;
 
-	TruncStr(strTitle,X2-X1-3);
-	GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,CurY++);
-	PrintText(strTitle);
+	if (!SectionState[ILSS_DISKINFO].Show)
+		strTitle=MSG(MInfoDiskTitle);
+	DrawTitle(strTitle,ILSS_DISKINFO,CurY);
 
-	/* #3 - disk info: size */
-
-	unsigned __int64 TotalSize,TotalFree,UserFree;
-
-	if (apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&UserFree))
+	if (SectionState[ILSS_DISKINFO].Show)
 	{
-		GotoXY(X1+2,CurY++);
-		PrintText(MInfoDiskTotal);
-		InsertCommas(TotalSize,strOutStr);
-		PrintInfo(strOutStr);
+		/* #2.2 - disk info: size */
+		unsigned __int64 TotalSize,TotalFree,UserFree;
 
-		GotoXY(X1+2,CurY++);
-		PrintText(MInfoDiskFree);
-		InsertCommas(UserFree,strOutStr);
-		PrintInfo(strOutStr);
-	}
-
-	/* #4 - disk info: label & SN */
-
-	GotoXY(X1+2,CurY++);
-	PrintText(MInfoDiskLabel);
-	PrintInfo(strVolumeName);
-
-    GotoXY(X1+2,CurY++);
-	PrintText(MInfoDiskNumber);
-	PrintInfo(strDiskNumber);
-
-	/* #4 - memory info */
-
-	SetColor(COL_PANELBOX);
-	DrawSeparator(CurY);
-	SetColor(COL_PANELTEXT);
-	strTitle = MSG(MInfoMemory);
-	TruncStr(strTitle,X2-X1-3);
-	GotoXY(X1+(X2-X1+1-(int)strTitle.GetLength())/2,CurY++);
-	PrintText(strTitle);
-
-	MEMORYSTATUSEX ms={sizeof(ms)};
-	if (GlobalMemoryStatusEx(&ms))
-	{
-		if (!ms.dwMemoryLoad)
-			ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
-
-		GotoXY(X1+2,CurY++);
-		PrintText(MInfoMemoryLoad);
-		strOutStr.Format(L"%d%%",ms.dwMemoryLoad);
-		PrintInfo(strOutStr);
-
-		ULONGLONG TotalMemoryInKilobytes=0;
-		if(ifn.GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
+		if (apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&UserFree))
 		{
 			GotoXY(X1+2,CurY++);
-			PrintText(MInfoMemoryInstalled);
-			InsertCommas(TotalMemoryInKilobytes<<10,strOutStr);
+			PrintText(MInfoDiskTotal);
+			InsertCommas(TotalSize,strOutStr);
+			PrintInfo(strOutStr);
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoDiskFree);
+			InsertCommas(UserFree,strOutStr);
 			PrintInfo(strOutStr);
 		}
 
+		/* #4 - disk info: label & SN */
 		GotoXY(X1+2,CurY++);
-		PrintText(MInfoMemoryTotal);
-		InsertCommas(ms.ullTotalPhys,strOutStr);
-		PrintInfo(strOutStr);
+		PrintText(MInfoDiskLabel);
+		PrintInfo(strVolumeName);
 
-		GotoXY(X1+2,CurY++);
-		PrintText(MInfoMemoryFree);
-		InsertCommas(ms.ullAvailPhys,strOutStr);
-		PrintInfo(strOutStr);
+	    GotoXY(X1+2,CurY++);
+		PrintText(MInfoDiskNumber);
+		PrintInfo(strDiskNumber);
+	}
 
-		GotoXY(X1+2,CurY++);
-		PrintText(MInfoVirtualTotal);
-		InsertCommas(ms.ullTotalVirtual,strOutStr);
-		PrintInfo(strOutStr);
+	/* #3 - memory info */
+	strTitle = MSG(MInfoMemory);
+	DrawTitle(strTitle,ILSS_MEMORYINFO,CurY);
 
-		GotoXY(X1+2,CurY++);
-		PrintText(MInfoVirtualFree);
-		InsertCommas(ms.ullAvailVirtual,strOutStr);
-		PrintInfo(strOutStr);
+	if (SectionState[ILSS_MEMORYINFO].Show)
+	{
+		MEMORYSTATUSEX ms={sizeof(ms)};
+		if (GlobalMemoryStatusEx(&ms))
+		{
+			if (!ms.dwMemoryLoad)
+				ms.dwMemoryLoad=100-ToPercent64(ms.ullAvailPhys+ms.ullAvailPageFile,ms.ullTotalPhys+ms.ullTotalPageFile);
 
-		GotoXY(X1+2,CurY++);
-		PrintText(MInfoPageFileTotal);
-		InsertCommas(ms.ullTotalPageFile,strOutStr);
-		PrintInfo(strOutStr);
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoMemoryLoad);
+			strOutStr.Format(L"%d%%",ms.dwMemoryLoad);
+			PrintInfo(strOutStr);
 
-		GotoXY(X1+2,CurY++);
-		PrintText(MInfoPageFileFree);
-		InsertCommas(ms.ullAvailPageFile,strOutStr);
-		PrintInfo(strOutStr);
+			ULONGLONG TotalMemoryInKilobytes=0;
+			if(ifn.GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
+			{
+				GotoXY(X1+2,CurY++);
+				PrintText(MInfoMemoryInstalled);
+				InsertCommas(TotalMemoryInKilobytes<<10,strOutStr);
+				PrintInfo(strOutStr);
+			}
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoMemoryTotal);
+			InsertCommas(ms.ullTotalPhys,strOutStr);
+			PrintInfo(strOutStr);
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoMemoryFree);
+			InsertCommas(ms.ullAvailPhys,strOutStr);
+			PrintInfo(strOutStr);
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoVirtualTotal);
+			InsertCommas(ms.ullTotalVirtual,strOutStr);
+			PrintInfo(strOutStr);
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoVirtualFree);
+			InsertCommas(ms.ullAvailVirtual,strOutStr);
+			PrintInfo(strOutStr);
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoPageFileTotal);
+			InsertCommas(ms.ullTotalPageFile,strOutStr);
+			PrintInfo(strOutStr);
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoPageFileFree);
+			InsertCommas(ms.ullAvailPageFile,strOutStr);
+			PrintInfo(strOutStr);
+		}
+	}
+
+	/* #4 - power status */
+	if (Opt.InfoPanel.ShowPowerStatus)
+	{
+		strTitle = MSG(MInfoPowerStatus);
+		DrawTitle(strTitle,ILSS_POWERSTATUS,CurY);
+
+		if (SectionState[ILSS_POWERSTATUS].Show)
+		{
+			int MsgID;
+			SYSTEM_POWER_STATUS PowerStatus;
+			GetSystemPowerStatus(&PowerStatus);
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoPowerStatusAC);
+			switch(PowerStatus.ACLineStatus)
+			{
+				case AC_LINE_OFFLINE:      MsgID=MInfoPowerStatusACOffline; break;
+				case AC_LINE_ONLINE:       MsgID=MInfoPowerStatusACOnline; break;
+				case AC_LINE_BACKUP_POWER: MsgID=MInfoPowerStatusACBackUp; break;
+				default:                   MsgID=MInfoPowerStatusACUnknown; break;
+			}
+			PrintInfo(MSG(MsgID));
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoPowerStatusBCLifePercent);
+			if (PowerStatus.BatteryLifePercent > 100)
+				strOutStr = MSG(MInfoPowerStatusBCLifePercentUnknown);
+			else
+				strOutStr.Format(L"%d%%",PowerStatus.BatteryLifePercent);
+			PrintInfo(strOutStr);
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoPowerStatusBC);
+			strOutStr=L"";
+			// PowerStatus.BatteryFlag == 0: The value is zero if the battery is not being charged and the battery capacity is between low and high.
+			if (!PowerStatus.BatteryFlag || PowerStatus.BatteryFlag == BATTERY_FLAG_UNKNOWN)
+				strOutStr=MSG(MInfoPowerStatusBCUnknown);
+			else if (PowerStatus.BatteryFlag & BATTERY_FLAG_NO_BATTERY)
+				strOutStr=MSG(MInfoPowerStatusBCNoSysBat);
+			else
+			{
+				if (PowerStatus.BatteryFlag & BATTERY_FLAG_HIGH)
+					strOutStr = MSG(MInfoPowerStatusBCHigh);
+				else if (PowerStatus.BatteryFlag & BATTERY_FLAG_LOW)
+					strOutStr = MSG(MInfoPowerStatusBCLow);
+				else if (PowerStatus.BatteryFlag & BATTERY_FLAG_CRITICAL)
+					strOutStr = MSG(MInfoPowerStatusBCCritical);
+
+				if (PowerStatus.BatteryFlag & BATTERY_FLAG_CHARGING)
+				{
+					if (!strOutStr.IsEmpty())
+						strOutStr += L" ";
+					strOutStr += MSG(MInfoPowerStatusBCCharging);
+				}
+			}
+			PrintInfo(strOutStr);
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoPowerStatusBCTimeRem);
+			if (PowerStatus.BatteryLifeTime != BATTERY_LIFE_UNKNOWN)
+			{
+				DWORD s = PowerStatus.BatteryLifeTime%60;
+				DWORD m = (PowerStatus.BatteryLifeTime/60)%60;
+				DWORD h = PowerStatus.BatteryLifeTime/3600;
+				FormatString strTimeText;
+				strTimeText<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s;
+				PrintInfo(strTimeText);
+			}
+			else
+				PrintInfo(MSG(MInfoPowerStatusBCTMUnknown));
+
+			GotoXY(X1+2,CurY++);
+			PrintText(MInfoPowerStatusBCFullTimeRem);
+			if (PowerStatus.BatteryFullLifeTime != BATTERY_LIFE_UNKNOWN)
+			{
+				DWORD s = PowerStatus.BatteryLifeTime%60;
+				DWORD m = (PowerStatus.BatteryLifeTime/60)%60;
+				DWORD h = PowerStatus.BatteryLifeTime/3600;
+				FormatString strTimeText;
+				strTimeText<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s;
+				PrintInfo(strTimeText);
+			}
+			else
+				PrintInfo(MSG(MInfoPowerStatusBCFTMUnknown));
+		}
 	}
 
 	/* #5 - description */
+	strTitle = MSG(MInfoDescription);
+	DrawTitle(strTitle,ILSS_DIRDESCRIPTION,CurY);
 
-	ShowDirDescription(CurY);
-	ShowPluginDescription();
+	if (SectionState[ILSS_DIRDESCRIPTION].Show)
+	{
+		ShowDirDescription(CurY);
+	}
+	GotoXY(X1+1,SectionState[ILSS_DIRDESCRIPTION].Y);
+	PrintText(SectionState[ILSS_DIRDESCRIPTION].Show?L"[-]":L"[+]");
+
+	/* #6 - Plugin Description */
+	if (SectionState[ILSS_PLDESCRIPTION].Show)
+	{
+		ShowPluginDescription();
+	}
 }
 
 
@@ -369,6 +490,106 @@ __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	}
 
 	return 0;
+}
+
+void InfoList::SelectShowMode(void)
+{
+	MenuDataEx ShowModeMenuItem[]=
+	{
+		MSG(MMenuInfoShowModeDisk),LIF_SELECTED,KEY_CTRL0,
+		MSG(MMenuInfoShowModeMemory),0,KEY_CTRL1,
+		MSG(MMenuInfoShowModeDirDiz),0,KEY_CTRL2,
+		MSG(MMenuInfoShowModePluginDiz),0,KEY_CTRL3,
+		MSG(MMenuInfoShowModePower),0,KEY_CTRL4,
+	};
+
+	for (size_t i=0; i<ARRAYSIZE(SectionState); i++)
+		ShowModeMenuItem[i].SetCheck( SectionState[i].Show ? L'+':L'-');
+
+	if (!Opt.InfoPanel.ShowPowerStatus)
+	{
+		ShowModeMenuItem[ILSS_POWERSTATUS].SetDisable(TRUE);
+		ShowModeMenuItem[ILSS_POWERSTATUS].SetCheck(L' ');
+	}
+
+	int ShowCode=-1;
+	int ShowMode=-1;
+
+	{
+		// ?????
+		// {BFC64A26-F433-4cf3-A1DE-8361CF762F68}
+		//DEFINE_GUID(InfoListSelectShowModeId,0xbfc64a26, 0xf433, 0x4cf3, 0xa1, 0xde, 0x83, 0x61, 0xcf, 0x76, 0x2f, 0x68);
+		// ?????
+
+		VMenu ShowModeMenu(MSG(MMenuInfoShowModeTitle),ShowModeMenuItem,ARRAYSIZE(ShowModeMenuItem),0);
+		ShowModeMenu.SetHelp(L"InfoPanelShowMode");
+		ShowModeMenu.SetPosition(X1+4,-1,0,0);
+		ShowModeMenu.SetFlags(VMENU_WRAPMODE);
+		bool MenuNeedRefresh=true;
+
+		while (!ShowModeMenu.Done())
+		{
+			if (MenuNeedRefresh)
+			{
+				ShowModeMenu.Hide(); // спрячем
+				ShowModeMenu.SetPosition(X1+4,-1,0,0);
+				ShowModeMenu.Show();
+				MenuNeedRefresh=false;
+			}
+
+			int Key=ShowModeMenu.ReadInput();
+			int MenuPos=ShowModeMenu.GetSelectPos();
+
+			switch (Key)
+			{
+				case KEY_MULTIPLY:
+				case L'*':
+					ShowMode=2;
+					ShowModeMenu.SetExitCode(MenuPos);
+					break;
+
+				case KEY_ADD:
+				case L'+':
+					ShowMode=1;
+					ShowModeMenu.SetExitCode(MenuPos);
+					break;
+
+				case KEY_SUBTRACT:
+				case L'-':
+					ShowMode=0;
+					ShowModeMenu.SetExitCode(MenuPos);
+					break;
+
+				default:
+					ShowModeMenu.ProcessInput();
+					break;
+			}
+		}
+
+		if ((ShowCode=ShowModeMenu.Modal::GetExitCode())<0)
+			return;
+	}
+
+	if (ShowCode != -1)
+	{
+		switch (ShowMode)
+		{
+			case 0:
+				SectionState[ShowCode].Show=false;
+				break;
+			case 1:
+				SectionState[ShowCode].Show=true;
+				break;
+			default:
+				SectionState[ShowCode].Show=!SectionState[ShowCode].Show;
+				break;
+		}
+		Opt.InfoPanel.strShowStatusInfo=L"";
+		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
+			Opt.InfoPanel.strShowStatusInfo += SectionState[i].Show?L'1':L'0';
+
+		Redraw();
+	}
 }
 
 int InfoList::ProcessKey(int Key)
@@ -387,8 +608,12 @@ int InfoList::ProcessKey(int Key)
 		case KEY_F1:
 		{
 			Help Hlp(L"InfoPanel");
+			return TRUE;
 		}
-		return TRUE;
+		case KEY_CTRLF12:
+		case KEY_RCTRLF12:
+			SelectShowMode();
+			return TRUE;
 		case KEY_F3:
 		case KEY_NUMPAD5:  case KEY_SHIFTNUMPAD5:
 
@@ -434,19 +659,33 @@ int InfoList::ProcessKey(int Key)
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 			//AnotherPanel->Redraw();
 			Update(0);
+			CtrlObject->Cp()->Redraw();
+			return TRUE;
 		}
-		CtrlObject->Cp()->Redraw();
-		return TRUE;
 		case KEY_CTRLR:
 		case KEY_RCTRLR:
+		{
 			Redraw();
 			return TRUE;
+		}
+
+		default:
+		{
+			if (Key >= KEY_CTRL0 && Key <= KEY_CTRL9 || Key >= KEY_RCTRL0 && Key <= KEY_RCTRL9)
+			{
+				int Idx=Key >= KEY_CTRL0 && Key <= KEY_CTRL9? Key-KEY_CTRL0 : Key-KEY_RCTRL0;
+				if (Idx < ARRAYSIZE(SectionState))
+				{
+					SectionState[Idx].Show=!SectionState[Idx].Show;
+					Redraw();
+					return TRUE;
+				}
+			}
+			break;
+		}
 	}
 
-	/* $ 30.04.2001 DJ
-		обновляем кейбар после нажатия F8, F2 или Shift-F2
-	*/
-	if (DizView && Key>=256)
+	if (DizView && Key >= 256)
 	{
 		int ret = DizView->ProcessKey(Key);
 
@@ -483,9 +722,38 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (Panel::PanelProcessMouse(MouseEvent,RetCode))
 		return(RetCode);
 
-	if (MouseEvent->dwMousePosition.Y>=14 && DizView)
+	bool NeedRedraw=false;
+	if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
 	{
-		_tran(SysLog(L"InfoList::ProcessMouse() DizView = %p",DizView));
+		if (MouseEvent->dwMousePosition.Y == SectionState[ILSS_DISKINFO].Y)
+		{
+			SectionState[ILSS_DISKINFO].Show=!SectionState[ILSS_DISKINFO].Show;
+			NeedRedraw=true;
+		}
+		else if (MouseEvent->dwMousePosition.Y == SectionState[ILSS_MEMORYINFO].Y)
+		{
+			SectionState[ILSS_MEMORYINFO].Show=!SectionState[ILSS_MEMORYINFO].Show;
+			NeedRedraw=true;
+		}
+		else if (MouseEvent->dwMousePosition.Y == SectionState[ILSS_DIRDESCRIPTION].Y)
+		{
+			SectionState[ILSS_DIRDESCRIPTION].Show=!SectionState[ILSS_DIRDESCRIPTION].Show;
+			NeedRedraw=true;
+		}
+		else if (MouseEvent->dwMousePosition.Y == SectionState[ILSS_PLDESCRIPTION].Y)
+		{
+			SectionState[ILSS_PLDESCRIPTION].Show=!SectionState[ILSS_PLDESCRIPTION].Show;
+			NeedRedraw=true;
+		}
+		else if (MouseEvent->dwMousePosition.Y == SectionState[ILSS_POWERSTATUS].Y)
+		{
+			SectionState[ILSS_POWERSTATUS].Show=!SectionState[ILSS_POWERSTATUS].Show;
+			NeedRedraw=true;
+		}
+	}
+
+	if (SectionState[ILSS_DIRDESCRIPTION].Show && MouseEvent->dwMousePosition.Y > SectionState[ILSS_DIRDESCRIPTION].Y && DizView)
+	{
 		int DVX1,DVX2,DVY1,DVY2;
 		DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
 
@@ -506,6 +774,9 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			return TRUE;
 		}
 	}
+
+	if (NeedRedraw)
+		Redraw();
 
 	SetFocus();
 
@@ -566,7 +837,6 @@ void InfoList::PrintInfo(int MsgID)
 void InfoList::ShowDirDescription(int YPos)
 {
 	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-	DrawSeparator(YPos);
 
 	if (AnotherPanel->GetMode()==FILE_PANEL)
 	{
@@ -599,7 +869,7 @@ void InfoList::ShowDirDescription(int YPos)
 
 	CloseFile();
 	SetColor(COL_PANELTEXT);
-	GotoXY(X1+2,YPos+1);
+	GotoXY(X1+2,YPos);
 	PrintText(MInfoDizAbsent);
 }
 
@@ -624,6 +894,7 @@ void InfoList::ShowPluginDescription()
 		if (Y<=Y1)
 			continue;
 
+		SectionState[ILSS_PLDESCRIPTION].Y=Y;
 		const InfoPanelLine *InfoLine=&Info.InfoLines[I];
 		GotoXY(X1,Y);
 		SetColor(COL_PANELBOX);
@@ -654,6 +925,8 @@ void InfoList::ShowPluginDescription()
 			PrintInfo(NullToEmpty(InfoLine->Data));
 		}
 	}
+	GotoXY(X1+1,SectionState[ILSS_PLDESCRIPTION].Y);
+	PrintText(SectionState[ILSS_PLDESCRIPTION].Show?L"[-]":L"[+]");
 }
 
 void InfoList::CloseFile()
@@ -689,7 +962,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile,int YPos)
 
 		_tran(SysLog(L"InfoList::OpenDizFile() create new Viewer = %p",DizView));
 		DizView->SetRestoreScreenMode(FALSE);
-		DizView->SetPosition(X1+1,YPos+1,X2-1,Y2-1);
+		DizView->SetPosition(X1+1,YPos,X2-1,Y2-1);
 		DizView->SetStatusMode(0);
 		DizView->EnableHideCursor(0);
 		OldWrapMode = DizView->GetWrapMode();
@@ -720,7 +993,7 @@ int InfoList::OpenDizFile(const wchar_t *DizFile,int YPos)
 	string strTitle;
 	strTitle.Append(L" ").Append(PointToName(strDizFileName)).Append(L" ");
 	TruncStr(strTitle,X2-X1-3);
-	GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,YPos);
+	GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,YPos-1);
 	SetColor(COL_PANELTEXT);
 	PrintText(strTitle);
 	return TRUE;

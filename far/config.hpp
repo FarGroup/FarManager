@@ -414,6 +414,8 @@ struct InfoPanelOptions
 {
 	COMPUTER_NAME_FORMAT ComputerNameFormat;
 	EXTENDED_NAME_FORMAT UserNameFormat;
+	int ShowPowerStatus;
+	string strShowStatusInfo;
 	string strFolderInfoFiles;
 };
 

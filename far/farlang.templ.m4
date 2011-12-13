@@ -1970,12 +1970,12 @@ upd:"InfoPanel settings"
 
 MConfigInfoPanelCNTitle
 "Формат вывода имени &компьютера"
-upd:"ComputerName &format"
-upd:"ComputerName &format"
-upd:"ComputerName &format"
-upd:"ComputerName &format"
-upd:"ComputerName &format"
-"&Formato NombreComputadora"
+upd:"&ComputerName format"
+upd:"&ComputerName format"
+upd:"&ComputerName format"
+upd:"&ComputerName format"
+upd:"&ComputerName format"
+"Formato Nombre&Computadora"
 
 MConfigInfoPanelCNPhysicalNetBIOS
 upd:"Physical NetBIOS"
@@ -2051,12 +2051,12 @@ upd:"DNS fully-qualified"
 
 MConfigInfoPanelUNTitle
 "Формат вывода имени &пользователя"
-upd:"UserName &format"
-upd:"UserName &format"
-upd:"UserName &format"
-upd:"UserName &format"
-upd:"UserName &format"
-"&Formato nombre de usuario"
+upd:"&UserName format"
+upd:"&UserName format"
+upd:"&UserName format"
+upd:"&UserName format"
+upd:"&UserName format"
+"Formato nombre de &usuario"
 
 MConfigInfoPanelUNUnknown
 "По умолчанию"
@@ -2138,6 +2138,70 @@ upd:"Dns Domain"
 upd:"Dns Domain"
 upd:"Dns Domain"
 "Dominio DNS"
+
+MConfigInfoPanelShowPowerStatus
+"Показывать состояние п&итания"
+"Show &power status"
+upd:"Show &power status"
+upd:"Show &power status"
+upd:"Show &power status"
+upd:"Show &power status"
+upd:"Show &power status"
+
+MMenuInfoShowModeTitle
+l:
+"Показать информацию"
+"Show Info"
+upd:"Show Info"
+upd:"Show Info"
+upd:"Show Info"
+upd:"Show Info"
+upd:"Show Info"
+
+MMenuInfoShowModeDisk
+"&Диск                 Ctrl-0"
+"&Disk                 Ctrl-0"
+upd:"&Disk                 Ctrl-0"
+upd:"&Disk                 Ctrl-0"
+upd:"&Disk                 Ctrl-0"
+upd:"&Disk                 Ctrl-0"
+upd:"&Disk                 Ctrl-0"
+
+MMenuInfoShowModeMemory
+"&Память               Ctrl-1"
+"&Memory               Ctrl-1"
+upd:"&Memory               Ctrl-1"
+upd:"&Memory               Ctrl-1"
+upd:"&Memory               Ctrl-1"
+upd:"&Memory               Ctrl-1"
+upd:"&Memory               Ctrl-1"
+
+MMenuInfoShowModeDirDiz
+"&Описание папки       Ctrl-2"
+"&Description          Ctrl-2"
+upd:"&Description          Ctrl-2"
+upd:"&Description          Ctrl-2"
+upd:"&Description          Ctrl-2"
+upd:"&Description          Ctrl-2"
+upd:"&Description          Ctrl-2"
+
+MMenuInfoShowModePluginDiz
+"Пла&гиновая панель    Ctrl-3"
+"Plu&gin panel         Ctrl-3"
+upd:"Plu&gin panel         Ctrl-3"
+upd:"Plu&gin panel         Ctrl-3"
+upd:"Plu&gin panel         Ctrl-3"
+upd:"Plu&gin panel         Ctrl-3"
+upd:"Plu&gin panel         Ctrl-3"
+
+MMenuInfoShowModePower
+"Состояние п&итания    Ctrl-4"
+"&Power status         Ctrl-4"
+upd:"&Power status         Ctrl-4"
+upd:"&Power status         Ctrl-4"
+upd:"&Power status         Ctrl-4"
+upd:"&Power status         Ctrl-4"
+upd:"&Power status         Ctrl-4"
 
 MViewConfigTitle
 l:
@@ -9686,6 +9750,15 @@ MInfoUserName
 "Nazwa użytkownika"
 "Nombre usuario"
 
+MInfoDiskTitle
+"Диск"
+"Disk"
+"Disk"
+"Laufwerk"
+"Lemez"
+"Dysk"
+"Disco"
+
 MInfoRemovable
 "Сменный"
 "Removable"
@@ -9920,6 +9993,15 @@ upd:"Free paging file"
 upd:"Free paging file"
 "Archivo de paginación libre"
 
+MInfoDescription
+" Описание "
+" Description "
+" Popis "
+" Beschreibung "
+" Megjegyzés "
+" Opis "
+" Descripción "
+
 MInfoDizAbsent
 "Файл описания папки отсутствует"
 "Folder description file is absent"
@@ -9928,6 +10010,177 @@ MInfoDizAbsent
 "Mappa megjegyzésfájl nincs"
 "Plik opisu katalogu nie istnieje"
 "archivo descripción del directorio está ausente"
+
+MInfoPowerStatus
+" Питание "
+" Power Status"
+upd:" Power Status"
+upd:" Power Status"
+upd:" Power Status"
+upd:" Power Status"
+upd:" Power Status"
+
+MInfoPowerStatusAC
+"Подключения к сети"
+"AC power status"
+upd:"AC power status"
+upd:"AC power status"
+upd:"AC power status"
+upd:"AC power status"
+upd:"AC power status"
+
+MInfoPowerStatusACOffline
+"Отсутствует"
+"Offline"
+upd:"Offline"
+upd:"Offline"
+upd:"Offline"
+upd:"Offline"
+upd:"Offline"
+
+MInfoPowerStatusACOnline
+"Подключено"
+"Online"
+upd:"Online"
+upd:"Online"
+upd:"Online"
+upd:"Online"
+upd:"Online"
+
+MInfoPowerStatusACBackUp
+upd:"Backup power"
+"Backup power"
+upd:"Backup power"
+upd:"Backup power"
+upd:"Backup power"
+upd:"Backup power"
+upd:"Backup power"
+
+MInfoPowerStatusACUnknown
+"Не определено"
+"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+
+MInfoPowerStatusBCLifePercent
+"Заряд батареи"
+"Battery life percent"
+upd:"Battery life percent"
+upd:"Battery life percent"
+upd:"Battery life percent"
+upd:"Battery life percent"
+upd:"Battery life percent"
+
+MInfoPowerStatusBCLifePercentUnknown
+"Не определено"
+"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+
+MInfoPowerStatusBC
+"Статус заряда батареи"
+"Battery charge status"
+upd:"Battery charge status"
+upd:"Battery charge status"
+upd:"Battery charge status"
+upd:"Battery charge status"
+upd:"Battery charge status"
+
+MInfoPowerStatusBCHigh
+"Высокий"
+"High"
+upd:"High"
+upd:"High"
+upd:"High"
+upd:"High"
+upd:"High"
+
+MInfoPowerStatusBCLow
+"Низкий"
+"Low"
+upd:"Low"
+upd:"Low"
+upd:"Low"
+upd:"Low"
+upd:"Low"
+
+MInfoPowerStatusBCCritical
+"Критичный"
+"Critical"
+upd:"Critical"
+upd:"Critical"
+upd:"Critical"
+upd:"Critical"
+upd:"Critical"
+
+MInfoPowerStatusBCCharging
+"Зарядка"
+"Charging"
+upd:"Charging"
+upd:"Charging"
+upd:"Charging"
+upd:"Charging"
+upd:"Charging"
+
+MInfoPowerStatusBCNoSysBat
+"Батареи нет"
+"No system battery"
+upd:"No system battery"
+upd:"No system battery"
+upd:"No system battery"
+upd:"No system battery"
+upd:"No system battery"
+
+MInfoPowerStatusBCUnknown
+"Не определено"
+"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+
+MInfoPowerStatusBCTimeRem
+"Время до разряда"
+"Battery life time"
+upd:"Battery life time"
+upd:"Battery life time"
+upd:"Battery life time"
+upd:"Battery life time"
+upd:"Battery life time"
+
+MInfoPowerStatusBCTMUnknown
+"Не определено"
+"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+
+MInfoPowerStatusBCFullTimeRem
+"Полное время работы"
+"Battery full time"
+upd:"Battery full time"
+upd:"Battery full time"
+upd:"Battery full time"
+upd:"Battery full time"
+upd:"Battery full time"
+
+MInfoPowerStatusBCFTMUnknown
+"Не определено"
+"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
 
 MErrorInvalidFunction
 l:

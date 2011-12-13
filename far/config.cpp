@@ -282,6 +282,7 @@ void InfoPanelSettings()
 	Builder.AddComboBox((int *) &Opt.InfoPanel.ComputerNameFormat, 50, CNListItems, ARRAYSIZE(CNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigInfoPanelUNTitle);
 	Builder.AddComboBox((int *) &Opt.InfoPanel.UserNameFormat, 50, UNListItems, ARRAYSIZE(UNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddCheckbox(MConfigInfoPanelShowPowerStatus, &Opt.InfoPanel.ShowPowerStatus);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -867,6 +868,8 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_TEXT,    NKeySystem,L"FolderInfo",&Opt.InfoPanel.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyPanelInfo,L"InfoComputerNameFormat",&Opt.InfoPanel.ComputerNameFormat, ComputerNamePhysicalNetBIOS, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyPanelInfo,L"InfoUserNameFormat",&Opt.InfoPanel.UserNameFormat, NameUserPrincipal, 0},
+	{1, GeneralConfig::TYPE_INTEGER, NKeyPanelInfo,L"ShowPowerStatus",&Opt.InfoPanel.ShowPowerStatus, 0, 0},
+	{1, GeneralConfig::TYPE_TEXT,    NKeySystem,L"ShowStatusInfo",&Opt.InfoPanel.strShowStatusInfo, 0, L""},
 
 	{1, GeneralConfig::TYPE_INTEGER, NKeyVMenu,L"LBtnClick",&Opt.VMenu.LBtnClick, VMENUCLICK_CANCEL, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyVMenu,L"RBtnClick",&Opt.VMenu.RBtnClick, VMENUCLICK_CANCEL, 0},

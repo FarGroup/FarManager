@@ -45,8 +45,12 @@ class DizViewer: public Viewer
 {
 	public:
 		int InRecursion;
+
+	public:
 		DizViewer():InRecursion(0) {}
 		virtual ~DizViewer() {}
+
+	public:
 		virtual int ProcessKey(int Key)
 		{
 			InRecursion++;
@@ -65,12 +69,32 @@ class DizViewer: public Viewer
 
 class InfoList:public Panel
 {
+	// Состояние секций
+	struct InfoListSectionState
+	{
+		bool Show;   // раскрыть/свернуть?
+		SHORT Y;     // Где?
+	};
+
+	enum InfoListSectionStateIndex
+	{
+		// Порядок не менять! Только добавлять в конец!
+		ILSS_DISKINFO,
+		ILSS_MEMORYINFO,
+		ILSS_DIRDESCRIPTION,
+		ILSS_PLDESCRIPTION,
+		ILSS_POWERSTATUS,
+
+		ILSS_LAST
+	};
+
 	private:
 		DizViewer *DizView;
 		int  PrevMacroMode;
 		int  OldWrapMode;
 		int  OldWrapType;
 		string strDizFileName;
+		InfoListSectionState SectionState[ILSS_LAST];
 
 	private:
 		virtual void DisplayObject();
@@ -81,7 +105,8 @@ class InfoList:public Panel
 		void PrintText(int MsgID);
 		void PrintInfo(const wchar_t *Str);
 		void PrintInfo(int MsgID);
-
+		void SelectShowMode(void);
+		void DrawTitle(string &strTitle,int Id,int &CurY);
 
 		int  OpenDizFile(const wchar_t *DizFile,int YPos);
 		void SetMacroMode(int Restore = FALSE);
