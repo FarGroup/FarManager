@@ -939,7 +939,10 @@ BOOL apiSetFileAttributes(LPCWSTR lpFileName,DWORD dwFileAttributes)
 
 bool CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags)
 {
-	return ifn.CreateSymbolicLinkPresent()? CreateSymbolicLink(Object, Target, dwFlags) != FALSE : CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
+	return ifn.CreateSymbolicLinkPresent()
+	 ? (ifn.CreateSymbolicLink(Object, Target, dwFlags) != FALSE)
+	 : CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE
+	);
 }
 
 bool apiCreateSymbolicLink(LPCWSTR lpSymlinkFileName,LPCWSTR lpTargetFileName,DWORD dwFlags)
