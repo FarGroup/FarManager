@@ -386,7 +386,7 @@ DWORD GetRelationDrivesMask(DEVINST hDevInst)
 					while (*p)
 					{
 						if (CM_Locate_DevNode(&hRelationDevInst, p, 0) == CR_SUCCESS)
-							dwMask = GetDriveMaskFromMountPoints(hRelationDevInst);
+							dwMask |= GetDriveMaskFromMountPoints(hRelationDevInst);
 
 						p += wcslen(p)+1;
 					}
