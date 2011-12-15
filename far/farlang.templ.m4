@@ -10011,6 +10011,15 @@ MInfoDizAbsent
 "Plik opisu katalogu nie istnieje"
 "archivo descripción del directorio está ausente"
 
+MInfoPlugin
+" Плагин "
+" Plugin "
+" Plugin "
+" Plugin "
+" Plugin "
+" Plugin "
+" Plugin "
+
 MInfoPowerStatus
 " Питание "
 " Power Status"

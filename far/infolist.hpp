@@ -98,8 +98,8 @@ class InfoList:public Panel
 
 	private:
 		virtual void DisplayObject();
-		void ShowDirDescription(int YPos);
-		void ShowPluginDescription();
+		bool ShowDirDescription(int YPos);
+		bool ShowPluginDescription(int YPos);
 
 		void PrintText(const wchar_t *Str);
 		void PrintText(int MsgID);

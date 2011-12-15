@@ -465,16 +465,33 @@ void InfoList::DisplayObject()
 
 	if (SectionState[ILSS_DIRDESCRIPTION].Show)
 	{
-		ShowDirDescription(CurY);
+		if (!ShowDirDescription(CurY) && DizView)
+		{
+			DizView->SetPosition(X1+1,CurY+1,X2-1,CurY+3);
+			CurY+=2;
+		}
+		else if (DizView)
+		{
+			DizView->SetPosition(X1+1,CurY+1,X2-1,Y2-2);
+			if (CurY < Y2)
+				CurY=Y2-1;
+		}
 	}
 	GotoXY(X1+1,SectionState[ILSS_DIRDESCRIPTION].Y);
 	PrintText(SectionState[ILSS_DIRDESCRIPTION].Show?L"[-]":L"[+]");
 
 	/* #6 - Plugin Description */
+	strTitle = MSG(MInfoPlugin);
+	DrawTitle(strTitle,ILSS_PLDESCRIPTION,CurY);
 	if (SectionState[ILSS_PLDESCRIPTION].Show)
 	{
-		ShowPluginDescription();
+		if (ShowPluginDescription(CurY))
+		{
+			;
+		}
 	}
+	GotoXY(X1+1,SectionState[ILSS_PLDESCRIPTION].Y);
+	PrintText(SectionState[ILSS_PLDESCRIPTION].Show?L"[-]":L"[+]");
 }
 
 
@@ -687,28 +704,34 @@ int InfoList::ProcessKey(int Key)
 
 	if (DizView && Key >= 256)
 	{
-		int ret = DizView->ProcessKey(Key);
+		int DVX1,DVX2,DVY1,DVY2;
+		DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
 
-		if (Key == KEY_F8 || Key == KEY_F2 || Key == KEY_SHIFTF2)
+		if (DVY1 < Y2)
 		{
-			DynamicUpdateKeyBar();
-			CtrlObject->MainKeyBar->Redraw();
-		}
+			int ret = DizView->ProcessKey(Key);
 
-		if (Key == KEY_F7 || Key == KEY_SHIFTF7)
-		{
-			__int64 Pos, Length;
-			DWORD Flags;
-			DizView->GetSelectedParam(Pos,Length,Flags);
-			//ShellUpdatePanels(nullptr,FALSE);
-			DizView->InRecursion++;
-			Redraw();
-			CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
-			DizView->SelectText(Pos,Length,Flags|1);
-			DizView->InRecursion--;
-		}
+			if (Key == KEY_F8 || Key == KEY_F2 || Key == KEY_SHIFTF2)
+			{
+				DynamicUpdateKeyBar();
+				CtrlObject->MainKeyBar->Redraw();
+			}
 
-		return(ret);
+			if (Key == KEY_F7 || Key == KEY_SHIFTF7)
+			{
+				__int64 Pos, Length;
+				DWORD Flags;
+				DizView->GetSelectedParam(Pos,Length,Flags);
+				//ShellUpdatePanels(nullptr,FALSE);
+				DizView->InRecursion++;
+				Redraw();
+				CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
+				DizView->SelectText(Pos,Length,Flags|1);
+				DizView->InRecursion--;
+			}
+
+			return(ret);
+		}
 	}
 
 	return FALSE;
@@ -752,26 +775,31 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	if (SectionState[ILSS_DIRDESCRIPTION].Show && MouseEvent->dwMousePosition.Y > SectionState[ILSS_DIRDESCRIPTION].Y && DizView)
+	int DVX1,DVX2,DVY1=-1,DVY2;
+	if (DizView)
 	{
-		int DVX1,DVX2,DVY1,DVY2;
 		DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
-
-		if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
-		        MouseEvent->dwMousePosition.X > DVX1+1 &&
-		        MouseEvent->dwMousePosition.X < DVX2 - DizView->GetShowScrollbar() - 1 &&
-		        MouseEvent->dwMousePosition.Y > DVY1+1 &&
-		        MouseEvent->dwMousePosition.Y < DVY2-1
-		   )
+		if (DVY1 < Y2)
 		{
-			ProcessKey(KEY_F3);
-			return TRUE;
-		}
+			if (SectionState[ILSS_DIRDESCRIPTION].Show && MouseEvent->dwMousePosition.Y > SectionState[ILSS_DIRDESCRIPTION].Y)
+			{
+				if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) &&
+				        MouseEvent->dwMousePosition.X > DVX1+1 &&
+				        MouseEvent->dwMousePosition.X < DVX2 - DizView->GetShowScrollbar() - 1 &&
+				        MouseEvent->dwMousePosition.Y > DVY1+1 &&
+				        MouseEvent->dwMousePosition.Y < DVY2-1
+				   )
+				{
+					ProcessKey(KEY_F3);
+					return TRUE;
+				}
 
-		if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
-		{
-			ProcessKey(KEY_F4);
-			return TRUE;
+				if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
+				{
+					ProcessKey(KEY_F4);
+					return TRUE;
+				}
+			}
 		}
 	}
 
@@ -781,8 +809,10 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	SetFocus();
 
 	if (DizView)
-		return(DizView->ProcessMouse(MouseEvent));
-
+	{
+		if (DVY1 < Y2)
+			return(DizView->ProcessMouse(MouseEvent));
+	}
 	return TRUE;
 }
 
@@ -834,7 +864,7 @@ void InfoList::PrintInfo(int MsgID)
 }
 
 
-void InfoList::ShowDirDescription(int YPos)
+bool InfoList::ShowDirDescription(int YPos)
 {
 	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 
@@ -863,7 +893,7 @@ void InfoList::ShowDirDescription(int YPos)
 			strFullDizName += FindData.strFileName;
 
 			if (OpenDizFile(strFullDizName,YPos))
-				return;
+				return true;
 		}
 	}
 
@@ -871,30 +901,31 @@ void InfoList::ShowDirDescription(int YPos)
 	SetColor(COL_PANELTEXT);
 	GotoXY(X1+2,YPos);
 	PrintText(MInfoDizAbsent);
+
+	return false;
 }
 
 
-void InfoList::ShowPluginDescription()
+bool InfoList::ShowPluginDescription(int YPos)
 {
 	Panel *AnotherPanel;
-	static wchar_t VertcalLine[2]={BoxSymbols[BS_V2],0};
 	AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 
 	if (AnotherPanel->GetMode()!=PLUGIN_PANEL)
-		return;
+		return false;
+
+	static wchar_t VertcalLine[2]={BoxSymbols[BS_V2],0};
 
 	CloseFile();
 	OpenPanelInfo Info;
 	AnotherPanel->GetOpenPanelInfo(&Info);
 
-	for (size_t I=0; I<Info.InfoLinesNumber; I++)
+	int Y=YPos+1;
+	for (size_t I=0; I<Info.InfoLinesNumber; I++, Y++)
 	{
-		int Y=static_cast<int>(Y2-Info.InfoLinesNumber+I);
+		if (Y >= Y2)
+			break;
 
-		if (Y<=Y1)
-			continue;
-
-		SectionState[ILSS_PLDESCRIPTION].Y=Y;
 		const InfoPanelLine *InfoLine=&Info.InfoLines[I];
 		GotoXY(X1,Y);
 		SetColor(COL_PANELBOX);
@@ -925,8 +956,7 @@ void InfoList::ShowPluginDescription()
 			PrintInfo(NullToEmpty(InfoLine->Data));
 		}
 	}
-	GotoXY(X1+1,SectionState[ILSS_PLDESCRIPTION].Y);
-	PrintText(SectionState[ILSS_PLDESCRIPTION].Show?L"[-]":L"[+]");
+	return true;
 }
 
 void InfoList::CloseFile()
