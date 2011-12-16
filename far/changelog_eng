@@ -3,6 +3,190 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 15.12.2011 22:40:32 +0400 build - 2301
+
+1. Mantis #1235: Incorrect Shift-Del functioning on storage devices with more than 1 partition
+   (from Arty)
+
+svs 15.12.2011 21:39:07 +0400 - build 2300
+
+1. Correction of build 2297
+
+w17 15.12.2011 19:04:57 +0400 build - 2299
+
+1. Mantis #1944 - fix
+
+drkns 14.12.2011 13:20:46 +0200 - build 2298
+
+1. Mantis#0001944: FAR crashes at creation a symbolic link to a file or a directory
+
+svs 13.12.2011 21:39:00 +0400 - build 2297
+
+1. Mantis#0001943: Correction of some flaws in Message function
+   (from shmuel)
+
+2. InfoPanel: 
+   - sections can be hidden (Ctrl0..Ctrl9 or via Ctrl-F12 menu)
+   - (experimental) "Power Info" section is added - the power state (shown via settings)
+   - changes in help 
+
+zg 13.12.2011 17:39:38 +0200 - build 2296
+
+1. rollback of 2286 b-f.
+
+drkns 12.12.2011 15:20:01 +0200 - build 2295
+
+1. Mantis#0001461: In Drive Menu, ShiftEnter on CD/DVD drive without a disc causes a black screen
+
+w17 09.12.2011 14:37:30 +0400 build - 2294
+
+1. Mantis #1151: Incorrect destination path after choosing "Retry" when copying a folder with files to a Flash drive
+
+w17 09.12.2011 07:13:09 +0400 build - 2293
+
+1. Mantis #1937 - Editor RCtrl+Alt+...
+
+svs 08.12.2011 21:40:53 +0400 - build 2292
+
+1. Mantis#0001940: Builtin macro editor
+   Place "Change" button between "Yes" and "No".
+
+svs 08.12.2011 19:59:48 +0400 - build 2291
+
+1. Mantis#0001940: Builtin macro editor
+   On deletion, the "Change" button appears, invoking the macro settings dialog.
+
+2. macros.db is redone.
+   Instead of plugin_functions table, there's "functions", likewise in XML, 'plugin' is replaced with 'function'.
+
+   The previous database must be deleted (export then import to keep data).
+
+w17 08.12.2011 12:26:58 +0400 build - 2290
+
+1. #1938: After ECTL_DELETESTRING, blocks in the editor cease working
+
+w17 08.12.2011 00:07:18 +0400 build - 2289
+
+1. Mantis #514 - continuation
+   console buffer scrolling is functional if the current mode is neither the editor nor the viewer. ScrollLock is not checked.
+
+w17 07.12.2011 23:53:06 +0400 build - 2288
+
+1. Mantis #1939 Viewer - searching progress state in the taskbar
+
+svs 07.12.2011 16:15:27 +0400 - build 2287
+
+1. On importing to DB, a macro sequence is stripped all leading and trailing space characters.
+
+2. macros.db is redone.
+   constants & variables are appended with 'type' field - the type of 'value' field contents.
+   This is a string value, it can be one of the following ones:
+
+    "unknown"  - undefined
+    "integer"  - (__int64)
+    "text"     - string
+    "real"     - floating-point (double)
+
+   'value' is still stored as a string, it is converted to a given type at startup.
+   if 'type' differs from those listed, it is considered as a string in the core.
+   If the type is specified as "unknown" in DB then the value is previously converted into "integer" (not regarding to errors) and forcingly assigned the vtUnknown type.
+
+   Examples in XML:
+
+        <constants>
+            <constant name="ACTIVEPANEL" value="0" type="integer"/>
+            <constant name="PI" value="3.14159265358979323846" type="real"/>
+        </constants>
+        <variables>
+            <variable name="%%PI" value="3.14" type="text"/>
+        </variables>
+
+
+   The previous database must be deleted (export then import to keep data).
+
+   TODO: error diagnostics at import!
+
+w17 07.12.2011 12:59:31 +0400 build - 2286
+
+1. Mantis #514 - block selection in editor.
+   Changes:
+   a) scrolling of console buffer for 'far /w' is functional only with ScrollLock on
+   b) Ctrl-Shift/Alt-Up/Down == Shift/Alt-Up/Down
+   c) Copying to clipboard does not reset selection
+   d) Per-line wrapping for [Ctrl-]Shift-Left/Right
+   e) Cursor moving with Ctrl-Shift/Alt-Left/Right is same as with Ctrl-Left/Right except special cases -- 'anchor' crossing resets the selection at first; 
+      moving beyond the line to the left through the end of the line
+   f) Beyond the line, Ctrl-Alt-Right == Alt-Right == move 1 position to the right
+
+drkns 07.12.2011 08:16:57 +0200 - build 2285
+
+1. Correction of 2284.
+
+svs 06.12.2011 16:13:24 +0400 - build 2284
+
+1. New macros.db format.
+   'area', 'key' and 'flags' fields are now stored as a text
+   (in order to avoid future problems caused by changing them inside Far)
+
+   The previous database must be deleted (export then import to keep data).
+
+drkns 05.12.2011 18:56:56 +0200 - build 2283
+
+1. More on Mantis#0001221.
+
+drkns 05.12.2011 17:05:29 +0200 - build 2282
+
+1. Mantis#0001935: when importing from xml, variables are placed into constants section
+
+1. More on Mantis#0001221.
+
+drkns 05.12.2011 13:21:32 +0200 - build 2281
+
+1. Changes of macro description format in xml. The new one is: <macro area="%AREA%" key="%KEY%" flags="%FLAGS%" description="%DESC%">%SEQUENCE%</macro>
+
+drkns 04.12.2011 15:46:27 +0200 - build 2280
+
+1. Macros can be deleted when importing xml. This is done by leaving 'sequence' attribute empty or unspecified.
+
+drkns 04.12.2011 00:49:21 +0200 - build 2279
+
+1. Continuation of 2278.
+
+drkns 04.12.2011 00:11:58 +0200 - build 2278
+
+1. Mantis#0001933: macro settings are not restored with far.exe /import
+
+drkns 03.12.2011 19:38:39 +0200 - build 2277
+
+1. Mantis#0001221: hard link coloring in panels
+
+2. Mantis#0001932: cannot delete a macro
+
+drkns 03.12.2011 01:01:16 +0200 - build 2276
+
+1. Correction of 2274.1.
+
+w17 03.12.2011 02:30:31 +0400 - build 2275
+
+1. fixing gcc 64 build
+
+drkns 02.12.2011 22:08:21 +0200 - build 2274
+
+1. It's finally done, Far does not store settings in the registry.
+  - Mantis#0001840: Macro && DB. Something could go wrong, be careful.
+
+2. AltEnter (+modifiers) is available is OS's which do not support hardware fullscreen mode.
+
+drkns 30.11.2011 21:41:38 +0200 - build 2273
+
+1. Plugin settings databases got descriptions.
+
+drkns 27.11.2011 23:32:27 +0200 - build 2272
+
+1. Incorrect handling of the packed size obtaining error.
+
+2. Support for privilege elevation when obtaining the packed size.
+
 w17 24.11.2011 00:13:34 +0400 build - 2271
 
 1. Mantis #1925, #1326: Editor replace string selection fix.
