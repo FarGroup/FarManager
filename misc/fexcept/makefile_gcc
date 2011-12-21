@@ -1,6 +1,6 @@
 NAME = FExcept
 SRCS = FExcept.cpp
-DOCS = SetFarExceptionHandler.reg demangle32.dll
+DOCS = SetFarExceptionHandler.xml demangle32.dll
 
 NEEDDEFLIB=1
 NEEDENTRY=1

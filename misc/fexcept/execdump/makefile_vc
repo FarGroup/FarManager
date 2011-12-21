@@ -2,7 +2,7 @@
 !include ..\..\..\plugins\make_vc_defs
 !endif
 
-!undef WIDE
+ANSI = 1
 
 NAME = ExcDump
 LINK_OBJS = $(OBJDIR)\ExcDump.obj
@@ -83,17 +83,17 @@ $(LIB_OBJS)
 !ifndef __MAKE__
 {$(LIBSRC)}.cpp{$(OBJLIB)}.obj::
 	$(CC) @<<
-	$(CFLAGS_NO) /Fo$(OBJLIB)\ $<
+	$(CPPFLAGS) /Fo$(OBJLIB)\ $<
 <<
 {$(LIBSRC)/Win}.cpp{$(OBJLIB)}.obj::
 	$(CC) @<<
-	$(CFLAGS_NO) /Fo$(OBJLIB)\ $<
+	$(CPPFLAGS) /Fo$(OBJLIB)\ $<
 <<
 !else
 {$(LIBSRC)}.cpp{$(OBJLIB)}.obj:
-	@$(CC) $(CFLAGS_NO) /Fo$(OBJLIB)\ { $< } 
+	@$(CC) $(CPPFLAGS) /Fo$(OBJLIB)\ { $< } 
 {$(LIBSRC)/Win}.cpp{$(OBJLIB)}.obj:
-	@$(CC) $(CFLAGS_NO) /Fo$(OBJLIB)\ { $< } 
+	@$(CC) $(CPPFLAGS) /Fo$(OBJLIB)\ { $< } 
 !endif
 
 !ifdef COPYTO

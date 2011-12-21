@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 9
+#define PLUGIN_BUILD 10
 #define PLUGIN_DESC "Exception catcher for FAR manager"
 #define PLUGIN_NAME "FExcept"
 #define PLUGIN_FILENAME "FExcept.dll"

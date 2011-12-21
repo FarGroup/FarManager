@@ -21,6 +21,11 @@
   #define DECL extern "C"
 #endif
 
+// {2DD20BEA-C58F-4933-815E-A1AA9B047A86}
+static const GUID MainGuid =
+{ 0x2dd20bea, 0xc58f, 0x4933, { 0x81, 0x5e, 0xa1, 0xaa, 0x9b, 0x4, 0x7a, 0x86 } };
+
+
 typedef ULONG (WINAPI *MAPFILEANDCHECKSUM)( LPTSTR,LPDWORD,LPDWORD );
 
 //Local DATA
@@ -37,7 +42,7 @@ static       TCHAR              TrapFileNameMsg[ 2*MAX_PATH ];
 static       TCHAR              LogFileNameMsg[ 2*MAX_PATH ];
 static       HANDLE             InFile;
 static       DWORD              FarSize;
-static       DWORD              FarVer;
+static       VersionInfo        FarVer;
 static       HANDLE             FarAddr;
 static       DWORD              Checksum1;
 static       DWORD              Checksum2;
@@ -69,9 +74,6 @@ static int RTL_CALLBACK idOutProc( const TCHAR *Format,... )
 
  return rc;
 }
-#ifndef UNICODE
-#define idOutProcA idOutProc
-#else
 static int RTL_CALLBACK idOutProcA( const char *Format,... )
   {  va_list a;
      int     rc;
@@ -82,13 +84,12 @@ static int RTL_CALLBACK idOutProcA( const char *Format,... )
 
  return rc;
 }
-#endif
 
 //Show FAR message if possible
 void SError( const TCHAR *msg, DWORD tp = 0 )
   {
     if ( FP_Info && FP_Info->Message )
-      FP_Info->Message( 0, tp | FMSG_WARNING | FMSG_ALLINONE | FMSG_MB_OK, NULL, (const TCHAR * const *)msg, 0, 0 );
+      FP_Info->Message( &MainGuid, nullptr, tp | FMSG_WARNING | FMSG_ALLINONE | FMSG_MB_OK, NULL, (const TCHAR * const *)msg, 0, 0 );
 }
 
 DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
@@ -98,12 +99,7 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
      static TCHAR    str[ 1000 ];
      static TCHAR    *m;
      static HMODULE  md;
-     BOOL            isFARTrap = !Module ||
-#ifndef UNICODE
-                                 Module->FindData.cFileName[0] == 0;
-#else
-                                 Module->ModuleName == NULL || *(Module->ModuleName) == 0;
-#endif
+     BOOL            isFARTrap = !Module || Module->ModuleName == NULL || *(Module->ModuleName) == 0;
 
      _tsetlocale(LC_ALL,_T(""));
 
@@ -111,13 +107,7 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
 
 //Plugin path
      if ( !isFARTrap ) {
-       _tcsncpy( TrapFileName,
-#ifndef UNICODE
-                               Module->FindData.cFileName,
-#else
-                               Module->ModuleName,
-#endif
-                                                          ArraySize(TrapFileName)-1 );
+       _tcsncpy( TrapFileName, Module->ModuleName, ArraySize(TrapFileName)-1 );
        TrapFileName[ ArraySize(TrapFileName)-1 ] = 0;
      } else
        TrapFileName[ GetModuleFileName( NULL,TrapFileName,ArraySize(TrapFileName) ) ] = 0;
@@ -242,8 +232,8 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
 
 //Try Get Version Info
      if ( FP_Info && FP_Info->AdvControl ) {
-       FP_Info->AdvControl(FP_Info->ModuleNumber, ACTL_GETFARVERSION, &FarVer);
-       idOutProc( _T(" Version info: %d.%d.%d\n"),HIBYTE(LOWORD(FarVer)),LOBYTE(LOWORD(FarVer)),HIWORD(FarVer));
+       FP_Info->AdvControl(&MainGuid, ACTL_GETFARMANAGERVERSION, 0, &FarVer);
+       idOutProc( _T(" Version info: %d.%d.%d\n"),FarVer.Major,FarVer.Minor,FarVer.Build);
      }
 
 //Try Get FileSize
@@ -269,13 +259,7 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
 //Load imagehlp.dll dynamically because in Win95 this dll not present
      HINSTANCE h_imagehlp = LoadLibrary( _T("imagehlp.dll") );
      if ( h_imagehlp ) {
-       pCheckSum = (MAPFILEANDCHECKSUM) GetProcAddress(h_imagehlp,
-#ifndef UNICODE
-                                                                  "MapFileAndCheckSumA"
-#else
-                                                                  "MapFileAndCheckSumW"
-#endif
-                                                                                        );
+       pCheckSum = (MAPFILEANDCHECKSUM) GetProcAddress(h_imagehlp, "MapFileAndCheckSumW");
         //CHECKSUM_SUCCESS = 0
        if ( pCheckSum( Path2Far, &Checksum1, &Checksum2) == 0 )
          idOutProc( _T(" Hdr checksum: 0x%08lX (computed: 0x%08lX)\n"), Checksum1, Checksum2);
@@ -299,7 +283,7 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
 
 //Say "waiting"
      if ( FP_Info && FP_Info->Message )
-       FP_Info->Message( 0,
+       FP_Info->Message( &MainGuid, nullptr,
                          FMSG_WARNING | FMSG_ALLINONE,
                          NULL, (const TCHAR * const *)_T("Trap log\nGenerating trap log file..."),
                          0, 0 );
@@ -333,10 +317,7 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
 
      if ( !FP_Info ||
           !FP_Info->Message ||
-          FP_Info->Message( 0,
-#ifndef UNICODE
-          FMSG_DOWN |
-#endif
+          FP_Info->Message( &MainGuid, nullptr,
           FMSG_LEFTALIGN | FMSG_ALLINONE | (isFARTrap ? FMSG_MB_OK : FMSG_MB_YESNO ),
                             NULL, (const TCHAR * const *)str, 0, 0 ) == 0 ) {
        TerminateProcess( GetCurrentProcess(),0 );

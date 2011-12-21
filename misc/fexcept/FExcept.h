@@ -13,53 +13,24 @@
 
 #define ArraySize(a)  (sizeof(a)/sizeof(a[0]))
 
-#ifndef UNICODE
-struct PLUGINRECORD{      // информация о плагине
-  DWORD Reserved0;
-  DWORD SizeRec;          // Размер
-  DWORD Reserved1;
+struct PLUGINRECORD       // информация о плагине
+{
+	DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
+	DWORD SizeRec;          // Размер
+	DWORD Reserved1;
 
-  DWORD WorkFlags;        // рабочие флаги текущего плагина
-  DWORD FuncFlags;        // битовые маски эксп. функций плагина (бит есть - есть и функция)
-  DWORD CallFlags;        // битовые маски вызова эксп. функций плагина
+	DWORD WorkFlags;        // рабочие флаги текущего плагина
+	DWORD FuncFlags;        // битовые маски эксп.функций плагина (бит есть - ест и функция)
+	DWORD CallFlags;        // битовые маски вызова эксп.функций плагина
 
-  short CachePos;         // позиция в кеше
-  DWORD SysID;
+	// DWORD SysID; GUID
 
-  struct {
-    DWORD    dwFileAttributes;
-    FILETIME ftCreationTime;
-    FILETIME ftLastAccessTime;
-    FILETIME ftLastWriteTime;
-    DWORD    nFileSizeHigh;
-    DWORD    nFileSizeLow;
-    DWORD    dwReserved0;
-    DWORD    dwReserved1;
-    char     cFileName[MAX_PATH];
-    char     cAlternateFileName[14];
-  } FindData;
+	const wchar_t *ModuleName;
 
-  DWORD Reserved2[3];    // разерв :-)
+	DWORD Reserved2[2];    // разерв :-)
+
+	DWORD SizeModuleName;
 };
-#else
-struct PLUGINRECORD{      // информация о плагине
-  DWORD TypeRec;          // Тип записи = RTYPE_PLUGIN
-  DWORD SizeRec;          // Размер
-  DWORD Reserved1;
-
-  DWORD WorkFlags;        // рабочие флаги текущего плагина
-  DWORD FuncFlags;        // битовые маски эксп.функций плагина (бит есть - ест и функция)
-  DWORD CallFlags;        // битовые маски вызова эксп.функций плагина
-
-  DWORD SysID;
-
-  const wchar_t *ModuleName;
-
-  DWORD Reserved2[2];    // разерв :-)
-
-  DWORD SizeModuleName;
-};
-#endif
 
 #if defined(__BORLANDC__)
   #pragma option -a.
