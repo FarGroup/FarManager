@@ -53,7 +53,7 @@ struct PSEUDO_HANDLE
 HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
 {
 	HANDLE Result = INVALID_HANDLE_VALUE;
-	if(Name && *Name && !IsSlash(Name.At(Name.GetLength()-1)))
+	if(!Name.IsEmpty() && !IsSlash(Name.At(Name.GetLength()-1)))
 	{
 		PSEUDO_HANDLE* Handle = new PSEUDO_HANDLE;
 		if(Handle)

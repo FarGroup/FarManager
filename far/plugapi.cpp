@@ -1083,7 +1083,6 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Fla
 		return -1;
 
 	wchar_t *SingleItems=nullptr;
-	wchar_t *Msg;
 
 	// анализ количества строк дл€ FMSG_ALLINONE
 	if (Flags&FMSG_ALLINONE)
@@ -1093,11 +1092,10 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Fla
 		if (!(SingleItems=(wchar_t *)xf_malloc((StrLength((const wchar_t *)Items)+2)*sizeof(wchar_t))))
 			return -1;
 
-		Msg=wcscpy(SingleItems,(const wchar_t *)Items);
+		wchar_t *Msg=wcscpy(SingleItems,(const wchar_t *)Items);
 
 		while ((Msg = wcschr(Msg, L'\n')) )
 		{
-//      *Msg='\0';
 			if (*++Msg == L'\0')
 				break;
 
@@ -1120,7 +1118,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Fla
 	if (Flags&FMSG_ALLINONE)
 	{
 		int I=0;
-		Msg=SingleItems;
+		wchar_t *Msg=SingleItems;
 		// анализ количества строк и разбивка на пункты
 		wchar_t *MsgTemp;
 
@@ -1207,7 +1205,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Fla
 	// непосредственно... вывод
 	Frame *frame;
 
-	if ((frame=FrameManager->GetBottomFrame()) )
+	if ((frame=FrameManager->GetBottomFrame()))
 		frame->Lock(); // отменим прорисовку фрейма
 
 	int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN),ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber,Id);
@@ -1215,7 +1213,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Fla
 	/* $ 15.05.2002 SKV
 	  ќднако разлочивать надо ровно то, что залочили.
 	*/
-	if (frame )
+	if (frame)
 		frame->Unlock(); // теперь можно :-)
 
 	//CheckScreenLock();
@@ -1224,7 +1222,8 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Fla
 		xf_free(SingleItems);
 
 	xf_free(MsgItems);
-	return(MsgCode);
+
+	return MsgCode;
 }
 
 INT_PTR WINAPI FarPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,void* Param2)
