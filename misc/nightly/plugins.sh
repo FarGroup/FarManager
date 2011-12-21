@@ -111,8 +111,8 @@ pushd $PLUGIN
 mkdir -p execdump/final.32.vc/obj/LibObj
 #mkdir -p execdump/final.64.vc/obj/LibObj
 
-FILES32="demangle32.dll ExcDump.dll FExcept.dll SetFarExceptionHandler.reg"
-#FILES64="demangle64.dll ExcDump.dll FExcept.dll SetFarExceptionHandler.reg"
+FILES32="demangle32.dll ExcDump.dll FExcept.dll SetFarExceptionHandler.xml"
+#FILES64="demangle64.dll ExcDump.dll FExcept.dll SetFarExceptionHandler.xml"
 
 bplugin2 "$PLDIR" 32 1 "$FILES32"
 #bplugin2 "$PLDIR" 64 1 "$FILES64"
@@ -161,6 +161,6 @@ bpluginftp
 
 cd ../misc
 
-#bpluginfe
+bpluginfe
 
 cd ..
