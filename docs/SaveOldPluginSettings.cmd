@@ -1,13 +1,13 @@
 @echo off
 setlocal
-:: This batch file saves Far settings from the registry
-:: to files FarSettings.*.reg
+:: This batch file saves Far Old Plugin settings from the registry
+:: to files OldPluginSettings.*.reg
 
 if defined PROCESSOR_ARCHITEW6432 (set reg="%systemroot%\sysnative\reg.exe") else (set reg=reg)
 
-set userfile=FarSettings.User.reg
-set machinefile=FarSettings.Machine.reg
-set machinewow64file=FarSettings.Machine.WoW64.reg
+set userfile=OldPluginSettings.User.reg
+set machinefile=OldPluginSettings.Machine.reg
+set machinewow64file=OldPluginSettings.Machine.WoW64.reg
 
 set savepath=%~dp0
 
