@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+    <generalconfig>
+        <setting key="System.Exception" name="Used" type="qword" value="0000000000000001" />
+        <setting key="System.Exception" name="FarEventSvc" type="text" value="FExcept\fexcept.dll" />
+    </generalconfig>
+</farconfig>
