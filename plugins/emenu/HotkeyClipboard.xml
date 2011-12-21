@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+
+    <!-- Hotkeys to execute cut/copy/paste commands: Ctrl-X, Ctrl-C, Ctrl-V -->
+
+    <macro>
+        <keymacros>
+            <macro area="Shell" key="CtrlC" flags="DisableOutput">Esc r c l k _ c m d : c o p y Enter</macro>
+            <macro area="Shell" key="CtrlV" flags="DisableOutput">Esc r c l k _ c m d : p a s t e Enter</macro>
+            <macro area="Shell" key="CtrlX" flags="DisableOutput">Esc r c l k _ c m d : c u t Enter</macro>
+            <macro area="Tree" key="CtrlC" flags="DisableOutput">Esc r c l k _ c m d : c o p y Enter</macro>
+            <macro area="Tree" key="CtrlV" flags="DisableOutput">Esc r c l k _ c m d : p a s t e Enter</macro>
+            <macro area="Tree" key="CtrlX" flags="DisableOutput">Esc r c l k _ c m d : c u t Enter</macro>
+        </keymacros>
+    </macro>
+</farconfig>

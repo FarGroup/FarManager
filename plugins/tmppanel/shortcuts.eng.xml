@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+    <pluginsconfig>
+        <plugin guid="B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C">
+            <hierarchicalconfig>
+                <key name="B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C" description="TmpPanel">
+                    <value name="Mask" type="text" value="*.temp" />
+                    <value name="Prefix" type="text" value="tmp" />
+                </key>
+            </hierarchicalconfig>
+        </plugin>
+    </pluginsconfig>
+    <macro>
+        <keymacros>
+            <macro area="Shell" key="CtrlApps" flags="DisableOutput">t m p : + m e n u Space s h o r t c u t s . e n g . t e m p Enter</macro>
+        </keymacros>
+    </macro>
+</farconfig>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+    <pluginhotkeys>
+        <plugin key="B66C436D-E657-419C-86D3-6834B9ACF3D2">
+            <hotkey menu="plugins" guid="A540CD77-CAD0-4E96-ADA0-2BAAC8182237" hotkey="m" />
+        </plugin>
+    </pluginhotkeys>
+    <macro>
+        <keymacros>
+            <macro area="Editor" key="CtrlM" flags="DisableOutput" description="Brackets matching - Find">F11 m н</macro>
+            <macro area="Editor" key="CtrlShiftM" flags="DisableOutput" description="Brackets matching - Find &amp; Select">F11 m в</macro>
+        </keymacros>
+    </macro>
+</farconfig>

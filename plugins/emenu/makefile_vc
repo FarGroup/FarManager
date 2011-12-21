@@ -11,7 +11,7 @@ $(OBJDIR)\OleThread.obj \
 $(OBJDIR)\Pidl.obj \
 $(OBJDIR)\Plugin.obj
 
-DOCS = EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuRus.lng EMenuDel.reg Hotkey.reg HotkeyClipboard.reg HotkeyProperties.reg
+DOCS = EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuRus.lng Hotkey.xml HotkeyClipboard.xml HotkeyProperties.xml
 
 NEEDENTRY = 1
 NEEDDEFLIB = 1

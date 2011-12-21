@@ -3,7 +3,7 @@ SRCS = TmpPanel.cpp \
 TmpCfg.cpp \
 TmpClass.cpp \
 TmpMix.cpp
-DOCS = TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng shortcuts.eng.reg shortcuts.rus.reg disks.eng.temp disks.rus.temp shortcuts.eng.temp shortcuts.rus.temp
+DOCS = TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng shortcuts.eng.xml shortcuts.rus.xml disks.eng.temp disks.rus.temp shortcuts.eng.temp shortcuts.rus.temp
 
 include ../../unicode_far/makefile_gcc_common
 

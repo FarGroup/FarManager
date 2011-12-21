@@ -1,3 +1,7 @@
+t-rex 21.12.2011 22:41:38 +0200
+
+1. reg -> xml
+
 svs 01.09.2011 18:50:10 +0300 - build 86
 
 1. gcc. wcslen --> lstrlen

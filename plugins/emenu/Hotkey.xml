@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<farconfig>
+    <pluginhotkeys>
+        <plugin key="742910F1-02ED-4542-851F-DEE37C2E13B2">
+            <hotkey menu="plugins" guid="C8660293-6195-4303-9A5F-A6E7F603AE12" hotkey="x" />
+        </plugin>
+    </pluginhotkeys>
+    <pluginsconfig>
+        <plugin guid="742910F1-02ED-4542-851F-DEE37C2E13B2">
+            <hierarchicalconfig>
+                <key name="742910F1-02ED-4542-851F-DEE37C2E13B2" description="EMenu">
+                    <value name="UseGUI" type="qword" value="0000000000000002" />
+                </key>
+            </hierarchicalconfig>
+        </plugin>
+    </pluginsconfig>
+
+    <!-- Hotkeys [Shift-]Apps, Alt-[Shift-]Apps and Ctrl-Apps to show context menu -->
+
+    <macro>
+        <keymacros>
+            <macro area="Shell" key="AltApps" flags="DisableOutput">F11 x Enter 1</macro>
+            <macro area="Shell" key="AltShiftApps" flags="DisableOutput">F11 x Enter 1</macro>
+            <macro area="Shell" key="Apps" flags="DisableOutput">F11 x Enter 2</macro>
+            <macro area="Shell" key="CtrlApps" flags="DisableOutput">F11 x Enter</macro>
+            <macro area="Shell" key="ShiftApps" flags="DisableOutput">F11 x Enter 2</macro>
+            <macro area="Tree" key="AltApps" flags="DisableOutput">F11 x Enter 1</macro>
+            <macro area="Tree" key="AltShiftApps" flags="DisableOutput">F11 x Enter 1</macro>
+            <macro area="Tree" key="Apps" flags="DisableOutput">F11 x Enter 2</macro>
+            <macro area="Tree" key="CtrlApps" flags="DisableOutput">F11 x Enter</macro>
+            <macro area="Tree" key="ShiftApps" flags="DisableOutput">F11 x Enter 2</macro>
+        </keymacros>
+    </macro>
+</farconfig>
