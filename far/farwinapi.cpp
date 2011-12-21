@@ -250,9 +250,9 @@ bool FindFile::Get(FAR_FIND_DATA_EX& FindData)
 
 	// skip ".." & "."
 	if(Result && FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY && FindData.strFileName.At(0) == L'.' &&
-		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от.
-		FindData.strAlternateFileName.IsEmpty() &&
-		((FindData.strFileName.At(1) == L'.' && !FindData.strFileName.At(2)) || !FindData.strFileName.At(1)))
+		((FindData.strFileName.At(1) == L'.' && !FindData.strFileName.At(2)) || !FindData.strFileName.At(1)) &&
+		// хитрый способ - у виртуальных папок не бывает SFN, в отличие от. (UPD: или бывает, но такое же)
+		(FindData.strAlternateFileName.IsEmpty() || FindData.strAlternateFileName == FindData.strFileName))
 	{
 		Result = Get(FindData);
 	}
