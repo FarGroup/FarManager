@@ -126,7 +126,7 @@ rm -fR misc
 svn co http://localhost/svn/trunk/plugins plugins
 svn co http://localhost/svn/trunk/misc misc
 
-cp -f far/Include/*.hpp plugins/common/unicode/
+cp -f unicode_far/Include/*.hpp plugins/common/unicode/
 
 mkdir -p outfinalnew32/Plugins
 mkdir -p outfinalnew64/Plugins
@@ -150,7 +150,7 @@ bplugin "emenu" "EMenu" "EMenu.dll EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuR
 bplugin "farcmds" "FarCmds" "FARCmds.dll FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng FARCmds.map"
 bplugin "filecase" "FileCase" "FileCase.dll CaseEng.hlf CaseRus.hlf CaseEng.lng CaseRus.lng FileCase.map"
 bplugin "hlfviewer" "HlfViewer" "HlfViewer.dll HlfViewerEng.hlf HlfViewerRus.hlf HlfViewerEng.lng HlfViewerRus.lng HlfViewer.map"
-bplugin "macroview" "MacroView" "MacroView.dll MacroEng.hlf MacroRus.hlf MacroEng.lng MacroRus.lng MacroView.map"
+#bplugin "macroview" "MacroView" "MacroView.dll MacroEng.hlf MacroRus.hlf MacroEng.lng MacroRus.lng MacroView.map"
 bplugin "network" "Network" "Network.dll NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng Network.map"
 bplugin "proclist" "ProcList" "Proclist.dll ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng Proclist.map"
 bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng TmpRus.lng TmpPanel.map shortcuts.eng.reg shortcuts.rus.reg disks.eng.temp disks.rus.temp shortcuts.eng.temp shortcuts.rus.temp"
@@ -161,6 +161,6 @@ bpluginftp
 
 cd ../misc
 
-bpluginfe
+#bpluginfe
 
 cd ..

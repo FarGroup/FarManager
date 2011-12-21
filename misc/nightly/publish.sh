@@ -24,10 +24,10 @@ processFarBuild()
 	7za a -r -x!${ARCNAME}.msi ${ARCNAME}.7z *
 
 	cd $BASE
-	m4 -P -DFARBIT=$1 -D ARC=../outfinalnew$1/$ARCNAME -D FARVAR=new -D LASTCHANGE="$LASTCHANGE" ../pagegen.m4 > $NIGHTLY_WEB_ROOT/FarW.$1.php
+	m4 -P -DFARBIT=$1 -DHOSTTYPE=Unix -D ARC=../outfinalnew$1/$ARCNAME -D FARVAR=new -D LASTCHANGE="$LASTCHANGE" ../pagegen.m4 > $NIGHTLY_WEB_ROOT/FarW.$1.php
 }
 
-cd far
+cd unicode_far
 LASTCHANGE=`head -1 changelog | dos2unix`
 processFarBuild 32
 processFarBuild 64
