@@ -2,8 +2,7 @@
 
 function makedocs2 {
 
-mkdir -p $1/Documentation/eng
-mkdir -p $1/Documentation/rus
+mkdir -p $1/Documentation
 
 svn export http://localhost/svn/trunk/docs/ENG $1/Documentation/eng
 svn export http://localhost/svn/trunk/docs/RUS $1/Documentation/rus
