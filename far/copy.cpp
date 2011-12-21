@@ -833,7 +833,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                      int CurrentOnly,        // =1 - только текущий файл, под курсором
                      int Ask,                // =1 - выводить диалог?
                      int &ToPlugin,          // =?
-                     const wchar_t *PluginDestPath,
+                     const wchar_t* PluginDestPath,
                      bool ToSubdir):
 	sddata(nullptr),
 	CopyBuffer(nullptr),
@@ -1148,7 +1148,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	{
 		if (UseFilter)
 		{
-			if (!Filter->FileInFilter(fd, nullptr, fd.strFileName))
+			if (!Filter->FileInFilter(fd, nullptr, &fd.strFileName))
 				continue;
 		}
 
@@ -1687,16 +1687,16 @@ ShellCopy::~ShellCopy()
 
 
 
-COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
+COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
 	DWORD DestAttr=INVALID_FILE_ATTRIBUTES;
 	string strSelName, strSelShortName;
-	int Length;
+	size_t Length;
 	DWORD FileAttr;
 
-	if (!(Length=StrLength(Dest)) || !StrCmp(Dest,L"."))
+	if (!(Length=Dest.GetLength()) || !StrCmp(Dest,L"."))
 		return COPY_FAILURE; //????
 
 	SetCursorType(FALSE,0);
@@ -2042,7 +2042,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 					// Просто пропустить каталог недостаточно - если каталог помечен в
 					// фильтре как некопируемый, то следует пропускать и его и всё его
 					// содержимое.
-					if (!Filter->FileInFilter(SrcData, nullptr, strFullName))
+					if (!Filter->FileInFilter(SrcData, nullptr, &strFullName))
 					{
 						ScTree.SkipDir();
 						continue;
@@ -2180,7 +2180,7 @@ COPY_CODES ShellCopy::CopyFileTree(const wchar_t *Dest)
 // абсолютно невменяемая функция. функция таких размеров вменяема быть не может. переписать ASAP
 
 COPY_CODES ShellCopy::ShellCopyOneFile(
-    const wchar_t *Src,
+    const string& Src,
     const FAR_FIND_DATA_EX &SrcData,
     string &strDest,
     int KeepPathPos,
@@ -2196,7 +2196,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	if (UseFilter)
 	{
-		if (!Filter->FileInFilter(SrcData, nullptr, Src))
+		if (!Filter->FileInFilter(SrcData, nullptr, &Src))
 			return COPY_NOFILTER;
 	}
 
@@ -2414,7 +2414,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				while (!apiCreateDirectoryEx(
 					// CreateDirectoryEx preserves reparse points,
 					// so we shouldn't use template when copying with content
-					((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS))? nullptr : Src,
+					((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS))? nullptr : &Src,
 					strDestPath,(Flags&FCOPY_COPYSECURITY) ? &sa:nullptr))
 				{
 					int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
@@ -2822,7 +2822,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 
 // проверка очередного монстрика на потоки
-COPY_CODES ShellCopy::CheckStreams(const wchar_t *Src,const wchar_t *DestPath)
+COPY_CODES ShellCopy::CheckStreams(const string& Src,const string& DestPath)
 {
 
 #if 0
@@ -2866,7 +2866,7 @@ COPY_CODES ShellCopy::CheckStreams(const wchar_t *Src,const wchar_t *DestPath)
 	return COPY_SUCCESS;
 }
 
-int ShellCopy::DeleteAfterMove(const wchar_t *Name,DWORD Attr)
+int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 {
 	if (Attr & FILE_ATTRIBUTE_READONLY)
 	{
@@ -2931,7 +2931,7 @@ int ShellCopy::DeleteAfterMove(const wchar_t *Name,DWORD Attr)
 
 
 
-int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcData,
+int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcData,
                              string &strDestName,DWORD &DestAttr,int Append)
 {
 	OrigScrX=ScrX;
@@ -3464,7 +3464,7 @@ int ShellCopy::ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcD
 	return COPY_SUCCESS;
 }
 
-void ShellCopy::SetDestDizPath(const wchar_t *DestPath)
+void ShellCopy::SetDestDizPath(const string& DestPath)
 {
 	if (!(Flags&FCOPY_DIZREAD))
 	{
@@ -3615,8 +3615,8 @@ INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 }
 
 int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
-                            const wchar_t *SrcName,
-                            const wchar_t *DestName, DWORD DestAttr,
+                            const string& SrcName,
+                            const string& DestName, DWORD DestAttr,
                             int SameName,int Rename,int AskAppend,
                             int &Append,string &strNewName,int &RetCode)
 {
@@ -3629,7 +3629,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 	{
 		{DI_DOUBLEBOX,3,1,WARN_DLG_WIDTH-4,WARN_DLG_HEIGHT-2,0,nullptr,nullptr,0,MSG(MWarning)},
 		{DI_TEXT,5,2,WARN_DLG_WIDTH-6,2,0,nullptr,nullptr,DIF_CENTERTEXT,MSG(MCopyFileExist)},
-		{DI_EDIT,5,3,WARN_DLG_WIDTH-6,3,0,nullptr,nullptr,DIF_READONLY,(wchar_t*)DestName},
+		{DI_EDIT,5,3,WARN_DLG_WIDTH-6,3,0,nullptr,nullptr,DIF_READONLY,DestName},
 		{DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,5,5,WARN_DLG_WIDTH-6,5,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,L""},
 		{DI_BUTTON,5,6,WARN_DLG_WIDTH-6,6,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,L""},
@@ -3877,7 +3877,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 
 
 
-int ShellCopy::GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa)
+int ShellCopy::GetSecurity(const string& FileName,SECURITY_ATTRIBUTES &sa)
 {
 	SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
 	SECURITY_DESCRIPTOR *sd=(SECURITY_DESCRIPTOR *)sddata;
@@ -3903,7 +3903,7 @@ int ShellCopy::GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa)
 
 
 
-int ShellCopy::SetSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa)
+int ShellCopy::SetSecurity(const string& FileName,const SECURITY_ATTRIBUTES &sa)
 {
 	SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
 	BOOL RetSec=SetFileSecurity(NTPath(FileName),si,(PSECURITY_DESCRIPTOR)sa.lpSecurityDescriptor);
@@ -3958,7 +3958,7 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
 }
 
 
-int ShellCopy::SetRecursiveSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa)
+int ShellCopy::SetRecursiveSecurity(const string& FileName,const SECURITY_ATTRIBUTES &sa)
 {
 	if (SetSecurity(FileName,sa))
 	{
@@ -3989,7 +3989,7 @@ int ShellCopy::SetRecursiveSecurity(const wchar_t *FileName,const SECURITY_ATTRI
 
 
 
-int ShellCopy::ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,const FAR_FIND_DATA_EX &SrcData)
+int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const FAR_FIND_DATA_EX &SrcData)
 {
 	SECURITY_ATTRIBUTES sa;
 
@@ -4098,7 +4098,7 @@ bool ShellCopy::CalcTotalSize()
 			//  Подсчитаем количество файлов
 			if (UseFilter)
 			{
-				if (!Filter->FileInFilter(fd, nullptr, fd.strFileName))
+				if (!Filter->FileInFilter(fd, nullptr, &fd.strFileName))
 					continue;
 			}
 
@@ -4124,7 +4124,7 @@ bool ShellCopy::CalcTotalSize()
   Оболочка вокруг SetFileAttributes() для
   корректного выставления атрибутов
 */
-bool ShellCopy::ShellSetAttr(const wchar_t *Dest,DWORD Attr)
+bool ShellCopy::ShellSetAttr(const string& Dest, DWORD Attr)
 {
 	string strRoot;
 	ConvertNameToFull(Dest,strRoot);

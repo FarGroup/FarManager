@@ -1142,7 +1142,7 @@ int WINAPI FarMkLinkA(const char *Src,const char *Dest, DWORD OldFlags)
 int WINAPI GetNumberOfLinksA(const char *Name)
 {
 	string n(Name);
-	return NativeFSF.GetNumberOfLinks(n);
+	return static_cast<int>(NativeFSF.GetNumberOfLinks(n));
 }
 
 int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)

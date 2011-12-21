@@ -608,7 +608,7 @@ void TreeList::SaveTreeFile()
 }
 
 
-int TreeList::GetCacheTreeName(const wchar_t *Root, string &strName,int CreateDir)
+int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir)
 {
 	string strVolumeName, strFileSystemName;
 	DWORD dwVolumeSerialNumber;
@@ -642,8 +642,9 @@ int TreeList::GetCacheTreeName(const wchar_t *Root, string &strName,int CreateDi
 		strRemoteName = Root;
 	else
 	{
-		wchar_t wszLocalName[]={*Root,L':',0};
-		apiWNetGetConnection(wszLocalName, strRemoteName);
+		string LocalName(L"?:");
+		LocalName.Replace(0, *Root);
+		apiWNetGetConnection(LocalName, strRemoteName);
 
 		if (!strRemoteName.IsEmpty())
 			AddEndSlash(strRemoteName);
@@ -1270,7 +1271,7 @@ void TreeList::CorrectPosition()
 		CurTopFile=CurFile-(Height-1);
 }
 
-BOOL TreeList::SetCurDir(const wchar_t *NewDir,int ClosePanel,BOOL /*IsUpdated*/)
+BOOL TreeList::SetCurDir(const string& NewDir,int ClosePanel,BOOL /*IsUpdated*/)
 {
 	if (!TreeCount)
 		Update(0);
@@ -1725,24 +1726,23 @@ void TreeList::DelTreeName(const wchar_t *Name)
 }
 
 
-void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
+void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 {
-	if (!*SrcName || !*DestName)
-		return;
-
 	string SrcNameFull, DestNameFull;
-	ConvertNameToFull(SrcName, SrcNameFull);
-	ConvertNameToFull(DestName, DestNameFull);
+	ConvertNameToFull(strSrcName, SrcNameFull);
+	ConvertNameToFull(strDestName, DestNameFull);
 	string strSrcRoot = ExtractPathRoot(SrcNameFull);
 	string strDestRoot = ExtractPathRoot(DestNameFull);
 
 	if (StrCmpI(strSrcRoot, strDestRoot) )
 	{
-		DelTreeName(SrcName);
-		ReadSubTree(SrcName);
+		DelTreeName(strSrcName);
+		ReadSubTree(strSrcName);
 	}
 
+	const wchar_t* SrcName = strSrcName;
 	SrcName += strSrcRoot.GetLength() - 1;
+	const wchar_t* DestName = strDestName;
 	DestName += strDestRoot.GetLength() - 1;
 	ReadCache(strSrcRoot);
 	int SrcLength = StrLength(SrcName);
@@ -1765,7 +1765,7 @@ void TreeList::RenTreeName(const wchar_t *SrcName,const wchar_t *DestName)
 }
 
 
-void TreeList::ReadSubTree(const wchar_t *Path)
+void TreeList::ReadSubTree(const string& Path)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	//SaveScreen SaveScr;
@@ -1815,7 +1815,7 @@ void TreeList::ClearCache(int EnableFreeMem)
 }
 
 
-void TreeList::ReadCache(const wchar_t *TreeRoot)
+void TreeList::ReadCache(const string& TreeRoot)
 {
 	string strTreeName;
 	FILE *TreeFile=nullptr;

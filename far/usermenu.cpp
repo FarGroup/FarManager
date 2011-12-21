@@ -395,7 +395,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 }
 
 // заполнение меню
-int FillUserMenu(VMenu& FarUserMenu,DList<UserMenuItem> *Menu,int MenuPos,int *FuncPos,const wchar_t *Name,const wchar_t *ShortName)
+int FillUserMenu(VMenu& FarUserMenu,DList<UserMenuItem> *Menu,int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
 {
 	FarUserMenu.DeleteItems();
 	MenuItemEx FarUserMenuItem;
@@ -776,7 +776,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 					}
 					*/
 					//;
-					int PreserveLFN=SubstFileName(strCommand,strName,strShortName,&strListName,&strAnotherListName, &strShortListName,&strAnotherShortListName, FALSE, strCmdLineDir);
+					int PreserveLFN=SubstFileName(strCommand, strName, strShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName, FALSE, strCmdLineDir);
 					bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
 
 					if (ExtractIfExistCommand(strCommand))

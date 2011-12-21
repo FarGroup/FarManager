@@ -40,8 +40,8 @@ class BaseFileMask:NonCopyable
 		virtual ~BaseFileMask() {}
 
 	public:
-		virtual bool Set(const wchar_t *Masks, DWORD Flags)=0;
-		virtual bool Compare(const wchar_t *Name)=0;
+		virtual bool Set(const string& Masks, DWORD Flags)=0;
+		virtual bool Compare(const string& Name)=0;
 		virtual bool IsEmpty() { return true; }
 
 };

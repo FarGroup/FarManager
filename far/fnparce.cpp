@@ -389,8 +389,8 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 
 */
 int SubstFileName(string &strStr,            // результирующая строка
-                  const wchar_t *Name,           // Длинное имя
-                  const wchar_t *ShortName,      // Короткое имя
+                  const string& Name,           // Длинное имя
+                  const string& ShortName,      // Короткое имя
 
                   string *pListName,
                   string *pAnotherListName,
@@ -439,7 +439,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 	if (PSubstData->strNameOnly.RPos(pos,L'.'))
 		PSubstData->strNameOnly.SetLength(pos);
 
-	PSubstData->strShortNameOnly = ShortName;
+	PSubstData->strShortNameOnly = *ShortName;
 
 	if (PSubstData->strShortNameOnly.RPos(pos,L'.'))
 		PSubstData->strShortNameOnly.SetLength(pos);

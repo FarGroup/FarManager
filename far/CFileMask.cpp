@@ -62,7 +62,7 @@ void CFileMask::Free()
  масок равна 0).
 */
 
-bool CFileMask::Set(const wchar_t *Masks, DWORD Flags)
+bool CFileMask::Set(const string& Masks, DWORD Flags)
 {
 	Free();
 	bool Result=false;
@@ -106,7 +106,7 @@ bool CFileMask::IsEmpty()
 /* сравнить им€ файла со списком масок
    ¬озвращает TRUE в случае успеха.
 */
-bool CFileMask::Compare(const wchar_t *FileName)
+bool CFileMask::Compare(const string& FileName)
 {
 	return FileMask?FileMask->Compare(FileName):false;
 }

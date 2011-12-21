@@ -67,6 +67,8 @@ size_t WINAPI farConvertPath(CONVERTPATHMODES Mode,const wchar_t *Src,wchar_t *D
 
 size_t WINAPI farGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,size_t DestSize);
 
+size_t WINAPI farGetNumberOfLinks(const wchar_t* Name);
+
 size_t WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize);
 
 int WINAPI FarGetPluginDirList(INT_PTR PluginNumber,HANDLE hPlugin,
@@ -91,9 +93,11 @@ void WINAPI FarFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber);
 
 int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
                      int X1,int Y1,int X2,int Y2,unsigned __int64 Flags, UINT CodePage);
-int WINAPI FarEditor(const wchar_t *FileName,const wchar_t *Title,
-                     int X1,int Y1,int X2, int Y2,unsigned __int64 Flags,
-                     int StartLine,int StartChar, UINT CodePage);
+
+
+int WINAPI FarEditor(const wchar_t* FileName, const wchar_t* Title,
+	int X1, int Y1, int X2, int Y2, unsigned __int64 Flags, int StartLine, int StartChar, UINT CodePage);
+
 void WINAPI FarText(int X,int Y,const FarColor* Color,const wchar_t *Str);
 
 INT_PTR WINAPI FarEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int Param1, void* Param2);

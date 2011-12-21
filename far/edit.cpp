@@ -1708,7 +1708,7 @@ void  Edit::SetHiString(const wchar_t *Str)
 	string NewStr;
 	HiText2Str(NewStr, Str);
 	Select(-1,0);
-	SetBinaryString(NewStr,StrLength(NewStr));
+	SetBinaryString(NewStr, static_cast<int>(NewStr.GetLength()));
 }
 
 void Edit::SetString(const wchar_t *Str, int Length)

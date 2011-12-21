@@ -708,7 +708,7 @@ bool PathStartsWith(const string &Path, const string &Start)
 	return Path.IsSubStrAt(0, PathPart) && (Path.GetLength() == PathPart.GetLength() || IsSlash(Path[PathPart.GetLength()]));
 }
 
-int MatchNtPathRoot(const string &NtPath, const wchar_t *DeviceName)
+int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 {
 	string TargetPath;
 	if (apiQueryDosDevice(DeviceName, TargetPath))

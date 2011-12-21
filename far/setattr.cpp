@@ -549,7 +549,7 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
 	PreRedraw.SetParam(preRedrawItem.Param);
 }
 
-bool ReadFileTime(int Type,const wchar_t *Name,FILETIME& FileTime,const wchar_t *OSrcDate,const wchar_t *OSrcTime)
+bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const wchar_t *OSrcDate,const wchar_t *OSrcTime)
 {
 	bool Result=false;
 	FAR_FIND_DATA_EX ffd={};
@@ -619,7 +619,7 @@ void PR_ShellSetFileAttributesMsg()
 	ShellSetFileAttributesMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1));
 }
 
-bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
+bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	short DlgX=70,DlgY=24;
@@ -745,8 +745,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 		}
 		else
 		{
-			strSelName=Object;
-			apiGetFindDataEx(Object, FindData);
+			strSelName=*Object;
+			apiGetFindDataEx(strSelName, FindData);
 			FileAttr=FindData.dwFileAttributes;
 		}
 
@@ -1402,7 +1402,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 								{
 									if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != BSTATE_CHECKED)
 									{
-										RetCode=ESetFileEncryption(strSelName,AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected,FileAttr,SkipMode);
+										RetCode=ESetFileEncryption(strSelName, AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected != 0, FileAttr, SkipMode);
 
 										if (RetCode == SETATTR_RET_ERROR)
 											break;
@@ -1532,7 +1532,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel,LPCWSTR Object)
 										{
 											if (AttrDlg[SA_CHECKBOX_COMPRESSED].Selected != 1)
 											{
-												RetCode=ESetFileEncryption(strFullName,AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected,FindData.dwFileAttributes,SkipMode);
+												RetCode=ESetFileEncryption(strFullName, AttrDlg[SA_CHECKBOX_ENCRYPTED].Selected!=0, FindData.dwFileAttributes, SkipMode);
 
 												if (RetCode == SETATTR_RET_ERROR)
 												{

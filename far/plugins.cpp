@@ -232,7 +232,7 @@ PluginType IsModulePlugin2(
 	}
 }
 
-PluginType IsModulePlugin(const wchar_t *lpModuleName)
+PluginType IsModulePlugin(const string& lpModuleName)
 {
 	PluginType bResult = NOT_PLUGIN;
 	HANDLE hModuleFile = apiCreateFile(
@@ -417,7 +417,7 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 
 
 bool PluginManager::LoadPlugin(
-    const wchar_t *lpwszModuleName,
+    const string& lpwszModuleName,
     const FAR_FIND_DATA_EX &FindData,
     bool LoadToMem
 )
@@ -461,7 +461,7 @@ bool PluginManager::LoadPlugin(
 	return bResult;
 }
 
-bool PluginManager::LoadPluginExternal(const wchar_t *lpwszModuleName, bool LoadToMem)
+bool PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem)
 {
 	Plugin *pPlugin = GetPlugin(lpwszModuleName);
 
@@ -532,7 +532,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove
 	return nResult;
 }
 
-int PluginManager::UnloadPluginExternal(const wchar_t *lpwszModuleName)
+int PluginManager::UnloadPluginExternal(const string& lpwszModuleName)
 {
 //BUGBUG нужны проверки на легальность выгрузки
 	int nResult = FALSE;
@@ -671,7 +671,7 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 }
 
 HANDLE PluginManager::OpenFilePlugin(
-    const wchar_t *Name,
+    const string* Name,
     int OpMode,
     OPENFILEPLUGINTYPE Type
 )
@@ -685,8 +685,8 @@ HANDLE PluginManager::OpenFilePlugin(
 
 	if (Name)
 	{
-		ConvertNameToFull(Name,strFullName);
-		Name = strFullName;
+		ConvertNameToFull(*Name,strFullName);
+		Name = &strFullName;
 	}
 
 	bool ShowMenu = Opt.PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Opt.PluginConfirm.OpenFilePlugin != 0;
@@ -707,7 +707,7 @@ HANDLE PluginManager::OpenFilePlugin(
 
 		if(Name && !DataRead)
 		{
-			if (file.Open(Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
+			if (file.Open(*Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 			{
 				Data = new BYTE[Opt.PluginMaxReadData];
 				if (Data)
@@ -723,7 +723,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			{
 				if(!OpMode)
 				{
-					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(MOpenPluginCannotOpenFile), Name, MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(MOpenPluginCannotOpenFile), *Name, MSG(MOk));
 				}
 				break;
 			}
@@ -740,7 +740,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			{
 				OpMode|=OPM_PGDN; //у анси плагинов OpMode нет.
 			}
-			hPlugin = pPlugin->OpenFilePlugin(Name, Data, DataSize, OpMode);
+			hPlugin = pPlugin->OpenFilePlugin(Name? Name->CPtr() : nullptr, Data, DataSize, OpMode);
 
 			if (hPlugin == (HANDLE)-2)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
 			{
@@ -758,7 +758,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		else
 		{
 			AnalyseInfo Info={sizeof(Info)};
-			Info.FileName = Name;
+			Info.FileName = Name? Name->CPtr() : nullptr;
 			Info.Buffer = Data;
 			Info.BufferSize = DataSize;
 			Info.OpMode = OpMode|(Type==OFP_ALTERNATIVE?OPM_PGDN:0);

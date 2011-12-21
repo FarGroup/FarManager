@@ -414,7 +414,7 @@ FarStandardFunctions NativeFSF =
 	KeyNameToInputRecord,
 	Xlat,
 	farGetFileOwner,
-	GetNumberOfLinks,
+	farGetNumberOfLinks,
 	FarRecursiveSearch,
 	FarMkTemp,
 	DeleteBuffer,
@@ -704,7 +704,7 @@ bool Plugin::LoadData()
 		{
 			Drive[0] = L'=';
 			Drive[1] = m_strModuleName.At(0);
-			apiGetEnvironmentVariable(Drive,strCurPlugDiskPath);
+			apiGetEnvironmentVariable(Drive, strCurPlugDiskPath);
 		}
 
 		PrepareModulePath(m_strModuleName);

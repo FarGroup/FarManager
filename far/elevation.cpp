@@ -474,7 +474,7 @@ void ElevationApproveDlgSync(LPVOID Param)
 	}
 }
 
-bool elevation::ElevationApproveDlg(int Why, LPCWSTR Object)
+bool elevation::ElevationApproveDlg(int Why, const string& Object)
 {
 	if(!(Opt.IsUserAdmin && !(Opt.CurrentElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&
@@ -503,7 +503,7 @@ bool elevation::ElevationApproveDlg(int Why, LPCWSTR Object)
 	return Approve;
 }
 
-bool elevation::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes)
+bool elevation::fCreateDirectoryEx(const string* TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -512,7 +512,7 @@ bool elevation::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSEC
 		if(Opt.IsUserAdmin)
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-			Result = (TemplateObject?CreateDirectoryEx(TemplateObject, Object, Attributes):CreateDirectory(Object, Attributes)) != FALSE;
+			Result = (TemplateObject?CreateDirectoryEx(*TemplateObject, Object, Attributes):CreateDirectory(Object, Attributes)) != FALSE;
 		}
 		else
 		{
@@ -520,9 +520,9 @@ bool elevation::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSEC
 			{
 				if(SendCommand(C_FUNCTION_CREATEDIRECTORYEX))
 				{
-					if(WriteData(TemplateObject,TemplateObject?(StrLength(TemplateObject)+1)*sizeof(WCHAR):0))
+					if(WriteData(TemplateObject, TemplateObject? (TemplateObject->GetLength()+1)*sizeof(WCHAR) : 0))
 					{
-						if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+						if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
 						{
 							// BUGBUG: SecurityAttributes ignored
 							int OpResult=0;
@@ -542,7 +542,7 @@ bool elevation::fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSEC
 	return Result;
 }
 
-bool elevation::fRemoveDirectory(LPCWSTR Object)
+bool elevation::fRemoveDirectory(const string& Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -559,7 +559,7 @@ bool elevation::fRemoveDirectory(LPCWSTR Object)
 			{
 				if(SendCommand(C_FUNCTION_REMOVEDIRECTORY))
 				{
-					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
 					{
 						int OpResult=0;
 						if(Read(OpResult))
@@ -577,7 +577,7 @@ bool elevation::fRemoveDirectory(LPCWSTR Object)
 	return Result;
 }
 
-bool elevation::fDeleteFile(LPCWSTR Object)
+bool elevation::fDeleteFile(const string& Object)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -594,7 +594,7 @@ bool elevation::fDeleteFile(LPCWSTR Object)
 			{
 				if(SendCommand(C_FUNCTION_DELETEFILE))
 				{
-					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
 					{
 						int OpResult=0;
 						if(Read(OpResult))
@@ -653,7 +653,7 @@ void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 	}
 }
 
-bool elevation::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
+bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result = false;
@@ -670,9 +670,9 @@ bool elevation::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progres
 			{
 				if(SendCommand(C_FUNCTION_COPYFILEEX))
 				{
-					if(WriteData(From, From?(StrLength(From)+1)*sizeof(WCHAR):0))
+					if(WriteData(From, (From.GetLength()+1)*sizeof(WCHAR)))
 					{
-						if(WriteData(To, To?(StrLength(To)+1)*sizeof(WCHAR):0))
+						if(WriteData(To, (To.GetLength()+1)*sizeof(WCHAR)))
 						{
 							if (WriteData(&ProgressRoutine, sizeof(ProgressRoutine)))
 							{
@@ -710,7 +710,7 @@ bool elevation::fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE Progres
 	return Result;
 }
 
-bool elevation::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
+bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -727,9 +727,9 @@ bool elevation::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 			{
 				if(SendCommand(C_FUNCTION_MOVEFILEEX))
 				{
-					if(WriteData(From,From?(StrLength(From)+1)*sizeof(WCHAR):0))
+					if(WriteData(From, (From.GetLength()+1)*sizeof(WCHAR)))
 					{
-						if(WriteData(To,To?(StrLength(To)+1)*sizeof(WCHAR):0))
+						if(WriteData(To, (To.GetLength()+1)*sizeof(WCHAR)))
 						{
 							if(Write(Flags))
 							{
@@ -751,7 +751,7 @@ bool elevation::fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags)
 	return Result;
 }
 
-DWORD elevation::fGetFileAttributes(LPCWSTR Object)
+DWORD elevation::fGetFileAttributes(const string& Object)
 {
 	CriticalSectionLock Lock(CS);
 	DWORD Result = INVALID_FILE_ATTRIBUTES;
@@ -768,7 +768,7 @@ DWORD elevation::fGetFileAttributes(LPCWSTR Object)
 			{
 				if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES))
 				{
-					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
 					{
 						int OpResult=0;
 						if(Read(OpResult))
@@ -786,7 +786,7 @@ DWORD elevation::fGetFileAttributes(LPCWSTR Object)
 	return Result;
 }
 
-bool elevation::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
+bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -803,7 +803,7 @@ bool elevation::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 			{
 				if(SendCommand(C_FUNCTION_SETFILEATTRIBUTES))
 				{
-					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
 					{
 						if(Write(FileAttributes))
 						{
@@ -824,7 +824,7 @@ bool elevation::fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes)
 	return Result;
 }
 
-bool elevation::fCreateHardLink(LPCWSTR Object, LPCWSTR Target, LPSECURITY_ATTRIBUTES SecurityAttributes)
+bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -841,9 +841,9 @@ bool elevation::fCreateHardLink(LPCWSTR Object, LPCWSTR Target, LPSECURITY_ATTRI
 			{
 				if(SendCommand(C_FUNCTION_CREATEHARDLINK))
 				{
-					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
 					{
-						if(WriteData(Target,Target?(StrLength(Target)+1)*sizeof(WCHAR):0))
+						if(WriteData(Target, (Target.GetLength()+1)*sizeof(WCHAR)))
 						{
 							// BUGBUG: SecurityAttributes ignored.
 							int OpResult=0;
@@ -863,7 +863,7 @@ bool elevation::fCreateHardLink(LPCWSTR Object, LPCWSTR Target, LPSECURITY_ATTRI
 	return Result;
 }
 
-bool elevation::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
+bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, DWORD Flags)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -880,9 +880,9 @@ bool elevation::fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags)
 			{
 				if(SendCommand(C_FUNCTION_CREATESYMBOLICLINK))
 				{
-					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
 					{
-						if(WriteData(Target,Target?(StrLength(Target)+1)*sizeof(WCHAR):0))
+						if(WriteData(Target, (Target.GetLength()+1)*sizeof(WCHAR)))
 						{
 							if(Write(Flags))
 							{
@@ -947,7 +947,7 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 	return Result;
 }
 
-bool elevation::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
+bool elevation::fSetOwner(const string& Object, const string& Owner)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -964,9 +964,9 @@ bool elevation::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 			{
 				if(SendCommand(C_FUNCTION_SETOWNER))
 				{
-					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
 					{
-						if(WriteData(Owner,Owner?(StrLength(Owner)+1)*sizeof(WCHAR):0))
+						if(WriteData(Owner, (Owner.GetLength()+1)*sizeof(WCHAR)))
 						{
 							int OpResult=0;
 							if(Read(OpResult))
@@ -985,7 +985,7 @@ bool elevation::fSetOwner(LPCWSTR Object, LPCWSTR Owner)
 	return Result;
 }
 
-HANDLE elevation::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
+HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
 {
 	CriticalSectionLock Lock(CS);
 	HANDLE Result=INVALID_HANDLE_VALUE;
@@ -1002,7 +1002,7 @@ HANDLE elevation::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 			{
 				if(SendCommand(C_FUNCTION_CREATEFILE))
 				{
-					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
 					{
 						if(Write(DesiredAccess))
 						{
@@ -1034,7 +1034,7 @@ HANDLE elevation::fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMo
 	return Result;
 }
 
-bool elevation::fGetCompressedFileSize(LPCWSTR Object,UINT64& Size)
+bool elevation::fGetCompressedFileSize(const string& Object,UINT64& Size)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -1051,7 +1051,7 @@ bool elevation::fGetCompressedFileSize(LPCWSTR Object,UINT64& Size)
 			{
 				if(SendCommand(C_FUNCTION_GETCOMPRESSEDFILESIZE))
 				{
-					if(WriteData(Object,Object?(StrLength(Object)+1)*sizeof(WCHAR):0))
+					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
 					{
 						bool OpResult=false;
 						if(Read(OpResult))
@@ -1073,12 +1073,52 @@ bool elevation::fGetCompressedFileSize(LPCWSTR Object,UINT64& Size)
 	return Result;
 }
 
-bool ElevationRequired(ELEVATION_MODE Mode)
+bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
+{
+	CriticalSectionLock Lock(CS);
+	bool Result=false;
+	if(ElevationApproveDlg(Encrypt? MElevationRequiredEncryptFile : MElevationRequiredDecryptFile, Object))
+	{
+		if(Opt.IsUserAdmin)
+		{
+			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
+			Result = apiSetFileEncryptionInternal(Object, Encrypt);
+		}
+		else
+		{
+			if(Initialize())
+			{
+				if(SendCommand(C_FUNCTION_SETENCRYPTION))
+				{
+					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+					{
+						if(Write(Encrypt))
+						{
+							bool OpResult=false;
+							if(Read(OpResult))
+							{
+								if(ReceiveLastError())
+								{
+									Result = OpResult;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return Result;
+
+}
+
+
+bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 {
 	bool Result = false;
 	if(Opt.CurrentElevationMode&Mode)
 	{
-		if(ifn.RtlGetLastNtStatusPresent())
+		if(UseNtStatus && ifn.RtlGetLastNtStatusPresent())
 		{
 			NTSTATUS LastNtStatus = GetLastNtStatus();
 			Result = LastNtStatus == STATUS_ACCESS_DENIED || LastNtStatus == STATUS_PRIVILEGE_NOT_HELD;
@@ -1437,6 +1477,24 @@ void GetCompressedFileSizeHandler()
 	}
 }
 
+void SetEncryptionHandler()
+{
+	AutoObject Object;
+	if(ReadPipeData(Pipe, Object))
+	{
+		bool Encrypt = false;
+		if(ReadPipe(Pipe, Encrypt))
+		{
+			bool Result = apiSetFileEncryptionInternal(Object.GetStr(), Encrypt);
+			int LastError = GetLastError();
+			if(WritePipe(Pipe, Result))
+			{
+				WritePipe(Pipe, LastError);
+			}
+		}
+	}
+}
+
 bool Process(int Command)
 {
 	bool Exit=false;
@@ -1495,6 +1553,9 @@ bool Process(int Command)
 		break;
 	case C_FUNCTION_GETCOMPRESSEDFILESIZE:
 		GetCompressedFileSizeHandler();
+		break;
+	case C_FUNCTION_SETENCRYPTION:
+		SetEncryptionHandler();
 		break;
 	}
 	return Exit;

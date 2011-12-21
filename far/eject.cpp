@@ -63,12 +63,11 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 	DWORD dwAccessFlags;
 	BOOL fRemoveSafely = FALSE;
 	BOOL foundError=FALSE;
-	wchar_t szRootName[8]=L"\\\\.\\ :\\";
-	szRootName[4]=Letter;
+	string RootName=L"\\\\.\\ :\\";
+	RootName.Replace(4, Letter);
 	// OpenVolume
-	uDriveType = FAR_GetDriveType(szRootName+4);
-	szRootName[6]=0;
-
+	uDriveType = FAR_GetDriveType(RootName+4);
+	RootName.SetLength(6);
 	switch (uDriveType)
 	{
 		case DRIVE_REMOVABLE:
@@ -86,10 +85,10 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 	}
 
 	File Disk;
-	bool Opened = Disk.Open(szRootName, dwAccessFlags, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+	bool Opened = Disk.Open(RootName, dwAccessFlags, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 	if(!Opened && GetLastError()==ERROR_ACCESS_DENIED)
 	{
-		Opened = Disk.Open(szRootName,GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
+		Opened = Disk.Open(RootName,GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING);
 		ReadOnly=FALSE;
 	}
 
@@ -192,7 +191,8 @@ bool IsEjectableMedia(wchar_t Letter,UINT DriveType,BOOL ForceCDROM)
 	}
 	else
 	{
-		wchar_t name[]={L'\\', L'\\', L'.', L'\\', Letter, L':', L'\0'};
+		string name(L"\\\\.\\?:");
+		name.Replace(4, Letter);
 		File file;
 		if(file.Open(name, 0, FILE_SHARE_WRITE, 0, OPEN_EXISTING))
 		{

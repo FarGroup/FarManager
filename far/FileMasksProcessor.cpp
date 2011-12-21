@@ -70,7 +70,7 @@ void FileMasksProcessor::Free()
  длина одной из масок равна 0)
 */
 
-bool FileMasksProcessor::Set(const wchar_t *masks, DWORD Flags)
+bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 {
 	Free();
 	// разделителем масок является не только запятая, но и точка с запятой!
@@ -120,12 +120,12 @@ bool FileMasksProcessor::IsEmpty()
 /* сравнить имя файла со списком масок
    Возвращает TRUE в случае успеха.
    Путь к файлу в FileName НЕ игнорируется */
-bool FileMasksProcessor::Compare(const wchar_t *FileName)
+bool FileMasksProcessor::Compare(const string& FileName)
 {
 	if (bRE)
 	{
 		int i = n;
-		int len = StrLength(FileName);
+		size_t len = FileName.GetLength();
 		bool ret = re->Search(FileName,FileName+len,m,i) ? TRUE : FALSE;
 
 		//Освободим память если большая строка, чтоб не накапливалось.

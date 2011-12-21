@@ -1889,10 +1889,9 @@ int WINAPI FarViewer(const wchar_t *FileName,const wchar_t *Title,
 	return TRUE;
 }
 
-
-int WINAPI FarEditor(
-    const wchar_t *FileName,
-    const wchar_t *Title,
+int WINAPI FarEditorInternal(
+    const string& FileName,
+    const string* Title,
     int X1,
     int Y1,
     int X2,
@@ -2029,6 +2028,17 @@ int WINAPI FarEditor(
 	}
 
 	return ExitCode;
+}
+
+int WINAPI FarEditor(const wchar_t* FileName, const wchar_t* Title, int X1, int Y1, int X2, int Y2, unsigned __int64 Flags, int StartLine, int StartChar, UINT CodePage)
+{
+	string strTitle, *pstrTitle = nullptr;
+	if(Title)
+	{
+		strTitle = Title;
+		pstrTitle = &strTitle;
+	}
+	return FarEditorInternal(FileName, pstrTitle, X1, Y1, X2, Y2, Flags, StartLine, StartChar, CodePage);
 }
 
 void WINAPI FarText(int X,int Y,const FarColor* Color,const wchar_t *Str)
@@ -2238,6 +2248,12 @@ size_t WINAPI farGetReparsePointInfo(const wchar_t *Src, wchar_t *Dest, size_t D
 			*Dest = 0;
 		return 1;
 	}
+}
+
+size_t WINAPI farGetNumberOfLinks(const wchar_t* Name)
+{
+	string strName(Name);
+	return GetNumberOfLinks(strName);
 }
 
 size_t WINAPI farGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize)

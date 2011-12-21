@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plognmn.hpp"
 #include "pathmix.hpp"
 
-PreserveLongName::PreserveLongName(const wchar_t *ShortName,int Preserve):
+PreserveLongName::PreserveLongName(const string& ShortName,int Preserve):
 	Preserve(Preserve)
 {
 	if (Preserve)

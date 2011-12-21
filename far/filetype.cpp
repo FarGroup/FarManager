@@ -90,7 +90,7 @@ bool ExtractIfExistCommand(string &strCommandText)
 	return Result;
 }
 
-int GetDescriptionWidth(const wchar_t *Name=nullptr,const wchar_t *ShortName=nullptr)
+int GetDescriptionWidth(const string* Name=nullptr,const string* ShortName=nullptr)
 {
 	int Width=0;
 	DWORD Index=0;
@@ -114,11 +114,11 @@ int GetDescriptionWidth(const wchar_t *Name=nullptr,const wchar_t *ShortName=nul
 		}
 		else
 		{
-			if (!FMask.Compare(Name))
+			if (!FMask.Compare(*Name))
 				continue;
 
 			string strExpandedDesc = strDescription;
-			SubstFileName(strExpandedDesc,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
+			SubstFileName(strExpandedDesc, *Name, ShortName? *ShortName:L"",nullptr,nullptr,nullptr,nullptr,TRUE);
 			CurWidth = HiStrlen(strExpandedDesc);
 		}
 
@@ -146,14 +146,14 @@ int GetDescriptionWidth(const wchar_t *Name=nullptr,const wchar_t *ShortName=nul
    - Убрал непонятный мне запрет на использование маски файлов типа "*.*"
      (был когда-то, вроде, такой баг-репорт)
 */
-bool ProcessLocalFileTypes(const wchar_t *Name, const wchar_t *ShortName, int Mode, bool AlwaysWaitFinish)
+bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode, bool AlwaysWaitFinish)
 {
 	MenuItemEx TypesMenuItem;
 	VMenu TypesMenu(MSG(MSelectAssocTitle),nullptr,0,ScrY-4);
 	TypesMenu.SetHelp(L"FileAssoc");
 	TypesMenu.SetFlags(VMENU_WRAPMODE);
 	TypesMenu.SetPosition(-1,-1,0,0);
-	int DizWidth=GetDescriptionWidth(Name, ShortName);
+	int DizWidth=GetDescriptionWidth(&Name, &ShortName);
 	int ActualCmdCount=0; // отображаемых ассоциаций в меню
 	CFileMask FMask; // для работы с масками файлов
 	string strCommand, strDescription, strMask;
@@ -184,7 +184,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name, const wchar_t *ShortName, int Mo
 
 		TypesMenuItem.Clear();
 		string strCommandText = strCommand;
-		SubstFileName(strCommandText,Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
+		SubstFileName(strCommandText,Name, ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 
 		// все "подставлено", теперь проверим условия "if exist"
 		if (!ExtractIfExistCommand(strCommandText))
@@ -200,7 +200,7 @@ bool ProcessLocalFileTypes(const wchar_t *Name, const wchar_t *ShortName, int Mo
 			if (!strDescription.IsEmpty())
 			{
 				strTitle = strDescription;
-				SubstFileName(strTitle, Name,ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
+				SubstFileName(strTitle, Name, ShortName, nullptr, nullptr, nullptr, nullptr, TRUE);
 			}
 
 			size_t Pos=0;
@@ -239,13 +239,13 @@ bool ProcessLocalFileTypes(const wchar_t *Name, const wchar_t *ShortName, int Mo
 	strCommand = static_cast<const wchar_t*>(TypesMenu.GetUserData(nullptr, 0, ExitCode));
 	string strListName, strAnotherListName;
 	string strShortListName, strAnotherShortListName;
-	int PreserveLFN=SubstFileName(strCommand,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
+	int PreserveLFN=SubstFileName(strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 	bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
 
 	// Снова все "подставлено", теперь проверим условия "if exist"
 	if (ExtractIfExistCommand(strCommand))
 	{
-		PreserveLongName PreserveName(ShortName,PreserveLFN);
+		PreserveLongName PreserveName(ShortName, PreserveLFN);
 		RemoveExternalSpaces(strCommand);
 
 		if (!strCommand.IsEmpty())
@@ -326,7 +326,7 @@ void ProcessGlobalFileTypes(const wchar_t *Name, bool AlwaysWaitFinish, bool Run
 /*
   Используется для запуска внешнего редактора и вьювера
 */
-void ProcessExternal(const wchar_t *Command, const wchar_t *Name, const wchar_t *ShortName, bool AlwaysWaitFinish)
+void ProcessExternal(const string& Command, const string& Name, const string& ShortName, bool AlwaysWaitFinish)
 {
 	string strListName, strAnotherListName;
 	string strShortListName, strAnotherShortListName;
@@ -334,7 +334,7 @@ void ProcessExternal(const wchar_t *Command, const wchar_t *Name, const wchar_t 
 	string strExecStr = Command;
 	string strFullExecStr = Command;
 	{
-		int PreserveLFN=SubstFileName(strExecStr,Name,ShortName,&strListName,&strAnotherListName, &strShortListName, &strAnotherShortListName);
+		int PreserveLFN=SubstFileName(strExecStr, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
 		bool ListFileUsed=!strListName.IsEmpty()||!strAnotherListName.IsEmpty()||!strShortListName.IsEmpty()||!strAnotherShortListName.IsEmpty();
 
 		// Снова все "подставлено", теперь проверим условия "if exist"
@@ -470,7 +470,7 @@ INT_PTR WINAPI EditTypeRecordDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2
 			if (Param1==ETR_BUTTON_OK)
 			{
 				BOOL Result=TRUE;
-				LPCWSTR Masks=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,0));
+				string Masks(reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,0)));
 				CFileMask FMask;
 
 				if (!FMask.Set(Masks,0))

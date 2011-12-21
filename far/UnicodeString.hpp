@@ -164,6 +164,7 @@ typedef class UnicodeString
 		UnicodeString& Replace(size_t Pos, size_t Len, const UnicodeString& Str) { return Replace(Pos, Len, Str.CPtr(), Str.GetLength()); }
 		UnicodeString& Replace(size_t Pos, size_t Len, const wchar_t* Str) { return Replace(Pos, Len, Str, StrLength(NullToEmpty(Str))); }
 		UnicodeString& Replace(size_t Pos, size_t Len, wchar_t Ch) { return Replace(Pos, Len, &Ch, 1); }
+		UnicodeString& Replace(size_t Pos, wchar_t Ch) { return Replace(Pos, 1, &Ch, 1); }
 
 		UnicodeString& Append(const wchar_t* Str, size_t StrLen) { return Replace(GetLength(), 0, Str, StrLen); }
 		UnicodeString& Append(const UnicodeString& Str) { return Append(Str.CPtr(), Str.GetLength()); }
@@ -186,6 +187,8 @@ typedef class UnicodeString
 		UnicodeString& LShift(size_t nShiftCount, size_t nStartPos=0) { return Remove(nStartPos, nShiftCount); }
 
 		UnicodeString& Clear();
+
+		UnicodeString& Unlink() {Inflate(m_pData->GetLength()+1); return *this;}
 
 		const wchar_t *CPtr() const { return m_pData->GetData(); }
 		operator const wchar_t *() const { return m_pData->GetData(); }

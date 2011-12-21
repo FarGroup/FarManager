@@ -153,7 +153,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
 	}
 	else
 	{
-		wchar_t LocalName[]={CurDir[0],CurDir[1],0};
+		string LocalName(CurDir, 2);
 		apiWNetGetConnection(LocalName, strNetDir);
 	}
 
@@ -198,7 +198,7 @@ string &DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
 		}
 	}
 
-	if (!NetPathShown && GetSubstName(DriveType,LocalName,strRemoteName))
+	if (!NetPathShown && GetSubstName(DriveType, LocalName, strRemoteName))
 		IsOK=true;
 
 	if (IsOK)

@@ -78,7 +78,7 @@ DWORD WINAPI FarGetLogicalDrives()
 	return LogicalDrivesMask&(~NoDrives);
 }
 
-int CheckDisksProps(const wchar_t *SrcPath,const wchar_t *DestPath,int CheckedType)
+int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType)
 {
 	string strSrcRoot, strDestRoot;
 	DWORD SrcVolumeNumber=0, DestVolumeNumber=0;

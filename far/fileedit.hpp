@@ -82,8 +82,8 @@ enum FFILEEDIT_FLAGS
 class FileEditor : public Frame
 {
 	public:
-		FileEditor(const wchar_t *Name, UINT codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const wchar_t *PluginData=nullptr,int OpenModeExstFile=FEOPMODE_QUERY);
-		FileEditor(const wchar_t *Name, UINT codepage, DWORD InitFlags,int StartLine,int StartChar,const wchar_t *Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,int OpenModeExstFile=FEOPMODE_QUERY);
+		FileEditor(const string&  Name, UINT codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const string* PluginData=nullptr,int OpenModeExstFile=FEOPMODE_QUERY);
+		FileEditor(const string&  Name, UINT codepage, DWORD InitFlags,int StartLine,int StartChar,const string* Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,int OpenModeExstFile=FEOPMODE_QUERY);
 		virtual ~FileEditor();
 
 		void ShowStatus();
@@ -104,7 +104,7 @@ class FileEditor : public Frame
 		void SetEditorOptions(EditorOptions& EdOpt);
 		void CodepageChangedByUser() {Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);};
 		virtual void Show();
-		void SetPluginTitle(const wchar_t *PluginTitle);
+		void SetPluginTitle(const string* PluginTitle);
 		int GetId(void) const { return m_editor->EditorID; };
 
 		static const FileEditor *CurrentEditor;
@@ -142,7 +142,7 @@ class FileEditor : public Frame
 		void SetDeleteOnClose(int NewMode);
 		int ReProcessKey(int Key,int CalledFromControl=TRUE);
 		bool AskOverwrite(const string& FileName);
-		void Init(const wchar_t *Name, UINT codepage, const wchar_t *Title, DWORD InitFlags, int StartLine, int StartChar, const wchar_t *PluginData, int DeleteOnClose, int OpenModeExstFile);
+		void Init(const string& Name, UINT codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, int OpenModeExstFile);
 		virtual void InitKeyBar();
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
@@ -158,16 +158,16 @@ class FileEditor : public Frame
 		// используется для принятия решения переходить в каталог по CtrlF10
 		BOOL isTemporary();
 		virtual void ResizeConsole();
-		int LoadFile(const wchar_t *Name, int &UserBreak);
+		int LoadFile(const string& Name, int &UserBreak);
 		//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
-		int SaveFile(const wchar_t *Name, int Ask, bool bSaveAs, int TextFormat = 0, UINT Codepage = CP_UNICODE, bool AddSignature=false);
-		void SetTitle(const wchar_t *Title);
+		int SaveFile(const string& Name, int Ask, bool bSaveAs, int TextFormat = 0, UINT Codepage = CP_UNICODE, bool AddSignature=false);
+		void SetTitle(const string* Title);
 		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
-		BOOL SetFileName(const wchar_t *NewFileName);
+		BOOL SetFileName(const string& NewFileName);
 		int ProcessEditorInput(INPUT_RECORD *Rec);
 		void ChangeEditKeyBar();
-		DWORD EditorGetFileAttributes(const wchar_t *Name);
-		void SetPluginData(const wchar_t *PluginData);
+		DWORD EditorGetFileAttributes(const string& Name);
+		void SetPluginData(const string* PluginData);
 		const wchar_t *GetPluginData() {return strPluginData.CPtr();}
 		bool LoadFromCache(EditorPosCache &pc);
 		void SaveToCache();

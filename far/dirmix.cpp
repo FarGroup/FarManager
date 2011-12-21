@@ -56,12 +56,12 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 		return FALSE;
 
 	BOOL rc=FALSE;
-	wchar_t Drive[4]=L"=A:";
+	string Drive(L"=A:");
 	string strCurDir;
 
-	if (*NewDir && NewDir[1]==L':' && !NewDir[2])// если указана только
-	{                                                     // буква диска, то путь
-		Drive[1]=Upper(*NewDir);                          // возьмем из переменной
+	if (*NewDir && NewDir[1]==L':' && !NewDir[2]) // если указана только
+	{                                             // буква диска, то путь
+		Drive.Replace(1, Upper(*NewDir));         // возьмем из переменной
 
 		if (!apiGetEnvironmentVariable(Drive, strCurDir))
 		{
@@ -97,7 +97,7 @@ BOOL FarChDir(const wchar_t *NewDir, BOOL ChangeDir)
 		if ((!ChangeDir || apiGetCurrentDirectory(strCurDir)) &&
 		        strCurDir.At(0) && strCurDir.At(1)==L':')
 		{
-			Drive[1]=Upper(strCurDir.At(0));
+			Drive.Replace(1, Upper(strCurDir.At(0)));
 			SetEnvironmentVariable(Drive,strCurDir);
 		}
 	}

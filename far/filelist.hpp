@@ -273,7 +273,7 @@ class FileList:public Panel
 		void DescribeFiles();
 		void CreatePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber,BOOL AddTwoDot=TRUE);
 		void DeletePluginItemList(PluginPanelItem *(&ItemList),int &ItemNumber);
-		HANDLE OpenPluginForFile(const wchar_t *FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
+		HANDLE OpenPluginForFile(const string* FileName,DWORD FileAttr, OPENFILEPLUGINTYPE Type);
 		int PreparePanelView(PanelViewSettings *PanelView);
 		int PrepareColumnWidths(unsigned __int64 *ColumnTypes,int *ColumnWidths,int *ColumnWidthsTypes,int &ColumnCount,bool FullScreen,bool StatusLine);
 		void PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo);
@@ -333,7 +333,7 @@ class FileList:public Panel
 		virtual void ChangeNumericSort(int Mode);
 		virtual void ChangeCaseSensitiveSort(int Mode);
 		virtual void ChangeDirectoriesFirst(int Mode);
-		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
+		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
 		virtual int GetPrevSortMode();
 		virtual int GetPrevSortOrder();
 		virtual int GetPrevViewMode();
@@ -341,7 +341,7 @@ class FileList:public Panel
 		virtual int GetPrevCaseSensitiveSort();
 		virtual int GetPrevDirectoriesFirst();
 
-		HANDLE OpenFilePlugin(const wchar_t *FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
+		HANDLE OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
 		virtual int GetCurrentPos();
 		virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0);
@@ -368,11 +368,10 @@ class FileList:public Panel
 		virtual bool FileInFilter(long idxItem);
 		virtual bool FilterIsEnabled();
 		virtual void ReadDiz(PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0);
-		virtual void DeleteDiz(const wchar_t *Name, const wchar_t *ShortName);
+		virtual void DeleteDiz(const string& Name, const string& ShortName);
 		virtual void FlushDiz();
 		virtual void GetDizName(string &strDizName);
-		virtual void CopyDiz(const wchar_t *Name, const wchar_t *ShortName, const wchar_t *DestName,
-		                     const wchar_t *DestShortName,DizList *DestDiz);
+		virtual void CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz);
 		virtual bool IsFullScreen();
 		virtual int IsDizDisplayed();
 		virtual int IsColumnDisplayed(int Type);
@@ -412,7 +411,7 @@ class FileList:public Panel
 		static void SetFilePanelModes();
 		static void SavePanelModes();
 		static void ReadPanelModes();
-		static int FileNameToPluginItem(const wchar_t *Name,PluginPanelItem *pi);
+		static int FileNameToPluginItem(const string& Name,PluginPanelItem *pi);
 		static void FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi);
 		static void FreePluginPanelItem(PluginPanelItem *pi);
 		size_t FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *pi);

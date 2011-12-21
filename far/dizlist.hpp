@@ -35,8 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct DizRecord
 {
-	wchar_t *DizText;
-	int DizLength;
+	string DizText;
 	int NameStart;
 	int NameLength;
 	bool Deleted;
@@ -46,7 +45,7 @@ class DizList
 {
 	private:
 		string strDizFileName;
-		DizRecord *DizData;
+		DizRecord **DizData;
 		size_t DizCount;
 		size_t *IndexData;
 		size_t IndexCount;
@@ -56,9 +55,9 @@ class DizList
 		char *AnsiBuf;
 
 	private:
-		int GetDizPos(const wchar_t *Name, int *TextPos);
-		int GetDizPosEx(const wchar_t *Name, const wchar_t *ShortName, int *TextPos);
-		bool AddRecord(const wchar_t *DizText);
+		int GetDizPos(const string& Name, int *TextPos);
+		int GetDizPosEx(const string& Name, const string& ShortName, int *TextPos);
+		bool AddRecord(const string& DizText);
 		void BuildIndex();
 
 	public:
@@ -66,13 +65,13 @@ class DizList
 		~DizList();
 
 	public:
-		void Read(const wchar_t *Path, const wchar_t *DizName=nullptr);
+		void Read(const string& Path, const string* DizName=nullptr);
 		void Reset();
-		const wchar_t *GetDizTextAddr(const wchar_t *Name, const wchar_t *ShortName, const __int64 FileSize);
-		bool DeleteDiz(const wchar_t *Name, const wchar_t *ShortName);
-		bool Flush(const wchar_t *Path, const wchar_t *DizName=nullptr);
-		bool AddDizText(const wchar_t *Name, const wchar_t *ShortName, const wchar_t *DizText);
-		bool CopyDiz(const wchar_t *Name, const wchar_t *ShortName, const wchar_t *DestName, const wchar_t *DestShortName,DizList *DestDiz);
+		const wchar_t *GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize);
+		bool DeleteDiz(const string& Name, const string& ShortName);
+		bool Flush(const string& Path, const string *DizName=nullptr);
+		bool AddDizText(const string& Name, const string& ShortName, const string& DizText);
+		bool CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName,DizList *DestDiz);
 		void GetDizName(string &strDizName);
 		static void PR_ReadingMsg();
 };

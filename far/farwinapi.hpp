@@ -93,7 +93,7 @@ struct FAR_FIND_DATA_EX
 class FindFile:NonCopyable
 {
 public:
-	FindFile(LPCWSTR Object, bool ScanSymLink = true);
+	FindFile(const string& Object, bool ScanSymLink = true);
 	~FindFile();
 	bool Get(FAR_FIND_DATA_EX& FindData);
 
@@ -108,7 +108,7 @@ class File:NonCopyable
 public:
 	File();
 	~File();
-	bool Open(LPCWSTR Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes=0, HANDLE hTemplateFile=nullptr, bool ForceElevation=false);
+	bool Open(const string& Object, DWORD dwDesiredAccess, DWORD dwShareMode, LPSECURITY_ATTRIBUTES lpSecurityAttributes, DWORD dwCreationDistribution, DWORD dwFlagsAndAttributes=0, HANDLE hTemplateFile=nullptr, bool ForceElevation=false);
 	bool Read(LPVOID Buffer, DWORD NumberOfBytesToRead, DWORD& NumberOfBytesRead, LPOVERLAPPED Overlapped = nullptr);
 	bool Write(LPCVOID Buffer, DWORD NumberOfBytesToWrite, DWORD& NumberOfBytesWritten, LPOVERLAPPED Overlapped = nullptr);
 	bool SetPointer(INT64 DistanceToMove, PINT64 NewFilePointer, DWORD MoveMethod);
@@ -137,7 +137,7 @@ private:
 NTSTATUS GetLastNtStatus();
 
 DWORD apiGetEnvironmentVariable(
-    const wchar_t *lpwszName,
+    const string& Name,
     string &strBuffer
 );
 
@@ -161,17 +161,17 @@ DWORD apiGetModuleFileNameEx(
 );
 
 bool apiExpandEnvironmentStrings(
-    const wchar_t *src,
-    string &strDest
+    const string& Src,
+    string &Dest
 );
 
 DWORD apiWNetGetConnection(
-    const wchar_t *lpwszLocalName,
-    string &strRemoteName
+    const string& LocalName,
+    string &RemoteName
 );
 
 BOOL apiGetVolumeInformation(
-    const wchar_t *lpwszRootPathName,
+    const string& RootPathName,
     string *pVolumeName,
     LPDWORD lpVolumeSerialNumber,
     LPDWORD lpMaximumComponentLength,
@@ -184,7 +184,7 @@ BOOL apiFindStreamClose(
 );
 
 BOOL apiGetFindDataEx(
-    const wchar_t *lpwszFileName,
+    const string& FileName,
     FAR_FIND_DATA_EX& FindData,
     bool ScanSymLink=true);
 
@@ -195,15 +195,15 @@ bool apiGetFileSizeEx(
 //junk
 
 BOOL apiDeleteFile(
-    const wchar_t *lpwszFileName
+    const string& FileName
 );
 
 BOOL apiRemoveDirectory(
-    const wchar_t *DirName
+    const string& DirName
 );
 
 HANDLE apiCreateFile(
-    const wchar_t* Object,
+    const string& Object,
     DWORD DesiredAccess,
     DWORD ShareMode,
     LPSECURITY_ATTRIBUTES SecurityAttributes,
@@ -214,8 +214,8 @@ HANDLE apiCreateFile(
 );
 
 BOOL apiCopyFileEx(
-    const wchar_t *lpExistingFileName,
-    const wchar_t *lpNewFileName,
+    const string& ExistingFileName,
+    const string& NewFileName,
     LPPROGRESS_ROUTINE lpProgressRoutine,
     LPVOID lpData,
     LPBOOL pbCancel,
@@ -223,13 +223,13 @@ BOOL apiCopyFileEx(
 );
 
 BOOL apiMoveFile(
-    const wchar_t *lpwszExistingFileName, // address of name of the existing file
-    const wchar_t *lpwszNewFileName   // address of new name for the file
+    const string& ExistingFileName, // address of name of the existing file
+    const string& NewFileName   // address of new name for the file
 );
 
 BOOL apiMoveFileEx(
-    const wchar_t *lpwszExistingFileName, // address of name of the existing file
-    const wchar_t *lpwszNewFileName,   // address of new name for the file
+    const string& ExistingFileName, // address of name of the existing file
+    const string& NewFileName,   // address of new name for the file
     DWORD dwFlags   // flag to determine how to move file
 );
 
@@ -241,81 +241,84 @@ int apiRegEnumKeyEx(
 );
 
 BOOL apiIsDiskInDrive(
-    const wchar_t *Root
+    const string& Root
 );
 
 int apiGetFileTypeByName(
-    const wchar_t *Name
+    const string& Name
 );
 
 BOOL apiGetDiskSize(
-    const wchar_t *Path,
+    const string& Path,
     unsigned __int64 *TotalSize,
     unsigned __int64 *TotalFree,
     unsigned __int64 *UserFree
 );
 
 HANDLE apiFindFirstFileName(
-    LPCWSTR lpFileName,
+    const string& FileName,
     DWORD dwFlags,
-    string& strLinkName
+    string& LinkName
 );
 
 BOOL apiFindNextFileName(
     HANDLE hFindStream,
-    string& strLinkName
+    string& LinkName
 );
 
 BOOL apiCreateDirectory(
-    LPCWSTR lpPathName,
+    const string& PathName,
     LPSECURITY_ATTRIBUTES lpSecurityAttributes
 );
 
 BOOL apiCreateDirectoryEx(
-    LPCWSTR TemplateDirectory,
-    LPCWSTR NewDirectory,
+    const string* TemplateDirectory,
+    const string& NewDirectory,
     LPSECURITY_ATTRIBUTES SecurityAttributes
 );
 
 DWORD apiGetFileAttributes(
-    LPCWSTR lpFileName
+    const string& FileName
 );
 
 BOOL apiSetFileAttributes(
-    LPCWSTR lpFileName,
+    const string& FileName,
     DWORD dwFileAttributes
 );
 
 void InitCurrentDirectory();
 
 BOOL apiSetCurrentDirectory(
-    LPCWSTR lpPathName,
+    const string& PathName,
     bool Validate = true
 );
 
 // for elevation only, dont' use outside.
-bool CreateSymbolicLinkInternal(LPCWSTR Object,LPCWSTR Target, DWORD dwFlags);
-bool apiGetCompressedFileSizeInternal(LPCWSTR FileName,UINT64& Size);
+bool CreateSymbolicLinkInternal(const string& Object,const string& Target, DWORD dwFlags);
+bool apiGetCompressedFileSizeInternal(const wchar_t* FileName,UINT64& Size);
+bool apiSetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);
 
 bool apiCreateSymbolicLink(
-    LPCWSTR lpSymlinkFileName,
-    LPCWSTR lpTargetFileName,
+    const string& SymlinkFileName,
+    const string& TargetFileName,
     DWORD dwFlags
 );
 
 bool apiGetCompressedFileSize(
-    LPCWSTR lpFileName,
+    const string& FileName,
     UINT64& Size
 );
 
+bool apiSetFileEncryption(const string& Name, bool Encrypt);
+
 BOOL apiCreateHardLink(
-    LPCWSTR lpFileName,
-    LPCWSTR lpExistingFileName,
+    const string& FileName,
+    const string& ExistingFileName,
     LPSECURITY_ATTRIBUTES lpSecurityAttributes
 );
 
 HANDLE apiFindFirstStream(
-    LPCWSTR lpFileName,
+    const string& FileName,
     STREAM_INFO_LEVELS InfoLevel,
     LPVOID lpFindStreamData,
     DWORD dwFlags=0
@@ -337,19 +340,19 @@ bool apiGetFinalPathNameByHandle(
 
 bool apiSearchPath(
 	const wchar_t *Path,
-	const wchar_t *FileName,
+	const string& FileName,
 	const wchar_t *Extension,
 	string &strDest
 );
 
 bool apiQueryDosDevice(
-	const wchar_t *DeviceName,
+	const string& DeviceName,
 	string& Path
 );
 
 bool apiGetVolumeNameForVolumeMountPoint(
-	LPCWSTR VolumeMountPoint,
-	string& strVolumeName
+	const string& VolumeMountPoint,
+	string& VolumeName
 );
 
 // internal, dont' use outside.
@@ -358,5 +361,5 @@ bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* 
 
 void apiEnableLowFragmentationHeap();
 
-int RegQueryStringValue(HKEY hKey, const wchar_t *lpwszSubKey, string &strData, const wchar_t *lpwszDefault = L"");
-int EnumRegValueEx(HKEY hRegRootKey, const wchar_t *Key,DWORD Index, string &strDestName, string &strData, LPDWORD IData=nullptr,__int64* IData64=nullptr, DWORD *Type=nullptr);
+int RegQueryStringValue(HKEY hKey, const string& ValueName, string &strData, const wchar_t *lpwszDefault = L"");
+int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &strDestName, string &strData, LPDWORD IData=nullptr,__int64* IData64=nullptr, DWORD *Type=nullptr);

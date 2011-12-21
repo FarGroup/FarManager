@@ -52,8 +52,8 @@ class FileMasksProcessor : public BaseFileMask
 		virtual ~FileMasksProcessor() { Free(); }
 
 	public:
-		virtual bool Set(const wchar_t *Masks, DWORD Flags);
-		virtual bool Compare(const wchar_t *Name);
+		virtual bool Set(const string& Masks, DWORD Flags);
+		virtual bool Compare(const string& Name);
 		virtual bool IsEmpty();
 		void Free();
 

@@ -118,10 +118,10 @@ static void show_help()
 }
 
 static int MainProcess(
-    const wchar_t *lpwszEditName,
-    const wchar_t *lpwszViewName,
-    const wchar_t *lpwszDestName1,
-    const wchar_t *lpwszDestName2,
+    const string& lpwszEditName,
+    const string& lpwszViewName,
+    const string& lpwszDestName1,
+    const string& lpwszDestName2,
     int StartLine,
     int StartChar
 )
@@ -664,13 +664,14 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		{
 			if (CntDestName < 2)
 			{
-				if (IsPluginPrefixPath(Argv[I]))
+				string ArgvI(Argv[I]);
+				if (IsPluginPrefixPath(ArgvI))
 				{
-					DestNames[CntDestName++] = Argv[I];
+					DestNames[CntDestName++] = ArgvI;
 				}
 				else
 				{
-					apiExpandEnvironmentStrings(Argv[I], DestNames[CntDestName]);
+					apiExpandEnvironmentStrings(ArgvI, DestNames[CntDestName]);
 					Unquote(DestNames[CntDestName]);
 					ConvertNameToFull(DestNames[CntDestName],DestNames[CntDestName]);
 

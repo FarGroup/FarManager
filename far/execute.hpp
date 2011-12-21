@@ -33,14 +33,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-bool GetShellType(const wchar_t *Ext, string &strType, ASSOCIATIONTYPE aType=AT_FILEEXTENSION);
+bool GetShellType(const string&Ext, string &strType, ASSOCIATIONTYPE aType=AT_FILEEXTENSION);
 
-const wchar_t *GetShellAction(const wchar_t *FileName, DWORD& ImageSubsystem, DWORD& Error);
+const wchar_t *GetShellAction(const string&FileName, DWORD& ImageSubsystem, DWORD& Error);
 
-int Execute(const wchar_t *CmdStr, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool FolderRun = false, bool WaitForIdle = false, bool Silent = false, bool RunAs = false);
+int Execute(const string& CmdStr, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool FolderRun = false, bool WaitForIdle = false, bool Silent = false, bool RunAs = false);
 
-bool IsBatchExtType(const wchar_t *ExtPtr);
+bool IsBatchExtType(const string&ExtPtr);
 
-const wchar_t *PrepareOSIfExist(const wchar_t *CmdLine);
+const wchar_t *PrepareOSIfExist(const string& CmdLine);
 
 bool ProcessOSAliases(string &strStr);

@@ -20289,6 +20289,24 @@ upd:"to get compressed size of this object:"
 upd:"to get compressed size of this object:"
 upd:"to get compressed size of this object:"
 
+MElevationRequiredEncryptFile
+"для шифрования этого объекта:"
+"to encrypt this object:"
+upd:"to encrypt this object:"
+upd:"to encrypt this object:"
+upd:"to encrypt this object:"
+upd:"to encrypt this object:"
+upd:"to encrypt this object:"
+
+MElevationRequiredDecryptFile
+"для расшифрования этого объекта:"
+"to decrypt this object:"
+upd:"to decrypt this object:"
+upd:"to decrypt this object:"
+upd:"to decrypt this object:"
+upd:"to decrypt this object:"
+upd:"to decrypt this object:"
+
 MElevationDoForAll
 "Выполнить это действие для &всех текущих объектов"
 "Do this for &all current objects"

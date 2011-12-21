@@ -135,6 +135,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 	else
 	{
 		PanelMode=NORMAL_PANEL;
+		hPlugin = INVALID_HANDLE_VALUE;
 
 		if (EnableRestoreViewMode)
 		{
@@ -156,7 +157,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 }
 
 
-int FileList::FileNameToPluginItem(const wchar_t *Name,PluginPanelItem *pi)
+int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 {
 	string strTempDir = Name;
 
@@ -372,7 +373,7 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 }
 
 
-HANDLE FileList::OpenPluginForFile(const wchar_t *FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
+HANDLE FileList::OpenPluginForFile(const string* FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
 {
 	HANDLE Result = INVALID_HANDLE_VALUE;
 	if(FileName && *FileName && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
@@ -522,7 +523,7 @@ void FileList::PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
 				string strSaveDir;
 				apiGetCurrentDirectory(strSaveDir);
 				string strDizName=strTempDir+L"\\"+DestPanel->strPluginDizName;
-				DestDiz->Flush(L"",strDizName);
+				DestDiz->Flush(L"", &strDizName);
 
 				if (Move)
 					SrcDiz->Flush(L"");
@@ -710,7 +711,7 @@ void FileList::PluginHostGetFiles()
 	{
 		HANDLE hCurPlugin;
 
-		if ((hCurPlugin=OpenPluginForFile(strSelName,FileAttr, OFP_EXTRACT))!=INVALID_HANDLE_VALUE &&
+		if ((hCurPlugin=OpenPluginForFile(&strSelName,FileAttr, OFP_EXTRACT))!=INVALID_HANDLE_VALUE &&
 		        hCurPlugin!=(HANDLE)-2)
 		{
 			PluginPanelItem *ItemList;
@@ -969,8 +970,7 @@ int FileList::ProcessOneHostFile(int Idx)
 	_ALGO(CleverSysLog clv(L"FileList::ProcessOneHostFile()"));
 	int Done=-1;
 	_ALGO(SysLog(L"call OpenPluginForFile([Idx=%d] '%s')",Idx,ListData[Idx]->strName.CPtr()));
-	string strName = ListData[Idx]->strName;
-	HANDLE hNewPlugin=OpenPluginForFile(strName,ListData[Idx]->FileAttr, OFP_COMMANDS);
+	HANDLE hNewPlugin=OpenPluginForFile(&ListData[Idx]->strName,ListData[Idx]->FileAttr, OFP_COMMANDS);
 
 	if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
 	{

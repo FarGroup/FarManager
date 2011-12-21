@@ -306,12 +306,12 @@ bool IsHotPlugDevice(DEVINST hDevInst)
 DWORD DriveMaskFromVolumeName(const wchar_t *lpwszVolumeName)
 {
 	string strCurrentVolumeName;
-	wchar_t wszMountPoint[]=L"\\\\?\\A:\\";
+	string MountPoint(L"\\\\?\\A:\\");
 
 	for (wchar_t Letter = L'A'; Letter <= L'Z'; Letter++)
 	{
-		wszMountPoint[4] = Letter;
-		if(apiGetVolumeNameForVolumeMountPoint(wszMountPoint,strCurrentVolumeName) && strCurrentVolumeName.IsSubStrAt(0,lpwszVolumeName))
+		MountPoint.Replace(4, Letter);
+		if(apiGetVolumeNameForVolumeMountPoint(MountPoint,strCurrentVolumeName) && strCurrentVolumeName.IsSubStrAt(0,lpwszVolumeName))
 			return (1 << (Letter-L'A'));
 	}
 

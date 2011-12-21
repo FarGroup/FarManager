@@ -110,7 +110,7 @@ string &Add_PATHEXT(string &strDest)
 	size_t curpos=strDest.GetLength()-1;
 	UserDefinedList MaskList(0,0,ULF_UNIQUE);
 
-	if (apiGetEnvironmentVariable(L"PATHEXT",strBuf) && MaskList.Set(strBuf))
+	if (apiGetEnvironmentVariable(L"PATHEXT" ,strBuf) && MaskList.Set(strBuf))
 	{
 		/* $ 13.10.2002 IS проверка на '|' (маски исключения) */
 		if (!strDest.IsEmpty() && (strDest.At(curpos)!=L',' && strDest.At(curpos)!=L';') && strDest.At(curpos)!=L'|')
@@ -318,10 +318,10 @@ bool FileFilterParams::FileInFilter(const FileListItem& fli, unsigned __int64 Cu
 	fde.nPackSize=fli.PackSize;
 	fde.strFileName=fli.strName;
 	fde.strAlternateFileName=fli.strShortName;
-	return FileInFilter(fde, CurrentTime, fli.strName);
+	return FileInFilter(fde, CurrentTime, &fli.strName);
 }
 
-bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int64 CurrentTime,const wchar_t* FullName)
+bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int64 CurrentTime,const string* FullName)
 {
 	// Режим проверки атрибутов файла включен?
 	if (FAttr.Used)
@@ -360,7 +360,7 @@ bool FileFilterParams::FileInFilter(const FAR_FIND_DATA_EX& fde, unsigned __int6
 			return false;
 		}
 
-		if (!FullName || GetNumberOfLinks(FullName) < 2)
+		if (!FullName || GetNumberOfLinks(*FullName) < 2)
 		{
 			return false;
 		}
@@ -440,7 +440,7 @@ bool FileFilterParams::FileInFilter(const PluginPanelItem& fd, unsigned __int64 
 {
 	FAR_FIND_DATA_EX fde;
 	PluginPanelItemToFindDataEx(&fd, &fde);
-	return FileInFilter(fde, CurrentTime, fd.FileName);
+	return FileInFilter(fde, CurrentTime, &fde.strFileName);
 }
 
 //Централизованная функция для создания строк меню различных фильтров.

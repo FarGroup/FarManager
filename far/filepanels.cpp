@@ -188,7 +188,7 @@ void FilePanels::Init()
 			}
 		}
 
-		const wchar_t *PassiveFolder=PassiveIsLeftFlag?Opt.strLeftFolder:Opt.strRightFolder;
+		const string& PassiveFolder=PassiveIsLeftFlag?Opt.strLeftFolder:Opt.strRightFolder;
 
 		if (Opt.SetupArgv < 2 && *PassiveFolder && (apiGetFileAttributes(PassiveFolder)!=INVALID_FILE_ATTRIBUTES))
 		{

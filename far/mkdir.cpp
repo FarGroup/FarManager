@@ -184,13 +184,14 @@ void ShellMakeDir(Panel *SrcPanel)
 				{
 					WCHAR Ch = ChPtr[1];
 					ChPtr[1] = 0;
-
-					if (*lpwszDirName &&
-						(apiGetFileAttributes(lpwszDirName) == INVALID_FILE_ATTRIBUTES) &&
-						apiCreateDirectory(lpwszDirName,nullptr))
+					if (*lpwszDirName)
 					{
-						TreeList::AddTreeName(lpwszDirName);
-						bSuccess = true;
+						string strDirName(lpwszDirName);
+						if (apiGetFileAttributes(strDirName) == INVALID_FILE_ATTRIBUTES && apiCreateDirectory(strDirName,nullptr))
+						{
+							TreeList::AddTreeName(strDirName);
+							bSuccess = true;
+						}
 					}
 
 					ChPtr[1] = Ch;

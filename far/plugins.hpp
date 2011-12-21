@@ -177,7 +177,7 @@ class PluginManager
 		bool TestPluginInfo(Plugin *Item,PluginInfo *Info);
 		bool TestOPENPANELINFO(Plugin *Item,OpenPanelInfo *Info);
 
-		bool LoadPlugin(const wchar_t *lpwszModuleName, const FAR_FIND_DATA_EX &FindData, bool LoadToMem);
+		bool LoadPlugin(const string& lpwszModuleName, const FAR_FIND_DATA_EX &FindData, bool LoadToMem);
 
 		bool AddPlugin(Plugin *pPlugin);
 		bool RemovePlugin(Plugin *pPlugin);
@@ -196,10 +196,10 @@ class PluginManager
 
 	public:
 
-		bool LoadPluginExternal(const wchar_t *lpwszModuleName, bool LoadToMem);
+		bool LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
 
 		int UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove = false);
-		int UnloadPluginExternal(const wchar_t *lpwszModuleName);
+		int UnloadPluginExternal(const string& lpwszModuleName);
 
 		void LoadPlugins();
 
@@ -238,7 +238,7 @@ class PluginManager
 
 	public:
 		HANDLE Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item);
-		HANDLE OpenFilePlugin(const wchar_t *Name, int OpMode, OPENFILEPLUGINTYPE Type);
+		HANDLE OpenFilePlugin(const string* Name, int OpMode, OPENFILEPLUGINTYPE Type);
 		HANDLE OpenFindListPlugin(const PluginPanelItem *PanelItem,size_t ItemsNumber);
 		void ClosePanel(HANDLE hPlugin);
 		void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);

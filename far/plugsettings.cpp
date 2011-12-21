@@ -78,7 +78,7 @@ PluginSettings::PluginSettings(const GUID& Guid) : PluginsCfg(nullptr)
 		string strDbPath = Opt.ProfilePath + L"\\PluginsData\\";
 		Diz.Read(strDbPath);
 		string strDbName = strGuid + L".db";
-		string Description =  string(pPlugin->GetTitle()) + L" (" + pPlugin->GetDescription() + L")";
+		string Description = string(pPlugin->GetTitle()) + L" (" + pPlugin->GetDescription() + L")";
 		if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description))
 		{
 			Diz.AddDizText(strDbName, L"", Description);

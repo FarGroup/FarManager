@@ -1761,7 +1761,7 @@ void Dialog::ShowDialog(unsigned ID)
 				LenText=LenStrItem(I,strStr);
 
 				if (!(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CY1!=-1)
-					LenText=StrLength(CenterStr(strStr,strStr,CY2-CY1+1));
+					LenText = static_cast<int>(CenterStr(strStr,strStr,CY2-CY1+1).GetLength());
 
 				X=(CX1==-1)?(X2-X1+1)/2:CX1;
 				Y=(CY1==-1 || (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)))?(Y2-Y1+1-LenText)/2:CY1;

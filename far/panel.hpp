@@ -166,7 +166,7 @@ class Panel:public ScreenObject
 
 	public:
 		virtual int SendKeyToPlugin(DWORD Key,bool Pred=false) {return FALSE;}
-		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
+		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
 		virtual void ChangeDirToCurrent();
 
 		virtual int GetCurDir(string &strCurDir);
@@ -259,10 +259,10 @@ class Panel:public ScreenObject
 		virtual bool FileInFilter(long idxItem) {return true;}
 		virtual bool FilterIsEnabled() {return false;}
 		virtual void ReadDiz(struct PluginPanelItem *ItemList=nullptr,int ItemLength=0, DWORD dwFlags=0) {}
-		virtual void DeleteDiz(const wchar_t *Name,const wchar_t *ShortName) {}
+		virtual void DeleteDiz(const string& Name,const string& ShortName) {}
 		virtual void GetDizName(string &strDizName) {}
 		virtual void FlushDiz() {}
-		virtual void CopyDiz(const wchar_t *Name,const wchar_t *ShortName,const wchar_t *DestName, const wchar_t *DestShortName,DizList *DestDiz) {}
+		virtual void CopyDiz(const string& Name,const string& ShortName,const string& DestName, const string& DestShortName,DizList *DestDiz) {}
 		virtual bool IsFullScreen() {return (ViewSettings.Flags&PVS_FULLSCREEN)==PVS_FULLSCREEN;}
 		virtual int IsDizDisplayed() {return FALSE;}
 		virtual int IsColumnDisplayed(int Type) {return FALSE;}

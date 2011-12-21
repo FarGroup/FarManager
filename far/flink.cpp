@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "elevation.hpp"
 
-bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *Object)
+bool WINAPI CreateVolumeMountPoint(const string& TargetVolume, const string& Object)
 {
 	bool Result=false;
 	string strBuf;
@@ -108,7 +108,7 @@ bool FillREPARSE_DATA_BUFFER(PREPARSE_DATA_BUFFER rdb,LPCWSTR PrintName,size_t P
 	return Result;
 }
 
-bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
+bool SetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 {
 	bool Result=false;
 	if (IsReparseTagValid(rdb->ReparseTag))
@@ -152,11 +152,10 @@ bool SetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 	return Result;
 }
 
-bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,ReparsePointTypes Type)
+bool WINAPI CreateReparsePoint(const string& Target, const string& Object,ReparsePointTypes Type)
 {
 	bool Result=false;
 
-	if (Object && *Object && Target && *Target)
 	{
 		switch (Type)
 		{
@@ -266,7 +265,7 @@ bool WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,Repa
 	return Result;
 }
 
-bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
+bool GetREPARSE_DATA_BUFFER(const string& Object,PREPARSE_DATA_BUFFER rdb)
 {
 	bool Result=false;
 	const DWORD FileAttr = apiGetFileAttributes(Object);
@@ -288,7 +287,7 @@ bool GetREPARSE_DATA_BUFFER(const wchar_t *Object,PREPARSE_DATA_BUFFER rdb)
 	return Result;
 }
 
-bool WINAPI DeleteReparsePoint(const wchar_t *Object)
+bool WINAPI DeleteReparsePoint(const string& Object)
 {
 	bool Result=false;
 	LPBYTE Buff=new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
@@ -310,7 +309,7 @@ bool WINAPI DeleteReparsePoint(const wchar_t *Object)
 	return Result;
 }
 
-DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &strDestBuff,LPDWORD lpReparseTag)
+DWORD WINAPI GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD lpReparseTag)
 {
 	WORD NameLength=0;
 	LPBYTE szBuff=new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
@@ -363,7 +362,7 @@ DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &strDestBuff,LPDW
 	return NameLength;
 }
 
-int WINAPI GetNumberOfLinks(const wchar_t *Name)
+int WINAPI GetNumberOfLinks(const string& Name)
 {
 	int NumberOfLinks=1;
 	File file;
@@ -382,10 +381,10 @@ int WINAPI GetNumberOfLinks(const wchar_t *Name)
 
 int WINAPI MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName)
 {
-	return apiCreateHardLink(NewName,ExistingName,nullptr)!=FALSE;
+	return apiCreateHardLink(NewName, ExistingName, nullptr) != FALSE;
 }
 
-bool EnumStreams(const wchar_t *FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
+bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount)
 {
 	bool Result=false;
 	WIN32_FIND_STREAM_DATA fsd;
@@ -409,7 +408,7 @@ bool EnumStreams(const wchar_t *FileName,UINT64 &StreamsSize,DWORD &StreamsCount
 	return Result;
 }
 
-bool DelSubstDrive(const wchar_t *DeviceName)
+bool DelSubstDrive(const string& DeviceName)
 {
 	bool Result=false;
 	string strTargetPath;
@@ -423,7 +422,7 @@ bool DelSubstDrive(const wchar_t *DeviceName)
 	return Result;
 }
 
-bool GetSubstName(int DriveType,const wchar_t *DeviceName, string &strTargetPath)
+bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 {
 	bool Ret=false;
 	/*
@@ -453,7 +452,7 @@ bool GetSubstName(int DriveType,const wchar_t *DeviceName, string &strTargetPath
 	return Ret;
 }
 
-bool GetVHDName(const wchar_t *DeviceName, string &strVolumePath)
+bool GetVHDName(const string& DeviceName, string &strVolumePath)
 {
 	bool Result=false;
 	File Device;
@@ -495,7 +494,7 @@ void GetPathRoot(const wchar_t *Path, string &strRoot)
 	strRoot = ExtractPathRoot(RealPath);
 }
 
-bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData)
+bool ModifyReparsePoint(const string& Object,const string& NewData)
 {
 	bool Result=false;
 	LPBYTE szBuff=new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
@@ -552,7 +551,7 @@ bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData)
 	return Result;
 }
 
-bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst)
+bool DuplicateReparsePoint(const string& Src,const string& Dst)
 {
 	bool Result=false;
 	LPBYTE szBuff=new BYTE[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];

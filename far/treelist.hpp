@@ -134,7 +134,7 @@ class TreeList: public Panel
 
 	private:
 		static int MsgReadTree(int TreeCount,int &FirstCall);
-		static int GetCacheTreeName(const wchar_t *Root, string &strName,int CreateDir);
+		static int GetCacheTreeName(const string& Root, string& strName,int CreateDir);
 
 	public:
 		TreeList(int IsPanel=TRUE);
@@ -148,7 +148,7 @@ class TreeList: public Panel
 		virtual void Update(int Mode);
 		int  ReadTree();
 
-		virtual BOOL SetCurDir(const wchar_t *NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
+		virtual BOOL SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated=TRUE);
 
 		void SetRootDir(const wchar_t *NewRootDir);
 
@@ -187,10 +187,10 @@ class TreeList: public Panel
 	public:
 		static void AddTreeName(const wchar_t *Name);
 		static void DelTreeName(const wchar_t *Name);
-		static void RenTreeName(const wchar_t *SrcName, const wchar_t *DestName);
-		static void ReadSubTree(const wchar_t *Path);
+		static void RenTreeName(const string& SrcName, const string& DestName);
+		static void ReadSubTree(const string& Path);
 		static void ClearCache(int EnableFreeMem);
-		static void ReadCache(const wchar_t *TreeRoot);
+		static void ReadCache(const string& TreeRoot);
 		static void FlushCache();
 
 		static int MustBeCached(const wchar_t *Root); // $ 16.10.2000 tran - функци€, определ€юща€€ необходимость кешировани€ файла

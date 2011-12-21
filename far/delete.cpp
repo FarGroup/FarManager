@@ -70,13 +70,13 @@ enum DEL_MODE
 	DEL_WIPEPROCESS
 };
 
-static void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePercent);
-static int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe);
-static int ShellRemoveFile(const wchar_t *Name,int Wipe, int TotalPercent);
-static int ERemoveDirectory(const wchar_t *Name,int Wipe);
-static int RemoveToRecycleBin(const wchar_t *Name);
-static int WipeFile(const wchar_t *Name, int TotalPercent);
-static int WipeDirectory(const wchar_t *Name);
+static void ShellDeleteMsg(const wchar_t* Name, DEL_MODE Mode, int Percent, int WipePercent);
+static int AskDeleteReadOnly(const string& Name,DWORD Attr,int Wipe);
+static int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent);
+static int ERemoveDirectory(const string& Name,int Wipe);
+static int RemoveToRecycleBin(const string& Name);
+static int WipeFile(const string& Name, int TotalPercent);
+static int WipeDirectory(const string& Name);
 static void PR_ShellDeleteMsg();
 
 static int ReadOnlyDeleteMode,SkipMode,SkipWipeMode,SkipFoldersMode,DeleteAllFolders;
@@ -680,7 +680,7 @@ void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePer
 	PreRedraw.SetParam(preRedrawItem.Param);
 }
 
-int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
+int AskDeleteReadOnly(const string& Name,DWORD Attr,int Wipe)
 {
 	int MsgCode;
 
@@ -722,7 +722,7 @@ int AskDeleteReadOnly(const wchar_t *Name,DWORD Attr,int Wipe)
 
 
 
-int ShellRemoveFile(const wchar_t *Name,int Wipe, int TotalPercent)
+int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent)
 {
 	ProcessedItems++;
 	string strFullName;
@@ -809,7 +809,7 @@ int ShellRemoveFile(const wchar_t *Name,int Wipe, int TotalPercent)
 }
 
 
-int ERemoveDirectory(const wchar_t *Name,int Wipe)
+int ERemoveDirectory(const string& Name,int Wipe)
 {
 	ProcessedItems++;
 	string strFullName;
@@ -911,7 +911,7 @@ bool MoveToRecycleBinInternal(LPCWSTR Object)
 	return !Result && !fop.fAnyOperationsAborted;
 }
 
-int RemoveToRecycleBin(const wchar_t *Name)
+int RemoveToRecycleBin(const string& Name)
 {
 	string strFullName;
 	ConvertNameToFull(Name, strFullName);
@@ -937,7 +937,7 @@ int RemoveToRecycleBin(const wchar_t *Name)
 	return MoveToRecycleBinInternal(lpwszName);
 }
 
-int WipeFile(const wchar_t *Name, int TotalPercent)
+int WipeFile(const string& Name, int TotalPercent)
 {
 	unsigned __int64 FileSize;
 	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
@@ -996,7 +996,7 @@ int WipeFile(const wchar_t *Name, int TotalPercent)
 }
 
 
-int WipeDirectory(const wchar_t *Name)
+int WipeDirectory(const string& Name)
 {
 	string strTempName, strPath;
 
@@ -1018,7 +1018,7 @@ int WipeDirectory(const wchar_t *Name)
 	return apiRemoveDirectory(strTempName);
 }
 
-int DeleteFileWithFolder(const wchar_t *FileName)
+int DeleteFileWithFolder(const string& FileName)
 {
 	string strFileOrFolderName;
 	strFileOrFolderName = FileName;
@@ -1039,7 +1039,7 @@ int DeleteFileWithFolder(const wchar_t *FileName)
 }
 
 
-void DeleteDirTree(const wchar_t *Dir)
+void DeleteDirTree(const string& Dir)
 {
 	if (!*Dir ||
 	        (IsSlash(Dir[0]) && !Dir[1]) ||

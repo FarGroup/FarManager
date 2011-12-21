@@ -42,12 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "fileowner.hpp"
 
-static int SetFileEncryption(const wchar_t *Name,int State);
-static int SetFileCompression(const wchar_t *Name,int State);
-static bool SetFileSparse(const wchar_t *Name,bool State);
-
-
-int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode)
+int ESetFileAttributes(const string& Name,DWORD Attr,int SkipMode)
 {
 //_SVS(SysLog(L"Attr=0x%08X",Attr));
 	if (Attr&FILE_ATTRIBUTE_DIRECTORY && Attr&FILE_ATTRIBUTE_TEMPORARY)
@@ -79,7 +74,7 @@ int ESetFileAttributes(const wchar_t *Name,DWORD Attr,int SkipMode)
 	return SETATTR_RET_OK;
 }
 
-static int SetFileCompression(const wchar_t *Name,int State)
+static int SetFileCompression(const string& Name,int State)
 {
 	File file;
 
@@ -95,7 +90,7 @@ static int SetFileCompression(const wchar_t *Name,int State)
 }
 
 
-int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode)
+int ESetFileCompression(const string& Name,int State,DWORD FileAttr,int SkipMode)
 {
 	if (((FileAttr & FILE_ATTRIBUTE_COMPRESSED)!=0) == State)
 		return SETATTR_RET_OK;
@@ -107,7 +102,7 @@ int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMod
 
 	// Drop Encryption
 	if ((FileAttr & FILE_ATTRIBUTE_ENCRYPTED) && State)
-		SetFileEncryption(Name,0);
+		apiSetFileEncryption(Name, false);
 
 	while (!SetFileCompression(Name,State))
 	{
@@ -145,13 +140,7 @@ int ESetFileCompression(const wchar_t *Name,int State,DWORD FileAttr,int SkipMod
 }
 
 
-static int SetFileEncryption(const wchar_t *Name,int State)
-{
-	return State?EncryptFile(NTPath(Name)):DecryptFile(NTPath(Name),0);
-}
-
-
-int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode,int Silent)
+int ESetFileEncryption(const string& Name, bool State, DWORD FileAttr, int SkipMode, int Silent)
 {
 	if (((FileAttr & FILE_ATTRIBUTE_ENCRYPTED)!=0) == State)
 		return SETATTR_RET_OK;
@@ -162,7 +151,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
 	if (FileAttr & (FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM))
 		apiSetFileAttributes(Name,FileAttr & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_SYSTEM));
 
-	while (!SetFileEncryption(Name,State))
+	while (!apiSetFileEncryption(Name, State))
 	{
 		if (Silent)
 		{
@@ -206,7 +195,7 @@ int ESetFileEncryption(const wchar_t *Name,int State,DWORD FileAttr,int SkipMode
 }
 
 
-int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationTime,FILETIME *LastAccessTime,FILETIME *ChangeTime,DWORD FileAttr,int SkipMode)
+int ESetFileTime(const string& Name,FILETIME *LastWriteTime,FILETIME *CreationTime,FILETIME *LastAccessTime,FILETIME *ChangeTime,DWORD FileAttr,int SkipMode)
 {
 	if (!LastWriteTime && !CreationTime && !LastAccessTime && !ChangeTime)
 		return SETATTR_RET_OK;
@@ -273,7 +262,7 @@ int ESetFileTime(const wchar_t *Name,FILETIME *LastWriteTime,FILETIME *CreationT
 	return SETATTR_RET_OK;
 }
 
-static bool SetFileSparse(const wchar_t *Name,bool State)
+static bool SetFileSparse(const string& Name,bool State)
 {
 	bool Ret=false;
 	File file;
@@ -287,7 +276,7 @@ static bool SetFileSparse(const wchar_t *Name,bool State)
 	return Ret;
 }
 
-int ESetFileSparse(const wchar_t *Name,bool State,DWORD FileAttr,int SkipMode)
+int ESetFileSparse(const string& Name,bool State,DWORD FileAttr,int SkipMode)
 {
 	int Ret=SETATTR_RET_OK;
 
@@ -331,7 +320,7 @@ int ESetFileSparse(const wchar_t *Name,bool State,DWORD FileAttr,int SkipMode)
 	return Ret;
 }
 
-int ESetFileOwner(LPCWSTR Name,LPCWSTR Owner,int SkipMode)
+int ESetFileOwner(const string& Name, const string& Owner,int SkipMode)
 {
 	int Ret=SETATTR_RET_OK;
 	while (!SetOwner(Name,Owner))

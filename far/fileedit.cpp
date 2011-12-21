@@ -308,23 +308,23 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 
 const FileEditor *FileEditor::CurrentEditor = nullptr;
 
-FileEditor::FileEditor(const wchar_t *Name, UINT codepage, DWORD InitFlags, int StartLine, int StartChar, const wchar_t *PluginData, int OpenModeExstFile):
+FileEditor::FileEditor(const string& Name, UINT codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int OpenModeExstFile):
 	BadConversion(false)
 {
 	ScreenObject::SetPosition(0,0,ScrX,ScrY);
 	Flags.Set(InitFlags);
 	Flags.Set(FFILEEDIT_FULLSCREEN);
-	Init(Name,codepage, nullptr,InitFlags,StartLine,StartChar, PluginData,FALSE,OpenModeExstFile);
+	Init(Name,codepage, nullptr, InitFlags, StartLine, StartChar, PluginData, FALSE, OpenModeExstFile);
 }
 
 
 FileEditor::FileEditor(
-    const wchar_t *Name,
+    const string& Name,
     UINT codepage,
     DWORD InitFlags,
     int StartLine,
     int StartChar,
-    const wchar_t *Title,
+    const string* Title,
     int X1,
     int Y1,
     int X2,
@@ -361,7 +361,8 @@ FileEditor::FileEditor(
 
 	ScreenObject::SetPosition(X1,Y1,X2,Y2);
 	Flags.Change(FFILEEDIT_FULLSCREEN,(!X1 && !Y1 && X2==ScrX && Y2==ScrY));
-	Init(Name,codepage, Title,InitFlags,StartLine,StartChar,L"",DeleteOnClose,OpenModeExstFile);
+	string EmptyTitle;
+	Init(Name,codepage, Title, InitFlags, StartLine, StartChar, &EmptyTitle, DeleteOnClose, OpenModeExstFile);
 }
 
 /* $ 07.05.2001 DJ
@@ -427,13 +428,13 @@ FileEditor::~FileEditor()
 }
 
 void FileEditor::Init(
-    const wchar_t *Name,
+    const string& Name,
     UINT codepage,
-    const wchar_t *Title,
+    const string* Title,
     DWORD InitFlags,
     int StartLine,
     int StartChar,
-    const wchar_t *PluginData,
+    const string* PluginData,
     int DeleteOnClose,
     int OpenModeExstFile
 )
@@ -1428,7 +1429,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 
 
 // сюды плавно переносить код из Editor::ReadFile()
-int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
+int FileEditor::LoadFile(const string& Name,int &UserBreak)
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	TPreRedrawFuncGuard preRedrawFuncGuard(Editor::PR_EditorShowMsg);
@@ -1652,7 +1653,7 @@ int FileEditor::LoadFile(const wchar_t *Name,int &UserBreak)
 
 //TextFormat и Codepage используются ТОЛЬКО, если bSaveAs = true!
 
-int FileEditor::SaveFile(const wchar_t *Name,int Ask, bool bSaveAs, int TextFormat, UINT codepage, bool AddSignature)
+int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextFormat, UINT codepage, bool AddSignature)
 {
 	if (!bSaveAs)
 	{
@@ -2196,15 +2197,15 @@ int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
 	return RetCode;
 }
 
-void FileEditor::SetPluginTitle(const wchar_t *PluginTitle)
+void FileEditor::SetPluginTitle(const string* PluginTitle)
 {
 	if (!PluginTitle)
 		strPluginTitle.Clear();
 	else
-		strPluginTitle = PluginTitle;
+		strPluginTitle = *PluginTitle;
 }
 
-BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
+BOOL FileEditor::SetFileName(const string& NewFileName)
 {
 	strFileName = NewFileName;
 
@@ -2242,9 +2243,9 @@ BOOL FileEditor::SetFileName(const wchar_t *NewFileName)
 	return TRUE;
 }
 
-void FileEditor::SetTitle(const wchar_t *Title)
+void FileEditor::SetTitle(const string* Title)
 {
-	strTitle = Title;
+	strTitle = Title? *Title : L"";
 }
 
 void FileEditor::ChangeEditKeyBar()
@@ -2385,7 +2386,7 @@ void FileEditor::ShowStatus()
      Узнаем атрибуты файла и заодно сформируем готовую строку атрибутов для
      статуса.
 */
-DWORD FileEditor::EditorGetFileAttributes(const wchar_t *Name)
+DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 {
 	FileAttributes=apiGetFileAttributes(Name);
 	int ind=0;
@@ -2425,9 +2426,9 @@ BOOL FileEditor::UpdateFileList()
 	return FALSE;
 }
 
-void FileEditor::SetPluginData(const wchar_t *PluginData)
+void FileEditor::SetPluginData(const string* PluginData)
 {
-	FileEditor::strPluginData = PluginData;
+	FileEditor::strPluginData = PluginData? *PluginData : L"";
 }
 
 /* $ 14.06.2002 IS

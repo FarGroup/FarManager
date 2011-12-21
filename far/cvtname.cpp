@@ -264,7 +264,8 @@ bool MixToFullPath(LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 			break;
 			case PPT_DRIVE: //"C:" or "C:abc"
 			{
-				WCHAR DriveVar[]={L'=',*stPath,L':',L'\0'};
+				WCHAR _DriveVar[]={L'=',*stPath,L':',L'\0'};
+				string DriveVar(_DriveVar);
 				string strValue;
 
 				if (apiGetEnvironmentVariable(DriveVar,strValue))
@@ -398,7 +399,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 
 				while (*Drive)
 				{
-					if (apiGetVolumeNameForVolumeMountPoint(Drive,strVolumeGuid))
+					if (apiGetVolumeNameForVolumeMountPoint(Drive, strVolumeGuid))
 					{
 						if (Path.IsSubStrAt(0, strVolumeGuid, cVolumeGuidLen))
 						{
@@ -434,7 +435,7 @@ void ConvertNameToReal(const wchar_t *Src, string &strDest)
 
 	for (;;)
 	{
-		hFile = apiCreateFile(Path.CPtr(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0);
+		hFile = apiCreateFile(Path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, 0);
 
 		if (hFile != INVALID_HANDLE_VALUE)
 			break;

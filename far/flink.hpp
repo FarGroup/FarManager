@@ -49,19 +49,19 @@ enum ReparsePointTypes
 int   WINAPI MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName);
 BOOL  WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MKLINK_FLAGS Flags);
 
-int   WINAPI GetNumberOfLinks(const wchar_t *Name);
-bool WINAPI CreateVolumeMountPoint(const wchar_t *TargetVolume, const wchar_t *Object);
+int   WINAPI GetNumberOfLinks(const string& Name);
+bool WINAPI CreateVolumeMountPoint(const string& TargetVolume, const string& Object);
 
-bool  WINAPI CreateReparsePoint(const wchar_t *Target, const wchar_t *Object,ReparsePointTypes Type=RP_JUNCTION);
-bool  WINAPI DeleteReparsePoint(const wchar_t *Object);
-bool ModifyReparsePoint(const wchar_t *Object,const wchar_t *NewData);
+bool  WINAPI CreateReparsePoint(const string& Target, const string& Object,ReparsePointTypes Type=RP_JUNCTION);
+bool  WINAPI DeleteReparsePoint(const string& Object);
+bool ModifyReparsePoint(const string& Object,const string& NewData);
 
-DWORD WINAPI GetReparsePointInfo(const wchar_t *Object, string &szDestBuff,LPDWORD lpReparseTag=nullptr);
+DWORD WINAPI GetReparsePointInfo(const string& Object, string &szDestBuff,LPDWORD lpReparseTag=nullptr);
 
-bool GetSubstName(int DriveType,const wchar_t *DeviceName,string &strTargetPath);
-bool GetVHDName(const wchar_t *DeviceName, string &strVolumePath);
+bool GetSubstName(int DriveType,const string& DeviceName,string &strTargetPath);
+bool GetVHDName(const string& DeviceName, string &strVolumePath);
 
-bool DelSubstDrive(const wchar_t *DeviceName);
+bool DelSubstDrive(const string& DeviceName);
 void GetPathRoot(const wchar_t *Path, string &strRoot);
 
 // перечислятель для EnumNTFSStreams
@@ -70,9 +70,9 @@ void GetPathRoot(const wchar_t *Path, string &strRoot);
 //typedef BOOL (WINAPI *ENUMFILESTREAMS)(int Idx,const WCHAR *StreamName,const WIN32_STREAM_ID *sid);
 //int WINAPI EnumNTFSStreams(const char *FileName,ENUMFILESTREAMS fpEnum,__int64 *SizeStreams);
 
-bool EnumStreams(const wchar_t *FileName,UINT64 &StreamsSize,DWORD &StreamsCount);
+bool EnumStreams(const string& FileName,UINT64 &StreamsSize,DWORD &StreamsCount);
 
-bool DuplicateReparsePoint(const wchar_t *Src,const wchar_t *Dst);
+bool DuplicateReparsePoint(const string& Src,const string& Dst);
 
 void NormalizeSymlinkName(string &strLinkName);
 

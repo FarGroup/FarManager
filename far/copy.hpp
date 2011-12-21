@@ -105,29 +105,29 @@ class ShellCopy
 		// в остальных случа€х - RP_EXACTCOPY - как у источника
 		ReparsePointTypes RPT;
 
-		COPY_CODES CopyFileTree(const wchar_t *Dest);
-		COPY_CODES ShellCopyOneFile(const wchar_t *Src,
+		COPY_CODES CopyFileTree(const string&  Dest);
+		COPY_CODES ShellCopyOneFile(const string&  Src,
 		                            const FAR_FIND_DATA_EX &SrcData,
 		                            string &strDest,
 		                            int KeepPathPos, int Rename);
-		COPY_CODES CheckStreams(const wchar_t *Src,const wchar_t *DestPath);
-		int  ShellCopyFile(const wchar_t *SrcName,const FAR_FIND_DATA_EX &SrcData,
+		COPY_CODES CheckStreams(const string& Src,const string& DestPath);
+		int  ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcData,
 		                   string &strDestName,DWORD &DestAttr,int Append);
-		int  ShellSystemCopy(const wchar_t *SrcName,const wchar_t *DestName,const FAR_FIND_DATA_EX &SrcData);
-		int  DeleteAfterMove(const wchar_t *Name,DWORD Attr);
-		void SetDestDizPath(const wchar_t *DestPath);
-		int  AskOverwrite(const FAR_FIND_DATA_EX &SrcData,const wchar_t *SrcName,const wchar_t *DestName,
+		int  ShellSystemCopy(const string& SrcName,const string& DestName,const FAR_FIND_DATA_EX &SrcData);
+		int  DeleteAfterMove(const string& Name,DWORD Attr);
+		void SetDestDizPath(const string& DestPath);
+		int  AskOverwrite(const FAR_FIND_DATA_EX &SrcData,const string& SrcName,const string& DestName,
 		                  DWORD DestAttr,int SameName,int Rename,int AskAppend,
 		                  int &Append,string &strNewName,int &RetCode);
-		int  GetSecurity(const wchar_t *FileName,SECURITY_ATTRIBUTES &sa);
-		int  SetSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa);
-		int  SetRecursiveSecurity(const wchar_t *FileName,const SECURITY_ATTRIBUTES &sa);
+		int  GetSecurity(const string& FileName,SECURITY_ATTRIBUTES &sa);
+		int  SetSecurity(const string& FileName,const SECURITY_ATTRIBUTES &sa);
+		int  SetRecursiveSecurity(const string& FileName,const SECURITY_ATTRIBUTES &sa);
 		bool CalcTotalSize();
-		bool ShellSetAttr(const wchar_t *Dest,DWORD Attr);
+		bool ShellSetAttr(const string& Dest,DWORD Attr);
 		void CheckUpdatePanel(); // выставл€ет флаг FCOPY_UPDATEPPANEL
 	public:
 		ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
-		          int &ToPlugin, const wchar_t *PluginDestPath, bool ToSubdir=false);
+		          int &ToPlugin, const wchar_t* PluginDestPath, bool ToSubdir=false);
 		~ShellCopy();
 };
 

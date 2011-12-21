@@ -462,7 +462,7 @@ int CommandLine::ProcessKey(int Key)
 }
 
 
-BOOL CommandLine::SetCurDir(const wchar_t *CurDir)
+BOOL CommandLine::SetCurDir(const string& CurDir)
 {
 	if (StrCmpI(strCurDir,CurDir) || !TestCurrentDirectory(CurDir))
 	{
@@ -483,7 +483,7 @@ int CommandLine::GetCurDir(string &strCurDir)
 }
 
 
-void CommandLine::SetString(const wchar_t *Str,BOOL Redraw)
+void CommandLine::SetString(const string& Str,BOOL Redraw)
 {
 	LastCmdPartLength=-1;
 	CmdStr.SetString(Str);
@@ -494,7 +494,7 @@ void CommandLine::SetString(const wchar_t *Str,BOOL Redraw)
 }
 
 
-void CommandLine::ExecString(const wchar_t *Str, bool AlwaysWaitFinish,bool SeparateWindow,
+void CommandLine::ExecString(const string& Str, bool AlwaysWaitFinish,bool SeparateWindow,
                              bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)
 {
 	CmdStr.DisableAC();
@@ -504,7 +504,7 @@ void CommandLine::ExecString(const wchar_t *Str, bool AlwaysWaitFinish,bool Sepa
 }
 
 
-void CommandLine::InsertString(const wchar_t *Str)
+void CommandLine::InsertString(const string& Str)
 {
 	LastCmdPartLength=-1;
 	CmdStr.InsertString(Str);

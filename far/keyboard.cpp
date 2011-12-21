@@ -584,7 +584,7 @@ void ReloadEnvironment()
 	struct addr
 	{
 		HKEY Key;
-		LPCWSTR SubKey;
+		string SubKey;
 	}
 	Addr[]=
 	{

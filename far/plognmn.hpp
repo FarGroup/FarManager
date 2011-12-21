@@ -45,6 +45,6 @@ class PreserveLongName
 		int Preserve;
 
 	public:
-		PreserveLongName(const wchar_t *ShortName,int Preserve);
+		PreserveLongName(const string& ShortName,int Preserve);
 		~PreserveLongName();
 };

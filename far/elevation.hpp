@@ -57,6 +57,7 @@ enum ELEVATION_COMMAND
 	C_FUNCTION_SETOWNER,
 	C_FUNCTION_CREATEFILE,
 	C_FUNCTION_GETCOMPRESSEDFILESIZE,
+	C_FUNCTION_SETENCRYPTION,
 };
 
 class AutoObject;
@@ -78,20 +79,21 @@ public:
 	void ResetApprove();
 	bool Elevated(){return Elevation;}
 
-	bool fCreateDirectoryEx(LPCWSTR TemplateObject, LPCWSTR Object, LPSECURITY_ATTRIBUTES Attributes);
-	bool fRemoveDirectory(LPCWSTR Object);
-	bool fDeleteFile(LPCWSTR Object);
+	bool fCreateDirectoryEx(const string* TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes);
+	bool fRemoveDirectory(const string& Object);
+	bool fDeleteFile(const string& Object);
 	void fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const;
-	bool fCopyFileEx(LPCWSTR From, LPCWSTR To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags);
-	bool fMoveFileEx(LPCWSTR From, LPCWSTR To, DWORD Flags);
-	DWORD fGetFileAttributes(LPCWSTR Object);
-	bool fSetFileAttributes(LPCWSTR Object, DWORD FileAttributes);
-	bool fCreateHardLink(LPCWSTR Object,LPCWSTR Target,LPSECURITY_ATTRIBUTES SecurityAttributes);
-	bool fCreateSymbolicLink(LPCWSTR Object, LPCWSTR Target, DWORD Flags);
+	bool fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROUTINE ProgressRoutine, LPVOID Data, LPBOOL Cancel, DWORD Flags);
+	bool fMoveFileEx(const string& From, const string& To, DWORD Flags);
+	DWORD fGetFileAttributes(const string& Object);
+	bool fSetFileAttributes(const string& Object, DWORD FileAttributes);
+	bool fCreateHardLink(const string& Object,const string& Target,LPSECURITY_ATTRIBUTES SecurityAttributes);
+	bool fCreateSymbolicLink(const string& Object, const string& Target, DWORD Flags);
 	int fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct);
-	bool fSetOwner(LPCWSTR Object, LPCWSTR Owner);
-	HANDLE fCreateFile(LPCWSTR Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
-	bool fGetCompressedFileSize(LPCWSTR Object,UINT64& Size);
+	bool fSetOwner(const string& Object, const string& Owner);
+	HANDLE fCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
+	bool fGetCompressedFileSize(const string& Object,UINT64& Size);
+	bool fSetFileEncryption(const string& Object, bool Encrypt);
 
 private:
 	HANDLE Pipe;
@@ -116,13 +118,13 @@ private:
 	bool SendCommand(ELEVATION_COMMAND Command) const;
 	bool ReceiveLastError() const;
 	bool Initialize();
-	bool ElevationApproveDlg(int Why, LPCWSTR Object);
+	bool ElevationApproveDlg(int Why, const string& Object);
 };
 
 extern elevation Elevation;
 
 void ElevationApproveDlgSync(LPVOID Param);
 
-bool ElevationRequired(ELEVATION_MODE Mode);
+bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus = true);
 bool IsUserAdmin();
 int ElevationMain(LPCWSTR guid, DWORD PID, bool UsePrivileges);

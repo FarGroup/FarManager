@@ -688,9 +688,9 @@ int InfoList::ProcessKey(int Key)
 
 		default:
 		{
-			if (Key >= KEY_CTRL0 && Key <= KEY_CTRL9 || Key >= KEY_RCTRL0 && Key <= KEY_RCTRL9)
+			if ((Key >= KEY_CTRL0 && Key <= KEY_CTRL9) || (Key >= KEY_RCTRL0 && Key <= KEY_RCTRL9))
 			{
-				int Idx=Key >= KEY_CTRL0 && Key <= KEY_CTRL9? Key-KEY_CTRL0 : Key-KEY_RCTRL0;
+				size_t Idx=Key >= KEY_CTRL0 && Key <= KEY_CTRL9? Key-KEY_CTRL0 : Key-KEY_RCTRL0;
 				if (Idx < ARRAYSIZE(SectionState))
 				{
 					SectionState[Idx].Show=!SectionState[Idx].Show;

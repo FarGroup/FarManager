@@ -209,7 +209,7 @@ void PrintFiles(Panel *SrcPanel)
 				continue;
 
 			int Success=FALSE;
-			LPCWSTR FileName = nullptr;
+			string FileName;
 			string strTempDir, strTempName;
 
 			if (PluginMode)
@@ -239,7 +239,7 @@ void PrintFiles(Panel *SrcPanel)
 			File SrcFile;
 			if(SrcFile.Open(FileName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
 			{
-				DOC_INFO_1 di1 = {const_cast<LPWSTR>(FileName)};
+				DOC_INFO_1 di1 = {const_cast<LPWSTR>(FileName.CPtr())};
 
 				if (StartDocPrinter(hPrinter,1,(LPBYTE)&di1))
 				{

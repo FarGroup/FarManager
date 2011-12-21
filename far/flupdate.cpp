@@ -270,7 +270,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	{
 		FindErrorCode = GetLastError();
 
-		if ((Opt.ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || Filter->FileInFilter(fdata, nullptr, fdata.strFileName)))
+		if ((Opt.ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
 		{
 			if (FileCount>=AllocatedCount)
 			{
@@ -924,7 +924,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 							if (CtrlObject->Plugins.GetFile(hPlugin,CurPanelData,strTempDir,strDizName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW|OPM_DESCR))
 							{
 								strPluginDizName = Info.DescrFiles[I];
-								Diz.Read(L"",strDizName);
+								Diz.Read(L"", &strDizName);
 								DeleteFileWithFolder(strDizName);
 								I=Info.DescrFilesNumber;
 								break;

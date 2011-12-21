@@ -34,5 +34,5 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 void ShellDelete(Panel *SrcPanel,bool Wipe);
-void DeleteDirTree(const wchar_t *Dir);
-int DeleteFileWithFolder(const wchar_t *FileName);
+void DeleteDirTree(const string& Dir);
+int DeleteFileWithFolder(const string&FileName);
