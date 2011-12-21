@@ -1,5 +1,3 @@
 "Custom Highlighting" Complete custom file highlighting groups and colors
 "Default Highlighting" Custom color schemes for default file highlighting groups
 descript.ion File descriptions
-export_colors.bat Export color scheme to .reg file
-import_colors.bat Import color scheme from .reg file

@@ -1,9 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlIns]
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlIns]
-"Description"="If CtrlIns was pressed while on .. and command line is empty then copy to clipboard the path of the current folder"
-"Sequence"="$If (APanel.Bof && !APanel.Selected && !APanel.Root) F7 CtrlShift[ CtrlIns Esc $Exit $Else CtrlIns $End"
-"DisableOutput"=dword:00000001
-"EmptyCommandLine"=dword:00000001
-"NoPluginPanels"=dword:00000001

@@ -1,7 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlQ]
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlQ]
-"Description"="Toggle quick view panel"
-"Sequence"="Tab $If (QView) Tab Ctrl2 Tab CtrlClear $Else Tab Ctrl6 Tab $If (APanel.Left) $Rep (APanel.width) CtrlRight $End $Else $Rep (APanel.width) CtrlLeft $End $End $End Tab CtrlQ"
-"DisableOutput"=dword:00000001

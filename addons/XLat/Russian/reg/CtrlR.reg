@@ -1,6 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Common\CtrlR]
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Common\CtrlR]
-"Sequence"="$XLat"
-"DisableOutput"=dword:00000000

@@ -1,7 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Editor\CtrlS]
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Editor\CtrlS]
-"Description"="Editor: Save File"
-"Sequence"="F2"
-"DisableOutput"=dword:00000001

@@ -9,8 +9,8 @@ integrating FAR with the Windows shell.
 
    The "XLat" folder contains Xlat-tables for transliteration.
 
-   To install any of the provided .reg files just press Shift-Enter from
-FAR on its name and restart FAR.
+   To install any of the provided .xml files just run:
+   Far.exe /import filename.xml
 
-   All  included  .reg  files  contain  descriptions.  Switch  to  "Long
+   All  included  .xml  files  contain  descriptions.  Switch  to  "Long
 descriptions" view mode in order to read them.

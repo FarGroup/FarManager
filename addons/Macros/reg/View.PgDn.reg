@@ -1,7 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Viewer\PgDn]
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Viewer\PgDn]
-"Description"="PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier"
-"DisableOutput"=dword:00000001
-"Sequence"="$If (Eof) End $Else PgDn $End"

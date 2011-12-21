@@ -1,9 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\Space]
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\Space]
-"Description"="Use Space to select files"
-"Sequence"="Ins"
-"DisableOutput"=dword:00000001
-"EmptyCommandLine"=dword:00000001
-"NotEmptyCommandLine"=dword:00000000

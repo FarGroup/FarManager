@@ -1,7 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Viewer\Space]
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Viewer\Space]
-"Description"="Use Space for listing in the viewer (like in Outlook Express or The Bat!)"
-"DisableOutput"=dword:00000001
-"Sequence"="$If (Eof) CtrlF10 Shift $If (APanel.Eof) $Exit $Else Add Home $End $Else PgDn $End"

@@ -1,9 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlLeft]
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlLeft]
-"Description"="Use Ctrl-Left to change current drive to the previous"
-"Sequence"="F9 Enter Up Enter Up Enter Esc"
-"DisableOutput"=dword:00000001
-"EmptyCommandLine"=dword:00000001
-"NotEmptyCommandLine"=dword:00000000

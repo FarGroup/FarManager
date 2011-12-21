@@ -1,15 +1,14 @@
-black_from_Fonarev.reg  light cyan and gray on black - (c) "Vladimir M.Fonarev" <vol@quorum.ru>
-black_from_july.reg white on black (light menus) - (c) Igor Lubimov <mr_july@mail.ru>
-black_from_Myodov.reg white on black (dark menus) - (c) Alexander Myodov <Alexander.Myodov@p29.f112.n5015.z2.fidonet.org>
-Colors_from_admin_essp_ru.reg white on blue - (c) admin <admin@essp.ru>
-Colors_from_Gernichenko.reg light cyan and white on black - (c) Sergey Gernichenko <Sergey.Gernichenko@p34.f32.n5079.z2.fidonet.org>
-Colors_from_Sadovoj.reg white on light gray and blue - (c) Aleksandr Sadovoj <raindog@hotbox.ru>
-dn_like.reg light cyan and white on dark gray - DOS Navigator gray palette - (c) Eugene Kotlyarov <Eugene.Kotlyarov@p9.f26.n5058.z2.fidonet.org>
-FARColors242.reg light gray on dark gray - (c) Andrzej Novosiolov [http://surf.to/andrzej]
-hell.reg light gray on black - (c) Andrey Repin <Andrey.Repin@p24.f877.n5020.z2.fidonet.org>
-nc5pal2.reg light cyan on blue - Norton Commander 5.0 Palette 2 - (c) alexey kolesnichenko <gossip@gossip.donetsk.ua>
-Rodion_Doroshkevich.reg light cyan and white on blue - (c) Rodion Doroshkevich <rodion2000@mailru.com>
-VaxColors.reg light gray and green on black - Vax Colors - (c) Eugene Kotlyarov <Eugene.Kotlyarov@p9.f26.n5058.z2.fidonet.org>
-import_colors.bat Import color scheme from .reg file
+black_from_Fonarev.xml  light cyan and gray on black - (c) "Vladimir M.Fonarev" <vol@quorum.ru>
+black_from_july.xml white on black (light menus) - (c) Igor Lubimov <mr_july@mail.ru>
+black_from_Myodov.xml white on black (dark menus) - (c) Alexander Myodov <Alexander.Myodov@p29.f112.n5015.z2.fidonet.org>
+Colors_from_admin_essp_ru.xml white on blue - (c) admin <admin@essp.ru>
+Colors_from_Gernichenko.xml light cyan and white on black - (c) Sergey Gernichenko <Sergey.Gernichenko@p34.f32.n5079.z2.fidonet.org>
+Colors_from_Sadovoj.xml white on light gray and blue - (c) Aleksandr Sadovoj <raindog@hotbox.ru>
+dn_like.xml light cyan and white on dark gray - DOS Navigator gray palette - (c) Eugene Kotlyarov <Eugene.Kotlyarov@p9.f26.n5058.z2.fidonet.org>
+FARColors242.xml light gray on dark gray - (c) Andrzej Novosiolov [http://surf.to/andrzej]
+hell.xml light gray on black - (c) Andrey Repin <Andrey.Repin@p24.f877.n5020.z2.fidonet.org>
+nc5pal2.xml light cyan on blue - Norton Commander 5.0 Palette 2 - (c) alexey kolesnichenko <gossip@gossip.donetsk.ua>
+Rodion_Doroshkevich.xml light cyan and white on blue - (c) Rodion Doroshkevich <rodion2000@mailru.com>
+VaxColors.xml light gray and green on black - Vax Colors - (c) Eugene Kotlyarov <Eugene.Kotlyarov@p9.f26.n5058.z2.fidonet.org>
 descript.ion File descriptions
-GreenMile.reg black on green - (c) Anton Belenki <lowtrucks@lowtrucks.net>
+GreenMile.xml black on green - (c) Anton Belenki <lowtrucks@lowtrucks.net>

@@ -1,7 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Editor\CtrlW]
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Editor\CtrlW]
-"Sequence"="ShiftF10"
-"DisableOutput"=dword:00000001
-"Description"="Save File and Exit"

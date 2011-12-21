@@ -1,7 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Dialog\AltDown]
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Dialog\AltDown]
-"Sequence"="CtrlDown"
-"DisableOutput"=dword:00000001
-"Description"="Open combobox and history list (as Ctrl-Down pressed)"

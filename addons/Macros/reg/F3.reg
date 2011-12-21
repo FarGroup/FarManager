@@ -1,9 +1,0 @@
-REGEDIT4
-
-[-HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\F3]
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\F3]
-"Description"="Use internal editor as viewer"
-"Sequence"="F4 $If (Dialog) Enter $End $If (Editor && !(Editor.State&0x200)) CtrlL $End"
-"DisableOutput"=dword:00000001
-"NoPluginPanels"=dword:00000001
-"NoFolders"=dword:00000001

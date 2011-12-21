@@ -39,5 +39,4 @@ View.PgDn.xml Viewer: PgDn at the end of file works as in Far Manager 1.70 beta 
 View.ShiftInsSearch.xml Viewer: Use Shift-Ins to search text from clipboard in internal viewer
 View.Space.xml Viewer: Use Space for listing in the viewer (like in Outlook Express or The Bat!)
 WheelScreenSwitch.xml Use Shift-MsWheel to switch between screens
-reg REG-files
 Descript.ion File descriptions
