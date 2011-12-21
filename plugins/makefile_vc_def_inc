@@ -55,6 +55,8 @@
 #
 #VC - set Visual C++ version (VC=8 - 2005, VC=9 - 2008, VC=10 - 2010) (we try to autodetect if not set)
 #
+#NO_RELEASE_PDB - set to disable pdb generation for release
+#
 
 !if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "x64"
 !undef AMD64
@@ -147,6 +149,10 @@ CPPFLAGS=$(CPPFLAGS) /DNDEBUG /O2
 CPPFLAGS=$(CPPFLAGS) /DDEBUG /Od
 !endif
 
+!ifndef NO_RELEASE_PDB
+CPPFLAGS=$(CPPFLAGS) /Zi
+!endif
+
 !ifdef AMD64
 COMMONLIB = $(COMMON)\libCRT64.lib
 ULOUT=-Tpd+
@@ -193,7 +199,10 @@ NODEFLIB = /nodefaultlib
 !if !defined(CPU)
 SUBSYSTEM=/subsystem:windows,5.0
 !endif
-LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /debug /dynamicbase /merge:.rdata=.text $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+!ifndef NO_RELEASE_PDB
+LINK_FLAGS=$(LINK_FLAGS) /debug
+!endif
 !else
 LNK=$(_ULINK_PATH_)ulink.exe +-
 !ifndef NEEDENTRY
