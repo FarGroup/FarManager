@@ -4,7 +4,7 @@
 
 ./plugins.sh &> logplugins
 
-./enc.sh &> logenc
+#./enc.sh &> logenc
 
 ./docs.sh &> logdocs
 

@@ -10,7 +10,7 @@ svn export http://localhost/svn/trunk/docs/RUS $1/Documentation/rus
 
 svn export http://localhost/svn/trunk/addons $1/Addons
 
-cp docs/ClearPluginsCache.cmd docs/RestoreSettings.cmd docs/SaveSettings.cmd $1/
+cp docs/RestoreOldPluginSettings.cmd docs/SaveOldPluginSettings.cmd $1/
 
 }
 
