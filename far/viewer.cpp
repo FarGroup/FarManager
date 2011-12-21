@@ -437,9 +437,14 @@ bool Viewer::isBinaryFile() // very approximate: looks for 0x00,0x00 in first 20
 	if ( nr < 2 )
 		return (nr > 0 && !bf[0]);
 
+   bool bom =
+		( bf[0] == (unsigned char)0xFE && bf[1] == (unsigned char)0xFF ) ||
+		( bf[0] == (unsigned char)0xFF && bf[1] == (unsigned char)0xFE );
+
 	for (nb = 0; nb+1 < nr; ++nb)
 		if ( !bf[nb] && !bf[nb+1] )
-			return true;
+			if ( !bom || 0 == (nb & 1) )
+				return true;
 
 	return false;
 }
