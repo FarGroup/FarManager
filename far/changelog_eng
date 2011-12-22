@@ -3,6 +3,54 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 22.12.2011 23:55:28 +0400 - build 2311
+
+1. Mantis#0001949: Macro call with AutoCompletion switched on
+    1. Fixing <akey(1,0) returns a "smiley" instead of ShiftEnter>
+    2. Removing "AutoCompletion" section, adding 2 others: "Shell.AutoCompletion" and "Dialog.AutoCompletion".
+
+t-rex 22.12.2011 18:20:50 +0200 - build 2310
+
+1. RCtrl and RAlt were passed incorrectly in ANSI plugins panel.
+
+w17 22.12.2011 16:50:49 +0400 build - 2309
+
+1. mistypr in string constructor
+
+svs 22.12.2011 16:29:40 +0400 - build 2308
+
+1. InfoPanel: Ctrl-digit combinations are removed. 
+   Define them with macros using Ctrl-F12 menu
+
+drkns 22.12.2011 13:37:44 +0200 - build 2307
+
+1. More on info panel.
+
+drkns 22.12.2011 11:04:18 +0200 - build 2306
+
+1. Correction of displaying of common size at copying.
+
+2. InfoPanel: computer info (if available), user info (if available), user access level (guest/user/admin).
+
+t-rex 21.12.2011 21:24:04 +0200 - build 2305
+
+1. A couple of minor issues.
+
+drkns 21.12.2011 20:58:55 +0200 - build 2304
+
+1. One more correction regarding to skipping of "." and ".." reading a directory.
+
+drkns 21.12.2011 20:33:19 +0200 - build 2303
+
+1. Inner functions are partly refactored from 'const wchar_t*' to 'const string&' because string.CPtr() is already passed almost everywhere.
+   This should reduce wcslen usage etc.
+
+2. Elevation works in encryption/decryption.
+
+w17 21.12.2011 17:12:54 +0400 build - 2302
+
+1. 0001950: Erroneous switching to Dump mode on Unicode files
+
 w17 15.12.2011 22:40:32 +0400 build - 2301
 
 1. Mantis #1235: Incorrect Shift-Del functioning on storage devices with more than 1 partition
