@@ -9805,13 +9805,13 @@ upd:"Administrator"
 upd:"Administrator"
 
 MInfoDiskTitle
-"Диск"
-"Disk"
-"Disk"
-"Laufwerk"
-"Lemez"
-"Dysk"
-"Disco"
+" Диск "
+" Disk "
+" Disk "
+" Laufwerk "
+" Lemez "
+" Dysk "
+" Disco "
 
 MInfoRemovable
 "Сменный"
