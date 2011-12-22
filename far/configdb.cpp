@@ -2464,7 +2464,7 @@ public:
 				if(sequence && *sequence)
 				{
 					string strSequence=string(sequence, CP_UTF8);
-					string strFlags=string(flags? string(flags, CP_UTF8) : L"", CP_UTF8);
+					string strFlags=string(flags? flags : "", CP_UTF8);
 					SetKeyMacro(string(area, CP_UTF8), string(key, CP_UTF8), RemoveExternalSpaces(strFlags), RemoveExternalSpaces(strSequence), description? string(description, CP_UTF8) : L"");
 				}
 				else
