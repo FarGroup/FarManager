@@ -1113,6 +1113,8 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(C_AREA_TREEPANEL),
 		DEF_MCODE_(C_AREA_USERMENU),
 		DEF_MCODE_(C_AREA_VIEWER),
+		DEF_MCODE_(C_AREA_SHELL_AUTOCOMPLETION),// Список автодополнения в панелях в ком.строке
+		DEF_MCODE_(C_AREA_DIALOG_AUTOCOMPLETION),// Список автодополнения в диалоге
 		DEF_MCODE_(C_BOF),
 		DEF_MCODE_(C_CMDLINE_BOF),
 		DEF_MCODE_(C_CMDLINE_EMPTY),

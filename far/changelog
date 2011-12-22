@@ -1,3 +1,9 @@
+svs 22.12.2011 23:55:28 +0400 - build 2311
+
+1. Mantis#0001949: Вызов макроса при включенном AutoCompletion
+    1. Исправляем <akey(1,0) возвращает "рожицу" вместо ShiftEnter>
+    2. Удаляем область "AutoCompletion", добавляем 2 новых "Shell.AutoCompletion" и "Dialog.AutoCompletion".
+
 t-rex 22.12.2011 18:20:50 +0200 - build 2310
 
 1. RCtrl и RAlt неправильно передавались в панели анси плагинов.

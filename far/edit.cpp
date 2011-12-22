@@ -3051,7 +3051,7 @@ void EditControl::Changed(bool DelBlock)
 		{
 			m_Callback.m_Callback(m_Callback.m_Param);
 		}
-		AutoComplete(false, DelBlock);
+		AutoComplete(false, DelBlock, MACRO_DIALOGAUTOCOMPLETION);
 	}
 }
 
@@ -3161,7 +3161,7 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 	}
 }
 
-int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
+int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Area)
 {
 	int Result=0;
 	static int Reenter=0;
@@ -3172,6 +3172,9 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 
 		VMenu ComplMenu(nullptr,nullptr,0,0);
 		string strTemp=Str;
+
+		if(Opt.AutoComplete.ShowList)
+			CtrlObject->Macro.SetMode(Area);
 
 		if(pHistory)
 		{
@@ -3217,7 +3220,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 			}
 			if(Opt.AutoComplete.ShowList)
 			{
-				ChangeMacroMode MacroMode(MACRO_AUTOCOMPLETION);
 				MenuItemEx EmptyItem={};
 				ComplMenu.AddItem(&EmptyItem,0);
 				SetMenuPos(ComplMenu);
@@ -3473,20 +3475,24 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey)
 	return Result;
 }
 
-void EditControl::AutoComplete(bool Manual,bool DelBlock)
+void EditControl::AutoComplete(bool Manual,bool DelBlock, int Area)
 {
 	int Key=0;
-	if(AutoCompleteProc(Manual,DelBlock,Key))
+	int PrevMacroMode=CtrlObject->Macro.GetMode();
+	if(Opt.AutoComplete.ShowList)
+		CtrlObject->Macro.SetMode(Area);
+	if(AutoCompleteProc(Manual,DelBlock,Key,Area))
 	{
 		// BUGBUG, hack
 		int Wait=WaitInMainLoop;
 		WaitInMainLoop=1;
-		struct FAR_INPUT_RECORD irec={Key};
+		struct FAR_INPUT_RECORD irec={Key,*FrameManager->GetLastInputRecord()};
 		if(!CtrlObject->Macro.ProcessEvent(&irec))
 			pOwner->ProcessKey(Key);
 		WaitInMainLoop=Wait;
 		Show();
 	}
+	CtrlObject->Macro.SetMode(PrevMacroMode);
 }
 
 int EditControl::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)

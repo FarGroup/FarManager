@@ -2576,8 +2576,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 				if (CtrlObject && CtrlObject->Macro.IsRecording())
 				{
 					_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessEvent(KEY_INS|KEY_ALT)",__LINE__));
-					struct FAR_INPUT_RECORD irec={0,*rec};
-					irec.IntKey=KEY_INS|KEY_ALT;
+					struct FAR_INPUT_RECORD irec={KEY_INS|KEY_ALT,*rec};
 					CtrlObject->Macro.ProcessEvent(&irec);
 				}
 

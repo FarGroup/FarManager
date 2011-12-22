@@ -245,7 +245,8 @@ enum MACRO_OP_CODE
 	MCODE_C_AREA_TREEPANEL,           // Панель дерева папок
 	MCODE_C_AREA_FINDFOLDER,          // Поиск папок
 	MCODE_C_AREA_USERMENU,            // Меню пользователя
-	MCODE_C_AREA_AUTOCOMPLETION,      // Список автодополнения
+	MCODE_C_AREA_SHELL_AUTOCOMPLETION,// Список автодополнения в панелях в ком.строке
+	MCODE_C_AREA_DIALOG_AUTOCOMPLETION,// Список автодополнения в диалоге
 
 	MCODE_C_FULLSCREENMODE,           // полноэкранный режим?
 	MCODE_C_ISUSERADMIN,              // Administrator status

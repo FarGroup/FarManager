@@ -310,14 +310,14 @@ class EditControl:public Edit
 	History* pHistory;
 	FarList* pList;
 	void SetMenuPos(VMenu& menu);
-	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey);
+	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Area);
 
 	FarColor ColorUnChanged;   // 28.07.2000 SVS - для диалога
 
 	BitFlags ECFlags;
 
 	bool ACState;
-	
+
 	bool CallbackSaveState;
 
 	virtual void DisableCallback()
@@ -352,7 +352,7 @@ public:
 	virtual void Changed(bool DelBlock=false);
 	virtual void SetUnchangedColor();
 
-	void AutoComplete(bool Manual,bool DelBlock);
+	void AutoComplete(bool Manual,bool DelBlock, int Area);
 	void EnableAC(bool Permanent=false);
 	void DisableAC(bool Permanent=false);
 	void RevertAC(){ACState?EnableAC():DisableAC();}

@@ -451,7 +451,7 @@ int CommandLine::ProcessKey(int Key)
 			if(Key == KEY_CTRLSHIFTEND || Key == KEY_RCTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1 || Key == KEY_RCTRLSHIFTNUMPAD1)
 			{
 				CmdStr.EnableAC();
-				CmdStr.AutoComplete(true,false);
+				CmdStr.AutoComplete(true,false,MACRO_SHELLAUTOCOMPLETION);
 				CmdStr.RevertAC();
 			}
 
