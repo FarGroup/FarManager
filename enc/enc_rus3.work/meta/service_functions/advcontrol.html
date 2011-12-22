@@ -169,7 +169,7 @@ INT_PTR WINAPI AdvControl(
     <td class="cont" width="60%">Изменить заданный диапазон цветовой схемы Far Manager.<br>
     <var>Param1</var> = 0 (не используется).<br>
     <var>Param2</var> = указатель на структуру <a href="../structures/farsetcolors.html">FarSetColors</a>.<br>
-    Функция возвращает <code>TRUE</code> при успешной замене заданного диапазона цветовой схемы и 
+    Функция возвращает <code>TRUE</code> при успешной замене заданного диапазона цветовой схемы и
     <code>FALSE</code> для неверно заданных параметров в структуре <a href="../structures/farsetcolors.html">FarSetColors</a>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_SETCURRENTWINDOW">ACTL_SETCURRENTWINDOW</a></td>
@@ -234,7 +234,7 @@ INT_PTR WINAPI AdvControl(
     <tr class="cont"><td class="cont" width="40%"><a name="ACTL_WAITKEY">ACTL_WAITKEY</a></td>
     <td class="cont" width="60%">Ожидать клавишу.<br>
     <var>Param1</var> = 0 (не используется).<br>
-    <var>Param2</var> = -1 или <code>NULL</code> - ждём любую клавишу.<br>
+    <var>Param2</var> = <code>NULL</code> - ждём любую клавишу.<br>
     <var>Param2</var> - указатель на заполненную структуру <a href="../winapi/input_record.html">INPUT_RECORD</a> (код клавиши) - ждём конкретную клавишу.<br>
     Функция всегда возвращает 0.</td></tr>
 
