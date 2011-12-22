@@ -4038,7 +4038,14 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 	CurCopiedSize = TotalBytesTransferred.QuadPart;
 	CP->SetProgressValue(TotalBytesTransferred.QuadPart,TotalFileSize.QuadPart);
 
-	if (ShowTotalCopySize && dwStreamNumber==1)
+	//fix total size
+	if(dwStreamNumber == 1)
+	{
+		TotalCopySize -= StreamSize.QuadPart;
+		TotalCopySize += TotalFileSize.QuadPart;
+	}
+	
+	if (ShowTotalCopySize)
 	{
 		TotalCopiedSize=TotalCopiedSizeEx+CurCopiedSize;
 		CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);

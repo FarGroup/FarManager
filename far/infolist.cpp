@@ -169,11 +169,24 @@ void InfoList::DisplayObject()
 		PrintText(MInfoCompName);
 		PrintInfo(strComputerName);
 
-		dwSize = 256; //UNLEN
+		LPSERVER_INFO_101 ServerInfo = nullptr;
+		if(NetServerGetInfo(nullptr, 101, reinterpret_cast<LPBYTE*>(&ServerInfo)) == NERR_Success)
+		{
+			if(*ServerInfo->sv101_comment)
+			{
+				GotoXY(X1+2,CurY++);
+				PrintText(MInfoCompDescription);
+				PrintInfo(ServerInfo->sv101_comment);
+			}
+			NetApiBufferFree(ServerInfo);
+		}
+
+
+		dwSize = UNLEN+1;
 		wchar_t *UserName = strUserName.GetBuffer(dwSize);
 		if (Opt.InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(Opt.InfoPanel.UserNameFormat, UserName, &dwSize))
 		{
-			dwSize = 256;
+			dwSize = UNLEN+1;
 			GetUserName(UserName, &dwSize);
 		}
 		strUserName.ReleaseBuffer();
@@ -181,6 +194,44 @@ void InfoList::DisplayObject()
 		GotoXY(X1+2,CurY++);
 		PrintText(MInfoUserName);
 		PrintInfo(strUserName);
+
+		dwSize = UNLEN+1;
+		wchar_t UserNameBuffer[UNLEN+1];
+		if (GetUserName(UserNameBuffer, &dwSize))
+		{
+			LPUSER_INFO_1 UserInfo = nullptr;
+			if(NetUserGetInfo(nullptr, strUserName, 1, reinterpret_cast<LPBYTE*>(&UserInfo)) == NERR_Success)
+			{
+				if(*UserInfo->usri1_comment)
+				{
+					GotoXY(X1+2,CurY++);
+					PrintText(MInfoUserDescription);
+					PrintInfo(UserInfo->usri1_comment);
+				}
+				int LabelId = -1;
+				switch (UserInfo->usri1_priv)
+				{
+				case USER_PRIV_GUEST:
+					LabelId = MInfoUserAccessLevelGuest;
+					break;
+				case USER_PRIV_USER:
+					LabelId = MInfoUserAccessLevelUser;
+						break;
+				case USER_PRIV_ADMIN:
+					LabelId = MInfoUserAccessLevelAdministrator;
+						break;
+				}
+				if(LabelId != -1)
+				{
+					GotoXY(X1+2,CurY++);
+					PrintText(MInfoUserAccessLevel);
+					PrintInfo(LabelId);
+				}
+
+				NetApiBufferFree(UserInfo);
+			}
+		}
+
 	}
 
 	/* #2 - disk info */

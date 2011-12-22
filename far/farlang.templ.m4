@@ -9741,6 +9741,15 @@ MInfoCompName
 "Nazwa komputera"
 "Nombre computadora"
 
+MInfoCompDescription
+"Описание компьютера"
+"Computer description"
+upd:"Computer description"
+upd:"Computer description"
+upd:"Computer description"
+upd:"Computer description"
+upd:"Computer description"
+
 MInfoUserName
 "Имя пользователя"
 "User name"
@@ -9749,6 +9758,51 @@ MInfoUserName
 "Felhasználói név"
 "Nazwa użytkownika"
 "Nombre usuario"
+
+MInfoUserDescription
+"Описание пользователя"
+"User description"
+upd:"User description"
+upd:"User description"
+upd:"User description"
+upd:"User description"
+upd:"User description"
+
+MInfoUserAccessLevel
+"Уровень доступа"
+"Access Level"
+upd:"Access Level"
+upd:"Access Level"
+upd:"Access Level"
+upd:"Access Level"
+upd:"Access Level"
+
+MInfoUserAccessLevelGuest
+"Гость"
+"Guest"
+upd:"Guest"
+upd:"Guest"
+upd:"Guest"
+upd:"Guest"
+upd:"Guest"
+
+MInfoUserAccessLevelUser
+"Пользователь"
+"User"
+upd:"User"
+upd:"User"
+upd:"User"
+upd:"User"
+upd:"User"
+
+MInfoUserAccessLevelAdministrator
+"Администратор"
+"Administrator"
+upd:"Administrator"
+upd:"Administrator"
+upd:"Administrator"
+upd:"Administrator"
+upd:"Administrator"
 
 MInfoDiskTitle
 "Диск"

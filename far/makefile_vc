@@ -242,7 +242,7 @@ LINK_OBJS = \
 !endif
 !endif
 
-LINK_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib mpr.lib ole32.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib
+LINK_LIBS=kernel32.lib user32.lib winspool.lib advapi32.lib shell32.lib netapi32.lib mpr.lib ole32.lib psapi.lib secur32.lib setupapi.lib rpcrt4.lib
 
 TEST_OBJS = "$(INTDIR)\api_test_c.testobj" "$(INTDIR)\api_test_c++.testobj"
 

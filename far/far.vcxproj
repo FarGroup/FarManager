@@ -162,7 +162,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>netapi32.lib;mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
@@ -206,7 +206,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>netapi32.lib;mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
@@ -249,7 +249,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>netapi32.lib;mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
@@ -293,7 +293,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>netapi32.lib;mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
@@ -338,7 +338,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>netapi32.lib;mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>
@@ -382,7 +382,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>netapi32.lib;mpr.lib;psapi.lib;secur32.lib;setupapi.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Far.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <ModuleDefinitionFile>

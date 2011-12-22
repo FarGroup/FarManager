@@ -95,6 +95,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <aclapi.h>
 #include <sddl.h>
 #include <dbt.h>
+#include <lm.h>
 #define SECURITY_WIN32
 #include <security.h>
 #define PSAPI_VERSION 1
