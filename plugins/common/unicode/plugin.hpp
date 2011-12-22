@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2246
+  Plugin API for Far Manager 3.0 build 2311
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2246
+#define FARMANAGERVERSION_BUILD 2311
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1058,22 +1058,24 @@ enum FARMACROSENDSTRINGCOMMAND
 
 enum FARMACROAREA
 {
-	MACROAREA_OTHER             = 0,
-	MACROAREA_SHELL             = 1,
-	MACROAREA_VIEWER            = 2,
-	MACROAREA_EDITOR            = 3,
-	MACROAREA_DIALOG            = 4,
-	MACROAREA_SEARCH            = 5,
-	MACROAREA_DISKS             = 6,
-	MACROAREA_MAINMENU          = 7,
-	MACROAREA_MENU              = 8,
-	MACROAREA_HELP              = 9,
-	MACROAREA_INFOPANEL         =10,
-	MACROAREA_QVIEWPANEL        =11,
-	MACROAREA_TREEPANEL         =12,
-	MACROAREA_FINDFOLDER        =13,
-	MACROAREA_USERMENU          =14,
-	MACROAREA_AUTOCOMPLETION    =15,
+	MACROAREA_OTHER                      =   0,
+	MACROAREA_SHELL                      =   1,
+	MACROAREA_VIEWER                     =   2,
+	MACROAREA_EDITOR                     =   3,
+	MACROAREA_DIALOG                     =   4,
+	MACROAREA_SEARCH                     =   5,
+	MACROAREA_DISKS                      =   6,
+	MACROAREA_MAINMENU                   =   7,
+	MACROAREA_MENU                       =   8,
+	MACROAREA_HELP                       =   9,
+	MACROAREA_INFOPANEL                  =  10,
+	MACROAREA_QVIEWPANEL                 =  11,
+	MACROAREA_TREEPANEL                  =  12,
+	MACROAREA_FINDFOLDER                 =  13,
+	MACROAREA_USERMENU                   =  14,
+	MACROAREA_SHELLAUTOCOMPLETION        =  15,
+	MACROAREA_DIALOGAUTOCOMPLETION       =  16,
+
 };
 
 enum FARMACROSTATE
@@ -1869,7 +1871,7 @@ typedef void (WINAPI *FARSTDQSORT)(void *base, size_t nelem, size_t width, int (
 typedef void (WINAPI *FARSTDQSORTEX)(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *userparam),void *userparam);
 typedef void   *(WINAPI *FARSTDBSEARCH)(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
 typedef size_t (WINAPI *FARSTDGETFILEOWNER)(const wchar_t *Computer,const wchar_t *Name,wchar_t *Owner,size_t Size);
-typedef int (WINAPI *FARSTDGETNUMBEROFLINKS)(const wchar_t *Name);
+typedef size_t (WINAPI *FARSTDGETNUMBEROFLINKS)(const wchar_t *Name);
 typedef int (WINAPI *FARSTDATOI)(const wchar_t *s);
 typedef __int64(WINAPI *FARSTDATOI64)(const wchar_t *s);
 typedef wchar_t   *(WINAPI *FARSTDITOA64)(__int64 value, wchar_t *string, int radix);
