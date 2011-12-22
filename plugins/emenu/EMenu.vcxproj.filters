@@ -111,16 +111,13 @@
     <CustomBuild Include="EMenuRus.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="EMenuDel.reg">
+    <CustomBuild Include="HotkeyClipboard.xml">
       <Filter>Reg Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="HotkeyClipboard.reg">
+    <CustomBuild Include="HotkeyProperties.xml">
       <Filter>Reg Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="HotkeyProperties.reg">
-      <Filter>Reg Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Hotkey.reg">
+    <CustomBuild Include="Hotkey.xml">
       <Filter>Reg Files</Filter>
     </CustomBuild>
   </ItemGroup>

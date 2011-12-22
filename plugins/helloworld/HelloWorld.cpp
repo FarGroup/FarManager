@@ -88,6 +88,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	};
 
 	Info.Message(&MainGuid,           /* GUID */
+		nullptr,
 		FMSG_WARNING|FMSG_LEFTALIGN,  /* Flags */
 		L"Contents",                  /* HelpTopic */
 		MsgItems,                     /* Items */

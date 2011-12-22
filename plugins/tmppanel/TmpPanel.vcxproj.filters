@@ -81,10 +81,10 @@
     <CustomBuild Include="TmpRus.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="shortcuts.eng.reg">
+    <CustomBuild Include="shortcuts.eng.xml">
       <Filter>Reg Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="shortcuts.rus.reg">
+    <CustomBuild Include="shortcuts.rus.xml">
       <Filter>Reg Files</Filter>
     </CustomBuild>
     <CustomBuild Include="disks.eng.temp">

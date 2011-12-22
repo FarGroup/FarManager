@@ -66,13 +66,10 @@
     <CustomBuild Include="BrackRus.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="BrackDel.reg">
+    <CustomBuild Include="BrackEng.xml">
       <Filter>Reg Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="BrackEng.reg">
-      <Filter>Reg Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="BrackRus.reg">
+    <CustomBuild Include="BrackRus.xml">
       <Filter>Reg Files</Filter>
     </CustomBuild>
   </ItemGroup>
