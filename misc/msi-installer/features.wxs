@@ -5,6 +5,7 @@
     <Feature Id="Far" Level="1" Title="!(loc.Feature.Title.Far)" Display="expand" Absent="disallow" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR">
       <ComponentRef Id="InstallDir" />
       <ComponentRef Id="Far.exe" />
+      <ComponentRef Id="Far.exe.example.ini" />
       <ComponentRef Id="FarEng.hlf" />
       <ComponentRef Id="FarEng.lng" />
       <ComponentRef Id="File_id.diz" />

@@ -18,6 +18,7 @@
 <?define Guid.changelog = "92451CA8-9407-48FF-A50F-D75DCFE8DF34" ?>
 <?define Guid.changelog_eng = "A0C6627A-2890-4886-822E-3B0A880B4F82" ?>
 <?define Guid.Far.exe = "0ED20A0F-0501-410C-AF45-196D617D0028" ?>
+<?define Guid.Far.exe.example.ini = "3694B3CD-38B5-4391-A2BB-74116A14E04E" ?>
 <?define Guid.Far.map = "413D22A0-6DA6-43AE-B62A-BD1F0084C1E6" ?>
 <?define Guid.FarEng.hlf = "D1E23671-37BD-4F77-BD4D-91993BDDD1A7" ?>
 <?define Guid.FarEng.lng = "E2AB8414-8923-492B-9AAE-26B60D126366" ?>

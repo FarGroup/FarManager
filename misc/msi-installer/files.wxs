@@ -13,6 +13,9 @@
       <Component Id="Far.exe" Guid="$(var.Guid.Far.exe)" Win64="$(var.Win64)">
         <File Id="Far.exe" KeyPath="yes" Source="$(var.SourceDir)\Far.exe" />
       </Component>
+      <Component Id="Far.exe.example.ini" Guid="$(var.Guid.Far.exe.example.ini)" Win64="$(var.Win64)">
+        <File Id="Far.exe.example.ini" KeyPath="yes" Source="$(var.SourceDir)\Far.exe.example.ini" />
+      </Component>
 <?if $(var.Platform) = x86 ?>
       <Component Id="Far.map" Guid="$(var.Guid.Far.map)" Win64="$(var.Win64)">
         <File Id="Far.map" KeyPath="yes" Source="$(var.SourceDir)\Far.map" />
