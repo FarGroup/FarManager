@@ -14,8 +14,8 @@
         <File Id="Far.exe" KeyPath="yes" Source="$(var.SourceDir)\Far.exe" />
       </Component>
 <?if $(var.Platform) = x86 ?>
-      <Component Id="far.map" Guid="$(var.Guid.far.map)" Win64="$(var.Win64)">
-        <File Id="far.map" KeyPath="yes" Source="$(var.SourceDir)\far.map" />
+      <Component Id="Far.map" Guid="$(var.Guid.Far.map)" Win64="$(var.Win64)">
+        <File Id="Far.map" KeyPath="yes" Source="$(var.SourceDir)\Far.map" />
       </Component>
 <?endif?>
       <Component Id="FarEng.hlf" Guid="$(var.Guid.FarEng.hlf)" Win64="$(var.Win64)">
@@ -51,14 +51,11 @@
       <Component Id="FarSpa.lng" Guid="$(var.Guid.FarSpa.lng)" Win64="$(var.Win64)">
         <File Id="FarSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\FarSpa.lng" />
       </Component>
-      <Component Id="ClearPluginsCache.cmd" Guid="$(var.Guid.ClearPluginsCache.cmd)" Win64="$(var.Win64)">
-        <File Id="ClearPluginsCache.cmd" KeyPath="yes" Source="$(var.SourceDir)\ClearPluginsCache.cmd" />
+      <Component Id="RestoreOldPluginSettings.cmd" Guid="$(var.Guid.RestoreOldPluginSettings.cmd)" Win64="$(var.Win64)">
+        <File Id="RestoreOldPluginSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\RestoreOldPluginSettings.cmd" />
       </Component>
-      <Component Id="RestoreSettings.cmd" Guid="$(var.Guid.RestoreSettings.cmd)" Win64="$(var.Win64)">
-        <File Id="RestoreSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\RestoreSettings.cmd" />
-      </Component>
-      <Component Id="SaveSettings.cmd" Guid="$(var.Guid.SaveSettings.cmd)" Win64="$(var.Win64)">
-        <File Id="SaveSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\SaveSettings.cmd" />
+      <Component Id="SaveOldPluginSettings.cmd" Guid="$(var.Guid.SaveOldPluginSettings.cmd)" Win64="$(var.Win64)">
+        <File Id="SaveOldPluginSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\SaveOldPluginSettings.cmd" />
       </Component>
       <Directory Id="Addons" Name="Addons">
         <Component Id="Descript.ion_1" Guid="$(var.Guid.Descript.ion_1)" Win64="$(var.Win64)">
@@ -71,250 +68,238 @@
           <Component Id="Descript.ion_3" Guid="$(var.Guid.Descript.ion_3)" Win64="$(var.Win64)">
             <File Id="Descript.ion_3" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Descript.ion" />
           </Component>
-          <Component Id="export_colors.bat" Guid="$(var.Guid.export_colors.bat)" Win64="$(var.Win64)">
-            <File Id="export_colors.bat" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\export_colors.bat" />
-          </Component>
-          <Component Id="import_colors.bat" Guid="$(var.Guid.import_colors.bat)" Win64="$(var.Win64)">
-            <File Id="import_colors.bat" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\import_colors.bat" />
-          </Component>
           <Directory Id="Custom_Highlighting" Name="Custom Highlighting">
-            <Component Id="black_from_Fonarev.reg" Guid="$(var.Guid.black_from_Fonarev.reg)" Win64="$(var.Win64)">
-              <File Id="black_from_Fonarev.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_Fonarev.reg" />
+            <Component Id="black_from_Fonarev.xml" Guid="$(var.Guid.black_from_Fonarev.xml)" Win64="$(var.Win64)">
+              <File Id="black_from_Fonarev.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_Fonarev.xml" />
             </Component>
-            <Component Id="black_from_july.reg" Guid="$(var.Guid.black_from_july.reg)" Win64="$(var.Win64)">
-              <File Id="black_from_july.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_july.reg" />
+            <Component Id="black_from_july.xml" Guid="$(var.Guid.black_from_july.xml)" Win64="$(var.Win64)">
+              <File Id="black_from_july.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_july.xml" />
             </Component>
-            <Component Id="black_from_Myodov.reg" Guid="$(var.Guid.black_from_Myodov.reg)" Win64="$(var.Win64)">
-              <File Id="black_from_Myodov.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_Myodov.reg" />
+            <Component Id="black_from_Myodov.xml" Guid="$(var.Guid.black_from_Myodov.xml)" Win64="$(var.Win64)">
+              <File Id="black_from_Myodov.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_Myodov.xml" />
             </Component>
-            <Component Id="Colors_from_admin_essp_ru.reg" Guid="$(var.Guid.Colors_from_admin_essp_ru.reg)" Win64="$(var.Win64)">
-              <File Id="Colors_from_admin_essp_ru.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_admin_essp_ru.reg" />
+            <Component Id="Colors_from_admin_essp_ru.xml" Guid="$(var.Guid.Colors_from_admin_essp_ru.xml)" Win64="$(var.Win64)">
+              <File Id="Colors_from_admin_essp_ru.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_admin_essp_ru.xml" />
             </Component>
-            <Component Id="Colors_from_Gernichenko.reg" Guid="$(var.Guid.Colors_from_Gernichenko.reg)" Win64="$(var.Win64)">
-              <File Id="Colors_from_Gernichenko.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_Gernichenko.reg" />
+            <Component Id="Colors_from_Gernichenko.xml" Guid="$(var.Guid.Colors_from_Gernichenko.xml)" Win64="$(var.Win64)">
+              <File Id="Colors_from_Gernichenko.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_Gernichenko.xml" />
             </Component>
-            <Component Id="Colors_from_Sadovoj.reg" Guid="$(var.Guid.Colors_from_Sadovoj.reg)" Win64="$(var.Win64)">
-              <File Id="Colors_from_Sadovoj.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_Sadovoj.reg" />
+            <Component Id="Colors_from_Sadovoj.xml" Guid="$(var.Guid.Colors_from_Sadovoj.xml)" Win64="$(var.Win64)">
+              <File Id="Colors_from_Sadovoj.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_Sadovoj.xml" />
             </Component>
             <Component Id="Descript.ion_4" Guid="$(var.Guid.Descript.ion_4)" Win64="$(var.Win64)">
               <File Id="Descript.ion_4" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Descript.ion" />
             </Component>
-            <Component Id="dn_like.reg" Guid="$(var.Guid.dn_like.reg)" Win64="$(var.Win64)">
-              <File Id="dn_like.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\dn_like.reg" />
+            <Component Id="dn_like.xml" Guid="$(var.Guid.dn_like.xml)" Win64="$(var.Win64)">
+              <File Id="dn_like.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\dn_like.xml" />
             </Component>
-            <Component Id="FARColors242.reg" Guid="$(var.Guid.FARColors242.reg)" Win64="$(var.Win64)">
-              <File Id="FARColors242.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\FARColors242.reg" />
+            <Component Id="FARColors242.xml" Guid="$(var.Guid.FARColors242.xml)" Win64="$(var.Win64)">
+              <File Id="FARColors242.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\FARColors242.xml" />
             </Component>
-            <Component Id="GreenMile.reg" Guid="$(var.Guid.GreenMile.reg)" Win64="$(var.Win64)">
-              <File Id="GreenMile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\GreenMile.reg" />
+            <Component Id="GreenMile.xml" Guid="$(var.Guid.GreenMile.xml)" Win64="$(var.Win64)">
+              <File Id="GreenMile.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\GreenMile.xml" />
             </Component>
-            <Component Id="hell.reg" Guid="$(var.Guid.hell.reg)" Win64="$(var.Win64)">
-              <File Id="hell.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\hell.reg" />
+            <Component Id="hell.xml" Guid="$(var.Guid.hell.xml)" Win64="$(var.Win64)">
+              <File Id="hell.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\hell.xml" />
             </Component>
-            <Component Id="import_colors.bat_1" Guid="$(var.Guid.import_colors.bat_1)" Win64="$(var.Win64)">
-              <File Id="import_colors.bat_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\import_colors.bat" />
+            <Component Id="nc5pal2.xml" Guid="$(var.Guid.nc5pal2.xml)" Win64="$(var.Win64)">
+              <File Id="nc5pal2.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\nc5pal2.xml" />
             </Component>
-            <Component Id="nc5pal2.reg" Guid="$(var.Guid.nc5pal2.reg)" Win64="$(var.Win64)">
-              <File Id="nc5pal2.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\nc5pal2.reg" />
+            <Component Id="Rodion_Doroshkevich.xml" Guid="$(var.Guid.Rodion_Doroshkevich.xml)" Win64="$(var.Win64)">
+              <File Id="Rodion_Doroshkevich.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Rodion_Doroshkevich.xml" />
             </Component>
-            <Component Id="Rodion_Doroshkevich.reg" Guid="$(var.Guid.Rodion_Doroshkevich.reg)" Win64="$(var.Win64)">
-              <File Id="Rodion_Doroshkevich.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Rodion_Doroshkevich.reg" />
-            </Component>
-            <Component Id="VaxColors.reg" Guid="$(var.Guid.VaxColors.reg)" Win64="$(var.Win64)">
-              <File Id="VaxColors.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\VaxColors.reg" />
+            <Component Id="VaxColors.xml" Guid="$(var.Guid.VaxColors.xml)" Win64="$(var.Win64)">
+              <File Id="VaxColors.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\VaxColors.xml" />
             </Component>
           </Directory>
           <Directory Id="Default_Highlighting" Name="Default Highlighting">
-            <Component Id="black_from_Fonarev.reg_1" Guid="$(var.Guid.black_from_Fonarev.reg_1)" Win64="$(var.Win64)">
-              <File Id="black_from_Fonarev.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_Fonarev.reg" />
+            <Component Id="black_from_Fonarev.xml_1" Guid="$(var.Guid.black_from_Fonarev.xml_1)" Win64="$(var.Win64)">
+              <File Id="black_from_Fonarev.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_Fonarev.xml" />
             </Component>
-            <Component Id="black_from_july.reg_1" Guid="$(var.Guid.black_from_july.reg_1)" Win64="$(var.Win64)">
-              <File Id="black_from_july.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_july.reg" />
+            <Component Id="black_from_july.xml_1" Guid="$(var.Guid.black_from_july.xml_1)" Win64="$(var.Win64)">
+              <File Id="black_from_july.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_july.xml" />
             </Component>
-            <Component Id="black_from_Myodov.reg_1" Guid="$(var.Guid.black_from_Myodov.reg_1)" Win64="$(var.Win64)">
-              <File Id="black_from_Myodov.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_Myodov.reg" />
+            <Component Id="black_from_Myodov.xml_1" Guid="$(var.Guid.black_from_Myodov.xml_1)" Win64="$(var.Win64)">
+              <File Id="black_from_Myodov.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_Myodov.xml" />
             </Component>
-            <Component Id="Colors_from_admin_essp_ru.reg_1" Guid="$(var.Guid.Colors_from_admin_essp_ru.reg_1)" Win64="$(var.Win64)">
-              <File Id="Colors_from_admin_essp_ru.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_admin_essp_ru.reg" />
+            <Component Id="Colors_from_admin_essp_ru.xml_1" Guid="$(var.Guid.Colors_from_admin_essp_ru.xml_1)" Win64="$(var.Win64)">
+              <File Id="Colors_from_admin_essp_ru.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_admin_essp_ru.xml" />
             </Component>
-            <Component Id="Colors_from_Gernichenko.reg_1" Guid="$(var.Guid.Colors_from_Gernichenko.reg_1)" Win64="$(var.Win64)">
-              <File Id="Colors_from_Gernichenko.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_Gernichenko.reg" />
+            <Component Id="Colors_from_Gernichenko.xml_1" Guid="$(var.Guid.Colors_from_Gernichenko.xml_1)" Win64="$(var.Win64)">
+              <File Id="Colors_from_Gernichenko.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_Gernichenko.xml" />
             </Component>
-            <Component Id="Colors_from_Sadovoj.reg_1" Guid="$(var.Guid.Colors_from_Sadovoj.reg_1)" Win64="$(var.Win64)">
-              <File Id="Colors_from_Sadovoj.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_Sadovoj.reg" />
+            <Component Id="Colors_from_Sadovoj.xml_1" Guid="$(var.Guid.Colors_from_Sadovoj.xml_1)" Win64="$(var.Win64)">
+              <File Id="Colors_from_Sadovoj.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_Sadovoj.xml" />
             </Component>
             <Component Id="Descript.ion_5" Guid="$(var.Guid.Descript.ion_5)" Win64="$(var.Win64)">
               <File Id="Descript.ion_5" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Descript.ion" />
             </Component>
-            <Component Id="dn_like.reg_1" Guid="$(var.Guid.dn_like.reg_1)" Win64="$(var.Win64)">
-              <File Id="dn_like.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\dn_like.reg" />
+            <Component Id="dn_like.xml_1" Guid="$(var.Guid.dn_like.xml_1)" Win64="$(var.Win64)">
+              <File Id="dn_like.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\dn_like.xml" />
             </Component>
-            <Component Id="FARColors242.reg_1" Guid="$(var.Guid.FARColors242.reg_1)" Win64="$(var.Win64)">
-              <File Id="FARColors242.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\FARColors242.reg" />
+            <Component Id="FARColors242.xml_1" Guid="$(var.Guid.FARColors242.xml_1)" Win64="$(var.Win64)">
+              <File Id="FARColors242.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\FARColors242.xml" />
             </Component>
-            <Component Id="GreenMile.reg_1" Guid="$(var.Guid.GreenMile.reg_1)" Win64="$(var.Win64)">
-              <File Id="GreenMile.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\GreenMile.reg" />
+            <Component Id="GreenMile.xml_1" Guid="$(var.Guid.GreenMile.xml_1)" Win64="$(var.Win64)">
+              <File Id="GreenMile.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\GreenMile.xml" />
             </Component>
-            <Component Id="hell.reg_1" Guid="$(var.Guid.hell.reg_1)" Win64="$(var.Win64)">
-              <File Id="hell.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\hell.reg" />
+            <Component Id="hell.xml_1" Guid="$(var.Guid.hell.xml_1)" Win64="$(var.Win64)">
+              <File Id="hell.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\hell.xml" />
             </Component>
-            <Component Id="import_colors.bat_2" Guid="$(var.Guid.import_colors.bat_2)" Win64="$(var.Win64)">
-              <File Id="import_colors.bat_2" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\import_colors.bat" />
+            <Component Id="nc5pal2.xml_1" Guid="$(var.Guid.nc5pal2.xml_1)" Win64="$(var.Win64)">
+              <File Id="nc5pal2.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\nc5pal2.xml" />
             </Component>
-            <Component Id="nc5pal2.reg_1" Guid="$(var.Guid.nc5pal2.reg_1)" Win64="$(var.Win64)">
-              <File Id="nc5pal2.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\nc5pal2.reg" />
+            <Component Id="Rodion_Doroshkevich.xml_1" Guid="$(var.Guid.Rodion_Doroshkevich.xml_1)" Win64="$(var.Win64)">
+              <File Id="Rodion_Doroshkevich.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Rodion_Doroshkevich.xml" />
             </Component>
-            <Component Id="Rodion_Doroshkevich.reg_1" Guid="$(var.Guid.Rodion_Doroshkevich.reg_1)" Win64="$(var.Win64)">
-              <File Id="Rodion_Doroshkevich.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Rodion_Doroshkevich.reg" />
-            </Component>
-            <Component Id="VaxColors.reg_1" Guid="$(var.Guid.VaxColors.reg_1)" Win64="$(var.Win64)">
-              <File Id="VaxColors.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\VaxColors.reg" />
+            <Component Id="VaxColors.xml_1" Guid="$(var.Guid.VaxColors.xml_1)" Win64="$(var.Win64)">
+              <File Id="VaxColors.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\VaxColors.xml" />
             </Component>
           </Directory>
         </Directory>
         <Directory Id="Macros" Name="Macros">
-          <Component Id="AltMenu.reg" Guid="$(var.Guid.AltMenu.reg)" Win64="$(var.Win64)">
-            <File Id="AltMenu.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltMenu.reg" />
+          <Component Id="AltMenu.xml" Guid="$(var.Guid.AltMenu.xml)" Win64="$(var.Win64)">
+            <File Id="AltMenu.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltMenu.xml" />
           </Component>
-          <Component Id="AltScreens.reg" Guid="$(var.Guid.AltScreens.reg)" Win64="$(var.Win64)">
-            <File Id="AltScreens.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltScreens.reg" />
+          <Component Id="AltScreens.xml" Guid="$(var.Guid.AltScreens.xml)" Win64="$(var.Win64)">
+            <File Id="AltScreens.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltScreens.xml" />
           </Component>
-          <Component Id="AltSearch.reg" Guid="$(var.Guid.AltSearch.reg)" Win64="$(var.Win64)">
-            <File Id="AltSearch.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltSearch.reg" />
+          <Component Id="AltSearch.xml" Guid="$(var.Guid.AltSearch.xml)" Win64="$(var.Win64)">
+            <File Id="AltSearch.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltSearch.xml" />
           </Component>
-          <Component Id="AltX.reg" Guid="$(var.Guid.AltX.reg)" Win64="$(var.Win64)">
-            <File Id="AltX.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltX.reg" />
+          <Component Id="AltX.xml" Guid="$(var.Guid.AltX.xml)" Win64="$(var.Win64)">
+            <File Id="AltX.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltX.xml" />
           </Component>
-          <Component Id="CtrlDel.reg" Guid="$(var.Guid.CtrlDel.reg)" Win64="$(var.Win64)">
-            <File Id="CtrlDel.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlDel.reg" />
+          <Component Id="CtrlDel.xml" Guid="$(var.Guid.CtrlDel.xml)" Win64="$(var.Win64)">
+            <File Id="CtrlDel.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlDel.xml" />
           </Component>
-          <Component Id="CtrlF10.reg" Guid="$(var.Guid.CtrlF10.reg)" Win64="$(var.Win64)">
-            <File Id="CtrlF10.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlF10.reg" />
+          <Component Id="CtrlF10.xml" Guid="$(var.Guid.CtrlF10.xml)" Win64="$(var.Win64)">
+            <File Id="CtrlF10.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlF10.xml" />
           </Component>
           <Component Id="Descript.ion_6" Guid="$(var.Guid.Descript.ion_6)" Win64="$(var.Win64)">
             <File Id="Descript.ion_6" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Descript.ion" />
           </Component>
-          <Component Id="Dialog.AltDown.reg" Guid="$(var.Guid.Dialog.AltDown.reg)" Win64="$(var.Win64)">
-            <File Id="Dialog.AltDown.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Dialog.AltDown.reg" />
+          <Component Id="Dialog.AltDown.xml" Guid="$(var.Guid.Dialog.AltDown.xml)" Win64="$(var.Win64)">
+            <File Id="Dialog.AltDown.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Dialog.AltDown.xml" />
           </Component>
-          <Component Id="Edit.Notepad.reg" Guid="$(var.Guid.Edit.Notepad.reg)" Win64="$(var.Win64)">
-            <File Id="Edit.Notepad.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.Notepad.reg" />
+          <Component Id="Edit.Notepad.xml" Guid="$(var.Guid.Edit.Notepad.xml)" Win64="$(var.Win64)">
+            <File Id="Edit.Notepad.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.Notepad.xml" />
           </Component>
-          <Component Id="Edit.SaveAndExit.reg" Guid="$(var.Guid.Edit.SaveAndExit.reg)" Win64="$(var.Win64)">
-            <File Id="Edit.SaveAndExit.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveAndExit.reg" />
+          <Component Id="Edit.SaveAndExit.xml" Guid="$(var.Guid.Edit.SaveAndExit.xml)" Win64="$(var.Win64)">
+            <File Id="Edit.SaveAndExit.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveAndExit.xml" />
           </Component>
-          <Component Id="Edit.SaveFile.reg" Guid="$(var.Guid.Edit.SaveFile.reg)" Win64="$(var.Win64)">
-            <File Id="Edit.SaveFile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveFile.reg" />
+          <Component Id="Edit.SaveFile.xml" Guid="$(var.Guid.Edit.SaveFile.xml)" Win64="$(var.Win64)">
+            <File Id="Edit.SaveFile.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveFile.xml" />
           </Component>
-          <Component Id="F3.reg" Guid="$(var.Guid.F3.reg)" Win64="$(var.Win64)">
-            <File Id="F3.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F3.reg" />
+          <Component Id="F3.xml" Guid="$(var.Guid.F3.xml)" Win64="$(var.Win64)">
+            <File Id="F3.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F3.xml" />
           </Component>
-          <Component Id="F9DeactivateMenu.reg" Guid="$(var.Guid.F9DeactivateMenu.reg)" Win64="$(var.Win64)">
-            <File Id="F9DeactivateMenu.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9DeactivateMenu.reg" />
+          <Component Id="F9DeactivateMenu.xml" Guid="$(var.Guid.F9DeactivateMenu.xml)" Win64="$(var.Win64)">
+            <File Id="F9DeactivateMenu.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9DeactivateMenu.xml" />
           </Component>
-          <Component Id="F9Table.reg" Guid="$(var.Guid.F9Table.reg)" Win64="$(var.Win64)">
-            <File Id="F9Table.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9Table.reg" />
+          <Component Id="F9Table.xml" Guid="$(var.Guid.F9Table.xml)" Win64="$(var.Win64)">
+            <File Id="F9Table.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9Table.xml" />
           </Component>
-          <Component Id="MacroConsts.reg" Guid="$(var.Guid.MacroConsts.reg)" Win64="$(var.Win64)">
-            <File Id="MacroConsts.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\MacroConsts.reg" />
+          <Component Id="OpeningLastFile.xml" Guid="$(var.Guid.OpeningLastFile.xml)" Win64="$(var.Win64)">
+            <File Id="OpeningLastFile.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\OpeningLastFile.xml" />
           </Component>
-          <Component Id="OpeningLastFile.reg" Guid="$(var.Guid.OpeningLastFile.reg)" Win64="$(var.Win64)">
-            <File Id="OpeningLastFile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\OpeningLastFile.reg" />
+          <Component Id="Panel.AltBS.xml" Guid="$(var.Guid.Panel.AltBS.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.AltBS.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.AltBS.xml" />
           </Component>
-          <Component Id="Panel.AltBS.reg" Guid="$(var.Guid.Panel.AltBS.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.AltBS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.AltBS.reg" />
+          <Component Id="Panel.Apps.xml" Guid="$(var.Guid.Panel.Apps.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.Apps.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Apps.xml" />
           </Component>
-          <Component Id="Panel.Apps.reg" Guid="$(var.Guid.Panel.Apps.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.Apps.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Apps.reg" />
-          </Component>
-          <Component Id="Panel.BS.reg" Guid="$(var.Guid.Panel.BS.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.BS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.BS.reg" />
+          <Component Id="Panel.BS.xml" Guid="$(var.Guid.Panel.BS.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.BS.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.BS.xml" />
           </Component>
           <Component Id="Panel.CtrlIns_reg" Guid="$(var.Guid.Panel.CtrlIns_reg)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlIns_reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlIns...reg" />
+            <File Id="Panel.CtrlIns_reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlIns...xml" />
           </Component>
-          <Component Id="Panel.CtrlLeft.reg" Guid="$(var.Guid.Panel.CtrlLeft.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlLeft.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlLeft.reg" />
+          <Component Id="Panel.CtrlLeft.xml" Guid="$(var.Guid.Panel.CtrlLeft.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlLeft.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlLeft.xml" />
           </Component>
-          <Component Id="Panel.CtrlQ.reg" Guid="$(var.Guid.Panel.CtrlQ.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlQ.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlQ.reg" />
+          <Component Id="Panel.CtrlQ.xml" Guid="$(var.Guid.Panel.CtrlQ.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlQ.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlQ.xml" />
           </Component>
-          <Component Id="Panel.CtrlRight.reg" Guid="$(var.Guid.Panel.CtrlRight.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlRight.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlRight.reg" />
+          <Component Id="Panel.CtrlRight.xml" Guid="$(var.Guid.Panel.CtrlRight.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlRight.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlRight.xml" />
           </Component>
-          <Component Id="Panel.CtrlShiftBackSlash.reg" Guid="$(var.Guid.Panel.CtrlShiftBackSlash.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlShiftBackSlash.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftBackSlash.reg" />
+          <Component Id="Panel.CtrlShiftBackSlash.xml" Guid="$(var.Guid.Panel.CtrlShiftBackSlash.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlShiftBackSlash.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftBackSlash.xml" />
           </Component>
-          <Component Id="Panel.CtrlShiftPgUpDn.reg" Guid="$(var.Guid.Panel.CtrlShiftPgUpDn.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlShiftPgUpDn.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftPgUpDn.reg" />
+          <Component Id="Panel.CtrlShiftPgUpDn.xml" Guid="$(var.Guid.Panel.CtrlShiftPgUpDn.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlShiftPgUpDn.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftPgUpDn.xml" />
           </Component>
-          <Component Id="Panel.Del.reg" Guid="$(var.Guid.Panel.Del.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.Del.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Del.reg" />
+          <Component Id="Panel.Del.xml" Guid="$(var.Guid.Panel.Del.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.Del.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Del.xml" />
           </Component>
-          <Component Id="Panel.Esc.reg" Guid="$(var.Guid.Panel.Esc.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.Esc.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Esc.reg" />
+          <Component Id="Panel.Esc.xml" Guid="$(var.Guid.Panel.Esc.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.Esc.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Esc.xml" />
           </Component>
-          <Component Id="Panel.JumpToSelectedFile.reg" Guid="$(var.Guid.Panel.JumpToSelectedFile.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.JumpToSelectedFile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.JumpToSelectedFile.reg" />
+          <Component Id="Panel.JumpToSelectedFile.xml" Guid="$(var.Guid.Panel.JumpToSelectedFile.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.JumpToSelectedFile.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.JumpToSelectedFile.xml" />
           </Component>
-          <Component Id="Panel.Lynx_mot.reg" Guid="$(var.Guid.Panel.Lynx_mot.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.Lynx_mot.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Lynx-mot.reg" />
+          <Component Id="Panel.Lynx_mot.xml" Guid="$(var.Guid.Panel.Lynx_mot.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.Lynx_mot.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Lynx-mot.xml" />
           </Component>
-          <Component Id="Panel.MouseWheelTilt.reg" Guid="$(var.Guid.Panel.MouseWheelTilt.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.MouseWheelTilt.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.MouseWheelTilt.reg" />
+          <Component Id="Panel.MouseWheelTilt.xml" Guid="$(var.Guid.Panel.MouseWheelTilt.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.MouseWheelTilt.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.MouseWheelTilt.xml" />
           </Component>
-          <Component Id="Panel.Numpad.reg" Guid="$(var.Guid.Panel.Numpad.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.Numpad.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Numpad.reg" />
+          <Component Id="Panel.Numpad.xml" Guid="$(var.Guid.Panel.Numpad.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.Numpad.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Numpad.xml" />
           </Component>
-          <Component Id="Panel.SelectFromClipboard.reg" Guid="$(var.Guid.Panel.SelectFromClipboard.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.SelectFromClipboard.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SelectFromClipboard.reg" />
+          <Component Id="Panel.SelectFromClipboard.xml" Guid="$(var.Guid.Panel.SelectFromClipboard.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.SelectFromClipboard.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SelectFromClipboard.xml" />
           </Component>
-          <Component Id="Panel.SpaceToSelect.reg" Guid="$(var.Guid.Panel.SpaceToSelect.reg)" Win64="$(var.Win64)">
-            <File Id="Panel.SpaceToSelect.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SpaceToSelect.reg" />
+          <Component Id="Panel.SpaceToSelect.xml" Guid="$(var.Guid.Panel.SpaceToSelect.xml)" Win64="$(var.Win64)">
+            <File Id="Panel.SpaceToSelect.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SpaceToSelect.xml" />
           </Component>
-          <Component Id="ShiftBS.reg" Guid="$(var.Guid.ShiftBS.reg)" Win64="$(var.Win64)">
-            <File Id="ShiftBS.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftBS.reg" />
+          <Component Id="ShiftBS.xml" Guid="$(var.Guid.ShiftBS.xml)" Win64="$(var.Win64)">
+            <File Id="ShiftBS.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftBS.xml" />
           </Component>
-          <Component Id="ShiftF1.reg" Guid="$(var.Guid.ShiftF1.reg)" Win64="$(var.Win64)">
-            <File Id="ShiftF1.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftF1.reg" />
+          <Component Id="ShiftF1.xml" Guid="$(var.Guid.ShiftF1.xml)" Win64="$(var.Win64)">
+            <File Id="ShiftF1.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftF1.xml" />
           </Component>
-          <Component Id="ShiftTab.reg" Guid="$(var.Guid.ShiftTab.reg)" Win64="$(var.Win64)">
-            <File Id="ShiftTab.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftTab.reg" />
+          <Component Id="ShiftTab.xml" Guid="$(var.Guid.ShiftTab.xml)" Win64="$(var.Win64)">
+            <File Id="ShiftTab.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftTab.xml" />
           </Component>
-          <Component Id="View.CtrlUpDown.reg" Guid="$(var.Guid.View.CtrlUpDown.reg)" Win64="$(var.Win64)">
-            <File Id="View.CtrlUpDown.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.CtrlUpDown.reg" />
+          <Component Id="View.CtrlUpDown.xml" Guid="$(var.Guid.View.CtrlUpDown.xml)" Win64="$(var.Win64)">
+            <File Id="View.CtrlUpDown.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.CtrlUpDown.xml" />
           </Component>
-          <Component Id="View.NextPrevFile.reg" Guid="$(var.Guid.View.NextPrevFile.reg)" Win64="$(var.Win64)">
-            <File Id="View.NextPrevFile.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.NextPrevFile.reg" />
+          <Component Id="View.NextPrevFile.xml" Guid="$(var.Guid.View.NextPrevFile.xml)" Win64="$(var.Win64)">
+            <File Id="View.NextPrevFile.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.NextPrevFile.xml" />
           </Component>
-          <Component Id="View.PgDn.reg" Guid="$(var.Guid.View.PgDn.reg)" Win64="$(var.Win64)">
-            <File Id="View.PgDn.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.PgDn.reg" />
+          <Component Id="View.PgDn.xml" Guid="$(var.Guid.View.PgDn.xml)" Win64="$(var.Win64)">
+            <File Id="View.PgDn.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.PgDn.xml" />
           </Component>
-          <Component Id="View.ShiftInsSearch.reg" Guid="$(var.Guid.View.ShiftInsSearch.reg)" Win64="$(var.Win64)">
-            <File Id="View.ShiftInsSearch.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.ShiftInsSearch.reg" />
+          <Component Id="View.ShiftInsSearch.xml" Guid="$(var.Guid.View.ShiftInsSearch.xml)" Win64="$(var.Win64)">
+            <File Id="View.ShiftInsSearch.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.ShiftInsSearch.xml" />
           </Component>
-          <Component Id="View.Space.reg" Guid="$(var.Guid.View.Space.reg)" Win64="$(var.Win64)">
-            <File Id="View.Space.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.Space.reg" />
+          <Component Id="View.Space.xml" Guid="$(var.Guid.View.Space.xml)" Win64="$(var.Win64)">
+            <File Id="View.Space.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.Space.xml" />
           </Component>
-          <Component Id="WheelScreenSwitch.reg" Guid="$(var.Guid.WheelScreenSwitch.reg)" Win64="$(var.Win64)">
-            <File Id="WheelScreenSwitch.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\WheelScreenSwitch.reg" />
+          <Component Id="WheelScreenSwitch.xml" Guid="$(var.Guid.WheelScreenSwitch.xml)" Win64="$(var.Win64)">
+            <File Id="WheelScreenSwitch.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\WheelScreenSwitch.xml" />
           </Component>
         </Directory>
         <Directory Id="SetUp" Name="SetUp">
-          <Component Id="Default165.reg" Guid="$(var.Guid.Default165.reg)" Win64="$(var.Win64)">
-            <File Id="Default165.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Default165.reg" />
+          <Component Id="Default165.xml" Guid="$(var.Guid.Default165.xml)" Win64="$(var.Win64)">
+            <File Id="Default165.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Default165.xml" />
           </Component>
           <Component Id="Descript.ion_7" Guid="$(var.Guid.Descript.ion_7)" Win64="$(var.Win64)">
             <File Id="Descript.ion_7" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Descript.ion" />
           </Component>
-          <Component Id="Executor.4NT.reg" Guid="$(var.Guid.Executor.4NT.reg)" Win64="$(var.Win64)">
-            <File Id="Executor.4NT.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.4NT.reg" />
+          <Component Id="Executor.4NT.xml" Guid="$(var.Guid.Executor.4NT.xml)" Win64="$(var.Win64)">
+            <File Id="Executor.4NT.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.4NT.xml" />
           </Component>
-          <Component Id="Executor.CMD.reg" Guid="$(var.Guid.Executor.CMD.reg)" Win64="$(var.Win64)">
-            <File Id="Executor.CMD.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.CMD.reg" />
+          <Component Id="Executor.CMD.xml" Guid="$(var.Guid.Executor.CMD.xml)" Win64="$(var.Win64)">
+            <File Id="Executor.CMD.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.CMD.xml" />
           </Component>
-          <Component Id="WindowsGUI.reg" Guid="$(var.Guid.WindowsGUI.reg)" Win64="$(var.Win64)">
-            <File Id="WindowsGUI.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\WindowsGUI.reg" />
+          <Component Id="Executor.COMMAND.xml" Guid="$(var.Guid.Executor.COMMAND.xml)" Win64="$(var.Win64)">
+            <File Id="Executor.COMMAND.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.COMMAND.xml" />
+          </Component>
+          <Component Id="WindowsGUI.xml" Guid="$(var.Guid.WindowsGUI.xml)" Win64="$(var.Win64)">
+            <File Id="WindowsGUI.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\WindowsGUI.xml" />
           </Component>
         </Directory>
         <Directory Id="Shell" Name="Shell">
@@ -330,23 +315,23 @@
             <File Id="Descript.ion_15" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Descript.ion" />
           </Component>
           <Directory Id="Russian" Name="Russian">
-            <Component Id="AltR.reg" Guid="$(var.Guid.AltR.reg)" Win64="$(var.Win64)">
-              <File Id="AltR.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\AltR.reg" />
+            <Component Id="AltR.xml" Guid="$(var.Guid.AltR.xml)" Win64="$(var.Win64)">
+              <File Id="AltR.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\AltR.xml" />
             </Component>
-            <Component Id="Apps.reg_1" Guid="$(var.Guid.Apps.reg_1)" Win64="$(var.Win64)">
-              <File Id="Apps.reg_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Apps.reg" />
+            <Component Id="Apps.xml_1" Guid="$(var.Guid.Apps.xml_1)" Win64="$(var.Win64)">
+              <File Id="Apps.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Apps.xml" />
             </Component>
-            <Component Id="CtrlR.reg" Guid="$(var.Guid.CtrlR.reg)" Win64="$(var.Win64)">
-              <File Id="CtrlR.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlR.reg" />
+            <Component Id="CtrlR.xml" Guid="$(var.Guid.CtrlR.xml)" Win64="$(var.Win64)">
+              <File Id="CtrlR.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlR.xml" />
             </Component>
-            <Component Id="CtrlShiftX.reg" Guid="$(var.Guid.CtrlShiftX.reg)" Win64="$(var.Win64)">
-              <File Id="CtrlShiftX.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlShiftX.reg" />
+            <Component Id="CtrlShiftX.xml" Guid="$(var.Guid.CtrlShiftX.xml)" Win64="$(var.Win64)">
+              <File Id="CtrlShiftX.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlShiftX.xml" />
             </Component>
             <Component Id="Descript.ion_16" Guid="$(var.Guid.Descript.ion_16)" Win64="$(var.Win64)">
               <File Id="Descript.ion_16" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Descript.ion" />
             </Component>
-            <Component Id="Qwerty.reg" Guid="$(var.Guid.Qwerty.reg)" Win64="$(var.Win64)">
-              <File Id="Qwerty.reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Qwerty.reg" />
+            <Component Id="Qwerty.xml" Guid="$(var.Guid.Qwerty.xml)" Win64="$(var.Win64)">
+              <File Id="Qwerty.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Qwerty.xml" />
             </Component>
           </Directory>
         </Directory>
@@ -387,11 +372,6 @@
           </Component>
         </Directory>
       </Directory>
-      <Directory Id="Encyclopedia" Name="Encyclopedia">
-        <Component Id="FarEncyclopedia.ru.chm" Guid="$(var.Guid.FarEncyclopedia.ru.chm)" Win64="$(var.Win64)">
-          <File Id="FarEncyclopedia.ru.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\FarEncyclopedia.ru.chm" />
-        </Component>
-      </Directory>
 <?if $(var.Platform) = x86 ?>
       <Directory Id="FExcept" Name="FExcept">
         <Component Id="changelog_1" Guid="$(var.Guid.changelog_1)" Win64="$(var.Win64)">
@@ -406,8 +386,8 @@
         <Component Id="FExcept.dll" Guid="$(var.Guid.FExcept.dll)" Win64="$(var.Win64)">
           <File Id="FExcept.dll" KeyPath="yes" Source="$(var.SourceDir)\FExcept\FExcept.dll" />
         </Component>
-        <Component Id="SetFarExceptionHandler.reg" Guid="$(var.Guid.SetFarExceptionHandler.reg)" Win64="$(var.Win64)">
-          <File Id="SetFarExceptionHandler.reg" KeyPath="yes" Source="$(var.SourceDir)\FExcept\SetFarExceptionHandler.reg" />
+        <Component Id="SetFarExceptionHandler.xml" Guid="$(var.Guid.SetFarExceptionHandler.xml)" Win64="$(var.Win64)">
+          <File Id="SetFarExceptionHandler.xml" KeyPath="yes" Source="$(var.SourceDir)\FExcept\SetFarExceptionHandler.xml" />
         </Component>
       </Directory>
 <?endif?>
@@ -431,47 +411,47 @@
             <File Id="changelog_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\changelog" />
           </Component>
         </Directory>
-        <Directory Id="ArcLite" Name="ArcLite">
+        <Directory Id="arclite" Name="arclite">
           <Component Id="_7z.dll" Guid="$(var.Guid._7z.dll)" Win64="$(var.Win64)">
-            <File Id="_7z.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\7z.dll" />
+            <File Id="_7z.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7z.dll" />
           </Component>
           <Component Id="_7z.sfx" Guid="$(var.Guid._7z.sfx)" Win64="$(var.Win64)">
-            <File Id="_7z.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\7z.sfx" />
+            <File Id="_7z.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7z.sfx" />
           </Component>
           <Component Id="_7zCon.sfx" Guid="$(var.Guid._7zCon.sfx)" Win64="$(var.Win64)">
-            <File Id="_7zCon.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\7zCon.sfx" />
+            <File Id="_7zCon.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7zCon.sfx" />
           </Component>
           <Component Id="_7zS2.sfx" Guid="$(var.Guid._7zS2.sfx)" Win64="$(var.Win64)">
-            <File Id="_7zS2.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\7zS2.sfx" />
+            <File Id="_7zS2.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7zS2.sfx" />
           </Component>
           <Component Id="_7zS2con.sfx" Guid="$(var.Guid._7zS2con.sfx)" Win64="$(var.Win64)">
-            <File Id="_7zS2con.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\7zS2con.sfx" />
+            <File Id="_7zS2con.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7zS2con.sfx" />
           </Component>
           <Component Id="_7zSD.sfx" Guid="$(var.Guid._7zSD.sfx)" Win64="$(var.Win64)">
-            <File Id="_7zSD.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\7zSD.sfx" />
+            <File Id="_7zSD.sfx" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\7zSD.sfx" />
           </Component>
           <Component Id="arclite.dll" Guid="$(var.Guid.arclite.dll)" Win64="$(var.Win64)">
-            <File Id="arclite.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite.dll" />
+            <File Id="arclite.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite.dll" />
           </Component>
 <?if $(var.Platform) = x86 ?>
           <Component Id="arclite.map" Guid="$(var.Guid.arclite.map)" Win64="$(var.Win64)">
-            <File Id="arclite.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite.map" />
+            <File Id="arclite.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite.map" />
           </Component>
 <?endif?>
           <Component Id="arclite_eng.hlf" Guid="$(var.Guid.arclite_eng.hlf)" Win64="$(var.Win64)">
-            <File Id="arclite_eng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_eng.hlf" />
+            <File Id="arclite_eng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite_eng.hlf" />
           </Component>
           <Component Id="arclite_eng.lng" Guid="$(var.Guid.arclite_eng.lng)" Win64="$(var.Win64)">
-            <File Id="arclite_eng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_eng.lng" />
+            <File Id="arclite_eng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite_eng.lng" />
           </Component>
           <Component Id="arclite_rus.hlf" Guid="$(var.Guid.arclite_rus.hlf)" Win64="$(var.Win64)">
-            <File Id="arclite_rus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_rus.hlf" />
+            <File Id="arclite_rus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite_rus.hlf" />
           </Component>
           <Component Id="arclite_rus.lng" Guid="$(var.Guid.arclite_rus.lng)" Win64="$(var.Win64)">
-            <File Id="arclite_rus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\arclite_rus.lng" />
+            <File Id="arclite_rus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\arclite_rus.lng" />
           </Component>
           <Component Id="changelog_18" Guid="$(var.Guid.changelog_18)" Win64="$(var.Win64)">
-            <File Id="changelog_18" KeyPath="yes" Source="$(var.SourceDir)\Plugins\ArcLite\changelog" />
+            <File Id="changelog_18" KeyPath="yes" Source="$(var.SourceDir)\Plugins\arclite\changelog" />
           </Component>
         </Directory>
         <Directory Id="AutoWrap" Name="AutoWrap">
@@ -494,17 +474,14 @@
           </Component>
         </Directory>
         <Directory Id="Brackets" Name="Brackets">
-          <Component Id="BrackDel.reg" Guid="$(var.Guid.BrackDel.reg)" Win64="$(var.Win64)">
-            <File Id="BrackDel.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackDel.reg" />
-          </Component>
           <Component Id="BrackEng.hlf" Guid="$(var.Guid.BrackEng.hlf)" Win64="$(var.Win64)">
             <File Id="BrackEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.hlf" />
           </Component>
           <Component Id="BrackEng.lng" Guid="$(var.Guid.BrackEng.lng)" Win64="$(var.Win64)">
             <File Id="BrackEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.lng" />
           </Component>
-          <Component Id="BrackEng.reg" Guid="$(var.Guid.BrackEng.reg)" Win64="$(var.Win64)">
-            <File Id="BrackEng.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.reg" />
+          <Component Id="BrackEng.xml" Guid="$(var.Guid.BrackEng.xml)" Win64="$(var.Win64)">
+            <File Id="BrackEng.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.xml" />
           </Component>
           <Component Id="Brackets.dll" Guid="$(var.Guid.Brackets.dll)" Win64="$(var.Win64)">
             <File Id="Brackets.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Brackets.dll" />
@@ -520,8 +497,8 @@
           <Component Id="BrackRus.lng" Guid="$(var.Guid.BrackRus.lng)" Win64="$(var.Win64)">
             <File Id="BrackRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.lng" />
           </Component>
-          <Component Id="BrackRus.reg" Guid="$(var.Guid.BrackRus.reg)" Win64="$(var.Win64)">
-            <File Id="BrackRus.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.reg" />
+          <Component Id="BrackRus.xml" Guid="$(var.Guid.BrackRus.xml)" Win64="$(var.Win64)">
+            <File Id="BrackRus.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.xml" />
           </Component>
           <Component Id="changelog_4" Guid="$(var.Guid.changelog_4)" Win64="$(var.Win64)">
             <File Id="changelog_4" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\changelog" />
@@ -614,9 +591,6 @@
             <File Id="EMenu.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenu.map" />
           </Component>
 <?endif?>
-          <Component Id="EMenuDel.reg" Guid="$(var.Guid.EMenuDel.reg)" Win64="$(var.Win64)">
-            <File Id="EMenuDel.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuDel.reg" />
-          </Component>
           <Component Id="EMenuEng.hlf" Guid="$(var.Guid.EMenuEng.hlf)" Win64="$(var.Win64)">
             <File Id="EMenuEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuEng.hlf" />
           </Component>
@@ -629,14 +603,14 @@
           <Component Id="EMenuRus.lng" Guid="$(var.Guid.EMenuRus.lng)" Win64="$(var.Win64)">
             <File Id="EMenuRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuRus.lng" />
           </Component>
-          <Component Id="Hotkey.reg" Guid="$(var.Guid.Hotkey.reg)" Win64="$(var.Win64)">
-            <File Id="Hotkey.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\Hotkey.reg" />
+          <Component Id="Hotkey.xml" Guid="$(var.Guid.Hotkey.xml)" Win64="$(var.Win64)">
+            <File Id="Hotkey.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\Hotkey.xml" />
           </Component>
-          <Component Id="HotkeyClipboard.reg" Guid="$(var.Guid.HotkeyClipboard.reg)" Win64="$(var.Win64)">
-            <File Id="HotkeyClipboard.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyClipboard.reg" />
+          <Component Id="HotkeyClipboard.xml" Guid="$(var.Guid.HotkeyClipboard.xml)" Win64="$(var.Win64)">
+            <File Id="HotkeyClipboard.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyClipboard.xml" />
           </Component>
-          <Component Id="HotkeyProperties.reg" Guid="$(var.Guid.HotkeyProperties.reg)" Win64="$(var.Win64)">
-            <File Id="HotkeyProperties.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyProperties.reg" />
+          <Component Id="HotkeyProperties.xml" Guid="$(var.Guid.HotkeyProperties.xml)" Win64="$(var.Win64)">
+            <File Id="HotkeyProperties.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyProperties.xml" />
           </Component>
         </Directory>
         <Directory Id="FarCmds" Name="FarCmds">
@@ -785,31 +759,6 @@
             <File Id="HlfViewerRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerRus.lng" />
           </Component>
         </Directory>
-        <Directory Id="MacroView" Name="MacroView">
-          <Component Id="changelog_13" Guid="$(var.Guid.changelog_13)" Win64="$(var.Win64)">
-            <File Id="changelog_13" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\changelog" />
-          </Component>
-          <Component Id="MacroEng.hlf" Guid="$(var.Guid.MacroEng.hlf)" Win64="$(var.Win64)">
-            <File Id="MacroEng.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroEng.hlf" />
-          </Component>
-          <Component Id="MacroEng.lng" Guid="$(var.Guid.MacroEng.lng)" Win64="$(var.Win64)">
-            <File Id="MacroEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroEng.lng" />
-          </Component>
-          <Component Id="MacroRus.hlf" Guid="$(var.Guid.MacroRus.hlf)" Win64="$(var.Win64)">
-            <File Id="MacroRus.hlf" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroRus.hlf" />
-          </Component>
-          <Component Id="MacroRus.lng" Guid="$(var.Guid.MacroRus.lng)" Win64="$(var.Win64)">
-            <File Id="MacroRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroRus.lng" />
-          </Component>
-          <Component Id="MacroView.dll" Guid="$(var.Guid.MacroView.dll)" Win64="$(var.Win64)">
-            <File Id="MacroView.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroView.dll" />
-          </Component>
-<?if $(var.Platform) = x86 ?>
-          <Component Id="MacroView.map" Guid="$(var.Guid.MacroView.map)" Win64="$(var.Win64)">
-            <File Id="MacroView.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\MacroView\MacroView.map" />
-          </Component>
-<?endif?>
-        </Directory>
         <Directory Id="Network" Name="Network">
           <Component Id="changelog_15" Guid="$(var.Guid.changelog_15)" Win64="$(var.Win64)">
             <File Id="changelog_15" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\changelog" />
@@ -870,14 +819,14 @@
           <Component Id="disks.rus.temp" Guid="$(var.Guid.disks.rus.temp)" Win64="$(var.Win64)">
             <File Id="disks.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\disks.rus.temp" />
           </Component>
-          <Component Id="shortcuts.eng.reg" Guid="$(var.Guid.shortcuts.eng.reg)" Win64="$(var.Win64)">
-            <File Id="shortcuts.eng.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.reg" />
+          <Component Id="shortcuts.eng.xml" Guid="$(var.Guid.shortcuts.eng.xml)" Win64="$(var.Win64)">
+            <File Id="shortcuts.eng.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.xml" />
           </Component>
           <Component Id="shortcuts.eng.temp" Guid="$(var.Guid.shortcuts.eng.temp)" Win64="$(var.Win64)">
             <File Id="shortcuts.eng.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.temp" />
           </Component>
-          <Component Id="shortcuts.rus.reg" Guid="$(var.Guid.shortcuts.rus.reg)" Win64="$(var.Win64)">
-            <File Id="shortcuts.rus.reg" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.reg" />
+          <Component Id="shortcuts.rus.xml" Guid="$(var.Guid.shortcuts.rus.xml)" Win64="$(var.Win64)">
+            <File Id="shortcuts.rus.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.xml" />
           </Component>
           <Component Id="shortcuts.rus.temp" Guid="$(var.Guid.shortcuts.rus.temp)" Win64="$(var.Win64)">
             <File Id="shortcuts.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.temp" />
@@ -906,11 +855,11 @@
       </Directory>
       <Directory Id="PluginSDK" Name="PluginSDK">
         <Directory Id="Headers.c" Name="Headers.c">
+          <Component Id="DlgBuilder.hpp" Guid="$(var.Guid.DlgBuilder.hpp)" Win64="$(var.Win64)">
+            <File Id="DlgBuilder.hpp" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.c\DlgBuilder.hpp" />
+          </Component>
           <Component Id="farcolor.hpp" Guid="$(var.Guid.farcolor.hpp)" Win64="$(var.Win64)">
             <File Id="farcolor.hpp" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.c\farcolor.hpp" />
-          </Component>
-          <Component Id="farkeys.hpp" Guid="$(var.Guid.farkeys.hpp)" Win64="$(var.Win64)">
-            <File Id="farkeys.hpp" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.c\farkeys.hpp" />
           </Component>
           <Component Id="plugin.hpp" Guid="$(var.Guid.plugin.hpp)" Win64="$(var.Win64)">
             <File Id="plugin.hpp" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.c\plugin.hpp" />
@@ -919,9 +868,6 @@
         <Directory Id="Headers.pas" Name="Headers.pas">
           <Component Id="FarColorW.pas" Guid="$(var.Guid.FarColorW.pas)" Win64="$(var.Win64)">
             <File Id="FarColorW.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\FarColorW.pas" />
-          </Component>
-          <Component Id="FarKeysW.pas" Guid="$(var.Guid.FarKeysW.pas)" Win64="$(var.Win64)">
-            <File Id="FarKeysW.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\FarKeysW.pas" />
           </Component>
           <Component Id="PluginW.pas" Guid="$(var.Guid.PluginW.pas)" Win64="$(var.Win64)">
             <File Id="PluginW.pas" KeyPath="yes" Source="$(var.SourceDir)\PluginSDK\Headers.pas\PluginW.pas" />

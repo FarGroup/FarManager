@@ -58,17 +58,10 @@
             <RegistryValue Root="HKCR" Key="Drive\shell\$(var.Product)\command" Value="&quot;[#Far.exe]&quot; &quot;%1\&quot;" Type="string" />
           </Component>
 <?if $(var.Platform) = x86 ?>
-          <Component Id="FExceptReg" Guid="$(var.Guid.FExceptReg)" Win64="$(var.Win64)">
-            <RegistryValue Root="HKCU" Key="Software\$(var.RegKey)\System\Exception" Name="Used" Value="1" Type="integer" KeyPath="yes" />
-            <RegistryValue Root="HKCU" Key="Software\$(var.RegKey)\System\Exception" Name="FarEvent.svc" Value="FExcept\fexcept.dll" Type="string" />
-          </Component>
           <Component Id="FStd_trap.log" Guid="$(var.Guid.FStd_trap.log)" Win64="$(var.Win64)">
             <RemoveFile Id="FStd_trap.log" Name="FStd_trap.log" On="uninstall" />
           </Component>
 <?endif?>
-          <Component Id="ClearPluginsCache" Guid="$(var.Guid.ClearPluginsCache)" Win64="$(var.Win64)">
-            <RemoveRegistryKey Root="HKCU" Key="Software\$(var.RegKey)\PluginsCache" Action="removeOnInstall" />
-          </Component>
         </Directory>
       </Directory>
     </Directory>

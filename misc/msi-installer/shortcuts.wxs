@@ -12,16 +12,6 @@
           <Component Id="UninstallProduct" Guid="$(var.Guid.UninstallProduct)" Win64="$(var.Win64)">
             <Shortcut Id="UninstallProduct" Name="Uninstall" Target="[System64Folder]msiexec.exe" Arguments="/x [ProductCode]" />
           </Component>
-          <Directory Id="Scripts" Name="Scripts">
-            <Component Id="Scripts" Guid="$(var.Guid.Scripts)" Win64="$(var.Win64)">
-              <Shortcut Id="SaveSettings" Name="Save settings" Target="[#SaveSettings.cmd]" WorkingDirectory="INSTALLDIR" />
-              <Shortcut Id="RestoreSettings" Name="Restore settings" Target="[#RestoreSettings.cmd]" WorkingDirectory="INSTALLDIR" />
-              <Shortcut Id="ClearPluginsCache" Name="Clear plugins cache" Target="[#ClearPluginsCache.cmd]" WorkingDirectory="INSTALLDIR" />
-            </Component>
-          </Directory>
-          <Component Id="RussianEncShortcut" Guid="$(var.Guid.RussianEncShortcut)" Win64="$(var.Win64)">
-            <Shortcut Id="RussianEncyclopediaShortcut" Name="Russian Encyclopedia" Target="[#FarEncyclopedia.ru.chm]" />
-          </Component>
         </Directory>
       </Directory>
       <Directory Id="DesktopFolder">

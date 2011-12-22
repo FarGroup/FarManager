@@ -48,8 +48,6 @@
 <String Id="Feature.Description.FarHere">Adds "Far Here" shell menu item to drives and directories.</String>
 <String Id="Feature.Title.SDK">Plugin SDK</String>
 <String Id="Feature.Description.SDK">SDK for plugin developers.</String>
-<String Id="Feature.Title.Enc">Encyclopedia</String>
-<String Id="Feature.Description.Enc">Encyclopedia for plugin and macro developers.</String>
 <String Id="Feature.Title.Pascal">Pascal headers</String>
 <String Id="Feature.Title.Plugins">Plugins</String>
 <String Id="Feature.Description.Plugins">Standard plugins.</String>
@@ -97,8 +95,6 @@
 <String Id="Feature.Description.ftpProgress">Copy progress dialog.</String>
 <String Id="Feature.Title.HlfViewer">HlfViewer</String>
 <String Id="Feature.Description.HlfViewer">Help files (*.hlf) viewer.</String>
-<String Id="Feature.Title.MacroView">MacroView</String>
-<String Id="Feature.Description.MacroView">Macro browser and editor.</String>
 <String Id="Feature.Title.MultiArc">MultiArc</String>
 <String Id="Feature.Description.MultiArc">Multiformat archive support.</String>
 <String Id="Feature.Title.Ace">Ace</String>

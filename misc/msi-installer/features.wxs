@@ -4,102 +4,96 @@
   <Fragment>
     <Feature Id="Far" Level="1" Title="!(loc.Feature.Title.Far)" Display="expand" Absent="disallow" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR">
       <ComponentRef Id="InstallDir" />
-      <ComponentRef Id="ClearPluginsCache" />
       <ComponentRef Id="Far.exe" />
       <ComponentRef Id="FarEng.hlf" />
       <ComponentRef Id="FarEng.lng" />
       <ComponentRef Id="File_id.diz" />
-      <ComponentRef Id="ClearPluginsCache.cmd" />
-      <ComponentRef Id="RestoreSettings.cmd" />
-      <ComponentRef Id="SaveSettings.cmd" />
+      <ComponentRef Id="RestoreOldPluginSettings.cmd" />
+      <ComponentRef Id="SaveOldPluginSettings.cmd" />
       <Feature Id="Addons" Level="2" Title="!(loc.Feature.Title.Addons)" AllowAdvertise="no" Description="!(loc.Feature.Description.Addons)">
         <ComponentRef Id="Descript.ion_1" />
         <ComponentRef Id="README.TXT_1" />
         <Feature Id="Colors" Level="2" Title="!(loc.Feature.Title.Colors)" AllowAdvertise="no" Description="!(loc.Feature.Description.Colors)">
           <ComponentRef Id="Descript.ion_3" />
-          <ComponentRef Id="export_colors.bat" />
-          <ComponentRef Id="import_colors.bat" />
-          <ComponentRef Id="black_from_Fonarev.reg" />
-          <ComponentRef Id="black_from_july.reg" />
-          <ComponentRef Id="black_from_Myodov.reg" />
-          <ComponentRef Id="Colors_from_admin_essp_ru.reg" />
-          <ComponentRef Id="Colors_from_Gernichenko.reg" />
-          <ComponentRef Id="Colors_from_Sadovoj.reg" />
+          <ComponentRef Id="black_from_Fonarev.xml" />
+          <ComponentRef Id="black_from_july.xml" />
+          <ComponentRef Id="black_from_Myodov.xml" />
+          <ComponentRef Id="Colors_from_admin_essp_ru.xml" />
+          <ComponentRef Id="Colors_from_Gernichenko.xml" />
+          <ComponentRef Id="Colors_from_Sadovoj.xml" />
           <ComponentRef Id="Descript.ion_4" />
-          <ComponentRef Id="dn_like.reg" />
-          <ComponentRef Id="FARColors242.reg" />
-          <ComponentRef Id="GreenMile.reg" />
-          <ComponentRef Id="hell.reg" />
-          <ComponentRef Id="import_colors.bat_1" />
-          <ComponentRef Id="nc5pal2.reg" />
-          <ComponentRef Id="Rodion_Doroshkevich.reg" />
-          <ComponentRef Id="VaxColors.reg" />
-          <ComponentRef Id="black_from_Fonarev.reg_1" />
-          <ComponentRef Id="black_from_july.reg_1" />
-          <ComponentRef Id="black_from_Myodov.reg_1" />
-          <ComponentRef Id="Colors_from_admin_essp_ru.reg_1" />
-          <ComponentRef Id="Colors_from_Gernichenko.reg_1" />
-          <ComponentRef Id="Colors_from_Sadovoj.reg_1" />
+          <ComponentRef Id="dn_like.xml" />
+          <ComponentRef Id="FARColors242.xml" />
+          <ComponentRef Id="GreenMile.xml" />
+          <ComponentRef Id="hell.xml" />
+          <ComponentRef Id="nc5pal2.xml" />
+          <ComponentRef Id="Rodion_Doroshkevich.xml" />
+          <ComponentRef Id="VaxColors.xml" />
+          <ComponentRef Id="black_from_Fonarev.xml_1" />
+          <ComponentRef Id="black_from_july.xml_1" />
+          <ComponentRef Id="black_from_Myodov.xml_1" />
+          <ComponentRef Id="Colors_from_admin_essp_ru.xml_1" />
+          <ComponentRef Id="Colors_from_Gernichenko.xml_1" />
+          <ComponentRef Id="Colors_from_Sadovoj.xml_1" />
           <ComponentRef Id="Descript.ion_5" />
-          <ComponentRef Id="dn_like.reg_1" />
-          <ComponentRef Id="FARColors242.reg_1" />
-          <ComponentRef Id="GreenMile.reg_1" />
-          <ComponentRef Id="hell.reg_1" />
-          <ComponentRef Id="import_colors.bat_2" />
-          <ComponentRef Id="nc5pal2.reg_1" />
-          <ComponentRef Id="Rodion_Doroshkevich.reg_1" />
-          <ComponentRef Id="VaxColors.reg_1" />
+          <ComponentRef Id="dn_like.xml_1" />
+          <ComponentRef Id="FARColors242.xml_1" />
+          <ComponentRef Id="GreenMile.xml_1" />
+          <ComponentRef Id="hell.xml_1" />
+          <ComponentRef Id="nc5pal2.xml_1" />
+          <ComponentRef Id="Rodion_Doroshkevich.xml_1" />
+          <ComponentRef Id="VaxColors.xml_1" />
         </Feature>
         <Feature Id="Macros" Level="2" Title="!(loc.Feature.Title.Macros)" AllowAdvertise="no" Description="!(loc.Feature.Description.Macros)">
-          <ComponentRef Id="AltMenu.reg" />
-          <ComponentRef Id="AltScreens.reg" />
-          <ComponentRef Id="AltSearch.reg" />
-          <ComponentRef Id="AltX.reg" />
-          <ComponentRef Id="CtrlDel.reg" />
-          <ComponentRef Id="CtrlF10.reg" />
+          <ComponentRef Id="AltMenu.xml" />
+          <ComponentRef Id="AltScreens.xml" />
+          <ComponentRef Id="AltSearch.xml" />
+          <ComponentRef Id="AltX.xml" />
+          <ComponentRef Id="CtrlDel.xml" />
+          <ComponentRef Id="CtrlF10.xml" />
           <ComponentRef Id="Descript.ion_6" />
-          <ComponentRef Id="Dialog.AltDown.reg" />
-          <ComponentRef Id="Edit.Notepad.reg" />
-          <ComponentRef Id="Edit.SaveAndExit.reg" />
-          <ComponentRef Id="Edit.SaveFile.reg" />
-          <ComponentRef Id="F3.reg" />
-          <ComponentRef Id="F9DeactivateMenu.reg" />
-          <ComponentRef Id="F9Table.reg" />
-          <ComponentRef Id="MacroConsts.reg" />
-          <ComponentRef Id="OpeningLastFile.reg" />
-          <ComponentRef Id="Panel.AltBS.reg" />
-          <ComponentRef Id="Panel.Apps.reg" />
-          <ComponentRef Id="Panel.BS.reg" />
+          <ComponentRef Id="Dialog.AltDown.xml" />
+          <ComponentRef Id="Edit.Notepad.xml" />
+          <ComponentRef Id="Edit.SaveAndExit.xml" />
+          <ComponentRef Id="Edit.SaveFile.xml" />
+          <ComponentRef Id="F3.xml" />
+          <ComponentRef Id="F9DeactivateMenu.xml" />
+          <ComponentRef Id="F9Table.xml" />
+          <ComponentRef Id="OpeningLastFile.xml" />
+          <ComponentRef Id="Panel.AltBS.xml" />
+          <ComponentRef Id="Panel.Apps.xml" />
+          <ComponentRef Id="Panel.BS.xml" />
           <ComponentRef Id="Panel.CtrlIns_reg" />
-          <ComponentRef Id="Panel.CtrlLeft.reg" />
-          <ComponentRef Id="Panel.CtrlQ.reg" />
-          <ComponentRef Id="Panel.CtrlRight.reg" />
-          <ComponentRef Id="Panel.CtrlShiftBackSlash.reg" />
-          <ComponentRef Id="Panel.CtrlShiftPgUpDn.reg" />
-          <ComponentRef Id="Panel.Del.reg" />
-          <ComponentRef Id="Panel.Esc.reg" />
-          <ComponentRef Id="Panel.JumpToSelectedFile.reg" />
-          <ComponentRef Id="Panel.Lynx_mot.reg" />
-          <ComponentRef Id="Panel.MouseWheelTilt.reg" />
-          <ComponentRef Id="Panel.Numpad.reg" />
-          <ComponentRef Id="Panel.SelectFromClipboard.reg" />
-          <ComponentRef Id="Panel.SpaceToSelect.reg" />
-          <ComponentRef Id="ShiftBS.reg" />
-          <ComponentRef Id="ShiftF1.reg" />
-          <ComponentRef Id="ShiftTab.reg" />
-          <ComponentRef Id="View.CtrlUpDown.reg" />
-          <ComponentRef Id="View.NextPrevFile.reg" />
-          <ComponentRef Id="View.PgDn.reg" />
-          <ComponentRef Id="View.ShiftInsSearch.reg" />
-          <ComponentRef Id="View.Space.reg" />
-          <ComponentRef Id="WheelScreenSwitch.reg" />
+          <ComponentRef Id="Panel.CtrlLeft.xml" />
+          <ComponentRef Id="Panel.CtrlQ.xml" />
+          <ComponentRef Id="Panel.CtrlRight.xml" />
+          <ComponentRef Id="Panel.CtrlShiftBackSlash.xml" />
+          <ComponentRef Id="Panel.CtrlShiftPgUpDn.xml" />
+          <ComponentRef Id="Panel.Del.xml" />
+          <ComponentRef Id="Panel.Esc.xml" />
+          <ComponentRef Id="Panel.JumpToSelectedFile.xml" />
+          <ComponentRef Id="Panel.Lynx_mot.xml" />
+          <ComponentRef Id="Panel.MouseWheelTilt.xml" />
+          <ComponentRef Id="Panel.Numpad.xml" />
+          <ComponentRef Id="Panel.SelectFromClipboard.xml" />
+          <ComponentRef Id="Panel.SpaceToSelect.xml" />
+          <ComponentRef Id="ShiftBS.xml" />
+          <ComponentRef Id="ShiftF1.xml" />
+          <ComponentRef Id="ShiftTab.xml" />
+          <ComponentRef Id="View.CtrlUpDown.xml" />
+          <ComponentRef Id="View.NextPrevFile.xml" />
+          <ComponentRef Id="View.PgDn.xml" />
+          <ComponentRef Id="View.ShiftInsSearch.xml" />
+          <ComponentRef Id="View.Space.xml" />
+          <ComponentRef Id="WheelScreenSwitch.xml" />
         </Feature>
         <Feature Id="SetUp" Level="2" Title="!(loc.Feature.Title.SetUp)" AllowAdvertise="no" Description="!(loc.Feature.Description.SetUp)">
-          <ComponentRef Id="Default165.reg" />
+          <ComponentRef Id="Default165.xml" />
           <ComponentRef Id="Descript.ion_7" />
-          <ComponentRef Id="Executor.4NT.reg" />
-          <ComponentRef Id="Executor.CMD.reg" />
-          <ComponentRef Id="WindowsGUI.reg" />
+          <ComponentRef Id="Executor.4NT.xml" />
+          <ComponentRef Id="Executor.CMD.xml" />
+          <ComponentRef Id="Executor.COMMAND.xml" />
+          <ComponentRef Id="WindowsGUI.xml" />
         </Feature>
         <Feature Id="Shell" Level="2" Title="!(loc.Feature.Title.Shell)" AllowAdvertise="no" Description="!(loc.Feature.Description.Shell)">
           <ComponentRef Id="Descript.ion_8" />
@@ -107,12 +101,12 @@
         </Feature>
         <Feature Id="XLat" Level="2" Title="!(loc.Feature.Title.XLat)" AllowAdvertise="no" Description="!(loc.Feature.Description.XLat)">
           <ComponentRef Id="Descript.ion_15" />
-          <ComponentRef Id="AltR.reg" />
-          <ComponentRef Id="Apps.reg_1" />
-          <ComponentRef Id="CtrlR.reg" />
-          <ComponentRef Id="CtrlShiftX.reg" />
+          <ComponentRef Id="AltR.xml" />
+          <ComponentRef Id="Apps.xml_1" />
+          <ComponentRef Id="CtrlR.xml" />
+          <ComponentRef Id="CtrlShiftX.xml" />
           <ComponentRef Id="Descript.ion_16" />
-          <ComponentRef Id="Qwerty.reg" />
+          <ComponentRef Id="Qwerty.xml" />
         </Feature>
       </Feature>
       <Feature Id="Changelogs" Level="2" Title="!(loc.Feature.Title.Changelogs)" AllowAdvertise="no" Description="!(loc.Feature.Description.Changelogs)">
@@ -133,18 +127,14 @@
         <ComponentRef Id="Plugins.Review.txt_1" />
         <ComponentRef Id="TechInfo.txt_1" />
       </Feature>
-      <Feature Id="Enc" Level="2" Title="!(loc.Feature.Title.Enc)" AllowAdvertise="no" Description="!(loc.Feature.Description.Enc)">
-        <ComponentRef Id="FarEncyclopedia.ru.chm" />
-      </Feature>
 <?if $(var.Platform) = x86 ?>
       <Feature Id="FExcept" Level="1" Title="!(loc.Feature.Title.FExcept)" AllowAdvertise="no" Description="!(loc.Feature.Description.FExcept)">
-        <ComponentRef Id="FExceptReg" />
         <ComponentRef Id="demangle32.dll" />
         <ComponentRef Id="ExcDump.dll" />
         <ComponentRef Id="FExcept.dll" />
-        <ComponentRef Id="SetFarExceptionHandler.reg" />
+        <ComponentRef Id="SetFarExceptionHandler.xml" />
         <ComponentRef Id="FStd_trap.log" />
-        <ComponentRef Id="far.map" />
+        <ComponentRef Id="Far.map" />
       </Feature>
       <Feature Id="Changelogs.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
         <ComponentRef Id="changelog_1" />
@@ -176,10 +166,6 @@
         <Feature Id="FarProgramsShortcut" Level="1" Title="!(loc.Feature.Title.FarProgramsShortcut)" AllowAdvertise="no">
           <ComponentRef Id="FarProgramsShortcut" />
           <ComponentRef Id="UninstallProduct" />
-          <ComponentRef Id="Scripts" />
-          <Feature Id="FarProgramsShortcut.Enc" Level="2" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="RussianEncShortcut" />
-          </Feature>
         </Feature>
         <Feature Id="FarDesktopShortcut" Level="2" Title="!(loc.Feature.Title.FarDesktopShortcut)" AllowAdvertise="no">
           <ComponentRef Id="FarDesktopShortcut" />
@@ -200,12 +186,11 @@
         </Feature>
       </Feature>
       <Feature Id="SDK" Level="2" Title="!(loc.Feature.Title.SDK)" AllowAdvertise="no" Description="!(loc.Feature.Description.SDK)">
+        <ComponentRef Id="DlgBuilder.hpp" />
         <ComponentRef Id="farcolor.hpp" />
-        <ComponentRef Id="farkeys.hpp" />
         <ComponentRef Id="plugin.hpp" />
         <Feature Id="Pascal" Level="2" Title="!(loc.Feature.Title.Pascal)" AllowAdvertise="no">
           <ComponentRef Id="FarColorW.pas" />
-          <ComponentRef Id="FarKeysW.pas" />
           <ComponentRef Id="PluginW.pas" />
         </Feature>
       </Feature>
@@ -242,15 +227,14 @@
             </Feature>
           </Feature>
           <Feature Id="Brackets" Level="1" Title="!(loc.Feature.Title.Brackets)" AllowAdvertise="no" Description="!(loc.Feature.Description.Brackets)">
-            <ComponentRef Id="BrackDel.reg" />
             <ComponentRef Id="BrackEng.hlf" />
             <ComponentRef Id="BrackEng.lng" />
-            <ComponentRef Id="BrackEng.reg" />
+            <ComponentRef Id="BrackEng.xml" />
             <ComponentRef Id="Brackets.dll" />
             <Feature Id="Brackets.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackRus.hlf" />
               <ComponentRef Id="BrackRus.lng" />
-              <ComponentRef Id="BrackRus.reg" />
+              <ComponentRef Id="BrackRus.xml" />
             </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="Brackets.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -352,12 +336,11 @@
         </Feature>
         <Feature Id="EMenu" Level="1" Title="!(loc.Feature.Title.EMenu)" AllowAdvertise="no" Description="!(loc.Feature.Description.EMenu)">
           <ComponentRef Id="EMenu.dll" />
-          <ComponentRef Id="EMenuDel.reg" />
           <ComponentRef Id="EMenuEng.hlf" />
           <ComponentRef Id="EMenuEng.lng" />
-          <ComponentRef Id="Hotkey.reg" />
-          <ComponentRef Id="HotkeyClipboard.reg" />
-          <ComponentRef Id="HotkeyProperties.reg" />
+          <ComponentRef Id="Hotkey.xml" />
+          <ComponentRef Id="HotkeyClipboard.xml" />
+          <ComponentRef Id="HotkeyProperties.xml" />
           <Feature Id="EMenu.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="EMenuRus.hlf" />
             <ComponentRef Id="EMenuRus.lng" />
@@ -465,23 +448,6 @@
             <ComponentRef Id="changelog_12" />
           </Feature>
         </Feature>
-        <Feature Id="MacroView" Level="1" Title="!(loc.Feature.Title.MacroView)" AllowAdvertise="no" Description="!(loc.Feature.Description.MacroView)">
-          <ComponentRef Id="MacroEng.hlf" />
-          <ComponentRef Id="MacroEng.lng" />
-          <ComponentRef Id="MacroView.dll" />
-          <Feature Id="MacroView.Russian" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="MacroRus.hlf" />
-            <ComponentRef Id="MacroRus.lng" />
-          </Feature>
-<?if $(var.Platform) = x86 ?>
-          <Feature Id="MacroView.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="MacroView.map" />
-          </Feature>
-<?endif?>
-          <Feature Id="MacroView.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="changelog_13" />
-          </Feature>
-        </Feature>
         <Feature Id="Network" Level="1" Title="!(loc.Feature.Title.Network)" AllowAdvertise="no" Description="!(loc.Feature.Description.Network)">
           <ComponentRef Id="NetEng.hlf" />
           <ComponentRef Id="NetEng.lng" />
@@ -518,14 +484,14 @@
         </Feature>
         <Feature Id="TmpPanel" Level="1" Title="!(loc.Feature.Title.TmpPanel)" AllowAdvertise="no" Description="!(loc.Feature.Description.TmpPanel)">
           <ComponentRef Id="disks.eng.temp" />
-          <ComponentRef Id="shortcuts.eng.reg" />
+          <ComponentRef Id="shortcuts.eng.xml" />
           <ComponentRef Id="shortcuts.eng.temp" />
           <ComponentRef Id="TmpEng.hlf" />
           <ComponentRef Id="TmpEng.lng" />
           <ComponentRef Id="TmpPanel.dll" />
           <Feature Id="TmpPanel.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="disks.rus.temp" />
-            <ComponentRef Id="shortcuts.rus.reg" />
+            <ComponentRef Id="shortcuts.rus.xml" />
             <ComponentRef Id="shortcuts.rus.temp" />
             <ComponentRef Id="TmpRus.hlf" />
             <ComponentRef Id="TmpRus.lng" />

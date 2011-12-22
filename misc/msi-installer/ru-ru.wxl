@@ -48,8 +48,6 @@
 <String Id="Feature.Description.FarHere">Регистрация в меню оболочки Windows пункта "Far Here" для каталогов и дисков.</String>
 <String Id="Feature.Title.SDK">Plugin SDK</String>
 <String Id="Feature.Description.SDK">Набор для разработчиков плагинов.</String>
-<String Id="Feature.Title.Enc">Энциклопедия</String>
-<String Id="Feature.Description.Enc">Энциклопедия для разработчиков плагинов и макросов.</String>
 <String Id="Feature.Title.Pascal">Поддержка языка Pascal</String>
 <String Id="Feature.Title.Plugins">Плагины</String>
 <String Id="Feature.Description.Plugins">Стандартные плагины.</String>
@@ -97,8 +95,6 @@
 <String Id="Feature.Description.ftpProgress">Настраиваемый индикатор процесса копирования.</String>
 <String Id="Feature.Title.HlfViewer">HlfViewer</String>
 <String Id="Feature.Description.HlfViewer">Просмотр файлов помощи (*.hlf).</String>
-<String Id="Feature.Title.MacroView">MacroView</String>
-<String Id="Feature.Description.MacroView">Просмотр и редактирование макросов.</String>
 <String Id="Feature.Title.MultiArc">MultiArc</String>
 <String Id="Feature.Description.MultiArc">Универсальный модуль работы с архивами.</String>
 <String Id="Feature.Title.Ace">Ace</String>
