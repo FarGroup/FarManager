@@ -9770,12 +9770,12 @@ upd:"User description"
 
 MInfoUserAccessLevel
 "Уровень доступа"
-"Access Level"
-upd:"Access Level"
-upd:"Access Level"
-upd:"Access Level"
-upd:"Access Level"
-upd:"Access Level"
+"Access level"
+upd:"Access level"
+upd:"Access level"
+upd:"Access level"
+upd:"Access level"
+upd:"Access level"
 
 MInfoUserAccessLevelGuest
 "Гость"
