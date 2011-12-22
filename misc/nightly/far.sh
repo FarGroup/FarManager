@@ -43,6 +43,7 @@ cp $2/Include/*.hpp $BINDIR/PluginSDK/Headers.c/
 cp $2/Include/*.pas $BINDIR/PluginSDK/Headers.pas/
 cp -f $2/changelog $BINDIR/
 cp -f $2/changelog_eng $BINDIR/
+cp -f $2/Far.exe.example.ini $BINDIR/
 }
 
 function buildfar {
