@@ -564,11 +564,11 @@ void InfoList::SelectShowMode(void)
 {
 	MenuDataEx ShowModeMenuItem[]=
 	{
-		MSG(MMenuInfoShowModeDisk),LIF_SELECTED,KEY_CTRL0,
-		MSG(MMenuInfoShowModeMemory),0,KEY_CTRL1,
-		MSG(MMenuInfoShowModeDirDiz),0,KEY_CTRL2,
-		MSG(MMenuInfoShowModePluginDiz),0,KEY_CTRL3,
-		MSG(MMenuInfoShowModePower),0,KEY_CTRL4,
+		MSG(MMenuInfoShowModeDisk),LIF_SELECTED,0,
+		MSG(MMenuInfoShowModeMemory),0,0,
+		MSG(MMenuInfoShowModeDirDiz),0,0,
+		MSG(MMenuInfoShowModePluginDiz),0,0,
+		MSG(MMenuInfoShowModePower),0,0,
 	};
 
 	for (size_t i=0; i<ARRAYSIZE(SectionState); i++)
@@ -735,21 +735,6 @@ int InfoList::ProcessKey(int Key)
 		{
 			Redraw();
 			return TRUE;
-		}
-
-		default:
-		{
-			if ((Key >= KEY_CTRL0 && Key <= KEY_CTRL9) || (Key >= KEY_RCTRL0 && Key <= KEY_RCTRL9))
-			{
-				size_t Idx=Key >= KEY_CTRL0 && Key <= KEY_CTRL9? Key-KEY_CTRL0 : Key-KEY_RCTRL0;
-				if (Idx < ARRAYSIZE(SectionState))
-				{
-					SectionState[Idx].Show=!SectionState[Idx].Show;
-					Redraw();
-					return TRUE;
-				}
-			}
-			break;
 		}
 	}
 

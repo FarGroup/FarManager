@@ -824,9 +824,9 @@ int FilePanels::ProcessKey(int Key)
 		}
 		default:
 		{
-			if (Key >= KEY_CTRL0 && Key <= KEY_CTRL9 && ActivePanel->GetType() != INFO_PANEL)
+			if (Key >= KEY_CTRL0 && Key <= KEY_CTRL9)
 				ChangePanelViewMode(ActivePanel,Key-KEY_CTRL0,TRUE);
-			else if (!ActivePanel->ProcessKey(Key))
+			if (!ActivePanel->ProcessKey(Key))
 				CtrlObject->CmdLine->ProcessKey(Key);
 
 			break;
