@@ -5425,13 +5425,19 @@ void PluginA::FreeFindData(
 int PluginA::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 {
 	BOOL bResult = FALSE;
-	int VirtKey;
-	int dwControlState;
 
-	//BUGBUG: здесь можно проще.
-	TranslateKeyToVK(InputRecordToKey(Rec),VirtKey,dwControlState);
 	if (Exports[iProcessPanelInput] && !ProcessException)
 	{
+		int VirtKey;
+		int dwControlState;
+		//BUGBUG: здесь можно проще.
+		TranslateKeyToVK(InputRecordToKey(Rec),VirtKey,dwControlState);
+
+		if (dwControlState&PKF_RALT)
+			dwControlState = (dwControlState & (~PKF_RALT)) | PKF_ALT;
+		if (dwControlState&PKF_RCONTROL)
+			dwControlState = (dwControlState & (~PKF_RCONTROL)) | PKF_CONTROL;
+
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSPANELINPUT;
 		es.bDefaultResult = TRUE; // do not pass this key to far on exception
