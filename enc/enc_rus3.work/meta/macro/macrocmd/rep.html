@@ -45,14 +45,21 @@
 
 <h3>Пример</h3>
 <div class="descr">
-<pre class="codesample"><code>REGEDIT4
+<pre class="codesample"><code>
+&lt;macro area="Common" key="AltX" flags="NotEmptyCommandLine|DisableOutput"
+   description="выход из FAR'a"&gt;
 
-;выход из FAR'a
+&lt;![CDATA[
 
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Common\AltX]
-"Sequence"="$If (Editor &amp;&amp; (Editor.State &amp; 0x8)) F2 $End
-$Rep (2) $If (!Shell) Esc $End $End F10"
-"DisableOutput"=dword:00000001
+$If (Editor &amp;&amp; (Editor.State &amp; 0x8)) F2 $End
+$Rep (2)
+  $If (!Shell) Esc $End
+$End
+F10
+
+]]&gt;
+
+&lt;/macro&gt;
 </code></pre>
 </div>
 

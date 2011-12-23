@@ -64,14 +64,13 @@
 
 <h3>Пример</h3>
 <div class="descr">
-<pre class="codesample"><code>REGEDIT
+<pre class="codesample"><code>
+&lt;macro area="Shell" key="CtrlShiftF7" flags="NotEmptyCommandLine|DisableOutput"
+   description="создание папки с именем = текущей дате"&gt;
 
-;создание папки с именем = текущей дате
+%Folder=date("%d.%m0.%Y"); $If (!panel.fexist(0,%Folder)) F7 $Text %Folder Enter $End
 
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlShiftF7]
-"Sequence"="%Folder=date(\"%d.%m0.%Y\"); $If (!panel.fexist(0,%Folder)) F7 $Text %Folder Enter $End"
-"DisableOutput"=dword:00000001
-"NoPluginPanels"=dword:00000001
+&lt;/macro&gt;
 </code></pre>
 </div>
 

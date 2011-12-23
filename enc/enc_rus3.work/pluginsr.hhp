@@ -1,0 +1,26 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=distr_chm_pluginsr\FarEncyclopedia.ru.chm
+Contents file=pluginsr.hhc
+Default Font=,8,204
+Default Window=far
+Default topic=html\index.html
+Display compile progress=Yes
+Full-text search=Yes
+Index file=pluginsr.hhk
+Language=0x419 Russian
+Title=Programming FAR plugins - Encyclopedia for Developers
+;Create CHI file=Yes
+Binary TOC=No
+Binary Index=Yes
+Auto Index=No
+Error log file=_errorlog.txt
+
+[WINDOWS]
+;far=,"pluginsr.hhc","pluginsr.hhk","html\index.html","html\index.html",,,,,0x63520,250,0x385e,[1,1,781,589],0xb1cb0000,0x4400,,,,,0
+far=,"pluginsr.hhc","pluginsr.hhk","html\index.html","html\index.html",,,,,0x73520,250,0x4385E,[1,1,781,589],0xB0000,0x4400,,,,,0
+
+[FILES]
+html\index.html
+
+[INFOTYPES]

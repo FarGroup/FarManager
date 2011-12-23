@@ -29,14 +29,15 @@
 
 <h3>Пример</h3>
 <div class="descr">
-<pre class="codesample"><code>REGEDIT4
 
-;XLAT переконвертация последнего слова
+<pre class="codesample">
+&lt;macro area="Shell" key="ShiftBS" flags="NotEmptyCommandLine|DisableOutput"
+   description="XLAT переконвертация последнего слова"&gt;
 
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\ShiftBS]
-"Sequence"="CtrlShiftLeft $XLat CtrlRight"
-"DisableOutput"=dword:00000001
-"NotEmptyCommandLine"=dword:00000001
+CtrlShiftLeft $XLat CtrlRight
+
+&lt;/macro&gt;
+
 </code></pre>
 </div>
 

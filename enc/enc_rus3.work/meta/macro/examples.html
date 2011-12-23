@@ -17,50 +17,91 @@
 <a href="index.html">Макросы</a>
 </div>
 
-<pre class="codesample"><code>REGEDIT4
+<pre class="codesample"><code>
+&lt;macro
+  area="Disks"
+  key="Tab"
+  flags="DisableOutput"
+  description="Переход в меню выбора дисков на противоположной панели включение видимости панели в которой будет происходить смена диска, если её не было"&gt;
+Esc
+$If (!PPanel.Visible)
+  $If (APanel.Left)
+    CtrlF2
+  $Else
+    CtrlF1
+  $End
+$End
+Tab F9 Enter End Enter
+&lt;/macro&gt;</code></pre>
 
-; переход в меню выбора дисков на противоположной панели
-; включение видимости панели в которой будет происходить смена диска, если её не было
+<pre class="codesample"><code>
+&lt;macro
+  area="Editor"
+  key="RAlt"
+  flags="DisableOutput"
+  description="выделить/(снять выделение) слово(а) под курсором"&gt;
+RCtrl9 CtrlRight CtrlLeft
+$If (!Selected)
+  CtrlShiftRight
+$Else
+  CtrlU
+$End
+Ctrl9
+&lt;/macro&gt;</code></pre>
 
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Disks\Tab]
-"Sequence"="Esc $If (!PPanel.Visible) $If (APanel.Left) CtrlF2 $Else CtrlF1 $End $End Tab F9 Enter End Enter"
-"DisableOutput"=dword:00000001</code></pre>
+<pre class="codesample"><code>
+&lt;macro
+  area="Shell"
+  key="CtrlShiftF7"
+  flags="DisableOutput|NoPluginPanels"
+  description="создание папки с именем = текущей дате"&gt;
+%folder=date("%d.%m0.%Y");
+$If (!panel.fexist(0,%folder))
+  F7
+  CtrlY
+  $Text %folder
+  Enter
+$End
+&lt;/macro&gt;</code></pre>
 
-<pre class="codesample"><code>REGEDIT4
+<pre class="codesample"><code>
+&lt;!--
+искать тот же файл на другой панели что и на активной
+F5 ShiftEnter CtrlIns - применено чтобы получить имя файла вне зависимости
+пусто/непусто в cmdline и сколько выделено на панели файлов
+--&gt;
+&lt;macro
+  area="Shell"
+  key="CtrlAltLeft"
+  flags="DisableOutput"
+  description="искать тот же файл на другой панели что и на активной"&gt;
+&lt;![CDATA[
+clip(5)
+$If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+  $If (fexist(PPanel.Path+@"\\"+APanel.Current) == 1)
+    F5 ShiftEnter
+    CtrlIns Esc Tab Home
+    Alt&lt; ShiftIns Esc
+  $End
+$End
+]]&gt;
 
-;выделить/(снять выделение) слово(а) под курсором
-
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Editor\RAlt]
-"Sequence"="RCtrl9 CtrlRight CtrlLeft $If (!Selected) CtrlShiftRight $Else CtrlU $End Ctrl9"
-"DisableOutput"=dword:00000001</code></pre>
-
-<pre class="codesample"><code>REGEDIT4
-
-;создание папки с именем = текущей дате
-
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlShiftF7]
-"Sequence"="%folder=date(\"%d.%m0.%Y\"); $If (!panel.fexist(0,%folder)) F7 CtrlY $Text %folder Enter $End"
-"DisableOutput"=dword:00000001
-"NoPluginPanels"=dword:00000001</code></pre>
-
-<pre class="codesample"><code>REGEDIT4
-
-;искать тот же файл на другой панели что и на активной
-;F5 ShiftEnter CtrlIns - применено чтобы получить имя файла вне зависимости
-;пусто/непусто в cmdline и сколько выделено на панели файлов
-
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltLeft]
-"Sequence"="clip(5) $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
-$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter
-CtrlIns Esc Tab Home Alt&lt; ShiftIns Esc $End $End"
-"DisableOutput"=dword:00000001
-
-[HKEY_CURRENT_USER\Software\Far2\KeyMacros\Shell\CtrlAltRight]
-"Sequence"="clip(5) $If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
-$If (fexist(PPanel.Path+\"\\\\\"+APanel.Current) == 1) F5 ShiftEnter CtrlIns
-Esc Tab Home Alt&lt; ShiftIns Esc $End $End"
-"DisableOutput"=dword:00000001
-</code></pre>
+&lt;macro
+  area="Shell"
+  key="CtrlAltRight"
+  flags="DisableOutput"
+  description="искать тот же файл на другой панели что и на активной"&gt;
+&lt;![CDATA[
+clip(5)
+$If (((Bof &amp;&amp; APanel.Root) || !Bof) &amp;&amp; PPanel.Visible)
+  $If (fexist(PPanel.Path+@"\\"+APanel.Current) == 1)
+    F5 ShiftEnter CtrlIns
+    Esc Tab Home Alt&lt;
+    ShiftIns Esc
+  $End
+$End
+]]&gt;
+&lt;/macro&gt;</code></pre>
 
 <pre class="codesample"><code>REGEDIT4
 
