@@ -1313,7 +1313,7 @@ bool apiGetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& 
 	AddEndSlash(strVolumeMountPoint);
 	if(GetVolumeNameForVolumeMountPoint(strVolumeMountPoint,VolumeNameBuffer,ARRAYSIZE(VolumeNameBuffer)))
 	{
-		VolumeName=VolumeName;
+		VolumeName=VolumeNameBuffer;
 		Result=true;
 	}
 	return Result;
