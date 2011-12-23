@@ -31,17 +31,13 @@
 .486
 .model flat
 
-.code
-dummy proc
-        mov eax, [esp+4]
-        ret 4
-dummy endp
+EncodePointerWrapper proto stdcall :dword
+DecodePointerWrapper proto stdcall :dword
 
 .const
-	align 4
-__imp__EncodePointer@4 label dword
-__imp__DecodePointer@4 label dword
-        dd   dummy
+align 4
+__imp__EncodePointer@4 dd EncodePointerWrapper
+__imp__DecodePointer@4 dd DecodePointerWrapper
 public __imp__EncodePointer@4, __imp__DecodePointer@4
 
 end

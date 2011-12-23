@@ -235,7 +235,8 @@ LINK_OBJS = \
 !endif
 !if "$(VC)"=="10"
 !ifndef LINK_ULINK
-	"$(INTDIR)\vc10.obj"
+	"$(INTDIR)\vc10.obj" \
+	"$(INTDIR)\vc10wrapper.obj"
 !else
 	"$(INTDIR)\vc10u.obj"
 !endif

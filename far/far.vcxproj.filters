@@ -539,6 +539,9 @@
     <ClCompile Include="nsUniversalDetectorEx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vc10wrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="elevation.hpp">
