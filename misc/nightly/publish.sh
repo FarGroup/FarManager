@@ -3,21 +3,16 @@
 ARCNAME=final
 NIGHTLY_WEB_ROOT=/var/www/html/nightly
 
-#./installer.sh
+./installer.sh
 
 #Arguments:  processFarBuild <32|64>
 processFarBuild()
 {
-#	if [ ! -e ../outfinalnew$1/${ARCNAME}.msi ]; then
-#		echo "outfinalnew$1/${ARCNAME}.msi is missing"
-#		return
-#	fi
-	
-	if [ ! -e ../outfinalnew$1/Far.exe ]; then
-		echo "outfinalnew$1/Far.exe is missing"
+	if [ ! -e ../outfinalnew$1/${ARCNAME}.msi ]; then
+		echo "outfinalnew$1/${ARCNAME}.msi is missing"
 		return
 	fi
-
+	
 	BASE=$PWD
 	
 	cd ../outfinalnew$1
