@@ -442,7 +442,7 @@ string& WINAPI RemoveUnprintableCharacters(string &strStr)
 
 
 // Удалить символ Target из строки Str (везде!)
-string &RemoveChar(string &strStr,wchar_t Target,BOOL Dup)
+string &RemoveChar(string &strStr,wchar_t Target,bool Dup)
 {
 	wchar_t *Ptr = strStr.GetBuffer();
 	wchar_t *Str = Ptr, Chr;
@@ -526,7 +526,7 @@ const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separato
 }
 
 
-BOOL IsCaseMixed(const string &strSrc)
+bool IsCaseMixed(const string &strSrc)
 {
 	const wchar_t *lpwszSrc = strSrc;
 
@@ -537,24 +537,24 @@ BOOL IsCaseMixed(const string &strSrc)
 
 	while (*(lpwszSrc++))
 		if (IsAlpha(*lpwszSrc) && (IsLower(*lpwszSrc) != Case))
-			return TRUE;
+			return true;
 
-	return FALSE;
+	return false;
 }
 
-BOOL IsCaseLower(const string &strSrc)
+bool IsCaseLower(const string &strSrc)
 {
 	const wchar_t *lpwszSrc = strSrc;
 
 	while (*lpwszSrc)
 	{
 		if (!IsLower(*lpwszSrc))
-			return FALSE;
+			return false;
 
 		lpwszSrc++;
 	}
 
-	return TRUE;
+	return true;
 }
 
 
@@ -793,7 +793,7 @@ wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize)
 // Заменить в строке Str Count вхождений подстроки FindStr на подстроку ReplStr
 // Если Count < 0 - заменять "до полной победы"
 // Return - количество замен
-int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,BOOL IgnoreCase)
+int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count,bool IgnoreCase)
 {
 	const int LenFindStr=StrLength(FindStr);
 	if ( !LenFindStr || !Count )

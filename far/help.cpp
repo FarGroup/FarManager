@@ -1988,17 +1988,6 @@ static int RunURL(const string& Protocol, wchar_t *URLPath)
 
 				if (Disposition == ERROR_SUCCESS)
 				{
-					size_t PPos=0;
-
-					if (strAction.RPos(PPos,L'%'))
-					{
-						strAction.SetLength(PPos);
-					}
-					else
-					{
-						strAction+=L" ";
-					}
-
 					// удалим два идущих в подряд ~~
 					wchar_t *Ptr=URLPath;
 
@@ -2063,7 +2052,12 @@ static int RunURL(const string& Protocol, wchar_t *URLPath)
 						{
 							STARTUPINFO si={sizeof(si)};
 							PROCESS_INFORMATION pi={};
-							strAction+=URLPath;
+
+							if (ReplaceStrings(strAction, L"%1", URLPath, 1) == 0) //if %1 not found
+							{
+								strAction += L" ";
+								strAction += URLPath;
+							}
 
 							if (!CreateProcess(nullptr,const_cast<wchar_t*>(strAction.CPtr()),nullptr,nullptr,TRUE,0,nullptr,strCurDir,&si,&pi))
 							{

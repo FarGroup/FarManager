@@ -76,9 +76,9 @@ string & WINAPI RemoveUnprintableCharacters(string &strStr);
 wchar_t* WINAPI QuoteSpaceOnly(wchar_t *Str);
 string& WINAPI QuoteSpaceOnly(string &strStr);
 
-string &RemoveChar(string &strStr,wchar_t Target,BOOL Dup=TRUE);
+string &RemoveChar(string &strStr,wchar_t Target,bool Dup=true);
 wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize=0);
-int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count=-1,BOOL IgnoreCase=FALSE);
+int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,int Count=-1,bool IgnoreCase=false);
 
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 
@@ -106,8 +106,8 @@ string& TruncStrFromCenter(string &strStr, int MaxLength);
 wchar_t* __stdcall TruncPathStr(wchar_t *Str, int MaxLength);
 string& __stdcall TruncPathStr(string &strStr, int MaxLength);
 
-BOOL IsCaseMixed(const string &strStr);
-BOOL IsCaseLower(const string &strStr);
+bool IsCaseMixed(const string &strStr);
+bool IsCaseLower(const string &strStr);
 
 string& CenterStr(const wchar_t *Src, string &strDest,int Length);
 

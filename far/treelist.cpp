@@ -1588,9 +1588,9 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 
 	if (ExcludeSets)
 	{
-		ReplaceStrings(strMask,L"[",L"<[%>",-1,1);
-		ReplaceStrings(strMask,L"]",L"[]]",-1,1);
-		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,1);
+		ReplaceStrings(strMask,L"[",L"<[%>",-1,true);
+		ReplaceStrings(strMask,L"]",L"[]]",-1,true);
+		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,true);
 	}
 
 	for (int i=CurFile+(Next?Direct:0); i >= 0 && i < TreeCount; i+=Direct)

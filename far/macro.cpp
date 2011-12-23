@@ -2641,8 +2641,8 @@ static int __cdecl CompareItems(const MenuItemEx **el1, const MenuItemEx **el2, 
 
 	string strName1((*el1)->strName);
 	string strName2((*el2)->strName);
-	RemoveChar(strName1,L'&',TRUE);
-	RemoveChar(strName2,L'&',TRUE);
+	RemoveChar(strName1,L'&',true);
+	RemoveChar(strName2,L'&',true);
 	int Res = NumStrCmpI(strName1.CPtr()+Param->Offset,strName2.CPtr()+Param->Offset);
 	return (Param->Direction?(Res<0?1:(Res>0?-1:0)):Res);
 }

@@ -3289,9 +3289,9 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 
 	if (ExcludeSets)
 	{
-		ReplaceStrings(strMask,L"[",L"<[%>",-1,1);
-		ReplaceStrings(strMask,L"]",L"[]]",-1,1);
-		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,1);
+		ReplaceStrings(strMask,L"[",L"<[%>",-1,true);
+		ReplaceStrings(strMask,L"]",L"[]]",-1,true);
+		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,true);
 	}
 
 	for (int I=CurFile+(Next?Direct:0); I >= 0 && I < FileCount; I+=Direct)
@@ -3350,9 +3350,9 @@ int FileList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 
 	if (ExcludeSets)
 	{
-		ReplaceStrings(strMask,L"[",L"<[%>",-1,1);
-		ReplaceStrings(strMask,L"]",L"[]]",-1,1);
-		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,1);
+		ReplaceStrings(strMask,L"[",L"<[%>",-1,true);
+		ReplaceStrings(strMask,L"]",L"[]]",-1,true);
+		ReplaceStrings(strMask,L"<[%>",L"[[]",-1,true);
 	}
 */
 
