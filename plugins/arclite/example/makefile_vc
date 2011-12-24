@@ -37,7 +37,7 @@ ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\
 
 OBJS = $(OUTDIR)\module.obj
 !if "$(BITS)" == "32"
-OBJS = $(OBJS) $(OUTDIR)\vc10.obj
+OBJS = $(OBJS) $(OUTDIR)\vc10.obj $(OUTDIR)\vc10wrapper.obj
 !endif
 
 LIBS = ole32.lib oleaut32.lib
