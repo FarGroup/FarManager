@@ -199,7 +199,7 @@ void set_shortcut_props(const wstring& file_name, const wstring& props) {
 
   IPersistFilePtr pf(sl);
   CHECK_COM(pf->Load(file_name.c_str(), STGM_READWRITE));
-  
+
   Buffer<unsigned char> db;
   unhex(props, db);
   const DATABLOCK_HEADER* dbh = reinterpret_cast<const DATABLOCK_HEADER*>(db.data());
@@ -474,7 +474,7 @@ class ServerPipe: private NonCopyable {
 protected:
   HANDLE h_pipe;
 public:
-  ServerPipe(LPCSTR lpName) {
+  ServerPipe(LPCWSTR lpName) {
     h_pipe = CreateNamedPipe(lpName, PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED, PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT | PIPE_ACCEPT_REMOTE_CLIENTS, 1, 0, 0, 0, NULL);
     CHECK_SYS(h_pipe != INVALID_HANDLE_VALUE);
   }
@@ -529,7 +529,7 @@ COORD get_con_size(const wstring& default_shortcut_props) {
     File file_exe(tmp_exe.get_path(), GENERIC_WRITE, FILE_SHARE_READ, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL);
     file_exe.write(res_data_ptr, res_size);
   }
-  
+
   TempFile tmp_lnk(L"lnk");
   create_shortcut(tmp_lnk.get_path(), tmp_exe.get_path(), default_shortcut_props);
 
@@ -576,7 +576,7 @@ void save_shortcut_props(MSIHANDLE h_install) {
   }
   wstring default_props;
   if (has_empty_props) {
-    default_props = MsiEvaluateCondition(h_install, "VersionNT >= 601") == MSICONDITION_TRUE ? c_consolas_shortcut_props : c_lucida_shortcut_props;
+    default_props = MsiEvaluateCondition(h_install, L"VersionNT >= 601") == MSICONDITION_TRUE ? c_consolas_shortcut_props : c_lucida_shortcut_props;
     COORD con_size = { 0, 0 };
     BEGIN_ERROR_HANDLER
     con_size = get_con_size(default_props);
@@ -637,7 +637,7 @@ void update_feature_state(MSIHANDLE h_install) {
   PMSIHANDLE h_db = MsiGetActiveDatabase(h_install);
   CHECK(h_db);
   PMSIHANDLE h_view;
-  CHECK_ADVSYS(MsiDatabaseOpenView(h_db, "SELECT Feature FROM Feature WHERE Display = 0", &h_view));
+  CHECK_ADVSYS(MsiDatabaseOpenView(h_db, L"SELECT Feature FROM Feature WHERE Display = 0", &h_view));
   CHECK_ADVSYS(MsiViewExecute(h_view, 0));
   PMSIHANDLE h_record;
   while (true) {
@@ -713,7 +713,7 @@ UINT __stdcall LaunchShortcut(MSIHANDLE h_install) {
   return ERROR_SUCCESS;
   END_ERROR_HANDLER
   BEGIN_ERROR_HANDLER
-  CHECK_ADVSYS(MsiDoAction(h_install, "LaunchApp"));
+  CHECK_ADVSYS(MsiDoAction(h_install, L"LaunchApp"));
   return ERROR_SUCCESS;
   END_ERROR_HANDLER
   return ERROR_INSTALL_FAILURE;

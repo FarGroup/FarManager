@@ -10,7 +10,7 @@
 !endif
 !endif
 
-CPPFLAGS = -nologo -D_WIN32_WINNT=0x0500
+CPPFLAGS = -nologo -D_WIN32_WINNT=0x0500 -DUNICODE -D_UNICODE
 LINKFLAGS = -nologo -incremental:no -machine:$(PLATFORM)
 CANDLEFLAGS = -nologo -dSourceDir="$(SOURCE_DIR)" -dPlatform=$(PLATFORM) -dVerMajor=$(VER_MAJOR) -dVerMinor=$(VER_MINOR) -dVerBuild=$(VER_BUILD)
 LIGHTFLAGS = -nologo -spdb -sval
@@ -39,7 +39,7 @@ LIGHTFLAGS = $(LIGHTFLAGS) -cc $(OUTDIR) -reusecab
 OUTDIR = $(OUTDIR).$(PLATFORM)
 CPPFLAGS = -Fo$(OUTDIR)\ $(CPPFLAGS)
 CANDLEFLAGS = -out $(OUTDIR)\ $(CANDLEFLAGS)
-ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\
+ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\\
 
 WIXOBJ = $(OUTDIR)\installer.wixobj $(OUTDIR)\files.wixobj $(OUTDIR)\features.wixobj $(OUTDIR)\shortcuts.wixobj $(OUTDIR)\ui.wixobj
 !ifdef NIGHTLY
