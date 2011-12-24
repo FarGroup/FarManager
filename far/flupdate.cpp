@@ -469,15 +469,15 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				for (size_t i=0; i < PanelCount; i++)
 				{
 					CurPtr = ListData[FileCount+i];
-					PluginPanelItem &fdata=PanelData[i];
+					PluginPanelItem &pfdata=PanelData[i];
 					PluginToFileListItem(&PanelData[i],CurPtr);
 					CurPtr->Position=FileCount;
-					TotalFileSize += fdata.FileSize;
+					TotalFileSize += pfdata.FileSize;
 					CurPtr->PrevSelected=CurPtr->Selected=0;
 					CurPtr->ShowFolderSize=0;
 					CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(CurPtr);
 
-					if (!TestParentFolderName(fdata.FileName) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+					if (!TestParentFolderName(pfdata.FileName) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 						TotalFileCount++;
 				}
 
@@ -813,7 +813,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	if ((Info.Flags & OPIF_ADDDOTS) && !DotsPresent)
 	{
 		ListData[FileCount] = new FileListItem;
-		FileListItem *CurPtr = ListData[FileCount];
+		CurPtr = ListData[FileCount];
 		CurPtr->Clear();
 		AddParentPoint(CurPtr,FileCount);
 

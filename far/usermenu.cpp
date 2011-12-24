@@ -310,7 +310,6 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 					apiSetFileAttributes(strMenuFileFullPath,FILE_ATTRIBUTE_NORMAL);
 			}
 
-			File MenuFile;
 			// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
 			if (MenuFile.Open(strMenuFileFullPath,GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
 			{
@@ -1022,7 +1021,7 @@ bool UserMenu::EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool 
 				...
 			*/
 			string strBuffer;
-			for (string *str=MenuItem->Commands.First(); str < DI_EDIT_COUNT; str=MenuItem->Commands.Next(str))
+			for (string *str=MenuItem->Commands.First(); str && CommandNumber < DI_EDIT_COUNT; str=MenuItem->Commands.Next(str))
 			{
 				strBuffer+=*str;
 				strBuffer+=L"\n";    //??? "\n\r"

@@ -386,7 +386,7 @@ FileEditor::~FileEditor()
 	BitFlags FEditFlags=m_editor->Flags;
 	int FEditEditorID=m_editor->EditorID;
 
-	if (bEE_READ_Sent)
+	if (bEE_READ_Sent && CtrlObject)
 	{
 		FileEditor *save = CtrlObject->Plugins.CurEditor;
 		CtrlObject->Plugins.CurEditor=this;

@@ -141,7 +141,6 @@ void FileList::ShowFileList(int Fast)
 
 		if (Opt.ShowColumnTitles)
 		{
-			string strTitle;
 			int IDMessage=-1;
 
 			switch (ViewSettings.ColumnType[I] & 0xff)

@@ -212,7 +212,6 @@ void QuickView::DisplayObject()
 				GotoXY(X1+2,Y1+12);
 				PrintText(MSG(MQuickViewCluster));
 				SetColor(COL_PANELINFOTEXT);
-				string strSize;
 				InsertCommas(ClusterSize,strSize);
 				PrintText(strSize);
 				SetColor(COL_PANELTEXT);

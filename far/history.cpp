@@ -193,7 +193,7 @@ int History::Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
    7 - Ctrl-Alt-Enter
 */
 
-int History::ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg)
+int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *pstrData, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg)
 {
 	MenuItemEx MenuItem;
 	unsigned __int64 SelectedRecord = 0;
@@ -573,8 +573,8 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data,
 	{
 		if(!StrToGuid(strSelectedRecordGuid,*Guid)) *Guid = FarGuid;
 	}
-	if(File) *File = strSelectedRecordFile;
-	if(Data) *Data = strSelectedRecordData;
+	if(pstrFile) *pstrFile = strSelectedRecordFile;
+	if(pstrData) *pstrData = strSelectedRecordData;
 
 	if (RetCode < 4 || RetCode == 6 || RetCode == 7)
 	{
@@ -595,7 +595,6 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data,
 
 void History::GetPrev(string &strStr)
 {
-
 	CurrentItem = HistoryCfg->GetPrev(TypeHistory, strHistoryName, CurrentItem, strStr);
 }
 

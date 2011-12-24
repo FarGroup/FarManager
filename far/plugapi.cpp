@@ -865,10 +865,7 @@ int WINAPI FarMenuFn(
 
 						if (ReadRec.Event.KeyEvent.wVirtualKeyCode==BreakKeys[I].VirtualKeyCode)
 						{
-							DWORD Flags=NormalizeControlKeys(BreakKeys[I].ControlKeyState);
-							DWORD RealFlags=NormalizeControlKeys(ReadRec.Event.KeyEvent.dwControlKeyState);
-
-							if (RealFlags == Flags)
+							if (NormalizeControlKeys(ReadRec.Event.KeyEvent.dwControlKeyState) == NormalizeControlKeys(BreakKeys[I].ControlKeyState))
 							{
 								if (BreakCode)
 									*BreakCode=I;

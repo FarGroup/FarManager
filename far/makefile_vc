@@ -19,6 +19,8 @@
 #
 #FARSYSLOG - for syslog
 #
+#USE_ANALYZE - for /analyze
+#
 #DISABLE_WOW64_HOOK - set to disable the wow64 hook
 #
 #DEFFILE - name of user file to include
@@ -289,6 +291,10 @@ LINKFLAGS=$(LINKFLAGS) /incremental:no /OPT:REF /OPT:ICF
 !ifdef ASM_LISTING
 CPPFLAG1=$(CPPFLAG1) /FAcs /Fa"$(CODDIR)\\"
 !endif
+!ifdef USE_ANALYZE
+CPPFLAG1=$(CPPFLAG1) /analyze
+!endif
+
 
 # platform-cpecific
 !ifdef X86

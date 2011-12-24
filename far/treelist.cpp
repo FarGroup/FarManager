@@ -2254,8 +2254,8 @@ bool TreeList::RestoreState()
 	{
 		for (int i=0; i<SaveTreeCount; i++)
 		{
-			ListData[i] = new TreeItem;
-			*ListData[i] = SaveListData[i];
+			if ((ListData[i] = new TreeItem) != nullptr)
+				*ListData[i] = SaveListData[i];
 		}
 
 		TreeCount=SaveTreeCount;

@@ -485,7 +485,7 @@ int Message(
 
 		if (Chr == 1 || Chr == 2)
 		{
-			int Length=X2-X1-5;
+			Length=X2-X1-5;
 
 			if (Length>1)
 			{

@@ -186,10 +186,10 @@ void ShellMakeDir(Panel *SrcPanel)
 					ChPtr[1] = 0;
 					if (*lpwszDirName)
 					{
-						string strDirName(lpwszDirName);
-						if (apiGetFileAttributes(strDirName) == INVALID_FILE_ATTRIBUTES && apiCreateDirectory(strDirName,nullptr))
+						string _strDirName(lpwszDirName);
+						if (apiGetFileAttributes(_strDirName) == INVALID_FILE_ATTRIBUTES && apiCreateDirectory(_strDirName,nullptr))
 						{
-							TreeList::AddTreeName(strDirName);
+							TreeList::AddTreeName(_strDirName);
 							bSuccess = true;
 						}
 					}
@@ -256,7 +256,7 @@ void ShellMakeDir(Panel *SrcPanel)
 						Message(FMSG_WARNING|FMSG_ERRORTYPE, 1, MSG(MError), MSG(MCopyCannotCreateLink), strDirName, MSG(MHOk));
 					}
 				}
-				
+
 				TreeList::AddTreeName(strDirName);
 			}
 			else if (!bSkip)

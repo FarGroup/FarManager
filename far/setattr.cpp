@@ -1452,16 +1452,16 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 							{
 								ScanTree ScTree(FALSE);
 								ScTree.SetFindPath(strSelName,L"*");
-								DWORD LastTime=GetTickCount();
+								DWORD LastTime2=GetTickCount();
 								string strFullName;
 
 								while (ScTree.GetNextName(&FindData,strFullName))
 								{
-									DWORD CurTime=GetTickCount();
+									CurTime=GetTickCount();
 
-									if (CurTime-LastTime>RedrawTimeout)
+									if (CurTime-LastTime2>RedrawTimeout)
 									{
-										LastTime=CurTime;
+										LastTime2=CurTime;
 										ShellSetFileAttributesMsg(strFullName);
 
 										if (CheckForEsc())

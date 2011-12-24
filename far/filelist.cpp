@@ -365,7 +365,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 		FileList::FileListToPluginItem(SPtr2,&pi2);
 		SPtr1->UserFlags=SaveFlags1;
 		SPtr2->UserFlags=SaveFlags2;
-		int RetCode=CtrlObject->Plugins.Compare(hSortPlugin,&pi1,&pi2,ListSortMode+(SM_UNSORTED-UNSORTED));
+		RetCode=CtrlObject->Plugins.Compare(hSortPlugin,&pi1,&pi2,ListSortMode+(SM_UNSORTED-UNSORTED));
 		FileList::FreePluginPanelItem(&pi1);
 		FileList::FreePluginPanelItem(&pi2);
 
@@ -1005,8 +1005,6 @@ int FileList::ProcessKey(int Key)
 		{
 			SaveSelection();
 			{
-				FileListItem *CurPtr;
-
 				for (int I=0; I < FileCount; I++)
 				{
 					CurPtr = ListData[I];
@@ -2126,7 +2124,7 @@ int FileList::ProcessKey(int Key)
 
 			if (Columns>1)
 			{
-				int N=Height;
+				N=Height;
 				InternalProcessKey++;
 				Lock();
 
@@ -5056,7 +5054,7 @@ HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPL
 		}
 
 		bool WasFullscreen = IsFullScreen();
-		SetPluginMode(hNewPlugin, *FileName);  // SendOnFocus??? true???
+		SetPluginMode(hNewPlugin, FileName ? *FileName : L"");  // SendOnFocus??? true???
 		PanelMode=PLUGIN_PANEL;
 		UpperFolderTopFile=CurTopFile;
 		CurFile=0;

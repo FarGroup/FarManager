@@ -204,7 +204,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode
 			}
 
 			size_t Pos=0;
-			bool Ampersand=strTitle.Pos(Pos,L'&');
+			int Ampersand=strTitle.Pos(Pos,L'&')?1:0;
 
 			if (DizWidth+Ampersand>ScrX/2 && Ampersand && static_cast<int>(Pos)>DizWidth)
 				Ampersand=false;
@@ -351,7 +351,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		if (!ExtractIfExistCommand(strFullExecStr))
 			return;
 
-		CtrlObject->ViewHistory->AddToHistory(strFullExecStr,AlwaysWaitFinish+2);
+		CtrlObject->ViewHistory->AddToHistory(strFullExecStr,AlwaysWaitFinish?3:2);
 
 		if (strExecStr.At(0) != L'@')
 			CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed, true);
@@ -397,7 +397,7 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
 		{
 			AssocConfig->GetDescription(id,strTitle);
 			size_t Pos=0;
-			bool Ampersand=strTitle.Pos(Pos,L'&');
+			int Ampersand=strTitle.Pos(Pos,L'&')?1:0;
 
 			if (DizWidth+Ampersand > ScrX/2 && Ampersand && static_cast<int>(Pos) > DizWidth)
 				Ampersand=false;

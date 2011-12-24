@@ -2555,26 +2555,26 @@ static bool promptFunc(const TMacroFunction*)
 	TVar Result(L"");
 	bool Ret=false;
 
-		const wchar_t *history=nullptr;
+	const wchar_t *history=nullptr;
 	const wchar_t *title=nullptr;
 
 	if (!(ValTitle.isInteger() && !ValTitle.i()))
 		title=ValTitle.s();
 
-		if (!(ValHistory.isInteger() && !ValHistory.i()))
-			history=ValHistory.s();
+	if (!(ValHistory.isInteger() && !ValHistory.i()))
+		history=ValHistory.s();
 
-		const wchar_t *src=L"";
+	const wchar_t *src=L"";
 
-		if (!(ValSrc.isInteger() && !ValSrc.i()))
-			src=ValSrc.s();
+	if (!(ValSrc.isInteger() && !ValSrc.i()))
+		src=ValSrc.s();
 
-		const wchar_t *prompt=L"";
+	const wchar_t *prompt=L"";
 
-		if (!(ValPrompt.isInteger() && !ValPrompt.i()))
-			prompt=ValPrompt.s();
+	if (!(ValPrompt.isInteger() && !ValPrompt.i()))
+		prompt=ValPrompt.s();
 
-		string strDest;
+	string strDest;
 
 	DWORD oldHistroyEnable=CtrlObject->Macro.GetHistroyEnableMask();
 
@@ -2582,11 +2582,11 @@ static bool promptFunc(const TMacroFunction*)
 		CtrlObject->Macro.SetHistroyEnableMask(8); // если указан history, то принудительно выставл€ем историю дл€ Ё“ќ√ќ prompt()
 
 	if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
-		{
-			Result=strDest.CPtr();
-			Result.toString();
-			Ret=true;
-		}
+	{
+		Result=strDest.CPtr();
+		Result.toString();
+		Ret=true;
+	}
 	else
 		Result=0;
 
@@ -3935,13 +3935,17 @@ static bool panelsetpathFunc(const TMacroFunction*)
 				SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
 
 				//восстановим текущую папку из активной панели.
-				ActivePanel->SetCurPath();
+				if (ActivePanel)
+					ActivePanel->SetCurPath();
 				// Need PointToName()?
-				SelPanel->GoToFile(fileName); // здесь без проверки, т.к. параметр fileName ал€ опциональный
-				//SelPanel->Show();
-				// <Mantis#0000289> - грозно, но со вкусом :-)
-				//ShellUpdatePanels(SelPanel);
-				SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
+				if (SelPanel)
+				{
+					SelPanel->GoToFile(fileName); // здесь без проверки, т.к. параметр fileName ал€ опциональный
+					//SelPanel->Show();
+					// <Mantis#0000289> - грозно, но со вкусом :-)
+					//ShellUpdatePanels(SelPanel);
+					SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
+				}
 				FrameManager->RefreshFrame(FrameManager->GetTopModal());
 				// </Mantis#0000289>
 				Ret=1;
@@ -4350,18 +4354,19 @@ static bool editorselFunc(const TMacroFunction*)
 	              return 1
 	*/
 	TVar Ret(0ll);
-	TVar Opt; VMStack.Pop(Opt);
+	TVar Opts; VMStack.Pop(Opts);
 	TVar Action; VMStack.Pop(Action);
+
 	int Mode=CtrlObject->Macro.GetMode();
-	Frame* CurFrame=FrameManager->GetCurrentFrame();
 	int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS)); // MACRO_SHELL?
+	Frame* CurFrame=FrameManager->GetCurrentFrame();
 
 	if (CurFrame && CurFrame->GetType()==NeedType)
 	{
 		if (Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-			Ret=CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opt.i());
+			Ret=CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.i());
 		else
-			Ret=CurFrame->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opt.i());
+			Ret=CurFrame->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.i());
 	}
 
 	VMStack.Push(Ret);
