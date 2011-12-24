@@ -111,6 +111,7 @@ private:
 
 	bool ReadData(AutoObject& Data) const;
 	bool WriteData(LPCVOID Data, size_t DataSize) const;
+	bool WriteData(const string& Data) const {return WriteData(Data.CPtr(), (Data.GetLength()+1)*sizeof(wchar_t));}
 	template<typename T>
 	inline bool Read(T& Data) const;
 	template<typename T>

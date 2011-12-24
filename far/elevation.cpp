@@ -434,12 +434,12 @@ INT_PTR WINAPI ElevationApproveDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 struct EAData
 {
 	Event* pEvent;
-	LPCWSTR Object;
+	const string& Object;
 	int Why;
 	bool& AskApprove;
 	bool& Approve;
 	bool& DontAskAgain;
-	EAData(Event* pEvent, LPCWSTR Object, int Why, bool& AskApprove, bool& Approve, bool& DontAskAgain):
+	EAData(Event* pEvent, const string& Object, int Why, bool& AskApprove, bool& Approve, bool& DontAskAgain):
 		pEvent(pEvent), Object(Object), Why(Why), AskApprove(AskApprove), Approve(Approve), DontAskAgain(DontAskAgain){}
 };
 
@@ -520,9 +520,9 @@ bool elevation::fCreateDirectoryEx(const string* TemplateObject, const string& O
 			{
 				if(SendCommand(C_FUNCTION_CREATEDIRECTORYEX))
 				{
-					if(WriteData(TemplateObject, TemplateObject? (TemplateObject->GetLength()+1)*sizeof(WCHAR) : 0))
+					if((TemplateObject && WriteData(*TemplateObject)) || (!TemplateObject && WriteData(nullptr, sizeof(nullptr))))
 					{
-						if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+						if(WriteData(Object))
 						{
 							// BUGBUG: SecurityAttributes ignored
 							int OpResult=0;
@@ -559,7 +559,7 @@ bool elevation::fRemoveDirectory(const string& Object)
 			{
 				if(SendCommand(C_FUNCTION_REMOVEDIRECTORY))
 				{
-					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(Object))
 					{
 						int OpResult=0;
 						if(Read(OpResult))
@@ -594,7 +594,7 @@ bool elevation::fDeleteFile(const string& Object)
 			{
 				if(SendCommand(C_FUNCTION_DELETEFILE))
 				{
-					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(Object))
 					{
 						int OpResult=0;
 						if(Read(OpResult))
@@ -670,9 +670,9 @@ bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROU
 			{
 				if(SendCommand(C_FUNCTION_COPYFILEEX))
 				{
-					if(WriteData(From, (From.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(From))
 					{
-						if(WriteData(To, (To.GetLength()+1)*sizeof(WCHAR)))
+						if(WriteData(To))
 						{
 							if (WriteData(&ProgressRoutine, sizeof(ProgressRoutine)))
 							{
@@ -727,9 +727,9 @@ bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 			{
 				if(SendCommand(C_FUNCTION_MOVEFILEEX))
 				{
-					if(WriteData(From, (From.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(From))
 					{
-						if(WriteData(To, (To.GetLength()+1)*sizeof(WCHAR)))
+						if(WriteData(To))
 						{
 							if(Write(Flags))
 							{
@@ -768,7 +768,7 @@ DWORD elevation::fGetFileAttributes(const string& Object)
 			{
 				if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES))
 				{
-					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(Object))
 					{
 						int OpResult=0;
 						if(Read(OpResult))
@@ -803,7 +803,7 @@ bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 			{
 				if(SendCommand(C_FUNCTION_SETFILEATTRIBUTES))
 				{
-					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(Object))
 					{
 						if(Write(FileAttributes))
 						{
@@ -841,9 +841,9 @@ bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSE
 			{
 				if(SendCommand(C_FUNCTION_CREATEHARDLINK))
 				{
-					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(Object))
 					{
-						if(WriteData(Target, (Target.GetLength()+1)*sizeof(WCHAR)))
+						if(WriteData(Target))
 						{
 							// BUGBUG: SecurityAttributes ignored.
 							int OpResult=0;
@@ -880,9 +880,9 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 			{
 				if(SendCommand(C_FUNCTION_CREATESYMBOLICLINK))
 				{
-					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(Object))
 					{
-						if(WriteData(Target, (Target.GetLength()+1)*sizeof(WCHAR)))
+						if(WriteData(Target))
 						{
 							if(Write(Flags))
 							{
@@ -964,9 +964,9 @@ bool elevation::fSetOwner(const string& Object, const string& Owner)
 			{
 				if(SendCommand(C_FUNCTION_SETOWNER))
 				{
-					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(Object))
 					{
-						if(WriteData(Owner, (Owner.GetLength()+1)*sizeof(WCHAR)))
+						if(WriteData(Owner))
 						{
 							int OpResult=0;
 							if(Read(OpResult))
@@ -1002,7 +1002,7 @@ HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD S
 			{
 				if(SendCommand(C_FUNCTION_CREATEFILE))
 				{
-					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(Object))
 					{
 						if(Write(DesiredAccess))
 						{
@@ -1051,7 +1051,7 @@ bool elevation::fGetCompressedFileSize(const string& Object,UINT64& Size)
 			{
 				if(SendCommand(C_FUNCTION_GETCOMPRESSEDFILESIZE))
 				{
-					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(Object))
 					{
 						bool OpResult=false;
 						if(Read(OpResult))
@@ -1090,7 +1090,7 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 			{
 				if(SendCommand(C_FUNCTION_SETENCRYPTION))
 				{
-					if(WriteData(Object, (Object.GetLength()+1)*sizeof(WCHAR)))
+					if(WriteData(Object))
 					{
 						if(Write(Encrypt))
 						{

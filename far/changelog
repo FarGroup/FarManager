@@ -1,3 +1,7 @@
+drkns 24.12.2011 12:59:03 +0200 - build 2316
+
+1. Mantis#0001954: copying a directory to "admin" folder fails
+
 t-rex 24.12.2011 11:50:29 +0200 - build 2315
 
 1. В нескольких местах BOOL -> bool.
