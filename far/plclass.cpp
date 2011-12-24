@@ -944,7 +944,6 @@ bool Plugin::GetGlobalInfo(GlobalInfo *gi)
 {
 	if (Exports[iGetGlobalInfo])
 	{
-		ClearStruct(*gi);
 		ExecuteStruct es;
 		es.id = EXCEPT_GETGLOBALINFO;
 		EXECUTE_FUNCTION(FUNCTION(iGetGlobalInfo)(gi), es);
