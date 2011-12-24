@@ -183,7 +183,7 @@ BOOL apiFindStreamClose(
     HANDLE hFindFile
 );
 
-BOOL apiGetFindDataEx(
+bool apiGetFindDataEx(
     const string& FileName,
     FAR_FIND_DATA_EX& FindData,
     bool ScanSymLink=true);

@@ -1228,15 +1228,15 @@ void Manager::PluginsMenu()
 	_MANAGER(SysLog(-1));
 }
 
-BOOL Manager::IsPanelsActive()
+bool Manager::IsPanelsActive()
 {
 	if (FramePos>=0)
 	{
-		return CurrentFrame?CurrentFrame->GetType() == MODALTYPE_PANELS:FALSE;
+		return CurrentFrame?CurrentFrame->GetType() == MODALTYPE_PANELS:false;
 	}
 	else
 	{
-		return FALSE;
+		return false;
 	}
 }
 

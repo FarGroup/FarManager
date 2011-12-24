@@ -1290,7 +1290,7 @@ int CommandLine::CmdExecute(const string& CmdLine,bool AlwaysWaitFinish,bool Sep
 			SaveBackground();
 		}
 
-		SetString(L"", FALSE);
+		SetString(L"", false);
 
 		Code=-1;
 	}
@@ -1324,7 +1324,7 @@ int CommandLine::CmdExecute(const string& CmdLine,bool AlwaysWaitFinish,bool Sep
 		}
 	}
 	ScrBuf.Flush();
-	return(Code);
+	return Code;
 }
 
 /* $ 14.01.2001 SVS
@@ -1668,7 +1668,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		if (ppstack.Pop(prec))
 		{
-			int Ret=IntChDir(prec.strName,true,SilentInt);
+			int Ret=IntChDir(prec.strName,true,SilentInt)?TRUE:FALSE;
 			PushPopRecord *ptrprec=ppstack.Peek();
 			SetEnvironmentVariable(L"FARDIRSTACK",(ptrprec?ptrprec->strName.CPtr():nullptr));
 			return Ret;
@@ -1811,7 +1811,7 @@ bool CommandLine::CheckCmdLineForSet(const string& CmdLine)
 	return false;
 }
 
-BOOL CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
+bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 {
 	Panel *SetPanel;
 	SetPanel=CtrlObject->Cp()->ActivePanel;
@@ -1865,7 +1865,7 @@ BOOL CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	{
 		ReplaceSlashToBSlash(strExpandedDir);
 		SetPanel->SetCurDir(strExpandedDir,TRUE);
-		return TRUE;
+		return true;
 	}
 
 	/* $ 20.09.2002 SKV
@@ -1882,7 +1882,7 @@ BOOL CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	  GotoXY(X1,Y1);
 	  FS<<fmt::Width(X2-X1+1)<<L"";
 	  Show();
-	  return TRUE;
+	  return true;
 	}
 	*/
 	strExpandedDir.ReleaseBuffer();
@@ -1890,7 +1890,7 @@ BOOL CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
 	{
 		SetPanel->SetCurDir(strExpandedDir,ClosePanel);
-		return TRUE;
+		return true;
 	}
 
 	if (FarChDir(strExpandedDir))
@@ -1905,10 +1905,10 @@ BOOL CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 		if (!Selent)
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strExpandedDir,MSG(MOk));
 
-		return FALSE;
+		return false;
 	}
 
-	return TRUE;
+	return true;
 }
 
 // Проверить "Это батник?"

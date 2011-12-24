@@ -462,7 +462,7 @@ int CommandLine::ProcessKey(int Key)
 }
 
 
-BOOL CommandLine::SetCurDir(const string& CurDir)
+void CommandLine::SetCurDir(const string& CurDir)
 {
 	if (StrCmpI(strCurDir,CurDir) || !TestCurrentDirectory(CurDir))
 	{
@@ -471,8 +471,6 @@ BOOL CommandLine::SetCurDir(const string& CurDir)
 		if (CtrlObject->Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
 			PrepareDiskPath(strCurDir);
 	}
-
-	return TRUE;
 }
 
 
@@ -483,7 +481,7 @@ int CommandLine::GetCurDir(string &strCurDir)
 }
 
 
-void CommandLine::SetString(const string& Str,BOOL Redraw)
+void CommandLine::SetString(const string& Str, bool Redraw)
 {
 	LastCmdPartLength=-1;
 	CmdStr.SetString(Str);
@@ -518,7 +516,7 @@ int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		return ProcessKey(KEY_ALTF8);
 	}
-	return(CmdStr.ProcessMouse(MouseEvent));
+	return CmdStr.ProcessMouse(MouseEvent);
 }
 
 void CommandLine::GetPrompt(string &strDestStr)

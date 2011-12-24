@@ -741,12 +741,12 @@ BOOL apiGetVolumeInformation(
 	return bResult;
 }
 
-BOOL apiGetFindDataEx(const string& FileName, FAR_FIND_DATA_EX& FindData,bool ScanSymLink)
+bool apiGetFindDataEx(const string& FileName, FAR_FIND_DATA_EX& FindData,bool ScanSymLink)
 {
 	FindFile Find(FileName, ScanSymLink);
 	if(Find.Get(FindData))
 	{
-		return TRUE;
+		return true;
 	}
 	else if (!wcspbrk(FileName,L"*?"))
 	{
@@ -778,14 +778,14 @@ BOOL apiGetFindDataEx(const string& FileName, FAR_FIND_DATA_EX& FindData,bool Sc
 			FindData.dwReserved1=0;
 			FindData.strFileName=PointToName(FileName);
 			ConvertNameToShort(FileName,FindData.strAlternateFileName);
-			return TRUE;
+			return true;
 		}
 	}
 
 	FindData.Clear();
 	FindData.dwFileAttributes=INVALID_FILE_ATTRIBUTES; //BUGBUG
 
-	return FALSE;
+	return false;
 }
 
 bool apiGetFileSizeEx(HANDLE hFile, UINT64 &Size)

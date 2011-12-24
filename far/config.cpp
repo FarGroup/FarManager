@@ -154,7 +154,7 @@ void SystemSettings()
 void PanelSettings()
 {
 	DialogBuilder Builder(MConfigPanelTitle, L"PanelSettings");
-	BOOL AutoUpdate = (Opt.AutoUpdateLimit );
+	BOOL AutoUpdate = Opt.AutoUpdateLimit;
 
 	Builder.AddCheckbox(MConfigHidden, &Opt.ShowHidden);
 	Builder.AddCheckbox(MConfigHighlight, &Opt.Highlight);

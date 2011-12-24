@@ -66,7 +66,7 @@ class CommandLine:public ScreenObject
 		int CmdExecute(const string& CmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle = false, bool Silent = false, bool RunAs = false);
 		int ProcessOSCommands(const string& CmdLine,bool SeparateWindow, bool &PrintCommand);
 		void GetPrompt(string &strDestStr);
-		BOOL IntChDir(const string& CmdLine,int ClosePanel,bool Selent=false);
+		bool IntChDir(const string& CmdLine,int ClosePanel,bool Selent=false);
 		bool CheckCmdLineForHelp(const wchar_t *CmdLine);
 		bool CheckCmdLineForSet(const string& CmdLine);
 
@@ -82,11 +82,11 @@ class CommandLine:public ScreenObject
 		virtual void ResizeConsole();
 
 		int GetCurDir(string &strCurDir);
-		BOOL SetCurDir(const string& CurDir);
+		void SetCurDir(const string& CurDir);
 
 		void GetString(string &strStr) { CmdStr.GetString(strStr); };
 		int GetLength() { return CmdStr.GetLength(); };
-		void SetString(const string& Str,BOOL Redraw=TRUE);
+		void SetString(const string& Str,bool Redraw=true);
 		void InsertString(const string& Str);
 
 		void ExecString(const string& Str, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool WaitForIdle = false, bool Silent = false, bool RunAs = false);

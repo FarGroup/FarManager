@@ -154,7 +154,7 @@ class Manager
 
 		int CountFramesWithName(const wchar_t *Name, BOOL IgnoreCase=TRUE);
 
-		BOOL IsPanelsActive(); // используется как признак WaitInMainLoop
+		bool IsPanelsActive(); // используется как признак WaitInMainLoop
 		void SetFramePos(int NewPos);
 		int  FindFrameByFile(int ModalType,const wchar_t *FileName,const wchar_t *Dir=nullptr);
 		BOOL ShowBackground();

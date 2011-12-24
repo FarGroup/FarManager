@@ -1,10 +1,10 @@
 /*
-vc10u.cpp
+vc10.cpp
 
 Workaround for VC2010 and old Windows
 */
 /*
-Copyright © 2010 Far Group
+Copyright © 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,34 +30,22 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <headers.hpp>
-#pragma hdrstop
+static PVOID WINAPI ReturnSamePointer(PVOID Ptr) {return Ptr;}
 
-#include <delayimp.h>
+static const char* ProcNames[] = {"EncodePointer", "DecodePointer"};
+static enum {EncodePointerIndex, DecodePointerIndex};
 
-//----------------------------------------------------------------------------
-static LPVOID WINAPI no_recode_pointer(LPVOID p)
+template<int Index>
+static PVOID WINAPI Wrapper(PVOID Ptr)
 {
-    return p;
+	typedef PVOID (WINAPI *PointerFunction)(PVOID);
+	static PVOID FunctionAddress = GetProcAddress(GetModuleHandle(L"kernel32"), ProcNames[Index]);
+	static PointerFunction ProcessPointer = FunctionAddress? reinterpret_cast<PointerFunction>(FunctionAddress) : ReturnSamePointer;
+	return ProcessPointer(Ptr);
 }
 
-//----------------------------------------------------------------------------
-static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
-                                       PDelayLoadInfo pdli)
+extern "C"
 {
-    if(   dliNotify == /*dliFailGetProcAddress*/dliFailGetProc
-       && pdli && pdli->cb == sizeof(*pdli)
-       && pdli->hmodCur == GetModuleHandleA("kernel32")
-       && pdli->dlp.fImportByName && pdli->dlp.szProcName
-       && (   !lstrcmpA(pdli->dlp.szProcName, "EncodePointer")
-           || !lstrcmpA(pdli->dlp.szProcName, "DecodePointer")))
-    {
-      return (FARPROC)no_recode_pointer;
-    }
-    return nullptr;
+	PVOID WINAPI EncodePointerWrapper(PVOID Ptr) {return Wrapper<EncodePointerIndex>(Ptr);}
+	PVOID WINAPI DecodePointerWrapper(PVOID Ptr) {return Wrapper<DecodePointerIndex>(Ptr);}
 }
-
-//----------------------------------------------------------------------------
-PfnDliHook __pfnDliFailureHook2 = (PfnDliHook)delayFailureHook;
-
-//----------------------------------------------------------------------------
