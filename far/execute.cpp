@@ -910,6 +910,10 @@ int Execute(const string& CmdStr, // Ком.строка для исполнения
 			DirectRun = true;
 			SeparateWindow = true;
 		}
+		else if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_CUI && !DirectRun)
+		{
+			DirectRun = true;
+		}
 	}
 
 	bool Visible=false;
