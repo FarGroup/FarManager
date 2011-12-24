@@ -901,14 +901,26 @@ int Execute(const string& CmdStr, // Ком.строка для исполнения
 			}
 		}
 
+		const wchar_t* ComspecSpecific  = L"&<>|";
+
 		if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
 		{
 			if(DirectRun && Opt.ExecuteSilentExternal)
 			{
 				Silent = true;
 			}
-			DirectRun = true;
+			if (DirectRun && !CmdStr.ContainsAny(ComspecSpecific))
+			{
+				DirectRun = true;
+			}
 			SeparateWindow = true;
+		}
+		else if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_CUI && !DirectRun)
+		{
+			if (!CmdStr.ContainsAny(ComspecSpecific))
+			{
+				DirectRun = true;
+			}
 		}
 	}
 
