@@ -45,7 +45,7 @@ OBJS = $(OUTDIR)\archive.obj $(OUTDIR)\plugin.obj $(OUTDIR)\ui.obj $(OUTDIR)\ext
   $(OUTDIR)\test.obj $(OUTDIR)\common.obj $(OUTDIR)\sfx.obj $(OUTDIR)\cmdline.obj $(OUTDIR)\rsrc.obj \
   $(OUTDIR)\farutils.obj $(OUTDIR)\pathutils.obj $(OUTDIR)\strutils.obj $(OUTDIR)\sysutils.obj
 !if "$(BITS)" == "32"
-OBJS = $(OBJS) $(OUTDIR)\vc10.obj
+OBJS = $(OBJS) $(OUTDIR)\vc10.obj $(OUTDIR)\vc10wrapper.obj
 !endif
 
 LIBS = user32.lib advapi32.lib ole32.lib oleaut32.lib version.lib
