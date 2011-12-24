@@ -909,7 +909,7 @@ int Execute(const string& CmdStr, // Ком.строка для исполнения
 			{
 				Silent = true;
 			}
-			if (DirectRun && !CmdStr.ContainsAny(ComspecSpecific))
+			if (!DirectRun && !CmdStr.ContainsAny(ComspecSpecific))
 			{
 				DirectRun = true;
 			}
