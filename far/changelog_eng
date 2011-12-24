@@ -3,6 +3,68 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.12.2011 21:39:08 +0200 - build 2324
+
+1. Mantis#0001953 - the 2nd attempt.
+
+drkns 24.12.2011 19:34:24 +0200 - build 2323
+
+1. For "out of the box" plugins, Far 1/2 compatible default hotkeys are set in drive menu (once).
+
+t-rex 24.12.2011 19:15:47 +0200 - build 2322
+
+1. Mantis#1955: Editing of macros.
+
+drkns 24.12.2011 19:03:54 +0200 - build 2321
+
+1. GlobalInfo structure excessive zeroing (Mantis#0001956).
+
+drkns 24.12.2011 18:53:03 +0200 - build 2320
+
+1. Rollback of Mantis#0001953.
+
+svs 24.12.2011 20:18:35 +0400 - build 2319
+
+1. Mantis#0001953: cmd.exe excessive call
+   (from Maximus)
+
+svs 24.12.2011 19:22:19 +0400 - build 2318
+
+1. Corrections of several places that have seemed unacceptable to the analyzer...
+
+2. set USE_ANALYZE=1 switches the analyzer on (adds /analyze).
+
+3. Mantis#0001951: Incorrect InputRecord in DN_CONTROLINPUT event
+   Уточнение: Bug: "Ctrl+A means CtrlShift+A"
+
+svs 24.12.2011 15:33:15 +0400 - build 2317
+
+1. Mantis#0001951: Incorrect InputRecord in DN_CONTROLINPUT event
+
+drkns 24.12.2011 12:59:03 +0200 - build 2316
+
+1. Mantis#0001954: copying a directory to "admin" folder fails
+
+t-rex 24.12.2011 11:50:29 +0200 - build 2315
+
+1. BOOL -> bool in several places.
+
+2. Let's make vc10wrapper.cpp usable in plugins without copying.
+
+drkns 23.12.2011 23:43:51 +0200 - build 2314
+
+1. vc10.asm redesign - <En|De>codePointer are replaced with stubs only if they are missing in OS.
+
+t-rex 23.12.2011 12:49:15 +0200 - build 2313
+
+1. Mantis#1201: Far 2 does not open an URL.
+
+2. BOOL -> bool in several inner functions.
+
+t-rex 23.12.2011 10:12:31 +0200 - build 2312
+
+1. Mantis#1952: Safe removal with Shift-Del does not work.
+
 svs 22.12.2011 23:55:28 +0400 - build 2311
 
 1. Mantis#0001949: Macro call with AutoCompletion switched on
