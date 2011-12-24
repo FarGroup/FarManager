@@ -39,7 +39,7 @@ LIGHTFLAGS = $(LIGHTFLAGS) -cc $(OUTDIR) -reusecab
 OUTDIR = $(OUTDIR).$(PLATFORM)
 CPPFLAGS = -Fo$(OUTDIR)\ $(CPPFLAGS)
 CANDLEFLAGS = -out $(OUTDIR)\ $(CANDLEFLAGS)
-ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\ 
+ASFLAGS = $(ASFLAGS) -Fo$(OUTDIR)\
 
 WIXOBJ = $(OUTDIR)\installer.wixobj $(OUTDIR)\files.wixobj $(OUTDIR)\features.wixobj $(OUTDIR)\shortcuts.wixobj $(OUTDIR)\ui.wixobj
 !ifdef NIGHTLY
@@ -51,6 +51,7 @@ MSI_NAME = $(OUTDIR)\far.msi
 
 !if "$(PLATFORM)" == "x86"
 VC10OBJ = $(OUTDIR)\vc10.obj
+VC10CPP = vc10wrapper.cpp
 !endif
 
 $(MSI_NAME): $(OUTDIR) $(OUTDIR)\1033.msi
@@ -65,8 +66,8 @@ $(OUTDIR)\1049.msi: $(WIXOBJ) ru-ru.wxl ui_ru-ru.wxl $(OUTDIR)\customact.dll
 $(OUTDIR)\1049: $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi
   torch -nologo -t language $(OUTDIR)\1033.msi $(OUTDIR)\1049.msi -out $@
 
-$(OUTDIR)\customact.dll: customact.cpp customact.def $(OUTDIR)\customact.res $(VC10OBJ)
-  cl $(CPPFLAGS) -EHsc customact.cpp -link $(LINKFLAGS) $(WINSUBSYSTEM) -dll -out:$@ -def:customact.def $(OUTDIR)\customact.res $(VC10OBJ) msi.lib shell32.lib rpcrt4.lib
+$(OUTDIR)\customact.dll: customact.cpp $(VC10CPP) customact.def $(OUTDIR)\customact.res $(VC10OBJ)
+  cl $(CPPFLAGS) -EHsc customact.cpp $(VC10CPP) -link $(LINKFLAGS) $(WINSUBSYSTEM) -dll -out:$@ -def:customact.def $(OUTDIR)\customact.res $(VC10OBJ) msi.lib shell32.lib rpcrt4.lib
 
 $(OUTDIR)\customact.res: customact.rc $(OUTDIR)\consize.exe
   rc -nologo -DOUTDIR=$(OUTDIR) -fo$@ customact.rc
