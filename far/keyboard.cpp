@@ -306,6 +306,9 @@ static TFKey3 SpecKeyName[]=
 
 /* ----------------------------------------------------------------- */
 
+static HKL Layout[10]={0};
+static int LayoutNumber=0;
+
 /*
    Инициализация массива клавиш.
    Вызывать только после CopyGlobalSettings, потому что только тогда GetRegKey
@@ -313,8 +316,7 @@ static TFKey3 SpecKeyName[]=
 */
 void InitKeysArray()
 {
-	HKL Layout[10];
-	int LayoutNumber=GetKeyboardLayoutList(ARRAYSIZE(Layout),Layout); // возвращает 0! в telnet
+	LayoutNumber=GetKeyboardLayoutList(ARRAYSIZE(Layout),Layout); // возвращает 0! в telnet
 
 	if (!LayoutNumber)
 	{
@@ -1967,6 +1969,9 @@ BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
 
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 {
+	_KEYMACRO(CleverSysLog Clev(L"TranslateKeyToVK()"));
+	_KEYMACRO(SysLog(L"Param: Key=%08X",Key));
+
  	WORD EventType=KEY_EVENT;
 
  	DWORD FKey  =Key&KEY_END_SKEY;
@@ -1996,7 +2001,11 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 	{
  		// TODO: KEY_ALTDIGIT
  		if ((FKey>=L'0' && FKey<=L'9') || (FKey>=L'A' && FKey<=L'Z'))
+ 		{
 			VirtKey=FKey;
+			if (FKey>=L'A' && FKey<=L'Z')
+				FShift |= KEY_SHIFT;
+		}
  		//else if (FKey > KEY_VK_0xFF_BEGIN && FKey < KEY_VK_0xFF_END)
  		//	VirtKey=FKey-KEY_FKEY_BEGIN;
 		else if (FKey > KEY_FKEY_BEGIN && FKey < KEY_END_FKEY)
@@ -2006,18 +2015,32 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 			short Vk = VkKeyScan(static_cast<WCHAR>(FKey));
 			if (Vk == -1)
 			{
+				for (i=0; i < ARRAYSIZE(Layout); ++i)
+					if (Layout[i])
+					{
+						Vk = VkKeyScanEx(static_cast<WCHAR>(FKey),Layout[i]);
+						if (Vk != -1)
+							break;
+					}
+			}
+
+			if (Vk == -1)
+			{
 				// Заполнить хотя бы .UnicodeChar = FKey
 				VirtKey = -1;
 			}
 			else
 			{
+				if (IsCharUpper(FKey))
+					FShift |= KEY_SHIFT;
+
 				VirtKey = Vk&0xFF;
 				if (HIBYTE(Vk)&&(HIBYTE(Vk)&6)!=6) //RAlt-E в немецкой раскладке это евро, а не CtrlRAltЕвро
 				{
-					FShift|=
-							(HIBYTE(Vk)&1?KEY_SHIFT:0)|
+					FShift|=(HIBYTE(Vk)&1?KEY_SHIFT:0)|
 							(HIBYTE(Vk)&2?KEY_CTRL:0)|
 							(HIBYTE(Vk)&4?KEY_ALT:0);
+
 			  		ControlState=(FShift&KEY_SHIFT?PKF_SHIFT:0)|
   	        				 (FShift&KEY_ALT?PKF_ALT:0)|
 		 					 (FShift&KEY_RALT?PKF_RALT:0)|
@@ -2171,6 +2194,9 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 		}
 	}
 
+	_SVS(string strKeyText0;KeyToText(Key,strKeyText0));
+	_SVS(SysLog(L"%s or %s ==> %s",_FARKEY_ToName(Key),_MCODE_ToName(Key),_INPUT_RECORD_Dump(Rec)));
+	_SVS(SysLog(L"return VirtKey=%x",VirtKey));
 	return VirtKey;
 }
 

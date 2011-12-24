@@ -1,3 +1,7 @@
+svs 24.12.2011 15:33:15 +0400 - build 2317
+
+1. Mantis#0001951: Неправильный InputRecord в событии DN_CONTROLINPUT
+
 drkns 24.12.2011 12:59:03 +0200 - build 2316
 
 1. Mantis#0001954: copying a directory to "admin" folder fails
