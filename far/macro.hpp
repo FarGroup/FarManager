@@ -247,7 +247,7 @@ class KeyMacro
 		void WriteVarsConsts();
 		void WritePluginFunctions();
 		void WriteMacroRecords();
-		DWORD AssignMacroKey();
+		int AssignMacroKey(DWORD &MacroKey, UINT64 &Flags);
 		int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr);
 		void InitInternalVars(BOOL InitedRAM=TRUE);
 		void InitInternalLIBVars();

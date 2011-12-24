@@ -15266,11 +15266,11 @@ MMacroDisAnotherKey
 MMacroEditKey
 "Изменить"
 "Change"
-upd:"Change?"
-upd:"Change?"
-upd:"Change?"
-upd:"Change?"
-upd:"Change?"
+upd:"Change"
+upd:"Change"
+upd:"Change"
+upd:"Change"
+upd:"Change"
 
 MMacroSettingsTitle
 l:

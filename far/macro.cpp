@@ -87,6 +87,8 @@ struct DlgParam
 {
 	KeyMacro *Handle;
 	DWORD Key;
+	UINT64 Flags;
+	bool Changed;
 	int Mode;
 	int Recurse;
 };
@@ -855,31 +857,31 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			|| (unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlShiftDot)
 		{
 			_KEYMACRO(CleverSysLog Clev(L"MACRO End record..."));
-			DWORD MacroKey;
 			int WaitInMainLoop0=WaitInMainLoop;
 			InternalInput=TRUE;
 			WaitInMainLoop=FALSE;
 			// Залочить _текущий_ фрейм, а не _последний немодальный_
 			FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
-			MacroKey=AssignMacroKey();
-			FrameManager->ResetLastInputRecord();
-			FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
+			DWORD MacroKey;
 			// выставляем флаги по умолчанию.
 			UINT64 Flags=MFLAGS_DISABLEOUTPUT; // ???
+			int AssignRet=AssignMacroKey(MacroKey,Flags);
+			FrameManager->ResetLastInputRecord();
+			FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
 			// добавим проверку на удаление
-			// если удаляем, то не нужно выдавать диалог настройки.
+			// если удаляем или был вызван диалог изменения, то не нужно выдавать диалог настройки.
 			//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
-			if (MacroKey != (DWORD)-1 && RecBufferSize
+			if (AssignRet && AssignRet!=2 && RecBufferSize
 				&& ((unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlShiftDot))
 			{
 				if (!GetMacroSettings(MacroKey,Flags))
-					MacroKey=(DWORD)-1;
+					AssignRet=0;
 			}
 
 			WaitInMainLoop=WaitInMainLoop0;
 			InternalInput=FALSE;
 
-			if (MacroKey==(DWORD)-1)
+			if (!AssignRet)
 			{
 				if (RecBuffer)
 				{
@@ -6778,6 +6780,8 @@ M1:
 
 					if (MacroDlg->GetMacroSettings(key,Mac->Flags,strBufKey))
 					{
+						KMParam->Flags = Mac->Flags;
+						KMParam->Changed = true;
 						// в любом случае - вываливаемся
 						SendDlgMessage(hDlg,DM_CLOSE,1,0);
 						return TRUE;
@@ -6802,7 +6806,7 @@ M1:
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-DWORD KeyMacro::AssignMacroKey()
+int KeyMacro::AssignMacroKey(DWORD &MacroKey, UINT64 &Flags)
 {
 	/*
 	  +------ Define macro ------+
@@ -6817,7 +6821,7 @@ DWORD KeyMacro::AssignMacroKey()
 		{DI_COMBOBOX,5,3,28,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
 	};
 	MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
-	DlgParam Param={this,0,StartMode,0};
+	DlgParam Param={this,0,Flags,false,StartMode,0};
 	//_SVS(SysLog(L"StartMode=%d",StartMode));
 	IsProcessAssignMacroKey++;
 	Dialog Dlg(MacroAssignDlg,ARRAYSIZE(MacroAssignDlg),AssignMacroDlgProc,&Param);
@@ -6827,9 +6831,11 @@ DWORD KeyMacro::AssignMacroKey()
 	IsProcessAssignMacroKey--;
 
 	if (Dlg.GetExitCode() == -1)
-		return (DWORD)-1;
+		return 0;
 
-	return Param.Key;
+	MacroKey = Param.Key;
+	Flags = Param.Flags;
+	return Param.Changed ? 2 : 1;
 }
 
 static int Set3State(DWORD Flags,DWORD Chk1,DWORD Chk2)
@@ -7056,7 +7062,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src)
 		MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=Sequence;
 		xf_free(Sequence);
 	}
-	DlgParam Param={this,0,0,0};
+	DlgParam Param={this,0,0,false,0,0};
 	Dialog Dlg(MacroSettingsDlg,ARRAYSIZE(MacroSettingsDlg),ParamMacroDlgProc,&Param);
 	Dlg.SetPosition(-1,-1,73,19);
 	Dlg.SetHelp(L"KeyMacroSetting");
