@@ -193,7 +193,7 @@ void CloseConsole()
 
 void SetFarConsoleMode(BOOL SetsActiveBuffer)
 {
-	int Mode=ENABLE_WINDOW_INPUT;
+	int Mode=ENABLE_WINDOW_INPUT|ENABLE_ECHO_INPUT|ENABLE_LINE_INPUT|ENABLE_PROCESSED_INPUT;
 
 	if (Opt.Mouse)
 	{
@@ -210,16 +210,20 @@ void SetFarConsoleMode(BOOL SetsActiveBuffer)
 		Console.SetActiveScreenBuffer(Console.GetOutputHandle());
 
 	ChangeConsoleMode(Mode);
+
+	//востановим дефолтный режим вывода, а то есть такие проги что сбрасывают
+	ChangeConsoleMode(ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT, 1);
+	ChangeConsoleMode(ENABLE_PROCESSED_OUTPUT|ENABLE_WRAP_AT_EOL_OUTPUT, 2);
 }
 
-void ChangeConsoleMode(int Mode)
+void ChangeConsoleMode(int Mode, int Choose)
 {
 	DWORD CurrentConsoleMode;
-	HANDLE hConIn = Console.GetInputHandle();
-	Console.GetMode(hConIn, CurrentConsoleMode);
+	HANDLE hCon = (Choose == 0) ? Console.GetInputHandle() : ((Choose == 1) ? Console.GetOutputHandle() : Console.GetErrorHandle());
+	Console.GetMode(hCon, CurrentConsoleMode);
 
 	if (CurrentConsoleMode!=(DWORD)Mode)
-		Console.SetMode(hConIn, Mode);
+		Console.SetMode(hCon, Mode);
 }
 
 void SaveConsoleWindowRect()

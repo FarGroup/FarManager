@@ -114,7 +114,7 @@ void ShowTime(int ShowAlways);
 void InitConsole(int FirstInit=TRUE);
 void CloseConsole();
 void SetFarConsoleMode(BOOL SetsActiveBuffer=FALSE);
-void ChangeConsoleMode(int Mode);
+void ChangeConsoleMode(int Mode, int Choose=0);
 void FlushInputBuffer();
 void SetVideoMode();
 void ChangeVideoMode(int Maximized);
