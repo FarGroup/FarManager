@@ -1,3 +1,8 @@
+zg 25.12.2011 14:48:29 +0200 - build 2328
+
+1. эксперементальное получение настроек подтверждения через SettingsControl(...,SCTL_GET,...).
+   Root - FSSF_CONFIRMATIONS, Name - L"CopyOverwrite", L"MoveOverwrite" и т.д.
+
 drkns 25.12.2011 14:17:13 +0200 - build 2327
 
 1. Теперь нет понятия "упакованный размер файла" ("packed size"), есть более корректное понятие "выделенный размер файла" ("allocated size").

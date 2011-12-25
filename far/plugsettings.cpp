@@ -308,6 +308,43 @@ int FarSettings::Set(const FarSettingsItem& Item)
 
 int FarSettings::Get(FarSettingsItem& Item)
 {
+	switch(Item.Root)
+	{
+		case FSSF_CONFIRMATIONS:
+			{
+				static struct
+				{
+					int* Value;
+					const wchar_t* Name;
+				}
+				Confirmations[]=
+				{
+					{&Opt.Confirm.Copy,L"COPYOVERWRITE"},
+					{&Opt.Confirm.Move,L"MOVEOVERWRITE"},
+					{&Opt.Confirm.RO,L"OVERWRITEDELETEROFILES"},
+					{&Opt.Confirm.Drag,L"DRAGANDDROP"},
+					{&Opt.Confirm.Delete,L"DELETE"},
+					{&Opt.Confirm.DeleteFolder,L"DELETENONEMPTYFOLDERS"},
+					{&Opt.Confirm.Esc,L"INTERRUPTOPERATION"},
+					{&Opt.Confirm.RemoveConnection,L"DISCONNECTNETWORKDRIVE"},
+					{&Opt.Confirm.AllowReedit,L"RELOADEDITEDFILE"},
+					{&Opt.Confirm.HistoryClear,L"CLEARHISTORYLIST"},
+					{&Opt.Confirm.Exit,L"EXIT"},
+				};
+				for(size_t ii=0;ii<sizeof(Confirmations)/sizeof(Confirmations[0]);++ii)
+				{
+					if(!StrCmpI(Item.Name,Confirmations[ii].Name))
+					{
+						Item.Type=FST_QWORD;
+						Item.Number=*Confirmations[ii].Value;
+						return TRUE;
+					}
+				}
+			}
+			break;
+		default:
+			break;
+	}
 	return FALSE;
 }
 
