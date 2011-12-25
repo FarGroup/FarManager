@@ -27,7 +27,7 @@ struct PluginPanelItem
   FILETIME LastWriteTime;
   FILETIME ChangeTime;
   unsigned __int64 FileSize;
-  unsigned __int64 PackSize;
+  unsigned __int64 AllocationSize;
   const wchar_t *FileName;
   const wchar_t *AlternateFileName;
   const wchar_t *Description;
@@ -58,9 +58,9 @@ struct PluginPanelItem
   <div class=dfn>ChangeTime</div>
     <div class=dfndescr>Структура <a href="../winapi/filetime.html">FILETIME</a> с временем последнего изменения файла. Время хранится в UTC формате; элементы структуры установлены в ноль, если файловая система не поддерживает этого свойства.</div>
   <div class=dfn>FileSize</div>
-    <div class=dfndescr>Размера файла в байтах.</div>
-  <div class=dfn>PackSize</div>
-    <div class=dfndescr>Размера сжатого файла в байтах.</div>
+    <div class=dfndescr>Размер файла в байтах.</div>
+  <div class=dfn>AllocationSize</div>
+    <div class=dfndescr>Выделенный размер файла в байтах.</div>
   <div class=dfn>FileName</div>
     <div class=dfndescr>Указатель на строку с именем файла.</div>
   <div class=dfn>AlternateFileName</div>
