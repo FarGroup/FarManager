@@ -1526,7 +1526,7 @@ int WINAPI FarGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t 
 
 			ItemsList[ItemsNumber].FileAttributes = FindData.dwFileAttributes;
 			ItemsList[ItemsNumber].FileSize = FindData.nFileSize;
-			ItemsList[ItemsNumber].PackSize = FindData.nPackSize;
+			ItemsList[ItemsNumber].AllocationSize = FindData.nAllocationSize;
 			ItemsList[ItemsNumber].CreationTime = FindData.ftCreationTime;
 			ItemsList[ItemsNumber].LastAccessTime = FindData.ftLastAccessTime;
 			ItemsList[ItemsNumber].LastWriteTime = FindData.ftLastWriteTime;

@@ -182,8 +182,8 @@ void FileList::FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi)
 {
 	pi->FileName = xf_wcsdup(fi->strName);
 	pi->AlternateFileName = xf_wcsdup(fi->strShortName);
-	pi->FileSize=fi->UnpSize;
-	pi->PackSize=fi->PackSize;
+	pi->FileSize=fi->FileSize;
+	pi->AllocationSize=fi->AllocationSize;
 	pi->FileAttributes=fi->FileAttr;
 	pi->LastWriteTime=fi->WriteTime;
 	pi->CreationTime=fi->CreationTime;
@@ -245,8 +245,8 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 		{
 			char* data=(char*)(gpi->Item)+offset;
 
-			gpi->Item->FileSize=fi->UnpSize;
-			gpi->Item->PackSize=fi->PackSize;
+			gpi->Item->FileSize=fi->FileSize;
+			gpi->Item->AllocationSize=fi->AllocationSize;
 			gpi->Item->FileAttributes=fi->FileAttr;
 			gpi->Item->LastWriteTime=fi->WriteTime;
 			gpi->Item->CreationTime=fi->CreationTime;
@@ -330,8 +330,8 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 	else
 		fi->DizText=nullptr;
 
-	fi->UnpSize=pi->FileSize;
-	fi->PackSize=pi->PackSize;
+	fi->FileSize=pi->FileSize;
+	fi->AllocationSize=pi->AllocationSize;
 	fi->FileAttr=pi->FileAttributes;
 	fi->WriteTime=pi->LastWriteTime;
 	fi->CreationTime=pi->CreationTime;

@@ -314,8 +314,8 @@ bool FileFilterParams::FileInFilter(const FileListItem& fli, unsigned __int64 Cu
 	fde.ftLastAccessTime=fli.AccessTime;
 	fde.ftLastWriteTime=fli.WriteTime;
 	fde.ftChangeTime=fli.ChangeTime;
-	fde.nFileSize=fli.UnpSize;
-	fde.nPackSize=fli.PackSize;
+	fde.nFileSize=fli.FileSize;
+	fde.nAllocationSize=fli.AllocationSize;
 	fde.strFileName=fli.strName;
 	fde.strAlternateFileName=fli.strShortName;
 	return FileInFilter(fde, CurrentTime, &fli.strName);

@@ -225,7 +225,6 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	ListData=nullptr;
 	int ReadOwners=IsColumnDisplayed(OWNER_COLUMN);
-	int ReadPacked=IsColumnDisplayed(PACKED_COLUMN);
 	int ReadNumLinks=IsColumnDisplayed(NUMLINK_COLUMN);
 	int ReadNumStreams=IsColumnDisplayed(NUMSTREAMS_COLUMN);
 	int ReadStreamsSize=IsColumnDisplayed(STREAMSSIZE_COLUMN);
@@ -291,7 +290,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			NewPtr->AccessTime = fdata.ftLastAccessTime;
 			NewPtr->WriteTime = fdata.ftLastWriteTime;
 			NewPtr->ChangeTime = fdata.ftChangeTime;
-			NewPtr->UnpSize = fdata.nFileSize;
+			NewPtr->FileSize = fdata.nFileSize;
+			NewPtr->AllocationSize = fdata.nAllocationSize;
 			NewPtr->strName = fdata.strFileName;
 			NewPtr->strShortName = fdata.strAlternateFileName;
 			NewPtr->Position=FileCount++;
@@ -301,29 +301,16 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			{
 				NewPtr->ReparseTag=fdata.dwReserved0; //MSDN
 			}
-
 			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 			{
-				TotalFileSize += NewPtr->UnpSize;
-				bool Compressed=false;
-
-				if (ReadPacked && ((fdata.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) || (fdata.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE)))
-				{
-					if (apiGetCompressedFileSize(fdata.strFileName,NewPtr->PackSize))
-					{
-						Compressed=true;
-					}
-				}
-
-				if (!Compressed)
-					NewPtr->PackSize = fdata.nFileSize;
+				TotalFileSize += NewPtr->FileSize;
 
 				if (ReadNumLinks)
 					NewPtr->NumberOfLinks=GetNumberOfLinks(fdata.strFileName);
 			}
 			else
 			{
-				NewPtr->PackSize = 0;
+				NewPtr->AllocationSize = 0;
 			}
 
 			NewPtr->SortGroup=DEFAULT_SORT_GROUP;
@@ -336,7 +323,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			}
 
 			NewPtr->NumberOfStreams=NewPtr->FileAttr&FILE_ATTRIBUTE_DIRECTORY?0:1;
-			NewPtr->StreamsSize=NewPtr->UnpSize;
+			NewPtr->StreamsSize=NewPtr->FileSize;
 
 			if (ReadNumStreams||ReadStreamsSize)
 			{
@@ -636,8 +623,8 @@ void FileList::MoveSelection(FileListItem **ListData,long FileCount,
 			if (OldPtr[0]->ShowFolderSize)
 			{
 				ListData[0]->ShowFolderSize=2;
-				ListData[0]->UnpSize=OldPtr[0]->UnpSize;
-				ListData[0]->PackSize=OldPtr[0]->PackSize;
+				ListData[0]->FileSize=OldPtr[0]->FileSize;
+				ListData[0]->AllocationSize=OldPtr[0]->AllocationSize;
 			}
 
 			Select(ListData[0],OldPtr[0]->Selected);
@@ -801,7 +788,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 			TotalFileCount++;
 		}
 
-		TotalFileSize += CurListData->UnpSize;
+		TotalFileSize += CurListData->FileSize;
 		FileListCount++;
 	}
 
@@ -949,7 +936,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 		if (!ListData[I]->DizText)
 		{
 			ListData[I]->DeleteDiz=FALSE;
-			ListData[I]->DizText=(wchar_t*)Diz.GetDizTextAddr(ListData[I]->strName,ListData[I]->strShortName,ListData[I]->UnpSize);
+			ListData[I]->DizText=(wchar_t*)Diz.GetDizTextAddr(ListData[I]->strName,ListData[I]->strShortName,ListData[I]->FileSize);
 		}
 	}
 }

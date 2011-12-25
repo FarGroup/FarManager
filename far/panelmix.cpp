@@ -601,7 +601,7 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned
 	return strResult;
 }
 
-const string FormatStr_Size(__int64 UnpSize, __int64 PackSize, __int64 StreamsSize, const string& strName,DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,unsigned __int64 Flags,int Width)
+const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 StreamsSize, const string& strName,DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,unsigned __int64 Flags,int Width)
 {
 	FormatString strResult;
 
@@ -659,7 +659,7 @@ const string FormatStr_Size(__int64 UnpSize, __int64 PackSize, __int64 StreamsSi
 	else
 	{
 		string strOutStr;
-		strResult<<FileSizeToStr(strOutStr,Packed?PackSize:Streams?StreamsSize:UnpSize,Width,Flags).CPtr();
+		strResult<<FileSizeToStr(strOutStr,Packed?AllocationSize:Streams?StreamsSize:FileSize,Width,Flags).CPtr();
 	}
 
 	return strResult;

@@ -4058,7 +4058,7 @@ bool ShellCopy::CalcTotalSize()
 {
 	string strSelName, strSelShortName;
 	DWORD FileAttr;
-	unsigned __int64 FileSize;
+	unsigned __int64 FileSize, FilesSlack, MFTOverhead;
 	// Для фильтра
 	FAR_FIND_DATA_EX fd;
 	PreRedraw.Push(PR_ShellCopyMsg);
@@ -4078,10 +4078,11 @@ bool ShellCopy::CalcTotalSize()
 		{
 			{
 				unsigned long DirCount,FileCount,ClusterSize;
-				unsigned __int64 CompressedSize,RealFileSize;
+				unsigned __int64 AllocationSize;
 				CP->SetScanName(strSelName);
-				int __Ret=GetDirInfo(L"",strSelName,DirCount,FileCount,FileSize,CompressedSize,
-				                     RealFileSize,ClusterSize,-1,
+				int __Ret=GetDirInfo(L"",strSelName,DirCount,FileCount,FileSize,AllocationSize,
+				                     FilesSlack, MFTOverhead,
+				                     ClusterSize,-1,
 				                     Filter,
 				                     (Flags&FCOPY_COPYSYMLINKCONTENTS?GETDIRINFO_SCANSYMLINK:0)|
 				                     (UseFilter?GETDIRINFO_USEFILTER:0));

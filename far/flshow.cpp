@@ -155,7 +155,7 @@ void FileList::ShowFileList(int Fast)
 					IDMessage=MColumnSize;
 					break;
 				case PACKED_COLUMN:
-					IDMessage=MColumnPacked;
+					IDMessage=MColumnAlocatedSize;
 					break;
 				case DATE_COLUMN:
 					IDMessage=MColumnDate;
@@ -257,7 +257,7 @@ void FileList::ShowFileList(int Fast)
 		static int SortStrings[]={MMenuUnsorted,MMenuSortByName,
 		                          MMenuSortByExt,MMenuSortByWrite,MMenuSortByCreation,
 		                          MMenuSortByAccess,MMenuSortByChange,MMenuSortBySize,MMenuSortByDiz,MMenuSortByOwner,
-		                          MMenuSortByCompressedSize,MMenuSortByNumLinks,MMenuSortByNumStreams,MMenuSortByStreamsSize,
+		                          MMenuSortByAllocatedSize,MMenuSortByNumLinks,MMenuSortByNumStreams,MMenuSortByStreamsSize,
 		                          MMenuSortByFullName,MMenuSortByCustomData
 		                         };
 
@@ -1183,8 +1183,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						case STREAMSSIZE_COLUMN:
 						{
 							Text(FormatStr_Size(
-								ListData[ListPos]->UnpSize,
-								ListData[ListPos]->PackSize,
+								ListData[ListPos]->FileSize,
+								ListData[ListPos]->AllocationSize,
 								ListData[ListPos]->StreamsSize,
 								ListData[ListPos]->strName,
 								ListData[ListPos]->FileAttr,

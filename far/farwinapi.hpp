@@ -44,7 +44,7 @@ struct FAR_FIND_DATA_EX
 	FILETIME ftChangeTime;
 	unsigned __int64 nFileSize;
 
-	unsigned __int64 nPackSize;
+	unsigned __int64 nAllocationSize;
 	struct
 	{
 		DWORD dwReserved0;
@@ -62,7 +62,7 @@ struct FAR_FIND_DATA_EX
 		ClearStruct(ftLastWriteTime);
 		ClearStruct(ftChangeTime);
 		nFileSize=0;
-		nPackSize=0;
+		nAllocationSize=0;
 		dwReserved0=0;
 		dwReserved1=0;
 		strFileName.Clear();
@@ -79,7 +79,7 @@ struct FAR_FIND_DATA_EX
 			ftLastWriteTime=ffdexCopy.ftLastWriteTime;
 			ftChangeTime=ffdexCopy.ftChangeTime;
 			nFileSize=ffdexCopy.nFileSize;
-			nPackSize=ffdexCopy.nPackSize;
+			nAllocationSize=ffdexCopy.nAllocationSize;
 			dwReserved0=ffdexCopy.dwReserved0;
 			dwReserved1=ffdexCopy.dwReserved1;
 			strFileName=ffdexCopy.strFileName;
@@ -295,18 +295,12 @@ BOOL apiSetCurrentDirectory(
 
 // for elevation only, dont' use outside.
 bool CreateSymbolicLinkInternal(const string& Object,const string& Target, DWORD dwFlags);
-bool apiGetCompressedFileSizeInternal(const wchar_t* FileName,UINT64& Size);
 bool apiSetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);
 
 bool apiCreateSymbolicLink(
     const string& SymlinkFileName,
     const string& TargetFileName,
     DWORD dwFlags
-);
-
-bool apiGetCompressedFileSize(
-    const string& FileName,
-    UINT64& Size
 );
 
 bool apiSetFileEncryption(const string& Name, bool Encrypt);

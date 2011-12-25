@@ -71,8 +71,8 @@ struct FileListItem
 	FILETIME WriteTime;
 	FILETIME ChangeTime;
 
-	unsigned __int64 UnpSize;
-	unsigned __int64 PackSize;
+	unsigned __int64 FileSize;
+	unsigned __int64 AllocationSize;
 	unsigned __int64 StreamsSize;
 
 	string strName;
@@ -106,8 +106,8 @@ struct FileListItem
 		ClearStruct(AccessTime);
 		ClearStruct(WriteTime);
 		ClearStruct(ChangeTime);
-		UnpSize = 0;
-		PackSize = 0;
+		FileSize = 0;
+		AllocationSize = 0;
 		StreamsSize = 0;
 		strName.Clear();
 		strShortName.Clear();
@@ -141,8 +141,8 @@ struct FileListItem
 			AccessTime=fliCopy.AccessTime;
 			WriteTime=fliCopy.WriteTime;
 			ChangeTime=fliCopy.ChangeTime;
-			UnpSize = fliCopy.UnpSize;
-			PackSize = fliCopy.PackSize;
+			FileSize = fliCopy.FileSize;
+			AllocationSize = fliCopy.AllocationSize;
 			StreamsSize = fliCopy.StreamsSize;
 			strName = fliCopy.strName;
 			strShortName = fliCopy.strShortName;

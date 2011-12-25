@@ -324,9 +324,9 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 							ShellDeleteMsg(strSelName, DEL_SCAN, 0, 0);
 						}
 						ULONG CurrentFileCount,CurrentDirCount,ClusterSize;
-						UINT64 FileSize,CompressedFileSize,RealSize;
+						UINT64 FileSize, AllocationSize, FilesSlack, MFTOverhead;
 
-						if (GetDirInfo(nullptr,strSelName,CurrentDirCount,CurrentFileCount,FileSize,CompressedFileSize,RealSize,ClusterSize,-1,nullptr,0)>0)
+						if (GetDirInfo(nullptr,strSelName,CurrentDirCount,CurrentFileCount,FileSize,AllocationSize,FilesSlack,MFTOverhead,ClusterSize,-1,nullptr,0)>0)
 						{
 							ItemsCount+=CurrentFileCount+CurrentDirCount+1;
 						}

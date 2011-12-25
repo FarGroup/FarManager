@@ -51,9 +51,6 @@ int ToPercent(unsigned long N1,unsigned long N2)
 	if (!N2)
 		return 0;
 
-	if (N2<N1)
-		return(100);
-
 	return((int)(N1*100/N2));
 }
 
@@ -67,9 +64,6 @@ int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
 
 	if (!N2)
 		return 0;
-
-	if (N2<N1)
-		return 100;
 
 	return static_cast<int>(N1*100/N2);
 }
@@ -186,7 +180,7 @@ void PluginPanelItemToFindDataEx(const PluginPanelItem *pSrc, FAR_FIND_DATA_EX *
 	pDest->ftLastWriteTime = pSrc->LastWriteTime;
 	pDest->ftChangeTime = pSrc->ChangeTime;
 	pDest->nFileSize = pSrc->FileSize;
-	pDest->nPackSize = pSrc->PackSize;
+	pDest->nAllocationSize = pSrc->AllocationSize;
 	pDest->strFileName = pSrc->FileName;
 	pDest->strAlternateFileName = pSrc->AlternateFileName;
 }
@@ -199,7 +193,7 @@ void FindDataExToPluginPanelItem(const FAR_FIND_DATA_EX *pSrc, PluginPanelItem *
 	pDest->LastWriteTime = pSrc->ftLastWriteTime;
 	pDest->ChangeTime = pSrc->ftChangeTime;
 	pDest->FileSize = pSrc->nFileSize;
-	pDest->PackSize = pSrc->nPackSize;
+	pDest->AllocationSize = pSrc->nAllocationSize;
 	pDest->FileName = xf_wcsdup(pSrc->strFileName);
 	pDest->AlternateFileName = xf_wcsdup(pSrc->strAlternateFileName);
 }

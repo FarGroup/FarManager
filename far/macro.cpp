@@ -4154,11 +4154,11 @@ static bool panelitemFunc(const TMacroFunction*)
 				strDate += strTime;
 				Ret=TVar(strDate.CPtr());
 				break;
-			case 6:  // UnpSize
-				Ret=TVar((__int64)filelistItem.UnpSize);
+			case 6:  // FileSize
+				Ret=TVar((__int64)filelistItem.FileSize);
 				break;
-			case 7:  // PackSize
-				Ret=TVar((__int64)filelistItem.PackSize);
+			case 7:  // AllocationSize
+				Ret=TVar((__int64)filelistItem.AllocationSize);
 				break;
 			case 8:  // Selected
 				Ret=TVar((__int64)((DWORD)filelistItem.Selected));

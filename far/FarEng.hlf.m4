@@ -1006,7 +1006,7 @@ files and folders, perform different file and archive operations. Read
 
  #Wide#          File names and sizes are displayed.
 
- #Detailed#      File names, sizes, packed sizes, last write,
+ #Detailed#      File names, sizes, allocation sizes, last write,
                creation, access time and attributes are displayed.
                Fullscreen mode.
 
@@ -1024,8 +1024,7 @@ files and folders, perform different file and archive operations. Read
 
     You may ~customize file panel view modes~@PanelViewModes@.
 
-    Packed sizes are valid for NTFS compressed files or files inside an
-archive. File owners and number of hard links have meaning for NTFS only. Some
+    File owners and number of hard links have meaning for NTFS only. Some
 file systems may not support file creation and access dates.
 
     If you wish to change the panel view mode, choose it from the
@@ -1206,10 +1205,9 @@ Many of the ~internal viewer~@Viewer@ commands can be used with the file
 displayed in the panel. For files of registered Windows types the type is shown
 as well.
 
-    For folders, the quick view panel displays total size, total compressed
+    For folders, the quick view panel displays total size, total allocation
 size, number of files and subfolders in the folder, current disk cluster size,
 real files size, including files slack (sum of the unused cluster parts).
-Compressed size has meaning for NTFS drives only.
 
     When viewing reparse points, the path to the source folder is also displayed.
 
@@ -1273,7 +1271,7 @@ respectively. These menus include the following items:
 
    #Wide#                 Display file name and size.
 
-   #Detailed#             Display file name, size, packed size,
+   #Detailed#             Display file name, size, allocation size,
                         last write, creation and access time,
                         attributes. Fullscreen mode.
 
@@ -1603,7 +1601,7 @@ Column types are encoded as one or several characters, delimited with commas.
 Allowed column types are:
 
     S[C,T,F,E] - file size
-    P[C,T,F,E] - packed file size
+    P[C,T,F,E] - allocation file size
     G[C,T,F,E] - size of file streams
                  where: C - format file size;
                         T - use 1000 instead of 1024 as a divider;
@@ -3492,7 +3490,7 @@ characters, delimited with commas. Allowed column types are:
     X          - file extension
 
     S[C,T,F,E] - file size
-    P[C,T,F,E] - packed file size
+    P[C,T,F,E] - allocation file size
     G[C,T,F,E] - size of file streams
                  where: C - format file size;
                         T - use 1000 instead of 1024 as a divider;

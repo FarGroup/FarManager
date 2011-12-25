@@ -82,8 +82,9 @@ int GetDirInfo(const wchar_t *Title,
                unsigned long &DirCount,
                unsigned long &FileCount,
                unsigned __int64 &FileSize,
-               unsigned __int64 &CompressedFileSize,
-               unsigned __int64 &RealSize,
+               unsigned __int64 &AllocationSize,
+               unsigned __int64 &FilesSlack,
+               unsigned __int64 &MFTOverhead,
                unsigned long &ClusterSize,
                clock_t MsgWaitTime,
                FileFilter *Filter,
@@ -126,7 +127,7 @@ int GetDirInfo(const wchar_t *Title,
 	strLastDirName.Clear();
 	strCurDirName.Clear();
 	DirCount=FileCount=0;
-	FileSize=CompressedFileSize=RealSize=0;
+	FileSize=AllocationSize=FilesSlack=MFTOverhead=0;
 	ScTree.SetFindPath(DirName,L"*");
 
 	while (ScTree.GetNextName(&FindData,strFullName))
@@ -217,28 +218,19 @@ int GetDirInfo(const wchar_t *Title,
 			}
 
 			FileCount++;
-			unsigned __int64 CurSize = FindData.nFileSize;
-			FileSize+=CurSize;
 
-			if (FindData.dwFileAttributes & (FILE_ATTRIBUTE_COMPRESSED|FILE_ATTRIBUTE_SPARSE_FILE))
+			FileSize += FindData.nFileSize;
+			AllocationSize += FindData.nAllocationSize;
+			if(FindData.nAllocationSize > FindData.nFileSize)
 			{
-				UINT64 Size=0;
-
-				if (apiGetCompressedFileSize(strFullName,Size))
+				if(FindData.nAllocationSize >= ClusterSize)
 				{
-					CurSize=Size;
+					FilesSlack += FindData.nAllocationSize - FindData.nFileSize;
 				}
-			}
-
-			CompressedFileSize+=CurSize;
-
-			if (ClusterSize>0)
-			{
-				RealSize+=CurSize;
-				int Slack=(__int32)(CurSize%ClusterSize);
-
-				if (Slack>0)
-					RealSize+=ClusterSize-Slack;
+				else
+				{
+					MFTOverhead += FindData.nAllocationSize - FindData.nFileSize;
+				}
 			}
 		}
 	}
@@ -270,7 +262,7 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
 			{
 				FileCount++;
 				FileSize+=PanelItem[I].FileSize;
-				CompressedFileSize+=PanelItem[I].PackSize?PanelItem[I].PackSize:PanelItem[I].FileSize;
+				CompressedFileSize+=PanelItem[I].AllocationSize?PanelItem[I].AllocationSize:PanelItem[I].FileSize;
 			}
 		}
 	}

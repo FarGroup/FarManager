@@ -46,7 +46,9 @@ enum GETDIRINFOFLAGS
 
 int GetDirInfo(const wchar_t *Title,const wchar_t *DirName,unsigned long &DirCount,
                unsigned long &FileCount,unsigned __int64 &FileSize,
-               unsigned __int64 &CompressedFileSize,unsigned __int64 &RealSize,
+               unsigned __int64 &AllocationSize,
+               unsigned __int64 &FilesSlack,
+               unsigned __int64 &MFTOverhead,
                unsigned long &ClusterSize,clock_t MsgWaitTime,
                FileFilter *Filter,
                DWORD Flags=GETDIRINFO_SCANSYMLINKDEF);

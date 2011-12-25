@@ -2258,7 +2258,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 
 				MenuText << FormatStr_Size(
 								FindData.nFileSize,
-								FindData.nPackSize,
+								FindData.nAllocationSize,
 								(CurColumnType == NUMSTREAMS_COLUMN || CurColumnType == NUMLINK_COLUMN)?StreamsCount:StreamsSize,
 								DisplayName,
 								FindData.dwFileAttributes,
@@ -2626,14 +2626,6 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 
 				if (IsFileIncluded(nullptr,strFullStreamName,FindData.dwFileAttributes))
 				{
-					if (!(FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-					{
-						if ((FindData.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED) || (FindData.dwFileAttributes & FILE_ATTRIBUTE_SPARSE_FILE))
-						{
-							apiGetCompressedFileSize(strFullStreamName,FindData.nPackSize);
-						}
-						else FindData.nPackSize=FindData.nFileSize;
-					}
 					AddMenuRecord(hDlg,strFullStreamName, FindData);
 				}
 

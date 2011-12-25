@@ -52,7 +52,7 @@ class QuickView:public Panel
 		int Directory;
 		int PrevMacroMode;
 		unsigned long DirCount,FileCount,ClusterSize;
-		unsigned __int64 FileSize,CompressedFileSize,RealFileSize;
+		unsigned __int64 FileSize, AllocationSize, FilesSlack, MFTOverhead;
 		int OldWrapMode;
 		int OldWrapType;
 

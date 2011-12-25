@@ -1034,45 +1034,6 @@ HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD S
 	return Result;
 }
 
-bool elevation::fGetCompressedFileSize(const string& Object,UINT64& Size)
-{
-	CriticalSectionLock Lock(CS);
-	bool Result=false;
-	if(ElevationApproveDlg(MElevationRequiredGetCompressedSize, Object))
-	{
-		if(Opt.IsUserAdmin)
-		{
-			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-			Result = apiGetCompressedFileSizeInternal(Object, Size);
-		}
-		else
-		{
-			if(Initialize())
-			{
-				if(SendCommand(C_FUNCTION_GETCOMPRESSEDFILESIZE))
-				{
-					if(WriteData(Object))
-					{
-						bool OpResult=false;
-						if(Read(OpResult))
-						{
-							if(OpResult)
-							{
-								Read(Size);
-							}
-							if(ReceiveLastError())
-							{
-								Result = OpResult;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	return Result;
-}
-
 bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 {
 	CriticalSectionLock Lock(CS);
@@ -1458,25 +1419,6 @@ void CreateFileHandler()
 	}
 }
 
-void GetCompressedFileSizeHandler()
-{
-	AutoObject Object;
-	if(ReadPipeData(Pipe, Object))
-	{
-		UINT64 Size;
-		bool Result = apiGetCompressedFileSizeInternal(Object.GetStr(), Size);
-		int LastError = GetLastError();
-		if(WritePipe(Pipe, Result))
-		{
-			if(Result)
-			{
-				WritePipe(Pipe, Size);
-			}
-			WritePipe(Pipe, LastError);
-		}
-	}
-}
-
 void SetEncryptionHandler()
 {
 	AutoObject Object;
@@ -1550,9 +1492,6 @@ bool Process(int Command)
 
 	case C_FUNCTION_CREATEFILE:
 		CreateFileHandler();
-		break;
-	case C_FUNCTION_GETCOMPRESSEDFILESIZE:
-		GetCompressedFileSizeHandler();
 		break;
 	case C_FUNCTION_SETENCRYPTION:
 		SetEncryptionHandler();

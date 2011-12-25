@@ -618,8 +618,8 @@ bool FileFilter::FileInFilter(const FileListItem& fli,enumFileInFilterType *foun
 	fde.ftLastAccessTime=fli.AccessTime;
 	fde.ftLastWriteTime=fli.WriteTime;
 	fde.ftChangeTime=fli.ChangeTime;
-	fde.nFileSize=fli.UnpSize;
-	fde.nPackSize=fli.PackSize;
+	fde.nFileSize=fli.FileSize;
+	fde.nAllocationSize=fli.AllocationSize;
 	fde.strFileName=fli.strName;
 	fde.strAlternateFileName=fli.strShortName;
 	return FileInFilter(fde, foundType, &fli.strName);

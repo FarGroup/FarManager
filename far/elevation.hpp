@@ -56,7 +56,6 @@ enum ELEVATION_COMMAND
 	C_FUNCTION_MOVETORECYCLEBIN,
 	C_FUNCTION_SETOWNER,
 	C_FUNCTION_CREATEFILE,
-	C_FUNCTION_GETCOMPRESSEDFILESIZE,
 	C_FUNCTION_SETENCRYPTION,
 };
 
@@ -92,7 +91,6 @@ public:
 	int fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct);
 	bool fSetOwner(const string& Object, const string& Owner);
 	HANDLE fCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile);
-	bool fGetCompressedFileSize(const string& Object,UINT64& Size);
 	bool fSetFileEncryption(const string& Object, bool Encrypt);
 
 private:

@@ -699,7 +699,7 @@ struct PluginPanelItem
 	FILETIME LastWriteTime;
 	FILETIME ChangeTime;
 	unsigned __int64 FileSize;
-	unsigned __int64 PackSize;
+	unsigned __int64 AllocationSize;
 #ifdef FAR_USE_INTERNALS
 	wchar_t *FileName;
 	wchar_t *AlternateFileName;

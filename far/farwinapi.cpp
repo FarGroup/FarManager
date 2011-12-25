@@ -86,7 +86,7 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
 							FindData.ftChangeTime.dwLowDateTime = DirectoryInfo->ChangeTime.LowPart;
 							FindData.ftChangeTime.dwHighDateTime = DirectoryInfo->ChangeTime.HighPart;
 							FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
-							FindData.nPackSize = 0;
+							FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 							FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
 							FindData.dwReserved1 = 0;
 							FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
@@ -161,7 +161,7 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 		FindData.ftChangeTime.dwLowDateTime = DirectoryInfo->ChangeTime.LowPart;
 		FindData.ftChangeTime.dwHighDateTime = DirectoryInfo->ChangeTime.HighPart;
 		FindData.nFileSize = DirectoryInfo->EndOfFile.QuadPart;
-		FindData.nPackSize = 0;
+		FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
 		FindData.dwReserved1 = 0;
 		FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
@@ -954,34 +954,6 @@ bool apiCreateSymbolicLink(const string& SymlinkFileName, const string& TargetFi
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
 		Result=Elevation.fCreateSymbolicLink(NtSymlinkFileName, TargetFileName, dwFlags);
-	}
-	return Result;
-}
-
-bool apiGetCompressedFileSizeInternal(const wchar_t* FileName,UINT64& Size)
-{
-	bool Result=false;
-
-	DWORD High = 0, Low = GetCompressedFileSize(FileName, &High);
-
-	if ((Low != INVALID_FILE_SIZE) || (GetLastError() == NO_ERROR))
-	{
-		ULARGE_INTEGER i = {Low, High};
-		Size = i.QuadPart;
-		Result = true;
-	}
-
-	return Result;
-}
-
-bool apiGetCompressedFileSize(const string& FileName,UINT64& Size)
-{
-	bool Result=false;
-	NTPath NtFileName(FileName);
-	Result = apiGetCompressedFileSizeInternal(NtFileName, Size);
-	if(!Result && ElevationRequired(ELEVATION_READ_REQUEST))
-	{
-		Result=Elevation.fGetCompressedFileSize(NtFileName, Size);
 	}
 	return Result;
 }

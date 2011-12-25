@@ -634,7 +634,7 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 		(*PanelItemW)[i].LastAccessTime = PanelItemA[i].FindData.ftLastAccessTime;
 		(*PanelItemW)[i].LastWriteTime = PanelItemA[i].FindData.ftLastWriteTime;
 		(*PanelItemW)[i].FileSize = (unsigned __int64)PanelItemA[i].FindData.nFileSizeLow + (((unsigned __int64)PanelItemA[i].FindData.nFileSizeHigh)<<32);
-		(*PanelItemW)[i].PackSize = (unsigned __int64)PanelItemA[i].PackSize + (((unsigned __int64)PanelItemA[i].PackSizeHigh)<<32);
+		(*PanelItemW)[i].AllocationSize = (unsigned __int64)PanelItemA[i].PackSize + (((unsigned __int64)PanelItemA[i].PackSizeHigh)<<32);
 		(*PanelItemW)[i].FileName = AnsiToUnicode(PanelItemA[i].FindData.cFileName);
 		(*PanelItemW)[i].AlternateFileName = AnsiToUnicode(PanelItemA[i].FindData.cAlternateFileName);
 	}
@@ -686,8 +686,8 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 	PanelItemA.FindData.ftLastWriteTime = PanelItem.LastWriteTime;
 	PanelItemA.FindData.nFileSizeLow = (DWORD)PanelItem.FileSize;
 	PanelItemA.FindData.nFileSizeHigh = (DWORD)(PanelItem.FileSize>>32);
-	PanelItemA.PackSize = (DWORD)PanelItem.PackSize;
-	PanelItemA.PackSizeHigh = (DWORD)(PanelItem.PackSize>>32);
+	PanelItemA.PackSize = (DWORD)PanelItem.AllocationSize;
+	PanelItemA.PackSizeHigh = (DWORD)(PanelItem.AllocationSize>>32);
 	UnicodeToOEM(PanelItem.FileName,PanelItemA.FindData.cFileName,sizeof(PanelItemA.FindData.cFileName));
 	UnicodeToOEM(PanelItem.AlternateFileName,PanelItemA.FindData.cAlternateFileName,sizeof(PanelItemA.FindData.cAlternateFileName));
 }

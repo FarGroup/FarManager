@@ -6616,14 +6616,14 @@ MColumnSize
 "Rozmiar"
 "Tamaño"
 
-MColumnPacked
-"Упаков"
-"Packed"
-"Komprimovaný"
-"Kompr."
-"TMéret"
-"Spakowany"
-"Comprs"
+MColumnAlocatedSize
+"Выделено"
+"Allocated"
+upd:"Allocated"
+upd:"Allocated"
+upd:"Allocated"
+upd:"Allocated"
+upd:"Allocated"
 
 MColumnDate
 "Дата"
@@ -11578,14 +11578,14 @@ MMenuSortByOwner
 "&właściciela                 Ctrl-F11"
 "Dueñ&o                Ctrl-F11"
 
-MMenuSortByCompressedSize
-"&Упакованный размер"
-"Com&pressed size"
-"&Komprimované velikosti"
-"Kom&primierte Größe"
-"Tömörített mér&et"
-"rozmiaru po &kompresji"
-"Tamaño de com&presin"
+MMenuSortByAllocatedSize
+"Выделенный размер"
+"Allocated size"
+upd:"Allocated size"
+upd:"Allocated size"
+upd:"Allocated size"
+upd:"Allocated size"
+upd:"Allocated size"
 
 MMenuSortByNumLinks
 "Ко&личество ссылок"
@@ -12425,23 +12425,14 @@ MQuickViewBytes
 "Rozmiar plików      "
 "Tamaño archivos  "
 
-MQuickViewCompressed
-"Упакованный размер  "
-"Compressed size  "
-"Komprim. velikost  "
-"Komprimiert      "
-"Tömörített méret "
-"Po kompresji        "
-"Tamaño comprimido"
-
-MQuickViewRatio
-"Степень сжатия      "
-"Ratio            "
-"Poměr              "
-"Rate             "
-"Tömörítés aránya "
-"Procent             "
-"Promedio"
+MQuickViewAllocated
+"Выделенный размер   "
+"Allocated size   "
+upd:"Allocated size   "
+upd:"Allocated size   "
+upd:"Allocated size   "
+upd:"Allocated size   "
+upd:"Allocated size   "
 
 MQuickViewCluster
 "Размер кластера     "
@@ -12452,15 +12443,6 @@ MQuickViewCluster
 "Rozmiar klastra     "
 "Tamaño cluster   "
 
-MQuickViewRealSize
-"Реальный размер     "
-"Real files size  "
-"Opravdová velikost "
-"Tatsächlich      "
-"Valódi fájlméret "
-"Właściwy rozmiar    "
-"Tamaño real      "
-
 MQuickViewSlack
 "Остатки кластеров   "
 "Files slack      "
@@ -12469,6 +12451,15 @@ MQuickViewSlack
 "Meddő terület    "
 "Przestrzeń stracona "
 "Desperdiciado    "
+
+MQuickViewMFTOverhead
+upd:"MFT Overhead        "
+"MFT Overhead     "
+upd:"MFT Overhead        "
+upd:"MFT Overhead        "
+upd:"MFT Overhead        "
+upd:"MFT Overhead        "
+upd:"MFT Overhead        "
 
 MSetAttrTitle
 l:
@@ -20333,15 +20324,6 @@ upd:"to open this object:"
 upd:"to open this object:"
 upd:"to open this object:"
 "para abrir este objeto:"
-
-MElevationRequiredGetCompressedSize
-"для получения упакованного размера этого объекта:"
-"to get compressed size of this object:"
-upd:"to get compressed size of this object:"
-upd:"to get compressed size of this object:"
-upd:"to get compressed size of this object:"
-upd:"to get compressed size of this object:"
-upd:"to get compressed size of this object:"
 
 MElevationRequiredEncryptFile
 "для шифрования этого объекта:"
