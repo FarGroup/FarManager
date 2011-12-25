@@ -193,7 +193,7 @@ void CloseConsole()
 
 void SetFarConsoleMode(BOOL SetsActiveBuffer)
 {
-	int Mode=ENABLE_WINDOW_INPUT|ENABLE_ECHO_INPUT|ENABLE_LINE_INPUT|ENABLE_PROCESSED_INPUT;
+	int Mode=ENABLE_WINDOW_INPUT;
 
 	if (Opt.Mouse)
 	{
