@@ -26,6 +26,9 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 	@$(CC) $(CPPFLAGS) { $< } 
 !endif
 
+.asm{$(OBJDIR)}.obj:
+	@$(AS) $(AFLAGS) $<
+
 $(RES): $(RC_NAME).rc $(COMINC)\farversion.hpp $(COMINC)\plugin.hpp
 	@$(RC) /nologo /I"$(COMINC)" $(ENV_INC_OPT) $(RC_WIDE) /fo"$(RES)" $(RC_NAME).rc
 

@@ -47,7 +47,7 @@ LIB_OBJS = \
            $(OBJLIB)\xxStack.obj $(OBJLIB)\xxSym.obj $(OBJLIB)\xxExcptU.obj \
            $(OBJLIB)\lzh.obj $(OBJLIB)\lzhf.obj $(OBJLIB)\lzhs.obj \
            $(OBJLIB)\hdb_mem.obj $(OBJLIB)\hdb_rd.obj $(OBJLIB)\hdb_wr.obj \
-           $(OBJLIB)\hdbase.obj $(OBJLIB)\fio.obj
+           $(OBJLIB)\hdbase.obj $(OBJLIB)\fio.obj $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
 
 USERCPP=/I.\xxlib /D__NOVCL__=1 /D_CONSOLE=1 /D__DLL__=1
 !ifdef DEBUG

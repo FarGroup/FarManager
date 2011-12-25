@@ -141,6 +141,7 @@ MAP = $(OUTDIR)$(ADDOUTDIR)\$(NAME).map
 RES = $(OBJDIR)\$(NAME).res
 
 
+AFLAGS = /nologo /c /Fo"$(OBJDIR)\\"
 CPPFLAGS = /nologo $(MP) /c /W3 /Gy /GF /J /GS- /Gr /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_CRT_NON_CONFORMING_SWPRINTFS /D_WIN32_WINNT=0x0502 $(USERCPP) /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\"
 
 !ifndef DEBUG
@@ -175,6 +176,9 @@ ULOUT=-Tpd -Re
 LIBS = $(COMMONLIB) chkstk.obj kernel32.lib user32.lib gdi32.lib advapi32.lib shell32.lib ole32.lib uuid.lib mpr.lib Netapi32.lib version.lib oleaut32.lib wbemuuid.lib
 
 !ifdef _BIN_PATH_
+!ifndef _ML_PATH_
+_ML_PATH_=$(_BIN_PATH_)
+!endif
 !ifndef _CL_PATH_
 _CL_PATH_=$(_BIN_PATH_)
 !endif
@@ -214,6 +218,10 @@ NODEFLIB = -n
 LINK_FLAGS=-q $(ULOUT) $(ULN_DELAY) -Gz -m- -v -Gh -Gh- $(NOENTRY) $(NODEFLIB) /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(ENV_LIB_OPT)
 !endif
 
+!ifndef AS
+AS=$(_ML_PATH_)ml.exe
+!endif
+
 !ifndef CC
 CC=$(_CL_PATH_)cl.exe
 !endif
@@ -227,6 +235,7 @@ RC=$(_RC_PATH)rc.exe
 !endif
 
 !if !defined(SRC_PATHS_DEFINED) && defined(__MAKE__)
+.path.asm=.
 .path.cpp=.
 .path.c=.
 .path.hpp=.

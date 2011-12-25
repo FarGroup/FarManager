@@ -1,3 +1,7 @@
+t-rex 25.12.2011 22:06:45 +0200
+
+1. asm compilation for VC.
+
 t-rex 21.12.2011 18:24:45 +0200
 
 1. NO_RELEASE_PDB для VC сборки (для нужд Nightly).

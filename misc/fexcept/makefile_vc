@@ -3,11 +3,12 @@
 !endif
 
 NAME = FExcept
-LINK_OBJS = $(OBJDIR)\FExcept.obj
 DOCS = SetFarExceptionHandler.xml
 !if defined(AMD64) || "$(CPU)" == "AMD64"
 DOCS = $(DOCS) demangle64.dll
+LINK_OBJS = $(OBJDIR)\FExcept.obj
 !else
+LINK_OBJS = $(OBJDIR)\FExcept.obj $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
 DOCS = $(DOCS) demangle32.dll
 !endif
 
