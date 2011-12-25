@@ -38,8 +38,11 @@ void WINAPI GetGlobalInfoW(
 
 <h3>Замечания</h3>
 <div class=descr>
-Все поля структуры <a  href="../structures/globalinfo.html">GlobalInfo</a> должны быть заполнены.
-Если в поле GlobalInfo.MinFarVersion указана версия Far Manager больше, чем текущая (включая номер билда) - выводится сообщение об ошибке и плагин не загружается.
+<ol>
+<li>Плагин обязан экспортировать функцию <dfn>GetGlobalInfoW</dfn> для загрузки Far Manager'ом.
+<li>Все поля структуры <a  href="../structures/globalinfo.html">GlobalInfo</a> должны быть заполнены.
+<li>Если в поле GlobalInfo.MinFarVersion указана версия Far Manager больше, чем текущая (включая номер билда) - выводится сообщение об ошибке и плагин не загружается.
+</ol>
 </div>
 
 

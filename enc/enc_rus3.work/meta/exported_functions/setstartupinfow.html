@@ -40,6 +40,7 @@ void WINAPI SetStartupInfoW(
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
+<li>Плагин обязан экспортировать функцию <dfn>SetStartupInfoW</dfn> для загрузки Far Manager'ом.
 <li>Эта функция вызывается сразу же после вызова функции <a href="getglobalinfow.html">GetGlobalInfoW</a>.
 <li>Указатель <i>Info</i> действителен только в области видимости данной функции (до выхода из функции), так что структура должна копироваться во внутреннюю переменную плагина для дальнейшего использования:
 <pre class=code>static struct PluginStartupInfo Info;
