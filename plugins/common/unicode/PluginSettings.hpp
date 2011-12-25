@@ -80,6 +80,18 @@ public:
 	DWORD        Get(int Root, const wchar_t *Name, DWORD Default) { return (DWORD)Get(Root,Name,(unsigned __int64)Default); }
 	bool         Get(int Root, const wchar_t *Name, bool Default) { return Get(Root,Name,Default?1ull:0ull)?true:false; }
 
+	size_t Get(int Root, const wchar_t *Name, void *Value, size_t Size)
+	{
+		FarSettingsItem item={Root,Name,FST_DATA};
+		if (SettingsControl(handle,SCTL_GET,0,&item))
+		{
+			Size = (item.Data.Size>Size)?Size:item.Data.Size;
+			memcpy(Value,item.Data.Data,Size);
+			return Size;
+		}
+		return 0;
+	}
+
 	bool Set(int Root, const wchar_t *Name, const wchar_t *Value)
 	{
 		FarSettingsItem item={Root,Name,FST_STRING};
@@ -99,6 +111,14 @@ public:
 	bool Set(int Root, const wchar_t *Name, unsigned int Value) { return Set(Root,Name,(unsigned __int64)Value); }
 	bool Set(int Root, const wchar_t *Name, DWORD Value) { return Set(Root,Name,(unsigned __int64)Value); }
 	bool Set(int Root, const wchar_t *Name, bool Value) { return Set(Root,Name,Value?1ull:0ull); }
+
+	bool Set(int Root, const wchar_t *Name, const void *Value, size_t Size)
+	{
+		FarSettingsItem item={Root,Name,FST_DATA};
+		item.Data.Size=Size;
+		item.Data.Data=Value;
+		return SettingsControl(handle,SCTL_SET,0,&item)!=FALSE;
+	}
 };
 
 #endif
