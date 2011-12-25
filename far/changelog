@@ -1,3 +1,10 @@
+zg 25.12.2011 13:43:10 +0200 - build 2326
+
+1. эксперементальное получение истории диалогов через SettingsControl. аналогично другим историям, 
+   за исключением того, что root получается:
+     FarSettingsValue value={0,L"NewFolder"};
+     root=Info.SettingsControl(Settings,SCTL_OPENSUBKEY,0,&value);
+
 drkns 24.12.2011 23:50:51 +0200 - build 2325
 
 1. Очепятка в 2324.

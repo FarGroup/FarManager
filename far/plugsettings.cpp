@@ -336,15 +336,15 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 	switch(Enum.Root)
 	{
 		case FSSF_HISTORY_CMD:
-			return FillHistory(HISTORYTYPE_CMD,Enum,FilterNone);
+			return FillHistory(HISTORYTYPE_CMD,L"",Enum,FilterNone);
 		case FSSF_HISTORY_FOLDER:
-			return FillHistory(HISTORYTYPE_FOLDER,Enum,FilterNone);
+			return FillHistory(HISTORYTYPE_FOLDER,L"",Enum,FilterNone);
 		case FSSF_HISTORY_VIEW:
-			return FillHistory(HISTORYTYPE_VIEW,Enum,FilterView);
+			return FillHistory(HISTORYTYPE_VIEW,L"",Enum,FilterView);
 		case FSSF_HISTORY_EDIT:
-			return FillHistory(HISTORYTYPE_VIEW,Enum,FilterEdit);
+			return FillHistory(HISTORYTYPE_VIEW,L"",Enum,FilterEdit);
 		case FSSF_HISTORY_EXTERNAL:
-			return FillHistory(HISTORYTYPE_VIEW,Enum,FilterExt);
+			return FillHistory(HISTORYTYPE_VIEW,L"",Enum,FilterExt);
 		case FSSF_FOLDERSHORTCUT_0:
 		case FSSF_FOLDERSHORTCUT_1:
 		case FSSF_FOLDERSHORTCUT_2:
@@ -369,6 +369,15 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 				return TRUE;
 			}
 			break;
+		default:
+			if(Enum.Root>=FSSF_COUNT)
+			{
+				int root=Enum.Root-FSSF_COUNT;
+				if((size_t)root<m_Keys.getCount())
+				{
+					return FillHistory(HISTORYTYPE_DIALOG,*m_Keys.getItem(root),Enum,FilterNone);
+				}
+			}
 	}
 	return FALSE;
 }
@@ -380,21 +389,24 @@ int FarSettings::Delete(const FarSettingsValue& Value)
 
 int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 {
-	return FALSE;
+	if(bCreate||Value.Root!=FSSF_ROOT) return 0;
+	int result=static_cast<int>(m_Keys.getCount());
+	*m_Keys.insertItem(result)=Value.Value;
+	return result+FSSF_COUNT;
 }
 
-int FarSettings::FillHistory(int Type,FarSettingsEnum& Enum,HistoryFilter Filter)
+int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)
 {
 	Vector<FarSettingsHistory>& array=*m_Enum.addItem();
 	FarSettingsHistory item={0};
 	DWORD Index=0;
-	string strName,strHistoryName,strGuid,strFile,strData;
+	string strName,strGuid,strFile,strData;
 
 	unsigned __int64 id;
 	int HType;
 	bool HLock;
 	unsigned __int64 Time;
-	while(HistoryCfg->Enum(Index++,Type,strHistoryName,&id,strName,&HType,&HLock,&Time,strGuid,strFile,strData,false))
+	while(HistoryCfg->Enum(Index++,Type,HistoryName,&id,strName,&HType,&HLock,&Time,strGuid,strFile,strData,false))
 	{
 		if(Filter(HType))
 		{

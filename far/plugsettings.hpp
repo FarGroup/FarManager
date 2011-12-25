@@ -113,8 +113,9 @@ class FarSettings: public AbstractSettings
 {
 	private:
 		TPointerArray<Vector<FarSettingsHistory> > m_Enum;
+		TPointerArray<string> m_Keys;
 		typedef bool (*HistoryFilter)(int Type);
-		int FillHistory(int Type,FarSettingsEnum& Enum,HistoryFilter Filter);
+		int FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter);
 	public:
 		FarSettings();
 		~FarSettings();
