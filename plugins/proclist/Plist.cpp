@@ -348,8 +348,8 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 		CurItem.CreationTime = CurItem.LastWriteTime = CurItem.LastAccessTime = pd.ftCreation;
 		ULONGLONG ullSize = pd.qwCounters[IDX_WORKINGSET] + pd.qwCounters[IDX_PAGEFILE];
 		CurItem.FileSize = ullSize;
-		CurItem.PackSize = pd.qwResults[IDX_PAGEFILE];
-//yjh:???      CurItem.PackSize = pd.dwProcessId;
+		CurItem.AllocationSize = pd.qwResults[IDX_PAGEFILE];
+//yjh:???      CurItem.AllocationSize = pd.dwProcessId;
 
 		CurItem.AlternateFileName=new wchar_t[16];
 		FSF.itoa(pd.dwProcessId, (wchar_t*)CurItem.AlternateFileName, 10);

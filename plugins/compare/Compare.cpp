@@ -68,7 +68,7 @@ static void WFD2FFD(WIN32_FIND_DATA &wfd, PluginPanelItem &ffd)
 	ffd.LastAccessTime     = wfd.ftLastAccessTime;
 	ffd.LastWriteTime      = wfd.ftLastWriteTime;
 	ffd.FileSize           = ((__int64)wfd.nFileSizeHigh << 32) | wfd.nFileSizeLow;
-	ffd.PackSize           = 0;
+	ffd.AllocationSize     = 0;
 	ffd.FileName           = wcsdup(wfd.cFileName);
 	ffd.AlternateFileName  = wcsdup(wfd.cAlternateFileName);
 }

@@ -188,7 +188,7 @@ int TmpPanel::PutDirectoryContents(const wchar_t* Path)
 			CurPanelItem->LastWriteTime=DirItems[i].LastWriteTime;
 			CurPanelItem->ChangeTime=DirItems[i].ChangeTime;
 			CurPanelItem->FileSize=DirItems[i].FileSize;
-			CurPanelItem->PackSize=DirItems[i].PackSize;
+			CurPanelItem->AllocationSize=DirItems[i].AllocationSize;
 
 			CurPanelItem->FileName = wcsdup(DirItems[i].FileName);
 			CurPanelItem->AlternateFileName = NULL;
@@ -216,7 +216,7 @@ int TmpPanel::PutOneFile(const wchar_t* SrcPath, PluginPanelItem &PanelItem)
 	CurPanelItem->LastWriteTime=PanelItem.LastWriteTime;
 	CurPanelItem->ChangeTime=PanelItem.ChangeTime;
 	CurPanelItem->FileSize=PanelItem.FileSize;
-	CurPanelItem->PackSize=PanelItem.PackSize;
+	CurPanelItem->AllocationSize=PanelItem.AllocationSize;
 	CurPanelItem->UserData = TmpItemsNumber;
 	CurPanelItem->FileName = reinterpret_cast<wchar_t*>(malloc((lstrlen(SrcPath)+1+lstrlen(PanelItem.FileName)+1)*sizeof(wchar_t)));
 
@@ -295,7 +295,7 @@ int TmpPanel::SetFindList(const struct PluginPanelItem *PanelItem,size_t ItemsNu
 			TmpPanelItem[i].LastWriteTime=PanelItem[i].LastWriteTime;
 			TmpPanelItem[i].ChangeTime=PanelItem[i].ChangeTime;
 			TmpPanelItem[i].FileSize=PanelItem[i].FileSize;
-			TmpPanelItem[i].PackSize=PanelItem[i].PackSize;
+			TmpPanelItem[i].AllocationSize=PanelItem[i].AllocationSize;
 
 			if (PanelItem[i].FileName)
 				TmpPanelItem[i].FileName = wcsdup(PanelItem[i].FileName);

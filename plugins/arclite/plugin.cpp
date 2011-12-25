@@ -136,7 +136,7 @@ public:
         items[idx].LastAccessTime = archive->get_atime(file_index);
         items[idx].LastWriteTime = archive->get_mtime(file_index);
         items[idx].FileSize = archive->get_size(file_index);
-        items[idx].PackSize = archive->get_psize(file_index);
+        items[idx].AllocationSize = archive->get_psize(file_index);
         items[idx].FileName = file_info.name.c_str();
         items[idx].UserData = file_index;
         items[idx].CRC32 = archive->get_crc(file_index);

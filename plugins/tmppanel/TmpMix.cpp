@@ -116,7 +116,7 @@ void WFD2FFD(WIN32_FIND_DATA &wfd, PluginPanelItem &ffd)
 	ffd.FileSize = wfd.nFileSizeHigh;
 	ffd.FileSize <<= 32;
 	ffd.FileSize |= wfd.nFileSizeLow;
-	ffd.PackSize = 0;
+	ffd.AllocationSize = 0;
 	ffd.FileName = wcsdup(wfd.cFileName);
 	ffd.AlternateFileName = NULL;
 }

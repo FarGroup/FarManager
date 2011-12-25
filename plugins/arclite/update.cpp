@@ -538,7 +538,7 @@ private:
       filter_data.LastAccessTime = src_find_data.ftLastAccessTime;
       filter_data.LastWriteTime = src_find_data.ftLastWriteTime;
       filter_data.FileSize = src_find_data.size();
-      filter_data.PackSize = 0;
+      filter_data.AllocationSize = 0;
       filter_data.FileName = src_find_data.cFileName;
       if (!filter->match(filter_data))
         return false;
