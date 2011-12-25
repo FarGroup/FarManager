@@ -50,7 +50,7 @@ struct FAR_FIND_DATA_EX
 		DWORD dwReserved0;
 		DWORD dwReserved1;
 	};
-
+	unsigned __int64 FileId;
 	string   strFileName;
 	string   strAlternateFileName;
 
@@ -65,6 +65,7 @@ struct FAR_FIND_DATA_EX
 		nAllocationSize=0;
 		dwReserved0=0;
 		dwReserved1=0;
+		FileId = 0;
 		strFileName.Clear();
 		strAlternateFileName.Clear();
 	}
@@ -82,6 +83,7 @@ struct FAR_FIND_DATA_EX
 			nAllocationSize=ffdexCopy.nAllocationSize;
 			dwReserved0=ffdexCopy.dwReserved0;
 			dwReserved1=ffdexCopy.dwReserved1;
+			FileId = ffdexCopy.FileId;
 			strFileName=ffdexCopy.strFileName;
 			strAlternateFileName=ffdexCopy.strAlternateFileName;
 		}

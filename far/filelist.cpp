@@ -4883,10 +4883,8 @@ bool FileList::ApplyCommand()
 
 void FileList::CountDirSize(UINT64 PluginFlags)
 {
-	unsigned long DirCount,DirFileCount,ClusterSize;;
-	unsigned __int64 FileSize,AllocationSize;
 	unsigned long SelDirCount=0;
-
+	DirInfoData Data = {};
 	/* $ 09.11.2000 OT
 	  F3 на ".." в плагинах
 	*/
@@ -4922,10 +4920,10 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 			{
 				if (ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 				{
-					if (GetPluginDirInfo(hPlugin,ListData[I]->strName,DirCount,DirFileCount,FileSize,AllocationSize))
+					if (GetPluginDirInfo(hPlugin,ListData[I]->strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
 					{
-						DoubleDotDir->FileSize += FileSize;
-						DoubleDotDir->AllocationSize += AllocationSize;
+						DoubleDotDir->FileSize += Data.FileSize;
+						DoubleDotDir->AllocationSize += Data.AllocationSize;
 					}
 				}
 				else
@@ -4945,20 +4943,16 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 		if (ListData[I]->Selected && (ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 		{
 			SelDirCount++;
-			UINT64 FilesSlack, MFTOverhead;
 			if ((PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
-			        GetPluginDirInfo(hPlugin,ListData[I]->strName,DirCount,DirFileCount,FileSize,AllocationSize))
+			        GetPluginDirInfo(hPlugin,ListData[I]->strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
 			        ||
 			        ((PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
-			         GetDirInfo(MSG(MDirInfoViewTitle),
-			                    ListData[I]->strName,
-			                    DirCount,DirFileCount,FileSize,
-			                    AllocationSize, FilesSlack, MFTOverhead, ClusterSize,0,Filter,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
+			         GetDirInfo(MSG(MDirInfoViewTitle), ListData[I]->strName, Data, 0, Filter, GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
 			{
 				SelFileSize -= ListData[I]->FileSize;
-				SelFileSize += FileSize;
-				ListData[I]->FileSize = FileSize;
-				ListData[I]->AllocationSize = AllocationSize;
+				SelFileSize += Data.FileSize;
+				ListData[I]->FileSize = Data.FileSize;
+				ListData[I]->AllocationSize = Data.AllocationSize;
 				ListData[I]->ShowFolderSize=1;
 			}
 			else
@@ -4968,19 +4962,17 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 
 	if (!SelDirCount)
 	{
-		UINT64 FilesSlack, MFTOverhead;
 		assert(CurFile<FileCount);
 		if ((PanelMode==PLUGIN_PANEL && !(PluginFlags & OPIF_REALNAMES) &&
-		        GetPluginDirInfo(hPlugin,ListData[CurFile]->strName,DirCount,DirFileCount,FileSize,AllocationSize))
+		        GetPluginDirInfo(hPlugin,ListData[CurFile]->strName, Data.DirCount, Data.FileCount, Data.FileSize, Data.AllocationSize))
 		        ||
 		        ((PanelMode!=PLUGIN_PANEL || (PluginFlags & OPIF_REALNAMES)) &&
 		         GetDirInfo(MSG(MDirInfoViewTitle),
 		                    TestParentFolderName(ListData[CurFile]->strName) ? L".":ListData[CurFile]->strName,
-		                    DirCount,
-		                    DirFileCount,FileSize,AllocationSize,FilesSlack, MFTOverhead, ClusterSize,0,Filter,GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
+		                    Data, 0, Filter, GETDIRINFO_DONTREDRAWFRAME|GETDIRINFO_SCANSYMLINKDEF)==1))
 		{
-			ListData[CurFile]->FileSize = FileSize;
-			ListData[CurFile]->AllocationSize = AllocationSize;
+			ListData[CurFile]->FileSize = Data.FileSize;
+			ListData[CurFile]->AllocationSize = Data.AllocationSize;
 			ListData[CurFile]->ShowFolderSize=1;
 		}
 	}

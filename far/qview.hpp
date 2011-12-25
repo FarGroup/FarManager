@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panel.hpp"
 #include "CriticalSections.hpp"
+#include "dirinfo.hpp"
 
 class Viewer;
 
@@ -51,8 +52,7 @@ class QuickView:public Panel
 
 		int Directory;
 		int PrevMacroMode;
-		unsigned long DirCount,FileCount,ClusterSize;
-		unsigned __int64 FileSize, AllocationSize, FilesSlack, MFTOverhead;
+		DirInfoData Data;
 		int OldWrapMode;
 		int OldWrapType;
 

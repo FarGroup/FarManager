@@ -12453,13 +12453,13 @@ MQuickViewSlack
 "Desperdiciado    "
 
 MQuickViewMFTOverhead
-upd:"MFT Overhead        "
-"MFT Overhead     "
-upd:"MFT Overhead        "
-upd:"MFT Overhead        "
-upd:"MFT Overhead        "
-upd:"MFT Overhead        "
-upd:"MFT Overhead        "
+upd:"MFT overhead        "
+"MFT overhead     "
+upd:"MFT overhead        "
+upd:"MFT overhead        "
+upd:"MFT overhead        "
+upd:"MFT overhead        "
+upd:"MFT overhead        "
 
 MSetAttrTitle
 l:

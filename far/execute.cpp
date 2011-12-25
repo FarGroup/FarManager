@@ -246,7 +246,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 	bool bVistaType = false;
 	strType.Clear();
 
-	if (WinVer.dwMajorVersion >= 6)
+	if (WinVer >= _WIN32_WINNT_VISTA)
 	{
 		IApplicationAssociationRegistration* pAAR;
 		HRESULT hr = ifn.SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
@@ -634,7 +634,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
           DWORD samDesired = KEY_QUERY_VALUE;
 					DWORD RedirectionFlag = 0;
 					// App Paths key is shared in Windows 7 and above
-					if (WinVer.dwMajorVersion < 6 || (WinVer.dwMajorVersion == 6 && WinVer.dwMinorVersion < 1))
+					if (WinVer < _WIN32_WINNT_WIN7)
 					{
 #ifdef _WIN64
 						RedirectionFlag = KEY_WOW64_32KEY;

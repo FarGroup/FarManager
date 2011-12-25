@@ -2999,7 +2999,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 	{
 		if (!(SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) ||
 		        ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) &&
-		         ((WinVer.dwMajorVersion >= 5 && WinVer.dwMinorVersion > 0) ||
+		         ((WinVer > _WIN32_WINNT_WIN2K) ||
 		          !(Flags&(FCOPY_DECRYPTED_DESTINATION))))
 		   )
 		{
@@ -4058,7 +4058,7 @@ bool ShellCopy::CalcTotalSize()
 {
 	string strSelName, strSelShortName;
 	DWORD FileAttr;
-	unsigned __int64 FileSize, FilesSlack, MFTOverhead;
+	unsigned __int64 FileSize;
 	// Для фильтра
 	FAR_FIND_DATA_EX fd;
 	PreRedraw.Push(PR_ShellCopyMsg);
@@ -4077,16 +4077,10 @@ bool ShellCopy::CalcTotalSize()
 		if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
 		{
 			{
-				unsigned long DirCount,FileCount,ClusterSize;
-				unsigned __int64 AllocationSize;
+				DirInfoData Data = {};
 				CP->SetScanName(strSelName);
-				int __Ret=GetDirInfo(L"",strSelName,DirCount,FileCount,FileSize,AllocationSize,
-				                     FilesSlack, MFTOverhead,
-				                     ClusterSize,-1,
-				                     Filter,
-				                     (Flags&FCOPY_COPYSYMLINKCONTENTS?GETDIRINFO_SCANSYMLINK:0)|
-				                     (UseFilter?GETDIRINFO_USEFILTER:0));
-
+				int __Ret=GetDirInfo(L"",strSelName, Data, -1, Filter, (Flags&FCOPY_COPYSYMLINKCONTENTS?GETDIRINFO_SCANSYMLINK:0)|(UseFilter?GETDIRINFO_USEFILTER:0));
+				FileSize = Data.FileSize;
 				if (__Ret <= 0)
 				{
 					ShowTotalCopySize=false;
@@ -4094,10 +4088,10 @@ bool ShellCopy::CalcTotalSize()
 					return FALSE;
 				}
 
-				if (FileCount > 0)
+				if (Data.FileCount > 0)
 				{
 					TotalCopySize+=FileSize;
-					TotalFilesToProcess += FileCount;
+					TotalFilesToProcess += Data.FileCount;
 				}
 			}
 		}

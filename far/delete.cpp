@@ -323,12 +323,11 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 
 							ShellDeleteMsg(strSelName, DEL_SCAN, 0, 0);
 						}
-						ULONG CurrentFileCount,CurrentDirCount,ClusterSize;
-						UINT64 FileSize, AllocationSize, FilesSlack, MFTOverhead;
+						DirInfoData Data = {};
 
-						if (GetDirInfo(nullptr,strSelName,CurrentDirCount,CurrentFileCount,FileSize,AllocationSize,FilesSlack,MFTOverhead,ClusterSize,-1,nullptr,0)>0)
+						if (GetDirInfo(nullptr, strSelName, Data, -1, nullptr, 0) > 0)
 						{
-							ItemsCount+=CurrentFileCount+CurrentDirCount+1;
+							ItemsCount+=Data.FileCount+Data.DirCount+1;
 						}
 						else
 						{
@@ -917,7 +916,7 @@ int RemoveToRecycleBin(const string& Name)
 	ConvertNameToFull(Name, strFullName);
 
 	// При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
-	if (WinVer.dwMajorVersion<6 && Opt.DeleteToRecycleBinKillLink && apiGetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
+	if (WinVer < _WIN32_WINNT_VISTA && Opt.DeleteToRecycleBinKillLink && apiGetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
 	{
 		string strFullName2;
 		FAR_FIND_DATA_EX FindData;

@@ -411,7 +411,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
 	// Applications do not need to enable the LFH for their heaps.
-	if(WinVer.dwMajorVersion<6)
+	if(WinVer < _WIN32_WINNT_VISTA)
 	{
 		apiEnableLowFragmentationHeap();
 	}

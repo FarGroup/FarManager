@@ -221,7 +221,7 @@ typedef struct _STORAGE_PROPERTY_QUERY {
 
 typedef enum _FILE_INFORMATION_CLASS
 {
-	FileBothDirectoryInformation=3,
+	FileIdBothDirectoryInformation=37,
 	FileBasicInformation=4,
 	FileStreamInformation=22,
 }
@@ -557,3 +557,12 @@ typedef struct _CONSOLE_SCREEN_BUFFER_INFOEX
 }
 CONSOLE_SCREEN_BUFFER_INFOEX, *PCONSOLE_SCREEN_BUFFER_INFOEX;
 #endif
+
+#define _WIN32_WINNT_WIN2K    0x0500
+#define _WIN32_WINNT_WINXP    0x0501
+#define _WIN32_WINNT_WS03     0x0502
+#define _WIN32_WINNT_WIN6     0x0600
+#define _WIN32_WINNT_VISTA    0x0600
+#define _WIN32_WINNT_WS08     0x0600
+#define _WIN32_WINNT_LONGHORN 0x0600
+#define _WIN32_WINNT_WIN7     0x0601

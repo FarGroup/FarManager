@@ -176,29 +176,29 @@ void QuickView::DisplayObject()
 			PrintText(MSG(MQuickViewFolders));
 			SetColor(COL_PANELINFOTEXT);
 			FString.Clear();
-			FString<<DirCount;
+			FString<<Data.DirCount;
 			PrintText(FString);
 			SetColor(COL_PANELTEXT);
 			GotoXY(X1+2,Y1+7);
 			PrintText(MSG(MQuickViewFiles));
 			SetColor(COL_PANELINFOTEXT);
 			FString.Clear();
-			FString<<FileCount;
+			FString<<Data.FileCount;
 			PrintText(FString);
 			SetColor(COL_PANELTEXT);
 			GotoXY(X1+2,Y1+8);
 			PrintText(MSG(MQuickViewBytes));
 			SetColor(COL_PANELINFOTEXT);
 			string strSize;
-			InsertCommas(FileSize,strSize);
+			InsertCommas(Data.FileSize,strSize);
 			PrintText(strSize);
 			SetColor(COL_PANELTEXT);
 			GotoXY(X1+2,Y1+9);
 			PrintText(MSG(MQuickViewAllocated));
 			SetColor(COL_PANELINFOTEXT);
-			InsertCommas(AllocationSize,strSize);
+			InsertCommas(Data.AllocationSize,strSize);
 			FString.Clear();
-			FString << strSize << L" (" << ToPercent64(AllocationSize,FileSize) << L"%)";
+			FString << strSize << L" (" << ToPercent64(Data.AllocationSize,Data.FileSize) << L"%)";
 			PrintText(FString);
 
 			if (Directory!=4)
@@ -207,25 +207,25 @@ void QuickView::DisplayObject()
 				GotoXY(X1+2,Y1+11);
 				PrintText(MSG(MQuickViewCluster));
 				SetColor(COL_PANELINFOTEXT);
-				InsertCommas(ClusterSize,strSize);
+				InsertCommas(Data.ClusterSize,strSize);
 				PrintText(strSize);
 
 				SetColor(COL_PANELTEXT);
 				GotoXY(X1+2,Y1+12);
 				PrintText(MSG(MQuickViewSlack));
 				SetColor(COL_PANELINFOTEXT);
-				InsertCommas(FilesSlack, strSize);
+				InsertCommas(Data.FilesSlack, strSize);
 				FString.Clear();
-				FString << strSize << L" (" << ToPercent64(FilesSlack, AllocationSize) << L"%)";
+				FString << strSize << L" (" << ToPercent64(Data.FilesSlack, Data.AllocationSize) << L"%)";
 				PrintText(FString);
 
 				SetColor(COL_PANELTEXT);
 				GotoXY(X1+2,Y1+13);
 				PrintText(MSG(MQuickViewMFTOverhead));
 				SetColor(COL_PANELINFOTEXT);
-				InsertCommas(MFTOverhead, strSize);
+				InsertCommas(Data.MFTOverhead, strSize);
 				FString.Clear();
-				FString<<strSize<<L" ("<<ToPercent64(MFTOverhead, AllocationSize)<<L"%)";
+				FString<<strSize<<L" ("<<ToPercent64(Data.MFTOverhead, Data.AllocationSize)<<L"%)";
 				PrintText(FString);
 
 			}
@@ -394,8 +394,8 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 		}
 		else if (hDirPlugin)
 		{
-			int ExitCode=GetPluginDirInfo(hDirPlugin,strCurFileName,DirCount,
-			                              FileCount,FileSize,AllocationSize);
+			int ExitCode=GetPluginDirInfo(hDirPlugin,strCurFileName,Data.DirCount,
+			                              Data.FileCount,Data.FileSize,Data.AllocationSize);
 			if (ExitCode)
 				Directory=4;
 			else
@@ -403,9 +403,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 		}
 		else
 		{
-			int ExitCode=GetDirInfo(MSG(MQuickViewTitle),strCurFileName,DirCount,
-			                        FileCount, FileSize, AllocationSize, FilesSlack, MFTOverhead,
-			                        ClusterSize,500,nullptr,GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_DONTREDRAWFRAME);
+			int ExitCode=GetDirInfo(MSG(MQuickViewTitle), strCurFileName, Data, 500, nullptr, GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_DONTREDRAWFRAME);
 
 			if (ExitCode==1)
 				Directory=1;

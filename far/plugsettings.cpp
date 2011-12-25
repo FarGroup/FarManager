@@ -409,7 +409,7 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 		default:
 			if(Enum.Root>=FSSF_COUNT)
 			{
-				int root=Enum.Root-FSSF_COUNT;
+				size_t root=Enum.Root-FSSF_COUNT;
 				if((size_t)root<m_Keys.getCount())
 				{
 					return FillHistory(HISTORYTYPE_DIALOG,*m_Keys.getItem(root),Enum,FilterNone);

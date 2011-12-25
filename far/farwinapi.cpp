@@ -73,9 +73,9 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
 					if (Handle->BufferBase)
 					{
 						LPCWSTR NamePtr = PointToName(Name);
-						if(Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE))
+						if(Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, TRUE))
 						{
-							PFILE_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_BOTH_DIR_INFORMATION>(Handle->BufferBase);
+							PFILE_ID_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase);
 							FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
 							FindData.ftCreationTime.dwLowDateTime = DirectoryInfo->CreationTime.LowPart;
 							FindData.ftCreationTime.dwHighDateTime = DirectoryInfo->CreationTime.HighPart;
@@ -89,6 +89,7 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
 							FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 							FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
 							FindData.dwReserved1 = 0;
+							FindData.FileId = DirectoryInfo->FileId.QuadPart;
 							FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
 							FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
 
@@ -138,15 +139,15 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 	bool Result = false;
 	PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(Find);
 	bool Status = true;
-	PFILE_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_BOTH_DIR_INFORMATION>(Handle->BufferBase);
+	PFILE_ID_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase);
 	if(Handle->NextOffset)
 	{
-		DirectoryInfo = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(reinterpret_cast<LPBYTE>(DirectoryInfo)+Handle->NextOffset);
+		DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(reinterpret_cast<LPBYTE>(DirectoryInfo)+Handle->NextOffset);
 	}
 	else
 	{
 		File* Directory = static_cast<File*>(Handle->ObjectHandle);
-		Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, nullptr, FALSE);
+		Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, nullptr, FALSE);
 	}
 
 	if(Status)
@@ -164,6 +165,7 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 		FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
 		FindData.dwReserved1 = 0;
+		FindData.FileId = DirectoryInfo->FileId.QuadPart;
 		FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
 		FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
 
