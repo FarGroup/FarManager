@@ -1,42 +1,42 @@
-AltMenu.xml Use Alt to activate menu
-AltScreens.xml Use Alt-<digit> to switch between screens
-AltSearch.xml Use Alt for search by name
-AltX.xml Alt-X - Close Viewer&Editor, Exit FAR
-CtrlDel.xml Ctrl-Del removes selected editor block
-CtrlF10.xml Quit from editor/viewer and position to the current file
-Dialog.AltDown.xml Open combobox and history list (as Ctrl-Down pressed)
-Edit.Notepad.xml Editor: like Notepad
-Edit.SaveAndExit.xml Editor: Save File and Exit
-Edit.SaveFile.xml Editor: Save File
-F3.xml Use internal editor as viewer
-F9DeactivateMenu.xml Use F9 to deactivate main menu
-F9Table.xml Use F9 to change current table in viewer and editor
+AltMenu.farconfig Use Alt to activate menu
+AltScreens.farconfig Use Alt-<digit> to switch between screens
+AltSearch.farconfig Use Alt for search by name
+AltX.farconfig Alt-X - Close Viewer&Editor, Exit FAR
+CtrlDel.farconfig Ctrl-Del removes selected editor block
+CtrlF10.farconfig Quit from editor/viewer and position to the current file
+Dialog.AltDown.farconfig Open combobox and history list (as Ctrl-Down pressed)
+Edit.Notepad.farconfig Editor: like Notepad
+Edit.SaveAndExit.farconfig Editor: Save File and Exit
+Edit.SaveFile.farconfig Editor: Save File
+F3.farconfig Use internal editor as viewer
+F9DeactivateMenu.farconfig Use F9 to deactivate main menu
+F9Table.farconfig Use F9 to change current table in viewer and editor
 Macrossssss.xls Predefined macro constants
-OpeningLastFile.xml Opening last view/edit of a file
-Panel.AltBS.xml Panel: Use Alt-BS to undo folder changes
-Panel.Apps.xml Panel: Apps - Change drive in current panel
-Panel.BS.xml Panel: Use BS to go to upper folder
-Panel.CtrlIns...xml Panel: If CtrlIns was pressed while on .. and command line is empty then copy to clipboard the path of the current folder
-Panel.CtrlLeft.xml Panel: Use Ctrl-Left to change current drive to the previous
-Panel.CtrlQ.xml Panel: Toggle quick view panel
-Panel.CtrlRight.xml Panel: Use Ctrl-Right to change current drive to the next
-Panel.CtrlShiftBackSlash.xml Panel: Activate the same folder in the passive panel as in the active panel
-Panel.CtrlShiftPgUpDn.xml Panel: Jump to the previous/next folder on the same level
-Panel.Del.xml Panel: Use Del to remove files
-Panel.Esc.xml Panel: Use Esc to toggle panels on/off
-Panel.JumpToSelectedFile.xml Panel: Navigate through selected files
-Panel.Lynx-mot.xml Panel: LYNX-style motion
-Panel.MouseWheelTilt.xml Panel: Use CtrlPgUp/CtrlPgDn via extended buttons mouse
-Panel.Numpad.xml Panel: Use numpad keys in command line
-Panel.SelectFromClipboard.xml Panel: Use Ctrl-S for select files from Clipboard
-Panel.SpaceToSelect.xml Panel: Use Space to select files
-ShiftBS.xml Converts the word before cursor using XLat function.
-ShiftF1.xml Select archive format
-ShiftTab.xml Shift-Tab = Ctrl-Shift-Tab
-View.CtrlUpDown.xml Viewer: Scroll Up/Down text in internal viewer
-View.NextPrevFile.xml Viewer: update panel position when navigating through files
-View.PgDn.xml Viewer: PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier
-View.ShiftInsSearch.xml Viewer: Use Shift-Ins to search text from clipboard in internal viewer
-View.Space.xml Viewer: Use Space for listing in the viewer (like in Outlook Express or The Bat!)
-WheelScreenSwitch.xml Use Shift-MsWheel to switch between screens
+OpeningLastFile.farconfig Opening last view/edit of a file
+Panel.AltBS.farconfig Panel: Use Alt-BS to undo folder changes
+Panel.Apps.farconfig Panel: Apps - Change drive in current panel
+Panel.BS.farconfig Panel: Use BS to go to upper folder
+Panel.CtrlIns...farconfig Panel: If CtrlIns was pressed while on .. and command line is empty then copy to clipboard the path of the current folder
+Panel.CtrlLeft.farconfig Panel: Use Ctrl-Left to change current drive to the previous
+Panel.CtrlQ.farconfig Panel: Toggle quick view panel
+Panel.CtrlRight.farconfig Panel: Use Ctrl-Right to change current drive to the next
+Panel.CtrlShiftBackSlash.farconfig Panel: Activate the same folder in the passive panel as in the active panel
+Panel.CtrlShiftPgUpDn.farconfig Panel: Jump to the previous/next folder on the same level
+Panel.Del.farconfig Panel: Use Del to remove files
+Panel.Esc.farconfig Panel: Use Esc to toggle panels on/off
+Panel.JumpToSelectedFile.farconfig Panel: Navigate through selected files
+Panel.Lynx-mot.farconfig Panel: LYNX-style motion
+Panel.MouseWheelTilt.farconfig Panel: Use CtrlPgUp/CtrlPgDn via extended buttons mouse
+Panel.Numpad.farconfig Panel: Use numpad keys in command line
+Panel.SelectFromClipboard.farconfig Panel: Use Ctrl-S for select files from Clipboard
+Panel.SpaceToSelect.farconfig Panel: Use Space to select files
+ShiftBS.farconfig Converts the word before cursor using XLat function.
+ShiftF1.farconfig Select archive format
+ShiftTab.farconfig Shift-Tab = Ctrl-Shift-Tab
+View.CtrlUpDown.farconfig Viewer: Scroll Up/Down text in internal viewer
+View.NextPrevFile.farconfig Viewer: update panel position when navigating through files
+View.PgDn.farconfig Viewer: PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier
+View.ShiftInsSearch.farconfig Viewer: Use Shift-Ins to search text from clipboard in internal viewer
+View.Space.farconfig Viewer: Use Space for listing in the viewer (like in Outlook Express or The Bat!)
+WheelScreenSwitch.farconfig Use Shift-MsWheel to switch between screens
 Descript.ion File descriptions

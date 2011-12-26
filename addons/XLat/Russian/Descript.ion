@@ -1,6 +1,6 @@
 Descript.ion File descriptions
-Qwerty.xml QWERTY<->âñìäÖç Xlat tables (Russian)
-AltR.xml Use hotkey <Alt-R> to perform XLat function.
-Apps.xml Use hotkey <Apps> to perform XLat function.
-CtrlR.xml Use hotkey <Ctrl-R> to perform XLat function.
-CtrlShiftX.xml Use hotkey <Ctrl-Shift-X> to perform XLat function.
+Qwerty.farconfig QWERTY<->âñìäÖç Xlat tables (Russian)
+AltR.farconfig Use hotkey <Alt-R> to perform XLat function.
+Apps.farconfig Use hotkey <Apps> to perform XLat function.
+CtrlR.farconfig Use hotkey <Ctrl-R> to perform XLat function.
+CtrlShiftX.farconfig Use hotkey <Ctrl-Shift-X> to perform XLat function.
