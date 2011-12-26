@@ -503,10 +503,11 @@ Return: true/false - нашли/не нашли
 И подменять ничего не надо, т.к. все параметры мы отсекли раньше
 */
 
-bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsystem)
+static bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsystem,bool &Internal)
 {
 	bool Result=false;
 	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
+	Internal = false;
 
 	if (Module && *Module)
 	{
@@ -524,6 +525,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 			{
 				ImageSubsystem=IMAGE_SUBSYSTEM_WINDOWS_CUI;
 				Result=true;
+				Internal = true;
 				break;
 			}
 		}
@@ -631,7 +633,7 @@ bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					strFullName=RegPath;
 					strFullName+=Module;
 
-          DWORD samDesired = KEY_QUERY_VALUE;
+					DWORD samDesired = KEY_QUERY_VALUE;
 					DWORD RedirectionFlag = 0;
 					// App Paths key is shared in Windows 7 and above
 					if (WinVer < _WIN32_WINNT_WIN7)
@@ -862,6 +864,7 @@ int Execute(const string& CmdStr, // Ком.строка для исполнения
 	DWORD dwError = 0;
 	HANDLE hProcess = nullptr;
 	LPCWSTR lpVerb = nullptr;
+	bool internal;
 
 	if (FolderRun && DirectRun)
 	{
@@ -869,7 +872,7 @@ int Execute(const string& CmdStr, // Ком.строка для исполнения
 	}
 	else
 	{
-		FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
+		FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem,internal);
 
 		if (/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
 		{
@@ -896,7 +899,7 @@ int Execute(const string& CmdStr, // Ком.строка для исполнения
 					if (strNewCmdPar.IsEmpty())
 						strNewCmdStr+=L'.';
 
-					FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem);
+					FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem,internal);
 				}
 			}
 		}
@@ -917,7 +920,7 @@ int Execute(const string& CmdStr, // Ком.строка для исполнения
 		}
 		else if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_CUI && !DirectRun)
 		{
-			if (!CmdStr.ContainsAny(ComspecSpecific))
+			if (!CmdStr.ContainsAny(ComspecSpecific)&&!internal)
 			{
 				DirectRun = true;
 			}
