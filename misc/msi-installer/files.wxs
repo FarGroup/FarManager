@@ -72,237 +72,237 @@
             <File Id="Descript.ion_3" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Descript.ion" />
           </Component>
           <Directory Id="Custom_Highlighting" Name="Custom Highlighting">
-            <Component Id="black_from_Fonarev.xml" Guid="$(var.Guid.black_from_Fonarev.xml)" Win64="$(var.Win64)">
-              <File Id="black_from_Fonarev.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_Fonarev.xml" />
+            <Component Id="black_from_Fonarev.farconfig" Guid="$(var.Guid.black_from_Fonarev.farconfig)" Win64="$(var.Win64)">
+              <File Id="black_from_Fonarev.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_Fonarev.farconfig" />
             </Component>
-            <Component Id="black_from_july.xml" Guid="$(var.Guid.black_from_july.xml)" Win64="$(var.Win64)">
-              <File Id="black_from_july.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_july.xml" />
+            <Component Id="black_from_july.farconfig" Guid="$(var.Guid.black_from_july.farconfig)" Win64="$(var.Win64)">
+              <File Id="black_from_july.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_july.farconfig" />
             </Component>
-            <Component Id="black_from_Myodov.xml" Guid="$(var.Guid.black_from_Myodov.xml)" Win64="$(var.Win64)">
-              <File Id="black_from_Myodov.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_Myodov.xml" />
+            <Component Id="black_from_Myodov.farconfig" Guid="$(var.Guid.black_from_Myodov.farconfig)" Win64="$(var.Win64)">
+              <File Id="black_from_Myodov.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\black_from_Myodov.farconfig" />
             </Component>
-            <Component Id="Colors_from_admin_essp_ru.xml" Guid="$(var.Guid.Colors_from_admin_essp_ru.xml)" Win64="$(var.Win64)">
-              <File Id="Colors_from_admin_essp_ru.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_admin_essp_ru.xml" />
+            <Component Id="Colors_from_admin_essp_ru.farconfig" Guid="$(var.Guid.Colors_from_admin_essp_ru.farconfig)" Win64="$(var.Win64)">
+              <File Id="Colors_from_admin_essp_ru.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_admin_essp_ru.farconfig" />
             </Component>
-            <Component Id="Colors_from_Gernichenko.xml" Guid="$(var.Guid.Colors_from_Gernichenko.xml)" Win64="$(var.Win64)">
-              <File Id="Colors_from_Gernichenko.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_Gernichenko.xml" />
+            <Component Id="Colors_from_Gernichenko.farconfig" Guid="$(var.Guid.Colors_from_Gernichenko.farconfig)" Win64="$(var.Win64)">
+              <File Id="Colors_from_Gernichenko.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_Gernichenko.farconfig" />
             </Component>
-            <Component Id="Colors_from_Sadovoj.xml" Guid="$(var.Guid.Colors_from_Sadovoj.xml)" Win64="$(var.Win64)">
-              <File Id="Colors_from_Sadovoj.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_Sadovoj.xml" />
+            <Component Id="Colors_from_Sadovoj.farconfig" Guid="$(var.Guid.Colors_from_Sadovoj.farconfig)" Win64="$(var.Win64)">
+              <File Id="Colors_from_Sadovoj.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Colors_from_Sadovoj.farconfig" />
             </Component>
             <Component Id="Descript.ion_4" Guid="$(var.Guid.Descript.ion_4)" Win64="$(var.Win64)">
               <File Id="Descript.ion_4" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Descript.ion" />
             </Component>
-            <Component Id="dn_like.xml" Guid="$(var.Guid.dn_like.xml)" Win64="$(var.Win64)">
-              <File Id="dn_like.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\dn_like.xml" />
+            <Component Id="dn_like.farconfig" Guid="$(var.Guid.dn_like.farconfig)" Win64="$(var.Win64)">
+              <File Id="dn_like.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\dn_like.farconfig" />
             </Component>
-            <Component Id="FARColors242.xml" Guid="$(var.Guid.FARColors242.xml)" Win64="$(var.Win64)">
-              <File Id="FARColors242.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\FARColors242.xml" />
+            <Component Id="FARColors242.farconfig" Guid="$(var.Guid.FARColors242.farconfig)" Win64="$(var.Win64)">
+              <File Id="FARColors242.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\FARColors242.farconfig" />
             </Component>
-            <Component Id="GreenMile.xml" Guid="$(var.Guid.GreenMile.xml)" Win64="$(var.Win64)">
-              <File Id="GreenMile.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\GreenMile.xml" />
+            <Component Id="GreenMile.farconfig" Guid="$(var.Guid.GreenMile.farconfig)" Win64="$(var.Win64)">
+              <File Id="GreenMile.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\GreenMile.farconfig" />
             </Component>
-            <Component Id="hell.xml" Guid="$(var.Guid.hell.xml)" Win64="$(var.Win64)">
-              <File Id="hell.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\hell.xml" />
+            <Component Id="hell.farconfig" Guid="$(var.Guid.hell.farconfig)" Win64="$(var.Win64)">
+              <File Id="hell.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\hell.farconfig" />
             </Component>
-            <Component Id="nc5pal2.xml" Guid="$(var.Guid.nc5pal2.xml)" Win64="$(var.Win64)">
-              <File Id="nc5pal2.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\nc5pal2.xml" />
+            <Component Id="nc5pal2.farconfig" Guid="$(var.Guid.nc5pal2.farconfig)" Win64="$(var.Win64)">
+              <File Id="nc5pal2.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\nc5pal2.farconfig" />
             </Component>
-            <Component Id="Rodion_Doroshkevich.xml" Guid="$(var.Guid.Rodion_Doroshkevich.xml)" Win64="$(var.Win64)">
-              <File Id="Rodion_Doroshkevich.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Rodion_Doroshkevich.xml" />
+            <Component Id="Rodion_Doroshkevich.farconfig" Guid="$(var.Guid.Rodion_Doroshkevich.farconfig)" Win64="$(var.Win64)">
+              <File Id="Rodion_Doroshkevich.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\Rodion_Doroshkevich.farconfig" />
             </Component>
-            <Component Id="VaxColors.xml" Guid="$(var.Guid.VaxColors.xml)" Win64="$(var.Win64)">
-              <File Id="VaxColors.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\VaxColors.xml" />
+            <Component Id="VaxColors.farconfig" Guid="$(var.Guid.VaxColors.farconfig)" Win64="$(var.Win64)">
+              <File Id="VaxColors.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Custom Highlighting\VaxColors.farconfig" />
             </Component>
           </Directory>
           <Directory Id="Default_Highlighting" Name="Default Highlighting">
-            <Component Id="black_from_Fonarev.xml_1" Guid="$(var.Guid.black_from_Fonarev.xml_1)" Win64="$(var.Win64)">
-              <File Id="black_from_Fonarev.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_Fonarev.xml" />
+            <Component Id="black_from_Fonarev.farconfig_1" Guid="$(var.Guid.black_from_Fonarev.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="black_from_Fonarev.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_Fonarev.farconfig" />
             </Component>
-            <Component Id="black_from_july.xml_1" Guid="$(var.Guid.black_from_july.xml_1)" Win64="$(var.Win64)">
-              <File Id="black_from_july.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_july.xml" />
+            <Component Id="black_from_july.farconfig_1" Guid="$(var.Guid.black_from_july.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="black_from_july.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_july.farconfig" />
             </Component>
-            <Component Id="black_from_Myodov.xml_1" Guid="$(var.Guid.black_from_Myodov.xml_1)" Win64="$(var.Win64)">
-              <File Id="black_from_Myodov.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_Myodov.xml" />
+            <Component Id="black_from_Myodov.farconfig_1" Guid="$(var.Guid.black_from_Myodov.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="black_from_Myodov.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\black_from_Myodov.farconfig" />
             </Component>
-            <Component Id="Colors_from_admin_essp_ru.xml_1" Guid="$(var.Guid.Colors_from_admin_essp_ru.xml_1)" Win64="$(var.Win64)">
-              <File Id="Colors_from_admin_essp_ru.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_admin_essp_ru.xml" />
+            <Component Id="Colors_from_admin_essp_ru.farconfig_1" Guid="$(var.Guid.Colors_from_admin_essp_ru.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="Colors_from_admin_essp_ru.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_admin_essp_ru.farconfig" />
             </Component>
-            <Component Id="Colors_from_Gernichenko.xml_1" Guid="$(var.Guid.Colors_from_Gernichenko.xml_1)" Win64="$(var.Win64)">
-              <File Id="Colors_from_Gernichenko.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_Gernichenko.xml" />
+            <Component Id="Colors_from_Gernichenko.farconfig_1" Guid="$(var.Guid.Colors_from_Gernichenko.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="Colors_from_Gernichenko.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_Gernichenko.farconfig" />
             </Component>
-            <Component Id="Colors_from_Sadovoj.xml_1" Guid="$(var.Guid.Colors_from_Sadovoj.xml_1)" Win64="$(var.Win64)">
-              <File Id="Colors_from_Sadovoj.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_Sadovoj.xml" />
+            <Component Id="Colors_from_Sadovoj.farconfig_1" Guid="$(var.Guid.Colors_from_Sadovoj.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="Colors_from_Sadovoj.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Colors_from_Sadovoj.farconfig" />
             </Component>
             <Component Id="Descript.ion_5" Guid="$(var.Guid.Descript.ion_5)" Win64="$(var.Win64)">
               <File Id="Descript.ion_5" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Descript.ion" />
             </Component>
-            <Component Id="dn_like.xml_1" Guid="$(var.Guid.dn_like.xml_1)" Win64="$(var.Win64)">
-              <File Id="dn_like.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\dn_like.xml" />
+            <Component Id="dn_like.farconfig_1" Guid="$(var.Guid.dn_like.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="dn_like.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\dn_like.farconfig" />
             </Component>
-            <Component Id="FARColors242.xml_1" Guid="$(var.Guid.FARColors242.xml_1)" Win64="$(var.Win64)">
-              <File Id="FARColors242.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\FARColors242.xml" />
+            <Component Id="FARColors242.farconfig_1" Guid="$(var.Guid.FARColors242.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="FARColors242.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\FARColors242.farconfig" />
             </Component>
-            <Component Id="GreenMile.xml_1" Guid="$(var.Guid.GreenMile.xml_1)" Win64="$(var.Win64)">
-              <File Id="GreenMile.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\GreenMile.xml" />
+            <Component Id="GreenMile.farconfig_1" Guid="$(var.Guid.GreenMile.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="GreenMile.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\GreenMile.farconfig" />
             </Component>
-            <Component Id="hell.xml_1" Guid="$(var.Guid.hell.xml_1)" Win64="$(var.Win64)">
-              <File Id="hell.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\hell.xml" />
+            <Component Id="hell.farconfig_1" Guid="$(var.Guid.hell.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="hell.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\hell.farconfig" />
             </Component>
-            <Component Id="nc5pal2.xml_1" Guid="$(var.Guid.nc5pal2.xml_1)" Win64="$(var.Win64)">
-              <File Id="nc5pal2.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\nc5pal2.xml" />
+            <Component Id="nc5pal2.farconfig_1" Guid="$(var.Guid.nc5pal2.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="nc5pal2.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\nc5pal2.farconfig" />
             </Component>
-            <Component Id="Rodion_Doroshkevich.xml_1" Guid="$(var.Guid.Rodion_Doroshkevich.xml_1)" Win64="$(var.Win64)">
-              <File Id="Rodion_Doroshkevich.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Rodion_Doroshkevich.xml" />
+            <Component Id="Rodion_Doroshkevich.farconfig_1" Guid="$(var.Guid.Rodion_Doroshkevich.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="Rodion_Doroshkevich.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\Rodion_Doroshkevich.farconfig" />
             </Component>
-            <Component Id="VaxColors.xml_1" Guid="$(var.Guid.VaxColors.xml_1)" Win64="$(var.Win64)">
-              <File Id="VaxColors.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\VaxColors.xml" />
+            <Component Id="VaxColors.farconfig_1" Guid="$(var.Guid.VaxColors.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="VaxColors.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\Colors\Default Highlighting\VaxColors.farconfig" />
             </Component>
           </Directory>
         </Directory>
         <Directory Id="Macros" Name="Macros">
-          <Component Id="AltMenu.xml" Guid="$(var.Guid.AltMenu.xml)" Win64="$(var.Win64)">
-            <File Id="AltMenu.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltMenu.xml" />
+          <Component Id="AltMenu.farconfig" Guid="$(var.Guid.AltMenu.farconfig)" Win64="$(var.Win64)">
+            <File Id="AltMenu.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltMenu.farconfig" />
           </Component>
-          <Component Id="AltScreens.xml" Guid="$(var.Guid.AltScreens.xml)" Win64="$(var.Win64)">
-            <File Id="AltScreens.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltScreens.xml" />
+          <Component Id="AltScreens.farconfig" Guid="$(var.Guid.AltScreens.farconfig)" Win64="$(var.Win64)">
+            <File Id="AltScreens.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltScreens.farconfig" />
           </Component>
-          <Component Id="AltSearch.xml" Guid="$(var.Guid.AltSearch.xml)" Win64="$(var.Win64)">
-            <File Id="AltSearch.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltSearch.xml" />
+          <Component Id="AltSearch.farconfig" Guid="$(var.Guid.AltSearch.farconfig)" Win64="$(var.Win64)">
+            <File Id="AltSearch.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltSearch.farconfig" />
           </Component>
-          <Component Id="AltX.xml" Guid="$(var.Guid.AltX.xml)" Win64="$(var.Win64)">
-            <File Id="AltX.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltX.xml" />
+          <Component Id="AltX.farconfig" Guid="$(var.Guid.AltX.farconfig)" Win64="$(var.Win64)">
+            <File Id="AltX.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltX.farconfig" />
           </Component>
-          <Component Id="CtrlDel.xml" Guid="$(var.Guid.CtrlDel.xml)" Win64="$(var.Win64)">
-            <File Id="CtrlDel.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlDel.xml" />
+          <Component Id="CtrlDel.farconfig" Guid="$(var.Guid.CtrlDel.farconfig)" Win64="$(var.Win64)">
+            <File Id="CtrlDel.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlDel.farconfig" />
           </Component>
-          <Component Id="CtrlF10.xml" Guid="$(var.Guid.CtrlF10.xml)" Win64="$(var.Win64)">
-            <File Id="CtrlF10.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlF10.xml" />
+          <Component Id="CtrlF10.farconfig" Guid="$(var.Guid.CtrlF10.farconfig)" Win64="$(var.Win64)">
+            <File Id="CtrlF10.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlF10.farconfig" />
           </Component>
           <Component Id="Descript.ion_6" Guid="$(var.Guid.Descript.ion_6)" Win64="$(var.Win64)">
             <File Id="Descript.ion_6" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Descript.ion" />
           </Component>
-          <Component Id="Dialog.AltDown.xml" Guid="$(var.Guid.Dialog.AltDown.xml)" Win64="$(var.Win64)">
-            <File Id="Dialog.AltDown.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Dialog.AltDown.xml" />
+          <Component Id="Dialog.AltDown.farconfig" Guid="$(var.Guid.Dialog.AltDown.farconfig)" Win64="$(var.Win64)">
+            <File Id="Dialog.AltDown.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Dialog.AltDown.farconfig" />
           </Component>
-          <Component Id="Edit.Notepad.xml" Guid="$(var.Guid.Edit.Notepad.xml)" Win64="$(var.Win64)">
-            <File Id="Edit.Notepad.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.Notepad.xml" />
+          <Component Id="Edit.Notepad.farconfig" Guid="$(var.Guid.Edit.Notepad.farconfig)" Win64="$(var.Win64)">
+            <File Id="Edit.Notepad.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.Notepad.farconfig" />
           </Component>
-          <Component Id="Edit.SaveAndExit.xml" Guid="$(var.Guid.Edit.SaveAndExit.xml)" Win64="$(var.Win64)">
-            <File Id="Edit.SaveAndExit.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveAndExit.xml" />
+          <Component Id="Edit.SaveAndExit.farconfig" Guid="$(var.Guid.Edit.SaveAndExit.farconfig)" Win64="$(var.Win64)">
+            <File Id="Edit.SaveAndExit.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveAndExit.farconfig" />
           </Component>
-          <Component Id="Edit.SaveFile.xml" Guid="$(var.Guid.Edit.SaveFile.xml)" Win64="$(var.Win64)">
-            <File Id="Edit.SaveFile.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveFile.xml" />
+          <Component Id="Edit.SaveFile.farconfig" Guid="$(var.Guid.Edit.SaveFile.farconfig)" Win64="$(var.Win64)">
+            <File Id="Edit.SaveFile.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveFile.farconfig" />
           </Component>
-          <Component Id="F3.xml" Guid="$(var.Guid.F3.xml)" Win64="$(var.Win64)">
-            <File Id="F3.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F3.xml" />
+          <Component Id="F3.farconfig" Guid="$(var.Guid.F3.farconfig)" Win64="$(var.Win64)">
+            <File Id="F3.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F3.farconfig" />
           </Component>
-          <Component Id="F9DeactivateMenu.xml" Guid="$(var.Guid.F9DeactivateMenu.xml)" Win64="$(var.Win64)">
-            <File Id="F9DeactivateMenu.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9DeactivateMenu.xml" />
+          <Component Id="F9DeactivateMenu.farconfig" Guid="$(var.Guid.F9DeactivateMenu.farconfig)" Win64="$(var.Win64)">
+            <File Id="F9DeactivateMenu.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9DeactivateMenu.farconfig" />
           </Component>
-          <Component Id="F9Table.xml" Guid="$(var.Guid.F9Table.xml)" Win64="$(var.Win64)">
-            <File Id="F9Table.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9Table.xml" />
+          <Component Id="F9Table.farconfig" Guid="$(var.Guid.F9Table.farconfig)" Win64="$(var.Win64)">
+            <File Id="F9Table.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9Table.farconfig" />
           </Component>
-          <Component Id="OpeningLastFile.xml" Guid="$(var.Guid.OpeningLastFile.xml)" Win64="$(var.Win64)">
-            <File Id="OpeningLastFile.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\OpeningLastFile.xml" />
+          <Component Id="OpeningLastFile.farconfig" Guid="$(var.Guid.OpeningLastFile.farconfig)" Win64="$(var.Win64)">
+            <File Id="OpeningLastFile.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\OpeningLastFile.farconfig" />
           </Component>
-          <Component Id="Panel.AltBS.xml" Guid="$(var.Guid.Panel.AltBS.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.AltBS.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.AltBS.xml" />
+          <Component Id="Panel.AltBS.farconfig" Guid="$(var.Guid.Panel.AltBS.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.AltBS.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.AltBS.farconfig" />
           </Component>
-          <Component Id="Panel.Apps.xml" Guid="$(var.Guid.Panel.Apps.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.Apps.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Apps.xml" />
+          <Component Id="Panel.Apps.farconfig" Guid="$(var.Guid.Panel.Apps.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.Apps.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Apps.farconfig" />
           </Component>
-          <Component Id="Panel.BS.xml" Guid="$(var.Guid.Panel.BS.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.BS.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.BS.xml" />
+          <Component Id="Panel.BS.farconfig" Guid="$(var.Guid.Panel.BS.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.BS.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.BS.farconfig" />
           </Component>
           <Component Id="Panel.CtrlIns_reg" Guid="$(var.Guid.Panel.CtrlIns_reg)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlIns_reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlIns...xml" />
+            <File Id="Panel.CtrlIns_reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlIns...farconfig" />
           </Component>
-          <Component Id="Panel.CtrlLeft.xml" Guid="$(var.Guid.Panel.CtrlLeft.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlLeft.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlLeft.xml" />
+          <Component Id="Panel.CtrlLeft.farconfig" Guid="$(var.Guid.Panel.CtrlLeft.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlLeft.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlLeft.farconfig" />
           </Component>
-          <Component Id="Panel.CtrlQ.xml" Guid="$(var.Guid.Panel.CtrlQ.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlQ.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlQ.xml" />
+          <Component Id="Panel.CtrlQ.farconfig" Guid="$(var.Guid.Panel.CtrlQ.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlQ.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlQ.farconfig" />
           </Component>
-          <Component Id="Panel.CtrlRight.xml" Guid="$(var.Guid.Panel.CtrlRight.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlRight.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlRight.xml" />
+          <Component Id="Panel.CtrlRight.farconfig" Guid="$(var.Guid.Panel.CtrlRight.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlRight.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlRight.farconfig" />
           </Component>
-          <Component Id="Panel.CtrlShiftBackSlash.xml" Guid="$(var.Guid.Panel.CtrlShiftBackSlash.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlShiftBackSlash.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftBackSlash.xml" />
+          <Component Id="Panel.CtrlShiftBackSlash.farconfig" Guid="$(var.Guid.Panel.CtrlShiftBackSlash.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlShiftBackSlash.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftBackSlash.farconfig" />
           </Component>
-          <Component Id="Panel.CtrlShiftPgUpDn.xml" Guid="$(var.Guid.Panel.CtrlShiftPgUpDn.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlShiftPgUpDn.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftPgUpDn.xml" />
+          <Component Id="Panel.CtrlShiftPgUpDn.farconfig" Guid="$(var.Guid.Panel.CtrlShiftPgUpDn.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlShiftPgUpDn.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftPgUpDn.farconfig" />
           </Component>
-          <Component Id="Panel.Del.xml" Guid="$(var.Guid.Panel.Del.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.Del.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Del.xml" />
+          <Component Id="Panel.Del.farconfig" Guid="$(var.Guid.Panel.Del.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.Del.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Del.farconfig" />
           </Component>
-          <Component Id="Panel.Esc.xml" Guid="$(var.Guid.Panel.Esc.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.Esc.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Esc.xml" />
+          <Component Id="Panel.Esc.farconfig" Guid="$(var.Guid.Panel.Esc.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.Esc.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Esc.farconfig" />
           </Component>
-          <Component Id="Panel.JumpToSelectedFile.xml" Guid="$(var.Guid.Panel.JumpToSelectedFile.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.JumpToSelectedFile.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.JumpToSelectedFile.xml" />
+          <Component Id="Panel.JumpToSelectedFile.farconfig" Guid="$(var.Guid.Panel.JumpToSelectedFile.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.JumpToSelectedFile.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.JumpToSelectedFile.farconfig" />
           </Component>
-          <Component Id="Panel.Lynx_mot.xml" Guid="$(var.Guid.Panel.Lynx_mot.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.Lynx_mot.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Lynx-mot.xml" />
+          <Component Id="Panel.Lynx_mot.farconfig" Guid="$(var.Guid.Panel.Lynx_mot.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.Lynx_mot.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Lynx-mot.farconfig" />
           </Component>
-          <Component Id="Panel.MouseWheelTilt.xml" Guid="$(var.Guid.Panel.MouseWheelTilt.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.MouseWheelTilt.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.MouseWheelTilt.xml" />
+          <Component Id="Panel.MouseWheelTilt.farconfig" Guid="$(var.Guid.Panel.MouseWheelTilt.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.MouseWheelTilt.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.MouseWheelTilt.farconfig" />
           </Component>
-          <Component Id="Panel.Numpad.xml" Guid="$(var.Guid.Panel.Numpad.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.Numpad.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Numpad.xml" />
+          <Component Id="Panel.Numpad.farconfig" Guid="$(var.Guid.Panel.Numpad.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.Numpad.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Numpad.farconfig" />
           </Component>
-          <Component Id="Panel.SelectFromClipboard.xml" Guid="$(var.Guid.Panel.SelectFromClipboard.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.SelectFromClipboard.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SelectFromClipboard.xml" />
+          <Component Id="Panel.SelectFromClipboard.farconfig" Guid="$(var.Guid.Panel.SelectFromClipboard.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.SelectFromClipboard.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SelectFromClipboard.farconfig" />
           </Component>
-          <Component Id="Panel.SpaceToSelect.xml" Guid="$(var.Guid.Panel.SpaceToSelect.xml)" Win64="$(var.Win64)">
-            <File Id="Panel.SpaceToSelect.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SpaceToSelect.xml" />
+          <Component Id="Panel.SpaceToSelect.farconfig" Guid="$(var.Guid.Panel.SpaceToSelect.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.SpaceToSelect.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SpaceToSelect.farconfig" />
           </Component>
-          <Component Id="ShiftBS.xml" Guid="$(var.Guid.ShiftBS.xml)" Win64="$(var.Win64)">
-            <File Id="ShiftBS.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftBS.xml" />
+          <Component Id="ShiftBS.farconfig" Guid="$(var.Guid.ShiftBS.farconfig)" Win64="$(var.Win64)">
+            <File Id="ShiftBS.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftBS.farconfig" />
           </Component>
-          <Component Id="ShiftF1.xml" Guid="$(var.Guid.ShiftF1.xml)" Win64="$(var.Win64)">
-            <File Id="ShiftF1.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftF1.xml" />
+          <Component Id="ShiftF1.farconfig" Guid="$(var.Guid.ShiftF1.farconfig)" Win64="$(var.Win64)">
+            <File Id="ShiftF1.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftF1.farconfig" />
           </Component>
-          <Component Id="ShiftTab.xml" Guid="$(var.Guid.ShiftTab.xml)" Win64="$(var.Win64)">
-            <File Id="ShiftTab.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftTab.xml" />
+          <Component Id="ShiftTab.farconfig" Guid="$(var.Guid.ShiftTab.farconfig)" Win64="$(var.Win64)">
+            <File Id="ShiftTab.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftTab.farconfig" />
           </Component>
-          <Component Id="View.CtrlUpDown.xml" Guid="$(var.Guid.View.CtrlUpDown.xml)" Win64="$(var.Win64)">
-            <File Id="View.CtrlUpDown.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.CtrlUpDown.xml" />
+          <Component Id="View.CtrlUpDown.farconfig" Guid="$(var.Guid.View.CtrlUpDown.farconfig)" Win64="$(var.Win64)">
+            <File Id="View.CtrlUpDown.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.CtrlUpDown.farconfig" />
           </Component>
-          <Component Id="View.NextPrevFile.xml" Guid="$(var.Guid.View.NextPrevFile.xml)" Win64="$(var.Win64)">
-            <File Id="View.NextPrevFile.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.NextPrevFile.xml" />
+          <Component Id="View.NextPrevFile.farconfig" Guid="$(var.Guid.View.NextPrevFile.farconfig)" Win64="$(var.Win64)">
+            <File Id="View.NextPrevFile.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.NextPrevFile.farconfig" />
           </Component>
-          <Component Id="View.PgDn.xml" Guid="$(var.Guid.View.PgDn.xml)" Win64="$(var.Win64)">
-            <File Id="View.PgDn.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.PgDn.xml" />
+          <Component Id="View.PgDn.farconfig" Guid="$(var.Guid.View.PgDn.farconfig)" Win64="$(var.Win64)">
+            <File Id="View.PgDn.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.PgDn.farconfig" />
           </Component>
-          <Component Id="View.ShiftInsSearch.xml" Guid="$(var.Guid.View.ShiftInsSearch.xml)" Win64="$(var.Win64)">
-            <File Id="View.ShiftInsSearch.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.ShiftInsSearch.xml" />
+          <Component Id="View.ShiftInsSearch.farconfig" Guid="$(var.Guid.View.ShiftInsSearch.farconfig)" Win64="$(var.Win64)">
+            <File Id="View.ShiftInsSearch.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.ShiftInsSearch.farconfig" />
           </Component>
-          <Component Id="View.Space.xml" Guid="$(var.Guid.View.Space.xml)" Win64="$(var.Win64)">
-            <File Id="View.Space.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.Space.xml" />
+          <Component Id="View.Space.farconfig" Guid="$(var.Guid.View.Space.farconfig)" Win64="$(var.Win64)">
+            <File Id="View.Space.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.Space.farconfig" />
           </Component>
-          <Component Id="WheelScreenSwitch.xml" Guid="$(var.Guid.WheelScreenSwitch.xml)" Win64="$(var.Win64)">
-            <File Id="WheelScreenSwitch.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\WheelScreenSwitch.xml" />
+          <Component Id="WheelScreenSwitch.farconfig" Guid="$(var.Guid.WheelScreenSwitch.farconfig)" Win64="$(var.Win64)">
+            <File Id="WheelScreenSwitch.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\WheelScreenSwitch.farconfig" />
           </Component>
         </Directory>
         <Directory Id="SetUp" Name="SetUp">
-          <Component Id="Default165.xml" Guid="$(var.Guid.Default165.xml)" Win64="$(var.Win64)">
-            <File Id="Default165.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Default165.xml" />
+          <Component Id="Default165.farconfig" Guid="$(var.Guid.Default165.farconfig)" Win64="$(var.Win64)">
+            <File Id="Default165.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Default165.farconfig" />
           </Component>
           <Component Id="Descript.ion_7" Guid="$(var.Guid.Descript.ion_7)" Win64="$(var.Win64)">
             <File Id="Descript.ion_7" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Descript.ion" />
           </Component>
-          <Component Id="Executor.4NT.xml" Guid="$(var.Guid.Executor.4NT.xml)" Win64="$(var.Win64)">
-            <File Id="Executor.4NT.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.4NT.xml" />
+          <Component Id="Executor.4NT.farconfig" Guid="$(var.Guid.Executor.4NT.farconfig)" Win64="$(var.Win64)">
+            <File Id="Executor.4NT.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.4NT.farconfig" />
           </Component>
-          <Component Id="Executor.CMD.xml" Guid="$(var.Guid.Executor.CMD.xml)" Win64="$(var.Win64)">
-            <File Id="Executor.CMD.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.CMD.xml" />
+          <Component Id="Executor.CMD.farconfig" Guid="$(var.Guid.Executor.CMD.farconfig)" Win64="$(var.Win64)">
+            <File Id="Executor.CMD.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.CMD.farconfig" />
           </Component>
-          <Component Id="Executor.COMMAND.xml" Guid="$(var.Guid.Executor.COMMAND.xml)" Win64="$(var.Win64)">
-            <File Id="Executor.COMMAND.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.COMMAND.xml" />
+          <Component Id="Executor.COMMAND.farconfig" Guid="$(var.Guid.Executor.COMMAND.farconfig)" Win64="$(var.Win64)">
+            <File Id="Executor.COMMAND.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\Executor.COMMAND.farconfig" />
           </Component>
-          <Component Id="WindowsGUI.xml" Guid="$(var.Guid.WindowsGUI.xml)" Win64="$(var.Win64)">
-            <File Id="WindowsGUI.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\WindowsGUI.xml" />
+          <Component Id="WindowsGUI.farconfig" Guid="$(var.Guid.WindowsGUI.farconfig)" Win64="$(var.Win64)">
+            <File Id="WindowsGUI.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\SetUp\WindowsGUI.farconfig" />
           </Component>
         </Directory>
         <Directory Id="Shell" Name="Shell">
@@ -318,23 +318,23 @@
             <File Id="Descript.ion_15" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Descript.ion" />
           </Component>
           <Directory Id="Russian" Name="Russian">
-            <Component Id="AltR.xml" Guid="$(var.Guid.AltR.xml)" Win64="$(var.Win64)">
-              <File Id="AltR.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\AltR.xml" />
+            <Component Id="AltR.farconfig" Guid="$(var.Guid.AltR.farconfig)" Win64="$(var.Win64)">
+              <File Id="AltR.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\AltR.farconfig" />
             </Component>
-            <Component Id="Apps.xml_1" Guid="$(var.Guid.Apps.xml_1)" Win64="$(var.Win64)">
-              <File Id="Apps.xml_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Apps.xml" />
+            <Component Id="Apps.farconfig_1" Guid="$(var.Guid.Apps.farconfig_1)" Win64="$(var.Win64)">
+              <File Id="Apps.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Apps.farconfig" />
             </Component>
-            <Component Id="CtrlR.xml" Guid="$(var.Guid.CtrlR.xml)" Win64="$(var.Win64)">
-              <File Id="CtrlR.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlR.xml" />
+            <Component Id="CtrlR.farconfig" Guid="$(var.Guid.CtrlR.farconfig)" Win64="$(var.Win64)">
+              <File Id="CtrlR.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlR.farconfig" />
             </Component>
-            <Component Id="CtrlShiftX.xml" Guid="$(var.Guid.CtrlShiftX.xml)" Win64="$(var.Win64)">
-              <File Id="CtrlShiftX.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlShiftX.xml" />
+            <Component Id="CtrlShiftX.farconfig" Guid="$(var.Guid.CtrlShiftX.farconfig)" Win64="$(var.Win64)">
+              <File Id="CtrlShiftX.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlShiftX.farconfig" />
             </Component>
             <Component Id="Descript.ion_16" Guid="$(var.Guid.Descript.ion_16)" Win64="$(var.Win64)">
               <File Id="Descript.ion_16" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Descript.ion" />
             </Component>
-            <Component Id="Qwerty.xml" Guid="$(var.Guid.Qwerty.xml)" Win64="$(var.Win64)">
-              <File Id="Qwerty.xml" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Qwerty.xml" />
+            <Component Id="Qwerty.farconfig" Guid="$(var.Guid.Qwerty.farconfig)" Win64="$(var.Win64)">
+              <File Id="Qwerty.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Qwerty.farconfig" />
             </Component>
           </Directory>
         </Directory>
@@ -389,8 +389,8 @@
         <Component Id="FExcept.dll" Guid="$(var.Guid.FExcept.dll)" Win64="$(var.Win64)">
           <File Id="FExcept.dll" KeyPath="yes" Source="$(var.SourceDir)\FExcept\FExcept.dll" />
         </Component>
-        <Component Id="SetFarExceptionHandler.xml" Guid="$(var.Guid.SetFarExceptionHandler.xml)" Win64="$(var.Win64)">
-          <File Id="SetFarExceptionHandler.xml" KeyPath="yes" Source="$(var.SourceDir)\FExcept\SetFarExceptionHandler.xml" />
+        <Component Id="SetFarExceptionHandler.farconfig" Guid="$(var.Guid.SetFarExceptionHandler.farconfig)" Win64="$(var.Win64)">
+          <File Id="SetFarExceptionHandler.farconfig" KeyPath="yes" Source="$(var.SourceDir)\FExcept\SetFarExceptionHandler.farconfig" />
         </Component>
       </Directory>
 <?endif?>
@@ -483,8 +483,8 @@
           <Component Id="BrackEng.lng" Guid="$(var.Guid.BrackEng.lng)" Win64="$(var.Win64)">
             <File Id="BrackEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.lng" />
           </Component>
-          <Component Id="BrackEng.xml" Guid="$(var.Guid.BrackEng.xml)" Win64="$(var.Win64)">
-            <File Id="BrackEng.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.xml" />
+          <Component Id="BrackEng.farconfig" Guid="$(var.Guid.BrackEng.farconfig)" Win64="$(var.Win64)">
+            <File Id="BrackEng.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.farconfig" />
           </Component>
           <Component Id="Brackets.dll" Guid="$(var.Guid.Brackets.dll)" Win64="$(var.Win64)">
             <File Id="Brackets.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Brackets.dll" />
@@ -500,8 +500,8 @@
           <Component Id="BrackRus.lng" Guid="$(var.Guid.BrackRus.lng)" Win64="$(var.Win64)">
             <File Id="BrackRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.lng" />
           </Component>
-          <Component Id="BrackRus.xml" Guid="$(var.Guid.BrackRus.xml)" Win64="$(var.Win64)">
-            <File Id="BrackRus.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.xml" />
+          <Component Id="BrackRus.farconfig" Guid="$(var.Guid.BrackRus.farconfig)" Win64="$(var.Win64)">
+            <File Id="BrackRus.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.farconfig" />
           </Component>
           <Component Id="changelog_4" Guid="$(var.Guid.changelog_4)" Win64="$(var.Win64)">
             <File Id="changelog_4" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\changelog" />
@@ -606,14 +606,14 @@
           <Component Id="EMenuRus.lng" Guid="$(var.Guid.EMenuRus.lng)" Win64="$(var.Win64)">
             <File Id="EMenuRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuRus.lng" />
           </Component>
-          <Component Id="Hotkey.xml" Guid="$(var.Guid.Hotkey.xml)" Win64="$(var.Win64)">
-            <File Id="Hotkey.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\Hotkey.xml" />
+          <Component Id="Hotkey.farconfig" Guid="$(var.Guid.Hotkey.farconfig)" Win64="$(var.Win64)">
+            <File Id="Hotkey.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\Hotkey.farconfig" />
           </Component>
-          <Component Id="HotkeyClipboard.xml" Guid="$(var.Guid.HotkeyClipboard.xml)" Win64="$(var.Win64)">
-            <File Id="HotkeyClipboard.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyClipboard.xml" />
+          <Component Id="HotkeyClipboard.farconfig" Guid="$(var.Guid.HotkeyClipboard.farconfig)" Win64="$(var.Win64)">
+            <File Id="HotkeyClipboard.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyClipboard.farconfig" />
           </Component>
-          <Component Id="HotkeyProperties.xml" Guid="$(var.Guid.HotkeyProperties.xml)" Win64="$(var.Win64)">
-            <File Id="HotkeyProperties.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyProperties.xml" />
+          <Component Id="HotkeyProperties.farconfig" Guid="$(var.Guid.HotkeyProperties.farconfig)" Win64="$(var.Win64)">
+            <File Id="HotkeyProperties.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyProperties.farconfig" />
           </Component>
         </Directory>
         <Directory Id="FarCmds" Name="FarCmds">
@@ -822,14 +822,14 @@
           <Component Id="disks.rus.temp" Guid="$(var.Guid.disks.rus.temp)" Win64="$(var.Win64)">
             <File Id="disks.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\disks.rus.temp" />
           </Component>
-          <Component Id="shortcuts.eng.xml" Guid="$(var.Guid.shortcuts.eng.xml)" Win64="$(var.Win64)">
-            <File Id="shortcuts.eng.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.xml" />
+          <Component Id="shortcuts.eng.farconfig" Guid="$(var.Guid.shortcuts.eng.farconfig)" Win64="$(var.Win64)">
+            <File Id="shortcuts.eng.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.farconfig" />
           </Component>
           <Component Id="shortcuts.eng.temp" Guid="$(var.Guid.shortcuts.eng.temp)" Win64="$(var.Win64)">
             <File Id="shortcuts.eng.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.temp" />
           </Component>
-          <Component Id="shortcuts.rus.xml" Guid="$(var.Guid.shortcuts.rus.xml)" Win64="$(var.Win64)">
-            <File Id="shortcuts.rus.xml" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.xml" />
+          <Component Id="shortcuts.rus.farconfig" Guid="$(var.Guid.shortcuts.rus.farconfig)" Win64="$(var.Win64)">
+            <File Id="shortcuts.rus.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.farconfig" />
           </Component>
           <Component Id="shortcuts.rus.temp" Guid="$(var.Guid.shortcuts.rus.temp)" Win64="$(var.Win64)">
             <File Id="shortcuts.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.temp" />
