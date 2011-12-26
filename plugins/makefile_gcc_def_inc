@@ -58,7 +58,12 @@ EXT = dll
 endif
 DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
+ifeq ($(DIRBIT),32)
 DEF = $(NAME)$(DIRSURF).gcc.def
+else
+#for x64 vc.def is good enough
+DEF = $(NAME)$(DIRSURF).vc.def
+endif
 RC_NAME = $(NAME).rc
 RES = $(OBJDIR)/$(NAME).res.o
 

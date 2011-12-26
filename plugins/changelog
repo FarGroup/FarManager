@@ -1,3 +1,7 @@
+t-rex 26.12.2011 19:35:10 +0200
+
+1. use correct def for GCC x64
+
 t-rex 25.12.2011 22:06:45 +0200
 
 1. asm compilation for VC.
