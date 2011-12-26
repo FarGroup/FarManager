@@ -1,6 +1,6 @@
 Descript.ion File descriptions
 Default165.farconfig Default options (FAR 1.65)
 WindowsGUI.farconfig Windows GUI like behaviour for FAR
-Executor.4NT.farconfig Windows GUI like behaviour for FAR
-Executor.CMD.farconfig Windows GUI like behaviour for FAR
-Executor.COMMAND.farconfig Windows GUI like behaviour for FAR
+Executor.4NT.farconfig ExcludeCmds (TI#54) for 4nt.exe
+Executor.CMD.farconfig ExcludeCmds (TI#54) for cmd.exe (NT)
+Executor.COMMAND.farconfig ExcludeCmds (TI#54) for command.com (Win9x/ME)
