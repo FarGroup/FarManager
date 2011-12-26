@@ -179,7 +179,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 	if (Flags&1)
 	{
 		string strOut(Version);
-		strOut.Append(L"\n").Append(Copyright).Append(L"\n"); 
+		strOut.Append(L"\n").Append(Copyright).Append(L"\n");
 		Console.Write(strOut,strOut.GetLength());
 		Console.Commit();
 	}

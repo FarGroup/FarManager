@@ -2204,18 +2204,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	const wchar_t *NamePtr=PointToName(strDestPath);
 	DWORD DestAttr=INVALID_FILE_ATTRIBUTES;
 
-	if (strDestPath.At(0)==L'\\' && strDestPath.At(1)==L'\\')
-	{
-		string strRoot;
-		GetPathRoot(strDestPath, strRoot);
-		DeleteEndSlash(strRoot);
-
-		if (!StrCmp(strDestPath,strRoot))
-			DestAttr=FILE_ATTRIBUTE_DIRECTORY;
-	}
-
 	if (!*NamePtr || TestParentFolderName(NamePtr))
-		DestAttr=FILE_ATTRIBUTE_DIRECTORY;
+	{
+		AddEndSlash(strDestPath);
+		strDestPath+=Src;
+	}
 
 	FAR_FIND_DATA_EX DestData={};
 	if (DestAttr==INVALID_FILE_ATTRIBUTES && !(Flags&FCOPY_COPYTONUL))
@@ -2226,7 +2219,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	int SameName=0, Append=0;
 
-	if (DestAttr!=INVALID_FILE_ATTRIBUTES && (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
+	if (DestAttr!=INVALID_FILE_ATTRIBUTES && DestAttr&FILE_ATTRIBUTE_DIRECTORY && SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 	{
 		int CmpCode=CmpFullNames(Src,strDestPath);
 

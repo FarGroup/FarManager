@@ -376,7 +376,7 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
 		{
 			AssocConfig->GetDescription(id,strTitle);
 
-			int AddLen=strTitle.GetLength() - HiStrlen(strTitle);
+			size_t AddLen=strTitle.GetLength() - HiStrlen(strTitle);
 
 			strMenuText.Format(L"%-*.*s %c ",DizWidth+AddLen,DizWidth+AddLen,strTitle.CPtr(),BoxSymbols[BS_V1]);
 		}

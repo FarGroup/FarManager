@@ -11970,8 +11970,8 @@ MChangeCouldNotEjectHotPlugMedia2
 "No se puede remover el dispositivo:"
 
 MChangeHotPlugNotify1
-"Теперь устройство" 
-"The device" 
+"Теперь устройство"
+"The device"
 "Zařízení"
 "Das Gerät"
 "Az eszköz:"

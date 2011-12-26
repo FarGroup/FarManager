@@ -109,7 +109,7 @@ class FileFilterParams
 		{
 			bool Used;
 			DWORD CountAbove;
-			DWORD CountBelow; 
+			DWORD CountBelow;
 		} FHardLinks;
 
 		struct

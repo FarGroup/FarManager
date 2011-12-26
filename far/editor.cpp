@@ -851,7 +851,7 @@ int Editor::ProcessKey(int Key)
 	int ick = (Key==KEY_CTRLC || Key==KEY_RCTRLC || Key==KEY_CTRLINS || Key==KEY_CTRLNUMPAD0 || Key==KEY_RCTRLINS || Key==KEY_RCTRLNUMPAD0);
 	int imk = ((unsigned int)Key >= KEY_MACRO_BASE && (unsigned int)Key <= KEY_MACRO_ENDBASE);
 	int ipk = ((unsigned int)Key >= KEY_OP_BASE && (unsigned int)Key <= KEY_OP_ENDBASE);
-  
+
 	_SVS(SysLog(L"[%d] isk=%d",__LINE__,isk));
 
 	//if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
@@ -2757,7 +2757,7 @@ int Editor::ProcessKey(int Key)
 					return TRUE;
 				}
 
-				if (((!EdOpt.CursorBeyondEOL && (Key==KEY_RIGHT || Key==KEY_NUMPAD6)) 
+				if (((!EdOpt.CursorBeyondEOL && (Key==KEY_RIGHT || Key==KEY_NUMPAD6))
 					|| Key==KEY_CTRLRIGHT || Key==KEY_RCTRLRIGHT || Key==KEY_CTRLNUMPAD6 || Key==KEY_RCTRLNUMPAD6) &&
 				        CurLine->GetCurPos()>=CurLine->GetLength() &&
 				        CurLine->m_next)

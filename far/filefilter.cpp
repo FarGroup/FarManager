@@ -683,7 +683,7 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX& fde,enumFileInFilterType *
 				bAnyFolderIncludeFound = true;
 			}
 
-			if (bFolder && FoldersFilter.FileInFilter(fde, CurrentTime, FullName)) 
+			if (bFolder && FoldersFilter.FileInFilter(fde, CurrentTime, FullName))
 			{
 				bFound = true;
 
@@ -711,7 +711,7 @@ bool FileFilter::FileInFilter(const FAR_FIND_DATA_EX& fde,enumFileInFilterType *
 			if (bFolder) //авто-фильтры никогда не могут быть для папок
 				continue;
 
-			if (CurFilterData->FileInFilter(fde, CurrentTime, FullName)) 
+			if (CurFilterData->FileInFilter(fde, CurrentTime, FullName))
 			{
 				bFound = true;
 

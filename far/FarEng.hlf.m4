@@ -215,17 +215,17 @@ and it is not recommended to specify it during normal operation.
 
   #/clearcache [profilepath]#
   Очистить кэш плагинов и завершить работу.
-  Необязательный параметр profilepath задает полный путь к конфигурационным файлам. 
+  Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
 
   #/export <out.farconfig> [profilepath]#
   Экспортировать все настройки в файл out.farconfig и завершить работу.
-  Необязательный параметр profilepath задает полный путь к конфигурационным файлам. 
+  Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
 
   #/import <in.farconfig> [profilepath]#
   Импортировать все настройки из файла in.farconfig и завершить работу.
-  Необязательный параметр profilepath задает полный путь к конфигурационным файлам. 
+  Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
 
   It is possible to specify at most two paths (to folders, files or archives) or
@@ -1112,8 +1112,8 @@ for viewing the folder description file.
 
 @InfoPanelShowMode
 $ #Режимы отображения информационной панели#
-    Меню режимов отображения ~информационной панели~@InfoPanel@ вызывается комбинацией #Ctrl-F12# 
-и применяется для активной в данный момент информационной панели. Доступны следующие режимы 
+    Меню режимов отображения ~информационной панели~@InfoPanel@ вызывается комбинацией #Ctrl-F12#
+и применяется для активной в данный момент информационной панели. Доступны следующие режимы
 отображения:
 
   информация о диске
@@ -1192,7 +1192,7 @@ $ #Настройка информационной панели#
 
   #Показывать состояние питания#
 
-    Если опция включена, то в ~информационной панели~@InfoPanel@ будет выводится 
+    Если опция включена, то в ~информационной панели~@InfoPanel@ будет выводится
 секция, описывающая состояние системы питания.
 
 @QViewPanel
@@ -1834,9 +1834,9 @@ rule sets.
 
    #Has more than one hardlink#
 
-                   Used only on disks with NTFS file system. Condition 
-                   evaluates to true, if piece of data, which current 
-                   file is pointing, is also pointed by, at least, 
+                   Used only on disks with NTFS file system. Condition
+                   evaluates to true, if piece of data, which current
+                   file is pointing, is also pointed by, at least,
                    one another file.
 
 

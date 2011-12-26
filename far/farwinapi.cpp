@@ -200,7 +200,7 @@ FindFile::FindFile(const string& Object, bool ScanSymLink):
 	empty(false)
 {
 	NTPath strName(Object);
-
+	DeleteEndSlash(strName);
 	// temporary disable elevation to try "real" name first
 	{
 		DisableElevation DE;
