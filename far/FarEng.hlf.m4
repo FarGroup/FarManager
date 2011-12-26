@@ -218,13 +218,13 @@ and it is not recommended to specify it during normal operation.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам. 
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
 
-  #/export <out.xml> [profilepath]#
-  Экспортировать все настройки в файл out.xml и завершить работу.
+  #/export <out.farconfig> [profilepath]#
+  Экспортировать все настройки в файл out.farconfig и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам. 
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
 
-  #/import <in.xml> [profilepath]#
-  Импортировать все настройки из файла in.xml и завершить работу.
+  #/import <in.farconfig> [profilepath]#
+  Импортировать все настройки из файла in.farconfig и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам. 
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
 
