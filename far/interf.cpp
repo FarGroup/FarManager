@@ -1168,7 +1168,7 @@ int HiStrlen(const wchar_t *Str)
 				if (Count&1) //нечёт?
 				{
 					if (Hi)
-						Length+=+1;
+						Length++;
 					else
 						Hi=true;
 				}

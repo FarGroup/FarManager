@@ -126,9 +126,6 @@ int GetDescriptionWidth(const string* Name=nullptr,const string* ShortName=nullp
 			Width=CurWidth;
 	}
 
-	if (Width>ScrX/2)
-		Width=ScrX/2;
-
 	return Width;
 }
 
@@ -153,7 +150,6 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode
 	TypesMenu.SetHelp(L"FileAssoc");
 	TypesMenu.SetFlags(VMENU_WRAPMODE);
 	TypesMenu.SetPosition(-1,-1,0,0);
-	int DizWidth=GetDescriptionWidth(&Name, &ShortName);
 	int ActualCmdCount=0; // отображаемых ассоциаций в меню
 	CFileMask FMask; // для работы с масками файлов
 	string strCommand, strDescription, strMask;
@@ -191,30 +187,13 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode
 			continue;
 
 		ActualCmdCount++;
-		string strMenuText;
 
-		if (DizWidth)
-		{
-			string strTitle;
+		if (!strDescription.IsEmpty())
+			SubstFileName(strDescription, Name, ShortName, nullptr, nullptr, nullptr, nullptr, TRUE);
+		else
+			strDescription = strCommandText;
 
-			if (!strDescription.IsEmpty())
-			{
-				strTitle = strDescription;
-				SubstFileName(strTitle, Name, ShortName, nullptr, nullptr, nullptr, nullptr, TRUE);
-			}
-
-			size_t Pos=0;
-			int Ampersand=strTitle.Pos(Pos,L'&')?1:0;
-
-			if (DizWidth+Ampersand>ScrX/2 && Ampersand && static_cast<int>(Pos)>DizWidth)
-				Ampersand=false;
-
-			strMenuText.Format(L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,strTitle.CPtr(),BoxSymbols[BS_V1]);
-		}
-
-		TruncStr(strCommandText,ScrX-DizWidth-14);
-		strMenuText += strCommandText;
-		TypesMenuItem.strName = strMenuText;
+		TypesMenuItem.strName = strDescription;
 		TypesMenuItem.SetSelect(Index==1);
 		TypesMenu.SetUserData(strCommand.CPtr(), (strCommand.GetLength()+1)*sizeof(wchar_t), TypesMenu.AddItem(&TypesMenuItem));
 	}
@@ -396,16 +375,12 @@ static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
 		if (DizWidth)
 		{
 			AssocConfig->GetDescription(id,strTitle);
-			size_t Pos=0;
-			int Ampersand=strTitle.Pos(Pos,L'&')?1:0;
 
-			if (DizWidth+Ampersand > ScrX/2 && Ampersand && static_cast<int>(Pos) > DizWidth)
-				Ampersand=false;
+			int AddLen=strTitle.GetLength() - HiStrlen(strTitle);
 
-			strMenuText.Format(L"%-*.*s %c ",DizWidth+Ampersand,DizWidth+Ampersand,strTitle.CPtr(),BoxSymbols[BS_V1]);
+			strMenuText.Format(L"%-*.*s %c ",DizWidth+AddLen,DizWidth+AddLen,strTitle.CPtr(),BoxSymbols[BS_V1]);
 		}
 
-		//TruncStr(strMask,ScrX-DizWidth-14);
 		strMenuText += strMask;
 		TypesMenuItem.strName = strMenuText;
 		TypesMenuItem.SetSelect((int)(Index-1)==MenuPos);

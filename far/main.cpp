@@ -105,9 +105,9 @@ static void show_help()
 	    L" /x   Disable exception handling.\n"
 	    L" /clearcache [profilepath]\n"
 	    L"      Clear plugins cache.\n"
-	    L" /export <out.xml> [profilepath]\n"
+	    L" /export <out.farconfig> [profilepath]\n"
 	    L"      Export settings.\n"
-	    L" /import <in.xml> [profilepath]\n"
+	    L" /import <in.farconfig> [profilepath]\n"
 	    L"      Import settings.\n"
 #ifdef _DEBUGEXC
 	    L" /xd  Enable exception handling.\n"
