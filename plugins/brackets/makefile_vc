@@ -4,7 +4,7 @@
 
 NAME = Brackets
 LINK_OBJS = $(OBJDIR)\Brackets.obj
-DOCS = BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackEng.xml BrackRus.xml
+DOCS = BrackEng.hlf BrackRus.hlf BrackEng.lng BrackRus.lng BrackEng.farconfig BrackRus.farconfig
 
 !include ..\makefile_vc_def_inc
 
