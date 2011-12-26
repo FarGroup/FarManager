@@ -2,7 +2,7 @@
 <farconfig>
     <generalconfig>
     	<!-- Windows GUI like behaviour for FAR: ExcludeCmds (TI#54) for cmd.exe (NT) -->
-        <setting key="Executor" name="Type" type="qword" value="0000000000000001" />
-        <setting key="Executor" name="ExcludeCmds" type="text" value="ASSOC;BREAK;CALL;COLOR;COPY;DATE;DEL;DIR;ECHO;ENDLOCAL;ERASE;ERRORLEVEL;EXIST;EXIT;FOR;FTYPE;GOTO;IF;LABEL;MD;MKDIR;MOVE;NOT;PATH;PAUSE;POPD;PROMPT;PUSHD;RD;REN;RENAME;RMDIR;SET;SETLOCAL;SHIFT;START;TIME;TITLE;TYPE;VER;VERIFY;VOL" />
+        <setting key="System.Executor" name="Type" type="qword" value="0000000000000001" />
+        <setting key="System.Executor" name="ExcludeCmds" type="text" value="ASSOC;BREAK;CALL;COLOR;COPY;DATE;DEL;DIR;ECHO;ENDLOCAL;ERASE;ERRORLEVEL;EXIST;EXIT;FOR;FTYPE;GOTO;IF;LABEL;MD;MKDIR;MOVE;NOT;PATH;PAUSE;POPD;PROMPT;PUSHD;RD;REN;RENAME;RMDIR;SET;SETLOCAL;SHIFT;START;TIME;TITLE;TYPE;VER;VERIFY;VOL" />
     </generalconfig>
 </farconfig>
