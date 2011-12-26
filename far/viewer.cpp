@@ -521,9 +521,16 @@ void Viewer::ShowPage(int nMode)
 				ViewerString *tmp = Strings[Y2-Y1];
 				memmove(&Strings[1], &Strings[0], sizeof(Strings[0]) * (Y2-Y1));
 				Strings[0] = tmp;
+
+				Strings[0]->nFilePos = FilePos;
+				SecondPos = Strings[1]->nFilePos;
 			}
-			Strings[0]->nFilePos = FilePos;
-			SecondPos = Strings[1]->nFilePos;
+			else
+			{
+				SecondPos = Strings[0]->nFilePos;
+				Strings[0]->nFilePos = FilePos;
+			}
+
 			ReadString(Strings[0],(int)(SecondPos-FilePos));
 			break;
 		case SHOW_DOWN:
@@ -532,10 +539,17 @@ void Viewer::ShowPage(int nMode)
 				ViewerString *tmp = Strings[0];
 				memmove(&Strings[0], &Strings[1], sizeof(Strings[0]) * (Y2-Y1));
 				Strings[Y2-Y1] = tmp;
+
+				FilePos = Strings[0]->nFilePos;
+				SecondPos = Strings[1]->nFilePos;
+				Strings[Y2-Y1]->nFilePos = Strings[Y2-Y1-1]->nFilePos + Strings[Y2-Y1-1]->linesize;
 			}
-			FilePos = Strings[0]->nFilePos;
-			SecondPos = Strings[1]->nFilePos;
-			Strings[Y2-Y1]->nFilePos = Strings[Y2-Y1-1]->nFilePos + Strings[Y2-Y1-1]->linesize;
+			else
+			{
+				Strings[0]->nFilePos += Strings[0]->linesize;
+				FilePos = Strings[0]->nFilePos;
+				SecondPos = FilePos;
+			}
 			vseek(Strings[Y2-Y1]->nFilePos, SEEK_SET);
 			ReadString(Strings[Y2-Y1],-1);
 			break;

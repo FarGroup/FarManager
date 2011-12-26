@@ -519,7 +519,7 @@ void InfoList::DisplayObject()
 		{
 			if (ShowDirDescription(CurY))
 			{
-				DizView->SetPosition(X1+1,CurY+1,X2-1,Y2-2);
+				DizView->SetPosition(X1+1,CurY,X2-1,Y2-1);
 				if (CurY < Y2)
 					CurY=Y2-1;
 			}
