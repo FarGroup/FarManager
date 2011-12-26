@@ -72,7 +72,11 @@ ifdef NEEDDEFLIB
 NODEFLIBS = 
 endif
 
+ifeq ($(DIRBIT),32)
 COMMONLIB = -L $(COMMON) -lCRT
+else
+COMMONLIB = -L $(COMMON) -lCRT64
+endif
 ifdef EXCLUDECRT
 COMMONLIB = 
 endif

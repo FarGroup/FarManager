@@ -1,3 +1,7 @@
+t-rex 26.12.2011 19:11:26 +0200
+
+1. GCC: разное имя для libCRT под x86 и x64.
+
 drkns 05.12.2011 13:31:54 +0200
 
 1. Mantis#0001934: CRT implementation of strncpy/wcsncpy overruns target buffer, resulting in app crash

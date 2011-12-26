@@ -5,6 +5,9 @@ OBJDIRW = $(OBJDIR)/w
 REOBJDIR = \.\/obj\.$(DIRBIT)\.gcc\/
 DLLDIR = ..
 DLLNAME = libCRT.a
+ifeq ($(DIRBIT),64)
+DLLNAME = libCRT64.a
+endif
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 SRCS = memchr.cpp \
 memset.cpp \
