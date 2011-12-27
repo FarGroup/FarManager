@@ -172,7 +172,7 @@ struct MacroState
 	int MacroPC;
 	int ExecLIBPos;
 	int MacroWORKCount;
-	DWORD HistroyEnable;
+	DWORD HistoryDisable;
 	bool UseInternalClipboard;
 	bool AllocVarTable;
 
@@ -330,9 +330,9 @@ class KeyMacro
 		// проверить флаги текущего исполняемого макроса.
 		BOOL CheckCurMacroFlags(DWORD Flags);
 
-		bool IsHistroyEnable(int TypeHistory);
-		DWORD SetHistroyEnableMask(DWORD Mask);
-		DWORD GetHistroyEnableMask();
+		bool IsHistoryDisable(int TypeHistory);
+		DWORD SetHistoryDisableMask(DWORD Mask);
+		DWORD GetHistoryDisableMask();
 
 		static const wchar_t* GetAreaName(int AreaCode);
 		static int   GetAreaCode(const wchar_t *AreaName);

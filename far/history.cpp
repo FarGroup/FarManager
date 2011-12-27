@@ -94,7 +94,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 	if (!EnableAdd || !*EnableSave || SaveForbid)
 		return;
 
-	if (CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsHistroyEnable((int)TypeHistory))
+	if (CtrlObject->Macro.IsExecuting() && CtrlObject->Macro.IsHistoryDisable((int)TypeHistory))
 		return;
 
 	if ((Type!=HISTORYTYPE_FOLDER || !Guid || IsEqualGUID(FarGuid,*Guid)) && (!Str || !*Str))

@@ -483,7 +483,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"FMATCH",           nullptr, L"N=FMatch(S,Mask)",                                          fmatchFunc,         nullptr, 0, 0,                                      MCODE_F_FMATCH,           2, 0},
 	{L"FSPLIT",           nullptr, L"S=FSplit(S,N)",                                             fsplitFunc,         nullptr, 0, 0,                                      MCODE_F_FSPLIT,           2, 0},
 	{L"GETHOTKEY",        nullptr, L"S=GetHotkey([N])",                                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_GETHOTKEY,   1, 1},
-	{L"HISTORY.ENABLE",   nullptr, L"N=History.Enable([State])",                                 usersFunc,          nullptr, 0, 0,                                      MCODE_F_HISTIORY_ENABLE,  1, 1},
+	{L"HISTORY.DISABLE",  nullptr, L"N=History.Disable([State])",                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_HISTIORY_DISABLE, 1, 1},
 	{L"IIF",              nullptr, L"V=Iif(Condition,V1,V2)",                                    iifFunc,            nullptr, 0, 0,                                      MCODE_F_IIF,              3, 0},
 	{L"INDEX",            nullptr, L"S=Index(S1,S2[,Mode])",                                     indexFunc,          nullptr, 0, 0,                                      MCODE_F_INDEX,            3, 1},
 	{L"INT",              nullptr, L"N=Int(V)",                                                  intFunc,            nullptr, 0, 0,                                      MCODE_F_INT,              1, 0},
@@ -724,7 +724,7 @@ void KeyMacro::InitInternalVars(BOOL InitedRAM)
 		Work.Executing=MACROMODE_NOMACRO;
 	}
 
-	Work.HistroyEnable=0;
+	Work.HistoryDisable=0;
 	RecBuffer=nullptr;
 	RecBufferSize=0;
 	RecSrc=nullptr;
@@ -1079,7 +1079,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				}
 
 				// различаем общий режим (с передачей плагину кеев) или специальный (без передачи клавиш плагину)
-				Work.HistroyEnable=0;
+				Work.HistoryDisable=0;
 				Work.ExecLIBPos=0;
 				PostNewMacro(MacroLIB+I);
 				//Work.cRec=*FrameManager->GetLastInputRecord();
@@ -2578,10 +2578,10 @@ static bool promptFunc(const TMacroFunction*)
 
 	string strDest;
 
-	DWORD oldHistroyEnable=CtrlObject->Macro.GetHistroyEnableMask();
+	DWORD oldHistoryDisable=CtrlObject->Macro.GetHistoryDisableMask();
 
 	if (history && *history) // Mantis#0001743: Возможность отключения истории
-		CtrlObject->Macro.SetHistroyEnableMask(8); // если указан history, то принудительно выставляем историю для ЭТОГО prompt()
+		CtrlObject->Macro.SetHistoryDisableMask(8); // если указан history, то принудительно выставляем историю для ЭТОГО prompt()
 
 	if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
 	{
@@ -2592,7 +2592,7 @@ static bool promptFunc(const TMacroFunction*)
 	else
 		Result=0;
 
-	CtrlObject->Macro.SetHistroyEnableMask(oldHistroyEnable);
+	CtrlObject->Macro.SetHistoryDisableMask(oldHistoryDisable);
 
 	VMStack.Push(Result);
 	return Ret;
@@ -4879,7 +4879,7 @@ done:
 		}
 
 		ScrBuf.RestoreMacroChar();
-		Work.HistroyEnable=0;
+		Work.HistoryDisable=0;
 
 		StopMacro=false;
 
@@ -5015,16 +5015,16 @@ done:
 			goto begin;
 		}
 
-		case MCODE_F_HISTIORY_ENABLE: // N=History.Enable([State])
+		case MCODE_F_HISTIORY_DISABLE: // N=History.Disable([State])
 		{
 			TVar State; VMStack.Pop(State);
 
-			DWORD oldHistroyEnable=Work.HistroyEnable;
+			DWORD oldHistoryDisable=Work.HistoryDisable;
 
 			if (!State.isUnknown())
-				Work.HistroyEnable=(DWORD)State.getInteger();
+				Work.HistoryDisable=(DWORD)State.getInteger();
 
-			VMStack.Push((__int64)oldHistroyEnable);
+			VMStack.Push((__int64)oldHistoryDisable);
 			goto begin;
 		}
 
@@ -7271,7 +7271,7 @@ int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL 
 void MacroState::Init(TVarTable *tbl)
 {
 	KeyProcess=Executing=MacroPC=ExecLIBPos=MacroWORKCount=0;
-	HistroyEnable=0;
+	HistoryDisable=0;
 	MacroWORK=nullptr;
 
 	if (!tbl)
@@ -7694,21 +7694,21 @@ int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 	return Recording?(Recording==MACROMODE_RECORDING?MACROMODE_RECORDING:MACROMODE_RECORDING_COMMON):(Work.Executing?Work.Executing:MACROMODE_NOMACRO);
 }
 
-DWORD KeyMacro::SetHistroyEnableMask(DWORD Mask)
+DWORD KeyMacro::SetHistoryDisableMask(DWORD Mask)
 {
-	DWORD OldHistroyEnable=Work.HistroyEnable;
-	Work.HistroyEnable=Mask;
-	return OldHistroyEnable;
+	DWORD OldHistoryDisable=Work.HistoryDisable;
+	Work.HistoryDisable=Mask;
+	return OldHistoryDisable;
 }
 
-DWORD KeyMacro::GetHistroyEnableMask()
+DWORD KeyMacro::GetHistoryDisableMask()
 {
-	return Work.HistroyEnable;
+	return Work.HistoryDisable;
 }
 
-bool KeyMacro::IsHistroyEnable(int TypeHistory)
+bool KeyMacro::IsHistoryDisable(int TypeHistory)
 {
-	return (Work.HistroyEnable & (1 << TypeHistory))?true:false;
+	return (Work.HistoryDisable & (1 << TypeHistory))? false : true;
 }
 
 static int __cdecl SortMacros(const MacroRecord *el1,const MacroRecord *el2)
