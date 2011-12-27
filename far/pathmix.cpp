@@ -44,23 +44,26 @@ const wchar_t *ReservedFilenameSymbols = L"<>|";
 void NTPath::Transform()
 {
 	string& Data = *this;
-	if (!HasPathPrefix(Data))
+	if (!Data.IsEmpty())
 	{
-		ConvertNameToFull(Data,Data);
-
-		if (!HasPathPrefix(Data))
+		if(!HasPathPrefix(Data))
 		{
-			ReplaceSlashToBSlash(Data);
-			string Prefix(IsLocalPath(Data)? L"\\\\?\\" : L"\\\\?\\UNC");
-			while(ReplaceStrings(Data,L"\\\\",L"\\"));
-			Data=Prefix+Data;
+			ConvertNameToFull(Data,Data);
+
+			if (!HasPathPrefix(Data))
+			{
+				ReplaceSlashToBSlash(Data);
+				string Prefix(IsLocalPath(Data)? L"\\\\?\\" : L"\\\\?\\UNC");
+				while(ReplaceStrings(Data,L"\\\\",L"\\"));
+				Data=Prefix+Data;
+			}
 		}
-	}
-	if(Data.At(5) == L':')
-	{
-		// "\\?\C:" -> "\\?\c:"
-		// Some file operations fails on Win2k if a drive letter is in upper case
-		Lower(4,1);
+		if(Data.At(5) == L':')
+		{
+			// "\\?\C:" -> "\\?\c:"
+			// Some file operations fails on Win2k if a drive letter is in upper case
+			Lower(4,1);
+		}
 	}
 }
 

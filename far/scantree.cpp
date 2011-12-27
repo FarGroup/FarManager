@@ -112,7 +112,7 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 			return false;
 		else
 		{
-			if (!ScanItems.lastItem()->Flags.Check(FSCANTREE_INSIDEJUNCTION))
+			if (ScanItems.lastItem()->Flags.Check(FSCANTREE_INSIDEJUNCTION))
 				Flags.Clear(FSCANTREE_INSIDEJUNCTION);
 
 			CutToSlash(strFindPath,true);

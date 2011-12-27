@@ -48,6 +48,7 @@ struct PSEUDO_HANDLE
 	PVOID BufferBase;
 	ULONG NextOffset;
 	ULONG BufferSize;
+	bool Extended;
 };
 
 HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
@@ -73,7 +74,15 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
 					if (Handle->BufferBase)
 					{
 						LPCWSTR NamePtr = PointToName(Name);
-						if(Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, TRUE))
+						Handle->Extended = true;
+						NTSTATUS QueryStatus = STATUS_SUCCESS;
+						bool QueryResult = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, TRUE, &QueryStatus);
+						if(!QueryResult && QueryStatus == STATUS_INVALID_INFO_CLASS) // buggy novell
+						{
+							Handle->Extended = false;
+							QueryResult = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE);
+						}
+						if(QueryResult)
 						{
 							PFILE_ID_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase);
 							FindData.dwFileAttributes = DirectoryInfo->FileAttributes;
@@ -89,9 +98,20 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
 							FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 							FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
 							FindData.dwReserved1 = 0;
-							FindData.FileId = DirectoryInfo->FileId.QuadPart;
-							FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
-							FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
+
+							if(Handle->Extended)
+							{
+								FindData.FileId = DirectoryInfo->FileId.QuadPart;
+								FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
+								FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
+							}
+							else
+							{
+								FindData.FileId = 0;
+								PFILE_BOTH_DIR_INFORMATION DirectoryInfoSimple = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(DirectoryInfo);
+								FindData.strFileName.Copy(DirectoryInfoSimple->FileName,DirectoryInfoSimple->FileNameLength/sizeof(WCHAR));
+								FindData.strAlternateFileName.Copy(DirectoryInfoSimple->ShortName,DirectoryInfoSimple->ShortNameLength/sizeof(WCHAR));
+							}
 
 							// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
 							if(!FindData.strFileName.At(FindData.strFileName.GetLength()-1))
@@ -147,7 +167,7 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 	else
 	{
 		File* Directory = static_cast<File*>(Handle->ObjectHandle);
-		Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, nullptr, FALSE);
+		Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, FALSE, nullptr, FALSE);
 	}
 
 	if(Status)
@@ -165,9 +185,20 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 		FindData.nAllocationSize = DirectoryInfo->AllocationSize.QuadPart;
 		FindData.dwReserved0 = FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT?DirectoryInfo->EaSize:0;
 		FindData.dwReserved1 = 0;
-		FindData.FileId = DirectoryInfo->FileId.QuadPart;
-		FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
-		FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
+
+		if(Handle->Extended)
+		{
+			FindData.FileId = DirectoryInfo->FileId.QuadPart;
+			FindData.strFileName.Copy(DirectoryInfo->FileName,DirectoryInfo->FileNameLength/sizeof(WCHAR));
+			FindData.strAlternateFileName.Copy(DirectoryInfo->ShortName,DirectoryInfo->ShortNameLength/sizeof(WCHAR));
+		}
+		else
+		{
+			FindData.FileId = 0;
+			PFILE_BOTH_DIR_INFORMATION DirectoryInfoSimple = reinterpret_cast<PFILE_BOTH_DIR_INFORMATION>(DirectoryInfo);
+			FindData.strFileName.Copy(DirectoryInfoSimple->FileName,DirectoryInfoSimple->FileNameLength/sizeof(WCHAR));
+			FindData.strAlternateFileName.Copy(DirectoryInfoSimple->ShortName,DirectoryInfoSimple->ShortNameLength/sizeof(WCHAR));
+		}
 
 		// Bug in SharePoint: FileName is zero-terminated and FileNameLength INCLUDES this zero.
 		if(!FindData.strFileName.At(FindData.strFileName.GetLength()-1))
@@ -388,7 +419,7 @@ bool File::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, UL
 	return Result == ERROR_SUCCESS;
 }
 
-bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan)
+bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status)
 {
 	IO_STATUS_BLOCK IoStatusBlock;
 	PUNICODE_STRING pNameString = nullptr;
@@ -402,6 +433,10 @@ bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 	}
 	NTSTATUS Result = ifn.NtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
 	SetLastError(ifn.RtlNtStatusToDosError(Result));
+	if(Status)
+	{
+		*Status = Result;
+	}
 	return Result == STATUS_SUCCESS;
 }
 

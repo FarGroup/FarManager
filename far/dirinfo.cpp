@@ -237,7 +237,7 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 			Data.FileSize += FindData.nFileSize;
 
 			bool IsDuplicate = false;
-			if (CheckHardlinks)
+			if (CheckHardlinks && FindData.FileId)
 			{
 				if(FileIds.query(&FindData.FileId))
 				{

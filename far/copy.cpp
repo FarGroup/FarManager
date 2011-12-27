@@ -2025,7 +2025,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			int SubCopyCode;
 			string strSubName;
 			string strFullName;
-			ScanTree ScTree(TRUE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
+			ScanTree ScTree(FALSE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
 			strSubName = strSelName;
 			strSubName += L"\\";
 
@@ -3957,7 +3957,7 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const SECURITY_ATTRIB
 	{
 		if (apiGetFileAttributes(FileName) & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			ScanTree ScTree(TRUE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
+			ScanTree ScTree(FALSE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
 			ScTree.SetFindPath(FileName,L"*",FSCANTREE_FILESFIRST);
 
 			string strFullName;
