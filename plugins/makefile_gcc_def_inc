@@ -89,7 +89,7 @@ endif
 C_FLAGS  = -m$(DIRBIT) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions
 CXXFLAGS = $(C_FLAGS) -std=gnu++0x -fno-rtti -I $(COMMON) -I $(COMINC) $(CXXWIDE) $(USERCPP)
 CCFLAGS  = $(C_FLAGS) -I $(COMMON) -I $(COMINC) $(CCWIDE) $(USERCPP)
-LNKFLAGS = -m$(DIRBIT) -mdll -s $(NOSTART) $(NODEFLIBS) -lgcc $(USERLIBSFIRST) $(COMMONLIB) -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
+LNKFLAGS = -m$(DIRBIT) -mdll -s $(NOSTART) $(NODEFLIBS) -static-libgcc -static $(USERLIBSFIRST) $(COMMONLIB) -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
 RCFLAGS  = -I $(COMINC) $(RCWIDE) $(USERRC)
 
 OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(RES)
