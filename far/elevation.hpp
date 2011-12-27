@@ -78,7 +78,7 @@ public:
 	void ResetApprove();
 	bool Elevated(){return Elevation;}
 
-	bool fCreateDirectoryEx(const string* TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes);
+	bool fCreateDirectoryEx(const string& TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes);
 	bool fRemoveDirectory(const string& Object);
 	bool fDeleteFile(const string& Object);
 	void fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const;

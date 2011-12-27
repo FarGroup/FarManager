@@ -503,7 +503,7 @@ bool elevation::ElevationApproveDlg(int Why, const string& Object)
 	return Approve;
 }
 
-bool elevation::fCreateDirectoryEx(const string* TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes)
+bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& Object, LPSECURITY_ATTRIBUTES Attributes)
 {
 	CriticalSectionLock Lock(CS);
 	bool Result=false;
@@ -512,7 +512,7 @@ bool elevation::fCreateDirectoryEx(const string* TemplateObject, const string& O
 		if(Opt.IsUserAdmin)
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-			Result = (TemplateObject?CreateDirectoryEx(*TemplateObject, Object, Attributes):CreateDirectory(Object, Attributes)) != FALSE;
+			Result = (TemplateObject.IsEmpty()?CreateDirectory(Object, Attributes) : CreateDirectoryEx(TemplateObject, Object, Attributes)) != FALSE;
 		}
 		else
 		{
@@ -520,7 +520,8 @@ bool elevation::fCreateDirectoryEx(const string* TemplateObject, const string& O
 			{
 				if(SendCommand(C_FUNCTION_CREATEDIRECTORYEX))
 				{
-					if((TemplateObject && WriteData(*TemplateObject)) || (!TemplateObject && WriteData(nullptr, sizeof(nullptr))))
+
+					if(WriteData(TemplateObject))
 					{
 						if(WriteData(Object))
 						{
@@ -1169,7 +1170,7 @@ void CreateDirectoryExHandler()
 		if(ReadPipeData(Pipe, Object))
 		{
 			// BUGBUG, SecurityAttributes ignored
-			int Result = TemplateObject.GetStr()?CreateDirectoryEx(TemplateObject.GetStr(), Object.GetStr(), nullptr):CreateDirectory(Object.GetStr(), nullptr);
+			int Result = *TemplateObject.GetStr()?CreateDirectoryEx(TemplateObject.GetStr(), Object.GetStr(), nullptr):CreateDirectory(Object.GetStr(), nullptr);
 			int LastError = GetLastError();
 			if(WritePipe(Pipe, Result))
 			{

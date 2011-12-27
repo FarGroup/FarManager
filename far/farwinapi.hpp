@@ -274,7 +274,7 @@ BOOL apiCreateDirectory(
 );
 
 BOOL apiCreateDirectoryEx(
-    const string* TemplateDirectory,
+    const string& TemplateDirectory,
     const string& NewDirectory,
     LPSECURITY_ATTRIBUTES SecurityAttributes
 );

@@ -2407,7 +2407,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				while (!apiCreateDirectoryEx(
 					// CreateDirectoryEx preserves reparse points,
 					// so we shouldn't use template when copying with content
-					((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS))? nullptr : &Src,
+					((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS))? L"" : Src,
 					strDestPath,(Flags&FCOPY_COPYSECURITY) ? &sa:nullptr))
 				{
 					int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),

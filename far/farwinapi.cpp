@@ -938,17 +938,17 @@ BOOL apiFindNextFileName(HANDLE hFindStream, string& LinkName)
 
 BOOL apiCreateDirectory(const string& PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
 {
-	return apiCreateDirectoryEx(nullptr, PathName, lpSecurityAttributes);
+	return apiCreateDirectoryEx(L"", PathName, lpSecurityAttributes);
 }
 
-BOOL apiCreateDirectoryEx(const string* TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes)
+BOOL apiCreateDirectoryEx(const string& TemplateDirectory, const string& NewDirectory, LPSECURITY_ATTRIBUTES SecurityAttributes)
 {
-	NTPath NtTemplateDirectory(TemplateDirectory? *TemplateDirectory : L"");
+	NTPath NtTemplateDirectory(TemplateDirectory);
 	NTPath NtNewDirectory(NewDirectory);
-	BOOL Result = TemplateDirectory?CreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes):CreateDirectory(NtNewDirectory, SecurityAttributes);
+	BOOL Result = TemplateDirectory.IsEmpty()?CreateDirectory(NtNewDirectory, SecurityAttributes):CreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Elevation.fCreateDirectoryEx(TemplateDirectory? &NtTemplateDirectory : nullptr, NtNewDirectory, SecurityAttributes);
+		Result = Elevation.fCreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
 	}
 	return Result;
 }
