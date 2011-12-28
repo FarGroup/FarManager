@@ -2,11 +2,12 @@
 #define _FARMENU_H_
 
 #include <plugin.hpp>
+#include <Guiddef.h>
 
 class CFarMenu
 {
 public:
-  CFarMenu(LPCWSTR szHelp=NULL, unsigned nMaxItems=40);
+  CFarMenu(LPCWSTR szHelp=NULL, const GUID* MenuId = nullptr, unsigned nMaxItems=40);
   ~CFarMenu();
   enum ECheck {CHECKED, UNCHECKED, RADIO};
   unsigned AddItem(LPCWSTR szText, bool bHasSubMenu=false, ECheck enChecked=UNCHECKED, bool bDisabled=false);
@@ -29,6 +30,7 @@ protected:
   LPCWSTR m_szArrow;
   bool* m_pbHasSubMenu;
   enum {MAX_HEIGHT=45};
+  GUID* m_Id;
 };
 
 #endif

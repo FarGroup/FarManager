@@ -789,7 +789,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
   else
   {
     int nSelItem=0;
-    CFarMenu oTypeMenu(g_szTopicChooseMenuType);
+    CFarMenu oTypeMenu(g_szTopicChooseMenuType, &GuiTextMenuGuid);
     oTypeMenu.AddItem(GetMsg(LNG_MNU_GUI));
     oTypeMenu.AddItem(GetMsg(LNG_MNU_TEXT));
     while (1)
@@ -990,7 +990,7 @@ bool CPlugin::ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTM
 {
   int nItems=GetMenuItemCount(hMenu);
   if (nItems<1) return false;
-  CFarMenu oFarMenu(g_szTopicContextMenu, nItems);
+  CFarMenu oFarMenu(g_szTopicContextMenu, nullptr, nItems);
   for (int i=0; i<nItems; i++)
   {
     auto_sz szItem;

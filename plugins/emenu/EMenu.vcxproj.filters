@@ -19,11 +19,11 @@
     <Filter Include="Help Files">
       <UniqueIdentifier>{6eed9ebc-9574-4d60-8c24-a826e5b76c55}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Reg Files">
-      <UniqueIdentifier>{8bc999d0-0890-47b8-9221-5d32720d47f1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Text Files">
       <UniqueIdentifier>{bc0a7007-9ebb-4596-86ce-f288e0416b25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Configuration Files">
+      <UniqueIdentifier>{8bc999d0-0890-47b8-9221-5d32720d47f1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +92,12 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="guid.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="version.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="EMenu.rc">
@@ -111,14 +117,14 @@
     <CustomBuild Include="EMenuRus.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="HotkeyClipboard.xml">
-      <Filter>Reg Files</Filter>
+    <CustomBuild Include="HotkeyClipboard.farconfig">
+      <Filter>Configuration Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="HotkeyProperties.xml">
-      <Filter>Reg Files</Filter>
+    <CustomBuild Include="HotkeyProperties.farconfig">
+      <Filter>Configuration Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="Hotkey.xml">
-      <Filter>Reg Files</Filter>
+    <CustomBuild Include="Hotkey.farconfig">
+      <Filter>Configuration Files</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>

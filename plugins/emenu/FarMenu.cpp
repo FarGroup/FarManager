@@ -5,12 +5,13 @@
 
 static const wchar_t  empty_wstr;
 
-CFarMenu::CFarMenu(LPCWSTR szHelp/*=NULL*/, unsigned nMaxItems/*=40*/)
+CFarMenu::CFarMenu(LPCWSTR szHelp/*=NULL*/, const GUID* MenuId/*= nullptr*/, unsigned nMaxItems/*=40*/)
   : m_szHelp(szHelp)
   , m_pfmi(NULL)
   , m_nItemCnt(0)
   , m_szArrow(L"  \x25BA")
   , m_bArrowsAdded(false)
+  , m_Id(MenuId? new GUID(*MenuId) : nullptr)
   , m_nMaxItems(nMaxItems)
 {
   m_pfmi=new FarMenuItem[nMaxItems];
@@ -24,6 +25,7 @@ CFarMenu::~CFarMenu()
       delete m_pfmi[i].Text;
   delete[] m_pfmi;
   delete[] m_pbHasSubMenu;
+  delete m_Id;
 }
 
 void CFarMenu::AddSeparator()
@@ -206,7 +208,7 @@ int CFarMenu::Show(LPCWSTR szTitle, int nSelItem/*=0*/, bool bAtCursorPos/*=fals
   while (1)
   {
     SetSelectedItem(nSelItem);
-    nSelItem=thePlug->Menu(&MainGuid, nullptr, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, NULL, m_szHelp, pBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
+    nSelItem=thePlug->Menu(&MainGuid, m_Id, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, NULL, m_szHelp, pBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
     if (-1==nBreakCode) return nSelItem;
     assert(-1!=nSelItem);
     switch (pBreakKeys[nBreakCode].VirtualKeyCode)

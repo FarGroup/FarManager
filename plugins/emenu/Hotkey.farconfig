@@ -19,16 +19,16 @@
 
     <macro>
         <keymacros>
-            <macro area="Shell" key="AltApps" flags="DisableOutput">F11 x Enter 1</macro>
-            <macro area="Shell" key="AltShiftApps" flags="DisableOutput">F11 x Enter 1</macro>
-            <macro area="Shell" key="Apps" flags="DisableOutput">F11 x Enter 2</macro>
+            <macro area="Shell" key="Apps" flags="DisableOutput">F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 2 $end</macro>
+            <macro area="Shell" key="ShiftApps" flags="DisableOutput">F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 2 $end</macro>
+            <macro area="Shell" key="AltApps" flags="DisableOutput">F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 1 $end</macro>
+            <macro area="Shell" key="AltShiftApps" flags="DisableOutput">F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 1 $end</macro>
             <macro area="Shell" key="CtrlApps" flags="DisableOutput">F11 x Enter</macro>
-            <macro area="Shell" key="ShiftApps" flags="DisableOutput">F11 x Enter 2</macro>
-            <macro area="Tree" key="AltApps" flags="DisableOutput">F11 x Enter 1</macro>
-            <macro area="Tree" key="AltShiftApps" flags="DisableOutput">F11 x Enter 1</macro>
-            <macro area="Tree" key="Apps" flags="DisableOutput">F11 x Enter 2</macro>
+            <macro area="Tree" key="Apps" flags="DisableOutput">F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 2 $end</macro>
+            <macro area="Tree" key="ShiftApps" flags="DisableOutput">F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 2 $end</macro>
+            <macro area="Tree" key="AltApps" flags="DisableOutput">F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 1 $end</macro>
+            <macro area="Tree" key="AltShiftApps" flags="DisableOutput">F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 1 $end</macro>
             <macro area="Tree" key="CtrlApps" flags="DisableOutput">F11 x Enter</macro>
-            <macro area="Tree" key="ShiftApps" flags="DisableOutput">F11 x Enter 2</macro>
         </keymacros>
     </macro>
 </farconfig>
