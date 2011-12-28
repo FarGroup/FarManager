@@ -53,6 +53,12 @@
     <ClInclude Include="FileLng.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="guid.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="version.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FileCase.rc">

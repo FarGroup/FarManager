@@ -481,6 +481,7 @@
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="guid.hpp" />
     <ClInclude Include="NetCfg.hpp" />
     <ClInclude Include="NetClass.hpp" />
     <ClInclude Include="NetCommon.hpp" />
@@ -489,6 +490,7 @@
     <ClInclude Include="NetMacros.hpp" />
     <ClInclude Include="NetReg.hpp" />
     <ClInclude Include="Network.hpp" />
+    <ClInclude Include="version.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Network.rc">

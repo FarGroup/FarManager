@@ -477,7 +477,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="shortcuts.eng.xml">
+    <CustomBuild Include="shortcuts.eng.farconfig">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
@@ -497,7 +497,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="shortcuts.rus.xml">
+    <CustomBuild Include="shortcuts.rus.farconfig">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
@@ -600,10 +600,12 @@
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="guid.hpp" />
     <ClInclude Include="TmpCfg.hpp" />
     <ClInclude Include="TmpClass.hpp" />
     <ClInclude Include="TmpLng.hpp" />
     <ClInclude Include="TmpPanel.hpp" />
+    <ClInclude Include="version.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TmpPanel.rc">

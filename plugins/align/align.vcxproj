@@ -455,6 +455,8 @@
   <ItemGroup>
     <ClInclude Include="Align.hpp" />
     <ClInclude Include="AlignLng.hpp" />
+    <ClInclude Include="guid.hpp" />
+    <ClInclude Include="version.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Align.rc">

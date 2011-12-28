@@ -19,7 +19,7 @@
     <Filter Include="Help Files">
       <UniqueIdentifier>{a5e2dcb6-0c56-4b3e-9c1a-69056d3e6df3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Reg Files">
+    <Filter Include="Configuration Files">
       <UniqueIdentifier>{37ec2998-357d-400d-9a03-b337c071592a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -47,6 +47,12 @@
     <ClInclude Include="BrackLng.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="guid.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="version.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Brackets.rc">
@@ -66,11 +72,11 @@
     <CustomBuild Include="BrackRus.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="BrackEng.xml">
-      <Filter>Reg Files</Filter>
+    <CustomBuild Include="BrackEng.farconfig">
+      <Filter>Configuration Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="BrackRus.xml">
-      <Filter>Reg Files</Filter>
+    <CustomBuild Include="BrackRus.farconfig">
+      <Filter>Configuration Files</Filter>
     </CustomBuild>
   </ItemGroup>
 </Project>

@@ -511,6 +511,8 @@
   <ItemGroup>
     <ClInclude Include="FileCase.hpp" />
     <ClInclude Include="FileLng.hpp" />
+    <ClInclude Include="guid.hpp" />
+    <ClInclude Include="version.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FileCase.rc">

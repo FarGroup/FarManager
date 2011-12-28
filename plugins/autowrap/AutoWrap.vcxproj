@@ -454,6 +454,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AutoWrap.hpp" />
+    <ClInclude Include="guid.hpp" />
+    <ClInclude Include="version.hpp" />
     <ClInclude Include="WrapLng.hpp" />
   </ItemGroup>
   <ItemGroup>

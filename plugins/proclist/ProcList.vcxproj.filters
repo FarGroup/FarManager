@@ -89,6 +89,12 @@
     <ClInclude Include="WMI\WbemTran.h">
       <Filter>Header Files\WMI</Filter>
     </ClInclude>
+    <ClInclude Include="guid.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="version.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ProcList.rc">

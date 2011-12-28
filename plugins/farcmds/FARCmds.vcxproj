@@ -502,7 +502,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FARCmds.hpp" />
+    <ClInclude Include="guid.hpp" />
     <ClInclude Include="Lang.hpp" />
+    <ClInclude Include="version.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FARCmds.rc">

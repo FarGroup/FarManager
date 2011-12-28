@@ -487,6 +487,8 @@
   <ItemGroup>
     <ClInclude Include="EditCase.hpp" />
     <ClInclude Include="EditLng.hpp" />
+    <ClInclude Include="guid.hpp" />
+    <ClInclude Include="version.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="EditCase.rc">

@@ -485,9 +485,11 @@
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="guid.hpp" />
     <ClInclude Include="perfthread.hpp" />
     <ClInclude Include="Proclist.hpp" />
     <ClInclude Include="Proclng.hpp" />
+    <ClInclude Include="version.hpp" />
     <ClInclude Include="WMI\DispEx.h" />
     <ClInclude Include="WMI\WbemCli.h" />
     <ClInclude Include="WMI\WbemDisp.h" />

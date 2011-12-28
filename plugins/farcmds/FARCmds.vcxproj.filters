@@ -50,6 +50,12 @@
     <ClInclude Include="Lang.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="guid.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="version.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="FARCmds.rc">

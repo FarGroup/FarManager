@@ -19,7 +19,7 @@
     <Filter Include="Help Files">
       <UniqueIdentifier>{7973afc8-246b-4022-9ed0-8f6ac9e98bdd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Reg Files">
+    <Filter Include="Configuration Files">
       <UniqueIdentifier>{19313d32-4dbc-443e-89d7-c6c3e0742ba5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Temp Files">
@@ -62,6 +62,12 @@
     <ClInclude Include="TmpPanel.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="guid.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="version.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TmpPanel.rc">
@@ -81,11 +87,11 @@
     <CustomBuild Include="TmpRus.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="shortcuts.eng.xml">
-      <Filter>Reg Files</Filter>
+    <CustomBuild Include="shortcuts.eng.farconfig">
+      <Filter>Configuration Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="shortcuts.rus.xml">
-      <Filter>Reg Files</Filter>
+    <CustomBuild Include="shortcuts.rus.farconfig">
+      <Filter>Configuration Files</Filter>
     </CustomBuild>
     <CustomBuild Include="disks.eng.temp">
       <Filter>Temp Files</Filter>
