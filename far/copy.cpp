@@ -2245,29 +2245,29 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				return(COPY_CANCEL);
 			}
 		}
+	}
 
-		if (!SameName)
-		{
-			int Length=(int)strDestPath.GetLength();
+	if (DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName)
+	{
+		int Length=(int)strDestPath.GetLength();
 
-			if (!IsSlash(strDestPath.At(Length-1)) && strDestPath.At(Length-1)!=L':')
-				strDestPath += L"\\";
+		if (!IsSlash(strDestPath.At(Length-1)) && strDestPath.At(Length-1)!=L':')
+			strDestPath += L"\\";
 
-			const wchar_t *PathPtr=Src+KeepPathPos;
+		const wchar_t *PathPtr=Src+KeepPathPos;
 
-			if (*PathPtr && !KeepPathPos && PathPtr[1]==L':')
-				PathPtr+=2;
+		if (*PathPtr && !KeepPathPos && PathPtr[1]==L':')
+			PathPtr+=2;
 
-			if (IsSlash(*PathPtr))
-				PathPtr++;
+		if (IsSlash(*PathPtr))
+			PathPtr++;
 
-			strDestPath += PathPtr;
+		strDestPath += PathPtr;
 
-			if (!apiGetFindDataEx(strDestPath,DestData))
-				DestAttr=INVALID_FILE_ATTRIBUTES;
-			else
-				DestAttr=DestData.dwFileAttributes;
-		}
+		if (!apiGetFindDataEx(strDestPath,DestData))
+			DestAttr=INVALID_FILE_ATTRIBUTES;
+		else
+			DestAttr=DestData.dwFileAttributes;
 	}
 
 	if (!(Flags&FCOPY_COPYTONUL) && StrCmpI(strDestPath,L"prn"))

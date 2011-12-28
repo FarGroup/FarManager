@@ -664,12 +664,21 @@ void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePer
 	string strOutFileName(Name);
 	TruncPathStr(strOutFileName,static_cast<int>(Width));
 	CenterStr(strOutFileName,strOutFileName,static_cast<int>(Width));
+	const wchar_t* Progress1 = nullptr;
+	const wchar_t* Progress2 = nullptr;
+	if(!strWipeProgress.IsEmpty())
+	{
+		Progress1 = strWipeProgress.CPtr();
+		Progress2 = strProgress.IsEmpty()? nullptr : strProgress.CPtr();
+	}
+	else
+	{
+		Progress1 = strProgress.IsEmpty()? nullptr : strProgress.CPtr();
+	}
 	Message(0,0,
 		MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle),
 		Mode==DEL_SCAN? MSG(MScanningFolder) : MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeletingWiping:MDeleting),
-		strOutFileName,
-		strWipeProgress.IsEmpty()?nullptr:strWipeProgress.CPtr(),
-		strProgress.IsEmpty()?nullptr:strProgress.CPtr());
+		strOutFileName, Progress1, Progress2);
 
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	preRedrawItem.Param.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
