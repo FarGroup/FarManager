@@ -2247,7 +2247,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		}
 	}
 
-	if (DestAttr!=INVALID_FILE_ATTRIBUTES && !SameName)
+	if (DestAttr!=INVALID_FILE_ATTRIBUTES  && DestAttr&FILE_ATTRIBUTE_DIRECTORY && !SameName)
 	{
 		int Length=(int)strDestPath.GetLength();
 
