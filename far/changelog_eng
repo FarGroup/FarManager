@@ -3,6 +3,82 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 29.12.2011 19:43:12 +0200 - build 2341
+
+1. You've got the idea.
+
+drkns 28.12.2011 13:15:35 +0200 - build 2340
+
+1. Fixing the broken.
+
+drkns 27.12.2011 23:38:44 +0200 - build 2339
+
+1. Fixing the broken.
+
+drkns 27.12.2011 21:24:05 +0200 - build 2338
+
+1. Summarizing http://forum.farmanager.com/viewtopic.php?t=5390, return History.Disable().
+
+drkns 27.12.2011 16:03:21 +0200 - build 2337
+
+1. Mantis#0001961: Cannot open CentOS-5.4 network share
+
+drkns 27.12.2011 11:19:34 +0200 - build 2336
+
+1. Fixing the broken.
+
+drkns 26.12.2011 23:56:59 +0200 - build 2335
+
+1. Another bug in the copier. I'm curious of what will fail this time.
+
+2. Stripping trailing space characters in sources.
+
+t-rex 26.12.2011 17:00:10 +0200 - build 2334
+
+1. Mantis#1957: Associations choice menu.
+   Only descriptions are shown (if any), descriptions are not truncated by length in edit menu.
+
+2. xml -> farconfig
+
+drkns 26.12.2011 16:31:23 +0200 - build 2333
+
+1. Corrections in InfoPanel.
+
+zg 26.12.2011 14:47:18 +0200 - build 2332
+
+1. System.Executor\ExcludeCmds malfunction.
+
+t-rex 25.12.2011 23:41:38 +0200 - build 2331
+
+1. No, we'd better return the old input mode, it has ever been that.
+
+t-rex 25.12.2011 23:32:34 +0200 - build 2330
+
+1. Out of 2324, a bug showed up: console mode does not recover for output handles after external console apps start.
+   Some apps zero them, which leads to hilarious bugs when next console programs are run.
+   Also, more correct mode is set for the input handle, just in case.
+
+drkns 25.12.2011 19:28:52 +0200 - build 2329
+
+1. QuickView: allocated size правильно рассчитывается для нескольких жёстких ссылок внутри каталога. Экспериментально.
+
+zg 25.12.2011 14:48:29 +0200 - build 2328
+
+1. experimental obtaining of confirmation settings via SettingsControl(...,SCTL_GET,...).
+   Root - FSSF_CONFIRMATIONS, Name - L"CopyOverwrite", L"MoveOverwrite" etc.
+
+drkns 25.12.2011 14:17:13 +0200 - build 2327
+
+1. "packed size" replaced with more correct "allocated size".
+2. In connection with #1, the changes in QuickView: real size == allocated size, the MFT stored files size is taken correctly.
+
+zg 25.12.2011 13:43:10 +0200 - build 2326
+
+1. experimental obtaining of dialogs history via SettingsControl. it is similar to other types of history, 
+   except that the root is requested in this way:
+     FarSettingsValue value={0,L"NewFolder"};
+     root=Info.SettingsControl(Settings,SCTL_OPENSUBKEY,0,&value);
+
 drkns 24.12.2011 23:50:51 +0200 - build 2325
 
 1. Mistype in 2324.
@@ -81,7 +157,7 @@ t-rex 22.12.2011 18:20:50 +0200 - build 2310
 
 w17 22.12.2011 16:50:49 +0400 build - 2309
 
-1. mistypr in string constructor
+1. mistype in string constructor
 
 svs 22.12.2011 16:29:40 +0400 - build 2308
 
