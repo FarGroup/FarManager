@@ -525,6 +525,10 @@ BOOL apiCopyFileEx(
 )
 {
 	NTPath strFrom(ExistingFileName), strTo(NewFileName);
+	if(IsSlash(strTo.Last()))
+	{
+		strTo += PointToName(strFrom);
+	}
 	BOOL Result = CopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
@@ -539,6 +543,10 @@ BOOL apiMoveFile(
 )
 {
 	NTPath strFrom(ExistingFileName), strTo(NewFileName);
+	if(IsSlash(strTo.Last()))
+	{
+		strTo += PointToName(strFrom);
+	}
 	BOOL Result = MoveFile(strFrom, strTo);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
@@ -554,6 +562,10 @@ BOOL apiMoveFileEx(
 )
 {
 	NTPath strFrom(ExistingFileName), strTo(NewFileName);
+	if(IsSlash(strTo.Last()))
+	{
+		strTo += PointToName(strFrom);
+	}
 	BOOL Result = MoveFileEx(strFrom, strTo, dwFlags);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{

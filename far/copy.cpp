@@ -496,14 +496,11 @@ int CmpFullNames(const wchar_t *Src,const wchar_t *Dest)
 	string strSrcFullName, strDestFullName;
 
 	// получим полные пути с учетом символических связей
+	// (ConvertNameToReal eliminates short names too)
 	ConvertNameToReal(Src, strSrcFullName);
 	ConvertNameToReal(Dest, strDestFullName);
 	DeleteEndSlash(strSrcFullName);
 	DeleteEndSlash(strDestFullName);
-
-	// избавимся от коротких имен
-	ConvertNameToLong(strSrcFullName, strSrcFullName);
-	ConvertNameToLong(strDestFullName, strDestFullName);
 
 	return !StrCmpI(strSrcFullName,strDestFullName);
 }
@@ -534,10 +531,10 @@ int CmpFullPath(const wchar_t *Src, const wchar_t *Dest)
 
 	// избавимся от коротких имен
 	if (IsLocalPath(strSrcFullName))
-		ConvertNameToLong(strSrcFullName, strSrcFullName);
+		ConvertNameToReal(strSrcFullName, strSrcFullName);
 
 	if (IsLocalPath(strDestFullName))
-		ConvertNameToLong(strDestFullName, strDestFullName);
+		ConvertNameToReal(strDestFullName, strDestFullName);
 
 	return !StrCmpI(strSrcFullName, strDestFullName);
 }
@@ -2025,7 +2022,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			int SubCopyCode;
 			string strSubName;
 			string strFullName;
-			ScanTree ScTree(FALSE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
+			ScanTree ScTree(TRUE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
 			strSubName = strSelName;
 			strSubName += L"\\";
 
@@ -2201,17 +2198,11 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 	}
 
 	string strDestPath = strDest;
-	const wchar_t *NamePtr=PointToName(strDestPath);
+
 	DWORD DestAttr=INVALID_FILE_ATTRIBUTES;
 
-	if (!*NamePtr || TestParentFolderName(NamePtr))
-	{
-		AddEndSlash(strDestPath);
-		strDestPath+=Src;
-	}
-
 	FAR_FIND_DATA_EX DestData={};
-	if (DestAttr==INVALID_FILE_ATTRIBUTES && !(Flags&FCOPY_COPYTONUL))
+	if (!(Flags&FCOPY_COPYTONUL))
 	{
 		if (apiGetFindDataEx(strDestPath,DestData))
 			DestAttr=DestData.dwFileAttributes;
@@ -2219,55 +2210,58 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 	int SameName=0, Append=0;
 
-	if (DestAttr!=INVALID_FILE_ATTRIBUTES && DestAttr&FILE_ATTRIBUTE_DIRECTORY && SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
+	if (!(Flags&FCOPY_COPYTONUL) && DestAttr!=INVALID_FILE_ATTRIBUTES && (DestAttr & FILE_ATTRIBUTE_DIRECTORY))
 	{
-		int CmpCode=CmpFullNames(Src,strDestPath);
-
-		if(CmpCode && SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT && RPT==RP_EXACTCOPY && !(Flags&FCOPY_COPYSYMLINKCONTENTS))
+		if(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			CmpCode = 0;
-		}
+			int CmpCode=CmpFullNames(Src,strDestPath);
 
-		if (CmpCode==1) // TODO: error check
-		{
-			SameName=1;
-
-			if (Rename)
+			if(CmpCode && SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT && RPT==RP_EXACTCOPY && !(Flags&FCOPY_COPYSYMLINKCONTENTS))
 			{
-				CmpCode=!StrCmp(PointToName(Src),PointToName(strDestPath));
+				CmpCode = 0;
 			}
 
-			if (CmpCode==1)
+			if (CmpCode==1) // TODO: error check
 			{
-				SetMessageHelp(L"ErrCopyItSelf");
-				Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFolderToItself1),
-				        Src,MSG(MCannotCopyFolderToItself2),MSG(MOk));
-				return(COPY_CANCEL);
+				SameName=1;
+
+				if (Rename)
+				{
+					CmpCode=!StrCmp(PointToName(Src),PointToName(strDestPath));
+				}
+
+				if (CmpCode==1)
+				{
+					SetMessageHelp(L"ErrCopyItSelf");
+					Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFolderToItself1),
+							Src,MSG(MCannotCopyFolderToItself2),MSG(MOk));
+					return(COPY_CANCEL);
+				}
 			}
 		}
-	}
 
-	if (DestAttr!=INVALID_FILE_ATTRIBUTES  && DestAttr&FILE_ATTRIBUTE_DIRECTORY && !SameName)
-	{
-		int Length=(int)strDestPath.GetLength();
+		if (!SameName)
+		{
+			int Length=(int)strDestPath.GetLength();
 
-		if (!IsSlash(strDestPath.At(Length-1)) && strDestPath.At(Length-1)!=L':')
-			strDestPath += L"\\";
+			if (!IsSlash(strDestPath.At(Length-1)) && strDestPath.At(Length-1)!=L':')
+				strDestPath += L"\\";
 
-		const wchar_t *PathPtr=Src+KeepPathPos;
+			const wchar_t *PathPtr=Src+KeepPathPos;
 
-		if (*PathPtr && !KeepPathPos && PathPtr[1]==L':')
-			PathPtr+=2;
+			if (*PathPtr && !KeepPathPos && PathPtr[1]==L':')
+				PathPtr+=2;
 
-		if (IsSlash(*PathPtr))
-			PathPtr++;
+			if (IsSlash(*PathPtr))
+				PathPtr++;
 
-		strDestPath += PathPtr;
+			strDestPath += PathPtr;
 
-		if (!apiGetFindDataEx(strDestPath,DestData))
-			DestAttr=INVALID_FILE_ATTRIBUTES;
-		else
-			DestAttr=DestData.dwFileAttributes;
+			if (!apiGetFindDataEx(strDestPath,DestData))
+				DestAttr=INVALID_FILE_ATTRIBUTES;
+			else
+				DestAttr=DestData.dwFileAttributes;
+		}
 	}
 
 	if (!(Flags&FCOPY_COPYTONUL) && StrCmpI(strDestPath,L"prn"))
@@ -3957,7 +3951,7 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const SECURITY_ATTRIB
 	{
 		if (apiGetFileAttributes(FileName) & FILE_ATTRIBUTE_DIRECTORY)
 		{
-			ScanTree ScTree(FALSE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
+			ScanTree ScTree(TRUE,TRUE,Flags&FCOPY_COPYSYMLINKCONTENTS);
 			ScTree.SetFindPath(FileName,L"*",FSCANTREE_FILESFIRST);
 
 			string strFullName;

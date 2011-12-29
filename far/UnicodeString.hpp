@@ -153,6 +153,8 @@ typedef class UnicodeString
 		size_t GetSize() const { return m_pData->GetSize(); }
 
 		wchar_t At(size_t nIndex) const { return m_pData->GetData()[nIndex]; }
+		wchar_t First() const { return m_pData->GetData()[0]; }
+		wchar_t Last() const { return m_pData->GetData()[m_pData->GetLength()?m_pData->GetLength()-1:0]; }
 
 		bool IsEmpty() const { return !(m_pData->GetLength() && *m_pData->GetData()); }
 
