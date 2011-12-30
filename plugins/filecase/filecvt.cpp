@@ -59,9 +59,9 @@ void CaseConvertion()
 			const wchar_t *MsgItems[]={GetMsg(MFileCase),GetMsg(MConverting)};
 			Info.Message(&MainGuid, nullptr,0,NULL,MsgItems,ARRAYSIZE(MsgItems),0);
 			wchar_t FullName[MAX_PATH];
-			int Size=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,0,0);
-			wchar_t* CurDir=new wchar_t[Size];
-			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,CurDir);
+			int Size=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,0);
+			FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[Size];
+			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,Size,dirInfo);
 
 			for (size_t I=0; I < PInfo.SelectedItemsNumber; I++)
 			{
@@ -72,13 +72,13 @@ void CaseConvertion()
 				{
 					FarGetPluginPanelItem gpi={Size, PPI};
 					Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,&gpi);
-					GetFullName(FullName,CurDir,PPI->FileName);
+					GetFullName(FullName,dirInfo->Name,PPI->FileName);
 					ProcessName(FullName,PPI->FileAttributes);
 					free(PPI);
 				}
 			}
 
-			delete[] CurDir;
+			delete[](char*)dirInfo;
 
 			if (!CurRun)
 			{
