@@ -161,14 +161,16 @@ bool is_real_file_panel(const PanelInfo& panel_info) {
 }
 
 wstring get_panel_dir(HANDLE h_panel) {
-  Buffer<wchar_t> buf(MAX_PATH);
-  unsigned size = g_far.PanelControl(h_panel, FCTL_GETPANELDIR, static_cast<int>(buf.size()), buf.data());
-  if (size > buf.size()) {
-    buf.resize(size);
-    size = g_far.PanelControl(h_panel, FCTL_GETPANELDIR, static_cast<int>(buf.size()), buf.data());
+  unsigned buf_size = 512;
+  std::unique_ptr<wchar_t> buf(new wchar_t[buf_size]);
+  unsigned size = g_far.PanelControl(h_panel, FCTL_GETPANELDIRECTORY, buf_size, buf.get());
+  if (size > buf_size) {
+    buf_size = size;
+    buf.reset(new wchar_t[buf_size]);
+    size = g_far.PanelControl(h_panel, FCTL_GETPANELDIRECTORY, buf_size, buf.get());
   }
-  CHECK(size)
-  return wstring(buf.data(), size - 1);
+  CHECK(size >= sizeof(FarPanelDirectory) && size <= buf_size);
+  return reinterpret_cast<FarPanelDirectory*>(buf.get())->Name;
 }
 
 void get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, size_t index, Buffer<unsigned char>& buf) {
@@ -729,13 +731,21 @@ bool get_color(PaletteColors color_id, FarColor& color) {
 }
 
 bool panel_go_to_dir(HANDLE h_panel, const wstring& dir) {
-  return g_far.PanelControl(h_panel, FCTL_SETPANELDIR, 0, const_cast<wchar_t*>(dir.c_str())) != 0;
+  FarPanelDirectory fpd;
+  memzero(fpd);
+  fpd.StructSize = sizeof(FarPanelDirectory);
+  fpd.Name = dir.c_str();
+  return g_far.PanelControl(h_panel, FCTL_SETPANELDIRECTORY, 0, &fpd) != 0;
 }
 
 // set current file on panel to file_path
 bool panel_go_to_file(HANDLE h_panel, const wstring& file_path) {
   wstring dir = extract_file_path(file_path);
-  if (!g_far.PanelControl(h_panel, FCTL_SETPANELDIR, 0, const_cast<wchar_t*>(dir.c_str())))
+  FarPanelDirectory fpd;
+  memzero(fpd);
+  fpd.StructSize = sizeof(FarPanelDirectory);
+  fpd.Name = dir.c_str();
+  if (!g_far.PanelControl(h_panel, FCTL_SETPANELDIRECTORY, 0, &fpd))
     return false;
   PanelInfo panel_info;
   if (!g_far.PanelControl(h_panel, FCTL_GETPANELINFO, 0, &panel_info))
