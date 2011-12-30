@@ -2269,25 +2269,31 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		}
 		case FCTL_GETPANELDIRECTORY:
 		{
-			ShortcutInfo Info;
-			GetShortcutInfo(Info);
-			Result=ALIGN(sizeof(FarPanelDirectory));
-			size_t folderOffset=Result;
-			Result+=sizeof(wchar_t)*(Info.ShortcutFolder.GetLength()+1);
-			size_t pluginFileOffset=Result;
-			Result+=sizeof(wchar_t)*(Info.PluginFile.GetLength()+1);
-			size_t pluginDataOffset=Result;
-			Result+=sizeof(wchar_t)*(Info.PluginData.GetLength()+1);
-			if(Param2&&Param1>=Result)
+			static int Reenter=0;
+			if(!Reenter)
 			{
-				FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
-				dirInfo->PluginId=Info.PluginGuid;
-				dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
-				dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
-				dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
-				wmemcpy((wchar_t*)dirInfo->Name,Info.ShortcutFolder,Info.ShortcutFolder.GetLength()+1);
-				wmemcpy((wchar_t*)dirInfo->Param,Info.PluginData,Info.PluginData.GetLength()+1);
-				wmemcpy((wchar_t*)dirInfo->File,Info.PluginFile,Info.PluginFile.GetLength()+1);
+				Reenter++;
+				ShortcutInfo Info;
+				GetShortcutInfo(Info);
+				Result=ALIGN(sizeof(FarPanelDirectory));
+				size_t folderOffset=Result;
+				Result+=sizeof(wchar_t)*(Info.ShortcutFolder.GetLength()+1);
+				size_t pluginFileOffset=Result;
+				Result+=sizeof(wchar_t)*(Info.PluginFile.GetLength()+1);
+				size_t pluginDataOffset=Result;
+				Result+=sizeof(wchar_t)*(Info.PluginData.GetLength()+1);
+				if(Param2&&Param1>=Result)
+				{
+					FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
+					dirInfo->PluginId=Info.PluginGuid;
+					dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
+					dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
+					dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
+					wmemcpy((wchar_t*)dirInfo->Name,Info.ShortcutFolder,Info.ShortcutFolder.GetLength()+1);
+					wmemcpy((wchar_t*)dirInfo->Param,Info.PluginData,Info.PluginData.GetLength()+1);
+					wmemcpy((wchar_t*)dirInfo->File,Info.PluginFile,Info.PluginFile.GetLength()+1);
+				}
+				Reenter--;
 			}
 			break;
 		}

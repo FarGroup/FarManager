@@ -3219,11 +3219,14 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				}
 
 				size_t dirSize=NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,0,0);
-				FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
-				dirInfo->StructSize=sizeof(FarPanelDirectory);
-				NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
-				UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
-				delete[](char*)dirInfo;
+				if(dirSize)
+				{
+					FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
+					dirInfo->StructSize=sizeof(FarPanelDirectory);
+					NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+					UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
+					delete[](char*)dirInfo;
+				}
 				wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
 				NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),ColumnTypes);
 				UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes,sizeof(OldPI->ColumnTypes));
@@ -3259,11 +3262,14 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 			{
 				ConvertUnicodePanelInfoToAnsi(&PI,OldPI);
 				size_t dirSize=NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,0,0);
-				FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
-				dirInfo->StructSize=sizeof(FarPanelDirectory);
-				NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
-				UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
-				delete[](char*)dirInfo;
+				if(dirSize)
+				{
+					FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
+					dirInfo->StructSize=sizeof(FarPanelDirectory);
+					NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+					UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
+					delete[](char*)dirInfo;
+				}
 				wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
 				NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),ColumnTypes);
 				UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes,sizeof(OldPI->ColumnTypes));
