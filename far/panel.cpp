@@ -2232,12 +2232,8 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_GETPANELHOSTFILE:
 		case FCTL_GETPANELFORMAT:
-		case FCTL_GETPANELDIR:
 		{
 			string strTemp;
-
-			if (Command == FCTL_GETPANELDIR)
-				GetCurDir(strTemp);
 
 			if (GetType()==FILE_PANEL)
 			{
@@ -2259,9 +2255,6 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 						case FCTL_GETPANELFORMAT:
 							strTemp=PInfo.Format;
 							break;
-						case FCTL_GETPANELDIR:
-							strTemp=PInfo.CurDir;
-							break;
 					}
 
 					Reenter--;
@@ -2272,6 +2265,30 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				xwcsncpy((wchar_t*)Param2,strTemp,Param1);
 
 			Result=(int)strTemp.GetLength()+1;
+			break;
+		}
+		case FCTL_GETPANELDIRECTORY:
+		{
+			ShortcutInfo Info;
+			GetShortcutInfo(Info);
+			Result=ALIGN(sizeof(FarPanelDirectory));
+			size_t folderOffset=Result;
+			Result+=sizeof(wchar_t)*(Info.ShortcutFolder.GetLength()+1);
+			size_t pluginFileOffset=Result;
+			Result+=sizeof(wchar_t)*(Info.PluginFile.GetLength()+1);
+			size_t pluginDataOffset=Result;
+			Result+=sizeof(wchar_t)*(Info.PluginData.GetLength()+1);
+			if(Param2&&Param1>=Result)
+			{
+				FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
+				dirInfo->PluginId=Info.PluginGuid;
+				dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
+				dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
+				dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
+				wmemcpy((wchar_t*)dirInfo->Name,Info.ShortcutFolder,Info.ShortcutFolder.GetLength()+1);
+				wmemcpy((wchar_t*)dirInfo->Param,Info.PluginData,Info.PluginData.GetLength()+1);
+				wmemcpy((wchar_t*)dirInfo->File,Info.PluginFile,Info.PluginFile.GetLength()+1);
+			}
 			break;
 		}
 
@@ -2388,11 +2405,13 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			break;
 		}
 
-		case FCTL_SETPANELDIR:
+		case FCTL_SETPANELDIRECTORY:
 		{
 			if (Param2)
 			{
-				Result = SetCurDir((const wchar_t *)Param2,TRUE);
+				FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
+				string strName(dirInfo->Name),strFile(dirInfo->File),strParam(dirInfo->Param);
+				Result = ExecShortcutFolder(strName,dirInfo->PluginId,strFile,strParam,false);
 				// restore current directory to active panel path
 				Panel* ActivePanel = CtrlObject->Cp()->ActivePanel;
 				if (Result && this != ActivePanel)
@@ -2522,38 +2541,40 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 	return FALSE;
 }
 
-
-bool Panel::SaveShortcutFolder(int Pos, bool Add)
+void Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 {
-	string strShortcutFolder,strPluginFile,strPluginData;
-	GUID PluginGuid;
-
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		HANDLE hPlugin=GetPluginHandle();
 		PluginHandle *ph = (PluginHandle*)hPlugin;
-		PluginGuid = ph->pPlugin->GetGUID();
+		ShortcutInfo.PluginGuid = ph->pPlugin->GetGUID();
 		OpenPanelInfo Info;
 		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
-		strPluginFile = Info.HostFile;
-		strShortcutFolder = Info.CurDir;
-		strPluginData = Info.ShortcutData;
+		ShortcutInfo.PluginFile = Info.HostFile;
+		ShortcutInfo.ShortcutFolder = Info.CurDir;
+		ShortcutInfo.PluginData = Info.ShortcutData;
 	}
 	else
 	{
-		PluginGuid=FarGuid;
-		strPluginFile.Clear();
-		strPluginData.Clear();
-		strShortcutFolder = strCurDir;
+		ShortcutInfo.PluginGuid=FarGuid;
+		ShortcutInfo.PluginFile.Clear();
+		ShortcutInfo.PluginData.Clear();
+		ShortcutInfo.ShortcutFolder = strCurDir;
 	}
+}
+
+bool Panel::SaveShortcutFolder(int Pos, bool Add)
+{
+	ShortcutInfo Info;
+	GetShortcutInfo(Info);
 
 	if(Add)
 	{
-		CtrlObject->FolderShortcuts->Add(Pos,strShortcutFolder, PluginGuid, strPluginFile, strPluginData);
+		CtrlObject->FolderShortcuts->Add(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 	}
 	else
 	{
-		CtrlObject->FolderShortcuts->Set(Pos,strShortcutFolder, PluginGuid, strPluginFile, strPluginData);
+		CtrlObject->FolderShortcuts->Set(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 	}
 
 
@@ -2605,29 +2626,32 @@ bool Panel::ExecShortcutFolder(int Pos)
 
 	if (CtrlObject->FolderShortcuts->Get(Pos,&strShortcutFolder, &PluginGuid, &strPluginFile, &strPluginData))
 	{
-		return ExecShortcutFolder(strShortcutFolder,PluginGuid,strPluginFile,strPluginData);
+		return ExecShortcutFolder(strShortcutFolder,PluginGuid,strPluginFile,strPluginData,true);
 	}
 	return false;
 }
 
-bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,string& strPluginFile,const string& strPluginData)
+bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,string& strPluginFile,const string& strPluginData,bool CheckType)
 {
 	Panel *SrcPanel=this;
 	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 
-	switch (GetType())
+	if(CheckType)
 	{
-		case TREE_PANEL:
-			if (AnotherPanel->GetType()==FILE_PANEL)
-				SrcPanel=AnotherPanel;
-			break;
-
-		case QVIEW_PANEL:
-		case INFO_PANEL:
+		switch (GetType())
 		{
-			if (AnotherPanel->GetType()==FILE_PANEL)
-				SrcPanel=AnotherPanel;
-			break;
+			case TREE_PANEL:
+				if (AnotherPanel->GetType()==FILE_PANEL)
+					SrcPanel=AnotherPanel;
+				break;
+
+			case QVIEW_PANEL:
+			case INFO_PANEL:
+			{
+				if (AnotherPanel->GetType()==FILE_PANEL)
+					SrcPanel=AnotherPanel;
+				break;
+			}
 		}
 	}
 

@@ -340,7 +340,7 @@ int CommandLine::ProcessKey(int Key)
 
 				//Type==1 - плагиновый путь
 				//Type==0 - обычный путь
-				Panel->ExecShortcutFolder(strStr,Guid,strFile,strData);
+				Panel->ExecShortcutFolder(strStr,Guid,strFile,strData,true);
 				if(SelectType == 6)
 				{
 					CtrlObject->Cp()->ActivePanel->SetCurPath();

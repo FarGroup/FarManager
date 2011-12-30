@@ -153,6 +153,16 @@ class Panel:public ScreenObject
 		void FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName, string &strName);
 		void DragMessage(int X,int Y,int Move);
 
+	private:
+		struct ShortcutInfo
+		{
+			string ShortcutFolder;
+			string PluginFile;
+			string PluginData;
+			GUID PluginGuid;
+		};
+		void GetShortcutInfo(ShortcutInfo& Info);
+
 	protected:
 		void FastFind(int FirstKey);
 		void DrawSeparator(int Y);
@@ -291,7 +301,7 @@ class Panel:public ScreenObject
 		virtual BOOL GetItem(int,void *) {return FALSE;}
 
 		bool ExecShortcutFolder(int Pos);
-		bool ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,string& strPluginFile,const string& strPluginData);
+		bool ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,string& strPluginFile,const string& strPluginData,bool CheckType);
 		bool SaveShortcutFolder(int Pos, bool Add);
 
 		static void EndDrag();

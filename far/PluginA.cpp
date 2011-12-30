@@ -3218,9 +3218,12 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 					}
 				}
 
-				wchar_t CurDir[sizeof(OldPI->CurDir)];
-				NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIR,sizeof(OldPI->CurDir),CurDir);
-				UnicodeToOEM(CurDir,OldPI->CurDir,sizeof(OldPI->CurDir));
+				size_t dirSize=NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,0,0);
+				FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
+				dirInfo->StructSize=sizeof(FarPanelDirectory);
+				NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+				UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
+				delete[](char*)dirInfo;
 				wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
 				NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),ColumnTypes);
 				UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes,sizeof(OldPI->ColumnTypes));
@@ -3255,9 +3258,12 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 			if (ret)
 			{
 				ConvertUnicodePanelInfoToAnsi(&PI,OldPI);
-				wchar_t CurDir[sizeof(OldPI->CurDir)];
-				NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIR,sizeof(OldPI->CurDir),CurDir);
-				UnicodeToOEM(CurDir,OldPI->CurDir,sizeof(OldPI->CurDir));
+				size_t dirSize=NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,0,0);
+				FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
+				dirInfo->StructSize=sizeof(FarPanelDirectory);
+				NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+				UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
+				delete[](char*)dirInfo;
 				wchar_t ColumnTypes[sizeof(OldPI->ColumnTypes)];
 				NativeInfo.PanelControl(hPlugin,FCTL_GETCOLUMNTYPES,sizeof(OldPI->ColumnTypes),ColumnTypes);
 				UnicodeToOEM(ColumnTypes,OldPI->ColumnTypes,sizeof(OldPI->ColumnTypes));
@@ -3309,7 +3315,8 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			wchar_t* Dir = AnsiToUnicode((char*)Param);
-			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETPANELDIR,0,Dir));
+			FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir,NULL,FarGuid,NULL};
+			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETPANELDIRECTORY,0,&dirInfo));
 			xf_free(Dir);
 			return ret;
 		}

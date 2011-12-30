@@ -1,3 +1,13 @@
+zg 30.12.2011 03:46:41 +0200 - build 2343
+
+¬се нативные плагины, использующие FCTL_SETPANELDIR/FCTL_GETPANELDIR - не работают.
+
+1. FCTL_SETPANELDIR->FCTL_SETPANELDIRECTORY. Param1 - размер Param2. Param2 - указатель на FarPanelDirectory. 
+   возвращаетс€ необходимый размер.
+
+2. FCTL_GETPANELDIR->FCTL_GETPANELDIRECTORY. Param1 - 0. Param2 - указатель на FarPanelDirectory. 
+   в случае успеха возвращаетс€ ненулевое значение.
+
 drkns 30.12.2011 00:54:46 +0200 - build 2342
 
 1. јльтернативное решение 2335.1.
