@@ -532,11 +532,11 @@ CPlugin::EDoMenu CPlugin::MenuForPanelOrCmdLine(LPWSTR szCmdLine/*=NULL*/
 
 bool CPlugin::GetFilesFromParams(LPWSTR szCmdLine, LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* pnFolders, auto_sz* pstrCurDir, bool bSkipFirst)
 {
-  int Size=(int)PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,0,NULL);
-  wchar_t *CurDir=new wchar_t[Size];
-  PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,CurDir);
-  *pstrCurDir=auto_sz(CurDir,Size);
-  delete[] CurDir;
+  int Size=(int)PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,NULL);
+  FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[Size];
+  PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,Size,dirInfo);
+  *pstrCurDir=auto_sz(dirInfo->Name);
+  delete[](char *)dirInfo;
   if (pstrCurDir->Len()) m_fsf.AddEndSlash(*pstrCurDir);
   unsigned nCnt=ParseParams(szCmdLine);
   if (!nCnt) return false;
@@ -600,12 +600,12 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
   {
     return false;
   }
-  int Size=(int)PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,0,NULL);
-  wchar_t *CurDir=new wchar_t[Size];
-  PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,CurDir);
+  int Size=(int)PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,NULL);
+  FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[Size];
+  PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,Size,dirInfo);
   // preserve space for AddEndSlash
-  *pstrCurDir=auto_sz(CurDir,Size);
-  delete[] CurDir;
+  *pstrCurDir=auto_sz(dirInfo->Name);
+  delete[](char *)dirInfo;
 
   bool Root=!pi.SelectedItemsNumber;
   if(!Root)
