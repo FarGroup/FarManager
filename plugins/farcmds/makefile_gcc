@@ -1,6 +1,7 @@
 NAME = FARCmds
 SRCS = FARCmds.cpp
 DOCS = FARCmdsEng.hlf FARCmdsRus.hlf FARCmdsEng.lng FARCmdsRus.lng
+NEEDDEFLIB=1
 
 include ../../unicode_far/makefile_gcc_common
 

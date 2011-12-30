@@ -70,15 +70,19 @@ static bool validForView(const wchar_t *FileName, int viewEmpty, int editNew)
 
 	if (*ptrFileName && FSF.PointToName(ptrFileName) == ptrFileName)
 	{
-		int Size=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,0,0);
+		int dirSize=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,0);
 
-		if (Size)
+		if (dirSize)
 		{
+		    FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
+			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+			int Size=lstrlen(dirInfo->Name)+1;
 			ptrCurDir=new WCHAR[Size+lstrlen(FileName)+8];
-			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,Size,ptrCurDir);
+			lstrcpy(ptrCurDir,dirInfo->Name);
 			lstrcat(ptrCurDir,L"\\");
 			lstrcat(ptrCurDir,ptrFileName);
 			ptrFileName=(const wchar_t *)ptrCurDir;
+			delete[](char*)dirInfo;
 		}
 	}
 

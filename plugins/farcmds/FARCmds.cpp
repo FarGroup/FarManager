@@ -93,7 +93,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else
 	{
-		Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIR,ARRAYSIZE(selectItem),selectItem);
+		int dirSize=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,0);
+
+		FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
+		Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+		lstrcpy(selectItem,dirInfo->Name);
+		delete[](char*)dirInfo;
 
 		if (lstrlen(selectItem))
 			FSF.AddEndSlash(selectItem);
@@ -130,7 +135,10 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		FSF.Unquote(Dir);
 
 		if (*Dir)
-			Info.PanelControl(hPanel,FCTL_SETPANELDIR,0,&Dir);
+		{
+			FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir,NULL,{0},NULL};
+			Info.PanelControl(hPanel,FCTL_SETPANELDIRECTORY,0,&dirInfo);
+		}
 
 		Info.PanelControl(hPanel,FCTL_GETPANELINFO,0,&PInfo);
 		PRI.CurrentItem=PInfo.CurrentItem;
