@@ -4891,11 +4891,11 @@ void RegExp::TrimTail(const prechar& strend)
 
 			if (ignorecase)
 			{
-				while (strend>=start && *strend!=OP.range.symbol)strend--;
+				while (strend>=start && TOLOWER(*strend)!=OP.range.symbol)strend--;
 			}
 			else
 			{
-				while (strend>=start && TOLOWER(*strend)!=OP.range.symbol)strend--;
+				while (strend>=start && *strend!=OP.range.symbol)strend--;
 			}
 
 			break;
@@ -4907,11 +4907,11 @@ void RegExp::TrimTail(const prechar& strend)
 
 			if (ignorecase)
 			{
-				while (strend>=start && *strend==OP.range.symbol)strend--;
+				while (strend>=start && TOLOWER(*strend)==OP.range.symbol)strend--;
 			}
 			else
 			{
-				while (strend>=start && TOLOWER(*strend)==OP.range.symbol)strend--;
+				while (strend>=start && *strend==OP.range.symbol)strend--;
 			}
 
 			break;
