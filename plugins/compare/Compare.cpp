@@ -1148,9 +1148,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	AInfo.Plugin=(AI.Flags&PFLAGS_PLUGIN) == PFLAGS_PLUGIN;
 	AInfo.ItemsNumber=AI.ItemsNumber;
 	AInfo.SelectedItemsNumber=AI.SelectedItemsNumber;
-	int Size=(int)Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIR,0,0);
-	AInfo.lpwszCurDir=new wchar_t[Size];
-	Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIR,Size,AInfo.lpwszCurDir);
+	int Size=(int)Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY,0,0);
+	FarPanelDirectory* dir=(FarPanelDirectory*)new char[Size];
+	Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY,Size,dir);
+	AInfo.lpwszCurDir=wcsdup(dir->Name);
+	delete[](char*)dir;
 
 	if (AInfo.ItemsNumber)
 	{
@@ -1180,9 +1182,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	PInfo.Plugin=(PI.Flags&PFLAGS_PLUGIN) == PFLAGS_PLUGIN;
 	PInfo.ItemsNumber=PI.ItemsNumber;
 	PInfo.SelectedItemsNumber=PI.SelectedItemsNumber;
-	Size=(int)Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIR,0,0);
-	PInfo.lpwszCurDir=new wchar_t[Size];
-	Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIR,Size,PInfo.lpwszCurDir);
+	Size=(int)Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY,0,0);
+	dir=(FarPanelDirectory*)new char[Size];
+	Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY,Size,dir);
+	PInfo.lpwszCurDir=wcsdup(dir->Name);
+	delete[](char*)dir;
 
 	if (PInfo.ItemsNumber)
 	{
