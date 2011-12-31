@@ -640,12 +640,16 @@ KeyMacro::KeyMacro():
 	Recording(MACROMODE_NOMACRO),
 	IsRedrawEditor(TRUE),
 	Mode(MACRO_SHELL),
+	StartMode(MACRO_SHELL),
 	CurPCStack(-1),
 	StopMacro(false),
 	MacroLIB(nullptr),
 	RecBufferSize(0),
 	RecBuffer(nullptr),
 	RecSrc(nullptr),
+	MacroLIBCount(0),
+	MacroVersion(2),
+	InternalInput(0),
 	LockScr(nullptr)
 {
 	Work.Init(nullptr);
