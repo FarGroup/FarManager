@@ -27,14 +27,11 @@ wstring get_msg(int id) {
 }
 
 unsigned get_optimal_msg_width() {
-  HANDLE con = GetStdHandle(STD_OUTPUT_HANDLE);
-  if (con != INVALID_HANDLE_VALUE) {
-    CONSOLE_SCREEN_BUFFER_INFO con_info;
-    if (GetConsoleScreenBufferInfo(con, &con_info)) {
-      unsigned con_width = con_info.srWindow.Right - con_info.srWindow.Left + 1;
-      if (con_width >= 80)
-        return con_width - 20;
-    }
+  SMALL_RECT console_rect;
+  if (adv_control(ACTL_GETFARRECT, 0, &console_rect)) {
+    unsigned con_width = console_rect.Right - console_rect.Left + 1;
+    if (con_width >= 80)
+      return con_width - 20;
   }
   return 60;
 }
@@ -162,11 +159,11 @@ bool is_real_file_panel(const PanelInfo& panel_info) {
 
 wstring get_panel_dir(HANDLE h_panel) {
   unsigned buf_size = 512;
-  std::unique_ptr<wchar_t> buf(new wchar_t[buf_size]);
+  std::unique_ptr<unsigned char> buf(new unsigned char[buf_size]);
   unsigned size = g_far.PanelControl(h_panel, FCTL_GETPANELDIRECTORY, buf_size, buf.get());
   if (size > buf_size) {
     buf_size = size;
-    buf.reset(new wchar_t[buf_size]);
+    buf.reset(new unsigned char[buf_size]);
     size = g_far.PanelControl(h_panel, FCTL_GETPANELDIRECTORY, buf_size, buf.get());
   }
   CHECK(size >= sizeof(FarPanelDirectory) && size <= buf_size);
