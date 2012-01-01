@@ -3,6 +3,35 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 31.12.2011 12:30:32 +0400 - build 2346
+
+1. Mantis#0001959: Error loading macros via MCTL_ADDMACRO
+
+zg 31.12.2011 01:12:13 +0200 - build 2345
+
+1. infinite recursion when calling from GetOpenPluginInfo, for example, opening an archive with Multiarc.
+
+t-rex 30.12.2011 14:25:35 +0200 - build 2344
+
+1. Mantis#1965: "A+" regular expression does not work.
+   It didn't work just for capital letters.
+
+2. Debug build failure.
+
+zg 30.12.2011 03:46:41 +0200 - build 2343
+
+All native plugins that use FCTL_SETPANELDIR/FCTL_GETPANELDIR do not work.
+
+1. FCTL_GETPANELDIR->FCTL_GETPANELDIRECTORY. Param1 is the size of Param2. Param2 is a pointer to FarPanelDirectory. 
+   the result is the required size.
+
+2. FCTL_SETPANELDIR->FCTL_SETPANELDIRECTORY. Param1 is 0. Param2 is a pointer to FarPanelDirectory. 
+   non-zero value is returned if successful.
+
+drkns 30.12.2011 00:54:46 +0200 - build 2342
+
+1. Alternative solution of 2335.1.
+
 drkns 29.12.2011 19:43:12 +0200 - build 2341
 
 1. You've got the idea.
