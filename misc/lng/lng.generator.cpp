@@ -27,7 +27,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "lng.common.h"
 
-#define VERSION "v1.2"
+#define VERSION "v1.3"
 
 void UnquoteIfNeeded (char *lpStr)
 {
@@ -285,6 +285,7 @@ int main (int argc, const char* argv[])
 		printf ("\t-ol output_path - language files output path.\n\r");
 		printf ("\t-oh output_path - header file output path.\n\r");
 		printf ("\t-nc - don't write copyright info to generated files.\n\r");
+		printf ("\t-e - output encoding set in feed file for each output file (UTF8 otherwise).\n\r");
 		return 0;
 	}
 
@@ -295,12 +296,18 @@ int main (int argc, const char* argv[])
 
 	bool bWriteCopyright = true;
 
+	bool bOutputInUTF8 = true;
+
 	if ( argc > 2 )
 	{
 		for (int i = 1; i < argc-1; i++)
 		{
 			if ( !lstrcmpi (argv[i],"-nc") )
 				bWriteCopyright = false;
+			else
+
+			if ( !lstrcmpi (argv[i],"-e") )
+				bOutputInUTF8 = false;
 			else
 
 			if ( !lstrcmpi (argv[i],"-i") && ++i < argc-1 )
@@ -392,7 +399,7 @@ int main (int argc, const char* argv[])
 	UnquoteIfNeeded (lpHPPFileName);
 
 	// read h encoding
-	int nHPPEncoding = ReadInteger(lpStart);
+	int nHPPEncoding = bOutputInUTF8 ? CP_UTF8 : ReadInteger(lpStart);
 
 	// read language count
 	DWORD dwLangs = ReadInteger(lpStart);
@@ -437,7 +444,7 @@ int main (int argc, const char* argv[])
 				{
 					ReadFromBufferEx (lpStart, &pLangEntries[i].lpLNGFileName);
 
-					pLangEntries[i].nEncoding = ReadInteger(lpStart);
+					pLangEntries[i].nEncoding = bOutputInUTF8 ? CP_UTF8 : ReadInteger(lpStart);
 
 					ReadFromBufferEx (lpStart, &pLangEntries[i].lpLanguageName);
 					ReadFromBufferEx (lpStart, &pLangEntries[i].lpLanguageDescription);
@@ -603,10 +610,9 @@ int main (int argc, const char* argv[])
 				{
 					if (pLangEntries[i].cNeedUpdate > 0)
 					{
-						printf ("WARNING: There are %d strings that require review in %s translation!\n\n\r",
+						printf ("INFO: There are %d strings that require review in %s translation!\n\n\r",
 								pLangEntries[i].cNeedUpdate,
-								pLangEntries[i].lpLanguageName
-								);
+								pLangEntries[i].lpLanguageName);
 					}
 				}
 
