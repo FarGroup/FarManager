@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2343
+  Plugin API for Far Manager 3.0 build 2347
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2343
+#define FARMANAGERVERSION_BUILD 2347
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1641,7 +1641,7 @@ typedef int (WINAPI *FARAPIINPUTBOX)(
     const wchar_t *HistoryName,
     const wchar_t *SrcText,
     wchar_t *DestText,
-    int   DestLength,
+    size_t DestSize,
     const wchar_t *HelpTopic,
     INPUTBOXFLAGS Flags
 );
