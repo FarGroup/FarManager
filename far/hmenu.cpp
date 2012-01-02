@@ -430,8 +430,14 @@ void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
 					SubMenu=nullptr;
 					return;
 				}
-
-			SubMenu->ProcessMouse(&rec.Event.MouseEvent);
+			if(Key == KEY_MSWHEEL_UP || Key == KEY_MSWHEEL_DOWN || Key == KEY_MSWHEEL_RIGHT || Key == KEY_MSWHEEL_LEFT)
+			{
+				SubMenu->ProcessKey(Key);
+			}
+			else
+			{
+				SubMenu->ProcessMouse(&rec.Event.MouseEvent);
+			}
 		}
 		else
 		{

@@ -3223,7 +3223,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				{
 					FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
 					dirInfo->StructSize=sizeof(FarPanelDirectory);
-					NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+					NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,static_cast<int>(dirSize),dirInfo);
 					UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
 					delete[](char*)dirInfo;
 				}
@@ -3266,7 +3266,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				{
 					FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
 					dirInfo->StructSize=sizeof(FarPanelDirectory);
-					NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+					NativeInfo.PanelControl(hPlugin,FCTL_GETPANELDIRECTORY,static_cast<int>(dirSize),dirInfo);
 					UnicodeToOEM(dirInfo->Name,OldPI->CurDir,sizeof(OldPI->CurDir));
 					delete[](char*)dirInfo;
 				}

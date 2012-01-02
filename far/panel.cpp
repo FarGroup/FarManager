@@ -2277,11 +2277,11 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				GetShortcutInfo(Info);
 				Result=ALIGN(sizeof(FarPanelDirectory));
 				size_t folderOffset=Result;
-				Result+=sizeof(wchar_t)*(Info.ShortcutFolder.GetLength()+1);
+				Result+=static_cast<int>(sizeof(wchar_t)*(Info.ShortcutFolder.GetLength()+1));
 				size_t pluginFileOffset=Result;
-				Result+=sizeof(wchar_t)*(Info.PluginFile.GetLength()+1);
+				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginFile.GetLength()+1));
 				size_t pluginDataOffset=Result;
-				Result+=sizeof(wchar_t)*(Info.PluginData.GetLength()+1);
+				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginData.GetLength()+1));
 				if(Param2&&Param1>=Result)
 				{
 					FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;

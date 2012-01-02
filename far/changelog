@@ -1,3 +1,11 @@
+drkns 02.01.2012 22:26:12 +0200 - build 2348
+
+1. В 2214 отвалилась обработка колеса мыши в меню.
+
+2. Warnings.
+
+3. Lng generator v1.3.
+
 drkns 02.01.2012 15:48:46 +0200 - build 2347
 
 1. В FSF.InputBox вместо int DestLength теперь size_t DestSize.
