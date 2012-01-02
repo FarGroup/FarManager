@@ -1,3 +1,7 @@
+drkns 02.01.2012 15:48:46 +0200 - build 2347
+
+1. В FSF.InputBox вместо int DestLength теперь size_t DestSize.
+
 svs 31.12.2011 12:30:32 +0400 - build 2346
 
 1. Mantis#0001959: Ошибка загрузки макросов через MCTL_ADDMACRO

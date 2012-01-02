@@ -113,7 +113,7 @@ BOOL WINAPI FarShowHelp(const wchar_t *ModuleName,
 
 int WINAPI FarInputBox(INT_PTR PluginNumber,const GUID* Id,const wchar_t *Title,const wchar_t *Prompt,
                        const wchar_t *HistoryName,const wchar_t *SrcText,
-                       wchar_t *DestText,int DestLength,
+                       wchar_t *DestText, size_t DestSize,
                        const wchar_t *HelpTopic,unsigned __int64 Flags);
 /* Функция, которая будет действовать и в редакторе, и в панелях, и... */
 INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Command, int Param1, void* Param2);

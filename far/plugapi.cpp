@@ -147,7 +147,7 @@ int WINAPI FarInputBox(
     const wchar_t *HistoryName,
     const wchar_t *SrcText,
     wchar_t *DestText,
-    int DestLength,
+    size_t DestSize,
     const wchar_t *HelpTopic,
     unsigned __int64 Flags
 )
@@ -157,7 +157,7 @@ int WINAPI FarInputBox(
 
 	string strDest;
 	int nResult = GetString(Title,Prompt,HistoryName,SrcText,strDest,HelpTopic,Flags&~FIB_CHECKBOX,nullptr,nullptr,PluginNumber,Id);
-	xwcsncpy(DestText, strDest, DestLength+1);
+	xwcsncpy(DestText, strDest, DestSize);
 	return nResult;
 }
 
