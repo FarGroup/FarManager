@@ -34,7 +34,7 @@ BOOL CheckFavoriteItem(const LPNETRESOURCE pNR);
 void WriteFavoriteItem(LPFAVORITEITEM lpFavItem, wchar_t* szFolderName=NULL);
 BOOL ReadFavoriteItem(LPFAVORITEITEM lpFavItem);
 BOOL GetFavoritesParent(NETRESOURCE& SrcRes, LPNETRESOURCE lpParent);
-BOOL GetFavoriteResource(wchar_t *SrcName, LPNETRESOURCE DstNetResource);
+BOOL GetFavoriteResource(const wchar_t *SrcName, LPNETRESOURCE DstNetResource);
 
 typedef DWORD (WINAPI * LPREMOVEFROMFAVCB)(wchar_t *SrcName, LPVOID pUserData);
 

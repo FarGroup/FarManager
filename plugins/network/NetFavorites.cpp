@@ -337,7 +337,7 @@ STDAPI
 EliminateSubKey(HKEY hkey, LPTSTR strSubKey);
 #endif
 
-BOOL GetFavoriteResource(wchar_t *SrcName, LPNETRESOURCE DstNetResource)
+BOOL GetFavoriteResource(const wchar_t *SrcName, LPNETRESOURCE DstNetResource)
 {
 #if 0
 	NETRESOURCE nr = {0};

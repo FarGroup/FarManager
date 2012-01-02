@@ -341,7 +341,8 @@ static void ShowMenuFromList(wchar_t *Name)
 				{
 					if (FindData.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 					{
-						Info.PanelControl(INVALID_HANDLE_VALUE,FCTL_SETPANELDIR,0,p);
+						FarPanelDirectory dirInfo = {sizeof(dirInfo), p, nullptr, {}, nullptr};
+						Info.PanelControl(PANEL_ACTIVE, FCTL_SETPANELDIRECTORY, 0, &dirInfo);
 					}
 					else
 					{

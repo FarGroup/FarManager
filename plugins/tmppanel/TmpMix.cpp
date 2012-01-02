@@ -75,7 +75,8 @@ void GoToFile(const wchar_t *Target, BOOL AnotherPanel)
 
 	if (*Dir.Ptr())
 	{
-		Info.PanelControl(_PANEL_HANDLE,FCTL_SETPANELDIR,0,Dir.Ptr());
+		FarPanelDirectory dirInfo = {sizeof(dirInfo), Dir, nullptr, {}, nullptr};
+		Info.PanelControl(_PANEL_HANDLE, FCTL_SETPANELDIRECTORY, 0, &dirInfo);
 	}
 
 	Info.PanelControl(_PANEL_HANDLE,FCTL_GETPANELINFO,0,&PInfo);

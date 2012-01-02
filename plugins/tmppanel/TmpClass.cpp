@@ -5,8 +5,10 @@ Temporary panel plugin class implementation
 
 */
 
+
 #include "TmpPanel.hpp"
 #include "guid.hpp"
+#include <SimpleString.hpp>
 
 TmpPanel::TmpPanel()
 {
@@ -654,7 +656,8 @@ int TmpPanel::ProcessKey(const INPUT_RECORD *Rec)
 
 				if (attributes&FILE_ATTRIBUTE_DIRECTORY)
 				{
-					Info.PanelControl(PANEL_PASSIVE, FCTL_SETPANELDIR,0,CurFileName.Ptr());
+					FarPanelDirectory dirInfo = {sizeof(dirInfo), CurFileName, nullptr, {}, nullptr};
+					Info.PanelControl(PANEL_PASSIVE, FCTL_SETPANELDIRECTORY, 0, &dirInfo);
 				}
 				else
 				{
@@ -780,13 +783,24 @@ void TmpPanel::ProcessSaveListKey()
 		return;
 
 	// default path: opposite panel directory\panel<index>.<mask extension>
-	StrBuf ListPath(NT_MAX_PATH+20+512);
-	Info.PanelControl(PANEL_PASSIVE,FCTL_GETPANELDIR,NT_MAX_PATH,ListPath.Ptr());
-	FSF.AddEndSlash(ListPath);
-	lstrcat(ListPath, L"panel");
+	string ListPath;
+	size_t Size = Info.PanelControl(this, FCTL_GETPANELDIRECTORY, 0, nullptr);
+	FarPanelDirectory* dir = static_cast<FarPanelDirectory*>(malloc(Size));
+	Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY, Size, dir);
+	ListPath = dir->Name;
+	free(dir);
+	if(ListPath.At(ListPath.Len()-1) != L'\\')
+	{
+		ListPath+=L"\\";
+	}
+	ListPath += L"panel";
 
 	if (Opt.CommonPanel)
-		FSF.itoa(PanelIndex, ListPath.Ptr() + lstrlen(ListPath), 10);
+	{
+		wchar_t Index[32];
+		FSF.itoa(PanelIndex, Index, 10);
+		ListPath += Index;
+	}
 
 	wchar_t ExtBuf [512];
 	lstrcpy(ExtBuf, Opt.Mask);
@@ -798,12 +812,16 @@ void TmpPanel::ProcessSaveListKey()
 	wchar_t *ext = _tcschr(ExtBuf, L'.');
 
 	if (ext && !_tcschr(ext, L'*') && !_tcschr(ext, L'?'))
-		lstrcat(ListPath, ext);
+	{
+		ListPath += ext;
+	}
 
+	wchar_t* Buffer = new wchar_t[NT_MAX_PATH];
 	if (Info.InputBox(&MainGuid, nullptr, GetMsg(MTempPanel), GetMsg(MListFilePath),
-	                  L"TmpPanel.SaveList", ListPath, ListPath, ListPath.Size()-1,
+	                  L"TmpPanel.SaveList", ListPath, Buffer, NT_MAX_PATH,
 	                  NULL, FIB_BUTTONS))
 	{
+		ListPath = Buffer;
 		SaveListFile(ListPath);
 		Info.PanelControl(PANEL_PASSIVE, FCTL_UPDATEPANEL,0,NULL);
 		Info.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,NULL);

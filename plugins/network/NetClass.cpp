@@ -4,6 +4,7 @@
 #include "NetClass.hpp"
 #include <PluginSettings.hpp>
 #include <DlgBuilder.hpp>
+#include <SimpleString.hpp>
 
 NetResourceList *CommonRootResources;
 BOOL SavedCommonRootResources = FALSE;
@@ -1322,29 +1323,36 @@ BOOL NetBrowser::EditFavorites()
 		return TRUE;
 
 	// First we should determine the type of Favorite Item under cursor
-	wchar_t szPath[MAX_PATH];
-	szPath[0] = 0;
+	string Path;
+
 	struct PanelInfo PInfo;
 	Info.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
-	Info.PanelControl(this, FCTL_GETPANELDIR,ARRAYSIZE(szPath),szPath);
-	wchar_t *p = szPath + lstrlen(szPath);
-	*p++ = L'\\';
-	size_t Size = Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+
+	size_t Size = Info.PanelControl(this, FCTL_GETPANELDIRECTORY, 0, nullptr);
+	FarPanelDirectory* dir = static_cast<FarPanelDirectory*>(malloc(Size));
+	Info.PanelControl(this, FCTL_GETPANELDIRECTORY, Size, dir);
+	Path = dir->Name;
+	free(dir);
+	if(Path.At(Path.Len()-1) != L'\\')
+	{
+		Path+=L"\\";
+	}
+	Size = Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
 	PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 	if (PPI)
 	{
 		FarGetPluginPanelItem gpi={Size, PPI};
 		Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
-		lstrcpy(p,PPI->FileName);
+		Path += PPI->FileName;
 		free(PPI);
 	}
 
 	NETRESOURCE nr = {0};
 
-	if (GetFavoriteResource(szPath, &nr))
+	if (GetFavoriteResource(Path, &nr))
 	{
-		lstrcpy(szPath, nr.lpRemoteName);
+		Path = nr.lpRemoteName;
 
 		switch (nr.dwDisplayType)
 		{
@@ -1372,7 +1380,7 @@ BOOL NetBrowser::EditFavorites()
 				    nullptr,
 				    FMSG_ALLINONE,
 				    L"Data",
-				    (const wchar_t * const *)szPath,
+				    (const wchar_t * const *)Path.CPtr(),
 				    0,1);
 		}
 

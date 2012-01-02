@@ -114,17 +114,17 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">libCRTwide</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">libCRTIA64wide</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">.tmp</TargetExt>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">libCRTwide</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">libCRTIA64wide</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">.tmp</TargetExt>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">libCRTwide</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.tmp</TargetExt>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">libCRTwide</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.tmp</TargetExt>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">libCRTwide</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">libCRT64wide</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.tmp</TargetExt>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">libCRTwide</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">libCRT64wide</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.tmp</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
