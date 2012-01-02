@@ -826,6 +826,7 @@ void TmpPanel::ProcessSaveListKey()
 		Info.PanelControl(PANEL_PASSIVE, FCTL_UPDATEPANEL,0,NULL);
 		Info.PanelControl(PANEL_PASSIVE, FCTL_REDRAWPANEL,0,NULL);
 	}
+	delete[] Buffer;
 
 #undef _HANDLE
 #undef _UPDATE
