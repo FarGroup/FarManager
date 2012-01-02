@@ -10,6 +10,7 @@ Pmix.cpp \
 wmi.cpp
 DOCS = ProcEng.hlf ProcRus.hlf ProcEng.lng ProcRus.lng
 
+NEEDDEFLIB=1
 USERCPP = -I ./WMI
 USERLIBS = -lversion -lmpr -lole32 -loleaut32
 

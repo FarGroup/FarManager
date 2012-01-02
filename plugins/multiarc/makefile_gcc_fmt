@@ -11,6 +11,7 @@ ifeq ($(FMT),Custom)
 DOCS = Custom.ini
 endif
 
+NEEDDEFLIB=1
 USERCPP = -I ./libpcre
 USERLIBSFIRST = -L $(OBJDIR) -lPCRE
 
