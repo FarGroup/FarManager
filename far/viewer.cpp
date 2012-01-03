@@ -2976,7 +2976,7 @@ int Viewer::search_text_forward( search_data* sd )
 		to1 = to + (t_buff ? GetStrBytesNum(t_buff, nw1) : sd->ch_size * nw1);
 	}
 
-	int is_eof = (to1 >= FileSize ? 1 : 0), iLast = nw - slen - ww + is_eof;
+	int is_eof = (to1 >= FileSize ? 1 : 0), iLast = nw - slen - ww + ww*is_eof;
 	if ( !LastSearchCase )
 		CharUpperBuff(buff, nw);
 
@@ -3008,7 +3008,7 @@ int Viewer::search_text_forward( search_data* sd )
 	{
 		if ( iLast < 0 || (!up_half && to1 > StartSearchPos) )
 			return -1;
-		sd->CurPos = to1;
+		sd->CurPos = to1 - GetStrBytesNum(t_buff+iLast+1, nw-iLast-1);
 		return 0;
 	}
 }
@@ -3072,19 +3072,20 @@ int Viewer::search_text_backward( search_data* sd )
 		return +1;
 	}
 
-	int ret = 0;
+	int ret = 0, adjust = 1;
 	if ( up_half )
 		ret = (cpos <= StartSearchPos ? -1 : 0);
 	else
 	{
 		if ( cpos <= 0 )
 		{
+			adjust = 0;
 			SetFileSize();
 			cpos = FileSize;
 			ret = (StartSearchPos >= FileSize ? -1 : 0);
 		}
 	}
-	sd->CurPos = cpos;
+	sd->CurPos = cpos + (ret ? 0 : adjust*GetStrBytesNum(t_buff,iFirst+slen-1));
 	return ret;
 }
 
