@@ -3,6 +3,27 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 03.01.2012 23:23:11 +0400 build - 2350
+
+1. Mantis#1964: Viewer cannot find a text in UTF8 file
+   This is not related to UTF-8, just a bug in text search
+
+w17 03.01.2012 22:13:00 +0400 build - 2349
+
+1. Mantis#1966: Error in search displaying.
+
+drkns 02.01.2012 22:26:12 +0200 - build 2348
+
+1. In 2214, mouse wheel handling in menu was broken.
+
+2. Warnings.
+
+3. Lng generator v1.3.
+
+drkns 02.01.2012 15:48:46 +0200 - build 2347
+
+1. FSF.InputBox's int DestLength is replaced with size_t DestSize.
+
 svs 31.12.2011 12:30:32 +0400 - build 2346
 
 1. Mantis#0001959: Error loading macros via MCTL_ADDMACRO
