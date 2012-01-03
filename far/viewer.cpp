@@ -4142,7 +4142,7 @@ void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, cons
 
 	if ( VM.Hex )
 	{
-		int lin_siz = VM.Hex < 2 ? 16 : Width;
+		int lin_siz = VM.Hex < 2 ? 16 : Width * getChSize(VM.CodePage);
 
 		FilePos = (FilePos % lin_siz) + lin_siz*(SelectPos / lin_siz);
 		FilePos = (FilePos < SelectPos ? FilePos : (FilePos > lin_siz ? FilePos-lin_siz : 0));
