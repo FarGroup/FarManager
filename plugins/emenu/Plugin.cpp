@@ -537,7 +537,11 @@ bool CPlugin::GetFilesFromParams(LPWSTR szCmdLine, LPCWSTR** ppFiles, unsigned* 
   PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,Size,dirInfo);
   *pstrCurDir=auto_sz(dirInfo->Name);
   delete[](char *)dirInfo;
-  if (pstrCurDir->Len()) m_fsf.AddEndSlash(*pstrCurDir);
+  if (pstrCurDir->Len())
+  {
+    pstrCurDir->Realloc(pstrCurDir->Len()+2);
+    m_fsf.AddEndSlash(*pstrCurDir);
+  }
   unsigned nCnt=ParseParams(szCmdLine);
   if (!nCnt) return false;
   *ppFiles=new LPCWSTR[nCnt];
@@ -590,7 +594,7 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
   {
     for(int i=0;i<SelectedItemsCount;i++)
       if(SelectedItems[i])
-       delete[] SelectedItems[i];
+       delete[](char *)SelectedItems[i];
     delete[] SelectedItems;
     SelectedItems=NULL;
     SelectedItemsCount=0;
@@ -619,7 +623,7 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
         FarGetPluginPanelItem gpi={Size, PPI};
         PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,0,&gpi);
         Root=(pi.SelectedItemsNumber==1 && !lstrcmp(PPI->FileName,L".."));
-        delete[] PPI;
+        delete[](char *)PPI;
       }
     }
   }
@@ -640,7 +644,11 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
   }
   else
   {
-    if (pstrCurDir->Len()) m_fsf.AddEndSlash(*pstrCurDir);
+    if (pstrCurDir->Len())
+    {
+      pstrCurDir->Realloc(pstrCurDir->Len()+2);
+      m_fsf.AddEndSlash(*pstrCurDir);
+    }
     *ppFiles=new LPCWSTR[pi.SelectedItemsNumber];
     SelectedItemsCount=(int)pi.SelectedItemsNumber;
     SelectedItems=new PluginPanelItem*[SelectedItemsCount];
@@ -656,7 +664,7 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
       FarGetPluginPanelItem gpi={Size, PPI};
       PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,(int)pi.CurrentItem,&gpi);
       bool Equal=!lstrcmp(PPI->FileName,szPath);
-      delete[] PPI;
+      delete[](char *)PPI;
       if(Equal)
       {
         (*ppFiles)[i]=(*ppFiles)[0];

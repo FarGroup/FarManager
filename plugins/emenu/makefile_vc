@@ -16,10 +16,6 @@ DOCS = EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuRus.lng Hotkey.farconfig Hotk
 NEEDENTRY = 1
 NEEDDEFLIB = 1
 
-!if defined(DEBUG) && !defined(ULINK)
-NEEDDEFLIB = 1
-!endif
-
 !include ..\makefile_vc_def_inc
 
 !include ..\makefile_vc_target_inc
