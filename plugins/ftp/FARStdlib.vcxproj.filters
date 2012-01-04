@@ -114,6 +114,9 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="FStdLib\FARStdlib\vc10wrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FStdLib\FARStdlib\fstd_String.h">
