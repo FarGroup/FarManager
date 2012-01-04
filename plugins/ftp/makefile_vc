@@ -71,7 +71,9 @@ $(OBJDIR)\Url.obj
 ##########
 !if !defined(AMD64) && "$(CPU)" != "AMD64"
 !ifndef ULINK
-VC10_OBJ=$(OBJDIR)\vc10.obj
+VC10_OBJ= \
+$(OBJDIR)\vc10.obj\
+$(OBJDIR)\vc10wrapper.obj
 !else
 VC10_OBJ=$(OBJDIR)\vc10u.obj
 ULN_DEF=_u

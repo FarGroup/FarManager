@@ -1,3 +1,7 @@
+drkns 04.01.2012 22:21:42 +0200 - build 272
+
+1. Используем vc10wrapper.cpp.
+
 t-rex 21.12.2011 22:31:35 +0200
 
 1. reg Far2 -> Far Manager
