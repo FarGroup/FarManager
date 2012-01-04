@@ -207,6 +207,9 @@ LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.rdata=.text $
 !ifndef NO_RELEASE_PDB
 LINK_FLAGS=$(LINK_FLAGS) /debug
 !endif
+!ifndef DEBUG
+LINK_FLAGS=$(LINK_FLAGS) /incremental:no /OPT:REF /OPT:ICF
+!endif
 !else
 LNK=$(_ULINK_PATH_)ulink.exe +-
 !ifndef NEEDENTRY
