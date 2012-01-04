@@ -72,10 +72,19 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HelloWorld", "helloworld\HelloWorld.vcxproj", "{A0EEDB6F-87F0-459A-94FF-C683CE2CE8C1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirList", "ftp\DirList.vcxproj", "{4ADCDBAB-CB02-4888-84AE-F9832323495D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6A6E122A-4151-4AF2-BBCB-2B4603CF029F} = {6A6E122A-4151-4AF2-BBCB-2B4603CF029F}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Notify", "ftp\Notify.vcxproj", "{4ADCDBAF-CB02-4888-84AE-F9832323495D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6A6E122A-4151-4AF2-BBCB-2B4603CF029F} = {6A6E122A-4151-4AF2-BBCB-2B4603CF029F}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Progress", "ftp\Progress.vcxproj", "{4ADCDBAE-CB02-4888-84AE-F9832323495D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{6A6E122A-4151-4AF2-BBCB-2B4603CF029F} = {6A6E122A-4151-4AF2-BBCB-2B4603CF029F}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ftp", "ftp\ftp.vcxproj", "{8DB0251E-F83F-4626-A50D-4F3295FA8753}"
 EndProject
