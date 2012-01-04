@@ -11,6 +11,10 @@ $(OBJDIR)\OleThread.obj \
 $(OBJDIR)\Pidl.obj \
 $(OBJDIR)\Plugin.obj
 
+!if !defined(AMD64) && "$(CPU)" != "AMD64"
+LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
+!endif
+
 DOCS = EMenuEng.hlf EMenuRus.hlf EMenuEng.lng EMenuRus.lng Hotkey.farconfig HotkeyClipboard.farconfig HotkeyProperties.farconfig
 
 NEEDENTRY = 1

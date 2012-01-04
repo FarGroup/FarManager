@@ -69,7 +69,7 @@ $(OBJDIR)\Queque.obj \
 $(OBJDIR)\Url.obj
 
 ##########
-!if "$(VC)"=="10" && !defined(CPU)
+!if !defined(AMD64) && "$(CPU)" != "AMD64"
 !ifndef ULINK
 VC10_OBJ=$(OBJDIR)\vc10.obj
 !else
