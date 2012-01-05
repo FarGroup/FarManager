@@ -240,7 +240,7 @@ LINK_OBJS = \
 	"$(INTDIR)\vc10.obj" \
 	"$(INTDIR)\vc10wrapper.obj"
 !else
-	"$(INTDIR)\vc10u.obj"
+	"$(INTDIR)\vc10wrp_u.obj"
 !endif
 !endif
 !endif
@@ -339,7 +339,7 @@ depfile:
 	$(GAWK) -f .\scripts\mkdep.awk mkdep.list > $(DEPFILE)
 
 .PHONY: build
-build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.example.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp" "$(FARINCLUDE)\DlgBuilder.hpp"
+build: $(TEST_OBJS) "$(OUTDIR)\Far.exe" "$(OUTDIR)\FarEng.hlf" "$(OUTDIR)\FarRus.hlf" "$(OUTDIR)\FarHun.hlf" "$(OUTDIR)\File_id.diz" "$(OUTDIR)\Far.exe.example.ini" "$(FARINCLUDE)\PluginW.pas" "$(FARINCLUDE)\FarColorW.pas" "$(FARINCLUDE)\farcolor.hpp" "$(FARINCLUDE)\plugin.hpp" "$(FARINCLUDE)\DlgBuilder.hpp" "$(FARINCLUDE)\vc10.cpp" "$(FARINCLUDE)\vc10.asm" "$(FARINCLUDE)\vc10u.cpp" 
 
 .PHONY: AllDirs
 AllDirs:
@@ -439,6 +439,15 @@ $(FARINCLUDE)\PluginW.pas \
 $(FARINCLUDE)\FarColorW.pas: $(@F) farversion.m4 tools.m4 vbuild.m4
 	$(MSG)
 	$(M4) -DINPUT=$(@F) headers.m4 > $@
+
+$(FARINCLUDE)\vc10.cpp: $(@F)
+	copy /Y $(@F) $@ > nul
+
+$(FARINCLUDE)\vc10.asm: $(@F)
+	copy /Y $(@F) $@ > nul
+
+$(FARINCLUDE)\vc10u.cpp: $(@F)
+	copy /Y $(@F) $@ > nul
 
 .PHONY: CLEAN
 CLEAN:

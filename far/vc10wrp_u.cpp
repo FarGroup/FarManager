@@ -1,10 +1,10 @@
 /*
-vc10u.cpp
+vc10wrp_u.cpp
 
-Workaround for VC2010 and old Windows
+Wrapper for vc10u.cpp
 */
 /*
-Copyright © 2010 Far Group
+Copyright © 2011 Far Group
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -30,31 +30,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <delayimp.h>
+#include "headers.hpp"
+#pragma hdrstop
 
-//----------------------------------------------------------------------------
-static LPVOID WINAPI no_recode_pointer(LPVOID p)
-{
-    return p;
-}
-
-//----------------------------------------------------------------------------
-static FARPROC WINAPI delayFailureHook(/*dliNotification*/unsigned dliNotify,
-                                       PDelayLoadInfo pdli)
-{
-    if(   dliNotify == /*dliFailGetProcAddress*/dliFailGetProc
-       && pdli && pdli->cb == sizeof(*pdli)
-       && pdli->hmodCur == GetModuleHandleA("kernel32")
-       && pdli->dlp.fImportByName && pdli->dlp.szProcName
-       && (   !lstrcmpA(pdli->dlp.szProcName, "EncodePointer")
-           || !lstrcmpA(pdli->dlp.szProcName, "DecodePointer")))
-    {
-      return (FARPROC)no_recode_pointer;
-    }
-    return nullptr;
-}
-
-//----------------------------------------------------------------------------
-PfnDliHook __pfnDliFailureHook2 = (PfnDliHook)delayFailureHook;
-
-//----------------------------------------------------------------------------
+#include "vc10u.cpp"
