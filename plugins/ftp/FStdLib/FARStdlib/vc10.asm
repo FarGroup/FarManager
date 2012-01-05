@@ -1,1 +1,1 @@
-INCLUDE ..\..\unicode_far\vc10.asm
+INCLUDE ..\common\vc10.asm
