@@ -306,6 +306,7 @@ class EditControl:public Edit
 
 	bool Selection;
 	int SelectionStart;
+	int MacroAreaAC;
 
 	History* pHistory;
 	FarList* pList;
@@ -352,10 +353,11 @@ public:
 	virtual void Changed(bool DelBlock=false);
 	virtual void SetUnchangedColor();
 
-	void AutoComplete(bool Manual,bool DelBlock, int Area);
+	void AutoComplete(bool Manual,bool DelBlock);
 	void EnableAC(bool Permanent=false);
 	void DisableAC(bool Permanent=false);
 	void RevertAC(){ACState?EnableAC():DisableAC();}
+	void SetMacroAreaAC(int Area){MacroAreaAC=Area;}
 	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
 
 	void  SetObjectColor(PaletteColors Color,PaletteColors SelColor = COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);

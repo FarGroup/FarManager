@@ -1,3 +1,7 @@
+svs 07.01.2012 22:34:28 +0400 - build 2352
+
+1. Macro: Shell.AutoCompletion не работал все время возвращался Dialog.AutoCompletion 
+
 t-rex 07.01.2012 13:43:07 +0200 - build 2351
 
 1. Мелкие исправления в истории.

@@ -140,7 +140,7 @@ class DlgEdit: public ScreenObject
 		void SetReadOnly(int NewReadOnly);
 
 		void SetCallbackState(bool Enable){lineEdit->SetCallbackState(Enable);}
-		void AutoComplete(bool Manual,bool DelBlock){return lineEdit->AutoComplete(Manual,DelBlock,MACRO_DIALOGAUTOCOMPLETION);}
+		void AutoComplete(bool Manual,bool DelBlock){return lineEdit->AutoComplete(Manual,DelBlock);}
 		void EnableAC(){return lineEdit->EnableAC();}
 		void DisableAC(){return lineEdit->DisableAC();}
 		void RevertAC(){return lineEdit->RevertAC();}

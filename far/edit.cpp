@@ -3022,6 +3022,8 @@ EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocate
 		m_Callback.m_Param=nullptr;
 	}
 
+	MacroAreaAC=MACRO_DIALOGAUTOCOMPLETION;
+
 	ECFlags=iFlags;
 	pHistory=iHistory;
 	pList=iList;
@@ -3051,7 +3053,7 @@ void EditControl::Changed(bool DelBlock)
 		{
 			m_Callback.m_Callback(m_Callback.m_Param);
 		}
-		AutoComplete(false, DelBlock, MACRO_DIALOGAUTOCOMPLETION);
+		AutoComplete(false, DelBlock);
 	}
 }
 
@@ -3475,13 +3477,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 	return Result;
 }
 
-void EditControl::AutoComplete(bool Manual,bool DelBlock, int Area)
+void EditControl::AutoComplete(bool Manual,bool DelBlock)
 {
 	int Key=0;
 	int PrevMacroMode=CtrlObject->Macro.GetMode();
 	if(Opt.AutoComplete.ShowList)
-		CtrlObject->Macro.SetMode(Area);
-	if(AutoCompleteProc(Manual,DelBlock,Key,Area))
+		CtrlObject->Macro.SetMode(MacroAreaAC);
+	if(AutoCompleteProc(Manual,DelBlock,Key,MacroAreaAC))
 	{
 		// BUGBUG, hack
 		int Wait=WaitInMainLoop;
