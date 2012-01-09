@@ -1,3 +1,8 @@
+w17 09.01.2012 17:15:14 +0400 build - 2353
+
+1. Mantis#1723,1927: загрузка CPU в режиме простоя на виртуальной машине
+   (originated by sezal)
+
 svs 07.01.2012 22:34:28 +0400 - build 2352
 
 1. Macro: Shell.AutoCompletion не работал все время возвращался Dialog.AutoCompletion 

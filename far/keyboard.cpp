@@ -774,25 +774,28 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 	for (;;)
 	{
-		// "Реакция" на максимизацию/восстановление окна консоли
-		if (ZoomedState!=IsZoomed(Console.GetWindow()) && IconicState==IsIconic(Console.GetWindow()))
+		if (!(LoopCount & 15))
 		{
-			ZoomedState=!ZoomedState;
-			ChangeVideoMode(ZoomedState);
-		}
+			// "Реакция" на максимизацию/восстановление окна консоли
+			if (ZoomedState!=IsZoomed(Console.GetWindow()) && IconicState==IsIconic(Console.GetWindow()))
+			{
+				ZoomedState=!ZoomedState;
+				ChangeVideoMode(ZoomedState);
+			}
 
-		bool CurrentFullscreenState=IsConsoleFullscreen();
-		if(CurrentFullscreenState && !FullscreenState)
-		{
-			ChangeVideoMode(25,80);
-		}
-		FullscreenState=CurrentFullscreenState;
+			bool CurrentFullscreenState=IsConsoleFullscreen();
+			if(CurrentFullscreenState && !FullscreenState)
+			{
+				ChangeVideoMode(25,80);
+			}
+			FullscreenState=CurrentFullscreenState;
 
-		Window.Check();
+			Window.Check();
 
-		if(Events.EnvironmentChangeEvent.Signaled())
-		{
-			ReloadEnvironment();
+			if(Events.EnvironmentChangeEvent.Signaled())
+			{
+				ReloadEnvironment();
+			}
 		}
 
 		Console.PeekInput(rec, 1, ReadCount);
@@ -862,7 +865,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		}
 
 		ScrBuf.Flush();
-		Sleep(1);
+		Sleep(10);
 
 		static bool ExitInProcess = false;
 		if (CloseFAR && !ExitInProcess)
@@ -946,10 +949,13 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			}
 		}
 
-		if (PluginSynchroManager.Process())
+		if (!(LoopCount & 3))
 		{
-			ClearStruct(*rec);
-			return KEY_NONE;
+			if (PluginSynchroManager.Process())
+			{
+				ClearStruct(*rec);
+				return KEY_NONE;
+			}
 		}
 
 		LoopCount++;
