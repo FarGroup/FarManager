@@ -522,6 +522,9 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 				int Key=UserMenu.ReadInput();
 				MenuPos=UserMenu.GetSelectPos();
 
+				void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
+				CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
+
 				if ((unsigned int)Key>=KEY_F1 && (unsigned int)Key<=KEY_F24)
 				{
 					int FuncItemPos;
@@ -534,10 +537,6 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 				}
 				else if (Key == L' ') // исключаем пробел из "хоткеев"!
 					continue;
-
-
-				void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
-				CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
 
 				switch (Key)
 				{
