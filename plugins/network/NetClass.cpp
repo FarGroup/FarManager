@@ -1411,6 +1411,7 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 
 			for (int I=0; I<(int)PInfo.SelectedItemsNumber; I++)
 			{
+				const wchar_t *pRemoteName=NULL;
 				size_t Size = Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,0);
 				PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
@@ -1418,9 +1419,24 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 				{
 					FarGetPluginPanelItem gpi={Size, PPI};
 					Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,&gpi);
+					pRemoteName = PPI->FileName;
+					if (!Opt.FullPathShares)
+					{
+						for (unsigned I=0; I<NetList.Count(); I++)
+						{
+							wchar_t RemoteName[MAX_PATH];
+							GetRemoteName(&NetList[I],RemoteName);
+
+							if (FSF.LStricmp(PPI->FileName,RemoteName)==0)
+							{
+								pRemoteName = NetList[I].lpRemoteName;
+								break;
+							}
+						}
+					}
 				}
 
-				if (!PPI||!MapNetworkDrive(PPI->FileName, (Key == VK_F6), (Shift==0)))
+				if (!PPI||!MapNetworkDrive(pRemoteName, (Key == VK_F6), (Shift==0)))
 				{
 					free(PPI);
 					break;
