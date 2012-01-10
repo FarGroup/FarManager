@@ -285,14 +285,15 @@ struct EditorOptions
 		dest.UseExternalEditor = UseExternalEditor;
 		dest.ShowKeyBar = ShowKeyBar;
 		dest.ShowTitleBar = ShowTitleBar;
-		dest.strWordDiv = strWordDiv;
 		dest.ShowScrollBar=ShowScrollBar;
+		dest.EditOpenedForWrite = EditOpenedForWrite;
 		dest.SearchSelFound=SearchSelFound;
 		dest.SearchRegexp=SearchRegexp;
-		dest.ShowWhiteSpace=ShowWhiteSpace;
 		dest.SearchPickUpWord=SearchPickUpWord;
+		dest.ShowWhiteSpace=ShowWhiteSpace;
 		dest.FileSizeLimitLo = FileSizeLimitLo;
 		dest.FileSizeLimitHi = FileSizeLimitHi;
+		dest.strWordDiv = strWordDiv;
 	}
 };
 

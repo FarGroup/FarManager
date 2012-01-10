@@ -3483,12 +3483,11 @@ static bool editorposFunc(const TMacroFunction*)
 	return Ret.i() != -1;
 }
 
-// OldVar=Editor.Set(Idx,Var)
+// OldVar=Editor.Set(Idx,Value)
 static bool editorsetFunc(const TMacroFunction*)
 {
 	TVar Ret(-1);
-	TVar _longState;
-	VMStack.Pop(_longState);
+	TVar Value; VMStack.Pop(Value);
 	int Index=(int)VMStack.Pop().getInteger();
 
 	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
@@ -3496,7 +3495,12 @@ static bool editorsetFunc(const TMacroFunction*)
 		long longState=-1L;
 
 		if (Index != 12)
-			longState=(long)_longState.toInteger();
+			longState=(long)Value.toInteger();
+		else
+		{
+			if (Value.isString() || Value.i() != -1)
+				longState=0;
+		}
 
 		EditorOptions EdOpt;
 		CtrlObject->Plugins.CurEditor->GetEditorOptions(EdOpt);
@@ -3549,7 +3553,7 @@ static bool editorsetFunc(const TMacroFunction*)
 				Ret=(__int64)-1L;
 		}
 
-		if ((Index != 12 && longState != -1) || (Index == 12 && _longState.i() == -1))
+		if (longState != -1)
 		{
 			switch (Index)
 			{
@@ -3578,7 +3582,7 @@ static bool editorsetFunc(const TMacroFunction*)
 				case 11: // SaveShortPos;
 					EdOpt.SaveShortPos=longState; break;
 				case 12: // char WordDiv[256];
-					EdOpt.strWordDiv = _longState.toString(); break;
+					EdOpt.strWordDiv = Value.toString(); break;
 				case 13: // F7Rules;
 					EdOpt.F7Rules=longState; break;
 				case 14: // AllowEmptySpaceAfterEof;
