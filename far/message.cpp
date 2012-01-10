@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "config.hpp"
 #include "keyboard.hpp"
+#include "imports.hpp"
 
 static int MessageX1,MessageY1,MessageX2,MessageY2;
 static string strMsgHelpTopic;
@@ -582,6 +583,9 @@ bool GetNtErrorString(NTSTATUS LastNtStatus, string& Str)
 
 bool GetErrorString(string &strErrStr)
 {
+#ifdef USE_NT_MESSAGES
+	return GetNtErrorString(ifn.RtlGetLastNtStatus(), strErrStr);
+#else
 	bool Result=false;
 	static struct TypeErrMsgs
 	{
@@ -658,6 +662,7 @@ bool GetErrorString(string &strErrStr)
 	}
 
 	return Result;
+#endif
 }
 
 

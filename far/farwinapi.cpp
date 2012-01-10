@@ -77,7 +77,7 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
 						Handle->Extended = true;
 						NTSTATUS QueryStatus = STATUS_SUCCESS;
 						bool QueryResult = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, TRUE, &QueryStatus);
-						if(!QueryResult && (QueryStatus == STATUS_INVALID_INFO_CLASS || QueryStatus == STATUS_NOT_SUPPORTED)) // buggy novell, buggy centos
+						if(!QueryResult && (QueryStatus == STATUS_INVALID_INFO_CLASS || QueryStatus == STATUS_NOT_SUPPORTED || QueryStatus == STATUS_INVALID_LEVEL)) // buggy novell, buggy centos, buggy %OSNAME%
 						{
 							Handle->Extended = false;
 							QueryResult = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE);
