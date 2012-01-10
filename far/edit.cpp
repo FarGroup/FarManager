@@ -98,7 +98,8 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	SetObjectColor(COL_COMMANDLINE, COL_COMMANDLINESELECTED);
 	EndType=EOL_NONE;
 	ColorList=nullptr;
-	ColorCount=0;
+	ColorCount=MaxColorCount=0;
+	ColorListNeedSort=ColorListNeedFree=false;
 	TabSize=Opt.EdOpt.TabSize;
 	TabExpandMode = EXPAND_NOTABS;
 	Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Opt.EdOpt.DelRemovesBlocks);
@@ -2599,17 +2600,80 @@ static int _cdecl SortColors(const void *el1,const void *el2)
 	return item1->SubPriority - item2->SubPriority;
 }
 
-void Edit::AddColor(ColorItem *col)
+void Edit::AddColor(ColorItem *col,bool skipsort)
 {
-	if (!(ColorCount & 15))
-		ColorList=(ColorItem *)xf_realloc(ColorList,(ColorCount+16)*sizeof(*ColorList));
+	if (ColorCount==MaxColorCount)
+	{
+		if (ColorCount<256)
+		{
+			if (!(ColorCount & 15))
+			{
+				MaxColorCount=ColorCount+16;
+				ColorList=(ColorItem *)xf_realloc(ColorList,(MaxColorCount)*sizeof(*ColorList));
+			}
+		}
+		else if (ColorCount<2048)
+		{
+			if (!(ColorCount & 255))
+			{
+				MaxColorCount=ColorCount+256;
+				ColorList=(ColorItem *)xf_realloc(ColorList,(MaxColorCount)*sizeof(*ColorList));
+			}
+		}
+		else if (ColorCount<65536)
+		{
+			if (!(ColorCount & 2047))
+			{
+				MaxColorCount=ColorCount+2048;
+				ColorList=(ColorItem *)xf_realloc(ColorList,(MaxColorCount)*sizeof(*ColorList));
+			}
+		}
+		else if (!(ColorCount & 65535))
+		{
+			MaxColorCount=ColorCount+65536;
+			ColorList=(ColorItem *)xf_realloc(ColorList,(MaxColorCount)*sizeof(*ColorList));
+		}
+	}
+
+	#ifdef _DEBUG
+	//_ASSERTE(ColorCount<MaxColorCount);
+	#endif
+
+	if (skipsort && !ColorListNeedSort && ColorCount && ColorList[ColorCount-1].Priority>col->Priority)
+		ColorListNeedSort=true;
+
 
 	ColorList[ColorCount++]=*col;
-	for(int ii=0;ii<ColorCount;++ii) ColorList[ii].SubPriority=ii;
-	far_qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
+
+	if (!skipsort)
+	{
+		for(int ii=0;ii<ColorCount;++ii) ColorList[ii].SubPriority=ii;
+		far_qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
+	}
 }
 
-int Edit::DeleteColor(int ColorPos,const GUID& Owner)
+void Edit::SortColorUnlocked()
+{
+	if (ColorListNeedFree)
+	{
+		ColorListNeedFree=false;
+		if (!ColorCount)
+		{
+			xf_free(ColorList);
+			ColorList=nullptr;
+			MaxColorCount = 0;
+		}
+	}
+
+	if (ColorListNeedSort)
+	{
+		ColorListNeedSort=false;
+		for(int ii=0;ii<ColorCount;++ii) ColorList[ii].SubPriority=ii;
+		far_qsort(ColorList,ColorCount,sizeof(*ColorList),SortColors);
+	}
+}
+
+int Edit::DeleteColor(int ColorPos,const GUID& Owner,bool skipfree)
 {
 	int Src;
 
@@ -2618,22 +2682,48 @@ int Edit::DeleteColor(int ColorPos,const GUID& Owner)
 
 	int Dest=0;
 
-	for (Src=0; Src<ColorCount; Src++)
-		if ((ColorPos!=-1 && ColorList[Src].StartPos!=ColorPos) || (!IsEqualGUID(Owner,ColorList[Src].Owner)))
+	if (ColorPos!=-1)
+	{
+		for (Src=0; Src<ColorCount; Src++)
 		{
-			if (Dest!=Src)
-				ColorList[Dest]=ColorList[Src];
+			if ((ColorList[Src].StartPos!=ColorPos) || (!IsEqualGUID(Owner,ColorList[Src].Owner)))
+			{
+				if (Dest!=Src)
+					ColorList[Dest]=ColorList[Src];
 
-			Dest++;
+				Dest++;
+			}
 		}
+	}
+	else
+	{
+		for (Src=0; Src<ColorCount; Src++)
+		{
+			if (!IsEqualGUID(Owner,ColorList[Src].Owner))
+			{
+				if (Dest!=Src)
+					ColorList[Dest]=ColorList[Src];
+
+				Dest++;
+			}
+		}
+	}
 
 	int DelCount=ColorCount-Dest;
 	ColorCount=Dest;
 
 	if (!ColorCount)
 	{
-		xf_free(ColorList);
-		ColorList=nullptr;
+		if (skipfree)
+		{
+			ColorListNeedFree=true;
+		}
+		else
+		{
+			xf_free(ColorList);
+			ColorList=nullptr;
+			MaxColorCount = 0;
+		}
 	}
 
 	return(DelCount);

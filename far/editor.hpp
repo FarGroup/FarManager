@@ -213,6 +213,9 @@ class Editor:public ScreenObject
 
 		FileEditor *HostFileEditor;
 
+		int SortColorLockCount;
+		bool SortColorUpdate;
+
 	private:
 		virtual void DisplayObject();
 		void ShowEditor(int CurLineOnly);
@@ -395,4 +398,8 @@ class Editor:public ScreenObject
 		void GetCursorType(bool& Visible, DWORD& Size);
 		void SetObjectColor(PaletteColors Color,PaletteColors SelColor);
 		void DrawScrollbar();
+
+		void SortColorLock();
+		void SortColorUnlock();
+		bool SortColorLocked();
 };

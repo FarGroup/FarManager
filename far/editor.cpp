@@ -94,7 +94,9 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	StackPos(0),
 	NewStackPos(FALSE),
 	EditorID(::EditorID++),
-	HostFileEditor(nullptr)
+	HostFileEditor(nullptr),
+	SortColorLockCount(0),
+	SortColorUpdate(false)
 {
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));
@@ -350,7 +352,9 @@ void Editor::ShowEditor(int CurLineOnly)
 				if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 				{
 					_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE)"));
+					SortColorLock();
 					CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
+					SortColorUnlock();
 				}
 			}
 			else
@@ -358,7 +362,9 @@ void Editor::ShowEditor(int CurLineOnly)
 				if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 				{
 					_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW,%s)",(CurLineOnly?"EEREDRAW_LINE":"EEREDRAW_ALL")));
+					SortColorLock();
 					CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,CurLineOnly?EEREDRAW_LINE:EEREDRAW_ALL);
+					SortColorUnlock();
 				}
 			}
 		}
@@ -2781,7 +2787,9 @@ int Editor::ProcessKey(int Key)
 						CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 						//_D(SysLog(L"%08d EE_REDRAW",__LINE__));
 						_SYS_EE_REDRAW(SysLog(L"Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
+						SortColorLock();
 						CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+						SortColorUnlock();
 					}
 
 					/*$ 03.02.2001 SKV
@@ -3071,7 +3079,9 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			{
 				CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 				_SYS_EE_REDRAW(SysLog(L"Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE)",__LINE__));
+				SortColorLock();
 				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
+				SortColorUnlock();
 			}
 		}
 
@@ -5903,7 +5913,8 @@ int Editor::EditorControl(int Command,void *Param)
 					return FALSE;
 				}
 
-				CurPtr->AddColor(&newcol);
+				CurPtr->AddColor(&newcol,SortColorLocked());
+				SortColorUpdate=true;
 				return TRUE;
 			}
 
@@ -5962,7 +5973,8 @@ int Editor::EditorControl(int Command,void *Param)
 					return FALSE;
 				}
 
-				return(CurPtr->DeleteColor(col->StartPos,col->Owner));
+				SortColorUpdate=true;
+				return(CurPtr->DeleteColor(col->StartPos,col->Owner,SortColorLocked()));
 			}
 
 			break;
@@ -7149,4 +7161,29 @@ void Editor::DrawScrollbar()
 		SetColor(COL_EDITORSCROLLBAR);
 		XX2=X2-(ScrollBarEx(X2,Y1,Y2-Y1+1,NumLine-CalcDistance(TopScreen,CurLine,-1),NumLastLine)?1:0);
 	}
+}
+
+void Editor::SortColorLock()
+{
+	SortColorLockCount++;
+}
+
+void Editor::SortColorUnlock()
+{
+	if (SortColorLockCount > 0)
+		SortColorLockCount--;
+	else
+		SortColorLockCount = 0;
+
+	if (SortColorLockCount == 0 && SortColorUpdate)
+	{
+		Edit* CurPtr;
+		for (CurPtr=TopList; CurPtr; CurPtr=CurPtr->m_next)
+			CurPtr->SortColorUnlocked();
+	}
+}
+
+bool Editor::SortColorLocked()
+{
+	return (SortColorLockCount > 0);
 }

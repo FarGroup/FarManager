@@ -140,6 +140,9 @@ class Edit:public ScreenObject
 		wchar_t *Mask;
 		ColorItem *ColorList;
 		int    ColorCount;
+		int    MaxColorCount;
+		bool   ColorListNeedSort;
+		bool   ColorListNeedFree;
 
 		FarColor Color;
 		FarColor SelColor;
@@ -277,8 +280,9 @@ class Edit:public ScreenObject
 
 		void  InsertTab();
 
-		void  AddColor(ColorItem *col);
-		int   DeleteColor(int ColorPos,const GUID& Owner);
+		void  AddColor(ColorItem *col,bool skipsort=false);
+		void  SortColorUnlocked();
+		int   DeleteColor(int ColorPos,const GUID& Owner,bool skipfree=false);
 		int   GetColor(ColorItem *col,int Item);
 
 		void Xlat(bool All=false);

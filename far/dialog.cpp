@@ -2327,6 +2327,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 				case DI_LISTBOX:
 					Ret=Item[FocusPos]->ListPtr->VMProcess(OpCode,vParam,iParam);
+					break;
 
 				case DI_USERCONTROL:
 				{
