@@ -1555,7 +1555,15 @@ int Editor::ProcessKey(int Key)
 			if (BlockStart || VBlockStart)
 			{
 				int SelStart,SelEnd;
-				CurLine->GetSelection(SelStart,SelEnd);
+
+				if (BlockStart)
+					CurLine->GetSelection(SelStart,SelEnd);
+				else
+				{
+					SelStart=VBlockX;
+					SelEnd=SelStart+VBlockSizeX-1;
+				}
+
 				Pasting++;
 				bool OldUseInternalClipboard=Clipboard::SetUseInternalClipboardState(true);
 				ProcessKey((Key==KEY_CTRLP || Key==KEY_RCTRLP) ? KEY_CTRLINS:KEY_SHIFTDEL);
