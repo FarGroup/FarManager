@@ -71,8 +71,8 @@ struct OpenInfo
   <div class=dfn>Data</div>
     <div class=dfndescr>Интерпретация параметра зависит от <i>OpenFrom</i>:
     <ul>
-    <li>Если в параметре OpenFrom выставлен флаг OPEN_FROMMACRO, то значения в младшем слове содержат не идентификатор из перечисления OPENPLUGIN_OPENFROM, 
-    а номер текущей макрообласти, определенной в перечислении <a href="../service_functions/macrocontrol.html">FARMACROAREA</a>.
+    <li>Если в параметре OpenFrom выставлен флаг OPEN_FROMMACRO, то значения в младшем слове содержат не идентификатор из перечисления OPENPLUGIN_OPENFROM,
+    а номер текущей макрообласти, определенной в перечислении <a href="../service_functions/macrocontrol.html#FARMACROAREA">FARMACROAREA</a>.
     <li>Для параметров OPEN_DISKMENU, OPEN_PLUGINSMENU, OPEN_EDITOR и OPEN_VIEWER <i>Data</i> - это номер выбранного пункта в меню из зарегистрированных
     плагином пунктов. Если плагин экспортирует только один элемент, этот параметр всегда равен нулю.
     <li>Для OPEN_FINDLIST <i>Data</i> всегда 0.

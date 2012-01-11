@@ -23,6 +23,7 @@ struct MacroAddMacro
 {
   size_t StructSize;
   void *Id;
+  enum FARMACROAREA Area;
   FARKEYMACROFLAGS Flags;
   INPUT_RECORD AKey;
   const wchar_t *SequenceText;
@@ -37,6 +38,8 @@ struct MacroAddMacro
     <div class=dfndescr>Это поле должно содержать размер структуры <dfn>MacroSendMacroText</dfn>.</div>
   <div class=dfn>Id</div>
     <div class=dfndescr>Уникальный в рамках плагина идентификатор макропоследовательности.</div>
+  <div class=dfn>Area</div>
+    <div class=dfndescr>Макрообласть типа <a href="../service_functions/macrocontrol.html#FARMACROAREA">FARMACROAREA</a>, куда поместить макропоследовательность.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Комбинация флагов (перечисление <a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a>):
     <table class="cont">
