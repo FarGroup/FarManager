@@ -125,14 +125,6 @@ wchar_t * WINAPI InsertQuote(wchar_t *Str)
 	return InsertCustomQuote(Str,L'\"');
 }
 
-wchar_t * WINAPI InsertRegexpQuote(wchar_t *Str)
-{
-	if (Str && *Str != L'/')
-		return InsertCustomQuote(Str,L'/');
-	else          //выражение вида /regexp/i не дополняем слэшем
-		return Str;
-}
-
 wchar_t* WINAPI QuoteSpace(wchar_t *Str)
 {
 	if (wcspbrk(Str, Opt.strQuotedSymbols) )
@@ -149,10 +141,14 @@ string& InsertQuote(string &strStr)
 
 string& InsertRegexpQuote(string &strStr)
 {
+	//выражение вида /regexp/i не дополняем слэшами
 	if (strStr.IsEmpty() || strStr[0] != L'/')
-		return InsertCustomQuote(strStr,L'/');
-	else          //выражение вида /regexp/i не дополняем слэшем
-		return strStr;
+	{
+		strStr.Insert(0, L'/');
+		strStr += L'/';
+	}
+
+	return strStr;
 }
 
 string &QuoteSpace(string &strStr)

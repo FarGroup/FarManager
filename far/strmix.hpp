@@ -63,7 +63,6 @@ wchar_t* WINAPI InsertQuote(wchar_t *Str);
 string& InsertQuote(string& strStr);
 void WINAPI Unquote(string &strStr);
 void WINAPI Unquote(wchar_t *Str);
-wchar_t * WINAPI InsertRegexpQuote(wchar_t *Str);
 string& InsertRegexpQuote(string& strStr);
 void UnquoteExternal(string &strStr);
 wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str);
