@@ -246,9 +246,10 @@ bool elevation::SendCommand(ELEVATION_COMMAND Command) const
 
 bool elevation::ReceiveLastError() const
 {
-	int LastError = ERROR_SUCCESS;
-	bool Result = ReadPipe(Pipe, LastError);
-	SetLastError(LastError);
+	int ErrorCodes[2] = {ERROR_SUCCESS, STATUS_SUCCESS};
+	bool Result = ReadPipe(Pipe, ErrorCodes);
+	SetLastError(ErrorCodes[0]);
+	ifn.RtlNtStatusToDosError(ErrorCodes[1]);
 	return Result;
 }
 
@@ -1171,10 +1172,10 @@ void CreateDirectoryExHandler()
 		{
 			// BUGBUG, SecurityAttributes ignored
 			int Result = *TemplateObject.GetStr()?CreateDirectoryEx(TemplateObject.GetStr(), Object.GetStr(), nullptr):CreateDirectory(Object.GetStr(), nullptr);
-			int LastError = GetLastError();
+			int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
-				WritePipe(Pipe, LastError);
+				WritePipe(Pipe, ErrorCodes);
 			}
 		}
 	}
@@ -1186,10 +1187,10 @@ void RemoveDirectoryHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		int Result = RemoveDirectory(Object.GetStr());
-		int LastError = GetLastError();
+		int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 		if(WritePipe(Pipe, Result))
 		{
-			WritePipe(Pipe, LastError);
+			WritePipe(Pipe, ErrorCodes);
 		}
 	}
 }
@@ -1200,10 +1201,10 @@ void DeleteFileHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		int Result = DeleteFile(Object.GetStr());
-		int LastError = GetLastError();
+		int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 		if(WritePipe(Pipe, Result))
 		{
-			WritePipe(Pipe, LastError);
+			WritePipe(Pipe, ErrorCodes);
 		}
 	}
 }
@@ -1227,10 +1228,10 @@ void CopyFileExHandler()
 					{
 						// BUGBUG: Cancel ignored
 						int Result = CopyFileEx(From.GetStr(), To.GetStr(), UserCopyProgressRoutine.Get()?ElevationCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags);
-						int LastError = GetLastError();
+						int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 						if(WritePipe(Pipe, Result))
 						{
-							WritePipe(Pipe, LastError);
+							WritePipe(Pipe, ErrorCodes);
 						}
 					}
 				}
@@ -1251,10 +1252,10 @@ void MoveFileExHandler()
 			if(ReadPipe(Pipe, Flags))
 			{
 				int Result = MoveFileEx(From.GetStr(), To.GetStr(), Flags);
-				int LastError = GetLastError();
+				int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 				if(WritePipe(Pipe, Result))
 				{
-					WritePipe(Pipe, LastError);
+					WritePipe(Pipe, ErrorCodes);
 				}
 			}
 		}
@@ -1267,10 +1268,10 @@ void GetFileAttributesHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		int Result = GetFileAttributes(Object.GetStr());
-		int LastError = GetLastError();
+		int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 		if(WritePipe(Pipe, Result))
 		{
-			WritePipe(Pipe, LastError);
+			WritePipe(Pipe, ErrorCodes);
 		}
 	}
 }
@@ -1284,10 +1285,10 @@ void SetFileAttributesHandler()
 		if(ReadPipe(Pipe, Attributes))
 		{
 			int Result = SetFileAttributes(Object.GetStr(), Attributes);
-			int LastError = GetLastError();
+			int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
-				WritePipe(Pipe, LastError);
+				WritePipe(Pipe, ErrorCodes);
 			}
 		}
 	}
@@ -1303,10 +1304,10 @@ void CreateHardLinkHandler()
 		{
 			// BUGBUG: SecurityAttributes ignored.
 			int Result = CreateHardLink(Object.GetStr(), Target.GetStr(), nullptr);
-			int LastError = GetLastError();
+			int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
-				WritePipe(Pipe, LastError);
+				WritePipe(Pipe, ErrorCodes);
 			}
 		}
 	}
@@ -1324,10 +1325,10 @@ void CreateSymbolicLinkHandler()
 			if(ReadPipe(Pipe, Flags))
 			{
 				int Result = CreateSymbolicLinkInternal(Object.GetStr(), Target.GetStr(), Flags);
-				int LastError = GetLastError();
+				int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 				if(WritePipe(Pipe, Result))
 				{
-					WritePipe(Pipe, LastError);
+					WritePipe(Pipe, ErrorCodes);
 				}
 			}
 		}
@@ -1366,10 +1367,10 @@ void SetOwnerHandler()
 		if(ReadPipeData(Pipe, Owner))
 		{
 			int Result = SetOwnerInternal(Object.GetStr(), Owner.GetStr());
-			int LastError = GetLastError();
+			int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
-				WritePipe(Pipe, LastError);
+				WritePipe(Pipe, ErrorCodes);
 			}
 		}
 	}
@@ -1408,10 +1409,10 @@ void CreateFileHandler()
 								CloseHandle(ParentProcess);
 							}
 						}
-						int LastError = GetLastError();
+						int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 						if(WritePipeData(Pipe, &Result, sizeof(Result)))
 						{
-							WritePipe(Pipe, LastError);
+							WritePipe(Pipe, ErrorCodes);
 						}
 					}
 				}
@@ -1429,10 +1430,10 @@ void SetEncryptionHandler()
 		if(ReadPipe(Pipe, Encrypt))
 		{
 			bool Result = apiSetFileEncryptionInternal(Object.GetStr(), Encrypt);
-			int LastError = GetLastError();
+			int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
-				WritePipe(Pipe, LastError);
+				WritePipe(Pipe, ErrorCodes);
 			}
 		}
 	}
