@@ -1190,6 +1190,7 @@ enum FARMACROAREA
 	MACROAREA_SHELLAUTOCOMPLETION        =  15,
 	MACROAREA_DIALOGAUTOCOMPLETION       =  16,
 
+	MACROAREA_COMMON                     = 255,
 };
 
 enum FARMACROSTATE
@@ -1260,6 +1261,7 @@ struct MacroAddMacro
 {
 	size_t StructSize;
 	void* Id;
+	enum FARMACROAREA Area;
 	FARKEYMACROFLAGS Flags;
 	INPUT_RECORD AKey;
 	const wchar_t *SequenceText;

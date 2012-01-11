@@ -828,6 +828,7 @@ int KeyMacro::LoadMacros(BOOL InitedRAM,BOOL LoadAll)
 			Areas[MACRO_QVIEWPANEL]=
 			Areas[MACRO_TREEPANEL]=
 			Areas[MACRO_USERMENU]= // <-- Mantis#0001594
+			Areas[MACRO_SHELLAUTOCOMPLETION]=
 			Areas[MACRO_FINDFOLDER]=MACRO_LAST;
 	}
 
@@ -7370,23 +7371,25 @@ int KeyMacro::GetIndex(int Key, int CheckMode, bool UseCommon, bool StrictKeys)
 			{
 				int ctrl = (!StrictKeys && (Key&(KEY_RCTRL|KEY_RALT)) && !(Key&(KEY_CTRL|KEY_ALT))) ? 0 : 1;
 				MacroRecord *MPtrSave=MPtr;
+
 				for (; ctrl < 2; ctrl++)
 				{
-				for (Pos=0; Pos < Len; ++Pos, ++MPtr)
-				{
-					if (!((MPtr->Key ^ Key) & ~0xFFFF) &&
-					        (Upper(static_cast<WCHAR>(MPtr->Key))==Upper(static_cast<WCHAR>(Key))) &&
-					        (MPtr->BufferSize > 0))
+					for (Pos=0; Pos < Len; ++Pos, ++MPtr)
 					{
+						if (!((MPtr->Key ^ Key) & ~0xFFFF) &&
+						        (Upper(static_cast<WCHAR>(MPtr->Key))==Upper(static_cast<WCHAR>(Key))) &&
+						        (MPtr->BufferSize > 0))
+						{
 							//        && (CheckMode == -1 || (MPtr->Flags&MFLAGS_MODEMASK) == CheckMode))
-						//_SVS(SysLog(L"GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
-						if (!(MPtr->Flags&MFLAGS_DISABLEMACRO))
+							//_SVS(SysLog(L"GetIndex: Pos=%d MPtr->Key=0x%08X", Pos,MPtr->Key));
+							if (!(MPtr->Flags&MFLAGS_DISABLEMACRO))
 							{
 							    if(!MPtr->Callback||MPtr->Callback(MPtr->Id,AKMFLAGS_NONE))
 							    	return Pos+((CheckMode >= 0)?IndexMode[CheckMode][0]:0);
+							}
+						}
 					}
-				}
-			}
+
 					if (!ctrl)
 					{
 						if (Key & KEY_RCTRL)
@@ -7883,12 +7886,17 @@ bool KeyMacro::IsOpCode(DWORD p)
 	return (!(p&KEY_MACRO_BASE) || p == MCODE_OP_ENDKEYS)?false:true;
 }
 
-int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,FARKEYMACROFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
+int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,FARKEYMACROFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
 {
+	if (Area < MACRO_OTHER || Area > MACRO_COMMON)
+		return FALSE;
+
 	MacroRecord CurMacro={};
-	CurMacro.Flags=MACRO_COMMON;
-	if (Flags&KMFLAGS_DISABLEOUTPUT) CurMacro.Flags|=MFLAGS_DISABLEOUTPUT;
-	if (Flags&KMFLAGS_NOSENDKEYSTOPLUGINS) CurMacro.Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
+	CurMacro.Flags=Area;
+	if (Flags&KMFLAGS_DISABLEOUTPUT)
+		CurMacro.Flags|=MFLAGS_DISABLEOUTPUT;
+	if (Flags&KMFLAGS_NOSENDKEYSTOPLUGINS)
+		CurMacro.Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
 	CurMacro.Key=InputRecordToKey(&AKey);
 	CurMacro.Src=xf_wcsdup(PlainText);
 	CurMacro.Description=xf_wcsdup(Description);
@@ -7912,13 +7920,19 @@ int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,FARKE
 
 int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 {
-	size_t size=IndexMode[MACRO_COMMON][0]+IndexMode[MACRO_COMMON][1];
-	for(size_t ii=IndexMode[MACRO_COMMON][0];ii<size;++ii)
+	if (MacroLIB)
 	{
-		if(MacroLIB[ii].Id==Id&&IsEqualGUID(MacroLIB[ii].Guid,PluginId))
+		for (int Area=MACRO_OTHER; Area < MACRO_LAST; ++Area)
 		{
-			DelMacro(ii);
-			return TRUE;
+			size_t size=IndexMode[Area][0]+IndexMode[Area][1];
+			for(size_t ii=IndexMode[Area][0];ii<size;++ii)
+			{
+				if(MacroLIB[ii].Id==Id && IsEqualGUID(MacroLIB[ii].Guid,PluginId))
+				{
+					DelMacro(ii);
+					return TRUE;
+				}
+			}
 		}
 	}
 	return FALSE;

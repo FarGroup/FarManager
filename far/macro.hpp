@@ -352,7 +352,7 @@ class KeyMacro
 		static TMacroFunction *RegisterMacroFunction(const TMacroFunction *tmfunc);
 		static bool UnregMacroFunction(size_t Index);
 
-		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,FARKEYMACROFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
+		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,FARKEYMACROFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);
 		void DelMacro(size_t Index);
 };

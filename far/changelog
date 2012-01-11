@@ -1,3 +1,30 @@
+svs 11.01.2012 22:17:46 +0400 - build 2362
+
+1. Mantis#0001949: Вызов макроса при включенном AutoCompletion
+   Изменение в АПИ!!!
+
+   В struct MacroAddMacro добавлено поле Area
+   Теперь с помощью MCTL_ADDMACRO можно добавлять не только в область common
+
+2. В xml раздел "macro" называется теперь "macros"
+   http://forum.farmanager.com/viewtopic.php?p=88391#p88391
+
+3. Импорт/Экспорт макропеременных, макроконстант и макропоследовательностей.
+   Добавлен action = "add|delete|ignore"
+     <variable name="%NAME%" type="%TYPE%" action="%ACTION%">%VALUE%</variable>
+     <constant name="%NAME%" type="%TYPE%" action="%ACTION%">%VALUE%</constant>
+   если action не указан, то подразумевается "add"
+   "ignore" - при импорте будет пропущен
+   "delete" - при импорте объект будет удален из базы
+   %VALUE% может быть CDATA
+
+4. Первые зачатки диагностики импорта.
+   Пока в макросах - при обнаружении ошибок весь импорт макросов в базу отменяется.
+
+5. Уточнение TranslateKeyToVK.
+   Внутренние INTERNAL_KEY_BASE_2 транслируются на
+   MENU_EVENT, FOCUS_EVENT и WINDOW_BUFFER_SIZE_EVENT
+
 svs 11.01.2012 11:35:08 +0400 - build 2361
 
 1. Mantis#0001915: Отображение ошибок в макросе при eval

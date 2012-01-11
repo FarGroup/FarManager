@@ -2367,17 +2367,24 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 			// Param1=0, Param2 - 0
 			case MCTL_GETAREA:
 			{
-				return Macro.GetMode();
+				int Area=Macro.GetMode();
+				if (Area == MACRO_COMMON)
+					Area = MACROAREA_COMMON;
+				return Area;
 			}
 
 			case MCTL_ADDMACRO:
 			{
 				if (!Param2)
 					break;
+
 				MacroAddMacro *Data=(MacroAddMacro*)Param2;
 				if (Data->SequenceText && *Data->SequenceText)
 				{
-					return Macro.AddMacro(Data->SequenceText,Data->Description,Data->Flags,Data->AKey,*PluginId,Data->Id,Data->Callback);
+					MACROMODEAREA Area=static_cast<MACROMODEAREA>(Data->Area);
+					if (Data->Area == MACROAREA_COMMON)
+						Area=MACRO_COMMON;
+					return Macro.AddMacro(Data->SequenceText,Data->Description,Area,Data->Flags,Data->AKey,*PluginId,Data->Id,Data->Callback);
 				}
 				break;
 			}

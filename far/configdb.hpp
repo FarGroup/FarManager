@@ -110,6 +110,8 @@ public:
 
 	bool EndTransaction() { return Exec("END TRANSACTION;"); }
 
+	bool RollbackTransaction() { return Exec("ROLLBACK TRANSACTION;"); }
+
 	bool IsOpen() { return pDb != nullptr; }
 
 	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt)
