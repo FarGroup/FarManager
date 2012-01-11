@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
-  <macro>
+  <macros>
     <keymacros>
-      <macro area="Shell" key="BS" flags="EmptyCommandLine" description="Use BS to go to upper folder">CtrlPgUp</macro>
+      <macro area="Shell" key="BS" flags="EmptyCommandLine" description="Use BS to go to upper folder"><text>CtrlPgUp</text></macro>
     </keymacros>
-  </macro>
+  </macros>
 </farconfig>

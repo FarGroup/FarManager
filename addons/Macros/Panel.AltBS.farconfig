@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
-  <macro>
+  <macros>
     <keymacros>
-      <macro area="Shell" key="AltBS" flags="DisableOutput" description="Use Alt-BS to undo folder changes">AltF12 $if(CurPos == ItemCount) $if(%%AltBS == 0) %%AltBS=1; $else %%AltBS=0; Up $end $else %%AltBS=0; Up $end ShiftEnter</macro>
+      <macro area="Shell" key="AltBS" flags="DisableOutput" description="Use Alt-BS to undo folder changes"><text>AltF12 $if(CurPos == ItemCount) $if(%%AltBS == 0) %%AltBS=1; $else %%AltBS=0; Up $end $else %%AltBS=0; Up $end ShiftEnter</text></macro>
     </keymacros>
-  </macro>
+  </macros>
 </farconfig>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
-  <macro>
+  <macros>
     <keymacros>
-      <macro area="Viewer" key="ShiftIns" flags="DisableOutput" description="Use Shift-Ins to search text from clipboard in internal viewer">F7 ShiftIns Enter</macro>
+      <macro area="Viewer" key="ShiftIns" flags="DisableOutput" description="Use Shift-Ins to search text from clipboard in internal viewer"><text>F7 ShiftIns Enter</text></macro>
     </keymacros>
-  </macro>
+  </macros>
 </farconfig>

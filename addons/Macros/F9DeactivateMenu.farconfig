@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
-  <macro>
+  <macros>
     <keymacros>
-      <macro area="MainMenu" key="F9" flags="DisableOutput" description="Use F9 to deactivate main menu">Esc</macro>
+      <macro area="MainMenu" key="F9" flags="DisableOutput" description="Use F9 to deactivate main menu"><text>Esc</text></macro>
     </keymacros>
-  </macro>
+  </macros>
 </farconfig>

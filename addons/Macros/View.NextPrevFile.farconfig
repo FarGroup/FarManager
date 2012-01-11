@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
-  <macro>
+  <macros>
     <keymacros>
-      <macro area="Viewer" key="Add" flags="DisableOutput" description="Move to next file and update panel position">Add CtrlF10 Shift</macro>
-      <macro area="Viewer" key="Subtract" flags="DisableOutput" description="Move to previous file and update panel position">Subtract CtrlF10 Shift</macro>
+      <macro area="Viewer" key="Add" flags="DisableOutput" description="Move to next file and update panel position"><text>Add CtrlF10 Shift</text></macro>
+      <macro area="Viewer" key="Subtract" flags="DisableOutput" description="Move to previous file and update panel position"><text>Subtract CtrlF10 Shift</text></macro>
     </keymacros>
-  </macro>
+  </macros>
 </farconfig>

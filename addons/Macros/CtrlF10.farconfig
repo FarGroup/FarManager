@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
-  <macro>
+  <macros>
     <keymacros>
-      <macro area="Editor" key="CtrlF10" flags="DisableOutput" description="Quit from editor and position to the current file">CtrlF10 Esc</macro>
-      <macro area="Viewer" key="CtrlF10" flags="DisableOutput" description="Quit from viewer and position to the current file">CtrlF10 Esc</macro>
+      <macro area="Editor" key="CtrlF10" flags="DisableOutput" description="Quit from editor and position to the current file"><text>CtrlF10 Esc</text></macro>
+      <macro area="Viewer" key="CtrlF10" flags="DisableOutput" description="Quit from viewer and position to the current file"><text>CtrlF10 Esc</text></macro>
     </keymacros>
-  </macro>
+  </macros>
 </farconfig>

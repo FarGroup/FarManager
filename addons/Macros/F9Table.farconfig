@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
-  <macro>
+  <macros>
     <keymacros>
-      <macro area="Viewer" key="F9" flags="DisableOutput" description="Use F9 to change current table in viewer and editor">ShiftF8 Down Enter</macro>
-      <macro area="Editor" key="F9" flags="DisableOutput" description="Use F9 to change current table in viewer and editor">ShiftF8 Down Enter</macro>
+      <macro area="Viewer" key="F9" flags="DisableOutput" description="Use F9 to change current table in viewer and editor"><text>ShiftF8 Down Enter</text></macro>
+      <macro area="Editor" key="F9" flags="DisableOutput" description="Use F9 to change current table in viewer and editor"><text>ShiftF8 Down Enter</text></macro>
     </keymacros>
-  </macro>
+  </macros>
 </farconfig>

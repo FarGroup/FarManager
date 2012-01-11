@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
-  <macro>
+  <macros>
     <keymacros>
-      <macro area="Viewer" key="PgDn" flags="DisableOutput" description="PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier">$If (Eof) End $Else PgDn $End</macro>
+      <macro area="Viewer" key="PgDn" flags="DisableOutput" description="PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier"><text>$If (Eof) End $Else PgDn $End</text></macro>
     </keymacros>
-  </macro>
+  </macros>
 </farconfig>

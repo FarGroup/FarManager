@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
-  <macro>
+  <macros>
     <keymacros>
-      <macro area="Shell" key="CtrlQ" flags="DisableOutput" description="Toggle quick view panel">Tab $If (QView) Tab Ctrl2 Tab CtrlClear $Else Tab Ctrl6 Tab $If (APanel.Left) $Rep (APanel.width) CtrlRight $End $Else $Rep (APanel.width) CtrlLeft $End $End $End Tab CtrlQ</macro>
+      <macro area="Shell" key="CtrlQ" flags="DisableOutput" description="Toggle quick view panel"><text>Tab $If (QView) Tab Ctrl2 Tab CtrlClear $Else Tab Ctrl6 Tab $If (APanel.Left) $Rep (APanel.width) CtrlRight $End $Else $Rep (APanel.width) CtrlLeft $End $End $End Tab CtrlQ</text></macro>
     </keymacros>
-  </macro>
+  </macros>
 </farconfig>

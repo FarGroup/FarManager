@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
-  <macro>
+  <macros>
     <keymacros>
-      <macro area="Shell" key="CtrlShiftPgUp" flags="DisableOutput" description="Jump to the previous folder on the same level">$If (!APanel.Root) CtrlPgUp $End $If (!APanel.Bof) Up $If (APanel.Folder) CtrlPgDn $End $End</macro>
-      <macro area="Shell" key="CtrlShiftPgDn" flags="DisableOutput" description="Jump to the next folder on the same level">$If (!APanel.Root) CtrlPgUp $End $If (!APanel.Eof) Down $If (APanel.Folder) CtrlPgDn $End $End</macro>
+      <macro area="Shell" key="CtrlShiftPgUp" flags="DisableOutput" description="Jump to the previous folder on the same level"><text>$If (!APanel.Root) CtrlPgUp $End $If (!APanel.Bof) Up $If (APanel.Folder) CtrlPgDn $End $End</text></macro>
+      <macro area="Shell" key="CtrlShiftPgDn" flags="DisableOutput" description="Jump to the next folder on the same level"><text>$If (!APanel.Root) CtrlPgUp $End $If (!APanel.Eof) Down $If (APanel.Folder) CtrlPgDn $End $End</text></macro>
     </keymacros>
-  </macro>
+  </macros>
 </farconfig>
