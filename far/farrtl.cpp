@@ -9,6 +9,7 @@ farrtl.cpp
 
 #include "console.hpp"
 #include "colormix.hpp"
+#include "imports.hpp"
 
 #ifdef _MSC_VER
 #pragma intrinsic (memcpy)
@@ -92,8 +93,12 @@ void *__cdecl xf_expand(void * block, size_t size)
 	assert(Info->AllocationType == AT_RAW);
 	size+=sizeof(MEMINFO);
 #endif
-
-	return _expand(block, size);
+	// _expand() calls HeapReAlloc which can change the status code, it's bad for us
+	NTSTATUS status = ifn.RtlGetLastNtStatus();
+	void* newblock = _expand(block, size);
+	//RtlNtStatusToDosError also remembers the status code value in the TEB:
+	ifn.RtlNtStatusToDosError(status);
+	return newblock;
 }
 
 void *__cdecl xf_realloc_nomove(void * block, size_t size)

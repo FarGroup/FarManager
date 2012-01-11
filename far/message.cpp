@@ -47,12 +47,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "keyboard.hpp"
 #include "imports.hpp"
+#include "FarDlgBuilder.hpp"
+#include "clipboard.hpp"
 
 static int MessageX1,MessageY1,MessageX2,MessageY2;
 static string strMsgHelpTopic;
 static int FirstButtonIndex,LastButtonIndex;
-static BOOL IsWarningStyle;
+static bool IsWarningStyle;
+static bool IsErrorType;
 
+static DWORD LastError, NtStatus;
 
 int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
@@ -98,6 +102,36 @@ int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
 	return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
 }
 
+bool FormatErrorString(bool Nt, DWORD Code, string& Str)
+{
+	bool Result=false;
+	LPWSTR lpBuffer=nullptr;
+	Result=FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&lpBuffer), 0, nullptr)!=0;
+	Str=lpBuffer;
+	LocalFree(lpBuffer);
+	RemoveUnprintableCharacters(Str);
+	return Result;
+}
+
+bool GetWin32ErrorString(DWORD LastWin32Error, string& Str)
+{
+	return FormatErrorString(false, LastWin32Error, Str);
+}
+
+bool GetNtErrorString(NTSTATUS LastNtStatus, string& Str)
+{
+	return FormatErrorString(true, LastNtStatus, Str);
+}
+
+bool GetErrorString(string &strErrStr)
+{
+#ifdef USE_NT_MESSAGES
+	return GetNtErrorString(ifn.RtlGetLastNtStatus(), strErrStr);
+#else
+	return GetWin32ErrorString(GetLastError(), strErrStr);
+#endif
+}
+
 INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
@@ -136,15 +170,56 @@ INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			if (record->EventType==KEY_EVENT)
 			{
 				int key = InputRecordToKey((const INPUT_RECORD *)Param2);
-				if (Param1==FirstButtonIndex && (key==KEY_LEFT || key == KEY_NUMPAD4 || key==KEY_SHIFTTAB))
+				switch(key)
 				{
-					SendDlgMessage(hDlg,DM_SETFOCUS,LastButtonIndex,0);
-					return TRUE;
-				}
-				else if (Param1==LastButtonIndex && (key==KEY_RIGHT || key == KEY_NUMPAD6 || key==KEY_TAB))
-				{
-					SendDlgMessage(hDlg,DM_SETFOCUS,FirstButtonIndex,0);
-					return TRUE;
+				case KEY_F3:
+					if(IsErrorType)
+					{
+						string Txt[2];
+						GetWin32ErrorString(LastError, Txt[0]);
+						GetNtErrorString(NtStatus, Txt[1]);
+						FormatString Str[2];
+						Str[0] << L"LastError: 0x" << fmt::Width(8) << fmt::FillChar(L'0') << fmt::Radix(16) << LastError << L" - " << Txt[0];
+						Str[1] << L"NTSTATUS: 0x" << fmt::Width(8) << fmt::FillChar(L'0') << fmt::Radix(16) << NtStatus << L" - " << Txt[1];
+						DialogBuilder Builder(MError, nullptr);
+						Builder.AddConstEditField(Str[0], 65);
+						Builder.AddConstEditField(Str[1], 65);
+						Builder.AddOK();
+						Builder.ShowDialog();
+					}
+					break;
+
+				case KEY_TAB:
+				case KEY_RIGHT:
+				case KEY_NUMPAD6:
+					if(Param1==LastButtonIndex)
+					{
+						SendDlgMessage(hDlg,DM_SETFOCUS,FirstButtonIndex,0);
+						return TRUE;
+					}
+					break;
+
+				case KEY_SHIFTTAB:
+				case KEY_LEFT:
+				case KEY_NUMPAD4:
+					if(Param1==FirstButtonIndex)
+					{
+						SendDlgMessage(hDlg,DM_SETFOCUS,LastButtonIndex,0);
+						return TRUE;
+					}
+					break;
+
+				case KEY_CTRLC:
+				case KEY_RCTRLC:
+				case KEY_CTRLINS:
+				case KEY_RCTRLINS:
+				case KEY_CTRLNUMPAD0:
+				case KEY_RCTRLNUMPAD0:
+					{
+						string* strText = reinterpret_cast<string*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
+						CopyToClipboard(*strText);
+					}
+					break;
 				}
 			}
 		}
@@ -167,6 +242,7 @@ int Message(
 )
 {
 	string strTempStr;
+	string strClipText;
 	int X1,Y1,X2,Y2;
 	int Length, BtnLength;
 	DWORD I, MaxLength, StrCount;
@@ -176,7 +252,16 @@ int Message(
 	const wchar_t *CPtrStr;
 	string strErrStr;
 
-	if (Flags & MSG_ERRORTYPE)
+	IsWarningStyle = (Flags&MSG_WARNING) != 0;
+	IsErrorType = (Flags&MSG_ERRORTYPE) != 0;
+
+	if(IsErrorType)
+	{
+		LastError = GetLastError();
+		NtStatus = ifn.RtlGetLastNtStatus();
+	}
+
+	if (IsErrorType)
 		ErrorSets = GetErrorString(strErrStr);
 
 	// выделим память под рабочий массив указателей на строки (+запас 16)
@@ -210,6 +295,8 @@ int Message(
 
 		if (MaxLength < I)
 			MaxLength=I;
+
+		strClipText.Append(Title).Append(L"\r\n\r\n");
 	}
 
 	// певая коррекция максимального размера
@@ -221,6 +308,8 @@ int Message(
 
 	if ((Flags & MSG_ERRORTYPE) && ErrorSets)
 	{
+		strClipText.Append(strErrStr).Append(L"\r\n");
+
 		// подсчет количества строк во врапенном сообщениеи
 		++CountErrorLine;
 		//InsertQuote(ErrStr); // оквочим
@@ -299,6 +388,20 @@ int Message(
 	for (size_t J=0; J < ItemsNumber-(EmptyText?1:0); ++J, ++I)
 	{
 		Str[I]=Items[J];
+	}
+
+	for (size_t i = 0; i < ItemsNumber-Buttons; ++i)
+	{
+		strClipText.Append(Items[i]).Append(L"\r\n");
+	}
+	strClipText.Append(L"\r\n");
+	for (size_t i = ItemsNumber-Buttons; i < ItemsNumber; ++i)
+	{
+		if(i > ItemsNumber-Buttons)
+		{
+			strClipText.Append(L' ');
+		}
+		strClipText.Append(Items[i]);
 	}
 
 	StrCount+=CountErrorLine;
@@ -397,18 +500,22 @@ int Message(
 						StrSeparator=true;
 					}
 				}
-				else if (StrLength(CPtrStr)>X2-X1-9)
+				else
 				{
-					PtrMsgDlg->Type=DI_EDIT;
-					PtrMsgDlg->Flags|=DIF_READONLY|DIF_BTNNOCLOSE|DIF_SELECTONENTRY;
-					PtrMsgDlg->X1=5;
-					PtrMsgDlg->X2=X2-X1-5;
-					PtrMsgDlg->strData=CPtrStr;
-					continue;
+					if (StrLength(CPtrStr)>X2-X1-9)
+					{
+						PtrMsgDlg->Type=DI_EDIT;
+						PtrMsgDlg->Flags|=DIF_READONLY|DIF_BTNNOCLOSE|DIF_SELECTONENTRY;
+						PtrMsgDlg->X1=5;
+						PtrMsgDlg->X2=X2-X1-5;
+						PtrMsgDlg->strData=CPtrStr;
+					}
+					else
+					{
+						//xstrncpy(PtrMsgDlg->Data,CPtrStr,Min((int)MAX_WIDTH_MESSAGE,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
+						PtrMsgDlg->strData = CPtrStr; //BUGBUG, wrong len
+					}
 				}
-
-				//xstrncpy(PtrMsgDlg->Data,CPtrStr,Min((int)MAX_WIDTH_MESSAGE,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
-				PtrMsgDlg->strData = CPtrStr; //BUGBUG, wrong len
 			}
 		}
 
@@ -422,8 +529,7 @@ int Message(
 				MsgDlg[0].Y2++;
 				ItemCount++;
 			}
-			IsWarningStyle=Flags&MSG_WARNING;
-			Dialog Dlg(MsgDlg,ItemCount,MsgDlgProc);
+			Dialog Dlg(MsgDlg,ItemCount,MsgDlgProc, &strClipText);
 			Dlg.SetPosition(X1,Y1,X2,Y2);
 			if(Id) Dlg.SetId(*Id);
 
@@ -559,112 +665,6 @@ void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
 	X2=MessageX2;
 	Y2=MessageY2;
 }
-
-bool FormatErrorString(bool Nt, DWORD Code, string& Str)
-{
-	bool Result=false;
-	LPWSTR lpBuffer=nullptr;
-	Result=FormatMessage((Nt?FORMAT_MESSAGE_FROM_HMODULE:FORMAT_MESSAGE_FROM_SYSTEM)|FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_IGNORE_INSERTS, (Nt?GetModuleHandle(L"ntdll.dll"):nullptr), Code, 0, reinterpret_cast<LPWSTR>(&lpBuffer), 0, nullptr)!=0;
-	Str=lpBuffer;
-	LocalFree(lpBuffer);
-	RemoveUnprintableCharacters(Str);
-	return Result;
-}
-
-bool GetWin32ErrorString(DWORD LastWin32Error, string& Str)
-{
-	return FormatErrorString(false, LastWin32Error, Str);
-}
-
-bool GetNtErrorString(NTSTATUS LastNtStatus, string& Str)
-{
-	return FormatErrorString(true, LastNtStatus, Str);
-}
-
-bool GetErrorString(string &strErrStr)
-{
-#ifdef USE_NT_MESSAGES
-	return GetNtErrorString(ifn.RtlGetLastNtStatus(), strErrStr);
-#else
-	bool Result=false;
-	static struct TypeErrMsgs
-	{
-		DWORD WinMsg;
-		int FarMsg;
-	}
-	ErrMsgs[]=
-	{
-		{ERROR_INVALID_FUNCTION,MErrorInvalidFunction},
-		{ERROR_BAD_COMMAND,MErrorBadCommand},
-		{ERROR_CALL_NOT_IMPLEMENTED,MErrorBadCommand},
-		{ERROR_FILE_NOT_FOUND,MErrorFileNotFound},
-		{ERROR_PATH_NOT_FOUND,MErrorPathNotFound},
-		{ERROR_TOO_MANY_OPEN_FILES,MErrorTooManyOpenFiles},
-		{ERROR_ACCESS_DENIED,MErrorAccessDenied},
-		{ERROR_NOT_ENOUGH_MEMORY,MErrorNotEnoughMemory},
-		{ERROR_OUTOFMEMORY,MErrorNotEnoughMemory},
-		{ERROR_WRITE_PROTECT,MErrorDiskRO},
-		{ERROR_NOT_READY,MErrorDeviceNotReady},
-		{ERROR_NOT_DOS_DISK,MErrorCannotAccessDisk},
-		{ERROR_SECTOR_NOT_FOUND,MErrorSectorNotFound},
-		{ERROR_OUT_OF_PAPER,MErrorOutOfPaper},
-		{ERROR_WRITE_FAULT,MErrorWrite},
-		{ERROR_READ_FAULT,MErrorRead},
-		{ERROR_GEN_FAILURE,MErrorDeviceGeneral},
-		{ERROR_SHARING_VIOLATION,MErrorFileSharing},
-		{ERROR_LOCK_VIOLATION,MErrorFileSharing},
-		{ERROR_BAD_NETPATH,MErrorNetworkPathNotFound},
-		{ERROR_NETWORK_BUSY,MErrorNetworkBusy},
-		{ERROR_NETWORK_ACCESS_DENIED,MErrorNetworkAccessDenied},
-		{ERROR_NET_WRITE_FAULT,MErrorNetworkWrite},
-		{ERROR_DRIVE_LOCKED,MErrorDiskLocked},
-		{ERROR_ALREADY_EXISTS,MErrorFileExists},
-		{ERROR_BAD_PATHNAME,MErrorInvalidName},
-		{ERROR_INVALID_NAME,MErrorInvalidName},
-		{ERROR_DIRECTORY,MErrorInvalidName},
-		{ERROR_DISK_FULL,MErrorInsufficientDiskSpace},
-		{ERROR_HANDLE_DISK_FULL,MErrorInsufficientDiskSpace},
-		{ERROR_DIR_NOT_EMPTY,MErrorFolderNotEmpty},
-		{ERROR_INTERNET_INCORRECT_USER_NAME,MErrorIncorrectUserName},
-		{ERROR_INTERNET_INCORRECT_PASSWORD,MErrorIncorrectPassword},
-		{ERROR_INTERNET_LOGIN_FAILURE,MErrorLoginFailure},
-		{ERROR_INTERNET_CONNECTION_ABORTED,MErrorConnectionAborted},
-		{ERROR_CANCELLED,MErrorCancelled},
-		{ERROR_NO_NETWORK,MErrorNetAbsent},
-		{ERROR_DEVICE_IN_USE,MErrorNetDeviceInUse},
-		{ERROR_OPEN_FILES,MErrorNetOpenFiles},
-		{ERROR_ALREADY_ASSIGNED,MErrorAlreadyAssigned},
-		{ERROR_DEVICE_ALREADY_REMEMBERED,MErrorAlreadyRemebered},
-		{ERROR_NOT_LOGGED_ON,MErrorNotLoggedOn},
-		{ERROR_INVALID_PASSWORD,MErrorInvalidPassword},
-		{ERROR_NO_RECOVERY_POLICY,MErrorNoRecoveryPolicy},
-		{ERROR_ENCRYPTION_FAILED,MErrorEncryptionFailed},
-		{ERROR_DECRYPTION_FAILED,MErrorDecryptionFailed},
-		{ERROR_FILE_NOT_ENCRYPTED,MErrorFileNotEncrypted},
-		{ERROR_NO_ASSOCIATION,MErrorNoAssociation},
-	};
-
-	DWORD LastError = GetLastError();
-
-	for (size_t i=0; i < ARRAYSIZE(ErrMsgs); i++)
-	{
-		if (ErrMsgs[i].WinMsg == LastError)
-		{
-			strErrStr = MSG(ErrMsgs[i].FarMsg);
-			Result=true;
-			break;
-		}
-	}
-
-	if (!Result)
-	{
-		Result=GetWin32ErrorString(LastError, strErrStr);
-	}
-
-	return Result;
-#endif
-}
-
 
 void SetMessageHelp(const wchar_t *Topic)
 {

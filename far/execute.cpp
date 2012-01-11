@@ -856,7 +856,7 @@ int Execute(const string& CmdStr, // Ком.строка для исполнения
 	apiGetEnvironmentVariable(L"COMSPEC", strComspec);
 	if (strComspec.IsEmpty() && !DirectRun)
 	{
-		Message(MSG_WARNING, 1, MSG(MWarning), MSG(MComspecNotFound), MSG(MErrorCancelled), MSG(MOk));
+		Message(MSG_WARNING, 1, MSG(MError), MSG(MComspecNotFound), MSG(MOk));
 		return -1;
 	}
 

@@ -1789,8 +1789,8 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			DWORD rattr2 = rattr1;
 			while ( INVALID_FILE_ATTRIBUTES == rattr2 )
 			{
-				int mr = Message(MSG_WARNING, 2, MSG(MError),
-					MSG(MErrorDeviceNotReady), strDestDriveRoot,
+				int mr = Message(MSG_WARNING|MSG_ERRORTYPE, 2, MSG(MError),
+					strDestDriveRoot,
 					MSG(MRetry), MSG(MCancel)
 				);
 				if ( mr )
@@ -3252,8 +3252,9 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 								{
 									DestFile.Close();
 									SetMessageHelp(L"CopyFiles");
-									int MsgCode=Message(MSG_WARNING,4,MSG(MError),
-									                    MSG(MErrorInsufficientDiskSpace),strDestName,
+									SetLastError(LastError);
+									int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+									                    strDestName,
 									                    MSG(MSplit),MSG(MSkip),MSG(MRetry),MSG(MCancel));
 									PR_ShellCopyMsg();
 
