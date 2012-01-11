@@ -5,10 +5,10 @@
             <hotkey menu="plugins" guid="A540CD77-CAD0-4E96-ADA0-2BAAC8182237" hotkey="m" />
         </plugin>
     </pluginhotkeys>
-    <macro>
+    <macros>
         <keymacros>
-            <macro area="Editor" key="CtrlM" flags="DisableOutput" description="Brackets matching - Find">F11 m н</macro>
-            <macro area="Editor" key="CtrlShiftM" flags="DisableOutput" description="Brackets matching - Find &amp; Select">F11 m в</macro>
+            <macro area="Editor" key="CtrlM" flags="DisableOutput" description="Brackets matching - Find"><text>F11 m н</text></macro>
+            <macro area="Editor" key="CtrlShiftM" flags="DisableOutput" description="Brackets matching - Find &amp; Select"><text>F11 m в</text></macro>
         </keymacros>
-    </macro>
+    </macros>
 </farconfig>
