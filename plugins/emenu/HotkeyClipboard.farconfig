@@ -3,14 +3,14 @@
 
     <!-- Hotkeys to execute cut/copy/paste commands: Ctrl-X, Ctrl-C, Ctrl-V -->
 
-    <macro>
+    <macros>
         <keymacros>
-            <macro area="Shell" key="CtrlC" flags="DisableOutput"><![CDATA[Esc history.disable(0) print("rclk_cmd:copy") Enter]]></macro>
-            <macro area="Shell" key="CtrlV" flags="DisableOutput"><![CDATA[Esc history.disable(0) print("rclk_cmd:paste") Enter]]></macro>
-            <macro area="Shell" key="CtrlX" flags="DisableOutput"><![CDATA[Esc history.disable(0) print("rclk_cmd:cut") Enter]]></macro>
-            <macro area="Tree" key="CtrlC" flags="DisableOutput"><![CDATA[Esc history.disable(0) print("rclk_cmd:copy") Enter]]></macro>
-            <macro area="Tree" key="CtrlV" flags="DisableOutput"><![CDATA[Esc history.disable(0) print("rclk_cmd:paste") Enter]]></macro>
-            <macro area="Tree" key="CtrlX" flags="DisableOutput"><![CDATA[Esc history.disable(0) print("rclk_cmd:cut") Enter]]></macro>
+            <macro area="Shell" key="CtrlC" flags="DisableOutput"><text><![CDATA[Esc history.disable(0) print("rclk_cmd:copy") Enter]]></text></macro>
+            <macro area="Shell" key="CtrlV" flags="DisableOutput"><text><![CDATA[Esc history.disable(0) print("rclk_cmd:paste") Enter]]></text></macro>
+            <macro area="Shell" key="CtrlX" flags="DisableOutput"><text><![CDATA[Esc history.disable(0) print("rclk_cmd:cut") Enter]]></text></macro>
+            <macro area="Tree" key="CtrlC" flags="DisableOutput"><text><![CDATA[Esc history.disable(0) print("rclk_cmd:copy") Enter]]></text></macro>
+            <macro area="Tree" key="CtrlV" flags="DisableOutput"><text><![CDATA[Esc history.disable(0) print("rclk_cmd:paste") Enter]]></text></macro>
+            <macro area="Tree" key="CtrlX" flags="DisableOutput"><text><![CDATA[Esc history.disable(0) print("rclk_cmd:cut") Enter]]></text></macro>
         </keymacros>
-    </macro>
+    </macros>
 </farconfig>
