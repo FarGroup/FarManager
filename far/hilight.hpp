@@ -63,6 +63,7 @@ class HighlightFiles
 		TPointerArray<FileFilterParams> HiData;
 		int FirstCount, UpperCount, LowerCount, LastCount;
 		unsigned __int64 CurrentTime;
+		bool Changed;
 
 	private:
 		void InitHighlightFiles(class HierarchicalConfig *ExternCfg = nullptr);

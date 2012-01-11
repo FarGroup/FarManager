@@ -59,6 +59,8 @@ static FileFilterParams FoldersFilter;
 
 static bool bMenuOpen = false;
 
+static bool Changed = false;
+
 FileFilter::FileFilter(Panel *HostPanel, FAR_FILE_FILTER_TYPE FilterType):
 	m_HostPanel(HostPanel),
 	m_FilterType(FilterType)
@@ -89,6 +91,7 @@ bool FileFilter::FilterEdit()
 	if (bMenuOpen)
 		return false;
 
+	Changed = true;
 	bMenuOpen = true;
 	MenuItemEx ListItem;
 	int ExitCode;
@@ -355,7 +358,7 @@ bool FileFilter::FilterEdit()
 				int SelPos=FilterList.GetSelectPos();
 				if (SelPos<0)
 					break;
-				
+
 				if (SelPos<(int)FilterData.getCount())
 				{
 					string strQuotedTitle=FilterData.getItem(SelPos)->GetTitle();
@@ -925,6 +928,11 @@ void FileFilter::CloseFilter()
 
 void FileFilter::SaveFilters()
 {
+	if (!Changed)
+		return;
+
+	Changed = false;
+
 	string strKeyName;
 	FileFilterParams *CurFilterData;
 	HierarchicalConfig *cfg = CreateFiltersConfig();
@@ -1022,6 +1030,8 @@ void FileFilter::SwapPanelFlags(FileFilterParams *CurFilterData)
 
 void FileFilter::SwapFilter()
 {
+	Changed = true;
+
 	for (size_t i=0; i<FilterData.getCount(); i++)
 		SwapPanelFlags(FilterData.getItem(i));
 

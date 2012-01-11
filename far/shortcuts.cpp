@@ -80,6 +80,8 @@ ShortcutItem::ShortcutItem()
 
 Shortcuts::Shortcuts()
 {
+	Changed = false;
+
 	HierarchicalConfig *cfg = CreateShortcutsConfig();
 	unsigned __int64 root = cfg->GetKeyID(0,FolderShortcutsKey);
 
@@ -123,6 +125,9 @@ Shortcuts::Shortcuts()
 
 Shortcuts::~Shortcuts()
 {
+	if (!Changed)
+		return;
+
 	HierarchicalConfig *cfg = CreateShortcutsConfig();
 	unsigned __int64 root = cfg->GetKeyID(0,FolderShortcutsKey);
 	if (root)
@@ -323,6 +328,7 @@ bool Shortcuts::Get(size_t Pos, size_t Index, string* Folder, GUID* PluginGuid, 
 
 void Shortcuts::Set(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, const wchar_t* PluginFile, const wchar_t* PluginData)
 {
+	Changed = true;
 	ShortcutItem* Item = Items[Pos].Empty()?Items[Pos].Push():Items[Pos].First();
 	Item->strFolder = Folder;
 	Item->PluginGuid = PluginGuid;
@@ -332,6 +338,7 @@ void Shortcuts::Set(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, c
 
 void Shortcuts::Add(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, const wchar_t* PluginFile, const wchar_t* PluginData)
 {
+	Changed = true;
 	ShortcutItem* Item = Items[Pos].Push();
 	Item->strFolder = Folder;
 	Item->PluginGuid = PluginGuid;
@@ -414,6 +421,7 @@ void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 
 void Shortcuts::Configure()
 {
+	Changed = true;
 	VMenu FolderList(MSG(MFolderShortcutsTitle),nullptr,0,ScrY-4);
 	FolderList.SetFlags(VMENU_WRAPMODE);
 	FolderList.SetHelp(HelpFolderShortcuts);

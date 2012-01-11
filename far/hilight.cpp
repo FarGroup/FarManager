@@ -57,7 +57,7 @@ struct HighlightStrings
 {
 	const wchar_t *UseAttr,*IncludeAttributes,*ExcludeAttributes,*AttrSet,*AttrClear,
 	*IgnoreMask,*UseMask,*Mask,
-	
+
 	*NormalColor,
 	*SelectedColor,
 	*CursorColor,
@@ -104,7 +104,7 @@ static const wchar_t fmtLastGroup[]=L"LastGroup%d";
 static const wchar_t SortGroupsKeyName[]=L"SortGroups";
 static const wchar_t HighlightKeyName[]=L"Highlight";
 
-void SetHighlighting(bool DeleteOld = false, HierarchicalConfig *ExternCfg = nullptr)
+static void SetHighlighting(bool DeleteOld = false, HierarchicalConfig *ExternCfg = nullptr)
 {
 	unsigned __int64 root;
 	HierarchicalConfig *cfg = ExternCfg?ExternCfg:CreateHighlightConfig();
@@ -189,7 +189,8 @@ void SetHighlighting(bool DeleteOld = false, HierarchicalConfig *ExternCfg = nul
 			}
 		}
 	}
-	if(cfg!=ExternCfg)
+
+	if (cfg!=ExternCfg)
 	{
 		delete cfg;
 	}
@@ -197,6 +198,7 @@ void SetHighlighting(bool DeleteOld = false, HierarchicalConfig *ExternCfg = nul
 
 HighlightFiles::HighlightFiles()
 {
+	Changed = false;
 	HierarchicalConfig *cfg = CreateHighlightConfig();
 	SetHighlighting(false, cfg);
 	InitHighlightFiles(cfg);
@@ -204,7 +206,7 @@ HighlightFiles::HighlightFiles()
 	delete cfg;
 }
 
-void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams *HData, const wchar_t *Mask, int SortGroup, bool bSortGroup)
+static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams *HData, const wchar_t *Mask, int SortGroup, bool bSortGroup)
 {
 	//Дефолтные значения выбраны так чтоб как можно правильней загрузить
 	//настройки старых версий фара.
@@ -350,7 +352,7 @@ void HighlightFiles::ClearData()
 
 static const DWORD PalColor[] = {COL_PANELTEXT,COL_PANELSELECTEDTEXT,COL_PANELCURSOR,COL_PANELSELECTEDCURSOR};
 
-void ApplyDefaultStartingColors(HighlightDataColor *Colors)
+static void ApplyDefaultStartingColors(HighlightDataColor *Colors)
 {
 	for (int j=0; j<2; j++)
 		for (int i=0; i<4; i++)
@@ -362,7 +364,7 @@ void ApplyDefaultStartingColors(HighlightDataColor *Colors)
 	Colors->MarkChar=0x00FF0000;
 }
 
-void ApplyBlackOnBlackColors(HighlightDataColor *Colors)
+static void ApplyBlackOnBlackColors(HighlightDataColor *Colors)
 {
 	for (int i=0; i<4; i++)
 	{
@@ -389,7 +391,7 @@ void ApplyBlackOnBlackColors(HighlightDataColor *Colors)
 	}
 }
 
-void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
+static void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
 {
 	//Обработаем black on black чтоб наследовать правильные цвета
 	//и чтоб после наследования были правильные цвета.
@@ -421,7 +423,7 @@ void ApplyColors(HighlightDataColor *DestColors, HighlightDataColor *SrcColors)
 		DestColors->MarkChar=SrcColors->MarkChar;
 }
 
-void ApplyFinalColors(HighlightDataColor *Colors)
+static void ApplyFinalColors(HighlightDataColor *Colors)
 {
 	//Обработаем black on black чтоб после наследования были правильные цвета.
 	ApplyBlackOnBlackColors(Colors);
@@ -619,6 +621,7 @@ int HighlightFiles::MenuPosToRealPos(int MenuPos, int **Count, bool Insert)
 
 void HighlightFiles::HiEdit(int MenuPos)
 {
+	Changed = true;
 	VMenu HiMenu(MSG(MHighlightTitle),nullptr,0,ScrY-4);
 	HiMenu.SetHelp(HLS.HighlightList);
 	HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
@@ -864,7 +867,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 	}
 }
 
-void SaveFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams *CurHiData, bool bSortGroup)
+static void SaveFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams *CurHiData, bool bSortGroup)
 {
 	if (bSortGroup)
 	{
@@ -915,6 +918,11 @@ void SaveFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilterParams 
 
 void HighlightFiles::SaveHiData()
 {
+	if (!Changed)
+		return;
+
+	Changed = false;
+
 	string strRegKey, strGroupName;
 	const wchar_t *KeyNames[4]={HighlightKeyName,SortGroupsKeyName,SortGroupsKeyName,HighlightKeyName};
 	const wchar_t *GroupNames[4]={fmtFirstGroup,fmtUpperGroup,fmtLowerGroup,fmtLastGroup};

@@ -61,8 +61,12 @@ PanelViewSettings ViewSettingsArray[]=
 
 size_t SizeViewSettingsArray=ARRAYSIZE(ViewSettingsArray);
 
+static bool ViewSettingsChanged = false;
+
 void FileList::SetFilePanelModes()
 {
+	ViewSettingsChanged = true;
+
 	int CurMode=0;
 
 	if (CtrlObject->Cp()->ActivePanel->GetType()==FILE_PANEL)
@@ -258,6 +262,11 @@ void FileList::ReadPanelModes()
 
 void FileList::SavePanelModes()
 {
+	if (!ViewSettingsChanged)
+		return;
+
+	ViewSettingsChanged = false;
+
 	HierarchicalConfig *PanelModeCfg = CreatePanelModeConfig();
 
 	for (int I=0; I<10; I++)
