@@ -5422,12 +5422,26 @@ done:
 						break;
 					}
 
-					case 1: // только проверка?
+					case 1: // только проверка? (и возврат кода ошибки)
 					{
 						PostNewMacro(Val.toString(),0,0,TRUE);
 						VMStack.Push((__int64)__getMacroErrorCode());
 						break;
 					}
+					case 3: // только проверка? (и возврат строки ошибки)
+					{
+						string strResult;
+						PostNewMacro(Val.toString(),0,0,TRUE);
+						if (__getMacroErrorCode() != err_Success)
+						{
+							string ErrMsg[4];
+							GetMacroParseError(&ErrMsg[0],&ErrMsg[1],&ErrMsg[2],&ErrMsg[3]);
+							strResult=ErrMsg[3]+L"\n"+ErrMsg[0]+L"\n"+ErrMsg[1]+L"\n"+ErrMsg[2];
+						}
+						VMStack.Push(strResult.CPtr());
+						break;
+					}
+
 
 					case 2: // программный вызов макроса, назначенный на кнопкосочетание
 					{
@@ -7118,7 +7132,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src)
 	return TRUE;
 }
 
-int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,BOOL onlyCheck)
+int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
 {
 	MacroRecord NewMacroWORK2={};
 	wchar_t *Buffer=(wchar_t *)PlainText;
@@ -7172,7 +7186,7 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,BOOL
 	return TRUE;
 }
 
-int KeyMacro::PostNewMacro(MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL IsPluginSend)
+int KeyMacro::PostNewMacro(MacroRecord *MRec,BOOL NeedAddSendFlag,bool IsPluginSend)
 {
 	if (!MRec)
 		return FALSE;
@@ -7226,7 +7240,7 @@ int KeyMacro::PostNewMacro(MacroRecord *MRec,BOOL NeedAddSendFlag,BOOL IsPluginS
 	return TRUE;
 }
 
-int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL onlyCheck)
+int KeyMacro::ParseMacroString(MacroRecord *CurMacro,const wchar_t *BufPtr,bool onlyCheck)
 {
 	BOOL Result=FALSE;
 

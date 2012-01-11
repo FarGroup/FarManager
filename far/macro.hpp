@@ -300,9 +300,9 @@ class KeyMacro
 		void RunStartMacro();
 
 		// Поместить временное строковое представление макроса
-		int PostNewMacro(const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,BOOL onlyCheck=FALSE);
+		int PostNewMacro(const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
 		// Поместить временный рекорд (бинарное представление)
-		int PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag=0,BOOL IsPluginSend=FALSE);
+		int PostNewMacro(struct MacroRecord *MRec,BOOL NeedAddSendFlag=0,bool IsPluginSend=false);
 
 		bool LoadVarFromDB(const wchar_t *Name, TVar &Value);
 		bool SaveVarToDB(const wchar_t *Name, TVar Value);
@@ -339,7 +339,7 @@ class KeyMacro
 		static int   GetMacroKeyInfo(bool FromDB,int Mode,int Pos,string &strKeyName,string &strDescription);
 		static wchar_t *MkTextSequence(DWORD *Buffer,int BufferSize,const wchar_t *Src=nullptr);
 		// из строкового представления макроса сделать MacroRecord
-		int ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr,BOOL onlyCheck=FALSE);
+		int ParseMacroString(struct MacroRecord *CurMacro,const wchar_t *BufPtr,bool onlyCheck=false);
 		BOOL GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 		BOOL GetMacroParseError(string *Err1, string *Err2, string *Err3, string *Err4);
 
