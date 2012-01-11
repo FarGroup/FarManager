@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2347
+  Plugin API for Far Manager 3.0 build 2362
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2347
+#define FARMANAGERVERSION_BUILD 2362
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1085,6 +1085,7 @@ enum FARMACROAREA
 	MACROAREA_SHELLAUTOCOMPLETION        =  15,
 	MACROAREA_DIALOGAUTOCOMPLETION       =  16,
 
+	MACROAREA_COMMON                     = 255,
 };
 
 enum FARMACROSTATE
@@ -1155,6 +1156,7 @@ struct MacroAddMacro
 {
 	size_t StructSize;
 	void* Id;
+	enum FARMACROAREA Area;
 	FARKEYMACROFLAGS Flags;
 	INPUT_RECORD AKey;
 	const wchar_t *SequenceText;
