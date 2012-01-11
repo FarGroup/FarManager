@@ -1,3 +1,13 @@
+t-rex 11.01.2012 21:53:39 +0200 - build 2363
+
+1. Никаких action, буду бить. И вообще надо что то общее для всего импорта.
+   Удаление при "пустышках" это самое простое и логичное, всё остальное нафиг.
+   Для vars, consts и macro теперь есть тэг text в котором может быть CDATA, если тэга
+   text нету, то происходит удаление.
+     <variable name="%NAME%" type="%TYPE%"><text>%VALUE%</text></variable>
+     <constant name="%NAME%" type="%TYPE%"><text>%VALUE%</text></constant>
+     <macro area="%AREA%" key="%KEY%"><text>%SEQUENCE%</text></macro>
+
 svs 11.01.2012 22:17:46 +0400 - build 2362
 
 1. Mantis#0001949: Вызов макроса при включенном AutoCompletion

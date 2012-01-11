@@ -175,16 +175,10 @@ const char *KeyToNameChar(unsigned __int64 Key)
 	return nullptr;
 }
 
-int GetActionValue(const char *Action)
+void SetCDataIfNeeded(TiXmlText *text, const char *value)
 {
-	static char *Actions[]={"add","delete","ignore"};
-	if (!Action || !*Action)
-		return 0;
-
-	for (int I=0; I < ARRAYSIZE(Actions); ++I)
-		if(!_stricmp(Actions[I], Action))
-			return I;
-	return -1;
+	if (strpbrk(value, "\"<>&\r\n"))
+		text->SetCDATA(true);
 }
 
 void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
@@ -2333,11 +2327,11 @@ public:
 
 			se->SetAttribute("name", stmtEnumAllConsts.GetColTextUTF8(0));
 			se->SetAttribute("type", stmtEnumAllConsts.GetColTextUTF8(2));
-			//se->SetAttribute("action", "");
 			const char* value = stmtEnumAllConsts.GetColTextUTF8(1);
-			TiXmlText* text = new TiXmlText(value);
-			if(strpbrk(value,"\"<>&\r\n"))
-				text->SetCDATA(true);
+			TiXmlText* vtext = new TiXmlText(value);
+			SetCDataIfNeeded(vtext, value);
+			TiXmlElement *text = new TiXmlElement("text");
+			text->LinkEndChild(vtext);
 			se->LinkEndChild(text);
 			e->LinkEndChild(se);
 		}
@@ -2348,7 +2342,7 @@ public:
 		// --------------------------------------------------
 		e = new TiXmlElement("variables");
 		if (!e)
-			return nullptr;
+			return root;
 
 		while (stmtEnumAllVars.Step())
 		{
@@ -2358,11 +2352,11 @@ public:
 
 			se->SetAttribute("name", stmtEnumAllVars.GetColTextUTF8(0));
 			se->SetAttribute("type", stmtEnumAllVars.GetColTextUTF8(2));
-			//se->SetAttribute("action", "");
 			const char* value = stmtEnumAllVars.GetColTextUTF8(1);
-			TiXmlText* text = new TiXmlText(value);
-			if(strpbrk(value,"\"<>&\r\n"))
-				text->SetCDATA(true);
+			TiXmlText* vtext = new TiXmlText(value);
+			SetCDataIfNeeded(vtext, value);
+			TiXmlElement *text = new TiXmlElement("text");
+			text->LinkEndChild(vtext);
 			se->LinkEndChild(text);
 			e->LinkEndChild(se);
 		}
@@ -2373,7 +2367,7 @@ public:
 		// --------------------------------------------------
 		e = new TiXmlElement("functions");
 		if (!e)
-			return nullptr;
+			return root;
 
 		while (stmtEnumAllFunctions.Step())
 		{
@@ -2389,7 +2383,6 @@ public:
 			se->SetAttribute("sequence", stmtEnumAllFunctions.GetColTextUTF8(5));
 			se->SetAttribute("syntax", stmtEnumAllFunctions.GetColTextUTF8(6));
 			se->SetAttribute("description", stmtEnumAllFunctions.GetColTextUTF8(7));
-			//se->SetAttribute("action", "");
 			e->LinkEndChild(se);
 		}
 		stmtEnumAllFunctions.Reset();
@@ -2398,9 +2391,8 @@ public:
 
 		// --------------------------------------------------
 		e = new TiXmlElement("keymacros");
-
 		if (!e)
-			return nullptr;
+			return root;
 
 		while (stmtEnumAllKeyMacros.Step())
 		{
@@ -2420,13 +2412,11 @@ public:
 			{
 				se->SetAttribute("description", Description);
 			}
-			//se->SetAttribute("action", "");
 			const char* sequence = stmtEnumAllKeyMacros.GetColTextUTF8(3);
-			TiXmlText* text = new TiXmlText(sequence);
-			if(strpbrk(sequence,"\"<>&\r\n"))
-			{
-				text->SetCDATA(true);
-			}
+			TiXmlText* stext = new TiXmlText(sequence);
+			SetCDataIfNeeded(stext, sequence);
+			TiXmlElement *text = new TiXmlElement("text");
+			text->LinkEndChild(stext);
 			se->LinkEndChild(text);
 			e->LinkEndChild(se);
 		}
@@ -2447,26 +2437,18 @@ public:
 		{
 			const char* name = e->Attribute("name");
 			const char* type = e->Attribute("type"); // optional
-			int Action = GetActionValue(e->Attribute("action")); // optional
-			const char* value = e->GetText();
 
 			if(name)
 			{
-				switch (Action)
+				const TiXmlElement *text = e->FirstChildElement("text");
+				if (text)
 				{
-					case 0: // add
-						SetConstValue(string(name, CP_UTF8),string(value, CP_UTF8),string(type, CP_UTF8));
-						break;
-					case 1: // delete
-						DeleteConst(string(name, CP_UTF8));
-						break;
-					case 2: // ignore
-						break;
-					default:
-						_SVS(SysLog(L"constant.action not found [%d:%d]",e->Row(),e->Column()));
-						ErrCount++;
-						break;
-
+					const char* value = text->GetText();
+					SetConstValue(string(name, CP_UTF8), string(value, CP_UTF8), string(type, CP_UTF8));
+				}
+				else
+				{
+					DeleteConst(string(name, CP_UTF8));
 				}
 			}
 			else
@@ -2480,26 +2462,18 @@ public:
 		{
 			const char* name = e->Attribute("name");
 			const char* type = e->Attribute("type"); // optional
-			int Action = GetActionValue(e->Attribute("action")); // optional
-			const char* value = e->GetText();
 
 			if(name)
 			{
-				switch (Action)
+				const TiXmlElement *text = e->FirstChildElement("text");
+				if (text)
 				{
-					case 0: // add
-						SetVarValue(string(name, CP_UTF8),string(value, CP_UTF8),string(type, CP_UTF8));
-						break;
-					case 1: // delete
-						DeleteVar(string(name, CP_UTF8));
-						break;
-					case 2: // ignore
-						break;
-					default:
-						_SVS(SysLog(L"variable.action not found [%d:%d]",e->Row(),e->Column()));
-						ErrCount++;
-						break;
-
+					const char* value = text->GetText();
+					SetVarValue(string(name, CP_UTF8), string(value, CP_UTF8), string(type, CP_UTF8));
+				}
+				else
+				{
+					DeleteVar(string(name, CP_UTF8));
 				}
 			}
 			else
@@ -2520,7 +2494,6 @@ public:
 			const char* sequence = e->Attribute("sequence");
 			const char* syntax = e->Attribute("syntax");
 			const char* description = e->Attribute("description");
-			//int Action = GetActionValue(e->Attribute("action")); // optional
 
 			// BUGBUG, params can be optional
 			if(guid && fname && nparam && oparam && sequence && syntax)
@@ -2535,43 +2508,34 @@ public:
 			const char* key = e->Attribute("key");
 			const char* flags = e->Attribute("flags"); // optional
 			const char* description = e->Attribute("description"); // optional
-			const char* sequence = e->GetText(); // delete macro if sequence is absent
-			int Action = GetActionValue(e->Attribute("action")); // optional
 
 			if (area && key)
 			{
-				if(!(sequence && *sequence) && Action == 0)
-					Action=1;
-
-				switch (Action)
+				const TiXmlElement *text = e->FirstChildElement("text");
+				if (text) // delete macro if sequence is absent
 				{
-					case 0: // add
-					{
-						string strSequence=string(sequence, CP_UTF8);
-						string strFlags=string(flags? flags : "", CP_UTF8);
-						SetKeyMacro(string(area, CP_UTF8), string(key, CP_UTF8), RemoveExternalSpaces(strFlags), strSequence, description? string(description, CP_UTF8) : L"");
-						break;
-					}
-					case 1: // delete
-						DeleteKeyMacro(string(area, CP_UTF8), string(key, CP_UTF8));
-						break;
-					case 2: // ignore
-						break;
-					default:
-						ErrCount++;
-						break;
+					const char *sequence = text->GetText();
+					string strFlags(flags, CP_UTF8);
+					SetKeyMacro(string(area, CP_UTF8), string(key, CP_UTF8), RemoveExternalSpaces(strFlags), string(sequence, CP_UTF8), string(description, CP_UTF8));
+					break;
 				}
-
+				else
+				{
+					DeleteKeyMacro(string(area, CP_UTF8), string(key, CP_UTF8));
+				}
 			}
 			else
+			{
 				ErrCount++;
+			}
 		}
 
 		if (!ErrCount)
 			EndTransaction();
 		else
 			RollbackTransaction();
-		return !ErrCount?true:false;
+
+		return !ErrCount;
 	}
 };
 
