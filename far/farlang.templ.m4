@@ -10245,13 +10245,13 @@ upd:"Unknown"
 upd:"Unknown"
 upd:"Unknown"
 
-MAccessDenied
-"Ð”Ð¾ÑÑ‚ÑƒÐ¿ Ð·Ð°Ð¿Ñ€ÐµÑ‰Ñ‘Ð½"
+MErrorAccessDenied
+"Доступ запрещён"
 "Access denied"
-"PÅ™Ã­stup odepÅ™en"
+"Přístup odepřen"
 "Zugriff verweigert"
-"HozzÃ¡fÃ©rÃ©s megtagadva"
-"DostÄ™p zabroniony"
+"Hozzáférés megtagadva"
+"Dostęp zabroniony"
 "Acceso denegado"
 
 MCannotExecute
