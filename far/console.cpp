@@ -387,8 +387,19 @@ virtual bool Write(LPCWSTR Buffer) const
 
 virtual bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const
 {
+	bool Result = false;
 	DWORD NumberOfCharsWritten;
-	return WriteConsole(GetOutputHandle(), Buffer, static_cast<DWORD>(NumberOfCharsToWrite), &NumberOfCharsWritten, nullptr)!=FALSE;
+	HANDLE OutputHandle = GetOutputHandle();
+	DWORD Mode;
+	if(GetMode(OutputHandle, Mode))
+	{
+		Result =  WriteConsole(OutputHandle, Buffer, static_cast<DWORD>(NumberOfCharsToWrite), &NumberOfCharsWritten, nullptr)!=FALSE;
+	}
+	else
+	{
+		Result = WriteFile(OutputHandle, Buffer, static_cast<DWORD>(NumberOfCharsToWrite)*sizeof(wchar_t), &NumberOfCharsWritten, nullptr)!=FALSE;
+	}
+	return Result;
 }
 
 virtual bool Commit() const
