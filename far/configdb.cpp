@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "udlist.hpp"
 #include "console.hpp"
 #include "syslog.hpp"
+#include "array.hpp"
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
@@ -88,6 +89,51 @@ private:
 	char* Data;
 	size_t Size;
 };
+
+class StringErrorRecord
+{
+	public:
+		string strTitle;
+		string strError;
+		int Row;
+		int Col;
+
+		StringErrorRecord(const wchar_t *errTitle=nullptr,const wchar_t *errStr=nullptr,int iRow=0, int iCol=0)
+		{
+			strTitle=errTitle;
+			strError=errStr;
+			Row=iRow;
+			Col=iCol;
+		};
+
+		const StringErrorRecord& operator=(const StringErrorRecord &rhs)
+		{
+			if (this != &rhs)
+			{
+				strTitle = rhs.strTitle;
+				strError = rhs.strError;
+				Col=rhs.Col;
+				Row=rhs.Row;
+			}
+			return *this;
+		};
+
+		bool operator==(const StringErrorRecord &rhs) const
+		{
+			return !StrCmpI(strError,rhs.strError);
+		};
+
+		int operator<(const StringErrorRecord &rhs) const
+		{
+			return StrCmpI(strError,rhs.strError) < 0;
+		};
+
+		~StringErrorRecord()
+		{
+		}
+};
+
+static TArray<StringErrorRecord> *pImportErrorList=nullptr;
 
 int IntToHex(int h)
 {
@@ -2438,7 +2484,7 @@ public:
 			const char* name = e->Attribute("name");
 			const char* type = e->Attribute("type"); // optional
 
-			if(name)
+			if(name && *name)
 			{
 				const TiXmlElement *text = e->FirstChildElement("text");
 				if (text)
@@ -2453,7 +2499,7 @@ public:
 			}
 			else
 			{
-				_SVS(SysLog(L"constant.name empty [%d:%d]",e->Row(),e->Column()));
+				pImportErrorList->addItem(StringErrorRecord(L"Constant",L"<name> is empty or not found",e->Row(),e->Column()));
 				ErrCount++;
 			}
 		}
@@ -2463,7 +2509,7 @@ public:
 			const char* name = e->Attribute("name");
 			const char* type = e->Attribute("type"); // optional
 
-			if(name)
+			if(name && *name)
 			{
 				const TiXmlElement *text = e->FirstChildElement("text");
 				if (text)
@@ -2478,7 +2524,7 @@ public:
 			}
 			else
 			{
-				_SVS(SysLog(L"variable.name empty [%d:%d]",e->Row(),e->Column()));
+				pImportErrorList->addItem(StringErrorRecord(L"Variable",L"<name> is empty or not found",e->Row(),e->Column()));
 				ErrCount++;
 			}
 		}
@@ -2509,7 +2555,7 @@ public:
 			const char* flags = e->Attribute("flags"); // optional
 			const char* description = e->Attribute("description"); // optional
 
-			if (area && key)
+			if (area && *area && key && *key)
 			{
 				const TiXmlElement *text = e->FirstChildElement("text");
 				if (text) // delete macro if sequence is absent
@@ -2526,6 +2572,7 @@ public:
 			}
 			else
 			{
+				pImportErrorList->addItem(StringErrorRecord(L"Macro",L"<area> or <key> is empty or not found",e->Row(),e->Column()));
 				ErrCount++;
 			}
 		}
@@ -2678,6 +2725,9 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 	else // Import
 	{
 		TiXmlDocument doc;
+		TArray<StringErrorRecord> ImportErrorList;
+		pImportErrorList=&ImportErrorList;
+
 		if (doc.LoadFile(XmlFile))
 		{
 			TiXmlElement *farconfig = doc.FirstChildElement("farconfig");
@@ -2733,12 +2783,24 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 
 		if (doc.Error())
 		{
-			FormatString strResult;
-			strResult<<L"XML Error ("<<doc.ErrorId()<<L") ["<<doc.ErrorRow()<<L":"<<doc.ErrorCol()<<L"]: "<<string(doc.ErrorDesc(), CP_UTF8);
-			Console.Write(strResult.CPtr(),StrLength(strResult));
-			Console.FlushInputBuffer();
-			WaitKey();
+			StringErrorRecord AddRecord(L"XML Error",string(doc.ErrorDesc(), CP_UTF8),doc.ErrorRow(),doc.ErrorCol());
+			ImportErrorList.addItem(AddRecord);
 		}
+
+		pImportErrorList=nullptr;
+		if (ImportErrorList.getSize())
+		{
+			for (size_t I=0; I < ImportErrorList.getSize(); ++I)
+			{
+				FormatString strResult;
+				const StringErrorRecord *Rec=ImportErrorList.getItem(I);
+				strResult<<Rec->strTitle<<" ("<<Rec->Row<<L","<<Rec->Col<<L"): "<<Rec->strError<<L"\n";
+				Console.Write(strResult.CPtr(),StrLength(strResult));
+			}
+			Console.FlushInputBuffer();
+			//WaitKey();
+		}
+
 	}
 
 	fclose(XmlFile);
