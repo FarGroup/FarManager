@@ -17,8 +17,8 @@
 
 #define fullgenericpluginrc(major, minor, build, desc, name, filename, copyright, pmajor, pminor, pbuild, pname) \
 1 VERSIONINFO \
-FILEVERSION major, minor, 0, build \
-PRODUCTVERSION pmajor, pminor, 0, pbuild \
+FILEVERSION major, minor, build, 0 \
+PRODUCTVERSION pmajor, pminor, pbuild, 0 \
 FILEOS 4 \
 FILETYPE 2 \
 { \
@@ -50,7 +50,7 @@ FILETYPE 2 \
 #define fullgenericpluginrc_nobuild(major, minor, desc, name, filename, copyright, pmajor, pminor, pbuild, pname) \
 1 VERSIONINFO \
 FILEVERSION major, minor, 0, 0 \
-PRODUCTVERSION pmajor, pminor, 0, pbuild \
+PRODUCTVERSION pmajor, pminor, pbuild, 0 \
 FILEOS 4 \
 FILETYPE 2 \
 { \
