@@ -24,9 +24,9 @@ struct FarMacroValue
   enum FARMACROVARTYPE type;
   union
   {
-    __int64  i;
-    double   d;
-    const wchar_t *s;
+    __int64  Integer;
+    double   Double;
+    const wchar_t *String;
   }
 <b>#ifndef __cplusplus</b>
   Value
@@ -38,17 +38,17 @@ struct FarMacroValue
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>type</div>
-    <div class=dfndescr>Тип переменной, одно из следующих значений (перечисление <a name="FARMACROVARTYPE">FARMACROVARTYPE</a>):
+    <div class=dfndescr>Тип переменной, одно из следующих значений (перечисление <code><a name="FARMACROVARTYPE">FARMACROVARTYPE</a></code>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_UNKNOWN">FMVT_UNKNOWN</a></td>
-    <td class="cont" width="60%">Неопределнный тип. <em>Value.i</em> = 0.</td></tr>
+    <td class="cont" width="60%">Неопределнный тип. <em>Value.Integer</em> = 0.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_INTEGER">FMVT_INTEGER</a></td>
-    <td class="cont" width="60%">Число. Компонента <em>Value.i</em>.</td></tr>
+    <td class="cont" width="60%">Число. Компонента <em>Value.Integer</em>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_STRING">FMVT_STRING</a></td>
-    <td class="cont" width="60%">Строка. Компонента <em>Value.s</em>.</td></tr>
+    <td class="cont" width="60%">Строка. Компонента <em>Value.String</em>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_DOUBLE">FMVT_DOUBLE</a></td>
-    <td class="cont" width="60%">Вещественное значение. Компонента <em>Value.d</em>.</td></tr>
+    <td class="cont" width="60%">Вещественное значение. Компонента <em>Value.Double</em>.</td></tr>
     </table>
     </div>
   <div class=dfn>Value</div>

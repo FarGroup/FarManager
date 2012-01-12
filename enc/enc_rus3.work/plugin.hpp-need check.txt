@@ -144,3 +144,7 @@ struct FarGetDialogItem
 	size_t Size;
 	struct FarDialogItem* Item;
 };
+
+typedef unsigned __int64 FARADDKEYMACROFLAGS;
+static const FARADDKEYMACROFLAGS
+	AKMFLAGS_NONE                = 0;

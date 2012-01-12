@@ -47,6 +47,36 @@
                 <param name="Local" value="html/configapi/index.html">
                 </OBJECT>
         <UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Структуры">
+                        <param name="Local" value="html/configapi/index_structures.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ConfigureInfo">
+                                <param name="Local" value="html/structures/configureinfo.html">
+                                </OBJECT>
+		        </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Экспортируемые функции">
+                        <param name="Local" value="html/configapi/index_exported_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="ConfigureW">
+                                <param name="Local" value="html/exported_functions/configurew.html">
+                                </OBJECT>
+		        </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Сервисные функции">
+                        <param name="Local" value="html/configapi/index_service_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="SettingsControl">
+                                <param name="Local" value="html/service_functions/settingscontrol.html">
+                                </OBJECT>
+		        </UL>
         </UL>
 <!-- -->
         <LI> <OBJECT type="text/sitemap">
@@ -68,6 +98,98 @@
                 <param name="Local" value="html/macroapi/index.html">
                 </OBJECT>
         <UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Структуры">
+                        <param name="Local" value="html/macroapi/index_structures.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="MacroAddMacro">
+                                <param name="Local" value="html/structures/macroaddmacro.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="MacroCheckMacroText">
+                                <param name="Local" value="html/structures/macrocheckmacrotext.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="MacroParseResult">
+                                <param name="Local" value="html/structures/macroparseresult.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="MacroSendMacroText">
+                                <param name="Local" value="html/structures/macrosendmacrotext.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarMacroValue">
+                                <param name="Local" value="html/structures/farmacrovalue.html">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FarGetValue">
+                                <param name="Local" value="html/structures/fargetvalue.html">
+                                </OBJECT>
+		        </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Типы и определения">
+                        <param name="Local" value="html/macroapi/index_defs.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FAR_MACRO_CONTROL_COMMANDS">
+                                <param name="Local" value="html/service_functions/macrocontrol.html#FAR_MACRO_CONTROL_COMMANDS">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FARMACROSENDSTRINGCOMMAND">
+                                <param name="Local" value="html/service_functions/macrocontrol.html#FARMACROSENDSTRINGCOMMAND">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FARMACROSTATE">
+                                <param name="Local" value="html/service_functions/macrocontrol.html#FARMACROSTATE">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FARMACROAREA">
+                                <param name="Local" value="html/service_functions/macrocontrol.html#FARMACROAREA">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FARMACROPARSEERRORCODE">
+                                <param name="Local" value="html/service_functions/macroparseresult.html#FARMACROPARSEERRORCODE">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FARKEYMACROFLAGS">
+                                <param name="Local" value="html/service_functions/macrosendmacrotext.html#FARKEYMACROFLAGS">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FARMACROCALLBACK">
+                                <param name="Local" value="html/service_functions/macroaddmacro.html#FARMACROCALLBACK">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="FARMACROVARTYPE">
+                                <param name="Local" value="html/structures/farmacrovalue.html#FARMACROVARTYPE">
+                                </OBJECT>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="DN_GETVALUE">
+                                <param name="Local" value="html/dialogapi/dmsg/dn_getvalue.html">
+                                </OBJECT>
+		        </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Экспортируемые функции">
+                        <param name="Local" value="html/macroapi/index_exported_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="">
+                                <param name="Local" value="html/exported_functions/">
+                                </OBJECT>
+		        </UL>
+                <LI> <OBJECT type="text/sitemap">
+                        <param name="Name" value="Сервисные функции">
+                        <param name="Local" value="html/macroapi/index_service_functions.html">
+                        </OBJECT>
+                <UL>
+                        <LI> <OBJECT type="text/sitemap">
+                                <param name="Name" value="MacroControl">
+                                <param name="Local" value="html/service_functions/macrocontrol.html">
+                                </OBJECT>
+		        </UL>
         </UL>
 <!-- -->
         <LI> <OBJECT type="text/sitemap">

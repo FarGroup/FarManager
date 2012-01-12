@@ -41,7 +41,7 @@ struct MacroAddMacro
   <div class=dfn>Area</div>
     <div class=dfndescr>Макрообласть типа <a href="../service_functions/macrocontrol.html#FARMACROAREA">FARMACROAREA</a>, куда поместить макропоследовательность.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация флагов (перечисление <a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a>):
+    <div class=dfndescr>Комбинация флагов (перечисление <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_DISABLEOUTPUT">KMFLAGS_DISABLEOUTPUT</a></td>
@@ -60,7 +60,7 @@ struct MacroAddMacro
     <div class=dfndescr>Строка, содержащая описание макроса.</div>
   <div class=dfn>Callback</div>
     <div class=dfndescr>Функция, выполняемая Far Manager перед непосредственным выполнением макропоследовательности <i>SequenceText</i>.
-    Синтаксис функции: <pre class=syntax> int (WINAPI *FARMACROCALLBACK)(void *Id,FARADDKEYMACROFLAGS Flags);</pre>
+    Синтаксис функции: <pre class=syntax> int (WINAPI *<a name="FARMACROCALLBACK">FARMACROCALLBACK</a>)(void *Id,FARADDKEYMACROFLAGS Flags);</pre>
     Где: <i>Id</i> - идентификатор (MacroAddMacro.Id). <i>Flags</i> - сейчас не используются.<br>
     Функция может что-то проверить и вернуть <code>TRUE</code> - запустить макрос, или <code>FALSE</code> - не запускать.
     </div>
