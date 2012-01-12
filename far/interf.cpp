@@ -83,13 +83,20 @@ void InitConsole(int FirstInit)
 {
 	InitRecodeOutTable();
 
+	DWORD Mode;
 	if (FirstInit)
 	{
-		HANDLE ConIn = CreateFile(L"CONIN$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
-		HANDLE ConOut = CreateFile(L"CONOUT$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
-		SetStdHandle(STD_INPUT_HANDLE, ConIn);
-		SetStdHandle(STD_OUTPUT_HANDLE, ConOut);
-		SetStdHandle(STD_ERROR_HANDLE, ConOut);
+		if(!Console.GetMode(Console.GetInputHandle(), Mode))
+		{
+			HANDLE ConIn = CreateFile(L"CONIN$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
+			SetStdHandle(STD_INPUT_HANDLE, ConIn);
+		}
+		if(!Console.GetMode(Console.GetOutputHandle(), Mode))
+		{
+			HANDLE ConOut = CreateFile(L"CONOUT$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
+			SetStdHandle(STD_OUTPUT_HANDLE, ConOut);
+			SetStdHandle(STD_ERROR_HANDLE, ConOut);
+		}
 	}
 
 	Console.SetControlHandler(CtrlHandler,TRUE);
