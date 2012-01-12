@@ -10245,7 +10245,7 @@ upd:"Unknown"
 upd:"Unknown"
 upd:"Unknown"
 
-MErrorAccessDenied
+MAccessDenied
 "Доступ запрещён"
 "Access denied"
 "Přístup odepřen"
