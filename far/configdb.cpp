@@ -90,51 +90,6 @@ private:
 	size_t Size;
 };
 
-class StringErrorRecord
-{
-	public:
-		string strTitle;
-		string strError;
-		int Row;
-		int Col;
-
-		StringErrorRecord(const wchar_t *errTitle=nullptr,const wchar_t *errStr=nullptr,int iRow=0, int iCol=0)
-		{
-			strTitle=errTitle;
-			strError=errStr;
-			Row=iRow;
-			Col=iCol;
-		};
-
-		const StringErrorRecord& operator=(const StringErrorRecord &rhs)
-		{
-			if (this != &rhs)
-			{
-				strTitle = rhs.strTitle;
-				strError = rhs.strError;
-				Col=rhs.Col;
-				Row=rhs.Row;
-			}
-			return *this;
-		};
-
-		bool operator==(const StringErrorRecord &rhs) const
-		{
-			return !StrCmpI(strError,rhs.strError);
-		};
-
-		int operator<(const StringErrorRecord &rhs) const
-		{
-			return StrCmpI(strError,rhs.strError) < 0;
-		};
-
-		~StringErrorRecord()
-		{
-		}
-};
-
-static TArray<StringErrorRecord> *pImportErrorList=nullptr;
-
 int IntToHex(int h)
 {
 	if (h >= 10)
@@ -225,6 +180,24 @@ void SetCDataIfNeeded(TiXmlText *text, const char *value)
 {
 	if (strpbrk(value, "\"<>&\r\n"))
 		text->SetCDATA(true);
+}
+
+static inline void PrintError(const wchar_t *Title, const wchar_t *Error, int Row, int Col)
+{
+	FormatString strResult;
+	strResult<<Title<<" ("<<Row<<L","<<Col<<L"): "<<Error<<L"\n";
+	Console.Write(strResult.CPtr(),StrLength(strResult));
+	Console.Commit();
+}
+
+static void PrintError(const wchar_t *Title, const wchar_t *Error, const TiXmlElement *e)
+{
+	PrintError(Title, Error, e->Row(), e->Column());
+}
+
+static void PrintError(const wchar_t *Title, const TiXmlDocument &doc)
+{
+	PrintError(Title, string(doc.ErrorDesc(), CP_UTF8), doc.ErrorRow(), doc.ErrorCol());
 }
 
 void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
@@ -2499,7 +2472,7 @@ public:
 			}
 			else
 			{
-				pImportErrorList->addItem(StringErrorRecord(L"Constant",L"<name> is empty or not found",e->Row(),e->Column()));
+				PrintError(L"Constant", L"<name> is empty or not found", e);
 				ErrCount++;
 			}
 		}
@@ -2524,7 +2497,7 @@ public:
 			}
 			else
 			{
-				pImportErrorList->addItem(StringErrorRecord(L"Variable",L"<name> is empty or not found",e->Row(),e->Column()));
+				PrintError(L"Variable", L"<name> is empty or not found", e);
 				ErrCount++;
 			}
 		}
@@ -2572,7 +2545,7 @@ public:
 			}
 			else
 			{
-				pImportErrorList->addItem(StringErrorRecord(L"Macro",L"<area> or <key> is empty or not found",e->Row(),e->Column()));
+				PrintError(L"Macro", L"<area> or <key> is empty or not found", e);
 				ErrCount++;
 			}
 		}
@@ -2725,8 +2698,6 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 	else // Import
 	{
 		TiXmlDocument doc;
-		TArray<StringErrorRecord> ImportErrorList;
-		pImportErrorList=&ImportErrorList;
 
 		if (doc.LoadFile(XmlFile))
 		{
@@ -2782,25 +2753,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		}
 
 		if (doc.Error())
-		{
-			StringErrorRecord AddRecord(L"XML Error",string(doc.ErrorDesc(), CP_UTF8),doc.ErrorRow(),doc.ErrorCol());
-			ImportErrorList.addItem(AddRecord);
-		}
-
-		pImportErrorList=nullptr;
-		if (ImportErrorList.getSize())
-		{
-			for (size_t I=0; I < ImportErrorList.getSize(); ++I)
-			{
-				FormatString strResult;
-				const StringErrorRecord *Rec=ImportErrorList.getItem(I);
-				strResult<<Rec->strTitle<<" ("<<Rec->Row<<L","<<Rec->Col<<L"): "<<Rec->strError<<L"\n";
-				Console.Write(strResult.CPtr(),StrLength(strResult));
-			}
-			Console.FlushInputBuffer();
-			//WaitKey();
-		}
-
+			PrintError(L"XML Error", doc);
 	}
 
 	fclose(XmlFile);
