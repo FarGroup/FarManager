@@ -668,7 +668,7 @@ static TToken getToken()
 							}
 							else
 							{
-								keyMacroParseError(err_Bad_Hex_Control_Char);
+								keyMacroParseError(err_Bad_Hex_Control_Char,--sSrcString,pSrcString);
 								__currTok = tEnd;
 							}
 
@@ -676,7 +676,7 @@ static TToken getToken()
 						}
 						default:
 						{
-							keyMacroParseError(err_Bad_Control_Char);
+							keyMacroParseError(err_Bad_Control_Char,--sSrcString,pSrcString);
 							__currTok = tEnd;
 							break;
 						}
@@ -1197,7 +1197,8 @@ static int parseExpr(const wchar_t*& BufPtr, unsigned long *eBuff, wchar_t bound
 		{
 			tmp[0] = bound1;
 			tmp[1] = 0;
-			keyMacroParseError(err_Expected_Token, tmp);
+			keyMacroParseError(err_Expected_Token,--sSrcString,pSrcString,tmp);
+			//keyMacroParseError(err_Expected_Token, tmp);
 			return 0;
 		}
 	}
