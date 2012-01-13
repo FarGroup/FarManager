@@ -130,6 +130,11 @@ void InfoList::DrawTitle(string &strTitle,int Id,int &CurY)
 
 void InfoList::DisplayObject()
 {
+	if (Flags.Check(FSCROBJ_ISREDRAWING))
+		return;
+
+	Flags.Set(FSCROBJ_ISREDRAWING);
+
 	string strTitle;
 	string strOutStr;
 	Panel *AnotherPanel = CtrlObject->Cp()->GetAnotherPanel(this);
@@ -545,6 +550,8 @@ void InfoList::DisplayObject()
 			}
 		}
 	}
+
+	Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
 __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
