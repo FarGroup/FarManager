@@ -534,6 +534,7 @@ bool CPlugin::GetFilesFromParams(LPWSTR szCmdLine, LPCWSTR** ppFiles, unsigned* 
 {
   int Size=(int)PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,NULL);
   FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[Size];
+  dirInfo->StructSize = sizeof(FarPanelDirectory);
   PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,Size,dirInfo);
   *pstrCurDir=auto_sz(dirInfo->Name);
   delete[](char *)dirInfo;
@@ -599,13 +600,14 @@ bool CPlugin::GetFilesFromPanel(LPCWSTR** ppFiles, unsigned* pnFiles, unsigned* 
     SelectedItems=NULL;
     SelectedItemsCount=0;
   }
-  PanelInfo pi;
+  PanelInfo pi = {sizeof(PanelInfo)};
   if (!PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&pi))
   {
     return false;
   }
   int Size=(int)PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,NULL);
   FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[Size];
+  dirInfo->StructSize = sizeof(FarPanelDirectory);
   PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,Size,dirInfo);
   // preserve space for AddEndSlash
   *pstrCurDir=auto_sz(dirInfo->Name);
