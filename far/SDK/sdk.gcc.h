@@ -543,7 +543,7 @@ typedef struct _REPARSE_DATA_BUFFER {
 # define ENABLE_EXTENDED_FLAGS  128
 #endif
 
-#ifndef _WIN64
+#if !defined(_W32API_OLD)
 typedef struct _CONSOLE_SCREEN_BUFFER_INFOEX
 {
 	ULONG cbSize;

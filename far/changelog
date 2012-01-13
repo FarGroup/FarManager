@@ -1,3 +1,7 @@
+w17 13.01.2012 17:45:10 +0400 - build 2374
+
+1. gcc build recovered
+
 drkns 13.01.2012 14:24:42 +0200 - build 2373
 
 1. Добавим кое-где в api проверок StructSize.
