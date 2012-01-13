@@ -53,7 +53,7 @@ void CaseConvertion()
 		if (Opt.ConvertMode!=MODE_NONE || Opt.ConvertModeExt!=MODE_NONE)
 		{
 			Opt.WordDivLen=lstrlen(Opt.WordDiv);
-			struct PanelInfo PInfo;
+			struct PanelInfo PInfo = {sizeof(PanelInfo)};
 			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
 			HANDLE hScreen=Info.SaveScreen(0,0,-1,-1);
 			const wchar_t *MsgItems[]={GetMsg(MFileCase),GetMsg(MConverting)};
@@ -61,6 +61,7 @@ void CaseConvertion()
 			wchar_t FullName[MAX_PATH];
 			int Size=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,0);
 			FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[Size];
+			dirInfo->StructSize = sizeof(FarPanelDirectory);
 			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,Size,dirInfo);
 
 			for (size_t I=0; I < PInfo.SelectedItemsNumber; I++)
