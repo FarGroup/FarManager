@@ -2524,7 +2524,7 @@ MEditConfigScrollbar
 
 MEditShowWhiteSpace
 "Пробельные символы"
-"Show white space"
+"Sh&ow white space"
 upd:"Show white space"
 upd:"Show white space"
 upd:"Show white space"
