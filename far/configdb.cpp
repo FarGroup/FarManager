@@ -2536,7 +2536,6 @@ public:
 					const char *sequence = text->GetText();
 					string strFlags(flags, CP_UTF8);
 					SetKeyMacro(string(area, CP_UTF8), string(key, CP_UTF8), RemoveExternalSpaces(strFlags), string(sequence, CP_UTF8), string(description, CP_UTF8));
-					break;
 				}
 				else
 				{
