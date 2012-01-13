@@ -265,7 +265,7 @@ BOOL NetBrowser::EnumerateNetList()
 
 	if (!CheckFavoriteItem(PCurResource) && Opt.HiddenShares)
 	{
-		PanelInfo PInfo;
+		PanelInfo PInfo = {sizeof(PanelInfo)};
 		Info.PanelControl(this, FCTL_GETPANELINFO,0,&PInfo);
 
 		if (!Opt.HiddenSharesAsHidden || (PInfo.Flags & PFLAGS_SHOWHIDDEN))
@@ -447,7 +447,7 @@ int NetBrowser::ProcessEvent(int Event, void* /*Param*/)
 	if (Event == FE_CLOSE)
 	{
 		{
-			struct PanelInfo PInfo;
+			struct PanelInfo PInfo = {sizeof(PanelInfo)};
 			Info.PanelControl(this, FCTL_GETPANELINFO,0,&PInfo);
 			wchar_t Mode[2] = { static_cast<wchar_t>(PInfo.ViewMode + 0x30), 0 };
 			PluginSettings settings(MainGuid, Info.SettingsControl);
@@ -1325,11 +1325,12 @@ BOOL NetBrowser::EditFavorites()
 	// First we should determine the type of Favorite Item under cursor
 	string Path;
 
-	struct PanelInfo PInfo;
+	struct PanelInfo PInfo = {sizeof(PanelInfo)};
 	Info.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
 
 	size_t Size = Info.PanelControl(this, FCTL_GETPANELDIRECTORY, 0, nullptr);
 	FarPanelDirectory* dir = static_cast<FarPanelDirectory*>(malloc(Size));
+	dir->StructSize = sizeof(FarPanelDirectory);
 	Info.PanelControl(this, FCTL_GETPANELDIRECTORY, Size, dir);
 	Path = dir->Name;
 	free(dir);
@@ -1406,7 +1407,7 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 	{
 		if (PCurResource && PCurResource->dwDisplayType == RESOURCEDISPLAYTYPE_SERVER)
 		{
-			struct PanelInfo PInfo;
+			struct PanelInfo PInfo = {sizeof(PanelInfo)};
 			Info.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
 
 			for (int I=0; I<(int)PInfo.SelectedItemsNumber; I++)
@@ -1468,7 +1469,7 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 	}
 	else if (Key == VK_F4 && !Alt && !Ctrl && !Shift)
 	{
-		struct PanelInfo PInfo;
+		struct PanelInfo PInfo = {sizeof(PanelInfo)};
 		Info.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
 		size_t Size = Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,0,0);
 		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
@@ -1925,7 +1926,7 @@ int NetBrowser::GetNameAndPassword(NameAndPassInfo* passInfo)
 
 void NetBrowser::FileNames2Clipboard(BOOL ToCommandLine)
 {
-	PanelInfo PInfo;
+	PanelInfo PInfo = {sizeof(PanelInfo)};
 	Info.PanelControl(this, FCTL_GETPANELINFO,0,&PInfo);
 
 	wchar_t CurFile [MAX_PATH];
@@ -2026,7 +2027,7 @@ void NetBrowser::FileNames2Clipboard(BOOL ToCommandLine)
 
 void NetBrowser::ManualConnect()
 {
-	PanelInfo PInfo;
+	PanelInfo PInfo = {sizeof(PanelInfo)};
 	Info.PanelControl(this, FCTL_GETPANELINFO,0,&PInfo);
 
 	if (PInfo.ItemsNumber)
@@ -2230,7 +2231,7 @@ void NetBrowser::GotoLocalNetwork()
 
 void NetBrowser::SetCursorToShare(wchar_t *Share)
 {
-	PanelInfo PInfo = {0};
+	PanelInfo PInfo = {sizeof(PanelInfo)};
 	// this returns the items in sorted order, so we can position correctly
 	Info.PanelControl(this, FCTL_GETPANELINFO,0,&PInfo);
 
@@ -2276,7 +2277,7 @@ void NetBrowser::RemoveItems()
 		return;
 
 	// We are in Favorites folder, so we can remove items from this folder
-	struct PanelInfo PInfo;
+	struct PanelInfo PInfo = {sizeof(PanelInfo)};
 	Info.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
 
 	if (PInfo.SelectedItemsNumber <= 0) // Something strange is happen
