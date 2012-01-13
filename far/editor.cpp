@@ -5888,9 +5888,9 @@ int Editor::EditorControl(int Command,void *Param)
 		// TODO: Если DI_MEMOEDIT не будет юзать раскаску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_ADDCOLOR:
 		{
-			if (Param)
+			EditorColor *col=(EditorColor *)Param;
+			if (CheckStructSize(col))
 			{
-				EditorColor *col=(EditorColor *)Param;
 				_ECTLLOG(SysLog(L"EditorColor{"));
 				_ECTLLOG(SysLog(L"  StringNumber=%d",col->StringNumber));
 				_ECTLLOG(SysLog(L"  ColorItem   =%d (0x%08X)",col->ColorItem,col->ColorItem));
@@ -5923,9 +5923,9 @@ int Editor::EditorControl(int Command,void *Param)
 		// TODO: Если DI_MEMOEDIT не будет юзать раскаску, то должно выполняется в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_GETCOLOR:
 		{
-			if (Param)
+			EditorColor *col=(EditorColor *)Param;
+			if (CheckStructSize(col))
 			{
-				EditorColor *col=(EditorColor *)Param;
 				Edit *CurPtr=GetStringByNumber(col->StringNumber);
 
 				if (!CurPtr)
@@ -5962,9 +5962,9 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_DELCOLOR:
 		{
-			if (Param)
+			EditorDeleteColor *col=(EditorDeleteColor *)Param;
+			if (CheckStructSize(col))
 			{
-				EditorDeleteColor *col=(EditorDeleteColor *)Param;
 				Edit *CurPtr=GetStringByNumber(col->StringNumber);
 
 				if (!CurPtr)

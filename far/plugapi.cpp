@@ -396,10 +396,10 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 		   םמגûו ACTL_ הכÿ נאבמעû ס פנוילאלט */
 		case ACTL_GETWINDOWINFO:
 		{
-			if (FrameManager && Param2)
+			WindowInfo *wi=(WindowInfo*)Param2;
+			if (FrameManager && CheckStructSize(wi))
 			{
 				string strType, strName;
-				WindowInfo *wi=(WindowInfo*)Param2;
 				Frame *f;
 
 				/* $ 22.12.2001 VVM
@@ -2329,7 +2329,7 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 					case MSSC_CHECK:
 					{
 						MacroCheckMacroText *CheckText=(MacroCheckMacroText*)Param2;
-						if (CheckText->Text.SequenceText && *CheckText->Text.SequenceText)
+						if(CheckText && CheckStructSize(&CheckText->Result) && CheckText->Text.SequenceText && *CheckText->Text.SequenceText)
 						{
 							MacroRecord CurMacro={};
 							int Ret=Macro.ParseMacroString(&CurMacro,CheckText->Text.SequenceText,(CheckText->Text.Flags&KMFLAGS_SILENTCHECK)?TRUE:FALSE);
@@ -2379,7 +2379,7 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 					break;
 
 				MacroAddMacro *Data=(MacroAddMacro*)Param2;
-				if (Data->SequenceText && *Data->SequenceText)
+				if (CheckStructSize(Data) && Data->SequenceText && *Data->SequenceText)
 				{
 					MACROMODEAREA Area=static_cast<MACROMODEAREA>(Data->Area);
 					if (Data->Area == MACROAREA_COMMON)
@@ -2583,8 +2583,8 @@ INT_PTR WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS 
 				break;
 
 			{
-			    FarSettingsCreate* data = (FarSettingsCreate*)Param2;
-				if (data->StructSize>=sizeof(FarSettingsCreate))
+				FarSettingsCreate* data = (FarSettingsCreate*)Param2;
+				if (CheckStructSize(data))
 				{
 					if(IsEqualGUID(FarGuid,data->Guid)) settings=new FarSettings();
 					else settings=new PluginSettings(data->Guid);

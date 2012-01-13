@@ -4112,8 +4112,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 			if(Param)
 			{
 				oldfar::EditorColor* ecA = static_cast<oldfar::EditorColor*>(Param);
-				EditorColor ec={};
-				ec.StructSize = sizeof(ec);
+				EditorColor ec={sizeof(ec)};
 				ec.StringNumber = ecA->StringNumber;
 				ec.StartPos = ecA->StartPos;
 				ec.EndPos = ecA->EndPos;
@@ -4121,8 +4120,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				if(ecA->Color&oldfar::ECF_TAB1) ec.Color.Flags|=ECF_TABMARKFIRST;
 				ec.Priority=EDITOR_COLOR_NORMAL_PRIORITY;
 				ec.Owner=FarGuid;
-				EditorDeleteColor edc={};
-				edc.StructSize=sizeof(edc);
+				EditorDeleteColor edc={sizeof(edc)};
 				edc.Owner=FarGuid;
 				edc.StringNumber = ecA->StringNumber;
 				edc.StartPos = ecA->StartPos;
@@ -4133,7 +4131,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 			if(Param)
 			{
 				oldfar::EditorColor* ecA = static_cast<oldfar::EditorColor*>(Param);
-				EditorColor ec={};
+				EditorColor ec={sizeof(ec)};
 				ec.StringNumber = ecA->StringNumber;
 				ec.ColorItem = ecA->ColorItem;
 				int Result = static_cast<int>(NativeInfo.EditorControl(-1, ECTL_GETCOLOR, 0, &ec));
@@ -4531,8 +4529,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 			if (!viA->StructSize) return FALSE;
 
-			ViewerInfo viW;
-			viW.StructSize = sizeof(ViewerInfo); //BUGBUG?
+			ViewerInfo viW = {sizeof(viW)};
 
 			if (NativeInfo.ViewerControl(-1,VCTL_GETINFO, 0, &viW) == FALSE) return FALSE;
 
@@ -5802,7 +5799,7 @@ bool PluginA::GetPluginInfo(PluginInfo *pi)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETPLUGININFO;
-		oldfar::PluginInfo InfoA={};
+		oldfar::PluginInfo InfoA={sizeof(InfoA)};
 		EXECUTE_FUNCTION(FUNCTION(iGetPluginInfo)(&InfoA), es);
 
 		if (!es.bUnloaded)

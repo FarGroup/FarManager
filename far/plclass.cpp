@@ -322,7 +322,7 @@ static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMM
 	if (ACTL_GETWINDOWTYPE==Command)
 	{
 		WindowType* info=(WindowType*)Param2;
-		if (info&&info->StructSize>=sizeof(WindowType))
+		if (CheckStructSize(info))
 		{
 			int type=CurrentWindowType;
 			switch(type)

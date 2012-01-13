@@ -2109,11 +2109,14 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_GETPANELINFO:
 		{
-			if (!Param2)
+			PanelInfo *Info=(PanelInfo *)Param2;
+
+			if(!CheckStructSize(Info))
 				break;
 
-			PanelInfo *Info=(PanelInfo *)Param2;
 			ClearStruct(*Info);
+			Info->StructSize = sizeof(PanelInfo);
+
 			UpdateIfRequired();
 			Info->OwnerGuid=FarGuid;
 			Info->PluginHandle=INVALID_HANDLE_VALUE;
@@ -2282,9 +2285,9 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginFile.GetLength()+1));
 				size_t pluginDataOffset=Result;
 				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginData.GetLength()+1));
-				if(Param2&&Param1>=Result)
+				FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
+				if(Param1>=Result && CheckStructSize(dirInfo))
 				{
-					FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
 					dirInfo->PluginId=Info.PluginGuid;
 					dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
 					dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
@@ -2413,9 +2416,9 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_SETPANELDIRECTORY:
 		{
-			if (Param2)
+			FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
+			if (CheckStructSize(dirInfo))
 			{
-				FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
 				string strName(dirInfo->Name),strFile(dirInfo->File),strParam(dirInfo->Param);
 				Result = ExecShortcutFolder(strName,dirInfo->PluginId,strFile,strParam,false);
 				// restore current directory to active panel path

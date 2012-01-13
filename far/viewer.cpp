@@ -4187,9 +4187,9 @@ int Viewer::ViewerControl(int Command,void *Param)
 	{
 		case VCTL_GETINFO:
 		{
-			if (Param)
+			ViewerInfo *Info=(ViewerInfo *)Param;
+			if (CheckStructSize(Info))
 			{
-				ViewerInfo *Info=(ViewerInfo *)Param;
 				memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
 				Info->ViewerID=Viewer::ViewerID;
 				Info->FileName=strFullFileName;

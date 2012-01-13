@@ -4613,7 +4613,7 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 				{
 					DialogInfo *di=reinterpret_cast<DialogInfo*>(Param2);
 
-					if (static_cast<size_t>(di->StructSize)>=offsetof(DialogInfo,Id)+sizeof(di->Id)+sizeof(di->Owner))
+					if (CheckStructSize(di))
 					{
 						di->Id=Dlg->Id;
 						di->Owner=FarGuid;
