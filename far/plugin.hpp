@@ -1152,6 +1152,7 @@ enum FAR_MACRO_CONTROL_COMMANDS
 	MCTL_GETAREA           = 6,
 	MCTL_ADDMACRO          = 7,
 	MCTL_DELMACRO          = 8,
+	MCTL_GETLASTERROR      = 9,
 };
 
 typedef unsigned __int64 FARKEYMACROFLAGS;
@@ -1236,19 +1237,6 @@ struct MacroSendMacroText
 	FARKEYMACROFLAGS Flags;
 	INPUT_RECORD AKey;
 	const wchar_t *SequenceText;
-};
-
-struct MacroCheckMacroText
-{
-	union
-	{
-		struct MacroSendMacroText Text;
-		struct MacroParseResult   Result;
-	}
-#ifndef __cplusplus
-	Check
-#endif
-	;
 };
 
 typedef unsigned __int64 FARADDKEYMACROFLAGS;

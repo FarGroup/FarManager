@@ -1,3 +1,12 @@
+t-rex 13.01.2012 19:20:54 +0200 - build 2376
+
+1. Мелкое изменение в API:
+   MacroCheckMacroText больше нет, MSSC_CHECK ожидает MacroSendMacroText.
+   И новая команда, MCTL_GETLASTERROR ->  Param1=размер, Param2=MacroParseResult*.
+   Возвращает требуемый размер.
+
+2. Из за 1, исправился потенциальный хип корапшэн во враппере.
+
 svs 13.01.2012 17:47:47 +0400 - build 2375
 
 1. Обезопасим InfoList от случая, когда плагин из ProcessViewerEventW в ответ на VE_READ

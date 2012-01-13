@@ -2299,10 +2299,15 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 				return TRUE;
 			}
 
-			// Param1=FARMACROSENDSTRINGCOMMAND, Param2...
+			// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText
 			case MCTL_SENDSTRING:
 			{
 				if (!Param2)
+					break;
+
+				MacroSendMacroText *PlainText=(MacroSendMacroText*)Param2;
+
+				if (!CheckStructSize(PlainText) || !PlainText->SequenceText || !*PlainText->SequenceText)
 					break;
 
 				switch (Param1)
@@ -2310,13 +2315,7 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 					case MSSC_POST:
 					{
-						MacroSendMacroText *PlainText=(MacroSendMacroText*)Param2;
-						if (PlainText->SequenceText && *PlainText->SequenceText)
-						{
-							return Macro.PostNewMacro(PlainText->SequenceText,(PlainText->Flags<<8)|MFLAGS_POSTFROMPLUGIN,InputRecordToKey(&PlainText->AKey));
-						}
-
-						break;
+						return Macro.PostNewMacro(PlainText->SequenceText,(PlainText->Flags<<8)|MFLAGS_POSTFROMPLUGIN,InputRecordToKey(&PlainText->AKey));
 					}
 
 					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
@@ -2325,33 +2324,19 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 						break;
 					}
 
-					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroCheckMacroText*
+					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 					case MSSC_CHECK:
 					{
-						MacroCheckMacroText *CheckText=(MacroCheckMacroText*)Param2;
-						if(CheckText && CheckStructSize(&CheckText->Result) && CheckText->Text.SequenceText && *CheckText->Text.SequenceText)
+						MacroRecord CurMacro={};
+						int Ret=Macro.ParseMacroString(&CurMacro,PlainText->SequenceText,(PlainText->Flags&KMFLAGS_SILENTCHECK)?TRUE:FALSE);
+
+						if (Ret)
 						{
-							MacroRecord CurMacro={};
-							int Ret=Macro.ParseMacroString(&CurMacro,CheckText->Text.SequenceText,(CheckText->Text.Flags&KMFLAGS_SILENTCHECK)?TRUE:FALSE);
-
-							if (Ret)
-							{
-								if (CurMacro.BufferSize > 1)
-									xf_free(CurMacro.Buffer);
-
-								ClearStruct(CheckText->Result);
-								CheckText->Result.StructSize=sizeof(MacroParseResult);
-							}
-							else
-							{
-								static string ErrSrc;
-								Macro.GetMacroParseError(&CheckText->Result.ErrCode,&CheckText->Result.ErrPos,&ErrSrc);
-								CheckText->Result.ErrSrc=ErrSrc;
-							}
-							return Ret;
+							if (CurMacro.BufferSize > 1)
+								xf_free(CurMacro.Buffer);
 						}
 
-						break;
+						return Ret;
 					}
 				}
 
@@ -2392,6 +2377,32 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 			case MCTL_DELMACRO:
 			{
 				return Macro.DelMacro(*PluginId,Param2);
+			}
+
+			//Param1=size of buffer, Param2 - MacroParseResult*
+			case MCTL_GETLASTERROR:
+			{
+				DWORD ErrCode;
+				COORD ErrPos;
+				string ErrSrc;
+				Macro.GetMacroParseError(&ErrCode,&ErrPos,&ErrSrc);
+
+				int Size = ALIGN(sizeof(MacroParseResult));
+				size_t stringOffset = Size;
+				Size += static_cast<int>(ErrSrc.GetLength() + 1);
+
+				MacroParseResult *Result = (MacroParseResult *)Param2;
+
+				if (Param1 >= Size && CheckStructSize(Result))
+				{
+					Result->StructSize = sizeof(MacroParseResult);
+					Result->ErrCode = ErrCode;
+					Result->ErrPos = ErrPos;
+					Result->ErrSrc = (const wchar_t *)((char*)Param2+stringOffset);
+ 					wmemcpy((wchar_t*)Result->ErrSrc,ErrSrc,ErrSrc.GetLength()+1);
+				}
+
+				return Size;
 			}
 		}
 	}

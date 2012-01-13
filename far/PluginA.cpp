@@ -3635,8 +3635,8 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 			int Param1=0;
 			bool Process=true;
 
-			MacroCheckMacroText kmW={};
-			kmW.Text.StructSize=sizeof(MacroParseResult);
+			MacroSendMacroText mtW = {};
+			mtW.StructSize = sizeof(MacroSendMacroText);
 
 			switch (kmA->Command)
 			{
@@ -3652,18 +3652,18 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 				case oldfar::MCMD_POSTMACROSTRING:
 					Command=MCTL_SENDSTRING;
 					Param1=MSSC_POST;
-					kmW.Text.SequenceText=AnsiToUnicode(kmA->PlainText.SequenceText);
+					mtW.SequenceText=AnsiToUnicode(kmA->PlainText.SequenceText);
 
-					if (kmA->PlainText.Flags&oldfar::KSFLAGS_DISABLEOUTPUT) kmW.Text.Flags|=KMFLAGS_DISABLEOUTPUT;
+					if (kmA->PlainText.Flags&oldfar::KSFLAGS_DISABLEOUTPUT) mtW.Flags|=KMFLAGS_DISABLEOUTPUT;
 
-					if (kmA->PlainText.Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) kmW.Text.Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
+					if (kmA->PlainText.Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS) mtW.Flags|=KMFLAGS_NOSENDKEYSTOPLUGINS;
 
 					break;
 
 				case oldfar::MCMD_CHECKMACRO:
 					Command=MCTL_SENDSTRING;
 					Param1=MSSC_CHECK;
-					kmW.Text.SequenceText=AnsiToUnicode(kmA->PlainText.SequenceText);
+					mtW.SequenceText=AnsiToUnicode(kmA->PlainText.SequenceText);
 					break;
 
 				default:
@@ -3675,7 +3675,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 
 			if (Process)
 			{
-				res = NativeInfo.MacroControl(0,Command,Param1,&kmW);
+				res = NativeInfo.MacroControl(0,Command,Param1,&mtW);
 
 				if (Command == MCTL_SENDSTRING)
 				{
@@ -3697,16 +3697,16 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 							kmA->MacroResult.ErrMsg2 = ErrMsg2 = UnicodeToAnsi(ErrMessage[1]);
 							kmA->MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(ErrMessage[2]);
 
-							if (kmW.Text.SequenceText)
-								xf_free((void*)kmW.Text.SequenceText);
+							if (mtW.SequenceText)
+								xf_free((void*)mtW.SequenceText);
 
 							break;
 						}
 
 						case MSSC_POST:
 
-							if (kmW.Text.SequenceText)
-								xf_free((void*)kmW.Text.SequenceText);
+							if (mtW.SequenceText)
+								xf_free((void*)mtW.SequenceText);
 
 							break;
 					}

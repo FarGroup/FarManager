@@ -2288,6 +2288,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
 				if(Param1>=Result && CheckStructSize(dirInfo))
 				{
+					dirInfo->StructSize=sizeof(FarPanelDirectory);
 					dirInfo->PluginId=Info.PluginGuid;
 					dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
 					dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
