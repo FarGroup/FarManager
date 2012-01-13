@@ -406,7 +406,6 @@ html/structures/infopanelline.html
 html/structures/keybarlabel.html
 html/structures/keybartitles.html
 html/structures/macroaddmacro.html
-html/structures/macrocheckmacrotext.html
 html/structures/macroparseresult.html
 html/structures/macrosendmacrotext.html
 html/structures/makedirectoryinfo.html

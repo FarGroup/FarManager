@@ -58,8 +58,15 @@ INT_PTR WINAPI MacroControl(
     Функция возвращает <code>TRUE</code> - макрос проанализирован и помещен в очередь, и <code>FALSE</code> - ошибка (макропоследовательность содержит ошибки). Макропоследовательность начнёт исполняться тогда, когда Far Manager получит управление.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="MSSC_CHECK">MSSC_CHECK</a></td>
     <td class="cont" width="60%">Проверить макрос.<br>
-    <var>Param2</var> указывает на структуру <a href="../structures/macrocheckmacrotext.html">MacroCheckMacroText</a>. Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
+    <var>Param2</var> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>. Функция при неудаче вернёт <code>FALSE</code>.
+    В случае неудачи, можно получить расширеную диагностику об ошибке с помощью команды <a href="#MCTL_GETLASTERROR">MCTL_GETLASTERROR</a></td></tr>
     </table>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETLASTERROR">MCTL_GETLASTERROR</a></td>
+    <td class="cont" width="60%">Получить расширеную диагностику об ошибке проверки макроса (<dfn>MSSC_CHECK</dfn>).<br>
+    <var>Param1</var> размер буфера. Указывает максимальное количество байт, которые могут быть записаны в <var>Param2</var>.<br>
+    <var>Param2</var> указатель на буфер, структуру <a href="../structures/macroparseresult.html">MacroParseResult</a>, память плагин выделят самостоятельно.<br>
+    Функция возвращает размер требуемого буфера, при <var>Param2</var> = NULL.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETSTATE">MCTL_GETSTATE</a></td>
     <td class="cont" width="60%">Получить статус работы макродвижка.<br>
