@@ -1141,7 +1141,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	OwnPanelInfo AInfo, PInfo;
 	memset(&AInfo,0,sizeof(OwnPanelInfo));
 	memset(&PInfo,0,sizeof(OwnPanelInfo));
-	PanelInfo AI,PI;
+	PanelInfo AI = {sizeof(PanelInfo)}, PI = {sizeof(PanelInfo)};
 	Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO,0,&AI);
 	Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELINFO,0,&PI);
 	AInfo.PanelType=AI.PanelType;
@@ -1150,6 +1150,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	AInfo.SelectedItemsNumber=AI.SelectedItemsNumber;
 	int Size=(int)Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY,0,0);
 	FarPanelDirectory* dir=(FarPanelDirectory*)new char[Size];
+	dir->StructSize = sizeof(FarPanelDirectory);
 	Info.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY,Size,dir);
 	AInfo.lpwszCurDir=wcsdup(dir->Name);
 	delete[](char*)dir;
@@ -1184,6 +1185,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	PInfo.SelectedItemsNumber=PI.SelectedItemsNumber;
 	Size=(int)Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY,0,0);
 	dir=(FarPanelDirectory*)new char[Size];
+	dir->StructSize = sizeof(FarPanelDirectory);
 	Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY,Size,dir);
 	PInfo.lpwszCurDir=wcsdup(dir->Name);
 	delete[](char*)dir;
