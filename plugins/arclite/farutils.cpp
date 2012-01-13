@@ -150,6 +150,7 @@ void set_directories_first(HANDLE h_panel, bool first) {
 }
 
 bool get_panel_info(HANDLE h_panel, PanelInfo& panel_info) {
+  panel_info.StructSize = sizeof(PanelInfo);
   return g_far.PanelControl(h_panel, FCTL_GETPANELINFO, 0, &panel_info) == TRUE;
 }
 
@@ -160,10 +161,12 @@ bool is_real_file_panel(const PanelInfo& panel_info) {
 wstring get_panel_dir(HANDLE h_panel) {
   unsigned buf_size = 512;
   std::unique_ptr<unsigned char> buf(new unsigned char[buf_size]);
+  reinterpret_cast<FarPanelDirectory*>(buf.get())->StructSize = sizeof(FarPanelDirectory);
   unsigned size = g_far.PanelControl(h_panel, FCTL_GETPANELDIRECTORY, buf_size, buf.get());
   if (size > buf_size) {
     buf_size = size;
     buf.reset(new unsigned char[buf_size]);
+    reinterpret_cast<FarPanelDirectory*>(buf.get())->StructSize = sizeof(FarPanelDirectory);
     size = g_far.PanelControl(h_panel, FCTL_GETPANELDIRECTORY, buf_size, buf.get());
   }
   CHECK(size >= sizeof(FarPanelDirectory) && size <= buf_size);
@@ -744,7 +747,7 @@ bool panel_go_to_file(HANDLE h_panel, const wstring& file_path) {
   fpd.Name = dir.c_str();
   if (!g_far.PanelControl(h_panel, FCTL_SETPANELDIRECTORY, 0, &fpd))
     return false;
-  PanelInfo panel_info;
+  PanelInfo panel_info = {sizeof(PanelInfo)};
   if (!g_far.PanelControl(h_panel, FCTL_GETPANELINFO, 0, &panel_info))
     return false;
   wstring file_name = upcase(extract_file_name(file_path));
