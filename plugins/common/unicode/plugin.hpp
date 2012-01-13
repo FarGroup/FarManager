@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2362
+  Plugin API for Far Manager 3.0 build 2376
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2362
+#define FARMANAGERVERSION_BUILD 2376
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1050,6 +1050,7 @@ enum FAR_MACRO_CONTROL_COMMANDS
 	MCTL_GETAREA           = 6,
 	MCTL_ADDMACRO          = 7,
 	MCTL_DELMACRO          = 8,
+	MCTL_GETLASTERROR      = 9,
 };
 
 typedef unsigned __int64 FARKEYMACROFLAGS;
@@ -1131,19 +1132,6 @@ struct MacroSendMacroText
 	FARKEYMACROFLAGS Flags;
 	INPUT_RECORD AKey;
 	const wchar_t *SequenceText;
-};
-
-struct MacroCheckMacroText
-{
-	union
-	{
-		struct MacroSendMacroText Text;
-		struct MacroParseResult   Result;
-	}
-#ifndef __cplusplus
-	Check
-#endif
-	;
 };
 
 typedef unsigned __int64 FARADDKEYMACROFLAGS;
