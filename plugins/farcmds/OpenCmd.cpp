@@ -75,6 +75,7 @@ static bool validForView(const wchar_t *FileName, int viewEmpty, int editNew)
 		if (dirSize)
 		{
 		    FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
+		    dirInfo->StructSize = sizeof(FarPanelDirectory);
 			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
 			int Size=lstrlen(dirInfo->Name)+1;
 			ptrCurDir=new WCHAR[Size+lstrlen(FileName)+8];
@@ -794,15 +795,8 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 								if (SequenceText)
 								{
 									MacroSendMacroText mcmd = {sizeof(mcmd), KMFLAGS_DISABLEOUTPUT, {0}, SequenceText};
-									MacroCheckMacroText mcmd2 = {};
-									mcmd2.Text = mcmd;
 
-									void *pcmd = &mcmd;
-
-									if (subcommand == MSSC_CHECK)
-										pcmd = &mcmd2;
-
-									if (!Info.MacroControl(NULL, (FAR_MACRO_CONTROL_COMMANDS)command, subcommand, pcmd))
+									if (!Info.MacroControl(NULL, (FAR_MACRO_CONTROL_COMMANDS)command, subcommand, &mcmd))
 									{
 										;
 									}
@@ -979,6 +973,11 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 
 							if (allOK)
 							{
+								DWORD InMode=0, OutMode=0, ErrMode=0;
+								GetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), &OutMode);
+								GetConsoleMode(GetStdHandle(STD_ERROR_HANDLE), &ErrMode);
+								GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &InMode);
+
 								allOK = FALSE;
 								lstrcpy(cmd,L"%COMSPEC% /c ");
 
@@ -1259,6 +1258,10 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 
 									Info.RestoreScreen(hScreen);
 								}
+
+								SetConsoleMode(GetStdHandle(STD_OUTPUT_HANDLE), OutMode);
+								SetConsoleMode(GetStdHandle(STD_ERROR_HANDLE), ErrMode);
+								SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), InMode);
 							}
 						}
 						else

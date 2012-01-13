@@ -80,6 +80,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
 	HANDLE hPanel=PANEL_ACTIVE;
 
+	PInfo.StructSize = sizeof(PInfo);
 	Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
 	fullcmd[0]=cmd[0]=selectItem[0]=L'\0';
 
@@ -96,6 +97,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		int dirSize=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,0);
 
 		FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
+		dirInfo->StructSize = sizeof(FarPanelDirectory);
 		Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
 		lstrcpy(selectItem,dirInfo->Name);
 		delete[](char*)dirInfo;
