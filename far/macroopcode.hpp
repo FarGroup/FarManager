@@ -207,7 +207,7 @@ enum MACRO_OP_CODE
 	MCODE_F_BM_PREV,                  // N=BM.Prev() - перейти на предыдущую закладку
 	MCODE_F_BM_BACK,                  // N=BM.Back() - перейти на предыдущую закладку с возможным сохранением текущей позиции
 	MCODE_F_BM_PUSH,                  // N=BM.Push() - сохранить текущую позицию в виде закладки в конце стека
-	MCODE_F_BM_STAT,                  // N=BM.Stat([M]) - возвращает информацию о закладках, N=0 - текущее количество закладок	MCODE_F_TRIM,                     // S=trim(S[,N])
+	MCODE_F_BM_STAT,                  // N=BM.Stat([M]) - возвращает информацию о закладках, N=0 - текущее количество закладок
 	MCODE_F_TRIM,                     // S=trim(S[,N])
 	MCODE_F_FLOAT,                    // N=float(V)
 	MCODE_F_TESTFOLDER,               // N=testfolder(S)
@@ -220,13 +220,14 @@ enum MACRO_OP_CODE
 	MCODE_F_KBDLAYOUT,                // N=kbdLayout([N])
 	MCODE_F_WINDOW_SCROLL,            // N=Window.Scroll(Lines[,Axis])
 	MCODE_F_KEYBAR_SHOW,              // N=KeyBar.Show([N])
-	MCODE_F_HISTIORY_DISABLE,          // N=History.Disable([State])
+	MCODE_F_HISTIORY_DISABLE,         // N=History.Disable([State])
 	MCODE_F_FMATCH,                   // N=FMatch(S,Mask)
 	MCODE_F_PLUGIN_LOAD,              // N=Plugin.Load(DllPath[,ForceLoad])
 	MCODE_F_PLUGIN_UNLOAD,            // N=Plugin.UnLoad(DllPath)
 	MCODE_F_MENU_FILTER,              // N=Menu.Filter(Action[,Mode])
 	MCODE_F_MENU_FILTERSTR,           // S=Menu.FilterStr([Action[,S]])
 	MCODE_F_DLG_SETFOCUS,             // N=Dlg.SetFocus([ID])
+	MCODE_F_FAR_CFG_GET,              // V=Far.Cfg.Get(Key,Name)
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния

@@ -106,6 +106,7 @@ const wchar_t constMsButton[]=L"MsButton";
 const wchar_t constMsCtrlState[]=L"MsCtrlState";
 const wchar_t constMsEventFlags[]=L"MsEventFlags";
 const wchar_t constRCounter[]=L"RCounter";
+const wchar_t constFarCfgErr[]=L"Far.Cfg.Err";
 
 DWORD RedrawTimeout=200;
 

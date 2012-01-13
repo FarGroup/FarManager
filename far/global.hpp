@@ -98,6 +98,7 @@ extern const wchar_t constMsButton[];
 extern const wchar_t constMsCtrlState[];
 extern const wchar_t constMsEventFlags[];
 extern const wchar_t constRCounter[];
+extern const wchar_t constFarCfgErr[];
 
 extern DWORD RedrawTimeout;
 

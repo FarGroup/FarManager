@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "vmenu.hpp"
 #include "datetime.hpp"
+#include "window.hpp"
 
 static int LastDizWrapMode = -1;
 static int LastDizWrapType = -1;
@@ -1140,4 +1141,18 @@ void InfoList::DynamicUpdateKeyBar()
 
 	KB->ReadRegGroup(L"Info",Opt.strLanguage);
 	KB->SetAllRegGroup();
+}
+
+int InfoList::UpdateIfChanged(int UpdateMode)
+{
+	if (Opt.InfoPanel.ShowPowerStatus && SectionState[ILSS_POWERSTATUS].Show)
+	{
+		if (IsVisible() && Events.PowerChangeEvent.Signaled())
+		{
+			Redraw();
+			return TRUE;
+		}
+	}
+
+	return FALSE;
 }

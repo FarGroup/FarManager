@@ -50,6 +50,7 @@ ImportedFunctions::ImportedFunctions()
 	HMODULE hNtdll = GetModuleHandle(L"ntdll.dll");
 	HMODULE hKernel = GetModuleHandle(L"kernel32.dll");
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");
+	HMODULE hUser32 = GetModuleHandle(L"user32.dll");
 	hVirtDisk = LoadLibrary(L"virtdisk.dll");
 
 	if (hKernel)
@@ -89,11 +90,17 @@ ImportedFunctions::ImportedFunctions()
 		InitImport(hShell, pfnSHCreateAssociationRegistration, "SHCreateAssociationRegistration");
 	}
 
-	if(hVirtDisk)
+	if (hVirtDisk)
 	{
 		InitImport(hVirtDisk, pfnGetStorageDependencyInformation, "GetStorageDependencyInformation");
 		InitImport(hVirtDisk, pfnOpenVirtualDisk, "OpenVirtualDisk");
 		InitImport(hVirtDisk, pfnDetachVirtualDisk, "DetachVirtualDisk");
+	}
+
+	if (hUser32)
+	{
+		InitImport(hUser32, pfnRegisterPowerSettingNotification, "RegisterPowerSettingNotification");
+		InitImport(hUser32, pfnUnregisterPowerSettingNotification, "UnregisterPowerSettingNotification");
 	}
 }
 
@@ -464,5 +471,31 @@ DWORD ImportedFunctions::DetachVirtualDisk(HANDLE VirtualDiskHandle, DETACH_VIRT
 	else
 	{
 		return ERROR_CALL_NOT_IMPLEMENTED;
+	}
+}
+
+BOOL ImportedFunctions::UnregisterPowerSettingNotification(HPOWERNOTIFY Handle)
+{
+	if(pfnUnregisterPowerSettingNotification)
+	{
+		return pfnUnregisterPowerSettingNotification(Handle);
+	}
+	else
+	{
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		return FALSE;
+	}
+}
+
+HPOWERNOTIFY ImportedFunctions::RegisterPowerSettingNotification(HANDLE hRecipient,LPCGUID PowerSettingGuid,DWORD Flags)
+{
+	if(pfnRegisterPowerSettingNotification)
+	{
+		return pfnRegisterPowerSettingNotification(hRecipient,PowerSettingGuid,Flags);
+	}
+	else
+	{
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		return NULL;
 	}
 }

@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "window.hpp"
 #include "config.hpp"
+#include "imports.hpp"
 
 events Events;
 
@@ -81,13 +82,26 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_SETTINGCHANGE:
+		if(Opt.UpdateEnvironment && lParam && !StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
 		{
-			if(Opt.UpdateEnvironment && lParam && !StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
-			{
-				Events.EnvironmentChangeEvent.Set();
-			}
+			Events.EnvironmentChangeEvent.Set();
 			break;
 		}
+
+	case WM_POWERBROADCAST:
+		switch(wParam)
+		{
+		case PBT_APMPOWERSTATUSCHANGE: // change status
+
+		case PBT_POWERSETTINGCHANGE:   // change percent
+			Events.PowerChangeEvent.Set();
+			break;
+		// TODO:
+		// PBT_APMSUSPEND & PBT_APMRESUMEAUTOMATIC handlers
+
+		}
+
+		break;
 
 	}
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
@@ -105,12 +119,18 @@ unsigned int WINAPI WindowThreadRoutine(LPVOID Param)
 		*pHwnd=CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
 		if(*pHwnd)
 		{
+			// for PBT_POWERSETTINGCHANGE
+			HPOWERNOTIFY hpn=ifn.RegisterPowerSettingNotification(*pHwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
+
 			MSG Msg;
 			while(GetMessage(&Msg, nullptr, 0, 0)>0)
 			{
 				TranslateMessage(&Msg);
 				DispatchMessage(&Msg);
 			}
+
+			if (hpn) // for PBT_POWERSETTINGCHANGE
+				ifn.UnregisterPowerSettingNotification(hpn);
 
 		}
 		UnregisterClass(wc.lpszClassName, 0);

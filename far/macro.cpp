@@ -397,6 +397,7 @@ static bool editorsetFunc(const TMacroFunction*);
 static bool editorsettitleFunc(const TMacroFunction*);
 static bool editorundoFunc(const TMacroFunction*);
 static bool environFunc(const TMacroFunction*);
+static bool farcfggetFunc(const TMacroFunction*);
 static bool fattrFunc(const TMacroFunction*);
 static bool fexistFunc(const TMacroFunction*);
 static bool floatFunc(const TMacroFunction*);
@@ -476,6 +477,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"EDITOR.UNDO",      nullptr, L"V=Editor.Undo(N)",                                          editorundoFunc,     nullptr, 0, 0,                                      MCODE_F_EDITOR_UNDO,      1, 0},
 	{L"ENV",              nullptr, L"S=Env(S)",                                                  environFunc,        nullptr, 0, 0,                                      MCODE_F_ENVIRON,          1, 0},
 	{L"EVAL",             nullptr, L"N=Eval(S[,N])",                                             usersFunc,          nullptr, 0, 0,                                      MCODE_F_EVAL,             2, 1},
+	{L"FAR.CFG.GET",      nullptr, L"V=Far.Cfg.Get(Key,Name)",                                   farcfggetFunc,      nullptr, 0, 0,                                      MCODE_F_FAR_CFG_GET,      2, 0},
 	{L"FATTR",            nullptr, L"N=FAttr(S)",                                                fattrFunc,          nullptr, 0, 0,                                      MCODE_F_FATTR,            1, 0},
 	{L"FEXIST",           nullptr, L"N=FExist(S)",                                               fexistFunc,         nullptr, 0, 0,                                      MCODE_F_FEXIST,           1, 0},
 	{L"FLOAT",            nullptr, L"N=Float(V)",                                                floatFunc,          nullptr, 0, 0,                                      MCODE_F_FLOAT,            1, 0},
@@ -606,6 +608,30 @@ int WINAPI KeyNameMacroToKey(const wchar_t *Name)
 			return KeyMacroCodes[I].Key;
 
 	return -1;
+}
+
+static bool checkMacroFarIntConst(string &strValueName)
+{
+	return
+		strValueName==constMsX ||
+		strValueName==constMsY ||
+		strValueName==constMsButton ||
+		strValueName==constMsCtrlState ||
+		strValueName==constMsEventFlags ||
+		strValueName==constRCounter ||
+		strValueName==constFarCfgErr;
+}
+
+static void initMacroFarIntConst()
+{
+	INT64 TempValue=0;
+	KeyMacro::SetMacroConst(constMsX,TempValue);
+	KeyMacro::SetMacroConst(constMsY,TempValue);
+	KeyMacro::SetMacroConst(constMsButton,TempValue);
+	KeyMacro::SetMacroConst(constMsCtrlState,TempValue);
+	KeyMacro::SetMacroConst(constMsEventFlags,TempValue);
+	KeyMacro::SetMacroConst(constRCounter,TempValue);
+	KeyMacro::SetMacroConst(constFarCfgErr,TempValue);
 }
 
 const TVar& TVMStack::Pop()
@@ -3193,6 +3219,20 @@ static bool dlgsetfocusFunc(const TMacroFunction*)
 	return Ret.i()!=-1; // ?? <= 0 ??
 }
 
+// V=Far.Cfg.Get(Key,Name)
+bool farcfggetFunc(const TMacroFunction*)
+{
+	TVar Name; VMStack.Pop(Name);
+	TVar Key;  VMStack.Pop(Key);
+
+	string strValue;
+	bool resultGetCfg = GetConfigValue(Key.s(),Name.s(), strValue);
+	KeyMacro::SetMacroConst(constFarCfgErr,resultGetCfg?0:1);
+	VMStack.Push(resultGetCfg?strValue.CPtr():L"");
+
+	return resultGetCfg;
+}
+
 // V=Dlg.GetValue(Index,TypeInf)
 static bool dlggetvalueFunc(const TMacroFunction*)
 {
@@ -3314,10 +3354,10 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 					if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
 					{
 						Ret=(__int64)(Item->ListPtr->GetItemCount());
-			}
+					}
 					break;
-		}
-	}
+				}
+			}
 		}
 		else if (Index >= DlgItemCount)
 		{
@@ -5984,8 +6024,7 @@ void KeyMacro::WriteVarsConsts()
 			break;
 
 		strValueName = var->str;
-		if(strValueName==constMsX || strValueName==constMsY || strValueName==constMsButton ||
-			strValueName==constMsCtrlState || strValueName==constMsEventFlags || strValueName==constRCounter)
+		if(checkMacroFarIntConst(strValueName))
 			continue;
 		TVarType type=var->value.type();
 		MacroCfg->SetConstValue(strValueName, var->value.s(), GetVarTypeName((DWORD)type));
@@ -6132,13 +6171,7 @@ void KeyMacro::ReadVarsConsts()
 		}
 	}
 
-	INT64 TempValue=0;
-	SetMacroConst(constMsX,TempValue);
-	SetMacroConst(constMsY,TempValue);
-	SetMacroConst(constMsButton,TempValue);
-	SetMacroConst(constMsCtrlState,TempValue);
-	SetMacroConst(constMsEventFlags,TempValue);
-	SetMacroConst(constRCounter,TempValue);
+	initMacroFarIntConst();
 }
 
 void KeyMacro::SetMacroConst(const wchar_t *ConstName, const TVar& Value)

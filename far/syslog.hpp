@@ -60,6 +60,8 @@ string __VE_ToName(int Command);
 #define _VE_ToName(K) __VE_ToName(K).CPtr()
 string __FCTL_ToName(int Command);
 #define _FCTL_ToName(K) __FCTL_ToName(K).CPtr()
+string __MCTL_ToName(int Command);
+#define _MCTL_ToName(K) __MCTL_ToName(K).CPtr()
 string __DLGMSG_ToName(DWORD Msg);
 #define _DLGMSG_ToName(K) __DLGMSG_ToName(K).CPtr()
 string __ACTL_ToName(int Command);
@@ -164,6 +166,12 @@ extern "C"
 #define _ACTLLOG(x)  x
 #else
 #define _ACTLLOG(x)
+#endif
+
+#if defined(_DEBUG) && defined(SYSLOG_MCTL)
+#define _MCTLLOG(x)  x
+#else
+#define _MCTLLOG(x)
 #endif
 
 #if defined(_DEBUG) && defined(SYSLOG_VCTL)

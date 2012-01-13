@@ -876,6 +876,35 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, NKeyVMenu,L"MBtnClick",&Opt.VMenu.MBtnClick, VMENUCLICK_APPLY, 0},
 };
 
+bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
+{
+	for (size_t I=0; I < ARRAYSIZE(CFG); ++I)
+	{
+		if (!StrCmpI(CFG[I].KeyName,Key) && !StrCmpI(CFG[I].ValName,Name))
+		{
+			switch (CFG[I].ValType)
+			{
+				case GeneralConfig::TYPE_INTEGER:
+				{
+					wchar_t str[128];
+					_itow(*(DWORD *)CFG[I].ValPtr, str, 10);
+					strValue = str;
+					break;
+				}
+				case GeneralConfig::TYPE_TEXT:
+					strValue = *(string *)CFG[I].ValPtr;
+					break;
+				case GeneralConfig::TYPE_BLOB:
+					strValue = (char *)CFG[I].ValPtr;
+					break;
+			}
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void ReadConfig()
 {
 	/* <опеопнжеяяш> *************************************************** */

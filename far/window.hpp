@@ -39,6 +39,7 @@ extern struct events
 	Event MediaArivalEvent;
 	Event MediaRemoveEvent;
 	Event EnvironmentChangeEvent;
+	Event PowerChangeEvent;
 }
 Events;
 

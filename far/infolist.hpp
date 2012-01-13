@@ -127,4 +127,5 @@ class InfoList:public Panel
 		virtual BOOL UpdateKeyBar();
 		virtual void CloseFile();
 		virtual int GetCurName(string &strName, string &strShortName);
+		virtual int UpdateIfChanged(int UpdateMode);
 };
