@@ -580,7 +580,7 @@ int TmpPanel::ProcessEvent(int Event,void *)
 
 bool TmpPanel::IsCurrentFileCorrect(wchar_t **pCurFileName)
 {
-	struct PanelInfo PInfo;
+	struct PanelInfo PInfo = {sizeof(PanelInfo)};
 	const wchar_t *CurFileName=NULL;
 
 	if (pCurFileName)
@@ -637,7 +637,7 @@ int TmpPanel::ProcessKey(const INPUT_RECORD *Rec)
 
 		if (IsCurrentFileCorrect(CurFileName.PtrPtr()))
 		{
-			struct PanelInfo PInfo;
+			struct PanelInfo PInfo = {sizeof(PanelInfo)};
 			Info.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
 
 			if (lstrcmp(CurFileName,L"..")!=0)
@@ -741,7 +741,7 @@ int TmpPanel::ProcessKey(const INPUT_RECORD *Rec)
 void TmpPanel::ProcessRemoveKey()
 {
 	IfOptCommonPanel();
-	struct PanelInfo PInfo;
+	struct PanelInfo PInfo = {sizeof(PanelInfo)};
 	Info.PanelControl(this,FCTL_GETPANELINFO,0,&PInfo);
 
 	for (size_t i=0; i<PInfo.SelectedItemsNumber; i++)
@@ -786,6 +786,7 @@ void TmpPanel::ProcessSaveListKey()
 	string ListPath;
 	size_t Size = Info.PanelControl(this, FCTL_GETPANELDIRECTORY, 0, nullptr);
 	FarPanelDirectory* dir = static_cast<FarPanelDirectory*>(malloc(Size));
+	dir->StructSize = sizeof(FarPanelDirectory);
 	Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELDIRECTORY, Size, dir);
 	ListPath = dir->Name;
 	free(dir);
