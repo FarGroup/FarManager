@@ -484,7 +484,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 
 	if (!RetCode) return FALSE;
 
-	PanelInfo pi;
+	PanelInfo pi = {sizeof(PanelInfo)};
 	Info.PanelControl(this,FCTL_GETPANELINFO,0,(void*)&pi);
 	wchar_t(* ProcPanelModes)[MAX_MODE_STR] = *HostName ? ProcPanelModesRemote : ProcPanelModesLocal;
 	int cDescMode = 0;
@@ -1049,7 +1049,7 @@ int Plist::ProcessEvent(int Event,void *Param)
 
 	if (Event==FE_CLOSE)
 	{
-		PanelInfo pi;
+		PanelInfo pi = {sizeof(PanelInfo)};
 		Info.PanelControl(this,FCTL_GETPANELINFO,0,(void*)&pi);
 		PluginSettings settings(MainGuid, Info.SettingsControl);
 
@@ -1070,7 +1070,7 @@ void Plist::Reread()
 {
 	Info.PanelControl(this,FCTL_UPDATEPANEL,1,NULL);
 	Info.PanelControl(this,FCTL_REDRAWPANEL,0,NULL);
-	PanelInfo PInfo;
+	PanelInfo PInfo = {sizeof(PanelInfo)};
 	Info.PanelControl(PANEL_PASSIVE, FCTL_GETPANELINFO,0,(void*)&PInfo);
 
 	if (PInfo.PanelType==PTYPE_QVIEWPANEL)
@@ -1183,7 +1183,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		if (Info.PanelControl(this,FCTL_GETCMDLINE,0,NULL)>1)
 			return FALSE;
 
-		PanelInfo PInfo;
+		PanelInfo PInfo = {sizeof(PanelInfo)};
 		Info.PanelControl(this,FCTL_GETPANELINFO,0,(void*)&PInfo);
 
 		if (PInfo.CurrentItem < PInfo.ItemsNumber)
@@ -1239,7 +1239,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 	}
 	else if (ControlState==SHIFT_PRESSED && Key==VK_F3)
 	{
-		PanelInfo pi;
+		PanelInfo pi = {sizeof(PanelInfo)};
 		Info.PanelControl(this,FCTL_GETPANELINFO,0,(void*)&pi);
 
 		size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,pi.CurrentItem,0);
@@ -1368,7 +1368,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		if (Message(0,NULL,MsgItems,ARRAYSIZE(MsgItems),2)!=0)
 			return TRUE;
 
-		PanelInfo pi;
+		PanelInfo pi = {sizeof(PanelInfo)};
 		Control(FCTL_GETPANELINFO,&pi);
 		PluginPanelItem& item = pi.PanelItems[pi.CurrentItem];
 
@@ -1403,7 +1403,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 	else if (ControlState==SHIFT_PRESSED && (Key==VK_F1||Key==VK_F2) && (!*HostName||Opt.EnableWMI))
 	{
 		//lower/raise priority class
-		PanelInfo PInfo;
+		PanelInfo PInfo = {sizeof(PanelInfo)};
 		Info.PanelControl(this,FCTL_GETPANELINFO,0,(void*)&PInfo);
 
 		if (PInfo.SelectedItemsNumber>1)
@@ -1539,7 +1539,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 	}
 	else if ((ControlState&(LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED)) && Key==L'F')
 	{
-		PanelInfo pi;
+		PanelInfo pi = {sizeof(PanelInfo)};
 		Info.PanelControl(this,FCTL_GETPANELINFO,0,(void*)&pi);
 
 		if (pi.CurrentItem < pi.ItemsNumber)
@@ -1585,7 +1585,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		};
 #define NSTATICITEMS (ARRAYSIZE(StaticItems))
 		int nMoreData = pPerfThread ? ARRAYSIZE(Counters) + 1 : 0;
-		PanelInfo pi;
+		PanelInfo pi = {sizeof(PanelInfo)};
 		Info.PanelControl(this,FCTL_GETPANELINFO,0,(void*)&pi);
 		wchar_t cIndicator = pi.Flags&PFLAGS_REVERSESORTORDER ? L'-' : L'+';
 		Array<FarMenuItem> Items(NSTATICITEMS + nMoreData*2);
@@ -1925,7 +1925,7 @@ wchar_t Plist::ProcPanelModesLocal[NPANELMODES][MAX_MODE_STR], Plist::ProcPanelM
 /*
 bool Plist::PostUpdate()
 {
-PanelInfo pi;
+PanelInfo pi = {sizeof(PanelInfo)};
 if(!Control(FCTL_GETPANELINFO, &pi))
 return false;
 
