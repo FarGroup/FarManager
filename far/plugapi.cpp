@@ -2389,7 +2389,7 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 
 				int Size = ALIGN(sizeof(MacroParseResult));
 				size_t stringOffset = Size;
-				Size += static_cast<int>(ErrSrc.GetLength() + 1);
+				Size += static_cast<int>((ErrSrc.GetLength() + 1)*sizeof(wchar_t));
 
 				MacroParseResult *Result = (MacroParseResult *)Param2;
 
