@@ -1249,11 +1249,11 @@ struct MacroAddMacro
 {
 	size_t StructSize;
 	void* Id;
-	enum FARMACROAREA Area;
-	FARKEYMACROFLAGS Flags;
-	INPUT_RECORD AKey;
 	const wchar_t *SequenceText;
 	const wchar_t *Description;
+	FARKEYMACROFLAGS Flags;
+	INPUT_RECORD AKey;
+	enum FARMACROAREA Area;
 	FARMACROCALLBACK Callback;
 };
 

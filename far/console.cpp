@@ -397,7 +397,7 @@ virtual bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const
 	}
 	else
 	{
-		Result = WriteFile(OutputHandle, Buffer, static_cast<DWORD>(NumberOfCharsToWrite)*sizeof(wchar_t), &NumberOfCharsWritten, nullptr)!=FALSE;
+		Result = WriteFile(OutputHandle, Buffer, static_cast<DWORD>(NumberOfCharsToWrite*sizeof(wchar_t)), &NumberOfCharsWritten, nullptr)!=FALSE;
 	}
 	return Result;
 }

@@ -1578,7 +1578,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		if (strCmdLine.IsEmpty() || !strCmdLine.Pos(pos,L'=') || !pos)
 		{
 			//forward "set | command" and "set > file" to COMSPEC
-			if (strCmdLine.At(0)!=L'|' || strCmdLine.At(0)!=L'>')
+			if (strCmdLine.At(0)==L'|' || strCmdLine.At(0)==L'>')
 				return FALSE;
 
 			ShowBackground();
