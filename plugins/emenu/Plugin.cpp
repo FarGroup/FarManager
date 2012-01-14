@@ -258,17 +258,33 @@ CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
       szCmdLine=new wchar_t[nLen];
     } while (ExpandEnvironmentStrings(sz, szCmdLine,(DWORD)nLen) >= nLen-1);
   }
-  EDoMenu enDoMenu=DoMenu(szCmdLine);
+  EDoMenu enDoMenu=DoMenu(szCmdLine, nOpenFrom==OPEN_FILEPANEL);
   delete[] szCmdLine;
   return enDoMenu;
 }
 
-CPlugin::EDoMenu CPlugin::DoMenu(LPWSTR szCmdLine)
+CPlugin::EDoMenu CPlugin::DoMenu(LPWSTR szCmdLine, bool bRightClick)
 {
   IShellFolderPtr pDesktop;
-  if (FAILED(SHGetDesktopFolder(&pDesktop))) return DOMNU_ERR_SHOW;
+  if (FAILED(SHGetDesktopFolder(&pDesktop)))
+  	return DOMNU_ERR_SHOW;
   m_pDesktop=pDesktop;
-  if (!m_pMalloc) return DOMNU_ERR_SHOW;
+  if (!m_pMalloc)
+  	return DOMNU_ERR_SHOW;
+
+  if (bRightClick)
+  {
+    int UseGUISav=m_UseGUI;
+    int GuiPosSav=m_GuiPos;
+    if (m_UseGUI==2)
+    	m_UseGUI = 0; //если [?] то при right click по дефолту текст меню
+    m_GuiPos=0; //покажем меню там где мышь
+  	EDoMenu enDoMenu = MenuForPanelOrCmdLine();
+  	m_UseGUI=UseGUISav;
+  	m_GuiPos=GuiPosSav;
+  	return enDoMenu;
+  }
+
   if (szCmdLine)
   {
     int UseGUISav=m_UseGUI;

@@ -40,7 +40,7 @@ public:
 protected:
   LPCWSTR GetMsg(int nMsgId);
   int Message(DWORD nFlags, LPCWSTR szHelpTopic, const LPCWSTR* pItems, int nItemsNumber, int nButtonsNumber);
-  EDoMenu DoMenu(LPWSTR szCmdLine);
+  EDoMenu DoMenu(LPWSTR szCmdLine, bool bRightClick);
   EDoMenu SelectDrive();
   enum EAutoItem
   {
