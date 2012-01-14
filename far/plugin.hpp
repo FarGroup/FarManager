@@ -1386,7 +1386,7 @@ struct WindowInfo
 struct WindowType
 {
 	size_t StructSize;
-	int Type;
+	enum WINDOWINFO_TYPE Type;
 };
 
 enum PROGRESSTATE

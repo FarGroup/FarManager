@@ -333,7 +333,7 @@ static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMM
 				case WTYPE_DIALOG:
 				case WTYPE_VMENU:
 				case WTYPE_HELP:
-					info->Type=type;
+					info->Type=(WINDOWINFO_TYPE)type;
 					return TRUE;
 			}
 		}

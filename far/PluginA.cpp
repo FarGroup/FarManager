@@ -3134,7 +3134,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				hPlugin=PANEL_PASSIVE;
 
 			oldfar::PanelInfo* OldPI=Passive?&AnotherPanelInfoA:&PanelInfoA;
-			PanelInfo PI;
+			PanelInfo PI = {sizeof(PanelInfo)};
 			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin,FCTL_GETPANELINFO,0,&PI));
 			FreeAnsiPanelInfo(OldPI);
 
@@ -3255,7 +3255,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 			if (Command==oldfar::FCTL_GETANOTHERPANELSHORTINFO)
 				hPlugin=PANEL_PASSIVE;
 
-			PanelInfo PI;
+			PanelInfo PI = {sizeof(PanelInfo)};
 			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin,FCTL_GETPANELINFO,0,&PI));
 
 			if (ret)
