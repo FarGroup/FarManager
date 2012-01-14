@@ -2940,6 +2940,16 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			*/
 			if ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && !IsEmpty)
 			{
+				DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
+
+				//вызовем EMenu если он есть
+				if ((control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins.FindPlugin(EMenuGuid))
+				{
+					ShowFileList(TRUE);
+					CtrlObject->Plugins.CallPlugin(EMenuGuid,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
+					return TRUE;
+				}
+
 				if (!MouseEvent->dwEventFlags || MouseEvent->dwEventFlags==DOUBLE_CLICK)
 					MouseSelection=!CurPtr->Selected;
 
