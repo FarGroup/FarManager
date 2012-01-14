@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2376
+  Plugin API for Far Manager 3.0 build 2377
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2376
+#define FARMANAGERVERSION_BUILD 2377
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1227,7 +1227,7 @@ struct WindowInfo
 struct WindowType
 {
 	size_t StructSize;
-	int Type;
+	enum WINDOWINFO_TYPE Type;
 };
 
 enum PROGRESSTATE
