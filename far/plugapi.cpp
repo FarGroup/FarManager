@@ -847,7 +847,7 @@ int WINAPI FarMenuFn(
 				FarMenu.Hide();
 				FarMenu.Show();
 			}
-			else if (ReadRec.EventType==MOUSE_EVENT)
+			else if (ReadRec.EventType==MOUSE_EVENT && !(ReadKey==KEY_MSWHEEL_UP || ReadKey==KEY_MSWHEEL_DOWN || ReadKey==KEY_MSWHEEL_RIGHT || ReadKey==KEY_MSWHEEL_LEFT))
 			{
 				FarMenu.ProcessMouse(&ReadRec.Event.MouseEvent);
 			}
