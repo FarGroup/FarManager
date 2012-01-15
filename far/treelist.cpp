@@ -1405,6 +1405,15 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		         !MouseEvent->dwEventFlags) ||
 		        (OldFile!=CurFile && Opt.Tree.AutoChangeFolder && !ModalMode))
 		{
+			DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
+
+			//вызовем EMenu если он есть
+			if ((control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins.FindPlugin(EMenuGuid))
+			{
+				CtrlObject->Plugins.CallPlugin(EMenuGuid,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
+				return TRUE;
+			}
+
 			ProcessEnter();
 			return TRUE;
 		}
