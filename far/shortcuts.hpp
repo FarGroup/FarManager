@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 struct ShortcutItem
 {
+	string strName;
 	string strFolder;
 	GUID PluginGuid;
 	string strPluginFile;

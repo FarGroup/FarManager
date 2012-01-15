@@ -56,6 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 enum PSCR_RECTYPE
 {
 	PSCR_RT_SHORTCUT,
+	PSCR_RT_NAME,
 	PSCR_RT_PLUGINGUID,
 	PSCR_RT_PLUGINFILE,
 	PSCR_RT_PLUGINDATA,
@@ -64,6 +65,7 @@ enum PSCR_RECTYPE
 static const wchar_t *RecTypeName[]=
 {
 	L"Shortcut",
+	L"Name",
 	L"PluginGuid",
 	L"PluginFile",
 	L"PluginData",
@@ -103,16 +105,23 @@ Shortcuts::Shortcuts()
 				string strValue;
 				if (!cfg->GetValue(key, ValueName, strValue))
 					break;
-				ValueName.Clear();
 				ShortcutItem* Item = Items[i].Push();
 				Item->strFolder = strValue;
+
+				ValueName.Clear();
+				ValueName << RecTypeName[PSCR_RT_NAME] << j;
+				cfg->GetValue(key, ValueName, Item->strName);
+
+				ValueName.Clear();
 				ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << j;
 				string strPluginGuid;
 				cfg->GetValue(key, ValueName, strPluginGuid);
 				if(!StrToGuid(strPluginGuid,Item->PluginGuid)) Item->PluginGuid=FarGuid;
+
 				ValueName.Clear();
 				ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << j;
 				cfg->GetValue(key, ValueName, Item->strPluginFile);
+
 				ValueName.Clear();
 				ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << j;
 				cfg->GetValue(key, ValueName, Item->strPluginData);
@@ -152,6 +161,11 @@ Shortcuts::~Shortcuts()
 				FormatString ValueName;
 				ValueName << RecTypeName[PSCR_RT_SHORTCUT] << index;
 				cfg->SetValue(key, ValueName, j->strFolder);
+
+				ValueName.Clear();
+				ValueName << RecTypeName[PSCR_RT_NAME] << index;
+				cfg->SetValue(key, ValueName, j->strName);
+
 				if(!IsEqualGUID(FarGuid,j->PluginGuid))
 				{
 					ValueName.Clear();
@@ -159,12 +173,14 @@ Shortcuts::~Shortcuts()
 					string strPluginGuid=GuidToStr(j->PluginGuid);
 					cfg->SetValue(key, ValueName, strPluginGuid);
 				}
+
 				if(!j->strPluginFile.IsEmpty())
 				{
 					ValueName.Clear();
 					ValueName << RecTypeName[PSCR_RT_PLUGINFILE] << index;
 					cfg->SetValue(key, ValueName, j->strPluginFile);
 				}
+
 				if(!j->strPluginData.IsEmpty())
 				{
 					ValueName.Clear();
@@ -216,7 +232,11 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 			{
 				MenuItemEx ListItem={};
 				string strFolderName;
-				if(!i->strFolder.IsEmpty())
+				if(!i->strName.IsEmpty())
+				{
+					strFolderName = i->strName;
+				}
+				else if(!i->strFolder.IsEmpty())
 				{
 					strFolderName = i->strFolder;
 				}
@@ -352,7 +372,11 @@ void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 	const wchar_t* Ptr = L"";
 	if(!Items[Pos].Empty())
 	{
-		if(!Items[Pos].First()->strFolder.IsEmpty())
+		if(!Items[Pos].First()->strName.IsEmpty())
+		{
+			Ptr = Items[Pos].First()->strName;
+		}
+		else if(!Items[Pos].First()->strFolder.IsEmpty())
 		{
 			Ptr = Items[Pos].First()->strFolder;
 		}
@@ -377,10 +401,13 @@ void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 
 void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 {
+	string strNewName = Item->strName;
 	string strNewDir = Item->strFolder;
 
 	DialogBuilder Builder(MFolderShortcutsTitle, HelpFolderShortcuts);
-	Builder.AddText(MFSShortcut);
+	Builder.AddText(MFSShortcutName);
+	Builder.AddEditField(&strNewName, 50, L"FS_Name", DIF_EDITPATH);
+	Builder.AddText(MFSShortcutPath);
 	Builder.AddEditField(&strNewDir, 50, L"FS_Path", DIF_EDITPATH);
 	Builder.AddOKCancel();
 
@@ -400,16 +427,17 @@ void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 			Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strNewDir, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
 		}
 
-		if (Save && Item->strFolder != strNewDir)
+		if (Save && (Item->strFolder != strNewDir || Item->strName != strNewName))
 		{
 			Changed = true;
 			Item->strPluginData.Clear();
 			Item->strPluginFile.Clear();
 			Item->PluginGuid=FarGuid;
+			Item->strName = strNewName;
 			Item->strFolder = strNewDir;
 
 			MenuItemEx* MenuItem = Menu->GetItemPtr();
-			MenuItem->strName = Item->strFolder;
+			MenuItem->strName = Item->strName.IsEmpty()? Item->strFolder : Item->strName;
 			if(Root)
 			{
 				MakeItemName(Menu->GetSelectPos(), MenuItem);

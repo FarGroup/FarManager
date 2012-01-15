@@ -4544,14 +4544,23 @@ MShortcutPlugin
 "<plugin>"
 "<plugin>"
 
-MFSShortcut
-"Введите новую ссылку:"
-"Enter new shortcut:"
-"Zadejte novou zkratku:"
-"Neue Verknüpfung:"
-"A gyorsbillentyűhöz rendelt mappa:"
-"Wprowadź nowy skrót:"
-"Ingrése nuevo acceso:"
+MFSShortcutName
+"Название:"
+"Title:"
+upd:"Title:"
+upd:"Title:"
+upd:"Title:"
+upd:"Title:"
+upd:"Title:"
+
+MFSShortcutPath
+"Путь:"
+"Path:"
+upd:"Path:"
+upd:"Path:"
+upd:"Path:"
+upd:"Path:"
+upd:"Path:"
 
 MNeedNearPath
 "Перейти в ближайшую доступную папку?"
