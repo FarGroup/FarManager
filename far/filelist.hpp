@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DList.hpp"
 #include "panelctype.hpp"
 #include "plugins.hpp"
+#include "FarGuid.hpp"
 
 class FileFilter;
 

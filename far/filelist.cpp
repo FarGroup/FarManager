@@ -2275,6 +2275,18 @@ int FileList::ProcessKey(int Key)
 		case KEY_RCTRLSHIFTNUMPAD3:
 			ProcessEnter(0,0,!(Key&KEY_SHIFT), false, OFP_ALTERNATIVE);
 			return TRUE;
+
+		case KEY_APPS:
+		case KEY_SHIFTAPPS:
+		{
+			//вызовем EMenu если он есть
+			if (CtrlObject->Plugins.FindPlugin(EMenuGuid))
+			{
+				CtrlObject->Plugins.CallPlugin(EMenuGuid, OPEN_FILEPANEL, reinterpret_cast<void*>(1)); // EMenu Plugin :-)
+			}
+			return TRUE;
+		}
+
 		default:
 
 			if (((Key>=KEY_ALT_BASE+0x01 && Key<=KEY_ALT_BASE+65535) || (Key>=KEY_RALT_BASE+0x01 && Key<=KEY_RALT_BASE+65535) ||
