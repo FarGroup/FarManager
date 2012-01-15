@@ -243,6 +243,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 				case KEY_NUMPAD0:
 				case KEY_INS:
 					{
+						Changed = true;
 						if (Key == KEY_INS || Key == KEY_NUMPAD0)
 						{
 							ShortcutItem* NewItem = Items[Pos].InsertBefore(Item);
@@ -399,8 +400,9 @@ void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 			Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strNewDir, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
 		}
 
-		if (Save)
+		if (Save && Item->strFolder != strNewDir)
 		{
+			Changed = true;
 			Item->strPluginData.Clear();
 			Item->strPluginFile.Clear();
 			Item->PluginGuid=FarGuid;
