@@ -4475,6 +4475,10 @@ desired options in the dialog:
 
     Allows to edit the recorded key sequence.
 
+   #Description:#
+
+    Allows to edit the description of key sequence.
+
    #Allow screen output while executing macro#
 
     If this option is not set during the macro command execution Far Manager

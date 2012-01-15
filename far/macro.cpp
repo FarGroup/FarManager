@@ -676,6 +676,7 @@ KeyMacro::KeyMacro():
 	RecBufferSize(0),
 	RecBuffer(nullptr),
 	RecSrc(nullptr),
+	RecDescription(nullptr),
 	LockScr(nullptr)
 {
 	Work.Init(nullptr);
@@ -758,6 +759,7 @@ void KeyMacro::InitInternalVars(BOOL InitedRAM)
 	RecBuffer=nullptr;
 	RecBufferSize=0;
 	RecSrc=nullptr;
+	RecDescription=nullptr;
 	Recording=MACROMODE_NOMACRO;
 	InternalInput=FALSE;
 	VMStack.Free();
@@ -978,7 +980,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 
 					Macro.BufferSize=RecBufferSize;
 					Macro.Src=RecSrc?RecSrc:MkTextSequence(Macro.Buffer,Macro.BufferSize);
-					Macro.Description=nullptr;
+					Macro.Description=RecDescription;
 
 					// если удаляем макрос - скорректируем StartMode,
 					// иначе макрос из common получит ту область, в которой его решили удалить.
@@ -998,6 +1000,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			RecBuffer=nullptr;
 			RecBufferSize=0;
 			RecSrc=nullptr;
+			RecDescription=nullptr;
 			ScrBuf.RestoreMacroChar();
 			WaitInFastFind++;
 			KeyMacro::Sort();
@@ -1060,6 +1063,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 		RecBufferSize=0;
 
 		RecSrc=nullptr;
+		RecDescription=nullptr;
 		ScrBuf.ResetShadow();
 		ScrBuf.Flush();
 		WaitInFastFind--;
@@ -6831,10 +6835,15 @@ M1:
 				}
 				else if (SetChange && Result == 1)
 				{
+					string strDescription;
+
 					if ( Mac->Src )
 						strBufKey=Mac->Src;
 
-					if (MacroDlg->GetMacroSettings(key,Mac->Flags,strBufKey))
+					if ( Mac->Description )
+						strDescription=Mac->Description;
+
+					if (MacroDlg->GetMacroSettings(key,Mac->Flags,strBufKey,strDescription))
 					{
 						KMParam->Flags = Mac->Flags;
 						KMParam->Changed = true;
@@ -6909,6 +6918,8 @@ enum MACROSETTINGSDLG
 	MS_DOUBLEBOX,
 	MS_TEXT_SEQUENCE,
 	MS_EDIT_SEQUENCE,
+	MS_TEXT_DESCR,
+	MS_EDIT_DESCR,
 	MS_SEPARATOR1,
 	MS_CHECKBOX_OUPUT,
 	MS_CHECKBOX_START,
@@ -6961,6 +6972,8 @@ INT_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* 
 						Macro->RecBufferSize=mr.BufferSize;
 						Macro->RecBuffer=mr.Buffer;
 						Macro->RecSrc=xf_wcsdup(Sequence);
+						LPCWSTR Description=(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MS_EDIT_DESCR,0);
+						Macro->RecDescription=xf_wcsdup(Description);
 						return TRUE;
 					}
 				}
@@ -7044,7 +7057,7 @@ INT_PTR WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* 
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src)
+int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wchar_t *Descr)
 {
 	/*
 	          1         2         3         4         5         6
@@ -7052,45 +7065,50 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src)
 	 1 г=========== Параметры макрокоманды для 'CtrlP' ==================¬
 	 2 | Последовательность:                                             |
 	 3 | _______________________________________________________________ |
-	 4 |-----------------------------------------------------------------|
-	 5 | [ ] Разрешить во время выполнения вывод на экран                |
-	 6 | [ ] Выполнять после запуска FAR                                 |
-	 7 |-----------------------------------------------------------------|
-	 8 | [ ] Активная панель             [ ] Пассивная панель            |
-	 9 |   [?] На панели плагина           [?] На панели плагина         |
-	10 |   [?] Выполнять для папок         [?] Выполнять для папок       |
-	11 |   [?] Отмечены файлы              [?] Отмечены файлы            |
-	12 |-----------------------------------------------------------------|
-	13 | [?] Пустая командная строка                                     |
-	14 | [?] Отмечен блок                                                |
-	15 |-----------------------------------------------------------------|
-	16 |               [ Продолжить ]  [ Отменить ]                      |
-	17 L=================================================================+
+	 4 | Описание:                                                       |
+	 5 | _______________________________________________________________ |
+	 6 |-----------------------------------------------------------------|
+	 7 | [ ] Разрешить во время выполнения вывод на экран                |
+	 8 | [ ] Выполнять после запуска FAR                                 |
+	 9 |-----------------------------------------------------------------|
+	10 | [ ] Активная панель             [ ] Пассивная панель            |
+	11 |   [?] На панели плагина           [?] На панели плагина         |
+	12 |   [?] Выполнять для папок         [?] Выполнять для папок       |
+	13 |   [?] Отмечены файлы              [?] Отмечены файлы            |
+	14 |-----------------------------------------------------------------|
+	15 | [?] Пустая командная строка                                     |
+	16 | [?] Отмечен блок                                                |
+	17 |-----------------------------------------------------------------|
+	18 |               [ Продолжить ]  [ Отменить ]                      |
+	19 L=================================================================+
 
 	*/
 	FarDialogItem MacroSettingsDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,69,17,0,nullptr,nullptr,0,L""},
+		{DI_DOUBLEBOX,3,1,69,19,0,nullptr,nullptr,0,L""},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MMacroSequence)},
 		{DI_EDIT,5,3,67,3,0,nullptr,nullptr,DIF_FOCUS,L""},
-		{DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,5,0,5,0,nullptr,nullptr,0,MSG(MMacroSettingsEnableOutput)},
-		{DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,0,MSG(MMacroSettingsRunAfterStart)},
-		{DI_TEXT,3,7,0,7,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,MSG(MMacroSettingsActivePanel)},
-		{DI_CHECKBOX,7,9,0,9,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsPluginPanel)},
-		{DI_CHECKBOX,7,10,0,10,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsFolders)},
-		{DI_CHECKBOX,7,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsSelectionPresent)},
-		{DI_CHECKBOX,37,8,0,8,0,nullptr,nullptr,0,MSG(MMacroSettingsPassivePanel)},
-		{DI_CHECKBOX,39,9,0,9,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsPluginPanel)},
-		{DI_CHECKBOX,39,10,0,10,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsFolders)},
-		{DI_CHECKBOX,39,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsSelectionPresent)},
-		{DI_TEXT,3,12,0,12,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_CHECKBOX,5,13,0,13,2,nullptr,nullptr,DIF_3STATE,MSG(MMacroSettingsCommandLine)},
-		{DI_CHECKBOX,5,14,0,14,2,nullptr,nullptr,DIF_3STATE,MSG(MMacroSettingsSelectionBlockPresent)},
-		{DI_TEXT,3,15,0,15,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-		{DI_BUTTON,0,16,0,16,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
-		{DI_BUTTON,0,16,0,16,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
+		{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,MSG(MMacroDescription)},
+		{DI_EDIT,5,5,67,5,0,nullptr,nullptr,DIF_FOCUS,L""},
+
+		{DI_TEXT,3,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MMacroSettingsEnableOutput)},
+		{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,MSG(MMacroSettingsRunAfterStart)},
+		{DI_TEXT,3,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_CHECKBOX,5,10,0,10,0,nullptr,nullptr,0,MSG(MMacroSettingsActivePanel)},
+		{DI_CHECKBOX,7,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsPluginPanel)},
+		{DI_CHECKBOX,7,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsFolders)},
+		{DI_CHECKBOX,7,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsSelectionPresent)},
+		{DI_CHECKBOX,37,10,0,10,0,nullptr,nullptr,0,MSG(MMacroSettingsPassivePanel)},
+		{DI_CHECKBOX,39,11,0,11,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsPluginPanel)},
+		{DI_CHECKBOX,39,12,0,12,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsFolders)},
+		{DI_CHECKBOX,39,13,0,13,2,nullptr,nullptr,DIF_3STATE|DIF_DISABLE,MSG(MMacroSettingsSelectionPresent)},
+		{DI_TEXT,3,14,0,14,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_CHECKBOX,5,15,0,15,2,nullptr,nullptr,DIF_3STATE,MSG(MMacroSettingsCommandLine)},
+		{DI_CHECKBOX,5,16,0,16,2,nullptr,nullptr,DIF_3STATE,MSG(MMacroSettingsSelectionBlockPresent)},
+		{DI_TEXT,3,17,0,17,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
+		{DI_BUTTON,0,18,0,18,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
 	};
 	MakeDialogItemsEx(MacroSettingsDlgData,MacroSettingsDlg);
 	string strKeyText;
@@ -7118,9 +7136,12 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src)
 		MacroSettingsDlg[MS_EDIT_SEQUENCE].strData=Sequence;
 		xf_free(Sequence);
 	}
+
+	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:RecDescription;
+
 	DlgParam Param={this,0,0,false,0,0};
 	Dialog Dlg(MacroSettingsDlg,ARRAYSIZE(MacroSettingsDlg),ParamMacroDlgProc,&Param);
-	Dlg.SetPosition(-1,-1,73,19);
+	Dlg.SetPosition(-1,-1,73,21);
 	Dlg.SetHelp(L"KeyMacroSetting");
 	Frame* BottomFrame = FrameManager->GetBottomFrame();
 	if(BottomFrame)

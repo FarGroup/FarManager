@@ -14848,6 +14848,15 @@ MMacroSequence
 "Sekwencja:"
 "Secuencia:"
 
+MMacroDescription
+"Описание:"
+"Description:"
+"Popis:"
+"Beschreibung:"
+"Megjegyzés:"
+"Opis:"
+"Descripción:"
+
 MMacroReDefinedKey2
 "Переопределить?"
 "Redefine?"

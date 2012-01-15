@@ -229,6 +229,7 @@ class KeyMacro
 		int RecBufferSize;
 		DWORD *RecBuffer;
 		wchar_t *RecSrc;
+		wchar_t *RecDescription;
 
 		class LockScreen *LockScr;
 
@@ -248,7 +249,7 @@ class KeyMacro
 		void WritePluginFunctions();
 		void WriteMacroRecords();
 		int AssignMacroKey(DWORD &MacroKey, UINT64 &Flags);
-		int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr);
+		int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 		void InitInternalVars(BOOL InitedRAM=TRUE);
 		void InitInternalLIBVars();
 		void ReleaseWORKBuffer(BOOL All=FALSE); // удалить временный буфер
