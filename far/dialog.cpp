@@ -4117,7 +4117,7 @@ int Dialog::AddToEditHistory(DialogItemEx* CurItem, const wchar_t *AddStr)
 {
 	CriticalSectionLock Lock(CS);
 
-	if (!*AddStr||!CurItem->ObjPtr)
+	if (!CurItem->ObjPtr)
 	{
 		return FALSE;
 	}
