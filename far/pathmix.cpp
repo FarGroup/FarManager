@@ -202,7 +202,7 @@ const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
 	return PointToName(lpwszPath,nullptr);
 }
 
-const wchar_t* PointToName(string& strPath)
+const wchar_t* PointToName(const string& strPath)
 {
 	const wchar_t *lpwszPath=strPath.CPtr();
 	const wchar_t *lpwszEndPtr=lpwszPath+strPath.GetLength();

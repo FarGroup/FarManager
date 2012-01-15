@@ -67,7 +67,7 @@ string &CutToNameUNC(string &strPath);
 string &CutToFolderNameIfFolder(string &strPath);
 const wchar_t *PointToNameUNC(const wchar_t *lpwszPath);
 const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath);
-const wchar_t* PointToName(string &strPath);
+const wchar_t* PointToName(const string &strPath);
 const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr);
 const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *lpwszPath);
 const wchar_t* PointToExt(const wchar_t *lpwszPath);

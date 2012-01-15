@@ -55,6 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fnparce.hpp"
 #include "strmix.hpp"
 #include "configdb.hpp"
+#include "pathmix.hpp"
 
 /* $ 25.04.2001 DJ
    обработка @ в IF EXIST: функция, которая извлекает команду из строки
@@ -90,7 +91,7 @@ bool ExtractIfExistCommand(string &strCommandText)
 	return Result;
 }
 
-int GetDescriptionWidth(const string* Name=nullptr,const string* ShortName=nullptr)
+int GetDescriptionWidth()
 {
 	int Width=0;
 	DWORD Index=0;
@@ -106,21 +107,7 @@ int GetDescriptionWidth(const string* Name=nullptr,const string* ShortName=nullp
 
 		AssocConfig->GetDescription(id,strDescription);
 
-		int CurWidth;
-
-		if (!Name)
-		{
-			CurWidth = HiStrlen(strDescription);
-		}
-		else
-		{
-			if (!FMask.Compare(*Name))
-				continue;
-
-			string strExpandedDesc = strDescription;
-			SubstFileName(strExpandedDesc, *Name, ShortName? *ShortName:L"",nullptr,nullptr,nullptr,nullptr,TRUE);
-			CurWidth = HiStrlen(strExpandedDesc);
-		}
+		int CurWidth = HiStrlen(strDescription);
 
 		if (CurWidth>Width)
 			Width=CurWidth;
@@ -156,6 +143,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode
 	int CommandCount=0;
 	DWORD Index=0;
 	unsigned __int64 id;
+	string FileName = PointToName(Name);
 
 	while (AssocConfig->EnumMasksForType(Mode,Index++,&id,strMask))
 	{
@@ -163,7 +151,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode
 
 		if (FMask.Set(strMask,FMF_SILENT))
 		{
-			if (FMask.Compare(Name))
+			if (FMask.Compare(FileName))
 			{
 				AssocConfig->GetCommand(id,Mode,strCommand);
 
