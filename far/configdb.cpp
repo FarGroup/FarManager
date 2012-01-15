@@ -2039,7 +2039,7 @@ public:
 
 	bool SetLastEmpty(const wchar_t *HistoryName, bool Empty)
 	{
-		return stmtGetLastEmpty.Bind(HistoryName).Bind(Empty?1:0).StepAndReset();
+		return stmtSetLastEmpty.Bind(HistoryName).Bind(Empty?1:0).StepAndReset();
 	}
 
 	unsigned __int64 SetEditorPos(const wchar_t *Name, int Line, int LinePos, int ScreenLine, int LeftPos, UINT CodePage)
