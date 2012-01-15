@@ -106,41 +106,31 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 
 	HistoryCfg->BeginTransaction();
 
-	if (TypeHistory==HISTORYTYPE_DIALOG && strName.IsEmpty())
+	if (RemoveDups) // удалять дубликаты?
 	{
-		HistoryCfg->SetLastEmpty(strHistoryName, true);
-	}
-	else
-	{
-		if (RemoveDups) // удалять дубликаты?
+		DWORD index=0;
+		string strHName,strHGuid,strHFile,strHData;
+		int HType;
+		bool HLock;
+		unsigned __int64 id;
+		unsigned __int64 Time;
+		while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
 		{
-			DWORD index=0;
-			string strHName,strHGuid,strHFile,strHData;
-			int HType;
-			bool HLock;
-			unsigned __int64 id;
-			unsigned __int64 Time;
-			while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
+			if (EqualType(Type,HType))
 			{
-				if (EqualType(Type,HType))
-				{
-					int (__cdecl* StrCmpFn)(const wchar_t*,const wchar_t*)=(RemoveDups==2)?StrCmpI:StrCmp;
+				int (__cdecl* StrCmpFn)(const wchar_t*,const wchar_t*)=(RemoveDups==2)?StrCmpI:StrCmp;
 
-					if (!StrCmpFn(strName,strHName)&&!StrCmpFn(strGuid,strHGuid)&&!StrCmpFn(strFile,strHFile)&&!StrCmpFn(strData,strHData))
-					{
-						Lock = Lock || HLock;
-						HistoryCfg->Delete(id);
-						break;
-					}
+				if (!StrCmpFn(strName,strHName)&&!StrCmpFn(strGuid,strHGuid)&&!StrCmpFn(strFile,strHFile)&&!StrCmpFn(strData,strHData))
+				{
+					Lock = Lock || HLock;
+					HistoryCfg->Delete(id);
+					break;
 				}
 			}
 		}
-
-		HistoryCfg->Add(TypeHistory, strHistoryName, strName, Type, Lock, strGuid, strFile, strData);
-
-		if (TypeHistory==HISTORYTYPE_DIALOG)
-			HistoryCfg->SetLastEmpty(strHistoryName, false);
 	}
+
+	HistoryCfg->Add(TypeHistory, strHistoryName, strName, Type, Lock, strGuid, strFile, strData);
 
 	ResetPosition();
 
@@ -150,9 +140,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 bool History::ReadLastItem(const wchar_t *HistoryName, string &strStr)
 {
 	strStr.Clear();
-	if (!HistoryCfg->GetLastEmpty(HistoryName))
-		return HistoryCfg->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
-	return true;
+	return HistoryCfg->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
 }
 
 const wchar_t *History::GetTitle(int Type)

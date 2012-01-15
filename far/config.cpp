@@ -595,7 +595,7 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, NKeyInterface, L"ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyInterface, L"AltF9",&Opt.AltF9, 1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyInterface, L"CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, NKeyInterface, L"ClearType",&Opt.ClearType, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, NKeyInterface, L"ClearType",&Opt.ClearType, 1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyInterface, L"ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyInterface, L"ShowTimeoutDACLFiles",&Opt.ShowTimeoutDACLFiles, 50, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyInterface, L"FormatNumberSeparators",&Opt.FormatNumberSeparators, 0, 0},
