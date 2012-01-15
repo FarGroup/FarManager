@@ -32,6 +32,12 @@ public:
     DOMNU_ERR_SHOW,
     DOMNU_ERR_INVOKE,
   };
+  enum CallMode
+  {
+    CALL_NORMAL,
+    CALL_RIGHTCLICK,
+    CALL_APPS,
+  };
   EDoMenu OpenPluginBkg(int nOpenFrom, INT_PTR nItem);
   int Configure();
   void ExitFAR();
@@ -40,7 +46,7 @@ public:
 protected:
   LPCWSTR GetMsg(int nMsgId);
   int Message(DWORD nFlags, LPCWSTR szHelpTopic, const LPCWSTR* pItems, int nItemsNumber, int nButtonsNumber);
-  EDoMenu DoMenu(LPWSTR szCmdLine, bool bRightClick);
+  EDoMenu DoMenu(LPWSTR szCmdLine, CallMode Mode);
   EDoMenu SelectDrive();
   enum EAutoItem
   {

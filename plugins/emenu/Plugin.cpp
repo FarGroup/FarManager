@@ -258,12 +258,13 @@ CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
       szCmdLine=new wchar_t[nLen];
     } while (ExpandEnvironmentStrings(sz, szCmdLine,(DWORD)nLen) >= nLen-1);
   }
-  EDoMenu enDoMenu=DoMenu(szCmdLine, nOpenFrom==OPEN_FILEPANEL);
+  CallMode Mode = nOpenFrom==OPEN_FILEPANEL? (nItem? CALL_APPS : CALL_RIGHTCLICK) : CALL_NORMAL;
+  EDoMenu enDoMenu=DoMenu(szCmdLine, Mode);
   delete[] szCmdLine;
   return enDoMenu;
 }
 
-CPlugin::EDoMenu CPlugin::DoMenu(LPWSTR szCmdLine, bool bRightClick)
+CPlugin::EDoMenu CPlugin::DoMenu(LPWSTR szCmdLine, CallMode Mode)
 {
   IShellFolderPtr pDesktop;
   if (FAILED(SHGetDesktopFolder(&pDesktop)))
@@ -272,17 +273,20 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPWSTR szCmdLine, bool bRightClick)
   if (!m_pMalloc)
   	return DOMNU_ERR_SHOW;
 
-  if (bRightClick)
+  if (Mode == CALL_RIGHTCLICK || Mode == CALL_APPS)
   {
     int UseGUISav=m_UseGUI;
     int GuiPosSav=m_GuiPos;
     if (m_UseGUI==2)
-    	m_UseGUI = 0; //если [?] то при right click по дефолту текст меню
-    m_GuiPos=0; //покажем меню там где мышь
-  	EDoMenu enDoMenu = MenuForPanelOrCmdLine();
-  	m_UseGUI=UseGUISav;
-  	m_GuiPos=GuiPosSav;
-  	return enDoMenu;
+      m_UseGUI = 0; //если [?] то при right click по дефолту текст меню
+    if(Mode == CALL_RIGHTCLICK)
+    {
+      m_GuiPos=0; //покажем меню там где мышь
+    }
+    EDoMenu enDoMenu = MenuForPanelOrCmdLine();
+    m_UseGUI=UseGUISav;
+    m_GuiPos=GuiPosSav;
+    return enDoMenu;
   }
 
   if (szCmdLine)
