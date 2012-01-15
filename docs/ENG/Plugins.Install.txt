@@ -78,22 +78,8 @@ REMOVING A PLUGIN
 
    f) If after removing the plugin you notice strange behaviour from the
       Far Manager (incorrect plugins list in F11 plugins menu, crashes,
-      etc.) clear plugins cache, use the file ClearPluginsCache.cmd to
-      complete this operation or manually delete the following registry
-      branch:
-      [HKEY_CURRENT_USER\Software\Far Manager\PluginsCache]
-
-   g) You can try to find and delete all registry entries belonging
-      to that plugin.
-      Most often they will be at a sub-branch with the name of the plugin
-      at the following registry branch
-      [HKEY_CURRENT_USER\Software\Far Manager\Plugins],
-      several entries might also be at the following registry branches:
-      [HKEY_CURRENT_USER\Software\Far Manager\SavedDialogHistory]
-      [HKEY_CURRENT_USER\Software\Far Manager\PluginHotkeys].
-      If you do not know how to do it, ask your system administrator.
-      However, this step is completely optional: there is no harm in not
-      deleting these registry entries.
+      etc.) clear plugins cache:
+      Far.exe /clearcache
 
 UPDATING A PLUGIN
 ~~~~~~~~~~~~~~~~~
