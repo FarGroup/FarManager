@@ -86,6 +86,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "elevation.hpp"
 #include "FarGuid.hpp"
+#include "FarGuid.hpp"
 
 extern PanelViewSettings ViewSettingsArray[];
 extern size_t SizeViewSettingsArray;
