@@ -3,6 +3,126 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 11.01.2012 22:25:49 +0200 - build 2365
+
+1. RegExp: \/ was not searched (if / was exactly the last character in the search line).
+
+drkns 11.01.2012 21:50:32 +0200 - build 2364
+
+1. A couple of things in Message:
+   - for messages with MSG_ERRORTYPE, F3 can show an additional error information ( win32 error code and text, nt status code and text)
+   - on CtrlC the message content is copied into clipboard (header + lines + buttons) as for winapi MessageBox.
+
+2. Ibid: text replacement is removed for some types of errors.
+
+t-rex 11.01.2012 21:53:39 +0200 - build 2363
+
+1. No 'action's accepted. Something common for all the import has to be invented.
+   Empty-means-deletion is simplest and most logical, drop any other variants.
+   For vars, consts and macro there's the 'text' tag now, it may be CDATA, if it's absent
+   then deletion takes place.
+     <variable name="%NAME%" type="%TYPE%"><text>%VALUE%</text></variable>
+     <constant name="%NAME%" type="%TYPE%"><text>%VALUE%</text></constant>
+     <macro area="%AREA%" key="%KEY%"><text>%SEQUENCE%</text></macro>
+
+svs 11.01.2012 22:17:46 +0400 - build 2362
+
+1. Mantis#0001949: Macro call with AutoCompletion on
+   Change in API!!!
+
+   struct MacroAddMacro is appended with the Area field
+   Now MCTL_ADDMACRO can add into areas other than 'common'
+
+2. In xml, "macro" element is renamed to "macros"
+   http://forum.farmanager.com/viewtopic.php?p=88391#p88391
+
+3. Import/Export of macro variables, constants and sequences.
+   action = "add|delete|ignore" is added
+     <variable name="%NAME%" type="%TYPE%" action="%ACTION%">%VALUE%</variable>
+     <constant name="%NAME%" type="%TYPE%" action="%ACTION%">%VALUE%</constant>
+   if action is not given, "add" is implied
+   "ignore" - the object is skipped at importing
+   "delete" - the object is deleted from DB at importing
+   %VALUE% may be CDATA
+
+4. The beginning of diagnostics in import.
+   So far in macros - detection of an error cancels importing of macros into the database.
+
+5. Correction of TranslateKeyToVK.
+   Internal INTERNAL_KEY_BASE_2 are translated to
+   MENU_EVENT, FOCUS_EVENT è WINDOW_BUFFER_SIZE_EVENT
+
+svs 11.01.2012 11:35:08 +0400 - build 2361
+
+1. Mantis#0001915: Indication of errors in macros at eval
+   Macro: eval(,3) checks the macro sequence and returns a string value:
+      1) an empty string - no errors
+      2) 4 strings separated with '\n' explaining the error:
+         1: line and position in the string (for example <Line 1, Pos 1>
+         2: error message text (for example <Unrecognized keyword 'foo'>)
+         3: the erroneous sequence snippet (for example <"foo">)
+         4: arrow - the character with code \x2191
+
+   msgbox with flag 8 (left align) is recommended for displaying the lines
+     msgbox(,eval("blahblahblah",3),8)
+
+2. Some replacement of BOOL to bool
+
+t-rex 11.01.2012 01:32:22 +0200 - build 2360
+
+1. Mantis#1968: Do not save settings if unchanged.
+   Now it's only generalconfig.db which is always written.
+
+drkns 10.01.2012 16:41:31 +0200 - build 2359
+
+1. Correction of 2327.
+
+svs 10.01.2012 15:51:05 +0400 - build 2358
+
+1. Mantis#0001923: Crash at attempt of filter (CtrlI) editing after filter applied (CtrlAltF)
+   (from Maximus)
+
+2. Mantis#0001921: Unreal lags in ECTL_ADDCOLOR
+   (from Maximus)
+
+3. Mantis#0001917: Far crash with CurPos called for DI_LISTBOX
+   (from Maximus)
+
+svs 10.01.2012 15:31:57 +0400 - build 2357
+
+1. Mantis#0001945: Cannot move vertical block with the end of the line
+   CurLine->GetSelection(...) is unapplicable to vertical blocks :-)
+
+svs 10.01.2012 15:12:03 +0400 - build 2356
+
+1. Mantis#0001198: Bugs in Editor.Set
+   Bugs in 12-th ("Word separators") and 16-th ("Allow editing files opened for writing") options.
+
+svs 10.01.2012 12:58:46 +0400 - build 2355
+
+1. Mantis#0001972: ShiftHome and editor.sel(0,2)
+   Returning ShiftHome behaviour as it had been before 1.7x build 1541.
+   Now ShiftHome does not reset selection if the cursor is positioned to the beginning of the line.
+
+2. Macro: editor.sel(0,3) returned values from 0 (must be 1)
+
+drkns 09.01.2012 17:14:54 +0200 - build 2354
+
+1. Mantis#0001975: FAR3 user menu eats hotkeys
+
+w17 09.01.2012 17:15:14 +0400 build - 2353
+
+1. Mantis#1723,1927: CPU load when idle on VM
+   (originated by sezal)
+
+svs 07.01.2012 22:34:28 +0400 - build 2352
+
+1. Macro: Shell.AutoCompletion did not work, returning Dialog.AutoCompletion all the way
+
+t-rex 07.01.2012 13:43:07 +0200 - build 2351
+
+1. Minor corrections of history.
+
 w17 03.01.2012 23:23:11 +0400 build - 2350
 
 1. Mantis#1964: Viewer cannot find a text in UTF8 file
