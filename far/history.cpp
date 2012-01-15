@@ -97,7 +97,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 	if (CtrlObject->Macro.IsExecuting() && CtrlObject->Macro.IsHistoryDisable((int)TypeHistory))
 		return;
 
-	if ((TypeHistory!=HISTORYTYPE_FOLDER || !Guid || IsEqualGUID(FarGuid,*Guid)) && (!Str || !*Str))
+	if (TypeHistory!=HISTORYTYPE_DIALOG && (TypeHistory!=HISTORYTYPE_FOLDER || !Guid || IsEqualGUID(FarGuid,*Guid)) && (!Str || !*Str))
 		return;
 
 	bool Lock = false;
@@ -106,31 +106,41 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 
 	HistoryCfg->BeginTransaction();
 
-	if (RemoveDups) // удалять дубликаты?
+	if (TypeHistory==HISTORYTYPE_DIALOG && strName.IsEmpty())
 	{
-		DWORD index=0;
-		string strHName,strHGuid,strHFile,strHData;
-		int HType;
-		bool HLock;
-		unsigned __int64 id;
-		unsigned __int64 Time;
-		while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
+		HistoryCfg->SetLastEmpty(strHistoryName, true);
+	}
+	else
+	{
+		if (RemoveDups) // удалять дубликаты?
 		{
-			if (EqualType(Type,HType))
+			DWORD index=0;
+			string strHName,strHGuid,strHFile,strHData;
+			int HType;
+			bool HLock;
+			unsigned __int64 id;
+			unsigned __int64 Time;
+			while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
 			{
-				int (__cdecl* StrCmpFn)(const wchar_t*,const wchar_t*)=(RemoveDups==2)?StrCmpI:StrCmp;
-
-				if (!StrCmpFn(strName,strHName)&&!StrCmpFn(strGuid,strHGuid)&&!StrCmpFn(strFile,strHFile)&&!StrCmpFn(strData,strHData))
+				if (EqualType(Type,HType))
 				{
-					Lock = Lock || HLock;
-					HistoryCfg->Delete(id);
-					break;
+					int (__cdecl* StrCmpFn)(const wchar_t*,const wchar_t*)=(RemoveDups==2)?StrCmpI:StrCmp;
+
+					if (!StrCmpFn(strName,strHName)&&!StrCmpFn(strGuid,strHGuid)&&!StrCmpFn(strFile,strHFile)&&!StrCmpFn(strData,strHData))
+					{
+						Lock = Lock || HLock;
+						HistoryCfg->Delete(id);
+						break;
+					}
 				}
 			}
 		}
-	}
 
-	HistoryCfg->Add(TypeHistory, strHistoryName, strName, Type, Lock, strGuid, strFile, strData);
+		HistoryCfg->Add(TypeHistory, strHistoryName, strName, Type, Lock, strGuid, strFile, strData);
+
+		if (TypeHistory==HISTORYTYPE_DIALOG)
+			HistoryCfg->SetLastEmpty(strHistoryName, false);
+	}
 
 	ResetPosition();
 
@@ -140,7 +150,9 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 bool History::ReadLastItem(const wchar_t *HistoryName, string &strStr)
 {
 	strStr.Clear();
-	return HistoryCfg->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
+	if (!HistoryCfg->GetLastEmpty(HistoryName))
+		return HistoryCfg->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
+	return true;
 }
 
 const wchar_t *History::GetTitle(int Type)

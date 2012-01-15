@@ -296,6 +296,8 @@ public:
 	virtual unsigned __int64 GetNext(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
 	virtual unsigned __int64 GetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
 	virtual unsigned __int64 CyclicGetPrev(DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 id, string &strName) = 0;
+	virtual bool GetLastEmpty(const wchar_t *HistoryName) = 0;
+	virtual bool SetLastEmpty(const wchar_t *HistoryName, bool Empty) = 0;
 
 	//view,edit file positions and bookmarks history
 	virtual unsigned __int64 SetEditorPos(const wchar_t *Name, int Line, int LinePos, int ScreenLine, int LeftPos, UINT CodePage) = 0;

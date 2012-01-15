@@ -1696,6 +1696,8 @@ class HistoryConfigDb: public HistoryConfig {
 	SQLiteStmt stmtGetNext;
 	SQLiteStmt stmtGetPrev;
 	SQLiteStmt stmtGetNewest;
+	SQLiteStmt stmtGetLastEmpty;
+	SQLiteStmt stmtSetLastEmpty;
 	SQLiteStmt stmtSetEditorPos;
 	SQLiteStmt stmtSetEditorBookmark;
 	SQLiteStmt stmtGetEditorPos;
@@ -1736,6 +1738,7 @@ public:
 				"CREATE INDEX IF NOT EXISTS history_idx2 ON history (kind, key, time);"
 				"CREATE INDEX IF NOT EXISTS history_idx3 ON history (kind, key, lock DESC, time DESC);"
 				"CREATE INDEX IF NOT EXISTS history_idx4 ON history (kind, key, time DESC);"
+				"CREATE TABLE IF NOT EXISTS history_lastempty(name TEXT NOT NULL PRIMARY KEY, empty INTEGER NOT NULL);"
 			) &&
 			//view,edit file positions and bookmarks history
 			Exec(
@@ -1794,6 +1797,12 @@ public:
 
 			//get newest item name statement
 			InitStmt(stmtGetNewest, L"SELECT id, name FROM history WHERE kind=?1 AND key=?2 ORDER BY time DESC LIMIT 1;") &&
+
+			//get last empty status
+			InitStmt(stmtGetLastEmpty, L"SELECT empty FROM history_lastempty WHERE name=?1;") &&
+
+			//set last empty status
+			InitStmt(stmtSetLastEmpty, L"INSERT OR REPLACE INTO history_lastempty VALUES (?1,?2);") &&
 
 			//set editor position statement
 			InitStmt(stmtSetEditorPos, L"INSERT OR REPLACE INTO editorposition_history VALUES (NULL,?1,?2,?3,?4,?5,?6,?7);") &&
@@ -2017,6 +2026,20 @@ public:
 		}
 		stmtGetPrev.Reset();
 		return nid;
+	}
+
+	bool GetLastEmpty(const wchar_t *HistoryName)
+	{
+		bool Empty = false;
+		if (stmtGetLastEmpty.Bind(HistoryName).Step())
+			Empty = stmtGetLastEmpty.GetColInt(0) ? true : false;
+		stmtGetLastEmpty.Reset();
+		return Empty;
+	}
+
+	bool SetLastEmpty(const wchar_t *HistoryName, bool Empty)
+	{
+		return stmtGetLastEmpty.Bind(HistoryName).Bind(Empty?1:0).StepAndReset();
 	}
 
 	unsigned __int64 SetEditorPos(const wchar_t *Name, int Line, int LinePos, int ScreenLine, int LeftPos, UINT CodePage)
