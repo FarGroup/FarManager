@@ -14,7 +14,6 @@ Temporary panel main plugin code
 unsigned int CurrentCommonPanel;
 struct PluginStartupInfo Info;
 struct FarStandardFunctions FSF;
-wchar_t *AnalyseFileName=nullptr;
 
 PluginPanels CommonPanels[COMMONPANELSNUMBER];
 
@@ -484,6 +483,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 	}
 	else if (Info->OpenFrom == OPEN_ANALYSE)
 	{
+		const wchar_t *AnalyseFileName=reinterpret_cast<AnalyseInfo*>(Info->Data)->FileName;
 		if (AnalyseFileName && *AnalyseFileName)
 		{
 			StrBuf pName(NT_MAX_PATH); //BUGBUG
@@ -524,17 +524,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 
 int WINAPI AnalyseW(const struct AnalyseInfo *Info)
 {
-	if (AnalyseFileName)
-		free(AnalyseFileName);
-	AnalyseFileName=nullptr;
-
 	if (Info->FileName == nullptr || !Info->BufferSize)
 		return FALSE;
 
 	if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info->FileName, lstrlen(Info->FileName),PN_CMPNAMELIST))
 		return FALSE;
-
-	AnalyseFileName=wcsdup(Info->FileName);
 
 	return TRUE;
 }
@@ -546,9 +540,6 @@ void WINAPI ClosePanelW(const struct ClosePanelInfo *Info)
 
 void WINAPI ExitFARW(const struct ExitInfo *Info)
 {
-	if (AnalyseFileName)
-		free(AnalyseFileName);
-
 	for (int i=0; i<COMMONPANELSNUMBER; ++i)
 		FreePanelItems(CommonPanels[i].Items, CommonPanels[i].ItemsNumber);
 }
