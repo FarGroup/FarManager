@@ -1,3 +1,7 @@
+drkns 17.01.2012 00:19:46 +0200 - build 2396
+
+1. sqlite 3.7.10.
+
 zg 16.01.2012 23:44:52 +0200 - build 2395
 
 1. 0001991: Параметры AnalyzeW. OpenInfo->Data для OPEN_ANALYSE содержит указатель для AnalyseInfo.

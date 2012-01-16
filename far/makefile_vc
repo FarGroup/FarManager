@@ -98,6 +98,7 @@ RES_FILE = "$(INTDIR)\far.res"
 PCH_FILE = "$(INTDIR)\headers.pch"
 
 LINK_OBJS = \
+	"$(INTDIR)\sqlite.obj" \
 	"$(INTDIR)\cache.obj" \
 	"$(INTDIR)\cddrv.obj" \
 	"$(INTDIR)\CFileMask.obj" \
@@ -214,7 +215,6 @@ LINK_OBJS = \
 	"$(INTDIR)\setattr.obj" \
 	"$(INTDIR)\setcolor.obj" \
 	"$(INTDIR)\shortcuts.obj" \
-	"$(INTDIR)\sqlite.obj" \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\synchro.obj" \
