@@ -1108,7 +1108,8 @@ int Editor::ProcessKey(int Key)
 				if (!SelStart)
 				{
 					// TODO: Mantis#0001972: ShiftHome è editor.sel(0,2)
-					;//CurLine->Select(-1,0);
+					if (CurPos)
+						CurLine->Select(-1,0);
 				}
 				else
 				{
