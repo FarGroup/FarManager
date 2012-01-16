@@ -7787,7 +7787,7 @@ DWORD KeyMacro::GetHistoryDisableMask()
 
 bool KeyMacro::IsHistoryDisable(int TypeHistory)
 {
-	return (Work.HistoryDisable & (1 << TypeHistory))? false : true;
+	return (Work.HistoryDisable & (1 << TypeHistory))? true : false;
 }
 
 static int __cdecl SortMacros(const MacroRecord *el1,const MacroRecord *el2)
