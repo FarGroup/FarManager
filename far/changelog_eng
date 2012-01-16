@@ -3,6 +3,165 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.01.2012 19:08:55 +0200 - build 2394
+
+1. History didn't work in macros.
+
+svs 16.01.2012 11:30:20 +0400 - build 2393
+
+1. Correction of Mantis#0001972
+
+svs 15.01.2012 21:51:12 +0400 - build 2392
+
+1. Mantis#0001989: Add Description field to Macro Settings dialog
+
+drkns 15.01.2012 19:42:10 +0200 - build 2391
+
+1. Folder shortcuts can be named.
+
+drkns 15.01.2012 19:16:05 +0200 - build 2390
+
+1. In some cases, folder shortcuts were not stored.
+
+t-rex 15.01.2012 17:28:01 +0200 - build 2389
+
+1. And 2384 once more. Now an empty line is shown in the list too.
+
+2. ClearType configuration is on by default.
+
+drkns 15.01.2012 17:18:52 +0200 - build 2388
+
+1. Mouse wheel did not work in plugin menus.
+
+t-rex 15.01.2012 13:53:19 +0200 - build 2387
+
+1. Gosh, another error in 2384.
+
+t-rex 15.01.2012 13:42:54 +0200 - build 2386
+
+1. More "consequences" of Mantis#1801 - http://forum.farmanager.com/viewtopic.php?p=88686#p88686.
+
+2. Also, some unused code is removed.
+
+t-rex 15.01.2012 13:09:07 +0200 - build 2385
+
+1. Error in 2384.
+
+t-rex 15.01.2012 12:53:32 +0200 - build 2384
+
+1. Dialogs history remembers an empty last item.
+
+drkns 15.01.2012 11:31:09 +0200 - build 2383
+
+1. Calling EMenu on [Shift]RightClick in a tree.
+
+drkns 15.01.2012 11:07:08 +0200 - build 2382
+
+1. Continuation of 2381: calling emenu in panels and on [Shift]Apps.
+
+t-rex 15.01.2012 00:18:34 +0200 - build 2381
+
+1. On RighClick or ShiftRightClick, the EMenu plugin is automatically called for a file in panels.
+   On other combinations like CtrlRightClick there is selection as before.
+
+drkns 14.01.2012 19:30:10 +0200 - build 2380
+
+1. Fixing 2377.1 :)
+
+2. MacroAddMacro structure is placed in more optimal way in x64.
+
+t-rex 14.01.2012 12:53:19 +0200 - build 2379
+
+1. Mantis#1985: Incorrect memory calculation for MCTL_GETLASTERROR.
+
+t-rex 14.01.2012 11:37:20 +0200 - build 2378
+
+1. Not all needed StructSize were filled in the wrapper.
+
+t-rex 13.01.2012 20:17:07 +0200 - build 2377
+
+1. Making "set | command" and "set > file" be passed to comspec.
+
+2. Only first macro in xml was imported.
+
+t-rex 13.01.2012 19:20:54 +0200 - build 2376
+
+1. A minor change in API:
+   MacroCheckMacroText is removed, MSSC_CHECK expects MacroSendMacroText.
+   And a new command, MCTL_GETLASTERROR ->  Param1=size, Param2=MacroParseResult*.
+   Needed size is returned.
+
+2. Due to 1, potential heap corruption in the wrapper is fixed.
+
+svs 13.01.2012 17:47:47 +0400 - build 2375
+
+1. Get InfoList safe from the case when a plugin calls Info.PanelControl(FCTL_REDRAWPANEL) from 
+   ProcessViewerEventW in response to VE_READ which causes stack overflow :-(
+   The scheme is following.
+   VE_READ is fairly passed to the plugin once, but because InfoPanel is constantly recreating the viewer (if diz file exists),
+   then multiple VE_READ appears with all those consequences.
+
+w17 13.01.2012 17:45:10 +0400 - build 2374
+
+1. gcc build recovered
+
+drkns 13.01.2012 14:24:42 +0200 - build 2373
+
+1. Adding some StructSize checks here and there.
+
+svs 13.01.2012 16:18:16 +0400 - build 2372
+
+1. Mantis#0001982: Get FAR settings in a macro: Far.Cfg.Get
+   Macro: added
+    a function allowing to get common settings...
+      V=Far.Cfg.Get(Key,Name)
+    macro constant
+      Far.Cfg.Err = 0, there was no errors after Far.Cfg.Get call.
+                  = 1, an error (key or name don't exist or an internal error)
+
+   So far, not all values can be obtained using Far.Cfg.Get(), config.cpp has to be redone.
+
+2. Again on "batteries" (см. b.2297)
+   Info panel automatic update is added in the case if it is visible and displaying of power state is on and visible.
+   Automatic update on charge amount per cent is available in Vista and upper.
+
+3. SysLog is slightly updated
+
+t-rex 12.01.2012 20:22:49 +0200 - build 2371
+
+1. Correction of 2368.
+
+drkns 12.01.2012 20:04:46 +0200 - build 2370
+
+1. Correction of 2369.
+
+drkns 12.01.2012 19:00:38 +0200 - build 2369
+
+1. Fix "far /? > file" and "far > file".
+
+svs 12.01.2012 18:09:11 +0400 - build 2368
+
+1. Import diagnostics (constant, variable, macro)
+   For example,
+
+      Constant (5,13): <name> is empty or not found
+
+svs 12.01.2012 16:26:01 +0400 - build 2367
+
+1. Mantis#0001655: Incorrect error message at macro parsing.
+   Achtung: Don't forget that strings in macros are C-style.
+           This means FAR expect control character after '\'.
+           Also remember to use verbatim strings for paths
+           (with '@' character before opening double quote) or duplicate '\'.
+
+     Error  : panel.setpath(0,"HKEY_CURRENT_USER\Software")
+     Correct: panel.setpath(0,"HKEY_CURRENT_USER\\Software")
+     Correct: panel.setpath(0,@"HKEY_CURRENT_USER\Software")
+
+drkns 11.01.2012 22:46:51 +0200 - build 2366
+
+1. After elevation, ntstatus is received from a child process together with lasterror.
+
 t-rex 11.01.2012 22:25:49 +0200 - build 2365
 
 1. RegExp: \/ was not searched (if / was exactly the last character in the search line).
