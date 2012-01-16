@@ -966,7 +966,7 @@ bool Plugin::CheckMinFarVersion(bool &bUnloaded)
 HANDLE Plugin::OpenFilePlugin(
     const wchar_t *Name,
     const unsigned char *Data,
-    int DataSize,
+    size_t DataSize,
     int OpMode
 )
 {

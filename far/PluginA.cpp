@@ -5012,7 +5012,7 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 HANDLE PluginA::OpenFilePlugin(
     const wchar_t *Name,
     const unsigned char *Data,
-    int DataSize,
+    size_t DataSize,
     int OpMode
 )
 {
@@ -5028,7 +5028,7 @@ HANDLE PluginA::OpenFilePlugin(
 		if (Name)
 			NameA = UnicodeToAnsi(Name);
 
-		EXECUTE_FUNCTION_EX(FUNCTION(iOpenFilePlugin)(NameA, Data, DataSize), es);
+		EXECUTE_FUNCTION_EX(FUNCTION(iOpenFilePlugin)(NameA, Data, static_cast<int>(DataSize)), es);
 
 		if (NameA) xf_free(NameA);
 
