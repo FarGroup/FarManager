@@ -9,6 +9,7 @@ EXEFULLNAME = $(EXEDIR)$(EXENAME)
 DEPFILE = $(BOOTSTRAPDIR)far.gcc.dep
 
 SRCS = \
+	sqlite.c \
 	cache.cpp \
 	cddrv.cpp \
 	CFileMask.cpp \
@@ -124,7 +125,6 @@ SRCS = \
 	setattr.cpp \
 	setcolor.cpp \
 	shortcuts.cpp \
-	sqlite.c \
 	stddlg.cpp \
 	strmix.cpp \
 	synchro.cpp \
@@ -146,7 +146,7 @@ ifeq ($(DIRBIT),32)
 	SRCS += hook_wow64.c
 endif
 
-OBJS = $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS))) $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS)))
+OBJS = $(patsubst %.c,$(OBJDIR)%.o,$(filter %.c,$(SRCS))) $(patsubst %.cpp,$(OBJDIR)%.o,$(filter %.cpp,$(SRCS)))
 OBJS += $(OBJDIR)initguid.o $(OBJDIR)far.rc.o
 
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))

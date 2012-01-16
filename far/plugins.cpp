@@ -671,9 +671,9 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 }
 
 HANDLE PluginManager::OpenFilePlugin(
-    const string* Name,
-    int OpMode,
-    OPENFILEPLUGINTYPE Type
+	const string* Name,
+	int OpMode,
+	OPENFILEPLUGINTYPE Type
 )
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -694,9 +694,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	Plugin *pPlugin = nullptr;
 
 	File file;
-	LPBYTE Data = nullptr;
-	DWORD DataSize = 0;
-
+	AnalyseInfo Info={sizeof(Info), Name? Name->CPtr() : nullptr, nullptr, 0, OpMode|(Type==OFP_ALTERNATIVE?OPM_PGDN:0)};
 	bool DataRead = false;
 	for (int i = 0; i < PluginsCount; i++)
 	{
@@ -709,11 +707,13 @@ HANDLE PluginManager::OpenFilePlugin(
 		{
 			if (file.Open(*Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 			{
-				Data = new BYTE[Opt.PluginMaxReadData];
-				if (Data)
+				Info.Buffer = new BYTE[Opt.PluginMaxReadData];
+				if (Info.Buffer)
 				{
-					if (file.Read(Data, Opt.PluginMaxReadData, DataSize))
+					DWORD DataSize = 0;
+					if (file.Read(Info.Buffer, Opt.PluginMaxReadData, DataSize))
 					{
+						Info.BufferSize = DataSize;
 						DataRead = true;
 					}
 				}
@@ -740,7 +740,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			{
 				OpMode|=OPM_PGDN; //у анси плагинов OpMode нет.
 			}
-			hPlugin = pPlugin->OpenFilePlugin(Name? Name->CPtr() : nullptr, Data, DataSize, OpMode);
+			hPlugin = pPlugin->OpenFilePlugin(Name? Name->CPtr() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
 
 			if (hPlugin == (HANDLE)-2)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
 			{
@@ -757,12 +757,6 @@ HANDLE PluginManager::OpenFilePlugin(
 		}
 		else
 		{
-			AnalyseInfo Info={sizeof(Info)};
-			Info.FileName = Name? Name->CPtr() : nullptr;
-			Info.Buffer = Data;
-			Info.BufferSize = DataSize;
-			Info.OpMode = OpMode|(Type==OFP_ALTERNATIVE?OPM_PGDN:0);
-
 			if (pPlugin->Analyse(&Info))
 			{
 				PluginHandle *handle=items.addItem();
@@ -773,11 +767,6 @@ HANDLE PluginManager::OpenFilePlugin(
 
 		if (items.getCount() && !ShowMenu)
 			break;
-	}
-
-	if(Data)
-	{
-		delete[] Data;
 	}
 
 	if (items.getCount() && (hResult != (HANDLE)-2))
@@ -836,7 +825,7 @@ HANDLE PluginManager::OpenFilePlugin(
 
 		if (pResult && pResult->hPlugin == INVALID_HANDLE_VALUE)
 		{
-			HANDLE h = pResult->pPlugin->Open(OPEN_ANALYSE, FarGuid, 0);
+			HANDLE h = pResult->pPlugin->Open(OPEN_ANALYSE, FarGuid, (INT_PTR)&Info);
 
 			if (h == (HANDLE)-2)
 			{
@@ -852,6 +841,11 @@ HANDLE PluginManager::OpenFilePlugin(
 				pResult = nullptr;
 			}
 		}
+	}
+
+	if(Info.Buffer)
+	{
+		delete[] (BYTE*)Info.Buffer;
 	}
 
 	for (size_t i = 0; i < items.getCount(); i++)
