@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "syslog.hpp"
 #include "array.hpp"
+#include "sqlite.h"
 
 GeneralConfig *GeneralCfg;
 AssociationsConfig *AssocConfig;
@@ -54,41 +55,6 @@ PluginsCacheConfig *PlCacheCfg;
 PluginsHotkeysConfig *PlHotkeyCfg;
 HistoryConfig *HistoryCfg;
 MacroConfig *MacroCfg;
-
-class Utf8String
-{
-public:
-	Utf8String(const wchar_t* Str)
-	{
-		Init(Str, StrLength(Str));
-	}
-
-	Utf8String(const string& Str)
-	{
-		Init(Str, Str.GetLength());
-	}
-
-	~Utf8String()
-	{
-		delete[] Data;
-	}
-
-	operator const char*() const {return Data;}
-	size_t size() const {return Size;}
-
-
-private:
-	void Init(const wchar_t* Str, size_t Length)
-	{
-		Size = WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), nullptr, 0, nullptr, nullptr) + 1;
-		Data = new char[Size];
-		WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), Data, static_cast<int>(Size-1), nullptr, nullptr);
-		Data[Size-1] = 0;
-	}
-
-	char* Data;
-	size_t Size;
-};
 
 int IntToHex(int h)
 {
@@ -214,6 +180,116 @@ void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
 	}
 }
 
+SQLiteStmt::SQLiteStmt():
+	param(1),
+	pStmt(nullptr)
+{
+}
+
+SQLiteStmt::~SQLiteStmt()
+{
+	sqlite3_finalize(pStmt);
+}
+
+SQLiteStmt& SQLiteStmt::Reset()
+{
+	param=1;
+	sqlite3_clear_bindings(pStmt);
+	sqlite3_reset(pStmt);
+	return *this;
+}
+
+bool SQLiteStmt::Step()
+{
+	return sqlite3_step(pStmt) == SQLITE_ROW;
+}
+
+bool SQLiteStmt::StepAndReset()
+{
+	bool b = sqlite3_step(pStmt) == SQLITE_DONE;
+	Reset();
+	return b;
+}
+
+SQLiteStmt& SQLiteStmt::Bind(int Value)
+{
+	sqlite3_bind_int(pStmt,param++,Value);
+	return *this;
+}
+
+SQLiteStmt& SQLiteStmt::Bind(unsigned __int64 Value)
+{
+	sqlite3_bind_int64(pStmt,param++,Value);
+	return *this;
+}
+
+SQLiteStmt& SQLiteStmt::Bind(__int64 Value)
+{
+	sqlite3_bind_int64(pStmt,param++,Value);
+	return *this;
+}
+
+SQLiteStmt& SQLiteStmt::Bind(const wchar_t *Value, bool bStatic)
+{
+	if (Value)
+		sqlite3_bind_text16(pStmt,param++,Value,-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
+	else
+		sqlite3_bind_null(pStmt,param++);
+	return *this;
+}
+
+SQLiteStmt& SQLiteStmt::Bind(const void *Value, size_t Size, bool bStatic)
+{
+	sqlite3_bind_blob(pStmt, param++, Value, static_cast<int>(Size), bStatic? SQLITE_STATIC : SQLITE_TRANSIENT);
+	return *this;
+}
+
+const wchar_t* SQLiteStmt::GetColText(int Col)
+{
+	return (const wchar_t *)sqlite3_column_text16(pStmt,Col);
+}
+
+const char* SQLiteStmt::GetColTextUTF8(int Col)
+{
+	return (const char *)sqlite3_column_text(pStmt,Col);
+}
+
+int SQLiteStmt::GetColBytes(int Col)
+{
+	return sqlite3_column_bytes(pStmt,Col);
+}
+
+int SQLiteStmt::GetColInt(int Col)
+{
+	return sqlite3_column_int(pStmt,Col);
+}
+
+unsigned __int64 SQLiteStmt::GetColInt64(int Col)
+{
+	return sqlite3_column_int64(pStmt,Col);
+}
+
+const char* SQLiteStmt::GetColBlob(int Col)
+{
+	return (const char *)sqlite3_column_blob(pStmt,Col);
+}
+
+int SQLiteStmt::GetColType(int Col)
+{
+	return sqlite3_column_type(pStmt,Col);
+}
+
+
+SQLiteDb::SQLiteDb():
+	pDb(nullptr)
+{
+};
+
+SQLiteDb::~SQLiteDb()
+{
+	Close();
+}
+
 bool SQLiteDb::Open(const wchar_t *DbFile, bool Local)
 {
 	GetDatabasePath(DbFile, strPath, Local);
@@ -232,6 +308,100 @@ void SQLiteDb::Initialize(const wchar_t* DbName, bool Local)
 		}
 	}
 }
+
+bool SQLiteDb::Exec(const char *Command)
+{
+	return sqlite3_exec(pDb, Command, nullptr, nullptr, nullptr) == SQLITE_OK;
+}
+
+bool SQLiteDb::BeginTransaction()
+{
+	return Exec("BEGIN TRANSACTION;");
+}
+
+bool SQLiteDb::EndTransaction()
+{
+	return Exec("END TRANSACTION;");
+}
+
+bool SQLiteDb::RollbackTransaction()
+{
+	return Exec("ROLLBACK TRANSACTION;");
+}
+
+bool SQLiteDb::IsOpen()
+{
+	return pDb != nullptr;
+}
+
+bool SQLiteDb::InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt)
+{
+	return sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK;
+}
+
+int SQLiteDb::Changes()
+{
+	return sqlite3_changes(pDb);
+}
+
+unsigned __int64 SQLiteDb::LastInsertRowID()
+{
+	return sqlite3_last_insert_rowid(pDb);
+}
+
+bool SQLiteDb::Close()
+{
+	bool Result = sqlite3_close(pDb) == SQLITE_OK;
+	pDb = nullptr;
+	return Result;
+}
+
+bool SQLiteDb::SetWALJournalingMode()
+{
+	return Exec("PRAGMA journal_mode = WAL;");
+}
+
+bool SQLiteDb::EnableForeignKeysConstraints()
+{
+	return Exec("PRAGMA foreign_keys = ON;");
+}
+
+
+class Utf8String
+{
+public:
+	Utf8String(const wchar_t* Str)
+	{
+		Init(Str, StrLength(Str));
+	}
+
+	Utf8String(const string& Str)
+	{
+		Init(Str, Str.GetLength());
+	}
+
+	~Utf8String()
+	{
+		delete[] Data;
+	}
+
+	operator const char*() const {return Data;}
+	size_t size() const {return Size;}
+
+
+private:
+	void Init(const wchar_t* Str, size_t Length)
+	{
+		Size = WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), nullptr, 0, nullptr, nullptr) + 1;
+		Data = new char[Size];
+		WideCharToMultiByte(CP_UTF8, 0, Str, static_cast<int>(Length), Data, static_cast<int>(Size-1), nullptr, nullptr);
+		Data[Size-1] = 0;
+	}
+
+	char* Data;
+	size_t Size;
+};
+
 
 class GeneralConfigDb: public GeneralConfig {
 	SQLiteStmt stmtUpdateValue;
