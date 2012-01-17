@@ -451,7 +451,7 @@ void FileEditor::Init(
 	};
 	SmartLock __smartlock;
 	SysErrorCode=0;
-	int BlankFileName=!StrCmp(Name,MSG(MNewFileName));
+	int BlankFileName=!StrCmp(Name,MSG(MNewFileName)) || !*Name;
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = false;
 	bEE_READ_Sent = false;
@@ -479,7 +479,7 @@ void FileEditor::Init(
 	// $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
 	Flags.Change(FFILEEDIT_SAVETOSAVEAS,(BlankFileName?TRUE:FALSE));
 
-	if (!*Name)
+	if (BlankFileName && !Flags.Check(FFILEEDIT_CANNEWFILE))
 	{
 		ExitCode=XC_OPEN_ERROR;
 		return;
