@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2378
+  Plugin API for Far Manager 3.0 build 2401
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2378
+#define FARMANAGERVERSION_BUILD 2401
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1144,11 +1144,11 @@ struct MacroAddMacro
 {
 	size_t StructSize;
 	void* Id;
-	enum FARMACROAREA Area;
-	FARKEYMACROFLAGS Flags;
-	INPUT_RECORD AKey;
 	const wchar_t *SequenceText;
 	const wchar_t *Description;
+	FARKEYMACROFLAGS Flags;
+	INPUT_RECORD AKey;
+	enum FARMACROAREA Area;
 	FARMACROCALLBACK Callback;
 };
 
@@ -1732,6 +1732,12 @@ enum FARSETTINGS_SUBFOLDERS
 	FSSF_FOLDERSHORTCUT_8           = 14,
 	FSSF_FOLDERSHORTCUT_9           = 15,
 	FSSF_CONFIRMATIONS              = 16,
+};
+
+enum FAR_PLUGIN_SETTINGS_LOCATION
+{
+	PSL_ROAMING = 0,
+	PSL_LOCAL   = 1,
 };
 
 struct FarSettingsCreate
