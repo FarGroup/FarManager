@@ -3399,10 +3399,10 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 		{
 
 			case VK_OEM_MINUS:
-				return '_';
+				return (Char>=' ')?Char:'_';
 				//return KEY_SHIFT|'-';
 			case VK_OEM_PLUS:
-				return '+';
+				return (Char>=' ')?Char:'+';
 				//return KEY_SHIFT|'+';
 			case VK_DIVIDE:
 				return KEY_SHIFT|KEY_DIVIDE;
