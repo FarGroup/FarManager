@@ -1914,6 +1914,12 @@ enum FARSETTINGS_SUBFOLDERS
 #endif // END FAR_USE_INTERNALS
 };
 
+enum FAR_PLUGIN_SETTINGS_LOCATION
+{
+	PSL_ROAMING = 0,
+	PSL_LOCAL   = 1,
+};
+
 struct FarSettingsCreate
 {
 	size_t StructSize;

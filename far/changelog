@@ -1,3 +1,11 @@
+t-rex 17.01.2012 23:07:03 +0200 - build 2401
+
+1. Плагины могут хранить настройки и в localprofile.
+   SettingsControl(SCTL_CREATE, PSL_LOCAL)
+
+2. Настройки shortcuts переехали в localprofile.
+   Скопируйте shortcuts.db из %FARPROFILE% в %FARLOCALPROFILE%.
+
 svs 17.01.2012 16:16:32 +0400 - build 2400
 
 1. Mantis#0001988: EF_CREATENEW не работает

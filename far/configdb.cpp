@@ -204,7 +204,7 @@ void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
 {
 	if(StrCmp(FileName, L":memory:"))
 	{
-		strOut = Local?Opt.LocalProfilePath:Opt.ProfilePath;
+		strOut = Local ? Opt.LocalProfilePath : Opt.ProfilePath;
 		AddEndSlash(strOut);
 		strOut += FileName;
 	}
@@ -217,17 +217,18 @@ void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
 bool SQLiteDb::Open(const wchar_t *DbFile, bool Local)
 {
 	GetDatabasePath(DbFile, strPath, Local);
-	return sqlite3_open16(strPath.CPtr(),&pDb) == SQLITE_OK;
+	return sqlite3_open16(strPath.CPtr(), &pDb) == SQLITE_OK;
 }
 
-void SQLiteDb::Initialize(const wchar_t* DbName)
+void SQLiteDb::Initialize(const wchar_t* DbName, bool Local)
 {
-	if (!InitializeImpl(DbName))
+	if (!InitializeImpl(DbName, Local))
 	{
 		Close();
-		if (!apiMoveFileEx(strPath, strPath+L".bad", MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName))
+		if (!apiMoveFileEx(strPath, strPath+L".bad", MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName, Local))
 		{
-			InitializeImpl(L":memory:");
+			Close();
+			InitializeImpl(L":memory:", Local);
 		}
 	}
 }
@@ -246,10 +247,10 @@ public:
 		Initialize(L"generalconfig.db");
 	}
 
-	bool InitializeImpl(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
 		return
-			Open(DbName) &&
+			Open(DbName, Local) &&
 
 			//schema
 			Exec("CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));") &&
@@ -523,16 +524,15 @@ class HierarchicalConfigDb: public HierarchicalConfig {
 
 public:
 
-	explicit HierarchicalConfigDb(const wchar_t *DbName)
+	explicit HierarchicalConfigDb(const wchar_t *DbName, bool Local = false)
 	{
-		Initialize(DbName);
+		Initialize(DbName, Local);
 	}
 
-	bool InitializeImpl(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		Close();
 		return
-			Open(DbName) &&
+			Open(DbName, Local) &&
 
 			//schema
 			EnableForeignKeysConstraints() &&
@@ -870,11 +870,10 @@ public:
 
 	virtual ~AssociationsConfigDb() { }
 
-	bool InitializeImpl(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		Close();
 		return
-			Open(DbName) &&
+			Open(DbName, Local) &&
 
 			//schema
 			EnableForeignKeysConstraints() &&
@@ -1178,14 +1177,13 @@ public:
 
 	PluginsCacheConfigDb()
 	{
-		Initialize(L"plugincache.db");
+		Initialize(L"plugincache.db", true);
 	}
 
-	bool InitializeImpl(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		Close();
 		return
-			Open(DbName, true) &&
+			Open(DbName, Local) &&
 
 			//schema
 			SetWALJournalingMode() &&
@@ -1536,11 +1534,10 @@ public:
 		Initialize(L"pluginhotkeys.db");
 	}
 
-	bool InitializeImpl(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		Close();
 		return
-			Open(DbName) &&
+			Open(DbName, Local) &&
 
 			//schema
 			Exec("CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));") &&
@@ -1718,14 +1715,13 @@ public:
 
 	HistoryConfigDb()
 	{
-		Initialize(L"history.db");
+		Initialize(L"history.db", true);
 	}
 
-	bool InitializeImpl(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		Close();
 		return
-			Open(DbName, true) &&
+			Open(DbName, Local) &&
 
 			//schema
 			SetWALJournalingMode() &&
@@ -2138,11 +2134,10 @@ public:
 		Initialize(L"macros.db");
 	}
 
-	bool InitializeImpl(const wchar_t* DbName)
+	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		Close();
 		return
-			Open(DbName) &&
+			Open(DbName, Local) &&
 
 			//schema
 			Exec(
@@ -2560,12 +2555,12 @@ public:
 	}
 };
 
-HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid)
+HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local)
 {
 	string strDbName = L"PluginsData\\";
 	strDbName += guid;
 	strDbName += L".db";
-	return new HierarchicalConfigDb(strDbName);
+	return new HierarchicalConfigDb(strDbName, Local);
 }
 
 HierarchicalConfig *CreateFiltersConfig()
@@ -2580,7 +2575,7 @@ HierarchicalConfig *CreateHighlightConfig()
 
 HierarchicalConfig *CreateShortcutsConfig()
 {
-	return new HierarchicalConfigDb(L"shortcuts.db");
+	return new HierarchicalConfigDb(L"shortcuts.db", true);
 }
 
 HierarchicalConfig *CreatePanelModeConfig()
@@ -2663,7 +2658,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		root->LinkEndChild(e);
 		delete cfg;
 
-		{
+		{ //TODO: export for local plugin settings
 			string strPlugins = Opt.ProfilePath;
 			strPlugins += L"\\PluginsData\\*.db";
 			FAR_FIND_DATA_EX fd;
@@ -2682,7 +2677,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 
 					TiXmlElement *plugin = new TiXmlElement("plugin");
 					plugin->SetAttribute("guid", guid);
-					cfg = CreatePluginsConfig(fd.strFileName);
+					cfg = CreatePluginsConfig(fd.strFileName, false);
 					plugin->LinkEndChild(cfg->Export());
 					e->LinkEndChild(plugin);
 					delete cfg;
@@ -2729,6 +2724,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 				cfg->Import(root.FirstChildElement("shortcuts"));
 				delete cfg;
 
+				//TODO: import for local plugin settings
 				for (TiXmlElement *plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
 				{
 					const char *guid = plugin->Attribute("guid");
@@ -2740,7 +2736,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 					mc=2;
 					if (re.Match(Guid, Guid.CPtr() + Guid.GetLength(), m, mc))
 					{
-						cfg = CreatePluginsConfig(Guid);
+						cfg = CreatePluginsConfig(Guid, false);
 						const TiXmlHandle h(plugin);
 						cfg->Import(h);
 						delete cfg;

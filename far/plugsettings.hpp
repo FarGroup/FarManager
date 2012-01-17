@@ -99,7 +99,7 @@ class PluginSettings: public AbstractSettings
 		HierarchicalConfig *PluginsCfg;
 		PluginSettings();
 	public:
-		PluginSettings(const GUID& Guid);
+		PluginSettings(const GUID& Guid, bool Local);
 		~PluginSettings();
 		bool IsValid(void);
 		int Set(const FarSettingsItem& Item);

@@ -100,9 +100,9 @@ public:
 
 	virtual ~SQLiteDb() { Close(); }
 
-	bool Open(const wchar_t *DbFile, bool Local = false);
+	bool Open(const wchar_t *DbFile, bool Local);
 
-	void Initialize(const wchar_t* DbName);
+	void Initialize(const wchar_t* DbName, bool Local = false);
 
 	bool Exec(const char *Command) { return sqlite3_exec(pDb, Command, nullptr, nullptr, nullptr) == SQLITE_OK; }
 
@@ -134,7 +134,7 @@ public:
 
 	bool EnableForeignKeysConstraints() { return Exec("PRAGMA foreign_keys = ON;"); }
 
-	virtual bool InitializeImpl(const wchar_t* DbName) = 0;
+	virtual bool InitializeImpl(const wchar_t* DbName, bool Local) = 0;
 };
 
 class XmlConfig {
@@ -346,7 +346,7 @@ void ReleaseDb();
 bool ExportImportConfig(bool Export, const wchar_t *XML);
 void ClearPluginsCache();
 
-HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid);
+HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local);
 HierarchicalConfig *CreateFiltersConfig();
 HierarchicalConfig *CreateHighlightConfig();
 HierarchicalConfig *CreateShortcutsConfig();

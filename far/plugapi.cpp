@@ -2598,7 +2598,7 @@ INT_PTR WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS 
 				if (CheckStructSize(data))
 				{
 					if(IsEqualGUID(FarGuid,data->Guid)) settings=new FarSettings();
-					else settings=new PluginSettings(data->Guid);
+					else settings=new PluginSettings(data->Guid, Param1 == PSL_LOCAL);
 					if (settings->IsValid())
 					{
 						data->Handle=settings;

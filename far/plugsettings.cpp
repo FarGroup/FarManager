@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "shortcuts.hpp"
 #include "dizlist.hpp"
 #include "config.hpp"
+#include "pathmix.hpp"
 
 template<> void DeleteItems<FarSettingsHistory>(FarSettingsHistory* Items,size_t Size)
 {
@@ -62,7 +63,7 @@ bool AbstractSettings::IsValid(void)
 	return true;
 }
 
-PluginSettings::PluginSettings(const GUID& Guid) : PluginsCfg(nullptr)
+PluginSettings::PluginSettings(const GUID& Guid, bool Local) : PluginsCfg(nullptr)
 {
 	//хак чтоб SCTL_* могли работать при ExitFarW.
 	extern PluginManager *PluginManagerForExitFar;
@@ -70,12 +71,14 @@ PluginSettings::PluginSettings(const GUID& Guid) : PluginsCfg(nullptr)
 	if (pPlugin)
 	{
 		string strGuid = GuidToStr(Guid);
-		PluginsCfg = CreatePluginsConfig(strGuid);
+		PluginsCfg = CreatePluginsConfig(strGuid, Local);
 		unsigned __int64& root(*m_Keys.insertItem(0));
 		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
 
 		DizList Diz;
-		string strDbPath = Opt.ProfilePath + L"\\PluginsData\\";
+		string strDbPath = Local ? Opt.LocalProfilePath : Opt.ProfilePath;
+		AddEndSlash(strDbPath);
+		strDbPath += L"PluginsData\\";
 		Diz.Read(strDbPath);
 		string strDbName = strGuid + L".db";
 		string Description = string(pPlugin->GetTitle()) + L" (" + pPlugin->GetDescription() + L")";
