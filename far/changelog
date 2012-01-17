@@ -1,3 +1,8 @@
+svs 17.01.2012 12:09:27 +0400 - build 2399
+
+1. Mantins#0001992: Падение по F4 в F11/AltShiftF9 если все строки - в фильтре
+   (from Maximus)
+
 zg 17.01.2012 03:18:47 +0200 - build 2398
 
 1. 0001990: DE-locale: cannot press *.
