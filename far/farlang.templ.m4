@@ -14132,12 +14132,12 @@ MViewSearchReverse
 
 MViewSearchRegexp
 "&Регулярные выражения"
-"&Regular expressions"
-upd:"&Regular expressions"
-upd:"&Regular expressions"
-upd:"&Regular expressions"
-upd:"&Regular expressions"
-"Expresiones &regulares"
+"Re&gular expressions"
+upd:"Re&gular expressions"
+upd:"Re&gular expressions"
+upd:"Re&gular expressions"
+upd:"Re&gular expressions"
+"Expresiones re&gulares"
 
 MViewSearchSearch
 "Искать"

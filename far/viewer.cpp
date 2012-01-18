@@ -2513,7 +2513,7 @@ INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 					InsertRegexpQuote(sre);
 					show = re.Compile(sre.CPtr(), OP_PERLSTYLE);
 					if (tmp != t)
-						delete[] tmp;;
+						delete[] tmp;
 				}
 			}
 			SendDlgMessage(hDlg, DM_ENABLE, SD_TEXT_SEARCH, ToPtr(show));
