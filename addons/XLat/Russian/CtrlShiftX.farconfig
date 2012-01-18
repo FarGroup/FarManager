@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <farconfig>
-	<macro>
+	<macros>
 		<keymacros>
-			<macro area="Common" key="CtrlShiftX" description="Use hotkey &lt;Ctrl-Shift-X&gt; to perform XLat function." flags="DisableOutput">$XLat</macro>
+			<macro area="Common" key="CtrlShiftX" description="Use hotkey &lt;Ctrl-Shift-X&gt; to perform XLat function." flags="DisableOutput"><text>$XLat</text></macro>
 		</keymacros>
-	</macro>
+	</macros>
 </farconfig>
