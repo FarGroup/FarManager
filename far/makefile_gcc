@@ -125,6 +125,7 @@ SRCS = \
 	setattr.cpp \
 	setcolor.cpp \
 	shortcuts.cpp \
+	sqlitedb.cpp \
 	stddlg.cpp \
 	strmix.cpp \
 	synchro.cpp \

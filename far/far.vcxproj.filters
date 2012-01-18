@@ -542,6 +542,9 @@
     <ClCompile Include="vc10wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sqlitedb.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="elevation.hpp">
@@ -1073,6 +1076,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="panelctype.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sqlitedb.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

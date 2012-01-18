@@ -32,61 +32,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 struct VersionInfo;
 class TiXmlElement;
 class TiXmlHandle;
-
-class SQLiteStmt {
-	int param;
-
-protected:
-	class sqlite3_stmt *pStmt;
-
-public:
-
-	SQLiteStmt();
-	~SQLiteStmt();
-	SQLiteStmt& Reset();
-	bool Step();
-	bool StepAndReset();
-	SQLiteStmt& Bind(int Value);
-	SQLiteStmt& Bind(unsigned __int64 Value);
-	SQLiteStmt& Bind(__int64 Value);
-	SQLiteStmt& Bind(const wchar_t *Value, bool bStatic=true);
-	SQLiteStmt& Bind(const void *Value, size_t Size, bool bStatic=true);
-	const wchar_t *GetColText(int Col);
-	const char *GetColTextUTF8(int Col);
-	int GetColBytes(int Col);
-	int GetColInt(int Col);
-	unsigned __int64 GetColInt64(int Col);
-	const char *GetColBlob(int Col);
-	int GetColType(int Col);
-	friend class SQLiteDb;
-};
-
-class SQLiteDb {
-	class sqlite3 *pDb;
-	string strPath;
-
-public:
-	SQLiteDb();
-	virtual ~SQLiteDb();
-	bool Open(const wchar_t *DbFile, bool Local);
-	void Initialize(const wchar_t* DbName, bool Local = false);
-	bool Exec(const char *Command);
-	bool BeginTransaction();
-	bool EndTransaction();
-	bool RollbackTransaction();
-	bool IsOpen();
-	bool InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt);
-	int Changes();
-	unsigned __int64 LastInsertRowID();
-	bool Close();
-	bool SetWALJournalingMode();
-	bool EnableForeignKeysConstraints();
-	virtual bool InitializeImpl(const wchar_t* DbName, bool Local) = 0;
-};
 
 class XmlConfig {
 
@@ -97,7 +45,17 @@ public:
 	virtual bool Import(const TiXmlHandle &root) = 0;
 };
 
-class GeneralConfig: public XmlConfig, public SQLiteDb {
+class Transactional {
+
+public:
+
+	virtual ~Transactional() {}
+	virtual bool BeginTransaction() = 0;
+	virtual bool EndTransaction() = 0;
+	virtual bool RollbackTransaction() = 0;
+};
+
+class GeneralConfig: public XmlConfig, public Transactional {
 
 public:
 
@@ -122,7 +80,7 @@ public:
 	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value) = 0;
 };
 
-class HierarchicalConfig: public XmlConfig, public SQLiteDb {
+class HierarchicalConfig: public XmlConfig, public Transactional {
 
 public:
 
@@ -150,7 +108,7 @@ public:
 	virtual bool Flush() = 0;
 };
 
-class AssociationsConfig: public XmlConfig, public SQLiteDb {
+class AssociationsConfig: public XmlConfig, public Transactional {
 
 public:
 
@@ -167,7 +125,7 @@ public:
 	virtual bool DelType(unsigned __int64 id) = 0;
 };
 
-class PluginsCacheConfig: public SQLiteDb  {
+class PluginsCacheConfig: public Transactional {
 
 public:
 
@@ -208,7 +166,7 @@ public:
 	virtual bool IsCacheEmpty() = 0;
 };
 
-class PluginsHotkeysConfig: public XmlConfig, public SQLiteDb  {
+class PluginsHotkeysConfig: public XmlConfig, public Transactional {
 
 public:
 
@@ -225,7 +183,7 @@ public:
 	virtual bool DelHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
 };
 
-class HistoryConfig: public SQLiteDb  {
+class HistoryConfig: public Transactional {
 
 public:
 
@@ -260,7 +218,7 @@ public:
 	virtual void DeleteOldPositions(int DaysToKeep, int MinimunEntries) = 0;
 };
 
-class MacroConfig: public XmlConfig, public SQLiteDb {
+class MacroConfig: public XmlConfig, public Transactional {
 
 public:
 

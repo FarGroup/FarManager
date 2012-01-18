@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "configdb.hpp"
+#include "sqlitedb.hpp"
 #include "strmix.hpp"
 #include "pathmix.hpp"
 #include "config.hpp"
@@ -166,207 +167,6 @@ static void PrintError(const wchar_t *Title, const TiXmlDocument &doc)
 	PrintError(Title, string(doc.ErrorDesc(), CP_UTF8), doc.ErrorRow(), doc.ErrorCol());
 }
 
-void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
-{
-	if(StrCmp(FileName, L":memory:"))
-	{
-		strOut = Local ? Opt.LocalProfilePath : Opt.ProfilePath;
-		AddEndSlash(strOut);
-		strOut += FileName;
-	}
-	else
-	{
-		strOut = FileName;
-	}
-}
-
-SQLiteStmt::SQLiteStmt():
-	param(1),
-	pStmt(nullptr)
-{
-}
-
-SQLiteStmt::~SQLiteStmt()
-{
-	sqlite3_finalize(pStmt);
-}
-
-SQLiteStmt& SQLiteStmt::Reset()
-{
-	param=1;
-	sqlite3_clear_bindings(pStmt);
-	sqlite3_reset(pStmt);
-	return *this;
-}
-
-bool SQLiteStmt::Step()
-{
-	return sqlite3_step(pStmt) == SQLITE_ROW;
-}
-
-bool SQLiteStmt::StepAndReset()
-{
-	bool b = sqlite3_step(pStmt) == SQLITE_DONE;
-	Reset();
-	return b;
-}
-
-SQLiteStmt& SQLiteStmt::Bind(int Value)
-{
-	sqlite3_bind_int(pStmt,param++,Value);
-	return *this;
-}
-
-SQLiteStmt& SQLiteStmt::Bind(unsigned __int64 Value)
-{
-	sqlite3_bind_int64(pStmt,param++,Value);
-	return *this;
-}
-
-SQLiteStmt& SQLiteStmt::Bind(__int64 Value)
-{
-	sqlite3_bind_int64(pStmt,param++,Value);
-	return *this;
-}
-
-SQLiteStmt& SQLiteStmt::Bind(const wchar_t *Value, bool bStatic)
-{
-	if (Value)
-		sqlite3_bind_text16(pStmt,param++,Value,-1,bStatic?SQLITE_STATIC:SQLITE_TRANSIENT);
-	else
-		sqlite3_bind_null(pStmt,param++);
-	return *this;
-}
-
-SQLiteStmt& SQLiteStmt::Bind(const void *Value, size_t Size, bool bStatic)
-{
-	sqlite3_bind_blob(pStmt, param++, Value, static_cast<int>(Size), bStatic? SQLITE_STATIC : SQLITE_TRANSIENT);
-	return *this;
-}
-
-const wchar_t* SQLiteStmt::GetColText(int Col)
-{
-	return (const wchar_t *)sqlite3_column_text16(pStmt,Col);
-}
-
-const char* SQLiteStmt::GetColTextUTF8(int Col)
-{
-	return (const char *)sqlite3_column_text(pStmt,Col);
-}
-
-int SQLiteStmt::GetColBytes(int Col)
-{
-	return sqlite3_column_bytes(pStmt,Col);
-}
-
-int SQLiteStmt::GetColInt(int Col)
-{
-	return sqlite3_column_int(pStmt,Col);
-}
-
-unsigned __int64 SQLiteStmt::GetColInt64(int Col)
-{
-	return sqlite3_column_int64(pStmt,Col);
-}
-
-const char* SQLiteStmt::GetColBlob(int Col)
-{
-	return (const char *)sqlite3_column_blob(pStmt,Col);
-}
-
-int SQLiteStmt::GetColType(int Col)
-{
-	return sqlite3_column_type(pStmt,Col);
-}
-
-
-SQLiteDb::SQLiteDb():
-	pDb(nullptr)
-{
-};
-
-SQLiteDb::~SQLiteDb()
-{
-	Close();
-}
-
-bool SQLiteDb::Open(const wchar_t *DbFile, bool Local)
-{
-	GetDatabasePath(DbFile, strPath, Local);
-	return sqlite3_open16(strPath.CPtr(), &pDb) == SQLITE_OK;
-}
-
-void SQLiteDb::Initialize(const wchar_t* DbName, bool Local)
-{
-	if (!InitializeImpl(DbName, Local))
-	{
-		Close();
-		if (!apiMoveFileEx(strPath, strPath+L".bad", MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName, Local))
-		{
-			Close();
-			InitializeImpl(L":memory:", Local);
-		}
-	}
-}
-
-bool SQLiteDb::Exec(const char *Command)
-{
-	return sqlite3_exec(pDb, Command, nullptr, nullptr, nullptr) == SQLITE_OK;
-}
-
-bool SQLiteDb::BeginTransaction()
-{
-	return Exec("BEGIN TRANSACTION;");
-}
-
-bool SQLiteDb::EndTransaction()
-{
-	return Exec("END TRANSACTION;");
-}
-
-bool SQLiteDb::RollbackTransaction()
-{
-	return Exec("ROLLBACK TRANSACTION;");
-}
-
-bool SQLiteDb::IsOpen()
-{
-	return pDb != nullptr;
-}
-
-bool SQLiteDb::InitStmt(SQLiteStmt &stmtStmt, const wchar_t *Stmt)
-{
-	return sqlite3_prepare16_v2(pDb, Stmt, -1, &stmtStmt.pStmt, nullptr) == SQLITE_OK;
-}
-
-int SQLiteDb::Changes()
-{
-	return sqlite3_changes(pDb);
-}
-
-unsigned __int64 SQLiteDb::LastInsertRowID()
-{
-	return sqlite3_last_insert_rowid(pDb);
-}
-
-bool SQLiteDb::Close()
-{
-	bool Result = sqlite3_close(pDb) == SQLITE_OK;
-	pDb = nullptr;
-	return Result;
-}
-
-bool SQLiteDb::SetWALJournalingMode()
-{
-	return Exec("PRAGMA journal_mode = WAL;");
-}
-
-bool SQLiteDb::EnableForeignKeysConstraints()
-{
-	return Exec("PRAGMA foreign_keys = ON;");
-}
-
-
 class Utf8String
 {
 public:
@@ -403,7 +203,7 @@ private:
 };
 
 
-class GeneralConfigDb: public GeneralConfig {
+class GeneralConfigDb: public GeneralConfig, public SQLiteDb {
 	SQLiteStmt stmtUpdateValue;
 	SQLiteStmt stmtInsertValue;
 	SQLiteStmt stmtGetValue;
@@ -416,6 +216,10 @@ public:
 	{
 		Initialize(L"generalconfig.db");
 	}
+
+	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
+	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
+	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
@@ -679,7 +483,7 @@ public:
 	}
 };
 
-class HierarchicalConfigDb: public HierarchicalConfig {
+class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb {
 	SQLiteStmt stmtCreateKey;
 	SQLiteStmt stmtFindKey;
 	SQLiteStmt stmtSetKeyDescription;
@@ -698,6 +502,10 @@ public:
 	{
 		Initialize(DbName, Local);
 	}
+
+	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
+	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
+	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
@@ -1016,7 +824,7 @@ public:
 	}
 };
 
-class AssociationsConfigDb: public AssociationsConfig {
+class AssociationsConfigDb: public AssociationsConfig, public SQLiteDb {
 	SQLiteStmt stmtReorder;
 	SQLiteStmt stmtAddType;
 	SQLiteStmt stmtGetMask;
@@ -1038,7 +846,11 @@ public:
 		Initialize(L"associations.db");
 	}
 
-	virtual ~AssociationsConfigDb() { }
+	virtual ~AssociationsConfigDb() {}
+
+	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
+	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
+	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
@@ -1280,7 +1092,7 @@ public:
 	}
 };
 
-class PluginsCacheConfigDb: public PluginsCacheConfig {
+class PluginsCacheConfigDb: public PluginsCacheConfig, public SQLiteDb {
 	SQLiteStmt stmtCreateCache;
 	SQLiteStmt stmtFindCacheName;
 	SQLiteStmt stmtDelCache;
@@ -1349,6 +1161,10 @@ public:
 	{
 		Initialize(L"plugincache.db", true);
 	}
+
+	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
+	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
+	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
@@ -1691,7 +1507,7 @@ public:
 	}
 };
 
-class PluginsHotkeysConfigDb: public PluginsHotkeysConfig {
+class PluginsHotkeysConfigDb: public PluginsHotkeysConfig, public SQLiteDb {
 	SQLiteStmt stmtGetHotkey;
 	SQLiteStmt stmtSetHotkey;
 	SQLiteStmt stmtDelHotkey;
@@ -1703,6 +1519,10 @@ public:
 	{
 		Initialize(L"pluginhotkeys.db");
 	}
+
+	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
+	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
+	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
@@ -1846,7 +1666,7 @@ public:
 	}
 };
 
-class HistoryConfigDb: public HistoryConfig {
+class HistoryConfigDb: public HistoryConfig, public SQLiteDb {
 	SQLiteStmt stmtEnum;
 	SQLiteStmt stmtEnumDesc;
 	SQLiteStmt stmtDel;
@@ -1887,6 +1707,10 @@ public:
 	{
 		Initialize(L"history.db", true);
 	}
+
+	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
+	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
+	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
@@ -2278,7 +2102,7 @@ public:
 
 };
 
-class MacroConfigDb: public MacroConfig {
+class MacroConfigDb: public MacroConfig, public SQLiteDb {
 	SQLiteStmt stmtConstsEnum;
 	SQLiteStmt stmtGetConstValue;
 	SQLiteStmt stmtSetConstValue;
@@ -2303,6 +2127,10 @@ public:
 	{
 		Initialize(L"macros.db");
 	}
+
+	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
+	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
+	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{

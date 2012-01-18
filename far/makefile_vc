@@ -215,6 +215,7 @@ LINK_OBJS = \
 	"$(INTDIR)\setattr.obj" \
 	"$(INTDIR)\setcolor.obj" \
 	"$(INTDIR)\shortcuts.obj" \
+	"$(INTDIR)\sqlitedb.obj" \
 	"$(INTDIR)\stddlg.obj" \
 	"$(INTDIR)\strmix.obj" \
 	"$(INTDIR)\synchro.obj" \

@@ -246,6 +246,8 @@ shortcuts.cpp
 shortcuts.hpp
 sqlite.c
 sqlite.h
+sqlitedb.cpp
+sqlitedb.hpp
 stddlg.cpp
 stddlg.hpp
 strmix.cpp
