@@ -35,14 +35,22 @@ INT_PTR WINAPI SettingsControl(
   <div class=dfn>hHandle</div>
     <div class=dfndescr>Смотрите описание <var>Command</var>.</div>
   <div class=dfn>Command</div>
-    <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_SETTINGS_CONTROL_COMMANDS">FAR_SETTINGS_CONTROL_COMMANDS</a>):
+    <div class=dfndescr>Может быть одним из следующих значений (перечисление <code><a name="FAR_SETTINGS_CONTROL_COMMANDS">FAR_SETTINGS_CONTROL_COMMANDS</a></code>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="SCTL_CREATE">SCTL_CREATE</a></td>
     <td class="cont" width="60%">Создаёт объект "настройки" для заданного плагина.<br>
     <var>hHandle</var> должен быть установлен в значение <code>INVALID_HANDLE_VALUE</code>.<br>
-    <var>Param1</var> игнорируется. <var>Param2</var> - указатель на структуру <a href="../structures/farsettingscreate.html">FarSettingsCreate</a> (поле <code>FarSettingsCreate.Guid</code> должно быть заполнено).<br>
+    <var>Param1</var> указывает способ хранения настройки (перечисление <code><a name="FAR_PLUGIN_SETTINGS_LOCATION">FAR_PLUGIN_SETTINGS_LOCATION</a></code>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PSL_ROAMING">PSL_ROAMING</a></td>
+    <td class="cont" width="60%">в перемещаемом профиле</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PSL_LOCAL">PSL_LOCAL</a></td>
+    <td class="cont" width="60%">в локальном профиле</td></tr>
+    </table>
+    <var>Param2</var> - указатель на структуру <a href="../structures/farsettingscreate.html">FarSettingsCreate</a> (поле <code>FarSettingsCreate.Guid</code> должно быть заполнено).<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="SCTL_FREE">SCTL_FREE</a></td>
