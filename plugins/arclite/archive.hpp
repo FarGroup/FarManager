@@ -198,7 +198,6 @@ public:
 private:
   wstring get_temp_file_name() const;
   void set_properties(IOutArchive* out_arc, const UpdateOptions& options);
-  void load_sfx_module(Buffer<char>& buffer, const UpdateOptions& options);
 public:
   unsigned level;
   wstring method;

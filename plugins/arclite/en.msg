@@ -64,6 +64,8 @@ update.dlg.input_profile_name = Input profile name
 update.dlg.confirm_profile_delete = Do you want to delete selected profile?
 update.dlg.sfx_no_ppmd = Selected SFX module does not support PPMD compression
 update.dlg.sfx_no_encrypt = Selected SFX module does not support encryption
+update.dlg.save_params = Save settings
+update.dlg.params_saved = Settings saved
 
 # Archive types
 compression.archive.7z = &7z

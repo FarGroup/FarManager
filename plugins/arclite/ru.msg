@@ -64,6 +64,8 @@ update.dlg.input_profile_name = Введите название профиля
 update.dlg.confirm_profile_delete = Хотите удалить текущий профиль?
 update.dlg.sfx_no_ppmd = Выбранный SFX модуль не поддерживает сжатие методом PPMD
 update.dlg.sfx_no_encrypt = Выбранный SFX модуль не поддерживает шифрование данных
+update.dlg.save_params = Сохранить настройки
+update.dlg.params_saved = Настройки сохранены
 
 # Archive types
 compression.archive.7z = &7z

@@ -694,6 +694,7 @@ private:
   int enable_filter_ctrl_id;
   int ok_ctrl_id;
   int cancel_ctrl_id;
+  int save_params_ctrl_id;
 
   wstring old_ext;
   ArcType arc_type;
@@ -1046,6 +1047,7 @@ private:
       if (Far::input_dlg(c_save_profile_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_UPDATE_DLG_INPUT_PROFILE_NAME), name)) {
         DisableEvents de(*this);
         profiles.update(name, options);
+        profiles.save();
         populate_profile_list();
         set_list_pos(profile_ctrl_id, profiles.find_by_name(name));
         set_control_state();
@@ -1057,6 +1059,7 @@ private:
         if (Far::message(c_delete_profile_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L'\n' + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_PROFILE_DELETE), 0, FMSG_MB_YESNO) == 0) {
           DisableEvents de(*this);
           profiles.erase(profiles.begin() + profile_idx);
+          profiles.save();
           populate_profile_list();
           set_list_pos(profile_ctrl_id, static_cast<unsigned>(profiles.size()));
           set_control_state();
@@ -1082,6 +1085,28 @@ private:
     else if (msg == DN_BTNCLICK && param1 == sfx_options_ctrl_id) {
       sfx_options_dialog(options.sfx_options, profiles);
       set_control_state();
+    }
+    else if (msg == DN_BTNCLICK && param1 == save_params_ctrl_id) {
+      UpdateOptions options;
+      read_controls(options);
+      if (new_arc) {
+        g_options.update_arc_format_name = ArcAPI::formats().at(options.arc_type).name;
+        g_options.update_sfx_options = options.sfx_options;
+        g_options.update_volume_size = options.volume_size;
+        g_options.update_level = options.level;
+        g_options.update_method = options.method;
+        g_options.update_solid = options.solid;
+        g_options.update_encrypt_header = options.encrypt_header;
+        g_options.update_append_ext = options.append_ext;
+      }
+      else {
+        g_options.update_overwrite = options.overwrite;
+      }
+      g_options.update_show_password = options.show_password;
+      g_options.update_ignore_errors = options.ignore_errors;
+      g_options.save();
+      Far::info_dlg(c_update_params_saved_dialog_guid, Far::get_msg(MSG_UPDATE_DLG_TITLE), Far::get_msg(MSG_UPDATE_DLG_PARAMS_SAVED));
+      set_focus(ok_ctrl_id);
     }
 
     if (new_arc && (msg == DN_EDITCHANGE || msg == DN_BTNCLICK)) {
@@ -1291,6 +1316,7 @@ public:
     new_line();
     ok_ctrl_id = def_button(Far::get_msg(MSG_BUTTON_OK), DIF_CENTERGROUP);
     cancel_ctrl_id = button(Far::get_msg(MSG_BUTTON_CANCEL), DIF_CENTERGROUP);
+    save_params_ctrl_id = button(Far::get_msg(MSG_UPDATE_DLG_SAVE_PARAMS), DIF_CENTERGROUP | DIF_BTNNOCLOSE);
     new_line();
 
     int item = Far::Dialog::show();

@@ -513,7 +513,6 @@ public:
     options.ignore_errors = g_options.update_ignore_errors;
 
     bool res = update_dialog(new_arc, options, g_profiles);
-    g_profiles.save();
     if (!res)
       FAIL(E_ABORT);
     if (ArcAPI::formats().count(options.arc_type) == 0)
@@ -525,25 +524,13 @@ public:
         if (Far::message(c_overwrite_archive_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_OVERWRITE), 0, FMSG_MB_YESNO) != 0)
           FAIL(E_ABORT);
       }
-      g_options.update_arc_format_name = ArcAPI::formats().at(options.arc_type).name;
-      g_options.update_sfx_options = options.sfx_options;
-      g_options.update_volume_size = options.volume_size;
-      g_options.update_level = options.level;
-      g_options.update_method = options.method;
-      g_options.update_solid = options.solid;
-      g_options.update_encrypt_header = options.encrypt_header;
-      g_options.update_append_ext = options.append_ext;
     }
     else {
       archive->level = options.level;
       archive->method = options.method;
       archive->solid = options.solid;
       archive->encrypted = options.encrypt;
-      g_options.update_overwrite = options.overwrite;
     }
-    g_options.update_show_password = options.show_password;
-    g_options.update_ignore_errors = options.ignore_errors;
-    g_options.save();
 
     vector<wstring> file_names;
     file_names.reserve(items_number);
@@ -620,7 +607,6 @@ public:
     options.append_ext = g_options.update_append_ext;
 
     bool res = update_dialog(true, options, g_profiles);
-    g_profiles.save();
     if (!res)
       FAIL(E_ABORT);
     if (ArcAPI::formats().count(options.arc_type) == 0)
@@ -632,17 +618,6 @@ public:
       if (Far::message(c_overwrite_archive_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_OVERWRITE), 0, FMSG_MB_YESNO) != 0)
         FAIL(E_ABORT);
     }
-    g_options.update_arc_format_name = ArcAPI::formats().at(options.arc_type).name;
-    g_options.update_sfx_options = options.sfx_options;
-    g_options.update_volume_size = options.volume_size;
-    g_options.update_level = options.level;
-    g_options.update_method = options.method;
-    g_options.update_solid = options.solid;
-    g_options.update_encrypt_header = options.encrypt_header;
-    g_options.update_show_password = options.show_password;
-    g_options.update_ignore_errors = options.ignore_errors;
-    g_options.update_append_ext = options.append_ext;
-    g_options.save();
 
     shared_ptr<ErrorLog> error_log(new ErrorLog());
     shared_ptr<Archive>(new Archive())->create(src_path, file_list, options, error_log);
@@ -806,10 +781,15 @@ public:
   void close() {
     PanelInfo panel_info;
     if (Far::get_panel_info(this, panel_info)) {
-      g_options.panel_view_mode = panel_info.ViewMode;
-      g_options.panel_sort_mode = panel_info.SortMode;
-      g_options.panel_reverse_sort = (panel_info.Flags & PFLAGS_REVERSESORTORDER) != 0;
-      g_options.save();
+      unsigned panel_view_mode = panel_info.ViewMode;
+      OPENPANELINFO_SORTMODES panel_sort_mode = panel_info.SortMode;
+      bool panel_reverse_sort = (panel_info.Flags & PFLAGS_REVERSESORTORDER) != 0;
+      if (g_options.panel_view_mode != panel_view_mode || g_options.panel_sort_mode != panel_sort_mode || g_options.panel_reverse_sort != panel_reverse_sort) {
+        g_options.panel_view_mode = panel_view_mode;
+        g_options.panel_sort_mode = panel_sort_mode;
+        g_options.panel_reverse_sort = panel_reverse_sort;
+        g_options.save();
+      }
     }
   }
 
@@ -817,8 +797,6 @@ public:
     SfxOptions sfx_options = g_options.update_sfx_options;
     if (!sfx_options_dialog(sfx_options, g_profiles))
       FAIL(E_ABORT);
-    g_options.update_sfx_options = sfx_options;
-    g_options.save();
     for (unsigned i = 0; i < file_list.size(); i++) {
       attach_sfx_module(file_list[i], sfx_options);
     }
