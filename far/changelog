@@ -1,3 +1,7 @@
+drkns 19.01.2012 21:09:33 +0200 - build 2408
+
+1. ”гловые скобки (<>) вокруг элементов списка "Up", "Folder", "Symlink", "Junction" вынесены в €зыковой файл.
+
 drkns 19.01.2012 12:58:47 +0200 - build 2407
 
 1. Mantis#0001995: During file editing some data was lost.

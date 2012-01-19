@@ -6779,6 +6779,15 @@ MListJunction
 "Dowiązania"
 " Junc "
 
+MListBrackets
+"<>"
+"<>"
+"<>"
+"<>"
+"<>"
+"<>"
+"<>"
+
 MListBytes
 "Б"
 "B"

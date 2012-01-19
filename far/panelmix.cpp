@@ -645,15 +645,17 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 		}
 
 		FormatString strStr;
-		if (StrLength(PtrName) <= Width-2)
+		if(*PtrName)
 		{
-			strStr << L"<" << PtrName << L">";
+			if (StrLength(PtrName) <= Width-2 && MSG(MListBrackets)[0] && MSG(MListBrackets)[1])
+			{
+				strStr << MSG(MListBrackets)[0] << PtrName << MSG(MListBrackets)[1];
+			}
+			else
+			{
+				strStr << PtrName;
+			}
 		}
-		else
-		{
-			strStr << PtrName;
-		}
-
 		strResult<<fmt::Width(Width)<<fmt::Precision(Width)<<strStr;
 	}
 	else
