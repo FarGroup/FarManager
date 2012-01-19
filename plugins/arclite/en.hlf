@@ -125,10 +125,10 @@ $ #Plugin settings#
 
 	The following settings are available:
 
-	#Open files matching masks# - Plugin can be configured to open only those files matching list of file masks.
+	#Open files matching masks# - Plugin can be configured to open only those files matching list of file ~masks~@:FileMasks@.
 This option is not considered when calling plugin from F11 menu.
 
-	#Exclude files matching masks# - Do not open files matching list of masks.
+	#Exclude files matching masks# - Do not open files matching list of ~masks~@:FileMasks@.
 
 	#Generate masks# - Create standard list of masks for #Open files matching masks# field based on
 information from 7z.dll.
