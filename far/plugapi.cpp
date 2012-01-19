@@ -2364,12 +2364,24 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 					break;
 
 				MacroAddMacro *Data=(MacroAddMacro*)Param2;
+				MACROFLAGS_MFLAGS Flags=0;
+
+				if (Data->Flags&KMFLAGS_SAVEMACRO)
+					Flags|=MFLAGS_NEEDSAVEMACRO;
+
+				if (Data->Flags&KMFLAGS_DISABLEOUTPUT)
+					Flags|=MFLAGS_DISABLEOUTPUT;
+
+				if (Data->Flags&KMFLAGS_NOSENDKEYSTOPLUGINS)
+					Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
+
 				if (CheckStructSize(Data) && Data->SequenceText && *Data->SequenceText)
 				{
 					MACROMODEAREA Area=static_cast<MACROMODEAREA>(Data->Area);
 					if (Data->Area == MACROAREA_COMMON)
 						Area=MACRO_COMMON;
-					return Macro.AddMacro(Data->SequenceText,Data->Description,Area,Data->Flags,Data->AKey,*PluginId,Data->Id,Data->Callback);
+
+					return Macro.AddMacro(Data->SequenceText,Data->Description,Area,Flags,Data->AKey,*PluginId,Data->Id,Data->Callback);
 				}
 				break;
 			}

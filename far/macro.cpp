@@ -7940,17 +7940,14 @@ bool KeyMacro::IsOpCode(DWORD p)
 	return (!(p&KEY_MACRO_BASE) || p == MCODE_OP_ENDKEYS)?false:true;
 }
 
-int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,FARKEYMACROFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
+int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
 {
 	if (Area < MACRO_OTHER || Area > MACRO_COMMON)
 		return FALSE;
 
 	MacroRecord CurMacro={};
 	CurMacro.Flags=Area;
-	if (Flags&KMFLAGS_DISABLEOUTPUT)
-		CurMacro.Flags|=MFLAGS_DISABLEOUTPUT;
-	if (Flags&KMFLAGS_NOSENDKEYSTOPLUGINS)
-		CurMacro.Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
+	CurMacro.Flags=Flags;
 	CurMacro.Key=InputRecordToKey(&AKey);
 	CurMacro.Src=xf_wcsdup(PlainText);
 	CurMacro.Description=xf_wcsdup(Description);
