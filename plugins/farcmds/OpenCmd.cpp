@@ -1308,7 +1308,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 								}
 								else if (Edit)
 								{
-									DWORD Flags=EF_NONMODAL|EF_CREATENEW|EF_ENABLE_F6|EF_IMMEDIATERETURN;
+									DWORD Flags=EF_NONMODAL/*|EF_CREATENEW*/|EF_ENABLE_F6|EF_IMMEDIATERETURN;
 
 									if (outputtofile)
 										Flags |= EF_DISABLEHISTORY|EF_DELETEONCLOSE;
