@@ -396,6 +396,9 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 {
 	switch(CtrlType)
 	{
+	case CTRL_C_EVENT:
+		return TRUE;
+
 	case CTRL_BREAK_EVENT:
 		if(!CancelIoInProgress.Signaled())
 		{

@@ -6572,11 +6572,11 @@ upd:"Continue?"
 
 MEditDataLostWarn
 "Во время редактирования файла некоторые данные были утеряны."
-"During file editing some data was lost."
-upd:"During file editing some data was lost."
-upd:"During file editing some data was lost."
-upd:"During file editing some data was lost."
-upd:"During file editing some data was lost."
+"During file editing some data were lost."
+upd:"During file editing some data were lost."
+upd:"During file editing some data were lost."
+upd:"During file editing some data were lost."
+upd:"During file editing some data were lost."
 "Durante la edición del archivo algunos datos se perdieron."
 
 MEditorSaveNotRecommended

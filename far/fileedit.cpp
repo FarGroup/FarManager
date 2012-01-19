@@ -318,20 +318,8 @@ FileEditor::FileEditor(const string& Name, UINT codepage, DWORD InitFlags, int S
 }
 
 
-FileEditor::FileEditor(
-    const string& Name,
-    UINT codepage,
-    DWORD InitFlags,
-    int StartLine,
-    int StartChar,
-    const string* Title,
-    int X1,
-    int Y1,
-    int X2,
-    int Y2,
-    int DeleteOnClose,
-    int OpenModeExstFile
-)
+FileEditor::FileEditor(const string& Name, UINT codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, int OpenModeExstFile):
+	BadConversion(false)
 {
 	Flags.Set(InitFlags);
 
