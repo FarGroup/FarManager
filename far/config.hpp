@@ -646,7 +646,6 @@ struct Options
 
 	int PgUpChangeDisk;
 	int ShowCheckingFile;
-	int CloseConsoleRule;
 	int CloseCDGate;       // автомонтирование CD
 	int UpdateEnvironment;
 

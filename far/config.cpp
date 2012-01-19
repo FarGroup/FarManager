@@ -736,7 +736,6 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, NKeySystem,L"DelThreadPriority", &Opt.DelThreadPriority, THREAD_PRIORITY_NORMAL, 0},
 	{0, GeneralConfig::TYPE_TEXT,    NKeySystem,L"QuotedSymbols",&Opt.strQuotedSymbols, 0, L" &()[]{}^=;!'+,`\xA0"}, //xA0 => 160 =>oem(0xFF)
 	{0, GeneralConfig::TYPE_INTEGER, NKeySystem,L"QuotedName",&Opt.QuotedName,0xFFFFFFFFU, 0},
-	{0, GeneralConfig::TYPE_INTEGER, NKeySystem,L"CloseConsoleRule",&Opt.CloseConsoleRule,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeySystem,L"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"CloseCDGate",&Opt.CloseCDGate,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"UpdateEnvironment",&Opt.UpdateEnvironment,0,0},

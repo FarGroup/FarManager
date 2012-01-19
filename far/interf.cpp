@@ -394,21 +394,19 @@ DWORD WINAPI CancelSynchronousIoWrapper(LPVOID Thread)
 
 BOOL WINAPI CtrlHandler(DWORD CtrlType)
 {
-	if (CtrlType==CTRL_C_EVENT || CtrlType==CTRL_BREAK_EVENT)
+	switch(CtrlType)
 	{
-		if (CtrlType==CTRL_BREAK_EVENT)
+	case CTRL_BREAK_EVENT:
+		if(!CancelIoInProgress.Signaled())
 		{
-			if(!CancelIoInProgress.Signaled())
+			CancelIoInProgress.Set();
+			HANDLE Thread = CreateThread(nullptr, 0, CancelSynchronousIoWrapper, MainThreadHandle, 0, nullptr);
+			if (Thread)
 			{
-				CancelIoInProgress.Set();
-				HANDLE Thread = CreateThread(nullptr, 0, CancelSynchronousIoWrapper, MainThreadHandle, 0, nullptr);
-				if (Thread)
-				{
-					CloseHandle(Thread);
-				}
+				CloseHandle(Thread);
 			}
-			WriteInput(KEY_BREAK);
 		}
+		WriteInput(KEY_BREAK);
 
 		if (CtrlObject && CtrlObject->Cp())
 		{
@@ -418,29 +416,16 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 			if (CtrlObject->Cp()->RightPanel && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
 				CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
 		}
-
 		return TRUE;
-	}
 
-	CloseFAR=TRUE;
-	AllowCancelExit=FALSE;
+	case CTRL_CLOSE_EVENT:
+		CloseFAR=TRUE;
+		AllowCancelExit=FALSE;
 
-	/* $ 30.08.2001 IS
-	   ѕри закрытии окна "по кресту" всегда возвращаем TRUE, в противном случае
-	   ‘ар будет закрыт системой и не будут выполнены обычные при закрытии
-	   процедуры: оповещены плагины, вызваны деструкторы, сохранены настройки и
-	   т.п.
-	*/
-	if (Opt.CloseConsoleRule ||
-	    (!Opt.CloseConsoleRule &&
-	     ((FileEditor::CurrentEditor && FileEditor::CurrentEditor->IsFileModified()) ||
-	      (FrameManager && FrameManager->IsAnyFrameModified(FALSE)))))
-	{
 		// trick to let wmain() finish correctly
 		ExitThread(1);
 		//return TRUE;
 	}
-
 	return FALSE;
 }
 

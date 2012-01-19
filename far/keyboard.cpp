@@ -871,17 +871,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		if (CloseFAR && !ExitInProcess)
 		{
 			ExitInProcess = true;
-			//CloseFAR=FALSE;
-			/* $ 30.08.2001 IS
-			   При принудительном закрытии Фара пытаемся вести себя так же, как и при
-			   нажатии на F10 в панелях, только не запрашиваем подтверждение закрытия,
-			   если это возможно.
-			*/
-			if (!Opt.CloseConsoleRule)
-				FrameManager->IsAnyFrameModified(TRUE);
-			else
-				FrameManager->ExitMainLoop(FALSE);
-
+			FrameManager->ExitMainLoop(FALSE);
 			return KEY_NONE;
 		}
 
