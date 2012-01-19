@@ -34,6 +34,7 @@ static       FILE              *LogFile;
 const struct PluginStartupInfo *FP_Info;
 static       TCHAR              LocalPath[ MAX_PATH_SIZE ];
 static       TCHAR              LogFileName[ MAX_PATH_SIZE ];
+static       TCHAR              LogTime[32];
 static       TCHAR              TrapFileName[ MAX_PATH_SIZE ];
 static       TCHAR              Path2Far[ MAX_PATH_SIZE ];
 static       HANDLE             FarScreen_handle;
@@ -177,30 +178,24 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
        return FALSE;
      }
 
-//Create log file
-     do{
-       LogFile = NULL;
+	//Create log file
+	LogFile = NULL;
 
-       //FAR directory
-       LogFileName[ GetModuleFileName(NULL,LogFileName,ArraySize(LogFileName) ) ] = 0;
-       m = _tcsrchr(LogFileName,_T('\\'));
-       if (m) *m = 0;
-       _tcscat( LogFileName, _T("\\FStd_trap.log") );
-       if ( LOpen( Nested ) )
-         break;
+	// %localprofile%
+	if(!GetEnvironmentVariable(_T("farlocalprofile"), LogFileName, ArraySize(LogFileName)))
+	{
+		// %farhome%
+		LogFileName[ GetModuleFileName(NULL,LogFileName,ArraySize(LogFileName) ) ] = 0;
+		m = _tcsrchr(LogFileName,_T('\\'));
+		if (m) *m = 0;
+	}
+	time_t rawtime;
+	time(&rawtime);
+	tm* timeinfo = localtime(&rawtime);
+	_tcsftime(LogTime, ArraySize(LogTime), _T("\\FarTrap_%Y%m%d%H%M%S.log"), timeinfo);
+	_tcscat( LogFileName, LogTime );
+	LOpen(Nested);
 
-       //Plugin directory
-       if ( !isFARTrap ) {
-         _tcscpy( LogFileName, LocalPath );
-         _tcscat( LogFileName, _T("\\FStd_trap.log") );
-         if ( LOpen( Nested ) )
-           break;
-        }
-
-       //Somewhere else ?
-       //...
-
-     }while(0);
      if ( !LogFile ) {
        SError( _T("Error processing exception...\nCan not create log file"), FMSG_ERRORTYPE );
        return FALSE;
