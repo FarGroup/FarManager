@@ -7947,7 +7947,7 @@ int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum 
 
 	MacroRecord CurMacro={};
 	CurMacro.Flags=Area;
-	CurMacro.Flags=Flags;
+	CurMacro.Flags|=Flags;
 	CurMacro.Key=InputRecordToKey(&AKey);
 	CurMacro.Src=xf_wcsdup(PlainText);
 	CurMacro.Description=xf_wcsdup(Description);
