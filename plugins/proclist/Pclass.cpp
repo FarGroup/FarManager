@@ -1432,89 +1432,96 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 
 		for (size_t i=0; i<PInfo.SelectedItemsNumber; i++)
 		{
-			PluginPanelItem* _Item=reinterpret_cast<PluginPanelItem*>(Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,0));
-			PluginPanelItem& Item=*_Item;
-			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,(void*)&Item);
-			SetLastError(0);
-
-			if (((ProcessData*)Item.UserData)->dwPID)
+			size_t Size = Info.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, 0, nullptr);
+			if(Size)
 			{
-				if (!*HostName)
+				PluginPanelItem* PPI = reinterpret_cast<PluginPanelItem*>(new char[Size]);
+				if(PPI)
 				{
-					HANDLE hProcess=OpenProcessForced(&token, PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION,((ProcessData*)Item.UserData)->dwPID);
+					FarGetPluginPanelItem gpi = {Size, PPI};
+					Info.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, &gpi);
+					SetLastError(0);
 
-					if (hProcess)
+					if (((ProcessData*)PPI->UserData)->dwPID)
 					{
-						DWORD dwPriorityClass = GetPriorityClass(hProcess);
-
-						if (dwPriorityClass==0)
-							WinError();
-						else
+						if (!*HostName)
 						{
+							HANDLE hProcess=OpenProcessForced(&token, PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION,((ProcessData*)PPI->UserData)->dwPID);
+
+							if (hProcess)
+							{
+								DWORD dwPriorityClass = GetPriorityClass(hProcess);
+
+								if (dwPriorityClass==0)
+									WinError();
+								else
+								{
+									for (int i=0; i<N; i++)
+										if (dwPriorityClass==PrClasses[i])
+										{
+											bool bChange = false;
+
+											if (Key==VK_F1 && i>0)
+											{
+												i--; bChange = true;
+											}
+											else if (Key==VK_F2 && i<N-1)
+											{
+												i++;
+												bChange = true;
+											}
+
+											if (bChange && !SetPriorityClass(hProcess, PrClasses[i]))
+												WinError();
+
+											//else
+												//Item.Flags &= ~PPIF_SELECTED;
+											break;
+										}
+								}
+
+								CloseHandle(hProcess);
+							}
+							else
+								WinError();
+						}
+						else if (pWMI)  //*HostName
+						{
+							DWORD dwPriorityClass = pWMI->GetProcessPriority(((ProcessData*)PPI->UserData)->dwPID);
+
+							if (!dwPriorityClass)
+							{
+								WmiError();
+								continue;
+							}
+
+							static const BYTE Pr[ARRAYSIZE(PrClasses)] = {4,6,8,10,13,24};
+
 							for (int i=0; i<N; i++)
-								if (dwPriorityClass==PrClasses[i])
+								if (dwPriorityClass==Pr[i])
 								{
 									bool bChange = false;
 
 									if (Key==VK_F1 && i>0)
 									{
-										i--; bChange = true;
+										i--;
+										bChange = true;
 									}
 									else if (Key==VK_F2 && i<N-1)
 									{
-										i++; bChange = true;
+										i++;
+										bChange = true;
 									}
-
-									if (bChange && !SetPriorityClass(hProcess, PrClasses[i]))
-										WinError();
-
-									//                  else
-									//                      Item.Flags &= ~PPIF_SELECTED;
+									if (bChange && pWMI->SetProcessPriority(((ProcessData*)PPI->UserData)->dwPID, PrClasses[i])!=0)
+										WmiError();
 									break;
 								}
 						}
+					} // if dwPID
 
-						CloseHandle(hProcess);
-					}
-					else
-						WinError();
+					delete[] reinterpret_cast<char*>(PPI);
 				}
-				else if (pWMI)  //*HostName
-				{
-					DWORD dwPriorityClass = pWMI->GetProcessPriority(((ProcessData*)Item.UserData)->dwPID);
-
-					if (!dwPriorityClass)
-					{
-						WmiError();
-						continue;
-					}
-
-					static const BYTE Pr[ARRAYSIZE(PrClasses)] = {4,6,8,10,13,24};
-
-					for (int i=0; i<N; i++)
-						if (dwPriorityClass==Pr[i])
-						{
-							bool bChange = false;
-
-							if (Key==VK_F1 && i>0)
-							{
-								i--; bChange = true;
-							}
-							else if (Key==VK_F2 && i<N-1)
-							{
-								i++; bChange = true;
-							}
-
-							if (bChange && pWMI->SetProcessPriority(((ProcessData*)Item.UserData)->dwPID,
-							                                        PrClasses[i])!=0)
-								WmiError();
-
-							break;
-						}
-				}
-			} // if dwPID
-
-			free(_Item);
+			}
 		}
 
 		token.Revert();
