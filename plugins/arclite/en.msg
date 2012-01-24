@@ -290,3 +290,7 @@ kpid.Provider = Provider
 property.true = Yes
 property.false = No
 property.compression_ratio = Compression ratio
+property.total_size = Data size
+property.total_packed_size = Packed size
+property.file_count = File count
+property.dir_count = Directory count

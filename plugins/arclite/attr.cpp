@@ -272,6 +272,7 @@ void Archive::load_arc_attr() {
     PropVariant prop;
     CHECK_COM(in_arc->GetArchiveProperty(prop_id, prop.ref()));
 
+    attr.value.clear();
     if (prop_info != nullptr && prop_info->prop_to_string) {
       attr.value = prop_info->prop_to_string(prop);
     }
@@ -295,6 +296,9 @@ void Archive::load_arc_attr() {
   // compression ratio
   bool total_size_defined = true;
   unsigned __int64 total_size = 0;
+  bool total_packed_size_defined = true;
+  unsigned __int64 total_packed_size = 0;
+  unsigned file_count = 0;
   PropVariant prop;
   for (UInt32 file_id = 0; file_id < num_indices && total_size_defined; file_id++) {
     if (!file_list[file_id].is_dir) {
@@ -302,6 +306,13 @@ void Archive::load_arc_attr() {
         total_size += prop.get_uint();
       else
         total_size_defined = false;
+      if (in_arc->GetProperty(file_id, kpidPackSize, prop.ref()) == S_OK && prop.is_uint())
+        total_packed_size += prop.get_uint();
+      else
+        total_packed_size_defined = false;
+      bool is_dir = in_arc->GetProperty(file_id, kpidIsDir, prop.ref()) == S_OK && prop.is_bool() && prop.get_bool();
+      if (!is_dir)
+        ++file_count;
     }
   }
   if (total_size_defined) {
@@ -318,7 +329,21 @@ void Archive::load_arc_attr() {
       ratio = 100;
     attr.value = int_to_str(ratio) + L'%';
     arc_attr.push_back(attr);
+    attr.name = Far::get_msg(MSG_PROPERTY_TOTAL_SIZE);
+    attr.value = format_size_prop(total_size);
+    arc_attr.push_back(attr);
   }
+  if (total_packed_size_defined) {
+    attr.name = Far::get_msg(MSG_PROPERTY_TOTAL_PACKED_SIZE);
+    attr.value = format_size_prop(total_packed_size);
+    arc_attr.push_back(attr);
+  }
+  attr.name = Far::get_msg(MSG_PROPERTY_FILE_COUNT);
+  attr.value = int_to_str(file_count);
+  arc_attr.push_back(attr);
+  attr.name = Far::get_msg(MSG_PROPERTY_DIR_COUNT);
+  attr.value = int_to_str(num_indices - file_count);
+  arc_attr.push_back(attr);
 
   // archive files have CRC?
   has_crc = true;

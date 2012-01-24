@@ -84,10 +84,6 @@ public:
     info_lines.clear();
     info_lines.reserve(archive->arc_attr.size() + 1);
     InfoPanelLine ipl;
-    ipl.Text = panel_title.c_str();
-    ipl.Data = nullptr;
-    ipl.Separator = 1;
-    info_lines.push_back(ipl);
     for_each(archive->arc_attr.begin(), archive->arc_attr.end(), [&] (const Attr& attr) {
       ipl.Text = attr.name.c_str();
       ipl.Data = attr.value.c_str();

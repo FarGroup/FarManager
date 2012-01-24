@@ -290,3 +290,7 @@ kpid.Provider = Провайдер
 property.true = Да
 property.false = Нет
 property.compression_ratio = Степень сжатия
+property.total_size = Размер данных
+property.total_packed_size = Упакованный размер
+property.file_count = Число файлов
+property.dir_count = Число каталогов
