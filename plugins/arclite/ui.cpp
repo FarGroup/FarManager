@@ -653,7 +653,7 @@ const CompressionMethod c_methods[] = {
 class UpdateDialog: public Far::Dialog {
 private:
   enum {
-    c_client_xs = 69
+    c_client_xs = 68
   };
 
   bool new_arc;
@@ -745,8 +745,8 @@ private:
     DisableEvents de(*this);
     bool is_7z = arc_type == c_7z;
     bool is_zip = arc_type == c_zip;
-    bool is_compressed = !get_check(level_ctrl_id + 0);
-    for (int i = method_ctrl_id - 1; i < method_ctrl_id + static_cast<int>(ARRAYSIZE(c_methods)); i++) {
+    bool is_compressed = get_list_pos(level_ctrl_id) != 0;
+    for (int i = method_ctrl_id - 1; i <= method_ctrl_id; i++) {
       enable(i, is_7z & is_compressed);
     }
     enable(solid_ctrl_id, is_7z && is_compressed);
@@ -821,12 +821,9 @@ private:
     bool is_zip = options.arc_type == c_zip;
 
     options.level = -1;
-    for (unsigned i = 0; i < ARRAYSIZE(c_levels); i++) {
-      if (get_check(level_ctrl_id + i)) {
-        options.level = c_levels[i].value;
-        break;
-      }
-    }
+    unsigned level_sel = get_list_pos(level_ctrl_id);
+    if (level_sel < ARRAYSIZE(c_levels))
+      options.level = c_levels[level_sel].value;
     if (options.level == -1) {
       FAIL_MSG(Far::get_msg(MSG_UPDATE_DLG_WRONG_LEVEL));
     }
@@ -835,12 +832,9 @@ private:
     if (is_compressed) {
       if (is_7z) {
         options.method.clear();
-        for (unsigned i = 0; i < ARRAYSIZE(c_methods); i++) {
-          if (get_check(method_ctrl_id + i)) {
-            options.method = c_methods[i].value;
-            break;
-          }
-        }
+        unsigned method_sel = get_list_pos(method_ctrl_id);
+        if (method_sel < ARRAYSIZE(c_methods))
+          options.method = c_methods[method_sel].value;
         if (options.method.empty()) {
           FAIL_MSG(Far::get_msg(MSG_UPDATE_DLG_WRONG_METHOD));
         }
@@ -928,20 +922,24 @@ private:
       }
     }
 
+    unsigned level_sel = 0;
     for (unsigned i = 0; i < ARRAYSIZE(c_levels); i++) {
       if (options.level == c_levels[i].value) {
-        set_check(level_ctrl_id + i);
+        level_sel = i;
         break;
       }
     }
+    set_list_pos(level_ctrl_id, level_sel);
 
     wstring method = options.method.empty() && options.arc_type == c_7z ? c_methods[0].value : options.method;
+    unsigned method_sel = 0;
     for (unsigned i = 0; i < ARRAYSIZE(c_methods); i++) {
       if (method == c_methods[i].value) {
-        set_check(method_ctrl_id + i);
+        method_sel = i;
         break;
       }
     }
+    set_list_pos(method_ctrl_id, method_sel);
 
     set_check(solid_ctrl_id, options.solid);
 
@@ -1015,7 +1013,7 @@ private:
       arc_type = other_formats[get_list_pos(other_formats_ctrl_id + 1)];
       set_control_state();
     }
-    else if (msg == DN_BTNCLICK && param1 == level_ctrl_id + 0) {
+    else if (msg == DN_LISTCHANGE && param1 == level_ctrl_id) {
       set_control_state();
     }
     else if (msg == DN_BTNCLICK && param1 == encrypt_ctrl_id) {
@@ -1068,6 +1066,7 @@ private:
     }
     else if (new_arc && msg == DN_BTNCLICK && param1 == arc_path_eval_ctrl_id) {
       Far::info_dlg(c_arc_path_eval_dialog_guid, wstring(), word_wrap(eval_arc_path(), Far::get_optimal_msg_width()));
+      set_focus(arc_path_ctrl_id);
     }
     else if (msg == DN_BTNCLICK && param1 == enable_filter_ctrl_id) {
       if (param2) {
@@ -1182,8 +1181,7 @@ public:
       new_line();
 
       label(Far::get_msg(MSG_UPDATE_DLG_ARC_TYPE));
-      new_line();
-
+      spacer(1);
       const ArcFormats& arc_formats = ArcAPI::formats();
       for (unsigned i = 0; i < ARRAYSIZE(c_archive_types); i++) {
         ArcFormats::const_iterator arc_iter = arc_formats.find(c_archive_types[i].value);
@@ -1225,30 +1223,33 @@ public:
     }
 
     label(Far::get_msg(MSG_UPDATE_DLG_LEVEL));
-    new_line();
+    vector<wstring> level_names;
+    unsigned level_sel = 0;
+    unsigned level_width = 0;
     for (unsigned i = 0; i < ARRAYSIZE(c_levels); i++) {
-      if (i)
-        spacer(1);
-      int ctrl_id = radio_button(Far::get_msg(c_levels[i].name_id), options.level == c_levels[i].value, i == 0 ? DIF_GROUP : 0);
-      if (i == 0)
-        level_ctrl_id = ctrl_id;
-    };
-    new_line();
+      level_names.push_back(Far::get_msg(c_levels[i].name_id));
+      if (options.level == c_levels[i].value)
+        level_sel = i;
+    }
+    level_ctrl_id = combo_box(level_names, level_sel, AUTO_SIZE, DIF_DROPDOWNLIST);
+    spacer(2);
 
     label(Far::get_msg(MSG_UPDATE_DLG_METHOD));
-    new_line();
     wstring method = options.method.empty() && options.arc_type == c_7z ? c_methods[0].value : options.method;
+    vector<wstring> method_names;
+    unsigned method_sel = 0;
     for (unsigned i = 0; i < ARRAYSIZE(c_methods); i++) {
-      if (i)
-        spacer(1);
-      int ctrl_id = radio_button(Far::get_msg(c_methods[i].name_id), method == c_methods[i].value, i == 0 ? DIF_GROUP : 0);
-      if (i == 0)
-        method_ctrl_id = ctrl_id;
-    };
-    new_line();
+      wstring method_name = Far::get_msg(c_methods[i].name_id);
+      method_names.push_back(method_name);
+      if (method == c_methods[i].value)
+        method_sel = i;
+    }
+    method_ctrl_id = combo_box(method_names, method_sel, AUTO_SIZE, DIF_DROPDOWNLIST);
+    spacer(2);
 
     solid_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_SOLID), options.solid);
     new_line();
+
     label(Far::get_msg(MSG_UPDATE_DLG_ADVANCED));
     advanced_ctrl_id = history_edit_box(options.advanced, L"arclite.advanced");
     new_line();
@@ -1290,13 +1291,6 @@ public:
       new_line();
     }
 
-    move_files_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_MOVE_FILES), options.move_files);
-    new_line();
-    open_shared_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_OPEN_SHARED), options.open_shared);
-    new_line();
-    ignore_errors_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_IGNORE_ERRORS), options.ignore_errors);
-    new_line();
-
     if (!new_arc) {
       label(Far::get_msg(MSG_UPDATE_DLG_OA));
       new_line();
@@ -1307,8 +1301,16 @@ public:
       spacer(2);
       oa_skip_ctrl_id = radio_button(Far::get_msg(MSG_UPDATE_DLG_OA_SKIP), options.overwrite == oaSkip);
       new_line();
+      separator();
+      new_line();
     }
 
+    move_files_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_MOVE_FILES), options.move_files);
+    spacer(2);
+    ignore_errors_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_IGNORE_ERRORS), options.ignore_errors);
+    new_line();
+    open_shared_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_OPEN_SHARED), options.open_shared);
+    spacer(2);
     enable_filter_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_ENABLE_FILTER), options.filter);
     new_line();
 

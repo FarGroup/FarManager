@@ -27,20 +27,20 @@ update.dlg.title.create = Create archive
 update.dlg.profile = &Profile:
 update.dlg.save_profile = Save
 update.dlg.delete_profile = Delete
-update.dlg.arc_path = Archive path:
-update.dlg.arc_path_eval = Evaluate
+update.dlg.arc_path = Arc&hive path:
+update.dlg.arc_path_eval = Eval&uate
 update.dlg.append_ext = &Append extension
 update.dlg.arc_type = Select archiver:
-update.dlg.arc_type.other = &0ther:
-update.dlg.level = Compression level:
-update.dlg.method = Compression method:
-update.dlg.solid = S&olid archive
+update.dlg.arc_type.other = O&ther:
+update.dlg.level = Compression &level:
+update.dlg.method = &Method:
+update.dlg.solid = S&olid
 update.dlg.advanced = Advan&ced parameters:
 update.dlg.encrypt = &Encrypt archive
 update.dlg.show_password = Show password
 update.dlg.password = Pass&word:
 update.dlg.password2 = Repeat:
-update.dlg.encrypt_header = Encrypt &header
+update.dlg.encrypt_header = Encrypt header
 update.dlg.create_sfx = Create self-e&xtracting archive
 update.dlg.sfx_options = SFX options
 update.dlg.enable_volumes = Split into &volumes
@@ -52,7 +52,7 @@ update.dlg.oa = When destination file exists:
 update.dlg.oa_ask = As&k
 update.dlg.oa_overwrite = O&verwrite
 update.dlg.oa_skip = Ski&p
-update.dlg.enable_filter = Use filter
+update.dlg.enable_filter = Use &filter
 update.dlg.wrong_arc_type = Select archive format
 update.dlg.wrong_level = Select compression level
 update.dlg.wrong_method = Select compression method
@@ -72,17 +72,17 @@ compression.archive.7z = &7z
 compression.archive.zip = &zip
 
 # Compression levels
-compression.level.store = &Store
-compression.level.fastest = Fas&test
-compression.level.fast = &Fast
-compression.level.normal = &Normal
-compression.level.maximum = M&aximum
-compression.level.ultra = &Ultra
+compression.level.store = Store
+compression.level.fastest = Fastest
+compression.level.fast = Fast
+compression.level.normal = Normal
+compression.level.maximum = Maximum
+compression.level.ultra = Ultra
 
 # Compression methods
-compression.method.lzma = &LZMA
-compression.method.lzma2 = LZMA&2
-compression.method.ppmd = PP&MD
+compression.method.lzma = LZMA
+compression.method.lzma2 = LZMA2
+compression.method.ppmd = PPMD
 
 # Delete files
 delete.dlg.confirm = Do you want to delete selected files?
