@@ -858,7 +858,7 @@ int WINAPI AnalyseW(const AnalyseInfo* info) {
       if (!g_options.handle_commands)
         FAIL(E_ABORT);
       bool pgdn = (info->OpMode & OPM_PGDN) != 0;
-      if (!pgdn) {
+      if (!pgdn || g_options.pgdn_masks) {
         if (g_options.use_include_masks && !Far::match_masks(extract_file_name(info->FileName), g_options.include_masks))
           FAIL(E_ABORT);
         if (g_options.use_exclude_masks && Far::match_masks(extract_file_name(info->FileName), g_options.exclude_masks))
@@ -1103,6 +1103,7 @@ int WINAPI ConfigureW(const struct ConfigureInfo* info) {
   settings.include_masks = g_options.include_masks;
   settings.use_exclude_masks = g_options.use_exclude_masks;
   settings.exclude_masks = g_options.exclude_masks;
+  settings.pgdn_masks = g_options.pgdn_masks;
   settings.use_enabled_formats = g_options.use_enabled_formats;
   settings.enabled_formats = g_options.enabled_formats;
   settings.use_disabled_formats = g_options.use_disabled_formats;
@@ -1115,6 +1116,7 @@ int WINAPI ConfigureW(const struct ConfigureInfo* info) {
     g_options.include_masks = settings.include_masks;
     g_options.use_exclude_masks = settings.use_exclude_masks;
     g_options.exclude_masks = settings.exclude_masks;
+    g_options.pgdn_masks = settings.pgdn_masks;
     g_options.use_enabled_formats = settings.use_enabled_formats;
     g_options.enabled_formats = settings.enabled_formats;
     g_options.use_disabled_formats = settings.use_disabled_formats;

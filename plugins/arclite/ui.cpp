@@ -1343,6 +1343,7 @@ private:
   int use_include_masks_ctrl_id;
   int include_masks_ctrl_id;
   int use_exclude_masks_ctrl_id;
+  int pgdn_masks_ctrl_id;
   int exclude_masks_ctrl_id;
   int generate_masks_ctrl_id;
   int default_masks_ctrl_id;
@@ -1363,6 +1364,7 @@ private:
       settings.include_masks = get_text(include_masks_ctrl_id);
       settings.use_exclude_masks = get_check(use_exclude_masks_ctrl_id);
       settings.exclude_masks = get_text(exclude_masks_ctrl_id);
+      settings.pgdn_masks = get_check(pgdn_masks_ctrl_id);
       settings.use_enabled_formats = get_check(use_enabled_formats_ctrl_id);
       settings.enabled_formats = get_text(enabled_formats_ctrl_id);
       settings.use_disabled_formats = get_check(use_disabled_formats_ctrl_id);
@@ -1452,6 +1454,8 @@ public:
     use_exclude_masks_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_USE_EXCLUDE_MASKS), settings.use_exclude_masks);
     new_line();
     exclude_masks_ctrl_id = edit_box(settings.exclude_masks, c_client_xs);
+    new_line();
+    pgdn_masks_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_PGDN_MASKS), settings.pgdn_masks);
     new_line();
     generate_masks_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_GENERATE_MASKS), DIF_BTNNOCLOSE);
     spacer(1);

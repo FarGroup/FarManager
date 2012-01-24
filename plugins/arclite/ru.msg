@@ -126,6 +126,7 @@ settings.dlg.handle_create = Обрабатывать команду созда�
 settings.dlg.handle_commands = Обрабатывать прочие архивные команды (Ctrl-PgDn, Shift-F&2)
 settings.dlg.use_include_masks = Маски &включения:
 settings.dlg.use_exclude_masks = Маски &исключения:
+settings.dlg.pgdn_masks = Н&астройки масок влияют на Ctrl-PgDn
 settings.dlg.generate_masks = &Сгенерировать маски
 settings.dlg.default_masks = С&тандартные маски
 settings.dlg.use_enabled_formats = В&ключить форматы архивов:

@@ -31,6 +31,7 @@ struct Options {
   wstring include_masks;
   bool use_exclude_masks;
   wstring exclude_masks;
+  bool pgdn_masks;
   // archive formats
   bool use_enabled_formats;
   wstring enabled_formats;

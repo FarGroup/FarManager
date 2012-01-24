@@ -99,6 +99,7 @@ Options::Options():
   include_masks(L"*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz"),
   use_exclude_masks(false),
   exclude_masks(),
+  pgdn_masks(false),
   use_enabled_formats(false),
   enabled_formats(),
   use_disabled_formats(false),
@@ -185,6 +186,7 @@ void Options::load() {
   GET_VALUE(include_masks, str);
   GET_VALUE(use_exclude_masks, bool);
   GET_VALUE(exclude_masks, str);
+  GET_VALUE(pgdn_masks, bool);
   GET_VALUE(use_enabled_formats, bool);
   GET_VALUE(enabled_formats, str);
   GET_VALUE(use_disabled_formats, bool);
@@ -224,6 +226,7 @@ void Options::save() const {
   SET_VALUE(include_masks, str);
   SET_VALUE(use_exclude_masks, bool);
   SET_VALUE(exclude_masks, str);
+  SET_VALUE(pgdn_masks, bool);
   SET_VALUE(use_enabled_formats, bool);
   SET_VALUE(enabled_formats, str);
   SET_VALUE(use_disabled_formats, bool);
