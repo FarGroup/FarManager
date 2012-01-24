@@ -355,7 +355,7 @@ private:
   int save_params_ctrl_id;
 
   void read_controls(ExtractOptions& options) {
-    options.dst_dir = unquote(strip(get_text(dst_dir_ctrl_id)));
+    options.dst_dir = expand_env_vars(search_and_replace(strip(get_text(dst_dir_ctrl_id)), L"\"", wstring()));
     options.ignore_errors = get_check(ignore_errors_ctrl_id);
     if (get_check(oa_ask_ctrl_id)) options.overwrite = oaAsk;
     else if (get_check(oa_overwrite_ctrl_id)) options.overwrite = oaOverwrite;
@@ -786,7 +786,7 @@ private:
   }
 
   wstring eval_arc_path() {
-    wstring arc_path = expand_macros(search_and_replace(strip(get_text(arc_path_ctrl_id)), L"\"", wstring()));
+    wstring arc_path = expand_env_vars(search_and_replace(expand_macros(strip(get_text(arc_path_ctrl_id))), L"\"", wstring()));
     if (arc_path.empty() || arc_path.back() == L'\\')
       arc_path += default_arc_name;
     if (get_check(append_ext_ctrl_id)) {
