@@ -1168,9 +1168,9 @@ int TreeList::ProcessKey(int Key)
 		case KEY_SHIFTAPPS:
 		{
 			//вызовем EMenu если он есть
-			if (CtrlObject->Plugins.FindPlugin(EMenuGuid))
+			if (CtrlObject->Plugins.FindPlugin(Opt.KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins.CallPlugin(EMenuGuid, OPEN_FILEPANEL, reinterpret_cast<void*>(1)); // EMenu Plugin :-)
+				CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(1)); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}
@@ -1408,9 +1408,9 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
 
 			//вызовем EMenu если он есть
-			if (MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins.FindPlugin(EMenuGuid))
+			if (MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins.FindPlugin(Opt.KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins.CallPlugin(EMenuGuid,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
+				CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
 				return TRUE;
 			}
 

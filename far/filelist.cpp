@@ -2280,9 +2280,9 @@ int FileList::ProcessKey(int Key)
 		case KEY_SHIFTAPPS:
 		{
 			//вызовем EMenu если он есть
-			if (CtrlObject->Plugins.FindPlugin(EMenuGuid))
+			if (CtrlObject->Plugins.FindPlugin(Opt.KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins.CallPlugin(EMenuGuid, OPEN_FILEPANEL, reinterpret_cast<void*>(1)); // EMenu Plugin :-)
+				CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(1)); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}
@@ -2712,7 +2712,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 				AddEndSlash(strDirName);
 
 				if (Opt.PgUpChangeDisk && (FAR_GetDriveType(strDirName) != DRIVE_REMOTE
-					|| !CtrlObject->Plugins.FindPlugin(NetworkGuid)
+					|| !CtrlObject->Plugins.FindPlugin(Opt.KnownIDs.Network)
 					))
 				{
 					CtrlObject->Cp()->ActivePanel->ChangeDisk();
@@ -2733,7 +2733,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 					const wchar_t *PtrS1=FirstSlash(strNewCurDir.CPtr()+2);
 					if (PtrS1 && !FirstSlash(PtrS1+1))
 					{
-						if (CtrlObject->Plugins.CallPlugin(NetworkGuid,OPEN_FILEPANEL,(void*)strNewCurDir.CPtr())) // NetWork Plugin :-)
+						if (CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Network,OPEN_FILEPANEL,(void*)strNewCurDir.CPtr())) // NetWork Plugin :-)
 							return FALSE;
 					}
 				}
@@ -2955,10 +2955,10 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
 
 				//вызовем EMenu если он есть
-				if (MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins.FindPlugin(EMenuGuid))
+				if (MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins.FindPlugin(Opt.KnownIDs.Emenu))
 				{
 					ShowFileList(TRUE);
-					CtrlObject->Plugins.CallPlugin(EMenuGuid,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
+					CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
 					return TRUE;
 				}
 

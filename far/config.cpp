@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "elevation.hpp"
 #include "configdb.hpp"
+#include "FarGuid.hpp"
 
 Options Opt={};
 
@@ -89,6 +90,7 @@ const wchar_t NKeyDialog[]=L"Dialog";
 const wchar_t NKeyEditor[]=L"Editor";
 const wchar_t NKeyXLat[]=L"XLat";
 const wchar_t NKeySystem[]=L"System";
+const wchar_t NKeySystemKnownIDs[]=L"System.KnownIDs";
 const wchar_t NKeySystemExecutor[]=L"System.Executor";
 const wchar_t NKeySystemNowell[]=L"System.Nowell";
 const wchar_t NKeyHelp[]=L"Help";
@@ -566,10 +568,10 @@ static struct FARConfig
 	const wchar_t *ValName;
 	void *ValPtr;   // адрес переменной, куда помещаем данные
 	DWORD DefDWord; // он же размер данных для TYPE_BLOB
-	const wchar_t *DefStr;   // строка/данные по умолчанию
+	const void* DefStr;   // строка/данные по умолчанию
 } CFG[]=
 {
-	{1, GeneralConfig::TYPE_BLOB,    NKeyColors, L"CurrentPalette",(char*)Opt.Palette.CurrentPalette,static_cast<DWORD>(Opt.Palette.SizeArrayPalette*sizeof(FarColor)),(const wchar_t*)Opt.Palette.DefaultPalette},
+	{1, GeneralConfig::TYPE_BLOB,    NKeyColors, L"CurrentPalette",Opt.Palette.CurrentPalette,static_cast<DWORD>(Opt.Palette.SizeArrayPalette*sizeof(FarColor)),Opt.Palette.DefaultPalette},
 
 	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"Clock", &Opt.Clock, 1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"ViewerEditorClock",&Opt.ViewerEditorClock,1, 0},
@@ -654,8 +656,8 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_TEXT,    NKeyEditor,L"WordDiv",&Opt.strWordDiv, 0, WordDiv0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"BSLikeDel",&Opt.EdOpt.BSLikeDel,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"EditorF7Rules",&Opt.EdOpt.F7Rules,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"FileSizeLimit",&Opt.EdOpt.FileSizeLimitLo,(DWORD)0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"FileSizeLimitHi",&Opt.EdOpt.FileSizeLimitHi,(DWORD)0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"FileSizeLimit",&Opt.EdOpt.FileSizeLimitLo, 0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"FileSizeLimitHi",&Opt.EdOpt.FileSizeLimitHi, 0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"CharCodeBase",&Opt.EdOpt.CharCodeBase,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"AllowEmptySpaceAfterEof", &Opt.EdOpt.AllowEmptySpaceAfterEof,0,0},//skv
 	{1, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"AnsiCodePageForNewFile",&Opt.EdOpt.AnsiCodePageForNewFile,1, 0},
@@ -873,6 +875,9 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, NKeyVMenu,L"LBtnClick",&Opt.VMenu.LBtnClick, VMENUCLICK_CANCEL, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyVMenu,L"RBtnClick",&Opt.VMenu.RBtnClick, VMENUCLICK_CANCEL, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyVMenu,L"MBtnClick",&Opt.VMenu.MBtnClick, VMENUCLICK_APPLY, 0},
+
+	{0, GeneralConfig::TYPE_BLOB,    NKeySystemKnownIDs,L"Network",&Opt.KnownIDs.Network, sizeof(Opt.KnownIDs.Network), &NetworkGuid},
+	{0, GeneralConfig::TYPE_BLOB,    NKeySystemKnownIDs,L"EMenu",&Opt.KnownIDs.Emenu, sizeof(Opt.KnownIDs.Emenu), &EMenuGuid},
 };
 
 bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
@@ -933,7 +938,7 @@ void ReadConfig()
 				GeneralCfg->GetValue(CFG[I].KeyName, CFG[I].ValName,(DWORD *)CFG[I].ValPtr,(DWORD)CFG[I].DefDWord);
 				break;
 			case GeneralConfig::TYPE_TEXT:
-				GeneralCfg->GetValue(CFG[I].KeyName, CFG[I].ValName,*(string *)CFG[I].ValPtr,CFG[I].DefStr);
+				GeneralCfg->GetValue(CFG[I].KeyName, CFG[I].ValName,*reinterpret_cast<string*>(CFG[I].ValPtr), reinterpret_cast<const wchar_t*>(CFG[I].DefStr));
 				break;
 			case GeneralConfig::TYPE_BLOB:
 				int Size=GeneralCfg->GetValue(CFG[I].KeyName, CFG[I].ValName,(char *)CFG[I].ValPtr,(int)CFG[I].DefDWord,(const char *)CFG[I].DefStr);
