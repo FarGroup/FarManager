@@ -51,6 +51,7 @@
     <ClInclude Include="headers.hpp" />
     <ClInclude Include="msearch.hpp" />
     <ClInclude Include="options.hpp" />
+    <ClInclude Include="plugin_h.h" />
     <ClInclude Include="sysutils.hpp" />
     <ClInclude Include="ui.hpp" />
     <ClInclude Include="utils.hpp" />
