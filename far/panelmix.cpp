@@ -546,17 +546,17 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned
 	}
 
 	int ColumnWidth=Width;
-	unsigned __int64 Brief=Flags & COLUMN_BRIEF;
-	unsigned __int64 TextMonth=Flags & COLUMN_MONTH;
-	int FullYear=FALSE;
+	bool Brief = (Flags & COLUMN_BRIEF) != 0;
+	bool TextMonth = (Flags & COLUMN_MONTH) != 0;
+	bool FullYear = false;
 
 	switch(ColumnType)
 	{
 		case DATE_COLUMN:
 		case TIME_COLUMN:
 		{
-			Brief=FALSE;
-			TextMonth=FALSE;
+			Brief = false;
+			TextMonth = false;
 			if (ColumnType == DATE_COLUMN)
 				FullYear=ColumnWidth>9;
 			break;
@@ -568,10 +568,10 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned
 		{
 			if (!Brief)
 			{
-				int CmpWidth=ColumnWidth-TextMonth;
+				int CmpWidth=ColumnWidth-(TextMonth? 1: 0);
 
 				if (CmpWidth==15 || CmpWidth==16 || CmpWidth==18 || CmpWidth==19 || CmpWidth>21)
-					FullYear=TRUE;
+					FullYear = true;
 			}
 			ColumnWidth-=9;
 			break;
