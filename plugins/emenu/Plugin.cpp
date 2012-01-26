@@ -247,18 +247,40 @@ HANDLE CPlugin::OpenPlugin(int nOpenFrom, INT_PTR nItem)
 CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
 {
   LPWSTR szCmdLine=NULL;
-  if (OPEN_COMMANDLINE==nOpenFrom)
+  CallMode Mode;
+  switch(nOpenFrom)
   {
-    LPCWSTR sz=reinterpret_cast<LPCWSTR>(nItem);
-    size_t nLen=512;
-    do
+  case OPEN_COMMANDLINE:
     {
-      delete[] szCmdLine;
-      nLen*=2;
-      szCmdLine=new wchar_t[nLen];
-    } while (ExpandEnvironmentStrings(sz, szCmdLine,(DWORD)nLen) >= nLen-1);
+      LPCWSTR sz=reinterpret_cast<LPCWSTR>(nItem);
+      size_t nLen=512;
+      do
+      {
+        delete[] szCmdLine;
+        nLen*=2;
+        szCmdLine=new wchar_t[nLen];
+      }
+      while (ExpandEnvironmentStrings(sz, szCmdLine,(DWORD)nLen) >= nLen-1);
+    }
+    break;
+
+  case OPEN_FILEPANEL:
+    Mode = nItem? CALL_APPS : CALL_RIGHTCLICK;
+    break;
+
+  case OPEN_LEFTDISKMENU:
+    {
+      struct DiskMenuParam {const wchar_t* CmdLine; BOOL Apps;} *p = reinterpret_cast<DiskMenuParam*>(nItem);
+      Mode = p->Apps? CALL_APPS : CALL_RIGHTCLICK;
+      szCmdLine=new wchar_t[wcslen(p->CmdLine)+1];
+      wcscpy(szCmdLine, p->CmdLine);
+    }
+    break;
+
+  default:
+    Mode = CALL_NORMAL;
+    break;
   }
-  CallMode Mode = nOpenFrom==OPEN_FILEPANEL? (nItem? CALL_APPS : CALL_RIGHTCLICK) : CALL_NORMAL;
   EDoMenu enDoMenu=DoMenu(szCmdLine, Mode);
   delete[] szCmdLine;
   return enDoMenu;
@@ -283,7 +305,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPWSTR szCmdLine, CallMode Mode)
     {
       m_GuiPos=0; //покажем меню там где мышь
     }
-    EDoMenu enDoMenu = MenuForPanelOrCmdLine();
+    EDoMenu enDoMenu = MenuForPanelOrCmdLine(szCmdLine);
     m_UseGUI=UseGUISav;
     m_GuiPos=GuiPosSav;
     return enDoMenu;
