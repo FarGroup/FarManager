@@ -26,8 +26,6 @@ in ~file associations~@:FileAssoc@, as well as in dialog ~Apply Command~@:Apply
              ~macro~@Macro@    - macros
              ~link~@Link@     - create links
              ~run~@Run@      - execute commands
-             ~load~@Load@     - load plugin
-             ~unload~@Unload@   - unload plugin
 
    #options# - optional parameters, see corresponding commands descriptions.
 
@@ -39,24 +37,6 @@ in ~file associations~@:FileAssoc@, as well as in dialog ~Apply Command~@:Apply
 
 
    See also: ~Configuring FAR Commands~@Config@ | ~Notes~@Remark@
-
-@Load
-$ #The Load command#
-   Command #load# allows you to load the plugin #DLL_module_name#.
-
-   #load:DLL_module_name#
-
-
-   See also: ~unload~@Unload@ | ~Notes~@Remark@ | ~Contents~@Contents@
-
-@Unload
-$ #The Unload command#
-   Command #unload# allows you to unload the plugin #DLL_module_name#.
-
-   #unload:DLL_module_name#
-
-
-   See also: ~load~@Load@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
 @Clip
 $^#The Clip command#

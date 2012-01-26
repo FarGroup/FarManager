@@ -440,7 +440,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 {
 	if (!_farcmd) return FALSE;
 
-	int View=0,Edit=0,Goto=0,Far=0,Clip=0,WhereIs=0,Macro=0,Link=0,Run=0, Load=0,Unload=0;
+	int View=0,Edit=0,Goto=0,Far=0,Clip=0,WhereIs=0,Macro=0,Link=0,Run=0;
 	size_t PrefIdx=static_cast<size_t>(-1);
 	struct
 	{
@@ -475,12 +475,6 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 		// run:[<separator>]<file> < <command>
 		// run<separator><file> < <command>
 		{Run,L"RUN",L"Run"},
-		// load:[<separator>]<file>
-		// load<separator><file>
-		{Load,L"LOAD",L"Load"},
-		// unload:[<separator>]<file>
-		// unload<separator><file>
-		{Unload,L"UNLOAD",L"Unload"},
 	};
 
 	static wchar_t farcmdbuf[MAX_PATH*10], *farcmd;
@@ -521,7 +515,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 
 		// farcmd = [[<options>]<separator>]<object>
 		// farcmd = [<separator>]<object>
-		if (View||Edit||Goto||Clip||WhereIs||Macro||Link||Run||Load||Unload)
+		if (View||Edit||Goto||Clip||WhereIs||Macro||Link||Run)
 		{
 			int SeparatorLen=lstrlen(Opt.Separator);
 			wchar_t *cBracket=NULL, runFile[MAX_PATH]=L"";
@@ -909,17 +903,6 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 
 							FSF.MkLink(pCmd,Arg2,LinkType,LinkFlags);
 						}
-					}
-					else if (Load || Unload)
-					{
-						wchar_t temp[MAX_PATH*5];
-						FSF.Unquote(pCmd);
-						ExpandEnvironmentStrings(pCmd,temp,ARRAYSIZE(temp));
-
-						if (Load)
-							Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,temp);
-						else
-							Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_UNLOADPLUGIN,PLT_PATH,temp);
 					}
 					else
 					{

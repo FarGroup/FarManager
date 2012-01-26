@@ -208,7 +208,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
     Info->PluginConfig.Strings=PluginConfigStrings;
     Info->PluginConfig.Count=ARRAYSIZE(PluginConfigStrings);
 
-	Info->CommandPrefix=L"far:view:edit:goto:clip:whereis:macro:link:run:load:unload";
+	Info->CommandPrefix=L"far:view:edit:goto:clip:whereis:macro:link:run";
 }
 
 int WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
