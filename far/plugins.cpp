@@ -532,18 +532,13 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove
 	return nResult;
 }
 
-int PluginManager::UnloadPluginExternal(const string& lpwszModuleName)
+int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 {
-//BUGBUG нужны проверки на легальность выгрузки
+	//BUGBUG нужны проверки на легальность выгрузки
 	int nResult = FALSE;
-	Plugin *pPlugin = GetPlugin(lpwszModuleName);
-
-	if (pPlugin)
-	{
-		nResult = pPlugin->Unload(true);
-		RemovePlugin(pPlugin);
-	}
-
+	Plugin* pPlugin = reinterpret_cast<Plugin*>(hPlugin);
+	nResult = pPlugin->Unload(true);
+	RemovePlugin(pPlugin);
 	return nResult;
 }
 
@@ -1907,6 +1902,181 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 	Builder.AddConstEditField(strPluginPrefix, Width);
 	Builder.AddOK();
 	Builder.ShowDialog();
+}
+
+char* BufReserve(char* Buf, size_t Count, size_t& Rest, size_t& Size)
+{
+	char* Res = nullptr;
+
+	if (Buf)
+	{
+		if (Rest >= Count)
+		{
+			Res = Buf;
+			Buf += Count;
+			Rest -= Count;
+		}
+		else
+		{
+			Buf += Rest;
+			Rest = 0;
+		}
+	}
+
+	Size += Count;
+	return Res;
+}
+
+
+wchar_t* StrToBuf(const string& Str, char* Buf, size_t& Rest, size_t& Size)
+{
+	size_t Count = (Str.GetLength() + 1) * sizeof(wchar_t);
+	wchar_t* Res = reinterpret_cast<wchar_t*>(BufReserve(Buf, Count, Rest, Size));
+	if (Res)
+	{
+		wcscpy(Res, Str);
+	}
+	return Res;
+}
+
+
+void ItemsToBuf(PluginMenuItem& Menu, TArray<string>& NamesArray, TArray<string>& GuidsArray, char* Buf, size_t& Rest, size_t& Size)
+{
+	Menu.Count = NamesArray.getSize();
+	Menu.Strings = nullptr;
+	Menu.Guids = nullptr;
+
+	if (Menu.Count)
+	{
+		wchar_t** Items = reinterpret_cast<wchar_t**>(BufReserve(Buf, Menu.Count * sizeof(wchar_t*), Rest, Size));
+		GUID* Guids = reinterpret_cast<GUID*>(BufReserve(Buf, Menu.Count * sizeof(GUID), Rest, Size));
+		Menu.Strings = Items;
+		Menu.Guids = Guids;
+
+		for (size_t i = 0; i < Menu.Count; ++i)
+		{
+			wchar_t* pStr = StrToBuf(*NamesArray.getItem(i), Buf, Rest, Size);
+			if (Items) 
+			{
+				Items[i] = pStr;
+			}
+
+			GUID Guid;
+			if (StrToGuid(*GuidsArray.getItem(i), Guid))
+			{
+				Guids[i] = Guid;
+			}
+		}
+	}
+}
+
+size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize)
+{
+	string Prefix;
+	PLUGIN_FLAGS Flags = 0;
+	TArray<string> MenuNames, MenuGuids, DiskNames, DiskGuids, ConfNames, ConfGuids;
+
+	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
+	{
+		unsigned __int64 id = PlCacheCfg->GetCacheID(pPlugin->GetCacheName());
+		Flags = PlCacheCfg->GetFlags(id);
+		Prefix = PlCacheCfg->GetCommandPrefix(id);
+
+		string Name, Guid;
+
+		for(int i = 0; PlCacheCfg->GetPluginsMenuItem(id, i, Name, Guid); ++i)
+		{
+			MenuNames.addItem(Name);
+			MenuGuids.addItem(Guid);
+		}
+
+		for(int i = 0; PlCacheCfg->GetPluginsMenuItem(id, i, Name, Guid); ++i)
+		{
+			DiskNames.addItem(Name);
+			DiskGuids.addItem(Guid);
+		}
+
+		for(int i = 0; PlCacheCfg->GetPluginsMenuItem(id, i, Name, Guid); ++i)
+		{
+			ConfNames.addItem(Name);
+			ConfGuids.addItem(Guid);
+		}
+	}
+	else
+	{
+		PluginInfo Info = {sizeof(Info)};
+		if (pPlugin->GetPluginInfo(&Info))
+		{
+			Flags = Info.Flags;
+			Prefix = Info.CommandPrefix;
+
+			for (int i = 0; i < Info.PluginMenu.Count; i++)
+			{
+					MenuNames.addItem(Info.PluginMenu.Strings[i]);
+					MenuGuids.addItem(GuidToStr(Info.PluginMenu.Guids[i]));
+			}
+
+			for (int i = 0; i < Info.DiskMenu.Count; i++)
+			{
+				DiskNames.addItem(Info.DiskMenu.Strings[i]);
+				DiskGuids.addItem(GuidToStr(Info.DiskMenu.Guids[i]));
+			}
+
+			for (int i = 0; i < Info.PluginConfig.Count; i++)
+			{
+				ConfNames.addItem(Info.PluginConfig.Strings[i]);
+				ConfGuids.addItem(GuidToStr(Info.PluginConfig.Guids[i]));
+			}
+		}
+	}
+
+	FarGetPluginInformation Temp;
+	char* Buffer = nullptr;
+	size_t Rest = 0;
+
+	if (pInfo)
+	{
+		Rest = BufferSize - sizeof(FarGetPluginInformation);
+		Buffer = reinterpret_cast<char*>(pInfo+1);
+	}
+	else
+	{
+		pInfo = &Temp;
+	}
+
+	size_t Size = sizeof(FarGetPluginInformation);
+
+	pInfo->ModuleName = StrToBuf(pPlugin->GetModuleName(), Buffer, Rest, Size);
+
+	pInfo->Flags = 0;
+
+	if (pPlugin->m_hModule)
+	{
+		pInfo->Flags |= FPF_LOADED;
+	}
+#ifndef NO_WRAPPER
+	if (pPlugin->IsOemPlugin())
+	{
+		pInfo->Flags |= FPF_ANSI;
+	}
+#endif // NO_WRAPPER
+
+	pInfo->GInfo.StructSize = sizeof(GlobalInfo);
+	pInfo->GInfo.Guid = pPlugin->GetGUID();
+	pInfo->GInfo.Version = pPlugin->GetVersion();
+	pInfo->GInfo.Title = StrToBuf(pPlugin->strTitle, Buffer, Rest, Size);
+	pInfo->GInfo.Description = StrToBuf(pPlugin->strDescription, Buffer, Rest, Size);
+	pInfo->GInfo.Author = StrToBuf(pPlugin->strAuthor, Buffer, Rest, Size);
+
+	pInfo->PInfo.StructSize = sizeof(PluginInfo);
+	pInfo->PInfo.Flags = Flags;
+	pInfo->PInfo.CommandPrefix = StrToBuf(Prefix, Buffer, Rest, Size);
+
+	ItemsToBuf(pInfo->PInfo.DiskMenu, DiskNames, DiskGuids, Buffer, Rest, Size);
+	ItemsToBuf(pInfo->PInfo.PluginMenu, MenuNames, MenuGuids, Buffer, Rest, Size);
+	ItemsToBuf(pInfo->PInfo.PluginConfig, ConfNames, ConfGuids, Buffer, Rest, Size);
+
+	return Size;
 }
 
 bool PluginManager::GetDiskMenuItem(

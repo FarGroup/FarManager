@@ -4483,8 +4483,14 @@ static bool pluginunloadFunc(const TMacroFunction*)
 	TVar Ret(0ll);
 	TVar DllPath; VMStack.Pop(DllPath);
 	if (DllPath.s())
-		Ret=(__int64)farPluginsControl(INVALID_HANDLE_VALUE, PCTL_UNLOADPLUGIN, 0, (void*)DllPath.s());
-	VMStack.Push(Ret);
+	{
+		Plugin* p = CtrlObject->Plugins.GetPlugin(DllPath.s());
+		if(p)
+		{
+			Ret=(__int64)farPluginsControl(p, PCTL_UNLOADPLUGIN, 0, nullptr);
+			VMStack.Push(Ret);
+		}
+	}
 	return Ret.i()!=0;
 }
 

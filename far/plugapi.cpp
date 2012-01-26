@@ -2423,30 +2423,64 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 	return 0;
 }
 
-INT_PTR WINAPI farPluginsControl(HANDLE hHandle, FAR_PLUGINS_CONTROL_COMMANDS Command, int Param1, void* Param2)
+INT_PTR WINAPI farPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
 	switch (Command)
 	{
 		case PCTL_LOADPLUGIN:
-		case PCTL_UNLOADPLUGIN:
 		case PCTL_FORCEDLOADPLUGIN:
-		{
 			if (Param1 == PLT_PATH)
 			{
-				if (Param2 )
+				if (Param2)
 				{
 					string strPath;
-					ConvertNameToFull((const wchar_t *)Param2, strPath);
-
-					if (Command == PCTL_LOADPLUGIN)
-						return CtrlObject->Plugins.LoadPluginExternal(strPath, false);
-					else if (Command == PCTL_FORCEDLOADPLUGIN)
-						return CtrlObject->Plugins.LoadPluginExternal(strPath, true);
-					else
-						return CtrlObject->Plugins.UnloadPluginExternal(strPath);
+					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
+					return CtrlObject->Plugins.LoadPluginExternal(strPath, Command == PCTL_FORCEDLOADPLUGIN);
 				}
 			}
+			break;
 
+		case PCTL_FINDPLUGIN:
+		{
+			Plugin* plugin = nullptr;
+			switch(Param1)
+			{
+			case PFM_GUID:
+				plugin = CtrlObject->Plugins.FindPlugin(*reinterpret_cast<GUID*>(Param2));
+				break;
+
+			case PFM_MODULENAME:
+				for (int i = 0; i < CtrlObject->Plugins.GetPluginsCount(); ++i)
+				{
+					Plugin* p = CtrlObject->Plugins.GetPlugin(i);
+					if (!StrCmpI(p->GetModuleName(), reinterpret_cast<const wchar_t*>(Param2)))
+					{
+						plugin = p;
+						break;
+					}
+				}
+				break;
+			}
+			return reinterpret_cast<INT_PTR>(plugin);
+		}
+
+		case PCTL_UNLOADPLUGIN:
+			{
+				return CtrlObject->Plugins.UnloadPluginExternal(Handle);
+			}
+			break;
+
+		case PCTL_GETPLUGININFORMATION:
+			{
+				FarGetPluginInformation* Info = reinterpret_cast<FarGetPluginInformation*>(Param2);
+				if (!Info || CheckStructSize(Info) && Param1 > sizeof(FarGetPluginInformation))
+				{
+					Plugin* plugin = reinterpret_cast<Plugin*>(Handle);
+					if(plugin)
+					{
+						return CtrlObject->Plugins.GetPluginInformation(plugin, Info, Param1);
+					}
+			}
 			break;
 		}
 	}

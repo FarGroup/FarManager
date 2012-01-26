@@ -199,7 +199,7 @@ class PluginManager
 		bool LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
 
 		int UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove = false);
-		int UnloadPluginExternal(const string& lpwszModuleName);
+		int UnloadPluginExternal(HANDLE hPlugin);
 
 		void LoadPlugins();
 
@@ -227,6 +227,7 @@ class PluginManager
 
 		bool SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const wchar_t *DlgPluginTitle);
 		void ShowPluginInfo(Plugin *pPlugin, const GUID& Guid);
+		size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 
 		// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
 		int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, int *Ret=nullptr);

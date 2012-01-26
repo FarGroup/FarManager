@@ -1,3 +1,16 @@
+drkns 26.01.2012 16:11:41 +0200 - build 2414
+
+1. По мотивам Mantis#01914:
+
+     PCTL_FINDPLUGIN: возвращает по имени (Param2==PFM_MODULENAME) или гуиду (Param2==PFM_GUID) хендл плагина.
+
+     PCTL_GETPLUGININFORMATION - получение суммарной информации о плагине.
+     Handle - хендл плагина, полученный по PCTL_FINDPLUGIN.
+     Param1 - размер буфера, в который будет помещена информация.
+     Param2 - буфер, в начале которого лежит структура FarGetPluginInformation.
+
+2. PCTL_UNLOADPLUGIN изменен - в Handle теперь надо передавать хендл, полученный по PCTL_FINDPLUGIN, Param1 и Param2 игнорируются.
+
 drkns 26.01.2012 09:46:46 +0200 - build 2413
 
 1. Научим EMenu вызываться из меню дисков.
