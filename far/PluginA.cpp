@@ -3974,13 +3974,10 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 			INT_PTR ds = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETDIALOGSETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
-			if (ds&oldfar::FDIS_HISTORYINDIALOGEDITCONTROLS)    ret|=FDIS_HISTORYINDIALOGEDITCONTROLS;
-
-			if (ds&oldfar::FDIS_HISTORYINDIALOGEDITCONTROLS)    ret|=FDIS_HISTORYINDIALOGEDITCONTROLS;
-
-			if (ds&oldfar::FDIS_PERSISTENTBLOCKSINEDITCONTROLS) ret|=FDIS_PERSISTENTBLOCKSINEDITCONTROLS;
-
-			if (ds&oldfar::FDIS_BSDELETEUNCHANGEDTEXT)          ret|=FDIS_BSDELETEUNCHANGEDTEXT;
+			if (ds&FDIS_AUTOCOMPLETEININPUTLINES)       ret|=oldfar::FDIS_AUTOCOMPLETEININPUTLINES;
+			if (ds&FDIS_HISTORYINDIALOGEDITCONTROLS)    ret|=oldfar::FDIS_HISTORYINDIALOGEDITCONTROLS;
+			if (ds&FDIS_PERSISTENTBLOCKSINEDITCONTROLS) ret|=oldfar::FDIS_PERSISTENTBLOCKSINEDITCONTROLS;
+			if (ds&FDIS_BSDELETEUNCHANGEDTEXT)          ret|=oldfar::FDIS_BSDELETEUNCHANGEDTEXT;
 
 			return ret;
 		}
@@ -4254,7 +4251,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 			if (Param)
 			{
 				oldfar::EditorSaveFile *oldsf = (oldfar::EditorSaveFile*) Param;
-				newsf.FileName=(oldsf->FileName)?AnsiToUnicode(oldsf->FileName):nullptr;
+				newsf.FileName = AnsiToUnicode(oldsf->FileName);
 				newsf.FileEOL=(oldsf->FileEOL)?AnsiToUnicode(oldsf->FileEOL):nullptr;
 			}
 

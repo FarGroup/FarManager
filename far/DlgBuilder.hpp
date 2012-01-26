@@ -63,6 +63,10 @@ struct DialogItemBinding
 	{
 	}
 
+	virtual ~DialogItemBinding()
+	{
+	};
+
 	virtual void SaveValue(T *Item, int RadioGroupIndex)
 	{
 	}

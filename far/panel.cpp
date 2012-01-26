@@ -733,6 +733,22 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					}
 					break;
 				}
+
+				case KEY_APPS:
+				case KEY_SHIFTAPPS:
+				case KEY_MSRCLICK:
+				{
+					//вызовем EMenu если он есть
+					if (item && !item->bIsPlugin && CtrlObject->Plugins.FindPlugin(Opt.KnownIDs.Emenu))
+					{
+						string DeviceName("?:\\");
+						DeviceName.Replace(0, item->cDrive);
+						struct DiskMenuParam {const wchar_t* CmdLine; BOOL Apps;} p = {DeviceName, Key!=KEY_MSRCLICK};
+						CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu, OPEN_LEFTDISKMENU, &p); // EMenu Plugin :-)
+					}
+					break;
+				}
+
 				case KEY_SHIFTNUMDEL:
 				case KEY_SHIFTDECIMAL:
 				case KEY_SHIFTDEL:

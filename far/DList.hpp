@@ -46,6 +46,7 @@ class CDList
 			Node *prev;
 		};
 		CDList();
+		virtual ~CDList(){};
 		void *CInsertBefore(void *b, void *item);
 		void *CInsertAfter(void *a, void *item);
 		void CMoveBefore(void *b, void *item);
