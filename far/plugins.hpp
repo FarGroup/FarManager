@@ -151,9 +151,9 @@ class PluginManager
 	private:
 
 		Plugin **PluginsData;
-		int PluginsCount;
+		size_t PluginsCount;
 #ifndef NO_WRAPPER
-		int OemPluginsCount;
+		size_t OemPluginsCount;
 #endif // NO_WRAPPER
 		PluginTree* PluginsCache;
 
@@ -204,11 +204,11 @@ class PluginManager
 		void LoadPlugins();
 
 		Plugin *GetPlugin(const wchar_t *lpwszModuleName);
-		Plugin *GetPlugin(int PluginNumber);
+		Plugin *GetPlugin(size_t PluginNumber);
 
-		int GetPluginsCount() { return PluginsCount; }
+		size_t GetPluginsCount() { return PluginsCount; }
 #ifndef NO_WRAPPER
-		int GetOemPluginsCount() { return OemPluginsCount; }
+		size_t GetOemPluginsCount() { return OemPluginsCount; }
 #endif // NO_WRAPPER
 
 		BOOL IsPluginsLoaded() { return Flags.Check(PSIF_PLUGINSLOADDED); }
@@ -218,7 +218,7 @@ class PluginManager
 		void Configure(int StartPos=0);
 		void ConfigureCurrent(Plugin *pPlugin,const GUID& Guid);
 		int CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName=nullptr);
-		bool GetDiskMenuItem(Plugin *pPlugin,int PluginItem,bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid);
+		bool GetDiskMenuItem(Plugin *pPlugin,size_t PluginItem,bool &ItemPresent, wchar_t& PluginHotkey, string &strPluginText, GUID &Guid);
 
 		int UseFarCommand(HANDLE hPlugin,int CommandType);
 		void ReloadLanguage();

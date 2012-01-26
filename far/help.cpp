@@ -1812,7 +1812,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	{
 		case HIDX_PLUGINS:
 		{
-			for (int I=0; I<CtrlObject->Plugins.GetPluginsCount(); I++)
+			for (size_t I=0; I<CtrlObject->Plugins.GetPluginsCount(); I++)
 			{
 				strPath = CtrlObject->Plugins.GetPlugin(I)->GetModuleName();
 				CutToSlash(strPath);

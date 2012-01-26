@@ -89,12 +89,6 @@ SQLiteStmt& SQLiteStmt::Bind(int Value)
 	return *this;
 }
 
-SQLiteStmt& SQLiteStmt::Bind(unsigned __int64 Value)
-{
-	sqlite3_bind_int64(pStmt,param++,Value);
-	return *this;
-}
-
 SQLiteStmt& SQLiteStmt::Bind(__int64 Value)
 {
 	sqlite3_bind_int64(pStmt,param++,Value);

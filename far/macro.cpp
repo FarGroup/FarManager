@@ -85,12 +85,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // для диалога назначения клавиши
 struct DlgParam
 {
+	UINT64 Flags;
 	KeyMacro *Handle;
 	DWORD Key;
-	UINT64 Flags;
-	bool Changed;
 	int Mode;
 	int Recurse;
+	bool Changed;
 };
 
 TMacroKeywords MKeywords[] =
@@ -6892,7 +6892,7 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, UINT64 &Flags)
 		{DI_COMBOBOX,5,3,28,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
 	};
 	MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
-	DlgParam Param={this,0,Flags,false,StartMode,0};
+	DlgParam Param={Flags, this, 0, StartMode, 0, false};
 	//_SVS(SysLog(L"StartMode=%d",StartMode));
 	IsProcessAssignMacroKey++;
 	Dialog Dlg(MacroAssignDlg,ARRAYSIZE(MacroAssignDlg),AssignMacroDlgProc,&Param);
@@ -7145,7 +7145,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 
 	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:RecDescription;
 
-	DlgParam Param={this,0,0,false,0,0};
+	DlgParam Param={0, this, 0, 0, 0, false};
 	Dialog Dlg(MacroSettingsDlg,ARRAYSIZE(MacroSettingsDlg),ParamMacroDlgProc,&Param);
 	Dlg.SetPosition(-1,-1,73,21);
 	Dlg.SetHelp(L"KeyMacroSetting");

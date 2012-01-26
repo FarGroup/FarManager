@@ -46,8 +46,9 @@ public:
 	bool Step();
 	bool StepAndReset();
 	SQLiteStmt& Bind(int Value);
-	SQLiteStmt& Bind(unsigned __int64 Value);
+	SQLiteStmt& Bind(unsigned int Value) {return Bind(static_cast<int>(Value));}
 	SQLiteStmt& Bind(__int64 Value);
+	SQLiteStmt& Bind(unsigned __int64 Value) {return Bind(static_cast<__int64>(Value));}
 	SQLiteStmt& Bind(const wchar_t *Value, bool bStatic=true);
 	SQLiteStmt& Bind(const void *Value, size_t Size, bool bStatic=true);
 	const wchar_t *GetColText(int Col);

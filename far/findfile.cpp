@@ -2986,7 +2986,7 @@ bool FindFilesProcess(Vars& v)
 	}
 
 	AnySetFindList = false;
-	for (int i=0; i<CtrlObject->Plugins.GetPluginsCount(); i++)
+	for (size_t i=0; i<CtrlObject->Plugins.GetPluginsCount(); i++)
 	{
 		if (CtrlObject->Plugins.GetPlugin(i)->HasSetFindList())
 		{

@@ -539,17 +539,17 @@ bool Plugin::SaveToCache()
 			PlCacheCfg->SetSignature(id, strCurPluginID);
 		}
 
-		for (int i = 0; i < Info.DiskMenu.Count; i++)
+		for (size_t i = 0; i < Info.DiskMenu.Count; i++)
 		{
 			PlCacheCfg->SetDiskMenuItem(id, i, Info.DiskMenu.Strings[i], GuidToStr(Info.DiskMenu.Guids[i]));
 		}
 
-		for (int i = 0; i < Info.PluginMenu.Count; i++)
+		for (size_t i = 0; i < Info.PluginMenu.Count; i++)
 		{
 			PlCacheCfg->SetPluginsMenuItem(id, i, Info.PluginMenu.Strings[i], GuidToStr(Info.PluginMenu.Guids[i]));
 		}
 
-		for (int i = 0; i < Info.PluginConfig.Count; i++)
+		for (size_t i = 0; i < Info.PluginConfig.Count; i++)
 		{
 			PlCacheCfg->SetPluginsConfigMenuItem(id, i, Info.PluginConfig.Strings[i], GuidToStr(Info.PluginConfig.Guids[i]));
 		}

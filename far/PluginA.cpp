@@ -5682,7 +5682,7 @@ void PluginA::FreePluginInfo()
 {
 	if (PI.DiskMenu.Count)
 	{
-		for (int i=0; i<PI.DiskMenu.Count; i++)
+		for (size_t i=0; i<PI.DiskMenu.Count; i++)
 			xf_free((void *)PI.DiskMenu.Strings[i]);
 
 		xf_free((void *)PI.DiskMenu.Guids);
@@ -5691,7 +5691,7 @@ void PluginA::FreePluginInfo()
 
 	if (PI.PluginMenu.Count)
 	{
-		for (int i=0; i<PI.PluginMenu.Count; i++)
+		for (size_t i=0; i<PI.PluginMenu.Count; i++)
 			xf_free((void *)PI.PluginMenu.Strings[i]);
 
 		xf_free((void *)PI.PluginMenu.Guids);
@@ -5700,7 +5700,7 @@ void PluginA::FreePluginInfo()
 
 	if (PI.PluginConfig.Count)
 	{
-		for (int i=0; i<PI.PluginConfig.Count; i++)
+		for (size_t i=0; i<PI.PluginConfig.Count; i++)
 			xf_free((void *)PI.PluginConfig.Strings[i]);
 
 		xf_free((void *)PI.PluginConfig.Guids);

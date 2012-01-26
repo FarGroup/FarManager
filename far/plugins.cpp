@@ -329,7 +329,7 @@ PluginManager::~PluginManager()
 	Plugin *pPlugin;
 
 	PluginManagerForExitFar = this;
-	for (int i = 0; i < PluginsCount; i++)
+	for (size_t i = 0; i < PluginsCount; i++)
 	{
 		pPlugin = PluginsData[i];
 		pPlugin->Unload(true);
@@ -395,7 +395,7 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 	{
 		PluginsCache->remove((AncientPlugin**)&pPlugin);
 	}
-	for (int i = 0; i < PluginsCount; i++)
+	for (size_t i = 0; i < PluginsCount; i++)
 	{
 		if (PluginsData[i] == pPlugin)
 		{
@@ -546,7 +546,7 @@ Plugin *PluginManager::GetPlugin(const wchar_t *lpwszModuleName)
 {
 	Plugin *pPlugin;
 
-	for (int i = 0; i < PluginsCount; i++)
+	for (size_t i = 0; i < PluginsCount; i++)
 	{
 		pPlugin = PluginsData[i];
 
@@ -557,9 +557,9 @@ Plugin *PluginManager::GetPlugin(const wchar_t *lpwszModuleName)
 	return nullptr;
 }
 
-Plugin *PluginManager::GetPlugin(int PluginNumber)
+Plugin *PluginManager::GetPlugin(size_t PluginNumber)
 {
-	if (PluginNumber < PluginsCount && PluginNumber >= 0)
+	if (PluginNumber < PluginsCount)
 		return PluginsData[PluginNumber];
 
 	return nullptr;
@@ -691,7 +691,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	File file;
 	AnalyseInfo Info={sizeof(Info), Name? Name->CPtr() : nullptr, nullptr, 0, OpMode|(Type==OFP_ALTERNATIVE?OPM_PGDN:0)};
 	bool DataRead = false;
-	for (int i = 0; i < PluginsCount; i++)
+	for (size_t i = 0; i < PluginsCount; i++)
 	{
 		pPlugin = PluginsData[i];
 
@@ -872,7 +872,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 	TPointerArray<PluginHandle> items;
 	Plugin *pPlugin=nullptr;
 
-	for (int i = 0; i < PluginsCount; i++)
+	for (size_t i = 0; i < PluginsCount; i++)
 	{
 		pPlugin = PluginsData[i];
 
@@ -973,7 +973,7 @@ void PluginManager::ClosePanel(HANDLE hPlugin)
 
 int PluginManager::ProcessEditorInput(INPUT_RECORD *Rec)
 {
-	for (int i = 0; i < PluginsCount; i++)
+	for (size_t i = 0; i < PluginsCount; i++)
 	{
 		Plugin *pPlugin = PluginsData[i];
 
@@ -993,7 +993,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param)
 	{
 		Plugin *pPlugin = nullptr;
 
-		for (int i = 0; i < PluginsCount; i++)
+		for (size_t i = 0; i < PluginsCount; i++)
 		{
 			pPlugin = PluginsData[i];
 
@@ -1010,7 +1010,7 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param)
 {
 	int nResult = 0;
 
-	for (int i = 0; i < PluginsCount; i++)
+	for (size_t i = 0; i < PluginsCount; i++)
 	{
 		Plugin *pPlugin = PluginsData[i];
 
@@ -1023,7 +1023,7 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param)
 
 int PluginManager::ProcessDialogEvent(int Event, FarDialogEvent *Param)
 {
-	for (int i=0; i<PluginsCount; i++)
+	for (size_t i=0; i<PluginsCount; i++)
 	{
 		Plugin *pPlugin = PluginsData[i];
 
@@ -1403,7 +1403,7 @@ void PluginManager::Configure(int StartPos)
 				string strHotKey, strName;
 				GUID guid;
 
-				for (int I=0; I<PluginsCount; I++)
+				for (size_t I=0; I<PluginsCount; I++)
 				{
 					Plugin *pPlugin = PluginsData[I];
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
@@ -1420,7 +1420,7 @@ void PluginManager::Configure(int StartPos)
 							continue;
 					}
 
-					for (int J=0; ; J++)
+					for (size_t J=0; ; J++)
 					{
 						if (bCached)
 						{
@@ -1586,7 +1586,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				string strHotKey, strName;
 				GUID guid;
 
-				for (int I=0; I<PluginsCount; I++)
+				for (size_t I=0; I<PluginsCount; I++)
 				{
 					Plugin *pPlugin = PluginsData[I];
 					bool bCached = pPlugin->CheckWorkFlags(PIWF_CACHED)?true:false;
@@ -1613,7 +1613,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					        (!Editor && !Viewer && !Dialog && (IFlags & PF_DISABLEPANELS)))
 						continue;
 
-					for (int J=0; ; J++)
+					for (size_t J=0; ; J++)
 					{
 						if (bCached)
 						{
@@ -2010,19 +2010,19 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 			Flags = Info.Flags;
 			Prefix = Info.CommandPrefix;
 
-			for (int i = 0; i < Info.PluginMenu.Count; i++)
+			for (size_t i = 0; i < Info.PluginMenu.Count; i++)
 			{
 					MenuNames.addItem(Info.PluginMenu.Strings[i]);
 					MenuGuids.addItem(GuidToStr(Info.PluginMenu.Guids[i]));
 			}
 
-			for (int i = 0; i < Info.DiskMenu.Count; i++)
+			for (size_t i = 0; i < Info.DiskMenu.Count; i++)
 			{
 				DiskNames.addItem(Info.DiskMenu.Strings[i]);
 				DiskGuids.addItem(GuidToStr(Info.DiskMenu.Guids[i]));
 			}
 
-			for (int i = 0; i < Info.PluginConfig.Count; i++)
+			for (size_t i = 0; i < Info.PluginConfig.Count; i++)
 			{
 				ConfNames.addItem(Info.PluginConfig.Strings[i]);
 				ConfGuids.addItem(GuidToStr(Info.PluginConfig.Guids[i]));
@@ -2081,7 +2081,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 
 bool PluginManager::GetDiskMenuItem(
      Plugin *pPlugin,
-     int PluginItem,
+     size_t PluginItem,
      bool &ItemPresent,
      wchar_t& PluginHotkey,
      string &strPluginText,
@@ -2156,7 +2156,7 @@ void PluginManager::ReloadLanguage()
 {
 	Plugin *PData;
 
-	for (int I=0; I<PluginsCount; I++)
+	for (size_t I=0; I<PluginsCount; I++)
 	{
 		PData = PluginsData[I];
 		PData->CloseLang();
@@ -2168,7 +2168,7 @@ void PluginManager::ReloadLanguage()
 
 void PluginManager::DiscardCache()
 {
-	for (int I=0; I<PluginsCount; I++)
+	for (size_t I=0; I<PluginsCount; I++)
 	{
 		Plugin *pPlugin = PluginsData[I];
 		pPlugin->Load();
@@ -2182,7 +2182,7 @@ void PluginManager::LoadIfCacheAbsent()
 {
 	if (PlCacheCfg->IsCacheEmpty())
 	{
-		for (int I=0; I<PluginsCount; I++)
+		for (size_t I=0; I<PluginsCount; I++)
 		{
 			Plugin *pPlugin = PluginsData[I];
 			pPlugin->Load();
@@ -2222,7 +2222,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 	string strPluginPrefix;
 	TPointerArray<PluginData> items;
 
-	for (int I=0; I<PluginsCount; I++)
+	for (size_t I=0; I<PluginsCount; I++)
 	{
 		UINT64 PluginFlags=0;
 
@@ -2456,7 +2456,7 @@ void PluginManager::GetCustomData(FileListItem *ListItem)
 {
 	NTPath FilePath(ListItem->strName);
 
-	for (int i=0; i<PluginsCount; i++)
+	for (size_t i=0; i<PluginsCount; i++)
 	{
 		Plugin *pPlugin = PluginsData[i];
 

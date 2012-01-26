@@ -229,7 +229,8 @@ static size_t AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSele
 {
 	TArray<ChDiskPluginItem> MPItems;
 	ChDiskPluginItem OneItem;
-	int PluginItem, PluginNumber = 0; // IS: счетчики - плагинов и пунктов плагина
+	int PluginItem;
+	size_t PluginNumber = 0;
 	bool ItemPresent,Done=false;
 	string strMenuText;
 	string strPluginText;

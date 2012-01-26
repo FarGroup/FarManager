@@ -2450,7 +2450,7 @@ INT_PTR WINAPI farPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Com
 				break;
 
 			case PFM_MODULENAME:
-				for (int i = 0; i < CtrlObject->Plugins.GetPluginsCount(); ++i)
+				for (size_t i = 0; i < CtrlObject->Plugins.GetPluginsCount(); ++i)
 				{
 					Plugin* p = CtrlObject->Plugins.GetPlugin(i);
 					if (!StrCmpI(p->GetModuleName(), reinterpret_cast<const wchar_t*>(Param2)))
@@ -2473,16 +2473,32 @@ INT_PTR WINAPI farPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Com
 		case PCTL_GETPLUGININFORMATION:
 			{
 				FarGetPluginInformation* Info = reinterpret_cast<FarGetPluginInformation*>(Param2);
-				if (!Info || CheckStructSize(Info) && Param1 > sizeof(FarGetPluginInformation))
+				if (!Info || (CheckStructSize(Info) && static_cast<size_t>(Param1) > sizeof(FarGetPluginInformation)))
 				{
 					Plugin* plugin = reinterpret_cast<Plugin*>(Handle);
 					if(plugin)
 					{
 						return CtrlObject->Plugins.GetPluginInformation(plugin, Info, Param1);
 					}
+				}
 			}
 			break;
-		}
+
+		case PCTL_GETPLUGINS:
+			{
+				size_t PluginsCount = CtrlObject->Plugins.GetPluginsCount();
+				if(Param1 && Param2)
+				{
+					HANDLE* Plugins = static_cast<HANDLE*>(Param2);
+					size_t Count = Min(static_cast<size_t>(Param1), PluginsCount);
+					for(size_t i = 0; i < Count; ++i)
+					{
+						Plugins[i] = CtrlObject->Plugins.GetPlugin(i);
+					}
+				}
+				return PluginsCount;
+			}
+			break;
 	}
 
 	return 0;
