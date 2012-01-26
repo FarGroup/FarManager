@@ -305,7 +305,7 @@ void InfoList::DisplayObject()
 				DiskType = MSG(MInfoSUBST);
 				DriveType=DRIVE_SUBSTITUTE;
 			}
-			else if(DriveType == DRIVE_FIXED && GetVHDName(strDriveRoot,strAssocPath))
+			else if(DriveCanBeVirtual(DriveType) && GetVHDName(strDriveRoot,strAssocPath))
 			{
 				DiskType = MSG(MInfoVirtual);
 				DriveType=DRIVE_VIRTUAL;

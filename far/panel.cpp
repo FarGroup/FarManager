@@ -472,7 +472,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				{
 					DriveType=DRIVE_SUBSTITUTE;
 				}
-				else if(DriveType == DRIVE_FIXED && GetVHDName(LocalName, strAssocPath))
+				else if(DriveCanBeVirtual(DriveType) && GetVHDName(LocalName, strAssocPath))
 				{
 					DriveType=DRIVE_VIRTUAL;
 				}

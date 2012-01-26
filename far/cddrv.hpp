@@ -137,4 +137,5 @@ enum MMC_Features {
 
 
 bool IsDriveTypeCDROM(UINT DriveType);
+bool DriveCanBeVirtual(UINT DriveType);
 UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCapabilities *caps=nullptr, DWORD Detect=0);

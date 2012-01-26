@@ -326,6 +326,10 @@ bool IsDriveTypeCDROM(UINT DriveType)
 	return DriveType == DRIVE_CDROM || (DriveType >= DRIVE_CD_RW && DriveType <= DRIVE_HDDVD_RW);
 }
 
+bool DriveCanBeVirtual(UINT DriveType)
+{
+	return DriveType == DRIVE_FIXED || (WinVer >= 0x0602 && IsDriveTypeCDROM(DriveType));
+}
 
 UINT FAR_GetDriveType(const wchar_t *RootDir, CDROM_DeviceCapabilities *Caps, DWORD Detect)
 {

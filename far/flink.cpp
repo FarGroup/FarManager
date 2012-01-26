@@ -479,7 +479,6 @@ bool GetVHDName(const string& DeviceName, string &strVolumePath)
 				{
 					strVolumePath = StorageDependencyInfo->Version2Entries[0].HostVolumeName;
 					strVolumePath += StorageDependencyInfo->Version2Entries[0].DependentVolumeRelativePath;
-					
 					// trick: ConvertNameToReal also converts \\?\{GUID} to drive letter, if possible.
 					ConvertNameToReal(strVolumePath, strVolumePath);
 				}
