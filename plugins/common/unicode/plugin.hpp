@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2415
+  Plugin API for Far Manager 3.0 build 2421
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2415
+#define FARMANAGERVERSION_BUILD 2421
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1993,6 +1993,18 @@ typedef size_t (WINAPI *FARCONVERTPATH)(enum CONVERTPATHMODES Mode, const wchar_
 
 typedef size_t (WINAPI *FARGETCURRENTDIRECTORY)(size_t Size, wchar_t* Buffer);
 
+typedef unsigned __int64 FARFORMATFILESIZEFLAGS;
+static const FARFORMATFILESIZEFLAGS
+	FFFS_COMMAS                 = 0x0100000000000000LL,
+	FFFS_FLOATSIZE              = 0x0200000000000000LL,
+	FFFS_SHOWBYTESINDEX         = 0x0400000000000000LL,
+	FFFS_ECONOMIC               = 0x0800000000000000LL,
+	FFFS_THOUSAND               = 0x1000000000000000LL,
+	FFFS_MINSIZEINDEX           = 0x2000000000000000LL,
+	FFFS_MINSIZEINDEX_MASK      = 0x0000000000000003LL;
+
+typedef size_t (WINAPI *FARFORMATFILESIZE)(unsigned __int64 Size, int Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize);
+
 typedef struct FarStandardFunctions
 {
 	size_t StructSize;
@@ -2052,6 +2064,7 @@ typedef struct FarStandardFunctions
 	FARCONVERTPATH             ConvertPath;
 	FARGETREPARSEPOINTINFO     GetReparsePointInfo;
 	FARGETCURRENTDIRECTORY     GetCurrentDirectory;
+	FARFORMATFILESIZE          FormatFileSize;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo
