@@ -1349,9 +1349,6 @@ enum WINDOWINFO_TYPE
 {
 #ifdef FAR_USE_INTERNALS
 	WTYPE_VIRTUAL                   = 0,
-	// ПРОСЬБА НЕ ЗАБЫВАТЬ СИНХРОНИЗИРОВАТЬ ИЗМЕНЕНИЯ
-	// WTYPE_* и MODALTYPE_* (frame.hpp)!!!
-	// (и не надо убирать этот комментарий, пока ситуация не изменится ;)
 #endif // END FAR_USE_INTERNALS
 	WTYPE_PANELS                    = 1,
 	WTYPE_VIEWER                    = 2,
@@ -2173,6 +2170,18 @@ typedef size_t (WINAPI *FARCONVERTPATH)(enum CONVERTPATHMODES Mode, const wchar_
 
 typedef size_t (WINAPI *FARGETCURRENTDIRECTORY)(size_t Size, wchar_t* Buffer);
 
+typedef unsigned __int64 FARFORMATFILESIZEFLAGS;
+static const FARFORMATFILESIZEFLAGS
+	FFFS_COMMAS                 = 0x0100000000000000LL,
+	FFFS_FLOATSIZE              = 0x0200000000000000LL,
+	FFFS_SHOWBYTESINDEX         = 0x0400000000000000LL,
+	FFFS_ECONOMIC               = 0x0800000000000000LL,
+	FFFS_THOUSAND               = 0x1000000000000000LL,
+	FFFS_MINSIZEINDEX           = 0x2000000000000000LL,
+	FFFS_MINSIZEINDEX_MASK      = 0x0000000000000003LL;
+
+typedef size_t (WINAPI *FARFORMATFILESIZE)(unsigned __int64 Size, int Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize);
+
 typedef struct FarStandardFunctions
 {
 	size_t StructSize;
@@ -2232,6 +2241,7 @@ typedef struct FarStandardFunctions
 	FARCONVERTPATH             ConvertPath;
 	FARGETREPARSEPOINTINFO     GetReparsePointInfo;
 	FARGETCURRENTDIRECTORY     GetCurrentDirectory;
+	FARFORMATFILESIZE          FormatFileSize;
 } FARSTANDARDFUNCTIONS;
 
 struct PluginStartupInfo

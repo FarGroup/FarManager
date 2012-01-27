@@ -67,3 +67,5 @@ void FindDataExToPluginPanelItem(
 void FreePluginPanelItem(
     PluginPanelItem *pData
 );
+
+WINDOWINFO_TYPE ModalType2WType(const int fType);

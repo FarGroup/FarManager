@@ -140,3 +140,5 @@ INT_PTR WINAPI farMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 INT_PTR WINAPI farSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, int Param1, void* Param2);
 
 size_t WINAPI farGetCurrentDirectory(size_t Size,wchar_t* Buffer);
+
+size_t WINAPI farFormatFileSize(unsigned __int64 Size, int Width, FARFORMATFILESIZEFLAGS ViewFlags, wchar_t *Dest, size_t DestSize);

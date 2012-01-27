@@ -324,7 +324,7 @@ static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMM
 		WindowType* info=(WindowType*)Param2;
 		if (CheckStructSize(info))
 		{
-			int type=CurrentWindowType;
+			WINDOWINFO_TYPE type=ModalType2WType(CurrentWindowType);
 			switch(type)
 			{
 				case WTYPE_PANELS:
@@ -333,8 +333,10 @@ static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMM
 				case WTYPE_DIALOG:
 				case WTYPE_VMENU:
 				case WTYPE_HELP:
-					info->Type=(WINDOWINFO_TYPE)type;
+					info->Type=type;
 					return TRUE;
+				default:
+					break;
 			}
 		}
 		return FALSE;
@@ -423,6 +425,7 @@ FarStandardFunctions NativeFSF =
 	farConvertPath,
 	farGetReparsePointInfo,
 	farGetCurrentDirectory,
+	farFormatFileSize,
 };
 
 PluginStartupInfo NativeInfo =

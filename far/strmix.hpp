@@ -54,7 +54,7 @@ static const FILEPANEL_COLUMN_MODES
 	COLUMN_CENTERALIGN            = 0x0002000000000000LL,
 	COLUMN_RIGHTALIGNFORCE        = 0x0001000000000000LL,
 
-	COLUMN_MINSIZEINDEX_MASK      = 0x0000000000000003LL; //MINSIZEINDEX может быть только 0, 1, 2 или 3 (K,M,G,T), например, 1 - "размер как минимум в мегабайтах"
+	COLUMN_MINSIZEINDEX_MASK      = 0x0000000000000003LL; // MINSIZEINDEX может быть только 0, 1, 2 или 3 (K,M,G,T), например, 1 - "размер как минимум в мегабайтах"
 
 wchar_t* WINAPI QuoteSpace(wchar_t *Str);
 string &QuoteSpace(string &strStr);

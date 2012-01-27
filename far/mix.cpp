@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "scantree.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
+#include "frame.hpp"
 
 int ToPercent(unsigned long N1,unsigned long N2)
 {
@@ -202,4 +203,26 @@ void FreePluginPanelItem(PluginPanelItem *pData)
 {
 	xf_free(pData->FileName);
 	xf_free(pData->AlternateFileName);
+}
+
+WINDOWINFO_TYPE ModalType2WType(const int fType)
+{
+	static int WiTypes[]={
+		MODALTYPE_VIRTUAL,    WTYPE_VIRTUAL,
+		MODALTYPE_PANELS,     WTYPE_PANELS,
+		MODALTYPE_VIEWER,     WTYPE_VIEWER,
+		MODALTYPE_EDITOR,     WTYPE_EDITOR,
+		MODALTYPE_DIALOG,     WTYPE_DIALOG,
+		MODALTYPE_VMENU,      WTYPE_VMENU,
+		MODALTYPE_HELP,       WTYPE_HELP,
+		MODALTYPE_COMBOBOX,   WTYPE_COMBOBOX,
+		MODALTYPE_FINDFOLDER, WTYPE_FINDFOLDER,
+		MODALTYPE_USER,       WTYPE_USER,
+	};
+
+	for (size_t I=0; I < ARRAYSIZE(WiTypes); I+=2)
+		if (fType == WiTypes[I])
+			return static_cast<WINDOWINFO_TYPE>(WiTypes[I+1]);
+
+	return static_cast<WINDOWINFO_TYPE>(-1);
 }
