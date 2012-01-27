@@ -416,7 +416,7 @@ bool PluginManager::RemovePlugin(Plugin *pPlugin)
 }
 
 
-bool PluginManager::LoadPlugin(
+Plugin* PluginManager::LoadPlugin(
     const string& lpwszModuleName,
     const FAR_FIND_DATA_EX &FindData,
     bool LoadToMem
@@ -434,7 +434,7 @@ bool PluginManager::LoadPlugin(
 	}
 
 	if (!pPlugin)
-		return false;
+		return nullptr;
 
 	bool bResult=false,bDataLoaded=false;
 
@@ -450,7 +450,7 @@ bool PluginManager::LoadPlugin(
 	{
 		pPlugin->Unload(true);
 		delete pPlugin;
-		return false;
+		return nullptr;
 	}
 
 	if (bDataLoaded)
@@ -458,10 +458,10 @@ bool PluginManager::LoadPlugin(
 		bResult = pPlugin->Load();
 	}
 
-	return bResult;
+	return pPlugin;
 }
 
-bool PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem)
+HANDLE PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem)
 {
 	Plugin *pPlugin = GetPlugin(lpwszModuleName);
 
@@ -470,7 +470,7 @@ bool PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool LoadT
 		if (LoadToMem && !pPlugin->Load())
 		{
 			RemovePlugin(pPlugin);
-			return false;
+			return nullptr;
 		}
 	}
 	else
@@ -479,12 +479,13 @@ bool PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool LoadT
 
 		if (apiGetFindDataEx(lpwszModuleName, FindData))
 		{
-			if (!LoadPlugin(lpwszModuleName, FindData, LoadToMem))
-				return false;
+			pPlugin = LoadPlugin(lpwszModuleName, FindData, LoadToMem);
+			if (!pPlugin)
+				return nullptr;
 			far_qsort(PluginsData, PluginsCount, sizeof(*PluginsData), PluginsSort);
 		}
 	}
-	return true;
+	return pPlugin;
 }
 
 int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove)

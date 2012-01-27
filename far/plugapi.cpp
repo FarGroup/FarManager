@@ -2435,7 +2435,7 @@ INT_PTR WINAPI farPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Com
 				{
 					string strPath;
 					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
-					return CtrlObject->Plugins.LoadPluginExternal(strPath, Command == PCTL_FORCEDLOADPLUGIN);
+					return reinterpret_cast<INT_PTR>(CtrlObject->Plugins.LoadPluginExternal(strPath, Command == PCTL_FORCEDLOADPLUGIN));
 				}
 			}
 			break;
