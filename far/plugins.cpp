@@ -1905,7 +1905,7 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 	Builder.ShowDialog();
 }
 
-char* BufReserve(char* Buf, size_t Count, size_t& Rest, size_t& Size)
+char* BufReserve(char*& Buf, size_t Count, size_t& Rest, size_t& Size)
 {
 	char* Res = nullptr;
 
@@ -1929,7 +1929,7 @@ char* BufReserve(char* Buf, size_t Count, size_t& Rest, size_t& Size)
 }
 
 
-wchar_t* StrToBuf(const string& Str, char* Buf, size_t& Rest, size_t& Size)
+wchar_t* StrToBuf(const string& Str, char*& Buf, size_t& Rest, size_t& Size)
 {
 	size_t Count = (Str.GetLength() + 1) * sizeof(wchar_t);
 	wchar_t* Res = reinterpret_cast<wchar_t*>(BufReserve(Buf, Count, Rest, Size));
@@ -1941,7 +1941,7 @@ wchar_t* StrToBuf(const string& Str, char* Buf, size_t& Rest, size_t& Size)
 }
 
 
-void ItemsToBuf(PluginMenuItem& Menu, TArray<string>& NamesArray, TArray<string>& GuidsArray, char* Buf, size_t& Rest, size_t& Size)
+void ItemsToBuf(PluginMenuItem& Menu, TArray<string>& NamesArray, TArray<string>& GuidsArray, char*& Buf, size_t& Rest, size_t& Size)
 {
 	Menu.Count = NamesArray.getSize();
 	Menu.Strings = nullptr;
@@ -1962,10 +1962,13 @@ void ItemsToBuf(PluginMenuItem& Menu, TArray<string>& NamesArray, TArray<string>
 				Items[i] = pStr;
 			}
 
-			GUID Guid;
-			if (StrToGuid(*GuidsArray.getItem(i), Guid))
+			if (Guids)
 			{
-				Guids[i] = Guid;
+				GUID Guid;
+				if (StrToGuid(*GuidsArray.getItem(i), Guid))
+				{
+					Guids[i] = Guid;
+				}
 			}
 		}
 	}
