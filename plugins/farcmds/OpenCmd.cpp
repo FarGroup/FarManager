@@ -919,7 +919,13 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 						if (Load)
 							Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,temp);
 						else
-							Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_UNLOADPLUGIN,PLT_PATH,temp);
+						{
+							HANDLE hPlugin = reinterpret_cast<HANDLE>(Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_FINDPLUGIN,PFM_MODULENAME,temp));
+							if(hPlugin)
+							{
+								Info.PluginsControl(hPlugin,PCTL_UNLOADPLUGIN,0,nullptr);
+							}
+						}
 					}
 					else
 					{
