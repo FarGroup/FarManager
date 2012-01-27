@@ -1,7 +1,3 @@
-drkns 26.01.2012 16:43:18 +0200 - build 87
-
-1. Префиксы load и unload удалены, ибо macro:post plugin.[un]load(path).
-
 svs 19.01.2012 15:03:37 +0400 - build 86
 
 1. Для edit: два окна открывалось.
