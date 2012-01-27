@@ -228,6 +228,8 @@ enum MACRO_OP_CODE
 	MCODE_F_MENU_FILTERSTR,           // S=Menu.FilterStr([Action[,S]])
 	MCODE_F_DLG_SETFOCUS,             // N=Dlg.SetFocus([ID])
 	MCODE_F_FAR_CFG_GET,              // V=Far.Cfg.Get(Key,Name)
+	MCODE_F_SIZE2STR,                 // S=Size2Str(N,Flags[,Width])
+	MCODE_F_STRWRAP,                  // S=StrWrap(Text,Width[,Break[,Flags]])
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния

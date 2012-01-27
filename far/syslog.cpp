@@ -1380,6 +1380,8 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(V_PPANEL_FORMAT),            // PPanel.Format
 		DEF_MCODE_(F_DLG_SETFOCUS),             // N=Dlg.SetFocus(ID)
 		DEF_MCODE_(F_FAR_CFG_GET),              // V=Far.Cfg.Get(Key,Name)
+		DEF_MCODE_(F_SIZE2STR),                 // S=Size2Str(N,Flags[,Width])
+		DEF_MCODE_(F_STRWRAP),                  // S=StrWrap(Text,Width[,Break[,Flags]])
 
 	};
 	string Name;
