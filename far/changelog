@@ -1,3 +1,7 @@
+t-rex 28.01.2012 19:03:49 +0200 - build 2425
+
+1. PCTL_FINDPLUGIN с PFM_MODULENAME теперь умеет работать с относительными путями.
+
 drkns 27.01.2012 22:21:21 +0200 - build 2424
 
 1. Уточнение PCTL_GETPLUGININFORMATION.

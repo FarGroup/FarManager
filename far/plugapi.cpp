@@ -2448,21 +2448,25 @@ INT_PTR WINAPI farPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Com
 			Plugin* plugin = nullptr;
 			switch(Param1)
 			{
-			case PFM_GUID:
-				plugin = CtrlObject->Plugins.FindPlugin(*reinterpret_cast<GUID*>(Param2));
-				break;
+				case PFM_GUID:
+					plugin = CtrlObject->Plugins.FindPlugin(*reinterpret_cast<GUID*>(Param2));
+					break;
 
-			case PFM_MODULENAME:
-				for (size_t i = 0; i < CtrlObject->Plugins.GetPluginsCount(); ++i)
+				case PFM_MODULENAME:
 				{
-					Plugin* p = CtrlObject->Plugins.GetPlugin(i);
-					if (!StrCmpI(p->GetModuleName(), reinterpret_cast<const wchar_t*>(Param2)))
+					string strPath;
+					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
+					for (size_t i = 0; i < CtrlObject->Plugins.GetPluginsCount(); ++i)
 					{
-						plugin = p;
-						break;
+						Plugin* p = CtrlObject->Plugins.GetPlugin(i);
+						if (!StrCmpI(p->GetModuleName(), strPath))
+						{
+							plugin = p;
+							break;
+						}
 					}
+					break;
 				}
-				break;
 			}
 			return reinterpret_cast<INT_PTR>(plugin);
 		}
