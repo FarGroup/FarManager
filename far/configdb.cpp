@@ -2603,7 +2603,7 @@ void ReleaseDb()
 
 bool ExportImportConfig(bool Export, const wchar_t *XML)
 {
-	FILE* XmlFile = _wfopen(NTPath(XML), Export?L"w":L"r");
+	FILE* XmlFile = _wfopen(NTPath(XML), Export?L"w":L"rb");
 	if(!XmlFile)
 		return false;
 
