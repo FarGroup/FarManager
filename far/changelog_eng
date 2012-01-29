@@ -3,6 +3,51 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.01.2012 23:03:50 +0200 - build 2417
+
+1. Support for detection and switching off virtual CDs in Windows 8.
+
+drkns 26.01.2012 19:37:11 +0200 - build 2416
+
+1. Mantis#0002001: Incorrect displaying of path to virtual volume file in drive selection dialog.
+
+drkns 26.01.2012 19:11:04 +0200 - build 2415
+
+1. On Mantis#01914:
+
+     PCTL_GETPLUGINS: get the plugins' handles.
+     Param2 - pointer to the buffer, Param1 - the size of the buffer.
+     Passing 0 as Param1 or Param2 returns required size.
+
+2. Warnings.
+
+drkns 26.01.2012 16:11:41 +0200 - build 2414
+
+1. On Mantis#01914:
+
+     PCTL_FINDPLUGIN: returns the plugin's handle by name (Param2==PFM_MODULENAME) or GUID (Param2==PFM_GUID).
+
+     PCTL_GETPLUGININFORMATION - obtain plugin's summary.
+     Handle - the plugin's handle obtained with PCTL_FINDPLUGIN.
+     Param1 - the size of the buffer receiving information.
+     Param2 - buffer containing FarGetPluginInformation structure at its beginning.
+
+2. PCTL_UNLOADPLUGIN is changed - now Handle must be passed a handle received with PCTL_FINDPLUGIN, Param1 and Param2 are ignored.
+
+drkns 26.01.2012 09:46:46 +0200 - build 2413
+
+1. Getting EMenu be callable to from disk menu.
+
+2. Warnings.
+
+drkns 25.01.2012 09:57:40 +0200 - build 2412
+
+1. Wrong formatting of "short" and "named" date in panel modes.
+
+drkns 24.01.2012 19:42:05 +0200 - build 2411
+
+1. The identifiers of plugins known to FAR (so far, those are Network and EMenu) are stored in DB and can be changed if needed.
+
 drkns 22.01.2012 14:19:41 +0200 - build 2410
 
 1. Correction of 2381.
