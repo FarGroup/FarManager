@@ -4356,12 +4356,24 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 
 				switch (oldsp->Type)
 				{
-					case oldfar::ESPT_AUTOINDENT:				newsp.Type = ESPT_AUTOINDENT; break;
-					case oldfar::ESPT_CHARCODEBASE:			newsp.Type = ESPT_CHARCODEBASE; break;
-					case oldfar::ESPT_CURSORBEYONDEOL:	newsp.Type = ESPT_CURSORBEYONDEOL; break;
-					case oldfar::ESPT_LOCKMODE:					newsp.Type = ESPT_LOCKMODE; break;
-					case oldfar::ESPT_SAVEFILEPOSITION:	newsp.Type = ESPT_SAVEFILEPOSITION; break;
-					case oldfar::ESPT_TABSIZE:					newsp.Type = ESPT_TABSIZE; break;
+					case oldfar::ESPT_AUTOINDENT:
+						newsp.Type = ESPT_AUTOINDENT;
+						break;
+					case oldfar::ESPT_CHARCODEBASE:
+						newsp.Type = ESPT_CHARCODEBASE;
+						break;
+					case oldfar::ESPT_CURSORBEYONDEOL:
+						newsp.Type = ESPT_CURSORBEYONDEOL;
+						break;
+					case oldfar::ESPT_LOCKMODE:
+						newsp.Type = ESPT_LOCKMODE;
+						break;
+					case oldfar::ESPT_SAVEFILEPOSITION:
+						newsp.Type = ESPT_SAVEFILEPOSITION;
+						break;
+					case oldfar::ESPT_TABSIZE:
+						newsp.Type = ESPT_TABSIZE;
+						break;
 					case oldfar::ESPT_CHARTABLE: //BUGBUG, недоделано в фаре
 					{
 						if (!oldsp->iParam) return FALSE;

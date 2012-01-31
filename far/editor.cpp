@@ -5640,7 +5640,12 @@ int Editor::EditorControl(int Command,void *Param)
 					Info->Options|=EOPT_CURSORBEYONDEOL;
 
 				if (EdOpt.ShowWhiteSpace)
+				{
 					Info->Options|=EOPT_SHOWWHITESPACE;
+
+					if (EdOpt.ShowWhiteSpace==1)
+						Info->Options|=EOPT_SHOWLINEBREAK;
+				}
 
 				Info->TabSize=EdOpt.TabSize;
 				Info->BookMarkCount=BOOKMARK_COUNT;

@@ -723,6 +723,14 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 		default:
 			break;
 
+		case ACTL_GETCURRENTWINDOW:
+			{
+				Frame* CurrentFrame = FrameManager->GetCurrentFrame();
+				if(CurrentFrame->GetType() == MODALTYPE_DIALOG)
+					return reinterpret_cast<INT_PTR>(CurrentFrame);
+			}
+			break;
+
 	}
 
 	return FALSE;

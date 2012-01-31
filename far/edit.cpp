@@ -105,6 +105,7 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Opt.EdOpt.DelRemovesBlocks);
 	Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Opt.EdOpt.PersistentBlocks);
 	Flags.Change(FEDITLINE_SHOWWHITESPACE,Opt.EdOpt.ShowWhiteSpace);
+	Flags.Change(FEDITLINE_SHOWLINEBREAK,Opt.EdOpt.ShowWhiteSpace==1);
 	m_codepage = 0; //BUGBUG
 }
 
@@ -402,6 +403,42 @@ void Edit::FastShow()
 
 		if (Flags.Check(FEDITLINE_PASSWORDMODE))
 			wmemset(OutStr,L'*',OutStrLength);
+		
+		if (Flags.Check(FEDITLINE_SHOWLINEBREAK) && Flags.Check(FEDITLINE_EDITORMODE) && (OutStrLength < EditLength))
+		{
+			switch(EndType)
+			{
+			case EOL_CR:
+				OutStr[OutStrLength++]=Oem2Unicode[10];
+				break;
+			case EOL_LF:
+				OutStr[OutStrLength++]=Oem2Unicode[13];
+				break;
+			case EOL_CRLF:
+				OutStr[OutStrLength++]=Oem2Unicode[10];
+				if(OutStrLength < EditLength)
+				{
+					OutStr[OutStrLength++]=Oem2Unicode[13];
+				}
+				break;
+			case EOL_CRCRLF:
+				OutStr[OutStrLength++]=Oem2Unicode[10];
+				if(OutStrLength < EditLength)
+				{
+					OutStr[OutStrLength++]=Oem2Unicode[10];
+					if(OutStrLength < EditLength)
+					{
+						OutStr[OutStrLength++]=Oem2Unicode[13];
+					}
+				}
+				break;
+			}
+		}
+
+		if(!m_next && Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE) && (OutStrLength < EditLength))
+		{
+			OutStr[OutStrLength++]=L'\x25a1';
+		}
 	}
 
 	OutStr[OutStrLength]=0;

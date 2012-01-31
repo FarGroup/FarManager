@@ -51,13 +51,14 @@ enum FLAGS_CLASS_EDITLINE
 	FEDITLINE_DELREMOVESBLOCKS     = 0x00008000,  // Del удаляет блоки (Opt.EditorDelRemovesBlocks)
 	FEDITLINE_PERSISTENTBLOCKS     = 0x00010000,  // Постоянные блоки (Opt.EditorPersistentBlocks)
 	FEDITLINE_SHOWWHITESPACE       = 0x00020000,
-	FEDITLINE_READONLY             = 0x00040000,
-	FEDITLINE_CURSORVISIBLE        = 0x00080000,
+	FEDITLINE_SHOWLINEBREAK        = 0x00040000,
+	FEDITLINE_READONLY             = 0x00080000,
+	FEDITLINE_CURSORVISIBLE        = 0x00100000,
 	// Если ни один из FEDITLINE_PARENT_ не указан (или указаны оба), то Edit
 	// явно не в диалоге юзается.
-	FEDITLINE_PARENT_SINGLELINE    = 0x00100000,  // обычная строка ввода в диалоге
-	FEDITLINE_PARENT_MULTILINE     = 0x00200000,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
-	FEDITLINE_PARENT_EDITOR        = 0x00400000,  // "вверху" обычный редактор
+	FEDITLINE_PARENT_SINGLELINE    = 0x00200000,  // обычная строка ввода в диалоге
+	FEDITLINE_PARENT_MULTILINE     = 0x00400000,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
+	FEDITLINE_PARENT_EDITOR        = 0x00800000,  // "вверху" обычный редактор
 };
 
 struct ColorItem
@@ -216,7 +217,7 @@ class Edit:public ScreenObject
 		void SetPersistentBlocks(int Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
 		int  GetPersistentBlocks() {return Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
 
-		void SetShowWhiteSpace(int Mode) {Flags.Change(FEDITLINE_SHOWWHITESPACE,Mode);}
+		void SetShowWhiteSpace(int Mode) {Flags.Change(FEDITLINE_SHOWWHITESPACE, Mode!=0); Flags.Change(FEDITLINE_SHOWLINEBREAK, Mode == 1);}
 
 		void  GetString(wchar_t *Str, int MaxSize);
 		void  GetString(string &strStr);

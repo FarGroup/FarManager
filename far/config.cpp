@@ -510,7 +510,7 @@ void EditorConfig(EditorOptions &EdOpt,bool Local)
 	Builder.AddCheckbox(MEditConfigAutoIndent, &EdOpt.AutoIndent);
 	DialogItemEx *TabSize = Builder.AddIntEditField(&EdOpt.TabSize, 3);
 	Builder.AddTextAfter(TabSize, MEditConfigTabSize);
-	Builder.AddCheckbox(MEditShowWhiteSpace, &EdOpt.ShowWhiteSpace);
+	Builder.AddCheckbox(MEditShowWhiteSpace, &EdOpt.ShowWhiteSpace, 0, true);
 	Builder.ColumnBreak();
 	Builder.AddCheckbox(MEditConfigDelRemovesBlocks, &EdOpt.DelRemovesBlocks);
 	DialogItemEx *SaveShortPos = Builder.AddCheckbox(MEditConfigSaveShortPos, &EdOpt.SaveShortPos);
