@@ -31,6 +31,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "bitflags.hpp"
 #include "plugin.hpp"
+#include "interf.hpp"
 
 class AncientPlugin
 {
@@ -83,6 +84,7 @@ struct ExecuteStruct
 	{ \
 		function; \
 	} \
+	SetFarConsoleMode(); \
 	__Epilog(); \
 }
 
