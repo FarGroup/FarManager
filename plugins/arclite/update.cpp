@@ -771,20 +771,123 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
   if (SUCCEEDED(out_arc->QueryInterface(IID_ISetProperties, reinterpret_cast<void**>(&set_props)))) {
     vector<wstring> names;
     vector<PropVariant> values;
-    names.push_back(L"x");
-    values.push_back(options.level);
+    names.push_back(L"x"); values.push_back(options.level);
     if (options.arc_type == c_7z) {
       if (options.level != 0) {
-        names.push_back(L"0");
-        values.push_back(options.method);
-        names.push_back(L"s");
-        values.push_back(options.solid);
+        names.push_back(L"0"); values.push_back(options.method);
+      }
+      if (options.method == c_method_ppmd) {
+        switch (options.level) {
+        case 1:
+        case 3:
+          names.push_back(L"0mem"); values.push_back(L"4194304B");
+          names.push_back(L"0o"); values.push_back(4u);
+          break;
+        case 5:
+          names.push_back(L"0mem"); values.push_back(L"16777216B");
+          names.push_back(L"0o"); values.push_back(6u);
+          break;
+        case 7:
+          names.push_back(L"0mem"); values.push_back(L"67108864B");
+          names.push_back(L"0o"); values.push_back(16u);
+          break;
+        case 9:
+          names.push_back(L"0mem"); values.push_back(L"201326592B");
+          names.push_back(L"0o"); values.push_back(32u);
+          break;
+        }
+      }
+      else {
+        switch (options.level) {
+        case 1:
+          names.push_back(L"0d"); values.push_back(L"65536B");
+          names.push_back(L"0fb"); values.push_back(32u);
+          break;
+        case 3:
+          names.push_back(L"0d"); values.push_back(L"1048576B");
+          names.push_back(L"0fb"); values.push_back(32u);
+          break;
+        case 5:
+          names.push_back(L"0d"); values.push_back(L"16777216B");
+          names.push_back(L"0fb"); values.push_back(32u);
+          break;
+        case 7:
+          names.push_back(L"0d"); values.push_back(L"33554432B");
+          names.push_back(L"0fb"); values.push_back(64u);
+          break;
+        case 9:
+          names.push_back(L"0d"); values.push_back(L"67108864B");
+          names.push_back(L"0fb"); values.push_back(64u);
+          break;
+        }
+      }
+      if (options.level != 0) {
+        names.push_back(L"s"); values.push_back(options.solid);
       }
       if (options.encrypt) {
         if (options.encrypt_header != triUndef) {
-          names.push_back(L"he");
-          values.push_back(options.encrypt_header == triTrue);
+          names.push_back(L"he"); values.push_back(options.encrypt_header == triTrue);
         }
+      }
+    }
+    else if (options.arc_type == c_zip) {
+      switch (options.level) {
+      case 1:
+      case 3:
+      case 5:
+        names.push_back(L"fb"); values.push_back(32u); break;
+      case 7:
+        names.push_back(L"fb"); values.push_back(64u); break;
+      case 9:
+        names.push_back(L"fb"); values.push_back(128u); break;
+      }
+    }
+    else if (options.arc_type == c_bzip2) {
+      switch (options.level) {
+      case 1:
+        names.push_back(L"d"); values.push_back(L"102400B"); break;
+      case 3:
+        names.push_back(L"d"); values.push_back(L"512000B"); break;
+      case 5:
+      case 7:
+      case 9:
+        names.push_back(L"d"); values.push_back(L"921600B"); break;
+      }
+    }
+    else if (options.arc_type == c_gzip) {
+      switch (options.level) {
+      case 1:
+      case 3:
+      case 5:
+        names.push_back(L"fb"); values.push_back(32u); break;
+      case 7:
+        names.push_back(L"fb"); values.push_back(64u); break;
+      case 9:
+        names.push_back(L"fb"); values.push_back(128u); break;
+      }
+    }
+    else if (options.arc_type == c_xz) {
+      switch (options.level) {
+      case 1:
+        names.push_back(L"d"); values.push_back(L"65536B");
+        names.push_back(L"fb"); values.push_back(32u);
+        break;
+      case 3:
+        names.push_back(L"d"); values.push_back(L"1048576B");
+        names.push_back(L"fb"); values.push_back(32u);
+        break;
+      case 5:
+        names.push_back(L"d"); values.push_back(L"16777216B");
+        names.push_back(L"fb"); values.push_back(32u);
+        break;
+      case 7:
+        names.push_back(L"d"); values.push_back(L"33554432B");
+        names.push_back(L"fb"); values.push_back(64u);
+        break;
+      case 9:
+        names.push_back(L"d"); values.push_back(L"50331648B");
+        names.push_back(L"fb"); values.push_back(64u);
+        break;
       }
     }
 

@@ -698,6 +698,7 @@ private:
 
   wstring old_ext;
   ArcType arc_type;
+  unsigned level;
 
   wstring get_default_ext() const {
     wstring ext;
@@ -741,10 +742,44 @@ private:
     return true;
   }
 
+  void update_level_list() {
+    unsigned level_sel = get_list_pos(level_ctrl_id);
+    unsigned new_level_sel = -1;
+    for (unsigned i = 0; i < ARRAYSIZE(c_levels); ++i) {
+      bool skip = c_levels[i].value == 0 && (arc_type == c_bzip2 || arc_type == c_gzip || arc_type == c_xz);
+      skip = skip || (c_levels[i].value != 0 && (arc_type == c_wim || arc_type == c_tar));
+      skip = skip || ((c_levels[i].value == 1 || c_levels[i].value == 3) && arc_type == c_zip);
+      skip = skip || ((c_levels[i].value == 7 || c_levels[i].value == 9) && arc_type == c_bzip2);
+      skip = skip || ((c_levels[i].value == 1 || c_levels[i].value == 3) && arc_type == c_gzip);
+      FarListGetItem flgi;
+      memzero(flgi);
+      flgi.ItemIndex = i;
+      CHECK(send_message(DM_LISTGETITEM, level_ctrl_id, &flgi));
+      if ((skip && (flgi.Item.Flags & LIF_DISABLE) == 0) || (!skip && (flgi.Item.Flags & LIF_DISABLE) != 0)) {
+        FarListUpdate flu;
+        memzero(flu);
+        flu.Index = i;
+        flu.Item.Flags = skip ? LIF_DISABLE : 0;
+        flu.Item.Text = Far::msg_ptr(c_levels[i].name_id);
+        CHECK(send_message(DM_LISTUPDATE, level_ctrl_id, &flu));
+      }
+      if (new_level_sel == -1 && c_levels[i].value == 5) {
+        new_level_sel = i;
+      }
+      if (c_levels[i].value == level && !skip) {
+        new_level_sel = i;
+      }
+    }
+    if (new_level_sel != level_sel) {
+      set_list_pos(level_ctrl_id, new_level_sel);
+    }
+  }
+
   void set_control_state() {
     DisableEvents de(*this);
     bool is_7z = arc_type == c_7z;
     bool is_zip = arc_type == c_zip;
+    update_level_list();
     bool is_compressed = get_list_pos(level_ctrl_id) != 0;
     for (int i = method_ctrl_id - 1; i <= method_ctrl_id; i++) {
       enable(i, is_7z & is_compressed);
@@ -922,6 +957,7 @@ private:
       }
     }
 
+    level = options.level;
     unsigned level_sel = 0;
     for (unsigned i = 0; i < ARRAYSIZE(c_levels); i++) {
       if (options.level == c_levels[i].value) {
@@ -1013,7 +1049,8 @@ private:
       arc_type = other_formats[get_list_pos(other_formats_ctrl_id + 1)];
       set_control_state();
     }
-    else if (msg == DN_LISTCHANGE && param1 == level_ctrl_id) {
+    else if (msg == DN_EDITCHANGE && param1 == level_ctrl_id) {
+      level = get_list_pos(level_ctrl_id);
       set_control_state();
     }
     else if (msg == DN_BTNCLICK && param1 == encrypt_ctrl_id) {

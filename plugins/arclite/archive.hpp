@@ -4,10 +4,15 @@
 
 extern const ArcType c_7z;
 extern const ArcType c_zip;
+extern const ArcType c_bzip2;
+extern const ArcType c_gzip;
+extern const ArcType c_xz;
 extern const ArcType c_iso;
 extern const ArcType c_udf;
 extern const ArcType c_rar;
 extern const ArcType c_split;
+extern const ArcType c_wim;
+extern const ArcType c_tar;
 
 extern const wchar_t* c_method_copy;
 extern const wchar_t* c_method_lzma;

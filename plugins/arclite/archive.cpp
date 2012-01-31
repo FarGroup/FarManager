@@ -11,20 +11,23 @@ const wchar_t* c_method_lzma = L"LZMA";
 const wchar_t* c_method_lzma2 = L"LZMA2";
 const wchar_t* c_method_ppmd = L"PPMD";
 
-const unsigned char c_guid_7z[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10\x07\x00\x00";
-const unsigned char c_guid_zip[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10\x01\x00\x00";
-const unsigned char c_guid_iso[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10\xE7\x00\x00";
-const unsigned char c_guid_udf[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10\xE0\x00\x00";
-const unsigned char c_guid_rar[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10\x03\x00\x00";
-const unsigned char c_guid_split[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10\xEA\x00\x00";
-const unsigned c_guid_size = 16;
+#define DEFINE_ARC_ID(name, value) \
+  const unsigned char c_guid_##name[] = "\x69\x0F\x17\x23\xC1\x40\x8A\x27\x10\x00\x00\x01\x10" value "\x00\x00"; \
+  const ArcType c_##name(c_guid_##name, c_guid_##name + 16);
 
-const ArcType c_7z(c_guid_7z, c_guid_7z + c_guid_size);
-const ArcType c_zip(c_guid_zip, c_guid_zip + c_guid_size);
-const ArcType c_iso(c_guid_iso, c_guid_iso + c_guid_size);
-const ArcType c_udf(c_guid_udf, c_guid_udf + c_guid_size);
-const ArcType c_rar(c_guid_rar, c_guid_rar + c_guid_size);
-const ArcType c_split(c_guid_split, c_guid_split + c_guid_size);
+DEFINE_ARC_ID(7z, "\x07")
+DEFINE_ARC_ID(zip, "\x01")
+DEFINE_ARC_ID(bzip2, "\x02")
+DEFINE_ARC_ID(gzip, "\xEF")
+DEFINE_ARC_ID(xz, "\x0C")
+DEFINE_ARC_ID(iso, "\xE7")
+DEFINE_ARC_ID(udf, "\xE0")
+DEFINE_ARC_ID(rar, "\x03")
+DEFINE_ARC_ID(split, "\xEA")
+DEFINE_ARC_ID(wim, "\xE6")
+DEFINE_ARC_ID(tar, "\xEE")
+
+#undef DEFINE_ARC_ID
 
 const unsigned __int64 c_min_volume_size = 16 * 1024;
 

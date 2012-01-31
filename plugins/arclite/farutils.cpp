@@ -160,7 +160,7 @@ bool is_real_file_panel(const PanelInfo& panel_info) {
 
 wstring get_panel_dir(HANDLE h_panel) {
   unsigned buf_size = 512;
-  std::unique_ptr<unsigned char> buf(new unsigned char[buf_size]);
+  std::unique_ptr<unsigned char[]> buf(new unsigned char[buf_size]);
   reinterpret_cast<FarPanelDirectory*>(buf.get())->StructSize = sizeof(FarPanelDirectory);
   unsigned size = g_far.PanelControl(h_panel, FCTL_GETPANELDIRECTORY, buf_size, buf.get());
   if (size > buf_size) {
