@@ -4,7 +4,7 @@ drkns 31.01.2012 13:32:28 +0200 - build 2427
    Добавлена команда ACTL_GETCURRENTWINDOW. Если сейчас открыт диалог - вернется хендл, иначе - 0.
 
 2. Чекбокс "[ ] Show white space" в настройках редактора теперь 3-позиционный: [?] - отображать пробелы, табуляции и EOF, [x] - отображать еще и EOL.
-   В апи - EOPT_SHOWLINEBREAK, EOPT_SHOWWHITESPACE(1|2)
+   В апи - EOPT_SHOWLINEBREAK, ESPT_SHOWWHITESPACE(1|2)
 
 w17 28.01.2012 23:07:20 +0400 - build 2426
 
