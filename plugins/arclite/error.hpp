@@ -1,7 +1,6 @@
 #pragma once
 
-#define FACILITY_INTERNAL 0xFFF
-#define E_MESSAGE MAKE_HRESULT(SEVERITY_ERROR, FACILITY_INTERNAL, 0)
+#define E_MESSAGE MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x200)
 
 struct Error {
   HRESULT code;
@@ -37,3 +36,8 @@ struct Error {
 #define CHECK(code) { if (!(code)) FAIL_MSG(L#code); }
 
 #define IGNORE_ERRORS(code) { try { code; } catch (...) { } }
+
+#define CONCAT1(a, b) a##b
+#define CONCAT(a, b) CONCAT1(a, b)
+#define MAKE_UNIQUE(name) CONCAT(name, __COUNTER__)
+#define GUARD(code) std::shared_ptr<void> MAKE_UNIQUE(guard)(0, [&](void*) { code; })
