@@ -674,7 +674,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 	};
 	MakeDialogItemsEx(AttrDlgData,AttrDlg);
 	SetAttrDlgParam DlgParam={};
-	int SelCount=SrcPanel?SrcPanel->GetSelCount():1;
+	size_t SelCount=SrcPanel?SrcPanel->GetSelCount():1;
 
 	if (!SelCount)
 	{
@@ -1101,12 +1101,12 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			{
 				// снимаем 3-state, если "есть все или нет ничего"
 				// за исключением случая, если есть Фолдер среди объектов
-				if ((!AttrDlg[i].Selected || AttrDlg[i].Selected >= SelCount) && !FolderPresent)
+				if ((!AttrDlg[i].Selected || static_cast<size_t>(AttrDlg[i].Selected) >= SelCount) && !FolderPresent)
 				{
 					AttrDlg[i].Flags&=~DIF_3STATE;
 				}
 
-				AttrDlg[i].Selected=(AttrDlg[i].Selected >= SelCount)?BST_CHECKED:(!AttrDlg[i].Selected?BSTATE_UNCHECKED:BSTATE_3STATE);
+				AttrDlg[i].Selected=(static_cast<size_t>(AttrDlg[i].Selected) >= SelCount)?BST_CHECKED:(!AttrDlg[i].Selected?BSTATE_UNCHECKED:BSTATE_3STATE);
 			}
 		}
 

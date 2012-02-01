@@ -180,7 +180,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	LastCurFile=-1;
 	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 	AnotherPanel->QViewDelTempName();
-	int PrevSelFileCount=SelFileCount;
+	size_t PrevSelFileCount=SelFileCount;
 	SelFileCount=0;
 	SelFileSize=0;
 	TotalFileCount=0;
@@ -685,7 +685,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		return;
 	}
 
-	int PrevSelFileCount=SelFileCount;
+	size_t PrevSelFileCount=SelFileCount;
 	SelFileCount=0;
 	SelFileSize=0;
 	TotalFileCount=0;

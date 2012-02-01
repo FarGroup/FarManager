@@ -121,7 +121,7 @@ class TreeList: public Panel
 		void SyncDir();
 		void SaveTreeFile();
 		int ReadTreeFile();
-		virtual int GetSelCount();
+		virtual size_t GetSelCount();
 		void DynamicUpdateKeyBar();
 		int GetNextNavPos();
 		int GetPrevNavPos();

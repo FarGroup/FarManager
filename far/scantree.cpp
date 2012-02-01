@@ -71,15 +71,16 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 
 	for (;;)
 	{
-		if (!ScanItems.lastItem()->Find)
+		ScanTreeData* LastItem = ScanItems.lastItem();
+		if (!LastItem->Find)
 		{
-			ScanItems.lastItem()->Find = new FindFile(strFindPath);
+			LastItem->Find = new FindFile(strFindPath);
 		}
-		Done=!ScanItems.lastItem()->Find->Get(*fdata);
+		Done=!LastItem->Find->Get(*fdata);
 
 		if (Flags.Check(FSCANTREE_FILESFIRST))
 		{
-			if (ScanItems.lastItem()->Flags.Check(FSCANTREE_SECONDPASS))
+			if (LastItem->Flags.Check(FSCANTREE_SECONDPASS))
 			{
 				if (!Done && !(fdata->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 					continue;
@@ -91,12 +92,12 @@ bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)
 
 				if (Done)
 				{
-					if(ScanItems.lastItem()->Find)
+					if(LastItem->Find)
 					{
-						delete ScanItems.lastItem()->Find;
-						ScanItems.lastItem()->Find = nullptr;
+						delete LastItem->Find;
+						LastItem->Find = nullptr;
 					}
-					ScanItems.lastItem()->Flags.Set(FSCANTREE_SECONDPASS);
+					LastItem->Flags.Set(FSCANTREE_SECONDPASS);
 					continue;
 				}
 			}

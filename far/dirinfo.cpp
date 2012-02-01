@@ -245,8 +245,7 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 				}
 				else
 				{
-					UINT64* newitem = new UINT64(FindData.FileId);
-					FileIds.insert(newitem);
+					FileIds.insert(new UINT64(FindData.FileId));
 				}
 			}
 			if (!IsDuplicate)

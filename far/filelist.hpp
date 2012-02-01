@@ -198,9 +198,9 @@ class FileList:public Panel
 		HANDLE hListChange;
 		long UpperFolderTopFile,LastCurFile;
 		long ReturnCurrentFile;
-		long SelFileCount;
+		size_t SelFileCount;
 		long GetSelPosition,LastSelPosition;
-		long TotalFileCount;
+		size_t TotalFileCount;
 		unsigned __int64 SelFileSize;
 		unsigned __int64 TotalFileSize;
 		unsigned __int64 FreeDiskSize;
@@ -253,7 +253,7 @@ class FileList:public Panel
 		void UpdatePlugin(int KeepSelection, int IgnoreVisible);
 
 		void MoveSelection(FileListItem **FileList,long FileCount,FileListItem **OldList,long OldFileCount);
-		virtual int GetSelCount();
+		virtual size_t GetSelCount();
 		virtual int GetSelName(string *strName,DWORD &FileAttr,string *strShortName=nullptr,FAR_FIND_DATA_EX *fde=nullptr);
 		virtual void UngetSelName();
 		virtual void ClearLastGetSelection();
@@ -407,7 +407,7 @@ class FileList:public Panel
 
 		void ResetLastUpdateTime() {LastUpdateTime = 0;}
 		virtual HANDLE GetPluginHandle();
-		virtual int GetRealSelCount();
+		virtual size_t GetRealSelCount();
 		static void SetFilePanelModes();
 		static void SavePanelModes();
 		static void ReadPanelModes();

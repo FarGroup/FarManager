@@ -918,7 +918,7 @@ void FileList::ProcessHostFile()
 		}
 		else
 		{
-			int SCount=GetRealSelCount();
+			size_t SCount=GetRealSelCount();
 
 			if (SCount > 0)
 			{

@@ -430,7 +430,7 @@ Plugin* PluginManager::LoadPlugin(
 #ifndef NO_WRAPPER
 		case OEM_PLUGIN: pPlugin = new PluginA(this, lpwszModuleName); break;
 #endif // NO_WRAPPER
-		default: return false;
+		default: return nullptr;
 	}
 
 	if (!pPlugin)
@@ -1391,7 +1391,7 @@ void PluginManager::Configure(int StartPos)
 		for (;;)
 		{
 			bool NeedUpdateItems = true;
-			int MenuItemNumber = 0;
+			size_t MenuItemNumber = 0;
 			bool HotKeysPresent = PlHotkeyCfg->HotkeysPresent(PluginsHotkeysConfig::CONFIG_MENU);
 
 			if (NeedUpdateItems)
@@ -1557,7 +1557,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 	}
 
-	int MenuItemNumber = 0;
+	size_t MenuItemNumber = 0;
 	int PrevMacroMode = CtrlObject->Macro.GetMode();
 	CtrlObject->Macro.SetMode(MACRO_MENU);
 

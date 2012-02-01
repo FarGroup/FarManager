@@ -107,8 +107,8 @@ void PrintFiles(Panel *SrcPanel)
 	int PrinterNumber;
 	DWORD FileAttr;
 	string strSelName;
-	long DirsCount=0;
-	int SelCount=SrcPanel->GetSelCount();
+	size_t DirsCount=0;
+	size_t SelCount=SrcPanel->GetSelCount();
 
 	if (!SelCount)
 	{

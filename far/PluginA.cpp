@@ -1547,7 +1547,8 @@ public:
 
 LONG_PTR WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
-	LONG_PTR Result = NativeInfo.DefDlgProc(OriginalEvents.Peek()->hDlg, OriginalEvents.Peek()->Msg, OriginalEvents.Peek()->Param1, OriginalEvents.Peek()->Param2);
+	FarDialogEvent* TopEvent = OriginalEvents.Peek();
+	LONG_PTR Result = NativeInfo.DefDlgProc(TopEvent->hDlg, TopEvent->Msg, TopEvent->Param1, TopEvent->Param2);
 	switch(Msg)
 	{
 	case DN_CTLCOLORDIALOG:

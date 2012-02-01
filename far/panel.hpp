@@ -181,8 +181,8 @@ class Panel:public ScreenObject
 
 		virtual int GetCurDir(string &strCurDir);
 
-		virtual int GetSelCount() {return 0;}
-		virtual int GetRealSelCount() {return 0;}
+		virtual size_t GetSelCount() {return 0;}
+		virtual size_t GetRealSelCount() {return 0;}
 		virtual int GetSelName(string *strName,DWORD &FileAttr,string *ShortName=nullptr,FAR_FIND_DATA_EX *fd=nullptr) {return FALSE;}
 		virtual void UngetSelName() {}
 		virtual void ClearLastGetSelection() {}

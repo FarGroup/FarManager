@@ -2282,7 +2282,7 @@ int FileList::ProcessKey(int Key)
 			//вызовем EMenu если он есть
 			if (CtrlObject->Plugins.FindPlugin(Opt.KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(1)); // EMenu Plugin :-)
+				CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<INT_PTR>(1))); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}
@@ -3587,13 +3587,13 @@ bool FileList::GetPlainString(string& Dest,int ListPos)
 	return false;
 }
 
-int FileList::GetSelCount()
+size_t FileList::GetSelCount()
 {
 	assert(!FileCount || !(ReturnCurrentFile||!SelFileCount) || (CurFile<FileCount));
 	return FileCount?((ReturnCurrentFile||!SelFileCount)?(TestParentFolderName(ListData[CurFile]->strName)?0:1):SelFileCount):0;
 }
 
-int FileList::GetRealSelCount()
+size_t FileList::GetRealSelCount()
 {
 	return FileCount?SelFileCount:0;
 }

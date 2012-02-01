@@ -55,17 +55,17 @@ extern int ColumnTypeWidth[];
 
 static wchar_t OutCharacter[8]={};
 
-static int __FormatEndSelectedPhrase(int Count)
+static int __FormatEndSelectedPhrase(size_t Count)
 {
 	int M_Fmt=MListFileSize;
 
 	if (Count != 1)
 	{
-		char StrItems[32];
-		_itoa(Count,StrItems,10);
-		int LenItems=(int)strlen(StrItems);
+		FormatString StrItems;
+		StrItems << Count;
+		size_t LenItems= StrItems.GetLength();
 
-		if (StrItems[LenItems-1] == '1' && Count != 11)
+		if (StrItems.At(LenItems-1) == '1' && Count != 11)
 			M_Fmt=MListFilesSize1;
 		else
 			M_Fmt=MListFilesSize2;

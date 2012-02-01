@@ -240,11 +240,9 @@ void MixToFullPath(string& strPath)
 	strPath.ReleaseBuffer();
 }
 
-bool MixToFullPath(LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
+bool MixToFullPath(const string& stPath, string& strDest, const string& stCurrentDir)
 {
-	size_t lPath=wcslen(NullToEmpty(stPath)),
-	       lCurrentDir=wcslen(NullToEmpty(stCurrentDir)),
-	       lFullPath=lPath+lCurrentDir;
+	size_t lPath = stPath.GetLength(), lCurrentDir = stCurrentDir.GetLength(), lFullPath = lPath + lCurrentDir;
 
 	if (lFullPath > 0)
 	{
@@ -264,7 +262,7 @@ bool MixToFullPath(LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 			break;
 			case PPT_DRIVE: //"C:" or "C:abc"
 			{
-				WCHAR _DriveVar[]={L'=',*stPath,L':',L'\0'};
+				WCHAR _DriveVar[]={L'=',stPath.At(0),L':',L'\0'};
 				string DriveVar(_DriveVar);
 				string strValue;
 
@@ -274,7 +272,7 @@ bool MixToFullPath(LPCWSTR stPath, string& strDest, LPCWSTR stCurrentDir)
 				}
 				else
 				{
-					if (Upper(*stPath)==Upper(*stCurrentDir))
+					if (Upper(stPath.At(0))==Upper(stCurrentDir.At(0)))
 					{
 						strDest=stCurrentDir;
 					}

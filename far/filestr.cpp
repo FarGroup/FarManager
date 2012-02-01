@@ -357,7 +357,7 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 bool IsTextUTF8(const LPBYTE Buffer,size_t Length)
 {
 	bool Ascii=true;
-	UINT Octets=0;
+	size_t Octets=0;
 
 	for (size_t i=0; i<Length; i++)
 	{

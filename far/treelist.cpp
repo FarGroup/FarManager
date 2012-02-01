@@ -1170,7 +1170,7 @@ int TreeList::ProcessKey(int Key)
 			//вызовем EMenu если он есть
 			if (CtrlObject->Plugins.FindPlugin(Opt.KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(1)); // EMenu Plugin :-)
+				CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<INT_PTR>(1))); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}
@@ -1641,7 +1641,7 @@ int TreeList::FindPartName(const wchar_t *Name,int Next,int Direct,int ExcludeSe
 }
 
 
-int TreeList::GetSelCount()
+size_t TreeList::GetSelCount()
 {
 	return 1;
 }

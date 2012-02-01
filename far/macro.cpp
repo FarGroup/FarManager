@@ -1505,8 +1505,7 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 
 					if (SelPanel)
 					{
-						int SelCount=SelPanel->GetRealSelCount();
-						Cond=SelCount >= 1?1:0; //??
+						Cond = SelPanel->GetRealSelCount() > 0; //??
 					}
 
 					break;
@@ -6374,7 +6373,7 @@ TMacroFunction *KeyMacro::RegisterMacroFunction(const TMacroFunction *tmfunc)
 		AllocatedFuncCount=AllocatedFuncCount+64;
 
 		if (!(pTemp=(TMacroFunction *)xf_realloc(AMacroFunction,AllocatedFuncCount*sizeof(TMacroFunction))))
-			return false;
+			return nullptr;
 
 		AMacroFunction=pTemp;
 	}
@@ -7753,7 +7752,7 @@ BOOL KeyMacro::CheckAll(int /*CheckMode*/,UINT64 CurFlags)
 		if (CurFlags&(MFLAGS_SELECTION|MFLAGS_NOSELECTION|MFLAGS_PSELECTION|MFLAGS_PNOSELECTION))
 			if (Mode!=MACRO_EDITOR && Mode != MACRO_DIALOG && Mode!=MACRO_VIEWER)
 			{
-				int SelCount=ActivePanel->GetRealSelCount();
+				size_t SelCount=ActivePanel->GetRealSelCount();
 
 				if (((CurFlags&MFLAGS_SELECTION) && SelCount < 1) || ((CurFlags&MFLAGS_NOSELECTION) && SelCount >= 1))
 					return FALSE;

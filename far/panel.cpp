@@ -1715,7 +1715,8 @@ void Panel::EndDrag()
 void Panel::DragMessage(int X,int Y,int Move)
 {
 	string strDragMsg, strSelName;
-	int SelCount,MsgX,Length;
+	size_t SelCount;
+	int MsgX,Length;
 
 	if (!(SelCount=SrcDragPanel->GetSelCount()))
 		return;

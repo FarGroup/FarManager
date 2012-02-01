@@ -796,7 +796,7 @@ int WINAPI FarMenuFn(
 		FarMenu.SetFlags(MenuFlags);
 		MenuItemEx CurItem;
 		CurItem.Clear();
-		int Selected=0;
+		size_t Selected=0;
 
 		for (size_t i=0; i < ItemsNumber; i++)
 		{
@@ -947,7 +947,7 @@ static int FarDialogExSehed(Dialog *FarDialog)
 
 HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, const GUID* Id, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, const FarDialogItem *Item,
-                            size_t ItemsNumber, DWORD Reserved, unsigned __int64 Flags,
+                            size_t ItemsNumber, DWORD_PTR Reserved, unsigned __int64 Flags,
                             FARWINDOWPROC DlgProc, void* Param)
 {
 	HANDLE hDlg=INVALID_HANDLE_VALUE;
@@ -1457,7 +1457,7 @@ HANDLE WINAPI FarSaveScreen(int X1,int Y1,int X2,int Y2)
 	if (Y2==-1)
 		Y2=ScrY;
 
-	return((HANDLE)(new SaveScreen(X1,Y1,X2,Y2)));
+	return new SaveScreen(X1,Y1,X2,Y2);
 }
 
 

@@ -59,7 +59,7 @@ wchar_t* WINAPI Xlat(wchar_t *Line,
 {
 	wchar_t Chr,ChrOld;
 	int PreLang=2,CurLang=2; // unknown
-	int LangCount[2]={};
+	size_t LangCount[2]={};
 	int IsChange=0;
 
 	if (!Line || !*Line)

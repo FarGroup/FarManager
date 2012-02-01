@@ -136,7 +136,7 @@ struct CopyDlgParam
 	ShellCopy *thisClass;
 	int AltF10;
 	int CopySecurity;
-	int SelCount;
+	size_t SelCount;
 	DWORD FileAttr;
 	bool FolderPresent;
 	bool FilesPresent;

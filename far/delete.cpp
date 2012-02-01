@@ -97,7 +97,8 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 	string strDizName;
 	string strFullName;
 	DWORD FileAttr;
-	int SelCount,UpdateDiz;
+	size_t SelCount;
+	int UpdateDiz;
 	int DizPresent;
 	int Ret;
 	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
@@ -144,18 +145,18 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 	{
 		// в зависимости от числа ставим нужное окончание
 		const wchar_t *Ends;
-		wchar_t StrItems[16];
-		_itow(SelCount,StrItems,10);
+		FormatString StrItems;
+		StrItems << SelCount;
 		Ends=MSG(MAskDeleteItemsA);
-		int LenItems=StrLength(StrItems);
+		size_t LenItems = StrItems.GetLength();
 
 		if (LenItems > 0)
 		{
-			if ((LenItems >= 2 && StrItems[LenItems-2] == L'1') ||
-			        StrItems[LenItems-1] >= L'5' ||
-			        StrItems[LenItems-1] == L'0')
+			if ((LenItems >= 2 && StrItems.At(LenItems-2) == L'1') ||
+			        StrItems.At(LenItems-1) >= L'5' ||
+			        StrItems.At(LenItems-1) == L'0')
 				Ends=MSG(MAskDeleteItemsS);
-			else if (StrItems[LenItems-1] == L'1')
+			else if (StrItems.At(LenItems-1) == L'1')
 				Ends=MSG(MAskDeleteItems0);
 		}
 

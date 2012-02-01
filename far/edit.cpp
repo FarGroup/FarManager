@@ -409,26 +409,26 @@ void Edit::FastShow()
 			switch(EndType)
 			{
 			case EOL_CR:
-				OutStr[OutStrLength++]=Oem2Unicode[10];
-				break;
-			case EOL_LF:
 				OutStr[OutStrLength++]=Oem2Unicode[13];
 				break;
-			case EOL_CRLF:
+			case EOL_LF:
 				OutStr[OutStrLength++]=Oem2Unicode[10];
-				if(OutStrLength < EditLength)
-				{
-					OutStr[OutStrLength++]=Oem2Unicode[13];
-				}
 				break;
-			case EOL_CRCRLF:
-				OutStr[OutStrLength++]=Oem2Unicode[10];
+			case EOL_CRLF:
+				OutStr[OutStrLength++]=Oem2Unicode[13];
 				if(OutStrLength < EditLength)
 				{
 					OutStr[OutStrLength++]=Oem2Unicode[10];
+				}
+				break;
+			case EOL_CRCRLF:
+				OutStr[OutStrLength++]=Oem2Unicode[13];
+				if(OutStrLength < EditLength)
+				{
+					OutStr[OutStrLength++]=Oem2Unicode[13];
 					if(OutStrLength < EditLength)
 					{
-						OutStr[OutStrLength++]=Oem2Unicode[13];
+						OutStr[OutStrLength++]=Oem2Unicode[10];
 					}
 				}
 				break;
