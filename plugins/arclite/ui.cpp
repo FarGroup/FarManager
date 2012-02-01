@@ -1369,6 +1369,239 @@ bool update_dialog(bool new_arc, UpdateOptions& options, UpdateProfiles& profile
 }
 
 
+class MultiSelectDialog: public Far::Dialog {
+private:
+  bool read_only;
+  wstring items_str;
+  wstring& selected_str;
+
+  vector<wstring> items;
+  int first_item_ctrl_id;
+
+  int ok_ctrl_id;
+  int cancel_ctrl_id;
+
+  vector<unsigned> estimate_column_widths(const vector<wstring>& items) {
+    SMALL_RECT console_rect;
+    double window_ratio;
+    if (Far::adv_control(ACTL_GETFARRECT, 0, &console_rect)) {
+      window_ratio = static_cast<double>(console_rect.Right - console_rect.Left + 1) / (console_rect.Bottom - console_rect.Top + 1);
+    }
+    else {
+      window_ratio = 80 / 25;
+    }
+    double window_ratio_diff = numeric_limits<double>::max();
+    vector<unsigned> prev_col_widths;
+    for (unsigned num_cols = 1; num_cols <= items.size(); ++num_cols) {
+      vector<unsigned> col_widths(num_cols, 0);
+      for (unsigned i = 0; i < items.size(); ++i) {
+        unsigned col_index = i % num_cols;
+        if (col_widths[col_index] < items[i].size())
+          col_widths[col_index] = items[i].size();
+      }
+      unsigned width = accumulate(col_widths.cbegin(), col_widths.cend(), 0);
+      width += num_cols * 4 + (num_cols - 1);
+      unsigned height = items.size() / num_cols + (items.size() % num_cols ? 1 : 0);
+      double ratio = static_cast<double>(width) / height;
+      double diff = fabs(ratio - window_ratio);
+      if (diff > window_ratio_diff)
+        break;
+      window_ratio_diff = diff;
+      prev_col_widths = col_widths;
+    }
+    return prev_col_widths;
+  }
+
+  INT_PTR dialog_proc(int msg, int param1, void* param2) {
+    if (!read_only && (msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
+      selected_str.clear();
+      for (unsigned i = 0; i < items.size(); ++i) {
+        if (get_check(first_item_ctrl_id + i)) {
+          if (!selected_str.empty())
+            selected_str += L',';
+          selected_str += items[i];
+        }
+      }
+    }
+    else if (read_only && msg == DN_CTLCOLORDLGITEM) {
+      FarDialogItem dlg_item;
+      if (send_message(DM_GETDLGITEMSHORT, param1, &dlg_item) && dlg_item.Type == DI_CHECKBOX) {
+        FarColor color;
+        if (Far::get_color(COL_DIALOGTEXT, color)) {
+          FarDialogItemColors* item_colors = static_cast<FarDialogItemColors*>(param2);
+          CHECK(item_colors->ColorsCount == 4);
+          item_colors->Colors[0] = color;
+        }
+      }
+    }
+    return default_dialog_proc(msg, param1, param2);
+  }
+
+public:
+  MultiSelectDialog(const wstring& title, const wstring& items_str, wstring& selected_str): Far::Dialog(title, &c_multi_select_dialog_guid, 1), items_str(items_str), selected_str(selected_str), read_only(false) {
+  }
+
+  MultiSelectDialog(const wstring& title, const wstring& items_str): Far::Dialog(title, &c_multi_select_dialog_guid, 1), items_str(items_str), selected_str(selected_str), read_only(true) {
+  }
+
+  bool show() {
+    struct ItemCompare {
+      bool operator()(const wstring& a, const wstring& b) {
+        return upcase(a) < upcase(b);
+      }
+    };
+    
+    set<wstring, ItemCompare> selected_items;
+    if (!read_only) {
+      list<wstring> split_selected_str = split(selected_str, L',');
+      selected_items.insert(split_selected_str.cbegin(), split_selected_str.cend());
+    }
+
+    list<wstring> split_items_str = split(items_str, L',');
+    items.assign(split_items_str.cbegin(), split_items_str.cend());
+    sort(items.begin(), items.end(), ItemCompare());
+    if (items.empty())
+      return false;
+    vector<unsigned> col_widths = estimate_column_widths(items);
+    first_item_ctrl_id = -1;
+    for (unsigned i = 0; i < items.size(); ++i) {
+      unsigned col_index = i % col_widths.size();
+      unsigned ctrl_id = check_box(items[i], read_only ? true : selected_items.count(items[i]) != 0, read_only ? DIF_DISABLE : 0);
+      if (first_item_ctrl_id == -1)
+        first_item_ctrl_id = ctrl_id;
+      if (col_index != col_widths.size() - 1) {
+        spacer(col_widths[col_index] - items[i].size() + 1);
+      }
+      else {
+        new_line();
+      }
+    }
+    if (items.size() % col_widths.size())
+      new_line();
+
+    if (read_only) {
+      Far::Dialog::show();
+      return true;
+    }
+    else {
+      separator();
+      new_line();
+      ok_ctrl_id = def_button(Far::get_msg(MSG_BUTTON_OK), DIF_CENTERGROUP);
+      cancel_ctrl_id = button(Far::get_msg(MSG_BUTTON_CANCEL), DIF_CENTERGROUP);
+      new_line();
+
+      int item = Far::Dialog::show();
+      return (item != -1) && (item != cancel_ctrl_id);
+    }
+
+  }
+};
+
+
+class FormatLibraryInfoDialog: public Far::Dialog {
+private:
+
+  map<unsigned, unsigned> format_btn_map;
+  map<unsigned, unsigned> mask_btn_map;
+
+  wstring get_masks(unsigned lib_index) {
+    const ArcFormats& arc_formats = ArcAPI::formats();
+    wstring masks;
+    for (auto format_iter = ArcAPI::formats().cbegin(); format_iter != ArcAPI::formats().cend(); ++format_iter) {
+      const ArcFormat& format = format_iter->second;
+      if (format.lib_index == lib_index) {
+        list<wstring> ext_list = split(format.extension_list, L' ');
+        for_each(ext_list.begin(), ext_list.end(), [&] (const wstring& ext) {
+          masks += L"*." + ext + L",";
+        });
+      }
+    }
+    if (!masks.empty())
+      masks.erase(masks.size() - 1);
+    return masks;
+  }
+
+  wstring get_formats(unsigned lib_index) {
+    const ArcFormats& arc_formats = ArcAPI::formats();
+    wstring formats;
+    for (auto format_iter = ArcAPI::formats().cbegin(); format_iter != ArcAPI::formats().cend(); ++format_iter) {
+      const ArcFormat& format = format_iter->second;
+      if (format.lib_index == lib_index) {
+        if (!formats.empty())
+          formats += L',';
+        formats += format.name;
+      }
+    }
+    return formats;
+  }
+
+  INT_PTR dialog_proc(int msg, int param1, void* param2) {
+    if (msg == DN_INITDIALOG) {
+      FarDialogItem dlg_item;
+      for (unsigned ctrl_id = 0; send_message(DM_GETDLGITEMSHORT, ctrl_id, &dlg_item); ctrl_id++) {
+        if (dlg_item.Type == DI_EDIT) {
+          EditorSetPosition esp = { 0 };
+          send_message(DM_SETEDITPOSITION, ctrl_id, &esp);
+        }
+      }
+    }
+    else if (msg == DN_CTLCOLORDLGITEM) {
+      FarDialogItem dlg_item;
+      if (send_message(DM_GETDLGITEMSHORT, param1, &dlg_item) && dlg_item.Type == DI_EDIT) {
+        FarColor color;
+        if (Far::get_color(COL_DIALOGTEXT, color)) {
+          FarDialogItemColors* item_colors = static_cast<FarDialogItemColors*>(param2);
+          CHECK(item_colors->ColorsCount == 4);
+          item_colors->Colors[0] = color;
+          item_colors->Colors[2] = color;
+        }
+      }
+    }
+    else if (msg == DN_BTNCLICK) {
+      auto lib_iter = format_btn_map.find(param1);
+      if (lib_iter != format_btn_map.end()) {
+        MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_LIB_FORMATS), get_formats(lib_iter->second)).show();
+      }
+      else {
+        lib_iter = mask_btn_map.find(param1);
+        if (lib_iter != mask_btn_map.end()) {
+          MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_LIB_MASKS), get_masks(lib_iter->second)).show();
+        }
+      }
+    }
+    return default_dialog_proc(msg, param1, param2);
+  }
+
+public:
+  FormatLibraryInfoDialog(): Far::Dialog(Far::get_msg(MSG_SETTINGS_DLG_LIB_INFO), &c_format_library_info_dialog_guid, Far::get_optimal_msg_width()) {
+  }
+
+  void show() {
+    const ArcLibs& libs = ArcAPI::libs();
+    if (libs.empty()) {
+      label(Far::get_msg(MSG_SETTINGS_DLG_LIB_NOT_FOUND));
+      new_line();
+    }
+    else {
+      for (unsigned lib_index = 0; lib_index < libs.size(); ++lib_index) {
+        edit_box(libs[lib_index].module_path, AUTO_SIZE, DIF_READONLY);
+        new_line();
+        label(Far::get_msg(MSG_SETTINGS_DLG_LIB_VERSION) + L' ' +
+          int_to_str(HIWORD(libs[lib_index].version >> 32)) + L'.' + int_to_str(LOWORD(libs[lib_index].version >> 32)) + L'.' +
+          int_to_str(HIWORD(libs[lib_index].version & 0xFFFFFFFF)) + L'.' + int_to_str(LOWORD(libs[lib_index].version & 0xFFFFFFFF)));
+        spacer(1);
+        format_btn_map[button(Far::get_msg(MSG_SETTINGS_DLG_LIB_FORMATS), DIF_BTNNOCLOSE)] = lib_index;
+        spacer(1);
+        mask_btn_map[button(Far::get_msg(MSG_SETTINGS_DLG_LIB_MASKS), DIF_BTNNOCLOSE)] = lib_index;
+        new_line();
+      }
+    }
+
+    Far::Dialog::show();
+  }
+};
+
+
 class SettingsDialog: public Far::Dialog {
 private:
   enum {
@@ -1380,18 +1613,22 @@ private:
   int handle_create_ctrl_id;
   int handle_commands_ctrl_id;
   int use_include_masks_ctrl_id;
+  int edit_include_masks_ctrl_id;
   int include_masks_ctrl_id;
   int use_exclude_masks_ctrl_id;
+  int edit_exclude_masks_ctrl_id;
   int pgdn_masks_ctrl_id;
   int exclude_masks_ctrl_id;
   int generate_masks_ctrl_id;
   int default_masks_ctrl_id;
   int use_enabled_formats_ctrl_id;
+  int edit_enabled_formats_ctrl_id;
   int enabled_formats_ctrl_id;
   int use_disabled_formats_ctrl_id;
+  int edit_disabled_formats_ctrl_id;
   int disabled_formats_ctrl_id;
   int pgdn_formats_ctrl_id;
-  int available_formats_ctrl_id;
+  int lib_info_ctrl_id;
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
@@ -1412,15 +1649,41 @@ private:
     }
     else if (msg == DN_INITDIALOG) {
       enable(include_masks_ctrl_id, settings.use_include_masks);
+      enable(edit_include_masks_ctrl_id, settings.use_include_masks && !settings.include_masks.empty());
       enable(exclude_masks_ctrl_id, settings.use_exclude_masks);
+      enable(edit_exclude_masks_ctrl_id, settings.use_exclude_masks && !settings.exclude_masks.empty());
       enable(enabled_formats_ctrl_id, settings.use_enabled_formats);
+      enable(edit_enabled_formats_ctrl_id, settings.use_enabled_formats);
       enable(disabled_formats_ctrl_id, settings.use_disabled_formats);
+      enable(edit_disabled_formats_ctrl_id, settings.use_disabled_formats);
     }
     else if (msg == DN_BTNCLICK && param1 == use_include_masks_ctrl_id) {
       enable(include_masks_ctrl_id, param2 != 0);
+      enable(edit_include_masks_ctrl_id, param2 != 0);
+    }
+    else if (msg == DN_BTNCLICK && param1 == edit_include_masks_ctrl_id) {
+      wstring include_masks = get_text(include_masks_ctrl_id);
+      if (MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_USE_INCLUDE_MASKS), include_masks, include_masks).show()) {
+        set_text(include_masks_ctrl_id, include_masks);
+        set_focus(include_masks_ctrl_id);
+      }
+    }
+    else if (msg == DN_EDITCHANGE && param1 == include_masks_ctrl_id) {
+      enable(edit_include_masks_ctrl_id, get_check(use_include_masks_ctrl_id) && !get_text(include_masks_ctrl_id).empty());
     }
     else if (msg == DN_BTNCLICK && param1 == use_exclude_masks_ctrl_id) {
       enable(exclude_masks_ctrl_id, param2 != 0);
+      enable(edit_exclude_masks_ctrl_id, param2 != 0);
+    }
+    else if (msg == DN_BTNCLICK && param1 == edit_exclude_masks_ctrl_id) {
+      wstring exclude_masks = get_text(exclude_masks_ctrl_id);
+      if (MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_USE_EXCLUDE_MASKS), exclude_masks, exclude_masks).show()) {
+        set_text(exclude_masks_ctrl_id, exclude_masks);
+        set_focus(exclude_masks_ctrl_id);
+      }
+    }
+    else if (msg == DN_EDITCHANGE && param1 == exclude_masks_ctrl_id) {
+      enable(edit_exclude_masks_ctrl_id, get_check(use_exclude_masks_ctrl_id) && !get_text(exclude_masks_ctrl_id).empty());
     }
     else if (msg == DN_BTNCLICK && param1 == generate_masks_ctrl_id) {
       generate_masks();
@@ -1430,9 +1693,28 @@ private:
     }
     else if (msg == DN_BTNCLICK && param1 == use_enabled_formats_ctrl_id) {
       enable(enabled_formats_ctrl_id, param2 != 0);
+      enable(edit_enabled_formats_ctrl_id, param2 != 0);
+    }
+    else if (msg == DN_BTNCLICK && param1 == edit_enabled_formats_ctrl_id) {
+      wstring enabled_formats = get_text(enabled_formats_ctrl_id);
+      if (MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_USE_ENABLED_FORMATS), get_available_formats(), enabled_formats).show()) {
+        set_text(enabled_formats_ctrl_id, enabled_formats);
+        set_focus(enabled_formats_ctrl_id);
+      }
     }
     else if (msg == DN_BTNCLICK && param1 == use_disabled_formats_ctrl_id) {
       enable(disabled_formats_ctrl_id, param2 != 0);
+      enable(edit_disabled_formats_ctrl_id, param2 != 0);
+    }
+    else if (msg == DN_BTNCLICK && param1 == edit_disabled_formats_ctrl_id) {
+      wstring disabled_formats = get_text(disabled_formats_ctrl_id);
+      if (MultiSelectDialog(Far::get_msg(MSG_SETTINGS_DLG_USE_DISABLED_FORMATS), get_available_formats(), disabled_formats).show()) {
+        set_text(disabled_formats_ctrl_id, disabled_formats);
+        set_focus(disabled_formats_ctrl_id);
+      }
+    }
+    else if (msg == DN_BTNCLICK && param1 == lib_info_ctrl_id) {
+      FormatLibraryInfoDialog().show();
     }
     return default_dialog_proc(msg, param1, param2);
   }
@@ -1486,11 +1768,19 @@ public:
     separator();
     new_line();
 
-    use_include_masks_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_USE_INCLUDE_MASKS), settings.use_include_masks);
+    label(Far::get_msg(MSG_SETTINGS_DLG_USE_INCLUDE_MASKS));
+    spacer(1);
+    use_include_masks_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_ACTIVE), settings.use_include_masks);
+    spacer(1);
+    edit_include_masks_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_EDIT), DIF_BTNNOCLOSE);
     new_line();
     include_masks_ctrl_id = edit_box(settings.include_masks, c_client_xs);
     new_line();
-    use_exclude_masks_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_USE_EXCLUDE_MASKS), settings.use_exclude_masks);
+    label(Far::get_msg(MSG_SETTINGS_DLG_USE_EXCLUDE_MASKS));
+    spacer(1);
+    use_exclude_masks_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_ACTIVE), settings.use_exclude_masks);
+    spacer(1);
+    edit_exclude_masks_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_EDIT), DIF_BTNNOCLOSE);
     new_line();
     exclude_masks_ctrl_id = edit_box(settings.exclude_masks, c_client_xs);
     new_line();
@@ -1503,37 +1793,29 @@ public:
     separator();
     new_line();
 
-    use_enabled_formats_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_USE_ENABLED_FORMATS), settings.use_enabled_formats);
+    label(Far::get_msg(MSG_SETTINGS_DLG_USE_ENABLED_FORMATS));
+    spacer(1);
+    use_enabled_formats_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_ACTIVE), settings.use_enabled_formats);
+    spacer(1);
+    edit_enabled_formats_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_EDIT), DIF_BTNNOCLOSE);
     new_line();
     enabled_formats_ctrl_id = edit_box(settings.enabled_formats, c_client_xs);
     new_line();
-    use_disabled_formats_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_USE_DISABLED_FORMATS), settings.use_disabled_formats);
+    label(Far::get_msg(MSG_SETTINGS_DLG_USE_DISABLED_FORMATS));
+    spacer(1);
+    use_disabled_formats_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_ACTIVE), settings.use_disabled_formats);
+    spacer(1);
+    edit_disabled_formats_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_EDIT), DIF_BTNNOCLOSE);
     new_line();
     disabled_formats_ctrl_id = edit_box(settings.disabled_formats, c_client_xs);
     new_line();
     pgdn_formats_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_PGDN_FORMATS), settings.pgdn_formats);
     new_line();
-    label(Far::get_msg(MSG_SETTINGS_DLG_AVAILABLE_FORMATS));
-    new_line();
-    available_formats_ctrl_id = edit_box(get_available_formats(), c_client_xs, DIF_READONLY);
+    separator();
     new_line();
 
-    separator(Far::get_msg(MSG_SETTINGS_DLG_LIB_INFO));
+    lib_info_ctrl_id = button(Far::get_msg(MSG_SETTINGS_DLG_LIB_INFO), DIF_BTNNOCLOSE);
     new_line();
-    const ArcLibs& libs = ArcAPI::libs();
-    if (libs.empty()) {
-      label(Far::get_msg(MSG_SETTINGS_DLG_LIB_NOT_FOUND));
-      new_line();
-    }
-    else {
-      const ArcLib& lib = libs.front();
-      label(fit_str(lib.module_path, c_client_xs), c_client_xs, DIF_SHOWAMPERSAND);
-      new_line();
-      label(Far::get_msg(MSG_SETTINGS_DLG_LIB_VERSION) + L' ' +
-        int_to_str(HIWORD(lib.version >> 32)) + L'.' + int_to_str(LOWORD(lib.version >> 32)) + L'.' +
-        int_to_str(HIWORD(lib.version & 0xFFFFFFFF)) + L'.' + int_to_str(LOWORD(lib.version & 0xFFFFFFFF)));
-      new_line();
-    }
     separator();
     new_line();
 

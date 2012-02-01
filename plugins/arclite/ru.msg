@@ -132,10 +132,13 @@ settings.dlg.default_masks = С&тандартные маски
 settings.dlg.use_enabled_formats = В&ключить форматы архивов:
 settings.dlg.use_disabled_formats = &Отключить форматы архивов:
 settings.dlg.pgdn_formats = &Настройки форматов влияют на Ctrl-PgDn
-settings.dlg.available_formats = &Доступные форматы архивов:
-settings.dlg.lib_info = Информация о библиотеке 7z
+settings.dlg.lib_info = Информация о библиотеке &7z
 settings.dlg.lib_not_found = Библиотека 7z не найдена
 settings.dlg.lib_version = Версия:
+settings.dlg.lib_formats = Форматы
+settings.dlg.lib_masks = Маски
+settings.dlg.active = Активно
+settings.dlg.edit = Редактировать
 
 # Attributes dialog
 attr.dlg.title = Атрибуты

@@ -266,6 +266,8 @@ const wchar_t* Dialog::get_value(unsigned idx) const {
 }
 
 void Dialog::frame(const wstring& text) {
+  if (text.size() > client_xs)
+    client_xs = text.size();
   DialogItem di;
   di.type = DI_DOUBLEBOX;
   di.x1 = c_x_frame - 2;

@@ -21,6 +21,7 @@
 #include <functional>
 #include <iterator>
 #include <limits>
+#include <numeric>
 using namespace std;
 
 #define INITGUID
