@@ -723,12 +723,12 @@ static bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &Imag
 }
 
 /*
- возвращает PipeFound
+ возвращает 2*PipeFound + 1*Escaped
 */
 int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar)
 {
-	int PipeFound = FALSE;
-	int QuoteFound = FALSE;
+	int PipeFound = 0, Escaped = 0;
+	bool quoted = false;
 	apiExpandEnvironmentStrings(CmdStr, strNewCmdStr);
 	RemoveExternalSpaces(strNewCmdStr);
 	wchar_t *NewCmdStr = strNewCmdStr.GetBuffer();
@@ -738,35 +738,32 @@ int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar
 	// При этом заодно определим наличие символов переопределения потоков
 	// Работаем с учетом кавычек. Т.е. пайп в кавычках - не пайп.
 
+	static const wchar_t ending_chars[] = L"/ <>|&";
+
 	while (*CmdPtr)
 	{
 		if (*CmdPtr == L'"')
-			QuoteFound = !QuoteFound;
+			quoted = !quoted;
 
-		if (!QuoteFound && *CmdPtr == L'^') // для "^>" и еже с ним
+		if (!quoted && *CmdPtr == L'^' && CmdPtr[1] > L' ') // "^>" и иже с ним
 		{
-			CmdPtr++;
+			Escaped = 1; // 
+			CmdPtr++;    // ??? может быть '^' надо удалить...
 		}
-		else if (!QuoteFound && CmdPtr != NewCmdStr)
+		else if (!quoted && CmdPtr != NewCmdStr)
 		{
-			if (*CmdPtr == L'>' ||
-			        *CmdPtr == L'<' ||
-			        *CmdPtr == L'|' ||
-			        *CmdPtr == L' ' ||
-			        *CmdPtr == L'/' || // вариант "far.exe/?"
-			        *CmdPtr == L'&'    // обработаем разделитель команд
-			   )
+			const wchar_t *ending = wcschr(ending_chars, *CmdPtr);
+			if ( ending )
 			{
 				if (!ParPtr)
 					ParPtr = CmdPtr;
 
-				if (*CmdPtr != L' ' && *CmdPtr != L'/')
-					PipeFound = TRUE;
+				if (ending >= ending_chars+2)
+					PipeFound = 1;
 			}
 		}
 
-		if (ParPtr && PipeFound)
-			// Нам больше ничего не надо узнавать
+		if (ParPtr && PipeFound) // Нам больше ничего не надо узнавать
 			break;
 
 		CmdPtr++;
@@ -775,7 +772,7 @@ int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar
 	if (ParPtr) // Мы нашли параметры и отделяем мух от котлет
 	{
 		if (*ParPtr == L' ') //AY: первый пробел между командой и параметрами не нужен,
-			*(ParPtr++)=0;   //    он добавляется заново в Execute.
+			*(ParPtr++)=0;    //    он добавляется заново в Execute.
 
 		strNewCmdPar = ParPtr;
 		*ParPtr = 0;
@@ -783,7 +780,8 @@ int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar
 
 	strNewCmdStr.ReleaseBuffer();
 	Unquote(strNewCmdStr);
-	return PipeFound;
+
+	return 2*PipeFound + 1*Escaped;
 }
 
 bool RunAsSupported(LPCWSTR Name)
@@ -807,11 +805,10 @@ bool RunAsSupported(LPCWSTR Name)
 	return Result;
 }
 
-
 /* Функция-пускатель внешних процессов
    Возвращает -1 в случае ошибки или...
 */
-int Execute(const string& CmdStr, // Ком.строка для исполнения
+int Execute(const string& CmdStr,  // Ком.строка для исполнения
             bool AlwaysWaitFinish, // Ждать завершение процесса?
             bool SeparateWindow,   // Выполнить в отдельном окне?
             bool DirectRun,        // Выполнять директом? (без CMD)
@@ -824,7 +821,8 @@ int Execute(const string& CmdStr, // Ком.строка для исполнения
 	int nResult = -1;
 	string strNewCmdStr;
 	string strNewCmdPar;
-	PartCmdLine(CmdStr, strNewCmdStr, strNewCmdPar);
+
+	int PipeOrEscaped = PartCmdLine(CmdStr, strNewCmdStr, strNewCmdPar);
 
 	DWORD dwAttr = apiGetFileAttributes(strNewCmdStr);
 
@@ -904,26 +902,21 @@ int Execute(const string& CmdStr, // Ком.строка для исполнения
 			}
 		}
 
-		const wchar_t* ComspecSpecific  = L"&<>|";
-
 		if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
 		{
 			if(DirectRun && Opt.ExecuteSilentExternal)
 			{
 				Silent = true;
 			}
-			if (!DirectRun && !CmdStr.ContainsAny(ComspecSpecific))
+			if ( !DirectRun )
 			{
-				DirectRun = true;
+				DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
 			}
 			SeparateWindow = true;
 		}
-		else if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_CUI && !DirectRun)
+		else if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_CUI && !DirectRun && !internal)
 		{
-			if (!CmdStr.ContainsAny(ComspecSpecific)&&!internal)
-			{
-				DirectRun = true;
-			}
+			DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
 		}
 	}
 
@@ -1115,7 +1108,7 @@ int Execute(const string& CmdStr, // Ком.строка для исполнения
 
 										Console.ReadInput(ir, 256, rd);
 										/*
-										  Не будем вызыват CloseConsole, потому, что она поменяет
+										  Не будем вызывать CloseConsole, потому, что она поменяет
 										  ConsoleMode на тот, что был до запуска Far'а,
 										  чего работающее приложение могло и не ожидать.
 										*/
@@ -1387,7 +1380,7 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 	for (;;)
 	{
-		if (!PtrCmd || !*PtrCmd || StrCmpNI(PtrCmd,L"IF ",3))
+		if (!PtrCmd || !*PtrCmd || StrCmpNI(PtrCmd,L"IF ",3)) //??? IF/I не обрабатывается
 			break;
 
 		PtrCmd+=3;
@@ -1568,11 +1561,14 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		return TRUE;
 	}
 	// SET [переменная=[строка]]
-	else if (!StrCmpNI(strCmdLine,L"SET",3) && IsSpaceOrEos(strCmdLine.At(3)))
+	else if (!StrCmpNI(strCmdLine,L"SET",3) && (IsSpaceOrEos(strCmdLine.At(3)) || strCmdLine.At(3) == L'/'))
 	{
 		size_t pos;
 		strCmdLine.LShift(3);
 		RemoveLeadingSpaces(strCmdLine);
+
+		if (CheckCmdLineForHelp(strCmdLine))
+			return FALSE; // отдадимся COMSPEC`у
 
 		// "set" (display all) or "set var" (display all that begin with "var")
 		if (strCmdLine.IsEmpty() || !strCmdLine.Pos(pos,L'=') || !pos)
@@ -1581,8 +1577,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			if (strCmdLine.At(0)==L'|' || strCmdLine.At(0)==L'>')
 				return FALSE;
 
-			ShowBackground();
-			// display command
+			ShowBackground();  //??? почему не отдаём COMSPEC'у
+			// display command //???
 			Redraw();
 			GotoXY(X2+1,Y1);
 			Text(L" ");
@@ -1610,11 +1606,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			return TRUE;
 		}
 
-		if (CheckCmdLineForHelp(strCmdLine))
-			return FALSE; // отдадимся COMSPEC`у
-
 		if (CheckCmdLineForSet(strCmdLine)) // вариант для /A и /P
-			return FALSE;
+			return FALSE; //todo: /p - dialog, /a - calculation; then set variable ...
 
 		if (strCmdLine.GetLength() == pos+1) //set var=
 		{
