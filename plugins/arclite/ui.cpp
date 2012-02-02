@@ -1446,7 +1446,7 @@ public:
 
   bool show() {
     struct ItemCompare {
-      bool operator()(const wstring& a, const wstring& b) {
+      bool operator()(const wstring& a, const wstring& b) const {
         return upcase(a) < upcase(b);
       }
     };
