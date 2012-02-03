@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "DList.hpp"
+
 #define NT_MAX_PATH 32768
 
 struct FAR_FIND_DATA_EX
@@ -134,6 +136,32 @@ private:
 	bool NeedSyncPointer;
 
 	inline void SyncPointer();
+};
+
+class FileWalker: public File
+{
+public:
+	FileWalker();
+	bool InitWalk(DWORD BlockSize);
+	bool Step();
+	UINT64 GetChunkOffset() const;
+	DWORD GetChunkSize() const;
+	int GetPercent() const;
+
+private:
+	struct Chunk
+	{
+		UINT64 Offset;
+		DWORD Size;
+	};
+	DList<Chunk> ChunkList;
+	Chunk SingleChunk;
+	UINT64 FileSize;
+	UINT64 AllocSize;
+	UINT64 ProcessedSize;
+	Chunk* CurrentChunk;
+	DWORD ChunkSize;
+	bool Sparse;
 };
 
 NTSTATUS GetLastNtStatus();

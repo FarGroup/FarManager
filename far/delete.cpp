@@ -75,7 +75,7 @@ static int AskDeleteReadOnly(const string& Name,DWORD Attr,int Wipe);
 static int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent);
 static int ERemoveDirectory(const string& Name,int Wipe);
 static int RemoveToRecycleBin(const string& Name);
-static int WipeFile(const string& Name, int TotalPercent);
+static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel);
 static int WipeDirectory(const string& Name);
 static void PR_ShellDeleteMsg();
 
@@ -773,9 +773,13 @@ int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent)
 				case 1:
 					SkipWipeMode=0;
 				case 0:
-
-					if (WipeFile(Name, TotalPercent))
-						return DELETE_SUCCESS;
+					{
+						bool Cancel = false;
+						if (WipeFile(Name, TotalPercent, Cancel))
+							return DELETE_SUCCESS;
+						else if(Cancel)
+							return DELETE_CANCEL;
+					}
 			}
 		}
 		else if (!Opt.DeleteToRecycleBin)
@@ -946,62 +950,55 @@ int RemoveToRecycleBin(const string& Name)
 	return MoveToRecycleBinInternal(lpwszName);
 }
 
-int WipeFile(const string& Name, int TotalPercent)
+bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 {
-	unsigned __int64 FileSize;
+	bool Result = false;
+
 	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
-	File WipeFile;
-	if(!WipeFile.Open(Name, GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT|FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
-	{
-		return FALSE;
-	}
 
-	if (!WipeFile.GetSize(FileSize))
-	{
-		WipeFile.Close();
-		return FALSE;
-	}
+	FileWalker WipeFile;
 
-	if(FileSize)
+	if(WipeFile.Open(Name, FILE_READ_DATA|FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT|FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
 	{
-		INT64 InitFileSize = FileSize;
-		const size_t BufSize=65536;
-		static BYTE Buf[BufSize];
-		static bool BufInit = false;
-		if(!BufInit)
+		const DWORD BufSize=65536;
+		if(WipeFile.InitWalk(BufSize))
 		{
-			memset(Buf, Opt.WipeSymbol, BufSize); // используем символ заполнитель
-			BufInit = true;
-		}
-		DWORD Written;
-		DWORD StartTime=GetTickCount();
-
-		while (FileSize>0)
-		{
-			DWORD WriteSize=(DWORD)Min((unsigned __int64)BufSize,FileSize);
-			WipeFile.Write(Buf,WriteSize,Written);
-			FileSize-=WriteSize;
-			DWORD CurTime=GetTickCount();
-			if (CurTime-StartTime>RedrawTimeout)
+			static BYTE Buf[BufSize];
+			static bool BufInit = false;
+			if(!BufInit)
 			{
-				StartTime=CurTime;
-				int WipePercent = (InitFileSize-FileSize)*100/InitFileSize;
-				ShellDeleteMsg(Name, DEL_WIPEPROCESS, TotalPercent, WipePercent);
+				memset(Buf, Opt.WipeSymbol, BufSize); // используем символ заполнитель
+				BufInit = true;
 			}
+
+			DWORD StartTime=GetTickCount();
+			while(WipeFile.Step())
+			{
+				DWORD Written;
+				WipeFile.Write(Buf, WipeFile.GetChunkSize(), Written);
+				DWORD CurTime=GetTickCount();
+				if (CurTime-StartTime>RedrawTimeout)
+				{
+					StartTime=CurTime;
+
+					if (CheckForEscSilent() && ConfirmAbortOp())
+					{
+						Cancel=true;
+						return false;
+					}
+
+					ShellDeleteMsg(Name, DEL_WIPEPROCESS, TotalPercent, WipeFile.GetPercent());
+				}
+			}
+			WipeFile.SetPointer(0,nullptr,FILE_BEGIN);
+			WipeFile.SetEnd();
 		}
-		WipeFile.SetPointer(0,nullptr,FILE_BEGIN);
-		//WipeFile.SetEnd();
+		WipeFile.Close();
+		string strTempName;
+		FarMkTempEx(strTempName,nullptr,FALSE);
+		Result = apiMoveFile(Name,strTempName) && apiDeleteFile(strTempName);
 	}
-
-	WipeFile.Close();
-	string strTempName;
-	FarMkTempEx(strTempName,nullptr,FALSE);
-
-	if (apiMoveFile(Name,strTempName))
-		return apiDeleteFile(strTempName);
-
-	SetLastError((_localLastError = GetLastError()));
-	return FALSE;
+	return Result;
 }
 
 
@@ -1020,7 +1017,6 @@ int WipeDirectory(const string& Name)
 
 	if (!apiMoveFile(Name, strTempName))
 	{
-		SetLastError((_localLastError = GetLastError()));
 		return FALSE;
 	}
 
@@ -1043,7 +1039,6 @@ int DeleteFileWithFolder(const string& FileName)
 		}
 	}
 
-	SetLastError((_localLastError = GetLastError()));
 	return FALSE;
 }
 

@@ -92,8 +92,6 @@ SaveScreen *GlobalSaveScrPtr=nullptr;
 
 int CriticalInternalError=FALSE;
 
-int _localLastError=0;
-
 int KeepUserScreen;
 string g_strDirToSet;
 

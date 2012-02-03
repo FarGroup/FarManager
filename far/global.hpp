@@ -84,8 +84,6 @@ extern SaveScreen *GlobalSaveScrPtr;
 
 extern int CriticalInternalError;
 
-extern int _localLastError;
-
 extern int KeepUserScreen;
 extern string g_strDirToSet; //RAVE!!!
 

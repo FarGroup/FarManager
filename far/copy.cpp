@@ -3016,14 +3016,12 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 	if (Opt.CMOpt.CopyOpened)
 		OpenMode|=FILE_SHARE_WRITE;
 
-	File SrcFile;
+	FileWalker SrcFile;
 	bool Opened = SrcFile.Open(SrcName, GENERIC_READ, OpenMode, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 
 	if (!Opened && Opt.CMOpt.CopyOpened)
 	{
-		_localLastError=GetLastError();
-
-		if (_localLastError == ERROR_SHARING_VIOLATION)
+		if (GetLastError() == ERROR_SHARING_VIOLATION)
 		{
 			Opened = SrcFile.Open(SrcName, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 		}
@@ -3031,9 +3029,10 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 
 	if (!Opened)
 	{
-		_localLastError=GetLastError();
 		return COPY_FAILURE;
 	}
+
+	SrcFile.InitWalk(CopyBufferSize);
 
 	File DestFile;
 	__int64 AppendPos=0;
@@ -3049,9 +3048,9 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 
 		if (!DstOpened)
 		{
-			_localLastError=GetLastError();
+			_LOGCOPYR(DWORD LastError=GetLastError();)
 			SrcFile.Close();
-			_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d CreateFile=-1, LastError=%d (0x%08X)",__LINE__,_localLastError,_localLastError));
+			_LOGCOPYR(SysLog(L"return COPY_FAILURE -> %d CreateFile=-1, LastError=%d (0x%08X)",__LINE__,LastError,LastError));
 			return COPY_FAILURE;
 		}
 
@@ -3078,7 +3077,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 		{
 			if (!DestFile.SetPointer(0,&AppendPos,FILE_END))
 			{
-				_localLastError=GetLastError();
 				SrcFile.Close();
 				DestFile.SetEnd();
 				DestFile.Close();
@@ -3100,331 +3098,279 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 	}
 
 	int   AbortOp = FALSE;
-	BOOL SparseQueryResult=TRUE;
-	FILE_ALLOCATED_RANGE_BUFFER queryrange;
-	static FILE_ALLOCATED_RANGE_BUFFER ranges[1024];
-	queryrange.FileOffset.QuadPart = 0;
-	queryrange.Length.QuadPart = SrcData.nFileSize;
+
 	CP->SetProgressValue(0,0);
 
-	do
+	DWORD BytesRead,BytesWritten;
+
+	while(SrcFile.Step())
 	{
-		DWORD n=0,nbytes=0;
+		BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
 
-		if (CopySparse)
+		if (CP->Cancelled())
 		{
-			SparseQueryResult=SrcFile.IoControl(FSCTL_QUERY_ALLOCATED_RANGES, &queryrange, sizeof(queryrange), ranges, sizeof(ranges), &nbytes);
-
-			if (!SparseQueryResult && GetLastError()!=ERROR_MORE_DATA)
-				break;
-
-			n=nbytes/sizeof(FILE_ALLOCATED_RANGE_BUFFER);
+			AbortOp=true;
 		}
 
-		for (DWORD i=0; i<(CopySparse?n:i+1); i++)
+		IsChangeConsole=CheckAndUpdateConsole(IsChangeConsole);
+
+		if (IsChangeConsole)
 		{
-			INT64 Size=0;
+			OrigScrX=ScrX;
+			OrigScrY=ScrY;
+			PR_ShellCopyMsg();
+		}
 
-			if (CopySparse)
+		CP->SetProgressValue(CurCopiedSize,SrcData.nFileSize);
+
+		if (ShowTotalCopySize)
+		{
+			CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
+		}
+
+		if (AbortOp)
+		{
+			SrcFile.Close();
+
+			if (!(Flags&FCOPY_COPYTONUL))
 			{
-				Size=ranges[i].Length.QuadPart;
-				SrcFile.SetPointer(ranges[i].FileOffset.QuadPart,nullptr,FILE_BEGIN);
-				INT64 DestPos=ranges[i].FileOffset.QuadPart;
-
 				if (Append)
-					DestPos+=AppendPos;
+				{
+					DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
+				}
 
-				DestFile.SetPointer(DestPos,nullptr,FILE_BEGIN);
+				DestFile.SetEnd();
+				DestFile.Close();
+
+				if (!Append)
+				{
+					apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
+					apiDeleteFile(strDestName); //BUGBUG
+				}
 			}
 
-			DWORD BytesRead,BytesWritten;
+			return COPY_CANCEL;
+		}
 
-			while (CopySparse?(Size>0):true)
+		while (!SrcFile.Read(CopyBuffer, SrcFile.GetChunkSize(), BytesRead))
+		{
+			int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+					                MSG(MCopyReadError),SrcName,
+					                MSG(MRetry),MSG(MCancel));
+			PR_ShellCopyMsg();
+
+			if (!MsgCode)
+				continue;
+
+			DWORD LastError=GetLastError();
+			SrcFile.Close();
+
+			if (!(Flags&FCOPY_COPYTONUL))
 			{
-				BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
-
-				if (CP->Cancelled())
+				if (Append)
 				{
-					AbortOp=true;
+					DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
 				}
 
-				IsChangeConsole=CheckAndUpdateConsole(IsChangeConsole);
+				DestFile.SetEnd();
+				DestFile.Close();
 
-				if (IsChangeConsole)
+				if (!Append)
 				{
-					OrigScrX=ScrX;
-					OrigScrY=ScrY;
-					PR_ShellCopyMsg();
+					apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
+					apiDeleteFile(strDestName); //BUGBUG
 				}
+			}
 
-				CP->SetProgressValue(CurCopiedSize,SrcData.nFileSize);
+			CP->SetProgressValue(0,0);
+			SetLastError(LastError);
+			CurCopiedSize = 0; // Сбросить текущий прогресс
+			return COPY_FAILURE;
+		}
 
-				if (ShowTotalCopySize)
+		if (!BytesRead)
+		{
+			break;
+		}
+
+		if (!(Flags&FCOPY_COPYTONUL))
+		{
+			DestFile.SetPointer(SrcFile.GetChunkOffset() + (Append? AppendPos : 0), nullptr, FILE_BEGIN);
+			while (!DestFile.Write(CopyBuffer,BytesRead,BytesWritten,nullptr))
+			{
+				DWORD LastError=GetLastError();
+				int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
+
+				if ((LastError==ERROR_DISK_FULL || LastError==ERROR_HANDLE_DISK_FULL) &&
+						!strDestName.IsEmpty() && strDestName.At(1)==L':')
 				{
-					CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
-				}
+					string strDriveRoot;
+					GetPathRoot(strDestName,strDriveRoot);
+					UINT64 FreeSize=0;
 
-				if (AbortOp)
-				{
-					SrcFile.Close();
-
-					if (!(Flags&FCOPY_COPYTONUL))
+					if (apiGetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
 					{
-						if (Append)
+						if (FreeSize<BytesRead &&
+								DestFile.Write(CopyBuffer,(DWORD)FreeSize,BytesWritten,nullptr) &&
+								SrcFile.SetPointer(FreeSize-BytesRead,nullptr,FILE_CURRENT))
 						{
-							DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
-						}
+							DestFile.Close();
+							SetMessageHelp(L"CopyFiles");
+							SetLastError(LastError);
+							int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
+									            strDestName,
+									            MSG(MSplit),MSG(MSkip),MSG(MRetry),MSG(MCancel));
+							PR_ShellCopyMsg();
 
-						DestFile.SetEnd();
-						DestFile.Close();
-
-						if (!Append)
-						{
-							apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
-							apiDeleteFile(strDestName); //BUGBUG
-						}
-					}
-
-					return COPY_CANCEL;
-				}
-
-				while (!SrcFile.Read(CopyBuffer,(CopySparse?(DWORD)Min((LONGLONG)CopyBufferSize,Size):CopyBufferSize),BytesRead,nullptr))
-				{
-					int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
-					                      MSG(MCopyReadError),SrcName,
-					                      MSG(MRetry),MSG(MCancel));
-					PR_ShellCopyMsg();
-
-					if (!MsgCode)
-						continue;
-
-					DWORD LastError=GetLastError();
-					SrcFile.Close();
-
-					if (!(Flags&FCOPY_COPYTONUL))
-					{
-						if (Append)
-						{
-							DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
-						}
-
-						DestFile.SetEnd();
-						DestFile.Close();
-
-						if (!Append)
-						{
-							apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
-							apiDeleteFile(strDestName); //BUGBUG
-						}
-					}
-
-					CP->SetProgressValue(0,0);
-					SetLastError(_localLastError=LastError);
-					CurCopiedSize = 0; // Сбросить текущий прогресс
-					return COPY_FAILURE;
-				}
-
-				if (!BytesRead)
-				{
-					SparseQueryResult=FALSE;
-					break;
-				}
-
-				if (!(Flags&FCOPY_COPYTONUL))
-				{
-					while (!DestFile.Write(CopyBuffer,BytesRead,BytesWritten,nullptr))
-					{
-						DWORD LastError=GetLastError();
-						int Split=FALSE,SplitCancelled=FALSE,SplitSkipped=FALSE;
-
-						if ((LastError==ERROR_DISK_FULL || LastError==ERROR_HANDLE_DISK_FULL) &&
-						        !strDestName.IsEmpty() && strDestName.At(1)==L':')
-						{
-							string strDriveRoot;
-							GetPathRoot(strDestName,strDriveRoot);
-							UINT64 FreeSize=0;
-
-							if (apiGetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
-							{
-								if (FreeSize<BytesRead &&
-								        DestFile.Write(CopyBuffer,(DWORD)FreeSize,BytesWritten,nullptr) &&
-										SrcFile.SetPointer(FreeSize-BytesRead,nullptr,FILE_CURRENT))
-								{
-									DestFile.Close();
-									SetMessageHelp(L"CopyFiles");
-									SetLastError(LastError);
-									int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-									                    strDestName,
-									                    MSG(MSplit),MSG(MSkip),MSG(MRetry),MSG(MCancel));
-									PR_ShellCopyMsg();
-
-									if (MsgCode==2)
-									{
-										SrcFile.Close();
-
-										if (!Append)
-										{
-											apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
-											apiDeleteFile(strDestName); //BUGBUG
-										}
-
-										return COPY_FAILURE;
-									}
-
-									if (!MsgCode)
-									{
-										Split=TRUE;
-
-										for (;;)
-										{
-											if (apiGetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
-												if (FreeSize<BytesRead)
-												{
-													int MsgCode2 = Message(MSG_WARNING,2,MSG(MWarning),
-													                       MSG(MCopyErrorDiskFull),strDestName,
-													                       MSG(MRetry),MSG(MCancel));
-													PR_ShellCopyMsg();
-
-													if (MsgCode2)
-													{
-														Split=FALSE;
-														SplitCancelled=TRUE;
-													}
-													else
-														continue;
-												}
-
-											break;
-										}
-									}
-
-									if (MsgCode==1)
-										SplitSkipped=TRUE;
-
-									if (MsgCode==-1 || MsgCode==3)
-										SplitCancelled=TRUE;
-								}
-							}
-						}
-
-						if (Split)
-						{
-							INT64 FilePtr=SrcFile.GetPointer();
-							FAR_FIND_DATA_EX SplitData=SrcData;
-							SplitData.nFileSize-=FilePtr;
-							int RetCode;
-							string strNewName;
-
-							if (!AskOverwrite(SplitData,SrcName,strDestName,INVALID_FILE_ATTRIBUTES,FALSE,((Flags&FCOPY_MOVE)?TRUE:FALSE),((Flags&FCOPY_LINK)?0:1),Append,strNewName,RetCode))
+							if (MsgCode==2)
 							{
 								SrcFile.Close();
-								return(COPY_CANCEL);
-							}
 
-							if (RetCode==COPY_RETRY)
-							{
-								strDestName=strNewName;
-
-								if (CutToSlash(strNewName) && apiGetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
+								if (!Append)
 								{
-									CreatePath(strNewName);
+									apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
+									apiDeleteFile(strDestName); //BUGBUG
 								}
 
-								return COPY_RETRY;
-							}
-
-							string strDestDir = strDestName;
-
-							if (CutToSlash(strDestDir,true))
-								CreatePath(strDestDir);
-
-							;
-
-							if (!DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN) || (Append && !DestFile.SetPointer(0,nullptr,FILE_END)))
-							{
-								_localLastError=GetLastError();
-								SrcFile.Close();
-								DestFile.Close();
 								return COPY_FAILURE;
 							}
+
+							if (!MsgCode)
+							{
+								Split=TRUE;
+
+								for (;;)
+								{
+									if (apiGetDiskSize(strDriveRoot,nullptr,nullptr,&FreeSize))
+										if (FreeSize<BytesRead)
+										{
+											int MsgCode2 = Message(MSG_WARNING,2,MSG(MWarning),
+													                MSG(MCopyErrorDiskFull),strDestName,
+													                MSG(MRetry),MSG(MCancel));
+											PR_ShellCopyMsg();
+
+											if (MsgCode2)
+											{
+												Split=FALSE;
+												SplitCancelled=TRUE;
+											}
+											else
+												continue;
+										}
+
+									break;
+								}
+							}
+
+							if (MsgCode==1)
+								SplitSkipped=TRUE;
+
+							if (MsgCode==-1 || MsgCode==3)
+								SplitCancelled=TRUE;
 						}
-						else
+					}
+				}
+
+				if (Split)
+				{
+					INT64 FilePtr=SrcFile.GetPointer();
+					FAR_FIND_DATA_EX SplitData=SrcData;
+					SplitData.nFileSize-=FilePtr;
+					int RetCode;
+					string strNewName;
+
+					if (!AskOverwrite(SplitData,SrcName,strDestName,INVALID_FILE_ATTRIBUTES,FALSE,((Flags&FCOPY_MOVE)?TRUE:FALSE),((Flags&FCOPY_LINK)?0:1),Append,strNewName,RetCode))
+					{
+						SrcFile.Close();
+						return(COPY_CANCEL);
+					}
+
+					if (RetCode==COPY_RETRY)
+					{
+						strDestName=strNewName;
+
+						if (CutToSlash(strNewName) && apiGetFileAttributes(strNewName)==INVALID_FILE_ATTRIBUTES)
 						{
-							if (!SplitCancelled && !SplitSkipped &&
-							        !Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
-							                MSG(MCopyWriteError),strDestName,MSG(MRetry),MSG(MCancel)))
-							{
-								continue;
-							}
-
-							SrcFile.Close();
-
-							if (Append)
-							{
-								DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
-							}
-
-							DestFile.SetEnd();
-							DestFile.Close();
-
-							if (!Append)
-							{
-								apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
-								apiDeleteFile(strDestName); //BUGBUG
-							}
-
-							CP->SetProgressValue(0,0);
-							SetLastError(_localLastError=LastError);
-
-							if (SplitSkipped)
-								return COPY_NEXT;
-
-							return(SplitCancelled ? COPY_CANCEL:COPY_FAILURE);
+							CreatePath(strNewName);
 						}
 
-						break;
+						return COPY_RETRY;
+					}
+
+					string strDestDir = strDestName;
+
+					if (CutToSlash(strDestDir,true))
+						CreatePath(strDestDir);
+
+					;
+
+					if (!DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), SrcData.dwFileAttributes|FILE_FLAG_SEQUENTIAL_SCAN) || (Append && !DestFile.SetPointer(0,nullptr,FILE_END)))
+					{
+						SrcFile.Close();
+						DestFile.Close();
+						return COPY_FAILURE;
 					}
 				}
 				else
 				{
-					BytesWritten=BytesRead; // не забудем приравнять количество записанных байт
+					if (!SplitCancelled && !SplitSkipped &&
+							!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+							        MSG(MCopyWriteError),strDestName,MSG(MRetry),MSG(MCancel)))
+					{
+						continue;
+					}
+
+					SrcFile.Close();
+
+					if (Append)
+					{
+						DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
+					}
+
+					DestFile.SetEnd();
+					DestFile.Close();
+
+					if (!Append)
+					{
+						apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
+						apiDeleteFile(strDestName); //BUGBUG
+					}
+
+					CP->SetProgressValue(0,0);
+					SetLastError(LastError);
+
+					if (SplitSkipped)
+						return COPY_NEXT;
+
+					return(SplitCancelled ? COPY_CANCEL:COPY_FAILURE);
 				}
 
-				CurCopiedSize+=BytesWritten;
-
-				if (ShowTotalCopySize)
-					TotalCopiedSize+=BytesWritten;
-
-				CP->SetProgressValue(CurCopiedSize,SrcData.nFileSize);
-
-				if (ShowTotalCopySize)
-				{
-					CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
-				}
-
-				CP->SetNames(SrcData.strFileName,strDestName);
-
-				if (CopySparse)
-					Size -= BytesRead;
-			}
-
-			if (!CopySparse || !SparseQueryResult)
 				break;
-		} /* for */
-
-		if (!SparseQueryResult)
-			break;
-
-		if (CopySparse)
-		{
-			if (!SparseQueryResult && n>0)
-			{
-				queryrange.FileOffset.QuadPart=ranges[n-1].FileOffset.QuadPart+ranges[n-1].Length.QuadPart;
-				queryrange.Length.QuadPart = SrcData.nFileSize-queryrange.FileOffset.QuadPart;
 			}
 		}
+		else
+		{
+			BytesWritten=BytesRead; // не забудем приравнять количество записанных байт
+		}
+
+		if (ShowTotalCopySize)
+			TotalCopiedSize-=CurCopiedSize;
+
+		CurCopiedSize = SrcFile.GetChunkOffset() + SrcFile.GetChunkSize();
+
+		if (ShowTotalCopySize)
+			TotalCopiedSize+=CurCopiedSize;
+
+		CP->SetProgressValue(CurCopiedSize,SrcData.nFileSize);
+
+		if (ShowTotalCopySize)
+		{
+			CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
+		}
+
+		CP->SetNames(SrcData.strFileName,strDestName);
+
 	}
-	while (!SparseQueryResult && CopySparse);
 
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
@@ -3990,7 +3936,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 	if (!apiCopyFileEx(SrcName,DestName,CopyProgressRoutine,nullptr,nullptr,Flags&FCOPY_DECRYPTED_DESTINATION?COPY_FILE_ALLOW_DECRYPTED_DESTINATION:0))
 	{
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
-		return (_localLastError=GetLastError())==ERROR_REQUEST_ABORTED ? COPY_CANCEL:COPY_FAILURE;
+		return (GetLastError() == ERROR_REQUEST_ABORTED)? COPY_CANCEL : COPY_FAILURE;
 	}
 
 	Flags&=~FCOPY_DECRYPTED_DESTINATION;
