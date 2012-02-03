@@ -1050,7 +1050,9 @@ private:
       set_control_state();
     }
     else if (msg == DN_EDITCHANGE && param1 == level_ctrl_id) {
-      level = get_list_pos(level_ctrl_id);
+      unsigned level_sel = get_list_pos(level_ctrl_id);
+      if (level_sel < ARRAYSIZE(c_levels))
+        level = c_levels[level_sel].value;
       set_control_state();
     }
     else if (msg == DN_BTNCLICK && param1 == encrypt_ctrl_id) {
