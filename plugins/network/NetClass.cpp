@@ -231,7 +231,7 @@ void NetBrowser::LogNetResource(NETRESOURCE &Res)
 {
 	if (LogFile)
 	{
-		_ftprintf(LogFile, L"dwScope = %d\ndwType = %d\ndwDisplayType = %d\ndwUsage = %d\n", Res.dwScope, Res.dwType, Res.dwDisplayType, Res.dwUsage);
+		_ftprintf(LogFile, L"dwScope = %u\ndwType = %u\ndwDisplayType = %u\ndwUsage = %u\n", Res.dwScope, Res.dwType, Res.dwDisplayType, Res.dwUsage);
 		_ftprintf(LogFile, L"lpLocalName = %s\nlpRemoteName = %s\nlpComment = %s\nlpProvider = %s\n\n", Res.lpLocalName, Res.lpRemoteName, Res.lpComment, Res.lpProvider);
 	}
 }
@@ -1239,7 +1239,7 @@ BOOL NetBrowser::GetResourceInfo(wchar_t *SrcName,LPNETRESOURCE DstNetResource)
 	else
 	{
 		if (LogFile)
-			_ftprintf(LogFile, L"error %d\n", GetLastError());
+			_ftprintf(LogFile, L"error %u\n", GetLastError());
 	}
 
 #endif
@@ -2416,14 +2416,16 @@ void NetBrowser::GetHiddenShares()
 						//break; //?????
 					}
 
-					if (p->shi1_type == STYPE_DISKTREE)
+					switch(p->shi1_type)
+					{
+					case STYPE_DISKTREE:
+					case STYPE_SPECIAL:
 						nr [0].dwType=RESOURCETYPE_DISK;
-
-					if (p->shi1_type == STYPE_PRINTQ)
+						break;
+					case STYPE_PRINTQ:
 						nr [0].dwType=RESOURCETYPE_PRINT;
-
-					if (p->shi1_type == STYPE_SPECIAL)
-						nr [0].dwType=RESOURCETYPE_DISK;
+						break;
+					}
 
 					NetList.Push(nr [0]);
 				}
