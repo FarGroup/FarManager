@@ -208,6 +208,9 @@ class Manager
 
 		// возвращает top-модал или сам фрейм, если у фрейма нету модалов
 		Frame* GetTopModal();
+
+		int GetModalStackCount() const {return ModalStackCount;}
+		Frame* GetModalFrame(size_t index) const {return ModalStack[index];}
 };
 
 extern Manager *FrameManager;

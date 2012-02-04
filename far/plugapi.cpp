@@ -774,7 +774,7 @@ int WINAPI FarMenuFn(
 		{
 			string strTopic;
 
-			if (Help::MkTopic(PluginNumber,HelpTopic,strTopic))
+			if (Help::MkTopic(reinterpret_cast<Plugin*>(PluginNumber),HelpTopic,strTopic))
 				FarMenu.SetHelp(strTopic);
 		}
 
@@ -909,42 +909,6 @@ INT_PTR WINAPI FarSendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 	return 0;
 }
 
-#if !defined(__GNUC__)
-/* Цель данной функции - выставить флаг Flags - признак того, что
-   мы упали где то в плагине
-*/
-static int Except_FarDialogEx()
-{
-	if (CtrlObject)
-		CtrlObject->Plugins.Flags.Set(PSIF_DIALOG);
-
-	Frame *frame;
-
-	if ((frame=FrameManager->GetBottomFrame()) )
-	{
-		//while(!frame->Refreshable()) // А может все таки нужно???
-		frame->Unlock(); // теперь можно :-)
-	}
-
-//  CheckScreenLock();
-	FrameManager->RefreshFrame(); //??
-	return EXCEPTION_CONTINUE_SEARCH; // продолжим исполнения цепочки исключений!
-}
-#endif
-
-static int FarDialogExSehed(Dialog *FarDialog)
-{
-	__try
-	{
-		FarDialog->Process();
-		return FarDialog->GetExitCode();
-	}
-	__except(Except_FarDialogEx())
-	{
-		return -1;
-	}
-}
-
 HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, const GUID* Id, int X1, int Y1, int X2, int Y2,
                             const wchar_t *HelpTopic, const FarDialogItem *Item,
                             size_t ItemsNumber, DWORD_PTR Reserved, unsigned __int64 Flags,
@@ -1001,7 +965,7 @@ HANDLE WINAPI FarDialogInit(INT_PTR PluginNumber, const GUID* Id, int X1, int Y1
 		/* $ 29.08.2000 SVS
 		   Запомним номер плагина - сейчас в основном для формирования HelpTopic
 		*/
-		FarDialog->SetPluginNumber(PluginNumber);
+		FarDialog->SetPluginOwner(reinterpret_cast<Plugin*>(PluginNumber));
 	}
 	return hDlg;
 }
@@ -1011,36 +975,18 @@ int WINAPI FarDialogRun(HANDLE hDlg)
 	if (FrameManager->ManagerIsDown())
 		return -1;
 
-	if (hDlg==INVALID_HANDLE_VALUE) return -1;
-
-	Frame *frame;
-
-	if ((frame=FrameManager->GetBottomFrame()) )
-		frame->Lock(); // отменим прорисовку фрейма
+	if (!hDlg || hDlg==INVALID_HANDLE_VALUE)
+		return -1;
 
 	int ExitCode=-1;
+
 	Dialog *FarDialog = (Dialog *)hDlg;
 
-	if (Opt.ExceptRules)
-	{
-		CtrlObject->Plugins.Flags.Clear(PSIF_DIALOG);
-		ExitCode=FarDialogExSehed(FarDialog);
-	}
-	else
-	{
-		FarDialog->Process();
-		ExitCode=FarDialog->GetExitCode();
-	}
+	FarDialog->Process();
+	ExitCode=FarDialog->GetExitCode();
 
-	/* $ 15.05.2002 SKV
-		Однако разлочивать нужно ровно то, что залочили.
-	*/
-	if (frame )
-		frame->Unlock(); // теперь можно :-)
-
-	//CheckScreenLock();
 	FrameManager->RefreshFrame(); //?? - //AY - это нужно чтоб обновлять панели после выхода из диалога
-	return(ExitCode);
+	return ExitCode;
 }
 
 void WINAPI FarDialogFree(HANDLE hDlg)
@@ -1198,7 +1144,7 @@ int WINAPI FarMessageFn(INT_PTR PluginNumber,const GUID* Id,unsigned __int64 Fla
 	{
 		string strTopic;
 
-		if (Help::MkTopic(PluginNumber,HelpTopic,strTopic))
+		if (Help::MkTopic(reinterpret_cast<Plugin*>(PluginNumber),HelpTopic,strTopic))
 			SetMessageHelp(strTopic);
 	}
 

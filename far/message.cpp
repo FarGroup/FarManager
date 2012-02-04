@@ -536,7 +536,7 @@ int Message(
 			if (!strHelpTopic.IsEmpty())
 				Dlg.SetHelp(strHelpTopic);
 
-			Dlg.SetPluginNumber(PluginNumber); // Запомним номер плагина
+			Dlg.SetPluginOwner(reinterpret_cast<Plugin*>(PluginNumber)); // Запомним номер плагина
 
 			if (IsWarningStyle)
 			{

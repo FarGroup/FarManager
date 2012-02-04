@@ -551,7 +551,7 @@ int WINAPI GetString(
 		if (HelpTopic)
 			Dlg.SetHelp(HelpTopic);
 
-		Dlg.SetPluginNumber(PluginNumber);
+		Dlg.SetPluginOwner(reinterpret_cast<Plugin*>(PluginNumber));
 #if 0
 
 		if (Opt.ExceptRules)

@@ -858,7 +858,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		return -1;
 	}
 
-	DWORD dwSubSystem;
+	DWORD dwSubSystem = IMAGE_SUBSYSTEM_UNKNOWN;
 	DWORD dwError = 0;
 	HANDLE hProcess = nullptr;
 	LPCWSTR lpVerb = nullptr;
@@ -1031,7 +1031,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	if(!Silent)
 	{
-		Console.ScrollScreenBuffer(!DirectRun && !SeparateWindow?1:2);
+		Console.ScrollScreenBuffer(((DirectRun && dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI) || SeparateWindow)?2:1);
 	}
 
 	if (ShellExecuteEx(&seInfo))

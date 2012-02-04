@@ -496,16 +496,20 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException)
 	{
 		//какие-то непонятные действия...
 		CurPluginItem=nullptr;
-		Frame *frame;
 
-		if ((frame = FrameManager->GetBottomFrame()) )
-			frame->Unlock();
-
-		if (Flags.Check(PSIF_DIALOG))   // BugZ#52 exception handling for floating point incorrect
+		for(int i = FrameManager->GetModalStackCount()-1; i >= 0; --i)
 		{
-			Flags.Clear(PSIF_DIALOG);
-			FrameManager->DeleteFrame();
-			FrameManager->PluginCommit();
+			Frame *frame = FrameManager->GetModalFrame(i);
+			if((frame->GetType()==MODALTYPE_DIALOG && static_cast<Dialog*>(frame)->GetPluginOwner() == pPlugin) || frame->GetType()==MODALTYPE_HELP)
+			{
+				frame->Lock();
+				if(i)
+				{
+					FrameManager->GetModalFrame(i-1)->Lock();
+				}
+				FrameManager->DeleteFrame(frame);
+				FrameManager->PluginCommit();
+			}
 		}
 
 		bool bPanelPlugin = pPlugin->IsPanelPlugin();

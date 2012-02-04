@@ -270,13 +270,13 @@ static BOOL WINAPI KeyNameToInputRecord(const wchar_t *Name,INPUT_RECORD* RecKey
 	return Key > 0?(KeyToInputRecord(Key,RecKey)!=0?TRUE:FALSE):FALSE;
 }
 
-#define GetPluginNumber(Id) (CtrlObject?CtrlObject->Plugins.PluginGuidToPluginNumber(*Id):-1)
+#define GuidToPlugin(Id) (CtrlObject?CtrlObject->Plugins.PluginGuidToPluginNumber(*Id):-1)
 
 static int WINAPI FarGetPluginDirListW(const GUID* PluginId,HANDLE hPlugin,
                                const wchar_t *Dir,struct PluginPanelItem **pPanelItem,
                                size_t *pItemsNumber)
 {
-	return FarGetPluginDirList(GetPluginNumber(PluginId),hPlugin,Dir,pPanelItem,pItemsNumber);
+	return FarGetPluginDirList(GuidToPlugin(PluginId),hPlugin,Dir,pPanelItem,pItemsNumber);
 }
 
 static int WINAPI FarMenuFnW(const GUID* PluginId,const GUID* Id,int X,int Y,int MaxHeight,
@@ -284,14 +284,14 @@ static int WINAPI FarMenuFnW(const GUID* PluginId,const GUID* Id,int X,int Y,int
                      const wchar_t *HelpTopic,const FarKey *BreakKeys,int *BreakCode,
                      const struct FarMenuItem *Item, size_t ItemsNumber)
 {
-	return FarMenuFn(GetPluginNumber(PluginId),Id,X,Y,MaxHeight,Flags,Title,Bottom,HelpTopic,BreakKeys,BreakCode,Item,ItemsNumber);
+	return FarMenuFn(GuidToPlugin(PluginId),Id,X,Y,MaxHeight,Flags,Title,Bottom,HelpTopic,BreakKeys,BreakCode,Item,ItemsNumber);
 }
 
 static int WINAPI FarMessageFnW(const GUID* PluginId,const GUID* Id,unsigned __int64 Flags,
                         const wchar_t *HelpTopic,const wchar_t * const *Items,size_t ItemsNumber,
                         int ButtonsNumber)
 {
-  return FarMessageFn(GetPluginNumber(PluginId),Id,Flags,HelpTopic,Items,ItemsNumber,ButtonsNumber);
+  return FarMessageFn(GuidToPlugin(PluginId),Id,Flags,HelpTopic,Items,ItemsNumber,ButtonsNumber);
 }
 
 static int WINAPI FarInputBoxW(const GUID* PluginId,const GUID* Id,const wchar_t *Title,const wchar_t *Prompt,
@@ -299,7 +299,7 @@ static int WINAPI FarInputBoxW(const GUID* PluginId,const GUID* Id,const wchar_t
                        wchar_t *DestText, size_t DestSize,
                        const wchar_t *HelpTopic,unsigned __int64 Flags)
 {
-	return FarInputBox(GetPluginNumber(PluginId),Id,Title,Prompt,HistoryName,SrcText,DestText,DestSize,HelpTopic,Flags);
+	return FarInputBox(GuidToPlugin(PluginId),Id,Title,Prompt,HistoryName,SrcText,DestText,DestSize,HelpTopic,Flags);
 }
 
 static BOOL WINAPI farColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct FarColor *Color)
@@ -341,7 +341,7 @@ static INT_PTR WINAPI FarAdvControlW(const GUID* PluginId, ADVANCED_CONTROL_COMM
 		}
 		return FALSE;
 	}
-	return FarAdvControl(GetPluginNumber(PluginId), Command, Param1, Param2);
+	return FarAdvControl(GuidToPlugin(PluginId), Command, Param1, Param2);
 }
 
 static HANDLE WINAPI FarDialogInitW(const GUID* PluginId, const GUID* Id, int X1, int Y1, int X2, int Y2,
@@ -349,12 +349,12 @@ static HANDLE WINAPI FarDialogInitW(const GUID* PluginId, const GUID* Id, int X1
                             size_t ItemsNumber, DWORD_PTR Reserved, unsigned __int64 Flags,
                             FARWINDOWPROC Proc, void* Param)
 {
-	return FarDialogInit(GetPluginNumber(PluginId),Id,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,Reserved,Flags,Proc,Param);
+	return FarDialogInit(GuidToPlugin(PluginId),Id,X1,Y1,X2,Y2,HelpTopic,Item,ItemsNumber,Reserved,Flags,Proc,Param);
 }
 
 static const wchar_t* WINAPI FarGetMsgFnW(const GUID* PluginId,int MsgId)
 {
-	return FarGetMsgFn(GetPluginNumber(PluginId),MsgId);
+	return FarGetMsgFn(GuidToPlugin(PluginId),MsgId);
 }
 
 static BOOL PrepareModulePath(const wchar_t *ModuleName)

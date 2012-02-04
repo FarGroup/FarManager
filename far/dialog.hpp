@@ -196,7 +196,7 @@ class Dialog: public Frame
 
 	private:
 		bool bInitOK;               // диалог был успешно инициализирован
-		INT_PTR PluginNumber;       // Ќомер плагина, дл€ формировани€ HelpTopic
+		class Plugin* PluginOwner;       // ѕлагин, дл€ формировани€ HelpTopic
 		unsigned FocusPos;               // всегда известно какой элемент в фокусе
 		unsigned PrevFocusPos;           // всегда известно какой элемент был в фокусе
 		int IsEnableRedraw;         // –азрешена перерисовка диалога? ( 0 - разрешена)
@@ -321,7 +321,8 @@ class Dialog: public Frame
 
 		void InitDialog();
 		void Process();
-		void SetPluginNumber(INT_PTR NewPluginNumber) {PluginNumber=NewPluginNumber;}
+		void SetPluginOwner(Plugin* NewPluginAddress) {PluginOwner = ((NewPluginAddress == INVALID_HANDLE_VALUE)? nullptr : NewPluginAddress);}
+		Plugin* GetPluginOwner() const {return PluginOwner;}
 
 		void SetHelp(const wchar_t *Topic);
 		void ShowHelp();

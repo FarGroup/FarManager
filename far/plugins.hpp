@@ -116,7 +116,6 @@ enum PLUGINITEMCALLFUNCFLAGS
 enum PLUGINSETFLAGS
 {
 	PSIF_ENTERTOOPENPLUGIN        = 0x00000001, // ввалились в плагин OpenPlugin
-	PSIF_DIALOG                   = 0x00000002, // была бад€га с диалогом
 	PSIF_PLUGINSLOADDED           = 0x80000000, // плагины загружены
 };
 

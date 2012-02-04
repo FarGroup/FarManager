@@ -15654,13 +15654,13 @@ upd:"Module:"
 "Módulo:"
 
 MExcTerminate
-"Завершить FAR"
-"Terminate FAR"
-upd:"Terminate FAR"
-upd:"Terminate FAR"
-upd:"Terminate FAR"
-upd:"Terminate FAR"
-"FAR se dará por terminado"
+"Завершить Far"
+"Terminate Far"
+upd:"Terminate Far"
+upd:"Terminate Far"
+upd:"Terminate Far"
+upd:"Terminate Far"
+"Far se dará por terminado"
 
 MExcUnload
 "Выгрузить плагин"

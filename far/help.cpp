@@ -1849,7 +1849,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 }
 
 // ‘ормирование топика с учетом разных факторов
-string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strTopic)
+string &Help::MkTopic(Plugin* pPlugin,const wchar_t *HelpTopic,string &strTopic)
 {
 	strTopic.Clear();
 
@@ -1861,9 +1861,7 @@ string &Help::MkTopic(INT_PTR PluginNumber,const wchar_t *HelpTopic,string &strT
 		}
 		else
 		{
-			Plugin *pPlugin = (Plugin*)PluginNumber;
-
-			if (PluginNumber != -1 && pPlugin && *HelpTopic!=HelpBeginLink)
+			if (pPlugin != INVALID_HANDLE_VALUE && pPlugin && *HelpTopic!=HelpBeginLink)
 			{
 				strTopic.Format(HelpFormatLinkModule, pPlugin->GetModuleName().CPtr(), HelpTopic);
 			}
