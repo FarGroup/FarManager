@@ -24,9 +24,6 @@
     <ClCompile Include="EditCase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WrapReg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="EditCase.vc.def">
