@@ -748,11 +748,11 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
   {
     auto_sz strFiles;
     strFiles.Realloc(20);
-    wsprintf(strFiles, L"%d %s", nFiles, GetMsg(LNG_FILES));
+    wsprintf(strFiles, L"%u %s", nFiles, GetMsg(LNG_FILES));
 
     auto_sz strFolders;
     strFolders.Realloc(20);
-    wsprintf(strFolders, L"%d %s", nFolders, GetMsg(LNG_FOLDERS));
+    wsprintf(strFolders, L"%u %s", nFolders, GetMsg(LNG_FOLDERS));
 
     if (nFiles)
     {
