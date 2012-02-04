@@ -27,9 +27,6 @@
     <ClCompile Include="Brackets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="BrackMix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Brackets.vc.def">
