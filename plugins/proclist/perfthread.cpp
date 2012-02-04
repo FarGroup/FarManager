@@ -211,7 +211,7 @@ void PerfThread::Refresh()
 
 		// check for success and valid perf data block signature
 		if (rc==ERROR_SUCCESS &&
-		        !memcmp(pPerf->Signature, L"PERF", 8))
+		        !memcmp(pPerf->Signature, L"PERF", 4*sizeof(wchar_t)))
 		{
 			break;
 		}

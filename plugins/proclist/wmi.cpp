@@ -27,7 +27,7 @@ class ProcessPath
 ProcessPath::ProcessPath(DWORD dwPID)
 {
 	wchar_t path[36];
-	wsprintfW(path, L"Win32_Process.Handle=%d", dwPID);
+	wsprintfW(path, L"Win32_Process.Handle=%u", dwPID);
 	PathStr = SysAllocString(path);
 }
 
