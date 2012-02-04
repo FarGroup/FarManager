@@ -4893,7 +4893,7 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 	return true;
 }
 
-bool PluginA::SetStartupInfo(bool &bUnloaded)
+bool PluginA::SetStartupInfo()
 {
 	if (Exports[iSetStartupInfo] && !ProcessException)
 	{
@@ -4909,9 +4909,8 @@ bool PluginA::SetStartupInfo(bool &bUnloaded)
 		es.id = EXCEPT_SETSTARTUPINFO;
 		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info), es);
 
-		if (es.bUnloaded)
+		if (bUnloaded)
 		{
-			bUnloaded = true;
 			return false;
 		}
 	}
@@ -4919,7 +4918,7 @@ bool PluginA::SetStartupInfo(bool &bUnloaded)
 	return true;
 }
 
-bool PluginA::CheckMinFarVersion(bool &bUnloaded)
+bool PluginA::CheckMinFarVersion()
 {
 	if (Exports[iGetMinFarVersion] && !ProcessException)
 	{
@@ -4928,9 +4927,8 @@ bool PluginA::CheckMinFarVersion(bool &bUnloaded)
 		es.nDefaultResult = 0;
 		EXECUTE_FUNCTION_EX(FUNCTION(iGetMinFarVersion)(), es);
 
-		if (es.bUnloaded)
+		if (bUnloaded)
 		{
-			bUnloaded = true;
 			return false;
 		}
 	}
@@ -4984,7 +4982,7 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 		//CurPluginItem=nullptr; //BUGBUG
 		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
 
-		    if ( !es.bUnloaded )
+		    if ( !bUnloaded )
 		    {
 
 		      if(OpenFrom == OPEN_EDITOR &&
@@ -5812,7 +5810,7 @@ bool PluginA::GetPluginInfo(PluginInfo *pi)
 		oldfar::PluginInfo InfoA={sizeof(InfoA)};
 		EXECUTE_FUNCTION(FUNCTION(iGetPluginInfo)(&InfoA), es);
 
-		if (!es.bUnloaded)
+		if (!bUnloaded)
 		{
 			ConvertPluginInfo(InfoA, pi);
 			return true;

@@ -645,7 +645,8 @@ void Plugin::InitExports()
 Plugin::Plugin(PluginManager *owner, const wchar_t *lpwszModuleName):
 	ExportsNamesW(_ExportsNamesW),
 	ExportsNamesA(_ExportsNamesA),
-	m_owner(owner)
+	m_owner(owner),
+	bUnloaded(false)
 {
 	m_strModuleName = lpwszModuleName;
 	m_strCacheName = lpwszModuleName;
@@ -785,11 +786,9 @@ bool Plugin::Load()
 	if (FuncFlags.Check(PICFF_LOADED))
 		return true;
 
-	bool bUnloaded = false;
-
 	FuncFlags.Set(PICFF_LOADED);
 
-	if (!CheckMinFarVersion(bUnloaded) || !SetStartupInfo(bUnloaded))
+	if (!CheckMinFarVersion() || !SetStartupInfo())
 	{
 		if (!bUnloaded)
 		{
@@ -921,7 +920,7 @@ bool Plugin::IsPanelPlugin()
 	       Exports[iClosePanel];
 }
 
-bool Plugin::SetStartupInfo(bool &bUnloaded)
+bool Plugin::SetStartupInfo()
 {
 	if (Exports[iSetStartupInfo] && !ProcessException)
 	{
@@ -933,9 +932,8 @@ bool Plugin::SetStartupInfo(bool &bUnloaded)
 		es.id = EXCEPT_SETSTARTUPINFO;
 		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info), es);
 
-		if (es.bUnloaded)
+		if (bUnloaded)
 		{
-			bUnloaded = true;
 			return false;
 		}
 	}
@@ -950,12 +948,12 @@ bool Plugin::GetGlobalInfo(GlobalInfo *gi)
 		ExecuteStruct es;
 		es.id = EXCEPT_GETGLOBALINFO;
 		EXECUTE_FUNCTION(FUNCTION(iGetGlobalInfo)(gi), es);
-		return !es.bUnloaded;
+		return !bUnloaded;
 	}
 	return false;
 }
 
-bool Plugin::CheckMinFarVersion(bool &bUnloaded)
+bool Plugin::CheckMinFarVersion()
 {
 	if (!CheckVersion(&FAR_VERSION, &MinFarVersion))
 	{
@@ -1022,7 +1020,7 @@ HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 		//CurPluginItem=nullptr; //BUGBUG
 		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
 
-		    if ( !es.bUnloaded )
+		    if ( !bUnloaded )
 		    {
 
 		      if(OpenFrom == OPEN_EDITOR &&
@@ -1624,7 +1622,7 @@ bool Plugin::GetPluginInfo(PluginInfo *pi)
 		es.id = EXCEPT_GETPLUGININFO;
 		EXECUTE_FUNCTION(FUNCTION(iGetPluginInfo)(pi), es);
 
-		if (!es.bUnloaded)
+		if (!bUnloaded)
 			return true;
 	}
 

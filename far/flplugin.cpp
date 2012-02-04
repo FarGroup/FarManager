@@ -69,6 +69,7 @@ void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
 	stItem->PrevViewSettings=ViewSettings;
 	stItem->PrevDirectoriesFirst=DirectoriesFirst;
 	PluginsList.Push(&stItem);
+	++PluginPanelsCount;
 }
 
 
@@ -87,6 +88,9 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 
 	// закрываем текущий плагин.
 	PluginsList.Delete(PluginsList.Last());
+
+	--PluginPanelsCount;
+
 	CtrlObject->Plugins.ClosePanel(hPlugin);
 
 	if (!PluginsList.Empty())

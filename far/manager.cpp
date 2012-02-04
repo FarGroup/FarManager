@@ -715,6 +715,14 @@ void Manager::ProcessMainLoop()
 		else
 			ProcessKey(Key);
 	}
+
+	if(IsPanelsActive())
+	{
+		if(!PluginPanelsCount)
+		{
+			CtrlObject->Plugins.RefreshPluginsList();
+		}
+	}
 }
 
 void Manager::ExitMainLoop(int Ask)

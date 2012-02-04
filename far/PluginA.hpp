@@ -41,8 +41,8 @@ public:
 	~PluginA();
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info);
-	virtual bool SetStartupInfo(bool &bUnloaded);
-	virtual bool CheckMinFarVersion(bool &bUnloaded);
+	virtual bool SetStartupInfo();
+	virtual bool CheckMinFarVersion();
 	virtual HANDLE Open(int OpenFrom, const GUID& Guid, INT_PTR Item);
 	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode);
 	virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, size_t ItemsNumber);

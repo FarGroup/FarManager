@@ -469,7 +469,7 @@ HANDLE PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool Loa
 	{
 		if (LoadToMem && !pPlugin->Load())
 		{
-			RemovePlugin(pPlugin);
+			UnloadedPlugins.Push(&pPlugin);
 			return nullptr;
 		}
 	}
@@ -488,7 +488,7 @@ HANDLE PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool Loa
 	return pPlugin;
 }
 
-int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove)
+int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException)
 {
 	int nResult = FALSE;
 
@@ -515,6 +515,8 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove
 		else
 			nResult = pPlugin->Unload(false);
 
+		pPlugin->WorkFlags.Set(PIWF_DONTLOADAGAIN);
+
 		if (bPanelPlugin /*&& bUpdatePanels*/)
 		{
 			CtrlObject->Cp()->ActivePanel->SetCurDir(L".",TRUE);
@@ -526,8 +528,7 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove
 			AnotherPanel->Redraw();
 		}
 
-		if (bRemove)
-			RemovePlugin(pPlugin);
+		UnloadedPlugins.Push(&pPlugin);
 	}
 
 	return nResult;
@@ -539,7 +540,7 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 	int nResult = FALSE;
 	Plugin* pPlugin = reinterpret_cast<Plugin*>(hPlugin);
 	nResult = pPlugin->Unload(true);
-	RemovePlugin(pPlugin);
+	UnloadedPlugins.Push(&pPlugin);
 	return nResult;
 }
 
@@ -2482,4 +2483,16 @@ const GUID& PluginManager::GetGUID(HANDLE hPlugin)
 {
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	return ph->pPlugin->GetGUID();
+}
+
+void PluginManager::RefreshPluginsList()
+{
+	if(!UnloadedPlugins.Empty())
+	{
+		for(Plugin** p = UnloadedPlugins.First(); p; p = UnloadedPlugins.Next(p))
+		{
+			RemovePlugin(*p);
+		}
+		UnloadedPlugins.Clear();
+	}
 }

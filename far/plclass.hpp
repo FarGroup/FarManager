@@ -57,7 +57,6 @@ struct ExecuteStruct
 		BOOL bDefaultResult;
 	};
 	int id; //function id
-	bool bUnloaded;
 };
 
 #define EXECUTE_FUNCTION(function, es) \
@@ -65,7 +64,6 @@ struct ExecuteStruct
 	__Prolog(); \
 	es.nResult = 0; \
 	es.nDefaultResult = 0; \
-	es.bUnloaded = false; \
 	if ( Opt.ExceptRules ) \
 	{ \
 		__try \
@@ -74,8 +72,8 @@ struct ExecuteStruct
 		} \
 		__except(xfilter(es.id, GetExceptionInformation(), this, 0)) \
 		{ \
-			m_owner->UnloadPlugin(this, es.id, true); \
-			es.bUnloaded = true; \
+			m_owner->UnloadPlugin(this, es.id); \
+			bUnloaded = true; \
 			es.nResult = es.nDefaultResult; \
 			ProcessException=FALSE; \
 		} \
@@ -146,8 +144,8 @@ public:
 	virtual ~Plugin();
 
 	virtual bool GetGlobalInfo(GlobalInfo *Info);
-	virtual bool SetStartupInfo(bool &bUnloaded);
-	virtual bool CheckMinFarVersion(bool &bUnloaded);
+	virtual bool SetStartupInfo();
+	virtual bool CheckMinFarVersion();
 	virtual HANDLE Open(int OpenFrom, const GUID& Guid, INT_PTR Item);
 	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode);
 	virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, size_t ItemsNumber);
@@ -252,6 +250,8 @@ public:
 	bool SaveToCache();
 	bool IsPanelPlugin();
 
+	bool Unloaded() {return bUnloaded;}
+
 protected:
 	virtual void __Prolog() {};
 	virtual void __Epilog() {};
@@ -262,6 +262,7 @@ protected:
 
 	PluginManager *m_owner; //BUGBUG
 	Language PluginLang;
+	bool bUnloaded;
 
 private:
 	void InitExports();

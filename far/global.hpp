@@ -61,6 +61,8 @@ extern int DisablePluginsOutput;
 extern BOOL IsProcessAssignMacroKey;
 extern BOOL IsRedrawFramesInProcess;
 
+extern size_t PluginPanelsCount;
+
 extern const wchar_t* Version;
 extern const wchar_t* Copyright;
 

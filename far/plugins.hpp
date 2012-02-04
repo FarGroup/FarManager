@@ -157,6 +157,8 @@ class PluginManager
 #endif // NO_WRAPPER
 		PluginTree* PluginsCache;
 
+		DList<Plugin*> UnloadedPlugins;
+
 	public:
 
 		BitFlags Flags;        // флаги манагера плагинов
@@ -197,7 +199,7 @@ class PluginManager
 	public:
 
 
-		int UnloadPlugin(Plugin *pPlugin, DWORD dwException, bool bRemove = false);
+		int UnloadPlugin(Plugin *pPlugin, DWORD dwException);
 
 		HANDLE LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
 		int UnloadPluginExternal(HANDLE hPlugin);
@@ -235,6 +237,8 @@ class PluginManager
 		Plugin *FindPlugin(const GUID& SysID);
 		INT_PTR PluginGuidToPluginNumber(const GUID& PluginId);
 		static const GUID& GetGUID(HANDLE hPlugin);
+
+		void RefreshPluginsList();
 
 //api functions
 
