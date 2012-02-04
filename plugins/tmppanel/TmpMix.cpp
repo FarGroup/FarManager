@@ -194,7 +194,7 @@ bool FindListFile(const wchar_t *FileName, StrBuf &output)
 
 	{
 		const wchar_t *tmp = FSF.PointToName(Info.ModuleName);
-		Path.Grow((int)(tmp-Info.ModuleName+1));
+		Path.Grow(tmp-Info.ModuleName+1);
 		lstrcpyn(Path,Info.ModuleName,(int)(tmp-Info.ModuleName+1));
 		dwSize=SearchPath(Path,FileName,NULL,0,NULL,NULL);
 
