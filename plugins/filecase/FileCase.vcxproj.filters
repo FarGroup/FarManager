@@ -30,9 +30,6 @@
     <ClCompile Include="FileMix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FileReg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ProcessName.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
