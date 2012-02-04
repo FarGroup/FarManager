@@ -54,7 +54,7 @@ inline bool isDevice(const wchar_t* FileName, const wchar_t* dev_begin)
 
 static bool validForView(const wchar_t *FileName, int viewEmpty, int editNew)
 {
-	if (!memcmp(FileName, L"\\\\.\\", 4) &&  // специальная обработка имен
+	if (!wmemcmp(FileName, L"\\\\.\\", 4) &&  // специальная обработка имен
 			FSF.LIsAlpha(FileName[4]) &&          // вида: \\.\буква:
 			FileName[5]==L':' && FileName[6]==0)
 		return true;
@@ -254,7 +254,7 @@ static bool MakeTempNames(wchar_t* tempFileName1, wchar_t* tempFileName2, size_t
 {
 	static const wchar_t tmpPrefix[] = L"FCP";
 
-	if (FSF.MkTemp(tempFileName1,(DWORD)szTempNames,tmpPrefix) > 1)
+	if (FSF.MkTemp(tempFileName1,szTempNames,tmpPrefix) > 1)
 	{
 		DeleteFile(tempFileName1);
 
