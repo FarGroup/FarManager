@@ -3,6 +3,208 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 04.02.2012 23:56:49 +0200 - build 2434
+
+1. More stuff on crashes when unloading plugins.
+
+drkns 04.02.2012 17:37:35 +0200 - build 2433
+
+1. As it turned out, plugin unloading on exception always crashed FAR.
+   On the side, crashes at unloading plugins opened on a panel must have been fixed.
+
+2. Mantis#0002011: Cannot open a shared client volume in a terminal session.
+
+drkns 03.02.2012 21:43:07 +0200 - build 2432
+
+1. "Correct" wiping of sparse files - allocated parts are the only ones wiped.
+
+2. In connection with #1, - simplification of similar code in the copier. It needs checking whether nothing is broken :)
+
+w17 02.02.2012 12:44:18 +0400 - build 2431
+
+1. Continuation of Mantis#1953
+
+2. Fixed 'set /?'
+
+drkns 01.02.2012 20:20:46 +0200 - build 2430
+
+1. In 2427, EOL glyphs were misplaced.
+
+2. Warnings.
+
+zg 01.02.2012 12:58:16 +0200 - build 2429
+
+1. rollback of 2427.1 because ACTL_GETWINDOWINFO and WindowInfo.Id already exist.
+
+drkns 31.01.2012 22:22:18 +0200 - build 2428
+
+1. Correct console mode is forced after plugin functions calls.
+
+drkns 31.01.2012 13:32:28 +0200 - build 2427
+
+1. Mantis#0001179: API needed for obtaining the handle of the current dialog.
+   ACTL_GETCURRENTWINDOW command is added. If a dialog is opened then its handle is returned, 0 otherwise.
+
+2. "[ ] Show white space" checkbox in editor settings is 3-state now: [?] - show spaces, tabulation and EOF, [x] - show also EOL.
+   In API - EOPT_SHOWLINEBREAK, ESPT_SHOWWHITESPACE(1|2)
+
+w17 28.01.2012 23:07:20 +0400 - build 2426
+
+1. Mantis#2000 - XML Error (0,0) -- half step back
+
+t-rex 28.01.2012 19:03:49 +0200 - build 2425
+
+1. PCTL_FINDPLUGIN with PFM_MODULENAME can work with relative paths now.
+
+drkns 27.01.2012 22:21:21 +0200 - build 2424
+
+1. Correction of PCTL_GETPLUGININFORMATION.
+
+drkns 27.01.2012 19:46:03 +0200 - build 2423
+
+1. Mantis#0002002: Far3 cannot enter folders on CD-ROM discs.
+
+drkns 27.01.2012 17:01:23 +0200 - build 2422
+
+1. Mantis#0002005: Network shares are inaccessible.
+
+svs 27.01.2012 18:17:51 +0400 - build 2421
+
+1. Removing dependency of plugin.hpp and frame.hpp (WTYPE_* and MODALTYPE_*)
+
+2. Mantis#0001999: Delegate FileSizeToStr() function to plugins
+   FSF is appended with FormatFileSize() function
+   (analogous to Size2Str in macros)
+   
+   size_t WINAPI FormatFileSize(unsigned __int64 Size, int Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize);
+
+   Here:
+     Size       - formatting size
+     Width      - required width. -1 - "as much as possible". negative value allows left indentation
+     Flags      - one of the following values defined in FARFORMATFILESIZEFLAGS:
+         FFFS_COMMAS            Insert the separator between thousands
+         FFFS_FLOATSIZE         Show file size Windows Explorer style (i.e. 999 bytes are shown as 999, while 1000 bytes are shown as 0.97 K)
+         FFFS_SHOWBYTESINDEX    Show B,K,M,G,T,P,E suffixes
+         FFFS_ECONOMIC          Economy mode, a space before file size suffix is not shown (i.e. 0.97K)
+         FFFS_THOUSAND          Use 1000 divisor instead of 1024
+         FFFS_MINSIZEINDEX      Minimal index allowed at formatting
+                                The index is specified in the least significant byte and can take values 0, 1, 2 or 3 (K,M,G,T), 
+                                For example, 1 - "size is at least in megabytes"
+     Dest       - destination buffer
+     DestSize   - how many characters "fits" in Dest
+
+   The function returns the size (with trailing 0) of the resulting string.
+   Set Dest = nullptr or DestSize = 0 to get the required size.
+
+drkns 27.01.2012 15:01:22 +0200 - build 2420
+
+1. Mantis#0002000: Far.exe /export creates a file with 0A lines separator.
+
+drkns 27.01.2012 09:58:17 +0200 - build 2419
+
+1. PCTL_[FORCED]LOADPLUGIN now return the handle of a loaded plugin or 0 on error, as before.
+
+svs 27.01.2012 09:15:50 +0400 - build 2418
+
+1. Macro: a new macrofunction for number formatting (for example, the size of a file) - on Mantis#0001999
+
+    S=Size2Str(Size,Flags[,Width])
+
+   here:
+
+    Size  - what has to be formatted
+    Flags - formatting options
+            0x0010000000000000 - S2S_SHOWBYTESINDEX
+                                 Show suffixes:
+                                    B - for bytes (also without a suffix)
+                                    K - for kilobytes
+                                    M - for megabytes
+                                    G - for gigabytes
+                                    T - for terabytes
+                                    P - for petabytes
+                                    E - for exabytes
+            0x0800000000000000 - S2S_COMMAS
+                                 Insert thousands separator
+                                 "Interface/FormatNumberSeparators" configuration value is used
+                                 or Windows LOCALE_STHOUSAND & LOCALE_SDECIMAL if FormatNumberSeparators is unspecified.
+            0x0080000000000000 - S2S_FLOATSIZE
+                                 Show file size in Windows Explorer style 
+                                 (i.e. 999 bytes are shown as 999, while 1000 bytes are shown as 0.97 K)
+            0x0040000000000000 - S2S_ECONOMIC
+                                 Economy mode, a space before file size suffix is not shown (i.e. 0.97K)
+            0x0400000000000000 - S2S_THOUSAND
+                                 Use 1000 divisor instead of 1024
+            0x0020000000000000 - S2S_MINSIZEINDEX
+                                 Minimal index allowed at formatting
+                                 For example, 0x0020000000000001 - "the size is at least in megabytes"
+                                 It can take values 0, 1, 2 or 3 (K,M,G,T)
+    Width - formatting width (unused if 0 or unspecified)
+            negative values allow left indentation:
+            Size2Str(123,0, 5) ==> '  123'
+            Size2Str(123,0,-5) ==> '123  '
+
+2. Macro: a new function for text "formatting": StrWrap.
+     Formatting a text to given width with the use of the separator (breaking to lines with left indentation).
+
+     S=StrWrap(Text,Width[,Break[,Flags]])
+
+   here:
+
+     Text  - text to be formatted
+     Width - width
+     Break - separator ('\n' if empty or omitted)
+     Flags - additional "formatting options
+             0x1 - the line is always wrapped to given width even if there is a longer word 
+                  (in this cases, it is split into pieces).
+
+   If flag 0x1 is unspecified and there is a long word then the word takes space longer than given Width.
+
+   Examples:
+      StrWrap("The example of a text split into several lines.", 6)
+   returns:
+       1234567
+      +------+
+      |The
+     >|example
+      |of a
+      |text
+      |split
+      |into
+     >|several
+      |lines.
+      +------+
+
+   adding a flag of 1 
+      StrWrap("The example of a text split into several lines.", 6,,1)
+   returns:
+       123456
+      +------+
+      |The
+      |exampl
+      |e of a
+      |text
+      |split
+      |into
+      |severa
+      |l
+      |lines.
+      +------+
+
+      StrWrap("The line containing a vvvvvvvveeeeeeeerrrrrrryyy long word", 9,,0x1)
+   returns:
+       123456789
+      +---------+
+      |The line
+      |containin
+      |g a
+      |vvvvvvvve
+      |eeeeeeerr
+      |rrrrryyy
+      |long
+      |word
+      +---------+
+
+
 drkns 26.01.2012 23:03:50 +0200 - build 2417
 
 1. Support for detection and switching off virtual CDs in Windows 8.
@@ -120,7 +322,7 @@ drkns 17.01.2012 00:19:46 +0200 - build 2396
 
 zg 16.01.2012 23:44:52 +0200 - build 2395
 
-1. 0001991: ѕараметры AnalyzeW. OpenInfo->Data дл€ OPEN_ANALYSE содержит указатель дл€ AnalyseInfo.
+1. 0001991: Parameters of AnalyzeW. OpenInfo->Data for OPEN_ANALYSE contains a pointer for AnalyseInfo.
 
 2. In gcc build, sqlite.c moved to the beginning so that C files are compiled before C++ ones. 
    It gives compile speedup when 'make -j' is used.
@@ -331,7 +533,7 @@ svs 11.01.2012 22:17:46 +0400 - build 2362
 
 5. Correction of TranslateKeyToVK.
    Internal INTERNAL_KEY_BASE_2 are translated to
-   MENU_EVENT, FOCUS_EVENT и WINDOW_BUFFER_SIZE_EVENT
+   MENU_EVENT, FOCUS_EVENT and WINDOW_BUFFER_SIZE_EVENT
 
 svs 11.01.2012 11:35:08 +0400 - build 2361
 
@@ -511,7 +713,7 @@ t-rex 25.12.2011 23:32:34 +0200 - build 2330
 
 drkns 25.12.2011 19:28:52 +0200 - build 2329
 
-1. QuickView: allocated size правильно рассчитываетс€ дл€ нескольких жЄстких ссылок внутри каталога. Ёкспериментально.
+1. QuickView: allocated size is correctly calculated for several hard links inside the directory. Experimental.
 
 zg 25.12.2011 14:48:29 +0200 - build 2328
 
@@ -566,7 +768,7 @@ svs 24.12.2011 19:22:19 +0400 - build 2318
 2. set USE_ANALYZE=1 switches the analyzer on (adds /analyze).
 
 3. Mantis#0001951: Incorrect InputRecord in DN_CONTROLINPUT event
-   ”точнение: Bug: "Ctrl+A means CtrlShift+A"
+   Correction: Bug: "Ctrl+A means CtrlShift+A"
 
 svs 24.12.2011 15:33:15 +0400 - build 2317
 
