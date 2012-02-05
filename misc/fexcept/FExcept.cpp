@@ -189,6 +189,8 @@ DECL BOOL WINAPI ExceptionProcINT( EXCEPTION_POINTERS *xInfo,
 		m = _tcsrchr(LogFileName,_T('\\'));
 		if (m) *m = 0;
 	}
+	_tcscat(LogFileName, L"\\CrashLogs");
+	CreateDirectory(LogFileName, NULL);
 	time_t rawtime;
 	time(&rawtime);
 	tm* timeinfo = localtime(&rawtime);
