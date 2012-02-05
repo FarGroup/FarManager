@@ -265,6 +265,7 @@ public:
   bool get(const wchar_t* name, wstring& value);
   bool get(const wchar_t* name, ByteVector& value);
   bool del(const wchar_t* name);
+  bool del_dir(const wchar_t* name);
 };
 
 };

@@ -915,4 +915,16 @@ bool Settings::del(const wchar_t* name) {
   return control(SCTL_DELETE, &fsv) != 0;
 }
 
+bool Settings::del_dir(const wchar_t* name) {
+  FarSettingsValue fsv;
+  fsv.Root = dir_id;
+  fsv.Value = name;
+  size_t subdir_id = control(SCTL_OPENSUBKEY, &fsv);
+  if (subdir_id == 0)
+    return true;
+  fsv.Root = subdir_id;
+  fsv.Value = nullptr;
+  return control(SCTL_DELETE, &fsv) != 0;
+}
+
 };

@@ -314,7 +314,7 @@ void UpdateProfiles::save() const {
   vector<wstring> profile_names;
   key.list_dir(profile_names);
   for (unsigned i = 0; i < profile_names.size(); i++) {
-    key.del(profile_names[i].c_str());
+    key.del_dir(profile_names[i].c_str());
   }
   ProfileOptions def_profile_options;
   for_each(cbegin(), cend(), [&] (const UpdateProfile& profile) {
@@ -362,7 +362,8 @@ void UpdateProfiles::update(const wstring& name, const UpdateOptions& options) {
   if (name_idx < size() && options_idx < size()) {
     at(name_idx).name = name;
     at(name_idx).options = options;
-    erase(begin() + options_idx);
+    if (options_idx != name_idx)
+      erase(begin() + options_idx);
   }
   else if (name_idx < size()) {
     at(name_idx).name = name;
