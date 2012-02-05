@@ -1182,7 +1182,8 @@ public:
     default_arc_name(options.arc_path),
     options(options),
     profiles(profiles),
-    arc_type(options.arc_type) {
+    arc_type(options.arc_type),
+    level(options.level) {
   }
 
   bool show() {
