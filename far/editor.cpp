@@ -265,11 +265,11 @@ int Editor::GetRawData(wchar_t **DestBuf,int& SizeDestBuf,int TextFormat)
 
 void Editor::DisplayObject()
 {
-	ShowEditor(FALSE);
+	ShowEditor();
 }
 
 
-void Editor::ShowEditor(int CurLineOnly)
+void Editor::ShowEditor(void)
 {
 	if (Locked() || !TopList)
 		return;
@@ -277,7 +277,6 @@ void Editor::ShowEditor(int CurLineOnly)
 	Edit *CurPtr;
 	int LeftPos,CurPos,Y;
 
-//_SVS(SysLog(L"Enter to ShowEditor, CurLineOnly=%i",CurLineOnly));
 	/*$ 10.08.2000 skv
 	  To make sure that CurEditor is set to required value.
 	*/
@@ -355,40 +354,37 @@ void Editor::ShowEditor(int CurLineOnly)
 
 	DrawScrollbar();
 
-	if (!CurLineOnly)
-	{
-		LeftPos=CurLine->GetLeftPos();
+	LeftPos=CurLine->GetLeftPos();
 #if 0
 
-		// крайне эксперементальный кусок!
-		if (CurPos+LeftPos < XX2)
-			LeftPos=0;
-		else if (CurLine->X2 < XX2)
-			LeftPos=CurLine->GetLength()-CurPos;
+	// крайне эксперементальный кусок!
+	if (CurPos+LeftPos < XX2)
+		LeftPos=0;
+	else if (CurLine->X2 < XX2)
+		LeftPos=CurLine->GetLength()-CurPos;
 
-		if (LeftPos < 0)
-			LeftPos=0;
+	if (LeftPos < 0)
+		LeftPos=0;
 
 #endif
 
-		for (CurPtr=TopScreen,Y=Y1; Y<=Y2; Y++)
-			if (CurPtr)
-			{
-				CurPtr->SetEditBeyondEnd(TRUE);
-				CurPtr->SetPosition(X1,Y,XX2,Y);
-				//CurPtr->SetTables(UseDecodeTable ? &TableSet:nullptr);
-				//_D(SysLog(L"Setleftpos 3 to %i",LeftPos));
-				CurPtr->SetLeftPos(LeftPos);
-				CurPtr->SetTabCurPos(CurPos);
-				CurPtr->FastShow();
-				CurPtr->SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
-				CurPtr=CurPtr->m_next;
-			}
-			else
-			{
-				SetScreen(X1,Y,XX2,Y,L' ',ColorIndexToColor(COL_EDITORTEXT)); //ѕустые строки после конца текста
-			}
-	}
+	for (CurPtr=TopScreen,Y=Y1; Y<=Y2; Y++)
+		if (CurPtr)
+		{
+			CurPtr->SetEditBeyondEnd(TRUE);
+			CurPtr->SetPosition(X1,Y,XX2,Y);
+			//CurPtr->SetTables(UseDecodeTable ? &TableSet:nullptr);
+			//_D(SysLog(L"Setleftpos 3 to %i",LeftPos));
+			CurPtr->SetLeftPos(LeftPos);
+			CurPtr->SetTabCurPos(CurPos);
+			CurPtr->FastShow();
+			CurPtr->SetEditBeyondEnd(EdOpt.CursorBeyondEOL);
+			CurPtr=CurPtr->m_next;
+		}
+		else
+		{
+			SetScreen(X1,Y,XX2,Y,L' ',ColorIndexToColor(COL_EDITORTEXT)); //ѕустые строки после конца текста
+		}
 
 	CurLine->SetOvertypeMode(Flags.Check(FEDITOR_OVERTYPE));
 	CurLine->Show();
@@ -1104,7 +1100,6 @@ int Editor::ProcessKey(int Key)
 		case KEY_SHIFTNUMPAD1:
 		{
 			{
-				int LeftPos=CurLine->GetLeftPos();
 				Pasting++;
 				Lock();
 				int CurLength=CurLine->GetLength();
@@ -1131,7 +1126,7 @@ int Editor::ProcessKey(int Key)
 				else
 				{
 					CurLine->FastShow();
-					ShowEditor(LeftPos==CurLine->GetLeftPos());
+					ShowEditor();
 				}
 			}
 			return TRUE;
@@ -1168,8 +1163,6 @@ int Editor::ProcessKey(int Key)
 				}
 			}
 
-			int LeftPos=CurLine->GetLeftPos();
-			Edit *OldCur=CurLine;
 			int _OldNumLine=NumLine;
 			Pasting++;
 			ProcessKey(KEY_LEFT);
@@ -1180,7 +1173,7 @@ int Editor::ProcessKey(int Key)
 				BlockStartLine=NumLine;
 			}
 
-			ShowEditor(OldCur==CurLine && LeftPos==CurLine->GetLeftPos());
+			ShowEditor();
 			return TRUE;
 		}
 		case KEY_SHIFTRIGHT:  case KEY_SHIFTNUMPAD6:
@@ -1202,7 +1195,6 @@ int Editor::ProcessKey(int Key)
 			}
 
 			Edit *OldCur=CurLine;
-			int OldLeft=CurLine->GetLeftPos();
 			Pasting++;
 			ProcessKey(KEY_RIGHT);
 			Pasting--;
@@ -1221,7 +1213,7 @@ int Editor::ProcessKey(int Key)
 				}
 			}
 
-			ShowEditor(OldCur==CurLine && OldLeft==CurLine->GetLeftPos());
+			ShowEditor();
 			return TRUE;
 		}
 		case KEY_CTRLSHIFTLEFT:  case KEY_CTRLSHIFTNUMPAD4:
@@ -1633,9 +1625,8 @@ int Editor::ProcessKey(int Key)
 			}
 			else
 			{
-				int LeftPos=CurLine->GetLeftPos();
 				CurLine->ProcessKey(KEY_LEFT);
-				ShowEditor(LeftPos==CurLine->GetLeftPos());
+				ShowEditor();
 			}
 
 			return TRUE;
@@ -1794,7 +1785,7 @@ int Editor::ProcessKey(int Key)
 				Up();
 
 				if (TopScreen==LastTopScreen)
-					ShowEditor(TRUE);
+					ShowEditor();
 				else
 					Show();
 
@@ -1817,7 +1808,7 @@ int Editor::ProcessKey(int Key)
 				Down();
 
 				if (TopScreen==LastTopScreen)
-					ShowEditor(TRUE);
+					ShowEditor();
 				else
 					Show();
 
@@ -2745,7 +2736,7 @@ int Editor::ProcessKey(int Key)
 					  fix бага с ctrl-left в начале строки
 					  в блоке с переопределЄнным плагином фоном.
 					*/
-					ShowEditor(FALSE);
+					ShowEditor();
 					//if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT)){
 					//CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 					//_D(SysLog(L"%08d EE_REDRAW",__LINE__));
@@ -2778,7 +2769,7 @@ int Editor::ProcessKey(int Key)
 					  ј то EEREDRAW_ALL то уходит, а на самом деле
 					  только текуща€ лини€ перерисовываетс€.
 					*/
-					ShowEditor(0);
+					ShowEditor();
 					return TRUE;
 				}
 
@@ -2840,8 +2831,6 @@ int Editor::ProcessKey(int Key)
 					wmemcpy(CmpStr,Str,Length);
 					CmpStr[Length]=0;
 				}
-
-				int LeftPos=CurLine->GetLeftPos();
 
 				if (Key == KEY_OP_XLAT)
 				{
@@ -2950,7 +2939,7 @@ int Editor::ProcessKey(int Key)
 					}
 
 					// </Bug 794>
-					ShowEditor(LeftPos==CurLine->GetLeftPos());
+					ShowEditor();
 					return TRUE;
 				}
 				else if (!SkipCheckUndo)
@@ -3066,6 +3055,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);
 				SortColorUnlock();
 			}
+			ShowEditor();
 		}
 
 		return TRUE;
@@ -3452,7 +3442,7 @@ void Editor::InsertString()
 	if (IndentPos>0)
 	{
 		int OrgIndentPos=IndentPos;
-		ShowEditor(FALSE);
+		ShowEditor();
 		CurLine->GetBinaryString(&CurLineStr,nullptr,Length);
 
 		if (SpaceOnly)

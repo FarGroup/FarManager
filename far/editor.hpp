@@ -218,7 +218,7 @@ class Editor:public ScreenObject
 
 	private:
 		virtual void DisplayObject();
-		void ShowEditor(int CurLineOnly);
+		void ShowEditor(void);
 		void DeleteString(Edit *DelPtr,int LineNumber,int DeleteLast,int UndoLine);
 		void InsertString();
 		void Up();
