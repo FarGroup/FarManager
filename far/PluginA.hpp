@@ -64,8 +64,8 @@ public:
 	virtual void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber);
 	virtual void ClosePanel(HANDLE hPlugin);
 	virtual int ProcessEditorInput(const INPUT_RECORD *D);
-	virtual int ProcessEditorEvent(int Event, PVOID Param);
-	virtual int ProcessViewerEvent(int Event, PVOID Param);
+	virtual int ProcessEditorEvent(int Event, PVOID Param,int EditorID);
+	virtual int ProcessViewerEvent(int Event, PVOID Param,int ViewerID);
 	virtual int ProcessDialogEvent(int Event, FarDialogEvent *Param);
 	virtual int ProcessSynchroEvent(int Event, PVOID Param) { return 0; }
 #if defined(MANTIS_0000466)

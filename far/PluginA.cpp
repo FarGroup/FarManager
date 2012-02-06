@@ -5097,7 +5097,8 @@ int PluginA::ProcessEditorInput(
 
 int PluginA::ProcessEditorEvent(
     int Event,
-    PVOID Param
+    PVOID Param,
+    int EditorID
 )
 {
 	if (Load() && Exports[iProcessEditorEvent] && !ProcessException)
@@ -5113,7 +5114,8 @@ int PluginA::ProcessEditorEvent(
 
 int PluginA::ProcessViewerEvent(
     int Event,
-    void *Param
+    void *Param,
+    int ViewerID
 )
 {
 	if (Load() && Exports[iProcessViewerEvent] && !ProcessException)
