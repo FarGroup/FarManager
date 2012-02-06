@@ -403,5 +403,5 @@ class Editor:public ScreenObject
 		void SortColorLock();
 		void SortColorUnlock();
 		bool SortColorLocked();
-		bool EditorControlLocked() {return EditorControlLock;}
+		bool EditorControlLocked() {return EditorControlLock?true:false;}
 };

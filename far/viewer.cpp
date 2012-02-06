@@ -226,7 +226,7 @@ Viewer::~Viewer()
 	if (!OpenFailed && bVE_READ_Sent)
 	{
 		CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
-		CtrlObject->Plugins.ProcessViewerEvent(VE_CLOSE,&ViewerID);
+		CtrlObject->Plugins.ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);
 	}
 }
 
@@ -400,7 +400,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	CtrlObject->Plugins.CurViewer=this; // HostFileViewer;
 	/* $ 15.09.2001 tran
 	   пора легализироваться */
-	CtrlObject->Plugins.ProcessViewerEvent(VE_READ,nullptr);
+	CtrlObject->Plugins.ProcessViewerEvent(VE_READ,nullptr,ViewerID);
 	bVE_READ_Sent = true;
 
 	last_update_check = GetTickCount();

@@ -1,8 +1,21 @@
+zg 06.02.2012 22:39:15 +0200 - build 2439
+
+1. в ProcessEditorEventInfo добавлено поле EditorID.
+   соответственно у EE_GOTFOCUS, EE_KILLFOCUS и EE_CLOSE Param равен NULL.
+   плагины, использующие эти события будут работать некорректно.
+
+2. в ProcessViewerEventInfo добавлено поле ViewerID.
+   соответственно у VE_GOTFOCUS, VE_KILLFOCUS и VE_CLOSE Param равен NULL.
+   плагины, использующие эти события будут работать некорректно.
+
+3. уточнение 2438.
+
 zg 06.02.2012 21:16:55 +0200 - build 2438
 
 1. для редактора добавлено событие EE_CHANGE. Приходит, когда в редакторе изменился текст. Param - указатель на EditorChange.
    EditorChange.Type - тип события: строка изменилась, добавилась или удалилась.
    EditorChange.StringNumber - номер изменившейся, добавленной или удалённой строки.
+   EditorControl вызванная из этого события вернёт FALSE.
 
 drkns 06.02.2012 15:56:52 +0200 - build 2437
 

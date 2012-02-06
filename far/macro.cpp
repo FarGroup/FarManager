@@ -4864,7 +4864,7 @@ int KeyMacro::GetKey()
 			        CtrlObject->Plugins.CurEditor->IsVisible() &&
 			        LockScr)
 			{
-				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins.CurEditor->GetId());
 				CtrlObject->Plugins.CurEditor->Show();
 			}
 
@@ -4937,7 +4937,7 @@ done:
 		        CtrlObject->Plugins.CurEditor->IsVisible()
 		        /* && LockScr*/) // Mantis#0001595
 		{
-			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins.CurEditor->GetId());
 			CtrlObject->Plugins.CurEditor->Show();
 		}
 

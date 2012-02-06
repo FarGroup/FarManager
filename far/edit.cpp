@@ -2333,7 +2333,7 @@ bool Edit::ReplaceTabs()
 	int Pos=0,S;
 
 	if (Flags.Check(FEDITLINE_READONLY))
-		return;
+		return false;
 
 	bool changed=false;
 

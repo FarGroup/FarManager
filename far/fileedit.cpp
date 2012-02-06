@@ -378,7 +378,7 @@ FileEditor::~FileEditor()
 	{
 		FileEditor *save = CtrlObject->Plugins.CurEditor;
 		CtrlObject->Plugins.CurEditor=this;
-		CtrlObject->Plugins.ProcessEditorEvent(EE_CLOSE,&FEditEditorID);
+		CtrlObject->Plugins.ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);
 		CtrlObject->Plugins.CurEditor = save;
 	}
 
@@ -661,7 +661,7 @@ void FileEditor::Init(
 	}
 
 	CtrlObject->Plugins.CurEditor=this;//&FEdit;
-	CtrlObject->Plugins.ProcessEditorEvent(EE_READ,nullptr);
+	CtrlObject->Plugins.ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
 	bEE_READ_Sent = true;
 	ShowConsoleTitle();
 	EditKeyBar.SetOwner(this);
@@ -754,7 +754,7 @@ void FileEditor::DisplayObject()
 		{
 			m_editor->Flags.Clear(FEDITOR_ISRESIZEDCONSOLE);
 			CtrlObject->Plugins.CurEditor=this;
-			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,m_editor->EditorID);
 		}
 
 		m_editor->Show();
@@ -1871,7 +1871,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			}
 		}
 
-		CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,nullptr);
+		CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,nullptr,m_editor->EditorID);
 		File EditFile;
 		DWORD dwWritten=0;
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
@@ -2468,7 +2468,7 @@ void FileEditor::OnChangeFocus(int focus)
 	Frame::OnChangeFocus(focus);
 	CtrlObject->Plugins.CurEditor=this;
 	int FEditEditorID=m_editor->EditorID;
-	CtrlObject->Plugins.ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS,&FEditEditorID);
+	CtrlObject->Plugins.ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS,nullptr,FEditEditorID);
 }
 
 

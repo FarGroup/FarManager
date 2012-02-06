@@ -2687,6 +2687,7 @@ struct ProcessEditorEventInfo
 	size_t StructSize;
 	int Event;
 	void* Param;
+	int EditorID;
 };
 
 struct ProcessDialogEventInfo
@@ -2708,6 +2709,7 @@ struct ProcessViewerEventInfo
 	size_t StructSize;
 	int Event;
 	void* Param;
+	int ViewerID;
 };
 
 struct ClosePanelInfo

@@ -346,7 +346,7 @@ void Editor::ShowEditor(int CurLineOnly)
 			{
 				_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW)"));
 				SortColorLock();
-				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);
 				SortColorUnlock();
 			}
 		}
@@ -2770,7 +2770,7 @@ int Editor::ProcessKey(int Key)
 						//_D(SysLog(L"%08d EE_REDRAW",__LINE__));
 						_SYS_EE_REDRAW(SysLog(L"Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
 						SortColorLock();
-						CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+						CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);
 						SortColorUnlock();
 					}
 
@@ -3063,7 +3063,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
 				_SYS_EE_REDRAW(SysLog(L"Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW)",__LINE__));
 				SortColorLock();
-				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);
 				SortColorUnlock();
 			}
 		}
@@ -7214,6 +7214,6 @@ void Editor::Change(EDITOR_CHANGETYPE Type,int StrNum)
 		StrNum=NumLine;
 	EditorChange ec={sizeof(EditorChange),Type,StrNum};
 	++EditorControlLock;
-	CtrlObject->Plugins.ProcessEditorEvent(EE_CHANGE,&ec);
+	CtrlObject->Plugins.ProcessEditorEvent(EE_CHANGE,&ec,EditorID);
 	--EditorControlLock;
 }

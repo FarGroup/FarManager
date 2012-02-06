@@ -991,7 +991,7 @@ int PluginManager::ProcessEditorInput(INPUT_RECORD *Rec)
 }
 
 
-int PluginManager::ProcessEditorEvent(int Event,void *Param)
+int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 {
 	int nResult = 0;
 
@@ -1004,7 +1004,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param)
 			pPlugin = PluginsData[i];
 
 			if (pPlugin->HasProcessEditorEvent())
-				nResult = pPlugin->ProcessEditorEvent(Event, Param);
+				nResult = pPlugin->ProcessEditorEvent(Event, Param, EditorID);
 		}
 	}
 
@@ -1012,7 +1012,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param)
 }
 
 
-int PluginManager::ProcessViewerEvent(int Event, void *Param)
+int PluginManager::ProcessViewerEvent(int Event, void *Param,int ViewerID)
 {
 	int nResult = 0;
 
@@ -1021,7 +1021,7 @@ int PluginManager::ProcessViewerEvent(int Event, void *Param)
 		Plugin *pPlugin = PluginsData[i];
 
 		if (pPlugin->HasProcessViewerEvent())
-			nResult = pPlugin->ProcessViewerEvent(Event, Param);
+			nResult = pPlugin->ProcessViewerEvent(Event, Param, ViewerID);
 	}
 
 	return nResult;
@@ -1962,7 +1962,7 @@ void ItemsToBuf(PluginMenuItem& Menu, TArray<string>& NamesArray, TArray<string>
 		for (size_t i = 0; i < Menu.Count; ++i)
 		{
 			wchar_t* pStr = StrToBuf(*NamesArray.getItem(i), Buf, Rest, Size);
-			if (Items) 
+			if (Items)
 			{
 				Items[i] = pStr;
 			}

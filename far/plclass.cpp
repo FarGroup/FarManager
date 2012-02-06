@@ -1099,7 +1099,8 @@ int Plugin::ProcessEditorInput(
 
 int Plugin::ProcessEditorEvent(
     int Event,
-    PVOID Param
+    PVOID Param,
+    int EditorID
 )
 {
 	if (Load() && Exports[iProcessEditorEvent] && !ProcessException)
@@ -1110,6 +1111,7 @@ int Plugin::ProcessEditorEvent(
 		ProcessEditorEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;
+		Info.EditorID = EditorID;
 		EXECUTE_FUNCTION_EX(FUNCTION(iProcessEditorEvent)(&Info), es);
 	}
 
@@ -1118,7 +1120,8 @@ int Plugin::ProcessEditorEvent(
 
 int Plugin::ProcessViewerEvent(
     int Event,
-    void *Param
+    void *Param,
+    int ViewerID
 )
 {
 	if (Load() && Exports[iProcessViewerEvent] && !ProcessException)
@@ -1129,6 +1132,7 @@ int Plugin::ProcessViewerEvent(
 		ProcessViewerEventInfo Info = {sizeof(Info)};
 		Info.Event = Event;
 		Info.Param = Param;
+		Info.ViewerID = ViewerID;
 		EXECUTE_FUNCTION_EX(FUNCTION(iProcessViewerEvent)(&Info), es);
 	}
 
