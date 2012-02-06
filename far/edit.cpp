@@ -403,7 +403,7 @@ void Edit::FastShow()
 
 		if (Flags.Check(FEDITLINE_PASSWORDMODE))
 			wmemset(OutStr,L'*',OutStrLength);
-		
+
 		if (Flags.Check(FEDITLINE_SHOWLINEBREAK) && Flags.Check(FEDITLINE_EDITORMODE) && (OutStrLength < EditLength))
 		{
 			switch(EndType)
@@ -2327,7 +2327,7 @@ void Edit::InsertTab()
 }
 
 
-void Edit::ReplaceTabs()
+bool Edit::ReplaceTabs()
 {
 	wchar_t *TabPtr;
 	int Pos=0,S;
@@ -2370,6 +2370,7 @@ void Edit::ReplaceTabs()
 	}
 
 	if (changed) Changed();
+	return changed;
 }
 
 

@@ -96,7 +96,8 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	EditorID(::EditorID++),
 	HostFileEditor(nullptr),
 	SortColorLockCount(0),
-	SortColorUpdate(false)
+	SortColorUpdate(false),
+	EditorControlLock(0)
 {
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));
@@ -1708,7 +1709,7 @@ int Editor::ProcessKey(int Key)
 						AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
 						CurLine->ProcessKey(KEY_DEL);
 					}
-
+					Change(ECTYPE_CHANGED,NumLine);
 					TextChanged(1);
 				}
 
@@ -1753,6 +1754,7 @@ int Editor::ProcessKey(int Key)
 				{
 					AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
 					CurLine->ProcessKey(KEY_BS);
+					Change(ECTYPE_CHANGED,NumLine);
 				}
 
 				Show();
@@ -1775,6 +1777,7 @@ int Editor::ProcessKey(int Key)
 				{
 					AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
 					CurLine->ProcessKey(KEY_CTRLBS);
+					Change(ECTYPE_CHANGED,NumLine);
 				}
 
 				Show();
@@ -2582,6 +2585,7 @@ int Editor::ProcessKey(int Key)
 
 				AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
 				CurLine->ProcessKey(Key);
+				Change(ECTYPE_CHANGED,NumLine);
 				Pasting--;
 				Show();
 			}
@@ -2608,6 +2612,7 @@ int Editor::ProcessKey(int Key)
 
 				AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
 				CurLine->ProcessCtrlQ();
+				Change(ECTYPE_CHANGED,NumLine);
 				Flags.Clear(FEDITOR_PROCESSCTRLQ);
 				Pasting--;
 				Show();
@@ -2877,6 +2882,7 @@ int Editor::ProcessKey(int Key)
 						if (NewLength!=Length || memcmp(CmpStr,NewCmpStr,Length*sizeof(wchar_t))!=0)
 						{
 							AddUndoData(UNDO_EDIT,CmpStr,CurLine->GetEOL(),NumLine,CurPos,Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+							Change(ECTYPE_CHANGED,NumLine);
 							TextChanged(1);
 						}
 
@@ -3153,6 +3159,7 @@ void Editor::DeleteString(Edit *DelPtr, int LineNumber, int DeleteLast,int UndoL
 	{
 		AddUndoData(UNDO_EDIT,DelPtr->GetStringAddr(),DelPtr->GetEOL(),UndoLine,DelPtr->GetCurPos(),DelPtr->GetLength());
 		DelPtr->SetString(L"");
+		Change(ECTYPE_CHANGED,UndoLine);
 		return;
 	}
 
@@ -3256,6 +3263,8 @@ void Editor::DeleteString(Edit *DelPtr, int LineNumber, int DeleteLast,int UndoL
 		AddUndoData(UNDO_DELSTR,DelPtr->GetStringAddr(),DelPtr->GetEOL(),UndoLine,0,DelPtr->GetLength());
 
 	delete DelPtr;
+
+	Change(ECTYPE_DELETED,UndoLine);
 }
 
 
@@ -3281,6 +3290,7 @@ void Editor::InsertString()
 	if (!NewString)
 		return;
 
+	Change(ECTYPE_ADDED,NumLine+1);
 	//NewString->SetTables(UseDecodeTable ? &TableSet:nullptr); // ??
 	int Length;
 	const wchar_t *CurLineStr;
@@ -3393,12 +3403,14 @@ void Editor::InsertString()
 		CurLine->SetBinaryString(NewCurLineStr,StrSize);
 		CurLine->SetEOL(EndSeq);
 		xf_free(NewCurLineStr);
+		Change(ECTYPE_CHANGED,NumLine);
 	}
 	else
 	{
 		NewString->SetString(L"");
 		AddUndoData(UNDO_INSSTR,nullptr,L"",NumLine+1,0);// EOL? - CurLine->GetEOL()  GlobalEOL   ""
 	}
+	Change(ECTYPE_CHANGED,NumLine+1);
 
 	if (VBlockStart && NumLine<VBlockY+VBlockSizeY)
 	{
@@ -3941,6 +3953,7 @@ BOOL Editor::Search(int Next)
 							}
 
 							delete [] NewStr;
+							Change(ECTYPE_CHANGED,NumLine);
 							TextChanged(1);
 						}
 
@@ -4091,6 +4104,7 @@ void Editor::Paste(const wchar_t *Src)
 					CurPos=CurLine->GetCurPos();
 					AddUndoData(UNDO_EDIT,Str,CurLine->GetEOL(),NumLine,CurPos,Length); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
 					CurLine->InsertBinaryString(&ClipText[I],Pos-I);
+					Change(ECTYPE_CHANGED,NumLine);
 				}
 
 				I=Pos;
@@ -4357,6 +4371,10 @@ void Editor::DeleteBlock()
 		CurPtr->SetBinaryString(TmpStr,Length);
 		xf_free(TmpStr);
 		CurPtr->SetCurPos(CurPos);
+		if (StartSel || EndSel)
+		{
+			Change(ECTYPE_CHANGED,BlockStartLine);
+		}
 
 		if (DeleteNext && EndSel==-1)
 		{
@@ -4725,13 +4743,15 @@ void Editor::Undo(int redo)
 	for (;;)
 	{
 		if (ud->Type!=UNDO_BEGIN && ud->Type!=UNDO_END)
+		{
 			GoToLine(ud->StrNum);
+		}
 
 		switch (ud->Type)
 		{
 			case UNDO_INSSTR:
 				ud->SetData(UNDO_DELSTR,CurLine->GetStringAddr(),CurLine->GetEOL(),ud->StrNum,ud->StrPos,CurLine->GetLength());
-				DeleteString(CurLine,NumLine,TRUE,NumLine>0 ? NumLine-1:NumLine);
+				DeleteString(CurLine,NumLine,TRUE,redo?NumLine:(NumLine>0 ? NumLine-1:NumLine));
 				break;
 			case UNDO_DELSTR:
 				ud->Type=UNDO_INSSTR;
@@ -4755,6 +4775,7 @@ void Editor::Undo(int redo)
 				{
 					CurLine->SetString(ud->Str,ud->Length);
 					CurLine->SetEOL(ud->EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
+					Change(ECTYPE_CHANGED,NumLine);
 				}
 
 				break;
@@ -4767,6 +4788,7 @@ void Editor::Undo(int redo)
 				{
 					CurLine->SetString(ud->Str,ud->Length);
 					CurLine->SetEOL(ud->EOL); // необходимо дополнительно выставлять, т.к. SetString вызывает Edit::SetBinaryString и... дальше по тексту
+					Change(ECTYPE_CHANGED,NumLine);
 				}
 
 				CurLine->SetCurPos(ud->StrPos);
@@ -4936,6 +4958,7 @@ void Editor::BlockLeft()
 			if (!MoveLine)
 				CurPtr->Select(StartSel>0 ? StartSel-1:StartSel,EndSel>0 ? EndSel-1:EndSel);
 
+			Change(ECTYPE_CHANGED,LineNum);
 			TextChanged(1);
 		}
 
@@ -5011,6 +5034,7 @@ void Editor::BlockRight()
 			if (!MoveLine)
 				CurPtr->Select(StartSel>0 ? StartSel+1:StartSel,EndSel>0 ? EndSel+1:EndSel);
 
+			Change(ECTYPE_CHANGED,LineNum);
 			TextChanged(1);
 		}
 
@@ -5098,6 +5122,7 @@ void Editor::DeleteVBlock()
 
 		CurPtr->SetCurPos(CurPos);
 		delete[] TmpStr;
+		Change(ECTYPE_CHANGED,BlockStartLine+Line);
 	}
 
 	AddUndoData(UNDO_END);
@@ -5359,6 +5384,7 @@ void Editor::VBlockShift(int Left)
 		StrLen+=EndLength;
 		CurPtr->SetBinaryString(TmpStr,StrLen);
 		delete[] TmpStr;
+		Change(ECTYPE_CHANGED,BlockStartLine+Line);
 	}
 
 	VBlockX+=Left ? -1:1;
@@ -5372,6 +5398,7 @@ int Editor::EditorControl(int Command,void *Param)
 	_ECTLLOG(CleverSysLog SL(L"Editor::EditorControl()"));
 	_ECTLLOG(SysLog(L"Command=%s Param=[%d/0x%08X]",_ECTL_ToName(Command),Param,Param));
 
+	if(EditorControlLocked()) return FALSE;
 	switch (Command)
 	{
 		case ECTL_GETSTRING:
@@ -5538,6 +5565,7 @@ int Editor::EditorControl(int Command,void *Param)
 				int CurPos=CurPtr->GetCurPos();
 				CurPtr->SetBinaryString(NewStr,Length+LengthEOL);
 				CurPtr->SetCurPos(CurPos);
+				Change(ECTYPE_CHANGED,DestLine);
 				TextChanged(1);    // 10.08.2000 skv - Modified->TextChanged
 				xf_free(NewStr);
 			}
@@ -5862,7 +5890,7 @@ int Editor::EditorControl(int Command,void *Param)
 				}
 
 				AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),StringNumber,CurPtr->GetCurPos(),CurPtr->GetLength());
-				CurPtr->ReplaceTabs();
+				if(CurPtr->ReplaceTabs()) Change(ECTYPE_CHANGED,StringNumber);
 			}
 
 			return TRUE;
@@ -6604,6 +6632,7 @@ void Editor::Xlat()
 
 			AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),CurPtr->GetLength());
 			::Xlat(CurPtr->Str,TBlockX,TBlockX+CopySize,Opt.XLat.Flags);
+			Change(ECTYPE_CHANGED,BlockStartLine+Line);
 		}
 
 		DoXlat=TRUE;
@@ -6631,6 +6660,7 @@ void Editor::Xlat()
 
 				AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),CurPtr->GetLength());
 				::Xlat(CurPtr->Str,StartSel,EndSel,Opt.XLat.Flags);
+				Change(ECTYPE_CHANGED,BlockStartLine+Line);
 				Line++;
 				CurPtr=CurPtr->m_next;
 			}
@@ -6666,6 +6696,7 @@ void Editor::Xlat()
 
 				AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,start,CurLine->GetLength());
 				::Xlat(Str,start,end,Opt.XLat.Flags);
+				Change(ECTYPE_CHANGED,NumLine);
 			}
 		}
 	}
@@ -6711,15 +6742,22 @@ void Editor::SetConvertTabs(int NewMode)
 	{
 		EdOpt.ExpandTabs=NewMode;
 		Edit *CurPtr=TopList;
+		int Pos=0;
 
 		while (CurPtr)
 		{
 			CurPtr->SetConvertTabs(NewMode);
 
 			if (NewMode == EXPAND_ALLTABS)
-				CurPtr->ReplaceTabs();
+			{
+				if(CurPtr->ReplaceTabs())
+				{
+					Change(ECTYPE_CHANGED,Pos);
+				}
+			}
 
 			CurPtr=CurPtr->m_next;
+			++Pos;
 		}
 	}
 }
@@ -7168,4 +7206,14 @@ void Editor::SortColorUnlock()
 bool Editor::SortColorLocked()
 {
 	return (SortColorLockCount > 0);
+}
+
+void Editor::Change(EDITOR_CHANGETYPE Type,int StrNum)
+{
+	if (StrNum==-1)
+		StrNum=NumLine;
+	EditorChange ec={sizeof(EditorChange),Type,StrNum};
+	++EditorControlLock;
+	CtrlObject->Plugins.ProcessEditorEvent(EE_CHANGE,&ec);
+	--EditorControlLock;
 }

@@ -214,6 +214,7 @@ class Editor:public ScreenObject
 
 		int SortColorLockCount;
 		bool SortColorUpdate;
+		int EditorControlLock;
 
 	private:
 		virtual void DisplayObject();
@@ -278,6 +279,7 @@ class Editor:public ScreenObject
 		bool CheckLine(Edit* line);
 		wchar_t *Block2Text(wchar_t *ptrInitData);
 		wchar_t *VBlock2Text(wchar_t *ptrInitData);
+		void Change(EDITOR_CHANGETYPE Type,int StrNum);
 
 	public:
 		Editor(ScreenObject *pOwner=nullptr,bool DialogUsed=false);
@@ -401,4 +403,5 @@ class Editor:public ScreenObject
 		void SortColorLock();
 		void SortColorUnlock();
 		bool SortColorLocked();
+		bool EditorControlLocked() {return EditorControlLock;}
 };

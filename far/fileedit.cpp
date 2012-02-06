@@ -2487,6 +2487,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 	_ECTLLOG(SysLog(L"(Command=%s, Param=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param,Param));
 #endif
 
+	if(m_editor->EditorControlLocked()) return FALSE;
 	if (m_bClosing && (Command != ECTL_GETINFO) && (Command != ECTL_GETBOOKMARKS) && (Command!=ECTL_GETFILENAME))
 		return FALSE;
 

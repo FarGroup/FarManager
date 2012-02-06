@@ -277,7 +277,7 @@ class Edit:public ScreenObject
 		void  GetRealSelection(int &Start,int &End);
 		void  SetEditBeyondEnd(int Mode) {Flags.Change(FEDITLINE_EDITBEYONDEND,Mode);};
 		void  SetEditorMode(int Mode) {Flags.Change(FEDITLINE_EDITORMODE,Mode);};
-		void  ReplaceTabs();
+		bool  ReplaceTabs();
 
 		void  InsertTab();
 

@@ -1508,6 +1508,7 @@ enum EDITOR_EVENTS
 
 	EE_GOTFOCUS   =6,
 	EE_KILLFOCUS  =7,
+	EE_CHANGE     =8,
 };
 
 enum DIALOG_EVENTS
@@ -1780,6 +1781,20 @@ struct EditorSaveFile
 	const wchar_t *FileName;
 	const wchar_t *FileEOL;
 	UINT CodePage;
+};
+
+enum EDITOR_CHANGETYPE
+{
+	ECTYPE_CHANGED = 0,
+	ECTYPE_ADDED   = 1,
+	ECTYPE_DELETED = 2,
+};
+
+struct EditorChange
+{
+	size_t StructSize;
+	enum EDITOR_CHANGETYPE Type;
+	int StringNumber;
 };
 
 typedef unsigned __int64 INPUTBOXFLAGS;
