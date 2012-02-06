@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2435
+  Plugin API for Far Manager 3.0 build 2439
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2435
+#define FARMANAGERVERSION_BUILD 2439
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -952,7 +952,6 @@ enum ADVANCED_CONTROL_COMMANDS
 
 enum FarSystemSettings
 {
-	FSS_CLEARROATTRIBUTE               = 0x00000001,
 	FSS_DELETETORECYCLEBIN             = 0x00000002,
 	FSS_USESYSTEMCOPYROUTINE           = 0x00000004,
 	FSS_COPYFILESOPENEDFORWRITING      = 0x00000008,
@@ -1353,6 +1352,7 @@ enum EDITOR_EVENTS
 
 	EE_GOTFOCUS   =6,
 	EE_KILLFOCUS  =7,
+	EE_CHANGE     =8,
 };
 
 enum DIALOG_EVENTS
@@ -1610,6 +1610,20 @@ struct EditorSaveFile
 	const wchar_t *FileName;
 	const wchar_t *FileEOL;
 	UINT CodePage;
+};
+
+enum EDITOR_CHANGETYPE
+{
+	ECTYPE_CHANGED = 0,
+	ECTYPE_ADDED   = 1,
+	ECTYPE_DELETED = 2,
+};
+
+struct EditorChange
+{
+	size_t StructSize;
+	enum EDITOR_CHANGETYPE Type;
+	int StringNumber;
 };
 
 typedef unsigned __int64 INPUTBOXFLAGS;
@@ -2463,6 +2477,7 @@ struct ProcessEditorEventInfo
 	size_t StructSize;
 	int Event;
 	void* Param;
+	int EditorID;
 };
 
 struct ProcessDialogEventInfo
@@ -2484,6 +2499,7 @@ struct ProcessViewerEventInfo
 	size_t StructSize;
 	int Event;
 	void* Param;
+	int ViewerID;
 };
 
 struct ClosePanelInfo
