@@ -38,7 +38,7 @@ goto :EOF
 :cmd_errors
   set terr='%mode%' failed
 :param_errors
-  echo.& echo cmd.cmd ERROR: %terr%
+  echo.& echo gnu.cmd ERROR: %terr%
 exit 1
 
 rem =========================================
