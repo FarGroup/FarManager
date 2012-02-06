@@ -776,6 +776,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 	{
 		if (!(LoopCount & 15))
 		{
+			if(CtrlObject->Plugins.GetPluginsCount())
+			{
+				SetFarConsoleMode();
+			}
+
 			// "Реакция" на максимизацию/восстановление окна консоли
 			if (ZoomedState!=IsZoomed(Console.GetWindow()) && IconicState==IsIconic(Console.GetWindow()))
 			{

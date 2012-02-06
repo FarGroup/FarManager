@@ -82,7 +82,6 @@ struct ExecuteStruct
 	{ \
 		function; \
 	} \
-	SetFarConsoleMode(); \
 	__Epilog(); \
 }
 

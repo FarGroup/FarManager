@@ -485,7 +485,6 @@ struct Options
 	int LeftSelectedFirst;
 	int SelectFolders;
 	int ReverseSort;
-	int ClearReadOnly;
 	int SortFolderExt;
 	int DeleteToRecycleBin;         // удалять в корзину?
 	int DeleteToRecycleBinKillLink; // перед удалением папки в корзину кильнем вложенные симлинки.

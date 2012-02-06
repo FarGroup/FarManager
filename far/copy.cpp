@@ -2297,7 +2297,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				{
 					DWORD SetAttr=SrcData.dwFileAttributes;
 
-					if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly && (SetAttr & FILE_ATTRIBUTE_READONLY))
+					if (IsDriveTypeCDROM(SrcDriveType) && (SetAttr & FILE_ATTRIBUTE_READONLY))
 						SetAttr&=~FILE_ATTRIBUTE_READONLY;
 
 					if (SetAttr!=DestAttr)
@@ -2414,7 +2414,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 				DWORD SetAttr=SrcData.dwFileAttributes;
 
-				if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly && (SetAttr & FILE_ATTRIBUTE_READONLY))
+				if (IsDriveTypeCDROM(SrcDriveType) && (SetAttr & FILE_ATTRIBUTE_READONLY))
 					SetAttr&=~FILE_ATTRIBUTE_READONLY;
 
 				if ((SetAttr & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY)
@@ -2691,8 +2691,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							strCopiedName = PointToName(strDestPath);
 					}
 
-					if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly &&
-					        (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
+					if (IsDriveTypeCDROM(SrcDriveType) && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
 						ShellSetAttr(strDestPath,SrcData.dwFileAttributes & (~FILE_ATTRIBUTE_READONLY));
 
 					TotalFiles++;
@@ -2717,8 +2716,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					if (!(Flags&FCOPY_COPYTONUL))
 					{
-						if (IsDriveTypeCDROM(SrcDriveType) && Opt.ClearReadOnly &&
-						        (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
+						if (IsDriveTypeCDROM(SrcDriveType) && (SrcData.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
 							ShellSetAttr(strDestPath,SrcData.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 
 						if (DestAttr!=INVALID_FILE_ATTRIBUTES && !StrCmpI(strCopiedName,DestData.strFileName) &&

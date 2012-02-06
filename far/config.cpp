@@ -121,8 +121,6 @@ void SystemSettings()
 {
 	DialogBuilder Builder(MConfigSystemTitle, L"SystemSettings");
 
-	Builder.AddCheckbox(MConfigRO, &Opt.ClearReadOnly);
-
 	DialogItemEx *DeleteToRecycleBin = Builder.AddCheckbox(MConfigRecycleBin, &Opt.DeleteToRecycleBin);
 	DialogItemEx *DeleteLinks = Builder.AddCheckbox(MConfigRecycleBinLink, &Opt.DeleteToRecycleBinKillLink);
 	DeleteLinks->Indent(4);
@@ -690,7 +688,6 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"SaveViewHistory",&Opt.SaveViewHistory,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"UseRegisteredTypes",&Opt.UseRegisteredTypes,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"AutoSaveSetup",&Opt.AutoSaveSetup,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"ClearReadOnly",&Opt.ClearReadOnly,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"DeleteToRecycleBin",&Opt.DeleteToRecycleBin,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeySystem,L"DeleteToRecycleBinKillLink",&Opt.DeleteToRecycleBinKillLink,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeySystem,L"WipeSymbol",&Opt.WipeSymbol,0, 0},

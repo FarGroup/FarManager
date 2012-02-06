@@ -1,3 +1,9 @@
+drkns 06.02.2012 15:56:52 +0200 - build 2437
+
+1. Уточнение 2428.
+
+2. Опции "[ ] Clear R/O attribute from CD files" больше нет, атрибут снимается всегда. FSS_CLEARROATTRIBUTE тоже нет.
+
 w17 06.02.2012 16:23:04 +0400 - build 2436
 
 1. debug build recovered

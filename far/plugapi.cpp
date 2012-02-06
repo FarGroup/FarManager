@@ -524,7 +524,6 @@ INT_PTR WINAPI FarAdvControl(INT_PTR ModuleNumber, ADVANCED_CONTROL_COMMANDS Com
 			DWORD Options=0;
 			static Opt2Flags OSys[]=
 			{
-				{&Opt.ClearReadOnly,FSS_CLEARROATTRIBUTE},
 				{&Opt.DeleteToRecycleBin,FSS_DELETETORECYCLEBIN},
 				{&Opt.CMOpt.UseSystemCopy,FSS_USESYSTEMCOPYROUTINE},
 				{&Opt.CMOpt.CopyOpened,FSS_COPYFILESOPENEDFORWRITING},
