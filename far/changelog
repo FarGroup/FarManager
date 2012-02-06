@@ -1,3 +1,9 @@
+w17 06.02.2012 16:23:04 +0400 - build 2436
+
+1. debug build recovered
+
+2. cosmetic
+
 zg 06.02.2012 01:56:06 +0200 - build 2435
 
 1. события EEREDRAW_CHANGE и EEREDRAW_LINE убраны. всегда приходит EEREDRAW_ALL.
