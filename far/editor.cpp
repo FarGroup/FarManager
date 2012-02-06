@@ -335,37 +335,18 @@ void Editor::ShowEditor(int CurLineOnly)
 	{
 		/*$ 10.08.2000 skv
 		  Don't send EE_REDRAW while macro is being executed.
-		  Send EE_REDRAW with param=2 if text was just modified.
 
 		*/
 		_SYS_EE_REDRAW(CleverSysLog Clev(L"Editor::ShowEditor()"));
 
 		if (!ScrBuf.GetLockCount())
 		{
-			/*$ 13.09.2000 skv
-			  EE_REDRAW 1 and 2 replaced.
-			*/
-			if (Flags.Check(FEDITOR_JUSTMODIFIED))
+			if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 			{
-				Flags.Clear(FEDITOR_JUSTMODIFIED);
-
-				if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
-				{
-					_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE)"));
-					SortColorLock();
-					CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
-					SortColorUnlock();
-				}
-			}
-			else
-			{
-				if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
-				{
-					_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW,%s)",(CurLineOnly?"EEREDRAW_LINE":"EEREDRAW_ALL")));
-					SortColorLock();
-					CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,CurLineOnly?EEREDRAW_LINE:EEREDRAW_ALL);
-					SortColorUnlock();
-				}
+				_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW)"));
+				SortColorLock();
+				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+				SortColorUnlock();
 			}
 		}
 		_SYS_EE_REDRAW(else SysLog(L"ScrBuf Locked !!!"));
@@ -449,15 +430,10 @@ void Editor::ShowEditor(int CurLineOnly)
 
 /*$ 10.08.2000 skv
   Wrapper for Modified.
-  Set JustModified every call to 1
-  to track any text state change.
-  Even if state==0, this can be
-  last UNDO.
 */
 void Editor::TextChanged(int State)
 {
 	Flags.Change(FEDITOR_MODIFIED,State);
-	Flags.Set(FEDITOR_JUSTMODIFIED);
 }
 
 
@@ -3079,9 +3055,9 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 			{
 				CtrlObject->Plugins.CurEditor=HostFileEditor; // this;
-				_SYS_EE_REDRAW(SysLog(L"Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE)",__LINE__));
+				_SYS_EE_REDRAW(SysLog(L"Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW)",__LINE__));
 				SortColorLock();
-				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_LINE);
+				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
 				SortColorUnlock();
 			}
 		}

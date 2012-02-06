@@ -754,7 +754,7 @@ void FileEditor::DisplayObject()
 		{
 			m_editor->Flags.Clear(FEDITOR_ISRESIZEDCONSOLE);
 			CtrlObject->Plugins.CurEditor=this;
-			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);//EEREDRAW_ALL);
+			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
 		}
 
 		m_editor->Show();

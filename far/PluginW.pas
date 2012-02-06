@@ -1880,8 +1880,6 @@ const
 
 const
   EEREDRAW_ALL    = Pointer(0);
-  EEREDRAW_CHANGE = Pointer(1);
-  EEREDRAW_LINE   = Pointer(2);
 
 
 { EDITOR_CONTROL_COMMANDS }

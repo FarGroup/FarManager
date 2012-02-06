@@ -4990,7 +4990,6 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 		         CtrlObject->Plugins.CurEditor &&
 		         CtrlObject->Plugins.CurEditor->IsVisible() )
 		      {
-		        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
 		        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
 		        CtrlObject->Plugins.CurEditor->Show();
 		      }

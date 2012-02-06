@@ -489,7 +489,8 @@ bool FileWalker::InitWalk(DWORD BlockSize)
 
 		if(Sparse)
 		{
-			FILE_ALLOCATED_RANGE_BUFFER QueryRange = {{0}, {FileSize}};
+			FILE_ALLOCATED_RANGE_BUFFER QueryRange = {};
+			QueryRange.Length.QuadPart = FileSize;
 			static FILE_ALLOCATED_RANGE_BUFFER Ranges[1024];
 			DWORD BytesReturned;
 			for(;;)

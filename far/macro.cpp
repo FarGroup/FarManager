@@ -4864,7 +4864,6 @@ int KeyMacro::GetKey()
 			        CtrlObject->Plugins.CurEditor->IsVisible() &&
 			        LockScr)
 			{
-				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
 				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
 				CtrlObject->Plugins.CurEditor->Show();
 			}
@@ -4926,7 +4925,6 @@ done:
 		/*$ 10.08.2000 skv
 			If we are in editor mode, and CurEditor defined,
 			we need to call this events.
-			EE_REDRAW EEREDRAW_CHANGE - to notify that text changed.
 			EE_REDRAW EEREDRAW_ALL    - to notify that whole screen updated
 			->Show() to actually update screen.
 
@@ -4939,7 +4937,6 @@ done:
 		        CtrlObject->Plugins.CurEditor->IsVisible()
 		        /* && LockScr*/) // Mantis#0001595
 		{
-			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_CHANGE);
 			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
 			CtrlObject->Plugins.CurEditor->Show();
 		}

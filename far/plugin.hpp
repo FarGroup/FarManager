@@ -1524,8 +1524,6 @@ enum SYNCHRO_EVENTS
 };
 
 #define EEREDRAW_ALL    (void*)0
-#define EEREDRAW_CHANGE (void*)1
-#define EEREDRAW_LINE   (void*)2
 
 enum EDITOR_CONTROL_COMMANDS
 {

@@ -104,7 +104,6 @@ struct EditorUndoData
 enum FLAGS_CLASS_EDITOR
 {
 	FEDITOR_MODIFIED              = 0x00000200,
-	FEDITOR_JUSTMODIFIED          = 0x00000400,   // 10.08.2000 skv: need to send EE_REDRAW 2.
 	// set to 1 by TextChanged, no matter what
 	// is value of State.
 	FEDITOR_MARKINGBLOCK          = 0x00000800,
