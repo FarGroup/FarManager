@@ -277,7 +277,7 @@ extern wchar_t FPRINTFbuffer[];
 		if (FPRINTFformat) \
 		{ \
 			FPRINTFret=FSF.snprintf(FPRINTFbuffer,FPRINTFbufferLen,FPRINTFformat, __VA_ARGS__); \
-			if (WriteFile(FPRINTFhFile,FPRINTFbuffer,FPRINTFret*sizeof(wchar_t),&FPRINTFtmp,NULL)) \
+			if (WriteFile(FPRINTFhFile,FPRINTFbuffer,static_cast<DWORD>(FPRINTFret*sizeof(wchar_t)),&FPRINTFtmp,NULL)) \
 				FPRINTFret = (FPRINTFtmp + sizeof(wchar_t)-1) / sizeof(wchar_t); \
 		} \
 	}
@@ -290,7 +290,7 @@ extern wchar_t FPRINTFbuffer[];
 		if (FPRINTFformat) \
 		{ \
 			FPRINTFret=FSF.snprintf(FPRINTFbuffer,FPRINTFbufferLen,FPRINTFformat, __VA_ARGS__); \
-			if (WriteFile(FPRINTFhFile,FPRINTFbuffer,FPRINTFret*sizeof(wchar_t),&FPRINTFtmp,NULL)) \
+			if (WriteFile(FPRINTFhFile,FPRINTFbuffer,static_cast<DWORD>(FPRINTFret*sizeof(wchar_t)),&FPRINTFtmp,NULL)) \
 				FPRINTFret = (FPRINTFtmp + sizeof(wchar_t)-1) / sizeof(wchar_t); \
 		} \
 	}

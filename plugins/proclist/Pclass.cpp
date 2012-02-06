@@ -421,8 +421,7 @@ void Plist::GetOpenPanelInfo(OpenPanelInfo *Info)
 
 	static WORD FKeys[]=
 	{
-		VK_F5,0,MFRemote,
-		VK_F6,0,0,
+		VK_F6,0,MFRemote,
 		VK_F7,0,0,
 		VK_F8,0,MFKill,
 		VK_F6,LEFT_ALT_PRESSED,0,
@@ -757,7 +756,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 		lstrcpy(ModuleName, CurItem.FileName);
 		fprintf(InfoFile,L"%s %s%s\n",PrintTitle(MTitleModule),ModuleName,AppType);
 
-		if (pdata && pdata->FullPath && *pdata->FullPath)
+		if (pdata && *pdata->FullPath)
 		{
 			fprintf(InfoFile,L"%s %s\n",PrintTitle(MTitleFullPath),OUT_STRING(pdata->FullPath));
 			PrintVersionInfo(InfoFile, pdata->FullPath);
@@ -1128,7 +1127,7 @@ bool Plist::Connect(LPCTSTR pMachine, LPCTSTR pUser, LPCTSTR pPasw)
 
 		if (dwErr==ERROR_SESSION_CREDENTIAL_CONFLICT)
 		{
-			dwErr = WNetCancelConnection2(Machine, 0, 0);
+			WNetCancelConnection2(Machine, 0, 0);
 			dwErr = WNetAddConnection2(&nr,pPasw,pUser,0);
 		}
 
@@ -1188,12 +1187,12 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 
 		if (PInfo.CurrentItem < PInfo.ItemsNumber)
 		{
-			size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+			size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(PInfo.CurrentItem),0);
 			PluginPanelItem* CurItem=static_cast<PluginPanelItem*>(malloc(Size));
 			if (CurItem)
 			{
 				FarGetPluginPanelItem gpi={Size, CurItem};
-				Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
+				Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(PInfo.CurrentItem),&gpi);
 
 				if (!CurItem->UserData)
 				{
@@ -1242,12 +1241,12 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		PanelInfo pi = {sizeof(PanelInfo)};
 		Info.PanelControl(this,FCTL_GETPANELINFO,0,(void*)&pi);
 
-		size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,pi.CurrentItem,0);
+		size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),0);
 		PluginPanelItem* PPI=static_cast<PluginPanelItem*>(malloc(Size));
 		if (PPI)
 		{
 			FarGetPluginPanelItem gpi={Size, PPI};
-			Info.PanelControl(this,FCTL_GETPANELITEM,pi.CurrentItem,&gpi);
+			Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),&gpi);
 			bool Exit=pi.CurrentItem >= pi.ItemsNumber || !lstrcmp(PPI->FileName,L"..");
 			free(PPI);
 
@@ -1276,12 +1275,12 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		wchar_t FileName[MAX_PATH];
 		FSF.MkTemp(FileName, ARRAYSIZE(FileName), L"prc");
 		WCONST wchar_t *lpFileName=FileName;
-		Size=Info.PanelControl(this,FCTL_GETPANELITEM,pi.CurrentItem,0);
+		Size=Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),0);
 		PPI=(PluginPanelItem*)new char[Size];
 		if (PPI)
 		{
 			FarGetPluginPanelItem gpi={Size, PPI};
-			Info.PanelControl(this,FCTL_GETPANELITEM,pi.CurrentItem,&gpi);
+			Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),&gpi);
 
 			if (GetFiles(PPI, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
 			{
@@ -1299,8 +1298,8 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 	else if (ControlState==0 && Key==VK_F6)
 	{
 		{
-			wchar_t Username[1024];
-			wchar_t Password[1024];
+			wchar_t Username[1024] = {};
+			wchar_t Password[1024] = {};
 			PluginDialogBuilder Builder(Info, MainGuid, ConfigDialogGuid, MSelectComputer, L"Contents"); // ConfigDialogGuid ???
 			Builder.AddText(MComputer);
 			Builder.AddEditField(HostName, ARRAYSIZE(HostName), 65, L"ProcessList.Computer");
@@ -1439,7 +1438,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 				if(PPI)
 				{
 					FarGetPluginPanelItem gpi = {Size, PPI};
-					Info.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, &gpi);
+					Info.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, static_cast<int>(i), &gpi);
 					SetLastError(0);
 
 					if (((ProcessData*)PPI->UserData)->dwPID)
@@ -1551,12 +1550,12 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 
 		if (pi.CurrentItem < pi.ItemsNumber)
 		{
-			size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,pi.CurrentItem,0);
+			size_t Size=Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),0);
 			PluginPanelItem* PPI=static_cast<PluginPanelItem*>(malloc(Size));
 			if (PPI)
 			{
 				FarGetPluginPanelItem gpi={Size, PPI};
-				Info.PanelControl(this,FCTL_GETPANELITEM,pi.CurrentItem,&gpi);
+				Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),&gpi);
 
 				ProcessData* pData = (ProcessData *)PPI->UserData;
 				if (pData)

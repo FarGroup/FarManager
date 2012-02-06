@@ -249,22 +249,20 @@ void PerfThread::Refresh()
 
 	for (i=0; i<(DWORD)pObj->NumCounters; i++)
 	{
-		if (pCounterDef->CounterNameTitleIndex == pf.dwProcessIdTitle)
-			dwProcessIdCounter = pCounterDef->CounterOffset;
-		else if (pCounterDef->CounterNameTitleIndex == pf.dwPriorityTitle)
-			dwPriorityCounter = pCounterDef->CounterOffset;
-		else if (pCounterDef->CounterNameTitleIndex == pf.dwThreadTitle)
-			dwThreadCounter = pCounterDef->CounterOffset;
-		else if (pCounterDef->CounterNameTitleIndex == pf.dwCreatingPIDTitle)
-			dwCreatingPIDCounter = pCounterDef->CounterOffset;
-		else if (pCounterDef->CounterNameTitleIndex == pf.dwElapsedTitle)
-			dwElapsedCounter = pCounterDef->CounterOffset;
+		if (pCounterDef[i].CounterNameTitleIndex == pf.dwProcessIdTitle)
+			dwProcessIdCounter = pCounterDef[i].CounterOffset;
+		else if (pCounterDef[i].CounterNameTitleIndex == pf.dwPriorityTitle)
+			dwPriorityCounter = pCounterDef[i].CounterOffset;
+		else if (pCounterDef[i].CounterNameTitleIndex == pf.dwThreadTitle)
+			dwThreadCounter = pCounterDef[i].CounterOffset;
+		else if (pCounterDef[i].CounterNameTitleIndex == pf.dwCreatingPIDTitle)
+			dwCreatingPIDCounter = pCounterDef[i].CounterOffset;
+		else if (pCounterDef[i].CounterNameTitleIndex == pf.dwElapsedTitle)
+			dwElapsedCounter = pCounterDef[i].CounterOffset;
 		else
 			for (int ii=0; ii<NCOUNTERS; ii++)
-				if (pf.dwCounterTitles[ii] && pCounterDef->CounterNameTitleIndex==pf.dwCounterTitles[ii])
-					dwCounterOffsets[ii] = pCounterDef->CounterOffset;
-
-		pCounterDef++;
+				if (pf.dwCounterTitles[ii] && pCounterDef[i].CounterNameTitleIndex==pf.dwCounterTitles[ii])
+					dwCounterOffsets[ii] = pCounterDef[i].CounterOffset;
 	}
 
 	Array<ProcessPerfData> *pNewPData = new Array<ProcessPerfData>((DWORD)pObj->NumInstances);
