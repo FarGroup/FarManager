@@ -5106,7 +5106,18 @@ int PluginA::ProcessEditorEvent(
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSEDITOREVENT;
 		es.nDefaultResult = 0;
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessEditorEvent)(Event, Param), es);
+		switch(Event)
+		{
+			case EE_CLOSE:
+			case EE_GOTFOCUS:
+			case EE_KILLFOCUS:
+				Param=&EditorID;
+			case EE_READ:
+			case EE_SAVE:
+			case EE_REDRAW:
+				EXECUTE_FUNCTION_EX(FUNCTION(iProcessEditorEvent)(Event, Param), es);
+				break;
+		}
 	}
 
 	return 0; //oops!
@@ -5123,7 +5134,16 @@ int PluginA::ProcessViewerEvent(
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSVIEWEREVENT;
 		es.nDefaultResult = 0;
-		EXECUTE_FUNCTION_EX(FUNCTION(iProcessViewerEvent)(Event, Param), es);
+		switch(Event)
+		{
+			case VE_CLOSE:
+			case VE_GOTFOCUS:
+			case VE_KILLFOCUS:
+				Param=&ViewerID;
+			case VE_READ:
+				EXECUTE_FUNCTION_EX(FUNCTION(iProcessViewerEvent)(Event, Param), es);
+				break;
+		}
 	}
 
 	return 0; //oops, again!
