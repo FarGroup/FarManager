@@ -467,7 +467,7 @@ HANDLE PluginManager::LoadPluginExternal(const string& lpwszModuleName, bool Loa
 
 	if (pPlugin)
 	{
-		if (LoadToMem && !pPlugin->Load())
+		if ((LoadToMem || pPlugin->bPendingRemove) && !pPlugin->Load())
 		{
 			UnloadedPlugins.Push(&pPlugin);
 			return nullptr;
