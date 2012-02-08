@@ -712,7 +712,7 @@ bool Plugin::LoadData()
 		}
 
 		PrepareModulePath(m_strModuleName);
-		m_hModule = LoadLibraryEx(m_strModuleName,nullptr,LOAD_WITH_ALTERED_SEARCH_PATH);
+		m_hModule = LoadLibraryEx(m_strModuleName,nullptr,0);
 		GuardLastError Err;
 		FarChDir(strCurPath);
 
