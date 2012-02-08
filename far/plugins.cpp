@@ -544,7 +544,19 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 	int nResult = FALSE;
 	Plugin* pPlugin = reinterpret_cast<Plugin*>(hPlugin);
 	nResult = pPlugin->Unload(true);
-	UnloadedPlugins.Push(&pPlugin);
+	bool Added = false;
+	for(Plugin** p  = UnloadedPlugins.First(); p; p = UnloadedPlugins.Next(p))
+	{
+		if(*p == pPlugin)
+		{
+			Added = true;
+			break;
+		}
+	}
+	if(!Added)
+	{
+		UnloadedPlugins.Push(&pPlugin);
+	}
 	return nResult;
 }
 
