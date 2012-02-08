@@ -2512,3 +2512,15 @@ void PluginManager::RefreshPluginsList()
 		UnloadedPlugins.Clear();
 	}
 }
+
+void PluginManager::UndoRemove(Plugin* plugin)
+{
+	for(Plugin** p = UnloadedPlugins.First(); p; p = UnloadedPlugins.Next(p))
+	{
+		if(*p == plugin)
+		{
+			UnloadedPlugins.Delete(p);
+			break;
+		}
+	}
+}

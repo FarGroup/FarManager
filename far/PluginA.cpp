@@ -4907,7 +4907,7 @@ bool PluginA::SetStartupInfo()
 		es.id = EXCEPT_SETSTARTUPINFO;
 		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info), es);
 
-		if (bUnloaded)
+		if (bPendingRemove)
 		{
 			return false;
 		}
@@ -4925,7 +4925,7 @@ bool PluginA::CheckMinFarVersion()
 		es.nDefaultResult = 0;
 		EXECUTE_FUNCTION_EX(FUNCTION(iGetMinFarVersion)(), es);
 
-		if (bUnloaded)
+		if (bPendingRemove)
 		{
 			return false;
 		}
@@ -5829,7 +5829,7 @@ bool PluginA::GetPluginInfo(PluginInfo *pi)
 		oldfar::PluginInfo InfoA={sizeof(InfoA)};
 		EXECUTE_FUNCTION(FUNCTION(iGetPluginInfo)(&InfoA), es);
 
-		if (!bUnloaded)
+		if (!bPendingRemove)
 		{
 			ConvertPluginInfo(InfoA, pi);
 			return true;

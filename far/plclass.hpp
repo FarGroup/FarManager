@@ -73,7 +73,6 @@ struct ExecuteStruct
 		__except(xfilter(es.id, GetExceptionInformation(), this, 0)) \
 		{ \
 			m_owner->UnloadPlugin(this, es.id); \
-			bUnloaded = true; \
 			es.nResult = es.nDefaultResult; \
 			ProcessException=FALSE; \
 		} \
@@ -249,8 +248,6 @@ public:
 	bool SaveToCache();
 	bool IsPanelPlugin();
 
-	bool Unloaded() {return bUnloaded;}
-
 protected:
 	virtual void __Prolog() {};
 	virtual void __Epilog() {};
@@ -261,7 +258,7 @@ protected:
 
 	PluginManager *m_owner; //BUGBUG
 	Language PluginLang;
-	bool bUnloaded;
+	bool bPendingRemove;
 
 private:
 	void InitExports();

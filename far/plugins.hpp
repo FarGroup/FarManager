@@ -238,6 +238,7 @@ class PluginManager
 		static const GUID& GetGUID(HANDLE hPlugin);
 
 		void RefreshPluginsList();
+		void UndoRemove(Plugin* plugin);
 
 //api functions
 

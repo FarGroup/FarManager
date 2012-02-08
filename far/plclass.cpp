@@ -646,7 +646,7 @@ Plugin::Plugin(PluginManager *owner, const wchar_t *lpwszModuleName):
 	ExportsNamesW(_ExportsNamesW),
 	ExportsNamesA(_ExportsNamesA),
 	m_owner(owner),
-	bUnloaded(false)
+	bPendingRemove(false)
 {
 	m_strModuleName = lpwszModuleName;
 	m_strCacheName = lpwszModuleName;
@@ -736,6 +736,11 @@ bool Plugin::LoadData()
 
 	WorkFlags.Clear(PIWF_CACHED);
 
+	if(bPendingRemove)
+	{
+		bPendingRemove = false;
+		m_owner->UndoRemove(this);
+	}
 	InitExports();
 
 	GlobalInfo Info={sizeof(Info)};
@@ -790,7 +795,7 @@ bool Plugin::Load()
 
 	if (!CheckMinFarVersion() || !SetStartupInfo())
 	{
-		if (!bUnloaded)
+		if (!bPendingRemove)
 		{
 			Unload();
 		}
@@ -892,6 +897,8 @@ int Plugin::Unload(bool bExitFAR)
 
 	m_hModule = nullptr;
 	FuncFlags.Clear(PICFF_LOADED); //??
+	WorkFlags.Clear(PIWF_DATALOADED);
+	bPendingRemove = true;
 	return nResult;
 }
 
@@ -932,7 +939,7 @@ bool Plugin::SetStartupInfo()
 		es.id = EXCEPT_SETSTARTUPINFO;
 		EXECUTE_FUNCTION(FUNCTION(iSetStartupInfo)(&_info), es);
 
-		if (bUnloaded)
+		if (bPendingRemove)
 		{
 			return false;
 		}
@@ -948,7 +955,7 @@ bool Plugin::GetGlobalInfo(GlobalInfo *gi)
 		ExecuteStruct es;
 		es.id = EXCEPT_GETGLOBALINFO;
 		EXECUTE_FUNCTION(FUNCTION(iGetGlobalInfo)(gi), es);
-		return !bUnloaded;
+		return !bPendingRemove;
 	}
 	return false;
 }
@@ -1625,7 +1632,7 @@ bool Plugin::GetPluginInfo(PluginInfo *pi)
 		es.id = EXCEPT_GETPLUGININFO;
 		EXECUTE_FUNCTION(FUNCTION(iGetPluginInfo)(pi), es);
 
-		if (!bUnloaded)
+		if (!bPendingRemove)
 			return true;
 	}
 
