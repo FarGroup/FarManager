@@ -3030,8 +3030,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 		return COPY_FAILURE;
 	}
 
-	SrcFile.InitWalk(CopyBufferSize);
-
 	File DestFile;
 	__int64 AppendPos=0;
 
@@ -3101,97 +3099,99 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 
 	DWORD BytesRead,BytesWritten;
 
-	while(SrcFile.Step())
+	if(SrcFile.InitWalk(CopyBufferSize))
 	{
-		BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
-
-		if (CP->Cancelled())
+		while(SrcFile.Step())
 		{
-			AbortOp=true;
-		}
+			BOOL IsChangeConsole=OrigScrX != ScrX || OrigScrY != ScrY;
 
-		IsChangeConsole=CheckAndUpdateConsole(IsChangeConsole);
-
-		if (IsChangeConsole)
-		{
-			OrigScrX=ScrX;
-			OrigScrY=ScrY;
-			PR_ShellCopyMsg();
-		}
-
-		CP->SetProgressValue(CurCopiedSize,SrcData.nFileSize);
-
-		if (ShowTotalCopySize)
-		{
-			CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
-		}
-
-		if (AbortOp)
-		{
-			SrcFile.Close();
-
-			if (!(Flags&FCOPY_COPYTONUL))
+			if (CP->Cancelled())
 			{
-				if (Append)
-				{
-					DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
-				}
-
-				DestFile.SetEnd();
-				DestFile.Close();
-
-				if (!Append)
-				{
-					apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
-					apiDeleteFile(strDestName); //BUGBUG
-				}
+				AbortOp=true;
 			}
 
-			return COPY_CANCEL;
-		}
+			IsChangeConsole=CheckAndUpdateConsole(IsChangeConsole);
 
-		while (!SrcFile.Read(CopyBuffer, SrcFile.GetChunkSize(), BytesRead))
-		{
-			int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
-					                MSG(MCopyReadError),SrcName,
-					                MSG(MRetry),MSG(MCancel));
-			PR_ShellCopyMsg();
-
-			if (!MsgCode)
-				continue;
-
-			DWORD LastError=GetLastError();
-			SrcFile.Close();
-
-			if (!(Flags&FCOPY_COPYTONUL))
+			if (IsChangeConsole)
 			{
-				if (Append)
-				{
-					DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
-				}
-
-				DestFile.SetEnd();
-				DestFile.Close();
-
-				if (!Append)
-				{
-					apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
-					apiDeleteFile(strDestName); //BUGBUG
-				}
+				OrigScrX=ScrX;
+				OrigScrY=ScrY;
+				PR_ShellCopyMsg();
 			}
 
-			CP->SetProgressValue(0,0);
-			SetLastError(LastError);
-			CurCopiedSize = 0; // —бросить текущий прогресс
-			return COPY_FAILURE;
-		}
+			CP->SetProgressValue(CurCopiedSize,SrcData.nFileSize);
 
-		if (!BytesRead)
-		{
-			break;
-		}
+			if (ShowTotalCopySize)
+			{
+				CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
+			}
 
-		if (!(Flags&FCOPY_COPYTONUL))
+			if (AbortOp)
+			{
+				SrcFile.Close();
+
+				if (!(Flags&FCOPY_COPYTONUL))
+				{
+					if (Append)
+					{
+						DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
+					}
+
+					DestFile.SetEnd();
+					DestFile.Close();
+
+					if (!Append)
+					{
+						apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
+						apiDeleteFile(strDestName); //BUGBUG
+					}
+				}
+
+				return COPY_CANCEL;
+			}
+
+			while (!SrcFile.Read(CopyBuffer, SrcFile.GetChunkSize(), BytesRead))
+			{
+				int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
+										MSG(MCopyReadError),SrcName,
+										MSG(MRetry),MSG(MCancel));
+				PR_ShellCopyMsg();
+
+				if (!MsgCode)
+					continue;
+
+				DWORD LastError=GetLastError();
+				SrcFile.Close();
+
+				if (!(Flags&FCOPY_COPYTONUL))
+				{
+					if (Append)
+					{
+						DestFile.SetPointer(AppendPos,nullptr,FILE_BEGIN);
+					}
+
+					DestFile.SetEnd();
+					DestFile.Close();
+
+					if (!Append)
+					{
+						apiSetFileAttributes(strDestName,FILE_ATTRIBUTE_NORMAL);
+						apiDeleteFile(strDestName); //BUGBUG
+					}
+				}
+
+				CP->SetProgressValue(0,0);
+				SetLastError(LastError);
+				CurCopiedSize = 0; // —бросить текущий прогресс
+				return COPY_FAILURE;
+			}
+
+			if (!BytesRead)
+			{
+				break;
+			}
+
+																																																																																																																																	if (!(Flags&FCOPY_COPYTONUL))
 		{
 			DestFile.SetPointer(SrcFile.GetChunkOffset() + (Append? AppendPos : 0), nullptr, FILE_BEGIN);
 			while (!DestFile.Write(CopyBuffer,BytesRead,BytesWritten,nullptr))
@@ -3346,34 +3346,35 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 				break;
 			}
 		}
-		else
-		{
-			BytesWritten=BytesRead; // не забудем приравн€ть количество записанных байт
+			else
+			{
+				BytesWritten=BytesRead; // не забудем приравн€ть количество записанных байт
+			}
+
+			if (ShowTotalCopySize)
+				TotalCopiedSize-=CurCopiedSize;
+
+			CurCopiedSize = SrcFile.GetChunkOffset() + SrcFile.GetChunkSize();
+
+			if (ShowTotalCopySize)
+				TotalCopiedSize+=CurCopiedSize;
+
+			CP->SetProgressValue(CurCopiedSize,SrcData.nFileSize);
+
+			if (ShowTotalCopySize)
+			{
+				CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
+			}
+
+			CP->SetNames(SrcData.strFileName,strDestName);
 		}
-
-		if (ShowTotalCopySize)
-			TotalCopiedSize-=CurCopiedSize;
-
-		CurCopiedSize = SrcFile.GetChunkOffset() + SrcFile.GetChunkSize();
-
-		if (ShowTotalCopySize)
-			TotalCopiedSize+=CurCopiedSize;
-
-		CP->SetProgressValue(CurCopiedSize,SrcData.nFileSize);
-
-		if (ShowTotalCopySize)
-		{
-			CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
-		}
-
-		CP->SetNames(SrcData.strFileName,strDestName);
-
 	}
 
+	SrcFile.Close();
+	
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
 		DestFile.SetTime(nullptr, nullptr, &SrcData.ftLastWriteTime, nullptr);
-		SrcFile.Close();
 
 		if (CopySparse)
 		{
@@ -3390,8 +3391,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 		// TODO: «ƒ≈—я —“ј¬»“№ Compressed???
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 	}
-	else
-		SrcFile.Close();
 
 	return COPY_SUCCESS;
 }

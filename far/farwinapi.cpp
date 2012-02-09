@@ -76,15 +76,18 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
 						LPCWSTR NamePtr = PointToName(Name);
 						Handle->Extended = true;
 
-						// MAGIC: first call MUST be FileBothDirectoryInformation, otherwise all sequent calls on RDP shares (\\tsclient\*) will fail with NTSTATUS==0xC0000001.
-						Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE);
-						// MAGIC end.
-
 						bool QueryResult = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, TRUE);
 						if(!QueryResult)
 						{
 							Handle->Extended = false;
-							QueryResult = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE);
+
+							// re-create handle to avoid weird bugs with some network emulators
+							Directory->Close();
+							if(Directory->Open(strDirectory, FILE_LIST_DIRECTORY, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING))
+							{
+								Handle->ObjectHandle =static_cast<HANDLE>(Directory);
+								QueryResult = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, NamePtr, TRUE);
+							}
 						}
 						if(QueryResult)
 						{

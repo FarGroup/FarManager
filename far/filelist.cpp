@@ -4839,6 +4839,13 @@ bool FileList::ApplyCommand()
 
 	SaveSelection();
 
+	string CommandLine;
+	CtrlObject->CmdLine->GetString(CommandLine);
+	int SelStart, SelEnd;
+	CtrlObject->CmdLine->GetSelection(SelStart, SelEnd);
+	int CursorPosition = CtrlObject->CmdLine->GetCurPos();
+	int LeftPosition = CtrlObject->CmdLine->GetLeftPos();
+
 	++UpdateDisabled;
 	GetSelName(nullptr,FileAttr);
 	CtrlObject->CmdLine->LockUpdatePanel(true);
@@ -4888,6 +4895,11 @@ bool FileList::ApplyCommand()
 		if (!strAnotherShortListName.IsEmpty())
 			apiDeleteFile(strAnotherShortListName);
 	}
+
+
+	CtrlObject->CmdLine->SetString(CommandLine);
+	CtrlObject->CmdLine->Select(SelStart, SelEnd);
+	CtrlObject->CmdLine->SetCurPos(CursorPosition, LeftPosition);
 
 	CtrlObject->CmdLine->LockUpdatePanel(false);
 	CtrlObject->CmdLine->Show();
