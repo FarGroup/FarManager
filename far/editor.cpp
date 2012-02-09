@@ -5483,7 +5483,19 @@ int Editor::EditorControl(int Command,void *Param)
 				Lock();
 
 				while (*Str)
-					ProcessKey(*(Str++));
+				{
+					if(L'\n'==*Str)
+					{
+						--Pasting;
+						InsertString();
+						++Pasting;
+					}
+					else
+					{
+						ProcessKey(*Str);
+					}
+					++Str;
+				}
 
 				Unlock();
 				Pasting--;
