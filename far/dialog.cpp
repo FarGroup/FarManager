@@ -65,7 +65,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // Флаги для функции ConvertItem
 enum CVTITEMFLAGS
 {
-	CVTITEM_TOPLUGIN        = 0,
 	CVTITEM_FROMPLUGIN      = 1,
 	CVTITEM_TOPLUGINSHORT   = 2,
 	CVTITEM_FROMPLUGINSHORT = 3
@@ -161,13 +160,13 @@ bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos)
 	return false;
 }
 
-void ConvertItemSmall(const DialogItemEx& From, FarDialogItem& To)
+static void ConvertItemSmall(const DialogItemEx& From, FarDialogItem& To)
 {
 	To = static_cast<FarDialogItem>(From);
 
 	To.Data = nullptr;
-	To.History = From.strHistory;
-	To.Mask = From.strMask;
+	To.History = nullptr;
+	To.Mask = nullptr;
 	To.Reserved = From.Reserved;
 	To.UserData = From.UserData;
 }
@@ -193,7 +192,7 @@ size_t ItemStringAndSize(const DialogItemEx *Data,string& ItemString)
 	return sz;
 }
 
-bool ConvertItemEx(
+static bool ConvertItemEx(
     CVTITEMFLAGS FromPlugin,
     FarDialogItem *Item,
     DialogItemEx *ItemEx,
@@ -205,22 +204,10 @@ bool ConvertItemEx(
 
 	switch (FromPlugin)
 	{
-		case CVTITEM_TOPLUGIN:
 		case CVTITEM_TOPLUGINSHORT:
 			for (size_t i = 0; i < Count; ++i, ++Item, ++ItemEx)
 			{
 				ConvertItemSmall(*ItemEx, *Item);
-				if (FromPlugin==CVTITEM_TOPLUGIN)
-				{
-					string str;
-					size_t sz = ItemStringAndSize(ItemEx,str);
-					{
-						wchar_t* p = static_cast<wchar_t*>(xf_malloc((sz+1)*sizeof(wchar_t)));
-						wmemcpy(p, str.CPtr(), sz);
-						p[sz] = L'\0';
-						Item->Data = p;
-					}
-				}
 			}
 			break;
 
@@ -233,12 +220,14 @@ bool ConvertItemEx(
 	return true;
 }
 
-size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
+static size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 {
 	size_t size=sizeof(FarDialogItem);
 	string str;
 	size_t sz = ItemStringAndSize(ItemEx,str);
 	size+=(sz+1)*sizeof(wchar_t);
+	size+=(ItemEx->strHistory.GetLength()+1)*sizeof(wchar_t);
+	size+=(ItemEx->strMask.GetLength()+1)*sizeof(wchar_t);
 
 	if (Item)
 	{
@@ -248,8 +237,13 @@ size_t ConvertItemEx2(const DialogItemEx *ItemEx, FarGetDialogItem *Item)
 
 			wchar_t* p=(wchar_t*)(Item->Item+1);
 			Item->Item->Data = p;
-			wmemcpy(p, str.CPtr(), sz);
-			p[sz] = L'\0';
+			wmemcpy(p, str.CPtr(), sz+1);
+			p+=sz+1;
+			Item->Item->History = p;
+			wmemcpy(p, ItemEx->strHistory.CPtr(), ItemEx->strHistory.GetLength()+1);
+			p+=ItemEx->strHistory.GetLength()+1;
+			Item->Item->Mask = p;
+			wmemcpy(p, ItemEx->strMask.CPtr(), ItemEx->strMask.GetLength()+1);
 		}
 	}
 	return size;
@@ -265,11 +259,14 @@ void ItemToItemEx(const FarDialogItem *Item, DialogItemEx *ItemEx, size_t Count,
 		*ItemEx = *Item;
 
 		ItemEx->ID = static_cast<int>(i);
-		ItemEx->strHistory = Item->History;
-		ItemEx->strMask = Item->Mask;
-		if(!Short && Item->Data)
+		if(!Short)
 		{
-			ItemEx->strData.Copy(Item->Data, Item->MaxLength?Item->MaxLength:StrLength(Item->Data));
+			ItemEx->strHistory = Item->History;
+			ItemEx->strMask = Item->Mask;
+			if(Item->Data)
+			{
+				ItemEx->strData.Copy(Item->Data, Item->MaxLength?Item->MaxLength:StrLength(Item->Data));
+			}
 		}
 		ItemEx->SelStart=-1;
 
@@ -5496,27 +5493,25 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		/*****************************************************************/
 		case DN_EDITCHANGE:
 		{
-			FarDialogItem Item;
-
-			if (!ConvertItemEx(CVTITEM_TOPLUGIN,&Item,CurItem,1))
-				return FALSE; // no memory TODO: may be needed diagnostic
-
-			INT_PTR I=0;
-			if(CurItem->Type==DI_EDIT||CurItem->Type==DI_COMBOBOX||CurItem->Type==DI_FIXEDIT||CurItem->Type==DI_PSWEDIT)
+			FarGetDialogItem Item={0,nullptr};
+			Item.Size=ConvertItemEx2(CurItem,nullptr);
+			Item.Item=(FarDialogItem*)xf_malloc(Item.Size);
+			INT_PTR I=FALSE;
+			if(ConvertItemEx2(CurItem,&Item)<=Item.Size)
 			{
-				static_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(false);
-				const wchar_t* original_PtrData=Item.Data;
-				I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,&Item);
-				if (I)
+				if(CurItem->Type==DI_EDIT||CurItem->Type==DI_COMBOBOX||CurItem->Type==DI_FIXEDIT||CurItem->Type==DI_PSWEDIT)
 				{
-					if (Type == DI_COMBOBOX && CurItem->ListPtr)
-						CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
+					static_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(false);
+					I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,&Item.Item);
+					if (I)
+					{
+						if (Type == DI_COMBOBOX && CurItem->ListPtr)
+							CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
+					}
+					static_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(true);
 				}
-				if (original_PtrData)
-					xf_free((void*)original_PtrData);
-				static_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(true);
 			}
-
+			xf_free(Item.Item);
 			return I;
 		}
 		/*****************************************************************/
@@ -5626,19 +5621,18 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		/*****************************************************************/
 		case DN_DRAWDLGITEM:
 		{
-			FarDialogItem Item;
+			FarGetDialogItem Item={0,nullptr};
+			Item.Size=ConvertItemEx2(CurItem,nullptr);
+			Item.Item=(FarDialogItem*)xf_malloc(Item.Size);
+			INT_PTR I=FALSE;
+			if(ConvertItemEx2(CurItem,&Item)<=Item.Size)
+			{
+				I=Dlg->CallDlgProc(Msg,Param1,&Item.Item);
 
-			if (!ConvertItemEx(CVTITEM_TOPLUGIN,&Item,CurItem,1))
-				return FALSE; // no memory TODO: may be needed diagnostic
-
-			INT_PTR I=Dlg->CallDlgProc(Msg,Param1,&Item);
-
-			if ((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
-				CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
-
-			if (Item.Data)
-				xf_free((wchar_t *)Item.Data);
-
+				if ((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
+					CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
+			}
+			xf_free(Item.Item);
 			return I;
 		}
 		/*****************************************************************/
