@@ -5502,7 +5502,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 				if(CurItem->Type==DI_EDIT||CurItem->Type==DI_COMBOBOX||CurItem->Type==DI_FIXEDIT||CurItem->Type==DI_PSWEDIT)
 				{
 					static_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(false);
-					I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,&Item.Item);
+					I=Dlg->CallDlgProc(DN_EDITCHANGE,Param1,Item.Item);
 					if (I)
 					{
 						if (Type == DI_COMBOBOX && CurItem->ListPtr)
@@ -5627,7 +5627,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			INT_PTR I=FALSE;
 			if(ConvertItemEx2(CurItem,&Item)<=Item.Size)
 			{
-				I=Dlg->CallDlgProc(Msg,Param1,&Item.Item);
+				I=Dlg->CallDlgProc(Msg,Param1,Item.Item);
 
 				if ((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
 					CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
