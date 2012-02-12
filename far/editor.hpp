@@ -308,7 +308,7 @@ class Editor:public ScreenObject
 		long GetCurPos( bool file_pos=false, bool add_bom=false );
 		int EditorControl(int Command,void *Param);
 		void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
-		static void SetReplaceMode(int Mode);
+		static void SetReplaceMode(bool Mode);
 		FileEditor *GetHostFileEditor() {return HostFileEditor;};
 		void PrepareResizedConsole() {Flags.Set(FEDITOR_ISRESIZEDCONSOLE);}
 

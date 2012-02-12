@@ -653,7 +653,7 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"EditorUndoSize",&Opt.EdOpt.UndoSize,0, 0}, // $ 03.12.2001 IS размер буфера undo в редакторе
 	{0, GeneralConfig::TYPE_TEXT,    NKeyEditor,L"WordDiv",&Opt.strWordDiv, 0, WordDiv0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"BSLikeDel",&Opt.EdOpt.BSLikeDel,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"EditorF7Rules",&Opt.EdOpt.F7Rules,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"EditorF7Rules",&Opt.EdOpt.F7Rules,0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"FileSizeLimit",&Opt.EdOpt.FileSizeLimitLo, 0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"FileSizeLimitHi",&Opt.EdOpt.FileSizeLimitHi, 0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, NKeyEditor,L"CharCodeBase",&Opt.EdOpt.CharCodeBase,1, 0},

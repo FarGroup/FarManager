@@ -63,7 +63,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "colormix.hpp"
 
-static int ReplaceMode,ReplaceAll;
+static bool ReplaceMode, ReplaceAll;
 
 static int EditorID=0;
 
@@ -2030,9 +2030,9 @@ int Editor::ProcessKey(int Key)
 		}
 		case KEY_F7:
 		{
-			int ReplaceMode0=ReplaceMode;
-			int ReplaceAll0=ReplaceAll;
-			ReplaceMode=ReplaceAll=FALSE;
+			bool ReplaceMode0=ReplaceMode;
+			bool ReplaceAll0=ReplaceAll;
+			ReplaceMode=ReplaceAll=false;
 
 			if (!Search(FALSE))
 			{
@@ -2047,8 +2047,8 @@ int Editor::ProcessKey(int Key)
 		{
 			if (!Flags.Check(FEDITOR_LOCKMODE))
 			{
-				int ReplaceMode0=ReplaceMode;
-				int ReplaceAll0=ReplaceAll;
+				bool ReplaceMode0=ReplaceMode;
+				bool ReplaceAll0=ReplaceAll;
 				ReplaceMode=TRUE;
 				ReplaceAll=FALSE;
 
@@ -3626,6 +3626,7 @@ void Editor::ScrollUp()
    в отдельную функцию GetSearchReplaceString
    (файл stddlg.cpp)
 */
+
 BOOL Editor::Search(int Next)
 {
 	Edit *CurPtr,*TmpPtr;
@@ -3646,6 +3647,8 @@ BOOL Editor::Search(int Next)
 	SelectFound=LastSearchSelFound;
 	Regexp=LastSearchRegexp;
 
+	bool FindAllReferences = false;
+
 	if (!Next)
 	{
 		if (EdOpt.SearchPickUpWord)
@@ -3660,11 +3663,15 @@ BOOL Editor::Search(int Next)
 			}
 		}
 
-		if (!GetSearchReplaceString(ReplaceMode,&strSearchStr,
-		                            &strReplaceStr,
-		                            TextHistoryName,ReplaceHistoryName,
-		                            &Case,&WholeWords,&ReverseSearch,&SelectFound,&Regexp,L"EditorSearch"))
+		int DlgResult = GetSearchReplaceString(ReplaceMode, strSearchStr, strReplaceStr, TextHistoryName, ReplaceHistoryName, Case, WholeWords, ReverseSearch, SelectFound, Regexp, L"EditorSearch");
+		if (!DlgResult)
+		{
 			return FALSE;
+		}
+		else if(DlgResult == 2)
+		{
+			FindAllReferences = true;
+		}
 	}
 
 	strLastSearchStr = strSearchStr;
@@ -3680,6 +3687,15 @@ BOOL Editor::Search(int Next)
 
 	if (!EdOpt.PersistentBlocks || (SelectFound && !ReplaceMode))
 		UnmarkBlock();
+
+	struct FindCoord
+	{
+		UINT Line;
+		UINT Pos;
+	};
+
+	VMenu FindAllList(L"", nullptr, 0);
+	UINT AllRefLines = 1;
 
 	{
 		//SaveScreen SaveScr;
@@ -3720,6 +3736,8 @@ BOOL Editor::Search(int Next)
 		TaskBar TB;
 		wakeful W;
 
+		int LastLine = 0;
+
 		while (CurPtr)
 		{
 			DWORD CurTime=GetTickCount();
@@ -3751,221 +3769,244 @@ BOOL Editor::Search(int Next)
 
 			if (CurPtr->Search(strSearchStr,strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,&SearchLength))
 			{
-				if (SelectFound && !ReplaceMode)
+				Match=1;
+
+				if(FindAllReferences)
 				{
-					Pasting++;
-					Lock();
-					UnmarkBlock();
-					Flags.Set(FEDITOR_MARKINGBLOCK);
-					int iFoundPos = CurPtr->GetCurPos();
-					CurPtr->Select(iFoundPos, iFoundPos+SearchLength);
-					BlockStart = CurPtr;
-					BlockStartLine = NewNumLine;
-					Unlock();
-					Pasting--;
-				}
+					CurPos = CurPtr->GetCurPos();
 
-				int Skip=FALSE;
-				/* $ 24.01.2003 KM
-				   ! По окончании поиска отступим от верха экрана на треть отображаемой высоты.
-				*/
-				/* $ 15.04.2003 VVM
-				   Отступим на четверть и проверим на перекрытие диалогом замены */
-				int FromTop=(ScrY-2)/4;
-
-				if (FromTop<0 || FromTop>=((ScrY-5)/2-2))
-					FromTop=0;
-
-				TmpPtr=CurLine=CurPtr;
-
-				for (int i=0; i<FromTop; i++)
-				{
-					if (TmpPtr->m_prev)
-						TmpPtr=TmpPtr->m_prev;
-					else
-						break;
-				}
-
-				TopScreen=TmpPtr;
-				NumLine=NewNumLine;
-				int LeftPos=CurPtr->GetLeftPos();
-				int TabCurPos=CurPtr->GetTabCurPos();
-
-				if (ObjWidth>8 && TabCurPos-LeftPos+SearchLength>ObjWidth-8)
-					CurPtr->SetLeftPos(TabCurPos+SearchLength-ObjWidth+8);
-
-				if (ReplaceMode)
-				{
-					int MsgCode=0;
-
-					if (!ReplaceAll)
+					MenuItemEx Item = {};
+					FormatString str, posstr;
+					posstr << NewNumLine+1 << L':' << CurPos+1;
+					str << fmt::LeftAlign() << fmt::Width(11) << fmt::Precision(11) << fmt::FillChar(L' ') << posstr << BoxSymbols[BS_V1] << CurPtr->GetStringAddr() + CurPos;
+					Item.strName = str;
+					FindCoord coord = {NewNumLine, CurPos};
+					Item.UserData = &coord;
+					Item.UserDataSize = sizeof(coord);
+					FindAllList.AddItem(&Item);
+					CurPos+=SearchLength;
+					if(NewNumLine != LastLine)
 					{
-						Show();
-						SHORT CurX,CurY;
-						GetCursorPos(CurX,CurY);
-						int lpos = CurPtr->LeftPos;
-						int endX = CurPtr->RealPosToTab(CurPtr->TabPosToReal(lpos + CurX) + SearchLength - 1) - lpos;
-						ChangeBlockColor(CurX,CurY, endX,CurY, ColorIndexToColor(COL_EDITORSELECTEDTEXT));
-						string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
-						InsertQuote(strQSearchStr);
-						InsertQuote(strQReplaceStr);
-						PreRedrawItem pitem=PreRedraw.Pop();
-						MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
-						                strQSearchStr,MSG(MEditAskReplaceWith),strQReplaceStr,
-						                MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
-						PreRedraw.Push(pitem);
-
-						if (MsgCode==1)
-							ReplaceAll=TRUE;
-
-						if (MsgCode==2)
-							Skip=TRUE;
-
-						if (MsgCode<0 || MsgCode==3)
-						{
-							UserBreak=TRUE;
-							break;
-						}
+						LastLine = NewNumLine;
+						++AllRefLines;
 					}
-
-					if (!MsgCode || MsgCode==1)
+				}
+				else
+				{
+					if (SelectFound && !ReplaceMode)
 					{
 						Pasting++;
+						Lock();
+						UnmarkBlock();
+						Flags.Set(FEDITOR_MARKINGBLOCK);
+						int iFoundPos = CurPtr->GetCurPos();
+						CurPtr->Select(iFoundPos, iFoundPos+SearchLength);
+						BlockStart = CurPtr;
+						BlockStartLine = NewNumLine;
+						Unlock();
+						Pasting--;
+					}
 
-						/*$ 15.08.2000 skv
-						  If Replace string doesn't contain control symbols (tab and return),
-						  processed with fast method, otherwise use improved old one.
-						*/
-						if (strReplaceStrCurrent.Contains(L'\t') || strReplaceStrCurrent.Contains(L'\r'))
+					int Skip=FALSE;
+					/* $ 24.01.2003 KM
+					   ! По окончании поиска отступим от верха экрана на треть отображаемой высоты.
+					*/
+					/* $ 15.04.2003 VVM
+					   Отступим на четверть и проверим на перекрытие диалогом замены */
+					int FromTop=(ScrY-2)/4;
+
+					if (FromTop<0 || FromTop>=((ScrY-5)/2-2))
+						FromTop=0;
+
+					TmpPtr=CurLine=CurPtr;
+
+					for (int i=0; i<FromTop; i++)
+					{
+						if (TmpPtr->m_prev)
+							TmpPtr=TmpPtr->m_prev;
+						else
+							break;
+					}
+
+					TopScreen=TmpPtr;
+					NumLine=NewNumLine;
+					int LeftPos=CurPtr->GetLeftPos();
+					int TabCurPos=CurPtr->GetTabCurPos();
+
+					if (ObjWidth>8 && TabCurPos-LeftPos+SearchLength>ObjWidth-8)
+						CurPtr->SetLeftPos(TabCurPos+SearchLength-ObjWidth+8);
+
+					if (ReplaceMode)
+					{
+						int MsgCode=0;
+
+						if (!ReplaceAll)
 						{
-							int SaveOvertypeMode=Flags.Check(FEDITOR_OVERTYPE);
-							Flags.Set(FEDITOR_OVERTYPE);
-							CurLine->SetOvertypeMode(TRUE);
-							//int CurPos=CurLine->GetCurPos();
+							Show();
+							SHORT CurX,CurY;
+							GetCursorPos(CurX,CurY);
+							int lpos = CurPtr->LeftPos;
+							int endX = CurPtr->RealPosToTab(CurPtr->TabPosToReal(lpos + CurX) + SearchLength - 1) - lpos;
+							ChangeBlockColor(CurX,CurY, endX,CurY, ColorIndexToColor(COL_EDITORSELECTEDTEXT));
+							string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
+							InsertQuote(strQSearchStr);
+							InsertQuote(strQReplaceStr);
+							PreRedrawItem pitem=PreRedraw.Pop();
+							MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
+											strQSearchStr,MSG(MEditAskReplaceWith),strQReplaceStr,
+											MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
+							PreRedraw.Push(pitem);
 
-							int I=0;
-							for (; SearchLength && strReplaceStrCurrent[I]; I++,SearchLength--)
+							if (MsgCode==1)
+								ReplaceAll=TRUE;
+
+							if (MsgCode==2)
+								Skip=TRUE;
+
+							if (MsgCode<0 || MsgCode==3)
 							{
-								int Ch=strReplaceStrCurrent[I];
-
-								if (Ch==KEY_TAB)
-								{
-									Flags.Clear(FEDITOR_OVERTYPE);
-									CurLine->SetOvertypeMode(FALSE);
-									ProcessKey(KEY_DEL);
-									ProcessKey(KEY_TAB);
-									Flags.Set(FEDITOR_OVERTYPE);
-									CurLine->SetOvertypeMode(TRUE);
-									continue;
-								}
-
-								/* $ 24.05.2002 SKV
-								  Если реплэйсим на Enter, то overtype не спасёт.
-								  Нужно сначала удалить то, что заменяем.
-								*/
-								if (Ch==L'\r')
-								{
-									ProcessKey(KEY_DEL);
-								}
-
-								if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
-									ProcessKey(Ch);
+								UserBreak=TRUE;
+								break;
 							}
+						}
 
-							if (!SearchLength)
+						if (!MsgCode || MsgCode==1)
+						{
+							Pasting++;
+
+							/*$ 15.08.2000 skv
+							  If Replace string doesn't contain control symbols (tab and return),
+							  processed with fast method, otherwise use improved old one.
+							*/
+							if (strReplaceStrCurrent.Contains(L'\t') || strReplaceStrCurrent.Contains(L'\r'))
 							{
-								Flags.Clear(FEDITOR_OVERTYPE);
-								CurLine->SetOvertypeMode(FALSE);
+								int SaveOvertypeMode=Flags.Check(FEDITOR_OVERTYPE);
+								Flags.Set(FEDITOR_OVERTYPE);
+								CurLine->SetOvertypeMode(TRUE);
+								//int CurPos=CurLine->GetCurPos();
 
-								for (; strReplaceStrCurrent[I]; I++)
+								int I=0;
+								for (; SearchLength && strReplaceStrCurrent[I]; I++,SearchLength--)
 								{
 									int Ch=strReplaceStrCurrent[I];
+
+									if (Ch==KEY_TAB)
+									{
+										Flags.Clear(FEDITOR_OVERTYPE);
+										CurLine->SetOvertypeMode(FALSE);
+										ProcessKey(KEY_DEL);
+										ProcessKey(KEY_TAB);
+										Flags.Set(FEDITOR_OVERTYPE);
+										CurLine->SetOvertypeMode(TRUE);
+										continue;
+									}
+
+									/* $ 24.05.2002 SKV
+									  Если реплэйсим на Enter, то overtype не спасёт.
+									  Нужно сначала удалить то, что заменяем.
+									*/
+									if (Ch==L'\r')
+									{
+										ProcessKey(KEY_DEL);
+									}
 
 									if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
 										ProcessKey(Ch);
 								}
+
+								if (!SearchLength)
+								{
+									Flags.Clear(FEDITOR_OVERTYPE);
+									CurLine->SetOvertypeMode(FALSE);
+
+									for (; strReplaceStrCurrent[I]; I++)
+									{
+										int Ch=strReplaceStrCurrent[I];
+
+										if (Ch!=KEY_BS && !(Ch==KEY_DEL || Ch==KEY_NUMDEL))
+											ProcessKey(Ch);
+									}
+								}
+								else
+								{
+									for (; SearchLength; SearchLength--)
+									{
+										ProcessKey(KEY_DEL);
+									}
+								}
+
+								int Cnt=0;
+								const wchar_t *Tmp=strReplaceStrCurrent;
+
+								while ((Tmp=wcschr(Tmp,L'\r')) )
+								{
+									Cnt++;
+									Tmp++;
+								}
+
+								if (Cnt>0)
+								{
+									CurPtr=CurLine;
+									NewNumLine+=Cnt;
+								}
+
+								Flags.Change(FEDITOR_OVERTYPE,SaveOvertypeMode);
 							}
 							else
 							{
-								for (; SearchLength; SearchLength--)
+								/* Fast method */
+								const wchar_t *Str,*Eol;
+								int StrLen,NewStrLen;
+								int SStrLen=SearchLength,
+											RStrLen=(int)strReplaceStrCurrent.GetLength();
+								CurLine->GetBinaryString(&Str,&Eol,StrLen);
+								int EolLen=StrLength(Eol);
+								NewStrLen=StrLen;
+								NewStrLen-=SStrLen;
+								NewStrLen+=RStrLen;
+								NewStrLen+=EolLen;
+								wchar_t *NewStr=new wchar_t[NewStrLen+1];
+								int CurPos=CurLine->GetCurPos();
+								wmemcpy(NewStr,Str,CurPos);
+								wmemcpy(NewStr+CurPos,strReplaceStrCurrent,RStrLen);
+								wmemcpy(NewStr+CurPos+RStrLen,Str+CurPos+SStrLen,StrLen-CurPos-SStrLen);
+								wmemcpy(NewStr+NewStrLen-EolLen,Eol,EolLen);
+								AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
+								CurLine->SetBinaryString(NewStr,NewStrLen);
+								CurLine->SetCurPos(CurPos+RStrLen);
+
+								if (SelectFound && !ReplaceMode)
 								{
-									ProcessKey(KEY_DEL);
+									UnmarkBlock();
+									Flags.Set(FEDITOR_MARKINGBLOCK);
+									CurPtr->Select(CurPos, CurPos+RStrLen);
+									BlockStart = CurPtr;
+									BlockStartLine = NewNumLine;
 								}
+
+								delete [] NewStr;
+								Change(ECTYPE_CHANGED,NumLine);
+								TextChanged(1);
 							}
 
-							int Cnt=0;
-							const wchar_t *Tmp=strReplaceStrCurrent;
-
-							while ((Tmp=wcschr(Tmp,L'\r')) )
-							{
-								Cnt++;
-								Tmp++;
-							}
-
-							if (Cnt>0)
-							{
-								CurPtr=CurLine;
-								NewNumLine+=Cnt;
-							}
-
-							Flags.Change(FEDITOR_OVERTYPE,SaveOvertypeMode);
+							/* skv$*/
+							//AY: В этом нет никакой надобности и оно приводит к не правильному
+							//позиционированию при Replace
+							//if (ReverseSearch)
+							//CurLine->SetCurPos(CurPos);
+							Pasting--;
 						}
-						else
-						{
-							/* Fast method */
-							const wchar_t *Str,*Eol;
-							int StrLen,NewStrLen;
-							int SStrLen=SearchLength,
-							            RStrLen=(int)strReplaceStrCurrent.GetLength();
-							CurLine->GetBinaryString(&Str,&Eol,StrLen);
-							int EolLen=StrLength(Eol);
-							NewStrLen=StrLen;
-							NewStrLen-=SStrLen;
-							NewStrLen+=RStrLen;
-							NewStrLen+=EolLen;
-							wchar_t *NewStr=new wchar_t[NewStrLen+1];
-							int CurPos=CurLine->GetCurPos();
-							wmemcpy(NewStr,Str,CurPos);
-							wmemcpy(NewStr+CurPos,strReplaceStrCurrent,RStrLen);
-							wmemcpy(NewStr+CurPos+RStrLen,Str+CurPos+SStrLen,StrLen-CurPos-SStrLen);
-							wmemcpy(NewStr+NewStrLen-EolLen,Eol,EolLen);
-							AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,CurLine->GetCurPos(),CurLine->GetLength());
-							CurLine->SetBinaryString(NewStr,NewStrLen);
-							CurLine->SetCurPos(CurPos+RStrLen);
-
-							if (SelectFound && !ReplaceMode)
-							{
-								UnmarkBlock();
-								Flags.Set(FEDITOR_MARKINGBLOCK);
-								CurPtr->Select(CurPos, CurPos+RStrLen);
-								BlockStart = CurPtr;
-								BlockStartLine = NewNumLine;
-							}
-
-							delete [] NewStr;
-							Change(ECTYPE_CHANGED,NumLine);
-							TextChanged(1);
-						}
-
-						/* skv$*/
-						//AY: В этом нет никакой надобности и оно приводит к не правильному
-						//позиционированию при Replace
-						//if (ReverseSearch)
-						//CurLine->SetCurPos(CurPos);
-						Pasting--;
 					}
+
+					if (!ReplaceMode)
+						break;
+
+					CurPos=CurLine->GetCurPos();
+
+					if (Skip)
+						if (!ReverseSearch)
+							CurPos++;
 				}
-
-				Match=1;
-
-				if (!ReplaceMode)
-					break;
-
-				CurPos=CurLine->GetCurPos();
-
-				if (Skip)
-					if (!ReverseSearch)
-						CurPos++;
 			}
 			else
 			{
@@ -3989,6 +4030,27 @@ BOOL Editor::Search(int Next)
 		}
 	}
 	Show();
+
+	if(FindAllReferences && Match)
+	{
+		FindAllList.SetPosition(-1, -1, 0, 0);
+		string BottomTitle;
+		BottomTitle.Format(MSG(MEditSearchStatistics), FindAllList.GetItemCount(), AllRefLines);
+		FindAllList.SetBottomTitle(BottomTitle);
+		FindAllList.Show();
+		while (!FindAllList.Done())
+		{
+			FindAllList.ReadInput();
+			FindAllList.ProcessInput();
+		}
+		int ExitCode = FindAllList.GetExitCode();
+		if(ExitCode >= 0)
+		{
+			FindCoord* coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, ExitCode));
+			GoToLine(coord->Line);
+			CurLine->SetCurPos(coord->Pos);
+		}
+	}
 
 	if (!Match && !UserBreak)
 		Message(MSG_WARNING,1,MSG(MEditSearchTitle),MSG(MEditNotFound),
@@ -6541,7 +6603,7 @@ Edit * Editor::GetStringByNumber(int DestLine)
 	return CurPtr;
 }
 
-void Editor::SetReplaceMode(int Mode)
+void Editor::SetReplaceMode(bool Mode)
 {
 	::ReplaceMode=Mode;
 }

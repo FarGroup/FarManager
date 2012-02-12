@@ -39,15 +39,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   TRUE.
   Параметры:
     IsReplaceMode
-      TRUE  - если хотим заменять
-      FALSE - если хотим искать
+      true  - если хотим заменять
+      false - если хотим искать
 
     SearchStr
-      Указатель на строку поиска.
+      Строка поиска.
       Результат отработки диалога заносится в нее же.
 
     ReplaceStr,
-      Указатель на строку замены.
+      Строка замены.
       Результат отработки диалога заносится в нее же.
       Для случая, если IsReplaceMode=FALSE может быть равна nullptr
 
@@ -63,45 +63,42 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       принимается значение "ReplaceText"
       Если установлено в пустую строку, то история вестись не будет
 
-    *Case
-      Указатель на переменную, указывающую на значение опции "Case sensitive"
-      Если = nullptr, то принимается значение 0 (игнорировать регистр)
+    Case
+      Ссылка на переменную, указывающую на значение опции "Case sensitive"
 
-    *WholeWords
-      Указатель на переменную, указывающую на значение опции "Whole words"
-      Если = nullptr, то принимается значение 0 (в том числе в подстроке)
+    WholeWords
+      Ссылка на переменную, указывающую на значение опции "Whole words"
 
-    *Reverse
-      Указатель на переменную, указывающую на значение опции "Reverse search"
-      Если = nullptr, то принимается значение 0 (прямой поиск)
+    Reverse
+      Ссылка на переменную, указывающую на значение опции "Reverse search"
 
-    *SelectFound
-      Указатель на переменную, указывающую на значение опции "Select found"
-      Если = nullptr, то принимается значение 0 (не выделять найденное)
+    SelectFound
+      Ссылка на переменную, указывающую на значение опции "Select found"
 
-    *Regexp
-      Указатель на переменную, указывающую на значение опции "Regular expressions"
-      Если = nullptr, то принимается значение 0 (не регэксп)
+    Regexp
+      Ссылка на переменную, указывающую на значение опции "Regular expressions"
 
-    *HelpTopic
+    HelpTopic
       Имя темы помощи.
       Если nullptr или пустая строка - тема помощи не назначается.
 
   Возвращаемое значение:
-    TRUE  - пользователь подтвердил свои намериния
-    FALSE - пользователь отказался от диалога (Esc)
+  0 - пользователь отказался от диалога (Esc)
+    1  - пользователь подтвердил свои намерения
+    2 - выбран поиск всех вхождений
+
 */
 int WINAPI GetSearchReplaceString(
-    int IsReplaceMode,
-    string *pSearchStr,
-    string *pReplaceStr,
+    bool IsReplaceMode,
+    string& SearchStr,
+    string& ReplaceStr,
     const wchar_t *TextHistoryName,
     const wchar_t *ReplaceHistoryName,
-    int *Case,
-    int *WholeWords,
-    int *Reverse,
-    int *SelectFound,
-    int *Regexp,
+    int& Case,
+    int& WholeWords,
+    int& Reverse,
+    int& SelectFound,
+    int& Regexp,
     const wchar_t *HelpTopic=nullptr);
 
 int __stdcall GetString(

@@ -818,6 +818,12 @@ int Edit::ProcessKey(int Key)
 
 	switch (Key)
 	{
+		case KEY_CTRLA: case KEY_RCTRLA:
+			{
+				Select(0, GetLength());
+				Show();
+			}
+			break;
 		case KEY_SHIFTLEFT: case KEY_SHIFTNUMPAD4:
 		{
 			if (CurPos>0)

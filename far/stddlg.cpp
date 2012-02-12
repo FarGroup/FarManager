@@ -42,32 +42,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "strmix.hpp"
 #include "macro.hpp"
+#include "keyboard.hpp"
 
 int WINAPI GetSearchReplaceString(
-    int IsReplaceMode,
-    string *pSearchStr,
-    string *pReplaceStr,
+    bool IsReplaceMode,
+    string& SearchStr,
+    string& ReplaceStr,
     const wchar_t *TextHistoryName,
     const wchar_t *ReplaceHistoryName,
-    int *Case,
-    int *WholeWords,
-    int *Reverse,
-    int *SelectFound,
-    int *Regexp,
+    int& Case,
+    int& WholeWords,
+    int& Reverse,
+    int& SelectFound,
+    int& Regexp,
     const wchar_t *HelpTopic)
 {
-	if (!pSearchStr || (IsReplaceMode && !pReplaceStr))
-		return FALSE;
-
-	static const wchar_t *TextHistoryName0    = L"SearchText",
-	        *ReplaceHistoryName0 = L"ReplaceText";
-	int HeightDialog, DeltaCol1, DeltaCol2, DeltaCol, I;
+	int Result = 0;
 
 	if (!TextHistoryName)
-		TextHistoryName=TextHistoryName0;
+		TextHistoryName = L"SearchText";
 
 	if (!ReplaceHistoryName)
-		ReplaceHistoryName=ReplaceHistoryName0;
+		ReplaceHistoryName = L"ReplaceText";
 
 	if (IsReplaceMode)
 	{
@@ -77,9 +73,9 @@ int WINAPI GetSearchReplaceString(
 		00
 		01   +----------------------------- Replace ------------------------------+
 		02   | Search for                                                         |
-		03   |                                                                   |
+		03   |                                                                    |
 		04   | Replace with                                                       |
-		05   |                                                                   |
+		05   |                                                                    |
 		06   +--------------------------------------------------------------------+
 		07   | [ ] Case sensitive                 [ ] Regular expressions         |
 		08   | [ ] Whole words                                                    |
@@ -93,158 +89,38 @@ int WINAPI GetSearchReplaceString(
 		{
 			{DI_DOUBLEBOX,3,1,72,12,0,nullptr,nullptr,0,MSG(MEditReplaceTitle)},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MEditSearchFor)},
-			{DI_EDIT,5,3,70,3,0,nullptr,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
+			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr},
 			{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,MSG(MEditReplaceWith)},
-			{DI_EDIT,5,5,70,5,0,nullptr,nullptr,DIF_HISTORY/*|DIF_USELASTHISTORY*/,L""},
+			{DI_EDIT,5,5,70,5,0,ReplaceHistoryName,nullptr,(*ReplaceHistoryName?DIF_HISTORY:0)/*|DIF_USELASTHISTORY*/,ReplaceStr},
 			{DI_TEXT,3,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MEditSearchCase)},
-			{DI_CHECKBOX,5,8,0,8,0,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
-			{DI_CHECKBOX,5,9,0,9,0,nullptr,nullptr,0,MSG(MEditSearchReverse)},
-			{DI_CHECKBOX,40,7,0,7,0,nullptr,nullptr,0,MSG(MEditSearchRegexp)},
+			{DI_CHECKBOX,5,7,0,7,Case,nullptr,nullptr,0,MSG(MEditSearchCase)},
+			{DI_CHECKBOX,5,8,0,8,WholeWords,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
+			{DI_CHECKBOX,5,9,0,9,Reverse,nullptr,nullptr,0,MSG(MEditSearchReverse)},
+			{DI_CHECKBOX,40,7,0,7,Regexp,nullptr,nullptr,0,MSG(MEditSearchRegexp)},
 			{DI_TEXT,3,10,0,10,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MEditReplaceReplace)},
 			{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchCancel)},
 		};
-		//индекс самого нижнего чекбокса каждой колонки в диалоге.
-		//предполагаем, что чекбокс на позиции Y+1 имеет индекс, на единицу больший
-		//чекбокса той же колонки на позиции Y.
-		static const int COL1_HIGH=8;
-		static const int COL2_HIGH=9;
-		HeightDialog=14;
-		DeltaCol1=0;
-		DeltaCol2=0;
 		MakeDialogItemsEx(ReplaceDlgData,ReplaceDlg);
 
-		if (!*TextHistoryName)
+		Dialog Dlg(ReplaceDlg,ARRAYSIZE(ReplaceDlgData));
+		Dlg.SetPosition(-1,-1,76,14);
+
+		if (HelpTopic && *HelpTopic)
+			Dlg.SetHelp(HelpTopic);
+
+		Dlg.Process();
+
+		if(Dlg.GetExitCode() == 11)
 		{
-			ReplaceDlg[2].strHistory.Clear();
-			ReplaceDlg[2].Flags&=~DIF_HISTORY;
+			Result = 1;
+			SearchStr = ReplaceDlg[2].strData;
+			ReplaceStr = ReplaceDlg[4].strData;
+			Case=ReplaceDlg[6].Selected;
+			WholeWords=ReplaceDlg[7].Selected;
+			Reverse=ReplaceDlg[8].Selected;
+			Regexp=ReplaceDlg[9].Selected;
 		}
-		else
-			ReplaceDlg[2].strHistory=TextHistoryName;
-
-		if (!*ReplaceHistoryName)
-		{
-			ReplaceDlg[4].strHistory.Clear();
-			ReplaceDlg[4].Flags&=~DIF_HISTORY;
-		}
-		else
-			ReplaceDlg[4].strHistory=ReplaceHistoryName;
-
-		ReplaceDlg[2].strData = *pSearchStr;
-
-		if (*pReplaceStr)
-			ReplaceDlg[4].strData = *pReplaceStr;
-
-		if (Case)
-			ReplaceDlg[6].Selected=*Case;
-		else
-		{
-			DeltaCol1++;
-			ReplaceDlg[0].Y2--;
-			ReplaceDlg[6].Type=DI_TEXT;
-
-			for (I=7; I <= COL1_HIGH; ++I)
-			{
-				ReplaceDlg[I].Y1--;
-				ReplaceDlg[I].Y2--;
-			}
-		}
-
-		if (WholeWords)
-			ReplaceDlg[7].Selected=*WholeWords;
-		else
-		{
-			DeltaCol1++;
-			ReplaceDlg[0].Y2--;
-			ReplaceDlg[7].Type=DI_TEXT;
-
-			for (I=8; I <= COL1_HIGH; ++I)
-			{
-				ReplaceDlg[I].Y1--;
-				ReplaceDlg[I].Y2--;
-			}
-		}
-
-		if (Reverse)
-			ReplaceDlg[8].Selected=*Reverse;
-		else
-		{
-			DeltaCol1++;
-			ReplaceDlg[0].Y2--;
-			ReplaceDlg[8].Type=DI_TEXT;
-
-			for (I=9; I <= COL1_HIGH; ++I)
-			{
-				ReplaceDlg[I].Y1--;
-				ReplaceDlg[I].Y2--;
-			}
-		}
-
-		if (Regexp)
-			ReplaceDlg[9].Selected=*Regexp;
-		else
-		{
-			DeltaCol2++;
-			ReplaceDlg[0].Y2--;
-			ReplaceDlg[9].Type=DI_TEXT;
-
-			for (I=10; I <= COL2_HIGH; ++I)
-			{
-				ReplaceDlg[I].Y1--;
-				ReplaceDlg[I].Y2--;
-			}
-		}
-
-		//сдвигаем кнопки
-		DeltaCol=(DeltaCol1<DeltaCol2)?DeltaCol1:DeltaCol2;
-
-		if (DeltaCol>0)
-		{
-			HeightDialog-=DeltaCol;
-
-			for (I=10; I < (int)ARRAYSIZE(ReplaceDlgData); ++I)
-			{
-				ReplaceDlg[I].Y1-=DeltaCol;
-				ReplaceDlg[I].Y2-=DeltaCol;
-			}
-		}
-
-		// нам не нужны 2 разделительных линии
-		if (HeightDialog == 11)
-		{
-			for (I=10; I < (int)ARRAYSIZE(ReplaceDlgData); ++I)
-			{
-				ReplaceDlg[I].Y1--;
-				ReplaceDlg[I].Y2--;
-			}
-		}
-
-		{
-			Dialog Dlg(ReplaceDlg,ARRAYSIZE(ReplaceDlgData));
-			Dlg.SetPosition(-1,-1,76,HeightDialog);
-
-			if (HelpTopic && *HelpTopic)
-				Dlg.SetHelp(HelpTopic);
-
-			Dlg.Process();
-
-			if (Dlg.GetExitCode()!=11)
-				return FALSE;
-		}
-
-		*pSearchStr = ReplaceDlg[2].strData;
-
-		if (pReplaceStr)
-			*pReplaceStr = ReplaceDlg[4].strData;
-
-		if (Case)       *Case=ReplaceDlg[6].Selected;
-
-		if (WholeWords) *WholeWords=ReplaceDlg[7].Selected;
-
-		if (Reverse)    *Reverse=ReplaceDlg[8].Selected;
-
-		if (Regexp)     *Regexp=ReplaceDlg[9].Selected;
 	}
 	else
 	{
@@ -254,7 +130,7 @@ int WINAPI GetSearchReplaceString(
 		00
 		01   +------------------------------ Search ------------------------------+
 		02   | Search for                                                         |
-		03   |                                                                   |
+		03   |                                                                    |
 		04   +--------------------------------------------------------------------+
 		05   | [ ] Case sensitive                 [ ] Regular expressions         |
 		06   | [ ] Whole words                    [ ] Select found                |
@@ -267,171 +143,43 @@ int WINAPI GetSearchReplaceString(
 		{
 			{DI_DOUBLEBOX,3,1,72,10,0,nullptr,nullptr,0,MSG(MEditSearchTitle)},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MEditSearchFor)},
-			{DI_EDIT,5,3,70,3,0,nullptr,nullptr,DIF_FOCUS|DIF_HISTORY|DIF_USELASTHISTORY,L""},
+			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr},
 			{DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_CHECKBOX,5,5,0,5,0,nullptr,nullptr,0,MSG(MEditSearchCase)},
-			{DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
-			{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MEditSearchReverse)},
-			{DI_CHECKBOX,40,5,0,5,0,nullptr,nullptr,0,MSG(MEditSearchRegexp)},
-			{DI_CHECKBOX,40,6,0,6,0,nullptr,nullptr,0,MSG(MEditSearchSelFound)},
+			{DI_CHECKBOX,5,5,0,5,Case,nullptr,nullptr,0,MSG(MEditSearchCase)},
+			{DI_CHECKBOX,5,6,0,6,WholeWords,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
+			{DI_CHECKBOX,5,7,0,7,Reverse,nullptr,nullptr,0,MSG(MEditSearchReverse)},
+			{DI_CHECKBOX,40,5,0,5,Regexp,nullptr,nullptr,0,MSG(MEditSearchRegexp)},
+			{DI_CHECKBOX,40,6,0,6,SelectFound,nullptr,nullptr,0,MSG(MEditSearchSelFound)},
 			{DI_TEXT,3,8,0,8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_BUTTON,0,9,0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MEditSearchSearch)},
+			{DI_BUTTON,0,9,0,9,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchAll)},
 			{DI_BUTTON,0,9,0,9,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchCancel)},
 		};
-		//индекс самого нижнего чекбокса каждой колонки в диалоге.
-		//предполагаем, что чекбокс на позиции Y+1 имеет индекс, на единицу больший
-		//чекбокса той же колонки на позиции Y.
-		static const int COL1_HIGH=6;
-		static const int COL2_HIGH=8;
-		HeightDialog=12;
-		DeltaCol1=0;
-		DeltaCol2=0;
 		MakeDialogItemsEx(SearchDlgData,SearchDlg);
 
-		if (!*TextHistoryName)
+		Dialog Dlg(SearchDlg,ARRAYSIZE(SearchDlg));
+		Dlg.SetPosition(-1,-1,76,12);
+
+		if (HelpTopic && *HelpTopic)
+			Dlg.SetHelp(HelpTopic);
+
+		Dlg.Process();
+		int ExitCode = Dlg.GetExitCode();
+
+		if (ExitCode == 10 || ExitCode == 11)
 		{
-			SearchDlg[2].strHistory.Clear();
-			SearchDlg[2].Flags&=~DIF_HISTORY;
+			Result = ExitCode == 10? 1 : 2;
+			SearchStr = SearchDlg[2].strData;
+			ReplaceStr.Clear();
+			Case=SearchDlg[4].Selected;
+			WholeWords=SearchDlg[5].Selected;
+			Reverse=SearchDlg[6].Selected;
+			Regexp=SearchDlg[7].Selected;
+			SelectFound=SearchDlg[8].Selected;
 		}
-		else
-			SearchDlg[2].strHistory=TextHistoryName;
-
-		SearchDlg[2].strData = *pSearchStr;
-
-		if (Case)
-			SearchDlg[4].Selected=*Case;
-		else
-		{
-			DeltaCol1++;
-			SearchDlg[0].Y2--;
-			SearchDlg[4].Type=DI_TEXT;
-
-			for (I=5; I <= COL1_HIGH; ++I)
-			{
-				SearchDlg[I].Y1--;
-				SearchDlg[I].Y2--;
-			}
-		}
-
-		if (WholeWords)
-			SearchDlg[5].Selected=*WholeWords;
-		else
-		{
-			DeltaCol1++;
-			SearchDlg[0].Y2--;
-			SearchDlg[5].Type=DI_TEXT;
-
-			for (I=6; I <= COL1_HIGH; ++I)
-			{
-				SearchDlg[I].Y1--;
-				SearchDlg[I].Y2--;
-			}
-		}
-
-		if (Reverse)
-			SearchDlg[6].Selected=*Reverse;
-		else
-		{
-			DeltaCol1++;
-			SearchDlg[0].Y2--;
-			SearchDlg[6].Type=DI_TEXT;
-
-			for (I=7; I <= COL1_HIGH; ++I)
-			{
-				SearchDlg[I].Y1--;
-				SearchDlg[I].Y2--;
-			}
-		}
-
-		if (Regexp)
-			SearchDlg[7].Selected=*Regexp;
-		else
-		{
-			DeltaCol2++;
-			SearchDlg[0].Y2--;
-			SearchDlg[7].Type=DI_TEXT;
-
-			for (I=8; I <= COL2_HIGH; ++I)
-			{
-				SearchDlg[I].Y1--;
-				SearchDlg[I].Y2--;
-			}
-		}
-
-		if (SelectFound)
-			SearchDlg[8].Selected=*SelectFound;
-		else
-		{
-			DeltaCol2++;
-			SearchDlg[0].Y2--;
-			SearchDlg[8].Type=DI_TEXT;
-
-			for (I=9; I <= COL2_HIGH; ++I)
-			{
-				SearchDlg[I].Y1--;
-				SearchDlg[I].Y2--;
-			}
-		}
-
-		//сдвигаем кнопки
-		DeltaCol=(DeltaCol1<DeltaCol2)?DeltaCol1:DeltaCol2;
-
-		if (DeltaCol>0)
-		{
-			HeightDialog-=DeltaCol;
-
-			for (I=10; I < (int)ARRAYSIZE(SearchDlgData); ++I)
-			{
-				SearchDlg[I].Y1-=DeltaCol;
-				SearchDlg[I].Y2-=DeltaCol;
-			}
-		}
-
-		// нам не нужны 2 разделительных линии
-		if (HeightDialog == 9)
-		{
-			for (I=9; I < (int)ARRAYSIZE(SearchDlgData); ++I)
-			{
-				SearchDlg[I].Y1--;
-				SearchDlg[I].Y2--;
-			}
-		}
-
-		{
-			Dialog Dlg(SearchDlg,ARRAYSIZE(SearchDlg));
-			Dlg.SetPosition(-1,-1,76,HeightDialog);
-
-			if (HelpTopic && *HelpTopic)
-				Dlg.SetHelp(HelpTopic);
-
-			Dlg.Process();
-
-			if (Dlg.GetExitCode()!=10)
-				return FALSE;
-		}
-
-		*pSearchStr = SearchDlg[2].strData;
-
-		if (pReplaceStr)
-			pReplaceStr->Clear();
-
-		if (Case)
-			*Case=SearchDlg[4].Selected;
-
-		if (WholeWords)
-			*WholeWords=SearchDlg[5].Selected;
-
-		if (Reverse)
-			*Reverse=SearchDlg[6].Selected;
-
-		if (Regexp)
-			*Regexp=SearchDlg[7].Selected;
-
-		if (SelectFound)
-			*SelectFound=SearchDlg[8].Selected;
 	}
 
-	return TRUE;
+	return Result;
 }
 
 
