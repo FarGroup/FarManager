@@ -3,6 +3,125 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 13.02.2012 19:45:37 +0200 - build 2455
+
+1. Correction of white space displaying.
+
+drkns 13.02.2012 18:35:36 +0200 - build 2454
+
+1. Correction of 2452.1
+
+drkns 13.02.2012 15:34:21 +0200 - build 2453
+
+1. Eliminating printf-style format strings in language files.
+   Now there are "insertions" instead: %1, %2, %3 etc.
+   Insertions can be changed places (for languages with another word order in sentences).
+
+2. "Search for all occurrences" in the editor does search from the beginning of a file.
+
+drkns 12.02.2012 19:34:30 +0200 - build 2452
+
+1. The search dialog in editor is provided with "All" button - search for all occurrences.
+
+2. TechInfo #18 (EditorF7Rules) is now 0 by default.
+
+3. Ctrl-A ("select all") combination is available in input lines.
+
+zg 12.02.2012 15:26:20 +0200 - build 2451
+
+1. correction of 2443.
+
+drkns 11.02.2012 20:13:59 +0200 - build 2450
+
+1. A couple of typos in 2449. 
+
+zg 11.02.2012 15:12:15 +0200 - build 2449
+
+1. DM_GETDLGITEM returns the history and mask name copies, instead of the reference to inner data.
+
+2. DM_SETDLGITEMSHORT does not set the history name and the mask.
+
+3. DM_GETDLGITEMSHORT does not return the history name and the mask.
+
+4. DN_EDITCHANGE/DN_DRAWDLGITEM accepts in Param2 the copy of dialog item information.
+
+zg 09.02.2012 21:01:34 +0200 - build 2448
+
+1. experimental: ECTL_INSERTTEXT is aware of '\n'. the line is added taking "Auto indent" setting into account, as opposed to '\r'.
+
+drkns 09.02.2012 16:45:52 +0200 - build 2447
+
+1. In 2432, empty files copying was broken.
+
+2. Mantis#0002017: FAR does not display the contents of WM "common folders"
+
+3. Restoring the command line after CtrlG.
+
+drkns 08.02.2012 20:15:12 +0200 - build 2446
+
+1. Correction of plugins unloading.
+
+drkns 08.02.2012 18:45:54 +0200 - build 2445
+
+1. Correction of plugins unloading.
+
+drkns 08.02.2012 16:43:20 +0200 - build 2444
+
+1. Correction of plugins unloading.
+
+zg 08.02.2012 02:03:12 +0200 - build 2443
+
+1. In the case of plugin statically importing dll located in %FARHOME%, %FARHOME% absent in %PATH% and FAR launched from another folder, the plugin was not loaded.
+
+zg 07.02.2012 02:49:54 +0200 - build 2442
+
+1. correction of 2439.1 and 2439.2 for the wrapper.
+
+2. ProcessViewerEvent and ProcessEditorEvent of ANSI plugins are passed only those events that exist in FAR 1.
+
+zg 07.02.2012 01:20:05 +0200 - build 2441
+
+1. continuation of 2435. the screen was not always redrawn.
+
+zg 06.02.2012 23:05:23 +0200 - build 2440
+
+1. correction of 2439.1 and 2439.2.
+
+zg 06.02.2012 22:39:15 +0200 - build 2439
+
+1. ProcessEditorEventInfo is appended with EditorID field.
+   accordingly, EE_GOTFOCUS, EE_KILLFOCUS and EE_CLOSE have Param equal to NULL.
+   plugins using these events will work incorrectly.
+
+2. â ProcessViewerEventInfo is appended with ViewerID field.
+   accordingly VE_GOTFOCUS, VE_KILLFOCUS and VE_CLOSE have Param equal to NULL.
+   plugins using these events will work incorrectly.
+
+3. correction of 2438.
+
+zg 06.02.2012 21:16:55 +0200 - build 2438
+
+1. EE_CHANGE event is added for the editor. It is sent when text is changed in the editor. Param is the pointer to EditorChange.
+   EditorChange.Type - the type of the event: the line has changed, added or removed.
+   EditorChange.StringNumber - the number of changed/added/removed line.
+   EditorControl called from this event returns FALSE.
+
+drkns 06.02.2012 15:56:52 +0200 - build 2437
+
+1. Correction of 2428.
+
+2. "[ ] Clear R/O attribute from CD files" option is removed, the attribute is always reset. FSS_CLEARROATTRIBUTE is removed too.
+
+w17 06.02.2012 16:23:04 +0400 - build 2436
+
+1. debug build recovered
+
+2. cosmetic
+
+zg 06.02.2012 01:56:06 +0200 - build 2435
+
+1. EEREDRAW_CHANGE and EEREDRAW_LINE events are removed. EEREDRAW_ALL is always sent.
+
 drkns 04.02.2012 23:56:49 +0200 - build 2434
 
 1. More stuff on crashes when unloading plugins.
