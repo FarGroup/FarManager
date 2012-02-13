@@ -3695,7 +3695,7 @@ BOOL Editor::Search(int Next)
 	};
 
 	VMenu FindAllList(L"", nullptr, 0);
-	UINT AllRefLines = 1;
+	UINT AllRefLines = 0;
 
 	{
 		//SaveScreen SaveScr;
@@ -3745,7 +3745,7 @@ BOOL Editor::Search(int Next)
 		TaskBar TB;
 		wakeful W;
 
-		int LastLine = 0;
+		int LastCheckedLine = -1;
 
 		while (CurPtr)
 		{
@@ -3794,9 +3794,9 @@ BOOL Editor::Search(int Next)
 					Item.UserDataSize = sizeof(coord);
 					FindAllList.AddItem(&Item);
 					CurPos+=SearchLength;
-					if(NewNumLine != LastLine)
+					if(NewNumLine != LastCheckedLine)
 					{
-						LastLine = NewNumLine;
+						LastCheckedLine = NewNumLine;
 						++AllRefLines;
 					}
 				}
