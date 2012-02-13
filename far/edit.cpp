@@ -383,7 +383,7 @@ void Edit::FastShow()
 			if (*p == L'\t')
 			{
 				int S=TabSize-((LeftPos+OutStrLength) % TabSize);
-				OutStr[OutStrLength]=(Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE))?L'\x2192':L' ';
+				OutStr[OutStrLength]=(Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE) && S==TabSize)?L'\x2192':L' ';
 				OutStrLength++;
 				for (int i=1; i<S && OutStrLength<EditLength; i++,OutStrLength++)
 				{
@@ -404,7 +404,7 @@ void Edit::FastShow()
 		if (Flags.Check(FEDITLINE_PASSWORDMODE))
 			wmemset(OutStr,L'*',OutStrLength);
 
-		if (Flags.Check(FEDITLINE_SHOWLINEBREAK) && Flags.Check(FEDITLINE_EDITORMODE) && (OutStrLength < EditLength))
+		if (Flags.Check(FEDITLINE_SHOWLINEBREAK) && Flags.Check(FEDITLINE_EDITORMODE) && (StrSize >= RealLeftPos) && (OutStrLength < EditLength))
 		{
 			switch(EndType)
 			{
@@ -435,7 +435,7 @@ void Edit::FastShow()
 			}
 		}
 
-		if(!m_next && Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE) && (OutStrLength < EditLength))
+		if(!m_next && Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE) && (StrSize >= RealLeftPos) && (OutStrLength < EditLength))
 		{
 			OutStr[OutStrLength++]=L'\x25a1';
 		}
