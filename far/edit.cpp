@@ -319,6 +319,7 @@ void Edit::FastShow()
 	  ! Для комбобокса сделаем отображение строки
 	    с первой позиции.
 	*/
+	int UnfixedLeftPos = LeftPos;
 	if (!Flags.Check(FEDITLINE_DROPDOWNBOX))
 	{
 		if (TabCurPos-LeftPos>EditLength-1)
@@ -382,8 +383,8 @@ void Edit::FastShow()
 
 			if (*p == L'\t')
 			{
-				int S=TabSize-((LeftPos+OutStrLength) % TabSize);
-				OutStr[OutStrLength]=(Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE) && S==TabSize)?L'\x2192':L' ';
+				int S=TabSize-((UnfixedLeftPos+OutStrLength) % TabSize);
+				OutStr[OutStrLength]=(Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE) && (OutStrLength || S==TabSize))?L'\x2192':L' ';
 				OutStrLength++;
 				for (int i=1; i<S && OutStrLength<EditLength; i++,OutStrLength++)
 				{

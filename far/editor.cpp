@@ -1914,7 +1914,10 @@ int Editor::ProcessKey(int Key)
 				TopScreen=CurLine=TopList;
 
 				if (Key == KEY_CTRLHOME || Key == KEY_RCTRLHOME || Key == KEY_CTRLNUMPAD7 || Key == KEY_RCTRLNUMPAD7)
+				{
 					CurLine->SetCurPos(0);
+					CurLine->SetLeftPos(0);
+				}
 				else
 					CurLine->SetTabCurPos(StartPos);
 
