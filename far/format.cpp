@@ -227,3 +227,16 @@ void FormatScreen::Commit(const string& Data)
 {
 	Text(Data);
 }
+
+TemplateString::TemplateString(const wchar_t* Template):
+	Iteration(0)
+{
+	Append(Template);
+}
+
+void TemplateString::Commit(const string& Data)
+{
+	FormatString Insert;
+	Insert << L"%" << ++Iteration;
+	ReplaceStrings(*this, Insert, Data);
+}

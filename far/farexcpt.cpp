@@ -67,7 +67,7 @@ LPCWSTR GetFunctionName(int ExceptFunctionType)
 {
 	switch(ExceptFunctionType)
 	{
-		case EXCEPT_KERNEL: return L"";
+		case EXCEPT_KERNEL: return L"wmain";
 		case EXCEPT_GETGLOBALINFO: return L"GetGlobalInfo";
 		case EXCEPT_SETSTARTUPINFO: return L"SetStartupInfo";
 		case EXCEPT_GETVIRTUALFINDDATA: return L"GetVirtualFindData";
@@ -183,15 +183,15 @@ bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 
 	FarDialogItem EditDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,62,8,0,nullptr,nullptr,0,MSG(MExcTrappedException)},
+		{DI_DOUBLEBOX,3,1,72,8,0,nullptr,nullptr,0,MSG(MExcTrappedException)},
 		{DI_TEXT,     5,2, 17,2,0,nullptr,nullptr,0,MSG(MExcException)},
-		{DI_TEXT,    18,2, 60,2,0,nullptr,nullptr,0,Exception},
+		{DI_TEXT,    18,2, 70,2,0,nullptr,nullptr,0,Exception},
 		{DI_TEXT,     5,3, 17,3,0,nullptr,nullptr,0,MSG(MExcAddress)},
-		{DI_TEXT,    18,3, 60,3,0,nullptr,nullptr,0,strAddr},
+		{DI_TEXT,    18,3, 70,3,0,nullptr,nullptr,0,strAddr},
 		{DI_TEXT,     5,4, 17,4,0,nullptr,nullptr,0,MSG(MExcFunction)},
-		{DI_TEXT,    18,4, 60,4,0,nullptr,nullptr,0,strFunction},
+		{DI_TEXT,    18,4, 70,4,0,nullptr,nullptr,0,strFunction},
 		{DI_TEXT,     5,5, 17,5,0,nullptr,nullptr,0,MSG(MExcModule)},
-		{DI_EDIT,    18,5, 60,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName},
+		{DI_EDIT,    18,5, 70,5,0,nullptr,nullptr,DIF_READONLY|DIF_SELECTONENTRY,ModuleName},
 		{DI_TEXT,    -1,6, 0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_FOCUS|DIF_CENTERGROUP,MSG((From == EXCEPT_KERNEL)?MExcTerminate:MExcUnload)},
 		{DI_BUTTON,   0,7, 0,7,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MExcDebugger)},
@@ -199,7 +199,7 @@ bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 	MakeDialogItemsEx(EditDlgData,EditDlg);
 	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg),ExcDlgProc);
 	Dlg.SetDialogMode(DMODE_WARNINGSTYLE|DMODE_NOPLUGINS);
-	Dlg.SetPosition(-1,-1,66,10);
+	Dlg.SetPosition(-1,-1,76,10);
 	Dlg.Process();
 	return Dlg.GetExitCode()==11;
 }
@@ -327,6 +327,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	// EXCEPTION_CONTINUE_EXECUTION  ??????
 	DWORD rc;
 	string strBuf1, strBuf2, strBuf3;
+	TemplateString strBuf;
 	string strFileName;
 	BOOL ShowMessages=FALSE;
 	// получим запись исключения
@@ -377,8 +378,10 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 						break;
 				}
 
-				strBuf2.Format(MSG(Offset+MExcRAccess),xr->ExceptionInformation[1]);
-				Exception=strBuf2;
+				strBuf2.Format(L"0x%p", xr->ExceptionInformation[1]+10);
+				strBuf = MSG(Offset+MExcRAccess);
+				strBuf << strBuf2;
+				Exception=strBuf;
 			}
 
 			break;

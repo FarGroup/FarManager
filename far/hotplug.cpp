@@ -558,7 +558,6 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
 
 	if (!(Flags&EJECT_NO_MESSAGE) && Opt.Confirm.RemoveHotPlug)
 	{
-		string strDiskMsg;
 		wchar_t Disks[256], *pDisk=Disks;
 		*pDisk=0;
 
@@ -577,8 +576,12 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
 		if (pDisk != Disks)
 			*--pDisk=0;
 
+		TemplateString strDiskMsg;
 		if (*Disks)
-			strDiskMsg.Format(MSG(MHotPlugDisks),Disks);
+		{
+			strDiskMsg = MSG(MHotPlugDisks);
+			strDiskMsg << Disks;
+		}
 
 		if (StrCmpI(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty())
 		{

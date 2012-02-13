@@ -6818,15 +6818,16 @@ M1:
 				}
 
 				DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
-				string strBuf;
+				TemplateString strBuf;
 				if ((Mac->Flags&MFLAGS_MODEMASK)==MACRO_COMMON)
-					strBuf.Format(MSG(!MacroDlg->RecBufferSize?
-					                  (DisFlags?MMacroCommonDeleteAssign:MMacroCommonDeleteKey):
-							                  MMacroCommonReDefinedKey), strKeyText.CPtr());
+				{
+					strBuf = MSG(!MacroDlg->RecBufferSize? (DisFlags? MMacroCommonDeleteAssign : MMacroCommonDeleteKey) : MMacroCommonReDefinedKey);
+				}
 				else
-					strBuf.Format(MSG(!MacroDlg->RecBufferSize?
-					                  (DisFlags?MMacroDeleteAssign:MMacroDeleteKey):
-							                  MMacroReDefinedKey), strKeyText.CPtr());
+				{
+					strBuf = MSG(!MacroDlg->RecBufferSize? (DisFlags?MMacroDeleteAssign : MMacroDeleteKey) : MMacroReDefinedKey);
+				}
+				strBuf << strKeyText;
 
 				// проверим "а не совпадает ли всё?"
 				int Result=0;
@@ -7154,7 +7155,9 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	MakeDialogItemsEx(MacroSettingsDlgData,MacroSettingsDlg);
 	string strKeyText;
 	KeyToText(Key,strKeyText);
-	MacroSettingsDlg[MS_DOUBLEBOX].strData.Format(MSG(MMacroSettingsTitle), strKeyText.CPtr());
+	TemplateString str(MSG(MMacroSettingsTitle));
+	str << strKeyText;
+	MacroSettingsDlg[MS_DOUBLEBOX].strData = str;
 	//if(!(Key&0x7F000000))
 	//MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 	MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected=Flags&MFLAGS_DISABLEOUTPUT?0:1;
@@ -7596,22 +7599,24 @@ int KeyMacro::GetMacroKeyInfo(bool FromDB, int Mode, int Pos, string &strKeyName
 				strKeyName = var->str;
 				strKeyName = (Mode==MACRO_VARS?L"%":L"")+strKeyName;
 
+				TemplateString str;
+
 				switch (var->value.type())
 				{
 					case vtInteger:
 					{
 						__int64 IData64=var->value.i();
-						strDescription.Format(MSG(MMacroOutputFormatForHelpQWord), IData64, IData64);
+						strDescription.Format(L"%I64d (0x%I64X)", IData64, IData64);
 						break;
 					}
 					case vtDouble:
 					{
 						double FData=var->value.d();
-						strDescription.Format(MSG(MMacroOutputFormatForHelpDouble), FData);
+						strDescription.Format(L"%g", FData);
 						break;
 					}
 					case vtString:
-						strDescription.Format(MSG(MMacroOutputFormatForHelpSz), var->value.s());
+						strDescription.Format(L"\"%s\"", var->value.s());
 						break;
 					default:
 						break;

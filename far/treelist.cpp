@@ -248,7 +248,9 @@ void TreeList::DisplayObject()
 
 string &TreeList::GetTitle(string &strTitle,int SubLen,int TruncSize)
 {
-	strTitle.Format(L" %s ",ModalMode ? MSG(MFindFolderTitle):MSG(MTreeTitle));
+	strTitle = L" ";
+	strTitle += ModalMode? MSG(MFindFolderTitle) : MSG(MTreeTitle);
+	strTitle += L" ";
 	TruncStr(strTitle,X2-X1-3);
 	return strTitle;
 }

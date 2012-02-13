@@ -475,8 +475,6 @@ void FileList::SetShowColor(int Position, int ColorType)
 
 void FileList::ShowSelectedSize()
 {
-	int Length;
-	string strSelStr, strFormStr;
 
 	if (Opt.ShowPanelStatus)
 	{
@@ -499,10 +497,12 @@ void FileList::ShowSelectedSize()
 
 	if (SelFileCount)
 	{
+		string strFormStr;
 		InsertCommas(SelFileSize,strFormStr);
-		strSelStr.Format(MSG(__FormatEndSelectedPhrase(SelFileCount)),strFormStr.CPtr(),SelFileCount);
+		TemplateString strSelStr(MSG(__FormatEndSelectedPhrase(SelFileCount)));
+		strSelStr << strFormStr << SelFileCount;
 		TruncStr(strSelStr,X2-X1-1);
-		Length=(int)strSelStr.GetLength();
+		int Length=(int)strSelStr.GetLength();
 		SetColor(COL_PANELSELECTEDINFO);
 		GotoXY(X1+(X2-X1+1-Length)/2,Y2-2*Opt.ShowPanelStatus);
 		Text(strSelStr);
@@ -515,7 +515,7 @@ void FileList::ShowTotalSize(OpenPanelInfo &Info)
 	if (!Opt.ShowPanelTotals && PanelMode==PLUGIN_PANEL && !(Info.Flags & OPIF_REALNAMES))
 		return;
 
-	string strTotalStr, strFormSize, strFreeSize;
+	string strFormSize, strFreeSize, strTotalStr;
 	int Length;
 	InsertCommas(TotalFileSize,strFormSize);
 
@@ -525,23 +525,33 @@ void FileList::ShowTotalSize(OpenPanelInfo &Info)
 	if (Opt.ShowPanelTotals)
 	{
 		if (!Opt.ShowPanelFree || strFreeSize.IsEmpty())
-			strTotalStr.Format(MSG(__FormatEndSelectedPhrase(TotalFileCount)),strFormSize.CPtr(),TotalFileCount);
+		{
+			TemplateString str(MSG(__FormatEndSelectedPhrase(TotalFileCount)));
+			str << strFormSize << TotalFileCount;
+			strTotalStr = str;
+		}
 		else
 		{
 			wchar_t DHLine[4]={BoxSymbols[BS_H2],BoxSymbols[BS_H2],BoxSymbols[BS_H2],0};
-			strTotalStr.Format(L" %s (%d) %s %s ",strFormSize.CPtr(),TotalFileCount,DHLine,strFreeSize.CPtr());
+			FormatString str;
+			str << L" " << strFormSize << L" (" << TotalFileCount << L") " << DHLine << L" " << strFreeSize << L" ";
 
-			if ((int)strTotalStr.GetLength()> X2-X1-1)
+			if (str.GetLength() > X2-X1-1)
 			{
 				InsertCommas(FreeDiskSize>>20,strFreeSize);
 				InsertCommas(TotalFileSize>>20,strFormSize);
-				strTotalStr.Format(L" %s %s (%d) %s %s %s ",strFormSize.CPtr(),MSG(MListMb),TotalFileCount,DHLine,strFreeSize.CPtr(),MSG(MListMb));
+				str.Clear();
+				str << L" " << strFormSize << L" " << MSG(MListMb) << L" (" << TotalFileCount << L") " << DHLine << L" " << strFreeSize << L" " << MSG(MListMb) << L" ";
 			}
+			strTotalStr = str;
 		}
 	}
 	else
-		strTotalStr.Format(MSG(MListFreeSize), !strFreeSize.IsEmpty() ? strFreeSize.CPtr():L"???");
-
+	{
+		TemplateString str(MSG(MListFreeSize));
+		str << (!strFreeSize.IsEmpty()? strFreeSize : L"???");
+		strTotalStr = str;
+	}
 	SetColor(COL_PANELTOTALINFO);
 	/* $ 01.08.2001 VVM
 	  + Обрезаем строчку справа, а не слева */

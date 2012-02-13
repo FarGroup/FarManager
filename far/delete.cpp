@@ -159,8 +159,10 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 			else if (StrItems.At(LenItems-1) == L'1')
 				Ends=MSG(MAskDeleteItems0);
 		}
-
-		strDeleteFilesMsg.Format(MSG(MAskDeleteItems),SelCount,Ends);
+		
+		TemplateString str(MSG(MAskDeleteItems));
+		str << SelCount << Ends;
+		strDeleteFilesMsg = str;
 	}
 
 	Ret=1;

@@ -126,3 +126,13 @@ class FormatScreen:public BaseFormat
 {
 	virtual void Commit(const string& Data);
 };
+
+class TemplateString:public BaseFormat, public string
+{
+public:
+	TemplateString() {};
+	TemplateString(const wchar_t* Template);
+private:
+	size_t Iteration;
+	virtual void Commit(const string& Data);
+};

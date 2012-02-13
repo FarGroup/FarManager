@@ -677,8 +677,8 @@ void Help::AddLine(const wchar_t *Line)
 
 void Help::AddTitle(const wchar_t *Title)
 {
-	string strIndexHelpTitle;
-	strIndexHelpTitle.Format(L"^ #%s#", Title);
+	FormatString strIndexHelpTitle;
+	strIndexHelpTitle << L"^ #" << Title << L"#";
 	AddLine(strIndexHelpTitle);
 }
 

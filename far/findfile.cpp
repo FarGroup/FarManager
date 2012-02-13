@@ -1554,11 +1554,11 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 			ShowTime=Time;
 			if (!StopEvent.Signaled())
 			{
-				string strDataStr;
-				strDataStr.Format(MSG(MFindFound), itd.GetFileCount(), itd.GetDirCount());
+				TemplateString strDataStr(MSG(MFindFound));
+				strDataStr << itd.GetFileCount() << itd.GetDirCount();
 				SendDlgMessage(hDlg,DM_SETTEXTPTR,2,const_cast<wchar_t*>(strDataStr.CPtr()));
 
-				string strSearchStr;
+				TemplateString strSearchStr(MSG(MFindSearchingIn));
 
 				if (!strFindStr.IsEmpty())
 				{
@@ -1566,17 +1566,18 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 					TruncStrFromEnd(strFStr,10);
 					string strTemp(L" \"");
 					strTemp+=strFStr+="\"";
-					strSearchStr.Format(MSG(MFindSearchingIn), strTemp.CPtr());
+					strSearchStr << strTemp;
 				}
 				else
-					strSearchStr.Format(MSG(MFindSearchingIn), L"");
+					strSearchStr << L"";
 
 				string strFM;
 				itd.GetFindMessage(strFM);
 				SMALL_RECT Rect;
 				SendDlgMessage(hDlg, DM_GETITEMPOSITION, FD_TEXT_STATUS, &Rect);
 				TruncStrFromCenter(strFM, Rect.Right-Rect.Left+1 - static_cast<int>(strSearchStr.GetLength()) - 1);
-				strDataStr=strSearchStr+L" "+strFM;
+				strDataStr=strSearchStr;
+				strDataStr += L" " + strFM;
 				SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_TEXT_STATUS, const_cast<wchar_t*>(strDataStr.CPtr()));
 
 				strDataStr.Format(L"%3d%%",itd.GetPercent());
@@ -1596,8 +1597,8 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 
 	if(!v->Finalized && StopEvent.Signaled())
 	{
-		string strMessage;
-		strMessage.Format(MSG(MFindDone),itd.GetFileCount(), itd.GetDirCount());
+		TemplateString strMessage(MSG(MFindDone));
+		strMessage << itd.GetFileCount() << itd.GetDirCount();
 		SendDlgMessage(hDlg, DM_ENABLEREDRAW, FALSE, 0);
 		SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
 		SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_TEXT_STATUS, const_cast<wchar_t*>(strMessage.CPtr()));
@@ -2908,7 +2909,6 @@ bool FindFilesProcess(Vars& v)
 	_ALGO(CleverSysLog clv(L"FindFiles::FindFilesProcess()"));
 	// Если используется фильтр операций, то во время поиска сообщаем об этом
 	string strTitle=MSG(MFindFileTitle);
-	string strSearchStr;
 
 	itd.Init();
 
@@ -2934,6 +2934,8 @@ bool FindFilesProcess(Vars& v)
 		}
 	}
 
+	TemplateString strSearchStr(MSG(MFindSearchingIn));
+
 	if (!strFindStr.IsEmpty())
 	{
 		string strFStr=strFindStr;
@@ -2941,11 +2943,11 @@ bool FindFilesProcess(Vars& v)
 		InsertQuote(strFStr);
 		string strTemp=L" ";
 		strTemp+=strFStr;
-		strSearchStr.Format(MSG(MFindSearchingIn),strTemp.CPtr());
+		strSearchStr << strTemp;
 	}
 	else
 	{
-		strSearchStr.Format(MSG(MFindSearchingIn), L"");
+		strSearchStr << L"";
 	}
 
 	int DlgWidth = ScrX + 1 - 2;

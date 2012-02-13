@@ -3573,8 +3573,8 @@ void Viewer::GetFileName(string &strName)
 
 void Viewer::ShowConsoleTitle()
 {
-	string strTitle;
-	strTitle.Format(MSG(MInViewer), PointToName(strFileName));
+	TemplateString strTitle(MSG(MInViewer));
+	strTitle << PointToName(strFileName);
 	ConsoleTitle::SetFarTitle(strTitle);
 }
 

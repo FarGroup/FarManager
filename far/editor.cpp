@@ -3729,8 +3729,17 @@ BOOL Editor::Search(int Next)
 		if (!ReverseSearch && (Next || (EdOpt.F7Rules && !ReplaceMode)))
 			CurPos++;
 
-		NewNumLine=NumLine;
-		CurPtr=CurLine;
+		if(FindAllReferences)
+		{
+			NewNumLine = 0;
+			CurPtr = TopList;
+		}
+		else
+		{
+			NewNumLine = NumLine;
+			CurPtr = CurLine;
+		}
+
 		DWORD StartTime=GetTickCount();
 		int StartLine=NumLine;
 		TaskBar TB;
@@ -4034,8 +4043,8 @@ BOOL Editor::Search(int Next)
 	if(FindAllReferences && Match)
 	{
 		FindAllList.SetPosition(-1, -1, 0, 0);
-		string BottomTitle;
-		BottomTitle.Format(MSG(MEditSearchStatistics), FindAllList.GetItemCount(), AllRefLines);
+		TemplateString BottomTitle(MSG(MEditSearchStatistics));
+		BottomTitle << FindAllList.GetItemCount() << AllRefLines;
 		FindAllList.SetBottomTitle(BottomTitle);
 		FindAllList.Show();
 		while (!FindAllList.Done())

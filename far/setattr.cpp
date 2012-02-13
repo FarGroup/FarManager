@@ -760,22 +760,28 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		string strDMask, strTMask;
 		strTMask.Format(FmtMask1,TimeSeparator,TimeSeparator,DecimalSeparator);
 
+		TemplateString DateFormat;
+
 		switch (GetDateFormat())
 		{
 			case 0:
-				AttrDlg[SA_TEXT_TITLEDATE].strData.Format(MSG(MSetAttrTimeTitle1),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator,DecimalSeparator);
+				DateFormat = MSG(MSetAttrTimeTitle1);
+				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
 				strDMask.Format(FmtMask2,DateSeparator,DateSeparator);
 				break;
 			case 1:
-				AttrDlg[SA_TEXT_TITLEDATE].strData.Format(MSG(MSetAttrTimeTitle2),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator,DecimalSeparator);
+				DateFormat = MSG(MSetAttrTimeTitle3);
+				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
 				strDMask.Format(FmtMask2,DateSeparator,DateSeparator);
 				break;
 			default:
-				AttrDlg[SA_TEXT_TITLEDATE].strData.Format(MSG(MSetAttrTimeTitle3),DateSeparator,DateSeparator,TimeSeparator,TimeSeparator,DecimalSeparator);
+				DateFormat = MSG(MSetAttrTimeTitle3);
+				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
 				strDMask.Format(FmtMask3,DateSeparator,DateSeparator);
 				break;
 		}
-
+		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;
+		
 		AttrDlg[SA_EDIT_WDATE].strMask=AttrDlg[SA_EDIT_CDATE].strMask=AttrDlg[SA_EDIT_ADATE].strMask=AttrDlg[SA_EDIT_XDATE].strMask=strDMask;
 		AttrDlg[SA_EDIT_WTIME].strMask=AttrDlg[SA_EDIT_CTIME].strMask=AttrDlg[SA_EDIT_ATIME].strMask=AttrDlg[SA_EDIT_XTIME].strMask=strTMask;
 		bool FolderPresent=false,LinkPresent=false;

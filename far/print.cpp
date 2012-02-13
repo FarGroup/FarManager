@@ -145,7 +145,7 @@ void PrintFiles(Panel *SrcPanel)
 
 	{
 		_ALGO(CleverSysLog clv2(L"Show Menu"));
-		string strTitle;
+		TemplateString strTitle;
 		string strName;
 
 		if (SelCount==1)
@@ -155,13 +155,15 @@ void PrintFiles(Panel *SrcPanel)
 			TruncStr(strName,50);
 			strSelName=strName;
 			InsertQuote(strSelName);
-			strTitle.Format(MSG(MPrintTo), strSelName.CPtr());
+			strTitle = MSG(MPrintTo);
+			strTitle << strSelName;
 		}
 		else
 		{
 			_ALGO(SysLog(L"Correct: SelCount-=DirsCount"));
 			SelCount-=DirsCount;
-			strTitle.Format(MSG(MPrintFilesTo),SelCount);
+			strTitle = MSG(MPrintFilesTo);
+			strTitle << SelCount;
 		}
 
 		VMenu PrinterList(strTitle,nullptr,0,ScrY-4);

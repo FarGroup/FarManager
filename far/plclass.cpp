@@ -479,12 +479,14 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 
 static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,const VersionInfo& required)
 {
-	string strMsg1, strMsg2;
+	TemplateString strMsg1(MSG(MPlgRequired)), strMsg2(MSG(MPlgRequired2));
 	string strPlgName;
-	strMsg1.Format(MSG(MPlgRequired),
-	               required.Major,required.Minor,required.Revision,required.Build);
-	strMsg2.Format(MSG(MPlgRequired2),
-	               FAR_VERSION.Major,FAR_VERSION.Minor,FAR_VERSION.Revision,FAR_VERSION.Build);
+	FormatString str;
+	str << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build;
+	strMsg1 << str;
+	str.Clear();
+	str << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build;
+	strMsg2 << str;
 	Message(MSG_WARNING|MSG_NOPLUGINS,1,MSG(MError),MSG(MPlgBadVers),plg,strMsg1,strMsg2,MSG(MOk));
 }
 

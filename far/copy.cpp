@@ -196,7 +196,8 @@ class CopyProgress
 		FarColor Color;
 		int Percents;
 		DWORD LastWriteTime;
-		string strSrc,strDst,strFiles,strTime;
+		string strSrc,strDst,strTime;
+		TemplateString strFiles;
 		bool Timer();
 		void Flush();
 		void DrawNames();
@@ -372,11 +373,13 @@ void CopyProgress::SetNames(const wchar_t *Src,const wchar_t *Dst)
 
 	if (Total)
 	{
-		strFiles.Format(MSG(MCopyProcessedTotal),TotalFiles,TotalFilesToProcess);
+		strFiles = MSG(MCopyProcessedTotal);
+		strFiles << TotalFiles << TotalFilesToProcess;
 	}
 	else
 	{
-		strFiles.Format(MSG(MCopyProcessed),TotalFiles);
+		strFiles = MSG(MCopyProcessed);
+		strFiles << TotalFiles;
 	}
 
 	DrawNames();
@@ -440,7 +443,9 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 
 		if (!WorkTime)
 		{
-			strTime.Format(MSG(MCopyTimeInfo),L" ",L" ",L" ");
+			TemplateString str(MSG(MCopyTimeInfo));
+			str << L"        " << L"        " << L"        ";
+			strTime = str;
 		}
 		else
 		{
@@ -461,7 +466,13 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 				strSpeed.LShift(1);
 				strSpeed+=L" ";
 			}
-			strTime.Format(MSG(MCopyTimeInfo),strWorkTimeStr.CPtr(),strTimeLeftStr.CPtr(),strSpeed.CPtr());
+			TemplateString str(MSG(MCopyTimeInfo));
+			string tmp[3];
+			tmp[0].Format(L"%8.8s", strWorkTimeStr.CPtr());
+			tmp[1].Format(L"%8.8s", strTimeLeftStr.CPtr());
+			tmp[2].Format(L"%8.8s", strSpeed.CPtr());
+			str << tmp[0] << tmp[1] << tmp[2];
+			strTime = str;
 		}
 
 		Text(Rect.Left+5,Rect.Top+(Total?12:10),Color,strTime);
@@ -1025,10 +1036,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	}
 	else // Объектов несколько!
 	{
-		int NOper=MCopyFiles;
-
-		if (Move) NOper=MMoveFiles;
-		else if (Link) NOper=MLinkFiles;
 
 		// коррекция языка - про окончания
 		FormatString StrItems;
@@ -1046,7 +1053,9 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				NItems=MCMLItems0;
 		}
 
-		strCopyStr.Format(MSG(NOper),CDP.SelCount,MSG(NItems));
+		TemplateString Templ(MSG(Move? MMoveFiles : (Link? MLinkFiles : MCopyFiles)));
+		Templ << CDP.SelCount << MSG(NItems);
+		strCopyStr = Templ;
 	}
 
 	CopyDlg[ID_SC_SOURCEFILENAME].strData=strCopyStr;

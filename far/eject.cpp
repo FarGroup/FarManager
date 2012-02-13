@@ -157,8 +157,8 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 			{
 				if (!(Flags&EJECT_NO_MESSAGE))
 				{
-					string strMsgText;
-					strMsgText.Format(MSG(MChangeCouldNotEjectMedia),Letter);
+					TemplateString strMsgText(MSG(MChangeCouldNotEjectMedia));
+					strMsgText << Letter;
 
 					if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,MSG(MRetry),MSG(MCancel)))
 						Retry=FALSE;

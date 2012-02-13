@@ -642,7 +642,6 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 	if (SelName && *SelName && Dest && *Dest)
 	{
 		string strSrcFullName, strDestFullName, strSelOnlyName;
-		string strMsgBuf, strMsgBuf2;
 		// выделим имя
 		strSelOnlyName = SelName;
 		DeleteEndSlash(strSelOnlyName);
@@ -712,8 +711,8 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 
 				if (LinkType==RP_VOLMOUNT)
 				{
-					string strTmpName;
-					strTmpName.Format(MSG(MCopyMountName),*SelName);
+					string strTmpName(MSG(MCopyMountName));
+					strTmpName += *SelName;
 					strDestFullName += strTmpName;
 					AddEndSlash(strDestFullName);
 				}
@@ -730,11 +729,12 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 						{
 							if (LinkType==RP_VOLMOUNT)
 							{
-								strMsgBuf.Format(MSG(MCopyMountVolFailed), SelName);
-								strMsgBuf2.Format(MSG(MCopyMountVolFailed2), strDestFullName.CPtr());
+								TemplateString strMsgBuf[2] = {MSG(MCopyMountVolFailed), MSG(MCopyMountVolFailed2)};
+								strMsgBuf[0] << SelName;
+								strMsgBuf[1] << strDestFullName;
 								Message(MSG_WARNING,1,MSG(MError),
-								        strMsgBuf,
-								        strMsgBuf2,
+								        strMsgBuf[0],
+								        strMsgBuf[1],
 								        MSG(MCopyFolderNotEmpty),
 								        MSG(MOk));
 							}
@@ -859,9 +859,10 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 			{
 				if (!(Flags&FCOPY_NOSHOWMSGLINK))
 				{
-					strMsgBuf.Format(MSG(MCopyMountVolFailed),SelName);
-					strMsgBuf2.Format(MSG(MCopyMountVolFailed2),strDestFullName.CPtr());
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgBuf,strMsgBuf2,MSG(MOk));
+					TemplateString strMsgBuf[2] = {MSG(MCopyMountVolFailed), MSG(MCopyMountVolFailed2)};
+					strMsgBuf[0] << SelName;
+					strMsgBuf[1] << strDestFullName;
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgBuf[0],strMsgBuf[1],MSG(MOk));
 				}
 
 				return 0;

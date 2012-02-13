@@ -1063,8 +1063,8 @@ int Panel::DisconnectDrive(PanelMenuItem *item, VMenu &ChDisk)
 						SetCurDir(strTmpCDir, FALSE);
 
 					// ... и выведем месаг о...
-					string strMsgText;
-					strMsgText.Format(MSG(MChangeCouldNotEjectMedia), item->cDrive);
+					TemplateString strMsgText(MSG(MChangeCouldNotEjectMedia));
+					strMsgText << item->cDrive;
 					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 					DoneEject = Message(
 					                MSG_WARNING|MSG_ERRORTYPE,
@@ -1128,8 +1128,8 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk)
 					SetCurDir(strTmpCDir, FALSE);
 
 				// ... и выведем месаг о...
-				string strMsgText;
-				strMsgText.Format(MSG(MChangeCouldNotEjectHotPlugMedia), item->cDrive);
+				TemplateString strMsgText(MSG(MChangeCouldNotEjectHotPlugMedia));
+				strMsgText << item->cDrive;
 				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
 				DoneEject = Message(
 				                MSG_WARNING|MSG_ERRORTYPE,
@@ -1156,7 +1156,6 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk)
 
 int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 {
-	string strMsgText;
 	string DiskLetter(L"?:");
 	DiskLetter.Replace(0, Drive);
 
@@ -1166,7 +1165,8 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 		{
 			if (Opt.Confirm.RemoveSUBST)
 			{
-				strMsgText.Format(MSG(MChangeSUBSTDisconnectDriveQuestion),Drive);
+				TemplateString strMsgText(MSG(MChangeSUBSTDisconnectDriveQuestion));
+				strMsgText << DiskLetter;
 				if (Message(MSG_WARNING,2,MSG(MChangeSUBSTDisconnectDriveTitle),strMsgText,MSG(MYes),MSG(MNo)))
 				{
 					return DRIVE_DEL_FAIL;
@@ -1179,7 +1179,8 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 			else
 			{
 				int LastError=GetLastError();
-				strMsgText.Format(MSG(MChangeDriveCannotDelSubst), DiskLetter.CPtr());
+				TemplateString strMsgText(MSG(MChangeDriveCannotDelSubst));
+				strMsgText << DiskLetter;
 				if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
 				{
 					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
@@ -1224,7 +1225,8 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 				else
 				{
 					int LastError=GetLastError();
-					strMsgText.Format(MSG(MChangeDriveCannotDisconnect),DiskLetter.CPtr());
+					TemplateString strMsgText(MSG(MChangeDriveCannotDisconnect));
+					strMsgText << DiskLetter;
 					if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
 					{
 						if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
@@ -1256,7 +1258,8 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 		{
 			if (Opt.Confirm.DetachVHD)
 			{
-				strMsgText.Format(MSG(MChangeVHDDisconnectDriveQuestion),Drive);
+				TemplateString strMsgText(MSG(MChangeVHDDisconnectDriveQuestion));
+				strMsgText << DiskLetter;
 				if (Message(MSG_WARNING,2,MSG(MChangeVHDDisconnectDriveTitle),strMsgText,MSG(MYes),MSG(MNo)))
 				{
 					return DRIVE_DEL_FAIL;
@@ -1714,7 +1717,8 @@ void Panel::EndDrag()
 
 void Panel::DragMessage(int X,int Y,int Move)
 {
-	string strDragMsg, strSelName;
+
+	string strSelName;
 	size_t SelCount;
 	int MsgX,Length;
 
@@ -1732,12 +1736,15 @@ void Panel::DragMessage(int X,int Y,int Move)
 		strSelName = strCvtName;
 	}
 	else
-		strSelName.Format(MSG(MDragFiles), SelCount);
+	{
+		TemplateString str(MSG(MDragFiles));
+		str << SelCount;
+		strSelName = str;
+	}
 
-	if (Move)
-		strDragMsg.Format(MSG(MDragMove), strSelName.CPtr());
-	else
-		strDragMsg.Format(MSG(MDragCopy), strSelName.CPtr());
+	TemplateString strDragMsg(MSG(Move? MDragMove : MDragCopy));
+	strDragMsg << strSelName;
+
 
 	if ((Length=(int)strDragMsg.GetLength())+X>ScrX)
 	{
@@ -2474,9 +2481,6 @@ int Panel::GetCurBaseName(string &strName, string &strShortName)
 
 static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 {
-	int Len1, Len2, Len3,Len4;
-	BOOL IsPersistent;
-	string strMsgText;
 	/*
 	  0         1         2         3         4         5         6         7
 	  0123456789012345678901234567890123456789012345678901234567890123456789012345
@@ -2494,38 +2498,43 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	*/
 	FarDialogItem DCDlgData[]=
 	{
-		{DI_DOUBLEBOX, 3, 1, 72, 9, 0, nullptr, nullptr, 0,                L""},
+		{DI_DOUBLEBOX, 3, 1, 72, 9, 0, nullptr, nullptr, 0,                MSG(MChangeDriveDisconnectTitle)},
 		{DI_TEXT,      5, 2,  0, 2, 0, nullptr, nullptr, DIF_SHOWAMPERSAND,L""},
 		{DI_TEXT,      5, 3,  0, 3, 0, nullptr, nullptr, DIF_SHOWAMPERSAND,L""},
 		{DI_TEXT,      5, 4,  0, 4, 0, nullptr, nullptr, DIF_SHOWAMPERSAND,L""},
 		{DI_TEXT,      0, 5,  0, 5, 0, nullptr, nullptr, DIF_SEPARATOR,    L""},
-		{DI_CHECKBOX,  5, 6, 70, 6, 0, nullptr, nullptr, 0,                L""},
+		{DI_CHECKBOX,  5, 6, 70, 6, 0, nullptr, nullptr, 0,                MSG(MChangeDriveDisconnectReconnect)},
 		{DI_TEXT,      0, 7,  0, 7, 0, nullptr, nullptr, DIF_SEPARATOR,    L""},
-		{DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_CENTERGROUP,  L""},
-		DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP,  L""
+		{DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_FOCUS|DIF_DEFAULTBUTTON|DIF_CENTERGROUP, MSG(MYes)},
+		{DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MCancel)},
 	};
 	MakeDialogItemsEx(DCDlgData,DCDlg);
-	DCDlg[0].strData = MSG(MChangeDriveDisconnectTitle);
-	Len1 = (int)DCDlg[0].strData.GetLength();
-	strMsgText.Format(MSG(MChangeDriveDisconnectQuestion),Letter);
+	
+	TemplateString strMsgText;
+
+	strMsgText = MSG(MChangeDriveDisconnectQuestion);
+	strMsgText << Letter;
 	DCDlg[1].strData = strMsgText;
-	Len2 = (int)DCDlg[1].strData.GetLength();
-	strMsgText.Format(MSG(MChangeDriveDisconnectMapped),Letter);
+
+	strMsgText = MSG(MChangeDriveDisconnectMapped);
+	strMsgText << Letter;
 	DCDlg[2].strData = strMsgText;
-	Len4 = (int)DCDlg[2].strData.GetLength();
-	DCDlg[5].strData = MSG(MChangeDriveDisconnectReconnect);
-	Len3 = (int)DCDlg[5].strData.GetLength();
-	Len1=Max(Len1,Max(Len2,Max(Len3,Len4)));
-	DCDlg[3].strData = TruncPathStr(DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strMsgText),Len1);
-	DCDlg[7].strData = MSG(MYes);
-	DCDlg[8].strData = MSG(MCancel);
+
+	size_t Len1 = DCDlg[0].strData.GetLength();
+	size_t Len2 = DCDlg[1].strData.GetLength();
+	size_t Len3 = DCDlg[2].strData.GetLength();
+	size_t Len4 = DCDlg[5].strData.GetLength();
+	Len1 = Max(Len1,Max(Len2,Max(Len3,Len4)));
+	DCDlg[3].strData = TruncPathStr(DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strMsgText), static_cast<int>(Len1));
 	// провер€ем - это было посто€нное соедение или нет?
 	// ≈сли ветка в реестре HKCU\Network\Ѕукваƒиска есть - это
 	//   есть посто€нное подключение.
+	BOOL IsPersistent = FALSE;
 	{
 		HKEY hKey;
 		IsPersistent=TRUE;
-		const wchar_t KeyName[]={L'N',L'e',L't',L'w',L'o',L'r',L'k',L'\\',Letter,L'\0'};
+		string KeyName(L"Network\\");
+		KeyName+=Letter;
 
 		if (RegOpenKeyEx(HKEY_CURRENT_USER,KeyName,0,KEY_QUERY_VALUE,&hKey)!=ERROR_SUCCESS)
 		{
@@ -2538,7 +2547,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 			DCDlg[5].Selected=Opt.ChangeDriveDisconnetMode;
 	}
 	// скорректируем размеры диалога - дл€ дизайн”
-	DCDlg[0].X2=DCDlg[0].X1+Len1+3;
+	DCDlg[0].X2=DCDlg[0].X1+static_cast<int>(Len1)+3;
 	int ExitCode=7;
 
 	if (Opt.Confirm.RemoveConnection)

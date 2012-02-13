@@ -1458,12 +1458,13 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 			if (FileSize > MaxSize)
 			{
-				string strTempStr1, strTempStr2, strTempStr3, strTempStr4;
+				string strTempStr1, strTempStr2;
 				// Ўирина = 8 - это будет... в Kb и выше...
 				FileSizeToStr(strTempStr1, FileSize, 8);
 				FileSizeToStr(strTempStr2, MaxSize, 8);
-				strTempStr3.Format(MSG(MEditFileLong), RemoveExternalSpaces(strTempStr1).CPtr());
-				strTempStr4.Format(MSG(MEditFileLong2), RemoveExternalSpaces(strTempStr2).CPtr());
+				TemplateString strTempStr3(MSG(MEditFileLong)), strTempStr4(MSG(MEditFileLong2));
+				strTempStr3 << RemoveExternalSpaces(strTempStr1);
+				strTempStr4 << RemoveExternalSpaces(strTempStr2);
 
 				if (Message(MSG_WARNING,2,MSG(MEditTitle), Name, strTempStr3, strTempStr4, MSG(MEditROOpen), MSG(MYes),MSG(MNo)))
 				{
@@ -2106,8 +2107,8 @@ int FileEditor::GetTypeAndName(string &strType, string &strName)
 
 void FileEditor::ShowConsoleTitle()
 {
-	string strTitle;
-	strTitle.Format(MSG(MInEditor), PointToName(strFileName));
+	TemplateString strTitle(MSG(MInEditor));
+	strTitle << PointToName(strFileName);
 	ConsoleTitle::SetFarTitle(strTitle);
 	Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }
