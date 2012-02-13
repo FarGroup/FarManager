@@ -536,7 +536,7 @@ void FileList::ShowTotalSize(OpenPanelInfo &Info)
 			FormatString str;
 			str << L" " << strFormSize << L" (" << TotalFileCount << L") " << DHLine << L" " << strFreeSize << L" ";
 
-			if (str.GetLength() > X2-X1-1)
+			if ((int)str.GetLength() > X2-X1-1)
 			{
 				InsertCommas(FreeDiskSize>>20,strFreeSize);
 				InsertCommas(TotalFileSize>>20,strFormSize);
