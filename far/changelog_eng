@@ -3,6 +3,25 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 14.02.2012 13:19:07 +0200 - build 2459
+
+1. Another correction of 2452.1.
+
+zg 14.02.2012 03:46:37 +0200 - build 2458
+
+1. OPEN_FROMMACRO_MASK and OPEN_FROMMACROSTRING are removed. macro area identifier in least significant word is removed, there's MCTL_GETAREA for that.
+   OPEN_FROMMACRO got new meaning.
+   OpenInfo.Data receives a pointer to OpenMacroInfo. accordingly, one can distinguish situation without a parameter from passing a floating point number.
+   plugins making use of OPEN_FROMMACRO will work incorrectly.
+
+zg 14.02.2012 01:32:13 +0200 - build 2457
+
+1. gcc warnings.
+
+drkns 13.02.2012 23:14:58 +0200 - build 2456
+
+1. Continuation of 2455.
+
 drkns 13.02.2012 19:45:37 +0200 - build 2455
 
 1. Correction of white space displaying.
@@ -43,7 +62,7 @@ zg 11.02.2012 15:12:15 +0200 - build 2449
 
 3. DM_GETDLGITEMSHORT does not return the history name and the mask.
 
-4. DN_EDITCHANGE/DN_DRAWDLGITEM accepts in Param2 the copy of dialog item information.
+4. DN_EDITCHANGE/DN_DRAWDLGITEM accepts the copy of dialog item information in Param2.
 
 zg 09.02.2012 21:01:34 +0200 - build 2448
 
