@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 2439
+  Dynamic construction of dialogs for FAR Manager 3.0 build 2458
 */
 
 /*

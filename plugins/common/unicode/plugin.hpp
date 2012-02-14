@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2439
+  Plugin API for Far Manager 3.0 build 2458
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2439
+#define FARMANAGERVERSION_BUILD 2458
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -2301,6 +2301,12 @@ struct AnalyseInfo
 	OPERATION_MODES OpMode;
 };
 
+struct OpenMacroInfo
+{
+	size_t StructSize;
+	struct FarMacroValue Value;
+};
+
 enum OPENFROM
 {
 	OPEN_FROM_MASK          = 0x000000FF,
@@ -2316,11 +2322,7 @@ enum OPENFROM
 	OPEN_DIALOG             = 8,
 	OPEN_ANALYSE            = 9,
 	OPEN_RIGHTDISKMENU      = 10,
-
-	OPEN_FROMMACRO_MASK     = 0x000F0000,
-
-	OPEN_FROMMACRO          = 0x00010000,
-	OPEN_FROMMACROSTRING    = 0x00020000,
+	OPEN_FROMMACRO          = 11,
 };
 
 
