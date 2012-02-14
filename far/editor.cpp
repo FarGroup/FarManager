@@ -3685,6 +3685,11 @@ BOOL Editor::Search(int Next)
 	LastSearchSelFound=SelectFound;
 	LastSearchRegexp=Regexp;
 
+	if(FindAllReferences)
+	{
+		ReverseSearch = FALSE;
+	}
+
 	if (strSearchStr.IsEmpty())
 		return TRUE;
 
