@@ -119,7 +119,7 @@ class TVar
 		TVar& AppendStr(wchar_t);
 		TVar& AppendStr(const TVar&);
 
-		TVarType type() { return vType; };
+		TVarType type()const { return vType; };
 		void SetType(TVarType newType) {vType=newType;};
 
 		int isString()   const { return vType == vtString;  }

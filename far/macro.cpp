@@ -4533,6 +4533,26 @@ static bool pluginunloadFunc(const TMacroFunction*)
 }
 
 
+static void VarToFarMacroValue(const TVar& From,FarMacroValue& To)
+{
+	To.Type=(FARMACROVARTYPE)From.type();
+	switch(From.type())
+	{
+		case vtUnknown:
+		case vtInteger:
+			To.Integer=From.i();
+			break;
+		case vtString:
+			To.String=xf_wcsdup(From.s());
+			break;
+		case vtDouble:
+			To.Double=From.d();
+			break;
+		//case vtUnknown:
+		//	break;
+	}
+}
+
 // V=callplugin(SysID[,param])
 #if 0
 static bool callpluginFunc(const TMacroFunction*)
@@ -4652,21 +4672,22 @@ static bool callpluginFunc(const TMacroFunction*)
 
 	if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins.FindPlugin(guid))
 	{
-		// OpenFrom => OPEN_FROMMACRO [+OPEN_FROMMACROSTRING] + FARMACROAREA(i)
-		int OpenFrom = OPEN_FROMMACRO | (Param.isString() ? OPEN_FROMMACROSTRING : 0) | CtrlObject->Macro.GetMode();
+		OpenMacroInfo info={sizeof(OpenMacroInfo),{}};
+		VarToFarMacroValue(Param,info.Value);
 
 		if( Opt.Macro.CallPluginRules )
 			CtrlObject->Macro.PushState(true);
 
 		int ResultCallPlugin=0;
 
-		if (CtrlObject->Plugins.CallPlugin(guid,OpenFrom,
-		                                   Param.isString() ? (void*)Param.s() :
-		                                   (void*)(size_t)Param.i(),&ResultCallPlugin))
+		if (CtrlObject->Plugins.CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
 			Ret=(__int64)ResultCallPlugin;
 
 		if( Opt.Macro.CallPluginRules )
 			CtrlObject->Macro.PopState();
+
+		if(info.Value.Type == FMVT_STRING && info.Value.String)
+			xf_free((void*)info.Value.String);
 	}
 
 	VMStack.Push(Ret);
@@ -4738,22 +4759,7 @@ struct FarMacroValue
 			for (I=nParam-1; I >= 0; --I)
 			{
 				VMStack.Pop(V);
-				(vParams+I)->Type=(FARMACROVARTYPE)V.type();
-				switch(V.type())
-				{
-					case vtUnknown:
-					case vtInteger:
-						(vParams+I)->Integer=V.i();
-						break;
-					case vtString:
-						(vParams+I)->String=xf_wcsdup(V.s());
-						break;
-					case vtDouble:
-						(vParams+I)->Double=V.d();
-						break;
-					//case vtUnknown:
-					//	break;
-				}
+				VarToFarMacroValue(V,*(vParams+I));
 			}
 
 			ProcessMacroInfo Info={sizeof(Info),FMIT_PROCESSFUNC};
@@ -4791,7 +4797,7 @@ struct FarMacroValue
 			}
 
 			for (I=0; I < nParam; ++I)
-				if((vParams+I)->Type == vtString && (vParams+I)->String)
+				if((vParams+I)->Type == FMVT_STRING && (vParams+I)->String)
 					xf_free((void*)(vParams+I)->String);
 
 			delete[] vParams;

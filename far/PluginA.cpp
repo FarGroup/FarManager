@@ -4971,6 +4971,11 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 		{
 			OpenFrom = OPEN_LEFTDISKMENU;
 		}
+		if (OpenFrom == OPEN_FROMMACRO)
+		{
+			OpenFrom = oldfar::OPEN_FROMMACRO|CtrlObject->Macro.GetMode();
+			Item=(INT_PTR)((OpenMacroInfo*)Item)->Value.String;
+		}
 
 		EXECUTE_FUNCTION_EX(FUNCTION(iOpen)(OpenFrom,Item), es);
 
