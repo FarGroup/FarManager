@@ -173,12 +173,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	egs.StringNumber=-1;
 	Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
-	if (OInfo->OpenFrom&OPEN_FROMMACRO)
+	if (OInfo->OpenFrom==OPEN_FROMMACRO)
 	{
-		if (!(OInfo->OpenFrom&OPEN_FROMMACROSTRING))
+		OpenMacroInfo* mi=(OpenMacroInfo*)OInfo->Data;
+		if (FMVT_INTEGER==mi->Value.Type||FMVT_UNKNOWN==mi->Value.Type)
 		{
-			int Mode=(int)OInfo->Data;
-			switch (Mode)
+			switch (mi->Value.Integer)
 			{
 				case 0: // search fwd
 					isSelect=0;

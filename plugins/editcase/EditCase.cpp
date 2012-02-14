@@ -93,11 +93,12 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
 	int MenuCode=-1;
 
-	if (OInfo->OpenFrom&OPEN_FROMMACRO)
+	if (OInfo->OpenFrom==OPEN_FROMMACRO)
 	{
-		if (!(OInfo->OpenFrom&OPEN_FROMMACROSTRING))
-		{
-			MenuCode=(int)OInfo->Data;
+		OpenMacroInfo* mi=(OpenMacroInfo*)OInfo->Data;
+		if (FMVT_INTEGER==mi->Value.Type||FMVT_UNKNOWN==mi->Value.Type)
+ 		{
+			MenuCode=mi->Value.Integer;
 			if (MenuCode < 0 || MenuCode > 4)
 				return INVALID_HANDLE_VALUE;
 		}
