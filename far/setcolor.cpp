@@ -62,6 +62,7 @@ void GetColor(int PaletteIndex, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2, VMen
 	if (Console.GetColorDialog(NewColor))
 	{
 		Opt.Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR] = NewColor;
+		Opt.Palette.SetChanged();
 		ScrBuf.Lock(); // отменяем всякую прорисовку
 		CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 		CtrlObject->Cp()->LeftPanel->Redraw();

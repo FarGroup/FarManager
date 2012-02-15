@@ -38,374 +38,179 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "colormix.hpp"
 #include "config.hpp"
+#include "configdb.hpp"
 
-int DefaultPaletteIndex[]=
+struct ColorsInit
 {
-	F_WHITE|B_CYAN,                         // COL_MENUTEXT,
-	F_WHITE|B_BLACK,                        // COL_MENUSELECTEDTEXT,
-	F_YELLOW|B_CYAN,                        // COL_MENUHIGHLIGHT,
-	F_YELLOW|B_BLACK,                       // COL_MENUSELECTEDHIGHLIGHT,
-	F_WHITE|B_CYAN,                         // COL_MENUBOX,
-	F_WHITE|B_CYAN,                         // COL_MENUTITLE,
-
-	F_BLACK|B_CYAN,                         // COL_HMENUTEXT,
-	F_WHITE|B_BLACK,                        // COL_HMENUSELECTEDTEXT,
-	F_YELLOW|B_CYAN,                        // COL_HMENUHIGHLIGHT,
-	F_YELLOW|B_BLACK,                       // COL_HMENUSELECTEDHIGHLIGHT,
-
-	F_LIGHTCYAN|B_BLUE,                     // COL_PANELTEXT,
-	F_YELLOW|B_BLUE,                        // COL_PANELSELECTEDTEXT,
-	F_LIGHTGRAY|B_BLUE,                     // COL_PANELHIGHLIGHTTEXT,
-	F_YELLOW|B_BLUE,                        // COL_PANELINFOTEXT,
-	F_BLACK|B_CYAN,                         // COL_PANELCURSOR,
-	F_YELLOW|B_CYAN,                        // COL_PANELSELECTEDCURSOR,
-	F_LIGHTCYAN|B_BLUE,                     // COL_PANELTITLE,
-	F_BLACK|B_CYAN,                         // COL_PANELSELECTEDTITLE,
-	F_YELLOW|B_BLUE,                        // COL_PANELCOLUMNTITLE,
-	F_LIGHTCYAN|B_BLUE,                     // COL_PANELTOTALINFO,
-	F_YELLOW|B_CYAN,                        // COL_PANELSELECTEDINFO,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGTEXT,
-	F_YELLOW|B_LIGHTGRAY,                   // COL_DIALOGHIGHLIGHTTEXT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGBOX,
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGBOXTITLE,
-	F_YELLOW|B_LIGHTGRAY,                   // COL_DIALOGHIGHLIGHTBOXTITLE,
-	F_BLACK|B_CYAN,                         // COL_DIALOGEDIT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGBUTTON,
-	F_BLACK|B_CYAN,                         // COL_DIALOGSELECTEDBUTTON,
-	F_YELLOW|B_LIGHTGRAY,                   // COL_DIALOGHIGHLIGHTBUTTON,
-	F_YELLOW|B_CYAN,                        // COL_DIALOGHIGHLIGHTSELECTEDBUTTON,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTTEXT,
-	F_WHITE|B_BLACK,                        // COL_DIALOGLISTSELECTEDTEXT,
-	F_YELLOW|B_LIGHTGRAY,                   // COL_DIALOGLISTHIGHLIGHT,
-	F_YELLOW|B_BLACK,                       // COL_DIALOGLISTSELECTEDHIGHLIGHT,
-
-	F_WHITE|B_RED,                          // COL_WARNDIALOGTEXT,
-	F_YELLOW|B_RED,                         // COL_WARNDIALOGHIGHLIGHTTEXT,
-	F_WHITE|B_RED,                          // COL_WARNDIALOGBOX,
-	F_WHITE|B_RED,                          // COL_WARNDIALOGBOXTITLE,
-	F_YELLOW|B_RED,                         // COL_WARNDIALOGHIGHLIGHTBOXTITLE,
-	F_BLACK|B_CYAN,                         // COL_WARNDIALOGEDIT,
-	F_WHITE|B_RED,                          // COL_WARNDIALOGBUTTON,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGSELECTEDBUTTON,
-	F_YELLOW|B_RED,                         // COL_WARNDIALOGHIGHLIGHTBUTTON,
-	F_YELLOW|B_LIGHTGRAY,                   // COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON,
-
-	F_LIGHTGRAY|B_BLACK,                    // COL_KEYBARNUM,
-	F_BLACK|B_CYAN,                         // COL_KEYBARTEXT,
-	F_LIGHTGRAY|B_BLACK,                    // COL_KEYBARBACKGROUND,
-
-	F_LIGHTGRAY|B_BLACK,                    // COL_COMMANDLINE,
-
-	F_BLACK|B_CYAN,                         // COL_CLOCK,
-
-	F_LIGHTCYAN|B_BLUE,                     // COL_VIEWERTEXT,
-	F_BLACK|B_CYAN,                         // COL_VIEWERSELECTEDTEXT,
-	F_BLACK|B_CYAN,                         // COL_VIEWERSTATUS,
-
-	F_LIGHTCYAN|B_BLUE,                     // COL_EDITORTEXT,
-	F_BLACK|B_CYAN,                         // COL_EDITORSELECTEDTEXT,
-	F_BLACK|B_CYAN,                         // COL_EDITORSTATUS,
-
-	F_BLACK|B_CYAN,                         // COL_HELPTEXT,
-	F_WHITE|B_CYAN,                         // COL_HELPHIGHLIGHTTEXT,
-	F_YELLOW|B_CYAN,                        // COL_HELPTOPIC,
-	F_WHITE|B_BLACK,                        // COL_HELPSELECTEDTOPIC,
-	F_BLACK|B_CYAN,                         // COL_HELPBOX,
-	F_BLACK|B_CYAN,                         // COL_HELPBOXTITLE,
-
-	F_YELLOW|B_CYAN,                        // COL_PANELDRAGTEXT,
-	F_LIGHTGRAY|B_CYAN,                      // COL_DIALOGEDITUNCHANGED,
-	F_LIGHTCYAN|B_BLUE,                     // COL_PANELSCROLLBAR,
-	F_BLACK|B_CYAN,                         // COL_HELPSCROLLBAR,
-	F_LIGHTCYAN|B_BLUE,                     // COL_PANELBOX,
-	F_LIGHTCYAN|B_BLACK,                    // COL_PANELSCREENSNUMBER,
-	F_WHITE|B_BLACK,                        // COL_DIALOGEDITSELECTED,
-	F_BLACK|B_CYAN,                         // COL_COMMANDLINESELECTED,
-	F_YELLOW|B_BLUE,                        // COL_VIEWERARROWS,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTSCROLLBAR,
-	F_WHITE|B_CYAN,                         // COL_MENUSCROLLBAR,
-	F_LIGHTCYAN|B_BLUE,                     // COL_VIEWERSCROLLBAR,
-
-	F_LIGHTGRAY|B_BLACK,                    // COL_COMMANDLINEPREFIX,
-
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGDISABLED,
-	F_DARKGRAY|B_CYAN,                      // COL_DIALOGEDITDISABLED,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGLISTDISABLED,
-
-	F_DARKGRAY|B_RED,                       // COL_WARNDIALOGDISABLED,
-	F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGEDITDISABLED,
-	F_DARKGRAY|B_RED,                       // COL_WARNDIALOGLISTDISABLED,
-
-	F_DARKGRAY|B_CYAN,                      // COL_MENUDISABLEDTEXT,
-
-	F_BLACK|B_CYAN,                         // COL_EDITORCLOCK,
-	F_BLACK|B_CYAN,                         // COL_VIEWERCLOCK,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTTITLE
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTBOX,
-
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGEDITSELECTED,
-	F_LIGHTGRAY|B_CYAN,                     // COL_WARNDIALOGEDITUNCHANGED,
-
-	F_WHITE|B_CYAN,                         // COL_DIALOGCBOXTEXT,
-	F_WHITE|B_BLACK,                        // COL_DIALOGCBOXSELECTEDTEXT,
-	F_YELLOW|B_CYAN,                        // COL_DIALOGCBOXHIGHLIGHT,
-	F_YELLOW|B_BLACK,                       // COL_DIALOGCBOXSELECTEDHIGHLIGHT,
-	F_WHITE|B_CYAN,                         // COL_DIALOGCBOXBOX,
-	F_WHITE|B_CYAN,                         // COL_DIALOGCBOXTITLE,
-	F_DARKGRAY|B_CYAN,                      // COL_DIALOGCBOXDISABLED,
-	F_WHITE|B_CYAN,                         // COL_DIALOGCBOXSCROLLBAR,
-
-	F_WHITE|B_RED,                          // COL_WARNDIALOGLISTTEXT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTSELECTEDTEXT,
-	F_YELLOW|B_RED,                         // COL_WARNDIALOGLISTHIGHLIGHT,
-	F_YELLOW|B_LIGHTGRAY,                   // COL_WARNDIALOGLISTSELECTEDHIGHLIGHT,
-	F_WHITE|B_RED,                          // COL_WARNDIALOGLISTBOX,
-	F_WHITE|B_RED,                          // COL_WARNDIALOGLISTTITLE,
-	F_WHITE|B_RED,                          // COL_WARNDIALOGLISTSCROLLBAR,
-
-	F_WHITE|B_CYAN,                         // COL_WARNDIALOGCBOXTEXT,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGCBOXSELECTEDTEXT,
-	F_YELLOW|B_CYAN,                        // COL_WARNDIALOGCBOXHIGHLIGHT,
-	F_YELLOW|B_BLACK,                       // COL_WARNDIALOGCBOXSELECTEDHIGHLIGHT,
-	F_WHITE|B_CYAN,                         // COL_WARNDIALOGCBOXBOX,
-	F_WHITE|B_CYAN,                         // COL_WARNDIALOGCBOXTITLE,
-	F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGCBOXDISABLED,
-	F_WHITE|B_CYAN,                         // COL_WARNDIALOGCBOXSCROLLBAR,
-
-	F_YELLOW|B_LIGHTGRAY,                   // COL_DIALOGLISTARROWS,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGLISTARROWSDISABLED,
-	F_YELLOW|B_BLACK,                       // COL_DIALOGLISTARROWSSELECTED,
-	F_YELLOW|B_CYAN,                        // COL_DIALOGCOMBOARROWS,
-	F_DARKGRAY|B_CYAN,                      // COL_DIALOGCOMBOARROWSDISABLED,
-	F_YELLOW|B_BLACK,                       // COL_DIALOGCOMBOARROWSSELECTED,
-	F_YELLOW|B_RED,                         // COL_WARNDIALOGLISTARROWS,
-	F_DARKGRAY|B_RED,                       // COL_WARNDIALOGLISTARROWSDISABLED,
-	F_YELLOW|B_LIGHTGRAY,                   // COL_WARNDIALOGLISTARROWSSELECTED,
-	F_YELLOW|B_CYAN,                        // COL_WARNDIALOGCOMBOARROWS,
-	F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGCOMBOARROWSDISABLED,
-	F_YELLOW|B_BLACK,                       // COL_WARNDIALOGCOMBOARROWSSELECTED,
-	F_YELLOW|B_CYAN,                        // COL_MENUARROWS,
-	F_DARKGRAY|B_CYAN,                      // COL_MENUARROWSDISABLED,
-	F_YELLOW|B_BLACK,                       // COL_MENUARROWSSELECTED,
-	F_LIGHTGRAY|B_BLACK,                    // COL_COMMANDLINEUSERSCREEN,
-	F_LIGHTCYAN|B_BLUE,                     // COL_EDITORSCROLLBAR,
-
-	F_DARKGRAY|B_CYAN,                      // COL_MENUGRAYTEXT,
-	F_LIGHTGRAY|B_BLACK,                    // COL_MENUSELECTEDGRAYTEXT,
-	F_DARKGRAY|B_CYAN,                      // COL_DIALOGCOMBOGRAY,
-	F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGCOMBOSELECTEDGRAYTEXT,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGLISTGRAY,
-	F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGLISTSELECTEDGRAYTEXT,
-	F_DARKGRAY|B_CYAN,                      // COL_WARNDIALOGCOMBOGRAY,
-	F_LIGHTGRAY|B_BLACK,                    // COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,
-	F_DARKGRAY|B_RED,                       // COL_WARNDIALOGLISTGRAY,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTSELECTEDGRAYTEXT,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGDEFAULTBUTTON,
-	F_BLACK|B_CYAN,                         // COL_DIALOGSELECTEDDEFAULTBUTTON,
-	F_YELLOW|B_LIGHTGRAY,                   // COL_DIALOGHIGHLIGHTDEFAULTBUTTON,
-	F_YELLOW|B_CYAN,                        // COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
-	F_WHITE|B_RED,                          // COL_WARNDIALOGDEFAULTBUTTON,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGSELECTEDDEFAULTBUTTON,
-	F_YELLOW|B_RED,                         // COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON,
-	F_YELLOW|B_LIGHTGRAY,                   // COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
+	const wchar_t* Name;
+	int DefaultIndex;
+	int MonoIndex;
+}
+Init[]=
+{
+	{L"Menu.Text",                                   F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_MENUTEXT,
+	{L"Menu.Text.Selected",                          F_WHITE|B_BLACK,        F_LIGHTGRAY|B_BLACK,   }, // COL_MENUSELECTEDTEXT,
+	{L"Menu.Highlight",                              F_YELLOW|B_CYAN,        F_WHITE|B_LIGHTGRAY,   }, // COL_MENUHIGHLIGHT,
+	{L"Menu.Highlight.Selected",                     F_YELLOW|B_BLACK,       F_WHITE|B_BLACK,       }, // COL_MENUSELECTEDHIGHLIGHT,
+	{L"Menu.Box",                                    F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_MENUBOX,
+	{L"Menu.Title",                                  F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_MENUTITLE,
+	{L"HMenu.Text",                                  F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_HMENUTEXT,
+	{L"HMenu.Text.Selected",                         F_WHITE|B_BLACK,        F_LIGHTGRAY|B_BLACK,   }, // COL_HMENUSELECTEDTEXT,
+	{L"HMenu.Highlight",                             F_YELLOW|B_CYAN,        F_WHITE|B_LIGHTGRAY,   }, // COL_HMENUHIGHLIGHT,
+	{L"HMenu.Highlight.Selected",                    F_YELLOW|B_BLACK,       F_WHITE|B_BLACK,       }, // COL_HMENUSELECTEDHIGHLIGHT,
+	{L"Panel.Text",                                  F_LIGHTCYAN|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_PANELTEXT,
+	{L"Panel.Text.Selected",                         F_YELLOW|B_BLUE,        F_WHITE|B_BLACK,       }, // COL_PANELSELECTEDTEXT,
+	{L"Panel.Text.Highlight",                        F_LIGHTGRAY|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_PANELHIGHLIGHTTEXT,
+	{L"Panel.Text.Info",                             F_YELLOW|B_BLUE,        F_WHITE|B_BLACK,       }, // COL_PANELINFOTEXT,
+	{L"Panel.Cursor",                                F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_PANELCURSOR,
+	{L"Panel.Cursor.Selected",                       F_YELLOW|B_CYAN,        F_WHITE|B_LIGHTGRAY,   }, // COL_PANELSELECTEDCURSOR,
+	{L"Panel.Title",                                 F_LIGHTCYAN|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_PANELTITLE,
+	{L"Panel.Title.Selected",                        F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_PANELSELECTEDTITLE,
+	{L"Panel.Title.Column",                          F_YELLOW|B_BLUE,        F_WHITE|B_BLACK,       }, // COL_PANELCOLUMNTITLE,
+	{L"Panel.Info.Total",                            F_LIGHTCYAN|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_PANELTOTALINFO,
+	{L"Panel.Info.Selected",                         F_YELLOW|B_CYAN,        F_BLACK|B_LIGHTGRAY,   }, // COL_PANELSELECTEDINFO,
+	{L"Dialog.Text",                                 F_BLACK|B_LIGHTGRAY,    F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGTEXT,
+	{L"Dialog.Text.Highlight",                       F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_LIGHTGRAY,   }, // COL_DIALOGHIGHLIGHTTEXT,
+	{L"Dialog.Box",                                  F_BLACK|B_LIGHTGRAY,    F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGBOX,
+	{L"Dialog.Box.Title",                            F_BLACK|B_LIGHTGRAY,    F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGBOXTITLE,
+	{L"Dialog.Box.Title.Highlight",                  F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_BLACK,       }, // COL_DIALOGHIGHLIGHTBOXTITLE,
+	{L"Dialog.Edit",                                 F_BLACK|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_DIALOGEDIT,
+	{L"Dialog.Button",                               F_BLACK|B_LIGHTGRAY,    F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGBUTTON,
+	{L"Dialog.Button.Selected",                      F_BLACK|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_DIALOGSELECTEDBUTTON,
+	{L"Dialog.Button.Highlight",                     F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_LIGHTGRAY,   }, // COL_DIALOGHIGHLIGHTBUTTON,
+	{L"Dialog.Button.Highlight.Selected",            F_YELLOW|B_CYAN,        F_WHITE|B_BLACK,       }, // COL_DIALOGHIGHLIGHTSELECTEDBUTTON,
+	{L"Dialog.List.Text",                            F_BLACK|B_LIGHTGRAY,    F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGLISTTEXT,
+	{L"Dialog.List.Text.Selected",                   F_WHITE|B_BLACK,        F_WHITE|B_BLACK,       }, // COL_DIALOGLISTSELECTEDTEXT,
+	{L"Dialog.List.Highlight",                       F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_LIGHTGRAY,   }, // COL_DIALOGLISTHIGHLIGHT,
+	{L"Dialog.List.Highlight.Selected",              F_YELLOW|B_BLACK,       F_WHITE|B_BLACK,       }, // COL_DIALOGLISTSELECTEDHIGHLIGHT,
+	{L"WarnDialog.Text",                             F_WHITE|B_RED,          F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGTEXT,
+	{L"WarnDialog.Text.Highlight",                   F_YELLOW|B_RED,         F_WHITE|B_LIGHTGRAY,   }, // COL_WARNDIALOGHIGHLIGHTTEXT,
+	{L"WarnDialog.Box",                              F_WHITE|B_RED,          F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGBOX,
+	{L"WarnDialog.Box.Title",                        F_WHITE|B_RED,          F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGBOXTITLE,
+	{L"WarnDialog.Box.Title.Highlight",              F_YELLOW|B_RED,         F_WHITE|B_BLACK,       }, // COL_WARNDIALOGHIGHLIGHTBOXTITLE,
+	{L"WarnDialog.Edit",                             F_BLACK|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_WARNDIALOGEDIT,
+	{L"WarnDialog.Button",                           F_WHITE|B_RED,          F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGBUTTON,
+	{L"WarnDialog.Button.Selected",                  F_BLACK|B_LIGHTGRAY,    F_LIGHTGRAY|B_BLACK,   }, // COL_WARNDIALOGSELECTEDBUTTON,
+	{L"WarnDialog.Button.Highlight",                 F_YELLOW|B_RED,         F_WHITE|B_LIGHTGRAY,   }, // COL_WARNDIALOGHIGHLIGHTBUTTON,
+	{L"WarnDialog.Button.Highlight.Selected",        F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_BLACK,       }, // COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON,
+	{L"Keybar.Num",                                  F_LIGHTGRAY|B_BLACK,    F_LIGHTGRAY|B_BLACK,   }, // COL_KEYBARNUM,
+	{L"Keybar.Text",                                 F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_KEYBARTEXT,
+	{L"Keybar.Background",                           F_LIGHTGRAY|B_BLACK,    F_LIGHTGRAY|B_BLACK,   }, // COL_KEYBARBACKGROUND,
+	{L"CommandLine",                                 F_LIGHTGRAY|B_BLACK,    F_LIGHTGRAY|B_BLACK,   }, // COL_COMMANDLINE,
+	{L"Clock",                                       F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_CLOCK,
+	{L"Viewer.Text",                                 F_LIGHTCYAN|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_VIEWERTEXT,
+	{L"Viewer.Text.Selected",                        F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_VIEWERSELECTEDTEXT,
+	{L"Viewer.Status",                               F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_VIEWERSTATUS,
+	{L"Editor.Text",                                 F_LIGHTCYAN|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_EDITORTEXT,
+	{L"Editor.Text.Selected",                        F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_EDITORSELECTEDTEXT,
+	{L"Editor.Status",                               F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_EDITORSTATUS,
+	{L"Help.Text",                                   F_BLACK|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_HELPTEXT,
+	{L"Help.Text.Highlight",                         F_WHITE|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_HELPHIGHLIGHTTEXT,
+	{L"Help.Topic",                                  F_YELLOW|B_CYAN,        F_WHITE|B_BLACK,       }, // COL_HELPTOPIC,
+	{L"Help.Topic.Selected",                         F_WHITE|B_BLACK,        F_BLACK|B_LIGHTGRAY,   }, // COL_HELPSELECTEDTOPIC,
+	{L"Help.Box",                                    F_BLACK|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_HELPBOX,
+	{L"Help.Box.Title",                              F_BLACK|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_HELPBOXTITLE,
+	{L"Panel.DragText",                              F_YELLOW|B_CYAN,        F_BLACK|B_LIGHTGRAY,   }, // COL_PANELDRAGTEXT,
+	{L"Dialog.Edit.Unchanged",                       F_LIGHTGRAY|B_CYAN,     F_WHITE|B_BLACK,       },  // COL_DIALOGEDITUNCHANGED,
+	{L"Panel.Scrollbar",                             F_LIGHTCYAN|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_PANELSCROLLBAR,
+	{L"Help.Scrollbar",                              F_BLACK|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_HELPSCROLLBAR,
+	{L"Panel.Box",                                   F_LIGHTCYAN|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_PANELBOX,
+	{L"Panel.ScreensNumber",                         F_LIGHTCYAN|B_BLACK,    F_WHITE|B_BLACK,       }, // COL_PANELSCREENSNUMBER,
+	{L"Dialog.Edit.Selected",                        F_WHITE|B_BLACK,        F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGEDITSELECTED,
+	{L"CommandLine.Selected",                        F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_COMMANDLINESELECTED,
+	{L"Viewer.Arrows",                               F_YELLOW|B_BLUE,        F_WHITE|B_BLACK,       }, // COL_VIEWERARROWS,
+	{L"Dialog.List.Scrollbar",                       F_BLACK|B_LIGHTGRAY,    F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGLISTSCROLLBAR,
+	{L"Menu.Scrollbar",                              F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_MENUSCROLLBAR,
+	{L"Viewer.Scrollbar",                            F_LIGHTCYAN|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_VIEWERSCROLLBAR,
+	{L"CommandLine.Prefix",                          F_LIGHTGRAY|B_BLACK,    F_LIGHTGRAY|B_BLACK,   }, // COL_COMMANDLINEPREFIX,
+	{L"Dialog.Disabled",                             F_DARKGRAY|B_LIGHTGRAY, F_LIGHTGRAY|B_BLACK,   }, // COL_DIALOGDISABLED,
+	{L"Dialog.Edit.Disabled",                        F_DARKGRAY|B_CYAN,      F_DARKGRAY|B_LIGHTGRAY,}, // COL_DIALOGEDITDISABLED,
+	{L"Dialog.List.Disabled",                        F_DARKGRAY|B_LIGHTGRAY, F_DARKGRAY|B_LIGHTGRAY,}, // COL_DIALOGLISTDISABLED,
+	{L"WarnDialog.Disabled",                         F_DARKGRAY|B_RED,       F_DARKGRAY|B_LIGHTGRAY,}, // COL_WARNDIALOGDISABLED,
+	{L"WarnDialog.Edit.Disabled",                    F_DARKGRAY|B_CYAN,      F_DARKGRAY|B_LIGHTGRAY,}, // COL_WARNDIALOGEDITDISABLED,
+	{L"WarnDialog.List.Disabled",                    F_DARKGRAY|B_RED,       F_DARKGRAY|B_LIGHTGRAY,}, // COL_WARNDIALOGLISTDISABLED,
+	{L"Menu.Text.Disabled",                          F_DARKGRAY|B_CYAN,      F_DARKGRAY|B_LIGHTGRAY,}, // COL_MENUDISABLEDTEXT,
+	{L"Editor.Clock",                                F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_EDITORCLOCK,
+	{L"Viewer.Clock",                                F_BLACK|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_VIEWERCLOCK,
+	{L"Dialog.List.Title",                           F_BLACK|B_LIGHTGRAY,    F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGLISTTITLE
+	{L"Dialog.List.Box",                             F_BLACK|B_LIGHTGRAY,    F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGLISTBOX,
+	{L"WarnDialog.Edit.Selected",                    F_WHITE|B_BLACK,        F_BLACK|B_WHITE,       }, // COL_WARNDIALOGEDITSELECTED,
+	{L"WarnDialog.Edit.Unchanged",                   F_LIGHTGRAY|B_CYAN,     F_WHITE|B_BLACK,       }, // COL_WARNDIALOGEDITUNCHANGED,
+	{L"Dialog.Combo.Text",                           F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGCBOXTEXT,
+	{L"Dialog.Combo.Text.Selected",                  F_WHITE|B_BLACK,        F_LIGHTGRAY|B_BLACK,   }, // COL_DIALOGCBOXSELECTEDTEXT,
+	{L"Dialog.Combo.Highlight",                      F_YELLOW|B_CYAN,        F_WHITE|B_LIGHTGRAY,   }, // COL_DIALOGCBOXHIGHLIGHT,
+	{L"Dialog.Combo.Highlight.Selected",             F_YELLOW|B_BLACK,       F_WHITE|B_BLACK,       }, // COL_DIALOGCBOXSELECTEDHIGHLIGHT,
+	{L"Dialog.Combo.Box",                            F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGCBOXBOX,
+	{L"Dialog.Combo.Title",                          F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGCBOXTITLE,
+	{L"Dialog.Combo.Disabled",                       F_DARKGRAY|B_CYAN,      F_DARKGRAY|B_LIGHTGRAY,}, // COL_DIALOGCBOXDISABLED,
+	{L"Dialog.Combo.Scrollbar",                      F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGCBOXSCROLLBAR,
+	{L"WarnDialog.List.Text",                        F_WHITE|B_RED,          F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGLISTTEXT,
+	{L"WarnDialog.List.Text.Selected",               F_BLACK|B_LIGHTGRAY,    F_WHITE|B_BLACK,       }, // COL_WARNDIALOGLISTSELECTEDTEXT,
+	{L"WarnDialog.List.Highlight",                   F_YELLOW|B_RED,         F_WHITE|B_LIGHTGRAY,   }, // COL_WARNDIALOGLISTHIGHLIGHT,
+	{L"WarnDialog.List.Highlight.Selected",          F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_BLACK,       }, // COL_WARNDIALOGLISTSELECTEDHIGHLIGHT,
+	{L"WarnDialog.List.Box",                         F_WHITE|B_RED,          F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGLISTBOX,
+	{L"WarnDialog.List.Title",                       F_WHITE|B_RED,          F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGLISTTITLE,
+	{L"WarnDialog.List.Scrollbar",                   F_WHITE|B_RED,          F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGLISTSCROLLBAR,
+	{L"WarnDialog.Combo.Text",                       F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGCBOXTEXT,
+	{L"WarnDialog.Combo.Text.Selected",              F_WHITE|B_BLACK,        F_WHITE|B_BLACK,       }, // COL_WARNDIALOGCBOXSELECTEDTEXT,
+	{L"WarnDialog.Combo.Highlight",                  F_YELLOW|B_CYAN,        F_WHITE|B_LIGHTGRAY,   }, // COL_WARNDIALOGCBOXHIGHLIGHT,
+	{L"WarnDialog.Combo.Highlight.Selected",         F_YELLOW|B_BLACK,       F_WHITE|B_BLACK,       }, // COL_WARNDIALOGCBOXSELECTEDHIGHLIGHT,
+	{L"WarnDialog.Combo.Box",                        F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGCBOXBOX,
+	{L"WarnDialog.Combo.Title",                      F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGCBOXTITLE,
+	{L"WarnDialog.Combo.Disabled",                   F_DARKGRAY|B_CYAN,      F_DARKGRAY|B_LIGHTGRAY,}, // COL_WARNDIALOGCBOXDISABLED,
+	{L"WarnDialog.Combo.Scrollbar",                  F_WHITE|B_CYAN,         F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGCBOXSCROLLBAR,
+	{L"Dialog.List.Arrows",                          F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_LIGHTGRAY,   }, // COL_DIALOGLISTARROWS,
+	{L"Dialog.List.Arrows.Disabled",                 F_DARKGRAY|B_LIGHTGRAY, F_DARKGRAY|B_LIGHTGRAY,}, // COL_DIALOGLISTARROWSDISABLED,
+	{L"Dialog.List.Arrows.Selected",                 F_YELLOW|B_BLACK,       F_WHITE|B_BLACK,       }, // COL_DIALOGLISTARROWSSELECTED,
+	{L"Dialog.Combo.Arrows",                         F_YELLOW|B_CYAN,        F_WHITE|B_LIGHTGRAY,   }, // COL_DIALOGCOMBOARROWS,
+	{L"Dialog.Combo.Arrows.Disabled",                F_DARKGRAY|B_CYAN,      F_DARKGRAY|B_LIGHTGRAY,}, // COL_DIALOGCOMBOARROWSDISABLED,
+	{L"Dialog.Combo.Arrows.Selected",                F_YELLOW|B_BLACK,       F_WHITE|B_BLACK,       }, // COL_DIALOGCOMBOARROWSSELECTED,
+	{L"WarnDialog.List.Arrows",                      F_YELLOW|B_RED,         F_WHITE|B_LIGHTGRAY,   }, // COL_WARNDIALOGLISTARROWS,
+	{L"WarnDialog.List.Arrows.Disabled",             F_DARKGRAY|B_RED,       F_DARKGRAY|B_LIGHTGRAY,}, // COL_WARNDIALOGLISTARROWSDISABLED,
+	{L"WarnDialog.List.Arrows.Selected",             F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_BLACK,       }, // COL_WARNDIALOGLISTARROWSSELECTED,
+	{L"WarnDialog.Combo.Arrows",                     F_YELLOW|B_CYAN,        F_WHITE|B_LIGHTGRAY,   }, // COL_WARNDIALOGCOMBOARROWS,
+	{L"WarnDialog.Combo.Arrows.Disabled",            F_DARKGRAY|B_CYAN,      F_DARKGRAY|B_LIGHTGRAY,}, // COL_WARNDIALOGCOMBOARROWSDISABLED,
+	{L"WarnDialog.Combo.Arrows.Selected",            F_YELLOW|B_BLACK,       F_WHITE|B_BLACK,       }, // COL_WARNDIALOGCOMBOARROWSSELECTED,
+	{L"Menu.Arrows",                                 F_YELLOW|B_CYAN,        F_WHITE|B_LIGHTGRAY,   }, // COL_MENUARROWS,
+	{L"Menu.Arrows.Disabled",                        F_DARKGRAY|B_CYAN,      F_DARKGRAY|B_LIGHTGRAY,}, // COL_MENUARROWSDISABLED,
+	{L"Menu.Arrows.Selected",                        F_YELLOW|B_BLACK,       F_WHITE|B_BLACK,       }, // COL_MENUARROWSSELECTED,
+	{L"CommandLine.UserScreen",                      F_LIGHTGRAY|B_BLACK,    F_LIGHTGRAY|B_BLACK,   }, // COL_COMMANDLINEUSERSCREEN,
+	{L"Editor.Scrollbar",                            F_LIGHTCYAN|B_BLUE,     F_LIGHTGRAY|B_BLACK,   }, // COL_EDITORSCROLLBAR,
+	{L"Menu.GrayText",                               F_DARKGRAY|B_CYAN,      F_DARKGRAY|B_LIGHTGRAY,}, // COL_MENUGRAYTEXT,
+	{L"Menu.GrayText.Selected",                      F_LIGHTGRAY|B_BLACK,    F_LIGHTGRAY|B_BLACK,   }, // COL_MENUSELECTEDGRAYTEXT,
+	{L"Dialog.Combo.GrayText",                       F_DARKGRAY|B_CYAN,      F_DARKGRAY|B_LIGHTGRAY,}, // COL_DIALOGCOMBOGRAY,
+	{L"Dialog.Combo.GrayText.Selected",              F_LIGHTGRAY|B_BLACK,    F_LIGHTGRAY|B_BLACK,   }, // COL_DIALOGCOMBOSELECTEDGRAYTEXT,
+	{L"Dialog.List.GrayText",                        F_DARKGRAY|B_LIGHTGRAY, F_DARKGRAY|B_LIGHTGRAY,}, // COL_DIALOGLISTGRAY,
+	{L"Dialog.List.GrayText.Selected",               F_LIGHTGRAY|B_BLACK,    F_WHITE|B_BLACK,       }, // COL_DIALOGLISTSELECTEDGRAYTEXT,
+	{L"WarnDialog.Combo.GrayText",                   F_DARKGRAY|B_CYAN,      F_DARKGRAY|B_LIGHTGRAY,}, // COL_WARNDIALOGCOMBOGRAY,
+	{L"WarnDialog.Combo.GrayText.Selected",          F_LIGHTGRAY|B_BLACK,    F_WHITE|B_BLACK,       }, // COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,
+	{L"WarnDialog.List.GrayText",                    F_DARKGRAY|B_RED,       F_DARKGRAY|B_LIGHTGRAY,}, // COL_WARNDIALOGLISTGRAY,
+	{L"WarnDialog.List.GrayText.Selected",           F_BLACK|B_LIGHTGRAY,    F_WHITE|B_BLACK,       }, // COL_WARNDIALOGLISTSELECTEDGRAYTEXT,
+	{L"Dialog.DefaultButton",                        F_BLACK|B_LIGHTGRAY,    F_BLACK|B_LIGHTGRAY,   }, // COL_DIALOGDEFAULTBUTTON,
+	{L"Dialog.DefaultButton.Selected",               F_BLACK|B_CYAN,         F_LIGHTGRAY|B_BLACK,   }, // COL_DIALOGSELECTEDDEFAULTBUTTON,
+	{L"Dialog.DefaultButton.Highlight",              F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_LIGHTGRAY,   }, // COL_DIALOGHIGHLIGHTDEFAULTBUTTON,
+	{L"Dialog.DefaultButton.Highlight.Selected",     F_YELLOW|B_CYAN,        F_WHITE|B_BLACK,       }, // COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
+	{L"WarnDialog.DefaultButton",                    F_WHITE|B_RED,          F_BLACK|B_LIGHTGRAY,   }, // COL_WARNDIALOGDEFAULTBUTTON,
+	{L"WarnDialog.DefaultButton.Selected",           F_BLACK|B_LIGHTGRAY,    F_LIGHTGRAY|B_BLACK,   }, // COL_WARNDIALOGSELECTEDDEFAULTBUTTON,
+	{L"WarnDialog.DefaultButton.Highlight",          F_YELLOW|B_RED,         F_WHITE|B_LIGHTGRAY,   }, // COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON,
+	{L"WarnDialog.DefaultButton.Highlight.Selected", F_YELLOW|B_LIGHTGRAY,   F_WHITE|B_BLACK,       }, // COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
 };
 
-
-int BlackPaletteIndex[]=
-{
-	F_BLACK|B_LIGHTGRAY,                    // COL_MENUTEXT,
-	F_LIGHTGRAY|B_BLACK,                    // COL_MENUSELECTEDTEXT,
-	F_WHITE|B_LIGHTGRAY,                    // COL_MENUHIGHLIGHT,
-	F_WHITE|B_BLACK,                        // COL_MENUSELECTEDHIGHLIGHT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_MENUBOX,
-	F_BLACK|B_LIGHTGRAY,                    // COL_MENUTITLE,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_HMENUTEXT,
-	F_LIGHTGRAY|B_BLACK,                    // COL_HMENUSELECTEDTEXT,
-	F_WHITE|B_LIGHTGRAY,                    // COL_HMENUHIGHLIGHT,
-	F_WHITE|B_BLACK,                        // COL_HMENUSELECTEDHIGHLIGHT,
-
-	F_LIGHTGRAY|B_BLACK,                    // COL_PANELTEXT,
-	F_WHITE|B_BLACK,                        // COL_PANELSELECTEDTEXT,
-	F_LIGHTGRAY|B_BLACK,                    // COL_PANELHIGHLIGHTTEXT,
-	F_WHITE|B_BLACK,                        // COL_PANELINFOTEXT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_PANELCURSOR,
-	F_WHITE|B_LIGHTGRAY,                    // COL_PANELSELECTEDCURSOR,
-	F_LIGHTGRAY|B_BLACK,                    // COL_PANELTITLE,
-	F_BLACK|B_LIGHTGRAY,                    // COL_PANELSELECTEDTITLE,
-	F_WHITE|B_BLACK,                        // COL_PANELCOLUMNTITLE,
-	F_LIGHTGRAY|B_BLACK,                    // COL_PANELTOTALINFO,
-	F_BLACK|B_LIGHTGRAY,                    // COL_PANELSELECTEDINFO,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGTEXT,
-	F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGHIGHLIGHTTEXT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGBOX,
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGBOXTITLE,
-	F_WHITE|B_BLACK,                        // COL_DIALOGHIGHLIGHTBOXTITLE,
-	F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGEDIT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGBUTTON,
-	F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGSELECTEDBUTTON,
-	F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGHIGHLIGHTBUTTON,
-	F_WHITE|B_BLACK,                        // COL_DIALOGHIGHLIGHTSELECTEDBUTTON,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTTEXT,
-	F_WHITE|B_BLACK,                        // COL_DIALOGLISTSELECTEDTEXT,
-	F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGLISTHIGHLIGHT,
-	F_WHITE|B_BLACK,                        // COL_DIALOGLISTSELECTEDHIGHLIGHT,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGTEXT,
-	F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGHIGHLIGHTTEXT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGBOX,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGBOXTITLE,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGHIGHLIGHTBOXTITLE,
-	F_LIGHTGRAY|B_BLACK,                    // COL_WARNDIALOGEDIT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGBUTTON,
-	F_LIGHTGRAY|B_BLACK,                    // COL_WARNDIALOGSELECTEDBUTTON,
-	F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGHIGHLIGHTBUTTON,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON,
-
-	F_LIGHTGRAY|B_BLACK,                    // COL_KEYBARNUM,
-	F_BLACK|B_LIGHTGRAY,                    // COL_KEYBARTEXT,
-	F_LIGHTGRAY|B_BLACK,                    // COL_KEYBARBACKGROUND,
-
-	F_LIGHTGRAY|B_BLACK,                    // COL_COMMANDLINE,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_CLOCK,
-
-	F_LIGHTGRAY|B_BLACK,                    // COL_VIEWERTEXT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_VIEWERSELECTEDTEXT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_VIEWERSTATUS,
-
-	F_LIGHTGRAY|B_BLACK,                    // COL_EDITORTEXT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_EDITORSELECTEDTEXT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_EDITORSTATUS,
-
-	F_LIGHTGRAY|B_BLACK,                    // COL_HELPTEXT,
-	F_LIGHTGRAY|B_BLACK,                    // COL_HELPHIGHLIGHTTEXT,
-	F_WHITE|B_BLACK,                        // COL_HELPTOPIC,
-	F_BLACK|B_LIGHTGRAY,                    // COL_HELPSELECTEDTOPIC,
-	F_LIGHTGRAY|B_BLACK,                    // COL_HELPBOX,
-	F_LIGHTGRAY|B_BLACK,                    // COL_HELPBOXTITLE,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_PANELDRAGTEXT,
-	F_WHITE|B_BLACK,                        // COL_DIALOGEDITUNCHANGED,
-	F_LIGHTGRAY|B_BLACK,                    // COL_PANELSCROLLBAR,
-	F_LIGHTGRAY|B_BLACK,                    // COL_HELPSCROLLBAR,
-	F_LIGHTGRAY|B_BLACK,                    // COL_PANELBOX,
-	F_WHITE|B_BLACK,                        // COL_PANELSCREENSNUMBER,
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGEDITSELECTED,
-	F_BLACK|B_LIGHTGRAY,                    // COL_COMMANDLINESELECTED,
-	F_WHITE|B_BLACK,                        // COL_VIEWERARROWS,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTSCROLLBAR,
-	F_BLACK|B_LIGHTGRAY,                    // COL_MENUSCROLLBAR,
-	F_LIGHTGRAY|B_BLACK,                    // COL_VIEWERSCROLLBAR,
-
-	F_LIGHTGRAY|B_BLACK,                    // COL_COMMANDLINEPREFIX,
-
-	F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGDISABLED,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGEDITDISABLED,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGLISTDISABLED,
-
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGDISABLED,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGEDITDISABLED,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGLISTDISABLED,
-
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_MENUDISABLEDTEXT,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_EDITORCLOCK,
-	F_BLACK|B_LIGHTGRAY,                    // COL_VIEWERCLOCK,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTTITLE
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGLISTBOX,
-
-	F_BLACK|B_WHITE,                        // COL_WARNDIALOGEDITSELECTED,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGEDITUNCHANGED,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGCBOXTEXT,
-	F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGCBOXSELECTEDTEXT,
-	F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGCBOXHIGHLIGHT,
-	F_WHITE|B_BLACK,                        // COL_DIALOGCBOXSELECTEDHIGHLIGHT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGCBOXBOX,
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGCBOXTITLE,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGCBOXDISABLED,
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGCBOXSCROLLBAR,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTTEXT,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGLISTSELECTEDTEXT,
-	F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTHIGHLIGHT,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGLISTSELECTEDHIGHLIGHT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTBOX,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTTITLE,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTSCROLLBAR,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXTEXT,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGCBOXSELECTEDTEXT,
-	F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXHIGHLIGHT,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGCBOXSELECTEDHIGHLIGHT,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXBOX,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXTITLE,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGCBOXDISABLED,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGCBOXSCROLLBAR,
-
-	F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGLISTARROWS,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGLISTARROWSDISABLED,
-	F_WHITE|B_BLACK,                        // COL_DIALOGLISTARROWSSELECTED,
-	F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGCOMBOARROWS,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGCOMBOARROWSDISABLED,
-	F_WHITE|B_BLACK,                        // COL_DIALOGCOMBOARROWSSELECTED,
-	F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGLISTARROWS,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGLISTARROWSDISABLED,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGLISTARROWSSELECTED,
-	F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGCOMBOARROWS,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGCOMBOARROWSDISABLED,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGCOMBOARROWSSELECTED,
-	F_WHITE|B_LIGHTGRAY,                    // COL_MENUARROWS,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_MENUARROWSDISABLED,
-	F_WHITE|B_BLACK,                        // COL_MENUARROWSSELECTED,
-	F_LIGHTGRAY|B_BLACK,                    // COL_COMMANDLINEUSERSCREEN,
-	F_LIGHTGRAY|B_BLACK,                    // COL_EDITORSCROLLBAR,
-
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_MENUGRAYTEXT,
-	F_LIGHTGRAY|B_BLACK,                    // COL_MENUSELECTEDGRAYTEXT,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGCOMBOGRAY,
-	F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGCOMBOSELECTEDGRAYTEXT,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_DIALOGLISTGRAY,
-	F_WHITE|B_BLACK,                        // COL_DIALOGLISTSELECTEDGRAYTEXT,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGCOMBOGRAY,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGCOMBOSELECTEDGRAYTEXT,
-	F_DARKGRAY|B_LIGHTGRAY,                 // COL_WARNDIALOGLISTGRAY,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGLISTSELECTEDGRAYTEXT,
-
-	F_BLACK|B_LIGHTGRAY,                    // COL_DIALOGDEFAULTBUTTON,
-	F_LIGHTGRAY|B_BLACK,                    // COL_DIALOGSELECTEDDEFAULTBUTTON,
-	F_WHITE|B_LIGHTGRAY,                    // COL_DIALOGHIGHLIGHTDEFAULTBUTTON,
-	F_WHITE|B_BLACK,                        // COL_DIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
-	F_BLACK|B_LIGHTGRAY,                    // COL_WARNDIALOGDEFAULTBUTTON,
-	F_LIGHTGRAY|B_BLACK,                    // COL_WARNDIALOGSELECTEDDEFAULTBUTTON,
-	F_WHITE|B_LIGHTGRAY,                    // COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON,
-	F_WHITE|B_BLACK,                        // COL_WARNDIALOGHIGHLIGHTSELECTEDDEFAULTBUTTON,
-};
-
-FarColor CurrentPaletteData[ARRAYSIZE(DefaultPaletteIndex)];
-FarColor DefaultPaletteData[ARRAYSIZE(DefaultPaletteIndex)];
-FarColor BlackPaletteData[ARRAYSIZE(DefaultPaletteIndex)];
+FarColor CurrentPaletteData[ARRAYSIZE(Init)];
+FarColor DefaultPaletteData[ARRAYSIZE(Init)];
+FarColor BlackPaletteData[ARRAYSIZE(Init)];
 
 palette::palette():
-	SizeArrayPalette(ARRAYSIZE(DefaultPaletteIndex)),
+	SizeArrayPalette(ARRAYSIZE(Init)),
 	CurrentPalette(CurrentPaletteData),
 	DefaultPalette(DefaultPaletteData),
-	BlackPalette(BlackPaletteData)
+	BlackPalette(BlackPaletteData),
+	PaletteChanged(false)
 {
 	for(size_t i = 0; i < SizeArrayPalette; ++i)
 	{
-		Colors::ConsoleColorToFarColor(DefaultPaletteIndex[i], DefaultPalette[i]);
-		Colors::ConsoleColorToFarColor(BlackPaletteIndex[i], BlackPalette[i]);
+		Colors::ConsoleColorToFarColor(Init[i].DefaultIndex, DefaultPalette[i]);
+		Colors::ConsoleColorToFarColor(Init[i].MonoIndex, BlackPalette[i]);
 	}
 	MAKE_TRANSPARENT(DefaultPalette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
 	MAKE_TRANSPARENT(DefaultPalette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
@@ -414,11 +219,13 @@ palette::palette():
 void palette::ResetToDefault()
 {
 	memcpy(CurrentPalette, DefaultPalette, SizeArrayPalette*sizeof(FarColor));
+	PaletteChanged = true;
 }
 
 void palette::ResetToBlack()
 {
 	memcpy(CurrentPalette, BlackPalette, SizeArrayPalette*sizeof(FarColor));
+	PaletteChanged = true;
 }
 
 const FarColor ColorIndexToColor(PaletteColors ColorIndex)
@@ -433,4 +240,28 @@ const FarColor ColorIndexToColor(PaletteColors ColorIndex)
 		Result = Opt.Palette.CurrentPalette[(ColorIndex-COL_FIRSTPALETTECOLOR)%Opt.Palette.SizeArrayPalette];
 	}
 	return Result;
+}
+
+void palette::Load()
+{
+	for (size_t i = 0; i < SizeArrayPalette; ++i)
+	{
+		ColorsCfg->GetValue(Init[i].Name, CurrentPalette[i]);
+	}
+	PaletteChanged = false;
+}
+
+
+void palette::Save()
+{
+	if (PaletteChanged)
+	{
+		ColorsCfg->BeginTransaction();
+		for (size_t i = 0; i < SizeArrayPalette; ++i)
+		{
+			ColorsCfg->SetValue(Init[i].Name, CurrentPalette[i]);
+		}
+		ColorsCfg->EndTransaction();
+	}
+	PaletteChanged = false;
 }

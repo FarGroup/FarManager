@@ -569,8 +569,6 @@ static struct FARConfig
 	const void* DefStr;   // строка/данные по умолчанию
 } CFG[]=
 {
-	{1, GeneralConfig::TYPE_BLOB,    NKeyColors, L"CurrentPalette",Opt.Palette.CurrentPalette,static_cast<DWORD>(Opt.Palette.SizeArrayPalette*sizeof(FarColor)),Opt.Palette.DefaultPalette},
-
 	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"Clock", &Opt.Clock, 1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"ViewerEditorClock",&Opt.ViewerEditorClock,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, NKeyScreen, L"KeyBar",&Opt.ShowKeyBar,1, 0},
@@ -927,6 +925,8 @@ void ReadConfig()
 	bool ExplicitWindowMode=Opt.WindowMode!=FALSE;
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
+	Opt.Palette.Load();
+
 	for (size_t I=0; I < ARRAYSIZE(CFG); ++I)
 	{
 		switch (CFG[I].ValType)
@@ -1152,6 +1152,8 @@ void SaveConfig(int Ask)
 	RightPanel->GetCurBaseName(Opt.strRightCurFile,strTemp);
 	CtrlObject->HiFiles->SaveHiData();
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
+
+	Opt.Palette.Save();
 
 	GeneralCfg->BeginTransaction();
 

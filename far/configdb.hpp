@@ -108,6 +108,15 @@ public:
 	virtual bool Flush() = 0;
 };
 
+class ColorsConfig: public XmlConfig, public Transactional {
+
+public:
+
+	virtual ~ColorsConfig() {}
+	virtual bool SetValue(const wchar_t *Name, const FarColor& Value) = 0;
+	virtual bool GetValue(const wchar_t *Name, FarColor& Value) = 0;
+};
+
 class AssociationsConfig: public XmlConfig, public Transactional {
 
 public:
@@ -244,6 +253,7 @@ public:
 };
 
 extern GeneralConfig *GeneralCfg;
+extern ColorsConfig *ColorsCfg;
 extern AssociationsConfig *AssocConfig;
 extern PluginsCacheConfig *PlCacheCfg;
 extern PluginsHotkeysConfig *PlHotkeyCfg;

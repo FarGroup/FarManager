@@ -39,12 +39,18 @@ class palette
 {
 public:
 	palette();
+	void Load();
+	void Save();
 	void ResetToDefault();
 	void ResetToBlack();
+	void SetChanged() {PaletteChanged = true;}
 	const size_t SizeArrayPalette;
 	FarColor* CurrentPalette;
 	FarColor* DefaultPalette;
 	FarColor* BlackPalette;
+
+private:
+	bool PaletteChanged;
 };
 
 const FarColor ColorIndexToColor(PaletteColors ColorIndex);

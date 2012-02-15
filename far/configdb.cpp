@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "sqlite.h"
 
 GeneralConfig *GeneralCfg;
+ColorsConfig *ColorsCfg;
 AssociationsConfig *AssocConfig;
 PluginsCacheConfig *PlCacheCfg;
 PluginsHotkeysConfig *PlHotkeyCfg;
@@ -822,6 +823,136 @@ public:
 		EndTransaction();
 		return true;
 	}
+};
+
+class ColorsConfigDb: public ColorsConfig, public SQLiteDb
+{
+	SQLiteStmt stmtUpdateValue;
+	SQLiteStmt stmtInsertValue;
+	SQLiteStmt stmtGetValue;
+	SQLiteStmt stmtDelValue;
+
+public:
+
+	ColorsConfigDb()
+	{
+		Initialize(L"colors.db");
+	}
+
+	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }
+	bool EndTransaction() { return SQLiteDb::EndTransaction(); }
+	bool RollbackTransaction() { return SQLiteDb::RollbackTransaction(); }
+
+	bool InitializeImpl(const wchar_t* DbName, bool Local)
+	{
+		return
+			Open(DbName, Local) &&
+
+			//schema
+			Exec("CREATE TABLE IF NOT EXISTS colors(name TEXT NOT NULL PRIMARY KEY, value BLOB);") &&
+
+			//update value statement
+			InitStmt(stmtUpdateValue, L"UPDATE colors SET value=?1 WHERE name=?2;") &&
+
+			//insert value statement
+			InitStmt(stmtInsertValue, L"INSERT INTO colors VALUES (?1,?2);") &&
+
+			//get value statement
+			InitStmt(stmtGetValue, L"SELECT value FROM colors WHERE name=?1;") &&
+
+			//delete value statement
+			InitStmt(stmtDelValue, L"DELETE FROM colors WHERE name=?1;")
+			;
+	}
+
+	virtual ~ColorsConfigDb() { }
+
+	bool SetValue(const wchar_t *Name, const FarColor& Value)
+	{
+		bool b = stmtUpdateValue.Bind(&Value, sizeof(Value)).Bind(Name).StepAndReset();
+		if (!b || Changes() == 0)
+			b = stmtInsertValue.Bind(Name).Bind(&Value, sizeof(Value)).StepAndReset();
+		return b;
+	}
+
+	bool GetValue(const wchar_t *Name, FarColor& Value)
+	{
+		bool b = stmtGetValue.Bind(Name).Step();
+		if (b)
+		{
+			const void* blob = stmtGetValue.GetColBlob(0);
+			Value = *static_cast<const FarColor*>(blob);
+		}
+		stmtGetValue.Reset();
+		return b;
+	}
+
+	bool DeleteValue(const wchar_t *Name)
+	{
+		return stmtDelValue.Bind(Name).StepAndReset();
+	}
+
+	TiXmlElement *Export()
+	{
+		TiXmlElement * root = new TiXmlElement("colors");
+		if (!root)
+			return nullptr;
+
+		SQLiteStmt stmtEnumAllValues;
+		InitStmt(stmtEnumAllValues, L"SELECT name, value FROM colors ORDER BY name;");
+
+		while (stmtEnumAllValues.Step())
+		{
+			TiXmlElement *e = new TiXmlElement("object");
+			if (!e)
+				break;
+
+			e->SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
+
+			char *hex = BlobToHexString(stmtEnumAllValues.GetColBlob(1),stmtEnumAllValues.GetColBytes(1));
+			e->SetAttribute("value", hex);
+			xf_free(hex);
+
+			root->LinkEndChild(e);
+		}
+
+		stmtEnumAllValues.Reset();
+
+		return root;
+	}
+
+	bool Import(const TiXmlHandle &root)
+	{
+		BeginTransaction();
+		for (const TiXmlElement *e = root.FirstChild("colors").FirstChildElement("object").Element(); e; e=e->NextSiblingElement("object"))
+		{
+			const char *name = e->Attribute("name");
+			const char *value = e->Attribute("value");
+
+			if (!name)
+				continue;
+
+			string Name(name, CP_UTF8);
+
+			if(value)
+			{
+				int Size = 0;
+				void *Blob = HexStringToBlob(value, &Size);
+				if (Blob)
+				{
+					SetValue(Name, *static_cast<FarColor*>(Blob));
+					xf_free(Blob);
+				}
+			}
+			else
+			{
+				DeleteValue(Name);
+			}
+		}
+		EndTransaction();
+		return true;
+	}
+
 };
 
 class AssociationsConfigDb: public AssociationsConfig, public SQLiteDb {
@@ -2578,6 +2709,7 @@ HierarchicalConfig *CreatePanelModeConfig()
 void InitDb()
 {
 	GeneralCfg = new GeneralConfigDb();
+	ColorsCfg = new ColorsConfigDb();
 	AssocConfig = new AssociationsConfigDb();
 	PlCacheCfg = new PluginsCacheConfigDb();
 	PlHotkeyCfg = new PluginsHotkeysConfigDb();
@@ -2587,12 +2719,13 @@ void InitDb()
 
 void ReleaseDb()
 {
-	delete GeneralCfg;
-	delete AssocConfig;
-	delete PlCacheCfg;
-	delete PlHotkeyCfg;
-	delete HistoryCfg;
 	delete MacroCfg;
+	delete HistoryCfg;
+	delete PlHotkeyCfg;
+	delete PlCacheCfg;
+	delete AssocConfig;
+	delete ColorsCfg;
+	delete GeneralCfg;
 }
 
 bool ExportImportConfig(bool Export, const wchar_t *XML)
@@ -2621,6 +2754,8 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 		root->SetAttribute("version", ver);
 
 		root->LinkEndChild(GeneralCfg->Export());
+
+		root->LinkEndChild(ColorsCfg->Export());
 
 		root->LinkEndChild(AssocConfig->Export());
 
@@ -2695,6 +2830,8 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 				const TiXmlHandle root(farconfig);
 
 				GeneralCfg->Import(root);
+
+				ColorsCfg->Import(root);
 
 				AssocConfig->Import(root);
 
