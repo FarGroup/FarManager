@@ -1084,7 +1084,7 @@ int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
 	int nResult = 0;
 
-	for (int i=0; i<PluginsCount; i++)
+	for (size_t i=0; i<PluginsCount; i++)
 	{
 		Plugin *pPlugin = PluginsData[i];
 

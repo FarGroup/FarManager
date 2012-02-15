@@ -141,8 +141,6 @@ struct TMacroFunction
 	int    BufferSize;               // Размер буфера компилированной последовательности
 	DWORD IntFlags;                  // флаги из INTMF_FLAGS (в основном отвечающие "как вызывать функцию")
 	TMacroOpCode Code;               // байткод функции
-	int nParam;                      // количество параметров
-	int oParam;                      // необязательные параметры
 };
 
 struct MacroRecord

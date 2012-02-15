@@ -2141,7 +2141,7 @@ public:
 			Exec(
 				"CREATE TABLE IF NOT EXISTS constants(name TEXT NOT NULL, value TEXT, type TEXT NOT NULL, PRIMARY KEY (name));"
 				"CREATE TABLE IF NOT EXISTS variables(name TEXT NOT NULL, value TEXT, type TEXT NOT NULL, PRIMARY KEY (name));"
-				"CREATE TABLE IF NOT EXISTS functions(guid TEXT NOT NULL, name TEXT NOT NULL, nparam INTEGER NOT NULL, oparam INTEGER NOT NULL, flags TEXT, sequence TEXT, syntax TEXT NOT NULL, description TEXT, PRIMARY KEY (guid, name));"
+				"CREATE TABLE IF NOT EXISTS functions(guid TEXT NOT NULL, name TEXT NOT NULL, flags TEXT, sequence TEXT, syntax TEXT NOT NULL, description TEXT, PRIMARY KEY (guid, name));"
 				"CREATE TABLE IF NOT EXISTS key_macros(area TEXT NOT NULL, key TEXT NOT NULL, flags TEXT, sequence TEXT, description TEXT, PRIMARY KEY (area, key));"
 			) &&
 
@@ -2155,8 +2155,8 @@ public:
 			InitStmt(stmtSetVarValue, L"INSERT OR REPLACE INTO variables VALUES (?1,?2,?3);") &&
 			InitStmt(stmtDelVar, L"DELETE FROM variables WHERE name=?1;") &&
 
-			InitStmt(stmtFunctionsEnum, L"SELECT guid, name, nparam, oparam, flags, sequence, syntax, description FROM functions ORDER BY guid, name;") &&
-			InitStmt(stmtSetFunction, L"INSERT OR REPLACE INTO functions VALUES (?1,?2,?3,?4,?5,?6,?7,?8);") &&
+			InitStmt(stmtFunctionsEnum, L"SELECT guid, name, flags, sequence, syntax, description FROM functions ORDER BY guid, name;") &&
+			InitStmt(stmtSetFunction, L"INSERT OR REPLACE INTO functions VALUES (?1,?2,?3,?4,?5,?6);") &&
 			InitStmt(stmtDelFunction, L"DELETE FROM functions WHERE guid=?1 AND name=?2;") &&
 
 			InitStmt(stmtKeyMacrosEnum, L"SELECT key, flags, sequence, description FROM key_macros WHERE area=?1 ORDER BY key;") &&
@@ -2246,18 +2246,16 @@ public:
 	}
 
 	/* *************** */
-	bool EnumFunctions(string &strGuid, string &strFunctionName, int *nParam, int *oParam, string &strFlags, string &strSequence, string &strSyntax, string &strDescription)
+	bool EnumFunctions(string &strGuid, string &strFunctionName, string &strFlags, string &strSequence, string &strSyntax, string &strDescription)
 	{
 		if (stmtFunctionsEnum.Step())
 		{
 			strGuid = stmtFunctionsEnum.GetColText(0);
 			strFunctionName = stmtFunctionsEnum.GetColText(1);
-			*nParam = stmtFunctionsEnum.GetColInt64(2);
-			*oParam = stmtFunctionsEnum.GetColInt64(3);
-			strFlags = stmtFunctionsEnum.GetColText(4);
-			strSequence = stmtFunctionsEnum.GetColText(5);
-			strSyntax = stmtFunctionsEnum.GetColText(6);
-			strDescription = stmtFunctionsEnum.GetColText(7);
+			strFlags = stmtFunctionsEnum.GetColText(2);
+			strSequence = stmtFunctionsEnum.GetColText(3);
+			strSyntax = stmtFunctionsEnum.GetColText(4);
+			strDescription = stmtFunctionsEnum.GetColText(5);
 			return true;
 		}
 
@@ -2265,9 +2263,9 @@ public:
 		return false;
 	}
 
-	unsigned __int64 SetFunction(const wchar_t *Guid, const wchar_t *FunctionName, unsigned __int64 nParam, unsigned __int64 oParam, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Syntax, const wchar_t *Description)
+	unsigned __int64 SetFunction(const wchar_t *Guid, const wchar_t *FunctionName, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Syntax, const wchar_t *Description)
 	{
-		if (stmtSetFunction.Bind(Guid).Bind(FunctionName).Bind(nParam).Bind(oParam).Bind(Flags).Bind(Sequence).Bind(Syntax).Bind(Description).StepAndReset())
+		if (stmtSetFunction.Bind(Guid).Bind(FunctionName).Bind(Flags).Bind(Sequence).Bind(Syntax).Bind(Description).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
@@ -2323,7 +2321,7 @@ public:
 		InitStmt(stmtEnumAllVars, L"SELECT name, value, type FROM variables ORDER BY name;");
 
 		SQLiteStmt stmtEnumAllFunctions;
-		InitStmt(stmtEnumAllFunctions, L"SELECT guid, name, nparam, oparam, flags, sequence, syntax, description FROM functions ORDER BY guid, name;");
+		InitStmt(stmtEnumAllFunctions, L"SELECT guid, name, flags, sequence, syntax, description FROM functions ORDER BY guid, name;");
 
 		SQLiteStmt stmtEnumAllKeyMacros;
 		InitStmt(stmtEnumAllKeyMacros, L"SELECT area, key, flags, sequence, description FROM key_macros ORDER BY area, key;");
@@ -2391,12 +2389,10 @@ public:
 
 			se->SetAttribute("guid", stmtEnumAllFunctions.GetColTextUTF8(0));
 			se->SetAttribute("name", stmtEnumAllFunctions.GetColTextUTF8(1));
-			se->SetAttribute("nparam", stmtEnumAllFunctions.GetColInt(2));
-			se->SetAttribute("oparam", stmtEnumAllFunctions.GetColInt(3));
-			se->SetAttribute("flags", stmtEnumAllFunctions.GetColTextUTF8(4));
-			se->SetAttribute("sequence", stmtEnumAllFunctions.GetColTextUTF8(5));
-			se->SetAttribute("syntax", stmtEnumAllFunctions.GetColTextUTF8(6));
-			se->SetAttribute("description", stmtEnumAllFunctions.GetColTextUTF8(7));
+			se->SetAttribute("flags", stmtEnumAllFunctions.GetColTextUTF8(2));
+			se->SetAttribute("sequence", stmtEnumAllFunctions.GetColTextUTF8(3));
+			se->SetAttribute("syntax", stmtEnumAllFunctions.GetColTextUTF8(4));
+			se->SetAttribute("description", stmtEnumAllFunctions.GetColTextUTF8(5));
 			e->LinkEndChild(se);
 		}
 		stmtEnumAllFunctions.Reset();
@@ -2502,17 +2498,15 @@ public:
 		{
 			const char* guid = e->Attribute("guid");
 			const char* fname = e->Attribute("name");
-			const char* nparam = e->Attribute("nparam");
-			const char* oparam = e->Attribute("oparam");
 			const char* flags = e->Attribute("flags");
 			const char* sequence = e->Attribute("sequence");
 			const char* syntax = e->Attribute("syntax");
 			const char* description = e->Attribute("description");
 
 			// BUGBUG, params can be optional
-			if(guid && fname && nparam && oparam && sequence && syntax)
+			if(guid && fname && sequence && syntax)
 			{
-				SetFunction(string(guid, CP_UTF8), string(fname, CP_UTF8), HexStringToInt64(nparam), HexStringToInt64(oparam), string(flags, CP_UTF8), string(sequence, CP_UTF8), string(syntax, CP_UTF8), string(description, CP_UTF8));
+				SetFunction(string(guid, CP_UTF8), string(fname, CP_UTF8), string(flags, CP_UTF8), string(sequence, CP_UTF8), string(syntax, CP_UTF8), string(description, CP_UTF8));
 			}
 		}
 

@@ -2487,7 +2487,8 @@ struct AnalyseInfo
 struct OpenMacroInfo
 {
 	size_t StructSize;
-	struct FarMacroValue Value;
+	size_t Count;
+	struct FarMacroValue *Values;
 };
 
 enum OPENFROM

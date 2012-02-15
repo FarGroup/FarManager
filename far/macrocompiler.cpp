@@ -296,7 +296,7 @@ static inline int getChar()
 	return EOFCH;
 }
 
-static DWORD funcLook(const wchar_t *s, int& nParam, int& oParam)
+static DWORD funcLook(const wchar_t *s)
 {
 	static bool InitedInternalFuncs=false;
 	if (!InitedInternalFuncs)
@@ -305,8 +305,6 @@ static DWORD funcLook(const wchar_t *s, int& nParam, int& oParam)
 		InitedInternalFuncs=true;
 	}
 
-	oParam=nParam=0;
-
 	size_t CountMacroFunction=KeyMacro::GetCountMacroFunction();
 
 	for (size_t I=0; I < CountMacroFunction; ++I)
@@ -314,8 +312,6 @@ static DWORD funcLook(const wchar_t *s, int& nParam, int& oParam)
 		const TMacroFunction *mFunc=KeyMacro::GetMacroFunction(I);
 		if (!StrCmpNI(s, mFunc->Name, (int)Max(StrLength(mFunc->Name),StrLength(s))))
 		{
-			nParam = mFunc->nParam;
-			oParam = mFunc->oParam;
 			return (DWORD)mFunc->Code;
 		}
 	}
@@ -327,92 +323,46 @@ static TToken getToken();
 
 static void calcFunc()
 {
-	int nParam, oParam;
 	wchar_t nameString0[1024];
 
-	TMacroOpCode nFunc = (TMacroOpCode)funcLook(nameString, nParam, oParam);
+	TMacroOpCode nFunc = (TMacroOpCode)funcLook(nameString);
 
 	if (nFunc != MCODE_F_NOFUNC)
 	{
 		IsProcessFunc++;
 
-		if (nParam)
+		int paramcount=0;
+
+		for (;;)
 		{
-			int i=0;
-			int foundparam=0;
-
-			if (nParam >= oParam)
-			{
-				for (; i < nParam ; i++)
-				{
-					xwcsncpy(nameString0,nameString,ARRAYSIZE(nameString));
-					getToken();
-
-					if (currTok != tRp)
-						foundparam++;
-
-					if ( currTok == tComma) // Mantis#0001863: Отсутствие строки как параметр функции
-					{
-						put(MCODE_OP_PUSHUNKNOWN);
-						put64(0);
-						continue;
-					}
-
-					expr();
-					xwcsncpy(nameString,nameString0,ARRAYSIZE(nameString));
-
-					if (oParam > 0 && currTok == tRp && !foundparam)
-						break;
-
-					if ( currTok != ((i == nParam-1) ? tRp : tComma) )
-					{
-						if (oParam > 0 &&  currTok != tEnd)  // если опциональные параметры есть и...
-							break;
-
-						if (i == nParam-1)
-							keyMacroParseError(err_Expected_Token, L")");
-						else
-							keyMacroParseError(err_Expected_Token, L",");
-
-						currTok = tEnd;
-					}
-				}
-			}
-			else
-			{
-				xwcsncpy(nameString0,nameString,ARRAYSIZE(nameString));
-				getToken();
-				expr();
-				xwcsncpy(nameString,nameString0,ARRAYSIZE(nameString));
-			}
-
-			if (oParam > 0) //???
-			{
-				if (nParam-(i+1) > oParam || (!i && nParam && nParam > oParam && !foundparam))  // проскакивает eval() без параметров!
-				{
-					keyMacroParseError(err_Func_Param, nameString);
-					currTok = tEnd;
-				}
-
-				// добьем нулями опциональные параметры
-				for (; i < nParam-(!foundparam?0:1); ++i)
-				{
-					put(MCODE_OP_PUSHUNKNOWN);
-					put64(0);
-				}
-			}
-		}
-		else
-		{
+			xwcsncpy(nameString0,nameString,ARRAYSIZE(nameString));
 			getToken();
 
 			if (currTok != tRp)
+				paramcount++;
+
+			if ( currTok == tComma) // Mantis#0001863: Отсутствие строки как параметр функции
+			{
+				put(MCODE_OP_PUSHUNKNOWN);
+				put64(0);
+				continue;
+			}
+
+			expr();
+			xwcsncpy(nameString,nameString0,ARRAYSIZE(nameString));
+
+			if (currTok == tRp) break;
+
+			if ( currTok != tComma )
 			{
 				keyMacroParseError(err_Expected_Token, L")");
 				currTok = tEnd;
+				break;
 			}
 		}
 
+		put(MCODE_OP_PUSHINT);
+		put64(paramcount);
 		put(nFunc);
 		IsProcessFunc--;
 	}
@@ -1613,7 +1563,6 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 				// проверим вариант, когда вызвали функцию, но результат не присвоили,
 				// например, вызвали MsgBox(), но результат неважен
 				// тогда SizeVarName=1 и varName=""
-				int __nParam,__oParam;
 				wchar_t *lpwszCurrKeyText = strCurrKeyText.GetBuffer();
 				wchar_t *Brack=(wchar_t *)wcspbrk(lpwszCurrKeyText,L"( "), Chr=0;
 
@@ -1623,7 +1572,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					*Brack=0;
 				}
 
-				if (funcLook(lpwszCurrKeyText, __nParam, __oParam) != MCODE_F_NOFUNC)
+				if (funcLook(lpwszCurrKeyText) != MCODE_F_NOFUNC)
 				{
 					if (Brack) *Brack=Chr;
 
