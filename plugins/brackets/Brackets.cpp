@@ -176,9 +176,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	if (OInfo->OpenFrom==OPEN_FROMMACRO)
 	{
 		OpenMacroInfo* mi=(OpenMacroInfo*)OInfo->Data;
-		if (FMVT_INTEGER==mi->Value.Type||FMVT_UNKNOWN==mi->Value.Type)
+		if (mi->Count&&(FMVT_INTEGER==mi->Values[0].Type||FMVT_UNKNOWN==mi->Values[0].Type))
 		{
-			switch (mi->Value.Integer)
+			switch (mi->Values[0].Integer)
 			{
 				case 0: // search fwd
 					isSelect=0;

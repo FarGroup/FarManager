@@ -97,9 +97,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	if (OInfo->OpenFrom==OPEN_FROMMACRO)
 	{
 		OpenMacroInfo* mi=(OpenMacroInfo*)OInfo->Data;
-		if(FMVT_STRING==mi->Value.Type)
+		if(mi->Count&&FMVT_STRING==mi->Values[0].Type)
 		{
-			struct MacroSendMacroText msmt={sizeof(MacroSendMacroText),0,{0},mi->Value.String};
+			struct MacroSendMacroText msmt={sizeof(MacroSendMacroText),0,{0},mi->Values[0].String};
 			Info.MacroControl(&MainGuid,MCTL_SENDSTRING,MSSC_POST,&msmt);
 		}
 	}
