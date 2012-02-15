@@ -3,6 +3,19 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 15.02.2012 22:28:03 +0200 - build 2461
+
+1. Colors configuration moved from generalconfig.db to colors.db.
+
+zg 15.02.2012 04:49:56 +0200 - build 2460
+
+1. reworking of macro functions. now all parameters are optional and there's an unlimited count of parameters.
+   excessive parameters are calculated but unused.
+
+2. callplugin can accept any number of parameters. OpenMacroInfo is changed. Count is the count of passed parameters.
+   Values is a pointer to the array of parameters values.
+   plugins making use of OPEN_FROMMACRO will work incorrectly.
+
 drkns 14.02.2012 13:19:07 +0200 - build 2459
 
 1. Another correction of 2452.1.
