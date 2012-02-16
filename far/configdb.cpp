@@ -120,9 +120,29 @@ const char *Int64ToHexString(unsigned __int64 X)
 	return Bin;
 }
 
+const char *IntToHexString(unsigned int X)
+{
+	static char Bin[8+1];
+	for (int i=7; i>=0; i--, X>>=4)
+		Bin[i] = IntToHex(X&0xFull);
+	return Bin;
+}
+
 unsigned __int64 HexStringToInt64(const char *Hex)
 {
 	unsigned __int64 x = 0;
+	while (*Hex)
+	{
+		x <<= 4;
+		x += HexToInt(*Hex);
+		Hex++;
+	}
+	return x;
+}
+
+unsigned int HexStringToInt(const char *Hex)
+{
+	unsigned int x = 0;
 	while (*Hex)
 	{
 		x <<= 4;
@@ -687,6 +707,14 @@ public:
 
 	}
 
+	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, TiXmlElement *e)
+	{
+			char* hex = BlobToHexString(Blob, Size);
+			e->SetAttribute("type", "hex");
+			e->SetAttribute("value", hex);
+			xf_free(hex);
+	}
+
 	void Export(unsigned __int64 id, TiXmlElement *key)
 	{
 		stmtEnumValues.Bind(id);
@@ -696,7 +724,8 @@ public:
 			if (!e)
 				break;
 
-			e->SetAttribute("name", stmtEnumValues.GetColTextUTF8(0));
+			const char* name = stmtEnumValues.GetColTextUTF8(0);
+			e->SetAttribute("name", name);
 
 			switch (stmtEnumValues.GetColType(1))
 			{
@@ -709,12 +738,7 @@ public:
 					e->SetAttribute("value", stmtEnumValues.GetColTextUTF8(1));
 					break;
 				default:
-				{
-					char *hex = BlobToHexString(stmtEnumValues.GetColBlob(1),stmtEnumValues.GetColBytes(1));
-					e->SetAttribute("type", "hex");
-					e->SetAttribute("value", hex);
-					xf_free(hex);
-				}
+					SerializeBlob(name, stmtEnumValues.GetColBlob(1), stmtEnumValues.GetColBytes(1), e);
 			}
 
 			key->LinkEndChild(e);
@@ -754,6 +778,13 @@ public:
 		return root;
 	}
 
+	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const TiXmlElement *e, char*& Blob)
+	{
+		int Size = 0;
+		Blob = HexStringToBlob(Value, &Size);
+		return Size;
+	}
+
 	void Import(unsigned __int64 root, const TiXmlElement *key)
 	{
 		unsigned __int64 id;
@@ -776,21 +807,21 @@ public:
 			const char *type = e->Attribute("type");
 			const char *value = e->Attribute("value");
 
-			if (!name || !type || !value)
+			if (!name || !type)
 				continue;
 
 			string Name(name, CP_UTF8);
 
-			if (!strcmp(type,"qword"))
+			if (value && !strcmp(type,"qword"))
 			{
 				SetValue(id, Name, HexStringToInt64(value));
 			}
-			else if (!strcmp(type,"text"))
+			else if (value && !strcmp(type,"text"))
 			{
 				string Value(value, CP_UTF8);
 				SetValue(id, Name, Value);
 			}
-			else if (!strcmp(type,"hex"))
+			else if (value && !strcmp(type,"hex"))
 			{
 				int Size = 0;
 				char *Blob = HexStringToBlob(value, &Size);
@@ -802,7 +833,14 @@ public:
 			}
 			else
 			{
-				continue;
+				// custom types, value is optional
+				char* Blob = nullptr;
+				int Size = DeserializeBlob(name, type, value, e, Blob);
+				if (Blob)
+				{
+					SetValue(id, Name, Blob, Size);
+					xf_free(Blob);
+				}
 			}
 		}
 
@@ -822,6 +860,74 @@ public:
 		}
 		EndTransaction();
 		return true;
+	}
+};
+
+struct _ColorFlagNames
+{
+	FARCOLORFLAGS Value;
+	const wchar_t* Name;
+}
+ColorFlagNames[] =
+{
+	{FCF_FG_4BIT,      L"bg4bit"   },
+	{FCF_BG_4BIT,      L"fg4bit"   },
+	{FCF_FG_BOLD,      L"bold"     },
+	{FCF_FG_ITALIC,    L"italic"   },
+	{FCF_FG_UNDERLINE, L"underline"},
+};
+
+class HighlightHierarchicalConfigDb: public HierarchicalConfigDb
+{
+public:
+	explicit HighlightHierarchicalConfigDb(const wchar_t *DbName, bool Local = false):HierarchicalConfigDb(DbName, Local) {}
+
+private:
+	HighlightHierarchicalConfigDb();
+
+	virtual void SerializeBlob(const char* Name, const char* Blob, int Size, TiXmlElement *e)
+	{
+		if(!strcmp(Name, "NormalColor") || !strcmp(Name, "SelectedColor") ||
+			!strcmp(Name, "CursorColor") || !strcmp(Name, "SelectedCursorColor") ||
+			!strcmp(Name, "MarkCharNormalColor") || !strcmp(Name, "MarkCharSelectedColor") ||
+			!strcmp(Name, "MarkCharCursorColor") || !strcmp(Name, "MarkCharSelectedCursorColor"))
+		{
+			const FarColor* Color = reinterpret_cast<const FarColor*>(Blob);
+			e->SetAttribute("type", "color");
+			e->SetAttribute("background", IntToHexString(Color->BackgroundColor));
+			e->SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
+			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)));
+		}
+		else
+		{
+			return HierarchicalConfigDb::SerializeBlob(Name, Blob, Size, e);
+		}
+	}
+
+	virtual int DeserializeBlob(const char* Name, const char* Type, const char* Value, const TiXmlElement *e, char*& Blob)
+	{
+		int Result = 0;
+		if(!strcmp(Type, "color"))
+		{
+			const char *background = e->Attribute("background");
+			const char *foreground = e->Attribute("foreground");
+			const char *flags = e->Attribute("flags");
+
+			if(background && foreground && flags)
+			{
+				Result = sizeof(FarColor);
+				FarColor* Color = static_cast<FarColor*>(xf_malloc(Result));
+				Color->BackgroundColor = HexStringToInt(background);
+				Color->ForegroundColor = HexStringToInt(foreground);
+				Color->Flags = StringToFlags(string(flags, CP_UTF8), ColorFlagNames);
+				Blob = reinterpret_cast<char*>(Color);
+			}
+		}
+		else
+		{
+			Result = HierarchicalConfigDb::DeserializeBlob(Name, Type, Value, e, Blob);
+		}
+		return Result;
 	}
 };
 
@@ -908,11 +1014,10 @@ public:
 				break;
 
 			e->SetAttribute("name", stmtEnumAllValues.GetColTextUTF8(0));
-
-			char *hex = BlobToHexString(stmtEnumAllValues.GetColBlob(1),stmtEnumAllValues.GetColBytes(1));
-			e->SetAttribute("value", hex);
-			xf_free(hex);
-
+			const FarColor* Color = reinterpret_cast<const FarColor*>(stmtEnumAllValues.GetColBlob(1));
+			e->SetAttribute("background", IntToHexString(Color->BackgroundColor));
+			e->SetAttribute("foreground", IntToHexString(Color->ForegroundColor));
+			e->SetAttribute("flags", Utf8String(FlagsToString(Color->Flags, ColorFlagNames)));
 			root->LinkEndChild(e);
 		}
 
@@ -927,22 +1032,22 @@ public:
 		for (const TiXmlElement *e = root.FirstChild("colors").FirstChildElement("object").Element(); e; e=e->NextSiblingElement("object"))
 		{
 			const char *name = e->Attribute("name");
-			const char *value = e->Attribute("value");
+			const char *background = e->Attribute("background");
+			const char *foreground = e->Attribute("foreground");
+			const char *flags = e->Attribute("flags");
 
 			if (!name)
 				continue;
 
 			string Name(name, CP_UTF8);
 
-			if(value)
+			if(background && foreground && flags)
 			{
-				int Size = 0;
-				void *Blob = HexStringToBlob(value, &Size);
-				if (Blob)
-				{
-					SetValue(Name, *static_cast<FarColor*>(Blob));
-					xf_free(Blob);
-				}
+				FarColor Color = {};
+				Color.BackgroundColor = HexStringToInt(background);
+				Color.ForegroundColor = HexStringToInt(foreground);
+				Color.Flags = StringToFlags(string(flags, CP_UTF8), ColorFlagNames);
+				SetValue(Name, Color);
 			}
 			else
 			{
@@ -2693,7 +2798,7 @@ HierarchicalConfig *CreateFiltersConfig()
 
 HierarchicalConfig *CreateHighlightConfig()
 {
-	return new HierarchicalConfigDb(L"highlight.db");
+	return new HighlightHierarchicalConfigDb(L"highlight.db");
 }
 
 HierarchicalConfig *CreateShortcutsConfig()

@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "udlist.hpp"
+
 struct VersionInfo;
 class TiXmlElement;
 class TiXmlHandle;
@@ -270,3 +272,64 @@ HierarchicalConfig *CreateFiltersConfig();
 HierarchicalConfig *CreateHighlightConfig();
 HierarchicalConfig *CreateShortcutsConfig();
 HierarchicalConfig *CreatePanelModeConfig();
+
+
+template<class T, class Y>
+const wchar_t* GetNameOfValue(T Value, const Y& From)
+{
+	for(size_t i = 0; i < ARRAYSIZE(From); ++i)
+	{
+		if(From[i].Value == Value)
+		{
+			return From[i].Name;
+		}
+	}
+	return L"";
+}
+
+template<class T>
+auto GetValueOfVame(const wchar_t* Name, const T& From) -> decltype(From->Value)
+{
+	for(size_t i = 0; i < ARRAYSIZE(From); ++i)
+	{
+		if(!StrCmpI(From[i].Name, Name))
+		{
+			return From[i].Value;
+		}
+	}
+	return 0;
+}
+
+template<class T, class Y>
+const string FlagsToString(T Flags, const Y& From)
+{
+	string strFlags;
+	for(size_t i = 0; T(1) << i <= Flags; ++i)
+	{
+		if(Flags&(T(1)<<i))
+		{
+			if(!strFlags.IsEmpty())
+			{
+				strFlags += L"|";
+			}
+			strFlags+=GetNameOfValue(Flags&(T(1)<<i), From);
+		}
+	}
+	return strFlags;
+}
+
+template<class T>
+auto StringToFlags(const string& strFlags, const T& From) -> decltype(From->Value)
+{
+	auto Flags=0;
+	if(!strFlags.IsEmpty())
+	{
+		UserDefinedList FlagList(L'|', L'|', ULF_UNIQUE);
+		FlagList.Set(strFlags);
+		while(!FlagList.IsEmpty())
+		{
+			Flags |= GetValueOfVame(FlagList.GetNext(), From);
+		}
+	}
+	return Flags;
+}

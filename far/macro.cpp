@@ -291,74 +291,21 @@ TMacroKeywords MKeywordsFlags[] =
 	{1,  L"NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS,0},
 };
 
-template<typename T>
-const wchar_t* GetNameOfValue(DWORD Value, const T& From)
-{
-	for(size_t i = 0; i < ARRAYSIZE(From); ++i)
-	{
-		if(From[i].Value == Value)
-		{
-			return From[i].Name;
-		}
-	}
-	return L"";
-}
-
-template<typename T>
-DWORD GetValueOfVame(const wchar_t* Name, const T& From)
-{
-	for(size_t i = 0; i < ARRAYSIZE(From); ++i)
-	{
-		if(!StrCmpI(From[i].Name, Name))
-		{
-			return From[i].Value;
-		}
-	}
-	return 0;
-}
-
 const wchar_t* GetAreaName(DWORD AreaValue) {return GetNameOfValue(AreaValue, MKeywordsArea);}
 DWORD GetAreaValue(const wchar_t* AreaName) {return GetValueOfVame(AreaName, MKeywordsArea);}
-
-const wchar_t* GetFlagName(DWORD FlagValue) {return GetNameOfValue(FlagValue, MKeywordsFlags);}
-DWORD GetFlagValue(const wchar_t* FlagName) {return GetValueOfVame(FlagName, MKeywordsFlags);}
 
 const wchar_t* GetVarTypeName(DWORD ValueType) {return GetNameOfValue(ValueType, MKeywordsVarType);}
 DWORD GetVarTypeValue(const wchar_t* ValueName) {return GetValueOfVame(ValueName, MKeywordsVarType);}
 
-
-const string Flags2String(DWORD Flags)
+const string FlagsToString(FARKEYMACROFLAGS Flags)
 {
-	string strFlags;
-	for(size_t i = 0; 1u << i <= Flags; ++i)
-	{
-		if(Flags&(1u<<i))
-		{
-			if(!strFlags.IsEmpty())
-			{
-				strFlags += L"|";
-			}
-			strFlags+=GetFlagName(Flags&(1u<<i));
-		}
-	}
-	return strFlags;
+	return FlagsToString(Flags, MKeywordsFlags);
 }
 
-DWORD String2Flags(const string& strFlags)
+FARKEYMACROFLAGS StringToFlags(const string& strFlags)
 {
-	DWORD Flags=0;
-	if(!strFlags.IsEmpty())
-	{
-		UserDefinedList FlagList(L'|', L'|', ULF_UNIQUE);
-		FlagList.Set(strFlags);
-		while(!FlagList.IsEmpty())
-		{
-			Flags |= GetFlagValue(FlagList.GetNext());
-		}
-	}
-	return Flags;
+	return StringToFlags(strFlags, MKeywordsFlags);
 }
-
 
 // транслирующая таблица - имя <-> код макроклавиши
 static struct TKeyCodeName
@@ -6140,7 +6087,7 @@ void KeyMacro::SavePluginFunctionToDB(const TMacroFunction *MF)
 
 	// закомментировать для теста записи встроенных функций
 	if(MF->fnGUID && MF->Name)
-		MacroCfg->SetFunction(MF->fnGUID, MF->Name, Flags2String(MF->IntFlags), nullptr, MF->Syntax, nullptr);
+		MacroCfg->SetFunction(MF->fnGUID, MF->Name, FlagsToString(MF->IntFlags), nullptr, MF->Syntax, nullptr);
 }
 
 void KeyMacro::WritePluginFunctions()
@@ -6169,7 +6116,7 @@ void KeyMacro::SaveMacroRecordToDB(const MacroRecord *MR)
 	Flags &= ~(MFLAGS_MODEMASK|MFLAGS_NEEDSAVEMACRO);
 	string strKeyName;
 	KeyToText(MR->Key, strKeyName);
-	MacroCfg->SetKeyMacro(GetAreaName(Area), strKeyName, Flags2String(Flags), MR->Src, MR->Description);
+	MacroCfg->SetKeyMacro(GetAreaName(Area), strKeyName, FlagsToString(Flags), MR->Src, MR->Description);
 }
 
 void KeyMacro::WriteMacroRecords()
@@ -6339,7 +6286,7 @@ void KeyMacro::ReadPluginFunctions()
 				mr.Buffer=0;
 		}
 
-		Flags=String2Flags(strFlags);
+		Flags=StringToFlags(strFlags);
 		// использовать Sequence вместо плагина; оно же будет юзаться, если GUID пуст
 		if ((Flags & 2) && (mr.Buffer || strPluginGUID.IsEmpty()))
 		{
@@ -6514,7 +6461,7 @@ int KeyMacro::ReadKeyMacro(int Area)
 			continue;
 		}
 
-		MFlags=String2Flags(strMFlags);
+		MFlags=StringToFlags(strMFlags);
 
 		CurMacro.Key=Key;
 		CurMacro.Buffer=nullptr;
