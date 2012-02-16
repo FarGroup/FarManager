@@ -99,9 +99,10 @@ typedef int    (WINAPI *iProcessMacroPrototype)        (const ProcessMacroInfo *
 #if defined(MANTIS_0001687)
 typedef int    (WINAPI *iProcessConsoleInputPrototype) (const ProcessConsoleInputInfo *Info);
 #endif
-typedef int    (WINAPI *iAnalysePrototype)             (const AnalyseInfo *Info);
+typedef HANDLE (WINAPI *iAnalysePrototype)             (const AnalyseInfo *Info);
 typedef int    (WINAPI *iGetCustomDataPrototype)       (const wchar_t *FilePath, wchar_t **CustomData);
 typedef void   (WINAPI *iFreeCustomDataPrototype)      (wchar_t *CustomData);
+typedef void   (WINAPI *iCloseAnalysePrototype)        (const CloseAnalyseInfo *Info);
 
 
 #define EXP_GETGLOBALINFO       "GetGlobalInfoW"
@@ -140,6 +141,7 @@ typedef void   (WINAPI *iFreeCustomDataPrototype)      (wchar_t *CustomData);
 #define EXP_ANALYSE             "AnalyseW"
 #define EXP_GETCUSTOMDATA       "GetCustomDataW"
 #define EXP_FREECUSTOMDATA      "FreeCustomDataW"
+#define EXP_CLOSEANALYSE        "CloseAnalyseW"
 
 #define EXP_OPENFILEPLUGIN      ""
 #define EXP_GETMINFARVERSION    ""
@@ -183,6 +185,7 @@ static const char* _ExportsNamesA[i_LAST] =
 	EXP_ANALYSE,
 	EXP_GETCUSTOMDATA,
 	EXP_FREECUSTOMDATA,
+	EXP_CLOSEANALYSE,
 
 	EXP_OPENFILEPLUGIN,
 	EXP_GETMINFARVERSION,
@@ -227,6 +230,7 @@ static const wchar_t* _ExportsNamesW[i_LAST] =
 	W(EXP_ANALYSE),
 	W(EXP_GETCUSTOMDATA),
 	W(EXP_FREECUSTOMDATA),
+	W(EXP_CLOSEANALYSE),
 
 	W(EXP_OPENFILEPLUGIN),
 	W(EXP_GETMINFARVERSION),
@@ -637,6 +641,7 @@ void Plugin::InitExports()
 	OPT_GetProcAddress(iAnalyse);
 	OPT_GetProcAddress(iGetCustomData);
 	OPT_GetProcAddress(iFreeCustomData);
+	OPT_GetProcAddress(iCloseAnalyse);
 
 	OPT_GetProcAddress(iOpenFilePlugin);
 	OPT_GetProcAddress(iGetMinFarVersion);
@@ -984,19 +989,31 @@ HANDLE Plugin::OpenFilePlugin(
 	return INVALID_HANDLE_VALUE;
 }
 
-int Plugin::Analyse(const AnalyseInfo *Info)
+HANDLE Plugin::Analyse(const AnalyseInfo *Info)
 {
 	if (Load() && Exports[iAnalyse] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_ANALYSE;
 		es.bDefaultResult = FALSE;
-		es.bResult = FALSE;
+		es.hResult = INVALID_HANDLE_VALUE;
 		EXECUTE_FUNCTION_EX(FUNCTION(iAnalyse)(Info), es);
-		return es.bResult;
+		return es.hResult;
 	}
 
-	return FALSE;
+	return INVALID_HANDLE_VALUE;
+}
+
+void Plugin::CloseAnalyse(HANDLE hHandle)
+{
+	if (Exports[iCloseAnalyse] && !ProcessException)
+	{
+		ExecuteStruct es;
+		es.id = EXCEPT_CLOSEANALYSE;
+		CloseAnalyseInfo Info = {sizeof(Info)};
+		Info.Handle = hHandle;
+		EXECUTE_FUNCTION(FUNCTION(iCloseAnalyse)(&Info), es);
+	}
 }
 
 HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)

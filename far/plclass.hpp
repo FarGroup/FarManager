@@ -129,6 +129,7 @@ enum EXPORTS_ENUM
 	iAnalyse,
 	iGetCustomData,
 	iFreeCustomData,
+	iCloseAnalyse,
 
 	iOpenFilePlugin,
 	iGetMinFarVersion,
@@ -175,7 +176,8 @@ public:
 #if defined(MANTIS_0001687)
 	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
 #endif
-	virtual int Analyse(const AnalyseInfo *Info);
+	virtual HANDLE Analyse(const AnalyseInfo *Info);
+	virtual void CloseAnalyse(HANDLE hHandle);
 	virtual bool GetPluginInfo(PluginInfo *pi);
 	virtual int Configure(const GUID& Guid);
 	virtual void ExitFAR(const ExitInfo *Info);

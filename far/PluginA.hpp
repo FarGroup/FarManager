@@ -74,7 +74,8 @@ public:
 #if defined(MANTIS_0001687)
 	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info) {return 0;}
 #endif
-	virtual int Analyse(const AnalyseInfo *Info) { return FALSE; }
+	virtual HANDLE Analyse(const AnalyseInfo *Info) { return INVALID_HANDLE_VALUE; }
+	virtual void CloseAnalyse(HANDLE hHandle) {}
 	virtual bool GetPluginInfo(PluginInfo *pi);
 	virtual int Configure(const GUID& Guid);
 	virtual void ExitFAR(const ExitInfo *Info);

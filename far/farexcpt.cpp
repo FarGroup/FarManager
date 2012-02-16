@@ -101,6 +101,7 @@ LPCWSTR GetFunctionName(int ExceptFunctionType)
 		case EXCEPT_ANALYSE: return L"Analyse";
 		case EXCEPT_GETCUSTOMDATA: return L"GetCustomData";
 		case EXCEPT_FREECUSTOMDATA: return L"FreeCustomData";
+		case EXCEPT_CLOSEANALYSE: return L"CloseAnalyse";
 #if defined(MANTIS_0000466)
 		case EXCEPT_PROCESSMACRO: return L"ProcessMacro";
 #endif

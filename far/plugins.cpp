@@ -689,11 +689,17 @@ HANDLE PluginManager::OpenFilePlugin(
 	OPENFILEPLUGINTYPE Type
 )
 {
+	struct PluginInfo
+	{
+		PluginHandle Handle;
+		HANDLE Analyse;
+	};
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	ConsoleTitle ct(Opt.ShowCheckingFile?MSG(MCheckingFileInPlugin):nullptr);
 	HANDLE hResult = INVALID_HANDLE_VALUE;
-	PluginHandle *pResult = nullptr;
-	TPointerArray<PluginHandle> items;
+	PluginInfo *pResult = nullptr;
+	PluginInfo *pAnalyse = nullptr;
+	TPointerArray<PluginInfo> items;
 	string strFullName;
 
 	if (Name)
@@ -763,18 +769,21 @@ HANDLE PluginManager::OpenFilePlugin(
 
 			if (hPlugin != INVALID_HANDLE_VALUE)
 			{
-				PluginHandle *handle=items.addItem();
-				handle->hPlugin = hPlugin;
-				handle->pPlugin = pPlugin;
+				PluginInfo *handle=items.addItem();
+				handle->Handle.hPlugin = hPlugin;
+				handle->Handle.pPlugin = pPlugin;
+				handle->Analyse = INVALID_HANDLE_VALUE;
 			}
 		}
 		else
 		{
-			if (pPlugin->Analyse(&Info))
+			HANDLE analyse=pPlugin->Analyse(&Info);
+			if (INVALID_HANDLE_VALUE!=analyse)
 			{
-				PluginHandle *handle=items.addItem();
-				handle->pPlugin = pPlugin;
-				handle->hPlugin = INVALID_HANDLE_VALUE;
+				PluginInfo *handle=items.addItem();
+				handle->Handle.pPlugin = pPlugin;
+				handle->Handle.hPlugin = INVALID_HANDLE_VALUE;
+				handle->Analyse = analyse;
 			}
 		}
 
@@ -796,9 +805,9 @@ HANDLE PluginManager::OpenFilePlugin(
 
 			for (size_t i = 0; i < items.getCount(); i++)
 			{
-				PluginHandle *handle = items.getItem(i);
+				PluginInfo *handle = items.getItem(i);
 				mitem.Clear();
-				mitem.strName = handle->pPlugin->GetTitle();
+				mitem.strName = handle->Handle.pPlugin->GetTitle();
 				menu.SetUserData(&handle, sizeof(handle), menu.AddItem(&mitem));
 			}
 
@@ -827,7 +836,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				void* pItem = menu.GetUserData(nullptr, 0);
 				if (pItem)
 				{
-					pResult = *static_cast<PluginHandle**>(pItem);
+					pResult = *static_cast<PluginInfo**>(pItem);
 				}
 			}
 		}
@@ -836,9 +845,11 @@ HANDLE PluginManager::OpenFilePlugin(
 			pResult = items.getItem(0);
 		}
 
-		if (pResult && pResult->hPlugin == INVALID_HANDLE_VALUE)
+		if (pResult && pResult->Handle.hPlugin == INVALID_HANDLE_VALUE)
 		{
-			HANDLE h = pResult->pPlugin->Open(OPEN_ANALYSE, FarGuid, (INT_PTR)&Info);
+			pAnalyse = pResult;
+			OpenAnalyseInfo oainfo={sizeof(OpenAnalyseInfo),&Info,pResult->Analyse};
+			HANDLE h = pResult->Handle.pPlugin->Open(OPEN_ANALYSE, FarGuid, (INT_PTR)&oainfo);
 
 			if (h == (HANDLE)-2)
 			{
@@ -847,7 +858,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			}
 			else if (h != INVALID_HANDLE_VALUE)
 			{
-				pResult->hPlugin = h;
+				pResult->Handle.hPlugin = h;
 			}
 			else
 			{
@@ -863,20 +874,25 @@ HANDLE PluginManager::OpenFilePlugin(
 
 	for (size_t i = 0; i < items.getCount(); i++)
 	{
-		PluginHandle *handle = items.getItem(i);
+		PluginInfo *handle = items.getItem(i);
 
 		if (handle != pResult)
 		{
-			if (handle->hPlugin != INVALID_HANDLE_VALUE)
-				handle->pPlugin->ClosePanel(handle->hPlugin);
+			if (handle->Handle.hPlugin != INVALID_HANDLE_VALUE)
+				handle->Handle.pPlugin->ClosePanel(handle->Handle.hPlugin);
+		}
+		if (handle != pAnalyse)
+		{
+			if(handle->Analyse != INVALID_HANDLE_VALUE)
+				handle->Handle.pPlugin->CloseAnalyse(handle->Analyse);
 		}
 	}
 
 	if (pResult)
 	{
 		PluginHandle* pDup=new PluginHandle;
-		pDup->hPlugin=pResult->hPlugin;
-		pDup->pPlugin=pResult->pPlugin;
+		pDup->hPlugin=pResult->Handle.hPlugin;
+		pDup->pPlugin=pResult->Handle.pPlugin;
 		hResult=static_cast<HANDLE>(pDup);
 	}
 
