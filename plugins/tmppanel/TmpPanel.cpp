@@ -483,7 +483,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 	}
 	else if (Info->OpenFrom == OPEN_ANALYSE)
 	{
-		const wchar_t *AnalyseFileName=reinterpret_cast<AnalyseInfo*>(Info->Data)->FileName;
+		const wchar_t *AnalyseFileName=reinterpret_cast<OpenAnalyseInfo*>(Info->Data)->Info->FileName;
 		if (AnalyseFileName && *AnalyseFileName)
 		{
 			StrBuf pName(NT_MAX_PATH); //BUGBUG
@@ -522,15 +522,15 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 	return hPlugin;
 }
 
-int WINAPI AnalyseW(const struct AnalyseInfo *Info)
+HANDLE WINAPI AnalyseW(const struct AnalyseInfo *Info)
 {
 	if (Info->FileName == nullptr || !Info->BufferSize)
-		return FALSE;
+		return INVALID_HANDLE_VALUE;
 
 	if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info->FileName, lstrlen(Info->FileName),PN_CMPNAMELIST))
-		return FALSE;
+		return INVALID_HANDLE_VALUE;
 
-	return TRUE;
+	return NULL;
 }
 
 void WINAPI ClosePanelW(const struct ClosePanelInfo *Info)
