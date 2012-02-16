@@ -4,6 +4,7 @@ EXPORTS
   SetStartupInfoW
   GetPluginInfoW
   AnalyseW
+  CloseAnalyseW
   OpenW
   ClosePanelW
   GetOpenPanelInfoW

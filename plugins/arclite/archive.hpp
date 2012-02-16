@@ -156,7 +156,7 @@ public:
     wstring name = extract_file_name(arc_path);
     return name.empty() ? arc_path : name;
   }
-  static Archives open(const OpenOptions& options);
+  static unique_ptr<Archives> open(const OpenOptions& options);
   void close();
   void reopen();
   bool is_open() const {

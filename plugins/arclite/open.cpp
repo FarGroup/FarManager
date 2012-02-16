@@ -383,11 +383,11 @@ void Archive::open(const OpenOptions& options, Archives& archives) {
   }
 }
 
-Archives Archive::open(const OpenOptions& options) {
-  Archives archives;
-  open(options, archives);
-  if (!options.detect && !archives.empty())
-    archives.erase(archives.begin(), archives.end() - 1);
+unique_ptr<Archives> Archive::open(const OpenOptions& options) {
+  unique_ptr<Archives> archives(new Archives());
+  open(options, *archives);
+  if (!options.detect && !archives->empty())
+    archives->erase(archives->begin(), archives->end() - 1);
   return archives;
 }
 
