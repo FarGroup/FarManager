@@ -3,6 +3,17 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.02.2012 13:11:18 +0200 - build 2463
+
+1. Clearer representation of colors and file highlighting in xml.
+
+zg 16.02.2012 04:04:19 +0200 - build 2462
+
+1. Now AnalyseW returns HANDLE. if the plugin does not accept the file, INVALID_HANDLE_VALUE must be returned. any other value tells FAR that the file is accepted.
+   if eventually the plugin gets OpenW(OPEN_ANALYSE,...) then OpenAnalyseInfo.Handle will be equal to the value returned by AnalyseW.
+   else CloseAnalyseW is passed, where CloseAnalyseInfo.Handle is also equal to the value returned by AnalyseW.
+   plugins making use of AnalyseW will work incorrectly.
+
 drkns 15.02.2012 22:28:03 +0200 - build 2461
 
 1. Colors configuration moved from generalconfig.db to colors.db.
