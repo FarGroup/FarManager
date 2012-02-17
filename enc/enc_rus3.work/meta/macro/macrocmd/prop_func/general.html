@@ -1076,10 +1076,27 @@ $End</code></pre>
     <th>Описание</th>
   </tr>
   <tr>
-    <td>S=<dfn><a name="env">env</a></dfn>(V)</td>
-    <td><p>Возвращает значение переменной среды <var>V</var>,
-      например,</p>
-      <pre class="codesample"><code>$if (Env("FARLANG") == "English") <em>что-то делаем</em> $end</code></pre></td>
+    <td>S=<dfn><a name="env">env</a></dfn>(Name[,Mode[,Value]])</td>
+    <td><p>Позволяет работать с переменной среды <var>Name</var>. Если <var>Mode</var> не указан или равен 0, то функция возвращает значение переменной среды
+      (<var>Value</var> в этом случае игнорируется). Если <var>Mode</var> указан и отличен от 0, то функция устанавливает значение или удаляет переменную среды.</p>
+      <p>Для варианта установки/удаления функция возвращает предыдущее значение (или пустую строку, если переменная была не определена).</p>
+      <p>Напримеры.</p>
+      <p>Получить значение переменной среды Foo</p>
+      <pre class="codesample"><code>Env("Foo")
+Env("Foo",0)
+Env("Foo",0,любое_значение)
+Env("Foo",,любое_значение)</code></pre>
+      <p>Установить значение переменной среды Foo в "bar"</p>
+        <pre class="codesample"><code>Env("Foo",1,"Bar")</code></pre>
+      <p>Удалить переменную среды Foo</p>
+        <pre class="codesample"><code>Env("Foo",1)
+Env("Foo",1,"")</code></pre>
+      <p>Установить значение переменной среды Foo в "0"</p>
+        <pre class="codesample"><code>Env("Foo",1,"0")
+Env("Foo",1,0)</code></pre>
+      <p>Если выбран английский язык интерфейса Far Manager, то <em>что-то делаем</em>
+      <pre class="codesample"><code>$if (Env("FARLANG") == "English") <em>что-то делаем</em> $end</code></pre>
+    </td>
   </tr>
   <tr>
     <td>V=<dfn><a name="clip">clip</a></dfn>(Cmd[,Value])</td>
