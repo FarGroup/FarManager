@@ -6091,7 +6091,7 @@ void KeyMacro::WriteVarsConsts()
 void KeyMacro::SavePluginFunctionToDB(const TMacroFunction *MF)
 {
 	// раскомментировать для теста записи встроенных функций
-	//MacroCfg->SetFunction(MF->Syntax, MF->Name, MF->nParam, MF->oParam, MF->IntFlags, MF->Name, MF->Name, MF->Name);
+	//MacroCfg->SetFunction(MF->Syntax, MF->Name, MF->IntFlags, MF->Name, MF->Name, MF->Name);
 
 	// закомментировать для теста записи встроенных функций
 	if(MF->fnGUID && MF->Name)

@@ -1286,8 +1286,6 @@ struct FarMacroFunction
 {
 	unsigned __int64 Flags;
 	const wchar_t *Name;
-	int nParam;
-	int oParam;
 	const wchar_t *Syntax;
 	const wchar_t *Description;
 };
