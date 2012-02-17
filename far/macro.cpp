@@ -554,7 +554,7 @@ int WINAPI KeyNameMacroToKey(const wchar_t *Name)
 {
 	// пройдемся по всем модификаторам
 	for (int I=0; I < int(ARRAYSIZE(KeyMacroCodes)); ++I)
-		if (!StrCmpNI(Name,KeyMacroCodes[I].Name,KeyMacroCodes[I].Len))
+		if (!StrCmpI(Name,KeyMacroCodes[I].Name))
 			return KeyMacroCodes[I].Key;
 
 	return -1;
