@@ -653,6 +653,7 @@ Plugin::Plugin(PluginManager *owner, const wchar_t *lpwszModuleName):
 	ExportsNamesW(_ExportsNamesW),
 	ExportsNamesA(_ExportsNamesA),
 	m_owner(owner),
+	Activity(0),
 	bPendingRemove(false)
 {
 	m_strModuleName = lpwszModuleName;
@@ -891,22 +892,25 @@ int Plugin::Unload(bool bExitFAR)
 {
 	int nResult = TRUE;
 
-	if (bExitFAR)
+	if (FuncFlags.Check(PICFF_LOADED))
 	{
-		const ExitInfo Info={sizeof(Info)};
-		ExitFAR(&Info);
-	}
+		if (bExitFAR)
+		{
+			const ExitInfo Info={sizeof(Info)};
+			ExitFAR(&Info);
+		}
 
-	if (!WorkFlags.Check(PIWF_CACHED))
-	{
-		nResult = FreeLibrary(m_hModule);
-		ClearExports();
-	}
+		if (!WorkFlags.Check(PIWF_CACHED))
+		{
+			nResult = FreeLibrary(m_hModule);
+			ClearExports();
+		}
 
-	m_hModule = nullptr;
-	FuncFlags.Clear(PICFF_LOADED); //??
-	WorkFlags.Clear(PIWF_DATALOADED);
-	bPendingRemove = true;
+		m_hModule = nullptr;
+		FuncFlags.Clear(PICFF_LOADED);
+		WorkFlags.Clear(PIWF_DATALOADED);
+		bPendingRemove = true;
+	}
 	return nResult;
 }
 

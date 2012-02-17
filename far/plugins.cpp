@@ -543,7 +543,14 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 	//BUGBUG нужны проверки на легальность выгрузки
 	int nResult = FALSE;
 	Plugin* pPlugin = reinterpret_cast<Plugin*>(hPlugin);
-	nResult = pPlugin->Unload(true);
+	if(pPlugin->Active())
+	{
+		nResult = TRUE;
+	}
+	else
+	{
+		nResult = pPlugin->Unload(true);
+	}
 	bool Added = false;
 	for(Plugin** p  = UnloadedPlugins.First(); p; p = UnloadedPlugins.Next(p))
 	{
@@ -2523,6 +2530,7 @@ void PluginManager::RefreshPluginsList()
 	{
 		for(Plugin** p = UnloadedPlugins.First(); p; p = UnloadedPlugins.Next(p))
 		{
+			(*p)->Unload(true);
 			RemovePlugin(*p);
 		}
 		UnloadedPlugins.Clear();

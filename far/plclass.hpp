@@ -64,6 +64,7 @@ struct ExecuteStruct
 	__Prolog(); \
 	es.nResult = 0; \
 	es.nDefaultResult = 0; \
+	++Activity; \
 	if ( Opt.ExceptRules ) \
 	{ \
 		__try \
@@ -81,6 +82,7 @@ struct ExecuteStruct
 	{ \
 		function; \
 	} \
+	--Activity; \
 	__Epilog(); \
 }
 
@@ -249,6 +251,7 @@ public:
 	bool LoadFromCache(const FAR_FIND_DATA_EX &FindData);
 	bool SaveToCache();
 	bool IsPanelPlugin();
+	bool Active() {return Activity != 0;}
 
 protected:
 	virtual void __Prolog() {};
@@ -260,6 +263,7 @@ protected:
 
 	PluginManager *m_owner; //BUGBUG
 	Language PluginLang;
+	size_t Activity;
 	bool bPendingRemove;
 
 private:
