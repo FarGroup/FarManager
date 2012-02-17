@@ -321,7 +321,7 @@ const string FlagsToString(T Flags, const Y& From)
 template<class T>
 auto StringToFlags(const string& strFlags, const T& From) -> decltype(From->Value)
 {
-	auto Flags=0;
+	decltype(From->Value) Flags = 0;
 	if(!strFlags.IsEmpty())
 	{
 		UserDefinedList FlagList(L'|', L'|', ULF_UNIQUE);
