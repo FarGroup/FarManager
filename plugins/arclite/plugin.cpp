@@ -884,7 +884,10 @@ HANDLE WINAPI AnalyseW(const AnalyseInfo* info) {
     else
       options.detect = g_detect_next_time == triTrue;
 
-    return Archive::open(options).release();
+    unique_ptr<Archives> archives(Archive::open(options));
+    if (archives->empty())
+      FAIL(E_ABORT);
+    return archives.release();
   }
   FAR_ERROR_HANDLER_END(return INVALID_HANDLE_VALUE, return INVALID_HANDLE_VALUE, true);
 }
