@@ -157,7 +157,7 @@ enum MACRO_OP_CODE
 	MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
 	MCODE_F_EDITOR_UNDO,              // V=Editor.Undo(N)
 	MCODE_F_EDITOR_POS,               // N=Editor.Pos(Op,What[,Where])
-	MCODE_F_ENVIRON,                  // S=env(S)
+	MCODE_F_ENVIRON,                  // S=Env(S[,Mode[,Value]])
 	MCODE_F_FATTR,                    // N=fattr(S)
 	MCODE_F_FEXIST,                   // S=fexist(S)
 	MCODE_F_FSPLIT,                   // S=fsplit(S,N)

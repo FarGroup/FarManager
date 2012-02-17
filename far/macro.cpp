@@ -424,7 +424,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"EDITOR.SET",       nullptr, L"N=Editor.Set(N,Var)",                                       editorsetFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SET,      },
 	{L"EDITOR.SETTITLE",  nullptr, L"N=Editor.SetTitle([Title])",                                editorsettitleFunc, nullptr, 0, 0,                                      MCODE_F_EDITOR_SETTITLE, },
 	{L"EDITOR.UNDO",      nullptr, L"V=Editor.Undo(N)",                                          editorundoFunc,     nullptr, 0, 0,                                      MCODE_F_EDITOR_UNDO,     },
-	{L"ENV",              nullptr, L"S=Env(S)",                                                  environFunc,        nullptr, 0, 0,                                      MCODE_F_ENVIRON,         },
+	{L"ENV",              nullptr, L"S=Env(S[,Mode[,Value]])",                                   environFunc,        nullptr, 0, 0,                                      MCODE_F_ENVIRON,         },
 	{L"EVAL",             nullptr, L"N=Eval(S[,N])",                                             usersFunc,          nullptr, 0, 0,                                      MCODE_F_EVAL,            },
 	{L"FAR.CFG.GET",      nullptr, L"V=Far.Cfg.Get(Key,Name)",                                   farcfggetFunc,      nullptr, 0, 0,                                      MCODE_F_FAR_CFG_GET,     },
 	{L"FATTR",            nullptr, L"N=FAttr(S)",                                                fattrFunc,          nullptr, 0, 0,                                      MCODE_F_FATTR,           },
@@ -475,8 +475,8 @@ static TMacroFunction intMacroFunction[]=
 	{L"SLEEP",            nullptr, L"N=Sleep(N)",                                                sleepFunc,          nullptr, 0, 0,                                      MCODE_F_SLEEP,           },
 	{L"STRING",           nullptr, L"S=String(V)",                                               stringFunc,         nullptr, 0, 0,                                      MCODE_F_STRING,          },
 	{L"STRWRAP",          nullptr, L"S=StrWrap(Text,Width[,Break[,Flags]])",                     strwrapFunc,        nullptr, 0, 0,                                      MCODE_F_STRWRAP,         },
-	{L"SUBSTR",           nullptr, L"S=substr(S,start[,length])",                                substrFunc,         nullptr, 0, 0,                                      MCODE_F_SUBSTR,          },
-	{L"TESTFOLDER",       nullptr, L"N=testfolder(S)",                                           testfolderFunc,     nullptr, 0, 0,                                      MCODE_F_TESTFOLDER,      },
+	{L"SUBSTR",           nullptr, L"S=SubStr(S,start[,length])",                                substrFunc,         nullptr, 0, 0,                                      MCODE_F_SUBSTR,          },
+	{L"TESTFOLDER",       nullptr, L"N=TestFolder(S)",                                           testfolderFunc,     nullptr, 0, 0,                                      MCODE_F_TESTFOLDER,      },
 	{L"TRIM",             nullptr, L"S=Trim(S[,N])",                                             trimFunc,           nullptr, 0, 0,                                      MCODE_F_TRIM,            },
 	{L"UCASE",            nullptr, L"S=UCase(S1)",                                               ucaseFunc,          nullptr, 0, 0,                                      MCODE_F_UCASE,           },
 	{L"WAITKEY",          nullptr, L"V=Waitkey([N,[T]])",                                        waitkeyFunc,        nullptr, 0, 0,                                      MCODE_F_WAITKEY,         },
@@ -2966,18 +2966,26 @@ static bool menushowFunc(const TMacroFunction*)
 	return true;
 }
 
-// S=env(S)
+// S=Env(S[,Mode[,Value]])
 static bool environFunc(const TMacroFunction*)
 {
-	parseParams(1,Params);
+	parseParams(3,Params);
+	TVar& Value(Params[2]);
+	TVar& Mode(Params[1]);
 	TVar& S(Params[0]);
 	bool Ret=false;
 	string strEnv;
+
 
 	if (apiGetEnvironmentVariable(S.toString(), strEnv))
 		Ret=true;
 	else
 		strEnv.Clear();
+
+	if (Mode.i()) // Mode != 0: Set
+	{
+		SetEnvironmentVariable(S.toString(),Value.isUnknown() || !*Value.s()?nullptr:Value.toString());
+	}
 
 	VMStack.Push(strEnv.CPtr());
 	return Ret;
