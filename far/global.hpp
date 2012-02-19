@@ -115,6 +115,9 @@ extern DWORD ErrorMode;
 extern LARGE_INTEGER FarUpTime;
 
 extern HANDLE MainThreadHandle;
+extern DWORD MainThreadId;
+
+inline bool MainThread() {return GetCurrentThreadId() == MainThreadId;}
 
 // VersionConstant: LOWBYTE - minor, HIBYTE - major
 inline bool operator< (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) < VersionConstant;}

@@ -179,7 +179,6 @@ elevation::elevation():
 	Process(nullptr),
 	Job(nullptr),
 	PID(0),
-	MainThreadID(GetCurrentThreadId()),
 	Elevation(false),
 	DontAskAgain(false),
 	Approve(false),
@@ -485,7 +484,7 @@ bool elevation::ElevationApproveDlg(int Why, const string& Object)
 		GuardLastError error;
 		TaskBarPause TBP;
 		EAData Data(nullptr, Object, Why, AskApprove, Approve, DontAskAgain);
-		if(GetCurrentThreadId()!=MainThreadID)
+		if(!MainThread())
 		{
 			Data.pEvent=new Event();
 			if(Data.pEvent)

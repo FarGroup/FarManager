@@ -819,7 +819,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					if (item && item->bIsPlugin)
 					{
 						// Вызываем нужный топик, который передали в CommandsMenu()
-						FarShowHelp(
+						pluginapi::apiShowHelp(
 						    item->pPlugin->GetModuleName(),
 						    nullptr,
 						    FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS
@@ -1005,7 +1005,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		                     0
 		                 );
 
-		if (hPlugin != INVALID_HANDLE_VALUE)
+		if (hPlugin)
 		{
 			Focus=GetFocus();
 			Panel *NewPanel = CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
@@ -2144,7 +2144,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 			UpdateIfRequired();
 			Info->OwnerGuid=FarGuid;
-			Info->PluginHandle=INVALID_HANDLE_VALUE;
+			Info->PluginHandle=nullptr;
 
 			switch (GetType())
 			{
@@ -2744,7 +2744,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 				{
 					HANDLE hNewPlugin=CtrlObject->Plugins.Open(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)strPluginData.CPtr());
 
-					if (hNewPlugin!=INVALID_HANDLE_VALUE)
+					if (hNewPlugin)
 					{
 						int CurFocus=SrcPanel->GetFocus();
 

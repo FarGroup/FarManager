@@ -117,7 +117,7 @@ FileList::FileList():
 	DizRead(FALSE),
 	ListData(nullptr),
 	FileCount(0),
-	hPlugin(INVALID_HANDLE_VALUE),
+	hPlugin(nullptr),
 	hListChange(INVALID_HANDLE_VALUE),
 	UpperFolderTopFile(0),
 	LastCurFile(-1),
@@ -308,7 +308,7 @@ void FileList::SortFileList(int KeepPosition)
 			strCurName = ListData[CurFile]->strName;
 		}
 
-		hSortPlugin=(PanelMode==PLUGIN_PANEL && hPlugin!=INVALID_HANDLE_VALUE && static_cast<PluginHandle*>(hPlugin)->pPlugin->HasCompare()) ? hPlugin:nullptr;
+		hSortPlugin=(PanelMode==PLUGIN_PANEL && hPlugin && static_cast<PluginHandle*>(hPlugin)->pPlugin->HasCompare()) ? hPlugin:nullptr;
 
 		far_qsort(ListData,FileCount,sizeof(*ListData),SortList);
 
@@ -663,7 +663,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_V_PPANEL_PREFIX:           // PPanel.Prefix
 		{
 			PluginInfo *PInfo=(PluginInfo *)vParam;
-			if (GetMode() == PLUGIN_PANEL && hPlugin != INVALID_HANDLE_VALUE && ((PluginHandle*)hPlugin)->pPlugin)
+			if (GetMode() == PLUGIN_PANEL && hPlugin && ((PluginHandle*)hPlugin)->pPlugin)
 				return ((PluginHandle*)hPlugin)->pPlugin->GetPluginInfo(PInfo)?1:0;
 			return 0;
 		}
@@ -672,7 +672,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_V_PPANEL_FORMAT:           // PPanel.Format
 		{
 			OpenPanelInfo *PInfo=(OpenPanelInfo *)vParam;
-			if (GetMode() == PLUGIN_PANEL && hPlugin != INVALID_HANDLE_VALUE)
+			if (GetMode() == PLUGIN_PANEL && hPlugin)
 			{
 				CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,PInfo);
 				return 1;
@@ -2479,7 +2479,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		}
 		else if (SetCurPath())
 		{
-			HANDLE hOpen=INVALID_HANDLE_VALUE;
+			HANDLE hOpen = nullptr;
 
 			if (EnableAssoc &&
 			        !EnableExec &&     // не запускаем и не в отдельном окне,
@@ -2496,7 +2496,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 				return;
 			}
 
-			if (SeparateWindow || (hOpen=OpenFilePlugin(&strFileName,TRUE, Type))==INVALID_HANDLE_VALUE ||
+			if (SeparateWindow || !(hOpen=OpenFilePlugin(&strFileName,TRUE, Type)) ||
 			        hOpen==(HANDLE)-2)
 			{
 				if (EnableExec && hOpen!=(HANDLE)-2)
@@ -5066,7 +5066,7 @@ HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPL
 
 	HANDLE hNewPlugin=OpenPluginForFile(FileName, 0, Type);
 
-	if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
+	if (hNewPlugin && hNewPlugin!=(HANDLE)-2)
 	{
 		if (PushPrev)
 		{

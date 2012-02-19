@@ -155,8 +155,6 @@ language.hpp
 lasterror.hpp
 local.cpp
 local.hpp
-localOEM.cpp
-localOEM.hpp
 lockscrn.cpp
 lockscrn.hpp
 macro.cpp

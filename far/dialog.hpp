@@ -366,8 +366,6 @@ class Dialog: public Frame
 		friend class History;
 };
 
-typedef INT_PTR(WINAPI *SENDDLGMESSAGE)(HANDLE hDlg,int Msg,int Param1,void* Param2);
-
 INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2);
 
 INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);

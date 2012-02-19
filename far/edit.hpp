@@ -79,45 +79,6 @@ enum SetCPFlags
 	SETCP_MB2WCERROR = 0x00000002,
 	SETCP_OTHERERROR = 0x10000000,
 };
-/*
-interface ICPEncoder
-{
-
-	virtual int __stdcall AddRef() = 0;
-	virtual int __stdcall Release() = 0;
-
-	virtual const wchar_t* __stdcall GetName() = 0;
-	virtual int __stdcall Encode(const char *lpString, int nLength, wchar_t *lpwszResult, int nResultLength) = 0;
-	virtual int __stdcall Decode(const wchar_t *lpwszString, int nLength, char *lpResult, int nResultLength) = 0;
-	virtual int __stdcall Transcode(const wchar_t *lpwszString, int nLength, ICPEncoder *pFrom, wchar_t *lpwszResult, int nResultLength) = 0;
-};
-
-class SystemCPEncoder : public ICPEncoder
-{
-
-	public:
-
-		int m_nRefCount;
-		int m_nCodePage; //system single-byte codepage
-
-		string m_strName;
-
-	public:
-
-		SystemCPEncoder(int nCodePage);
-		virtual ~SystemCPEncoder();
-
-		virtual int __stdcall AddRef();
-		virtual int __stdcall Release();
-
-		virtual const wchar_t* __stdcall GetName();
-		virtual int __stdcall Encode(const char *lpString, int nLength, wchar_t *lpwszResult, int nResultLength);
-		virtual int __stdcall Decode(const wchar_t *lpwszString, int nLength, char *lpResult, int nResultLength);
-		virtual int __stdcall Transcode(const wchar_t *lpwszString, int nLength, ICPEncoder *pFrom, wchar_t *lpwszResult, int nResultLength);
-};
-*/
-class Dialog;
-class Editor;
 
 class Edit:public ScreenObject
 {

@@ -44,7 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macro.hpp"
 #include "keyboard.hpp"
 
-int WINAPI GetSearchReplaceString(
+int GetSearchReplaceString(
     bool IsReplaceMode,
     string& SearchStr,
     string& ReplaceStr,
@@ -205,7 +205,7 @@ static INT_PTR WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 }
 
 
-int WINAPI GetString(
+int GetString(
     const wchar_t *Title,
     const wchar_t *Prompt,
     const wchar_t *HistoryName,
@@ -215,7 +215,7 @@ int WINAPI GetString(
     DWORD Flags,
     int *CheckBoxValue,
     const wchar_t *CheckBoxText,
-    INT_PTR PluginNumber,
+    Plugin* PluginNumber,
     const GUID* Id
 )
 {
@@ -352,7 +352,7 @@ int WINAPI GetString(
   HelpTopic - тема помощи (может быть nullptr)
   Flags     - флаги (GNP_*)
 */
-int WINAPI GetNameAndPassword(const wchar_t *Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
+int GetNameAndPassword(const wchar_t *Title, string &strUserName, string &strPassword,const wchar_t *HelpTopic,DWORD Flags)
 {
 	static string strLastName, strLastPassword;
 	const wchar_t *HistoryName=L"NetworkUser";

@@ -143,7 +143,7 @@ const wchar_t* GetNameFromSIDCache(PSID sid)
 }
 
 
-bool WINAPI GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner)
+bool GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner)
 {
 	bool Result=false;
 	/*

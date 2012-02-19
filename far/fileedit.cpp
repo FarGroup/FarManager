@@ -87,12 +87,7 @@ enum enumOpenEditor
 };
 
 
-INT_PTR __stdcall hndOpenEditor(
-    HANDLE hDlg,
-    int msg,
-    int param1,
-    void* param2
-)
+INT_PTR WINAPI hndOpenEditor(HANDLE hDlg, int msg, int param1, void* param2)
 {
 	if (msg == DN_INITDIALOG)
 	{
@@ -170,12 +165,7 @@ enum enumSaveFileAs
 	ID_SF_CANCEL,
 };
 
-INT_PTR __stdcall hndSaveFileAs(
-    HANDLE hDlg,
-    int msg,
-    int param1,
-    void* param2
-)
+INT_PTR hndSaveFileAs(HANDLE hDlg, int msg, int param1, void* param2)
 {
 	static UINT codepage=0;
 

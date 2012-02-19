@@ -324,7 +324,7 @@ bool GetCodePageInfo(UINT CodePage, CPINFOEX &CodePageInfoEx)
 }
 
 // Callback-функция получения таблиц символов
-BOOL __stdcall EnumCodePagesProc(const wchar_t *lpwszCodePage)
+BOOL WINAPI EnumCodePagesProc(const wchar_t *lpwszCodePage)
 {
 	UINT codePage = _wtoi(lpwszCodePage);
 

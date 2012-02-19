@@ -197,7 +197,7 @@ bool TestCurrentDirectory(const wchar_t *TestDir)
 	return false;
 }
 
-const wchar_t* __stdcall PointToName(const wchar_t *lpwszPath)
+const wchar_t* PointToName(const wchar_t *lpwszPath)
 {
 	return PointToName(lpwszPath,nullptr);
 }
@@ -242,7 +242,7 @@ const wchar_t* PointToName(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr)
 //   Аналог PointToName, только для строк типа
 //   "name\" (оканчивается на слеш) возвращает указатель на name, а не на пустую
 //   строку
-const wchar_t* __stdcall PointToFolderNameIfFolder(const wchar_t *Path)
+const wchar_t* PointToFolderNameIfFolder(const wchar_t *Path)
 {
 	if (!Path)
 		return nullptr;
@@ -373,7 +373,7 @@ BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash)
 }
 
 
-BOOL WINAPI AddEndSlash(wchar_t *Path)
+BOOL AddEndSlash(wchar_t *Path)
 {
 	return AddEndSlash(Path, 0);
 }
@@ -409,7 +409,7 @@ bool DeleteEndSlash(wchar_t *Path, bool AllEndSlash)
 	return Ret;
 }
 
-BOOL WINAPI DeleteEndSlash(string &strPath, bool AllEndSlash)
+BOOL DeleteEndSlash(string &strPath, bool AllEndSlash)
 {
 	BOOL Ret=FALSE;
 

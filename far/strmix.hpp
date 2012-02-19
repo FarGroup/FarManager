@@ -56,23 +56,25 @@ static const FILEPANEL_COLUMN_MODES
 
 	COLUMN_MINSIZEINDEX_MASK      = 0x0000000000000003LL; // MINSIZEINDEX может быть только 0, 1, 2 или 3 (K,M,G,T), например, 1 - "размер как минимум в мегабайтах"
 
-wchar_t* WINAPI QuoteSpace(wchar_t *Str);
+
+wchar_t* QuoteSpace(wchar_t *Str);
+wchar_t* InsertQuote(wchar_t *Str);
+void Unquote(wchar_t *Str);
+wchar_t* RemoveLeadingSpaces(wchar_t *Str);
+wchar_t * RemoveTrailingSpaces(wchar_t *Str);
+wchar_t* RemoveExternalSpaces(wchar_t *Str);
+wchar_t* QuoteSpaceOnly(wchar_t *Str);
+
 string &QuoteSpace(string &strStr);
-wchar_t* WINAPI InsertQuote(wchar_t *Str);
 string& InsertQuote(string& strStr);
-void WINAPI Unquote(string &strStr);
-void WINAPI Unquote(wchar_t *Str);
+void Unquote(string &strStr);
 string& InsertRegexpQuote(string& strStr);
 void UnquoteExternal(string &strStr);
-wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str);
-string& WINAPI RemoveLeadingSpaces(string &strStr);
-wchar_t *WINAPI RemoveTrailingSpaces(wchar_t *Str);
-string& WINAPI RemoveTrailingSpaces(string &strStr);
-wchar_t* WINAPI RemoveExternalSpaces(wchar_t *Str);
-string & WINAPI RemoveExternalSpaces(string &strStr);
-string & WINAPI RemoveUnprintableCharacters(string &strStr);
-wchar_t* WINAPI QuoteSpaceOnly(wchar_t *Str);
-string& WINAPI QuoteSpaceOnly(string &strStr);
+string& RemoveLeadingSpaces(string &strStr);
+string& RemoveTrailingSpaces(string &strStr);
+string & RemoveExternalSpaces(string &strStr);
+string & RemoveUnprintableCharacters(string &strStr);
+string& QuoteSpaceOnly(string &strStr);
 
 string &RemoveChar(string &strStr,wchar_t Target,bool Dup=true);
 wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize=0);
@@ -80,10 +82,10 @@ int ReplaceStrings(string &strStr,const wchar_t *FindStr,const wchar_t *ReplStr,
 
 const wchar_t *GetCommaWord(const wchar_t *Src,string &strWord,wchar_t Separator=L',');
 
-string& WINAPI FarFormatText(const wchar_t *SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
+string& FarFormatText(const wchar_t *SrcText, int Width, string &strDestText, const wchar_t* Break, DWORD Flags);
 
 void PrepareUnitStr();
-string& __stdcall FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width=-1, unsigned __int64 ViewFlags=COLUMN_COMMAS);
+string& FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width=-1, unsigned __int64 ViewFlags=COLUMN_COMMAS);
 bool CheckFileSizeStringFormat(const wchar_t *FileSizeStr);
 unsigned __int64 ConvertFileSizeString(const wchar_t *FileSizeStr);
 string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits=0);
@@ -95,14 +97,15 @@ inline bool IsWordDiv(const wchar_t *WordDiv, wchar_t Chr) { return wcschr(WordD
 // возвращает указатель на начало слова
 const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End,const wchar_t *WordDiv);
 
-wchar_t* __stdcall TruncStr(wchar_t *Str,int MaxLength);
-string& __stdcall TruncStr(string &strStr,int MaxLength);
-wchar_t* WINAPI TruncStrFromEnd(wchar_t *Str,int MaxLength);
-string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength);
+wchar_t* TruncStr(wchar_t *Str,int MaxLength);
 wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength);
+wchar_t* TruncStrFromEnd(wchar_t *Str,int MaxLength);
+wchar_t* TruncPathStr(wchar_t *Str, int MaxLength);
+
+string& TruncStr(string &strStr,int MaxLength);
+string& TruncStrFromEnd(string &strStr, int MaxLength);
 string& TruncStrFromCenter(string &strStr, int MaxLength);
-wchar_t* __stdcall TruncPathStr(wchar_t *Str, int MaxLength);
-string& __stdcall TruncPathStr(string &strStr, int MaxLength);
+string& TruncPathStr(string &strStr, int MaxLength);
 
 bool IsCaseMixed(const string &strStr);
 bool IsCaseLower(const string &strStr);

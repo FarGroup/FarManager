@@ -83,7 +83,6 @@ SRCS = \
 	keyboard.cpp \
 	language.cpp \
 	local.cpp \
-	localOEM.cpp \
 	lockscrn.cpp \
 	macro.cpp \
 	macrocompiler.cpp \

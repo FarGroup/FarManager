@@ -53,8 +53,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "event.hpp"
 
-BOOL __stdcall CtrlHandler(DWORD CtrlType);
-
 static int CurX,CurY;
 static FarColor CurColor;
 
@@ -78,6 +76,54 @@ static HICON hOldLargeIcon=nullptr, hOldSmallIcon=nullptr;
 
 //stack buffer size + stack vars size must be less than 16384
 const size_t StackBufferSize=0x3FC0;
+Event CancelIoInProgress(true);
+
+DWORD WINAPI CancelSynchronousIoWrapper(LPVOID Thread)
+{
+	DWORD Result = ifn.CancelSynchronousIo(Thread);
+	CancelIoInProgress.Reset();
+	return Result;
+}
+
+BOOL WINAPI CtrlHandler(DWORD CtrlType)
+{
+	switch(CtrlType)
+	{
+	case CTRL_C_EVENT:
+		return TRUE;
+
+	case CTRL_BREAK_EVENT:
+		if(!CancelIoInProgress.Signaled())
+		{
+			CancelIoInProgress.Set();
+			HANDLE Thread = CreateThread(nullptr, 0, CancelSynchronousIoWrapper, MainThreadHandle, 0, nullptr);
+			if (Thread)
+			{
+				CloseHandle(Thread);
+			}
+		}
+		WriteInput(KEY_BREAK);
+
+		if (CtrlObject && CtrlObject->Cp())
+		{
+			if (CtrlObject->Cp()->LeftPanel && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
+				CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
+
+			if (CtrlObject->Cp()->RightPanel && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
+				CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
+		}
+		return TRUE;
+
+	case CTRL_CLOSE_EVENT:
+		CloseFAR=TRUE;
+		AllowCancelExit=FALSE;
+
+		// trick to let wmain() finish correctly
+		ExitThread(1);
+		//return TRUE;
+	}
+	return FALSE;
+}
 
 void InitConsole(int FirstInit)
 {
@@ -382,56 +428,6 @@ void GetVideoMode(COORD& Size)
 	ScrBuf.AllocBuf(Size.X,Size.Y);
 	_OT(ViewConsoleInfo());
 }
-
-Event CancelIoInProgress(true);
-
-DWORD WINAPI CancelSynchronousIoWrapper(LPVOID Thread)
-{
-	DWORD Result = ifn.CancelSynchronousIo(Thread);
-	CancelIoInProgress.Reset();
-	return Result;
-}
-
-BOOL WINAPI CtrlHandler(DWORD CtrlType)
-{
-	switch(CtrlType)
-	{
-	case CTRL_C_EVENT:
-		return TRUE;
-
-	case CTRL_BREAK_EVENT:
-		if(!CancelIoInProgress.Signaled())
-		{
-			CancelIoInProgress.Set();
-			HANDLE Thread = CreateThread(nullptr, 0, CancelSynchronousIoWrapper, MainThreadHandle, 0, nullptr);
-			if (Thread)
-			{
-				CloseHandle(Thread);
-			}
-		}
-		WriteInput(KEY_BREAK);
-
-		if (CtrlObject && CtrlObject->Cp())
-		{
-			if (CtrlObject->Cp()->LeftPanel && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
-				CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
-
-			if (CtrlObject->Cp()->RightPanel && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
-				CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
-		}
-		return TRUE;
-
-	case CTRL_CLOSE_EVENT:
-		CloseFAR=TRUE;
-		AllowCancelExit=FALSE;
-
-		// trick to let wmain() finish correctly
-		ExitThread(1);
-		//return TRUE;
-	}
-	return FALSE;
-}
-
 
 void ShowTime(int ShowAlways)
 {

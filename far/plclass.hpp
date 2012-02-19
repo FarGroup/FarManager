@@ -30,8 +30,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "language.hpp"
 #include "bitflags.hpp"
-#include "plugin.hpp"
-#include "interf.hpp"
 
 class AncientPlugin
 {
@@ -296,6 +294,3 @@ private:
 
 extern PluginStartupInfo NativeInfo;
 extern FarStandardFunctions NativeFSF;
-
-size_t WINAPI FarKeyToName(int Key,wchar_t *KeyText,size_t Size);
-int WINAPI KeyNameToKeyW(const wchar_t *Name);

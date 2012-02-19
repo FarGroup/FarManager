@@ -42,13 +42,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "plclass.hpp"
 #include "PluginA.hpp"
-#include "localOEM.hpp"
 #include "keyboard.hpp"
 #include "interf.hpp"
 #include "pathmix.hpp"
 #include "mix.hpp"
 #include "colormix.hpp"
 #include "FarGuid.hpp"
+
+namespace wrapper
+{
 
 #define EXP_GETGLOBALINFO       ""
 #define EXP_SETSTARTUPINFO      "SetStartupInfo"
@@ -213,6 +215,213 @@ typedef int    (WINAPI *iProcessDialogEventPrototype)  (int Event,void *Param);
 #define OEMToUnicode(src,dst,lendst)    MultiByteToWideChar(CP_OEMCP,0,(src),-1,(dst),(int)(lendst))
 
 void ConvertKeyBarTitlesA(const oldfar::KeyBarTitles *kbtA, KeyBarTitles *kbtW, bool FullStruct=true);
+
+inline int IsSpaceA(int x) { return x==' '  || x=='\t';  }
+inline int IsEolA(int x)   { return x=='\r' || x=='\n'; }
+inline int IsSlashA(int x) { return x=='\\' || x=='/';  }
+
+static unsigned char LowerToUpper[256];
+static unsigned char UpperToLower[256];
+static unsigned char IsUpperOrLower[256];
+
+void LocalUpperInit()
+{
+	for (size_t I=0; I<ARRAYSIZE(LowerToUpper); I++)
+	{
+		char CvtStr[]={static_cast<char>(I), L'\0'}, ReverseCvtStr[2];
+		LowerToUpper[I]=UpperToLower[I]=static_cast<char>(I);
+		OemToCharA(CvtStr,CvtStr);
+		CharToOemA(CvtStr,ReverseCvtStr);
+		IsUpperOrLower[I]=0;
+
+		if (IsCharAlphaA(CvtStr[0]) && ReverseCvtStr[0]==static_cast<char>(I))
+		{
+			IsUpperOrLower[I]=IsCharLowerA(CvtStr[0])?1:(IsCharUpperA(CvtStr[0])?2:0);
+			CharUpperA(CvtStr);
+			CharToOemA(CvtStr,CvtStr);
+			LowerToUpper[I]=CvtStr[0];
+			CvtStr[0]=static_cast<char>(I);
+			OemToCharA(CvtStr,CvtStr);
+			CharLowerA(CvtStr);
+			CharToOemA(CvtStr,CvtStr);
+			UpperToLower[I]=CvtStr[0];
+		}
+	}
+}
+
+int WINAPI LocalIslower(unsigned Ch)
+{
+	return(Ch<256 && IsUpperOrLower[Ch]==1);
+}
+
+int WINAPI LocalIsupper(unsigned Ch)
+{
+	return(Ch<256 && IsUpperOrLower[Ch]==2);
+}
+
+int WINAPI LocalIsalpha(unsigned Ch)
+{
+	if (Ch>=256)
+		return FALSE;
+
+	char CvtCh=Ch;
+	OemToCharBuffA(&CvtCh,&CvtCh,1);
+	return(IsCharAlphaA(CvtCh));
+}
+
+int WINAPI LocalIsalphanum(unsigned Ch)
+{
+	if (Ch>=256)
+		return FALSE;
+
+	char CvtCh=Ch;
+	OemToCharBuffA(&CvtCh,&CvtCh,1);
+	return(IsCharAlphaNumericA(CvtCh));
+}
+
+unsigned WINAPI LocalUpper(unsigned LowerChar)
+{
+	return(LowerChar < 256 ? LowerToUpper[LowerChar]:LowerChar);
+}
+
+void WINAPI LocalUpperBuf(char *Buf,int Length)
+{
+	for (int I=0; I<Length; I++)
+		Buf[I]=LocalUpper(Buf[I]);
+}
+
+unsigned WINAPI LocalLower(unsigned UpperChar)
+{
+	return(UpperChar < 256 ? UpperToLower[UpperChar]:UpperChar);
+}
+
+void WINAPI LocalLowerBuf(char *Buf,int Length)
+{
+	for (int I=0; I<Length; I++)
+		Buf[I]=LocalLower(Buf[I]);
+}
+
+void WINAPI LocalStrupr(char *s1)
+{
+	while (*s1)
+	{
+		*s1=LowerToUpper[(unsigned)*s1];
+		s1++;
+	}
+}
+
+void WINAPI LocalStrlwr(char *s1)
+{
+	while (*s1)
+	{
+		*s1=UpperToLower[(unsigned)*s1];
+		s1++;
+	}
+}
+
+const char * __cdecl LocalStrstri(const char *str1, const char *str2)
+{
+	const char *cp = str1;
+	const char *s1, *s2;
+
+	if (!*str2)
+		return str1;
+
+	while (*cp)
+	{
+		s1 = cp;
+		s2 = str2;
+
+		while (*s1 && *s2 && !(LocalLower(*s1) - LocalLower(*s2)))
+		{
+			s1++;
+			s2++;
+		}
+
+		if (!*s2)
+			return cp;
+
+		cp++;
+	}
+
+	return nullptr;
+}
+
+const char * __cdecl LocalRevStrstri(const char *str1, const char *str2)
+{
+	size_t len1 = strlen(str1);
+	size_t len2 = strlen(str2);
+
+	if (len2 > len1)
+		return nullptr;
+
+	if (!*str2)
+		return &str1[len1];
+
+	const char *cp = &str1[len1 - len2];
+	const char *s1, *s2;
+
+	while (cp >= str1)
+	{
+		s1 = cp;
+		s2 = str2;
+
+		while (*s1 && *s2 && !(LocalLower(*s1) - LocalLower(*s2)))
+		{
+			s1++;
+			s2++;
+		}
+
+		if (!*s2)
+			return cp;
+
+		cp--;
+	}
+
+	return nullptr;
+}
+
+int __cdecl LocalStricmp(const char *s1,const char *s2)
+{
+	while (1)
+	{
+		if (UpperToLower[(unsigned)*s1] != UpperToLower[(unsigned)*s2])
+			return (UpperToLower[(unsigned)*s1] < UpperToLower[(unsigned)*s2]) ? -1 : 1;
+
+		if (!*(s1++))
+			break;
+
+		s2++;
+	}
+
+	return 0;
+}
+
+int __cdecl LocalStrnicmp(const char *s1,const char *s2,int n)
+{
+	while (n-- > 0)
+	{
+		if (UpperToLower[(unsigned)*s1] != UpperToLower[(unsigned)*s2])
+			return (UpperToLower[(unsigned)*s1] < UpperToLower[(unsigned)*s2]) ? -1 : 1;
+
+		if (!*(s1++))
+			break;
+
+		s2++;
+	}
+
+	return 0;
+}
+
+int WINAPI LStricmp(const char *s1,const char *s2)
+{
+	return LocalStricmp(s1,s2);
+}
+
+int WINAPI LStrnicmp(const char *s1,const char *s2,int n)
+{
+	return LocalStrnicmp(s1,s2,n);
+}
 
 const char *FirstSlashA(const char *String)
 {
@@ -1092,18 +1301,18 @@ int WINAPI ProcessNameA(const char *Param1,char *Param2,DWORD Flags)
 int WINAPI KeyNameToKeyA(const char *Name)
 {
 	string strN(Name);
-	return KeyToOldKey(KeyNameToKeyW(strN));
+	return KeyToOldKey(KeyNameToKey(strN));
 }
 
 BOOL WINAPI FarKeyToNameA(int Key,char *KeyText,int Size)
 {
-	wchar_t Name[MAX_PATH];
-	size_t ret = FarKeyToName(OldKeyToKey(Key),Name,ARRAYSIZE(Name));
-
-	if (ret)
-		UnicodeToOEM(Name, KeyText,Size>0?Size+1:32);
-
-	return ret!=0;
+	string strKT;
+	if (KeyToText(OldKeyToKey(Key),strKT))
+	{
+		UnicodeToOEM(strKT, KeyText,Size>0?Size+1:32);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 int WINAPI InputRecordToKeyA(const INPUT_RECORD *r)
@@ -3096,7 +3305,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 	static oldfar::PanelInfo PanelInfoA={},AnotherPanelInfoA={};
 	static int Reenter=0;
 
-	if (hPlugin==INVALID_HANDLE_VALUE)
+	if (!hPlugin || hPlugin==INVALID_HANDLE_VALUE)
 		hPlugin=PANEL_ACTIVE;
 
 	switch (Command)
@@ -4752,8 +4961,6 @@ static void CheckScreenLock()
 	}
 }
 
-
-
 PluginA::PluginA(PluginManager *owner, const wchar_t *lpwszModuleName):
 	Plugin(owner,lpwszModuleName),
 	RootKey(nullptr),
@@ -4776,10 +4983,10 @@ PluginA::~PluginA()
 oldfar::FarStandardFunctions StandardFunctions =
 {
 	sizeof(StandardFunctions),
-	FarAtoiA,
-	FarAtoi64A,
-	FarItoaA,
-	FarItoa64A,
+	wrapper::FarAtoiA,
+	wrapper::FarAtoi64A,
+	wrapper::FarItoaA,
+	wrapper::FarItoa64A,
 	sprintf,
 	sscanf,
 	nullptr, // copy from NativeFSF
@@ -4787,44 +4994,44 @@ oldfar::FarStandardFunctions StandardFunctions =
 	nullptr, // copy from NativeFSF
 	_snprintf,
 	{},
-	LocalIslower,
-	LocalIsupper,
-	LocalIsalpha,
-	LocalIsalphanum,
-	LocalUpper,
-	LocalLower,
-	LocalUpperBuf,
-	LocalLowerBuf,
-	LocalStrupr,
-	LocalStrlwr,
-	LStricmp,
-	LStrnicmp,
-	UnquoteA,
-	ExpandEnvironmentStrA,
-	RemoveLeadingSpacesA,
-	RemoveTrailingSpacesA,
-	RemoveExternalSpacesA,
-	TruncStrA,
-	TruncPathStrA,
-	QuoteSpaceOnlyA,
-	PointToNameA,
-	GetPathRootA,
-	AddEndSlashA,
-	CopyToClipboardA,
-	PasteFromClipboardA,
-	FarKeyToNameA,
-	KeyNameToKeyA,
-	InputRecordToKeyA,
-	XlatA,
-	GetFileOwnerA,
-	GetNumberOfLinksA,
-	FarRecursiveSearchA,
-	FarMkTempA,
-	DeleteBufferA,
-	ProcessNameA,
-	FarMkLinkA,
-	ConvertNameToRealA,
-	FarGetReparsePointInfoA,
+	wrapper::LocalIslower,
+	wrapper::LocalIsupper,
+	wrapper::LocalIsalpha,
+	wrapper::LocalIsalphanum,
+	wrapper::LocalUpper,
+	wrapper::LocalLower,
+	wrapper::LocalUpperBuf,
+	wrapper::LocalLowerBuf,
+	wrapper::LocalStrupr,
+	wrapper::LocalStrlwr,
+	wrapper::LStricmp,
+	wrapper::LStrnicmp,
+	wrapper::UnquoteA,
+	wrapper::ExpandEnvironmentStrA,
+	wrapper::RemoveLeadingSpacesA,
+	wrapper::RemoveTrailingSpacesA,
+	wrapper::RemoveExternalSpacesA,
+	wrapper::TruncStrA,
+	wrapper::TruncPathStrA,
+	wrapper::QuoteSpaceOnlyA,
+	wrapper::PointToNameA,
+	wrapper::GetPathRootA,
+	wrapper::AddEndSlashA,
+	wrapper::CopyToClipboardA,
+	wrapper::PasteFromClipboardA,
+	wrapper::FarKeyToNameA,
+	wrapper::KeyNameToKeyA,
+	wrapper::InputRecordToKeyA,
+	wrapper::XlatA,
+	wrapper::GetFileOwnerA,
+	wrapper::GetNumberOfLinksA,
+	wrapper::FarRecursiveSearchA,
+	wrapper::FarMkTempA,
+	wrapper::DeleteBufferA,
+	wrapper::ProcessNameA,
+	wrapper::FarMkLinkA,
+	wrapper::ConvertNameToRealA,
+	wrapper::FarGetReparsePointInfoA,
 };
 
 oldfar::PluginStartupInfo StartupInfo =
@@ -4833,31 +5040,31 @@ oldfar::PluginStartupInfo StartupInfo =
 	"", // ModuleName, dynamic
 	0, // ModuleNumber, dynamic
 	nullptr, // RootKey, dynamic
-	FarMenuFnA,
-	FarDialogFnA,
-	FarMessageFnA,
-	FarGetMsgFnA,
-	FarPanelControlA,
+	wrapper::FarMenuFnA,
+	wrapper::FarDialogFnA,
+	wrapper::FarMessageFnA,
+	wrapper::FarGetMsgFnA,
+	wrapper::FarPanelControlA,
 	nullptr, // copy from NativeInfo
 	nullptr, // copy from NativeInfo
-	FarGetDirListA,
-	FarGetPluginDirListA,
-	FarFreeDirListA,
-	FarViewerA,
-	FarEditorA,
-	FarCmpNameA,
-	FarCharTableA,
-	FarTextA,
-	FarEditorControlA,
+	wrapper::FarGetDirListA,
+	wrapper::FarGetPluginDirListA,
+	wrapper::FarFreeDirListA,
+	wrapper::FarViewerA,
+	wrapper::FarEditorA,
+	wrapper::FarCmpNameA,
+	wrapper::FarCharTableA,
+	wrapper::FarTextA,
+	wrapper::FarEditorControlA,
 	nullptr, // FSF, dynamic
-	FarShowHelpA,
-	FarAdvControlA,
-	FarInputBoxA,
-	FarDialogExA,
-	FarSendDlgMessageA,
-	FarDefDlgProcA,
+	wrapper::FarShowHelpA,
+	wrapper::FarAdvControlA,
+	wrapper::FarInputBoxA,
+	wrapper::FarDialogExA,
+	wrapper::FarSendDlgMessageA,
+	wrapper::FarDefDlgProcA,
 	0,
-	FarViewerControlA,
+	wrapper::FarViewerControlA,
 };
 
 static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo *PSI, oldfar::FarStandardFunctions *FSF)
@@ -4950,15 +5157,15 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 		g_strDirToSet.Clear();
 	}
 
-	HANDLE hResult = INVALID_HANDLE_VALUE;
+	HANDLE hResult = nullptr;
 
 	if (Load() && Exports[iOpen] && !ProcessException)
 	{
 		//CurPluginItem=this; //BUGBUG
 		ExecuteStruct es;
 		es.id = EXCEPT_OPEN;
-		es.hDefaultResult = INVALID_HANDLE_VALUE;
-		es.hResult = INVALID_HANDLE_VALUE;
+		es.hDefaultResult = nullptr;
+		es.hResult = nullptr;
 		char *ItemA = nullptr;
 
 		if (Item && (OpenFrom == OPEN_COMMANDLINE  || OpenFrom == OPEN_SHORTCUT))
@@ -4984,7 +5191,7 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 
 		if (ItemA) xf_free(ItemA);
 
-		hResult = es.hResult;
+		hResult = (es.hResult == INVALID_HANDLE_VALUE)? nullptr : es.hResult;
 		//CurPluginItem=nullptr; //BUGBUG
 		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
 
@@ -5029,13 +5236,13 @@ HANDLE PluginA::OpenFilePlugin(
     int OpMode
 )
 {
-	HANDLE hResult = INVALID_HANDLE_VALUE;
+	HANDLE hResult = nullptr;
 
 	if (Load() && Exports[iOpenFilePlugin] && !ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_OPENFILEPLUGIN;
-		es.hDefaultResult = INVALID_HANDLE_VALUE;
+		es.hDefaultResult = nullptr;
 		char *NameA = nullptr;
 
 		if (Name)
@@ -5045,7 +5252,7 @@ HANDLE PluginA::OpenFilePlugin(
 
 		if (NameA) xf_free(NameA);
 
-		hResult = es.hResult;
+		hResult = (es.hResult == INVALID_HANDLE_VALUE)? nullptr : es.hResult;
 	}
 
 	return hResult;
@@ -5857,5 +6064,7 @@ void PluginA::ExitFAR(const ExitInfo *Info)
 		EXECUTE_FUNCTION(FUNCTION(iExitFAR)(), es);
 	}
 }
+
+};
 
 #endif // NO_WRAPPER

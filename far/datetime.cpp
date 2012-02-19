@@ -313,7 +313,7 @@ static int iso8601wknum(const tm *timeptr)
 	return weeknum;
 }
 
-size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t)
+size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 {
 	if (CurLang==-1 && Lang.IsLanguageLoaded())
 		PrepareStrFTime();

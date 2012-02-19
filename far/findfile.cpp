@@ -1466,7 +1466,7 @@ bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD Fi
 {
 	bool FileFound=FileMaskForFindFile.Compare(PointToName(FullName));
 	size_t ArcIndex=itd.GetFindFileArcIndex();
-	HANDLE hPlugin=INVALID_HANDLE_VALUE;
+	HANDLE hPlugin=nullptr;
 	if(ArcIndex!=LIST_INDEX_NONE)
 	{
 		ARCLIST ArcItem;
@@ -1490,7 +1490,7 @@ bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD Fi
 			string strSearchFileName;
 			bool RemoveTemp=false;
 
-			if (hPlugin != INVALID_HANDLE_VALUE)
+			if (hPlugin)
 			{
 				if (!CtrlObject->Plugins.UseFarCommand(hPlugin, PLUGIN_FARGETFILES))
 				{
@@ -1804,7 +1804,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 						if(!(ArcItem.Flags & OPIF_REALNAMES))
 						{
 							string strFindArcName = ArcItem.strArcName;
-							if(ArcItem.hPlugin == INVALID_HANDLE_VALUE)
+							if(!ArcItem.hPlugin)
 							{
 								int SavePluginsOutput=DisablePluginsOutput;
 								DisablePluginsOutput=TRUE;
@@ -1816,9 +1816,9 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 								DisablePluginsOutput=SavePluginsOutput;
 
 								if (ArcItem.hPlugin == (HANDLE)-2 ||
-										ArcItem.hPlugin == INVALID_HANDLE_VALUE)
+										!ArcItem.hPlugin)
 								{
-									ArcItem.hPlugin = INVALID_HANDLE_VALUE;
+									ArcItem.hPlugin = nullptr;
 									itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
 									return TRUE;
 								}
@@ -1837,7 +1837,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 								if (ClosePanel)
 								{
 									CtrlObject->Plugins.ClosePanel(ArcItem.hPlugin);
-									ArcItem.hPlugin = INVALID_HANDLE_VALUE;
+									ArcItem.hPlugin = nullptr;
 									itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
 								}
 								return FALSE;
@@ -1847,7 +1847,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 								if (ClosePanel)
 								{
 									CtrlObject->Plugins.ClosePanel(ArcItem.hPlugin);
-									ArcItem.hPlugin = INVALID_HANDLE_VALUE;
+									ArcItem.hPlugin = nullptr;
 									itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
 								}
 							}
@@ -2453,9 +2453,9 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 		return;
 	}
 
-	if (hArc==INVALID_HANDLE_VALUE)
+	if (!hArc)
 	{
-		_ALGO(SysLog(L"return: hArc==INVALID_HANDLE_VALUE"));
+		_ALGO(SysLog(L"return: hArc==nullptr"));
 		return;
 	}
 
@@ -2485,7 +2485,7 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 				CriticalSectionLock Lock(PluginCS);
 				CtrlObject->Plugins.ClosePanel(ArcItem.hPlugin);
 			}
-			ArcItem.hPlugin = INVALID_HANDLE_VALUE;
+			ArcItem.hPlugin = nullptr;
 			itd.SetArcListItem(itd.GetFindFileArcIndex(), ArcItem);
 
 			if (SaveListCount == itd.GetFindListCount())
@@ -2540,7 +2540,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 
 			bool bContinue=false;
 			WIN32_FIND_STREAM_DATA sd;
-			HANDLE hFindStream=INVALID_HANDLE_VALUE;
+			HANDLE hFindStream=nullptr;
 			bool FirstCall=true;
 			string strFindDataFileName=FindData.strFileName;
 
@@ -2555,7 +2555,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 
 				if (Opt.FindOpt.FindAlternateStreams)
 				{
-					if (hFindStream!=INVALID_HANDLE_VALUE)
+					if (hFindStream)
 					{
 						if (!FirstCall)
 						{
@@ -2630,7 +2630,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 					AddMenuRecord(hDlg,strFullStreamName, FindData);
 				}
 
-				if (!Opt.FindOpt.FindAlternateStreams || hFindStream==INVALID_HANDLE_VALUE)
+				if (!Opt.FindOpt.FindAlternateStreams || !hFindStream)
 				{
 					break;
 				}
@@ -2699,7 +2699,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 				if (IsFileIncluded(CurPanelItem,strCurName,CurPanelItem->FileAttributes))
 					AddMenuRecord(hDlg,strFullName, *CurPanelItem);
 
-				if (SearchInArchives && (hPlugin != INVALID_HANDLE_VALUE) && (Flags & OPIF_REALNAMES))
+				if (SearchInArchives && hPlugin && (Flags & OPIF_REALNAMES))
 					ArchiveSearch(hDlg,strFullName);
 			}
 		}
@@ -2802,7 +2802,7 @@ void DoPrepareFileList(HANDLE hDlg)
 		bool End = false;
 		HANDLE hFind = INVALID_HANDLE_VALUE;
 
-		for(HANDLE hFind = FindFirstVolume(VolumeName, ARRAYSIZE(VolumeName)); hFind != INVALID_HANDLE_VALUE && !End; End = FindNextVolume(hFind, VolumeName, ARRAYSIZE(VolumeName)) == FALSE)
+		for(hFind = FindFirstVolume(VolumeName, ARRAYSIZE(VolumeName)); hFind != INVALID_HANDLE_VALUE && !End; End = FindNextVolume(hFind, VolumeName, ARRAYSIZE(VolumeName)) == FALSE)
 		{
 			int DriveType=FAR_GetDriveType(VolumeName);
 
@@ -3091,7 +3091,7 @@ bool FindFilesProcess(Vars& v)
 
 				HANDLE hNewPlugin=CtrlObject->Plugins.OpenFindListPlugin(PanelItems,ItemsNumber);
 
-				if (hNewPlugin!=INVALID_HANDLE_VALUE)
+				if (hNewPlugin)
 				{
 					Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 					Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
@@ -3122,7 +3122,7 @@ bool FindFilesProcess(Vars& v)
 					ARCLIST ArcItem;
 					itd.GetArcListItem(FindItem.ArcIndex, ArcItem);
 
-					if (ArcItem.hPlugin == INVALID_HANDLE_VALUE)
+					if (!ArcItem.hPlugin)
 					{
 						string strArcName = ArcItem.strArcName;
 
@@ -3136,11 +3136,11 @@ bool FindFilesProcess(Vars& v)
 						FindPanel->SetCurDir(strArcPath,TRUE);
 						ArcItem.hPlugin=((FileList *)FindPanel)->OpenFilePlugin(&strArcName, FALSE, OFP_SEARCH);
 						if (ArcItem.hPlugin==(HANDLE)-2)
-							ArcItem.hPlugin = INVALID_HANDLE_VALUE;
+							ArcItem.hPlugin = nullptr;
 						itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
 					}
 
-					if (ArcItem.hPlugin != INVALID_HANDLE_VALUE)
+					if (ArcItem.hPlugin)
 					{
 						OpenPanelInfo Info;
 						CtrlObject->Plugins.GetOpenPanelInfo(ArcItem.hPlugin,&Info);

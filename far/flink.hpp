@@ -46,17 +46,16 @@ enum ReparsePointTypes
 	RP_SYMLINKDIR,  // каталог-ссылка, NT>=6
 };
 
-int   WINAPI MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName);
-BOOL  WINAPI FarMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MKLINK_FLAGS Flags);
+int   MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName);
 
-int   WINAPI GetNumberOfLinks(const string& Name);
-bool WINAPI CreateVolumeMountPoint(const string& TargetVolume, const string& Object);
+int   GetNumberOfLinks(const string& Name);
+bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object);
 
-bool  WINAPI CreateReparsePoint(const string& Target, const string& Object,ReparsePointTypes Type=RP_JUNCTION);
-bool  WINAPI DeleteReparsePoint(const string& Object);
+bool  CreateReparsePoint(const string& Target, const string& Object,ReparsePointTypes Type=RP_JUNCTION);
+bool  DeleteReparsePoint(const string& Object);
 bool ModifyReparsePoint(const string& Object,const string& NewData);
 
-DWORD WINAPI GetReparsePointInfo(const string& Object, string &szDestBuff,LPDWORD lpReparseTag=nullptr);
+DWORD GetReparsePointInfo(const string& Object, string &szDestBuff,LPDWORD lpReparseTag=nullptr);
 
 bool GetSubstName(int DriveType,const string& DeviceName,string &strTargetPath);
 bool GetVHDName(const string& DeviceName, string &strVolumePath);

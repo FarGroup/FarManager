@@ -139,7 +139,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 	else
 	{
 		PanelMode=NORMAL_PANEL;
-		hPlugin = INVALID_HANDLE_VALUE;
+		hPlugin = nullptr;
 
 		if (EnableRestoreViewMode)
 		{
@@ -379,7 +379,7 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 
 HANDLE FileList::OpenPluginForFile(const string* FileName, DWORD FileAttr, OPENFILEPLUGINTYPE Type)
 {
-	HANDLE Result = INVALID_HANDLE_VALUE;
+	HANDLE Result = nullptr;
 	if(FileName && *FileName && !(FileAttr&FILE_ATTRIBUTE_DIRECTORY))
 	{
 		SetCurPath();
@@ -715,7 +715,7 @@ void FileList::PluginHostGetFiles()
 	{
 		HANDLE hCurPlugin;
 
-		if ((hCurPlugin=OpenPluginForFile(&strSelName,FileAttr, OFP_EXTRACT))!=INVALID_HANDLE_VALUE &&
+		if ((hCurPlugin=OpenPluginForFile(&strSelName,FileAttr, OFP_EXTRACT))!=nullptr &&
 		        hCurPlugin!=(HANDLE)-2)
 		{
 			PluginPanelItem *ItemList;
@@ -759,7 +759,7 @@ void FileList::PluginPutFilesToNew()
 	_ALGO(SysLog(L"call Plugins.OpenFilePlugin(nullptr, 0)"));
 	HANDLE hNewPlugin=CtrlObject->Plugins.OpenFilePlugin(nullptr, 0, OFP_CREATE);
 
-	if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
+	if (hNewPlugin && hNewPlugin!=(HANDLE)-2)
 	{
 		_ALGO(SysLog(L"Create: FileList TmpPanel, FileCount=%d",FileCount));
 		FileList TmpPanel;
@@ -976,7 +976,7 @@ int FileList::ProcessOneHostFile(int Idx)
 	_ALGO(SysLog(L"call OpenPluginForFile([Idx=%d] '%s')",Idx,ListData[Idx]->strName.CPtr()));
 	HANDLE hNewPlugin=OpenPluginForFile(&ListData[Idx]->strName,ListData[Idx]->FileAttr, OFP_COMMANDS);
 
-	if (hNewPlugin!=INVALID_HANDLE_VALUE && hNewPlugin!=(HANDLE)-2)
+	if (hNewPlugin && hNewPlugin!=(HANDLE)-2)
 	{
 		PluginPanelItem *ItemList;
 		size_t ItemNumber;

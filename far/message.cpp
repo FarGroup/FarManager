@@ -60,7 +60,7 @@ static DWORD LastError, NtStatus;
 
 int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
-            INT_PTR PluginNumber)
+            Plugin* PluginNumber)
 {
 	return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,nullptr,nullptr,nullptr,
 	               nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,PluginNumber));
@@ -69,7 +69,7 @@ int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
 int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
-            INT_PTR PluginNumber)
+            Plugin* PluginNumber)
 {
 	return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,
 	               nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,PluginNumber));
@@ -80,7 +80,7 @@ int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
-            INT_PTR PluginNumber)
+            Plugin* PluginNumber)
 {
 	return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,
 	               Str9,Str10,nullptr,nullptr,nullptr,nullptr,PluginNumber));
@@ -91,7 +91,7 @@ int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
             const wchar_t *Str11,const wchar_t *Str12,const wchar_t *Str13,
-            const wchar_t *Str14,INT_PTR PluginNumber)
+            const wchar_t *Str14,Plugin* PluginNumber)
 {
 	const wchar_t *Str[]={Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,Str9,Str10,Str11,Str12,Str13,Str14};
 	int StrCount=0;
@@ -237,7 +237,7 @@ int Message(
     const wchar_t *Title,
     const wchar_t * const *Items,
     size_t ItemsNumber,
-    INT_PTR PluginNumber,
+    Plugin* PluginNumber,
     const GUID* Id
 )
 {

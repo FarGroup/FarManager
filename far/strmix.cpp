@@ -83,7 +83,7 @@ string &InsertCommas(unsigned __int64 li,string &strDest)
 	return FormatNumber(strDest,strDest);
 }
 
-static wchar_t * WINAPI InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
+static wchar_t * InsertCustomQuote(wchar_t *Str,wchar_t QuoteChar)
 {
 	size_t l = StrLength(Str);
 
@@ -120,12 +120,12 @@ static string& InsertCustomQuote(string &strStr,wchar_t QuoteChar)
 	return strStr;
 }
 
-wchar_t * WINAPI InsertQuote(wchar_t *Str)
+wchar_t * InsertQuote(wchar_t *Str)
 {
 	return InsertCustomQuote(Str,L'\"');
 }
 
-wchar_t* WINAPI QuoteSpace(wchar_t *Str)
+wchar_t* QuoteSpace(wchar_t *Str)
 {
 	if (wcspbrk(Str, Opt.strQuotedSymbols) )
 		InsertQuote(Str);
@@ -160,7 +160,7 @@ string &QuoteSpace(string &strStr)
 }
 
 
-wchar_t*  WINAPI QuoteSpaceOnly(wchar_t *Str)
+wchar_t* QuoteSpaceOnly(wchar_t *Str)
 {
 	if (wcschr(Str,L' '))
 		InsertQuote(Str);
@@ -169,7 +169,7 @@ wchar_t*  WINAPI QuoteSpaceOnly(wchar_t *Str)
 }
 
 
-string& WINAPI QuoteSpaceOnly(string &strStr)
+string& QuoteSpaceOnly(string &strStr)
 {
 	if (strStr.Contains(L' '))
 		InsertQuote(strStr);
@@ -178,7 +178,7 @@ string& WINAPI QuoteSpaceOnly(string &strStr)
 }
 
 
-string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength)
+string& TruncStrFromEnd(string &strStr, int MaxLength)
 {
 	wchar_t *lpwszBuffer = strStr.GetBuffer();
 	TruncStrFromEnd(lpwszBuffer, MaxLength);
@@ -186,7 +186,7 @@ string& __stdcall TruncStrFromEnd(string &strStr, int MaxLength)
 	return strStr;
 }
 
-wchar_t* WINAPI TruncStrFromEnd(wchar_t *Str,int MaxLength)
+wchar_t* TruncStrFromEnd(wchar_t *Str,int MaxLength)
 {
 	assert(MaxLength >= 0);
 
@@ -209,7 +209,7 @@ wchar_t* WINAPI TruncStrFromEnd(wchar_t *Str,int MaxLength)
 }
 
 
-wchar_t* WINAPI TruncStr(wchar_t *Str,int MaxLength)
+wchar_t* TruncStr(wchar_t *Str,int MaxLength)
 {
 	assert(MaxLength >= 0);
 
@@ -239,7 +239,7 @@ wchar_t* WINAPI TruncStr(wchar_t *Str,int MaxLength)
 }
 
 
-string& __stdcall TruncStr(string &strStr, int MaxLength)
+string& TruncStr(string &strStr, int MaxLength)
 {
 	wchar_t *lpwszBuffer = strStr.GetBuffer();
 	TruncStr(lpwszBuffer, MaxLength);
@@ -287,7 +287,7 @@ string& TruncStrFromCenter(string &strStr, int MaxLength)
 	return strStr;
 }
 
-wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
+wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
 {
 	assert(MaxLength >= 0);
 
@@ -330,7 +330,7 @@ wchar_t* WINAPI TruncPathStr(wchar_t *Str, int MaxLength)
 }
 
 
-string& __stdcall TruncPathStr(string &strStr, int MaxLength)
+string& TruncPathStr(string &strStr, int MaxLength)
 {
 	wchar_t *lpwszStr = strStr.GetBuffer();
 	TruncPathStr(lpwszStr, MaxLength);
@@ -339,7 +339,7 @@ string& __stdcall TruncPathStr(string &strStr, int MaxLength)
 }
 
 
-wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str)
+wchar_t* RemoveLeadingSpaces(wchar_t *Str)
 {
 	wchar_t *ChPtr = Str;
 
@@ -356,7 +356,7 @@ wchar_t* WINAPI RemoveLeadingSpaces(wchar_t *Str)
 }
 
 
-string& WINAPI RemoveLeadingSpaces(string &strStr)
+string& RemoveLeadingSpaces(string &strStr)
 {
 	const wchar_t *ChPtr = strStr;
 
@@ -369,7 +369,7 @@ string& WINAPI RemoveLeadingSpaces(string &strStr)
 
 
 // удалить конечные пробелы
-wchar_t* WINAPI RemoveTrailingSpaces(wchar_t *Str)
+wchar_t* RemoveTrailingSpaces(wchar_t *Str)
 {
 	if (!Str)
 		return nullptr;
@@ -389,7 +389,7 @@ wchar_t* WINAPI RemoveTrailingSpaces(wchar_t *Str)
 }
 
 
-string& WINAPI RemoveTrailingSpaces(string &strStr)
+string& RemoveTrailingSpaces(string &strStr)
 {
 	if (strStr.IsEmpty())
 		return strStr;
@@ -405,12 +405,12 @@ string& WINAPI RemoveTrailingSpaces(string &strStr)
 }
 
 
-wchar_t* WINAPI RemoveExternalSpaces(wchar_t *Str)
+wchar_t* RemoveExternalSpaces(wchar_t *Str)
 {
 	return RemoveTrailingSpaces(RemoveLeadingSpaces(Str));
 }
 
-string&  WINAPI RemoveExternalSpaces(string &strStr)
+string& RemoveExternalSpaces(string &strStr)
 {
 	return RemoveTrailingSpaces(RemoveLeadingSpaces(strStr));
 }
@@ -420,7 +420,7 @@ string&  WINAPI RemoveExternalSpaces(string &strStr)
    Заменяет пробелами непечатные символы в строке. В настоящий момент
    обрабатываются только cr и lf.
 */
-string& WINAPI RemoveUnprintableCharacters(string &strStr)
+string& RemoveUnprintableCharacters(string &strStr)
 {
 	wchar_t *p = strStr.GetBuffer();
 
@@ -553,9 +553,7 @@ bool IsCaseLower(const string &strSrc)
 	return true;
 }
 
-
-
-void WINAPI Unquote(wchar_t *Str)
+void Unquote(wchar_t *Str)
 {
 	if (!Str)
 		return;
@@ -573,8 +571,7 @@ void WINAPI Unquote(wchar_t *Str)
 	*Dst=0;
 }
 
-
-void WINAPI Unquote(string &strStr)
+void Unquote(string &strStr)
 {
 	wchar_t *Dst = strStr.GetBuffer();
 	const wchar_t *Str = Dst;
@@ -624,7 +621,7 @@ void PrepareUnitStr()
 	}
 }
 
-string & WINAPI FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, unsigned __int64 ViewFlags)
+string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, unsigned __int64 ViewFlags)
 {
 	FormatString strStr;
 	unsigned __int64 Divider;
@@ -884,7 +881,7 @@ enum FFTMODE
 	FFTM_BREAKLONGWORD = 0x00000001,
 };
 
-string& WINAPI FarFormatText(const wchar_t *SrcText,     // источник
+string& FarFormatText(const wchar_t *SrcText,     // источник
                              int Width,               // заданная ширина
                              string &strDestText,          // приемник
                              const wchar_t* Break,       // брик, если = nullptr, то принимается '\n'

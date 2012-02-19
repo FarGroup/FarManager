@@ -1861,7 +1861,7 @@ string &Help::MkTopic(Plugin* pPlugin,const wchar_t *HelpTopic,string &strTopic)
 		}
 		else
 		{
-			if (pPlugin != INVALID_HANDLE_VALUE && pPlugin && *HelpTopic!=HelpBeginLink)
+			if (pPlugin && *HelpTopic!=HelpBeginLink)
 			{
 				strTopic.Format(HelpFormatLinkModule, pPlugin->GetModuleName().CPtr(), HelpTopic);
 			}

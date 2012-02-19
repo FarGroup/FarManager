@@ -48,7 +48,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "rdrwdsk.hpp"
 #include "udlist.hpp"
 #include "imports.hpp"
-#include "localOEM.hpp"
 #include "manager.hpp"
 #include "interf.hpp"
 #include "message.hpp"
@@ -503,7 +502,7 @@ Return: true/false - нашли/не нашли
 » подмен€ть ничего не надо, т.к. все параметры мы отсекли раньше
 */
 
-static bool WINAPI FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsystem,bool &Internal)
+static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsystem,bool &Internal)
 {
 	bool Result=false;
 	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
@@ -1732,7 +1731,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		{
 			InitRecodeOutTable();
 #ifndef NO_WRAPPER
-			LocalUpperInit();
+			wrapper::LocalUpperInit();
 #endif // NO_WRAPPER
 			InitKeysArray();
 			ScrBuf.ResetShadow();

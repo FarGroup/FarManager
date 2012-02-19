@@ -47,27 +47,29 @@ enum
 	MSG_NOPLUGINS      =0x20000000,
 };
 
+class Plugin;
+
 int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2=nullptr,const wchar_t *Str3=nullptr,const wchar_t *Str4=nullptr,
-            INT_PTR PluginNumber=-1);
+            Plugin* PluginNumber=nullptr);
 int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6=nullptr,const wchar_t *Str7=nullptr,
-            INT_PTR PluginNumber=-1);
+            Plugin* PluginNumber=nullptr);
 int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9=nullptr,const wchar_t *Str10=nullptr,
-            INT_PTR PluginNumber=-1);
+            Plugin* PluginNumber=nullptr);
 int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
             const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
             const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
             const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
             const wchar_t *Str11,const wchar_t *Str12=nullptr,const wchar_t *Str13=nullptr,
-            const wchar_t *Str14=nullptr, INT_PTR PluginNumber=-1);
+            const wchar_t *Str14=nullptr, Plugin* PluginNumber=nullptr);
 
 int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t * const *Items,
-            size_t ItemsNumber,INT_PTR PluginNumber=-1,const GUID* Id=nullptr);
+            size_t ItemsNumber, Plugin* PluginNumber=nullptr,const GUID* Id=nullptr);
 
 void SetMessageHelp(const wchar_t *Topic);
 void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);

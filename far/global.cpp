@@ -119,3 +119,4 @@ DWORD ErrorMode;
 LARGE_INTEGER FarUpTime;
 
 HANDLE MainThreadHandle;
+DWORD MainThreadId;

@@ -88,7 +88,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     2 - выбран поиск всех вхождений
 
 */
-int WINAPI GetSearchReplaceString(
+int GetSearchReplaceString(
     bool IsReplaceMode,
     string& SearchStr,
     string& ReplaceStr,
@@ -101,7 +101,7 @@ int WINAPI GetSearchReplaceString(
     int& Regexp,
     const wchar_t *HelpTopic=nullptr);
 
-int __stdcall GetString(
+int GetString(
     const wchar_t *Title,
     const wchar_t *SubTitle,
     const wchar_t *HistoryName,
@@ -111,7 +111,7 @@ int __stdcall GetString(
     DWORD Flags = 0,
     int *CheckBoxValue = nullptr,
     const wchar_t *CheckBoxText = nullptr,
-    INT_PTR PluginNumber = -1,
+    class Plugin* PluginNumber = nullptr,
     const GUID* Id = nullptr
 );
 
@@ -121,4 +121,4 @@ enum FlagsNameAndPassword
 	GNP_USELAST      = 0x00000001UL, // использовать последние введенные данные
 };
 
-int WINAPI GetNameAndPassword(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
+int GetNameAndPassword(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);

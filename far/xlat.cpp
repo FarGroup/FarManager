@@ -52,7 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "configdb.hpp"
 
-wchar_t* WINAPI Xlat(wchar_t *Line,
+wchar_t* Xlat(wchar_t *Line,
                      int StartPos,
                      int EndPos,
                      unsigned __int64 Flags)

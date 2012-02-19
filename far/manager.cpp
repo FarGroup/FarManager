@@ -802,7 +802,7 @@ int Manager::ProcessKey(DWORD Key)
 					if (CtrlObject->Cp()->ActivePanel->GetMode() == PLUGIN_PANEL)
 					{
 						PluginHandle *ph=(PluginHandle*)CtrlObject->Cp()->ActivePanel->GetPluginHandle();
-						if (ph && ph != INVALID_HANDLE_VALUE && ph->pPlugin->IsOemPlugin())
+						if (ph && ph->pPlugin->IsOemPlugin())
 							if (CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key,TRUE))
 								return TRUE;
 					}

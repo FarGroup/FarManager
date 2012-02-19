@@ -69,62 +69,6 @@ int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
 	return static_cast<int>(N1*100/N2);
 }
 
-/* $ 30.07.2001 IS
-     1. Проверяем правильность параметров.
-     2. Теперь обработка каталогов не зависит от маски файлов
-     3. Маска может быть стандартного фаровского вида (со скобками,
-        перечислением и пр.). Может быть несколько масок файлов, разделенных
-        запятыми или точкой с запятой, можно указывать маски исключения,
-        можно заключать маски в кавычки. Короче, все как и должно быть :-)
-*/
-void WINAPI FarRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,unsigned __int64 Flags,void *Param)
-{
-	if (Func && InitDir && *InitDir && Mask && *Mask)
-	{
-		CFileMask FMask;
-
-		if (!FMask.Set(Mask, FMF_SILENT)) return;
-
-		Flags=Flags&0x000000FF; // только младший байт!
-		ScanTree ScTree(Flags & FRS_RETUPDIR,Flags & FRS_RECUR, Flags & FRS_SCANSYMLINK);
-		FAR_FIND_DATA_EX FindData;
-		string strFullName;
-		ScTree.SetFindPath(InitDir,L"*");
-
-		while (ScTree.GetNextName(&FindData,strFullName))
-		{
-			if (FMask.Compare(FindData.strFileName))
-			{
-				PluginPanelItem fdata;
-				FindDataExToPluginPanelItem(&FindData, &fdata);
-
-				if (!Func(&fdata,strFullName,Param))
-				{
-					FreePluginPanelItem(&fdata);
-					break;
-				}
-
-				FreePluginPanelItem(&fdata);
-			}
-		}
-	}
-}
-
-/* $ 14.09.2000 SVS
- + Функция FarMkTemp - получение имени временного файла с полным путем.
-    Dest - приемник результата
-    Template - шаблон по правилам функции mktemp, например "FarTmpXXXXXX"
-    Вернет требуемый размер приемника.
-*/
-size_t WINAPI FarMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix)
-{
-	string strDest;
-	if (FarMkTempEx(strDest, Prefix, TRUE) && Dest && DestSize)
-	{
-		xwcsncpy(Dest, strDest, DestSize);
-	}
-	return strDest.GetLength()+1;
-}
 
 /*
              v - точка

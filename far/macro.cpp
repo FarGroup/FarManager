@@ -525,7 +525,7 @@ bool __CheckCondForSkip(const TVar& Cond,DWORD Op)
 }
 
 // функция преобразования кода макроклавиши в текст
-BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
+BOOL KeyMacroToText(int Key,string &strKeyText0)
 {
 	string strKeyText;
 
@@ -550,7 +550,7 @@ BOOL WINAPI KeyMacroToText(int Key,string &strKeyText0)
 
 // функция преобразования названия в код макроклавиши
 // вернет -1, если нет эквивалента!
-int WINAPI KeyNameMacroToKey(const wchar_t *Name)
+int KeyNameMacroToKey(const wchar_t *Name)
 {
 	// пройдемся по всем модификаторам
 	for (int I=0; I < int(ARRAYSIZE(KeyMacroCodes)); ++I)
@@ -2612,7 +2612,7 @@ static bool msgBoxFunc(const TMacroFunction*)
 	string TempBuf = title;
 	TempBuf += L"\n";
 	TempBuf += text;
-	int Result=FarMessageFn(-1,&FarGuid,Flags,nullptr,(const wchar_t * const *)TempBuf.CPtr(),0,0)+1;
+	int Result=pluginapi::apiMessageFn(&FarGuid,&FarGuid,Flags,nullptr,(const wchar_t * const *)TempBuf.CPtr(),0,0)+1;
 	/*
 	if (Result <= -1) // Break?
 		CtrlObject->Macro.SendDropProcess();
@@ -4486,7 +4486,7 @@ static bool pluginloadFunc(const TMacroFunction*)
 	TVar& ForceLoad(Params[1]);
 	TVar& DllPath(Params[0]);
 	if (DllPath.s())
-		Ret=(__int64)farPluginsControl(INVALID_HANDLE_VALUE, !ForceLoad.i()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, (void*)DllPath.s());
+		Ret=(__int64)pluginapi::apiPluginsControl(nullptr, !ForceLoad.i()?PCTL_LOADPLUGIN:PCTL_FORCEDLOADPLUGIN, 0, (void*)DllPath.s());
 	VMStack.Push(Ret);
 	return Ret.i()!=0;
 }
@@ -4502,7 +4502,7 @@ static bool pluginunloadFunc(const TMacroFunction*)
 		Plugin* p = CtrlObject->Plugins.GetPlugin(DllPath.s());
 		if(p)
 		{
-			Ret=(__int64)farPluginsControl(p, PCTL_UNLOADPLUGIN, 0, nullptr);
+			Ret=(__int64)pluginapi::apiPluginsControl(p, PCTL_UNLOADPLUGIN, 0, nullptr);
 			VMStack.Push(Ret);
 		}
 	}
@@ -4555,7 +4555,7 @@ OPEN_FROMMACROSTRING уточняющий флаг - переметр Data содержит строку, если этот 
 	/*
 OPEN_DISKMENU 	Открыт из меню дисков
 OPEN_PLUGINSMENU 	Открыт из меню плагинов (F11)
-OPEN_FINDLIST 	Открыт из диалога "поиска файлов" Этот идентификатор плагин получит только в том случае, если он экспортирует функцию SetFindListW. Последующий вызов функции SetFindListW произойдёт только в том случае, если функция OpenPluginW вернёт значение отличное от INVALID_HANDLE_VALUE.
+OPEN_FINDLIST 	Открыт из диалога "поиска файлов" Этот идентификатор плагин получит только в том случае, если он экспортирует функцию SetFindListW. Последующий вызов функции SetFindListW произойдёт только в том случае, если функция OpenPluginW вернёт значение отличное от nullptr.
 OPEN_SHORTCUT 	Открыт через ссылку на папку (Меню Commands|Folder shortcuts)
 OPEN_COMMANDLINE 	Был открыт из командной строки. Этот параметр может использоваться, только если плагин определил вызывающий префикс в функции GetPluginInfoW и этот префикс, с двоеточием после него, был указан в командной строке.
 OPEN_EDITOR 	Открыт из редактора

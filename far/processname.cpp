@@ -38,46 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "pathmix.hpp"
 
-// обработать имя файла: сравнить с маской, масками, сгенерировать по маске
-size_t WINAPI ProcessName(const wchar_t *param1, wchar_t *param2, size_t size, PROCESSNAME_FLAGS flags)
-{
-	bool skippath = (flags&PN_SKIPPATH)!=0;
-
-	flags &= ~PN_SKIPPATH;
-
-	if (flags == PN_CMPNAME)
-		return CmpName(param1, param2, skippath);
-
-	if (flags == PN_CMPNAMELIST)
-	{
-		int Found=FALSE;
-		string strFileMask;
-		const wchar_t *MaskPtr;
-		MaskPtr=param1;
-
-		while ((MaskPtr=GetCommaWord(MaskPtr,strFileMask)))
-		{
-			if (CmpName(strFileMask,param2,skippath))
-			{
-				Found=TRUE;
-				break;
-			}
-		}
-
-		return Found;
-	}
-
-	if (flags&PN_GENERATENAME)
-	{
-		string strResult = param2;
-		int nResult = ConvertWildcards(param1, strResult, (flags&0xFFFF)|(skippath?PN_SKIPPATH:0));
-		xwcsncpy(param2, strResult, size);
-		return nResult;
-	}
-
-	return FALSE;
-}
-
 /* $ 09.10.2000 IS
     Генерация нового имени по маске
     (взял из ShellCopy::ShellCopyConvertWildcards)

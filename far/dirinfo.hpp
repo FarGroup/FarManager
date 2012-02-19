@@ -60,3 +60,5 @@ int GetDirInfo(const wchar_t *Title,const wchar_t *DirName, DirInfoData& Data, c
 int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCount,
                      unsigned long &FileCount,unsigned __int64 &FileSize,
                      unsigned __int64 &CompressedFileSize);
+
+int GetPluginDirList(class Plugin* PluginNumber,HANDLE hPlugin,const wchar_t *Dir,struct PluginPanelItem **pPanelItem,size_t *pItemsNumber);

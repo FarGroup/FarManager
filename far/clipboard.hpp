@@ -38,8 +38,8 @@ extern const wchar_t FAR_VerticalBlock_Unicode[];
 
 wchar_t* PasteFormatFromClipboard(const wchar_t *Format);
 int CopyFormatToClipboard(const wchar_t *Format, const wchar_t *Data);
-int WINAPI CopyToClipboard(const wchar_t *Data);
-wchar_t* WINAPI PasteFromClipboard();
+int CopyToClipboard(const wchar_t *Data);
+wchar_t* PasteFromClipboard();
 wchar_t* PasteFromClipboardEx(int max);
 BOOL EmptyInternalClipboard();
 

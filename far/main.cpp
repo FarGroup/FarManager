@@ -51,7 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "farexcpt.hpp"
 #include "imports.hpp"
 #include "syslog.hpp"
-#include "localOEM.hpp"
 #include "interf.hpp"
 #include "keyboard.hpp"
 #include "clipboard.hpp"
@@ -407,6 +406,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	QueryPerformanceCounter(&FarUpTime);
 
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &MainThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
+	MainThreadId = GetCurrentThreadId();
 	GetVersionEx(&WinVer);
 
 	// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
@@ -688,7 +688,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	//Настройка OEM сортировки
 #ifndef NO_WRAPPER
-	LocalUpperInit();
+	wrapper::LocalUpperInit();
 #endif // NO_WRAPPER
 
 	//Инициализация массива клавиш.

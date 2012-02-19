@@ -473,7 +473,7 @@ int SetFLockState(UINT vkKey, int State)
 	return (int)(WORD)oldState;
 }
 
-int WINAPI InputRecordToKey(const INPUT_RECORD *r)
+int InputRecordToKey(const INPUT_RECORD *r)
 {
 	if (r)
 	{
@@ -487,7 +487,7 @@ int WINAPI InputRecordToKey(const INPUT_RECORD *r)
 }
 
 
-int WINAPI KeyToInputRecord(int Key, INPUT_RECORD *Rec)
+int KeyToInputRecord(int Key, INPUT_RECORD *Rec)
 {
   int VirtKey, ControlState;
   return TranslateKeyToVK(Key, VirtKey, ControlState, Rec);
@@ -1766,7 +1766,7 @@ static string &GetShiftKeyName(string &strName, DWORD Key,int& Len)
    5. "Oem" и 5 десятичных цифр (с ведущими нулями)
    6. только модификаторы (Alt/RAlt/Ctrl/RCtrl/Shift)
 */
-int WINAPI KeyNameToKey(const wchar_t *Name)
+int KeyNameToKey(const wchar_t *Name)
 {
 	if (!Name || !*Name)
 		return -1;
@@ -1884,7 +1884,7 @@ int WINAPI KeyNameToKey(const wchar_t *Name)
 	return (!Key || Pos < Len)? -1: (int)Key;
 }
 
-BOOL WINAPI KeyToText(int Key0, string &strKeyText0)
+BOOL KeyToText(int Key0, string &strKeyText0)
 {
 	string strKeyText;
 	int I, Len;

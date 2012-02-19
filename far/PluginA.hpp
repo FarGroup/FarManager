@@ -31,6 +31,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef NO_WRAPPER
 
 #include "plclass.hpp"
+namespace wrapper
+{
+
 #include "pluginold.hpp"
 
 class PluginA: public Plugin
@@ -74,7 +77,7 @@ public:
 #if defined(MANTIS_0001687)
 	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info) {return 0;}
 #endif
-	virtual HANDLE Analyse(const AnalyseInfo *Info) { return INVALID_HANDLE_VALUE; }
+	virtual HANDLE Analyse(const AnalyseInfo *Info) { return nullptr; }
 	virtual void CloseAnalyse(HANDLE hHandle) {}
 	virtual bool GetPluginInfo(PluginInfo *pi);
 	virtual int Configure(const GUID& Guid);
@@ -107,4 +110,7 @@ private:
 	UINT64 OEMApiCnt;
 };
 
+void LocalUpperInit();
+
+};
 #endif // NO_WRAPPER

@@ -51,7 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     Например, значение 00000000000000000000010101(0x7h)
     скрывает диски A, C, и E
 */
-DWORD WINAPI FarGetLogicalDrives()
+DWORD FarGetLogicalDrives()
 {
 	static DWORD LogicalDrivesMask = 0;
 	DWORD NoDrives=0;

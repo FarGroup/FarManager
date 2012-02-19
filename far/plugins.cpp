@@ -428,7 +428,7 @@ Plugin* PluginManager::LoadPlugin(
 	{
 		case UNICODE_PLUGIN: pPlugin = new Plugin(this, lpwszModuleName); break;
 #ifndef NO_WRAPPER
-		case OEM_PLUGIN: pPlugin = new PluginA(this, lpwszModuleName); break;
+		case OEM_PLUGIN: pPlugin = new wrapper::PluginA(this, lpwszModuleName); break;
 #endif // NO_WRAPPER
 		default: return nullptr;
 	}
@@ -703,7 +703,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	};
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	ConsoleTitle ct(Opt.ShowCheckingFile?MSG(MCheckingFileInPlugin):nullptr);
-	HANDLE hResult = INVALID_HANDLE_VALUE;
+	HANDLE hResult = nullptr;
 	PluginInfo *pResult = nullptr;
 	PluginInfo *pAnalyse = nullptr;
 	TPointerArray<PluginInfo> items;
@@ -774,22 +774,22 @@ HANDLE PluginManager::OpenFilePlugin(
 				break;
 			}
 
-			if (hPlugin != INVALID_HANDLE_VALUE)
+			if (hPlugin)
 			{
 				PluginInfo *handle=items.addItem();
 				handle->Handle.hPlugin = hPlugin;
 				handle->Handle.pPlugin = pPlugin;
-				handle->Analyse = INVALID_HANDLE_VALUE;
+				handle->Analyse = nullptr;
 			}
 		}
 		else
 		{
 			HANDLE analyse=pPlugin->Analyse(&Info);
-			if (INVALID_HANDLE_VALUE!=analyse)
+			if (analyse)
 			{
 				PluginInfo *handle=items.addItem();
 				handle->Handle.pPlugin = pPlugin;
-				handle->Handle.hPlugin = INVALID_HANDLE_VALUE;
+				handle->Handle.hPlugin = nullptr;
 				handle->Analyse = analyse;
 			}
 		}
@@ -852,7 +852,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			pResult = items.getItem(0);
 		}
 
-		if (pResult && pResult->Handle.hPlugin == INVALID_HANDLE_VALUE)
+		if (pResult && pResult->Handle.hPlugin == nullptr)
 		{
 			pAnalyse = pResult;
 			OpenAnalyseInfo oainfo={sizeof(OpenAnalyseInfo),&Info,pResult->Analyse};
@@ -863,7 +863,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				hResult = (HANDLE)-2;
 				pResult = nullptr;
 			}
-			else if (h != INVALID_HANDLE_VALUE)
+			else if (h)
 			{
 				pResult->Handle.hPlugin = h;
 			}
@@ -885,12 +885,12 @@ HANDLE PluginManager::OpenFilePlugin(
 
 		if (handle != pResult)
 		{
-			if (handle->Handle.hPlugin != INVALID_HANDLE_VALUE)
+			if (handle->Handle.hPlugin)
 				handle->Handle.pPlugin->ClosePanel(handle->Handle.hPlugin);
 		}
 		if (handle != pAnalyse)
 		{
-			if(handle->Analyse != INVALID_HANDLE_VALUE)
+			if(handle->Analyse)
 				handle->Handle.pPlugin->CloseAnalyse(handle->Analyse);
 		}
 	}
@@ -922,7 +922,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 
 		HANDLE hPlugin = pPlugin->Open(OPEN_FINDLIST, FarGuid, 0);
 
-		if (hPlugin != INVALID_HANDLE_VALUE)
+		if (hPlugin)
 		{
 			PluginHandle *handle=items.addItem();
 			handle->hPlugin = hPlugin;
@@ -986,7 +986,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 
 		if (handle!=pResult)
 		{
-			if (handle->hPlugin!=INVALID_HANDLE_VALUE)
+			if (handle->hPlugin)
 				handle->pPlugin->ClosePanel(handle->hPlugin);
 		}
 	}
@@ -999,7 +999,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 		pResult=pDup;
 	}
 
-	return pResult?static_cast<HANDLE>(pResult):INVALID_HANDLE_VALUE;
+	return pResult;
 }
 
 
@@ -1529,10 +1529,10 @@ void PluginManager::Configure(int StartPos)
 						if (item)
 						{
 							strPluginModuleName = item->pPlugin->GetModuleName();
-							if (!FarShowHelp(strPluginModuleName,L"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
-							        !FarShowHelp(strPluginModuleName,L"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
+							if (!pluginapi::apiShowHelp(strPluginModuleName,L"Config",FHELP_SELFHELP|FHELP_NOSHOWERROR) &&
+							        !pluginapi::apiShowHelp(strPluginModuleName,L"Configure",FHELP_SELFHELP|FHELP_NOSHOWERROR))
 							{
-								FarShowHelp(strPluginModuleName,nullptr,FHELP_SELFHELP|FHELP_NOSHOWERROR);
+								pluginapi::apiShowHelp(strPluginModuleName,nullptr,FHELP_SELFHELP|FHELP_NOSHOWERROR);
 							}
 						}
 						break;
@@ -1718,7 +1718,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					case KEY_SHIFTF1:
 						// Вызываем нужный топик, который передали в CommandsMenu()
 						if (item)
-							FarShowHelp(item->pPlugin->GetModuleName(),HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
+							pluginapi::apiShowHelp(item->pPlugin->GetModuleName(),HistoryName,FHELP_SELFHELP|FHELP_NOSHOWERROR|FHELP_USECONTENTS);
 						break;
 
 					case KEY_ALTF11:
@@ -1830,7 +1830,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 	HANDLE hPlugin=Open(item.pPlugin,OpenCode,item.Guid,Item);
 
-	if (hPlugin!=INVALID_HANDLE_VALUE && !Editor && !Viewer && !Dialog)
+	if (hPlugin && !Editor && !Viewer && !Dialog)
 	{
 		if (ActivePanel->ProcessPluginEvent(FE_CLOSE,nullptr))
 		{
@@ -2376,7 +2376,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		RemoveTrailingSpaces(strPluginCommand);
 		HANDLE hPlugin=Open(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(INT_PTR)strPluginCommand.CPtr()); //BUGBUG
 
-		if (hPlugin!=INVALID_HANDLE_VALUE)
+		if (hPlugin)
 		{
 			Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
 			NewPanel->SetPluginMode(hPlugin,L"",!Target || Target == ActivePanel);
@@ -2434,7 +2434,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Re
 				process=OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL;
             }
 
-			if (hNewPlugin!=INVALID_HANDLE_VALUE && process)
+			if (hNewPlugin && process)
 			{
 				int CurFocus=CtrlObject->Cp()->ActivePanel->GetFocus();
 				Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
@@ -2454,7 +2454,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Re
 			if (Ret)
 			{
 				PluginHandle *handle=(PluginHandle *)hNewPlugin;
-				*Ret=hNewPlugin == INVALID_HANDLE_VALUE || handle->hPlugin?1:0;
+				*Ret = !hNewPlugin || handle->hPlugin? 1 : 0;
 			}
 
 			return TRUE;
@@ -2470,27 +2470,15 @@ Plugin *PluginManager::FindPlugin(const GUID& SysID)
 	return result?*result:nullptr;
 }
 
-INT_PTR PluginManager::PluginGuidToPluginNumber(const GUID& PluginId)
-{
-	INT_PTR result=-1;
-	if(!IsEqualGUID(FarGuid,PluginId))
-	{
-		result=(INT_PTR)FindPlugin(PluginId);
-		if(!result) result=-1;
-	}
-	return result;
-}
-
 HANDLE PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item)
 {
 	HANDLE hPlugin = pPlugin->Open(OpenFrom, Guid, Item);
-
-	if (hPlugin != INVALID_HANDLE_VALUE)
+	if (hPlugin)
 	{
 		PluginHandle *handle = new PluginHandle;
 		handle->hPlugin = hPlugin;
 		handle->pPlugin = pPlugin;
-		return (HANDLE)handle;
+		return handle;
 	}
 
 	return hPlugin;

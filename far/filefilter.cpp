@@ -74,7 +74,7 @@ FileFilter::~FileFilter()
 
 Panel *FileFilter::GetHostPanel()
 {
-	if (m_HostPanel == (Panel *)PANEL_ACTIVE)
+	if (!m_HostPanel || m_HostPanel == (Panel *)PANEL_ACTIVE)
 	{
 		return CtrlObject->Cp()->ActivePanel;
 	}

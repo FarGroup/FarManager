@@ -44,7 +44,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText);
 
 void PrepareStrFTime();
-size_t WINAPI StrFTime(string &strDest, const wchar_t *Format,const tm *t);
+size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t);
 size_t MkStrFTime(string &strDest, const wchar_t *Fmt=nullptr);
 
 inline __int64 FileTimeDifference(const FILETIME *a, const FILETIME* b)
