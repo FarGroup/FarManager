@@ -77,9 +77,9 @@ const wchar_t* PointToExt(const wchar_t *lpwszPath,const wchar_t *lpwszEndPtr);
 BOOL AddEndSlash(string &strPath, wchar_t TypeSlash);
 BOOL AddEndSlash(string &strPath);
 BOOL AddEndSlash(wchar_t *Path, wchar_t TypeSlash);
-BOOL WINAPI AddEndSlash(wchar_t *Path);
+BOOL AddEndSlash(wchar_t *Path);
 bool DeleteEndSlash(wchar_t* Path, bool AllEndSlash = false);
-BOOL WINAPI DeleteEndSlash(string &strPath,bool AllEndSlash = false);
+BOOL DeleteEndSlash(string &strPath,bool AllEndSlash = false);
 string &ReplaceSlashToBSlash(string &strStr);
 
 const wchar_t *FirstSlash(const wchar_t *String);
