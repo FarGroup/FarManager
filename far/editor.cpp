@@ -4050,6 +4050,7 @@ BOOL Editor::Search(int Next)
 
 	if(FindAllReferences && Match)
 	{
+		FindAllList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 		FindAllList.SetPosition(-1, -1, 0, 0);
 		TemplateString BottomTitle(MSG(MEditSearchStatistics));
 		BottomTitle << FindAllList.GetItemCount() << AllRefLines;
