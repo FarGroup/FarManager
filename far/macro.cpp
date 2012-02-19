@@ -3714,7 +3714,21 @@ static bool clipFunc(const TMacroFunction*)
 		}
 		case 1: // Put "S" into Clipboard
 		{
-			Ret=CopyToClipboard(Val.s());
+			if (!*Val.s())
+			{
+				Clipboard clip;
+				if (clip.Open())
+				{
+					Ret=1;
+					clip.Empty();
+				}
+				clip.Close();
+			}
+			else
+			{
+				Ret=CopyToClipboard(Val.s());
+			}
+
 			VMStack.Push(TVar((__int64)Ret)); // 0!  ???
 			return Ret?true:false;
 		}
