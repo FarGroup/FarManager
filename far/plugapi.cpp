@@ -210,7 +210,7 @@ int WINAPI apiInputBox(
     unsigned __int64 Flags
 )
 {
-	if (!MainThread() || FrameManager->ManagerIsDown())
+	if (FrameManager->ManagerIsDown())
 		return FALSE;
 
 	string strDest;
@@ -226,7 +226,7 @@ BOOL WINAPI apiShowHelp(
     FARHELPFLAGS Flags
 )
 {
-	if (!MainThread() || FrameManager->ManagerIsDown())
+	if (FrameManager->ManagerIsDown())
 		return FALSE;
 
 	if (!HelpTopic)
@@ -344,7 +344,7 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 			break;
 		default:
 
-			if (!MainThread() || !FrameManager || !FrameManager->ManagerIsDown())
+			if (!FrameManager || !FrameManager->ManagerIsDown())
 				return 0;
 	}
 
@@ -835,9 +835,6 @@ int WINAPI apiMenuFn(
     size_t ItemsNumber
 )
 {
-	if (!MainThread())
-		return -1;
-
 	if (FrameManager->ManagerIsDown())
 		return -1;
 
@@ -980,7 +977,7 @@ int WINAPI apiMenuFn(
 // Функция FarDefDlgProc обработки диалога по умолчанию
 INT_PTR WINAPI apiDefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
-	if (hDlg && MainThread()) // исключаем лишний вызов для hDlg=0
+	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return DefDlgProc(hDlg,Msg,Param1,Param2);
 
 	return 0;
@@ -989,7 +986,7 @@ INT_PTR WINAPI apiDefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 // Посылка сообщения диалогу
 INT_PTR WINAPI apiSendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
-	if (hDlg && MainThread()) // исключаем лишний вызов для hDlg=0
+	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return SendDlgMessage(hDlg,Msg,Param1,Param2);
 
 	return 0;
@@ -1001,9 +998,6 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, int X1, int Y1
                             FARWINDOWPROC DlgProc, void* Param)
 {
 	HANDLE hDlg=INVALID_HANDLE_VALUE;
-
-	if(!MainThread())
-		return hDlg;
 
 	if (FrameManager->ManagerIsDown())
 		return hDlg;
@@ -1061,9 +1055,6 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, int X1, int Y1
 
 int WINAPI apiDialogRun(HANDLE hDlg)
 {
-	if(!MainThread())
-		return -1;
-
 	if (FrameManager->ManagerIsDown())
 		return -1;
 
@@ -1092,28 +1083,21 @@ void WINAPI apiDialogFree(HANDLE hDlg)
 
 const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,int MsgId)
 {
-	if (MainThread())
+	Plugin *pPlugin = GuidToPlugin(PluginId);
+	if (pPlugin)
 	{
-		Plugin *pPlugin = GuidToPlugin(PluginId);
-		if (pPlugin)
-		{
-			string strPath = pPlugin->GetModuleName();
-			CutToSlash(strPath);
+		string strPath = pPlugin->GetModuleName();
+		CutToSlash(strPath);
 
-			if (pPlugin->InitLang(strPath))
-				return pPlugin->GetMsg(MsgId);
-		}
+		if (pPlugin->InitLang(strPath))
+			return pPlugin->GetMsg(MsgId);
 	}
-	return L"";
 }
 
 int WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int64 Flags,const wchar_t *HelpTopic,
                         const wchar_t * const *Items,size_t ItemsNumber,
                         int ButtonsNumber)
 {
-	if (!MainThread())
-		return -1;
-
 	if (FrameManager->ManagerIsDown())
 		return -1;
 
@@ -1278,7 +1262,7 @@ INT_PTR WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int 
 	if (Command == FCTL_CHECKPANELSEXIST)
 		return Opt.OnlyEditorViewerUsed? FALSE:TRUE;
 
-	if (!MainThread() || Opt.OnlyEditorViewerUsed || !CtrlObject || !FrameManager || FrameManager->ManagerIsDown())
+	if (Opt.OnlyEditorViewerUsed || !CtrlObject || !FrameManager || FrameManager->ManagerIsDown())
 		return 0;
 
 	FilePanels *FPanels=CtrlObject->Cp();
@@ -1490,7 +1474,7 @@ INT_PTR WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int 
 
 HANDLE WINAPI apiSaveScreen(int X1,int Y1,int X2,int Y2)
 {
-	if (!MainThread() || DisablePluginsOutput || FrameManager->ManagerIsDown())
+	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return nullptr;
 
 	if (X2==-1)
@@ -1505,7 +1489,7 @@ HANDLE WINAPI apiSaveScreen(int X1,int Y1,int X2,int Y2)
 
 void WINAPI apiRestoreScreen(HANDLE hScreen)
 {
-	if (!MainThread() || DisablePluginsOutput || FrameManager->ManagerIsDown())
+	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return;
 
 	if (!hScreen)
@@ -1534,7 +1518,7 @@ void FreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber)
 
 int WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t *pItemsNumber)
 {
-	if (!MainThread() || FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
+	if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
 		return FALSE;
 
 	string strDirName;
@@ -1599,7 +1583,7 @@ int WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t 
 
 int WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
 {
-	if (!MainThread() || FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
+	if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
 		return FALSE;
 	return GetPluginDirList(GuidToPlugin(PluginId), hPlugin, Dir, pPanelItem, pItemsNumber);
 }
@@ -1632,7 +1616,7 @@ void WINAPI apiFreePluginDirList(PluginPanelItem *PanelItem, size_t ItemsNumber)
 int WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
                      int X1,int Y1,int X2, int Y2,unsigned __int64 Flags, UINT CodePage)
 {
-	if (!MainThread() || FrameManager->ManagerIsDown())
+	if (FrameManager->ManagerIsDown())
 		return FALSE;
 
 	class ConsoleTitle ct;
@@ -1706,7 +1690,7 @@ int WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 
 int WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, int X1, int Y1, int X2, int Y2, unsigned __int64 Flags, int StartLine, int StartChar, UINT CodePage)
 {
-	if (!MainThread() || FrameManager->ManagerIsDown())
+	if (FrameManager->ManagerIsDown())
 		return EEC_OPEN_ERROR;
 
 	ConsoleTitle ct;
@@ -1837,7 +1821,7 @@ int WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, int X1, int 
 
 void WINAPI apiText(int X,int Y,const FarColor* Color,const wchar_t *Str)
 {
-	if (!MainThread() || DisablePluginsOutput || FrameManager->ManagerIsDown())
+	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return;
 
 	if (!Str)
@@ -1855,7 +1839,7 @@ void WINAPI apiText(int X,int Y,const FarColor* Color,const wchar_t *Str)
 
 INT_PTR WINAPI apiEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
-	if (!MainThread() || FrameManager->ManagerIsDown())
+	if (FrameManager->ManagerIsDown())
 		return 0;
 
 	if (EditorID == -1)
@@ -1886,7 +1870,7 @@ INT_PTR WINAPI apiEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, i
 
 INT_PTR WINAPI apiViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
-	if (!MainThread() || FrameManager->ManagerIsDown())
+	if (FrameManager->ManagerIsDown())
 		return 0;
 
 	if (ViewerID == -1)
@@ -2106,7 +2090,7 @@ wchar_t* WINAPI apiPasteFromClipboard()
 
 INT_PTR WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
-	if (MainThread() && CtrlObject) // все зависит от этой бадяги.
+	if (CtrlObject) // все зависит от этой бадяги.
 	{
 		KeyMacro& Macro=CtrlObject->Macro; //??
 
@@ -2256,9 +2240,6 @@ INT_PTR WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 
 INT_PTR WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
-	if(!MainThread())
-		return 0;
-
 	switch (Command)
 	{
 		case PCTL_LOADPLUGIN:
@@ -2344,9 +2325,6 @@ INT_PTR WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Com
 
 INT_PTR WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
-	if (!MainThread())
-		return FALSE;
-
 	FileFilter *Filter=nullptr;
 
 	if (Command != FFCTL_CREATEFILEFILTER)
@@ -2418,9 +2396,6 @@ INT_PTR WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMM
 
 INT_PTR WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
-	if (!MainThread())
-		return FALSE;
-
 	RegExp* re=nullptr;
 
 	if (Command != RECTL_CREATE)
@@ -2482,9 +2457,6 @@ INT_PTR WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Comm
 
 INT_PTR WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, int Param1, void* Param2)
 {
-	if (!MainThread())
-		return FALSE;
-
 	AbstractSettings* settings=nullptr;
 
 	if (Command != SCTL_CREATE)
@@ -2676,7 +2648,7 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct FarColor *Color)
 {
 	BOOL Result = FALSE;
-	if (MainThread() && !FrameManager->ManagerIsDown())
+	if (!FrameManager->ManagerIsDown())
 	{
 		Result = Console.GetColorDialog(*Color, true, false);
 	}
