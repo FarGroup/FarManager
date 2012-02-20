@@ -1092,6 +1092,7 @@ const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,int MsgId)
 		if (pPlugin->InitLang(strPath))
 			return pPlugin->GetMsg(MsgId);
 	}
+	return L"";
 }
 
 int WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int64 Flags,const wchar_t *HelpTopic,
