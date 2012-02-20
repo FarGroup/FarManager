@@ -165,7 +165,7 @@ enum enumSaveFileAs
 	ID_SF_CANCEL,
 };
 
-INT_PTR hndSaveFileAs(HANDLE hDlg, int msg, int param1, void* param2)
+INT_PTR WINAPI hndSaveFileAs(HANDLE hDlg, int msg, int param1, void* param2)
 {
 	static UINT codepage=0;
 
@@ -269,7 +269,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 			EditDlg[ID_SF_FILENAME].strData.SetLength(pos);
 	}
 	EditDlg[ID_SF_DONOTCHANGE+TextFormat].Selected = TRUE;
-	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), (FARWINDOWPROC)hndSaveFileAs, &codepage);
+	Dialog Dlg(EditDlg, ARRAYSIZE(EditDlg), hndSaveFileAs, &codepage);
 	Dlg.SetPosition(-1,-1,76,17);
 	Dlg.SetHelp(L"FileSaveAs");
 	Dlg.SetId(FileSaveAsId);
