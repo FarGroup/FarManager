@@ -3,6 +3,89 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 20.02.2012 23:34:49 +0400 build - 2477
+
+1. Calling convention mismatch (yet another typo?)
+
+drkns 20.02.2012 10:42:54 +0200 - build 2476
+
+1. Another typo.
+
+drkns 20.02.2012 03:15:12 +0200 - build 2475
+
+1. A typo in 2474.
+
+drkns 20.02.2012 02:17:59 +0200 - build 2474
+
+1. Rolling back 2470.2 so far - there are some issues.
+
+drkns 19.02.2012 21:52:01 +0200 - build 2473
+
+1. And one more time.
+
+drkns 19.02.2012 21:49:02 +0200 - build 2472
+
+1. Correction of 2470.
+
+drkns 19.02.2012 21:18:57 +0200 - build 2471
+
+1. Mantis#0002028: Editor Search [All] - the menu treats ampersands as hotkeys
+
+drkns 19.02.2012 20:23:52 +0200 - build 2470
+
+1. All functions provided to plugins are gathered now in plugapi/pluginA, rather than scattered all over the sources.
+
+2. Ibid - added a "protection" of calling from secondary threads to where it is disallowed.
+
+svs 19.02.2012 14:51:36 +0400 - build 2469
+
+1. Mantis#0002026: при clip(1,"") clipboard is not cleared
+
+zg 17.02.2012 20:42:35 +0200 - build 2468
+
+1. correction of 2460.1.
+
+drkns 17.02.2012 19:36:26 +0200 - build 2467
+
+1. Correct handling of situation of "plugin trying to unload itself".
+
+svs 17.02.2012 15:18:14 +0400 - build 2466
+
+1. $TextFooBar is not an error, although $FooBar is.
+
+   The show-stopper is macro.cpp::KeyNameMacroToKey(). StrCmpNI is unnecessary there, StrCmpI is enough
+
+drkns 17.02.2012 11:05:50 +0200 - build 2465
+
+1. Correction of 2463.
+
+svs 17.02.2012 09:38:04 +0400 - build 2464
+
+1. Macro: env function got 2 optional parameters:
+   S=Env(S[,Mode[,Value]])
+     S - the name of an environment variable
+     Mode:
+        0 - get
+        1 - set
+     Value - the value
+
+   For Mode=1, the previous value of S variable is returned
+
+   Examples:
+     1. Get the value of the environment variable Foo
+        Env("Foo")
+        Env("Foo",0)
+        Env("Foo",0,whatever)
+        Env("Foo",,whatever)
+     2. Set the value of the environment variable Foo to "bar"
+        Env("Foo",1,"Bar")
+     3. Remove the environment variable Foo
+        Env("Foo",1)
+        Env("Foo",1,"")
+     4. Set the value of the environment variable Foo to "0"
+        Env("Foo",1,"0")
+        Env("Foo",1,0)
+
 drkns 16.02.2012 13:11:18 +0200 - build 2463
 
 1. Clearer representation of colors and file highlighting in xml.
