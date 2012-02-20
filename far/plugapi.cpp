@@ -344,7 +344,7 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 			break;
 		default:
 
-			if (!FrameManager || !FrameManager->ManagerIsDown())
+			if (!FrameManager || FrameManager->ManagerIsDown())
 				return 0;
 	}
 
