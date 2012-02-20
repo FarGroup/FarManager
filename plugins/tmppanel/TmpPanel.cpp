@@ -530,7 +530,7 @@ HANDLE WINAPI AnalyseW(const struct AnalyseInfo *Info)
 	if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info->FileName, lstrlen(Info->FileName),PN_CMPNAMELIST))
 		return INVALID_HANDLE_VALUE;
 
-	return NULL;
+	return HANDLE(1);
 }
 
 void WINAPI ClosePanelW(const struct ClosePanelInfo *Info)
