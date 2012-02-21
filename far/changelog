@@ -1,3 +1,11 @@
+zg 21.02.2012 04:40:45 +0200 - build 2478
+
+1. продолжение 2328. имена настроек теперь совпадают с именем этих настроек в базе.
+   добавлены FSSF_SYSTEM и FSSF_PANEL.
+   посмотреть, что отдаётся на текущий момент можно в config.cpp::CFG.
+   ACTL_GETSYSTEMSETTINGS, ACTL_GETPANELSETTINGS, ACTL_GETINTERFACESETTINGS, ACTL_GETCONFIRMATIONS,
+   ACTL_GETPLUGINMAXREADDATA и ACTL_GETDIALOGSETTINGS будут удалены в ближайшее время.
+
 w17 20.02.2012 23:34:49 +0400 build - 2477
 
 1. Calling convention mismatch (Ещё опечатка?)

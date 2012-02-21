@@ -1916,6 +1916,9 @@ enum FARSETTINGSTYPES
 
 enum FARSETTINGS_SUBFOLDERS
 {
+#ifdef FAR_USE_INTERNALS
+	FSSF_PRIVATE                    =  0,
+#endif // END FAR_USE_INTERNALS
 	FSSF_ROOT                       =  0,
 	FSSF_HISTORY_CMD                =  1,
 	FSSF_HISTORY_FOLDER             =  2,
@@ -1933,6 +1936,8 @@ enum FARSETTINGS_SUBFOLDERS
 	FSSF_FOLDERSHORTCUT_8           = 14,
 	FSSF_FOLDERSHORTCUT_9           = 15,
 	FSSF_CONFIRMATIONS              = 16,
+	FSSF_SYSTEM                     = 17,
+	FSSF_PANEL                      = 18,
 #ifdef FAR_USE_INTERNALS
 	FSSF_COUNT
 #endif // END FAR_USE_INTERNALS
