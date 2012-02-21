@@ -56,6 +56,29 @@ template<> void DeleteItems<FarSettingsHistory>(FarSettingsHistory* Items,size_t
 
 AbstractSettings::~AbstractSettings()
 {
+	for(size_t ii=0;ii<m_Data.getCount();++ii)
+	{
+		delete [] *m_Data.getItem(ii);
+	}
+}
+
+char* AbstractSettings::Add(const string& String)
+{
+	return Add(String.CPtr(),(String.GetLength()+1)*sizeof(wchar_t));
+}
+
+char* AbstractSettings::Add(const wchar_t* Data,size_t Size)
+{
+	char* result=Add(Size);
+	memcpy(result,Data,Size);
+	return result;
+}
+
+char* AbstractSettings::Add(size_t Size)
+{
+	char** item=m_Data.addItem();
+	*item=new char[Size];
+	return *item;
 }
 
 bool AbstractSettings::IsValid(void)
@@ -95,11 +118,6 @@ PluginSettings::~PluginSettings()
 {
 	if (PluginsCfg)
 		delete PluginsCfg;
-
-	for(size_t ii=0;ii<m_Data.getCount();++ii)
-	{
-		delete [] *m_Data.getItem(ii);
-	}
 }
 
 bool PluginSettings::IsValid(void)
@@ -159,11 +177,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 					if (PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,data))
 					{
 						result=TRUE;
-						char** item=m_Data.addItem();
-						size_t size=(data.GetLength()+1)*sizeof(wchar_t);
-						*item=new char[size];
-						memcpy(*item,data.CPtr(),size);
-						Item.String=(wchar_t*)*item;
+						Item.String=(wchar_t*)Add(data);
 					}
 				}
 				break;
@@ -172,13 +186,12 @@ int PluginSettings::Get(FarSettingsItem& Item)
 					int size=PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,nullptr,0);
 					if (size)
 					{
-						char** item=m_Data.addItem();
-						*item=new char[size];
-						int checkedSize=PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,*item,size);
+						char* data=Add(size);
+						int checkedSize=PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,data,size);
 						if (size==checkedSize)
 						{
 							result=TRUE;
-							Item.Data.Data=*item;
+							Item.Data.Data=data;
 							Item.Data.Size=size;
 						}
 					}
@@ -320,6 +333,10 @@ int FarSettings::Get(FarSettingsItem& Item)
 			case GeneralConfig::TYPE_INTEGER:
 				Item.Type=FST_QWORD;
 				Item.Number=*(DWORD*)Data;
+				break;
+			case GeneralConfig::TYPE_TEXT:
+				Item.Type=FST_STRING;
+				Item.String=(wchar_t*)Add(*(string*)Data);
 				break;
 		}
 		if(FST_UNKNOWN!=Item.Type) return TRUE;

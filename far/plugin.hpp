@@ -1938,6 +1938,7 @@ enum FARSETTINGS_SUBFOLDERS
 	FSSF_CONFIRMATIONS              = 16,
 	FSSF_SYSTEM                     = 17,
 	FSSF_PANEL                      = 18,
+	FSSF_EDITOR                     = 19,
 #ifdef FAR_USE_INTERNALS
 	FSSF_COUNT
 #endif // END FAR_USE_INTERNALS

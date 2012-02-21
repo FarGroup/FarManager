@@ -80,6 +80,12 @@ template <class Object> class Vector
 
 class AbstractSettings
 {
+	private:
+		char* Add(const wchar_t* Data,size_t Size);
+	protected:
+		TPointerArray<char*> m_Data;
+		char* Add(const string& String);
+		char* Add(size_t Size);
 	public:
 		virtual ~AbstractSettings();
 		virtual bool IsValid(void);
@@ -95,7 +101,6 @@ class PluginSettings: public AbstractSettings
 	private:
 		TPointerArray<Vector<FarSettingsName> > m_Enum;
 		TPointerArray<unsigned __int64> m_Keys;
-		TPointerArray<char*> m_Data;
 		HierarchicalConfig *PluginsCfg;
 		PluginSettings();
 	public:

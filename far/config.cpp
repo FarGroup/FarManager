@@ -650,7 +650,7 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"EditorCursorBeyondEOL",&Opt.EdOpt.CursorBeyondEOL,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ReadOnlyLock",&Opt.EdOpt.ReadOnlyLock,0, 0}, // Вернём назад дефолт 1.65 - не предупреждать и не блокировать
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"EditorUndoSize",&Opt.EdOpt.UndoSize,0, 0}, // $ 03.12.2001 IS размер буфера undo в редакторе
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyEditor,L"WordDiv",&Opt.strWordDiv, 0, WordDiv0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_EDITOR,            NKeyEditor,L"WordDiv",&Opt.strWordDiv, 0, WordDiv0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"BSLikeDel",&Opt.EdOpt.BSLikeDel,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"EditorF7Rules",&Opt.EdOpt.F7Rules,0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"FileSizeLimit",&Opt.EdOpt.FileSizeLimitLo, 0, 0},
