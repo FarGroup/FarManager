@@ -28,7 +28,7 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 }
 #endif
 
-struct RegistryStr REGStr={
+struct OptionsName OptName={
 	L"Add2PlugMenu",
 	L"Add2DisksMenu",
 	L"Separator",
@@ -66,14 +66,14 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
 	Info.FSF=&FSF;
 
 	PluginSettings settings(MainGuid, Info.SettingsControl);
-	settings.Get(0,REGStr.Separator,Opt.Separator,ARRAYSIZE(Opt.Separator),L" ");
-	Opt.Add2PlugMenu=settings.Get(0,REGStr.Add2PlugMenu,0);
-	Opt.Add2DisksMenu=settings.Get(0,REGStr.Add2DisksMenu,0);
-	Opt.ShowCmdOutput=settings.Get(0,REGStr.ShowCmdOutput,0);
-	Opt.CatchMode=settings.Get(0,REGStr.CatchMode,0);
-	Opt.ViewZeroFiles=settings.Get(0,REGStr.ViewZeroFiles,1);
-	Opt.EditNewFiles=settings.Get(0,REGStr.EditNewFiles,1);
-	Opt.MaxDataSize=settings.Get(0,REGStr.MaxDataSize,1048576);
+	settings.Get(0,OptName.Separator,Opt.Separator,ARRAYSIZE(Opt.Separator),L" ");
+	Opt.Add2PlugMenu=settings.Get(0,OptName.Add2PlugMenu,0);
+	Opt.Add2DisksMenu=settings.Get(0,OptName.Add2DisksMenu,0);
+	Opt.ShowCmdOutput=settings.Get(0,OptName.ShowCmdOutput,0);
+	Opt.CatchMode=settings.Get(0,OptName.CatchMode,0);
+	Opt.ViewZeroFiles=settings.Get(0,OptName.ViewZeroFiles,1);
+	Opt.EditNewFiles=settings.Get(0,OptName.EditNewFiles,1);
+	Opt.MaxDataSize=settings.Get(0,OptName.MaxDataSize,1048576);
 }
 
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
@@ -243,13 +243,13 @@ int WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
     if (Builder.ShowDialog())
 	{
 		PluginSettings settings(MainGuid, Info.SettingsControl);
-		settings.Set(0,REGStr.Add2PlugMenu,Opt.Add2PlugMenu);
-		settings.Set(0,REGStr.Add2DisksMenu,Opt.Add2DisksMenu);
-		settings.Set(0,REGStr.ShowCmdOutput,Opt.ShowCmdOutput);
-		settings.Set(0,REGStr.CatchMode,Opt.CatchMode);
-		settings.Set(0,REGStr.ViewZeroFiles,Opt.ViewZeroFiles);
-		settings.Set(0,REGStr.EditNewFiles,Opt.EditNewFiles);
-		settings.Set(0,REGStr.MaxDataSize,Opt.MaxDataSize);
+		settings.Set(0,OptName.Add2PlugMenu,Opt.Add2PlugMenu);
+		settings.Set(0,OptName.Add2DisksMenu,Opt.Add2DisksMenu);
+		settings.Set(0,OptName.ShowCmdOutput,Opt.ShowCmdOutput);
+		settings.Set(0,OptName.CatchMode,Opt.CatchMode);
+		settings.Set(0,OptName.ViewZeroFiles,Opt.ViewZeroFiles);
+		settings.Set(0,OptName.EditNewFiles,Opt.EditNewFiles);
+		settings.Set(0,OptName.MaxDataSize,Opt.MaxDataSize);
 		return TRUE;
 	}
 

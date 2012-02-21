@@ -308,7 +308,8 @@ static wchar_t *loadFile(const wchar_t *fn, DWORD maxSize, BOOL outputtofile, si
 
 		if (vh(Handle))
 		{
-			DWORD size = (GetFileSize(Handle, NULL)+(sizeof(wchar_t)/2)) / sizeof(wchar_t);
+			DWORD sizeFile=GetFileSize(Handle, NULL);
+			DWORD size = (sizeFile+(sizeof(wchar_t)/2)) / sizeof(wchar_t);
 
 			if (size >= maxSize)
 				size = maxSize-1;
@@ -323,7 +324,7 @@ static wchar_t *loadFile(const wchar_t *fn, DWORD maxSize, BOOL outputtofile, si
 
 				if (buff)
 				{
-					if (ReadFile(Handle, buff, size, &read, NULL) && read >= sizeof(wchar_t))
+					if (ReadFile(Handle, buff, size, &read, NULL) && (read >= sizeof(wchar_t) || read == 1 && sizeFile == 1))
 					{
 						if (read&1)
 						{

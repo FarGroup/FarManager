@@ -2,6 +2,7 @@ enum
 {
 	MConfig,
 	MSetPassiveDir,
+
 	MAddSetPassiveDir2PlugMenu,
 	MAddToDisksMenu,
 	MSeparator,
@@ -17,6 +18,7 @@ enum
 	MMaxDataSize,
 	MStdOut,
 	MStdErr,
+
 	MOk,
 	MCancel
 };

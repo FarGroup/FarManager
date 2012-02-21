@@ -1,4 +1,4 @@
-struct RegistryStr
+struct OptionsName
 {
 	const wchar_t *Add2PlugMenu;
 	const wchar_t *Add2DisksMenu;
