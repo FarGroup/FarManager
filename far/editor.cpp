@@ -1071,25 +1071,7 @@ int Editor::ProcessKey(int Key)
 		{
 			Pasting++;
 			Lock();
-
-			if (SelAtBeginning)
-			{
-				CurLine->Select(0,SelEnd);
-			}
-			else
-			{
-				if (!SelStart)
-				{
-					// TODO: Mantis#0001972: ShiftHome è editor.sel(0,2)
-					if (CurPos)
-						CurLine->Select(-1,0);
-				}
-				else
-				{
-					CurLine->Select(0,SelStart);
-				}
-			}
-
+			CurLine->Select(0,SelAtBeginning?SelEnd:SelStart);
 			ProcessKey(KEY_HOME);
 			Pasting--;
 			Unlock();

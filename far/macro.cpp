@@ -7131,9 +7131,9 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	{
 		{DI_DOUBLEBOX,3,1,69,19,0,nullptr,nullptr,0,L""},
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MMacroSequence)},
-		{DI_EDIT,5,3,67,3,0,nullptr,nullptr,DIF_FOCUS,L""},
+		{DI_EDIT,5,3,67,3,0,L"MacroSequence",nullptr,DIF_FOCUS|DIF_HISTORY,L""},
 		{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,MSG(MMacroDescription)},
-		{DI_EDIT,5,5,67,5,0,nullptr,nullptr,DIF_FOCUS,L""},
+		{DI_EDIT,5,5,67,5,0,L"MacroDescription",nullptr,DIF_HISTORY,L""},
 
 		{DI_TEXT,3,6,0,6,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_CHECKBOX,5,7,0,7,0,nullptr,nullptr,0,MSG(MMacroSettingsEnableOutput)},
