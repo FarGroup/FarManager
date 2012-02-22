@@ -60,9 +60,11 @@ DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
 ifeq ($(DIRBIT),32)
 DEF = $(NAME)$(DIRSURF).gcc.def
+DLLTOOL_MACHINE = i386
 else
 #for x64 vc.def is good enough
 DEF = $(NAME)$(DIRSURF).vc.def
+DLLTOOL_MACHINE = i386:x86-64
 endif
 RC_NAME = $(NAME).rc
 RES = $(OBJDIR)/$(NAME).res.o

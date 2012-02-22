@@ -324,7 +324,7 @@ static wchar_t *loadFile(const wchar_t *fn, DWORD maxSize, BOOL outputtofile, si
 
 				if (buff)
 				{
-					if (ReadFile(Handle, buff, size, &read, NULL) && (read >= sizeof(wchar_t) || read == 1 && sizeFile == 1))
+					if (ReadFile(Handle, buff, size, &read, NULL) && (read >= sizeof(wchar_t) || (read == 1 && sizeFile == 1)))
 					{
 						if (read&1)
 						{
