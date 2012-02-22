@@ -2422,16 +2422,16 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Re
 			HANDLE hNewPlugin=Open(pPlugin,OpenFrom,FarGuid,(INT_PTR)Data);
 			bool process=false;
 
-			if (OpenFrom & OPEN_FROMMACRO)
+			if (OpenFrom == OPEN_FROMMACRO)
 			{
-	            // <????>
+				// <????>
 				;
-            	// </????>
+				// </????>
 			}
 			else
 			{
 				process=OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_FILEPANEL;
-            }
+			}
 
 			if (hNewPlugin && process)
 			{

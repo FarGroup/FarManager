@@ -1,3 +1,7 @@
+zg 22.02.2012 18:58:03 +0200 - build 2484
+
+1. уточнение 2458. OPEN_FROMMACRO в PluginManager::CallPlugin.
+
 zg 22.02.2012 18:45:43 +0200 - build 2483
 
 1. 0001410: Добавить флаг в OpenFilePluginW для распознавания архивных операций (ShiftF3)
