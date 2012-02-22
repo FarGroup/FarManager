@@ -1,3 +1,7 @@
+drkns 22.02.2012 22:23:30 +0200 - build 2485
+
+1. в 1881 сломалась очистка буфера по CopyToClipboard(0).
+
 zg 22.02.2012 18:58:03 +0200 - build 2484
 
 1. уточнение 2458. OPEN_FROMMACRO в PluginManager::CallPlugin.

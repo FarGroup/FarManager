@@ -249,6 +249,7 @@ BOOL Clipboard::IsFormatAvailable(UINT Format)
 // Перед вставкой производится очистка буфера
 bool Clipboard::Copy(const wchar_t *Data)
 {
+	Empty();
 	if (Data && *Data)
 	{
 		HGLOBAL hData;
@@ -261,7 +262,6 @@ bool Clipboard::Copy(const wchar_t *Data)
 			{
 				memcpy(GData,Data,BufferSize);
 				GlobalUnlock(hData);
-				Empty();
 				if (!SetData(CF_UNICODETEXT,(HANDLE)hData))
 					GlobalFree(hData);
 			}
