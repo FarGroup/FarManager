@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "eject.hpp"
-#include "lang.hpp"
 #include "language.hpp"
 #include "imports.hpp"
 #include "cddrv.hpp"
@@ -157,10 +156,7 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 			{
 				if (!(Flags&EJECT_NO_MESSAGE))
 				{
-					TemplateString strMsgText(MSG(MChangeCouldNotEjectMedia));
-					strMsgText << Letter;
-
-					if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,MSG(MRetry),MSG(MCancel)))
+					if (Message(MSG_WARNING|MSG_ERRORTYPE, 2, MSG(MError), LangString(MChangeCouldNotEjectMedia) << Letter, MSG(MRetry), MSG(MCancel)))
 						Retry=FALSE;
 				}
 				else

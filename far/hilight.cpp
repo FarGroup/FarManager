@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "colors.hpp"
 #include "hilight.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "vmenu.hpp"
 #include "dialog.hpp"
@@ -167,9 +166,7 @@ static void SetHighlighting(bool DeleteOld = false, HierarchicalConfig *ExternCf
 				Colors::ConsoleColorToFarColor(StdHighlightData[I].InitCC, StdHighlightData[I].CursorColor);
 				MAKE_TRANSPARENT(StdHighlightData[I].CursorColor.BackgroundColor);
 
-				FormatString strKeyName;
-				strKeyName << L"Group" << I;
-				unsigned __int64 key = cfg->CreateKey(root,strKeyName);
+				unsigned __int64 key = cfg->CreateKey(root, FormatString() << L"Group" << I);
 				if (!key)
 					break;
 				cfg->SetValue(key,HLS.Mask,StdHighlightData[I].Mask);

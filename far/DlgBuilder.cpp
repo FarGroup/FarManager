@@ -34,10 +34,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "plugin.hpp"
-#include "lang.hpp"
+#include "language.hpp"
 #include "FarDlgBuilder.hpp"
 #include "dialog.hpp"
-#include "language.hpp"
 
 const int DEFAULT_INDENT = 5;
 
@@ -89,7 +88,7 @@ static bool IsEditField(DialogItemEx *Item)
 }
 */
 
-DialogBuilder::DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic):
+DialogBuilder::DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic):
 	HelpTopic(HelpTopic)
 {
 	AddBorder(GetLangString(TitleMessageId));
@@ -113,7 +112,7 @@ int DialogBuilder::TextWidth(const DialogItemEx &Item)
 
 const wchar_t *DialogBuilder::GetLangString(int MessageID)
 {
-	return MSG(MessageID);
+	return MSG(static_cast<LNGID>(MessageID));
 }
 
 DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(BOOL *Value, int Mask)
@@ -169,9 +168,7 @@ DialogItemEx *DialogBuilder::AddConstEditField(const wchar_t* Value, int Width, 
 DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 {
 	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, L"");
-	FormatString ValueText;
-	ValueText<<*Value;
-	Item->strData = ValueText;
+	Item->strData = FormatString() << *Value;
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 
@@ -194,7 +191,7 @@ DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
 	FarListItem *ListItems = new FarListItem[ItemCount];
 	for(size_t i=0; i<ItemCount; i++)
 	{
-		ListItems [i].Text = MSG(Items [i].MessageId);
+		ListItems [i].Text = MSG(static_cast<LNGID>(Items[i].MessageId));
 		ListItems [i].Flags = (*Value == Items [i].ItemValue) ? LIF_SELECTED : 0;
 		ListItems [i].Reserved [0] = Items [i].ItemValue;
 	}

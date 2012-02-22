@@ -65,7 +65,7 @@ namespace fmt
 
 class BaseFormat
 {
-public:
+protected:
 	BaseFormat();
 	virtual ~BaseFormat() {}
 
@@ -103,7 +103,6 @@ public:
 	BaseFormat& operator<<(const fmt::RightAlign& Manipulator);
 	BaseFormat& operator<<(const fmt::Flush& Manipulator);
 
-protected:
 	virtual void Commit(const string& Data)=0;
 
 private:
@@ -119,20 +118,33 @@ private:
 
 class FormatString:public BaseFormat, public string
 {
+public:
+	template<class T>
+	FormatString& operator<<(const T& param) {return static_cast<FormatString&>(BaseFormat::operator<<(param));}
+
+private:
 	virtual void Commit(const string& Data);
 };
 
 class FormatScreen:public BaseFormat
 {
+public:
+	template<class T>
+	FormatScreen& operator<<(const T& param) {return static_cast<FormatScreen&>(BaseFormat::operator<<(param));}
+
+private:
 	virtual void Commit(const string& Data);
 };
 
-class TemplateString:public BaseFormat, public string
+class LangString:public BaseFormat, public string
 {
 public:
-	TemplateString() {};
-	TemplateString(const wchar_t* Template);
+	LangString() {};
+	LangString(enum LNGID MessageId);
+	template<class T>
+	LangString& operator<<(const T& param) {return static_cast<LangString&>(BaseFormat::operator<<(param));}
+
 private:
-	size_t Iteration;
 	virtual void Commit(const string& Data);
+	size_t Iteration;
 };

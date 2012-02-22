@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "ctrlobj.hpp"
-#include "lang.hpp"
 #include "manager.hpp"
 #include "cmdline.hpp"
 #include "hilight.hpp"
@@ -63,7 +62,8 @@ ControlObject::ControlObject():
 	HiFiles = new HighlightFiles;
 	FolderShortcuts = new Shortcuts();
 	FrameManager = new Manager;
-	//Macro.LoadMacros();
+	Plugins = new PluginManager;
+
 	ReadConfig();
 	CmdHistory=new History(HISTORYTYPE_CMD,nullptr,Opt.HistoryCount,&Opt.SaveHistory,false);
 	FolderHistory=new History(HISTORYTYPE_FOLDER,nullptr,Opt.FoldersHistoryCount,&Opt.SaveFoldersHistory,true);
@@ -117,7 +117,7 @@ void ControlObject::Init()
 		string strOldTitle;
 		Console.GetTitle(strOldTitle);
 		FrameManager->PluginCommit();
-		Plugins.LoadPlugins();
+		Plugins->LoadPlugins();
 		Console.SetTitle(strOldTitle);
 	}
 	Macro.LoadMacros();
@@ -153,23 +153,24 @@ ControlObject::~ControlObject()
 		}
 	}
 
-	FrameManager->CloseAll();
-	FPanels=nullptr;
-	FileFilter::CloseFilter();
-	delete CmdHistory;
-	delete FolderHistory;
-	delete ViewHistory;
-	delete CmdLine;
-	delete HiFiles;
-	delete FolderShortcuts;
-
-	History::CompactHistory();
-	FilePositionCache::CompactHistory();
-
-	delete FrameManager;
 	TreeList::FlushCache();
 	SIDCacheFlush();
 	Lang.Close();
+	FrameManager->CloseAll();
+	FPanels=nullptr;
+	FileFilter::CloseFilter();
+	History::CompactHistory();
+	FilePositionCache::CompactHistory();
+
+	delete CmdLine;
+	delete ViewHistory;
+	delete FolderHistory;
+	delete CmdHistory;
+	delete FrameManager;
+	delete Plugins;
+	delete FolderShortcuts;
+	delete HiFiles;
+
 	CtrlObject=nullptr;
 }
 

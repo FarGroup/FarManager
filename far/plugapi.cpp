@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugapi.hpp"
 #include "keys.hpp"
-#include "lang.hpp"
 #include "help.hpp"
 #include "vmenu.hpp"
 #include "dialog.hpp"
@@ -87,7 +86,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace pluginapi
 {
-inline Plugin* GuidToPlugin(const GUID* Id) {return (Id && CtrlObject)? CtrlObject->Plugins.FindPlugin(*Id) : nullptr;}
+inline Plugin* GuidToPlugin(const GUID* Id) {return (Id && CtrlObject)? CtrlObject->Plugins->FindPlugin(*Id) : nullptr;}
 
 int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...)
 {
@@ -340,11 +339,12 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 		case ACTL_SETPROGRESSVALUE:
 		case ACTL_GETFARRECT:
 		case ACTL_GETCURSORPOS:
+		case ACTL_SETCURSORPOS:
 		case ACTL_PROGRESSNOTIFY:
 			break;
 		default:
 
-			if (!FrameManager || FrameManager->ManagerIsDown())
+			if (FrameManager->ManagerIsDown())
 				return 0;
 	}
 
@@ -481,7 +481,7 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 		case ACTL_GETWINDOWINFO:
 		{
 			WindowInfo *wi=(WindowInfo*)Param2;
-			if (FrameManager && CheckStructSize(wi))
+			if (CheckStructSize(wi))
 			{
 				string strType, strName;
 				Frame *f;
@@ -546,12 +546,12 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 		}
 		case ACTL_GETWINDOWCOUNT:
 		{
-			return FrameManager?FrameManager->GetFrameCount():0;
+			return FrameManager->GetFrameCount();
 		}
 		case ACTL_SETCURRENTWINDOW:
 		{
 			// Запретим переключение фрэймов, если находимся в модальном редакторе/вьюере.
-			if (FrameManager && !FrameManager->InModalEV() && (*FrameManager)[Param1])
+			if (!FrameManager->InModalEV() && (*FrameManager)[Param1])
 			{
 				int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
 
@@ -573,7 +573,7 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 		*/
 		case ACTL_COMMIT:
 		{
-			return FrameManager?FrameManager->PluginCommit():FALSE;
+			return FrameManager->PluginCommit();
 		}
 		/* $ 15.09.2001 tran
 		   пригодится плагинам */
@@ -1090,7 +1090,7 @@ const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,int MsgId)
 		CutToSlash(strPath);
 
 		if (pPlugin->InitLang(strPath))
-			return pPlugin->GetMsg(MsgId);
+			return pPlugin->GetMsg(static_cast<LNGID>(MsgId));
 	}
 	return L"";
 }
@@ -1263,7 +1263,7 @@ INT_PTR WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int 
 	if (Command == FCTL_CHECKPANELSEXIST)
 		return Opt.OnlyEditorViewerUsed? FALSE:TRUE;
 
-	if (Opt.OnlyEditorViewerUsed || !CtrlObject || !FrameManager || FrameManager->ManagerIsDown())
+	if (Opt.OnlyEditorViewerUsed || !CtrlObject || FrameManager->ManagerIsDown())
 		return 0;
 
 	FilePanels *FPanels=CtrlObject->Cp();
@@ -1845,8 +1845,8 @@ INT_PTR WINAPI apiEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, i
 
 	if (EditorID == -1)
 	{
-		if (CtrlObject->Plugins.CurEditor)
-			return CtrlObject->Plugins.CurEditor->EditorControl(Command,(void *)Param2);
+		if (CtrlObject->Plugins->CurEditor)
+			return CtrlObject->Plugins->CurEditor->EditorControl(Command,(void *)Param2);
 
 		return 0;
 	}
@@ -1876,8 +1876,8 @@ INT_PTR WINAPI apiViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, i
 
 	if (ViewerID == -1)
 	{
-		if (CtrlObject->Plugins.CurViewer)
-			return CtrlObject->Plugins.CurViewer->ViewerControl(Command,(void *)Param2);
+		if (CtrlObject->Plugins->CurViewer)
+			return CtrlObject->Plugins->CurViewer->ViewerControl(Command,(void *)Param2);
 
 		return 0;
 	}
@@ -2251,7 +2251,7 @@ INT_PTR WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Com
 				{
 					string strPath;
 					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
-					return reinterpret_cast<INT_PTR>(CtrlObject->Plugins.LoadPluginExternal(strPath, Command == PCTL_FORCEDLOADPLUGIN));
+					return reinterpret_cast<INT_PTR>(CtrlObject->Plugins->LoadPluginExternal(strPath, Command == PCTL_FORCEDLOADPLUGIN));
 				}
 			}
 			break;
@@ -2262,16 +2262,16 @@ INT_PTR WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Com
 			switch(Param1)
 			{
 				case PFM_GUID:
-					plugin = CtrlObject->Plugins.FindPlugin(*reinterpret_cast<GUID*>(Param2));
+					plugin = CtrlObject->Plugins->FindPlugin(*reinterpret_cast<GUID*>(Param2));
 					break;
 
 				case PFM_MODULENAME:
 				{
 					string strPath;
 					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
-					for (size_t i = 0; i < CtrlObject->Plugins.GetPluginsCount(); ++i)
+					for (size_t i = 0; i < CtrlObject->Plugins->GetPluginsCount(); ++i)
 					{
-						Plugin* p = CtrlObject->Plugins.GetPlugin(i);
+						Plugin* p = CtrlObject->Plugins->GetPlugin(i);
 						if (!StrCmpI(p->GetModuleName(), strPath))
 						{
 							plugin = p;
@@ -2286,7 +2286,7 @@ INT_PTR WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Com
 
 		case PCTL_UNLOADPLUGIN:
 			{
-				return CtrlObject->Plugins.UnloadPluginExternal(Handle);
+				return CtrlObject->Plugins->UnloadPluginExternal(Handle);
 			}
 			break;
 
@@ -2298,7 +2298,7 @@ INT_PTR WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Com
 					Plugin* plugin = reinterpret_cast<Plugin*>(Handle);
 					if(plugin)
 					{
-						return CtrlObject->Plugins.GetPluginInformation(plugin, Info, Param1);
+						return CtrlObject->Plugins->GetPluginInformation(plugin, Info, Param1);
 					}
 				}
 			}
@@ -2306,14 +2306,14 @@ INT_PTR WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Com
 
 		case PCTL_GETPLUGINS:
 			{
-				size_t PluginsCount = CtrlObject->Plugins.GetPluginsCount();
+				size_t PluginsCount = CtrlObject->Plugins->GetPluginsCount();
 				if(Param1 && Param2)
 				{
 					HANDLE* Plugins = static_cast<HANDLE*>(Param2);
 					size_t Count = Min(static_cast<size_t>(Param1), PluginsCount);
 					for(size_t i = 0; i < Count; ++i)
 					{
-						Plugins[i] = CtrlObject->Plugins.GetPlugin(i);
+						Plugins[i] = CtrlObject->Plugins->GetPlugin(i);
 					}
 				}
 				return PluginsCount;

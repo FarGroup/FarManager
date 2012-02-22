@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "manager.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "frame.hpp"
 #include "vmenu.hpp"
@@ -720,7 +719,7 @@ void Manager::ProcessMainLoop()
 	{
 		if(!PluginPanelsCount)
 		{
-			CtrlObject->Plugins.RefreshPluginsList();
+			CtrlObject->Plugins->RefreshPluginsList();
 		}
 	}
 }
@@ -1230,7 +1229,7 @@ void Manager::PluginsMenu()
 		const wchar_t *Topic=curType==MODALTYPE_EDITOR?L"Editor":
 		                     curType==MODALTYPE_VIEWER?L"Viewer":
 		                     curType==MODALTYPE_DIALOG?L"Dialog":nullptr;
-		CtrlObject->Plugins.CommandsMenu(curType,0,Topic);
+		CtrlObject->Plugins->CommandsMenu(curType,0,Topic);
 	}
 
 	_MANAGER(SysLog(-1));

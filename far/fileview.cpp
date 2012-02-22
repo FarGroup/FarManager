@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "fileview.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
@@ -513,7 +512,7 @@ void FileViewer::ShowStatus()
 void FileViewer::OnChangeFocus(int focus)
 {
 	Frame::OnChangeFocus(focus);
-	CtrlObject->Plugins.CurViewer=&View;
+	CtrlObject->Plugins->CurViewer=&View;
 	int FCurViewerID=View.ViewerID;
-	CtrlObject->Plugins.ProcessViewerEvent(focus?VE_GOTFOCUS:VE_KILLFOCUS,nullptr,FCurViewerID);
+	CtrlObject->Plugins->ProcessViewerEvent(focus?VE_GOTFOCUS:VE_KILLFOCUS,nullptr,FCurViewerID);
 }

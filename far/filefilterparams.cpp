@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "CFileMask.hpp"
 #include "FileMasksWithExclude.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "dialog.hpp"

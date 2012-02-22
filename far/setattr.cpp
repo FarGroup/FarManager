@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "flink.hpp"
-#include "lang.hpp"
 #include "dialog.hpp"
 #include "chgprior.hpp"
 #include "scantree.hpp"
@@ -403,9 +402,7 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 				{
 					FarListInfo li;
 					SendDlgMessage(hDlg,DM_LISTINFO,SA_COMBO_HARDLINK,&li);
-					FormatString strTmp;
-					strTmp<<MSG(MSetAttrHardLinks)<<L" ("<<li.ItemsNumber<<L")";
-					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,const_cast<wchar_t*>(strTmp.CPtr()));
+					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,const_cast<wchar_t*>((FormatString()<<MSG(MSetAttrHardLinks)<<L" ("<<li.ItemsNumber<<L")").CPtr()));
 				}
 				break;
 				case SA_EDIT_WDATE:
@@ -696,7 +693,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			return false;
 		}
 
-		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
+		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 
 		if (!(Info.Flags & OPIF_REALNAMES))
 		{
@@ -760,22 +757,22 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		string strDMask, strTMask;
 		strTMask.Format(FmtMask1,TimeSeparator,TimeSeparator,DecimalSeparator);
 
-		TemplateString DateFormat;
+		LangString DateFormat;
 
 		switch (GetDateFormat())
 		{
 			case 0:
-				DateFormat = MSG(MSetAttrTimeTitle1);
+				DateFormat = MSetAttrTimeTitle1;
 				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
 				strDMask.Format(FmtMask2,DateSeparator,DateSeparator);
 				break;
 			case 1:
-				DateFormat = MSG(MSetAttrTimeTitle3);
+				DateFormat = MSetAttrTimeTitle3;
 				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
 				strDMask.Format(FmtMask2,DateSeparator,DateSeparator);
 				break;
 			default:
-				DateFormat = MSG(MSetAttrTimeTitle3);
+				DateFormat = MSetAttrTimeTitle3;
 				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
 				strDMask.Format(FmtMask3,DateSeparator,DateSeparator);
 				break;
@@ -882,7 +879,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 				LinkPresent=true;
 				NormalizeSymlinkName(strLinkName);
-				int ID_Msg=MSetAttrSymlink;
+				LNGID ID_Msg=MSetAttrSymlink;
 
 				if (ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
 				{
@@ -958,9 +955,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					AttrDlg[SA_COMBO_HARDLINK].Flags|=DIF_DISABLE;
 				}
 
-				FormatString strTmp;
-				strTmp<<MSG(MSetAttrHardLinks)<<L" ("<<NameList.ItemsNumber<<L")";
-				AttrDlg[SA_COMBO_HARDLINK].strData=strTmp;
+				AttrDlg[SA_COMBO_HARDLINK].strData=FormatString()<<MSG(MSetAttrHardLinks)<<L" ("<<NameList.ItemsNumber<<L")";
 			}
 
 			AttrDlg[SA_TEXT_NAME].strData = strSelName;

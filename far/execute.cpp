@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "execute.hpp"
 #include "keyboard.hpp"
 #include "filepanels.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
@@ -1258,7 +1257,7 @@ int CommandLine::CmdExecute(const string& CmdLine,bool AlwaysWaitFinish,bool Sep
 {
 	LastCmdPartLength=-1;
 
-	if (!SeparateWindow && CtrlObject->Plugins.ProcessCommandLine(CmdLine))
+	if (!SeparateWindow && CtrlObject->Plugins->ProcessCommandLine(CmdLine))
 	{
 		/* $ 12.05.2001 DJ - рисуемся только если остались верхним фреймом */
 		if (CtrlObject->Cp()->IsTopFrame())
@@ -1751,7 +1750,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
 		// здесь PtrCmd - уже готовая команда, без IF
 
-		if (PtrCmd && *PtrCmd && CtrlObject->Plugins.ProcessCommandLine(PtrCmd))
+		if (PtrCmd && *PtrCmd && CtrlObject->Plugins->ProcessCommandLine(PtrCmd))
 		{
 			//CmdStr.SetString(L"");
 			GotoXY(X1,Y1);
@@ -1887,7 +1886,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	  каталога не имеют никакого отношения.
 	*/
 	/*
-	if (CtrlObject->Plugins.ProcessCommandLine(ExpandedDir))
+	if (CtrlObject->Plugins->ProcessCommandLine(ExpandedDir))
 	{
 	  //CmdStr.SetString(L"");
 	  GotoXY(X1,Y1);

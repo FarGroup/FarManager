@@ -58,7 +58,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "chgmmode.hpp"
 #include "colormix.hpp"
-#include "lang.hpp"
 #include "fileedit.hpp"
 
 static int Recurse=0;
@@ -2794,7 +2793,7 @@ void Edit::ApplyColor()
 	if(Flags.Check(FEDITLINE_EDITORMODE))
 	{
 		EditorInfo ei={};
-		CtrlObject->Plugins.CurEditor->EditorControl(ECTL_GETINFO, &ei);
+		CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO, &ei);
 		XPos = ei.CurTabPos;
 	}
 

@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plist.hpp"
 #include "keys.hpp"
 #include "help.hpp"
-#include "lang.hpp"
 #include "vmenu.hpp"
 #include "language.hpp"
 #include "message.hpp"

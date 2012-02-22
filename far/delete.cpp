@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "lang.hpp"
 #include "flink.hpp"
 #include "panel.hpp"
 #include "chgprior.hpp"
@@ -159,10 +158,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 			else if (StrItems.At(LenItems-1) == L'1')
 				Ends=MSG(MAskDeleteItems0);
 		}
-		
-		TemplateString str(MSG(MAskDeleteItems));
-		str << SelCount << Ends;
-		strDeleteFilesMsg = str;
+		strDeleteFilesMsg = LangString(MAskDeleteItems) << SelCount << Ends;
 	}
 
 	Ret=1;

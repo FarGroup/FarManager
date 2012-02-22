@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "options.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "hmenu.hpp"
 #include "vmenu.hpp"
@@ -605,7 +604,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 						Select(TRUE,&HelpMenu);
 						delete HelpMenu;
 						LangMenu->Hide();
-						CtrlObject->Plugins.ReloadLanguage();
+						CtrlObject->Plugins->ReloadLanguage();
 						SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
 						PrepareStrFTime();
 						PrepareUnitStr();
@@ -618,7 +617,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					break;
 				}
 				case MENU_OPTIONS_PLUGINSCONFIG:   // Plugins configuration
-					CtrlObject->Plugins.Configure();
+					CtrlObject->Plugins->Configure();
 					break;
 				case MENU_OPTIONS_PLUGINSMANAGERSETTINGS:
 					PluginsManagerSettings();

@@ -90,7 +90,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local) : PluginsCfg(nullpt
 {
 	//хак чтоб SCTL_* могли работать при ExitFarW.
 	extern PluginManager *PluginManagerForExitFar;
-	Plugin* pPlugin=CtrlObject?CtrlObject->Plugins.FindPlugin(Guid):(PluginManagerForExitFar?PluginManagerForExitFar->FindPlugin(Guid):nullptr);
+	Plugin* pPlugin=CtrlObject?CtrlObject->Plugins->FindPlugin(Guid):(PluginManagerForExitFar?PluginManagerForExitFar->FindPlugin(Guid):nullptr);
 	if (pPlugin)
 	{
 		string strGuid = GuidToStr(Guid);

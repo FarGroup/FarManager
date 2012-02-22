@@ -69,7 +69,7 @@ class ControlObject
 		MenuBar *TopMenuBar;
 		HighlightFiles *HiFiles;
 		KeyMacro Macro;
-		PluginManager Plugins;
+		PluginManager* Plugins;
 		Shortcuts* FolderShortcuts;
 
 		static void ShowCopyright(DWORD Flags=0);

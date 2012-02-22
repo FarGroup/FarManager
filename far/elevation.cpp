@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "elevation.hpp"
 #include "config.hpp"
-#include "lang.hpp"
 #include "language.hpp"
 #include "dialog.hpp"
 #include "pathmix.hpp"
@@ -435,11 +434,11 @@ struct EAData
 {
 	Event* pEvent;
 	const string& Object;
-	int Why;
+	LNGID Why;
 	bool& AskApprove;
 	bool& Approve;
 	bool& DontAskAgain;
-	EAData(Event* pEvent, const string& Object, int Why, bool& AskApprove, bool& Approve, bool& DontAskAgain):
+	EAData(Event* pEvent, const string& Object, LNGID Why, bool& AskApprove, bool& Approve, bool& DontAskAgain):
 		pEvent(pEvent), Object(Object), Why(Why), AskApprove(AskApprove), Approve(Approve), DontAskAgain(DontAskAgain){}
 };
 
@@ -474,7 +473,7 @@ void ElevationApproveDlgSync(LPVOID Param)
 	}
 }
 
-bool elevation::ElevationApproveDlg(int Why, const string& Object)
+bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 {
 	if(!(Opt.IsUserAdmin && !(Opt.CurrentElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&

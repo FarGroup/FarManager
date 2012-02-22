@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "keys.hpp"
 #include "farqueue.hpp"
-#include "lang.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
@@ -646,7 +645,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			//Info.hPanel
 			if (WaitInMainLoop)
 				Info.Flags|=PCIF_FROMMAIN;
-			if (CtrlObject->Plugins.ProcessConsoleInput(&Info))
+			if (CtrlObject->Plugins->ProcessConsoleInput(&Info))
 				Key=KEY_NONE;
 		}
 	}
@@ -776,7 +775,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 	{
 		if (!(LoopCount & 15))
 		{
-			if(CtrlObject->Plugins.GetPluginsCount())
+			if(CtrlObject->Plugins->GetPluginsCount())
 			{
 				SetFarConsoleMode();
 			}

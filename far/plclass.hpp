@@ -28,8 +28,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "language.hpp"
 #include "bitflags.hpp"
+#include "language.hpp"
 
 class AncientPlugin
 {
@@ -237,7 +237,7 @@ public:
 	const VersionInfo& GetVersion() { return PluginVersion; }
 	const wchar_t* GetVersionString() { return VersionString; }
 	const GUID& GetGUID() const { return m_Guid; }
-	const wchar_t *GetMsg(int nID) const { return PluginLang.GetMsg(nID); }
+	const wchar_t *GetMsg(LNGID nID) const { return PluginLang.GetMsg(nID); }
 
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags)==TRUE; }
 	DWORD GetWorkFlags() const { return WorkFlags.Flags; }

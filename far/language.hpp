@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "lang.hpp"
+
 enum LngErrors
 {
 	LERROR_SUCCESS,
@@ -52,17 +54,17 @@ public:
 #endif // NO_WRAPPER
 	void Close();
 
-	const wchar_t* GetMsg(int nID) const;
+	const wchar_t* GetMsg(LNGID nID) const;
 
 #ifndef NO_WRAPPER
-	const char* GetMsgA(int nID) const;
+	const char* GetMsgA(LNGID nID) const;
 #endif // NO_WRAPPER
 
 	bool IsLanguageLoaded() const {return LanguageLoaded;}
 	LngErrors GetLastError() const {return LastError;}
 
 private:
-	bool CheckMsgId(int MsgId) const;
+	bool CheckMsgId(LNGID MsgId) const;
 	void Free();
 
 	string strMessageFile;
@@ -91,3 +93,9 @@ FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Langua
 int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, string *strParam2, UINT nCodePage);
 int GetOptionsParam(FILE *SrcFile,const wchar_t *KeyName,string &strValue, UINT nCodePage);
 bool Select(int HelpLanguage,VMenu **MenuPtr);
+
+template<class T>
+LNGID operator+(LNGID Id, T Shift)
+{
+	return static_cast<LNGID>(static_cast<DWORD>(Id)+static_cast<DWORD>(Shift));
+}

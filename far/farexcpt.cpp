@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "farexcpt.hpp"
-#include "lang.hpp"
 #include "plugins.hpp"
 #include "macro.hpp"
 #include "filepanels.hpp"
@@ -306,7 +305,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	struct __ECODE
 	{
 		NTSTATUS Code;     // код исключения
-		DWORD IdMsg;    // ID сообщения из LNG-файла
+		LNGID IdMsg;    // ID сообщения из LNG-файла
 		DWORD RetCode;  // Что вернем?
 	} ECode[]=
 
@@ -328,7 +327,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	// EXCEPTION_CONTINUE_EXECUTION  ??????
 	DWORD rc;
 	string strBuf1, strBuf2, strBuf3;
-	TemplateString strBuf;
+	LangString strBuf;
 	string strFileName;
 	BOOL ShowMessages=FALSE;
 	// получим запись исключения
@@ -380,7 +379,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 				}
 
 				strBuf2.Format(L"0x%p", xr->ExceptionInformation[1]+10);
-				strBuf = MSG(Offset+MExcRAccess);
+				strBuf = MExcRAccess+Offset;
 				strBuf << strBuf2;
 				Exception=strBuf;
 			}

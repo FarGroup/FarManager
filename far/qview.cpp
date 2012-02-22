@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "qview.hpp"
 #include "macroopcode.hpp"
 #include "flink.hpp"
-#include "lang.hpp"
 #include "colors.hpp"
 #include "keys.hpp"
 #include "filepanels.hpp"
@@ -143,7 +142,7 @@ void QuickView::DisplayObject()
 
 			if (GetReparsePointInfo(strCurFileName, strJuncName,&ReparseTag))
 			{
-				int ID_Msg=MQuickViewJunction;
+				LNGID ID_Msg=MQuickViewJunction;
 
 				if (ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
 				{

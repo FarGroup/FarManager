@@ -80,7 +80,7 @@ bool PluginSynchro::Process(void)
 	{
 		if(plugin)
 		{
-			Plugin* pPlugin=CtrlObject?CtrlObject->Plugins.FindPlugin(PluginId):nullptr;
+			Plugin* pPlugin=CtrlObject?CtrlObject->Plugins->FindPlugin(PluginId):nullptr;
 
 			if (pPlugin)
 			{

@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "flink.hpp"
 #include "keyboard.hpp"
 #include "colors.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "filepanels.hpp"
 #include "filelist.hpp"
@@ -966,7 +965,7 @@ int TreeList::ProcessKey(int Key)
 				int Move=(Key==KEY_F6 || Key==KEY_DRAGMOVE);
 				int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
 				             AnotherPanel->IsVisible() &&
-				             !CtrlObject->Plugins.UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
+				             !CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
 				int Link=((Key==KEY_ALTF6||Key==KEY_RALTF6) && !ToPlugin);
 
 				if ((Key==KEY_ALTF6||Key==KEY_RALTF6) && !Link) // молча отвалим :-)
@@ -982,7 +981,7 @@ int TreeList::ProcessKey(int Key)
 					int ItemNumber=1;
 					HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
 					FileList::FileNameToPluginItem(ListData[CurFile]->strName,ItemList);
-					int PutCode=CtrlObject->Plugins.PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move!=0,0);
+					int PutCode=CtrlObject->Plugins->PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move!=0,0);
 
 					if (PutCode==1 || PutCode==2)
 						AnotherPanel->SetPluginModified();
@@ -1170,9 +1169,9 @@ int TreeList::ProcessKey(int Key)
 		case KEY_SHIFTAPPS:
 		{
 			//вызовем EMenu если он есть
-			if (CtrlObject->Plugins.FindPlugin(Opt.KnownIDs.Emenu))
+			if (CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<INT_PTR>(1))); // EMenu Plugin :-)
+				CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<INT_PTR>(1))); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}
@@ -1410,9 +1409,9 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
 
 			//вызовем EMenu если он есть
-			if (MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins.FindPlugin(Opt.KnownIDs.Emenu))
+			if (MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
+				CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
 				return TRUE;
 			}
 

@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "message.hpp"
 #include "ctrlobj.hpp"
-#include "lang.hpp"
 #include "colors.hpp"
 #include "dialog.hpp"
 #include "scrbuf.hpp"
@@ -178,12 +177,9 @@ INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						string Txt[2];
 						GetWin32ErrorString(LastError, Txt[0]);
 						GetNtErrorString(NtStatus, Txt[1]);
-						FormatString Str[2];
-						Str[0] << L"LastError: 0x" << fmt::Width(8) << fmt::FillChar(L'0') << fmt::Radix(16) << LastError << L" - " << Txt[0];
-						Str[1] << L"NTSTATUS: 0x" << fmt::Width(8) << fmt::FillChar(L'0') << fmt::Radix(16) << NtStatus << L" - " << Txt[1];
 						DialogBuilder Builder(MError, nullptr);
-						Builder.AddConstEditField(Str[0], 65);
-						Builder.AddConstEditField(Str[1], 65);
+						Builder.AddConstEditField(FormatString() << L"LastError: 0x" << fmt::Width(8) << fmt::FillChar(L'0') << fmt::Radix(16) << LastError << L" - " << Txt[0], 65);
+						Builder.AddConstEditField(FormatString() << L"NTSTATUS: 0x" << fmt::Width(8) << fmt::FillChar(L'0') << fmt::Radix(16) << NtStatus << L" - " << Txt[1], 65);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}

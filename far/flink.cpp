@@ -44,7 +44,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "privilege.hpp"
 #include "message.hpp"
-#include "lang.hpp"
 #include "language.hpp"
 #include "dirmix.hpp"
 #include "treelist.hpp"
@@ -679,12 +678,9 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 						{
 							if (LinkType==RP_VOLMOUNT)
 							{
-								TemplateString strMsgBuf[2] = {MSG(MCopyMountVolFailed), MSG(MCopyMountVolFailed2)};
-								strMsgBuf[0] << SelName;
-								strMsgBuf[1] << strDestFullName;
 								Message(MSG_WARNING,1,MSG(MError),
-								        strMsgBuf[0],
-								        strMsgBuf[1],
+								        LangString(MCopyMountVolFailed) << SelName,
+								        LangString(MCopyMountVolFailed2) << strDestFullName,
 								        MSG(MCopyFolderNotEmpty),
 								        MSG(MOk));
 							}
@@ -809,10 +805,11 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 			{
 				if (!(Flags&FCOPY_NOSHOWMSGLINK))
 				{
-					TemplateString strMsgBuf[2] = {MSG(MCopyMountVolFailed), MSG(MCopyMountVolFailed2)};
-					strMsgBuf[0] << SelName;
-					strMsgBuf[1] << strDestFullName;
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strMsgBuf[0],strMsgBuf[1],MSG(MOk));
+					Message(MSG_WARNING|MSG_ERRORTYPE,1,
+						MSG(MError),
+						LangString(MCopyMountVolFailed) << SelName,
+						LangString(MCopyMountVolFailed2) << strDestFullName,
+						MSG(MOk));
 				}
 
 				return 0;

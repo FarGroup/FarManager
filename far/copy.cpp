@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "copy.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "colors.hpp"
 #include "flink.hpp"
@@ -196,8 +195,9 @@ class CopyProgress
 		FarColor Color;
 		int Percents;
 		DWORD LastWriteTime;
-		string strSrc,strDst,strTime;
-		TemplateString strFiles;
+		FormatString strSrc,strDst;
+		string strTime;
+		LangString strFiles;
 		bool Timer();
 		void Flush();
 		void DrawNames();
@@ -364,21 +364,19 @@ void CopyProgress::SetNames(const wchar_t *Src,const wchar_t *Dst)
 		CreateBackground();
 	}
 
-	FormatString FString;
-	FString<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Src;
-	strSrc=FString;
-	FString.Clear();
-	FString<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Dst;
-	strDst=FString;
+	strSrc.Clear();
+	strSrc<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Src;
+	strDst.Clear();
+	strDst<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Dst;
 
 	if (Total)
 	{
-		strFiles = MSG(MCopyProcessedTotal);
+		strFiles = MCopyProcessedTotal;
 		strFiles << TotalFiles << TotalFilesToProcess;
 	}
 	else
 	{
-		strFiles = MSG(MCopyProcessed);
+		strFiles = MCopyProcessed;
 		strFiles << TotalFiles;
 	}
 
@@ -423,9 +421,8 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 	Bar[BarLength]=0;
 	Percents=ToPercent64(CompletedSize,TotalSize);
 	FormatString strPercents;
-	strPercents<<fmt::Width(4)<<Percents<<L"%";
 	Text(BarCoord.X,BarCoord.Y,Color,Bar);
-	Text(static_cast<int>(BarCoord.X+BarLength),BarCoord.Y,Color,strPercents);
+	Text(static_cast<int>(BarCoord.X+BarLength),BarCoord.Y,Color,FormatString()<<fmt::Width(4)<<Percents<<L"%");
 
 	if (Time&&(!Total||TotalProgress))
 	{
@@ -443,9 +440,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 
 		if (!WorkTime)
 		{
-			TemplateString str(MSG(MCopyTimeInfo));
-			str << L"        " << L"        " << L"        ";
-			strTime = str;
+			strTime = LangString(MCopyTimeInfo) << L"        " << L"        " << L"        ";
 		}
 		else
 		{
@@ -466,13 +461,12 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 				strSpeed.LShift(1);
 				strSpeed+=L" ";
 			}
-			TemplateString str(MSG(MCopyTimeInfo));
+			;
 			string tmp[3];
 			tmp[0].Format(L"%8.8s", strWorkTimeStr.CPtr());
 			tmp[1].Format(L"%8.8s", strTimeLeftStr.CPtr());
 			tmp[2].Format(L"%8.8s", strSpeed.CPtr());
-			str << tmp[0] << tmp[1] << tmp[2];
-			strTime = str;
+			strTime = LangString(MCopyTimeInfo) << tmp[0] << tmp[1] << tmp[2];
 		}
 
 		Text(Rect.Left+5,Rect.Top+(Total?12:10),Color,strTime);
@@ -1041,7 +1035,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		FormatString StrItems;
 		StrItems<<CDP.SelCount;
 		size_t LenItems=StrItems.GetLength();
-		int NItems=MCMLItemsA;
+		LNGID NItems=MCMLItemsA;
 
 		if (LenItems > 0)
 		{
@@ -1052,10 +1046,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			else if (StrItems[LenItems-1] == '1')
 				NItems=MCMLItems0;
 		}
-
-		TemplateString Templ(MSG(Move? MMoveFiles : (Link? MLinkFiles : MCopyFiles)));
-		Templ << CDP.SelCount << MSG(NItems);
-		strCopyStr = Templ;
+		strCopyStr = LangString(Move? MMoveFiles : (Link? MLinkFiles : MCopyFiles)) << CDP.SelCount << MSG(NItems);
 	}
 
 	CopyDlg[ID_SC_SOURCEFILENAME].strData=strCopyStr;
@@ -2758,7 +2749,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			//????
 			string strMsg1, strMsg2;
-			int MsgMCannot=(Flags&FCOPY_LINK) ? MCannotLink: (Flags&FCOPY_MOVE) ? MCannotMove: MCannotCopy;
+			LNGID MsgMCannot=(Flags&FCOPY_LINK) ? MCannotLink: (Flags&FCOPY_MOVE) ? MCannotMove: MCannotCopy;
 			strMsg1 = Src;
 			strMsg2 = strDestPath;
 			InsertQuote(strMsg1);

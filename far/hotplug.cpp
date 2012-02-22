@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "hotplug.hpp"
-#include "lang.hpp"
 #include "language.hpp"
 #include "keys.hpp"
 #include "help.hpp"
@@ -576,24 +575,17 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
 		if (pDisk != Disks)
 			*--pDisk=0;
 
-		TemplateString strDiskMsg;
-		if (*Disks)
-		{
-			strDiskMsg = MSG(MHotPlugDisks);
-			strDiskMsg << Disks;
-		}
-
 		if (StrCmpI(strDescription,strFriendlyName) && !strFriendlyName.IsEmpty())
 		{
-			if (!strDiskMsg.IsEmpty())
-				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,strDiskMsg,MSG(MHRemove),MSG(MHCancel));
+			if (*Disks)
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,LangString(MHotPlugDisks) << Disks,MSG(MHRemove),MSG(MHCancel));
 			else
 				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strFriendlyName,MSG(MHRemove),MSG(MHCancel));
 		}
 		else
 		{
-			if (!strDiskMsg.IsEmpty())
-				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,strDiskMsg,MSG(MHRemove),MSG(MHCancel));
+			if (*Disks)
+				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,LangString(MHotPlugDisks) << Disks,MSG(MHRemove),MSG(MHCancel));
 			else
 				DoneEject=Message(MSG_WARNING,2,MSG(MChangeHotPlugDisconnectDriveTitle),MSG(MChangeHotPlugDisconnectDriveQuestion),strDescription,MSG(MHRemove),MSG(MHCancel));
 		}

@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "findfile.hpp"
 #include "flink.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "dialog.hpp"
@@ -733,19 +732,19 @@ void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=f
 				size_t FileCount=0;
 				PluginPanelItem *PanelData=nullptr;
 
-				if (CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
+				if (CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
 				{
-					CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,FileCount);
+					CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,FileCount);
 				}
 			}
 
 			if (*DirPtr)
 			{
-				CtrlObject->Plugins.SetDirectory(hPlugin,DirPtr,OPM_SILENT);
+				CtrlObject->Plugins->SetDirectory(hPlugin,DirPtr,OPM_SILENT);
 			}
 			else
 			{
-				CtrlObject->Plugins.SetDirectory(hPlugin,L"\\",OPM_SILENT);
+				CtrlObject->Plugins->SetDirectory(hPlugin,L"\\",OPM_SILENT);
 			}
 		}
 
@@ -1125,10 +1124,10 @@ bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wcha
 	ARCLIST ArcItem;
 	itd.GetArcListItem(ArcIndex, ArcItem);
 	OpenPanelInfo Info;
-	CtrlObject->Plugins.GetOpenPanelInfo(ArcItem.hPlugin,&Info);
+	CtrlObject->Plugins->GetOpenPanelInfo(ArcItem.hPlugin,&Info);
 	string strSaveDir = NullToEmpty(Info.CurDir);
 	AddEndSlash(strSaveDir);
-	CtrlObject->Plugins.SetDirectory(ArcItem.hPlugin,L"\\",OPM_SILENT);
+	CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,L"\\",OPM_SILENT);
 	//SetPluginDirectory(ArcList[ArcIndex]->strRootPath,hPlugin);
 	SetPluginDirectory(FindData.strFileName,ArcItem.hPlugin);
 	const wchar_t *lpFileNameToFind = PointToName(FindData.strFileName);
@@ -1137,7 +1136,7 @@ bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wcha
 	size_t nItemsNumber;
 	bool nResult=false;
 
-	if (CtrlObject->Plugins.GetFindData(ArcItem.hPlugin,&pItems,&nItemsNumber,OPM_SILENT))
+	if (CtrlObject->Plugins->GetFindData(ArcItem.hPlugin,&pItems,&nItemsNumber,OPM_SILENT))
 	{
 		for (size_t i=0; i<nItemsNumber; i++)
 		{
@@ -1147,15 +1146,15 @@ bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wcha
 
 			if (!StrCmp(lpFileNameToFind,Item.FileName) && !StrCmp(lpFileNameToFindShort,Item.AlternateFileName))
 			{
-				nResult=CtrlObject->Plugins.GetFile(ArcItem.hPlugin,&Item,DestPath,strResultName,OPM_SILENT)!=0;
+				nResult=CtrlObject->Plugins->GetFile(ArcItem.hPlugin,&Item,DestPath,strResultName,OPM_SILENT)!=0;
 				break;
 			}
 		}
 
-		CtrlObject->Plugins.FreeFindData(ArcItem.hPlugin,pItems,nItemsNumber);
+		CtrlObject->Plugins->FreeFindData(ArcItem.hPlugin,pItems,nItemsNumber);
 	}
 
-	CtrlObject->Plugins.SetDirectory(ArcItem.hPlugin,L"\\",OPM_SILENT);
+	CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,L"\\",OPM_SILENT);
 	SetPluginDirectory(strSaveDir,ArcItem.hPlugin);
 	return nResult;
 }
@@ -1492,7 +1491,7 @@ bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD Fi
 
 			if (hPlugin)
 			{
-				if (!CtrlObject->Plugins.UseFarCommand(hPlugin, PLUGIN_FARGETFILES))
+				if (!CtrlObject->Plugins->UseFarCommand(hPlugin, PLUGIN_FARGETFILES))
 				{
 					string strTempDir;
 					FarMkTempEx(strTempDir); // А проверка на nullptr???
@@ -1501,7 +1500,7 @@ bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD Fi
 					bool GetFileResult=false;
 					{
 						CriticalSectionLock Lock(PluginCS);
-						GetFileResult=CtrlObject->Plugins.GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND)!=FALSE;
+						GetFileResult=CtrlObject->Plugins->GetFile(hPlugin,FileItem,strTempDir,strSearchFileName,OPM_SILENT|OPM_FIND)!=FALSE;
 					}
 					if (!GetFileResult)
 					{
@@ -1554,11 +1553,11 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 			ShowTime=Time;
 			if (!StopEvent.Signaled())
 			{
-				TemplateString strDataStr(MSG(MFindFound));
+				LangString strDataStr(MFindFound);
 				strDataStr << itd.GetFileCount() << itd.GetDirCount();
 				SendDlgMessage(hDlg,DM_SETTEXTPTR,2,const_cast<wchar_t*>(strDataStr.CPtr()));
 
-				TemplateString strSearchStr(MSG(MFindSearchingIn));
+				LangString strSearchStr(MFindSearchingIn);
 
 				if (!strFindStr.IsEmpty())
 				{
@@ -1597,7 +1596,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 
 	if(!v->Finalized && StopEvent.Signaled())
 	{
-		TemplateString strMessage(MSG(MFindDone));
+		LangString strMessage(MFindDone);
 		strMessage << itd.GetFileCount() << itd.GetDirCount();
 		SendDlgMessage(hDlg, DM_ENABLEREDRAW, FALSE, 0);
 		SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_SEPARATOR1, nullptr);
@@ -1810,7 +1809,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 								DisablePluginsOutput=TRUE;
 								{
 									CriticalSectionLock Lock(PluginCS);
-									ArcItem.hPlugin = CtrlObject->Plugins.OpenFilePlugin(&strFindArcName, 0, OFP_SEARCH);
+									ArcItem.hPlugin = CtrlObject->Plugins->OpenFilePlugin(&strFindArcName, 0, OFP_SEARCH);
 								}
 								itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
 								DisablePluginsOutput=SavePluginsOutput;
@@ -1836,7 +1835,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 
 								if (ClosePanel)
 								{
-									CtrlObject->Plugins.ClosePanel(ArcItem.hPlugin);
+									CtrlObject->Plugins->ClosePanel(ArcItem.hPlugin);
 									ArcItem.hPlugin = nullptr;
 									itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
 								}
@@ -1846,7 +1845,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 							{
 								if (ClosePanel)
 								{
-									CtrlObject->Plugins.ClosePanel(ArcItem.hPlugin);
+									CtrlObject->Plugins->ClosePanel(ArcItem.hPlugin);
 									ArcItem.hPlugin = nullptr;
 									itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
 								}
@@ -2442,7 +2441,7 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 	HANDLE hArc;
 	{
 		CriticalSectionLock Lock(PluginCS);
-		hArc = CtrlObject->Plugins.OpenFilePlugin(&strArcName, OPM_FIND, OFP_SEARCH);
+		hArc = CtrlObject->Plugins->OpenFilePlugin(&strArcName, OPM_FIND, OFP_SEARCH);
 	}
 	DisablePluginsOutput=SavePluginsOutput;
 
@@ -2467,7 +2466,7 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 
 		SearchMode=FINDAREA_FROM_CURRENT;
 		OpenPanelInfo Info;
-		CtrlObject->Plugins.GetOpenPanelInfo(hArc,&Info);
+		CtrlObject->Plugins->GetOpenPanelInfo(hArc,&Info);
 		itd.SetFindFileArcIndex(itd.AddArcListItem(ArcName, hArc, Info.Flags, Info.CurDir));
 		// Запомним каталог перед поиском в архиве. И если ничего не нашли - не рисуем его снова.
 		{
@@ -2483,7 +2482,7 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 			itd.GetArcListItem(itd.GetFindFileArcIndex(), ArcItem);
 			{
 				CriticalSectionLock Lock(PluginCS);
-				CtrlObject->Plugins.ClosePanel(ArcItem.hPlugin);
+				CtrlObject->Plugins->ClosePanel(ArcItem.hPlugin);
 			}
 			ArcItem.hPlugin = nullptr;
 			itd.SetArcListItem(itd.GetFindFileArcIndex(), ArcItem);
@@ -2660,7 +2659,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 		{
 			if(!StopEvent.Signaled())
 			{
-				GetFindDataResult=CtrlObject->Plugins.GetFindData(hPlugin,&PanelData,&ItemCount,OPM_FIND)!=FALSE;
+				GetFindDataResult=CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&ItemCount,OPM_FIND)!=FALSE;
 			}
 		}
 	}
@@ -2720,7 +2719,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 				bool SetDirectoryResult=false;
 				{
 					CriticalSectionLock Lock(PluginCS);
-					SetDirectoryResult=CtrlObject->Plugins.SetDirectory(hPlugin, CurPanelItem->FileName, OPM_FIND)!=FALSE;
+					SetDirectoryResult=CtrlObject->Plugins->SetDirectory(hPlugin, CurPanelItem->FileName, OPM_FIND)!=FALSE;
 				}
 				if (SetDirectoryResult)
 				{
@@ -2740,7 +2739,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 					SetDirectoryResult=false;
 					{
 						CriticalSectionLock Lock(PluginCS);
-						SetDirectoryResult=CtrlObject->Plugins.SetDirectory(hPlugin,L"..",OPM_FIND)!=FALSE;
+						SetDirectoryResult=CtrlObject->Plugins->SetDirectory(hPlugin,L"..",OPM_FIND)!=FALSE;
 					}
 					if (!SetDirectoryResult)
 					{
@@ -2751,7 +2750,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 		}
 	}
 
-	CtrlObject->Plugins.FreeFindData(hPlugin,PanelData,ItemCount);
+	CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,ItemCount);
 	RecurseLevel--;
 }
 
@@ -2852,12 +2851,12 @@ void DoPreparePluginList(HANDLE hDlg, bool Internal)
 	string strSaveDir;
 	{
 		CriticalSectionLock Lock(PluginCS);
-		CtrlObject->Plugins.GetOpenPanelInfo(ArcItem.hPlugin,&Info);
+		CtrlObject->Plugins->GetOpenPanelInfo(ArcItem.hPlugin,&Info);
 		strSaveDir = Info.CurDir;
 		if (SearchMode==FINDAREA_ROOT || SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK || SearchMode==FINDAREA_INPATH)
 		{
-			CtrlObject->Plugins.SetDirectory(ArcItem.hPlugin,L"\\",OPM_FIND);
-			CtrlObject->Plugins.GetOpenPanelInfo(ArcItem.hPlugin,&Info);
+			CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,L"\\",OPM_FIND);
+			CtrlObject->Plugins->GetOpenPanelInfo(ArcItem.hPlugin,&Info);
 		}
 	}
 
@@ -2872,7 +2871,7 @@ void DoPreparePluginList(HANDLE hDlg, bool Internal)
 	if (SearchMode==FINDAREA_ROOT || SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK || SearchMode==FINDAREA_INPATH)
 	{
 		CriticalSectionLock Lock(PluginCS);
-		CtrlObject->Plugins.SetDirectory(ArcItem.hPlugin,strSaveDir,OPM_FIND);
+		CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,strSaveDir,OPM_FIND);
 	}
 
 	if (!Internal)
@@ -2934,7 +2933,7 @@ bool FindFilesProcess(Vars& v)
 		}
 	}
 
-	TemplateString strSearchStr(MSG(MFindSearchingIn));
+	LangString strSearchStr(MFindSearchingIn);
 
 	if (!strFindStr.IsEmpty())
 	{
@@ -2974,7 +2973,7 @@ bool FindFilesProcess(Vars& v)
 		Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 		HANDLE hPlugin=ActivePanel->GetPluginHandle();
 		OpenPanelInfo Info;
-		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
+		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		itd.SetFindFileArcIndex(itd.AddArcListItem(Info.HostFile, hPlugin, Info.Flags, Info.CurDir));
 
 		if (itd.GetFindFileArcIndex() == LIST_INDEX_NONE)
@@ -2988,9 +2987,9 @@ bool FindFilesProcess(Vars& v)
 	}
 
 	AnySetFindList = false;
-	for (size_t i=0; i<CtrlObject->Plugins.GetPluginsCount(); i++)
+	for (size_t i=0; i<CtrlObject->Plugins->GetPluginsCount(); i++)
 	{
-		if (CtrlObject->Plugins.GetPlugin(i)->HasSetFindList())
+		if (CtrlObject->Plugins->GetPlugin(i)->HasSetFindList())
 		{
 			AnySetFindList=true;
 			break;
@@ -3089,7 +3088,7 @@ bool FindFilesProcess(Vars& v)
 					}
 				}
 
-				HANDLE hNewPlugin=CtrlObject->Plugins.OpenFindListPlugin(PanelItems,ItemsNumber);
+				HANDLE hNewPlugin=CtrlObject->Plugins->OpenFindListPlugin(PanelItems,ItemsNumber);
 
 				if (hNewPlugin)
 				{
@@ -3143,13 +3142,13 @@ bool FindFilesProcess(Vars& v)
 					if (ArcItem.hPlugin)
 					{
 						OpenPanelInfo Info;
-						CtrlObject->Plugins.GetOpenPanelInfo(ArcItem.hPlugin,&Info);
+						CtrlObject->Plugins->GetOpenPanelInfo(ArcItem.hPlugin,&Info);
 
 						if (SearchMode==FINDAREA_ROOT ||
 							    SearchMode==FINDAREA_ALL ||
 							    SearchMode==FINDAREA_ALL_BUTNETWORK ||
 							    SearchMode==FINDAREA_INPATH)
-							CtrlObject->Plugins.SetDirectory(ArcItem.hPlugin,L"\\",0);
+							CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,L"\\",0);
 
 						SetPluginDirectory(strFileName,ArcItem.hPlugin,TRUE);
 					}
@@ -3308,7 +3307,7 @@ FindFiles::FindFiles()
 		if (v.PluginMode)
 		{
 			OpenPanelInfo Info;
-			CtrlObject->Plugins.GetOpenPanelInfo(ActivePanel->GetPluginHandle(),&Info);
+			CtrlObject->Plugins->GetOpenPanelInfo(ActivePanel->GetPluginHandle(),&Info);
 
 			if (!(Info.Flags & OPIF_REALNAMES))
 				FindAskDlg[FAD_CHECKBOX_ARC].Flags |= DIF_DISABLE;

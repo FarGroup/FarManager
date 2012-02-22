@@ -63,7 +63,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		virtual DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value);
 
 	public:
-		DialogBuilder(int TitleMessageId, const wchar_t *HelpTopic);
+		DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic);
 		~DialogBuilder();
 
 		// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.

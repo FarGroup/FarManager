@@ -45,7 +45,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filelist.hpp"
 #include "pathmix.hpp"
 #include "panelctype.hpp"
-#include "lang.hpp"
 #include "datetime.hpp"
 
 int ColumnTypeWidth[]={0, 6, 6, 8, 5, 14, 14, 14, 14, 6, 0, 0, 3, 3, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -232,7 +231,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 					{
 						FileList *SrcFilePanel=(FileList *)SrcPanel;
 						OpenPanelInfo Info;
-						CtrlObject->Plugins.GetOpenPanelInfo(SrcFilePanel->GetPluginHandle(),&Info);
+						CtrlObject->Plugins->GetOpenPanelInfo(SrcFilePanel->GetPluginHandle(),&Info);
 						FileList::AddPluginPrefix(SrcFilePanel,strPathName);
 						if (Info.HostFile && *Info.HostFile)
 						{

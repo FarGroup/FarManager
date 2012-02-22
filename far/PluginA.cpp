@@ -1580,7 +1580,7 @@ const char * WINAPI FarGetMsgFnA(INT_PTR PluginHandle,int MsgId)
 	CutToSlash(strPath);
 
 	if (pPlugin->InitLang(strPath))
-		return pPlugin->GetMsgA(MsgId);
+		return pPlugin->GetMsgA(static_cast<LNGID>(MsgId));
 
 	return "";
 }
@@ -4874,7 +4874,6 @@ int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 			TableSet->LowerTable[i] = LocalLower(i);
 		}
 
-		FormatString sTableName;
 		UINT nCP = ConvertCharTableToCodePage(Command);
 
 		if (nCP==CP_AUTODETECT) return -1;
@@ -4896,6 +4895,7 @@ int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 			return -1;
 
 		wchar_t *codePageName = FormatCodePageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
+		FormatString sTableName;
 		sTableName<<fmt::Width(5)<<nCP<<BoxSymbols[BS_V1]<<L" "<<codePageName;
 		sTableName.GetCharString(TableSet->TableName, sizeof(TableSet->TableName) - 1, CP_OEMCP);
 		wchar_t *us=AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof(TableSet->DecodeTable), nCP);
@@ -5200,11 +5200,11 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 
 		      if(OpenFrom == OPEN_EDITOR &&
 		         !CtrlObject->Macro.IsExecuting() &&
-		         CtrlObject->Plugins.CurEditor &&
-		         CtrlObject->Plugins.CurEditor->IsVisible() )
+		         CtrlObject->Plugins->CurEditor &&
+		         CtrlObject->Plugins->CurEditor->IsVisible() )
 		      {
-		        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
-		        CtrlObject->Plugins.CurEditor->Show();
+		        CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+		        CtrlObject->Plugins->CurEditor->Show();
 		      }
 		      if (hInternal!=INVALID_HANDLE_VALUE)
 		      {

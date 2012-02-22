@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "execute.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
-#include "lang.hpp"
 #include "ctrlobj.hpp"
 #include "manager.hpp"
 #include "history.hpp"
@@ -307,7 +306,7 @@ int CommandLine::ProcessKey(int Key)
 		}
 		return TRUE;
 		case KEY_F11:
-			CtrlObject->Plugins.CommandsMenu(FALSE,FALSE,0);
+			CtrlObject->Plugins->CommandsMenu(FALSE,FALSE,0);
 			return TRUE;
 		case KEY_ALTF11:
 		case KEY_RALTF11:

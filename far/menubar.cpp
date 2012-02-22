@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "menubar.hpp"
-#include "lang.hpp"
 #include "colors.hpp"
 #include "language.hpp"
 #include "interf.hpp"

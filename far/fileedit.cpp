@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "fileedit.hpp"
 #include "keyboard.hpp"
 #include "codepage.hpp"
-#include "lang.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
@@ -366,10 +365,10 @@ FileEditor::~FileEditor()
 
 	if (bEE_READ_Sent && CtrlObject)
 	{
-		FileEditor *save = CtrlObject->Plugins.CurEditor;
-		CtrlObject->Plugins.CurEditor=this;
-		CtrlObject->Plugins.ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);
-		CtrlObject->Plugins.CurEditor = save;
+		FileEditor *save = CtrlObject->Plugins->CurEditor;
+		CtrlObject->Plugins->CurEditor=this;
+		CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);
+		CtrlObject->Plugins->CurEditor = save;
 	}
 
 	if (!Flags.Check(FFILEEDIT_OPENFAILED))
@@ -650,8 +649,8 @@ void FileEditor::Init(
 		m_editor->SetCodePage(m_codepage);
 	}
 
-	CtrlObject->Plugins.CurEditor=this;//&FEdit;
-	CtrlObject->Plugins.ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
+	CtrlObject->Plugins->CurEditor=this;//&FEdit;
+	CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
 	bEE_READ_Sent = true;
 	ShowConsoleTitle();
 	EditKeyBar.SetOwner(this);
@@ -743,8 +742,8 @@ void FileEditor::DisplayObject()
 		if (m_editor->Flags.Check(FEDITOR_ISRESIZEDCONSOLE))
 		{
 			m_editor->Flags.Clear(FEDITOR_ISRESIZEDCONSOLE);
-			CtrlObject->Plugins.CurEditor=this;
-			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,m_editor->EditorID);
+			CtrlObject->Plugins->CurEditor=this;
+			CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,m_editor->EditorID);
 		}
 
 		m_editor->Show();
@@ -1452,11 +1451,12 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 				// Ширина = 8 - это будет... в Kb и выше...
 				FileSizeToStr(strTempStr1, FileSize, 8);
 				FileSizeToStr(strTempStr2, MaxSize, 8);
-				TemplateString strTempStr3(MSG(MEditFileLong)), strTempStr4(MSG(MEditFileLong2));
-				strTempStr3 << RemoveExternalSpaces(strTempStr1);
-				strTempStr4 << RemoveExternalSpaces(strTempStr2);
 
-				if (Message(MSG_WARNING,2,MSG(MEditTitle), Name, strTempStr3, strTempStr4, MSG(MEditROOpen), MSG(MYes),MSG(MNo)))
+				if (Message(MSG_WARNING,2,MSG(MEditTitle),
+					Name,
+					LangString(MEditFileLong) << RemoveExternalSpaces(strTempStr1),
+					LangString(MEditFileLong2) << RemoveExternalSpaces(strTempStr2),
+					MSG(MEditROOpen), MSG(MYes),MSG(MNo)))
 				{
 					EditFile.Close();
 					SetLastError(ERROR_OPEN_FAILED); //????
@@ -1800,7 +1800,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		   Если было произведено сохранение с любым результатом, то не удалять файл
 		*/
 		Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
-		CtrlObject->Plugins.CurEditor=this;
+		CtrlObject->Plugins->CurEditor=this;
 //_D(SysLog(L"%08d EE_SAVE",__LINE__));
 
 		if (!IsUnicodeOrUtfCodePage(codepage))
@@ -1862,7 +1862,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			}
 		}
 
-		CtrlObject->Plugins.ProcessEditorEvent(EE_SAVE,nullptr,m_editor->EditorID);
+		CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE,nullptr,m_editor->EditorID);
 		File EditFile;
 		DWORD dwWritten=0;
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
@@ -2097,9 +2097,7 @@ int FileEditor::GetTypeAndName(string &strType, string &strName)
 
 void FileEditor::ShowConsoleTitle()
 {
-	TemplateString strTitle(MSG(MInEditor));
-	strTitle << PointToName(strFileName);
-	ConsoleTitle::SetFarTitle(strTitle);
+	ConsoleTitle::SetFarTitle(LangString(MInEditor) << PointToName(strFileName));
 	Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }
 
@@ -2122,9 +2120,9 @@ void FileEditor::OnDestroy()
 	if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName,MSG(MNewFileName)))
 		CtrlObject->ViewHistory->AddToHistory(strFullFileName,(m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
 
-	if (CtrlObject->Plugins.CurEditor==this)//&this->FEdit)
+	if (CtrlObject->Plugins->CurEditor==this)//&this->FEdit)
 	{
-		CtrlObject->Plugins.CurEditor=nullptr;
+		CtrlObject->Plugins->CurEditor=nullptr;
 	}
 }
 
@@ -2171,8 +2169,8 @@ void FileEditor::ResizeConsole()
 int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
 {
 	int RetCode;
-	CtrlObject->Plugins.CurEditor=this;
-	RetCode=CtrlObject->Plugins.ProcessEditorInput(Rec);
+	CtrlObject->Plugins->CurEditor=this;
+	RetCode=CtrlObject->Plugins->ProcessEditorInput(Rec);
 	return RetCode;
 }
 
@@ -2457,9 +2455,9 @@ void FileEditor::SetEditorOptions(EditorOptions& EdOpt)
 void FileEditor::OnChangeFocus(int focus)
 {
 	Frame::OnChangeFocus(focus);
-	CtrlObject->Plugins.CurEditor=this;
+	CtrlObject->Plugins->CurEditor=this;
 	int FEditEditorID=m_editor->EditorID;
-	CtrlObject->Plugins.ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS,nullptr,FEditEditorID);
+	CtrlObject->Plugins->ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS,nullptr,FEditEditorID);
 }
 
 

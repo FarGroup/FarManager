@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "strmix.hpp"
-#include "lang.hpp"
 #include "language.hpp"
 #include "config.hpp"
 #include "pathmix.hpp"
@@ -479,9 +478,7 @@ string& CenterStr(const wchar_t *Src, string &strDest, int Length)
 	else
 	{
 		int Space=(Length-SrcLength)/2;
-		FormatString FString;
-		FString<<fmt::Width(Space)<<L""<<strTempStr<<fmt::Width(Length-Space-SrcLength)<<L"";
-		strDest=FString;
+		strDest = FormatString()<<fmt::Width(Space)<<L""<<strTempStr<<fmt::Width(Length-Space-SrcLength)<<L"";
 	}
 
 	return strDest;

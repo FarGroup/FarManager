@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plclass.hpp"
 #include "plugins.hpp"
 #include "pathmix.hpp"
-#include "lang.hpp"
 #include "lasterror.hpp"
 #include "config.hpp"
 #include "farexcpt.hpp"
@@ -341,15 +340,12 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 
 static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,const VersionInfo& required)
 {
-	TemplateString strMsg1(MSG(MPlgRequired)), strMsg2(MSG(MPlgRequired2));
-	string strPlgName;
-	FormatString str;
-	str << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build;
-	strMsg1 << str;
-	str.Clear();
-	str << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build;
-	strMsg2 << str;
-	Message(MSG_WARNING|MSG_NOPLUGINS,1,MSG(MError),MSG(MPlgBadVers),plg,strMsg1,strMsg2,MSG(MOk));
+	Message(MSG_WARNING|MSG_NOPLUGINS, 1,
+		MSG(MError),
+		MSG(MPlgBadVers),
+		LangString(MPlgRequired) << (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build),
+		LangString(MPlgRequired2) << (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build),
+		MSG(MOk));
 }
 
 bool Plugin::SaveToCache()
@@ -649,6 +645,7 @@ bool Plugin::LoadData()
 
 bool Plugin::Load()
 {
+
 	if (WorkFlags.Check(PIWF_DONTLOADAGAIN))
 		return false;
 
@@ -891,7 +888,7 @@ HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 		g_strDirToSet.Clear();
 	}
 
-	HANDLE hResult = nullptr;
+	HANDLE hResult = INVALID_HANDLE_VALUE;
 
 	if (Load() && Exports[iOpen] && !ProcessException)
 	{
@@ -914,11 +911,11 @@ HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 
 		      if(OpenFrom == OPEN_EDITOR &&
 		         !CtrlObject->Macro.IsExecuting() &&
-		         CtrlObject->Plugins.CurEditor &&
-		         CtrlObject->Plugins.CurEditor->IsVisible() )
+		         CtrlObject->Plugins->CurEditor &&
+		         CtrlObject->Plugins->CurEditor->IsVisible() )
 		      {
-		        CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
-		        CtrlObject->Plugins.CurEditor->Show();
+		        CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+		        CtrlObject->Plugins->CurEditor->Show();
 		      }
 		      if (hInternal!=INVALID_HANDLE_VALUE)
 		      {

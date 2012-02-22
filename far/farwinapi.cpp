@@ -780,7 +780,7 @@ BOOL apiSetCurrentDirectory(const string& PathName, bool Validate)
 
 #ifndef NO_WRAPPER
 	// try to synchronize far cur dir with process cur dir
-	if(CtrlObject && CtrlObject->Plugins.GetOemPluginsCount())
+	if(CtrlObject && CtrlObject->Plugins->GetOemPluginsCount())
 	{
 		SetCurrentDirectory(strCurrentDirectory());
 	}

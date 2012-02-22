@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panel.hpp"
 #include "viewer.hpp"
+
 //class Viewer;
 
 /* $ 12.10.2001 SKV
@@ -102,9 +103,9 @@ class InfoList:public Panel
 		bool ShowPluginDescription(int YPos);
 
 		void PrintText(const wchar_t *Str);
-		void PrintText(int MsgID);
+		void PrintText(LNGID MsgID);
 		void PrintInfo(const wchar_t *Str);
-		void PrintInfo(int MsgID);
+		void PrintInfo(LNGID MsgID);
 		void SelectShowMode(void);
 		void DrawTitle(string &strTitle,int Id,int &CurY);
 

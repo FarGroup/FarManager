@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "flink.hpp"
 #include "colors.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
@@ -214,7 +213,7 @@ void InfoList::DisplayObject()
 					PrintText(MInfoUserDescription);
 					PrintInfo(UserInfo->usri1_comment);
 				}
-				int LabelId = -1;
+				LNGID LabelId = MInfoUserAccessLevelUnknown;
 				switch (UserInfo->usri1_priv)
 				{
 				case USER_PRIV_GUEST:
@@ -227,12 +226,9 @@ void InfoList::DisplayObject()
 					LabelId = MInfoUserAccessLevelAdministrator;
 						break;
 				}
-				if(LabelId != -1)
-				{
-					GotoXY(X1+2,CurY++);
-					PrintText(MInfoUserAccessLevel);
-					PrintInfo(LabelId);
-				}
+				GotoXY(X1+2,CurY++);
+				PrintText(MInfoUserAccessLevel);
+				PrintInfo(LabelId);
 
 				NetApiBufferFree(UserInfo);
 			}
@@ -269,7 +265,7 @@ void InfoList::DisplayObject()
 		                            &VolumeNumber,&MaxNameLength,&FileSystemFlags,
 		                            &strFileSystemName))
 		{
-			int IdxMsgID=-1;
+			LNGID IdxMsgID=MInfoUnknown;
 			int DriveType=FAR_GetDriveType(strDriveRoot,nullptr,TRUE);
 
 			switch (DriveType)
@@ -292,12 +288,12 @@ void InfoList::DisplayObject()
 				default:
 
 					if (IsDriveTypeCDROM(DriveType))
-						IdxMsgID=DriveType-DRIVE_CD_RW+MInfoCD_RW;
+						IdxMsgID=MInfoCD_RW+(DriveType-DRIVE_CD_RW);
 
 					break;
 			}
 
-			LPCWSTR DiskType=(IdxMsgID!=-1)?MSG(IdxMsgID):L"";
+			LPCWSTR DiskType=MSG(IdxMsgID);
 			string strAssocPath;
 
 			if (GetSubstName(DriveType,strDriveRoot,strAssocPath))
@@ -436,7 +432,7 @@ void InfoList::DisplayObject()
 
 		if (SectionState[ILSS_POWERSTATUS].Show)
 		{
-			int MsgID;
+			LNGID MsgID;
 			SYSTEM_POWER_STATUS PowerStatus;
 			GetSystemPowerStatus(&PowerStatus);
 
@@ -492,9 +488,7 @@ void InfoList::DisplayObject()
 				DWORD s = PowerStatus.BatteryLifeTime%60;
 				DWORD m = (PowerStatus.BatteryLifeTime/60)%60;
 				DWORD h = PowerStatus.BatteryLifeTime/3600;
-				FormatString strTimeText;
-				strTimeText<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s;
-				PrintInfo(strTimeText);
+				PrintInfo(FormatString()<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s);
 			}
 			else
 				PrintInfo(MSG(MInfoPowerStatusBCTMUnknown));
@@ -506,9 +500,7 @@ void InfoList::DisplayObject()
 				DWORD s = PowerStatus.BatteryLifeTime%60;
 				DWORD m = (PowerStatus.BatteryLifeTime/60)%60;
 				DWORD h = PowerStatus.BatteryLifeTime/3600;
-				FormatString strTimeText;
-				strTimeText<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s;
-				PrintInfo(strTimeText);
+				PrintInfo(FormatString()<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s);
 			}
 			else
 				PrintInfo(MSG(MInfoPowerStatusBCFTMUnknown));
@@ -873,7 +865,7 @@ void InfoList::PrintText(const wchar_t *Str)
 }
 
 
-void InfoList::PrintText(int MsgID)
+void InfoList::PrintText(LNGID MsgID)
 {
 	PrintText(MSG(MsgID));
 }
@@ -905,7 +897,7 @@ void InfoList::PrintInfo(const wchar_t *str)
 }
 
 
-void InfoList::PrintInfo(int MsgID)
+void InfoList::PrintInfo(LNGID MsgID)
 {
 	PrintInfo(MSG(MsgID));
 }

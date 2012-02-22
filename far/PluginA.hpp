@@ -87,7 +87,7 @@ public:
 	virtual const wchar_t *GetHotkeyName() const { return GetCacheName(); }
 
 	virtual bool InitLang(const wchar_t *Path) { return PluginLang.InitA(Path); }
-	const char *GetMsgA(int nID) const { return PluginLang.GetMsgA(nID); }
+	const char *GetMsgA(LNGID nID) const { return PluginLang.GetMsgA(nID); }
 
 private:
 	virtual void __Prolog() { SetFileApisToOEM(); OEMApiCnt++; }

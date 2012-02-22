@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "datetime.hpp"
-#include "lang.hpp"
 #include "language.hpp"
 #include "config.hpp"
 #include "strmix.hpp"
@@ -724,7 +723,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 
 		if (TextMonth)
 		{
-			const wchar_t *Mnth=MSG(MMonthJan+st.wMonth-1);
+			const wchar_t *Mnth=MSG(MMonthJan+(st.wMonth-1));
 
 			switch (CurDateFormat)
 			{
@@ -763,9 +762,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 					p3=st.wDay;
 					break;
 			}
-			FormatString Fmt;
-			Fmt<<fmt::FillChar(f1)<<fmt::Width(w1)<<p1<<DateSeparator<<fmt::FillChar(f2)<<fmt::Width(w2)<<p2<<DateSeparator<<fmt::FillChar(f3)<<fmt::Width(w3)<<p3;
-			strDateText=Fmt;
+			strDateText = FormatString()<<fmt::FillChar(f1)<<fmt::Width(w1)<<p1<<DateSeparator<<fmt::FillChar(f2)<<fmt::Width(w2)<<p2<<DateSeparator<<fmt::FillChar(f3)<<fmt::Width(w3)<<p3;
 		}
 	}
 
@@ -788,11 +785,6 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
 	UINT64 h = (time.QuadPart/=60)%24;
 	UINT64 d = time.QuadPart/=24;
 
-	FormatString DaysText;
-	DaysText<<d;
-	strDaysText=DaysText;
-
-	FormatString TimeText;
-	TimeText<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s<<GetDecimalSeparator()<<fmt::Width(3)<<fmt::FillChar(L'0')<<ms;
-	strTimeText=TimeText;
+	strDaysText = FormatString()<<d;
+	strTimeText = FormatString()<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s<<GetDecimalSeparator()<<fmt::Width(3)<<fmt::FillChar(L'0')<<ms;
 }

@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "plugins.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "flink.hpp"
 #include "scantree.hpp"
@@ -1030,7 +1029,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 {
 	int nResult = 0;
 
-	if (CtrlObject->Plugins.CurEditor)
+	if (CtrlObject->Plugins->CurEditor)
 	{
 		Plugin *pPlugin = nullptr;
 

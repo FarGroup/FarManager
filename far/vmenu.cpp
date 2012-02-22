@@ -40,7 +40,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "vmenu.hpp"
 #include "keyboard.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "macroopcode.hpp"
 #include "colors.hpp"
@@ -103,7 +102,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 		NewItem.Clear();
 
 		if (!IsPtr(Data[I].Name))
-			NewItem.strName = MSG((int)(DWORD_PTR)Data[I].Name);
+			NewItem.strName = MSG(static_cast<LNGID>(reinterpret_cast<DWORD_PTR>(Data[I].Name)));
 		else
 			NewItem.strName = Data[I].Name;
 

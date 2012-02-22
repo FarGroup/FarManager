@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "keys.hpp"
 #include "vmenu.hpp"
-#include "lang.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
 #include "config.hpp"
@@ -240,7 +239,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					GUID HGuid;
 					if(StrToGuid(strHGuid,HGuid)&&!IsEqualGUID(FarGuid,HGuid))
 					{
-						Plugin *pPlugin = CtrlObject->Plugins.FindPlugin(HGuid);
+						Plugin *pPlugin = CtrlObject->Plugins->FindPlugin(HGuid);
 						if(pPlugin)
 						{
 							strRecord += pPlugin->GetTitle();
@@ -378,7 +377,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 							GUID HGuid;
 							if(StrToGuid(strHGuid,HGuid)&&!IsEqualGUID(FarGuid,HGuid))
 							{
-								Plugin *pPlugin = CtrlObject->Plugins.FindPlugin(HGuid);
+								Plugin *pPlugin = CtrlObject->Plugins->FindPlugin(HGuid);
 								if(!pPlugin) kill=true;
 								else if (!strHFile.IsEmpty()&&apiGetFileAttributes(strHFile) == INVALID_FILE_ATTRIBUTES) kill=true;
 							}

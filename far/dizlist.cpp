@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "dizlist.hpp"
 #include "language.hpp"
-#include "lang.hpp"
 #include "savescr.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "interf.hpp"
@@ -573,9 +572,7 @@ bool DizList::AddDizText(const string& Name,const string& ShortName,const string
 	DeleteDiz(Name,ShortName);
 	string strQuotedName = Name;
 	QuoteSpaceOnly(strQuotedName);
-	FormatString FString;
-	FString<<fmt::LeftAlign()<<fmt::Width(Opt.Diz.StartPos>1?Opt.Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText;
-	return AddRecord(FString);
+	return AddRecord(FormatString()<<fmt::LeftAlign()<<fmt::Width(Opt.Diz.StartPos>1?Opt.Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText);
 }
 
 

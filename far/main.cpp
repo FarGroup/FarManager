@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "lang.hpp"
 #include "keys.hpp"
 #include "chgprior.hpp"
 #include "colors.hpp"
@@ -140,7 +139,7 @@ static int MainProcess(
 			_tran(SysLog(L"create dummy panels"));
 			CtrlObj.CreateFilePanels();
 			CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=DummyPanel;
-			CtrlObj.Plugins.LoadPlugins();
+			CtrlObj.Plugins->LoadPlugins();
 			CtrlObj.Macro.LoadMacros(TRUE,FALSE);
 
 			if (*lpwszEditName)

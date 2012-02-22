@@ -116,7 +116,7 @@ private:
 	bool SendCommand(ELEVATION_COMMAND Command) const;
 	bool ReceiveLastError() const;
 	bool Initialize();
-	bool ElevationApproveDlg(int Why, const string& Object);
+	bool ElevationApproveDlg(LNGID Why, const string& Object);
 };
 
 extern elevation Elevation;

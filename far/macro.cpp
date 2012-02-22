@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "keys.hpp"
 #include "keyboard.hpp"
-#include "lang.hpp"
 #include "lockscrn.hpp"
 #include "viewer.hpp"
 #include "fileedit.hpp"
@@ -993,7 +992,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 		if (Opt.Policies.DisabledOptions&FFPOL_CREATEMACRO)
 			return FALSE;
 
-		//if(CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN))
+		//if(CtrlObject->Plugins->CheckFlags(PSIF_ENTERTOOPENPLUGIN))
 		//	return FALSE;
 
 		if (LockScr)
@@ -1071,7 +1070,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				Work.cRec=Rec->Rec;
 				_SVS(FarSysLog_INPUT_RECORD_Dump(L"Macro",&Work.cRec));
 				Work.MacroPC=I;
-				IsRedrawEditor=CtrlObject->Plugins.CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
+				IsRedrawEditor=CtrlObject->Plugins->CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE;
 				_KEYMACRO(SysLog(L"**** Start Of Execute Macro ****"));
 				_KEYMACRO(SysLog(1));
 				return TRUE;
@@ -1820,28 +1819,28 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 					if (CheckCode == MCODE_V_EDITORVALUE || CheckCode == MCODE_V_EDITORSELVALUE)
 						Cond=L"";
 
-					if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
+					if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 					{
 						if (CheckCode == MCODE_V_EDITORFILENAME)
 						{
 							string strType;
-							CtrlObject->Plugins.CurEditor->GetTypeAndName(strType, strFileName);
+							CtrlObject->Plugins->CurEditor->GetTypeAndName(strType, strFileName);
 							Cond=strFileName.CPtr();
 						}
 						else if (CheckCode == MCODE_V_EDITORVALUE)
 						{
 							EditorGetString egs;
 							egs.StringNumber=-1;
-							CtrlObject->Plugins.CurEditor->EditorControl(ECTL_GETSTRING,&egs);
+							CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETSTRING,&egs);
 							Cond=egs.StringText;
 						}
 						else if (CheckCode == MCODE_V_EDITORSELVALUE)
 						{
-							CtrlObject->Plugins.CurEditor->VMProcess(CheckCode,&strFileName);
+							CtrlObject->Plugins->CurEditor->VMProcess(CheckCode,&strFileName);
 							Cond=strFileName.CPtr();
 						}
 						else
-							Cond=CtrlObject->Plugins.CurEditor->VMProcess(CheckCode);
+							Cond=CtrlObject->Plugins->CurEditor->VMProcess(CheckCode);
 					}
 
 					break;
@@ -1867,15 +1866,15 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 						Cond=L"";
 
 					if ((CtrlObject->Macro.GetMode()==MACRO_VIEWER || CtrlObject->Macro.GetMode()==MACRO_QVIEWPANEL) &&
-					        CtrlObject->Plugins.CurViewer && CtrlObject->Plugins.CurViewer->IsVisible())
+					        CtrlObject->Plugins->CurViewer && CtrlObject->Plugins->CurViewer->IsVisible())
 					{
 						if (CheckCode == MCODE_V_VIEWERFILENAME)
 						{
-							CtrlObject->Plugins.CurViewer->GetFileName(strFileName);//GetTypeAndName(nullptr,FileName);
+							CtrlObject->Plugins->CurViewer->GetFileName(strFileName);//GetTypeAndName(nullptr,FileName);
 							Cond=strFileName.CPtr();
 						}
 						else
-							Cond=CtrlObject->Plugins.CurViewer->VMProcess(MCODE_V_VIEWERSTATE);
+							Cond=CtrlObject->Plugins->CurViewer->VMProcess(MCODE_V_VIEWERSTATE);
 					}
 
 					break;
@@ -3390,10 +3389,10 @@ static bool editorposFunc(const TMacroFunction*)
 	int What  = (int)Params[1].getInteger();
 	int Op    = (int)Params[0].getInteger();
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
+	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		EditorInfo ei;
-		CtrlObject->Plugins.CurEditor->EditorControl(ECTL_GETINFO,&ei);
+		CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO,&ei);
 
 		switch (Op)
 		{
@@ -3479,10 +3478,10 @@ static bool editorposFunc(const TMacroFunction*)
 						break;
 				}
 
-				int Result=CtrlObject->Plugins.CurEditor->EditorControl(ECTL_SETPOSITION,&esp);
+				int Result=CtrlObject->Plugins->CurEditor->EditorControl(ECTL_SETPOSITION,&esp);
 
 				if (Result)
-					CtrlObject->Plugins.CurEditor->EditorControl(ECTL_REDRAW,nullptr);
+					CtrlObject->Plugins->CurEditor->EditorControl(ECTL_REDRAW,nullptr);
 
 				Ret=Result;
 				break;
@@ -3502,7 +3501,7 @@ static bool editorsetFunc(const TMacroFunction*)
 	TVar& Value(Params[1]);
 	int Index=(int)Params[0].getInteger();
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
+	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		long longState=-1L;
 
@@ -3515,7 +3514,7 @@ static bool editorsetFunc(const TMacroFunction*)
 		}
 
 		EditorOptions EdOpt;
-		CtrlObject->Plugins.CurEditor->GetEditorOptions(EdOpt);
+		CtrlObject->Plugins->CurEditor->GetEditorOptions(EdOpt);
 
 		switch (Index)
 		{
@@ -3616,10 +3615,10 @@ static bool editorsetFunc(const TMacroFunction*)
 					break;
 			}
 
-			CtrlObject->Plugins.CurEditor->SetEditorOptions(EdOpt);
-			CtrlObject->Plugins.CurEditor->ShowStatus();
+			CtrlObject->Plugins->CurEditor->SetEditorOptions(EdOpt);
+			CtrlObject->Plugins->CurEditor->ShowStatus();
 			if (Index == 0 || Index == 12 || Index == 14 || Index == 15 || Index == 20)
-				CtrlObject->Plugins.CurEditor->Show();
+				CtrlObject->Plugins->CurEditor->Show();
 		}
 	}
 
@@ -4446,11 +4445,11 @@ static bool editorundoFunc(const TMacroFunction*)
 	TVar Ret(0ll);
 	TVar& Action(Params[0]);
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
+	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		EditorUndoRedo eur;
 		eur.Command=static_cast<EDITOR_UNDOREDO_COMMANDS>(Action.toInteger());
-		Ret=(__int64)CtrlObject->Plugins.CurEditor->EditorControl(ECTL_UNDOREDO,&eur);
+		Ret=(__int64)CtrlObject->Plugins->CurEditor->EditorControl(ECTL_UNDOREDO,&eur);
 	}
 
 	VMStack.Push(Ret);
@@ -4464,14 +4463,14 @@ static bool editorsettitleFunc(const TMacroFunction*)
 	TVar Ret(0ll);
 	TVar& Title(Params[0]);
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins.CurEditor && CtrlObject->Plugins.CurEditor->IsVisible())
+	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		if (Title.isInteger() && !Title.i())
 		{
 			Title=L"";
 			Title.toString();
 		}
-		Ret=(__int64)CtrlObject->Plugins.CurEditor->EditorControl(ECTL_SETTITLE,(void*)Title.s());
+		Ret=(__int64)CtrlObject->Plugins->CurEditor->EditorControl(ECTL_SETTITLE,(void*)Title.s());
 	}
 
 	VMStack.Push(Ret);
@@ -4499,7 +4498,7 @@ static bool pluginunloadFunc(const TMacroFunction*)
 	TVar& DllPath(Params[0]);
 	if (DllPath.s())
 	{
-		Plugin* p = CtrlObject->Plugins.GetPlugin(DllPath.s());
+		Plugin* p = CtrlObject->Plugins->GetPlugin(DllPath.s());
 		if(p)
 		{
 			Ret=(__int64)pluginapi::apiPluginsControl(p, PCTL_UNLOADPLUGIN, 0, nullptr);
@@ -4544,7 +4543,7 @@ OPEN_FROMMACROSTRING уточняющий флаг - переметр Data содержит строку, если этот 
 	TVar Param; VMStack.Pop(Param);
 	TVar SysID; VMStack.Pop(SysID);
 
-	if (CtrlObject->Plugins.FindPlugin((DWORD)SysID.i()))
+	if (CtrlObject->Plugins->FindPlugin((DWORD)SysID.i()))
 	{
 		int OpenFrom = -1;
 		Frame* frame = FrameManager->GetCurrentFrame();
@@ -4627,7 +4626,7 @@ struct OpenDlgPluginData
 
 			OpenFrom |= Param.isString() ? OPEN_FROMMACROSTRING : 0;
 
-			Ret=CtrlObject->Plugins.CallPlugin((DWORD)SysID.i(),OpenFrom,
+			Ret=CtrlObject->Plugins->CallPlugin((DWORD)SysID.i(),OpenFrom,
 			                                   Param.isString() ? (void*)Param.s() :
 			                                   (void*)(size_t)Param.i());
 
@@ -4662,7 +4661,7 @@ static bool callpluginFunc(const TMacroFunction*)
 		TVar SysID; VMStack.Pop(SysID);
 		GUID guid;
 
-		if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins.FindPlugin(guid))
+		if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
 		{
 			OpenMacroInfo info={sizeof(OpenMacroInfo),count,vParams};
 
@@ -4671,7 +4670,7 @@ static bool callpluginFunc(const TMacroFunction*)
 
 			int ResultCallPlugin=0;
 
-			if (CtrlObject->Plugins.CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
+			if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
 				Ret=(__int64)ResultCallPlugin;
 
 			if( Opt.Macro.CallPluginRules )
@@ -4746,7 +4745,7 @@ struct FarMacroValue
 #if defined(MANTIS_0000466)
 	int I;
 	GUID guid;
-	if (StrToGuid(thisFunc->fnGUID,guid) && CtrlObject->Plugins.FindPlugin(guid))
+	if (StrToGuid(thisFunc->fnGUID,guid) && CtrlObject->Plugins->FindPlugin(guid))
 	{
 		FarMacroValue *vParams=new FarMacroValue[nParam];
 		if (vParams)
@@ -4765,7 +4764,7 @@ struct FarMacroValue
 			Info.Func.Params=vParams;
 			Info.Func.nParams=nParam;
 
-			if (CtrlObject->Plugins.ProcessMacro(guid,&Info))
+			if (CtrlObject->Plugins->ProcessMacro(guid,&Info))
 			{
 				if (Info.Func.Results)
 				{
@@ -4863,12 +4862,12 @@ int KeyMacro::GetKey()
 
 			if (Mode==MACRO_EDITOR &&
 			        IsRedrawEditor &&
-			        CtrlObject->Plugins.CurEditor &&
-			        CtrlObject->Plugins.CurEditor->IsVisible() &&
+			        CtrlObject->Plugins->CurEditor &&
+			        CtrlObject->Plugins->CurEditor->IsVisible() &&
 			        LockScr)
 			{
-				CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins.CurEditor->GetId());
-				CtrlObject->Plugins.CurEditor->Show();
+				CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins->CurEditor->GetId());
+				CtrlObject->Plugins->CurEditor->Show();
 			}
 
 			if (CurPCStack < 0)
@@ -4936,12 +4935,12 @@ done:
 		*/
 		if (Mode==MACRO_EDITOR &&
 		        IsRedrawEditor &&
-		        CtrlObject->Plugins.CurEditor &&
-		        CtrlObject->Plugins.CurEditor->IsVisible()
+		        CtrlObject->Plugins->CurEditor &&
+		        CtrlObject->Plugins->CurEditor->IsVisible()
 		        /* && LockScr*/) // Mantis#0001595
 		{
-			CtrlObject->Plugins.ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins.CurEditor->GetId());
-			CtrlObject->Plugins.CurEditor->Show();
+			CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins->CurEditor->GetId());
+			CtrlObject->Plugins->CurEditor->Show();
 		}
 
 		if (CurPCStack < 0 && (Work.MacroWORKCount-1) <= 0) // mantis#351
@@ -6582,7 +6581,7 @@ void KeyMacro::RunStartMacro()
 	// временно оставим старый вариант
 #if 1
 
-	if (!(CtrlObject->Cp() && CtrlObject->Cp()->ActivePanel && !Opt.OnlyEditorViewerUsed && CtrlObject->Plugins.IsPluginsLoaded()))
+	if (!(CtrlObject->Cp() && CtrlObject->Cp()->ActivePanel && !Opt.OnlyEditorViewerUsed && CtrlObject->Plugins->IsPluginsLoaded()))
 		return;
 
 	static int IsRunStartMacro=FALSE;
@@ -6618,8 +6617,8 @@ void KeyMacro::RunStartMacro()
 	if (AutoRunMacroStarted || !MacroLIB || !IndexMode[Mode][1])
 		return;
 
-	//if (!(CtrlObject->Cp() && CtrlObject->Cp()->ActivePanel && !Opt.OnlyEditorViewerUsed && CtrlObject->Plugins.IsPluginsLoaded()))
-	if (!(CtrlObject && CtrlObject->Plugins.IsPluginsLoaded()))
+	//if (!(CtrlObject->Cp() && CtrlObject->Cp()->ActivePanel && !Opt.OnlyEditorViewerUsed && CtrlObject->Plugins->IsPluginsLoaded()))
+	if (!(CtrlObject && CtrlObject->Plugins->IsPluginsLoaded()))
 		return;
 
 	MacroRecord *MR=MacroLIB+IndexMode[Mode][0];
@@ -6820,14 +6819,14 @@ M1:
 				}
 
 				DWORD DisFlags=Mac->Flags&MFLAGS_DISABLEMACRO;
-				TemplateString strBuf;
+				LangString strBuf;
 				if ((Mac->Flags&MFLAGS_MODEMASK)==MACRO_COMMON)
 				{
-					strBuf = MSG(!MacroDlg->RecBufferSize? (DisFlags? MMacroCommonDeleteAssign : MMacroCommonDeleteKey) : MMacroCommonReDefinedKey);
+					strBuf = !MacroDlg->RecBufferSize? (DisFlags? MMacroCommonDeleteAssign : MMacroCommonDeleteKey) : MMacroCommonReDefinedKey;
 				}
 				else
 				{
-					strBuf = MSG(!MacroDlg->RecBufferSize? (DisFlags?MMacroDeleteAssign : MMacroDeleteKey) : MMacroReDefinedKey);
+					strBuf = !MacroDlg->RecBufferSize? (DisFlags?MMacroDeleteAssign : MMacroDeleteKey) : MMacroReDefinedKey;
 				}
 				strBuf << strKeyText;
 
@@ -7157,9 +7156,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	MakeDialogItemsEx(MacroSettingsDlgData,MacroSettingsDlg);
 	string strKeyText;
 	KeyToText(Key,strKeyText);
-	TemplateString str(MSG(MMacroSettingsTitle));
-	str << strKeyText;
-	MacroSettingsDlg[MS_DOUBLEBOX].strData = str;
+	MacroSettingsDlg[MS_DOUBLEBOX].strData = LangString(MMacroSettingsTitle) << strKeyText;
 	//if(!(Key&0x7F000000))
 	//MacroSettingsDlg[3].Flags|=DIF_DISABLE;
 	MacroSettingsDlg[MS_CHECKBOX_OUPUT].Selected=Flags&MFLAGS_DISABLEOUTPUT?0:1;
@@ -7601,8 +7598,6 @@ int KeyMacro::GetMacroKeyInfo(bool FromDB, int Mode, int Pos, string &strKeyName
 				strKeyName = var->str;
 				strKeyName = (Mode==MACRO_VARS?L"%":L"")+strKeyName;
 
-				TemplateString str;
-
 				switch (var->value.type())
 				{
 					case vtInteger:
@@ -7658,8 +7653,8 @@ BOOL KeyMacro::CheckEditSelected(UINT64 CurFlags)
 
 BOOL KeyMacro::CheckInsidePlugin(UINT64 CurFlags)
 {
-	if (CtrlObject && CtrlObject->Plugins.CurPluginItem && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS)) // ?????
-		//if(CtrlObject && CtrlObject->Plugins.CurEditor && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS))
+	if (CtrlObject && CtrlObject->Plugins->CurPluginItem && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS)) // ?????
+		//if(CtrlObject && CtrlObject->Plugins->CurEditor && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS))
 		return FALSE;
 
 	return TRUE;

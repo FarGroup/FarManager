@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "shortcuts.hpp"
 #include "keys.hpp"
-#include "lang.hpp"
 #include "vmenu.hpp"
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
@@ -91,10 +90,7 @@ Shortcuts::Shortcuts()
 	{
 		for(size_t i = 0; i < KeyCount; i++)
 		{
-			FormatString strFolderShortcuts;
-			strFolderShortcuts << i;
-
-			unsigned __int64 key = cfg->GetKeyID(root,strFolderShortcuts);
+			unsigned __int64 key = cfg->GetKeyID(root, FormatString() << i);
 			if (!key)
 				continue;
 
@@ -148,10 +144,7 @@ Shortcuts::~Shortcuts()
 	{
 		for (size_t i = 0; i < KeyCount; i++)
 		{
-			FormatString strFolderShortcuts;
-			strFolderShortcuts << i;
-
-			unsigned __int64 key = cfg->CreateKey(root,strFolderShortcuts);
+			unsigned __int64 key = cfg->CreateKey(root, FormatString() << i);
 			if (!key)
 				continue;
 
@@ -386,9 +379,7 @@ void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 		}
 	}
 
-	FormatString fstr;
-	fstr << MSG(MRightCtrl) << L"+&" << Pos << L" \x2502 " << Ptr;
-	MenuItem->strName = fstr;
+	MenuItem->strName = FormatString() << MSG(MRightCtrl) << L"+&" << Pos << L" \x2502 " << Ptr;
 	if(Items[Pos].Count() > 1)
 	{
 		MenuItem->Flags|=MIF_SUBMENU;

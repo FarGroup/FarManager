@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
 #include "flink.hpp"
-#include "lang.hpp"
 #include "colors.hpp"
 #include "keys.hpp"
 #include "help.hpp"
@@ -125,7 +124,7 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	LastKeyUndo=FALSE;
 	InternalKey=FALSE;
 	this->ViewerID=::ViewerID++;
-	CtrlObject->Plugins.CurViewer=this;
+	CtrlObject->Plugins->CurViewer=this;
 	OpenFailed=false;
 	HostFileViewer=nullptr;
 	bVE_READ_Sent = false;
@@ -225,8 +224,8 @@ Viewer::~Viewer()
 
 	if (!OpenFailed && bVE_READ_Sent)
 	{
-		CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
-		CtrlObject->Plugins.ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);
+		CtrlObject->Plugins->CurViewer=this; //HostFileViewer;
+		CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);
 	}
 }
 
@@ -397,10 +396,10 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 	ChangeViewKeyBar();
 	AdjustWidth();
-	CtrlObject->Plugins.CurViewer=this; // HostFileViewer;
+	CtrlObject->Plugins->CurViewer=this; // HostFileViewer;
 	/* $ 15.09.2001 tran
 	   пора легализироваться */
-	CtrlObject->Plugins.ProcessViewerEvent(VE_READ,nullptr,ViewerID);
+	CtrlObject->Plugins->ProcessViewerEvent(VE_READ,nullptr,ViewerID);
 	bVE_READ_Sent = true;
 
 	last_update_check = GetTickCount();
@@ -495,15 +494,15 @@ void Viewer::ShowPage(int nMode)
 	switch (nMode)
 	{
 		case SHOW_HEX:
-			CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
+			CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
 			ShowHex();
 			break;
 		case SHOW_DUMP:
-			CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
+			CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
 			ShowDump();
 			break;
 		case SHOW_RELOAD:
-			CtrlObject->Plugins.CurViewer = this; //HostFileViewer;
+			CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
 
 			for (I=0,Y=Y1; Y<=Y2; Y++,I++)
 			{
@@ -1673,7 +1672,7 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_F11:
 		{
-			CtrlObject->Plugins.CommandsMenu(MODALTYPE_VIEWER,0,L"Viewer");
+			CtrlObject->Plugins->CommandsMenu(MODALTYPE_VIEWER,0,L"Viewer");
 			Show();
 			return TRUE;
 		}
@@ -2436,7 +2435,7 @@ void Viewer::ChangeViewKeyBar()
 		ViewKeyBar->Redraw();
 	}
 
-	CtrlObject->Plugins.CurViewer=this; //HostFileViewer;
+	CtrlObject->Plugins->CurViewer=this; //HostFileViewer;
 }
 
 
@@ -2653,9 +2652,7 @@ void ViewerSearchMsg(const wchar_t *MsgStr, int Percent, int SearchHex)
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);
-			FormatString strTmp;
-			strTmp<<L" "<<fmt::Width(PercentLength)<<strPercent<<L"%";
-			strProgress+=strTmp;
+			strProgress+=FormatString()<<L" "<<fmt::Width(PercentLength)<<strPercent<<L"%";;
 		}
 
 		TBC.SetProgressValue(Percent,100);
@@ -3573,9 +3570,7 @@ void Viewer::GetFileName(string &strName)
 
 void Viewer::ShowConsoleTitle()
 {
-	TemplateString strTitle(MSG(MInViewer));
-	strTitle << PointToName(strFileName);
-	ConsoleTitle::SetFarTitle(strTitle);
+	ConsoleTitle::SetFarTitle(LangString(MInViewer) << PointToName(strFileName));
 }
 
 void Viewer::SetTempViewName(const wchar_t *Name, BOOL DeleteFolder)

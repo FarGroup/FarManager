@@ -6760,6 +6760,15 @@ upd:"StrmSz"
 upd:"StrmSz"
 "StrmSz"
 
+MColumnUnknown
+"???"
+"???"
+"???"
+"???"
+"???"
+"???"
+"???"
+
 MListUp
 l:
 "Вверх"
@@ -9840,6 +9849,15 @@ upd:"Administrator"
 upd:"Administrator"
 upd:"Administrator"
 
+MInfoUserAccessLevelUnknown
+"Неизвестно"
+"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+
 MInfoDiskTitle
 " Диск "
 " Disk "
@@ -9956,6 +9974,15 @@ upd:"Virtual"
 upd:"Virtual"
 upd:"Virtual"
 upd:"Virtual"
+
+MInfoUnknown
+"Неизвестный"
+"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
+upd:"Unknown"
 
 MInfoDisk
 "диск"

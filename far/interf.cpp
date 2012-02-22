@@ -107,10 +107,10 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		if (CtrlObject && CtrlObject->Cp())
 		{
 			if (CtrlObject->Cp()->LeftPanel && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
-				CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
+				CtrlObject->Plugins->ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
 
 			if (CtrlObject->Cp()->RightPanel && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
-				CtrlObject->Plugins.ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
+				CtrlObject->Plugins->ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
 		}
 		return TRUE;
 
@@ -643,7 +643,7 @@ void Text(const WCHAR *Str)
 }
 
 
-void Text(int MsgId)
+void Text(LNGID MsgId)
 {
 	Text(MSG(MsgId));
 }

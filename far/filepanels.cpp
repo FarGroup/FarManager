@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "keys.hpp"
 #include "macroopcode.hpp"
-#include "lang.hpp"
 #include "ctrlobj.hpp"
 #include "filelist.hpp"
 #include "rdrwdsk.hpp"

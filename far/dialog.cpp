@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "dialog.hpp"
-#include "lang.hpp"
 #include "keyboard.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"
@@ -4514,14 +4513,14 @@ INT_PTR WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 
 	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
-		if (CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCINIT,&de))
+		if (CtrlObject->Plugins->ProcessDialogEvent(DE_DLGPROCINIT,&de))
 			return de.Result;
 	}
 	Result=RealDlgProc(hDlg,Msg,Param1,Param2);
 	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
 		de.Result=Result;
-		if (CtrlObject->Plugins.ProcessDialogEvent(DE_DLGPROCEND,&de))
+		if (CtrlObject->Plugins->ProcessDialogEvent(DE_DLGPROCEND,&de))
 			return de.Result;
 	}
 	return Result;
@@ -4545,7 +4544,7 @@ INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 
 	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
-		if (CtrlObject->Plugins.ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
+		if (CtrlObject->Plugins->ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
 		{
 			return de.Result;
 		}

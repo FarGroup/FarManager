@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "filepanels.hpp"
 #include "dialog.hpp"
-#include "lang.hpp"
 #include "message.hpp"
 #include "pathmix.hpp"
 #include "strmix.hpp"

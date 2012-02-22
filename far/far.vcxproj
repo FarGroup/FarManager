@@ -153,7 +153,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -196,7 +196,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -238,7 +238,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -281,7 +281,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -325,7 +325,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -368,7 +368,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>

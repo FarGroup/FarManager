@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "keyboard.hpp"
 #include "flink.hpp"
-#include "lang.hpp"
 #include "keys.hpp"
 #include "vmenu.hpp"
 #include "filepanels.hpp"
@@ -200,7 +199,7 @@ struct PanelMenuItem
 struct TypeMessage
 {
 	int DrvType;
-	int FarMsg;
+	LNGID FarMsg;
 };
 
 const TypeMessage DrTMsg[]=
@@ -240,17 +239,17 @@ static size_t AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSele
 	{
 		for (PluginItem=0;; ++PluginItem)
 		{
-			if (PluginNumber >= CtrlObject->Plugins.GetPluginsCount())
+			if (PluginNumber >= CtrlObject->Plugins->GetPluginsCount())
 			{
 				Done=true;
 				break;
 			}
 
-			Plugin *pPlugin = CtrlObject->Plugins.GetPlugin(PluginNumber);
+			Plugin *pPlugin = CtrlObject->Plugins->GetPlugin(PluginNumber);
 
 			WCHAR HotKey = 0;
 			GUID guid;
-			if (!CtrlObject->Plugins.GetDiskMenuItem(
+			if (!CtrlObject->Plugins->GetDiskMenuItem(
 			            pPlugin,
 			            PluginItem,
 			            ItemPresent,
@@ -726,7 +725,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						{
 							string strName = ChDisk.GetItemPtr(SelPos)->strName + 3;
 							RemoveExternalSpaces(strName);
-							if(CtrlObject->Plugins.SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::DRIVE_MENU, strName))
+							if(CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::DRIVE_MENU, strName))
 							{
 								return SelPos;
 							}
@@ -740,12 +739,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_MSRCLICK:
 				{
 					//вызовем EMenu если он есть
-					if (item && !item->bIsPlugin && CtrlObject->Plugins.FindPlugin(Opt.KnownIDs.Emenu))
+					if (item && !item->bIsPlugin && CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Emenu))
 					{
 						string DeviceName("?:\\");
 						DeviceName.Replace(0, item->cDrive);
 						struct DiskMenuParam {const wchar_t* CmdLine; BOOL Apps;} p = {DeviceName, Key!=KEY_MSRCLICK};
-						CtrlObject->Plugins.CallPlugin(Opt.KnownIDs.Emenu, OPEN_LEFTDISKMENU, &p); // EMenu Plugin :-)
+						CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu, OPEN_LEFTDISKMENU, &p); // EMenu Plugin :-)
 					}
 					break;
 				}
@@ -834,14 +833,14 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					if (Opt.ChangeDriveMode&DRIVE_SHOW_PLUGINS)
 					{
 						ChDisk.Hide();
-						CtrlObject->Plugins.Configure();
+						CtrlObject->Plugins->Configure();
 					}
 
 					return SelPos;
 				case KEY_SHIFTF9:
 
 					if (item && item->bIsPlugin && item->pPlugin->HasConfigure())
-						CtrlObject->Plugins.ConfigureCurrent(item->pPlugin, item->Guid);
+						CtrlObject->Plugins->ConfigureCurrent(item->pPlugin, item->Guid);
 
 					return SelPos;
 				case KEY_CTRLR:
@@ -998,7 +997,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	}
 	else //эта плагин, да
 	{
-		HANDLE hPlugin = CtrlObject->Plugins.Open(
+		HANDLE hPlugin = CtrlObject->Plugins->Open(
 		                     mitem->pPlugin,
 		                     (CtrlObject->Cp()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
 		                     mitem->Guid,
@@ -1063,17 +1062,11 @@ int Panel::DisconnectDrive(PanelMenuItem *item, VMenu &ChDisk)
 						SetCurDir(strTmpCDir, FALSE);
 
 					// ... и выведем месаг о...
-					TemplateString strMsgText(MSG(MChangeCouldNotEjectMedia));
-					strMsgText << item->cDrive;
 					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
-					DoneEject = Message(
-					                MSG_WARNING|MSG_ERRORTYPE,
-					                2,
+					DoneEject = Message(MSG_WARNING|MSG_ERRORTYPE, 2,
 					                MSG(MError),
-					                strMsgText,
-					                MSG(MRetry),
-					                MSG(MCancel)
-					            ) ;
+					                LangString(MChangeCouldNotEjectMedia) << item->cDrive,
+					                MSG(MRetry),MSG(MCancel));
 				}
 				else
 					DoneEject=TRUE;
@@ -1128,17 +1121,11 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk)
 					SetCurDir(strTmpCDir, FALSE);
 
 				// ... и выведем месаг о...
-				TemplateString strMsgText(MSG(MChangeCouldNotEjectHotPlugMedia));
-				strMsgText << item->cDrive;
 				SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
-				DoneEject = Message(
-				                MSG_WARNING|MSG_ERRORTYPE,
-				                2,
+				DoneEject = Message(MSG_WARNING|MSG_ERRORTYPE, 2,
 				                MSG(MError),
-				                strMsgText,
-				                MSG(MHRetry),
-				                MSG(MHCancel)
-				            ) ;
+				                LangString(MChangeCouldNotEjectHotPlugMedia) << item->cDrive,
+				                MSG(MHRetry), MSG(MHCancel));
 			}
 			else
 				DoneEject=TRUE;
@@ -1165,9 +1152,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 		{
 			if (Opt.Confirm.RemoveSUBST)
 			{
-				TemplateString strMsgText(MSG(MChangeSUBSTDisconnectDriveQuestion));
-				strMsgText << DiskLetter;
-				if (Message(MSG_WARNING,2,MSG(MChangeSUBSTDisconnectDriveTitle),strMsgText,MSG(MYes),MSG(MNo)))
+				if (Message(MSG_WARNING,2,
+					MSG(MChangeSUBSTDisconnectDriveTitle),
+					LangString(MChangeSUBSTDisconnectDriveQuestion) << DiskLetter,
+					MSG(MYes),MSG(MNo)))
 				{
 					return DRIVE_DEL_FAIL;
 				}
@@ -1178,14 +1166,18 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 			}
 			else
 			{
-				int LastError=GetLastError();
-				TemplateString strMsgText(MSG(MChangeDriveCannotDelSubst));
+				LangString strMsgText(MChangeDriveCannotDelSubst);
 				strMsgText << DiskLetter;
+				DWORD LastError=GetLastError();
 				if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
 				{
-					if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
-								L"\x1",MSG(MChangeDriveOpenFiles),
-								MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel)))
+					if (!Message(MSG_WARNING|MSG_ERRORTYPE, 2,
+						MSG(MError),
+						strMsgText,
+						L"\x1",
+						MSG(MChangeDriveOpenFiles),
+						MSG(MChangeDriveAskDisconnect),
+						MSG(MOk),MSG(MCancel)))
 					{
 						if (DelSubstDrive(DiskLetter))
 						{
@@ -1224,14 +1216,17 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 				}
 				else
 				{
-					int LastError=GetLastError();
-					TemplateString strMsgText(MSG(MChangeDriveCannotDisconnect));
+					LangString strMsgText(MChangeDriveCannotDisconnect);
 					strMsgText << DiskLetter;
+					DWORD LastError=GetLastError();
 					if (LastError==ERROR_OPEN_FILES || LastError==ERROR_DEVICE_IN_USE)
 					{
-						if (!Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),strMsgText,
-									L"\x1",MSG(MChangeDriveOpenFiles),
-									MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel)))
+						if (!Message(MSG_WARNING|MSG_ERRORTYPE, 2,
+							MSG(MError),
+							strMsgText,
+							L"\x1",
+							MSG(MChangeDriveOpenFiles),
+							MSG(MChangeDriveAskDisconnect),MSG(MOk),MSG(MCancel)))
 						{
 							if (WNetCancelConnection2(DiskLetter,UpdateProfile,TRUE)==NO_ERROR)
 							{
@@ -1258,9 +1253,10 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 		{
 			if (Opt.Confirm.DetachVHD)
 			{
-				TemplateString strMsgText(MSG(MChangeVHDDisconnectDriveQuestion));
-				strMsgText << DiskLetter;
-				if (Message(MSG_WARNING,2,MSG(MChangeVHDDisconnectDriveTitle),strMsgText,MSG(MYes),MSG(MNo)))
+				if (Message(MSG_WARNING, 2,
+					MSG(MChangeVHDDisconnectDriveTitle),
+					LangString(MChangeVHDDisconnectDriveQuestion) << DiskLetter,
+					MSG(MYes),MSG(MNo)))
 				{
 					return DRIVE_DEL_FAIL;
 				}
@@ -1737,12 +1733,10 @@ void Panel::DragMessage(int X,int Y,int Move)
 	}
 	else
 	{
-		TemplateString str(MSG(MDragFiles));
-		str << SelCount;
-		strSelName = str;
+		strSelName = LangString(MDragFiles) << SelCount;
 	}
 
-	TemplateString strDragMsg(MSG(Move? MDragMove : MDragCopy));
+	LangString strDragMsg(Move? MDragMove : MDragCopy);
 	strDragMsg << strSelName;
 
 
@@ -2510,13 +2504,13 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	};
 	MakeDialogItemsEx(DCDlgData,DCDlg);
 	
-	TemplateString strMsgText;
+	LangString strMsgText;
 
-	strMsgText = MSG(MChangeDriveDisconnectQuestion);
+	strMsgText = MChangeDriveDisconnectQuestion;
 	strMsgText << Letter;
 	DCDlg[1].strData = strMsgText;
 
-	strMsgText = MSG(MChangeDriveDisconnectMapped);
+	strMsgText = MChangeDriveDisconnectMapped;
 	strMsgText << Letter;
 	DCDlg[2].strData = strMsgText;
 
@@ -2586,7 +2580,7 @@ void Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 		PluginHandle *ph = (PluginHandle*)hPlugin;
 		ShortcutInfo.PluginGuid = ph->pPlugin->GetGUID();
 		OpenPanelInfo Info;
-		CtrlObject->Plugins.GetOpenPanelInfo(hPlugin,&Info);
+		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		ShortcutInfo.PluginFile = Info.HostFile;
 		ShortcutInfo.ShortcutFolder = Info.CurDir;
 		ShortcutInfo.PluginData = Info.ShortcutData;
@@ -2736,13 +2730,13 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 					return true;
 			}
 
-			Plugin *pPlugin = CtrlObject->Plugins.FindPlugin(PluginGuid);
+			Plugin *pPlugin = CtrlObject->Plugins->FindPlugin(PluginGuid);
 
 			if (pPlugin)
 			{
 				if (pPlugin->HasOpenPanel())
 				{
-					HANDLE hNewPlugin=CtrlObject->Plugins.Open(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)strPluginData.CPtr());
+					HANDLE hNewPlugin=CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)strPluginData.CPtr());
 
 					if (hNewPlugin)
 					{
@@ -2752,7 +2746,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 						NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
 
 						if (!strShortcutFolder.IsEmpty())
-							CtrlObject->Plugins.SetDirectory(hNewPlugin,strShortcutFolder,0);
+							CtrlObject->Plugins->SetDirectory(hNewPlugin,strShortcutFolder,0);
 
 						NewPanel->Update(0);
 						NewPanel->Show();
@@ -2761,7 +2755,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 			}
 
 			/*
-			if(I == CtrlObject->Plugins.PluginsCount)
+			if(I == CtrlObject->Plugins->PluginsCount)
 			{
 			  char Target[NM*2];
 			  xstrncpy(Target, PluginModule, sizeof(Target));

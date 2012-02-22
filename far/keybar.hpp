@@ -92,7 +92,7 @@ class KeyBar: public ScreenObject
 
 		void SetGroup(int Group,const wchar_t * const *Key,int KeyCount);
 		// Групповая установка идущих подряд строк LNG для указанной группы
-		void SetAllGroup(int Group, int StartIndex, int Count);
+		void SetAllGroup(int Group, LNGID StartIndex, int Count);
 
 		void ClearGroup(int Group);
 

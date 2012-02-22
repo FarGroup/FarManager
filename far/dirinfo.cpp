@@ -39,7 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "scantree.hpp"
 #include "savescr.hpp"
-#include "lang.hpp"
 #include "RefreshFrameManager.hpp"
 #include "TPreRedrawFunc.hpp"
 #include "ctrlobj.hpp"
@@ -349,7 +348,7 @@ static void ScanPluginDir()
 
 	FarGetPluginDirListMsg(strDirName,AbortOp?0:MSG_KEEPBACKGROUND);
 
-	if (StopSearch || !CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
+	if (StopSearch || !CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
 		return;
 
 	PluginPanelItem *NewList=(PluginPanelItem *)xf_realloc(PluginDirList,1+sizeof(*PluginDirList)*(DirListItemsNumber+ItemCount));
@@ -394,7 +393,7 @@ static void ScanPluginDir()
 			CopyPluginDirItem(CurPanelItem);
 			string strFileName = CurPanelItem->FileName;
 
-			if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,strFileName,OPM_FIND))
+			if (CtrlObject->Plugins->SetDirectory(hDirListPlugin,strFileName,OPM_FIND))
 			{
 				strPluginSearchPath += CurPanelItem->FileName;
 				strPluginSearchPath += L"\x1";
@@ -408,7 +407,7 @@ static void ScanPluginDir()
 				else
 					strPluginSearchPath.Clear();
 
-				if (!CtrlObject->Plugins.SetDirectory(hDirListPlugin,L"..",OPM_FIND))
+				if (!CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_FIND))
 				{
 					StopSearch=TRUE;
 					break;
@@ -417,7 +416,7 @@ static void ScanPluginDir()
 		}
 	}
 
-	CtrlObject->Plugins.FreeFindData(hDirListPlugin,PanelData,ItemCount);
+	CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount);
 }
 
 int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
@@ -462,31 +461,31 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 			*pItemsNumber=DirListItemsNumber=0;
 			*pPanelItem=PluginDirList=nullptr;
 			OpenPanelInfo Info;
-			CtrlObject->Plugins.GetOpenPanelInfo(hDirListPlugin,&Info);
+			CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
 			string strPrevDir = Info.CurDir;
 
-			if (CtrlObject->Plugins.SetDirectory(hDirListPlugin,Dir,OPM_SILENT))
+			if (CtrlObject->Plugins->SetDirectory(hDirListPlugin,Dir,OPM_SILENT))
 			{
 				strPluginSearchPath = Dir;
 				strPluginSearchPath += L"\x1";
 				ScanPluginDir();
 				*pPanelItem=PluginDirList;
 				*pItemsNumber=DirListItemsNumber;
-				CtrlObject->Plugins.SetDirectory(hDirListPlugin,L"..",OPM_SILENT);
+				CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_SILENT);
 				OpenPanelInfo NewInfo;
-				CtrlObject->Plugins.GetOpenPanelInfo(hDirListPlugin,&NewInfo);
+				CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&NewInfo);
 
 				if (StrCmpI(strPrevDir, NewInfo.CurDir) )
 				{
 					PluginPanelItem *PanelData=nullptr;
 					size_t ItemCount=0;
 
-					if (CtrlObject->Plugins.GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_SILENT))
+					if (CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_SILENT))
 					{
-						CtrlObject->Plugins.FreeFindData(hDirListPlugin,PanelData,ItemCount);
+						CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount);
 					}
 
-					CtrlObject->Plugins.SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT);
+					CtrlObject->Plugins->SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT);
 				}
 			}
 		}

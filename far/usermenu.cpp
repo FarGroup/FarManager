@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "lang.hpp"
 #include "keys.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
@@ -424,9 +423,7 @@ int FillUserMenu(VMenu& FarUserMenu,DList<UserMenuItem> *Menu,int MenuPos,int *F
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
 			int Offset = strHotKey.At(0)==L'&'?5:4;
-			FormatString FString;
-			FString<<((!strHotKey.IsEmpty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::Width(Offset)<<fmt::Precision(Offset)<<strHotKey;
-			FarUserMenuItem.strName=FString;
+			FarUserMenuItem.strName=FormatString()<<((!strHotKey.IsEmpty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::Width(Offset)<<fmt::Precision(Offset)<<strHotKey;
 			FarUserMenuItem.strName+=strLabel;
 
 			if (MenuItem->Submenu)

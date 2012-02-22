@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "setcolor.hpp"
 #include "keys.hpp"
-#include "lang.hpp"
 #include "colors.hpp"
 #include "vmenu.hpp"
 #include "dialog.hpp"

@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "language.hpp"
-#include "lang.hpp"
 #include "scantree.hpp"
 #include "vmenu.hpp"
 #include "manager.hpp"
@@ -555,7 +554,7 @@ void Language::Close()
 	LanguageLoaded=false;
 }
 
-bool Language::CheckMsgId(int MsgId) const
+bool Language::CheckMsgId(LNGID MsgId) const
 {
 	/* $ 19.03.2002 DJ
 	   при отрицательном индексе - также покажем сообщение об ошибке
@@ -579,9 +578,11 @@ bool Language::CheckMsgId(int MsgId) const
 			string strMsg1(L"Incorrect or damaged ");
 			strMsg1+=strMessageFile;
 			/* IS $ */
-			FormatString strMsgNotFound;
-			strMsgNotFound<<L"Message "<<MsgId<<L" not found";
-			if (Message(MSG_WARNING,2,L"Error",strMsg1,strMsgNotFound,L"Ok",L"Quit")==1)
+			if (Message(MSG_WARNING, 2,
+				L"Error",
+				strMsg1,
+				FormatString()<<L"Message "<<MsgId<<L" not found",
+				L"Ok", L"Quit")==1)
 				exit(0);
 		}
 
@@ -591,7 +592,7 @@ bool Language::CheckMsgId(int MsgId) const
 	return true;
 }
 
-const wchar_t* Language::GetMsg(int nID) const
+const wchar_t* Language::GetMsg(LNGID nID) const
 {
 	if (
 #ifndef NO_WRAPPER
@@ -607,7 +608,7 @@ const wchar_t* Language::GetMsg(int nID) const
 }
 
 #ifndef NO_WRAPPER
-const char* Language::GetMsgA(int nID) const
+const char* Language::GetMsgA(LNGID nID) const
 {
 	if (m_bUnicode || !CheckMsgId(nID))
 		return "";

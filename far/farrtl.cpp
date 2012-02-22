@@ -181,7 +181,7 @@ void __cdecl xf_free(void * block)
 	free(block);
 }
 
-void * __cdecl operator new(size_t size)
+void * __cdecl operator new(size_t size) throw()
 {
 	void * res = xf_malloc(size);
 
@@ -209,7 +209,7 @@ void * __cdecl operator new[] (size_t size) throw()
 	return res;
 }
 
-void operator delete(void *ptr)
+void operator delete(void *ptr) throw()
 {
 
 #ifdef MEMORY_CHECK

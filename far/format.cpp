@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "format.hpp"
 #include "interf.hpp"
+#include "language.hpp"
 
 BaseFormat::BaseFormat()
 {
@@ -228,13 +229,13 @@ void FormatScreen::Commit(const string& Data)
 	Text(Data);
 }
 
-TemplateString::TemplateString(const wchar_t* Template):
+LangString::LangString(enum LNGID MessageId):
 	Iteration(0)
 {
-	Append(Template);
+	Append(MSG(MessageId));
 }
 
-void TemplateString::Commit(const string& Data)
+void LangString::Commit(const string& Data)
 {
 	FormatString Insert;
 	Insert << L"%" << ++Iteration;

@@ -35,7 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "filelist.hpp"
-#include "lang.hpp"
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
 #include "vmenu.hpp"
@@ -220,10 +219,7 @@ void FileList::ReadPanelModes()
 
 	for (int I=0; I<10; I++)
 	{
-		FormatString strMode;
-		strMode<<I;
-
-		unsigned __int64 id = PanelModeCfg->GetKeyID(0, strMode);
+		unsigned __int64 id = PanelModeCfg->GetKeyID(0, FormatString() << I);
 		if (!id)
 			continue;
 
@@ -280,10 +276,7 @@ void FileList::SavePanelModes()
 		ViewSettingsToText(NewSettings.StatusColumnType,NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,
 		                   NewSettings.StatusColumnCount,true,strStatusColumnTitles,strStatusColumnWidths);
 
-		FormatString strMode;
-		strMode<<I;
-
-		unsigned __int64 id = PanelModeCfg->CreateKey(0, strMode);
+		unsigned __int64 id = PanelModeCfg->CreateKey(0, FormatString() << I);
 		if (!id)
 			continue;
 

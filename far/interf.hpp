@@ -138,7 +138,7 @@ void ScrollScreen(int Count);
 
 void Text(int X, int Y, const FarColor& Color, const WCHAR *Str);
 void Text(const WCHAR *Str);
-void Text(int MsgId);
+void Text(LNGID MsgId);
 void VText(const WCHAR *Str);
 void HiText(const WCHAR *Str,const FarColor& HiColor,int isVertText=0);
 void vmprintf(const WCHAR *fmt,...);

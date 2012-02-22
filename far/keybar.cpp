@@ -258,13 +258,13 @@ void KeyBar::Change(int Group,const wchar_t *NewStr,int Pos)
 
 
 // Групповая установка идущих подряд строк LNG для указанной группы
-void KeyBar::SetAllGroup(int Group, int StartIndex, int Count)
+void KeyBar::SetAllGroup(int Group, LNGID StartIndex, int Count)
 {
 	if (Count > KEY_COUNT)
 		Count = KEY_COUNT;
 
-	for (int i=0, Index=StartIndex; i<Count; i++, Index++)
-		xwcsncpy(KeyTitles[Group][i], MSG(Index), ARRAYSIZE(KeyTitles[Group][i]));
+	for (int i=0; i<Count; i++)
+		xwcsncpy(KeyTitles[Group][i], MSG(StartIndex+i), ARRAYSIZE(KeyTitles[Group][i]));
 
 	KeyCounts [Group] = Count;
 }

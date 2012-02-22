@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-#include "lang.hpp"
 #include "panel.hpp"
 #include "vmenu.hpp"
 #include "filelist.hpp"
@@ -145,7 +144,7 @@ void PrintFiles(Panel *SrcPanel)
 
 	{
 		_ALGO(CleverSysLog clv2(L"Show Menu"));
-		TemplateString strTitle;
+		LangString strTitle;
 		string strName;
 
 		if (SelCount==1)
@@ -155,14 +154,14 @@ void PrintFiles(Panel *SrcPanel)
 			TruncStr(strName,50);
 			strSelName=strName;
 			InsertQuote(strSelName);
-			strTitle = MSG(MPrintTo);
+			strTitle = MPrintTo;
 			strTitle << strSelName;
 		}
 		else
 		{
 			_ALGO(SysLog(L"Correct: SelCount-=DirsCount"));
 			SelCount-=DirsCount;
-			strTitle = MSG(MPrintFilesTo);
+			strTitle = MPrintFilesTo;
 			strTitle << SelCount;
 		}
 
@@ -202,7 +201,7 @@ void PrintFiles(Panel *SrcPanel)
 		PR_PrintMsg();
 		HANDLE hPlugin=SrcPanel->GetPluginHandle();
 		int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
-		               !CtrlObject->Plugins.UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
+		               !CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 		SrcPanel->GetSelName(nullptr,FileAttr);
 
 		while (SrcPanel->GetSelName(&strSelName,FileAttr))
@@ -226,7 +225,7 @@ void PrintFiles(Panel *SrcPanel)
 						PluginPanelItem PanelItem;
 						FileList::FileListToPluginItem(&ListItem,&PanelItem);
 
-						if (CtrlObject->Plugins.GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
+						if (CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
 							FileName = strTempName;
 						else
 							apiRemoveDirectory(strTempDir);

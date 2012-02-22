@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "cvtname.hpp"
 #include "message.hpp"
-#include "lang.hpp"
 #include "language.hpp"
 #include "lasterror.hpp"
 #include "flink.hpp"
