@@ -3481,6 +3481,7 @@ void Editor::InsertString()
 					CurLine->ProcessKey(KEY_BS);
 
 				CurLine->SetOvertypeMode(SaveOvertypeMode);
+				Change(ECTYPE_CHANGED,NumLine);
 			}
 
 			CurLine->SetTabCurPos(IndentPos);
