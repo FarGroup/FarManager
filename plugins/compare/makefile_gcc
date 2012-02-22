@@ -4,6 +4,10 @@ DOCS = CmpEng.hlf CmpRus.hlf CompEng.lng CompRus.lng
 
 include ../../unicode_far/makefile_gcc_common
 
+ifeq ($(DIRBIT),64)
+NEEDDEFLIB = 1
+endif
+
 include ../makefile_gcc_def_inc
 
 include ../makefile_gcc_target_inc

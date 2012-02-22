@@ -80,7 +80,7 @@
 # endif
 #endif
 
-#if defined(_WIN64) && defined(__GNUC__) && !defined(_export)
+#if defined(__GNUC__) && !defined(_export)
 # define _export
 #endif
 

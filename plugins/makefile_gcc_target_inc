@@ -23,7 +23,7 @@ $(DLLFULLNAME): $(OBJS) $(DEF)
 	@echo linking $@
 	@$(MKDIR) -p $(@D)
 	@$(CXX) -mdll -o $(DLLNAME) -Xlinker --base-file -Xlinker $(DLLNAME).base $(OBJS) $(LNKFLAGS)
-	@$(DLLTOOL) --as-flags=--$(DIRBIT) -m $(DLLTOOL_MACHINE) --dllname $(DLLNAME) --base-file $(DLLNAME).base --output-exp $(DLLNAME).exp --def $(DEF)
+	@$(DLLTOOL) -f --$(DIRBIT) -m $(DLLTOOL_M) --dllname $(DLLNAME) --base-file $(DLLNAME).base --output-exp $(DLLNAME).exp --def $(DEF)
 	@$(CXX) -mdll -o $(DLLNAME) $(OBJS) $(DLLNAME).exp $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
 	@$(MV) $(DLLNAME) $(DLLDIR)
 	@$(RM) $(DLLNAME).base
