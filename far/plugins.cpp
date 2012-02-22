@@ -715,11 +715,15 @@ HANDLE PluginManager::OpenFilePlugin(
 	}
 
 	bool ShowMenu = Opt.PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Opt.PluginConfirm.OpenFilePlugin != 0;
+	bool ShowWarning = (OpMode==0);
+	 //у анси плагинов OpMode нет.
+	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
+	if(Type==OFP_COMMANDS) OpMode|=OPM_COMMANDS;
 
 	Plugin *pPlugin = nullptr;
 
 	File file;
-	AnalyseInfo Info={sizeof(Info), Name? Name->CPtr() : nullptr, nullptr, 0, OpMode|(Type==OFP_ALTERNATIVE?OPM_PGDN:0)};
+	AnalyseInfo Info={sizeof(Info), Name? Name->CPtr() : nullptr, nullptr, 0, OpMode};
 	bool DataRead = false;
 	for (size_t i = 0; i < PluginsCount; i++)
 	{
@@ -746,7 +750,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			}
 			if(!DataRead)
 			{
-				if(!OpMode)
+				if(ShowWarning)
 				{
 					Message(MSG_WARNING|MSG_ERRORTYPE, 1, L"", MSG(MOpenPluginCannotOpenFile), *Name, MSG(MOk));
 				}
@@ -761,10 +765,6 @@ HANDLE PluginManager::OpenFilePlugin(
 			if (Opt.ShowCheckingFile)
 				ct << MSG(MCheckingFileInPlugin) << L" - [" << PointToName(pPlugin->GetModuleName()) << L"]..." << fmt::Flush();
 
-			if (Type == OFP_ALTERNATIVE)
-			{
-				OpMode|=OPM_PGDN; //у анси плагинов OpMode нет.
-			}
 			hPlugin = pPlugin->OpenFilePlugin(Name? Name->CPtr() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
 
 			if (hPlugin == (HANDLE)-2)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
