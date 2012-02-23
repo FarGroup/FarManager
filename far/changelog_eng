@@ -3,6 +3,59 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 23.02.2012 14:18:24 +0400 - build 2487
+
+1. Correction of 2486
+
+svs 23.02.2012 09:44:26 +0400 - build 2486
+
+1. Mantis#0000466: Extension of macro language with plugins
+   Next step. 
+   Quite a bit is left to completion :-)
+   It is supposed that plugincache.will contain a cache for macro function names
+   provided by plugin (the format is the same as for prefixes): in order to skip loading plugins having
+   ProcessMacroW() at start and loading macros.
+
+drkns 22.02.2012 22:23:30 +0200 - build 2485
+
+1. in 1881, buffer cleaning with CopyToClipboard(0) was broken.
+
+zg 22.02.2012 18:58:03 +0200 - build 2484
+
+1. correction of 2458. OPEN_FROMMACRO in PluginManager::CallPlugin.
+
+zg 22.02.2012 18:45:43 +0200 - build 2483
+
+1. 0001410: Add a flag into OpenFilePluginW for archive operations recognition (ShiftF3)
+   OPM_COMMANDS flag is added.
+
+zg 22.02.2012 17:21:14 +0200 - build 2482
+
+1. 0002031: Automatic indentation does not inform plugins about line changed
+
+drkns 22.02.2012 16:58:37 +0200 - build 2481
+
+1. Inner rearrangement.
+
+zg 21.02.2012 19:51:28 +0200 - build 2480
+
+1. 0001972: ShiftHome and editor.sel(0,2)
+
+2. macro editing dialog is provided with history for sequence and description.
+
+zg 21.02.2012 16:14:47 +0200 - build 2479
+
+1. FSSF_EDITOR is added. with "WordDiv" one can get the system's list of separators.
+   ACTL_GETSYSWORDDIV will be deleted in the nearest future.
+
+zg 21.02.2012 04:40:45 +0200 - build 2478
+
+1. continuation of 2328. now the names of the settings match those in DB.
+   FSSF_SYSTEM and FSSF_PANEL are added.
+   one can examine what is available by now in config.cpp::CFG.
+   ACTL_GETSYSTEMSETTINGS, ACTL_GETPANELSETTINGS, ACTL_GETINTERFACESETTINGS, ACTL_GETCONFIRMATIONS,
+   ACTL_GETPLUGINMAXREADDATA and ACTL_GETDIALOGSETTINGS will be deleted in the nearest future.
+
 w17 20.02.2012 23:34:49 +0400 build - 2477
 
 1. Calling convention mismatch (yet another typo?)
