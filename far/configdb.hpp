@@ -157,6 +157,9 @@ public:
 	virtual bool GetPluginsMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) = 0;
 	virtual bool GetPluginsConfigMenuItem(unsigned __int64 id, size_t index, string &Text, string &Guid) = 0;
 	virtual string GetCommandPrefix(unsigned __int64 id) = 0;
+#if defined(MANTIS_0000466)
+	virtual string GetMacroFunctions(unsigned __int64 id) = 0;
+#endif
 	virtual unsigned __int64 GetFlags(unsigned __int64 id) = 0;
 	virtual bool SetPreload(unsigned __int64 id, bool Preload) = 0;
 	virtual bool SetSignature(unsigned __int64 id, const wchar_t *Signature) = 0;
@@ -164,6 +167,9 @@ public:
 	virtual bool SetPluginsMenuItem(unsigned __int64 id, size_t index, const wchar_t *Text, const wchar_t *Guid) = 0;
 	virtual bool SetPluginsConfigMenuItem(unsigned __int64 id, size_t index, const wchar_t *Text, const wchar_t *Guid) = 0;
 	virtual bool SetCommandPrefix(unsigned __int64 id, const wchar_t *Prefix) = 0;
+#if defined(MANTIS_0000466)
+	virtual bool SetMacroFunctions(unsigned __int64 id, const wchar_t *MacroFunc) = 0;
+#endif
 	virtual bool SetFlags(unsigned __int64 id, unsigned __int64 Flags) = 0;
 	virtual bool SetExport(unsigned __int64 id, const wchar_t *ExportName, bool Exists) = 0;
 	virtual bool SetMinFarVersion(unsigned __int64 id, const VersionInfo *Version) = 0;

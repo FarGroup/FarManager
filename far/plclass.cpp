@@ -418,6 +418,9 @@ bool Plugin::SaveToCache()
 		}
 
 		PlCacheCfg->SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
+#if defined(MANTIS_0000466)
+		PlCacheCfg->SetMacroFunctions(id, NullToEmpty(Info.MacroFunctions));
+#endif
 		PlCacheCfg->SetFlags(id, Info.Flags);
 
 		PlCacheCfg->SetMinFarVersion(id, &MinFarVersion);

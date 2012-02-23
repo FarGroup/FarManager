@@ -2016,6 +2016,7 @@ void ItemsToBuf(PluginMenuItem& Menu, TArray<string>& NamesArray, TArray<string>
 size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize)
 {
 	string Prefix;
+	string MacroFunc;
 	PLUGIN_FLAGS Flags = 0;
 	TArray<string> MenuNames, MenuGuids, DiskNames, DiskGuids, ConfNames, ConfGuids;
 
@@ -2024,6 +2025,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		unsigned __int64 id = PlCacheCfg->GetCacheID(pPlugin->GetCacheName());
 		Flags = PlCacheCfg->GetFlags(id);
 		Prefix = PlCacheCfg->GetCommandPrefix(id);
+		MacroFunc = PlCacheCfg->GetMacroFunctions(id);
 
 		string Name, Guid;
 
@@ -2052,6 +2054,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		{
 			Flags = Info.Flags;
 			Prefix = Info.CommandPrefix;
+			MacroFunc = Info.MacroFunctions;
 
 			for (size_t i = 0; i < Info.PluginMenu.Count; i++)
 			{
@@ -2114,6 +2117,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 	pInfo->PInfo.StructSize = sizeof(PluginInfo);
 	pInfo->PInfo.Flags = Flags;
 	pInfo->PInfo.CommandPrefix = StrToBuf(Prefix, Buffer, Rest, Size);
+	pInfo->PInfo.MacroFunctions = StrToBuf(MacroFunc, Buffer, Rest, Size);
 
 	ItemsToBuf(pInfo->PInfo.DiskMenu, DiskNames, DiskGuids, Buffer, Rest, Size);
 	ItemsToBuf(pInfo->PInfo.PluginMenu, MenuNames, MenuGuids, Buffer, Rest, Size);

@@ -4723,26 +4723,39 @@ static bool pluginsFunc(const TMacroFunction *thisFunc)
 	TVar V;
 	bool Ret=false;
 	int nParam=VMStack.Pop().getInteger();
+#if defined(MANTIS_0000466)
 /*
 enum FARMACROVARTYPE
 {
-	FMVT_INTEGER                = 0,
-	FMVT_STRING                 = 1,
-	FMVT_DOUBLE                 = 2,
+	FMVT_UNKNOWN                = 0,
+	FMVT_INTEGER                = 1,
+	FMVT_STRING                 = 2,
+	FMVT_DOUBLE                 = 3,
 };
 
 struct FarMacroValue
 {
-	FARMACROVARTYPE type;
+	enum FARMACROVARTYPE Type;
 	union
 	{
-		__int64  i;
-		double   d;
-		const wchar_t *s;
-	} v;
+		__int64  Integer;
+		double   Double;
+		const wchar_t *String;
+	}
+	Value
+	;
+};
+
+struct ProcessMacroFuncInfo
+{
+	size_t StructSize;
+	const wchar_t *Name;
+	const FarMacroValue *Params;
+	int nParams;
+	struct FarMacroValue *Results;
+	int nResults;
 };
 */
-#if defined(MANTIS_0000466)
 	int I;
 	GUID guid;
 	if (StrToGuid(thisFunc->fnGUID,guid) && CtrlObject->Plugins->FindPlugin(guid))

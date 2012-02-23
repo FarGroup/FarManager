@@ -1294,9 +1294,9 @@ struct ProcessMacroFuncInfo
 {
 	size_t StructSize;
 	const wchar_t *Name;
-	const FarMacroValue *Params;
+	const FarMacroValue *Params; // mem: Far
 	int nParams;
-	struct FarMacroValue *Results;
+	struct FarMacroValue *Results; // mem: plugin
 	int nResults;
 };
 
@@ -1312,6 +1312,14 @@ struct ProcessMacroInfo
 	enum FAR_MACROINFOTYPE Type;
 	union {
 		struct ProcessMacroFuncInfo Func;
+		struct __Info {
+			int MacroFunctionNumber;
+			const struct FarMacroFunction *Func;
+		}
+#ifndef __cplusplus
+		Info
+#endif
+		;
 	}
 #ifndef __cplusplus
 	Value
@@ -2370,8 +2378,7 @@ struct PluginInfo
 	const wchar_t *CommandPrefix;
 #ifdef FAR_USE_INTERNALS
 #if defined(MANTIS_0000466)
-	int MacroFunctionNumber;
-	const FarMacroFunction *MacroFunctions;
+	const wchar_t *MacroFunctions;
 #endif
 #endif // END FAR_USE_INTERNALS
 };
@@ -2776,7 +2783,7 @@ extern "C"
 	int    WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info);
 #ifdef FAR_USE_INTERNALS
 #if defined(MANTIS_0000466)
-	int    WINAPI ProcessMacroW(const struct ProcessMacroInfo *Info);
+	int    WINAPI ProcessMacroW(struct ProcessMacroInfo *Info);
 #endif
 #endif // END FAR_USE_INTERNALS
 #ifdef FAR_USE_INTERNALS
