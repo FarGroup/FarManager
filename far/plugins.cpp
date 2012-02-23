@@ -2016,7 +2016,9 @@ void ItemsToBuf(PluginMenuItem& Menu, TArray<string>& NamesArray, TArray<string>
 size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize)
 {
 	string Prefix;
+#if defined(MANTIS_0000466)
 	string MacroFunc;
+#endif
 	PLUGIN_FLAGS Flags = 0;
 	TArray<string> MenuNames, MenuGuids, DiskNames, DiskGuids, ConfNames, ConfGuids;
 
@@ -2025,7 +2027,9 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		unsigned __int64 id = PlCacheCfg->GetCacheID(pPlugin->GetCacheName());
 		Flags = PlCacheCfg->GetFlags(id);
 		Prefix = PlCacheCfg->GetCommandPrefix(id);
+#if defined(MANTIS_0000466)
 		MacroFunc = PlCacheCfg->GetMacroFunctions(id);
+#endif
 
 		string Name, Guid;
 
@@ -2054,7 +2058,9 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		{
 			Flags = Info.Flags;
 			Prefix = Info.CommandPrefix;
+#if defined(MANTIS_0000466)
 			MacroFunc = Info.MacroFunctions;
+#endif
 
 			for (size_t i = 0; i < Info.PluginMenu.Count; i++)
 			{
@@ -2117,7 +2123,9 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 	pInfo->PInfo.StructSize = sizeof(PluginInfo);
 	pInfo->PInfo.Flags = Flags;
 	pInfo->PInfo.CommandPrefix = StrToBuf(Prefix, Buffer, Rest, Size);
+#if defined(MANTIS_0000466)
 	pInfo->PInfo.MacroFunctions = StrToBuf(MacroFunc, Buffer, Rest, Size);
+#endif
 
 	ItemsToBuf(pInfo->PInfo.DiskMenu, DiskNames, DiskGuids, Buffer, Rest, Size);
 	ItemsToBuf(pInfo->PInfo.PluginMenu, MenuNames, MenuGuids, Buffer, Rest, Size);
