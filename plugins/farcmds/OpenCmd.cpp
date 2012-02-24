@@ -1349,11 +1349,9 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 								bool foundFile;
 								wchar_t *Ptr = loadFile(TempFileNameOut, Opt.MaxDataSize/sizeof(wchar_t), outputtofile, shift, foundFile);
 
+								FSF.CopyToClipboard(Ptr?Ptr+shift:nullptr);
 								if (Ptr)
-								{
-									FSF.CopyToClipboard(Ptr+shift);
 									free(Ptr);
-								}
 							}
 						}
 

@@ -69,6 +69,7 @@ code #0x00#.
 
    #clip:filename#
 
+   Передаваемые команде данные нулевого размера очищают буфер обмена.
 
    See also: ~Output Redirection~@Direction@ | ~Notes~@Remark@ | ~Contents~@Contents@
 
