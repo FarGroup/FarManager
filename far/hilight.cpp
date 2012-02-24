@@ -123,15 +123,15 @@ static void SetHighlighting(bool DeleteOld = false, HierarchicalConfig *ExternCf
 			static const wchar_t *Masks[]=
 			{
 				/* 0 */ L"*.*",
-				/* 1 */ L"*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz",
-				/* 2 */ L"*.bak,*.tmp",                                                                                                                                                                                //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ -> может к терапевту? ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+				/* 1 */ L"<arc>",
+				/* 2 */ L"<temp>",
 				/* $ 25.09.2001  IS
 					Эта маска для каталогов: обрабатывать все каталоги, кроме тех, что
 					являются родительскими (их имена - две точки).
 				*/
 				/* 3 */ L"*.*|..", // маска для каталогов
 				/* 4 */ L"..",     // такие каталоги окрашивать как простые файлы
-				/* 5 */ L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%",
+				/* 5 */ L"<exec>",
 			};
 			static struct DefaultData
 			{

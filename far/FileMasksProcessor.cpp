@@ -37,6 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "FileMasksProcessor.hpp"
 #include "processname.hpp"
+#include "configdb.hpp"
+#include "strmix.hpp"
 
 FileMasksProcessor::FileMasksProcessor():
 	BaseFileMask(),
@@ -79,7 +81,7 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 	if (Flags&FMPF_ADDASTERISK)
 		flags|=ULF_ADDASTERISK;
 
-	bRE = (masks && *masks == L'/');
+	bRE = masks.At(0) == L'/';
 
 	if (bRE)
 	{
@@ -102,8 +104,31 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 		return false;
 	}
 
+	string expmasks;
+
+	expmasks = masks;
+	size_t StartPos = 0;
+	bool UseExp = false;
+	for(;;)
+	{
+		size_t LBPos, RBPos;
+		if(masks.Pos(LBPos, L'<', StartPos) && masks.Pos(RBPos, L'>', LBPos))
+		{
+			string MaskGroupNameWB = masks.SubStr(LBPos, RBPos-LBPos+1);
+			string MaskGroupName = masks.SubStr(LBPos+1, RBPos-LBPos-1);
+			string MaskGroupValue;
+			if(GeneralCfg->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L""))
+			{
+				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
+				UseExp = true;
+			}
+			StartPos = RBPos+1;
+		}
+		else
+			break;
+	}
 	Masks.SetParameters(L',',L';',flags);
-	return Masks.Set(masks);
+	return Masks.Set(UseExp? expmasks : masks);
 }
 
 bool FileMasksProcessor::IsEmpty()

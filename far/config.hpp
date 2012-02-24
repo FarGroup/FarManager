@@ -724,6 +724,7 @@ void ReadConfig();
 void SaveConfig(int Ask);
 void SetFolderInfoFiles();
 void InfoPanelSettings();
+void MaskGroupsSettings();
 void AutoCompleteSettings();
 
 bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &Value);

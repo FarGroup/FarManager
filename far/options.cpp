@@ -157,6 +157,7 @@ enum enumOptionsMenu
 	MENU_OPTIONS_CMDLINESETTINGS,
 	MENU_OPTIONS_AUTOCOMPLETESETTINGS,
 	MENU_OPTIONS_INFOPANELSETTINGS,
+	MENU_OPTIONS_MASKGROUPS,
 	MENU_OPTIONS_SEPARATOR1,
 	MENU_OPTIONS_CONFIRMATIONS,
 	MENU_OPTIONS_FILEPANELMODES,
@@ -290,6 +291,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		MSG(MMenuCmdlineSettings),0,0,
 		MSG(MMenuAutoCompleteSettings),0,0,
 		MSG(MMenuInfoPanelSettings),0,0,
+		MSG(MMenuMaskGroups),0,0,
 		L"",LIF_SEPARATOR,0,
 		MSG(MMenuConfirmation),0,0,
 		MSG(MMenuFilePanelModes),0,0,
@@ -636,6 +638,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					break;
 				case MENU_OPTIONS_INFOPANELSETTINGS: // InfoPanel Settings
 					InfoPanelSettings();
+					break;
+				case MENU_OPTIONS_MASKGROUPS:
+					MaskGroupsSettings();
 					break;
 				case MENU_OPTIONS_CONFIRMATIONS:   // Confirmations
 					SetConfirmations();

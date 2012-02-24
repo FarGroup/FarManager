@@ -195,7 +195,7 @@ typedef class UnicodeString
 		const wchar_t *CPtr() const { return m_pData->GetData(); }
 		operator const wchar_t *() const { return m_pData->GetData(); }
 
-		UnicodeString SubStr(size_t Pos, size_t Len = -1);
+		UnicodeString SubStr(size_t Pos, size_t Len = -1) const;
 
 		const UnicodeString& operator=(const UnicodeString &strCopy) { return Copy(strCopy); }
 		const UnicodeString& operator=(const char *lpszData) { return Copy(lpszData); }

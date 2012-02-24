@@ -305,6 +305,128 @@ void InfoPanelSettings()
 	}
 }
 
+void ApplyDefaultMaskGroups()
+{
+	struct MaskGroups
+	{
+		const wchar_t* Group;
+		const wchar_t* Mask;
+	}
+	Sets[] =
+	{
+		{L"arc", L"*.rar,*.zip,*.[zj],*.[bg7]z,*.[bg]zip,*.tar,*.t[agbx]z,*.ar[cj],*.r[0-9][0-9],*.a[0-9][0-9],*.bz2,*.cab,*.msi,*.jar,*.lha,*.lzh,*.ha,*.ac[bei],*.pa[ck],*.rk,*.cpio,*.rpm,*.zoo,*.hqx,*.sit,*.ice,*.uc2,*.ain,*.imp,*.777,*.ufa,*.boa,*.bs[2a],*.sea,*.hpk,*.ddi,*.x2,*.rkv,*.[lw]sz,*.h[ay]p,*.lim,*.sqz,*.chz"},
+		{L"temp", L"*.bak,*.tmp"},
+		{L"exec", L"*.exe,*.com,*.bat,*.cmd,%PATHEXT%"},
+	};
+
+	for (size_t i = 0; i < ARRAYSIZE(Sets); ++i)
+	{
+		GeneralCfg->SetValue(L"Masks", Sets[i].Group, Sets[i].Mask);
+	}
+}
+
+void FillMasksMenu(VMenu& MasksMenu, int SelPos = 0)
+{
+	MasksMenu.DeleteItems();
+	string Name, Value;
+	for(DWORD i = 0; GeneralCfg->EnumValues(L"Masks", i, Name, Value); ++i)
+	{
+		MenuItemEx Item = {};
+		string DisplayName(Name);
+		const int NameWidth = 10;
+		TruncStr(DisplayName, NameWidth);
+		Item.strName = FormatString() << fmt::Width(NameWidth) << fmt::Precision(NameWidth) << fmt::LeftAlign() << DisplayName << L' ' << BoxSymbols[BS_V1] << L' ' << Value;
+		Item.UserData = const_cast<wchar_t*>(Name.CPtr());
+		Item.UserDataSize = (Name.GetLength()+1)*sizeof(wchar_t);
+		MasksMenu.AddItem(&Item);
+	}
+	MasksMenu.SetSelectPos(0, 0);
+}
+
+void MaskGroupsSettings()
+{
+	VMenu MasksMenu(MSG(MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
+	FillMasksMenu(MasksMenu);
+	MasksMenu.SetPosition(-1, -1, -1, -1);
+	MasksMenu.Show();
+
+	bool Changed = false;
+	while (!MasksMenu.Done())
+	{
+		DWORD Key=MasksMenu.ReadInput();
+		int ItemPos = MasksMenu.GetSelectPos();
+		void* Data = MasksMenu.GetUserData(nullptr, 0, ItemPos);
+		const wchar_t* Item = static_cast<const wchar_t*>(Data);
+		switch (Key)
+		{
+		case KEY_NUMDEL:
+		case KEY_DEL:
+			if(Item && !Message(0,2,MSG(MMenuMaskGroups),MSG(MMaskGroupAskDelete), Item, MSG(MDelete), MSG(MCancel)))
+			{
+				GeneralCfg->DeleteValue(L"Masks", Item);
+				Changed = true;
+			}
+			break;
+
+		case KEY_NUMPAD0:
+		case KEY_INS:
+			Item = nullptr;
+		case KEY_F4:
+			{
+				string Name(Item), Value;
+				if(Item)
+				{
+					GeneralCfg->GetValue(L"Masks", Name, Value, L"");
+				}
+				DialogBuilder Builder(MMenuMaskGroups, nullptr);
+				Builder.AddText(MMaskGroupName);
+				Builder.AddEditField(&Name, 60);
+				Builder.AddText(MMaskGroupMasks);
+				Builder.AddEditField(&Value, 60);
+				Builder.AddOKCancel();
+				if(Builder.ShowDialog())
+				{
+					if(Item)
+					{
+						GeneralCfg->DeleteValue(L"Masks", Item);
+					}
+					GeneralCfg->SetValue(L"Masks", Name, Value);
+					Changed = true;
+				}
+			}
+			break;
+
+		case KEY_CTRLR:
+		case KEY_RCTRLR:
+			{
+				if (!Message(MSG_WARNING, 2,
+					MSG(MMenuMaskGroups),
+					MSG(MMaskGroupRestore),
+					MSG(MYes),MSG(MCancel)))
+				{
+					ApplyDefaultMaskGroups();
+					Changed = true;
+				}
+			}
+			break;
+
+		default:
+			MasksMenu.ProcessInput();
+			break;
+		}
+
+		if(Changed)
+		{
+			Changed = false;
+
+			FillMasksMenu(MasksMenu, MasksMenu.GetSelectPos());
+			MasksMenu.SetPosition(-1, -1, -1, -1);
+			MasksMenu.SetUpdateRequired(true);
+			MasksMenu.Show();
+		}
+	}
+}
+
 void DialogSettings()
 {
 	DialogBuilder Builder(MConfigDlgSetsTitle, L"DialogSettings");
@@ -1113,6 +1235,11 @@ void ReadConfig()
                                   Opt.FindOpt.OutColumnCount);
 	}
 
+	string tmp[2];
+	if (!GeneralCfg->EnumValues(L"Masks", 0, tmp[0], tmp[1]))
+	{
+		ApplyDefaultMaskGroups();
+	}
 	/* *************************************************** </оняропнжеяяш> */
 }
 
