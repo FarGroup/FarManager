@@ -47,13 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const wchar_t LangFileMask[] = L"*.lng";
 
-#ifndef pack
-#define _PACK_BITS 2
-#define _PACK (1 << _PACK_BITS)
-#define pck(x,N)            ( ((x) + ((1<<(N))-1) )  & ~((1<<(N))-1) )
-#define pack(x)             pck(x,_PACK_BITS)
-#endif
-
 Language Lang;
 Language OldLang;
 
@@ -291,7 +284,6 @@ Language::Language():
 	MsgAddrA(nullptr),
 	MsgListA(nullptr),
 #endif // NO_WRAPPER
-	MsgSize(0),
 	MsgCount(0),
 	LastError(LERROR_SUCCESS),
 #ifndef NO_WRAPPER
@@ -369,16 +361,33 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 	string strLangName=Opt.strLanguage;
 	FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nCodePage,FALSE, &strLangName);
 
-	if (this == &Lang && StrCmpI(Opt.strLanguage,strLangName))
-		Opt.strLanguage=strLangName;
-
 	if (!LangFile)
 	{
 		LastError = LERROR_FILE_NOT_FOUND;
 		return false;
 	}
+	if (this == &Lang && StrCmpI(Opt.strLanguage,strLangName))
+		Opt.strLanguage=strLangName;
+
+	long Pos = ftell(LangFile);
+	fseek(LangFile, 0, SEEK_END);
+	size_t FileSize = ftell(LangFile);
+	fseek(LangFile, Pos, SEEK_SET);
+
+#ifndef NO_WRAPPER
+	if (!m_bUnicode)
+	{
+		MsgListA = static_cast<char*>(xf_malloc(FileSize));
+	}
+	else
+#endif // NO_WRAPPER
+	{
+		MsgList = static_cast<wchar_t*>(xf_malloc(FileSize * sizeof(wchar_t)));
+	}
 
 	wchar_t ReadStr[1024]={};
+
+	size_t MsgSize = 0;
 
 	while (ReadString(LangFile, ReadStr, ARRAYSIZE(ReadStr), nCodePage) )
 	{
@@ -394,32 +403,18 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 			ReadStr[SrcLength-1]=0;
 
 		ConvertString(ReadStr+1,strDestStr);
-		int DestLength=(int)pack(strDestStr.GetLength()+1);
+		size_t DestLength=strDestStr.GetLength()+1;
 
 #ifndef NO_WRAPPER
 		if (m_bUnicode)
 #endif // NO_WRAPPER
 		{
-			if (!(MsgList = (wchar_t*)xf_realloc(MsgList, (MsgSize+DestLength)*sizeof(wchar_t))))
-			{
-				fclose(LangFile);
-				return false;
-			}
-
-			*(int*)&MsgList[MsgSize+DestLength-_PACK] = 0;
 			wcscpy(MsgList+MsgSize, strDestStr);
 		}
 #ifndef NO_WRAPPER
 		else
 		{
-			if (!(MsgListA = (char*)xf_realloc(MsgListA, (MsgSize+DestLength)*sizeof(char))))
-			{
-				fclose(LangFile);
-				return false;
-			}
-
-			*(int*)&MsgListA[MsgSize+DestLength-_PACK] = 0;
-			WideCharToMultiByte(CP_OEMCP, 0, strDestStr, -1, MsgListA+MsgSize, DestLength, nullptr, nullptr);
+			WideCharToMultiByte(CP_OEMCP, 0, strDestStr, -1, MsgListA+MsgSize, static_cast<int>(DestLength), nullptr, nullptr);
 		}
 #endif // NO_WRAPPER
 		MsgSize+=DestLength;
@@ -432,6 +427,17 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 		fclose(LangFile);
 		LastError = LERROR_BAD_FILE;
 		return false;
+	}
+
+#ifndef NO_WRAPPER
+	if (!m_bUnicode)
+	{
+		MsgListA = static_cast<char*>(xf_realloc(MsgListA, MsgSize));
+	}
+	else
+#endif // NO_WRAPPER
+	{
+		MsgList = static_cast<wchar_t*>(xf_realloc(MsgList, MsgSize * sizeof(wchar_t)));
 	}
 
 #ifndef NO_WRAPPER
@@ -450,7 +456,7 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 		for (int I=0; I<MsgCount; I++)
 		{
 			MsgAddr[I]=CurAddr;
-			CurAddr+=pack(StrLength(CurAddr)+1);
+			CurAddr+=StrLength(CurAddr)+1;
 		}
 	}
 #ifndef NO_WRAPPER
@@ -468,7 +474,7 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 		for (int I=0; I<MsgCount; I++)
 		{
 			MsgAddrA[I]=CurAddrA;
-			CurAddrA+=pack(strlen(CurAddrA)+1);
+			CurAddrA+=strlen(CurAddrA)+1;
 		}
 	}
 #endif // NO_WRAPPER
@@ -521,7 +527,6 @@ void Language::Free()
 #endif // NO_WRAPPER
 
 	MsgCount=0;
-	MsgSize=0;
 }
 
 void Language::Close()
@@ -539,7 +544,6 @@ void Language::Close()
 		OldLang.m_bUnicode=m_bUnicode;
 #endif // NO_WRAPPER
 		OldLang.MsgCount=MsgCount;
-		OldLang.MsgSize=MsgSize;
 	}
 
 	MsgList=nullptr;
@@ -550,7 +554,6 @@ void Language::Close()
 	m_bUnicode = true;
 #endif // NO_WRAPPER
 	MsgCount=0;
-	MsgSize=0;
 	LanguageLoaded=false;
 }
 

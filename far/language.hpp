@@ -74,7 +74,6 @@ private:
 	char **MsgAddrA; //фантастика, да
 	char *MsgListA;
 #endif // NO_WRAPPER
-	long MsgSize;
 	int MsgCount;
 	LngErrors LastError;
 #ifndef NO_WRAPPER
