@@ -340,12 +340,13 @@ void FillMasksMenu(VMenu& MasksMenu, int SelPos = 0)
 		Item.UserDataSize = (Name.GetLength()+1)*sizeof(wchar_t);
 		MasksMenu.AddItem(&Item);
 	}
-	MasksMenu.SetSelectPos(0, 0);
+	MasksMenu.SetSelectPos(0, SelPos);
 }
 
 void MaskGroupsSettings()
 {
 	VMenu MasksMenu(MSG(MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
+	MasksMenu.SetBottomTitle(MSG(MMaskGroupBottom));
 	FillMasksMenu(MasksMenu);
 	MasksMenu.SetPosition(-1, -1, -1, -1);
 	MasksMenu.Show();

@@ -11379,6 +11379,15 @@ MMenuSortUseCaseSensitive
 "Sortuj uwzględniając wielkość liter"
 "Usar orden sensible a min/mayúsc."
 
+MMaskGroupBottom
+"Редактирование: Ins, Del, F4, Ctrl-R"
+"Edit: Ins, Del, F4, Ctrl-R"
+"Edit: Ins, Del, F4, Ctrl-R"
+"Tasten: Einf, Entf, F4, StrgR"
+"Szerk.: Ins, Del, F4, Ctrl-R"
+"Edycja: Ins, Del, F4, Ctrl-R"
+"Editar: Ins, Del, F4, Ctrl-R"
+
 MMaskGroupName
 "&Имя:"
 "&Name:"
