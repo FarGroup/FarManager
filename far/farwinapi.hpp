@@ -128,7 +128,7 @@ public:
 	bool NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, bool ReturnSingleEntry, LPCWSTR FileName, bool RestartScan, NTSTATUS* Status = nullptr);
 	bool Close();
 	bool Eof();
-	bool Opened() const {return Handle != nullptr;}
+	bool Opened() const {return Handle != INVALID_HANDLE_VALUE;}
 
 private:
 	HANDLE Handle;
