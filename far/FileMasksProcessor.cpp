@@ -75,19 +75,36 @@ void FileMasksProcessor::Free()
 bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 {
 	Free();
-	// разделителем масок является не только запятая, но и точка с запятой!
-	DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
 
-	if (Flags&FMPF_ADDASTERISK)
-		flags|=ULF_ADDASTERISK;
+	string expmasks(masks);
+	size_t StartPos = 0;
+	bool UseExp = false;
+	for(;;)
+	{
+		size_t LBPos, RBPos;
+		if(expmasks.Pos(LBPos, L'<', StartPos) && expmasks.Pos(RBPos, L'>', LBPos))
+		{
+			string MaskGroupNameWB = expmasks.SubStr(LBPos, RBPos-LBPos+1);
+			string MaskGroupName = expmasks.SubStr(LBPos+1, RBPos-LBPos-1);
+			string MaskGroupValue;
+			if(GeneralCfg->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L""))
+			{
+				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
+				UseExp = true;
+			}
+			StartPos = RBPos+1;
+		}
+		else
+			break;
+	}
 
-	bRE = masks.At(0) == L'/';
+	bRE = expmasks.At(0) == L'/';
 
 	if (bRE)
 	{
 		re = new RegExp;
 
-		if (re && re->Compile(masks, OP_PERLSTYLE|OP_OPTIMIZE))
+		if (re && re->Compile(expmasks, OP_PERLSTYLE|OP_OPTIMIZE))
 		{
 			n = re->GetBracketsCount();
 			m = (SMatch *)xf_malloc(n*sizeof(SMatch));
@@ -104,31 +121,14 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 		return false;
 	}
 
-	string expmasks;
+	// разделителем масок является не только запятая, но и точка с запятой!
+	DWORD flags=ULF_PACKASTERISKS|ULF_PROCESSBRACKETS|ULF_SORT|ULF_UNIQUE;
 
-	expmasks = masks;
-	size_t StartPos = 0;
-	bool UseExp = false;
-	for(;;)
-	{
-		size_t LBPos, RBPos;
-		if(masks.Pos(LBPos, L'<', StartPos) && masks.Pos(RBPos, L'>', LBPos))
-		{
-			string MaskGroupNameWB = masks.SubStr(LBPos, RBPos-LBPos+1);
-			string MaskGroupName = masks.SubStr(LBPos+1, RBPos-LBPos-1);
-			string MaskGroupValue;
-			if(GeneralCfg->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L""))
-			{
-				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
-				UseExp = true;
-			}
-			StartPos = RBPos+1;
-		}
-		else
-			break;
-	}
+	if (Flags&FMPF_ADDASTERISK)
+		flags|=ULF_ADDASTERISK;
+
 	Masks.SetParameters(L',',L';',flags);
-	return Masks.Set(UseExp? expmasks : masks);
+	return Masks.Set(expmasks);
 }
 
 bool FileMasksProcessor::IsEmpty()
