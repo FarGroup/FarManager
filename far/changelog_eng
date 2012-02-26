@@ -3,6 +3,36 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.02.2012 23:36:01 +0200 - build 2494
+
+1. Correction of 2493.
+
+drkns 26.02.2012 22:28:58 +0200 - build 2493
+
+1. If a file deletion attempt fails due to the file being locked by another process, now it is possible to find out the name of the process in some cases.
+
+drkns 26.02.2012 10:40:09 +0200 - build 2492
+
+1. Continuation of 2488 - a group can be a regular expression.
+
+drkns 25.02.2012 20:10:24 +0200 - build 2491
+
+1. A typo in 2470.
+
+drkns 24.02.2012 21:11:56 +0200 - build 2490
+
+1. Optimization and simplification of lng reader.
+
+drkns 24.02.2012 14:57:54 +0200 - build 2489
+
+1. Continuation of 2488.
+
+drkns 24.02.2012 14:27:51 +0200 - build 2488
+
+1. New entity: "file mask groups" (Options - Groups of file masks).
+   An arbitrary amount of file masks can form a named group.
+   The name of the group in angle brackets ("<name>") can be used anywhere along with masks themselves.
+
 svs 23.02.2012 14:18:24 +0400 - build 2487
 
 1. Correction of 2486
