@@ -845,7 +845,7 @@ DWORD apiGetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileNa
 			dwSize = GetModuleFileName(hModule, lpwszFileName, dwBufferSize);
 		}
 	}
-	while (dwSize >= dwBufferSize || GetLastError() == ERROR_INSUFFICIENT_BUFFER);
+	while ((dwSize >= dwBufferSize) || (!dwSize && GetLastError() == ERROR_INSUFFICIENT_BUFFER));
 
 	if (dwSize)
 		strFileName.Copy(lpwszFileName, dwSize);

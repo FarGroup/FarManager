@@ -64,7 +64,7 @@ public: bool NAME##Present(){return pfn##NAME != nullptr;}
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, CancelSynchronousIo, (HANDLE Thread));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SetConsoleKeyShortcuts, (BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetConsoleScreenBufferInfoEx, (HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx));
-	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, QueryFullProcessImageName, (HANDLE Process, DWORD Flags, LPTSTR ExeName, PDWORD Size));
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, QueryFullProcessImageName, (HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size));
 
 	// ntdll
 	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryDirectoryFile, (HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan));

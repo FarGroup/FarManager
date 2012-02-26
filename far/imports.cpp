@@ -510,7 +510,7 @@ HPOWERNOTIFY ImportedFunctions::RegisterPowerSettingNotification(HANDLE hRecipie
 	}
 }
 
-BOOL ImportedFunctions::QueryFullProcessImageName(HANDLE Process, DWORD Flags, LPTSTR ExeName, PDWORD Size)
+BOOL ImportedFunctions::QueryFullProcessImageName(HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size)
 {
 	if(pfnQueryFullProcessImageName)
 	{
