@@ -20067,6 +20067,15 @@ upd:"Files"
 upd:"Files"
 upd:"Files"
 
+MObjectLockedByProcesses
+"Объект заблокирован следующими процессами:"
+"Object is locked by following processes:"
+upd:"Object is locked by following processes:"
+upd:"Object is locked by following processes:"
+upd:"Object is locked by following processes:"
+upd:"Object is locked by following processes:"
+upd:"Object is locked by following processes:"
+
 
 #Must be the last
 MNewFileName

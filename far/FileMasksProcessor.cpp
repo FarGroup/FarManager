@@ -78,7 +78,6 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 
 	string expmasks(masks);
 	size_t StartPos = 0;
-	bool UseExp = false;
 	for(;;)
 	{
 		size_t LBPos, RBPos;
@@ -90,7 +89,6 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 			if(GeneralCfg->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L""))
 			{
 				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
-				UseExp = true;
 			}
 			StartPos = RBPos+1;
 		}

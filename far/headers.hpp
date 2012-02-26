@@ -110,6 +110,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # include <cfgmgr32.h>
 # include <ntddscsi.h>
 # include <virtdisk.h>
+# include <RestartManager.h>
 #endif // _MSC_VER
 
 #ifdef __GNUC__

@@ -42,6 +42,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "macro.hpp"
 #include "keyboard.hpp"
+#include "imports.hpp"
+#include "message.hpp"
+#include "lasterror.hpp"
 
 int GetSearchReplaceString(
     bool IsReplaceMode,
@@ -403,4 +406,78 @@ int GetNameAndPassword(const wchar_t *Title, string &strUserName, string &strPas
 	strPassword = PassDlg[4].strData;
 	strLastPassword = strPassword;
 	return TRUE;
+}
+
+int OperationFailed(const string& Object, LNGID Title, LNGID Description)
+{
+	DList<string> Msg;
+	{
+		GuardLastError gl;
+		DWORD dwSession;
+		WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
+		if (ifn.RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
+		{
+			PCWSTR pszFile = Object;
+			if (ifn.RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
+			{
+				DWORD dwReason;
+				DWORD RmGetListResult;
+				UINT nProcInfoNeeded;
+				UINT nProcInfo = 1;
+				RM_PROCESS_INFO* rgpi = new RM_PROCESS_INFO[nProcInfo];
+				while((RmGetListResult=ifn.RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi, &dwReason)) == ERROR_MORE_DATA)
+				{
+					nProcInfo = nProcInfoNeeded;
+					delete[] rgpi;
+					rgpi = new RM_PROCESS_INFO[nProcInfo]; 
+				}
+				if(RmGetListResult ==ERROR_SUCCESS)
+				{
+					for (size_t i = 0; i < nProcInfo; i++)
+					{
+						FormatString tmp;
+						tmp << rgpi[i].strAppName << L" (PID: " << rgpi[i].Process.dwProcessId;
+						HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, rgpi[i].Process.dwProcessId);
+						if (hProcess)
+						{
+							FILETIME ftCreate, ftExit, ftKernel, ftUser;
+							if (GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel, &ftUser) && CompareFileTime(&rgpi[i].Process.ProcessStartTime, &ftCreate) == 0)
+							{
+								string Name;
+								if (apiGetModuleFileNameEx(hProcess, nullptr, Name))
+								{
+									tmp << L", " << Name;
+								}
+							}
+							CloseHandle(hProcess);
+						}
+						tmp << L")";
+						Msg.Push(&tmp);
+					}
+				}
+				delete[] rgpi;
+			}
+			ifn.RmEndSession(dwSession);
+		}
+	}
+	size_t LineCount = 1 + 1 + (Msg.Count()? Msg.Count() + 1 : 0) + 4;
+	const wchar_t** Msgs = new const wchar_t*[LineCount];
+	Msgs[0] = MSG(Description);
+	Msgs[1] = Object;
+	if(Msg.Count())
+	{
+		string *s = nullptr;
+		Msgs[2] = MSG(MObjectLockedByProcesses);
+		for (size_t i = 3; i < LineCount-4; ++i)
+		{
+			s = Msg.Next(s);
+			Msgs[i] = *s;
+		}
+	}
+	Msgs[LineCount-4] = MSG(MDeleteRetry);
+	Msgs[LineCount-3] = MSG(MDeleteSkip);
+	Msgs[LineCount-2] = MSG(MDeleteFileSkipAll);
+	Msgs[LineCount-1] = MSG(MDeleteCancel);
+	return Message(MSG_WARNING|MSG_ERRORTYPE, 4, MSG(Title), Msgs, LineCount);
+
 }

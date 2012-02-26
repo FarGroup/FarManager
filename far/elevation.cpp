@@ -908,7 +908,7 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 {
 	CriticalSectionLock Lock(CS);
-	int Result=0;
+	int Result=0x78; //DE_ACCESSDENIEDSRC
 	if(ElevationApproveDlg(MElevationRequiredRecycle, FileOpStruct.pFrom))
 	{
 		if(Opt.IsUserAdmin)
@@ -941,6 +941,10 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 						}
 					}
 				}
+			}
+			else
+			{
+				Result=0x75; // DE_OPCANCELLED
 			}
 		}
 	}

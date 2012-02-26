@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirinfo.hpp"
 #include "elevation.hpp"
 #include "wakeful.hpp"
+#include "stddlg.hpp"
 
 enum DEL_MODE
 {
@@ -69,10 +70,17 @@ enum DEL_MODE
 	DEL_WIPEPROCESS
 };
 
+enum DIRDELTYPE
+{
+	D_DEL,
+	D_RECYCLE,
+	D_WIPE,
+};
+
 static void ShellDeleteMsg(const wchar_t* Name, DEL_MODE Mode, int Percent, int WipePercent);
 static int AskDeleteReadOnly(const string& Name,DWORD Attr,int Wipe);
 static int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent);
-static int ERemoveDirectory(const string& Name,int Wipe);
+static int ERemoveDirectory(const string& Name,DIRDELTYPE Type);
 static int RemoveToRecycleBin(const string& Name);
 static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel);
 static int WipeDirectory(const string& Name);
@@ -451,7 +459,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
 									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
-								int MsgCode=ERemoveDirectory(strFullName,Wipe);
+								int MsgCode=ERemoveDirectory(strFullName, Wipe? D_WIPE : D_DEL);
 
 								if (MsgCode==DELETE_CANCEL)
 								{
@@ -500,7 +508,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 								if (FindData.dwFileAttributes & FILE_ATTRIBUTE_READONLY)
 									apiSetFileAttributes(strFullName,FILE_ATTRIBUTE_NORMAL);
 
-								int MsgCode=ERemoveDirectory(strFullName,Wipe);
+								int MsgCode=ERemoveDirectory(strFullName, Wipe? D_WIPE : D_DEL);
 
 								if (MsgCode==DELETE_CANCEL)
 								{
@@ -545,34 +553,19 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 
 					// нефига здесь выделываться, а надо учесть, что удаление
 					// симлинка в корзину чревато потерей оригинала.
-					if (DirSymLink || !Opt.DeleteToRecycleBin || Wipe)
+					DIRDELTYPE Type = Wipe? D_WIPE : D_DEL;
+					if (Opt.DeleteToRecycleBin && !(DirSymLink && WinVer < _WIN32_WINNT_VISTA))
+						Type = D_RECYCLE;
+					DeleteCode=ERemoveDirectory(strSelName, Type);
+
+					if (DeleteCode==DELETE_CANCEL)
+						break;
+					else if (DeleteCode==DELETE_SUCCESS)
 					{
-						DeleteCode=ERemoveDirectory(strSelName,Wipe);
+						TreeList::DelTreeName(strSelName);
 
-						if (DeleteCode==DELETE_CANCEL)
-							break;
-						else if (DeleteCode==DELETE_SUCCESS)
-						{
-							TreeList::DelTreeName(strSelName);
-
-							if (UpdateDiz)
-								SrcPanel->DeleteDiz(strSelName,strSelShortName);
-						}
-					}
-					else
-					{
-						DeleteCode=RemoveToRecycleBin(strSelName);
-
-						if (!DeleteCode)
-							Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
-							        MSG(MCannotDeleteFolder),strSelName,MSG(MOk));
-						else
-						{
-							TreeList::DelTreeName(strSelName);
-
-							if (UpdateDiz)
-								SrcPanel->DeleteDiz(strSelName,strSelShortName);
-						}
+						if (UpdateDiz)
+							SrcPanel->DeleteDiz(strSelName,strSelShortName);
 					}
 				}
 			}
@@ -773,7 +766,7 @@ int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent)
 				case 0:
 					{
 						bool Cancel = false;
-						if (WipeFile(Name, TotalPercent, Cancel))
+						if (WipeFile(strFullName, TotalPercent, Cancel))
 							return DELETE_SUCCESS;
 						else if(Cancel)
 							return DELETE_CANCEL;
@@ -788,19 +781,17 @@ int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent)
 			        if (hDelete!=INVALID_HANDLE_VALUE && CloseHandle(hDelete))
 			          break;
 			*/
-			if (apiDeleteFile(Name))
+			if (apiDeleteFile(strFullName))
 				break;
 		}
-		else if (RemoveToRecycleBin(Name))
+		else if (RemoveToRecycleBin(strFullName))
 			break;
 
 		if (SkipMode!=-1)
 			MsgCode=SkipMode;
 		else
 		{
-			MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-			                MSG(MCannotDeleteFile),Name,MSG(MDeleteRetry),
-			                MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+			MsgCode=OperationFailed(strFullName, MError, MCannotDeleteFile);
 		}
 
 		switch (MsgCode)
@@ -820,44 +811,55 @@ int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent)
 }
 
 
-int ERemoveDirectory(const string& Name,int Wipe)
+int ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 {
 	ProcessedItems++;
 	string strFullName;
 	ConvertNameToFull(Name,strFullName);
 
-	for (;;)
+	bool Success = false;
+	while(!Success)
 	{
-		if (Wipe)
+		switch(Type)
 		{
-			if (WipeDirectory(Name))
-				break;
-		}
-		else if (apiRemoveDirectory(Name))
+		case D_DEL:
+			Success = apiRemoveDirectory(Name) != FALSE;
 			break;
 
-		int MsgCode;
+		case D_WIPE:
+			Success = WipeDirectory(Name) != FALSE;
+			break;
 
-		if (SkipFoldersMode!=-1)
-			MsgCode=SkipFoldersMode;
-		else
-		{
-			MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),
-			                MSG(MCannotDeleteFolder),Name,MSG(MDeleteRetry),
-			                MSG(MDeleteSkip),MSG(MDeleteFileSkipAll),MSG(MDeleteCancel));
+		case D_RECYCLE:
+			Success = RemoveToRecycleBin(Name) != FALSE;
+			break;
 		}
 
-		switch (MsgCode)
+		if(!Success)
 		{
-			case -1:
-			case -2:
-			case 3:
-				return DELETE_CANCEL;
-			case 1:
-				return DELETE_SKIP;
-			case 2:
-				SkipFoldersMode=2;
-				return DELETE_SKIP;
+			int MsgCode;
+
+			if (SkipFoldersMode!=-1)
+			{
+				MsgCode=SkipFoldersMode;
+			}
+			else
+			{
+				MsgCode=OperationFailed(Name, MError, MCannotDeleteFolder);
+			}
+
+			switch (MsgCode)
+			{
+				case -1:
+				case -2:
+				case 3:
+					return DELETE_CANCEL;
+				case 1:
+					return DELETE_SKIP;
+				case 2:
+					SkipFoldersMode=2;
+					return DELETE_SKIP;
+			}
 		}
 	}
 
@@ -938,7 +940,7 @@ int RemoveToRecycleBin(const string& Name)
 		while (ScTree.GetNextName(&FindData,strFullName2))
 		{
 			if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
-				ERemoveDirectory(strFullName2,FALSE);
+				ERemoveDirectory(strFullName2, D_DEL);
 		}
 	}
 

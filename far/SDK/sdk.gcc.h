@@ -567,3 +567,41 @@ CONSOLE_SCREEN_BUFFER_INFOEX, *PCONSOLE_SCREEN_BUFFER_INFOEX;
 #define _WIN32_WINNT_WS08     0x0600
 #define _WIN32_WINNT_LONGHORN 0x0600
 #define _WIN32_WINNT_WIN7     0x0601
+
+#define RM_SESSION_KEY_LEN  sizeof(GUID)
+#define CCH_RM_SESSION_KEY  RM_SESSION_KEY_LEN*2
+#define CCH_RM_MAX_APP_NAME 255
+#define CCH_RM_MAX_SVC_NAME 63
+
+typedef enum _RM_APP_TYPE
+{
+	RmUnknownApp = 0,
+	RmMainWindow = 1,
+	RmOtherWindow = 2,
+	RmService = 3,
+	RmExplorer = 4,
+	RmConsole = 5,
+	RmCritical = 1000,
+}
+RM_APP_TYPE;
+
+typedef struct _RM_UNIQUE_PROCESS
+{
+	DWORD dwProcessId;
+	FILETIME ProcessStartTime;
+}
+RM_UNIQUE_PROCESS, *PRM_UNIQUE_PROCESS;
+
+typedef struct _RM_PROCESS_INFO
+{
+	RM_UNIQUE_PROCESS Process;
+	WCHAR strAppName[CCH_RM_MAX_APP_NAME+1];
+	WCHAR strServiceShortName[CCH_RM_MAX_SVC_NAME+1];
+	RM_APP_TYPE ApplicationType;
+	ULONG AppStatus;
+	DWORD TSSessionId;
+	BOOL bRestartable;
+}
+RM_PROCESS_INFO, *PRM_PROCESS_INFO;
+
+#define PROCESS_QUERY_LIMITED_INFORMATION  0x1000  

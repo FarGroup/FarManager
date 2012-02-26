@@ -52,6 +52,7 @@ ImportedFunctions::ImportedFunctions()
 	HMODULE hShell = GetModuleHandle(L"shell32.dll");
 	HMODULE hUser32 = GetModuleHandle(L"user32.dll");
 	hVirtDisk = LoadLibrary(L"virtdisk.dll");
+	hRstrtMgr = LoadLibrary(L"rstrtmgr.dll");
 
 	if (hKernel)
 	{
@@ -70,6 +71,7 @@ ImportedFunctions::ImportedFunctions()
 		InitImport(hKernel, pfnCancelSynchronousIo, "CancelSynchronousIo");
 		InitImport(hKernel, pfnSetConsoleKeyShortcuts, "SetConsoleKeyShortcuts");
 		InitImport(hKernel, pfnGetConsoleScreenBufferInfoEx, "GetConsoleScreenBufferInfoEx");
+		InitImport(hKernel, pfnQueryFullProcessImageName, "QueryFullProcessImageNameW");
 	}
 
 	if (hNtdll)
@@ -101,6 +103,14 @@ ImportedFunctions::ImportedFunctions()
 	{
 		InitImport(hUser32, pfnRegisterPowerSettingNotification, "RegisterPowerSettingNotification");
 		InitImport(hUser32, pfnUnregisterPowerSettingNotification, "UnregisterPowerSettingNotification");
+	}
+
+	if (hRstrtMgr)
+	{
+		InitImport(hRstrtMgr, pfnRmStartSession, "RmStartSession");
+		InitImport(hRstrtMgr, pfnRmEndSession, "RmEndSession");
+		InitImport(hRstrtMgr, pfnRmRegisterResources, "RmRegisterResources");
+		InitImport(hRstrtMgr, pfnRmGetList, "RmGetList");
 	}
 }
 
@@ -497,5 +507,66 @@ HPOWERNOTIFY ImportedFunctions::RegisterPowerSettingNotification(HANDLE hRecipie
 	{
 		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
 		return NULL;
+	}
+}
+
+BOOL ImportedFunctions::QueryFullProcessImageName(HANDLE Process, DWORD Flags, LPTSTR ExeName, PDWORD Size)
+{
+	if(pfnRegisterPowerSettingNotification)
+	{
+		return pfnQueryFullProcessImageName(Process, Flags, ExeName, Size);
+	}
+	else
+	{
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		return FALSE;
+	}
+}
+
+DWORD ImportedFunctions::RmStartSession(DWORD *SessionHandle, DWORD SessionFlags, WCHAR strSessionKey[])
+{
+	if(pfnRmStartSession)
+	{
+		return pfnRmStartSession(SessionHandle, SessionFlags, strSessionKey);
+	}
+	else
+	{
+		return ERROR_CALL_NOT_IMPLEMENTED;
+	}
+}
+
+DWORD ImportedFunctions::RmEndSession(DWORD dwSessionHandle)
+{
+	if(pfnRmEndSession)
+	{
+		return pfnRmEndSession(dwSessionHandle);
+	}
+	else
+	{
+		return ERROR_CALL_NOT_IMPLEMENTED;
+	}
+}
+
+DWORD ImportedFunctions::RmRegisterResources(DWORD dwSessionHandle, UINT nFiles, LPCWSTR rgsFilenames[], UINT nApplications, RM_UNIQUE_PROCESS rgApplications[], UINT nServices, LPCWSTR rgsServiceNames[])
+{
+	if(pfnRmRegisterResources)
+	{
+		return pfnRmRegisterResources(dwSessionHandle, nFiles, rgsFilenames, nApplications, rgApplications, nServices, rgsServiceNames);
+	}
+	else
+	{
+		return ERROR_CALL_NOT_IMPLEMENTED;
+	}
+}
+
+DWORD ImportedFunctions::RmGetList(DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps[], LPDWORD lpdwRebootReasons)
+{
+	if(pfnRmGetList)
+	{
+		return pfnRmGetList(dwSessionHandle, pnProcInfoNeeded, pnProcInfo, rgAffectedApps, lpdwRebootReasons);
+	}
+	else
+	{
+		return ERROR_CALL_NOT_IMPLEMENTED;
 	}
 }

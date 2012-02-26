@@ -64,6 +64,7 @@ public: bool NAME##Present(){return pfn##NAME != nullptr;}
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, CancelSynchronousIo, (HANDLE Thread));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SetConsoleKeyShortcuts, (BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetConsoleScreenBufferInfoEx, (HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx));
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, QueryFullProcessImageName, (HANDLE Process, DWORD Flags, LPTSTR ExeName, PDWORD Size));
 
 	// ntdll
 	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryDirectoryFile, (HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan));
@@ -88,10 +89,18 @@ public: bool NAME##Present(){return pfn##NAME != nullptr;}
 	DECLARE_IMPORT_FUNCTION(HPOWERNOTIFY, WINAPI, RegisterPowerSettingNotification, (HANDLE hRecipient, LPCGUID PowerSettingGuid, DWORD Flags));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, UnregisterPowerSettingNotification, (HPOWERNOTIFY Handle));
 
+	// rstrtmgr
+	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmStartSession, (DWORD *SessionHandle, DWORD SessionFlags, WCHAR strSessionKey[]));
+	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmEndSession, (DWORD dwSessionHandle));
+	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmRegisterResources, (DWORD dwSessionHandle, UINT nFiles, LPCWSTR rgsFilenames[], UINT nApplications, RM_UNIQUE_PROCESS rgApplications[], UINT nServices, LPCWSTR rgsServiceNames[]));
+	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, RmGetList, (DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps[], LPDWORD lpdwRebootReasons));
+
+
 #undef DECLARE_IMPORT_FUNCTION
 
 private:
 	HMODULE hVirtDisk;
+	HMODULE hRstrtMgr;
 };
 
 extern ImportedFunctions ifn;
