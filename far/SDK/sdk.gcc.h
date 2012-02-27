@@ -317,6 +317,29 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE SetThumbnailClip(HWND hwnd,RECT *prcClip)=0;
 };
 
+
+typedef enum FILE_USAGE_TYPE
+{
+	FUT_PLAYING = 0,
+	FUT_EDITING = (FUT_PLAYING + 1),
+	FUT_GENERIC = (FUT_EDITING + 1),
+}
+FILE_USAGE_TYPE;
+
+#define OF_CAP_CANSWITCHTO 0x0001
+#define OF_CAP_CANCLOSE    0x0002
+
+const IID IID_IFileIsInUse = {0x64A1CBF0, 0x3A1A, 0x4461, {0x91, 0x58, 0x37, 0x69, 0x69, 0x69, 0x39, 0x50}};
+DECLARE_INTERFACE_(IFileIsInUse,IUnknown)
+{
+public:
+	virtual HRESULT STDMETHODCALLTYPE GetAppName(LPWSTR *ppszName) = 0;
+	virtual HRESULT STDMETHODCALLTYPE GetUsage(FILE_USAGE_TYPE *pfut) = 0;
+	virtual HRESULT STDMETHODCALLTYPE GetCapabilities(DWORD *pdwCapFlags) = 0;
+	virtual HRESULT STDMETHODCALLTYPE GetSwitchToHWND(HWND *phwnd) = 0;
+	virtual HRESULT STDMETHODCALLTYPE CloseFile() = 0;
+};
+
 // will create a compiler error if wrong level of indirection is used.
 template<typename T>
 void** IID_PPV_ARGS_Helper(T** pp)

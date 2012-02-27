@@ -2636,14 +2636,15 @@ static void PR_ViewerSearchMsg()
 void ViewerSearchMsg(const wchar_t *MsgStr, int Percent, int SearchHex)
 {
 	string strProgress;
-
+	string strMsg(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor));
+	strMsg.Append(L" ").Append(MsgStr);
 	if (Percent>=0)
 	{
 		FormatString strPercent;
 		strPercent<<Percent;
 
 		size_t PercentLength=Max(strPercent.GetLength(),(size_t)3);
-		size_t Length=Max(Min(static_cast<int>(MAX_WIDTH_MESSAGE-2),StrLength(MsgStr)),40)-PercentLength-2;
+		size_t Length=Max(Min(ScrX-1-10,static_cast<int>(strMsg.GetLength())),40)-PercentLength-2;
 		wchar_t *Progress=strProgress.GetBuffer(Length);
 
 		if (Progress)
@@ -2658,7 +2659,7 @@ void ViewerSearchMsg(const wchar_t *MsgStr, int Percent, int SearchHex)
 		TBC.SetProgressValue(Percent,100);
 	}
 
-	Message(0,0,MSG(MViewSearchTitle),(SearchHex?MSG(MViewSearchingHex):MSG(MViewSearchingFor)),MsgStr,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
+	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	preRedrawItem.Param.Param1=(void*)MsgStr;
 	preRedrawItem.Param.Param2=(LPVOID)(INT_PTR)Percent;
@@ -3364,8 +3365,6 @@ void Viewer::Search(int Next,int FirstChar)
 		ReverseSearch = !ReverseSearch;
 
 	strMsgStr = strLastSearchStr = strSearchStr;
-	if (strMsgStr.GetLength()+18 > static_cast<DWORD>(ObjWidth))
-		TruncStrFromEnd(strMsgStr, ObjWidth-18);
 
 	sd.search_len = (int)strSearchStr.GetLength();
 	if (0 != (LastSearchHex = SearchHex))

@@ -6218,12 +6218,12 @@ void Dialog::SetPosition(int X1,int Y1,int X2,int Y2)
 {
 	CriticalSectionLock Lock(CS);
 
-	if (X1 >= 0)
+	if (X1 != -1)
 		RealWidth = X2-X1+1;
 	else
 		RealWidth = X2;
 
-	if (Y1 >= 0)
+	if (Y1 != -1)
 		RealHeight = Y2-Y1+1;
 	else
 		RealHeight = Y2;

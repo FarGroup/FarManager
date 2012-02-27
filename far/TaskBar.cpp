@@ -41,7 +41,6 @@ TaskBarCore TBC;
 TaskBarCore::TaskBarCore():
 	pTaskbarList(nullptr)
 {
-	
 	HRESULT hRes=CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED);
 
 	switch (hRes)

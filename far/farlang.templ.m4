@@ -20067,15 +20067,59 @@ upd:"Files"
 upd:"Files"
 upd:"Files"
 
-MObjectLockedByProcesses
-"Объект заблокирован следующими процессами:"
-"Object is locked by following processes:"
-upd:"Object is locked by following processes:"
-upd:"Object is locked by following processes:"
-upd:"Object is locked by following processes:"
-upd:"Object is locked by following processes:"
-upd:"Object is locked by following processes:"
+MObjectLockedReason
+"Объект %1 в:"
+"Object is being %1 in:"
+upd:"Object is being %1 in:"
+upd:"Object is being %1 in:"
+upd:"Object is being %1 in:"
+upd:"Object is being %1 in:"
+upd:"Object is being %1 in:"
 
+MObjectLockedReasonPlayed
+"воспроизводится"
+"played"
+upd:"played"
+upd:"played"
+upd:"played"
+upd:"played"
+upd:"played"
+
+MObjectLockedReasonEdited
+"редактируется"
+"edited"
+upd:"edited"
+upd:"edited"
+upd:"edited"
+upd:"edited"
+upd:"edited"
+
+MObjectLockedReasonOpened
+"открыт"
+"opened"
+upd:"opened"
+upd:"opened"
+upd:"opened"
+upd:"opened"
+upd:"opened"
+
+MObjectLockedSwitchTo
+"Переключиться"
+"Switch to:"
+upd:"Switch to"
+upd:"Switch to"
+upd:"Switch to"
+upd:"Switch to"
+upd:"Switch to"
+
+MObjectLockedClose
+"Закрыть файл"
+"Close file"
+upd:"Close file"
+upd:"Close file"
+upd:"Close file"
+upd:"Close file"
+upd:"Close file"
 
 #Must be the last
 MNewFileName

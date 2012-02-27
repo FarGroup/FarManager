@@ -278,6 +278,8 @@ int Message(
 		BtnLength--;
 	}
 
+	DWORD MAX_WIDTH_MESSAGE = Max(ScrX-1-5-5, BtnLength);
+
 	for (MaxLength=BtnLength,I=0; I<StrCount; I++)
 	{
 		if (static_cast<DWORD>(Length=StrLength(Items[I]))>MaxLength)
@@ -328,12 +330,6 @@ int Message(
 		}
 		else if (LenErrStr < MaxLength)
 			LenErrStr=MaxLength;
-
-		if (MaxLength > LenErrStr && MaxLength >= MAX_WIDTH_MESSAGE)
-			MaxLength=LenErrStr;
-
-		if (MaxLength < LenErrStr && LenErrStr <= MAX_WIDTH_MESSAGE)
-			MaxLength=LenErrStr;
 
 		// а теперь проврапим
 		//PtrStr=FarFormatText(ErrStr,MaxLength-(MaxLength > MAX_WIDTH_MESSAGE/2?1:0),ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
@@ -401,7 +397,7 @@ int Message(
 	}
 
 	StrCount+=CountErrorLine;
-	MessageX1=X1=(ScrX-MaxLength)/2-4;
+	MessageX1=X1=(int(ScrX-MaxLength))/2-4;
 	MessageX2=X2=X1+MaxLength+9;
 	Y1=(ScrY-StrCount)/2-2;
 
@@ -526,6 +522,8 @@ int Message(
 				ItemCount++;
 			}
 			Dialog Dlg(MsgDlg,ItemCount,MsgDlgProc, &strClipText);
+			if (X1 == -1) X1 = 0;
+			if (Y1 == -1) Y1 = 0;
 			Dlg.SetPosition(X1,Y1,X2,Y2);
 			if(Id) Dlg.SetId(*Id);
 

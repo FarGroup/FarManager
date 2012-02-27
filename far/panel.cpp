@@ -942,8 +942,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			GetErrorString(strError);
 			int Len1=static_cast<int>(strError.GetLength());
 			int Len2=StrLength(MSG(MChangeDriveCannotReadDisk));
-			int MaxMsg=Min(Max(Len1,Len2), static_cast<int>(MAX_WIDTH_MESSAGE));
-			const int DX=Max(MaxMsg+13,40),DY=8;
+			const int DX=Max(Min(Max(Len1,Len2), ScrX-1),40), DY=8;
 			const FarDialogItem ChDiskData[]=
 			{
 				{DI_DOUBLEBOX,3,1,DX-4,DY-2,0,nullptr,nullptr,0,MSG(MError)},

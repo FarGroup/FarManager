@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "message.hpp"
 #include "lasterror.hpp"
+#include "TaskBar.hpp"
 
 int GetSearchReplaceString(
     bool IsReplaceMode,
@@ -408,76 +409,210 @@ int GetNameAndPassword(const wchar_t *Title, string &strUserName, string &strPas
 	return TRUE;
 }
 
+IFileIsInUse* CreateIFileIsInUse(LPCWSTR File)
+{
+	IFileIsInUse *pfiu = nullptr;
+	IRunningObjectTable *prot;
+	if (SUCCEEDED(GetRunningObjectTable(0, &prot)))
+	{
+		IMoniker *pmkFile;
+		if (SUCCEEDED(CreateFileMoniker(File, &pmkFile)))
+		{
+			IEnumMoniker *penumMk;
+			if (SUCCEEDED(prot->EnumRunning(&penumMk)))
+			{
+				HRESULT hr = E_FAIL;
+				ULONG celt;
+				IMoniker *pmk;
+				while (FAILED(hr) && (penumMk->Next(1, &pmk, &celt) == S_OK))
+				{
+					DWORD dwType;
+					if (SUCCEEDED(pmk->IsSystemMoniker(&dwType)) && dwType == MKSYS_FILEMONIKER)
+					{
+						IMoniker *pmkPrefix;
+						if (SUCCEEDED(pmkFile->CommonPrefixWith(pmk, &pmkPrefix)))
+						{
+							if (pmkFile->IsEqual(pmkPrefix) == S_OK)
+							{
+								IUnknown *punk;
+								if (prot->GetObject(pmk, &punk) == S_OK)
+								{
+									hr = punk->QueryInterface(
+#ifdef __GNUC__
+										IID_IFileIsInUse, IID_PPV_ARGS_Helper(&pfiu)
+#else
+										IID_PPV_ARGS(&pfiu)
+#endif
+										);
+									punk->Release();
+								}
+							}
+							pmkPrefix->Release();
+						}
+					}
+					pmk->Release();
+				}
+				penumMk->Release();
+			}
+			pmkFile->Release();
+		}
+		prot->Release();
+	}
+	return pfiu;
+}
+
 int OperationFailed(const string& Object, LNGID Title, LNGID Description)
 {
 	DList<string> Msg;
+	IFileIsInUse *pfiu = nullptr;
+	LNGID Reason = MObjectLockedReasonOpened;
+	bool SwitchBtn = false, CloseBtn = false;
 	{
 		GuardLastError gl;
-		DWORD dwSession;
-		WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
-		if (ifn.RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
+
+		pfiu = CreateIFileIsInUse(Object);
+		if (pfiu)
 		{
-			PCWSTR pszFile = Object;
-			if (ifn.RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
+			FILE_USAGE_TYPE UsageType = FUT_GENERIC;
+			pfiu->GetUsage(&UsageType);
+			switch(UsageType)
 			{
-				DWORD dwReason;
-				DWORD RmGetListResult;
-				UINT nProcInfoNeeded;
-				UINT nProcInfo = 1;
-				RM_PROCESS_INFO* rgpi = new RM_PROCESS_INFO[nProcInfo];
-				while((RmGetListResult=ifn.RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi, &dwReason)) == ERROR_MORE_DATA)
-				{
-					nProcInfo = nProcInfoNeeded;
-					delete[] rgpi;
-					rgpi = new RM_PROCESS_INFO[nProcInfo]; 
-				}
-				if(RmGetListResult ==ERROR_SUCCESS)
-				{
-					for (size_t i = 0; i < nProcInfo; i++)
-					{
-						FormatString tmp;
-						tmp << rgpi[i].strAppName << L" (PID: " << rgpi[i].Process.dwProcessId;
-						HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, rgpi[i].Process.dwProcessId);
-						if (hProcess)
-						{
-							FILETIME ftCreate, ftExit, ftKernel, ftUser;
-							if (GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel, &ftUser) && CompareFileTime(&rgpi[i].Process.ProcessStartTime, &ftCreate) == 0)
-							{
-								string Name;
-								if (apiGetModuleFileNameEx(hProcess, nullptr, Name))
-								{
-									tmp << L", " << Name;
-								}
-							}
-							CloseHandle(hProcess);
-						}
-						tmp << L")";
-						Msg.Push(&tmp);
-					}
-				}
-				delete[] rgpi;
+			case FUT_PLAYING:
+				Reason = MObjectLockedReasonPlayed;
+				break;
+			case FUT_EDITING:
+				Reason = MObjectLockedReasonEdited;
+				break;
+			case FUT_GENERIC:
+				Reason = MObjectLockedReasonOpened;
+				break;
 			}
-			ifn.RmEndSession(dwSession);
+			DWORD Capabilities = 0;
+			pfiu->GetCapabilities(&Capabilities);
+			if(Capabilities&OF_CAP_CANSWITCHTO)
+			{
+				SwitchBtn = true;
+			}
+			if(Capabilities&OF_CAP_CANCLOSE)
+			{
+				CloseBtn = true;
+			}
+			LPWSTR AppName = nullptr;
+			if(SUCCEEDED(pfiu->GetAppName(&AppName)))
+			{
+				string str(AppName);
+				Msg.Push(&str);
+			}
+		}
+		else
+		{
+			DWORD dwSession;
+			WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
+			if (ifn.RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
+			{
+				PCWSTR pszFile = Object;
+				if (ifn.RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
+				{
+					DWORD dwReason;
+					DWORD RmGetListResult;
+					UINT nProcInfoNeeded;
+					UINT nProcInfo = 1;
+					RM_PROCESS_INFO* rgpi = new RM_PROCESS_INFO[nProcInfo];
+					while((RmGetListResult=ifn.RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi, &dwReason)) == ERROR_MORE_DATA)
+					{
+						nProcInfo = nProcInfoNeeded;
+						delete[] rgpi;
+						rgpi = new RM_PROCESS_INFO[nProcInfo]; 
+					}
+					if(RmGetListResult ==ERROR_SUCCESS)
+					{
+						for (size_t i = 0; i < nProcInfo; i++)
+						{
+							FormatString tmp;
+							tmp << rgpi[i].strAppName << L" (PID: " << rgpi[i].Process.dwProcessId;
+							HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, rgpi[i].Process.dwProcessId);
+							if (hProcess)
+							{
+								FILETIME ftCreate, ftExit, ftKernel, ftUser;
+								if (GetProcessTimes(hProcess, &ftCreate, &ftExit, &ftKernel, &ftUser) && CompareFileTime(&rgpi[i].Process.ProcessStartTime, &ftCreate) == 0)
+								{
+									string Name;
+									if (apiGetModuleFileNameEx(hProcess, nullptr, Name))
+									{
+										tmp << L", " << Name;
+									}
+								}
+								CloseHandle(hProcess);
+							}
+							tmp << L")";
+							Msg.Push(&tmp);
+						}
+					}
+					delete[] rgpi;
+				}
+				ifn.RmEndSession(dwSession);
+			}
 		}
 	}
-	size_t LineCount = 1 + 1 + (Msg.Count()? Msg.Count() + 1 : 0) + 4;
+	size_t LineCount = 1 + 1 + (Msg.Count()? Msg.Count() + 1 : 0) + 4 + (SwitchBtn? 1 : 0);
 	const wchar_t** Msgs = new const wchar_t*[LineCount];
 	Msgs[0] = MSG(Description);
 	Msgs[1] = Object;
+	LangString strReason(MObjectLockedReason);
+	strReason << MSG(Reason);
 	if(Msg.Count())
 	{
 		string *s = nullptr;
-		Msgs[2] = MSG(MObjectLockedByProcesses);
-		for (size_t i = 3; i < LineCount-4; ++i)
+		Msgs[2] = strReason;
+		for (size_t i = 3; i < LineCount - 4 - (SwitchBtn? 1 : 0); ++i)
 		{
 			s = Msg.Next(s);
 			Msgs[i] = *s;
 		}
 	}
-	Msgs[LineCount-4] = MSG(MDeleteRetry);
+	if(SwitchBtn)
+	{
+		Msgs[LineCount - 5] = MSG(MObjectLockedSwitchTo);
+	}
+	Msgs[LineCount-4] = CloseBtn? MSG(MObjectLockedClose) : MSG(MDeleteRetry);
 	Msgs[LineCount-3] = MSG(MDeleteSkip);
 	Msgs[LineCount-2] = MSG(MDeleteFileSkipAll);
 	Msgs[LineCount-1] = MSG(MDeleteCancel);
-	return Message(MSG_WARNING|MSG_ERRORTYPE, 4, MSG(Title), Msgs, LineCount);
+	
+	int Result = -1;
+	for(;;)
+	{
+		Result = Message(MSG_WARNING|MSG_ERRORTYPE, 4 + (SwitchBtn? 1 : 0), MSG(Title), Msgs, LineCount);
 
+		if(SwitchBtn)
+		{
+			if(Result == 0)
+			{
+				HWND Wnd = nullptr;
+				if (SUCCEEDED(pfiu->GetSwitchToHWND(&Wnd)))
+				{
+					SetForegroundWindow(Wnd);
+				}
+				continue;
+			}
+			else if(Result > 0)
+			{
+				--Result;
+			}
+		}
+
+		if(CloseBtn && Result == 0)
+		{
+			// close & retry
+			pfiu->CloseFile();
+		}
+		break;
+	}
+
+	if (pfiu)
+	{
+		pfiu->Release();
+	}
+
+	return Result;
 }

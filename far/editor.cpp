@@ -6910,14 +6910,16 @@ void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
 void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name,int Percent)
 {
 	string strProgress;
-
+	string strMsg(Msg);
+	strMsg.Append(L" ").Append(Name);
 	if (Percent!=-1)
 	{
 		FormatString strPercent;
 		strPercent<<Percent;
 
 		size_t PercentLength=Max(strPercent.GetLength(),(size_t)3);
-		size_t Length=Max(Min(static_cast<int>(MAX_WIDTH_MESSAGE-2),StrLength(Name)),40)-PercentLength-2;
+		size_t Length=Max(Min(ScrX-1-10,static_cast<int>(strMsg.GetLength())),40)-PercentLength-2;
+
 		wchar_t *Progress=strProgress.GetBuffer(Length);
 
 		if (Progress)
@@ -6932,7 +6934,7 @@ void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_
 		TBC.SetProgressValue(Percent,100);
 	}
 
-	Message(0,0,Title,Msg,Name,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
+	Message(MSG_LEFTALIGN,0,Title,strMsg,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	preRedrawItem.Param.Param1=(void *)Title;
 	preRedrawItem.Param.Param2=(void *)Msg;

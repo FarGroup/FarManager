@@ -2853,6 +2853,8 @@ COPY_CODES ShellCopy::CheckStreams(const string& Src,const string& DestPath)
 
 int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 {
+	string FullName;
+	ConvertNameToFull(Name, FullName);
 	if (Attr & FILE_ATTRIBUTE_READONLY)
 	{
 		int MsgCode;
@@ -2864,7 +2866,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 			MsgCode=ReadOnlyDelMode;
 		else
 			MsgCode=Message(MSG_WARNING,5,MSG(MWarning),
-			                MSG(MCopyFileRO),Name,MSG(MCopyAskDelete),
+			                MSG(MCopyFileRO),FullName,MSG(MCopyAskDelete),
 			                MSG(MCopyDeleteRO),MSG(MCopyDeleteAllRO),
 			                MSG(MCopySkipRO),MSG(MCopySkipAllRO),MSG(MCopyCancelRO));
 
@@ -2884,18 +2886,17 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 				return(COPY_CANCEL);
 		}
 
-		apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
+		apiSetFileAttributes(FullName,FILE_ATTRIBUTE_NORMAL);
 	}
 
-	while ((Attr&FILE_ATTRIBUTE_DIRECTORY)?!apiRemoveDirectory(Name):!apiDeleteFile(Name))
+	while ((Attr&FILE_ATTRIBUTE_DIRECTORY)?!apiRemoveDirectory(FullName):!apiDeleteFile(FullName))
 	{
 		int MsgCode;
 
 		if (SkipDeleteMode!=-1)
 			MsgCode=SkipDeleteMode;
 		else
-			MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,4,MSG(MError),MSG(MCannotDeleteFile),Name,
-			                MSG(MDeleteRetry),MSG(MDeleteSkip),MSG(MDeleteSkipAll),MSG(MDeleteCancel));
+			MsgCode=OperationFailed(FullName, MError, MCannotDeleteFile);
 
 		switch (MsgCode)
 		{
