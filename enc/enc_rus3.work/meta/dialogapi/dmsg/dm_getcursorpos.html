@@ -10,35 +10,30 @@
 
 <h1>DM_GETCURSORPOS</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="dm_setcursorpos.html">DM_SETCURSORPOS</a>|
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETCURSORPOS</dfn> посылается обработчику диалога для
-получения позиции курсора в строках редактирования диалога  и в элементе
+Сообщение <dfn>DM_GETCURSORPOS</dfn> посылается обработчику диалога для получения позиции курсора в строках редактирования диалога и в элементе
 <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../winapi/coord.html">COORD</a>, в которую
-Менеджер Диалогов поместит информацию о положении курсора (COORD.Y = 0 для
-строкового редактора).
+Указатель на структуру <a href="../../winapi/coord.html">COORD</a>, в которую Менеджер Диалогов поместит информацию о положении курсора (COORD.Y = 0 для строкового редактора).
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-FALSE - указанный ID элемента не является строковым редактором или элементом
-<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.<br>
-TRUE - структура <a href="../../winapi/coord.html">COORD</a> содержит координаты
-курсора.
+FALSE - указанный ID элемента не является строковым редактором или элементом <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.<br>
+TRUE - структура <a href="../../winapi/coord.html">COORD</a> содержит координаты курсора.
 </div>
 
 <h3>Элементы</h3>
@@ -64,13 +59,12 @@ TRUE - структура <a href="../../winapi/coord.html">COORD</a> содержит координаты
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a> |
-<a href="dm_setcursorpos.html">DM_SETCURSORPOS</a>|
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="dm_setcursorpos.html">DM_SETCURSORPOS</a>
 </div>
 
 </body>

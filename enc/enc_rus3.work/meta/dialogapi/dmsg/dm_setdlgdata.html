@@ -10,15 +10,14 @@
 
 <h1>DM_SETDLGDATA</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETDLGDATA</dfn> устанавливает 32-битное значение
-связанное с диалогом. Каждый экземпляр диалога имеет соответствующее
-32-битное значение, предназначенное для использования плагином в его
-собственных целях.
+Сообщение <dfn>DM_SETDLGDATA</dfn> устанавливает указатель на пользовательские данные, связанные с диалогом.
+С каждым экземпляром диалога можно связать свои данные, предназначенные для использования плагином в его собственных целях.
 </div>
 
 <h3>Param1</h3>
@@ -28,7 +27,7 @@
 
 <h3>Param2</h3>
 <div class=descr>
-Новое 32-битное значение.
+Указатель на данные.
 </div>
 
 <h3>Return</h3>
@@ -38,18 +37,16 @@
 
 <h3>Замечания</h3>
 <div class=descr>
-Первоначально здесь находится то, что передано в параметре Param
-функции <a href="../dialoginit.html">DialogInit</a>.
+Первоначально здесь находится то, что передано в параметре Param функции <a href="../../service_functions/dialoginit.html">DialogInit</a>.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_getdlgdata.html">DM_GETDLGDATA</a>
 </div>
 

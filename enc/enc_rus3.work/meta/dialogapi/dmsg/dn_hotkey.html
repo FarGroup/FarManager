@@ -10,13 +10,13 @@
 
 <h1>DN_HOTKEY</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_HOTKEY</dfn> посылается в обработчик диалога,
-когда пользователь нажал <code>Alt</code>-<code>буква</code>.
+Событие <dfn>DN_HOTKEY</dfn> посылается в обработчик диалога, когда пользователь нажал <code>Alt</code>-<code>буква</code>.
 </div>
 
 <h3>Param1</h3>
@@ -26,12 +26,12 @@ ID элемента диалога, который получит <a href="../keybfocus.html">фокус ввода</a>
 
 <h3>Param2</h3>
 <div class=descr>
-Внутренний код клавиши.
+Указатель на структуру <a href="../../winapi/input_record.html">INPUT_RECORD</a> описывающую клавишу</a>.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - согласен<br>
+TRUE - согласен.<br>
 FALSE - отменить обработку клавиши.
 </div>
 
@@ -71,13 +71,11 @@ FALSE - отменить обработку клавиши.
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

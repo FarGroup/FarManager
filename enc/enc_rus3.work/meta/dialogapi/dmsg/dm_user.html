@@ -10,8 +10,9 @@
 
 <h1>DM_USER</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
@@ -44,14 +45,13 @@
 
 <h3>Замечания</h3>
 <div class=descr>
-
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-<pre class=code>#define <b>DMREV_RESULT</b>	DM_USER+1
+<pre class=code>#define <b>DMREV_RESULT</b> DM_USER+1
 
-LONG_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
+INT_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1, void *Param2)
 {
 ...
     Info.SendDlgMessage(hDlg,<b>DMREV_RESULT</b>,0,0);
@@ -65,8 +65,7 @@ LONG_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

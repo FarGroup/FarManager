@@ -10,19 +10,19 @@
 
 <h1>DM_SETCHECK</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETCHECK</dfn> посылается Менеджеру диалогов для
-изменения состояния элементов <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>
+Сообщение <dfn>DM_SETCHECK</dfn> посылается Менеджеру диалогов для изменения состояния элементов <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>
 и <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=dfndescr>
-ID требуемого элемента
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
@@ -36,25 +36,16 @@ ID требуемого элемента
   <tr class="cont"><td class="cont" width="40%"><a name="BSTATE_CHECKED">BSTATE_CHECKED</a></td>
   <td class="cont" width="60%">Включить - <code>[x]</code> или <code>(*)</code></td></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="BSTATE_3STATE">BSTATE_3STATE</a></td>
-  <td class="cont" width="60%">Включить неопределённое состояние - <code>[?]</code>
-  (имеет эффект только для элемента с выставленным
-  флагом <a href="../flags/dif_3state.html">DIF_3STATE</a>).
-  </td></tr>
+  <td class="cont" width="60%">Включить неопределённое состояние - <code>[?]</code> (имеет эффект только для элемента с выставленным флагом <a href="../flags/dif_3state.html">DIF_3STATE</a>)</td></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="BSTATE_TOGGLE">BSTATE_TOGGLE</a></td>
-  <td class="cont" width="60%">Переключить состояние элемента.  (для элемента с
-  выставленным
-  флагом <a href="../flags/dif_3state.html">DIF_3STATE</a> состояние будет
-  меняться по кругу: "включено", "выключено", "неопределено").</td></tr>
+  <td class="cont" width="60%">Переключить состояние элемента. (для элемента с выставленным флагом <a href="../flags/dif_3state.html">DIF_3STATE</a> состояние будет меняться по кругу: "включено", "выключено", "неопределено")</td></tr>
 </table>
-
 </div>
 
 <h3>Return</h3>
 <div class=dfndescr>
 Предыдущее состояние элемента.
-Для <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> - ID
-предыдущего элемента в группе кнопок с зависимой фиксацией (см. описание
-<a href="../flags/dif_group.html">DIF_GROUP</a>).
+Для <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> - ID предыдущего элемента в группе кнопок с зависимой фиксацией (см. описание <a href="../flags/dif_group.html">DIF_GROUP</a>).
 </div>
 
 <h3>Элементы</h3>
@@ -62,9 +53,9 @@ ID требуемого элемента
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_checkbox.html">DI_CHECKBOX</a></td>
-<td class="cont" width="60%">Контрольный переключатель (Check Box).</td></tr>
+<td class="cont" width="60%">Контрольный переключатель (Check Box)</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a></td>
-<td class="cont" width="60%">Селекторная кнопка (Radio Button).</td></tr>
+<td class="cont" width="60%">Селекторная кнопка (Radio Button)</td></tr>
 </table>
 </div>
 
@@ -78,9 +69,9 @@ ID требуемого элемента
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a> |
-<a href="dm_getcheck.html">DM_GETCHECK</a> |
-<a href="dm_set3state.html">DM_SET3STATE</a>.
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="dm_getcheck.html">DM_GETCHECK</a>,
+<a href="dm_set3state.html">DM_SET3STATE</a>
 </div>
 
 </body>

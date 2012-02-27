@@ -10,13 +10,13 @@
 
 <h1>DM_ADDHISTORY</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_ADDHISTORY</dfn> посылается Менеджеру диалогов для добавления
-строки в историю.
+Сообщение <dfn>DM_ADDHISTORY</dfn> посылается Менеджеру диалогов для добавления строки в историю.
 </div>
 
 <h3>Param1</h3>
@@ -32,8 +32,7 @@ ID элемента диалога.
 <h3>Return</h3>
 <div class=descr>
 <code>TRUE</code> - данные добавлены в историю.<br>
-<code>FALSE</code> - указанный элемент диалога <var>Param1</var> не
-поддерживает работу с историей.
+<code>FALSE</code> - указанный элемент диалога <var>Param1</var> не поддерживает работу с историей.
 </div>
 
 <h3>Элементы</h3>
@@ -49,15 +48,14 @@ ID элемента диалога.
 
 <h3>Замечания</h3>
 <div class=descr>
-Сообщение работает только для элементов <a href="../controls/di_edit.html">DI_EDIT</a> и
-<a href="../controls/di_fixedit.html">DI_FIXEDIT</a> с установленным флагом
-<a href="../flags/dif_history.html">DIF_HISTORY</a>. Также строки будут
-автоматически добавляться в историю, если у указанных элементов не выставлен
+Сообщение работает только для элементов <a href="../controls/di_edit.html">DI_EDIT</a> и <a href="../controls/di_fixedit.html">DI_FIXEDIT</a> с установленным
+флагом <a href="../flags/dif_history.html">DIF_HISTORY</a>. Также строки будут автоматически добавляться в историю, если у указанных элементов не выставлен
 флаг <a href="../flags/dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a>.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
+<!--
 Например, в калькуляторе нажатие клавиши Enter должно приводить к вычислению
 выражения (Esc - стандартный выход из калькулятора). Для того, чтобы запомнить
 введённую строку в истории, необходимо после получения сообщения о нажатии
@@ -79,13 +77,14 @@ LONG_PTR WINAPI FooDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
 ...
 }
 </pre>
+ -->
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a>,
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="../flags/dif_history.html">DIF_HISTORY</a>,
-<a href="../flags/dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a>.
+<a href="../flags/dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a>
 </div>
 
 </body>

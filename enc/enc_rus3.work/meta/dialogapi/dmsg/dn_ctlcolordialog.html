@@ -10,13 +10,13 @@
 
 <h1>DN_CTLCOLORDIALOG</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_CTLCOLORDIALOG</dfn> посылается в функцию обработки
-диалога перед прорисовкой подложки окна диалога.
+Сообщение <dfn>DN_CTLCOLORDIALOG</dfn> посылается в функцию обработки диалога перед прорисовкой подложки окна диалога.
 </div>
 
 <h3>Param1</h3>
@@ -26,25 +26,21 @@
 
 <h3>Param2</h3>
 <div class=descr>
-Атрибуты (цвет_фона+цвет_текста), с использованием которых обработчик диалога
-хочет отрисовать подложку диалога. По умолчанию  это значение равно
-COL_DIALOGTEXT - для обычных диалогов и COL_WARNDIALOGTEXT для диалогов с
-флагом <a href="../dialoginit.html#FDLG_WARNING">FDLG_WARNING</a>.
-<!-- (и рамку с заголовком, при установленном
-флаге <a href="../dialoginit.html#FDLG_BORDER">FDLG_BORDER</a>):
-HI(LO=Title,HI=HiText), LO(HI=Box,LO=подложка) --><br>
+Адрес на структуру <a href="../../structures/farcolor.html">FarColor</a>, атрибуты (цвет_фона+цвет_текста) с использованием которых обработчик диалога отрисовывает подложку диалога.<br>
+По умолчанию это значение равно COL_DIALOGTEXT - для обычных диалогов и COL_WARNDIALOGTEXT для диалогов с флагом <a href="../../service_functions/dialoginit.html#FDLG_WARNING">FDLG_WARNING</a>.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Атрибуты (цвет_фона+цвет_текста), с использованием которых обработчик диалога
-должен отрисовать подложку диалога <!-- (и рамку с заголовком, при установленном
-флаге <a href="../dialoginit.html">FDLG_BORDER</a>) -->
+TRUE - если атрибуты изменены.<br>
+FALSE - оставить всё как есть.
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-Сообщение приходит сразу после <a href="dn_drawdialog.html">DN_DRAWDIALOG</a>.
+Событие приходит сразу после <a href="dn_drawdialog.html">DN_DRAWDIALOG</a>.<br>
+Задать новые цвета можно изменяя непосредственно значение <var>Param2</var>.<br>
+Получить цвет Far Manager по индексу можно используя <a href="../../service_functions/advcontrol.html#ACTL_GETCOLOR">ACTL_GETCOLOR</a>.
 </div>
 
 <h3>Пример</h3>
@@ -54,8 +50,8 @@ HI(LO=Title,HI=HiText), LO(HI=Box,LO=подложка) --><br>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-
+<a href="../../service_functions/dialoginit.html">DialogInit</a> |
+<a href="../../service_functions/advcontrol.html#ACTL_GETCOLOR">ACTL_GETCOLOR</a>
 </div>
 
 </body>

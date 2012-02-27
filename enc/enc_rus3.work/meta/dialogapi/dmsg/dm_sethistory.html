@@ -10,13 +10,13 @@
 
 <h1>DM_SETHISTORY</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETHISTORY</dfn> позволяет управлять наличием
-истории в строках ввода.
+Сообщение <dfn>DM_SETHISTORY</dfn> позволяет управлять наличием истории в строках ввода.
 </div>
 
 <h3>Param1</h3>
@@ -26,14 +26,12 @@ ID элемента диалога.
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на строку, содержащую название истории ввода или <code>NULL</code>,
-если необходимо отключить историю в строке ввода.
+Указатель на строку, содержащую название истории ввода или <code>NULL</code>, если необходимо отключить историю в строке ввода.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-<code>FALSE</code> - указанный элемент диалога <var>Param1</var> не
-поддерживает работу с историей.<br>
+<code>FALSE</code> - указанный элемент диалога <var>Param1</var> не поддерживает работу с историей.<br>
 <code>TRUE</code> - история успешно назначена элементу диалога <var>Param1</var>.
 </div>
 
@@ -50,9 +48,8 @@ ID элемента диалога.
 
 <h3>Замечания</h3>
 <div class=descr>
-Если строка ввода пуста и у элемента <a href="../controls/di_edit.html">DI_EDIT</a>
-выставлен флаг <a href="../flags/dif_uselasthistory.html">DIF_USELASTHISTORY</a>,
-то FAR сам подставит первое значение из истории в строку ввода.
+Если строка ввода пуста и у элемента <a href="../controls/di_edit.html">DI_EDIT</a> выставлен флаг <a href="../flags/dif_uselasthistory.html">DIF_USELASTHISTORY</a>,
+то Far Manager сам подставит первое значение из истории в строку ввода.
 </div>
 
 
@@ -67,32 +64,30 @@ ID элемента диалога.
   {
     static wchar_t SwHistoryName[MAX_PATH];
     FSF.sprintf(SwHistoryName,L"ArcSwitches\\%s",pdd-&gt;ArcFormat);
-    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(LONG_PTR)SwHistoryName);
-    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(LONG_PTR)L"");
+    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,SwHistoryName);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,L"");
   }
 ...
 </pre>
 
-<p>Для того, чтобы FAR сам подставил первую строку из истории ключей, необходимо
-приведённый выше код переписать так:
+<p>Для того, чтобы Far Manager сам подставил первую строку из истории ключей, необходимо приведённый выше код переписать так:
 <pre class=code>
 ...
   else if(Msg == MAM_ARCSWITCHES)
   {
     static wchar_t SwHistoryName[MAX_PATH];
     FSF.sprintf(SwHistoryName,L"ArcSwitches\\%s",pdd-&gt;ArcFormat);
-    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,(LONG_PTR)L"");
-    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,(LONG_PTR)SwHistoryName);
+    Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,4,L"");
+    Info.SendDlgMessage(hDlg,DM_SETHISTORY,4,SwHistoryName);
   }
 ...
 </pre>
-<p>Т.е. сначала строка ввода очищается, потом происходит назначение истории
-для элемента.
+<p>Т.е. сначала строка ввода очищается, потом происходит назначение истории для элемента.
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a>,
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_addhistory.html">DM_ADDHISTORY</a>,
 <a href="../flags/dif_history.html">DIF_HISTORY</a>
 </div>

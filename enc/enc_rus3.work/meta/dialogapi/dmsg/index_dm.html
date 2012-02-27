@@ -1,14 +1,14 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
 <head>
-<title>События и сообщения Dialog API</title>
+<title>Сообщения Dialog API</title>
 <meta http-equiv="Content-Type" Content="text/html; charset=Windows-1251">
 <link rel="stylesheet" type="text/css" href="../../../styles/styles.css">
 <script language="JavaScript" src='../../links.js' type="text/javascript"></script>
 </head>
 <body>
 
-<h1>События и сообщения Dialog API</h1>
+<h1>Сообщения Dialog API</h1>
 
 <div class=navbar>
 <a href="../../index.html">главная</a> |
@@ -16,110 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Dialog API имеет весьма разнообразный набор <dfn>событий</dfn> и <dfn>сообщений</dfn>, позволяющий плагину эффективно
-манипулировать диалогом.
 </div>
-
-<h3>События:</h3>
-
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_btnclick.html">DN_BTNCLICK</a></td>
-<td class="cont" width="60%">изменилось состояние кнопок</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_close.html">DN_CLOSE</a></td>
-<td class="cont" width="60%">сигнал о закрытии диалога</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_ctlcolordialog.html">DN_CTLCOLORDIALOG</a></td>
-<td class="cont" width="60%">запрос цвета на прорисовку подложки окна диалога</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
-<td class="cont" width="60%">запрос цвета для конкретного элемента диалога</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a></td>
-<td class="cont" width="60%">запрос цвета на отрисовку списка</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_dragged.html">DN_DRAGGED</a></td>
-<td class="cont" width="60%">информация о перемещениях диалога</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_drawdialog.html">DN_DRAWDIALOG</a></td>
-<td class="cont" width="60%">перед прорисовкой всего диалога</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_drawdialogdone.html">DN_DRAWDIALOGDONE</a></td>
-<td class="cont" width="60%">прорисовка диалога закончена</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
-<td class="cont" width="60%">перед отрисовкой элемента диалога</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_editchange.html">DN_EDITCHANGE</a></td>
-<td class="cont" width="60%">изменение состояния элемента редактирования</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_enteridle.html">DN_ENTERIDLE</a></td>
-<td class="cont" width="60%">холостое состояние</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_getvalue.html">DN_GETVALUE</a></td>
-<td class="cont" width="60%">запрос на изменение информации для макросов</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_gotfocus.html">DN_GOTFOCUS</a></td>
-<td class="cont" width="60%">элемент диалога получил клавиатурный фокус ввода</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_help.html">DN_HELP</a></td>
-<td class="cont" width="60%">вывод темы помощи</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_hotkey.html">DN_HOTKEY</a></td>
-<td class="cont" width="60%">пользователь нажал Alt-буква</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_initdialog.html">DN_INITDIALOG</a></td>
-<td class="cont" width="60%">инициализация диалога</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_key.html">DN_KEY</a></td>
-<td class="cont" width="60%">пользователь нажал клавишу</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_killfocus.html">DN_KILLFOCUS</a></td>
-<td class="cont" width="60%">перед потерей клавиатурного фокуса элементом диалога</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_listchange.html">DN_LISTCHANGE</a></td>
-<td class="cont" width="60%">изменение состояния элемента списка</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_listhotkey.html">DN_LISTHOTKEY</a></td>
-<td class="cont" width="60%">выбор элемента списка с помощью горячей клавиши</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_mouseclick.html">DN_MOUSECLICK</a></td>
-<td class="cont" width="60%">пользователь кликнул клавишей мыши на одном из элементов диалога</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_mouseevent.html">DN_MOUSEEVENT</a></td>
-<td class="cont" width="60%">возможность перехватить сообщение мыши до его обработки ядром</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="dn_resizeconsole.html">DN_RESIZECONSOLE</a></td>
-<td class="cont" width="60%">нотификационное сообщение "Изменились размеры консоли"</td>
-</tr>
-</table>
-
-<h3>Сообщения:</h3>
 
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Сообщение</th><th class="cont" width="60%">Описание</th>
@@ -154,7 +51,7 @@ Dialog API имеет весьма разнообразный набор <dfn>событий</dfn> и <dfn>сообщений<
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="dm_getconsttextptr.html">DM_GETCONSTTEXTPTR</a></td>
-<td class="cont" width="60%">получить указатель на внутренний буфер FARа, содержащий строку ввода</td>
+<td class="cont" width="60%">получить указатель на внутренний буфер Far Manager, содержащий строку ввода</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="dm_getcursorpos.html">DM_GETCURSORPOS</a></td>
@@ -166,7 +63,7 @@ Dialog API имеет весьма разнообразный набор <dfn>событий</dfn> и <dfn>сообщений<
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="dm_getdialoginfo.html">DM_GETDIALOGINFO</a></td>
-<td class="cont" width="60%">получить информацию о диалоге FAR Manager'а или другого плагина</td>
+<td class="cont" width="60%">получить информацию о диалоге Far Manager или другого плагина</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="dm_getdlgdata.html">DM_GETDLGDATA</a></td>
@@ -318,7 +215,7 @@ Dialog API имеет весьма разнообразный набор <dfn>событий</dfn> и <dfn>сообщений<
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="dm_setcomboboxevent.html">DM_SETCOMBOBOXEVENT</a></td>
-<td class="cont" width="60%">включить или отключить посылку сообщений DN_KEY или DN_MOUSEEVENT для открытого combo box</td>
+<td class="cont" width="60%">включить или отключить посылку сообщений DN_INPUT или DN_CONTROLINPUT для открытого combo box</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="dm_setcursorpos.html">DM_SETCURSORPOS</a></td>
@@ -399,8 +296,7 @@ Dialog API имеет весьма разнообразный набор <dfn>событий</dfn> и <dfn>сообщений<
 </table>
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="index_dn.html">События</a> |
-<a href="index_dm.html">Сообщения</a>
+<a href="index_dn.html">События Dialog API</a>
 </div>
 
 </body>

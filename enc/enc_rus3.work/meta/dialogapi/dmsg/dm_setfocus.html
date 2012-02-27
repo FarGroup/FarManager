@@ -10,13 +10,13 @@
 
 <h1>DM_SETFOCUS</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETFOCUS</dfn> устанавливает клавиатурный фокус
-на заданный элемент диалога.
+Сообщение <dfn>DM_SETFOCUS</dfn> устанавливает клавиатурный фокус на заданный элемент диалога.
 </div>
 
 <h3>Param1</h3>
@@ -31,8 +31,8 @@ ID элемента, который должен получить фокус ввода.
 
 <h3>Return</h3>
 <div class=descr>
-FALSE - это элемент не может иметь фокус ввода<br>
-TRUE - фокус ввода успешно установлен
+FALSE - это элемент не может иметь фокус ввода.<br>
+TRUE - фокус ввода успешно установлен.
 </div>
 
 <h3>Элементы</h3>
@@ -47,17 +47,13 @@ TRUE - фокус ввода успешно установлен
 <h3>Замечания</h3>
 <div class=descr>
 Сообщение <dfn>DM_SETFOCUS</dfn> порождает цепочку событий:
-<a href="dn_killfocus.html">DN_KILLFOCUS</a> для элемента, который
-теряет фокус ввода и <a href="dn_gotfocus.html">DN_GOTFOCUS</a> - для элемента,
-который получит фокус ввода. События DN_KILLFOCUS и DN_GOTFOCUS не генерятся
-в случае, если <var>Param1</var> совпадает с элементом, уже имеющим
-фокус ввода.
+<a href="dn_killfocus.html">DN_KILLFOCUS</a> для элемента, который теряет фокус ввода и <a href="dn_gotfocus.html">DN_GOTFOCUS</a> - для элемента,
+который получит фокус ввода. События DN_KILLFOCUS и DN_GOTFOCUS не генерируются в случае, если <var>Param1</var> совпадает с элементом, уже имеющим фокус ввода.
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

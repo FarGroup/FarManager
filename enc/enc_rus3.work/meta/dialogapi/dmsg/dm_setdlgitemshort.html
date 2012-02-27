@@ -10,13 +10,15 @@
 
 <h1>DM_SETDLGITEMSHORT</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
 Сообщение <dfn>DM_SETDLGITEMSHORT</dfn> посылается Менеджеру диалогов для изменения информации о заданном элементе.
-Отличается от <a href="dm_setdlgitem.html">DM_SETDLGITEM</a> тем, что <var>FarDialogItem.PtrData</var> не используется.
+Отличается от <a href="dm_setdlgitem.html">DM_SETDLGITEM</a> тем, что <var>FarDialogItem.Data</var>, <var>FarDialogItem.Mask</var>
+и <var>FarDialogItem.History</var> не используется.
 </div>
 
 <h3>Param1</h3>
@@ -26,8 +28,8 @@ ID элемента диалога.
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на заполненную структуру <a href="../structures/fardialogitem.html">FarDialogItem</a>, 
-<var>FarDialogItem.PtrData</var> долна быть NULL.
+Указатель на заполненную структуру <a href="../../structures/fardialogitem.html">FarDialogItem</a>.
+<var>FarDialogItem.Data</var>, <var>FarDialogItem.Mask</var> и <var>FarDialogItem.History</var> должны быть NULL.
 </div>
 
 <h3>Return</h3>
@@ -52,8 +54,7 @@ FALSE - если такого ID элемента не существует или вы поменяли тип элемента.
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

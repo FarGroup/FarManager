@@ -10,8 +10,9 @@
 
 <h1>DN_DRAWDLGITEM</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
@@ -26,7 +27,7 @@ ID элемента диалога, который будет отрисован.
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../structures/fardialogitem.html">FarDialogItem</a>, описывающую элемент для отрисовки.
+Указатель на структуру <a href="../../structures/fardialogitem.html">FarDialogItem</a>, описывающую элемент для отрисовки.
 </div>
 
 <h3>Return</h3>
@@ -45,18 +46,16 @@ ID элемента диалога, который будет отрисован.
 
 <h3>Замечания</h3>
 <div class=descr>
-Внешний вид <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>, в
-отличие от прочих элементов диалога, можно предварительно подготавливать
+Внешний вид <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>, в отличие от прочих элементов диалога, можно предварительно подготавливать
 в <a href="../controls/di_usercontrol.html#virtbuf">виртуальном буфере</a>.
-FAR Manager не копирует во внутренние переменные содержимое этого буфера,
-поэтому в ответ на событие <dfn>DN_DRAWDLGITEM</dfn> достаточно изменить состояние
+Far Manager не копирует во внутренние переменные содержимое этого буфера, поэтому в ответ на событие <dfn>DN_DRAWDLGITEM</dfn> достаточно изменить состояние
 <a href="../controls/di_usercontrol.html#virtbuf">виртуального буфера</a>:
 <pre class=code>
 case DN_DRAWDLGITEM:
-  CHAR_INFO *VBuf=((struct FarDialogItem*)Param2)-&gt;Param.VBuf;
+  FAR_CHAR_INFO *VBuf=((struct FarDialogItem*)Param2)-&gt;Param.VBuf;
   for (I=0; I &lt; 256; I++)
   {
-    VBuf[I].Char.UnicodeChar = DecodeTable[I];
+    VBuf[I].Char = DecodeTable[I];
     VBuf[I].Attributes = Color;
   }
   return TRUE;
@@ -65,13 +64,11 @@ case DN_DRAWDLGITEM:
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

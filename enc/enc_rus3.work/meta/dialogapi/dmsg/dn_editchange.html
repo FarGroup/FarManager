@@ -10,31 +10,28 @@
 
 <h1>DN_EDITCHANGE</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_EDITCHANGE</dfn> оповещает обработчик об изменении
-состояния редактируемого элемента диалога - например, ввели символ.
+Сообщение <dfn>DN_EDITCHANGE</dfn> оповещает обработчик об изменении состояния редактируемого элемента диалога - например, ввели символ.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента.
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../structures/fardialogitem.html">FarDialogItem</a>,
-описывающую изменённый элемент.
+Указатель на структуру <a href="../../structures/fardialogitem.html">FarDialogItem</a>, описывающую изменённый элемент.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-В текущем Dialog API результат игнорируется, но для обеспечения
-работоспособности плагина с будущими версиями Dialog API рекомендуется
-возвращать:
+В текущем Dialog API результат игнорируется, но для обеспечения работоспособности плагина с будущими версиями Dialog API рекомендуется возвращать:
 <ul>
 <li>TRUE  - "подтверждаю изменения"
 <li>FALSE - "изменения в окне редактирования не принимаются"
@@ -58,9 +55,7 @@ ID элемента.
 
 <h3>Замечания</h3>
 <div class=descr>
-<ol>
-<li>В Dialog API нельзя принудительно изменить состояние элемента, изменяя элементы структуры
-<a href="../structures/fardialogitem.html">FarDialogItem</a>.
+В Dialog API нельзя принудительно изменить состояние элемента, изменяя элементы структуры <a href="../../structures/fardialogitem.html">FarDialogItem</a>.
 </div>
 
 <h3>Пример</h3>
@@ -77,7 +72,7 @@ if (Msg == DN_EDITCHANGE &amp;&amp; Param1 == 2)
       break;
   if(I == Len)
     return FALSE;
-  Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, 3, (LONG_PTR)Item-&gt;PtrData);
+  Info.SendDlgMessage(hDlg, DM_SETTEXTPTR, 3, Item-&gt;PtrData);
   return TRUE;
 }
 ...
@@ -86,8 +81,7 @@ if (Msg == DN_EDITCHANGE &amp;&amp; Param1 == 2)
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

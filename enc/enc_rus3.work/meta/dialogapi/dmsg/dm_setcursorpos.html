@@ -10,31 +10,29 @@
 
 <h1>DM_SETCURSORPOS</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETCURSORPOS</dfn> посылается обработчику диалога для
-позиционирования курсора в строках редактирования диалога и элементах
+Сообщение <dfn>DM_SETCURSORPOS</dfn> посылается обработчику диалога для позиционирования курсора в строках редактирования диалога и элементах
 <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../winapi/coord.html">COORD</a>, содержащей
-информацию о положении курсора (COORD.Y игнорируется для строкового редактора).
+Указатель на структуру <a href="../../winapi/coord.html">COORD</a>, содержащей информацию о положении курсора (COORD.Y игнорируется для строкового редактора).
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-FALSE - указанный ID элемента не является строковым редактором или элементом
-<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.
+FALSE - указанный ID элемента не является строковым редактором или элементом <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>.
 </div>
 
 <h3>Элементы</h3>
@@ -56,22 +54,16 @@ FALSE - указанный ID элемента не является строковым редактором или элементом
 
 <h3>Замечания</h3>
 <div class=descr>
-Чтобы погасить курсор в элементе
-<a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>, необходимо заполнить
-поля структуры <a href="../../winapi/coord.html">COORD</a> значениями -1.
-
-
+Чтобы погасить курсор в элементе <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>, необходимо заполнить поля структуры <a href="../../winapi/coord.html">COORD</a> значениями -1.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

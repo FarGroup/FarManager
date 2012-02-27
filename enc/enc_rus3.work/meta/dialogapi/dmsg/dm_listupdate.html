@@ -10,25 +10,24 @@
 
 <h1>DM_LISTUPDATE</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTUPDATE</dfn> посылается Менеджеру диалогов для обновления
-элемента в списках <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
+Сообщение <dfn>DM_LISTUPDATE</dfn> посылается Менеджеру диалогов для обновления элемента в списках <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на обновляемый пункт списка (структуру типа
-<a href="../structures/farlistupdate.html">FarListUpdate</a>).
+Указатель на обновляемый пункт списка, структуру типа <a href="../../structures/farlistupdate.html">FarListUpdate</a>.
 </div>
 
 <h3>Return</h3>
@@ -51,8 +50,7 @@ FALSE - ошибка при обновлении данных.
 <h3>Замечания</h3>
 <div class=descr>
 Для обновления строки текущего элемента списка <a href="../controls/di_listbox.html">DI_LISTBOX</a> можно
-также использовать сообщение <a href="dm_settextptr.html">DM_SETTEXTPTR</a>
-(или <a href="dm_settext.html">DM_SETTEXT</a>).
+также использовать сообщение <a href="dm_settextptr.html">DM_SETTEXTPTR</a> (или <a href="dm_settext.html">DM_SETTEXT</a>).
 </div>
 
 <h3>Пример</h3>
@@ -63,7 +61,7 @@ FALSE - ошибка при обновлении данных.
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

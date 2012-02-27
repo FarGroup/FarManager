@@ -10,30 +10,28 @@
 
 <h1>DN_HELP</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_HELP</dfn> передаётся в обработчик диалога перед
-выводом темы помощи.
+Событие <dfn>DN_HELP</dfn> передаётся в обработчик диалога перед выводом темы помощи.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога, имеющий фокус ввода (текущий элемент)
+ID элемента диалога, имеющий фокус ввода (текущий элемент).
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Адрес строки, содержащей <a href="../../language/helptopic.html">название темы</a>,
-которая будет показана.
+Адрес строки, содержащей <a href="../../language/helptopic.html">название темы</a>, которая будет показана.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Адрес строки темы подсказки, связанной с данным диалогом, который будет выведен.
-Если вернули NULL, то тема помощи выводиться не будет.
+Адрес строки темы подсказки, связанной с данным диалогом, который будет выведен. Если вернули NULL, то тема помощи выводиться не будет.
 </div>
 
 <h3>Элементы</h3>
@@ -63,14 +61,14 @@ case DN_HELP:
     i=0;
   else if(GAME[0].NumPl1+GAME[0].NumPl2 &gt; 16)
     i=2;
-  return (LONG_PTR)(&amp;HelpTopics[i][0]);
+  return (&amp;HelpTopics[i][0]);
 }
 </pre>
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

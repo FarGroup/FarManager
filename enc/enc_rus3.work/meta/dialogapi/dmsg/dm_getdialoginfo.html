@@ -10,13 +10,13 @@
 
 <h1>DM_GETDIALOGINFO</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Команда <dfn>DM_GETDIALOGINFO</dfn> посылается обработчику диалога,
-для запроса информации о диалоге FAR Manager'а или другого плагина.
+Команда <dfn>DM_GETDIALOGINFO</dfn> посылается обработчику диалога, для запроса информации о диалоге Far Manager'а или другого плагина.
 
 
 <h3>Param1</h3>
@@ -26,13 +26,13 @@
 
 <h3>Param2</h3>
 <div class=descr>
- Указатель на структуру <a href="../../structures/dialoginfo.html">DialogInfo</a>, получающую данные.
- Плагин должен корректно заполнить поле <var>StructSize</var> структуры <a href="../../structures/dialoginfo.html">DialogInfo</a>.
- </div>
+Указатель на структуру <a href="../../structures/dialoginfo.html">DialogInfo</a>, получающую данные.
+Плагин должен корректно заполнить поле <var>StructSize</var> структуры <a href="../../structures/dialoginfo.html">DialogInfo</a> перед вызовом.
+</div>
 
 <h3>Return</h3>
 <div class=descr>
- TRUE - если структура заполнена, FALSE - соощение проигнорировано.
+TRUE - если структура заполнена, FALSE - соощение проигнорировано.
 </div>
 
 <h3>Пример</h3>
@@ -41,8 +41,7 @@
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../../service_functions/dialoginit.html">DialogInit</a><br>
-
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

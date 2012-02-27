@@ -10,23 +10,25 @@
 
 <h1>DM_GETDLGITEMSHORT</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETDLGITEMSHORT</dfn> посылается Менеджеру диалогов для получения полной информации о заданном элементе.
-Отличается от <a href="dm_getdlgitem.html">DM_GETDLGITEM</a> тем, что <var>FarDialogItem.PtrData</var> всегда возвращается как NULL.
+Сообщение <dfn>DM_GETDLGITEMSHORT</dfn> посылается Менеджеру диалогов для получения информации о заданном элементе.
+Отличается от <a href="dm_getdlgitem.html">DM_GETDLGITEM</a> тем, что <var>FarDialogItem.Data</var>, <var>FarDialogItem.Mask</var>
+и <var>FarDialogItem.History</var> всегда возвращаются как NULL.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../structures/fardialogitem.html">FarDialogItem</a>.
+Указатель на структуру <a href="../../structures/fardialogitem.html">FarDialogItem</a>.
 </div>
 
 <h3>Return</h3>
@@ -45,25 +47,22 @@ TRUE - данные скопированы или FALSE - для неверного ID элемента.
 
 <h3>Замечания</h3>
 <div class=descr>
-
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 <pre class=code>
 // получить 12-й элемент
-// получить параметры 12-го элемента
 struct FarDialogItem DialogItem;
-
-Info.SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,12,(LONG_PTR)&amp;DialogItem);
+Info.SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,12,&amp;DialogItem);
 </pre>
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-<a href="dm_getitemposition.html">DM_GETITEMPOSITION</a><br>
-<a href="dm_getdlgrect.html">DM_GETDLGRECT</a><br>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="dm_getitemposition.html">DM_GETITEMPOSITION</a>,
+<a href="dm_getdlgrect.html">DM_GETDLGRECT</a>
 </div>
 
 </body>

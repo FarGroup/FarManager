@@ -10,32 +10,29 @@
 
 <h1>DM_SETTEXTPTR</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETTEXTPTR</dfn> посылается Менеджеру диалогов для
-установки содержимого строк ввода или заголовков элементов диалога
-в новое значение.
-В отличии от сообщения <a href="dm_settext.html">DM_SETTEXT</a>, это сообщение
-работает с указателем на строку.
+Сообщение <dfn>DM_SETTEXTPTR</dfn> посылается Менеджеру диалогов для установки содержимого строк ввода или заголовков элементов диалога в новое значение.
+В отличии от сообщения <a href="dm_settext.html">DM_SETTEXT</a>, это сообщение работает с указателем на строку.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Адрес строки, содержащей текст. Значение этого параметра равное <code>NULL</code>
-игнорируется.
+Адрес строки, содержащей текст. Значение этого параметра равное <code>NULL</code> игнорируется.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Размер установленных данных без завершающего символа конца строки '\0'.
+Размер установленных данных в символах, без завершающего символа конца строки '\0'.
 </div>
 
 <h3>Элементы</h3>
@@ -49,21 +46,17 @@ ID требуемого элемента диалога.
 
 <h3>Замечания</h3>
 <div class=descr>
-<ol>
-<li>Для <a href="../controls/di_combobox.html">DI_COMBOBOX</a> влияет только на
-строку редактирования (не распространяется на <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a>)
-</ol>
+Для <a href="../controls/di_combobox.html">DI_COMBOBOX</a> влияет только на строку редактирования (не распространяется на <a href="../flags/dif_dropdownlist.html">DIF_DROPDOWNLIST</a>).
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a> |
-<a href="dm_settext.html">DM_SETTEXT</a><br>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="dm_settext.html">DM_SETTEXT</a>
 </div>
 
 </body>

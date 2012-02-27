@@ -10,13 +10,13 @@
 
 <h1>DM_KEY</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Используя сообщение <dfn>DM_KEY</dfn> плагин передаёт массив значений
-<a href="../../defs/farkeycodes.html">кодов клавиш</a> Менеджеру диалогов.
+Используя сообщение <dfn>DM_KEY</dfn> плагин передаёт массив клавиш Менеджеру диалогов.
 </div>
 
 <h3>Param1</h3>
@@ -26,7 +26,7 @@
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на массив (типа DWORD) внутренних кодов клавиш.
+Массив структур типа <a href="../../winapi/input_record.html">INPUT_RECORD</a>.
 </div>
 
 <h3>Return</h3>
@@ -36,12 +36,12 @@
 
 <h3>Замечания</h3>
 <div class=descr>
-Обработчик диалога не получит события <a href="dn_key.html">DN_KEY</a> в
-ответ на посылку Менеджеру диалогов сообщения <dfn>DM_KEY</dfn>.
+Обработчик диалога не получит события <a href="dn_controlinput.html">DN_CONTROLINPUT</a> в ответ на посылку Менеджеру диалогов сообщения <dfn>DM_KEY</dfn>.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
+<!--
 <p>Пример передачи набора клавиш диалогу (фокусному элементу):
 <pre class=code>
 // в конец строки редактирования добавить точку с запятой.
@@ -49,12 +49,13 @@ DWORD Keys[2]={KEY_END,';'};
 
 Info.SendDlgMessage(hDlg,DM_KEY,sizeof(Keys)/sizeof(Keys[0]),(LONG_PTR)Keys);
 </pre>
+-->
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a>,
-<a href="dn_key.html">DN_KEY</a>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="dn_controlinput.html">DN_CONTROLINPUT</a>
 </div>
 
 </body>

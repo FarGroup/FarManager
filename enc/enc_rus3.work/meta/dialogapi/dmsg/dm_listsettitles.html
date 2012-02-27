@@ -10,31 +10,29 @@
 
 <h1>DM_LISTSETTITLES</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTSETTITLES</dfn> посылается Менеджеру диалогов для
-установки заголовков (верхнего и нижнего) у элемента
-<a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+Сообщение <dfn>DM_LISTSETTITLES</dfn> посылается Менеджеру диалогов для установки заголовков (верхнего и нижнего) у элемента <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру типа <a href="../structures/farlisttitles.html">FarListTitles</a>,
-содержащую заголовки.
+Указатель на структуру типа <a href="../../structures/farlisttitles.html">FarListTitles</a>, содержащую заголовки.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
 TRUE - заголовки установлены<br>
-FALSE -элемент не является списком<br>
+FALSE -элемент не является списком
 </div>
 
 <h3>Элементы</h3>
@@ -49,18 +47,18 @@ FALSE -элемент не является списком<br>
 <h3>Замечания</h3>
 <div class=descr>
 Для установки заголовков необходимо предварительно заполнить структуру
-<a href="../structures/farlisttitles.html">FarListTitles</a>:
+<a href="../../structures/farlisttitles.html">FarListTitles</a>:
 <pre class=code>
 FarListTitles ListTitle;
 ListTitle.Title=L"Some title";
 ListTitle.Bottom=NULL; // сбросить нижний заголовок
-Info.SendDlgMessage(hDlg,DM_LISTSETTITLES,ID,(LONG_PTR)&amp;ListTitle);
+Info.SendDlgMessage(hDlg,DM_LISTSETTITLES,ID,&amp;ListTitle);
 </code>
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a>,
-<a href="../structures/farlisttitles.html">FarListTitles</a>,
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="../../structures/farlisttitles.html">FarListTitles</a>,
 <a href="dm_listgettitles.html">DM_LISTGETTITLES</a>
 </div>
 

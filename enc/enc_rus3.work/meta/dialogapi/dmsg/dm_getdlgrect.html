@@ -10,13 +10,13 @@
 
 <h1>DM_GETDLGRECT</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETDLGRECT</dfn> позволяет получить экранные координаты
-диалогового окна.
+Сообщение <dfn>DM_GETDLGRECT</dfn> позволяет получить экранные координаты диалогового окна.
 </div>
 
 <h3>Param1</h3>
@@ -26,49 +26,42 @@
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../winapi/small_rect.html">SMALL_RECT</a>
-в которой менеджер диалогов вернёт экранные координаты диалога.
+Указатель на структуру <a href="../../winapi/small_rect.html">SMALL_RECT</a> в которой менеджер диалогов вернёт экранные координаты диалога.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - данные скопированы или FALSE, если в качестве <dfn>Param2</dfn>
-передано значение NULL.
+TRUE - данные скопированы или FALSE, если в качестве <dfn>Param2</dfn> передано значение NULL.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 <pre class=code>
-struct InitDialogItem InitDlg[]={
-...
-/*11*/  DI_USERCONTROL,9,4,32,11,0,0,DIF_NOFOCUS,0,L"",
-...
-};
-
-LONG_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,LONG_PTR Param2)
+case DN_INPUT:
 {
-...
-    case DN_DRAWDLGITEM:
-      if(Param1 == 11)
+  const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
+  if (record->EventType==MOUSE_EVENT)
+    // отработаем щелчок мыши в LISTе диалога
+    if (Param1==ID && record->Event.MouseEvent.dwButtonState==FROM_LEFT_1ST_BUTTON_PRESSED && record->Event.MouseEvent.dwEventFlags!=DOUBLE_CLICK)
+    {
+      SMALL_RECT dlgRect;
+      Info.SendDlgMessage(hDlg, DM_GETDLGRECT, ID, &dlgRect);
+      // щелкнули в LISTе
+      if (record->Event.MouseEvent.dwMousePosition.X > dlgRect.Left && record->Event.MouseEvent.dwMousePosition.X < dlgRect.Right
+          && record->Event.MouseEvent.dwMousePosition.Y > dlgRect.Top && record->Event.MouseEvent.dwMousePosition.Y < dlgRect.Bottom)
       {
-        SMALL_RECT Rect;
-        Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&amp;Rect);
-        ...
-              Info.Text(Rect.Left+DialogItem.X1+X*3,
-                       Rect.Top+DialogItem.Y1+Y,
-                      ColorsPanel[Y&amp;1][X&amp;1]|AddColor,
-                      Face);
-        ...
-...
-}</pre>
+       // что-то делаем
+      }
+    }
+}
+</pre>
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-<a href="dm_getdlgitem.html">DM_GETDLGITEM</a><br>
-<a href="dm_getitemposition.html">DM_GETITEMPOSITION</a><br>
-
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="dm_getdlgitem.html">DM_GETDLGITEM</a>,
+<a href="dm_getitemposition.html">DM_GETITEMPOSITION</a>
 </div>
 
 </body>

@@ -10,13 +10,13 @@
 
 <h1>DN_CTLCOLORDLGITEM</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Событие <dfn>DN_CTLCOLORDLGITEM</dfn> посылается процедуре обработки
-диалога перед отрисовкой конкретного элемента диалога.
+Событие <dfn>DN_CTLCOLORDLGITEM</dfn> посылается процедуре обработки диалога перед отрисовкой конкретного элемента диалога.
 </div>
 
 <h3>Param1</h3>
@@ -26,20 +26,20 @@ ID элемента, который будет отрисован.
 
 <h3>Param2</h3>
 <div class=descr>
-Атрибуты (цвет_фона+цвет_текста), с использованием которых обработчик диалога хочет отрисовать элемент:
+Указатель на структуру типа <a href="../../structures/fardialogitemcolors.html">FarDialogItemColors</a>, атрибуты (цвет_фона+цвет_текста) с использованием
+которых обработчик диалога хочет отрисовать элемент. Указатели FarDialogItemColors.Colors для конкретного элемента означают:
 
 <div class=dfn><a href="../controls/di_singlebox.html">DI_SINGLEBOX</a><br><a href="../controls/di_doublebox.html">DI_DOUBLEBOX</a></div>
-<div class=dfndescr>LO(LO=Title,HI=HiText), HI(LO=Box,0)
+<div class=dfndescr>Colors[0]=Title, Colors[1]=HiText, Colors[2]=Box, Colors[3]=0
 </div>
 
 <div class=dfn><a href="../controls/di_text.html">DI_TEXT</a></div>
-<div class=dfndescr>LO(LO=Title,HI=HiText), HI(LO=Box,0)<br>
-Цвет для рамки (Box) определён только для флагов <a href="../flags/dif_separator.html">DIF_SEPARATOR</a>
-и <a href="../flags/dif_separator2.html">DIF_SEPARATOR2</a>.
+<div class=dfndescr>Colors[0]=Title, Colors[1]=HiText, Colors[2]=Box, Colors[3]=0<br>
+Цвет для рамки (Box) определён только для флагов <a href="../flags/dif_separator.html">DIF_SEPARATOR</a> и <a href="../flags/dif_separator2.html">DIF_SEPARATOR2</a>.
 </div>
 
 <div class=dfn><a href="../controls/di_vtext.html">DI_VTEXT</a></div>
-<div class=dfndescr>LO(LO=Title,HI=0), HI(0,0)
+<div class=dfndescr>Colors[0]=Title, Colors[1]=0, Colors[2]=0, Colors[3]=0
 </div>
 
 <div class=dfn><a href="../controls/di_edit.html">DI_EDIT</a><br>
@@ -47,17 +47,17 @@ ID элемента, который будет отрисован.
 <a href="../controls/di_pswedit.html">DI_PSWEDIT</a><br>
 <a href="../controls/di_combobox.html">DI_COMBOBOX</a>
 </div>
-<div class=dfndescr>LO(LO=EditLine,HI=SelectText), HI(LO=UnchangedColor, HI=History&amp;ComboBox указатель)
+<div class=dfndescr>Colors[0]=EditLine, Colors[1]=SelectText, Colors[2]=UnchangedColor, Colors[3]=History&amp;ComboBox указатель
 </div>
 
 <div class=dfn><a href="../controls/di_checkbox.html">DI_CHECKBOX</a><br>
 <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a><br>
 </div>
-<div class=dfndescr>LO(LO=Title,HI=HiText), HI(0,0)
+<div class=dfndescr>Colors[0]=Title, Colors[1]=HiText, Colors[2]=0, Colors[3]=0
 </div>
 
 <div class=dfn><a href="../controls/di_button.html">DI_BUTTON</a></div>
-<div class=dfndescr>LO(LO=Title,HI=HiText), HI(0,0)
+<div class=dfndescr>Colors[0]=Title, Colors[1]=HiText, Colors[2]=0, Colors[3]=0
 </div>
 
 <div class=dfn><a href="../controls/di_listbox.html">DI_LISTBOX</a></div>
@@ -69,8 +69,8 @@ ID элемента, который будет отрисован.
 
 <h3>Return</h3>
 <div class=descr>
-Атрибуты (цвет_фона+цвет_текста), с использованием которых будет
-отрисован элемент.
+TRUE - если атрибуты изменены.<br>
+FALSE - оставить всё как есть.
 </div>
 
 <h3>Элементы</h3>
@@ -85,14 +85,13 @@ ID элемента, который будет отрисован.
 
 <h3>Замечания</h3>
 <div class=descr>
-В ответ на это сообщение процедура обработки диалога может установить
-свои атрибуты (цвет текста и фона) для заданного элемента.
+В ответ на это сообщение процедура обработки диалога может установить свои атрибуты (цвет текста и фона) для заданного элемента.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-Пример того, как диалог назначения макроса на клавишу в FAR Manager меняет
-цвет поля редактирования:
+<!--
+Пример того, как диалог назначения макроса на клавишу в Far Manager меняет цвет поля редактирования:
 
 <pre class=code>
 /* 02 */ DI_EDIT,5,3,28,3,1,0,0,1,"",
@@ -103,11 +102,12 @@ case DN_CTLCOLORDLGITEM:
   Param2|=(Param2&amp;0xFF)&lt;&lt;16;
   return Param2;
 </pre>
+-->
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
+<a href="../../service_functions/dialoginit.html">DialogInit</a><br>
 
 </div>
 

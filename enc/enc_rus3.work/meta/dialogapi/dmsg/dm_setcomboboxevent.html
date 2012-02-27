@@ -10,14 +10,14 @@
 
 <h1>DM_SETCOMBOBOXEVENT</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETCOMBOBOXEVENT</dfn> позволяет управлять механизмом
-посылки сообщений <a href="dn_key.html">DN_KEY</a> и <a href="dn_mouseevent.html">DN_MOUSEEVENT</a>
-в диалоговую процедуру при навигации в открытом элементе <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
+Сообщение <dfn>DM_SETCOMBOBOXEVENT</dfn> позволяет управлять механизмом посылки событий клавиатуры и мыши <a href="dn_controlinput.html">DN_CONTROLINPUT</a>
+и <a href="dn_input.html">DN_INPUT</a> в диалоговую процедуру при навигации в открытом элементе <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <h3>Param1</h3>
@@ -31,11 +31,10 @@ ID требуемого элемента <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="CBET_KEY">CBET_KEY</a></td>
-  <td class="cont" width="60%">Включить приход событий <a href="dn_key.html">DN_KEY</a></td></tr>
+  <td class="cont" width="60%">включить приход событий клавиатуры</a></td></tr>
   <tr class="cont"><td class="cont" width="40%"><a name="CBET_MOUSE">CBET_MOUSE</a></td>
-  <td class="cont" width="60%">Включить приход событий <a href="dn_mouseevent.html">DN_MOUSEEVENT</a></td></tr>
+  <td class="cont" width="60%">включить приход событий мыши</a></td></tr>
 </table>
-
 </div>
 
 <h3>Return</h3>
@@ -54,9 +53,7 @@ ID требуемого элемента <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
 
 <h3>Замечания</h3>
 <div class=descr>
-По умолчанию при открытом <a href="../controls/di_combobox.html">DI_COMBOBOX</a>
-события <a href="dn_key.html">DN_KEY</a> и <a href="dn_mouseevent.html">DN_MOUSEEVENT</a>
-в диалоговую процедуру не приходят.
+По умолчанию при открытом <a href="../controls/di_combobox.html">DI_COMBOBOX</a> события клавиатуры и мыши в диалоговую процедуру не приходят.
 </div>
 
 <h3>Пример</h3>
@@ -65,7 +62,7 @@ ID требуемого элемента <a href="../controls/di_combobox.html">DI_COMBOBOX</a>.
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="dm_getcomboboxevent.html">DM_GETCOMBOBOXEVENT</a><br>
+<a href="dm_getcomboboxevent.html">DM_GETCOMBOBOXEVENT</a>
 </div>
 
 </body>

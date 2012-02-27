@@ -10,24 +10,24 @@
 
 <h1>DM_LISTDELETE</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTDELETE</dfn> посылается Менеджеру диалогов для удаления
-элементов из списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
+Сообщение <dfn>DM_LISTDELETE</dfn> посылается Менеджеру диалогов для удаления элементов из списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру типа <a href="../structures/farlistdelete.html">FarListDelete</a>, описывающую параметры удаления, или NULL.
+Указатель на структуру типа <a href="../../structures/farlistdelete.html">FarListDelete</a>, описывающую параметры удаления, или NULL.
 </div>
 
 <h3>Return</h3>
@@ -60,22 +60,22 @@ FALSE - ошибка при удалении данных.
 struct FarListDelete FLDItem;
 FLDItem.StartIndex=0;
 FLDItem.Count=2;
-Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)&amp;FLDItem);
+Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,&amp;FLDItem);
 
 // *** ОЧИСТИТЬ ВЕСЬ СПИСОК ***
   //   Способ 1:
   struct FarListDelete FLDItem={0,<b>0</b>};
-  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)&amp;FLDItem);
+  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,&amp;FLDItem);
 
   //   Способ 2:
-  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(LONG_PTR)<b>NULL</b>);
+  Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,NULL);
 </pre>
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a>,
-<a href="../structures/farlistdelete.html">FarListDelete</a>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="../../structures/farlistdelete.html">FarListDelete</a>
 </div>
 
 </body>

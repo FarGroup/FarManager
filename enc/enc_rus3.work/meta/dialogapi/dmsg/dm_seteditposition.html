@@ -10,19 +10,18 @@
 
 <h1>DM_SETEDITPOSITION</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="dm_seteditposition.html">DM_SETEDITPOSITION</a>|
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETEDITPOSITION</dfn> посылается обработчику диалога для
-установки позиции и состояния курсора в строках редактирования диалога.
+Сообщение <dfn>DM_SETEDITPOSITION</dfn> посылается обработчику диалога для установки позиции и состояния курсора в строках редактирования диалога.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
@@ -62,11 +61,11 @@ TRUE - позиция курсора установлена.
 static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
 {
   SMALL_RECT dlgRect, itemRect;
-  Info.SendDlgMessage(hDlg, DM_GETDLGRECT, 0, (LONG_PTR)&amp;dlgRect);
-  Info.SendDlgMessage(hDlg, DM_GETITEMPOSITION, idStr, (LONG_PTR)&amp;itemRect);
+  Info.SendDlgMessage(hDlg, DM_GETDLGRECT, 0, &amp;dlgRect);
+  Info.SendDlgMessage(hDlg, DM_GETITEMPOSITION, idStr, &amp;itemRect);
 
   EditorSetPosition esp;
-  Info.SendDlgMessage(hDlg, DM_GETEDITPOSITION, idStr, (LONG_PTR)&amp;esp);
+  Info.SendDlgMessage(hDlg, DM_GETEDITPOSITION, idStr, &amp;esp);
 
   int length=Info.SendDlgMessage(hDlg, DM_GETTEXTLENGTH, idStr, 0);
   int CurPos=dwMousePosX - ( dlgRect.Left + itemRect.Left );
@@ -106,18 +105,17 @@ static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
     es.BlockWidth=StartPosX-CurPos;
   }
 
-  Info.SendDlgMessage(hDlg, DM_SETSELECTION, idStr, (LONG_PTR)&amp;es);
-  Info.SendDlgMessage(hDlg, DM_SETEDITPOSITION, idStr, (LONG_PTR)&amp;esp);
+  Info.SendDlgMessage(hDlg, DM_SETSELECTION, idStr, &amp;es);
+  Info.SendDlgMessage(hDlg, DM_SETEDITPOSITION, idStr, &amp;esp);
 }
 </pre>
-
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a> |
-<a href="dm_getcursorpos.html">DM_GETCURSORPOS</a>|
-<a href="dm_setcursorpos.html">DM_SETCURSORPOS</a>|
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="dm_getcursorpos.html">DM_GETCURSORPOS</a>,
+<a href="dm_setcursorpos.html">DM_SETCURSORPOS</a>,
 <a href="dm_geteditposition.html">DM_GETEDITPOSITION</a>
 </div>
 

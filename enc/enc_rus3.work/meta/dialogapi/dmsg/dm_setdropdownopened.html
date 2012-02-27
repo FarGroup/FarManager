@@ -10,36 +10,31 @@
 
 <h1>DM_SETDROPDOWNOPENED</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETDROPDOWNOPENED</dfn> используется для программного
-раскрытия или закрытия комбобокса или истории.
+Сообщение <dfn>DM_SETDROPDOWNOPENED</dfn> используется для программного раскрытия или закрытия комбобокса или истории.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента, чей список (<a href="../controls/di_combobox.html">DI_COMBOBOX</a>)
-или историю (<a href="../controls/di_edit.html">DI_EDIT</a> или
-<a href="../controls/di_fixedit.html">DI_FIXEDIT</a> с флагом
-<a href="../flags/dif_history.html">DIF_HISTORY</a>) мы хотим раскрыть.
+ID элемента, чей список (<a href="../controls/di_combobox.html">DI_COMBOBOX</a>) или историю (<a href="../controls/di_edit.html">DI_EDIT</a> или
+<a href="../controls/di_fixedit.html">DI_FIXEDIT</a> с флагом <a href="../flags/dif_history.html">DIF_HISTORY</a>) мы хотим раскрыть.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
 TRUE - раскрыть список у элемента ID.<br>
-FALSE - закрыть открытый комбобокс или историю. В этом случае параметр
-<var>Param1</var> игнорируется.
+FALSE - закрыть открытый комбобокс или историю. В этом случае параметр <var>Param1</var> игнорируется.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
 Если <dfn>Param2</dfn>=FALSE, всегда возвращается TRUE.<br>
-Если <dfn>Param2</dfn>=TRUE,  возвращается TRUE в случае удачного открытия
-комбобокса или истории, FALSE - возвращается, если был указан ID не
-поддерживаемого типа.
+Если <dfn>Param2</dfn>=TRUE,  возвращается TRUE в случае удачного открытия комбобокса или истории, FALSE - возвращается, если был указан ID не поддерживаемого типа.
 </div>
 
 <h3>Элементы</h3>
@@ -69,7 +64,7 @@ FALSE - закрыть открытый комбобокс или историю. В этом случае параметр
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_getdropdownopened.html">DM_GETDROPDOWNOPENED</a>
 </div>
 

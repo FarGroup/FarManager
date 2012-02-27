@@ -10,14 +10,13 @@
 
 <h1>DN_RESIZECONSOLE</h1>
 <div class=navbar>
-<a  href="index_dn.html">—обыти€</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главна€</a> |
+<a href="index_dn.html">событи€</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-—ообщение <dfn>DN_RESIZECONSOLE</dfn> передаЄтс€ процедуре обработки диалога
-после изменени€ размера консоли (например, после того, как пользователь
-нажал <kbd>Alt-F9</kbd>).
+—обытие <dfn>DN_RESIZECONSOLE</dfn> передаЄтс€ процедуре обработки диалога после изменени€ размера консоли (например, после того, как пользователь нажал <kbd>Alt-F9</kbd>).
 </div>
 
 <h3>Param1</h3>
@@ -27,8 +26,7 @@
 
 <h3>Param2</h3>
 <div class=descr>
-”казатель на структуру <a href="../../winapi/coord.html">COORD</a>, в
-которой указаны текущие размеры консоли.
+”казатель на структуру <a href="../../winapi/coord.html">COORD</a>, в которой указаны текущие размеры консоли.
 </div>
 
 <h3>Return</h3>
@@ -47,15 +45,13 @@
 
 <h3>«амечани€</h3>
 <div class=descr>
-—ообщение <dfn>DN_RESIZECONSOLE</dfn> полезно в том случае, когда плагин умеет
-подстраиватьс€ под текущие размеры консоли. ѕример работы данного сообщени€
+—обытие <dfn>DN_RESIZECONSOLE</dfn> полезно в том случае, когда плагин умеет подстраиватьс€ под текущие размеры консоли. ѕример работы данного событи€
 можно наблюдать в диалоге поиска файлов (<kbd>Alt-F7</kbd>).
 </div>
 
 <h3>ѕример</h3>
 <div class=descr>
-»зменение размеров диалога поиска (<kbd>Alt-F7</kbd>) при изменении
-размеров консоли.
+»зменение размеров диалога поиска (<kbd>Alt-F7</kbd>) при изменении размеров консоли.
 <pre class=code>
 case DN_RESIZECONSOLE:
 {
@@ -67,32 +63,32 @@ case DN_RESIZECONSOLE:
 
   Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
-  Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,(LONG_PTR)&amp;rect);
+  Info.SendDlgMessage(hDlg,DM_GETDLGRECT,0,&amp;rect);
   coord.X=rect.Right-rect.Left+1;
   DlgHeight+=IncY;
   coord.Y=DlgHeight;
 
   if (IncY &gt; 0)
-    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(LONG_PTR)&amp;coord);
+    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,&amp;coord);
 
   for (I=0; I &lt; 2; I++)
   {
-    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(LONG_PTR)&amp;rect);
+    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,&amp;rect);
     rect.Bottom+=(short)IncY;
-    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(LONG_PTR)&amp;rect);
+    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,&amp;rect);
   }
 
   for (I=2; I &lt; 10; I++)
   {
-    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,(LONG_PTR)&amp;rect);
+    Info.SendDlgMessage(hDlg,DM_GETITEMPOSITION,I,&amp;rect);
     if (I==2)
       rect.Left=-1;
     rect.Top+=(short)IncY;
-    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,(LONG_PTR)&amp;rect);
+    Info.SendDlgMessage(hDlg,DM_SETITEMPOSITION,I,&amp;rect);
   }
 
   if (IncY &lt;= 0)
-    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,(LONG_PTR)&amp;coord);
+    Info.SendDlgMessage(hDlg,DM_RESIZEDIALOG,0,&amp;coord);
 
   Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 
@@ -105,7 +101,7 @@ case DN_RESIZECONSOLE:
 
 
 <div class=see>—мотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

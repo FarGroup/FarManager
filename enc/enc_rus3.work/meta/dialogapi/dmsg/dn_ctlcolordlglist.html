@@ -10,31 +10,29 @@
 
 <h1>DN_CTLCOLORDLGLIST</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_CTLCOLORDLGLIST</dfn> посылается процедуре обработки диалога
-перед отрисовкой списка (<a href="../controls/di_combobox.html">DI_COMBOBOX</a>,
-<a href="../controls/di_listbox.html">DI_LISTBOX</a>,
-<a href="../flags/dif_history.html">DIF_HISTORY</a>).
+Сообщение <dfn>DN_CTLCOLORDLGLIST</dfn> посылается процедуре обработки диалога перед отрисовкой списка (<a href="../controls/di_combobox.html">DI_COMBOBOX</a>,
+<a href="../controls/di_listbox.html">DI_LISTBOX</a>, <a href="../flags/dif_history.html">DIF_HISTORY</a>).
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../structures/farlistcolors.html">FarListColors</a>,
-описывающую цветовую схему списка.
+Указатель на структуру <a href="../../structures/fardialogitemcolors.html">FarDialogItemColors</a>, описывающую цветовую схему списка.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - если атрибуты изменены<br>
+TRUE - если атрибуты изменены.<br>
 FALSE - оставить всё как есть.
 </div>
 
@@ -47,30 +45,25 @@ FALSE - оставить всё как есть.
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
 <td class="cont" width="60%">комбинированный список</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
-<td class="cont" width="60%">строка ввода (с установленным
-флагом <a href="../flags/dif_history.html">DIF_HISTORY</a>)</td></tr>
+<td class="cont" width="60%">строка ввода (с установленным флагом <a href="../flags/dif_history.html">DIF_HISTORY</a>)</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
-<td class="cont" width="60%">поле ввода фиксированного размера (с установленным
-флагом <a href="../flags/dif_history.html">DIF_HISTORY</a>)</td></tr>
+<td class="cont" width="60%">поле ввода фиксированного размера (с установленным флагом <a href="../flags/dif_history.html">DIF_HISTORY</a>)</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-При обработке этого сообщения процедура обработки диалога может
-изменить переданные ей атрибуты (цвет текста и фона) для заданного
-элемента диалога.
+При обработке этого сообщения процедура обработки диалога может изменить переданные ей атрибуты (цвет текста и фона) для заданного элемента диалога.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a> |
-<a href="../structures/farlistcolors.html">FarListColors</a><br>
+<a href="../../service_functions/dialoginit.html">DialogInit</a> |
+<a href="../../structures/fardialogitemcolors.html">FarDialogItemColors</a>
 </div>
 
 </body>

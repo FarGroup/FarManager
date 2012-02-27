@@ -10,12 +10,13 @@
 
 <h1>DN_INITDIALOG</h1>
 <div class=navbar>
-<a  href="index_dn.html">События</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dn.html">события</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_INITDIALOG</dfn> посылается процедуре обработки диалога после того, как были проинициализированы все управляющие элементы диалога, но до того, как они стали видимы.
+Событие <dfn>DN_INITDIALOG</dfn> посылается процедуре обработки диалога после того, как были проинициализированы все управляющие элементы диалога, но до того, как они стали видимы.
 </div>
 
 <h3>Param1</h3>
@@ -25,7 +26,7 @@ ID элемента, который получит фокус ввода по умолчанию.
 
 <h3>Param2</h3>
 <div class=descr>
-Специфические данные, переданные функции <a href="../dialoginit.html">DialogInit</a> - параметр Param
+Специфические данные, переданные в функции <a href="../../service_functions/dialoginit.html">DialogInit</a> - параметр Param.
 </div>
 
 <h3>Return</h3>
@@ -36,22 +37,19 @@ FALSE - изменений не было.
 
 <h3>Замечания</h3>
 <div class=descr>
-В ответ на данное сообщение процедура обработки диалога инициализирует
-каждый элемент в некоторое корректное начальное состояние. Например,
-она может заполнить блок списка элементами, которые потом просмотрит
-пользователь...<br>
+В ответ на данное событие процедура обработки диалога инициализирует каждый элемент в некоторое корректное начальное состояние. Например,
+она может заполнить блок списка элементами, которые потом просмотрит пользователь...<br>
 
-Если изменения были и обработчик диалога вернул системе значение FALSE,
-то изменённые данные не будут восприняты.
+Если изменения были и обработчик диалога вернул системе значение FALSE, то изменённые данные не будут восприняты.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 <pre class=code>case <dfn>DN_INITDIALOG</dfn>:
-  struct <a href="../structures/fardialogitem.html">FarDialogItem</a> DialogItem;
+  struct FarDialogItem DialogItem;
 
-  Info.<a href="../senddlgmessage.html">SendDlgMessage</a>(hDlg,<a href="dm_getdlgitem.html">DM_GETDLGITEM</a>,75,(LONG_PTR)&amp;DialogItem);
-  if(DialogItem.ListItems-&gt;Items[0].Flags&amp;<a href="../structures/farlistitem.html#LIF_SELECTED">LIF_SELECTED</a>)
+  Info.SendDlgMessage(hDlg,DM_GETDLGITEM,75,&amp;DialogItem);
+  if(DialogItem.ListItems-&gt;Items[0].Flags&amp;LIF_SELECTED)
     Computer=Pl2;
   else
   ...
@@ -60,8 +58,7 @@ FALSE - изменений не было.
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

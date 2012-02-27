@@ -10,25 +10,24 @@
 
 <h1>DM_LISTGETITEM</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTGETITEM</dfn> посылается Менеджеру диалогов для получения
-одного элемента из списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
+Сообщение <dfn>DM_LISTGETITEM</dfn> посылается Менеджеру диалогов для получения одного элемента из списка <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру типа <a href="../structures/farlistgetitem.html">FarListGetItem</a>,
-в которую будет помещён результат.
+Указатель на структуру типа <a href="../../structures/farlistgetitem.html">FarListGetItem</a>, в которую будет помещён результат.
 </div>
 
 <h3>Return</h3>
@@ -51,19 +50,17 @@ FALSE - ошибка при получении данных.
 <h3>Замечания</h3>
 <div class=descr>
 Перед получением элемента списка необходимо предварительно заполнить структуру
-<a href="../structures/farlistgetitem.html">FarListGetItem</a>, указав в качестве
-<dfn>FarListGetItem.ItemIndex</dfn> индекс нужного элемента.
+<a href="../../structures/farlistgetitem.html">FarListGetItem</a>, указав в качестве <dfn>FarListGetItem.ItemIndex</dfn> индекс нужного элемента.
 <pre class=code>
 struct FarListGetItem List;
 List.ItemIndex=Index;
-Info.SendDlgMessage(hDlg,DM_LISTGETITEM,ID,(LONG_PTR)&amp;List);
+Info.SendDlgMessage(hDlg,DM_LISTGETITEM,ID,&amp;List);
 </pre>
-
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a>,
-<a href="../structures/farlistgetitem.html">FarListGetItem</a>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="../../structures/farlistgetitem.html">FarListGetItem</a>
 </div>
 
 </body>

@@ -10,31 +10,29 @@
 
 <h1>DM_LISTSETCURPOS</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTSETCURPOS</dfn> посылается Менеджеру диалогов для
-позиционирования курсора в списке
-<a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
+Сообщение <dfn>DM_LISTSETCURPOS</dfn> посылается Менеджеру диалогов для позиционирования курсора в списке <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID требуемого элемента диалога.
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Param2 содержит указатель на <a href="../structures/farlistpos.html">FarListPos</a>.
+Param2 содержит указатель на структуру <a href="../../structures/farlistpos.html">FarListPos</a>.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Скорректированная позиция курсора в списке с учётом разделительных линий и
-недоступных пунктов.
+Скорректированная позиция курсора в списке с учётом разделительных линий и недоступных пунктов.
 </div>
 
 <h3>Элементы</h3>
@@ -57,13 +55,13 @@ Param2 содержит указатель на <a href="../structures/farlistpos.html">FarListPos<
 <pre class=code>
 // Установить текущую позицию
 
-RealPos=Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(LONG_PTR)&NewPos);
+RealPos=Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,&NewPos);
 </pre>
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a>,
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_listgetcurpos.html">DM_LISTGETCURPOS</a>
 </div>
 

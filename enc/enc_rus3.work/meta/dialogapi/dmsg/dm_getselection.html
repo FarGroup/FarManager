@@ -10,32 +10,29 @@
 
 <h1>DM_GETSELECTION</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="dm_setselection.html">DM_SETSELECTION</a>|
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETSELECTION</dfn> посылается обработчику диалога для
-получения параметров выделения в строках редактирования диалога.
+Сообщение <dfn>DM_GETSELECTION</dfn> посылается обработчику диалога для получения параметров выделения в строках редактирования диалога.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на структуру <a href="../../structures/editorselect.html">EditorSelect</a>, в которую
-Менеджер Диалогов поместит информацию о выделении в сроке редактирования.
+Указатель на структуру <a href="../../structures/editorselect.html">EditorSelect</a>, в которую Менеджер Диалогов поместит информацию о выделении в сроке редактирования.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
 FALSE - указанный ID элемента не является строковым редактором.<br>
-TRUE - структура <a href="../../structures/editorselect.html">EditorSelect</a> содержит
-параметры выделения.
+TRUE - структура <a href="../../structures/editorselect.html">EditorSelect</a> содержит параметры выделения.
 </div>
 
 <h3>Элементы</h3>
@@ -59,12 +56,11 @@ TRUE - структура <a href="../../structures/editorselect.html">EditorSelect</a> с
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a> |
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_setselection.html">DM_SETSELECTION</a>
 </div>
 

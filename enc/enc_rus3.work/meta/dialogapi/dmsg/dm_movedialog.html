@@ -10,13 +10,13 @@
 
 <h1>DM_MOVEDIALOG</h1>
 <div class=navbar>
-<a  href="index_dm.html">—ообщени€</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главна€</a> |
+<a href="index_dm.html">сообщени€</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-—ообщение <dfn>DM_MOVEDIALOG</dfn> посылаетс€ менеджеру диалогов дл€
-перемещени€ диалога.
+—ообщение <dfn>DM_MOVEDIALOG</dfn> посылаетс€ менеджеру диалогов дл€ перемещени€ диалога.
 </div>
 
 <h3>Param1</h3>
@@ -27,21 +27,17 @@ FALSE - <dfn>Param2</dfn> содержит относительные координаты.
 
 <h3>Param2</h3>
 <div class=descr>
-”казатель на структуру <a href="../../winapi/coord.html">COORD</a>, в которой
-указаны новые координаты левого верхнего угла диалогового окна.
+”казатель на структуру <a href="../../winapi/coord.html">COORD</a>, в которой указаны новые координаты левого верхнего угла диалогового окна.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-—труктура <a href="../../winapi/coord.html">COORD</a>, содержаща€ реальные
-координаты левого верхнего угла диалогового окна.
+—труктура <a href="../../winapi/coord.html">COORD</a>, содержаща€ реальные координаты левого верхнего угла диалогового окна.
 </div>
 
 <h3>«амечани€</h3>
 <div class=descr>
-ƒл€ центрировани€ диалога на экране заполните структуру
-<a href="../../winapi/coord.html">COORD</a>
-значени€ми -1 и установите <dfn>Param1</dfn> = TRUE.
+ƒл€ центрировани€ диалога на экране заполните структуру <a href="../../winapi/coord.html">COORD</a> значени€ми -1 и установите <dfn>Param1</dfn> = TRUE.
 </div>
 
 <h3>ѕример</h3>
@@ -49,21 +45,22 @@ FALSE - <dfn>Param2</dfn> содержит относительные координаты.
 <pre class=code>
 // центрировать диалог
 COORD c={-1,-1};
-Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(LONG_PTR)&amp;c);
+Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,&amp;c);
 
 // переместить диалог в левый верхний угол экрана в координаты 1,1.
 COORD c={1,1};
-Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,(LONG_PTR)&amp;c);
+Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,TRUE,&amp;c);
 
 // переместить диалог на 2 позиции вправо.
 COORD c={2,0};
-Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,FALSE,(LONG_PTR)&amp;c);</pre>
+Info.SendDlgMessage(hDlg,DM_MOVEDIALOG,FALSE,&amp;c);
+</pre>
 </div>
 
 
 <div class=see>—мотрите также:</div><div class=seecont>
-<a href="dm_resizedialog.html">DM_RESIZEDIALOG</a><br>
-<a href="../dialoginit.html">DialogInit</a><br>
+<a href="dm_resizedialog.html">DM_RESIZEDIALOG</a>,
+<a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 
 </body>

@@ -10,20 +10,19 @@
 
 <h1>DM_GETITEMDATA</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETITEMDATA</dfn> возвращает 32-битное значение,
-связанное с элементом диалога. Каждый элемент диалога имеет соответствующее
-32-битное значение, предназначенное для использования плагином, который
-создавал диалог.
+Сообщение <dfn>DM_GETITEMDATA</dfn> возвращает указатель на связанные с элементом диалогом данные.
+Каждый элемент диалога может иметь свои данные, предназначенные для использования плагином, который создавал диалог.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента управления.
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
@@ -33,8 +32,7 @@ ID элемента управления.
 
 <h3>Return</h3>
 <div class=descr>
-Менеджер Диалогов возвращает 32-битное значение, ранее переданное
-плагином (или 0, если плагин не ассоциировал данные с этим элементом диалога).
+Менеджер Диалогов возвращает указатель на ранее переданные данные плагином (или 0, если плагин не ассоциировал данные с этим элементом диалога).
 </div>
 
 <h3>Замечания</h3>
@@ -47,10 +45,10 @@ ID элемента управления.
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a>,
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_setitemdata.html">DM_SETITEMDATA</a>,
-<a href="dm_getdlgdata.html">DM_GETDLGDATA</a>
-<a href="dm_setdlgdata.html">DM_SETDLGDATA</a>,
+<a href="dm_getdlgdata.html">DM_GETDLGDATA</a>,
+<a href="dm_setdlgdata.html">DM_SETDLGDATA</a>
 </div>
 
 </body>

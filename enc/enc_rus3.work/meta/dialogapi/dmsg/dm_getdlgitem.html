@@ -10,8 +10,9 @@
 
 <h1>DM_GETDLGITEM</h1>
 <div class=navbar>
-<a  href="index_dm.html">Сообщения</a> |
-<a href="../index.html">Dialog API</a><br>
+<a href="../../index.html">главная</a> |
+<a href="index_dm.html">сообщения</a> |
+<a href="../index.html">Dialog API</a>
 </div>
 
 <div class=shortdescr>
@@ -20,12 +21,12 @@
 
 <h3>Param1</h3>
 <div class=descr>
-ID элемента диалога
+ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на буфер, структуру <a href="../structures/fardialogitem.html">FarDialogItem</a>, память плагин выделят самостоятельно.
+Указатель на буфер, структуру <a href="../../structures/fargetdialogitem.html">FarGetDialogItem</a>, память плагин выделят самостоятельно.
 </div>
 
 <h3>Return</h3>
@@ -51,24 +52,26 @@ ID элемента диалога
 <div class=descr>
 <pre class=code>
 // получить 12-й элемент
+struct FarGetDialogItem DialogItem;
 // выделяем память
-struct FarDialogItem *DialogItem = (FarDialogItem *) malloc(Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,NULL));
+DialogItem.Item = (FarDialogItem *)malloc(DialogItem.Size=Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,NULL));
+if (DialogItem.Item)
+{
+  // получаем элемент
+  Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,&DialogItem);
 
-// получаем элемент
-Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,(LONG_PTR)DialogItem);
+  // что-то делаем
 
-// что-то делаем
-
-// освобождаем память 
-free(DialogItem); 
+  // освобождаем память 
+  free(DialogItem.Item);
+}
 </pre>
 </div>
 
-
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialoginit.html">DialogInit</a><br>
-<a href="dm_getitemposition.html">DM_GETITEMPOSITION</a><br>
-<a href="dm_getdlgrect.html">DM_GETDLGRECT</a><br>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
+<a href="dm_getitemposition.html">DM_GETITEMPOSITION</a>,
+<a href="dm_getdlgrect.html">DM_GETDLGRECT</a>
 </div>
 
 </body>
