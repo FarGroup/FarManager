@@ -317,7 +317,17 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE SetThumbnailClip(HWND hwnd,RECT *prcClip)=0;
 };
 
+// will create a compiler error if wrong level of indirection is used.
+template<typename T>
+void** IID_PPV_ARGS_Helper(T** pp)
+{
+	// make sure everyone derives from IUnknown
+	IUnknown* I = static_cast<IUnknown*>(*pp); I = 0; (void)I;
+	return reinterpret_cast<void**>(pp);
+}
+#endif //_W32API_OLD
 
+#ifndef OF_CAP_CANSWITCHTO
 typedef enum FILE_USAGE_TYPE
 {
 	FUT_PLAYING = 0,
@@ -339,16 +349,7 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE GetSwitchToHWND(HWND *phwnd) = 0;
 	virtual HRESULT STDMETHODCALLTYPE CloseFile() = 0;
 };
-
-// will create a compiler error if wrong level of indirection is used.
-template<typename T>
-void** IID_PPV_ARGS_Helper(T** pp)
-{
-	// make sure everyone derives from IUnknown
-	IUnknown* I = static_cast<IUnknown*>(*pp); I = 0; (void)I;
-	return reinterpret_cast<void**>(pp);
-}
-#endif //_W32API_OLD
+#endif //OF_CAP_CANSWITCHTO
 
 template <typename T, size_t N>
 char (*RtlpNumberOf(T(&)[N]))[N];
@@ -627,4 +628,6 @@ typedef struct _RM_PROCESS_INFO
 }
 RM_PROCESS_INFO, *PRM_PROCESS_INFO;
 
-#define PROCESS_QUERY_LIMITED_INFORMATION  0x1000  
+#ifndef PROCESS_QUERY_LIMITED_INFORMATION
+#define PROCESS_QUERY_LIMITED_INFORMATION  0x1000
+#endif
