@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "DlgGuid.hpp"
 #include "flink.hpp"
+#include "stddlg.hpp"
 
 enum
 {
@@ -159,7 +160,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		string strOriginalDirName;
 		const wchar_t *OneDir;
 		DirList.Reset();
-
+		bool SkipAll = false;
 		while (nullptr!=(OneDir=DirList.GetNext()))
 		{
 			strDirName = OneDir;
@@ -177,89 +178,84 @@ void ShellMakeDir(Panel *SrcPanel)
 			{
 				lpwszDirName += 4;
 			}
-			for (wchar_t *ChPtr=lpwszDirName; *ChPtr; ChPtr++)
+			for (wchar_t *ChPtr=lpwszDirName; ; ChPtr++)
 			{
-				if (IsSlash(*ChPtr))
+				if (IsSlash(*ChPtr) || !*ChPtr)
 				{
-					WCHAR Ch = ChPtr[1];
-					ChPtr[1] = 0;
+					WCHAR Ch=0;
+					if(*ChPtr)
+					{
+						Ch = ChPtr[1];
+						ChPtr[1] = 0;
+					}
 					if (*lpwszDirName)
 					{
 						string _strDirName(lpwszDirName);
-						if (apiGetFileAttributes(_strDirName) == INVALID_FILE_ATTRIBUTES && apiCreateDirectory(_strDirName,nullptr))
+						if (apiGetFileAttributes(_strDirName) == INVALID_FILE_ATTRIBUTES || !*ChPtr) // skip all intermediate dirs, but not last.
 						{
-							TreeList::AddTreeName(_strDirName);
-							bSuccess = true;
+							while(!(bSuccess=(apiCreateDirectory(_strDirName, nullptr)!=FALSE)) && !SkipAll)
+							{
+								int Ret = OperationFailed(strOriginalDirName, MError, MSG(MCannotCreateFolder));
+								if(Ret == 1) // skip
+								{
+									break;
+								}
+								else if(Ret == 2)
+								{
+									SkipAll = true;
+									break;
+								}
+								else if (Ret < 0 || Ret == 3) // cancel
+								{
+									return;
+								}
+							}
+							if(bSuccess)
+							{
+								TreeList::AddTreeName(_strDirName);
+							}
 						}
 					}
-
-					ChPtr[1] = Ch;
+					if(*ChPtr)
+					{
+						ChPtr[1] = Ch;
+					}
+					else
+					{
+						break;
+					}
 				}
 			}
 
 			strDirName.ReleaseBuffer();
-			BOOL bSuccess2;
-			bool bSkip=false;
 
-			while (!(bSuccess2=apiCreateDirectory(strDirName,nullptr)))
-			{
-				int LastError=GetLastError();
-
-				if (LastError==ERROR_ALREADY_EXISTS || LastError==ERROR_BAD_PATHNAME ||
-				        LastError==ERROR_INVALID_NAME || LastError == ERROR_DIRECTORY)
-				{
-					int ret;
-
-					if (DirList.IsEmpty())
-						ret=Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MCancel));
-					else
-						ret=Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MOk),MSG(MSkip));
-
-					bSkip = ret==1;
-
-					if (bSuccess || bSkip)
-						break;
-					else
-						return;
-				}
-				else
-				{
-					int ret;
-
-					if (DirList.IsEmpty())
-					{
-						ret=Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MRetry),MSG(MCancel));
-					}
-					else
-					{
-						ret=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),MSG(MCannotCreateFolder),strOriginalDirName,MSG(MRetry),MSG(MSkip),MSG(MCancel));
-						bSkip = ret==1;
-					}
-
-					if (ret)
-					{
-						if (bSuccess || bSkip) break;
-						else return;
-					}
-				}
-			}
-
-			if (bSuccess2)
+			if (bSuccess)
 			{
 				if(MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos)
 				{
 					string strTarget=MkDirDlg[MKDIR_EDIT_LINKPATH].strData;
 					Unquote(strTarget);
-					if(!CreateReparsePoint(strTarget, strDirName, MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos==1?RP_JUNCTION:RP_SYMLINKDIR))
+					while(!CreateReparsePoint(strTarget, strDirName, MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListPos==1?RP_JUNCTION:RP_SYMLINKDIR) && !SkipAll)
 					{
-						Message(FMSG_WARNING|FMSG_ERRORTYPE, 1, MSG(MError), MSG(MCopyCannotCreateLink), strDirName, MSG(MHOk));
+						int Ret = OperationFailed(strDirName, MError, MSG(MCopyCannotCreateLink));
+						if(Ret == 1) // skip
+						{
+							break;
+						}
+						else if(Ret == 2)
+						{
+							SkipAll = true;
+							break;
+						}
+						else if (Ret < 0 || Ret == 3) // cancel
+						{
+							return;
+						}
 					}
 				}
 
 				TreeList::AddTreeName(strDirName);
 			}
-			else if (!bSkip)
-				break;
 		}
 
 		SrcPanel->Update(UPDATE_KEEP_SELECTION);

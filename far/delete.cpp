@@ -791,7 +791,7 @@ int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent)
 			MsgCode=SkipMode;
 		else
 		{
-			MsgCode=OperationFailed(strFullName, MError, MCannotDeleteFile);
+			MsgCode=OperationFailed(strFullName, MError, MSG(MCannotDeleteFile));
 		}
 
 		switch (MsgCode)
@@ -845,7 +845,7 @@ int ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 			}
 			else
 			{
-				MsgCode=OperationFailed(Name, MError, MCannotDeleteFolder);
+				MsgCode=OperationFailed(Name, MError, MSG(MCannotDeleteFolder));
 			}
 
 			switch (MsgCode)

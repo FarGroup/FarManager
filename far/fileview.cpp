@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "strmix.hpp"
 #include "mix.hpp"
+#include "stddlg.hpp"
 
 FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
                        int DisableEdit,long ViewStartPos,const wchar_t *PluginData,
@@ -334,10 +335,12 @@ int FileViewer::ProcessKey(int Key)
 				string strViewFileName;
 				View.GetFileName(strViewFileName);
 				File Edit;
-				if(!Edit.Open(strViewFileName, FILE_READ_DATA, FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
+				while(!Edit.Open(strViewFileName, FILE_READ_DATA, FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
-					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),strViewFileName,MSG(MOk));
-					return TRUE;
+					if(!OperationFailed(strViewFileName, MEditTitle, MSG(MEditCannotOpen), false))
+						continue;
+					else
+						return TRUE;
 				}
 				Edit.Close();
 				// Если переключаемся в редактор, то удалять файл уже не нужно

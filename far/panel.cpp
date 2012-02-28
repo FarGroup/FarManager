@@ -79,6 +79,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "palette.hpp"
 #include "FarGuid.hpp"
 #include "elevation.hpp"
+#include "stddlg.hpp"
 
 static int DragX,DragY,DragMove;
 static Panel *SrcDragPanel;
@@ -1062,10 +1063,8 @@ int Panel::DisconnectDrive(PanelMenuItem *item, VMenu &ChDisk)
 
 					// ... и выведем месаг о...
 					SetLastError(ERROR_DRIVE_LOCKED); // ...о "The disk is in use or locked by another process."
-					DoneEject = Message(MSG_WARNING|MSG_ERRORTYPE, 2,
-					                MSG(MError),
-					                LangString(MChangeCouldNotEjectMedia) << item->cDrive,
-					                MSG(MRetry),MSG(MCancel));
+					wchar_t Drive[] = {item->cDrive, L':', L'\\', 0};
+					DoneEject = OperationFailed(Drive, MError, LangString(MChangeCouldNotEjectMedia) << item->cDrive, false);
 				}
 				else
 					DoneEject=TRUE;

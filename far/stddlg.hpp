@@ -123,4 +123,4 @@ enum FlagsNameAndPassword
 
 int GetNameAndPassword(const wchar_t *Title,string &strUserName, string &strPassword, const wchar_t *HelpTopic,DWORD Flags);
 
-int OperationFailed(const string& Object, LNGID Title, LNGID Description);
+int OperationFailed(const string& Object, LNGID Title, const wchar_t* Description, bool AllowSkip = true);

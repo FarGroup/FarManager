@@ -1777,24 +1777,27 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		DestAttr = apiGetFileAttributes(strDest);
 
 		// получим данные о месте назначения
-		if (strDestDriveRoot.IsEmpty())
-		{
-			GetPathRoot(strDest,strDestDriveRoot);
-			DestDriveType=FAR_GetDriveType(wcschr(strDest,L'\\') ? strDestDriveRoot.CPtr():nullptr);
-		}
+		GetPathRoot(strDest,strDestDriveRoot);
+		DestDriveType=FAR_GetDriveType(wcschr(strDest,L'\\') ? strDestDriveRoot.CPtr():nullptr);
 
 		if ( INVALID_FILE_ATTRIBUTES == DestAttr )
 		{
 			DWORD rattr1 = apiGetFileAttributes(strDestDriveRoot);
 			DWORD rattr2 = rattr1;
-			while ( INVALID_FILE_ATTRIBUTES == rattr2 )
+			while ( INVALID_FILE_ATTRIBUTES == rattr2 && SkipMode != 2)
 			{
-				int mr = Message(MSG_WARNING|MSG_ERRORTYPE, 2, MSG(MError),
-					strDestDriveRoot,
-					MSG(MRetry), MSG(MCancel)
-				);
-				if ( mr )
+				int ret = OperationFailed(strDestDriveRoot, MError, L"");
+				if(ret < 0 || ret == 4)
 					return COPY_CANCEL;
+				else if(ret == 1)
+				{
+					return COPY_NEXT;
+				}
+				else if(ret == 2)
+				{
+					SkipMode = 2;
+					return COPY_NEXT;
+				}
 
 				rattr2 = apiGetFileAttributes(strDestDriveRoot);
 			}
@@ -2896,7 +2899,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 		if (SkipDeleteMode!=-1)
 			MsgCode=SkipDeleteMode;
 		else
-			MsgCode=OperationFailed(FullName, MError, MCannotDeleteFile);
+			MsgCode=OperationFailed(FullName, MError, MSG(MCannotDeleteFile));
 
 		switch (MsgCode)
 		{

@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cddrv.hpp"
 #include "message.hpp"
 #include "plugin.hpp"
+#include "stddlg.hpp"
 
 #if 0
 static BOOL DismountVolume(HANDLE hVolume)
@@ -156,7 +157,8 @@ BOOL EjectVolume(wchar_t Letter,UINT64 Flags)
 			{
 				if (!(Flags&EJECT_NO_MESSAGE))
 				{
-					if (Message(MSG_WARNING|MSG_ERRORTYPE, 2, MSG(MError), LangString(MChangeCouldNotEjectMedia) << Letter, MSG(MRetry), MSG(MCancel)))
+					//if (Message(MSG_WARNING|MSG_ERRORTYPE, 2, MSG(MError), LangString(MChangeCouldNotEjectMedia) << Letter, MSG(M Retry), MSG(MCancel)))
+					if(OperationFailed(RootName, MError, LangString(MChangeCouldNotEjectMedia) << Letter, false))
 						Retry=FALSE;
 				}
 				else

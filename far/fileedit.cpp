@@ -71,6 +71,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "constitle.hpp"
 #include "wakeful.hpp"
 #include "DlgGuid.hpp"
+#include "stddlg.hpp"
 
 enum enumOpenEditor
 {
@@ -611,7 +612,7 @@ void FileEditor::Init(
 	if (Flags.Check(FFILEEDIT_LOCKED))
 		m_editor->Flags.Set(FEDITOR_LOCKMODE);
 
-	if (!LoadFile(strFullFileName,UserBreak))
+	while (!LoadFile(strFullFileName,UserBreak))
 	{
 		if (BlankFileName)
 		{
@@ -624,8 +625,10 @@ void FileEditor::Init(
 			if (UserBreak!=1)
 			{
 				SetLastError(SysErrorCode);
-				Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MEditTitle),MSG(MEditCannotOpen),strFileName,MSG(MOk));
-				ExitCode=XC_OPEN_ERROR;
+				if(!OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotOpen), false))
+					continue;
+				else
+					ExitCode=XC_OPEN_ERROR;
 			}
 			else
 			{
@@ -1096,8 +1099,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					{
 						SetLastError(SysErrorCode);
 
-						if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
-						            strFileName,MSG(MRetry),MSG(MCancel)))
+						if (OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotSave), false))
 						{
 							Done=TRUE;
 							break;
@@ -1393,8 +1395,7 @@ int FileEditor::ProcessQuitKey(int FirstSave,BOOL NeedQuestion)
 
 		SetLastError(SysErrorCode);
 
-		if (Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MEditTitle),MSG(MEditCannotSave),
-		            strFileName,MSG(MRetry),MSG(MCancel)))
+		if (OperationFailed(strFullFileName, MEditTitle, MSG(MEditCannotSave), false))
 			break;
 
 		FirstSave=0;

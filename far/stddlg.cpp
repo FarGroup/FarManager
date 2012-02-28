@@ -461,7 +461,7 @@ IFileIsInUse* CreateIFileIsInUse(LPCWSTR File)
 	return pfiu;
 }
 
-int OperationFailed(const string& Object, LNGID Title, LNGID Description)
+int OperationFailed(const string& Object, LNGID Title, const wchar_t* Description, bool AllowSkip)
 {
 	DList<string> Msg;
 	IFileIsInUse *pfiu = nullptr;
@@ -469,8 +469,9 @@ int OperationFailed(const string& Object, LNGID Title, LNGID Description)
 	bool SwitchBtn = false, CloseBtn = false;
 	{
 		GuardLastError gl;
-
-		pfiu = CreateIFileIsInUse(Object);
+		string FullName;
+		ConvertNameToFull(Object, FullName);
+		pfiu = CreateIFileIsInUse(FullName);
 		if (pfiu)
 		{
 			FILE_USAGE_TYPE UsageType = FUT_GENERIC;
@@ -510,7 +511,7 @@ int OperationFailed(const string& Object, LNGID Title, LNGID Description)
 			WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
 			if (ifn.RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
 			{
-				PCWSTR pszFile = Object;
+				PCWSTR pszFile = FullName;
 				if (ifn.RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
 				{
 					DWORD dwReason;
@@ -554,9 +555,10 @@ int OperationFailed(const string& Object, LNGID Title, LNGID Description)
 			}
 		}
 	}
-	size_t LineCount = 1 + 1 + (Msg.Count()? Msg.Count() + 1 : 0) + 4 + (SwitchBtn? 1 : 0);
+	int ButtonCount = (AllowSkip? 4 : 2) + (SwitchBtn? 1 : 0);
+	size_t LineCount = 1 + 1 + (Msg.Count()? Msg.Count() + 1 : 0) + ButtonCount;
 	const wchar_t** Msgs = new const wchar_t*[LineCount];
-	Msgs[0] = MSG(Description);
+	Msgs[0] = Description;
 	Msgs[1] = Object;
 	LangString strReason(MObjectLockedReason);
 	strReason << MSG(Reason);
@@ -564,7 +566,7 @@ int OperationFailed(const string& Object, LNGID Title, LNGID Description)
 	{
 		string *s = nullptr;
 		Msgs[2] = strReason;
-		for (size_t i = 3; i < LineCount - 4 - (SwitchBtn? 1 : 0); ++i)
+		for (size_t i = 3; i < LineCount - ButtonCount; ++i)
 		{
 			s = Msg.Next(s);
 			Msgs[i] = *s;
@@ -572,17 +574,21 @@ int OperationFailed(const string& Object, LNGID Title, LNGID Description)
 	}
 	if(SwitchBtn)
 	{
-		Msgs[LineCount - 5] = MSG(MObjectLockedSwitchTo);
+		Msgs[LineCount - ButtonCount] = MSG(MObjectLockedSwitchTo);
 	}
-	Msgs[LineCount-4] = CloseBtn? MSG(MObjectLockedClose) : MSG(MDeleteRetry);
-	Msgs[LineCount-3] = MSG(MDeleteSkip);
-	Msgs[LineCount-2] = MSG(MDeleteFileSkipAll);
+	Msgs[LineCount - (AllowSkip? 4 : 2)] = CloseBtn? MSG(MObjectLockedClose) : MSG(MDeleteRetry);
+	if(AllowSkip)
+	{
+		Msgs[LineCount-3] = MSG(MDeleteSkip);
+		Msgs[LineCount-2] = MSG(MDeleteFileSkipAll);
+	}
 	Msgs[LineCount-1] = MSG(MDeleteCancel);
 	
 	int Result = -1;
 	for(;;)
 	{
-		Result = Message(MSG_WARNING|MSG_ERRORTYPE, 4 + (SwitchBtn? 1 : 0), MSG(Title), Msgs, LineCount);
+		GuardLastError gle;
+		Result = Message(MSG_WARNING|MSG_ERRORTYPE, ButtonCount, MSG(Title), Msgs, LineCount);
 
 		if(SwitchBtn)
 		{
@@ -592,6 +598,8 @@ int OperationFailed(const string& Object, LNGID Title, LNGID Description)
 				if (SUCCEEDED(pfiu->GetSwitchToHWND(&Wnd)))
 				{
 					SetForegroundWindow(Wnd);
+					if (IsIconic(Wnd))
+						ShowWindow(Wnd, SW_RESTORE);
 				}
 				continue;
 			}

@@ -328,8 +328,8 @@ int Message(
 			else
 				LenErrStr=MAX_WIDTH_MESSAGE;
 		}
-		else if (LenErrStr < MaxLength)
-			LenErrStr=MaxLength;
+		else if (LenErrStr > MaxLength)
+			MaxLength = LenErrStr;
 
 		// а теперь проврапим
 		//PtrStr=FarFormatText(ErrStr,MaxLength-(MaxLength > MAX_WIDTH_MESSAGE/2?1:0),ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
