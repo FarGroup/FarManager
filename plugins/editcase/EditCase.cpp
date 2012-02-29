@@ -96,14 +96,18 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	if (OInfo->OpenFrom==OPEN_FROMMACRO)
 	{
 		OpenMacroInfo* mi=(OpenMacroInfo*)OInfo->Data;
-		if (mi->Count&&(FMVT_INTEGER==mi->Values[0].Type||FMVT_UNKNOWN==mi->Values[0].Type))
+		if (mi->Count)
  		{
-			MenuCode=mi->Values[0].Integer;
-			if (MenuCode < 0 || MenuCode > 4)
+ 			if (FMVT_INTEGER == mi->Values[0].Type || FMVT_UNKNOWN == mi->Values[0].Type)
+ 			{
+				MenuCode=(int)mi->Values[0].Integer;
+
+				if (MenuCode < 0 || MenuCode > 4)
+					return INVALID_HANDLE_VALUE;
+			}
+			else // other var type ==> $Recycle.Bin
 				return INVALID_HANDLE_VALUE;
 		}
-		else
-			return INVALID_HANDLE_VALUE;
 	}
 
 	if (MenuCode == -1)
