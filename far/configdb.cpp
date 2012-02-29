@@ -49,6 +49,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "array.hpp"
 #include "sqlite.h"
+#include "language.hpp"
+#include "message.hpp"
 
 GeneralConfig *GeneralCfg;
 ColorsConfig *ColorsCfg;
@@ -244,12 +246,14 @@ public:
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		return
-			Open(DbName, Local) &&
+		if (
+			!Open(DbName, Local) ||
 
 			//schema
-			Exec("CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));") &&
+			!Exec("CREATE TABLE IF NOT EXISTS general_config(key TEXT NOT NULL, name TEXT NOT NULL, value BLOB, PRIMARY KEY (key, name));")
+		) return false;
 
+		if (
 			//update value statement
 			InitStmt(stmtUpdateValue, L"UPDATE general_config SET value=?1 WHERE key=?2 AND name=?3;") &&
 
@@ -264,7 +268,14 @@ public:
 
 			//enum values statement
 			InitStmt(stmtEnumValues, L"SELECT name, value FROM general_config WHERE key=?1;")
-		;
+		) return true;
+
+		stmtEnumValues.Finalize();
+		stmtDelValue.Finalize();
+		stmtGetValue.Finalize();
+		stmtInsertValue.Finalize();
+		stmtUpdateValue.Finalize();
+		return false;
 	}
 
 	virtual ~GeneralConfigDb() { }
@@ -530,22 +541,22 @@ public:
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		return
-			Open(DbName, Local) &&
+		if (
+			!Open(DbName, Local) ||
 
 			//schema
-			EnableForeignKeysConstraints() &&
+			!EnableForeignKeysConstraints() ||
 
-			Exec(
+			!Exec(
 				"CREATE TABLE IF NOT EXISTS table_keys(id INTEGER PRIMARY KEY, parent_id INTEGER NOT NULL, name TEXT NOT NULL, description TEXT, FOREIGN KEY(parent_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, UNIQUE (parent_id,name));"
 				"CREATE TABLE IF NOT EXISTS table_values(key_id INTEGER NOT NULL, name TEXT NOT NULL, value BLOB, FOREIGN KEY(key_id) REFERENCES table_keys(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (key_id, name), CHECK (key_id <> 0));"
-			) &&
+			) ||
 
 			//root key (needs to be before the transaction start)
-			Exec("INSERT OR IGNORE INTO table_keys VALUES (0,0,\"\",\"Root - do not edit\");") &&
+			!Exec("INSERT OR IGNORE INTO table_keys VALUES (0,0,\"\",\"Root - do not edit\");")
+		) return false;
 
-			BeginTransaction() &&
-
+		if (
 			//create key statement
 			InitStmt(stmtCreateKey, L"INSERT INTO table_keys VALUES (NULL,?1,?2,?3);") &&
 
@@ -571,8 +582,21 @@ public:
 			InitStmt(stmtDelValue, L"DELETE FROM table_values WHERE key_id=?1 AND name=?2;") &&
 
 			//delete tree statement
-			InitStmt(stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;")
-		;
+			InitStmt(stmtDeleteTree, L"DELETE FROM table_keys WHERE id=?1 AND id<>0;") &&
+
+			BeginTransaction()
+		) return true;
+
+		stmtDeleteTree.Finalize();
+		stmtDelValue.Finalize();
+		stmtEnumValues.Finalize();
+		stmtEnumKeys.Finalize();
+		stmtGetValue.Finalize();
+		stmtSetValue.Finalize();
+		stmtSetKeyDescription.Finalize();
+		stmtFindKey.Finalize();
+		stmtCreateKey.Finalize();
+		return false;
 	}
 
 	virtual ~HierarchicalConfigDb() { EndTransaction(); }
@@ -951,12 +975,14 @@ public:
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		return
-			Open(DbName, Local) &&
+		if (
+			!Open(DbName, Local) ||
 
 			//schema
-			Exec("CREATE TABLE IF NOT EXISTS colors(name TEXT NOT NULL PRIMARY KEY, value BLOB);") &&
+			!Exec("CREATE TABLE IF NOT EXISTS colors(name TEXT NOT NULL PRIMARY KEY, value BLOB);")
+		) return false;
 
+		if (
 			//update value statement
 			InitStmt(stmtUpdateValue, L"UPDATE colors SET value=?1 WHERE name=?2;") &&
 
@@ -968,7 +994,13 @@ public:
 
 			//delete value statement
 			InitStmt(stmtDelValue, L"DELETE FROM colors WHERE name=?1;")
-			;
+		) return true;
+
+		stmtDelValue.Finalize();
+		stmtGetValue.Finalize();
+		stmtInsertValue.Finalize();
+		stmtUpdateValue.Finalize();
+		return false;
 	}
 
 	virtual ~ColorsConfigDb() { }
@@ -1090,16 +1122,18 @@ public:
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		return
-			Open(DbName, Local) &&
+		if (
+			!Open(DbName, Local) ||
 
 			//schema
-			EnableForeignKeysConstraints() &&
-			Exec(
+			!EnableForeignKeysConstraints() ||
+			!Exec(
 			"CREATE TABLE IF NOT EXISTS filetypes(id INTEGER PRIMARY KEY, weight INTEGER NOT NULL, mask TEXT, description TEXT);"
 			"CREATE TABLE IF NOT EXISTS commands(ft_id INTEGER NOT NULL, type INTEGER NOT NULL, enabled INTEGER NOT NULL, command TEXT, FOREIGN KEY(ft_id) REFERENCES filetypes(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (ft_id, type));"
-			) &&
+			)
+	   ) return false;
 
+		if (
 			//add new type and reorder statements
 			InitStmt(stmtReorder, L"UPDATE filetypes SET weight=weight+1 WHERE weight>(CASE ?1 WHEN 0 THEN 0 ELSE (SELECT weight FROM filetypes WHERE id=?1) END);") &&
 			InitStmt(stmtAddType, L"INSERT INTO filetypes VALUES (NULL,(CASE ?1 WHEN 0 THEN 1 ELSE (SELECT weight FROM filetypes WHERE id=?1)+1 END),?2,?3);") &&
@@ -1134,9 +1168,23 @@ public:
 			//get weight and set weight statements
 			InitStmt(stmtGetWeight, L"SELECT weight FROM filetypes WHERE id=?1;") &&
 			InitStmt(stmtSetWeight, L"UPDATE filetypes SET weight=?1 WHERE id=?2;")
-		;
-	}
+		) return true;
 
+		stmtSetWeight.Finalize();
+      stmtGetWeight.Finalize();
+		stmtDelType.Finalize();
+		stmtEnumMasksForType.Finalize();
+		stmtEnumMasks.Finalize();
+		stmtEnumTypes.Finalize();
+		stmtGetCommand.Finalize();
+		stmtSetCommand.Finalize();
+		stmtUpdateType.Finalize();
+		stmtGetDescription.Finalize();
+		stmtGetMask.Finalize();
+		stmtAddType.Finalize();
+		stmtReorder.Finalize();
+		return false;
+	}
 
 	bool EnumMasks(DWORD Index, unsigned __int64 *id, string &strMask)
 	{
@@ -1410,15 +1458,15 @@ public:
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		return
-			Open(DbName, Local) &&
+		if (
+			!Open(DbName, Local) ||
 
 			//schema
-			SetWALJournalingMode() &&
+			!SetWALJournalingMode() ||
 
-			EnableForeignKeysConstraints() &&
+			!EnableForeignKeysConstraints() ||
 
-			Exec(
+			!Exec(
 				"CREATE TABLE IF NOT EXISTS cachename(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);"
 				"CREATE TABLE IF NOT EXISTS preload(cid INTEGER NOT NULL PRIMARY KEY, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
 				"CREATE TABLE IF NOT EXISTS signatures(cid INTEGER NOT NULL PRIMARY KEY, signature TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
@@ -1435,8 +1483,10 @@ public:
 #endif
 				"CREATE TABLE IF NOT EXISTS exports(cid INTEGER NOT NULL, export TEXT NOT NULL, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, export));"
 				"CREATE TABLE IF NOT EXISTS menuitems(cid INTEGER NOT NULL, type INTEGER NOT NULL, number INTEGER NOT NULL, guid TEXT NOT NULL, name TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (cid, type, number));"
-			) &&
+			)
+		) return false;
 
+      if (
 			//get menu item text and guid statement
 			InitStmt(stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;") &&
 
@@ -1531,7 +1581,44 @@ public:
 
 			//enum cache names statement
 			InitStmt(stmtEnumCache, L"SELECT name FROM cachename ORDER BY name;")
-		;
+		) return true;
+
+		stmtEnumCache.Finalize();
+		stmtSetVersion.Finalize();
+		stmtSetMinFarVersion.Finalize();
+		stmtSetFlags.Finalize();
+#if defined(MANTIS_0000466)
+		stmtSetMacroFuncs.Finalize();
+#endif
+		stmtSetPrefix.Finalize();
+		stmtSetDescription.Finalize();
+		stmtSetAuthor.Finalize();
+		stmtSetTitle.Finalize();
+		stmtSetGuid.Finalize();
+		stmtSetExportState.Finalize();
+		stmtSetSignature.Finalize();
+		stmtSetPreloadState.Finalize();
+		stmtGetVersion.Finalize();
+		stmtGetMinFarVersion.Finalize();
+		stmtGetFlags.Finalize();
+#if defined(MANTIS_0000466)
+		stmtGetMacroFuncs.Finalize();
+#endif
+		stmtGetPrefix.Finalize();
+		stmtGetDescription.Finalize();
+		stmtGetAuthor.Finalize();
+		stmtGetTitle.Finalize();
+		stmtGetGuid.Finalize();
+		stmtGetExportState.Finalize();
+		stmtGetSignature.Finalize();
+		stmtGetPreloadState.Finalize();
+		stmtCountCacheNames.Finalize();
+		stmtDelCache.Finalize();
+		stmtFindCacheName.Finalize();
+		stmtCreateCache.Finalize();
+		stmtSetMenuItem.Finalize();
+		stmtGetMenuItem.Finalize();
+		return false;
 	}
 
 	virtual ~PluginsCacheConfigDb() {}
@@ -1792,12 +1879,14 @@ public:
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		return
-			Open(DbName, Local) &&
+		if (
+			!Open(DbName, Local) ||
 
 			//schema
-			Exec("CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));") &&
+			!Exec("CREATE TABLE IF NOT EXISTS pluginhotkeys(pluginkey TEXT NOT NULL, menuguid TEXT NOT NULL, type INTEGER NOT NULL, hotkey TEXT, PRIMARY KEY(pluginkey, menuguid, type));")
+		) return false;
 
+		if (
 			//get hotkey statement
 			InitStmt(stmtGetHotkey, L"SELECT hotkey FROM pluginhotkeys WHERE pluginkey=?1 AND menuguid=?2 AND type=?3;") &&
 
@@ -1809,7 +1898,13 @@ public:
 
 			//check if exist hotkeys of specific type statement
 			InitStmt(stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1")
-		;
+		) return true;
+
+      stmtCheckForHotkeys.Finalize();
+		stmtDelHotkey.Finalize();
+		stmtSetHotkey.Finalize();
+		stmtGetHotkey.Finalize();
+		return false;
 	}
 
 	virtual ~PluginsHotkeysConfigDb() {}
@@ -1980,31 +2075,33 @@ public:
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		return
-			Open(DbName, Local) &&
+		if (
+			!Open(DbName, Local) ||
 
 			//schema
-			SetWALJournalingMode() &&
+			!SetWALJournalingMode() ||
 
-			EnableForeignKeysConstraints() &&
+			!EnableForeignKeysConstraints() ||
 			//command,view,edit,folder,dialog history
-			Exec(
+			!Exec(
 				"CREATE TABLE IF NOT EXISTS history(id INTEGER PRIMARY KEY, kind INTEGER NOT NULL, key TEXT NOT NULL, type INTEGER NOT NULL, lock INTEGER NOT NULL, name TEXT NOT NULL, time INTEGER NOT NULL, guid TEXT NOT NULL, file TEXT NOT NULL, data TEXT NOT NULL);"
 				"CREATE INDEX IF NOT EXISTS history_idx1 ON history (kind, key);"
 				"CREATE INDEX IF NOT EXISTS history_idx2 ON history (kind, key, time);"
 				"CREATE INDEX IF NOT EXISTS history_idx3 ON history (kind, key, lock DESC, time DESC);"
 				"CREATE INDEX IF NOT EXISTS history_idx4 ON history (kind, key, time DESC);"
-			) &&
+			) ||
 			//view,edit file positions and bookmarks history
-			Exec(
+			!Exec(
 				"CREATE TABLE IF NOT EXISTS editorposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, time INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, codepage INTEGER NOT NULL);"
 				"CREATE TABLE IF NOT EXISTS editorbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, line INTEGER NOT NULL, linepos INTEGER NOT NULL, screenline INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES editorposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"
 				"CREATE INDEX IF NOT EXISTS editorposition_history_idx1 ON editorposition_history (time DESC);"
 				"CREATE TABLE IF NOT EXISTS viewerposition_history(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, time INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, hex INTEGER NOT NULL, codepage INTEGER NOT NULL);"
 				"CREATE TABLE IF NOT EXISTS viewerbookmarks_history(pid INTEGER NOT NULL, num INTEGER NOT NULL, filepos INTEGER NOT NULL, leftpos INTEGER NOT NULL, FOREIGN KEY(pid) REFERENCES viewerposition_history(id) ON UPDATE CASCADE ON DELETE CASCADE, PRIMARY KEY (pid, num));"
 				"CREATE INDEX IF NOT EXISTS viewerposition_history_idx1 ON viewerposition_history (time DESC);"
-			) &&
+			)
+		) return false;
 
+		if (
 			//enum items order by time statement
 			InitStmt(stmtEnum, L"SELECT id, name, type, lock, time, guid, file, data FROM history WHERE kind=?1 AND key=?2 ORDER BY time;") &&
 
@@ -2082,7 +2179,35 @@ public:
 
 			//delete old viewer positions statement
 			InitStmt(stmtDeleteOldViewer, L"DELETE FROM viewerposition_history WHERE time<?1 AND id NOT IN (SELECT id FROM viewerposition_history ORDER BY time DESC LIMIT ?2);")
-		;
+		) return true;
+
+		stmtDeleteOldViewer.Finalize();
+		stmtDeleteOldEditor.Finalize();
+		stmtGetViewerBookmark.Finalize();
+		stmtGetViewerPos.Finalize();
+		stmtSetViewerBookmark.Finalize();
+		stmtSetViewerPos.Finalize();
+		stmtGetEditorBookmark.Finalize();
+		stmtGetEditorPos.Finalize();
+		stmtSetEditorBookmark.Finalize();
+		stmtSetEditorPos.Finalize();
+		stmtGetNewest.Finalize();
+		stmtGetPrev.Finalize();
+		stmtGetNext.Finalize();
+		stmtSetLock.Finalize();
+		stmtGetLock.Finalize();
+		stmtDelUnlocked.Finalize();
+		stmtCount.Finalize();
+		stmtGetNewestName.Finalize();
+		stmtGetNameAndType.Finalize();
+		stmtGetName.Finalize();
+		stmtAdd.Finalize();
+		stmtEnumLargeHistories.Finalize();
+		stmtDeleteOldUnlocked.Finalize();
+		stmtDel.Finalize();
+		stmtEnumDesc.Finalize();
+		stmtEnum.Finalize();
+		return false;
 	}
 
 	virtual ~HistoryConfigDb() {}
@@ -2400,17 +2525,18 @@ public:
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		return
-			Open(DbName, Local) &&
-
+		if (
+			!Open(DbName, Local) ||
 			//schema
-			Exec(
+			!Exec(
 				"CREATE TABLE IF NOT EXISTS constants(name TEXT NOT NULL, value TEXT, type TEXT NOT NULL, PRIMARY KEY (name));"
 				"CREATE TABLE IF NOT EXISTS variables(name TEXT NOT NULL, value TEXT, type TEXT NOT NULL, PRIMARY KEY (name));"
 				"CREATE TABLE IF NOT EXISTS functions(guid TEXT NOT NULL, name TEXT NOT NULL, flags TEXT, sequence TEXT, syntax TEXT NOT NULL, description TEXT, PRIMARY KEY (guid, name));"
 				"CREATE TABLE IF NOT EXISTS key_macros(area TEXT NOT NULL, key TEXT NOT NULL, flags TEXT, sequence TEXT, description TEXT, PRIMARY KEY (area, key));"
-			) &&
-
+			)
+		) return false;
+		
+		if (
 			InitStmt(stmtConstsEnum, L"SELECT name, value, type FROM constants ORDER BY name;") &&
 			InitStmt(stmtGetConstValue, L"SELECT value, type FROM constants WHERE name=?1;") &&
 			InitStmt(stmtSetConstValue, L"INSERT OR REPLACE INTO constants VALUES (?1,?2,?3);") &&
@@ -2428,7 +2554,27 @@ public:
 			InitStmt(stmtKeyMacrosEnum, L"SELECT key, flags, sequence, description FROM key_macros WHERE area=?1 ORDER BY key;") &&
 			InitStmt(stmtSetKeyMacro, L"INSERT OR REPLACE INTO key_macros VALUES (?1,?2,?3,?4,?5);") &&
 			InitStmt(stmtDelKeyMacro, L"DELETE FROM key_macros WHERE area=?1 AND key=?2;")
-		;
+		) return true;
+
+		stmtDelKeyMacro.Finalize();
+		stmtSetKeyMacro.Finalize();
+		stmtKeyMacrosEnum.Finalize();
+
+		stmtDelFunction.Finalize();
+		stmtSetFunction.Finalize();
+		stmtFunctionsEnum.Finalize();
+
+		stmtDelVar.Finalize();
+		stmtSetVarValue.Finalize();
+		stmtGetVarValue.Finalize();
+		stmtVarsEnum.Finalize();
+
+		stmtDelConst.Finalize();
+		stmtSetConstValue.Finalize();
+		stmtGetConstValue.Finalize();
+		stmtConstsEnum.Finalize();
+
+		return false;
 	}
 
 	virtual ~MacroConfigDb() { }
@@ -2841,19 +2987,40 @@ HierarchicalConfig *CreatePanelModeConfig()
 	return new HierarchicalConfigDb(L"panelmodes.db");
 }
 
+static int nProblem = 0;
+static const wchar_t* sProblem[10];
+
+void ShowProblemDb()
+{
+	if (nProblem > 0)
+	{
+		const wchar_t* msgs[ARRAYSIZE(sProblem)+1];
+      memcpy(msgs, sProblem, nProblem*sizeof(sProblem[0]));
+		msgs[nProblem] = MSG(MOk);
+		Message(MSG_WARNING, 1, MSG(MProblemDb), msgs, nProblem+1);
+	}
+}
+
 void InitDb()
 {
-	GeneralCfg = new GeneralConfigDb();
-	ColorsCfg = new ColorsConfigDb();
-	AssocConfig = new AssociationsConfigDb();
-	PlCacheCfg = new PluginsCacheConfigDb();
-	PlHotkeyCfg = new PluginsHotkeysConfigDb();
-	HistoryCfg = new HistoryConfigDb();
-	MacroCfg = new MacroConfigDb();
+  #define NEW_DB(pCfg, DBTY) \
+   DBTY *pCfg##DBTY = new DBTY(); pCfg = pCfg##DBTY; \
+   if (nProblem < (int)ARRAYSIZE(sProblem) && pCfg##DBTY->InitStatus(sProblem[nProblem]) > 0) \
+      ++nProblem;
+
+	nProblem = 0;
+	NEW_DB(GeneralCfg, GeneralConfigDb)
+	NEW_DB(ColorsCfg, ColorsConfigDb)
+	NEW_DB(AssocConfig, AssociationsConfigDb)
+	NEW_DB(PlCacheCfg, PluginsCacheConfigDb)
+	NEW_DB(PlHotkeyCfg, PluginsHotkeysConfigDb)
+	NEW_DB(HistoryCfg, HistoryConfigDb)
+	NEW_DB(MacroCfg, MacroConfigDb)
 }
 
 void ReleaseDb()
 {
+	nProblem = 0;
 	delete MacroCfg;
 	delete HistoryCfg;
 	delete PlHotkeyCfg;

@@ -42,6 +42,7 @@ public:
 
 	SQLiteStmt();
 	~SQLiteStmt();
+	bool Finalize();
 	SQLiteStmt& Reset();
 	bool Step();
 	bool StepAndReset();
@@ -64,6 +65,8 @@ public:
 class SQLiteDb {
 	struct sqlite3 *pDb;
 	string strPath;
+	string strName;
+	int init_status;
 
 public:
 	SQLiteDb();
@@ -82,4 +85,5 @@ public:
 	bool SetWALJournalingMode();
 	bool EnableForeignKeysConstraints();
 	virtual bool InitializeImpl(const wchar_t* DbName, bool Local) = 0;
+	int InitStatus(const wchar_t* &name);
 };

@@ -132,6 +132,8 @@ static int MainProcess(
 		SetRealColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 		GetSystemInfo(&SystemInfo);
 
+		ShowProblemDb();
+
 		if (*lpwszEditName || *lpwszViewName)
 		{
 			Opt.OnlyEditorViewerUsed=1;

@@ -269,6 +269,7 @@ extern HistoryConfig *HistoryCfg;
 extern MacroConfig *MacroCfg;
 
 void InitDb();
+void ShowProblemDb();
 void ReleaseDb();
 bool ExportImportConfig(bool Export, const wchar_t *XML);
 void ClearPluginsCache();

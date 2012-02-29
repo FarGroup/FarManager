@@ -58,9 +58,17 @@ SQLiteStmt::SQLiteStmt():
 {
 }
 
+bool SQLiteStmt::Finalize()
+{
+	if (pStmt)
+		return sqlite3_finalize(pStmt) == SQLITE_OK;
+	else
+		return true;
+}
+
 SQLiteStmt::~SQLiteStmt()
 {
-	sqlite3_finalize(pStmt);
+	Finalize();
 }
 
 SQLiteStmt& SQLiteStmt::Reset()
@@ -147,9 +155,9 @@ int SQLiteStmt::GetColType(int Col)
 
 
 SQLiteDb::SQLiteDb():
-	pDb(nullptr)
+	pDb(nullptr), init_status(-1)
 {
-};
+}
 
 SQLiteDb::~SQLiteDb()
 {
@@ -164,15 +172,25 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local)
 
 void SQLiteDb::Initialize(const wchar_t* DbName, bool Local)
 {
+	strName = DbName;
+	init_status = 0;
 	if (!InitializeImpl(DbName, Local))
 	{
 		Close();
+		++init_status;
 		if (!apiMoveFileEx(strPath, strPath+L".bad", MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName, Local))
 		{
 			Close();
+			++init_status;
 			InitializeImpl(L":memory:", Local);
 		}
 	}
+}
+
+int SQLiteDb::InitStatus(const wchar_t* &name)
+{
+	name = strName.CPtr();
+	return init_status;
 }
 
 bool SQLiteDb::Exec(const char *Command)

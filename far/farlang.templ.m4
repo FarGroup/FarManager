@@ -20121,6 +20121,15 @@ upd:"Close file"
 upd:"Close file"
 upd:"Close file"
 
+MProblemDb
+"Проблемы с БД настроек"
+"Problem configuration DB"
+upd:"Problem configuration DB"
+upd:"Problem configuration DB"
+upd:"Problem configuration DB"
+upd:"Problem configuration DB"
+upd:"Problem configuration DB"
+
 #Must be the last
 MNewFileName
 l:
