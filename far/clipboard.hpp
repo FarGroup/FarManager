@@ -43,10 +43,12 @@ wchar_t* PasteFromClipboard();
 wchar_t* PasteFromClipboardEx(int max);
 BOOL EmptyInternalClipboard();
 
+#define COUNT_INTERNAL_CLIPBOARD 5
+
 class Clipboard
 {
-	static HGLOBAL hInternalClipboard[5];
-	static UINT    uInternalClipboardFormat[5];
+	static HGLOBAL hInternalClipboard[COUNT_INTERNAL_CLIPBOARD];
+	static UINT    uInternalClipboardFormat[COUNT_INTERNAL_CLIPBOARD];
 
 	static bool UseInternalClipboard;
 	static bool InternalClipboardOpen;
@@ -68,6 +70,8 @@ public:
 	wchar_t *Paste();
 	wchar_t *PasteEx(int max);
 	wchar_t *PasteFormat(const wchar_t *Format);
+
+	bool InternalCopy(bool FromWin);
 
 private:
 

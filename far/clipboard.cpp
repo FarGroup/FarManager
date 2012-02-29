@@ -42,8 +42,8 @@ const wchar_t FAR_VerticalBlock_Unicode[] = L"FAR_VerticalBlock_Unicode";
 
 /* ------------------------------------------------------------ */
 // CF_OEMTEXT CF_TEXT CF_UNICODETEXT CF_HDROP
-HGLOBAL Clipboard::hInternalClipboard[5] = {};
-UINT    Clipboard::uInternalClipboardFormat[5] = {0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
+HGLOBAL Clipboard::hInternalClipboard[COUNT_INTERNAL_CLIPBOARD] = {};
+UINT    Clipboard::uInternalClipboardFormat[COUNT_INTERNAL_CLIPBOARD] = {0xFFFF,0xFFFF,0xFFFF,0xFFFF,0xFFFF};
 
 bool Clipboard::UseInternalClipboard = false;
 bool Clipboard::InternalClipboardOpen = false;
@@ -328,8 +328,8 @@ bool Clipboard::CopyHDROP(LPVOID NamesArray, size_t NamesArraySize)
 				Drop->fWide = TRUE;
 				memcpy(Drop+1,NamesArray,NamesArraySize);
 				GlobalUnlock(hMemory);
-				EmptyClipboard();
-				if(SetClipboardData(CF_HDROP, hMemory))
+				Empty();
+				if(SetData(CF_HDROP, hMemory))
 				{
 					Result = true;
 				}
@@ -500,6 +500,29 @@ wchar_t *Clipboard::PasteFormat(const wchar_t *Format)
 	}
 
 	return ClipText;
+}
+
+bool Clipboard::InternalCopy(bool FromWin)
+{
+	bool Ret=false;
+	bool OldUseInternalClipboard=SetUseInternalClipboardState(FromWin?false:true);
+
+	UINT uFormat;
+	HANDLE hClipData=GetData(uFormat = CF_UNICODETEXT);
+
+	if (!hClipData)
+		hClipData = GetData(uFormat = CF_HDROP);
+
+	if (hClipData)
+	{
+		SetUseInternalClipboardState(!Clipboard::GetUseInternalClipboardState());
+		SetData(uFormat,hClipData);
+		Ret=true;
+	}
+
+	SetUseInternalClipboardState(OldUseInternalClipboard);
+
+	return Ret;
 }
 
 /* ------------------------------------------------------------ */

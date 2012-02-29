@@ -3771,20 +3771,16 @@ static bool clipFunc(const TMacroFunction*)
 		case 3: // Copy Win to internal, "S" - ignore
 		case 4: // Copy internal to Win, "S" - ignore
 		{
-			bool OldUseInternalClipboard=Clipboard::SetUseInternalClipboardState((cmdType-3)?true:false);
-			TVar varClip(L"");
-			wchar_t *ClipText=PasteFromClipboard();
+			Clipboard clip;
 
-			if (ClipText)
+			Ret=FALSE;
+
+			if (clip.Open())
 			{
-				varClip=ClipText;
-				xf_free(ClipText);
+				Ret=clip.InternalCopy((cmdType-3)?true:false)?1:0;
+				clip.Close();
 			}
 
-			Clipboard::SetUseInternalClipboardState(!Clipboard::GetUseInternalClipboardState());
-			Ret=CopyToClipboard(varClip.s());
-
-			Clipboard::SetUseInternalClipboardState(OldUseInternalClipboard);
 			VMStack.Push(TVar((__int64)Ret)); // 0!  ???
 			return Ret?true:false;
 		}
