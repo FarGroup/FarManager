@@ -1,3 +1,17 @@
+svs 29.02.2012 10:53:34 +0400 - build 2498
+
+1. Macro: у функции mmode добавлен Action = 3 (CallPluginEnableMacro)
+   Позволяет разрешать/запрещать макросы при вызове плагина макфункцией CallPlugin.
+     mmode(3,0) - запретить
+     mmode(3,1) - разрешить
+     mmode(3,2) - менять режим (swap)
+   Возвращает предыдущее значение.
+   Имеет влияние только на текущеую макропоследовательность.
+   По умолчанию запретить.
+
+   Например, в редакторе рисуем с помощью DrawLine рисуем небольшой прямоугольник
+   mmode(3,1) callplugin("C941E865-9C29-485C-99B3-0C710940F2D8","ShiftRight ShiftRight ShiftDown ShiftDown ShiftLeft ShiftLeft ShiftUp ShiftUp ShiftRight Esc") 
+
 drkns 28.02.2012 16:57:48 +0200 - build 2497
 
 1. Продолжение 2493.

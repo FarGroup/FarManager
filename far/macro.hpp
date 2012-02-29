@@ -103,7 +103,8 @@ static const MACROFLAGS_MFLAGS
 
 	MFLAGS_POSTFROMPLUGIN          =0x0000000020000000, // последовательность пришла от АПИ
 	MFLAGS_NEEDSAVEMACRO           =0x0000000040000000, // необходимо этот макрос запомнить
-	MFLAGS_DISABLEMACRO            =0x0000000080000000; // этот макрос отключен
+	MFLAGS_DISABLEMACRO            =0x0000000080000000, // этот макрос отключен
+	MFLAGS_CALLPLUGINENABLEMACRO   =0x0000000100000000; // разрешить макросы при вызове плагина функцией CallPlugin
 
 
 // коды возврата для KeyMacro::GetCurRecord()
@@ -353,6 +354,8 @@ class KeyMacro
 		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);
 		void DelMacro(size_t Index);
+
+		int GetCurrentCallPluginMode();
 };
 
 BOOL KeyMacroToText(int Key,string &strKeyText0);
