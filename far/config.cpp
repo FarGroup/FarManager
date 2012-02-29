@@ -974,7 +974,6 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyKeyMacros,L"MacroReuseRules",&Opt.Macro.MacroReuseRules,0, 0},
 	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyKeyMacros,L"DateFormat",&Opt.Macro.strDateFormat, 0, L"%a %b %d %H:%M:%S %Z %Y"},
 	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyKeyMacros,L"CONVFMT",&Opt.Macro.strMacroCONVFMT, 0, L"%.6g"},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyKeyMacros,L"CallPluginRules",&Opt.Macro.CallPluginRules,0, 0},
 
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPolicies,L"ShowHiddenDrives",&Opt.Policies.ShowHiddenDrives,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPolicies,L"DisabledOptions",&Opt.Policies.DisabledOptions,0, 0},

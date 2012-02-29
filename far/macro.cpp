@@ -4558,7 +4558,7 @@ static bool callpluginFunc(const TMacroFunction*)
 
 			int CallPluginRules=CtrlObject->Macro.GetCurrentCallPluginMode();
 
-			if( CallPluginRules == 1 || (CallPluginRules == -1 && Opt.Macro.CallPluginRules) )
+			if( CallPluginRules == 1)
 				CtrlObject->Macro.PushState(true);
 
 			int ResultCallPlugin=0;
@@ -4566,7 +4566,7 @@ static bool callpluginFunc(const TMacroFunction*)
 			if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
 				Ret=(__int64)ResultCallPlugin;
 
-			if( CallPluginRules == 1 || (CallPluginRules == -1 && Opt.Macro.CallPluginRules) )
+			if( CallPluginRules == 1)
 				CtrlObject->Macro.PopState();
 
 		}
@@ -5144,11 +5144,11 @@ done:
 					break;
 				}
 
-				case 3: // Opt.Macro.CallPluginRules
+				case 3: // CallPlugin Rules
 				{
 					Result=MR->Flags&MFLAGS_CALLPLUGINENABLEMACRO?1:0;
 
-					if (nValue == 2) // изменяет режим Opt.Macro.CallPluginRules
+					if (nValue == 2) // изменяет режим
 					{
 						if (MR->Flags&MFLAGS_CALLPLUGINENABLEMACRO)
 							nValue=0;
@@ -5158,10 +5158,10 @@ done:
 
 					switch (nValue)
 					{
-						case 0: // Opt.Macro.CallPluginRules=0, блокировать макросы при вызове плагина функцией CallPlugin
+						case 0: // блокировать макросы при вызове плагина функцией CallPlugin
 							MR->Flags&=~MFLAGS_CALLPLUGINENABLEMACRO;
 							break;
-						case 1: // Opt.Macro.CallPluginRules=1, разрешить макросы
+						case 1: // разрешить макросы
 							MR->Flags|=MFLAGS_CALLPLUGINENABLEMACRO;
 							break;
 					}
@@ -5778,12 +5778,12 @@ done:
 						}
 					}
 
-					if (MFunc->IntFlags&IMFF_DISABLEINTINPUT)
+					if ((MFunc->IntFlags&IMFF_DISABLEINTINPUT) || (MFunc->Code==MCODE_F_CALLPLUGIN && !(MR->Flags&MFLAGS_CALLPLUGINENABLEMACRO)))
 						InternalInput++;
 
 					MFunc->Func(MFunc);
 
-					if (MFunc->IntFlags&IMFF_DISABLEINTINPUT)
+					if ((MFunc->IntFlags&IMFF_DISABLEINTINPUT) || (MFunc->Code==MCODE_F_CALLPLUGIN && !(MR->Flags&MFLAGS_CALLPLUGINENABLEMACRO)))
 						InternalInput--;
 
 					if (MFunc->IntFlags&IMFF_UNLOCKSCREEN)
@@ -6272,15 +6272,7 @@ void KeyMacro::RegisterMacroIntFunction()
 	if (!InitedInternalFuncs)
 	{
 		for(size_t I=0; intMacroFunction[I].Name; ++I)
-		{
-			if (intMacroFunction[I].Code == MCODE_F_CALLPLUGIN)
-			{
-				if(!Opt.Macro.CallPluginRules)
-					intMacroFunction[I].IntFlags |= IMFF_DISABLEINTINPUT;
-			}
-
 			KeyMacro::RegisterMacroFunction(intMacroFunction+I);
-		}
 
 		InitedInternalFuncs=true;
 	}

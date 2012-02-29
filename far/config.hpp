@@ -452,7 +452,6 @@ struct MacroOptions
 	DWORD DisableMacro; // параметры /m или /ma или /m....
 	DWORD KeyMacroCtrlDot, KeyMacroRCtrlDot; // аля KEY_CTRLDOT/KEY_RCTRLDOT
 	DWORD KeyMacroCtrlShiftDot, KeyMacroRCtrlShiftDot; // аля KEY_CTRLSHIFTDOT/KEY_RCTRLSHIFTDOT
-	int CallPluginRules; // 0 - блокировать макросы при вызове плагина, 1 - разрешить макросы (ахтунг!)
 	string strMacroCONVFMT; // формат преобразования double в строку
 	string strDateFormat; // Для $Date
 };
