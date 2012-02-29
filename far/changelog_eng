@@ -3,6 +3,60 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 29.02.2012 17:05:06 +0400 - build 2503
+
+1. a typo crashed the viewer when reverse search was performed
+
+svs 29.02.2012 16:52:09 +0400 - build 2502
+
+1. Clipboard::InternalCopy() is added.
+   It copies binary data between inner and system clipboards.
+   It is used in clip(3|4) macrofunction.
+
+2. Clipboard::CopyHDROP() is given an ability of work with things other than the system clipboard.
+
+
+drkns 29.02.2012 13:55:44 +0200 - build 2501
+
+1. A couple of minor issues.
+
+svs 29.02.2012 12:41:31 +0400 - build 2500
+
+1. Continuation of 2498.
+   Removing KeyMacros.CallPluginRules from the configuration in favor of mmode(3)
+
+drkns 29.02.2012 09:42:16 +0200 - build 2499
+
+1. Continuation of 2493.
+
+svs 29.02.2012 10:53:34 +0400 - build 2498
+
+1. Macro: mmode function is appended with Action = 3 (CallPluginEnableMacro)
+   It lets enabling/disabling macros when the plugin is invoked with CallPlugin macrofunction.
+     mmode(3,0) - disable
+     mmode(3,1) - enable
+     mmode(3,2) - switch the mode (swap)
+   The previous value is returned.
+   It influences the current macro sequence only.
+   By default it is disabled.
+
+   For example, let's draw in editor a small rectangle with DrawLine
+   mmode(3,1) callplugin("C941E865-9C29-485C-99B3-0C710940F2D8","ShiftRight ShiftRight ShiftDown ShiftDown ShiftLeft ShiftLeft ShiftUp ShiftUp ShiftRight Esc") 
+
+drkns 28.02.2012 16:57:48 +0200 - build 2497
+
+1. Continuation of 2493.
+
+w17 28.02.2012 14:09:10 +0400 - build 2496
+
+1. gcc build fix
+
+drkns 27.02.2012 21:09:02 +0200 - build 2495
+
+1. Continuation of 2493 - using IFileIsInUse interface (benefits: ability of switching to locking app, ability of closing the file remotely).
+
+2. Corrections in Message dialog sizing: now buttons must be fitting the borders.
+
 drkns 26.02.2012 23:36:01 +0200 - build 2494
 
 1. Correction of 2493.
