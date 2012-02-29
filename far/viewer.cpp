@@ -1222,7 +1222,7 @@ __int64 Viewer::EndOfScreen( int line )
 		pos = Strings[Y2-Y1+line]->nFilePos + Strings[Y2-Y1+line]->linesize;
 		if ( !line && !VM.Wrap && Strings[Y2-Y1]->linesize > 0 )
 		{
-			vseek(Strings[Y1-Y2]->nFilePos, SEEK_SET);
+			vseek(Strings[Y2-Y1]->nFilePos, SEEK_SET);
 			int col = 0, rmargin = (int)LeftPos + Width;
 			wchar_t ch;
 			for (;;)
