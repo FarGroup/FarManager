@@ -193,7 +193,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 	if (Opt.Add2PlugMenu)
 	{
-		PluginMenuStrings[0]=GetMsg(MSetAnotherDir);
+		PluginMenuStrings[0]=GetMsg(MSetSameDir);
         Info->PluginMenu.Guids=&SameFolderMenuGuid;
         Info->PluginMenu.Strings=PluginMenuStrings;
         Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
@@ -201,7 +201,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 	if (Opt.Add2DisksMenu)
 	{
-		DiskMenuStrings[0]=(wchar_t*)GetMsg(MSetAnotherDir);
+		DiskMenuStrings[0]=(wchar_t*)GetMsg(MSetSameDir);
         Info->DiskMenu.Guids=&SameFolderMenuGuid;
         Info->DiskMenu.Strings=DiskMenuStrings;
         Info->DiskMenu.Count=ARRAYSIZE(DiskMenuStrings);
