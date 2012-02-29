@@ -1285,7 +1285,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					InsertQuote(strCopyDlgValue);
 				}
 
-				if (DestList.Set(strCopyDlgValue) && !wcspbrk(strCopyDlgValue,ReservedFilenameSymbols))
+				if (DestList.Set(strCopyDlgValue))
 				{
 					// Запомнить признак использования фильтра. KM
 					UseFilter=CopyDlg[ID_SC_USEFILTER].Selected;

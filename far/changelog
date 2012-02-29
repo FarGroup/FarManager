@@ -1,3 +1,7 @@
+drkns 29.02.2012 09:42:16 +0200 - build 2499
+
+1. Продолжение 2493.
+
 svs 29.02.2012 10:53:34 +0400 - build 2498
 
 1. Macro: у функции mmode добавлен Action = 3 (CallPluginEnableMacro)

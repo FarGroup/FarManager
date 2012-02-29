@@ -33,8 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-extern const wchar_t *ReservedFilenameSymbols;
-
 const size_t cVolumeGuidLen = 48;
 
 class NTPath:public string

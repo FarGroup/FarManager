@@ -39,8 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "imports.hpp"
 #include "vmenu.hpp"
 
-const wchar_t *ReservedFilenameSymbols = L"<>|";
-
 void NTPath::Transform()
 {
 	string& Data = *this;

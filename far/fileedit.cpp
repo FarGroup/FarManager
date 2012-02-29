@@ -650,6 +650,7 @@ void FileEditor::Init(
 			m_codepage=Opt.EdOpt.AnsiCodePageForNewFile?GetACP():GetOEMCP();
 
 		m_editor->SetCodePage(m_codepage);
+		break;
 	}
 
 	CtrlObject->Plugins->CurEditor=this;//&FEdit;
@@ -2189,9 +2190,6 @@ BOOL FileEditor::SetFileName(const string& NewFileName)
 
 	if (StrCmp(strFileName,MSG(MNewFileName)))
 	{
-		if (wcspbrk(strFileName, ReservedFilenameSymbols))
-			return FALSE;
-
 		ConvertNameToFull(strFileName, strFullFileName);
 		string strFilePath=strFullFileName;
 

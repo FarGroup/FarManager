@@ -467,6 +467,11 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 	IFileIsInUse *pfiu = nullptr;
 	LNGID Reason = MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
+	DWORD Error = GetLastError();
+	if(Error == ERROR_ACCESS_DENIED ||
+		Error == ERROR_SHARING_VIOLATION ||
+		Error == ERROR_LOCK_VIOLATION || 
+		Error == ERROR_DRIVE_LOCKED)
 	{
 		GuardLastError gl;
 		string FullName;
