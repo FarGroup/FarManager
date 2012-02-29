@@ -78,8 +78,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *psInfo)
 
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
-	HANDLE hPanel=PANEL_ACTIVE;
-
+	HANDLE SrcPanel = PANEL_ACTIVE, DstPanel = PANEL_PASSIVE;
 	PInfo.StructSize = sizeof(PInfo);
 	Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELINFO,0,&PInfo);
 	fullcmd[0]=cmd[0]=selectItem[0]=L'\0';
@@ -94,27 +93,32 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else
 	{
-		int dirSize=(int)Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,0,0);
+		if((OInfo->OpenFrom == OPEN_LEFTDISKMENU && (PInfo.Flags&PFLAGS_PANELLEFT)) ||
+		   (OInfo->OpenFrom == OPEN_RIGHTDISKMENU && !(PInfo.Flags&PFLAGS_PANELLEFT)))
+		{
+			SrcPanel = PANEL_PASSIVE;
+			DstPanel = PANEL_ACTIVE;
+		}
+		int dirSize=(int)Info.PanelControl(SrcPanel,FCTL_GETPANELDIRECTORY,0,0);
 
 		FarPanelDirectory* dirInfo=(FarPanelDirectory*)new char[dirSize];
 		dirInfo->StructSize = sizeof(FarPanelDirectory);
-		Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
+		Info.PanelControl(SrcPanel,FCTL_GETPANELDIRECTORY,dirSize,dirInfo);
 		lstrcpy(selectItem,dirInfo->Name);
 		delete[](char*)dirInfo;
 
-		if (lstrlen(selectItem))
+		if (*selectItem)
 			FSF.AddEndSlash(selectItem);
 
-		size_t Size = Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
+		size_t Size = Info.PanelControl(SrcPanel,FCTL_GETPANELITEM,PInfo.CurrentItem,0);
 		PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 		if (PPI)
 		{
 			FarGetPluginPanelItem gpi={Size, PPI};
-			Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
+			Info.PanelControl(SrcPanel,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 			lstrcat(selectItem,PPI->FileName);
 			free(PPI);
-			hPanel=PANEL_PASSIVE;
 		}
 	}
 
@@ -139,23 +143,23 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		if (*Dir)
 		{
 			FarPanelDirectory dirInfo={sizeof(FarPanelDirectory),Dir,NULL,{0},NULL};
-			Info.PanelControl(hPanel,FCTL_SETPANELDIRECTORY,0,&dirInfo);
+			Info.PanelControl(DstPanel,FCTL_SETPANELDIRECTORY,0,&dirInfo);
 		}
 
-		Info.PanelControl(hPanel,FCTL_GETPANELINFO,0,&PInfo);
+		Info.PanelControl(DstPanel,FCTL_GETPANELINFO,0,&PInfo);
 		PRI.CurrentItem=PInfo.CurrentItem;
 		PRI.TopPanelItem=PInfo.TopPanelItem;
 
 		for (size_t J=0; J < PInfo.ItemsNumber; J++)
 		{
 			bool Equal=false;
-			size_t Size = Info.PanelControl(hPanel,FCTL_GETPANELITEM,J,0);
+			size_t Size = Info.PanelControl(DstPanel,FCTL_GETPANELITEM,J,0);
 			PluginPanelItem* PPI=(PluginPanelItem*)malloc(Size);
 
 			if (PPI)
 			{
 				FarGetPluginPanelItem gpi={Size, PPI};
-				Info.PanelControl(hPanel,FCTL_GETPANELITEM,J,&gpi);
+				Info.PanelControl(DstPanel,FCTL_GETPANELITEM,J,&gpi);
 				Equal=!FSF.LStricmp(Name,FSF.PointToName(PPI->FileName));
 				free(PPI);
 			}
@@ -168,11 +172,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			}
 		}
 
-		Info.PanelControl(hPanel,FCTL_REDRAWPANEL,0,&PRI);
+		Info.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,&PRI);
 	}
 	else
 	{
-		Info.PanelControl(hPanel,FCTL_REDRAWPANEL,0,0);
+		Info.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,0);
 	}
 
 	return INVALID_HANDLE_VALUE;
@@ -189,7 +193,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 	if (Opt.Add2PlugMenu)
 	{
-		PluginMenuStrings[0]=GetMsg(MSetPassiveDir);
+		PluginMenuStrings[0]=GetMsg(MSetAnotherDir);
         Info->PluginMenu.Guids=&SameFolderMenuGuid;
         Info->PluginMenu.Strings=PluginMenuStrings;
         Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
@@ -197,7 +201,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 
 	if (Opt.Add2DisksMenu)
 	{
-		DiskMenuStrings[0]=(wchar_t*)GetMsg(MSetPassiveDir);
+		DiskMenuStrings[0]=(wchar_t*)GetMsg(MSetAnotherDir);
         Info->DiskMenu.Guids=&SameFolderMenuGuid;
         Info->DiskMenu.Strings=DiskMenuStrings;
         Info->DiskMenu.Count=ARRAYSIZE(DiskMenuStrings);

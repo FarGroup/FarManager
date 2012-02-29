@@ -1,7 +1,7 @@
 enum
 {
 	MConfig,
-	MSetPassiveDir,
+	MSetAnotherDir,
 
 	MAddSetPassiveDir2PlugMenu,
 	MAddToDisksMenu,
