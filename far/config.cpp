@@ -821,7 +821,7 @@ static struct FARConfig
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT|DRIVE_SHOW_CDROM, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"DriveDisconnetMode",&Opt.ChangeDriveDisconnetMode,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"DriveDisconnectMode",&Opt.ChangeDriveDisconnectMode,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"AutoUpdateRemoteDrive",&Opt.AutoUpdateRemoteDrive,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"FileSearchMode",&Opt.FindOpt.FileSearchMode,FINDAREA_FROM_CURRENT, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CollectFiles",&Opt.FindOpt.CollectFiles, 1, 0},

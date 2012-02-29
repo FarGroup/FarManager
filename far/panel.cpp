@@ -943,7 +943,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			GetErrorString(strError);
 			int Len1=static_cast<int>(strError.GetLength());
 			int Len2=StrLength(MSG(MChangeDriveCannotReadDisk));
-			const int DX=Max(Min(Max(Len1,Len2), ScrX-1),40), DY=8;
+			
+			const int DX=Min(Max(Len1,Len2 + 3)+11, ScrX-1), DY=8;
 			const FarDialogItem ChDiskData[]=
 			{
 				{DI_DOUBLEBOX,3,1,DX-4,DY-2,0,nullptr,nullptr,0,MSG(MError)},
@@ -1194,6 +1195,7 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 		break;
 
 	case DRIVE_REMOTE:
+	case DRIVE_REMOTE_NOT_CONNECTED:
 		{
 			int UpdateProfile=CONNECT_UPDATE_PROFILE;
 			if (MessageRemoveConnection(Drive,UpdateProfile))
@@ -2536,7 +2538,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 			RegCloseKey(hKey);
 		}
 		else
-			DCDlg[5].Selected=Opt.ChangeDriveDisconnetMode;
+			DCDlg[5].Selected=Opt.ChangeDriveDisconnectMode;
 	}
 	// скорректируем размеры диалога - дл€ дизайн”
 	DCDlg[0].X2=DCDlg[0].X1+static_cast<int>(Len1)+3;
@@ -2555,7 +2557,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	UpdateProfile=DCDlg[5].Selected?0:CONNECT_UPDATE_PROFILE;
 
 	if (IsPersistent)
-		Opt.ChangeDriveDisconnetMode=DCDlg[5].Selected;
+		Opt.ChangeDriveDisconnectMode=DCDlg[5].Selected;
 
 	return ExitCode == 7;
 }

@@ -515,7 +515,7 @@ struct Options
 	int AutoSaveSetup;
 	int SetupArgv; // количество каталогов в комюстроке ФАРа
 	int ChangeDriveMode;
-	int ChangeDriveDisconnetMode;
+	int ChangeDriveDisconnectMode;
 
 	int SaveHistory;
 	int HistoryCount;
