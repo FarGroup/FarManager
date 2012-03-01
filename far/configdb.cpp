@@ -2990,24 +2990,43 @@ HierarchicalConfig *CreatePanelModeConfig()
 static int nProblem = 0;
 static const wchar_t* sProblem[10];
 
-void ShowProblemDb()
+int ShowProblemDb()
 {
+   int rc = 0;
 	if (nProblem > 0)
 	{
-		const wchar_t* msgs[ARRAYSIZE(sProblem)+1];
+		const wchar_t* msgs[ARRAYSIZE(sProblem)+2];
       memcpy(msgs, sProblem, nProblem*sizeof(sProblem[0]));
-		msgs[nProblem] = MSG(MOk);
-		Message(MSG_WARNING, 1, MSG(MProblemDb), msgs, nProblem+1);
+		msgs[nProblem] = MSG(MShowConfigFolders);
+		msgs[nProblem+1] = MSG(MIgnore);
+		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs, nProblem+2) == 0 ? +1 : -1;
+	}
+	return rc;
+}
+
+static void check_db( SQLiteDb *pDb, bool err_report )
+{
+	const wchar_t* pname = nullptr;
+	int rc = pDb->InitStatus(pname, err_report);
+	if ( rc > 0 )
+	{ 
+		if ( err_report )
+		{
+			Console.Write(L"problem\r\n  ", 11);
+			Console.Write(pname, wcslen(pname));
+			pname = rc <= 1 ? L"\r\n  renamed/reopened\r\n" : L"\r\n  opened in memory\r\n";
+			Console.Write(pname, wcslen(pname));
+			Console.Commit();
+		}
+		else if ( nProblem < (int)ARRAYSIZE(sProblem) ) {
+			sProblem[nProblem++] = pname;
+		}
 	}
 }
 
-void InitDb()
+void InitDb( bool err_report )
 {
-  #define NEW_DB(pCfg, DBTY) \
-   DBTY *pCfg##DBTY = new DBTY(); pCfg = pCfg##DBTY; \
-   if (nProblem < (int)ARRAYSIZE(sProblem) && pCfg##DBTY->InitStatus(sProblem[nProblem]) > 0) \
-      ++nProblem;
-
+  #define NEW_DB(pCfg,DBTY) DBTY *p##DBTY = new DBTY(); pCfg = p##DBTY; check_db(p##DBTY,err_report);
 	nProblem = 0;
 	NEW_DB(GeneralCfg, GeneralConfigDb)
 	NEW_DB(ColorsCfg, ColorsConfigDb)

@@ -20130,6 +20130,15 @@ upd:"Problem configuration DB"
 upd:"Problem configuration DB"
 upd:"Problem configuration DB"
 
+MShowConfigFolders
+"Показать каталоги настроек"
+"Show configuration folders"
+upd:"Show configuration folders"
+upd:"Show configuration folders"
+upd:"Show configuration folders"
+upd:"Show configuration folders"
+upd:"Show configuration folders"
+
 #Must be the last
 MNewFileName
 l:

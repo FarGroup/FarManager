@@ -132,9 +132,16 @@ static int MainProcess(
 		SetRealColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 		GetSystemInfo(&SystemInfo);
 
-		ShowProblemDb();
+      string ename(lpwszEditName),vname(lpwszViewName), apanel(lpwszDestName1),ppanel(lpwszDestName2);
+		if (ShowProblemDb() > 0)
+		{
+			ename = vname = "";
+			StartLine = StartChar = -1;
+			apanel = Opt.ProfilePath;
+			ppanel = Opt.LocalProfilePath;
+		}
 
-		if (*lpwszEditName || *lpwszViewName)
+		if (*ename || *vname)
 		{
 			Opt.OnlyEditorViewerUsed=1;
 			Panel *DummyPanel=new Panel;
@@ -144,9 +151,9 @@ static int MainProcess(
 			CtrlObj.Plugins->LoadPlugins();
 			CtrlObj.Macro.LoadMacros(TRUE,FALSE);
 
-			if (*lpwszEditName)
+			if (*ename)
 			{
-				FileEditor *ShellEditor=new FileEditor(lpwszEditName,CP_AUTODETECT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6,StartLine,StartChar);
+				FileEditor *ShellEditor=new FileEditor(ename,CP_AUTODETECT,FFILEEDIT_CANNEWFILE|FFILEEDIT_ENABLEF6,StartLine,StartChar);
 				_tran(SysLog(L"make shelleditor %p",ShellEditor));
 
 				if (!ShellEditor->GetExitCode())  // ????????????
@@ -155,9 +162,9 @@ static int MainProcess(
 				}
 			}
 			// TODO: Этот else убрать только после разборок с возможностью задавать несколько /e и /v в ком.строке
-			else if (*lpwszViewName)
+			else if (*vname)
 			{
-				FileViewer *ShellViewer=new FileViewer(lpwszViewName,FALSE);
+				FileViewer *ShellViewer=new FileViewer(vname,FALSE);
 
 				if (!ShellViewer->GetExitCode())
 				{
@@ -180,10 +187,10 @@ static int MainProcess(
 
 			// воспользуемся тем, что ControlObject::Init() создает панели
 			// юзая Opt.*
-			if (*lpwszDestName1)  // актиная панель
+			if (*apanel)  // актиная панель
 			{
 				Opt.SetupArgv++;
-				strPath = lpwszDestName1;
+				strPath = apanel;
 				CutToNameUNC(strPath);
 				DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
@@ -204,17 +211,17 @@ static int MainProcess(
 					Opt.strRightFolder = strPath;
 				}
 
-				if (*lpwszDestName2)  // пассивная панель
+				if (*ppanel)  // пассивная панель
 				{
 					Opt.SetupArgv++;
-					strPath = lpwszDestName2;
+					strPath = ppanel;
 					CutToNameUNC(strPath);
 					DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
 					if ((strPath.At(1)==L':' && !strPath.At(2)) || (HasPathPrefix(strPath) && strPath.At(5)==L':' && !strPath.At(6)))
 						AddEndSlash(strPath);
 
-					// а здесь с точнотью наоборот - обрабатываем пассивную панель
+					// а здесь наоборот - обрабатываем пассивную панель
 					if (Opt.LeftPanel.Focus)
 					{
 						Opt.RightPanel.Type=FILE_PANEL; // сменим моду панели
@@ -234,26 +241,26 @@ static int MainProcess(
 			CtrlObj.Init();
 
 			// а теперь "провалимся" в каталог или хост-файл (если получится ;-)
-			if (*lpwszDestName1)  // актиная панель
+			if (*apanel)  // актиная панель
 			{
 				string strCurDir;
 				Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
-				if (*lpwszDestName2)  // пассивная панель
+				if (*ppanel)  // пассивная панель
 				{
 					AnotherPanel->GetCurDir(strCurDir);
 					FarChDir(strCurDir);
 
-					if (IsPluginPrefixPath(lpwszDestName2))
+					if (IsPluginPrefixPath(ppanel))
 					{
 						AnotherPanel->SetFocus();
-						CtrlObject->CmdLine->ExecString(lpwszDestName2,0);
+						CtrlObject->CmdLine->ExecString(ppanel,0);
 						ActivePanel->SetFocus();
 					}
 					else
 					{
-						strPath = PointToNameUNC(lpwszDestName2);
+						strPath = PointToNameUNC(ppanel);
 
 						if (!strPath.IsEmpty())
 						{
@@ -266,13 +273,13 @@ static int MainProcess(
 				ActivePanel->GetCurDir(strCurDir);
 				FarChDir(strCurDir);
 
-				if (IsPluginPrefixPath(lpwszDestName1))
+				if (IsPluginPrefixPath(apanel))
 				{
-					CtrlObject->CmdLine->ExecString(lpwszDestName1,0);
+					CtrlObject->CmdLine->ExecString(apanel,0);
 				}
 				else
 				{
-					strPath = PointToNameUNC(lpwszDestName1);
+					strPath = PointToNameUNC(apanel);
 
 					if (!strPath.IsEmpty())
 					{
@@ -392,7 +399,7 @@ int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath
 	string strProfilePath = ProfilePath;
 
 	InitProfile(strProfilePath);
-	InitDb();
+	InitDb(true);
 
 	bool ret = ExportImportConfig(Export, XML);
 
