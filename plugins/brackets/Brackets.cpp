@@ -54,8 +54,8 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 	Opt.BracketPrior=settings.Get(0,L"BracketPrior",1);
 	Opt.JumpToPair=settings.Get(0,L"JumpToPair",1);
 	Opt.Beep=settings.Get(0,L"Beep",0);
-	settings.Get(0,L"QuotesType",Opt.QuotesType,ARRAYSIZE(Opt.QuotesType),L"''\"\"`'``");
-	settings.Get(0,L"Brackets1",Opt.Brackets1,ARRAYSIZE(Opt.Brackets1),L"<>{}[]()\"\"''%%");
+	settings.Get(0,L"QuotesType",Opt.QuotesType,ARRAYSIZE(Opt.QuotesType),L"''\"\"`'``„”");
+	settings.Get(0,L"Brackets1",Opt.Brackets1,ARRAYSIZE(Opt.Brackets1),L"<>{}[]()\"\"''%%«»");
 	settings.Get(0,L"Brackets2",Opt.Brackets2,ARRAYSIZE(Opt.Brackets2),L"/**/<\?\?><%%>");
 }
 
@@ -176,34 +176,37 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	if (OInfo->OpenFrom==OPEN_FROMMACRO)
 	{
 		OpenMacroInfo* mi=(OpenMacroInfo*)OInfo->Data;
-		if (mi->Count&&(FMVT_INTEGER==mi->Values[0].Type||FMVT_UNKNOWN==mi->Values[0].Type))
+		if (mi->Count)
 		{
-			switch (mi->Values[0].Integer)
+			if (FMVT_INTEGER==mi->Values[0].Type||FMVT_UNKNOWN==mi->Values[0].Type)
 			{
-				case 0: // search fwd
-					isSelect=0;
-					DirectQuotes=1;
-					break;
-				case 1: // search back
-					isSelect=0;
-					DirectQuotes=0;
-					break;
-				case 2: // select fwd
-					DirectQuotes=1;
-					isSelect=1;
-					break;
-				case 3: // select back
-					DirectQuotes=0;
-					isSelect=1;
-					break;
-				case 4:
-					Config();
-				default:
-					return INVALID_HANDLE_VALUE;
+				switch (mi->Values[0].Integer)
+				{
+					case 0: // search fwd
+						isSelect=0;
+						DirectQuotes=1;
+						break;
+					case 1: // search back
+						isSelect=0;
+						DirectQuotes=0;
+						break;
+					case 2: // select fwd
+						DirectQuotes=1;
+						isSelect=1;
+						break;
+					case 3: // select back
+						DirectQuotes=0;
+						isSelect=1;
+						break;
+					case 4:
+						Config();
+					default:
+						return INVALID_HANDLE_VALUE;
+				}
 			}
+			else // other var type ==> $Recycle.Bin
+				return INVALID_HANDLE_VALUE;
 		}
-		else
-			return INVALID_HANDLE_VALUE;
 	}
 
 	if(isSelect == -1)

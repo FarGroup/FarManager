@@ -10,13 +10,13 @@ $ #Brackets matching#
 
   The plugin can work in three cases:
 
-  #1. Common '()', '{}', '[]', '<>' and quotation marks#
+  #1. Common '()', '{}', '[]', '<>', '«»' and quotation marks#
      This is a simple case - when the cursor is on a bracket, it is
      positioned to the matching bracket. For quotation marks it is
      also necessary to specify the scanning direction - forward or
      backward.
 
-  #2. Uncommon '()', '{}', '[]' and '<>'#
+  #2. Uncommon '()', '{}', '[]', '<>' and '«»'#
      This case is when the cursor stands on the next character after
      the bracket. The plugin also positions the cursor to the
      matching bracket. Handling of this case can be disabled in the
@@ -31,6 +31,7 @@ $ #Brackets matching#
   ~Configure~@Config@
   ~Search/select~@Find@
   ~Search for quotation marks~@Direct@
+  ~Использование плагина в макросах~@MacroCallPlugin@
 
 
 @Find
@@ -127,3 +128,35 @@ it.
 
 
   ~Contents~@Contents@
+
+@MacroCallPlugin
+$ #Использование плагина в макросах#
+    ^<wrap>Плагин можно вызывать из макросов, используя макрофункцию callplugin.
+    ^<wrap>Формат вызова:
+
+       #callplugin("B66C436D-E657-419C-86D3-6834B9ACF3D2",<Параметр>)#
+
+    ^<wrap>здесь:
+       #B66C436D-E657-419C-86D3-6834B9ACF3D2#
+          идентификатор плагина
+
+       #<Параметр>#
+          ^<wrap>числовое значение, обозначающее действие:
+
+          0 - искать парную скобку вперед
+          1 - искать парную скобку назад
+          2 - выделить блок между парными скобками вперед
+          3 - выделить блок между парными скобками назад
+          4 - показать диалог конфигурации
+
+          ^<wrap>Если <Параметр> не число - плагин завершает свою работу.
+          ^<wrap>Если <Параметр> вне указанного выше диапазона - плагин завершает свою работу.
+          ^<wrap>Если <Параметр> не указан, то будет выведено меню действий.
+
+          ^<wrap>Различие между "вперед" и "назад" актуально только для кавычек.
+
+    ^<wrap>Например, искать парную скобку назад:
+
+       callplugin("B66C436D-E657-419C-86D3-6834B9ACF3D2",1)
+
+  ~Содержание~@Contents@
