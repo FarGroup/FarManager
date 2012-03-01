@@ -2771,8 +2771,23 @@ void FileEditor::SaveToCache()
 
 	if (!Flags.Check(FFILEEDIT_OPENFAILED))   //????
 	{
-		pc.CodePage = (Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER) && !BadConversion)?m_codepage:0;
-
+		bool cp_changed = Flags.Check(FFILEEDIT_CODEPAGECHANGEDBYUSER) != FALSE;
+		if (!BadConversion && !cp_changed)
+		{
+			Edit *line = m_editor->TopList;
+			while (!cp_changed && line)
+			{
+				for (int i = 0; i < line->StrSize; ++i)
+				{
+					if (0 != (line->Str[i] & ~0x7f)) // entered text requires codepage store
+					{
+						cp_changed = true; break;
+					}
+				}
+				line = line->m_next;
+			}
+		}
+		pc.CodePage = cp_changed && !BadConversion ? m_codepage : 0;
 		FilePositionCache::AddPosition(strCacheName, pc);
 	}
 }
