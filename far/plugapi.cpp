@@ -2618,21 +2618,8 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 
 	if (flags == PN_CMPNAMELIST)
 	{
-		int Found=FALSE;
-		string strFileMask;
-		const wchar_t *MaskPtr;
-		MaskPtr=param1;
-
-		while ((MaskPtr=GetCommaWord(MaskPtr,strFileMask)))
-		{
-			if (CmpName(strFileMask,param2,skippath))
-			{
-				Found=TRUE;
-				break;
-			}
-		}
-
-		return Found;
+		CFileMask Masks;
+		return Masks.Set(param1, FMF_SILENT)? Masks.Compare(skippath? PointToName(param2) : param2) : FALSE;
 	}
 
 	if (flags&PN_GENERATENAME)

@@ -59,12 +59,14 @@ ControlObject::ControlObject():
 {
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
 	CtrlObject=this;
+
+	ReadConfig();
+
 	HiFiles = new HighlightFiles;
 	FolderShortcuts = new Shortcuts();
 	FrameManager = new Manager;
 	Plugins = new PluginManager;
 
-	ReadConfig();
 	CmdHistory=new History(HISTORYTYPE_CMD,nullptr,Opt.HistoryCount,&Opt.SaveHistory,false);
 	FolderHistory=new History(HISTORYTYPE_FOLDER,nullptr,Opt.FoldersHistoryCount,&Opt.SaveFoldersHistory,true);
 	ViewHistory=new History(HISTORYTYPE_VIEW,nullptr,Opt.ViewHistoryCount,&Opt.SaveViewHistory,true);
