@@ -331,7 +331,6 @@ static bool absFunc(const TMacroFunction*);
 static bool ascFunc(const TMacroFunction*);
 static bool atoiFunc(const TMacroFunction*);
 static bool beepFunc(const TMacroFunction*);
-static bool callpluginFunc(const TMacroFunction*);
 static bool chrFunc(const TMacroFunction*);
 static bool clipFunc(const TMacroFunction*);
 static bool dateFunc(const TMacroFunction*);
@@ -411,7 +410,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"BM.BACK",          nullptr, L"N=BM.Back()",                                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_BACK,         },
 	{L"BM.PUSH",          nullptr, L"N=BM.Push()",                                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_PUSH,         },
 	{L"BM.STAT",          nullptr, L"N=BM.Stat([N])",                                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_STAT,         },
-	{L"CALLPLUGIN",       nullptr, L"V=CallPlugin(SysID[,param])",                               callpluginFunc,     nullptr, 0, 0,                                      MCODE_F_CALLPLUGIN,      },
+	{L"CALLPLUGIN",       nullptr, L"V=CallPlugin(SysID[,param])",                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_CALLPLUGIN,      },
 	{L"CHECKHOTKEY",      nullptr, L"N=CheckHotkey(S[,N])",                                      usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_CHECKHOTKEY,},
 	{L"CHR",              nullptr, L"S=Chr(N)",                                                  chrFunc,            nullptr, 0, 0,                                      MCODE_F_CHR,             },
 	{L"CLIP",             nullptr, L"V=Clip(N[,V])",                                             clipFunc,           nullptr, 0, 0,                                      MCODE_F_CLIP,            },
@@ -4525,60 +4524,6 @@ static void VarToFarMacroValue(const TVar& From,FarMacroValue& To)
 	}
 }
 
-// V=callplugin(SysID[,param])
-static bool callpluginFunc(const TMacroFunction*)
-{
-	__int64 Ret=0;
-	int count=VMStack.Pop().getInteger();
-	if(count-->0)
-	{
-		FarMacroValue *vParams=nullptr;
-		if(count>0)
-		{
-			vParams=new FarMacroValue[count];
-			memset(vParams,0,sizeof(FarMacroValue)*count);
-			TVar value;
-			for(int ii=count-1;ii>=0;--ii)
-			{
-				VMStack.Pop(value);
-				VarToFarMacroValue(value,*(vParams+ii));
-			}
-		}
-
-		TVar SysID; VMStack.Pop(SysID);
-		GUID guid;
-
-		if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
-		{
-			OpenMacroInfo info={sizeof(OpenMacroInfo),count,vParams};
-
-			int CallPluginRules=CtrlObject->Macro.GetCurrentCallPluginMode();
-
-			if( CallPluginRules == 1)
-				CtrlObject->Macro.PushState(true);
-
-			int ResultCallPlugin=0;
-
-			if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
-				Ret=(__int64)ResultCallPlugin;
-
-			if( CallPluginRules == 1)
-				CtrlObject->Macro.PopState();
-
-		}
-		if(vParams)
-		{
-			for(int ii=0;ii<count;++ii)
-			{
-				if(vParams[ii].Type == FMVT_STRING && vParams[ii].String)
-					xf_free((void*)vParams[ii].String);
-			}
-		}
-	}
-	VMStack.Push(Ret);
-	return Ret?true:false;
-}
-
 // N=testfolder(S)
 /*
 возвращает одно состояний тестируемого каталога:
@@ -5753,6 +5698,63 @@ done:
 			goto begin;
 		}
 
+		case MCODE_F_CALLPLUGIN: // V=callplugin(SysID[,param])
+		{
+			__int64 Ret=0;
+			int count=VMStack.Pop().getInteger();
+			if(count-->0)
+			{
+				FarMacroValue *vParams=nullptr;
+				if(count>0)
+				{
+					vParams=new FarMacroValue[count];
+					memset(vParams,0,sizeof(FarMacroValue)*count);
+					TVar value;
+					for(int ii=count-1;ii>=0;--ii)
+					{
+						VMStack.Pop(value);
+						VarToFarMacroValue(value,*(vParams+ii));
+					}
+				}
+
+				TVar SysID; VMStack.Pop(SysID);
+				GUID guid;
+
+				if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
+				{
+					OpenMacroInfo info={sizeof(OpenMacroInfo),count,vParams};
+
+					int CallPluginRules=GetCurrentCallPluginMode();
+
+					if( CallPluginRules == 1)
+						PushState(true);
+
+					int ResultCallPlugin=0;
+
+					if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
+						Ret=(__int64)ResultCallPlugin;
+
+					if( CallPluginRules == 1 )
+						PopState();
+				}
+
+				if(vParams)
+				{
+					for(int ii=0;ii<count;++ii)
+					{
+						if(vParams[ii].Type == FMVT_STRING && vParams[ii].String)
+							xf_free((void*)vParams[ii].String);
+					}
+				}
+
+				if (Work.Executing == MACROMODE_NOMACRO)
+					goto return_func;
+			}
+
+			VMStack.Push(Ret);
+			goto begin;
+		}
+
 		default:
 		{
 			size_t J;
@@ -5774,12 +5776,12 @@ done:
 						}
 					}
 
-					if ((MFunc->IntFlags&IMFF_DISABLEINTINPUT) || (MFunc->Code==MCODE_F_CALLPLUGIN && !(Flags&MFLAGS_CALLPLUGINENABLEMACRO)))
+					if ((MFunc->IntFlags&IMFF_DISABLEINTINPUT))
 						InternalInput++;
 
 					MFunc->Func(MFunc);
 
-					if ((MFunc->IntFlags&IMFF_DISABLEINTINPUT) || (MFunc->Code==MCODE_F_CALLPLUGIN && !(Flags&MFLAGS_CALLPLUGINENABLEMACRO)))
+					if ((MFunc->IntFlags&IMFF_DISABLEINTINPUT))
 						InternalInput--;
 
 					if (MFunc->IntFlags&IMFF_UNLOCKSCREEN)
@@ -5791,6 +5793,7 @@ done:
 							LockScr=new LockScreen;
 						}
 					}
+
 					break;
 				}
 			}
