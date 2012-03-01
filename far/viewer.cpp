@@ -4154,10 +4154,7 @@ void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, cons
 			vString.lpData[0] = L'\0';
 			ReadString(&vString, (int)(SelectPos-FilePos), false);
 
-			wchar_t first_found_char = L'\0';
-			vgetc(&first_found_char);
-
-			if ( L'\r' != first_found_char && L'\n' != first_found_char )
+			if ( !vString.have_eol )
 			{
 				int found_offset = (int)wcslen(vString.lpData);
 				if ( found_offset > Width-10 )
