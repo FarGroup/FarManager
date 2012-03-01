@@ -5774,12 +5774,12 @@ done:
 						}
 					}
 
-					if ((MFunc->IntFlags&IMFF_DISABLEINTINPUT) || (MFunc->Code==MCODE_F_CALLPLUGIN && !(MR->Flags&MFLAGS_CALLPLUGINENABLEMACRO)))
+					if ((MFunc->IntFlags&IMFF_DISABLEINTINPUT) || (MFunc->Code==MCODE_F_CALLPLUGIN && !(Flags&MFLAGS_CALLPLUGINENABLEMACRO)))
 						InternalInput++;
 
 					MFunc->Func(MFunc);
 
-					if ((MFunc->IntFlags&IMFF_DISABLEINTINPUT) || (MFunc->Code==MCODE_F_CALLPLUGIN && !(MR->Flags&MFLAGS_CALLPLUGINENABLEMACRO)))
+					if ((MFunc->IntFlags&IMFF_DISABLEINTINPUT) || (MFunc->Code==MCODE_F_CALLPLUGIN && !(Flags&MFLAGS_CALLPLUGINENABLEMACRO)))
 						InternalInput--;
 
 					if (MFunc->IntFlags&IMFF_UNLOCKSCREEN)
