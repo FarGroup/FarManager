@@ -4,7 +4,7 @@
 /*
   farcolor.hpp
 
-  Colors Index for FAR Manager 3.0 build 2483
+  Colors Index for FAR Manager 3.0 build 2505
 */
 
 /*
