@@ -6,13 +6,9 @@
 #
 #VC - set Visual C++ version (VC=8 - 2005, VC=9 - 2008, VC=10 - 2010) (we try to autodetect if not set)
 #
-#AMD64 - set for x64 build
-#  or
-#CPU=AMD64 - for x64 build
-#
-#IA64 - set for IA64 build
-#  or
-#CPU=IA64 - for IA64 build
+#AMD64 or CPU=AMD64 - set for x64 build
+#IA64 or CPU=IA64 - for IA64 build
+#ARM or CPU=ARM - for ARM build
 #
 #(we try to autodetect if not set)
 #
@@ -48,6 +44,10 @@ DIRBIT=64
 !undef CPU
 IA64=1
 DIRBIT=IA64
+!elseif defined(ARM) || "$(CPU)" == "ARM" || "$(PLATFORM)" == "ARM"
+!undef CPU
+ARM=1
+DIRBIT=ARM
 !else
 X86=1
 DIRBIT=32
@@ -59,6 +59,8 @@ DIRBIT=32
 VC=9
 !elseif "$(_NMAKE_VER)">"8"
 VC=8
+!elseif "$(_NMAKE_VER)">"11"
+VC=11
 !elseif "$(_NMAKE_VER)">"10"
 VC=10
 !else
@@ -235,7 +237,7 @@ LINK_OBJS = \
 !if !defined(DISABLE_WOW64_HOOK)
 	"$(INTDIR)\hook_wow64.obj" \
 !endif
-!if "$(VC)"=="10"
+!if "$(VC)" > "10"
 !ifndef LINK_ULINK
 	"$(INTDIR)\vc10.obj" \
 	"$(INTDIR)\vc10wrapper.obj"
@@ -264,7 +266,9 @@ DEFINES=\
 	/D "_CRT_NON_CONFORMING_SWPRINTFS"
 
 !ifdef X86
+!if "$(VC)" < "11"
 MINVER=,5.0
+!endif
 !endif
 
 DISABLED_WARNINGS=/wd4054 /wd4061 /wd4100 /wd4127 /wd4191 /wd4204 /wd4242 /wd4244 /wd4245 /wd4255 /wd4365 /wd4480 /wd4512 /wd4514 /wd4625 /wd4626 /wd4640 /wd4668 /wd4706 /wd4710 /wd4711 /wd4738 /wd4820 /wd4836 /wd4917 /wd4986
@@ -307,6 +311,8 @@ LINKFLAGS=$(LINKFLAGS) /machine:amd64
 ULINKFLAGS=$(ULINKFLAGS) -Tpe+
 !elseifdef IA64
 LINKFLAGS=$(LINKFLAGS) /machine:IA64
+!elseifdef ARM
+LINKFLAGS=$(LINKFLAGS) /machine:ARM
 !endif
 
 # compiler-cpecific

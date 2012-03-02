@@ -18,6 +18,9 @@ FarPol.lng Polish "Polish (Polski)"
 #id:6 language file name, language name, language description
 FarSpa.lng Spanish "Spanish (Español)"
 
+#enum name
+enum:LNGID:int
+
 #head of the hpp file
 #hhead:
 #hhead:

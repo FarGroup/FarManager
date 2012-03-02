@@ -2610,27 +2610,41 @@ size_t WINAPI apiMkTemp(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix)
 
 size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size, PROCESSNAME_FLAGS flags)
 {
-	bool skippath = (flags&PN_SKIPPATH)!=0;
+	//             0xFFFF - length
+	//           0xFF0000 - mode
+	// 0xFFFFFFFFFF000000 - flags
 
-	flags &= ~PN_SKIPPATH;
+	PROCESSNAME_FLAGS Flags = flags&0xFFFFFFFFFF000000;
+	PROCESSNAME_FLAGS Mode = flags&0xFF0000;
+	int Length = flags&0xFFFF;
 
-	if (flags == PN_CMPNAME)
-		return CmpName(param1, param2, skippath);
-
-	if (flags == PN_CMPNAMELIST)
+	switch(Mode)
 	{
-		CFileMask Masks;
-		return Masks.Set(param1, FMF_SILENT)? Masks.Compare(skippath? PointToName(param2) : param2) : FALSE;
-	}
+	case PN_CMPNAME:
+		{
+			return CmpName(param1, param2, (Flags&PN_SKIPPATH)!=0);
+		}
 
-	if (flags&PN_GENERATENAME)
-	{
-		string strResult = param2;
-		int nResult = ConvertWildcards(param1, strResult, (flags&0xFFFF)|(skippath?PN_SKIPPATH:0));
-		xwcsncpy(param2, strResult, size);
-		return nResult;
-	}
+	case PN_CMPNAMELIST:
+	case PN_CHECKMASK:
+		{
+			CFileMask Masks;
+			BOOL Result = FALSE;
+			if(Masks.Set(param1, (Flags&PN_SHOWERRORMESSAGE)? 0 : FMF_SILENT))
+			{
+				Result = (Mode == PN_CHECKMASK)? TRUE : Masks.Compare((Flags&PN_SKIPPATH)? PointToName(param2) : param2);
+			}
+			return Result;
+		}
 
+	case PN_GENERATENAME:
+		{
+			string strResult = param2;
+			int nResult = ConvertWildcards(param1, strResult, Length);
+			xwcsncpy(param2, strResult, size);
+			return nResult;
+		}
+	}
 	return FALSE;
 }
 
