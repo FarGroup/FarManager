@@ -2633,13 +2633,20 @@ size_t WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size
 			static bool ValidMask = false;
 			if(PrevMask != param1)
 			{
-				ValidMask = Masks.Set(param1, (Flags&PN_SHOWERRORMESSAGE)? 0 : FMF_SILENT);
+				ValidMask = Masks.Set(param1, FMF_SILENT);
 				PrevMask = param1;
 			}
 			BOOL Result = FALSE;
 			if(ValidMask)
 			{
 				Result = (Mode == PN_CHECKMASK)? TRUE : Masks.Compare((Flags&PN_SKIPPATH)? PointToName(param2) : param2);
+			}
+			else
+			{
+				if(Flags&PN_SHOWERRORMESSAGE)
+				{
+					Masks.ErrorMessage();
+				}
 			}
 			return Result;
 		}

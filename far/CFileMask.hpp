@@ -57,5 +57,5 @@ class CFileMask:NonCopyable
 		bool Compare(const string& Name);
 		bool IsEmpty();
 		void Free();
-
+		void ErrorMessage();
 };

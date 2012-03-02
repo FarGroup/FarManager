@@ -91,7 +91,7 @@ bool CFileMask::Set(const string& Masks, DWORD Flags)
 	}
 
 	if (!Silent && !Result)
-		Message(MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectMask), MSG(MOk));
+		ErrorMessage();
 
 	return Result;
 }
@@ -108,4 +108,9 @@ bool CFileMask::IsEmpty()
 bool CFileMask::Compare(const string& FileName)
 {
 	return FileMask?FileMask->Compare(FileName):false;
+}
+
+void CFileMask::ErrorMessage()
+{
+	Message(MSG_WARNING,1,MSG(MWarning),MSG(MIncorrectMask), MSG(MOk));
 }
