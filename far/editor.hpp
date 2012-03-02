@@ -43,13 +43,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 class FileEditor;
 class KeyBar;
 
-struct InternalEditorStackBookMark
+struct InternalEditorSessionBookMark
 {
 	DWORD Line;
 	DWORD Cursor;
 	DWORD ScreenLine;
 	DWORD LeftPos;
-	InternalEditorStackBookMark *prev, *next;
+	InternalEditorSessionBookMark *prev, *next;
 };
 
 struct EditorUndoData
@@ -205,8 +205,8 @@ class Editor:public ScreenObject
 
 		EditorBookmark SavePos;
 
-		InternalEditorStackBookMark *StackPos;
-		BOOL NewStackPos;
+		InternalEditorSessionBookMark *SessionPos;
+		BOOL NewSessionPos;
 
 		int EditorID;
 
@@ -256,23 +256,23 @@ class Editor:public ScreenObject
 		int SetBookmark(int Pos);
 		int GotoBookmark(int Pos);
 
-		int ClearStackBookmarks();
-		int DeleteStackBookmark(InternalEditorStackBookMark *sb_delete);
-		int RestoreStackBookmark();
-		int AddStackBookmark(BOOL blNewPos=TRUE);
-		InternalEditorStackBookMark* PointerToFirstStackBookmark(int *piCount=nullptr);
-		InternalEditorStackBookMark* PointerToLastStackBookmark(int *piCount=nullptr);
-		InternalEditorStackBookMark* PointerToStackBookmark(int iIdx);
-		int BackStackBookmark();
-		int PrevStackBookmark();
-		int NextStackBookmark();
-		int LastStackBookmark();
-		int GotoStackBookmark(int iIdx);
-		int PushStackBookMark();
-		int PopStackBookMark();
-		int CurrentStackBookmarkIdx();
-		int GetStackBookmark(int iIdx,EditorBookMarks *Param);
-		int GetStackBookmarks(EditorBookMarks *Param);
+		int ClearSessionBookmarks();
+		int DeleteSessionBookmark(InternalEditorSessionBookMark *sb_delete);
+		int RestoreSessionBookmark();
+		int AddSessionBookmark(BOOL blNewPos=TRUE);
+		InternalEditorSessionBookMark* PointerToFirstSessionBookmark(int *piCount=nullptr);
+		InternalEditorSessionBookMark* PointerToLastSessionBookmark(int *piCount=nullptr);
+		InternalEditorSessionBookMark* PointerToSessionBookmark(int iIdx);
+		int BackSessionBookmark();
+		int PrevSessionBookmark();
+		int NextSessionBookmark();
+		int LastSessionBookmark();
+		int GotoSessionBookmark(int iIdx);
+		int PushSessionBookMark();
+		int PopSessionBookMark();
+		int CurrentSessionBookmarkIdx();
+		int GetSessionBookmark(int iIdx,EditorBookMarks *Param);
+		int GetSessionBookmarks(EditorBookMarks *Param);
 
 		int BlockStart2NumLine(int *Pos);
 		int BlockEnd2NumLine(int *Pos);

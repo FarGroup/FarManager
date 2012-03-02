@@ -2522,27 +2522,27 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_ADDSESSIONBOOKMARK:
 		{
-			return m_editor->AddStackBookmark();
+			return m_editor->AddSessionBookmark();
 		}
 		case ECTL_PREVSESSIONBOOKMARK:
 		{
-			return m_editor->PrevStackBookmark();
+			return m_editor->PrevSessionBookmark();
 		}
 		case ECTL_NEXTSESSIONBOOKMARK:
 		{
-			return m_editor->NextStackBookmark();
+			return m_editor->NextSessionBookmark();
 		}
 		case ECTL_CLEARSESSIONBOOKMARKS:
 		{
-			return m_editor->ClearStackBookmarks();
+			return m_editor->ClearSessionBookmarks();
 		}
 		case ECTL_DELETESESSIONBOOKMARK:
 		{
-			return m_editor->DeleteStackBookmark(m_editor->PointerToStackBookmark((int)(INT_PTR)Param));
+			return m_editor->DeleteSessionBookmark(m_editor->PointerToSessionBookmark((int)(INT_PTR)Param));
 		}
 		case ECTL_GETSESSIONBOOKMARKS:
 		{
-			return m_editor->GetStackBookmarks((EditorBookMarks *)Param);
+			return m_editor->GetSessionBookmarks((EditorBookMarks *)Param);
 		}
 		case ECTL_SETTITLE:
 		{
