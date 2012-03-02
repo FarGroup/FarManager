@@ -27,7 +27,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "lng.common.h"
 
-#define VERSION "v1.3"
+#define VERSION "v1.4"
 
 void UnquoteIfNeeded (char *lpStr)
 {
@@ -496,6 +496,7 @@ int main (int argc, const char* argv[])
 
 				char *lpHHead;
 				char *lpHTail;
+				char *lpEnum = NULL;
 
 				if ( ReadComments (lpStart, &lpHHead, "hhead:", "") )
 				{
@@ -505,7 +506,9 @@ int main (int argc, const char* argv[])
 
 				ReadComments (lpStart, &lpHTail, "htail:", "");
 
-				sprintf (lpString, "enum {\r\n");
+				ReadComments (lpStart, &lpEnum, "enum:", "");
+				sprintf (lpString, "enum %s{\r\n", lpEnum? lpEnum : "");
+				free(lpEnum);
 				SmartWrite (hHFile, lpString, &dwHeaderCRC32, nHPPEncoding);
 
 				// read strings
@@ -620,7 +623,7 @@ int main (int argc, const char* argv[])
 
 				SetFilePointer (hHFile, -2, NULL, FILE_CURRENT);
 
-				sprintf (lpString, "\r\n\t};\r\n");
+				sprintf (lpString, "\r\n};\r\n");
 				SmartWrite (hHFile, lpString, &dwHeaderCRC32, nHPPEncoding);
 
 				if ( lpHTail )
