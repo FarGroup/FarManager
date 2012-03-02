@@ -5728,6 +5728,8 @@ done:
 
 					if( CallPluginRules == 1)
 						PushState(true);
+					else
+						InternalInput++;
 
 					int ResultCallPlugin=0;
 
@@ -5736,6 +5738,8 @@ done:
 
 					if( CallPluginRules == 1 )
 						PopState();
+					else
+						InternalInput--;
 				}
 
 				if(vParams)

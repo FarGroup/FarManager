@@ -2210,9 +2210,10 @@ INT_PTR WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 			//Param1=size of buffer, Param2 - MacroParseResult*
 			case MCTL_GETLASTERROR:
 			{
-				DWORD ErrCode;
-				COORD ErrPos;
+				DWORD ErrCode=MPEC_SUCCESS;
+				COORD ErrPos={};
 				string ErrSrc;
+
 				Macro.GetMacroParseError(&ErrCode,&ErrPos,&ErrSrc);
 
 				int Size = ALIGN(sizeof(MacroParseResult));
@@ -2227,7 +2228,7 @@ INT_PTR WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 					Result->ErrCode = ErrCode;
 					Result->ErrPos = ErrPos;
 					Result->ErrSrc = (const wchar_t *)((char*)Param2+stringOffset);
- 					wmemcpy((wchar_t*)Result->ErrSrc,ErrSrc,ErrSrc.GetLength()+1);
+					wmemcpy((wchar_t*)Result->ErrSrc,ErrSrc,ErrSrc.GetLength()+1);
 				}
 
 				return Size;
