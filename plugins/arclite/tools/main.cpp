@@ -81,3 +81,33 @@ void save_file(const wstring& file_name, const wstring& text, unsigned code_page
     file.write(data.data(), data.size());
   }
 }
+
+#include "gendep.cpp"
+#include "geninst.cpp"
+#include "msgc.cpp"
+#include "preproc.cpp"
+#include "farver.cpp"
+
+int wmain(int argc, wchar_t* argv[]) {
+  BEGIN_ERROR_HANDLER;
+  if (argc < 2)
+    FAIL_MSG(L"tool gendep | geninst | msgc | preproc | farver");
+  deque<wstring> params;
+  for (int i = 2; i < argc; i++) {
+    params.push_back(argv[i]);
+  }
+  wstring command(argv[1]);
+  if (command == L"gendep")
+    gendep(params);
+  else if (command == L"geninst")
+    geninst(params);
+  else if (command == L"msgc")
+    msgc(params);
+  else if (command == L"preproc")
+    preproc(params);
+  else if (command == L"farver")
+    farver(params);
+  return 0;
+  END_ERROR_HANDLER;
+  return 1;
+}

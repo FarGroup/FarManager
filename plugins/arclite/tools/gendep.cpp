@@ -1,5 +1,3 @@
-#include "common.hpp"
-
 const wchar_t* c_ext_list[] = {
   L"c", L"h", L"cpp", L"hpp", L"rc",
 };
@@ -117,9 +115,9 @@ void process_file(wstring& output, set<wstring>& file_set, const wstring& file_p
 }
 
 #define CHECK_CMD(code) if (!(code)) FAIL_MSG(L"Usage: gendep [-I<include> | <source_dir> ...]")
-void parse_cmd_line(const list<wstring>& params, list<wstring>& source_dirs, list<wstring>& include_dirs) {
+void parse_cmd_line(const deque<wstring>& params, list<wstring>& source_dirs, list<wstring>& include_dirs) {
   source_dirs.assign(1, wstring());
-  for (list<wstring>::const_iterator param = params.begin(); param != params.end(); param++) {
+  for (auto param = params.cbegin(); param != params.cend(); ++param) {
     if (substr_match(*param, 0, L"-I")) {
       wstring inc_dir = param->substr(2);
       CHECK_CMD(!inc_dir.empty());
@@ -133,11 +131,9 @@ void parse_cmd_line(const list<wstring>& params, list<wstring>& source_dirs, lis
     }
   }
 }
+#undef CHECK_CMD
 
-int wmain(int argc, wchar_t* argv[]) {
-  BEGIN_ERROR_HANDLER;
-  list<wstring> params;
-  for (unsigned i = 1; i < argc; i++) params.push_back(argv[i]);
+void gendep(const deque<wstring>& params) {
   list<wstring> source_dirs, include_dirs;
   parse_cmd_line(params, source_dirs, include_dirs);
   wstring output;
@@ -151,7 +147,4 @@ int wmain(int argc, wchar_t* argv[]) {
     }
   }
   cout << unicode_to_ansi(output, CP_ACP);
-  return 0;
-  END_ERROR_HANDLER;
-  return 1;
 }

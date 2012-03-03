@@ -1,5 +1,3 @@
-#include "common.hpp"
-
 wstring extract_version_number(const wstring& text, const wstring& ver_name) {
   size_t pos = text.find(ver_name);
   CHECK(pos != wstring::npos);
@@ -13,17 +11,13 @@ wstring extract_version_number(const wstring& text, const wstring& ver_name) {
   return text.substr(start_pos, end_pos - start_pos);
 }
 
-int wmain(int argc, wchar_t* argv[]) {
-  BEGIN_ERROR_HANDLER;
-  if (argc != 3)
+void farver(const deque<wstring>& params) {
+  if (params.size() != 2)
     FAIL_MSG(L"Usage: farver <plugin.hpp> <farver.ini>");
-  wstring text = load_file(argv[1]);
+  wstring text = load_file(params[0]);
   wstring result;
   result += L"FAR_VER_MAJOR = " + extract_version_number(text, L"FARMANAGERVERSION_MAJOR") + L"\n";
   result += L"FAR_VER_MINOR = " + extract_version_number(text, L"FARMANAGERVERSION_MINOR") + L"\n";
   result += L"FAR_VER_BUILD = " + extract_version_number(text, L"FARMANAGERVERSION_BUILD") + L"\n";
-  save_file(argv[2], result, CP_UTF8);
-  return 0;
-  END_ERROR_HANDLER;
-  return 1;
+  save_file(params[1], result, CP_UTF8);
 }

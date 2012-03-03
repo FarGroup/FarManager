@@ -1,5 +1,3 @@
-#include "common.hpp"
-
 struct MsgPair {
   wstring id;
   wstring phrase;
@@ -69,6 +67,7 @@ MsgFile load_msg_file(const wstring& file_path) {
   sort(msg_file.msg_list.begin(), msg_file.msg_list.end());
   return msg_file;
 }
+#undef CHECK_PARSE
 
 struct FileNamePair {
   wstring in;
@@ -100,13 +99,9 @@ void parse_cmd_line(const deque<wstring>& params, deque<FileNamePair>& files, ws
     idx++;
   }
 }
+#undef CHECK_CMD
 
-int wmain(int argc, wchar_t* argv[]) {
-  BEGIN_ERROR_HANDLER;
-  deque<wstring> params;
-  for (int i = 1; i < argc; i++) {
-    params.push_back(argv[i]);
-  }
+void msgc(const deque<wstring>& params) {
   deque<FileNamePair> files;
   wstring header_file;
   parse_cmd_line(params, files, header_file);
@@ -133,7 +128,4 @@ int wmain(int argc, wchar_t* argv[]) {
     }
     save_file(files[i].out, lng_data, msgs[i].code_page);
   }
-  return 0;
-  END_ERROR_HANDLER;
-  return 1;
 }

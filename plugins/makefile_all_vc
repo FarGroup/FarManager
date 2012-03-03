@@ -18,7 +18,7 @@
 #
 #############################################################################
 
-ALLDIRS = align autowrap brackets compare drawline editcase emenu farcmds \
+ALLDIRS = align arclite autowrap brackets compare drawline editcase emenu farcmds \
           filecase hlfviewer network proclist tmppanel ftp multiarc macroview
 
 !if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "x64"

@@ -1,8 +1,3 @@
-CPPFLAGS = -nologo -EHsc -I.. -DUNICODE user32.lib advapi32.lib ole32.lib
-
 build:
-  $(CPP) $(CPPFLAGS) gendep.cpp
-  $(CPP) $(CPPFLAGS) msgc.cpp
-  $(CPP) $(CPPFLAGS) preproc.cpp
-  $(CPP) $(CPPFLAGS) farver.cpp
+  $(CPP) -nologo -EHsc -O2 -I.. -DUNICODE -Fotool user32.lib advapi32.lib ole32.lib main.cpp
   del /q *.obj
