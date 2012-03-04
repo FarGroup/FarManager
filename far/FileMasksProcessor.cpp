@@ -87,8 +87,9 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 			string MaskGroupNameWB = expmasks.SubStr(LBPos, RBPos-LBPos+1);
 			string MaskGroupName = expmasks.SubStr(LBPos+1, RBPos-LBPos-1);
 			string MaskGroupValue;
-			if(!UsedGroups.Contains(MaskGroupName) && GeneralCfg->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L""))
+			if(!UsedGroups.Contains(MaskGroupName))
 			{
+				GeneralCfg->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
 				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
 				UsedGroups.Push(&MaskGroupName);
 			}
