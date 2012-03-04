@@ -28,6 +28,7 @@ FTP::FTP()
 	KeepAlivePeriod = Opt.KeepAlive ? FP_PeriodCreate(Opt.KeepAlive*1000) : NULL;
 	hConnect = NULL;
 	CallLevel = 0;
+	InGetFiles = FALSE;
 
 	Host.Init();
 	FP_GetRegKey("LastHostsPath",HostsPath,NULL,ARRAYSIZE(HostsPath));

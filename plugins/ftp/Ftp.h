@@ -60,6 +60,7 @@ class FTP
 		int         QuequeSize;
 		overCode    LastMsgCode,
 		       OverrideMsgCode;
+		BOOL        InGetFiles;
 	public:
 		FTPHost     Host;
 		char        PanelTitle[512];
