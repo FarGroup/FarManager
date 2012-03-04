@@ -122,4 +122,16 @@ class DList : public CDList
 
 		//меняет местами содержимое списков
 		void Swap(DList<Type> &l) {CSwap(l);}
+
+		bool Contains(const Type& item)
+		{
+			for(const Type* i = First(); i; i = Next(i))
+			{
+				if(*i == item)
+				{
+					return true;
+				}
+			};
+			return false;
+		}
 };

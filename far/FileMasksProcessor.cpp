@@ -77,20 +77,21 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 	Free();
 
 	string expmasks(masks);
-	size_t StartPos = 0;
+	DList<string> UsedGroups;
 	for(;;)
 	{
+		
 		size_t LBPos, RBPos;
-		if(expmasks.Pos(LBPos, L'<', StartPos) && expmasks.Pos(RBPos, L'>', LBPos))
+		if(expmasks.Pos(LBPos, L'<') && expmasks.Pos(RBPos, L'>', LBPos))
 		{
 			string MaskGroupNameWB = expmasks.SubStr(LBPos, RBPos-LBPos+1);
 			string MaskGroupName = expmasks.SubStr(LBPos+1, RBPos-LBPos-1);
 			string MaskGroupValue;
-			if(GeneralCfg->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L""))
+			if(!UsedGroups.Contains(MaskGroupName) && GeneralCfg->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L""))
 			{
 				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
+				UsedGroups.Push(&MaskGroupName);
 			}
-			StartPos = RBPos+1;
 		}
 		else
 			break;
