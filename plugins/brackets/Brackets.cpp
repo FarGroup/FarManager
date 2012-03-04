@@ -54,8 +54,8 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 	Opt.BracketPrior=settings.Get(0,L"BracketPrior",1);
 	Opt.JumpToPair=settings.Get(0,L"JumpToPair",1);
 	Opt.Beep=settings.Get(0,L"Beep",0);
-	settings.Get(0,L"QuotesType",Opt.QuotesType,ARRAYSIZE(Opt.QuotesType),L"''\"\"`'``„”");
-	settings.Get(0,L"Brackets1",Opt.Brackets1,ARRAYSIZE(Opt.Brackets1),L"<>{}[]()\"\"''%%«»");
+	settings.Get(0,L"QuotesType",Opt.QuotesType,ARRAYSIZE(Opt.QuotesType),L"''\"\"`'``вЂћвЂќ");
+	settings.Get(0,L"Brackets1",Opt.Brackets1,ARRAYSIZE(Opt.Brackets1),L"<>{}[]()\"\"''%%В«В»");
 	settings.Get(0,L"Brackets2",Opt.Brackets2,ARRAYSIZE(Opt.Brackets2),L"/**/<\?\?><%%>");
 }
 
@@ -227,7 +227,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else
 	{
-		// размер Opt.QuotesType должен быть кратный двум (иначе усекаем)
+		// СЂР°Р·РјРµСЂ Opt.QuotesType РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєСЂР°С‚РЅС‹Р№ РґРІСѓРј (РёРЅР°С‡Рµ СѓСЃРµРєР°РµРј)
 		i=lstrlen(Opt.QuotesType);
 
 		if((i&1) == 1)
@@ -253,7 +253,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 	Bracket=(CurPos == egs.StringLength)?L'\0':egs.StringText[CurPos];
 
-	// размер Opt.Brackets1 должен быть кратный двум (иначе усекаем)
+	// СЂР°Р·РјРµСЂ Opt.Brackets1 РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєСЂР°С‚РЅС‹Р№ РґРІСѓРј (РёРЅР°С‡Рµ СѓСЃРµРєР°РµРј)
 	if(((lenBrackets1=lstrlen(Opt.Brackets1)) & 1) != 0)
 	{
 		lenBrackets1-=(lenBrackets1&1);
@@ -262,7 +262,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 	lenBrackets1>>=1;
 
-	// размер Opt.Brackets1 должен быть кратный четырем (иначе усекаем)
+	// СЂР°Р·РјРµСЂ Opt.Brackets1 РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РєСЂР°С‚РЅС‹Р№ С‡РµС‚С‹СЂРµРј (РёРЅР°С‡Рµ СѓСЃРµРєР°РµРј)
 	if(((lenBrackets2=lstrlen(Opt.Brackets2)) & 3) != 0)
 	{
 		lenBrackets2-=(lenBrackets2&3);
@@ -270,7 +270,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 
 	lenBrackets2>>=2;
-	// анализ того, что под курсором
+	// Р°РЅР°Р»РёР· С‚РѕРіРѕ, С‡С‚Рѕ РїРѕРґ РєСѓСЂСЃРѕСЂРѕРј
 	i=3;
 	short BracketPrior=Opt.BracketPrior;
 
@@ -379,7 +379,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	esp.CurLine=egs.StringNumber;
 	egs.StringNumber=-1;
 
-	// поиск пары
+	// РїРѕРёСЃРє РїР°СЂС‹
 	while(!found)
 	{
 		CurPos+=Direction;
