@@ -343,6 +343,7 @@ static void ShowMessageAboutIllegalPluginVersion(const wchar_t* plg,const Versio
 	Message(MSG_WARNING|MSG_NOPLUGINS, 1,
 		MSG(MError),
 		MSG(MPlgBadVers),
+		plg,
 		LangString(MPlgRequired) << (FormatString() << required.Major << L'.' << required.Minor << L'.' << required.Revision << L'.' << required.Build),
 		LangString(MPlgRequired2) << (FormatString() << FAR_VERSION.Major << L'.' << FAR_VERSION.Minor << L'.' << FAR_VERSION.Revision << L'.' << FAR_VERSION.Build),
 		MSG(MOk));
