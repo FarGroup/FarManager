@@ -1922,7 +1922,7 @@ void VMenu::DisplayObject()
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
 	ClearFlags(VMENU_UPDATEREQUIRED);
-	Modal::ExitCode = -1;
+	//Modal::ExitCode = -1; // Mantis#0002041 (build 2520)
 
 	if (CheckFlags(VMENU_REFILTERREQUIRED)!=0)
 	{
