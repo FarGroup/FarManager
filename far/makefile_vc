@@ -237,7 +237,7 @@ LINK_OBJS = \
 !if !defined(DISABLE_WOW64_HOOK)
 	"$(INTDIR)\hook_wow64.obj" \
 !endif
-!if "$(VC)" > "10"
+!if $(VC) > 9
 !ifndef LINK_ULINK
 	"$(INTDIR)\vc10.obj" \
 	"$(INTDIR)\vc10wrapper.obj"
@@ -266,7 +266,7 @@ DEFINES=\
 	/D "_CRT_NON_CONFORMING_SWPRINTFS"
 
 !ifdef X86
-!if "$(VC)" < "11"
+!if $(VC) < 11
 MINVER=,5.0
 !endif
 !endif
@@ -316,7 +316,7 @@ LINKFLAGS=$(LINKFLAGS) /machine:ARM
 !endif
 
 # compiler-cpecific
-!if "$(VC)"=="8"
+!if $(VC) == 8
 CPPFLAG1=$(CPPFLAG1) /Wp64
 LINKFLAGS=$(LINKFLAGS) /opt:nowin98
 !else
