@@ -711,7 +711,11 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 								eSel.BlockStartPos=MBlockStartX;
 								eSel.BlockWidth=CurLine->GetCurPos()-MBlockStartX;
 
-								if (eSel.BlockWidth || (Action == 2 && MBlockStart != CurLine))
+								if (!eSel.BlockWidth && MBlockStart == CurLine)
+								{
+									UnmarkBlock();
+								}
+								else
 								{
 									int bl=CalcDistance(TopList,MBlockStart,-1);
 									int el=CalcDistance(TopList,CurLine,-1);
@@ -734,10 +738,6 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 									}
 
 									Ret=EditorControl(ECTL_SELECT,&eSel);
-								}
-								else if (!eSel.BlockWidth && MBlockStart == CurLine)
-								{
-									UnmarkBlock();
 								}
 							}
 
