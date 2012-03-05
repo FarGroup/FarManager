@@ -190,10 +190,6 @@ struct CodeXLAT
 	string Table[2]; // [0] non-english буквы, [1] english буквы
 	string strWordDivForXlat;
 	DWORD Flags;       // дополнительные флаги
-
-	/* $ 25.11.2000 IS
-	   Разграничитель слов из реестра для функции Xlat
-	*/
 	int CurrentLayout;
 };
 
@@ -462,6 +458,17 @@ struct KnownModulesIDs
 	GUID Emenu;
 };
 
+struct ExecuteOptions
+{
+	int RestoreCPAfterExecute;
+	int ExecuteUseAppPath;
+	int ExecuteFullTitle;
+	int ExecuteSilentExternal;
+	string strExecuteBatchType;
+	string strExcludeCmds;
+	string strHomeDir; // cd ~
+};
+
 struct Options
 {
 	palette Palette;
@@ -653,11 +660,7 @@ struct Options
 	int CloseCDGate;       // автомонтирование CD
 	int UpdateEnvironment;
 
-	int RestoreCPAfterExecute;
-	int ExecuteUseAppPath;
-	int ExecuteFullTitle;
-	int ExecuteSilentExternal;
-	string strExecuteBatchType;
+	ExecuteOptions Exec;
 
 	DWORD PluginMaxReadData;
 	int ScanJunction;
