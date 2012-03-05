@@ -54,7 +54,7 @@ goto :EOF
   if "64" == "%~1" set LIB=%vsdir%VC\Lib\amd64;%mssdk%Lib\x64
   if "64" == "%~1" set pth=%vsdir%VC\Bin\x86_amd64;
   PATH=%pth%%vsdir%VC\Bin;%vsdir%VC\VCPackages;%vsdir%Common7\Tools;%vsdir%Common7\IDE;%mssdk%Bin;%opath%
-:goto :EOF
+goto :EOF
 
 :proc_param
   for %%p in (vc vcc msc) do if /i "%%p" == "%~1" set ccomp=vc
@@ -66,7 +66,7 @@ goto :EOF
   for %%p in (debug dbg) do if /i "%%p" == "%~1" set deb_b=Y
   for %%p in (sln solution) do if /i "%%p" == "%~1" set vcsln=Y
   for %%p in (dwarf dw2) do if /i "%%p" == "%~1" set dwarf=Y
-goto :eof
+goto :EOF
 
 :init
   set dirbit=%2
