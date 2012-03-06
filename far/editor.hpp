@@ -280,6 +280,7 @@ class Editor:public ScreenObject
 		wchar_t *Block2Text(wchar_t *ptrInitData);
 		wchar_t *VBlock2Text(wchar_t *ptrInitData);
 		void Change(EDITOR_CHANGETYPE Type,int StrNum);
+		void UpdateVBlockStart(Edit* NewVBlockStart);
 
 	public:
 		Editor(ScreenObject *pOwner=nullptr,bool DialogUsed=false);
