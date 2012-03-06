@@ -1519,8 +1519,16 @@ int Editor::ProcessKey(int Key)
 					CurLine->GetSelection(SelStart,SelEnd);
 				else
 				{
-					SelStart=VBlockX;
-					SelEnd=SelStart+VBlockSizeX-1;
+					if (NumLine<VBlockY||NumLine>=(VBlockY+VBlockSizeY))
+					{
+						SelStart=-1;
+						SelEnd=-1;
+					}
+					else
+					{
+						SelStart=VBlockX;
+						SelEnd=SelStart+VBlockSizeX;
+					}
 				}
 
 				Pasting++;
