@@ -1023,7 +1023,8 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		seInfo.lpVerb = L"runas";
 	}
 
-	seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
+	seInfo.fMask = SEE_MASK_INVOKEIDLIST| // ShexxExecuteEx error, see http://us.generation-nt.com/answer/shellexecuteex-does-not-allow-openas-verb-windows-7-help-31497352.html for details
+		SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
 
 	if(!Silent)
 	{
