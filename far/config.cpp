@@ -340,7 +340,7 @@ void FillMasksMenu(VMenu& MasksMenu, int SelPos = 0)
 		Item.UserDataSize = (Name.GetLength()+1)*sizeof(wchar_t);
 		MasksMenu.AddItem(&Item);
 	}
-	MasksMenu.SetSelectPos(0, SelPos);
+	MasksMenu.SetSelectPos(SelPos, 0);
 }
 
 void MaskGroupsSettings()
@@ -372,6 +372,8 @@ void MaskGroupsSettings()
 		case KEY_NUMPAD0:
 		case KEY_INS:
 			Item = nullptr;
+		case KEY_ENTER:
+		case KEY_NUMENTER:
 		case KEY_F4:
 			{
 				string Name(Item), Value;
@@ -410,6 +412,51 @@ void MaskGroupsSettings()
 				}
 			}
 			break;
+
+		case KEY_F7:
+			{
+				string Value;
+				DialogBuilder Builder(MFileFilterTitle, nullptr);
+				Builder.AddText(MMaskGroupFindMask);
+				Builder.AddEditField(&Value, 60, L"MaskGroupsFindMask");
+				Builder.AddOKCancel();
+				if(Builder.ShowDialog())
+				{
+					for (int i=0; i < MasksMenu.GetItemCount(); ++i)
+					{
+						string CurrentMasks;
+						GeneralCfg->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu.GetUserData(nullptr, 0, i)), CurrentMasks, L"");
+						CFileMask Masks;
+						Masks.Set(CurrentMasks, 0);
+						if(!Masks.Compare(Value))
+						{
+							MasksMenu.UpdateItemFlags(i, MasksMenu.GetItemPtr(i)->Flags|MIF_HIDDEN);
+						}
+					}
+					MasksMenu.SetPosition(-1, -1, -1, -1);
+					MasksMenu.SetTitle(Value);
+					MasksMenu.SetBottomTitle(LangString(MMaskGroupTotal) << MasksMenu.GetShowItemCount());
+					MasksMenu.Show();
+					while (!MasksMenu.Done())
+					{
+						DWORD Key=MasksMenu.ReadInput();
+						if(Key == KEY_ESC || Key == KEY_F10 || Key == KEY_ENTER || Key == KEY_NUMENTER)
+							break;
+						else
+							MasksMenu.ProcessKey(Key);
+					}
+					for (int i = 0; i < MasksMenu.GetItemCount(); ++i)
+					{
+						MasksMenu.UpdateItemFlags(i, MasksMenu.GetItemPtr(i)->Flags&~MIF_HIDDEN);
+					}
+					MasksMenu.SetPosition(-1, -1, -1, -1);
+					MasksMenu.SetTitle(MSG(MMenuMaskGroups));
+					MasksMenu.SetBottomTitle(MSG(MMaskGroupBottom));
+					MasksMenu.Show();
+				}
+			}
+			break;
+
 
 		default:
 			MasksMenu.ProcessInput();

@@ -11383,13 +11383,13 @@ MMenuSortUseCaseSensitive
 "Usar orden sensible a min/mayúsc."
 
 MMaskGroupBottom
-"Редактирование: Ins, Del, F4, Ctrl-R"
-"Edit: Ins, Del, F4, Ctrl-R"
-"Edit: Ins, Del, F4, Ctrl-R"
-"Tasten: Einf, Entf, F4, StrgR"
-"Szerk.: Ins, Del, F4, Ctrl-R"
-"Edycja: Ins, Del, F4, Ctrl-R"
-"Editar: Ins, Del, F4, Ctrl-R"
+"Редактирование: Ins, Del, F4, F7, Ctrl-R"
+"Edit: Ins, Del, F4, F7, Ctrl-R"
+"Edit: Ins, Del, F4, F7, Ctrl-R"
+"Tasten: Einf, Entf, F4, F7, StrgR"
+"Szerk.: Ins, Del, F4, F7, Ctrl-R"
+"Edycja: Ins, Del, F4, F7, Ctrl-R"
+"Editar: Ins, Del, F4, F7, Ctrl-R"
 
 MMaskGroupName
 "&Имя:"
@@ -11426,6 +11426,24 @@ upd:"Do you wish to restore default mask sets?"
 upd:"Do you wish to restore default mask sets?"
 upd:"Do you wish to restore default mask sets?"
 upd:"Do you wish to restore default mask sets?"
+
+MMaskGroupFindMask
+"&Маска:"
+"&Mask:"
+"&Maska"
+"&Maske:"
+"&Maszk:"
+"&Maska:"
+"&Máscara:"
+
+MMaskGroupTotal
+"Всего: %1"
+"Total: %1"
+"Celkem: %1"
+"Gesamt: %1"
+"Összesen: %1"
+"Razem: %1"
+"Total: %1"
 
 MChangeDriveTitle
 l:

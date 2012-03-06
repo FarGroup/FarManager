@@ -2140,6 +2140,11 @@ void VMenu::ShowMenu(bool IsParent)
 			VisualTopPos=0;
 	}
 
+	if (VisualTopPos > GetShowItemCount() - (Y2-Y1-1-((BoxType==NO_BOX)?2:0)))
+	{
+		VisualTopPos = 0;
+	}
+
 	if (VisualSelectPos > VisualTopPos+((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1))
 	{
 		VisualTopPos=VisualSelectPos-((BoxType!=NO_BOX)?Y2-Y1-2:Y2-Y1);
