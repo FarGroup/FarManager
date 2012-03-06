@@ -1524,8 +1524,8 @@ int Editor::ProcessKey(int Key)
 					}
 					else
 					{
-						SelStart=VBlockX;
-						SelEnd=SelStart+VBlockSizeX;
+						SelStart=CurLine->TabPosToReal(VBlockX);
+						SelEnd=CurLine->TabPosToReal(VBlockX+VBlockSizeX);
 					}
 				}
 
@@ -2368,7 +2368,7 @@ int Editor::ProcessKey(int Key)
 			if (!Flags.Check(FEDITOR_MARKINGVBLOCK))
 				BeginVBlockMarking();
 
-			if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->m_prev->GetLength())
+			if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->m_prev->RealPosToTab(CurLine->m_prev->GetLength()))
 				return TRUE;
 
 			Pasting++;
