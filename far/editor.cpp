@@ -390,8 +390,6 @@ void Editor::ShowEditor(void)
 
 	if (VBlockStart && VBlockSizeX>0 && VBlockSizeY>0)
 	{
-		int TabVBlockX1=VBlockStart->RealPosToTab(VBlockX);
-		int TabVBlockX2=VBlockStart->RealPosToTab(VBlockX+VBlockSizeX);
 		int CurScreenLine=NumLine-CalcDistance(TopScreen,CurLine,-1);
 		LeftPos=CurLine->GetLeftPos();
 
@@ -401,8 +399,8 @@ void Editor::ShowEditor(void)
 			{
 				if (CurScreenLine>=VBlockY && CurScreenLine<VBlockY+VBlockSizeY)
 				{
-					int BlockX1=TabVBlockX1-LeftPos+X1;
-					int BlockX2=TabVBlockX2-1-LeftPos+X1;
+					int BlockX1=VBlockX-LeftPos+X1;
+					int BlockX2=VBlockX+VBlockSizeX-1-LeftPos+X1;
 
 					if (BlockX1<X1)
 						BlockX1=X1;
@@ -460,7 +458,7 @@ int Editor::BlockStart2NumLine(int *Pos)
 		if (Pos)
 		{
 			if (VBlockStart)
-				*Pos=eBlock->RealPosToTab(VBlockX);
+				*Pos=eBlock->RealPosToTab(eBlock->TabPosToReal(VBlockX));
 			else
 				*Pos=eBlock->RealPosToTab(eBlock->SelStart);
 		}
@@ -486,7 +484,7 @@ int Editor::BlockEnd2NumLine(int *Pos)
 		{
 			for (int Line=VBlockSizeY; eLine  && Line > 0; Line--, eLine=eLine->m_next)
 			{
-				iPos=eLine->RealPosToTab(VBlockX+VBlockSizeX);
+				iPos=eLine->RealPosToTab(eLine->TabPosToReal(VBlockX+VBlockSizeX));
 				iLine++;
 			}
 
@@ -2191,12 +2189,14 @@ int Editor::ProcessKey(int Key)
 
 			Pasting++;
 			{
-				if (CurVisPos>VBlockStart->RealPosToTab(VBlockX))
-					--VBlockSizeX;
+				int Delta=CurLine->GetTabCurPos()-CurLine->RealPosToTab(CurPos-1);
+
+				if (CurLine->GetTabCurPos()>VBlockX)
+					VBlockSizeX-=Delta;
 				else
 				{
-					--VBlockX;
-					++VBlockSizeX;
+					VBlockX-=Delta;
+					VBlockSizeX+=Delta;
 				}
 
 				/* $ 25.07.2000 tran
@@ -2209,7 +2209,6 @@ int Editor::ProcessKey(int Key)
 
 				ProcessKey(KEY_LEFT);
 			}
-			AdjustVBlock(CurVisPos);
 			Pasting--;
 			Show();
 			//_D(SysLog(L"VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos()));
@@ -2234,17 +2233,25 @@ int Editor::ProcessKey(int Key)
 			//_D(SysLog(L"---------------- KEY_ALTRIGHT, getLineCurPos=%i",GetLineCurPos()));
 			Pasting++;
 			{
+				int Delta;
 				/* $ 18.07.2000 tran
 				     встань в начало текста, нажми alt-right, alt-pagedown,
 				     выделится блок шириной в 1 колонку, нажми еще alt-right
 				     выделение сбросится
 				*/
-				if (CurVisPos>=VBlockStart->RealPosToTab(VBlockX+VBlockSizeX))
-					++VBlockSizeX;
+				int VisPos=CurLine->RealPosToTab(CurPos),
+				           NextVisPos=CurLine->RealPosToTab(CurPos+1);
+				//_D(SysLog(L"CurPos=%i, VisPos=%i, NextVisPos=%i",
+				//    CurPos,VisPos, NextVisPos); //,CurLine->GetTabCurPos()));
+				Delta=NextVisPos-VisPos;
+				//_D(SysLog(L"Delta=%i",Delta));
+
+				if (CurLine->GetTabCurPos()>=VBlockX+VBlockSizeX)
+					VBlockSizeX+=Delta;
 				else
 				{
-					++VBlockX;
-					--VBlockSizeX;
+					VBlockX+=Delta;
+					VBlockSizeX-=Delta;
 				}
 
 				/* $ 25.07.2000 tran
@@ -2258,7 +2265,6 @@ int Editor::ProcessKey(int Key)
 				ProcessKey(KEY_RIGHT);
 				//_D(SysLog(L"VBlockX=%i, VBlockSizeX=%i, GetLineCurPos=%i",VBlockX,VBlockSizeX,GetLineCurPos()));
 			}
-			AdjustVBlock(CurVisPos);
 			Pasting--;
 			Show();
 			//_D(SysLog(L"~~~~~~~~~~~~~~~~ KEY_ALTRIGHT END, VBlockY=%i:%i, VBlockX=%i:%i",VBlockY,VBlockSizeY,VBlockX,VBlockSizeX));
@@ -2373,7 +2379,7 @@ int Editor::ProcessKey(int Key)
 			{
 				VBlockY--;
 				VBlockSizeY++;
-				UpdateVBlockStart(VBlockStart->m_prev);
+				VBlockStart=VBlockStart->m_prev;
 				BlockStartLine--;
 			}
 
@@ -2395,7 +2401,7 @@ int Editor::ProcessKey(int Key)
 			if (!Flags.Check(FEDITOR_MARKINGVBLOCK))
 				BeginVBlockMarking();
 
-			if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->m_next->GetLength())
+			if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->m_next->RealPosToTab(CurLine->m_next->GetLength()))
 				return TRUE;
 
 			Pasting++;
@@ -2406,7 +2412,7 @@ int Editor::ProcessKey(int Key)
 			{
 				VBlockY++;
 				VBlockSizeY--;
-				UpdateVBlockStart(VBlockStart->m_next);
+				VBlockStart=VBlockStart->m_next;
 				BlockStartLine++;
 			}
 
@@ -3233,7 +3239,7 @@ void Editor::DeleteString(Edit *DelPtr, int LineNumber, int DeleteLast,int UndoL
 	}
 
 	if (DelPtr==VBlockStart)
-		UpdateVBlockStart(VBlockStart->m_next);
+		VBlockStart=VBlockStart->m_next;
 
 	if (UndoLine!=-1)
 		AddUndoData(UNDO_DELSTR,DelPtr->GetStringAddr(),DelPtr->GetEOL(),UndoLine,0,DelPtr->GetLength());
@@ -5115,7 +5121,7 @@ void Editor::DeleteVBlock()
 			{
 				TopScreen=NewTopScreen;
 				CurLine=CurPtr;
-				CurPtr->SetCurPos(VBlockX);
+				CurPtr->SetTabCurPos(VBlockX);
 				break;
 			}
 
@@ -5130,29 +5136,28 @@ void Editor::DeleteVBlock()
 
 	Edit *CurPtr=VBlockStart;
 
-	int TabVBlockX1=VBlockStart->RealPosToTab(VBlockX);
-	int TabVBlockX2=VBlockStart->RealPosToTab(VBlockX+VBlockSizeX);
 	for (int Line=0; CurPtr && Line<VBlockSizeY; Line++,CurPtr=CurPtr->m_next)
 	{
 		TextChanged(1);
-		int RealBlockX=CurPtr->TabPosToReal(TabVBlockX1);
-		int RealBlockSizeX=CurPtr->TabPosToReal(TabVBlockX2)-RealBlockX;
+		int TBlockX=CurPtr->TabPosToReal(VBlockX);
+		int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
+		                CurPtr->TabPosToReal(VBlockX);
 		const wchar_t *CurStr,*EndSeq;
 		int Length;
 		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
 
-		if (RealBlockX>=Length)
+		if (TBlockX>=Length)
 			continue;
 
 		AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurPtr->GetCurPos(),CurPtr->GetLength());
 		wchar_t *TmpStr=new wchar_t[Length+3];
-		int CurLength=RealBlockX;
-		wmemcpy(TmpStr,CurStr,RealBlockX);
+		int CurLength=TBlockX;
+		wmemcpy(TmpStr,CurStr,TBlockX);
 
-		if (Length>RealBlockX+RealBlockSizeX)
+		if (Length>TBlockX+TBlockSizeX)
 		{
-			int CopySize=Length-(RealBlockX+RealBlockSizeX);
-			wmemcpy(TmpStr+CurLength,CurStr+RealBlockX+RealBlockSizeX,CopySize);
+			int CopySize=Length-(TBlockX+TBlockSizeX);
+			wmemcpy(TmpStr+CurLength,CurStr+TBlockX+TBlockSizeX,CopySize);
 			CurLength+=CopySize;
 		}
 
@@ -5162,12 +5167,12 @@ void Editor::DeleteVBlock()
 		int CurPos=CurPtr->GetCurPos();
 		CurPtr->SetBinaryString(TmpStr,CurLength);
 
-		if (CurPos>RealBlockX)
+		if (CurPos>TBlockX)
 		{
-			CurPos-=RealBlockSizeX;
+			CurPos-=TBlockSizeX;
 
-			if (CurPos<RealBlockX)
-				CurPos=RealBlockX;
+			if (CurPos<TBlockX)
+				CurPos=TBlockX;
 		}
 
 		CurPtr->SetCurPos(CurPos);
@@ -5238,34 +5243,32 @@ wchar_t *Editor::VBlock2Text(wchar_t *ptrInitData)
 
 	Edit *CurPtr=VBlockStart;
 
-	int TabVBlockX1=VBlockStart->RealPosToTab(VBlockX);
-	int TabVBlockX2=VBlockStart->RealPosToTab(VBlockX+VBlockSizeX);
 	for (int Line=0; CurPtr && Line<VBlockSizeY; Line++,CurPtr=CurPtr->m_next)
 	{
-		int RealBlockX=CurPtr->TabPosToReal(TabVBlockX1);
-		int RealBlockSizeX=CurPtr->TabPosToReal(TabVBlockX2)-RealBlockX;
+		int TBlockX=CurPtr->TabPosToReal(VBlockX);
+		int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-TBlockX;
 		const wchar_t *CurStr,*EndSeq;
 		int Length;
 		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
 
-		if (Length>RealBlockX)
+		if (Length>TBlockX)
 		{
-			int CopySize=Length-RealBlockX;
+			int CopySize=Length-TBlockX;
 
-			if (CopySize>RealBlockSizeX)
-				CopySize=RealBlockSizeX;
+			if (CopySize>TBlockSizeX)
+				CopySize=TBlockSizeX;
 
-			wmemcpy(CopyData+DataSize,CurStr+RealBlockX,CopySize);
+			wmemcpy(CopyData+DataSize,CurStr+TBlockX,CopySize);
 
-			if (CopySize<RealBlockSizeX)
-				wmemset(CopyData+DataSize+CopySize,L' ',RealBlockSizeX-CopySize);
+			if (CopySize<TBlockSizeX)
+				wmemset(CopyData+DataSize+CopySize,L' ',TBlockSizeX-CopySize);
 		}
 		else
 		{
-			wmemset(CopyData+DataSize,L' ',RealBlockSizeX);
+			wmemset(CopyData+DataSize,L' ',TBlockSizeX);
 		}
 
-		DataSize+=RealBlockSizeX;
+		DataSize+=TBlockSizeX;
 		wcscpy(CopyData+DataSize,DOS_EOL_fmt);
 		DataSize+=2;
 	}
@@ -5359,9 +5362,6 @@ void Editor::VPaste(wchar_t *ClipText)
 			CurLine->SetOvertypeMode(TRUE);
 		}
 
-		int NewVBlockX=VBlockStart->TabPosToReal(VBlockX);
-		VBlockSizeX=VBlockStart->TabPosToReal(VBlockX+VBlockSizeX)-NewVBlockX;
-		VBlockX=NewVBlockX;
 		TopScreen=SavedTopScreen;
 		CurLine=VBlockStart;
 		NumLine=BlockStartLine;
@@ -5383,52 +5383,52 @@ void Editor::VBlockShift(int Left)
 	Edit *CurPtr=VBlockStart;
 	AddUndoData(UNDO_BEGIN);
 
-	int TabVBlockX1=VBlockStart->RealPosToTab(VBlockX);
-	int TabVBlockX2=VBlockStart->RealPosToTab(VBlockX+VBlockSizeX);
 	for (int Line=0; CurPtr && Line<VBlockSizeY; Line++,CurPtr=CurPtr->m_next)
 	{
 		TextChanged(1);
-		int RealBlockX=CurPtr->TabPosToReal(TabVBlockX1);
-		int RealBlockSizeX=CurPtr->TabPosToReal(TabVBlockX2)-RealBlockX;
+		int TBlockX=CurPtr->TabPosToReal(VBlockX);
+		int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
+		                CurPtr->TabPosToReal(VBlockX);
 		const wchar_t *CurStr,*EndSeq;
 		int Length;
 		CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
 
-		if (RealBlockX>Length)
+		if (TBlockX>Length)
 			continue;
 
-		if ((Left && CurStr[RealBlockX-1]==L'\t') ||
-		        (!Left && RealBlockX+RealBlockSizeX<Length && CurStr[RealBlockX+RealBlockSizeX]==L'\t'))
+		if ((Left && CurStr[TBlockX-1]==L'\t') ||
+		        (!Left && TBlockX+TBlockSizeX<Length && CurStr[TBlockX+TBlockSizeX]==L'\t'))
 		{
 			CurPtr->ReplaceTabs();
 			CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-			RealBlockX=CurPtr->TabPosToReal(TabVBlockX1);
-			RealBlockSizeX=CurPtr->TabPosToReal(TabVBlockX2)-RealBlockX;
+			TBlockX=CurPtr->TabPosToReal(VBlockX);
+			TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
+			            CurPtr->TabPosToReal(VBlockX);
 		}
 
 		AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurPtr->GetCurPos(),CurPtr->GetLength());
-		int StrLen=Max(Length,RealBlockX+RealBlockSizeX+!Left);
+		int StrLen=Max(Length,TBlockX+TBlockSizeX+!Left);
 		wchar_t *TmpStr=new wchar_t[StrLen+3];
 		wmemset(TmpStr,L' ',StrLen);
 		wmemcpy(TmpStr,CurStr,Length);
 
 		if (Left)
 		{
-			WCHAR Ch=TmpStr[RealBlockX-1];
+			WCHAR Ch=TmpStr[TBlockX-1];
 
-			for (int I=RealBlockX; I<RealBlockX+RealBlockSizeX; I++)
+			for (int I=TBlockX; I<TBlockX+TBlockSizeX; I++)
 				TmpStr[I-1]=TmpStr[I];
 
-			TmpStr[RealBlockX+RealBlockSizeX-1]=Ch;
+			TmpStr[TBlockX+TBlockSizeX-1]=Ch;
 		}
 		else
 		{
-			int Ch=TmpStr[RealBlockX+RealBlockSizeX];
+			int Ch=TmpStr[TBlockX+TBlockSizeX];
 
-			for (int I=RealBlockX+RealBlockSizeX-1; I>=RealBlockX; I--)
+			for (int I=TBlockX+TBlockSizeX-1; I>=TBlockX; I--)
 				TmpStr[I+1]=TmpStr[I];
 
-			TmpStr[RealBlockX]=Ch;
+			TmpStr[TBlockX]=Ch;
 		}
 
 		while (StrLen>0 && TmpStr[StrLen-1]==L' ')
@@ -5443,7 +5443,7 @@ void Editor::VBlockShift(int Left)
 	}
 
 	VBlockX+=Left ? -1:1;
-	CurLine->SetCurPos(Left ? VBlockX:VBlockX+VBlockSizeX);
+	CurLine->SetTabCurPos(Left ? VBlockX:VBlockX+VBlockSizeX);
 	AddUndoData(UNDO_END);
 }
 
@@ -5486,8 +5486,10 @@ int Editor::EditorControl(int Command,void *Param)
 				}
 				else if (VBlockStart && DestLine>=VBlockY && DestLine<VBlockY+VBlockSizeY)
 				{
-					GetString->SelStart=CurPtr->TabPosToReal(VBlockStart->RealPosToTab(VBlockX));
-					GetString->SelEnd=CurPtr->TabPosToReal(VBlockStart->RealPosToTab(VBlockX+VBlockSizeX));
+					GetString->SelStart=CurPtr->TabPosToReal(VBlockX);
+					GetString->SelEnd=GetString->SelStart+
+					                  CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
+					                  CurPtr->TabPosToReal(VBlockX);
 				}
 
 				_ECTLLOG(SysLog(L"EditorGetString{"));
@@ -6618,7 +6620,7 @@ void Editor::BeginVBlockMarking()
 {
 	UnmarkBlock();
 	VBlockStart=CurLine;
-	VBlockX=CurLine->GetCurPos();
+	VBlockX=CurLine->GetTabCurPos();
 	VBlockSizeX=0;
 	VBlockY=NumLine;
 	VBlockSizeY=1;
@@ -6631,43 +6633,39 @@ void Editor::AdjustVBlock(int PrevX)
 {
 	int x=GetLineCurPos();
 	int c2;
-	int TabVBlockX=VBlockStart->RealPosToTab(VBlockX);
-	int TabVBlockSizeX=VBlockStart->RealPosToTab(VBlockX+VBlockSizeX)-TabVBlockX;
 
 	//_D(SysLog(L"AdjustVBlock, x=%i,   vblock is VBlockY=%i:%i, VBlockX=%i:%i, PrevX=%i",x,VBlockY,VBlockSizeY,VBlockX,VBlockSizeX,PrevX));
-	if (x==TabVBlockX+TabVBlockSizeX)   // ничего не случилось, никаких табуляций нет
+	if (x==VBlockX+VBlockSizeX)   // ничего не случилось, никаких табуляций нет
 		return;
 
-	if (x>TabVBlockX)    // курсор убежал внутрь блока
+	if (x>VBlockX)    // курсор убежал внутрь блока
 	{
-		TabVBlockSizeX=x-TabVBlockX;
+		VBlockSizeX=x-VBlockX;
 		//_D(SysLog(L"x>VBlockX");
 	}
-	else if (x<TabVBlockX)   // курсор убежал за начало блока
+	else if (x<VBlockX)   // курсор убежал за начало блока
 	{
-		c2=TabVBlockX;
+		c2=VBlockX;
 
-		if (PrevX>TabVBlockX)      // сдвигались вправо, а пришли влево
+		if (PrevX>VBlockX)      // сдвигались вправо, а пришли влево
 		{
-			TabVBlockX=x;
-			TabVBlockSizeX=c2-x;   // меняем блок
+			VBlockX=x;
+			VBlockSizeX=c2-x;   // меняем блок
 		}
 		else      // сдвигались влево и пришли еще больше влево
 		{
-			TabVBlockX=x;
-			TabVBlockSizeX+=c2-x;  // расширяем блок
+			VBlockX=x;
+			VBlockSizeX+=c2-x;  // расширяем блок
 		}
 
 		//_D(SysLog(L"x<VBlockX"));
 	}
-	else if (x==TabVBlockX && x!=PrevX)
+	else if (x==VBlockX && x!=PrevX)
 	{
-		TabVBlockSizeX=0;  // ширина в 0, потому прыгнули прям на табуляцию
+		VBlockSizeX=0;  // ширина в 0, потому прыгнули прям на табуляцию
 		//_D(SysLog(L"x==VBlockX && x!=PrevX"));
 	}
 
-	VBlockX=VBlockStart->TabPosToReal(TabVBlockX);
-	VBlockSizeX=VBlockStart->TabPosToReal(TabVBlockX+TabVBlockSizeX)-VBlockX;
 	// примечание
 	//   случай x>VBLockX+VBlockSizeX не может быть
 	//   потому что курсор прыгает назад на табуляцию, но не вперед
@@ -6686,22 +6684,21 @@ void Editor::Xlat()
 	{
 		CurPtr=VBlockStart;
 
-		int TabVBlockX1=VBlockStart->RealPosToTab(VBlockX);
-		int TabVBlockX2=VBlockStart->RealPosToTab(VBlockX+VBlockSizeX);
 		for (Line=0; CurPtr && Line<VBlockSizeY; Line++,CurPtr=CurPtr->m_next)
 		{
-			int RealBlockX=CurPtr->TabPosToReal(TabVBlockX1);
-			int RealBlockSizeX=CurPtr->TabPosToReal(TabVBlockX2)-RealBlockX;
+			int TBlockX=CurPtr->TabPosToReal(VBlockX);
+			int TBlockSizeX=CurPtr->TabPosToReal(VBlockX+VBlockSizeX)-
+			                CurPtr->TabPosToReal(VBlockX);
 			const wchar_t *CurStr,*EndSeq;
 			int Length;
 			CurPtr->GetBinaryString(&CurStr,&EndSeq,Length);
-			int CopySize=Length-RealBlockX;
+			int CopySize=Length-TBlockX;
 
-			if (CopySize>RealBlockSizeX)
-				CopySize=RealBlockSizeX;
+			if (CopySize>TBlockSizeX)
+				CopySize=TBlockSizeX;
 
 			AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),CurPtr->GetLength());
-			::Xlat(CurPtr->Str,RealBlockX,RealBlockX+CopySize,Opt.XLat.Flags);
+			::Xlat(CurPtr->Str,TBlockX,TBlockX+CopySize,Opt.XLat.Flags);
 			Change(ECTYPE_CHANGED,BlockStartLine+Line);
 		}
 
@@ -7286,15 +7283,4 @@ void Editor::Change(EDITOR_CHANGETYPE Type,int StrNum)
 	++EditorControlLock;
 	CtrlObject->Plugins->ProcessEditorEvent(EE_CHANGE,&ec,EditorID);
 	--EditorControlLock;
-}
-
-void Editor::UpdateVBlockStart(Edit* NewVBlockStart)
-{
-	int NewVBlockX=VBlockStart->RealPosToTab(VBlockX);
-	VBlockSizeX=VBlockStart->RealPosToTab(VBlockX+VBlockSizeX)-NewVBlockX;
-	VBlockX=NewVBlockX;
-	VBlockStart=NewVBlockStart;
-	NewVBlockX=VBlockStart->TabPosToReal(VBlockX);
-	VBlockSizeX=VBlockStart->TabPosToReal(VBlockX+VBlockSizeX)-NewVBlockX;
-	VBlockX=NewVBlockX;
 }
