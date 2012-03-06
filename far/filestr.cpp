@@ -283,6 +283,7 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 
 					break;
 				}
+				ReadSize *= sizeof(wchar_t);
 
 				if (bBigEndian)
 					_swab(reinterpret_cast<char*>(wReadBuf), reinterpret_cast<char*>(wReadBuf), ReadSize);
