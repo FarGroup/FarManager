@@ -262,7 +262,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 			{
 				SMALL_RECT ReadRegion={static_cast<SHORT>(OWi), 0, static_cast<SHORT>(NewX-1), static_cast<SHORT>(NewY-1)};
 				Console.ReadOutput(Tmp, Size, Coord, ReadRegion);
-				for(int i=0; i<Size.Y;i++)
+				for(int i=0; i<NewY;i++)
 				{
 					CharCopy(&NewBuf[i*NewX+OWi],&Tmp[i*Size.X], Size.X);
 				}
@@ -272,7 +272,10 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 				SMALL_RECT WriteRegion={static_cast<SHORT>(NewX), static_cast<SHORT>(NewY-OHe), static_cast<SHORT>(OWi-1), static_cast<SHORT>(NewY-1)};
 				for(int i=0; i<Size.Y;i++)
 				{
-					CharCopy(&Tmp[i*Size.X],&ScreenBuf[i*OWi+NewX], Size.X);
+					if (i < OHe)
+						CharCopy(&Tmp[i*Size.X],&ScreenBuf[i*OWi+NewX], Size.X);
+					else
+						CleanupBuffer(&Tmp[i*Size.X], Size.X);
 				}
 				Console.WriteOutput(Tmp, Size, Coord, WriteRegion);
 				Console.Commit();
