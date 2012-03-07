@@ -33,15 +33,24 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "imports.hpp"
+
 class GuardLastError
 {
-	private:
-		DWORD LastError;
+public:
+	GuardLastError():
+		LastError(GetLastError()),
+		LastStatus(ifn.RtlGetLastNtStatus())
+	{
+	}
 
-	public:
-		GuardLastError() {LastError=GetLastError();}
-		~GuardLastError() {SetLastError(LastError);}
+	~GuardLastError()
+	{
+		SetLastError(LastError);
+		ifn.RtlNtStatusToDosError(LastStatus);
+	}
 
-	public:
-		DWORD Get() const {return LastError;}
+private:
+	DWORD LastError;
+	NTSTATUS LastStatus;
 };

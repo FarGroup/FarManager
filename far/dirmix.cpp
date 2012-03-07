@@ -135,12 +135,12 @@ int TestFolder(const wchar_t *Path)
 
 	if (!bFind)
 	{
-		GuardLastError lstError;
-
-		if (lstError.Get() == ERROR_FILE_NOT_FOUND || lstError.Get() == ERROR_NO_MORE_FILES)
+		GuardLastError gle;
+		DWORD LastError = GetLastError();
+		if (LastError == ERROR_FILE_NOT_FOUND || LastError == ERROR_NO_MORE_FILES)
 			return TSTFLD_EMPTY;
 
-		if (lstError.Get() == ERROR_PATH_NOT_FOUND)
+		if (LastError == ERROR_PATH_NOT_FOUND)
 			return TSTFLD_NOTFOUND;
 
 		// собственно... не факт, что диск не читаем, т.к. на чистом диске в корне нету даже "."
@@ -152,7 +152,7 @@ int TestFolder(const wchar_t *Path)
 			// проверка атрибутов гарантировано скажет - это бага BugZ#743 или пустой корень диска.
 			if (apiGetFileAttributes(strFindPath)!=INVALID_FILE_ATTRIBUTES)
 			{
-				if (lstError.Get() == ERROR_ACCESS_DENIED)
+				if (LastError == ERROR_ACCESS_DENIED)
 					return TSTFLD_NOTACCESS;
 
 				return TSTFLD_EMPTY;
