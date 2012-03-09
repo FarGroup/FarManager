@@ -773,18 +773,18 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 	for (;;)
 	{
+		// "Реакция" на максимизацию/восстановление окна консоли
+		if (ZoomedState!=IsZoomed(Console.GetWindow()) && IconicState==IsIconic(Console.GetWindow()))
+		{
+			ZoomedState=!ZoomedState;
+			ChangeVideoMode(ZoomedState);
+		}
+
 		if (!(LoopCount & 15))
 		{
 			if(CtrlObject->Plugins->GetPluginsCount())
 			{
 				SetFarConsoleMode();
-			}
-
-			// "Реакция" на максимизацию/восстановление окна консоли
-			if (ZoomedState!=IsZoomed(Console.GetWindow()) && IconicState==IsIconic(Console.GetWindow()))
-			{
-				ZoomedState=!ZoomedState;
-				ChangeVideoMode(ZoomedState);
 			}
 
 			bool CurrentFullscreenState=IsConsoleFullscreen();
