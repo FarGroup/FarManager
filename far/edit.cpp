@@ -3179,8 +3179,14 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 				if(NameMatch || AltNameMatch)
 				{
 					strStr.SetLength(FileName-strStr);
-					string strTmp(strStart+strStr);
-					strTmp+=NameMatch?d.strFileName:d.strAlternateFileName;
+					string strAdd (strStr + (NameMatch ? d.strFileName : d.strAlternateFileName));
+					if (!StartQuote)
+						QuoteSpace(strAdd);
+
+					string strTmp(strStart+strAdd);
+					if(StartQuote)
+						strTmp += L'"';
+
 					if(!Separator)
 					{
 						if(Menu.GetItemCount())
@@ -3195,10 +3201,6 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 							Menu.SetTitle(MSG(MCompletionFilesTitle));
 						}
 						Separator=true;
-					}
-					if(StartQuote)
-					{
-						strTmp+=L'"';
 					}
 					Menu.AddItem(strTmp);
 				}
