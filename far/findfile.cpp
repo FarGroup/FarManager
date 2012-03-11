@@ -2759,7 +2759,7 @@ void DoPrepareFileList(HANDLE hDlg)
 	string strRoot;
 	CtrlObject->CmdLine->GetCurDir(strRoot);
 	if (strRoot.Contains(L';'))
-		strRoot = L"\"" + strRoot + L"\"";
+		InsertQuote(strRoot);
 
 	UserDefinedList List(L';',L';',ULF_UNIQUE);
 
