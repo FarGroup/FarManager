@@ -3,6 +3,98 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 12.03.2012 00:04:46 +0400 - build 2537
+
+1. correction of 2536
+
+2. M#2049: Autocompletion does not work if the folder name contains spaces
+
+w17 11.03.2012 14:38:39 +0400 - build 2536
+
+1. M#2048: Search in directories containing ";"
+
+w17 09.03.2012 11:31:30 +0400 build - 2535
+
+1. M#2045 - Win+Up does not maximize the FAR window
+
+w17 07.03.2012 23:39:00 +0400 build - 2534
+
+1. the cause of crash is formally eliminated. what the code doe is a secret for me
+
+drkns 07.03.2012 15:06:24 +0200 - build 2533
+
+1. Now GuardLastError class also stores ntstatus.
+
+w17 07.03.2012 09:12:30 +0400 - build 2532
+
+1. correction in 2531
+
+drkns 06.03.2012 19:31:53 +0200 - build 2531
+
+1. A workaround for a bug in ShellExecuteEx.
+
+zg 06.03.2012 17:53:49 +0200 - build 2530
+
+1. if the cursor was hidden, alt-up could be broken beyond lines and in tabulation spaces.
+
+2. correction of 2525 for vertical blocks old behaviour.
+
+zg 06.03.2012 17:31:05 +0200 - build 2529
+
+1. rollback of 2524.
+
+drkns 06.03.2012 15:07:46 +0200 - build 2528
+
+1. From Tim Sobolev: search in mask groups menu.
+
+w17 06.03.2012 14:50:05 +0400 - build 2527
+
+1. Unicode .hlf file reading error
+
+drkns 06.03.2012 10:46:25 +0200 - build 2526
+
+1. In some cases the necessary width of messages was calculated incorrectly.
+
+zg 06.03.2012 04:46:05 +0200 - build 2525
+
+1. correction of 2357.1. the width of vertical block is calculated correctly. take into account it can be inexisting even if the vertical selection exists in the current line.
+
+zg 06.03.2012 04:05:03 +0200 - build 2524
+
+1. vertical blocks redone. now block is bound to symbols instead of screen position.
+
+zg 05.03.2012 20:23:08 +0200 - build 2523
+
+1. Cannot select zero width vertical block with editor.sel.
+
+zg 05.03.2012 16:18:48 +0200 - build 2522
+
+1. 0002043: Editor.Sel(1,1) does not work in the editor in described situation
+
+svs 05.03.2012 12:30:56 +0400 - build 2521
+
+1. Variables moved from Options into the separate ExecuteOptions structure
+   strExcludeCmds and strHomeDir (cd ~) are added to ExecuteOptions
+
+2. Getting rid of GeneralCfg->GetValue() in execution code
+
+svs 05.03.2012 11:48:02 +0400 - build 2520
+
+1. Mantis#0002041: DN_LISTHOTKEY - incorrect functioning in combo boxes
+    Incorrect positioning is observed in dialogs when an item is chosen with a hotkey in a combo. 
+    The main problem is caused with the following one:
+    "Modal::ExitCode = -1;" in "VMenu::DisplayObject()"
+    
+    Being chosen with a hotkey, ExitCode is set to a needed value in VMenu::CheckKeyHiOrAcc() function, then EndLoop loop finish flag is set.
+    The plugin gets DN_LISTHOTKEY notification from VMenu::ProcessKey(). As the plugin has normally returned 'false', the code setting the position back into
+    its previous value does not execute.
+    After that, ExitCode is reset to -1 in VMenu::DisplayObject().
+    Then, combo processing loop in Dialog::SelectFromComboBox() is finished, "Dest=ComboBox->Modal::GetExitCode();" position is acquired,
+    which is already -1 ==> "ComboBox->SetSelectPos(OriginalPos,0);" is invoked (the plugin is not notified of that).
+
+    The second problem: the plugin responded 'true' to DN_LISTHOTKEY. 
+    Here, the docs have to be updated, because the phrase "TRUE - plugin has processed the event." does not really clear things :-)
+
 drkns 04.03.2012 21:22:30 +0200 - build 2519
 
 1. Correction of 2517.
