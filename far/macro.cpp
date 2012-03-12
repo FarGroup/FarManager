@@ -463,7 +463,11 @@ static TMacroFunction intMacroFunction[]=
 	{L"PANEL.SETPOS",     nullptr, L"N=panel.SetPos(panelType,fileName)",                        panelsetposFunc,    nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOS,    },
 	{L"PANEL.SETPOSIDX",  nullptr, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])",            panelsetposidxFunc, nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOSIDX, },
 	{L"PANELITEM",        nullptr, L"V=PanelItem(Panel,Index,TypeInfo)",                         panelitemFunc,      nullptr, 0, 0,                                      MCODE_F_PANELITEM,       },
+	{L"PLUGIN.CALL",      nullptr, L"N=Plugin.Call(Guid[,MenuGuid])",                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CALL,     },
+	{L"PLUGIN.CONFIG",    nullptr, L"N=Plugin.Config(Guid[,MenuGuid])",                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CONFIG,   },
+	{L"PLUGIN.INT",       nullptr, L"N=Plugin.Int(Guid[,Item])",                                 usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_INT,      },
 	{L"PLUGIN.LOAD",      nullptr, L"N=Plugin.Load(DllPath[,ForceLoad])",                        pluginloadFunc,     nullptr, 0, 0,                                      MCODE_F_PLUGIN_LOAD,     },
+	{L"PLUGIN.PREFIX",    nullptr, L"N=Plugin.Prefix(Guid[,Command])",                           usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_PREFIX,   },
 	{L"PLUGIN.UNLOAD",    nullptr, L"N=Plugin.UnLoad(DllPath)",                                  pluginunloadFunc,   nullptr, 0, 0,                                      MCODE_F_PLUGIN_UNLOAD,   },
 	{L"PRINT",            nullptr, L"N=Print(Str)",                                              usersFunc,          nullptr, 0, 0,                                      MCODE_F_PRINT,           },
 	{L"PROMPT",           nullptr, L"S=Prompt([Title[,Prompt[,flags[,Src[,History]]]]])",        promptFunc,         nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PROMPT,          },
@@ -666,9 +670,9 @@ void KeyMacro::InitInternalLIBVars()
 		}
 		if (0==MacroLIBCount)
 		{
-		xf_free(MacroLIB);
-			MacroLIB=nullptr;
-	}
+			xf_free(MacroLIB);
+				MacroLIB=nullptr;
+		}
 	}
 	else
 	{
@@ -845,7 +849,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
 			DWORD MacroKey;
 			// выставляем флаги по умолчанию.
-			UINT64 Flags=MFLAGS_DISABLEOUTPUT; // ???
+			UINT64 Flags=MFLAGS_DISABLEOUTPUT|MFLAGS_CALLPLUGINENABLEMACRO; // ???
 			int AssignRet=AssignMacroKey(MacroKey,Flags);
 			FrameManager->ResetLastInputRecord();
 			FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
@@ -4504,6 +4508,7 @@ static bool pluginunloadFunc(const TMacroFunction*)
 }
 
 
+
 static void VarToFarMacroValue(const TVar& From,FarMacroValue& To)
 {
 	To.Type=(FARMACROVARTYPE)From.type();
@@ -4813,6 +4818,9 @@ done:
 		//FrameManager->RefreshFrame();
 		//FrameManager->PluginCommit();
 		_KEYMACRO(SysLog(-1); SysLog(L"[%d] **** End Of Execute Macro ****",__LINE__));
+		if (--Work.KeyProcess < 0)
+			Work.KeyProcess=0;
+		_KEYMACRO(SysLog(L"Work.KeyProcess=%d",Work.KeyProcess));
 
 		if (Work.MacroWORKCount <= 0 && CurPCStack >= 0)
 		{
@@ -4852,7 +4860,7 @@ done:
 
 	if (Work.KeyProcess && Key != MCODE_OP_ENDKEYS)
 	{
-		_KEYMACRO(SysLog(L"[%d] IP=%d  %s (Work.KeyProcess && Key != MCODE_OP_ENDKEYS)",__LINE__,Work.ExecLIBPos-1,_FARKEY_ToName(Key)));
+		_KEYMACRO(SysLog(L"[%d] IP=%d  %s (Work.KeyProcess (%d) && Key != MCODE_OP_ENDKEYS)",__LINE__,Work.ExecLIBPos-1,_FARKEY_ToName(Key),Work.KeyProcess));
 		goto return_func;
 	}
 
@@ -4865,13 +4873,13 @@ done:
 			goto begin;
 		case MCODE_OP_KEYS:                    // за этим кодом следуют ФАРовы коды клавиш
 		{
-			_KEYMACRO(SysLog(L"MCODE_OP_KEYS"));
+			_KEYMACRO(SysLog(L"MCODE_OP_KEYS (Work.KeyProcess=%d)",Work.KeyProcess));
 			Work.KeyProcess++;
 			goto begin;
 		}
 		case MCODE_OP_ENDKEYS:                 // ФАРовы коды закончились.
 		{
-			_KEYMACRO(SysLog(L"MCODE_OP_ENDKEYS"));
+			_KEYMACRO(SysLog(L"MCODE_OP_ENDKEYS (Work.KeyProcess=%d)",Work.KeyProcess));
 			Work.KeyProcess--;
 			goto begin;
 		}
@@ -5699,6 +5707,8 @@ done:
 		}
 
 		case MCODE_F_CALLPLUGIN: // V=callplugin(SysID[,param])
+		// Алиас CallPlugin, для общности
+		case MCODE_F_PLUGIN_INT: // V=Plugin.Int(SysID[,param])
 		{
 			__int64 Ret=0;
 			int count=VMStack.Pop().getInteger();
@@ -5727,7 +5737,10 @@ done:
 					int CallPluginRules=GetCurrentCallPluginMode();
 
 					if( CallPluginRules == 1)
+					{
 						PushState(true);
+						VMStack.Push(1);
+					}
 					else
 						InternalInput++;
 
@@ -5739,8 +5752,13 @@ done:
 					if( CallPluginRules == 1 )
 						PopState();
 					else
+					{
+						VMStack.Push(Ret);
 						InternalInput--;
+					}
 				}
+				else
+					VMStack.Push(Ret);
 
 				if(vParams)
 				{
@@ -5754,8 +5772,81 @@ done:
 				if (Work.Executing == MACROMODE_NOMACRO)
 					goto return_func;
 			}
+			else
+				VMStack.Push(Ret);
+			goto begin;
+		}
 
-			VMStack.Push(Ret);
+		case MCODE_F_PLUGIN_CALL:   // N=Plugin.Call(Guid[,MenuGuid])
+		case MCODE_F_PLUGIN_CONFIG: // N=Plugin.Config(Guid[,MenuGuid])
+		case MCODE_F_PLUGIN_PREFIX: // N=Plugin.Prefix(Guid[,Command])
+		{
+			_KEYMACRO(CleverSysLog Clev(L"Plugin.Call()"));
+			__int64 Ret=0;
+			parseParams(2,Params);
+			TVar& Arg = (Params[1]);
+			TVar& Guid = (Params[0]);
+			GUID guid, menuGuid;
+			CallPluginInfo Data={CPT_CHECKONLY};
+			wchar_t EmptyStr[1]={};
+			bool ItemFailed=false;
+
+
+			switch (Key)
+			{
+				case MCODE_F_PLUGIN_CALL:
+					Data.CallFlags |= CPT_CALL;
+					if (!Arg.isUnknown())
+					{
+						if (StrToGuid(Arg.s(),menuGuid))
+							Data.ItemGuid=&menuGuid;
+						else
+							ItemFailed=true;
+					}
+					break;
+				case MCODE_F_PLUGIN_CONFIG:
+					Data.CallFlags |= CPT_CONFIGURE;
+					if (!Arg.isUnknown())
+					{
+						if (StrToGuid(Arg.s(),menuGuid))
+							Data.ItemGuid=&menuGuid;
+						else
+							ItemFailed=true;
+					}
+					break;
+				case MCODE_F_PLUGIN_PREFIX:
+					Data.CallFlags |= CPT_PREFIX;
+					if (Arg.isString())
+						Data.Command=Arg.s();
+					else
+						Data.Command=EmptyStr;
+					break;
+			}
+
+			if (!ItemFailed && StrToGuid(Guid.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
+			{
+				// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
+				Ret=(__int64)CtrlObject->Plugins->CallPluginItem(guid,&Data);
+				VMStack.Push(Ret);
+
+				if (Ret)
+				{
+					// Если нашли успешно - то теперь выполнение
+					Data.CallFlags&=~CPT_CHECKONLY;
+					CtrlObject->Plugins->CallPluginItem(guid,&Data);
+				}
+			}
+			else
+			{
+				VMStack.Push(Ret);
+			}
+
+			// По аналогии с KEY_F11
+			FrameManager->RefreshFrame();
+
+			if (Work.Executing == MACROMODE_NOMACRO)
+				goto return_func;
+
 			goto begin;
 		}
 
@@ -5826,7 +5917,7 @@ done:
 
 return_func:
 
-	if (Work.KeyProcess && (Key&KEY_ALTDIGIT)) // "подтасовка" фактов ;-)
+	if (Work.KeyProcess != 0 && (Key&KEY_ALTDIGIT)) // "подтасовка" фактов ;-)
 	{
 		Key&=~KEY_ALTDIGIT;
 		IntKeyState.ReturnAltValue=1;
@@ -5848,6 +5939,9 @@ return_func:
 	if (MR==Work.MacroWORK && Work.ExecLIBPos>=MR->BufferSize)
 	{
 		_KEYMACRO(SysLog(-1); SysLog(L"[%d] **** End Of Execute Macro ****",__LINE__));
+		if (--Work.KeyProcess < 0)
+			Work.KeyProcess=0;
+		_KEYMACRO(SysLog(L"Work.KeyProcess=%d",Work.KeyProcess));
 		ReleaseWORKBuffer();
 		Work.Executing=MACROMODE_NOMACRO;
 
@@ -7333,6 +7427,7 @@ void MacroState::Init(TVarTable *tbl)
 
 int KeyMacro::PushState(bool CopyLocalVars)
 {
+	_KEYMACRO(CleverSysLog Clev(L"KeyMacro::PushState()"));
 	if (CurPCStack+1 >= STACKLEVEL)
 		return FALSE;
 
@@ -7340,17 +7435,20 @@ int KeyMacro::PushState(bool CopyLocalVars)
 	Work.UseInternalClipboard=Clipboard::GetUseInternalClipboardState();
 	PCStack[CurPCStack]=Work;
 	Work.Init(CopyLocalVars?PCStack[CurPCStack].locVarTable:nullptr);
+	_KEYMACRO(SysLog(L"CurPCStack=%d",CurPCStack));
 	return TRUE;
 }
 
 int KeyMacro::PopState()
 {
+	_KEYMACRO(CleverSysLog Clev(L"KeyMacro::PopState()"));
 	if (CurPCStack < 0)
 		return FALSE;
 
 	Work=PCStack[CurPCStack];
 	Clipboard::SetUseInternalClipboardState(Work.UseInternalClipboard);
 	CurPCStack--;
+	_KEYMACRO(SysLog(L"CurPCStack=%d",CurPCStack));
 	return TRUE;
 }
 
