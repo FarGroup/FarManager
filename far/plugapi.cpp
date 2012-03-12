@@ -1852,15 +1852,23 @@ INT_PTR WINAPI apiEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, i
 	}
 	else
 	{
-		int idx=0;
-		Frame *frame;
-		while((frame=FrameManager->Manager::operator[](idx++)) != nullptr)
+		typedef Frame* (Manager::*ItemFn)(size_t index)const;
+		typedef int (Manager::*CountFn)(void)const;
+		ItemFn getitem[]={&Manager::operator[],&Manager::GetModalFrame};
+		CountFn getcount[]={&Manager::GetFrameCount,&Manager::GetModalStackCount};
+		for(size_t ii=0;ii<ARRAYSIZE(getitem);++ii)
 		{
-			if (frame->GetType() == MODALTYPE_EDITOR)
+			Frame *frame;
+			int count=(FrameManager->*getcount[ii])();
+			for(int jj=0;jj<count;++jj)
 			{
-				if (((FileEditor*)frame)->GetId() == EditorID)
+				frame=(FrameManager->*getitem[ii])(jj);
+				if (frame->GetType() == MODALTYPE_EDITOR)
 				{
-					return ((FileEditor*)frame)->EditorControl(Command,(void *)Param2);
+					if (((FileEditor*)frame)->GetId() == EditorID)
+					{
+						return ((FileEditor*)frame)->EditorControl(Command,(void *)Param2);
+					}
 				}
 			}
 		}

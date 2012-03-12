@@ -1247,7 +1247,7 @@ bool Manager::IsPanelsActive()
 	}
 }
 
-Frame *Manager::operator[](size_t Index)
+Frame *Manager::operator[](size_t Index)const
 {
 	if (Index>=static_cast<size_t>(FrameCount) || !FrameList)
 	{

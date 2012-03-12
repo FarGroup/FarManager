@@ -144,7 +144,7 @@ class Manager
 		BOOL ExitAll();
 		BOOL IsAnyFrameModified(int Activate);
 
-		int  GetFrameCount() {return(FrameCount);};
+		int  GetFrameCount()const {return(FrameCount);};
 		int  GetFrameCountByType(int Type);
 
 		/*$ 26.06.2001 SKV
@@ -174,7 +174,7 @@ class Manager
 
 		Frame *GetCurrentFrame() { return CurrentFrame; }
 
-		Frame *operator[](size_t Index);
+		Frame *operator[](size_t Index)const;
 
 		int IndexOf(Frame *Frame);
 
