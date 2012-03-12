@@ -939,7 +939,7 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Delete",&Opt.Confirm.Delete,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"DeleteFolder",&Opt.Confirm.DeleteFolder,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Esc",&Opt.Confirm.Esc,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"RemoveConnection",&Opt.Confirm.RemoveConnection,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"RemoveConnection",&Opt.Confirm.RemoveConnection,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"RemoveSUBST",&Opt.Confirm.RemoveSUBST,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"DetachVHD",&Opt.Confirm.DetachVHD,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"RemoveHotPlug",&Opt.Confirm.RemoveHotPlug,1, 0},
