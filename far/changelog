@@ -1,3 +1,8 @@
+zg 13.03.2012 01:09:42 +0200 - build 2541
+
+1. как было обещано, удалены ACTL_GETSYSWORDDIV, ACTL_GETSYSTEMSETTINGS, ACTL_GETPANELSETTINGS, ACTL_GETINTERFACESETTINGS, ACTL_GETCONFIRMATIONS, ACTL_GETDESCSETTINGS, ACTL_GETPLUGINMAXREADDATA и ACTL_GETDIALOGSETTINGS.
+   плагины, которые вовремя не подготовились, могут работать не совсем корректно.
+
 svs 12.03.2012 21:30:41 +0400 - build 2540
 
 1. Mantis#0001903: Plugin.Menu(guid,menuGuid)

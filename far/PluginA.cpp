@@ -3753,6 +3753,23 @@ void WINAPI FarFreeDirListA(const oldfar::PluginPanelItem *PanelItem)
 	xf_free(base);
 }
 
+static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
+{
+	__int64 result=0;
+	FarSettingsCreate settings={sizeof(FarSettingsCreate),FarGuid,INVALID_HANDLE_VALUE};
+	HANDLE Settings=NativeInfo.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
+	if(Settings)
+	{
+		FarSettingsItem item={Root,Name,FST_UNKNOWN,{0}};
+		if(NativeInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_QWORD==item.Type)
+		{
+			result=item.Number;
+		}
+		NativeInfo.SettingsControl(Settings,SCTL_FREE,0,0);
+	}
+	return result;
+}
+
 INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMMANDS Command, void *Param)
 {
 	static char *ErrMsg1 = nullptr;
@@ -3786,16 +3803,19 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 
 		case oldfar::ACTL_GETSYSWORDDIV:
 		{
-			INT_PTR Length = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETSYSWORDDIV, 0, nullptr);
-
-			if (Param)
+			INT_PTR Length = 0;
+			FarSettingsCreate settings={sizeof(FarSettingsCreate),FarGuid,INVALID_HANDLE_VALUE};
+			HANDLE Settings=NativeInfo.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
+			if(Settings)
 			{
-				wchar_t *SysWordDiv = (wchar_t*)xf_malloc((Length+1)*sizeof(wchar_t));
-				NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETSYSWORDDIV, Length, SysWordDiv);
-				UnicodeToOEM(SysWordDiv,(char*)Param,oldfar::NM);
-				xf_free(SysWordDiv);
+				FarSettingsItem item={FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{0}};
+				if(NativeInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
+				{
+					Length=Min(oldfar::NM,StrLength(item.String)+1);
+					if(Param) UnicodeToOEM(item.String,(char*)Param,oldfar::NM);
+				}
+				NativeInfo.SettingsControl(Settings,SCTL_FREE,0,0);
 			}
-
 			return Length;
 		}
 		case oldfar::ACTL_WAITKEY:
@@ -4039,125 +4059,45 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETFARHWND, 0, 0);
 		case oldfar::ACTL_GETSYSTEMSETTINGS:
 		{
-			INT_PTR ss = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETSYSTEMSETTINGS, 0, 0);
 			INT_PTR ret = oldfar::FSS_CLEARROATTRIBUTE;
 
-			if (ss&FSS_DELETETORECYCLEBIN)        ret|=oldfar::FSS_DELETETORECYCLEBIN;
-
-			if (ss&FSS_USESYSTEMCOPYROUTINE)      ret|=oldfar::FSS_USESYSTEMCOPYROUTINE;
-
-			if (ss&FSS_COPYFILESOPENEDFORWRITING) ret|=oldfar::FSS_COPYFILESOPENEDFORWRITING;
-
-			if (ss&FSS_CREATEFOLDERSINUPPERCASE)  ret|=oldfar::FSS_CREATEFOLDERSINUPPERCASE;
-
-			if (ss&FSS_SAVECOMMANDSHISTORY)       ret|=oldfar::FSS_SAVECOMMANDSHISTORY;
-
-			if (ss&FSS_SAVEFOLDERSHISTORY)        ret|=oldfar::FSS_SAVEFOLDERSHISTORY;
-
-			if (ss&FSS_SAVEVIEWANDEDITHISTORY)    ret|=oldfar::FSS_SAVEVIEWANDEDITHISTORY;
-
-			if (ss&FSS_USEWINDOWSREGISTEREDTYPES) ret|=oldfar::FSS_USEWINDOWSREGISTEREDTYPES;
-
-			if (ss&FSS_AUTOSAVESETUP)             ret|=oldfar::FSS_AUTOSAVESETUP;
-
-			if (ss&FSS_SCANSYMLINK)               ret|=oldfar::FSS_SCANSYMLINK;
+			if (GetSetting(FSSF_SYSTEM,L"DeleteToRecycleBin")) ret|=oldfar::FSS_DELETETORECYCLEBIN;
+			if (GetSetting(FSSF_SYSTEM,L"CopyOpened")) ret|=oldfar::FSS_COPYFILESOPENEDFORWRITING;
+			if (GetSetting(FSSF_SYSTEM,L"ScanJunction")) ret|=oldfar::FSS_SCANSYMLINK;
 
 			return ret;
 		}
 		case oldfar::ACTL_GETPANELSETTINGS:
 		{
-			INT_PTR ps = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETPANELSETTINGS, 0, 0);
 			INT_PTR ret = 0;
 
-			if (ps&FPS_SHOWHIDDENANDSYSTEMFILES)    ret|=oldfar::FPS_SHOWHIDDENANDSYSTEMFILES;
-
-			if (ps&FPS_HIGHLIGHTFILES)              ret|=oldfar::FPS_HIGHLIGHTFILES;
-
-			if (ps&FPS_AUTOCHANGEFOLDER)            ret|=oldfar::FPS_AUTOCHANGEFOLDER;
-
-			if (ps&FPS_SELECTFOLDERS)               ret|=oldfar::FPS_SELECTFOLDERS;
-
-			if (ps&FPS_ALLOWREVERSESORTMODES)       ret|=oldfar::FPS_ALLOWREVERSESORTMODES;
-
-			if (ps&FPS_SHOWCOLUMNTITLES)            ret|=oldfar::FPS_SHOWCOLUMNTITLES;
-
-			if (ps&FPS_SHOWSTATUSLINE)              ret|=oldfar::FPS_SHOWSTATUSLINE;
-
-			if (ps&FPS_SHOWFILESTOTALINFORMATION)   ret|=oldfar::FPS_SHOWFILESTOTALINFORMATION;
-
-			if (ps&FPS_SHOWFREESIZE)                ret|=oldfar::FPS_SHOWFREESIZE;
-
-			if (ps&FPS_SHOWSCROLLBAR)               ret|=oldfar::FPS_SHOWSCROLLBAR;
-
-			if (ps&FPS_SHOWBACKGROUNDSCREENSNUMBER) ret|=oldfar::FPS_SHOWBACKGROUNDSCREENSNUMBER;
-
-			if (ps&FPS_SHOWSORTMODELETTER)          ret|=oldfar::FPS_SHOWSORTMODELETTER;
+			if (GetSetting(FSSF_PANEL,L"ShowHidden")) ret|=oldfar::FPS_SHOWHIDDENANDSYSTEMFILES;
 
 			return ret;
 		}
 		case oldfar::ACTL_GETINTERFACESETTINGS:
 		{
-			INT_PTR is = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETINTERFACESETTINGS, 0, 0);
 			INT_PTR ret = 0;
-
-			if (is&FIS_CLOCKINPANELS)                  ret|=oldfar::FIS_CLOCKINPANELS;
-
-			if (is&FIS_CLOCKINVIEWERANDEDITOR)         ret|=oldfar::FIS_CLOCKINVIEWERANDEDITOR;
-
-			if (is&FIS_MOUSE)                          ret|=oldfar::FIS_MOUSE;
-
-			if (is&FIS_SHOWKEYBAR)                     ret|=oldfar::FIS_SHOWKEYBAR;
-
-			if (is&FIS_ALWAYSSHOWMENUBAR)              ret|=oldfar::FIS_ALWAYSSHOWMENUBAR;
-
-			if (is&FIS_SHOWTOTALCOPYPROGRESSINDICATOR) ret|=oldfar::FIS_SHOWTOTALCOPYPROGRESSINDICATOR;
-
-			if (is&FIS_SHOWCOPYINGTIMEINFO)            ret|=oldfar::FIS_SHOWCOPYINGTIMEINFO;
-
-			if (is&FIS_USECTRLPGUPTOCHANGEDRIVE)       ret|=oldfar::FIS_USECTRLPGUPTOCHANGEDRIVE;
-
 			return ret;
 		}
 		case oldfar::ACTL_GETCONFIRMATIONS:
 		{
-			INT_PTR cs = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETCONFIRMATIONS, 0, 0);
 			INT_PTR ret = 0;
 
-			if (cs&FCS_COPYOVERWRITE)          ret|=oldfar::FCS_COPYOVERWRITE;
-
-			if (cs&FCS_MOVEOVERWRITE)          ret|=oldfar::FCS_MOVEOVERWRITE;
-
-			if (cs&FCS_DRAGANDDROP)            ret|=oldfar::FCS_DRAGANDDROP;
-
-			if (cs&FCS_DELETE)                 ret|=oldfar::FCS_DELETE;
-
-			if (cs&FCS_DELETENONEMPTYFOLDERS)  ret|=oldfar::FCS_DELETENONEMPTYFOLDERS;
-
-			if (cs&FCS_INTERRUPTOPERATION)     ret|=oldfar::FCS_INTERRUPTOPERATION;
-
-			if (cs&FCS_DISCONNECTNETWORKDRIVE) ret|=oldfar::FCS_DISCONNECTNETWORKDRIVE;
-
-			if (cs&FCS_RELOADEDITEDFILE)       ret|=oldfar::FCS_RELOADEDITEDFILE;
-
-			if (cs&FCS_CLEARHISTORYLIST)       ret|=oldfar::FCS_CLEARHISTORYLIST;
-
-			if (cs&FCS_EXIT)                   ret|=oldfar::FCS_EXIT;
+			if (GetSetting(FSSF_CONFIRMATIONS,L"Copy")) ret|=oldfar::FCS_COPYOVERWRITE;
+			if (GetSetting(FSSF_CONFIRMATIONS,L"Move")) ret|=oldfar::FCS_MOVEOVERWRITE;
+			if (GetSetting(FSSF_CONFIRMATIONS,L"Drag")) ret|=oldfar::FCS_DRAGANDDROP;
+			if (GetSetting(FSSF_CONFIRMATIONS,L"Delete")) ret|=oldfar::FCS_DELETE;
+			if (GetSetting(FSSF_CONFIRMATIONS,L"DeleteFolder")) ret|=oldfar::FCS_DELETENONEMPTYFOLDERS;
+			if (GetSetting(FSSF_CONFIRMATIONS,L"Esc")) ret|=oldfar::FCS_INTERRUPTOPERATION;
+			if (GetSetting(FSSF_CONFIRMATIONS,L"HistoryClear")) ret|=oldfar::FCS_CLEARHISTORYLIST;
+			if (GetSetting(FSSF_CONFIRMATIONS,L"Exit")) ret|=oldfar::FCS_EXIT;
 
 			return ret;
 		}
 		case oldfar::ACTL_GETDESCSETTINGS:
 		{
-			INT_PTR ds = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETDESCSETTINGS, 0, 0);
 			INT_PTR ret = 0;
-
-			if (ds&FDS_UPDATEALWAYS)      ret|=oldfar::FDS_UPDATEALWAYS;
-
-			if (ds&FDS_UPDATEIFDISPLAYED) ret|=oldfar::FDS_UPDATEIFDISPLAYED;
-
-			if (ds&FDS_SETHIDDEN)         ret|=oldfar::FDS_SETHIDDEN;
-
-			if (ds&FDS_UPDATEREADONLY)    ret|=oldfar::FDS_UPDATEREADONLY;
-
 			return ret;
 		}
 		case oldfar::ACTL_SETARRAYCOLOR:
@@ -4179,17 +4119,10 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		case oldfar::ACTL_GETWCHARMODE:
 			return TRUE;
 		case oldfar::ACTL_GETPLUGINMAXREADDATA:
-			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETPLUGINMAXREADDATA, 0, 0);
+			return GetSetting(FSSF_SYSTEM,L"PluginMaxReadData");
 		case oldfar::ACTL_GETDIALOGSETTINGS:
 		{
-			INT_PTR ds = NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETDIALOGSETTINGS, 0, 0);
 			INT_PTR ret = 0;
-
-			if (ds&FDIS_AUTOCOMPLETEININPUTLINES)       ret|=oldfar::FDIS_AUTOCOMPLETEININPUTLINES;
-			if (ds&FDIS_HISTORYINDIALOGEDITCONTROLS)    ret|=oldfar::FDIS_HISTORYINDIALOGEDITCONTROLS;
-			if (ds&FDIS_PERSISTENTBLOCKSINEDITCONTROLS) ret|=oldfar::FDIS_PERSISTENTBLOCKSINEDITCONTROLS;
-			if (ds&FDIS_BSDELETEUNCHANGEDTEXT)          ret|=oldfar::FDIS_BSDELETEUNCHANGEDTEXT;
-
 			return ret;
 		}
 		case oldfar::ACTL_REMOVEMEDIA:

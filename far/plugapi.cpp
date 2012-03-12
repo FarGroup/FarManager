@@ -325,16 +325,9 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 	switch (Command)
 	{
 		case ACTL_GETFARMANAGERVERSION:
-		case ACTL_GETSYSWORDDIV:
 		case ACTL_GETCOLOR:
 		case ACTL_GETARRAYCOLOR:
 		case ACTL_GETFARHWND:
-		case ACTL_GETSYSTEMSETTINGS:
-		case ACTL_GETPANELSETTINGS:
-		case ACTL_GETINTERFACESETTINGS:
-		case ACTL_GETCONFIRMATIONS:
-		case ACTL_GETDESCSETTINGS:
-		case ACTL_GETPLUGINMAXREADDATA:
 		case ACTL_SETPROGRESSSTATE:
 		case ACTL_SETPROGRESSVALUE:
 		case ACTL_GETFARRECT:
@@ -356,17 +349,6 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 				*(VersionInfo*)Param2=FAR_VERSION;
 
 			return TRUE;
-		}
-		case ACTL_GETPLUGINMAXREADDATA:
-		{
-			return Opt.PluginMaxReadData;
-		}
-		case ACTL_GETSYSWORDDIV:
-		{
-			if (Param1 && Param2)
-				xwcsncpy((wchar_t *)Param2, Opt.strWordDiv, Param1);
-
-			return Opt.strWordDiv.GetLength()+1;
 		}
 		/* $ 24.08.2000 SVS
 		   ожидать определенную (или любую) клавишу
@@ -597,140 +579,6 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 		case ACTL_GETFARHWND:
 		{
 			return (INT_PTR)Console.GetWindow();
-		}
-		case ACTL_GETDIALOGSETTINGS:
-		{
-			DWORD Options=0;
-			static Opt2Flags ODlg[]=
-			{
-				{&Opt.Dialogs.EditHistory,FDIS_HISTORYINDIALOGEDITCONTROLS},
-				{&Opt.Dialogs.EditBlock,FDIS_PERSISTENTBLOCKSINEDITCONTROLS},
-				{&Opt.Dialogs.AutoComplete,FDIS_AUTOCOMPLETEININPUTLINES},
-				{&Opt.Dialogs.EULBsClear,FDIS_BSDELETEUNCHANGEDTEXT},
-				{&Opt.Dialogs.DelRemovesBlocks,FDIS_DELREMOVESBLOCKS},
-				{&Opt.Dialogs.MouseButton,FDIS_MOUSECLICKOUTSIDECLOSESDIALOG},
-			};
-
-			for (size_t I=0; I < ARRAYSIZE(ODlg); ++I)
-				if (*ODlg[I].Opt)
-					Options|=ODlg[I].Flags;
-
-			return Options;
-		}
-		/* $ 24.11.2001 IS
-		   ќзнакомим с настройками системными, панели, интерфейса, подтверждений
-		*/
-		case ACTL_GETSYSTEMSETTINGS:
-		{
-			DWORD Options=0;
-			static Opt2Flags OSys[]=
-			{
-				{&Opt.DeleteToRecycleBin,FSS_DELETETORECYCLEBIN},
-				{&Opt.CMOpt.UseSystemCopy,FSS_USESYSTEMCOPYROUTINE},
-				{&Opt.CMOpt.CopyOpened,FSS_COPYFILESOPENEDFORWRITING},
-				{&Opt.ScanJunction,FSS_SCANSYMLINK},
-				{&Opt.CreateUppercaseFolders,FSS_CREATEFOLDERSINUPPERCASE},
-				{&Opt.SaveHistory,FSS_SAVECOMMANDSHISTORY},
-				{&Opt.SaveFoldersHistory,FSS_SAVEFOLDERSHISTORY},
-				{&Opt.SaveViewHistory,FSS_SAVEVIEWANDEDITHISTORY},
-				{&Opt.UseRegisteredTypes,FSS_USEWINDOWSREGISTEREDTYPES},
-				{&Opt.AutoSaveSetup,FSS_AUTOSAVESETUP},
-			};
-
-			for (size_t I=0; I < ARRAYSIZE(OSys); ++I)
-				if (*OSys[I].Opt)
-					Options|=OSys[I].Flags;
-
-			return Options;
-		}
-		case ACTL_GETPANELSETTINGS:
-		{
-			DWORD Options=0;
-			static Opt2Flags OSys[]=
-			{
-				{&Opt.ShowHidden,FPS_SHOWHIDDENANDSYSTEMFILES},
-				{&Opt.Highlight,FPS_HIGHLIGHTFILES},
-				{&Opt.Tree.AutoChangeFolder,FPS_AUTOCHANGEFOLDER},
-				{&Opt.SelectFolders,FPS_SELECTFOLDERS},
-				{&Opt.ReverseSort,FPS_ALLOWREVERSESORTMODES},
-				{&Opt.ShowColumnTitles,FPS_SHOWCOLUMNTITLES},
-				{&Opt.ShowPanelStatus,FPS_SHOWSTATUSLINE},
-				{&Opt.ShowPanelTotals,FPS_SHOWFILESTOTALINFORMATION},
-				{&Opt.ShowPanelFree,FPS_SHOWFREESIZE},
-				{&Opt.ShowPanelScrollbar,FPS_SHOWSCROLLBAR},
-				{&Opt.ShowScreensNumber,FPS_SHOWBACKGROUNDSCREENSNUMBER},
-				{&Opt.ShowSortMode,FPS_SHOWSORTMODELETTER},
-			};
-
-			for (size_t I=0; I < ARRAYSIZE(OSys); ++I)
-				if (*OSys[I].Opt)
-					Options|=OSys[I].Flags;
-
-			return Options;
-		}
-		case ACTL_GETINTERFACESETTINGS:
-		{
-			DWORD Options=0;
-			static Opt2Flags OSys[]=
-			{
-				{&Opt.Clock,FIS_CLOCKINPANELS},
-				{&Opt.ViewerEditorClock,FIS_CLOCKINVIEWERANDEDITOR},
-				{&Opt.Mouse,FIS_MOUSE},
-				{&Opt.ShowKeyBar,FIS_SHOWKEYBAR},
-				{&Opt.ShowMenuBar,FIS_ALWAYSSHOWMENUBAR},
-				{&Opt.CMOpt.CopyShowTotal,FIS_SHOWTOTALCOPYPROGRESSINDICATOR},
-				{&Opt.CMOpt.CopyTimeRule,FIS_SHOWCOPYINGTIMEINFO},
-				{&Opt.PgUpChangeDisk,FIS_USECTRLPGUPTOCHANGEDRIVE},
-				{&Opt.DelOpt.DelShowTotal,FIS_SHOWTOTALDELPROGRESSINDICATOR},
-			};
-
-			for (size_t I=0; I < ARRAYSIZE(OSys); ++I)
-				if (*OSys[I].Opt)
-					Options|=OSys[I].Flags;
-
-			return Options;
-		}
-		case ACTL_GETCONFIRMATIONS:
-		{
-			DWORD Options=0;
-			static Opt2Flags OSys[]=
-			{
-				{&Opt.Confirm.Copy,FCS_COPYOVERWRITE},
-				{&Opt.Confirm.Move,FCS_MOVEOVERWRITE},
-				{&Opt.Confirm.RO,FCS_OVERWRITEDELETEROFILES},
-				{&Opt.Confirm.Drag,FCS_DRAGANDDROP},
-				{&Opt.Confirm.Delete,FCS_DELETE},
-				{&Opt.Confirm.DeleteFolder,FCS_DELETENONEMPTYFOLDERS},
-				{&Opt.Confirm.Esc,FCS_INTERRUPTOPERATION},
-				{&Opt.Confirm.RemoveConnection,FCS_DISCONNECTNETWORKDRIVE},
-				{&Opt.Confirm.AllowReedit,FCS_RELOADEDITEDFILE},
-				{&Opt.Confirm.HistoryClear,FCS_CLEARHISTORYLIST},
-				{&Opt.Confirm.Exit,FCS_EXIT},
-			};
-
-			for (size_t I=0; I < ARRAYSIZE(OSys); ++I)
-				if (*OSys[I].Opt)
-					Options|=OSys[I].Flags;
-
-			return Options;
-		}
-		case ACTL_GETDESCSETTINGS:
-		{
-			// опций мало - с массивом не заморачиваемс€
-			DWORD Options=0;
-
-			if (Opt.Diz.UpdateMode == DIZ_UPDATE_IF_DISPLAYED)
-				Options |= FDS_UPDATEIFDISPLAYED;
-			else if (Opt.Diz.UpdateMode == DIZ_UPDATE_ALWAYS)
-				Options |= FDS_UPDATEALWAYS;
-
-			if (Opt.Diz.SetHidden)
-				Options |= FDS_SETHIDDEN;
-
-			if (Opt.Diz.ROUpdate)
-				Options |= FDS_UPDATEREADONLY;
-
-			return Options;
 		}
 		case ACTL_REDRAWALL:
 		{
