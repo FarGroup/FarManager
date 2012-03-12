@@ -381,3 +381,18 @@ void UpdateProfiles::update(const wstring& name, const UpdateOptions& options) {
   }
   sort_by_name();
 }
+
+
+const wchar_t* c_copy_opened_files_option = L"CopyOpened";
+const wchar_t* c_esc_confirmation_option = L"Esc";
+
+bool get_app_option(size_t category, const wchar_t* name, bool& value) {
+    Far::Settings settings;
+    if (!settings.create(true))
+      return false;
+    unsigned __int64 setting_value;
+    if (!settings.get(category, name, setting_value))
+      return false;
+    value = setting_value != 0;
+    return true;
+}

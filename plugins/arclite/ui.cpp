@@ -21,7 +21,7 @@ ProgressMonitor::ProgressMonitor(const wstring& progress_title, bool progress_kn
     time_update = time_total + time_freq / c_first_delay_div;
   else
     time_update = time_total;
-  confirm_esc = (Far::adv_control(ACTL_GETCONFIRMATIONS) & FCS_INTERRUPTOPERATION) != 0;
+  CHECK(get_app_option(FSSF_CONFIRMATIONS, c_esc_confirmation_option, confirm_esc));
   initial_priority = GetPriorityClass(GetCurrentProcess());
 }
 

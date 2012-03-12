@@ -255,7 +255,7 @@ private:
 public:
   Settings();
   ~Settings();
-  bool create();
+  bool create(bool app_settings = false);
   bool set_dir(const wstring& path);
   bool list_dir(vector<wstring>& result);
   bool set(const wchar_t* name, unsigned __int64 value);
@@ -264,6 +264,9 @@ public:
   bool get(const wchar_t* name, unsigned __int64& value);
   bool get(const wchar_t* name, wstring& value);
   bool get(const wchar_t* name, ByteVector& value);
+  bool get(size_t root, const wchar_t* name, unsigned __int64& value);
+  bool get(size_t root, const wchar_t* name, wstring& value);
+  bool get(size_t root, const wchar_t* name, ByteVector& value);
   bool del(const wchar_t* name);
   bool del_dir(const wchar_t* name);
 };

@@ -117,3 +117,5 @@ DEFINE_GUID(c_multi_select_dialog_guid,
 // {223C2003-A7FF-4907-A4A3-6BF10DEA8432}
 DEFINE_GUID(c_format_library_info_dialog_guid,
 0x223c2003, 0xa7ff, 0x4907, 0xa4, 0xa3, 0x6b, 0xf1, 0xd, 0xea, 0x84, 0x32);
+
+DEFINE_GUID(c_far_guid, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);

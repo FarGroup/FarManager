@@ -113,30 +113,24 @@ public:
     UInt32 dir_index = archive->find_dir(current_dir);
     FileIndexRange dir_list = archive->get_dir_list(dir_index);
     size_t size = dir_list.second - dir_list.first;
-    PluginPanelItem* items = new PluginPanelItem[size];
-    memset(items, 0, size * sizeof(PluginPanelItem));
-    try {
-      unsigned idx = 0;
-      for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
-        const ArcFileInfo& file_info = archive->file_list[file_index];
-        const DWORD c_valid_attributes = FILE_ATTRIBUTE_ARCHIVE | FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM;
-        items[idx].FileAttributes = archive->get_attr(file_index) & c_valid_attributes;
-        items[idx].CreationTime = archive->get_ctime(file_index);
-        items[idx].LastAccessTime = archive->get_atime(file_index);
-        items[idx].LastWriteTime = archive->get_mtime(file_index);
-        items[idx].FileSize = archive->get_size(file_index);
-        items[idx].AllocationSize = archive->get_psize(file_index);
-        items[idx].FileName = file_info.name.c_str();
-        items[idx].UserData = file_index;
-        items[idx].CRC32 = archive->get_crc(file_index);
-        idx++;
-      });
-    }
-    catch (...) {
-      delete[] items;
-      throw;
-    }
-    *panel_items = items;
+    unique_ptr<PluginPanelItem[]> items(new PluginPanelItem[size]);
+    memset(items.get(), 0, size * sizeof(PluginPanelItem));
+    unsigned idx = 0;
+    for_each(dir_list.first, dir_list.second, [&] (UInt32 file_index) {
+      const ArcFileInfo& file_info = archive->file_list[file_index];
+      const DWORD c_valid_attributes = FILE_ATTRIBUTE_ARCHIVE | FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_NORMAL | FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_SYSTEM;
+      items[idx].FileAttributes = archive->get_attr(file_index) & c_valid_attributes;
+      items[idx].CreationTime = archive->get_ctime(file_index);
+      items[idx].LastAccessTime = archive->get_atime(file_index);
+      items[idx].LastWriteTime = archive->get_mtime(file_index);
+      items[idx].FileSize = archive->get_size(file_index);
+      items[idx].AllocationSize = archive->get_psize(file_index);
+      items[idx].FileName = const_cast<wchar_t*>(file_info.name.c_str());
+      items[idx].UserData = file_index;
+      items[idx].CRC32 = archive->get_crc(file_index);
+      idx++;
+    });
+    *panel_items = items.release();
     *items_number = size;
   }
 
@@ -498,7 +492,8 @@ public:
     options.enable_volumes = false;
     options.show_password = g_options.update_show_password;
     options.move_files = move != 0;
-    options.open_shared = (Far::adv_control(ACTL_GETSYSTEMSETTINGS) & FSS_COPYFILESOPENEDFORWRITING) != 0;
+    CHECK(get_app_option(FSSF_SYSTEM, c_copy_opened_files_option, options.open_shared));
+
     options.ignore_errors = g_options.update_ignore_errors;
 
     bool res = update_dialog(new_arc, options, g_profiles);
@@ -591,7 +586,7 @@ public:
     options.enable_volumes = false;
     options.volume_size = g_options.update_volume_size;
     options.move_files = false;
-    options.open_shared = (Far::adv_control(ACTL_GETSYSTEMSETTINGS) & FSS_COPYFILESOPENEDFORWRITING) != 0;
+    CHECK(get_app_option(FSSF_SYSTEM, c_copy_opened_files_option, options.open_shared));
     options.ignore_errors = g_options.update_ignore_errors;
     options.append_ext = g_options.update_append_ext;
 
@@ -668,7 +663,7 @@ public:
       });
     }
 
-    options.open_shared = (Far::adv_control(ACTL_GETSYSTEMSETTINGS) & FSS_COPYFILESOPENEDFORWRITING) != 0;
+    CHECK(get_app_option(FSSF_SYSTEM, c_copy_opened_files_option, options.open_shared));
 
     shared_ptr<ErrorLog> error_log(new ErrorLog());
     if (cmd.new_arc) {

@@ -46,3 +46,7 @@ struct Options {
 
 extern Options g_options;
 extern UpdateProfiles g_profiles;
+
+extern const wchar_t* c_copy_opened_files_option;
+extern const wchar_t* c_esc_confirmation_option;
+bool get_app_option(size_t category, const wchar_t* name, bool& value);

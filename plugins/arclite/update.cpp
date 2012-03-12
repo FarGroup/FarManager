@@ -539,7 +539,7 @@ private:
       filter_data.LastWriteTime = src_find_data.ftLastWriteTime;
       filter_data.FileSize = src_find_data.size();
       filter_data.AllocationSize = 0;
-      filter_data.FileName = src_find_data.cFileName;
+      filter_data.FileName = const_cast<wchar_t*>(src_find_data.cFileName);
       if (!filter->match(filter_data))
         return false;
     }

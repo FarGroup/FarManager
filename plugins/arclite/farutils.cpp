@@ -806,10 +806,10 @@ Settings::~Settings() {
   clean();
 }
 
-bool Settings::create() {
+bool Settings::create(bool app_settings) {
   clean();
   FarSettingsCreate fsc = { sizeof(FarSettingsCreate) };
-  fsc.Guid = c_plugin_guid;
+  fsc.Guid = app_settings ? c_far_guid : c_plugin_guid;
   if (!control(SCTL_CREATE, &fsc))
     return false;
   handle = fsc.Handle;
@@ -817,7 +817,7 @@ bool Settings::create() {
 }
 
 bool Settings::set_dir(const wstring& path) {
-  FarSettingsValue fsv;
+  FarSettingsValue fsv = {};
   size_t dir_id = 0;
   list<wstring> dir_list = split(path, L'\\');
   for(list<wstring>::const_iterator dir = dir_list.cbegin(); dir != dir_list.cend(); dir++) {
@@ -832,7 +832,7 @@ bool Settings::set_dir(const wstring& path) {
 }
 
 bool Settings::list_dir(vector<wstring>& result) {
-  FarSettingsEnum fse;
+  FarSettingsEnum fse = {};
   fse.Root = dir_id;
   if (!control(SCTL_ENUM, &fse))
     return false;
@@ -847,7 +847,7 @@ bool Settings::list_dir(vector<wstring>& result) {
 }
 
 bool Settings::set(const wchar_t* name, unsigned __int64 value) {
-  FarSettingsItem fsi;
+  FarSettingsItem fsi = {};
   fsi.Root = dir_id;
   fsi.Name = name;
   fsi.Type = FST_QWORD;
@@ -856,7 +856,7 @@ bool Settings::set(const wchar_t* name, unsigned __int64 value) {
 }
 
 bool Settings::set(const wchar_t* name, const wstring& value) {
-  FarSettingsItem fsi;
+  FarSettingsItem fsi = {};
   fsi.Root = dir_id;
   fsi.Name = name;
   fsi.Type = FST_STRING;
@@ -865,7 +865,7 @@ bool Settings::set(const wchar_t* name, const wstring& value) {
 }
 
 bool Settings::set(const wchar_t* name, const void* value, size_t value_size) {
-  FarSettingsItem fsi;
+  FarSettingsItem fsi = {};
   fsi.Root = dir_id;
   fsi.Name = name;
   fsi.Type = FST_DATA;
@@ -875,8 +875,20 @@ bool Settings::set(const wchar_t* name, const void* value, size_t value_size) {
 }
 
 bool Settings::get(const wchar_t* name, unsigned __int64& value) {
-  FarSettingsItem fsi;
-  fsi.Root = dir_id;
+  return get(dir_id, name, value);
+}
+
+bool Settings::get(const wchar_t* name, wstring& value) {
+  return get(dir_id, name, value);
+}
+
+bool Settings::get(const wchar_t* name, ByteVector& value) {
+  return get(dir_id, name, value);
+}
+
+bool Settings::get(size_t root, const wchar_t* name, unsigned __int64& value) {
+  FarSettingsItem fsi = {};
+  fsi.Root = root;
   fsi.Name = name;
   fsi.Type = FST_QWORD;
   if (!control(SCTL_GET, &fsi))
@@ -885,9 +897,9 @@ bool Settings::get(const wchar_t* name, unsigned __int64& value) {
   return true;
 }
 
-bool Settings::get(const wchar_t* name, wstring& value) {
-  FarSettingsItem fsi;
-  fsi.Root = dir_id;
+bool Settings::get(size_t root, const wchar_t* name, wstring& value) {
+  FarSettingsItem fsi = {};
+  fsi.Root = root;
   fsi.Name = name;
   fsi.Type = FST_STRING;
   if (!control(SCTL_GET, &fsi))
@@ -896,9 +908,9 @@ bool Settings::get(const wchar_t* name, wstring& value) {
   return true;
 }
 
-bool Settings::get(const wchar_t* name, ByteVector& value) {
-  FarSettingsItem fsi;
-  fsi.Root = dir_id;
+bool Settings::get(size_t root, const wchar_t* name, ByteVector& value) {
+  FarSettingsItem fsi = {};
+  fsi.Root = root;
   fsi.Name = name;
   fsi.Type = FST_DATA;
   if (!control(SCTL_GET, &fsi))
@@ -909,14 +921,14 @@ bool Settings::get(const wchar_t* name, ByteVector& value) {
 }
 
 bool Settings::del(const wchar_t* name) {
-  FarSettingsValue fsv;
+  FarSettingsValue fsv = {};
   fsv.Root = dir_id;
   fsv.Value = name;
   return control(SCTL_DELETE, &fsv) != 0;
 }
 
 bool Settings::del_dir(const wchar_t* name) {
-  FarSettingsValue fsv;
+  FarSettingsValue fsv = {};
   fsv.Root = dir_id;
   fsv.Value = name;
   size_t subdir_id = control(SCTL_OPENSUBKEY, &fsv);
