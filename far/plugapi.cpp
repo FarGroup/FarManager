@@ -484,14 +484,28 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 			if (CheckStructSize(wi))
 			{
 				string strType, strName;
-				Frame *f;
+				Frame *f=nullptr;
+				bool modal=false;
 
 				/* $ 22.12.2001 VVM
 				  + Если Pos == -1 то берем текущий фрейм */
 				if (wi->Pos == -1)
+				{
 					f=FrameManager->GetCurrentFrame();
+					modal=(FrameManager->IndexOfStack(f)>=0);
+				}
 				else
-					f=(*FrameManager)[wi->Pos];
+				{
+					if (wi->Pos>=0&&wi->Pos<FrameManager->GetFrameCount())
+					{
+						f=(*FrameManager)[wi->Pos];
+					}
+					else if(wi->Pos>=FrameManager->GetFrameCount()&&wi->Pos<(FrameManager->GetFrameCount()+FrameManager->GetModalStackCount()))
+					{
+						f=FrameManager->GetModalFrame(wi->Pos-FrameManager->GetFrameCount());
+						modal=true;
+					}
+				}
 
 				if (!f)
 					return FALSE;
@@ -516,13 +530,16 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 					wi->NameSize=static_cast<int>(strName.GetLength()+1);
 				}
 
-				wi->Pos=FrameManager->IndexOf(f);
+				if(-1==wi->Pos) wi->Pos=FrameManager->IndexOf(f);
+				if(-1==wi->Pos) wi->Pos=FrameManager->IndexOfStack(f)+FrameManager->GetFrameCount();
 				wi->Type=ModalType2WType(f->GetType());
 				wi->Flags=0;
 				if (f->IsFileModified())
 					wi->Flags|=WIF_MODIFIED;
 				if (f==FrameManager->GetCurrentFrame())
 					wi->Flags|=WIF_CURRENT;
+				if (modal)
+					wi->Flags|=WIF_MODAL;
 
 				switch (wi->Type)
 				{
@@ -546,7 +563,7 @@ INT_PTR WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Com
 		}
 		case ACTL_GETWINDOWCOUNT:
 		{
-			return FrameManager->GetFrameCount();
+			return FrameManager->GetFrameCount()+FrameManager->GetModalStackCount();
 		}
 		case ACTL_SETCURRENTWINDOW:
 		{
