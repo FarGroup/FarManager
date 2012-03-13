@@ -390,6 +390,7 @@ static bool windowscrollFunc(const TMacroFunction*);
 static bool xlatFunc(const TMacroFunction*);
 static bool pluginloadFunc(const TMacroFunction*);
 static bool pluginunloadFunc(const TMacroFunction*);
+static bool pluginexistFunc(const TMacroFunction*);
 
 static TMacroFunction intMacroFunction[]=
 {
@@ -463,10 +464,11 @@ static TMacroFunction intMacroFunction[]=
 	{L"PANEL.SETPOS",     nullptr, L"N=panel.SetPos(panelType,fileName)",                        panelsetposFunc,    nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOS,    },
 	{L"PANEL.SETPOSIDX",  nullptr, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])",            panelsetposidxFunc, nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOSIDX, },
 	{L"PANELITEM",        nullptr, L"V=PanelItem(Panel,Index,TypeInfo)",                         panelitemFunc,      nullptr, 0, 0,                                      MCODE_F_PANELITEM,       },
-	{L"PLUGIN.CALL",      nullptr, L"N=Plugin.Call(Guid[,MenuGuid])",                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CALL,     },
+	{L"PLUGIN.CALL",      nullptr, L"N=Plugin.Call(Guid[,Item])",                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CALL,     },
 	{L"PLUGIN.CONFIG",    nullptr, L"N=Plugin.Config(Guid[,MenuGuid])",                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CONFIG,   },
-	{L"PLUGIN.INT",       nullptr, L"N=Plugin.Int(Guid[,Item])",                                 usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_INT,      },
+	{L"PLUGIN.EXIST",     nullptr, L"N=Plugin.Exist(Guid)",                                      pluginexistFunc,    nullptr, 0, 0,                                      MCODE_F_PLUGIN_EXIST,    },
 	{L"PLUGIN.LOAD",      nullptr, L"N=Plugin.Load(DllPath[,ForceLoad])",                        pluginloadFunc,     nullptr, 0, 0,                                      MCODE_F_PLUGIN_LOAD,     },
+	{L"PLUGIN.MENU",      nullptr, L"N=Plugin.Menu(Guid[,MenuGuid])",                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_MENU,     },
 	{L"PLUGIN.PREFIX",    nullptr, L"N=Plugin.Prefix(Guid[,Command])",                           usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_PREFIX,   },
 	{L"PLUGIN.UNLOAD",    nullptr, L"N=Plugin.UnLoad(DllPath)",                                  pluginunloadFunc,   nullptr, 0, 0,                                      MCODE_F_PLUGIN_UNLOAD,   },
 	{L"PRINT",            nullptr, L"N=Print(Str)",                                              usersFunc,          nullptr, 0, 0,                                      MCODE_F_PRINT,           },
@@ -4476,6 +4478,24 @@ static bool editorsettitleFunc(const TMacroFunction*)
 	return Ret.i()!=0;
 }
 
+
+// N=Plugin.Exist(Guid)
+static bool pluginexistFunc(const TMacroFunction*)
+{
+	parseParams(1,Params);
+	TVar Ret(0ll);
+	TVar& pGuid(Params[0]);
+
+	if (pGuid.s())
+	{
+		GUID guid;
+		Ret=(StrToGuid(pGuid.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))?1:0;
+	}
+
+	VMStack.Push(Ret);
+	return Ret.i()!=0;
+}
+
 // N=Plugin.Load(DllPath[,ForceLoad])
 static bool pluginloadFunc(const TMacroFunction*)
 {
@@ -4501,12 +4521,12 @@ static bool pluginunloadFunc(const TMacroFunction*)
 		if(p)
 		{
 			Ret=(__int64)pluginapi::apiPluginsControl(p, PCTL_UNLOADPLUGIN, 0, nullptr);
-			VMStack.Push(Ret);
 		}
 	}
+
+	VMStack.Push(Ret);
 	return Ret.i()!=0;
 }
-
 
 
 static void VarToFarMacroValue(const TVar& From,FarMacroValue& To)
@@ -5708,7 +5728,7 @@ done:
 
 		case MCODE_F_CALLPLUGIN: // V=callplugin(SysID[,param])
 		// Алиас CallPlugin, для общности
-		case MCODE_F_PLUGIN_INT: // V=Plugin.Int(SysID[,param])
+		case MCODE_F_PLUGIN_CALL: // V=Plugin.Call(SysID[,param])
 		{
 			__int64 Ret=0;
 			int count=VMStack.Pop().getInteger();
@@ -5777,11 +5797,11 @@ done:
 			goto begin;
 		}
 
-		case MCODE_F_PLUGIN_CALL:   // N=Plugin.Call(Guid[,MenuGuid])
+		case MCODE_F_PLUGIN_MENU:   // N=Plugin.Menu(Guid[,MenuGuid])
 		case MCODE_F_PLUGIN_CONFIG: // N=Plugin.Config(Guid[,MenuGuid])
 		case MCODE_F_PLUGIN_PREFIX: // N=Plugin.Prefix(Guid[,Command])
 		{
-			_KEYMACRO(CleverSysLog Clev(L"Plugin.Call()"));
+			_KEYMACRO(CleverSysLog Clev(L"Plugin.Menu()"));
 			__int64 Ret=0;
 			parseParams(2,Params);
 			TVar& Arg = (Params[1]);
@@ -5794,8 +5814,8 @@ done:
 
 			switch (Key)
 			{
-				case MCODE_F_PLUGIN_CALL:
-					Data.CallFlags |= CPT_CALL;
+				case MCODE_F_PLUGIN_MENU:
+					Data.CallFlags |= CPT_MENU;
 					if (!Arg.isUnknown())
 					{
 						if (StrToGuid(Arg.s(),menuGuid))

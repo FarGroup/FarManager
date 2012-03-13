@@ -1382,10 +1382,11 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_FAR_CFG_GET),              // V=Far.Cfg.Get(Key,Name)
 		DEF_MCODE_(F_SIZE2STR),                 // S=Size2Str(N,Flags[,Width])
 		DEF_MCODE_(F_STRWRAP),                  // S=StrWrap(Text,Width[,Break[,Flags]])
-		DEF_MCODE_(F_PLUGIN_CALL),              // N=Plugin.Call(Guid,MenuGuid)
+		DEF_MCODE_(F_PLUGIN_MENU),              // N=Plugin.Menu(Guid,MenuGuid)
 		DEF_MCODE_(F_PLUGIN_CONFIG),            // N=Plugin.Config(Guid[,MenuGuid])
-		DEF_MCODE_(F_PLUGIN_INT),               // N=Plugin.Int(Guid,Item)
+		DEF_MCODE_(F_PLUGIN_CALL),              // N=Plugin.Call(Guid,Item)
 		DEF_MCODE_(F_PLUGIN_PREFIX),            // N=Plugin.Prefix(Guid,Command)
+		DEF_MCODE_(F_PLUGIN_EXIST),             // N=Plugin.Exist(Guid)
 
 	};
 	string Name;

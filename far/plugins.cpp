@@ -2425,6 +2425,14 @@ void PluginManager::ReadUserBackgound(SaveScreen *SaveScr)
 */
 int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Ret)
 {
+	if (FrameManager->GetCurrentFrame()->GetType() == MODALTYPE_DIALOG)
+	{
+		if (static_cast<Dialog*>(FrameManager->GetCurrentFrame())->CheckDialogMode(DMODE_NOPLUGINS))
+		{
+			return FALSE;
+		}
+	}
+
 	Plugin *pPlugin = FindPlugin(SysID);
 
 	if (pPlugin)
@@ -2482,6 +2490,15 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 	if (!ProcessException)
 	{
 		int curType = FrameManager->GetCurrentFrame()->GetType();
+
+		if (curType==MODALTYPE_DIALOG)
+		{
+			if (static_cast<Dialog*>(FrameManager->GetCurrentFrame())->CheckDialogMode(DMODE_NOPLUGINS))
+			{
+				return FALSE;
+			}
+		}
+
 		bool Editor = curType==MODALTYPE_EDITOR;
 		bool Viewer = curType==MODALTYPE_VIEWER;
 		bool Dialog = curType==MODALTYPE_DIALOG;
@@ -2494,7 +2511,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 				// Разрешен ли вызов данного типа в текущей области (предварительная проверка)
 				switch ((Data->CallFlags & CPT_MASK))
 				{
-					case CPT_CALL:
+					case CPT_MENU:
 						if (!Data->pPlugin->HasOpenPanel())
 							return FALSE;
 						break;
@@ -2536,7 +2553,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 				// Разрешен ли вызов данного типа в текущей области
 				switch ((Data->CallFlags & CPT_MASK))
 				{
-					case CPT_CALL:
+					case CPT_MENU:
 						if ((Editor && !(IFlags & PF_EDITOR)) ||
 								(Viewer && !(IFlags & PF_VIEWER)) ||
 								(Dialog && !(IFlags & PF_DIALOG)) ||
@@ -2555,7 +2572,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 						break;
 				}
 
-				if ((Data->CallFlags & CPT_MASK)==CPT_CALL || (Data->CallFlags & CPT_MASK)==CPT_CONFIGURE)
+				if ((Data->CallFlags & CPT_MASK)==CPT_MENU || (Data->CallFlags & CPT_MASK)==CPT_CONFIGURE)
 				{
 					bool ItemFound = false;
 					if (Data->ItemGuid==nullptr)
@@ -2597,7 +2614,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 
 			switch ((Data->CallFlags & CPT_MASK))
 			{
-			case CPT_CALL:
+				case CPT_MENU:
 				{
 					ActivePanel=CtrlObject->Cp()->ActivePanel;
 					int OpenCode=OPEN_PLUGINSMENU;
@@ -2622,32 +2639,32 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 					hPlugin=Open(Data->pPlugin,OpenCode,Data->FoundGuid,Item);
 
 					Result=TRUE;
+					break;
 				}
-				break;
 
-			case CPT_CONFIGURE:
-				CtrlObject->Plugins->ConfigureCurrent(Data->pPlugin,Data->FoundGuid);
-				return TRUE;
+				case CPT_CONFIGURE:
+					CtrlObject->Plugins->ConfigureCurrent(Data->pPlugin,Data->FoundGuid);
+					return TRUE;
 
-			case CPT_PREFIX:
+				case CPT_PREFIX:
 				{
 					ActivePanel=CtrlObject->Cp()->ActivePanel;
 					string command=Data->Command; // Нужна копия строки
 					hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(INT_PTR)command.CPtr());
 
 					Result=TRUE;
+					break;
 				}
-				break;
-			case CPT_INTERNAL:
-				//TODO: бывший CallPlugin
-				//WARNING: учесть, что он срабатывает без переключения MacroState
-				break;
+				case CPT_INTERNAL:
+					//TODO: бывший CallPlugin
+					//WARNING: учесть, что он срабатывает без переключения MacroState
+					break;
 			}
 
 			if (hPlugin && !Editor && !Viewer && !Dialog)
 			{
 				//BUGBUG: Закрытие панели? Нужно ли оно?
-				//BUGBUG: В ProcessCommandLine зовется перед Open, а в CPT_CALL - после
+				//BUGBUG: В ProcessCommandLine зовется перед Open, а в CPT_MENU - после
 				if (ActivePanel->ProcessPluginEvent(FE_CLOSE,nullptr))
 				{
 					ClosePanel(hPlugin);

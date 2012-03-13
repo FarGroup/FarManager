@@ -1,3 +1,12 @@
+svs 13.03.2012 11:16:01 +0400 - build 2543
+
+1. Добавка DMODE_NOPLUGINS в PluginManager::CallPlugin и PluginManager::CallPluginItem
+
+2. Macro: переименование: Plugin.Call -> Plugin.Menu, Plugin.Int -> Plugin.Call 
+
+3. Macro: Добавлена макрофункция N=Plugin.Exist(Guid)
+   Возвращает 0 - нет плагина с индентификатором Guid, 1 - есть такой плагин.
+
 zg 13.03.2012 01:52:57 +0200 - build 2542
 
 1. плагинам доступна опция FSSF_CONFIRMATIONS/"RemoveConnection".
