@@ -741,7 +741,7 @@ static struct FARConfig
 {
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"Clock", &Opt.Clock, 1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"ViewerEditorClock",&Opt.ViewerEditorClock,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"KeyBar",&Opt.ShowKeyBar,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_SCREEN,            NKeyScreen, L"KeyBar",&Opt.ShowKeyBar,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"ScreenSaver",&Opt.ScreenSaver, 0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"ScreenSaverTime",&Opt.ScreenSaverTime,5, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"DeltaXY", &Opt.ScrSize.DeltaXY, 0, 0},

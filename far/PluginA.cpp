@@ -4078,6 +4078,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 		case oldfar::ACTL_GETINTERFACESETTINGS:
 		{
 			INT_PTR ret = 0;
+			if (GetSetting(FSSF_SCREEN,L"KeyBar")) ret|=oldfar::FIS_SHOWKEYBAR;
 			return ret;
 		}
 		case oldfar::ACTL_GETCONFIRMATIONS:

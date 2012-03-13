@@ -1864,6 +1864,7 @@ enum FARSETTINGS_SUBFOLDERS
 	FSSF_SYSTEM                     = 17,
 	FSSF_PANEL                      = 18,
 	FSSF_EDITOR                     = 19,
+	FSSF_SCREEN                     = 20,
 #ifdef FAR_USE_INTERNALS
 	FSSF_COUNT
 #endif // END FAR_USE_INTERNALS
