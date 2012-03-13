@@ -3,3 +3,4 @@ EXPORTS
    OpenW
    SetStartupInfoW
    GetGlobalInfoW
+   ExitFARW

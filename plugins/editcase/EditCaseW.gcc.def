@@ -3,3 +3,4 @@ EXPORTS
    OpenW=OpenW@4
    SetStartupInfoW=SetStartupInfoW@4
    GetGlobalInfoW=GetGlobalInfoW@4
+   ExitFARW=ExitFARW@4

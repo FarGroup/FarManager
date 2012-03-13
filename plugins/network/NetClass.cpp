@@ -9,6 +9,23 @@
 NetResourceList *CommonRootResources;
 BOOL SavedCommonRootResources = FALSE;
 
+static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
+{
+	__int64 result=0;
+	FarSettingsCreate settings={sizeof(FarSettingsCreate),FarGuid,INVALID_HANDLE_VALUE};
+	HANDLE Settings=Info.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
+	if(Settings)
+	{
+		FarSettingsItem item={Root,Name,FST_UNKNOWN,{0}};
+		if(Info.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_QWORD==item.Type)
+		{
+			result=item.Number;
+		}
+		Info.SettingsControl(Settings,SCTL_FREE,0,0);
+	}
+	return result;
+}
+
 // -- NetResourceList --------------------------------------------------------
 #ifdef NETWORK_LOGGING
 FILE* NetBrowser::LogFile = NULL;
@@ -655,8 +672,7 @@ BOOL NetBrowser::ConfirmCancelConnection(wchar_t *LocalName, wchar_t *RemoteName
 
 BOOL NetBrowser::NeedConfirmCancelConnection()
 {
-	return (Info.AdvControl(&MainGuid, ACTL_GETCONFIRMATIONS, 0, NULL) &
-	        FCS_DISCONNECTNETWORKDRIVE) != 0;
+	return GetSetting(FSSF_CONFIRMATIONS,L"RemoveConnection")?true:false;
 }
 
 

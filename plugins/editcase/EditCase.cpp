@@ -51,7 +51,7 @@ enum ENUMCCTYPES
 };
 
 // This chars aren't letters
-static wchar_t WordDiv[80];
+static wchar_t* WordDiv;
 static int WordDivLen;
 
 const wchar_t *GetMsg(int MsgId);
@@ -78,15 +78,27 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 	::Info=*Info;
 	::FSF=*Info->FSF;
 	::Info.FSF=&::FSF;
-	PluginSettings settings(MainGuid, ::Info.SettingsControl);
-	//BUGBUG dynamic string
-	WordDivLen=(int)::Info.AdvControl(&MainGuid, ACTL_GETSYSWORDDIV, 0, WordDiv);
-	wchar_t AddWordDiv[ARRAYSIZE(WordDiv)];
-	settings.Get(0,L"AddWordDiv",AddWordDiv,ARRAYSIZE(AddWordDiv),L"#");
-	WordDivLen += lstrlen(AddWordDiv);
-	lstrcat(WordDiv, AddWordDiv);
-	WordDivLen += ARRAYSIZE(L" \n\r\t");
-	lstrcat(WordDiv, L" \n\r\t");
+	PluginSettings plugSettings(MainGuid, ::Info.SettingsControl);
+	const wchar_t* AddWordDiv=plugSettings.Get(0,L"AddWordDiv",L"#");
+
+	FarSettingsCreate settings={sizeof(FarSettingsCreate),FarGuid,INVALID_HANDLE_VALUE};
+	HANDLE Settings=::Info.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
+	if(Settings)
+	{
+		FarSettingsItem item={FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{0}};
+		if(::Info.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
+		{
+			WordDivLen=lstrlen(item.String)+lstrlen(AddWordDiv)+ARRAYSIZE(L" \n\r\t");
+			WordDiv=(wchar_t*)malloc((WordDivLen+1)*sizeof(wchar_t));
+			if(WordDiv)
+			{
+				lstrcpy(WordDiv,item.String);
+				lstrcat(WordDiv, AddWordDiv);
+				lstrcat(WordDiv, L" \n\r\t");
+			}
+		}
+		::Info.SettingsControl(Settings,SCTL_FREE,0,0);
+	}
 }
 
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
@@ -277,6 +289,11 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
+void WINAPI ExitFARW(const struct ExitInfo *Info)
+{
+	free(WordDiv);
+}
+
 const wchar_t *GetMsg(int MsgId)
 {
 	return Info.GetMsg(&MainGuid,MsgId);
@@ -285,7 +302,7 @@ const wchar_t *GetMsg(int MsgId)
 // What we consider as letter
 bool MyIsAlpha(int c)
 {
-	return wmemchr(WordDiv, c, WordDivLen)==NULL ? true : false;
+	return (WordDiv&&wmemchr(WordDiv, c, WordDivLen)==NULL) ? true : false;
 }
 
 // Finding word bounds (what'll be converted) (Str is in OEM)

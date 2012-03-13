@@ -92,6 +92,22 @@ static const wchar_t *GetMsg(int CompareLng)
 	return Info.GetMsg(&MainGuid, CompareLng);
 }
 
+static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
+{
+	__int64 result=0;
+	FarSettingsCreate settings={sizeof(FarSettingsCreate),FarGuid,INVALID_HANDLE_VALUE};
+	HANDLE Settings=Info.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
+	if(Settings)
+	{
+		FarSettingsItem item={Root,Name,FST_UNKNOWN,{0}};
+		if(Info.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_QWORD==item.Type)
+		{
+			result=item.Number;
+		}
+		Info.SettingsControl(Settings,SCTL_FREE,0,0);
+	}
+	return result;
+}
 
 static int iTruncLen;
 
@@ -407,7 +423,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 			Opt.CompareContents = FALSE;
 		}
 
-		Opt.ProcessHidden = (Info.AdvControl(&MainGuid, ACTL_GETPANELSETTINGS, 0, NULL) & FPS_SHOWHIDDENANDSYSTEMFILES) != 0;
+		Opt.ProcessHidden = GetSetting(FSSF_PANEL,L"ShowHidden")?true:false;
 		Info.DialogFree(hDlg);
 		return true;
 	}
@@ -445,7 +461,7 @@ static bool CheckForEsc(void)
 		        rec.Event.KeyEvent.bKeyDown)
 			// Опциональное подтверждение прерывания по Esc
 		{
-			if (Info.AdvControl(&MainGuid, ACTL_GETCONFIRMATIONS, 0, NULL) & FCS_INTERRUPTOPERATION)
+			if (GetSetting(FSSF_CONFIRMATIONS,L"Esc"))
 			{
 				const wchar_t *MsgItems[] =
 				{
