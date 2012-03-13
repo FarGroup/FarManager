@@ -1973,9 +1973,6 @@ szeretnénk a fájllal azonos nevű mappába kibontani, a parancs:
 
 @SystemSettings
 $ #Beállítások: rendszer beállítások#
-  #Csak olvasható attr.#    Törli a CD-ről másolt fájlok "csak
-  #törlése CD fájlokról#    olvasható" attribútumát.
-
   #Törlés a Lomtárba#       ^<wrap>A fájlok vagy mappák törlésénél
 közbeiktatja a Lomtárat. A "Törlés a Lomtárba" művelet csak helyi
 merevlemezeken működik.

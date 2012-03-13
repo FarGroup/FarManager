@@ -621,7 +621,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 				case MENU_OPTIONS_PLUGINSCONFIG:   // Plugins configuration
 					CtrlObject->Plugins->Configure();
 					break;
-				case MENU_OPTIONS_PLUGINSMANAGERSETTINGS:
+				case MENU_OPTIONS_PLUGINSMANAGERSETTINGS: // Plugins manager settings
 					PluginsManagerSettings();
 					break;
 				case MENU_OPTIONS_DIALOGSETTINGS:   // Dialog settings (police=5)
@@ -633,13 +633,13 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 				case MENU_OPTIONS_CMDLINESETTINGS:   // Command line settings
 					CmdlineSettings();
 					break;
-				case MENU_OPTIONS_AUTOCOMPLETESETTINGS:
+				case MENU_OPTIONS_AUTOCOMPLETESETTINGS: // AutoComplete settings
 					AutoCompleteSettings();
 					break;
 				case MENU_OPTIONS_INFOPANELSETTINGS: // InfoPanel Settings
 					InfoPanelSettings();
 					break;
-				case MENU_OPTIONS_MASKGROUPS:
+				case MENU_OPTIONS_MASKGROUPS:  // Groups of file masks
 					MaskGroupsSettings();
 					break;
 				case MENU_OPTIONS_CONFIRMATIONS:   // Confirmations

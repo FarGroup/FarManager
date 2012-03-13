@@ -347,6 +347,7 @@ void MaskGroupsSettings()
 {
 	VMenu MasksMenu(MSG(MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 	MasksMenu.SetBottomTitle(MSG(MMaskGroupBottom));
+	MasksMenu.SetHelp(L"MaskGroupsSettings");
 	FillMasksMenu(MasksMenu);
 	MasksMenu.SetPosition(-1, -1, -1, -1);
 	MasksMenu.Show();
@@ -543,6 +544,7 @@ void SetConfirmations()
 	Builder.AddCheckbox(MSetConfirmCopy, &Opt.Confirm.Copy);
 	Builder.AddCheckbox(MSetConfirmMove, &Opt.Confirm.Move);
 	Builder.AddCheckbox(MSetConfirmRO, &Opt.Confirm.RO);
+	Builder.AddCheckbox(MSetConfirmDrag, &Opt.Confirm.Drag);
 	Builder.AddCheckbox(MSetConfirmDelete, &Opt.Confirm.Delete);
 	Builder.AddCheckbox(MSetConfirmDeleteFolders, &Opt.Confirm.DeleteFolder);
 	Builder.AddCheckbox(MSetConfirmEsc, &Opt.Confirm.Esc);
@@ -713,7 +715,7 @@ void SetFolderInfoFiles()
 	string strFolderInfoFiles;
 
 	if (GetString(MSG(MSetFolderInfoTitle),MSG(MSetFolderInfoNames),L"FolderInfoFiles",
-	              Opt.InfoPanel.strFolderInfoFiles,strFolderInfoFiles,L"OptMenu",FIB_ENABLEEMPTY|FIB_BUTTONS))
+	              Opt.InfoPanel.strFolderInfoFiles,strFolderInfoFiles,L"FolderDiz",FIB_ENABLEEMPTY|FIB_BUTTONS))
 	{
 		Opt.InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
 

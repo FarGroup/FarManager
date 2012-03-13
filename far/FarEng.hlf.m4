@@ -1487,6 +1487,9 @@ following operations:
 @PluginsManagerSettings
 $ #Plugins manager#
 
+@MaskGroupsSettings
+$ #Группы масок файлов#
+
 @ChoosePluginMenu
 $ #Plugin selection menu#
 
@@ -2235,15 +2238,14 @@ extract a rar archive to a folder with the same name
 
 @SystemSettings
 $ #Settings dialog: system#
-  #Clear R/O attribute from CD files#
-  Clear read-only attribute from files copied from CD.
-
   #Delete to Recycle Bin#
   Enables file deletion via the Recycle Bin.The operation of deleting to the Recycle
 Bin can be performed only for local hard disks.
 
   #Delete symbolic links#
   Scan for and delete symbolic links to subfolders before deleting to Recycle Bin.
+  В OS ниже Windows Vista при очистке Корзины, содержащей символические ссылки, удаляются не ссылки, а источники, на которые эти ссылки указывают.
+  В Windows Vista и выше эта опция не используется. Система сама корректно чистит Корзину.
 
   #Use system copy routine#
   Use the file copy functions provided by the operating system instead of internal
@@ -2284,6 +2286,25 @@ registered to process this file type will be executed.
   When a CD-ROM drive is selected from the ~drive menu~@DriveDlg@, Far will close the open
 tray of a CD drive. Turn off this option if automatic CD-ROM mounting does not work
 correctly (this can happen because of bugs in the drivers of some CD-ROM drives).
+
+  #Автообновление переменных окружения#
+  При глобальном изменении переменных среды Far Manager автоматические корректирует значения своего окружения.
+
+  #Запрос прав администратора#
+  Во время выполнения разнообразных операций с файловой системой у текущего
+пользователя может не хватать прав. В этом случае Far Manager может повторить 
+попытку от имени администратора (повысить права текущего пользователя).
+
+  Доступны следующие опции:
+
+    #для изменения#
+    ^<wrap>разрешить выполнять от имени администратора операции, изменяющие состояние файловой системы (например, создание, изменение и удаление файлов)
+
+    #для чтения#
+    ^<wrap>разрешить выполнять от имени администратора операции, не изменяющие состояние файловой системы (например, чтение файлов и просмотр папок).
+
+    #использовать дополнительные привилегии#
+    ^<wrap>при выполнении действий от имени администратора будет предоставлен доступ ко всем файлам, независимо от их списков контроля доступа (ACL).
 
   #Auto save setup#
   If checked, Far will save setup automatically. The current folders for both panels will be also saved.
@@ -2354,6 +2375,16 @@ $ #Settings dialog: panel#
 
   #Show sort mode#          Indicate current sort mode in the
   #letter#                  upper left panel corner.
+
+
+  #Подсвечивать#            Внутренние разделители колонок рисовать
+  #разделители колонок#     цветом, выбранным для конкретного типа
+                          файлового объекта.
+                          Если опция снята, разделители будут 
+                          отрисованы цветом внешних рамок.
+
+  #Удваивать глобальные#    Вместо одинарной будет рисоваться 
+  #разделители колонок#     двойная внутренняя рамка между колонками.
 
 
 @InterfSettings
@@ -2479,6 +2510,15 @@ feature is disabled while a macro is being recorded or executed.
 
 @AutoCompleteSettings
 $ #Settings dialog: AutoComplete#
+  #Показывать список#
+  Показать варианты автозавершения в виде списка.
+
+  #Модальный режим#
+  Список будет модальным.
+
+  #Подставлять первый подходящий вариант#
+  По мере ввода строка будет дополняться первым подходящим значением.
+
 
 @CommandPrompt
 $ #Command line prompt format#
@@ -3428,6 +3468,12 @@ mode letter in the upper left corner of the panel.
      - ~File panel~@FilePanel@;
      - ~Copying, moving, renaming and creating links~@CopyFiles@;
      - ~Find file~@FindFile@.
+
+
+@FolderDiz
+$ #Folder descriptions#
+    Specify names (~wildcards~@FileMasks@ are allowed) of files displayed 
+in the ~Info panel~@InfoPanel@ as folder descriptions.
 
 
 @FileDiz
