@@ -757,7 +757,7 @@ static struct FARConfig
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"Mouse",&Opt.Mouse,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"UseVk_oem_x",&Opt.UseVk_oem_x,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShowMenuBar",&Opt.ShowMenuBar,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_INTERFACE,         NKeyInterface, L"ShowMenuBar",&Opt.ShowMenuBar,0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CursorSize1",&Opt.CursorSize[0],15, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CursorSize2",&Opt.CursorSize[1],10, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CursorSize3",&Opt.CursorSize[2],99, 0},
@@ -799,13 +799,13 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"ZeroChar",&Opt.ViOpt.ZeroChar,0x00B7, 0}, // middle dot
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog, L"EditHistory",&Opt.Dialogs.EditHistory,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog, L"EditBlock",&Opt.Dialogs.EditBlock,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_DIALOG,            NKeyDialog, L"EditBlock",&Opt.Dialogs.EditBlock,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog, L"AutoComplete",&Opt.Dialogs.AutoComplete,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_DIALOG,            NKeyDialog,L"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"EditLine",&Opt.Dialogs.EditLine,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"MouseButton",&Opt.Dialogs.MouseButton,0xFFFF, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"DelRemovesBlocks",&Opt.Dialogs.DelRemovesBlocks,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_DIALOG,            NKeyDialog,L"DelRemovesBlocks",&Opt.Dialogs.DelRemovesBlocks,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"CBoxMaxHeight",&Opt.Dialogs.CBoxMaxHeight,8, 0},
 
 	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyEditor,L"ExternalEditorName",&Opt.strExternalEditor, 0, L""},
@@ -998,14 +998,14 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"SelectedFirst",&Opt.RightSelectedFirst,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"DirectoriesFirst",&Opt.RightPanel.DirectoriesFirst,1,0},
 
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ColumnTitles",&Opt.ShowColumnTitles,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"StatusLine",&Opt.ShowPanelStatus,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"ColumnTitles",&Opt.ShowColumnTitles,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"StatusLine",&Opt.ShowPanelStatus,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"TotalInfo",&Opt.ShowPanelTotals,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"FreeInfo",&Opt.ShowPanelFree,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"Scrollbar",&Opt.ShowPanelScrollbar,0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ScrollbarMenu",&Opt.ShowMenuScrollbar,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ScreensNumber",&Opt.ShowScreensNumber,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"SortMode",&Opt.ShowSortMode,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"SortMode",&Opt.ShowSortMode,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ColoredGlobalColumnSeparator",&Opt.HighlightColumnSeparator,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"DoubleGlobalColumnSeparator",&Opt.DoubleGlobalColumnSeparator,0, 0},
 

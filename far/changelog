@@ -1,3 +1,7 @@
+zg 14.03.2012 23:16:28 +0200 - build 2546
+
+1. плагинам доступны опции: FSSF_INTERFACE/"ShowMenuBar", FSSF_DIALOG/"EditBlock", FSSF_DIALOG/"EULBsClear", FSSF_DIALOG/"DelRemovesBlocks", FSSF_PANELLAYOUT/"ColumnTitles", FSSF_PANELLAYOUT/"StatusLine", FSSF_PANELLAYOUT/"SortMode".
+
 svs 13.03.2012 15:12:25 +0400 - build 2545
 
 1. Немного актуализации хелпа
