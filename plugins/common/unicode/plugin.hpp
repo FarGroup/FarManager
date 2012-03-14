@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2544
+  Plugin API for Far Manager 3.0 build 2546
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2544
+#define FARMANAGERVERSION_BUILD 2546
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1682,6 +1682,9 @@ enum FARSETTINGS_SUBFOLDERS
 	FSSF_PANEL                      = 18,
 	FSSF_EDITOR                     = 19,
 	FSSF_SCREEN                     = 20,
+	FSSF_DIALOG                     = 21,
+	FSSF_INTERFACE                  = 22,
+	FSSF_PANELLAYOUT                = 23,
 };
 
 enum FAR_PLUGIN_SETTINGS_LOCATION
