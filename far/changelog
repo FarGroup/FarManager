@@ -1,3 +1,9 @@
+svs 15.03.2012 10:20:11 +0400 - build 2549
+
+1. Far.Cfg.Get("System.KnownIDs", "Network")
+   возвращает ерунду
+   Если поле GeneralConfig::TYPE_BLOB и это не "System.KnownIDs", то Far.Cfg.Get() выставит ошибку (макроконстанта) Far.Cfg.Err в 1
+
 zg 15.03.2012 04:15:06 +0200 - build 2548
 
 1. в 2351 перестал работать переход из истории на плагиновую панель.

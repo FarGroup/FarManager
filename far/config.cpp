@@ -1067,8 +1067,12 @@ bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
 					strValue = *(string *)CFG[I].ValPtr;
 					break;
 				case GeneralConfig::TYPE_BLOB:
-					strValue = (char *)CFG[I].ValPtr;
+				{
+					if (StrCmpI(CFG[I].KeyName,NKeySystemKnownIDs))
+						return false;
+					strValue = GuidToStr((const GUID&)(*(const BYTE*)CFG[I].ValPtr));
 					break;
+				}
 			}
 			return true;
 		}
