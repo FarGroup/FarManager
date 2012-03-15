@@ -537,7 +537,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 
 			//BUGUBUG: eliminate those magic numbers!
 			if (SelectedRecordType != 2 && SelectedRecordType != 3 // ignore external
-				&& RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && !SelectedRecordType) || TypeHistory == HISTORYTYPE_VIEW) && apiGetFileAttributes(strSelectedRecordName) == INVALID_FILE_ATTRIBUTES)
+				&& RetCode != 3 && ((TypeHistory == HISTORYTYPE_FOLDER && strSelectedRecordGuid.IsEmpty()) || TypeHistory == HISTORYTYPE_VIEW) && apiGetFileAttributes(strSelectedRecordName) == INVALID_FILE_ATTRIBUTES)
 			{
 				SetLastError(ERROR_FILE_NOT_FOUND);
 
