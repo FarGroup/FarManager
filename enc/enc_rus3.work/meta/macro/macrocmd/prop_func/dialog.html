@@ -109,10 +109,10 @@
   </tr>
 
   <tr>
-    <td>V=<dfn><a name="dlg.getvalue">dlg.getvalue</a></dfn>(Pos,Type)</td>
+    <td>V=<dfn><a name="dlg.getvalue">dlg.getvalue</a></dfn>([Pos[,Type]])</td>
     <td><p>Получить различные значения текущего диалога.</p>
-      <p><var>Pos</var> - номер элемента диалога (0 - само диалоговое окно).</p>
-      <p><var>Type</var> - тип получаемой информации, зависит от типа элемента.</p>
+      <p><var>Pos</var> - номер элемента диалога (0 - само диалоговое окно). Если параметр не указан, то функция вернет значение для текущего фокусного элемента.</p>
+      <p><var>Type</var> - тип получаемой информации, зависит от типа элемента. Если параметр не указан, то подразумевается, что <var>Type</var>=0.</p>
       <p>Для самого диалога (<var>Pos</var>=0) допустимы следующие значения <var>Type</var>:</p>
        <table class="cont2 params lite">
        <col class="value">
@@ -144,7 +144,7 @@
         <tr><td>3</td><td>Number</td><td>Все</td><td>Y1 относительно диалога</td></tr>
         <tr><td>4</td><td>Number</td><td>Все</td><td>X2 относительно диалога</td></tr>
         <tr><td>5</td><td>Number</td><td>Все</td><td>Y2 относительно диалога</td></tr>
-        <tr><td>6</td><td>Number</td><td>Все</td><td>элемент в фокусе?</td></tr>
+        <tr><td>6</td><td>Number</td><td>Все</td><td>элемент в фокусе? (0/1)</td></tr>
 
         <tr><td rowspan="5">7</td><td>Number</td><td>Check box</td><td>Состояние переключателя</td></tr>
         <tr>          <td>Number</td><td>Radio buttons</td><td>Состояние переключателя</td></tr>
