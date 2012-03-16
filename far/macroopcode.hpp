@@ -152,7 +152,7 @@ enum MACRO_OP_CODE
 	MCODE_F_CLIP,                     // V=clip(N[,V])
 	MCODE_F_CHR,                      // S=chr(N)
 	MCODE_F_DATE,                     // S=date([S])
-	MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue(ID,N)
+	MCODE_F_DLG_GETVALUE,             // V=Dlg.GetValue([Pos[,InfoID]])
 	MCODE_F_EDITOR_SEL,               // V=Editor.Sel(Action[,Opt])
 	MCODE_F_EDITOR_SET,               // N=Editor.Set(N,Var)
 	MCODE_F_EDITOR_UNDO,              // V=Editor.Undo(N)

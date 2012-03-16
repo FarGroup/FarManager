@@ -416,7 +416,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"CHR",              nullptr, L"S=Chr(N)",                                                  chrFunc,            nullptr, 0, 0,                                      MCODE_F_CHR,             },
 	{L"CLIP",             nullptr, L"V=Clip(N[,V])",                                             clipFunc,           nullptr, 0, 0,                                      MCODE_F_CLIP,            },
 	{L"DATE",             nullptr, L"S=Date([S])",                                               dateFunc,           nullptr, 0, 0,                                      MCODE_F_DATE,            },
-	{L"DLG.GETVALUE",     nullptr, L"V=Dlg.GetValue(ID,N)",                                      dlggetvalueFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_GETVALUE,    },
+	{L"DLG.GETVALUE",     nullptr, L"V=Dlg.GetValue([Pos[,InfoID]])",                            dlggetvalueFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_GETVALUE,    },
 	{L"DLG.SETFOCUS",     nullptr, L"N=Dlg.SetFocus([ID])",                                      dlgsetfocusFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_SETFOCUS,    },
 	{L"EDITOR.POS",       nullptr, L"N=Editor.Pos(Op,What[,Where])",                             editorposFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_POS,      },
 	{L"EDITOR.SEL",       nullptr, L"V=Editor.Sel(Action[,Opt])",                                editorselFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SEL,      },
@@ -3205,18 +3205,26 @@ bool farcfggetFunc(const TMacroFunction*)
 	return resultGetCfg;
 }
 
-// V=Dlg.GetValue(Index,TypeInf)
+// V=Dlg.GetValue([Pos[,InfoID]])
 static bool dlggetvalueFunc(const TMacroFunction*)
 {
 	parseParams(2,Params);
 	TVar Ret(-1);
-	int TypeInf=(int)Params[1].getInteger();
-	unsigned Index=(unsigned)Params[0].getInteger()-1;
 	Frame* CurFrame=FrameManager->GetCurrentFrame();
 
 	if (CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
 	{
-		FarGetValue fgv={TypeInf,FMVT_UNKNOWN};
+		TVarType typeIndex=Params[0].type();
+		unsigned Index=(unsigned)Params[0].getInteger()-1;
+		if (typeIndex == vtUnknown)
+			Index=((Dialog*)CurFrame)->GetDlgFocusPos();
+
+		TVarType typeInfoID=Params[1].type();
+		int InfoID=(int)Params[1].getInteger();
+		if (typeInfoID == vtUnknown)
+			InfoID=0;
+
+		FarGetValue fgv={InfoID,FMVT_UNKNOWN};
 		unsigned DlgItemCount=((Dialog*)CurFrame)->GetAllItemCount();
 		const DialogItemEx **DlgItem=((Dialog*)CurFrame)->GetAllItem();
 		bool CallDialog=true;
@@ -3227,7 +3235,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 
 			if (SendDlgMessage((HANDLE)CurFrame,DM_GETDLGRECT,0,&Rect))
 			{
-				switch (TypeInf)
+				switch (InfoID)
 				{
 					case 0: Ret=(__int64)DlgItemCount; break;
 					case 2: Ret=(__int64)Rect.Left; break;
@@ -3245,11 +3253,11 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 			FARDIALOGITEMTYPES ItemType=Item->Type;
 			FARDIALOGITEMFLAGS ItemFlags=Item->Flags;
 
-			if (!TypeInf)
+			if (!InfoID)
 			{
 				if (ItemType == DI_CHECKBOX || ItemType == DI_RADIOBUTTON)
 				{
-					TypeInf=7;
+					InfoID=7;
 				}
 				else if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
 				{
@@ -3265,15 +3273,15 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 						Ret=L"";
 					}
 
-					TypeInf=-1;
+					InfoID=-1;
 				}
 				else
 				{
-					TypeInf=10;
+					InfoID=10;
 				}
 			}
 
-			switch (TypeInf)
+			switch (InfoID)
 			{
 				case 1: Ret=(__int64)ItemType;    break;
 				case 2: Ret=(__int64)Item->X1;    break;
@@ -3334,7 +3342,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 		}
 		else if (Index >= DlgItemCount)
 		{
-			Ret=(__int64)TypeInf;
+			Ret=(__int64)InfoID;
 		}
 		else
 			CallDialog=false;
