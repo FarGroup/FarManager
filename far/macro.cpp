@@ -564,6 +564,7 @@ int KeyNameMacroToKey(const wchar_t *Name)
 	return -1;
 }
 
+#if 0
 static bool checkMacroFarIntConst(string &strValueName)
 {
 	return
@@ -575,6 +576,7 @@ static bool checkMacroFarIntConst(string &strValueName)
 		strValueName==constRCounter ||
 		strValueName==constFarCfgErr;
 }
+#endif
 
 static void initMacroFarIntConst()
 {

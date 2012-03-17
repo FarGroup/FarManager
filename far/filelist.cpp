@@ -2607,7 +2607,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		*/
 		BOOL SetDirectorySuccess = TRUE;
 
-		if (dot2Present && strInfoCurDir.IsEmpty())
+		if (dot2Present && (strInfoCurDir.IsEmpty() || !StrCmp(strInfoCurDir,L"\\")))
 		{
 			if (ProcessPluginEvent(FE_CLOSE,nullptr))
 				return TRUE;
