@@ -1090,7 +1090,7 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 	DWORD DistLeft, DistRight;
 	int StrSize=StrLength(Str);
 
-	if (CurPos >= StrSize)
+	if (CurPos > StrSize)
 		return nullptr;
 
 	string strWordDiv(WordDiv0);
