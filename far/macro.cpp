@@ -6118,8 +6118,12 @@ bool KeyMacro::SaveVarToDB(const wchar_t *Name, TVar Value)
 
 void KeyMacro::WriteVarsConsts()
 {
+#if 0
 	string strValueName;
-	TVarTable *t = &glbConstTable;
+	TVarTable *t;
+
+	// Consts
+	t= &glbConstTable;
 
 	MacroCfg->BeginTransaction();
 	for (int I=0; ; I++)
@@ -6137,6 +6141,7 @@ void KeyMacro::WriteVarsConsts()
 	}
 	MacroCfg->EndTransaction();
 
+	// Vars
 	t = &glbVarTable;
 
 	MacroCfg->BeginTransaction();
@@ -6153,6 +6158,7 @@ void KeyMacro::WriteVarsConsts()
 		MacroCfg->SetVarValue(strValueName, var->value.s(), GetVarTypeName((DWORD)type));
 	}
 	MacroCfg->EndTransaction();
+#endif
 }
 
 void KeyMacro::SavePluginFunctionToDB(const TMacroFunction *MF)
@@ -6219,7 +6225,6 @@ void KeyMacro::WriteMacroRecords()
 // Сохранение ВСЕХ макросов
 void KeyMacro::SaveMacros()
 {
-	WriteVarsConsts();
 	WritePluginFunctions();
 	WriteMacroRecords();
 }
