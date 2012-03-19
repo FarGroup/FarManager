@@ -943,7 +943,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			GetErrorString(strError);
 			int Len1=static_cast<int>(strError.GetLength());
 			int Len2=StrLength(MSG(MChangeDriveCannotReadDisk));
-			
+
 			const int DX=Min(Max(Len1,Len2 + 3)+11, ScrX-1), DY=8;
 			const FarDialogItem ChDiskData[]=
 			{
@@ -2296,25 +2296,27 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			{
 				Reenter++;
 				ShortcutInfo Info;
-				GetShortcutInfo(Info);
-				Result=ALIGN(sizeof(FarPanelDirectory));
-				size_t folderOffset=Result;
-				Result+=static_cast<int>(sizeof(wchar_t)*(Info.ShortcutFolder.GetLength()+1));
-				size_t pluginFileOffset=Result;
-				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginFile.GetLength()+1));
-				size_t pluginDataOffset=Result;
-				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginData.GetLength()+1));
-				FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
-				if(Param1>=Result && CheckStructSize(dirInfo))
+				if(GetShortcutInfo(Info))
 				{
-					dirInfo->StructSize=sizeof(FarPanelDirectory);
-					dirInfo->PluginId=Info.PluginGuid;
-					dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
-					dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
-					dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
-					wmemcpy((wchar_t*)dirInfo->Name,Info.ShortcutFolder,Info.ShortcutFolder.GetLength()+1);
-					wmemcpy((wchar_t*)dirInfo->Param,Info.PluginData,Info.PluginData.GetLength()+1);
-					wmemcpy((wchar_t*)dirInfo->File,Info.PluginFile,Info.PluginFile.GetLength()+1);
+					Result=ALIGN(sizeof(FarPanelDirectory));
+					size_t folderOffset=Result;
+					Result+=static_cast<int>(sizeof(wchar_t)*(Info.ShortcutFolder.GetLength()+1));
+					size_t pluginFileOffset=Result;
+					Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginFile.GetLength()+1));
+					size_t pluginDataOffset=Result;
+					Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginData.GetLength()+1));
+					FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
+					if(Param1>=Result && CheckStructSize(dirInfo))
+					{
+						dirInfo->StructSize=sizeof(FarPanelDirectory);
+						dirInfo->PluginId=Info.PluginGuid;
+						dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
+						dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
+						dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
+						wmemcpy((wchar_t*)dirInfo->Name,Info.ShortcutFolder,Info.ShortcutFolder.GetLength()+1);
+						wmemcpy((wchar_t*)dirInfo->Param,Info.PluginData,Info.PluginData.GetLength()+1);
+						wmemcpy((wchar_t*)dirInfo->File,Info.PluginFile,Info.PluginFile.GetLength()+1);
+					}
 				}
 				Reenter--;
 			}
@@ -2503,7 +2505,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 		{DI_BUTTON,    0, 8,  0, 8, 0, nullptr, nullptr, DIF_CENTERGROUP, MSG(MCancel)},
 	};
 	MakeDialogItemsEx(DCDlgData,DCDlg);
-	
+
 	LangString strMsgText;
 
 	strMsgText = MChangeDriveDisconnectQuestion;
@@ -2572,7 +2574,7 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 	return FALSE;
 }
 
-void Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
+bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 {
 	if (PanelMode==PLUGIN_PANEL)
 	{
@@ -2581,6 +2583,7 @@ void Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 		ShortcutInfo.PluginGuid = ph->pPlugin->GetGUID();
 		OpenPanelInfo Info;
 		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		if(!(Info.Flags&OPIF_SHORTCUT)) return false;
 		ShortcutInfo.PluginFile = Info.HostFile;
 		ShortcutInfo.ShortcutFolder = Info.CurDir;
 		ShortcutInfo.PluginData = Info.ShortcutData;
@@ -2592,24 +2595,25 @@ void Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 		ShortcutInfo.PluginData.Clear();
 		ShortcutInfo.ShortcutFolder = strCurDir;
 	}
+	return true;
 }
 
 bool Panel::SaveShortcutFolder(int Pos, bool Add)
 {
 	ShortcutInfo Info;
-	GetShortcutInfo(Info);
-
-	if(Add)
+	if(GetShortcutInfo(Info))
 	{
-		CtrlObject->FolderShortcuts->Add(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+		if(Add)
+		{
+			CtrlObject->FolderShortcuts->Add(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+		}
+		else
+		{
+			CtrlObject->FolderShortcuts->Set(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+		}
+		return true;
 	}
-	else
-	{
-		CtrlObject->FolderShortcuts->Set(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
-	}
-
-
-	return true;
+	return false;
 }
 
 /*
@@ -2690,80 +2694,62 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 
 	if (!IsEqualGUID(FarGuid,PluginGuid))
 	{
-		if (!strPluginFile.IsEmpty())
+		switch (CheckShortcutFolder(nullptr,TRUE))
 		{
-			switch (CheckShortcutFolder(&strPluginFile,TRUE))
-			{
-				case 0:
-					//              return FALSE;
-				case -1:
-					return true;
-			}
-
-			/* Своеобразное решение BugZ#50 */
-			string strRealDir;
-			strRealDir = strPluginFile;
-
-			if (CutToSlash(strRealDir))
-			{
-				SrcPanel->SetCurDir(strRealDir,TRUE);
-				SrcPanel->GoToFile(PointToName(strPluginFile));
-
-				SrcPanel->ClearAllItem();
-			}
-
-			if (SrcPanel->GetType() == FILE_PANEL)
-				((FileList*)SrcPanel)->OpenFilePlugin(&strPluginFile,FALSE, OFP_SHORTCUT); //???
-
-			if (!strShortcutFolder.IsEmpty())
-					SrcPanel->SetCurDir(strShortcutFolder,FALSE);
-
-			SrcPanel->Show();
+			case 0:
+				//              return FALSE;
+			case -1:
+				return true;
 		}
-		else
+
+		Plugin *pPlugin = CtrlObject->Plugins->FindPlugin(PluginGuid);
+
+		if (pPlugin)
 		{
-			switch (CheckShortcutFolder(nullptr,TRUE))
+			if (pPlugin->HasOpenPanel())
 			{
-				case 0:
-					//              return FALSE;
-				case -1:
-					return true;
-			}
-
-			Plugin *pPlugin = CtrlObject->Plugins->FindPlugin(PluginGuid);
-
-			if (pPlugin)
-			{
-				if (pPlugin->HasOpenPanel())
+				if (!strPluginFile.IsEmpty())
 				{
-					HANDLE hNewPlugin=CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)strPluginData.CPtr());
+					string strRealDir;
+					strRealDir = strPluginFile;
 
-					if (hNewPlugin)
+					if (CutToSlash(strRealDir))
 					{
-						int CurFocus=SrcPanel->GetFocus();
+						SrcPanel->SetCurDir(strRealDir,TRUE);
+						SrcPanel->GoToFile(PointToName(strPluginFile));
 
-						Panel *NewPanel=CtrlObject->Cp()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
-						NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
-
-						if (!strShortcutFolder.IsEmpty())
-							CtrlObject->Plugins->SetDirectory(hNewPlugin,strShortcutFolder,0);
-
-						NewPanel->Update(0);
-						NewPanel->Show();
+						SrcPanel->ClearAllItem();
 					}
 				}
-			}
 
-			/*
-			if(I == CtrlObject->Plugins->PluginsCount)
-			{
-			  char Target[NM*2];
-			  xstrncpy(Target, PluginModule, sizeof(Target));
-			  TruncPathStr(Target, ScrX-16);
-			  Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), Target, MSG (MNeedNearPath), MSG(MOk))
+				OpenShortcutInfo info={sizeof(OpenShortcutInfo),strPluginFile.IsEmpty()?nullptr:strPluginFile.CPtr(),strPluginData.IsEmpty()?nullptr:strPluginData.CPtr()};
+				HANDLE hNewPlugin=CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)&info);
+
+				if (hNewPlugin)
+				{
+					int CurFocus=SrcPanel->GetFocus();
+
+					Panel *NewPanel=CtrlObject->Cp()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
+					NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
+
+					if (!strShortcutFolder.IsEmpty())
+						CtrlObject->Plugins->SetDirectory(hNewPlugin,strShortcutFolder,0);
+
+					NewPanel->Update(0);
+					NewPanel->Show();
+				}
 			}
-			*/
 		}
+
+		/*
+		if(I == CtrlObject->Plugins->PluginsCount)
+		{
+		  char Target[NM*2];
+		  xstrncpy(Target, PluginModule, sizeof(Target));
+		  TruncPathStr(Target, ScrX-16);
+		  Message (MSG_WARNING | MSG_ERRORTYPE, 1, MSG(MError), Target, MSG (MNeedNearPath), MSG(MOk))
+		}
+		*/
 
 		return true;
 	}

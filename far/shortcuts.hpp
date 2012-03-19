@@ -65,4 +65,5 @@ private:
 	bool Changed;
 	void MakeItemName(size_t Pos, MenuItemEx* str);
 	void EditItem(VMenu* Menu, ShortcutItem* Item, bool Root);
+	bool Accept(void);
 };

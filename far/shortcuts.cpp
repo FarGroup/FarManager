@@ -251,10 +251,11 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 				ShortcutItem* Item = Data?*static_cast<ShortcutItem**>(Data):nullptr;
 				switch (Key)
 				{
-				case KEY_NUMDEL:
-				case KEY_DEL:
 				case KEY_NUMPAD0:
 				case KEY_INS:
+					if (!Accept()) break;
+				case KEY_NUMDEL:
+				case KEY_DEL:
 					{
 						Changed = true;
 						if (Key == KEY_INS || Key == KEY_NUMPAD0)
@@ -466,12 +467,13 @@ void Shortcuts::Configure()
 
 		switch (Key)
 		{
-		case KEY_NUMDEL:
-		case KEY_DEL:
 		case KEY_NUMPAD0:
 		case KEY_INS:
 		case KEY_SHIFTINS:
 		case KEY_SHIFTNUMPAD0:
+			if (!Accept()) break;
+		case KEY_NUMDEL:
+		case KEY_DEL:
 			{
 				MenuItemEx* MenuItem = FolderList.GetItemPtr();
 				if (Key == KEY_INS || Key == KEY_NUMPAD0 || Key&KEY_SHIFT)
@@ -548,4 +550,16 @@ void Shortcuts::Configure()
 	{
 		CtrlObject->Cp()->ActivePanel->ExecShortcutFolder(ExitCode);
 	}
+}
+
+bool Shortcuts::Accept(void)
+{
+	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	if (ActivePanel->GetMode() == PLUGIN_PANEL)
+	{
+		OpenPanelInfo Info;
+		ActivePanel->GetOpenPanelInfo(&Info);
+		if(!(Info.Flags&OPIF_SHORTCUT)) return false;
+	}
+	return true;
 }

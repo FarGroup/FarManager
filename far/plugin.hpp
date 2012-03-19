@@ -2363,6 +2363,7 @@ static const OPENPANELINFO_FLAGS
 	OPIF_USEATTRHIGHLIGHTING     = 0x0000000000008000ULL,
 	OPIF_USECRC32                = 0x0000000000010000ULL,
 	OPIF_USEFREESIZE             = 0x0000000000020000ULL,
+	OPIF_SHORTCUT                = 0x0000000000040000ULL,
 	OPIF_NONE                    = 0;
 
 struct KeyBarLabel
@@ -2436,6 +2437,13 @@ struct OpenMacroInfo
 	size_t StructSize;
 	size_t Count;
 	struct FarMacroValue *Values;
+};
+
+struct OpenShortcutInfo
+{
+	size_t StructSize;
+	const wchar_t *HostFile;
+	const wchar_t *ShortcutData;
 };
 
 enum OPENFROM
