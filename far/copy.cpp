@@ -364,10 +364,15 @@ void CopyProgress::SetNames(const wchar_t *Src,const wchar_t *Dst)
 		CreateBackground();
 	}
 
+	const int NameWidth = Rect.Right-Rect.Left-9;
+	string tmp(Src);
+	TruncPathStr(tmp, NameWidth);
 	strSrc.Clear();
-	strSrc<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Src;
+	strSrc<<fmt::LeftAlign()<<fmt::Width(NameWidth)<<fmt::Precision(NameWidth)<<tmp;
+	tmp = Dst;
+	TruncPathStr(tmp, NameWidth);
 	strDst.Clear();
-	strDst<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Dst;
+	strDst<<fmt::LeftAlign()<<fmt::Width(NameWidth)<<fmt::Precision(NameWidth)<<tmp;
 
 	if (Total)
 	{
@@ -1764,16 +1769,15 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 	string strDest = Dest;
 	bool UseWildCards = wcspbrk(Dest,L"*?")!=nullptr;
+	SrcPanel->GetSelName(nullptr,FileAttr);
+	SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName);
+	SelectedFolderNameLength = (FileAttr & FILE_ATTRIBUTE_DIRECTORY)?(int)strSelName.GetLength():0;
+	if (UseWildCards)
+	{
+		ConvertWildcards(strSelName, strDest, SelectedFolderNameLength);
+	}
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
-		SrcPanel->GetSelName(nullptr,FileAttr);
-		SrcPanel->GetSelName(&strSelName,FileAttr,&strSelShortName);
-		SelectedFolderNameLength = (FileAttr & FILE_ATTRIBUTE_DIRECTORY)?(int)strSelName.GetLength():0;
-		if (UseWildCards)
-		{
-			ConvertWildcards(strSelName, strDest, SelectedFolderNameLength);
-		}
-
 		DestAttr = apiGetFileAttributes(strDest);
 
 		// получим данные о месте назначения
@@ -3195,7 +3199,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 				break;
 			}
 
-																																																																																																																																	if (!(Flags&FCOPY_COPYTONUL))
+		if (!(Flags&FCOPY_COPYTONUL))
 		{
 			DestFile.SetPointer(SrcFile.GetChunkOffset() + (Append? AppendPos : 0), nullptr, FILE_BEGIN);
 			while (!DestFile.Write(CopyBuffer,BytesRead,BytesWritten,nullptr))
@@ -3370,7 +3374,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 				CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
 			}
 
-			CP->SetNames(SrcData.strFileName,strDestName);
+			CP->SetNames(SrcName,strDestName);
 		}
 	}
 

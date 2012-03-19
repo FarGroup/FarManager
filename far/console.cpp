@@ -274,7 +274,7 @@ virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEve
 	}
 	DWORD dwNumberOfEventsWritten = 0;
 	bool Result = WriteConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsWritten)!=FALSE;
-  NumberOfEventsWritten = dwNumberOfEventsWritten;
+	NumberOfEventsWritten = dwNumberOfEventsWritten;
 	return Result;
 }
 

@@ -1091,10 +1091,19 @@ BOOL apiCreateDirectoryEx(const string& TemplateDirectory, const string& NewDire
 {
 	NTPath NtTemplateDirectory(TemplateDirectory);
 	NTPath NtNewDirectory(NewDirectory);
-	BOOL Result = TemplateDirectory.IsEmpty()?CreateDirectory(NtNewDirectory, SecurityAttributes):CreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
-	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
+	BOOL Result = FALSE;
+	for(size_t i = 0; i < 2 && !Result; ++i)
 	{
-		Result = Elevation.fCreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
+		Result = TemplateDirectory.IsEmpty()?CreateDirectory(NtNewDirectory, SecurityAttributes):CreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
+		if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
+		{
+			Result = Elevation.fCreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
+		}
+		if(!Result)
+		{
+			// CreateDirectoryEx may fail on some FS, try to create anyway.
+			NtTemplateDirectory.Clear();
+		}
 	}
 	return Result;
 }
