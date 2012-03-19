@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2551
+  Plugin API for Far Manager 3.0 build 2556
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2551
+#define FARMANAGERVERSION_BUILD 2556
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -2172,6 +2172,7 @@ static const OPENPANELINFO_FLAGS
 	OPIF_USEATTRHIGHLIGHTING     = 0x0000000000008000ULL,
 	OPIF_USECRC32                = 0x0000000000010000ULL,
 	OPIF_USEFREESIZE             = 0x0000000000020000ULL,
+	OPIF_SHORTCUT                = 0x0000000000040000ULL,
 	OPIF_NONE                    = 0;
 
 struct KeyBarLabel
@@ -2245,6 +2246,13 @@ struct OpenMacroInfo
 	size_t StructSize;
 	size_t Count;
 	struct FarMacroValue *Values;
+};
+
+struct OpenShortcutInfo
+{
+	size_t StructSize;
+	const wchar_t *HostFile;
+	const wchar_t *ShortcutData;
 };
 
 enum OPENFROM
