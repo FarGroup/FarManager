@@ -92,7 +92,6 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
     settings.Set(0,L"RightMargin",RightMargin);
     settings.Set(0,L"SmartMode",SmartMode);
     settings.Set(0,L"Justify",Justify);
-    Info.EditorControl(-1,ECTL_TURNOFFMARKINGBLOCK,0,0);
     if (Reformat)
       ReformatBlock(RightMargin,SmartMode,Justify);
     else if (Justify)
