@@ -56,7 +56,7 @@ public:
 
   void info(OpenPanelInfo* opi) {
     opi->StructSize = sizeof(OpenPanelInfo);
-    opi->Flags = OPIF_ADDDOTS;
+    opi->Flags = OPIF_ADDDOTS | OPIF_SHORTCUT;
     opi->CurDir = current_dir.c_str();
     panel_title = Far::get_msg(MSG_PLUGIN_NAME);
     if (archive->is_open()) {
@@ -989,6 +989,14 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
     else {
       return Plugin::open(*archives);
     }
+  }
+  else if (info->OpenFrom == OPEN_SHORTCUT) {
+    const OpenShortcutInfo* osi = reinterpret_cast<const OpenShortcutInfo*>(info->Data);
+    OpenOptions options;
+    options.arc_path = osi->HostFile;
+    options.arc_types = ArcAPI::formats().get_arc_types();
+    options.detect = true;
+    return Plugin::open(*Archive::open(options));
   }
   return INVALID_HANDLE_VALUE;
   FAR_ERROR_HANDLER_END(return INVALID_HANDLE_VALUE, return INVALID_HANDLE_VALUE, false);
