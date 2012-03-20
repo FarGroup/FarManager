@@ -327,7 +327,7 @@ PluginStartupInfo NativeInfo =
 	nullptr, //Private, dynamic
 };
 
-ArclitePrivateInfo ArcliteInfo
+ArclitePrivateInfo ArcliteInfo =
 {
 	sizeof(ArcliteInfo),
 	pluginapi::apiCreateFile,
