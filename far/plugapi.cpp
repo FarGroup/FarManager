@@ -2629,4 +2629,39 @@ wchar_t* WINAPI apiXlat(wchar_t *Line,int StartPos,int EndPos,XLAT_FLAGS Flags)
 {
 	return Xlat(Line, StartPos, EndPos, Flags);
 }
+
+HANDLE WINAPI apiCreateFile(const wchar_t *Object, DWORD DesiredAccess, DWORD ShareMode, LPSECURITY_ATTRIBUTES SecurityAttributes, DWORD CreationDistribution, DWORD FlagsAndAttributes, HANDLE TemplateFile)
+{
+	return ::apiCreateFile(Object,DesiredAccess,ShareMode,SecurityAttributes,CreationDistribution,FlagsAndAttributes,TemplateFile);
+}
+
+DWORD WINAPI apiGetFileAttributes(const wchar_t *FileName)
+{
+	return ::apiGetFileAttributes(FileName);
+}
+
+BOOL WINAPI apiSetFileAttributes(const wchar_t *FileName,DWORD dwFileAttributes)
+{
+	return ::apiSetFileAttributes(FileName,dwFileAttributes);
+}
+
+BOOL WINAPI apiMoveFileEx(const wchar_t *ExistingFileName,const wchar_t *NewFileName,DWORD dwFlags)
+{
+	return ::apiMoveFileEx(ExistingFileName,NewFileName,dwFlags);
+}
+
+BOOL WINAPI apiDeleteFile(const wchar_t *FileName)
+{
+	return ::apiDeleteFile(FileName);
+}
+
+BOOL WINAPI apiRemoveDirectory(const wchar_t *DirName)
+{
+	return ::apiRemoveDirectory(DirName);
+}
+
+BOOL WINAPI apiCreateDirectory(const wchar_t *PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes)
+{
+	return ::apiCreateDirectory(PathName,lpSecurityAttributes);
+}
 };

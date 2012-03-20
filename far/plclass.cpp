@@ -324,6 +324,19 @@ PluginStartupInfo NativeInfo =
 	pluginapi::apiRegExpControl,
 	pluginapi::apiMacroControl,
 	pluginapi::apiSettingsControl,
+	nullptr, //Private, dynamic
+};
+
+ArclitePrivateInfo ArcliteInfo
+{
+	sizeof(ArcliteInfo),
+	pluginapi::apiCreateFile,
+	pluginapi::apiGetFileAttributes,
+	pluginapi::apiSetFileAttributes,
+	pluginapi::apiMoveFileEx,
+	pluginapi::apiDeleteFile,
+	pluginapi::apiRemoveDirectory,
+	pluginapi::apiCreateDirectory
 };
 
 void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
@@ -335,6 +348,10 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 	if (pPlugin)
 	{
 		PSI->ModuleName = pPlugin->GetModuleName().CPtr();
+		if(IsEqualGUID(pPlugin->GetGUID(),ArcliteGuid))
+		{
+			PSI->Private = &ArcliteInfo;
+		}
 	}
 }
 
