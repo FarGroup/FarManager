@@ -2055,9 +2055,6 @@ INT_PTR WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS 
 				MacroAddMacro *Data=(MacroAddMacro*)Param2;
 				MACROFLAGS_MFLAGS Flags=0;
 
-				if (Data->Flags&KMFLAGS_SAVEMACRO)
-					Flags|=MFLAGS_NEEDSAVEMACRO;
-
 				if (Data->Flags&KMFLAGS_DISABLEOUTPUT)
 					Flags|=MFLAGS_DISABLEOUTPUT;
 

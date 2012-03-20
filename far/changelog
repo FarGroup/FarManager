@@ -1,3 +1,9 @@
+zg 20.03.2012 02:51:44 +0200 - build 2558
+
+1. откат 2551.
+
+2. удалена KMFLAGS_SAVEMACRO.
+
 zg 20.03.2012 02:36:49 +0200 - build 2557
 
 1. поле Private в PluginStartupInfo.

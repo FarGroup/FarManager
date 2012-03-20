@@ -719,7 +719,6 @@ HANDLE PluginManager::OpenFilePlugin(
 	 //у анси плагинов OpMode нет.
 	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
 	if(Type==OFP_COMMANDS) OpMode|=OPM_COMMANDS;
-	if(Type==OFP_SHORTCUT) OpMode|=OPM_SHORTCUT;
 
 	Plugin *pPlugin = nullptr;
 
