@@ -2524,7 +2524,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 						if (!Data->pPlugin->HasConfigure())
 							return FALSE;
 						break;
-					case CPT_PREFIX:
+					case CPT_CMDLINE:
 						if (curType!=MODALTYPE_PANELS)
 						{
 							//TODO: Автокомплит не влияет?
@@ -2564,7 +2564,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 					case CPT_CONFIGURE:
 						MenuItems = &Info.PluginConfig;
 						break;
-					case CPT_PREFIX:
+					case CPT_CMDLINE:
 						if (!Info.CommandPrefix || !*Info.CommandPrefix)
 							return FALSE;
 						break;
@@ -2646,7 +2646,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 					CtrlObject->Plugins->ConfigureCurrent(Data->pPlugin,Data->FoundGuid);
 					return TRUE;
 
-				case CPT_PREFIX:
+				case CPT_CMDLINE:
 				{
 					ActivePanel=CtrlObject->Cp()->ActivePanel;
 					string command=Data->Command; // Нужна копия строки

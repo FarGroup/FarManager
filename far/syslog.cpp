@@ -908,8 +908,17 @@ string __ECTL_ToName(int Command)
 		DEF_ECTL_(SETKEYBAR),
 		DEF_ECTL_(SETPARAM),
 		DEF_ECTL_(GETBOOKMARKS),
-		DEF_ECTL_(TURNOFFMARKINGBLOCK),
 		DEF_ECTL_(DELETEBLOCK),
+		DEF_ECTL_(ADDSESSIONBOOKMARK),
+		DEF_ECTL_(PREVSESSIONBOOKMARK),
+		DEF_ECTL_(NEXTSESSIONBOOKMARK),
+		DEF_ECTL_(CLEARSESSIONBOOKMARKS),
+		DEF_ECTL_(DELETESESSIONBOOKMARK),
+		DEF_ECTL_(GETSESSIONBOOKMARKS),
+		DEF_ECTL_(UNDOREDO),
+		DEF_ECTL_(GETFILENAME),
+		DEF_ECTL_(DELCOLOR),
+		DEF_ECTL_(SERVICEREGION),
 	};
 	return _XXX_ToName(Command,L"ECTL",ECTL,ARRAYSIZE(ECTL));
 #else
@@ -923,8 +932,12 @@ string __EE_ToName(int Command)
 #define DEF_EE_(m) { EE_##m , L#m }
 	__XXX_Name EE[]=
 	{
-		DEF_EE_(READ),     DEF_EE_(SAVE),     DEF_EE_(REDRAW),     DEF_EE_(CLOSE),
-		DEF_EE_(GOTFOCUS), DEF_EE_(KILLFOCUS),
+		DEF_EE_(READ),
+		DEF_EE_(SAVE),
+		DEF_EE_(REDRAW),
+		DEF_EE_(CLOSE),
+		DEF_EE_(GOTFOCUS),
+		DEF_EE_(KILLFOCUS),
 	};
 	return _XXX_ToName(Command,L"EE",EE,ARRAYSIZE(EE));
 #else
@@ -938,7 +951,7 @@ string __EEREDRAW_ToName(int Command)
 #define DEF_EEREDRAW_(m) { (int)(INT_PTR)EEREDRAW_##m , L#m }
 	__XXX_Name EEREDRAW[]=
 	{
-		DEF_EEREDRAW_(ALL), // DEF_EEREDRAW_(CHANGE),  DEF_EEREDRAW_(LINE),
+		DEF_EEREDRAW_(ALL),
 	};
 	return _XXX_ToName(Command,L"EEREDRAW",EEREDRAW,ARRAYSIZE(EEREDRAW));
 #else
@@ -984,6 +997,7 @@ string __MCTL_ToName(int Command)
 		DEF_MCTL_(GETAREA),
 		DEF_MCTL_(ADDMACRO),
 		DEF_MCTL_(DELMACRO),
+		DEF_MCTL_(GETLASTERROR),
 	};
 	return _XXX_ToName(Command,L"MCTL",MCTL,ARRAYSIZE(MCTL));
 #else
@@ -997,8 +1011,10 @@ string __VE_ToName(int Command)
 #define DEF_VE_(m) { VE_##m , L#m }
 	__XXX_Name VE[]=
 	{
-		DEF_VE_(READ),     DEF_VE_(CLOSE),
-		DEF_VE_(GOTFOCUS), DEF_VE_(KILLFOCUS),
+		DEF_VE_(READ),
+		DEF_VE_(CLOSE),
+		DEF_VE_(GOTFOCUS),
+		DEF_VE_(KILLFOCUS),
 	};
 	return _XXX_ToName(Command,L"VE",VE,ARRAYSIZE(VE));
 #else
@@ -1061,7 +1077,6 @@ string __ACTL_ToName(int Command)
 	__XXX_Name ACTL[]=
 	{
 		DEF_ACTL_(GETFARMANAGERVERSION),
-		DEF_ACTL_(GETSYSWORDDIV),
 		DEF_ACTL_(WAITKEY),
 		DEF_ACTL_(GETCOLOR),
 		DEF_ACTL_(GETARRAYCOLOR),
@@ -1071,14 +1086,7 @@ string __ACTL_ToName(int Command)
 		DEF_ACTL_(SETCURRENTWINDOW),
 		DEF_ACTL_(COMMIT),
 		DEF_ACTL_(GETFARHWND),
-		DEF_ACTL_(GETSYSTEMSETTINGS),
-		DEF_ACTL_(GETPANELSETTINGS),
-		DEF_ACTL_(GETINTERFACESETTINGS),
-		DEF_ACTL_(GETCONFIRMATIONS),
-		DEF_ACTL_(GETDESCSETTINGS),
 		DEF_ACTL_(SETARRAYCOLOR),
-		DEF_ACTL_(GETPLUGINMAXREADDATA),
-		DEF_ACTL_(GETDIALOGSETTINGS),
 		DEF_ACTL_(REDRAWALL),
 		DEF_ACTL_(SYNCHRO),
 		DEF_ACTL_(SETPROGRESSSTATE),
@@ -1126,268 +1134,282 @@ string __MCODE_ToName(DWORD OpCode)
 #define DEF_MCODE_(m) { MCODE_##m , L#m }
 	__XXX_Name MCODE[]=
 	{
-		DEF_MCODE_(C_APANEL_BOF),
-		DEF_MCODE_(C_APANEL_EOF),
-		DEF_MCODE_(C_APANEL_FILEPANEL),
-		DEF_MCODE_(C_APANEL_FOLDER),
-		DEF_MCODE_(C_APANEL_ISEMPTY),
-		DEF_MCODE_(C_APANEL_LEFT),
-		DEF_MCODE_(C_APANEL_LFN),
-		DEF_MCODE_(C_APANEL_PLUGIN),
-		DEF_MCODE_(C_APANEL_ROOT),
-		DEF_MCODE_(C_APANEL_SELECTED),
-		DEF_MCODE_(C_APANEL_VISIBLE),
-		DEF_MCODE_(C_AREA_DIALOG),
-		DEF_MCODE_(C_AREA_DISKS),
-		DEF_MCODE_(C_AREA_EDITOR),
-		DEF_MCODE_(C_AREA_FINDFOLDER),
-		DEF_MCODE_(C_AREA_HELP),
-		DEF_MCODE_(C_AREA_INFOPANEL),
-		DEF_MCODE_(C_AREA_MAINMENU),
-		DEF_MCODE_(C_AREA_MENU),
-		DEF_MCODE_(C_AREA_OTHER),
-		DEF_MCODE_(C_AREA_QVIEWPANEL),
-		DEF_MCODE_(C_AREA_SEARCH),
-		DEF_MCODE_(C_AREA_SHELL),
-		DEF_MCODE_(C_AREA_TREEPANEL),
-		DEF_MCODE_(C_AREA_USERMENU),
-		DEF_MCODE_(C_AREA_VIEWER),
-		DEF_MCODE_(C_AREA_SHELL_AUTOCOMPLETION),// Список автодополнения в панелях в ком.строке
-		DEF_MCODE_(C_AREA_DIALOG_AUTOCOMPLETION),// Список автодополнения в диалоге
-		DEF_MCODE_(C_BOF),
-		DEF_MCODE_(C_CMDLINE_BOF),
-		DEF_MCODE_(C_CMDLINE_EMPTY),
-		DEF_MCODE_(C_CMDLINE_EOF),
-		DEF_MCODE_(C_CMDLINE_SELECTED),
-		DEF_MCODE_(C_EMPTY),
-		DEF_MCODE_(C_EOF),
-		DEF_MCODE_(C_PPANEL_BOF),
-		DEF_MCODE_(C_PPANEL_EOF),
-		DEF_MCODE_(C_PPANEL_FILEPANEL),
-		DEF_MCODE_(C_PPANEL_FOLDER),
-		DEF_MCODE_(C_PPANEL_ISEMPTY),
-		DEF_MCODE_(C_PPANEL_LEFT),
-		DEF_MCODE_(C_PPANEL_LFN),
-		DEF_MCODE_(C_PPANEL_PLUGIN),
-		DEF_MCODE_(C_PPANEL_ROOT),
-		DEF_MCODE_(C_PPANEL_SELECTED),
-		DEF_MCODE_(C_PPANEL_VISIBLE),
-		DEF_MCODE_(C_ROOTFOLDER),
-		DEF_MCODE_(C_SELECTED),
-		DEF_MCODE_(C_FULLSCREENMODE),
-		DEF_MCODE_(C_ISUSERADMIN),
-		DEF_MCODE_(F_ABS),
-		DEF_MCODE_(F_AKEY),
-		DEF_MCODE_(F_ASC),
-		DEF_MCODE_(F_CHR),
-		DEF_MCODE_(F_FMATCH),
-		DEF_MCODE_(F_CLIP),
-		DEF_MCODE_(F_DATE),
-		DEF_MCODE_(F_DLG_GETVALUE),
-		DEF_MCODE_(F_EDITOR_SET),
-		DEF_MCODE_(F_EDITOR_SEL),
-		DEF_MCODE_(F_KEY),
-		DEF_MCODE_(F_CALLPLUGIN),
-		DEF_MCODE_(F_ENVIRON),
-		DEF_MCODE_(F_EVAL),
-		DEF_MCODE_(F_FATTR),
-		DEF_MCODE_(F_FEXIST),
-		DEF_MCODE_(F_FLOCK),
-		DEF_MCODE_(F_FSPLIT),
-		DEF_MCODE_(F_TRIM),
-		DEF_MCODE_(F_IIF),
-		DEF_MCODE_(F_INDEX),
-		DEF_MCODE_(F_INT),
-		DEF_MCODE_(F_ITOA),
-		DEF_MCODE_(F_ATOI),
-		DEF_MCODE_(F_LCASE),
-		DEF_MCODE_(F_LEN),
-		DEF_MCODE_(F_MAX),
-		DEF_MCODE_(F_MENU_CHECKHOTKEY),
-		DEF_MCODE_(F_MENU_GETHOTKEY),           // S=gethotkey()
-		DEF_MCODE_(F_MENU_SHOW),           // S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])
-		DEF_MCODE_(F_MIN),
-		DEF_MCODE_(F_MSAVE),
-		DEF_MCODE_(F_MLOAD),
-		DEF_MCODE_(F_MSGBOX),
-		DEF_MCODE_(F_PROMPT),              // S=prompt("Title"[,"Prompt"[,flags[, "Src"[, "History"]]]])
-		DEF_MCODE_(F_NOFUNC),
-		DEF_MCODE_(F_PANEL_FATTR),
-		DEF_MCODE_(F_PANEL_FEXIST),
-		DEF_MCODE_(F_PANEL_SETPOS),
-		DEF_MCODE_(F_PANEL_SETPOSIDX),
-		DEF_MCODE_(F_PANELITEM),
-		DEF_MCODE_(F_RINDEX),
-		DEF_MCODE_(F_SLEEP),
-		DEF_MCODE_(F_STRING),
-		DEF_MCODE_(F_SUBSTR),
-		DEF_MCODE_(F_UCASE),
-		DEF_MCODE_(F_WAITKEY),
-		DEF_MCODE_(F_XLAT),
-		DEF_MCODE_(F_BM_ADD),              // N=BM.Add()
-		DEF_MCODE_(F_BM_CLEAR),            // N=BM.Clear()
-		DEF_MCODE_(F_BM_NEXT),             // N=BM.Next()
-		DEF_MCODE_(F_BM_PREV),             // N=BM.Prev()
-		DEF_MCODE_(F_BM_BACK),             // N=BM.Back()
-		DEF_MCODE_(F_BM_STAT),             // N=BM.Stat()
-		DEF_MCODE_(F_BM_GET),
-		DEF_MCODE_(F_BM_DEL),
-		DEF_MCODE_(F_BM_GOTO),                  // N=BM.Goto(n) - переход на закладку с указанным индексом (0 --> текущую)
-		DEF_MCODE_(F_BM_PUSH),                  // N=BM.Push() - сохранить текущую позицию в виде закладки в конце стека
-		DEF_MCODE_(F_BM_POP),                   // N=BM.Pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку
-		DEF_MCODE_(OP_ADD),
-		DEF_MCODE_(OP_AKEY),
-		DEF_MCODE_(OP_AND),
-		DEF_MCODE_(OP_BITAND),
-		DEF_MCODE_(OP_BITOR),
-		DEF_MCODE_(OP_BITXOR),
-		DEF_MCODE_(OP_COPY),
-		DEF_MCODE_(OP_DISCARD),
-		DEF_MCODE_(OP_DIV),
-		DEF_MCODE_(OP_ELSE),
-		DEF_MCODE_(OP_END),
-		DEF_MCODE_(OP_ENDKEYS),
-		DEF_MCODE_(OP_EQ),
-		DEF_MCODE_(OP_EXIT),
-		DEF_MCODE_(OP_GE),
-		DEF_MCODE_(OP_GT),
-		DEF_MCODE_(OP_IF),
-		DEF_MCODE_(OP_JGE),
-		DEF_MCODE_(OP_JGT),
-		DEF_MCODE_(OP_JLE),
-		DEF_MCODE_(OP_JLT),
-		DEF_MCODE_(OP_JMP),
-		DEF_MCODE_(OP_NOP),
-		DEF_MCODE_(OP_JNZ),
+		DEF_MCODE_(OP_EXIT),  // принудительно закончить выполнение макропоследовательности
+		DEF_MCODE_(OP_JMP),                     // Jumps..
 		DEF_MCODE_(OP_JZ),
-		DEF_MCODE_(OP_KEYS),
-		DEF_MCODE_(OP_LE),
-		DEF_MCODE_(OP_LT),
-		DEF_MCODE_(OP_MUL),
-		DEF_MCODE_(OP_NE),
-		DEF_MCODE_(OP_NEGATE),
-		DEF_MCODE_(OP_NOT),
-		DEF_MCODE_(OP_OR),
-		DEF_MCODE_(OP_PLAINTEXT),
-		DEF_MCODE_(OP_POP),
-		DEF_MCODE_(OP_PUSHINT),
-		DEF_MCODE_(OP_PUSHFLOAT),
-		DEF_MCODE_(OP_PUSHSTR),
-		DEF_MCODE_(OP_PUSHUNKNOWN),
-		DEF_MCODE_(OP_PUSHVAR),
-		DEF_MCODE_(OP_PUSHCONST),
-		DEF_MCODE_(OP_REP),
-		DEF_MCODE_(OP_SAVE),
+		DEF_MCODE_(OP_JNZ),
+		DEF_MCODE_(OP_JLT),
+		DEF_MCODE_(OP_JLE),
+		DEF_MCODE_(OP_JGT),
+		DEF_MCODE_(OP_JGE),
+		DEF_MCODE_(OP_NOP),                     // нет операции
+		DEF_MCODE_(OP_SAVE),                    // Присваивание переменной. Имя переменной следующие DWORD (как в $Text).
 		DEF_MCODE_(OP_SAVEREPCOUNT),
-		DEF_MCODE_(OP_SELWORD),
-		DEF_MCODE_(OP_SUB),
+		DEF_MCODE_(OP_PUSHUNKNOWN),             // неиницализированное значение (опускаемые параметры функций)
+		DEF_MCODE_(OP_PUSHINT),                 // Положить значение на стек. Само
+		DEF_MCODE_(OP_PUSHFLOAT),               // Положить значение на стек. double
+		DEF_MCODE_(OP_PUSHSTR),                 // значение - следующий DWORD
+		DEF_MCODE_(OP_PUSHVAR),                 // или несколько таковых (как в $Text)
+		DEF_MCODE_(OP_PUSHCONST),               // в стек положить константу
+		DEF_MCODE_(OP_REP),                     // $rep - признак начала цикла
+		DEF_MCODE_(OP_END),                     // $end - признак конца цикла/условия
+		DEF_MCODE_(OP_NEGATE),                  // -a
+		DEF_MCODE_(OP_NOT),                     // !a
+		DEF_MCODE_(OP_BITNOT),                  // ~a
+		DEF_MCODE_(OP_MUL),                     // a *  b
+		DEF_MCODE_(OP_DIV),                     // a /  b
+		DEF_MCODE_(OP_ADD),                     // a +  b
+		DEF_MCODE_(OP_SUB),                     // a -  b
+		DEF_MCODE_(OP_BITSHR),                  // a >> b
+		DEF_MCODE_(OP_BITSHL),                  // a << b
+		DEF_MCODE_(OP_LT),                      // a <  b
+		DEF_MCODE_(OP_LE),                      // a <= b
+		DEF_MCODE_(OP_GT),                      // a >  b
+		DEF_MCODE_(OP_GE),                      // a >= b
+		DEF_MCODE_(OP_EQ),                      // a == b
+		DEF_MCODE_(OP_NE),                      // a != b
+		DEF_MCODE_(OP_BITAND),                  // a &  b
+		DEF_MCODE_(OP_BITXOR),                  // a ^  b
+		DEF_MCODE_(OP_BITOR),                   // a |  b
+		DEF_MCODE_(OP_AND),                     // a && b
+		DEF_MCODE_(OP_XOR),                     // a ^^ b
+		DEF_MCODE_(OP_OR),                      // a || b
+		DEF_MCODE_(OP_ADDEQ),                   // a +=  b
+		DEF_MCODE_(OP_SUBEQ),                   // a -=  b
+		DEF_MCODE_(OP_MULEQ),                   // a *=  b
+		DEF_MCODE_(OP_DIVEQ),                   // a /=  b
+		DEF_MCODE_(OP_BITSHREQ),                // a >>= b
+		DEF_MCODE_(OP_BITSHLEQ),                // a <<= b
+		DEF_MCODE_(OP_BITANDEQ),                // a &=  b
+		DEF_MCODE_(OP_BITXOREQ),                // a ^=  b
+		DEF_MCODE_(OP_BITOREQ),                 // a |=  b
+		DEF_MCODE_(OP_DISCARD),                 // убрать значение с вершины стека
+		DEF_MCODE_(OP_DUP),                     // продублировать верхнее значение в стеке
+		DEF_MCODE_(OP_SWAP),                    // обменять местами два значения в вершине стека
+		DEF_MCODE_(OP_POP),                     // присвоить значение переменной и убрать из вершины стека
+		DEF_MCODE_(OP_COPY),                    // %a=%d, стек не используется
+		DEF_MCODE_(OP_KEYS),                    // за этим кодом следуют ФАРовы коды клавиш
+		DEF_MCODE_(OP_ENDKEYS),                 // ФАРовы коды закончились.
+		DEF_MCODE_(OP_IF),                      // Вообще-то эта группа в байткод
+		DEF_MCODE_(OP_ELSE),                    // не попадет никогда :)
 		DEF_MCODE_(OP_WHILE),
+		DEF_MCODE_(OP_CONTINUE),                // $continue
 		DEF_MCODE_(OP_XLAT),
-		DEF_MCODE_(OP_CONTINUE),
-		DEF_MCODE_(OP_DUP),
-		DEF_MCODE_(OP_SWAP),
-		DEF_MCODE_(OP_ADDEQ),
-		DEF_MCODE_(OP_SUBEQ),
-		DEF_MCODE_(OP_MULEQ),
-		DEF_MCODE_(OP_DIVEQ),
-		DEF_MCODE_(OP_BITSHREQ),
-		DEF_MCODE_(OP_BITSHLEQ),
-		DEF_MCODE_(OP_BITANDEQ),
-		DEF_MCODE_(OP_BITXOREQ),
-		DEF_MCODE_(OP_BITOREQ),
-		DEF_MCODE_(V_APANEL_COLUMNCOUNT),
-		DEF_MCODE_(V_APANEL_CURPOS),
-		DEF_MCODE_(V_APANEL_CURRENT),
-		DEF_MCODE_(V_APANEL_DRIVETYPE),
-		DEF_MCODE_(V_APANEL_HEIGHT),
-		DEF_MCODE_(V_APANEL_ITEMCOUNT),
-		DEF_MCODE_(V_APANEL_OPIFLAGS),
-		DEF_MCODE_(V_APANEL_PATH),
-		DEF_MCODE_(V_APANEL_PATH0),
-		DEF_MCODE_(V_APANEL_SELCOUNT),
-		DEF_MCODE_(V_APANEL_TYPE),
-		DEF_MCODE_(V_APANEL_UNCPATH),
-		DEF_MCODE_(V_APANEL_WIDTH),
-		DEF_MCODE_(V_CMDLINE_CURPOS),
-		DEF_MCODE_(V_CMDLINE_ITEMCOUNT),
-		DEF_MCODE_(V_CMDLINE_VALUE),
-		DEF_MCODE_(V_CURPOS),
-		DEF_MCODE_(V_DLGCURPOS),
-		DEF_MCODE_(V_DLGPREVPOS),
-		DEF_MCODE_(V_DLGINFOID),
-		DEF_MCODE_(V_DLGINFOOWNER),
-		DEF_MCODE_(V_DLGITEMCOUNT),
-		DEF_MCODE_(V_DLGITEMTYPE),
-		DEF_MCODE_(V_DRVSHOWMODE),
-		DEF_MCODE_(V_DRVSHOWPOS),
-		DEF_MCODE_(V_EDITORCURLINE),
-		DEF_MCODE_(V_EDITORCURPOS),
-		DEF_MCODE_(V_EDITORREALPOS),      // Editor.RealPos - текущая поз. в редакторе без привязки к размеру табуляции
-		DEF_MCODE_(V_EDITORFILENAME),
-		DEF_MCODE_(V_EDITORLINES),
-		DEF_MCODE_(V_EDITORSTATE),
-		DEF_MCODE_(V_EDITORVALUE),
-		DEF_MCODE_(V_EDITORSELVALUE),
-		DEF_MCODE_(V_MENU_VALUE),
-		DEF_MCODE_(V_FAR_HEIGHT),
-		DEF_MCODE_(V_FAR_UPTIME),
-		DEF_MCODE_(V_FAR_TITLE),
-		DEF_MCODE_(V_FAR_WIDTH),
-		DEF_MCODE_(V_HEIGHT),
-		DEF_MCODE_(V_HELPFILENAME),
-		DEF_MCODE_(V_HELPSELTOPIC),
-		DEF_MCODE_(V_HELPTOPIC),
-		DEF_MCODE_(V_ITEMCOUNT),
-		DEF_MCODE_(V_PPANEL_COLUMNCOUNT),
-		DEF_MCODE_(V_PPANEL_CURPOS),
-		DEF_MCODE_(V_PPANEL_CURRENT),
-		DEF_MCODE_(V_PPANEL_DRIVETYPE),
-		DEF_MCODE_(V_PPANEL_HEIGHT),
-		DEF_MCODE_(V_PPANEL_ITEMCOUNT),
-		DEF_MCODE_(V_PPANEL_OPIFLAGS),
-		DEF_MCODE_(V_PPANEL_PATH),
-		DEF_MCODE_(V_PPANEL_PATH0),
-		DEF_MCODE_(V_PPANEL_SELCOUNT),
-		DEF_MCODE_(V_PPANEL_TYPE),
-		DEF_MCODE_(V_PPANEL_UNCPATH),
-		DEF_MCODE_(V_PPANEL_WIDTH),
-		DEF_MCODE_(V_TITLE),
-		DEF_MCODE_(V_VIEWERFILENAME),
-		DEF_MCODE_(V_VIEWERSTATE),
-		DEF_MCODE_(V_WIDTH),
-		DEF_MCODE_(F_FLOAT),
-		DEF_MCODE_(F_EDITOR_POS),
-		DEF_MCODE_(F_TESTFOLDER),
+		DEF_MCODE_(OP_PLAINTEXT),
+		DEF_MCODE_(OP_AKEY),                    // $AKey - клавиша, которой вызвали макрос
+		DEF_MCODE_(OP_SELWORD),                 // $SelWord - выделить "слово"
+		DEF_MCODE_(F_NOFUNC),
+		DEF_MCODE_(F_ABS),                      // N=abs(N)
+		DEF_MCODE_(F_AKEY),                     // V=akey(Mode[,Type])
+		DEF_MCODE_(F_ASC),                      // N=asc(S)
+		DEF_MCODE_(F_ATOI),                     // N=atoi(S[,radix])
+		DEF_MCODE_(F_CLIP),                     // V=clip(N[,V])
+		DEF_MCODE_(F_CHR),                      // S=chr(N)
+		DEF_MCODE_(F_DATE),                     // S=date([S])
+		DEF_MCODE_(F_DLG_GETVALUE),             // V=Dlg.GetValue([Pos[,InfoID]])
+		DEF_MCODE_(F_EDITOR_SEL),               // V=Editor.Sel(Action[,Opt])
+		DEF_MCODE_(F_EDITOR_SET),               // N=Editor.Set(N,Var)
+		DEF_MCODE_(F_EDITOR_UNDO),              // V=Editor.Undo(N)
+		DEF_MCODE_(F_EDITOR_POS),               // N=Editor.Pos(Op,What[,Where])
+		DEF_MCODE_(F_ENVIRON),                  // S=Env(S[,Mode[,Value]])
+		DEF_MCODE_(F_FATTR),                    // N=fattr(S)
+		DEF_MCODE_(F_FEXIST),                   // S=fexist(S)
+		DEF_MCODE_(F_FSPLIT),                   // S=fsplit(S,N)
+		DEF_MCODE_(F_IIF),                      // V=iif(C,V1,V2)
+		DEF_MCODE_(F_INDEX),                    // S=index(S1,S2[,Mode])
+		DEF_MCODE_(F_INT),                      // N=int(V)
+		DEF_MCODE_(F_ITOA),                     // S=itoa(N[,radix])
+		DEF_MCODE_(F_KEY),                      // S=key(V)
+		DEF_MCODE_(F_LCASE),                    // S=lcase(S1)
+		DEF_MCODE_(F_LEN),                      // N=len(S)
+		DEF_MCODE_(F_MAX),                      // N=max(N1,N2)
+		DEF_MCODE_(F_MENU_CHECKHOTKEY),         // N=checkhotkey(S[,N])
+		DEF_MCODE_(F_MENU_GETHOTKEY),           // S=gethotkey([N])
+		DEF_MCODE_(F_MENU_SELECT),              // N=Menu.Select(S[,N[,Dir]])
+		DEF_MCODE_(F_MENU_SHOW),                // S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])
+		DEF_MCODE_(F_MIN),                      // N=min(N1,N2)
+		DEF_MCODE_(F_MOD),                      // N=mod(a,b) == a %  b
+		DEF_MCODE_(F_MLOAD),                    // B=mload(var)
+		DEF_MCODE_(F_MSAVE),                    // B=msave(var)
+		DEF_MCODE_(F_MSGBOX),                   // N=msgbox(["Title"[,"Text"[,flags]]])
+		DEF_MCODE_(F_PANEL_FATTR),              // N=Panel.FAttr(panelType,fileMask)
+		DEF_MCODE_(F_PANEL_SETPATH),            // N=panel.SetPath(panelType,pathName[,fileName])
+		DEF_MCODE_(F_PANEL_FEXIST),             // N=Panel.FExist(panelType,fileMask)
+		DEF_MCODE_(F_PANEL_SETPOS),             // N=Panel.SetPos(panelType,fileName)
+		DEF_MCODE_(F_PANEL_SETPOSIDX),          // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
 		DEF_MCODE_(F_PANEL_SELECT),             // V=Panel.Select(panelType,Action[,Mode[,Items]])
-		DEF_MCODE_(V_APANEL_HOSTFILE), // APanel.HostFile
-		DEF_MCODE_(V_PPANEL_HOSTFILE), // PPanel.HostFile
-		DEF_MCODE_(F_PRINT),
+		DEF_MCODE_(F_PANELITEM),                // V=PanelItem(Panel,Index,TypeInfo)
+		DEF_MCODE_(F_EVAL),                     // N=eval(S[,N])
+		DEF_MCODE_(F_RINDEX),                   // S=rindex(S1,S2[,Mode])
+		DEF_MCODE_(F_SLEEP),                    // Sleep(N)
+		DEF_MCODE_(F_STRING),                   // S=string(V)
+		DEF_MCODE_(F_SUBSTR),                   // S=substr(S,start[,length])
+		DEF_MCODE_(F_UCASE),                    // S=ucase(S1)
+		DEF_MCODE_(F_WAITKEY),                  // V=waitkey([N,[T]])
+		DEF_MCODE_(F_XLAT),                     // S=xlat(S)
+		DEF_MCODE_(F_FLOCK),                    // N=FLock(N,N)
+		DEF_MCODE_(F_CALLPLUGIN),               // V=callplugin(SysID[,param])
+		DEF_MCODE_(F_REPLACE),                  // S=replace(sS,sF,sR[,Count[,Mode]])
+		DEF_MCODE_(F_PROMPT),                   // S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])
+		DEF_MCODE_(F_BM_ADD),                   // N=BM.Add()  - добавить текущие координаты и обрезать хвост
+		DEF_MCODE_(F_BM_CLEAR),                 // N=BM.Clear() - очистить все закладки
+		DEF_MCODE_(F_BM_DEL),                   // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=1...), 0 - удаляет текущую закладку
+		DEF_MCODE_(F_BM_GET),                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
+		DEF_MCODE_(F_BM_GOTO),                  // N=BM.Goto([n]) - переход на закладку с указанным индексом (0 --> текущую)
+		DEF_MCODE_(F_BM_NEXT),                  // N=BM.Next() - перейти на следующую закладку
+		DEF_MCODE_(F_BM_POP),                   // N=BM.Pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку
+		DEF_MCODE_(F_BM_PREV),                  // N=BM.Prev() - перейти на предыдущую закладку
+		DEF_MCODE_(F_BM_BACK),                  // N=BM.Back() - перейти на предыдущую закладку с возможным сохранением текущей позиции
+		DEF_MCODE_(F_BM_PUSH),                  // N=BM.Push() - сохранить текущую позицию в виде закладки в конце стека
+		DEF_MCODE_(F_BM_STAT),                  // N=BM.Stat([M]) - возвращает информацию о закладках, N=0 - текущее количество закладок
+		DEF_MCODE_(F_TRIM),                     // S=trim(S[,N])
+		DEF_MCODE_(F_FLOAT),                    // N=float(V)
+		DEF_MCODE_(F_TESTFOLDER),               // N=testfolder(S)
+		DEF_MCODE_(F_PRINT),                    // N=Print(Str)
 		DEF_MCODE_(F_MMODE),                    // N=MMode(Action[,Value])
-		DEF_MCODE_(V_APANEL_PREFIX),
-		DEF_MCODE_(V_PPANEL_PREFIX),
-		DEF_MCODE_(F_MENU_GETVALUE), //N=Menu.GetValue([N])
+		DEF_MCODE_(F_EDITOR_SETTITLE),          // N=Editor.SetTitle([Title])
+		DEF_MCODE_(F_MENU_GETVALUE),            // S=Menu.GetValue([N])
+		DEF_MCODE_(F_MENU_ITEMSTATUS),          // N=Menu.ItemStatus([N])
 		DEF_MCODE_(F_BEEP),                     // N=beep([N])
 		DEF_MCODE_(F_KBDLAYOUT),                // N=kbdLayout([N])
-		DEF_MCODE_(F_WINDOW_SCROLL),               // N=Window.Scroll(Lines[,Axis])
+		DEF_MCODE_(F_WINDOW_SCROLL),            // N=Window.Scroll(Lines[,Axis])
 		DEF_MCODE_(F_KEYBAR_SHOW),              // N=KeyBar.Show([N])
-		DEF_MCODE_(F_HISTIORY_DISABLE),           // N=History.Disable([State])
+		DEF_MCODE_(F_HISTIORY_DISABLE),         // N=History.Disable([State])
+		DEF_MCODE_(F_FMATCH),                   // N=FMatch(S,Mask)
+		DEF_MCODE_(F_PLUGIN_MENU),              // N=Plugin.Menu(Guid[,MenuGuid])
+		DEF_MCODE_(F_PLUGIN_CONFIG),            // N=Plugin.Config(Guid[,MenuGuid])
+		DEF_MCODE_(F_PLUGIN_CALL),              // N=Plugin.Call(Guid[,Item])
 		DEF_MCODE_(F_PLUGIN_LOAD),              // N=Plugin.Load(DllPath[,ForceLoad])
+		DEF_MCODE_(F_PLUGIN_CMDLINE),           // N=Plugin.Cmdline(Guid[,Command])
 		DEF_MCODE_(F_PLUGIN_UNLOAD),            // N=Plugin.UnLoad(DllPath)
+		DEF_MCODE_(F_PLUGIN_EXIST),             // N=Plugin.Exist(Guid)
 		DEF_MCODE_(F_MENU_FILTER),              // N=Menu.Filter(Action[,Mode])
 		DEF_MCODE_(F_MENU_FILTERSTR),           // S=Menu.FilterStr([Action[,S]])
-		DEF_MCODE_(V_FAR_PID), // Far.PID
-		DEF_MCODE_(V_APANEL_FORMAT),            // APanel.Format
-		DEF_MCODE_(V_PPANEL_FORMAT),            // PPanel.Format
-		DEF_MCODE_(F_DLG_SETFOCUS),             // N=Dlg.SetFocus(ID)
+		DEF_MCODE_(F_DLG_SETFOCUS),             // N=Dlg.SetFocus([ID])
 		DEF_MCODE_(F_FAR_CFG_GET),              // V=Far.Cfg.Get(Key,Name)
 		DEF_MCODE_(F_SIZE2STR),                 // S=Size2Str(N,Flags[,Width])
 		DEF_MCODE_(F_STRWRAP),                  // S=StrWrap(Text,Width[,Break[,Flags]])
-		DEF_MCODE_(F_PLUGIN_MENU),              // N=Plugin.Menu(Guid,MenuGuid)
-		DEF_MCODE_(F_PLUGIN_CONFIG),            // N=Plugin.Config(Guid[,MenuGuid])
-		DEF_MCODE_(F_PLUGIN_CALL),              // N=Plugin.Call(Guid,Item)
-		DEF_MCODE_(F_PLUGIN_PREFIX),            // N=Plugin.Prefix(Guid,Command)
-		DEF_MCODE_(F_PLUGIN_EXIST),             // N=Plugin.Exist(Guid)
-
+		DEF_MCODE_(C_AREA_OTHER),// Режим копирования текста с экрана, вертикальные меню
+		DEF_MCODE_(C_AREA_SHELL),               // Файловые панели
+		DEF_MCODE_(C_AREA_VIEWER),              // Внутренняя программа просмотра
+		DEF_MCODE_(C_AREA_EDITOR),              // Редактор
+		DEF_MCODE_(C_AREA_DIALOG),              // Диалоги
+		DEF_MCODE_(C_AREA_SEARCH),              // Быстрый поиск в панелях
+		DEF_MCODE_(C_AREA_DISKS),               // Меню выбора дисков
+		DEF_MCODE_(C_AREA_MAINMENU),            // Основное меню
+		DEF_MCODE_(C_AREA_MENU),                // Прочие меню
+		DEF_MCODE_(C_AREA_HELP),                // Система помощи
+		DEF_MCODE_(C_AREA_INFOPANEL),           // Информационная панель
+		DEF_MCODE_(C_AREA_QVIEWPANEL),          // Панель быстрого просмотра
+		DEF_MCODE_(C_AREA_TREEPANEL),           // Панель дерева папок
+		DEF_MCODE_(C_AREA_FINDFOLDER),          // Поиск папок
+		DEF_MCODE_(C_AREA_USERMENU),            // Меню пользователя
+		DEF_MCODE_(C_AREA_SHELL_AUTOCOMPLETION),// Список автодополнения в панелях в ком.строке
+		DEF_MCODE_(C_AREA_DIALOG_AUTOCOMPLETION),// Список автодополнения в диалоге
+		DEF_MCODE_(C_FULLSCREENMODE),           // полноэкранный режим?
+		DEF_MCODE_(C_ISUSERADMIN),              // Administrator status
+		DEF_MCODE_(C_BOF),                      // начало файла/активного каталога?
+		DEF_MCODE_(C_EOF),                      // конец файла/активного каталога?
+		DEF_MCODE_(C_EMPTY),                    // ком.строка пуста?
+		DEF_MCODE_(C_SELECTED),                 // выделенный блок есть?
+		DEF_MCODE_(C_ROOTFOLDER),               // аналог MCODE_C_APANEL_ROOT для активной панели
+		DEF_MCODE_(C_APANEL_BOF),               // начало активного  каталога?
+		DEF_MCODE_(C_PPANEL_BOF),               // начало пассивного каталога?
+		DEF_MCODE_(C_APANEL_EOF),               // конец активного  каталога?
+		DEF_MCODE_(C_PPANEL_EOF),               // конец пассивного каталога?
+		DEF_MCODE_(C_APANEL_ISEMPTY),           // активная панель:  пуста?
+		DEF_MCODE_(C_PPANEL_ISEMPTY),           // пассивная панель: пуста?
+		DEF_MCODE_(C_APANEL_SELECTED),          // активная панель:  выделенные элементы есть?
+		DEF_MCODE_(C_PPANEL_SELECTED),          // пассивная панель: выделенные элементы есть?
+		DEF_MCODE_(C_APANEL_ROOT),              // это корневой каталог активной панели?
+		DEF_MCODE_(C_PPANEL_ROOT),              // это корневой каталог пассивной панели?
+		DEF_MCODE_(C_APANEL_VISIBLE),           // активная панель:  видима?
+		DEF_MCODE_(C_PPANEL_VISIBLE),           // пассивная панель: видима?
+		DEF_MCODE_(C_APANEL_PLUGIN),            // активная панель:  плагиновая?
+		DEF_MCODE_(C_PPANEL_PLUGIN),            // пассивная панель: плагиновая?
+		DEF_MCODE_(C_APANEL_FILEPANEL),         // активная панель:  файловая?
+		DEF_MCODE_(C_PPANEL_FILEPANEL),         // пассивная панель: файловая?
+		DEF_MCODE_(C_APANEL_FOLDER),            // активная панель:  текущий элемент каталог?
+		DEF_MCODE_(C_PPANEL_FOLDER),            // пассивная панель: текущий элемент каталог?
+		DEF_MCODE_(C_APANEL_LEFT),              // активная панель левая?
+		DEF_MCODE_(C_PPANEL_LEFT),              // пассивная панель левая?
+		DEF_MCODE_(C_APANEL_LFN),               // на активной панели длинные имена?
+		DEF_MCODE_(C_PPANEL_LFN),               // на пассивной панели длинные имена?
+		DEF_MCODE_(C_APANEL_FILTER),            // на активной панели включен фильтр?
+		DEF_MCODE_(C_PPANEL_FILTER),            // на пассивной панели включен фильтр?
+		DEF_MCODE_(C_CMDLINE_BOF),              // курсор в начале cmd-строки редактирования?
+		DEF_MCODE_(C_CMDLINE_EOF),              // курсор в конце cmd-строки редактирования?
+		DEF_MCODE_(C_CMDLINE_EMPTY),            // ком.строка пуста?
+		DEF_MCODE_(C_CMDLINE_SELECTED),         // в ком.строке есть выделение блока?
+		DEF_MCODE_(V_FAR_WIDTH),                // Far.Width - ширина консольного окна
+		DEF_MCODE_(V_FAR_HEIGHT),               // Far.Height - высота консольного окна
+		DEF_MCODE_(V_FAR_TITLE),                // Far.Title - текущий заголовок консольного окна
+		DEF_MCODE_(V_FAR_UPTIME),               // Far.UpTime - время работы Far в миллисекундах
+		DEF_MCODE_(V_FAR_PID),                  // Far.PID - содержит ИД текущей запущенной копии Far Manager
+		DEF_MCODE_(V_MACROAREA),                // MacroArea - имя текущей макрос области
+		DEF_MCODE_(V_APANEL_CURRENT),           // APanel.Current - имя файла на активной панели
+		DEF_MCODE_(V_PPANEL_CURRENT),           // PPanel.Current - имя файла на пассивной панели
+		DEF_MCODE_(V_APANEL_SELCOUNT),          // APanel.SelCount - активная панель:  число выделенных элементов
+		DEF_MCODE_(V_PPANEL_SELCOUNT),          // PPanel.SelCount - пассивная панель: число выделенных элементов
+		DEF_MCODE_(V_APANEL_PATH),              // APanel.Path - активная панель:  путь на панели
+		DEF_MCODE_(V_PPANEL_PATH),              // PPanel.Path - пассивная панель: путь на панели
+		DEF_MCODE_(V_APANEL_PATH0),             // APanel.Path0 - активная панель:  путь на панели до вызова плагинов
+		DEF_MCODE_(V_PPANEL_PATH0),             // PPanel.Path0 - пассивная панель: путь на панели до вызова плагинов
+		DEF_MCODE_(V_APANEL_UNCPATH),           // APanel.UNCPath - активная панель:  UNC-путь на панели
+		DEF_MCODE_(V_PPANEL_UNCPATH),           // PPanel.UNCPath - пассивная панель: UNC-путь на панели
+		DEF_MCODE_(V_APANEL_WIDTH),             // APanel.Width - активная панель:  ширина панели
+		DEF_MCODE_(V_PPANEL_WIDTH),             // PPanel.Width - пассивная панель: ширина панели
+		DEF_MCODE_(V_APANEL_TYPE),              // APanel.Type - тип активной панели
+		DEF_MCODE_(V_PPANEL_TYPE),              // PPanel.Type - тип пассивной панели
+		DEF_MCODE_(V_APANEL_ITEMCOUNT),         // APanel.ItemCount - активная панель:  число элементов
+		DEF_MCODE_(V_PPANEL_ITEMCOUNT),         // PPanel.ItemCount - пассивная панель: число элементов
+		DEF_MCODE_(V_APANEL_CURPOS),            // APanel.CurPos - активная панель:  текущий индекс
+		DEF_MCODE_(V_PPANEL_CURPOS),            // PPanel.CurPos - пассивная панель: текущий индекс
+		DEF_MCODE_(V_APANEL_OPIFLAGS),          // APanel.OPIFlags - активная панель: флаги открытого плагина
+		DEF_MCODE_(V_PPANEL_OPIFLAGS),          // PPanel.OPIFlags - пассивная панель: флаги открытого плагина
+		DEF_MCODE_(V_APANEL_DRIVETYPE),         // APanel.DriveType - активная панель: тип привода
+		DEF_MCODE_(V_PPANEL_DRIVETYPE),         // PPanel.DriveType - пассивная панель: тип привода
+		DEF_MCODE_(V_APANEL_HEIGHT),            // APanel.Height - активная панель:  высота панели
+		DEF_MCODE_(V_PPANEL_HEIGHT),            // PPanel.Height - пассивная панель: высота панели
+		DEF_MCODE_(V_APANEL_COLUMNCOUNT),       // APanel.ColumnCount - активная панель:  количество колонок
+		DEF_MCODE_(V_PPANEL_COLUMNCOUNT),       // PPanel.ColumnCount - пассивная панель: количество колонок
+		DEF_MCODE_(V_APANEL_HOSTFILE),          // APanel.HostFile - активная панель:  имя Host-файла
+		DEF_MCODE_(V_PPANEL_HOSTFILE),          // PPanel.HostFile - пассивная панель: имя Host-файла
+		DEF_MCODE_(V_APANEL_PREFIX),            // APanel.Prefix
+		DEF_MCODE_(V_PPANEL_PREFIX),            // PPanel.Prefix
+		DEF_MCODE_(V_APANEL_FORMAT),            // APanel.Format
+		DEF_MCODE_(V_PPANEL_FORMAT),            // PPanel.Format
+		DEF_MCODE_(V_ITEMCOUNT),                // ItemCount - число элементов в текущем объекте
+		DEF_MCODE_(V_CURPOS),                   // CurPos - текущий индекс в текущем объекте
+		DEF_MCODE_(V_TITLE),                    // Title - заголовок текущего объекта
+		DEF_MCODE_(V_HEIGHT),                   // Height - высота текущего объекта
+		DEF_MCODE_(V_WIDTH),                    // Width - ширина текущего объекта
+		DEF_MCODE_(V_EDITORFILENAME),           // Editor.FileName - имя редактируемого файла
+		DEF_MCODE_(V_EDITORLINES),              // Editor.Lines - количество строк в редакторе
+		DEF_MCODE_(V_EDITORCURLINE),            // Editor.CurLine - текущая линия в редакторе (в дополнении к Count)
+		DEF_MCODE_(V_EDITORCURPOS),             // Editor.CurPos - текущая поз. в редакторе
+		DEF_MCODE_(V_EDITORREALPOS),            // Editor.RealPos - текущая поз. в редакторе без привязки к размеру табуляции
+		DEF_MCODE_(V_EDITORSTATE),              // Editor.State
+		DEF_MCODE_(V_EDITORVALUE),              // Editor.Value - содержимое текущей строки
+		DEF_MCODE_(V_EDITORSELVALUE),           // Editor.SelValue - содержит содержимое выделенного блока
+		DEF_MCODE_(V_DLGITEMTYPE),              // Dlg.ItemType
+		DEF_MCODE_(V_DLGITEMCOUNT),             // Dlg.ItemCount
+		DEF_MCODE_(V_DLGCURPOS),                // Dlg.CurPos
+		DEF_MCODE_(V_DLGPREVPOS),               // Dlg.PrevPos
+		DEF_MCODE_(V_DLGINFOID),                // Dlg.Info.Id
+		DEF_MCODE_(V_DLGINFOOWNER),             // Dlg.Info.Owner
+		DEF_MCODE_(V_VIEWERFILENAME),           // Viewer.FileName - имя просматриваемого файла
+		DEF_MCODE_(V_VIEWERSTATE),              // Viewer.State
+		DEF_MCODE_(V_CMDLINE_ITEMCOUNT),        // CmdLine.ItemCount
+		DEF_MCODE_(V_CMDLINE_CURPOS),           // CmdLine.CurPos
+		DEF_MCODE_(V_CMDLINE_VALUE),            // CmdLine.Value
+		DEF_MCODE_(V_DRVSHOWPOS),               // Drv.ShowPos - меню выбора дисков отображено: 1=слева (Alt-F1), 2=справа (Alt-F2), 0="нету его"
+		DEF_MCODE_(V_DRVSHOWMODE),              // Drv.ShowMode - режимы отображения меню выбора дисков
+		DEF_MCODE_(V_HELPFILENAME),             // Help.FileName
+		DEF_MCODE_(V_HELPTOPIC),                // Help.Topic
+		DEF_MCODE_(V_HELPSELTOPIC),             // Help.SelTopic
+		DEF_MCODE_(V_MENU_VALUE),               // Menu.Value
+		DEF_MCODE_(V_MENUINFOID),               // Menu.Info.Id
 	};
 	string Name;
 
@@ -1432,123 +1454,123 @@ string __FARKEY_ToName(int Key)
 string __DLGMSG_ToName(DWORD Msg)
 {
 #if defined(SYSLOG)
-#define DEF_MESSAGE(m) { m , L#m }
+#define DEF_DM_(m) { DM_##m , L#m }
+#define DEF_DN_(m) { DN_##m , L#m }
 	__XXX_Name Message[]=
 	{
-		DEF_MESSAGE(DM_FIRST),
-		DEF_MESSAGE(DM_CLOSE),
-		DEF_MESSAGE(DM_ENABLE),
-		DEF_MESSAGE(DM_ENABLEREDRAW),
-		DEF_MESSAGE(DM_GETDLGDATA),
-		DEF_MESSAGE(DM_GETDLGITEM),
-		DEF_MESSAGE(DM_GETDLGRECT),
-		DEF_MESSAGE(DM_GETTEXT),
-		DEF_MESSAGE(DM_GETTEXTLENGTH),
-		DEF_MESSAGE(DM_KEY),
-		DEF_MESSAGE(DM_MOVEDIALOG),
-		DEF_MESSAGE(DM_SETDLGDATA),
-		DEF_MESSAGE(DM_SETDLGITEM),
-		DEF_MESSAGE(DM_SETFOCUS),
-		DEF_MESSAGE(DM_REDRAW),
-		DEF_MESSAGE(DM_SETTEXT),
-		DEF_MESSAGE(DM_SETMAXTEXTLENGTH),
-		DEF_MESSAGE(DM_SHOWDIALOG),
-		DEF_MESSAGE(DM_GETFOCUS),
-		DEF_MESSAGE(DM_GETCURSORPOS),
-		DEF_MESSAGE(DM_SETCURSORPOS),
-		DEF_MESSAGE(DM_GETTEXTPTR),
-		DEF_MESSAGE(DM_SETTEXTPTR),
-		DEF_MESSAGE(DM_SHOWITEM),
-		DEF_MESSAGE(DM_ADDHISTORY),
+		DEF_DM_(FIRST),
+		DEF_DM_(CLOSE),
+		DEF_DM_(ENABLE),
+		DEF_DM_(ENABLEREDRAW),
+		DEF_DM_(GETDLGDATA),
+		DEF_DM_(GETDLGITEM),
+		DEF_DM_(GETDLGRECT),
+		DEF_DM_(GETTEXT),
+		DEF_DM_(GETTEXTLENGTH),
+		DEF_DM_(KEY),
+		DEF_DM_(MOVEDIALOG),
+		DEF_DM_(SETDLGDATA),
+		DEF_DM_(SETDLGITEM),
+		DEF_DM_(SETFOCUS),
+		DEF_DM_(REDRAW),
+		DEF_DM_(SETTEXT),
+		DEF_DM_(SETMAXTEXTLENGTH),
+		DEF_DM_(SHOWDIALOG),
+		DEF_DM_(GETFOCUS),
+		DEF_DM_(GETCURSORPOS),
+		DEF_DM_(SETCURSORPOS),
+		DEF_DM_(GETTEXTPTR),
+		DEF_DM_(SETTEXTPTR),
+		DEF_DM_(SHOWITEM),
+		DEF_DM_(ADDHISTORY),
 
-		DEF_MESSAGE(DM_GETCHECK),
-		DEF_MESSAGE(DM_SETCHECK),
-		DEF_MESSAGE(DM_SET3STATE),
+		DEF_DM_(GETCHECK),
+		DEF_DM_(SETCHECK),
+		DEF_DM_(SET3STATE),
 
-		DEF_MESSAGE(DM_LISTSORT),
-		DEF_MESSAGE(DM_LISTGETITEM),
-		DEF_MESSAGE(DM_LISTGETCURPOS),
-		DEF_MESSAGE(DM_LISTSETCURPOS),
-		DEF_MESSAGE(DM_LISTDELETE),
-		DEF_MESSAGE(DM_LISTADD),
-		DEF_MESSAGE(DM_LISTADDSTR),
-		DEF_MESSAGE(DM_LISTUPDATE),
-		DEF_MESSAGE(DM_LISTINSERT),
-		DEF_MESSAGE(DM_LISTFINDSTRING),
-		DEF_MESSAGE(DM_LISTINFO),
-		DEF_MESSAGE(DM_LISTGETDATA),
-		DEF_MESSAGE(DM_LISTSETDATA),
-		DEF_MESSAGE(DM_LISTSETTITLES),
-		DEF_MESSAGE(DM_LISTGETTITLES),
+		DEF_DM_(LISTSORT),
+		DEF_DM_(LISTGETITEM),
+		DEF_DM_(LISTGETCURPOS),
+		DEF_DM_(LISTSETCURPOS),
+		DEF_DM_(LISTDELETE),
+		DEF_DM_(LISTADD),
+		DEF_DM_(LISTADDSTR),
+		DEF_DM_(LISTUPDATE),
+		DEF_DM_(LISTINSERT),
+		DEF_DM_(LISTFINDSTRING),
+		DEF_DM_(LISTINFO),
+		DEF_DM_(LISTGETDATA),
+		DEF_DM_(LISTSETDATA),
+		DEF_DM_(LISTSETTITLES),
+		DEF_DM_(LISTGETTITLES),
 
-		DEF_MESSAGE(DM_RESIZEDIALOG),
-		DEF_MESSAGE(DM_SETITEMPOSITION),
+		DEF_DM_(RESIZEDIALOG),
+		DEF_DM_(SETITEMPOSITION),
 
-		DEF_MESSAGE(DM_GETDROPDOWNOPENED),
-		DEF_MESSAGE(DM_SETDROPDOWNOPENED),
+		DEF_DM_(GETDROPDOWNOPENED),
+		DEF_DM_(SETDROPDOWNOPENED),
 
-		DEF_MESSAGE(DM_SETHISTORY),
+		DEF_DM_(SETHISTORY),
 
-		DEF_MESSAGE(DM_GETITEMPOSITION),
-		DEF_MESSAGE(DM_SETMOUSEEVENTNOTIFY),
+		DEF_DM_(GETITEMPOSITION),
+		DEF_DM_(SETMOUSEEVENTNOTIFY),
 
-		DEF_MESSAGE(DM_EDITUNCHANGEDFLAG),
+		DEF_DM_(EDITUNCHANGEDFLAG),
 
-		DEF_MESSAGE(DM_GETITEMDATA),
-		DEF_MESSAGE(DM_SETITEMDATA),
+		DEF_DM_(GETITEMDATA),
+		DEF_DM_(SETITEMDATA),
 
-		DEF_MESSAGE(DM_LISTSET),
+		DEF_DM_(LISTSET),
 
-		DEF_MESSAGE(DM_GETCURSORSIZE),
-		DEF_MESSAGE(DM_SETCURSORSIZE),
+		DEF_DM_(GETCURSORSIZE),
+		DEF_DM_(SETCURSORSIZE),
 
-		DEF_MESSAGE(DM_LISTGETDATASIZE),
+		DEF_DM_(LISTGETDATASIZE),
 
-		DEF_MESSAGE(DM_GETSELECTION),
-		DEF_MESSAGE(DM_SETSELECTION),
+		DEF_DM_(GETSELECTION),
+		DEF_DM_(SETSELECTION),
 
-		DEF_MESSAGE(DM_GETEDITPOSITION),
-		DEF_MESSAGE(DM_SETEDITPOSITION),
+		DEF_DM_(GETEDITPOSITION),
+		DEF_DM_(SETEDITPOSITION),
 
-		DEF_MESSAGE(DM_SETCOMBOBOXEVENT),
-		DEF_MESSAGE(DM_GETCOMBOBOXEVENT),
+		DEF_DM_(SETCOMBOBOXEVENT),
+		DEF_DM_(GETCOMBOBOXEVENT),
 
-		DEF_MESSAGE(DM_GETCONSTTEXTPTR),
-		DEF_MESSAGE(DM_GETDLGITEMSHORT),
-		DEF_MESSAGE(DM_SETDLGITEMSHORT),
+		DEF_DM_(GETCONSTTEXTPTR),
+		DEF_DM_(GETDLGITEMSHORT),
+		DEF_DM_(SETDLGITEMSHORT),
 
-		DEF_MESSAGE(DM_GETDIALOGINFO),
+		DEF_DM_(GETDIALOGINFO),
 
-		DEF_MESSAGE(DN_FIRST),
-		DEF_MESSAGE(DN_BTNCLICK),
-		DEF_MESSAGE(DN_CTLCOLORDIALOG),
-		DEF_MESSAGE(DN_CTLCOLORDLGITEM),
-		DEF_MESSAGE(DN_CTLCOLORDLGLIST),
-		DEF_MESSAGE(DN_DRAWDIALOG),
-		DEF_MESSAGE(DN_DRAWDLGITEM),
-		DEF_MESSAGE(DN_EDITCHANGE),
-		DEF_MESSAGE(DN_ENTERIDLE),
-		DEF_MESSAGE(DN_GOTFOCUS),
-		DEF_MESSAGE(DN_HELP),
-		DEF_MESSAGE(DN_HOTKEY),
-		DEF_MESSAGE(DN_INITDIALOG),
-		DEF_MESSAGE(DN_KILLFOCUS),
-		DEF_MESSAGE(DN_LISTCHANGE),
-		DEF_MESSAGE(DN_DRAGGED),
-		DEF_MESSAGE(DN_RESIZECONSOLE),
-		DEF_MESSAGE(DN_DRAWDIALOGDONE),
-		DEF_MESSAGE(DN_LISTHOTKEY),
-		DEF_MESSAGE(DN_INPUT),
-		DEF_MESSAGE(DN_CONTROLINPUT),
-		DEF_MESSAGE(DN_CLOSE),
-		DEF_MESSAGE(DN_GETVALUE),
+		DEF_DN_(FIRST),
+		DEF_DN_(BTNCLICK),
+		DEF_DN_(CTLCOLORDIALOG),
+		DEF_DN_(CTLCOLORDLGITEM),
+		DEF_DN_(CTLCOLORDLGLIST),
+		DEF_DN_(DRAWDIALOG),
+		DEF_DN_(DRAWDLGITEM),
+		DEF_DN_(EDITCHANGE),
+		DEF_DN_(ENTERIDLE),
+		DEF_DN_(GOTFOCUS),
+		DEF_DN_(HELP),
+		DEF_DN_(HOTKEY),
+		DEF_DN_(INITDIALOG),
+		DEF_DN_(KILLFOCUS),
+		DEF_DN_(LISTCHANGE),
+		DEF_DN_(DRAGGED),
+		DEF_DN_(RESIZECONSOLE),
+		DEF_DN_(DRAWDIALOGDONE),
+		DEF_DN_(LISTHOTKEY),
+		DEF_DN_(INPUT),
+		DEF_DN_(CONTROLINPUT),
+		DEF_DN_(CLOSE),
+		DEF_DN_(GETVALUE),
 
-		DEF_MESSAGE(DM_USER),
+		DEF_DM_(USER),
 
-		DEF_MESSAGE(DM_KILLSAVESCREEN),
-		DEF_MESSAGE(DM_ALLKEYMODE),
-		DEF_MESSAGE(DN_ACTIVATEAPP),
-
+		DEF_DM_(KILLSAVESCREEN),
+		DEF_DM_(ALLKEYMODE),
+		DEF_DN_(ACTIVATEAPP),
 	};
 	string Name;
 

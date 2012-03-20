@@ -465,11 +465,11 @@ static TMacroFunction intMacroFunction[]=
 	{L"PANEL.SETPOSIDX",  nullptr, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])",            panelsetposidxFunc, nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOSIDX, },
 	{L"PANELITEM",        nullptr, L"V=PanelItem(Panel,Index,TypeInfo)",                         panelitemFunc,      nullptr, 0, 0,                                      MCODE_F_PANELITEM,       },
 	{L"PLUGIN.CALL",      nullptr, L"N=Plugin.Call(Guid[,Item])",                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CALL,     },
+	{L"PLUGIN.CMDLINE",   nullptr, L"N=Plugin.Cmdline(Guid[,Command])",                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CMDLINE,  },
 	{L"PLUGIN.CONFIG",    nullptr, L"N=Plugin.Config(Guid[,MenuGuid])",                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CONFIG,   },
 	{L"PLUGIN.EXIST",     nullptr, L"N=Plugin.Exist(Guid)",                                      pluginexistFunc,    nullptr, 0, 0,                                      MCODE_F_PLUGIN_EXIST,    },
 	{L"PLUGIN.LOAD",      nullptr, L"N=Plugin.Load(DllPath[,ForceLoad])",                        pluginloadFunc,     nullptr, 0, 0,                                      MCODE_F_PLUGIN_LOAD,     },
 	{L"PLUGIN.MENU",      nullptr, L"N=Plugin.Menu(Guid[,MenuGuid])",                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_MENU,     },
-	{L"PLUGIN.PREFIX",    nullptr, L"N=Plugin.Prefix(Guid[,Command])",                           usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_PREFIX,   },
 	{L"PLUGIN.UNLOAD",    nullptr, L"N=Plugin.UnLoad(DllPath)",                                  pluginunloadFunc,   nullptr, 0, 0,                                      MCODE_F_PLUGIN_UNLOAD,   },
 	{L"PRINT",            nullptr, L"N=Print(Str)",                                              usersFunc,          nullptr, 0, 0,                                      MCODE_F_PRINT,           },
 	{L"PROMPT",           nullptr, L"S=Prompt([Title[,Prompt[,flags[,Src[,History]]]]])",        promptFunc,         nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PROMPT,          },
@@ -3218,12 +3218,12 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 	{
 		TVarType typeIndex=Params[0].type();
 		unsigned Index=(unsigned)Params[0].getInteger()-1;
-		if (typeIndex == vtUnknown)
+		if (typeIndex == vtUnknown || (typeIndex == vtInteger && (int)Index < -1))
 			Index=((Dialog*)CurFrame)->GetDlgFocusPos();
 
 		TVarType typeInfoID=Params[1].type();
 		int InfoID=(int)Params[1].getInteger();
-		if (typeInfoID == vtUnknown)
+		if (typeInfoID == vtUnknown || (typeInfoID == vtInteger && InfoID < 0))
 			InfoID=0;
 
 		FarGetValue fgv={InfoID,FMVT_UNKNOWN};
@@ -5561,7 +5561,7 @@ done:
 		case MCODE_F_MENU_GETHOTKEY:      // S=gethotkey([N])
 		{
 			parseParams(1,Params);
-			_KEYMACRO(CleverSysLog Clev(Key == MCODE_F_MENU_GETHOTKEY?L"MCODE_F_MENU_GETHOTKEY":L"MCODE_F_MENU_GETVALUE"));
+			_KEYMACRO(CleverSysLog Clev(Key == MCODE_F_MENU_GETHOTKEY?L"MCODE_F_MENU_GETHOTKEY":(Key == MCODE_F_MENU_ITEMSTATUS?L"MCODE_F_MENU_ITEMSTATUS":L"MCODE_F_MENU_GETVALUE")));
 			tmpVar=Params[0];
 
 			if (!tmpVar.isInteger())
@@ -5809,9 +5809,9 @@ done:
 
 		case MCODE_F_PLUGIN_MENU:   // N=Plugin.Menu(Guid[,MenuGuid])
 		case MCODE_F_PLUGIN_CONFIG: // N=Plugin.Config(Guid[,MenuGuid])
-		case MCODE_F_PLUGIN_PREFIX: // N=Plugin.Prefix(Guid[,Command])
+		case MCODE_F_PLUGIN_CMDLINE: // N=Plugin.Cmdline(Guid[,Command])
 		{
-			_KEYMACRO(CleverSysLog Clev(L"Plugin.Menu()"));
+			_KEYMACRO(CleverSysLog Clev(Key == MCODE_F_PLUGIN_MENU?L"Plugin.Menu()":(Key == MCODE_F_PLUGIN_CONFIG?L"Plugin.Config()":L"Plugin.Cmdline()")));
 			__int64 Ret=0;
 			parseParams(2,Params);
 			TVar& Arg = (Params[1]);
@@ -5844,8 +5844,8 @@ done:
 							ItemFailed=true;
 					}
 					break;
-				case MCODE_F_PLUGIN_PREFIX:
-					Data.CallFlags |= CPT_PREFIX;
+				case MCODE_F_PLUGIN_CMDLINE:
+					Data.CallFlags |= CPT_CMDLINE;
 					if (Arg.isString())
 						Data.Command=Arg.s();
 					else
