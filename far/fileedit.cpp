@@ -969,7 +969,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 					if (!m_editor->EdOpt.PersistentBlocks && IsBlock)
 					{
-						m_editor->Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+						m_editor->TurnOffMarkingBlock();
 						m_editor->DeleteBlock();
 					}
 
@@ -2526,10 +2526,12 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_PREVSESSIONBOOKMARK:
 		{
+			m_editor->TurnOffMarkingBlock();
 			return m_editor->PrevSessionBookmark();
 		}
 		case ECTL_NEXTSESSIONBOOKMARK:
 		{
+			m_editor->TurnOffMarkingBlock();
 			return m_editor->NextSessionBookmark();
 		}
 		case ECTL_CLEARSESSIONBOOKMARKS:

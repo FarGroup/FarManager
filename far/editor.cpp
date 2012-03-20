@@ -839,13 +839,13 @@ int Editor::ProcessKey(int Key)
 
 		if (BlockStart || VBlockStart)
 		{
-			Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+			TurnOffMarkingBlock();
 		}
 
 		if ((BlockStart || VBlockStart) && !EdOpt.PersistentBlocks)
 //    if (BlockStart || VBlockStart && !EdOpt.PersistentBlocks)
 		{
-			Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+			TurnOffMarkingBlock();
 
 			if (!EdOpt.PersistentBlocks)
 			{
@@ -934,7 +934,7 @@ int Editor::ProcessKey(int Key)
 				                     (SelEnd!=-1 && (CurPos>SelEnd ||    // ... после выделения
 				                                     (CurPos>SelStart && CurPos<SelEnd)))) &&
 				        CurPos<CurLine->GetLength()) // ... внутри выдления
-					Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+					TurnOffMarkingBlock();
 
 				Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
 			}
@@ -1572,7 +1572,7 @@ int Editor::ProcessKey(int Key)
 			if (Flags.Check(FEDITOR_LOCKMODE))
 				return TRUE;
 
-			Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+			TurnOffMarkingBlock();
 			DeleteBlock();
 			Show();
 			return TRUE;
@@ -2063,14 +2063,14 @@ int Editor::ProcessKey(int Key)
 			   Сказано в хелпе "Shift-F7 Продолжить _поиск_"
 			*/
 			//ReplaceMode=FALSE;
-			Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+			TurnOffMarkingBlock();
 			Search(TRUE);
 			return TRUE;
 		}
 		case KEY_ALTF7:
 		case KEY_RALTF7:
 		{
-			Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+			TurnOffMarkingBlock();
 			int LastSearchReversePrev = LastSearchReverse;
 			LastSearchReverse = !LastSearchReverse;
 			Search(TRUE);
@@ -2562,7 +2562,7 @@ int Editor::ProcessKey(int Key)
 
 				if (!EdOpt.PersistentBlocks && BlockStart)
 				{
-					Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+					TurnOffMarkingBlock();
 					DeleteBlock();
 				}
 
@@ -2589,7 +2589,7 @@ int Editor::ProcessKey(int Key)
 
 				if (!EdOpt.PersistentBlocks && BlockStart)
 				{
-					Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+					TurnOffMarkingBlock();
 					DeleteBlock();
 				}
 
@@ -2661,7 +2661,7 @@ int Editor::ProcessKey(int Key)
 
 				if (!EdOpt.PersistentBlocks && IsBlock)
 				{
-					Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+					TurnOffMarkingBlock();
 					DeleteBlock();
 				}
 
@@ -2703,7 +2703,7 @@ int Editor::ProcessKey(int Key)
 						  текст с шифтом флаги не сбросятся и следующий
 						  выделенный блок будет глючный.
 						*/
-						Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+						TurnOffMarkingBlock();
 						Show();
 					}
 
@@ -2954,7 +2954,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	// $ 28.12.2000 VVM - Щелчок мышкой снимает непостоянный блок всегда
 	if ((MouseEvent->dwButtonState & 3))
 	{
-		Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+		TurnOffMarkingBlock();
 
 		if ((!EdOpt.PersistentBlocks) && (BlockStart || VBlockStart))
 		{
@@ -3012,7 +3012,7 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 		if (MouseEvent->dwEventFlags==DOUBLE_CLICK)
 		{
-			Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+			TurnOffMarkingBlock();
 
 			if (BlockStart || VBlockStart)
 				UnmarkBlock();
@@ -4455,7 +4455,7 @@ void Editor::UnmarkBlock()
 
 	VBlockStart=nullptr;
 	_SVS(SysLog(L"[%d] Editor::UnmarkBlock()",__LINE__));
-	Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+	TurnOffMarkingBlock();
 
 	while (BlockStart)
 	{
@@ -5514,6 +5514,7 @@ int Editor::EditorControl(int Command,void *Param)
 			}
 			else
 			{
+				TurnOffMarkingBlock();
 				int Indent=Param && *(int *)Param!=FALSE;
 
 				if (!Indent)
@@ -5543,6 +5544,7 @@ int Editor::EditorControl(int Command,void *Param)
 			}
 			else
 			{
+				TurnOffMarkingBlock();
 				const wchar_t *Str=(const wchar_t *)Param;
 				Pasting++;
 				Lock();
@@ -5621,6 +5623,7 @@ int Editor::EditorControl(int Command,void *Param)
 					return FALSE;
 				}
 
+				TurnOffMarkingBlock();
 				int DestLine=SetString->StringNumber;
 
 				if (DestLine==-1)
@@ -5647,9 +5650,8 @@ int Editor::EditorControl(int Command,void *Param)
 				return FALSE;
 			}
 
+			TurnOffMarkingBlock();
 			DeleteString(CurLine,NumLine,FALSE,NumLine);
-			if ( !BlockStart )
-				Flags.Clear(FEDITOR_MARKINGBLOCK);
 
 			return TRUE;
 		}
@@ -5661,6 +5663,7 @@ int Editor::EditorControl(int Command,void *Param)
 				return FALSE;
 			}
 
+			TurnOffMarkingBlock();
 			Pasting++;
 			ProcessKey(KEY_DEL);
 			Pasting--;
@@ -5735,6 +5738,7 @@ int Editor::EditorControl(int Command,void *Param)
 			// "Вначале было слово..."
 			if (Param)
 			{
+				TurnOffMarkingBlock();
 				// ...а вот теперь поработаем с тем, что передалаи
 				EditorSetPosition *Pos=(EditorSetPosition *)Param;
 				_ECTLLOG(SysLog(L"EditorSetPosition{"));
@@ -6151,12 +6155,6 @@ int Editor::EditorControl(int Command,void *Param)
 
 			return  FALSE;
 		}
-		// Убрать флаг редактора "осуществляется выделение блока"
-		case ECTL_TURNOFFMARKINGBLOCK:
-		{
-			Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
-			return TRUE;
-		}
 		case ECTL_DELETEBLOCK:
 		{
 			if (Flags.Check(FEDITOR_LOCKMODE) || !(VBlockStart || BlockStart))
@@ -6169,7 +6167,7 @@ int Editor::EditorControl(int Command,void *Param)
 				return FALSE;
 			}
 
-			Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
+			TurnOffMarkingBlock();
 			DeleteBlock();
 			Show();
 			return TRUE;
@@ -7283,4 +7281,9 @@ void Editor::Change(EDITOR_CHANGETYPE Type,int StrNum)
 	++EditorControlLock;
 	CtrlObject->Plugins->ProcessEditorEvent(EE_CHANGE,&ec,EditorID);
 	--EditorControlLock;
+}
+
+void Editor::TurnOffMarkingBlock(void)
+{
+	Flags.Clear(FEDITOR_MARKINGVBLOCK|FEDITOR_MARKINGBLOCK);
 }

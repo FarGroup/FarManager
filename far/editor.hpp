@@ -281,6 +281,9 @@ class Editor:public ScreenObject
 		wchar_t *VBlock2Text(wchar_t *ptrInitData);
 		void Change(EDITOR_CHANGETYPE Type,int StrNum);
 
+	protected:
+		void TurnOffMarkingBlock(void);
+
 	public:
 		Editor(ScreenObject *pOwner=nullptr,bool DialogUsed=false);
 		virtual ~Editor();
