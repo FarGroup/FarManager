@@ -3,6 +3,109 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 17.03.2012 13:43:33 +0400 - build 2552
+
+1. Macro: bug $SelWord
+   macro:post ShiftF4 t e s t Enter t e s t $SelWord msgbox("","Not selected") Space Left $SelWord msgbox("","Selected")
+
+   http://forum.farmanager.com/viewtopic.php?p=89561#p89561  п.5
+
+zg 16.03.2012 20:06:10 +0200 - build 2551
+
+1. OPM_SHORTCUT is added. it is passed to AnalyseW when following a shortcut or a history item.
+
+svs 16.03.2012 10:56:28 +0400 - build 2550
+
+1. Mantis#0001483: Make Dlg.GetValue() parameters optional
+
+   V=Dlg.GetValue([Pos[,InfoID]])
+
+   If the parameter(s) are not specified then it is implied that:
+     Pos - returns values from the current focused item
+     InfoID - the item value (0)
+
+svs 15.03.2012 10:20:11 +0400 - build 2549
+
+1. Far.Cfg.Get("System.KnownIDs", "Network")
+   returns garbage
+   If the field is GeneralConfig::TYPE_BLOB and this is not "System.KnownIDs", then Far.Cfg.Get() sets Far.Cfg.Err error (macro constant) to 1
+
+zg 15.03.2012 04:15:06 +0200 - build 2548
+
+1. in 2351, transition to file panel from history was broken.
+
+zg 15.03.2012 02:17:13 +0200 - build 2547
+
+1. in 2036, transition to nearest accessible folder in folder links was broken.
+
+zg 14.03.2012 23:16:28 +0200 - build 2546
+
+1. the following options available to plugins: FSSF_INTERFACE/"ShowMenuBar", FSSF_DIALOG/"EditBlock", FSSF_DIALOG/"EULBsClear", FSSF_DIALOG/"DelRemovesBlocks", FSSF_PANELLAYOUT/"ColumnTitles", FSSF_PANELLAYOUT/"StatusLine", FSSF_PANELLAYOUT/"SortMode".
+
+svs 13.03.2012 15:12:25 +0400 - build 2545
+
+1. Help updated
+
+2. Restoring a lost option (on drag&drop) in confirmations dialog...
+
+3. Help for MaskGroupsSettings
+
+zg 13.03.2012 12:20:04 +0200 - build 2544
+
+1. FSSF_SCREEN/"KeyBar" option available to plugins.
+
+svs 13.03.2012 11:16:01 +0400 - build 2543
+
+1. DMODE_NOPLUGINS is added to PluginManager::CallPlugin and PluginManager::CallPluginItem
+
+2. Macro: renamed: Plugin.Call -> Plugin.Menu, Plugin.Int -> Plugin.Call 
+
+3. Macro: N=Plugin.Exist(Guid) macrofunction is added
+   Returns: 0 - there's no plugin with Guid identifier, 1 - there is such a plugin.
+
+zg 13.03.2012 01:52:57 +0200 - build 2542
+
+1. FSSF_CONFIRMATIONS/"RemoveConnection" option available to plugins.
+
+zg 13.03.2012 01:09:42 +0200 - build 2541
+
+1. As it had been promised, ACTL_GETSYSWORDDIV, ACTL_GETSYSTEMSETTINGS, ACTL_GETPANELSETTINGS, ACTL_GETINTERFACESETTINGS, 
+   ACTL_GETCONFIRMATIONS, ACTL_GETDESCSETTINGS, ACTL_GETPLUGINMAXREADDATA ACTL_GETDIALOGSETTINGS are removed.
+   plugins not prepared to this in time may be broken.
+
+svs 12.03.2012 21:30:41 +0400 - build 2540
+
+1. Mantis#0001903: Plugin.Menu(guid,menuGuid)
+   (from Maximus)
+
+     N=Plugin.Call(Guid[,MenuGuid])
+       Similar to plugin call from plugins menu with F11 with no hotkeys definition or plugin search needed in the list.
+     N=Plugin.Config(Guid[,MenuGuid])
+       Similar to plugin call from "Plugin parameters" menu with no hotkeys definition or plugin search needed in the list.
+       Panels only.
+     N=Plugin.Prefix(Guid,Command)
+       Similar to plugin call with a prefix from panels with no storing/clearing/restoring current command line contents needed.
+     N=Plugin.Int(Guid[,Item])
+       an alias for callplugin
+
+   mmode(3) doen not influence to these functions (except for Plugin.Int)
+
+   <ACHTUNG>
+
+   Debugging in process...
+   
+   </ACHTUNG>
+
+2. mmode(3) is on by default!
+
+zg 12.03.2012 14:02:00 +0200 - build 2539
+
+1. a new flag is added, WIF_MODAL. ACTL_GETWINDOWINFO also returns information on modal windows. ACTL_GETWINDOWCOUNT is the summary windows count.
+
+zg 12.03.2012 05:30:07 +0200 - build 2538
+
+1. EditorControl(RealId,...) did not work for modal editors.
+
 w17 12.03.2012 00:04:46 +0400 - build 2537
 
 1. correction of 2536
@@ -353,7 +456,7 @@ drkns 19.02.2012 20:23:52 +0200 - build 2470
 
 svs 19.02.2012 14:51:36 +0400 - build 2469
 
-1. Mantis#0002026: при clip(1,"") clipboard is not cleared
+1. Mantis#0002026: after clip(1,""), clipboard is not cleared
 
 zg 17.02.2012 20:42:35 +0200 - build 2468
 
