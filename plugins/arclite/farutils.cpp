@@ -939,4 +939,8 @@ bool Settings::del_dir(const wchar_t* name) {
   return control(SCTL_DELETE, &fsv) != 0;
 }
 
+ArclitePrivateInfo* get_system_functions() {
+  return static_cast<ArclitePrivateInfo*>(g_far.Private);
+}
+
 };

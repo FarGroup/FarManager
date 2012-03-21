@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include "farutils.hpp"
 #include "sysutils.hpp"
 
 HINSTANCE g_h_instance = nullptr;
@@ -130,7 +131,11 @@ void File::open(const wstring& file_path, DWORD desired_access, DWORD share_mode
 bool File::open_nt(const wstring& file_path, DWORD desired_access, DWORD share_mode, DWORD creation_disposition, DWORD flags_and_attributes) {
   close();
   this->file_path = file_path;
-  h_file = CreateFileW(long_path(file_path).c_str(), desired_access, share_mode, nullptr, creation_disposition, flags_and_attributes, nullptr);
+  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  if (system_functions)
+    h_file = system_functions->CreateFile(long_path(file_path).c_str(), desired_access, share_mode, nullptr, creation_disposition, flags_and_attributes, nullptr);
+  else
+    h_file = CreateFileW(long_path(file_path).c_str(), desired_access, share_mode, nullptr, creation_disposition, flags_and_attributes, nullptr);
   return h_file != INVALID_HANDLE_VALUE;
 }
 
@@ -232,7 +237,11 @@ bool File::get_info_nt(BY_HANDLE_FILE_INFORMATION& info) {
 }
 
 bool File::exists(const wstring& file_path) {
-  return GetFileAttributesW(long_path(file_path).c_str()) != INVALID_FILE_ATTRIBUTES;
+  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  if (system_functions)
+    return system_functions->GetFileAttributes(long_path(file_path).c_str()) != INVALID_FILE_ATTRIBUTES;
+  else
+    return GetFileAttributesW(long_path(file_path).c_str()) != INVALID_FILE_ATTRIBUTES;
 }
 
 void File::set_attr(const wstring& file_path, DWORD attr) {
@@ -240,7 +249,11 @@ void File::set_attr(const wstring& file_path, DWORD attr) {
 }
 
 bool File::set_attr_nt(const wstring& file_path, DWORD attr) {
-  return SetFileAttributesW(long_path(file_path).c_str(), attr) != 0;
+  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  if (system_functions)
+    return system_functions->SetFileAttributes(long_path(file_path).c_str(), attr) != 0;
+  else
+    return SetFileAttributesW(long_path(file_path).c_str(), attr) != 0;
 }
 
 void File::delete_file(const wstring& file_path) {
@@ -248,7 +261,11 @@ void File::delete_file(const wstring& file_path) {
 }
 
 bool File::delete_file_nt(const wstring& file_path) {
-  return DeleteFileW(long_path(file_path).c_str()) != 0;
+  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  if (system_functions)
+    return system_functions->DeleteFile(long_path(file_path).c_str()) != 0;
+  else
+    return DeleteFileW(long_path(file_path).c_str()) != 0;
 }
 
 void File::create_dir(const wstring& file_path) {
@@ -256,7 +273,11 @@ void File::create_dir(const wstring& file_path) {
 }
 
 bool File::create_dir_nt(const wstring& file_path) {
-  return CreateDirectoryW(long_path(file_path).c_str(), nullptr) != 0;
+  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  if (system_functions)
+    return system_functions->CreateDirectory(long_path(file_path).c_str(), nullptr) != 0;
+  else
+    return CreateDirectoryW(long_path(file_path).c_str(), nullptr) != 0;
 }
 
 void File::remove_dir(const wstring& file_path) {
@@ -264,7 +285,11 @@ void File::remove_dir(const wstring& file_path) {
 }
 
 bool File::remove_dir_nt(const wstring& file_path) {
-  return RemoveDirectoryW(long_path(file_path).c_str()) != 0;
+  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  if (system_functions)
+    return system_functions->RemoveDirectory(long_path(file_path).c_str()) != 0;
+  else
+    return RemoveDirectoryW(long_path(file_path).c_str()) != 0;
 }
 
 void File::move_file(const wstring& file_path, const wstring& new_path, DWORD flags) {
@@ -272,7 +297,11 @@ void File::move_file(const wstring& file_path, const wstring& new_path, DWORD fl
 }
 
 bool File::move_file_nt(const wstring& file_path, const wstring& new_path, DWORD flags) {
-  return MoveFileExW(long_path(file_path).c_str(), long_path(new_path).c_str(), flags) != 0;
+  ArclitePrivateInfo* system_functions = Far::get_system_functions();
+  if (system_functions)
+    return system_functions->MoveFileEx(long_path(file_path).c_str(), long_path(new_path).c_str(), flags) != 0;
+  else
+    return MoveFileExW(long_path(file_path).c_str(), long_path(new_path).c_str(), flags) != 0;
 }
 
 FindData File::get_find_data(const wstring& file_path) {
