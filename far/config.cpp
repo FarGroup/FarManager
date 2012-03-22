@@ -72,6 +72,14 @@ static const wchar_t *WordDivForXlat0=L" \t!#$%^&*()+|=\\/@?";
 
 const wchar_t *constBatchExt=L".BAT;.CMD;";
 
+#if defined(TREEFILE_PROJECT)
+const wchar_t *constLocalDiskTemplate=L"%D.%SN.tree";
+const wchar_t *constNetDiskTemplate=L"%D.%SN.tree";
+const wchar_t *constNetPathTemplate=L"%SR.%SH.tree";
+const wchar_t *constRemovableDiskTemplate=L"%SN.tree";
+const wchar_t *constCDDiskTemplate=L"CD.%L.%SN.tree";
+#endif
+
 string strKeyNameConsoleDetachKey;
 static const wchar_t szCtrlDot[]=L"Ctrl.";
 static const wchar_t szRCtrlDot[]=L"RCtrl.";
@@ -157,7 +165,6 @@ void PanelSettings()
 
 	Builder.AddCheckbox(MConfigHidden, &Opt.ShowHidden);
 	Builder.AddCheckbox(MConfigHighlight, &Opt.Highlight);
-	Builder.AddCheckbox(MConfigAutoChange, &Opt.Tree.AutoChangeFolder);
 	Builder.AddCheckbox(MConfigSelectFolders, &Opt.SelectFolders);
 	Builder.AddCheckbox(MConfigSortFolderExt, &Opt.SortFolderExt);
 	Builder.AddCheckbox(MConfigReverseSort, &Opt.ReverseSort);
@@ -188,6 +195,67 @@ void PanelSettings()
 			Opt.AutoUpdateLimit = 0;
 
 	//  FrameManager->RefreshFrame();
+		CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+		CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+		CtrlObject->Cp()->Redraw();
+	}
+}
+
+void TreeSettings()
+{
+	DialogBuilder Builder(MConfigTreeTitle, L"TreeSettings");
+
+	DialogItemEx *TemplateEdit;
+
+	Builder.AddCheckbox(MConfigTreeAutoChange, &Opt.Tree.AutoChangeFolder);
+
+	TemplateEdit = Builder.AddIntEditField((int *) &Opt.Tree.MinTreeCount, 3);
+	Builder.AddTextBefore(TemplateEdit, MConfigTreeLabelMinFolder);
+
+#if defined(TREEFILE_PROJECT)
+	DialogItemEx *Checkbox;
+
+	Builder.AddSeparator(MConfigTreeLabel1);
+
+	Checkbox = Builder.AddCheckbox(MConfigTreeLabelLocalDisk, &Opt.Tree.LocalDisk);
+	TemplateEdit = Builder.AddEditField(&Opt.Tree.strLocalDisk, 36);
+	TemplateEdit->Indent(4);
+	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
+
+	Checkbox = Builder.AddCheckbox(MConfigTreeLabelNetDisk, &Opt.Tree.NetDisk);
+	TemplateEdit = Builder.AddEditField(&Opt.Tree.strNetDisk, 36);
+	TemplateEdit->Indent(4);
+	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
+
+	Checkbox = Builder.AddCheckbox(MConfigTreeLabelNetPath, &Opt.Tree.NetPath);
+	TemplateEdit = Builder.AddEditField(&Opt.Tree.strNetPath, 36);
+	TemplateEdit->Indent(4);
+	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
+
+	Checkbox = Builder.AddCheckbox(MConfigTreeLabelRemovableDisk, &Opt.Tree.RemovableDisk);
+	TemplateEdit = Builder.AddEditField(&Opt.Tree.strRemovableDisk, 36);
+	TemplateEdit->Indent(4);
+	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
+
+	Checkbox = Builder.AddCheckbox(MConfigTreeLabelCDDisk, &Opt.Tree.CDDisk);
+	TemplateEdit = Builder.AddEditField(&Opt.Tree.strCDDisk, 36);
+	TemplateEdit->Indent(4);
+	Builder.LinkFlags(Checkbox, TemplateEdit, DIF_DISABLE);
+
+	Builder.AddText(MConfigTreeLabelSaveLocalPath);
+	Builder.AddEditField(&Opt.Tree.strSaveLocalPath, 40);
+
+	Builder.AddText(MConfigTreeLabelSaveNetPath);
+	Builder.AddEditField(&Opt.Tree.strSaveNetPath, 40);
+
+	Builder.AddText(MConfigTreeLabelExceptPath);
+	Builder.AddEditField(&Opt.Tree.strExceptPath, 40);
+#endif
+
+	Builder.AddOKCancel();
+
+	if (Builder.ShowDialog())
+	{
 		CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 		CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
 		CtrlObject->Cp()->Redraw();
@@ -924,13 +992,24 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemExecutor,L"ExcludeCmds",&Opt.Exec.strExcludeCmds,0,L""},
 	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemExecutor,L"~",&Opt.Exec.strHomeDir,0,L""},
 
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"AutoChangeFolder",&Opt.Tree.AutoChangeFolder,0, 0}, // ???
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"TreeFileAttr",&Opt.Tree.TreeFileAttr, FILE_ATTRIBUTE_HIDDEN, 0},
+#if defined(TREEFILE_PROJECT)
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"LocalDisk",&Opt.Tree.LocalDisk, 2, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"NetDisk",&Opt.Tree.NetDisk, 2, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"RemovableDisk",&Opt.Tree.RemovableDisk, 2, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"NetPath",&Opt.Tree.NetPath, 2, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"AutoChangeFolder",&Opt.Tree.AutoChangeFolder,0, 0}, // ???
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"RemovableDisk",&Opt.Tree.RemovableDisk, 2, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"CDDisk",&Opt.Tree.CDDisk, 2, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"LocalDiskTemplate",&Opt.Tree.strLocalDisk,0,constLocalDiskTemplate},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"NetDiskTemplate",&Opt.Tree.strNetDisk,0,constNetDiskTemplate},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"NetPathTemplate",&Opt.Tree.strNetPath,0,constNetPathTemplate},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"RemovableDiskTemplate,",&Opt.Tree.strRemovableDisk,0,constRemovableDiskTemplate},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"CDDiskTemplate,0",&Opt.Tree.strCDDisk,0,constCDDiskTemplate},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"ExceptPath",&Opt.Tree.strExceptPath,0,L""},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"SaveLocalPath",&Opt.Tree.strSaveLocalPath,0,L""},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"SaveNetPath",&Opt.Tree.strSaveNetPath,0,L""},
+#endif
 
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyHelp,L"ActivateURL",&Opt.HelpURLRules,1, 0},
 

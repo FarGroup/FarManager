@@ -148,6 +148,7 @@ enum enumOptionsMenu
 {
 	MENU_OPTIONS_SYSTEMSETTINGS,
 	MENU_OPTIONS_PANELSETTINGS,
+	MENU_OPTIONS_TREESETTINGS,
 	MENU_OPTIONS_INTERFACESETTINGS,
 	MENU_OPTIONS_LANGUAGES,
 	MENU_OPTIONS_PLUGINSCONFIG,
@@ -282,6 +283,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		MSG(MMenuSystemSettings),LIF_SELECTED,0,
 		MSG(MMenuPanelSettings),0,0,
+		MSG(MMenuTreeSettings),0,0,
 		MSG(MMenuInterface),0,0,
 		MSG(MMenuLanguages),0,0,
 		MSG(MMenuPluginsConfig),0,0,
@@ -585,6 +587,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					break;
 				case MENU_OPTIONS_PANELSETTINGS:   // Panel settings
 					PanelSettings();
+					break;
+				case MENU_OPTIONS_TREESETTINGS: // Tree settings
+					TreeSettings();
 					break;
 				case MENU_OPTIONS_INTERFACESETTINGS:   // Interface settings
 					InterfaceSettings();

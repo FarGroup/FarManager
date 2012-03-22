@@ -1439,6 +1439,115 @@ MConfigAutoSave
 "Automatycznie &zapisuj ustawienia"
 "Auto&guardar configuración"
 
+MConfigTreeTitle
+l:
+"Настройки дерева папок"
+"Tree settings"
+upd:"Tree settings"
+upd:"Tree settings"
+upd:"Tree settings"
+upd:"Tree settings"
+upd:"Tree settings"
+
+MConfigTreeAutoChange
+"&Автосмена папки"
+"&Auto change folder"
+"&Automaticky měnit adresář"
+"Ordner &automatisch wechseln (Baumansicht)"
+"&Automatikus mappaváltás"
+"&Automatycznie zmieniaj katalog"
+"&Auto cambiar directorio"
+
+MConfigTreeLabelMinFolder
+"&Минимальное количество папок:"
+upd:"&Minimum number of folders:"
+upd:"&Minimum number of folders:"
+upd:"&Minimum number of folders:"
+upd:"&Minimum number of folders:"
+upd:"&Minimum number of folders:"
+upd:"&Minimum number of folders:"
+
+#MConfigTreeLabel1
+#"Хранить файл структуры папок для:"
+#upd:"Хранить файл структуры папок для:"
+#upd:"Хранить файл структуры папок для:"
+#upd:"Хранить файл структуры папок для:"
+#upd:"Хранить файл структуры папок для:"
+#upd:"Хранить файл структуры папок для:"
+#upd:"Хранить файл структуры папок для:"
+
+#MConfigTreeLabelLocalDisk
+#"локальных дисков"
+#upd:"локальных дисков"
+#upd:"локальных дисков"
+#upd:"локальных дисков"
+#upd:"локальных дисков"
+#upd:"локальных дисков"
+#upd:"локальных дисков"
+
+#MConfigTreeLabelNetDisk
+#"сетевых дисков"
+#upd:"сетевых дисков"
+#upd:"сетевых дисков"
+#upd:"сетевых дисков"
+#upd:"сетевых дисков"
+#upd:"сетевых дисков"
+#upd:"сетевых дисков"
+
+#MConfigTreeLabelNetPath
+#"сетевых путей"
+#upd:"сетевых путей"
+#upd:"сетевых путей"
+#upd:"сетевых путей"
+#upd:"сетевых путей"
+#upd:"сетевых путей"
+#upd:"сетевых путей"
+
+#MConfigTreeLabelRemovableDisk
+#"сменных дисков"
+#upd:"сменных дисков"
+#upd:"сменных дисков"
+#upd:"сменных дисков"
+#upd:"сменных дисков"
+#upd:"сменных дисков"
+#upd:"сменных дисков"
+
+#MConfigTreeLabelCDDisk
+#"CD-дисков"
+#upd:"CD-дисков"
+#upd:"CD-дисков"
+#upd:"CD-дисков"
+#upd:"CD-дисков"
+#upd:"CD-дисков"
+#upd:"CD-дисков"
+
+#MConfigTreeLabelExceptPath
+#"Не создавать файл для следующих дисков:"
+#upd:"Не создавать файл для следующих дисков:"
+#upd:"Не создавать файл для следующих дисков:"
+#upd:"Не создавать файл для следующих дисков:"
+#upd:"Не создавать файл для следующих дисков:"
+#upd:"Не создавать файл для следующих дисков:"
+#upd:"Не создавать файл для следующих дисков:"
+
+#MConfigTreeLabelSaveLocalPath
+#"Путь для локальных дисков:"
+#upd:"Путь для локальных дисков:"
+#upd:"Путь для локальных дисков:"
+#upd:"Путь для локальных дисков:"
+#upd:"Путь для локальных дисков:"
+#upd:"Путь для локальных дисков:"
+#upd:"Путь для локальных дисков:"
+
+#MConfigTreeLabelSaveNetPath
+#"Путь для сетевых дисков и путей:"
+#upd:"Путь для сетевых дисков и путей:"
+#upd:"Путь для сетевых дисков и путей:"
+#upd:"Путь для сетевых дисков и путей:"
+#upd:"Путь для сетевых дисков и путей:"
+#upd:"Путь для сетевых дисков и путей:"
+#upd:"Путь для сетевых дисков и путей:"
+
 MConfigPanelTitle
 l:
 "Настройки панели"
@@ -1466,15 +1575,6 @@ MConfigHighlight
 "Fá&jlok kiemelése"
 "W&yróżniaj pliki"
 "Resaltar archivos"
-
-MConfigAutoChange
-"&Автосмена папки"
-"&Auto change folder"
-"&Automaticky měnit adresář"
-"Ordner &automatisch wechseln (Baumansicht)"
-"&Automatikus mappaváltás"
-"&Automatycznie zmieniaj katalog"
-"&Auto cambiar directorio"
 
 MConfigSelectFolders
 "Пометка &папок"
@@ -10938,6 +11038,15 @@ MMenuPanelSettings
 "&Panel beállítások"
 "Ustawienia &panelu"
 "&Paneles      "
+
+MMenuTreeSettings
+"Настройки д&ерева папок"
+"&Tree settings"
+upd:"Tree settings"
+upd:"Tree settings"
+upd:"Tree settings"
+upd:"Tree settings"
+upd:"Tree settings"
 
 MMenuInterface
 "Настройки &интерфейса"

@@ -49,6 +49,7 @@ $^#Copyright © 1996-2000 Eugene Roshal#
 
    ~System settings~@SystemSettings@
    ~Panel settings~@PanelSettings@
+   ~Tree settings~@TreeSettings@
    ~Interface settings~@InterfSettings@
    ~Dialog settings~@DialogSettings@
    ~Menu settings~@VMenuSettings@
@@ -1043,9 +1044,9 @@ $ #Panels: tree panel#
 Within tree mode you may change to a folder quickly and perform folder
 operations.
 
-    Far stores folder tree information in the file named #tree2.far# at root
+    Far stores folder tree information in the file named #tree3.far# at root
 folder of each drive. For read-only drives this information is stored in the
-hidden folder Tree.Cache within the folder containing Far.exe. The tree2.far
+hidden folder Tree.Cache within the folder containing Far.exe. The tree3.far
 file doesn't exist by default. It will be automatically created after the first
 use of the #Tree Panel# or the #Find Folder# command. If that file exists, Far
 updates it with the changes to the tree structure it is aware of. If such
@@ -1410,6 +1411,8 @@ $ #Menus: options menu#
    #System settings#       Shows ~system settings~@SystemSettings@ dialog.
 
    #Panel settings#        Shows ~panel settings~@PanelSettings@ dialog.
+
+   #Tree settings#         Show ~Tree settings~@TreeSettings@ dialog.
 
    #Interface settings#    Shows ~interface settings~@InterfSettings@ dialog.
 
@@ -2318,12 +2321,6 @@ $ #Settings dialog: panel#
 
   #Highlight files#         Enable ~files highlighting~@Highlight@.
 
-  #Auto change folder#      If checked, cursor moves in the ~tree panel~@TreePanel@
-                          will cause a folder change in the other
-                          panel. If it is not checked, you must press
-                          #Enter# to change the folder from the tree
-                          panel.
-
   #Select folders#          Enable to select folders, using #Gray +#
                           and #Gray *#. Otherwise these keys will
                           select files only.
@@ -2386,6 +2383,18 @@ $ #Settings dialog: panel#
   #Удваивать глобальные#    Вместо одинарной будет рисоваться 
   #разделители колонок#     двойная внутренняя рамка между колонками.
 
+
+@TreeSettings
+$ #Tree settings#
+  #Auto change folder#      If checked, cursor moves in the ~tree panel~@TreePanel@
+                          will cause a folder change in the other
+                          panel. If it is not checked, you must press
+                          #Enter# to change the folder from the tree
+                          panel.
+
+  #Минимальное#             Минимальное количество папок на диске,
+  #количество папок#        после которого будет создаваться файл
+                          #tree3.far#.
 
 @InterfSettings
 $ #Settings dialog: interface#

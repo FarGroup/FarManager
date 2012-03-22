@@ -554,7 +554,7 @@ int TreeList::ReadTree()
 
 void TreeList::SaveTreeFile()
 {
-	if (TreeCount<4)
+	if (TreeCount < Opt.Tree.MinTreeCount)
 		return;
 
 	string strName;
@@ -627,7 +627,7 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 
 	string strFolderName;
 	string strFarPath;
-	MkTreeCacheFolderName(strFarPath, strFolderName);
+	MkTreeCacheFolderName(Opt.LocalProfilePath, strFolderName);
 
 	if (CreateDir)
 	{
@@ -2155,49 +2155,56 @@ void TreeList::SetTitle()
 	}
 }
 
-/*
-   "Local AppData" = [HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders]/Local AppData
-   "AppData"       = [HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders]/AppData
-
-*/
-
-// TODO: Файлы "Tree.Far" для локальных дисков должны храниться в "Local AppData\Far"
-// TODO: Файлы "Tree.Far" для сетевых дисков должны храниться в "%HOMEDRIVE%\%HOMEPATH%",
-//                        если эти переменные среды не определены, то "%APPDATA%\Far"
-// хpаним "X.tree" (где 'X'  - буква диска, если не сетевой путь)
-// хpаним "server.share.tree" - для сетевого диска без буквы
+// TODO: Файлы "Tree3.Far" для локальных дисков должны храниться в "Local AppData\Far Manager"
+// TODO: Файлы "Tree3.Far" для сменных дисков должны храниться на самих "дисках"
+// TODO: Файлы "Tree3.Far" для сетевых дисков должны храниться в "%HOMEDRIVE%\%HOMEPATH%",
+//                        если эти переменные среды не определены, то "%APPDATA%\Far Manager"
 string &TreeList::MkTreeFileName(const wchar_t *RootDir,string &strDest)
 {
 	strDest = RootDir;
 	AddEndSlash(strDest);
-	strDest += L"tree2.far";
+	strDest += L"tree3.far";
 	return strDest;
 }
 
-// TODO: этому каталогу (Tree.Cache) место не в FarPath, а в "Local AppData\Far\"
+// этому каталогу (Tree.Cache) место не в FarPath, а в "Local AppData\Far\"
 string &TreeList::MkTreeCacheFolderName(const wchar_t *RootDir,string &strDest)
 {
 	strDest = RootDir;
 	AddEndSlash(strDest);
-	strDest += L"tree2.cache";
+	strDest += L"tree3.cache";
 	return strDest;
 }
 
 
 /*
-  Opt.Tree.LocalDisk
-  Opt.Tree.NetDisk
-  Opt.Tree.NetPath
-  Opt.Tree.RemovableDisk
-  Opt.Tree.CDROM
-  Opt.Tree.SavedTreePath
+  Opt.Tree.LocalDisk          Хранить файл структуры папок для локальных дисков
+  Opt.Tree.NetDisk            Хранить файл структуры папок для сетевых дисков
+  Opt.Tree.NetPath            Хранить файл структуры папок для сетевых путей
+  Opt.Tree.RemovableDisk      Хранить файл структуры папок для сменных дисков
+  Opt.Tree.CDDisk             Хранить файл структуры папок для CD/DVD/BD/etc дисков
 
-   локальных дисков - "X.nnnnnnnn.tree"
-   сетевых дисков - "X.nnnnnnnn.tree"
-   сетевых путей - "Server.share.tree"
-   сменных дисков(DRIVE_REMOVABLE) - "Far.nnnnnnnn.tree"
-   сменных дисков(CD) - "Label.nnnnnnnn.tree"
+  Opt.Tree.strLocalDisk;      шаблон имени файла-деревяхи для локальных дисков
+     constLocalDiskTemplate=L"%D.%SN.tree"
+  Opt.Tree.strNetDisk;        шаблон имени файла-деревяхи для сетевых дисков
+     constNetDiskTemplate=L"%D.%SN.tree";
+  Opt.Tree.strNetPath;        шаблон имени файла-деревяхи для сетевых путей
+     constNetPathTemplate=L"%SR.%SH.tree";
+  Opt.Tree.strRemovableDisk;  шаблон имени файла-деревяхи для сменных дисков
+     constRemovableDiskTemplate=L"%SN.tree";
+  Opt.Tree.strCDDisk;         шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
+     constCDDiskTemplate=L"CD.%L.%SN.tree";
 
+     %D    - буква диска
+     %SN   - серийный номер
+     %L    - метка диска
+     %SR   - server name
+     %SH   - share name
+
+  Opt.Tree.strExceptPath;     // для перечисленных здесь не хранить
+
+  Opt.Tree.strSaveLocalPath;  // сюда сохраняем локальные диски
+  Opt.Tree.strSaveNetPath;    // сюда сохраняем сетевые диски
 */
 string &TreeList::CreateTreeFileName(const wchar_t *Path,string &strDest)
 {

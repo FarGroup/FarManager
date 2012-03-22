@@ -50,6 +50,7 @@ $^(help file last translated for build 882)
 
    ~Rendszer beállítások~@SystemSettings@
    ~Panel beállítások~@PanelSettings@
+   ~Fastruktúra beállítások~@TreeSettings@
    ~Kezelőfelület beállítások~@InterfSettings@
    ~Párbeszédablak beállítások~@DialogSettings@
 
@@ -987,13 +988,13 @@ hasonlóan ábrázolja. Ebben a nézetben gyorsan lehet mappát váltani és
 a mappákkat kezelni.
 
     A FAR a mappák szerkezeti adatainak tárolásához minden meghajtó
-gyökérmappájában létrehoz egy-egy #Tree.Far# nevű fájlt, a csak olvasható
-meghajtók adatait pedig egy Tree.Cache nevű rejtett mappába menti el,
-a FAR.EXE mappáján belül. A Tree.Far fájl eredetileg nem létezik, a
+gyökérmappájában létrehoz egy-egy #Tree3.Far# nevű fájlt, a csak olvasható
+meghajtók adatait pedig egy Tree3.Cache nevű rejtett mappába menti el,
+a FAR.EXE mappáján belül. A Tree3.Far fájl eredetileg nem létezik, a
 #Fastruktúra panel# vagy a #Mappa keresése# funkció első használata után jön
-létre automatikusan. Ha a Tree.Far már létezik és ha változik a fa, a FAR
+létre automatikusan. Ha a Tree3.Far már létezik és ha változik a fa, a FAR
 frissíti a megváltozott szerkezet adatait. Ha a szerkezeti
-változások akkor történtek, amikor a FAR nem futott és a Tree.Far tartalma
+változások akkor történtek, amikor a FAR nem futott és a Tree3.Far tartalma
 már nem teljesen időszerű, a #Ctrl-R# leütésével frissíthetjük.
 
     A #gyorskeresés# segítségével hamarabb megtalálhatjuk a mappákat. Tartsuk
@@ -1267,6 +1268,9 @@ $ #Menük: Beállítások menü#
    #beállítások#          párbeszédablakot.
 
    #Panel beállítások#    A ~panel beállítások~@PanelSettings@ párbeszédablak.
+
+   #Fastruktúra#          A ~fastruktúra beállítások~@TreeSettings@
+   #beállítások#          párbeszédablakot jeleníti meg.
 
    #Kezelőfelület#        A ~kezelőfelület beállítások~@InterfSettings@
    #beállítások#          párbeszédablakot jeleníti meg.
@@ -2057,11 +2061,6 @@ $ #Beállítások: panel beállítások#
 
   #Fájlok kiemelése#        A ~fájlkiemelések~@Highlight@ engedélyezése.
 
-  #Automatikus#             Ha engedélyezett, a ~fastruktúra panelen~@TreePanel@
-  #mappaváltás#             a kurzor mozgatására a másik panel is
-                          ^<wrap>mappát vált. Ha nincs engedélyezve,
-a fastruktúrán a mappaváltáshoz #Entert# kell ütni.
-
   #A mappák is#             A #Szürke +# és a #Szürke *# nem csak a
   #kijelölhetők#            fájlokat, hanem a mappákat is kijelöli.
                           ^<wrap>Kikapcsolt opciónál csak a fájlok kapnak
@@ -2112,6 +2111,14 @@ oldalsó gördítősávját.
 
   #Rendezési mód betűjele#  Megmutatja az aktuális rendezési elv
   #mutatva#                 betűjelét a bal felső sarokban.
+
+
+@TreeSettings
+$ #Fastruktúra beállítások#
+  #Automatikus#             Ha engedélyezett, a ~fastruktúra panelen~@TreePanel@
+  #mappaváltás#             a kurzor mozgatására a másik panel is
+                          ^<wrap>mappát vált. Ha nincs engedélyezve,
+a fastruktúrán a mappaváltáshoz #Entert# kell ütni.
 
 
 @InterfSettings
