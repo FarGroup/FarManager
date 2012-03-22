@@ -358,8 +358,12 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_SHIFTENTER:
 		case KEY_CTRLALTENTER:
 		case KEY_RCTRLRALTENTER:
+		case KEY_CTRLRALTENTER:
+		case KEY_RCTRLALTENTER:
 		case KEY_CTRLALTNUMENTER:
 		case KEY_RCTRLRALTNUMENTER:
+		case KEY_CTRLRALTNUMENTER:
+		case KEY_RCTRLALTNUMENTER:
 		{
 			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 			CmdStr.Select(-1,0);
@@ -377,7 +381,9 @@ int CommandLine::ProcessKey(int Key)
 			ProcessOSAliases(strStr);
 
 			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)strStr.CPtr()))
-				CmdExecute(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false, false, Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER);
+				CmdExecute(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false, false,
+						Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLRALTENTER || Key == KEY_RCTRLALTENTER ||
+						Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER || Key == KEY_CTRLRALTNUMENTER || Key == KEY_RCTRLALTNUMENTER);
 		}
 		return TRUE;
 		case KEY_CTRLU:

@@ -873,6 +873,8 @@ int FileList::ProcessKey(int Key)
 			case KEY_RCTRLF:
 			case KEY_CTRLALTF:
 			case KEY_RCTRLRALTF:
+			case KEY_RCTRLALTF:
+			case KEY_CTRLRALTF:
 			case KEY_CTRLENTER:
 			case KEY_RCTRLENTER:
 			case KEY_CTRLNUMENTER:
@@ -889,10 +891,16 @@ int FileList::ProcessKey(int Key)
 			case KEY_RCTRL|KEY_SEMICOLON:
 			case KEY_CTRL|KEY_ALT|KEY_SEMICOLON:
 			case KEY_RCTRL|KEY_RALT|KEY_SEMICOLON:
+			case KEY_CTRL|KEY_RALT|KEY_SEMICOLON:
+			case KEY_RCTRL|KEY_ALT|KEY_SEMICOLON:
 			case KEY_CTRLALTBRACKET:
 			case KEY_RCTRLRALTBRACKET:
+			case KEY_CTRLRALTBRACKET:
+			case KEY_RCTRLALTBRACKET:
 			case KEY_CTRLALTBACKBRACKET:
 			case KEY_RCTRLRALTBACKBRACKET:
+			case KEY_CTRLRALTBACKBRACKET:
+			case KEY_RCTRLALTBACKBRACKET:
 			case KEY_ALTSHIFTBRACKET:
 			case KEY_RALTSHIFTBRACKET:
 			case KEY_ALTSHIFTBACKBRACKET:
@@ -943,7 +951,10 @@ int FileList::ProcessKey(int Key)
 		if ((Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) ||
 			(Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9) ||
 			(Key>=KEY_CTRLALT0 && Key<=KEY_CTRLALT9) ||
-			(Key>=KEY_RCTRLRALT0 && Key<=KEY_RCTRLRALT9))
+			(Key>=KEY_RCTRLRALT0 && Key<=KEY_RCTRLRALT9) ||
+			(Key>=KEY_CTRLRALT0 && Key<=KEY_CTRLRALT9) ||
+			(Key>=KEY_RCTRLALT0 && Key<=KEY_RCTRLALT9)
+		)
 		{
 			bool Add = (Key&KEY_SHIFT) == KEY_SHIFT;
 			SaveShortcutFolder((Key&(~(KEY_CTRL|KEY_RCTRL|KEY_ALT|KEY_RALT|KEY_SHIFT|KEY_RSHIFT)))-'0', Add);
@@ -1072,12 +1083,19 @@ int FileList::ProcessKey(int Key)
 		case KEY_RCTRLSHIFTINS: case KEY_RCTRLSHIFTNUMPAD0:
 		case KEY_CTRLALTINS:    case KEY_CTRLALTNUMPAD0:    // копировать UNC-имена
 		case KEY_RCTRLRALTINS:  case KEY_RCTRLRALTNUMPAD0:
+		case KEY_CTRLRALTINS:   case KEY_CTRLRALTNUMPAD0:
+		case KEY_RCTRLALTINS:   case KEY_RCTRLALTNUMPAD0:
 		case KEY_ALTSHIFTINS:   case KEY_ALTSHIFTNUMPAD0:   // копировать полные имена
 		case KEY_RALTSHIFTINS:  case KEY_RALTSHIFTNUMPAD0:
 			//if (FileCount>0 && SetCurPath()) // ?????
 			SetCurPath();
-			CopyNames(Key == KEY_CTRLALTINS || Key == KEY_RCTRLRALTINS || Key == KEY_ALTSHIFTINS || Key == KEY_RALTSHIFTINS || Key == KEY_CTRLALTNUMPAD0 || Key == KEY_RCTRLRALTNUMPAD0 || Key == KEY_ALTSHIFTNUMPAD0 || Key == KEY_RALTSHIFTNUMPAD0,
-			          (Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT) || (Key&(KEY_RCTRL|KEY_RALT))==(KEY_RCTRL|KEY_RALT));
+			CopyNames(
+					Key == KEY_CTRLALTINS || Key == KEY_RCTRLRALTINS || Key == KEY_CTRLRALTINS || Key == KEY_RCTRLALTINS ||
+					Key == KEY_ALTSHIFTINS || Key == KEY_RALTSHIFTINS ||
+					Key == KEY_CTRLALTNUMPAD0 || Key == KEY_RCTRLRALTNUMPAD0 || Key == KEY_CTRLRALTNUMPAD0 || Key == KEY_RCTRLALTNUMPAD0 ||
+					Key == KEY_ALTSHIFTNUMPAD0 || Key == KEY_RALTSHIFTNUMPAD0,
+				(Key&(KEY_CTRL|KEY_ALT))==(KEY_CTRL|KEY_ALT) || (Key&(KEY_RCTRL|KEY_RALT))==(KEY_RCTRL|KEY_RALT)
+			);
 			return TRUE;
 
 		case KEY_CTRLC: // hdrop
@@ -1092,6 +1110,8 @@ int FileList::ProcessKey(int Key)
 		case KEY_RCTRL|KEY_SEMICOLON:
 		case KEY_CTRL|KEY_ALT|KEY_SEMICOLON:
 		case KEY_RCTRL|KEY_RALT|KEY_SEMICOLON:
+		case KEY_CTRL|KEY_RALT|KEY_SEMICOLON:
+		case KEY_RCTRL|KEY_ALT|KEY_SEMICOLON:
 		{
 			int NewKey = KEY_CTRLF;
 
@@ -1120,6 +1140,8 @@ int FileList::ProcessKey(int Key)
 		case KEY_RCTRLF:
 		case KEY_CTRLALTF:  // 29.01.2001 VVM + ѕо CTRL+ALT+F в командную строку сбрасываетс€ UNC-им€ текущего файла.
 		case KEY_RCTRLRALTF:
+		case KEY_CTRLRALTF:
+		case KEY_RCTRLALTF:
 		{
 			if (FileCount>0 && SetCurPath())
 			{
@@ -1147,13 +1169,13 @@ int FileList::ProcessKey(int Key)
 						else
 							strFileName.SetLength(1); // "."
 
-						if (Key!=KEY_CTRLALTF && Key!=KEY_RCTRLRALTF)
+						if (!(Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF || Key==KEY_CTRLRALTF || Key==KEY_RCTRLALTF))
 							Key=KEY_CTRLF;
 
 						CurrentPath=TRUE;
 					}
 
-					if (Key==KEY_CTRLF || Key==KEY_RCTRLF || Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF)
+					if (Key==KEY_CTRLF || Key==KEY_RCTRLF || Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF || Key==KEY_CTRLRALTF || Key==KEY_RCTRLALTF)
 					{
 						OpenPanelInfo Info={};
 
@@ -1163,7 +1185,7 @@ int FileList::ProcessKey(int Key)
 						}
 
 						if (PanelMode!=PLUGIN_PANEL)
-							CreateFullPathName(CurPtr->strName,CurPtr->strShortName,CurPtr->FileAttr, strFileName, Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF);
+							CreateFullPathName(CurPtr->strName,CurPtr->strShortName,CurPtr->FileAttr, strFileName, Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF || Key==KEY_CTRLRALTF || Key==KEY_RCTRLALTF);
 						else
 						{
 							string strFullName = Info.CurDir;
@@ -1220,8 +1242,12 @@ int FileList::ProcessKey(int Key)
 		}
 		case KEY_CTRLALTBRACKET:       // ¬ставить сетевое (UNC) путь из левой панели
 		case KEY_RCTRLRALTBRACKET:
+		case KEY_CTRLRALTBRACKET:
+		case KEY_RCTRLALTBRACKET:
 		case KEY_CTRLALTBACKBRACKET:   // ¬ставить сетевое (UNC) путь из правой панели
 		case KEY_RCTRLRALTBACKBRACKET:
+		case KEY_CTRLRALTBACKBRACKET:
+		case KEY_RCTRLALTBACKBRACKET:
 		case KEY_ALTSHIFTBRACKET:      // ¬ставить сетевое (UNC) путь из активной панели
 		case KEY_RALTSHIFTBRACKET:
 		case KEY_ALTSHIFTBACKBRACKET:  // ¬ставить сетевое (UNC) путь из пассивной панели
@@ -1330,8 +1356,12 @@ int FileList::ProcessKey(int Key)
 		case KEY_SHIFTENTER:
 		case KEY_CTRLALTENTER:
 		case KEY_RCTRLRALTENTER:
+		case KEY_CTRLRALTENTER:
+		case KEY_RCTRLALTENTER:
 		case KEY_CTRLALTNUMENTER:
 		case KEY_RCTRLRALTNUMENTER:
+		case KEY_CTRLRALTNUMENTER:
+		case KEY_RCTRLALTNUMENTER:
 		{
 			_ALGO(CleverSysLog clv(L"Enter/Shift-Enter"));
 			_ALGO(SysLog(L"%s, FileCount=%d Key=%s",(PanelMode==PLUGIN_PANEL?"PluginPanel":"FilePanel"),FileCount,_FARKEY_ToName(Key)));
@@ -1345,7 +1375,9 @@ int FileList::ProcessKey(int Key)
 				return TRUE;
 			}
 
-			ProcessEnter(1,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, true, Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER);
+			ProcessEnter(1,Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, true,
+					Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLRALTENTER || Key == KEY_RCTRLALTENTER ||
+					Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER || Key == KEY_CTRLRALTNUMENTER || Key == KEY_RCTRLALTNUMENTER);
 			return TRUE;
 		}
 		case KEY_CTRLBACKSLASH:

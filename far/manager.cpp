@@ -834,7 +834,7 @@ int Manager::ProcessKey(DWORD Key)
 #if defined(FAR_ALPHA_VERSION)
 
 // сей код для проверки исключатор, просьба не трогать :-)
-		if (Key == KEY_CTRLALTAPPS || Key == KEY_RCTRLRALTAPPS)
+		if (Key == KEY_CTRLALTAPPS || Key == KEY_RCTRLRALTAPPS || Key == KEY_CTRLRALTAPPS || Key == KEY_RCTRLALTAPPS)
 		{
 			struct __ECODE
 			{
@@ -979,6 +979,8 @@ int Manager::ProcessKey(DWORD Key)
 				// <Удалить после появления макрофункции Scroll>
 				case KEY_CTRLALTUP:
 				case KEY_RCTRLRALTUP:
+				case KEY_CTRLRALTUP:
+				case KEY_RCTRLALTUP:
 					if(scrollable)
 					{
 						Console.ScrollWindow(-1);
@@ -988,6 +990,8 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLALTDOWN:
 				case KEY_RCTRLRALTDOWN:
+				case KEY_CTRLRALTDOWN:
+				case KEY_RCTRLALTDOWN:
 					if(scrollable)
 					{
 						Console.ScrollWindow(1);
@@ -997,6 +1001,8 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLALTPGUP:
 				case KEY_RCTRLRALTPGUP:
+				case KEY_CTRLRALTPGUP:
+				case KEY_RCTRLALTPGUP:
 					if(scrollable)
 					{
 						Console.ScrollWindow(-ScrY);
@@ -1006,6 +1012,8 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLALTHOME:
 				case KEY_RCTRLRALTHOME:
+				case KEY_CTRLRALTHOME:
+				case KEY_RCTRLALTHOME:
 					if(scrollable)
 					{
 						while(Console.ScrollWindow(-ScrY));
@@ -1015,6 +1023,8 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLALTPGDN:
 				case KEY_RCTRLRALTPGDN:
+				case KEY_CTRLRALTPGDN:
+				case KEY_RCTRLALTPGDN:
 					if(scrollable)
 					{
 						Console.ScrollWindow(ScrY);
@@ -1024,6 +1034,8 @@ int Manager::ProcessKey(DWORD Key)
 
 				case KEY_CTRLALTEND:
 				case KEY_RCTRLRALTEND:
+				case KEY_CTRLRALTEND:
+				case KEY_RCTRLALTEND:
 					if(scrollable)
 					{
 						while(Console.ScrollWindow(ScrY));

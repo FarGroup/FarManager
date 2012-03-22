@@ -824,12 +824,12 @@ bool VMenu::IsFilterEditKey(int Key)
 
 bool VMenu::ShouldSendKeyToFilter(int Key)
 {
-	if (Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF)
+	if (Key==KEY_CTRLALTF || Key==KEY_RCTRLRALTF || Key==KEY_CTRLRALTF || Key==KEY_RCTRLALTF)
 		return true;
 
 	if (bFilterEnabled)
 	{
-		if (Key==KEY_CTRLALTL || Key==KEY_RCTRLRALTL)
+		if (Key==KEY_CTRLALTL || Key==KEY_RCTRLRALTL || Key==KEY_CTRLRALTL || Key==KEY_RCTRLALTL)
 			return true;
 
 		if (!bFilterLocked && IsFilterEditKey(Key))
@@ -1215,7 +1215,7 @@ int VMenu::ProcessKey(int Key)
 	{
 		if ((Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC && Key!=KEY_ALTF9 && Key!=KEY_RALTF9))
 		{
-			if (!bFilterEnabled || (bFilterEnabled && Key!=KEY_BS && Key!=KEY_CTRLALTF && Key!=KEY_RCTRLRALTF))
+			if (!bFilterEnabled || (bFilterEnabled && Key!=KEY_BS && Key!=KEY_CTRLALTF && Key!=KEY_RCTRLRALTF && Key!=KEY_CTRLRALTF && Key!=KEY_RCTRLALTF))
 			{
 				Modal::ExitCode = -1;
 				return FALSE;
@@ -1389,6 +1389,8 @@ int VMenu::ProcessKey(int Key)
 		}
 		case KEY_CTRLALTF:
 		case KEY_RCTRLRALTF:
+		case KEY_CTRLRALTF:
+		case KEY_RCTRLALTF:
 		{
 			bFilterEnabled=!bFilterEnabled;
 			bFilterLocked=false;
@@ -1427,6 +1429,8 @@ int VMenu::ProcessKey(int Key)
 		}
 		case KEY_CTRLALTL:
 		case KEY_RCTRLRALTL:
+		case KEY_CTRLRALTL:
+		case KEY_RCTRLALTL:
 		{
 			if (bFilterEnabled)
 			{

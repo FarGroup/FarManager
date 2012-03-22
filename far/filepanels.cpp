@@ -791,6 +791,8 @@ int FilePanels::ProcessKey(int Key)
 		}
 		case KEY_CTRLALTCLEAR:
 		case KEY_RCTRLRALTCLEAR:
+		case KEY_CTRLRALTCLEAR:
+		case KEY_RCTRLALTCLEAR:
 		{
 			bool Set=false;
 			if (Opt.LeftHeightDecrement)

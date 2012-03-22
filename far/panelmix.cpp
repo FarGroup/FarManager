@@ -138,8 +138,12 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 	{
 		case KEY_CTRLALTBRACKET:       // ¬ставить сетевое (UNC) путь из левой панели
 		case KEY_RCTRLRALTBRACKET:
+		case KEY_CTRLRALTBRACKET:
+		case KEY_RCTRLALTBRACKET:
 		case KEY_CTRLALTBACKBRACKET:   // ¬ставить сетевое (UNC) путь из правой панели
 		case KEY_RCTRLRALTBACKBRACKET:
+		case KEY_CTRLRALTBACKBRACKET:
+		case KEY_RCTRLALTBACKBRACKET:
 		case KEY_ALTSHIFTBRACKET:      // ¬ставить сетевое (UNC) путь из активной панели
 		case KEY_RALTSHIFTBRACKET:
 		case KEY_ALTSHIFTBACKBRACKET:  // ¬ставить сетевое (UNC) путь из пассивной панели
@@ -167,12 +171,16 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 			{
 				case KEY_CTRLALTBRACKET:
 				case KEY_RCTRLRALTBRACKET:
+				case KEY_CTRLRALTBRACKET:
+				case KEY_RCTRLALTBRACKET:
 				case KEY_CTRLBRACKET:
 				case KEY_RCTRLBRACKET:
 					SrcPanel=Cp->LeftPanel;
 					break;
 				case KEY_CTRLALTBACKBRACKET:
 				case KEY_RCTRLRALTBACKBRACKET:
+				case KEY_CTRLRALTBACKBRACKET:
+				case KEY_RCTRLALTBACKBRACKET:
 				case KEY_CTRLBACKBRACKET:
 				case KEY_RCTRLBACKBRACKET:
 					SrcPanel=Cp->RightPanel;
