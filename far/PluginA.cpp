@@ -3783,15 +3783,6 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 			VersionInfo Info;
 			NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_GETFARMANAGERVERSION, 0, &Info);
 			DWORD FarVer = Info.Major<<8|Info.Minor|Info.Build<<16;
-			int OldFarVer;
-			GeneralCfg->GetValue(L"wrapper",L"version",&OldFarVer,FarVer);
-
-			if (
-			    //не выше текущей версии
-			    (LOWORD(OldFarVer)<LOWORD(FarVer) || ((LOWORD(OldFarVer)==LOWORD(FarVer)) && HIWORD(OldFarVer)<HIWORD(FarVer))) &&
-			    //и не ниже 1.70.1
-			    LOWORD(OldFarVer)>=0x0146 && HIWORD(OldFarVer)>=0x1)
-				FarVer=OldFarVer;
 
 			if (Param)
 				*(DWORD*)Param=FarVer;

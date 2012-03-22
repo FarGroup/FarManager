@@ -152,8 +152,6 @@ void InitConsole(int FirstInit)
 	Console.GetSize(InitialSize);
 	Console.GetCursorInfo(InitialCursorInfo);
 
-	GeneralCfg->GetValue(L"Interface",L"Mouse",&Opt.Mouse,1);
-
 	// размер клавиатурной очереди = 1024 кода клавиши
 	if (!KeyQueue)
 		KeyQueue=new FarQueue<DWORD>(1024);
@@ -164,10 +162,6 @@ void InitConsole(int FirstInit)
 	   если размер консольного буфера больше размера окна, выставим
 	   их равными
 	*/
-	if(!Opt.WindowMode)
-	{
-		GeneralCfg->GetValue(L"System",L"WindowMode",&Opt.WindowMode, 0);
-	}
 	if (FirstInit)
 	{
 		SMALL_RECT WindowRect;
@@ -576,17 +570,8 @@ void InitRecodeOutTable()
 	}
 
 	{
-		static const WCHAR _BoxSymbols[48] =
-		{
-			0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
-			0x2555, 0x2563, 0x2551, 0x2557, 0x255D, 0x255C, 0x255B, 0x2510,
-			0x2514, 0x2534, 0x252C, 0x251C, 0x2500, 0x253C, 0x255E, 0x255F,
-			0x255A, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256C, 0x2567,
-			0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256B,
-			0x256A, 0x2518, 0x250C, 0x2588, 0x2584, 0x258C, 0x2590, 0x2580,
-		};
 		// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-		GeneralCfg->GetValue(L"System",L"BoxSymbols", BoxSymbols, sizeof(_BoxSymbols), _BoxSymbols);
+		xwcsncpy(BoxSymbols,Opt.strBoxSymbols.CPtr(),ARRAYSIZE(BoxSymbols)-1);
 
 		if (Opt.NoGraphics)
 		{

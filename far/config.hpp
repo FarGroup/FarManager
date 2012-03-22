@@ -450,6 +450,7 @@ struct CopyMoveOptions
 	int MultiCopy;             // "разрешить мультикопирование/перемещение/создание связей"
 	DWORD CopySecurityOptions; // для операции Move - что делать с опцией "Copy access rights"
 	int CopyTimeRule;          // $ 30.01.2001 VVM  Показывает время копирования,оставшееся время и среднюю скорость
+	size_t BufferSize;
 };
 
 struct DeleteOptions
@@ -616,6 +617,8 @@ struct Options
 	int SetAttrFolderRules; // Правило на счет установки атрибутов на каталоги
 	int ExceptRules; // Правило на счет вызова исключений
 	int ExceptCallDebugger; // вызывать дебаггер при исключении
+	int ExceptUsed;
+	string strExceptEventSvc;
 	/*
 	 + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
 	   Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
@@ -722,6 +725,9 @@ struct Options
 	string LocalProfilePath;
 	string GlobalUserMenuDir;
 	KnownModulesIDs KnownIDs;
+
+	string strBoxSymbols;
+
 };
 
 extern Options Opt;

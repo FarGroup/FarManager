@@ -60,8 +60,6 @@ ControlObject::ControlObject():
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
 	CtrlObject=this;
 
-	ReadConfig();
-
 	HiFiles = new HighlightFiles;
 	FolderShortcuts = new Shortcuts();
 	FrameManager = new Manager;

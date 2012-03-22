@@ -694,6 +694,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	InitDb();
 
+	ReadConfig();
+
 	//Настройка OEM сортировки
 #ifndef NO_WRAPPER
 	wrapper::LocalUpperInit();

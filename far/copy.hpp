@@ -88,7 +88,7 @@ class ShellCopy
 		DizList DestDiz;
 		string strDestDizPath;
 		char *CopyBuffer;
-		int CopyBufferSize;
+		size_t CopyBufferSize;
 		string strCopiedName;
 		string strRenamedName;
 		string strRenamedFilesPath;
@@ -130,4 +130,3 @@ class ShellCopy
 		          int &ToPlugin, const wchar_t* PluginDestPath, bool ToSubdir=false);
 		~ShellCopy();
 };
-

@@ -97,6 +97,7 @@ const wchar_t NKeyDialog[]=L"Dialog";
 const wchar_t NKeyEditor[]=L"Editor";
 const wchar_t NKeyXLat[]=L"XLat";
 const wchar_t NKeySystem[]=L"System";
+const wchar_t NKeySystemException[]=L"System.Exception";
 const wchar_t NKeySystemKnownIDs[]=L"System.KnownIDs";
 const wchar_t NKeySystemExecutor[]=L"System.Executor";
 const wchar_t NKeySystemNowell[]=L"System.Nowell";
@@ -123,6 +124,17 @@ const wchar_t NKeyFolderHistory[]=L"History.FolderHistory";
 const wchar_t NKeyDialogHistory[]=L"History.DialogHistory";
 
 const wchar_t NParamHistoryCount[]=L"HistoryCount";
+
+static const WCHAR _BoxSymbols[48] =
+{
+	0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556,
+	0x2555, 0x2563, 0x2551, 0x2557, 0x255D, 0x255C, 0x255B, 0x2510,
+	0x2514, 0x2534, 0x252C, 0x251C, 0x2500, 0x253C, 0x255E, 0x255F,
+	0x255A, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256C, 0x2567,
+	0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256B,
+	0x256A, 0x2518, 0x250C, 0x2588, 0x2584, 0x258C, 0x2590, 0x2580,
+};
+
 
 void SystemSettings()
 {
@@ -935,6 +947,7 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_SYSTEM,            NKeySystem,L"CopyOpened",&Opt.CMOpt.CopyOpened,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem, L"MultiCopy",&Opt.CMOpt.MultiCopy,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CopyTimeRule",  &Opt.CMOpt.CopyTimeRule, 3, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CopyBufferSize",&Opt.CMOpt.BufferSize,0, 0},
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT|DRIVE_SHOW_CDROM, 0},
@@ -981,8 +994,13 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_SYSTEM,            NKeySystem,L"ScanJunction",&Opt.ScanJunction,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"ElevationMode",&Opt.ElevationMode,0x0FFFFFFFU, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"WindowMode",&Opt.WindowMode, 0, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"BoxSymbols",&Opt.strBoxSymbols, 0, _BoxSymbols},
 
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemNowell,L"MoveRO",&Opt.Nowell.MoveRO,1, 0},
+
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemException,L"FarEventSvc",&Opt.strExceptEventSvc, 0, L""},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemException,L"Used",&Opt.ExceptUsed, 0, 0},
+
 
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"RestoreCP",&Opt.Exec.RestoreCPAfterExecute,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"UseAppPath",&Opt.Exec.ExecuteUseAppPath,1, 0},

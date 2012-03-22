@@ -871,9 +871,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 	// $ 26.05.2001 OT «апретить перерисовку панелей во врем€ копировани€
 	_tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
 	(*FrameManager)[0]->Lock();
-	// –азмер буфера беретс€ из реестра
-	GeneralCfg->GetValue(L"System", L"CopyBufferSize", &CopyBufferSize, 0);
-	CopyBufferSize=Max(CopyBufferSize,(int)COPY_BUFFER_SIZE);
+	CopyBufferSize=Opt.CMOpt.BufferSize;
+	CopyBufferSize=Max(CopyBufferSize,(size_t)COPY_BUFFER_SIZE);
 	CDP.thisClass=this;
 	CDP.AltF10=0;
 	CDP.FolderPresent=false;
@@ -3379,7 +3378,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 	}
 
 	SrcFile.Close();
-	
+
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
 		DestFile.SetTime(nullptr, nullptr, &SrcData.ftLastWriteTime, nullptr);
@@ -3983,7 +3982,7 @@ DWORD WINAPI CopyProgressRoutine(LARGE_INTEGER TotalFileSize,
 		TotalCopySize -= StreamSize.QuadPart;
 		TotalCopySize += TotalFileSize.QuadPart;
 	}
-	
+
 	if (ShowTotalCopySize)
 	{
 		TotalCopiedSize=TotalCopiedSizeEx+CurCopiedSize;

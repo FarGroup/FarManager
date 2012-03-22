@@ -212,13 +212,11 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 //   if(From == EXCEPT_KERNEL)
 //     CriticalInternalError=TRUE;
 
-	if (!Is_STACK_OVERFLOW && GeneralCfg->GetValue(L"System.Exception",L"Used",0))
+	if (!Is_STACK_OVERFLOW && Opt.ExceptUsed)
 	{
-		static string strFarEventSvc;
-
-		if (GeneralCfg->GetValue(L"System.Exception",L"FarEventSvc",strFarEventSvc,L"") && !strFarEventSvc.IsEmpty())
+		if (!Opt.strExceptEventSvc.IsEmpty())
 		{
-			HMODULE m = LoadLibrary(strFarEventSvc);
+			HMODULE m = LoadLibrary(Opt.strExceptEventSvc);
 
 			if (m)
 			{
@@ -235,7 +233,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 					static FarStandardFunctions LocalStandardFunctions;
 					ClearStruct(LocalStandardFunctions);
 					CreatePluginStartupInfo(nullptr, &LocalStartupInfo, &LocalStandardFunctions);
-					LocalStartupInfo.ModuleName = strFarEventSvc;
+					LocalStartupInfo.ModuleName = Opt.strExceptEventSvc;
 					static PLUGINRECORD PlugRec;
 
 					if (Module)
