@@ -7331,7 +7331,7 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool
 	Work.MacroWORKCount++;
 
 	//Work.Executing=Work.MacroWORK[0].Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
-	if (Work.ExecLIBPos == Work.MacroWORK[0].BufferSize)
+	if (Work.ExecLIBPos > Work.MacroWORK[0].BufferSize)
 		Work.ExecLIBPos=0;
 
 	return TRUE;
@@ -7385,7 +7385,7 @@ int KeyMacro::PostNewMacro(MacroRecord *MRec,BOOL NeedAddSendFlag,bool IsPluginS
 	Work.MacroWORKCount++;
 
 	//Work.Executing=Work.MacroWORK[0].Flags&MFLAGS_NOSENDKEYSTOPLUGINS?MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON;
-	if (Work.ExecLIBPos == Work.MacroWORK[0].BufferSize)
+	if (Work.ExecLIBPos > Work.MacroWORK[0].BufferSize)
 		Work.ExecLIBPos=0;
 
 	return TRUE;
