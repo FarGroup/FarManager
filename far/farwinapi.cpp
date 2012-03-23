@@ -481,10 +481,10 @@ FileSize(0),
 	SingleChunk.Size = 0;
 }
 
-bool FileWalker::InitWalk(DWORD BlockSize)
+bool FileWalker::InitWalk(size_t BlockSize)
 {
 	bool Result = false;
-	ChunkSize = BlockSize;
+	ChunkSize = static_cast<DWORD>(BlockSize);
 	if(GetSize(FileSize) && FileSize)
 	{
 		BY_HANDLE_FILE_INFORMATION bhfi;

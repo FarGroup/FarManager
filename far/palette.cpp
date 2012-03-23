@@ -214,6 +214,7 @@ palette::palette():
 	}
 	MAKE_TRANSPARENT(DefaultPalette[COL_PANELTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
 	MAKE_TRANSPARENT(DefaultPalette[COL_PANELSELECTEDTEXT-COL_FIRSTPALETTECOLOR].BackgroundColor);
+	memcpy(CurrentPalette, DefaultPalette, SizeArrayPalette*sizeof(FarColor));
 }
 
 void palette::ResetToDefault()

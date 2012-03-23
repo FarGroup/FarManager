@@ -142,7 +142,7 @@ class FileWalker: public File
 {
 public:
 	FileWalker();
-	bool InitWalk(DWORD BlockSize);
+	bool InitWalk(size_t BlockSize);
 	bool Step();
 	UINT64 GetChunkOffset() const;
 	DWORD GetChunkSize() const;
