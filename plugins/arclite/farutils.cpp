@@ -606,6 +606,7 @@ unsigned Dialog::get_list_pos(unsigned ctrl_id) const {
 
 void Dialog::set_list_pos(unsigned ctrl_id, unsigned pos) {
   FarListPos list_pos;
+  list_pos.StructSize = sizeof(FarListPos);
   list_pos.SelectPos = pos;
   list_pos.TopPos = -1;
   g_far.SendDlgMessage(h_dlg, DM_LISTSETCURPOS, ctrl_id, &list_pos);
@@ -613,6 +614,7 @@ void Dialog::set_list_pos(unsigned ctrl_id, unsigned pos) {
 
 void get_dlg_item(HANDLE h_dlg, unsigned ctrl_id, Buffer<unsigned char>& buf) {
   FarGetDialogItem gdi;
+  gdi.StructSize = sizeof(FarGetDialogItem);
   gdi.Size = buf.size();
   gdi.Item = reinterpret_cast<FarDialogItem*>(buf.data());
   size_t size = g_far.SendDlgMessage(h_dlg, DM_GETDLGITEM, ctrl_id, &gdi);

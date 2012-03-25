@@ -753,11 +753,13 @@ private:
       skip = skip || ((c_levels[i].value == 1 || c_levels[i].value == 3) && arc_type == c_gzip);
       FarListGetItem flgi;
       memzero(flgi);
+      flgi.StructSize = sizeof(FarListGetItem);
       flgi.ItemIndex = i;
       CHECK(send_message(DM_LISTGETITEM, level_ctrl_id, &flgi));
       if ((skip && (flgi.Item.Flags & LIF_DISABLE) == 0) || (!skip && (flgi.Item.Flags & LIF_DISABLE) != 0)) {
         FarListUpdate flu;
         memzero(flu);
+        flu.StructSize = sizeof(FarListUpdate);
         flu.Index = i;
         flu.Item.Flags = skip ? LIF_DISABLE : 0;
         flu.Item.Text = Far::msg_ptr(c_levels[i].name_id);
@@ -1453,7 +1455,7 @@ public:
         return upcase(a) < upcase(b);
       }
     };
-    
+
     set<wstring, ItemCompare> selected_items;
     if (!read_only) {
       list<wstring> split_selected_str = split(selected_str, L',');
