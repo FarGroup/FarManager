@@ -681,6 +681,13 @@ void FileList::PluginToPluginFiles(int Move)
 	}
 }
 
+class PluginsTree: public Tree<Plugin*>
+{
+	public:
+		PluginsTree(){}
+		~PluginsTree(){clear();}
+		long compare(Node<Plugin*>* first,Plugin** second) {return reinterpret_cast<char*>(*first->data)-reinterpret_cast<char*>(*second);}
+};
 
 void FileList::PluginHostGetFiles()
 {
@@ -707,8 +714,9 @@ void FileList::PluginHostGetFiles()
 			strDestPath.SetLength(pos);
 	}
 
-	int OpMode=OPM_TOPLEVEL,ExitLoop=FALSE;
+	int ExitLoop=FALSE;
 	GetSelName(nullptr,FileAttr);
+	PluginsTree tree;
 
 	while (!ExitLoop && GetSelName(&strSelName,FileAttr))
 	{
@@ -717,6 +725,10 @@ void FileList::PluginHostGetFiles()
 		if ((hCurPlugin=OpenPluginForFile(&strSelName,FileAttr, OFP_EXTRACT))!=nullptr &&
 		        hCurPlugin!=PANEL_STOP)
 		{
+			PluginHandle *ph = (PluginHandle *)hCurPlugin;
+			int OpMode=OPM_TOPLEVEL;
+			if(tree.query(&ph->pPlugin)) OpMode|=OPM_SILENT;
+
 			PluginPanelItem *ItemList;
 			size_t ItemNumber;
 			_ALGO(SysLog(L"call Plugins.GetFindData()"));
@@ -736,7 +748,7 @@ void FileList::PluginHostGetFiles()
 
 				_ALGO(SysLog(L"call Plugins.FreeFindData()"));
 				CtrlObject->Plugins->FreeFindData(hCurPlugin,ItemList,ItemNumber);
-				OpMode|=OPM_SILENT;
+				tree.insert(new Plugin*(ph->pPlugin));
 			}
 
 			_ALGO(SysLog(L"call Plugins.ClosePanel"));
