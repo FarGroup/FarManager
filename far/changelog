@@ -1,3 +1,9 @@
+drkns 25.03.2012 14:15:24 +0200 - build 2569
+
+1. warning.
+
+2. api: константа CURRENT_EDITOR == -1 для EditorControl.
+
 zg 25.03.2012 04:17:02 +0200 - build 2568
 
 1. исправлена реализация DM_LISTINFO во враппере.

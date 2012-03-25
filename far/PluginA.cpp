@@ -2889,7 +2889,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				if (li.Flags&LINFO_REVERSEHIGHLIGHT) liA->Flags|=LINFO_REVERSEHIGHLIGHT;
 				if (li.Flags&LINFO_WRAPMODE) liA->Flags|=LINFO_WRAPMODE;
 				if (li.Flags&LINFO_SHOWAMPERSAND) liA->Flags|=LINFO_SHOWAMPERSAND;
-				liA->ItemsNumber=li.ItemsNumber;
+				liA->ItemsNumber=static_cast<int>(li.ItemsNumber);
 				liA->SelectPos=li.SelectPos;
 				liA->TopPos=li.TopPos;
 				liA->MaxHeight=li.MaxHeight;
