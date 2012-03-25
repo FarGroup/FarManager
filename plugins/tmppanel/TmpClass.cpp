@@ -354,7 +354,7 @@ void TmpPanel::FindSearchResultsPanel()
 	}
 }
 
-int _cdecl SortListCmp(const void *el1, const void *el2, void *userparam)
+int WINAPI SortListCmp(const void *el1, const void *el2, void *userparam)
 {
 	PluginPanelItem* TmpPanelItem = reinterpret_cast<PluginPanelItem*>(userparam);
 	int idx1 = *reinterpret_cast<const int*>(el1);
@@ -381,7 +381,7 @@ void TmpPanel::RemoveDups()
 	for (size_t i = 0; i < TmpItemsNumber; i++)
 		indices[i] = i;
 
-	FSF.qsortex(indices, TmpItemsNumber, sizeof(int), SortListCmp, TmpPanelItem);
+	FSF.qsort(indices, TmpItemsNumber, sizeof(int), SortListCmp, TmpPanelItem);
 
 	for (size_t i = 0; i + 1 < TmpItemsNumber; i++)
 		if (lstrcmp(TmpPanelItem[indices[i]].FileName, TmpPanelItem[indices[i + 1]].FileName) == 0)

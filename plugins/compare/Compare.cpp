@@ -503,7 +503,7 @@ struct FileIndex
  * Функция сравнения имён файлов в двух структурах PluginPanelItem
  * для нужд qsort()
  ****************************************************************************/
-static int __cdecl PICompare(const void *el1, const void *el2)
+static int WINAPI PICompare(const void *el1, const void *el2, void*)
 {
 	const PluginPanelItem *ppi1 = *(const PluginPanelItem **)el1, *ppi2 = *(const PluginPanelItem **)el2;
 
@@ -557,7 +557,7 @@ static bool BuildPanelIndex(const OwnPanelInfo *pInfo, struct FileIndex *pIndex,
 
 	if ((pIndex->iCount = j) != 0)
 	{
-		FSF.qsort(pIndex->ppi, j, sizeof(pIndex->ppi[0]), PICompare);
+		FSF.qsort(pIndex->ppi, j, sizeof(pIndex->ppi[0]), PICompare, nullptr);
 	}
 	else
 	{
@@ -1001,7 +1001,7 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
 				break;
 		}
 
-		switch (PICompare(&sfiA.ppi[i], &sfiP.ppi[j]))
+		switch (PICompare(&sfiA.ppi[i], &sfiP.ppi[j], nullptr))
 		{
 			case 0: // Имена совпали - проверяем всё остальное
 
