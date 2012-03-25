@@ -249,6 +249,39 @@ void LocalUpperInit()
 	}
 }
 
+struct QsortexHelper
+{
+	int (__cdecl *fcmp)(const void *, const void *,void *userparam);
+	void* user;
+};
+
+int WINAPI qsortCmp(const void *one, const void *two,void *user)
+{
+	return reinterpret_cast<int(__cdecl*)(const void*,const void*)>(user)(one,two);
+}
+
+int WINAPI qsortexCmp(const void *one, const void *two,void *user)
+{
+	QsortexHelper* helper=static_cast<QsortexHelper*>(user);
+	return helper->fcmp(one,two,helper->user);
+}
+
+void WINAPI qsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
+{
+	NativeFSF.qsort(base,nelem,width,qsortCmp,reinterpret_cast<void*>(fcmp));
+}
+
+void WINAPI qsortex(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *userparam),void *userparam)
+{
+	QsortexHelper helper={fcmp,userparam};
+	NativeFSF.qsort(base,nelem,width,qsortexCmp,&helper);
+}
+
+void* WINAPI bsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
+{
+	return NativeFSF.bsearch(key,base,nelem,width,qsortCmp,reinterpret_cast<void*>(fcmp));
+}
+
 int WINAPI LocalIslower(unsigned Ch)
 {
 	return(Ch<256 && IsUpperOrLower[Ch]==1);
@@ -4926,9 +4959,9 @@ oldfar::FarStandardFunctions StandardFunctions =
 	wrapper::FarItoa64A,
 	sprintf,
 	sscanf,
-	nullptr, // copy from NativeFSF
-	nullptr, // copy from NativeFSF
-	nullptr, // copy from NativeFSF
+	wrapper::qsort,
+	wrapper::bsearch,
+	wrapper::qsortex,
 	_snprintf,
 	{},
 	wrapper::LocalIslower,
@@ -5008,9 +5041,6 @@ static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo
 {
 	StartupInfo.SaveScreen = NativeInfo.SaveScreen;
 	StartupInfo.RestoreScreen = NativeInfo.RestoreScreen;
-	StandardFunctions.qsort = NativeFSF.qsort;
-	StandardFunctions.qsortex = NativeFSF.qsortex;
-	StandardFunctions.bsearch = NativeFSF.bsearch;
 
 	*PSI=StartupInfo;
 	*FSF=StandardFunctions;

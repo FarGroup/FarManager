@@ -47,9 +47,8 @@ namespace pluginapi
 	__int64  WINAPI apiAtoi64(const wchar_t *s);
 	wchar_t* WINAPI apiItoa64(__int64 value, wchar_t *string, int radix);
 	int      WINAPI apiAtoi(const wchar_t *s);
-	void     WINAPI apiQsort(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
-	void     WINAPI apiQsortEx(void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *,void *),void*);
-	void*    WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *));
+	void     WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *,void *),void *user);
+	void*    WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *),void *user);
 	wchar_t* WINAPI apiQuoteSpace(wchar_t *Str);
 	wchar_t* WINAPI apiInsertQuote(wchar_t *Str);
 	void     WINAPI apiUnquote(wchar_t *Str);

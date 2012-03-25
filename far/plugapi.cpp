@@ -134,24 +134,18 @@ __int64 WINAPI apiAtoi64(const wchar_t *s)
 	return s?_wtoi64(s):0;
 }
 
-void WINAPI apiQsort(void *base, size_t nelem, size_t width,
-                     int (__cdecl *fcmp)(const void *, const void *))
+void WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *,void *),void *user)
 {
 	if (base && fcmp)
-		far_qsort(base,nelem,width,fcmp);
-}
-
-void WINAPI apiQsortEx(void *base, size_t nelem, size_t width,
-                       int (__cdecl *fcmp)(const void *, const void *,void *user),void *user)
-{
-	if (base && fcmp)
+	{
 		qsortex((char*)base,nelem,width,fcmp,user);
+	}
 }
 
-void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (__cdecl *fcmp)(const void *, const void *))
+void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *),void *user)
 {
 	if (key && fcmp && base)
-		return bsearch(key,base,nelem,width,fcmp);
+		return bsearchex(key,base,nelem,width,fcmp,user);
 
 	return nullptr;
 }

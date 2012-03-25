@@ -195,7 +195,7 @@ struct SortItemParam
 	int Offset;
 };
 
-typedef int (*TMENUITEMEXCMPFUNC)(const MenuItemEx *el1,const MenuItemEx *el2, const SortItemParam *Param);
+typedef int (WINAPI *TMENUITEMEXCMPFUNC)(const MenuItemEx *el1,const MenuItemEx *el2, const SortItemParam *Param);
 
 
 class ConsoleTitle;

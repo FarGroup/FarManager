@@ -330,6 +330,33 @@ wchar_t * __cdecl xwcsncat(wchar_t * dest,const wchar_t * src, size_t DestSize)
 	return start;
 }
 
+void* WINAPI bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam)
+{
+	if(width)
+	{
+		size_t low=0,high=nelem,curr;
+		while(low<high)
+		{
+			curr=(low+high)/2;
+			void* ptr=(void*)(((char*)base)+curr*width);
+			int cmp=fcmp(key,ptr,userparam);
+			if(0==cmp)
+			{
+				return ptr;
+			}
+			else if(cmp<0)
+			{
+				high=curr;
+			}
+			else
+			{
+				low=curr+1;
+			}
+		}
+	}
+	return nullptr;
+}
+
 /* start qsortex */
 
 /*
@@ -379,7 +406,7 @@ structures.  The default value is optimized for a high cost for compares. */
 typedef void (__cdecl *SWAP_FP)(void *, void *, size_t);
 
 void __cdecl qsortex(char *base, size_t nel, size_t width,
-                     int (__cdecl *comp_fp)(const void *, const void *,void*), void *user)
+                     int (WINAPI *comp_fp)(const void *, const void *,void*), void *user)
 {
 	char *stack[40], **sp;                 /* stack and stack pointer        */
 	char *i, *j, *limit;                   /* scan and limit pointers        */

@@ -246,9 +246,7 @@ FarStandardFunctions NativeFSF =
 	swscanf,
 	pluginapi::apiQsort,
 	pluginapi::apiBsearch,
-	pluginapi::apiQsortEx,
 	pluginapi::apiSnprintf,
-	{}, //Reserved
 	pluginapi::apiIsLower,
 	pluginapi::apiIsUpper,
 	pluginapi::apiIsAlpha,

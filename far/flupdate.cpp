@@ -595,7 +595,7 @@ void FileList::CloseChangeNotification()
 	}
 }
 
-static int _cdecl SortSearchList(const void *el1,const void *el2)
+static int WINAPI SortSearchList(const void *el1,const void *el2,void*)
 {
 	FileListItem **SPtr1=(FileListItem **)el1,**SPtr2=(FileListItem **)el2;
 	return StrCmp(SPtr1[0]->strName,SPtr2[0]->strName);
@@ -609,12 +609,12 @@ void FileList::MoveSelection(FileListItem **ListData,long FileCount,
 	SelFileSize=0;
 	CacheSelIndex=-1;
 	CacheSelClearIndex=-1;
-	far_qsort(OldData,OldFileCount,sizeof(*OldData),SortSearchList);
+	qsortex(reinterpret_cast<char*>(OldData),OldFileCount,sizeof(*OldData),SortSearchList,nullptr);
 
 	while (FileCount--)
 	{
-		OldPtr=(FileListItem **)bsearch(ListData,(void *)OldData,
-		                                OldFileCount,sizeof(*ListData),SortSearchList);
+		OldPtr=(FileListItem **)bsearchex(ListData,(void *)OldData,
+		                                OldFileCount,sizeof(*ListData),SortSearchList,nullptr);
 
 		if (OldPtr)
 		{

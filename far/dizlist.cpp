@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static DizRecord **SearchDizData;
 static int _cdecl SortDizIndex(const void *el1,const void *el2);
-static int _cdecl SortDizSearch(const void *key,const void *elem);
+static int WINAPI SortDizSearch(const void *key,const void *elem,void*);
 
 DizList::DizList():
 	DizData(nullptr),
@@ -302,7 +302,7 @@ int DizList::GetDizPos(const string& Name, int *TextPos)
 
 	SearchDizData=DizData;
 	string DizSearchKey(Name);
-	int *DestIndex=(int *)bsearch(&DizSearchKey,IndexData,IndexCount,sizeof(*IndexData),SortDizSearch);
+	int *DestIndex=(int *)bsearchex(&DizSearchKey,IndexData,IndexCount,sizeof(*IndexData),SortDizSearch,nullptr);
 
 	if (DestIndex)
 	{
@@ -377,7 +377,7 @@ int _cdecl SortDizIndex(const void *el1,const void *el2)
 }
 
 
-int _cdecl SortDizSearch(const void *key,const void *elem)
+int WINAPI SortDizSearch(const void *key,const void *elem,void*)
 {
 	const string* strKey = reinterpret_cast<const string*>(key);
 	const wchar_t *SearchName = strKey->CPtr();
@@ -453,7 +453,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	}
 
 	DWORD FileAttr=apiGetFileAttributes(strDizFileName);
-	
+
 	if (FileAttr != INVALID_FILE_ATTRIBUTES)
 	{
 		if (FileAttr&FILE_ATTRIBUTE_READONLY)
@@ -489,7 +489,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		UINT CodePage = Opt.Diz.SaveInUTF ? CP_UTF8 : (Opt.Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
 
 		CachedWrite Cache(DizFile);
-		
+
 		if (CodePage == CP_UTF8)
 		{
 			DWORD dwSignature = SIGN_UTF8;
@@ -540,10 +540,10 @@ bool DizList::Flush(const string& Path,const string* DizName)
 				AnyError=true;
 			}
 		}
-		
+
 		DizFile.Close();
 	}
-	
+
 	if (!EmptyDiz && !AnyError)
 	{
 		if (FileAttr==INVALID_FILE_ATTRIBUTES)
