@@ -2878,20 +2878,24 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		{
 			if (!Param2) return FALSE;
 
-			oldfar::FarListInfo *liA = (oldfar::FarListInfo *)Param2;
-			FarListInfo li={sizeof(FarListInfo),0,liA->ItemsNumber,liA->SelectPos,liA->TopPos,liA->MaxHeight,liA->MaxLength};
-
-			if (liA ->Flags&oldfar::LINFO_SHOWNOBOX) li.Flags|=LINFO_SHOWNOBOX;
-
-			if (liA ->Flags&oldfar::LINFO_AUTOHIGHLIGHT) li.Flags|=LINFO_AUTOHIGHLIGHT;
-
-			if (liA ->Flags&oldfar::LINFO_REVERSEHIGHLIGHT) li.Flags|=LINFO_REVERSEHIGHLIGHT;
-
-			if (liA ->Flags&oldfar::LINFO_WRAPMODE) li.Flags|=LINFO_WRAPMODE;
-
-			if (liA ->Flags&oldfar::LINFO_SHOWAMPERSAND) li.Flags|=LINFO_SHOWAMPERSAND;
-
-			return NativeInfo.SendDlgMessage(hDlg, DM_LISTINFO, Param1, Param2);
+			FarListInfo li={sizeof(FarListInfo)};
+			INT_PTR Result=NativeInfo.SendDlgMessage(hDlg, DM_LISTINFO, Param1, &li);
+			if (Result)
+			{
+				oldfar::FarListInfo *liA = (oldfar::FarListInfo *)Param2;
+				liA->Flags=0;
+				if (li.Flags&LINFO_SHOWNOBOX) liA->Flags|=LINFO_SHOWNOBOX;
+				if (li.Flags&LINFO_AUTOHIGHLIGHT) liA->Flags|=LINFO_AUTOHIGHLIGHT;
+				if (li.Flags&LINFO_REVERSEHIGHLIGHT) liA->Flags|=LINFO_REVERSEHIGHLIGHT;
+				if (li.Flags&LINFO_WRAPMODE) liA->Flags|=LINFO_WRAPMODE;
+				if (li.Flags&LINFO_SHOWAMPERSAND) liA->Flags|=LINFO_SHOWAMPERSAND;
+				liA->ItemsNumber=li.ItemsNumber;
+				liA->SelectPos=li.SelectPos;
+				liA->TopPos=li.TopPos;
+				liA->MaxHeight=li.MaxHeight;
+				liA->MaxLength=li.MaxLength;
+			}
+			return Result;
 		}
 		case oldfar::DM_LISTGETDATA:
 		{
