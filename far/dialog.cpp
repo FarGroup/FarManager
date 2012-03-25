@@ -5972,7 +5972,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		case DM_GETDLGITEM:
 		{
 			FarGetDialogItem* Item = (FarGetDialogItem*)Param2;
-			return CheckStructSize(Item)?(INT_PTR)ConvertItemEx2(CurItem, Item):0;
+			return (!Item||CheckStructSize(Item))?(INT_PTR)ConvertItemEx2(CurItem, Item):0;
 		}
 		/*****************************************************************/
 		case DM_GETDLGITEMSHORT:

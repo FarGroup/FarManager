@@ -5104,6 +5104,7 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 		es.hDefaultResult = nullptr;
 		es.hResult = nullptr;
 		char *ItemA = nullptr;
+		oldfar::OpenDlgPluginData DlgData;
 
 		if (Item && (OpenFrom == OPEN_COMMANDLINE  || OpenFrom == OPEN_SHORTCUT))
 		{
@@ -5123,7 +5124,12 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 			OpenFrom = oldfar::OPEN_FROMMACRO|CtrlObject->Macro.GetMode();
 			Item=(INT_PTR)UnicodeToAnsi(((OpenMacroInfo*)Item)->Count?((OpenMacroInfo*)Item)->Values[0].String:L"");
 		}
-
+		if (OpenFrom == OPEN_DIALOG)
+		{
+			DlgData.ItemNumber=Guid.Data1;
+			DlgData.hDlg=reinterpret_cast<OpenDlgPluginData*>(Item)->hDlg;
+			Item=(INT_PTR)&DlgData;
+		}
 		EXECUTE_FUNCTION_EX(FUNCTION(iOpen)(OpenFrom,Item), es);
 
 		if (ItemA) xf_free(ItemA);
