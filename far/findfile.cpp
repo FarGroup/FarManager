@@ -1814,7 +1814,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 								itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
 								DisablePluginsOutput=SavePluginsOutput;
 
-								if (ArcItem.hPlugin == (HANDLE)-2 ||
+								if (ArcItem.hPlugin == PANEL_STOP ||
 										!ArcItem.hPlugin)
 								{
 									ArcItem.hPlugin = nullptr;
@@ -2445,7 +2445,7 @@ void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName)
 	}
 	DisablePluginsOutput=SavePluginsOutput;
 
-	if (hArc==(HANDLE)-2)
+	if (hArc==PANEL_STOP)
 	{
 		//StopEvent.Set(); // ??
 		_ALGO(SysLog(L"return: hArc==(HANDLE)-2"));
@@ -3136,7 +3136,7 @@ bool FindFilesProcess(Vars& v)
 						CutToSlash(strArcPath);
 						FindPanel->SetCurDir(strArcPath,TRUE);
 						ArcItem.hPlugin=((FileList *)FindPanel)->OpenFilePlugin(&strArcName, FALSE, OFP_SEARCH);
-						if (ArcItem.hPlugin==(HANDLE)-2)
+						if (ArcItem.hPlugin==PANEL_STOP)
 							ArcItem.hPlugin = nullptr;
 						itd.SetArcListItem(FindItem.ArcIndex, ArcItem);
 					}

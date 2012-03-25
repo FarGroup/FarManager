@@ -767,9 +767,9 @@ HANDLE PluginManager::OpenFilePlugin(
 
 			hPlugin = pPlugin->OpenFilePlugin(Name? Name->CPtr() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
 
-			if (hPlugin == (HANDLE)-2)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
+			if (hPlugin == PANEL_STOP)   //сразу на выход, плагин решил нагло обработать все сам (Autorun/PictureView)!!!
 			{
-				hResult = (HANDLE)-2;
+				hResult = PANEL_STOP;
 				break;
 			}
 
@@ -797,7 +797,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			break;
 	}
 
-	if (items.getCount() && (hResult != (HANDLE)-2))
+	if (items.getCount() && (hResult != PANEL_STOP))
 	{
 		bool OnlyOne = (items.getCount() == 1) && !(Name && Opt.PluginConfirm.OpenFilePlugin && Opt.PluginConfirm.StandardAssociation && Opt.PluginConfirm.EvenIfOnlyOnePlugin);
 
@@ -836,7 +836,7 @@ HANDLE PluginManager::OpenFilePlugin(
 			}
 
 			if (menu.GetExitCode() == -1)
-				hResult = (HANDLE)-2;
+				hResult = PANEL_STOP;
 			else
 			{
 				void* pItem = menu.GetUserData(nullptr, 0);
@@ -857,9 +857,9 @@ HANDLE PluginManager::OpenFilePlugin(
 			OpenAnalyseInfo oainfo={sizeof(OpenAnalyseInfo),&Info,pResult->Analyse};
 			HANDLE h = pResult->Handle.pPlugin->Open(OPEN_ANALYSE, FarGuid, (INT_PTR)&oainfo);
 
-			if (h == (HANDLE)-2)
+			if (h == PANEL_STOP)
 			{
-				hResult = (HANDLE)-2;
+				hResult = PANEL_STOP;
 				pResult = nullptr;
 			}
 			else if (h)
@@ -2609,7 +2609,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 			if (!Data->pPlugin)
 				return FALSE;
 
-			HANDLE hPlugin=INVALID_HANDLE_VALUE;
+			HANDLE hPlugin=nullptr;
 			Panel *ActivePanel=nullptr;
 
 			switch ((Data->CallFlags & CPT_MASK))

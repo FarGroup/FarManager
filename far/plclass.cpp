@@ -876,7 +876,7 @@ HANDLE Plugin::Analyse(const AnalyseInfo *Info)
 		es.bDefaultResult = FALSE;
 		es.hResult = nullptr;
 		EXECUTE_FUNCTION_EX(FUNCTION(iAnalyse)(Info), es);
-		return (es.hResult == INVALID_HANDLE_VALUE)? nullptr : es.hResult;
+		return es.hResult;
 	}
 
 	return nullptr;
@@ -907,7 +907,7 @@ HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 		g_strDirToSet.Clear();
 	}
 
-	HANDLE hResult = INVALID_HANDLE_VALUE;
+	HANDLE hResult = nullptr;
 
 	if (Load() && Exports[iOpen] && !ProcessException)
 	{
@@ -921,7 +921,7 @@ HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 		Info.Guid = &Guid;
 		Info.Data = Item;
 		EXECUTE_FUNCTION_EX(FUNCTION(iOpen)(&Info), es);
-		hResult = (es.hResult == INVALID_HANDLE_VALUE)? nullptr : es.hResult;
+		hResult = es.hResult;
 		//CurPluginItem=nullptr; //BUGBUG
 		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
 

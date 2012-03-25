@@ -2528,9 +2528,9 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			}
 
 			if (SeparateWindow || !(hOpen=OpenFilePlugin(&strFileName,TRUE, Type)) ||
-			        hOpen==(HANDLE)-2)
+			        hOpen==PANEL_STOP)
 			{
-				if (EnableExec && hOpen!=(HANDLE)-2)
+				if (EnableExec && hOpen!=PANEL_STOP)
 					if (SeparateWindow || Opt.UseRegisteredTypes)
 						ProcessGlobalFileTypes(strFileName, PluginMode, RunAs);
 
@@ -5088,7 +5088,7 @@ HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPL
 		for (;;)
 		{
 			if (ProcessPluginEvent(FE_CLOSE,nullptr))
-				return((HANDLE)-2);
+				return(PANEL_STOP);
 
 			if (!PopPlugin(TRUE))
 				break;
@@ -5097,7 +5097,7 @@ HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPL
 
 	HANDLE hNewPlugin=OpenPluginForFile(FileName, 0, Type);
 
-	if (hNewPlugin && hNewPlugin!=(HANDLE)-2)
+	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{
 		if (PushPrev)
 		{

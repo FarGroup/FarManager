@@ -715,7 +715,7 @@ void FileList::PluginHostGetFiles()
 		HANDLE hCurPlugin;
 
 		if ((hCurPlugin=OpenPluginForFile(&strSelName,FileAttr, OFP_EXTRACT))!=nullptr &&
-		        hCurPlugin!=(HANDLE)-2)
+		        hCurPlugin!=PANEL_STOP)
 		{
 			PluginPanelItem *ItemList;
 			size_t ItemNumber;
@@ -758,7 +758,7 @@ void FileList::PluginPutFilesToNew()
 	_ALGO(SysLog(L"call Plugins.OpenFilePlugin(nullptr, 0)"));
 	HANDLE hNewPlugin=CtrlObject->Plugins->OpenFilePlugin(nullptr, 0, OFP_CREATE);
 
-	if (hNewPlugin && hNewPlugin!=(HANDLE)-2)
+	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{
 		_ALGO(SysLog(L"Create: FileList TmpPanel, FileCount=%d",FileCount));
 		FileList TmpPanel;
@@ -975,7 +975,7 @@ int FileList::ProcessOneHostFile(int Idx)
 	_ALGO(SysLog(L"call OpenPluginForFile([Idx=%d] '%s')",Idx,ListData[Idx]->strName.CPtr()));
 	HANDLE hNewPlugin=OpenPluginForFile(&ListData[Idx]->strName,ListData[Idx]->FileAttr, OFP_COMMANDS);
 
-	if (hNewPlugin && hNewPlugin!=(HANDLE)-2)
+	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{
 		PluginPanelItem *ItemList;
 		size_t ItemNumber;

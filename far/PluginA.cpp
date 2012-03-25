@@ -5111,6 +5111,13 @@ bool PluginA::CheckMinFarVersion()
 	return true;
 }
 
+static HANDLE TranslateResult(HANDLE hResult)
+{
+	if(INVALID_HANDLE_VALUE==hResult) return nullptr;
+	if((HANDLE)-2==hResult) return PANEL_STOP;
+	return hResult;
+}
+
 HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 {
 	ChangePriority *ChPriority = new ChangePriority(THREAD_PRIORITY_NORMAL);
@@ -5164,7 +5171,7 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, INT_PTR Item)
 
 		if (ItemA) xf_free(ItemA);
 
-		hResult = (es.hResult == INVALID_HANDLE_VALUE)? nullptr : es.hResult;
+		hResult = TranslateResult(es.hResult);
 		//CurPluginItem=nullptr; //BUGBUG
 		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
 
@@ -5225,7 +5232,7 @@ HANDLE PluginA::OpenFilePlugin(
 
 		if (NameA) xf_free(NameA);
 
-		hResult = (es.hResult == INVALID_HANDLE_VALUE)? nullptr : es.hResult;
+		hResult = TranslateResult(es.hResult);
 	}
 
 	return hResult;
