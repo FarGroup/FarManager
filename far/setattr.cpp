@@ -400,7 +400,7 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			{
 				case SA_COMBO_HARDLINK:
 				{
-					FarListInfo li;
+					FarListInfo li={sizeof(FarListInfo)};
 					SendDlgMessage(hDlg,DM_LISTINFO,SA_COMBO_HARDLINK,&li);
 					SendDlgMessage(hDlg,DM_SETTEXTPTR,SA_COMBO_HARDLINK,const_cast<wchar_t*>((FormatString()<<MSG(MSetAttrHardLinks)<<L" ("<<li.ItemsNumber<<L")").CPtr()));
 				}
@@ -778,7 +778,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				break;
 		}
 		AttrDlg[SA_TEXT_TITLEDATE].strData = DateFormat;
-		
+
 		AttrDlg[SA_EDIT_WDATE].strMask=AttrDlg[SA_EDIT_CDATE].strMask=AttrDlg[SA_EDIT_ADATE].strMask=AttrDlg[SA_EDIT_XDATE].strMask=strDMask;
 		AttrDlg[SA_EDIT_WTIME].strMask=AttrDlg[SA_EDIT_CTIME].strMask=AttrDlg[SA_EDIT_ATIME].strMask=AttrDlg[SA_EDIT_XTIME].strMask=strTMask;
 		bool FolderPresent=false,LinkPresent=false;

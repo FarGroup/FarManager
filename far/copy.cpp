@@ -635,7 +635,7 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			break;
 		case DM_SWITCHRO:
 		{
-			FarListGetItem LGI={CM_ASKRO};
+			FarListGetItem LGI={sizeof(FarListGetItem),CM_ASKRO};
 			SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,&LGI);
 
 			if (LGI.Item.Flags&LIF_CHECKED)
@@ -745,7 +745,7 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			BOOL MultiCopy=SendDlgMessage(hDlg,DM_GETCHECK,ID_SC_MULTITARGET,0)==BSTATE_CHECKED;
 			string strOldFolder;
 			int nLength;
-			FarDialogItemData Data;
+			FarDialogItemData Data={sizeof(FarDialogItemData)};
 			nLength = (int)SendDlgMessage(hDlg, DM_GETTEXTLENGTH, ID_SC_TARGETEDIT, 0);
 			Data.PtrData = strOldFolder.GetBuffer(nLength+1);
 			Data.PtrLength = nLength;
@@ -818,7 +818,7 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		{
 			if (Param1==ID_SC_BTNCOPY)
 			{
-				FarListGetItem LGI={CM_ASKRO};
+				FarListGetItem LGI={sizeof(FarListGetItem),CM_ASKRO};
 				SendDlgMessage(hDlg,DM_LISTGETITEM,ID_SC_COMBO,&LGI);
 
 				if (LGI.Item.Flags&LIF_CHECKED)

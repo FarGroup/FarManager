@@ -1810,7 +1810,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 	int OpenCode=OPEN_PLUGINSMENU;
 	INT_PTR Item=0;
-	OpenDlgPluginData pd;
+	OpenDlgPluginData pd={sizeof(OpenDlgPluginData)};
 
 	if (Editor)
 	{
@@ -2619,7 +2619,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 					ActivePanel=CtrlObject->Cp()->ActivePanel;
 					int OpenCode=OPEN_PLUGINSMENU;
 					INT_PTR Item=0;
-					OpenDlgPluginData pd;
+					OpenDlgPluginData pd={sizeof(OpenDlgPluginData)};
 
 					if (Editor)
 					{

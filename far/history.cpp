@@ -198,7 +198,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 	unsigned __int64 SelectedRecord = 0;
 	string strSelectedRecordName,strSelectedRecordGuid,strSelectedRecordFile,strSelectedRecordData;
 	int SelectedRecordType = 0;
-	FarListPos Pos={};
+	FarListPos Pos={sizeof(FarListPos)};
 	int Code=-1;
 	int RetCode=1;
 	bool Done=false;
@@ -289,7 +289,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 
 			if (!SetUpMenuPos && !bSelected && TypeHistory!=HISTORYTYPE_DIALOG)
 			{
-				FarListPos p;
+				FarListPos p={sizeof(FarListPos)};
 				p.SelectPos = HistoryMenu.GetItemCount()-1;
 				p.TopPos = 0;
 				HistoryMenu.SetSelectPos(&p);

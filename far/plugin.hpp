@@ -387,24 +387,28 @@ struct FarListItem
 
 struct FarListUpdate
 {
+	size_t StructSize;
 	int Index;
 	struct FarListItem Item;
 };
 
 struct FarListInsert
 {
+	size_t StructSize;
 	int Index;
 	struct FarListItem Item;
 };
 
 struct FarListGetItem
 {
+	size_t StructSize;
 	int ItemIndex;
 	struct FarListItem Item;
 };
 
 struct FarListPos
 {
+	size_t StructSize;
 	int SelectPos;
 	int TopPos;
 };
@@ -417,6 +421,7 @@ static const FARLISTFINDFLAGS
 
 struct FarListFind
 {
+	size_t StructSize;
 	int StartIndex;
 	const wchar_t *Pattern;
 	FARLISTFINDFLAGS Flags;
@@ -425,6 +430,7 @@ struct FarListFind
 
 struct FarListDelete
 {
+	size_t StructSize;
 	int StartIndex;
 	int Count;
 };
@@ -440,6 +446,7 @@ static const FARLISTINFOFLAGS
 
 struct FarListInfo
 {
+	size_t StructSize;
 	FARLISTINFOFLAGS Flags;
 	size_t ItemsNumber;
 	int SelectPos;
@@ -451,6 +458,7 @@ struct FarListInfo
 
 struct FarListItemData
 {
+	size_t StructSize;
 	int Index;
 	size_t DataSize;
 	void *Data;
@@ -465,6 +473,7 @@ struct FarList
 
 struct FarListTitles
 {
+	size_t StructSize;
 	size_t TitleSize;
 	const wchar_t *Title;
 	size_t BottomSize;
@@ -473,6 +482,7 @@ struct FarListTitles
 
 struct FarDialogItemColors
 {
+	size_t StructSize;
 	unsigned __int64 Flags;
 	size_t ColorsCount;
 	struct FarColor* Colors;
@@ -510,6 +520,7 @@ struct FarDialogItem
 
 struct FarDialogItemData
 {
+	size_t StructSize;
 	size_t  PtrLength;
 	wchar_t *PtrData;
 };
@@ -525,6 +536,7 @@ struct FarDialogEvent
 
 struct OpenDlgPluginData
 {
+	size_t StructSize;
 	HANDLE hDlg;
 };
 
@@ -537,6 +549,7 @@ struct DialogInfo
 
 struct FarGetDialogItem
 {
+	size_t StructSize;
 	size_t Size;
 	struct FarDialogItem* Item;
 };
@@ -563,13 +576,13 @@ struct FarGetDialogItem
 
 #define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(INT_PTR)Str)
 #define DlgList_GetCurPos(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID,0)
-#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(INT_PTR)&LPos);}
+#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={sizeof(FarListPos),NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(INT_PTR)&LPos);}
 #define DlgList_ClearList(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,0)
-#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(INT_PTR)&FLDItem);}
+#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={sizeof(FarListDelete),Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(INT_PTR)&FLDItem);}
 #define DlgList_SortUp(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,0)
 #define DlgList_SortDown(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1)
 #define DlgList_GetItemData(Info,hDlg,ID,Index)          Info.SendDlgMessage(hDlg,DM_LISTGETDATA,ID,Index)
-#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(INT_PTR)&FLID);}
+#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{sizeof(FarListItemData),Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(INT_PTR)&FLID);}
 
 typedef unsigned __int64 FARDIALOGFLAGS;
 static const FARDIALOGFLAGS

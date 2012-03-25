@@ -3263,7 +3263,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 				}
 				else if (ItemType == DI_COMBOBOX || ItemType == DI_LISTBOX)
 				{
-					FarListGetItem ListItem;
+					FarListGetItem ListItem={sizeof(FarListGetItem)};
 					ListItem.ItemIndex=Item->ListPtr->GetSelectPos();
 
 					if (SendDlgMessage(CurFrame,DM_LISTGETITEM,Index,&ListItem))

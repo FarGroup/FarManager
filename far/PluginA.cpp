@@ -2566,7 +2566,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			if (item_size)
 			{
-				FarGetDialogItem gdi = {item_size, (FarDialogItem *)xf_malloc(item_size)};
+				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), item_size, (FarDialogItem *)xf_malloc(item_size)};
 
 				if (gdi.Item)
 				{
@@ -2591,7 +2591,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				didA->PtrLength = static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, 0));
 			wchar_t* text = (wchar_t*) xf_malloc((didA->PtrLength+1)*sizeof(wchar_t));
 			//BUGBUG: если didA->PtrLength=0, то вернЄтс€ с учЄтом '\0', в Ёнц написано, что без, хз как правильно.
-			FarDialogItemData did = {didA->PtrLength, text};
+			FarDialogItemData did = {sizeof(FarDialogItemData), didA->PtrLength, text};
 			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &did);
 			didA->PtrLength = (unsigned)did.PtrLength;
 			UnicodeToOEM(text,didA->PtrData,didA->PtrLength+1);
@@ -2653,7 +2653,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			wchar_t* text = AnsiToUnicode(didA->PtrData);
 			//BUGBUG - PtrLength ни на что не вли€ет.
-			FarDialogItemData di = {didA->PtrLength,text};
+			FarDialogItemData di = {sizeof(FarDialogItemData),didA->PtrLength,text};
 			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_SETTEXT, Param1, &di);
 			xf_free(text);
 			return ret;
@@ -2734,7 +2734,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2) return FALSE;
 
 			oldfar::FarListGetItem* lgiA = (oldfar::FarListGetItem*)Param2;
-			FarListGetItem lgi = {lgiA->ItemIndex};
+			FarListGetItem lgi = {sizeof(FarListGetItem),lgiA->ItemIndex};
 			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTGETITEM, Param1, &lgi);
 			UnicodeListItemToAnsi(&lgi.Item, &lgiA->Item);
 			return ret;
@@ -2743,7 +2743,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			if (Param2)
 			{
-				FarListPos lp;
+				FarListPos lp={sizeof(FarListPos)};
 				INT_PTR ret=NativeInfo.SendDlgMessage(hDlg, DM_LISTGETCURPOS, Param1, &lp);
 				oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
 				lpA->SelectPos=lp.SelectPos;
@@ -2757,13 +2757,13 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2) return FALSE;
 
 			oldfar::FarListPos *lpA = (oldfar::FarListPos *)Param2;
-			FarListPos lp = {lpA->SelectPos,lpA->TopPos};
+			FarListPos lp = {sizeof(FarListPos),lpA->SelectPos,lpA->TopPos};
 			return NativeInfo.SendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, &lp);
 		}
 		case oldfar::DM_LISTDELETE:
 		{
 			oldfar::FarListDelete *ldA = (oldfar::FarListDelete *)Param2;
-			FarListDelete ld;
+			FarListDelete ld={sizeof(FarListDelete)};
 
 			if (Param2)
 			{
@@ -2823,7 +2823,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		}
 		case oldfar::DM_LISTUPDATE:
 		{
-			FarListUpdate newui = {};
+			FarListUpdate newui = {sizeof(FarListUpdate)};
 
 			if (Param2)
 			{
@@ -2840,7 +2840,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		}
 		case oldfar::DM_LISTINSERT:
 		{
-			FarListInsert newli = {};
+			FarListInsert newli = {sizeof(FarListInsert)};
 
 			if (Param2)
 			{
@@ -2857,7 +2857,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		}
 		case oldfar::DM_LISTFINDSTRING:
 		{
-			FarListFind newlf = {};
+			FarListFind newlf = {sizeof(FarListFind)};
 
 			if (Param2)
 			{
@@ -2879,7 +2879,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2) return FALSE;
 
 			oldfar::FarListInfo *liA = (oldfar::FarListInfo *)Param2;
-			FarListInfo li={0,liA->ItemsNumber,liA->SelectPos,liA->TopPos,liA->MaxHeight,liA->MaxLength};
+			FarListInfo li={sizeof(FarListInfo),0,liA->ItemsNumber,liA->SelectPos,liA->TopPos,liA->MaxHeight,liA->MaxLength};
 
 			if (liA ->Flags&oldfar::LINFO_SHOWNOBOX) li.Flags|=LINFO_SHOWNOBOX;
 
@@ -2902,7 +2902,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		}
 		case oldfar::DM_LISTSETDATA:
 		{
-			FarListItemData newlid = {};
+			FarListItemData newlid = {sizeof(FarListItemData)};
 
 			if (Param2)
 			{
@@ -2928,7 +2928,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2) return FALSE;
 
 			oldfar::FarListTitles *ltA = (oldfar::FarListTitles *)Param2;
-			FarListTitles lt = {0,ltA->Title?AnsiToUnicode(ltA->Title):nullptr,0,ltA->Bottom?AnsiToUnicode(ltA->Bottom):nullptr};
+			FarListTitles lt = {sizeof(FarListTitles),0,ltA->Title?AnsiToUnicode(ltA->Title):nullptr,0,ltA->Bottom?AnsiToUnicode(ltA->Bottom):nullptr};
 			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_LISTSETTITLES, Param1, &lt);
 
 			if (lt.Bottom) xf_free((wchar_t *)lt.Bottom);
@@ -2942,7 +2942,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (Param2)
 			{
 				oldfar::FarListTitles *OldListTitle=(oldfar::FarListTitles *)Param2;
-				FarListTitles ListTitle={};
+				FarListTitles ListTitle={sizeof(FarListTitles)};
 
 				if (OldListTitle->Title)
 				{
@@ -3163,7 +3163,7 @@ int WINAPI FarDialogExA(INT_PTR PluginNumber,int X1,int Y1,int X2,int Y2,const c
 		for (int i=0; i<ItemsNumber; i++)
 		{
 			size_t Size = NativeInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, i, 0);
-			FarGetDialogItem gdi = {Size, static_cast<FarDialogItem*>(xf_malloc(Size))};
+			FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, static_cast<FarDialogItem*>(xf_malloc(Size))};
 
 			if (gdi.Item)
 			{

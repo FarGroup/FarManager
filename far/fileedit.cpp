@@ -100,7 +100,7 @@ INT_PTR WINAPI hndOpenEditor(HANDLE hDlg, int msg, int param1, void* param2)
 		if (param1 == ID_OE_OK)
 		{
 			UINT* param = (UINT*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
-			FarListPos pos;
+			FarListPos pos={sizeof(FarListPos)};
 			SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
 			*param = *(UINT*)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
 			return TRUE;
@@ -193,7 +193,7 @@ INT_PTR WINAPI hndSaveFileAs(HANDLE hDlg, int msg, int param1, void* param2)
 			if (param1 == ID_SF_OK)
 			{
 				UINT *codepage = (UINT*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
-				FarListPos pos;
+				FarListPos pos={sizeof(FarListPos)};
 				SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
 				*codepage = *(UINT*)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, ToPtr(pos.SelectPos));
 				return TRUE;
@@ -205,7 +205,7 @@ INT_PTR WINAPI hndSaveFileAs(HANDLE hDlg, int msg, int param1, void* param2)
 		{
 			if (param1==ID_SF_CODEPAGE)
 			{
-				FarListPos pos;
+				FarListPos pos={sizeof(FarListPos)};
 				SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,&pos);
 				UINT Cp=*reinterpret_cast<UINT*>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
 

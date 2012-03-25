@@ -655,7 +655,7 @@ void VMenu::RestoreFilteredItems()
 	FilterUpdateHeight();
 
 	// Подровнять, а то в нижней части списка может оставаться куча пустых строк
-	FarListPos pos={SelectPos < 0 ? 0 : SelectPos,-1};
+	FarListPos pos={sizeof(FarListPos),SelectPos < 0 ? 0 : SelectPos,-1};
 	SetSelectPos(&pos);
 }
 
@@ -788,7 +788,7 @@ void VMenu::FilterStringUpdated(bool bLonger)
 	if (GetShowItemCount()>0)
 	{
 		// Подровнять, а то в нижней части списка может оставаться куча пустых строк
-		FarListPos pos={SelectPos,-1};
+		FarListPos pos={sizeof(FarListPos),SelectPos,-1};
 		if (SelectPos<0)
 		{
 			pos.SelectPos = bBottomMode ? ((LowerVisible>0) ? LowerVisible : UpperVisible) : UpperVisible;
@@ -1275,7 +1275,7 @@ int VMenu::ProcessKey(int Key)
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
 		case KEY_RCTRLPGUP:    case KEY_RCTRLNUMPAD9:
 		{
-			FarListPos pos={0,-1};
+			FarListPos pos={sizeof(FarListPos),0,-1};
 			SetSelectPos(&pos);
 			ShowMenu(true);
 			break;

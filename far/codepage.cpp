@@ -151,13 +151,13 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position, bool 
 		// Вычисляем позицию вставляемого элемента
 		if (position==-1)
 		{
-			FarListInfo info;
+			FarListInfo info={sizeof(FarListInfo)};
 			SendDlgMessage(dialog, DM_LISTINFO, control, &info);
 			position = static_cast<int>(info.ItemsNumber);
 		}
 
 		// Вставляем элемент
-		FarListInsert item = {position};
+		FarListInsert item = {sizeof(FarListInsert),position};
 
 		FormatString name;
 		FormatCodePageString(codePage, codePageName, name, IsCodePageNameCustom);
@@ -175,7 +175,7 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position, bool 
 
 		SendDlgMessage(dialog, DM_LISTINSERT, control, &item);
 		// Устанавливаем данные для элемента
-		FarListItemData data;
+		FarListItemData data={sizeof(FarListItemData)};
 		data.Index = position;
 		data.Data = &codePage;
 		data.DataSize = sizeof(codePage);
@@ -238,12 +238,12 @@ void AddSeparator(LPCWSTR Label=nullptr,int position = -1)
 	{
 		if (position==-1)
 		{
-			FarListInfo info;
+			FarListInfo info={sizeof(FarListInfo)};
 			SendDlgMessage(dialog, DM_LISTINFO, control, &info);
 			position = static_cast<int>(info.ItemsNumber);
 		}
 
-		FarListInsert item = {position};
+		FarListInsert item = {sizeof(FarListInsert),position};
 		item.Item.Text = Label;
 		item.Item.Flags = LIF_SEPARATOR;
 		SendDlgMessage(dialog, DM_LISTINSERT, control, &item);
@@ -271,7 +271,7 @@ int GetItemsCount()
 	}
 	else
 	{
-		FarListInfo info;
+		FarListInfo info={sizeof(FarListInfo)};
 		SendDlgMessage(dialog, DM_LISTINFO, control, &info);
 		return static_cast<int>(info.ItemsNumber);
 	}
@@ -764,17 +764,17 @@ UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool 
 	if (CallbackCallSource == CodePagesFill)
 	{
 		// Если надо выбираем элемент
-		FarListInfo info;
+		FarListInfo info={sizeof(FarListInfo)};
 		SendDlgMessage(dialogHandle, DM_LISTINFO, control, &info);
 
 		for (int i=0; i<static_cast<int>(info.ItemsNumber); i++)
 		{
 			if (GetListItemCodePage(i)==codePage)
 			{
-				FarListGetItem Item={i};
+				FarListGetItem Item={sizeof(FarListGetItem),i};
 				SendDlgMessage(dialog, DM_LISTGETITEM, control, &Item);
 				SendDlgMessage(dialog, DM_SETTEXTPTR, control, const_cast<wchar_t*>(Item.Item.Text));
-				FarListPos Pos={i,-1};
+				FarListPos Pos={sizeof(FarListPos),i,-1};
 				SendDlgMessage(dialog, DM_LISTSETCURPOS, control, &Pos);
 				break;
 			}

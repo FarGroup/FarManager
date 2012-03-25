@@ -993,7 +993,7 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 		{
 			// обработка DM_SETHISTORY => надо пропустить изменение текста через
 			// диалоговую функцию
-			FarDialogItemData IData;
+			FarDialogItemData IData={sizeof(FarDialogItemData)};
 			IData.PtrData=const_cast<wchar_t*>(strData.CPtr());
 			IData.PtrLength=strData.GetLength();
 			SendDlgMessage(this,DM_SETTEXT,MsgIndex,&IData);
@@ -1494,7 +1494,7 @@ INT_PTR Dialog::CtlColorDlgItem(FarColor Color[4],int ItemPos,int Type,int Focus
 			break;
 		}
 	}
-	FarDialogItemColors ItemColors = {};
+	FarDialogItemColors ItemColors = {sizeof(FarDialogItemColors)};
 	ItemColors.ColorsCount=4;
 	ItemColors.Colors=Color;
 	return DlgProc(this, DN_CTLCOLORDLGITEM, ItemPos, &ItemColors);
@@ -1948,7 +1948,7 @@ void Dialog::ShowDialog(unsigned ID)
 				{
 					//   Перед отрисовкой спросим об изменении цветовых атрибутов
 					FarColor RealColors[VMENU_COLOR_COUNT] = {};
-					FarDialogItemColors ListColors={};
+					FarDialogItemColors ListColors={sizeof(FarDialogItemColors)};
 					ListColors.ColorsCount=VMENU_COLOR_COUNT;
 					ListColors.Colors=RealColors;
 					CurItem->ListPtr->GetColors(&ListColors);
@@ -3940,7 +3940,7 @@ int Dialog::SelectFromComboBox(
 		SetComboBoxPos(CurItem);
 		// Перед отрисовкой спросим об изменении цветовых атрибутов
 		FarColor RealColors[VMENU_COLOR_COUNT] = {};
-		FarDialogItemColors ListColors={};
+		FarDialogItemColors ListColors={sizeof(FarDialogItemColors)};
 		ListColors.ColorsCount=VMENU_COLOR_COUNT;
 		ListColors.Colors=RealColors;
 		ComboBox->SetColors(nullptr);
@@ -5055,7 +5055,8 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 					{
 						case DM_LISTINFO:// Param1=ID Param2=FarListInfo
 						{
-							return ListBox->GetVMenuInfo((FarListInfo*)Param2);
+							FarListInfo* li=static_cast<FarListInfo*>(Param2);
+							return CheckStructSize(li)&&ListBox->GetVMenuInfo(li);
 						}
 						case DM_LISTSORT: // Param1=ID Param=Direct {0|1}
 						{
@@ -5065,7 +5066,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						case DM_LISTFINDSTRING: // Param1=ID Param2=FarListFind
 						{
 							FarListFind* lf=reinterpret_cast<FarListFind*>(Param2);
-							return ListBox->FindItem(lf->StartIndex,lf->Pattern,lf->Flags);
+							return CheckStructSize(lf)?ListBox->FindItem(lf->StartIndex,lf->Pattern,lf->Flags):-1;
 						}
 						case DM_LISTADDSTR: // Param1=ID Param2=String
 						{
@@ -5086,24 +5087,29 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						{
 							int Count;
 							FarListDelete *ListItems=(FarListDelete *)Param2;
-
-							if (!ListItems || (Count=ListItems->Count) <= 0)
-								ListBox->DeleteItems();
-							else
-								ListBox->DeleteItem(ListItems->StartIndex,Count);
+							if(nullptr==ListItems || CheckStructSize(ListItems))
+							{
+								if (!ListItems || (Count=ListItems->Count) <= 0)
+									ListBox->DeleteItems();
+								else
+									ListBox->DeleteItem(ListItems->StartIndex,Count);
+							}
+							else return FALSE;
 
 							break;
 						}
 						case DM_LISTINSERT: // Param1=ID Param2=FarListInsert
 						{
-							if ((Ret=ListBox->InsertItem((FarListInsert *)Param2)) == -1)
+							FarListInsert* li=static_cast<FarListInsert *>(Param2);
+							if (!CheckStructSize(li) || (Ret=ListBox->InsertItem((FarListInsert *)Param2)) == -1)
 								return -1;
 
 							break;
 						}
 						case DM_LISTUPDATE: // Param1=ID Param2=FarListUpdate: Index=Index, Items=Src
 						{
-							if (Param2 && ListBox->UpdateItem((FarListUpdate *)Param2))
+							FarListUpdate* lu=static_cast<FarListUpdate *>(Param2);
+							if (CheckStructSize(lu) && ListBox->UpdateItem(lu))
 								break;
 
 							return FALSE;
@@ -5112,7 +5118,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						{
 							FarListGetItem *ListItems=(FarListGetItem *)Param2;
 
-							if (!ListItems)
+							if (!CheckStructSize(ListItems))
 								return FALSE;
 
 							MenuItemEx *ListMenuItem;
@@ -5151,7 +5157,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						{
 							FarListItemData *ListItems=(FarListItemData *)Param2;
 
-							if (ListItems &&
+							if (CheckStructSize(ListItems) &&
 							        ListItems->Index < ListBox->GetItemCount())
 							{
 								Ret=ListBox->SetUserData(ListItems->Data,
@@ -5181,9 +5187,13 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						case DM_LISTSETTITLES: // Param1=ID Param2=FarListTitles
 						{
 							FarListTitles *ListTitle=(FarListTitles *)Param2;
-							ListBox->SetTitle(ListTitle->Title);
-							ListBox->SetBottomTitle(ListTitle->Bottom);
-							break;   //return TRUE;
+							if(CheckStructSize(ListTitle))
+							{
+								ListBox->SetTitle(ListTitle->Title);
+								ListBox->SetBottomTitle(ListTitle->Bottom);
+								break;   //return TRUE;
+							}
+							return FALSE;
 						}
 						case DM_LISTGETTITLES: // Param1=ID Param2=FarListTitles
 						{
@@ -5193,7 +5203,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 							ListBox->GetTitle(strTitle);
 							ListBox->GetBottomTitle(strBottomTitle);
 
-							if (!strTitle.IsEmpty()||!strBottomTitle.IsEmpty())
+							if (CheckStructSize(ListTitle)&&(!strTitle.IsEmpty()||!strBottomTitle.IsEmpty()))
 							{
 								if (ListTitle->Title&&ListTitle->TitleSize)
 									xwcsncpy((wchar_t*)ListTitle->Title,strTitle,ListTitle->TitleSize);
@@ -5210,18 +5220,23 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						}
 						case DM_LISTGETCURPOS: // Param1=ID Param2=FarListPos
 						{
-							return Param2?ListBox->GetSelectPos((FarListPos *)Param2):ListBox->GetSelectPos();
+							FarListPos* lp=static_cast<FarListPos *>(Param2);
+							return CheckStructSize(lp)?ListBox->GetSelectPos(lp):ListBox->GetSelectPos();
 						}
 						case DM_LISTSETCURPOS: // Param1=ID Param2=FarListPos Ret: RealPos
 						{
-							/* 26.06.2001 KM Подадим перед изменением позиции об этом сообщение */
-							int CurListPos=ListBox->GetSelectPos();
-							Ret=ListBox->SetSelectPos((FarListPos *)Param2);
+							FarListPos* lp=static_cast<FarListPos *>(Param2);
+							if(CheckStructSize(lp))
+							{
+								/* 26.06.2001 KM Подадим перед изменением позиции об этом сообщение */
+								int CurListPos=ListBox->GetSelectPos();
+								Ret=ListBox->SetSelectPos((FarListPos *)Param2);
 
-							if (Ret!=CurListPos)
-								if (!Dlg->CallDlgProc(DN_LISTCHANGE,Param1,ToPtr(Ret)))
-									Ret=ListBox->SetSelectPos(CurListPos,1);
-
+								if (Ret!=CurListPos)
+									if (!Dlg->CallDlgProc(DN_LISTCHANGE,Param1,ToPtr(Ret)))
+										Ret=ListBox->SetSelectPos(CurListPos,1);
+							}
+							else return -1;
 							break; // т.к. нужно перерисовать!
 						}
 						case DM_GETCOMBOBOXEVENT: // Param1=ID Param2=0 Ret=Sets
@@ -5492,7 +5507,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		/*****************************************************************/
 		case DN_EDITCHANGE:
 		{
-			FarGetDialogItem Item={0,nullptr};
+			FarGetDialogItem Item={sizeof(FarGetDialogItem),0,nullptr};
 			Item.Size=ConvertItemEx2(CurItem,nullptr);
 			Item.Item=(FarDialogItem*)xf_malloc(Item.Size);
 			INT_PTR I=FALSE;
@@ -5620,7 +5635,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		/*****************************************************************/
 		case DN_DRAWDLGITEM:
 		{
-			FarGetDialogItem Item={0,nullptr};
+			FarGetDialogItem Item={sizeof(FarGetDialogItem),0,nullptr};
 			Item.Size=ConvertItemEx2(CurItem,nullptr);
 			Item.Item=(FarDialogItem*)xf_malloc(Item.Size);
 			INT_PTR I=FALSE;
@@ -5668,16 +5683,16 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 
 			if (Param2)
 			{
-				FarDialogItemData IData={0,(wchar_t *)Param2};
+				FarDialogItemData IData={sizeof(FarDialogItemData),0,(wchar_t *)Param2};
 				return SendDlgMessage(hDlg,DM_GETTEXT,Param1,&IData);
 			}
 
 			/*****************************************************************/
 		case DM_GETTEXT:
-
-			if (Param2) // если здесь nullptr, то это еще один способ получить размер
+		{
+			FarDialogItemData *did=(FarDialogItemData*)Param2;
+			if (CheckStructSize(did)) // если здесь nullptr, то это еще один способ получить размер
 			{
-				FarDialogItemData *did=(FarDialogItemData*)Param2;
 				Len=0;
 
 				switch (Type)
@@ -5749,6 +5764,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			// здесь умышленно не ставим return, т.к. хотим получить размер
 			// следовательно сразу должен идти "case DM_GETTEXTLENGTH"!!!
 			/*****************************************************************/
+		}
 		case DM_GETTEXTLENGTH:
 		{
 			switch (Type)
@@ -5806,16 +5822,16 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		case DM_SETTEXTPTR:
 		{
 			wchar_t* Text = Param2?static_cast<wchar_t*>(Param2):const_cast<wchar_t*>(L"");
-			FarDialogItemData IData={StrLength(Text),Text};
+			FarDialogItemData IData={sizeof(FarDialogItemData),StrLength(Text),Text};
 			return SendDlgMessage(hDlg,DM_SETTEXT,Param1,&IData);
 		}
 		/*****************************************************************/
 		case DM_SETTEXT:
 		{
-			if (Param2)
+			FarDialogItemData *did=(FarDialogItemData*)Param2;
+			if (CheckStructSize(did))
 			{
 				int NeedInit=TRUE;
-				FarDialogItemData *did=(FarDialogItemData*)Param2;
 
 				switch (Type)
 				{
@@ -5898,7 +5914,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 
 						if (ListBox)
 						{
-							FarListUpdate LUpdate;
+							FarListUpdate LUpdate={sizeof(FarListUpdate)};
 							LUpdate.Index=ListBox->GetSelectPos();
 							MenuItemEx *ListMenuItem=ListBox->GetItemPtr(LUpdate.Index);
 
@@ -5956,7 +5972,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		case DM_GETDLGITEM:
 		{
 			FarGetDialogItem* Item = (FarGetDialogItem*)Param2;
-			return (INT_PTR)ConvertItemEx2(CurItem, Item);
+			return CheckStructSize(Item)?(INT_PTR)ConvertItemEx2(CurItem, Item):0;
 		}
 		/*****************************************************************/
 		case DM_GETDLGITEMSHORT:
