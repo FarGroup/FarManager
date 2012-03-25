@@ -3,6 +3,38 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 25.03.2012 14:58:20 +0200 - build 2570
+
+1. correction of 2567.
+
+drkns 25.03.2012 14:15:24 +0200 - build 2569
+
+1. warning.
+
+2. api: constant CURRENT_EDITOR == -1 for EditorControl.
+
+zg 25.03.2012 04:17:02 +0200 - build 2568
+
+1. DM_LISTINFO implementation is fixed in the wrapper.
+
+zg 25.03.2012 02:23:52 +0200 - build 2567
+
+1. StructSize field is added to the following structures:
+   FarListUpdate
+   FarListInsert
+   FarListGetItem
+   FarListPos
+   FarListFind
+   FarListDelete
+   FarListInfo
+   FarListItemData
+   FarListTitles
+   FarDialogItemColors
+   FarDialogItemData
+   OpenDlgPluginData
+   FarGetDialogItem
+   all native plugins are broken.
+
 svs 23.03.2012 17:09:23 +0400 - build 2566
 
 1. Mantis#0000881: Incorrect $AKey functioning.
