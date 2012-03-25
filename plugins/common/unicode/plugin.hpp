@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2571
+  Plugin API for Far Manager 3.0 build 2572
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2571
+#define FARMANAGERVERSION_BUILD 2572
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -783,6 +783,7 @@ struct FarPanelDirectory
 #define PANEL_NONE    ((HANDLE)(-1))
 #define PANEL_ACTIVE  ((HANDLE)(-1))
 #define PANEL_PASSIVE ((HANDLE)(-2))
+#define PANEL_STOP ((HANDLE)(-1))
 
 enum FILE_CONTROL_COMMANDS
 {
