@@ -109,7 +109,7 @@ static HANDLE OpenPanelFromOutput(wchar_t *argv)
 			SetConsoleTitle(consoleTitle);
 	}
 
-	HANDLE hPlugin = INVALID_HANDLE_VALUE;
+	HANDLE hPlugin = nullptr;
 
 	if (allOK)
 	{
@@ -122,7 +122,7 @@ static HANDLE OpenPanelFromOutput(wchar_t *argv)
 			hPlugin=new TmpPanel();
 
 			if (hPlugin==NULL)
-				return INVALID_HANDLE_VALUE;
+				return nullptr;
 
 			ProcessList(hPlugin, tempfilename, Opt.Mode);
 		}
@@ -392,7 +392,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 
 HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 {
-	HANDLE hPlugin=INVALID_HANDLE_VALUE;
+	HANDLE hPlugin=nullptr;
 	GetOptions();
 	StartupOpenFrom=Info->OpenFrom;
 
@@ -448,7 +448,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 				hPlugin = OpenPanelFromOutput(argv);
 
 				if (Opt.MenuForFilelist)
-					return INVALID_HANDLE_VALUE;
+					return nullptr;
 			}
 			else
 			{
@@ -462,21 +462,21 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 					if (Opt.MenuForFilelist)
 					{
 						ShowMenuFromList(TmpOut);
-						return INVALID_HANDLE_VALUE;
+						return nullptr;
 					}
 					else
 					{
 						hPlugin=new TmpPanel();
 
 						if (hPlugin==NULL)
-							return INVALID_HANDLE_VALUE;
+							return nullptr;
 
 						ProcessList(hPlugin, TmpOut, Opt.Mode);
 					}
 				}
 				else
 				{
-					return INVALID_HANDLE_VALUE;
+					return nullptr;
 				}
 			}
 		}
@@ -490,14 +490,14 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 			lstrcpy(pName, AnalyseFileName);
 
 			if (!FSF.ProcessName(Opt.Mask,pName, pName.Size(),PN_CMPNAMELIST))
-				return INVALID_HANDLE_VALUE;
+				return nullptr;
 
 			if (!Opt.MenuForFilelist)
 			{
 				HANDLE hPlugin=new TmpPanel();
 
 				if (hPlugin == NULL)
-					return INVALID_HANDLE_VALUE;
+					return nullptr;
 
 				ProcessList(hPlugin, pName, Opt.Mode);
 				return hPlugin;
@@ -505,18 +505,18 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 			else
 			{
 				ShowMenuFromList(pName);
-				return INVALID_HANDLE_VALUE;
+				return nullptr;
 			}
 		}
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 	}
 
-	if (hPlugin==INVALID_HANDLE_VALUE)
+	if (hPlugin==nullptr)
 	{
 		hPlugin=new TmpPanel();
 
 		if (hPlugin==NULL)
-			return INVALID_HANDLE_VALUE;
+			return nullptr;
 	}
 
 	return hPlugin;
@@ -525,10 +525,10 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 HANDLE WINAPI AnalyseW(const struct AnalyseInfo *Info)
 {
 	if (Info->FileName == nullptr || !Info->BufferSize)
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 
 	if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info->FileName, lstrlen(Info->FileName),PN_CMPNAMELIST))
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 
 	return HANDLE(1);
 }

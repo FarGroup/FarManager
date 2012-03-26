@@ -220,7 +220,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		if (!hPlugin->Connect((wchar_t*)OInfo->Data))
 		{
 			delete hPlugin;
-			hPlugin = (Plist*)INVALID_HANDLE_VALUE;
+			hPlugin = nullptr;
 		}
 	}
 

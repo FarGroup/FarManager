@@ -40,7 +40,7 @@ HANDLE WINAPI OpenW(const OpenInfo *OInfo)
 	HANDLE hPlugin=new NetBrowser;
 
 	if (hPlugin==NULL)
-		return(INVALID_HANDLE_VALUE);
+		return nullptr;
 
 	NetBrowser *Browser=(NetBrowser *)hPlugin;
 
@@ -54,7 +54,7 @@ HANDLE WINAPI OpenW(const OpenInfo *OInfo)
 		if (!p || !*p)
 		{
 			delete Browser;
-			return INVALID_HANDLE_VALUE;
+			return nullptr;
 		}
 
 		*p++ = L'\0';
@@ -67,7 +67,7 @@ HANDLE WINAPI OpenW(const OpenInfo *OInfo)
 		else
 		{
 			delete Browser;
-			return INVALID_HANDLE_VALUE;
+			return nullptr;
 		}
 
 		cmd = p;
@@ -109,7 +109,7 @@ HANDLE WINAPI OpenW(const OpenInfo *OInfo)
 			// we don't support upwards browsing from NetWare shares -
 			// it doesn't work correctly
 			delete Browser;
-			return INVALID_HANDLE_VALUE;
+			return nullptr;
 		}
 	}
 	else

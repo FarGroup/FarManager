@@ -76,7 +76,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
 	CaseConvertion();
-	return INVALID_HANDLE_VALUE;
+	return nullptr;
 }
 
 

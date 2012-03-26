@@ -90,7 +90,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else if (OInfo->OpenFrom == OPEN_PLUGINSMENU && !OInfo->Data && PInfo.PanelType != PTYPE_FILEPANEL)
 	{
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 	}
 	else
 	{
@@ -180,7 +180,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		Info.PanelControl(DstPanel,FCTL_REDRAWPANEL,0,0);
 	}
 
-	return INVALID_HANDLE_VALUE;
+	return nullptr;
 }
 
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)

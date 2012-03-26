@@ -181,7 +181,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		}
 	}
 
-	return INVALID_HANDLE_VALUE;
+	return nullptr;
 }
 
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)
