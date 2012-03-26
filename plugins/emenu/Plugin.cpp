@@ -241,7 +241,7 @@ HANDLE CPlugin::OpenPlugin(int nOpenFrom, INT_PTR nItem)
       assert(0);
     }
   }
-  return INVALID_HANDLE_VALUE;
+  return nullptr;
 }
 
 CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
