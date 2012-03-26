@@ -767,7 +767,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				strDMask.Format(FmtMask2,DateSeparator,DateSeparator);
 				break;
 			case 1:
-				DateFormat = MSetAttrTimeTitle3;
+				DateFormat = MSetAttrTimeTitle2;
 				DateFormat << DateSeparator << DateSeparator << TimeSeparator << TimeSeparator << DecimalSeparator;
 				strDMask.Format(FmtMask2,DateSeparator,DateSeparator);
 				break;
