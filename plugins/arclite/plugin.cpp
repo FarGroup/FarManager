@@ -884,7 +884,7 @@ HANDLE WINAPI AnalyseW(const AnalyseInfo* info) {
       FAIL(E_ABORT);
     return archives.release();
   }
-  FAR_ERROR_HANDLER_END(return INVALID_HANDLE_VALUE, return INVALID_HANDLE_VALUE, true);
+  FAR_ERROR_HANDLER_END(return nullptr, return nullptr, true);
 }
 
 void WINAPI CloseAnalyseW(const CloseAnalyseInfo* info) {
@@ -907,16 +907,16 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
       options.detect = item == detect_menu_id;
       PanelInfo panel_info;
       if (!Far::get_panel_info(PANEL_ACTIVE, panel_info))
-        return INVALID_HANDLE_VALUE;
+        return nullptr;
       Far::PanelItem panel_item = Far::get_current_panel_item(PANEL_ACTIVE);
       if (panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY)
-        return INVALID_HANDLE_VALUE;
+        return nullptr;
       if (!Far::is_real_file_panel(panel_info)) {
         if ((panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
           Far::post_macro(L"CtrlPgDn");
           g_detect_next_time = options.detect ? triTrue : triFalse;
         }
-        return INVALID_HANDLE_VALUE;
+        return nullptr;
       }
       options.arc_path = add_trailing_slash(Far::get_panel_dir(PANEL_ACTIVE)) + panel_item.file_name;
       options.arc_types = ArcAPI::formats().get_arc_types();
@@ -928,9 +928,9 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
     else if (item == extract_menu_id || item == test_menu_id || item == sfx_convert_menu_id) {
       PanelInfo panel_info;
       if (!Far::get_panel_info(PANEL_ACTIVE, panel_info))
-        return INVALID_HANDLE_VALUE;
+        return nullptr;
       if (!Far::is_real_file_panel(panel_info))
-        return INVALID_HANDLE_VALUE;
+        return nullptr;
       vector<wstring> file_list;
       file_list.reserve(panel_info.SelectedItemsNumber);
       wstring dir = Far::get_panel_dir(PANEL_ACTIVE);
@@ -942,7 +942,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
         }
       }
       if (file_list.empty())
-        return INVALID_HANDLE_VALUE;
+        return nullptr;
       if (item == extract_menu_id)
         Plugin::bulk_extract(file_list);
       else if (item == test_menu_id)
@@ -998,8 +998,8 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
     options.detect = true;
     return Plugin::open(*Archive::open(options));
   }
-  return INVALID_HANDLE_VALUE;
-  FAR_ERROR_HANDLER_END(return INVALID_HANDLE_VALUE, return INVALID_HANDLE_VALUE, false);
+  return nullptr;
+  FAR_ERROR_HANDLER_END(return nullptr, return nullptr, false);
 }
 
 void WINAPI ClosePanelW(const struct ClosePanelInfo* info) {
