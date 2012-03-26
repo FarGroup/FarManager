@@ -201,20 +201,20 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 					case 4:
 						Config();
 					default:
-						return INVALID_HANDLE_VALUE;
+						return nullptr;
 				}
 			}
 			else // other var type ==> $Recycle.Bin
-				return INVALID_HANDLE_VALUE;
+				return nullptr;
 		}
 	}
 
 	if(isSelect == -1)
 		if((isSelect=ShowMenu(0)) == -1)
-			return INVALID_HANDLE_VALUE;
+			return nullptr;
 
 	if(CurPos > egs.StringLength)
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 
 	egs.StringNumber=espo.CurLine;
 	isSelect=isSelect == 1;
@@ -248,7 +248,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	{
 		for(i=0; i < nQuotes; i+=2)
 			if(Bracket_1 == Opt.QuotesType[i] && Bracket1 == Opt.QuotesType[i+1])
-				return INVALID_HANDLE_VALUE;
+				return nullptr;
 	}
 
 	Bracket=(CurPos == egs.StringLength)?L'\0':egs.StringText[CurPos];
@@ -360,16 +360,16 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 
 	if(Opt.IgnoreAfter && types == BrRight)
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 
 	if(types == BrZERO)
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 
 	if(B21 == B22)
 	{
 		if (DirectQuotes == -1)
 			if((DirectQuotes=ShowMenu(1)) == -1)
-				return INVALID_HANDLE_VALUE;
+				return nullptr;
 
 		Direction=DirectQuotes == 0?1:-1;
 		types=BrOneMath;
@@ -569,5 +569,5 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		Info.EditorControl(-1,ECTL_SETPOSITION,0,&espo);
 	}
 
-	return INVALID_HANDLE_VALUE;
+	return nullptr;
 }

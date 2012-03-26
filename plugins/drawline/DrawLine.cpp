@@ -81,7 +81,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	static bool Reenter=false;
 
 	if (Reenter)
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 
 	Reenter=true;
 	int LineWidth=1, KeyCode;
@@ -91,7 +91,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	if (!SetTitle(LineWidth,(LineWidth==1)?MTitleSingle:MTitleDouble))
 	{
 		Reenter=false;
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 	}
 
 	if (OInfo->OpenFrom==OPEN_FROMMACRO)
@@ -258,7 +258,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur);
 
 	Reenter=false;
-	return INVALID_HANDLE_VALUE;
+	return nullptr;
 }
 
 

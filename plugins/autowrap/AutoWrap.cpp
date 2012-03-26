@@ -98,7 +98,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
     settings.Set(0,L"FileMasks",Opt.FileMasks);
     settings.Set(0,L"ExcludeFileMasks",Opt.ExcludeFileMasks);
   }
-  return INVALID_HANDLE_VALUE;
+  return nullptr;
 }
 
 

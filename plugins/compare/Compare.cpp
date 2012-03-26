@@ -1241,7 +1241,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		};
 		Info.Message(&MainGuid, nullptr, FMSG_WARNING, NULL, MsgItems, ARRAYSIZE(MsgItems), 1);
 		FreePanelItems(AInfo,PInfo);
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 	}
 
 	// Если не можем показать диалог плагина...
@@ -1250,7 +1250,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	                (PInfo.SelectedItemsNumber && (PInfo.SelectedItems[0].Flags & PPIF_SELECTED))))
 	{
 		FreePanelItems(AInfo,PInfo);
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 	}
 
 	// Откроем консольный ввод для проверок на Esc...
@@ -1362,5 +1362,5 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		SetConsoleTitle(cConsoleTitle);
 
 	FreePanelItems(AInfo,PInfo);
-	return INVALID_HANDLE_VALUE;
+	return nullptr;
 }

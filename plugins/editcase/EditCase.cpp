@@ -115,10 +115,10 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				MenuCode=(int)mi->Values[0].Integer;
 
 				if (MenuCode < 0 || MenuCode > 4)
-					return INVALID_HANDLE_VALUE;
+					return nullptr;
 			}
 			else // other var type ==> $Recycle.Bin
-				return INVALID_HANDLE_VALUE;
+				return nullptr;
 		}
 	}
 
@@ -275,7 +275,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			}
 	} // switch
 
-	return INVALID_HANDLE_VALUE;
+	return nullptr;
 }
 
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)

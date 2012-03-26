@@ -98,7 +98,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
       JustifyBlock(RightMargin);
   }
 
-  return INVALID_HANDLE_VALUE;
+  return nullptr;
 }
 
 
