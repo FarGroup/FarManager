@@ -3,6 +3,34 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 26.03.2012 13:20:06 +0200 - build 2574
+
+1. A typo in 2453.1
+
+zg 25.03.2012 20:59:15 +0200 - build 2573
+
+1. when processing shift-f2, OPM_TOPLEVEL was returned earlier for the first file, and OPM_TOPLEVEL|OPM_SILENT for the next ones. 
+   now there is plugin-wise separation. OPM_SILENT is added starting from the second file being processed by a particular plugin.
+
+zg 25.03.2012 19:11:55 +0200 - build 2572
+
+1. OpenW returns NULL if the panel is not created. PANEL_STOP - if the panel is created but further processing has to be cancelled. (HANDLE)-2 is not processed intentionally.
+   all native plugins are broken.
+
+2. AnalyseW returns NULL if the format has not been recognized. INVALID_HANDLE_VALUE is also considered as a recognized format now.
+   all native plugins are broken.
+
+zg 25.03.2012 17:30:47 +0200 - build 2571
+
+1. FSF::qsort is removed. FSF::qsortex is renamed to FSF::qsort and __cdecl is replaced with WINAPI.
+   all native plugins are broken.
+
+2. FSF::bsearch is changed. __cdecl is replaced with WINAPI. additional 'user' parameter is passed to the compare function.
+   all native plugins are broken.
+
+3. FSF::Reserved is removed.
+   all native plugins are broken.
+
 zg 25.03.2012 14:58:20 +0200 - build 2570
 
 1. correction of 2567.
