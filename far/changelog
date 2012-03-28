@@ -1,3 +1,9 @@
+w17 28.03.2012 23:45:50 +0400 - build 2578
+
+1. отдаём 'set prefix>file' и 'set prefix | command' cmd.exe
+
+2. warning
+
 svs 28.03.2012 19:59:45 +0400 - build 2577
 
 1. Добавка обрабатываемого типа (второй параметр) для Macro.Const() и Macro.Var()

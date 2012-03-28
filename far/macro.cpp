@@ -4655,7 +4655,7 @@ static bool _MacroEnumWords(int TypeTable,const TMacroFunction*)
 	Ret.SetType(vtUnknown);
 	if (Index.isInteger())
 	{
-		size_t I=Index.toInteger()-1;
+		int I=static_cast<int>(Index.toInteger()-1);
 
 		//TVarTable *t = KeyMacro::GetLocalVarTable();
 		TVarTable *t=(TypeTable==MACRO_VARS)?&glbVarTable:&glbConstTable;

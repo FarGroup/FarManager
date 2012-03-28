@@ -1571,8 +1571,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		// "set" (display all) or "set var" (display all that begin with "var")
 		if (strCmdLine.IsEmpty() || !strCmdLine.Pos(pos,L'=') || !pos)
 		{
-			//forward "set | command" and "set > file" to COMSPEC
-			if (strCmdLine.At(0)==L'|' || strCmdLine.At(0)==L'>')
+			//forward "set [prefix]| command" and "set [prefix]> file" to COMSPEC
+			if (strCmdLine.ContainsAny(L"|>"))
 				return FALSE;
 
 			ShowBackground();  //??? почему не отдаём COMSPEC'у
