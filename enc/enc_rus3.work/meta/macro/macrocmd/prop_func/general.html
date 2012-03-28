@@ -122,7 +122,7 @@
   <col class="descr">
   <tr><th>Оператор</th><th>Тип</th><th>Описание</th></tr>
   <tr>
-    <td><a name="MacroArea">MacroArea</a></td>
+    <td><a name="Macro.Area">Macro.Area</a></td>
     <td>String</td>
     <td>наименование текущей макрообласти исполнения</td>
   </tr>
@@ -1785,6 +1785,97 @@ $While (%I!=0)
   $End
 $End</code></pre>
 
+    </td>
+  </tr>
+
+  <tr>
+    <td>S=<dfn><a name="macro.func">macro.func</a></dfn>(Index[,Type])</td>
+    <td><p>Возвращает информацию о функции с индексом <var>Index</var> (начинается с 1). Если <var>Index</var>=0, то возвращается количество зарегистрированных макрофункций (число).</p>
+       <p>Необязательный параметр <var>Type</var> может быть одним из следующих значений:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+         <tr><th>Тип</th><th>Описание</th></tr>
+         <tr><td>0</td><td>имя функции</td></tr>
+         <tr><td>1</td><td>синтаксис функции</td></tr>
+         <tr><td>2</td><td>GUID плагина, предоставляющего функцию</td></tr>
+       </table>
+       <p>Функция вернет пустую строку, если функция с индексом <var>Index</var> отсутствует.</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>S=<dfn><a name="macro.keyword">macro.keyword</a></dfn>(Index[,Type])</td>
+    <td><p>Возвращает ключевое слово с индексом <var>Index</var> (начинается с 1). Если <var>Index</var>=0, то возвращается количество слов (число).</p>
+       <p>Необязательный параметр <var>Type</var> может быть одним из следующих значений:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+         <tr><th>Тип</th><th>Описание</th></tr>
+         <tr><td>0</td><td>имена <a href="index.html">ключевых слов</a>, например, "Far.Width", "PPanel.OPIFlags" и т.п.</td></tr>
+         <tr><td>1</td><td>имена <a href="../../techinfo.html">макрообластей</a>, например, "Shell", "MainMenu" и т.п.</td></tr>
+         <tr><td>2</td><td>имена <a href="../../techinfo.html">флагов макросов</a>, например, "DisableOutput", "NoPluginPanels" и т.п.</td></tr>
+         <tr><td>3</td><td>имена <a href="../cmds.html">макрокоманд</a>, начинающихся с символа '$', например, "$if", "$selword" и т.п.</td></tr>
+         <tr><td>4</td><td>имена типа переменой/константы, например, "unknown","integer","text","real"</td></tr>
+       </table>
+       <p>Функция вернет пустую строку, если ключевое слово с индексом <var>Index</var> отсутствует.</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>V=<dfn><a name="macro.const">macro.const</a></dfn>(Index[,Type])</td>
+    <td><p>Возвращает информацию о константе с индексом <var>Index</var> (начинается с 1). Если <var>Index</var>=0, то возвращается количество констант (число).</p>
+       <p>Необязательный параметр <var>Type</var> может быть одним из следующих значений:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+         <tr><th>Тип</th><th>Описание</th></tr>
+         <tr><td>0</td><td>имя константы</td></tr>
+         <tr><td>1</td><td>значение константы</td></tr>
+         <tr><td>2</td><td>числовое значение типа константы</td></tr>
+         <tr><td>3</td><td>имя типа константы</td></tr>
+       </table>
+       <p>Типы и значения констант могут быть:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+         <tr><th>Значение</th><th>Имя</th></tr>
+         <tr><td>0</td><td>unknown</td></tr>
+         <tr><td>1</td><td>integer</td></tr>
+         <tr><td>2</td><td>text</td></tr>
+         <tr><td>3</td><td>real</td></tr>
+       </table>
+
+       <p>Функция вернет 0, если константа с индексом <var>Index</var> отсутствует. В этом случае тип возвращаемого значения будет "unknown".</p>
+       <p>Тип возвращаемого значения для <var>Type</var>=1 зависит от типа константы.</p>
+    </td>
+  </tr>
+
+  <tr>
+    <td>V=<dfn><a name="macro.var">macro.var</a></dfn>(Index[,Type])</td>
+    <td><p>Возвращает информацию о глобальной переменной с индексом <var>Index</var> (начинается с 1). Если <var>Index</var>=0, то возвращается количество глобальной переменных (число).</p>
+       <p>Необязательный параметр <var>Type</var> может быть одним из следующих значений:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+         <tr><th>Тип</th><th>Описание</th></tr>
+         <tr><td>0</td><td>имя переменной</td></tr>
+         <tr><td>1</td><td>значение переменной</td></tr>
+         <tr><td>2</td><td>числовое значение типа переменной</td></tr>
+         <tr><td>3</td><td>имя типа переменной</td></tr>
+       </table>
+       <p>Типы и значения переменных могут быть:</p>
+       <table class="cont2 params lite tiny">
+       <col class="value">
+       <col>
+         <tr><th>Значение</th><th>Имя</th></tr>
+         <tr><td>0</td><td>unknown</td></tr>
+         <tr><td>1</td><td>integer</td></tr>
+         <tr><td>2</td><td>text</td></tr>
+         <tr><td>3</td><td>real</td></tr>
+       </table>
+       <p>Функция вернет 0, если глобальной переменная с индексом <var>Index</var> отсутствует. В этом случае тип возвращаемого значения будет "unknown".</p>
+       <p>Тип возвращаемого значения для <var>Type</var>=1 зависит от типа перменной.</p>
     </td>
   </tr>
 
