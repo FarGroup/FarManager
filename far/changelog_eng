@@ -3,6 +3,81 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 28.03.2012 23:45:50 +0400 - build 2578
+
+1. output 'set prefix>file' and 'set prefix | command' to cmd.exe
+
+2. warning
+
+svs 28.03.2012 19:59:45 +0400 - build 2577
+
+1. Processed type is added (the second parameter) for Macro.Const() and Macro.Var()
+    Type:
+      2 - return the numeric value of the constant/variable type (0,1,2,3)
+      3 - return the name of the constant/variable type ("unknown","integer","text","real")
+
+2. For Macro.Keyword, Type=4 is added - the function returns the constant/variable type (for example, "unknown","integer","text","real")
+
+svs 28.03.2012 17:39:50 +0400 - build 2576
+
+1. Mantis#0002056: Error in returning from plugin.call / callplugin
+   (from Maximus)
+
+2. Macro: Plugin.Cmdline is renamed to Plugin.Command
+
+3. Macro: MacroArea 'variable' is renamed to Macro.Area
+
+4. Macro: macro functions are added that allow getting information about some macro language elements:
+
+     S=Macro.Keyword(Index[,Type])
+       Returns a keyword indexed with Index (starting from 1). If Index=0 then the number of words is returned (numeric).
+       Type:
+         0 (by default) - Far Keywords (those from MKeywords array, for example, Far.Width, PPanel.OPIFlags etc.)
+         1 - Area (those from MKeywordsArea array, for example, Shell, MainMenu etc.)
+         2 - Macro Flags (those from MKeywordsFlags array, for example, DisableOutput, NoPluginPanels etc.)
+         3 - Macro Operation (those starting from '$', for example, $if, $SelWord etc.)
+
+     S=Macro.Func(Index[,Type])
+       Returns information about a function indexed with Index (starting from 1). If Index=0 then the number of registered macro functions is returned (numeric).
+       Type:
+         0 (by default) - name
+         1 - syntax
+         2 - GUID of a plugin providing the function
+
+     S=Macro.Const(Index[,Type])
+       Returns information about a constant indexed with Index (starting from 1). If Index=0 then the number of constants is returned (numeric).
+       Type:
+         0 (by default) - the constant name
+         1 - the value
+
+     S=Macro.Var(Index[,Type])
+       Returns information about a variable indexed with Index (starting from 1). If Index=0 then the number of variables is returned (numeric).
+       Type:
+         0 (by default) - the variable name
+         1 - the value
+
+5. Macro: "$Text" is removed, use "print"
+   Double-quoted text is temporarily left.
+
+
+6. In intMacroFunction array, the names of the functions are made CaseMixed...
+
+
+
+   <ACHTUNG>
+
+   Check your macros against these issues:
+     1) Plugin.Cmdline -> Plugin.Command
+     2) MacroArea -> to Macro.Area
+     3) "$Text" is removed, use "print"
+   
+   </ACHTUNG>
+
+
+w17 28.03.2012 16:27:50 +0400 - build 2575
+
+1. Mantis#1506: Regexps cannot be used in backwards search
+
 drkns 26.03.2012 13:20:06 +0200 - build 2574
 
 1. A typo in 2453.1
