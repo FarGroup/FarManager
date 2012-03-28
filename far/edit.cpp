@@ -2208,34 +2208,59 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 
 	if ((Position<StrSize || (!Position && !StrSize)) && !Str.IsEmpty())
 	{
-		if (!Reverse && Regexp)
+		if (Regexp)
 		{
-			RegExp re;
 			string strSlash(Str);
 			InsertRegexpQuote(strSlash);
-
+			RegExp re;
 			// Q: что важнее: опция диалога или опция RegExp`а?
-			if (re.Compile(strSlash, OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
+			if (!re.Compile(strSlash, OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
+				return FALSE;
+
+			SMatch m[10*2], *pm = m;
+			int n = re.GetBracketsCount();
+			if (n > static_cast<int>(ARRAYSIZE(m)/2))
 			{
-				int n = re.GetBracketsCount();
-				SMatch *m = (SMatch *)xf_malloc(n*sizeof(SMatch));
-
-				if (!m)
+				pm = (SMatch *)xf_malloc(2*n*sizeof(SMatch));
+				if (!pm)
 					return FALSE;
-
-				if (re.SearchEx(this->Str,this->Str+Position,this->Str+StrSize,m,n))
-				{
-					*SearchLength = m[0].end - m[0].start;
-					CurPos = m[0].start;
-					ReplaceStr=ReplaceBrackets(this->Str,ReplaceStr,m,n);
-					xf_free(m);
-					return TRUE;
-				}
-
-				xf_free(m);
 			}
 
-			return FALSE;
+			int found = FALSE;
+			int pos, half = 0;
+
+			if (!Reverse)
+			{
+				if (re.SearchEx(this->Str,this->Str+Position,this->Str+StrSize,pm,n))
+					found = TRUE;
+			}
+			else
+			{
+				pos = 0;
+				for (;;)
+				{
+					if (!re.SearchEx(this->Str,this->Str+pos,this->Str+StrSize,pm+half,n))
+						break;
+					pos = static_cast<int>(pm[half].start);
+					if (pos > Position)
+						break;
+
+					found = TRUE;
+					++pos;
+					half = n - half;
+				}
+				half = n - half;
+			}
+			if (found)
+			{
+				*SearchLength = pm[half].end - pm[half].start;
+				CurPos = pm[half].start;
+				ReplaceStr=ReplaceBrackets(this->Str,ReplaceStr,pm+half,n);
+			}
+			if (pm != m)
+				xf_free(pm);
+
+			return found;
 		}
 
 		if (Position==StrSize) return FALSE;
