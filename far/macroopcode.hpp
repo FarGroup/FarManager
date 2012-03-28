@@ -226,7 +226,7 @@ enum MACRO_OP_CODE
 	MCODE_F_PLUGIN_CONFIG,            // N=Plugin.Config(Guid[,MenuGuid])
 	MCODE_F_PLUGIN_CALL,              // N=Plugin.Call(Guid[,Item])
 	MCODE_F_PLUGIN_LOAD,              // N=Plugin.Load(DllPath[,ForceLoad])
-	MCODE_F_PLUGIN_CMDLINE,           // N=Plugin.Cmdline(Guid[,Command])
+	MCODE_F_PLUGIN_COMMAND,           // N=Plugin.Command(Guid[,Command])
 	MCODE_F_PLUGIN_UNLOAD,            // N=Plugin.UnLoad(DllPath)
 	MCODE_F_PLUGIN_EXIST,             // N=Plugin.Exist(Guid)
 	MCODE_F_MENU_FILTER,              // N=Menu.Filter(Action[,Mode])
@@ -235,6 +235,10 @@ enum MACRO_OP_CODE
 	MCODE_F_FAR_CFG_GET,              // V=Far.Cfg.Get(Key,Name)
 	MCODE_F_SIZE2STR,                 // S=Size2Str(N,Flags[,Width])
 	MCODE_F_STRWRAP,                  // S=StrWrap(Text,Width[,Break[,Flags]])
+	MCODE_F_MACRO_KEYWORD,            // S=Macro.Keyword(Index[,Type])
+	MCODE_F_MACRO_FUNC,               // S=Macro.Func(Index[,Type])
+	MCODE_F_MACRO_VAR,                // S=Macro.Var(Index[,Type])
+	MCODE_F_MACRO_CONST,              // S=Macro.Const(Index[,Type])
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состо€ни€
@@ -255,6 +259,7 @@ enum MACRO_OP_CODE
 	MCODE_C_AREA_USERMENU,            // ћеню пользовател€
 	MCODE_C_AREA_SHELL_AUTOCOMPLETION,// —писок автодополнени€ в панел€х в ком.строке
 	MCODE_C_AREA_DIALOG_AUTOCOMPLETION,// —писок автодополнени€ в диалоге
+	MCODE_C_AREA_COMMON,              // ¬езде
 
 	MCODE_C_FULLSCREENMODE,           // полноэкранный режим?
 	MCODE_C_ISUSERADMIN,              // Administrator status
@@ -301,7 +306,7 @@ enum MACRO_OP_CODE
 	MCODE_V_FAR_TITLE,                // Far.Title - текущий заголовок консольного окна
 	MCODE_V_FAR_UPTIME,               // Far.UpTime - врем€ работы Far в миллисекундах
 	MCODE_V_FAR_PID,                  // Far.PID - содержит »ƒ текущей запущенной копии Far Manager
-	MCODE_V_MACROAREA,                // MacroArea - им€ текущей макрос области
+	MCODE_V_MACRO_AREA,               // MacroArea - им€ текущей макрос области
 
 	MCODE_V_APANEL_CURRENT,           // APanel.Current - им€ файла на активной панели
 	MCODE_V_PPANEL_CURRENT,           // PPanel.Current - им€ файла на пассивной панели

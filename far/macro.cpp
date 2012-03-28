@@ -94,23 +94,24 @@ struct DlgParam
 
 TMacroKeywords MKeywords[] =
 {
-	{0,  L"Other",              MCODE_C_AREA_OTHER,0},
-	{0,  L"Shell",              MCODE_C_AREA_SHELL,0},
-	{0,  L"Viewer",             MCODE_C_AREA_VIEWER,0},
-	{0,  L"Editor",             MCODE_C_AREA_EDITOR,0},
-	{0,  L"Dialog",             MCODE_C_AREA_DIALOG,0},
-	{0,  L"Search",             MCODE_C_AREA_SEARCH,0},
-	{0,  L"Disks",              MCODE_C_AREA_DISKS,0},
-	{0,  L"MainMenu",           MCODE_C_AREA_MAINMENU,0},
-	{0,  L"Menu",               MCODE_C_AREA_MENU,0},
-	{0,  L"Help",               MCODE_C_AREA_HELP,0},
-	{0,  L"Info",               MCODE_C_AREA_INFOPANEL,0},
-	{0,  L"QView",              MCODE_C_AREA_QVIEWPANEL,0},
-	{0,  L"Tree",               MCODE_C_AREA_TREEPANEL,0},
-	{0,  L"FindFolder",         MCODE_C_AREA_FINDFOLDER,0},
-	{0,  L"UserMenu",           MCODE_C_AREA_USERMENU,0},
-	{0,  L"Shell.AutoCompletion",MCODE_C_AREA_SHELL_AUTOCOMPLETION,0},
-	{0,  L"Dialog.AutoCompletion",MCODE_C_AREA_DIALOG_AUTOCOMPLETION,0},
+	{0,  L"Other",                    MCODE_C_AREA_OTHER,0},
+	{0,  L"Shell",                    MCODE_C_AREA_SHELL,0},
+	{0,  L"Viewer",                   MCODE_C_AREA_VIEWER,0},
+	{0,  L"Editor",                   MCODE_C_AREA_EDITOR,0},
+	{0,  L"Dialog",                   MCODE_C_AREA_DIALOG,0},
+	{0,  L"Search",                   MCODE_C_AREA_SEARCH,0},
+	{0,  L"Disks",                    MCODE_C_AREA_DISKS,0},
+	{0,  L"MainMenu",                 MCODE_C_AREA_MAINMENU,0},
+	{0,  L"Menu",                     MCODE_C_AREA_MENU,0},
+	{0,  L"Help",                     MCODE_C_AREA_HELP,0},
+	{0,  L"Info",                     MCODE_C_AREA_INFOPANEL,0},
+	{0,  L"QView",                    MCODE_C_AREA_QVIEWPANEL,0},
+	{0,  L"Tree",                     MCODE_C_AREA_TREEPANEL,0},
+	{0,  L"FindFolder",               MCODE_C_AREA_FINDFOLDER,0},
+	{0,  L"UserMenu",                 MCODE_C_AREA_USERMENU,0},
+	{0,  L"Shell.AutoCompletion",     MCODE_C_AREA_SHELL_AUTOCOMPLETION,0},
+	{0,  L"Dialog.AutoCompletion",    MCODE_C_AREA_DIALOG_AUTOCOMPLETION,0},
+	{0,  L"Common",                   MCODE_C_AREA_COMMON,0},
 
 	// ПРОЧЕЕ
 	{2,  L"Bof",                MCODE_C_BOF,0},
@@ -123,7 +124,7 @@ TMacroKeywords MKeywords[] =
 	{2,  L"Far.Title",          MCODE_V_FAR_TITLE,0},
 	{2,  L"Far.UpTime",         MCODE_V_FAR_UPTIME,0},
 	{2,  L"Far.PID",            MCODE_V_FAR_PID,0},
-	{2,  L"MacroArea",          MCODE_V_MACROAREA,0},
+	{2,  L"Macro.Area",         MCODE_V_MACRO_AREA,0},
 
 	{2,  L"ItemCount",          MCODE_V_ITEMCOUNT,0},  // ItemCount - число элементов в текущем объекте
 	{2,  L"CurPos",             MCODE_V_CURPOS,0},    // CurPos - текущий индекс в текущем объекте
@@ -322,7 +323,7 @@ static struct TKeyCodeName
 	{ MCODE_OP_IF,                   3, L"$If"        },
 	{ MCODE_OP_REP,                  4, L"$Rep"       },
 	{ MCODE_OP_SELWORD,              8, L"$SelWord"   },
-	{ MCODE_OP_PLAINTEXT,            5, L"$Text"      }, // $Text "Plain Text"
+	//{ MCODE_OP_PLAINTEXT,            5, L"$Text"      }, // $Text "Plain Text"
 	{ MCODE_OP_WHILE,                6, L"$While"     },
 	{ MCODE_OP_XLAT,                 5, L"$XLat"      },
 };
@@ -358,6 +359,10 @@ static bool keybarshowFunc(const TMacroFunction*);
 static bool keyFunc(const TMacroFunction*);
 static bool lcaseFunc(const TMacroFunction*);
 static bool lenFunc(const TMacroFunction*);
+static bool macroenumkwdFunc(const TMacroFunction*);
+static bool macroenumfuncFunc(const TMacroFunction*);
+static bool macroenumvarFunc(const TMacroFunction*);
+static bool macroenumConstFunc(const TMacroFunction*);
 static bool maxFunc(const TMacroFunction*);
 static bool menushowFunc(const TMacroFunction*);
 static bool minFunc(const TMacroFunction*);
@@ -395,97 +400,101 @@ static bool pluginexistFunc(const TMacroFunction*);
 static TMacroFunction intMacroFunction[]=
 {
 	//Name                fnGUID   Syntax                                                        Func                Buffer BufferSize IntFlags                          Code
-	{L"ABS",              nullptr, L"N=Abs(N)",                                                  absFunc,            nullptr, 0, 0,                                      MCODE_F_ABS,             },
-	{L"AKEY",             nullptr, L"V=Akey(Mode[,Type])",                                       usersFunc,          nullptr, 0, 0,                                      MCODE_F_AKEY,            },
-	{L"ASC",              nullptr, L"N=Asc(N)",                                                  ascFunc,            nullptr, 0, 0,                                      MCODE_F_ASC,             },
-	{L"ATOI",             nullptr, L"N=Atoi(S[,Radix])",                                         atoiFunc,           nullptr, 0, 0,                                      MCODE_F_ATOI,            },
-	{L"BEEP",             nullptr, L"N=Beep([N])",                                               beepFunc,           nullptr, 0, 0,                                      MCODE_F_BEEP,            },
-	{L"BM.ADD",           nullptr, L"N=BM.Add()",                                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_ADD,          },
-	{L"BM.CLEAR",         nullptr, L"N=BM.Clear()",                                              usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_CLEAR,        },
-	{L"BM.DEL",           nullptr, L"N=BM.Del([Idx])",                                           usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_DEL,          },
-	{L"BM.GET",           nullptr, L"N=BM.Get(Idx,M)",                                           usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_GET,          },
-	{L"BM.GOTO",          nullptr, L"N=BM.Goto([N])",                                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_GOTO,         },
-	{L"BM.NEXT",          nullptr, L"N=BM.Next()",                                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_NEXT,         },
-	{L"BM.POP",           nullptr, L"N=BM.Pop()",                                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_POP,          },
-	{L"BM.PREV",          nullptr, L"N=BM.Prev()",                                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_PREV,         },
-	{L"BM.BACK",          nullptr, L"N=BM.Back()",                                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_BACK,         },
-	{L"BM.PUSH",          nullptr, L"N=BM.Push()",                                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_PUSH,         },
-	{L"BM.STAT",          nullptr, L"N=BM.Stat([N])",                                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_STAT,         },
-	{L"CALLPLUGIN",       nullptr, L"V=CallPlugin(SysID[,param])",                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_CALLPLUGIN,      },
-	{L"CHECKHOTKEY",      nullptr, L"N=CheckHotkey(S[,N])",                                      usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_CHECKHOTKEY,},
-	{L"CHR",              nullptr, L"S=Chr(N)",                                                  chrFunc,            nullptr, 0, 0,                                      MCODE_F_CHR,             },
-	{L"CLIP",             nullptr, L"V=Clip(N[,V])",                                             clipFunc,           nullptr, 0, 0,                                      MCODE_F_CLIP,            },
-	{L"DATE",             nullptr, L"S=Date([S])",                                               dateFunc,           nullptr, 0, 0,                                      MCODE_F_DATE,            },
-	{L"DLG.GETVALUE",     nullptr, L"V=Dlg.GetValue([Pos[,InfoID]])",                            dlggetvalueFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_GETVALUE,    },
-	{L"DLG.SETFOCUS",     nullptr, L"N=Dlg.SetFocus([ID])",                                      dlgsetfocusFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_SETFOCUS,    },
-	{L"EDITOR.POS",       nullptr, L"N=Editor.Pos(Op,What[,Where])",                             editorposFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_POS,      },
-	{L"EDITOR.SEL",       nullptr, L"V=Editor.Sel(Action[,Opt])",                                editorselFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SEL,      },
-	{L"EDITOR.SET",       nullptr, L"N=Editor.Set(N,Var)",                                       editorsetFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SET,      },
-	{L"EDITOR.SETTITLE",  nullptr, L"N=Editor.SetTitle([Title])",                                editorsettitleFunc, nullptr, 0, 0,                                      MCODE_F_EDITOR_SETTITLE, },
-	{L"EDITOR.UNDO",      nullptr, L"V=Editor.Undo(N)",                                          editorundoFunc,     nullptr, 0, 0,                                      MCODE_F_EDITOR_UNDO,     },
-	{L"ENV",              nullptr, L"S=Env(S[,Mode[,Value]])",                                   environFunc,        nullptr, 0, 0,                                      MCODE_F_ENVIRON,         },
-	{L"EVAL",             nullptr, L"N=Eval(S[,N])",                                             usersFunc,          nullptr, 0, 0,                                      MCODE_F_EVAL,            },
-	{L"FAR.CFG.GET",      nullptr, L"V=Far.Cfg.Get(Key,Name)",                                   farcfggetFunc,      nullptr, 0, 0,                                      MCODE_F_FAR_CFG_GET,     },
-	{L"FATTR",            nullptr, L"N=FAttr(S)",                                                fattrFunc,          nullptr, 0, 0,                                      MCODE_F_FATTR,           },
-	{L"FEXIST",           nullptr, L"N=FExist(S)",                                               fexistFunc,         nullptr, 0, 0,                                      MCODE_F_FEXIST,          },
-	{L"FLOAT",            nullptr, L"N=Float(V)",                                                floatFunc,          nullptr, 0, 0,                                      MCODE_F_FLOAT,           },
-	{L"FLOCK",            nullptr, L"N=FLock(N,N)",                                              flockFunc,          nullptr, 0, 0,                                      MCODE_F_FLOCK,           },
-	{L"FMATCH",           nullptr, L"N=FMatch(S,Mask)",                                          fmatchFunc,         nullptr, 0, 0,                                      MCODE_F_FMATCH,          },
-	{L"FSPLIT",           nullptr, L"S=FSplit(S,N)",                                             fsplitFunc,         nullptr, 0, 0,                                      MCODE_F_FSPLIT,          },
-	{L"GETHOTKEY",        nullptr, L"S=GetHotkey([N])",                                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_GETHOTKEY,  },
-	{L"HISTORY.DISABLE",  nullptr, L"N=History.Disable([State])",                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_HISTIORY_DISABLE,},
-	{L"IIF",              nullptr, L"V=Iif(Condition,V1,V2)",                                    iifFunc,            nullptr, 0, 0,                                      MCODE_F_IIF,             },
-	{L"INDEX",            nullptr, L"S=Index(S1,S2[,Mode])",                                     indexFunc,          nullptr, 0, 0,                                      MCODE_F_INDEX,           },
-	{L"INT",              nullptr, L"N=Int(V)",                                                  intFunc,            nullptr, 0, 0,                                      MCODE_F_INT,             },
-	{L"ITOA",             nullptr, L"S=Itoa(N[,radix])",                                         itowFunc,           nullptr, 0, 0,                                      MCODE_F_ITOA,            },
-	{L"KBDLAYOUT",        nullptr, L"N=kbdLayout([N])",                                          kbdLayoutFunc,      nullptr, 0, 0,                                      MCODE_F_KBDLAYOUT,       },
-	{L"KEY",              nullptr, L"S=Key(V)",                                                  keyFunc,            nullptr, 0, 0,                                      MCODE_F_KEY,             },
-	{L"KEYBAR.SHOW",      nullptr, L"N=KeyBar.Show([N])",                                        keybarshowFunc,     nullptr, 0, 0,                                      MCODE_F_KEYBAR_SHOW,     },
-	{L"LCASE",            nullptr, L"S=LCase(S1)",                                               lcaseFunc,          nullptr, 0, 0,                                      MCODE_F_LCASE,           },
-	{L"LEN",              nullptr, L"N=Len(S)",                                                  lenFunc,            nullptr, 0, 0,                                      MCODE_F_LEN,             },
-	{L"MAX",              nullptr, L"N=Max(N1,N2)",                                              maxFunc,            nullptr, 0, 0,                                      MCODE_F_MAX,             },
-	{L"MENU.FILTER",      nullptr, L"N=Menu.Filter([Action[,Mode]])",                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_FILTER,     },
-	{L"MENU.FILTERSTR",   nullptr, L"N=Menu.FilterStr([Action[,S]])",                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_FILTERSTR,  },
-	{L"MENU.GETVALUE",    nullptr, L"S=Menu.GetValue([N])",                                      usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_GETVALUE,   },
-	{L"MENU.ITEMSTATUS",  nullptr, L"N=Menu.ItemStatus([N])",                                    usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_ITEMSTATUS, },
-	{L"MENU.SELECT",      nullptr, L"N=Menu.Select(S[,N[,Dir]])",                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_SELECT,     },
-	{L"MENU.SHOW",        nullptr, L"S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])", menushowFunc,       nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_MENU_SHOW,       },
-	{L"MIN",              nullptr, L"N=Min(N1,N2)",                                              minFunc,            nullptr, 0, 0,                                      MCODE_F_MIN,             },
-	{L"MLOAD",            nullptr, L"N=MLoad(S)",                                                mloadFunc,          nullptr, 0, 0,                                      MCODE_F_MLOAD,           },
-	{L"MMODE",            nullptr, L"N=MMode(Action[,Value])",                                   usersFunc,          nullptr, 0, 0,                                      MCODE_F_MMODE,           },
-	{L"MOD",              nullptr, L"N=Mod(a,b)",                                                modFunc,            nullptr, 0, 0,                                      MCODE_F_MOD,             },
-	{L"MSAVE",            nullptr, L"N=MSave(S)",                                                msaveFunc,          nullptr, 0, 0,                                      MCODE_F_MSAVE,           },
-	{L"MSGBOX",           nullptr, L"N=MsgBox([Title[,Text[,flags]]])",                          msgBoxFunc,         nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_MSGBOX,          },
-	{L"PANEL.FATTR",      nullptr, L"N=Panel.FAttr(panelType,fileMask)",                         panelfattrFunc,     nullptr, 0, 0,                                      MCODE_F_PANEL_FATTR,     },
-	{L"PANEL.FEXIST",     nullptr, L"N=Panel.FExist(panelType,fileMask)",                        panelfexistFunc,    nullptr, 0, 0,                                      MCODE_F_PANEL_FEXIST,    },
-	{L"PANEL.ITEM",       nullptr, L"V=Panel.Item(Panel,Index,TypeInfo)",                        panelitemFunc,      nullptr, 0, 0,                                      MCODE_F_PANELITEM,       },
-	{L"PANEL.SELECT",     nullptr, L"V=Panel.Select(panelType,Action[,Mode[,Items]])",           panelselectFunc,    nullptr, 0, 0,                                      MCODE_F_PANEL_SELECT,    },
-	{L"PANEL.SETPATH",    nullptr, L"N=panel.SetPath(panelType,pathName[,fileName])",            panelsetpathFunc,   nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPATH,   },
-	{L"PANEL.SETPOS",     nullptr, L"N=panel.SetPos(panelType,fileName)",                        panelsetposFunc,    nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOS,    },
-	{L"PANEL.SETPOSIDX",  nullptr, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])",            panelsetposidxFunc, nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOSIDX, },
-	{L"PANELITEM",        nullptr, L"V=PanelItem(Panel,Index,TypeInfo)",                         panelitemFunc,      nullptr, 0, 0,                                      MCODE_F_PANELITEM,       },
-	{L"PLUGIN.CALL",      nullptr, L"N=Plugin.Call(Guid[,Item])",                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CALL,     },
-	{L"PLUGIN.CMDLINE",   nullptr, L"N=Plugin.Cmdline(Guid[,Command])",                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CMDLINE,  },
-	{L"PLUGIN.CONFIG",    nullptr, L"N=Plugin.Config(Guid[,MenuGuid])",                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CONFIG,   },
-	{L"PLUGIN.EXIST",     nullptr, L"N=Plugin.Exist(Guid)",                                      pluginexistFunc,    nullptr, 0, 0,                                      MCODE_F_PLUGIN_EXIST,    },
-	{L"PLUGIN.LOAD",      nullptr, L"N=Plugin.Load(DllPath[,ForceLoad])",                        pluginloadFunc,     nullptr, 0, 0,                                      MCODE_F_PLUGIN_LOAD,     },
-	{L"PLUGIN.MENU",      nullptr, L"N=Plugin.Menu(Guid[,MenuGuid])",                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_MENU,     },
-	{L"PLUGIN.UNLOAD",    nullptr, L"N=Plugin.UnLoad(DllPath)",                                  pluginunloadFunc,   nullptr, 0, 0,                                      MCODE_F_PLUGIN_UNLOAD,   },
-	{L"PRINT",            nullptr, L"N=Print(Str)",                                              usersFunc,          nullptr, 0, 0,                                      MCODE_F_PRINT,           },
-	{L"PROMPT",           nullptr, L"S=Prompt([Title[,Prompt[,flags[,Src[,History]]]]])",        promptFunc,         nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PROMPT,          },
-	{L"REPLACE",          nullptr, L"S=Replace(Str,Find,Replace[,Cnt[,Mode]])",                  replaceFunc,        nullptr, 0, 0,                                      MCODE_F_REPLACE,         },
-	{L"RINDEX",           nullptr, L"S=RIndex(S1,S2[,Mode])",                                    rindexFunc,         nullptr, 0, 0,                                      MCODE_F_RINDEX,          },
- 	{L"SIZE2STR",         nullptr, L"S=Size2Str(N,Flags[,Width])",                               size2strFunc,       nullptr, 0, 0,                                      MCODE_F_SIZE2STR,        },
-	{L"SLEEP",            nullptr, L"N=Sleep(N)",                                                sleepFunc,          nullptr, 0, 0,                                      MCODE_F_SLEEP,           },
-	{L"STRING",           nullptr, L"S=String(V)",                                               stringFunc,         nullptr, 0, 0,                                      MCODE_F_STRING,          },
-	{L"STRWRAP",          nullptr, L"S=StrWrap(Text,Width[,Break[,Flags]])",                     strwrapFunc,        nullptr, 0, 0,                                      MCODE_F_STRWRAP,         },
-	{L"SUBSTR",           nullptr, L"S=SubStr(S,start[,length])",                                substrFunc,         nullptr, 0, 0,                                      MCODE_F_SUBSTR,          },
-	{L"TESTFOLDER",       nullptr, L"N=TestFolder(S)",                                           testfolderFunc,     nullptr, 0, 0,                                      MCODE_F_TESTFOLDER,      },
-	{L"TRIM",             nullptr, L"S=Trim(S[,N])",                                             trimFunc,           nullptr, 0, 0,                                      MCODE_F_TRIM,            },
-	{L"UCASE",            nullptr, L"S=UCase(S1)",                                               ucaseFunc,          nullptr, 0, 0,                                      MCODE_F_UCASE,           },
-	{L"WAITKEY",          nullptr, L"V=Waitkey([N,[T]])",                                        waitkeyFunc,        nullptr, 0, 0,                                      MCODE_F_WAITKEY,         },
-	{L"WINDOW.SCROLL",    nullptr, L"N=Window.Scroll(Lines[,Axis])",                             windowscrollFunc,   nullptr, 0, 0,                                      MCODE_F_WINDOW_SCROLL,   },
-	{L"XLAT",             nullptr, L"S=Xlat(S[,Flags])",                                         xlatFunc,           nullptr, 0, 0,                                      MCODE_F_XLAT,            },
+	{L"Abs",              nullptr, L"N=Abs(N)",                                                  absFunc,            nullptr, 0, 0,                                      MCODE_F_ABS,             },
+	{L"Akey",             nullptr, L"V=Akey(Mode[,Type])",                                       usersFunc,          nullptr, 0, 0,                                      MCODE_F_AKEY,            },
+	{L"Asc",              nullptr, L"N=Asc(N)",                                                  ascFunc,            nullptr, 0, 0,                                      MCODE_F_ASC,             },
+	{L"Atoi",             nullptr, L"N=Atoi(S[,Radix])",                                         atoiFunc,           nullptr, 0, 0,                                      MCODE_F_ATOI,            },
+	{L"Beep",             nullptr, L"N=Beep([N])",                                               beepFunc,           nullptr, 0, 0,                                      MCODE_F_BEEP,            },
+	{L"BM.Add",           nullptr, L"N=BM.Add()",                                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_ADD,          },
+	{L"BM.Clear",         nullptr, L"N=BM.Clear()",                                              usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_CLEAR,        },
+	{L"BM.Del",           nullptr, L"N=BM.Del([Idx])",                                           usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_DEL,          },
+	{L"BM.Get",           nullptr, L"N=BM.Get(Idx,M)",                                           usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_GET,          },
+	{L"BM.Goto",          nullptr, L"N=BM.Goto([N])",                                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_GOTO,         },
+	{L"BM.Next",          nullptr, L"N=BM.Next()",                                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_NEXT,         },
+	{L"BM.Pop",           nullptr, L"N=BM.Pop()",                                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_POP,          },
+	{L"BM.Prev",          nullptr, L"N=BM.Prev()",                                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_PREV,         },
+	{L"BM.Back",          nullptr, L"N=BM.Back()",                                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_BACK,         },
+	{L"BM.Push",          nullptr, L"N=BM.Push()",                                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_PUSH,         },
+	{L"BM.Stat",          nullptr, L"N=BM.Stat([N])",                                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_BM_STAT,         },
+	{L"CallPlugin",       nullptr, L"V=CallPlugin(SysID[,param])",                               usersFunc,          nullptr, 0, 0,                                      MCODE_F_CALLPLUGIN,      },
+	{L"CheckHotkey",      nullptr, L"N=CheckHotkey(S[,N])",                                      usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_CHECKHOTKEY,},
+	{L"Chr",              nullptr, L"S=Chr(N)",                                                  chrFunc,            nullptr, 0, 0,                                      MCODE_F_CHR,             },
+	{L"Clip",             nullptr, L"V=Clip(N[,V])",                                             clipFunc,           nullptr, 0, 0,                                      MCODE_F_CLIP,            },
+	{L"Date",             nullptr, L"S=Date([S])",                                               dateFunc,           nullptr, 0, 0,                                      MCODE_F_DATE,            },
+	{L"Dlg.GetValue",     nullptr, L"V=Dlg.GetValue([Pos[,InfoID]])",                            dlggetvalueFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_GETVALUE,    },
+	{L"Dlg.SetFocus",     nullptr, L"N=Dlg.SetFocus([ID])",                                      dlgsetfocusFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_SETFOCUS,    },
+	{L"Editor.Pos",       nullptr, L"N=Editor.Pos(Op,What[,Where])",                             editorposFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_POS,      },
+	{L"Editor.Sel",       nullptr, L"V=Editor.Sel(Action[,Opt])",                                editorselFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SEL,      },
+	{L"Editor.Set",       nullptr, L"N=Editor.Set(N,Var)",                                       editorsetFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SET,      },
+	{L"Editor.Settitle",  nullptr, L"N=Editor.SetTitle([Title])",                                editorsettitleFunc, nullptr, 0, 0,                                      MCODE_F_EDITOR_SETTITLE, },
+	{L"Editor.Undo",      nullptr, L"V=Editor.Undo(N)",                                          editorundoFunc,     nullptr, 0, 0,                                      MCODE_F_EDITOR_UNDO,     },
+	{L"Env",              nullptr, L"S=Env(S[,Mode[,Value]])",                                   environFunc,        nullptr, 0, 0,                                      MCODE_F_ENVIRON,         },
+	{L"Eval",             nullptr, L"N=Eval(S[,N])",                                             usersFunc,          nullptr, 0, 0,                                      MCODE_F_EVAL,            },
+	{L"Far.Cfg.Get",      nullptr, L"V=Far.Cfg.Get(Key,Name)",                                   farcfggetFunc,      nullptr, 0, 0,                                      MCODE_F_FAR_CFG_GET,     },
+	{L"FAttr",            nullptr, L"N=FAttr(S)",                                                fattrFunc,          nullptr, 0, 0,                                      MCODE_F_FATTR,           },
+	{L"FExist",           nullptr, L"N=FExist(S)",                                               fexistFunc,         nullptr, 0, 0,                                      MCODE_F_FEXIST,          },
+	{L"Float",            nullptr, L"N=Float(V)",                                                floatFunc,          nullptr, 0, 0,                                      MCODE_F_FLOAT,           },
+	{L"FLock",            nullptr, L"N=FLock(N,N)",                                              flockFunc,          nullptr, 0, 0,                                      MCODE_F_FLOCK,           },
+	{L"FMatch",           nullptr, L"N=FMatch(S,Mask)",                                          fmatchFunc,         nullptr, 0, 0,                                      MCODE_F_FMATCH,          },
+	{L"FSplit",           nullptr, L"S=FSplit(S,N)",                                             fsplitFunc,         nullptr, 0, 0,                                      MCODE_F_FSPLIT,          },
+	{L"GetHotkey",        nullptr, L"S=GetHotkey([N])",                                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_GETHOTKEY,  },
+	{L"History.Disable",  nullptr, L"N=History.Disable([State])",                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_HISTIORY_DISABLE,},
+	{L"Iif",              nullptr, L"V=Iif(Condition,V1,V2)",                                    iifFunc,            nullptr, 0, 0,                                      MCODE_F_IIF,             },
+	{L"Index",            nullptr, L"S=Index(S1,S2[,Mode])",                                     indexFunc,          nullptr, 0, 0,                                      MCODE_F_INDEX,           },
+	{L"Int",              nullptr, L"N=Int(V)",                                                  intFunc,            nullptr, 0, 0,                                      MCODE_F_INT,             },
+	{L"Itoa",             nullptr, L"S=Itoa(N[,radix])",                                         itowFunc,           nullptr, 0, 0,                                      MCODE_F_ITOA,            },
+	{L"KbdLayout",        nullptr, L"N=kbdLayout([N])",                                          kbdLayoutFunc,      nullptr, 0, 0,                                      MCODE_F_KBDLAYOUT,       },
+	{L"Key",              nullptr, L"S=Key(V)",                                                  keyFunc,            nullptr, 0, 0,                                      MCODE_F_KEY,             },
+	{L"KeyBar.Show",      nullptr, L"N=KeyBar.Show([N])",                                        keybarshowFunc,     nullptr, 0, 0,                                      MCODE_F_KEYBAR_SHOW,     },
+	{L"LCase",            nullptr, L"S=LCase(S1)",                                               lcaseFunc,          nullptr, 0, 0,                                      MCODE_F_LCASE,           },
+	{L"Len",              nullptr, L"N=Len(S)",                                                  lenFunc,            nullptr, 0, 0,                                      MCODE_F_LEN,             },
+	{L"Macro.Const",      nullptr, L"S=Macro.Const(Index[,Type])",                               macroenumConstFunc, nullptr, 0, 0,                                      MCODE_F_MACRO_CONST,     },
+	{L"Macro.Func",       nullptr, L"S=Macro.Func(Index[,Type])",                                macroenumfuncFunc,  nullptr, 0, 0,                                      MCODE_F_MACRO_FUNC,      },
+	{L"Macro.Keyword",    nullptr, L"S=Macro.Keyword(Index[,Type])",                             macroenumkwdFunc,   nullptr, 0, 0,                                      MCODE_F_MACRO_KEYWORD,   },
+	{L"Macro.Var",        nullptr, L"S=Macro.Var(Index[,Type])",                                 macroenumvarFunc,   nullptr, 0, 0,                                      MCODE_F_MACRO_VAR,       },
+	{L"Max",              nullptr, L"N=Max(N1,N2)",                                              maxFunc,            nullptr, 0, 0,                                      MCODE_F_MAX,             },
+	{L"Menu.Filter",      nullptr, L"N=Menu.Filter([Action[,Mode]])",                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_FILTER,     },
+	{L"Menu.FilterStr",   nullptr, L"N=Menu.FilterStr([Action[,S]])",                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_FILTERSTR,  },
+	{L"Menu.GetValue",    nullptr, L"S=Menu.GetValue([N])",                                      usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_GETVALUE,   },
+	{L"Menu.ItemStatus",  nullptr, L"N=Menu.ItemStatus([N])",                                    usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_ITEMSTATUS, },
+	{L"Menu.Select",      nullptr, L"N=Menu.Select(S[,N[,Dir]])",                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_MENU_SELECT,     },
+	{L"Menu.Show",        nullptr, L"S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])", menushowFunc,       nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_MENU_SHOW,       },
+	{L"Min",              nullptr, L"N=Min(N1,N2)",                                              minFunc,            nullptr, 0, 0,                                      MCODE_F_MIN,             },
+	{L"MLoad",            nullptr, L"N=MLoad(S)",                                                mloadFunc,          nullptr, 0, 0,                                      MCODE_F_MLOAD,           },
+	{L"MMode",            nullptr, L"N=MMode(Action[,Value])",                                   usersFunc,          nullptr, 0, 0,                                      MCODE_F_MMODE,           },
+	{L"Mod",              nullptr, L"N=Mod(a,b)",                                                modFunc,            nullptr, 0, 0,                                      MCODE_F_MOD,             },
+	{L"MSave",            nullptr, L"N=MSave(S)",                                                msaveFunc,          nullptr, 0, 0,                                      MCODE_F_MSAVE,           },
+	{L"MsgBox",           nullptr, L"N=MsgBox([Title[,Text[,flags]]])",                          msgBoxFunc,         nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_MSGBOX,          },
+	{L"Panel.FAttr",      nullptr, L"N=Panel.FAttr(panelType,fileMask)",                         panelfattrFunc,     nullptr, 0, 0,                                      MCODE_F_PANEL_FATTR,     },
+	{L"Panel.FExist",     nullptr, L"N=Panel.FExist(panelType,fileMask)",                        panelfexistFunc,    nullptr, 0, 0,                                      MCODE_F_PANEL_FEXIST,    },
+	{L"Panel.Item",       nullptr, L"V=Panel.Item(Panel,Index,TypeInfo)",                        panelitemFunc,      nullptr, 0, 0,                                      MCODE_F_PANELITEM,       },
+	{L"Panel.Select",     nullptr, L"V=Panel.Select(panelType,Action[,Mode[,Items]])",           panelselectFunc,    nullptr, 0, 0,                                      MCODE_F_PANEL_SELECT,    },
+	{L"Panel.SetPath",    nullptr, L"N=panel.SetPath(panelType,pathName[,fileName])",            panelsetpathFunc,   nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPATH,   },
+	{L"Panel.SetPos",     nullptr, L"N=panel.SetPos(panelType,fileName)",                        panelsetposFunc,    nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOS,    },
+	{L"Panel.SetPosIdx",  nullptr, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])",            panelsetposidxFunc, nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOSIDX, },
+	{L"PanelItem",        nullptr, L"V=PanelItem(Panel,Index,TypeInfo)",                         panelitemFunc,      nullptr, 0, 0,                                      MCODE_F_PANELITEM,       },
+	{L"Plugin.Call",      nullptr, L"N=Plugin.Call(Guid[,Item])",                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CALL,     },
+	{L"Plugin.Command",   nullptr, L"N=Plugin.Command(Guid[,Command])",                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_COMMAND,  },
+	{L"Plugin.Config",    nullptr, L"N=Plugin.Config(Guid[,MenuGuid])",                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CONFIG,   },
+	{L"Plugin.Exist",     nullptr, L"N=Plugin.Exist(Guid)",                                      pluginexistFunc,    nullptr, 0, 0,                                      MCODE_F_PLUGIN_EXIST,    },
+	{L"Plugin.Load",      nullptr, L"N=Plugin.Load(DllPath[,ForceLoad])",                        pluginloadFunc,     nullptr, 0, 0,                                      MCODE_F_PLUGIN_LOAD,     },
+	{L"Plugin.Menu",      nullptr, L"N=Plugin.Menu(Guid[,MenuGuid])",                            usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_MENU,     },
+	{L"Plugin.UnLoad",    nullptr, L"N=Plugin.UnLoad(DllPath)",                                  pluginunloadFunc,   nullptr, 0, 0,                                      MCODE_F_PLUGIN_UNLOAD,   },
+	{L"Print",            nullptr, L"N=Print(Str)",                                              usersFunc,          nullptr, 0, 0,                                      MCODE_F_PRINT,           },
+	{L"Prompt",           nullptr, L"S=Prompt([Title[,Prompt[,flags[,Src[,History]]]]])",        promptFunc,         nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PROMPT,          },
+	{L"Replace",          nullptr, L"S=Replace(Str,Find,Replace[,Cnt[,Mode]])",                  replaceFunc,        nullptr, 0, 0,                                      MCODE_F_REPLACE,         },
+	{L"Rindex",           nullptr, L"S=RIndex(S1,S2[,Mode])",                                    rindexFunc,         nullptr, 0, 0,                                      MCODE_F_RINDEX,          },
+ 	{L"Size2Str",         nullptr, L"S=Size2Str(N,Flags[,Width])",                               size2strFunc,       nullptr, 0, 0,                                      MCODE_F_SIZE2STR,        },
+	{L"Sleep",            nullptr, L"N=Sleep(N)",                                                sleepFunc,          nullptr, 0, 0,                                      MCODE_F_SLEEP,           },
+	{L"String",           nullptr, L"S=String(V)",                                               stringFunc,         nullptr, 0, 0,                                      MCODE_F_STRING,          },
+	{L"StrWrap",          nullptr, L"S=StrWrap(Text,Width[,Break[,Flags]])",                     strwrapFunc,        nullptr, 0, 0,                                      MCODE_F_STRWRAP,         },
+	{L"SubStr",           nullptr, L"S=SubStr(S,start[,length])",                                substrFunc,         nullptr, 0, 0,                                      MCODE_F_SUBSTR,          },
+	{L"TestFolder",       nullptr, L"N=TestFolder(S)",                                           testfolderFunc,     nullptr, 0, 0,                                      MCODE_F_TESTFOLDER,      },
+	{L"Trim",             nullptr, L"S=Trim(S[,N])",                                             trimFunc,           nullptr, 0, 0,                                      MCODE_F_TRIM,            },
+	{L"UCase",            nullptr, L"S=UCase(S1)",                                               ucaseFunc,          nullptr, 0, 0,                                      MCODE_F_UCASE,           },
+	{L"WaitKey",          nullptr, L"V=Waitkey([N,[T]])",                                        waitkeyFunc,        nullptr, 0, 0,                                      MCODE_F_WAITKEY,         },
+	{L"Window.Scroll",    nullptr, L"N=Window.Scroll(Lines[,Axis])",                             windowscrollFunc,   nullptr, 0, 0,                                      MCODE_F_WINDOW_SCROLL,   },
+	{L"Xlat",             nullptr, L"S=Xlat(S[,Flags])",                                         xlatFunc,           nullptr, 0, 0,                                      MCODE_F_XLAT,            },
 	{}
 };
 
@@ -1195,7 +1204,7 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 					Cond=((Counter.QuadPart-FarUpTime.QuadPart)*1000)/Frequency.QuadPart;
 					break;
 				}
-				case MCODE_V_MACROAREA:
+				case MCODE_V_MACRO_AREA:
 					Cond=GetAreaName(CtrlObject->Macro.GetMode());
 					break;
 				case MCODE_C_FULLSCREENMODE: // Fullscreen?
@@ -4449,7 +4458,7 @@ static bool editorselFunc(const TMacroFunction*)
 	return Ret.i() == 1;
 }
 
-// V=Editor.Undo(N)
+// V=Editor.Undo(Action)
 static bool editorundoFunc(const TMacroFunction*)
 {
 	parseParams(1,Params);
@@ -4538,6 +4547,142 @@ static bool pluginunloadFunc(const TMacroFunction*)
 	return Ret.i()!=0;
 }
 
+// S=Macro.Keyword(Index[,Type])
+static bool macroenumkwdFunc(const TMacroFunction*)
+{
+	parseParams(2,Params);
+	TVar Ret(L"");
+	TVar& Index(Params[0]);
+	TVar& Type(Params[1]);
+
+	if (Index.isInteger())
+	{
+		size_t I=Index.toInteger()-1;
+
+		if ((int)I < 0)
+		{
+			size_t CountsDefs[]={ARRAYSIZE(MKeywords),ARRAYSIZE(MKeywordsArea),ARRAYSIZE(MKeywordsFlags),ARRAYSIZE(KeyMacroCodes)};
+			int iType = Type.toInteger();
+			Ret=(int)((iType < ARRAYSIZE(CountsDefs))?CountsDefs[iType]:-1);
+		}
+		else
+		{
+			switch (Type.toInteger())
+			{
+				case 0: // Far Keywords
+				{
+					if (I < ARRAYSIZE(MKeywords))
+						Ret=MKeywords[I].Name;
+					break;
+				}
+				case 1: // Area
+				{
+					if (I < ARRAYSIZE(MKeywordsArea))
+						Ret=MKeywordsArea[I].Name;
+					break;
+				}
+				case 2: // Macro Flags
+				{
+					if (I < ARRAYSIZE(MKeywordsFlags))
+						Ret=MKeywordsFlags[I].Name;
+					break;
+				}
+				case 3: // Macro Operation
+				{
+					if (I < ARRAYSIZE(KeyMacroCodes))
+						Ret=KeyMacroCodes[I].Name;
+					break;
+				}
+			}
+		}
+	}
+
+	VMStack.Push(Ret);
+	return Ret.isString()?(*Ret.s()!=0):(Ret.i() != -1);
+}
+
+// S=Macro.Func(Index[,Type])
+static bool macroenumfuncFunc(const TMacroFunction*)
+{
+	parseParams(2,Params);
+	TVar Ret(L"");
+	TVar& Index(Params[0]);
+	TVar& Type(Params[1]);
+
+	if (Index.isInteger())
+	{
+		size_t I=Index.toInteger()-1;
+
+		if ((int)I < 0)
+			Ret=(int)KeyMacro::GetCountMacroFunction();
+		else
+		{
+			const TMacroFunction *MFunc=KeyMacro::GetMacroFunction(I);
+			if (MFunc)
+			{
+				switch (Type.toInteger())
+				{
+					case 0: // Name
+						Ret=(const wchar_t*)MFunc->Name;
+						break;
+					case 1: // Syntax
+						Ret=(const wchar_t*)MFunc->Syntax;
+						break;
+					case 2: // GUID Host
+						Ret=(const wchar_t*)MFunc->fnGUID;
+						break;
+				}
+			}
+		}
+	}
+
+	VMStack.Push(Ret);
+	return Ret.isString()?(*Ret.s()!=0):(Ret.i() != -1);
+}
+
+static bool _MacroEnumWords(int TypeTable,const TMacroFunction *)
+{
+	parseParams(2,Params);
+	TVar Ret(0);
+	TVar& Index(Params[1]);
+	TVar& Type(Params[0]);
+
+	Ret.SetType(vtUnknown);
+	if (Index.isInteger())
+	{
+		size_t I=Index.toInteger()-1;
+
+		TVarSet *v=varEnum((TypeTable==MACRO_VARS)?glbVarTable:glbConstTable,I);
+		if (v)
+		{
+			switch (Type.toInteger())
+			{
+				case 0: // Name
+					Ret=(const wchar_t*)v->str;
+					break;
+				case 1: // Value
+					Ret=v->value;
+					break;
+			}
+
+		}
+	}
+
+	VMStack.Push(Ret);
+	return Ret.isUnknown()?false:true;
+}
+
+// S=Macro.Var(Index[,Type])
+static bool macroenumvarFunc(const TMacroFunction *mf)
+{
+	return _MacroEnumWords(MACRO_VARS,mf);
+}
+
+// S=Macro.Const(Index[,Type])
+static bool macroenumConstFunc(const TMacroFunction *mf)
+{
+	return _MacroEnumWords(MACRO_CONSTS,mf);
+}
 
 static void VarToFarMacroValue(const TVar& From,FarMacroValue& To)
 {
@@ -5809,9 +5954,9 @@ done:
 
 		case MCODE_F_PLUGIN_MENU:   // N=Plugin.Menu(Guid[,MenuGuid])
 		case MCODE_F_PLUGIN_CONFIG: // N=Plugin.Config(Guid[,MenuGuid])
-		case MCODE_F_PLUGIN_CMDLINE: // N=Plugin.Cmdline(Guid[,Command])
+		case MCODE_F_PLUGIN_COMMAND: // N=Plugin.Command(Guid[,Command])
 		{
-			_KEYMACRO(CleverSysLog Clev(Key == MCODE_F_PLUGIN_MENU?L"Plugin.Menu()":(Key == MCODE_F_PLUGIN_CONFIG?L"Plugin.Config()":L"Plugin.Cmdline()")));
+			_KEYMACRO(CleverSysLog Clev(Key == MCODE_F_PLUGIN_MENU?L"Plugin.Menu()":(Key == MCODE_F_PLUGIN_CONFIG?L"Plugin.Config()":L"Plugin.Command()")));
 			__int64 Ret=0;
 			parseParams(2,Params);
 			TVar& Arg = (Params[1]);
@@ -5844,7 +5989,7 @@ done:
 							ItemFailed=true;
 					}
 					break;
-				case MCODE_F_PLUGIN_CMDLINE:
+				case MCODE_F_PLUGIN_COMMAND:
 					Data.CallFlags |= CPT_CMDLINE;
 					if (Arg.isString())
 						Data.Command=Arg.s();

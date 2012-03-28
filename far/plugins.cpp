@@ -2473,7 +2473,8 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Re
 			if (Ret)
 			{
 				PluginHandle *handle=(PluginHandle *)hNewPlugin;
-				*Ret = !hNewPlugin || handle->hPlugin? 1 : 0;
+				*Ret = (hNewPlugin && handle->hPlugin) ? 1 : 0;
+				delete handle;
 			}
 
 			return TRUE;
