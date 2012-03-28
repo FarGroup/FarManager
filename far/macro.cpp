@@ -111,7 +111,6 @@ TMacroKeywords MKeywords[] =
 	{0,  L"UserMenu",                 MCODE_C_AREA_USERMENU,0},
 	{0,  L"Shell.AutoCompletion",     MCODE_C_AREA_SHELL_AUTOCOMPLETION,0},
 	{0,  L"Dialog.AutoCompletion",    MCODE_C_AREA_DIALOG_AUTOCOMPLETION,0},
-	{0,  L"Common",                   MCODE_C_AREA_COMMON,0},
 
 	// ÏÐÎ×ÅÅ
 	{2,  L"Bof",                MCODE_C_BOF,0},
@@ -258,10 +257,10 @@ TMacroKeywords MKeywordsArea[] =
 
 TMacroKeywords MKeywordsVarType[] =
 {
-	{3,  L"unknown",   0, 0},
-	{3,  L"integer",   1, 0},
-	{3,  L"text",      2, 0},
-	{3,  L"real",      3, 0},
+	{3,  L"unknown",   vtUnknown, 0},
+	{3,  L"integer",   vtInteger, 0},
+	{3,  L"text",      vtString,  0},
+	{3,  L"real",      vtDouble,  0},
 };
 
 TMacroKeywords MKeywordsFlags[] =
@@ -4561,7 +4560,7 @@ static bool macroenumkwdFunc(const TMacroFunction*)
 
 		if ((int)I < 0)
 		{
-			size_t CountsDefs[]={ARRAYSIZE(MKeywords),ARRAYSIZE(MKeywordsArea),ARRAYSIZE(MKeywordsFlags),ARRAYSIZE(KeyMacroCodes)};
+			size_t CountsDefs[]={ARRAYSIZE(MKeywords),ARRAYSIZE(MKeywordsArea),ARRAYSIZE(MKeywordsFlags),ARRAYSIZE(KeyMacroCodes),ARRAYSIZE(MKeywordsVarType)};
 			int iType = Type.toInteger();
 			Ret=(int)((iType < ARRAYSIZE(CountsDefs))?CountsDefs[iType]:-1);
 		}
@@ -4591,6 +4590,12 @@ static bool macroenumkwdFunc(const TMacroFunction*)
 				{
 					if (I < ARRAYSIZE(KeyMacroCodes))
 						Ret=KeyMacroCodes[I].Name;
+					break;
+				}
+				case 4: // type name
+				{
+					if (I < ARRAYSIZE(MKeywordsVarType))
+						Ret=MKeywordsVarType[I].Name;
 					break;
 				}
 			}
@@ -4640,7 +4645,7 @@ static bool macroenumfuncFunc(const TMacroFunction*)
 	return Ret.isString()?(*Ret.s()!=0):(Ret.i() != -1);
 }
 
-static bool _MacroEnumWords(int TypeTable,const TMacroFunction *)
+static bool _MacroEnumWords(int TypeTable,const TMacroFunction*)
 {
 	parseParams(2,Params);
 	TVar Ret(0);
@@ -4652,7 +4657,9 @@ static bool _MacroEnumWords(int TypeTable,const TMacroFunction *)
 	{
 		size_t I=Index.toInteger()-1;
 
-		TVarSet *v=varEnum((TypeTable==MACRO_VARS)?glbVarTable:glbConstTable,I);
+		//TVarTable *t = KeyMacro::GetLocalVarTable();
+		TVarTable *t=(TypeTable==MACRO_VARS)?&glbVarTable:&glbConstTable;
+		TVarSet *v=varEnum(*t,I);
 		if (v)
 		{
 			switch (Type.toInteger())
@@ -4662,6 +4669,12 @@ static bool _MacroEnumWords(int TypeTable,const TMacroFunction *)
 					break;
 				case 1: // Value
 					Ret=v->value;
+					break;
+				case 2: // Type (÷èñëî)
+					Ret=v->value.type();
+					break;
+				case 3: // TypeName
+					Ret=(const wchar_t*)MKeywordsVarType[v->value.type()].Name;
 					break;
 			}
 
@@ -8256,4 +8269,12 @@ int KeyMacro::GetCurrentCallPluginMode()
 		Ret=MR->Flags&MFLAGS_CALLPLUGINENABLEMACRO?1:0;
 	}
 	return Ret;
+}
+
+TVarTable *KeyMacro::GetLocalVarTable()
+{
+	if (CtrlObject)
+		return CtrlObject->Macro.Work.locVarTable;
+
+	return nullptr;
 }

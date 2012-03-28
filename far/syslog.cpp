@@ -1310,7 +1310,6 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(C_AREA_USERMENU),            // Меню пользователя
 		DEF_MCODE_(C_AREA_SHELL_AUTOCOMPLETION),// Список автодополнения в панелях в ком.строке
 		DEF_MCODE_(C_AREA_DIALOG_AUTOCOMPLETION),// Список автодополнения в диалоге
-		DEF_MCODE_(C_AREA_COMMON),              // Везде
 		DEF_MCODE_(C_FULLSCREENMODE),           // полноэкранный режим?
 		DEF_MCODE_(C_ISUSERADMIN),              // Administrator status
 		DEF_MCODE_(C_BOF),                      // начало файла/активного каталога?

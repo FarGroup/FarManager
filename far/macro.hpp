@@ -356,6 +356,8 @@ class KeyMacro
 		void DelMacro(size_t Index);
 
 		int GetCurrentCallPluginMode();
+
+		static TVarTable *GetLocalVarTable();
 };
 
 BOOL KeyMacroToText(int Key,string &strKeyText0);
