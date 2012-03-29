@@ -4560,7 +4560,7 @@ static bool macroenumkwdFunc(const TMacroFunction*)
 
 		if ((int)I < 0)
 		{
-			size_t CountsDefs[]={ARRAYSIZE(MKeywords),ARRAYSIZE(MKeywordsArea),ARRAYSIZE(MKeywordsFlags),ARRAYSIZE(KeyMacroCodes),ARRAYSIZE(MKeywordsVarType)};
+			size_t CountsDefs[]={ARRAYSIZE(MKeywords),ARRAYSIZE(MKeywordsArea)-3,ARRAYSIZE(MKeywordsFlags),ARRAYSIZE(KeyMacroCodes),ARRAYSIZE(MKeywordsVarType)};
 			int iType = Type.toInteger();
 			Ret=(int)((iType < ARRAYSIZE(CountsDefs))?CountsDefs[iType]:-1);
 		}
@@ -4576,6 +4576,7 @@ static bool macroenumkwdFunc(const TMacroFunction*)
 				}
 				case 1: // Area
 				{
+					I+=3;
 					if (I < ARRAYSIZE(MKeywordsArea))
 						Ret=MKeywordsArea[I].Name;
 					break;
@@ -4649,8 +4650,8 @@ static bool _MacroEnumWords(int TypeTable,const TMacroFunction*)
 {
 	parseParams(2,Params);
 	TVar Ret(0);
-	TVar& Index(Params[1]);
-	TVar& Type(Params[0]);
+	TVar& Index(Params[0]);
+	TVar& Type(Params[1]);
 
 	Ret.SetType(vtUnknown);
 	if (Index.isInteger())
@@ -4659,25 +4660,35 @@ static bool _MacroEnumWords(int TypeTable,const TMacroFunction*)
 
 		//TVarTable *t = KeyMacro::GetLocalVarTable();
 		TVarTable *t=(TypeTable==MACRO_VARS)?&glbVarTable:&glbConstTable;
-		TVarSet *v=varEnum(*t,I);
-		if (v)
-		{
-			switch (Type.toInteger())
-			{
-				case 0: // Name
-					Ret=(const wchar_t*)v->str;
-					break;
-				case 1: // Value
-					Ret=v->value;
-					break;
-				case 2: // Type (число)
-					Ret=v->value.type();
-					break;
-				case 3: // TypeName
-					Ret=(const wchar_t*)MKeywordsVarType[v->value.type()].Name;
-					break;
-			}
 
+		if (I < 0)
+		{
+			for (I=0; varEnum(*t,I); ++I)
+				;
+			Ret=I;
+		}
+		else
+		{
+			TVarSet *v=varEnum(*t,I);
+
+			if (v)
+			{
+				switch (Type.toInteger())
+				{
+					case 0: // Name
+						Ret=(const wchar_t*)v->str;
+						break;
+					case 1: // Value
+						Ret=v->value;
+						break;
+					case 2: // Type (число)
+						Ret=v->value.type();
+						break;
+					case 3: // TypeName
+						Ret=(const wchar_t*)MKeywordsVarType[v->value.type()].Name;
+						break;
+				}
+			}
 		}
 	}
 
