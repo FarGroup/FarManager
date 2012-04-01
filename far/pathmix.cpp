@@ -75,6 +75,22 @@ bool IsNetworkPath(const wchar_t *Path)
 	return Path && ((Path[0] == L'\\' && Path[1] == L'\\' && !HasPathPrefix(Path))||(HasPathPrefix(Path) && !StrCmpNI(Path+4,L"UNC\\",4)));
 }
 
+bool IsNetworkRootPath(const wchar_t *Path)
+{
+	bool Result=false;
+	if(IsNetworkPath(Path))
+	{
+		LPCWSTR SharePtr=wcspbrk(HasPathPrefix(Path)?Path+8:Path+2,L"\\/");
+		if (SharePtr)
+		{
+			LPCWSTR PathPtr=wcspbrk(SharePtr+1,L"\\/");
+			if(!PathPtr || (PathPtr && !PathPtr[1]))
+				Result = true;
+		}
+	}
+	return Result;
+}
+
 bool IsNetworkServerPath(const wchar_t *Path)
 {
 /*

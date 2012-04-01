@@ -2589,22 +2589,15 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 	strSetDir = NewDir;
 	bool dot2Present = !StrCmp(strSetDir, L"..");
 
+	bool RootPath = false;
 	if (PanelMode!=PLUGIN_PANEL)
 	{
-		/* $ 28.08.2007 YJH
-		+ ” форточек сносит крышу на GetFileAttributes("..") при нахождении в
-		корне UNC пути. ѕриходитс€ обходить в ручную */
-		if (dot2Present &&
-		        !StrCmpN(strCurDir, L"\\\\?\\", 4) && strCurDir.At(4) &&
-		        !StrCmpN(&strCurDir[5], L":\\",2))
+		if (dot2Present)
 		{
-			if (!strCurDir.At(7))
+			RootPath = IsLocalRootPath(strCurDir) || IsLocalPrefixRootPath(strCurDir) || IsLocalVolumeRootPath(strCurDir) || IsNetworkRootPath(strCurDir);
+			strSetDir = strCurDir;
+			if (!RootPath)
 			{
-				strSetDir = strCurDir.CPtr()+4;
-			}
-			else
-			{
-				strSetDir = strCurDir;
 				CutToSlash(strSetDir);
 			}
 		}
@@ -2731,41 +2724,21 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
 		if (dot2Present)
 		{
-			string strRootDir, strTempDir;
-			strTempDir = strCurDir;
-			AddEndSlash(strTempDir);
-			GetPathRoot(strTempDir, strRootDir);
-
-			if ((strCurDir.At(0) == L'\\' && strCurDir.At(1) == L'\\' && !StrCmpI(strTempDir,strRootDir)) || IsLocalRootPath(strCurDir))
+			if (RootPath)
 			{
-				string strDirName;
-				strDirName = strCurDir;
-				AddEndSlash(strDirName);
-
-				if (Opt.PgUpChangeDisk && (FAR_GetDriveType(strDirName) != DRIVE_REMOTE
-					|| !CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Network)
-					))
+				if (IsNetworkRootPath(strCurDir))
 				{
-					CtrlObject->Cp()->ActivePanel->ChangeDisk();
-					return TRUE;
-				}
-
-				string strNewCurDir;
-				strNewCurDir = strCurDir;
-
-				if (strNewCurDir.At(1) == L':')
-				{
-					wchar_t Letter=strNewCurDir.At(0);
-					DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strNewCurDir);
-				}
-
-				if (!strNewCurDir.IsEmpty())  // проверим - может не удалось определить RemoteName
-				{
-					const wchar_t *PtrS1=FirstSlash(strNewCurDir.CPtr()+2);
-					if (PtrS1 && !FirstSlash(PtrS1+1))
+					if (CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Network,OPEN_FILEPANEL,(void*)strCurDir.CPtr())) // NetWork Plugin :-)
 					{
-						if (CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Network,OPEN_FILEPANEL,(void*)strNewCurDir.CPtr())) // NetWork Plugin :-)
-							return FALSE;
+						return FALSE;
+					}
+				}
+				else
+				{
+					if (Opt.PgUpChangeDisk)
+					{
+						CtrlObject->Cp()->ActivePanel->ChangeDisk();
+						return TRUE;
 					}
 				}
 			}
