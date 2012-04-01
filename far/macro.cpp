@@ -4562,7 +4562,7 @@ static bool macroenumkwdFunc(const TMacroFunction*)
 		{
 			size_t CountsDefs[]={ARRAYSIZE(MKeywords),ARRAYSIZE(MKeywordsArea)-3,ARRAYSIZE(MKeywordsFlags),ARRAYSIZE(KeyMacroCodes),ARRAYSIZE(MKeywordsVarType)};
 			int iType = Type.toInteger();
-			Ret=(int)((iType < ARRAYSIZE(CountsDefs))?CountsDefs[iType]:-1);
+			Ret=(int)(((unsigned)iType < ARRAYSIZE(CountsDefs))?CountsDefs[iType]:-1);
 		}
 		else
 		{

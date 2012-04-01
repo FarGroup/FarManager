@@ -2219,6 +2219,10 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 						if (PInfo.Flags & OPIF_USECRC32)
 							Info->Flags |= PFLAGS_USECRC32;
+
+						if (PInfo.Flags & OPIF_SHORTCUT)
+							Info->Flags |= PFLAGS_SHORTCUT;
+
 						Reenter--;
 					}
 				}
@@ -2296,27 +2300,25 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			{
 				Reenter++;
 				ShortcutInfo Info;
-				if(GetShortcutInfo(Info))
+				GetShortcutInfo(Info);
+				Result=ALIGN(sizeof(FarPanelDirectory));
+				size_t folderOffset=Result;
+				Result+=static_cast<int>(sizeof(wchar_t)*(Info.ShortcutFolder.GetLength()+1));
+				size_t pluginFileOffset=Result;
+				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginFile.GetLength()+1));
+				size_t pluginDataOffset=Result;
+				Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginData.GetLength()+1));
+				FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
+				if(Param1>=Result && CheckStructSize(dirInfo))
 				{
-					Result=ALIGN(sizeof(FarPanelDirectory));
-					size_t folderOffset=Result;
-					Result+=static_cast<int>(sizeof(wchar_t)*(Info.ShortcutFolder.GetLength()+1));
-					size_t pluginFileOffset=Result;
-					Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginFile.GetLength()+1));
-					size_t pluginDataOffset=Result;
-					Result+=static_cast<int>(sizeof(wchar_t)*(Info.PluginData.GetLength()+1));
-					FarPanelDirectory* dirInfo=(FarPanelDirectory*)Param2;
-					if(Param1>=Result && CheckStructSize(dirInfo))
-					{
-						dirInfo->StructSize=sizeof(FarPanelDirectory);
-						dirInfo->PluginId=Info.PluginGuid;
-						dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
-						dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
-						dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
-						wmemcpy((wchar_t*)dirInfo->Name,Info.ShortcutFolder,Info.ShortcutFolder.GetLength()+1);
-						wmemcpy((wchar_t*)dirInfo->Param,Info.PluginData,Info.PluginData.GetLength()+1);
-						wmemcpy((wchar_t*)dirInfo->File,Info.PluginFile,Info.PluginFile.GetLength()+1);
-					}
+					dirInfo->StructSize=sizeof(FarPanelDirectory);
+					dirInfo->PluginId=Info.PluginGuid;
+					dirInfo->Name=(wchar_t*)((char*)Param2+folderOffset);
+					dirInfo->Param=(wchar_t*)((char*)Param2+pluginDataOffset);
+					dirInfo->File=(wchar_t*)((char*)Param2+pluginFileOffset);
+					wmemcpy((wchar_t*)dirInfo->Name,Info.ShortcutFolder,Info.ShortcutFolder.GetLength()+1);
+					wmemcpy((wchar_t*)dirInfo->Param,Info.PluginData,Info.PluginData.GetLength()+1);
+					wmemcpy((wchar_t*)dirInfo->File,Info.PluginFile,Info.PluginFile.GetLength()+1);
 				}
 				Reenter--;
 			}
@@ -2576,6 +2578,7 @@ BOOL Panel::NeedUpdatePanel(Panel *AnotherPanel)
 
 bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 {
+	bool result=true;
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		HANDLE hPlugin=GetPluginHandle();
@@ -2583,10 +2586,10 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 		ShortcutInfo.PluginGuid = ph->pPlugin->GetGUID();
 		OpenPanelInfo Info;
 		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
-		if(!(Info.Flags&OPIF_SHORTCUT)) return false;
 		ShortcutInfo.PluginFile = Info.HostFile;
 		ShortcutInfo.ShortcutFolder = Info.CurDir;
 		ShortcutInfo.PluginData = Info.ShortcutData;
+		if(!(Info.Flags&OPIF_SHORTCUT)) result=false;
 	}
 	else
 	{
@@ -2595,7 +2598,7 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 		ShortcutInfo.PluginData.Clear();
 		ShortcutInfo.ShortcutFolder = strCurDir;
 	}
-	return true;
+	return result;
 }
 
 bool Panel::SaveShortcutFolder(int Pos, bool Add)
