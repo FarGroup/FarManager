@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 01.04.2012 15:09:54 +0200 - build 2581
+
+1. Transition to upper directory did not work for UNC paths.
+
+zg 01.04.2012 15:02:04 +0200 - build 2580
+
+1. PFLAGS_SHORTCUT is added. it reflects OPIF_SHORTCUT's state.
+
+2. FCTL_GETPANELDIRECTORY always returns info on the current directory. You can learn whether it is safe to use by checking the presence of PFLAGS_SHORTCUT.
+
+3. warning.
+
+svs 29.03.2012 14:03:42 +0400 - build 2579
+
+1. For Macro.Keyword(XXX,1), "Funcs","Consts","Vars" are unavailable because these are reserved words and they are indirectly related to macro areas.
+
+2. Macro.var|const parameters were misplaced and the response to "0" was not implemented (it gets the number of "objects")
+
 w17 28.03.2012 23:45:50 +0400 - build 2578
 
 1. output 'set prefix>file' and 'set prefix | command' to cmd.exe
