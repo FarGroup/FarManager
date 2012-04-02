@@ -885,7 +885,7 @@ in filenames and in editor).
                   that owns the menu item.
     #F4#          - assign a hotkey for selected menu item. If #Space# is
                   entered, then Far sets the hotkey automatically.
-    #F3#          - показать техническую информацию по плагину.
+    #F3#          - show plugin technical information.
     #Shift-F9#    - settings of the selected plugin.
     #Alt-Shift-F9# - open ~"Plugins configuration"~@PluginsConfig@ menu.
 
@@ -3006,9 +3006,11 @@ network drive or open a new ~plugin~@Plugins@ panel.
 the item with the plugin name to create a new plugin panel. If the panel type
 is not a ~file panel~@FilePanel@, it will be changed to the file panel.
 
-    #Ctrl-A#, #F4# hotkeys invoke the ~file attributes~@FileAttrDlg@.
+    #Ctrl-A#, #F4# hotkeys invoke the ~file attributes~@FileAttrDlg@ for drives.
 
-    #F4# key can be used to assign a hotkey to plugin item.
+    #Ctrl-A#, #F4# hotkeys can be used to assign a hotkey to plugin item.
+
+    #F3# key shows plugin technical information.
 
     #Del# key can be used:
 

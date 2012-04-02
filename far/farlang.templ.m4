@@ -12056,13 +12056,13 @@ upd:"Show ne&twork drive parameters"
 "Mostrar parámetros unidades de red"
 
 MChangeDriveMenuFooter
-"Del,Shift-Del,F4,F9"
-"Del,Shift-Del,F4,F9"
-"Del,Shift-Del,F4,F9"
-"Del,Shift-Del,F4,F9"
-"Del,Shift-Del,F4,F9"
-"Del,Shift-Del,F4,F9"
-"Del,Shift-Del,F4,F9"
+"Del,Shift-Del,F3,F4,F9"
+"Del,Shift-Del,F3,F4,F9"
+"Del,Shift-Del,F3,F4,F9"
+"Del,Shift-Del,F3,F4,F9"
+"Del,Shift-Del,F3,F4,F9"
+"Del,Shift-Del,F3,F4,F9"
+"Del,Shift-Del,F3,F4,F9"
 
 MSearchFileTitle
 l:

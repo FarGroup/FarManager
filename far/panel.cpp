@@ -709,6 +709,12 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					}
 				}
 				break;
+				case KEY_F3:
+				if (item && item->bIsPlugin)
+				{
+					CtrlObject->Plugins->ShowPluginInfo(item->pPlugin, item->Guid);
+				}
+				break;
 				case KEY_CTRLA:
 				case KEY_RCTRLA:
 				case KEY_F4:
