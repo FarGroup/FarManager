@@ -3,6 +3,10 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 02.04.2012 13:53:24 +0200 - build 2582
+
+1. 0002060: Technical information on plugins in the disk menu
+
 drkns 01.04.2012 15:09:54 +0200 - build 2581
 
 1. Transition to upper directory did not work for UNC paths.
