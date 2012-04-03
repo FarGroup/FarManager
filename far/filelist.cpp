@@ -2561,6 +2561,13 @@ BOOL FileList::SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated)
 
 			if (!PopPlugin(TRUE))
 				break;
+
+			if (NewDir.IsEmpty())
+			{
+				Update(0);
+				PopPrevData(L"",true,true,true,true);
+				break;
+			}
 		}
 
 		CtrlObject->Cp()->RedrawKeyBar();
@@ -2571,7 +2578,7 @@ BOOL FileList::SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated)
 		}
 	}
 
-	if ((NewDir) && (*NewDir))
+	if (!NewDir.IsEmpty())
 	{
 		return ChangeDir(NewDir,IsUpdated);
 	}
@@ -2669,46 +2676,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		else
 			Update(UPDATE_KEEP_SELECTION);
 
-		if (PluginClosed && !PrevDataList.Empty())
-		{
-			PrevDataItem* Item=*PrevDataList.Last();
-			PrevDataList.Delete(PrevDataList.Last());
-			if (Item->PrevFileCount>0)
-			{
-				MoveSelection(ListData,FileCount,Item->PrevListData,Item->PrevFileCount);
-				UpperFolderTopFile = Item->PrevTopFile;
-
-				if (!GoToPanelFile)
-					strFindDir = Item->strPrevName;
-
-				DeleteListData(Item->PrevListData,Item->PrevFileCount);
-				delete Item;
-
-				if (SelectedFirst)
-					SortFileList(FALSE);
-				else if (FileCount>0)
-					SortFileList(TRUE);
-			}
-		}
-
-		if (dot2Present)
-		{
-			long Pos=FindFile(PointToName(strFindDir));
-
-			if (Pos!=-1)
-				CurFile=Pos;
-			else
-				GoToFile(strFindDir);
-
-			CurTopFile=UpperFolderTopFile;
-			UpperFolderTopFile=0;
-			CorrectPosition();
-		}
-		/* $ 26.04.2001 DJ
-		   доделка про несброс выделения при неудаче SetDirectory
-		*/
-		else if (SetDirectorySuccess)
-			CurFile=CurTopFile=0;
+		PopPrevData(strFindDir,PluginClosed,!GoToPanelFile,dot2Present,SetDirectorySuccess);
 
 		return SetDirectorySuccess;
 	}

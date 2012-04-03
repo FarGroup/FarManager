@@ -159,6 +159,55 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 	return TRUE;
 }
 
+/*
+	DefaultName - имя элемента на которое позиционируемся.
+	Closed - панель закрывается, если в PrevDataList что-то есть - восстанавливаемчся оттуда.
+	UsePrev - если востанавливаемся из PrevDataList, элемент для позиционирования брать оттуда же.
+	Position - надо ли вообще устанавливать текущий элемент.
+*/
+void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bool Position,bool SetDirectorySuccess)
+{
+    string strName(DefaultName);
+	if (Closed && !PrevDataList.Empty())
+	{
+		PrevDataItem* Item=*PrevDataList.Last();
+		PrevDataList.Delete(PrevDataList.Last());
+		if (Item->PrevFileCount>0)
+		{
+			MoveSelection(ListData,FileCount,Item->PrevListData,Item->PrevFileCount);
+			UpperFolderTopFile = Item->PrevTopFile;
+
+			if (UsePrev)
+				strName = Item->strPrevName;
+
+			DeleteListData(Item->PrevListData,Item->PrevFileCount);
+			delete Item;
+
+			if (SelectedFirst)
+				SortFileList(FALSE);
+			else if (FileCount>0)
+				SortFileList(TRUE);
+		}
+	}
+	if (Position)
+	{
+		long Pos=FindFile(PointToName(strName));
+
+		if (Pos!=-1)
+			CurFile=Pos;
+		else
+			GoToFile(strName);
+
+		CurTopFile=UpperFolderTopFile;
+		UpperFolderTopFile=0;
+		CorrectPosition();
+	}
+	/* $ 26.04.2001 DJ
+	   доделка про несброс выделения при неудаче SetDirectory
+	*/
+	else if (SetDirectorySuccess)
+		CurFile=CurTopFile=0;
+}
 
 int FileList::FileNameToPluginItem(const string& Name,PluginPanelItem *pi)
 {
