@@ -2079,7 +2079,6 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 	int Result=FALSE;
 	ProcessingPluginCommand++;
 	FilePanels *FPanels=CtrlObject->Cp();
-	PluginCommand=Command;
 
 	switch (Command)
 	{
@@ -2128,6 +2127,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 		}
 
 		case FCTL_CLOSEPANEL:
+			PluginCommand=Command;
 			strPluginParam = (const wchar_t *)Param2;
 			Result=TRUE;
 			break;
