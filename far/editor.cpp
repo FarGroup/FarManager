@@ -5777,6 +5777,7 @@ int Editor::EditorControl(int Command,void *Param)
 				if (Pos->LeftPos >= 0)
 					CurLine->SetLeftPos(Pos->LeftPos);
 
+				CurLine->ObjWidth=XX2-X1+1; //BUGBUG: вообще-то должно быть корректное значение.
 				CurLine->FixLeftPos();
 
 				/* $ 30.08.2001 IS
