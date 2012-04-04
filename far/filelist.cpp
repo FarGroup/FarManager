@@ -2553,6 +2553,9 @@ BOOL FileList::SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated)
 	if (ClosePanel && PanelMode==PLUGIN_PANEL)
 	{
 		CheckFullScreen=IsFullScreen();
+		OpenPanelInfo Info;
+		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		string strInfoHostFile=Info.HostFile;
 
 		for (;;)
 		{
@@ -2565,7 +2568,7 @@ BOOL FileList::SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated)
 			if (NewDir.IsEmpty())
 			{
 				Update(0);
-				PopPrevData(L"",true,true,true,true);
+				PopPrevData(strInfoHostFile,true,true,true,true);
 				break;
 			}
 		}
