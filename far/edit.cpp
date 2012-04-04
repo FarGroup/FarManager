@@ -295,7 +295,7 @@ int Edit::GetNextCursorPos(int Position,int Where)
 
 void Edit::FastShow()
 {
-	int EditLength=ObjWidth;
+	const int EditLength=ObjWidth;
 
 	if (!Flags.Check(FEDITLINE_EDITBEYONDEND) && CurPos>StrSize && StrSize>=0)
 		CurPos=StrSize;
@@ -321,11 +321,7 @@ void Edit::FastShow()
 	int UnfixedLeftPos = LeftPos;
 	if (!Flags.Check(FEDITLINE_DROPDOWNBOX))
 	{
-		if (TabCurPos-LeftPos>EditLength-1)
-			LeftPos=TabCurPos-EditLength+1;
-
-		if (TabCurPos<LeftPos)
-			LeftPos=TabCurPos;
+		FixLeftPos(TabCurPos);
 	}
 
 	GotoXY(X1,Y1);
@@ -3076,6 +3072,16 @@ void Edit::SetDialogParent(DWORD Sets)
 		Flags.Clear(FEDITLINE_PARENT_SINGLELINE);
 		Flags.Set(FEDITLINE_PARENT_MULTILINE);
 	}
+}
+
+void Edit::FixLeftPos(int TabCurPos)
+{
+	if (TabCurPos<0) TabCurPos=GetTabCurPos(); //оптимизация, чтобы два раза не дёргать
+	if (TabCurPos-LeftPos>ObjWidth-1)
+		LeftPos=TabCurPos-ObjWidth+1;
+
+	if (TabCurPos<LeftPos)
+		LeftPos=TabCurPos;
 }
 
 EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):Edit(pOwner,bAllocateData)

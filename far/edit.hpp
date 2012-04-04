@@ -150,6 +150,7 @@ class Edit:public ScreenObject
 		int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos);
 
 		inline const wchar_t* WordDiv(void) {return strWordDiv->CPtr();};
+		void FixLeftPos(int TabCurPos=-1);
 	public:
 		Edit(ScreenObject *pOwner = nullptr, bool bAllocateData = true);
 		virtual ~Edit();

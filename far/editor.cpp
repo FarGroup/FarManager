@@ -5777,6 +5777,8 @@ int Editor::EditorControl(int Command,void *Param)
 				if (Pos->LeftPos >= 0)
 					CurLine->SetLeftPos(Pos->LeftPos);
 
+				CurLine->FixLeftPos();
+
 				/* $ 30.08.2001 IS
 				   Изменение режима нужно выставлять сразу, в противном случае приходят
 				   глюки, т.к. плагинописатель думает, что режим изменен, и ведет себя
