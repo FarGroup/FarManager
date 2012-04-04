@@ -931,10 +931,21 @@ int Editor::ProcessKey(int Key)
 
 			if (Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
 			{
-				if (SelStart!=-1 && (CurPos<SelStart || // если курсор до выделения
-				                     (SelEnd!=-1 && (CurPos>SelEnd ||    // ... после выделения
-				                                     (CurPos>SelStart && CurPos<SelEnd)))) &&
-				        CurPos<CurLine->GetLength()) // ... внутри выдления
+				bool IsLastSelectionLine=SelStart>=0;
+				if (CurLine->m_next)
+				{
+					int NextSelStart=-1,NextSelEnd=0;
+					CurLine->m_next->GetRealSelection(NextSelStart,NextSelEnd);
+					IsLastSelectionLine=IsLastSelectionLine&&(NextSelStart<0);
+				}
+				bool IsSpecialCase=false;
+				if (CurLine->m_prev)
+				{
+					int PrevSelStart=-1,PrevSelEnd=0;
+					CurLine->m_prev->GetRealSelection(PrevSelStart,PrevSelEnd);
+					IsSpecialCase=SelStart<0&&PrevSelStart==0&&PrevSelEnd<0;
+				}
+				if(!((CurLine==BlockStart&&CurPos==SelStart)||(IsLastSelectionLine&&CurPos==SelEnd)||(IsSpecialCase&&0==CurPos)))
 					TurnOffMarkingBlock();
 
 				Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
@@ -1000,18 +1011,6 @@ int Editor::ProcessKey(int Key)
 			{
 				ProcessKey(KEY_SHIFTPGDN);
 			}
-
-			/* $ 06.02.2002 IS
-			   Принудительно сбросим флаг того, что позиция изменена плагином.
-			   Для чего:
-			     при выполнении "ProcessKey(KEY_SHIFTPGDN)" (см. чуть выше)
-			     позиция плагины (в моем случае - колорер) могут дергать
-			     ECTL_SETPOSITION, в результате чего выставляется флаг
-			     FEDITOR_CURPOSCHANGEDBYPLUGIN. А при обработке KEY_SHIFTEND
-			     выделение в подобном случае начинается с нуля, что сводит на нет
-			     предыдущее выполнение KEY_SHIFTPGDN.
-			*/
-			Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
 
 			if (Key == KEY_CTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1 || Key == KEY_RCTRLSHIFTEND || Key == KEY_RCTRLSHIFTNUMPAD1)
 				ProcessKey(KEY_SHIFTEND);
@@ -4443,6 +4442,7 @@ void Editor::DeleteBlock()
 
 void Editor::UnmarkBlock()
 {
+	Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
 	if (!BlockStart && !VBlockStart)
 		return;
 
@@ -5616,7 +5616,7 @@ int Editor::EditorControl(int Command,void *Param)
 					return FALSE;
 				}
 
-				TurnOffMarkingBlock();
+				Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
 				int DestLine=SetString->StringNumber;
 
 				if (DestLine==-1)
@@ -5731,7 +5731,6 @@ int Editor::EditorControl(int Command,void *Param)
 			// "Вначале было слово..."
 			if (Param)
 			{
-				TurnOffMarkingBlock();
 				// ...а вот теперь поработаем с тем, что передалаи
 				EditorSetPosition *Pos=(EditorSetPosition *)Param;
 				_ECTLLOG(SysLog(L"EditorSetPosition{"));
@@ -5743,12 +5742,9 @@ int Editor::EditorControl(int Command,void *Param)
 				_ECTLLOG(SysLog(L"  Overtype      = %d",Pos->Overtype));
 				_ECTLLOG(SysLog(L"}"));
 				Lock();
-				int CurPos=CurLine->GetCurPos();
 
-				// выставим флаг об изменении поз (если надо)
-				if ((Pos->CurLine >= 0 || Pos->CurPos >= 0)&&
-				        (Pos->CurLine!=NumLine || Pos->CurPos!=CurPos))
-					Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+				// выставим флаг об изменении поз
+				Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
 
 				if (Pos->CurLine >= 0) // поменяем строку
 				{
@@ -5832,6 +5828,8 @@ int Editor::EditorControl(int Command,void *Param)
 				}
 
 				UnmarkBlock();
+
+				Flags.Set(FEDITOR_CURPOSCHANGEDBYPLUGIN);
 
 				if (Sel->BlockType==BTYPE_STREAM)
 				{
