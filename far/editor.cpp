@@ -2184,8 +2184,7 @@ int Editor::ProcessKey(int Key)
 			if (!CurPos)
 				return TRUE;
 
-			if (!Flags.Check(FEDITOR_MARKINGVBLOCK))
-				BeginVBlockMarking();
+			ProcessVBlockMarking();
 
 			Pasting++;
 			{
@@ -2227,8 +2226,7 @@ int Editor::ProcessKey(int Key)
 			if (!EdOpt.CursorBeyondEOL && CurLine->GetCurPos()>=CurLine->GetLength())
 				return TRUE;
 
-			if (!Flags.Check(FEDITOR_MARKINGVBLOCK))
-				BeginVBlockMarking();
+			ProcessVBlockMarking();
 
 			//_D(SysLog(L"---------------- KEY_ALTRIGHT, getLineCurPos=%i",GetLineCurPos()));
 			Pasting++;
@@ -2363,8 +2361,7 @@ int Editor::ProcessKey(int Key)
 			if (!CurLine->m_prev)
 				return TRUE;
 
-			if (!Flags.Check(FEDITOR_MARKINGVBLOCK))
-				BeginVBlockMarking();
+			ProcessVBlockMarking();
 
 			if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->m_prev->RealPosToTab(CurLine->m_prev->GetLength()))
 				return TRUE;
@@ -2396,8 +2393,7 @@ int Editor::ProcessKey(int Key)
 			if (!CurLine->m_next)
 				return TRUE;
 
-			if (!Flags.Check(FEDITOR_MARKINGVBLOCK))
-				BeginVBlockMarking();
+			ProcessVBlockMarking();
 
 			if (!EdOpt.CursorBeyondEOL && VBlockX>=CurLine->m_next->RealPosToTab(CurLine->m_next->GetLength()))
 				return TRUE;
@@ -6606,6 +6602,19 @@ void Editor::SetReplaceMode(bool Mode)
 int Editor::GetLineCurPos()
 {
 	return CurLine->GetTabCurPos();
+}
+
+void Editor::ProcessVBlockMarking(void)
+{
+	if (Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN))
+	{
+		int CurPos=CurLine->GetTabCurPos();
+		if(!((NumLine==VBlockY||NumLine==VBlockY+VBlockSizeY-1)&&(CurPos==VBlockX||CurPos==VBlockX+VBlockSizeX)))
+			TurnOffMarkingBlock();
+		Flags.Clear(FEDITOR_CURPOSCHANGEDBYPLUGIN);
+	}
+	if (!Flags.Check(FEDITOR_MARKINGVBLOCK))
+		BeginVBlockMarking();
 }
 
 void Editor::BeginVBlockMarking()

@@ -376,6 +376,7 @@ class Editor:public ScreenObject
 
 		int  GetLineCurPos();
 		void BeginVBlockMarking();
+		void ProcessVBlockMarking(void);
 		void AdjustVBlock(int PrevX);
 
 		void Xlat();
