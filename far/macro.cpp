@@ -232,9 +232,9 @@ TMacroKeywords MKeywords[] =
 
 TMacroKeywords MKeywordsArea[] =
 {
-	{0,  L"Funcs",                    MACRO_FUNCS,0},
-	{0,  L"Consts",                   MACRO_CONSTS,0},
-	{0,  L"Vars",                     MACRO_VARS,0},
+	{0,  L"Funcs",             (DWORD)MACRO_FUNCS,0},
+	{0,  L"Consts",            (DWORD)MACRO_CONSTS,0},
+	{0,  L"Vars",              (DWORD)MACRO_VARS,0},
 	{0,  L"Other",                    MACRO_OTHER,0},
 	{0,  L"Shell",                    MACRO_SHELL,0},
 	{0,  L"Viewer",                   MACRO_VIEWER,0},
@@ -5214,7 +5214,7 @@ done:
 		case MCODE_OP_REP:
 		{
 			// получим текущее значение счетчика
-			LARGE_INTEGER Counter ={GetOpCode(MR,Work.ExecLIBPos+1), GetOpCode(MR,Work.ExecLIBPos)};
+			LARGE_INTEGER Counter ={GetOpCode(MR,Work.ExecLIBPos+1), (LONG)GetOpCode(MR,Work.ExecLIBPos)};
 			// и положим его на вершину стека
 			VMStack.Push(Counter.QuadPart);
 			SetMacroConst(constRCounter,Counter.QuadPart);
@@ -5390,7 +5390,7 @@ done:
 		case MCODE_OP_PUSHUNKNOWN:
 		case MCODE_OP_PUSHINT: // ѕоложить целое значение на стек.
 		{
-			LARGE_INTEGER i64 = {GetOpCode(MR,Work.ExecLIBPos+1), GetOpCode(MR,Work.ExecLIBPos)};
+			LARGE_INTEGER i64 = {GetOpCode(MR,Work.ExecLIBPos+1), (LONG)GetOpCode(MR,Work.ExecLIBPos)};
 			Work.ExecLIBPos+=2;
 			TVar *ptrVar=VMStack.Push(i64.QuadPart);
 			if (Key == MCODE_OP_PUSHUNKNOWN)
@@ -5931,7 +5931,7 @@ done:
 
 				if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
 				{
-					OpenMacroInfo info={sizeof(OpenMacroInfo),count,vParams};
+					OpenMacroInfo info={sizeof(OpenMacroInfo),(size_t)count,vParams};
 
 					int CallPluginRules=GetCurrentCallPluginMode();
 

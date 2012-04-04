@@ -2624,7 +2624,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 	if (SelFileCount>0)
 		ClearSelection();
 
-	int PluginClosed=FALSE,GoToPanelFile=FALSE;
+	bool PluginClosed=false,GoToPanelFile=false;
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
@@ -2640,20 +2640,20 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		/* $ 25.04.01 DJ
 		   при неудаче SetDirectory не сбрасываем выделение
 		*/
-		BOOL SetDirectorySuccess = TRUE;
+		bool SetDirectorySuccess = true;
 
 		if (dot2Present && (strInfoCurDir.IsEmpty() || !StrCmp(strInfoCurDir,L"\\")))
 		{
 			if (ProcessPluginEvent(FE_CLOSE,nullptr))
 				return TRUE;
 
-			PluginClosed=TRUE;
+			PluginClosed=true;
 			strFindDir = strInfoHostFile;
 
 			if (strFindDir.IsEmpty() && (Info.Flags & OPIF_REALNAMES) && CurFile<FileCount)
 			{
 				strFindDir = ListData[CurFile]->strName;
-				GoToPanelFile=TRUE;
+				GoToPanelFile=true;
 			}
 
 			PopPlugin(TRUE);
@@ -2665,7 +2665,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		else
 		{
 			strFindDir = strInfoCurDir;
-			SetDirectorySuccess=CtrlObject->Plugins->SetDirectory(hPlugin,strSetDir,0);
+			SetDirectorySuccess=CtrlObject->Plugins->SetDirectory(hPlugin,strSetDir,0) != FALSE;
 		}
 
 		ProcessPluginCommand();

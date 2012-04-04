@@ -675,7 +675,7 @@ void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePer
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	preRedrawItem.Param.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
 	preRedrawItem.Param.Param4=ToPtr(Mode);
-	LARGE_INTEGER i = {Percent, WipePercent};
+	LARGE_INTEGER i = {(DWORD)Percent, (LONG)WipePercent};
 	preRedrawItem.Param.Param5=i.QuadPart;
 	PreRedraw.SetParam(preRedrawItem.Param);
 }

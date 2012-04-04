@@ -3777,7 +3777,7 @@ BOOL Editor::Search(int Next)
 
 					MenuItemEx Item = {};
 					Item.strName = FormatString() << fmt::LeftAlign() << fmt::Width(11) << fmt::Precision(11) << fmt::FillChar(L' ') << (FormatString() << NewNumLine+1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetStringAddr() + CurPos;
-					FindCoord coord = {NewNumLine, CurPos};
+					FindCoord coord = {(UINT)NewNumLine, (UINT)CurPos};
 					Item.UserData = &coord;
 					Item.UserDataSize = sizeof(coord);
 					FindAllList.AddItem(&Item);

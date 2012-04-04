@@ -691,7 +691,7 @@ int _cdecl PluginsSort(const void *el1,const void *el2)
 
 HANDLE PluginManager::OpenFilePlugin(
 	const string* Name,
-	int OpMode,
+	int OpMode,	//!!! potential future error: OPERATION_MODES is __int64
 	OPENFILEPLUGINTYPE Type
 )
 {
@@ -723,7 +723,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	Plugin *pPlugin = nullptr;
 
 	File file;
-	AnalyseInfo Info={sizeof(Info), Name? Name->CPtr() : nullptr, nullptr, 0, OpMode};
+	AnalyseInfo Info={sizeof(Info), Name? Name->CPtr() : nullptr, nullptr, 0, (OPERATION_MODES)OpMode};
 	bool DataRead = false;
 	for (size_t i = 0; i < PluginsCount; i++)
 	{

@@ -5822,7 +5822,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		case DM_SETTEXTPTR:
 		{
 			wchar_t* Text = Param2?static_cast<wchar_t*>(Param2):const_cast<wchar_t*>(L"");
-			FarDialogItemData IData={sizeof(FarDialogItemData),StrLength(Text),Text};
+			FarDialogItemData IData={sizeof(FarDialogItemData),(size_t)StrLength(Text),Text};
 			return SendDlgMessage(hDlg,DM_SETTEXT,Param1,&IData);
 		}
 		/*****************************************************************/

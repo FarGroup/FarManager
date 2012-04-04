@@ -49,7 +49,7 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt=nullptr);
 
 inline __int64 FileTimeDifference(const FILETIME *a, const FILETIME* b)
 {
-	LARGE_INTEGER A={a->dwLowDateTime,a->dwHighDateTime},B={b->dwLowDateTime,b->dwHighDateTime};
+	LARGE_INTEGER A={a->dwLowDateTime,(LONG)a->dwHighDateTime},B={b->dwLowDateTime,(LONG)b->dwHighDateTime};
 	return A.QuadPart - B.QuadPart;
 }
 

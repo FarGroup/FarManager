@@ -66,6 +66,8 @@ LNKFLAGS += -Xlinker -Map -Xlinker $(MAP) -Xlinker --dynamicbase -Xlinker --nxco
 ifeq ($(DIRBIT),32)
  LNKFLAGS += -Xlinker --large-address-aware
  WINDRES += -F pe-i386
+else
+ WINDRES += -F pe-x86-64
 endif
 LNKFLAGS += -ladvapi32 -lnetapi32 -lmpr -lwinspool -lole32 -lsecur32 -lsetupapi -lpsapi -lrpcrt4 -luuid
 

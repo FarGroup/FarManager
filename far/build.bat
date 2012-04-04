@@ -62,6 +62,7 @@ goto :EOF
   for %%p in (32 x86 win32) do if /i "%%p" == "%~1" set nbits=32
   for %%p in (64 x64 win64) do if /i "%%p" == "%~1" set nbits=64
   for %%p in (32/64 32-64 32x64) do if /i "%%p" == "%~1" set nbits=32/64
+  for %%p in (64/32 64-32 64x32) do if /i "%%p" == "%~1" set nbits=64/32
   for %%p in (rebuild clean) do if /i "%%p" == "%~1" set clean=Y
   for %%p in (debug dbg) do if /i "%%p" == "%~1" set deb_b=Y
   for %%p in (sln solution) do if /i "%%p" == "%~1" set vcsln=Y

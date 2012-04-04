@@ -1174,7 +1174,7 @@ void CreateDirectoryExHandler()
 		{
 			// BUGBUG, SecurityAttributes ignored
 			int Result = *TemplateObject.GetStr()?CreateDirectoryEx(TemplateObject.GetStr(), Object.GetStr(), nullptr):CreateDirectory(Object.GetStr(), nullptr);
-			int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+			int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
 				WritePipe(Pipe, ErrorCodes);
@@ -1189,7 +1189,7 @@ void RemoveDirectoryHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		int Result = RemoveDirectory(Object.GetStr());
-		int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+		int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 		if(WritePipe(Pipe, Result))
 		{
 			WritePipe(Pipe, ErrorCodes);
@@ -1203,7 +1203,7 @@ void DeleteFileHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		int Result = DeleteFile(Object.GetStr());
-		int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+		int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 		if(WritePipe(Pipe, Result))
 		{
 			WritePipe(Pipe, ErrorCodes);
@@ -1230,7 +1230,7 @@ void CopyFileExHandler()
 					{
 						// BUGBUG: Cancel ignored
 						int Result = CopyFileEx(From.GetStr(), To.GetStr(), UserCopyProgressRoutine.Get()?ElevationCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags);
-						int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+						int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 						if(WritePipe(Pipe, Result))
 						{
 							WritePipe(Pipe, ErrorCodes);
@@ -1254,7 +1254,7 @@ void MoveFileExHandler()
 			if(ReadPipe(Pipe, Flags))
 			{
 				int Result = MoveFileEx(From.GetStr(), To.GetStr(), Flags);
-				int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+				int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 				if(WritePipe(Pipe, Result))
 				{
 					WritePipe(Pipe, ErrorCodes);
@@ -1270,7 +1270,7 @@ void GetFileAttributesHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		int Result = GetFileAttributes(Object.GetStr());
-		int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+		int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 		if(WritePipe(Pipe, Result))
 		{
 			WritePipe(Pipe, ErrorCodes);
@@ -1287,7 +1287,7 @@ void SetFileAttributesHandler()
 		if(ReadPipe(Pipe, Attributes))
 		{
 			int Result = SetFileAttributes(Object.GetStr(), Attributes);
-			int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+			int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
 				WritePipe(Pipe, ErrorCodes);
@@ -1306,7 +1306,7 @@ void CreateHardLinkHandler()
 		{
 			// BUGBUG: SecurityAttributes ignored.
 			int Result = CreateHardLink(Object.GetStr(), Target.GetStr(), nullptr);
-			int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+			int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
 				WritePipe(Pipe, ErrorCodes);
@@ -1327,7 +1327,7 @@ void CreateSymbolicLinkHandler()
 			if(ReadPipe(Pipe, Flags))
 			{
 				int Result = CreateSymbolicLinkInternal(Object.GetStr(), Target.GetStr(), Flags);
-				int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+				int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 				if(WritePipe(Pipe, Result))
 				{
 					WritePipe(Pipe, ErrorCodes);
@@ -1369,7 +1369,7 @@ void SetOwnerHandler()
 		if(ReadPipeData(Pipe, Owner))
 		{
 			int Result = SetOwnerInternal(Object.GetStr(), Owner.GetStr());
-			int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+			int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
 				WritePipe(Pipe, ErrorCodes);
@@ -1411,7 +1411,7 @@ void CreateFileHandler()
 								CloseHandle(ParentProcess);
 							}
 						}
-						int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+						int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 						if(WritePipeData(Pipe, &Result, sizeof(Result)))
 						{
 							WritePipe(Pipe, ErrorCodes);
@@ -1432,7 +1432,7 @@ void SetEncryptionHandler()
 		if(ReadPipe(Pipe, Encrypt))
 		{
 			bool Result = apiSetFileEncryptionInternal(Object.GetStr(), Encrypt);
-			int ErrorCodes[2] = {GetLastError(), ifn.RtlGetLastNtStatus()};
+			int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
 				WritePipe(Pipe, ErrorCodes);

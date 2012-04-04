@@ -2624,7 +2624,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 				didA->PtrLength = static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, 0));
 			wchar_t* text = (wchar_t*) xf_malloc((didA->PtrLength+1)*sizeof(wchar_t));
 			//BUGBUG: если didA->PtrLength=0, то вернЄтс€ с учЄтом '\0', в Ёнц написано, что без, хз как правильно.
-			FarDialogItemData did = {sizeof(FarDialogItemData), didA->PtrLength, text};
+			FarDialogItemData did = {sizeof(FarDialogItemData), (size_t)didA->PtrLength, text};
 			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &did);
 			didA->PtrLength = (unsigned)did.PtrLength;
 			UnicodeToOEM(text,didA->PtrData,didA->PtrLength+1);
@@ -2686,7 +2686,7 @@ LONG_PTR WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 
 			wchar_t* text = AnsiToUnicode(didA->PtrData);
 			//BUGBUG - PtrLength ни на что не вли€ет.
-			FarDialogItemData di = {sizeof(FarDialogItemData),didA->PtrLength,text};
+			FarDialogItemData di = {sizeof(FarDialogItemData),(size_t)didA->PtrLength,text};
 			INT_PTR ret = NativeInfo.SendDlgMessage(hDlg, DM_SETTEXT, Param1, &di);
 			xf_free(text);
 			return ret;
@@ -3417,7 +3417,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 								else
 									break;
 							}
-							FarGetPluginPanelItem gpi = {PPISize, PPI};
+							FarGetPluginPanelItem gpi = {(size_t)PPISize, PPI};
 							NativeInfo.PanelControl(hPlugin,FCTL_GETPANELITEM, i, &gpi);
 							if(PPI)
 							{
@@ -3455,7 +3455,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 								else
 									break;
 							}
-							FarGetPluginPanelItem gpi = {PPISize, PPI};
+							FarGetPluginPanelItem gpi = {(size_t)PPISize, PPI};
 							NativeInfo.PanelControl(hPlugin,FCTL_GETSELECTEDPANELITEM, i, &gpi);
 							if(PPI)
 							{
@@ -3556,7 +3556,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL,0,0));
 
 			oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
-			PanelRedrawInfo pri = {priA->CurrentItem,priA->TopPanelItem};
+			PanelRedrawInfo pri = {(size_t)priA->CurrentItem,(size_t)priA->TopPanelItem};
 			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL,0,&pri));
 		}
 		case oldfar::FCTL_SETANOTHERNUMERICSORT:
@@ -4139,7 +4139,7 @@ INT_PTR WINAPI FarAdvControlA(INT_PTR ModuleNumber,oldfar::ADVANCED_CONTROL_COMM
 			if (!Param) return FALSE;
 
 			oldfar::FarSetColors *scA = (oldfar::FarSetColors *)Param;
-			FarSetColors sc = {0, scA->StartIndex, scA->ColorCount, new FarColor[scA->ColorCount]};
+			FarSetColors sc = {0, (size_t)scA->StartIndex, (size_t)scA->ColorCount, new FarColor[scA->ColorCount]};
 			for(size_t i = 0; i < sc.ColorsCount; ++i)
 			{
 				Colors::ConsoleColorToFarColor(scA->Colors[i], sc.Colors[i]);
