@@ -2819,7 +2819,7 @@ void Edit::ApplyColor()
 	{
 		EditorInfo ei={};
 		CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO, &ei);
-		XPos = ei.CurTabPos;
+		XPos = ei.CurTabPos - ei.LeftPos;
 	}
 
 	// Обрабатываем элементы ракраски
