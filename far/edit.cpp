@@ -65,11 +65,12 @@ static int Recurse=0;
 enum {EOL_NONE,EOL_CR,EOL_LF,EOL_CRLF,EOL_CRCRLF};
 static const wchar_t *EOL_TYPE_CHARS[]={L"",L"\r",L"\n",L"\r\n",L"\r\r\n"};
 
-#define EDMASK_ANY   L'X' // позволяет вводить в строку ввода любой символ;
-#define EDMASK_DSS   L'#' // позволяет вводить в строку ввода цифры, пробел и знак минуса;
-#define EDMASK_DIGIT L'9' // позволяет вводить в строку ввода только цифры;
-#define EDMASK_ALPHA L'A' // позволяет вводить в строку ввода только буквы.
-#define EDMASK_HEX   L'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
+#define EDMASK_ANY    L'X' // позволяет вводить в строку ввода любой символ;
+#define EDMASK_DSS    L'#' // позволяет вводить в строку ввода цифры, пробел и знак минуса;
+#define EDMASK_DIGIT  L'9' // позволяет вводить в строку ввода только цифры;
+#define EDMASK_DIGITS L'N' // позволяет вводить в строку ввода только цифры и пробелы;
+#define EDMASK_ALPHA  L'A' // позволяет вводить в строку ввода только буквы.
+#define EDMASK_HEX    L'H' // позволяет вводить в строку ввода шестнадцатиричные символы.
 
 Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	Str(bAllocateData ? static_cast<wchar_t*>(xf_malloc(sizeof(wchar_t))) : nullptr),
@@ -3042,6 +3043,8 @@ int Edit::KeyMatchedMask(int Key)
 		Inserted=TRUE;
 	else if (Mask[CurPos]==EDMASK_DSS && (iswdigit(Key) || Key==L' ' || Key==L'-'))
 		Inserted=TRUE;
+	else if (Mask[CurPos]==EDMASK_DIGITS && (iswdigit(Key) || Key==L' '))
+		Inserted=TRUE;
 	else if (Mask[CurPos]==EDMASK_DIGIT && (iswdigit(Key)))
 		Inserted=TRUE;
 	else if (Mask[CurPos]==EDMASK_ALPHA && IsAlpha(Key))
@@ -3054,7 +3057,7 @@ int Edit::KeyMatchedMask(int Key)
 
 int Edit::CheckCharMask(wchar_t Chr)
 {
-	return (Chr==EDMASK_ANY || Chr==EDMASK_DIGIT || Chr==EDMASK_DSS || Chr==EDMASK_ALPHA || Chr==EDMASK_HEX)?TRUE:FALSE;
+	return (Chr==EDMASK_ANY || Chr==EDMASK_DIGIT || Chr==EDMASK_DIGITS || Chr==EDMASK_DSS || Chr==EDMASK_ALPHA || Chr==EDMASK_HEX)?TRUE:FALSE;
 }
 
 void Edit::SetDialogParent(DWORD Sets)

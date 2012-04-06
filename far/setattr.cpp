@@ -753,7 +753,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		wchar_t DateSeparator=GetDateSeparator();
 		wchar_t TimeSeparator=GetTimeSeparator();
 		wchar_t DecimalSeparator=GetDecimalSeparator();
-		LPCWSTR FmtMask1=L"99%c99%c99%c999",FmtMask2=L"99%c99%c99999",FmtMask3=L"99999%c99%c99";
+		LPCWSTR FmtMask1=L"NN%cNN%cNN%cNNN",FmtMask2=L"NN%cNN%cNNNNN",FmtMask3=L"NNNNN%cNN%cNN";
 		string strDMask, strTMask;
 		strTMask.Format(FmtMask1,TimeSeparator,TimeSeparator,DecimalSeparator);
 
