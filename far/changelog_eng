@@ -3,6 +3,52 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 06.04.2012 23:27:23 +0400 - build 2593
+
+1. FSF.sprintf() fix for gcc 4.6+
+
+drkns 06.04.2012 14:09:49 +0200 - build 2592
+
+1. 0002061: Date wrong in Attributes dialog
+
+zg 05.04.2012 02:36:51 +0200 - build 2591
+
+1. fix for visual inconsistency after ECTL_SELECT if the cursor was set to an incorrect place for vertical blocks.
+
+zg 05.04.2012 01:53:27 +0200 - build 2590
+
+1. fix for visual inconsistency after ECTL_SELECT if the cursor was set to an incorrect place for stream blocks.
+
+2. ECTL_SETPOSITION and ECTL_SETSTRING do not reset block selection flag at once, but only if continuing selection shows the cursor positioned in incorrect place.
+
+zg 04.04.2012 23:02:53 +0200 - build 2589
+
+1. correction of 2589.
+
+zg 04.04.2012 21:49:33 +0200 - build 2588
+
+1. ECTL_SETPOSITION updates LeftPos to the correct value at once. else ECTL_GETINFO could get incorrect data.
+
+zg 04.04.2012 19:25:15 +0200 - build 2587
+
+1. highly experimental. invoking other FCTL_* does not lead to FCTL_CLOSEPANEL cancellation.
+
+zg 04.04.2012 18:11:47 +0200 - build 2586
+
+1. ECF_TABMARKCURRENT misbehaved with non-zero LeftPos in editor.
+
+w17 04.04.2012 18:22:17 +0400 - build 2585
+
+1. gcc 4.7.0 warnings, +build x64 far / x86 gcc 
+
+zg 04.04.2012 15:06:12 +0200 - build 2584
+
+1. correction of 2584. if an archive was opened bypassing AnalyseW then the cursor was not positioned after exit on FCTL_CLOSEPANEL.
+
+zg 03.04.2012 17:12:52 +0200 - build 2583
+
+1. if FCTL_CLOSEPANEL was given an empty Param2 then the transition moved to the previous file panel, if it had existed, instead of fixed file panels.
+
 zg 02.04.2012 13:53:24 +0200 - build 2582
 
 1. 0002060: Technical information on plugins in the disk menu
