@@ -434,7 +434,8 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 
 	if (DriveType==DRIVE_NOT_INIT || (((Opt.SubstNameRule & 1) || !DriveRemovable) && ((Opt.SubstNameRule & 2) || DriveRemovable)))
 	{
-		if (IsLocalPath(DeviceName))
+		PATH_TYPE Type = ParsePath(DeviceName);
+		if (Type == PATH_DRIVELETTER)
 		{
 			string Name;
 			if (apiQueryDosDevice(DeviceName, Name))
@@ -572,13 +573,11 @@ void NormalizeSymlinkName(string &strLinkName)
 {
 	if (!StrCmpN(strLinkName,L"\\??\\",4))
 	{
-		if (IsNetworkPath(strLinkName) || IsLocalVolumePath(strLinkName))
-		{
-			LPWSTR LinkName=strLinkName.GetBuffer();
-			LinkName[1]=L'\\';
-			strLinkName.ReleaseBuffer();
-		}
-		else
+		LPWSTR LinkName=strLinkName.GetBuffer();
+		LinkName[1]=L'\\';
+		strLinkName.ReleaseBuffer();
+		PATH_TYPE Type = ParsePath(strLinkName);
+		if(Type == PATH_DRIVELETTERUNC)
 		{
 			strLinkName.LShift(4);
 		}

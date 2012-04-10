@@ -194,7 +194,7 @@ static int MainProcess(
 				CutToNameUNC(strPath);
 				DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
-				if ((strPath.At(1)==L':' && !strPath.At(2)) || (HasPathPrefix(strPath) && strPath.At(5)==L':' && !strPath.At(6)))
+				if(IsRootPath(strPath))
 					AddEndSlash(strPath);
 
 				// Та панель, которая имеет фокус - активна (начнем по традиции с Левой Панели ;-)
@@ -218,7 +218,7 @@ static int MainProcess(
 					CutToNameUNC(strPath);
 					DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
-					if ((strPath.At(1)==L':' && !strPath.At(2)) || (HasPathPrefix(strPath) && strPath.At(5)==L':' && !strPath.At(6)))
+					if(IsRootPath(strPath))
 						AddEndSlash(strPath);
 
 					// а здесь наоборот - обрабатываем пассивную панель

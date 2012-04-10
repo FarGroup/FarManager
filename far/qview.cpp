@@ -146,7 +146,8 @@ void QuickView::DisplayObject()
 
 				if (ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
 				{
-					if (IsLocalVolumeRootPath(strJuncName))
+					bool Root;
+					if(ParsePath(strJuncName, nullptr, &Root) == PATH_VOLUMEGUID && Root)
 					{
 						ID_Msg=MQuickViewVolMount;
 					}

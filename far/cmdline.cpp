@@ -614,11 +614,13 @@ void CommandLine::GetPrompt(string &strDestStr)
 						}
 						case L'N': // $N - Current drive
 						{
-							if (IsLocalPath(strCurDir) && IsSlash(strCurDir.At(2)))
+							PATH_TYPE Type = ParsePath(strCurDir);
+							if(Type == PATH_DRIVELETTER)
 								strDestStr += Upper(strCurDir.At(0));
+							else if(Type == PATH_DRIVELETTERUNC)
+								strDestStr += Upper(strCurDir.At(4));
 							else
 								strDestStr += L'?';
-
 							break;
 						}
 						case L'P': // $P - Current drive and path

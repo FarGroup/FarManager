@@ -254,10 +254,14 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
 	CtrlObject->HiFiles->UpdateCurrentTime();
-	bool bCurDirRoot=IsLocalRootPath(strCurDir)||IsLocalPrefixRootPath(strCurDir)||IsLocalVolumeRootPath(strCurDir);
+	bool bCurDirRoot = false;
+	ParsePath(strCurDir, nullptr, &bCurDirRoot);
 
 	FileCount = 0;
-	::FindFile Find(strCurDir+L"\\"+L"*",true);
+	string strFind = strCurDir;
+	AddEndSlash(strFind);
+	strFind+=L'*';
+	::FindFile Find(strFind, true);
 	DWORD FindErrorCode = ERROR_SUCCESS;
 	bool UseFilter=Filter->IsEnabledOnPanel();
 	bool ReadCustomData=IsColumnDisplayed(CUSTOM_COLUMN0)!=0;
@@ -561,14 +565,15 @@ void FileList::CreateChangeNotification(int CheckTree)
 	wchar_t RootDir[4]=L" :\\";
 	DWORD DriveType=DRIVE_REMOTE;
 	CloseChangeNotification();
+	PATH_TYPE Type = ParsePath(strCurDir);
 
-	if (IsLocalPath(strCurDir))
+	if (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC)
 	{
-		RootDir[0]=strCurDir.At(0);
+		RootDir[0] = (Type == PATH_DRIVELETTER)? strCurDir.At(0) : strCurDir.At(4);
 		DriveType=FAR_GetDriveType(RootDir);
 	}
 
-	if (Opt.AutoUpdateRemoteDrive || (!Opt.AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE))
+	if (Opt.AutoUpdateRemoteDrive || (!Opt.AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == PATH_VOLUMEGUID)
 	{
 		hListChange=FindFirstChangeNotification(strCurDir,CheckTree,
 		                                        FILE_NOTIFY_CHANGE_FILE_NAME|

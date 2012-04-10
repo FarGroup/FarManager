@@ -45,15 +45,19 @@ public:
 
 inline int IsSlash(wchar_t x) { return x==L'\\' || x==L'/'; }
 
-bool IsNetworkPath(const wchar_t *Path);
-bool IsNetworkRootPath(const wchar_t *Path);
-bool IsNetworkServerPath(const wchar_t *Path);
-bool IsLocalPath(const wchar_t *Path);
-bool IsLocalRootPath(const wchar_t *Path);
-bool IsLocalPrefixPath(const wchar_t *Path);
-bool IsLocalPrefixRootPath(const wchar_t *Path);
-bool IsLocalVolumePath(const wchar_t *Path);
-bool IsLocalVolumeRootPath(const wchar_t *Path);
+enum PATH_TYPE
+{
+	PATH_UNKNOWN,
+	PATH_DRIVELETTER,
+	PATH_DRIVELETTERUNC,
+	PATH_REMOTE,
+	PATH_REMOTEUNC,
+	PATH_VOLUMEGUID,
+	PATH_PIPE,
+};
+
+PATH_TYPE ParsePath(const wchar_t* path, const wchar_t** DirPtr = nullptr, bool* Root = nullptr);
+
 bool IsAbsolutePath(const wchar_t *Path);
 bool IsRootPath(const string &Path);
 bool HasPathPrefix(const wchar_t *Path);

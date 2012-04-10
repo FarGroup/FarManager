@@ -144,7 +144,7 @@ void FilePanels::Init()
 
 	ActivePanel->SetFocus();
 	// пытаемся избавится от зависания при запуске
-	int IsLocalPath_FarPath=IsLocalPath(g_strFarPath);
+	int IsLocalPath_FarPath = ParsePath(g_strFarPath)==PATH_DRIVELETTER;
 	PrepareOptFolder(Opt.strLeftFolder,IsLocalPath_FarPath);
 	PrepareOptFolder(Opt.strRightFolder,IsLocalPath_FarPath);
 

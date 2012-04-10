@@ -540,11 +540,8 @@ int CmpFullPath(const wchar_t *Src, const wchar_t *Dest)
 	DeleteEndSlash(strDestFullName);
 
 	// избавимся от коротких имен
-	if (IsLocalPath(strSrcFullName))
-		ConvertNameToReal(strSrcFullName, strSrcFullName);
-
-	if (IsLocalPath(strDestFullName))
-		ConvertNameToReal(strDestFullName, strDestFullName);
+	ConvertNameToReal(strSrcFullName, strSrcFullName);
+	ConvertNameToReal(strDestFullName, strDestFullName);
 
 	return !StrCmpI(strSrcFullName, strDestFullName);
 }
@@ -1473,7 +1470,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				if ((strNameTmp.GetLength() == 2) && IsAlpha(strNameTmp.At(0)) && (strNameTmp.At(1) == L':'))
 					PrepareDiskPath(strNameTmp);
 
-				if (!StrCmp(strNameTmp,L"..") && IsLocalRootPath(strSrcDir))
+				if (!StrCmp(strNameTmp,L"..") && IsRootPath(strSrcDir))
 				{
 					if (!Message(MSG_WARNING,2,MSG(MError),MSG((!Move?MCannotCopyToTwoDot:MCannotMoveToTwoDot)),MSG(MCannotCopyMoveToTwoDot),MSG(MCopySkip),MSG(MCopyCancel)))
 						continue;

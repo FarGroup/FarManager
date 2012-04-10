@@ -1024,7 +1024,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 						lpwszPtr[pos+1]=0;
 
 						// В корне?
-						if (!IsLocalRootPath(lpwszPtr))
+						if(IsRootPath(lpwszPtr))
 						{
 							// а дальше? каталог существует?
 							if ((FNAttr=apiGetFileAttributes(lpwszPtr)) == INVALID_FILE_ATTRIBUTES ||

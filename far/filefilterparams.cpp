@@ -923,20 +923,20 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	{
 		case 0:
 			// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-			strDateMask.Format(L"NN%cNN%cNNNNN",DateSeparator,DateSeparator);
+			strDateMask.Format(L"99%c99%c9999N",DateSeparator,DateSeparator);
 			break;
 		case 1:
 			// Маска даты для форматов DD.MM.YYYYY и MM.DD.YYYYY
-			strDateMask.Format(L"NN%cNN%cNNNNN",DateSeparator,DateSeparator);
+			strDateMask.Format(L"99%c99%c9999N",DateSeparator,DateSeparator);
 			break;
 		default:
 			// Маска даты для формата YYYYY.MM.DD
-			strDateMask.Format(L"NNNNN%cNN%cNN",DateSeparator,DateSeparator);
+			strDateMask.Format(L"N9999%c99%c99",DateSeparator,DateSeparator);
 			break;
 	}
 
 	// Маска времени
-	strTimeMask.Format(L"NN%cNN%cNN%cNNN",TimeSeparator,TimeSeparator,DecimalSeparator);
+	strTimeMask.Format(L"99%c99%c99%c999",TimeSeparator,TimeSeparator,DecimalSeparator);
 	FarDialogItem FilterDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,76,20,0,nullptr,nullptr,DIF_SHOWAMPERSAND,MSG(MFileFilterTitle)},

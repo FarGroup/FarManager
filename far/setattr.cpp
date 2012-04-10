@@ -753,7 +753,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		wchar_t DateSeparator=GetDateSeparator();
 		wchar_t TimeSeparator=GetTimeSeparator();
 		wchar_t DecimalSeparator=GetDecimalSeparator();
-		LPCWSTR FmtMask1=L"NN%cNN%cNN%cNNN",FmtMask2=L"NN%cNN%cNNNNN",FmtMask3=L"NNNNN%cNN%cNN";
+		LPCWSTR FmtMask1=L"99%c99%c99%c999",FmtMask2=L"99%c99%c9999N",FmtMask3=L"N9999%c99%c99";
 		string strDMask, strTMask;
 		strTMask.Format(FmtMask1,TimeSeparator,TimeSeparator,DecimalSeparator);
 
@@ -883,7 +883,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 
 				if (ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
 				{
-					if (IsLocalVolumeRootPath(strLinkName))
+					bool Root;
+					if(ParsePath(strLinkName, nullptr, &Root) == PATH_VOLUMEGUID && Root)
 					{
 						ID_Msg=MSetAttrVolMount;
 					}
@@ -1598,7 +1599,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
 				// "\\?\c:\" fails on old windows
-				string strFullName(IsLocalRootPath(strSelName)?strSelName:NTPath(strSelName));
+				bool Root;
+				string strFullName((ParsePath(strSelName, nullptr, &Root) == PATH_DRIVELETTERUNC && Root)?strSelName:NTPath(strSelName));
 				if(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 				{
 					AddEndSlash(strFullName);

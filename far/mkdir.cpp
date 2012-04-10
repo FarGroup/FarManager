@@ -174,11 +174,13 @@ void ShellMakeDir(Panel *SrcPanel)
 			wchar_t* lpwszDirName = strDirName.GetBuffer();
 			bool bSuccess = false;
 
-			if(HasPathPrefix(lpwszDirName))
+			wchar_t *ChPtr;
+			if(ParsePath(lpwszDirName, const_cast<const wchar_t **>(&ChPtr)) == PATH_UNKNOWN)
 			{
-				lpwszDirName += 4;
+				ChPtr = lpwszDirName;
 			}
-			for (wchar_t *ChPtr=lpwszDirName; ; ChPtr++)
+
+			for (; ; ChPtr++)
 			{
 				if (IsSlash(*ChPtr) || !*ChPtr)
 				{

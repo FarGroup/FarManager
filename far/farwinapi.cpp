@@ -754,10 +754,10 @@ BOOL apiSetCurrentDirectory(const string& PathName, bool Validate)
 	string strDir=PathName;
 	ReplaceSlashToBSlash(strDir);
 	DeleteEndSlash(strDir);
-	LPCWSTR CD=strDir;
-	int Offset=HasPathPrefix(CD)?4:0;
-	if ((CD[Offset] && CD[Offset+1]==L':' && !CD[Offset+2]) || IsLocalVolumeRootPath(CD))
+	if(IsRootPath(strDir))
+	{
 		AddEndSlash(strDir);
+	}
 
 	if (strDir == strCurrentDirectory())
 		return TRUE;

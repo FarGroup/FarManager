@@ -66,6 +66,5 @@ enum CHECKEDPROPS_TYPE
 };
 
 bool IsDriveTypeRemote(UINT DriveType);
-int IsLocalDrive(const wchar_t *Path);
 DWORD FarGetLogicalDrives();
 int CheckDisksProps(const string& SrcPath, const string&DestPath, int CheckedType);

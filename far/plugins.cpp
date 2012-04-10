@@ -1347,7 +1347,7 @@ void PluginManager::GetOpenPanelInfo(
 	if (!Info->CurDir)  //υμμ...
 		Info->CurDir = L"";
 
-	if ((Info->Flags & OPIF_REALNAMES) && (CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && *Info->CurDir && !IsNetworkServerPath(Info->CurDir))
+	if ((Info->Flags & OPIF_REALNAMES) && (CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && *Info->CurDir && ParsePath(Info->CurDir)!=PATH_UNKNOWN)
 		apiSetCurrentDirectory(Info->CurDir, false);
 }
 

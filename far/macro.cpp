@@ -1668,14 +1668,16 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 						GetPathRoot(strFileName, strFileName);
 						UINT DriveType=FAR_GetDriveType(strFileName,nullptr,0);
 
-						if (IsLocalPath(strFileName))
+						// BUGBUG: useless, GetPathRoot expands subst itself
+
+						/*if (ParsePath(strFileName) == PATH_DRIVELETTER)
 						{
 							string strRemoteName;
 							strFileName.SetLength(2);
 
 							if (GetSubstName(DriveType,strFileName,strRemoteName))
 								DriveType=DRIVE_SUBSTITUTE;
-						}
+						}*/
 
 						Cond=TVar((__int64)DriveType);
 					}

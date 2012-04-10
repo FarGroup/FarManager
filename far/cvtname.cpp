@@ -51,115 +51,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define IsSlashForward(str)  (str == L'/')
 #define IsQuestion(str)      (str == L'?')
 
-enum PATH_PFX_TYPE
-{
-	PPT_NONE,
-	PPT_DRIVE,
-	PPT_ROOT,
-	PPT_PREFIX,
-	PPT_NT
-};
-
-PATH_PFX_TYPE Point2Root(LPCWSTR stPath, size_t& PathOffset)
-{
-	if (stPath)
-	{
-		PATH_PFX_TYPE nPrefix = PPT_NONE;
-		LPCWSTR pstPath=stPath;
-
-		//Skip root entry, network share, device, nt notation or symlink prefix: "\", "\\", "\\.\", "\\?\", "\??\"
-		//prefix "\" or "/"
-		if (IsSlash(*pstPath))
-		{
-			pstPath++;
-			nPrefix = PPT_ROOT;
-
-			//prefix "\"
-			if (IsSlashBackward(pstPath[-1]))
-			{
-				//prefix "\\" - network
-				if (IsSlashBackward(pstPath[0]))
-				{
-					pstPath++;
-					nPrefix = PPT_PREFIX;
-
-					//prefix "\\.\" - device
-					if (IsDot(pstPath[0]) && IsSlashBackward(pstPath[1]))
-					{
-						pstPath += 2;
-					}
-					else
-					{
-						//prefix "\\?\" - nt notation
-						if (IsQuestion(pstPath[0]) && IsSlashBackward(pstPath[1]))
-						{
-							pstPath += 2;
-							nPrefix = PPT_NT;
-
-							//prefix "\\?\UNC\" - nt notation (UNC)
-							if (!StrCmpN(pstPath, L"UNC\\", 4))
-							{
-								pstPath += 4;
-							}
-						}
-					}
-				}
-				else
-				{
-					if (IsQuestion(pstPath[0]) && IsQuestion(pstPath[1]) && IsSlashBackward(pstPath[2]))    //prefix "\??\" symlink
-					{
-						pstPath += 3;
-						nPrefix = PPT_NT;
-					};
-				}
-			}
-		}
-
-		//Skip path to next slash (or path end) if was "special" prefix
-		if (nPrefix == PPT_PREFIX || nPrefix == PPT_NT)
-		{
-			while (*pstPath)
-			{
-				if (IsSlash(*pstPath))
-				{
-					pstPath++;
-					break;
-				}
-
-				pstPath++;
-			}
-		}
-		else
-		{
-			//Skip logical drive letter name
-			if (pstPath[0] && IsColon(pstPath[1]))
-			{
-				pstPath += 2;
-				nPrefix = PPT_DRIVE;
-
-				//Skip root slash
-				if (IsSlash(*pstPath))
-				{
-					pstPath++;
-					nPrefix = PPT_PREFIX;
-				}
-			}
-		}
-
-		PathOffset=pstPath-stPath;
-		return (nPrefix);
-	}
-
-	return (PPT_NONE);
-}
-
 void MixToFullPath(string& strPath)
 {
 	//Skip all path to root (with slash if exists)
 	LPWSTR pstPath=strPath.GetBuffer();
-	size_t PathOffset=0;
-	Point2Root(pstPath,PathOffset);
-	pstPath+=PathOffset;
+	ParsePath(pstPath, const_cast<const wchar_t**>(&pstPath));
 
 	//Process "." and ".." if exists
 	for (size_t m = 0; pstPath[m];)
@@ -247,63 +143,71 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 	if (lFullPath > 0)
 	{
 		strDest.Clear();
-		LPCWSTR pstPath = nullptr, pstCurrentDir = nullptr;
+		LPCWSTR pstPath = stPath, pstCurrentDir = nullptr;
 		bool blIgnore = false;
-		size_t PathOffset=0;
-		PATH_PFX_TYPE PathType=Point2Root(stPath,PathOffset);
-		pstPath=stPath+PathOffset;
+		PATH_TYPE PathType = ParsePath(stPath, &pstPath);
 
 		switch (PathType)
 		{
-			case PPT_NONE: //"abc"
+			case PATH_UNKNOWN: 
 			{
-				pstCurrentDir=stCurrentDir;
+				if(IsSlash(stPath.At(0)) && !IsSlash(stPath.At(1))) //"\" or "\abc"
+				{
+					if (stCurrentDir)
+					{
+						const wchar_t* DirPtr;
+						if (ParsePath(stCurrentDir, &DirPtr)!=PATH_UNKNOWN)
+						{
+							strDest=string(stCurrentDir,DirPtr-stCurrentDir);
+						}
+					}
+				}
+				else //"abc" or whatever
+				{
+					pstCurrentDir=stCurrentDir;
+				}
 			}
 			break;
-			case PPT_DRIVE: //"C:" or "C:abc"
+			case PATH_DRIVELETTER: //"C:" or "C:abc"
 			{
-				WCHAR _DriveVar[]={L'=',stPath.At(0),L':',L'\0'};
-				string DriveVar(_DriveVar);
-				string strValue;
-
-				if (apiGetEnvironmentVariable(DriveVar,strValue))
+				if(IsSlash(stPath.At(2)))
 				{
-					strDest=strValue;
+					pstPath=stPath;
 				}
 				else
 				{
-					if (Upper(stPath.At(0))==Upper(stCurrentDir.At(0)))
+					WCHAR _DriveVar[]={L'=',stPath.At(0),L':',L'\0'};
+					string DriveVar(_DriveVar);
+					string strValue;
+
+					if (apiGetEnvironmentVariable(DriveVar,strValue))
 					{
-						strDest=stCurrentDir;
+						strDest=strValue;
 					}
 					else
 					{
-						strDest=DriveVar+1;
+						if (Upper(stPath.At(0))==Upper(stCurrentDir.At(0)))
+						{
+							strDest=stCurrentDir;
+						}
+						else
+						{
+							strDest=DriveVar+1;
+						}
 					}
-				}
-
-				AddEndSlash(strDest);
-			}
-			break;
-			case PPT_ROOT: //"\" or "\abc"
-			{
-				if (stCurrentDir)
-				{
-					size_t PathOffset=0;
-
-					if (Point2Root(stCurrentDir,PathOffset)!=PPT_NONE)
-					{
-						strDest=string(stCurrentDir,PathOffset);
-					}
+					AddEndSlash(strDest);
 				}
 			}
 			break;
-			case PPT_PREFIX: //"C:\abc"
+			case PATH_REMOTE: //"\\abc"
 			{
 				pstPath=stPath;
 			}
 			break;
-			case PPT_NT: //"\\?\abc"
+			case PATH_DRIVELETTERUNC: //"\\?\whatever"
+			case PATH_REMOTEUNC:
+			case PATH_VOLUMEGUID:
+			case PATH_PIPE:
 			{
 				blIgnore=true;
 				pstPath=stPath;
@@ -352,7 +256,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 {
 	string Result = Path;
 
-	if (Path.GetLength() >= cVolumeGuidLen && Path.IsSubStrAt(0, L"\\\\?\\Volume"))
+	if (ParsePath(Path) == PATH_VOLUMEGUID)
 	{
 		if (ifn.GetVolumePathNamesForVolumeNamePresent())
 		{
@@ -601,10 +505,11 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 				size_t FullLen=strPath.GetLength();
 				wchar_t *lpwszPath=strPath.GetBuffer(),*Src=lpwszPath;
 
-				if (IsLocalPath(lpwszPath))
+				const wchar_t* DirPtr;
+				PATH_TYPE Type = ParsePath(lpwszPath, &DirPtr);
+				if (Type != PATH_UNKNOWN)
 				{
-					Src+=2;
-
+					Src = const_cast<wchar_t*>(DirPtr);
 					if (IsSlash(*Src))
 						Src++;
 				}
@@ -662,24 +567,7 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 
 			wchar_t *lpwszPath = strPath.GetBuffer();
 
-			if (lpwszPath[0]==L'\\' && lpwszPath[1]==L'\\')
-			{
-				if (IsLocalPrefixPath(lpwszPath))
-				{
-					lpwszPath[4] = Upper(lpwszPath[4]);
-				}
-				else
-				{
-					wchar_t *ptr=&lpwszPath[2];
-
-					while (*ptr && !IsSlash(*ptr))
-					{
-						*ptr=Upper(*ptr);
-						ptr++;
-					}
-				}
-			}
-			else
+			if (ParsePath(lpwszPath) == PATH_DRIVELETTER)
 			{
 				lpwszPath[0]=Upper(lpwszPath[0]);
 			}

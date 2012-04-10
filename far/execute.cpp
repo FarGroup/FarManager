@@ -1453,7 +1453,9 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 					strFullPath += strExpandedStr;
 					DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
-					if (wcspbrk(strExpandedStr.CPtr()+(HasPathPrefix(strExpandedStr)?4:0), L"*?")) // это маска?
+					const wchar_t* DirPtr = strExpandedStr;
+					ParsePath(strExpandedStr, &DirPtr);
+					if (wcspbrk(DirPtr, L"*?")) // это маска?
 					{
 						FAR_FIND_DATA_EX wfd;
 
@@ -1848,7 +1850,9 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 		strExpandedDir=strTemp;
 	}
 
-	if (wcspbrk(&strExpandedDir[HasPathPrefix(strExpandedDir)?4:0],L"?*")) // это маска?
+	const wchar_t* DirPtr = strExpandedDir;
+	ParsePath(strExpandedDir, &DirPtr);
+	if (wcspbrk(DirPtr, L"?*")) // это маска?
 	{
 		FAR_FIND_DATA_EX wfd;
 

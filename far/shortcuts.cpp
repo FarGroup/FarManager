@@ -407,7 +407,7 @@ void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 	{
 		Unquote(strNewDir);
 
-		if (!IsLocalRootPath(strNewDir))
+		if (!IsRootPath(strNewDir))
 			DeleteEndSlash(strNewDir);
 
 		bool Save=true;
