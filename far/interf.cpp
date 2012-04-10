@@ -1074,7 +1074,7 @@ WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 string& HiText2Str(string& strDest, const wchar_t *Str)
 {
 	const wchar_t *ChPtr;
-	strDest = Str;
+	string strDestTemp = Str;
 
 	if ((ChPtr=wcschr(Str,L'&')) )
 	{
@@ -1095,22 +1095,24 @@ string& HiText2Str(string& strDest, const wchar_t *Str)
 
 		if (I&1) // нечет?
 		{
-			strDest.SetLength(ChPtr-Str);
+			strDestTemp.SetLength(ChPtr-Str);
 
 			if (ChPtr[1])
 			{
 				wchar_t Chr[]={ChPtr[1],0};
-				strDest+=Chr;
+				strDestTemp+=Chr;
 				string strText = (ChPtr+1);
 				ReplaceStrings(strText,L"&&",L"&",-1);
-				strDest+=strText.CPtr()+1;
+				strDestTemp+=strText.CPtr()+1;
 			}
 		}
 		else
 		{
-			ReplaceStrings(strDest,L"&&",L"&",-1);
+			ReplaceStrings(strDestTemp,L"&&",L"&",-1);
 		}
 	}
+
+	strDest = strDestTemp;
 
 	return strDest;
 }

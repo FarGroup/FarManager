@@ -1,3 +1,7 @@
+svs 10.04.2012 18:38:40 +0400 - build 2594
+
+1. Mantis#0002064: Ãëþê â HiText2Str
+
 w17 06.04.2012 23:27:23 +0400 - build 2593
 
 1. FSF.sprintf() fix for gcc 4.6+
