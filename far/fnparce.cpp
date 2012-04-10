@@ -438,7 +438,7 @@ int SubstFileName(string &strStr,            // результирующая строка
 	if (PSubstData->strNameOnly.RPos(pos,L'.'))
 		PSubstData->strNameOnly.SetLength(pos);
 
-	PSubstData->strShortNameOnly = *ShortName;
+	PSubstData->strShortNameOnly = ShortName;
 
 	if (PSubstData->strShortNameOnly.RPos(pos,L'.'))
 		PSubstData->strShortNameOnly.SetLength(pos);
