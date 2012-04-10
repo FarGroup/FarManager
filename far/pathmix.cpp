@@ -78,12 +78,19 @@ PATH_TYPE ParsePath(const wchar_t* path, const wchar_t** DirPtr, bool* Root)
 	static bool REInit = false;
 	if(!REInit)
 	{
-		assert(PathTypes[0].re.Compile(L"/(^.\\:)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE)); // x:<whatever>
-		assert(PathTypes[1].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE)); // \\?\x: or \\?\x:\ or \\?\x:\<whatever>
-		assert(PathTypes[2].re.Compile(L"/(^\\\\{2}[^ \\\\\\/\\?\\.]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE)); // \\server\share or \\server\share\ or \\server\share<whatever>
-		assert(PathTypes[3].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\unc\\\\[^ \\\\\\/]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE)); // \\?\unc\server\share or \\?\unc\server\share\ or \\?\unc\server\share<whatever>
-		assert(PathTypes[4].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\volume\\{[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}\\})(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE)); // \\?\Volume{GUID} or \\?\Volume{GUID}\ or \\?\Volume{GUID}<whatever>
-		assert(PathTypes[5].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\pipe)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE)); // \\?\pipe or \\?\pipe\
+		int Result = 0;
+		Result = PathTypes[0].re.Compile(L"/(^.\\:)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // x:<whatever>
+		assert(Result);
+		Result = PathTypes[1].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\?\x: or \\?\x:\ or \\?\x:\<whatever>
+		assert(Result);
+		Result = PathTypes[2].re.Compile(L"/(^\\\\{2}[^ \\\\\\/\\?\\.]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\server\share or \\server\share\ or \\server\share<whatever>
+		assert(Result);
+		Result = PathTypes[3].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\unc\\\\[^ \\\\\\/]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\?\unc\server\share or \\?\unc\server\share\ or \\?\unc\server\share<whatever>
+		assert(Result);
+		Result = PathTypes[4].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\volume\\{[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}\\})(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\?\Volume{GUID} or \\?\Volume{GUID}\ or \\?\Volume{GUID}<whatever>
+		assert(Result);
+		Result = PathTypes[5].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\pipe)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\?\pipe\ or \\?\pipe
+		assert(Result);
 
 		PathTypes[0].Type = PATH_DRIVELETTER;
 		PathTypes[1].Type = PATH_DRIVELETTERUNC;
