@@ -476,7 +476,23 @@ const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsystem,DWORD
 				}
 
 				strNewValue.ReleaseBuffer();
-				GetImageSubsystem(strNewValue,ImageSubsystem);
+				//Maximus: в случае плохого пути - explorer предлагает "OpenAs", а фар просто обламывается
+				if (!GetImageSubsystem(strNewValue,ImageSubsystem))
+				{
+					if (strAction == L"open")
+					{
+						if (strNewValue != L"%1")
+						{
+							strAction = L"openas";
+							RetPtr = strAction.CPtr();
+						}
+					}
+					else
+					{
+						Error=ERROR_NO_ASSOCIATION;
+						RetPtr=nullptr;
+					}
+				}
 			}
 			else
 			{
@@ -992,7 +1008,11 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		{
 			seInfo.lpParameters = strNewCmdPar;
 		}
-		seInfo.lpVerb = dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?nullptr:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem, dwError);
+		//Maximus: рушилась dwSubSystem
+		DWORD dwSubSystem2 = IMAGE_SUBSYSTEM_UNKNOWN;
+		seInfo.lpVerb = dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?nullptr:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem2, dwError);
+		if (dwSubSystem2!=IMAGE_SUBSYSTEM_UNKNOWN && dwSubSystem==IMAGE_SUBSYSTEM_UNKNOWN)
+			dwSubSystem=dwSubSystem2;
 	}
 	else
 	{
@@ -1024,7 +1044,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 
 	seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
-	if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)  // для .exe НЕ включать - бывают проблемы с запуском 
+	if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)  // для .exe НЕ включать - бывают проблемы с запуском
 		if (WinVer >= _WIN32_WINNT_VISTA)         // ShexxExecuteEx error, see
 			seInfo.fMask |= SEE_MASK_INVOKEIDLIST; // http://us.generation-nt.com/answer/shellexecuteex-does-not-allow-openas-verb-windows-7-help-31497352.html
 
