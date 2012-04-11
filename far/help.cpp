@@ -1204,22 +1204,20 @@ int Help::ProcessKey(int Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			if (StackData.TopStr>0)
-			{
-				StackData.TopStr-=Key&(KEY_ALT|KEY_RALT)?1:Opt.MsWheelDeltaHelp;
-				FastShow();
-			}
+			int n = (Key == KEY_MSWHEEL_UP ? Opt.MsWheelDeltaHelp : 1);
+			while (n-- > 0)
+				ProcessKey(KEY_UP);
+
 			return TRUE;
 		}
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			if (StackData.TopStr<StrCount-FixCount-(Y2-Y1-1-FixSize))
-			{
-				StackData.TopStr+=Key&(KEY_ALT|KEY_RALT)?1:Opt.MsWheelDeltaHelp;
-				FastShow();
-			}
+			int n = (Key == KEY_MSWHEEL_DOWN ? Opt.MsWheelDeltaHelp : 1);
+			while (n-- > 0)
+				ProcessKey(KEY_DOWN);
+
 			return TRUE;
 		}
 		case KEY_PGUP:      case KEY_NUMPAD9:
