@@ -754,7 +754,9 @@ BOOL apiSetCurrentDirectory(const string& PathName, bool Validate)
 	string strDir=PathName;
 	ReplaceSlashToBSlash(strDir);
 	DeleteEndSlash(strDir);
-	if(IsRootPath(strDir))
+	bool Root = false;
+	PATH_TYPE Type = ParsePath(strDir, nullptr, &Root);
+	if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
 	{
 		AddEndSlash(strDir);
 	}
@@ -931,40 +933,44 @@ bool apiGetFindDataEx(const string& FileName, FAR_FIND_DATA_EX& FindData,bool Sc
 	{
 		return true;
 	}
-	else if (!wcspbrk(FileName,L"*?"))
+	else
 	{
-		DWORD dwAttr=apiGetFileAttributes(FileName);
-
-		if (dwAttr!=INVALID_FILE_ATTRIBUTES)
+		const wchar_t* DirPtr = FileName;
+		ParsePath(FileName, &DirPtr);
+		if (!wcspbrk(DirPtr,L"*?"))
 		{
-			// Ага, значит файл таки есть. Заполним структуру ручками.
-			FindData.Clear();
-			FindData.dwFileAttributes=dwAttr;
-			File file;
-			if(file.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
-			{
-				file.GetTime(&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftLastWriteTime,&FindData.ftChangeTime);
-				file.GetSize(FindData.nFileSize);
-				file.Close();
-			}
+			DWORD dwAttr=apiGetFileAttributes(FileName);
 
-			if (FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+			if (dwAttr!=INVALID_FILE_ATTRIBUTES)
 			{
-				string strTmp;
-				GetReparsePointInfo(FileName,strTmp,&FindData.dwReserved0); //MSDN
-			}
-			else
-			{
-				FindData.dwReserved0=0;
-			}
+				// Ага, значит файл таки есть. Заполним структуру ручками.
+				FindData.Clear();
+				FindData.dwFileAttributes=dwAttr;
+				File file;
+				if(file.Open(FileName, FILE_READ_ATTRIBUTES, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+				{
+					file.GetTime(&FindData.ftCreationTime,&FindData.ftLastAccessTime,&FindData.ftLastWriteTime,&FindData.ftChangeTime);
+					file.GetSize(FindData.nFileSize);
+					file.Close();
+				}
 
-			FindData.dwReserved1=0;
-			FindData.strFileName=PointToName(FileName);
-			ConvertNameToShort(FileName,FindData.strAlternateFileName);
-			return true;
+				if (FindData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
+				{
+					string strTmp;
+					GetReparsePointInfo(FileName,strTmp,&FindData.dwReserved0); //MSDN
+				}
+				else
+				{
+					FindData.dwReserved0=0;
+				}
+
+				FindData.dwReserved1=0;
+				FindData.strFileName=PointToName(FileName);
+				ConvertNameToShort(FileName,FindData.strAlternateFileName);
+				return true;
+			}
 		}
 	}
-
 	FindData.Clear();
 	FindData.dwFileAttributes=INVALID_FILE_ATTRIBUTES; //BUGBUG
 

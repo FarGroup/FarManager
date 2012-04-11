@@ -256,6 +256,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	CtrlObject->HiFiles->UpdateCurrentTime();
 	bool bCurDirRoot = false;
 	ParsePath(strCurDir, nullptr, &bCurDirRoot);
+	//PATH_TYPE Type = ParsePath(strCurDir, nullptr, &bCurDirRoot);
+	//bool NetRoot == Root && (Type == PATH_REMOTE || Type == PATH_REMOTEUNC);
 
 	FileCount = 0;
 	string strFind = strCurDir;
@@ -384,18 +386,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	if (!(FindErrorCode==ERROR_SUCCESS || FindErrorCode==ERROR_NO_MORE_FILES || FindErrorCode==ERROR_FILE_NOT_FOUND))
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
-	/*
-	int NetRoot=FALSE;
-	if (strCurDir.At(0)==L'\\' && strCurDir.At(1)==L'\\')
-	{
-		const wchar_t *ChPtr=wcschr(strCurDir.CPtr()+2,'\\');
-		if (!ChPtr || !wcschr(ChPtr+1,L'\\'))
-			NetRoot=TRUE;
-	}
-	*/
 
 	// пока кусок закомментим, возможно он даже и не пригодится.
-	if (!bCurDirRoot) // && !NetRoot)
+	//if (!bCurDirRoot) // && !NetRoot)
+
 	{
 		if (FileCount>=AllocatedCount)
 		{

@@ -83,7 +83,7 @@ PATH_TYPE ParsePath(const wchar_t* path, const wchar_t** DirPtr, bool* Root)
 		assert(Result);
 		Result = PathTypes[1].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\?\x: or \\?\x:\ or \\?\x:\<whatever>
 		assert(Result);
-		Result = PathTypes[2].re.Compile(L"/(^\\\\{2}[^ \\\\\\/\\?\\.]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\server\share or \\server\share\ or \\server\share<whatever>
+		Result = PathTypes[2].re.Compile(L"/(^\\\\{2}[^ \\\\\\/\\?\\.][^ \\\\\\/\\?]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\server\share or \\server\share\ or \\server\share<whatever>
 		assert(Result);
 		Result = PathTypes[3].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\unc\\\\[^ \\\\\\/]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\?\unc\server\share or \\?\unc\server\share\ or \\?\unc\server\share<whatever>
 		assert(Result);

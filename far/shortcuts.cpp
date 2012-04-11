@@ -407,8 +407,13 @@ void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 	{
 		Unquote(strNewDir);
 
-		if (!IsRootPath(strNewDir))
-			DeleteEndSlash(strNewDir);
+		DeleteEndSlash(strNewDir);
+		bool Root = false;
+		PATH_TYPE Type = ParsePath(strNewDir, nullptr, &Root);
+		if(!(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID)))
+		{
+			AddEndSlash(strNewDir);
+		}
 
 		bool Save=true;
 		string strTemp(strNewDir);

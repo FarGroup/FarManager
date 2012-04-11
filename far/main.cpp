@@ -194,8 +194,12 @@ static int MainProcess(
 				CutToNameUNC(strPath);
 				DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
-				if(IsRootPath(strPath))
+				bool Root = false;
+				PATH_TYPE Type = ParsePath(strPath, nullptr, &Root);
+				if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
+				{
 					AddEndSlash(strPath);
+				}
 
 				// Та панель, которая имеет фокус - активна (начнем по традиции с Левой Панели ;-)
 				if (Opt.LeftPanel.Focus)
@@ -218,8 +222,12 @@ static int MainProcess(
 					CutToNameUNC(strPath);
 					DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
 
-					if(IsRootPath(strPath))
+					bool Root = false;
+					PATH_TYPE Type = ParsePath(strPath, nullptr, &Root);
+					if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
+					{
 						AddEndSlash(strPath);
+					}
 
 					// а здесь наоборот - обрабатываем пассивную панель
 					if (Opt.LeftPanel.Focus)
