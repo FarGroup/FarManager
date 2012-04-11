@@ -59,7 +59,7 @@ DizList::DizList():
 	IndexCount(0),
 	Modified(false),
 	NeedRebuild(true),
-	OrigCodePage(CP_AUTODETECT),
+	OrigCodePage(CP_DEFAULT),
 	AnsiBuf(nullptr)
 {
 }
@@ -89,7 +89,7 @@ void DizList::Reset()
 	IndexCount=0;
 	Modified=false;
 	NeedRebuild=true;
-	OrigCodePage=CP_AUTODETECT;
+	OrigCodePage=CP_DEFAULT;
 }
 
 void DizList::PR_ReadingMsg()
@@ -132,7 +132,7 @@ void DizList::Read(const string& Path, const string* DizName)
 			wchar_t *DizText;
 			int DizLength;
 			clock_t StartTime=clock();
-			UINT CodePage=CP_AUTODETECT;
+			UINT CodePage=CP_DEFAULT;
 			bool bSigFound=false;
 
 			if (!GetFileFormat(DizFile,CodePage,&bSigFound,false) || !bSigFound)
@@ -269,7 +269,7 @@ int DizList::GetDizPosEx(const string& Name, const string& ShortName, int *TextP
 		DizPos=GetDizPos(ShortName,TextPos);
 
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
-	if (DizPos==-1 && !IsUnicodeOrUtfCodePage(OrigCodePage) && OrigCodePage!=CP_AUTODETECT)
+	if (DizPos==-1 && !IsUnicodeOrUtfCodePage(OrigCodePage) && OrigCodePage!=CP_DEFAULT)
 	{
 		size_t len = Name.GetLength();
 		char *tmp = (char *)xf_realloc_nomove(AnsiBuf, len+1);

@@ -6718,6 +6718,51 @@ upd:"Show"
 upd:"Show"
 "Mostrar"
 
+MEditorSwitchUnicodeCPDisabled
+"Нельзя изменить юникодную кодовую страницу"
+"Unicode codepage switch is not supported"
+upd:"Unicode codepage switch is not supported"
+upd:"Unicode codepage switch is not supported"
+upd:"Unicode codepage switch is not supported"
+upd:"Unicode codepage switch is not supported"
+upd:"Unicode codepage switch is not supported"
+
+MEditorTryReloadFile
+"Можно перечитать файл, указав нужную кодовую страницу (ShiftF4)"
+"You can reload file using custom codepage (ShiftF4)"
+upd:"You can reload file using custom codepage (ShiftF4)"
+upd:"You can reload file using custom codepage (ShiftF4)"
+upd:"You can reload file using custom codepage (ShiftF4)"
+upd:"You can reload file using custom codepage (ShiftF4)"
+upd:"You can reload file using custom codepage (ShiftF4)"
+
+MEditorSwitchToUnicodeCPDisabled
+"Переключение на юникодную кодовую страницу %d не поддерживается"
+"Switch to unicode codepage %d is not supported"
+upd:"Switch to unicode codepage %d is not supported"
+upd:"Switch to unicode codepage %d is not supported"
+upd:"Switch to unicode codepage %d is not supported"
+upd:"Switch to unicode codepage %d is not supported"
+upd:"Switch to unicode codepage %d is not supported"
+
+MEditorCPNotSupported
+"Кодовая страница %d не поддерживается вашей системой"
+"Codepage %d is not supported in your system"
+upd:"Codepage %d is not supported in your system"
+upd:"Codepage %d is not supported in your system"
+upd:"Codepage %d is not supported in your system"
+upd:"Codepage %d is not supported in your system"
+upd:"Codepage %d is not supported in your system"
+
+MEditorCPNotDetected
+"Не удалось определить кодовую страницу"
+"Codepage wasn't detected"
+upd:"Codepage wasn't detected"
+upd:"Codepage wasn't detected"
+upd:"Codepage wasn't detected"
+upd:"Codepage wasn't detected"
+upd:"Codepage wasn't detected"
+
 MColumnName
 l:
 "Имя"

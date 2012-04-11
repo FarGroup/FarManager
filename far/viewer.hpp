@@ -229,7 +229,7 @@ class Viewer:public ScreenObject
 		bool isBinaryFile();
 
 	public:
-		Viewer(bool bQuickView = false, UINT aCodePage = CP_AUTODETECT);
+		Viewer(bool bQuickView = false, UINT aCodePage = CP_DEFAULT);
 		virtual ~Viewer();
 
 	public:

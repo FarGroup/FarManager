@@ -353,7 +353,7 @@ Event PauseEvent(true, true);
 Event StopEvent(true, false);
 
 bool UseFilter=false;
-UINT CodePage=CP_AUTODETECT;
+UINT CodePage=CP_DEFAULT;
 UINT64 SearchInFirst=0;
 
 char *readBufferA;
@@ -504,7 +504,7 @@ void InitInFileSearch()
 					skipCharsTable[findString[index+findStringCount]] = findStringCount-1-index;
 
 			// ‘ормируем список кодовых страниц
-			if (CodePage == CP_AUTODETECT)
+			if (CodePage == CP_DEFAULT)
 			{
 				DWORD data;
 				string codePageName;
@@ -1439,7 +1439,7 @@ int LookForString(const string& Name)
 			}
 
 			// ѕолучаем смещение на которое мы отступили при переходе между блоками
-			offset = (int)((CodePage==CP_AUTODETECT?sizeof(wchar_t):codePages->MaxCharSize)*(findStringCount-1));
+			offset = (int)((CodePage==CP_DEFAULT?sizeof(wchar_t):codePages->MaxCharSize)*(findStringCount-1));
 		}
 
 		// ≈сли мы потенциально прочитали не весь файл
@@ -1985,7 +1985,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 															else
 								*/
 								{
-									FileEditor ShellEditor(strSearchFileName,CP_AUTODETECT,0);
+									FileEditor ShellEditor(strSearchFileName,CP_DEFAULT,0);
 									ShellEditor.SetDynamicallyBorn(FALSE);
 									ShellEditor.SetEnableF6(TRUE);
 

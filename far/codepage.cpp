@@ -219,7 +219,7 @@ void AddStandardCodePage(const wchar_t *codePageName, UINT codePage, int positio
 {
 	bool checked = false;
 
-	if (selectedCodePages && codePage!=CP_AUTODETECT)
+	if (selectedCodePages && codePage!=CP_DEFAULT)
 	{
 		int selectType = 0;
 		GeneralCfg->GetValue(FavoriteCodePagesKey, FormatString() << codePage, &selectType, 0);
@@ -403,10 +403,10 @@ void AddCodePages(DWORD codePages)
 {
 	// Добавляем стандартные таблицы символов
 
-	UINT cp_auto = CP_AUTODETECT;
+	UINT cp_auto = CP_DEFAULT;
 	if ( 0 != (codePages & ::DefaultCP) )
 	{
-		AddStandardCodePage(MSG(MDefaultCP), CP_AUTODETECT, -1, true);
+		AddStandardCodePage(MSG(MDefaultCP), CP_DEFAULT, -1, true);
 		cp_auto = CP_REDETECT;
 	}
 	AddStandardCodePage((codePages & ::SearchAll) ? MSG(MFindFileAllCodePages) : MSG(MEditOpenAutoDetect), cp_auto, -1, (codePages & ::SearchAll) || (codePages & ::Auto));
@@ -719,7 +719,7 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowU
 			case KEY_RCTRLH:
 				Opt.CPMenuMode = !Opt.CPMenuMode;
 				CodePages->SetBottomTitle(MSG(!Opt.CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
-				FillCodePagesVMenu(bShowUnicode, bShowUTF, bShowUTF7);
+				FillCodePagesVMenu(bShowUnicode, bShowUTF, bShowUTF7, bShowAutoDetect);
 				break;
 			// Обработка удаления таблицы символов из списка выбранных
 			case KEY_DEL:
@@ -789,7 +789,7 @@ bool IsCodePageSupported(UINT CodePage)
 {
 	// Для стандартных кодовых страниц ничего проверять не надо
 	// BUGBUG: мы не везде поддержиаем все стандартные кодовые страницы. Это не проверяется
-	if (CodePage == CP_AUTODETECT || IsStandardCodePage(CodePage))
+	if (CodePage == CP_DEFAULT || IsStandardCodePage(CodePage))
 		return true;
 
 	// Проходим по всем кодовым страницам системы и проверяем поддерживаем мы или нет её

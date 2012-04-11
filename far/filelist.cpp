@@ -1500,7 +1500,7 @@ int FileList::ProcessKey(int Key)
 				if (!PluginMode)
 					strPluginData.Clear();
 
-				UINT codepage = CP_AUTODETECT;
+				UINT codepage = CP_DEFAULT;
 
 				if (Key==KEY_SHIFTF4)
 				{

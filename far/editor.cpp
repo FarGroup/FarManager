@@ -87,7 +87,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	LastSearchReverse(GlobalSearchReverse),
 	LastSearchSelFound(Opt.EdOpt.SearchSelFound),
 	LastSearchRegexp(Opt.EdOpt.SearchRegexp),
-	m_codepage(CP_AUTODETECT),
+	m_codepage(CP_DEFAULT),
 	StartLine(-1),
 	StartChar(-1),
 	SessionPos(0),
@@ -96,7 +96,9 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	HostFileEditor(nullptr),
 	SortColorLockCount(0),
 	SortColorUpdate(false),
-	EditorControlLock(0)
+	EditorControlLock(0),
+	buffer_line(nullptr),
+	buffer_size(0)
 {
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));
@@ -130,6 +132,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 Editor::~Editor()
 {
 	//_SVS(SysLog(L"[%p] Editor::~Editor()",this));
+	delete[] buffer_line;
 	FreeAllocatedData();
 	KeepInitParameters();
 	_KEYMACRO(SysLog(-1));
@@ -6101,7 +6104,7 @@ int Editor::EditorControl(int Command,void *Param)
 					case ESPT_CODEPAGE:
 					{
 						//BUGBUG
-						if ((UINT)espar->iParam==CP_AUTODETECT)
+						if ((UINT)espar->iParam==CP_DEFAULT)
 						{
 							rc=FALSE;
 						}
@@ -6114,7 +6117,7 @@ int Editor::EditorControl(int Command,void *Param)
 							}
 							else
 							{
-								SetCodePage(espar->iParam);
+								SetCodePage(espar->iParam, false);
 							}
 
 							Show();
@@ -6970,7 +6973,7 @@ Edit *Editor::CreateString(const wchar_t *lpwszStr, int nLength)
 		pEdit->SetTabSize(EdOpt.TabSize);
 		pEdit->SetPersistentBlocks(EdOpt.PersistentBlocks);
 		pEdit->SetConvertTabs(EdOpt.ExpandTabs);
-		pEdit->SetCodePage(m_codepage);
+		pEdit->SetCodePage(m_codepage, false, buffer_line, buffer_size);
 
 		if (lpwszStr)
 			pEdit->SetBinaryString(lpwszStr, nLength);
@@ -7154,30 +7157,37 @@ void Editor::GetCacheParams(EditorPosCache &pc)
 }
 
 
-bool Editor::SetCodePage(UINT codepage, bool Set)
+bool Editor::SetCodePage( UINT codepage, bool check_onky )
 {
-	if (m_codepage != codepage)
+	if ( m_codepage == codepage )
+		return true;
+
+	DWORD Result = 0;
+	Edit *current = TopList;
+
+	if ( check_onky )
 	{
-		if(Set)
+		while ( current && !Result )
 		{
-			m_codepage = codepage;
+			Result |= current->SetCodePage(m_codepage, true, buffer_line, buffer_size);
+			current = current->m_next;
 		}
-		Edit *current = TopList;
-		DWORD Result=0;
+
+	}
+	else
+	{
+		m_codepage = codepage;
 
 		while (current)
 		{
-			Result|=current->SetCodePage(codepage, Set);
+			Result |= current->SetCodePage(m_codepage, false, buffer_line, buffer_size);
 			current = current->m_next;
 		}
-		if(Set)
-		{
-			Show();
-		}
-		return !Result; // BUGBUG, more details
+
+		Show();
 	}
 
-	return true;
+	return (Result == 0); // BUGBUG, more details
 }
 
 UINT Editor::GetCodePage()

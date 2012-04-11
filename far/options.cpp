@@ -666,7 +666,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					EditorConfig(Opt.EdOpt);
 					break;
 				case MENU_OPTIONS_CODEPAGESSETTINGS: // Code pages
-					SelectCodePage(CP_AUTODETECT, true, true, true);
+					SelectCodePage(CP_DEFAULT, true, true, true);
 					break;
 				case MENU_OPTIONS_COLORS:  // Colors
 					SetColors();

@@ -1482,13 +1482,13 @@ DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
 int WINAPI FarViewerA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags)
 {
 	string strFN(FileName), strT(Title);
-	return NativeInfo.Viewer(strFN,strT,X1,Y1,X2,Y2,Flags,CP_AUTODETECT);
+	return NativeInfo.Viewer(strFN,strT,X1,Y1,X2,Y2,Flags,CP_DEFAULT);
 }
 
 int WINAPI FarEditorA(const char *FileName,const char *Title,int X1,int Y1,int X2,int Y2,DWORD Flags,int StartLine,int StartChar)
 {
 	string strFN(FileName), strT(Title);
-	return NativeInfo.Editor(strFN,strT,X1,Y1,X2,Y2,Flags,StartLine,StartChar,CP_AUTODETECT);
+	return NativeInfo.Editor(strFN,strT,X1,Y1,X2,Y2,Flags,StartLine,StartChar,CP_DEFAULT);
 }
 
 int WINAPI FarCmpNameA(const char *pattern,const char *str,int skippath)
@@ -4260,7 +4260,7 @@ UINT ConvertCharTableToCodePage(int Command)
 
 				for (;;)
 				{
-					if (!GeneralCfg->EnumValues(FavoriteCodePagesKey,Index++,strTableName,&selectType)) return CP_AUTODETECT;
+					if (!GeneralCfg->EnumValues(FavoriteCodePagesKey,Index++,strTableName,&selectType)) return CP_DEFAULT;
 
 					if (!(selectType&CPST_FAVORITE)) continue;
 
@@ -4577,7 +4577,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 
 								newsp.iParam=ConvertCharTableToCodePage(newsp.iParam);
 
-								if ((UINT)newsp.iParam==CP_AUTODETECT) return FALSE;
+								if ((UINT)newsp.iParam==CP_DEFAULT) return FALSE;
 
 								break;
 						}
@@ -4846,7 +4846,7 @@ int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 
 		UINT nCP = ConvertCharTableToCodePage(Command);
 
-		if (nCP==CP_AUTODETECT) return -1;
+		if (nCP==CP_DEFAULT) return -1;
 
 		CPINFOEX cpiex;
 

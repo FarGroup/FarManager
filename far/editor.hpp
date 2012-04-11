@@ -216,6 +216,9 @@ class Editor:public ScreenObject
 		bool SortColorUpdate;
 		int EditorControlLock;
 
+		char *buffer_line;
+		int   buffer_size;
+
 	private:
 		virtual void DisplayObject();
 		void ShowEditor(void);
@@ -293,7 +296,7 @@ class Editor:public ScreenObject
 		void SetCacheParams(EditorPosCache &pc, bool count_bom=false);
 		void GetCacheParams(EditorPosCache &pc);
 
-		bool SetCodePage(UINT codepage, bool Set = true);  //BUGBUG
+		bool SetCodePage(UINT codepage, bool check_only);  //BUGBUG
 		UINT GetCodePage();  //BUGBUG
 
 		int SetRawData(const wchar_t *SrcBuf,int SizeSrcBuf,int TextFormat); // преобразование из буфера в список
