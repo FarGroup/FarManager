@@ -428,6 +428,27 @@ int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 	return result+FSSF_COUNT;
 }
 
+static HistoryConfig* HistoryRef(int Type)
+{
+	int Save=true;
+	switch(Type)
+	{
+		case HISTORYTYPE_CMD:
+			Save=Opt.SaveHistory;
+			break;
+		case HISTORYTYPE_FOLDER:
+			Save=Opt.SaveFoldersHistory;
+			break;
+		case HISTORYTYPE_VIEW:
+			Save=Opt.SaveViewHistory;
+			break;
+		case HISTORYTYPE_DIALOG:
+			Save=Opt.Dialogs.EditHistory;
+			break;
+	}
+	return Save?HistoryCfg:HistoryCfgMem;
+}
+
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)
 {
 	Vector<FarSettingsHistory>& array=*m_Enum.addItem();
@@ -439,7 +460,7 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 	int HType;
 	bool HLock;
 	unsigned __int64 Time;
-	while(HistoryCfg->Enum(Index++,Type,HistoryName,&id,strName,&HType,&HLock,&Time,strGuid,strFile,strData,false))
+	while(HistoryRef(Type)->Enum(Index++,Type,HistoryName,&id,strName,&HType,&HLock,&Time,strGuid,strFile,strData,false))
 	{
 		if(Filter(HType))
 		{

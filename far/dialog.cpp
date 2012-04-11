@@ -987,16 +987,21 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 
 	if (strData.IsEmpty())
 	{
-		History::ReadLastItem(CurItem->strHistory, strData);
+		DlgEdit *EditPtr;
 
-		if (MsgIndex != -1)
+		if ((EditPtr = (DlgEdit *)(CurItem->ObjPtr)) )
 		{
-			// обработка DM_SETHISTORY => надо пропустить изменение текста через
-			// диалоговую функцию
-			FarDialogItemData IData={sizeof(FarDialogItemData)};
-			IData.PtrData=const_cast<wchar_t*>(strData.CPtr());
-			IData.PtrLength=strData.GetLength();
-			SendDlgMessage(this,DM_SETTEXT,MsgIndex,&IData);
+			EditPtr->GetHistory()->ReadLastItem(CurItem->strHistory, strData);
+
+			if (MsgIndex != -1)
+			{
+				// обработка DM_SETHISTORY => надо пропустить изменение текста через
+				// диалоговую функцию
+				FarDialogItemData IData={sizeof(FarDialogItemData)};
+				IData.PtrData=const_cast<wchar_t*>(strData.CPtr());
+				IData.PtrLength=strData.GetLength();
+				SendDlgMessage(this,DM_SETTEXT,MsgIndex,&IData);
+			}
 		}
 	}
 }

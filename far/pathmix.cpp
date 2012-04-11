@@ -78,7 +78,7 @@ PATH_TYPE ParsePath(const wchar_t* path, const wchar_t** DirPtr, bool* Root)
 	static bool REInit = false;
 	if(!REInit)
 	{
-		int Result = 0;
+		int Result;
 		Result = PathTypes[0].re.Compile(L"/(^.\\:)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // x:<whatever>
 		assert(Result);
 		Result = PathTypes[1].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\?\x: or \\?\x:\ or \\?\x:\<whatever>

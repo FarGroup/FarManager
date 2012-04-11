@@ -90,7 +90,7 @@ void History::CompactHistory()
 */
 void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const wchar_t *File, const wchar_t *Data, bool SaveForbid)
 {
-	if (!EnableAdd || !*EnableSave || SaveForbid)
+	if (!EnableAdd || SaveForbid)
 		return;
 
 	if (CtrlObject->Macro.IsExecuting() && CtrlObject->Macro.IsHistoryDisable((int)TypeHistory))
@@ -103,7 +103,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 	string strName(Str),strGuid,strFile(File),strData(Data);
 	if(Guid) strGuid=GuidToStr(*Guid);
 
-	HistoryCfg->BeginTransaction();
+	HistoryCfgRef()->BeginTransaction();
 
 	if (RemoveDups) // удалять дубликаты?
 	{
@@ -113,7 +113,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 		bool HLock;
 		unsigned __int64 id;
 		unsigned __int64 Time;
-		while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
+		while (HistoryCfgRef()->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
 		{
 			if (EqualType(Type,HType))
 			{
@@ -122,24 +122,24 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 				if (!StrCmpFn(strName,strHName)&&!StrCmpFn(strGuid,strHGuid)&&!StrCmpFn(strFile,strHFile)&&!StrCmpFn(strData,strHData))
 				{
 					Lock = Lock || HLock;
-					HistoryCfg->Delete(id);
+					HistoryCfgRef()->Delete(id);
 					break;
 				}
 			}
 		}
 	}
 
-	HistoryCfg->Add(TypeHistory, strHistoryName, strName, Type, Lock, strGuid, strFile, strData);
+	HistoryCfgRef()->Add(TypeHistory, strHistoryName, strName, Type, Lock, strGuid, strFile, strData);
 
 	ResetPosition();
 
-	HistoryCfg->EndTransaction();
+	HistoryCfgRef()->EndTransaction();
 }
 
 bool History::ReadLastItem(const wchar_t *HistoryName, string &strStr)
 {
 	strStr.Clear();
-	return HistoryCfg->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
+	return HistoryCfgRef()->GetNewest(HISTORYTYPE_DIALOG, HistoryName, strStr);
 }
 
 const wchar_t *History::GetTitle(int Type)
@@ -204,7 +204,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 	bool Done=false;
 	bool SetUpMenuPos=false;
 
-	if (TypeHistory == HISTORYTYPE_DIALOG && !HistoryCfg->Count(TypeHistory,strHistoryName))
+	if (TypeHistory == HISTORYTYPE_DIALOG && !HistoryCfgRef()->Count(TypeHistory,strHistoryName))
 		return 0;
 
 	while (!Done)
@@ -224,7 +224,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 			SYSTEMTIME st;
 			GetLocalTime(&st);
 			int LastDay=0, LastMonth = 0, LastYear = 0;
-			while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,TypeHistory==HISTORYTYPE_DIALOG))
+			while (HistoryCfgRef()->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,TypeHistory==HISTORYTYPE_DIALOG))
 			{
 				string strRecord;
 
@@ -359,7 +359,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					{
 						bool ModifiedHistory=false;
 
-						HistoryCfg->BeginTransaction();
+						HistoryCfgRef()->BeginTransaction();
 
 						DWORD index=0;
 						string strHName,strHGuid,strHFile,strHData;
@@ -367,7 +367,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 						bool HLock;
 						unsigned __int64 id;
 						unsigned __int64 Time;
-						while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
+						while (HistoryCfgRef()->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData))
 						{
 							if (HLock) // залоченные не трогаем
 								continue;
@@ -385,12 +385,12 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 
 							if(kill)
 							{
-								HistoryCfg->Delete(id);
+								HistoryCfgRef()->Delete(id);
 								ModifiedHistory=true;
 							}
 						}
 
-						HistoryCfg->EndTransaction();
+						HistoryCfgRef()->EndTransaction();
 
 						if (ModifiedHistory) // избавляемся от лишних телодвижений
 						{
@@ -455,7 +455,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					if (CurrentRecord)
 					{
 						string strName;
-						if (HistoryCfg->Get(CurrentRecord, strName))
+						if (HistoryCfgRef()->Get(CurrentRecord, strName))
 							CopyToClipboard(strName);
 					}
 
@@ -467,7 +467,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 				{
 					if (CurrentRecord)
 					{
-						HistoryCfg->FlipLock(CurrentRecord);
+						HistoryCfgRef()->FlipLock(CurrentRecord);
 						HistoryMenu.Hide();
 						ResetPosition();
 						HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
@@ -481,10 +481,10 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 				case KEY_SHIFTNUMDEL:
 				case KEY_SHIFTDEL:
 				{
-					if (CurrentRecord && !HistoryCfg->IsLocked(CurrentRecord))
+					if (CurrentRecord && !HistoryCfgRef()->IsLocked(CurrentRecord))
 					{
 						HistoryMenu.Hide();
-						HistoryCfg->Delete(CurrentRecord);
+						HistoryCfgRef()->Delete(CurrentRecord);
 						ResetPosition();
 						HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
 						HistoryMenu.SetUpdateRequired(TRUE);
@@ -506,7 +506,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					                  MSG(MHistoryClear),
 					                  MSG(MClear),MSG(MCancel)))))
 					{
-						HistoryCfg->DeleteAllUnlocked(TypeHistory,strHistoryName);
+						HistoryCfgRef()->DeleteAllUnlocked(TypeHistory,strHistoryName);
 
 						ResetPosition();
 						HistoryMenu.Hide();
@@ -537,7 +537,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 				return -1;
 
 
-			if (!HistoryCfg->Get(SelectedRecord, strSelectedRecordName, &SelectedRecordType, strSelectedRecordGuid, strSelectedRecordFile, strSelectedRecordData))
+			if (!HistoryCfgRef()->Get(SelectedRecord, strSelectedRecordName, &SelectedRecordType, strSelectedRecordGuid, strSelectedRecordFile, strSelectedRecordData))
 				return -1;
 
 			//BUGUBUG: eliminate those magic numbers!
@@ -599,13 +599,13 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 
 void History::GetPrev(string &strStr)
 {
-	CurrentItem = HistoryCfg->GetPrev(TypeHistory, strHistoryName, CurrentItem, strStr);
+	CurrentItem = HistoryCfgRef()->GetPrev(TypeHistory, strHistoryName, CurrentItem, strStr);
 }
 
 
 void History::GetNext(string &strStr)
 {
-	CurrentItem = HistoryCfg->GetNext(TypeHistory, strHistoryName, CurrentItem, strStr);
+	CurrentItem = HistoryCfgRef()->GetNext(TypeHistory, strHistoryName, CurrentItem, strStr);
 }
 
 
@@ -623,14 +623,14 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 
 	int i=0;
 	string strName;
-	unsigned __int64 HistoryItem=HistoryCfg->CyclicGetPrev(TypeHistory, strHistoryName, CurrentItem, strName);
+	unsigned __int64 HistoryItem=HistoryCfgRef()->CyclicGetPrev(TypeHistory, strHistoryName, CurrentItem, strName);
 	while (HistoryItem != CurrentItem)
 	{
 		if (!HistoryItem)
 		{
 			if (++i > 1) //infinite loop
 				break;
-			HistoryItem = HistoryCfg->CyclicGetPrev(TypeHistory, strHistoryName, HistoryItem, strName);
+			HistoryItem = HistoryCfgRef()->CyclicGetPrev(TypeHistory, strHistoryName, HistoryItem, strName);
 			continue;
 		}
 
@@ -645,7 +645,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 			return true;
 		}
 
-		HistoryItem = HistoryCfg->CyclicGetPrev(TypeHistory, strHistoryName, HistoryItem, strName);
+		HistoryItem = HistoryCfgRef()->CyclicGetPrev(TypeHistory, strHistoryName, HistoryItem, strName);
 	}
 
 	return false;
@@ -660,7 +660,7 @@ bool History::GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str)
 	bool HLock;
 	unsigned __int64 id;
 	unsigned __int64 Time;
-	while (HistoryCfg->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
+	while (HistoryCfgRef()->Enum(index++,TypeHistory,strHistoryName,&id,strHName,&HType,&HLock,&Time,strHGuid,strHFile,strHData,true))
 	{
 		if (!StrCmpNI(Str,strHName,Length))
 		{
@@ -685,9 +685,9 @@ bool History::GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str)
 bool History::DeleteIfUnlocked(unsigned __int64 id)
 {
 	bool b = false;
-	if (id && !HistoryCfg->IsLocked(id))
+	if (id && !HistoryCfgRef()->IsLocked(id))
 	{
-		if (HistoryCfg->Delete(id))
+		if (HistoryCfgRef()->Delete(id))
 		{
 			b = true;
 			ResetPosition();
@@ -706,4 +706,9 @@ void History::SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos)
 bool History::EqualType(int Type1, int Type2)
 {
 	return Type1 == Type2 || (TypeHistory == HISTORYTYPE_VIEW && ((Type1 == 4 && Type2 == 1) || (Type1 == 1 && Type2 == 4)))?true:false;
+}
+
+HistoryConfig* History::HistoryCfgRef(void)
+{
+	return (*EnableSave)?HistoryCfg:HistoryCfgMem;
 }

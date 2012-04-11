@@ -33,6 +33,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "configdb.hpp"
+
 class Dialog;
 class VMenu;
 
@@ -54,12 +56,11 @@ class History
 		size_t HistoryCount;
 		const int *EnableSave;
 		unsigned __int64 CurrentItem;
-
 	private:
 		bool EqualType(int Type1, int Type2);
 		const wchar_t *GetTitle(int Type);
 		int ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg);
-
+		HistoryConfig* HistoryCfgRef(void);
 	public:
 		History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, size_t HistoryCount, const int *EnableSave, bool SaveType);
 		~History();
@@ -74,7 +75,7 @@ class History
 		void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 		void ResetPosition() { CurrentItem = 0; }
 		bool DeleteIfUnlocked(unsigned __int64 id);
+		bool ReadLastItem(const wchar_t *HistoryName, string &strStr);
 
-		static bool ReadLastItem(const wchar_t *HistoryName, string &strStr);
 		static void CompactHistory();
 };

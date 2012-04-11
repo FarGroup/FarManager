@@ -266,6 +266,7 @@ extern AssociationsConfig *AssocConfig;
 extern PluginsCacheConfig *PlCacheCfg;
 extern PluginsHotkeysConfig *PlHotkeyCfg;
 extern HistoryConfig *HistoryCfg;
+extern HistoryConfig *HistoryCfgMem;
 extern MacroConfig *MacroCfg;
 
 void InitDb(bool err_report=false);
