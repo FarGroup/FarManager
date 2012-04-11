@@ -383,7 +383,7 @@ class RegExp
 		int StrCmp(const prechar& str,const prechar start,const prechar end);
 
 		void Init(const prechar,int options);
-		RegExp(const RegExp& re) {};
+		//RegExp(const RegExp& re) {};
 
 	public:
 		//! Default constructor.

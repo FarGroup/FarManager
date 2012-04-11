@@ -69,57 +69,60 @@ void NTPath::Transform()
 PATH_TYPE ParsePath(const wchar_t* path, const wchar_t** DirPtr, bool* Root)
 {
 	PATH_TYPE Result = PATH_UNKNOWN;
+
 	static struct
 	{
-		RegExp re;
 		PATH_TYPE Type;
+		const wchar_t* REStr;
+		RegExp re;
+		bool Compiled;
 	}
-	PathTypes[6];
+	PathTypes[] =
+	{
+		// x:<whatever>
+		{PATH_DRIVELETTER, L"/(^.\\:)/"},
+		// \\?\x: or \\?\x:\ or \\?\x:\<whatever>
+		{PATH_DRIVELETTERUNC, L"/(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)/"},
+		// \\server\share or \\server\share\ or \\server\share<whatever>
+		{PATH_REMOTE, L"/(^\\\\{2}[^ \\\\\\/\\?\\.][^ \\\\\\/\\?]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/"},
+		// \\?\unc\server\share or \\?\unc\server\share\ or \\?\unc\server\share<whatever>
+		{PATH_REMOTEUNC, L"/(^\\\\{2}[\\?\\.]\\\\unc\\\\[^ \\\\\\/]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/"},
+		// \\?\Volume{GUID} or \\?\Volume{GUID}\ or \\?\Volume{GUID}<whatever>
+		{PATH_VOLUMEGUID, L"/(^\\\\{2}[\\?\\.]\\\\volume\\{[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}\\})(?:[\\\\\\/]|$)/"},
+		// \\?\pipe\ or \\?\pipe
+		{PATH_PIPE, L"/(^\\\\{2}[\\?\\.]\\\\pipe)(?:[\\\\\\/]|$)/"},
+	};
 	static bool REInit = false;
 	if(!REInit)
 	{
-		int Result;
-		Result = PathTypes[0].re.Compile(L"/(^.\\:)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // x:<whatever>
-		assert(Result);
-		Result = PathTypes[1].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\?\x: or \\?\x:\ or \\?\x:\<whatever>
-		assert(Result);
-		Result = PathTypes[2].re.Compile(L"/(^\\\\{2}[^ \\\\\\/\\?\\.][^ \\\\\\/\\?]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\server\share or \\server\share\ or \\server\share<whatever>
-		assert(Result);
-		Result = PathTypes[3].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\unc\\\\[^ \\\\\\/]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\?\unc\server\share or \\?\unc\server\share\ or \\?\unc\server\share<whatever>
-		assert(Result);
-		Result = PathTypes[4].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\volume\\{[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}\\})(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\?\Volume{GUID} or \\?\Volume{GUID}\ or \\?\Volume{GUID}<whatever>
-		assert(Result);
-		Result = PathTypes[5].re.Compile(L"/(^\\\\{2}[\\?\\.]\\\\pipe)(?:[\\\\\\/]|$)/", OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE); // \\?\pipe\ or \\?\pipe
-		assert(Result);
-
-		PathTypes[0].Type = PATH_DRIVELETTER;
-		PathTypes[1].Type = PATH_DRIVELETTERUNC;
-		PathTypes[2].Type = PATH_REMOTE;
-		PathTypes[3].Type = PATH_REMOTEUNC;
-		PathTypes[4].Type = PATH_VOLUMEGUID;
-		PathTypes[5].Type = PATH_PIPE;
-
+		for(size_t i = 0; i < ARRAYSIZE(PathTypes); ++i)
+		{
+			PathTypes[i].Compiled = PathTypes[i].re.Compile(PathTypes[i].REStr, OP_PERLSTYLE|OP_OPTIMIZE|OP_IGNORECASE) != 0;
+			assert(PathTypes[i].Compiled);
+		}
 		REInit = true;
 	}
 
 	SMatch m[3];
-	int n;
 
 	for(size_t i = 0; i < ARRAYSIZE(PathTypes); ++i)
 	{
-		n = PathTypes[i].re.GetBracketsCount();
-		if(PathTypes[i].re.Search(path, m, n))
+		if(PathTypes[i].Compiled)
 		{
-			if(DirPtr)
+			int n = PathTypes[i].re.GetBracketsCount();
+			if(PathTypes[i].re.Search(path, m, n))
 			{
-				*DirPtr = path+m[1].end;
+				if(DirPtr)
+				{
+					*DirPtr = path+m[1].end;
+				}
+				if(Root)
+				{
+					*Root = !path[m[1].end] || (IsSlash(path[m[1].end]) && !path[m[1].end+1]);
+				}
+				Result = PathTypes[i].Type;
+				break;
 			}
-			if(Root)
-			{
-				*Root = !path[m[1].end] || (IsSlash(path[m[1].end]) && !path[m[1].end+1]);
-			}
-			Result = PathTypes[i].Type;
-			break;
 		}
 	}
 
