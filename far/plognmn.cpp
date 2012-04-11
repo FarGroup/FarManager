@@ -70,6 +70,8 @@ PreserveLongName::~PreserveLongName()
 				strNewName += "\\";
 				strNewName += strSaveLongName;
 			}
+			else
+				strNewName = strSaveLongName;
 
 			apiMoveFile(strSaveShortName, strNewName);
 		}
