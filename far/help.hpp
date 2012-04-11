@@ -135,6 +135,8 @@ class Help:public Frame
 		int   TopicFound;           // TRUE - топик найден
 		int   IsNewTopic;           // это новый топик?
 		int   MouseDown;
+		int   MouseDownX, MouseDownY, BeforeMouseDownX, BeforeMouseDownY;
+		string strBeforeMouseDownSelTopic;
 
 		string strCtrlColorChar;    // CtrlColorChar - опция! для спецсимвола-
 		//   символа - для атрибутов
