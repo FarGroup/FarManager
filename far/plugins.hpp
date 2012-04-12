@@ -224,6 +224,7 @@ class PluginManager
 
 		HANDLE LoadPluginExternal(const string& lpwszModuleName, bool LoadToMem);
 		int UnloadPluginExternal(HANDLE hPlugin);
+		bool IsPluginUnloaded(Plugin* pPlugin);
 
 		void LoadPlugins();
 
