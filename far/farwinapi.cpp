@@ -239,7 +239,16 @@ FindFile::FindFile(const string& Object, bool ScanSymLink):
 	empty(false)
 {
 	NTPath strName(Object);
-	DeleteEndSlash(strName);
+	bool Root = false;
+	PATH_TYPE Type = ParsePath(strName, nullptr, &Root);
+	if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
+	{
+		AddEndSlash(strName);
+	}
+	else
+	{
+		DeleteEndSlash(strName);
+	}
 	// temporary disable elevation to try "real" name first
 	{
 		DisableElevation DE;
@@ -753,12 +762,15 @@ BOOL apiSetCurrentDirectory(const string& PathName, bool Validate)
 	// correct path to our standard
 	string strDir=PathName;
 	ReplaceSlashToBSlash(strDir);
-	DeleteEndSlash(strDir);
 	bool Root = false;
 	PATH_TYPE Type = ParsePath(strDir, nullptr, &Root);
 	if(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID))
 	{
 		AddEndSlash(strDir);
+	}
+	else
+	{
+		DeleteEndSlash(strDir);
 	}
 
 	if (strDir == strCurrentDirectory())
