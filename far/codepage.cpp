@@ -136,7 +136,7 @@ inline bool IsPositionNormal(UINT position)
 // Формируем строку для визуального представления таблицы символов
 void FormatCodePageString(UINT CodePage, const wchar_t *CodePageName, FormatString &CodePageNameString, bool IsCodePageNameCustom)
 {
-	if (static_cast<int>(CodePage) >= 0)  // CodePage != CP_AUTODETECT
+	if (static_cast<int>(CodePage) >= 0)  // CodePage != CP_DEFAULT, CP_REDETECT
 	{
 		CodePageNameString<<fmt::Width(5)<<CodePage<<BoxSymbols[BS_V1]<<(!IsCodePageNameCustom||CallbackCallSource==CodePagesFill?L' ':L'*');
 	}
