@@ -1285,7 +1285,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 			if (GetFiles(PPI, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
 			{
 				//TODO: viewer crashed on exit!
-				Info.Viewer(FileName,PPI->FileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE,CP_AUTODETECT);
+				Info.Viewer(FileName,PPI->FileName, 0,0,-1,-1, VF_NONMODAL|VF_DELETEONCLOSE,CP_DEFAULT);
 			}
 			free(PPI);
 		}

@@ -1298,7 +1298,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 									if (validForView(TempFileNameErr, Opt.ViewZeroFiles, 0))
 									{
 										FSF.sprintf(fullcmd, L"%s%s", titleErr, cmd);
-										Info.Viewer(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,CP_AUTODETECT);
+										Info.Viewer(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,CP_DEFAULT);
 									}
 									else if (outputtofile)
 										killTemp(TempFileNameErr);
@@ -1306,7 +1306,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 									if (validForView(TempFileNameOut, Opt.ViewZeroFiles, 0))
 									{
 										FSF.sprintf(fullcmd, L"%s%s", titleOut, cmd);
-										Info.Viewer(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,CP_AUTODETECT);
+										Info.Viewer(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,CP_DEFAULT);
 									}
 									else if (outputtofile)
 										killTemp(TempFileNameOut);
@@ -1323,7 +1323,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 									if (validForView(TempFileNameErr, Opt.ViewZeroFiles, Opt.EditNewFiles))
 									{
 										FSF.sprintf(fullcmd, L"%s%s", titleErr, cmd);
-										Info.Editor(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar,CP_AUTODETECT);
+										Info.Editor(TempFileNameErr,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar,CP_DEFAULT);
 									}
 									else if (outputtofile)
 										killTemp(TempFileNameErr);
@@ -1331,7 +1331,7 @@ int OpenFromCommandLine(wchar_t *_farcmd)
 									if (validForView(TempFileNameOut, Opt.ViewZeroFiles, Opt.EditNewFiles))
 									{
 										FSF.sprintf(fullcmd, L"%s%s", titleOut, cmd);
-										Info.Editor(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar,CP_AUTODETECT);
+										Info.Editor(TempFileNameOut,outputtofile?fullcmd:NULL,0,0,-1,-1,Flags,StartLine,StartChar,CP_DEFAULT);
 									}
 									else if (outputtofile)
 										killTemp(TempFileNameOut);

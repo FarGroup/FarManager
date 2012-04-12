@@ -117,11 +117,11 @@ void flush_screen() {
 }
 
 int viewer(const wstring& file_name, const wstring& title, VIEWER_FLAGS flags) {
-  return g_far.Viewer(file_name.c_str(), title.c_str(), 0, 0, -1, -1, flags, CP_AUTODETECT);
+  return g_far.Viewer(file_name.c_str(), title.c_str(), 0, 0, -1, -1, flags, CP_DEFAULT);
 }
 
 int editor(const wstring& file_name, const wstring& title, EDITOR_FLAGS flags) {
-  return g_far.Editor(file_name.c_str(), title.c_str(), 0, 0, -1, -1, flags, 1, 1, CP_AUTODETECT);
+  return g_far.Editor(file_name.c_str(), title.c_str(), 0, 0, -1, -1, flags, 1, 1, CP_DEFAULT);
 }
 
 void update_panel(HANDLE h_panel, bool keep_selection) {
