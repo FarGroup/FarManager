@@ -1762,7 +1762,7 @@ int RegExp::InnerCompile(const prechar src,int srclength,int options)
 					i++;
 				}
 
-				int lastchar=0;
+				int lastchar=-1;
 				int classsize=0;
 				op->op=opSymbolClass;
 				//op->symbolclass=new rechar[32];
@@ -1785,7 +1785,7 @@ int RegExp::InnerCompile(const prechar src,int srclength,int options)
 						i++;
 						int isnottype=0;
 						int type=0;
-						lastchar=0;
+						lastchar=-1;
 
 						switch (src[i])
 						{
@@ -1918,7 +1918,7 @@ int RegExp::InnerCompile(const prechar src,int srclength,int options)
 
 					if (src[i]=='-')
 					{
-						if (lastchar && src[i+1]!=']')
+						if (lastchar!=-1 && src[i+1]!=']')
 						{
 							int to=src[i+1];
 
