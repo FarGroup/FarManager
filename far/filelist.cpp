@@ -2284,18 +2284,21 @@ int FileList::ProcessKey(int Key)
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
 		case KEY_RCTRLPGUP:    case KEY_RCTRLNUMPAD9:
 		{
-			//"this" может быть удалён в ChangeDir
-			bool CheckFullScreen=IsFullScreen();
-			ChangeDir(L"..");
-			Panel *NewActivePanel = CtrlObject->Cp()->ActivePanel;
-			NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
+			if (Opt.PgUpChangeDisk || !IsRootPath(strCurDir))
+			{
+				//"this" может быть удалён в ChangeDir
+				bool CheckFullScreen=IsFullScreen();
+				ChangeDir(L"..");
+				Panel *NewActivePanel = CtrlObject->Cp()->ActivePanel;
+				NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
 
-			if (CheckFullScreen!=NewActivePanel->IsFullScreen())
-				CtrlObject->Cp()->GetAnotherPanel(NewActivePanel)->Show();
+				if (CheckFullScreen!=NewActivePanel->IsFullScreen())
+					CtrlObject->Cp()->GetAnotherPanel(NewActivePanel)->Show();
 
-			NewActivePanel->Show();
+				NewActivePanel->Show();
+			}
+			return TRUE;
 		}
-		return TRUE;
 		case KEY_CTRLPGDN:
 		case KEY_RCTRLPGDN:
 		case KEY_CTRLNUMPAD3:
@@ -2709,14 +2712,9 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 						return FALSE;
 					}
 				}
-				else
-				{
-					if (Opt.PgUpChangeDisk)
-					{
-						CtrlObject->Cp()->ActivePanel->ChangeDisk();
-						return TRUE;
-					}
-				}
+
+				CtrlObject->Cp()->ActivePanel->ChangeDisk();
+				return TRUE;
 			}
 		}
 	}
