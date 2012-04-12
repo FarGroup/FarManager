@@ -674,6 +674,7 @@ struct Options
 	int ClearType;
 
 	int PgUpChangeDisk;
+	int ShowDotsInRoot;
 	int ShowCheckingFile;
 	int CloseCDGate;       // автомонтирование CD
 	int UpdateEnvironment;

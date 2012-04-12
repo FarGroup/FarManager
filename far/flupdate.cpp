@@ -256,8 +256,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	CtrlObject->HiFiles->UpdateCurrentTime();
 	bool bCurDirRoot = false;
 	ParsePath(strCurDir, nullptr, &bCurDirRoot);
-	//PATH_TYPE Type = ParsePath(strCurDir, nullptr, &bCurDirRoot);
-	//bool NetRoot == Root && (Type == PATH_REMOTE || Type == PATH_REMOTEUNC);
+	PATH_TYPE Type = ParsePath(strCurDir, nullptr, &bCurDirRoot);
+	bool NetRoot = bCurDirRoot && (Type == PATH_REMOTE || Type == PATH_REMOTEUNC);
 
 	FileCount = 0;
 	string strFind = strCurDir;
@@ -387,9 +387,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	if (!(FindErrorCode==ERROR_SUCCESS || FindErrorCode==ERROR_NO_MORE_FILES || FindErrorCode==ERROR_FILE_NOT_FOUND))
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
 
-	// пока кусок закомментим, возможно он даже и не пригодится.
-	//if (!bCurDirRoot) // && !NetRoot)
-
+	if ((Opt.ShowDotsInRoot || !bCurDirRoot) || (NetRoot && CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Network))) // NetWork Plugin
 	{
 		if (FileCount>=AllocatedCount)
 		{

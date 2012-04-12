@@ -103,6 +103,8 @@ int PrepareHotKey(string &strHotKey)
 	return FuncNum;
 }
 
+const wchar_t *LocalMenuFileName=L"FarMenu.ini";
+
 void MenuListToFile(DList<UserMenuItem> *Menu, CachedWrite& CW)
 {
 	for (UserMenuItem *MenuItem=Menu->First(); MenuItem; MenuItem=Menu->Next(MenuItem))
@@ -203,6 +205,52 @@ UserMenu::~UserMenu()
 {
 }
 
+void UserMenu::SaveMenu(const string& MenuFileName)
+{
+	if (MenuModified)
+	{
+		DWORD FileAttr=apiGetFileAttributes(MenuFileName);
+
+		if (FileAttr != INVALID_FILE_ATTRIBUTES)
+		{
+			if (FileAttr & FILE_ATTRIBUTE_READONLY)
+			{
+				int AskOverwrite;
+				AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),LocalMenuFileName,MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
+
+				if (!AskOverwrite)
+					apiSetFileAttributes(MenuFileName,FileAttr & ~FILE_ATTRIBUTE_READONLY);
+			}
+
+			if (FileAttr & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
+				apiSetFileAttributes(MenuFileName,FILE_ATTRIBUTE_NORMAL);
+		}
+
+		// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
+		File MenuFile;
+		if (MenuFile.Open(MenuFileName,GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
+		{
+			CachedWrite CW(MenuFile);
+			WCHAR Data = SIGN_UNICODE;
+			CW.Write(&Data, 1*sizeof(WCHAR));
+			MenuListToFile(&Menu, CW);
+			CW.Flush();
+			UINT64 Size = 0;
+			MenuFile.GetSize(Size);
+			MenuFile.Close();
+
+			// если файл FarMenu.ini пуст, то удалим его
+			if (Size<3) // 2 for BOM
+			{
+				apiDeleteFile(MenuFileName);
+			}
+			else if (FileAttr!=INVALID_FILE_ATTRIBUTES)
+			{
+				apiSetFileAttributes(MenuFileName,FileAttr);
+			}
+		}
+	}
+}
 void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
@@ -227,7 +275,6 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 	}
 
 	// основной цикл обработки
-	const wchar_t *LocalMenuFileName=L"FarMenu.ini";
 	bool FirstRun=true;
 	int ExitCode = 0;
 
@@ -284,54 +331,13 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 		int _CurrentFrame=FrameManager->GetCurrentFrame()->GetType();
 		CtrlObject->Macro.SetMode(MACRO_USERMENU);
 		// вызываем меню
-		ExitCode=ProcessSingleMenu(&Menu, 0, &Menu);
+		ExitCode=ProcessSingleMenu(&Menu, 0, &Menu, strMenuFileFullPath);
 
 		if (_CurrentFrame == FrameManager->GetCurrentFrame()->GetType()) //???
 			CtrlObject->Macro.SetMode(PrevMacroMode);
 
 		// ...запишем изменения обратно в файл
-		if (MenuModified)
-		{
-			DWORD FileAttr=apiGetFileAttributes(strMenuFileFullPath);
-
-			if (FileAttr != INVALID_FILE_ATTRIBUTES)
-			{
-				if (FileAttr & FILE_ATTRIBUTE_READONLY)
-				{
-					int AskOverwrite;
-					AskOverwrite=Message(MSG_WARNING,2,MSG(MUserMenuTitle),LocalMenuFileName,MSG(MEditRO),MSG(MEditOvr),MSG(MYes),MSG(MNo));
-
-					if (!AskOverwrite)
-						apiSetFileAttributes(strMenuFileFullPath,FileAttr & ~FILE_ATTRIBUTE_READONLY);
-				}
-
-				if (FileAttr & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))
-					apiSetFileAttributes(strMenuFileFullPath,FILE_ATTRIBUTE_NORMAL);
-			}
-
-			// Don't use CreationDisposition=CREATE_ALWAYS here - it kills alternate streams
-			if (MenuFile.Open(strMenuFileFullPath,GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
-			{
-				CachedWrite CW(MenuFile);
-				WCHAR Data = SIGN_UNICODE;
-				CW.Write(&Data, 1*sizeof(WCHAR));
-				MenuListToFile(&Menu, CW);
-				CW.Flush();
-				UINT64 Size = 0;
-				MenuFile.GetSize(Size);
-				MenuFile.Close();
-
-				// если файл FarMenu.ini пуст, то удалим его
-				if (Size<3) // 2 for BOM
-				{
-					apiDeleteFile(strMenuFileFullPath);
-				}
-				else if (FileAttr!=INVALID_FILE_ATTRIBUTES)
-				{
-					apiSetFileAttributes(strMenuFileFullPath,FileAttr);
-				}
-			}
-		}
+		SaveMenu(strMenuFileFullPath);
 
 		// что было после вызова меню?
 		switch (ExitCode)
@@ -451,7 +457,7 @@ int FillUserMenu(VMenu& FarUserMenu,DList<UserMenuItem> *Menu,int MenuPos,int *F
 }
 
 // обработка единичного меню
-int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<UserMenuItem> *MenuRoot, const wchar_t *Title)
+int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<UserMenuItem> *MenuRoot, const string& MenuFileName, const wchar_t *Title)
 {
 	for (;;)
 	{
@@ -601,36 +607,19 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 					case KEY_ALTF4:       // редактировать все меню
 					case KEY_RALTF4:
 					{
-						(*FrameManager)[0]->Unlock();
-						string strMenuFileName;
 						File MenuFile;
-						if (!FarMkTempEx(strMenuFileName) || (!MenuFile.Open(strMenuFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, CREATE_ALWAYS)))
-						{
-							break;
-						}
-
-						{
-							CachedWrite CW(MenuFile);
-							WCHAR Data = SIGN_UNICODE;
-							CW.Write(&Data, 1*sizeof(WCHAR));
-							MenuListToFile(MenuRoot, CW);
-							CW.Flush();
-						}
-						MenuNeedRefresh=true;
-						MenuFile.Close();
+						(*FrameManager)[0]->Unlock();
 						{
 							ConsoleTitle *OldTitle=new ConsoleTitle;
-							string strFileName = strMenuFileName;
-							FileEditor ShellEditor(strFileName,CP_UNICODE,FFILEEDIT_DISABLEHISTORY,-1,-1,nullptr);
+							SaveMenu(MenuFileName);
+							FileEditor ShellEditor(MenuFileName,CP_UNICODE,FFILEEDIT_DISABLEHISTORY,-1,-1,nullptr);
 							delete OldTitle;
 							ShellEditor.SetDynamicallyBorn(false);
 							FrameManager->EnterModalEV();
 							FrameManager->ExecuteModal();
 							FrameManager->ExitModalEV();
-
-							if (!ShellEditor.IsFileChanged() || (!MenuFile.Open(strMenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
+							if (!ShellEditor.IsFileChanged() || (!MenuFile.Open(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
 							{
-								apiDeleteFile(strMenuFileName);
 								return 0;
 							}
 						}
@@ -638,7 +627,6 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 						GetFileString GetStr(MenuFile);
 						MenuFileToList(MenuRoot, MenuFile, GetStr);
 						MenuFile.Close();
-						apiDeleteFile(strMenuFileName);
 						MenuModified=true;
 						UserMenu.Hide();
 
@@ -714,7 +702,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 			}
 
 			/* $ 14.07.2000 VVM ! Если закрыли подменю, то остаться. Инече передать управление выше */
-			MenuPos = ProcessSingleMenu(CurrentMenuItem->Menu,0,MenuRoot,strSubMenuTitle);
+			MenuPos = ProcessSingleMenu(CurrentMenuItem->Menu, 0, MenuRoot, MenuFileName, strSubMenuTitle);
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
 				return MenuPos;

@@ -64,7 +64,8 @@ class UserMenu
 		void ProcessUserMenu(bool ChoiceMenuType);
 		bool DeleteMenuRecord(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem);
 		bool EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool Create);
-		int ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<UserMenuItem> *MenuRoot, const wchar_t *Title=nullptr);
+		int ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<UserMenuItem> *MenuRoot, const string& MenuFileName, const wchar_t *Title=nullptr);
+		void SaveMenu(const string& MenuFileName);
 
 	public:
 		UserMenu(bool ChoiceMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге

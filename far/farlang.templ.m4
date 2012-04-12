@@ -1693,6 +1693,15 @@ MConfigShowSortMode
 "Wyświetl l&iterę trybu sortowania"
 "Mostrar letra para &modo de orden"
 
+MConfigShowDotsInRoot
+"Показывать \"..\" в корневых каталогах"
+"Show \"..\" in root folders"
+"Show \"..\" in root folders"
+"Show \"..\" in root folders"
+"Show \"..\" in root folders"
+"Show \"..\" in root folders"
+"Show \"..\" in root folders"
+
 MConfigHighlightColumnSeparator
 "Подсвечивать разделители колонок"
 "Highlight column separators"

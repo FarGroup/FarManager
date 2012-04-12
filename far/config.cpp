@@ -197,6 +197,7 @@ void PanelSettings()
 	Builder.AddCheckbox(MConfigShowScrollbar, &Opt.ShowPanelScrollbar);
 	Builder.AddCheckbox(MConfigShowScreensNumber, &Opt.ShowScreensNumber);
 	Builder.AddCheckbox(MConfigShowSortMode, &Opt.ShowSortMode);
+	Builder.AddCheckbox(MConfigShowDotsInRoot, &Opt.ShowDotsInRoot);
 	Builder.AddCheckbox(MConfigHighlightColumnSeparator, &Opt.HighlightColumnSeparator);
 	Builder.AddCheckbox(MConfigDoubleGlobalColumnSeparator, &Opt.DoubleGlobalColumnSeparator);
 	Builder.AddOKCancel();
@@ -845,6 +846,7 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"AltF9",&Opt.AltF9, 1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShowDotsInRoot",&Opt.ShowDotsInRoot, 0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ClearType",&Opt.ClearType, 1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShowTimeoutDACLFiles",&Opt.ShowTimeoutDACLFiles, 50, 0},
