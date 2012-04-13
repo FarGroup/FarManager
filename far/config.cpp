@@ -1153,6 +1153,7 @@ bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
 	{
 		if (!StrCmpI(CFG[I].KeyName,Key) && !StrCmpI(CFG[I].ValName,Name))
 		{
+			if(FSSF_PRIVATE==CFG[I].ApiRoot) break;
 			switch (CFG[I].ValType)
 			{
 				case GeneralConfig::TYPE_INTEGER:
