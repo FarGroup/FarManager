@@ -7169,7 +7169,7 @@ bool Editor::SetCodePage( UINT codepage, bool check_onky )
 	{
 		while ( current && !Result )
 		{
-			Result |= current->SetCodePage(m_codepage, true, buffer_line, buffer_size);
+			Result |= current->SetCodePage(codepage, true, buffer_line, buffer_size);
 			current = current->m_next;
 		}
 
@@ -7180,7 +7180,7 @@ bool Editor::SetCodePage( UINT codepage, bool check_onky )
 
 		while (current)
 		{
-			Result |= current->SetCodePage(m_codepage, false, buffer_line, buffer_size);
+			Result |= current->SetCodePage(codepage, false, buffer_line, buffer_size);
 			current = current->m_next;
 		}
 

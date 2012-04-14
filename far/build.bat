@@ -41,19 +41,20 @@ goto :EOF
 
 :set_vc
   if "" == "%vsdir%" set vsdir=%VS100COMNTOOLS:\Common7\Tools\=\%
-  if "" == "%mssdk%" (
-    rem for /F "tokens=1,2*" %%i in ('reg query "HKLM\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1" /v "InstallationFolder"') do (
-    for /F "tokens=1,2*" %%i in ('reg query "HKLM\SOFTWARE\Microsoft\Microsoft SDKs\Windows" /v "CurrentInstallFolder"') do (
-      rem if "%%i" == "InstallationFolder" set mssdk=%%k
-      if "%%i" == "CurrentInstallFolder" set mssdk=%%k
-    )
-  )
+  if "" == "%mssdk%" call :try_msdk Windows       CurrentInstallFolder
+  if "" == "%mssdk%" call :try_msdk Windows\v7.1  InstallationFolder
+  if "" == "%mssdk%" call :try_msdk Windows\v7.0A InstallationFolder
   set INCLUDE=%vsdir%VC\Include;%mssdk%Include
   if "32" == "%~1" set LIB=%vsdir%VC\Lib;%mssdk%Lib
   if "32" == "%~1" set pth=& rem
   if "64" == "%~1" set LIB=%vsdir%VC\Lib\amd64;%mssdk%Lib\x64
   if "64" == "%~1" set pth=%vsdir%VC\Bin\x86_amd64;
   PATH=%pth%%vsdir%VC\Bin;%vsdir%VC\VCPackages;%vsdir%Common7\Tools;%vsdir%Common7\IDE;%mssdk%Bin;%opath%
+goto :EOF
+:try_msdk
+  for /F "tokens=1,2*" %%i in ('reg query "HKLM\SOFTWARE\Microsoft\Microsoft SDKs\%1" /v "%2" 2^>NUL') do (
+    if "%%i" == "%2" if exist "%%kInclude\*" if exist "%%kLib\*" if exist "%%kBin\*" set mssdk=%%k
+  )
 goto :EOF
 
 :proc_param
