@@ -1151,8 +1151,11 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			case KEY_SHIFTF4:
 			{
 				if (!Opt.OnlyEditorViewerUsed && GetCanLoseFocus())
+				{
+					if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && m_editor->EdOpt.SavePos) // save position/codepage before reload
+						SaveToCache();
 					CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
-
+				}
 				return TRUE;
 			}
 			// $ 21.07.2000 SKV + выход с позиционированием на редактируемом файле по CTRLF10
