@@ -388,6 +388,7 @@ class TVMStack: public TStack<TVar>
 	public:
 		const TVar &Pop();
 		TVar &Pop(TVar &dest);
+		void Swap();
 		const TVar &Peek();
 };
 

@@ -84,9 +84,9 @@ PATH_TYPE ParsePath(const wchar_t* path, const wchar_t** DirPtr, bool* Root)
 		// \\?\x: or \\?\x:\ or \\?\x:\<whatever>
 		{PATH_DRIVELETTERUNC, L"/(^\\\\{2}[\\?\\.]\\\\.\\:)(?:[\\\\\\/]|$)/"},
 		// \\server\share or \\server\share\ or \\server\share<whatever>
-		{PATH_REMOTE, L"/(^\\\\{2}[^ \\\\\\/\\?\\.][^ \\\\\\/\\?]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/"},
+		{PATH_REMOTE, L"/(^\\\\{2}[^ \\\\\\/\\?\\.][^ \\\\\\/\\?]+?\\\\[^\\\\\\/]+?)(?:[\\\\\\/]|$)/"},
 		// \\?\unc\server\share or \\?\unc\server\share\ or \\?\unc\server\share<whatever>
-		{PATH_REMOTEUNC, L"/(^\\\\{2}[\\?\\.]\\\\unc\\\\[^ \\\\\\/]+?\\\\[^ \\\\\\/]+?)(?:[\\\\\\/]|$)/"},
+		{PATH_REMOTEUNC, L"/(^\\\\{2}[\\?\\.]\\\\unc\\\\[^ \\\\\\/]+?\\\\[^\\\\\\/]+?)(?:[\\\\\\/]|$)/"},
 		// \\?\Volume{GUID} or \\?\Volume{GUID}\ or \\?\Volume{GUID}<whatever>
 		{PATH_VOLUMEGUID, L"/(^\\\\{2}[\\?\\.]\\\\volume\\{[0-9A-Fa-f]{8}-(?:[0-9A-Fa-f]{4}-){3}[0-9A-Fa-f]{12}\\})(?:[\\\\\\/]|$)/"},
 		// \\?\pipe\ or \\?\pipe
