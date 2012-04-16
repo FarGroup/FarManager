@@ -70,8 +70,12 @@ enum MACRO_OP_CODE
 	MCODE_OP_END,                     // $end - признак конца цикла/условия
 
 	// Одноместные операции
-	// ++a, --a
+	MCODE_OP_PREINC,                  // ++a
+	MCODE_OP_PREDEC,                  // --a
+	MCODE_OP_POSTINC,                 // a++
+	MCODE_OP_POSTDEC,                 // a--
 
+	MCODE_OP_UPLUS,                   // +a
 	MCODE_OP_NEGATE,                  // -a
 	MCODE_OP_NOT,                     // !a
 	MCODE_OP_BITNOT,                  // ~a
@@ -116,8 +120,6 @@ enum MACRO_OP_CODE
 	MCODE_OP_BITXOREQ,                // a ^=  b
 	MCODE_OP_BITOREQ,                 // a |=  b
 
-	// a++, a--
-
 	MCODE_OP_DISCARD,                 // убрать значение с вершины стека
 	MCODE_OP_DUP,                     // продублировать верхнее значение в стеке
 	MCODE_OP_SWAP,                    // обменять местами два значения в вершине стека
@@ -131,8 +133,9 @@ enum MACRO_OP_CODE
 	MCODE_OP_IF,                      // Вообще-то эта группа в байткод
 	MCODE_OP_ELSE,                    // не попадет никогда :)
 	MCODE_OP_WHILE,
-	/* ************************************************************************* */
 	MCODE_OP_CONTINUE,                // $continue
+	MCODE_OP_BREAK,                   // $break
+	/* ************************************************************************* */
 
 	MCODE_OP_XLAT,
 	MCODE_OP_PLAINTEXT,

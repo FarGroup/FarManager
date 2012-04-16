@@ -108,6 +108,18 @@ class TStack:NonCopyable
 			return nullptr;
 		}
 
+		// два верхних элемента в вершине стека обменять местами
+		void Swap()
+		{
+			if (Top && Top->Next)
+			{
+				struct OneItem *Temp=Top->Next;
+				Top->Next=Temp->Next;
+				Temp->Next=Top;
+				Top=Temp;
+			}
+		}
+
 		// очистить стек
 		void Free()
 		{

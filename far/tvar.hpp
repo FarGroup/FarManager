@@ -51,7 +51,6 @@ enum TVarType
 typedef int (*TVarFuncCmp)(TVarType vt,const void *, const void *);
 
 class TVarSet;
-class TAbstractSet;
 const int V_TABLE_SIZE = 23;
 typedef TVarSet *(TVarTable)[V_TABLE_SIZE];
 
@@ -109,6 +108,11 @@ class TVar
 		TVar operator!();
 		TVar operator~();
 
+		TVar& operator ++();     // ++a
+		TVar  operator ++(int);  // a++
+		TVar& operator --();     // --a
+		TVar  operator --(int);  // a--
+
 		friend int operator==(const TVar&, const TVar&);
 		friend int operator!=(const TVar&, const TVar&);
 		friend int operator<(const TVar&, const TVar&);
@@ -143,39 +147,27 @@ class TVar
 // Работа с таблицами имен переменных
 //---------------------------------------------------------------
 
-class TAbstractSet
+class TVarSet
 {
 	public:
+		TVar value;
 		wchar_t *str;
-		TAbstractSet *next;
+		TVarSet *next;
 
 	public:
-		TAbstractSet(const wchar_t *s)
+		TVarSet(const wchar_t *s) : value(), next(nullptr), str(nullptr)
 		{
-			str = nullptr;
-			next = nullptr;
-
 			if (s)
 			{
 				str = new wchar_t[StrLength(s)+1];
 				wcscpy(str, s);
 			}
 		}
-
-		~TAbstractSet()
+		~TVarSet()
 		{
 			if (str)
 				delete [] str;
 		}
-};
-
-class TVarSet : public TAbstractSet
-{
-	public:
-		TVar value;
-
-	public:
-		TVarSet(const wchar_t *s) : TAbstractSet(s), value() {}
 };
 
 extern int isVar(TVarTable, const wchar_t*);

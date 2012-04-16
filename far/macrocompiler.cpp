@@ -55,8 +55,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define EOFCH 65536
 
-#define MAXEXEXSTACK 256
-
 enum TToken
 {
 	tNo, tEnd,  tLet,
@@ -100,6 +98,8 @@ static void keyMacroParseError(int err, const wchar_t *s, const wchar_t *p, cons
 static void keyMacroParseError(int err, const wchar_t *c = nullptr);
 
 // Стек структурных операторов
+#define MAXEXEXSTACK 256
+
 enum TExecMode
 {
 	emmMain,

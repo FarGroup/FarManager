@@ -1154,6 +1154,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(OP_REP),                     // $rep - признак начала цикла
 		DEF_MCODE_(OP_END),                     // $end - признак конца цикла/условия
 		DEF_MCODE_(OP_NEGATE),                  // -a
+		DEF_MCODE_(OP_UPLUS),                   // +a
 		DEF_MCODE_(OP_NOT),                     // !a
 		DEF_MCODE_(OP_BITNOT),                  // ~a
 		DEF_MCODE_(OP_MUL),                     // a *  b
@@ -1168,6 +1169,10 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(OP_GE),                      // a >= b
 		DEF_MCODE_(OP_EQ),                      // a == b
 		DEF_MCODE_(OP_NE),                      // a != b
+		DEF_MCODE_(OP_PREINC),                  // ++a
+		DEF_MCODE_(OP_PREDEC),                  // --a
+		DEF_MCODE_(OP_POSTINC),                 // a++
+		DEF_MCODE_(OP_POSTDEC),                 // a--
 		DEF_MCODE_(OP_BITAND),                  // a &  b
 		DEF_MCODE_(OP_BITXOR),                  // a ^  b
 		DEF_MCODE_(OP_BITOR),                   // a |  b
@@ -1194,6 +1199,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(OP_ELSE),                    // не попадет никогда :)
 		DEF_MCODE_(OP_WHILE),
 		DEF_MCODE_(OP_CONTINUE),                // $continue
+		DEF_MCODE_(OP_BREAK),
 		DEF_MCODE_(OP_XLAT),
 		DEF_MCODE_(OP_PLAINTEXT),
 		DEF_MCODE_(OP_AKEY),                    // $AKey - клавиша, которой вызвали макрос

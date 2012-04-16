@@ -608,6 +608,11 @@ const TVar& TVMStack::Pop()
 	return Error;
 };
 
+void TVMStack::Swap()
+{
+	TStack<TVar>::Swap();
+}
+
 TVar& TVMStack::Pop(TVar &dest)
 {
 	if (!TStack<TVar>::Pop(dest))
@@ -5067,6 +5072,7 @@ done:
 
 	switch (Key)
 	{
+		case MCODE_OP_BREAK:
 		case MCODE_OP_CONTINUE:
 			goto begin; // следом идет Jump
 
@@ -5229,21 +5235,6 @@ done:
 		case MCODE_OP_END:
 			// просто пропустим этот рудимент синтаксиса :)
 			goto begin;
-		case MCODE_OP_SAVE:
-		{
-			TVar Val0; VMStack.Pop(Val0);
-			GetPlainText(value);
-
-			// здесь проверка нужна, т.к. существует вариант вызова функции, без присвоения переменной
-			if (!value.IsEmpty())
-			{
-				TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-				varInsert(*t, value)->value = Val0;
-			}
-
-			goto begin;
-		}
-
 		case MCODE_F_MMODE:               // N=MMode(Action[,Value])
 		{
 			parseParams(2,Params);
@@ -5331,11 +5322,7 @@ done:
 
 		case MCODE_OP_SWAP:
 		{
-			TVar Val0;
-			VMStack.Pop(Val0);
-			VMStack.Pop(tmpVar);
-			VMStack.Push(Val0);
-			VMStack.Push(tmpVar);
+			VMStack.Swap();
 			goto begin;
 		}
 
@@ -5343,6 +5330,7 @@ done:
 			VMStack.Pop();
 			goto begin;
 
+		/*
 		case MCODE_OP_POP:        // 0: pop 1: varname -> присвоить значение переменной и убрать из вершины стека
 		{
 			VMStack.Pop(tmpVar);
@@ -5352,6 +5340,22 @@ done:
 
 			if (tmpVarSet)
 				tmpVarSet->value=tmpVar;
+
+			goto begin;
+		}
+        */
+		case MCODE_OP_SAVE:
+		{
+			TVar Val0;
+			VMStack.Pop(Val0);    // TODO: Заменить на "Val0=VMStack.Peek();", для удаления из стека есть MCODE_OP_DISCARD
+			GetPlainText(value);
+
+			// здесь проверка нужна, т.к. существует вариант вызова функции, без присвоения переменной
+			if (!value.IsEmpty())
+			{
+				TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
+				varInsert(*t, value)->value = Val0;
+			}
 
 			goto begin;
 		}
@@ -5450,19 +5454,22 @@ done:
 			goto begin;
 
 			// операции
+		case MCODE_OP_UPLUS:  /*VMStack.Pop(tmpVar); VMStack.Push(-tmpVar); */ goto begin;
 		case MCODE_OP_NEGATE: VMStack.Pop(tmpVar); VMStack.Push(-tmpVar); goto begin;
 		case MCODE_OP_NOT:    VMStack.Pop(tmpVar); VMStack.Push(!tmpVar); goto begin;
+
 		case MCODE_OP_LT:     VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() <  tmpVar); goto begin;
 		case MCODE_OP_LE:     VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() <= tmpVar); goto begin;
 		case MCODE_OP_GT:     VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() >  tmpVar); goto begin;
 		case MCODE_OP_GE:     VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() >= tmpVar); goto begin;
 		case MCODE_OP_EQ:     VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() == tmpVar); goto begin;
 		case MCODE_OP_NE:     VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() != tmpVar); goto begin;
+
 		case MCODE_OP_ADD:    VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() +  tmpVar); goto begin;
 		case MCODE_OP_SUB:    VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() -  tmpVar); goto begin;
 		case MCODE_OP_MUL:    VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() *  tmpVar); goto begin;
 		case MCODE_OP_DIV:
-
+		{
 			if (VMStack.Peek()==0ll)
 			{
 				_KEYMACRO(SysLog(L"[%d] IP=%d/0x%08X Error: Divide by zero",__LINE__,Work.ExecLIBPos,Work.ExecLIBPos));
@@ -5471,6 +5478,38 @@ done:
 
 			VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() /  tmpVar);
 			goto begin;
+		}
+		case MCODE_OP_PREINC:                  // ++var_a
+		case MCODE_OP_PREDEC:                  // --var_a
+		case MCODE_OP_POSTINC:                 // var_a++
+		case MCODE_OP_POSTDEC:                 // var_a--
+		{
+			GetPlainText(value);
+			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
+			tmpVarSet=varLook(*t, value);
+			switch (Key)
+			{
+				case MCODE_OP_PREINC:                  // ++var_a
+					++tmpVarSet->value;
+					tmpVar=tmpVarSet->value;
+					break;
+				case MCODE_OP_PREDEC:                  // --var_a
+					--tmpVarSet->value;
+					tmpVar=tmpVarSet->value;
+					break;
+				case MCODE_OP_POSTINC:                 // var_a++
+					tmpVar=tmpVarSet->value;
+					tmpVarSet->value++;
+					break;
+				case MCODE_OP_POSTDEC:                 // var_a--
+					tmpVar=tmpVarSet->value;
+					tmpVarSet->value--;
+					break;
+			}
+			VMStack.Push(tmpVar);
+			goto begin;
+		}
+
 			// Logical
 		case MCODE_OP_AND:    VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() && tmpVar); goto begin;
 		case MCODE_OP_OR:     VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() || tmpVar); goto begin;
@@ -5483,87 +5522,39 @@ done:
 		case MCODE_OP_BITSHL: VMStack.Pop(tmpVar); VMStack.Push(VMStack.Pop() << tmpVar); goto begin;
 		case MCODE_OP_BITNOT: VMStack.Pop(tmpVar); VMStack.Push(~tmpVar); goto begin;
 
-		case MCODE_OP_ADDEQ:                   // a +=  b
+		case MCODE_OP_ADDEQ:                   // var_a +=  exp_b
+		case MCODE_OP_SUBEQ:                   // var_a -=  exp_b
+		case MCODE_OP_MULEQ:                   // var_a *=  exp_b
+		case MCODE_OP_DIVEQ:                   // var_a /=  exp_b
+		case MCODE_OP_BITSHREQ:                // var_a >>= exp_b
+		case MCODE_OP_BITSHLEQ:                // var_a <<= exp_b
+		case MCODE_OP_BITANDEQ:                // var_a &=  exp_b
+		case MCODE_OP_BITXOREQ:                // var_a ^=  exp_b
+		case MCODE_OP_BITOREQ:                 // var_a |=  exp_b
 		{
 			GetPlainText(value);
 			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
 			tmpVarSet=varLook(*t, value);
 			VMStack.Pop(tmpVar);
-			tmpVarSet->value += tmpVar;
-			goto begin;
-		}
-		case MCODE_OP_SUBEQ:                   // a -=  b
-		{
-			GetPlainText(value);
-			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
-			VMStack.Pop(tmpVar);
-			tmpVarSet->value -= tmpVar;
-			goto begin;
-		}
-		case MCODE_OP_MULEQ:                   // a *=  b
-		{
-			GetPlainText(value);
-			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
-			VMStack.Pop(tmpVar);
-			tmpVarSet->value *= tmpVar;
-			goto begin;
-		}
-		case MCODE_OP_DIVEQ:                   // a /=  b
-		{
-			GetPlainText(value);
-			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
-			VMStack.Pop(tmpVar);
-			if (tmpVar == 0ll)
-				goto done;
-			tmpVarSet->value /= tmpVar;
-			goto begin;
-		}
-		case MCODE_OP_BITSHREQ:                // a >>= b
-		{
-			GetPlainText(value);
-			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
-			VMStack.Pop(tmpVar);
-			tmpVarSet->value >>= tmpVar;
-			goto begin;
-		}
-		case MCODE_OP_BITSHLEQ:                // a <<= b
-		{
-			GetPlainText(value);
-			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
-			VMStack.Pop(tmpVar);
-			tmpVarSet->value <<= tmpVar;
-			goto begin;
-		}
-		case MCODE_OP_BITANDEQ:                // a &=  b
-		{
-			GetPlainText(value);
-			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
-			VMStack.Pop(tmpVar);
-			tmpVarSet->value &= tmpVar;
-			goto begin;
-		}
-		case MCODE_OP_BITXOREQ:                // a ^=  b
-		{
-			GetPlainText(value);
-			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
-			VMStack.Pop(tmpVar);
-			tmpVarSet->value ^= tmpVar;
-			goto begin;
-		}
-		case MCODE_OP_BITOREQ:                 // a |=  b
-		{
-			GetPlainText(value);
-			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
-			VMStack.Pop(tmpVar);
-			tmpVarSet->value |= tmpVar;
+			switch (Key)
+			{
+				case MCODE_OP_ADDEQ:    tmpVarSet->value  += tmpVar; break;
+				case MCODE_OP_SUBEQ:    tmpVarSet->value  -= tmpVar; break;
+				case MCODE_OP_MULEQ:    tmpVarSet->value  *= tmpVar; break;
+				case MCODE_OP_BITSHREQ: tmpVarSet->value >>= tmpVar; break;
+				case MCODE_OP_BITSHLEQ: tmpVarSet->value <<= tmpVar; break;
+				case MCODE_OP_BITANDEQ: tmpVarSet->value  &= tmpVar; break;
+				case MCODE_OP_BITXOREQ: tmpVarSet->value  ^= tmpVar; break;
+				case MCODE_OP_BITOREQ:  tmpVarSet->value  |= tmpVar; break;
+				case MCODE_OP_DIVEQ:
+				{
+					if (tmpVar == 0ll)
+						goto done;
+					tmpVarSet->value /= tmpVar;
+					break;
+				}
+			}
+			VMStack.Push(tmpVarSet->value);
 			goto begin;
 		}
 			// Function
