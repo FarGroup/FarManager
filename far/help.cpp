@@ -120,6 +120,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 	CtrlTabSize(8),
 	PrevMacroMode(CtrlObject->Macro.GetMode())
 {
+	MsX = MsY = -1;
 	CanLoseFocus=FALSE;
 	KeyBarVisible=TRUE;
 	/* $ OT По умолчанию все хелпы создаются статически*/
@@ -836,7 +837,7 @@ void Help::OutString(const wchar_t *Str)
 		if ((Str[0]==L'~' && Str[1]==L'~') ||
 		        (Str[0]==L'#' && Str[1]==L'#') ||
 		        (Str[0]==L'@' && Str[1]==L'@') ||
-		        (!strCtrlColorChar.IsEmpty() && Str[0]==strCtrlColorChar.At(0) && Str[1]==strCtrlColorChar.At(0))
+		        (Str[0]==strCtrlColorChar.At(0) && Str[1]==strCtrlColorChar.At(0))
 		   )
 		{
 			OutStr[OutPos++]=*Str;
@@ -988,6 +989,100 @@ void Help::OutString(const wchar_t *Str)
 		SetColor(CurColor);
 		FS<<fmt::Width(X2-WhereX())<<L"";
 	}
+}
+
+
+bool Help::GetTopic(int realX, int realY, string& strTopic)
+{
+	strTopic.Clear();
+	if (realY <= Y1 || realY >= Y2 || realX <= X1 || realX >= X2)
+		return false;
+
+	int y = -1;
+	if (realY-Y1 <= FixSize)
+	{
+		if (y != FixCount)
+			y = realY - Y1 - 1;
+	}
+	else
+		y = realY - Y1 - 1 - FixSize+FixCount + StackData.TopStr;
+
+	if (y < 0 || y >= StrCount)
+		return false;
+	const HelpRecord *rec = GetHelpItem(y);
+	if (!rec || !rec->HelpStr)
+		return false;
+
+	int x = X1 + 1;
+	const wchar_t *Str = rec->HelpStr;
+	if (*Str == L'^') // center
+	{
+		int w = StringLen(++Str);
+		if (w < X2-X1-1)
+			x = X1 + (X2 - X1 + 1 - w)/2;
+	}
+
+	int start_topic = -1;
+	while (*Str)
+	{
+		wchar_t wc = *Str++;
+		if (wc == *Str && (wc == L'~' || wc == L'@' || wc == L'#' || wc == strCtrlColorChar.At(0)))
+			++Str;
+		else if (wc == L'#') // start/stop highlighting
+			continue;
+		else if (wc == strCtrlColorChar.At(0))
+		{
+			if (*Str == L'-')	// \- default color
+			{ Str += 2; continue; }
+			else if (iswxdigit(*Str) && iswxdigit(Str[1])) // \hh custom color
+			{ Str += 3; continue; }
+		}
+		else if (wc == L'@')	// skip topic link 
+		{
+			for (;;) {
+				while (*Str && *Str != L'@')
+					++Str;
+            if (*Str)
+					++Str;
+				if (*Str != L'@')
+					break;
+				++Str;
+			}
+			continue;
+		}
+		else if (wc == L'~')	// start/stop topic
+		{
+			if (start_topic < 0)
+				start_topic = x;
+			else
+			{
+				if (realX >= start_topic && realX < x) // topic link found
+				{
+					if (*Str == L'@')
+					{
+						strTopic = Str + 1;
+						size_t pos = 0;
+						while (strTopic.Pos(pos, L'@'), pos)
+						{
+							if (++pos >= strTopic.GetLength() || strTopic.At(pos) != L'@')
+							{
+								strTopic.SetLength(pos);
+								break;
+							}
+							strTopic.Replace(pos, 1, L"");
+						}
+					}
+					return true;
+				}
+				start_topic = -1;
+			}
+			continue;
+		}
+
+		if (++x > realX && start_topic < 0)
+			break;
+	}
+	return false;
 }
 
 
@@ -1544,9 +1639,11 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 
-	int MsX,MsY;
+	int prevMsX = MsX , prevMsY = MsY;
 	MsX=MouseEvent->dwMousePosition.X;
 	MsY=MouseEvent->dwMousePosition.Y;
+	bool simple_move = (IntKeyState.MouseEventFlags == MOUSE_MOVED);
+
 
 	if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
 	{
@@ -1583,6 +1680,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 			return TRUE;
 		}
+		simple_move = false;
 	}
 
 	/* $ 15.03.2002 DJ
@@ -1607,6 +1705,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 			return TRUE;
 		}
+		simple_move = false;
 	}
 
 	// DoubliClock - свернуть/развернуть хелп.
@@ -1641,16 +1740,17 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	{
 		BeforeMouseDownX = StackData.CurX;
 		BeforeMouseDownY = StackData.CurY;
-		strBeforeMouseDownSelTopic = StackData.strSelTopic;
 		StackData.CurX = MouseDownX = MsX-X1-1;
 		StackData.CurY = MouseDownY = MsY-Y1-1-FixSize;
 		MouseDown = TRUE;
+		simple_move = false;
 	}
 
 	if (!MouseEvent->dwEventFlags
 	 && !(MouseEvent->dwButtonState & (FROM_LEFT_1ST_BUTTON_PRESSED|RIGHTMOST_BUTTON_PRESSED))
 	 && MouseDown)
 	{
+		simple_move = false;
 		MouseDown = FALSE;
 		if (!StackData.strSelTopic.IsEmpty())
 		{
@@ -1659,18 +1759,29 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		}
 		else
 		{
-			if (StackData.CurX == MouseDownX && StackData.CurY == MouseDownY)
+			if (StackData.CurX==MouseDownX && StackData.CurY==MouseDownY)
 			{
 				StackData.CurX = BeforeMouseDownX;
 				StackData.CurY = BeforeMouseDownY;
-				StackData.strSelTopic = strBeforeMouseDownSelTopic;
+			}
+		}
+	}
+
+   if (simple_move && Opt.HelpFollowMouse != 0 && (prevMsX != MsX || prevMsY != MsY))
+	{
+		string strTopic;
+		if (GetTopic(MsX, MsY, strTopic))
+		{
+			if (strTopic != StackData.strSelTopic)
+			{
+				StackData.CurX = MsX-X1-1;
+				StackData.CurY = MsY-Y1-1-FixSize;
 			}
 		}
 	}
 
 	FastShow();
 	Sleep(1);
-
 	return TRUE;
 }
 

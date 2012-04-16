@@ -134,9 +134,10 @@ class Help:public Frame
 		int   FixSize;              // Размер непрокручиваемой области
 		int   TopicFound;           // TRUE - топик найден
 		int   IsNewTopic;           // это новый топик?
+
 		int   MouseDown;
 		int   MouseDownX, MouseDownY, BeforeMouseDownX, BeforeMouseDownY;
-		string strBeforeMouseDownSelTopic;
+		int   MsX, MsY;
 
 		string strCtrlColorChar;    // CtrlColorChar - опция! для спецсимвола-
 		//   символа - для атрибутов
@@ -164,6 +165,7 @@ class Help:public Frame
 		int  StringLen(const wchar_t *Str);
 		void CorrectPosition();
 		int  IsReferencePresent();
+		bool GetTopic(int realX, int realY, string& strTopic);
 		void MoveToReference(int Forward,int CurScreen);
 		void ReadDocumentsHelp(int TypeIndex);
 		int  JumpTopic(const wchar_t *JumpTopic=nullptr);

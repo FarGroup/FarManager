@@ -1032,6 +1032,7 @@ static struct FARConfig
 #endif
 
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyHelp,L"ActivateURL",&Opt.HelpURLRules,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyHelp,L"FollowMouse",&Opt.HelpFollowMouse,1, 0},
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Copy",&Opt.Confirm.Copy,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Move",&Opt.Confirm.Move,1, 0},
