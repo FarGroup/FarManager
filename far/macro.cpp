@@ -1109,19 +1109,17 @@ bool KeyMacro::GetPlainText(string& strDest)
 		return false;
 
 	MacroRecord *MR=Work.MacroWORK;
-	int LenTextBuf=(int)(StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos]))*sizeof(wchar_t);
+	int LenTextBuf=(int)(StrLength((wchar_t*)&MR->Buffer[Work.ExecLIBPos])+1)*sizeof(wchar_t);
 
 	if (LenTextBuf && MR->Buffer[Work.ExecLIBPos])
 	{
 		strDest=(const wchar_t *)&MR->Buffer[Work.ExecLIBPos];
 		_SVS(SysLog(L"strDest='%s'",strDest.CPtr()));
 		_SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
-		Work.ExecLIBPos+=(LenTextBuf+sizeof(wchar_t))/sizeof(DWORD);
-		_SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
-
-		if (((LenTextBuf+sizeof(wchar_t))%sizeof(DWORD)) )
-			++Work.ExecLIBPos;
-
+		size_t nSize = LenTextBuf/sizeof(DWORD);
+		if (LenTextBuf == sizeof(wchar_t) || (LenTextBuf % sizeof(DWORD)) )    // дополнение до sizeof(DWORD) нулями.
+			nSize++;
+		Work.ExecLIBPos+=nSize;
 		_SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
 		return true;
 	}
@@ -5372,14 +5370,14 @@ done:
 		{
 			GetPlainText(value);
 			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
+			tmpVarSet=varLook(*t, value,true);
 
 			if (tmpVarSet)
 				tmpVar=tmpVarSet->value;
 
 			GetPlainText(value);
 			t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
+			tmpVarSet=varLook(*t, value,true);
 
 			if (tmpVarSet)
 				tmpVar=tmpVarSet->value;
@@ -5406,7 +5404,7 @@ done:
 		case MCODE_OP_PUSHCONST:  // Положить на стек константу.
 		{
 			GetPlainText(value);
-			tmpVarSet=varLook(glbConstTable, value);
+			tmpVarSet=varLook(glbConstTable, value,true);
 
 			if (tmpVarSet)
 				VMStack.Push(tmpVarSet->value);
@@ -5420,7 +5418,7 @@ done:
 			GetPlainText(value);
 			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
 			// %%name - глобальная переменная
-			tmpVarSet=varLook(*t, value);
+			tmpVarSet=varLook(*t, value,true);
 
 			if (tmpVarSet)
 				VMStack.Push(tmpVarSet->value);
@@ -5486,7 +5484,7 @@ done:
 		{
 			GetPlainText(value);
 			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
+			tmpVarSet=varLook(*t, value,true);
 			switch (Key)
 			{
 				case MCODE_OP_PREINC:                  // ++var_a
@@ -5534,7 +5532,7 @@ done:
 		{
 			GetPlainText(value);
 			TVarTable *t = (value.At(0) == L'%') ? &glbVarTable : Work.locVarTable;
-			tmpVarSet=varLook(*t, value);
+			tmpVarSet=varLook(*t, value,true);
 			VMStack.Pop(tmpVar);
 			switch (Key)
 			{

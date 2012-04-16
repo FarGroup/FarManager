@@ -1648,10 +1648,10 @@ TVar TVar::operator~()
 	}
 }
 
-
 TVar& TVar::operator ++()     // ++a
 {
-	operator+=(1);
+	if (vType != vtString)
+		operator+=(vType==vtDouble?1.0:1);
 	return *this;
 }
 TVar TVar::operator ++(int)  // a++
@@ -1662,7 +1662,8 @@ TVar TVar::operator ++(int)  // a++
 }
 TVar& TVar::operator --()     // --a
 {
-	operator-=(1);
+	if (vType != vtString)
+		operator-=(vType==vtDouble?1.0:1);
 	return *this;
 }
 TVar TVar::operator --(int)  // a--
