@@ -46,19 +46,19 @@ static char sddata[64*1024];
 
 struct SIDCacheItem
 {
-	PSID SID;
+	PSID Sid;
 	string strUserName;
 
 	SIDCacheItem(const wchar_t *Computer,PSID InitSID)
 	{
-		SID=xf_malloc(GetLengthSid(InitSID));
-		if(SID)
+		Sid=xf_malloc(GetLengthSid(InitSID));
+		if(Sid)
 		{
-			if(CopySid(GetLengthSid(InitSID),SID,InitSID))
+			if(CopySid(GetLengthSid(InitSID),Sid,InitSID))
 			{
 				DWORD AccountLength=0,DomainLength=0;
 				SID_NAME_USE snu;
-				LookupAccountSid(Computer,SID,nullptr,&AccountLength,nullptr,&DomainLength,&snu);
+				LookupAccountSid(Computer,Sid,nullptr,&AccountLength,nullptr,&DomainLength,&snu);
 				if (AccountLength && DomainLength)
 				{
 					string strAccountName,strDomainName;
@@ -66,7 +66,7 @@ struct SIDCacheItem
 					LPWSTR DomainName=strDomainName.GetBuffer(DomainLength);
 					if (AccountName && DomainName)
 					{
-						if(LookupAccountSid(Computer,SID,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
+						if(LookupAccountSid(Computer,Sid,AccountName,&AccountLength,DomainName,&DomainLength,&snu))
 						{
 							strUserName=string(DomainName).Append(L"\\").Append(AccountName);
 						}
@@ -74,30 +74,29 @@ struct SIDCacheItem
 				}
 				else
 				{
-					LPWSTR Sid;
-					if(ConvertSidToStringSid(SID, &Sid))
+					LPWSTR StrSid;
+					if(ConvertSidToStringSid(Sid, &StrSid))
 					{
-						strUserName = Sid;
-						LocalFree(Sid);
+						strUserName = StrSid;
+						LocalFree(StrSid);
 					}
-
 				}
 			}
 		}
 
 		if(strUserName.IsEmpty())
 		{
-			xf_free(SID);
-			SID=nullptr;
+			xf_free(Sid);
+			Sid=nullptr;
 		}
 	}
 
 	~SIDCacheItem()
 	{
-		if(SID)
+		if(Sid)
 		{
-			xf_free(SID);
-			SID=nullptr;
+			xf_free(Sid);
+			Sid=nullptr;
 		}
 	}
 };
@@ -113,10 +112,10 @@ void SIDCacheFlush()
 	SIDCache.Clear();
 }
 
-const wchar_t* AddSIDToCache(const wchar_t *Computer,PSID SID)
+const wchar_t* AddSIDToCache(const wchar_t *Computer,PSID Sid)
 {
 	LPCWSTR Result=nullptr;
-	SIDCacheItem* NewItem=new SIDCacheItem(Computer,SID);
+	SIDCacheItem* NewItem=new SIDCacheItem(Computer,Sid);
 	if(NewItem->strUserName.IsEmpty())
 	{
 		delete NewItem;
@@ -128,12 +127,12 @@ const wchar_t* AddSIDToCache(const wchar_t *Computer,PSID SID)
 	return Result;
 }
 
-const wchar_t* GetNameFromSIDCache(PSID sid)
+const wchar_t* GetNameFromSIDCache(PSID Sid)
 {
 	LPCWSTR Result=nullptr;
 	for(SIDCacheItem** i=SIDCache.First();i;i=SIDCache.Next(i))
 	{
-		if (EqualSid((*i)->SID,sid))
+		if (EqualSid((*i)->Sid,Sid))
 		{
 			Result=(*i)->strUserName;
 			break;
@@ -180,42 +179,52 @@ bool GetFileOwner(const wchar_t *Computer,const wchar_t *Name, string &strOwner)
 			}
 		}
 	}
-
 	return Result;
 }
 
 bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 {
 	bool Result = false;
-	SID_NAME_USE Use;
-	DWORD cSid=0, ReferencedDomain=0;
-	LookupAccountName(nullptr, Owner, nullptr, &cSid, nullptr, &ReferencedDomain, &Use);
-	if(cSid)
+
+	PSID Sid = nullptr;
+	if(!ConvertStringSidToSid(Owner, &Sid))
 	{
-		PSID Sid = xf_malloc(cSid);
-		if(Sid)
+		SID_NAME_USE Use;
+		DWORD cSid=0, ReferencedDomain=0;
+		LookupAccountName(nullptr, Owner, nullptr, &cSid, nullptr, &ReferencedDomain, &Use);
+		if(cSid)
 		{
-			LPWSTR ReferencedDomainName = new WCHAR[ReferencedDomain];
-			if(ReferencedDomainName)
+			Sid = LocalAlloc(LMEM_FIXED, cSid);
+			if(Sid)
 			{
-				if(LookupAccountName(nullptr, Owner, Sid, &cSid, ReferencedDomainName, &ReferencedDomain, &Use))
+				LPWSTR ReferencedDomainName = new WCHAR[ReferencedDomain];
+				if(ReferencedDomainName)
 				{
-					Privilege TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME);
-					Privilege RestorePrivilege(SE_RESTORE_NAME);
-					DWORD dwResult = SetNamedSecurityInfo(const_cast<LPWSTR>(Object), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid, nullptr, nullptr, nullptr);
-					if(dwResult == ERROR_SUCCESS)
+					if(LookupAccountName(nullptr, Owner, Sid, &cSid, ReferencedDomainName, &ReferencedDomain, &Use))
 					{
-						Result = true;
 					}
-					else
-					{
-						SetLastError(dwResult);
-					}
+					delete[] ReferencedDomainName;
 				}
-				delete[] ReferencedDomainName;
 			}
-			xf_free(Sid);
 		}
+	}
+	if(Sid)
+	{
+		Privilege TakeOwnershipPrivilege(SE_TAKE_OWNERSHIP_NAME);
+		Privilege RestorePrivilege(SE_RESTORE_NAME);
+		DWORD dwResult = SetNamedSecurityInfo(const_cast<LPWSTR>(Object), SE_FILE_OBJECT, OWNER_SECURITY_INFORMATION, Sid, nullptr, nullptr, nullptr);
+		if(dwResult == ERROR_SUCCESS)
+		{
+			Result = true;
+		}
+		else
+		{
+			SetLastError(dwResult);
+		}
+	}
+	if(Sid)
+	{
+		LocalFree(Sid);
 	}
 	return Result;
 }

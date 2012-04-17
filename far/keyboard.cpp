@@ -782,7 +782,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 		if (!(LoopCount & 15))
 		{
-			if(CtrlObject->Plugins->GetPluginsCount())
+			if(CtrlObject && CtrlObject->Plugins->GetPluginsCount())
 			{
 				SetFarConsoleMode();
 			}

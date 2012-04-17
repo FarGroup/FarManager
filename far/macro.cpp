@@ -1119,7 +1119,7 @@ bool KeyMacro::GetPlainText(string& strDest)
 		size_t nSize = LenTextBuf/sizeof(DWORD);
 		if (LenTextBuf == sizeof(wchar_t) || (LenTextBuf % sizeof(DWORD)) )    // дополнение до sizeof(DWORD) нулями.
 			nSize++;
-		Work.ExecLIBPos+=nSize;
+		Work.ExecLIBPos+=static_cast<int>(nSize);
 		_SVS(SysLog(L"Work.ExecLIBPos=%d",Work.ExecLIBPos));
 		return true;
 	}
