@@ -987,28 +987,18 @@ void Help::OutString(const wchar_t *Str)
 				int RealCurX,RealCurY;
 				RealCurX=X1+StackData.CurX+1;
 				RealCurY=Y1+StackData.CurY+FixSize+1;
+				bool found = WhereY()==RealCurY && RealCurX>=WhereX() && RealCurX<WhereX()+(Str-StartTopic)-1;
 
-				if (WhereY()==RealCurY && RealCurX>=WhereX() &&
-				        RealCurX<WhereX()+(Str-StartTopic)-1)
+				SetColor(found ? COL_HELPSELECTEDTOPIC : COL_HELPTOPIC);
+				if (*Str && Str[1]==L'@')
 				{
-					SetColor(COL_HELPSELECTEDTOPIC);
-					if (Str[1]==L'@')
-						Str = SkipLink(Str+2, &StackData.strSelTopic);
+					Str = SkipLink(Str+2, found ? &StackData.strSelTopic : nullptr);
+					Topic = 0;
 				}
-				else
-				{
-					SetColor(COL_HELPTOPIC);
-					if (Str[1]==L'@')
-						Str = SkipLink(Str+2, nullptr);
-				}
-				Topic = 0;
 			}
 			else
 			{
-				if (Highlight)
-					SetColor(COL_HELPHIGHLIGHTTEXT);
-				else
-					SetColor(CurColor);
+				SetColor(Highlight ? COL_HELPHIGHLIGHTTEXT : CurColor);
 			}
 
 			/* $ 24.09.2001 VVM
@@ -1025,34 +1015,29 @@ void Help::OutString(const wchar_t *Str)
 		}
 
 		if (!*Str)
+		{
 			break;
-
-		if (*Str==L'~')
+		}
+		else if (*Str==L'~')
 		{
 			if (!Topic)
-				StartTopic=Str;
-
-			Topic=!Topic;
+				StartTopic = Str;
+			Topic = !Topic;
 			Str++;
-			continue;
 		}
-
-		if (*Str==L'@')
+		else if (*Str==L'@')
 		{
 			Str = SkipLink(Str+1, nullptr);
 		}
-
-		if (*Str==L'#')
+		else if (*Str==L'#')
 		{
-			Highlight=!Highlight;
+			Highlight = !Highlight;
 			Str++;
-			continue;
 		}
-
-		if (GetHelpColor(Str, strCtrlColorChar.At(0), CurColor))
-			continue;
-
-		OutStr[OutPos++]=*(Str++);
+		else if (!GetHelpColor(Str, strCtrlColorChar.At(0), CurColor))
+		{
+			OutStr[OutPos++]=*(Str++);
+		}
 	}
 
 	if (!Locked() && WhereX()<X2)
