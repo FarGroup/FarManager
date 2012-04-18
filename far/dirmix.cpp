@@ -256,10 +256,18 @@ int CheckShortcutFolder(string *pTestPath,int IsHostFile, BOOL Silent)
 	return 1;
 }
 
-void CreatePath(string &strPath, bool Simple)
+void CreatePath(const string &Path, bool Simple)
 {
+	string strPath = Path;
+
 	wchar_t *ChPtr = strPath.GetBuffer();
+
+	const wchar_t* DirPtr = strPath;
+	ParsePath(strPath, &DirPtr);
+
+	ChPtr += (DirPtr-ChPtr) + (IsSlash(*DirPtr)? 1 : 0);
 	wchar_t *DirPart = ChPtr;
+
 	BOOL bEnd = FALSE;
 
 	for (;;)
