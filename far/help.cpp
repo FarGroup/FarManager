@@ -785,8 +785,8 @@ void Help::FastShow()
 
 			if (*OutStr==L'^')
 			{
-				GotoXY(X1+(X2-X1+1-StringLen(OutStr))/2,Y1+i+1);
 				OutStr++;
+				GotoXY(X1+1+Max(0,(X2-X1-1-StringLen(OutStr))/2),Y1+i+1);
 			}
 			else
 			{
@@ -823,9 +823,142 @@ void Help::DrawWindowFrame()
 	FS<<L" "<<strHelpTitleBuf<<L" ";
 }
 
-/* $ 01.09.2000 SVS
-  Учтем символ CtrlColorChar & CurColor
-*/
+static const wchar_t *SkipLink( const wchar_t *Str, string *Name )
+{
+	for (;;)
+	{
+		while (*Str && *Str != L'@')
+		{
+			if (Name)
+				Name->Append(*Str);
+			++Str;
+		}
+		if (*Str)
+			++Str;
+		if (*Str != L'@')
+			break;
+		if (Name)
+			Name->Append(*Str);
+		++Str;
+	}
+	return Str;
+}
+
+static bool GetHelpColor(const wchar_t* &Str, wchar_t cColor, int &color)
+{
+	if (Str[0] != cColor)
+		return false;
+
+   wchar_t wc1 = Str[1];
+	if (wc1 == L'-')     // '\-' set default color
+	{
+		color = COL_HELPTEXT;
+		Str += 2;
+		return true;
+	}
+
+	if (!iswxdigit(wc1)) // '\hh' custom color
+		return false;
+	wchar_t wc2 = Str[2];
+	if (!iswxdigit(wc2))
+		return false;
+
+	if (wc1 > L'9') wc1 -= L'A' - 10; 
+	if (wc2 > L'9') wc2 -= L'A' - 10; 
+	color = ((wc1 & 0x0f) << 4) | (wc2 & 0x0f);
+	Str += 3;
+	return true;
+}
+
+static bool FastParseLine(
+	const wchar_t *Str, int *pLen, int x0, int realX, string *pTopic, wchar_t cColor)
+{
+	int x = x0, start_topic = -1;
+	bool found = false;
+	while (*Str)
+	{
+		wchar_t wc = *Str++;
+		if (wc == *Str && (wc == L'~' || wc == L'@' || wc == L'#' || wc == cColor))
+			++Str;
+		else if (wc == L'#') // start/stop highlighting
+			continue;
+		else if (wc == cColor)
+		{
+			if (*Str == L'-')	// '\-' default color
+			{ Str += 2-1; continue; }
+			else if (iswxdigit(*Str) && iswxdigit(Str[1])) // '\hh' custom color
+			{ Str += 3-1; continue; }
+		}
+		else if (wc == L'@')	// skip topic link //??? is it valid without ~topic~
+		{
+			Str = SkipLink(Str, nullptr);
+			continue;
+		}
+		else if (wc == L'~')	// start/stop topic
+		{
+			if (start_topic < 0)
+				start_topic = x;
+			else
+			{
+				found = (realX >= start_topic && realX < x);
+				if (*Str == L'@')
+					Str = SkipLink(Str+1, found ? pTopic : nullptr);
+				if (found)
+					break;
+				start_topic = -1;
+			}
+			continue;
+		}
+
+      ++x;
+		if (realX >= 0 && x > realX && start_topic < 0)
+			break;
+	}
+
+	if (pLen)
+		*pLen = x - x0;
+	return found;
+}
+
+bool Help::GetTopic(int realX, int realY, string& strTopic)
+{
+	strTopic.Clear();
+	if (realY <= Y1 || realY >= Y2 || realX <= X1 || realX >= X2)
+		return false;
+
+	int y = -1;
+	if (realY-Y1 <= FixSize)
+	{
+		if (y != FixCount)
+			y = realY - Y1 - 1;
+	}
+	else
+		y = realY - Y1 - 1 - FixSize+FixCount + StackData.TopStr;
+
+	if (y < 0 || y >= StrCount)
+		return false;
+	const HelpRecord *rec = GetHelpItem(y);
+	if (!rec || !rec->HelpStr)
+		return false;
+
+	int x = X1 + 1;
+	const wchar_t *Str = rec->HelpStr;
+	if (*Str == L'^') // center
+	{
+		int w = StringLen(++Str);
+		x = X1 + 1 + Max(0, (X2 - X1 - 1 - w)/2);
+	}
+
+	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.At(0));
+}
+
+int Help::StringLen(const wchar_t *Str)
+{
+	int len = 0;
+	FastParseLine(Str, &len, 0, -1, nullptr, strCtrlColorChar.At(0));
+	return len;
+}
+
 void Help::OutString(const wchar_t *Str)
 {
 	wchar_t OutStr[512]; //BUGBUG
@@ -859,39 +992,16 @@ void Help::OutString(const wchar_t *Str)
 				        RealCurX<WhereX()+(Str-StartTopic)-1)
 				{
 					SetColor(COL_HELPSELECTEDTOPIC);
-
 					if (Str[1]==L'@')
-					{
-						StackData.strSelTopic = (Str+2);
-						/* $ 25.08.2000 SVS
-						   учтем, что может быть такой вариант: @@ или \@
-						   этот вариант только для URL!
-						*/
-						size_t pos;
-
-						if (StackData.strSelTopic.Pos(pos,L'@'))
-						{
-							wchar_t *EndPtr = StackData.strSelTopic.GetBuffer(StackData.strSelTopic.GetLength()*2) + pos;
-
-							if (*(EndPtr+1) == L'@')
-							{
-								wmemmove(EndPtr,EndPtr+1,StrLength(EndPtr)+1);
-								EndPtr++;
-							}
-
-							EndPtr=wcschr(EndPtr,L'@');
-
-							if (EndPtr)
-								*EndPtr=0;
-
-							StackData.strSelTopic.ReleaseBuffer();
-						}
-					}
+						Str = SkipLink(Str+2, &StackData.strSelTopic);
 				}
 				else
 				{
 					SetColor(COL_HELPTOPIC);
+					if (Str[1]==L'@')
+						Str = SkipLink(Str+2, nullptr);
 				}
+				Topic = 0;
 			}
 			else
 			{
@@ -929,16 +1039,7 @@ void Help::OutString(const wchar_t *Str)
 
 		if (*Str==L'@')
 		{
-			/* $ 25.08.2000 SVS
-			   учтем, что может быть такой вариант: @@
-			   этот вариант только для URL!
-			*/
-			while (*Str)
-				if (*(++Str)==L'@' && *(Str-1)!=L'@')
-					break;
-
-			Str++;
-			continue;
+			Str = SkipLink(Str+1, nullptr);
 		}
 
 		if (*Str==L'#')
@@ -948,38 +1049,8 @@ void Help::OutString(const wchar_t *Str)
 			continue;
 		}
 
-		if (*Str == strCtrlColorChar.At(0))
-		{
-			WORD Chr;
-			Chr=(BYTE)Str[1];
-
-			if (Chr == L'-') // "\-" - установить дефолтовый цвет
-			{
-				Str+=2;
-				CurColor=COL_HELPTEXT;
-				continue;
-			}
-
-			if (iswxdigit(Chr) && iswxdigit(Str[2]))
-			{
-				WORD Attr;
-
-				if (Chr >= L'0' && Chr <= L'9') Chr-=L'0';
-				else { Chr&=~0x20; Chr=Chr-L'A'+10; }
-
-				Attr=(Chr<<4)&0x00F0;
-				// next char
-				Chr=Str[2];
-
-				if (Chr >= L'0' && Chr <= L'9') Chr-=L'0';
-				else { Chr&=~0x20; Chr=Chr-L'A'+10; }
-
-				Attr|=(Chr&0x000F);
-				CurColor=Attr;
-				Str+=3;
-				continue;
-			}
-		}
+		if (GetHelpColor(Str, strCtrlColorChar.At(0), CurColor))
+			continue;
 
 		OutStr[OutPos++]=*(Str++);
 	}
@@ -989,159 +1060,6 @@ void Help::OutString(const wchar_t *Str)
 		SetColor(CurColor);
 		FS<<fmt::Width(X2-WhereX())<<L"";
 	}
-}
-
-
-bool Help::GetTopic(int realX, int realY, string& strTopic)
-{
-	strTopic.Clear();
-	if (realY <= Y1 || realY >= Y2 || realX <= X1 || realX >= X2)
-		return false;
-
-	int y = -1;
-	if (realY-Y1 <= FixSize)
-	{
-		if (y != FixCount)
-			y = realY - Y1 - 1;
-	}
-	else
-		y = realY - Y1 - 1 - FixSize+FixCount + StackData.TopStr;
-
-	if (y < 0 || y >= StrCount)
-		return false;
-	const HelpRecord *rec = GetHelpItem(y);
-	if (!rec || !rec->HelpStr)
-		return false;
-
-	int x = X1 + 1;
-	const wchar_t *Str = rec->HelpStr;
-	if (*Str == L'^') // center
-	{
-		int w = StringLen(++Str);
-		if (w < X2-X1-1)
-			x = X1 + (X2 - X1 + 1 - w)/2;
-	}
-
-	int start_topic = -1;
-	while (*Str)
-	{
-		wchar_t wc = *Str++;
-		if (wc == *Str && (wc == L'~' || wc == L'@' || wc == L'#' || wc == strCtrlColorChar.At(0)))
-			++Str;
-		else if (wc == L'#') // start/stop highlighting
-			continue;
-		else if (wc == strCtrlColorChar.At(0))
-		{
-			if (*Str == L'-')	// \- default color
-			{ Str += 2; continue; }
-			else if (iswxdigit(*Str) && iswxdigit(Str[1])) // \hh custom color
-			{ Str += 3; continue; }
-		}
-		else if (wc == L'@')	// skip topic link 
-		{
-			for (;;) {
-				while (*Str && *Str != L'@')
-					++Str;
-            if (*Str)
-					++Str;
-				if (*Str != L'@')
-					break;
-				++Str;
-			}
-			continue;
-		}
-		else if (wc == L'~')	// start/stop topic
-		{
-			if (start_topic < 0)
-				start_topic = x;
-			else
-			{
-				if (realX >= start_topic && realX < x) // topic link found
-				{
-					if (*Str == L'@')
-					{
-						strTopic = Str + 1;
-						size_t pos = 0;
-						while (strTopic.Pos(pos, L'@'), pos)
-						{
-							if (++pos >= strTopic.GetLength() || strTopic.At(pos) != L'@')
-							{
-								strTopic.SetLength(pos);
-								break;
-							}
-							strTopic.Replace(pos, 1, L"");
-						}
-					}
-					return true;
-				}
-				start_topic = -1;
-			}
-			continue;
-		}
-
-		if (++x > realX && start_topic < 0)
-			break;
-	}
-	return false;
-}
-
-
-int Help::StringLen(const wchar_t *Str)
-{
-	int Length=0;
-
-	while (*Str)
-	{
-		if ((Str[0]==L'~' && Str[1]==L'~') ||
-		        (Str[0]==L'#' && Str[1]==L'#') ||
-		        (Str[0]==L'@' && Str[1]==L'@') ||
-		        (!strCtrlColorChar.IsEmpty() && Str[0]==strCtrlColorChar.At(0) && Str[1]==strCtrlColorChar.At(0))
-		   )
-		{
-			Length++;
-			Str+=2;
-			continue;
-		}
-
-		if (*Str==L'@')
-		{
-			/* $ 25.08.2000 SVS
-			   учтем, что может быть такой вариант: @@
-			   этот вариант только для URL!
-			*/
-			while (*Str)
-				if (*(++Str)==L'@' && *(Str-1)!=L'@')
-					break;
-
-			Str++;
-			continue;
-		}
-
-		/* $ 01.09.2000 SVS
-		   учтем наше нововведение \XX или \-
-		*/
-		if (*Str == strCtrlColorChar.At(0))
-		{
-			if (Str[1] == L'-')
-			{
-				Str+=2;
-				continue;
-			}
-
-			if (iswxdigit(Str[1]) && iswxdigit(Str[2]))
-			{
-				Str+=3;
-				continue;
-			}
-		}
-
-		if (*Str!=L'#' && *Str!=L'~')
-			Length++;
-
-		Str++;
-	}
-
-	return(Length);
 }
 
 
