@@ -320,7 +320,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		CtrlObject->ViewHistory->AddToHistory(strFullExecStr,AlwaysWaitFinish?3:2);
 
 		if (strExecStr.At(0) != L'@')
-			CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed, true);
+			CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed);
 		else
 		{
 			SaveScreen SaveScr;

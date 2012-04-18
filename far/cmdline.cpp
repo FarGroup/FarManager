@@ -381,7 +381,7 @@ int CommandLine::ProcessKey(int Key)
 			ProcessOSAliases(strStr);
 
 			if (!ActivePanel->ProcessPluginEvent(FE_COMMAND,(void *)strStr.CPtr()))
-				CmdExecute(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false, false,
+				ExecString(strStr, false, Key==KEY_SHIFTENTER||Key==KEY_SHIFTNUMENTER, false, false, false,
 						Key == KEY_CTRLALTENTER || Key == KEY_RCTRLRALTENTER || Key == KEY_CTRLRALTENTER || Key == KEY_RCTRLALTENTER ||
 						Key == KEY_CTRLALTNUMENTER || Key == KEY_RCTRLRALTNUMENTER || Key == KEY_CTRLRALTNUMENTER || Key == KEY_RCTRLALTNUMENTER);
 		}
@@ -496,17 +496,6 @@ void CommandLine::SetString(const string& Str, bool Redraw)
 	if (Redraw)
 		CmdStr.Show();
 }
-
-
-void CommandLine::ExecString(const string& Str, bool AlwaysWaitFinish,bool SeparateWindow,
-                             bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)
-{
-	CmdStr.DisableAC();
-	SetString(Str);
-	CmdStr.RevertAC();
-	CmdExecute(Str,AlwaysWaitFinish,SeparateWindow,DirectRun, WaitForIdle, Silent, RunAs);
-}
-
 
 void CommandLine::InsertString(const string& Str)
 {

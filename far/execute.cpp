@@ -1258,8 +1258,12 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 }
 
 
-int CommandLine::CmdExecute(const string& CmdLine,bool AlwaysWaitFinish,bool SeparateWindow,bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)
+int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)
 {
+	CmdStr.DisableAC();
+	SetString(CmdLine);
+	CmdStr.RevertAC();
+
 	LastCmdPartLength=-1;
 
 	if (!SeparateWindow && CtrlObject->Plugins->ProcessCommandLine(CmdLine))

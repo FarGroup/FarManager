@@ -311,12 +311,13 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 					// подымаемся выше...
 					size_t pos;
 
-					if (FindLastSlash(pos,strMenuFilePath))
+					if(!IsRootPath(strMenuFilePath))
 					{
-						strMenuFilePath.SetLength(pos--);
-
-						if (strMenuFilePath.At(pos) != L':')
+						if (FindLastSlash(pos,strMenuFilePath))
+						{
+							strMenuFilePath.SetLength(pos--);
 							continue;
+						}
 					}
 				}
 
@@ -349,12 +350,13 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 				{
 					size_t pos;
 
-					if (FindLastSlash(pos,strMenuFilePath))
+					if(!IsRootPath(strMenuFilePath))
 					{
-						strMenuFilePath.SetLength(pos--);
-
-						if (strMenuFilePath.At(pos)!=L':')
+						if (FindLastSlash(pos,strMenuFilePath))
+						{
+							strMenuFilePath.SetLength(pos--);
 							continue;
+						}
 					}
 
 					MenuMode = MM_GLOBAL;
