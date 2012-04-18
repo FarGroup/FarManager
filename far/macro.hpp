@@ -146,16 +146,16 @@ struct TMacroFunction
 
 struct MacroRecord
 {
-	MACROFLAGS_MFLAGS  Flags;         // Флаги макропоследовательности
-	int    Key;           // Назначенная клавиша
-	int    BufferSize;    // Размер буфера компилированной последовательности
-	DWORD *Buffer;        // компилированная последовательность (OpCode) макроса
-	wchar_t  *Src;           // оригинальный "текст" макроса
-	wchar_t  *Description;   // описание макроса
-	GUID Guid; //Гуид владельца макроса
-	void* Id; //параметр калбака
-	FARMACROCALLBACK Callback; // каллбак для плагинов
-	DWORD  Reserved[2];   // зарезервировано
+	MACROFLAGS_MFLAGS  Flags;        // Флаги макропоследовательности
+	wchar_t *Name;                   // имя записи, может совпадать с именем клавиши
+	int    Key;                      // Назначенная клавиша
+	int    BufferSize;               // Размер буфера компилированной последовательности
+	DWORD *Buffer;                   // компилированная последовательность (OpCode) макроса
+	wchar_t  *Src;                   // оригинальный "текст" макроса
+	wchar_t  *Description;           // описание макроса
+	GUID Guid;                       // Гуид владельца макроса
+	void* Id;                        // параметр калбака
+	FARMACROCALLBACK Callback;       // каллбак для плагинов
 };
 
 #define STACKLEVEL      32
@@ -311,7 +311,7 @@ class KeyMacro
 
 		int GetStartIndex(int Mode) {return IndexMode[Mode<MACRO_LAST-1?Mode:MACRO_LAST-1][0];}
 		// Функция получения индекса нужного макроса в массиве
-		int GetIndex(int Key, int CheckMode, bool UseCommon=true, bool StrictKeys=false);
+		int GetIndex(int Key, string& strKey, int CheckMode, bool UseCommon=true, bool StrictKeys=false);
 		#if 0
 		// получение размера, занимаемого указанным макросом
 		int GetRecordSize(int Key, int Mode);

@@ -3070,9 +3070,10 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 
 		if (KeyCode>='0' && KeyCode<='9')
 		{
+			string strKey;
 			if (WaitInFastFind > 0 &&
 			        CtrlObject->Macro.GetCurRecord(nullptr,nullptr) < MACROMODE_RECORDING &&
-			        CtrlObject->Macro.GetIndex(KEY_ALTSHIFT0+KeyCode-'0',-1) == -1)
+			        CtrlObject->Macro.GetIndex(KEY_ALTSHIFT0+KeyCode-'0',strKey,-1) == -1)
 			{
 				return Modif|Char;
 			}
