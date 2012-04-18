@@ -636,6 +636,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
 {
 	DWORD Key = __GetInputRecord(rec,ExcludeMacro,ProcessMouse,AllowSynchro);
+	bool Halt=false;
 
 	if (Key)
 	{
@@ -646,8 +647,13 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			if (WaitInMainLoop)
 				Info.Flags|=PCIF_FROMMAIN;
 			if (CtrlObject->Plugins->ProcessConsoleInput(&Info))
-				Key=KEY_NONE;
+				Halt=true;
 		}
+	}
+	if (Halt)
+	{
+		Key=KEY_NONE;
+		KeyToInputRecord(Key, rec);
 	}
 	return Key;
 }
@@ -970,8 +976,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		PressedLastTime=0;
 		Console.ReadInput(rec, 1, ReadCount);
 		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
-		ClearStruct(*rec);
-		rec->EventType=KEY_EVENT;
+		//ClearStruct(*rec);
+		//rec->EventType=KEY_EVENT;
 		//чтоб решить баг винды приводящий к появлению скролов и т.п. после потери фокуса
 		if (CalcKey == KEY_GOTFOCUS)
 			RestoreConsoleWindowRect();
