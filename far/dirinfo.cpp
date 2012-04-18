@@ -522,7 +522,14 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
 	}
 
 	if (PanelItem)
+	{
 		pluginapi::apiFreePluginDirList(PanelItem, ItemsNumber);
+		if (PanelItem==PluginDirList) // Mantins#0002077
+		{
+			PluginDirList=nullptr;
+			DirListItemsNumber=0;
+		}
+	}
 
 	return(ExitCode);
 }
