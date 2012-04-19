@@ -43,6 +43,22 @@ int wmain(int argc, wchar_t* argv[])
 		FeedLines.push_back(Buffer);
 	}
 
+	size_t ConstsCount = 0;
+	for(auto i = FeedLines.begin(); i != FeedLines.end(); ++i)
+	{
+		// assume that all constants starts with 'M'.
+		if(!i->compare(0, 1, L"M"))
+		{
+			++ConstsCount;
+		}
+	}
+
+	if(ConstsCount != LngLines.size())
+	{
+		std::wcerr << L"Error: lines count mismatch: " << InFeedName << " - " << ConstsCount << L", " << LngName << L" - " << LngLines.size() << std::endl;
+		return -1;
+	}
+
 	if(FeedLines.back().empty())
 	{
 		FeedLines.pop_back();
