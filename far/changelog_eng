@@ -3,6 +3,55 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 11.04.2012 17:38:32 +0200 - build 2603
+
+1. 0002004: Commands history is not saved within the session.
+
+2. gcc warning.
+
+w17 11.04.2012 15:39:21 +0400 - build 2602
+
+1. rollback of 2599.2
+
+drkns 11.04.2012 14:14:33 +0200 - build 2601
+
+1. 0002020: 'One level up' transition disappeared from network panel
+   and another couple of bugs in 2597.1
+
+2. Experimental - ".." is now displayed in root directories too.
+
+w17 11.04.2012 14:32:17 +0400 - build 2600
+
+1. M#2066: Long file name overwritten with the short one
+
+w17 10.04.2012 23:47:54 +0400 - build 2599
+
+1. execute.cpp: fix image subsystem detection (from Maximus5)
+
+2. open-as... for incorrectly given name (from Maximus5)
+
+drkns 10.04.2012 21:58:06 +0200 - build 2598
+
+1. Correction of 2597.1.
+
+drkns 10.04.2012 20:51:51 +0200 - build 2597
+
+1. Inner paths parser is reworked slightly. Root detection must have improved and various minor bugs fixed. Well, or bigger ones may appear, it depends :)
+
+2. Once again on 0002061: Date wrong in Attributes dialog.
+
+w17 10.04.2012 20:21:20 +0400 - build 2596
+
+1. More restrictions on SEE_MASK_INVOKEIDLIST - off for .exe files
+
+w17 10.04.2012 19:30:17 +0400 - build 2595
+
+1. !~ was replaced with 1st letter of short name in associations
+
+svs 10.04.2012 18:38:40 +0400 - build 2594
+
+1. Mantis#0002064: A bug in HiText2Str
+
 w17 06.04.2012 23:27:23 +0400 - build 2593
 
 1. FSF.sprintf() fix for gcc 4.6+
