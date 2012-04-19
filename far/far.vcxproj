@@ -1574,27 +1574,27 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Generating language files based on %(Identity)...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) %(Identity)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">%(Identity).m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Generating language files based on %(Identity)...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) %(Identity)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Identity).m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Generating language files based on %(Identity)...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) %(Identity)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Identity).m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">Generating language files based on %(Identity)...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) %(Identity)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">%(Identity).m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Itanium'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Generating language files based on %(Identity)...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) %(Identity)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Identity).m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;%(Outputs)</Outputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Generating language files based on %(Identity)...</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">tools\lng.generator.exe -nc -i bootstrap\lang.ini -ol $(OutDir) %(Identity)</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Identity).m4;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">bootstrap\lang.inc;bootstrap\lang.ini;$(OutDir)\FarCze.lng;$(OutDir)\FarEng.lng;$(OutDir)\FarGer.lng;$(OutDir)\FarHun.lng;$(OutDir)\FarPol.lng;$(OutDir)\FarRus.lng;$(OutDir)\FarSpa.lng;$(OutDir)\FarSky.lng;%(Outputs)</Outputs>
     </CustomBuild>
     <None Include="bootstrap\farversion.inc" />
     <None Include="bootstrap\lang.ini" />

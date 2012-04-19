@@ -155,7 +155,7 @@ class TVarSet
 		TVarSet *next;
 
 	public:
-		TVarSet(const wchar_t *s) : value(), next(nullptr), str(nullptr)
+		TVarSet(const wchar_t *s) : value(), str(nullptr), next(nullptr)
 		{
 			if (s)
 			{

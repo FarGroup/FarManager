@@ -13492,12 +13492,12 @@ MDragMove
 MDragCopy
 "Копирование %1"
 "Copy %1"
-"Kopírovat %1
+"Kopírovat %1"
 "Kopiere %1"
 "%1 másolása"
 "Kopiuj %1"
 "Copiar %1"
-"Kopírovať %1
+"Kopírovať %1"
 
 MProcessListTitle
 l:
