@@ -242,6 +242,7 @@ enum MACRO_OP_CODE
 	MCODE_F_MACRO_FUNC,               // S=Macro.Func(Index[,Type])
 	MCODE_F_MACRO_VAR,                // S=Macro.Var(Index[,Type])
 	MCODE_F_MACRO_CONST,              // S=Macro.Const(Index[,Type])
+	MCODE_F_STRPAD,                   // S=StrPad(V,Cnt[,Fill[,Op]])
 
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
