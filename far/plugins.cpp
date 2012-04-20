@@ -1114,8 +1114,18 @@ int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 		Plugin *pPlugin = PluginsData[i];
 
 		if (pPlugin->HasProcessConsoleInput())
-			if ((nResult = pPlugin->ProcessConsoleInput(Info)) != 0)
+		{
+			int n = pPlugin->ProcessConsoleInput(Info);
+			if (n == 1)
+			{
+				nResult = 1;
 				break;
+			}
+			else if (n == 2)
+			{
+				nResult = 2;
+			}
+		}
 	}
 
 	return nResult;

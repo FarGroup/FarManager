@@ -2650,7 +2650,7 @@ struct ProcessConsoleInputInfo
 {
 	size_t StructSize;
 	PROCESSCONSOLEINPUT_FLAGS Flags;
-	const INPUT_RECORD *Rec;
+	INPUT_RECORD Rec;
 	HANDLE hPanel;
 };
 #endif

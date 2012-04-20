@@ -636,24 +636,27 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro)
 {
 	DWORD Key = __GetInputRecord(rec,ExcludeMacro,ProcessMouse,AllowSynchro);
-	bool Halt=false;
 
 	if (Key)
 	{
 		if (CtrlObject)
 		{
-			ProcessConsoleInputInfo Info={sizeof(Info),PCIF_NONE,rec};
+			ProcessConsoleInputInfo Info={sizeof(Info),PCIF_NONE,*rec};
 			//Info.hPanel
 			if (WaitInMainLoop)
 				Info.Flags|=PCIF_FROMMAIN;
-			if (CtrlObject->Plugins->ProcessConsoleInput(&Info))
-				Halt=true;
+			switch (CtrlObject->Plugins->ProcessConsoleInput(&Info))
+			{
+				case 1:
+					Key=KEY_NONE;
+					KeyToInputRecord(Key, rec);
+					break;
+				case 2:
+					*rec=Info.Rec;
+					Key=CalcKeyCode(rec,FALSE);
+					break;
+			}
 		}
-	}
-	if (Halt)
-	{
-		Key=KEY_NONE;
-		KeyToInputRecord(Key, rec);
 	}
 	return Key;
 }
