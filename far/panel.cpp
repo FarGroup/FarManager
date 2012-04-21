@@ -166,7 +166,7 @@ void Panel::ChangeDisk()
 
 	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
 	{
-		Pos=Upper(strCurDir.At(0))-L'A';
+		Pos=Max(0, Upper(strCurDir.At(0))-L'A');
 	}
 
 	while (Pos!=-1)
