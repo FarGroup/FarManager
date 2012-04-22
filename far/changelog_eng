@@ -3,6 +3,158 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 22.04.2012 02:16:36 +0200 - build 2631
+
+1. Drive menu was not invoked if '@:' drive had been opened in the panel.
+
+svs 20.04.2012 13:36:55 +0400 - build 2630
+
+1. Mantis#0001687: ProcessConsoleInput
+   (from Maximus)
+
+svs 20.04.2012 12:10:58 +0400 - build 2629
+
+1. Mantis#0002069: rep(n,string)
+   Macro: S=StrPad(V,Cnt[,Fill[,Op]]) function is added
+     v     - original expression, if not specified or has a zero length then it is considred as an empty line
+     cnt   - result size
+             if negative or 0 then V is returned
+             if V is specified and cnt is less than V length then V is returned
+     Fill  - value to fill with
+     Op    - how to fill: 0 - from the right, 1 - from the left, 2 - centered.
+
+
+w17 19.04.2012 15:45:53 +0400 - build 2628
+
+1. gcc -warning
+
+2. farlang minimal coorection
+
+w17 18.04.2012 18:27:12 +0400 - build 2627
+
+1. And 2605 once more
+
+svs 18.04.2012 18:06:58 +0400 - build 2626
+
+1. Macro: keys limit is removed:
+
+     <macro area="Shell" key="printFooBar"><text>print("FooBar")</text></macro>
+     <macro area="Shell" key="CtrlP" flags="DisableOutput"><text>eval("printFooBar",2)</text></macro>
+
+   "printFooBar" cannot be removed interactively.
+
+svs 18.04.2012 17:18:43 +0400 - build 2625
+
+1. Mantins#0002077: QView crash in a plugin panel
+   (from Maximus)
+
+drkns 18.04.2012 16:16:13 +0200 - build 2624
+
+1. Correction of 2597.1.
+
+w17 18.04.2012 16:53:54 +0400 - build 2623
+
+1. 2605 once more
+
+drkns 18.04.2012 10:30:09 +0200 - build 2622
+
+1. The screen was not redrawn after an external editor/viewer call.
+
+2. A couple of minor issues in usermenu.
+
+svs 18.04.2012 10:18:49 +0400 - build 2621
+
+1. Mantis#0002070: ProcessConsoleInputInfo processing error
+   (from Maximus)
+
+drkns 17.04.2012 10:11:45 +0200 - build 2620
+
+1. 0002074: Show and modify Owner SID in Attributes dialog
+
+2. 0002078: FAR crash with an incorrect lng file
+
+svs 16.04.2012 19:20:40 +0400 - build 2619
+
+1. Macro: correction of the "engine".
+
+2. Correction of KeyMacro::GetPlainText(). Debugging.
+
+w17 16.04.2012 18:20:39 +0400 - build 2618
+
+1. Correction of 2605
+
+drkns 16.04.2012 14:33:05 +0200 - build 2617
+
+1. 2616 build failure.
+
+2. 0002076: Transition to network shares of a CentOS-5.4 system did not work
+
+svs 16.04.2012 10:54:54 +0400 - build 2616
+
+1. Macro: correction of the "engine".
+
+2. Optimization of TVarSet class - removing the TAbstractSet intermediate class.
+
+3. Correction of TVar class.
+
+zg 15.04.2012 14:20:58 +0200 - build 2615
+
+1. correction of 2603.
+
+w17 15.04.2012 10:55:54 +0400 - build 2614
+
+1. M#1183: On Reload, codepage storing must take place before reading
+
+w17 14.04.2012 10:21:14 +0400 - build 2613
+
+1. Correction of 2607
+
+zg 13.04.2012 19:36:08 +0200 - build 2612
+
+1. Far.Cfg.Get returns public settings only.
+
+zg 13.04.2012 01:29:20 +0200 - build 2611
+
+1. PCTL_FINDPLUGIN returns nullptr, PCTL_GETPLUGININFORMATION returns 0 for just deleted plugins.
+
+zg 12.04.2012 20:36:52 +0200 - build 2610
+
+1. 0002071: Regexps processing error - \x00
+
+drkns 12.04.2012 15:39:48 +0200 - build 2609
+
+1. AltF4 in usermenu now opens a real file, not a temporary one.
+
+2. An option for control of displaying ".." in the root.
+
+drkns 12.04.2012 09:55:30 +0200 - build 2608
+
+1. Correction of 2601.2.
+
+2. Correction of 2604.1.
+
+w17 12.04.2012 03:11:29 +0400 - build 2607
+
+1. M#1773: Let enable AutoDetect item in Shift-F8 menu
+   ACHTUNG: CP_AUTODETECT is renamed to CP_DEFAULT
+
+2. M#1775: Shift-F4: Possibility of repeated automatic definifion of encoding of an opened file
+
+w17 12.04.2012 02:52:21 +0400 - build 2606
+
+1. Correction of 2605
+
+w17 11.04.2012 23:14:16 +0400 - build 2605
+
+1. 0002065: Mouse cursor position interferes with keyboard cursor control in help system.
+   Just to try, ACHTUNG: the behaviour has changed : links are NOT highlighted on mouse move.
+
+drkns 11.04.2012 20:37:03 +0200 - build 2604
+
+1. 0002067: Unexpected reaction to mouse wheel in vertical menus
+
+2. Some more of 2597.1. 
+
 zg 11.04.2012 17:38:32 +0200 - build 2603
 
 1. 0002004: Commands history is not saved within the session.
