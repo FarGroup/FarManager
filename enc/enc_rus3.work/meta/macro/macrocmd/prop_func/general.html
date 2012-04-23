@@ -580,14 +580,7 @@
   </tr>
   <tr>
     <td>S=<dfn><a name="strpad">strpad</a></dfn>(V,Size[,Fill[,Op]])</td>
-    <td><p>¬озвращает "заполненную" строку.</p>
-      <p><var>V</var> - исходное выражение, на основе которого будет формироватьс€ результат работы функции.
-        ≈сли <var>V</var> не указан или его длина равна 0 - считаетс€ пустой строкой, в этом случае результирующа€ строка будет состо€ть только из "заполнител€" <var>Fill</var>.</p>
-      <p><var>Size</var> - длина результирующей строки.
-        ≈сли <var>Size</var> меньше или равно 0, то возвращаетс€ <var>V</var> (или пуста€ строка, если <var>V</var> не указан).
-        ≈сли <var>V</var> указан и <var>Size</var> меньше длины <var>V</var>, то возвращаетс€ <var>V</var>.</p>
-      <p><var>Fill</var> - строка-заполнитель.</p>
-      <p><var>Op</var> - как заполн€ть. ћожет быть одним из следующих значений:</p>
+    <td><p>‘ункци€ возвращает строку <var>V</var>, дополненную до заданной длины <var>Size</var> строкой <var>Fill</var>. —пособ дополнени€ зависит от параметра <var>Op</var>:</p>
        <table class="cont2 params lite tiny">
        <col class="value">
        <col>
@@ -596,6 +589,9 @@
         <tr><td>1</td><td>заполнение справа от <var>V</var></td></tr>
         <tr><td>2</td><td>заполнение вокруг <var>V</var></td></tr>
        </table>
+       <p>≈сли <var>Size</var> меньше или равно длине <var>V</var>, то дополнени€ не происходит (возвращаетс€ <var>V</var>).</p>
+       <p>≈сли <var>Fill</var> не задана, то <var>V</var> дополн€етс€ пробелами.</p>
+       <p>≈сли разность <var>Size</var> и длины <var>V</var> не делитс€ без остатка на длину <var>Fill</var>, дополн€юща€ строка обрезаетс€ справа. ѕри <var>Op</var>=2 обрезаютс€ обе части дополн€ющей строки, первой обрезаетс€ лева€ часть.</p>
        <p>ѕримеры:</p>
       <table class="cont2 params lite tiny">
         <col>
@@ -604,12 +600,14 @@
           <th>¬ызов</th>
           <th>–езультат</th>
         </tr>
-         <tr><td>strpad("Foo",9,"*",2)</td><td><code>'***Foo***'</code></td></tr>
-         <tr><td>strpad("",9,"-*-",2)</td><td><code>'-*--*--*-'</code></td></tr>
-         <tr><td>strpad(,9,"-*-")</td><td><code>'-*--*--*-'</code></td></tr>
-         <tr><td>strpad("Foo",9)</td><td><code>'Foo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'</code></td></tr>
-         <tr><td>strpad("Foo",9,"-")</td><td><code>'Foo------'</code></td></tr>
-         <tr><td>strpad("Foo",9,,1)</td><td><code>'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Foo'</code></td></tr>
+         <tr><td>strpad("Foo",10,"*",2)</td><td><code>'***Foo****'</code></td></tr>
+         <tr><td>strpad("",10,"-*-",2)</td><td><code>'-*--*--*--'</code></td></tr>
+         <tr><td>strpad(,10,"-*-")</td><td><code>'-*--*--*--'</code></td></tr>
+         <tr><td>strpad("Foo",10)</td><td><code>'Foo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'</code></td></tr>
+         <tr><td>strpad("Foo",10,"-")</td><td><code>'Foo-------'</code></td></tr>
+         <tr><td>strpad("Foo",10,,1)</td><td><code>'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Foo'</code></td></tr>
+         <tr><td>strpad("Foo",10,,2)</td><td><code>'&nbsp;&nbsp;&nbsp;Foo&nbsp;&nbsp;&nbsp;&nbsp;'</code></td></tr>
+         <tr><td>strpad("Foo",10,"1234567890",1)</td><td><code>'123Foo1234'</code></td></tr>
       </table>
 
       </td>
