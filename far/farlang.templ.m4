@@ -2606,7 +2606,7 @@ MViewConfigSaveShortPos
 "Könyv&jelzők mentése"
 "Zapisz z&akładki"
 "Guardar &marcadores"
-"Ukládat &záložky"
+"Ukladať &záložky"
 
 MViewAutoDetectCodePage
 "&Автоопределение кодовой страницы"
@@ -3181,7 +3181,7 @@ MCopyDlgCopy
 "&Másolás"
 "&Kopiuj"
 "&Copiar"
-"S&kopíruk"
+"S&kopíruj"
 
 MCopyDlgTree
 "F10-&Дерево"
@@ -4679,7 +4679,7 @@ MEditReading
 "Fájl olvasása"
 "Czytam plik"
 "Leyendo el archivo"
-"Načítavam soubor"
+"Načítavam súbor"
 
 MEditAskSave
 "Файл был изменён. Сохранить?"
@@ -5151,7 +5151,7 @@ MShortcutNone
 "<nincs>"
 "<brak>"
 "<nada>"
-"<není>"
+"<nie je>"
 
 MShortcutPlugin
 "<плагин>"
@@ -5161,7 +5161,7 @@ MShortcutPlugin
 "<plugin>"
 "<plugin>"
 "<complemento>"
-"<plugin>"
+"<modul>"
 
 MFSShortcutName
 "Название:"
@@ -5356,7 +5356,7 @@ MEditShiftF2
 "Ment.."
 "Zapisz"
 "Grdcom"
-"UložiťAko"
+"UložAko"
 
 MEditShiftF3
 ""
@@ -5376,7 +5376,7 @@ MEditShiftF4
 "Szrk.."
 "Edytuj"
 "Edita."
-"Uprav.."
+"Uprav."
 
 MEditShiftF5
 ""
@@ -5416,7 +5416,7 @@ upd:"Tabell"
 "Kódlap"
 "Tabela"
 "PágCód"
-"TabZnak"
+"TabZn"
 
 MEditShiftF9
 ""
@@ -7238,7 +7238,7 @@ MEditSaveDOS
 "&DOS/Windows formátum (CR LF)"
 "Format &Dos/Windows (CR LF)"
 "Formato &DOS/Windows (CR LF)"
-"Formát &Dos/Windows (CR LF)"
+"Formát &DOS/Windows (CR LF)"
 
 MEditSaveUnix
 "в формат&е UNIX (LF)"
@@ -7468,7 +7468,7 @@ upd:"Switch to unicode codepage %d is not supported"
 upd:"Switch to unicode codepage %d is not supported"
 upd:"Switch to unicode codepage %d is not supported"
 "Cambio a página de códigos unicode %d no está soportado"
-"Prepínač na tabuľku unicode %d nie je podporovaný"
+"Prepínač na tabuľku Unicode %d nie je podporovaný"
 
 MEditorCPNotSupported
 "Кодовая страница %d не поддерживается вашей системой"
@@ -10366,7 +10366,7 @@ MSearchFromRootOfDrive
 "Meghajtó &gyökerétől:"
 "Od &korzenia"
 "Buscar desde &raíz de"
-"od &korea"
+"od &koreňa"
 
 MSearchFromRootFolder
 "С кор&невой папки"
@@ -11828,7 +11828,7 @@ MMenuLinksView
 "Fájl li&nkek        BalCtrl-9"
 "Dowiąza&nia           LCtrl-9"
 "En&laces               LCtrl-9"
-"Prepoje&nia súboru        LCtrl-9"
+"Prepo&jenia súboru        LCtrl-9"
 
 MMenuAlternativeView
 "Аль&тернативный полный    LCtrl-0"
@@ -11859,7 +11859,7 @@ MMenuTreePanel
 "&Fastruktúra        Ctrl-T"
 "Drz&ewo               Ctrl-T"
 "Panel árbol           Ctrl-T"
-"Panel St&rom              Ctrl-T"
+"Pa&nel Strom              Ctrl-T"
 
 MMenuQuickView
 "Быстры&й просмотр         Ctrl-Q"
@@ -11909,7 +11909,7 @@ MMenuReread
 "Friss&ítés          Ctrl-R"
 "Odśw&ież              Ctrl-R"
 "&Releer                Ctrl-R"
-"Obno&viť                  Ctrl-R"
+"O&bnoviť                  Ctrl-R"
 
 MMenuChangeDrive
 "С&менить диск             Alt-F1"
@@ -11980,7 +11980,7 @@ MMenuDelete
 "&Töröl                F8"
 "&Usuń                      F8"
 "&Borrar                        F8"
-"&Zmazať                     F8"
+"Z&mazať                     F8"
 
 MMenuWipe
 "Уни&чтожение           Alt-Del"
@@ -12020,7 +12020,7 @@ MMenuArchiveCommands
 "Tömörítő &parancsok   Shift-F3"
 "Po&lecenie archiwizera     Shift-F3"
 "Co&mandos archivo comprimido   Shift-F3"
-"Príkazy pako&vača           Shift-F3"
+"Príkaz&y pakovača           Shift-F3"
 
 MMenuAttributes
 "А&трибуты файлов       Ctrl-A"
@@ -12101,7 +12101,7 @@ l:
 "Fájl&keresés         Alt-F7"
 "&Znajdź plik               Alt-F7"
 "&Buscar archivos           Alt-F7"
-"&Nájsť súbor                    Alt-F7"
+"Ná&jsť súbor                    Alt-F7"
 
 MMenuHistory
 "&История команд           Alt-F8"
@@ -12171,7 +12171,7 @@ MMenuTogglePanels
 "Panelek &be/ki       Ctrl-O"
 "&Włącz/Wyłącz panele       Ctrl-O"
 "&Paneles Si/No             Ctrl-O"
-"&Panely Zap/Vyp                 Ctrl-O"
+"Pane&ly Zap/Vyp                 Ctrl-O"
 
 MMenuCompareFolders
 "&Сравнение папок"
@@ -12261,7 +12261,7 @@ MMenuHotPlugList
 "H&otplug eszközök"
 "Lista urządzeń Ho&tplug"
 "Lista dispositivos hotplu&g"
-"Zoznam v&yberateľných zariadení"
+"Zoznam vy&berateľných zariadení"
 
 MMenuSystemSettings
 l:
@@ -12312,7 +12312,7 @@ MMenuLanguages
 "N&yelvek (Languages)"
 "&Język"
 "&Idiomas"
-"Nastavenie &jazyka"
+"Nastavenia &jazyka"
 
 MMenuPluginsConfig
 "Параметры плагино&в"
@@ -12322,7 +12322,7 @@ MMenuPluginsConfig
 "Pl&ugin beállítások"
 "Konfiguracja p&luginów"
 "Configuración de complementos"
-"Nastavenie mo&dulov"
+"Nastavenia mo&dulov"
 
 MMenuPluginsManagerSettings
 "Параметры менеджера плагинов"
@@ -12442,7 +12442,7 @@ MMenuViewer
 "&Nézőke beállítások"
 "Ustawienia pod&glądu"
 "&Visor "
-"Nastavenie zob&razovača"
+"Nastavenia zob&razovača"
 
 MMenuEditor
 "Настройки &редактора"
@@ -12452,7 +12452,7 @@ MMenuEditor
 "&Szerkesztő beállítások"
 "Ustawienia &edytora"
 "&Editor "
-"Nastavenie &editora"
+"Nastavenia &editora"
 
 MMenuCodePages
 "Кодов&ые страницы"
@@ -12462,7 +12462,7 @@ upd:"Tabellen"
 upd:"Kódlapok"
 upd:"Strony kodowe"
 "Página de códigos"
-"Tabuľky znako:"
+"Tabuľky znakov:"
 
 MMenuColors
 "&Цвета"
@@ -15424,7 +15424,7 @@ MSetConfirmExit
 "K&ilépés a FAR-ból"
 "&Wyjście"
 "&Salir"
-"U&končenie"
+"Uk&ončenie"
 
 MPluginsManagerSettingsTitle
 l:
@@ -16374,7 +16374,7 @@ MEditPanelModesDiz
 "&Fájlmegjegyzés mód"
 "&Opisy"
 "&Descripción"
-"P&opisový mód"
+"S p&opismi"
 
 MEditPanelModesLongDiz
 "Д&линные описания"
@@ -16384,7 +16384,7 @@ MEditPanelModesLongDiz
 "&Hosszú megjegyzés mód"
 "&Długie opisy"
 "Descripción lar&ga"
-"&Mód dlhých popisov"
+"S dlhý&mi popismi"
 
 MEditPanelModesOwners
 "Вл&адельцы файлов"
@@ -16404,7 +16404,7 @@ MEditPanelModesLinks
 "Li&nkek mód"
 "Dowiąza&nia"
 "En&laces"
-"Mód pre&pojení"
+"Mód pr&epojení"
 
 MEditPanelModesAlternative
 "Аль&тернативный полный режим"
@@ -16974,7 +16974,7 @@ upd:"Incorrect number of arguments for function '%1'"
 "'%1' funkció paramétereinek száma helytelen"
 upd:"Incorrect number of arguments for function '%1'"
 "Incorrect number of arguments for function '%1'"
-"Nesorávny počet argumentov pre funkciu '%1'"
+"Nesprávny počet argumentov pre funkciu '%1'"
 
 MMacroPErrNot_expected_ELSE
 "Неожиданное появление $Else"
@@ -17257,7 +17257,7 @@ upd:"Plugin information"
 upd:"Plugin information"
 upd:"Plugin information"
 "Información de complemento"
-"Infomrácie o module"
+"Informácie o module"
 
 MPluginModuleTitle
 "&Название:"
@@ -21725,14 +21725,14 @@ MKBTreeCtrlAltShiftF12
 
 MCopyTimeInfo
 l:
-"Время: %1    Осталось: %2    %3б/с"
-"Time: %1    Remaining: %2    %3b/s"
-"Čas: %1      Zbývá: %2      %3b/s"
-"Zeit: %1   Verbleibend: %2   %3b/s"
-"Eltelt: %1    Maradt: %2    %3b/s"
-"Czas: %1    Pozostało: %2    %3b/s"
-"Tiempo: %1    Restante: %2    %3b/s"
-"Čas: %1      Zvyšuje: %2      %3b/s"
+"Время: %1    Осталось: %2    %3Б/с"
+"Time: %1    Remaining: %2    %3B/s"
+"Čas: %1      Zbývá: %2      %3B/s"
+"Zeit: %1   Verbleibend: %2   %3B/s"
+"Eltelt: %1    Maradt: %2    %3B/s"
+"Czas: %1    Pozostało: %2    %3B/s"
+"Tiempo: %1    Restante: %2    %3B/s"
+"Čas: %1      Zostáva: %2      %3B/s"
 
 MKeyESCWasPressed
 l:
@@ -21940,7 +21940,7 @@ upd:"Has more than one hardlink"
 upd:"Has more than one hardlink"
 upd:"Has more than one hardlink"
 "Tiene mas de un enlace rígido"
-"Has more than one hardlink"
+"Má viac než jedno pevné prepojenie"
 
 MFileFilterDate
 "&Дата/Время:"
@@ -22391,7 +22391,7 @@ upd:"to encrypt this object:"
 upd:"to encrypt this object:"
 upd:"to encrypt this object:"
 "para cifrar este objeto:"
-"zašifrovanjie tohto objektu:"
+"zašifrovanie tohto objektu:"
 
 MElevationRequiredDecryptFile
 "для расшифрования этого объекта:"
