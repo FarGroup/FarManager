@@ -903,7 +903,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				AttrDlg[SA_TEXT_SYMLINK].strData=MSG(ID_Msg);
 				AttrDlg[SA_EDIT_SYMLINK].Flags&=~DIF_HIDDEN;
 				AttrDlg[SA_EDIT_SYMLINK].strData=strLinkName.CPtr();
-				AttrDlg[SA_EDIT_SYMLINK].Flags|=DIF_READONLY;
 
 				DlgParam.FileSystemFlags=0;
 				string strRoot;

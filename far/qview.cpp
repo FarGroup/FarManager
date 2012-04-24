@@ -130,7 +130,9 @@ void QuickView::DisplayObject()
 	if (Directory)
 	{
 		FormatString FString;
-		FString<<MSG(MQuickViewFolder)<<L" \""<<strCurFileName<<L"\"";
+		string DisplayName(strCurFileName);
+		TruncPathStr(DisplayName,Max(0, X2-X1-1-StrLength(MSG(MQuickViewFolder))-5));
+		FString<<MSG(MQuickViewFolder)<<L" \""<<DisplayName<<L"\"";
 		SetColor(COL_PANELTEXT);
 		GotoXY(X1+2,Y1+2);
 		PrintText(FString);
@@ -138,63 +140,82 @@ void QuickView::DisplayObject()
 		DWORD currAttr=apiGetFileAttributes(strCurFileName); // обламывается, если нет доступа
 		if (currAttr != INVALID_FILE_ATTRIBUTES && (currAttr&FILE_ATTRIBUTE_REPARSE_POINT))
 		{
-			string strJuncName;
+			string Tmp, Target;
 			DWORD ReparseTag=0;
-			LNGID ID_Msg=MQuickViewJunction;
-
-			if (GetReparsePointInfo(strCurFileName, strJuncName, &ReparseTag))
+			const wchar_t* PtrName;
+			if (GetReparsePointInfo(strCurFileName, Target, &ReparseTag))
 			{
-				if (ReparseTag==IO_REPARSE_TAG_MOUNT_POINT)
+				NormalizeSymlinkName(Target);
+				switch(ReparseTag)
 				{
-					bool Root;
-					if(ParsePath(strJuncName, nullptr, &Root) == PATH_VOLUMEGUID && Root)
+				// 0xA0000003L = Directory Junction or Volume Mount Point
+				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
-						ID_Msg=MQuickViewVolMount;
-					}
-				}
-				else
-				{
-					static struct {
-						DWORD ReparseTag;
-						LNGID ID_Msg;
-					} Tag2ID [] = {
-						{ IO_REPARSE_TAG_SYMLINK, MQuickViewSymlink },   // 0xA000000CL = Directory or File Symbolic Link
-						{ IO_REPARSE_TAG_DFS,     MQuickViewDFS     },   // 0x8000000AL = Distributed File System
-						{ IO_REPARSE_TAG_DFSR,    MQuickViewDFSR    },   // 0x80000012L = Distributed File System Replication
-						{ IO_REPARSE_TAG_HSM,     MQuickViewHSM     },   // 0xC0000004L = Hierarchical Storage Management
-						{ IO_REPARSE_TAG_HSM2,    MQuickViewHSM2    },   // 0x80000006L = Hierarchical Storage Management2
-						{ IO_REPARSE_TAG_SIS,     MQuickViewSIS     },   // 0x80000007L = Single Instance Storage
-						{ IO_REPARSE_TAG_WIM,     MQuickViewWIM     },   // 0x80000008L = Windows Imaging Format
-						{ IO_REPARSE_TAG_CSV,     MQuickViewCSV     },   // 0x80000009L = Cluster Shared Volumes
-					};
-
-					for (int I=0; I < ARRAYSIZE(Tag2ID); ++I)
-					{
-						if (Tag2ID[I].ReparseTag == ReparseTag)
+						LNGID ID_Msg = MQuickViewJunction;
+						bool Root;
+						if(ParsePath(Target, nullptr, &Root) == PATH_VOLUMEGUID && Root)
 						{
-							ID_Msg=Tag2ID[I].ID_Msg;
-							break;
+							ID_Msg=MQuickViewVolMount;
 						}
+						PtrName = MSG(ID_Msg);
 					}
-					/*
-					Opt.ShowUnknownReparsePoint
-		            if (I == ARRAYSIZE(Tag2ID))
+					break;
+				// 0xA000000CL = Directory or File Symbolic Link
+				case IO_REPARSE_TAG_SYMLINK:
+					PtrName = MSG(MQuickViewSymlink);
+					break;
+				// 0x8000000AL = Distributed File System
+				case IO_REPARSE_TAG_DFS:
+					PtrName = MSG(MQuickViewDFS);
+					break;
+				// 0x80000012L = Distributed File System Replication
+				case IO_REPARSE_TAG_DFSR:
+					PtrName = MSG(MQuickViewDFSR);
+					break;
+				// 0xC0000004L = Hierarchical Storage Management
+				case IO_REPARSE_TAG_HSM:
+					PtrName = MSG(MQuickViewHSM);
+					break;
+				// 0x80000006L = Hierarchical Storage Management2
+				case IO_REPARSE_TAG_HSM2:
+					PtrName = MSG(MQuickViewHSM2);
+					break;
+				// 0x80000007L = Single Instance Storage
+				case IO_REPARSE_TAG_SIS:
+					PtrName = MSG(MQuickViewSIS);
+					break;
+				// 0x80000008L = Windows Imaging Format
+				case IO_REPARSE_TAG_WIM:
+					PtrName = MSG(MQuickViewWIM);
+					break;
+				// 0x80000009L = Cluster Shared Volumes
+				case IO_REPARSE_TAG_CSV:
+					PtrName = MSG(MQuickViewCSV);
+					break;
+				// 0x????????L = anything else
+				default:
+					if (Opt.ShowUnknownReparsePoint)
 					{
 						FormatString strResult;
 						strResult<<L":"<<fmt::Radix(16)<<fmt::Width(8)<<fmt::Precision(8)<<ReparseTag;
-						strMsg=strResult;
+						Tmp = strResult;
+						PtrName = Tmp;
 					}
-					*/
+					else
+					{
+						PtrName=MSG(MQuickViewUnknownReparsePoint);
+					}
 				}
-
-				NormalizeSymlinkName(strJuncName);
 			}
 			else
-				strJuncName=MSG(MQuickViewUnknownJunction);
+			{
+				PtrName = MSG(MQuickViewUnknownReparsePoint);
+				Target = MSG(MQuickViewNoData);
+			}
 
-			TruncPathStr(strJuncName,X2-X1-1-StrLength(MSG(ID_Msg)));
+			TruncPathStr(Target,Max(0, X2-X1-1-StrLength(PtrName)-5));
 			FString.Clear();
-			FString<<MSG(ID_Msg)<<L" \""<<strJuncName<<L"\"";
+			FString<<PtrName<<L" \""<<Target<<L"\"";
 			SetColor(COL_PANELTEXT);
 			GotoXY(X1+2,Y1+3);
 			PrintText(FString);

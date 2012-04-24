@@ -1112,7 +1112,7 @@ BOOL apiCreateDirectoryEx(const string& TemplateDirectory, const string& NewDire
 	BOOL Result = FALSE;
 	for(size_t i = 0; i < 2 && !Result; ++i)
 	{
-		Result = TemplateDirectory.IsEmpty()?CreateDirectory(NtNewDirectory, SecurityAttributes):CreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
+		Result = NtTemplateDirectory.IsEmpty()?CreateDirectory(NtNewDirectory, SecurityAttributes):CreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
 		if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 		{
 			Result = Elevation.fCreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);

@@ -637,73 +637,77 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 		{
 			if (FileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 			{
-				LNGID ID_Msg=MYes;
-
-				if (ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) // 0xA0000003L = Directory Junction or Volume Mount Point
+				switch(ReparseTag)
 				{
-					ID_Msg=MListJunction;
-					if (Opt.PanelDetailedJunction)
+				// 0xA0000003L = Directory Junction or Volume Mount Point
+				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
-						string strLinkName=CurDir?CurDir:L"";
-						AddEndSlash(strLinkName);
-						strLinkName+=PointToName(strName);
-
-						DWORD NewReparseTag;
-						if (GetReparsePointInfo(strLinkName, strLinkName, &NewReparseTag))
+						LNGID ID_Msg = MListJunction;
+						if (Opt.PanelDetailedJunction)
 						{
-							NormalizeSymlinkName(strLinkName);
-							bool Root;
-							if(ParsePath(strLinkName, nullptr, &Root) == PATH_VOLUMEGUID && Root)
+							string strLinkName=CurDir?CurDir:L"";
+							AddEndSlash(strLinkName);
+							strLinkName+=PointToName(strName);
+
+							if (GetReparsePointInfo(strLinkName, strLinkName))
 							{
-								ID_Msg=MListVolMount;
+								NormalizeSymlinkName(strLinkName);
+								bool Root;
+								if(ParsePath(strLinkName, nullptr, &Root) == PATH_VOLUMEGUID && Root)
+								{
+									ID_Msg=MListVolMount;
+								}
 							}
 						}
+						PtrName=MSG(ID_Msg);
 					}
-					PtrName=MSG(ID_Msg);
-				}
-				else
-				{
-					static struct {
-						DWORD ReparseTag;
-						LNGID ID_Msg;
-					} Tag2ID [] = {
-						{ IO_REPARSE_TAG_SYMLINK,      MListSymlink  },   // 0xA000000CL = Directory or File Symbolic Link
-						{ IO_REPARSE_TAG_DFS,          MListDFS      },   // 0x8000000AL = Distributed File System
-						{ IO_REPARSE_TAG_DFSR,         MListDFSR     },   // 0x80000012L = Distributed File System Replication
-						{ IO_REPARSE_TAG_HSM,          MListHSM      },   // 0xC0000004L = Hierarchical Storage Management
-						{ IO_REPARSE_TAG_HSM2,         MListHSM2     },   // 0x80000006L = Hierarchical Storage Management2
-						{ IO_REPARSE_TAG_SIS,          MListSIS      },   // 0x80000007L = Single Instance Storage
-						{ IO_REPARSE_TAG_WIM,          MListWIM      },   // 0x80000008L = Windows Imaging Format
-						{ IO_REPARSE_TAG_CSV,          MListCSV      },   // 0x80000009L = Cluster Shared Volumes
-					};
-
-					int I;
-					for (I=0; I < ARRAYSIZE(Tag2ID); ++I)
+					break;
+				// 0xA000000CL = Directory or File Symbolic Link
+				case IO_REPARSE_TAG_SYMLINK:
+					PtrName = MSG(MListSymlink);
+					break;
+				// 0x8000000AL = Distributed File System
+				case IO_REPARSE_TAG_DFS:
+					PtrName = MSG(MListDFS);
+					break;
+				// 0x80000012L = Distributed File System Replication
+				case IO_REPARSE_TAG_DFSR:
+					PtrName = MSG(MListDFSR);
+					break;
+				// 0xC0000004L = Hierarchical Storage Management
+				case IO_REPARSE_TAG_HSM:
+					PtrName = MSG(MListHSM);
+					break;
+				// 0x80000006L = Hierarchical Storage Management2
+				case IO_REPARSE_TAG_HSM2:
+					PtrName = MSG(MListHSM2);
+					break;
+				// 0x80000007L = Single Instance Storage
+				case IO_REPARSE_TAG_SIS:
+					PtrName = MSG(MListSIS);
+					break;
+				// 0x80000008L = Windows Imaging Format
+				case IO_REPARSE_TAG_WIM:
+					PtrName = MSG(MListWIM);
+					break;
+				// 0x80000009L = Cluster Shared Volumes
+				case IO_REPARSE_TAG_CSV:
+					PtrName = MSG(MListCSV);
+					break;
+				// 0x????????L = anything else
+				default:
+					if (Opt.ShowUnknownReparsePoint)
 					{
-						if (Tag2ID[I].ReparseTag == ReparseTag)
-						{
-							ID_Msg=Tag2ID[I].ID_Msg;
-							break;
-						}
-					}
-
-					if (I == ARRAYSIZE(Tag2ID))
-					{
-						if (Opt.ShowUnknownReparsePoint)
-						{
-							FormatString strResult;
-							strResult<<L":"<<fmt::Radix(16)<<fmt::Width(8)<<fmt::Precision(8)<<ReparseTag;
-							strMsg=strResult;
-						}
-						else
-							ID_Msg=MListSymlink;
+						FormatString strResult;
+						strResult<<L":"<<fmt::Radix(16)<<fmt::Width(8)<<fmt::Precision(8)<<ReparseTag;
+						strMsg=strResult;
+						PtrName = strMsg;
 					}
 					else
-						PtrName=MSG(Tag2ID[I].ID_Msg);
+					{
+						PtrName=MSG(MListUnknownReparsePoint);
+					}
 				}
-
-				if (ID_Msg == MYes)
-					PtrName=strMsg.CPtr();
 			}
 		}
 

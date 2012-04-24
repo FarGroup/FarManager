@@ -4214,13 +4214,13 @@ MDeleteLinkTitle
 
 MAskDeleteLink
 "является ссылкой на"
-"is a symbolic link to"
-"je symbolicky link na"
-"ist ein symbolischer Link auf"
-"szimlinkelve ide:"
-"jest linkiem symbolicznym do"
-"es un enlace simbólico al"
-"je symbolické prepojenie na"
+"is a link to"
+"je link na"
+"ist ein Link auf"
+"linkelve ide:"
+"jest linkiem do"
+"es un enlace al"
+"je prepojenie na"
 
 MAskDeleteLinkFolder
 "папку"
@@ -7791,6 +7791,16 @@ upd:"CSV"
 upd:"CSV"
 upd:"CSV"
 upd:"CSV"
+
+MListUnknownReparsePoint
+"?Ссылка?"
+"?Symlink?"
+"?Link?"
+"?Symlink?"
+"?SzimLnk?"
+"?LinkSym?"
+"?EnlSimb?"
+"?Prepojenie?"
 
 MListBrackets
 "<>"
@@ -13786,7 +13796,17 @@ upd:"CSV"
 upd:"CSV"
 upd:"CSV"
 
-MQuickViewUnknownJunction
+MQuickViewUnknownReparsePoint
+upd:"Unknown reparse point"
+"Unknown reparse point"
+upd:"Unknown reparse point"
+upd:"Unknown reparse point"
+upd:"Unknown reparse point"
+upd:"Unknown reparse point"
+upd:"Unknown reparse point"
+upd:"Unknown reparse point"
+
+MQuickViewNoData
 "(нет данных)"
 "(data not available)"
 "(data nejsou k dispozici)"
