@@ -557,7 +557,7 @@ struct Options
 	int ShowPanelTotals;
 	int ShowPanelFree;
 	int PanelDetailedJunction;
-	int ShowUnknownJunction;
+	int ShowUnknownReparsePoint;
 	int HighlightColumnSeparator;
 	int DoubleGlobalColumnSeparator;
 

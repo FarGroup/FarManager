@@ -1,3 +1,7 @@
+svs 24.04.2012 17:44:04 +0400 - build 2633
+
+1. Уточнение 2632
+
 svs 24.04.2012 17:16:28 +0400 - build 2632
 
 1. Mantis#0001357: Показывать все типы Reparse Points в панелях
@@ -13,16 +17,17 @@ svs 24.04.2012 17:16:28 +0400 - build 2632
     IO_REPARSE_TAG_WIM          0x80000008L = Windows Imaging Format
     IO_REPARSE_TAG_CSV          0x80000009L = Cluster Shared Volumes
     
-    Прочие теги будут оттображаться как ":XXXXXXXX" (X - 16-ричная цифра).
-    Т.к. слишком узкоспециализированная инфа, то вывод её отключен.
-    Для включения: установите параметр "Panel.Layout\ShowUnknownJunction" в 1:
-
-     <?xml version="1.0" encoding="UTF-8" ?>
-     <farconfig>
-         <generalconfig>
-             <setting key="Panel.Layout" name="ShowUnknownJunction" type="qword" value="0000000000000001" />
-         </generalconfig>
-     </farconfig>
+   {
+     Прочие теги будут оттображаться как ":XXXXXXXX" (X - 16-ричная цифра).
+     Т.к. слишком узкоспециализированная инфа, то вывод её отключен.
+     Для включения: установите параметр "Panel.Layout\ShowUnknownReparsePoint" в 1:
+      <?xml version="1.0" encoding="UTF-8" ?>
+      <farconfig>
+          <generalconfig>
+              <setting key="Panel.Layout" name="ShowUnknownReparsePoint" type="qword" value="0000000000000001" />
+          </generalconfig>
+      </farconfig>
+   }
 
    В настройках панели добавлена опция "Определять точки монтирования диска".
    Позволяет уточнять "Junction" в поле "размер" для каталогов (либо "Junction" либо "Volume").

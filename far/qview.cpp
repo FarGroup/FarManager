@@ -176,7 +176,8 @@ void QuickView::DisplayObject()
 							break;
 						}
 					}
-					/* Opt.ShowUnknownJunction ???
+					/*
+					Opt.ShowUnknownReparsePoint
 		            if (I == ARRAYSIZE(Tag2ID))
 					{
 						FormatString strResult;

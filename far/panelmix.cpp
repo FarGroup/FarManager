@@ -687,10 +687,9 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 						}
 					}
 
-					// ????
 					if (I == ARRAYSIZE(Tag2ID))
 					{
-						if (Opt.ShowUnknownJunction)
+						if (Opt.ShowUnknownReparsePoint)
 						{
 							FormatString strResult;
 							strResult<<L":"<<fmt::Radix(16)<<fmt::Width(8)<<fmt::Precision(8)<<ReparseTag;
@@ -699,7 +698,6 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 						else
 							ID_Msg=MListSymlink;
 					}
-					// ????
 					else
 						PtrName=MSG(Tag2ID[I].ID_Msg);
 				}
