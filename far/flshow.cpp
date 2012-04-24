@@ -1196,7 +1196,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								ListData[ListPos]->ReparseTag,
 								ColumnType,
 								ColumnTypes[K],
-								ColumnWidth).CPtr());
+								ColumnWidth,
+								strCurDir.CPtr()).CPtr());
 							break;
 						}
 

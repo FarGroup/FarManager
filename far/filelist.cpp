@@ -3484,7 +3484,8 @@ bool FileList::GetPlainString(string& Dest,int ListPos)
 							ListData[ListPos]->ReparseTag,
 							ColumnType,
 							ColumnTypes[K],
-							ColumnWidth));
+							ColumnWidth,
+							strCurDir.CPtr()));
 						break;
 					}
 

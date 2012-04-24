@@ -1,3 +1,39 @@
+svs 24.04.2012 17:16:28 +0400 - build 2632
+
+1. Mantis#0001357: Показывать все типы Reparse Points в панелях
+
+   Узнаем:
+    IO_REPARSE_TAG_MOUNT_POINT  0xA0000003L = Directory Junction or Volume Mount Point
+    IO_REPARSE_TAG_SYMLINK      0xA000000CL = Directory or File Symbolic Link
+    IO_REPARSE_TAG_DFS          0x8000000AL = Distributed File System
+    IO_REPARSE_TAG_DFSR         0x80000012L = Distributed File System Replication
+    IO_REPARSE_TAG_HSM          0xC0000004L = Hierarchical Storage Management
+    IO_REPARSE_TAG_HSM2         0x80000006L = Hierarchical Storage Management2
+    IO_REPARSE_TAG_SIS          0x80000007L = Single Instance Storage
+    IO_REPARSE_TAG_WIM          0x80000008L = Windows Imaging Format
+    IO_REPARSE_TAG_CSV          0x80000009L = Cluster Shared Volumes
+    
+    Прочие теги будут оттображаться как ":XXXXXXXX" (X - 16-ричная цифра).
+    Т.к. слишком узкоспециализированная инфа, то вывод её отключен.
+    Для включения: установите параметр "Panel.Layout\ShowUnknownJunction" в 1:
+
+     <?xml version="1.0" encoding="UTF-8" ?>
+     <farconfig>
+         <generalconfig>
+             <setting key="Panel.Layout" name="ShowUnknownJunction" type="qword" value="0000000000000001" />
+         </generalconfig>
+     </farconfig>
+
+   В настройках панели добавлена опция "Определять точки монтирования диска".
+   Позволяет уточнять "Junction" в поле "размер" для каталогов (либо "Junction" либо "Volume").
+   По умолчнию для панелей отключена, ибо операция дорогая и от того слишком медленная (особенно на сетевых дисках).
+
+   В QView кусок по выводу инфы о Линках не выводится если нет доступа к файловому объекту, т.к. обламывается на вызове apiGetFileAttributes().
+
+2. В диалоге установки аттрибутов поле для линков есть, но в режиме RO для неудачных попыток получить инфу и Reparse.
+
+3. Macro: panel.item(XX,XX,23) - возвращает ReparseTag
+
 drkns 22.04.2012 02:16:36 +0200 - build 2631
 
 1. Не открывалось меню дисков при открытом в панели диске '@:'.

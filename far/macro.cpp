@@ -4289,6 +4289,11 @@ static bool panelitemFunc(const TMacroFunction*)
 			case 22:  // CustomData
 				Ret=TVar(filelistItem.strCustomData);
 				break;
+			case 23:  // ReparseTag
+			{
+				Ret=TVar((__int64)filelistItem.ReparseTag);
+				break;
+			}
 		}
 	}
 

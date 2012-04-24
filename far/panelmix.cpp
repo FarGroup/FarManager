@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "panelctype.hpp"
 #include "datetime.hpp"
+#include "flink.hpp"
 
 int ColumnTypeWidth[]={0, 6, 6, 8, 5, 14, 14, 14, 14, 6, 0, 0, 3, 3, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -608,7 +609,9 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned
 	return strResult;
 }
 
-const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 StreamsSize, const string& strName,DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,unsigned __int64 Flags,int Width)
+const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 StreamsSize, const string& strName,
+							DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,
+							unsigned __int64 Flags,int Width,const wchar_t *CurDir)
 {
 	FormatString strResult;
 
@@ -623,6 +626,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 
 	if (!Streams && !Packed && (FileAttributes & (FILE_ATTRIBUTE_DIRECTORY|FILE_ATTRIBUTE_REPARSE_POINT)) && !ShowFolderSize)
 	{
+		string strMsg;
 		const wchar_t *PtrName=MSG(MListFolder);
 
 		if (TestParentFolderName(strName))
@@ -633,21 +637,75 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 		{
 			if (FileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 			{
-				PtrName=MSG(MListSymLink);
-				switch (ReparseTag)
+				LNGID ID_Msg=MYes;
+
+				if (ReparseTag == IO_REPARSE_TAG_MOUNT_POINT) // 0xA0000003L = Directory Junction or Volume Mount Point
 				{
-					case IO_REPARSE_TAG_SYMLINK:
-						break;
+					ID_Msg=MListJunction;
+					if (Opt.PanelDetailedJunction)
+					{
+						string strLinkName=CurDir?CurDir:L"";
+						AddEndSlash(strLinkName);
+						strLinkName+=PointToName(strName);
 
-					case IO_REPARSE_TAG_MOUNT_POINT:
-						PtrName=MSG(MListJunction);
-						break;
-
-					//case IO_REPARSE_TAG_DRIVER_EXTENDER:
-						//...
-						//break;
-					//case ...
+						DWORD NewReparseTag;
+						if (GetReparsePointInfo(strLinkName, strLinkName, &NewReparseTag))
+						{
+							NormalizeSymlinkName(strLinkName);
+							bool Root;
+							if(ParsePath(strLinkName, nullptr, &Root) == PATH_VOLUMEGUID && Root)
+							{
+								ID_Msg=MListVolMount;
+							}
+						}
+					}
+					PtrName=MSG(ID_Msg);
 				}
+				else
+				{
+					static struct {
+						DWORD ReparseTag;
+						LNGID ID_Msg;
+					} Tag2ID [] = {
+						{ IO_REPARSE_TAG_SYMLINK,      MListSymlink  },   // 0xA000000CL = Directory or File Symbolic Link
+						{ IO_REPARSE_TAG_DFS,          MListDFS      },   // 0x8000000AL = Distributed File System
+						{ IO_REPARSE_TAG_DFSR,         MListDFSR     },   // 0x80000012L = Distributed File System Replication
+						{ IO_REPARSE_TAG_HSM,          MListHSM      },   // 0xC0000004L = Hierarchical Storage Management
+						{ IO_REPARSE_TAG_HSM2,         MListHSM2     },   // 0x80000006L = Hierarchical Storage Management2
+						{ IO_REPARSE_TAG_SIS,          MListSIS      },   // 0x80000007L = Single Instance Storage
+						{ IO_REPARSE_TAG_WIM,          MListWIM      },   // 0x80000008L = Windows Imaging Format
+						{ IO_REPARSE_TAG_CSV,          MListCSV      },   // 0x80000009L = Cluster Shared Volumes
+					};
+
+					int I;
+					for (I=0; I < ARRAYSIZE(Tag2ID); ++I)
+					{
+						if (Tag2ID[I].ReparseTag == ReparseTag)
+						{
+							ID_Msg=Tag2ID[I].ID_Msg;
+							break;
+						}
+					}
+
+					// ????
+					if (I == ARRAYSIZE(Tag2ID))
+					{
+						if (Opt.ShowUnknownJunction)
+						{
+							FormatString strResult;
+							strResult<<L":"<<fmt::Radix(16)<<fmt::Width(8)<<fmt::Precision(8)<<ReparseTag;
+							strMsg=strResult;
+						}
+						else
+							ID_Msg=MListSymlink;
+					}
+					// ????
+					else
+						PtrName=MSG(Tag2ID[I].ID_Msg);
+				}
+
+				if (ID_Msg == MYes)
+					PtrName=strMsg.CPtr();
 			}
 		}
 

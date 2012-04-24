@@ -1747,6 +1747,9 @@ string __INPUT_RECORD_Dump(INPUT_RECORD *rec)
 #if defined(SYSLOG)
 	string Records;
 
+	if (!rec)
+		return L"(null)";
+
 	switch (rec->EventType)
 	{
 		case FOCUS_EVENT:

@@ -2358,6 +2358,11 @@ $ #Settings dialog: panel#
 
   #Show status line#        Enable display of file panel status line.
 
+  #Определять точки#        Различать обычные связи для папок
+  #монтирования диска#      (Junction) и точки монтирования дисков
+                          томов (Volume).
+                          ^<wrap>Эта опция существенно замедляет отображение каталога на медленных сетевых подключениях.
+
   #Show total#              Enable display of total information data
   #information#             at the bottom line of file panel.
 

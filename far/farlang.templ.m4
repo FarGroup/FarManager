@@ -1807,6 +1807,16 @@ MConfigShowStatus
 "Mostrar línea de e&stado"
 "Zobrazovať sta&vový riadok"
 
+MConfigDetailedJunction
+"Определять точки монтирования &диска"
+"Determine Volume Mount &point"
+upd:"Determine Volume Mount point"
+upd:"Determine Volume Mount point"
+upd:"Determine Volume Mount point"
+upd:"Determine Volume Mount point"
+upd:"Determine Volume Mount point"
+upd:"Determine Volume Mount point"
+
 MConfigShowTotal
 "Показывать су&ммарную информацию"
 "Show files &total information"
@@ -7682,7 +7692,7 @@ MListFolder
 "SUB-DIR"
 "Priečinok"
 
-MListSymLink
+MListSymlink
 "Ссылка"
 "Symlink"
 "Link"
@@ -7701,6 +7711,86 @@ MListJunction
 "Dowiązania"
 " Unir "
 "Kríženie"
+
+MListVolMount
+"Том"
+"Volume"
+"Svazek"
+upd:"Volume"
+upd:"Volume"
+upd:"Volume"
+"Volumen"
+"Zväzok"
+
+MListDFS
+upd:"DFS"
+"DFS"
+upd:"DFS"
+upd:"DFS"
+upd:"DFS"
+upd:"DFS"
+upd:"DFS"
+upd:"DFS"
+
+MListDFSR
+upd:"DFSR"
+"DFSR"
+upd:"DFSR"
+upd:"DFSR"
+upd:"DFSR"
+upd:"DFSR"
+upd:"DFSR"
+upd:"DFSR"
+
+MListHSM
+upd:"HSM"
+"HSM"
+upd:"HSM"
+upd:"HSM"
+upd:"HSM"
+upd:"HSM"
+upd:"HSM"
+upd:"HSM"
+
+MListHSM2
+upd:"HSM2"
+"HSM2"
+upd:"HSM2"
+upd:"HSM2"
+upd:"HSM2"
+upd:"HSM2"
+upd:"HSM2"
+upd:"HSM2"
+
+MListSIS
+upd:"SIS"
+"SIS"
+upd:"SIS"
+upd:"SIS"
+upd:"SIS"
+upd:"SIS"
+upd:"SIS"
+upd:"SIS"
+
+MListWIM
+upd:"WIM"
+"WIM"
+upd:"WIM"
+upd:"WIM"
+upd:"WIM"
+upd:"WIM"
+upd:"WIM"
+upd:"WIM"
+
+MListCSV
+upd:"CSV"
+"CSV"
+upd:"CSV"
+upd:"CSV"
+upd:"CSV"
+upd:"CSV"
+upd:"CSV"
+upd:"CSV"
 
 MListBrackets
 "<>"
@@ -13625,6 +13715,86 @@ MQuickViewVolMount
 "Napęd"
 "Volumen"
 "Zväzok"
+
+MQuickViewDFS
+upd:"DFS"
+"DFS"
+upd:"DFS"
+upd:"DFS"
+upd:"DFS"
+upd:"DFS"
+upd:"DFS"
+upd:"DFS"
+
+MQuickViewDFSR
+upd:"DFSR"
+"DFSR"
+upd:"DFSR"
+upd:"DFSR"
+upd:"DFSR"
+upd:"DFSR"
+upd:"DFSR"
+upd:"DFSR"
+
+MQuickViewHSM
+upd:"HSM"
+"HSM"
+upd:"HSM"
+upd:"HSM"
+upd:"HSM"
+upd:"HSM"
+upd:"HSM"
+upd:"HSM"
+
+MQuickViewHSM2
+upd:"HSM2"
+"HSM2"
+upd:"HSM2"
+upd:"HSM2"
+upd:"HSM2"
+upd:"HSM2"
+upd:"HSM2"
+upd:"HSM2"
+
+MQuickViewSIS
+upd:"SIS"
+"SIS"
+upd:"SIS"
+upd:"SIS"
+upd:"SIS"
+upd:"SIS"
+upd:"SIS"
+upd:"SIS"
+
+MQuickViewWIM
+upd:"WIM"
+"WIM"
+upd:"WIM"
+upd:"WIM"
+upd:"WIM"
+upd:"WIM"
+upd:"WIM"
+upd:"WIM"
+
+MQuickViewCSV
+upd:"CSV"
+"CSV"
+upd:"CSV"
+upd:"CSV"
+upd:"CSV"
+upd:"CSV"
+upd:"CSV"
+upd:"CSV"
+
+MQuickViewUnknownJunction
+"(нет данных)"
+"(data not available)"
+"(data nejsou k dispozici)"
+"(nicht verfügbar)"
+"(adat nem elérhető)"
+"(dane niedostępne)"
+"(dato no disponible)"
+"(dáta nie sú k dispozícii)"
 
 MQuickViewContains
 "Содержит:"

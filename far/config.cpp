@@ -192,6 +192,7 @@ void PanelSettings()
 	Builder.AddSeparator();
 	Builder.AddCheckbox(MConfigShowColumns, &Opt.ShowColumnTitles);
 	Builder.AddCheckbox(MConfigShowStatus, &Opt.ShowPanelStatus);
+	Builder.AddCheckbox(MConfigDetailedJunction, &Opt.PanelDetailedJunction);
 	Builder.AddCheckbox(MConfigShowTotal, &Opt.ShowPanelTotals);
 	Builder.AddCheckbox(MConfigShowFree, &Opt.ShowPanelFree);
 	Builder.AddCheckbox(MConfigShowScrollbar, &Opt.ShowPanelScrollbar);
@@ -1100,6 +1101,8 @@ static struct FARConfig
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"ColumnTitles",&Opt.ShowColumnTitles,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"StatusLine",&Opt.ShowPanelStatus,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"DetailedJunction",&Opt.PanelDetailedJunction,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ShowUnknownJunction",&Opt.ShowUnknownJunction,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"TotalInfo",&Opt.ShowPanelTotals,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"FreeInfo",&Opt.ShowPanelFree,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"Scrollbar",&Opt.ShowPanelScrollbar,0, 0},
