@@ -1545,7 +1545,7 @@ INT_PTR WINAPI AdvancedConfigDlgProc(HANDLE hDlg, int Msg, int Param1, void* Par
 	case DN_CLOSE:
 		if (Param1==1) // BUGBUG, magic
 		{
-			FarListInfo ListInfo;
+			FarListInfo ListInfo = {sizeof(ListInfo)};
 			SendDlgMessage(hDlg,DM_LISTINFO, Param1, &ListInfo);
 
 			DialogBuilder Builder(MMenuOptionsTitle, L"");
