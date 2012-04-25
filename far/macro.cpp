@@ -7927,7 +7927,10 @@ int KeyMacro::GetMacroKeyInfo(bool FromDB, int Mode, int Pos, string &strKeyName
 				if (Len && Pos < Len)
 				{
 					MacroRecord *MPtr=CtrlObject->Macro.MacroLIB+CtrlObject->Macro.IndexMode[Mode][0]+Pos;
-					::KeyToText(MPtr->Key,strKeyName);
+					if (MPtr->Key != -1)
+						::KeyToText(MPtr->Key,strKeyName);
+					else
+						strKeyName=MPtr->Name;
 					strDescription=NullToEmpty(MPtr->Description);
 					return Pos+1;
 				}
