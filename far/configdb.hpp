@@ -341,3 +341,5 @@ auto StringToFlags(const string& strFlags, const T& From) -> decltype(From->Valu
 	}
 	return Flags;
 }
+
+string BlobToHexString(const void *Blob, int Size);

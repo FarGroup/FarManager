@@ -96,6 +96,14 @@ char *BlobToHexString(const char *Blob, int Size)
 
 }
 
+string BlobToHexString(const void *Blob, int Size)
+{
+	char* Hex = BlobToHexString(static_cast<const char*>(Blob),Size);
+	string Str = Hex;
+	xf_free(Hex);
+	return Str;
+}
+
 char *HexStringToBlob(const char *Hex, int *Size)
 {
 	*Size=0;

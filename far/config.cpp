@@ -1493,3 +1493,140 @@ void SaveConfig(int Ask)
 
 	/* *************************************************** </оняропнжеяяш> */
 }
+
+inline const wchar_t* TypeToText(size_t Type)
+{
+	switch(Type)
+	{
+	case GeneralConfig::TYPE_INTEGER: 
+		return L"Integer";
+	case GeneralConfig::TYPE_TEXT:
+		return L"String";
+	case GeneralConfig::TYPE_BLOB:
+		return L"Blob";
+	case GeneralConfig::TYPE_UNKNOWN:
+	default:
+		return L"Unknown";
+	}
+}
+
+void FillListItem(FarListItem& Item, FormatString& fs, FARConfig& cfg)
+{
+	Item.Flags = 0;
+	Item.Reserved[0] = Item.Reserved[1] = Item.Reserved[2] = 0;
+	fs.Clear();
+	fs << fmt::Width(30) << fmt::Precision(30) << fmt::LeftAlign() << (string(cfg.KeyName) + "." + cfg.ValName) << BoxSymbols[BS_V1]
+	<< fmt::Width(7) << fmt::Precision(7) << fmt::LeftAlign() << TypeToText(cfg.ValType) << BoxSymbols[BS_V1];
+	switch(cfg.ValType)
+	{
+	case GeneralConfig::TYPE_INTEGER:
+		fs << *static_cast<int*>(cfg.ValPtr);
+		break;
+	case GeneralConfig::TYPE_TEXT:
+		fs << *static_cast<string*>(cfg.ValPtr);
+		break;
+	case GeneralConfig::TYPE_BLOB:
+	case GeneralConfig::TYPE_UNKNOWN:
+	default:
+		fs << BlobToHexString(cfg.ValPtr, cfg.DefDWord);
+	}
+	Item.Text = fs;
+}
+
+INT_PTR WINAPI AdvancedConfigDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+{
+	static FormatString* fs;
+	switch (Msg)
+	{
+	case DN_INITDIALOG:
+		fs = reinterpret_cast<FormatString*>(Param2);
+		break;
+
+	case DN_CLOSE:
+		if (Param1==1) // BUGBUG, magic
+		{
+			FarListInfo ListInfo;
+			SendDlgMessage(hDlg,DM_LISTINFO, Param1, &ListInfo);
+
+			DialogBuilder Builder(MMenuOptionsTitle, L"");
+			Builder.AddText(string(CFG[ListInfo.SelectPos].KeyName) + "." + CFG[ListInfo.SelectPos].ValName);
+			FormatString fstr;
+			bool ReadOnly = false;
+			switch(CFG[ListInfo.SelectPos].ValType)
+			{
+			case GeneralConfig::TYPE_INTEGER:
+				fstr << *static_cast<int*>(CFG[ListInfo.SelectPos].ValPtr);
+				break;
+			case GeneralConfig::TYPE_TEXT:
+				fstr << *static_cast<string*>(CFG[ListInfo.SelectPos].ValPtr);
+				break;
+			case GeneralConfig::TYPE_BLOB:
+			case GeneralConfig::TYPE_UNKNOWN:
+			default:
+				fstr << BlobToHexString(CFG[ListInfo.SelectPos].ValPtr, CFG[ListInfo.SelectPos].DefDWord);
+				ReadOnly = true;
+			}
+			Builder.AddEditField(&fstr, ScrX/2)->Flags = ReadOnly? DIF_DISABLE : 0;
+			Builder.AddOKCancel();
+			if(Builder.ShowDialog())
+			{
+				switch(CFG[ListInfo.SelectPos].ValType)
+				{
+				case GeneralConfig::TYPE_INTEGER:
+					*static_cast<int*>(CFG[ListInfo.SelectPos].ValPtr) = wcstol(fstr, nullptr, 10);
+					break;
+				case GeneralConfig::TYPE_TEXT:
+					*static_cast<string*>(CFG[ListInfo.SelectPos].ValPtr) = fstr;
+					break;
+				case GeneralConfig::TYPE_BLOB:
+				case GeneralConfig::TYPE_UNKNOWN:
+				default:
+					// blob edit not implemented
+					;
+				}
+				FarListUpdate flu = {sizeof(flu), ListInfo.SelectPos};
+				FillListItem(flu.Item, fs[ListInfo.SelectPos], CFG[ListInfo.SelectPos]);
+				SendDlgMessage(hDlg,DM_LISTUPDATE, Param1, &flu);
+				FarListPos flp = {sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos};
+				SendDlgMessage(hDlg,DM_LISTSETCURPOS, Param1, &flp);
+			}
+			return FALSE;
+		}
+
+		break;
+	default:
+		break;
+	}
+
+	return DefDlgProc(hDlg,Msg,Param1,Param2);
+}
+
+bool AdvancedConfig()
+{
+	int DlgWidth = ScrX-4, DlgHeight = ScrY-2;
+	FarDialogItem AdvancedConfigDlgData[]=
+	{
+		{DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_NONE, MSG(MMenuOptionsTitle)},
+		{DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-3,0,nullptr,nullptr,DIF_LISTNOBOX,0},
+	};
+	MakeDialogItemsEx(AdvancedConfigDlgData,AdvancedConfigDlg);
+
+	FarList Items;
+	Items.ItemsNumber = ARRAYSIZE(CFG);
+	Items.Items = new FarListItem[Items.ItemsNumber];
+
+	FormatString fs[ARRAYSIZE(CFG)];
+	for(size_t i = 0; i < Items.ItemsNumber; ++i)
+	{
+		FillListItem(Items.Items[i], fs[i], CFG[i]);
+	}
+
+	AdvancedConfigDlg[1].ListItems = &Items;
+
+	Dialog Dlg(AdvancedConfigDlg,ARRAYSIZE(AdvancedConfigDlg), AdvancedConfigDlgProc, &fs);
+	//Dlg.SetHelp(L"");
+	Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
+	Dlg.Process();
+	delete[] Items.Items;
+	return true;
+}

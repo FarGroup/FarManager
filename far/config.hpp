@@ -756,3 +756,5 @@ void TreeSettings();
 
 bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &Value);
 bool GetConfigValue(size_t Root,const wchar_t* Name,DWORD& Type,void*& Data);
+
+bool AdvancedConfig();

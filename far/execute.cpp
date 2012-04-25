@@ -1551,6 +1551,11 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 	RemoveTrailingSpaces(strCmdLine);
 	bool SilentInt=false;
 
+	if(CmdLine == L"far:config")
+	{
+		return AdvancedConfig();
+	}
+
 	if (*CmdLine == L'@')
 	{
 		SilentInt=true;
