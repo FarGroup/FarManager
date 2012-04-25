@@ -35,6 +35,7 @@
 <String Id="Feature.Title.Hungarian">Венгерский</String>
 <String Id="Feature.Title.Polish">Польский</String>
 <String Id="Feature.Title.Spanish">Испанский</String>
+<String Id="Feature.Title.Slovak">Словацкий</String>
 <String Id="Feature.Title.FarShortcuts">Ярлыки</String>
 <String Id="Feature.Title.FarProgramsShortcut">Программы</String>
 <String Id="Feature.Title.FarDesktopShortcut">Рабочий стол</String>

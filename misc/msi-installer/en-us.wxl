@@ -35,6 +35,7 @@
 <String Id="Feature.Title.Hungarian">Hungarian</String>
 <String Id="Feature.Title.Polish">Polish</String>
 <String Id="Feature.Title.Spanish">Spanish</String>
+<String Id="Feature.Title.Slovak">Slovak</String>
 <String Id="Feature.Title.FarShortcuts">Shortcuts</String>
 <String Id="Feature.Title.FarProgramsShortcut">Programs</String>
 <String Id="Feature.Title.FarDesktopShortcut">Desktop</String>

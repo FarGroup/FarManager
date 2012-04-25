@@ -162,6 +162,9 @@
         <Feature Id="Spanish" Level="2" Title="!(loc.Feature.Title.Spanish)" AllowAdvertise="no">
           <ComponentRef Id="FarSpa.lng" />
         </Feature>
+        <Feature Id="Slovak" Level="2" Title="!(loc.Feature.Title.Slovak)" AllowAdvertise="no">
+          <ComponentRef Id="FarSky.lng" />
+        </Feature>
       </Feature>
       <Feature Id="FarShortcuts" Level="1" Title="!(loc.Feature.Title.FarShortcuts)" AllowAdvertise="no">
         <Feature Id="FarProgramsShortcut" Level="1" Title="!(loc.Feature.Title.FarProgramsShortcut)" AllowAdvertise="no">

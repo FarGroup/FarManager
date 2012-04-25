@@ -54,6 +54,9 @@
       <Component Id="FarSpa.lng" Guid="$(var.Guid.FarSpa.lng)" Win64="$(var.Win64)">
         <File Id="FarSpa.lng" KeyPath="yes" Source="$(var.SourceDir)\FarSpa.lng" />
       </Component>
+      <Component Id="FarSky.lng" Guid="$(var.Guid.FarSky.lng)" Win64="$(var.Win64)">
+        <File Id="FarSky.lng" KeyPath="yes" Source="$(var.SourceDir)\FarSky.lng" />
+      </Component>
       <Component Id="RestoreOldPluginSettings.cmd" Guid="$(var.Guid.RestoreOldPluginSettings.cmd)" Win64="$(var.Win64)">
         <File Id="RestoreOldPluginSettings.cmd" KeyPath="yes" Source="$(var.SourceDir)\RestoreOldPluginSettings.cmd" />
       </Component>
