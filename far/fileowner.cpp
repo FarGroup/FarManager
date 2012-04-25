@@ -187,7 +187,8 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 	bool Result = false;
 
 	PSID Sid = nullptr;
-	if(!ConvertStringSidToSid(Owner, &Sid))
+	//в winapi от mingw.org неправильный тип параметра.
+	if(!ConvertStringSidToSid((LPWSTR)Owner, &Sid))
 	{
 		SID_NAME_USE Use;
 		DWORD cSid=0, ReferencedDomain=0;
