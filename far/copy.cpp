@@ -2775,12 +2775,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 			switch (MsgCode)
 			{
-				case -1:
 				case  1:
 					return COPY_NEXT;
 				case  2:
 					SkipMode=1;
 					return COPY_NEXT;
+				case -1:
 				case -2:
 				case  3:
 					return COPY_CANCEL;

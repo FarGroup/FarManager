@@ -1670,7 +1670,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-   if (simple_move && Opt.HelpFollowMouse != 0 && (prevMsX != MsX || prevMsY != MsY))
+   if (simple_move && (prevMsX != MsX || prevMsY != MsY))
 	{
 		string strTopic;
 		if (GetTopic(MsX, MsY, strTopic))

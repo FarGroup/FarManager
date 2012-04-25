@@ -638,7 +638,6 @@ struct Options
 	int HelpTabSize;
 
 	int HelpURLRules; // =0 отключить возможность запуска URL-приложений
-	int HelpFollowMouse; // 1=выделять ссылки при перемещении мышки (default), 0=нет
 
 	// запоминать логические диски и не опрашивать каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
 	int RememberLogicalDrives;
