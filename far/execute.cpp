@@ -1266,6 +1266,11 @@ int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool S
 
 	LastCmdPartLength=-1;
 
+	if(CmdLine == L"far:config")
+	{
+		return AdvancedConfig();
+	}
+
 	if (!SeparateWindow && CtrlObject->Plugins->ProcessCommandLine(CmdLine))
 	{
 		/* $ 12.05.2001 DJ - рисуемся только если остались верхним фреймом */
@@ -1550,11 +1555,6 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 	RemoveTrailingSpaces(strCmdLine);
 	bool SilentInt=false;
-
-	if(CmdLine == L"far:config")
-	{
-		return AdvancedConfig();
-	}
 
 	if (*CmdLine == L'@')
 	{
