@@ -12062,6 +12062,16 @@ MMenuMove
 "&Renombrar o mover             F6"
 "&Premenovať/Presunúť        F6"
 
+MMenuLink
+"Ссы&лка                Alt-F6"
+"Lin&k               Alt-F6"
+upd:"Link               Alt-F6"
+upd:"Link               Alt-F6"
+upd:"Link               Alt-F6"
+upd:"Link               Alt-F6"
+upd:"Link               Alt-F6"
+upd:"Link               Alt-F6"
+
 MMenuCreateFolder
 "&Создание папки        F7"
 "&Make folder        F7"

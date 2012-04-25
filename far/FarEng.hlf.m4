@@ -1318,6 +1318,8 @@ $ #Menus: files menu#
 
    #Rename or move#     ~Rename or move~@CopyFiles@ files and folders.
 
+   #Link#               Create ~file links~@HardSymLink@.
+
    #Make folder#        ~Create~@MakeFolder@ new folder.
 
    #Delete#             Delete files and folders.
