@@ -3049,7 +3049,7 @@ card-reader itself will be stopped.
 
     #Change drive# menu settings are saved in the Far configuration.
 
-    #F9# shows a dialog for configuring the display of that
+    #F9# shows a dialog for ~configuring the display~@ChangeDriveMode@ of that
 information.
 
     If the option "~Use Ctrl-PgUp to change drive~@InterfSettings@" is enabled,
@@ -3085,6 +3085,55 @@ written for Far 1.7x and it does not support all possibilities available in
 Far 2 (these are, in particular, Unicode characters in filenames and in editor).
 
    See also the list of ~macro keys~@KeyMacroDisksList@, available in the disk menu.
+
+@ChangeDriveMode
+$ #Change Drive Menu Options#
+    Диалог позволяют управлять показом информации в ~меню выбора диска~@DriveDlg@.
+
+    #Показывать тип диска#
+    Показать тип диска: "жёсткий", "сетевой" и т.п. 
+    Комбинация клавиш в меню: Ctrl-1
+
+    #Показывать сетевое имя/путь SUBST/имя VHD#
+    Показать сетевое имя/путь, ассоциированный с SUBST-диском/имя файла, содержащего виртуальный диск.
+    Комбинация клавиш в меню: Ctrl-2
+
+    #Показывать метку диска#
+    Показать метку диска (если есть).
+    Комбинация клавиш в меню: Ctrl-3
+
+    #Показывать тип файловой системы#
+    Показать тип диска: "NTFS", "FAT" и т.п.
+    Комбинация клавиш в меню: Ctrl-4
+
+    #Показывать размер#
+    Показать общее и свободное место на диске.
+    Комбинация клавиш в меню: Ctrl-5
+
+    #Показывать размер в стиле Windows Explorer#
+    Уточние опции показа размеров диска в стиле Windows Explorer (в виде числа с плавающей точкой).
+    Комбинация клавиш в меню: Ctrl-5 (повторное нажатие).
+
+    #Показывать параметры сменных дисков#
+    Показать параметры сменных дисков.
+    Комбинация клавиш в меню: Ctrl-6
+
+    #Показывать плагины#
+    Показать имена плагинов.
+    Комбинация клавиш в меню: Ctrl-7
+
+    #Сортировать плагины по горячей клавише#
+    Эта опция уточняет как сортировать показываемые плагины. Плагины в списке сортируются по имени, 
+если опция выключена.
+
+    #Показывать параметры компакт-дисков#
+    Если опция включена, то Far будет пытаться определить тип CD-привода. 
+Различаются следующие приводы: CD-ROM, CD-RW, CD-RW/DVD, DVD-ROM, DVD-RW и DVD-RAM. 
+    Комбинация клавиш в меню: Ctrl-8
+
+    #Показывать параметры сетевых дисков#
+    Показать общее и свободное место на сетевых дисках. Зависит от опции "#Показывать размер#".
+    Комбинация клавиш в меню: Ctrl-9
 
 
 @DisconnectDrive
@@ -4102,6 +4151,10 @@ active panel shows a ~plugin~@Plugins@ emulated file system, the command "CD"
 in the command line may be used to change the folder in the plugin file system.
 Unlike "CD", "CHDIR" command always treats the specified parameter as a real
 folder name, regardless of the file panel type.
+
+    Если в качестве параметра path указан символ #~~# (и в текущей папке нет 
+файлового объекта с таким именем), то произойдет переход в папку, содержащую 
+основной исполняемый модуль Far.
 
     #CHCP [nnn]#
 

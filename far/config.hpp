@@ -482,6 +482,7 @@ struct ExecuteOptions
 	int ExecuteSilentExternal;
 	string strExecuteBatchType;
 	string strExcludeCmds;
+	int    UseHomeDir; // cd ~
 	string strHomeDir; // cd ~
 };
 

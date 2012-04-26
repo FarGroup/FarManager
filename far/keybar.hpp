@@ -53,7 +53,7 @@ enum
 
 const int KEY_COUNT = 12;
 
-typedef wchar_t KeyBarTitle [16];
+typedef wchar_t *KeyBarTitle;
 typedef KeyBarTitle KeyBarTitleGroup [KEY_COUNT];
 
 class KeyBar: public ScreenObject
@@ -67,7 +67,7 @@ class KeyBar: public ScreenObject
 		int AltState,CtrlState,ShiftState;
 		int DisableMask;
 
-		KeyBarTitleGroup RegKeyTitles [KBL_GROUP_COUNT];
+		KeyBarTitleGroup KeyTitlesCustom [KBL_GROUP_COUNT];
 		bool RegReaded;
 
 		string strLanguage;
@@ -75,10 +75,11 @@ class KeyBar: public ScreenObject
 
 	private:
 		virtual void DisplayObject();
+		void ClearKeyTitles(bool Custom,int Group=-1);
 
 	public:
 		KeyBar();
-		virtual  ~KeyBar() {}
+		virtual  ~KeyBar();
 
 	public:
 		virtual int ProcessKey(int Key);

@@ -606,9 +606,15 @@ void CmdlineSettings()
 	Builder.AddCheckbox(MConfigCmdlineDelRemovesBlocks, &Opt.CmdLine.DelRemovesBlocks);
 	Builder.AddCheckbox(MConfigCmdlineAutoComplete, &Opt.CmdLine.AutoComplete);
 	DialogItemEx *UsePromptFormat = Builder.AddCheckbox(MConfigCmdlineUsePromptFormat, &Opt.CmdLine.UsePromptFormat);
-	DialogItemEx *PromptFormat = Builder.AddEditField(&Opt.CmdLine.strPromptFormat, 19);
+	DialogItemEx *PromptFormat = Builder.AddEditField(&Opt.CmdLine.strPromptFormat, 33);
 	PromptFormat->Indent(4);
 	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
+
+	UsePromptFormat = Builder.AddCheckbox(MConfigCmdlineUseHomeDir, &Opt.Exec.UseHomeDir);
+	PromptFormat = Builder.AddEditField(&Opt.Exec.strHomeDir, 33);
+	PromptFormat->Indent(4);
+	Builder.LinkFlags(UsePromptFormat, PromptFormat, DIF_DISABLE);
+
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -1011,7 +1017,8 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"FullTitle",&Opt.Exec.ExecuteFullTitle,0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"SilentExternal",&Opt.Exec.ExecuteSilentExternal,0, 0},
 	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemExecutor,L"ExcludeCmds",&Opt.Exec.strExcludeCmds,0,L""},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemExecutor,L"~",&Opt.Exec.strHomeDir,0,L""},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"UseHomeDir", &Opt.Exec.UseHomeDir,1, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemExecutor,L"~",&Opt.Exec.strHomeDir,0,L"%FARHOME%"},
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"AutoChangeFolder",&Opt.Tree.AutoChangeFolder,0, 0}, // ???
@@ -1322,9 +1329,6 @@ void ReadConfig()
 	if (Opt.Exec.strExecuteBatchType.IsEmpty()) // предохраняемся
 		Opt.Exec.strExecuteBatchType=constBatchExt;
 
-	if (Opt.Exec.strHomeDir.IsEmpty())
-		Opt.Exec.strHomeDir = g_strFarPath;
-
 	// Инициализация XLat для русской раскладки qwerty<->йцукен
 	if (Opt.XLat.Table[0].IsEmpty())
 	{
@@ -1498,7 +1502,7 @@ inline const wchar_t* TypeToText(size_t Type)
 {
 	switch(Type)
 	{
-	case GeneralConfig::TYPE_INTEGER: 
+	case GeneralConfig::TYPE_INTEGER:
 		return L"Integer";
 	case GeneralConfig::TYPE_TEXT:
 		return L"String";

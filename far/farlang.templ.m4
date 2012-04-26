@@ -2231,6 +2231,16 @@ MConfigCmdlineUsePromptFormat
 "Formato para línea de comando (&prompt)"
 "Nastaviť formát &príkazového riadka"
 
+MConfigCmdlineUseHomeDir
+"Использовать &домашний каталог"
+"Use &home dir"
+upd:"Use &home dir"
+upd:"Use &home dir"
+upd:"Use &home dir"
+upd:"Use &home dir"
+upd:"Use &home dir"
+upd:"Use &home dir"
+
 MConfigCmdlinePromptFormatAdmin
 "Администратор"
 "Administrator"
@@ -12466,7 +12476,7 @@ upd:"Menu settings"
 
 MMenuCmdlineSettings
 "Настройки &командной строки"
-"Command line settings"
+"&Command line settings"
 upd:"Command line settings"
 upd:"Command line settings"
 upd:"Command line settings"

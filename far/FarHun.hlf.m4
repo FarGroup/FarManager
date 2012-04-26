@@ -2730,6 +2730,9 @@ párbeszédablakát.
     A #Shift-F1# pluginen lenyomva meghívja a plugin helyzetérzékeny
 súgóját (ha a súgófájl létezik).
 
+@ChangeDriveMode
+$ #Change Drive Menu Options#
+
 
 @DisconnectDrive
 $ #Hálózati meghajtó leválasztása#

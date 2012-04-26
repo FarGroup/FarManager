@@ -54,11 +54,16 @@ KeyBar::KeyBar():
 	RegReaded(FALSE)
 {
 	_OT(SysLog(L"[%p] KeyBar::KeyBar()", this));
-	ClearArray(KeyTitles);
 	ClearArray(KeyCounts);
-	ClearArray(RegKeyTitles);
+	ClearArray(KeyTitles);
+	ClearArray(KeyTitlesCustom);
 }
 
+KeyBar::~KeyBar()
+{
+	ClearKeyTitles(false);
+	ClearKeyTitles(true);
+}
 
 void KeyBar::SetOwner(ScreenObject *Owner)
 {
@@ -146,7 +151,34 @@ void KeyBar::DisplayObject()
 		else if (i<KeyCounts [KBL_MAIN] && !(DisableMask & (1<<i)))
 			Label=KeyTitles [KBL_MAIN][i];
 
-		FS<<fmt::LeftAlign()<<fmt::Width(LabelWidth)<<fmt::Precision(LabelWidth)<<Label;
+
+		if (!Label)
+			Label=L"";
+
+		string strLabel=Label;
+
+		if (strLabel.Contains(L'|'))
+		{
+			UserDefinedList LabelList(L'|',L'|',ULF_NOTTRIM|ULF_NOTUNQUOTES);
+			if(LabelList.Set(Label) && !LabelList.IsEmpty())
+			{
+				string strLabelTest, strLabel2;
+				strLabel=LabelList.GetNext();
+				const wchar_t *Label2;
+				while ((Label2=LabelList.GetNext()) != nullptr)
+				{
+					strLabelTest=strLabel;
+					strLabelTest+=Label2;
+					if (StrLength(strLabelTest) <= LabelWidth)
+						if (StrLength(Label2) > StrLength(strLabel2))
+							strLabel2=Label2;
+				}
+
+				strLabel+=strLabel2;
+			}
+		}
+
+		FS<<fmt::LeftAlign()<<fmt::Width(LabelWidth)<<fmt::Precision(LabelWidth)<<strLabel;
 
 		if (i<KEY_COUNT-1)
 		{
@@ -172,13 +204,15 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language)
 		string strRegName;
 		string strValue;
 		string strValueName;
-		ClearArray(RegKeyTitles);
+
 		strLanguage=Language;
 		strRegGroupName=RegGroup;
 		strRegName=L"KeyBarLabels.";
 		strRegName+=strLanguage;
 		strRegName+=L".";
 		strRegName+=RegGroup;
+
+		ClearKeyTitles(true);
 
 		while (GeneralCfg->EnumValues(strRegName,Index++,strValueName,strValue))
 		{
@@ -207,9 +241,7 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language)
 
 				if (J <= ARRAYSIZE(Area))
 				{
-					Key0 -= KEY_F1;
-					int Group=Area[J][0];
-					xwcsncpy(RegKeyTitles[Group][Key0], strValue, ARRAYSIZE(KeyTitles[Group][Key0]));
+					KeyTitlesCustom[Area[J][0]][Key0-KEY_F1]=xf_wcsdup(strValue.CPtr());
 				}
 			}
 		}
@@ -218,11 +250,39 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language)
 	}
 }
 
+void KeyBar::ClearKeyTitles(bool Custom,int Group)
+{
+	KeyBarTitleGroup *kb = Custom? KeyTitlesCustom : KeyTitles;
+
+	size_t Begin=0, End=KBL_GROUP_COUNT-1;
+	if (Group != -1)
+		Begin=End=(size_t)Group;
+
+	for (size_t I=Begin; I <= End; I++)
+	{
+		for (size_t J=0; J < KEY_COUNT; ++J)
+		{
+			if (kb[I][J])
+			{
+				xf_free((void*)kb[I][J]);
+				kb[I][J]=nullptr;
+			}
+		}
+	}
+	if (Group != -1)
+		ClearArray(kb[Group]);
+	else
+		ClearArray(*kb);
+}
+
 void KeyBar::SetRegGroup(int Group)
 {
 	for (int I=0; I < KEY_COUNT; I++)
-		if (*RegKeyTitles[Group][I])
-			xwcsncpy(KeyTitles[Group][I], RegKeyTitles[Group][I], ARRAYSIZE(KeyTitles[Group][I]));
+		if (KeyTitlesCustom[Group][I] && *KeyTitlesCustom[Group][I])
+		{
+			if (KeyTitles[Group][I]) xf_free(KeyTitles[Group][I]);
+			KeyTitles[Group][I]=xf_wcsdup(KeyTitlesCustom[Group][I]);
+		}
 }
 
 void KeyBar::SetAllRegGroup()
@@ -238,14 +298,17 @@ void KeyBar::SetGroup(int Group,const wchar_t * const *Key,int KeyCount)
 
 	for (int i=0; i<KeyCount && i<KEY_COUNT; i++)
 		if (Key[i])
-			xwcsncpy(KeyTitles[Group][i], Key[i], ARRAYSIZE(KeyTitles[Group][i]));
+		{
+			if (KeyTitles[Group][i]) xf_free(KeyTitles[Group][i]);
+			KeyTitles[Group][i]=xf_wcsdup(Key[i]);
+		}
 
 	KeyCounts [Group]=KeyCount;
 }
 
 void KeyBar::ClearGroup(int Group)
 {
-	ClearArray(KeyTitles[Group]);
+	ClearKeyTitles(false,Group);
 	KeyCounts [Group] = 0;
 }
 
@@ -253,7 +316,10 @@ void KeyBar::ClearGroup(int Group)
 void KeyBar::Change(int Group,const wchar_t *NewStr,int Pos)
 {
 	if (NewStr)
-		xwcsncpy(KeyTitles[Group][Pos], NewStr, ARRAYSIZE(KeyTitles[Group][Pos]));
+	{
+		if (KeyTitles[Group][Pos]) xf_free(KeyTitles[Group][Pos]);
+		KeyTitles[Group][Pos]=xf_wcsdup(NewStr);
+	}
 }
 
 
@@ -264,7 +330,10 @@ void KeyBar::SetAllGroup(int Group, LNGID StartIndex, int Count)
 		Count = KEY_COUNT;
 
 	for (int i=0; i<Count; i++)
-		xwcsncpy(KeyTitles[Group][i], MSG(StartIndex+i), ARRAYSIZE(KeyTitles[Group][i]));
+	{
+		if (KeyTitles[Group][i]) xf_free(KeyTitles[Group][i]);
+		KeyTitles[Group][i]=xf_wcsdup(MSG(StartIndex+i));
+	}
 
 	KeyCounts [Group] = Count;
 }
@@ -277,7 +346,7 @@ int KeyBar::ProcessKey(int Key)
 		case KEY_GOTFOCUS:
 			RedrawIfChanged();
 			return TRUE;
-	} /* switch */
+	}
 
 	return FALSE;
 }
