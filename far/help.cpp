@@ -846,7 +846,7 @@ static const wchar_t *SkipLink( const wchar_t *Str, string *Name )
 
 static bool GetHelpColor(const wchar_t* &Str, wchar_t cColor, int &color)
 {
-	if (Str[0] != cColor)
+	if (!cColor || Str[0] != cColor)
 		return false;
 
    wchar_t wc1 = Str[1];
@@ -882,7 +882,7 @@ static bool FastParseLine(
 			++Str;
 		else if (wc == L'#') // start/stop highlighting
 			continue;
-		else if (wc == cColor)
+		else if (cColor && wc == cColor)
 		{
 			if (*Str == L'-')	// '\-' default color
 			{ Str += 2-1; continue; }
@@ -964,13 +964,14 @@ void Help::OutString(const wchar_t *Str)
 	wchar_t OutStr[512]; //BUGBUG
 	const wchar_t *StartTopic=nullptr;
 	int OutPos=0,Highlight=0,Topic=0;
+	wchar_t cColor = strCtrlColorChar.At(0);
 
 	while (OutPos<(int)(ARRAYSIZE(OutStr)-10))
 	{
 		if ((Str[0]==L'~' && Str[1]==L'~') ||
 		        (Str[0]==L'#' && Str[1]==L'#') ||
 		        (Str[0]==L'@' && Str[1]==L'@') ||
-		        (Str[0]==strCtrlColorChar.At(0) && Str[1]==strCtrlColorChar.At(0))
+		        (cColor && Str[0]==cColor && Str[1]==cColor)
 		   )
 		{
 			OutStr[OutPos++]=*Str;
@@ -978,7 +979,7 @@ void Help::OutString(const wchar_t *Str)
 			continue;
 		}
 
-		if (*Str==L'~' || ((*Str==L'#' || *Str == strCtrlColorChar.At(0)) && !Topic) /*|| *Str==HelpBeginLink*/ || !*Str)
+		if (*Str==L'~' || ((*Str==L'#' || *Str == cColor) && !Topic) /*|| *Str==HelpBeginLink*/ || !*Str)
 		{
 			OutStr[OutPos]=0;
 
@@ -1034,7 +1035,7 @@ void Help::OutString(const wchar_t *Str)
 			Highlight = !Highlight;
 			Str++;
 		}
-		else if (!GetHelpColor(Str, strCtrlColorChar.At(0), CurColor))
+		else if (!GetHelpColor(Str, cColor, CurColor))
 		{
 			OutStr[OutPos++]=*(Str++);
 		}

@@ -57,8 +57,8 @@ struct ViewerString
 	__int64 nSelStart;
 	__int64 nSelEnd;
 	int  linesize;
+	int  have_eol;
 	bool bSelection;
-	bool have_eol;
 };
 
 struct ViewerUndoData

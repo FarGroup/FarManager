@@ -1156,6 +1156,7 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 		}
 	}
 
+   int eol_len = (eol_char ? 1 : 0);
 	if (skip_space || eol_char != L'\n') // skip spaces and/or eol-s if required
 	{
 		for (;;)
@@ -1165,30 +1166,41 @@ void Viewer::ReadString( ViewerString *pString, int MaxSize, bool update_cache )
 			if (!vgetc(&ch))
 				break;
 
-			if (skip_space && is_space_or_nul(ch))
+			if (skip_space && !eol_char && is_space_or_nul(ch))
 				continue;
 
-			if (!eol_char && ch == L'\r')
+			if ( ch == L'\n' )
+			{
+				++eol_len;            // LF or CRLF
+				assert(eol_len <= 2);
+			}
+			else if ( ch != L'\r' )	 // nor LF nor CR
+			{
+				vgetc_ib = ib;        // ungetc(1)
+				assert(eol_len <= 1); // CR or unterminated
+			}
+			else                     // CR
 			{
 				eol_char = ch;
-				continue;
+				if (++eol_len == 1)	 // single CR - continue
+					continue;
+
+				assert(eol_len == 2); // CRCR...
+				if (vgetc(&ch) && ch == L'\n')
+					++eol_len;         // CRCRLF
+				else
+					vgetc_ib = ib;     // CR ungetc(2)
 			}
-
-			if (ch != L'\n')
-				vgetc_ib = ib; // ungetc()
-			else
-				eol_char = ch;
-
 			break;
 		}
 	}
 
-	pString->have_eol = (eol_char != L'\0');
+	pString->have_eol = eol_len;
 	pString->lpData[(int)OutPtr]=0;
 	pString->linesize = (int)(vtell() - pString->nFilePos);
 
 	if ( update_cache )
-		CacheLine(pString->nFilePos, pString->linesize, pString->have_eol);
+		CacheLine(pString->nFilePos, pString->linesize, pString->have_eol != 0);
 
 	if (SelectSize >= 0 && OutPtr > 0)
 	{
@@ -2308,11 +2320,13 @@ void Viewer::Up( int nlines )
 				}
 				if ( 0 == j )
 				{
-					if ( nr > 0 && '\n' == buff.c1[nr-1] )
+					if ( nr > 0 && '\n' == buff.c1[nr-1] )          // LF
 					{
-						--nr;
-					}
-					if ( nr > 0 && '\r' == buff.c1[nr-1] )
+						if ( --nr > 0 && '\r' == buff.c1[nr-1] )     // CRLF
+							if ( --nr > 0 && '\r' == buff.c1[nr-1] )  // CRCRLF
+								--nr;
+		 			}
+					else if ( nr > 0 && '\r' == buff.c1[nr-1] )     // CR
 					{
 						--nr;
 					}
@@ -2337,11 +2351,13 @@ void Viewer::Up( int nlines )
 				}
 				if ( 0 == j )
 				{
-					if ( nr > 0 && L'\n' == buff.c2[nr-1] )
+					if ( nr > 0 && L'\n' == buff.c2[nr-1] )	         // LF 
 					{
-						--nr;
+						if ( --nr > 0 && L'\r' == buff.c2[nr-1] )    // CRLF
+							if ( --nr > 0 && L'\r' == buff.c2[nr-1] )	// CRCRLF
+								--nr;
 					}
-					if ( nr > 0 && L'\r' == buff.c2[nr-1] )
+					else if ( nr > 0 && L'\r' == buff.c2[nr-1] )    // CR
 					{
 						--nr;
 					}
@@ -3110,12 +3126,8 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 
 	vseek(FilePos, SEEK_SET);
 	llen = vread(buf, lsize = vString.linesize, tbuf);
-	if ( llen > 0 && vString.have_eol ) // remove eol-s
-	{
-		--llen;
-		if ( llen > 0 && (buf[llen-1] == L'\r' || buf[llen-1] == L'\n') )
-			--llen;
-	}
+	if ( llen > 0 )
+		llen -= vString.have_eol; // remove eol-s
 	buf[llen >= 0 ? llen : 0] = L'\0';
 
 	VM.Hex = save_Hex; VM.Wrap = save_Wrap; VM.WordWrap = save_WordWrap;
