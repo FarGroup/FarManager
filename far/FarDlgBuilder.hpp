@@ -64,6 +64,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 
 	public:
 		DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic);
+		DialogBuilder();
 		~DialogBuilder();
 
 		// Добавляет поле типа DI_EDIT для редактирования указанного строкового значения.

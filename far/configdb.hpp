@@ -77,7 +77,7 @@ public:
 	virtual int GetValue(const wchar_t *Key, const wchar_t *Name, int Default) = 0;
 	virtual bool GetValue(const wchar_t *Key, const wchar_t *Name, string &strValue, const wchar_t *Default) = 0;
 	virtual int GetValue(const wchar_t *Key, const wchar_t *Name, void *Value, size_t Size, const void *Default) = 0;
-	virtual	bool DeleteValue(const wchar_t *Key, const wchar_t *Name) = 0;
+	virtual bool DeleteValue(const wchar_t *Key, const wchar_t *Name) = 0;
 	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, string &strValue) = 0;
 	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value) = 0;
 };

@@ -22733,6 +22733,17 @@ upd:"Show configuration folders"
 "Mostrar carpetas de configuración"
 "Zobraziť konfiguračné priečinky"
 
+MConfigResetValue
+"&Сбросить"
+"&Reset"
+upd:"&Reset"
+upd:"&Reset"
+upd:"&Reset"
+upd:"&Reset"
+"&Reiniciar"
+"&Reset"
+
+
 #Must be the last
 MNewFileName
 l:

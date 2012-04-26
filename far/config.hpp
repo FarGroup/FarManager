@@ -471,7 +471,9 @@ struct MacroOptions
 struct KnownModulesIDs
 {
 	GUID Network;
+	string NetworkGuidStr;
 	GUID Emenu;
+	string EmenuGuidStr;
 };
 
 struct ExecuteOptions

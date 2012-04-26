@@ -1268,6 +1268,8 @@ int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool S
 
 	if(CmdLine == L"far:config")
 	{
+		SetString(L"", false);
+		Show();
 		return AdvancedConfig();
 	}
 

@@ -113,7 +113,7 @@ const wchar_t NKeyPanelTree[]=L"Panel.Tree";
 const wchar_t NKeyPanelInfo[]=L"Panel.Info";
 const wchar_t NKeyLayout[]=L"Layout";
 const wchar_t NKeyDescriptions[]=L"Descriptions";
-const wchar_t NKeyKeyMacros[]=L"KeyMacros";
+const wchar_t NKeyKeyMacros[]=L"Macros";
 const wchar_t NKeyPolicies[]=L"Policies";
 const wchar_t NKeyFileFilter[]=L"OperationsFilter";
 const wchar_t NKeyCodePages[]=L"CodePages";
@@ -830,332 +830,325 @@ static struct FARConfig
 	const void* DefStr;   // строка/данные по умолчанию
 } CFG[]=
 {
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"Clock", &Opt.Clock, 1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"ViewerEditorClock",&Opt.ViewerEditorClock,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_SCREEN,            NKeyScreen, L"KeyBar",&Opt.ShowKeyBar,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"ScreenSaver",&Opt.ScreenSaver, 0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"ScreenSaverTime",&Opt.ScreenSaverTime,5, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"DeltaXY", &Opt.ScrSize.DeltaXY, 0, 0},
-
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCmdline, L"UsePromptFormat", &Opt.CmdLine.UsePromptFormat,0, 0},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyCmdline, L"PromptFormat",&Opt.CmdLine.strPromptFormat, 0, L"$p$g"},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCmdline, L"DelRemovesBlocks", &Opt.CmdLine.DelRemovesBlocks,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCmdline, L"EditBlock", &Opt.CmdLine.EditBlock,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCmdline, L"AutoComplete",&Opt.CmdLine.AutoComplete,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCmdline, L"EditBlock", &Opt.CmdLine.EditBlock,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCmdline, L"DelRemovesBlocks", &Opt.CmdLine.DelRemovesBlocks,1, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyCmdline, L"PromptFormat",&Opt.CmdLine.strPromptFormat, 0, L"$p$g"},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCmdline, L"UsePromptFormat", &Opt.CmdLine.UsePromptFormat,0, 0},
 
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCodePages,L"CPMenuMode",&Opt.CPMenuMode,0,0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyCodePages,L"NoAutoDetectCP",&Opt.strNoAutoDetectCP,0,L""},
 
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"Mouse",&Opt.Mouse,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"UseVk_oem_x",&Opt.UseVk_oem_x,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_INTERFACE,         NKeyInterface, L"ShowMenuBar",&Opt.ShowMenuBar,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"AllowReedit",&Opt.Confirm.AllowReedit,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Copy",&Opt.Confirm.Copy,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Delete",&Opt.Confirm.Delete,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"DeleteFolder",&Opt.Confirm.DeleteFolder,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"DetachVHD",&Opt.Confirm.DetachVHD,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Drag",&Opt.Confirm.Drag,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Esc",&Opt.Confirm.Esc,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"EscTwiceToInterrupt",&Opt.Confirm.EscTwiceToInterrupt,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Exit",&Opt.Confirm.Exit,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"HistoryClear",&Opt.Confirm.HistoryClear,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Move",&Opt.Confirm.Move,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"RemoveConnection",&Opt.Confirm.RemoveConnection,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"RemoveHotPlug",&Opt.Confirm.RemoveHotPlug,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"RemoveSUBST",&Opt.Confirm.RemoveSUBST,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"RO",&Opt.Confirm.RO,1, 0},
+
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"AnsiByDefault",&Opt.Diz.AnsiByDefault,0, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyDescriptions,L"ListNames",&Opt.Diz.strListNames, 0, L"Descript.ion,Files.bbs"},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"ROUpdate",&Opt.Diz.ROUpdate,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"SaveInUTF",&Opt.Diz.SaveInUTF,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"SetHidden",&Opt.Diz.SetHidden,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"StartPos",&Opt.Diz.StartPos,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"UpdateMode",&Opt.Diz.UpdateMode,DIZ_UPDATE_IF_DISPLAYED, 0},
+
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"AutoComplete",&Opt.Dialogs.AutoComplete,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"CBoxMaxHeight",&Opt.Dialogs.CBoxMaxHeight,8, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_DIALOG,            NKeyDialog,L"EditBlock",&Opt.Dialogs.EditBlock,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"EditHistory",&Opt.Dialogs.EditHistory,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"EditLine",&Opt.Dialogs.EditLine,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_DIALOG,            NKeyDialog,L"DelRemovesBlocks",&Opt.Dialogs.DelRemovesBlocks,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_DIALOG,            NKeyDialog,L"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"MouseButton",&Opt.Dialogs.MouseButton,0xFFFF, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},
+
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"AllowEmptySpaceAfterEof", &Opt.EdOpt.AllowEmptySpaceAfterEof,0,0},//skv
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"AnsiCodePageAsDefault",&Opt.EdOpt.AnsiCodePageAsDefault,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"AnsiCodePageForNewFile",&Opt.EdOpt.AnsiCodePageForNewFile,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"AutoDetectCodePage",&Opt.EdOpt.AutoDetectCodePage,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"AutoIndent",&Opt.EdOpt.AutoIndent,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"BSLikeDel",&Opt.EdOpt.BSLikeDel,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"CharCodeBase",&Opt.EdOpt.CharCodeBase,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"DelRemovesBlocks",&Opt.EdOpt.DelRemovesBlocks,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"EditOpenedForWrite",&Opt.EdOpt.EditOpenedForWrite,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"EditorCursorBeyondEOL",&Opt.EdOpt.CursorBeyondEOL,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"EditorF7Rules",&Opt.EdOpt.F7Rules,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"EditorUndoSize",&Opt.EdOpt.UndoSize,0, 0}, // $ 03.12.2001 IS размер буфера undo в редакторе
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ExpandTabs",&Opt.EdOpt.ExpandTabs,0, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyEditor,L"ExternalEditorName",&Opt.strExternalEditor, 0, L""},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"FileSizeLimit",&Opt.EdOpt.FileSizeLimitLo, 0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"FileSizeLimitHi",&Opt.EdOpt.FileSizeLimitHi, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"PersistentBlocks",&Opt.EdOpt.PersistentBlocks,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ReadOnlyLock",&Opt.EdOpt.ReadOnlyLock,0, 0}, // Вернём назад дефолт 1.65 - не предупреждать и не блокировать
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"SaveEditorPos",&Opt.EdOpt.SavePos,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"SaveEditorShortPos",&Opt.EdOpt.SaveShortPos,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"SearchPickUpWord",&Opt.EdOpt.SearchPickUpWord,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"SearchRegexp",&Opt.EdOpt.SearchRegexp,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"SearchSelFound",&Opt.EdOpt.SearchSelFound,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ShowKeyBar",&Opt.EdOpt.ShowKeyBar,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ShowScrollBar",&Opt.EdOpt.ShowScrollBar,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ShowTitleBar",&Opt.EdOpt.ShowTitleBar,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ShowWhiteSpace",&Opt.EdOpt.ShowWhiteSpace,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"TabSize",&Opt.EdOpt.TabSize,8, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"UseExternalEditor",&Opt.EdOpt.UseExternalEditor,0, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_EDITOR,            NKeyEditor,L"WordDiv",&Opt.strWordDiv, 0, WordDiv0},
+
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyHelp,L"ActivateURL",&Opt.HelpURLRules,1, 0},
+
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCommandHistory, NParamHistoryCount,&Opt.HistoryCount,512, 0}, //BUGBUG
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialogHistory, NParamHistoryCount,&Opt.DialogsHistoryCount,512, 0}, //BUGBUG
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyFolderHistory, NParamHistoryCount,&Opt.FoldersHistoryCount,512, 0}, //BUGBUG
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewEditHistory, NParamHistoryCount,&Opt.ViewHistoryCount,512, 0}, //BUGBUG
+
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface,L"DelShowTotal",&Opt.DelOpt.DelShowTotal,0, 0},
+
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"AltF9",&Opt.AltF9, 1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ClearType",&Opt.ClearType, 1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CopyShowTotal",&Opt.CMOpt.CopyShowTotal,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CursorSize1",&Opt.CursorSize[0],15, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CursorSize2",&Opt.CursorSize[1],10, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CursorSize3",&Opt.CursorSize[2],99, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CursorSize4",&Opt.CursorSize[3],99, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"AltF9",&Opt.AltF9, 1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CtrlPgUp",&Opt.PgUpChangeDisk, 1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShowDotsInRoot",&Opt.ShowDotsInRoot, 0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ClearType",&Opt.ClearType, 1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShowTimeoutDACLFiles",&Opt.ShowTimeoutDACLFiles, 50, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"FormatNumberSeparators",&Opt.FormatNumberSeparators, 0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CopyShowTotal",&Opt.CMOpt.CopyShowTotal,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface,L"DelShowTotal",&Opt.DelOpt.DelShowTotal,0, 0},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyInterface,L"TitleAddons",&Opt.strTitleAddons, 0, L"%Ver.%Build %Platform %Admin"},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"ShowList",&Opt.AutoComplete.ShowList, 1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"ModalList",&Opt.AutoComplete.ModalList, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"Mouse",&Opt.Mouse,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShowDotsInRoot",&Opt.ShowDotsInRoot, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_INTERFACE,         NKeyInterface, L"ShowMenuBar",&Opt.ShowMenuBar,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShowTimeoutDACLFiles",&Opt.ShowTimeoutDACLFiles, 50, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyInterface, L"TitleAddons",&Opt.strTitleAddons, 0, L"%Ver.%Build %Platform %Admin"},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"UseVk_oem_x",&Opt.UseVk_oem_x,1, 0},
+
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"Append",&Opt.AutoComplete.AppendCompletion, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"ModalList",&Opt.AutoComplete.ModalList, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"ShowList",&Opt.AutoComplete.ShowList, 1, 0},
 
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyViewer,L"ExternalViewerName",&Opt.strExternalViewer, 0, L""},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"UseExternalViewer",&Opt.ViOpt.UseExternalViewer,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"SaveViewerPos",&Opt.ViOpt.SavePos,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"SaveViewerShortPos",&Opt.ViOpt.SaveShortPos,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"AutoDetectCodePage",&Opt.ViOpt.AutoDetectCodePage,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"SearchRegexp",&Opt.ViOpt.SearchRegexp,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyLayout,L"FullscreenHelp",&Opt.FullScreenHelp,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyLayout,L"LeftHeightDecrement",&Opt.LeftHeightDecrement,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyLayout,L"RightHeightDecrement",&Opt.RightHeightDecrement,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyLayout,L"WidthDecrement",&Opt.WidthDecrement,0, 0},
 
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"TabSize",&Opt.ViOpt.TabSize,8, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"ShowKeyBar",&Opt.ViOpt.ShowKeyBar,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"ShowTitleBar",&Opt.ViOpt.ShowTitleBar,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"ShowArrows",&Opt.ViOpt.ShowArrows,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"ShowScrollbar",&Opt.ViOpt.ShowScrollbar,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"IsWrap",&Opt.ViOpt.ViewerIsWrap,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"Wrap",&Opt.ViOpt.ViewerWrap,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"AnsiCodePageAsDefault",&Opt.ViOpt.AnsiCodePageAsDefault,1, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyKeyMacros,L"CONVFMT",&Opt.Macro.strMacroCONVFMT, 0, L"%.6g"},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyKeyMacros,L"DateFormat",&Opt.Macro.strDateFormat, 0, L"%a %b %d %H:%M:%S %Z %Y"},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyKeyMacros,L"MacroReuseRules",&Opt.Macro.MacroReuseRules,0, 0},
 
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"MaxLineSize",&Opt.ViOpt.MaxLineSize,ViewerOptions::eDefLineSize, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"SearchEditFocus",&Opt.ViOpt.SearchEditFocus,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"Visible0x00",&Opt.ViOpt.Visible0x00,0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"ZeroChar",&Opt.ViOpt.ZeroChar,0x00B7, 0}, // middle dot
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"AutoUpdateLimit",&Opt.AutoUpdateLimit, 0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"CtrlAltShiftRule",&Opt.PanelCtrlAltShiftRule,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"CtrlFRule",&Opt.PanelCtrlFRule,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"Highlight",&Opt.Highlight,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"ReverseSort",&Opt.ReverseSort,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"RememberLogicalDrives",&Opt.RememberLogicalDrives, 0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"RightClickRule",&Opt.PanelRightClickRule,2, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"SelectFolders",&Opt.SelectFolders,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"ShellRightLeftArrowsRule",&Opt.ShellRightLeftArrowsRule,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANEL,             NKeyPanel,L"ShowHidden",&Opt.ShowHidden,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"SortFolderExt",&Opt.SortFolderExt,0, 0},
 
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog, L"EditHistory",&Opt.Dialogs.EditHistory,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_DIALOG,            NKeyDialog, L"EditBlock",&Opt.Dialogs.EditBlock,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog, L"AutoComplete",&Opt.Dialogs.AutoComplete,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_DIALOG,            NKeyDialog,L"EULBsClear",&Opt.Dialogs.EULBsClear,0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"SelectFromHistory",&Opt.Dialogs.SelectFromHistory,0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"EditLine",&Opt.Dialogs.EditLine,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"MouseButton",&Opt.Dialogs.MouseButton,0xFFFF, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_DIALOG,            NKeyDialog,L"DelRemovesBlocks",&Opt.Dialogs.DelRemovesBlocks,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialog,L"CBoxMaxHeight",&Opt.Dialogs.CBoxMaxHeight,8, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelInfo,L"InfoComputerNameFormat",&Opt.InfoPanel.ComputerNameFormat, ComputerNamePhysicalNetBIOS, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelInfo,L"InfoUserNameFormat",&Opt.InfoPanel.UserNameFormat, NameUserPrincipal, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelInfo,L"ShowPowerStatus",&Opt.InfoPanel.ShowPowerStatus, 0, 0},
 
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyEditor,L"ExternalEditorName",&Opt.strExternalEditor, 0, L""},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"UseExternalEditor",&Opt.EdOpt.UseExternalEditor,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ExpandTabs",&Opt.EdOpt.ExpandTabs,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"TabSize",&Opt.EdOpt.TabSize,8, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"PersistentBlocks",&Opt.EdOpt.PersistentBlocks,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"DelRemovesBlocks",&Opt.EdOpt.DelRemovesBlocks,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"AutoIndent",&Opt.EdOpt.AutoIndent,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"SaveEditorPos",&Opt.EdOpt.SavePos,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"SaveEditorShortPos",&Opt.EdOpt.SaveShortPos,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"AutoDetectCodePage",&Opt.EdOpt.AutoDetectCodePage,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"EditorCursorBeyondEOL",&Opt.EdOpt.CursorBeyondEOL,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ReadOnlyLock",&Opt.EdOpt.ReadOnlyLock,0, 0}, // Вернём назад дефолт 1.65 - не предупреждать и не блокировать
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"EditorUndoSize",&Opt.EdOpt.UndoSize,0, 0}, // $ 03.12.2001 IS размер буфера undo в редакторе
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_EDITOR,            NKeyEditor,L"WordDiv",&Opt.strWordDiv, 0, WordDiv0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"BSLikeDel",&Opt.EdOpt.BSLikeDel,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"EditorF7Rules",&Opt.EdOpt.F7Rules,0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"FileSizeLimit",&Opt.EdOpt.FileSizeLimitLo, 0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"FileSizeLimitHi",&Opt.EdOpt.FileSizeLimitHi, 0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"CharCodeBase",&Opt.EdOpt.CharCodeBase,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"AllowEmptySpaceAfterEof", &Opt.EdOpt.AllowEmptySpaceAfterEof,0,0},//skv
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"AnsiCodePageForNewFile",&Opt.EdOpt.AnsiCodePageForNewFile,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"AnsiCodePageAsDefault",&Opt.EdOpt.AnsiCodePageAsDefault,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ShowKeyBar",&Opt.EdOpt.ShowKeyBar,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ShowTitleBar",&Opt.EdOpt.ShowTitleBar,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ShowScrollBar",&Opt.EdOpt.ShowScrollBar,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"EditOpenedForWrite",&Opt.EdOpt.EditOpenedForWrite,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"SearchSelFound",&Opt.EdOpt.SearchSelFound,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"SearchRegexp",&Opt.EdOpt.SearchRegexp,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"SearchPickUpWord",&Opt.EdOpt.SearchPickUpWord,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyEditor,L"ShowWhiteSpace",&Opt.EdOpt.ShowWhiteSpace,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ColoredGlobalColumnSeparator",&Opt.HighlightColumnSeparator,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"ColumnTitles",&Opt.ShowColumnTitles,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"DetailedJunction",&Opt.PanelDetailedJunction,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"DoubleGlobalColumnSeparator",&Opt.DoubleGlobalColumnSeparator,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"FreeInfo",&Opt.ShowPanelFree,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ScreensNumber",&Opt.ShowScreensNumber,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"Scrollbar",&Opt.ShowPanelScrollbar,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ScrollbarMenu",&Opt.ShowMenuScrollbar,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ShowUnknownReparsePoint",&Opt.ShowUnknownReparsePoint,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"SortMode",&Opt.ShowSortMode,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"StatusLine",&Opt.ShowPanelStatus,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"TotalInfo",&Opt.ShowPanelTotals,1, 0},
 
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyXLat,L"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"Table1",&Opt.XLat.Table[0],0,L""},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"Table2",&Opt.XLat.Table[1],0,L""},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"Rules1",&Opt.XLat.Rules[0],0,L""},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"Rules2",&Opt.XLat.Rules[1],0,L""},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"Rules3",&Opt.XLat.Rules[2],0,L""},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"WordDivForXlat",&Opt.XLat.strWordDivForXlat, 0,WordDivForXlat0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"CaseSensitiveSort",&Opt.LeftPanel.CaseSensitiveSort,0, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelLeft,L"CurFile",&Opt.strLeftCurFile, 0, L""},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"DirectoriesFirst",&Opt.LeftPanel.DirectoriesFirst,1,0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"Focus",&Opt.LeftPanel.Focus,1, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelLeft,L"Folder",&Opt.strLeftFolder, 0, L""},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"NumericSort",&Opt.LeftPanel.NumericSort,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"SelectedFirst",&Opt.LeftSelectedFirst,0,0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"ShortNames",&Opt.LeftPanel.ShowShortNames,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"SortGroups",&Opt.LeftPanel.SortGroups,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"SortMode",&Opt.LeftPanel.SortMode,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"SortOrder",&Opt.LeftPanel.SortOrder,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"Type",&Opt.LeftPanel.Type,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"ViewMode",&Opt.LeftPanel.ViewMode,2, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"Visible",&Opt.LeftPanel.Visible,1, 0},
 
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCommandHistory, NParamHistoryCount,&Opt.HistoryCount,512, 0}, //BUGBUG
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyFolderHistory, NParamHistoryCount,&Opt.FoldersHistoryCount,512, 0}, //BUGBUG
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewEditHistory, NParamHistoryCount,&Opt.ViewHistoryCount,512, 0}, //BUGBUG
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialogHistory, NParamHistoryCount,&Opt.DialogsHistoryCount,512, 0}, //BUGBUG
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MaxPositionCache",&Opt.MaxPositionCache, 512/*MAX_POSITIONS*/, 0}, //BUGBUG
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"CaseSensitiveSort",&Opt.RightPanel.CaseSensitiveSort,0, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelRight,L"CurFile",&Opt.strRightCurFile, 0,L""},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"DirectoriesFirst",&Opt.RightPanel.DirectoriesFirst,1,0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"Focus",&Opt.RightPanel.Focus,0, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelRight,L"Folder",&Opt.strRightFolder, 0,L""},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"NumericSort",&Opt.RightPanel.NumericSort,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"SelectedFirst",&Opt.RightSelectedFirst,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"ShortNames",&Opt.RightPanel.ShowShortNames,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"SortGroups",&Opt.RightPanel.SortGroups,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"SortMode",&Opt.RightPanel.SortMode,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"SortOrder",&Opt.RightPanel.SortOrder,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"Type",&Opt.RightPanel.Type,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"ViewMode",&Opt.RightPanel.ViewMode,2, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"Visible",&Opt.RightPanel.Visible,1, 0},
 
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SaveHistory",&Opt.SaveHistory,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SaveFoldersHistory",&Opt.SaveFoldersHistory,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SaveViewHistory",&Opt.SaveViewHistory,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"UseRegisteredTypes",&Opt.UseRegisteredTypes,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"AutoChangeFolder",&Opt.Tree.AutoChangeFolder,0, 0}, // ???
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"TreeFileAttr",&Opt.Tree.TreeFileAttr, FILE_ATTRIBUTE_HIDDEN, 0},
+#if defined(TREEFILE_PROJECT)
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"CDDisk",&Opt.Tree.CDDisk, 2, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"CDDiskTemplate,0",&Opt.Tree.strCDDisk,0,constCDDiskTemplate},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"ExceptPath",&Opt.Tree.strExceptPath,0,L""},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"LocalDisk",&Opt.Tree.LocalDisk, 2, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"LocalDiskTemplate",&Opt.Tree.strLocalDisk,0,constLocalDiskTemplate},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"NetDisk",&Opt.Tree.NetDisk, 2, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"NetPath",&Opt.Tree.NetPath, 2, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"NetDiskTemplate",&Opt.Tree.strNetDisk,0,constNetDiskTemplate},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"NetPathTemplate",&Opt.Tree.strNetPath,0,constNetPathTemplate},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"RemovableDisk",&Opt.Tree.RemovableDisk, 2, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"RemovableDiskTemplate,",&Opt.Tree.strRemovableDisk,0,constRemovableDiskTemplate},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"SaveLocalPath",&Opt.Tree.strSaveLocalPath,0,L""},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"SaveNetPath",&Opt.Tree.strSaveNetPath,0,L""},
+#endif
+
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPluginConfirmations, L"EvenIfOnlyOnePlugin", &Opt.PluginConfirm.EvenIfOnlyOnePlugin, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPluginConfirmations, L"OpenFilePlugin", &Opt.PluginConfirm.OpenFilePlugin, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPluginConfirmations, L"Prefix", &Opt.PluginConfirm.Prefix, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPluginConfirmations, L"SetFindList", &Opt.PluginConfirm.SetFindList, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPluginConfirmations, L"StandardAssociation", &Opt.PluginConfirm.StandardAssociation, 0, 0},
+
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPolicies,L"DisabledOptions",&Opt.Policies.DisabledOptions,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPolicies,L"ShowHiddenDrives",&Opt.Policies.ShowHiddenDrives,1, 0},
+
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"Clock", &Opt.Clock, 1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"DeltaXY", &Opt.ScrSize.DeltaXY, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_SCREEN,            NKeyScreen, L"KeyBar",&Opt.ShowKeyBar,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"ScreenSaver",&Opt.ScreenSaver, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"ScreenSaverTime",&Opt.ScreenSaverTime,5, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyScreen, L"ViewerEditorClock",&Opt.ViewerEditorClock,1, 0},
+
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"AutoSaveSetup",&Opt.AutoSaveSetup,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"AutoUpdateRemoteDrive",&Opt.AutoUpdateRemoteDrive,1, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"BoxSymbols",&Opt.strBoxSymbols, 0, _BoxSymbols},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CASRule",&Opt.CASRule,0xFFFFFFFFU, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CloseCDGate",&Opt.CloseCDGate,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CollectFiles",&Opt.FindOpt.CollectFiles, 1, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"ConsoleDetachKey", &strKeyNameConsoleDetachKey, 0, L"CtrlAltTab"},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CopyBufferSize",&Opt.CMOpt.BufferSize,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_SYSTEM,            NKeySystem,L"CopyOpened",&Opt.CMOpt.CopyOpened,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CopyTimeRule",  &Opt.CMOpt.CopyTimeRule, 3, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CopySecurityOptions",&Opt.CMOpt.CopySecurityOptions,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_SYSTEM,            NKeySystem,L"DeleteToRecycleBin",&Opt.DeleteToRecycleBin,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"DeleteToRecycleBinKillLink",&Opt.DeleteToRecycleBinKillLink,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"WipeSymbol",&Opt.WipeSymbol,0, 0},
-
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"UseSystemCopy",&Opt.CMOpt.UseSystemCopy,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CopySecurityOptions",&Opt.CMOpt.CopySecurityOptions,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_SYSTEM,            NKeySystem,L"CopyOpened",&Opt.CMOpt.CopyOpened,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem, L"MultiCopy",&Opt.CMOpt.MultiCopy,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CopyTimeRule",  &Opt.CMOpt.CopyTimeRule, 3, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CopyBufferSize",&Opt.CMOpt.BufferSize,0, 0},
-
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CreateUppercaseFolders",&Opt.CreateUppercaseFolders,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT|DRIVE_SHOW_CDROM, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"DelThreadPriority", &Opt.DelThreadPriority, THREAD_PRIORITY_NORMAL, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"DriveDisconnectMode",&Opt.ChangeDriveDisconnectMode,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"AutoUpdateRemoteDrive",&Opt.AutoUpdateRemoteDrive,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"DriveMenuMode",&Opt.ChangeDriveMode,DRIVE_SHOW_TYPE|DRIVE_SHOW_PLUGINS|DRIVE_SHOW_SIZE_FLOAT|DRIVE_SHOW_CDROM, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"ElevationMode",&Opt.ElevationMode,0x0FFFFFFFU, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"ExcludeCmdHistory",&Opt.ExcludeCmdHistory,0, 0}, //AN
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"FileSearchMode",&Opt.FindOpt.FileSearchMode,FINDAREA_FROM_CURRENT, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CollectFiles",&Opt.FindOpt.CollectFiles, 1, 0},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"SearchInFirstSize",&Opt.FindOpt.strSearchInFirstSize, 0, L""},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"FindAlternateStreams",&Opt.FindOpt.FindAlternateStreams,0,0},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"SearchOutFormat",&Opt.FindOpt.strSearchOutFormat, 0, L"D,S,A"},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"SearchOutFormatWidth",&Opt.FindOpt.strSearchOutFormatWidth, 0, L"14,13,0"},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"FindFolders",&Opt.FindOpt.FindFolders, 1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"FindSymLinks",&Opt.FindOpt.FindSymLinks, 1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"UseFilterInSearch",&Opt.FindOpt.UseFilter,0,0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"FindCodePage",&Opt.FindCodePage, CP_DEFAULT, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SubstPluginPrefix",&Opt.SubstPluginPrefix, 0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CmdHistoryRule",&Opt.CmdHistoryRule,0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SetAttrFolderRules",&Opt.SetAttrFolderRules,1, 0},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"ConsoleDetachKey", &strKeyNameConsoleDetachKey, 0, L"CtrlAltTab"},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SilentLoadPlugin",  &Opt.LoadPlug.SilentLoadPlugin, 0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"FlagPosixSemantics", &Opt.FlagPosixSemantics, 1, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"FolderInfo",&Opt.InfoPanel.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MaxPositionCache",&Opt.MaxPositionCache, 512/*MAX_POSITIONS*/, 0}, //BUGBUG
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsWheelDelta", &Opt.MsWheelDelta, 1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsWheelDeltaEdit", &Opt.MsWheelDeltaEdit, 1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsWheelDeltaHelp", &Opt.MsWheelDeltaHelp, 1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsWheelDeltaView", &Opt.MsWheelDeltaView, 1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsHWheelDelta", &Opt.MsHWheelDelta, 1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsHWheelDeltaEdit", &Opt.MsHWheelDeltaEdit, 1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsHWheelDeltaView", &Opt.MsHWheelDeltaView, 1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MultiCopy",&Opt.CMOpt.MultiCopy,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MultiMakeDir",&Opt.MultiMakeDir,0, 0},
 #ifndef NO_WRAPPER
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"OEMPluginsSupport",  &Opt.LoadPlug.OEMPluginsSupport, 1, 0},
 #endif // NO_WRAPPER
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"ScanSymlinks",  &Opt.LoadPlug.ScanSymlinks, 1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MultiMakeDir",&Opt.MultiMakeDir,0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"FlagPosixSemantics", &Opt.FlagPosixSemantics, 1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsWheelDelta", &Opt.MsWheelDelta, 1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsWheelDeltaView", &Opt.MsWheelDeltaView, 1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsWheelDeltaEdit", &Opt.MsWheelDeltaEdit, 1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsWheelDeltaHelp", &Opt.MsWheelDeltaHelp, 1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsHWheelDelta", &Opt.MsHWheelDelta, 1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsHWheelDeltaView", &Opt.MsHWheelDeltaView, 1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"MsHWheelDeltaEdit", &Opt.MsHWheelDeltaEdit, 1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SubstNameRule", &Opt.SubstNameRule, 2, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"ShowCheckingFile", &Opt.ShowCheckingFile, 0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"DelThreadPriority", &Opt.DelThreadPriority, THREAD_PRIORITY_NORMAL, 0},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"QuotedSymbols",&Opt.strQuotedSymbols, 0, L" &()[]{}^=;!'+,`\xA0"}, //xA0 => 160 =>oem(0xFF)
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"QuotedName",&Opt.QuotedName,0xFFFFFFFFU, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_SYSTEM,            NKeySystem,L"PluginMaxReadData",&Opt.PluginMaxReadData,0x20000, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CloseCDGate",&Opt.CloseCDGate,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"UpdateEnvironment",&Opt.UpdateEnvironment,0,0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"CASRule",&Opt.CASRule,0xFFFFFFFFU, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"AllCtrlAltShiftRule",&Opt.AllCtrlAltShiftRule,0x0000FFFF, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"QuotedName",&Opt.QuotedName,0xFFFFFFFFU, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"QuotedSymbols",&Opt.strQuotedSymbols, 0, L" &()[]{}^=;!'+,`\xA0"}, //xA0 => 160 =>oem(0xFF)
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SaveHistory",&Opt.SaveHistory,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SaveFoldersHistory",&Opt.SaveFoldersHistory,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SaveViewHistory",&Opt.SaveViewHistory,1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_SYSTEM,            NKeySystem,L"ScanJunction",&Opt.ScanJunction,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"ElevationMode",&Opt.ElevationMode,0x0FFFFFFFU, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"ScanSymlinks",  &Opt.LoadPlug.ScanSymlinks, 1, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"SearchInFirstSize",&Opt.FindOpt.strSearchInFirstSize, 0, L""},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"SearchOutFormat",&Opt.FindOpt.strSearchOutFormat, 0, L"D,S,A"},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"SearchOutFormatWidth",&Opt.FindOpt.strSearchOutFormatWidth, 0, L"14,13,0"},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SetAttrFolderRules",&Opt.SetAttrFolderRules,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"ShowCheckingFile", &Opt.ShowCheckingFile, 0, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"ShowStatusInfo",&Opt.InfoPanel.strShowStatusInfo, 0, L""},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SilentLoadPlugin",  &Opt.LoadPlug.SilentLoadPlugin, 0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SubstNameRule", &Opt.SubstNameRule, 2, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SubstPluginPrefix",&Opt.SubstPluginPrefix, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"UpdateEnvironment",&Opt.UpdateEnvironment,0,0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"UseFilterInSearch",&Opt.FindOpt.UseFilter,0,0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"UseRegisteredTypes",&Opt.UseRegisteredTypes,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"UseSystemCopy",&Opt.CMOpt.UseSystemCopy,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"WindowMode",&Opt.WindowMode, 0, 0},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"BoxSymbols",&Opt.strBoxSymbols, 0, _BoxSymbols},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"WipeSymbol",&Opt.WipeSymbol,0, 0},
+
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemKnownIDs,L"EMenu",&Opt.KnownIDs.EmenuGuidStr, 0, L"742910F1-02ED-4542-851F-DEE37C2E13B2"},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemKnownIDs,L"Network",&Opt.KnownIDs.NetworkGuidStr, 0, L"773B5051-7C5F-4920-A201-68051C4176A4"},
 
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemNowell,L"MoveRO",&Opt.Nowell.MoveRO,1, 0},
 
 	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemException,L"FarEventSvc",&Opt.strExceptEventSvc, 0, L""},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemException,L"Used",&Opt.ExceptUsed, 0, 0},
 
-
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"RestoreCP",&Opt.Exec.RestoreCPAfterExecute,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"UseAppPath",&Opt.Exec.ExecuteUseAppPath,1, 0},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemExecutor,L"BatchType",&Opt.Exec.strExecuteBatchType,0,constBatchExt},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"FullTitle",&Opt.Exec.ExecuteFullTitle,0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"SilentExternal",&Opt.Exec.ExecuteSilentExternal,0, 0},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemExecutor,L"ExcludeCmds",&Opt.Exec.strExcludeCmds,0,L""},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"UseHomeDir", &Opt.Exec.UseHomeDir,1, 0},
 	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemExecutor,L"~",&Opt.Exec.strHomeDir,0,L"%FARHOME%"},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemExecutor,L"BatchType",&Opt.Exec.strExecuteBatchType,0,constBatchExt},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystemExecutor,L"ExcludeCmds",&Opt.Exec.strExcludeCmds,0,L""},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"FullTitle",&Opt.Exec.ExecuteFullTitle,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"RestoreCP",&Opt.Exec.RestoreCPAfterExecute,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"SilentExternal",&Opt.Exec.ExecuteSilentExternal,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"UseAppPath",&Opt.Exec.ExecuteUseAppPath,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystemExecutor,L"UseHomeDir", &Opt.Exec.UseHomeDir,1, 0},
 
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"MinTreeCount",&Opt.Tree.MinTreeCount, 4, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"AutoChangeFolder",&Opt.Tree.AutoChangeFolder,0, 0}, // ???
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"TreeFileAttr",&Opt.Tree.TreeFileAttr, FILE_ATTRIBUTE_HIDDEN, 0},
-#if defined(TREEFILE_PROJECT)
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"LocalDisk",&Opt.Tree.LocalDisk, 2, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"NetDisk",&Opt.Tree.NetDisk, 2, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"NetPath",&Opt.Tree.NetPath, 2, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"RemovableDisk",&Opt.Tree.RemovableDisk, 2, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelTree,L"CDDisk",&Opt.Tree.CDDisk, 2, 0},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"LocalDiskTemplate",&Opt.Tree.strLocalDisk,0,constLocalDiskTemplate},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"NetDiskTemplate",&Opt.Tree.strNetDisk,0,constNetDiskTemplate},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"NetPathTemplate",&Opt.Tree.strNetPath,0,constNetPathTemplate},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"RemovableDiskTemplate,",&Opt.Tree.strRemovableDisk,0,constRemovableDiskTemplate},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"CDDiskTemplate,0",&Opt.Tree.strCDDisk,0,constCDDiskTemplate},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"ExceptPath",&Opt.Tree.strExceptPath,0,L""},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"SaveLocalPath",&Opt.Tree.strSaveLocalPath,0,L""},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelTree,L"SaveNetPath",&Opt.Tree.strSaveNetPath,0,L""},
-#endif
-
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyHelp,L"ActivateURL",&Opt.HelpURLRules,1, 0},
-
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Copy",&Opt.Confirm.Copy,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Move",&Opt.Confirm.Move,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"RO",&Opt.Confirm.RO,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Drag",&Opt.Confirm.Drag,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Delete",&Opt.Confirm.Delete,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"DeleteFolder",&Opt.Confirm.DeleteFolder,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Esc",&Opt.Confirm.Esc,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"RemoveConnection",&Opt.Confirm.RemoveConnection,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"RemoveSUBST",&Opt.Confirm.RemoveSUBST,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"DetachVHD",&Opt.Confirm.DetachVHD,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"RemoveHotPlug",&Opt.Confirm.RemoveHotPlug,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"AllowReedit",&Opt.Confirm.AllowReedit,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"HistoryClear",&Opt.Confirm.HistoryClear,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_CONFIRMATIONS,     NKeyConfirmations,L"Exit",&Opt.Confirm.Exit,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyConfirmations,L"EscTwiceToInterrupt",&Opt.Confirm.EscTwiceToInterrupt,0, 0},
-
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPluginConfirmations, L"OpenFilePlugin", &Opt.PluginConfirm.OpenFilePlugin, 0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPluginConfirmations, L"StandardAssociation", &Opt.PluginConfirm.StandardAssociation, 0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPluginConfirmations, L"EvenIfOnlyOnePlugin", &Opt.PluginConfirm.EvenIfOnlyOnePlugin, 0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPluginConfirmations, L"SetFindList", &Opt.PluginConfirm.SetFindList, 0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPluginConfirmations, L"Prefix", &Opt.PluginConfirm.Prefix, 0, 0},
-
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"ShellRightLeftArrowsRule",&Opt.ShellRightLeftArrowsRule,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANEL,             NKeyPanel,L"ShowHidden",&Opt.ShowHidden,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"Highlight",&Opt.Highlight,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"SortFolderExt",&Opt.SortFolderExt,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"SelectFolders",&Opt.SelectFolders,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"ReverseSort",&Opt.ReverseSort,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"RightClickRule",&Opt.PanelRightClickRule,2, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"CtrlFRule",&Opt.PanelCtrlFRule,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"CtrlAltShiftRule",&Opt.PanelCtrlAltShiftRule,0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"RememberLogicalDrives",&Opt.RememberLogicalDrives, 0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanel,L"AutoUpdateLimit",&Opt.AutoUpdateLimit, 0, 0},
-
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"Type",&Opt.LeftPanel.Type,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"Visible",&Opt.LeftPanel.Visible,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"Focus",&Opt.LeftPanel.Focus,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"ViewMode",&Opt.LeftPanel.ViewMode,2, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"SortMode",&Opt.LeftPanel.SortMode,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"SortOrder",&Opt.LeftPanel.SortOrder,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"SortGroups",&Opt.LeftPanel.SortGroups,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"ShortNames",&Opt.LeftPanel.ShowShortNames,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"NumericSort",&Opt.LeftPanel.NumericSort,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"CaseSensitiveSort",&Opt.LeftPanel.CaseSensitiveSort,0, 0},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelLeft,L"Folder",&Opt.strLeftFolder, 0, L""},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelLeft,L"CurFile",&Opt.strLeftCurFile, 0, L""},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"SelectedFirst",&Opt.LeftSelectedFirst,0,0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLeft,L"DirectoriesFirst",&Opt.LeftPanel.DirectoriesFirst,1,0},
-
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"Type",&Opt.RightPanel.Type,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"Visible",&Opt.RightPanel.Visible,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"Focus",&Opt.RightPanel.Focus,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"ViewMode",&Opt.RightPanel.ViewMode,2, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"SortMode",&Opt.RightPanel.SortMode,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"SortOrder",&Opt.RightPanel.SortOrder,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"SortGroups",&Opt.RightPanel.SortGroups,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"ShortNames",&Opt.RightPanel.ShowShortNames,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"NumericSort",&Opt.RightPanel.NumericSort,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"CaseSensitiveSort",&Opt.RightPanel.CaseSensitiveSort,0, 0},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelRight,L"Folder",&Opt.strRightFolder, 0,L""},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyPanelRight,L"CurFile",&Opt.strRightCurFile, 0,L""},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"SelectedFirst",&Opt.RightSelectedFirst,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelRight,L"DirectoriesFirst",&Opt.RightPanel.DirectoriesFirst,1,0},
-
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"ColumnTitles",&Opt.ShowColumnTitles,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"StatusLine",&Opt.ShowPanelStatus,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"DetailedJunction",&Opt.PanelDetailedJunction,0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ShowUnknownReparsePoint",&Opt.ShowUnknownReparsePoint,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"TotalInfo",&Opt.ShowPanelTotals,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"FreeInfo",&Opt.ShowPanelFree,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"Scrollbar",&Opt.ShowPanelScrollbar,0, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ScrollbarMenu",&Opt.ShowMenuScrollbar,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ScreensNumber",&Opt.ShowScreensNumber,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PANELLAYOUT,       NKeyPanelLayout,L"SortMode",&Opt.ShowSortMode,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ColoredGlobalColumnSeparator",&Opt.HighlightColumnSeparator,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"DoubleGlobalColumnSeparator",&Opt.DoubleGlobalColumnSeparator,0, 0},
-
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyLayout,L"LeftHeightDecrement",&Opt.LeftHeightDecrement,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyLayout,L"RightHeightDecrement",&Opt.RightHeightDecrement,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyLayout,L"WidthDecrement",&Opt.WidthDecrement,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyLayout,L"FullscreenHelp",&Opt.FullScreenHelp,0, 0},
-
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyDescriptions,L"ListNames",&Opt.Diz.strListNames, 0, L"Descript.ion,Files.bbs"},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"UpdateMode",&Opt.Diz.UpdateMode,DIZ_UPDATE_IF_DISPLAYED, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"ROUpdate",&Opt.Diz.ROUpdate,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"SetHidden",&Opt.Diz.SetHidden,1, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"StartPos",&Opt.Diz.StartPos,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"AnsiByDefault",&Opt.Diz.AnsiByDefault,0, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDescriptions,L"SaveInUTF",&Opt.Diz.SaveInUTF,0, 0},
-
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyKeyMacros,L"MacroReuseRules",&Opt.Macro.MacroReuseRules,0, 0},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyKeyMacros,L"DateFormat",&Opt.Macro.strDateFormat, 0, L"%a %b %d %H:%M:%S %Z %Y"},
-	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyKeyMacros,L"CONVFMT",&Opt.Macro.strMacroCONVFMT, 0, L"%.6g"},
-
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPolicies,L"ShowHiddenDrives",&Opt.Policies.ShowHiddenDrives,1, 0},
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPolicies,L"DisabledOptions",&Opt.Policies.DisabledOptions,0, 0},
-
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"ExcludeCmdHistory",&Opt.ExcludeCmdHistory,0, 0}, //AN
-
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCodePages,L"CPMenuMode",&Opt.CPMenuMode,0,0},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyCodePages,L"NoAutoDetectCP",&Opt.strNoAutoDetectCP,0,L""},
-
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"FolderInfo",&Opt.InfoPanel.strFolderInfoFiles, 0, L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me"},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelInfo,L"InfoComputerNameFormat",&Opt.InfoPanel.ComputerNameFormat, ComputerNamePhysicalNetBIOS, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelInfo,L"InfoUserNameFormat",&Opt.InfoPanel.UserNameFormat, NameUserPrincipal, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelInfo,L"ShowPowerStatus",&Opt.InfoPanel.ShowPowerStatus, 0, 0},
-	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"ShowStatusInfo",&Opt.InfoPanel.strShowStatusInfo, 0, L""},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"AnsiCodePageAsDefault",&Opt.ViOpt.AnsiCodePageAsDefault,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"AutoDetectCodePage",&Opt.ViOpt.AutoDetectCodePage,1, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyViewer,L"ExternalViewerName",&Opt.strExternalViewer, 0, L""},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"IsWrap",&Opt.ViOpt.ViewerIsWrap,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"MaxLineSize",&Opt.ViOpt.MaxLineSize,ViewerOptions::eDefLineSize, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"PersistentBlocks",&Opt.ViOpt.PersistentBlocks,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"SaveViewerPos",&Opt.ViOpt.SavePos,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"SaveViewerShortPos",&Opt.ViOpt.SaveShortPos,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"SearchEditFocus",&Opt.ViOpt.SearchEditFocus,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"SearchRegexp",&Opt.ViOpt.SearchRegexp,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"ShowArrows",&Opt.ViOpt.ShowArrows,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"ShowKeyBar",&Opt.ViOpt.ShowKeyBar,1, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"ShowTitleBar",&Opt.ViOpt.ShowTitleBar,1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"ShowScrollbar",&Opt.ViOpt.ShowScrollbar,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"TabSize",&Opt.ViOpt.TabSize,8, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"UseExternalViewer",&Opt.ViOpt.UseExternalViewer,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"Visible0x00",&Opt.ViOpt.Visible0x00,0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"Wrap",&Opt.ViOpt.ViewerWrap,0, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewer,L"ZeroChar",&Opt.ViOpt.ZeroChar,0x00B7, 0}, // middle dot
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyVMenu,L"LBtnClick",&Opt.VMenu.LBtnClick, VMENUCLICK_CANCEL, 0},
-	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyVMenu,L"RBtnClick",&Opt.VMenu.RBtnClick, VMENUCLICK_CANCEL, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyVMenu,L"MBtnClick",&Opt.VMenu.MBtnClick, VMENUCLICK_APPLY, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyVMenu,L"RBtnClick",&Opt.VMenu.RBtnClick, VMENUCLICK_CANCEL, 0},
 
-	{0, GeneralConfig::TYPE_BLOB,    FSSF_PRIVATE,           NKeySystemKnownIDs,L"Network",&Opt.KnownIDs.Network, sizeof(Opt.KnownIDs.Network), &NetworkGuid},
-	{0, GeneralConfig::TYPE_BLOB,    FSSF_PRIVATE,           NKeySystemKnownIDs,L"EMenu",&Opt.KnownIDs.Emenu, sizeof(Opt.KnownIDs.Emenu), &EMenuGuid},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyXLat,L"Flags",&Opt.XLat.Flags,(DWORD)XLAT_SWITCHKEYBLAYOUT|XLAT_CONVERTALLCMDLINE, 0},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"Rules1",&Opt.XLat.Rules[0],0,L""},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"Rules2",&Opt.XLat.Rules[1],0,L""},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"Rules3",&Opt.XLat.Rules[2],0,L""},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"Table1",&Opt.XLat.Table[0],0,L""},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"Table2",&Opt.XLat.Table[1],0,L""},
+	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyXLat,L"WordDivForXlat",&Opt.XLat.strWordDivForXlat, 0,WordDivForXlat0},
 };
 
 bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
@@ -1179,10 +1172,7 @@ bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
 					break;
 				case GeneralConfig::TYPE_BLOB:
 				{
-					if (StrCmpI(CFG[I].KeyName,NKeySystemKnownIDs))
-						return false;
-					strValue = GuidToStr((const GUID&)(*(const BYTE*)CFG[I].ValPtr));
-					break;
+					return false;
 				}
 			}
 			return true;
@@ -1406,7 +1396,11 @@ void ReadConfig()
 	{
 		ApplyDefaultMaskGroups();
 	}
-	/* *************************************************** </ПОСТПРОЦЕССЫ> */
+
+	StrToGuid(Opt.KnownIDs.EmenuGuidStr, Opt.KnownIDs.Emenu);
+	StrToGuid(Opt.KnownIDs.NetworkGuidStr, Opt.KnownIDs.Network);
+
+/* *************************************************** </ПОСТПРОЦЕССЫ> */
 }
 
 
@@ -1520,20 +1514,28 @@ void FillListItem(FarListItem& Item, FormatString& fs, FARConfig& cfg)
 	Item.Flags = 0;
 	Item.Reserved[0] = Item.Reserved[1] = Item.Reserved[2] = 0;
 	fs.Clear();
-	fs << fmt::Width(30) << fmt::Precision(30) << fmt::LeftAlign() << (string(cfg.KeyName) + "." + cfg.ValName) << BoxSymbols[BS_V1]
+	fs << fmt::Width(42) << fmt::Precision(42) << fmt::LeftAlign() << (string(cfg.KeyName) + "." + cfg.ValName) << BoxSymbols[BS_V1]
 	<< fmt::Width(7) << fmt::Precision(7) << fmt::LeftAlign() << TypeToText(cfg.ValType) << BoxSymbols[BS_V1];
+	bool Changed = false;
 	switch(cfg.ValType)
 	{
 	case GeneralConfig::TYPE_INTEGER:
 		fs << *static_cast<int*>(cfg.ValPtr);
+		Changed = *static_cast<int*>(cfg.ValPtr) != static_cast<int>(cfg.DefDWord);
 		break;
 	case GeneralConfig::TYPE_TEXT:
 		fs << *static_cast<string*>(cfg.ValPtr);
+		Changed = *static_cast<string*>(cfg.ValPtr) != static_cast<const wchar_t*>(cfg.DefStr);
 		break;
 	case GeneralConfig::TYPE_BLOB:
 	case GeneralConfig::TYPE_UNKNOWN:
 	default:
 		fs << BlobToHexString(cfg.ValPtr, cfg.DefDWord);
+		Changed = !memcmp(cfg.ValPtr, cfg.DefStr, cfg.DefDWord);
+	}
+	if(Changed)
+	{
+		Item.Flags = LIF_CHECKED|L'*';
 	}
 	Item.Text = fs;
 }
@@ -1547,14 +1549,23 @@ INT_PTR WINAPI AdvancedConfigDlgProc(HANDLE hDlg, int Msg, int Param1, void* Par
 		fs = reinterpret_cast<FormatString*>(Param2);
 		break;
 
+	case DN_RESIZECONSOLE:
+		{
+			COORD Size = {Max(ScrX-4, 60), Max(ScrY-2, 20)};
+			SendDlgMessage(hDlg, DM_RESIZEDIALOG, 0, &Size);
+			SMALL_RECT ListPos = {3, 1, Size.X-4, Size.Y-2};
+			SendDlgMessage(hDlg, DM_SETITEMPOSITION, 0, &ListPos);
+		}
+		break;
+
 	case DN_CLOSE:
-		if (Param1==1) // BUGBUG, magic
+		if (Param1 == 0) // BUGBUG, magic
 		{
 			FarListInfo ListInfo = {sizeof(ListInfo)};
-			SendDlgMessage(hDlg,DM_LISTINFO, Param1, &ListInfo);
+			SendDlgMessage(hDlg, DM_LISTINFO, Param1, &ListInfo);
 
-			DialogBuilder Builder(MMenuOptionsTitle, L"");
-			Builder.AddText(string(CFG[ListInfo.SelectPos].KeyName) + "." + CFG[ListInfo.SelectPos].ValName);
+			DialogBuilder Builder;
+			Builder.AddText(string(CFG[ListInfo.SelectPos].KeyName) + "." + CFG[ListInfo.SelectPos].ValName + L" (" + TypeToText(CFG[ListInfo.SelectPos].ValType) + L"):");
 			FormatString fstr;
 			bool ReadOnly = false;
 			switch(CFG[ListInfo.SelectPos].ValType)
@@ -1571,17 +1582,21 @@ INT_PTR WINAPI AdvancedConfigDlgProc(HANDLE hDlg, int Msg, int Param1, void* Par
 				fstr << BlobToHexString(CFG[ListInfo.SelectPos].ValPtr, CFG[ListInfo.SelectPos].DefDWord);
 				ReadOnly = true;
 			}
-			Builder.AddEditField(&fstr, ScrX/2)->Flags = ReadOnly? DIF_DISABLE : 0;
-			Builder.AddOKCancel();
-			if(Builder.ShowDialog())
+			DialogItemEx* Edit = Builder.AddEditField(&fstr, 40);
+			Edit->Flags = ReadOnly? DIF_DISABLE : 0;
+			((DialogBuilderBase<DialogItemEx>*)&Builder)->AddOKCancel(MOk, MConfigResetValue, MCancel);
+			int Result = Builder.ShowDialogEx();
+			if(Result == 0 || Result == 1)
 			{
 				switch(CFG[ListInfo.SelectPos].ValType)
 				{
 				case GeneralConfig::TYPE_INTEGER:
-					*static_cast<int*>(CFG[ListInfo.SelectPos].ValPtr) = wcstol(fstr, nullptr, 10);
+					*static_cast<int*>(CFG[ListInfo.SelectPos].ValPtr) = Result? CFG[ListInfo.SelectPos].DefDWord : wcstol(fstr, nullptr, 10);
+					CFG[ListInfo.SelectPos].IsSave = true;
 					break;
 				case GeneralConfig::TYPE_TEXT:
-					*static_cast<string*>(CFG[ListInfo.SelectPos].ValPtr) = fstr;
+					*static_cast<string*>(CFG[ListInfo.SelectPos].ValPtr) = Result? static_cast<const wchar_t*>(CFG[ListInfo.SelectPos].DefStr) : fstr;
+					CFG[ListInfo.SelectPos].IsSave = true;
 					break;
 				case GeneralConfig::TYPE_BLOB:
 				case GeneralConfig::TYPE_UNKNOWN:
@@ -1589,11 +1604,13 @@ INT_PTR WINAPI AdvancedConfigDlgProc(HANDLE hDlg, int Msg, int Param1, void* Par
 					// blob edit not implemented
 					;
 				}
+				SendDlgMessage(hDlg, DM_ENABLEREDRAW, 0 , 0);
 				FarListUpdate flu = {sizeof(flu), ListInfo.SelectPos};
 				FillListItem(flu.Item, fs[ListInfo.SelectPos], CFG[ListInfo.SelectPos]);
-				SendDlgMessage(hDlg,DM_LISTUPDATE, Param1, &flu);
+				SendDlgMessage(hDlg, DM_LISTUPDATE, Param1, &flu);
 				FarListPos flp = {sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos};
-				SendDlgMessage(hDlg,DM_LISTSETCURPOS, Param1, &flp);
+				SendDlgMessage(hDlg, DM_LISTSETCURPOS, Param1, &flp);
+				SendDlgMessage(hDlg, DM_ENABLEREDRAW, 1 , 0);
 			}
 			return FALSE;
 		}
@@ -1608,11 +1625,10 @@ INT_PTR WINAPI AdvancedConfigDlgProc(HANDLE hDlg, int Msg, int Param1, void* Par
 
 bool AdvancedConfig()
 {
-	int DlgWidth = ScrX-4, DlgHeight = ScrY-2;
+	int DlgWidth = Max(ScrX-4, 60), DlgHeight = Max(ScrY-2, 20);
 	FarDialogItem AdvancedConfigDlgData[]=
 	{
-		{DI_DOUBLEBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_NONE, MSG(MMenuOptionsTitle)},
-		{DI_LISTBOX,4,2,DlgWidth-5,DlgHeight-3,0,nullptr,nullptr,DIF_LISTNOBOX,0},
+		{DI_LISTBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_NONE,nullptr},
 	};
 	MakeDialogItemsEx(AdvancedConfigDlgData,AdvancedConfigDlg);
 
@@ -1626,7 +1642,7 @@ bool AdvancedConfig()
 		FillListItem(Items.Items[i], fs[i], CFG[i]);
 	}
 
-	AdvancedConfigDlg[1].ListItems = &Items;
+	AdvancedConfigDlg[0].ListItems = &Items;
 
 	Dialog Dlg(AdvancedConfigDlg,ARRAYSIZE(AdvancedConfigDlg), AdvancedConfigDlgProc, &fs);
 	//Dlg.SetHelp(L"");

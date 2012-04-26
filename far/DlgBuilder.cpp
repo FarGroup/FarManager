@@ -94,6 +94,12 @@ DialogBuilder::DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic):
 	AddBorder(GetLangString(TitleMessageId));
 }
 
+DialogBuilder::DialogBuilder():
+HelpTopic(nullptr)
+{
+	AddBorder(nullptr);
+}
+
 DialogBuilder::~DialogBuilder()
 {
 }
