@@ -10207,24 +10207,24 @@ le://end of functional keys (Single Viewer)
 ""
 
 MInViewer
-"просмотр %1"
-"view %1"
-"prohlížení %1"
-"Betrachte %1"
-"%1 megnézése"
-"podgląd %1"
-"ver %1"
-"zobraziť %1"
+"просмотр"
+"view"
+"prohlížení"
+"Betrachte"
+"megnézése"
+"podgląd"
+"ver"
+"zobraziť"
 
 MInEditor
-"редактирование %1"
-"edit %1"
-"editace %1"
-"Bearbeite %1"
-"%1 szerkesztése"
-"edycja %1"
-"editar %1"
-"upraviť %1"
+"редактирование"
+"edit"
+"editace"
+"Bearbeite"
+"szerkesztése"
+"edycja"
+"editar"
+"upraviť"
 
 MFilterTitle
 l:

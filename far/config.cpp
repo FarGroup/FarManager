@@ -921,6 +921,7 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CursorSize2",&Opt.CursorSize[1],10, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CursorSize3",&Opt.CursorSize[2],99, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"CursorSize4",&Opt.CursorSize[3],99, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyInterface, L"EditorTitleFormat",&Opt.strEditorTitleFormat, 0, L"%Lng %File"},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"FormatNumberSeparators",&Opt.FormatNumberSeparators, 0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"Mouse",&Opt.Mouse,1, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShiftsKeyRules",&Opt.ShiftsKeyRules,1, 0},
@@ -930,6 +931,7 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"ShowTimeoutDelFiles",&Opt.ShowTimeoutDelFiles, 50, 0},
 	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyInterface, L"TitleAddons",&Opt.strTitleAddons, 0, L"%Ver.%Build %Platform %Admin"},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface, L"UseVk_oem_x",&Opt.UseVk_oem_x,1, 0},
+	{0, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeyInterface, L"ViewerTitleFormat",&Opt.strViewerTitleFormat, 0, L"%Lng %File"},
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"Append",&Opt.AutoComplete.AppendCompletion, 0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"ModalList",&Opt.AutoComplete.ModalList, 0, 0},

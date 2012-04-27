@@ -2128,7 +2128,10 @@ int FileEditor::GetTypeAndName(string &strType, string &strName)
 
 void FileEditor::ShowConsoleTitle()
 {
-	ConsoleTitle::SetFarTitle(LangString(MInEditor) << PointToName(strFileName));
+	string strEditorTitleFormat=Opt.strEditorTitleFormat;
+	ReplaceStrings(strEditorTitleFormat,L"%Lng",MSG(MInEditor),-1,true);
+	ReplaceStrings(strEditorTitleFormat,L"%File",PointToName(strFileName),-1,true);
+	ConsoleTitle::SetFarTitle(strEditorTitleFormat);
 	Flags.Clear(FFILEEDIT_REDRAWTITLE);
 }
 
@@ -2139,10 +2142,6 @@ void FileEditor::SetScreenPosition()
 		SetPosition(0,0,ScrX,ScrY);
 	}
 }
-
-/* $ 10.05.2001 DJ
-   добавление в view/edit history
-*/
 
 void FileEditor::OnDestroy()
 {

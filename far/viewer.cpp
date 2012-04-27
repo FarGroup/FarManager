@@ -2351,7 +2351,7 @@ void Viewer::Up( int nlines )
 				}
 				if ( 0 == j )
 				{
-					if ( nr > 0 && L'\n' == buff.c2[nr-1] )	         // LF 
+					if ( nr > 0 && L'\n' == buff.c2[nr-1] )	         // LF
 					{
 						if ( --nr > 0 && L'\r' == buff.c2[nr-1] )    // CRLF
 							if ( --nr > 0 && L'\r' == buff.c2[nr-1] )	// CRCRLF
@@ -3581,7 +3581,10 @@ void Viewer::GetFileName(string &strName)
 
 void Viewer::ShowConsoleTitle()
 {
-	ConsoleTitle::SetFarTitle(LangString(MInViewer) << PointToName(strFileName));
+	string strViewerTitleFormat=Opt.strViewerTitleFormat;
+	ReplaceStrings(strViewerTitleFormat,L"%Lng",MSG(MInViewer),-1,true);
+	ReplaceStrings(strViewerTitleFormat,L"%File",PointToName(strFileName),-1,true);
+	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
 }
 
 void Viewer::SetTempViewName(const wchar_t *Name, BOOL DeleteFolder)

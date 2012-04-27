@@ -721,6 +721,8 @@ struct Options
 
 	bool IsUserAdmin;
 	string strTitleAddons;
+	string strEditorTitleFormat;
+	string strViewerTitleFormat;
 
 	int ElevationMode;
 	int CurrentElevationMode;
