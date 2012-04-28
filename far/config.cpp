@@ -1557,9 +1557,9 @@ INT_PTR WINAPI AdvancedConfigDlgProc(HANDLE hDlg, int Msg, int Param1, void* Par
 
 	case DN_RESIZECONSOLE:
 		{
-			COORD Size = {Max(ScrX-4, 60), Max(ScrY-2, 20)};
+			COORD Size = {(SHORT)Max(ScrX-4, 60), (SHORT)Max(ScrY-2, 20)};
 			SendDlgMessage(hDlg, DM_RESIZEDIALOG, 0, &Size);
-			SMALL_RECT ListPos = {3, 1, Size.X-4, Size.Y-2};
+			SMALL_RECT ListPos = {3, 1, (SHORT)(Size.X-4), (SHORT)(Size.Y-2)};
 			SendDlgMessage(hDlg, DM_SETITEMPOSITION, 0, &ListPos);
 		}
 		break;

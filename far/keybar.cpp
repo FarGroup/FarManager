@@ -260,7 +260,7 @@ void KeyBar::ClearKeyTitles(bool Custom,int Group)
 
 	for (size_t I=Begin; I <= End; I++)
 	{
-		for (size_t J=0; J < KEY_COUNT; ++J)
+		for (size_t J=0; J < (size_t)KEY_COUNT; ++J)
 		{
 			if (kb[I][J])
 			{
