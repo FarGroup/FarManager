@@ -360,11 +360,12 @@ void InfoPanelSettings()
 	};
 
 	DialogBuilder Builder(MConfigInfoPanelTitle, L"InfoPanelSettings");
+	Builder.AddCheckbox(MConfigInfoPanelShowPowerStatus, &Opt.InfoPanel.ShowPowerStatus);
+	Builder.AddCheckbox(MConfigInfoPanelShowCDInfo, &Opt.InfoPanel.ShowCDInfo);
 	Builder.AddText(MConfigInfoPanelCNTitle);
 	Builder.AddComboBox((int *) &Opt.InfoPanel.ComputerNameFormat, 50, CNListItems, ARRAYSIZE(CNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigInfoPanelUNTitle);
 	Builder.AddComboBox((int *) &Opt.InfoPanel.UserNameFormat, 50, UNListItems, ARRAYSIZE(UNListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
-	Builder.AddCheckbox(MConfigInfoPanelShowPowerStatus, &Opt.InfoPanel.ShowPowerStatus);
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
@@ -960,6 +961,7 @@ static struct FARConfig
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelInfo,L"InfoComputerNameFormat",&Opt.InfoPanel.ComputerNameFormat, ComputerNamePhysicalNetBIOS, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelInfo,L"InfoUserNameFormat",&Opt.InfoPanel.UserNameFormat, NameUserPrincipal, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelInfo,L"ShowCDInfo",&Opt.InfoPanel.ShowCDInfo, 1, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelInfo,L"ShowPowerStatus",&Opt.InfoPanel.ShowPowerStatus, 0, 0},
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyPanelLayout,L"ColoredGlobalColumnSeparator",&Opt.HighlightColumnSeparator,1, 0},

@@ -266,7 +266,7 @@ void InfoList::DisplayObject()
 		                            &strFileSystemName))
 		{
 			LNGID IdxMsgID=MInfoUnknown;
-			int DriveType=FAR_GetDriveType(strDriveRoot,nullptr,TRUE);
+			int DriveType=FAR_GetDriveType(strDriveRoot,nullptr,Opt.InfoPanel.ShowCDInfo);
 
 			switch (DriveType)
 			{

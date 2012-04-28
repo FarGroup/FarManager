@@ -2307,14 +2307,14 @@ upd:"InfoPanel settings"
 "Nastavenia InfoPanela"
 
 MConfigInfoPanelCNTitle
-"Формат вывода имени &компьютера"
-upd:"&ComputerName format"
-upd:"&ComputerName format"
-upd:"&ComputerName format"
-upd:"&ComputerName format"
-upd:"&ComputerName format"
-"Formato nombre &computadora"
-"&ComputerName format"
+"Форма&т вывода имени компьютера"
+upd:"Computer&Name format"
+upd:"Computer&Name format"
+upd:"Computer&Name format"
+upd:"Computer&Name format"
+upd:"Computer&Name format"
+"Forma&to nombre computadora"
+"Computer&Name format"
 
 MConfigInfoPanelCNPhysicalNetBIOS
 upd:"Physical NetBIOS"
@@ -2505,6 +2505,16 @@ upd:"Show &power status"
 upd:"Show &power status"
 "Mostrar estado de &encendido"
 "Zobraziť stav na&pájania"
+
+MConfigInfoPanelShowCDInfo
+"Показывать параметры &компакт-дисков"
+"Show &CD drive parameters"
+upd:"Show &CD drive parameters"
+upd:"Show &CD drive parameters"
+upd:"Show &CD drive parameters"
+upd:"Show &CD drive parameters"
+"Mostrar parámetros unidad de &CD"
+"Zobraziť parametre jwednotky &CD"
 
 MMenuInfoShowModeTitle
 l:

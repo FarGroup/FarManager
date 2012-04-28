@@ -1266,7 +1266,7 @@ int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool S
 
 	LastCmdPartLength=-1;
 
-	if(CmdLine == L"far:config")
+	if(!StrCmpI(CmdLine,L"far:config"))
 	{
 		SetString(L"", false);
 		Show();

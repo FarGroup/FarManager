@@ -414,6 +414,7 @@ struct InfoPanelOptions
 	int ShowPowerStatus;
 	string strShowStatusInfo;
 	string strFolderInfoFiles;
+	int ShowCDInfo;
 };
 
 struct TreeOptions
