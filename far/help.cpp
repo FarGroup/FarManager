@@ -1676,7 +1676,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		string strTopic;
 		if (GetTopic(MsX, MsY, strTopic))
 		{
-			if (strTopic != StackData.strSelTopic)
+			//if (strTopic != StackData.strSelTopic)
 			{
 				StackData.CurX = MsX-X1-1;
 				StackData.CurY = MsY-Y1-1-FixSize;

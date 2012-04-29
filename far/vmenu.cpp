@@ -287,11 +287,11 @@ int VMenu::SetSelectPos(int Pos, int Direct)
 }
 
 // установить курсор и верхний итем
-int VMenu::SetSelectPos(FarListPos *ListPos)
+int VMenu::SetSelectPos(FarListPos *ListPos, int Direct)
 {
 	CriticalSectionLock Lock(CS);
 
-	int Ret = SetSelectPos(ListPos->SelectPos,ListPos->SelectPos > SelectPos? 1 : -1);
+	int Ret = SetSelectPos(ListPos->SelectPos,Direct ? Direct : ListPos->SelectPos > SelectPos? 1 : -1);
 
 	if (Ret >= 0)
 	{
@@ -1276,7 +1276,7 @@ int VMenu::ProcessKey(int Key)
 		case KEY_RCTRLPGUP:    case KEY_RCTRLNUMPAD9:
 		{
 			FarListPos pos={sizeof(FarListPos),0,-1};
-			SetSelectPos(&pos);
+			SetSelectPos(&pos, 1);
 			ShowMenu(true);
 			break;
 		}
