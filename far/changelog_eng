@@ -3,6 +3,175 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 29.04.2012 16:19:25 +0200 - build 2652
+
+1. 0002090: FAR crash at DIF_USELASTHISTORY
+
+w17 29.04.2012 12:30:17 +0400 - build 2651
+
+1. M#2091: Home button does not work in menu (M#2083)
+   (from Maximus)
+
+2. minimal 2605 correction
+
+zg 28.04.2012 21:02:12 +0200 - build 2650
+
+1. Problems with history while working with several FAR instances.
+
+2. gcc warnings.
+
+svs 28.04.2012 09:46:51 +0400 - build 2649
+
+1. "far:config" check is now case independent.
+
+2. Mantis#0001810: elevation request in Info panel ignores the configuration
+   See the "Show CD drive parameters" option in "InfoPanel settings" dialog.
+   It is on by default.
+
+svs 27.04.2012 18:06:47 +0400 - build 2648
+
+1. Mantis#0001876: The name of the edited/viewed file in the beginning of the window caption
+
+   In Far:Config (so far), "Interface" and TEXT parameters "EditorTitleFormat" and "ViewerTitleFormat" are searched.
+   The default format is: "%Lng %File".
+   Here go the templates: "%File" - the file name, "%Lng" - a line from the lng file ("edit" or "view")
+   Don't forget that there's the "TitleAddons" template appended to the caption.
+
+drkns 27.04.2012 13:46:30 +0200 - build 2647
+
+1. Correction of 2646.1.
+
+drkns 26.04.2012 20:35:56 +0200 - build 2646
+
+1. Misc on far:config.
+
+t-rex 26.04.2012 19:44:06 +0200 - build 2645
+
+1. far:config showed System.BoxSymbols with garbage.
+
+svs 26.04.2012 17:50:01 +0400 - build 2644
+
+1. Mantis#0001620: Full names in the keybar
+   "To play around".
+   "Stem|suffix1|suffix2|suffix3" variant is implemented.
+   It depends on available length (for optimal fill).
+
+   Consider "Bearb|eit|eiten". Depending on the width of the label one of 3 variants is chosen:
+   "Bearb"         = "Bearb"
+   "Bearb" + "eit" = "Bearbeit"
+   "Bearb"+"eiten" = "Bearbeiten"
+   i.e. the stem remains anyway.
+
+   The memory for the label is dynamically allocated (there is no 16 characters limit).
+
+   Before you rush for editing farlang.templ.m4 in order to adjust the labels for this kind of behavior,
+   here's how you can practice:
+
+   <?xml version="1.0" encoding="UTF-8" ?>
+   <farconfig>
+       <generalconfig>
+           <setting key="KeyBarLabels.English.Shell" name="AltF4" type="text" value="Edit|..|Ext| Extern| External" />
+           <setting key="KeyBarLabels.English.Shell" name="F4" type="text" value="Edit| File" />
+       </generalconfig>
+   </farconfig>
+
+2. A help topic on volume selection configuration dialog is added.
+
+3. Mantis#0002013: "cd ~" behavior
+
+   "cd ~" is legalized - now it can be configured in command line configuration dialog.
+   It if on by default and points to %FARHOME%.
+
+w17 26.04.2012 17:39:15 +0400 - build 2643
+
+1. Viewer CRCRLF (as in the editor)
+
+2. continuation of 2605
+
+drkns 26.04.2012 00:34:11 +0200 - build 2642
+
+1. And once more.
+
+drkns 26.04.2012 00:10:19 +0200 - build 2641
+
+1. Correction of 2640.1.
+
+drkns 25.04.2012 20:34:13 +0200 - build 2640
+
+1. "To play around" - far:config in command line shows an internal browser-style configuration editor.
+   Keep in mind that many of the settings require restart.
+
+svs 25.04.2012 18:33:36 +0400 - build 2639
+
+1. Correction of build 2626 on returning info about a macro.
+
+zg 25.04.2012 15:13:51 +0200 - build 2638
+
+1. a fix of gcc build with the use of winapi from mingw.org.
+
+w17 25.04.2012 15:46:58 +0400 - build 2637
+
+1. M#2087: Incorrect Esc processing in copy error dialog
+   (from Maximus)
+
+2. Removing a 'secret' key Help.FollowMouse
+
+3. changelog -typos
+
+svs 25.04.2012 11:57:18 +0400 - build 2636
+
+1. Mantis#0000651: No link creation item in FAR menu
+
+w17 25.04.2012 00:12:34 +0400 - build 2635
+
+1. CtrlPgUp did not work in plugin panels if the Interface.CtrlPgUp option was off
+   and the current directory in the file panel, which the plugin panel had been opened from, was the volume root.
+
+drkns 24.04.2012 21:18:03 +0200 - build 2634
+
+1. More correction on 2632.
+
+svs 24.04.2012 17:44:04 +0400 - build 2633
+
+1. Correction of 2632
+
+svs 24.04.2012 17:16:28 +0400 - build 2632
+
+1. Mantis#0001357: Show all types of Reparse Points in panels
+
+   Recognizing:
+    IO_REPARSE_TAG_MOUNT_POINT  0xA0000003L = Directory Junction or Volume Mount Point
+    IO_REPARSE_TAG_SYMLINK      0xA000000CL = Directory or File Symbolic Link
+    IO_REPARSE_TAG_DFS          0x8000000AL = Distributed File System
+    IO_REPARSE_TAG_DFSR         0x80000012L = Distributed File System Replication
+    IO_REPARSE_TAG_HSM          0xC0000004L = Hierarchical Storage Management
+    IO_REPARSE_TAG_HSM2         0x80000006L = Hierarchical Storage Management2
+    IO_REPARSE_TAG_SIS          0x80000007L = Single Instance Storage
+    IO_REPARSE_TAG_WIM          0x80000008L = Windows Imaging Format
+    IO_REPARSE_TAG_CSV          0x80000009L = Cluster Shared Volumes
+    
+   {
+     Other tags are shown as ":XXXXXXXX" (X is a hex digit).
+     As the info is too specific, it is not displayed by default.
+     To display it, set the "Panel.Layout\ShowUnknownReparsePoint" parameter to 1:
+      <?xml version="1.0" encoding="UTF-8" ?>
+      <farconfig>
+          <generalconfig>
+              <setting key="Panel.Layout" name="ShowUnknownReparsePoint" type="qword" value="0000000000000001" />
+          </generalconfig>
+      </farconfig>
+   }
+
+   An option is added to panel settings: "Determine Volume Mount point".
+   It allows specitying "Junction" in "size" field for directories (either "Junction" or "Volume").
+   The option if off by default for panels because of its slow execution (especially on network volumes).
+
+   Links info is not shown in QView if the file object is inaccessible, because of apiGetFileAttributes() failure.
+
+2. The links field does exist in attributes settings dialog, but it is RO in case of unsuccessful obtaining of the info and 'Reparse'.
+
+3. Macro: panel.item(XX,XX,23) returns ReparseTag
+
 drkns 22.04.2012 02:16:36 +0200 - build 2631
 
 1. Drive menu was not invoked if '@:' drive had been opened in the panel.
@@ -1607,7 +1776,7 @@ svs 13.01.2012 16:18:16 +0400 - build 2372
 
    So far, not all values can be obtained using Far.Cfg.Get(), config.cpp has to be redone.
 
-2. Again on "batteries" (см. b.2297)
+2. Again on "batteries" (see b.2297)
    Info panel automatic update is added in the case if it is visible and displaying of power state is on and visible.
    Automatic update on charge amount per cent is available in Vista and upper.
 
@@ -8552,7 +8721,7 @@ Here Mode is:
 
 2. Macro: msave() for double type keeps its value as a string.
 
-3. If Far is in administrator mode, the environment variable FARADMINMODE is set, it equals to "(Administrator)" (см. MConfigCmdlinePromptFormatAdmin)
+3. If Far is in administrator mode, the environment variable FARADMINMODE is set, it equals to "(Administrator)" (see MConfigCmdlinePromptFormatAdmin)
 One can make use of it in CmdPrompt.
 
 drkns 29.12.2009 00:44:26 +0200 - build 1302
