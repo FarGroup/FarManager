@@ -991,7 +991,11 @@ void Dialog::ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex)
 
 		if ((EditPtr = (DlgEdit *)(CurItem->ObjPtr)) )
 		{
-			EditPtr->GetHistory()->ReadLastItem(CurItem->strHistory, strData);
+			History *DlgHistory = EditPtr->GetHistory();
+			if(DlgHistory)
+			{
+				DlgHistory->ReadLastItem(CurItem->strHistory, strData);
+			}
 
 			if (MsgIndex != -1)
 			{
