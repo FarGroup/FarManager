@@ -2604,6 +2604,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
 	bool RootPath = false;
 	bool NetPath = false;
+	bool DrivePath = false;
+
 	if (PanelMode!=PLUGIN_PANEL)
 	{
 		if (dot2Present)
@@ -2614,6 +2616,11 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 			{
 				NetPath = true;
 			}
+			else if(Type == PATH_DRIVELETTER)
+			{
+				DrivePath = true;
+			}
+
 			if(!RootPath)
 			{
 				CutToSlash(strSetDir);
@@ -2712,7 +2719,17 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 						return FALSE;
 					}
 				}
-
+				if(DrivePath)
+				{
+					string RemoteName;
+					if(DriveLocalToRemoteName(DRIVE_REMOTE, strCurDir.At(0), RemoteName))
+					{
+						if (CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Network,OPEN_FILEPANEL,(void*)RemoteName.CPtr())) // NetWork Plugin :-)
+						{
+							return FALSE;
+						}
+					}
+				}
 				CtrlObject->Cp()->ActivePanel->ChangeDisk();
 				return TRUE;
 			}

@@ -462,7 +462,7 @@ void ConvertNameToUNC(string &strFileName)
 		// BugZ#449 - Неверная работа CtrlAltF с ресурсами Novell DS
 		// Здесь, если не получилось получить UniversalName и если это
 		// мапленный диск - получаем как для меню выбора дисков
-		if (!DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName.At(0),strTemp).IsEmpty())
+		if (DriveLocalToRemoteName(DRIVE_UNKNOWN,strFileName.At(0),strTemp))
 		{
 			const wchar_t *NamePtr=FirstSlash(strFileName);
 

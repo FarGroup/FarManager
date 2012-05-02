@@ -170,7 +170,7 @@ string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName)
 	return strComputerName;
 }
 
-string &DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
+bool DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
 {
 	bool NetPathShown=false, IsOK=false;
 	wchar_t LocalName[8]=L" :\0\0\0";
@@ -203,5 +203,5 @@ string &DriveLocalToRemoteName(int DriveType, wchar_t Letter, string &strDest)
 	if (IsOK)
 		strDest = strRemoteName;
 
-	return strDest;
+	return IsOK;
 }

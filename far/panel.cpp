@@ -748,8 +748,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					//вызовем EMenu если он есть
 					if (item && !item->bIsPlugin && CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Emenu))
 					{
-						string DeviceName("?:\\");
-						DeviceName.Replace(0, item->cDrive);
+						const wchar_t DeviceName[] = {item->cDrive, L':', L'\\', 0};
 						struct DiskMenuParam {const wchar_t* CmdLine; BOOL Apps;} p = {DeviceName, Key!=KEY_MSRCLICK};
 						CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu, OPEN_LEFTDISKMENU, &p); // EMenu Plugin :-)
 					}
@@ -2529,7 +2528,8 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	size_t Len3 = DCDlg[2].strData.GetLength();
 	size_t Len4 = DCDlg[5].strData.GetLength();
 	Len1 = Max(Len1,Max(Len2,Max(Len3,Len4)));
-	DCDlg[3].strData = TruncPathStr(DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strMsgText), static_cast<int>(Len1));
+	DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strMsgText);
+	DCDlg[3].strData = TruncPathStr(strMsgText, static_cast<int>(Len1));
 	// проверяем - это было постоянное соедение или нет?
 	// Если ветка в реестре HKCU\Network\БукваДиска есть - это
 	//   есть постоянное подключение.

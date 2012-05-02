@@ -39,4 +39,4 @@ void ConnectToNetworkDrive(const wchar_t *NewDir);
 string &CurPath2ComputerName(const wchar_t *CurDir, string &strComputerName);
 
 // Получить из имени диска RemoteName
-string &DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);
+bool DriveLocalToRemoteName(int DriveType,wchar_t Letter,string &strDest);
