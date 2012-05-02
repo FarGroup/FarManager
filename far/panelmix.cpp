@@ -121,7 +121,7 @@ int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
 
 		if (wcsstr(strAnotherCurDir,strFullName))
 		{
-			((FileList*)AnotherPanel)->CloseChangeNotification();
+			((FileList*)AnotherPanel)->StopFSWatcher();
 			return TRUE;
 		}
 	}

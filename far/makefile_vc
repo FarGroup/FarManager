@@ -147,6 +147,7 @@ LINK_OBJS = \
 	"$(INTDIR)\fileowner.obj" \
 	"$(INTDIR)\filepanels.obj" \
 	"$(INTDIR)\filestr.obj" \
+	"$(INTDIR)\filesystemwatcher.obj" \
 	"$(INTDIR)\filetype.obj" \
 	"$(INTDIR)\fileview.obj" \
 	"$(INTDIR)\findfile.obj" \

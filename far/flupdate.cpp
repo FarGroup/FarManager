@@ -144,7 +144,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	FileListItem *CurPtr=0,**OldData=0;
 	string strCurName, strNextCurName;
 	int OldFileCount=0;
-	CloseChangeNotification();
+	StopFSWatcher();
 
 	if (this!=CtrlObject->Cp()->LeftPanel && this!=CtrlObject->Cp()->RightPanel)
 		return;
@@ -471,7 +471,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		}
 	}
 
-	CreateChangeNotification(FALSE);
+	InitFSWatcher(false);
 	CorrectPosition();
 
 	if (KeepSelection || PrevSelFileCount>0)
@@ -522,9 +522,9 @@ int FileList::UpdateIfChanged(int UpdateMode)
 			/* $ 24.12.2002 VVM
 			  ! ѕомен€ем логику обновлени€ панелей. */
 			if (// Ќормальна€ панель, на ней установлено уведомление и есть сигнал
-			    (PanelMode==NORMAL_PANEL && hListChange!=INVALID_HANDLE_VALUE && WaitForSingleObject(hListChange,0)==WAIT_OBJECT_0) ||
+			    (PanelMode==NORMAL_PANEL && FSWatcher.Signaled()) ||
 			    // »ли Ќормальна€ панель, но нет уведомлени€ и мы попросили обновить через UPDATE_FORCE
-			    (PanelMode==NORMAL_PANEL && hListChange==INVALID_HANDLE_VALUE && UpdateMode==UIC_UPDATE_FORCE) ||
+			    (PanelMode==NORMAL_PANEL && UpdateMode==UIC_UPDATE_FORCE) ||
 			    // »ли плагинна€ панель и обновл€ем через UPDATE_FORCE
 			    (PanelMode!=NORMAL_PANEL && UpdateMode==UIC_UPDATE_FORCE)
 			)
@@ -552,11 +552,11 @@ int FileList::UpdateIfChanged(int UpdateMode)
 	return FALSE;
 }
 
-void FileList::CreateChangeNotification(int CheckTree)
+void FileList::InitFSWatcher(bool CheckTree)
 {
 	wchar_t RootDir[4]=L" :\\";
 	DWORD DriveType=DRIVE_REMOTE;
-	CloseChangeNotification();
+	StopFSWatcher();
 	PATH_TYPE Type = ParsePath(strCurDir);
 
 	if (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC)
@@ -567,29 +567,19 @@ void FileList::CreateChangeNotification(int CheckTree)
 
 	if (Opt.AutoUpdateRemoteDrive || (!Opt.AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == PATH_VOLUMEGUID)
 	{
-		hListChange=FindFirstChangeNotification(strCurDir,CheckTree,
-		                                        FILE_NOTIFY_CHANGE_FILE_NAME|
-		                                        FILE_NOTIFY_CHANGE_DIR_NAME|
-		                                        FILE_NOTIFY_CHANGE_ATTRIBUTES|
-		                                        FILE_NOTIFY_CHANGE_SIZE|
-		                                        FILE_NOTIFY_CHANGE_LAST_WRITE);
+		FSWatcher.Set(strCurDir, CheckTree);
+		StartFSWatcher();
 	}
 }
 
-
-void FileList::CloseChangeNotification()
+void FileList::StartFSWatcher()
 {
-	if (hListChange!=INVALID_HANDLE_VALUE)
-	{
-		HANDLE hCloseThread = CreateThread(nullptr, 0, (LPTHREAD_START_ROUTINE)FindCloseChangeNotification, hListChange, 0, nullptr);
+	FSWatcher.Watch();
+}
 
-		if (hCloseThread)
-			CloseHandle(hCloseThread);
-		else
-			FindCloseChangeNotification(hListChange);
-
-		hListChange=INVALID_HANDLE_VALUE;
-	}
+void FileList::StopFSWatcher()
+{
+	FSWatcher.Release();
 }
 
 static int WINAPI SortSearchList(const void *el1,const void *el2,void*)
@@ -646,7 +636,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	FileListItem *CurPtr, **OldData=0;
 	string strCurName, strNextCurName;
 	int OldFileCount=0;
-	CloseChangeNotification();
+	StopFSWatcher();
 	LastCurFile=-1;
 	OpenPanelInfo Info;
 	CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);

@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DList.hpp"
 #include "panelctype.hpp"
 #include "plugins.hpp"
+#include "filesystemwatcher.hpp"
 
 class FileFilter;
 
@@ -195,7 +196,7 @@ class FileList:public Panel
 		HANDLE hPlugin;
 		DList<PrevDataItem*>PrevDataList;
 		DList<PluginsListItem*>PluginsList;
-		HANDLE hListChange;
+		FileSystemWatcher FSWatcher;
 		long UpperFolderTopFile,LastCurFile;
 		long ReturnCurrentFile;
 		size_t SelFileCount;
@@ -324,8 +325,9 @@ class FileList:public Panel
 		virtual void UpdateIfRequired();
 
 		virtual int SendKeyToPlugin(DWORD Key,bool Pred=false);
-		void CreateChangeNotification(int CheckTree);
-		virtual void CloseChangeNotification();
+		void InitFSWatcher(bool CheckTree);
+		virtual void StartFSWatcher();
+		virtual void StopFSWatcher();
 		virtual void SortFileList(int KeepPosition);
 		virtual void SetViewMode(int ViewMode);
 		virtual void SetSortMode(int SortMode);

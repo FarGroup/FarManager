@@ -56,6 +56,7 @@ SRCS = \
 	fileowner.cpp \
 	filepanels.cpp \
 	filestr.cpp \
+	filesystemwatcher.cpp \
 	filetype.cpp \
 	fileview.cpp \
 	findfile.cpp \
