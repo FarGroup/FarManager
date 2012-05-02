@@ -2776,6 +2776,7 @@ int Dialog::ProcessKey(int Key)
 			break;
 
 		case KEY_F11:
+			if (!IsProcessAssignMacroKey)
 			{
 				if(!CheckDialogMode(DMODE_NOPLUGINS))
 				{

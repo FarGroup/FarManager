@@ -1,3 +1,22 @@
+svs 02.05.2012 10:25:17 +0400 - build 2653
+
+1. Mantis#0002089: ѕадение при попытке вызвать меню плагинов в диалоге редактировани€ макроса.
+   
+   зацикливаетс€ в dialog.cpp#2782 при вызове
+   return FrameManager->ProcessKey(Key); 
+
+   0. FrameManager->ProcessKey(KEY_F11); ==>
+   1. Dialog::ProcessKey(KEY_F11) ==>
+   2. Manager::ProcessKey(KEY_F11); здесь срабатывает "if (!IsProcessAssignMacroKey)" и весь блок пропускаетс€ ==> CurrentFrame->ProcessKey(KEY_F11);
+   4. goto 1
+
+   ¬ диалоге изменени€ параметров макроса нефиг плагинам делать.
+   ≈сли "ай как нада", то 
+   1) ќткатить этот патч (удалить "if (!IsProcessAssignMacroKey)" в Dialog::ProcessKey в обработке F11)
+   2) в Manager::ProcessKey обработку KEY_F11 вынести перед "if (!IsProcessAssignMacroKey)"
+
+   Ќо, IMHO, оп€ть получим "цикл", если потом "закроетс€" обработка KEY_F11 в Manager::ProcessKey ("¬ диалогах по F11 могло вызыватьс€ панельное меню плагинов")
+
 drkns 29.04.2012 16:19:25 +0200 - build 2652
 
 1. 0002090: Far валитс€ при DIF_USELASTHISTORY
