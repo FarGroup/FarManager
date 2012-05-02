@@ -2719,7 +2719,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 						return FALSE;
 					}
 				}
-				if(DrivePath)
+				if(DrivePath && Opt.PgUpChangeDisk == 2)
 				{
 					string RemoteName;
 					if(DriveLocalToRemoteName(DRIVE_REMOTE, strCurDir.At(0), RemoteName))

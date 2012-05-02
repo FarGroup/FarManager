@@ -301,7 +301,7 @@ void InterfaceSettings()
 	Builder.AddCheckbox(MConfigCopyTotal, &Opt.CMOpt.CopyShowTotal);
 	Builder.AddCheckbox(MConfigCopyTimeRule, &Opt.CMOpt.CopyTimeRule);
 	Builder.AddCheckbox(MConfigDeleteTotal, &Opt.DelOpt.DelShowTotal);
-	Builder.AddCheckbox(MConfigPgUpChangeDisk, &Opt.PgUpChangeDisk);
+	Builder.AddCheckbox(MConfigPgUpChangeDisk, &Opt.PgUpChangeDisk, 0, true);
 	Builder.AddCheckbox(MConfigClearType, &Opt.ClearType);
 	Builder.AddText(MConfigTitleAddons);
 	Builder.AddEditField(&Opt.strTitleAddons, 47);

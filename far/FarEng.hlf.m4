@@ -2450,10 +2450,9 @@ This may require some additional time before starting deleting
 to calculate the total files count.
 
   #Use Ctrl-PgUp to change drive#
-  Pressing #Ctrl-PgUp# in the root directory:
-  - for local drives - shows the drive selection menu;
-  - for network drives - activates the Network plugin (if it is available)
-or the drive selection menu (if the Network plugin is not available).
+  Pressing #Ctrl-PgUp# in the root directory shows the drive selection menu.
+  If Network plugin is installed, for network folders (and network drives, if switch
+is in the third state) a list of server shared resources  will be shown.
 
   #ClearType friendly redraw#
   Redraw the window in such a way that ClearType related artifacts do not appear.
