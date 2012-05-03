@@ -1662,6 +1662,7 @@ int Editor::ProcessKey(int Key)
 							CurLine->GetSelection(SelStart,SelEnd);
 							CurLine->m_next->GetSelection(NextSelStart,NextSelEnd);
 							const wchar_t *Str;
+							const wchar_t *NextEOL = CurLine->m_next->GetEOL();
 							int NextLength;
 							CurLine->m_next->GetBinaryString(&Str,nullptr,NextLength);
 							CurLine->InsertBinaryString(Str,NextLength);
@@ -1669,8 +1670,7 @@ int Editor::ProcessKey(int Key)
 							CurLine->SetCurPos(CurPos);
 							DeleteString(CurLine->m_next,NumLine+1,TRUE,NumLine+1);
 
-							if (!NextLength)
-								CurLine->SetEOL(L"");
+							CurLine->SetEOL(NextEOL);
 
 							if (NextSelStart!=-1)
 							{
@@ -3270,12 +3270,6 @@ void Editor::InsertString()
 	const wchar_t *EndSeq;
 	CurLine->GetBinaryString(&CurLineStr,&EndSeq,Length);
 
-	/* $ 13.01.2002 IS
-	   Если не был определен тип конца строки, то считаем что конец строки
-	   у нас равен DOS_EOL_fmt и установим его явно.
-	*/
-	if (!*EndSeq)
-		CurLine->SetEOL(*GlobalEOL?GlobalEOL:DOS_EOL_fmt);
 
 	CurPos=CurLine->GetCurPos();
 	CurLine->GetSelection(SelStart,SelEnd);
@@ -3356,7 +3350,7 @@ void Editor::InsertString()
 		AddUndoData(UNDO_BEGIN);
 		AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,
 		            CurLine->GetCurPos(),CurLine->GetLength());
-		AddUndoData(UNDO_INSSTR,nullptr,EndList==CurLine?L"":GlobalEOL,NumLine+1,0); // EOL? - CurLine->GetEOL()  GlobalEOL   ""
+		AddUndoData(UNDO_INSSTR,nullptr,CurLine->GetEOL(),NumLine+1,0);
 		AddUndoData(UNDO_END);
 		wchar_t *NewCurLineStr = (wchar_t *) xf_malloc((CurPos+1)*sizeof(wchar_t));
 
@@ -3374,15 +3368,25 @@ void Editor::InsertString()
 		}
 
 		CurLine->SetBinaryString(NewCurLineStr,StrSize);
-		CurLine->SetEOL(EndSeq);
 		xf_free(NewCurLineStr);
 		Change(ECTYPE_CHANGED,NumLine);
 	}
 	else
 	{
 		NewString->SetString(L"");
-		AddUndoData(UNDO_INSSTR,nullptr,L"",NumLine+1,0);// EOL? - CurLine->GetEOL()  GlobalEOL   ""
+		AddUndoData(UNDO_INSSTR,nullptr,CurLine->GetEOL(),NumLine+1,0);
 	}
+
+	if (EndSeq && *EndSeq)
+	{
+		CurLine->SetEOL(EndSeq);
+	}
+	else
+	{
+		CurLine->SetEOL(*GlobalEOL?GlobalEOL:DOS_EOL_fmt);
+		NewString->SetEOL(EndSeq);
+	}
+
 	Change(ECTYPE_CHANGED,NumLine+1);
 
 	if (VBlockStart && NumLine<VBlockY+VBlockSizeY)
@@ -4118,10 +4122,24 @@ void Editor::Paste(const wchar_t *Src)
 				CurLine->Select(StartPos,-1);
 				StartPos=0;
 				EdOpt.AutoIndent=FALSE;
+				Edit *PrevLine=CurLine;
 				ProcessKey(KEY_ENTER);
+				//_ASSERTE(PrevLine!=CurLine);
+				wchar_t ClipEol[4] = {ClipText[I]};
+				if (ClipText[I]==L'\r' && ClipText[I+1]==L'\n')
+				{
+					ClipEol[1]=L'\n';
+					if (ClipText[I+2]==L'\n')
+						ClipEol[2]=L'\n'; // \r\n\n
+				}
+				PrevLine->SetEOL(ClipEol);
 
 				if (ClipText[I]==L'\r' && ClipText[I+1]==L'\n')
+				{
 					I++;
+					if (ClipText[I+1]==L'\n')
+						I++; // \r\n\n
+				}
 
 				I++;
 			}
@@ -4213,6 +4231,7 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 
 	size_t TotalChars = DataSize;
 	int StartSel, EndSel;
+	const wchar_t* Eol;
 	for (Edit *Ptr = BlockStart; Ptr; Ptr = Ptr->m_next)
 	{
 		Ptr->GetSelection(StartSel, EndSel);
@@ -4221,7 +4240,9 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 		if (EndSel == -1)
 		{
 			TotalChars += Ptr->GetLength() - StartSel;
-			TotalChars += 2; // CRLF
+			Eol = Ptr->GetEOL();
+			TotalChars += wcslen(Eol); // CRLF/CRCRLF/...
+
 		}
 		else
 			TotalChars += EndSel - StartSel;
@@ -4266,8 +4287,13 @@ wchar_t *Editor::Block2Text(wchar_t *ptrInitData)
 
 		if (EndSel == -1)
 		{
-			wcscpy(CopyData + DataSize, DOS_EOL_fmt);
-			DataSize += 2;
+			Eol = Ptr->GetEOL();
+			if (*Eol)
+			{
+				wcscpy(CopyData + DataSize, Eol);
+				DataSize += wcslen(Eol);
+			}
+
 		}
 	}
 

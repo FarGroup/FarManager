@@ -1972,7 +1972,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 
-			if (!*EndSeq && CurPtr->m_next)
+			if (!*EndSeq && CurPtr->m_next && (*CurPtr->GetEOL()))
 				EndSeq=*m_editor->GlobalEOL ? m_editor->GlobalEOL:DOS_EOL_fmt;
 
 			if (TextFormat && *EndSeq)

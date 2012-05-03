@@ -379,7 +379,7 @@ void Edit::FastShow()
 		{
 			if (Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE))
 			{
-				if (*p==L' ')
+				if (*p==L' ') // *p==L'\xA0' ==> NO-BREAK SPACE
 				{
 					*p=L'\xB7';
 				}
