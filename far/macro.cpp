@@ -5069,7 +5069,7 @@ initial:
 
 begin:
 
-	if (Work.ExecLIBPos>=MR->BufferSize || !MR->Buffer)
+	if (!MR || Work.ExecLIBPos>=MR->BufferSize || !MR->Buffer)
 	{
 done:
 
@@ -5096,7 +5096,8 @@ done:
 		{
 			if (LockScr) delete LockScr;
 			LockScr=nullptr;
-			MR->Flags&=~MFLAGS_DISABLEOUTPUT; // ????
+			if (MR)
+				MR->Flags&=~MFLAGS_DISABLEOUTPUT; // ????
 		}
 
 		Clipboard::SetUseInternalClipboardState(false); //??
@@ -6036,6 +6037,9 @@ done:
 					if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
 						Ret=(__int64)ResultCallPlugin;
 
+					if (MR != Work.MacroWORK) // ??? Mantis#0002094 ???
+						MR=Work.MacroWORK;
+
 					if( CallPluginRules == 1 )
 						PopState();
 					else
@@ -6121,6 +6125,8 @@ done:
 					// ≈сли нашли успешно - то теперь выполнение
 					Data.CallFlags&=~CPT_CHECKONLY;
 					CtrlObject->Plugins->CallPluginItem(guid,&Data);
+					if (MR != Work.MacroWORK)
+						MR=Work.MacroWORK;
 				}
 			}
 			else
