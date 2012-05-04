@@ -189,7 +189,7 @@ void SQLiteDb::Initialize(const wchar_t* DbName, bool Local)
 
 int SQLiteDb::InitStatus(const wchar_t* &name, bool full_name)
 {
-	name = full_name && !strPath.IsEmpty() ? strPath.CPtr() : strName.CPtr();
+	name = (full_name && !strPath.IsEmpty() && strPath != L":memory:") ? strPath.CPtr() : strName.CPtr();
 	return init_status;
 }
 

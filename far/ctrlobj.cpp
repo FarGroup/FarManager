@@ -181,7 +181,7 @@ void ControlObject::ShowCopyright(DWORD Flags)
 	{
 		string strOut(Version);
 		strOut.Append(L"\n").Append(Copyright).Append(L"\n");
-		Console.Write(strOut,strOut.GetLength());
+		Console.Write(strOut);
 		Console.Commit();
 	}
 	else

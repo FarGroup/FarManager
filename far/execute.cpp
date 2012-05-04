@@ -1614,7 +1614,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			}
 			FreeEnvironmentStrings(Environment);
 			strOut.Append(L"\n\n", Opt.ShowKeyBar?2:1);
-			Console.Write(strOut, strOut.GetLength());
+			Console.Write(strOut);
 			Console.Commit();
 			ScrBuf.FillBuf();
 			SaveBackground();

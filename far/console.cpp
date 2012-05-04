@@ -834,6 +834,8 @@ bool console::ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEve
 bool console::WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const {return Core->WriteInput(Buffer, Length, NumberOfEventsWritten);}
 bool console::ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const {return Core->ReadOutput(Buffer, BufferSize, BufferCoord, ReadRegion);}
 bool console::WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const {return Core->WriteOutput(Buffer, BufferSize, BufferCoord, WriteRegion);}
+bool console::Write(const string& Buffer) const {return Write(Buffer, Buffer.GetLength());}
+bool console::Write(LPCWSTR Buffer) const {return Write(Buffer, wcslen(Buffer));}
 bool console::Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const {return Core->Write(Buffer, NumberOfCharsToWrite);}
 bool console::Commit() const {return Core->Commit();}
 bool console::GetTextAttributes(FarColor& Attributes) const {return Core->GetTextAttributes(Attributes);}

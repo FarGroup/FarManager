@@ -185,7 +185,7 @@ static inline void PrintError(const wchar_t *Title, const wchar_t *Error, int Ro
 {
 	FormatString strResult;
 	strResult<<Title<<" ("<<Row<<L","<<Col<<L"): "<<Error<<L"\n";
-	Console.Write(strResult.CPtr(),StrLength(strResult));
+	Console.Write(strResult);
 	Console.Commit();
 }
 
@@ -3032,10 +3032,10 @@ static void check_db( SQLiteDb *pDb, bool err_report )
 	{
 		if ( err_report )
 		{
-			Console.Write(L"problem\r\n  ", 11);
-			Console.Write(pname, wcslen(pname));
+			Console.Write(L"problem\r\n  ");
+			Console.Write(pname);
 			pname = rc <= 1 ? L"\r\n  renamed/reopened\r\n" : L"\r\n  opened in memory\r\n";
-			Console.Write(pname, wcslen(pname));
+			Console.Write(pname);
 			Console.Commit();
 		}
 		else if ( nProblem < (int)ARRAYSIZE(sProblem) ) {
@@ -3044,18 +3044,25 @@ static void check_db( SQLiteDb *pDb, bool err_report )
 	}
 }
 
+template<class T>
+T* new_db(bool err_report)
+{
+	T* p = new T();
+	check_db(p, err_report);
+	return p;
+}
+
 void InitDb( bool err_report )
 {
-  #define NEW_DB(pCfg,DBTY) DBTY *p##DBTY = new DBTY(); pCfg = p##DBTY; check_db(p##DBTY,err_report);
 	nProblem = 0;
-	NEW_DB(GeneralCfg, GeneralConfigDb)
-	NEW_DB(ColorsCfg, ColorsConfigDb)
-	NEW_DB(AssocConfig, AssociationsConfigDb)
-	NEW_DB(PlCacheCfg, PluginsCacheConfigDb)
-	NEW_DB(PlHotkeyCfg, PluginsHotkeysConfigDb)
-	NEW_DB(HistoryCfg, HistoryConfigDb)
-	NEW_DB(HistoryCfgMem, HistoryConfigMemory)
-	NEW_DB(MacroCfg, MacroConfigDb)
+	GeneralCfg = new_db<GeneralConfigDb>(err_report);
+	ColorsCfg = new_db<ColorsConfigDb>(err_report);
+	AssocConfig = new_db<AssociationsConfigDb>(err_report);
+	PlCacheCfg = new_db<PluginsCacheConfigDb>(err_report);
+	PlHotkeyCfg = new_db<PluginsHotkeysConfigDb>(err_report);
+	HistoryCfg = new_db<HistoryConfigDb>(err_report);
+	HistoryCfgMem = new_db<HistoryConfigMemory>(err_report);
+	MacroCfg = new_db<MacroConfigDb>(err_report);
 }
 
 void ReleaseDb()

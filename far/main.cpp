@@ -418,6 +418,9 @@ int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
+	ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX;
+	SetErrorMode(ErrorMode);
+
 	std::set_new_handler(nullptr);
 	QueryPerformanceCounter(&FarUpTime);
 
@@ -747,7 +750,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 			LngMsg = L"\nError: cannot load language data.\n\nPress any key to exit...";
 			break;
 		}
-		Console.Write(LngMsg,StrLength(LngMsg));
+		Console.Write(LngMsg);
+		Console.Commit();
 		Console.FlushInputBuffer();
 		WaitKey(); // А стоит ли ожидать клавишу??? Стоит
 		return 1;

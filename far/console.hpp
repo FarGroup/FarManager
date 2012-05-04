@@ -77,6 +77,7 @@ public:
 	bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const ;
 	bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const;
 	bool Write(LPCWSTR Buffer) const;
+	bool Write(const string& Buffer) const;
 	bool Write(LPCWSTR Buffer, size_t NumberOfCharsToWrite) const;
 	bool Commit() const;
 

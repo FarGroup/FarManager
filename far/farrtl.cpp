@@ -24,7 +24,7 @@ bool InsufficientMemoryHandler()
 	Console.GetCursorPosition(OldPos);
 	Console.SetCursorPosition(Pos);
 	static WCHAR ErrorMessage[] = L"Not enough memory is available to complete this operation.\nPress Enter to retry or Esc to continue...";
-	Console.Write(ErrorMessage, ARRAYSIZE(ErrorMessage));
+	Console.Write(ErrorMessage, ARRAYSIZE(ErrorMessage)-1);
 	Console.Commit();
 	Console.SetCursorPosition(OldPos);
 	INPUT_RECORD ir={};
