@@ -6229,7 +6229,7 @@ return_func:
 
 #else
 
-	if (MR==Work.MacroWORK && Work.ExecLIBPos>=MR->BufferSize)
+	if (MR && MR==Work.MacroWORK && Work.ExecLIBPos>=MR->BufferSize)
 	{
 		_KEYMACRO(SysLog(-1); SysLog(L"[%d] **** End Of Execute Macro ****",__LINE__));
 		if (--Work.KeyProcess < 0)
