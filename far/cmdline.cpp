@@ -341,9 +341,16 @@ int CommandLine::ProcessKey(int Key)
 				//Type==1 - плагиновый путь
 				//Type==0 - обычный путь
 				Panel->ExecShortcutFolder(strStr,Guid,strFile,strData,true);
+				// Panel may be changed
 				if(SelectType == 6)
 				{
-					CtrlObject->Cp()->ActivePanel->SetCurPath();
+					Panel=CtrlObject->Cp()->ActivePanel;
+					Panel->SetCurPath();
+					Panel=CtrlObject->Cp()->GetAnotherPanel(Panel);
+				}
+				else
+				{
+					Panel=CtrlObject->Cp()->ActivePanel;
 				}
 				Panel->Redraw();
 				CtrlObject->FolderHistory->SetAddMode(true,2,true);
