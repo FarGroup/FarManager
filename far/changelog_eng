@@ -3,6 +3,76 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+svs 05.05.2012 16:18:15 +0400 - build 2662
+
+1. Mantis#0002095: Crash on history-guided transition to a plugin
+   (from Maximus)
+
+svs 04.05.2012 23:11:07 +0400 - build 2661
+
+1. Correction of 2660
+
+svs 04.05.2012 12:55:16 +0400 - build 2660
+
+1. Mantis#0001879: FAR ignores the absence of EOL specified by a plugin
+   (from Maximus)
+   ANSI plugins...
+
+2. Mantis#0002094: Duplication of Enter on Eval call (from a macro)
+   Highly experimental.
+   It needs checking.
+   incl. callplugin etc...
+
+drkns 04.05.2012 11:11:26 +0200 - build 2659
+
+1. SetErrorMode was set later than necessary.
+
+2. A couple of minor issues.
+
+svs 03.05.2012 15:03:42 +0400 - build 2658
+
+1. Mantis#0001879: FAR ignores the absence of EOL specified by a plugin
+   (from Maximus)
+   without DropModified.diff
+
+2. Some help for editor option "Show white space"
+
+svs 03.05.2012 10:04:23 +0400 - build 2657
+
+1. Mantis#0001743: History switch off capability
+   Correction of build 2338.
+
+drkns 02.05.2012 21:30:43 +0200 - build 2656
+
+1. Monitoring changes in folders opened in panels only if FAR has a focus.
+
+drkns 02.05.2012 18:23:04 +0200 - build 2655
+
+1. Continuation of 2655 - "Use Ctrl-PgUp to change drive" switch now has 3 positions.
+
+drkns 02.05.2012 18:01:04 +0200 - build 2654
+
+1. 0002093: Ctrl-PgUp shows volumes list only
+
+svs 02.05.2012 10:25:17 +0400 - build 2653
+
+1. Mantis#0002089: Crash on plugins menu call attempt in the macro editing dialog.
+   
+   endless loop in dialog.cpp#2782 at:
+   return FrameManager->ProcessKey(Key); 
+
+   0. FrameManager->ProcessKey(KEY_F11); ==>
+   1. Dialog::ProcessKey(KEY_F11) ==>
+   2. Manager::ProcessKey(KEY_F11); here goes "if (!IsProcessAssignMacroKey)" and the whole block is skipped ==> CurrentFrame->ProcessKey(KEY_F11);
+   4. goto 1
+
+   There's no need for plugins in macro parameters changing dialog.
+   But if you wish them here, then:
+   1) Roll this patch back (remove "if (!IsProcessAssignMacroKey)" in Dialog::ProcessKey in processing of F11)
+   2) in Manager::ProcessKey, move processing of KEY_F11 before "if (!IsProcessAssignMacroKey)"
+
+   But then, IMHO, we'll get the "loop" again if processing of KEY_F11 in Manager::ProcessKey will be "closed" come day (see changelog for build 1360)
+
 drkns 29.04.2012 16:19:25 +0200 - build 2652
 
 1. 0002090: FAR crash at DIF_USELASTHISTORY
