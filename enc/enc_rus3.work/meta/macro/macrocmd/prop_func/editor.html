@@ -349,6 +349,60 @@ $end</code></pre>
     </td>
   </tr>
 
+  <tr>
+    <td>N=<dfn><a name="editor.delline">editor.delline</a></dfn>([Line])</td>
+    <td>
+      <p>Удаление строки с номером <var>Line</var>. Если <var>Line</var> не указан или меньше 1, то удаляется текущая строка.</p>
+      <p>Возвращает 1 для успешно выполненной операции или 0 - если редактор не в фокусе/редактор залочен/нет строки с запрашиваемым номером.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>S=<dfn><a name="editor.getstr">editor.getstr</a></dfn>([Line])</td>
+    <td>
+      <p>Получить содержимое строки с номером <var>Line</var>. Если <var>Line</var> не указан или меньше 1, то возвращается текущая строка.</p>
+      <p>Возвращает 1 для успешно выполненной операции или 0 - если редактор не в фокусе/нет строки с запрашиваемым номером.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="editor.insstr">editor.insstr</a></dfn>([S[,Line]])</td>
+    <td>
+      <p>Вставить значение <var>S</var> в строку с номером <var>Line</var>.
+      Если <var>S</var> не указан, то вставляется пустая строка.
+      Если <var>Line</var> не указан или меньше 1, то вставляется в текущую строку.</p>
+      <p>Возвращает 1 для успешно выполненной операции или 0 - если редактор не в фокусе/редактор залочен/нет строки с запрашиваемым номером.</p>
+    </td>
+  </tr>
+  <tr>
+    <td>N=<dfn><a name="editor.setstr">editor.setstr</a></dfn>([S[,Line]])</td>
+    <td>
+      <p>Заменить строку с номером <var>Line</var> на значение <var>S</var>.
+      Если <var>S</var> не указан, то строка будет пустой.
+      Если <var>Line</var> не указан или меньше 1, то заменяется текущая строка.</p>
+      <p>Возвращает 1 для успешно выполненной операции или 0 - если редактор не в фокусе/редактор залочен/нет строки с запрашиваемым номером.</p>
+    </td>
+  </tr>
+  <tr><td colspan="2"><p>Удаление пустых строк:</p>
+<pre><code>$If(Selected)
+  %StartLine=Editor.Sel(0, 0);
+  %EndLine=Editor.Sel(0, 2);
+$Else
+  %StartLine=1;
+  %EndLine=Editor.Lines;
+$End
+
+%Count=%EndLine-%StartLine+1;
+%i=%StartLine;
+Editor.Undo(0);
+$Rep(%Count)
+  $If(Len(Trim(Editor.GetStr(%i)))==0)
+    Editor.DelLine(%i);
+  $Else
+    %i=%i+1;
+  $End
+$End
+Editor.Undo(1);
+</code></pre></td></tr>
+
   <tr><th colspan="2">Стековые закладки</th></tr>
   <tr>
     <th>Функция</th>
