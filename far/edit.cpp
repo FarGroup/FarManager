@@ -59,6 +59,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "chgmmode.hpp"
 #include "colormix.hpp"
 #include "fileedit.hpp"
+#include "imports.hpp"
 
 static int Recurse=0;
 
