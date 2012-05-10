@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 2609
+  Dynamic construction of dialogs for FAR Manager 3.0 build 2665
 */
 
 /*
@@ -591,7 +591,7 @@ class DialogBuilderBase
 		}
 
 		// Добавляет сепаратор, кнопки OK и Cancel.
-		void AddOKCancel(int OKMessageId, int CancelMessageId, bool Separator=true)
+		void AddOKCancel(int OKMessageId, int CancelMessageId, int ExtraMessageId = -1, bool Separator=true)
 		{
 			if (Separator)
 				AddSeparator();
@@ -607,9 +607,16 @@ class DialogBuilderBase
 				CancelButton->Flags = DIF_CENTERGROUP;
 				CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;
 			}
+
+			if(ExtraMessageId != -1)
+			{
+				T *ExtraButton = AddDialogItem(DI_BUTTON, GetLangString(ExtraMessageId));
+				ExtraButton->Flags = DIF_CENTERGROUP;
+				ExtraButton->Y1 = ExtraButton->Y2 = OKButton->Y1;
+			}
 		}
 
-		bool ShowDialog()
+		int ShowDialogEx()
 		{
 			UpdateBorderSize();
 			UpdateSecondColumnPosition();
@@ -617,10 +624,20 @@ class DialogBuilderBase
 			if (Result == OKButtonID)
 			{
 				SaveValues();
-				return true;
 			}
-			return false;
+
+			if(Result >= OKButtonID)
+			{
+				Result -= OKButtonID;
+			}
+			return Result;
 		}
+
+		bool ShowDialog()
+		{
+			return ShowDialogEx() == 0;
+		}
+
 };
 
 class PluginDialogBuilder;
