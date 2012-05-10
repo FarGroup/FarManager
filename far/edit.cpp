@@ -3632,7 +3632,16 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 										unsigned __int64* CurrentRecord = static_cast<unsigned __int64*>(ComplMenu.GetUserData(nullptr, 0));
 										if(CurrentRecord && pHistory->DeleteIfUnlocked(*CurrentRecord))
 										{
+											ComplMenu.DeleteItem(ComplMenu.GetSelectPos());
+											if(ComplMenu.GetItemCount()>1)
 											{
+												SetMenuPos(ComplMenu);
+												ComplMenu.Redraw();
+												Show();
+											}
+											else
+											{
+												ComplMenu.SetExitCode(-1);
 											}
 										}
 									}
