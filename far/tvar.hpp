@@ -126,10 +126,12 @@ class TVar
 		TVarType type()const { return vType; };
 		void SetType(TVarType newType) {vType=newType;};
 
-		int isString()   const { return vType == vtString;  }
-		int isInteger()  const { return vType == vtInteger || vType == vtUnknown; }
-		int isDouble()   const { return vType == vtDouble;  }
-		int isUnknown()  const { return vType == vtUnknown;  }
+		bool isString()   const { return vType == vtString;  }
+		bool isInteger()  const { return vType == vtInteger || vType == vtUnknown; }
+		bool isDouble()   const { return vType == vtDouble;  }
+		bool isUnknown()  const { return vType == vtUnknown;  }
+
+		bool isNumber()   const;
 
 		double d()         const;
 		__int64 i()        const;

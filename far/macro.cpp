@@ -4612,7 +4612,7 @@ static bool editordellineFunc(const TMacroFunction*)
 
 	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 	{
-		if (Line.isInteger())
+		if (Line.isNumber())
 		{
 			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_DELLINE, nullptr, Line.getInteger()-1);
 		}
@@ -4632,7 +4632,7 @@ static bool editorgetstrFunc(const TMacroFunction*)
 
 	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 	{
-		if (Line.isInteger())
+		if (Line.isNumber())
 		{
 			string strRes;
 			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_GETSTR, &strRes, Line.getInteger()-1);
@@ -4654,8 +4654,14 @@ static bool editorinsstrFunc(const TMacroFunction*)
 
 	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 	{
-		if (Line.isInteger())
+		if (Line.isNumber())
 		{
+			if (S.isUnknown())
+			{
+				S=L"";
+				S.toString();
+			}
+
 			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_INSSTR, (wchar_t *)S.s(), Line.getInteger()-1);
 		}
 	}
@@ -4674,8 +4680,14 @@ static bool editorsetstrFunc(const TMacroFunction*)
 
 	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 	{
-		if (Line.isInteger())
+		if (Line.isNumber())
 		{
+			if (S.isUnknown())
+			{
+				S=L"";
+				S.toString();
+			}
+
 			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_SETSTR, (wchar_t *)S.s(), Line.getInteger()-1);
 		}
 	}

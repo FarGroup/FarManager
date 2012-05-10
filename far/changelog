@@ -1,3 +1,17 @@
+svs 10.05.2012 20:55:52 +0400 - build 2669
+
+1. В TVar добавим isNumber() - число? (Integer/Real/StrNumber)
+
+2. Mantis#0002059: Макрофункции для обращения к строкам редактора по индексу
+   Теперь параметр Line может быть "числом" (Integer/Real/StrNumber), а не только Целым.
+   Преобразования:
+     Integer       -> Integer
+     Real          -> Integer
+     StrNumber     -> Integer
+     Not StrNumber -> error (editor.[get|set|ins|del]str не сработают)
+
+   Так же - если строка S не была указана, то она принимала значение "0".
+
 drkns 10.05.2012 16:16:31 +0200 - build 2668
 
 1. И ещё раз.

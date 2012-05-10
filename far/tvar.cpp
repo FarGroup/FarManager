@@ -459,6 +459,28 @@ double TVar::getDouble() const
 	return ret;
 };
 
+bool TVar::isNumber() const
+{
+	switch (type())
+	{
+		case vtUnknown:
+		case vtInteger:
+		case vtDouble:
+			return true;
+
+		case vtString:
+			switch (checkTypeString(str))
+			{
+				case tsInt:
+				case tsFloat:
+					return true;
+				default:
+					return false;
+			}
+	}
+
+	return false;
+}
 
 static int _cmp_Ne(TVarType vt,const void *a, const void *b)
 {
