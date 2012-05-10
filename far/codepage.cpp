@@ -409,15 +409,15 @@ void AddCodePages(DWORD codePages)
 		AddStandardCodePage(MSG(MDefaultCP), CP_DEFAULT, -1, true);
 		cp_auto = CP_REDETECT;
 	}
-	AddStandardCodePage((codePages & ::SearchAll) ? MSG(MFindFileAllCodePages) : MSG(MEditOpenAutoDetect), cp_auto, -1, (codePages & ::SearchAll) || (codePages & ::Auto));
+	AddStandardCodePage((codePages & ::SearchAll) ? MSG(MFindFileAllCodePages) : MSG(MEditOpenAutoDetect), cp_auto, -1, (codePages & (::SearchAll | ::Auto)) != 0);
 	AddSeparator(MSG(MGetCodePageSystem));
-	AddStandardCodePage(L"OEM", GetOEMCP(), -1, (codePages & ::OEM)?1:0);
-	AddStandardCodePage(L"ANSI", GetACP(), -1, (codePages & ::ANSI)?1:0);
+	AddStandardCodePage(L"OEM", GetOEMCP(), -1, (codePages & ::OEM) != 0);
+	AddStandardCodePage(L"ANSI", GetACP(), -1, (codePages & ::ANSI) != 0);
 	AddSeparator(MSG(MGetCodePageUnicode));
-	AddStandardCodePage(L"UTF-7", CP_UTF7, -1, (codePages & ::UTF7)?1:0);
-	AddStandardCodePage(L"UTF-8", CP_UTF8, -1, (codePages & ::UTF8)?1:0);
-	AddStandardCodePage(L"UTF-16 (Little endian)", CP_UNICODE, -1, (codePages & ::UTF16LE)?1:0);
-	AddStandardCodePage(L"UTF-16 (Big endian)", CP_REVERSEBOM, -1, (codePages & ::UTF16BE)?1:0);
+	if (codePages & ::UTF7) AddStandardCodePage(L"UTF-7", CP_UTF7, -1, true); //?? не поддерживается, да и нужно ли?
+	AddStandardCodePage(L"UTF-8", CP_UTF8, -1, (codePages & ::UTF8) != 0);
+	AddStandardCodePage(L"UTF-16 (Little endian)", CP_UNICODE, -1, (codePages & ::UTF16LE) != 0);
+	AddStandardCodePage(L"UTF-16 (Big endian)", CP_REVERSEBOM, -1, (codePages & ::UTF16BE) != 0);
 	// Получаем таблицы символов установленные в системе
 	EnumSystemCodePages((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
 }

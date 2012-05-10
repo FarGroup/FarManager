@@ -3430,19 +3430,23 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 								{
 									if(ComplMenu.GetItemCount()>1)
 									{
-										unsigned __int64 CurrentRecord = *static_cast<unsigned __int64*>(ComplMenu.GetUserData(nullptr, 0));
-										if (pHistory->DeleteIfUnlocked(CurrentRecord))
+										void *user_data = ComplMenu.GetUserData(nullptr, 0);
+										if (user_data)
 										{
-											ComplMenu.DeleteItem(ComplMenu.GetSelectPos());
-											if(ComplMenu.GetItemCount()>1)
+											unsigned __int64 CurrentRecord = *static_cast<unsigned __int64*>(user_data);
+											if (pHistory->DeleteIfUnlocked(CurrentRecord))
 											{
-												SetMenuPos(ComplMenu);
-												ComplMenu.Redraw();
-												Show();
-											}
-											else
-											{
-												ComplMenu.SetExitCode(-1);
+												ComplMenu.DeleteItem(ComplMenu.GetSelectPos());
+												if(ComplMenu.GetItemCount()>1)
+												{
+													SetMenuPos(ComplMenu);
+													ComplMenu.Redraw();
+													Show();
+												}
+												else
+												{
+													ComplMenu.SetExitCode(-1);
+												}
 											}
 										}
 									}
