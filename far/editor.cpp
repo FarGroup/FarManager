@@ -767,6 +767,64 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 			break;
 		}
+		case MCODE_F_EDITOR_DELLINE:  // N=Editor.DelLine([Line])
+		case MCODE_F_EDITOR_GETSTR:   // S=Editor.GetStr([Line])
+		case MCODE_F_EDITOR_INSSTR:   // N=Editor.InsStr([S[,Line]])
+		case MCODE_F_EDITOR_SETSTR:   // N=Editor.SetStr([S[,Line]])
+		{
+			if (Flags.Check(FEDITOR_LOCKMODE))
+			{
+				_ECTLLOG(SysLog(L"FEDITOR_LOCKMODE!"));
+				return 0;
+			}
+
+			int DestLine=iParam;
+
+			if (DestLine<0)
+				DestLine=NumLine;
+
+			Edit *EditPtr=GetStringByNumber(DestLine);
+
+			if (!EditPtr)
+			{
+				_ECTLLOG(SysLog(L"VMProcess(MCODE_F_EDITOR_*,...) => GetStringByNumber(%d) return nullptr",DestLine));
+				return 0;
+			}
+
+			//TurnOffMarkingBlock();
+
+			switch (OpCode)
+			{
+				case MCODE_F_EDITOR_DELLINE:  // N=Editor.DelLine([Line])
+				{
+					DeleteString(EditPtr,DestLine,TRUE,DestLine);
+					return 1;
+				}
+				case MCODE_F_EDITOR_GETSTR:  // S=Editor.GetStr([Line])
+				{
+					EditPtr->GetString(*(string *)vParam);
+					return 1;
+				}
+				case MCODE_F_EDITOR_INSSTR:  // N=Editor.InsStr([S[,Line]])
+				{
+					Edit *NewEditPtr=InsertString((const wchar_t *)vParam, StrLength((const wchar_t *)vParam), EditPtr, DestLine);
+					NewEditPtr->SetEOL(GlobalEOL);
+					AddUndoData(UNDO_INSSTR,NewEditPtr->GetStringAddr(),GlobalEOL,DestLine,0,NewEditPtr->GetLength());
+					Change(ECTYPE_ADDED,DestLine+1);
+					TextChanged(1);
+					return 1;
+				}
+				case MCODE_F_EDITOR_SETSTR:  // N=Editor.SetStr([S[,Line]])
+				{
+					AddUndoData(UNDO_EDIT,EditPtr->GetStringAddr(),EditPtr->GetEOL(),DestLine,0,EditPtr->GetLength());
+					EditPtr->SetString((const wchar_t *)vParam,-1);
+					EditPtr->SetEOL(GlobalEOL);
+					Change(ECTYPE_CHANGED,DestLine);
+					TextChanged(1);
+					return 1;
+				}
+			}
+		}
 		case MCODE_V_EDITORSELVALUE: // Editor.SelValue
 		{
 			string strText;
@@ -6580,11 +6638,29 @@ Edit * Editor::GetStringByNumber(int DestLine)
 	if (DestLine>NumLastLine)
 		return nullptr;
 
+	if(DestLine==0 || DestLine==NumLastLine)
+	{
+		if(DestLine==0)
+		{
+			LastGetLine = TopList;
+		}
+		else
+		{
+			LastGetLine = EndList;
+		}
+
+		LastGetLineNumber = DestLine;
+		return LastGetLine;
+	}
 	Edit *CurPtr = CurLine;
 	int StartLine = NumLine;
 
 	if(LastGetLine)
 	{
+		if(DestLine==LastGetLineNumber)
+		{
+			return LastGetLine;
+		}
 		CurPtr = LastGetLine;
 		StartLine = LastGetLineNumber;
 	}
@@ -6608,16 +6684,33 @@ Edit * Editor::GetStringByNumber(int DestLine)
 		}
 	}
 
-	for (int Line=StartLine; Line!=DestLine; Forward?Line++:Line--)
+	if(Forward)
 	{
-		CurPtr=(Forward?CurPtr->m_next:CurPtr->m_prev);
-		if (!CurPtr)
+		for (int Line=StartLine; Line!=DestLine; Line++)
 		{
-			LastGetLine = Forward?TopList:EndList;
-			LastGetLineNumber = Forward?0:NumLastLine-1;
-			return nullptr;
+			CurPtr=CurPtr->m_next;
+			if (!CurPtr)
+			{
+				LastGetLine = TopList;
+				LastGetLineNumber = 0;
+				return nullptr;
+			}
 		}
 	}
+	else
+	{
+		for (int Line=StartLine; Line!=DestLine; Line--)
+		{
+			CurPtr=CurPtr->m_prev;
+			if (!CurPtr)
+			{
+				LastGetLine = EndList;
+				LastGetLineNumber = NumLastLine-1;
+				return nullptr;
+			}
+		}
+	}
+
 	LastGetLine = CurPtr;
 	LastGetLineNumber = DestLine;
 	return CurPtr;

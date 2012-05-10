@@ -1,3 +1,41 @@
+svs 10.05.2012 12:06:11 +0400 - build 2663
+
+1. Mantis#0002059: Макрофункции для обращения к строкам редактора по индексу
+   (from DAtaMan)
+
+   1. Небольшая оптимизация Editor::GetStringByNumber
+   
+   2. Добавлены макрокоманды:
+   
+     N=Editor.DelLine([Line])
+     S=Editor.GetStr([Line])
+     S=Editor.InsStr([S[,Line]])
+     S=Editor.SetStr([S[,Line]])
+
+     если Line не задана, то функции работают с текущей строкой.
+
+   Тестовый макрос - удаление пустых строк:
+
+     $If(Selected)
+       %StartLine=Editor.Sel(0, 0);
+       %EndLine=Editor.Sel(0, 2);
+     $Else
+       %StartLine=1;
+       %EndLine=Editor.Lines;
+     $End
+
+     %Count=%EndLine-%StartLine+1;
+     %i=%StartLine;
+     Editor.Undo(0);
+     $Rep(%Count)
+       $If(Len(Trim(Editor.GetStr(%i)))==0)
+         Editor.DelLine(%i);
+       $Else
+         %i=%i+1;
+       $End
+     $End
+     Editor.Undo(1); 
+
 svs 05.05.2012 16:18:15 +0400 - build 2662
 
 1. Mantis#0002095: Падение при переходе по истории в плагин

@@ -336,9 +336,13 @@ static bool clipFunc(const TMacroFunction*);
 static bool dateFunc(const TMacroFunction*);
 static bool dlggetvalueFunc(const TMacroFunction*);
 static bool dlgsetfocusFunc(const TMacroFunction*);
+static bool editordellineFunc(const TMacroFunction*);
+static bool editorgetstrFunc(const TMacroFunction*);
+static bool editorinsstrFunc(const TMacroFunction*);
 static bool editorposFunc(const TMacroFunction*);
 static bool editorselFunc(const TMacroFunction*);
 static bool editorsetFunc(const TMacroFunction*);
+static bool editorsetstrFunc(const TMacroFunction*);
 static bool editorsettitleFunc(const TMacroFunction*);
 static bool editorundoFunc(const TMacroFunction*);
 static bool environFunc(const TMacroFunction*);
@@ -423,9 +427,13 @@ static TMacroFunction intMacroFunction[]=
 	{L"Date",             nullptr, L"S=Date([S])",                                               dateFunc,           nullptr, 0, 0,                                      MCODE_F_DATE,            },
 	{L"Dlg.GetValue",     nullptr, L"V=Dlg.GetValue([Pos[,InfoID]])",                            dlggetvalueFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_GETVALUE,    },
 	{L"Dlg.SetFocus",     nullptr, L"N=Dlg.SetFocus([ID])",                                      dlgsetfocusFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_SETFOCUS,    },
+	{L"Editor.DelLine",   nullptr, L"N=Editor.DelLine([Line])",                                  editordellineFunc,  nullptr, 0, 0,                                      MCODE_F_EDITOR_DELLINE,  },
+	{L"Editor.GetStr",    nullptr, L"S=Editor.GetStr([Line])",                                   editorgetstrFunc,   nullptr, 0, 0,                                      MCODE_F_EDITOR_GETSTR,   },
+	{L"Editor.InsStr",    nullptr, L"S=Editor.InsStr([S[,Line]])",                               editorinsstrFunc,   nullptr, 0, 0,                                      MCODE_F_EDITOR_INSSTR,   },
 	{L"Editor.Pos",       nullptr, L"N=Editor.Pos(Op,What[,Where])",                             editorposFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_POS,      },
 	{L"Editor.Sel",       nullptr, L"V=Editor.Sel(Action[,Opt])",                                editorselFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SEL,      },
 	{L"Editor.Set",       nullptr, L"N=Editor.Set(N,Var)",                                       editorsetFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SET,      },
+	{L"Editor.SetStr",    nullptr, L"S=Editor.SetStr([S[,Line]])",                               editorsetstrFunc,   nullptr, 0, 0,                                      MCODE_F_EDITOR_SETSTR,   },
 	{L"Editor.Settitle",  nullptr, L"N=Editor.SetTitle([Title])",                                editorsettitleFunc, nullptr, 0, 0,                                      MCODE_F_EDITOR_SETTITLE, },
 	{L"Editor.Undo",      nullptr, L"V=Editor.Undo(N)",                                          editorundoFunc,     nullptr, 0, 0,                                      MCODE_F_EDITOR_UNDO,     },
 	{L"Env",              nullptr, L"S=Env(S[,Mode[,Value]])",                                   environFunc,        nullptr, 0, 0,                                      MCODE_F_ENVIRON,         },
@@ -4595,6 +4603,86 @@ static bool editorsettitleFunc(const TMacroFunction*)
 	return Ret.i()!=0;
 }
 
+// N=Editor.DelLine([Line])
+static bool editordellineFunc(const TMacroFunction*)
+{
+	parseParams(1,Params);
+	TVar Ret(0ll);
+	TVar& Line(Params[0]);
+
+	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	{
+		if (Line.isInteger())
+		{
+			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_DELLINE, nullptr, Line.getInteger()-1);
+		}
+	}
+
+	VMStack.Push(Ret);
+	return Ret.i()!=0;
+}
+
+// S=Editor.GetStr([Line])
+static bool editorgetstrFunc(const TMacroFunction*)
+{
+	parseParams(1,Params);
+	__int64 Ret=0;
+	TVar Res(L"");
+	TVar& Line(Params[0]);
+
+	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	{
+		if (Line.isInteger())
+		{
+			string strRes;
+			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_GETSTR, &strRes, Line.getInteger()-1);
+			Res=strRes.CPtr();
+		}
+	}
+
+	VMStack.Push(Res);
+	return Ret!=0;
+}
+
+// S=Editor.InsStr([S[,Line]])
+static bool editorinsstrFunc(const TMacroFunction*)
+{
+	parseParams(2,Params);
+	TVar Ret(0ll);
+	TVar& S(Params[0]);
+	TVar& Line(Params[1]);
+
+	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	{
+		if (Line.isInteger())
+		{
+			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_INSSTR, (wchar_t *)S.s(), Line.getInteger()-1);
+		}
+	}
+
+	VMStack.Push(Ret);
+	return Ret.i()!=0;
+}
+
+// S=Editor.SetStr([S[,Line]])
+static bool editorsetstrFunc(const TMacroFunction*)
+{
+	parseParams(2,Params);
+	TVar Ret(0ll);
+	TVar& S(Params[0]);
+	TVar& Line(Params[1]);
+
+	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	{
+		if (Line.isInteger())
+		{
+			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_SETSTR, (wchar_t *)S.s(), Line.getInteger()-1);
+		}
+	}
+
+	VMStack.Push(Ret);
+	return Ret.i()!=0;
+}
 
 // N=Plugin.Exist(Guid)
 static bool pluginexistFunc(const TMacroFunction*)

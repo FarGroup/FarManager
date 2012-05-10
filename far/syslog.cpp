@@ -1300,6 +1300,10 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_MACRO_FUNC),               // S=Macro.Func(Index[,Type])
 		DEF_MCODE_(F_MACRO_VAR),                // S=Macro.Var(Index[,Type])
 		DEF_MCODE_(F_MACRO_CONST),              // S=Macro.Const(Index[,Type])
+		DEF_MCODE_(F_EDITOR_DELLINE),           // N=Editor.DelLine([Line])
+		DEF_MCODE_(F_EDITOR_GETSTR),            // S=Editor.GetStr([Line])
+		DEF_MCODE_(F_EDITOR_INSSTR),            // N=Editor.InsStr([S[,Line]])
+		DEF_MCODE_(F_EDITOR_SETSTR),            // N=Editor.SetStr([S[,Line]])
 		DEF_MCODE_(C_AREA_OTHER),               // –ежим копировани€ текста с экрана, вертикальные меню
 		DEF_MCODE_(C_AREA_SHELL),               // ‘айловые панели
 		DEF_MCODE_(C_AREA_VIEWER),              // ¬нутренн€€ программа просмотра
