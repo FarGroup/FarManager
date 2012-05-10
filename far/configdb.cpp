@@ -1495,7 +1495,7 @@ public:
 			)
 		) return false;
 
-      if (
+		if (
 			//get menu item text and guid statement
 			InitStmt(stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;") &&
 

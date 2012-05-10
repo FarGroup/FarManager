@@ -67,7 +67,7 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 			if(pOwner)
 			{
 				DialogItemEx* CurItem=pOwner->Item[Index];
-				if(Opt.Dialogs.AutoComplete && CurItem->Flags&(DIF_HISTORY|DIF_EDITPATH) && !(CurItem->Flags&DIF_DROPDOWNLIST) && !(CurItem->Flags&DIF_NOAUTOCOMPLETE))
+				if(Opt.Dialogs.AutoComplete && CurItem->Flags&(DIF_HISTORY|DIF_EDITPATH|DIF_EDITPATHEXEC) && !(CurItem->Flags&DIF_DROPDOWNLIST) && !(CurItem->Flags&DIF_NOAUTOCOMPLETE))
 				{
 					iFlags=EditControl::EC_ENABLEAUTOCOMPLETE;
 				}
@@ -82,6 +82,10 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 				if(CurItem->Flags&DIF_EDITPATH)
 				{
 					iFlags|=EditControl::EC_ENABLEFNCOMPLETE;
+				}
+				if(CurItem->Flags&DIF_EDITPATHEXEC)
+				{
+					iFlags|=EditControl::EC_ENABLEPATHCOMPLETE;
 				}
 			}
 			lineEdit=new EditControl(pOwner,&callback,true,iHistory,iList,iFlags);

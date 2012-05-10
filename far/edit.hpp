@@ -59,6 +59,7 @@ enum FLAGS_CLASS_EDITLINE
 	FEDITLINE_PARENT_SINGLELINE    = 0x00200000,  // обычная строка ввода в диалоге
 	FEDITLINE_PARENT_MULTILINE     = 0x00400000,  // для будущего Memo-Edit (DI_EDITOR или DIF_MULTILINE)
 	FEDITLINE_PARENT_EDITOR        = 0x00800000,  // "вверху" обычный редактор
+	FEDITLINE_CMP_CHANGED          = 0x01000000,
 };
 
 struct ColorItem
@@ -310,8 +311,9 @@ public:
 
 	enum ECFLAGS
 	{
-		EC_ENABLEAUTOCOMPLETE=0x1,
-		EC_ENABLEFNCOMPLETE=0x2,
+		EC_ENABLEAUTOCOMPLETE = 0x1,
+		EC_ENABLEFNCOMPLETE   = 0x2,
+		EC_ENABLEPATHCOMPLETE = 0x4,
 	};
 
 	EditControl(ScreenObject *pOwner=nullptr,Callback* aCallback=nullptr,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);

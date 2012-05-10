@@ -3133,6 +3133,7 @@ void EditControl::Show()
 
 void EditControl::Changed(bool DelBlock)
 {
+	Flags.Set(FEDITLINE_CMP_CHANGED);
 	if(m_Callback.Active)
 	{
 		if(m_Callback.m_Callback)
@@ -3251,14 +3252,187 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 	}
 }
 
+bool EnumModules(const wchar_t *Module, VMenu* DestMenu)
+{
+	bool Result=false;
+
+	if(*Module && !FirstSlash(Module))
+	{
+		DList<string> List;
+		string str;
+		int ModuleLength = StrLength(Module);
+		UserDefinedList ExcludeCmdsList;
+		ExcludeCmdsList.Set(Opt.Exec.strExcludeCmds);
+		while (!ExcludeCmdsList.IsEmpty())
+		{
+			const wchar_t* Item = ExcludeCmdsList.GetNext();
+			if (!StrCmpNI(Module, Item, ModuleLength))
+			{
+				Result=true;
+				str = Item;
+				if(!List.Contains(str))
+				{
+					List.Push(&str);
+				}
+			}
+		}
+
+		string strName=Module;
+		string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
+		apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
+		UserDefinedList PathExtList;
+		PathExtList.Set(strPathExt);
+		PathExtList.Reset();
+
+		string strPathEnv;
+		if (apiGetEnvironmentVariable(L"PATH", strPathEnv))
+		{
+			UserDefinedList PathList;
+			PathList.Set(strPathEnv);
+
+			while (!PathList.IsEmpty())
+			{
+				LPCWSTR Path=PathList.GetNext();
+
+				string strDest;
+
+				FAR_FIND_DATA_EX data;
+				string str(Path);
+				AddEndSlash(str);
+				str.Append(strName).Append(L"*");
+				FindFile Find(str);
+				while(Find.Get(data))
+				{
+					PathExtList.Reset();
+					while (!PathExtList.IsEmpty())
+					{
+						LPCWSTR ModuleExt=wcsrchr(data.strFileName,L'.');
+						if(!StrCmpI(ModuleExt, PathExtList.GetNext()))
+						{
+							str = data.strFileName;
+							if(!List.Contains(str))
+							{
+								List.Push(&str);
+							}
+							Result=true;
+						}
+					}
+				}
+			}
+		}
+
+
+		static const WCHAR RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
+		HKEY RootFindKey[]={HKEY_CURRENT_USER,HKEY_LOCAL_MACHINE,HKEY_LOCAL_MACHINE};
+
+		DWORD samDesired = KEY_ENUMERATE_SUB_KEYS|KEY_QUERY_VALUE;
+		DWORD RedirectionFlag = 0;
+		// App Paths key is shared in Windows 7 and above
+		if (WinVer < _WIN32_WINNT_WIN7)
+		{
+#ifdef _WIN64
+			RedirectionFlag = KEY_WOW64_32KEY;
+#else
+			BOOL Wow64Process = FALSE;
+			if (ifn.IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
+			{
+				RedirectionFlag = KEY_WOW64_64KEY;
+			}
+#endif
+		}
+		for (size_t i=0; i<ARRAYSIZE(RootFindKey); i++)
+		{
+			if (i==ARRAYSIZE(RootFindKey)-1)
+			{
+				if(RedirectionFlag)
+				{
+					samDesired|=RedirectionFlag;
+				}
+				else
+				{
+					break;
+				}
+			}
+			HKEY hKey;
+			if (RegOpenKeyEx(RootFindKey[i], RegPath, 0, samDesired, &hKey) == ERROR_SUCCESS)
+			{
+				DWORD Index = 0;
+				DWORD RetEnum = ERROR_SUCCESS;
+				while (RetEnum == ERROR_SUCCESS)
+				{
+					RetEnum = apiRegEnumKeyEx(hKey, Index++, strName);
+					if(RetEnum == ERROR_SUCCESS)
+					{
+						HKEY hSubKey;
+						if (RegOpenKeyEx(hKey, strName, 0, samDesired, &hSubKey) == ERROR_SUCCESS)
+						{
+							DWORD cbSize = 0;
+							if(RegQueryValueEx(hSubKey, L"", nullptr, nullptr, nullptr, &cbSize) == ERROR_SUCCESS)
+							{
+								if (!StrCmpNI(Module, strName, ModuleLength))
+								{
+									if(!List.Contains(strName))
+									{
+										List.Push(&strName);
+									}
+									Result=true;
+								}
+							}
+							RegCloseKey(hSubKey);
+						}
+					}
+				}
+				RegCloseKey(hKey);
+			}
+		}
+
+		bool Separator = false;
+		for(int i = 0; i != DestMenu->GetItemCount(); ++i)
+		{
+			if(DestMenu->GetItemPtr(i)->Flags&LIF_SEPARATOR)
+			{
+				Separator = true;
+				break;
+			}
+		}
+		if(!Separator)
+		{
+			if(DestMenu->GetItemCount())
+			{
+				MenuItemEx Item={};
+				Item.strName = MSG(MCompletionFilesTitle);
+				Item.Flags=LIF_SEPARATOR;
+				DestMenu->AddItem(&Item);
+			}
+			else
+			{
+				DestMenu->SetTitle(MSG(MCompletionFilesTitle));
+			}
+		}
+
+		for(string* i = List.First(); i; i = List.Next(i))
+		{
+			DestMenu->AddItem(*i);
+		}
+	}
+	return Result;
+}
+
 int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Area)
 {
 	int Result=0;
 	static int Reenter=0;
-
+	string CurrentLine;
 	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && (CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual))
 	{
 		Reenter++;
+
+		if(Opt.AutoComplete.AppendCompletion && !Flags.Check(FEDITLINE_CMP_CHANGED))
+		{
+			CurrentLine = Str;
+			DeleteBlock();
+		}
+		Flags.Clear(FEDITLINE_CMP_CHANGED);
 
 		VMenu ComplMenu(nullptr,nullptr,0,0);
 		string strTemp=Str;
@@ -3287,10 +3461,13 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 		{
 			EnumFiles(ComplMenu,strTemp);
 		}
+		if(ECFlags.Check(EC_ENABLEPATHCOMPLETE))
+		{
+			EnumModules(strTemp, &ComplMenu);
+		}
 		if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp,ComplMenu.GetItemPtr(0)->strName)))
 		{
 			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER|VMENU_SHOWAMPERSAND);
-
 			if(!DelBlock && Opt.AutoComplete.AppendCompletion && (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Opt.AutoComplete.ShowList))
 			{
 				int SelStart=GetLength();
@@ -3303,9 +3480,23 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 					SelStart--;
 					CurPos--;
 				}
-
-				AppendString(ComplMenu.GetItemPtr(0)->strName+SelStart);
+				int Offset = 0;
+				if(!CurrentLine.IsEmpty())
+				{
+					int Count = ComplMenu.GetItemCount();
+					while(Offset < Count && (StrCmpI(ComplMenu.GetItemPtr(Offset)->strName, CurrentLine) || ComplMenu.GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
+						++Offset;
+					if(Offset < Count)
+						++Offset;
+					if(Offset < Count && (ComplMenu.GetItemPtr(Offset)->Flags&LIF_SEPARATOR))
+						++Offset;
+					if(Offset >= Count)
+						Offset = 0;
+				}
+				AppendString(ComplMenu.GetItemPtr(Offset)->strName+SelStart);
 				Select(SelStart, GetLength());
+				Flags.Clear(FEDITLINE_CMP_CHANGED);
+				CurPos = GetLength();
 				Show();
 			}
 			if(Opt.AutoComplete.ShowList)
@@ -3379,6 +3570,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 								{
 									EnumFiles(ComplMenu,strTemp);
 								}
+								if(ECFlags.Check(EC_ENABLEPATHCOMPLETE))
+								{
+									EnumModules(strTemp, &ComplMenu);
+								}
 								if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp,ComplMenu.GetItemPtr(0)->strName)))
 								{
 									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Opt.AutoComplete.AppendCompletion)
@@ -3420,6 +3615,9 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 							// "классический" перебор
 							case KEY_CTRLEND:
 							case KEY_RCTRLEND:
+							
+							case KEY_CTRLSPACE:
+							case KEY_RCTRLSPACE:
 								{
 									ComplMenu.ProcessKey(KEY_DOWN);
 									break;
@@ -3430,23 +3628,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 								{
 									if(ComplMenu.GetItemCount()>1)
 									{
-										void *user_data = ComplMenu.GetUserData(nullptr, 0);
-										if (user_data)
+										unsigned __int64* CurrentRecord = static_cast<unsigned __int64*>(ComplMenu.GetUserData(nullptr, 0));
+										if(CurrentRecord && pHistory->DeleteIfUnlocked(*CurrentRecord))
 										{
-											unsigned __int64 CurrentRecord = *static_cast<unsigned __int64*>(user_data);
-											if (pHistory->DeleteIfUnlocked(CurrentRecord))
 											{
-												ComplMenu.DeleteItem(ComplMenu.GetSelectPos());
-												if(ComplMenu.GetItemCount()>1)
-												{
-													SetMenuPos(ComplMenu);
-													ComplMenu.Redraw();
-													Show();
-												}
-												else
-												{
-													ComplMenu.SetExitCode(-1);
-												}
 											}
 										}
 									}

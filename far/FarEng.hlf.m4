@@ -2522,7 +2522,7 @@ but this block.
 
   #AutoComplete#
   Allows to use the AutoComplete function in command line. When the option is
-disabled, you may use the #Ctrl-Shift-End# key to autocomplete a line. The autocomplete
+disabled, you may use the #Ctrl-Space# key to autocomplete a line. The autocomplete
 feature is disabled while a macro is being recorded or executed.
 
   #Set command line prompt format#

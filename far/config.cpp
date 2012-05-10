@@ -704,7 +704,7 @@ void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 	{
 		Builder.AddCheckbox(MViewConfigExternalF3, &Opt.ViOpt.UseExternalViewer);
 		Builder.AddText(MViewConfigExternalCommand);
-		Builder.AddEditField(&Opt.strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH);
+		Builder.AddEditField(&Opt.strExternalViewer, 64, L"ExternalViewer", DIF_EDITPATH|DIF_EDITPATHEXEC);
 		Builder.AddSeparator(MViewConfigInternal);
 	}
 
@@ -751,7 +751,7 @@ void EditorConfig(EditorOptions &EdOpt,bool Local)
 	{
 		Builder.AddCheckbox(MEditConfigEditorF4, &Opt.EdOpt.UseExternalEditor);
 		Builder.AddText(MEditConfigEditorCommand);
-		Builder.AddEditField(&Opt.strExternalEditor, 64, L"ExternalEditor", DIF_EDITPATH);
+		Builder.AddEditField(&Opt.strExternalEditor, 64, L"ExternalEditor", DIF_EDITPATH|DIF_EDITPATHEXEC);
 		Builder.AddSeparator(MEditConfigInternal);
 	}
 

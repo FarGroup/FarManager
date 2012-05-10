@@ -62,7 +62,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 
 CommandLine::CommandLine():
-	CmdStr(CtrlObject->Cp(),0,true,CtrlObject->CmdHistory,0,(Opt.CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_ENABLEFNCOMPLETE),
+	CmdStr(CtrlObject->Cp(),0,true,CtrlObject->CmdHistory,0,(Opt.CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_ENABLEFNCOMPLETE|EditControl::EC_ENABLEPATHCOMPLETE),
 	BackgroundScreen(nullptr),
 	LastCmdPartLength(-1)
 {
@@ -456,17 +456,18 @@ int CommandLine::ProcessKey(int Key)
 			if (Key == KEY_CTRLD || Key == KEY_RCTRLD)
 				Key=KEY_RIGHT;
 
-			if (!CmdStr.ProcessKey(Key))
-				break;
-
-			LastCmdPartLength=-1;
-
-			if(Key == KEY_CTRLSHIFTEND || Key == KEY_RCTRLSHIFTEND || Key == KEY_CTRLSHIFTNUMPAD1 || Key == KEY_RCTRLSHIFTNUMPAD1)
+			if(Key == KEY_CTRLSPACE || Key == KEY_RCTRLSPACE)
 			{
 				CmdStr.EnableAC();
 				CmdStr.AutoComplete(true,false);
 				CmdStr.RevertAC();
+				return TRUE;
 			}
+
+			if (!CmdStr.ProcessKey(Key))
+				break;
+
+			LastCmdPartLength=-1;
 
 			return TRUE;
 	}

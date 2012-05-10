@@ -230,7 +230,7 @@ int GetString(
 	{
 		{DI_DOUBLEBOX, 3, 1, 72, 4, 0, nullptr, nullptr, 0,                                L""},
 		{DI_TEXT,      5, 2,  0, 2, 0, nullptr, nullptr, DIF_SHOWAMPERSAND,                L""},
-		{DI_EDIT,      5, 3, 70, 3, 0, nullptr, nullptr, DIF_FOCUS|DIF_DEFAULTBUTTON|(Flags&FIB_EDITPATH?DIF_EDITPATH:0),L""},
+		{DI_EDIT,      5, 3, 70, 3, 0, nullptr, nullptr, DIF_FOCUS|DIF_DEFAULTBUTTON      ,L""},
 		{DI_TEXT,      0, 4,  0, 4, 0, nullptr, nullptr, DIF_SEPARATOR,                    L""},
 		{DI_CHECKBOX,  5, 5,  0, 5, 0, nullptr, nullptr, 0,                                L""},
 		{DI_TEXT,      0, 6,  0, 6, 0, nullptr, nullptr, DIF_SEPARATOR,                    L""},
@@ -268,6 +268,11 @@ int GetString(
 	if (Flags&FIB_EDITPATH)
 	{
 		StrDlg[2].Flags|=DIF_EDITPATH;
+	}
+
+	if (Flags&FIB_EDITPATHEXEC)
+	{
+		StrDlg[2].Flags|=DIF_EDITPATHEXEC;
 	}
 
 	if (HistoryName)
