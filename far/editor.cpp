@@ -772,7 +772,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_F_EDITOR_INSSTR:   // N=Editor.InsStr([S[,Line]])
 		case MCODE_F_EDITOR_SETSTR:   // N=Editor.SetStr([S[,Line]])
 		{
-			if (Flags.Check(FEDITOR_LOCKMODE))
+			if (Flags.Check(FEDITOR_LOCKMODE) && (OpCode!=MCODE_F_EDITOR_GETSTR))
 			{
 				_ECTLLOG(SysLog(L"FEDITOR_LOCKMODE!"));
 				return 0;
@@ -808,17 +808,20 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 				case MCODE_F_EDITOR_INSSTR:  // N=Editor.InsStr([S[,Line]])
 				{
 					Edit *NewEditPtr=InsertString((const wchar_t *)vParam, StrLength((const wchar_t *)vParam), EditPtr, DestLine);
-					NewEditPtr->SetEOL(GlobalEOL);
-					AddUndoData(UNDO_INSSTR,NewEditPtr->GetStringAddr(),GlobalEOL,DestLine,0,NewEditPtr->GetLength());
+					NewEditPtr->SetEOL(EditPtr->GetEOL());
+					AddUndoData(UNDO_INSSTR,NewEditPtr->GetStringAddr(),EditPtr->GetEOL(),DestLine,0,NewEditPtr->GetLength());
 					Change(ECTYPE_ADDED,DestLine+1);
 					TextChanged(1);
 					return 1;
 				}
 				case MCODE_F_EDITOR_SETSTR:  // N=Editor.SetStr([S[,Line]])
 				{
-					AddUndoData(UNDO_EDIT,EditPtr->GetStringAddr(),EditPtr->GetEOL(),DestLine,0,EditPtr->GetLength());
+					string strEOL=EditPtr->GetEOL();
+					int CurPos=EditPtr->GetCurPos();
+					AddUndoData(UNDO_EDIT,EditPtr->GetStringAddr(),strEOL.CPtr(),DestLine,CurPos,EditPtr->GetLength());
 					EditPtr->SetString((const wchar_t *)vParam,-1);
-					EditPtr->SetEOL(GlobalEOL);
+					EditPtr->SetEOL(strEOL.CPtr());
+					EditPtr->SetCurPos(CurPos);
 					Change(ECTYPE_CHANGED,DestLine);
 					TextChanged(1);
 					return 1;

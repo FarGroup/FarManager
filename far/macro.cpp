@@ -429,11 +429,11 @@ static TMacroFunction intMacroFunction[]=
 	{L"Dlg.SetFocus",     nullptr, L"N=Dlg.SetFocus([ID])",                                      dlgsetfocusFunc,    nullptr, 0, 0,                                      MCODE_F_DLG_SETFOCUS,    },
 	{L"Editor.DelLine",   nullptr, L"N=Editor.DelLine([Line])",                                  editordellineFunc,  nullptr, 0, 0,                                      MCODE_F_EDITOR_DELLINE,  },
 	{L"Editor.GetStr",    nullptr, L"S=Editor.GetStr([Line])",                                   editorgetstrFunc,   nullptr, 0, 0,                                      MCODE_F_EDITOR_GETSTR,   },
-	{L"Editor.InsStr",    nullptr, L"S=Editor.InsStr([S[,Line]])",                               editorinsstrFunc,   nullptr, 0, 0,                                      MCODE_F_EDITOR_INSSTR,   },
+	{L"Editor.InsStr",    nullptr, L"N=Editor.InsStr([S[,Line]])",                               editorinsstrFunc,   nullptr, 0, 0,                                      MCODE_F_EDITOR_INSSTR,   },
 	{L"Editor.Pos",       nullptr, L"N=Editor.Pos(Op,What[,Where])",                             editorposFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_POS,      },
 	{L"Editor.Sel",       nullptr, L"V=Editor.Sel(Action[,Opt])",                                editorselFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SEL,      },
 	{L"Editor.Set",       nullptr, L"N=Editor.Set(N,Var)",                                       editorsetFunc,      nullptr, 0, 0,                                      MCODE_F_EDITOR_SET,      },
-	{L"Editor.SetStr",    nullptr, L"S=Editor.SetStr([S[,Line]])",                               editorsetstrFunc,   nullptr, 0, 0,                                      MCODE_F_EDITOR_SETSTR,   },
+	{L"Editor.SetStr",    nullptr, L"N=Editor.SetStr([S[,Line]])",                               editorsetstrFunc,   nullptr, 0, 0,                                      MCODE_F_EDITOR_SETSTR,   },
 	{L"Editor.Settitle",  nullptr, L"N=Editor.SetTitle([Title])",                                editorsettitleFunc, nullptr, 0, 0,                                      MCODE_F_EDITOR_SETTITLE, },
 	{L"Editor.Undo",      nullptr, L"V=Editor.Undo(N)",                                          editorundoFunc,     nullptr, 0, 0,                                      MCODE_F_EDITOR_UNDO,     },
 	{L"Env",              nullptr, L"S=Env(S[,Mode[,Value]])",                                   environFunc,        nullptr, 0, 0,                                      MCODE_F_ENVIRON,         },
@@ -4644,7 +4644,7 @@ static bool editorgetstrFunc(const TMacroFunction*)
 	return Ret!=0;
 }
 
-// S=Editor.InsStr([S[,Line]])
+// N=Editor.InsStr([S[,Line]])
 static bool editorinsstrFunc(const TMacroFunction*)
 {
 	parseParams(2,Params);
@@ -4664,7 +4664,7 @@ static bool editorinsstrFunc(const TMacroFunction*)
 	return Ret.i()!=0;
 }
 
-// S=Editor.SetStr([S[,Line]])
+// N=Editor.SetStr([S[,Line]])
 static bool editorsetstrFunc(const TMacroFunction*)
 {
 	parseParams(2,Params);
