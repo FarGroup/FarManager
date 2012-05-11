@@ -1,3 +1,12 @@
+svs 11.05.2012 11:34:27 +0400 - build 2670
+
+1. Mantis#0002097: Не работает VF_ENABLE_F6
+   (from Denis)
+   Вызов Viewer.SetEnableF6() был позже, чем надо.
+
+2. Mantis#0001736: akey(1,0)==akey(1,1) Far 3.0.1931 far2.0.1807
+   "мышыныя возня".
+
 svs 10.05.2012 20:55:52 +0400 - build 2669
 
 1. В TVar добавим isNumber() - число? (Integer/Real/StrNumber)
