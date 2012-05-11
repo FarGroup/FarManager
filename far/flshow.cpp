@@ -642,7 +642,7 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
 		{
 			TextToViewSettings(Info.PanelModesArray[ViewMode].ColumnTypes,
 			                   Info.PanelModesArray[ViewMode].ColumnWidths,
-			                   false,ViewSettings.ColumnType,ViewSettings.ColumnWidth,
+			                   ViewSettings.ColumnType,ViewSettings.ColumnWidth,
 			                   ViewSettings.ColumnWidthType,ViewSettings.ColumnCount);
 
 			if (Info.PanelModesArray[ViewMode].StatusColumnTypes &&
@@ -650,7 +650,7 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
 			{
 				TextToViewSettings(Info.PanelModesArray[ViewMode].StatusColumnTypes,
 				                   Info.PanelModesArray[ViewMode].StatusColumnWidths,
-				                   true,ViewSettings.StatusColumnType,ViewSettings.StatusColumnWidth,
+				                   ViewSettings.StatusColumnType,ViewSettings.StatusColumnWidth,
 				                   ViewSettings.StatusColumnWidthType,ViewSettings.StatusColumnCount);
 			}
 			else if (Info.PanelModesArray[ViewMode].Flags&PMFLAGS_DETAILEDSTATUS)
@@ -1162,7 +1162,11 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							}
 							if (ExtPtr && *ExtPtr) ExtPtr++; else ExtPtr = L"";
 
-							FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ExtPtr;
+							unsigned __int64 ViewFlags=ColumnTypes[K];
+							if (ViewFlags&COLUMN_RIGHTALIGN)
+								FS<<fmt::RightAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ExtPtr;
+							else
+								FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ExtPtr;
 
 							if (!ShowStatus && StrLength(ExtPtr) > ColumnWidth)
 							{

@@ -269,7 +269,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 }
 
 
-void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,bool StatusLine,
+void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
 						unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount)
 {
 	const wchar_t *TextPtr=ColumnTitles;
@@ -391,6 +391,14 @@ void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
 						if (strArgName.At(1)==L'L')
 							ColumnType|=COLUMN_FULLOWNER;
 					}
+					else if (strArgName.At(0)==L'X')
+					{
+						unsigned __int64 &ColumnType=ViewColumnTypes[ColumnCount];
+						ColumnType=EXTENSION_COLUMN;
+
+						if (strArgName.At(1)==L'R')
+							ColumnType|=COLUMN_RIGHTALIGN;
+					}
 					else
 					{
 						for (unsigned I=0; I<ARRAYSIZE(ColumnSymbol); I++)
@@ -433,7 +441,7 @@ void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
 
 
 void ViewSettingsToText(unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int ColumnCount,
-						bool StatusLine,string &strColumnTitles,string &strColumnWidths)
+						string &strColumnTitles,string &strColumnWidths)
 {
 	strColumnTitles.Clear();
 	strColumnWidths.Clear();
@@ -491,6 +499,12 @@ void ViewSettingsToText(unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,
 		{
 			if (ViewColumnTypes[I] & COLUMN_FULLOWNER)
 				strType += L"L";
+		}
+
+		if (ColumnType==EXTENSION_COLUMN)
+		{
+			if (ViewColumnTypes[I] & COLUMN_RIGHTALIGN)
+				strType += L"R";
 		}
 
 		strColumnTitles += strType;

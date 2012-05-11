@@ -3612,7 +3612,8 @@ characters, delimited with commas. Allowed column types are:
                  These modifiers may be used in combination,
                  for example NMR
 
-    X          - file extension
+    X[R]       - file extension
+                 where: R - right align file extension;
 
     S[C,T,F,E] - file size
     P[C,T,F,E] - allocation file size

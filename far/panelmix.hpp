@@ -45,7 +45,7 @@ const string FormatStr_DateTime(const FILETIME *FileTime,int ColumnType,unsigned
 const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 StreamsSize, const string& strName,
 						DWORD FileAttributes,DWORD ShowFolderSize,DWORD ReparseTag,int ColumnType,
 						unsigned __int64 Flags,int Width,const wchar_t *CurDir=nullptr);
-void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,bool StatusLine,
+void TextToViewSettings(const wchar_t *ColumnTitles,const wchar_t *ColumnWidths,
 						unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int &ColumnCount);
 void ViewSettingsToText(unsigned __int64 *ViewColumnTypes,int *ViewColumnWidths,int *ViewColumnWidthsTypes,int ColumnCount,
-						bool StatusLine,string &strColumnTitles,string &strColumnWidths);
+						string &strColumnTitles,string &strColumnWidths);
