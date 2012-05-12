@@ -315,6 +315,7 @@ static struct TKeyCodeName
 } KeyMacroCodes[]=
 {
 	{ MCODE_OP_AKEY,                 5, L"$AKey"      }, // клавиша, которой вызвали макрос
+	{ MCODE_OP_BREAK,                6, L"$Break"     },
 	{ MCODE_OP_CONTINUE,             9, L"$Continue"  },
 	{ MCODE_OP_ELSE,                 5, L"$Else"      },
 	{ MCODE_OP_END,                  4, L"$End"       },
@@ -5265,10 +5266,6 @@ done:
 
 	switch (Key)
 	{
-		case MCODE_OP_BREAK:
-		case MCODE_OP_CONTINUE:
-			goto begin; // следом идет Jump
-
 		case MCODE_OP_NOP:
 			goto begin;
 		case MCODE_OP_KEYS:                    // за этим кодом следуют ФАРовы коды клавиш

@@ -17306,6 +17306,16 @@ upd:"$Continue outside the loop"
 "$Continuar por fuera del loop"
 "$Pokračovať mimo slučky"
 
+MMacroPErrBreakOutsideTheLoop
+"Оператор $Break вне цикла"
+upd:"$Break outside the loop"
+upd:"$Break outside the loop"
+upd:"$Break outside the loop"
+upd:"$Break outside the loop"
+upd:"$Break outside the loop"
+upd:"$Break outside the loop"
+upd:"$Break outside the loop"
+
 MCannotSaveFile
 l:
 "Ошибка сохранения файла"

@@ -1411,6 +1411,17 @@ static void printKeyValue(DWORD* k, int& i)
 #endif
 #endif
 
+static void CorrectBreakCode(DWORD *byteCodeBuff,DWORD *aBegin, DWORD *aEnd)
+{
+	for (DWORD *p=aBegin; p <= aEnd; ++p)
+	{
+		if (p[0] == MCODE_OP_BREAK && p[1] == 0)
+		{
+			p[0]=MCODE_OP_JMP; // меняем пвсевдо-код break на код jump
+			p[1]=(DWORD)(aEnd-byteCodeBuff);
+		}
+	}
+}
 
 //- AN ----------------------------------------------
 //  Компиляция строки BufPtr в байткод CurMacroBuffer
@@ -1767,7 +1778,17 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 			// +--------- addr
 			case MCODE_OP_CONTINUE:
 			{
-				Size += 2; // Место под дополнительный JMP
+				Size++; // Место под адрес
+				break;
+			}
+			// $break
+			// -------------------------------------
+			//            MCODE_OP_BREAK
+			//            MCODE_OP_JMP
+			//            addr -->
+			case MCODE_OP_BREAK:
+			{
+				Size++; // Место под адрес
 				break;
 			}
 			case MCODE_OP_END:
@@ -1877,12 +1898,13 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 				break;
 			}
+			case MCODE_OP_BREAK:
 			case MCODE_OP_CONTINUE:
 			{
 				TExecItem *ei=nullptr;
-				if (!inloop || exec.findnearloop(&ei) == -1)
+				if (!inloop || (KeyCode==MCODE_OP_CONTINUE && exec.findnearloop(&ei) == -1))
 				{
-					keyMacroParseError(err_Continue_Outside_The_Loop, oldBufPtr, pSrcString);//BufPtr, pSrcString); // strCurrKeyText
+					keyMacroParseError(KeyCode==MCODE_OP_CONTINUE?err_Continue_Outside_The_Loop:err_Break_Outside_The_Loop, oldBufPtr, pSrcString);//BufPtr, pSrcString); // strCurrKeyText
 
 					if (CurMacro_Buffer )
 					{
@@ -1894,9 +1916,8 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 					xf_free(dwExprBuff);
 					return FALSE;
 				}
-				CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_CONTINUE; // для метки!
-				CurMacro_Buffer[CurMacroBufferSize+Size-2] = MCODE_OP_JMP;
-				CurMacro_Buffer[CurMacroBufferSize+Size-1] = ei->pos1;
+				CurMacro_Buffer[CurMacroBufferSize+Size-2] = KeyCode==MCODE_OP_CONTINUE?MCODE_OP_JMP:MCODE_OP_BREAK;
+				CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode==MCODE_OP_CONTINUE?ei->pos1:0;
 				break;
 			}
 			case MCODE_OP_END:
@@ -1927,18 +1948,13 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 						CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
 						break;
 					case emmRep:
-						inloop--;
-						CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;
-						CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_JMP;
-						CurMacro_Buffer[CurMacroBufferSize+Size-2] = exec().pos1;
-						CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
-						break;
 					case emmWhile:
 						inloop--;
 						CurMacro_Buffer[exec().pos2] = CurMacroBufferSize+Size-1;
 						CurMacro_Buffer[CurMacroBufferSize+Size-3] = MCODE_OP_JMP;
 						CurMacro_Buffer[CurMacroBufferSize+Size-2] = exec().pos1;
 						CurMacro_Buffer[CurMacroBufferSize+Size-1] = KeyCode;
+						CorrectBreakCode(CurMacro_Buffer,CurMacro_Buffer+exec().pos1,CurMacro_Buffer+(CurMacroBufferSize+Size-1));
 						break;
 				}
 

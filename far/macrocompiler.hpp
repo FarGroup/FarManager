@@ -66,6 +66,7 @@ enum errParseCode
 	err_ZeroLengthMacro = 12,
 	err_IntParserError = 13,
 	err_Continue_Outside_The_Loop=14,
+	err_Break_Outside_The_Loop=15,
 };
 
 extern int MKeywordsSize;
