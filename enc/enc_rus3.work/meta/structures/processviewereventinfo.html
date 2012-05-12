@@ -25,6 +25,7 @@ struct ProcessViewerEventInfo
   size_t StructSize;
   int Event;
   void *Param;
+  int ViewerID;
 };
 </pre>
 
@@ -55,6 +56,9 @@ struct ProcessViewerEventInfo
     </div>
   <div class=dfn>Param</div>
     <div class=dfndescr>Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
+  <div class=dfn>ViewerID</div>
+    <div class=dfndescr>Идентификатор внетренней программы просмотра, вызвавшей функцию <a href="../exported_functions/processviewereventw.html">ProcessViewerEventW</a>.</div>
+
 </div>
 
 <h3>Замечания</h3>

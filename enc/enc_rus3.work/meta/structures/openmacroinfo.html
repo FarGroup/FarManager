@@ -22,7 +22,8 @@
 struct OpenMacroInfo
 {
   size_t StructSize;
-  struct FarMacroValue Value;
+  size_t Count;
+  struct FarMacroValue *Values;
 };
 </pre>
 
@@ -30,8 +31,10 @@ struct OpenMacroInfo
 <div class=descr>
   <div class=dfn>StructSize</div>
     <div class=dfndescr>Ёто поле должно содержать размер структуры <dfn>OpenMacroInfo</dfn>.</div>
-  <div class=dfn>Value</div>
-    <div class=dfndescr>«начение макропеременной, структура <a href="farmacrovalue.html">FarMacroValue</a>.</div>
+  <div class=dfn>Count</div>
+    <div class=dfndescr> оличество элементов массива <em>Values</em>.</div>
+  <div class=dfn>Values</div>
+    <div class=dfndescr>”казатель на массив значений макропеременных (структура <a href="farmacrovalue.html">FarMacroValue</a>).</div>
     </div>
 </div>
 

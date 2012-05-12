@@ -22,6 +22,7 @@
 <pre class=syntax>
 struct FarDialogItemData
 {
+  size_t StructSize;
   size_t PtrLength;
   wchar_t *PtrData;
 };
@@ -29,6 +30,8 @@ struct FarDialogItemData
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Размер структуры.</div>
   <div class=dfn>PtrLength</div>
     <div class=dfndescr>Размер данных в <i>PtrData</i> без завершающего символа конца строки <code>'\0'</code>.</div>
   <div class=dfn>PtrData</div>

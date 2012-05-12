@@ -25,6 +25,7 @@ struct ProcessEditorEventInfo
   size_t StructSize;
   int Event;
   void *Param;
+  int EditorID;
 };
 </pre>
 
@@ -60,7 +61,8 @@ struct ProcessEditorEventInfo
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EEREDRAW_ALL">EEREDRAW_ALL</a></td>
-    <td class="cont" width="60%">Прорисовывается весь экран.</td></tr>
+    <td class="cont" width="60%">Прорисовывается ...</td></tr>
+    <!--
     <tr class="cont"><td class="cont" width="40%"><a name="EEREDRAW_LINE">EEREDRAW_LINE</a></td>
     <td class="cont" width="60%">Перерисовка только текущей строки.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EEREDRAW_CHANGE">EEREDRAW_CHANGE</a></td>
@@ -68,6 +70,7 @@ struct ProcessEditorEventInfo
     В случае изменения EEREDRAW_CHANGE может быть перерисована как текущая строка, так и весь экран. Поэтому если были изменения раскраски вне текущей строки, настоятельно рекомендуется
     по окончании раскраски вызвать <a href="../service_functions/editorcontrol.html#ECTL_REDRAW">ECTL_REDRAW</a>. Иначе эти изменения отобразятся только после движения курсора или
     других вызывающих перерисовку событий. Главное при этом не попасть в рекурсию.</td></tr>
+    -->
     </table>
     Функция <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a> должна вернуть 0.<br><br></td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="EE_KILLFOCUS">EE_KILLFOCUS</a></td>
@@ -88,6 +91,8 @@ struct ProcessEditorEventInfo
     </div>
   <div class=dfn>Param</div>
     <div class=dfndescr>Значение указателя зависит от типа события. Смотрите описание событий для уточнения информации.</div>
+  <div class=dfn>EditorID</div>
+    <div class=dfndescr>Идентификатор редактора, вызвавшей функцию <a href="../exported_functions/processeditoreventw.html">ProcessEditorEventW</a>.</div>
 </div>
 
 <h3>Замечания</h3>

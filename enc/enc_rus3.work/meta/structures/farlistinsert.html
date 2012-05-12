@@ -22,6 +22,7 @@
 <pre class=syntax>
 struct FarListInsert
 {
+  size_t StructSize;
   int Index;
   struct FarListItem Item;
 };
@@ -29,6 +30,8 @@ struct FarListInsert
 
 <h3>Ёлементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>–азмер структуры.</div>
   <div class=dfn>Index</div>
     <div class=dfndescr>“ребуема€ позици€ элемента в списке. ≈сли <i>Index</i> больше текущего количества элементов списка, то вставл€емый пункт будет добавлен в конец списка. ≈сли <i>Index</i> меньше нул€, то вставл€емый пункт будет добавлен в начало списка.</div>
   <div class=dfn>Item</div>
