@@ -79,11 +79,11 @@ INT_PTR WINAPI PanelControl(
     <var>Param2</var> указывает на буфер, выделяемый плагином, в который будет помещено описание ширины колонок (например, такая строка <code>&quot;0,8,0,5&quot;</code>). <br>
     Функция возвращает необходимый размер буфера в символах, если <var>Param2</var>= NULL.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELDIR">FCTL_GETPANELDIR</a></td>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELDIRECTORY">FCTL_GETPANELDIRECTORY</a></td>
     <td class="cont" width="60%">Получить текущий каталог панели.<br>
-    <var>Param1</var> размер буфера. Указывает максимальное количество символов, которые могут быть записаны в <var>Param2</var>, включая завершающий '\0'. <br>
-    <var>Param2</var> указывает на буфер, выделяемый плагином, в который будет помещено имя каталога. <br>
-    Функция возвращает необходимый размер буфера в символах, если <var>Param2</var>= NULL.</td></tr>
+    <var>Param1</var> размер буфера. Начало буфера - структура типа <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>, затем следуют компоненты структуры. <br>
+    <var>Param2</var> указывает на структуру типа <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>.<br>
+    Функция возвращает необходимый размер буфера в символах, если <var>Param2</var>= NULL или <var>Param1</var> меньше реального размера.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETPANELFORMAT">FCTL_GETPANELFORMAT</a></td>
     <td class="cont" width="60%">Получить формат панели (см. <a href="../structures/openpanelinfo.html">OpenPanelInfo, поле Format</a>).<br>
@@ -164,10 +164,11 @@ for(int J=0; J < PInfo.ItemsNumber; J++)
     0 - отключить сортировку с учётом регистра или 1 - включить сортировку с учётом регистра.<br>
     <var>Param2</var> = NULL (не используется). </td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETPANELDIR">FCTL_SETPANELDIR</a></td>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETPANELDIRECTORY">FCTL_SETPANELDIRECTORY</a></td>
     <td class="cont" width="60%">Установить текущий каталог в панели.<br>
     <var>Param1</var> = 0 (не используется). <br>
-    <var>Param2</var> указывает на имя каталога. Если плагин поддерживает свою собственную панель, он будет закрыт после выполнения этой команды.
+    <var>Param2</var> указывает на структуру типа <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>.<br>
+    Если плагин поддерживает свою собственную панель, он будет закрыт после выполнения этой команды.
     <p>После выполнения этой функции пропадёт выделение с элементов каталога и его будет невозможно восстановить (комбинация <kbd>Ctrl-M</kbd>) по желанию
     пользователя, даже если новый каталог равен старому.</td></tr>
 
