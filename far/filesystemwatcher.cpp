@@ -70,10 +70,12 @@ bool FileSystemWatcher::Watch()
 		FILE_NOTIFY_CHANGE_SIZE|
 		FILE_NOTIFY_CHANGE_LAST_WRITE);
 	}
-	FAR_FIND_DATA_EX data;
-	if(apiGetFindDataEx(Directory, data))
+	File dir;
+	if (dir.Open(Directory,GENERIC_READ,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING))
 	{
-		CurrentLastWriteTime = data.ftLastWriteTime;
+		FILETIME write_time;
+		if (dir.GetTime(nullptr,nullptr,&write_time,nullptr))
+			CurrentLastWriteTime = write_time;
 	}
 	return Handle != INVALID_HANDLE_VALUE;
 }
