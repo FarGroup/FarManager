@@ -821,7 +821,6 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					AddUndoData(UNDO_EDIT,EditPtr->GetStringAddr(),strEOL.CPtr(),DestLine,CurPos,EditPtr->GetLength());
 					EditPtr->SetString((const wchar_t *)vParam,-1);
 					EditPtr->SetEOL(strEOL.CPtr());
-					EditPtr->SetCurPos(CurPos);
 					Change(ECTYPE_CHANGED,DestLine);
 					TextChanged(1);
 					return 1;
