@@ -150,6 +150,7 @@ void SystemSettings()
 	Builder.AddCheckbox(MConfigCopySharing, &Opt.CMOpt.CopyOpened);
 	Builder.AddCheckbox(MConfigScanJunction, &Opt.ScanJunction);
 	Builder.AddCheckbox(MConfigCreateUppercaseFolders, &Opt.CreateUppercaseFolders);
+	Builder.AddCheckbox(MConfigSmartFolderMonitor, &Opt.SmartFolderMonitor);
 
 	Builder.AddCheckbox(MConfigSaveHistory, &Opt.SaveHistory);
 	Builder.AddCheckbox(MConfigSaveFoldersHistory, &Opt.SaveFoldersHistory);
@@ -1098,6 +1099,7 @@ static struct FARConfig
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"ShowCheckingFile", &Opt.ShowCheckingFile, 0, 0},
 	{1, GeneralConfig::TYPE_TEXT,    FSSF_PRIVATE,           NKeySystem,L"ShowStatusInfo",&Opt.InfoPanel.strShowStatusInfo, 0, L""},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SilentLoadPlugin",  &Opt.LoadPlug.SilentLoadPlugin, 0, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SmartFolderMonitor",  &Opt.SmartFolderMonitor, 0, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SubstNameRule", &Opt.SubstNameRule, 2, 0},
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"SubstPluginPrefix",&Opt.SubstPluginPrefix, 0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeySystem,L"UpdateEnvironment",&Opt.UpdateEnvironment,0,0},

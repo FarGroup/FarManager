@@ -1474,6 +1474,16 @@ MConfigCreateUppercaseFolders
 "Crear directorios en ma&yúsculas"
 "Vytvárať priečinky s &veľkými písmenami"
 
+MConfigSmartFolderMonitor
+"Обновление панелей только если фар активен"
+upd:"Smart folder panel monitor"
+upd:"Smart folder panel monitor"
+upd:"Smart folder panel monitor"
+upd:"Smart folder panel monitor"
+upd:"Smart folder panel monitor"
+upd:"Smart folder panel monitor"
+upd:"Smart folder panel monitor"
+
 MConfigSaveHistory
 "Сохранять &историю команд"
 "Save commands &history"

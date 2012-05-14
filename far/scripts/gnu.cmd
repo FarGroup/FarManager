@@ -30,8 +30,8 @@ goto :EOF
 :show_op
   if not "Y" == "%optv%" goto :EOF
   set p1=%2& set p2=%3
-  if exist %p1%\NUL set p1=%p1%\
-  if not "" == "%p2%" if exist %p2%\NUL set p2=%p2%\
+  if exist %p1%\* set p1=%p1%\
+  if not "" == "%p2%" if exist %p2%\* set p2=%p2%\
   echo %1 %p1% %p2%
 goto :EOF
 
@@ -51,7 +51,7 @@ goto :EOF
 
 :do_mkdir
   if "" == "%last%" goto :param_errors
-  for %%a in (%list% %last%) do if not exist %%a\NUL (call :show_op mkdir %%a& mkdir %%a|| goto :cmd_errors)
+  for %%a in (%list% %last%) do if not exist %%a\* (call :show_op mkdir %%a& mkdir %%a|| goto :cmd_errors)
 goto :EOF
 
 :do_rm
@@ -59,7 +59,7 @@ goto :EOF
   for %%a in (%list% %last%) do call :show_op delete %%a& call :rm_one %%a
 goto :EOF
 :rm_one
-  if exist %1\NUL goto :rm_one_dir
+  if exist %1\* goto :rm_one_dir
   if exist %1 del /q %1 1>NUL|| goto :cmd_errors
 goto :EOF
 :rm_one_dir

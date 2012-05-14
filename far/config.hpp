@@ -737,6 +737,7 @@ struct Options
 
 	string strBoxSymbols;
 
+	int SmartFolderMonitor; // def: 0=always monitor panel folder(s), 1=only when FAR has input focus
 };
 
 extern Options Opt;

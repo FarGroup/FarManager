@@ -983,14 +983,19 @@ int FileList::ProcessKey(int Key)
 	switch (Key)
 	{
 		case KEY_GOTFOCUS:
-			StartFSWatcher();
-			CtrlObject->Cp()->GetAnotherPanel(this)->StartFSWatcher();
-
+			if (Opt.SmartFolderMonitor)
+			{
+				StartFSWatcher();
+				CtrlObject->Cp()->GetAnotherPanel(this)->StartFSWatcher();
+			}
 			break;
 
 		case KEY_KILLFOCUS:
-			StopFSWatcher();
-			CtrlObject->Cp()->GetAnotherPanel(this)->StopFSWatcher();
+			if (Opt.SmartFolderMonitor)
+			{
+				StopFSWatcher();
+				CtrlObject->Cp()->GetAnotherPanel(this)->StopFSWatcher();
+			}
 			break;
 
 		case KEY_F1:

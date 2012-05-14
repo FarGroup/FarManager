@@ -2276,6 +2276,12 @@ determining the total file size in the sub-folders.
   #Create folders in uppercase#
   If the name of a new folder contains only lowercase letters and this option is on, the folder will be created in uppercase.
 
+  #Smart folder panel monitor#
+  Если эта опция выставлена, то мониторинг файловых панелей фар будет выполняться только тогда когда фар активен,
+т.е. обновления панелей не будет до тех пор, пока фар не получит фокус ввода. Это позволяет не локировать каталоги текущих панелей.
+Но синхронизация состояния панелей при получении фокуса #иногда не срабатывает#. Поэтому эта опция по-умолчанию отключена,
+и мониторинг файловых панелей выполняется даже тогда, когда фар работатет в фоне.
+
   #Save commands history#
   Forces saving ~commands history~@History@ before exit and restoring after starting Far.
 

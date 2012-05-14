@@ -928,7 +928,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 					static int UpdateReenter=0;
 
-					if (!UpdateReenter && CurTime-KeyPressedLastTime>700)
+					if (!UpdateReenter && CurTime-KeyPressedLastTime>300)
 					{
 						UpdateReenter=TRUE;
 						CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);

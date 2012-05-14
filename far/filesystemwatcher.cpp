@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "filesystemwatcher.hpp"
-
+#include "flink.hpp"
 
 FileSystemWatcher::FileSystemWatcher():
 	Handle(INVALID_HANDLE_VALUE),
@@ -70,13 +70,32 @@ bool FileSystemWatcher::Watch()
 		FILE_NOTIFY_CHANGE_SIZE|
 		FILE_NOTIFY_CHANGE_LAST_WRITE);
 	}
-	File dir;
-	if (dir.Open(Directory,GENERIC_READ,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING))
+
+	bool isFAT = false;
+	string strRoot, strFileSystem;
+	GetPathRoot(Directory.CPtr(), strRoot);
+	if (!strRoot.IsEmpty())
 	{
-		FILETIME write_time;
-		if (dir.GetTime(nullptr,nullptr,&write_time,nullptr))
-			CurrentLastWriteTime = write_time;
+		if (apiGetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
+			isFAT = (strFileSystem.SubStr(0,3) == L"FAT");
 	}
+
+	if (isFAT)
+	{
+		if (++CurrentLastWriteTime.dwLowDateTime == 0)
+			++CurrentLastWriteTime.dwHighDateTime;
+	}
+	else
+	{
+		File dir;
+		if (dir.Open(Directory,GENERIC_READ,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING))
+		{
+			FILETIME write_time;
+			if (dir.GetTime(nullptr,nullptr,&write_time,nullptr))
+				CurrentLastWriteTime = write_time;
+		}
+	}
+
 	return Handle != INVALID_HANDLE_VALUE;
 }
 
