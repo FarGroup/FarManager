@@ -53,13 +53,15 @@ BOOL WINAPI MkLink(
     </table>
     </div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Флаг, одно из (перечисление <a name="MKLINK_FLAGS">MKLINK_FLAGS</a>):
+    <div class=dfndescr>Флаг, одно из (тип <a name="MKLINK_FLAGS">MKLINK_FLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr><td class="cont" width="40%"><a name="MLF_SHOWERRMSG">MLF_SHOWERRMSG</a></td>
     <td class="cont" width="60%">выводить сообщения об ошибках</td></tr>
     <tr><td class="cont" width="40%"><a name="MLF_DONOTUPDATEPANEL">MLF_DONOTUPDATEPANEL</a></td>
     <td class="cont" width="60%">после создания ссылки не обновлять панели</td></tr>
+    <tr><td class="cont" width="40%"><a name="MLF_NONE">MLF_NONE</a></td>
+    <td class="cont" width="60%">...</td></tr>
     </table>
     </div>
 </div>
@@ -106,7 +108,7 @@ BOOL WINAPI MkLink(
 <li>Если в качестве Src было передано значение, например L"C:", то вместо связи каталогов будет монтирован диск.
 <li>Если для монтирования диска Dest оканчивается слешем, то в Dest будет создан каталог "disk_N" (где N - буква диска).
 
-<li>В Windows 2000 напрямую делать связи на папки CD-ROM нельзя, но можно это ограничение обойти, смонтировав CD-ROM диск на папку NTFS-раздела 
+<li>В Windows 2000 напрямую делать связи на папки CD-ROM нельзя, но можно это ограничение обойти, смонтировав CD-ROM диск на папку NTFS-раздела
 (т.н. <a href="../other/dict.html#mountpoints">Mount Points</a>). И уже из этой папки сделать нужную связь.
 </div>
 

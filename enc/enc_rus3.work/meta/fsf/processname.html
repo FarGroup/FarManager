@@ -22,7 +22,7 @@
 int WINAPI ProcessName(
   const wchar_t *Param1,
   wchar_t *Param2,
-  DWORD Size,  
+  DWORD Size,
   PROCESSNAME_FLAGS Flags
 );
 </pre>
@@ -36,9 +36,10 @@ int WINAPI ProcessName(
   <div class=dfn>Size</div>
     <div class=dfndescr>Зависит от Flags.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Указывает на необходимое действие. Может быть следующим (перечисление <a name="PROCESSNAME_FLAGS">PROCESSNAME_FLAGS</a>):
+    <div class=dfndescr>Указывает на необходимое действие. Может быть следующим (тип <a name="PROCESSNAME_FLAGS">PROCESSNAME_FLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Действие</th><th class="cont" width="60%">Описание</th></tr>
+
     <tr class="cont"><td class="cont" width="40%"><a name="PN_CMPNAME">PN_CMPNAME</a></td>
     <td class="cont" width="60%">Сравнить имя файла с маской.<br>
     <i>Param1</i> соответствует Pattern, <i>Param2</i> соответствует String, <i>Size</i> игнорируется.
@@ -52,21 +53,31 @@ int WINAPI ProcessName(
     <tr class="cont"><td class="cont" width="40%"><code>[c,x-z]</code></td>
     <td class="cont" width="60%">любой символ из находящихся в квадратных скобках; допускаются и отдельные символы, и их диапазоны.</td></tr>
     </table>
+
     Например, файлы ftp.exe, fc.exe и f.ext совпадают с маской <code>f*.ex?</code>, маска <code>*co*</code> совпадает с color.ini и edit.com, маске
     <code>[c-ft]*.txt</code> будут соответствовать config.txt, demo.txt, faq.txt и tips.txt.<br>
     В случае успеха функция возвращает TRUE.
     </td></tr>
+
     <tr class="cont"><td class="cont" width="40%"><a name="PN_CMPNAMELIST">PN_CMPNAMELIST</a></td>
     <td class="cont" width="60%">Сравнить имя файла со списком масок, перечисленных через запятую. Аналог предыдущего флага, только <i>Param1</i> соответствует списку масок.
     <i>Size</i> игнорируется.</td></tr>
+
     <tr class="cont"><td class="cont" width="40%"><a name="PN_SKIPPATH">PN_SKIPPATH</a></td>
     <td class="cont" width="60%">Может сочетаться с PN_CMPNAME или PN_CMPNAMELIST - указывает на то, что путь к имени файла при сравнении должен игнорироваться.</td></tr>
+
     <tr class="cont"><td class="cont" width="40%"><a name="PN_GENERATENAME">PN_GENERATENAME</a></td>
     <td class="cont" width="60%">Генерировать имя файла на основе существующего (<i>Param1</i>) и маски (<i>Param2</i>).
      Результат, длиной <i>Size</i>, записывается в <i>Param2</i> (учитывайте, что размер буфера <i>Param2</i> должен быть не менее <i>Size</i>).
      Возвращается функцией требуемый размер буфера <i>Param2</i>.<br>
      Если нужно преобразовать только часть <i>Param1</i>, то можно указать размер этой части (может быть до 255 байт) в <i>Flags</i> (добавить по принципу OR), например: Param1="dir1\\file1", а нам нужно изменить только
      "dir1", тогда параметр <i>Flags</i> должен быть равен PN_GENERATENAME|4 </td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="PN_CHECKMASK">PN_CHECKMASK</a></td>
+    <td class="cont" width="60%">...</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="PN_SHOWERRORMESSAGE">PN_SHOWERRORMESSAGE</a></td>
+    <td class="cont" width="60%">...</td></tr>
      </table>
      </div>
 </div>

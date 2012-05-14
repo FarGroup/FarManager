@@ -51,7 +51,7 @@ struct OpenPanelInfo
   <div class=dfn>hPanel</div>
     <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>. Поле заполнено Far Manager'ом.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация следующих значений (перечисление <a name="OPENPANELINFO_FLAGS">OPENPANELINFO_FLAGS</a>):
+    <div class=dfndescr>Комбинация следующих значений (тип <a name="OPENPANELINFO_FLAGS">OPENPANELINFO_FLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_DISABLEFILTER">OPIF_DISABLEFILTER</a></td>
@@ -86,6 +86,10 @@ struct OpenPanelInfo
     <td class="cont" width="60%">Флаг указывает, что плагин заполняет поле CRC32 элементов панели <a href="pluginpanelitem.html">PluginPanelItem</a>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPIF_USEFREESIZE">OPIF_USEFREESIZE</a></td>
     <td class="cont" width="60%">Флаг указывает, что плагин заполняет поле <i>FreeSize</i>. Не у всех эмулированных плагинами файловых системах возможно понятие "свободное место" (например, в плагине ImpEx).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_SHORTCUT">OPIF_SHORTCUT</a></td>
+    <td class="cont" width="60%">...</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPIF_NONE">OPIF_NONE</a></td>
+    <td class="cont" width="60%">...</td></tr>
     </table>
     </div>
   <div class=dfn>HostFile</div>
