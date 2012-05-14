@@ -23,11 +23,11 @@ struct MacroAddMacro
 {
   size_t StructSize;
   void *Id;
-  enum FARMACROAREA Area;
-  FARKEYMACROFLAGS Flags;
-  INPUT_RECORD AKey;
   const wchar_t *SequenceText;
   const wchar_t *Description;
+  FARKEYMACROFLAGS Flags;
+  INPUT_RECORD AKey;
+  enum FARMACROAREA Area;
   FARMACROCALLBACK Callback;
 };
 </pre>
@@ -38,8 +38,10 @@ struct MacroAddMacro
     <div class=dfndescr>Ёто поле должно содержать размер структуры <dfn>MacroSendMacroText</dfn>.</div>
   <div class=dfn>Id</div>
     <div class=dfndescr>”никальный в рамках плагина идентификатор макропоследовательности.</div>
-  <div class=dfn>Area</div>
-    <div class=dfndescr>ћакрообласть типа <a href="../service_functions/macrocontrol.html#FARMACROAREA">FARMACROAREA</a>, куда поместить макропоследовательность.</div>
+  <div class=dfn>SequenceText</div>
+    <div class=dfndescr>—трока, содержаща€ макрос в текстовом виде (массив клавиш во внутреннем представлении Far Manager).</div>
+  <div class=dfn>Description</div>
+    <div class=dfndescr>—трока, содержаща€ описание макроса.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr> омбинаци€ флагов (перечисление <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>):
     <table class="cont">
@@ -56,10 +58,8 @@ struct MacroAddMacro
     </div>
   <div class=dfn>AKey</div>
     <div class=dfndescr> лавиша вызова макроса, структура <a href="../winapi/input_record.html">INPUT_RECORD</a>.</div>
-  <div class=dfn>SequenceText</div>
-    <div class=dfndescr>—трока, содержаща€ макрос в текстовом виде (массив клавиш во внутреннем представлении Far Manager).</div>
-  <div class=dfn>Description</div>
-    <div class=dfndescr>—трока, содержаща€ описание макроса.</div>
+  <div class=dfn>Area</div>
+    <div class=dfndescr>ћакрообласть типа <a href="../service_functions/macrocontrol.html#FARMACROAREA">FARMACROAREA</a>, куда поместить макропоследовательность.</div>
   <div class=dfn>Callback</div>
     <div class=dfndescr>‘ункци€, выполн€ема€ Far Manager перед непосредственным выполнением макропоследовательности <i>SequenceText</i>.
     —интаксис функции: <pre class=syntax> int (WINAPI *<a name="FARMACROCALLBACK">FARMACROCALLBACK</a>)(void *Id,FARADDKEYMACROFLAGS Flags);</pre>

@@ -91,12 +91,14 @@ struct PluginPanelItem
     <tr class="cont"><td class="cont" width="40%"><a name="PPIF_USERDATA">PPIF_USERDATA</a></td>
     <td class="cont" width="60%">Если этот флаг установлен, Far Manager считает поле <i>UserData</i> указателем на структуру пользовательских данных.
     Читайте описание <i>UserData</i> для уточнения информации. <p>Младшее слово параметра <i>Flags/<i> может быть использовано плагином для своих собственных флагов.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PPIF_NONE">PPIF_NONE</a></td>
+    <td class="cont" width="60%">...</td></tr>
     </table>
     </div>
   <div class=dfn>UserData</div>
     <div class=dfndescr>Это поле может быть использовано плагином для хранения 32-битного значения или указателя на структуру данных.
     В последнем случае, когда <i>UserData</i> указывает на структуру данных, первое поле этой структуры должно быть 32-битным значением, равным размеру структуры, и плагин должен установить флаг PPIF_USERDATA в
-    поле <i>Flags</i>. Это позволит Far Manager'у правильно скопировать структуру во внутренний буфер Far MAnager'а и позже передать её плагину в списках <dfn>PluginPanelItem</dfn>. В функции <a href="../exported_functions/freefinddataw.html">FreeFindDataW</a> 
+    поле <i>Flags</i>. Это позволит Far Manager'у правильно скопировать структуру во внутренний буфер Far MAnager'а и позже передать её плагину в списках <dfn>PluginPanelItem</dfn>. В функции <a href="../exported_functions/freefinddataw.html">FreeFindDataW</a>
     плагин должен освободить память, занятую такими дополнительными структурами.</div>
   <div class=dfn>FileAttributes</div>
     <div class=dfndescr>Указывает атрибуты найденного файла. Этот элемент может быть комбинацией следующих значений:

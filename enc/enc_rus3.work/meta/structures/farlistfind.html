@@ -22,6 +22,7 @@
 <pre class=syntax>
 struct FarListFind
 {
+  size_t StructSize;
   int StartIndex;
   const wchar_t *Pattern;
   FARLISTFINDFLAGS Flags;
@@ -31,16 +32,20 @@ struct FarListFind
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Размер структуры.</div>
   <div class=dfn>StartIndex</div>
     <div class=dfndescr>Индекс элемента, с которого начинается поиск.</div>
   <div class=dfn>Pattern</div>
   <div class=dfndescr>Шаблон для поиска по правилам функции <a href="../fsf/processname.html">FSF.ProcessName</a>.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Дополнительные флаги. Одно из следующих значений (перечисление <a name="FARLISTFINDFLAGS">FARLISTFINDFLAGS</a>):
+    <div class=dfndescr>Дополнительные флаги. Одно из следующих значений (тип <a name="FARLISTFINDFLAGS">FARLISTFINDFLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LIFIND_EXACTMATCH">LIFIND_EXACTMATCH</a></td>
     <td class="cont" width="60%">Поле <i>Pattern</i> не является шаблоном - рассматривать как обычную подстроку поиска.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LIFIND_NONE">LIFIND_NONE</a></td>
+    <td class="cont" width="60%">...</td></tr>
     </table>
     </div>
   <div class=dfn>Reserved</div>

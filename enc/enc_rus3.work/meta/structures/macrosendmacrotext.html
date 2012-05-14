@@ -33,7 +33,7 @@ struct MacroSendMacroText
   <div class=dfn>StructSize</div>
     <div class=dfndescr>Это поле должно содержать размер структуры <dfn>MacroSendMacroText</dfn>.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация флагов (перечисление <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>):
+    <div class=dfndescr>Комбинация флагов (тип <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_DISABLEOUTPUT">KMFLAGS_DISABLEOUTPUT</a></td>
@@ -42,6 +42,8 @@ struct MacroSendMacroText
     <td class="cont" width="60%">Не передавать клавиши редакторным плагинам (плагинам, экспортирующим функцию <a href="../exported_functions/processeditorinputw.html">ProcessEditorInputW</a>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_SILENTCHECK">KMFLAGS_SILENTCHECK</a></td>
     <td class="cont" width="60%">Не отображать на экране результат проверки макропоследовательности.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_NONE">KMFLAGS_NONE</a></td>
+    <td class="cont" width="60%">...</td></tr>
     </table>
     </div>
   <div class=dfn>AKey</div>

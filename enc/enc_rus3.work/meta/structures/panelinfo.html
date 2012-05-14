@@ -47,7 +47,7 @@ struct PanelInfo
   <div class=dfn>OwnerGuid</div>
     <div class=dfndescr>GUID плагина создавшего панель. <i>OwnerGuid</i> = <code>FarGuid</code> - если панель принадлежит Far Manager. Для панели Far Manager - <code>INVALID_HANDLE_VALUE</code>.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Дополнительные флаги. Могут быть комбинацией следующих значений (перечисление <a name="PANELINFOFLAGS">PANELINFOFLAGS</a>):
+    <div class=dfndescr>Дополнительные флаги. Могут быть комбинацией следующих значений (тип <a name="PANELINFOFLAGS">PANELINFOFLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_SHOWHIDDEN">PFLAGS_SHOWHIDDEN</a></td>
@@ -80,6 +80,10 @@ struct PanelInfo
     <td class="cont" width="60%">панель активна</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_ALTERNATIVENAMES">PFLAGS_ALTERNATIVENAMES</a></td>
     <td class="cont" width="60%">панель в режиме показа коротких имён файлов</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_SHORTCUT">PFLAGS_SHORTCUT</a></td>
+    <td class="cont" width="60%">...</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_NONE">PFLAGS_NONE</a></td>
+    <td class="cont" width="60%">...</td></tr>
     </table>
     </div>
   <div class=dfn>ItemsNumber</div>

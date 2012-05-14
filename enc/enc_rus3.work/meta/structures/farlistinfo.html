@@ -22,6 +22,7 @@
 <pre class=syntax>
 struct FarListInfo
 {
+  size_t StructSize;
   FARLISTINFOFLAGS Flags;
   size_t ItemsNumber;
   int SelectPos;
@@ -34,8 +35,10 @@ struct FarListInfo
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Размер структуры.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Набор битовых флагов (перечисление <a name="FARLISTINFOFLAGS">FARLISTINFOFLAGS</a>):
+    <div class=dfndescr>Набор битовых флагов (тип <a name="FARLISTINFOFLAGS">FARLISTINFOFLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LINFO_SHOWNOBOX">LINFO_SHOWNOBOX</a></td>
@@ -48,6 +51,8 @@ struct FarListInfo
     <td class="cont" width="60%">попытка перемещения курсора выше первого пункта или ниже последнего будет приводить к перемещению соответственно к последнему или к первому пункту списка</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LINFO_SHOWAMPERSAND">LINFO_SHOWAMPERSAND</a></td>
     <td class="cont" width="60%">показать амперсанды (&amp;), без этого флага амперсанды используются для определения горячей клавиши пункта</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="LINFO_NONE">LINFO_NONE</a></td>
+    <td class="cont" width="60%">...</td></tr>
     </table>
     </div>
   <div class=dfn>ItemsNumber</div>
