@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2668
+  Plugin API for Far Manager 3.0 build 2674
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2668
+#define FARMANAGERVERSION_BUILD 2674
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1046,6 +1046,7 @@ enum FARMACROPARSEERRORCODE
 	MPEC_ZEROLENGTHMACRO        =12,
 	MPEC_INTPARSERERROR         =13,
 	MPEC_CONTINUE_OTL           =14,
+	MPEC_BREAK_OTL              =15,
 };
 
 struct MacroParseResult
@@ -1115,7 +1116,6 @@ struct FarGetValue
 
 typedef unsigned __int64 FARSETCOLORFLAGS;
 static const FARSETCOLORFLAGS
-
 	FSETCLR_REDRAW                 = 0x0000000000000001ULL,
 	FSETCLR_NONE                   = 0;
 
@@ -1895,8 +1895,8 @@ static const XLAT_FLAGS
 	XLAT_SWITCHKEYBLAYOUT  = 0x0000000000000001ULL,
 	XLAT_SWITCHKEYBBEEP    = 0x0000000000000002ULL,
 	XLAT_USEKEYBLAYOUTNAME = 0x0000000000000004ULL,
-	XLAT_CONVERTALLCMDLINE = 0x0000000000010000ULL;
-
+	XLAT_CONVERTALLCMDLINE = 0x0000000000010000ULL,
+	XLAT_NONE              = 0;
 
 typedef size_t (WINAPI *FARSTDINPUTRECORDTOKEYNAME)(const INPUT_RECORD* Key, wchar_t *KeyText, size_t Size);
 
