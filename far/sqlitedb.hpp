@@ -71,7 +71,7 @@ class SQLiteDb {
 public:
 	SQLiteDb();
 	virtual ~SQLiteDb();
-	bool Open(const wchar_t *DbFile, bool Local);
+	bool Open(const wchar_t *DbFile, bool Local, bool WAL=false);
 	void Initialize(const wchar_t* DbName, bool Local = false);
 	bool Exec(const char *Command);
 	bool BeginTransaction();

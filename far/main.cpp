@@ -110,6 +110,7 @@ static void show_help()
 #ifdef _DEBUGEXC
 	    L" /xd  Enable exception handling.\n"
 #endif
+	    L" /ro  Read-Only config mode.\n"
 		;
 	Console.Write(HelpMsg, ARRAYSIZE(HelpMsg)-1);
 	Console.Commit();
@@ -400,6 +401,10 @@ void InitProfile(string &strProfilePath)
 
 	SetEnvironmentVariable(L"FARPROFILE", Opt.ProfilePath);
 	SetEnvironmentVariable(L"FARLOCALPROFILE", Opt.LocalProfilePath);
+
+	int ReadOnlyConfig = GetPrivateProfileInt(
+		L"General", L"ReadOnlyConfig", Opt.ReadOnlyConfig > 0 ? TRUE : FALSE, g_strFarINI);
+	Opt.ReadOnlyConfig = (ReadOnlyConfig ? TRUE : FALSE);
 }
 
 int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath)
@@ -522,6 +527,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	// макросы не дисаблим
 	Opt.Macro.DisableMacro=0;
+
+	Opt.ReadOnlyConfig = -1; // not initialized
 
 	string strProfilePath;
 
@@ -676,6 +683,10 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					{
 						Opt.WindowMode=TRUE;
 					}
+					break;
+				case L'R': // -ro
+					if (Upper(Argv[I][2]) == L'O')
+						Opt.ReadOnlyConfig = TRUE;
 					break;
 			}
 		}

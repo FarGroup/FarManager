@@ -1692,10 +1692,12 @@ TVar TVar::operator ++(int)  // a++
 TVar& TVar::operator --()     // --a
 {
 	if (vType != vtString)
+	{
 		if (vType==vtDouble)
 			operator-=(1.0);
 		else
 			operator-=(1);
+	}
 	return *this;
 }
 

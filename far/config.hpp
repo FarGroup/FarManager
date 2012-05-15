@@ -729,6 +729,7 @@ struct Options
 	int CurrentElevationMode;
 
 	BOOL WindowMode;
+	BOOL ReadOnlyConfig;
 
 	string ProfilePath;
 	string LocalProfilePath;

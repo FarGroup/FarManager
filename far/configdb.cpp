@@ -1467,15 +1467,16 @@ public:
 
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
-		if (
-			!Open(DbName, Local) ||
+		if (!Open(DbName, Local, true))
+			return false;
 
-			//schema
-			!SetWALJournalingMode() ||
+		if (!SetWALJournalingMode())
+			return false;
 
-			!EnableForeignKeysConstraints() ||
+		if (!EnableForeignKeysConstraints())
+			return false;
 
-			!Exec(
+		if (!Exec(
 				"CREATE TABLE IF NOT EXISTS cachename(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE);"
 				"CREATE TABLE IF NOT EXISTS preload(cid INTEGER NOT NULL PRIMARY KEY, enabled INTEGER NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
 				"CREATE TABLE IF NOT EXISTS signatures(cid INTEGER NOT NULL PRIMARY KEY, signature TEXT NOT NULL, FOREIGN KEY(cid) REFERENCES cachename(id) ON UPDATE CASCADE ON DELETE CASCADE);"
@@ -1495,102 +1496,104 @@ public:
 			)
 		) return false;
 
-		if (
-			//get menu item text and guid statement
-			InitStmt(stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;") &&
+		
+		//get menu item text and guid statement
+		bool ok = InitStmt(stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;");
 
-			//set menu item statement
-			InitStmt(stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);") &&
+		//set menu item statement
+		ok = ok && InitStmt(stmtSetMenuItem, L"INSERT OR REPLACE INTO menuitems VALUES (?1,?2,?3,?4,?5);");
 
-			//add new cache name statement
-			InitStmt(stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);") &&
+		//add new cache name statement
+		ok = ok && InitStmt(stmtCreateCache, L"INSERT INTO cachename VALUES (NULL,?1);");
 
-			//get cache id by name statement
-			InitStmt(stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;") &&
+		//get cache id by name statement
+		ok = ok && InitStmt(stmtFindCacheName, L"SELECT id FROM cachename WHERE name=?1;");
 
-			//del cache by name statement
-			InitStmt(stmtDelCache, L"DELETE FROM cachename WHERE name=?1;") &&
+		//del cache by name statement
+		ok = ok && InitStmt(stmtDelCache, L"DELETE FROM cachename WHERE name=?1;");
 
-			//count cache names statement
-			InitStmt(stmtCountCacheNames, L"SELECT count(name) FROM cachename") &&
+		//count cache names statement
+		ok = ok && InitStmt(stmtCountCacheNames, L"SELECT count(name) FROM cachename");
 
-			//get preload state statement
-			InitStmt(stmtGetPreloadState, L"SELECT enabled FROM preload WHERE cid=?1;") &&
+		//get preload state statement
+		ok = ok && InitStmt(stmtGetPreloadState, L"SELECT enabled FROM preload WHERE cid=?1;");
 
-			//get signature statement
-			InitStmt(stmtGetSignature, L"SELECT signature FROM signatures WHERE cid=?1;") &&
+		//get signature statement
+		ok = ok && InitStmt(stmtGetSignature, L"SELECT signature FROM signatures WHERE cid=?1;");
 
-			//get export state statement
-			InitStmt(stmtGetExportState, L"SELECT enabled FROM exports WHERE cid=?1 and export=?2;") &&
+		//get export state statement
+		ok = ok && InitStmt(stmtGetExportState, L"SELECT enabled FROM exports WHERE cid=?1 and export=?2;");
 
-			//get guid statement
-			InitStmt(stmtGetGuid, L"SELECT guid FROM guids WHERE cid=?1;") &&
+		//get guid statement
+		ok = ok && InitStmt(stmtGetGuid, L"SELECT guid FROM guids WHERE cid=?1;");
 
-			//get title statement
-			InitStmt(stmtGetTitle, L"SELECT title FROM titles WHERE cid=?1;") &&
+		//get title statement
+		ok = ok && InitStmt(stmtGetTitle, L"SELECT title FROM titles WHERE cid=?1;");
 
-			//get author statement
-			InitStmt(stmtGetAuthor, L"SELECT author FROM authors WHERE cid=?1;") &&
+		//get author statement
+		ok = ok && InitStmt(stmtGetAuthor, L"SELECT author FROM authors WHERE cid=?1;");
 
-			//get description statement
-			InitStmt(stmtGetDescription, L"SELECT description FROM descriptions WHERE cid=?1;") &&
+		//get description statement
+		ok = ok && InitStmt(stmtGetDescription, L"SELECT description FROM descriptions WHERE cid=?1;");
 
-			//get command prefix statement
-			InitStmt(stmtGetPrefix, L"SELECT prefix FROM prefixes WHERE cid=?1;") &&
-
-#if defined(MANTIS_0000466)
-			//get macro func statement
-			InitStmt(stmtGetMacroFuncs, L"SELECT func FROM macrofuncs WHERE cid=?1;") &&
-#endif
-			//get flags statement
-			InitStmt(stmtGetFlags, L"SELECT bitmask FROM flags WHERE cid=?1;") &&
-
-			//get MinFarVersion statement
-			InitStmt(stmtGetMinFarVersion, L"SELECT version FROM minfarversions WHERE cid=?1;") &&
-
-			//get plugin version statement
-			InitStmt(stmtGetVersion, L"SELECT version FROM pluginversions WHERE cid=?1;") &&
-
-			//set preload state statement
-			InitStmt(stmtSetPreloadState, L"INSERT OR REPLACE INTO preload VALUES (?1,?2);") &&
-
-			//set signature statement
-			InitStmt(stmtSetSignature, L"INSERT OR REPLACE INTO signatures VALUES (?1,?2);") &&
-
-			//set export state statement
-			InitStmt(stmtSetExportState, L"INSERT OR REPLACE INTO exports VALUES (?1,?2,?3);") &&
-
-			//set guid statement
-			InitStmt(stmtSetGuid, L"INSERT OR REPLACE INTO guids VALUES (?1,?2);") &&
-
-			//set title statement
-			InitStmt(stmtSetTitle, L"INSERT OR REPLACE INTO titles VALUES (?1,?2);") &&
-
-			//set author statement
-			InitStmt(stmtSetAuthor, L"INSERT OR REPLACE INTO authors VALUES (?1,?2);") &&
-
-			//set description statement
-			InitStmt(stmtSetDescription, L"INSERT OR REPLACE INTO descriptions VALUES (?1,?2);") &&
-
-			//set command prefix statement
-			InitStmt(stmtSetPrefix, L"INSERT OR REPLACE INTO prefixes VALUES (?1,?2);") &&
+		//get command prefix statement
+		ok = ok && InitStmt(stmtGetPrefix, L"SELECT prefix FROM prefixes WHERE cid=?1;");
 
 #if defined(MANTIS_0000466)
-			//set macro function statement
-			InitStmt(stmtSetMacroFuncs, L"INSERT OR REPLACE INTO macrofuncs VALUES (?1,?2);") &&
+		//get macro func statement
+		ok = ok && InitStmt(stmtGetMacroFuncs, L"SELECT func FROM macrofuncs WHERE cid=?1;");
 #endif
-			//set flags statement
-			InitStmt(stmtSetFlags, L"INSERT OR REPLACE INTO flags VALUES (?1,?2);") &&
+		//get flags statement
+		ok = ok && InitStmt(stmtGetFlags, L"SELECT bitmask FROM flags WHERE cid=?1;");
 
-			//set MinFarVersion statement
-			InitStmt(stmtSetMinFarVersion, L"INSERT OR REPLACE INTO minfarversions VALUES (?1,?2);") &&
+		//get MinFarVersion statement
+		ok = ok && InitStmt(stmtGetMinFarVersion, L"SELECT version FROM minfarversions WHERE cid=?1;");
 
-			//set plugin version statement
-			InitStmt(stmtSetVersion, L"INSERT OR REPLACE INTO pluginversions VALUES (?1,?2);") &&
+		//get plugin version statement
+		ok = ok && InitStmt(stmtGetVersion, L"SELECT version FROM pluginversions WHERE cid=?1;");
 
-			//enum cache names statement
-			InitStmt(stmtEnumCache, L"SELECT name FROM cachename ORDER BY name;")
-		) return true;
+		//set preload state statement
+		ok = ok && InitStmt(stmtSetPreloadState, L"INSERT OR REPLACE INTO preload VALUES (?1,?2);");
+
+		//set signature statement
+		ok = ok && InitStmt(stmtSetSignature, L"INSERT OR REPLACE INTO signatures VALUES (?1,?2);");
+
+		//set export state statement
+		ok = ok && InitStmt(stmtSetExportState, L"INSERT OR REPLACE INTO exports VALUES (?1,?2,?3);");
+
+		//set guid statement
+		ok = ok && InitStmt(stmtSetGuid, L"INSERT OR REPLACE INTO guids VALUES (?1,?2);");
+
+		//set title statement
+		ok = ok && InitStmt(stmtSetTitle, L"INSERT OR REPLACE INTO titles VALUES (?1,?2);");
+
+		//set author statement
+		ok = ok && InitStmt(stmtSetAuthor, L"INSERT OR REPLACE INTO authors VALUES (?1,?2);");
+
+		//set description statement
+		ok = ok && InitStmt(stmtSetDescription, L"INSERT OR REPLACE INTO descriptions VALUES (?1,?2);");
+
+		//set command prefix statement
+		ok = ok && InitStmt(stmtSetPrefix, L"INSERT OR REPLACE INTO prefixes VALUES (?1,?2);");
+
+#if defined(MANTIS_0000466)
+		//set macro function statement
+		ok = ok && InitStmt(stmtSetMacroFuncs, L"INSERT OR REPLACE INTO macrofuncs VALUES (?1,?2);");
+#endif
+	   //set flags statement
+		ok = ok && InitStmt(stmtSetFlags, L"INSERT OR REPLACE INTO flags VALUES (?1,?2);");
+
+		//set MinFarVersion statement
+		ok = ok && InitStmt(stmtSetMinFarVersion, L"INSERT OR REPLACE INTO minfarversions VALUES (?1,?2);");
+
+		//set plugin version statement
+		ok = ok && InitStmt(stmtSetVersion, L"INSERT OR REPLACE INTO pluginversions VALUES (?1,?2);");
+
+		//enum cache names statement
+		ok = ok && InitStmt(stmtEnumCache, L"SELECT name FROM cachename ORDER BY name;");
+		
+		if (ok)
+			return true;
 
 		stmtEnumCache.Finalize();
 		stmtSetVersion.Finalize();
@@ -2080,7 +2083,7 @@ public:
 	bool InitializeImpl(const wchar_t* DbName, bool Local)
 	{
 		if (
-			!Open(DbName, Local) ||
+			!Open(DbName, Local, true) ||
 
 			//schema
 			!SetWALJournalingMode() ||
