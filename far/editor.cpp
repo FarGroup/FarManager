@@ -3745,6 +3745,7 @@ BOOL Editor::Search(int Next)
 	{
 		UINT Line;
 		UINT Pos;
+		UINT SearchLen;
 	};
 
 	VMenu FindAllList(L"", nullptr, 0);
@@ -3839,7 +3840,7 @@ BOOL Editor::Search(int Next)
 
 					MenuItemEx Item = {};
 					Item.strName = FormatString() << fmt::LeftAlign() << fmt::Width(11) << fmt::Precision(11) << fmt::FillChar(L' ') << (FormatString() << NewNumLine+1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetStringAddr() + CurPos;
-					FindCoord coord = {(UINT)NewNumLine, (UINT)CurPos};
+					FindCoord coord = {(UINT)NewNumLine, (UINT)CurPos, (UINT)SearchLength};
 					Item.UserData = &coord;
 					Item.UserDataSize = sizeof(coord);
 					FindAllList.AddItem(&Item);
@@ -4094,19 +4095,104 @@ BOOL Editor::Search(int Next)
 	{
 		FindAllList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 		FindAllList.SetPosition(-1, -1, 0, 0);
-		FindAllList.SetBottomTitle(LangString(MEditSearchStatistics) << FindAllList.GetItemCount() << AllRefLines);
+		FindAllList.SetTitle(LangString(MEditSearchStatistics) << FindAllList.GetItemCount() << AllRefLines);
+		FindAllList.SetBottomTitle(LangString(MEditFindAllMenuFooter));
+		FindAllList.SetHelp(L"FindAllMenu");
 		FindAllList.Show();
+		int SelectedPos;
+		DWORD Key=0;
+		FindCoord* coord;
+		bool MenuZoomed=true;
+
 		while (!FindAllList.Done())
 		{
-			FindAllList.ReadInput();
-			FindAllList.ProcessInput();
+			CtrlObject->Macro.SetMode(MACRO_MENU);
+			SelectedPos=FindAllList.GetSelectPos();
+			Key=FindAllList.ReadInput();
+
+			switch (Key)
+			{
+				case KEY_CONSOLE_BUFFER_RESIZE:
+				{
+					FindAllList.Hide();
+					FindAllList.SetPosition(-1,-1,0,0);
+					FindAllList.Show();
+					break;
+				}
+				case KEY_ADD:
+					AddSessionBookmark();
+					break;
+				case KEY_CTRLENTER:
+				case KEY_RCTRLENTER:
+					coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, SelectedPos));
+					GoToLine(coord->Line);
+					CurLine->SetCurPos(coord->Pos);
+					if (SelectFound)
+					{
+						Pasting++;
+						Lock();
+						// if (!EdOpt.PersistentBlocks)
+						UnmarkBlock();
+						Flags.Set(FEDITOR_MARKINGBLOCK);
+						CurLine->Select(coord->Pos, coord->Pos+coord->SearchLen);
+						BlockStart = CurLine;
+						BlockStartLine = coord->Line;
+						Unlock();
+						Pasting--;
+						Show();
+					}
+					FindAllList.Show();
+					break;
+				case KEY_CTRLUP: case KEY_RCTRLUP:
+				case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
+					ProcessKey(Key);
+					FindAllList.Show();
+					break;
+				case KEY_F5:
+					MenuZoomed=!MenuZoomed;
+					if(MenuZoomed)
+					{
+						FindAllList.SetPosition(-1, -1, 0, 0);
+					}
+					else
+					{
+						FindAllList.SetPosition(-1, ScrY-20, 0, ScrY-10);
+					}
+					Show();
+					FindAllList.Show();
+					break;
+				default:
+					if ((Key>=KEY_CTRL0 && Key<=KEY_CTRL9) || (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) ||
+					   (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || (Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9))
+					{
+						ProcessKey(Key);
+						FindAllList.Show();
+					}
+					FindAllList.ProcessInput();
+					break;
+			}
 		}
+
 		int ExitCode = FindAllList.GetExitCode();
+
 		if(ExitCode >= 0)
 		{
-			FindCoord* coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, ExitCode));
+			coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, ExitCode));
 			GoToLine(coord->Line);
 			CurLine->SetCurPos(coord->Pos);
+			if (SelectFound)
+			{
+				Pasting++;
+				Lock();
+				// if (!EdOpt.PersistentBlocks)
+				UnmarkBlock();
+				Flags.Set(FEDITOR_MARKINGBLOCK);
+				CurLine->Select(coord->Pos, coord->Pos+coord->SearchLen);
+				BlockStart = CurLine;
+				BlockStartLine = coord->Line;
+				Unlock();
+				Pasting--;
+			}
 		}
 	}
 

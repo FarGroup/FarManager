@@ -5040,6 +5040,16 @@ upd:"Occurrences: %1, lines: %2"
 "Frecuencia: %1, líneas: %2"
 "Nájdených: %1, riadky: %2"
 
+MEditFindAllMenuFooter
+"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
+"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
+"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
+"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
+"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
+"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
+"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
+"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
+
 MEditNotFound
 "Строка не найдена"
 "Could not find the string"
