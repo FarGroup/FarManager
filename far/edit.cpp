@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "fileedit.hpp"
 #include "imports.hpp"
+#include "console.hpp"
 
 static int Recurse=0;
 
@@ -3424,7 +3425,9 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 	int Result=0;
 	static int Reenter=0;
 	string CurrentLine;
-	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && (CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual))
+	size_t EventsCount = 0;
+	Console.GetNumberOfInputEvents(EventsCount);
+	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual)) 
 	{
 		Reenter++;
 
