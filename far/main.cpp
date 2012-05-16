@@ -111,6 +111,7 @@ static void show_help()
 	    L" /xd  Enable exception handling.\n"
 #endif
 	    L" /ro  Read-Only config mode.\n"
+		 L" /rw  Normal config mode.\n"
 		;
 	Console.Write(HelpMsg, ARRAYSIZE(HelpMsg)-1);
 	Console.Commit();
@@ -402,7 +403,7 @@ void InitProfile(string &strProfilePath)
 	SetEnvironmentVariable(L"FARPROFILE", Opt.ProfilePath);
 	SetEnvironmentVariable(L"FARLOCALPROFILE", Opt.LocalProfilePath);
 
-	if (Opt.ReadOnlyConfig < 0) // do not override '-ro'
+	if (Opt.ReadOnlyConfig < 0) // do not override 'far /ro', 'far /rw'
 		Opt.ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, g_strFarINI);
 }
 
@@ -683,9 +684,11 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 						Opt.WindowMode=TRUE;
 					}
 					break;
-				case L'R': // -ro
-					if (Upper(Argv[I][2]) == L'O')
+				case L'R':
+					if (Upper(Argv[I][2]) == L'O') // -ro
 						Opt.ReadOnlyConfig = TRUE;
+					if (Upper(Argv[I][2]) == L'W') // -rw
+						Opt.ReadOnlyConfig = FALSE;
 					break;
 			}
 		}

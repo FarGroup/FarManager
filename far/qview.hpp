@@ -56,6 +56,8 @@ class QuickView:public Panel
 		int OldWrapMode;
 		int OldWrapType;
 
+		bool uncomplete_dirscan;
+
 	private:
 		virtual void DisplayObject();
 		void PrintText(const wchar_t *Str);
