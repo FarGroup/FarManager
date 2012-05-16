@@ -402,9 +402,8 @@ void InitProfile(string &strProfilePath)
 	SetEnvironmentVariable(L"FARPROFILE", Opt.ProfilePath);
 	SetEnvironmentVariable(L"FARLOCALPROFILE", Opt.LocalProfilePath);
 
-	int ReadOnlyConfig = GetPrivateProfileInt(
-		L"General", L"ReadOnlyConfig", Opt.ReadOnlyConfig > 0 ? TRUE : FALSE, g_strFarINI);
-	Opt.ReadOnlyConfig = (ReadOnlyConfig ? TRUE : FALSE);
+	if (Opt.ReadOnlyConfig < 0) // do not override '-ro'
+		Opt.ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, g_strFarINI);
 }
 
 int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath)
