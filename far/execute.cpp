@@ -512,7 +512,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 		// нулевой проход - смотрим исключени€
 		// Ѕерем "исключени€" из реестра, которые должны исполн€тьс€ директом,
 		// например, некоторые внутренние команды ком. процессора.
-		UserDefinedList ExcludeCmdsList;
+		UserDefinedList ExcludeCmdsList(ULF_UNIQUE);
 		ExcludeCmdsList.Set(Opt.Exec.strExcludeCmds);
 
 		while (!ExcludeCmdsList.IsEmpty())
@@ -532,7 +532,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 			LPCWSTR ModuleExt=wcsrchr(PointToName(Module),L'.');
 			string strPathExt(L".COM;.EXE;.BAT;.CMD;.VBS;.JS;.WSH");
 			apiGetEnvironmentVariable(L"PATHEXT",strPathExt);
-			UserDefinedList PathExtList;
+			UserDefinedList PathExtList(ULF_UNIQUE);
 			PathExtList.Set(strPathExt);
 			PathExtList.Reset();
 
@@ -567,7 +567,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 
 				if (apiGetEnvironmentVariable(L"PATH", strPathEnv))
 				{
-					UserDefinedList PathList;
+					UserDefinedList PathList(ULF_UNIQUE);
 					PathList.Set(strPathEnv);
 
 					while (!PathList.IsEmpty() && !Result)
@@ -1947,7 +1947,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 // ѕроверить "Ёто батник?"
 bool IsBatchExtType(const string& ExtPtr)
 {
-	UserDefinedList BatchExtList;
+	UserDefinedList BatchExtList(ULF_UNIQUE);
 	BatchExtList.Set(Opt.Exec.strExecuteBatchType);
 
 	while (!BatchExtList.IsEmpty())

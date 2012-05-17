@@ -187,7 +187,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 			bool Error=false;
 			const wchar_t *CurList=List;
 			int Length, RealLength;
-			while (!Error && *CurList)
+			while (!Error && CurList && *CurList)
 			{
 				CurList=Skip(CurList, Length, RealLength, Error);
 				if (Length > 0)
