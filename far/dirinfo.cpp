@@ -164,6 +164,7 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 				case KEY_SHIFT:
 				case KEY_RALT:
 				case KEY_RCTRL:
+				case KEY_LWIN: case KEY_RWIN:
 					GetInputRecord(&rec);
 					break;
 				case KEY_ESC:
