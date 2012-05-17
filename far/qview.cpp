@@ -225,20 +225,21 @@ void QuickView::DisplayObject()
 		if (Directory==1 || Directory==4)
 		{
 			int iColor = uncomplete_dirscan ? COL_PANELHIGHLIGHTTEXT : COL_PANELINFOTEXT;
+			const wchar_t *prefix = uncomplete_dirscan ? L"~" : L"";
 			GotoXY(X1+2,Y1+4);
 			PrintText(MSG(MQuickViewContains));
 			GotoXY(X1+2,Y1+6);
 			PrintText(MSG(MQuickViewFolders));
 			SetColor(iColor);
 			FString.Clear();
-			FString<<Data.DirCount;
+			FString<<prefix<<Data.DirCount;
 			PrintText(FString);
 			SetColor(COL_PANELTEXT);
 			GotoXY(X1+2,Y1+7);
 			PrintText(MSG(MQuickViewFiles));
 			SetColor(iColor);
 			FString.Clear();
-			FString<<Data.FileCount;
+			FString<<prefix<<Data.FileCount;
 			PrintText(FString);
 			SetColor(COL_PANELTEXT);
 			GotoXY(X1+2,Y1+8);
@@ -246,14 +247,14 @@ void QuickView::DisplayObject()
 			SetColor(iColor);
 			string strSize;
 			InsertCommas(Data.FileSize,strSize);
-			PrintText(strSize);
+			PrintText(prefix+strSize);
 			SetColor(COL_PANELTEXT);
 			GotoXY(X1+2,Y1+9);
 			PrintText(MSG(MQuickViewAllocated));
 			SetColor(iColor);
 			InsertCommas(Data.AllocationSize,strSize);
 			FString.Clear();
-			FString << strSize << L" (" << ToPercent64(Data.AllocationSize,Data.FileSize) << L"%)";
+			FString << prefix << strSize << L" (" << ToPercent64(Data.AllocationSize,Data.FileSize) << L"%)";
 			PrintText(FString);
 
 			if (Directory!=4)
@@ -263,7 +264,7 @@ void QuickView::DisplayObject()
 				PrintText(MSG(MQuickViewCluster));
 				SetColor(iColor);
 				InsertCommas(Data.ClusterSize,strSize);
-				PrintText(strSize);
+				PrintText(prefix+strSize);
 
 				SetColor(COL_PANELTEXT);
 				GotoXY(X1+2,Y1+12);
@@ -271,7 +272,7 @@ void QuickView::DisplayObject()
 				SetColor(iColor);
 				InsertCommas(Data.FilesSlack, strSize);
 				FString.Clear();
-				FString << strSize << L" (" << ToPercent64(Data.FilesSlack, Data.AllocationSize) << L"%)";
+				FString << prefix << strSize << L" (" << ToPercent64(Data.FilesSlack, Data.AllocationSize) << L"%)";
 				PrintText(FString);
 
 				SetColor(COL_PANELTEXT);
@@ -280,7 +281,7 @@ void QuickView::DisplayObject()
 				SetColor(iColor);
 				InsertCommas(Data.MFTOverhead, strSize);
 				FString.Clear();
-				FString<<strSize<<L" ("<<ToPercent64(Data.MFTOverhead, Data.AllocationSize)<<L"%)";
+				FString<<prefix<<strSize<<L" ("<<ToPercent64(Data.MFTOverhead, Data.AllocationSize)<<L"%)";
 				PrintText(FString);
 
 			}
