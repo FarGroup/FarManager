@@ -122,53 +122,40 @@ wchar_t *UserDefinedListItem::set(const wchar_t *Src, size_t size)
 UserDefinedList::UserDefinedList()
 {
 	Reset();
-	SetParameters(0,0,0);
+	SetParameters(0, nullptr);
 }
 
-UserDefinedList::UserDefinedList(WORD separator1, WORD separator2,
-                                 DWORD Flags)
+UserDefinedList::UserDefinedList(DWORD Flags, const wchar_t* Separators)
 {
 	Reset();
-	SetParameters(separator1, separator2, Flags);
+	SetParameters(Flags, Separators);
 }
 
 void UserDefinedList::SetDefaultSeparators()
 {
-	Separator1=L';';
-	Separator2=L',';
+	strSeparators=L";,";
 }
 
 bool UserDefinedList::CheckSeparators() const
 {
-	return !((IsUnQuotes && (Separator1==L'\"' || Separator2==L'\"')) ||
-	         (ProcessBrackets && (Separator1==L'[' || Separator2==L'[' ||
-	                              Separator1==L']' || Separator2==L']'))
-	        );
+	return !(
+		(!Flags.Check(ULF_NOUNQUOTE) && strSeparators.Contains(L'\"')) ||
+		(Flags.Check(ULF_PROCESSBRACKETS) && strSeparators.ContainsAny(L"[]"))
+			);
 }
 
-bool UserDefinedList::SetParameters(WORD separator1, WORD separator2,
-                                    DWORD Flags)
+bool UserDefinedList::SetParameters(DWORD Flags, const wchar_t* Separators)
 {
 	Free();
-	Separator1=separator1;
-	Separator2=separator2;
-	ProcessBrackets=(Flags & ULF_PROCESSBRACKETS)?true:false;
-	AddAsterisk=(Flags & ULF_ADDASTERISK)?true:false;
-	PackAsterisks=(Flags & ULF_PACKASTERISKS)?true:false;
-	Unique=(Flags & ULF_UNIQUE)?true:false;
-	Sort=(Flags & ULF_SORT)?true:false;
-	IsTrim=(Flags & ULF_NOTTRIM)?false:true;
-	IsUnQuotes=(Flags & ULF_NOTUNQUOTES)?false:true;
-	AccountEmptyLine=(Flags & ULF_ACCOUNTEMPTYLINE)?true:false;
-
-	if (!Separator1 && Separator2)
+	this->Flags.Set(Flags);
+	if (Separators && *Separators)
 	{
-		Separator1=Separator2;
-		Separator2=0;
+		strSeparators = Separators;
 	}
-
-	if (!Separator1 && !Separator2) SetDefaultSeparators();
-
+	else
+	{
+		SetDefaultSeparators();
+	}
 	return CheckSeparators();
 }
 
@@ -192,22 +179,20 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 
 	if (CheckSeparators() && List && *List)
 	{
-		int Length, RealLength;
 		UserDefinedListItem item;
 		item.index=Array.getSize();
 
-		if (*List!=Separator1 && *List!=Separator2)
+		if (!strSeparators.Contains(*List))
 		{
-			Length=StrLength(List);
 			bool Error=false;
 			const wchar_t *CurList=List;
-
-			while (!Error &&
-			        nullptr!=(CurList=Skip(CurList, Length, RealLength, Error)))
+			int Length, RealLength;
+			while (!Error && *CurList)
 			{
+				CurList=Skip(CurList, Length, RealLength, Error);
 				if (Length > 0)
 				{
-					if (PackAsterisks && 3==Length && 0==memcmp(CurList, L"*.*", 6))
+					if (Flags.Check(ULF_PACKASTERISKS) && 3==Length && 0==memcmp(CurList, L"*.*", 6))
 					{
 						item=L"*";
 
@@ -220,7 +205,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 
 						if (item.Str)
 						{
-							if (PackAsterisks)
+							if (Flags.Check(ULF_PACKASTERISKS))
 							{
 								int i=0;
 								bool lastAsterisk=false;
@@ -244,7 +229,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 								}
 							}
 
-							if (AddAsterisk && !wcspbrk(item.Str,L"?*."))
+							if (Flags.Check(ULF_ADDASTERISK) && !wcspbrk(item.Str,L"?*."))
 							{
 								Length=StrLength(item.Str);
 								/* $ 18.09.2002 DJ
@@ -270,14 +255,8 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 					}
 
 					CurList+=RealLength;
+					++item.index;
 				}
-				else
-				{
-					if (!AccountEmptyLine || (AccountEmptyLine && CurList==List && !item.index))
-						Error=true;
-				}
-
-				++item.index;
 			}
 
 			rc=!Error;
@@ -286,7 +265,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 		{
 			const wchar_t *End=List+1;
 
-			if ( IsTrim )
+			if (!Flags.Check(ULF_NOTRIM))
 				while (IsSpace(*End)) ++End; // пропустим мусор
 
 			if (!*End) // Если кроме разделителя ничего больше в строке нет,
@@ -306,15 +285,15 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 
 	if (rc)
 	{
-		if (Unique)
+		if (Flags.Check(ULF_UNIQUE))
 		{
 			Array.Sort();
 			Array.Pack();
 		}
 
-		if (!Sort)
+		if (!Flags.Check(ULF_SORT))
 			Array.Sort(reinterpret_cast<TARRAYCMPFUNC>(CmpItems));
-		else if (!Unique) // чтобы не сортировать уже отсортированное
+		else if (!Flags.Check(ULF_UNIQUE)) // чтобы не сортировать уже отсортированное
 			Array.Sort();
 
 		size_t i=0, maxI=Array.getSize();
@@ -348,12 +327,13 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 	Length=RealLength=0;
 	Error=false;
 
-	if ( IsTrim )
+	if (!Flags.Check(ULF_NOTRIM))
 		while (IsSpace(*Str)) ++Str;
 
-	if (*Str==Separator1 || *Str==Separator2) ++Str;
+	if (strSeparators.Contains(*Str))
+		++Str;
 
-	if ( IsTrim )
+	if (!Flags.Check(ULF_NOTRIM))
 		while (IsSpace(*Str)) ++Str;
 
 	if (!*Str) return nullptr;
@@ -364,7 +344,7 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 	if (!InQoutes) // если мы в кавычках, то обработка будет позже и чуть сложнее
 		while (*cur) // важно! проверка *cur должна стоять первой
 		{
-			if (ProcessBrackets)
+			if (Flags.Check(ULF_PROCESSBRACKETS)) // чтобы не сортировать уже отсортированное
 			{
 				if (*cur==L']')
 					InBrackets=false;
@@ -373,7 +353,7 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 					InBrackets=true;
 			}
 
-			if (!InBrackets && (*cur==Separator1 || *cur==Separator2))
+			if (!InBrackets && strSeparators.Contains(*cur))
 				break;
 
 			++cur;
@@ -384,7 +364,7 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 		RealLength=Length=(int)(cur-Str);
 		--cur;
 
-		if ( IsTrim )
+		if (!Flags.Check(ULF_NOTRIM))
 			while (IsSpace(*cur))
 			{
 				--Length;
@@ -394,35 +374,39 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 		return Str;
 	}
 
-	if ( IsUnQuotes )
+	// мы в кавычках - захватим все отсюда и до следующих кавычек
+	++cur;
+	const wchar_t *QuoteEnd=wcschr(cur, L'\"');
+
+	if (!QuoteEnd)
 	{
-		// мы в кавычках - захватим все отсюда и до следующих кавычек
-		++cur;
-		const wchar_t *QuoteEnd=wcschr(cur, L'\"');
-
-		if (!QuoteEnd)
-		{
-			Error=true;
-			return nullptr;
-		}
-
-		const wchar_t *End=QuoteEnd+1;
-
-		if ( IsTrim )
-			while (IsSpace(*End)) ++End;
-
-		if (!*End || *End==Separator1 || *End==Separator2)
-		{
-			Length=(int)(QuoteEnd-cur);
-			RealLength=(int)(End-cur);
-			return cur;
-		}
-
 		Error=true;
 		return nullptr;
 	}
 
-	return Str;
+	const wchar_t *End=QuoteEnd+1;
+
+	if (!Flags.Check(ULF_NOTRIM))
+		while (IsSpace(*End)) ++End;
+
+	if (!*End || strSeparators.Contains(*End))
+	{
+		if (!Flags.Check(ULF_NOUNQUOTE))
+		{
+			Length=(int)(QuoteEnd-cur);
+			RealLength=(int)(End-cur);
+		}
+		else
+		{
+			Length=(int)(End-cur)+1;
+			RealLength=Length;
+			--cur;
+		}
+		return cur;
+	}
+
+	Error=true;
+	return nullptr;
 }
 
 void UserDefinedList::Reset()

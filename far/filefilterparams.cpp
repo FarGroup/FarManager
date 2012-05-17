@@ -107,7 +107,7 @@ string &Add_PATHEXT(string &strDest)
 {
 	string strBuf;
 	size_t curpos=strDest.GetLength()-1;
-	UserDefinedList MaskList(0,0,ULF_UNIQUE);
+	UserDefinedList MaskList(ULF_UNIQUE);
 
 	if (apiGetEnvironmentVariable(L"PATHEXT" ,strBuf) && MaskList.Set(strBuf))
 	{

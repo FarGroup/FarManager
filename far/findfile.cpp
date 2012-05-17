@@ -2761,7 +2761,7 @@ void DoPrepareFileList(HANDLE hDlg)
 	if (strRoot.Contains(L';'))
 		InsertQuote(strRoot);
 
-	UserDefinedList List(L';',L';',ULF_UNIQUE);
+	UserDefinedList List(ULF_UNIQUE, L";");
 
 	if (SearchMode==FINDAREA_INPATH)
 	{

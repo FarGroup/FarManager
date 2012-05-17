@@ -159,7 +159,7 @@ void KeyBar::DisplayObject()
 
 		if (strLabel.Contains(L'|'))
 		{
-			UserDefinedList LabelList(L'|',L'|',ULF_NOTTRIM|ULF_NOTUNQUOTES);
+			UserDefinedList LabelList(ULF_NOTRIM|ULF_NOUNQUOTE, L"|");
 			if(LabelList.Set(Label) && !LabelList.IsEmpty())
 			{
 				string strLabelTest, strLabel2;

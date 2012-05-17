@@ -147,7 +147,7 @@ void ShellMakeDir(Panel *SrcPanel)
 	};
 	MakeDialogItemsEx(MkDirDlgData,MkDirDlg);
 	MkDirDlg[MKDIR_COMBOBOX_LINKTYPE].ListItems=&ComboList;
-	UserDefinedList DirList(0,0,ULF_UNIQUE);
+	UserDefinedList DirList(ULF_UNIQUE);
 	Dialog Dlg(MkDirDlg,ARRAYSIZE(MkDirDlg),MkDirDlgProc,&DirList);
 	Dlg.SetPosition(-1,-1,76,12);
 	Dlg.SetHelp(L"MakeFolder");

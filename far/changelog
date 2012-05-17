@@ -1,3 +1,8 @@
+drkns 17.05.2012 20:18:36 +0200 - build 2683
+
+1. Рефакторинг UserDefinedList. Теперь разделителей может быть сколько угодно, идущие подряд разделители ошибкой не считаются.
+   Сюда же 0002102: Path environment variable not processed correctly isf it contains empty strings between semicolons
+
 w17 17.05.2012 13:38:16 +0400 - build 2682
 
 1. 2679.2 - кнопка WIN не прерывает сканирование каталога

@@ -1443,12 +1443,10 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 		return FALSE;
 	}
 
-	bool useUDL=true;
 	const wchar_t *NewBufPtr;
 
-	UserDefinedList MacroSrcList(L'\n',L'\r',ULF_NOTTRIM|ULF_NOTUNQUOTES|ULF_ACCOUNTEMPTYLINE);
-	if(!MacroSrcList.Set(BufPtr))
-		useUDL=false; // все в одну строку!
+	UserDefinedList MacroSrcList(ULF_NOTRIM|ULF_NOUNQUOTE, L"\r\n");
+	MacroSrcList.Set(BufPtr);
 
 	//{
 	//	_SVS(SysLog(L"MacroSrcList.GetTotal()=%d",MacroSrcList.GetTotal()));
@@ -1471,8 +1469,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 	wchar_t varName[256];
 	DWORD KeyCode, *CurMacro_Buffer = nullptr;
 
-	if(useUDL)
-		BufPtr=MacroSrcList.GetNext();
+	BufPtr=MacroSrcList.GetNext();
 
 	pSrcString=BufPtr;
 
@@ -1484,8 +1481,6 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 
 		if (!(BufPtr = __GetNextWord(BufPtr, strCurrKeyText, _macro_nLine)))
 		{
-			if(!useUDL)
-				break;
 			NewBufPtr=MacroSrcList.GetNext();
 			if(!NewBufPtr)
 				break;

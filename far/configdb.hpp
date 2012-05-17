@@ -332,7 +332,7 @@ auto StringToFlags(const string& strFlags, const T& From) -> decltype(From->Valu
 	decltype(From->Value) Flags = 0;
 	if(!strFlags.IsEmpty())
 	{
-		UserDefinedList FlagList(L'|', L'|', ULF_UNIQUE);
+		UserDefinedList FlagList(ULF_UNIQUE, L"|");
 		FlagList.Set(strFlags);
 		while(!FlagList.IsEmpty())
 		{

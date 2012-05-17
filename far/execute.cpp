@@ -356,7 +356,7 @@ const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsystem,DWORD
 
 	if (RetQuery == ERROR_SUCCESS)
 	{
-		UserDefinedList ActionList(0,0,ULF_UNIQUE);
+		UserDefinedList ActionList(ULF_UNIQUE);
 		RetPtr = (strAction.IsEmpty() ? nullptr : strAction.CPtr());
 		const wchar_t *ActionPtr;
 		LONG RetEnum = ERROR_SUCCESS;

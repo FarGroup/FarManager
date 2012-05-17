@@ -1364,8 +1364,7 @@ void ReadConfig()
 		{
 			wchar_t *endptr;
 			const wchar_t *ValPtr;
-			UserDefinedList DestList;
-			DestList.SetParameters(L';',0,ULF_UNIQUE);
+			UserDefinedList DestList(ULF_UNIQUE);
 			DestList.Set(strXLatLayouts);
 			size_t I=0;
 

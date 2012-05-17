@@ -127,7 +127,7 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 	if (Flags&FMPF_ADDASTERISK)
 		flags|=ULF_ADDASTERISK;
 
-	Masks.SetParameters(L',',L';',flags);
+	Masks.SetParameters(flags, L",;");
 	return Masks.Set(expmasks);
 }
 

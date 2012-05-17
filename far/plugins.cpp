@@ -604,11 +604,10 @@ void PluginManager::LoadPlugins()
 	else if (Opt.LoadPlug.MainPluginDir || !Opt.LoadPlug.strCustomPluginsPath.IsEmpty() || (Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty()))
 	{
 		ScanTree ScTree(FALSE,TRUE,Opt.LoadPlug.ScanSymlinks);
-		UserDefinedList PluginPathList;  // хранение списка каталогов
+		UserDefinedList PluginPathList(ULF_UNIQUE);  // хранение списка каталогов
 		string strPluginsDir;
 		string strFullName;
 		FAR_FIND_DATA_EX FindData;
-		PluginPathList.SetParameters(0,0,ULF_UNIQUE);
 
 		// сначала подготовим список
 		if (Opt.LoadPlug.MainPluginDir) // только основные и персональные?

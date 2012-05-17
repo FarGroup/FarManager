@@ -38,20 +38,24 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "array.hpp"
+#include "bitflags.hpp"
 
 enum UDL_FLAGS
 {
-	ULF_ADDASTERISK    =0x00000001, // добавл€ть '*' к концу элемента списка,
-	// если он не содержит '?', '*' и '.'
-	ULF_PACKASTERISKS  =0x00000002, // вместо "*.*" в список помещать просто "*"
-	// вместо "***" в список помещать просто "*"
-	ULF_PROCESSBRACKETS=0x00000004, // учитывать квадратные скобки при анализе
-	// строки инициализации
-	ULF_UNIQUE         =0x00000010, // убирать дублирующиес€ элементы
-	ULF_SORT           =0x00000020, // отсортировать (с учетом регистра)
-	ULF_NOTTRIM        =0x00000040, // не удал€ть пробелы
-	ULF_NOTUNQUOTES    =0x00000080, // не раскавычивать
-	ULF_ACCOUNTEMPTYLINE=0x00000100, // учитывать пустые "строки"
+	// добавл€ть '*' к концу элемента списка, если он не содержит '?', '*' и '.'
+	ULF_ADDASTERISK    =0x00000001,
+	// вместо "*.*" в список помещать просто "*", вместо "***" в список помещать просто "*"
+	ULF_PACKASTERISKS  =0x00000002,
+	// учитывать квадратные скобки при анализе строки инициализации
+	ULF_PROCESSBRACKETS=0x00000004,
+	// убирать дублирующиес€ элементы
+	ULF_UNIQUE         =0x00000010,
+	// отсортировать (с учетом регистра)
+	ULF_SORT           =0x00000020,
+	// не удал€ть пробелы
+	ULF_NOTRIM         =0x00000040,
+	// не раскавычивать
+	ULF_NOUNQUOTE      =0x00000080,
 };
 
 
@@ -71,20 +75,6 @@ class UserDefinedListItem
 
 class UserDefinedList:NonCopyable
 {
-	private:
-		TArray<UserDefinedListItem> Array;
-		size_t CurrentItem;
-		WORD Separator1, Separator2;
-		bool ProcessBrackets, AddAsterisk, PackAsterisks, Unique, Sort, IsTrim, IsUnQuotes;
-		bool AccountEmptyLine;
-
-	private:
-		bool CheckSeparators() const; // проверка разделителей на корректность
-		void SetDefaultSeparators();
-		const wchar_t *Skip(const wchar_t *Str, int &Length, int &RealLength, bool &Error);
-		static int CDECL CmpItems(const UserDefinedListItem **el1,
-		                            const UserDefinedListItem **el2);
-
 	public:
 		// по умолчанию разделителем считаетс€ ';' и ',', а
 		// ProcessBrackets=AddAsterisk=PackAsterisks=false
@@ -92,22 +82,19 @@ class UserDefinedList:NonCopyable
 		UserDefinedList();
 
 		// явно указываютс€ разделители. —м. описание SetParameters
-		UserDefinedList(WORD separator1, WORD separator2, DWORD Flags);
+		UserDefinedList(DWORD Flags, const wchar_t* Separators = nullptr);
 		~UserDefinedList() { Free(); }
 
-	public:
 		// —менить символы-разделитель и разрешить или запретить обработку
 		// квадратных скобок.
-		// ≈сли один из Separator* равен 0x00, то он игнорируетс€ при компил€ции
-		// (т.е. в Set)
-		// ≈сли оба разделител€ равны 0x00, то восстанавливаютс€ разделители по
+		// ≈сли разделители не заданы, то восстанавливаютс€ разделители по
 		// умолчанию (';' & ',').
 		// ≈сли AddAsterisk равно true, то к концу элемента списка будет
 		// добавл€тьс€ '*', если этот элемент не содержит '?', '*' и '.'
 		// ¬озвращает false, если один из разделителей €вл€етс€ кавычкой или
 		// включена обработка скобок и один из разделителей €вл€етс€ квадратной
 		// скобкой.
-		bool SetParameters(WORD Separator1, WORD Separator2, DWORD Flags);
+		bool SetParameters(DWORD Flags, const wchar_t* Separators = nullptr);
 
 		// »нициализирует список. ѕринимает список, разделенный разделител€ми.
 		// ¬озвращает false при неудаче.
@@ -136,4 +123,15 @@ class UserDefinedList:NonCopyable
 
 		// ¬ернуть количество элементов в списке
 		size_t GetTotal() const { return Array.getSize(); }
+
+	private:
+		bool CheckSeparators() const; // проверка разделителей на корректность
+		void SetDefaultSeparators();
+		const wchar_t *Skip(const wchar_t *Str, int &Length, int &RealLength, bool &Error);
+		static int CmpItems(const UserDefinedListItem **el1, const UserDefinedListItem **el2);
+
+		TArray<UserDefinedListItem> Array;
+		size_t CurrentItem;
+		string strSeparators;
+		BitFlags Flags;
 };
