@@ -462,12 +462,12 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 		{
 			int ExitCode=GetDirInfo(MSG(MQuickViewTitle), strCurFileName, Data, 500, nullptr, GETDIRINFO_ENHBREAK|GETDIRINFO_SCANSYMLINKDEF|GETDIRINFO_DONTREDRAWFRAME);
 
-			if (ExitCode==1)
+			if (ExitCode==1)          // finished
 				Directory=1;
-			else if (ExitCode==-1)
+			else // if (ExitCode==-1) // any key
 				Directory=2;
-			else
-				Directory=3;
+			//else                    // Esc
+				//Directory=3;
 			uncomplete_dirscan = Directory != 1;
 		}
 	}
