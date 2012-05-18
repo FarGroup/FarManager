@@ -529,6 +529,7 @@ struct Options
 	int OnlyEditorViewerUsed; // =1, если старт был /e или /v
 	int SaveViewHistory;
 	int ViewHistoryCount;
+	int ViewHistoryLifetime;
 
 	string strExternalEditor;
 	EditorOptions EdOpt;
@@ -546,9 +547,12 @@ struct Options
 
 	int SaveHistory;
 	int HistoryCount;
+	int HistoryLifetime;
 	int SaveFoldersHistory;
 	int FoldersHistoryCount;
+	int FoldersHistoryLifetime;
 	int DialogsHistoryCount;
+	int DialogsHistoryLifetime;
 
 	FindFileOptions FindOpt;
 

@@ -114,7 +114,7 @@ DlgEdit::~DlgEdit()
 void DlgEdit::SetHistory(const wchar_t* Name)
 {
 	delete iHistory;
-	iHistory=new History(HISTORYTYPE_DIALOG, Name, Opt.DialogsHistoryCount, &Opt.Dialogs.EditHistory, false);
+	iHistory=new History(HISTORYTYPE_DIALOG, Name, &Opt.Dialogs.EditHistory, false);
 }
 
 int DlgEdit::ProcessKey(int Key)

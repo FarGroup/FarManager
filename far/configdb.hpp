@@ -209,8 +209,8 @@ public:
 	//command,view,edit,folder,dialog history
 	virtual bool Enum(DWORD index, DWORD TypeHistory, const wchar_t *HistoryName, unsigned __int64 *id, string &strName, int *Type, bool *Lock, unsigned __int64 *Time, string &strGuid, string &strFile, string &strData, bool Reverse=false) = 0;
 	virtual bool Delete(unsigned __int64 id) = 0;
-	virtual bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, int DaysToKeep, int MinimunEntries) = 0;
-	virtual bool EnumLargeHistories(DWORD index, int MinimunEntries, DWORD TypeHistory, string &strHistoryName) = 0;
+	virtual bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, int DaysToKeep, int MinimumEntries) = 0;
+	virtual bool EnumLargeHistories(DWORD index, int MinimumEntries, DWORD TypeHistory, string &strHistoryName) = 0;
 	virtual bool Add(DWORD TypeHistory, const wchar_t *HistoryName, string strName, int Type, bool Lock, string &strGuid, string &strFile, string &strData) = 0;
 	virtual bool GetNewest(DWORD TypeHistory, const wchar_t *HistoryName, string &strName) = 0;
 	virtual bool Get(unsigned __int64 id, string &strName) = 0;
@@ -232,7 +232,7 @@ public:
 	virtual unsigned __int64 GetViewerPos(const wchar_t *Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, UINT *CodePage) = 0;
 	virtual bool SetViewerBookmark(unsigned __int64 id, int i, __int64 FilePos, __int64 LeftPos) = 0;
 	virtual bool GetViewerBookmark(unsigned __int64 id, int i, __int64 *FilePos, __int64 *LeftPos) = 0;
-	virtual void DeleteOldPositions(int DaysToKeep, int MinimunEntries) = 0;
+	virtual void DeleteOldPositions(int DaysToKeep, int MinimumEntries) = 0;
 };
 
 class MacroConfig: public XmlConfig, public Transactional {

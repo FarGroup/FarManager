@@ -65,9 +65,9 @@ ControlObject::ControlObject():
 	FrameManager = new Manager;
 	Plugins = new PluginManager;
 
-	CmdHistory=new History(HISTORYTYPE_CMD,nullptr,Opt.HistoryCount,&Opt.SaveHistory,false);
-	FolderHistory=new History(HISTORYTYPE_FOLDER,nullptr,Opt.FoldersHistoryCount,&Opt.SaveFoldersHistory,true);
-	ViewHistory=new History(HISTORYTYPE_VIEW,nullptr,Opt.ViewHistoryCount,&Opt.SaveViewHistory,true);
+	CmdHistory=new History(HISTORYTYPE_CMD,nullptr, &Opt.SaveHistory, false);
+	FolderHistory=new History(HISTORYTYPE_FOLDER, nullptr, &Opt.SaveFoldersHistory, true);
+	ViewHistory=new History(HISTORYTYPE_VIEW, nullptr, &Opt.SaveViewHistory, true);
 	FolderHistory->SetAddMode(true,2,true);
 	ViewHistory->SetAddMode(true,Opt.FlagPosixSemantics?1:2,true);
 }

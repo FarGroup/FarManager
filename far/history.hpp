@@ -53,7 +53,6 @@ class History
 		bool EnableAdd, KeepSelectedPos, SaveType;
 		int RemoveDups;
 		enumHISTORYTYPE TypeHistory;
-		size_t HistoryCount;
 		const int *EnableSave;
 		unsigned __int64 CurrentItem;
 	private:
@@ -62,7 +61,7 @@ class History
 		int ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg);
 		HistoryConfig* HistoryCfgRef(void);
 	public:
-		History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, size_t HistoryCount, const int *EnableSave, bool SaveType);
+		History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, const int *EnableSave, bool SaveType);
 		~History();
 
 		void AddToHistory(const wchar_t *Str, int Type=0, const GUID* Guid=nullptr, const wchar_t *File=nullptr, const wchar_t *Data=nullptr, bool SaveForbid=false);

@@ -2248,17 +2248,17 @@ public:
 		return stmtDel.Bind(id).StepAndReset();
 	}
 
-	bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, int DaysToKeep, int MinimunEntries)
+	bool DeleteOldUnlocked(DWORD TypeHistory, const wchar_t *HistoryName, int DaysToKeep, int MinimumEntries)
 	{
 		unsigned __int64 older = GetCurrentUTCTimeInUI64();
 		older -= CalcDays(DaysToKeep);
-		return stmtDeleteOldUnlocked.Bind((int)TypeHistory).Bind(HistoryName).Bind(older).Bind(MinimunEntries).StepAndReset();
+		return stmtDeleteOldUnlocked.Bind((int)TypeHistory).Bind(HistoryName).Bind(older).Bind(MinimumEntries).StepAndReset();
 	}
 
-	bool EnumLargeHistories(DWORD index, int MinimunEntries, DWORD TypeHistory, string &strHistoryName)
+	bool EnumLargeHistories(DWORD index, int MinimumEntries, DWORD TypeHistory, string &strHistoryName)
 	{
 		if (index == 0)
-			stmtEnumLargeHistories.Reset().Bind((int)TypeHistory).Bind(MinimunEntries);
+			stmtEnumLargeHistories.Reset().Bind((int)TypeHistory).Bind(MinimumEntries);
 
 		if (stmtEnumLargeHistories.Step())
 		{
@@ -2490,12 +2490,12 @@ public:
 		return b;
 	}
 
-	void DeleteOldPositions(int DaysToKeep, int MinimunEntries)
+	void DeleteOldPositions(int DaysToKeep, int MinimumEntries)
 	{
 		unsigned __int64 older = GetCurrentUTCTimeInUI64();
 		older -= CalcDays(DaysToKeep);
-		stmtDeleteOldEditor.Bind(older).Bind(MinimunEntries).StepAndReset();
-		stmtDeleteOldViewer.Bind(older).Bind(MinimunEntries).StepAndReset();
+		stmtDeleteOldEditor.Bind(older).Bind(MinimumEntries).StepAndReset();
+		stmtDeleteOldViewer.Bind(older).Bind(MinimumEntries).StepAndReset();
 	}
 
 };

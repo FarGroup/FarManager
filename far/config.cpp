@@ -123,7 +123,8 @@ const wchar_t NKeyViewEditHistory[]=L"History.ViewEditHistory";
 const wchar_t NKeyFolderHistory[]=L"History.FolderHistory";
 const wchar_t NKeyDialogHistory[]=L"History.DialogHistory";
 
-const wchar_t NParamHistoryCount[]=L"HistoryCount";
+const wchar_t NParamHistoryCount[]=L"Count";
+const wchar_t NParamHistoryLifetime[]=L"Lifetime";
 
 static const WCHAR _BoxSymbols[48+1] =
 {
@@ -908,10 +909,14 @@ static struct FARConfig
 
 	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyHelp,L"ActivateURL",&Opt.HelpURLRules,1, 0},
 
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCommandHistory, NParamHistoryCount,&Opt.HistoryCount,512, 0}, //BUGBUG
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialogHistory, NParamHistoryCount,&Opt.DialogsHistoryCount,512, 0}, //BUGBUG
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyFolderHistory, NParamHistoryCount,&Opt.FoldersHistoryCount,512, 0}, //BUGBUG
-	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewEditHistory, NParamHistoryCount,&Opt.ViewHistoryCount,512, 0}, //BUGBUG
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCommandHistory, NParamHistoryCount,&Opt.HistoryCount,1000, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyCommandHistory, NParamHistoryLifetime,&Opt.HistoryLifetime,90, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialogHistory, NParamHistoryCount,&Opt.DialogsHistoryCount,1000, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyDialogHistory, NParamHistoryLifetime,&Opt.DialogsHistoryLifetime,90, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyFolderHistory, NParamHistoryCount,&Opt.FoldersHistoryCount,1000, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyFolderHistory, NParamHistoryLifetime,&Opt.FoldersHistoryLifetime,90, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewEditHistory, NParamHistoryCount,&Opt.ViewHistoryCount,1000, 0},
+	{0, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyViewEditHistory, NParamHistoryLifetime,&Opt.ViewHistoryLifetime,90, 0},
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterface,L"DelShowTotal",&Opt.DelOpt.DelShowTotal,0, 0},
 
