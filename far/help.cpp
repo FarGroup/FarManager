@@ -472,6 +472,9 @@ m1:
 					continue;
 				}
 
+				if (!(strReadStr.At(0)==L'$' && NearTopicFound && (PrevSymbol == L'$' || PrevSymbol == L'@')))
+					NearTopicFound=0;
+
 				/* $<text> в начале строки, определение темы
 				   Определяет не прокручиваемую область помощи
 				   Если идут несколько подряд сразу после строки обозначения темы...
@@ -863,8 +866,8 @@ static bool GetHelpColor(const wchar_t* &Str, wchar_t cColor, int &color)
 	if (!iswxdigit(wc2))
 		return false;
 
-	if (wc1 > L'9') wc1 -= L'A' - 10; 
-	if (wc2 > L'9') wc2 -= L'A' - 10; 
+	if (wc1 > L'9') wc1 -= L'A' - 10;
+	if (wc2 > L'9') wc2 -= L'A' - 10;
 	color = ((wc1 & 0x0f) << 4) | (wc2 & 0x0f);
 	Str += 3;
 	return true;
