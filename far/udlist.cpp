@@ -288,11 +288,11 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 		if (Flags.Check(ULF_UNIQUE))
 		{
 			Array.Sort();
-			Array.Pack();
+			Array.Pack(UpdateRemainingItem);
 		}
 
 		if (!Flags.Check(ULF_SORT))
-			Array.Sort(reinterpret_cast<TARRAYCMPFUNC>(CmpItems));
+			Array.Sort(CmpItems);
 		else if (!Flags.Check(ULF_UNIQUE)) // чтобы не сортировать уже отсортированное
 			Array.Sort();
 
@@ -312,7 +312,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 int CDECL UserDefinedList::CmpItems(const UserDefinedListItem **el1,
                                       const UserDefinedListItem **el2)
 {
-	if (el1==el2)
+	if (*el1==*el2)
 		return 0;
 	else if ((**el1).index==(**el2).index)
 		return 0;
@@ -320,6 +320,12 @@ int CDECL UserDefinedList::CmpItems(const UserDefinedListItem **el1,
 		return -1;
 	else
 		return 1;
+}
+
+void CDECL UserDefinedList::UpdateRemainingItem(UserDefinedListItem *elRemaining, const UserDefinedListItem *elDeleted)
+{
+	if (elRemaining->index > elDeleted->index)
+		elRemaining->index = elDeleted->index;
 }
 
 const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealLength, bool &Error)

@@ -1868,7 +1868,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	}
 
 	// сортируем по алфавиту
-	HelpList.Sort(reinterpret_cast<TARRAYCMPFUNC>(CmpItems),OldStrCount);
+	HelpList.Sort(CmpItems,OldStrCount);
 
 	// $ 26.06.2000 IS - Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
 	AddLine(L"");

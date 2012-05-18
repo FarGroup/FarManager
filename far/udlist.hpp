@@ -129,6 +129,7 @@ class UserDefinedList:NonCopyable
 		void SetDefaultSeparators();
 		const wchar_t *Skip(const wchar_t *Str, int &Length, int &RealLength, bool &Error);
 		static int CmpItems(const UserDefinedListItem **el1, const UserDefinedListItem **el2);
+		static void UpdateRemainingItem(UserDefinedListItem *elRemaining, const UserDefinedListItem *elDeleted);
 
 		TArray<UserDefinedListItem> Array;
 		size_t CurrentItem;

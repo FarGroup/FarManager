@@ -43,12 +43,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef __GNUC__
-typedef int __cdecl(*TARRAYCMPFUNC)(const void *el1,const void *el2);
-#else
-typedef int (*TARRAYCMPFUNC)(const void *el1,const void *el2);
-#endif
-
 template <class Object>
 class TArray
 {
@@ -78,7 +72,7 @@ class TArray
 		size_t getIndex(const Object &item, int start=-1);
 
 		// сортировка массива. Offset - сколько первых пунктов пропустить
-		void Sort(TARRAYCMPFUNC user_cmp_func=nullptr,size_t Offset=0);
+		void Sort(decltype(CmpItems)* user_cmp_func = nullptr,size_t Offset = 0);
 
 		// упаковать массив - вместо нескольких одинаковых элементов,
 		/*
@@ -86,8 +80,11 @@ class TArray
 			если изменений массива не производилось.
 			¬ызов Pack() после Sort(nullptr) приведет к устранению
 			дубликатов
+
+			функци€ user_updateRemainingItem_func производит необходимые изменени€ в elRemaining при удалении следовавшего за ним elDeleted
 		*/
-		bool Pack();
+		typedef void (*UpdateRemainingItemFunction)(Object *elRemaining, const Object *elDeleted);
+		bool Pack(UpdateRemainingItemFunction=nullptr);
 
 	public: // inline
 		size_t getSize() const { return Count; }
@@ -146,19 +143,16 @@ Object *TArray<Object>::getItem(size_t index)
 }
 
 template <class Object>
-void TArray<Object>::Sort(TARRAYCMPFUNC user_cmp_func,size_t Offset)
+void TArray<Object>::Sort(decltype(CmpItems)* user_cmp_func, size_t Offset)
 {
 	if (Count)
 	{
-		if (!user_cmp_func)
-			user_cmp_func=reinterpret_cast<TARRAYCMPFUNC>(CmpItems);
-
-		far_qsort(reinterpret_cast<char*>(items+Offset),Count-Offset,sizeof(Object*),user_cmp_func);
+		far_qsort(items+Offset, Count-Offset, sizeof(Object*), (int (__cdecl *)(const void *, const void *))(user_cmp_func? user_cmp_func : CmpItems));
 	}
 }
 
 template <class Object>
-bool TArray<Object>::Pack()
+bool TArray<Object>::Pack(UpdateRemainingItemFunction user_updateRemainingItem_func)
 {
 	bool was_changed=false;
 
@@ -166,6 +160,8 @@ bool TArray<Object>::Pack()
 	{
 		if (*items[index-1]==*items[index])
 		{
+			if (user_updateRemainingItem_func)
+				user_updateRemainingItem_func(items[index-1], items[index]);
 			deleteItem(index);
 			was_changed=true;
 			--Count;
@@ -250,7 +246,7 @@ bool TArray<Object>::setSize(size_t newSize)
 template <class Object>
 int __cdecl TArray<Object>::CmpItems(const Object **el1, const Object **el2)
 {
-	if (el1==el2)
+	if (*el1==*el2)
 		return 0;
 	else if (**el1==**el2)
 		return 0;
