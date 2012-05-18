@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "filesystemwatcher.hpp"
 #include "flink.hpp"
+#include "elevation.hpp"
 
 FileSystemWatcher::FileSystemWatcher():
 	Handle(INVALID_HANDLE_VALUE),
@@ -61,6 +62,7 @@ void FileSystemWatcher::Set(const wchar_t* Directory, bool WatchSubtree)
 
 bool FileSystemWatcher::Watch()
 {
+	DisableElevation de;
 	if(Handle == INVALID_HANDLE_VALUE)
 	{
 		Handle=FindFirstChangeNotification(Directory, WatchSubtree,

@@ -520,6 +520,13 @@ string& PrepareDiskPath(string &strPath, bool CheckFullPath)
 					if (IsSlash(*Src))
 						Src++;
 				}
+				else
+				{
+					if(HasPathPrefix(lpwszPath)) // \\?\<ANY_UNKNOWN_FORMAT>
+					{
+						Src = lpwszPath + 4;
+					}
+				}
 
 				if (*Src)
 				{
