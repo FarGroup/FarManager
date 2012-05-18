@@ -162,9 +162,16 @@ bool MixToFullPath(const string& stPath, string& strDest, const string& stCurren
 						}
 					}
 				}
-				else //"abc" or whatever
+				else
 				{
-					pstCurrentDir=stCurrentDir;
+					if(HasPathPrefix(stPath)) // \\?\<ANY_UNKNOWN_FORMAT>
+					{
+						blIgnore = true;
+					}
+					else //"abc" or whatever
+					{
+						pstCurrentDir=stCurrentDir;
+					}
 				}
 			}
 			break;

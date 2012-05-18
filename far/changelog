@@ -1,3 +1,7 @@
+drkns 18.05.2012 13:48:24 +0200 - build 2689
+
+1. Не работал переход в пути вида cd \\?\GLOBALROOT\Device\Harddisk0\Partition1, \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy3 и т.п.
+
 drkns 18.05.2012 13:32:43 +0200 - build 2688
 
 1. Настройки историй доступны через far:config.
