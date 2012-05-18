@@ -3444,7 +3444,9 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 		if(Opt.AutoComplete.ShowList)
 			CtrlObject->Macro.SetMode(Area);
 
-		if(pHistory)
+#define CMP_ENABLED(c) ((Manual && (c == 2)) || (!Manual && c == 1))
+
+		if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CMP_ENABLED(Opt.AutoComplete.UseHistory))
 		{
 			if(pHistory->GetAllSimilar(ComplMenu,strTemp))
 			{
@@ -3461,11 +3463,11 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 				}
 			}
 		}
-		if(ECFlags.Check(EC_ENABLEFNCOMPLETE))
+		if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CMP_ENABLED(Opt.AutoComplete.UseFilesystem))
 		{
 			EnumFiles(ComplMenu,strTemp);
 		}
-		if(ECFlags.Check(EC_ENABLEPATHCOMPLETE))
+		if(ECFlags.Check(EC_COMPLETE_PATH) && CMP_ENABLED(Opt.AutoComplete.UsePath))
 		{
 			EnumModules(strTemp, &ComplMenu);
 		}
@@ -3552,7 +3554,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 								PrevPos=0;
 								if(!strTemp.IsEmpty())
 								{
-									if(pHistory)
+									if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CMP_ENABLED(Opt.AutoComplete.UseHistory))
 									{
 										if(pHistory->GetAllSimilar(ComplMenu,strTemp))
 										{
@@ -3570,11 +3572,11 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 										}
 									}
 								}
-								if(ECFlags.Check(EC_ENABLEFNCOMPLETE))
+								if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CMP_ENABLED(Opt.AutoComplete.UseFilesystem))
 								{
 									EnumFiles(ComplMenu,strTemp);
 								}
-								if(ECFlags.Check(EC_ENABLEPATHCOMPLETE))
+								if(ECFlags.Check(EC_COMPLETE_PATH) && CMP_ENABLED(Opt.AutoComplete.UsePath))
 								{
 									EnumModules(strTemp, &ComplMenu);
 								}

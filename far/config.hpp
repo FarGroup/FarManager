@@ -123,6 +123,10 @@ struct AutoCompleteOptions
 	int ShowList;
 	int ModalList;
 	int AppendCompletion;
+
+	int UseFilesystem;
+	int UseHistory;
+	int UsePath;
 };
 
 

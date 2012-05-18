@@ -1,3 +1,8 @@
+drkns 18.05.2012 14:21:09 +0200 - build 2690
+
+1. Дополнение можно более тонко настроить через far:config.
+   Опции Interface.Completion.Use????, 1 - использовать всегда, 2 - только при вызове вручную.
+
 drkns 18.05.2012 13:48:24 +0200 - build 2689
 
 1. Не работал переход в пути вида cd \\?\GLOBALROOT\Device\Harddisk0\Partition1, \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy3 и т.п.

@@ -311,9 +311,10 @@ public:
 
 	enum ECFLAGS
 	{
-		EC_ENABLEAUTOCOMPLETE = 0x1,
-		EC_ENABLEFNCOMPLETE   = 0x2,
-		EC_ENABLEPATHCOMPLETE = 0x4,
+		EC_ENABLEAUTOCOMPLETE  = 0x1,
+		EC_COMPLETE_FILESYSTEM = 0x2,
+		EC_COMPLETE_PATH       = 0x4,
+		EC_COMPLETE_HISTORY    = 0x8,
 	};
 
 	EditControl(ScreenObject *pOwner=nullptr,Callback* aCallback=nullptr,bool bAllocateData=true,History* iHistory=0,FarList* iList=0,DWORD iFlags=0);

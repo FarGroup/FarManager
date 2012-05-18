@@ -943,6 +943,10 @@ static struct FARConfig
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"Append",&Opt.AutoComplete.AppendCompletion, 0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"ModalList",&Opt.AutoComplete.ModalList, 0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"ShowList",&Opt.AutoComplete.ShowList, 1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"UseFilesystem",&Opt.AutoComplete.UseFilesystem, 1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"UseHistory",&Opt.AutoComplete.UseHistory, 1, 0},
+	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyInterfaceCompletion,L"UsePath",&Opt.AutoComplete.UsePath, 1, 0},
+
 
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyLayout,L"FullscreenHelp",&Opt.FullScreenHelp,0, 0},
 	{1, GeneralConfig::TYPE_INTEGER, FSSF_PRIVATE,           NKeyLayout,L"LeftHeightDecrement",&Opt.LeftHeightDecrement,0, 0},
