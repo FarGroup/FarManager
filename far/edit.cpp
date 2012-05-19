@@ -3444,7 +3444,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 		if(Opt.AutoComplete.ShowList)
 			CtrlObject->Macro.SetMode(Area);
 
-#define CMP_ENABLED(c) ((Manual && (c == 2)) || (!Manual && (c == 1)))
+#define CMP_ENABLED(c) ((Manual && (c)) || (!Manual && ((c) == 1)))
 
 		if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CMP_ENABLED(Opt.AutoComplete.UseHistory))
 		{
