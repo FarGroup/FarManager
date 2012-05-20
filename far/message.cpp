@@ -399,7 +399,7 @@ int Message(
 	StrCount+=CountErrorLine;
 	MessageX1=X1=(int(ScrX-MaxLength))/2-4;
 	MessageX2=X2=X1+MaxLength+9;
-	Y1=(ScrY-StrCount)/2-2;
+	Y1=(ScrY-static_cast<int>(StrCount))/2-2;
 
 	if (Y1 < 0)
 		Y1=0;
