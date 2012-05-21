@@ -3,6 +3,235 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.05.2012 23:06:13 +0200 - build 2697
+
+1. Some reduction of ImportedFunctions code.
+
+w17 21.05.2012 13:19:37 +0400 - build 2696
+
+1. 2679.4 - after Esc, the scan results are shown without a delay
+
+drkns 21.05.2012 10:12:45 +0200 - build 2695
+
+1. Correction of 2601.
+
+w17 20.05.2012 12:08:44 +0400 - build 2694
+
+1. 2107: Crash while copying
+
+drkns 19.05.2012 23:08:50 +0200 - build 2693
+
+1. Continuation of 2690.
+
+drkns 18.05.2012 16:02:47 +0200 - build 2692
+
+1. Continuation of 2689.
+
+drkns 18.05.2012 15:24:56 +0200 - build 2691
+
+1. Continuation of 2690.
+
+drkns 18.05.2012 14:21:09 +0200 - build 2690
+
+1. Completion can be fine-tuned via far:config.
+   Interface.Completion.Use???? options, 1 - use always, 2 - with manual call only.
+
+drkns 18.05.2012 13:48:24 +0200 - build 2689
+
+1. Transition to paths like cd \\?\GLOBALROOT\Device\Harddisk0\Partition1, \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy3 etc. did not work
+
+drkns 18.05.2012 13:32:43 +0200 - build 2688
+
+1. History settings are accessible via far:config.
+
+2. Correction of 2683.
+
+w17 18.05.2012 12:50:35 +0400 - build 2687
+
+1. 2679.3 - after interrupting with Esc, the result of incomplete directory scanning is shown anyway
+
+drkns 18.05.2012 09:49:36 +0200 - build 2686
+
+1. Continuation of #0002102: ULF_UNIQUE without ULF_SORT could lead to incorrect order of items.
+
+svs 18.05.2012 10:39:11 +0400 - build 2685
+
+1. Mantis#0001491: CtrlStartPosChar does not work with the first line (caption does not count)
+   NearTopicFound was not reset to 0 in the line next to fixed area.
+
+2. SQLite 3.7.12
+
+drkns 17.05.2012 20:42:33 +0200 - build 2684
+
+1. Correction of 2683.
+
+drkns 17.05.2012 20:18:36 +0200 - build 2683
+
+1. UserDefinedList refactored. Now there is an unlimited number of separators, consecutive delimiters are not an error.
+   Also 0002102: Path environment variable not processed correctly isf it contains empty strings between semicolons
+
+w17 17.05.2012 13:38:16 +0400 - build 2682
+
+1. 2679.2 - WIN key does not interrupt directory scan
+
+w17 17.05.2012 13:12:53 +0400 - build 2681
+
+1. 2679.1 - tilde
+
+drkns 16.05.2012 21:45:11 +0200 - build 2680
+
+1. Do not switch the autocompletion on while messages remain in console message queue.
+
+w17 16.05.2012 13:58:29 +0400 - build 2679
+
+1. M#2101: "quick search" may be cancelled with any key
+   Color indication whether directory scan was aborted
+
+2. 2676 - 'far /rw'
+
+w17 16.05.2012 11:37:29 +0400 - build 2678
+
+1. correction of 2676
+
+svs 16.05.2012 10:04:17 +0400 - build 2677
+
+1. Mantis#0002096: Navigation on text in search results menu
+   (from DAtaMan)
+
+   - if "Select found" is on then the search results are selected after Enter is pressed :)
+   - Ctrl-Enter sets the cursor on the found text and selects it if "Select found" is on
+   - F5 switches the menu size
+   - Ctrl-Up/Down scrolls the editor text
+   - Add sets the stacked bookmark
+   - RCtrl-(0-9) - set the bookmark 0..9 in the current position, LCtrl-(0-9) - go to bookmark 0-9
+
+
+w17 15.05.2012 19:31:43 +0400 - build 2676
+
+1. M#2100: Problems with FAR 3 start from write protected volumes
+   work with configuration databases unchanged.
+   'far -ro' or 'ReadOnlyConfig=1' in far.exe.ini, no autodetection
+
+2. gcc -warning
+
+w17 14.05.2012 14:17:56 +0400 - build 2675
+
+1. 2673 continuation...
+   identification of FAT, an option for disabling the panel catalog monitoring feature on focus lose
+
+svs 14.05.2012 13:54:16 +0400 - build 2674
+
+1. Correction of build 2672
+   API: add MPEC_BREAK_OTL
+
+2. Mantis#0002059: Macro functions for accessing editor lines by their index
+   For Editor.SetStr(), cursor positioning functionality is removed. Appropriate functions are intended for this
+
+w17 12.05.2012 19:24:42 +0400 - build 2673
+
+1. M#2098: File created by an external program did not appear in the active panel
+
+svs 12.05.2012 14:00:53 +0400 - build 2672
+
+1. Macro: "$break" operator is added - $rep and $while loops termination.
+
+2. Correction of TVar::operator--() and TVar::operator++()
+
+svs 11.05.2012 11:53:32 +0400 - build 2671
+
+1. Mantis#0001891: Right-aligned extesions
+   (from samlyukov)
+
+svs 11.05.2012 11:34:27 +0400 - build 2670
+
+1. Mantis#0002097: VF_ENABLE_F6 does not work
+   (from Denis)
+   Viewer.SetEnableF6() call took place later than planned.
+
+2. Mantis#0001736: akey(1,0)==akey(1,1) Far 3.0.1931 far2.0.1807
+   "rat race".
+
+svs 10.05.2012 20:55:52 +0400 - build 2669
+
+1. Adding isNumber() to TVar - is it a number? (Integer/Real/StrNumber)
+
+2. Mantis#0002059: Macro functions for accessing editor lines by their index
+   Now Line may be a "number" (Integer/Real/StrNumber), not only integer.
+   Cast:
+     Integer       -> Integer
+     Real          -> Integer
+     StrNumber     -> Integer
+     Not StrNumber -> error (editor.[get|set|ins|del]str do not work)
+
+   Also, if S was not specified it was equal to "0".
+
+drkns 10.05.2012 16:16:31 +0200 - build 2668
+
+1. And once more.
+
+drkns 10.05.2012 16:12:43 +0200 - build 2667
+
+1. Correction of 2666.1.
+
+drkns 10.05.2012 15:26:08 +0200 - build 2666
+
+1. Autocompletion issues:
+   - affected elements match the condition %path%\<something>.%pathext% or mentioned in App Paths (DIF_EDITPATHEXEC/FIB_EDITPATHEXEC in api);
+   - manual call moved from CtrlShiftEnd to CtrlSpace;
+   - mode "without menu" is redone, now the sequential scan is used.
+
+w17 10.05.2012 16:09:01 +0400 - build 2665
+
+1. FAR crash after ShiftDel in cmdline autocompletion menu on file items
+
+2. Don't show disabled UTF-7 line in encoding selection menu in viewer and editor
+
+svs 10.05.2012 15:06:25 +0400 - build 2664
+
+1. Mantis#0002059: Macro functions for accessing editor lines by their index
+   (from DAtaMan)
+
+    - Editor.GetStr works even if the editor is locked
+    + after Editor.SetStr the cursor position is unchanged
+
+svs 10.05.2012 12:06:11 +0400 - build 2663
+
+1. Mantis#0002059: Macro functions for accessing editor lines by their index
+   (from DAtaMan)
+
+   1. Editor::GetStringByNumber minor optimization
+   
+   2. Added macro commands:
+   
+     N=Editor.DelLine([Line])
+     S=Editor.GetStr([Line])
+     N=Editor.InsStr([S[,Line]])
+     N=Editor.SetStr([S[,Line]])
+
+     when Line is not given, the functions process the current line.
+
+   A text macro - empty lines removal:
+
+     $If(Selected)
+       %StartLine=Editor.Sel(0, 0);
+       %EndLine=Editor.Sel(0, 2);
+     $Else
+       %StartLine=1;
+       %EndLine=Editor.Lines;
+     $End
+
+     %Count=%EndLine-%StartLine+1;
+     %i=%StartLine;
+     Editor.Undo(0);
+     $Rep(%Count)
+       $If(Len(Trim(Editor.GetStr(%i)))==0)
+         Editor.DelLine(%i);
+       $Else
+         %i=%i+1;
+       $End
+     $End
+     Editor.Undo(1); 
+
 svs 05.05.2012 16:18:15 +0400 - build 2662
 
 1. Mantis#0002095: Crash on history-guided transition to a plugin
