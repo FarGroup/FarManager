@@ -54,68 +54,79 @@ ImportedFunctions::ImportedFunctions()
 	hVirtDisk = LoadLibrary(L"virtdisk.dll");
 	hRstrtMgr = LoadLibrary(L"rstrtmgr.dll");
 
+	#define InitImport(Module, Name) InitImport(Module, pfn##Name, #Name)
+
 	if (hKernel)
 	{
-		InitImport(hKernel, pfnGetConsoleKeyboardLayoutName, "GetConsoleKeyboardLayoutNameW");
-		InitImport(hKernel, pfnCreateSymbolicLink, "CreateSymbolicLinkW");
-		InitImport(hKernel, pfnFindFirstFileNameW, "FindFirstFileNameW");
-		InitImport(hKernel, pfnFindNextFileNameW, "FindNextFileNameW");
-		InitImport(hKernel, pfnFindFirstStreamW, "FindFirstStreamW");
-		InitImport(hKernel, pfnFindNextStreamW, "FindNextStreamW");
-		InitImport(hKernel, pfnGetFinalPathNameByHandle, "GetFinalPathNameByHandleW");
-		InitImport(hKernel, pfnGetVolumePathNamesForVolumeName, "GetVolumePathNamesForVolumeNameW");
-		InitImport(hKernel, pfnGetPhysicallyInstalledSystemMemory, "GetPhysicallyInstalledSystemMemory");
-		InitImport(hKernel, pfnHeapSetInformation, "HeapSetInformation");
-		InitImport(hKernel, pfnIsWow64Process, "IsWow64Process");
-		InitImport(hKernel, pfnGetNamedPipeServerProcessId, "GetNamedPipeServerProcessId");
-		InitImport(hKernel, pfnCancelSynchronousIo, "CancelSynchronousIo");
-		InitImport(hKernel, pfnSetConsoleKeyShortcuts, "SetConsoleKeyShortcuts");
-		InitImport(hKernel, pfnGetConsoleScreenBufferInfoEx, "GetConsoleScreenBufferInfoEx");
-		InitImport(hKernel, pfnQueryFullProcessImageName, "QueryFullProcessImageNameW");
+		InitImport(hKernel, GetConsoleKeyboardLayoutNameW);
+		InitImport(hKernel, CreateSymbolicLinkW);
+		InitImport(hKernel, FindFirstFileNameW);
+		InitImport(hKernel, FindNextFileNameW);
+		InitImport(hKernel, FindFirstStreamW);
+		InitImport(hKernel, FindNextStreamW);
+		InitImport(hKernel, GetFinalPathNameByHandleW);
+		InitImport(hKernel, GetVolumePathNamesForVolumeNameW);
+		InitImport(hKernel, GetPhysicallyInstalledSystemMemory);
+		InitImport(hKernel, HeapSetInformation);
+		InitImport(hKernel, IsWow64Process);
+		InitImport(hKernel, GetNamedPipeServerProcessId);
+		InitImport(hKernel, CancelSynchronousIo);
+		InitImport(hKernel, SetConsoleKeyShortcuts);
+		InitImport(hKernel, GetConsoleScreenBufferInfoEx);
+		InitImport(hKernel, QueryFullProcessImageNameW);
 	}
 
 	if (hNtdll)
 	{
-		InitImport(hNtdll, pfnNtQueryDirectoryFile, "NtQueryDirectoryFile");
-		InitImport(hNtdll, pfnNtQueryInformationFile, "NtQueryInformationFile");
-		InitImport(hNtdll, pfnNtSetInformationFile, "NtSetInformationFile");
-		InitImport(hNtdll, pfnNtQueryObject, "NtQueryObject");
-		InitImport(hNtdll, pfnNtOpenSymbolicLinkObject, "NtOpenSymbolicLinkObject");
-		InitImport(hNtdll, pfnNtQuerySymbolicLinkObject, "NtQuerySymbolicLinkObject");
-		InitImport(hNtdll, pfnNtClose, "NtClose");
-		InitImport(hNtdll, pfnRtlGetLastNtStatus, "RtlGetLastNtStatus");
-		InitImport(hNtdll, pfnRtlNtStatusToDosError, "RtlNtStatusToDosError");
+		InitImport(hNtdll, NtQueryDirectoryFile);
+		InitImport(hNtdll, NtQueryInformationFile);
+		InitImport(hNtdll, NtSetInformationFile);
+		InitImport(hNtdll, NtQueryObject);
+		InitImport(hNtdll, NtOpenSymbolicLinkObject);
+		InitImport(hNtdll, NtQuerySymbolicLinkObject);
+		InitImport(hNtdll, NtClose);
+		InitImport(hNtdll, RtlGetLastNtStatus);
+		InitImport(hNtdll, RtlNtStatusToDosError);
 	}
 
 	if (hShell)
 	{
-		InitImport(hShell, pfnSHCreateAssociationRegistration, "SHCreateAssociationRegistration");
+		InitImport(hShell, SHCreateAssociationRegistration);
 	}
 
 	if (hVirtDisk)
 	{
-		InitImport(hVirtDisk, pfnGetStorageDependencyInformation, "GetStorageDependencyInformation");
-		InitImport(hVirtDisk, pfnOpenVirtualDisk, "OpenVirtualDisk");
-		InitImport(hVirtDisk, pfnDetachVirtualDisk, "DetachVirtualDisk");
+		InitImport(hVirtDisk, GetStorageDependencyInformation);
+		InitImport(hVirtDisk, OpenVirtualDisk);
+		InitImport(hVirtDisk, DetachVirtualDisk);
 	}
 
 	if (hUser32)
 	{
-		InitImport(hUser32, pfnRegisterPowerSettingNotification, "RegisterPowerSettingNotification");
-		InitImport(hUser32, pfnUnregisterPowerSettingNotification, "UnregisterPowerSettingNotification");
+		InitImport(hUser32, RegisterPowerSettingNotification);
+		InitImport(hUser32, UnregisterPowerSettingNotification);
 	}
 
 	if (hRstrtMgr)
 	{
-		InitImport(hRstrtMgr, pfnRmStartSession, "RmStartSession");
-		InitImport(hRstrtMgr, pfnRmEndSession, "RmEndSession");
-		InitImport(hRstrtMgr, pfnRmRegisterResources, "RmRegisterResources");
-		InitImport(hRstrtMgr, pfnRmGetList, "RmGetList");
+		InitImport(hRstrtMgr, RmStartSession);
+		InitImport(hRstrtMgr, RmEndSession);
+		InitImport(hRstrtMgr, RmRegisterResources);
+		InitImport(hRstrtMgr, RmGetList);
 	}
+
+	#undef InitImport
+
 }
+
 
 ImportedFunctions::~ImportedFunctions()
 {
+	if(hRstrtMgr)
+	{
+		FreeLibrary(hRstrtMgr);
+	}
+
 	if(hVirtDisk)
 	{
 		FreeLibrary(hVirtDisk);
@@ -123,11 +134,11 @@ ImportedFunctions::~ImportedFunctions()
 }
 
 
-BOOL ImportedFunctions::GetConsoleKeyboardLayoutName(LPWSTR Buffer)
+BOOL ImportedFunctions::GetConsoleKeyboardLayoutNameW(LPWSTR Buffer)
 {
-	if(pfnGetConsoleKeyboardLayoutName)
+	if(pfnGetConsoleKeyboardLayoutNameW)
 	{
-		return pfnGetConsoleKeyboardLayoutName(Buffer);
+		return pfnGetConsoleKeyboardLayoutNameW(Buffer);
 	}
 	else
 	{
@@ -136,11 +147,11 @@ BOOL ImportedFunctions::GetConsoleKeyboardLayoutName(LPWSTR Buffer)
 	}
 }
 
-BOOLEAN ImportedFunctions::CreateSymbolicLink(LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags)
+BOOLEAN ImportedFunctions::CreateSymbolicLinkW(LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags)
 {
-	if(pfnCreateSymbolicLink)
+	if(pfnCreateSymbolicLinkW)
 	{
-		return pfnCreateSymbolicLink(SymlinkFileName, TargetFileName, Flags);
+		return pfnCreateSymbolicLinkW(SymlinkFileName, TargetFileName, Flags);
 	}
 	else
 	{
@@ -201,14 +212,14 @@ BOOL ImportedFunctions::FindNextStreamW(HANDLE FindStream, LPVOID FindStreamData
 	}
 }
 
-DWORD ImportedFunctions::GetFinalPathNameByHandle(HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags)
+DWORD ImportedFunctions::GetFinalPathNameByHandleW(HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags)
 {
-	if(pfnGetFinalPathNameByHandle)
+	if(pfnGetFinalPathNameByHandleW)
 	{
 		// It is known that GetFinalPathNameByHandle crashes on Windows 7 with Ext2FSD
 		__try
 		{
-			return pfnGetFinalPathNameByHandle(File, FilePath, FilePathSize, Flags);
+			return pfnGetFinalPathNameByHandleW(File, FilePath, FilePathSize, Flags);
 		}
 		__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
 		{
@@ -222,11 +233,11 @@ DWORD ImportedFunctions::GetFinalPathNameByHandle(HANDLE File, LPWSTR FilePath, 
 	}
 }
 
-BOOL ImportedFunctions::GetVolumePathNamesForVolumeName(LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength)
+BOOL ImportedFunctions::GetVolumePathNamesForVolumeNameW(LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength)
 {
-	if(pfnGetVolumePathNamesForVolumeName)
+	if(pfnGetVolumePathNamesForVolumeNameW)
 	{
-		return pfnGetVolumePathNamesForVolumeName(VolumeName, VolumePathNames, BufferLength, ReturnLength);
+		return pfnGetVolumePathNamesForVolumeNameW(VolumeName, VolumePathNames, BufferLength, ReturnLength);
 	}
 	else
 	{
@@ -510,11 +521,11 @@ HPOWERNOTIFY ImportedFunctions::RegisterPowerSettingNotification(HANDLE hRecipie
 	}
 }
 
-BOOL ImportedFunctions::QueryFullProcessImageName(HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size)
+BOOL ImportedFunctions::QueryFullProcessImageNameW(HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size)
 {
-	if(pfnQueryFullProcessImageName)
+	if(pfnQueryFullProcessImageNameW)
 	{
-		return pfnQueryFullProcessImageName(Process, Flags, ExeName, Size);
+		return pfnQueryFullProcessImageNameW(Process, Flags, ExeName, Size);
 	}
 	else
 	{

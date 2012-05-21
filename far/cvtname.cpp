@@ -265,7 +265,7 @@ string TryConvertVolumeGuidToDrivePath(const string& Path)
 
 	if (ParsePath(Path) == PATH_VOLUMEGUID)
 	{
-		if (ifn.GetVolumePathNamesForVolumeNamePresent())
+		if (ifn.GetVolumePathNamesForVolumeNameWPresent())
 		{
 			DWORD BufSize = NT_MAX_PATH;
 			string PathNames;

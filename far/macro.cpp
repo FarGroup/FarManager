@@ -2540,13 +2540,13 @@ static bool kbdLayoutFunc(const TMacroFunction*)
 	BOOL Ret=TRUE;
 	HKL  Layout=0, RetLayout=0;
 
-		wchar_t LayoutName[1024]={}; // BUGBUG!!!
-	if (ifn.GetConsoleKeyboardLayoutName(LayoutName))
-		{
-			wchar_t *endptr;
+	wchar_t LayoutName[1024]={}; // BUGBUG!!!
+	if (ifn.GetConsoleKeyboardLayoutNameW(LayoutName))
+	{
+		wchar_t *endptr;
 		DWORD res=wcstoul(LayoutName, &endptr, 16);
-			RetLayout=(HKL)(INT_PTR)(HIWORD(res)? res : MAKELONG(res,res));
-		}
+		RetLayout=(HKL)(INT_PTR)(HIWORD(res)? res : MAKELONG(res,res));
+	}
 
 	HWND hWnd = Console.GetWindow();
 

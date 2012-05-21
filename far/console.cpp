@@ -193,7 +193,7 @@ virtual bool GetKeyboardLayoutName(string &strName) const
 	bool Result=false;
 	strName.Clear();
 	wchar_t *p = strName.GetBuffer(KL_NAMELENGTH+1);
-	if (p && ifn.GetConsoleKeyboardLayoutName(p))
+	if (p && ifn.GetConsoleKeyboardLayoutNameW(p))
 	{
 		Result=true;
 	}
@@ -638,13 +638,17 @@ public:
 		ClearStruct(Imports);
 		if(Module)
 		{
-			InitImport(Imports.pReadOutput, "ReadOutput");
-			InitImport(Imports.pWriteOutput, "WriteOutput");
-			InitImport(Imports.pCommit, "Commit");
-			InitImport(Imports.pGetTextAttributes, "GetTextAttributes");
-			InitImport(Imports.pSetTextAttributes, "SetTextAttributes");
-			InitImport(Imports.pClearExtraRegions, "ClearExtraRegions");
-			InitImport(Imports.pGetColorDialog, "GetColorDialog");
+			#define InitImport(Name) InitImport(Imports.p##Name, #Name)
+
+			InitImport(ReadOutput);
+			InitImport(WriteOutput);
+			InitImport(Commit);
+			InitImport(GetTextAttributes);
+			InitImport(SetTextAttributes);
+			InitImport(ClearExtraRegions);
+			InitImport(GetColorDialog);
+
+			#undef InitImport
 
 			if(!ImportsPresent)
 			{

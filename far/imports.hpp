@@ -49,14 +49,14 @@ public: RETTYPE NAME ARGS;\
 public: bool NAME##Present(){return pfn##NAME != nullptr;}
 
 	// kernel32
-	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetConsoleKeyboardLayoutName, (LPWSTR Buffer))
-	DECLARE_IMPORT_FUNCTION(BOOLEAN, WINAPI, CreateSymbolicLink, (LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags));
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetConsoleKeyboardLayoutNameW, (LPWSTR Buffer))
+	DECLARE_IMPORT_FUNCTION(BOOLEAN, WINAPI, CreateSymbolicLinkW, (LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags));
 	DECLARE_IMPORT_FUNCTION(HANDLE, WINAPI, FindFirstFileNameW, (LPCWSTR FileName, DWORD Flags, LPDWORD StringLength, LPWSTR LinkName));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, FindNextFileNameW, (HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName));
 	DECLARE_IMPORT_FUNCTION(HANDLE, WINAPI, FindFirstStreamW, (LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, FindNextStreamW, (HANDLE FindStream, LPVOID FindStreamData));
-	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, GetFinalPathNameByHandle, (HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags));
-	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetVolumePathNamesForVolumeName, (LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength));
+	DECLARE_IMPORT_FUNCTION(DWORD, WINAPI, GetFinalPathNameByHandleW, (HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags));
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetVolumePathNamesForVolumeNameW, (LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetPhysicallyInstalledSystemMemory, (PULONGLONG TotalMemoryInKilobytes));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, HeapSetInformation, (HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, IsWow64Process, (HANDLE Process, PBOOL Wow64Process));
@@ -64,7 +64,7 @@ public: bool NAME##Present(){return pfn##NAME != nullptr;}
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, CancelSynchronousIo, (HANDLE Thread));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, SetConsoleKeyShortcuts, (BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys));
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetConsoleScreenBufferInfoEx, (HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx));
-	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, QueryFullProcessImageName, (HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size));
+	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, QueryFullProcessImageNameW, (HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size));
 
 	// ntdll
 	DECLARE_IMPORT_FUNCTION(NTSTATUS, NTAPI, NtQueryDirectoryFile, (HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan));

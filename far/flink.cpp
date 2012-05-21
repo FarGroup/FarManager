@@ -174,7 +174,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 						DWORD Attr = apiGetFileAttributes(Target);
 						Type = ((Attr != INVALID_FILE_ATTRIBUTES) && (Attr&FILE_ATTRIBUTE_DIRECTORY)? RP_SYMLINKDIR : RP_SYMLINKFILE);
 					}
-					if (ifn.CreateSymbolicLinkPresent() && !ObjectExist)
+					if (ifn.CreateSymbolicLinkWPresent() && !ObjectExist)
 					{
 						Result=apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 					}

@@ -840,11 +840,11 @@ DWORD apiGetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileNa
 		lpwszFileName = (wchar_t*)xf_realloc_nomove(lpwszFileName, dwBufferSize*sizeof(wchar_t));
 		if (hProcess)
 		{
-			if (ifn.QueryFullProcessImageNamePresent() && !hModule)
+			if (ifn.QueryFullProcessImageNameWPresent() && !hModule)
 			{
 				DWORD sz = dwBufferSize;
 				dwSize = 0;
-				if (ifn.QueryFullProcessImageName(hProcess, 0, lpwszFileName, &sz))
+				if (ifn.QueryFullProcessImageNameW(hProcess, 0, lpwszFileName, &sz))
 				{
 					dwSize = sz;
 				}
@@ -1151,7 +1151,7 @@ BOOL apiSetFileAttributes(const string& FileName,DWORD dwFileAttributes)
 
 bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 {
-	return ifn.CreateSymbolicLinkPresent()?
+	return ifn.CreateSymbolicLinkWPresent()?
 		(ifn.CreateSymbolicLink(Object, Target, dwFlags) != FALSE) :
 		CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 }
@@ -1436,7 +1436,7 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 
 bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
-	if (ifn.GetFinalPathNameByHandlePresent())
+	if (ifn.GetFinalPathNameByHandleWPresent())
 	{
 		DWORD BufLen = NT_MAX_PATH;
 		DWORD Len = ifn.GetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
