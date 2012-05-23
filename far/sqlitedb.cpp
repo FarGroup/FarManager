@@ -195,7 +195,7 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 	DWORD attrs = apiGetFileAttributes(strPath);
 	if (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) // source exists and not directory
 	{
-		if (WAL && !can_create_file(strPath+L"-test")) // can't open db -- copy to %TEMP%
+		if (WAL && !can_create_file(strPath+L"-$test$")) // can't open db -- copy to %TEMP%
 		{
 			string strTmp;
 			apiGetTempPath(strTmp);
@@ -206,8 +206,17 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 			apiSetFileAttributes(strTmp, attrs & ~(FILE_ATTRIBUTE_READONLY|FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM));
 			if (ok)
 				strPath = strTmp;
+			ok = ok && (SQLITE_OK == sqlite3_open16(strPath.CPtr(), &db_source));
 		}
-		ok = ok && (SQLITE_OK == sqlite3_open16(strPath.CPtr(), &db_source));
+		else
+		{
+			int n8 = WideCharToMultiByte(CP_UTF8,0, strPath.CPtr(),-1, nullptr,0, nullptr,nullptr);
+			char *name8 = new char[n8];
+			WideCharToMultiByte(CP_UTF8,0, strPath.CPtr(),-1, name8,n8, nullptr,nullptr);
+			int flags = (WAL ? SQLITE_OPEN_READWRITE : SQLITE_OPEN_READONLY);
+			ok = (SQLITE_OK == sqlite3_open_v2(name8, &db_source, flags, nullptr));
+			delete[] name8;
+		}
 		if (ok)
 		{
 			sqlite3_busy_timeout(db_source, 1000);
