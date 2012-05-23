@@ -453,7 +453,7 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 			int ExitCode=GetPluginDirInfo(hDirPlugin,strCurFileName,Data.DirCount,
 			                              Data.FileCount,Data.FileSize,Data.AllocationSize);
 			Directory = (ExitCode ? 4 : 3);
-			uncomplete_dirscan = ExitCode != 0;
+			uncomplete_dirscan = (ExitCode == 0);
 		}
 		else
 		{
