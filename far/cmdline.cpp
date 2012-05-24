@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "keyboard.hpp"
 #include "vmenu.hpp"
+#include "mix.hpp"
 
 CommandLine::CommandLine():
 	CmdStr(CtrlObject->Cp(),0,true,CtrlObject->CmdHistory,0,(Opt.CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_COMPLETE_HISTORY|EditControl::EC_COMPLETE_FILESYSTEM|EditControl::EC_COMPLETE_PATH),
@@ -90,14 +91,7 @@ void CommandLine::SetDelRemovesBlocks(int Mode)
 
 void CommandLine::SetAutoComplete(int Mode)
 {
-	if(Mode)
-	{
-		CmdStr.EnableAC(true);
-	}
-	else
-	{
-		CmdStr.DisableAC(true);
-	}
+	CmdStr.SetAutocomplete(Mode!=0);
 }
 
 void CommandLine::DisplayObject()
@@ -167,10 +161,13 @@ int CommandLine::ProcessKey(int Key)
 			strLastCmdStr = CmdStr.GetStringAddr();
 			LastCmdPartLength=CurCmdPartLength;
 		}
-		CmdStr.DisableAC();
-		CmdStr.SetString(strStr);
-		CmdStr.Select(LastCmdPartLength,static_cast<int>(strStr.GetLength()));
-		CmdStr.RevertAC();
+
+		{
+			DisableAutocomplete da(&CmdStr);
+			CmdStr.SetString(strStr);
+			CmdStr.Select(LastCmdPartLength,static_cast<int>(strStr.GetLength()));
+		}
+
 		Show();
 		return TRUE;
 	}
@@ -217,9 +214,12 @@ int CommandLine::ProcessKey(int Key)
 				{
 					CtrlObject->CmdHistory->GetNext(strStr);
 				}
-				CmdStr.DisableAC();
-				SetString(strStr);
-				CmdStr.RevertAC();
+
+				{
+					DisableAutocomplete da(&CmdStr);
+					SetString(strStr);
+				}
+
 			}
 			return TRUE;
 
@@ -252,16 +252,17 @@ int CommandLine::ProcessKey(int Key)
 			// BUGBUG, magic numbers
 			if ((SelectType > 0 && SelectType <= 3) || SelectType == 7)
 			{
+				DisableAutocomplete* da = nullptr;
 				if(SelectType<3 || SelectType == 7)
 				{
-					CmdStr.DisableAC();
+					da = new DisableAutocomplete(&CmdStr);
 				}
 				SetString(strStr);
 
 				if (SelectType < 3 || SelectType == 7)
 				{
 					ProcessKey(SelectType==7?static_cast<int>(KEY_CTRLALTENTER):(SelectType==1?static_cast<int>(KEY_ENTER):static_cast<int>(KEY_SHIFTENTER)));
-					CmdStr.RevertAC();
+					delete da;
 				}
 			}
 		}
@@ -458,9 +459,8 @@ int CommandLine::ProcessKey(int Key)
 
 			if(Key == KEY_CTRLSPACE || Key == KEY_RCTRLSPACE)
 			{
-				CmdStr.EnableAC();
+				DisableAutocomplete da(&CmdStr);
 				CmdStr.AutoComplete(true,false);
-				CmdStr.RevertAC();
 				return TRUE;
 			}
 

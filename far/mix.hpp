@@ -53,3 +53,16 @@ void FreePluginPanelItem(
 );
 
 WINDOWINFO_TYPE ModalType2WType(const int fType);
+
+class DisableAutocomplete:NonCopyable
+{
+public:
+	DisableAutocomplete(class EditControl* edit);
+	DisableAutocomplete(class DlgEdit* dedit);
+	DisableAutocomplete(class CommandLine* cedit);
+	~DisableAutocomplete();
+
+private:
+	class EditControl* edit;
+	bool State;
+};

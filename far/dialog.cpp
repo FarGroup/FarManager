@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "history.hpp"
 #include "FarGuid.hpp"
 #include "colormix.hpp"
+#include "mix.hpp"
 
 #define VTEXT_ADN_SEPARATORS	1
 
@@ -2999,9 +3000,10 @@ int Dialog::ProcessKey(int Key)
 
 					if(Key == KEY_CTRLSPACE || Key == KEY_RCTRLSPACE)
 					{
-						edt->EnableAC();
-						edt->AutoComplete(true,false);
-						edt->RevertAC();
+						{
+							DisableAutocomplete da(edt);
+							edt->AutoComplete(true,false);
+						}
 						Redraw();
 						return TRUE;
 					}
@@ -3025,10 +3027,11 @@ int Dialog::ProcessKey(int Key)
 								edt->strLastStr = edt->GetStringAddr();
 								edt->LastPartLength = CurCmdPartLength;
 							}
-							edt->DisableAC();
-							edt->SetString(strStr);
-							edt->Select(edt->LastPartLength, static_cast<int>(strStr.GetLength()));
-							edt->RevertAC();
+							{
+								DisableAutocomplete da(edt);
+								edt->SetString(strStr);
+								edt->Select(edt->LastPartLength, static_cast<int>(strStr.GetLength()));
+							}
 							Show();
 							return TRUE;
 						}
@@ -5907,9 +5910,10 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 							DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
 							int ReadOnly=EditLine->GetReadOnly();
 							EditLine->SetReadOnly(0);
-							EditLine->DisableAC();
-							EditLine->SetString(CurItem->strData);
-							EditLine->RevertAC();
+							{
+								DisableAutocomplete da(EditLine);
+								EditLine->SetString(CurItem->strData);
+							}
 							EditLine->SetReadOnly(ReadOnly);
 
 							if (Dlg->DialogMode.Check(DMODE_INITOBJECTS)) // не меняем клеар-флаг, пока не проиницализировались

@@ -55,6 +55,7 @@ class Dialog;
 
 class DlgEdit: public ScreenObject
 {
+	friend class DisableAutocomplete;
 	public:
 		// for CtrlEnd
 		string strLastStr;
@@ -141,9 +142,6 @@ class DlgEdit: public ScreenObject
 
 		void SetCallbackState(bool Enable){lineEdit->SetCallbackState(Enable);}
 		void AutoComplete(bool Manual,bool DelBlock){return lineEdit->AutoComplete(Manual,DelBlock);}
-		void EnableAC(){return lineEdit->EnableAC();}
-		void DisableAC(){return lineEdit->DisableAC();}
-		void RevertAC(){return lineEdit->RevertAC();}
 
 		bool HistoryGetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
 

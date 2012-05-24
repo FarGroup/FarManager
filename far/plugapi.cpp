@@ -1255,12 +1255,13 @@ INT_PTR WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int 
 		case FCTL_SETCMDLINE:
 		case FCTL_INSERTCMDLINE:
 		{
-			CmdLine->DisableAC();
-			if (Command==FCTL_SETCMDLINE)
-				CmdLine->SetString((const wchar_t*)Param2);
-			else
-				CmdLine->InsertString((const wchar_t*)Param2);
-			CmdLine->RevertAC();
+			{
+				DisableAutocomplete da(CmdLine);
+				if (Command==FCTL_SETCMDLINE)
+					CmdLine->SetString((const wchar_t*)Param2);
+				else
+					CmdLine->InsertString((const wchar_t*)Param2);
+			}
 			CmdLine->Redraw();
 			return TRUE;
 		}

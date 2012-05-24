@@ -60,6 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "constitle.hpp"
 #include "configdb.hpp"
+#include "mix.hpp"
 
 static const wchar_t strSystemExecutor[]=L"System.Executor";
 
@@ -1260,9 +1261,10 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)
 {
-	CmdStr.DisableAC();
-	SetString(CmdLine);
-	CmdStr.RevertAC();
+	{
+		DisableAutocomplete da(&CmdStr);
+		SetString(CmdLine);
+	}
 
 	LastCmdPartLength=-1;
 

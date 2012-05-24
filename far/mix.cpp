@@ -41,6 +41,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "frame.hpp"
 
+#include "cmdline.hpp"
+#include "dlgedit.hpp"
+
 int ToPercent(unsigned long N1,unsigned long N2)
 {
 	if (N1 > 10000)
@@ -170,3 +173,29 @@ WINDOWINFO_TYPE ModalType2WType(const int fType)
 
 	return static_cast<WINDOWINFO_TYPE>(-1);
 }
+
+DisableAutocomplete::DisableAutocomplete(EditControl* edit):
+	edit(edit),
+	State(edit->GetAutocomplete())
+{
+	edit->SetAutocomplete(false);
+}
+
+DisableAutocomplete::DisableAutocomplete(DlgEdit* dedit):
+	edit(dedit->lineEdit),
+	State(edit->GetAutocomplete())
+{
+	edit->SetAutocomplete(false);
+}
+
+DisableAutocomplete::DisableAutocomplete(CommandLine* cedit):
+	edit(&cedit->CmdStr),
+	State(edit->GetAutocomplete())
+{
+	edit->SetAutocomplete(false);
+}
+
+DisableAutocomplete::~DisableAutocomplete()
+{
+	edit->SetAutocomplete(State);
+};

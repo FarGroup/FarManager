@@ -324,9 +324,8 @@ public:
 	virtual void SetUnchangedColor();
 
 	void AutoComplete(bool Manual,bool DelBlock);
-	void EnableAC(bool Permanent=false);
-	void DisableAC(bool Permanent=false);
-	void RevertAC(){ACState?EnableAC():DisableAC();}
+	void SetAutocomplete(bool State) {State? ECFlags.Set(EC_ENABLEAUTOCOMPLETE) : ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);}
+	bool GetAutocomplete() {return ECFlags.Check(EC_ENABLEAUTOCOMPLETE) != 0;}
 	void SetMacroAreaAC(int Area){MacroAreaAC=Area;}
 	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
 

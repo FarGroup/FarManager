@@ -3822,18 +3822,6 @@ int EditControl::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	return FALSE;
 }
 
-void EditControl::EnableAC(bool Permanent)
-{
-	ACState=Permanent?true:ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=FALSE;
-	ECFlags.Set(EC_ENABLEAUTOCOMPLETE);
-}
-
-void EditControl::DisableAC(bool Permanent)
-{
-	ACState=Permanent?false:ECFlags.Check(EC_ENABLEAUTOCOMPLETE)!=FALSE;
-	ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);
-}
-
 void EditControl::SetObjectColor(PaletteColors Color,PaletteColors SelColor,PaletteColors ColorUnChanged)
 {
 	Edit::SetObjectColor(Color, SelColor);

@@ -53,6 +53,7 @@ struct PushPopRecord
 
 class CommandLine:public ScreenObject
 {
+	friend class DisableAutocomplete;
 	private:
 		EditControl CmdStr;
 		SaveScreen *BackgroundScreen;
@@ -109,8 +110,4 @@ class CommandLine:public ScreenObject
 		void ShowBackground();
 		void CorrectRealScreenCoord();
 		void LockUpdatePanel(int Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
-
-		void EnableAC(){return CmdStr.EnableAC();}
-		void DisableAC(){return CmdStr.DisableAC();}
-		void RevertAC(){return CmdStr.RevertAC();}
 };
