@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 /*
   FarGetLogicalDrives
   оболочка вокруг GetLogicalDrives, с учетом скрытых логических дисков
-  HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer
+  <HKCU|HKLM>\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer
   NoDrives:DWORD
     Последние 26 бит определяют буквы дисков от A до Z (отсчет справа налево).
     Диск виден при установленном 0 и скрыт при значении 1.
@@ -61,17 +61,19 @@ DWORD FarGetLogicalDrives()
 
 	if (!Opt.Policies.ShowHiddenDrives)
 	{
-		HKEY hKey;
-
-		if (RegOpenKeyEx(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS && hKey)
+		const HKEY Roots[] = {HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE};
+		for(size_t i = 0; i < ARRAYSIZE(Roots); ++i)
 		{
-			int ExitCode;
-			DWORD Type,Size=sizeof(NoDrives);
-			ExitCode=RegQueryValueEx(hKey,L"NoDrives",0,&Type,(BYTE *)&NoDrives,&Size);
-			RegCloseKey(hKey);
-
-			if (ExitCode != ERROR_SUCCESS)
-				NoDrives=0;
+			HKEY hKey;
+			if (RegOpenKeyEx(Roots[i], L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", 0, KEY_QUERY_VALUE, &hKey)==ERROR_SUCCESS && hKey)
+			{
+				DWORD Data, Size = sizeof(Data);
+				if(RegQueryValueEx(hKey, L"NoDrives", nullptr, nullptr, reinterpret_cast<BYTE *>(&Data), &Size) == ERROR_SUCCESS)
+				{
+					NoDrives |= Data;
+				}
+				RegCloseKey(hKey);
+			}
 		}
 	}
 

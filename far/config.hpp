@@ -396,11 +396,11 @@ struct LoadPluginsOptions
 struct FindFileOptions
 {
 	int FileSearchMode;
-	bool FindFolders;
-	bool FindSymLinks;
-	bool CollectFiles;
-	bool UseFilter;
-	bool FindAlternateStreams;
+	int FindFolders;
+	int FindSymLinks;
+	int CollectFiles;
+	int UseFilter;
+	int FindAlternateStreams;
 	string strSearchInFirstSize;
 
 	string strSearchOutFormat;

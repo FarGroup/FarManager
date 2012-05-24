@@ -1878,23 +1878,26 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 								for (int I=0; I<ListSize; I++)
 								{
 									FINDLIST FindItem;
-									itd.GetFindListItem(reinterpret_cast<size_t>(ListBox->GetUserData(nullptr,0,I)), FindItem);
-
-									bool RealNames=true;
-									if(FindItem.ArcIndex != LIST_INDEX_NONE)
+									void* Data = ListBox->GetUserData(nullptr, 0, I);
+									if(Data)
 									{
-										ARCLIST ArcItem;
-										itd.GetArcListItem(FindItem.ArcIndex, ArcItem);
-										if(!(ArcItem.Flags & OPIF_REALNAMES))
+										itd.GetFindListItem(*reinterpret_cast<size_t*>(Data), FindItem);
+
+										bool RealNames=true;
+										if(FindItem.ArcIndex != LIST_INDEX_NONE)
 										{
-											RealNames=false;
+											ARCLIST ArcItem;
+											itd.GetArcListItem(FindItem.ArcIndex, ArcItem);
+											if(!(ArcItem.Flags & OPIF_REALNAMES))
+											{
+												RealNames=false;
+											}
 										}
-									}
-
-									if (RealNames)
-									{
-										if (!FindItem.FindData.strFileName.IsEmpty() && !(FindItem.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-											ViewList.AddName(FindItem.FindData.strFileName, FindItem.FindData.strAlternateFileName);
+										if (RealNames)
+										{
+											if (!FindItem.FindData.strFileName.IsEmpty() && !(FindItem.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+												ViewList.AddName(FindItem.FindData.strFileName, FindItem.FindData.strAlternateFileName);
+										}
 									}
 								}
 
@@ -3240,7 +3243,7 @@ FindFiles::FindFiles()
 	SearchInArchives=LastSearchInArchives;
 	SearchHex=LastSearchHex;
 	SearchMode=Opt.FindOpt.FileSearchMode;
-	UseFilter=Opt.FindOpt.UseFilter;
+	UseFilter=Opt.FindOpt.UseFilter!=0;
 	strFindMask = strLastFindMask;
 	strFindStr = strLastFindStr;
 	strSearchFromRoot = MSG(MSearchFromRootFolder);
