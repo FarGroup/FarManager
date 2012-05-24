@@ -41,6 +41,10 @@ FileSystemWatcher::FileSystemWatcher():
 	Handle(INVALID_HANDLE_VALUE),
 	WatchSubtree(false)
 {
+	PreviousLastWriteTime.dwLowDateTime = 0;
+	PreviousLastWriteTime.dwHighDateTime = 0;
+	CurrentLastWriteTime.dwLowDateTime = 0;
+	CurrentLastWriteTime.dwHighDateTime = 0;
 }
 
 
@@ -90,11 +94,22 @@ bool FileSystemWatcher::Watch()
 	else
 	{
 		File dir;
+		bool TimeOk = false;
 		if (dir.Open(Directory,GENERIC_READ,FILE_SHARE_DELETE|FILE_SHARE_READ|FILE_SHARE_WRITE,nullptr,OPEN_EXISTING))
 		{
 			FILETIME write_time;
 			if (dir.GetTime(nullptr,nullptr,&write_time,nullptr))
+			{
 				CurrentLastWriteTime = write_time;
+				TimeOk = true;
+			}
+		}
+		if(!TimeOk)
+		{
+			PreviousLastWriteTime.dwLowDateTime = 0;
+			PreviousLastWriteTime.dwHighDateTime = 0;
+			CurrentLastWriteTime.dwLowDateTime = 0;
+			CurrentLastWriteTime.dwHighDateTime = 0;
 		}
 	}
 
