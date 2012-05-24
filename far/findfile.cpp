@@ -287,7 +287,6 @@ public:
 		FindList[FindListCount]->ArcIndex = LIST_INDEX_NONE;
 		return FindListCount++;
 	}
-
 }
 itd;
 
@@ -1875,29 +1874,25 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 							// Возьмем все файлы, которые имеют реальные имена...
 							if (Opt.FindOpt.CollectFiles)
 							{
-								for (int I=0; I<ListSize; I++)
+								for (int I=0; I<itd.GetFindListCount(); I++)
 								{
 									FINDLIST FindItem;
-									void* Data = ListBox->GetUserData(nullptr, 0, I);
-									if(Data)
+									itd.GetFindListItem(I, FindItem);
+									
+									bool RealNames=true;
+									if(FindItem.ArcIndex != LIST_INDEX_NONE)
 									{
-										itd.GetFindListItem(*reinterpret_cast<size_t*>(Data), FindItem);
-
-										bool RealNames=true;
-										if(FindItem.ArcIndex != LIST_INDEX_NONE)
+										ARCLIST ArcItem;
+										itd.GetArcListItem(FindItem.ArcIndex, ArcItem);
+										if(!(ArcItem.Flags & OPIF_REALNAMES))
 										{
-											ARCLIST ArcItem;
-											itd.GetArcListItem(FindItem.ArcIndex, ArcItem);
-											if(!(ArcItem.Flags & OPIF_REALNAMES))
-											{
-												RealNames=false;
-											}
+											RealNames=false;
 										}
-										if (RealNames)
-										{
-											if (!FindItem.FindData.strFileName.IsEmpty() && !(FindItem.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
-												ViewList.AddName(FindItem.FindData.strFileName, FindItem.FindData.strAlternateFileName);
-										}
+									}
+									if (RealNames)
+									{
+										if (!FindItem.FindData.strFileName.IsEmpty() && !(FindItem.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+											ViewList.AddName(FindItem.FindData.strFileName, FindItem.FindData.strAlternateFileName);
 									}
 								}
 
