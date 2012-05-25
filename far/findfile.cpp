@@ -1868,7 +1868,6 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 
 						if (key==KEY_F3 || key==KEY_NUMPAD5 || key==KEY_SHIFTNUMPAD5)
 						{
-							int ListSize=ListBox->GetItemCount();
 							NamesList ViewList;
 
 							// Возьмем все файлы, которые имеют реальные имена...

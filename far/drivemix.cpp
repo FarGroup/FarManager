@@ -59,10 +59,11 @@ DWORD FarGetLogicalDrives()
 	if ((!Opt.RememberLogicalDrives) || !LogicalDrivesMask)
 		LogicalDrivesMask=GetLogicalDrives();
 
-	if (!Opt.Policies.ShowHiddenDrives)
+	if (!Opt.Policies.ShowHiddenDrives||1)
 	{
-		const HKEY Roots[] = {HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE};
-		for(size_t i = 0; i < ARRAYSIZE(Roots); ++i)
+		const HKEY Roots[] = {HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER};
+		bool DataReaded = false;
+		for(size_t i = 0; i < ARRAYSIZE(Roots) && !DataReaded; ++i)
 		{
 			HKEY hKey;
 			if (RegOpenKeyEx(Roots[i], L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer", 0, KEY_QUERY_VALUE, &hKey)==ERROR_SUCCESS && hKey)
@@ -70,7 +71,8 @@ DWORD FarGetLogicalDrives()
 				DWORD Data, Size = sizeof(Data);
 				if(RegQueryValueEx(hKey, L"NoDrives", nullptr, nullptr, reinterpret_cast<BYTE *>(&Data), &Size) == ERROR_SUCCESS)
 				{
-					NoDrives |= Data;
+					DataReaded = true;
+					NoDrives = Data;
 				}
 				RegCloseKey(hKey);
 			}
