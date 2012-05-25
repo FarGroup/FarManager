@@ -1873,7 +1873,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 							// Возьмем все файлы, которые имеют реальные имена...
 							if (Opt.FindOpt.CollectFiles)
 							{
-								for (int I=0; I<itd.GetFindListCount(); I++)
+								for (size_t I=0; I<itd.GetFindListCount(); I++)
 								{
 									FINDLIST FindItem;
 									itd.GetFindListItem(I, FindItem);
