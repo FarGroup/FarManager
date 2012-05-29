@@ -1792,6 +1792,8 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 						return TRUE;
 					}
 
+					bool real_name = true;
+
 					// FindFileArcIndex нельзя здесь использовать
 					// Он может быть уже другой.
 					if(FindItem.ArcIndex != LIST_INDEX_NONE)
@@ -1801,6 +1803,8 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 
 						if(!(ArcItem.Flags & OPIF_REALNAMES))
 						{
+							real_name = false;
+
 							string strFindArcName = ArcItem.strArcName;
 							if(!ArcItem.hPlugin)
 							{
@@ -1852,7 +1856,8 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 							RemoveTemp=true;
 						}
 					}
-					else
+
+					if (real_name)
 					{
 						strSearchFileName = FindItem.FindData.strFileName;
 						if (apiGetFileAttributes(strSearchFileName) == INVALID_FILE_ATTRIBUTES && apiGetFileAttributes(FindItem.FindData.strAlternateFileName) != INVALID_FILE_ATTRIBUTES)
@@ -1869,6 +1874,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 						if (key==KEY_F3 || key==KEY_NUMPAD5 || key==KEY_SHIFTNUMPAD5)
 						{
 							NamesList ViewList;
+							int list_count = 0;
 
 							// Возьмем все файлы, которые имеют реальные имена...
 							if (Opt.FindOpt.CollectFiles)
@@ -1891,7 +1897,10 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 									if (RealNames)
 									{
 										if (!FindItem.FindData.strFileName.IsEmpty() && !(FindItem.FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY))
+										{
+											++list_count;
 											ViewList.AddName(FindItem.FindData.strFileName, FindItem.FindData.strAlternateFileName);
+										}
 									}
 								}
 
@@ -1902,7 +1911,7 @@ INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 							SendDlgMessage(hDlg,DM_SHOWDIALOG,FALSE,0);
 							SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 							{
-								FileViewer ShellViewer(strSearchFileName,FALSE,FALSE,FALSE,-1,nullptr,(FindItem.ArcIndex != LIST_INDEX_NONE)?nullptr:(Opt.FindOpt.CollectFiles?&ViewList:nullptr));
+								FileViewer ShellViewer(strSearchFileName,FALSE,FALSE,FALSE,-1,nullptr,(list_count > 1 ? &ViewList : nullptr));
 								ShellViewer.SetDynamicallyBorn(FALSE);
 								ShellViewer.SetEnableF6(TRUE);
 
