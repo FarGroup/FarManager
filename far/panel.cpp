@@ -161,7 +161,6 @@ void Panel::ChangeDirToCurrent()
 
 void Panel::ChangeDisk()
 {
-	DisableElevation DE;
 	int Pos=0,FirstCall=TRUE;
 
 	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
@@ -443,6 +442,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			DiskTypeWidth = Max(DiskTypeWidth,StrLength(MSG(DrTMsg[J].FarMsg)));
 		}
 
+		DisableElevation* DE = new DisableElevation;
 		/* $ 02.04.2001 VVM
 		! Попытка не будить спящие диски... */
 		for (DiskMask=Mask,MenuLine=I=0; DiskMask; DiskMask>>=1,I++)
@@ -618,6 +618,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		{
 			PluginMenuItemsCount = AddPluginItems(ChDisk, Pos, DiskCount, SetSelected);
 		}
+
+		delete DE;
 
 		int X=X1+5;
 
