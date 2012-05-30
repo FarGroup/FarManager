@@ -2453,7 +2453,7 @@ void FileEditor::SetDeleteOnClose(int NewMode)
 
 void FileEditor::GetEditorOptions(EditorOptions& EdOpt)
 {
-	m_editor->EdOpt.CopyTo(EdOpt);
+	EdOpt = m_editor->EdOpt;
 }
 
 void FileEditor::SetEditorOptions(EditorOptions& EdOpt)

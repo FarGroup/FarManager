@@ -102,7 +102,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 {
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));
-	Opt.EdOpt.CopyTo(EdOpt);
+	EdOpt = Opt.EdOpt;
 	SetOwner(pOwner);
 
 	if (DialogUsed)

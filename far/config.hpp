@@ -174,6 +174,7 @@ class StringOption:public Option
 {
 public:
 	StringOption():Option(L""){}
+	StringOption(const StringOption& Value):Option(Value){}
 	StringOption(const string& Value):Option(Value){}
 	const string& Get() const {return GetString();}
 	operator const wchar_t *() const {return GetString();}
@@ -184,6 +185,7 @@ public:
 	wchar_t At(size_t Pos) const {return Get().At(Pos);}
 	StringOption& operator=(const wchar_t* Value) {Set(Value); return *this;}
 	StringOption& operator=(const string& Value) {Set(Value); return *this;}
+	StringOption& operator=(const StringOption& Value) {Set(Value); return *this;}
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
 	StringOption& operator+=(wchar_t Value) {Set(Get()+Value); return *this;}
 	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const wchar_t* Default);
@@ -351,39 +353,6 @@ struct EditorOptions
 		FileSizeLimitLo = 0;
 		FileSizeLimitHi = 0;
 		strWordDiv.Clear();
-	}
-
-	void CopyTo(EditorOptions &dest)
-	{
-		dest.TabSize = TabSize;
-		dest.ExpandTabs = ExpandTabs;
-		dest.PersistentBlocks = PersistentBlocks;
-		dest.DelRemovesBlocks = DelRemovesBlocks;
-		dest.AutoIndent = AutoIndent;
-		dest.AutoDetectCodePage = AutoDetectCodePage;
-		dest.AnsiCodePageForNewFile = AnsiCodePageForNewFile;
-		dest.AnsiCodePageAsDefault = AnsiCodePageAsDefault;
-		dest.CursorBeyondEOL = CursorBeyondEOL;
-		dest.BSLikeDel = BSLikeDel;
-		dest.CharCodeBase = CharCodeBase;
-		dest.SavePos = SavePos;
-		dest.SaveShortPos = SaveShortPos;
-		dest.F7Rules = F7Rules;
-		dest.AllowEmptySpaceAfterEof = AllowEmptySpaceAfterEof;
-		dest.ReadOnlyLock = ReadOnlyLock;
-		dest.UndoSize = UndoSize;
-		dest.UseExternalEditor = UseExternalEditor;
-		dest.ShowKeyBar = ShowKeyBar;
-		dest.ShowTitleBar = ShowTitleBar;
-		dest.ShowScrollBar=ShowScrollBar;
-		dest.EditOpenedForWrite = EditOpenedForWrite;
-		dest.SearchSelFound=SearchSelFound;
-		dest.SearchRegexp=SearchRegexp;
-		dest.SearchPickUpWord=SearchPickUpWord;
-		dest.ShowWhiteSpace=ShowWhiteSpace;
-		dest.FileSizeLimitLo = FileSizeLimitLo;
-		dest.FileSizeLimitHi = FileSizeLimitHi;
-		dest.strWordDiv = strWordDiv;
 	}
 };
 
