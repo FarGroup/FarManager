@@ -254,7 +254,7 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 				case HierarchicalConfig::TYPE_INTEGER:
 					item.Type=FST_QWORD;
 					break;
-				case HierarchicalConfig::TYPE_TEXT:
+				case HierarchicalConfig::TYPE_STRING:
 					item.Type=FST_STRING;
 					break;
 				case HierarchicalConfig::TYPE_BLOB:
@@ -326,19 +326,24 @@ int FarSettings::Set(const FarSettingsItem& Item)
 
 int FarSettings::Get(FarSettingsItem& Item)
 {
-	DWORD Type; void* Data;
+	GeneralConfig::OptionType Type;
+	Option* Data;
 	if(GetConfigValue(Item.Root,Item.Name,Type,Data))
 	{
 		Item.Type=FST_UNKNOWN;
 		switch(Type)
 		{
+			case GeneralConfig::TYPE_BOOLEAN:
+				Item.Type=FST_QWORD;
+				Item.Number=static_cast<BoolOption*>(Data)->Get();
+				break;
 			case GeneralConfig::TYPE_INTEGER:
 				Item.Type=FST_QWORD;
-				Item.Number=*(DWORD*)Data;
+				Item.Number=static_cast<IntOption*>(Data)->Get();
 				break;
-			case GeneralConfig::TYPE_TEXT:
+			case GeneralConfig::TYPE_STRING:
 				Item.Type=FST_STRING;
-				Item.String=(wchar_t*)Add(*(string*)Data);
+				Item.String=(wchar_t*)Add(static_cast<StringOption*>(Data)->Get());
 				break;
 		}
 		if(FST_UNKNOWN!=Item.Type) return TRUE;

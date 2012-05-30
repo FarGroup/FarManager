@@ -572,7 +572,7 @@ bool DizList::AddDizText(const string& Name,const string& ShortName,const string
 	DeleteDiz(Name,ShortName);
 	string strQuotedName = Name;
 	QuoteSpaceOnly(strQuotedName);
-	return AddRecord(FormatString()<<fmt::LeftAlign()<<fmt::Width(Opt.Diz.StartPos>1?Opt.Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText);
+	return AddRecord(FormatString()<<fmt::LeftAlign()<<fmt::MinWidth(Opt.Diz.StartPos>1?Opt.Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText);
 }
 
 

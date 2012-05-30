@@ -178,8 +178,8 @@ INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						GetWin32ErrorString(LastError, Txt[0]);
 						GetNtErrorString(NtStatus, Txt[1]);
 						DialogBuilder Builder(MError, nullptr);
-						Builder.AddConstEditField(FormatString() << L"LastError: 0x" << fmt::Width(8) << fmt::FillChar(L'0') << fmt::Radix(16) << LastError << L" - " << Txt[0], 65);
-						Builder.AddConstEditField(FormatString() << L"NTSTATUS: 0x" << fmt::Width(8) << fmt::FillChar(L'0') << fmt::Radix(16) << NtStatus << L" - " << Txt[1], 65);
+						Builder.AddConstEditField(FormatString() << L"LastError: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << LastError << L" - " << Txt[0], 65);
+						Builder.AddConstEditField(FormatString() << L"NTSTATUS: 0x" << fmt::MinWidth(8) << fmt::FillChar(L'0') << fmt::Radix(16) << NtStatus << L" - " << Txt[1], 65);
 						Builder.AddOK();
 						Builder.ShowDialog();
 					}

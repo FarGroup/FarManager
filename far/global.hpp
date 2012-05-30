@@ -46,11 +46,11 @@ extern string g_strFarINI;
 extern string g_strFarPath;
 
 extern string strGlobalSearchString;
-extern int GlobalSearchCase;
-extern int GlobalSearchWholeWords; // значение "Whole words" для поиска
-extern int GlobalSearchHex; // значение "Search for hex" для поиска
+extern bool GlobalSearchCase;
+extern bool GlobalSearchWholeWords; // значение "Whole words" для поиска
+extern bool GlobalSearchHex; // значение "Search for hex" для поиска
 
-extern int GlobalSearchReverse;
+extern bool GlobalSearchReverse;
 
 extern int ScreenSaverActive;
 

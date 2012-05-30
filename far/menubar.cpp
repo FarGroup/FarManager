@@ -47,5 +47,5 @@ void MenuBar::DisplayObject()
 	int Length=X2-X1+1;
 	GotoXY(X1,Y1);
 	SetColor(COL_HMENUTEXT);
-	FS << fmt::LeftAlign() << fmt::Width(Length) << fmt::Precision(Length) << strMsg;
+	FS << fmt::LeftAlign() << fmt::ExactWidth(Length) << strMsg;
 }

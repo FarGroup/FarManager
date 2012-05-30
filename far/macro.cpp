@@ -481,7 +481,6 @@ static TMacroFunction intMacroFunction[]=
 	{L"Panel.SetPath",    nullptr, L"N=panel.SetPath(panelType,pathName[,fileName])",            panelsetpathFunc,   nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPATH,   },
 	{L"Panel.SetPos",     nullptr, L"N=panel.SetPos(panelType,fileName)",                        panelsetposFunc,    nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOS,    },
 	{L"Panel.SetPosIdx",  nullptr, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])",            panelsetposidxFunc, nullptr, 0, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOSIDX, },
-	{L"PanelItem",        nullptr, L"V=PanelItem(Panel,Index,TypeInfo)",                         panelitemFunc,      nullptr, 0, 0,                                      MCODE_F_PANELITEM,       },
 	{L"Plugin.Call",      nullptr, L"N=Plugin.Call(Guid[,Item])",                                usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CALL,     },
 	{L"Plugin.Command",   nullptr, L"N=Plugin.Command(Guid[,Command])",                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_COMMAND,  },
 	{L"Plugin.Config",    nullptr, L"N=Plugin.Config(Guid[,MenuGuid])",                          usersFunc,          nullptr, 0, 0,                                      MCODE_F_PLUGIN_CONFIG,   },
@@ -505,9 +504,9 @@ static TMacroFunction intMacroFunction[]=
 	{L"WaitKey",          nullptr, L"V=Waitkey([N,[T]])",                                        waitkeyFunc,        nullptr, 0, 0,                                      MCODE_F_WAITKEY,         },
 	{L"Window.Scroll",    nullptr, L"N=Window.Scroll(Lines[,Axis])",                             windowscrollFunc,   nullptr, 0, 0,                                      MCODE_F_WINDOW_SCROLL,   },
 	{L"Xlat",             nullptr, L"S=Xlat(S[,Flags])",                                         xlatFunc,           nullptr, 0, 0,                                      MCODE_F_XLAT,            },
-	{}
 };
 
+static_assert(MCODE_F_LAST - KEY_MACRO_F_BASE == ARRAYSIZE(intMacroFunction), "intMacroFunction size != MCODE_F_* count");
 
 int MKeywordsSize = ARRAYSIZE(MKeywords);
 int MKeywordsFlagsSize = ARRAYSIZE(MKeywordsFlags);
@@ -873,8 +872,8 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 	if (Recording) // Идет запись?
 	{
 		// признак конца записи?
-		if ((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlDot
-			|| (unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlShiftDot)
+		if (Key==Opt.Macro.KeyMacroCtrlDot || Key==Opt.Macro.KeyMacroRCtrlDot
+			|| Key==Opt.Macro.KeyMacroCtrlShiftDot || Key==Opt.Macro.KeyMacroRCtrlShiftDot)
 		{
 			_KEYMACRO(CleverSysLog Clev(L"MACRO End record..."));
 			int WaitInMainLoop0=WaitInMainLoop;
@@ -892,7 +891,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			// если удаляем или был вызван диалог изменения, то не нужно выдавать диалог настройки.
 			//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
 			if (AssignRet && AssignRet!=2 && RecBufferSize
-				&& ((unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlShiftDot))
+				&& (Key==Opt.Macro.KeyMacroCtrlShiftDot || Key==Opt.Macro.KeyMacroRCtrlShiftDot))
 			{
 				if (!GetMacroSettings(MacroKey,Flags))
 					AssignRet=0;
@@ -1031,8 +1030,8 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 		}
 	}
 	// Начало записи?
-	else if ((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlDot
-			|| (unsigned int)Key==Opt.Macro.KeyMacroCtrlShiftDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlShiftDot)
+	else if (Key==Opt.Macro.KeyMacroCtrlDot || Key==Opt.Macro.KeyMacroRCtrlDot
+			|| Key==Opt.Macro.KeyMacroCtrlShiftDot || Key==Opt.Macro.KeyMacroRCtrlShiftDot)
 	{
 		_KEYMACRO(CleverSysLog Clev(L"MACRO Begin record..."));
 
@@ -1052,7 +1051,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 		// тип записи - с вызовом диалога настроек или...
 		// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
 		// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
-		Recording=((unsigned int)Key==Opt.Macro.KeyMacroCtrlDot || (unsigned int)Key==Opt.Macro.KeyMacroRCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
+		Recording=(Key==Opt.Macro.KeyMacroCtrlDot || Key==Opt.Macro.KeyMacroRCtrlDot) ? MACROMODE_RECORDING_COMMON:MACROMODE_RECORDING;
 
 		if (RecBuffer)
 			xf_free(RecBuffer);
@@ -3629,19 +3628,19 @@ static bool editorsetFunc(const TMacroFunction*)
 				case 1:  // ExpandTabs;
 					EdOpt.ExpandTabs=longState; break;
 				case 2:  // PersistentBlocks;
-					EdOpt.PersistentBlocks=longState; break;
+					EdOpt.PersistentBlocks=longState != 0; break;
 				case 3:  // DelRemovesBlocks;
-					EdOpt.DelRemovesBlocks=longState; break;
+					EdOpt.DelRemovesBlocks=longState != 0; break;
 				case 4:  // AutoIndent;
-					EdOpt.AutoIndent=longState; break;
+					EdOpt.AutoIndent=longState != 0; break;
 				case 5:  // AutoDetectCodePage;
-					EdOpt.AutoDetectCodePage=longState; break;
+					EdOpt.AutoDetectCodePage=longState != 0; break;
 				case 6:  // AnsiCodePageForNewFile;
-					EdOpt.AnsiCodePageForNewFile=longState; break;
+					EdOpt.AnsiCodePageForNewFile=longState != 0; break;
 				case 7:  // CursorBeyondEOL;
-					EdOpt.CursorBeyondEOL=longState; break;
+					EdOpt.CursorBeyondEOL=longState != 0; break;
 				case 8:  // BSLikeDel;
-					EdOpt.BSLikeDel=longState; break;
+					EdOpt.BSLikeDel=longState != 0; break;
 				case 9:  // CharCodeBase;
 					EdOpt.CharCodeBase=longState; break;
 				case 10: // SavePos;
@@ -3651,19 +3650,19 @@ static bool editorsetFunc(const TMacroFunction*)
 				case 12: // char WordDiv[256];
 					EdOpt.strWordDiv = Value.toString(); break;
 				case 13: // F7Rules;
-					EdOpt.F7Rules=longState; break;
+					EdOpt.F7Rules=longState != 0; break;
 				case 14: // AllowEmptySpaceAfterEof;
-					EdOpt.AllowEmptySpaceAfterEof=longState; break;
+					EdOpt.AllowEmptySpaceAfterEof=longState != 0; break;
 				case 15: // ShowScrollBar;
-					EdOpt.ShowScrollBar=longState; break;
+					EdOpt.ShowScrollBar=longState != 0; break;
 				case 16: // EditOpenedForWrite;
-					EdOpt.EditOpenedForWrite=longState; break;
+					EdOpt.EditOpenedForWrite=longState != 0; break;
 				case 17: // SearchSelFound;
-					EdOpt.SearchSelFound=longState; break;
+					EdOpt.SearchSelFound=longState != 0; break;
 				case 18: // SearchRegexp;
-					EdOpt.SearchRegexp=longState; break;
+					EdOpt.SearchRegexp=longState != 0; break;
 				case 19: // SearchPickUpWord;
-					EdOpt.SearchPickUpWord=longState; break;
+					EdOpt.SearchPickUpWord=longState != 0; break;
 				case 20: // ShowWhiteSpace;
 					EdOpt.ShowWhiteSpace=longState; break;
 				default:
@@ -6772,7 +6771,7 @@ void KeyMacro::RegisterMacroIntFunction()
 
 	if (!InitedInternalFuncs)
 	{
-		for(size_t I=0; intMacroFunction[I].Name; ++I)
+		for(size_t I=0; I < ARRAYSIZE(intMacroFunction); ++I)
 			KeyMacro::RegisterMacroFunction(intMacroFunction+I);
 
 		InitedInternalFuncs=true;

@@ -147,7 +147,6 @@ enum MACRO_OP_CODE
 	/* ************************************************************************* */
 	// функции
 	MCODE_F_NOFUNC=KEY_MACRO_F_BASE,
-
 	MCODE_F_ABS,                      // N=abs(N)
 	MCODE_F_AKEY,                     // V=akey(Mode[,Type])
 	MCODE_F_ASC,                      // N=asc(S)
@@ -247,7 +246,7 @@ enum MACRO_OP_CODE
 	MCODE_F_EDITOR_GETSTR,            // S=Editor.GetStr([Line])
 	MCODE_F_EDITOR_INSSTR,            // N=Editor.InsStr([S[,Line]])
 	MCODE_F_EDITOR_SETSTR,            // N=Editor.SetStr([S[,Line]])
-
+	MCODE_F_LAST = MCODE_F_EDITOR_SETSTR, // marker
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
 	MCODE_C_AREA_OTHER=KEY_MACRO_C_BASE,// Режим копирования текста с экрана, вертикальные меню

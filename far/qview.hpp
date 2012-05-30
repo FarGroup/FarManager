@@ -53,8 +53,8 @@ class QuickView:public Panel
 		int Directory;
 		int PrevMacroMode;
 		DirInfoData Data;
-		int OldWrapMode;
-		int OldWrapType;
+		bool OldWrapMode;
+		bool OldWrapType;
 
 		bool uncomplete_dirscan;
 

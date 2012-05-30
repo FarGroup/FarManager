@@ -33,7 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "configdb.hpp"
+#include "config.hpp"
 
 class Dialog;
 class VMenu;
@@ -53,7 +53,7 @@ class History
 		bool EnableAdd, KeepSelectedPos, SaveType;
 		int RemoveDups;
 		enumHISTORYTYPE TypeHistory;
-		const int *EnableSave;
+		const BoolOption& EnableSave;
 		unsigned __int64 CurrentItem;
 	private:
 		bool EqualType(int Type1, int Type2);
@@ -61,7 +61,7 @@ class History
 		int ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg);
 		HistoryConfig* HistoryCfgRef(void);
 	public:
-		History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, const int *EnableSave, bool SaveType);
+		History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, const BoolOption& EnableSave, bool SaveType);
 		~History();
 
 		void AddToHistory(const wchar_t *Str, int Type=0, const GUID* Guid=nullptr, const wchar_t *File=nullptr, const wchar_t *Data=nullptr, bool SaveForbid=false);

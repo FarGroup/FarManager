@@ -60,9 +60,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "window.hpp"
 
-static int LastDizWrapMode = -1;
-static int LastDizWrapType = -1;
-static int LastDizShowScrollbar = -1;
+static bool LastMode = false;
+static bool LastDizWrapMode = false;
+static bool LastDizWrapType = false;
+static bool LastDizShowScrollbar = false;
 
 InfoList::InfoList():
 	DizView(nullptr),
@@ -81,8 +82,9 @@ InfoList::InfoList():
 			SectionState[i].Show=Opt.InfoPanel.strShowStatusInfo.At(i) == '0'?false:true;
 	}
 
-	if (LastDizWrapMode < 0)
+	if (!LastMode)
 	{
+		LastMode = true;
 		LastDizWrapMode = Opt.ViOpt.ViewerIsWrap;
 		LastDizWrapType = Opt.ViOpt.ViewerWrap;
 		LastDizShowScrollbar = Opt.ViOpt.ShowScrollbar;
@@ -163,7 +165,7 @@ void InfoList::DisplayObject()
 		string strComputerName, strUserName;
 		DWORD dwSize = 256; //MAX_COMPUTERNAME_LENGTH+1;
 		wchar_t *ComputerName = strComputerName.GetBuffer(dwSize);
-		if (Opt.InfoPanel.ComputerNameFormat == ComputerNamePhysicalNetBIOS || !GetComputerNameEx(Opt.InfoPanel.ComputerNameFormat, ComputerName, &dwSize))
+		if (Opt.InfoPanel.ComputerNameFormat == ComputerNamePhysicalNetBIOS || !GetComputerNameEx(static_cast<COMPUTER_NAME_FORMAT>(Opt.InfoPanel.ComputerNameFormat.Get()), ComputerName, &dwSize))
 		{
 			dwSize = MAX_COMPUTERNAME_LENGTH+1;
 			GetComputerName(ComputerName, &dwSize);  // retrieves only the NetBIOS name of the local computer
@@ -189,7 +191,7 @@ void InfoList::DisplayObject()
 
 		dwSize = UNLEN+1;
 		wchar_t *UserName = strUserName.GetBuffer(dwSize);
-		if (Opt.InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(Opt.InfoPanel.UserNameFormat, UserName, &dwSize))
+		if (Opt.InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(static_cast<EXTENDED_NAME_FORMAT>(Opt.InfoPanel.UserNameFormat.Get()), UserName, &dwSize))
 		{
 			dwSize = UNLEN+1;
 			GetUserName(UserName, &dwSize);
@@ -327,8 +329,8 @@ void InfoList::DisplayObject()
 			}
 
 			strDiskNumber <<
-				fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(16) << HIWORD(VolumeNumber) << L'-' <<
-				fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(VolumeNumber);
+				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << HIWORD(VolumeNumber) << L'-' <<
+				fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << LOWORD(VolumeNumber);
 		}
 		else // Error!
 			strTitle = strDriveRoot;
@@ -488,7 +490,7 @@ void InfoList::DisplayObject()
 				DWORD s = PowerStatus.BatteryLifeTime%60;
 				DWORD m = (PowerStatus.BatteryLifeTime/60)%60;
 				DWORD h = PowerStatus.BatteryLifeTime/3600;
-				PrintInfo(FormatString()<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s);
+				PrintInfo(FormatString()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<s);
 			}
 			else
 				PrintInfo(MSG(MInfoPowerStatusBCTMUnknown));
@@ -500,7 +502,7 @@ void InfoList::DisplayObject()
 				DWORD s = PowerStatus.BatteryLifeTime%60;
 				DWORD m = (PowerStatus.BatteryLifeTime/60)%60;
 				DWORD h = PowerStatus.BatteryLifeTime/3600;
-				PrintInfo(FormatString()<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s);
+				PrintInfo(FormatString()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<s);
 			}
 			else
 				PrintInfo(MSG(MInfoPowerStatusBCFTMUnknown));
@@ -860,7 +862,7 @@ void InfoList::PrintText(const wchar_t *Str)
 {
 	if (WhereY()<=Y2-1)
 	{
-		FS<<fmt::Precision(X2-WhereX())<<Str;
+		FS<<fmt::MaxWidth(X2-WhereX())<<Str;
 	}
 }
 
@@ -956,7 +958,7 @@ bool InfoList::ShowPluginDescription(int YPos)
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
 		SetColor(COL_PANELTEXT);
-		FS<<fmt::Width(X2-X1-1)<<L"";
+		FS<<fmt::MinWidth(X2-X1-1)<<L"";
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
 		GotoXY(X1+2,Y);

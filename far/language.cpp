@@ -166,7 +166,7 @@ int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, strin
 bool Select(int HelpLanguage,VMenu **MenuPtr)
 {
 	const wchar_t *Title,*Mask;
-	string *strDest;
+	StringOption *strDest;
 
 	if (HelpLanguage)
 	{
@@ -358,7 +358,7 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 	GuardLastError gle;
 	LastError = LERROR_SUCCESS;
 	UINT nCodePage = CP_OEMCP;
-	string strLangName=Opt.strLanguage;
+	string strLangName=Opt.strLanguage.Get();
 	FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nCodePage,FALSE, &strLangName);
 
 	if (!LangFile)

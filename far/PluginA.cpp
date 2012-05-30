@@ -4866,7 +4866,7 @@ int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 
 		wchar_t *codePageName = FormatCodePageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
 		FormatString sTableName;
-		sTableName<<fmt::Width(5)<<nCP<<BoxSymbols[BS_V1]<<L" "<<codePageName;
+		sTableName<<fmt::MinWidth(5)<<nCP<<BoxSymbols[BS_V1]<<L" "<<codePageName;
 		sTableName.GetCharString(TableSet->TableName, sizeof(TableSet->TableName) - 1, CP_OEMCP);
 		wchar_t *us=AnsiToUnicodeBin((char*)TableSet->DecodeTable, sizeof(TableSet->DecodeTable), nCP);
 		CharLowerBuff(us, sizeof(TableSet->DecodeTable));
@@ -5076,8 +5076,7 @@ bool PluginA::SetStartupInfo()
 		oldfar::FarStandardFunctions _fsf;
 		CreatePluginStartupInfoA(this, &_info, &_fsf);
 		// скорректирем адреса и плагино-зависимые пол€
-		strRootKey = Opt.strRegRoot;
-		strRootKey += L"\\Plugins";
+		strRootKey = Opt.strRegRoot + L"\\Plugins";
 		RootKey = UnicodeToAnsi(strRootKey);
 		_info.RootKey = RootKey;
 		ExecuteStruct es;

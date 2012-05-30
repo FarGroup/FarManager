@@ -207,8 +207,8 @@ user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
 the "dir" command in the provided example), Far will wait for the end of data
 in the input stream until you press Ctrl-Break.
 
-  #/w#
-  Stretch to console window instead of console buffer.
+  #/w[-]#
+  Stretch to console window instead of console buffer or vise versa.
 
   #/x#
   Disable exception handling. This option has been designed for plugin developers,

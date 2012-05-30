@@ -762,7 +762,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 					p3=st.wDay;
 					break;
 			}
-			strDateText = FormatString()<<fmt::FillChar(f1)<<fmt::Width(w1)<<p1<<DateSeparator<<fmt::FillChar(f2)<<fmt::Width(w2)<<p2<<DateSeparator<<fmt::FillChar(f3)<<fmt::Width(w3)<<p3;
+			strDateText = FormatString()<<fmt::FillChar(f1)<<fmt::MinWidth(w1)<<p1<<DateSeparator<<fmt::FillChar(f2)<<fmt::MinWidth(w2)<<p2<<DateSeparator<<fmt::FillChar(f3)<<fmt::MinWidth(w3)<<p3;
 		}
 	}
 
@@ -786,5 +786,5 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
 	UINT64 d = time.QuadPart/=24;
 
 	strDaysText = FormatString()<<d;
-	strTimeText = FormatString()<<fmt::Width(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::Width(2)<<fmt::FillChar(L'0')<<s<<GetDecimalSeparator()<<fmt::Width(3)<<fmt::FillChar(L'0')<<ms;
+	strTimeText = FormatString()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<s<<GetDecimalSeparator()<<fmt::MinWidth(3)<<fmt::FillChar(L'0')<<ms;
 }

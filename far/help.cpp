@@ -1047,7 +1047,7 @@ void Help::OutString(const wchar_t *Str)
 	if (!Locked() && WhereX()<X2)
 	{
 		SetColor(CurColor);
-		FS<<fmt::Width(X2-WhereX())<<L"";
+		FS<<fmt::MinWidth(X2-WhereX())<<L"";
 	}
 }
 
@@ -1206,7 +1206,7 @@ int Help::ProcessKey(int Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			int n = (Key == KEY_MSWHEEL_UP ? Opt.MsWheelDeltaHelp : 1);
+			int n = (Key == KEY_MSWHEEL_UP ? (int)Opt.MsWheelDeltaHelp : 1);
 			while (n-- > 0)
 				ProcessKey(KEY_UP);
 
@@ -1216,7 +1216,7 @@ int Help::ProcessKey(int Key)
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			int n = (Key == KEY_MSWHEEL_DOWN ? Opt.MsWheelDeltaHelp : 1);
+			int n = (Key == KEY_MSWHEEL_DOWN ? (int)Opt.MsWheelDeltaHelp : 1);
 			while (n-- > 0)
 				ProcessKey(KEY_DOWN);
 

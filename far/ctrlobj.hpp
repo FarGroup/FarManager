@@ -55,7 +55,7 @@ class ControlObject
 		~ControlObject();
 
 	public:
-		void Init();
+		void Init(int DirCount);
 
 	public:
 		FilePanels *Cp();

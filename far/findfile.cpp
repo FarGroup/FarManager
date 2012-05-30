@@ -341,7 +341,8 @@ struct Vars
 };
 
 string strFindMask, strFindStr;
-int SearchMode,CmpCase,WholeWords,SearchInArchives,SearchHex;
+bool CmpCase,WholeWords,SearchInArchives,SearchHex;
+int SearchMode;
 
 string strLastDirName;
 string strPluginSearchPath;
@@ -826,7 +827,7 @@ void AdvancedDialog()
 			if (Opt.FindOpt.strSearchOutFormatWidth.IsEmpty())
 				Opt.FindOpt.strSearchOutFormatWidth=L"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
 
-			TextToViewSettings(Opt.FindOpt.strSearchOutFormat.CPtr(),Opt.FindOpt.strSearchOutFormatWidth.CPtr(),
+			TextToViewSettings(Opt.FindOpt.strSearchOutFormat,Opt.FindOpt.strSearchOutFormatWidth,
                                   Opt.FindOpt.OutColumnTypes,Opt.FindOpt.OutColumnWidths,Opt.FindOpt.OutColumnWidthType,
                                   Opt.FindOpt.OutColumnCount);
         }
@@ -1002,7 +1003,7 @@ INT_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 							{
 								// Преобразуем номер таблицы сиволов к строке
 								string strCodePageName;
-								strCodePageName.Format(L"%u", SelectedCodePage);
+								strCodePageName = FormatString() << SelectedCodePage;
 								// Получаем текущее состояние флага в реестре
 								int SelectType = 0;
 								GeneralCfg->GetValue(FavoriteCodePagesKey, strCodePageName, &SelectType, 0);
@@ -1080,7 +1081,7 @@ INT_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 						// Строка "Содержащих текст"
 						if (!v->FindFoldersChanged)
 						{
-							BOOL Checked = (Item.Data && *Item.Data)?FALSE:Opt.FindOpt.FindFolders;
+							BOOL Checked = (Item.Data && *Item.Data)?FALSE:(int)Opt.FindOpt.FindFolders;
 							SendDlgMessage(hDlg, DM_SETCHECK, FAD_CHECKBOX_DIRS, ToPtr(Checked?BSTATE_CHECKED:BSTATE_UNCHECKED));
 						}
 
@@ -3238,7 +3239,7 @@ FindFiles::FindFiles()
 	static string strLastFindMask=L"*.*", strLastFindStr;
 	// Статической структуре и статические переменные
 	static string strSearchFromRoot;
-	static int LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchHex=0;
+	static bool LastCmpCase=0,LastWholeWords=0,LastSearchInArchives=0,LastSearchHex=0;
 	// Создадим объект фильтра
 	Filter=new FileFilter(CtrlObject->Cp()->ActivePanel,FFT_FINDFILE);
 	CmpCase=LastCmpCase;
@@ -3365,10 +3366,10 @@ FindFiles::FindFiles()
 		}
 
 		Opt.FindCodePage = CodePage;
-		CmpCase=FindAskDlg[FAD_CHECKBOX_CASE].Selected;
-		WholeWords=FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected;
-		SearchHex=FindAskDlg[FAD_CHECKBOX_HEX].Selected;
-		SearchInArchives=FindAskDlg[FAD_CHECKBOX_ARC].Selected;
+		CmpCase=FindAskDlg[FAD_CHECKBOX_CASE].Selected == BSTATE_CHECKED;
+		WholeWords=FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected == BSTATE_CHECKED;
+		SearchHex=FindAskDlg[FAD_CHECKBOX_HEX].Selected == BSTATE_CHECKED;
+		SearchInArchives=FindAskDlg[FAD_CHECKBOX_ARC].Selected == BSTATE_CHECKED;
 
 		if (v.FindFoldersChanged)
 		{

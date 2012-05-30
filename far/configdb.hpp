@@ -61,11 +61,12 @@ class GeneralConfig: public XmlConfig, public Transactional {
 
 public:
 
-	enum {
+	enum OptionType
+	{
+		TYPE_BOOLEAN,
 		TYPE_INTEGER,
-		TYPE_TEXT,
-		TYPE_BLOB,
-		TYPE_UNKNOWN
+		TYPE_STRING,
+		TYPE_LAST = TYPE_STRING,
 	};
 
 	virtual ~GeneralConfig() {}
@@ -88,7 +89,7 @@ public:
 
 	enum {
 		TYPE_INTEGER,
-		TYPE_TEXT,
+		TYPE_STRING,
 		TYPE_BLOB,
 		TYPE_UNKNOWN
 	};

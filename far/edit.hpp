@@ -124,7 +124,7 @@ class Edit:public ScreenObject
 
 		int    CursorSize;
 		int    CursorPos;
-		const string* strWordDiv;
+		const class StringOption* strWordDiv;
 
 		UINT m_codepage; //BUGBUG
 
@@ -150,7 +150,7 @@ class Edit:public ScreenObject
 
 		int RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos);
 
-		inline const wchar_t* WordDiv(void) {return strWordDiv->CPtr();};
+		const wchar_t* WordDiv();
 		void FixLeftPos(int TabCurPos=-1);
 	public:
 		Edit(ScreenObject *pOwner = nullptr, bool bAllocateData = true);
@@ -256,7 +256,7 @@ class Edit:public ScreenObject
 		void GetCursorType(bool& Visible, DWORD& Size);
 		int  GetReadOnly() {return Flags.Check(FEDITLINE_READONLY);}
 		void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
-		void SetWordDiv(const string& WordDiv) {strWordDiv=&WordDiv;}
+		void SetWordDiv(const StringOption& WordDiv) {strWordDiv=&WordDiv;}
 		virtual void Changed(bool DelBlock=false){};
 };
 

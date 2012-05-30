@@ -109,8 +109,9 @@ wchar_t* Xlat(wchar_t *Line,
 		      снова конвертим и...
 		*/
 		// BUGBUG!!! Затирается 3-е правило.
-		GeneralCfg->GetValue(L"XLat",strLayoutName,Opt.XLat.Rules[2],L"");
-
+		string XlatRules;
+		GeneralCfg->GetValue(L"XLat", strLayoutName, XlatRules, L"");
+		Opt.XLat.Rules[2] = XlatRules;
 		if (!Opt.XLat.Rules[2].IsEmpty())
 			ProcessLayoutName=TRUE;
 	}

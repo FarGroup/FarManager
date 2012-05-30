@@ -220,7 +220,7 @@ static void GetTimeText(DWORD Time,string &strTimeText)
 	Sec-=(Min*60);
 	DWORD Hour=Min/60;
 	Min-=(Hour*60);
-	strTimeText.Format(L"%02u:%02u:%02u",Hour,Min,Sec);
+	strTimeText = FormatString() << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Hour << ":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Min << ":" << fmt::ExactWidth(2) << fmt::FillChar(L'0') << Sec;
 }
 
 bool CopyProgress::Timer()
@@ -280,7 +280,7 @@ void CopyProgress::SetScanName(const wchar_t *Name)
 	}
 
 	GotoXY(Rect.Left+5,Rect.Top+3);
-	FS<<fmt::LeftAlign()<<fmt::Width(Rect.Right-Rect.Left-9)<<fmt::Precision(Rect.Right-Rect.Left-9)<<Name;
+	FS<<fmt::LeftAlign()<<fmt::ExactWidth(Rect.Right-Rect.Left-9)<<Name;
 	Flush();
 }
 
@@ -368,11 +368,11 @@ void CopyProgress::SetNames(const wchar_t *Src,const wchar_t *Dst)
 	string tmp(Src);
 	TruncPathStr(tmp, NameWidth);
 	strSrc.Clear();
-	strSrc<<fmt::LeftAlign()<<fmt::Width(NameWidth)<<fmt::Precision(NameWidth)<<tmp;
+	strSrc<<fmt::LeftAlign()<<fmt::ExactWidth(NameWidth)<<tmp;
 	tmp = Dst;
 	TruncPathStr(tmp, NameWidth);
 	strDst.Clear();
-	strDst<<fmt::LeftAlign()<<fmt::Width(NameWidth)<<fmt::Precision(NameWidth)<<tmp;
+	strDst<<fmt::LeftAlign()<<fmt::ExactWidth(NameWidth)<<tmp;
 
 	if (Total)
 	{
@@ -427,7 +427,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 	Percents=ToPercent64(CompletedSize,TotalSize);
 	FormatString strPercents;
 	Text(BarCoord.X,BarCoord.Y,Color,Bar);
-	Text(static_cast<int>(BarCoord.X+BarLength),BarCoord.Y,Color,FormatString()<<fmt::Width(4)<<Percents<<L"%");
+	Text(static_cast<int>(BarCoord.X+BarLength),BarCoord.Y,Color,FormatString()<<fmt::MinWidth(4)<<Percents<<L"%");
 
 	if (Time&&(!Total||TotalProgress))
 	{
@@ -468,9 +468,9 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 			}
 			;
 			string tmp[3];
-			tmp[0].Format(L"%8.8s", strWorkTimeStr.CPtr());
-			tmp[1].Format(L"%8.8s", strTimeLeftStr.CPtr());
-			tmp[2].Format(L"%8.8s", strSpeed.CPtr());
+			tmp[0] = FormatString() << fmt::ExactWidth(8) << strWorkTimeStr;
+			tmp[1] = FormatString() << fmt::ExactWidth(8) << strTimeLeftStr;
+			tmp[2] = FormatString() << fmt::ExactWidth(8) << strSpeed;
 			strTime = LangString(MCopyTimeInfo) << tmp[0] << tmp[1] << tmp[2];
 		}
 
@@ -1274,7 +1274,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				strCopyDlgValue = CopyDlg[ID_SC_TARGETEDIT].strData;
 				if(!Move)
 				{
-					Opt.CMOpt.MultiCopy=CopyDlg[ID_SC_MULTITARGET].Selected;
+					Opt.CMOpt.MultiCopy=CopyDlg[ID_SC_MULTITARGET].Selected == BSTATE_CHECKED;
 				}
 
 				if (!CopyDlg[ID_SC_MULTITARGET].Selected || !wcspbrk(strCopyDlgValue,L",;")) // отключено multi*
@@ -3645,9 +3645,9 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 				strDestSizeText<<DestSize;
 				string strDateText, strTimeText;
 				ConvertDate(SrcLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-				strSrcFileStr<<fmt::LeftAlign()<<fmt::Width(17)<<MSG(MCopySource)<<L" "<<fmt::Width(25)<<fmt::Precision(25)<<strSrcSizeText<<L" "<<strDateText<<L" "<<strTimeText;
+				strSrcFileStr<<fmt::LeftAlign()<<fmt::MinWidth(17)<<MSG(MCopySource)<<L" "<<fmt::ExactWidth(25)<<strSrcSizeText<<L" "<<strDateText<<L" "<<strTimeText;
 				ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-				strDestFileStr<<fmt::LeftAlign()<<fmt::Width(17)<<MSG(MCopyDest)<<L" "<<fmt::Width(25)<<fmt::Precision(25)<<strDestSizeText<<L" "<<strDateText<<L" "<<strTimeText;
+				strDestFileStr<<fmt::LeftAlign()<<fmt::MinWidth(17)<<MSG(MCopyDest)<<L" "<<fmt::ExactWidth(25)<<strDestSizeText<<L" "<<strDateText<<L" "<<strTimeText;
 
 				WarnCopyDlgData[WDLG_SRCFILEBTN].Data=strSrcFileStr;
 				WarnCopyDlgData[WDLG_DSTFILEBTN].Data=strDestFileStr;
@@ -3745,9 +3745,9 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 					FormatString strDestSizeText;
 					strDestSizeText<<DestSize;
 					ConvertDate(SrcData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-					strSrcFileStr<<fmt::LeftAlign()<<fmt::Width(17)<<MSG(MCopySource)<<L" "<<fmt::Width(25)<<fmt::Precision(25)<<strSrcSizeText<<L" "<<strDateText<<L" "<<strTimeText;
+					strSrcFileStr<<fmt::LeftAlign()<<fmt::MinWidth(17)<<MSG(MCopySource)<<L" "<<fmt::ExactWidth(25)<<strSrcSizeText<<L" "<<strDateText<<L" "<<strTimeText;
 					ConvertDate(DestData.ftLastWriteTime,strDateText,strTimeText,8,FALSE,FALSE,TRUE,TRUE);
-					strDestFileStr<<fmt::LeftAlign()<<fmt::Width(17)<<MSG(MCopyDest)<<L" "<<fmt::Width(25)<<fmt::Precision(25)<<strDestSizeText<<L" "<<strDateText<<L" "<<strTimeText;
+					strDestFileStr<<fmt::LeftAlign()<<fmt::MinWidth(17)<<MSG(MCopyDest)<<L" "<<fmt::ExactWidth(25)<<strDestSizeText<<L" "<<strDateText<<L" "<<strTimeText;
 					WarnCopyDlgData[WDLG_SRCFILEBTN].Data=strSrcFileStr;
 					WarnCopyDlgData[WDLG_DSTFILEBTN].Data=strDestFileStr;
 					WarnCopyDlgData[WDLG_TEXT].Data=MSG(MCopyFileRO);
@@ -3859,7 +3859,7 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
 {
 	static clock_t PrepareSecuryStartTime;
 
-	if (!Name || !*Name || (static_cast<DWORD>(clock() - PrepareSecuryStartTime) > Opt.ShowTimeoutDACLFiles))
+	if (!Name || !*Name || (static_cast<clock_t>(clock() - PrepareSecuryStartTime) > static_cast<clock_t>(Opt.ShowTimeoutDACLFiles)))
 	{
 		static int Width=30;
 		int WidthTemp;

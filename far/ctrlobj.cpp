@@ -65,15 +65,15 @@ ControlObject::ControlObject():
 	FrameManager = new Manager;
 	Plugins = new PluginManager;
 
-	CmdHistory=new History(HISTORYTYPE_CMD,nullptr, &Opt.SaveHistory, false);
-	FolderHistory=new History(HISTORYTYPE_FOLDER, nullptr, &Opt.SaveFoldersHistory, true);
-	ViewHistory=new History(HISTORYTYPE_VIEW, nullptr, &Opt.SaveViewHistory, true);
+	CmdHistory=new History(HISTORYTYPE_CMD,nullptr, Opt.SaveHistory, false);
+	FolderHistory=new History(HISTORYTYPE_FOLDER, nullptr, Opt.SaveFoldersHistory, true);
+	ViewHistory=new History(HISTORYTYPE_VIEW, nullptr, Opt.SaveViewHistory, true);
 	FolderHistory->SetAddMode(true,2,true);
 	ViewHistory->SetAddMode(true,Opt.FlagPosixSemantics?1:2,true);
 }
 
 
-void ControlObject::Init()
+void ControlObject::Init(int DirCount)
 {
 	TreeList::ClearCache(0);
 	FileFilter::InitFilter();
@@ -87,7 +87,7 @@ void ControlObject::Init()
 	CmdLine->SaveBackground(0,0,ScrX,ScrY);
 	this->MainKeyBar=&(FPanels->MainKeyBar);
 	this->TopMenuBar=&(FPanels->TopMenuBar);
-	FPanels->Init();
+	FPanels->Init(DirCount);
 	FPanels->SetScreenPosition();
 
 	if (Opt.ShowMenuBar)

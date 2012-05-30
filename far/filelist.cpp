@@ -2010,7 +2010,7 @@ int FileList::ProcessKey(int Key)
 					PluginDelete();
 				else
 				{
-					int SaveOpt=Opt.DeleteToRecycleBin;
+					bool SaveOpt=Opt.DeleteToRecycleBin;
 
 					if (Key==KEY_SHIFTDEL || Key==KEY_SHIFTNUMDEL || Key==KEY_SHIFTDECIMAL)
 						Opt.DeleteToRecycleBin=0;
@@ -2029,18 +2029,18 @@ int FileList::ProcessKey(int Key)
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
-			Scroll(Key & (KEY_ALT|KEY_RALT)?-1:-Opt.MsWheelDelta);
+			Scroll(Key & (KEY_ALT|KEY_RALT)?-1:(int)-Opt.MsWheelDelta);
 			return TRUE;
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
-			Scroll(Key & (KEY_ALT|KEY_RALT)?1:Opt.MsWheelDelta);
+			Scroll(Key & (KEY_ALT|KEY_RALT)?1:(int)Opt.MsWheelDelta);
 			return TRUE;
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = Key & (KEY_ALT|KEY_RALT)?1:Opt.MsHWheelDelta;
+			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Opt.MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_LEFT);
@@ -2051,7 +2051,7 @@ int FileList::ProcessKey(int Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = Key & (KEY_ALT|KEY_RALT)?1:Opt.MsHWheelDelta;
+			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Opt.MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_RIGHT);

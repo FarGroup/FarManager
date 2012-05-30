@@ -69,49 +69,49 @@ int DirectRT=0;
 static void show_help()
 {
 	WCHAR HelpMsg[]=
-	    L"Usage: far [switches] [apath [ppath]]\n\n"
-	    L"where\n"
-	    L"  apath - path to a folder (or a file or an archive or command with prefix)\n"
-	    L"          for the active panel\n"
-	    L"  ppath - path to a folder (or a file or an archive or command with prefix)\n"
-	    L"          for the passive panel\n\n"
-	    L"The following switches may be used in the command line:\n\n"
-	    L" /?   This help.\n"
-	    L" /a   Disable display of characters with codes 0 - 31 and 255.\n"
-	    L" /ag  Disable display of pseudographics characters.\n"
-	    L" /co  Forces FAR to load plugins from the cache only.\n"
+		L"Usage: far [switches] [apath [ppath]]\n\n"
+		L"where\n"
+		L"  apath - path to a folder (or a file or an archive or command with prefix)\n"
+		L"          for the active panel\n"
+		L"  ppath - path to a folder (or a file or an archive or command with prefix)\n"
+		L"          for the passive panel\n\n"
+		L"The following switches may be used in the command line:\n\n"
+		L" /?   This help.\n"
+		L" /a   Disable display of characters with codes 0 - 31 and 255.\n"
+		L" /ag  Disable display of pseudographics characters.\n"
+		L" /co  Forces FAR to load plugins from the cache only.\n"
 #ifdef DIRECT_RT
-	    L" /do  Direct output.\n"
+		L" /do  Direct output.\n"
 #endif
-	    L" /e[<line>[:<pos>]] <filename>\n"
-	    L"      Edit the specified file.\n"
-	    L" /i   Set icon for FAR console window.\n"
-	    L" /m   Do not load macros.\n"
-	    L" /ma  Do not execute auto run macros.\n"
-	    L" /p[<path>]\n"
-	    L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
-	    L" /s <path>\n"
-	    L"      Custom location for Far configuration files - overrides Far.exe.ini.\n"
+		L" /e[<line>[:<pos>]] <filename>\n"
+		L"      Edit the specified file.\n"
+		L" /i   Set icon for FAR console window.\n"
+		L" /m   Do not load macros.\n"
+		L" /ma  Do not execute auto run macros.\n"
+		L" /p[<path>]\n"
+		L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
+		L" /s <path>\n"
+		L"      Custom location for Far configuration files - overrides Far.exe.ini.\n"
 #ifndef NO_WRAPPER
-	    L" /u <username>\n"
-	    L"      Allows to have separate registry settings for different users.\n"
-	    L"      Affects only 1.x Far Manager plugins\n"
+		L" /u <username>\n"
+		L"      Allows to have separate registry settings for different users.\n"
+		L"      Affects only 1.x Far Manager plugins\n"
 #endif // NO_WRAPPER
-	    L" /v <filename>\n"
-	    L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
-	    L" /w   Stretch to console window instead of console buffer.\n"
-	    L" /x   Disable exception handling.\n"
-	    L" /clearcache [profilepath]\n"
-	    L"      Clear plugins cache.\n"
-	    L" /export <out.farconfig> [profilepath]\n"
-	    L"      Export settings.\n"
-	    L" /import <in.farconfig> [profilepath]\n"
-	    L"      Import settings.\n"
+		L" /v <filename>\n"
+		L"      View the specified file. If <filename> is -, data is read from the stdin.\n"
+		L" /w[-] Stretch to console window instead of console buffer or vise versa.\n"
+		L" /x   Disable exception handling.\n"
+		L" /clearcache [profilepath]\n"
+		L"      Clear plugins cache.\n"
+		L" /export <out.farconfig> [profilepath]\n"
+		L"      Export settings.\n"
+		L" /import <in.farconfig> [profilepath]\n"
+		L"      Import settings.\n"
 #ifdef _DEBUGEXC
-	    L" /xd  Enable exception handling.\n"
+		L" /xd  Enable exception handling.\n"
 #endif
-	    L" /ro  Read-Only config mode.\n"
-		 L" /rw  Normal config mode.\n"
+		L" /ro  Read-Only config mode.\n"
+		L" /rw  Normal config mode.\n"
 		;
 	Console.Write(HelpMsg, ARRAYSIZE(HelpMsg)-1);
 	Console.Commit();
@@ -134,7 +134,7 @@ static int MainProcess(
 		SetRealColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 		GetSystemInfo(&SystemInfo);
 
-      string ename(lpwszEditName),vname(lpwszViewName), apanel(lpwszDestName1),ppanel(lpwszDestName2);
+		string ename(lpwszEditName),vname(lpwszViewName), apanel(lpwszDestName1),ppanel(lpwszDestName2);
 		if (ShowProblemDb() > 0)
 		{
 			ename = vname = "";
@@ -184,14 +184,14 @@ static int MainProcess(
 		else
 		{
 			Opt.OnlyEditorViewerUsed=0;
-			Opt.SetupArgv=0;
+			int DirCount=0;
 			string strPath;
 
 			// воспользуемся тем, что ControlObject::Init() создает панели
 			// юзая Opt.*
 			if (*apanel)  // актиная панель
 			{
-				Opt.SetupArgv++;
+				++DirCount;
 				strPath = apanel;
 				CutToNameUNC(strPath);
 				DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
@@ -219,7 +219,7 @@ static int MainProcess(
 
 				if (*ppanel)  // пассивная панель
 				{
-					Opt.SetupArgv++;
+					++DirCount;
 					strPath = ppanel;
 					CutToNameUNC(strPath);
 					DeleteEndSlash(strPath); //BUGBUG!! если конечный слешь не убрать - получаем забавный эффект - отсутствует ".."
@@ -248,7 +248,7 @@ static int MainProcess(
 			}
 
 			// теперь все готово - создаем панели!
-			CtrlObj.Init();
+			CtrlObj.Init(DirCount);
 
 			// а теперь "провалимся" в каталог или хост-файл (если получится ;-)
 			if (*apanel)  // актиная панель
@@ -352,9 +352,10 @@ void InitProfile(string &strProfilePath)
 		if (UseSystemProfiles)
 		{
 			// roaming data default path: %APPDATA%\Far Manager\Profile
-			SHGetFolderPath(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Opt.ProfilePath.GetBuffer(MAX_PATH));
-			Opt.ProfilePath.ReleaseBuffer();
-			AddEndSlash(Opt.ProfilePath);
+			wchar_t Buffer[MAX_PATH];
+			SHGetFolderPath(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Buffer);
+			AddEndSlash(Buffer);
+			Opt.ProfilePath = Buffer;
 			Opt.ProfilePath += L"Far Manager";
 
 			if (UseSystemProfiles == 2)
@@ -364,27 +365,30 @@ void InitProfile(string &strProfilePath)
 			else
 			{
 				// local data default path: %LOCALAPPDATA%\Far Manager\Profile
-				SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Opt.LocalProfilePath.GetBuffer(MAX_PATH));
-				Opt.LocalProfilePath.ReleaseBuffer();
-				AddEndSlash(Opt.LocalProfilePath);
+				SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Buffer);
+				AddEndSlash(Buffer);
+				Opt.LocalProfilePath = Buffer;
 				Opt.LocalProfilePath += L"Far Manager";
 			}
 
-			string* Paths[]={&Opt.ProfilePath,&Opt.LocalProfilePath};
+			string Paths[]={Opt.ProfilePath, Opt.LocalProfilePath};
 			for (size_t i = 0; i< ARRAYSIZE(Paths); ++i)
 			{
-				AddEndSlash(*Paths[i]);
-				*Paths[i] += L"Profile";
-				CreatePath(*Paths[i], true);
+				AddEndSlash(Paths[i]);
+				Paths[i] += L"Profile";
+				CreatePath(Paths[i], true);
 			}
+			Opt.ProfilePath = Paths[0];
+			Opt.LocalProfilePath = Paths[1];
 		}
 		else
 		{
 			string strUserProfileDir;
 			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI));
-			apiExpandEnvironmentStrings(strUserProfileDir, Opt.ProfilePath);
-			Unquote(Opt.ProfilePath);
-			ConvertNameToFull(Opt.ProfilePath,Opt.ProfilePath);
+			apiExpandEnvironmentStrings(strUserProfileDir, strUserProfileDir);
+			Unquote(strUserProfileDir);
+			ConvertNameToFull(strUserProfileDir, strUserProfileDir);
+			Opt.ProfilePath = strUserProfileDir;
 			Opt.LocalProfilePath = Opt.ProfilePath;
 		}
 	}
@@ -394,11 +398,9 @@ void InitProfile(string &strProfilePath)
 		Opt.LocalProfilePath = strProfilePath;
 	}
 
-	string strPluginsData = Opt.ProfilePath;
-	strPluginsData += L"\\PluginsData";
-	CreatePath(strPluginsData, true);
+	CreatePath(Opt.ProfilePath + L"\\PluginsData", true);
 
-	Opt.LoadPlug.strPersonalPluginsPath = Opt.ProfilePath+L"\\Plugins";
+	Opt.LoadPlug.strPersonalPluginsPath = Opt.ProfilePath + L"\\Plugins";
 
 	SetEnvironmentVariable(L"FARPROFILE", Opt.ProfilePath);
 	SetEnvironmentVariable(L"FARLOCALPROFILE", Opt.LocalProfilePath);
@@ -512,10 +514,13 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 #endif
 	// если под дебагером, то отключаем исключения однозначно,
 	//  иначе - смотря что указал юзвер.
-#if defined(_DEBUGEXC)
-	Opt.ExceptRules=-1;
-#else
-	Opt.ExceptRules=IsDebuggerPresent()?0:-1;
+	Opt.ExceptRules = -1;
+	Opt.WindowMode = -1;
+#ifndef _DEBUGEXC
+	if(IsDebuggerPresent())
+	{
+		Opt.ExceptRules = 0;
+	}
 #endif
 #ifndef NO_WRAPPER
 	Opt.strRegRoot = L"Software\\Far Manager";
@@ -601,11 +606,11 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					Opt.SmallIcon=TRUE;
 					break;
 				case L'X':
-					Opt.ExceptRules=0;
+					Opt.ExceptRules = 0;
 #if defined(_DEBUGEXC)
 
 					if (Upper(Argv[I][2])==L'D' && !Argv[I][3])
-						Opt.ExceptRules=1;
+						Opt.CurrentExceptRules = 1;
 
 #endif
 					break;
@@ -646,7 +651,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					{
 						apiExpandEnvironmentStrings(&Argv[I][2], Opt.LoadPlug.strCustomPluginsPath);
 						Unquote(Opt.LoadPlug.strCustomPluginsPath);
-						ConvertNameToFull(Opt.LoadPlug.strCustomPluginsPath,Opt.LoadPlug.strCustomPluginsPath);
+						ConvertNameToFull(Opt.LoadPlug.strCustomPluginsPath, Opt.LoadPlug.strCustomPluginsPath);
 					}
 					else
 					{
@@ -681,7 +686,14 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 #endif
 				case L'W':
 					{
-						Opt.WindowMode=TRUE;
+						if(Argv[I][2] == L'-')
+						{
+							Opt.WindowMode= false;
+						}
+						else if(!Argv[I][2])
+						{
+							Opt.WindowMode= true;
+						}
 					}
 					break;
 				case L'R':
@@ -730,22 +742,16 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	WaitForInputIdle(GetCurrentProcess(),0);
 
 	if (!Opt.LoadPlug.MainPluginDir) //если есть ключ /p то он отменяет /co
-		Opt.LoadPlug.PluginsCacheOnly=FALSE;
+		Opt.LoadPlug.PluginsCacheOnly=false;
 
 	if (Opt.LoadPlug.PluginsCacheOnly)
 	{
 		Opt.LoadPlug.strCustomPluginsPath.Clear();
-		Opt.LoadPlug.MainPluginDir=FALSE;
-		Opt.LoadPlug.PluginsPersonal=FALSE;
+		Opt.LoadPlug.MainPluginDir=false;
+		Opt.LoadPlug.PluginsPersonal=false;
 	}
 
 	InitConsole();
-
-	{
-		string strDefaultLanguage;
-		strDefaultLanguage.ReleaseBuffer(GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", strDefaultLanguage.GetBuffer(100), 100, g_strFarINI));
-		GeneralCfg->GetValue(L"Language",L"Main",Opt.strLanguage,strDefaultLanguage);
-	}
 
 	if (!Lang.Init(g_strFarPath, MNewFileName))
 	{
@@ -773,11 +779,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
 
 	initMacroVarTable(1);
-
-	if (Opt.ExceptRules == -1)
-	{
-		GeneralCfg->GetValue(L"System",L"ExceptRules",&Opt.ExceptRules,1);
-	}
 
 	ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Opt.ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(GeneralCfg->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
 	SetErrorMode(ErrorMode);

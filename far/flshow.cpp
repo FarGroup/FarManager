@@ -210,7 +210,7 @@ void FileList::ShowFileList(int Fast)
 			CenterStr(strTitle,strTitleMsg,ViewSettings.ColumnWidth[I]);
 			SetColor(COL_PANELCOLUMNTITLE);
 			GotoXY(ColumnPos,Y1+1);
-			FS<<fmt::Precision(ViewSettings.ColumnWidth[I])<<strTitleMsg;
+			FS<<fmt::MaxWidth(ViewSettings.ColumnWidth[I])<<strTitleMsg;
 		}
 
 		if (I>=ViewSettings.ColumnCount-1)
@@ -564,9 +564,9 @@ void FileList::ShowTotalSize(OpenPanelInfo &Info)
 		Text(strTotalStr);
 	else
 	{
-		FS<<fmt::Precision(BoxPos)<<strTotalStr;
+		FS<<fmt::MaxWidth(BoxPos)<<strTotalStr;
 		SetColor(COL_PANELBOX);
-		FS<<fmt::Precision(BoxLength)<<strTotalStr.CPtr()+BoxPos;
+		FS<<fmt::MaxWidth(BoxLength)<<strTotalStr.CPtr()+BoxPos;
 		SetColor(COL_PANELTOTALINFO);
 		Text(strTotalStr.CPtr()+BoxPos+BoxLength);
 	}
@@ -997,7 +997,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						}
 					}
 
-					FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ColumnData+CurLeftPos;
+					FS<<fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<ColumnData+CurLeftPos;
 				}
 				else
 				{
@@ -1164,9 +1164,9 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 							unsigned __int64 ViewFlags=ColumnTypes[K];
 							if (ViewFlags&COLUMN_RIGHTALIGN)
-								FS<<fmt::RightAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ExtPtr;
+								FS<<fmt::RightAlign()<<fmt::ExactWidth(ColumnWidth)<<ExtPtr;
 							else
-								FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ExtPtr;
+								FS<<fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<ExtPtr;
 
 							if (!ShowStatus && StrLength(ExtPtr) > ColumnWidth)
 							{
@@ -1263,7 +1263,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 							if (strDizText.Pos(pos,L'\4'))
 								strDizText.SetLength(pos);
 
-							FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<strDizText;
+							FS<<fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<strDizText;
 							break;
 						}
 
@@ -1295,19 +1295,19 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								}
 							}
 
-							FS<<fmt::LeftAlign()<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<Owner+CurLeftPos;
+							FS<<fmt::LeftAlign()<<fmt::ExactWidth(ColumnWidth)<<Owner+CurLeftPos;
 							break;
 						}
 
 						case NUMLINK_COLUMN:
 						{
-							FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ListData[ListPos]->NumberOfLinks;
+							FS<<fmt::ExactWidth(ColumnWidth)<<ListData[ListPos]->NumberOfLinks;
 							break;
 						}
 
 						case NUMSTREAMS_COLUMN:
 						{
-							FS<<fmt::Width(ColumnWidth)<<fmt::Precision(ColumnWidth)<<ListData[ListPos]->NumberOfStreams;
+							FS<<fmt::ExactWidth(ColumnWidth)<<ListData[ListPos]->NumberOfStreams;
 							break;
 						}
 
@@ -1316,7 +1316,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 			}
 			else
 			{
-				FS<<fmt::Width(ColumnWidth)<<L"";
+				FS<<fmt::MinWidth(ColumnWidth)<<L"";
 			}
 
 			if (ShowDivider==FALSE)
@@ -1357,7 +1357,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 		if ((!ShowStatus || StatusLine) && WhereX()<X2)
 		{
 			SetColor(COL_PANELTEXT);
-			FS<<fmt::Width(X2-WhereX())<<L"";
+			FS<<fmt::MinWidth(X2-WhereX())<<L"";
 		}
 	}
 

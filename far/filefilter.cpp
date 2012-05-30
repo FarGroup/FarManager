@@ -822,7 +822,7 @@ void FileFilter::InitFilter()
 
 	while (1)
 	{
-		strKeyName.Format(L"Filter%d",FilterData.getCount());
+		strKeyName = FormatString() << "Filter" << FilterData.getCount();
 
 		unsigned __int64 key = cfg->GetKeyID(root, strKeyName);
 
@@ -891,7 +891,7 @@ void FileFilter::InitFilter()
 
 	while (1)
 	{
-		strKeyName.Format(L"PanelMask%d",TempFilterData.getCount());
+		strKeyName = FormatString() << L"PanelMask" << TempFilterData.getCount();
 
 		unsigned __int64 key = cfg->GetKeyID(root, strKeyName);
 
@@ -950,7 +950,7 @@ void FileFilter::SaveFilters()
 
 	for (size_t i=0; i<FilterData.getCount(); i++)
 	{
-		strKeyName.Format(L"Filter%d",i);
+		strKeyName = FormatString() << L"Filter" << i;
 		unsigned __int64 key = cfg->CreateKey(root, strKeyName);
 		if (!key)
 			break;
@@ -990,7 +990,7 @@ void FileFilter::SaveFilters()
 
 	for (size_t i=0; i<TempFilterData.getCount(); i++)
 	{
-		strKeyName.Format(L"PanelMask%d",i);
+		strKeyName = FormatString() << L"PanelMask" << i;
 		unsigned __int64 key = cfg->CreateKey(root, strKeyName);
 		if (!key)
 			break;
@@ -1052,9 +1052,9 @@ int FileFilter::ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD 
 	if (!DotPtr)
 		strMask = L"*.";
 	else if (wcspbrk(DotPtr,L",;"))
-		strMask.Format(L"\"*%s\"",DotPtr);
+		strMask = FormatString() << L"\"*" << DotPtr << '"';
 	else
-		strMask.Format(L"*%s",DotPtr);
+		strMask = FormatString() << L'*' << DotPtr;
 
 	// сначала поиск...
 	unsigned int Cnt=ExtCount;

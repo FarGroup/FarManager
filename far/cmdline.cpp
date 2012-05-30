@@ -527,7 +527,7 @@ void CommandLine::GetPrompt(string &strDestStr)
 	if (Opt.CmdLine.UsePromptFormat)
 	{
 		string strFormatStr, strExpandedFormatStr;
-		strFormatStr = Opt.CmdLine.strPromptFormat;
+		strFormatStr = Opt.CmdLine.strPromptFormat.Get();
 		apiExpandEnvironmentStrings(strFormatStr, strExpandedFormatStr);
 		const wchar_t *Format=strExpandedFormatStr;
 		wchar_t ChrFmt[][2]=

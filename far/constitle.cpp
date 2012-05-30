@@ -58,7 +58,7 @@ static const string& GetFarTitleAddons()
 	static string strTitleAddons;
 
 	strTitleAddons.Copy(L" - Far ",7);
-	strTitleAddons += Opt.strTitleAddons;
+	strTitleAddons += Opt.strTitleAddons.Get();
 
 	if (bFirstRun)
 	{

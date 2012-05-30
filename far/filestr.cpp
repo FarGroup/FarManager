@@ -995,7 +995,7 @@ bool GetFileFormat(File& file, UINT& nCodePage, bool* pSignatureFound, bool bUse
 				int cp = ns->getCodePage();
 				if ( cp >= 0 )
 				{
-					const wchar_t *deprecated = Opt.strNoAutoDetectCP.CPtr();
+					const wchar_t *deprecated = Opt.strNoAutoDetectCP;
 
 					if ( 0 == wcscmp(deprecated, L"-1") )
 					{
@@ -1004,9 +1004,7 @@ bool GetFileFormat(File& file, UINT& nCodePage, bool* pSignatureFound, bool bUse
 							if ( static_cast<UINT>(cp) != GetACP() && static_cast<UINT>(cp) != GetOEMCP() )
 							{
 								int selectType = 0;
-								wchar_t szcp[16];
-								_snwprintf(szcp, ARRAYSIZE(szcp), L"%d", cp);
-								GeneralCfg->GetValue(FavoriteCodePagesKey, szcp, &selectType, 0);
+								GeneralCfg->GetValue(FavoriteCodePagesKey, FormatString() << cp, &selectType, 0);
 								if (0 == (selectType & CPST_FAVORITE))
 									cp = -1;
 							}

@@ -1922,12 +1922,12 @@ BOOL KeyToText(int Key0, string &strKeyText0)
 			FormatString strKeyTemp;
 			if (FKey >= KEY_VK_0xFF_BEGIN && FKey <= KEY_VK_0xFF_END)
 			{
-				strKeyTemp << L"Spec" <<fmt::Width(5) << FKey-KEY_VK_0xFF_BEGIN;
+				strKeyTemp << L"Spec" <<fmt::MinWidth(5) << FKey-KEY_VK_0xFF_BEGIN;
 				strKeyText += strKeyTemp;
 			}
 			else if (FKey > KEY_LAUNCH_APP2 && FKey < KEY_CTRLALTSHIFTPRESS)
 			{
-				strKeyTemp << L"Oem" <<fmt::Width(5) << FKey-KEY_FKEY_BEGIN;
+				strKeyTemp << L"Oem" <<fmt::MinWidth(5) << FKey-KEY_FKEY_BEGIN;
 				strKeyText += strKeyTemp;
 			}
 			else

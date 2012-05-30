@@ -103,7 +103,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 	//ConvertNameToFull(strSrc,strSrc);
 }
 
-void FilePanels::Init()
+void FilePanels::Init(int DirCount)
 {
 	SetPanelPositions(FileList::IsModeFullScreen(Opt.LeftPanel.ViewMode),
 	                  FileList::IsModeFullScreen(Opt.RightPanel.ViewMode));
@@ -145,10 +145,13 @@ void FilePanels::Init()
 	ActivePanel->SetFocus();
 	// пытаемся избавится от зависания при запуске
 	int IsLocalPath_FarPath = ParsePath(g_strFarPath)==PATH_DRIVELETTER;
-	PrepareOptFolder(Opt.strLeftFolder,IsLocalPath_FarPath);
-	PrepareOptFolder(Opt.strRightFolder,IsLocalPath_FarPath);
+	string strLeft = Opt.strLeftFolder.Get(), strRight = Opt.strRightFolder.Get();
+	PrepareOptFolder(strLeft, IsLocalPath_FarPath);
+	PrepareOptFolder(strRight, IsLocalPath_FarPath);
+	Opt.strLeftFolder = strLeft;
+	Opt.strRightFolder = strRight;
 
-	if (Opt.AutoSaveSetup || !Opt.SetupArgv)
+	if (Opt.AutoSaveSetup || !DirCount)
 	{
 		if (apiGetFileAttributes(Opt.strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
 			LeftPanel->InitCurDir(Opt.strLeftFolder);
@@ -159,7 +162,7 @@ void FilePanels::Init()
 
 	if (!Opt.AutoSaveSetup)
 	{
-		if (Opt.SetupArgv >= 1)
+		if (DirCount >= 1)
 		{
 			if (ActivePanel==RightPanel)
 			{
@@ -172,7 +175,7 @@ void FilePanels::Init()
 					LeftPanel->InitCurDir(Opt.strLeftFolder);
 			}
 
-			if (Opt.SetupArgv == 2)
+			if (DirCount == 2)
 			{
 				if (ActivePanel==LeftPanel)
 				{
@@ -189,7 +192,7 @@ void FilePanels::Init()
 
 		const string& PassiveFolder=PassiveIsLeftFlag?Opt.strLeftFolder:Opt.strRightFolder;
 
-		if (Opt.SetupArgv < 2 && *PassiveFolder && (apiGetFileAttributes(PassiveFolder)!=INVALID_FILE_ATTRIBUTES))
+		if (DirCount < 2 && *PassiveFolder && (apiGetFileAttributes(PassiveFolder)!=INVALID_FILE_ATTRIBUTES))
 		{
 			PassivePanel->InitCurDir(PassiveFolder);
 		}
@@ -259,8 +262,8 @@ void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
 	if (Opt.WidthDecrement > (ScrX/2-10))
 		Opt.WidthDecrement=(ScrX/2-10);
 
-	Opt.LeftHeightDecrement=Max(0,Min(Opt.LeftHeightDecrement,ScrY-7));
-	Opt.RightHeightDecrement=Max(0,Min(Opt.RightHeightDecrement,ScrY-7));
+	Opt.LeftHeightDecrement=Max(0,Min(Opt.LeftHeightDecrement.Get(),ScrY-7));
+	Opt.RightHeightDecrement=Max(0,Min(Opt.RightHeightDecrement.Get(),ScrY-7));
 
 	if (LeftFullScreen)
 	{
@@ -730,7 +733,7 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_CTRLSHIFTUP:  case KEY_CTRLSHIFTNUMPAD8:
 		case KEY_RCTRLSHIFTUP: case KEY_RCTRLSHIFTNUMPAD8:
 		{
-			int& HeightDecrement=(ActivePanel==LeftPanel)?Opt.LeftHeightDecrement:Opt.RightHeightDecrement;
+			IntOption& HeightDecrement=(ActivePanel==LeftPanel)?Opt.LeftHeightDecrement:Opt.RightHeightDecrement;
 			if (HeightDecrement<ScrY-7)
 			{
 				HeightDecrement++;
@@ -743,7 +746,7 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_CTRLSHIFTDOWN:  case KEY_CTRLSHIFTNUMPAD2:
 		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
 		{
-			int& HeightDecrement=(ActivePanel==LeftPanel)?Opt.LeftHeightDecrement:Opt.RightHeightDecrement;
+			IntOption& HeightDecrement=(ActivePanel==LeftPanel)?Opt.LeftHeightDecrement:Opt.RightHeightDecrement;
 			if (HeightDecrement>0)
 			{
 				HeightDecrement--;

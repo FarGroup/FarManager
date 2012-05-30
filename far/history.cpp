@@ -49,7 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "datetime.hpp"
 #include "FarGuid.hpp"
 
-History::History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, const int *EnableSave, bool SaveType):
+History::History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, const BoolOption& EnableSave, bool SaveType):
 	strHistoryName(HistoryName),
 	EnableAdd(true),
 	KeepSelectedPos(false),
@@ -723,5 +723,5 @@ bool History::EqualType(int Type1, int Type2)
 
 HistoryConfig* History::HistoryCfgRef(void)
 {
-	return (*EnableSave)?HistoryCfg:HistoryCfgMem;
+	return EnableSave? HistoryCfg : HistoryCfgMem;
 }

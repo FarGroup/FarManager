@@ -237,8 +237,8 @@ void Viewer::KeepInitParameters()
 	GlobalSearchWholeWords=LastSearchWholeWords;
 	GlobalSearchReverse=LastSearchReverse;
 	GlobalSearchHex=LastSearchHex;
-	Opt.ViOpt.ViewerIsWrap=VM.Wrap;
-	Opt.ViOpt.ViewerWrap=VM.WordWrap;
+	Opt.ViOpt.ViewerIsWrap=VM.Wrap != 0;
+	Opt.ViOpt.ViewerWrap=VM.WordWrap != 0;
 	Opt.ViOpt.SearchRegexp=LastSearchRegexp;
 	//InitHex=VM.Hex;
 }
@@ -475,7 +475,7 @@ void Viewer::ShowPage(int nMode)
 			SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor(COL_VIEWERTEXT));
 			GotoXY(X1,Y1);
 			SetColor(COL_WARNDIALOGTEXT);
-			FS<<fmt::Precision(XX2-X1+1)<<MSG(MViewerCannotOpenFile);
+			FS<<fmt::MaxWidth(XX2-X1+1)<<MSG(MViewerCannotOpenFile);
 			ShowStatus();
 		}
 
@@ -564,11 +564,11 @@ void Viewer::ShowPage(int nMode)
 
 			if (StrLen > LeftPos)
 			{
-				FS<<fmt::LeftAlign()<<fmt::Width(Width)<<fmt::Precision(Width)<<&Strings[I]->lpData[static_cast<size_t>(LeftPos)];
+				FS<<fmt::LeftAlign()<<fmt::ExactWidth(Width)<<&Strings[I]->lpData[static_cast<size_t>(LeftPos)];
 			}
 			else
 			{
-				FS<<fmt::Width(Width)<<L"";
+				FS<<fmt::MinWidth(Width)<<L"";
 			}
 
 			if ( SelectSize >= 0 && Strings[I]->bSelection)
@@ -602,7 +602,7 @@ void Viewer::ShowPage(int nMode)
 					if (LeftPos > Strings[I]->nSelEnd)
 						Length = 0;
 
-					FS<<fmt::Precision(static_cast<size_t>(Length))<<&Strings[I]->lpData[static_cast<size_t>(SelX1+LeftPos)];
+					FS<<fmt::MaxWidth(static_cast<size_t>(Length))<<&Strings[I]->lpData[static_cast<size_t>(SelX1+LeftPos)];
 				}
 			}
 
@@ -733,7 +733,7 @@ void Viewer::ShowDump()
 
 		if (EndFile)
 		{
-			FS<<fmt::Width(ObjWidth)<<L"";
+			FS<<fmt::MinWidth(ObjWidth)<<L"";
 			continue;
 		}
 		bpos = vtell();
@@ -749,13 +749,13 @@ void Viewer::ShowDump()
 
 		txt_dump(VM.CodePage, line, nr, Width, OutStr, ZERO_CHAR);
 
-		FS<<fmt::LeftAlign()<<fmt::Width(ObjWidth)<<OutStr;
+		FS<<fmt::LeftAlign()<<fmt::MinWidth(ObjWidth)<<OutStr;
 		if ( SelectSize > 0 && bpos < SelectPos+SelectSize && bpos+mb > SelectPos ) {
 			int bsel = SelectPos > bpos ? (int)(SelectPos-bpos) / ch_size : 0;
 			int esel = SelectPos+SelectSize < bpos+mb ? ((int)(SelectPos+SelectSize-bpos)+ch_size-1)/ch_size: Width;
 			SetColor(COL_VIEWERSELECTEDTEXT);
 			GotoXY(bsel, Y);
-			FS<<fmt::Precision(esel-bsel)<<OutStr+bsel;
+			FS<<fmt::MaxWidth(esel-bsel)<<OutStr+bsel;
 		}
 	}
 }
@@ -783,7 +783,7 @@ void Viewer::ShowHex()
 
 		if (EndFile)
 		{
-			FS<<fmt::Width(ObjWidth)<<L"";
+			FS<<fmt::MinWidth(ObjWidth)<<L"";
 			continue;
 		}
 
@@ -931,18 +931,18 @@ void Viewer::ShowHex()
 
 		if (StrLength(OutStr)>HexLeftPos)
 		{
-			FS<<fmt::LeftAlign()<<fmt::Width(ObjWidth)<<fmt::Precision(ObjWidth)<<OutStr+static_cast<size_t>(HexLeftPos);
+			FS<<fmt::LeftAlign()<<fmt::ExactWidth(ObjWidth)<<OutStr+static_cast<size_t>(HexLeftPos);
 		}
 		else
 		{
-			FS<<fmt::Width(ObjWidth)<<L"";
+			FS<<fmt::MinWidth(ObjWidth)<<L"";
 		}
 
 		if (bSelStartFound && bSelEndFound)
 		{
 			SetColor(COL_VIEWERSELECTEDTEXT);
 			GotoXY((int)((__int64)X1+SelStart-HexLeftPos),Y);
-			FS<<fmt::Precision(SelEnd-SelStart+1)<<OutStr+static_cast<size_t>(SelStart);
+			FS<<fmt::MaxWidth(SelEnd-SelStart+1)<<OutStr+static_cast<size_t>(SelStart);
 			SelSize = 0;
 		}
 	}
@@ -1694,7 +1694,7 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_UP);
@@ -1705,7 +1705,7 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_DOWN);
@@ -1716,7 +1716,7 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsHWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsHWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_LEFT);
@@ -1727,7 +1727,7 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsHWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsHWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_RIGHT);
@@ -2669,7 +2669,7 @@ void ViewerSearchMsg(const wchar_t *MsgStr, int Percent, int SearchHex)
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);
-			strProgress+=FormatString()<<L" "<<fmt::Width(PercentLength)<<strPercent<<L"%";;
+			strProgress+=FormatString()<<L" "<<fmt::MinWidth(PercentLength)<<strPercent<<L"%";;
 		}
 
 		TBC.SetProgressValue(Percent,100);
@@ -3267,7 +3267,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 	string strSearchStr, strMsgStr;
 	char search_bytes[128];
-	int Case,WholeWords,ReverseSearch,SearchRegexp,SearchHex;
+	bool Case,WholeWords,ReverseSearch,SearchRegexp,SearchHex;
 
 	SearchHex = LastSearchHex;
 	Case = LastSearchCase;
@@ -3346,11 +3346,11 @@ void Viewer::Search(int Next,int FirstChar)
 		if (Dlg.GetExitCode()!=SD_BUTTON_OK)
 			return;
 
-		SearchHex=SearchDlg[SD_RADIO_HEX].Selected;
-		Case=SearchDlg[SD_CHECKBOX_CASE].Selected;
-		WholeWords=SearchDlg[SD_CHECKBOX_WORDS].Selected;
-		ReverseSearch=SearchDlg[SD_CHECKBOX_REVERSE].Selected;
-		SearchRegexp=SearchDlg[SD_CHECKBOX_REGEXP].Selected;
+		SearchHex=SearchDlg[SD_RADIO_HEX].Selected == BSTATE_CHECKED;
+		Case=SearchDlg[SD_CHECKBOX_CASE].Selected == BSTATE_CHECKED;
+		WholeWords=SearchDlg[SD_CHECKBOX_WORDS].Selected == BSTATE_CHECKED;
+		ReverseSearch=SearchDlg[SD_CHECKBOX_REVERSE].Selected == BSTATE_CHECKED;
+		SearchRegexp=SearchDlg[SD_CHECKBOX_REGEXP].Selected == BSTATE_CHECKED;
 
 		if (SearchHex)
 		{
@@ -3384,7 +3384,9 @@ void Viewer::Search(int Next,int FirstChar)
 		sd.search_len = hex2ss(strSearchStr.CPtr(), search_bytes, ARRAYSIZE(search_bytes));
 		sd.search_bytes = search_bytes;
 		sd.ch_size = 1;
-		Case = 1 + (WholeWords = SearchRegexp = 0);
+		// WTF?
+		//Case = 1 + (WholeWords = SearchRegexp = 0);
+		Case = true;
 		searcher = (ReverseSearch ? &Viewer::search_hex_backward : &Viewer::search_hex_forward);
 	}
 	else
@@ -3549,12 +3551,12 @@ void Viewer::Search(int Next,int FirstChar)
 }
 
 
-int Viewer::GetWrapMode()
+bool Viewer::GetWrapMode()
 {
-	return(VM.Wrap);
+	return(VM.Wrap != 0);
 }
 
-void Viewer::SetWrapMode(int Wrap)
+void Viewer::SetWrapMode(bool Wrap)
 {
 	Viewer::VM.Wrap=Wrap;
 }
@@ -3564,12 +3566,12 @@ void Viewer::EnableHideCursor(int HideCursor)
 	Viewer::HideCursor=HideCursor;
 }
 
-int Viewer::GetWrapType()
+bool Viewer::GetWrapType()
 {
-	return(VM.WordWrap);
+	return(VM.WordWrap != 0);
 }
 
-void Viewer::SetWrapType(int TypeWrap)
+void Viewer::SetWrapType(bool TypeWrap)
 {
 	Viewer::VM.WordWrap=TypeWrap;
 }
@@ -3581,7 +3583,7 @@ void Viewer::GetFileName(string &strName)
 
 void Viewer::ShowConsoleTitle()
 {
-	string strViewerTitleFormat=Opt.strViewerTitleFormat;
+	string strViewerTitleFormat=Opt.strViewerTitleFormat.Get();
 	ReplaceStrings(strViewerTitleFormat,L"%Lng",MSG(MInViewer),-1,true);
 	ReplaceStrings(strViewerTitleFormat,L"%File",PointToName(strFileName),-1,true);
 	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
@@ -4402,7 +4404,7 @@ int Viewer::ProcessWrapMode(int newMode, bool isRedraw)
 		Show();
 	}
 
-	Opt.ViOpt.ViewerIsWrap=VM.Wrap;
+	Opt.ViOpt.ViewerIsWrap = VM.Wrap != 0;
 	return oldWrap;
 }
 
@@ -4426,6 +4428,6 @@ int Viewer::ProcessTypeWrapMode(int newMode, bool isRedraw)
 		Show();
 	}
 
-	Opt.ViOpt.ViewerWrap=VM.WordWrap;
+	Opt.ViOpt.ViewerWrap = VM.WordWrap != 0;
 	return oldTypeWrap;
 }

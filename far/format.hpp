@@ -44,8 +44,9 @@ namespace fmt
 		static const T DefaultValue = Default;
 	};
 
-	typedef ManipulatorTemplate<size_t, 0> Width;
-	typedef ManipulatorTemplate<size_t, static_cast<size_t>(-1)> Precision;
+	typedef ManipulatorTemplate<size_t, 0> MinWidth;
+	typedef ManipulatorTemplate<size_t, static_cast<size_t>(-1)> MaxWidth;
+	typedef ManipulatorTemplate<size_t, 1 /*any*/> ExactWidth;
 	typedef ManipulatorTemplate<wchar_t, L' '> FillChar;
 	typedef ManipulatorTemplate<int, 10> Radix;
 
@@ -72,11 +73,12 @@ protected:
 	virtual BaseFormat& Flush() { return *this; }
 
 	// attributes
-	BaseFormat& SetPrecision(size_t Precision=fmt::Precision::GetDefault());
-	BaseFormat& SetWidth(size_t Width=fmt::Width::GetDefault());
-	BaseFormat& SetAlign(fmt::AlignType Align=fmt::Align::GetDefault());
-	BaseFormat& SetFillChar(wchar_t Char=fmt::FillChar::GetDefault());
-	BaseFormat& SetRadix(int Radix=fmt::Radix::GetDefault());
+	BaseFormat& SetMaxWidth(size_t Precision);
+	BaseFormat& SetMinWidth(size_t Width);
+	BaseFormat& SetExactWidth(size_t ExactWidth);
+	BaseFormat& SetAlign(fmt::AlignType Align);
+	BaseFormat& SetFillChar(wchar_t Char);
+	BaseFormat& SetRadix(int Radix);
 
 	BaseFormat& Put(LPCWSTR Data, size_t Length);
 
@@ -94,8 +96,9 @@ protected:
 	BaseFormat& operator<<(const string& String);
 
 	// manipulators
-	BaseFormat& operator<<(const fmt::Width& Manipulator);
-	BaseFormat& operator<<(const fmt::Precision& Manipulator);
+	BaseFormat& operator<<(const fmt::MinWidth& Manipulator);
+	BaseFormat& operator<<(const fmt::MaxWidth& Manipulator);
+	BaseFormat& operator<<(const fmt::ExactWidth& Manipulator);
 	BaseFormat& operator<<(const fmt::FillChar& Manipulator);
 	BaseFormat& operator<<(const fmt::Radix& Manipulator);
 	BaseFormat& operator<<(const fmt::Align& Manipulator);
@@ -106,8 +109,8 @@ protected:
 	virtual void Commit(const string& Data)=0;
 
 private:
-	size_t Width;
-	size_t Precision;
+	size_t MinWidth;
+	size_t MaxWidth;
 	wchar_t FillChar;
 	fmt::AlignType Align;
 	int Radix;

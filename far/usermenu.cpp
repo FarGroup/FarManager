@@ -431,7 +431,7 @@ int FillUserMenu(VMenu& FarUserMenu,DList<UserMenuItem> *Menu,int MenuPos,int *F
 			string strHotKey = MenuItem->strHotKey;
 			FuncNum = PrepareHotKey(strHotKey);
 			int Offset = strHotKey.At(0)==L'&'?5:4;
-			FarUserMenuItem.strName=FormatString()<<((!strHotKey.IsEmpty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::Width(Offset)<<fmt::Precision(Offset)<<strHotKey;
+			FarUserMenuItem.strName=FormatString()<<((!strHotKey.IsEmpty() && !FuncNum)?L"&":L"")<<fmt::LeftAlign()<<fmt::ExactWidth(Offset)<<strHotKey;
 			FarUserMenuItem.strName+=strLabel;
 
 			if (MenuItem->Submenu)

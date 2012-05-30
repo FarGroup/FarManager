@@ -40,27 +40,29 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const int DEFAULT_INDENT = 5;
 
+template<class T>
 struct EditFieldBinding: public DialogItemBinding<DialogItemEx>
 {
-	string *TextValue;
+	T& TextValue;
 
-	EditFieldBinding(string *aTextValue)
+	EditFieldBinding(T& aTextValue)
 		: TextValue(aTextValue)
 	{
 	}
 
 	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex)
 	{
-		*TextValue = Item->strData;
+		TextValue = Item->strData;
 	}
 };
 
+template<class T>
 struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 {
-	int *IntValue;
+	T *IntValue;
 	wchar_t Mask[32];
 
-	EditFieldIntBinding(int *aIntValue, int Width)
+	EditFieldIntBinding(T *aIntValue, int Width)
 		: IntValue(aIntValue)
 	{
 		int MaskWidth = Width < 31 ? Width : 31;
@@ -78,6 +80,89 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 	const wchar_t *GetMask()
 	{
 		return Mask;
+	}
+};
+
+template<class T>
+struct FarCheckBoxIntBinding: public DialogItemBinding<DialogItemEx>
+{
+private:
+	T& Value;
+	int Mask;
+
+public:
+	FarCheckBoxIntBinding(T& aValue, int aMask=0) : Value(aValue), Mask(aMask) { }
+
+	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex)
+	{
+		if (!Mask)
+		{
+			Value = Item->Selected != BSTATE_UNCHECKED;
+		}
+		else
+		{
+			if (Item->Selected)
+				Value |= Mask;
+			else
+				Value &= ~Mask;
+		}
+	}
+};
+
+template<class T>
+struct FarCheckBoxBoolBinding: public DialogItemBinding<DialogItemEx>
+{
+private:
+	T& Value;
+
+public:
+	FarCheckBoxBoolBinding(T& aValue) : Value(aValue) { }
+
+	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex)
+	{
+		Value = Item->Selected != BSTATE_UNCHECKED;
+	}
+};
+
+template<class T>
+struct FarComboBoxBinding: public DialogItemBinding<DialogItemEx>
+{
+private:
+	T& Value;
+	FarList *List;
+
+public:
+	FarComboBoxBinding(T& aValue, FarList *aList)
+		: Value(aValue), List(aList)
+	{
+	}
+
+	virtual ~FarComboBoxBinding()
+	{
+		delete [] List->Items;
+		delete List;
+	}
+
+	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex)
+	{
+		FarListItem &ListItem = List->Items[Item->ListPos];
+		Value = ListItem.Reserved[0];
+	}
+};
+
+template<class T>
+struct FarRadioButtonBinding: public DialogItemBinding<DialogItemEx>
+{
+private:
+	T& Value;
+
+public:
+	FarRadioButtonBinding(T& aValue) : Value(aValue) { }
+
+	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex)
+	{
+		if (Item->Selected)
+			Value = RadioGroupIndex;
 	}
 };
 
@@ -121,14 +206,29 @@ const wchar_t *DialogBuilder::GetLangString(int MessageID)
 	return MSG(static_cast<LNGID>(MessageID));
 }
 
-DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(BOOL *Value, int Mask)
+DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(BOOL* Value, int Mask)
 {
 	return new CheckBoxBinding<DialogItemEx>(Value, Mask);
+}
+
+DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(IntOption& Value, int Mask)
+{
+	return new FarCheckBoxIntBinding<IntOption>(Value, Mask);
+}
+
+DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(BoolOption& Value)
+{
+	return new FarCheckBoxBoolBinding<BoolOption>(Value);
 }
 
 DialogItemBinding<DialogItemEx> *DialogBuilder::CreateRadioButtonBinding(int *Value)
 {
 	return new RadioButtonBinding<DialogItemEx>(Value);
+}
+
+DialogItemBinding<DialogItemEx> *DialogBuilder::CreateRadioButtonBinding(IntOption& Value)
+{
+	return new FarRadioButtonBinding<IntOption>(Value);
 }
 
 DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_t *HistoryID, FARDIALOGITEMFLAGS Flags)
@@ -143,7 +243,23 @@ DialogItemEx *DialogBuilder::AddEditField(string *Value, int Width, const wchar_
 	}
 	Item->Flags |= Flags;
 
-	SetLastItemBinding(new EditFieldBinding(Value));
+	SetLastItemBinding(new EditFieldBinding<decltype(*Value)>(*Value));
+	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddEditField(StringOption& Value, int Width, const wchar_t *HistoryID, FARDIALOGITEMFLAGS Flags)
+{
+	DialogItemEx *Item = AddDialogItem(DI_EDIT, Value);
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width;
+	if (HistoryID)
+	{
+		Item->strHistory = HistoryID;
+		Item->Flags |= DIF_HISTORY;
+	}
+	Item->Flags |= Flags;
+
+	SetLastItemBinding(new EditFieldBinding<decltype(Value)>(Value));
 	return Item;
 }
 
@@ -158,7 +274,22 @@ DialogItemEx *DialogBuilder::AddFixEditField(string *Value, int Width, const wch
 		Item->Flags |= DIF_MASKEDIT;
 	}
 
-	SetLastItemBinding(new EditFieldBinding(Value));
+	SetLastItemBinding(new EditFieldBinding<decltype(*Value)>(*Value));
+	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddFixEditField(StringOption& Value, int Width, const wchar_t *Mask)
+{
+	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, Value);
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width - 1;
+	if (Mask)
+	{
+		Item->Mask = Mask;
+		Item->Flags |= DIF_MASKEDIT;
+	}
+
+	SetLastItemBinding(new EditFieldBinding<decltype(Value)>(Value));
 	return Item;
 }
 
@@ -178,7 +309,21 @@ DialogItemEx *DialogBuilder::AddIntEditField(int *Value, int Width)
 	SetNextY(Item);
 	Item->X2 = Item->X1 + Width - 1;
 
-	EditFieldIntBinding *Binding = new EditFieldIntBinding(Value, Width);
+	auto *Binding = new EditFieldIntBinding<int>(Value, Width);
+	SetLastItemBinding(Binding);
+	Item->Flags |= DIF_MASKEDIT;
+	Item->strMask = Binding->GetMask();
+	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddIntEditField(IntOption& Value, int Width)
+{
+	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, L"");
+	Item->strData = FormatString() << Value.Get();
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width - 1;
+
+	auto *Binding = new EditFieldIntBinding<IntOption>(&Value, Width);
 	SetLastItemBinding(Binding);
 	Item->Flags |= DIF_MASKEDIT;
 	Item->strMask = Binding->GetMask();
@@ -208,6 +353,81 @@ DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
 
 	SetLastItemBinding(new ComboBoxBinding<DialogItemEx>(Value, List));
 	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddComboBox(IntOption& Value, int Width,
+	DialogBuilderListItem *Items, size_t ItemCount,
+	FARDIALOGITEMFLAGS Flags)
+{
+	DialogItemEx *Item = AddDialogItem(DI_COMBOBOX, L"");
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width;
+	Item->Flags |= Flags;
+
+	FarListItem *ListItems = new FarListItem[ItemCount];
+	for(size_t i=0; i<ItemCount; i++)
+	{
+		ListItems [i].Text = MSG(static_cast<LNGID>(Items[i].MessageId));
+		ListItems [i].Flags = (Value == Items [i].ItemValue) ? LIF_SELECTED : 0;
+		ListItems [i].Reserved [0] = Items [i].ItemValue;
+	}
+	FarList *List = new FarList;
+	List->Items = ListItems;
+	List->ItemsNumber = ItemCount;
+	Item->ListItems = List;
+
+	SetLastItemBinding(new FarComboBoxBinding<IntOption>(Value, List));
+	return Item;
+}
+
+
+DialogItemEx *DialogBuilder::AddCheckbox(int TextMessageId, IntOption& Value, int Mask, bool ThreeState)
+{
+	DialogItemEx *Item = AddDialogItem(DI_CHECKBOX, GetLangString(TextMessageId));
+	if (ThreeState && !Mask)
+		Item->Flags |= DIF_3STATE;
+	SetNextY(Item);
+	Item->X2 = Item->X1 + ItemWidth(*Item);
+	if (!Mask)
+		Item->Selected = Value;
+	else
+		Item->Selected = (Value & Mask) ? TRUE : FALSE ;
+	SetLastItemBinding(CreateCheckBoxBinding(Value, Mask));
+	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddCheckbox(const wchar_t* Caption, BoolOption& Value)
+{
+	DialogItemEx *Item = AddDialogItem(DI_CHECKBOX, Caption);
+	SetNextY(Item);
+	Item->X2 = Item->X1 + ItemWidth(*Item);
+	Item->Selected = Value;
+	SetLastItemBinding(CreateCheckBoxBinding(Value));
+	return Item;
+}
+
+DialogItemEx *DialogBuilder::AddCheckbox(int TextMessageId, BoolOption& Value)
+{
+	return AddCheckbox(GetLangString(TextMessageId), Value);
+}
+
+void DialogBuilder::AddRadioButtons(IntOption& Value, int OptionCount, const int MessageIDs[], bool FocusOnSelected)
+{
+	for(int i=0; i<OptionCount; i++)
+	{
+		DialogItemEx *Item = AddDialogItem(DI_RADIOBUTTON, GetLangString(MessageIDs[i]));
+		SetNextY(Item);
+		Item->X2 = Item->X1 + ItemWidth(*Item);
+		if (!i)
+			Item->Flags |= DIF_GROUP;
+		if (Value == i)
+		{
+			Item->Selected = TRUE;
+			if (FocusOnSelected)
+				Item->Flags |= DIF_FOCUS;
+		}
+		SetLastItemBinding(CreateRadioButtonBinding(Value));
+	}
 }
 
 void DialogBuilder::LinkFlags(DialogItemEx *Parent, DialogItemEx *Target, FARDIALOGITEMFLAGS Flags, bool LinkLabels)

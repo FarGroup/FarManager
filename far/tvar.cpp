@@ -246,7 +246,7 @@ static const wchar_t *toString(__int64 num)
 static const wchar_t *toString(double num)
 {
 	static wchar_t str[256];
-	_snwprintf(str, ARRAYSIZE(str)-1, Opt.Macro.strMacroCONVFMT.CPtr(), num);
+	_snwprintf(str, ARRAYSIZE(str)-1, Opt.Macro.strMacroCONVFMT.Get().CPtr(), num);
 	return str;
 };
 

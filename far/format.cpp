@@ -42,15 +42,22 @@ BaseFormat::BaseFormat()
 	Reset();
 }
 
-BaseFormat& BaseFormat::SetPrecision(size_t Precision)
+BaseFormat& BaseFormat::SetMaxWidth(size_t Precision)
 {
-	this->Precision = Precision;
+	this->MaxWidth = Precision;
 	return *this;
 }
 
-BaseFormat& BaseFormat::SetWidth(size_t Width)
+BaseFormat& BaseFormat::SetMinWidth(size_t Width)
 {
-	this->Width = Width;
+	this->MinWidth = Width;
+	return *this;
+}
+
+BaseFormat& BaseFormat::SetExactWidth(size_t SetExactWidth)
+{
+	this->MinWidth = SetExactWidth;
+	this->MaxWidth = SetExactWidth;
 	return *this;
 }
 
@@ -73,23 +80,23 @@ BaseFormat& BaseFormat::SetRadix(int Radix)
 
 BaseFormat& BaseFormat::Put(LPCWSTR Data, size_t Length)
 {
-	if (Precision == fmt::Precision::GetDefault())
+	if (MaxWidth == fmt::MaxWidth::GetDefault())
 	{
-		Precision = Length;
+		MaxWidth = Length;
 	}
 
-	string OutStr(Data, Min(Precision, Length));
+	string OutStr(Data, Min(MaxWidth, Length));
 
 	if (Align == fmt::A_RIGHT)
 	{
-		while (OutStr.GetLength() < Width)
+		while (OutStr.GetLength() < MinWidth)
 		{
 			OutStr.Insert(0, FillChar);
 		}
 	}
 	else
 	{
-		while (OutStr.GetLength() < Width)
+		while (OutStr.GetLength() < MinWidth)
 		{
 			OutStr.Append(FillChar);
 		}
@@ -156,14 +163,19 @@ BaseFormat& BaseFormat::operator<<(const string& String)
 	return Put(String,String.GetLength());
 }
 
-BaseFormat& BaseFormat::operator<<(const fmt::Width& Manipulator)
+BaseFormat& BaseFormat::operator<<(const fmt::MinWidth& Manipulator)
 {
-	return SetWidth(Manipulator.GetValue());
+	return SetMinWidth(Manipulator.GetValue());
 }
 
-BaseFormat& BaseFormat::operator<<(const fmt::Precision& Manipulator)
+BaseFormat& BaseFormat::operator<<(const fmt::ExactWidth& Manipulator)
 {
-	return SetPrecision(Manipulator.GetValue());
+	return SetExactWidth(Manipulator.GetValue());
+}
+
+BaseFormat& BaseFormat::operator<<(const fmt::MaxWidth& Manipulator)
+{
+	return SetMaxWidth(Manipulator.GetValue());
 }
 
 BaseFormat& BaseFormat::operator<<(const fmt::FillChar& Manipulator)
@@ -198,8 +210,8 @@ BaseFormat& BaseFormat::operator<<(const fmt::Flush& Manipulator)
 
 void BaseFormat::Reset()
 {
-	Width = fmt::Width::GetDefault();
-	Precision = fmt::Precision::GetDefault();
+	MinWidth = fmt::MinWidth::GetDefault();
+	MaxWidth = fmt::MaxWidth::GetDefault();
 	FillChar = fmt::FillChar::GetDefault();
 	Align = fmt::Align::GetDefault();
 	Radix = fmt::Radix::GetDefault();

@@ -2040,7 +2040,7 @@ void VMenu::DrawTitles()
 		GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
 		SetColor(Colors[VMenuColorTitle]);
 
-		FS << L" " << fmt::Width(WidthTitle) << fmt::Precision(WidthTitle) << strDisplayTitle << L" ";
+		FS << L" " << fmt::ExactWidth(WidthTitle) << strDisplayTitle << L" ";
 	}
 
 	if (!strBottomTitle.IsEmpty())
@@ -2053,7 +2053,7 @@ void VMenu::DrawTitles()
 		GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
 		SetColor(Colors[VMenuColorTitle]);
 
-		FS << L" " << fmt::Width(WidthTitle) << fmt::Precision(WidthTitle) << strBottomTitle << L" ";
+		FS << L" " << fmt::ExactWidth(WidthTitle) << strBottomTitle << L" ";
 	}
 }
 
@@ -2255,7 +2255,7 @@ void VMenu::ShowMenu(bool IsParent)
 						ItemWidth = X2-X1-3;
 
 					GotoXY(X1+(X2-X1-1-ItemWidth)/2,Y);
-					FS << L" " << fmt::LeftAlign() << fmt::Width(ItemWidth) << fmt::Precision(ItemWidth) << Item[I]->strName << L" ";
+					FS << L" " << fmt::LeftAlign() << fmt::ExactWidth(ItemWidth) << Item[I]->strName << L" ";
 				}
 
 				strTmpStr.ReleaseBuffer();
@@ -2356,7 +2356,7 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					int Width = X2-WhereX()+(BoxType==NO_BOX?1:0);
 					if (Width > 0)
-						FS << fmt::Width(Width) << L"";
+						FS << fmt::MinWidth(Width) << L"";
 				}
 
 				if (Item[I]->Flags & MIF_SUBMENU)
@@ -2397,7 +2397,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 			SetColor(Colors[VMenuColorText]);
 			// сделаем добавочку для NO_BOX
-			FS << fmt::Width(((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+((BoxType==NO_BOX)?1:0)) << L"";
+			FS << fmt::MinWidth(((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+((BoxType==NO_BOX)?1:0)) << L"";
 		}
 	}
 

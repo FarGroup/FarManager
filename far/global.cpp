@@ -64,10 +64,10 @@ string g_strFarINI;
 string g_strFarPath;
 
 string strGlobalSearchString;
-int GlobalSearchCase=FALSE;
-int GlobalSearchWholeWords=FALSE; // значение "Whole words" для поиска
-int GlobalSearchHex=FALSE;     // значение "Search for hex" для поиска
-int GlobalSearchReverse=FALSE;
+bool GlobalSearchCase=false;
+bool GlobalSearchWholeWords=false; // значение "Whole words" для поиска
+bool GlobalSearchHex=false;     // значение "Search for hex" для поиска
+bool GlobalSearchReverse=false;
 
 int ScreenSaverActive=FALSE;
 

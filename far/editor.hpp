@@ -196,7 +196,7 @@ class Editor:public ScreenObject
 		/* $ 30.07.2000 KM
 		   Новая переменная для поиска "Whole words"
 		*/
-		int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchSelFound,LastSearchRegexp;
+		bool LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchSelFound,LastSearchRegexp;
 
 		UINT m_codepage; //BUGBUG
 
@@ -324,23 +324,23 @@ class Editor:public ScreenObject
 		void SetConvertTabs(int NewMode);
 		int  GetConvertTabs() const {return EdOpt.ExpandTabs; }
 
-		void SetDelRemovesBlocks(int NewMode);
-		int  GetDelRemovesBlocks() const {return EdOpt.DelRemovesBlocks; }
+		void SetDelRemovesBlocks(bool NewMode);
+		bool  GetDelRemovesBlocks() const {return EdOpt.DelRemovesBlocks; }
 
-		void SetPersistentBlocks(int NewMode);
-		int  GetPersistentBlocks() const {return EdOpt.PersistentBlocks; }
+		void SetPersistentBlocks(bool NewMode);
+		bool  GetPersistentBlocks() const {return EdOpt.PersistentBlocks; }
 
-		void SetAutoIndent(int NewMode) { EdOpt.AutoIndent=NewMode; }
-		int  GetAutoIndent() const {return EdOpt.AutoIndent; }
+		void SetAutoIndent(bool NewMode) { EdOpt.AutoIndent=NewMode; }
+		bool  GetAutoIndent() const {return EdOpt.AutoIndent; }
 
-		void SetAutoDetectCodePage(int NewMode) { EdOpt.AutoDetectCodePage=NewMode; }
-		int  GetAutoDetectCodePage() const {return EdOpt.AutoDetectCodePage; }
+		void SetAutoDetectCodePage(bool NewMode) { EdOpt.AutoDetectCodePage=NewMode; }
+		bool  GetAutoDetectCodePage() const {return EdOpt.AutoDetectCodePage; }
 
-		void SetCursorBeyondEOL(int NewMode);
-		int  GetCursorBeyondEOL() const {return EdOpt.CursorBeyondEOL; }
+		void SetCursorBeyondEOL(bool NewMode);
+		bool  GetCursorBeyondEOL() const {return EdOpt.CursorBeyondEOL; }
 
-		void SetBSLikeDel(int NewMode) { EdOpt.BSLikeDel=NewMode; }
-		int  GetBSLikeDel() const {return EdOpt.BSLikeDel; }
+		void SetBSLikeDel(bool NewMode) { EdOpt.BSLikeDel=NewMode; }
+		bool  GetBSLikeDel() const {return EdOpt.BSLikeDel; }
 
 		void SetCharCodeBase(int NewMode) { EdOpt.CharCodeBase=NewMode%3; }
 		int  GetCharCodeBase() const {return EdOpt.CharCodeBase; }
@@ -348,24 +348,24 @@ class Editor:public ScreenObject
 		void SetReadOnlyLock(int NewMode)  { EdOpt.ReadOnlyLock=NewMode&3; }
 		int  GetReadOnlyLock() const {return EdOpt.ReadOnlyLock; }
 
-		void SetShowScrollBar(int NewMode) {EdOpt.ShowScrollBar=NewMode;}
+		void SetShowScrollBar(bool NewMode) {EdOpt.ShowScrollBar=NewMode;}
 
-		void SetSearchPickUpWord(int NewMode) {EdOpt.SearchPickUpWord=NewMode;}
+		void SetSearchPickUpWord(bool NewMode) {EdOpt.SearchPickUpWord=NewMode;}
 
 		void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
 		const wchar_t *GetWordDiv() { return EdOpt.strWordDiv; }
 
-		void SetF7Rules(int NewMode) { EdOpt.F7Rules = NewMode; }
-		int GetF7Rules() { return EdOpt.F7Rules; }
+		void SetF7Rules(bool NewMode) { EdOpt.F7Rules = NewMode; }
+		bool GetF7Rules() { return EdOpt.F7Rules; }
 
-		void SetAllowEmptySpaceAfterEof(int NewMode) { EdOpt.AllowEmptySpaceAfterEof = NewMode; }
-		int GetAllowEmptySpaceAfterEof() { return EdOpt.AllowEmptySpaceAfterEof; }
+		void SetAllowEmptySpaceAfterEof(bool NewMode) { EdOpt.AllowEmptySpaceAfterEof = NewMode; }
+		bool GetAllowEmptySpaceAfterEof() { return EdOpt.AllowEmptySpaceAfterEof; }
 
-		void SetSearchSelFound(int NewMode) { EdOpt.SearchSelFound = NewMode; }
-		int GetSearchSelFound() { return EdOpt.SearchSelFound; }
+		void SetSearchSelFound(bool NewMode) { EdOpt.SearchSelFound = NewMode; }
+		bool GetSearchSelFound() { return EdOpt.SearchSelFound; }
 
-		void SetSearchRegexp(int NewMode) { EdOpt.SearchRegexp = NewMode; }
-		int GetSearchRegexp() { return EdOpt.SearchRegexp; }
+		void SetSearchRegexp(bool NewMode) { EdOpt.SearchRegexp = NewMode; }
+		bool GetSearchRegexp() { return EdOpt.SearchRegexp; }
 
 		void SetShowWhiteSpace(int NewMode);
 

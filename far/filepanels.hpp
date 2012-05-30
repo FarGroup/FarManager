@@ -67,7 +67,7 @@ class FilePanels:public Frame
 		virtual ~FilePanels();
 
 	public:
-		void Init();
+		void Init(int DirCount);
 
 		Panel* CreatePanel(int Type);
 		void   DeletePanel(Panel *Deleted);

@@ -478,7 +478,7 @@ string& CenterStr(const wchar_t *Src, string &strDest, int Length)
 	else
 	{
 		int Space=(Length-SrcLength)/2;
-		strDest = FormatString()<<fmt::Width(Space)<<L""<<strTempStr<<fmt::Width(Length-Space-SrcLength)<<L"";
+		strDest = FormatString()<<fmt::MinWidth(Space)<<L""<<strTempStr<<fmt::MinWidth(Length-Space-SrcLength)<<L"";
 	}
 
 	return strDest;
@@ -681,7 +681,7 @@ string & FileSizeToStr(string &strDestStr, unsigned __int64 Size, int Width, uns
 				Sz++;
 			}
 
-			strStr << Sz << L"." << fmt::Width(2) << fmt::FillChar(L'0') << Decimal;
+			strStr << Sz << L"." << fmt::MinWidth(2) << fmt::FillChar(L'0') << Decimal;
 			FormatNumber(strStr,strStr,2);
 		}
 

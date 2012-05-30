@@ -1474,7 +1474,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		UINT64 FileSize=0;
 		if (EditFile.GetSize(FileSize))
 		{
-			UINT64 MaxSize = Opt.EdOpt.FileSizeLimitHi * 0x100000000ull + Opt.EdOpt.FileSizeLimitLo;
+			UINT64 MaxSize = static_cast<DWORD>(Opt.EdOpt.FileSizeLimitHi) * 0x100000000ull + static_cast<DWORD>(Opt.EdOpt.FileSizeLimitLo);
 
 			if (FileSize > MaxSize)
 			{
@@ -2128,7 +2128,7 @@ int FileEditor::GetTypeAndName(string &strType, string &strName)
 
 void FileEditor::ShowConsoleTitle()
 {
-	string strEditorTitleFormat=Opt.strEditorTitleFormat;
+	string strEditorTitleFormat=Opt.strEditorTitleFormat.Get();
 	ReplaceStrings(strEditorTitleFormat,L"%Lng",MSG(MInEditor),-1,true);
 	ReplaceStrings(strEditorTitleFormat,L"%File",PointToName(strFileName),-1,true);
 	ConsoleTitle::SetFarTitle(strEditorTitleFormat);
@@ -2297,7 +2297,7 @@ void FileEditor::ShowStatus()
 		TruncPathStr(strLocalTitle, NameLength);
 
 	//предварительный расчет
-	strLineStr.Format(L"%d/%d", m_editor->NumLastLine, m_editor->NumLastLine);
+	strLineStr = FormatString() << m_editor->NumLastLine << L'/' << m_editor->NumLastLine;
 	int SizeLineStr = (int)strLineStr.GetLength();
 
 	if (SizeLineStr > 12)
@@ -2305,30 +2305,30 @@ void FileEditor::ShowStatus()
 	else
 		SizeLineStr = 12;
 
-	strLineStr.Format(L"%d/%d", m_editor->NumLine+1, m_editor->NumLastLine);
+	strLineStr = FormatString() << m_editor->NumLine+1 << L'/' << m_editor->NumLastLine;
 	string strAttr(AttrStr);
 	FormatString FString;
-	FString<<fmt::LeftAlign()<<fmt::Width(NameLength)<<strLocalTitle<<L' '<<
+	FString<<fmt::LeftAlign()<<fmt::MinWidth(NameLength)<<strLocalTitle<<L' '<<
 	(m_editor->Flags.Check(FEDITOR_MODIFIED) ? L'*':L' ')<<
 	(m_editor->Flags.Check(FEDITOR_LOCKMODE) ? L'-':L' ')<<
 	(m_editor->Flags.Check(FEDITOR_PROCESSCTRLQ) ? L'"':L' ')<<
-	fmt::Width(5)<<m_codepage<<L' '<<fmt::Width(3)<<MSG(MEditStatusLine)<<L' '<<
-	fmt::Width(SizeLineStr)<<fmt::Precision(SizeLineStr)<<strLineStr<<L' '<<
+	fmt::MinWidth(5)<<m_codepage<<L' '<<fmt::MinWidth(3)<<MSG(MEditStatusLine)<<L' '<<
+	fmt::ExactWidth(SizeLineStr)<<strLineStr<<L' '<<
 
-	fmt::Width(3)<<MSG(MEditStatusCol)<<L' '<<
-	fmt::LeftAlign()<<fmt::Width(4)<<m_editor->CurLine->GetTabCurPos()+1<<L' '<<
+	fmt::MinWidth(3)<<MSG(MEditStatusCol)<<L' '<<
+	fmt::LeftAlign()<<fmt::MinWidth(4)<<m_editor->CurLine->GetTabCurPos()+1<<L' '<<
 
-	fmt::Width(2)<<MSG(MEditStatusChar)<<L' '<<
-	fmt::LeftAlign()<<fmt::Width(4)<<m_editor->CurLine->GetCurPos()+1<<L' '<<
+	fmt::MinWidth(2)<<MSG(MEditStatusChar)<<L' '<<
+	fmt::LeftAlign()<<fmt::MinWidth(4)<<m_editor->CurLine->GetCurPos()+1<<L' '<<
 
 
-	fmt::Width(3)<<strAttr;
+	fmt::MinWidth(3)<<strAttr;
 	int StatusWidth=ObjWidth - ((Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))?5:0);
 
 	if (StatusWidth<0)
 		StatusWidth=0;
 
-	FS<<fmt::LeftAlign()<<fmt::Width(StatusWidth)<<fmt::Precision(StatusWidth)<<FString;
+	FS<<fmt::LeftAlign()<<fmt::ExactWidth(StatusWidth)<<FString;
 	{
 		const wchar_t *Str;
 		int Length;
@@ -2344,14 +2344,14 @@ void FileEditor::ShowStatus()
 			switch(m_editor->EdOpt.CharCodeBase)
 			{
 			case 0:
-				FS << fmt::Width(7) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(Str[CurPos]);
+				FS << fmt::MinWidth(7) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(Str[CurPos]);
 				break;
 			case 2:
-				FS << fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(Str[CurPos]) << L'h';
+				FS << fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(Str[CurPos]) << L'h';
 				break;
 			case 1:
 			default:
-				FS << fmt::Width(5) << static_cast<UINT>(Str[CurPos]);
+				FS << fmt::MinWidth(5) << static_cast<UINT>(Str[CurPos]);
 				break;
 			}
 
@@ -2367,14 +2367,14 @@ void FileEditor::ShowStatus()
 					switch(m_editor->EdOpt.CharCodeBase)
 					{
 					case 0:
-						FS << fmt::Width(4) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(C);
+						FS << fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(C);
 						break;
 					case 2:
-						FS << fmt::Width(2) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(C) << L'h';
+						FS << fmt::MinWidth(2) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(C) << L'h';
 						break;
 					case 1:
 					default:
-						FS << fmt::Width(3) << static_cast<UINT>(C);
+						FS << fmt::MinWidth(3) << static_cast<UINT>(C);
 						break;
 					}
 				}

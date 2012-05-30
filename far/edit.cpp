@@ -225,15 +225,15 @@ void Edit::DisplayObject()
 		if (Flags.Check(FEDITLINE_OVERTYPE))
 		{
 			int NewCursorSize=IsConsoleFullscreen()?
-			                  (Opt.CursorSize[3]?Opt.CursorSize[3]:99):
-					                  (Opt.CursorSize[2]?Opt.CursorSize[2]:99);
+			                  (Opt.CursorSize[3]?(int)Opt.CursorSize[3]:99):
+					                  (Opt.CursorSize[2]?(int)Opt.CursorSize[2]:99);
 			::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
 		}
 		else
 {
 			int NewCursorSize=IsConsoleFullscreen()?
-			                  (Opt.CursorSize[1]?Opt.CursorSize[1]:10):
-					                  (Opt.CursorSize[0]?Opt.CursorSize[0]:10);
+			                  (Opt.CursorSize[1]?(int)Opt.CursorSize[1]:10):
+					                  (Opt.CursorSize[0]?(int)Opt.CursorSize[0]:10);
 			::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
 		}
 	}
@@ -460,18 +460,18 @@ void Edit::FastShow()
 			if (Mask && *Mask)
 				OutStrLength=StrLength(RemoveTrailingSpaces(OutStr));
 
-			FS<<fmt::LeftAlign()<<fmt::Width(OutStrLength)<<fmt::Precision(OutStrLength)<<OutStr;
+			FS<<fmt::LeftAlign()<<fmt::ExactWidth(OutStrLength)<<OutStr;
 			SetColor(Color);
 			int BlankLength=EditLength-OutStrLength;
 
 			if (BlankLength > 0)
 			{
-				FS<<fmt::Width(BlankLength)<<L"";
+				FS<<fmt::MinWidth(BlankLength)<<L"";
 			}
 		}
 		else
 		{
-			FS<<fmt::LeftAlign()<<fmt::Width(EditLength)<<fmt::Precision(EditLength)<<OutStr;
+			FS<<fmt::LeftAlign()<<fmt::ExactWidth(EditLength)<<OutStr;
 		}
 	}
 	else
@@ -499,19 +499,19 @@ void Edit::FastShow()
 			if (Flags.Check(FEDITLINE_DROPDOWNBOX))
 			{
 				SetColor(SelColor);
-				FS<<fmt::Width(X2-X1+1)<<OutStr;
+				FS<<fmt::MinWidth(X2-X1+1)<<OutStr;
 			}
 			else
 				Text(OutStr);
 		}
 		else
 		{
-			FS<<fmt::Precision(TabSelStart)<<OutStr;
+			FS<<fmt::MaxWidth(TabSelStart)<<OutStr;
 			SetColor(SelColor);
 
 			if (!Flags.Check(FEDITLINE_DROPDOWNBOX))
 			{
-				FS<<fmt::Precision(TabSelEnd-TabSelStart)<<OutStr+TabSelStart;
+				FS<<fmt::MaxWidth(TabSelEnd-TabSelStart)<<OutStr+TabSelStart;
 
 				if (TabSelEnd<EditLength)
 				{
@@ -522,7 +522,7 @@ void Edit::FastShow()
 			}
 			else
 			{
-				FS<<fmt::Width(X2-X1+1)<<OutStr;
+				FS<<fmt::MinWidth(X2-X1+1)<<OutStr;
 			}
 		}
 	}
@@ -2446,6 +2446,10 @@ int Edit::RealPosToTab(int Pos)
 	return RealPosToTab(0, 0, Pos, nullptr);
 }
 
+const wchar_t* Edit::WordDiv()
+{
+	return *strWordDiv;
+}
 
 int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 {
@@ -3148,9 +3152,9 @@ void EditControl::Changed(bool DelBlock)
 
 void EditControl::SetMenuPos(VMenu& menu)
 {
-	if(ScrY-Y1<Min(Opt.Dialogs.CBoxMaxHeight,menu.GetItemCount())+2 && Y1>ScrY/2)
+	if(ScrY-Y1<Min(Opt.Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())+2 && Y1>ScrY/2)
 	{
-		menu.SetPosition(X1,Max(0,Y1-1-Min(Opt.Dialogs.CBoxMaxHeight,menu.GetItemCount())-1),Min(ScrX-2,X2),Y1-1);
+		menu.SetPosition(X1,Max(0,Y1-1-Min(Opt.Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())-1),Min(ScrX-2,X2),Y1-1);
 	}
 	else
 	{

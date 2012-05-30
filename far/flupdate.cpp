@@ -510,7 +510,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 int FileList::UpdateIfChanged(int UpdateMode)
 {
 	//_SVS(SysLog(L"CurDir='%s' Opt.AutoUpdateLimit=%d <= FileCount=%d",CurDir,Opt.AutoUpdateLimit,FileCount));
-	if (!Opt.AutoUpdateLimit || static_cast<DWORD>(FileCount) <= Opt.AutoUpdateLimit)
+	if (!Opt.AutoUpdateLimit || static_cast<unsigned>(FileCount) <= static_cast<unsigned>(Opt.AutoUpdateLimit))
 	{
 		/* $ 19.12.2001 VVM
 		  ! Сменим приоритеты. При Force обновление всегда! */

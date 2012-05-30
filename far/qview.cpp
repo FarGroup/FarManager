@@ -53,8 +53,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "syslog.hpp"
 #include "palette.hpp"
 
-static int LastWrapMode = -1;
-static int LastWrapType = -1;
+static bool LastMode = false;
+static bool LastWrapMode = false;
+static bool LastWrapType = false;
 
 QuickView::QuickView():
 	QView(nullptr),
@@ -63,8 +64,9 @@ QuickView::QuickView():
 	uncomplete_dirscan(false)
 {
 	Type=QVIEW_PANEL;
-	if (LastWrapMode < 0)
+	if (!LastMode)
 	{
+		LastMode = true;
 		LastWrapMode = Opt.ViOpt.ViewerIsWrap;
 		LastWrapType = Opt.ViOpt.ViewerWrap;
 	}
@@ -115,7 +117,7 @@ void QuickView::DisplayObject()
 	DrawSeparator(Y2-2);
 	SetColor(COL_PANELTEXT);
 	GotoXY(X1+1,Y2-1);
-	FS<<fmt::LeftAlign()<<fmt::Width(X2-X1-1)<<fmt::Precision(X2-X1-1)<<PointToName(strCurFileName);
+	FS<<fmt::LeftAlign()<<fmt::ExactWidth(X2-X1-1)<<PointToName(strCurFileName);
 
 	if (!strCurFileType.IsEmpty())
 	{
@@ -198,7 +200,7 @@ void QuickView::DisplayObject()
 					if (Opt.ShowUnknownReparsePoint)
 					{
 						FormatString strResult;
-						strResult<<L":"<<fmt::Radix(16)<<fmt::Width(8)<<fmt::Precision(8)<<ReparseTag;
+						strResult<<L":"<<fmt::Radix(16)<<fmt::ExactWidth(8)<<ReparseTag;
 						Tmp = strResult;
 						PtrName = Tmp;
 					}
@@ -538,7 +540,7 @@ void QuickView::PrintText(const wchar_t *Str)
 	if (WhereY()>Y2-3 || WhereX()>X2-2)
 		return;
 
-	FS<<fmt::Precision(X2-2-WhereX()+1)<<Str;
+	FS<<fmt::MaxWidth(X2-2-WhereX()+1)<<Str;
 }
 
 

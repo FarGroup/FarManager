@@ -109,7 +109,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 	int DizPresent;
 	int Ret;
 	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
-	int Opt_DeleteToRecycleBin=Opt.DeleteToRecycleBin;
+	bool Opt_DeleteToRecycleBin=Opt.DeleteToRecycleBin;
 	/*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
 	Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
 	FrameFromLaunched->Lock();
@@ -630,7 +630,7 @@ void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePer
 			wmemset(WipeProgress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(WipeProgress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strWipeProgress.ReleaseBuffer(Length);
-			strWipeProgress<<L" "<<fmt::Width(3)<<WipePercent<<L"%";
+			strWipeProgress<<L" "<<fmt::MinWidth(3)<<WipePercent<<L"%";
 		}
 		if(Percent==-1)
 		{
@@ -647,7 +647,7 @@ void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePer
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);
-			strProgress<<L" "<<fmt::Width(3)<<Percent<<L"%";
+			strProgress<<L" "<<fmt::MinWidth(3)<<Percent<<L"%";
 			*DeleteTitle << L"{" << Percent << L"%} " << MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle) << fmt::Flush();
 		}
 		TBC.SetProgressValue(Percent,100);
@@ -911,7 +911,7 @@ bool MoveToRecycleBinInternal(LPCWSTR Object)
 	DWORD Result=SHFileOperation(&fop);
 
 	if (Result == 0x78 // DE_ACCESSDENIEDSRC == ERROR_ACCESS_DENIED
-		&& Opt.CurrentElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
+		&& Opt.ElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
 	{
 		Result = Elevation.fMoveToRecycleBin(fop);
 	}

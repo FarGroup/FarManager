@@ -94,11 +94,11 @@ int GetSearchReplaceString(
     string& ReplaceStr,
     const wchar_t *TextHistoryName,
     const wchar_t *ReplaceHistoryName,
-    int& Case,
-    int& WholeWords,
-    int& Reverse,
-    int& SelectFound,
-    int& Regexp,
+    bool& Case,
+    bool& WholeWords,
+    bool& Reverse,
+    bool& SelectFound,
+    bool& Regexp,
     const wchar_t *HelpTopic=nullptr);
 
 int GetString(

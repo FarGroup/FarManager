@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panelctype.hpp"
+#include "configdb.hpp"
 
 //  +CASR_* Поведение Ctrl-Alt-Shift для AllCtrlAltShiftRule
 enum
@@ -103,59 +104,147 @@ enum FarPoliciesFlags
 	FFPOL_SHOWHIDDENDRIVES      = 0x80000000,
 };
 
+class Option
+{
+public:
+	explicit Option(const string& Value):sValue(new string(Value)), ValueChanged(false), IsString(true){}
+	explicit Option(const int Value):iValue(Value), ValueChanged(false), IsString(false){}
+	virtual ~Option(){if(IsString) delete sValue;}
+	bool Changed(){return ValueChanged;}
+	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName) = 0;
+	virtual const string toString() = 0;
+protected:
+	const string& GetString() const {return *sValue;}
+	const int GetInt() const {return iValue;}
+	void Set(const string& NewValue) {if(*sValue != NewValue) {*sValue = NewValue; ValueChanged = true;}}
+	void Set(const int NewValue) {if(iValue != NewValue) {iValue = NewValue; ValueChanged = true;}}
+	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) = 0;
+private:
+	void MakeUnchanged(){ValueChanged = false;}
+	union
+	{
+		string* sValue;
+		int iValue;
+	};
+	bool ValueChanged;
+	bool IsString;
+	friend void ReadConfig();
+};
+
+class BoolOption:public Option
+{
+public:
+	BoolOption():Option(false){}
+	BoolOption(const bool& Value):Option(Value){}
+	BoolOption& operator=(bool Value){Set(Value); return *this;}
+	const bool Get() const {return GetInt() != false;}
+	operator bool() const {return GetInt() != false;}
+	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, bool Default);
+	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName);
+	virtual const string toString(){return Get()? L"true":L"false";}
+private:
+	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(KeyName, ValueName, reinterpret_cast<intptr_t>(Default) != 0);}
+
+};
+
+class IntOption:public Option
+{
+public:
+	IntOption():Option(0){}
+	IntOption(const int& Value):Option(Value){}
+	const int Get() const {return GetInt();}
+	IntOption& operator=(int Value){Set(Value); return *this;}
+	IntOption& operator|=(const int& Value){Set(GetInt()|Value); return *this;}
+	IntOption& operator&=(const int& Value){Set(GetInt()&Value); return *this;}
+	IntOption& operator%=(const int& Value){Set(GetInt()%Value); return *this;}
+	IntOption& operator^=(const int& Value){Set(GetInt()^Value); return *this;}
+	IntOption& operator--(){Set(GetInt()-1); return *this;}
+	IntOption& operator++(){Set(GetInt()+1); return *this;}
+	IntOption operator--(int){int Current = GetInt(); Set(Current-1); return Current;}
+	IntOption operator++(int){int Current = GetInt(); Set(Current+1); return Current;}
+	operator int() const {return GetInt();}
+	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, int Default);
+	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName);
+	virtual const string toString(){FormatString s; s << Get(); return s;}
+private:
+	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(KeyName, ValueName, static_cast<int>(reinterpret_cast<intptr_t>(Default)));}
+};
+
+class StringOption:public Option
+{
+public:
+	StringOption():Option(L""){}
+	StringOption(const string& Value):Option(Value){}
+	const string& Get() const {return GetString();}
+	operator const wchar_t *() const {return GetString();}
+	operator const string&() const {return GetString();}
+	void Clear() {Set(L"");}
+	bool IsEmpty() const {return GetString().IsEmpty();}
+	size_t GetLength() const {return Get().GetLength();}
+	wchar_t At(size_t Pos) const {return Get().At(Pos);}
+	StringOption& operator=(const wchar_t* Value) {Set(Value); return *this;}
+	StringOption& operator=(const string& Value) {Set(Value); return *this;}
+	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
+	StringOption& operator+=(wchar_t Value) {Set(Get()+Value); return *this;}
+	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const wchar_t* Default);
+	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(KeyName, ValueName, static_cast<const wchar_t*>(Default));}
+	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName);
+	virtual const string toString(){return Get();}
+};
+
 struct PanelOptions
 {
-	int Type;
-	int Visible;
-	int Focus;
-	int ViewMode;
-	int SortMode;
-	int SortOrder;
-	int SortGroups;
-	int ShowShortNames;
-	int NumericSort;
-	int CaseSensitiveSort;
-	int DirectoriesFirst;
+	IntOption Type;
+	BoolOption Visible;
+	BoolOption Focus;
+	IntOption ViewMode;
+	IntOption SortMode;
+	IntOption SortOrder;
+	BoolOption SortGroups;
+	BoolOption ShowShortNames;
+	BoolOption NumericSort;
+	BoolOption CaseSensitiveSort;
+	BoolOption DirectoriesFirst;
 };
 
 struct AutoCompleteOptions
 {
-	int ShowList;
-	int ModalList;
-	int AppendCompletion;
+	BoolOption ShowList;
+	BoolOption ModalList;
+	BoolOption AppendCompletion;
 
-	int UseFilesystem;
-	int UseHistory;
-	int UsePath;
+	IntOption UseFilesystem;
+	IntOption UseHistory;
+	IntOption UsePath;
 };
 
 
 struct PluginConfirmation
 {
-	int OpenFilePlugin;
-	int StandardAssociation;
-	int EvenIfOnlyOnePlugin;
-	int SetFindList;
-	int Prefix;
+	IntOption OpenFilePlugin;
+	BoolOption StandardAssociation;
+	BoolOption EvenIfOnlyOnePlugin;
+	BoolOption SetFindList;
+	BoolOption Prefix;
 };
 
 struct Confirmation
 {
-	int Copy;
-	int Move;
-	int RO;
-	int Drag;
-	int Delete;
-	int DeleteFolder;
-	int Exit;
-	int Esc;  // Для CheckForEsc
+	BoolOption Copy;
+	BoolOption Move;
+	BoolOption RO;
+	BoolOption Drag;
+	BoolOption Delete;
+	BoolOption DeleteFolder;
+	BoolOption Exit;
+	BoolOption Esc;  // Для CheckForEsc
 	/* $ 12.03.2002 VVM
 	  + Opt.EscTwiceToInterrupt
 	    Определяет поведение при прерывании длительной операции
 	    0 - второй ESC продолжает операцию
 	    1 - второй ESC прерывает операцию */
-	int EscTwiceToInterrupt;
-	int RemoveConnection;
+	BoolOption EscTwiceToInterrupt;
+	BoolOption RemoveConnection;
 	/* $ 23.05.2001
 	  +  Opt.Confirmation.AllowReedit - Флаг, который изменяет поведение открытия
 	    файла на редактирование если, данный файл уже редактируется. По умолчанию - 1
@@ -166,69 +255,70 @@ struct Confirmation
 	    1 - Так как было раньше. Задается вопрос и происходит переход либо уже к открытому файлу
 	        либо загружается новая версия редактора.
 	    */
-	int AllowReedit;
-	int HistoryClear;
-	int RemoveSUBST;
-	int RemoveHotPlug;
-	int DetachVHD;
+	BoolOption AllowReedit;
+	BoolOption HistoryClear;
+	BoolOption RemoveSUBST;
+	BoolOption RemoveHotPlug;
+	BoolOption DetachVHD;
 };
 
 struct DizOptions
 {
-	string strListNames;
-	int ROUpdate;
-	int UpdateMode;
-	int SetHidden;
-	int StartPos;
-	int AnsiByDefault;
-	int SaveInUTF;
+	StringOption strListNames;
+	BoolOption ROUpdate;
+	IntOption UpdateMode;
+	BoolOption SetHidden;
+	IntOption StartPos;
+	BoolOption AnsiByDefault;
+	BoolOption SaveInUTF;
 };
 
 struct CodeXLAT
 {
 	HKL Layouts[10];
-	string Rules[3]; // правила:
+	StringOption strLayouts;
+	StringOption Rules[3]; // правила:
 	// [0] "если предыдущий символ латинский"
 	// [1] "если предыдущий символ нелатинский символ"
 	// [2] "если предыдущий символ не рус/lat"
-	string Table[2]; // [0] non-english буквы, [1] english буквы
-	string strWordDivForXlat;
-	DWORD Flags;       // дополнительные флаги
+	StringOption Table[2]; // [0] non-english буквы, [1] english буквы
+	StringOption strWordDivForXlat;
+	IntOption Flags;       // дополнительные флаги
 	int CurrentLayout;
 };
 
 struct EditorOptions
 {
-	int TabSize;
-	int ExpandTabs;
-	int PersistentBlocks;
-	int DelRemovesBlocks;
-	int AutoIndent;
-	int AutoDetectCodePage;
-	int AnsiCodePageForNewFile;
-	int AnsiCodePageAsDefault;
-	int CursorBeyondEOL;
-	int BSLikeDel;
-	int CharCodeBase;
-	int SavePos;
-	int SaveShortPos;
-	int F7Rules; // $ 28.11.2000 SVS - Правило на счет поиска в редакторе
-	int AllowEmptySpaceAfterEof; // $ 21.06.2005 SKV - разрешить показывать пустое пространство после последней строки редактируемого файла.
-	int ReadOnlyLock; // $ 29.11.2000 SVS - лочить файл при открытии в редакторе, если он имеет атрибуты R|S|H
-	int UndoSize; // $ 03.12.2001 IS - размер буфера undo в редакторе
-	int UseExternalEditor;
-	DWORD FileSizeLimitLo;
-	DWORD FileSizeLimitHi;
-	int ShowKeyBar;
-	int ShowTitleBar;
-	int ShowScrollBar;
-	int EditOpenedForWrite;
-	int SearchSelFound;
-	int SearchRegexp;
-	int SearchPickUpWord;
-	int ShowWhiteSpace;
+	IntOption TabSize;
+	IntOption ExpandTabs;
+	BoolOption PersistentBlocks;
+	BoolOption DelRemovesBlocks;
+	BoolOption AutoIndent;
+	BoolOption AutoDetectCodePage;
+	BoolOption AnsiCodePageForNewFile;
+	BoolOption AnsiCodePageAsDefault;
+	BoolOption CursorBeyondEOL;
+	BoolOption BSLikeDel;
+	IntOption CharCodeBase;
+	IntOption SavePos;
+	IntOption SaveShortPos;
+	BoolOption F7Rules; // $ 28.11.2000 SVS - Правило на счет поиска в редакторе
+	BoolOption AllowEmptySpaceAfterEof; // $ 21.06.2005 SKV - разрешить показывать пустое пространство после последней строки редактируемого файла.
+	IntOption ReadOnlyLock; // $ 29.11.2000 SVS - лочить файл при открытии в редакторе, если он имеет атрибуты R|S|H
+	IntOption UndoSize; // $ 03.12.2001 IS - размер буфера undo в редакторе
+	BoolOption UseExternalEditor;
+	IntOption FileSizeLimitLo;
+	IntOption FileSizeLimitHi;
+	BoolOption ShowKeyBar;
+	BoolOption ShowTitleBar;
+	BoolOption ShowScrollBar;
+	BoolOption EditOpenedForWrite;
+	BoolOption SearchSelFound;
+	BoolOption SearchRegexp;
+	BoolOption SearchPickUpWord;
+	IntOption ShowWhiteSpace;
 
-	string strWordDiv;
+	StringOption strWordDiv;
 
 	void Clear()
 	{
@@ -309,102 +399,102 @@ struct ViewerOptions
 		eMaxLineSize = 100*1000
 	};
 
-	int TabSize;
-	int AutoDetectCodePage;
-	int ShowScrollbar;     // $ 18.07.2000 tran пара настроек для viewer
-	int ShowArrows;
-	int PersistentBlocks; // $ 14.05.2002 VVM Постоянные блоки во вьюере
-	int ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
-	int ViewerWrap; // Wrap=0|WordWarp=1
-	int SavePos;
-	int SaveShortPos;
-	int UseExternalViewer;
-	int ShowKeyBar; // $ 15.07.2000 tran + ShowKeyBar
-	int AnsiCodePageAsDefault;
-	int ShowTitleBar;
-	int SearchRegexp;
-	int MaxLineSize; // 100..100000, default=10000
-	int SearchEditFocus; // auto-focus on edit text/hex window
-	int Visible0x00;
-	int ZeroChar;
+	IntOption TabSize;
+	BoolOption AutoDetectCodePage;
+	BoolOption ShowScrollbar;     // $ 18.07.2000 tran пара настроек для viewer
+	BoolOption ShowArrows;
+	BoolOption PersistentBlocks; // $ 14.05.2002 VVM Постоянные блоки во вьюере
+	BoolOption ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
+	BoolOption ViewerWrap; // Wrap=0|WordWarp=1
+	BoolOption SavePos;
+	BoolOption SaveShortPos;
+	BoolOption UseExternalViewer;
+	BoolOption ShowKeyBar; // $ 15.07.2000 tran + ShowKeyBar
+	BoolOption AnsiCodePageAsDefault;
+	BoolOption ShowTitleBar;
+	BoolOption SearchRegexp;
+	IntOption MaxLineSize; // 100..100000, default=10000
+	BoolOption SearchEditFocus; // auto-focus on edit text/hex window
+	BoolOption Visible0x00;
+	IntOption ZeroChar;
 };
 
 // "Полиция"
 struct PoliciesOptions
 {
-	int DisabledOptions;  // разрешенность меню конфигурации
-	int ShowHiddenDrives; // показывать скрытые логические диски
+	IntOption DisabledOptions;  // разрешенность меню конфигурации
+	BoolOption ShowHiddenDrives; // показывать скрытые логические диски
 };
 
 struct DialogsOptions
 {
-	int   EditBlock;            // Постоянные блоки в строках ввода
-	int   EditHistory;          // Добавлять в историю?
-	int   AutoComplete;         // Разрешено автодополнение?
-	int   EULBsClear;           // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
-	int   SelectFromHistory;    // = 0 then (ctrl-down в строке с историей курсор устанавливался на самую верхнюю строку)
-	DWORD EditLine;             // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
-	int   MouseButton;          // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
-	int   DelRemovesBlocks;
-	int   CBoxMaxHeight;        // максимальный размер открываемого списка (по умолчанию=8)
+	BoolOption EditBlock;            // Постоянные блоки в строках ввода
+	BoolOption EditHistory;          // Добавлять в историю?
+	BoolOption AutoComplete;         // Разрешено автодополнение?
+	BoolOption EULBsClear;           // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
+	BoolOption SelectFromHistory;    // = 0 then (ctrl-down в строке с историей курсор устанавливался на самую верхнюю строку)
+	IntOption EditLine;             // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
+	IntOption MouseButton;          // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
+	BoolOption DelRemovesBlocks;
+	IntOption CBoxMaxHeight;        // максимальный размер открываемого списка (по умолчанию=8)
 };
 
 struct VMenuOptions
 {
-	int   LBtnClick;
-	int   RBtnClick;
-	int   MBtnClick;
+	IntOption LBtnClick;
+	IntOption RBtnClick;
+	IntOption MBtnClick;
 };
 
 struct CommandLineOptions
 {
-	int EditBlock;
-	int DelRemovesBlocks;
-	int AutoComplete;
-	int UsePromptFormat;
-	string strPromptFormat;
+	BoolOption EditBlock;
+	BoolOption DelRemovesBlocks;
+	BoolOption AutoComplete;
+	BoolOption UsePromptFormat;
+	StringOption strPromptFormat;
 };
 
 struct NowellOptions
 {
-	int MoveRO;               // перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
+	BoolOption MoveRO;               // перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
 };
 
 struct ScreenSizes
 {
-	COORD DeltaXY;            // на сколько поз. изменить размеры для распахнутого экрана
-	int WScreenSizeSet;
-	COORD WScreenSize[4];
+	// на сколько поз. изменить размеры для распахнутого экрана
+	IntOption DeltaX;
+	IntOption DeltaY;
 };
 
 struct LoadPluginsOptions
 {
 	string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
 	string strPersonalPluginsPath;
-//  DWORD TypeLoadPlugins;       // see TYPELOADPLUGINSOPTIONS
-	int MainPluginDir; // TRUE - использовать стандартный путь к основным плагинам
-	int PluginsCacheOnly; // seting by '/co' switch, not saved in registry
-	int PluginsPersonal;
+//  IntOption TypeLoadPlugins;       // see TYPELOADPLUGINSOPTIONS
+	bool MainPluginDir; // TRUE - использовать стандартный путь к основным плагинам
+	bool PluginsCacheOnly; // seting by '/co' switch, not saved in registry
+	bool PluginsPersonal;
 
-	int SilentLoadPlugin; // при загрузке плагина с кривым...
+	BoolOption SilentLoadPlugin; // при загрузке плагина с кривым...
 #ifndef NO_WRAPPER
-	int OEMPluginsSupport;
+	BoolOption OEMPluginsSupport;
 #endif // NO_WRAPPER
-	int ScanSymlinks;
+	BoolOption ScanSymlinks;
 };
 
 struct FindFileOptions
 {
-	int FileSearchMode;
-	int FindFolders;
-	int FindSymLinks;
-	int CollectFiles;
-	int UseFilter;
-	int FindAlternateStreams;
-	string strSearchInFirstSize;
+	IntOption FileSearchMode;
+	BoolOption FindFolders;
+	BoolOption FindSymLinks;
+	BoolOption CollectFiles;
+	BoolOption UseFilter;
+	BoolOption FindAlternateStreams;
+	StringOption strSearchInFirstSize;
 
-	string strSearchOutFormat;
-	string strSearchOutFormatWidth;
+	StringOption strSearchOutFormat;
+	StringOption strSearchOutFormatWidth;
 	int OutColumnCount;
 	unsigned __int64 OutColumnTypes[PANEL_COLUMNCOUNT];
 	int OutColumnWidths[PANEL_COLUMNCOUNT];
@@ -413,19 +503,19 @@ struct FindFileOptions
 
 struct InfoPanelOptions
 {
-	COMPUTER_NAME_FORMAT ComputerNameFormat;
-	EXTENDED_NAME_FORMAT UserNameFormat;
-	int ShowPowerStatus;
-	string strShowStatusInfo;
-	string strFolderInfoFiles;
-	int ShowCDInfo;
+	IntOption ComputerNameFormat;
+	IntOption UserNameFormat;
+	BoolOption ShowPowerStatus;
+	StringOption strShowStatusInfo;
+	StringOption strFolderInfoFiles;
+	BoolOption ShowCDInfo;
 };
 
 struct TreeOptions
 {
-	int MinTreeCount;         // Минимальное количество папок для сохранения дерева в файле.
-	int AutoChangeFolder;     // Автосмена папок при перемещении по дереву
-	DWORD TreeFileAttr;       // Файловые атрибуты для файлов-деревях
+	IntOption MinTreeCount;         // Минимальное количество папок для сохранения дерева в файле.
+	BoolOption AutoChangeFolder;     // Автосмена папок при перемещении по дереву
+	IntOption TreeFileAttr;       // Файловые атрибуты для файлов-деревях
 
 #if defined(TREEFILE_PROJECT)
 	int LocalDisk;            // Хранить файл структуры папок для локальных дисков
@@ -449,162 +539,165 @@ struct TreeOptions
 
 struct CopyMoveOptions
 {
-	int UseSystemCopy;         // использовать системную функцию копирования
-	int CopyOpened;            // копировать открытые на запись файлы
-	int CopyShowTotal;         // показать общий индикатор копирования
-	int MultiCopy;             // "разрешить мультикопирование/перемещение/создание связей"
-	DWORD CopySecurityOptions; // для операции Move - что делать с опцией "Copy access rights"
-	int CopyTimeRule;          // $ 30.01.2001 VVM  Показывает время копирования,оставшееся время и среднюю скорость
-	size_t BufferSize;
+	BoolOption UseSystemCopy;         // использовать системную функцию копирования
+	BoolOption CopyOpened;            // копировать открытые на запись файлы
+	BoolOption CopyShowTotal;         // показать общий индикатор копирования
+	BoolOption MultiCopy;             // "разрешить мультикопирование/перемещение/создание связей"
+	IntOption CopySecurityOptions; // для операции Move - что делать с опцией "Copy access rights"
+	IntOption CopyTimeRule;          // $ 30.01.2001 VVM  Показывает время копирования,оставшееся время и среднюю скорость
+	IntOption BufferSize;
 };
 
 struct DeleteOptions
 {
-	int DelShowTotal;         // показать общий индикатор удаления
+	BoolOption DelShowTotal;         // показать общий индикатор удаления
 };
 
 struct MacroOptions
 {
-	int MacroReuseRules; // Правило на счет повторно использования забинденных клавиш
-	DWORD DisableMacro; // параметры /m или /ma или /m....
-	DWORD KeyMacroCtrlDot, KeyMacroRCtrlDot; // аля KEY_CTRLDOT/KEY_RCTRLDOT
-	DWORD KeyMacroCtrlShiftDot, KeyMacroRCtrlShiftDot; // аля KEY_CTRLSHIFTDOT/KEY_RCTRLSHIFTDOT
-	string strMacroCONVFMT; // формат преобразования double в строку
-	string strDateFormat; // Для $Date
+	BoolOption MacroReuseRules; // Правило на счет повторно использования забинденных клавиш
+	int DisableMacro; // параметры /m или /ma или /m....
+	// config
+	StringOption strKeyMacroCtrlDot, strKeyMacroRCtrlDot; // аля KEY_CTRLDOT/KEY_RCTRLDOT
+	StringOption strKeyMacroCtrlShiftDot, strKeyMacroRCtrlShiftDot; // аля KEY_CTRLSHIFTDOT/KEY_RCTRLSHIFTDOT
+	// internal
+	int KeyMacroCtrlDot, KeyMacroRCtrlDot;
+	int KeyMacroCtrlShiftDot, KeyMacroRCtrlShiftDot;
+	StringOption strMacroCONVFMT; // формат преобразования double в строку
+	StringOption strDateFormat; // Для $Date
 };
 
 struct KnownModulesIDs
 {
 	GUID Network;
-	string NetworkGuidStr;
+	StringOption NetworkGuidStr;
 	GUID Emenu;
-	string EmenuGuidStr;
+	StringOption EmenuGuidStr;
 };
 
 struct ExecuteOptions
 {
-	int RestoreCPAfterExecute;
-	int ExecuteUseAppPath;
-	int ExecuteFullTitle;
-	int ExecuteSilentExternal;
-	string strExecuteBatchType;
-	string strExcludeCmds;
-	int    UseHomeDir; // cd ~
-	string strHomeDir; // cd ~
+	BoolOption RestoreCPAfterExecute;
+	BoolOption ExecuteUseAppPath;
+	BoolOption ExecuteFullTitle;
+	BoolOption ExecuteSilentExternal;
+	StringOption strExecuteBatchType;
+	StringOption strExcludeCmds;
+	BoolOption    UseHomeDir; // cd ~
+	StringOption strHomeDir; // cd ~
 };
 
 struct Options
 {
 	palette Palette;
-	int Clock;
-	int Mouse;
-	int ShowKeyBar;
-	int ScreenSaver;
-	int ScreenSaverTime;
-	int UseVk_oem_x;
-	int ShowHidden;
-	int Highlight;
+	BoolOption Clock;
+	BoolOption Mouse;
+	BoolOption ShowKeyBar;
+	BoolOption ScreenSaver;
+	IntOption ScreenSaverTime;
+	BoolOption UseVk_oem_x;
+	BoolOption ShowHidden;
+	BoolOption Highlight;
 
-	string strLeftFolder;
-	string strRightFolder;
+	StringOption strLeftFolder;
+	StringOption strRightFolder;
 
-	string strLeftCurFile;
-	string strRightCurFile;
+	StringOption strLeftCurFile;
+	StringOption strRightCurFile;
 
-	int RightSelectedFirst;
-	int LeftSelectedFirst;
-	int SelectFolders;
-	int ReverseSort;
-	int SortFolderExt;
-	int DeleteToRecycleBin;         // удалять в корзину?
-	int DeleteToRecycleBinKillLink; // перед удалением папки в корзину кильнем вложенные симлинки.
-	int WipeSymbol; // символ заполнитель для "ZAP-операции"
+	BoolOption RightSelectedFirst;
+	BoolOption LeftSelectedFirst;
+	BoolOption SelectFolders;
+	BoolOption ReverseSort;
+	BoolOption SortFolderExt;
+	BoolOption DeleteToRecycleBin;         // удалять в корзину?
+	BoolOption DeleteToRecycleBinKillLink; // перед удалением папки в корзину кильнем вложенные симлинки.
+	IntOption WipeSymbol; // символ заполнитель для "ZAP-операции"
 
 	CopyMoveOptions CMOpt;
 
 	DeleteOptions DelOpt;
 
-	int MultiMakeDir; // Опция создания нескольких каталогов за один сеанс
+	BoolOption MultiMakeDir; // Опция создания нескольких каталогов за один сеанс
 
-	int CreateUppercaseFolders;
-	int UseRegisteredTypes;
+	BoolOption CreateUppercaseFolders;
+	BoolOption UseRegisteredTypes;
 
-	int ViewerEditorClock;
-	int OnlyEditorViewerUsed; // =1, если старт был /e или /v
-	int SaveViewHistory;
-	int ViewHistoryCount;
-	int ViewHistoryLifetime;
+	BoolOption ViewerEditorClock;
+	BoolOption OnlyEditorViewerUsed; // =1, если старт был /e или /v
+	BoolOption SaveViewHistory;
+	IntOption ViewHistoryCount;
+	IntOption ViewHistoryLifetime;
 
-	string strExternalEditor;
+	StringOption strExternalEditor;
 	EditorOptions EdOpt;
-	string strExternalViewer;
+	StringOption strExternalViewer;
 	ViewerOptions ViOpt;
 
 
-	string strWordDiv; // $ 03.08.2000 SVS Разграничитель слов из реестра
-	string strQuotedSymbols;
-	DWORD QuotedName;
-	int AutoSaveSetup;
-	int SetupArgv; // количество каталогов в комюстроке ФАРа
-	int ChangeDriveMode;
-	int ChangeDriveDisconnectMode;
+	StringOption strWordDiv; // $ 03.08.2000 SVS Разграничитель слов из реестра
+	StringOption strQuotedSymbols;
+	IntOption QuotedName;
+	BoolOption AutoSaveSetup;
+	IntOption ChangeDriveMode;
+	BoolOption ChangeDriveDisconnectMode;
 
-	int SaveHistory;
-	int HistoryCount;
-	int HistoryLifetime;
-	int SaveFoldersHistory;
-	int FoldersHistoryCount;
-	int FoldersHistoryLifetime;
-	int DialogsHistoryCount;
-	int DialogsHistoryLifetime;
+	BoolOption SaveHistory;
+	IntOption HistoryCount;
+	IntOption HistoryLifetime;
+	BoolOption SaveFoldersHistory;
+	IntOption FoldersHistoryCount;
+	IntOption FoldersHistoryLifetime;
+	IntOption DialogsHistoryCount;
+	IntOption DialogsHistoryLifetime;
 
 	FindFileOptions FindOpt;
 
-	int LeftHeightDecrement;
-	int RightHeightDecrement;
-	int WidthDecrement;
+	IntOption LeftHeightDecrement;
+	IntOption RightHeightDecrement;
+	IntOption WidthDecrement;
 
-	int ShowColumnTitles;
-	int ShowPanelStatus;
-	int ShowPanelTotals;
-	int ShowPanelFree;
-	int PanelDetailedJunction;
-	int ShowUnknownReparsePoint;
-	int HighlightColumnSeparator;
-	int DoubleGlobalColumnSeparator;
+	BoolOption ShowColumnTitles;
+	BoolOption ShowPanelStatus;
+	BoolOption ShowPanelTotals;
+	BoolOption ShowPanelFree;
+	BoolOption PanelDetailedJunction;
+	BoolOption ShowUnknownReparsePoint;
+	BoolOption HighlightColumnSeparator;
+	BoolOption DoubleGlobalColumnSeparator;
 
-	int ShowPanelScrollbar;
-	int ShowMenuScrollbar; // $ 29.06.2000 SVS Добавлен атрибут показа Scroll Bar в меню.
-	int ShowScreensNumber;
-	int ShowSortMode;
-	int ShowMenuBar;
-	int FormatNumberSeparators;
-	int CleanAscii;
-	int NoGraphics;
+	BoolOption ShowPanelScrollbar;
+	BoolOption ShowMenuScrollbar; // $ 29.06.2000 SVS Добавлен атрибут показа Scroll Bar в меню.
+	BoolOption ShowScreensNumber;
+	BoolOption ShowSortMode;
+	BoolOption ShowMenuBar;
+	IntOption FormatNumberSeparators;
+	BoolOption CleanAscii;
+	BoolOption NoGraphics;
 
 	Confirmation Confirm;
 	PluginConfirmation PluginConfirm;
 
 	DizOptions Diz;
 
-	int ShellRightLeftArrowsRule;
+	BoolOption ShellRightLeftArrowsRule;
 	PanelOptions LeftPanel;
 	PanelOptions RightPanel;
 
 	AutoCompleteOptions AutoComplete;
 
-	DWORD  AutoUpdateLimit; // выше этого количество автоматически не обновлять панели.
-	int AutoUpdateRemoteDrive;
+	IntOption  AutoUpdateLimit; // выше этого количество автоматически не обновлять панели.
+	BoolOption AutoUpdateRemoteDrive;
 
-	string strLanguage;
-	int SmallIcon;
+	StringOption strLanguage;
+	bool SmallIcon;
 #ifndef NO_WRAPPER
 	string strRegRoot;
 #endif // NO_WRAPPER
-	int PanelRightClickRule; // задает поведение правой клавиши мыши
-	int PanelCtrlAltShiftRule; // задает поведение Ctrl-Alt-Shift для панелей.
+	IntOption PanelRightClickRule; // задает поведение правой клавиши мыши
+	IntOption PanelCtrlAltShiftRule; // задает поведение Ctrl-Alt-Shift для панелей.
 	// Panel/CtrlFRule в реестре - задает поведение Ctrl-F. Если = 0, то штампуется файл как есть, иначе - с учетом отображения на панели
-	int PanelCtrlFRule;
+	BoolOption PanelCtrlFRule;
 	/*
 	  битовые флаги, задают поведение Ctrl-Alt-Shift
 	   бит установлен - функция включена:
@@ -614,66 +707,69 @@ struct Options
 	   3 - Help
 	   4 - Dialog
 	*/
-	int AllCtrlAltShiftRule;
+	IntOption AllCtrlAltShiftRule;
 
-	int CASRule; // 18.12.2003 - Пробуем различать левый и правый CAS (попытка #1).
+	IntOption CASRule; // 18.12.2003 - Пробуем различать левый и правый CAS (попытка #1).
 	/*
 	  задает поведение Esc для командной строки:
 	    =1 - Не изменять положение в History, если после Ctrl-E/Ctrl/-X
 	         нажали ESC (поведение - аля VC).
 	    =0 - поведение как и было - изменять положение в History
 	*/
-	int CmdHistoryRule;
+	BoolOption CmdHistoryRule;
 
-	DWORD ExcludeCmdHistory;
-	int SubstPluginPrefix; // 1 = подстанавливать префикс плагина (для Ctrl-[ и ему подобные)
-	int MaxPositionCache; // количество позиций в кэше сохранения
-	int SetAttrFolderRules; // Правило на счет установки атрибутов на каталоги
-	int ExceptRules; // Правило на счет вызова исключений
-	int ExceptCallDebugger; // вызывать дебаггер при исключении
-	int ExceptUsed;
-	string strExceptEventSvc;
+	IntOption ExcludeCmdHistory;
+	BoolOption SubstPluginPrefix; // 1 = подстанавливать префикс плагина (для Ctrl-[ и ему подобные)
+	IntOption MaxPositionCache; // количество позиций в кэше сохранения
+	BoolOption SetAttrFolderRules; // Правило на счет установки атрибутов на каталоги
+
+	int UseExceptionHandler;
+	BoolOption StoredExceptRules; // Правило на счет вызова исключений
+	int ExceptRules;
+
+	BoolOption ExceptUsed;
+	StringOption strExceptEventSvc;
 	/*
 	 + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
 	   Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
 	   модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
 	*/
-	int ShiftsKeyRules;
-	int CursorSize[4];   // Размер курсора ФАРа
+	BoolOption ShiftsKeyRules;
+	IntOption CursorSize[4];   // Размер курсора ФАРа
 
 	CodeXLAT XLat;
 
-	int ConsoleDetachKey; // Комбинация клавиш для детача Far'овской консоли от длятельного неинтерактивного процесса в ней запущенного.
+	StringOption ConsoleDetachKey; // Комбинация клавиш для детача Far'овской консоли от длятельного неинтерактивного процесса в ней запущенного.
 
-	string strHelpLanguage;
-	int FullScreenHelp;
-	int HelpTabSize;
+	StringOption strHelpLanguage;
+	BoolOption FullScreenHelp;
+	IntOption HelpTabSize;
 
-	int HelpURLRules; // =0 отключить возможность запуска URL-приложений
+	IntOption HelpURLRules; // =0 отключить возможность запуска URL-приложений
 
 	// запоминать логические диски и не опрашивать каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
-	int RememberLogicalDrives;
+	BoolOption RememberLogicalDrives;
 	/*
 	  будет влиять на:
 	      добавление файлов в историю с разным регистром
 	      добавление LastPositions в редакторе и вьюере
 	*/
-	int FlagPosixSemantics;
+	BoolOption FlagPosixSemantics;
 
-	int MsWheelDelta; // задает смещение для прокрутки
-	int MsWheelDeltaView;
-	int MsWheelDeltaEdit;
-	int MsWheelDeltaHelp;
+	IntOption MsWheelDelta; // задает смещение для прокрутки
+	IntOption MsWheelDeltaView;
+	IntOption MsWheelDeltaEdit;
+	IntOption MsWheelDeltaHelp;
 	// горизонтальная прокрутка
-	int MsHWheelDelta;
-	int MsHWheelDeltaView;
-	int MsHWheelDeltaEdit;
+	IntOption MsHWheelDelta;
+	IntOption MsHWheelDeltaView;
+	IntOption MsHWheelDeltaEdit;
 
 	/* $ 28.04.2001 VVM
 	  + Opt.SubstNameRule битовая маска:
 	    0 - если установлен, то опрашивать сменные диски при GetSubstName()
 	    1 - если установлен, то опрашивать все остальные при GetSubstName() */
-	int SubstNameRule;
+	IntOption SubstNameRule;
 
 	/* $ 23.05.2001 AltF9
 	  + Opt.AltF9 Флаг позволяет выбрать механизм  работы комбинации Alt-F9
@@ -683,24 +779,24 @@ struct Options
 	    1 - использовать усовершенствованный механизм - окно FAR Manager
 	       будет переключаться с нормального на максимально доступный размер
 	       консольного окна и обратно.*/
-	int AltF9;
+	BoolOption AltF9;
 
-	int ClearType;
+	BoolOption ClearType;
 
-	int PgUpChangeDisk;
-	int ShowDotsInRoot;
-	int ShowCheckingFile;
-	int CloseCDGate;       // автомонтирование CD
-	int UpdateEnvironment;
+	IntOption PgUpChangeDisk;
+	BoolOption ShowDotsInRoot;
+	BoolOption ShowCheckingFile;
+	BoolOption CloseCDGate;       // автомонтирование CD
+	BoolOption UpdateEnvironment;
 
 	ExecuteOptions Exec;
 
-	DWORD PluginMaxReadData;
-	int ScanJunction;
+	IntOption PluginMaxReadData;
+	BoolOption ScanJunction;
 
-	DWORD ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
-	DWORD ShowTimeoutDACLFiles;
-	int DelThreadPriority; // приоритет процесса удаления, по умолчанию = THREAD_PRIORITY_NORMAL
+	IntOption ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
+	IntOption ShowTimeoutDACLFiles;
+	IntOption DelThreadPriority; // приоритет процесса удаления, по умолчанию = THREAD_PRIORITY_NORMAL
 
 	LoadPluginsOptions LoadPlug;
 
@@ -712,13 +808,13 @@ struct Options
 	ScreenSizes ScrSize;
 	MacroOptions Macro;
 
-	int FindCodePage;
+	IntOption FindCodePage;
 
 	TreeOptions Tree;
 	InfoPanelOptions InfoPanel;
 
-	DWORD CPMenuMode;
-	string strNoAutoDetectCP;
+	BoolOption CPMenuMode;
+	StringOption strNoAutoDetectCP;
 	// Перечисленные здесь кодовые страницы будут исключены из детектирования nsUniversalDetectorEx.
 	// Автодетект юникодных страниц от этого не зависит, поэтому UTF-8 будет определяться даже если
 	// 65001 здесь присутствует. Если UniversalDetector выдаст страницу из этого списка, она будет
@@ -729,24 +825,26 @@ struct Options
 	// отключена, либо будут разрешенны только 'любимые' и системные (OEM ANSI) кодовые страницы.
 
 	bool IsUserAdmin;
-	string strTitleAddons;
-	string strEditorTitleFormat;
-	string strViewerTitleFormat;
+	StringOption strTitleAddons;
+	StringOption strEditorTitleFormat;
+	StringOption strViewerTitleFormat;
 
+	IntOption StoredElevationMode;
 	int ElevationMode;
-	int CurrentElevationMode;
 
-	BOOL WindowMode;
-	BOOL ReadOnlyConfig;
+	BoolOption StoredWindowMode;
+	int WindowMode;
+
+	int ReadOnlyConfig;
 
 	string ProfilePath;
 	string LocalProfilePath;
 	string GlobalUserMenuDir;
 	KnownModulesIDs KnownIDs;
 
-	string strBoxSymbols;
+	StringOption strBoxSymbols;
 
-	int SmartFolderMonitor; // def: 0=always monitor panel folder(s), 1=only when FAR has input focus
+	BoolOption SmartFolderMonitor; // def: 0=always monitor panel folder(s), 1=only when FAR has input focus
 };
 
 extern Options Opt;
@@ -771,6 +869,6 @@ void AutoCompleteSettings();
 void TreeSettings();
 
 bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &Value);
-bool GetConfigValue(size_t Root,const wchar_t* Name,DWORD& Type,void*& Data);
+bool GetConfigValue(size_t Root, const wchar_t* Name, GeneralConfig::OptionType& Type, Option*& Data);
 
 bool AdvancedConfig();

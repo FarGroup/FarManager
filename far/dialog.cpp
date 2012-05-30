@@ -1728,7 +1728,7 @@ void Dialog::ShowDialog(unsigned ID)
 					if (X1+X+CntChr-1 > X2)
 						CntChr=X2-(X1+X)+1;
 
-					FS<<fmt::Width(CntChr)<<L"";
+					FS<<fmt::MinWidth(CntChr)<<L"";
 
 					if (CntChr < LenText)
 						strStr.SetLength(CntChr);
@@ -6283,8 +6283,8 @@ void Dialog::SetComboBoxPos(DialogItemEx* CurItem)
 		if (EditX2-EditX1<20)
 			EditX2=EditX1+20;
 
-		if (ScrY-EditY1<Min(Opt.Dialogs.CBoxMaxHeight,CurItem->ListPtr->GetItemCount())+2 && EditY1>ScrY/2)
-			CurItem->ListPtr->SetPosition(EditX1,Max(0,EditY1-1-Min(Opt.Dialogs.CBoxMaxHeight,CurItem->ListPtr->GetItemCount())-1),EditX2,EditY1-1);
+		if (ScrY-EditY1<Min(Opt.Dialogs.CBoxMaxHeight.Get(),CurItem->ListPtr->GetItemCount())+2 && EditY1>ScrY/2)
+			CurItem->ListPtr->SetPosition(EditX1,Max(0,EditY1-1-Min(Opt.Dialogs.CBoxMaxHeight.Get(),CurItem->ListPtr->GetItemCount())-1),EditX2,EditY1-1);
 		else
 			CurItem->ListPtr->SetPosition(EditX1,EditY1+1,EditX2,0);
 	}

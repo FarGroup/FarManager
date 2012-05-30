@@ -103,7 +103,7 @@ class Viewer:public ScreenObject
 		BOOL DeleteFolder;
 
 		string strLastSearchStr;
-		int LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex,LastSearchRegexp;
+		bool LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchHex,LastSearchRegexp;
 		int LastSearchDirection;
 		__int64 StartSearchPos;
 
@@ -242,10 +242,10 @@ class Viewer:public ScreenObject
 
 		void SetStatusMode(int Mode);
 		void EnableHideCursor(int HideCursor);
-		int GetWrapMode();
-		void SetWrapMode(int Wrap);
-		int GetWrapType();
-		void SetWrapType(int TypeWrap);
+		bool GetWrapMode();
+		void SetWrapMode(bool Wrap);
+		bool GetWrapType();
+		void SetWrapType(bool TypeWrap);
 		void KeepInitParameters();
 		void GetFileName(string &strName);
 		virtual void ShowConsoleTitle();
@@ -271,8 +271,8 @@ class Viewer:public ScreenObject
 		// Функция выделения - как самостоятельная функция
 		void SelectText(const __int64 &MatchPos,const __int64 &SearchLength, const DWORD Flags=0x1);
 
-		int GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
-		void SetShowScrollbar(int newValue) { ViOpt.ShowScrollbar=newValue; }
+		bool GetShowScrollbar() const { return ViOpt.ShowScrollbar; }
+		void SetShowScrollbar(bool newValue) { ViOpt.ShowScrollbar=newValue; }
 
 		int GetHexMode() const { return VM.Hex; }
 

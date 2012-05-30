@@ -91,9 +91,9 @@ class InfoList:public Panel
 
 	private:
 		DizViewer *DizView;
-		int  PrevMacroMode;
-		int  OldWrapMode;
-		int  OldWrapType;
+		int PrevMacroMode;
+		bool OldWrapMode;
+		bool OldWrapType;
 		string strDizFileName;
 		InfoListSectionState SectionState[ILSS_LAST];
 

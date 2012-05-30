@@ -1055,7 +1055,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 			if (AlwaysWaitFinish || !SeparateWindow)
 			{
-				if (!Opt.ConsoleDetachKey)
+				if (Opt.ConsoleDetachKey.IsEmpty())
 				{
 					WaitForSingleObject(hProcess,INFINITE);
 				}
@@ -1071,7 +1071,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					INPUT_RECORD ir[256];
 					size_t rd;
 					int vkey=0,ctrl=0;
-					TranslateKeyToVK(Opt.ConsoleDetachKey,vkey,ctrl,nullptr);
+					TranslateKeyToVK(KeyNameToKey(Opt.ConsoleDetachKey),vkey,ctrl,nullptr);
 					int alt=ctrl&(PKF_ALT|PKF_RALT);
 					int shift=ctrl&PKF_SHIFT;
 					ctrl=ctrl&(PKF_CONTROL|PKF_RCONTROL);
@@ -1282,7 +1282,7 @@ int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool S
 		{
 			//CmdStr.SetString(L"");
 			GotoXY(X1,Y1);
-			FS<<fmt::Width(X2-X1+1)<<L"";
+			FS<<fmt::MinWidth(X2-X1+1)<<L"";
 			Show();
 			ScrBuf.Flush();
 		}
@@ -1774,7 +1774,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		{
 			//CmdStr.SetString(L"");
 			GotoXY(X1,Y1);
-			FS<<fmt::Width(X2-X1+1)<<L"";
+			FS<<fmt::MinWidth(X2-X1+1)<<L"";
 			Show();
 			return TRUE;
 		}
@@ -1857,7 +1857,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	{
 		if (Opt.Exec.UseHomeDir && !Opt.Exec.strHomeDir.IsEmpty())
 		{
-			string strTemp=Opt.Exec.strHomeDir;
+			string strTemp=Opt.Exec.strHomeDir.Get();
 
 			if (strExpandedDir.At(1))
 			{

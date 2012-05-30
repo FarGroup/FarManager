@@ -1878,7 +1878,7 @@ int Editor::ProcessKey(int Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_CTRLUP);
@@ -1889,7 +1889,7 @@ int Editor::ProcessKey(int Key)
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_CTRLDOWN);
@@ -1900,7 +1900,7 @@ int Editor::ProcessKey(int Key)
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsHWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsHWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_LEFT);
@@ -1911,7 +1911,7 @@ int Editor::ProcessKey(int Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:Opt.MsHWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsHWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_RIGHT);
@@ -2134,7 +2134,7 @@ int Editor::ProcessKey(int Key)
 		case KEY_RALTF7:
 		{
 			TurnOffMarkingBlock();
-			int LastSearchReversePrev = LastSearchReverse;
+			bool LastSearchReversePrev = LastSearchReverse;
 			LastSearchReverse = !LastSearchReverse;
 			Search(TRUE);
 			LastSearchReverse = LastSearchReversePrev;
@@ -2737,8 +2737,8 @@ int Editor::ProcessKey(int Key)
 					  - CTRL-DEL в начале строки при выделенном блоке и
 					    включенном EditorDelRemovesBlocks
 					*/
-					int save=EdOpt.DelRemovesBlocks;
-					EdOpt.DelRemovesBlocks=0;
+					bool save=EdOpt.DelRemovesBlocks;
+					EdOpt.DelRemovesBlocks=false;
 					int ret=ProcessKey(KEY_DEL);
 					EdOpt.DelRemovesBlocks=save;
 					return ret;
@@ -3682,7 +3682,8 @@ BOOL Editor::Search(int Next)
 	static string strLastReplaceStr;
 	string strMsgStr;
 	const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
-	int CurPos,Case,WholeWords,ReverseSearch,SelectFound,Regexp,Match,NewNumLine,UserBreak;
+	int CurPos, NewNumLine;
+	bool Case,WholeWords,ReverseSearch,SelectFound,Regexp,Match,UserBreak;
 
 	if (Next && strLastSearchStr.IsEmpty())
 		return TRUE;
@@ -3839,7 +3840,7 @@ BOOL Editor::Search(int Next)
 					CurPos = CurPtr->GetCurPos();
 
 					MenuItemEx Item = {};
-					Item.strName = FormatString() << fmt::LeftAlign() << fmt::Width(11) << fmt::Precision(11) << fmt::FillChar(L' ') << (FormatString() << NewNumLine+1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetStringAddr() + CurPos;
+					Item.strName = FormatString() << fmt::LeftAlign() << fmt::ExactWidth(11) << fmt::FillChar(L' ') << (FormatString() << NewNumLine+1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetStringAddr() + CurPos;
 					FindCoord coord = {(UINT)NewNumLine, (UINT)CurPos, (UINT)SearchLength};
 					Item.UserData = &coord;
 					Item.UserDataSize = sizeof(coord);
@@ -4259,7 +4260,7 @@ void Editor::Paste(const wchar_t *Src)
 		   добавлена в начало строки при автоотступе) в пробелы.
 		*/
 		int StartPos=CurLine->GetCurPos();
-		int oldAutoIndent=EdOpt.AutoIndent;
+		bool oldAutoIndent=EdOpt.AutoIndent;
 
 		for (int I=0; ClipText[I];)
 		{
@@ -6246,11 +6247,11 @@ int Editor::EditorControl(int Command,void *Param)
 						if (espar->wszParam && espar->Size)
 							xwcsncpy(espar->wszParam,EdOpt.strWordDiv,espar->Size);
 
-						rc=(int)EdOpt.strWordDiv.GetLength()+1;
+						rc=(int)EdOpt.strWordDiv.Get().GetLength()+1;
 						break;
 					case ESPT_SETWORDDIV:
 						_ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->wszParam));
-						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Opt.strWordDiv.CPtr():espar->wszParam);
+						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Opt.strWordDiv:static_cast<const wchar_t*>(espar->wszParam));
 						break;
 					case ESPT_TABSIZE:
 						_ECTLLOG(SysLog(L"  iParam      =%d",espar->iParam));
@@ -6262,11 +6263,11 @@ int Editor::EditorControl(int Command,void *Param)
 						break;
 					case ESPT_AUTOINDENT:
 						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
-						SetAutoIndent(espar->iParam);
+						SetAutoIndent(espar->iParam != 0);
 						break;
 					case ESPT_CURSORBEYONDEOL:
 						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
-						SetCursorBeyondEOL(espar->iParam);
+						SetCursorBeyondEOL(espar->iParam != 0);
 						break;
 					case ESPT_CHARCODEBASE:
 						_ECTLLOG(SysLog(L"  iParam      =%s",(!espar->iParam?L"0 (Oct)":(espar->iParam==1?L"1 (Dec)":(espar->iParam==2?L"2 (Hex)":L"?????")))));
@@ -7040,7 +7041,7 @@ void Editor::SetConvertTabs(int NewMode)
 	}
 }
 
-void Editor::SetDelRemovesBlocks(int NewMode)
+void Editor::SetDelRemovesBlocks(bool NewMode)
 {
 	if (NewMode!=EdOpt.DelRemovesBlocks)
 	{
@@ -7068,7 +7069,7 @@ void Editor::SetShowWhiteSpace(int NewMode)
 	}
 }
 
-void Editor::SetPersistentBlocks(int NewMode)
+void Editor::SetPersistentBlocks(bool NewMode)
 {
 	if (NewMode!=EdOpt.PersistentBlocks)
 	{
@@ -7084,7 +7085,7 @@ void Editor::SetPersistentBlocks(int NewMode)
 }
 
 //     "Курсор за пределами строки"
-void Editor::SetCursorBeyondEOL(int NewMode)
+void Editor::SetCursorBeyondEOL(bool NewMode)
 {
 	if (NewMode!=EdOpt.CursorBeyondEOL)
 	{
@@ -7147,7 +7148,7 @@ void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);
-			strProgress+=FormatString()<<L" "<<fmt::Width(PercentLength)<<strPercent<<L"%";
+			strProgress+=FormatString()<<L" "<<fmt::MinWidth(PercentLength)<<strPercent<<L"%";
 		}
 
 		TBC.SetProgressValue(Percent,100);

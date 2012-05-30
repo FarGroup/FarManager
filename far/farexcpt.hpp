@@ -143,7 +143,7 @@ struct FARAREARECORD      // "где мы сейчас находимся?"
 enum
 {
 	RAWTYPE_BINARY =0,
-	RAWTYPE_TEXT   =1,
+	RAWTYPE_STRING   =1,
 };
 
 struct RAWDARARECORD      // произвольные данные
@@ -152,7 +152,7 @@ struct RAWDARARECORD      // произвольные данные
 	DWORD SizeRec;          // Размер данных
 	RECHEADER *Next; // Следующий элемент в списке
 	DWORD RawFlags;         // Дополнительные флаги для расширябильности :-)
-	DWORD RawType;          // Тип данных = RAWTYPE_BINARY, RAWTYPE_TEXT
+	DWORD RawType;          // Тип данных = RAWTYPE_BINARY, RAWTYPE_STRING
 	DWORD SizeData;         // Размер произвольных данных
 	//BYTE Data[0];         // если SizeRec=0, то этого поля нету
 };

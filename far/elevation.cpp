@@ -162,13 +162,13 @@ bool WritePipeData(HANDLE Pipe, LPCVOID Data, size_t DataSize)
 
 DisableElevation::DisableElevation()
 {
-	Value = Opt.CurrentElevationMode;
-	Opt.CurrentElevationMode = 0;
+	Value = Opt.ElevationMode;
+	Opt.ElevationMode = 0;
 }
 
 DisableElevation::~DisableElevation()
 {
-	Opt.CurrentElevationMode = Value;
+	Opt.ElevationMode = Value;
 }
 
 elevation Elevation;
@@ -337,7 +337,7 @@ bool elevation::Initialize()
 			}
 
 			FormatString strParam;
-			strParam << L"/elevation " << strPipeID << L" " << GetCurrentProcessId() << L" " << ((Opt.CurrentElevationMode&ELEVATION_USE_PRIVILEGES)? L"1" : L"0");
+			strParam << L"/elevation " << strPipeID << L" " << GetCurrentProcessId() << L" " << ((Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)? L"1" : L"0");
 			SHELLEXECUTEINFO info=
 			{
 				sizeof(info),
@@ -475,7 +475,12 @@ void ElevationApproveDlgSync(LPVOID Param)
 
 bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 {
-	if(!(Opt.IsUserAdmin && !(Opt.CurrentElevationMode&ELEVATION_USE_PRIVILEGES)) &&
+	// request for backup&restore privilege is useless if the user already has them
+	if(!Approve && IsUserAdmin() && CheckPrivilege(SE_BACKUP_NAME) && CheckPrivilege(SE_RESTORE_NAME))
+	{
+		Approve = true;
+	}
+	else if(!(Opt.IsUserAdmin && !(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&
 		FrameManager && !FrameManager->ManagerIsDown())
 	{
@@ -1081,7 +1086,7 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 {
 	bool Result = false;
-	if(Opt.CurrentElevationMode&Mode)
+	if(Opt.ElevationMode&Mode)
 	{
 		if(UseNtStatus && ifn.RtlGetLastNtStatusPresent())
 		{

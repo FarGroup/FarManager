@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "DlgBuilder.hpp"
+#include "config.hpp"
 
 struct DialogItemEx;
 
@@ -59,8 +60,11 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		virtual const TCHAR *GetLangString(int MessageID);
 		virtual int DoShowDialog();
 
-		virtual DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL *Value, int Mask);
+		virtual DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL* Value, int Mask);
+		DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(IntOption &Value, int Mask);
+		DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BoolOption& Value);
 		virtual DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value);
+		DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(IntOption& Value);
 
 	public:
 		DialogBuilder(LNGID TitleMessageId, const wchar_t *HelpTopic);
@@ -69,18 +73,38 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 
 		// ƒобавл€ет поле типа DI_EDIT дл€ редактировани€ указанного строкового значени€.
 		DialogItemEx *AddEditField(string *Value, int Width, const wchar_t *HistoryID = nullptr, FARDIALOGITEMFLAGS Flags = 0);
+		DialogItemEx *AddEditField(StringOption& Value, int Width, const wchar_t *HistoryID = nullptr, FARDIALOGITEMFLAGS Flags = 0);
 
 		// ƒобавл€ет поле типа DI_FIXEDIT дл€ редактировани€ указанного строкового значени€.
 		DialogItemEx *AddFixEditField(string *Value, int Width, const wchar_t *Mask = nullptr);
+		DialogItemEx *AddFixEditField(StringOption& Value, int Width, const wchar_t *Mask = nullptr);
 
 		// ƒобавл€ет неизмен€емое поле типа DI_EDIT дл€ посмотра указанного строкового значени€.
 		DialogItemEx *AddConstEditField(const wchar_t* Value, int Width, FARDIALOGITEMFLAGS Flags = 0);
 
 		// ƒобавл€ет поле типа DI_FIXEDIT дл€ редактировани€ указанного числового значени€.
 		virtual DialogItemEx *AddIntEditField(int *Value, int Width);
+		virtual DialogItemEx *AddIntEditField(IntOption& Value, int Width);
 
 		// ƒобавл€ет выпадающий список с указанными значени€ми.
 		DialogItemEx *AddComboBox(int *Value, int Width, DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+		DialogItemEx *AddComboBox(IntOption& Value, int Width, DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
+
+		DialogItemEx *AddCheckbox(int TextMessageId, BOOL *Value, int Mask=0, bool ThreeState=false)
+		{
+			return DialogBuilderBase<DialogItemEx>::AddCheckbox(TextMessageId, Value, Mask, ThreeState);
+		}
+		DialogItemEx *AddCheckbox(int TextMessageId, IntOption& Value, int Mask=0, bool ThreeState=false);
+		DialogItemEx *AddCheckbox(int TextMessageId, BoolOption& Value);
+		DialogItemEx *AddCheckbox(const wchar_t* Caption, BoolOption& Value);
+
+
+		void AddRadioButtons(int *Value, int OptionCount, const int MessageIDs[], bool FocusOnSelected=false)
+		{
+			return DialogBuilderBase<DialogItemEx>::AddRadioButtons(Value, OptionCount, MessageIDs, FocusOnSelected);
+		}
+		void AddRadioButtons(IntOption& Value, int OptionCount, const int MessageIDs[], bool FocusOnSelected=false);
+
 
 		// —в€зывает состо€ние элементов Parent и Target.  огда Parent->Selected равно
 		// false, устанавливает флаги Flags у элемента Target; когда равно true -

@@ -360,7 +360,8 @@ public:
 	{
 		unsigned __int64 v;
 		if (GetValue(Key,Name,&v))
-		{   *Value = (int)v;
+		{
+			*Value = (int)v;
 			return true;
 		}
 		*Value = Default;
@@ -727,7 +728,7 @@ public:
 			switch (stmtEnumValues.GetColType(1))
 			{
 				case SQLITE_INTEGER: *Type = TYPE_INTEGER; break;
-				case SQLITE_TEXT: *Type = TYPE_TEXT; break;
+				case SQLITE_TEXT: *Type = TYPE_STRING; break;
 				case SQLITE_BLOB: *Type = TYPE_BLOB; break;
 				default: *Type = TYPE_UNKNOWN;
 			}

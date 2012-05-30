@@ -319,8 +319,8 @@ void ChangeVideoMode(int Maximized)
 	{
 		SendMessage(Console.GetWindow(),WM_SYSCOMMAND,SC_MAXIMIZE,0);
 		coordScreen = Console.GetLargestWindowSize();
-		coordScreen.X+=Opt.ScrSize.DeltaXY.X;
-		coordScreen.Y+=Opt.ScrSize.DeltaXY.Y;
+		coordScreen.X+=Opt.ScrSize.DeltaX;
+		coordScreen.Y+=Opt.ScrSize.DeltaY;
 	}
 	else
 	{
@@ -489,8 +489,8 @@ void SetCursorType(bool Visible, DWORD Size)
 {
 	if (Size==(DWORD)-1 || !Visible)
 		Size=IsConsoleFullscreen()?
-		     (Opt.CursorSize[1]?Opt.CursorSize[1]:InitialCursorInfo.dwSize):
-				     (Opt.CursorSize[0]?Opt.CursorSize[0]:InitialCursorInfo.dwSize);
+		     (Opt.CursorSize[1]?(int)Opt.CursorSize[1]:InitialCursorInfo.dwSize):
+				     (Opt.CursorSize[0]?(int)Opt.CursorSize[0]:InitialCursorInfo.dwSize);
 
 	ScrBuf.SetCursorType(Visible,Size);
 }
@@ -564,7 +564,7 @@ void InitRecodeOutTable()
 
 	{
 		// перед [пере]инициализацией восстановим буфер (либо из реестра, либо...)
-		xwcsncpy(BoxSymbols,Opt.strBoxSymbols.CPtr(),ARRAYSIZE(BoxSymbols)-1);
+		xwcsncpy(BoxSymbols,Opt.strBoxSymbols,ARRAYSIZE(BoxSymbols)-1);
 
 		if (Opt.NoGraphics)
 		{
