@@ -4102,9 +4102,15 @@ void FileList::CompareDir()
 	// каждый элемент активной панели...
 	for (int I=0; I < FileCount; I++)
 	{
+		if ((ListData[I]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0)
+			continue;
+
 		// ...сравниваем с элементом пассивной панели...
 		for (int J=0; J < Another->FileCount; J++)
 		{
+			if ((Another->ListData[J]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0)
+				continue;
+
 			int Cmp=0;
 			PtrTempName1=PointToName(ListData[I]->strName);
 			PtrTempName2=PointToName(Another->ListData[J]->strName);
