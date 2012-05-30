@@ -963,7 +963,7 @@ static struct FARConfig
 	{FSSF_PRIVATE,       NKeyInterfaceCompletion,L"UsePath", AddressAndType(Opt.AutoComplete.UsePath), Default(1)},
 
 	{FSSF_PRIVATE,       NKeyLanguage, L"Main", AddressAndType(Opt.strLanguage), Default(DefaultLanguage)},
-	{FSSF_PRIVATE,       NKeyLanguage, L"Help", AddressAndType(Opt.strLanguage), Default(DefaultLanguage)},
+	{FSSF_PRIVATE,       NKeyLanguage, L"Help", AddressAndType(Opt.strHelpLanguage), Default(DefaultLanguage)},
 
 	{FSSF_PRIVATE,       NKeyLayout,L"FullscreenHelp", AddressAndType(Opt.FullScreenHelp), Default(0)},
 	{FSSF_PRIVATE,       NKeyLayout,L"LeftHeightDecrement", AddressAndType(Opt.LeftHeightDecrement), Default(0)},
