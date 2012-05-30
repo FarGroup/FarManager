@@ -3379,14 +3379,13 @@ void Viewer::Search(int Next,int FirstChar)
 	strMsgStr = strLastSearchStr = strSearchStr;
 
 	sd.search_len = (int)strSearchStr.GetLength();
-	if (0 != (LastSearchHex = SearchHex))
+	if (true == (LastSearchHex = SearchHex))
 	{
 		sd.search_len = hex2ss(strSearchStr.CPtr(), search_bytes, ARRAYSIZE(search_bytes));
 		sd.search_bytes = search_bytes;
 		sd.ch_size = 1;
-		// WTF?
-		//Case = 1 + (WholeWords = SearchRegexp = 0);
 		Case = true;
+		WholeWords = SearchRegexp = false;
 		searcher = (ReverseSearch ? &Viewer::search_hex_backward : &Viewer::search_hex_forward);
 	}
 	else
@@ -3397,7 +3396,7 @@ void Viewer::Search(int Next,int FirstChar)
 
 		if ( SearchRegexp )
 		{
-			WholeWords = 0;
+			WholeWords = false;
 			searcher = (ReverseSearch ? &Viewer::search_regex_backward : &Viewer::search_regex_forward);
 			InsertRegexpQuote(strMsgStr);
 			sd.pRex = new RegExp;

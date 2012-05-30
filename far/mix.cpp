@@ -83,8 +83,9 @@ int ToPercent64(unsigned __int64 N1, unsigned __int64 N2)
 */
 string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, const wchar_t *UserTempPath)
 {
+	static UINT s_shift = 0;
 	if (!(Prefix && *Prefix))
-		Prefix=L"FTMP";
+		Prefix=L"F3T";
 
 	string strPath = L".";
 
@@ -100,16 +101,24 @@ string& FarMkTempEx(string &strDest, const wchar_t *Prefix, BOOL WithTempPath, c
 	AddEndSlash(strPath);
 
 	wchar_t *lpwszDest = strDest.GetBuffer(StrLength(Prefix)+strPath.GetLength()+13);
-	UINT uniq = GetCurrentProcessId(), savePid = uniq;
+
+	UINT uniq = 23*GetCurrentProcessId() + s_shift, uniq0 = uniq ? uniq : 1;
+	s_shift = (s_shift + 1) % 23;
 
 	for (;;)
 	{
 		if (!uniq) ++uniq;
 
-		if (GetTempFileName(strPath, Prefix, uniq, lpwszDest)
-		        && apiGetFileAttributes(lpwszDest) == INVALID_FILE_ATTRIBUTES) break;
+		if (GetTempFileName(strPath, Prefix, uniq, lpwszDest))
+		{
+			string tname(lpwszDest);
+			FindFile f(tname,false);
+			FAR_FIND_DATA_EX ffdata;
+			if (!f.Get(ffdata))
+				break;
+		}
 
-		if (++uniq == savePid)
+		if ((++uniq & 0xffff) == (uniq0 & 0xffff))
 		{
 			*lpwszDest = 0;
 			break;
