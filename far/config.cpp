@@ -188,7 +188,7 @@ void PanelSettings()
 	Builder.AddCheckbox(MConfigReverseSort, Opt.ReverseSort);
 
 	DialogItemEx *AutoUpdateEnabled = Builder.AddCheckbox(MConfigAutoUpdateLimit, &AutoUpdate);
-	DialogItemEx *AutoUpdateLimit = Builder.AddIntEditField((int *) &Opt.AutoUpdateLimit, 6);
+	DialogItemEx *AutoUpdateLimit = Builder.AddIntEditField(Opt.AutoUpdateLimit, 6);
 	Builder.LinkFlags(AutoUpdateEnabled, AutoUpdateLimit, DIF_DISABLE, false);
 	DialogItemEx *AutoUpdateText = Builder.AddTextBefore(AutoUpdateLimit, MConfigAutoUpdateLimit2);
 	AutoUpdateLimit->Indent(4);
@@ -229,7 +229,7 @@ void TreeSettings()
 
 	Builder.AddCheckbox(MConfigTreeAutoChange, Opt.Tree.AutoChangeFolder);
 
-	TemplateEdit = Builder.AddIntEditField((int *) &Opt.Tree.MinTreeCount, 3);
+	TemplateEdit = Builder.AddIntEditField(Opt.Tree.MinTreeCount, 3);
 	Builder.AddTextBefore(TemplateEdit, MConfigTreeLabelMinFolder);
 
 #if defined(TREEFILE_PROJECT)
@@ -596,11 +596,11 @@ void VMenuSettings()
 	DialogBuilder Builder(MConfigVMenuTitle, L"VMenuSettings");
 
 	Builder.AddText(MConfigVMenuLBtnClick);
-	Builder.AddComboBox((int *) &Opt.VMenu.LBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(Opt.VMenu.LBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigVMenuRBtnClick);
-	Builder.AddComboBox((int *) &Opt.VMenu.RBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(Opt.VMenu.RBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddText(MConfigVMenuMBtnClick);
-	Builder.AddComboBox((int *) &Opt.VMenu.MBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
+	Builder.AddComboBox(Opt.VMenu.MBtnClick, 40, CAListItems, ARRAYSIZE(CAListItems), DIF_DROPDOWNLIST|DIF_LISTAUTOHIGHLIGHT|DIF_LISTWRAPMODE);
 	Builder.AddOKCancel();
 	Builder.ShowDialog();
 }
