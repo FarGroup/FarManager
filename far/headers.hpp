@@ -165,14 +165,7 @@ template<typename T>
 inline void ClearStruct(T& s) { memset(&s, 0, sizeof(s)); }
 
 template<typename T>
-inline void ClearStruct(T* s) 
-{
-#ifdef __GNUC__
-	T ClearStruct_template_can_t_be_instantiated_with_pointer = s;
-#else
-	static_assert(false, "ClearStruct template can't be instantiated with pointer");
-#endif
-}
+inline void ClearStruct(T* s) { static_assert(sizeof(T) < 0 /* always false */, "ClearStruct template can't be instantiated with pointer"); }
 
 template<typename T, size_t N>
 inline void ClearArray(T (&a)[N]) { memset(a, 0, sizeof(a[0])*N); }
