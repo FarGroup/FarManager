@@ -98,86 +98,13 @@ void FileFilterParams::SetTitle(const wchar_t *Title)
 	m_strTitle = Title;
 }
 
-// Преобразование корявого формата PATHEXT в ФАРовский :-)
-// Функции передается нужные расширения, она лишь добавляет то, что есть
-// в %PATHEXT%
-// IS: Сравнений на совпадение очередной маски с тем, что имеется в Dest
-// IS: не делается, т.к. дубли сами уберутся при компиляции маски
-string &Add_PATHEXT(string &strDest)
-{
-	string strBuf;
-	size_t curpos=strDest.GetLength()-1;
-	UserDefinedList MaskList(ULF_UNIQUE);
-
-	if (apiGetEnvironmentVariable(L"PATHEXT" ,strBuf) && MaskList.Set(strBuf))
-	{
-		/* $ 13.10.2002 IS проверка на '|' (маски исключения) */
-		if (!strDest.IsEmpty() && (strDest.At(curpos)!=L',' && strDest.At(curpos)!=L';') && strDest.At(curpos)!=L'|')
-			strDest += L",";
-
-		const wchar_t *Ptr;
-		MaskList.Reset();
-
-		while (nullptr!=(Ptr=MaskList.GetNext()))
-		{
-			strDest += L"*";
-			strDest += Ptr;
-			strDest += L",";
-		}
-	}
-
-	// лишняя запятая - в морг!
-	curpos=strDest.GetLength()-1;
-
-	if (strDest.At(curpos) == L',' || strDest.At(curpos)==L';')
-		strDest.SetLength(curpos);
-
-	return strDest;
-}
-
 void FileFilterParams::SetMask(bool Used, const wchar_t *Mask)
 {
 	FMask.Used = Used;
 	FMask.strMask = Mask;
-	/* Обработка %PATHEXT% */
-	string strMask = FMask.strMask;
-	size_t pos;
-
-	// проверим
-	if (strMask.PosI(pos,L"%PATHEXT%"))
-	{
-		{
-			size_t IQ1=(strMask.At(pos+9) == L',' || strMask.At(pos+9) == L';')?10:9;
-			wchar_t *Ptr = strMask.GetBuffer();
-			// Если встречается %pathext%, то допишем в конец...
-			wmemmove(Ptr+pos,Ptr+pos+IQ1,strMask.GetLength()-pos-IQ1+1);
-			strMask.ReleaseBuffer();
-		}
-		size_t posSeparator;
-
-		if (strMask.Pos(posSeparator, EXCLUDEMASKSEPARATOR))
-		{
-			if (pos > posSeparator) // PATHEXT находится в масках исключения
-			{
-				Add_PATHEXT(strMask); // добавляем то, чего нету.
-			}
-			else
-			{
-				string strTmp = strMask;
-				strTmp.LShift(posSeparator);
-				strMask.SetLength(posSeparator);
-				Add_PATHEXT(strMask);
-				strMask += strTmp;
-			}
-		}
-		else
-		{
-			Add_PATHEXT(strMask); // добавляем то, чего нету.
-		}
-	}
 
 	// Проверка на валидность текущих настроек фильтра
-	if (!FMask.FilterMask.Set(strMask,FMF_SILENT))
+	if (!FMask.FilterMask.Set(FMask.strMask,FMF_SILENT))
 	{
 		FMask.strMask = L"*";
 		FMask.FilterMask.Set(FMask.strMask,FMF_SILENT);

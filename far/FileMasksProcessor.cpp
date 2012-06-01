@@ -98,6 +98,24 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 			break;
 	}
 
+	size_t pos;
+	const wchar_t* PathExtName = L"%PATHEXT%";
+	if (expmasks.PosI(pos, PathExtName))
+	{
+		string strSysPathExt;
+		UserDefinedList MaskList(ULF_UNIQUE);
+		if (apiGetEnvironmentVariable(L"PATHEXT" ,strSysPathExt) && MaskList.Set(strSysPathExt))
+		{
+			string strFarPathExt;
+			for(const wchar_t *Ptr = MaskList.GetNext(); Ptr; Ptr = MaskList.GetNext())
+			{
+				strFarPathExt.Append('*').Append(Ptr).Append(',');
+			}
+			strFarPathExt.SetLength(strFarPathExt.GetLength()-1);
+			ReplaceStrings(expmasks, PathExtName, strFarPathExt);
+		}
+	}
+
 	bRE = expmasks.At(0) == L'/';
 
 	if (bRE)
