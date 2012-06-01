@@ -476,11 +476,16 @@ void ElevationApproveDlgSync(LPVOID Param)
 bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 {
 	// request for backup&restore privilege is useless if the user already has them
-	if(!Approve && IsUserAdmin() && CheckPrivilege(SE_BACKUP_NAME) && CheckPrivilege(SE_RESTORE_NAME))
 	{
-		Approve = true;
+		GuardLastError Error;
+		if(AskApprove &&  IsUserAdmin() && CheckPrivilege(SE_BACKUP_NAME) && CheckPrivilege(SE_RESTORE_NAME))
+		{
+			Approve = true;
+			AskApprove = false;
+		}
 	}
-	else if(!(Opt.IsUserAdmin && !(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
+
+	if(!(Opt.IsUserAdmin && !(Opt.ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&
 		FrameManager && !FrameManager->ManagerIsDown())
 	{

@@ -88,7 +88,7 @@ bool CheckPrivilege(LPCWSTR PrivilegeName)
 						{
 							if (TokenInformation->Privileges[i].Luid.LowPart==State.Privileges->Luid.LowPart && TokenInformation->Privileges[i].Luid.HighPart==State.Privileges->Luid.HighPart)
 							{
-								Result=true;
+								Result = TokenInformation->Privileges[i].Attributes&(SE_PRIVILEGE_ENABLED|SE_PRIVILEGE_ENABLED_BY_DEFAULT);
 								break;
 							}
 						}
