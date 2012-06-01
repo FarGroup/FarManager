@@ -59,7 +59,7 @@ DWORD FarGetLogicalDrives()
 	if ((!Opt.RememberLogicalDrives) || !LogicalDrivesMask)
 		LogicalDrivesMask=GetLogicalDrives();
 
-	if (!Opt.Policies.ShowHiddenDrives||1)
+	if (!Opt.Policies.ShowHiddenDrives)
 	{
 		const HKEY Roots[] = {HKEY_LOCAL_MACHINE, HKEY_CURRENT_USER};
 		bool DataReaded = false;
