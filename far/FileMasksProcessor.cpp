@@ -112,7 +112,7 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 				strFarPathExt.Append('*').Append(Ptr).Append(',');
 			}
 			strFarPathExt.SetLength(strFarPathExt.GetLength()-1);
-			ReplaceStrings(expmasks, PathExtName, strFarPathExt);
+			ReplaceStrings(expmasks, PathExtName, strFarPathExt, -1, true);
 		}
 	}
 

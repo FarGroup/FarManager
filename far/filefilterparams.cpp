@@ -841,8 +841,8 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 	const wchar_t DaysMask[] = L"9999";
 	string strDateMask, strTimeMask;
 	// ќпределение параметров даты и времени в системе.
-	int DateSeparator=GetDateSeparator();
-	int TimeSeparator=GetTimeSeparator();
+	wchar_t DateSeparator=GetDateSeparator();
+	wchar_t TimeSeparator=GetTimeSeparator();
 	wchar_t DecimalSeparator=GetDecimalSeparator();
 	int DateFormat=GetDateFormat();
 

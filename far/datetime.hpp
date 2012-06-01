@@ -39,7 +39,7 @@ wchar_t GetDateSeparator();
 wchar_t GetTimeSeparator();
 
 void GetFileDateAndTime(const wchar_t *Src,LPWORD Dst,size_t Count,int Separator);
-void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, int DateSeparator, int TimeSeparator, bool bRelative=false);
+void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int DateFormat, wchar_t DateSeparator, wchar_t TimeSeparator, bool bRelative=false);
 void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int TimeLength, int Brief=FALSE,int TextMonth=FALSE,int FullYear=0,int DynInit=FALSE);
 void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeText);
 
