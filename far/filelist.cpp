@@ -1520,26 +1520,13 @@ int FileList::ProcessKey(int Key)
 
 				if (Key==KEY_SHIFTF4)
 				{
-					static string strLastFileName;
-
 					do
 					{
-						if (!dlgOpenEditor(strLastFileName, codepage))
+						if (!dlgOpenEditor(strFileName, codepage))
 							return FALSE;
 
-						/*if (!GetString(MSG(MEditTitle),
-						               MSG(MFileToEdit),
-						               L"NewEdit",
-						               strLastFileName,
-						               strLastFileName,
-						               512, //BUGBUG
-						               L"Editor",
-						               FIB_BUTTONS|FIB_EXPANDENV|FIB_EDITPATH|FIB_ENABLEEMPTY))
-						  return FALSE;*/
-
-						if (!strLastFileName.IsEmpty())
+						if (!strFileName.IsEmpty())
 						{
-							strFileName = strLastFileName;
 							Unquote(strFileName);
 							ConvertNameToShort(strFileName,strShortFileName);
 

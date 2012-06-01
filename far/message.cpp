@@ -168,7 +168,7 @@ INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			const INPUT_RECORD* record=(const INPUT_RECORD *)Param2;
 			if (record->EventType==KEY_EVENT)
 			{
-				int key = InputRecordToKey((const INPUT_RECORD *)Param2);
+				int key = InputRecordToKey(record);
 				switch(key)
 				{
 				case KEY_F3:

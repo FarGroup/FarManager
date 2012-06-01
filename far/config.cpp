@@ -1541,6 +1541,60 @@ INT_PTR WINAPI AdvancedConfigDlgProc(HANDLE hDlg, int Msg, int Param1, void* Par
 		}
 		break;
 
+	case DN_CONTROLINPUT:
+		{
+			const INPUT_RECORD* record= reinterpret_cast<const INPUT_RECORD*>(Param2);
+			if (record->EventType==KEY_EVENT)
+			{
+				int key = InputRecordToKey(record);
+				switch(key)
+				{
+				case KEY_F4:
+					SendDlgMessage(hDlg, DM_CLOSE, 0, nullptr);
+					break;
+
+				case KEY_CTRLH:
+					{
+						static bool HideUnchanged = true;
+						SendDlgMessage(hDlg, DM_ENABLEREDRAW, 0 , 0);
+						FarListInfo ListInfo = {sizeof(ListInfo)};
+						SendDlgMessage(hDlg, DM_LISTINFO, Param1, &ListInfo);
+						for(int i = 0; i < static_cast<int>(ListInfo.ItemsNumber); ++i)
+						{
+							FarListGetItem Item={sizeof(FarListGetItem), i};
+							SendDlgMessage(hDlg, DM_LISTGETITEM, 0, &Item);
+							bool NeedUpdate = false;
+							if(HideUnchanged)
+							{
+								if(!(Item.Item.Flags&LIF_CHECKED))
+								{
+									Item.Item.Flags|=LIF_HIDDEN;
+									NeedUpdate = true;
+								}
+							}
+							else
+							{
+								if(Item.Item.Flags&LIF_HIDDEN)
+								{
+									Item.Item.Flags&=~LIF_HIDDEN;
+									NeedUpdate = true;
+								}
+							}
+							if(NeedUpdate)
+							{
+								FarListUpdate UpdatedItem={sizeof(FarListGetItem), i, Item.Item};
+								SendDlgMessage(hDlg, DM_LISTUPDATE, 0, &UpdatedItem);
+							}
+						}
+						HideUnchanged = !HideUnchanged;
+						SendDlgMessage(hDlg, DM_ENABLEREDRAW, 1 , 0);
+					}
+					break;
+				}
+			}
+		}
+		break;
+
 	case DN_CLOSE:
 		if (Param1 == 0) // BUGBUG, magic
 		{
