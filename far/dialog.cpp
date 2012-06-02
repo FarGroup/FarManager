@@ -3000,10 +3000,8 @@ int Dialog::ProcessKey(int Key)
 
 					if(Key == KEY_CTRLSPACE || Key == KEY_RCTRLSPACE)
 					{
-						{
-							DisableAutocomplete da(edt);
-							edt->AutoComplete(true,false);
-						}
+						SetAutocomplete enable(edt);
+						edt->AutoComplete(true,false);
 						Redraw();
 						return TRUE;
 					}
@@ -3028,7 +3026,7 @@ int Dialog::ProcessKey(int Key)
 								edt->LastPartLength = CurCmdPartLength;
 							}
 							{
-								DisableAutocomplete da(edt);
+								SetAutocomplete disable(edt);
 								edt->SetString(strStr);
 								edt->Select(edt->LastPartLength, static_cast<int>(strStr.GetLength()));
 							}
@@ -5911,7 +5909,7 @@ INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 							int ReadOnly=EditLine->GetReadOnly();
 							EditLine->SetReadOnly(0);
 							{
-								DisableAutocomplete da(EditLine);
+								SetAutocomplete da(EditLine);
 								EditLine->SetString(CurItem->strData);
 							}
 							EditLine->SetReadOnly(ReadOnly);

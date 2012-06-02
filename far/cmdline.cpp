@@ -163,7 +163,7 @@ int CommandLine::ProcessKey(int Key)
 		}
 
 		{
-			DisableAutocomplete da(&CmdStr);
+			SetAutocomplete disable(&CmdStr);
 			CmdStr.SetString(strStr);
 			CmdStr.Select(LastCmdPartLength,static_cast<int>(strStr.GetLength()));
 		}
@@ -216,7 +216,7 @@ int CommandLine::ProcessKey(int Key)
 				}
 
 				{
-					DisableAutocomplete da(&CmdStr);
+					SetAutocomplete disable(&CmdStr);
 					SetString(strStr);
 				}
 
@@ -252,17 +252,17 @@ int CommandLine::ProcessKey(int Key)
 			// BUGBUG, magic numbers
 			if ((SelectType > 0 && SelectType <= 3) || SelectType == 7)
 			{
-				DisableAutocomplete* da = nullptr;
+				SetAutocomplete* disable = nullptr;
 				if(SelectType<3 || SelectType == 7)
 				{
-					da = new DisableAutocomplete(&CmdStr);
+					disable = new SetAutocomplete(&CmdStr);
 				}
 				SetString(strStr);
 
 				if (SelectType < 3 || SelectType == 7)
 				{
 					ProcessKey(SelectType==7?static_cast<int>(KEY_CTRLALTENTER):(SelectType==1?static_cast<int>(KEY_ENTER):static_cast<int>(KEY_SHIFTENTER)));
-					delete da;
+					delete disable;
 				}
 			}
 		}
@@ -459,7 +459,7 @@ int CommandLine::ProcessKey(int Key)
 
 			if(Key == KEY_CTRLSPACE || Key == KEY_RCTRLSPACE)
 			{
-				DisableAutocomplete da(&CmdStr);
+				SetAutocomplete enable(&CmdStr, true);
 				CmdStr.AutoComplete(true,false);
 				return TRUE;
 			}

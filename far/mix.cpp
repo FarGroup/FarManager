@@ -183,28 +183,28 @@ WINDOWINFO_TYPE ModalType2WType(const int fType)
 	return static_cast<WINDOWINFO_TYPE>(-1);
 }
 
-DisableAutocomplete::DisableAutocomplete(EditControl* edit):
+SetAutocomplete::SetAutocomplete(EditControl* edit, bool NewState):
 	edit(edit),
-	State(edit->GetAutocomplete())
+	OldState(edit->GetAutocomplete())
 {
-	edit->SetAutocomplete(false);
+	edit->SetAutocomplete(NewState);
 }
 
-DisableAutocomplete::DisableAutocomplete(DlgEdit* dedit):
+SetAutocomplete::SetAutocomplete(DlgEdit* dedit, bool NewState):
 	edit(dedit->lineEdit),
-	State(edit->GetAutocomplete())
+	OldState(edit->GetAutocomplete())
 {
-	edit->SetAutocomplete(false);
+	edit->SetAutocomplete(NewState);
 }
 
-DisableAutocomplete::DisableAutocomplete(CommandLine* cedit):
+SetAutocomplete::SetAutocomplete(CommandLine* cedit, bool NewState):
 	edit(&cedit->CmdStr),
-	State(edit->GetAutocomplete())
+	OldState(edit->GetAutocomplete())
 {
-	edit->SetAutocomplete(false);
+	edit->SetAutocomplete(NewState);
 }
 
-DisableAutocomplete::~DisableAutocomplete()
+SetAutocomplete::~SetAutocomplete()
 {
-	edit->SetAutocomplete(State);
+	edit->SetAutocomplete(OldState);
 };

@@ -55,7 +55,7 @@ class Dialog;
 
 class DlgEdit: public ScreenObject
 {
-	friend class DisableAutocomplete;
+	friend class SetAutocomplete;
 	public:
 		// for CtrlEnd
 		string strLastStr;

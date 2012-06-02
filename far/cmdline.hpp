@@ -53,7 +53,7 @@ struct PushPopRecord
 
 class CommandLine:public ScreenObject
 {
-	friend class DisableAutocomplete;
+	friend class SetAutocomplete;
 	private:
 		EditControl CmdStr;
 		SaveScreen *BackgroundScreen;

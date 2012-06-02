@@ -54,15 +54,15 @@ void FreePluginPanelItem(
 
 WINDOWINFO_TYPE ModalType2WType(const int fType);
 
-class DisableAutocomplete:NonCopyable
+class SetAutocomplete:NonCopyable
 {
 public:
-	DisableAutocomplete(class EditControl* edit);
-	DisableAutocomplete(class DlgEdit* dedit);
-	DisableAutocomplete(class CommandLine* cedit);
-	~DisableAutocomplete();
+	SetAutocomplete(class EditControl* edit, bool NewState = false);
+	SetAutocomplete(class DlgEdit* dedit, bool NewState = false);
+	SetAutocomplete(class CommandLine* cedit, bool NewState = false);
+	~SetAutocomplete();
 
 private:
 	class EditControl* edit;
-	bool State;
+	bool OldState;
 };

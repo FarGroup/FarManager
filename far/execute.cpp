@@ -1262,7 +1262,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)
 {
 	{
-		DisableAutocomplete da(&CmdStr);
+		SetAutocomplete disable(&CmdStr);
 		SetString(CmdLine);
 	}
 
