@@ -3000,7 +3000,7 @@ int Dialog::ProcessKey(int Key)
 
 					if(Key == KEY_CTRLSPACE || Key == KEY_RCTRLSPACE)
 					{
-						SetAutocomplete enable(edt);
+						SetAutocomplete enable(edt, true);
 						edt->AutoComplete(true,false);
 						Redraw();
 						return TRUE;
