@@ -3,6 +3,112 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.06.2012 14:54:41 +0200 - build 2720
+
+1. Completion with CtrlSpace did not work.
+
+drkns 02.06.2012 00:32:29 +0200 - build 2719
+
+1. More on %pathext% + a couple of issues.
+
+drkns 01.06.2012 14:56:00 +0200 - build 2718
+
+1. Correction of privileges check.
+
+drkns 01.06.2012 14:15:50 +0200 - build 2717
+
+1. F4 and CtrlH processing is added to far:config. 
+
+drkns 01.06.2012 13:05:50 +0200 - build 2716
+
+1. %pathext% variable was not expanded in mask groups.
+
+drkns 01.06.2012 08:05:48 +0200 - build 2715
+
+1. Forgotten debug code in 2702 :)
+
+drkns 01.06.2012 00:09:33 +0200 - build 2714
+
+1. Continuation of 2707.
+
+drkns 31.05.2012 08:18:28 +0200 - build 2713
+
+1. gcc build, a better way does exist.
+
+w17 31.05.2012 01:08:59 +0400 - build 2712
+
+1. gcc build (a better way may exist ?)
+
+drkns 30.05.2012 20:57:08 +0200 - build 2711
+
+1. Correction of 2131.2.
+
+drkns 30.05.2012 19:27:12 +0200 - build 2710
+
+1. A typo in 2707.
+
+w17 30.05.2012 20:16:33 +0400 - build 2709
+
+1. 1108: Wher Wipe (Alt-del) is used on a folder, the operation (and whole FAR) freezes
+   far3 does not, but the problem can be reproduced partially.
+
+2. viewer's minimal changes after 2707
+
+drkns 30.05.2012 18:20:05 +0200 - build 2708
+
+1. Correction of 2707.1.
+
+drkns 30.05.2012 14:35:00 +0200 - build 2707
+
+1. Configuration is reworked.
+   - generalconfig.db is written only changes now.
+   - far:config has got bool instead of int where it is needed.
+   - the default key for console detach is now CtrlShiftTab.
+
+2. Macro: PanelItem is removed, use Panel.Item.
+
+3. printf elimination is continuing.
+
+4. "/w-" key is added - "window mode" forced switching off.
+
+w17 30.05.2012 05:51:52 +0400 - build 2706
+
+1. 2122: Incorrect comparison of catalogs from menu item Commands - Compare Folders
+
+w17 29.05.2012 13:30:08 +0400 - build 2705
+
+1. 2115: Unable to view files found with a search in temporary panel
+
+drkns 25.05.2012 08:35:25 +0200 - build 2704
+
+1. Correction of 2702.2.
+
+drkns 25.05.2012 00:34:44 +0200 - build 2703
+
+1. Correction of 2702.1.
+
+drkns 25.05.2012 00:06:38 +0200 - build 2702
+
+1. 0002113: Viewer does not switch between files in search result list
+
+2. 0002116: A message pops up when volume selection dialog is invoked.
+
+drkns 24.05.2012 20:38:20 +0200 - build 2701
+
+1. In some cases, file panel refresh could crash FAR.
+
+drkns 24.05.2012 10:59:24 +0200 - build 2700
+
+1. 0002112: Command line autocompletion does not work after commands history dialog use
+
+w17 23.05.2012 09:54:59 +0400 - build 2699
+
+1. Fix for 2679.1
+
+w17 23.05.2012 05:08:42 +0400 - build 2698
+
+1. Correction of 2676.1
+
 drkns 21.05.2012 23:06:13 +0200 - build 2697
 
 1. Some reduction of ImportedFunctions code.
