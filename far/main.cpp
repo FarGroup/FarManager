@@ -610,7 +610,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 #if defined(_DEBUGEXC)
 
 					if (Upper(Argv[I][2])==L'D' && !Argv[I][3])
-						Opt.CurrentExceptRules = 1;
+						Opt.ExceptRules = 1;
 
 #endif
 					break;
