@@ -59,17 +59,22 @@ class FileViewer:public Frame
 		*/
 		int SaveToSaveAs;
 
+		int delete_on_close;
+		string    str_title;
+
 	public:
-		FileViewer(const wchar_t *Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
-		           int DisableEdit=FALSE,long ViewStartPos=-1,const wchar_t *PluginData=nullptr,
-		           NamesList *ViewNamesList=nullptr,int ToSaveAs=FALSE,UINT aCodePage=CP_DEFAULT);
+		FileViewer(
+			const wchar_t *Name,int EnableSwitch=FALSE,int DisableHistory=FALSE,
+			int DisableEdit=FALSE,__int64 ViewStartPos=-1,const wchar_t *PluginData=nullptr,
+			NamesList *ViewNamesList=nullptr,int ToSaveAs=FALSE,UINT aCodePage=CP_DEFAULT,
+			const wchar_t *Title=nullptr, int DeleteOnClose=0);
 		FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
-		           const wchar_t *Title,int X1,int Y1,int X2,int Y2,UINT aCodePage=CP_DEFAULT);
+			const wchar_t *Title,int X1,int Y1,int X2,int Y2,UINT aCodePage=CP_DEFAULT);
 		virtual ~FileViewer();
 
 	public:
 		void Init(const wchar_t *Name,int EnableSwitch,int DisableHistory,
-		          long ViewStartPos,const wchar_t *PluginData,NamesList *ViewNamesList,int ToSaveAs);
+			__int64 ViewStartPos,const wchar_t *PluginData,NamesList *ViewNamesList,int ToSaveAs);
 		virtual void InitKeyBar();
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);

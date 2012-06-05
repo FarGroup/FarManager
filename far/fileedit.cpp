@@ -884,21 +884,27 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				if (!FirstSave || m_editor->IsFileChanged() || apiGetFileAttributes(strFullFileName)!=INVALID_FILE_ATTRIBUTES)
 				{
-					long FilePos=m_editor->GetCurPos(true, m_bAddSignature);
+					__int64 FilePos=m_editor->GetCurPos(true, m_bAddSignature); // TODO: GetCurPos should return __int64
 
 					/* $ 01.02.2001 IS
 					   ! Открываем вьюер с указанием длинного имени файла, а не короткого
 					*/
 					if (ProcessQuitKey(FirstSave,NeedQuestion))
 					{
-						/* $ 11.10.200 IS
-						   не будем удалять файл, если было включено удаление, но при этом
-						   пользователь переключился во вьюер
-						*/
+						int delete_on_close = 0;
+						if (Flags.Check(FFILEEDIT_DELETEONCLOSE))
+							delete_on_close = 1;
+						else if (Flags.Check(FFILEEDIT_DELETEONLYFILEONCLOSE))
+							delete_on_close = 2;
 						SetDeleteOnClose(0);
-						//объект будет в конце удалён в FrameManager
-						new FileViewer(strFullFileName, GetCanLoseFocus(), Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
-						               FilePos, nullptr, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp);
+
+						//объект будет в конце удалён во FrameManager
+						new FileViewer(
+							strFullFileName.CPtr(),
+							GetCanLoseFocus(), Flags.Check(FFILEEDIT_DISABLEHISTORY), FALSE,
+							FilePos, nullptr, EditNamesList, Flags.Check(FFILEEDIT_SAVETOSAVEAS), cp,
+							strTitle.IsEmpty() ? nullptr : strTitle.CPtr(),
+							delete_on_close);
 					}
 
 					ShowTime(2);

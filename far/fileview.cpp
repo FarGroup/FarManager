@@ -53,14 +53,25 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "stddlg.hpp"
 
-FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
-                       int DisableEdit,long ViewStartPos,const wchar_t *PluginData,
-                       NamesList *ViewNamesList,int ToSaveAs,UINT aCodePage):
-	View(false,aCodePage),
+FileViewer::FileViewer(
+	const wchar_t *Name,int EnableSwitch,int DisableHistory,
+	int DisableEdit,__int64 ViewStartPos,const wchar_t *PluginData,
+	NamesList *ViewNamesList,int ToSaveAs,UINT aCodePage,
+	const wchar_t *Title, int DeleteOnClose)
+ : View(false,aCodePage),
 	FullScreen(true),
-	DisableEdit(DisableEdit)
+	DisableEdit(DisableEdit),
+	delete_on_close(0)
 {
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(I variant...)", this));
+	str_title = (Title && *Title ? Title : L"");
+	if (!str_title.IsEmpty())
+		View.SetTitle(Title);
+	if (DeleteOnClose)
+	{
+		delete_on_close = DeleteOnClose == 1 ? 1 : 2;
+		SetTempViewName(Name, DeleteOnClose == 1 ? TRUE : FALSE);
+	}
 	SetPosition(0,0,ScrX,ScrY);
 	Init(Name,EnableSwitch,DisableHistory,ViewStartPos,PluginData,ViewNamesList,ToSaveAs);
 }
@@ -71,6 +82,9 @@ FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
 {
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(II variant...)", this));
 	DisableEdit=TRUE;
+
+	delete_on_close = 0;
+	str_title = (Title && *Title ? Title : L"");
 
 	if (X1 < 0)
 		X1=0;
@@ -103,9 +117,9 @@ FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
 }
 
 
-void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory, ///
-                      long ViewStartPos,const wchar_t *PluginData,
-                      NamesList *ViewNamesList,int ToSaveAs)
+void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory,
+	__int64 ViewStartPos,const wchar_t *PluginData,
+	NamesList *ViewNamesList,int ToSaveAs)
 {
 	RedrawTitle = FALSE;
 	ViewKeyBar.SetOwner(this);
@@ -343,19 +357,21 @@ int FileViewer::ProcessKey(int Key)
 						return TRUE;
 				}
 				Edit.Close();
-				// Если переключаемся в редактор, то удалять файл уже не нужно
-				SetTempViewName(L"");
-				SetExitCode(0);
 				__int64 FilePos=View.GetFilePos();
-				/* $ 07.07.2006 IS
-				   Тут косяк, замеченный при чтении warnings - FilePos теряет информацию при преобразовании __int64 -> int
-				   Надо бы поправить FileEditor на этот счет.
-				*/
-				FileEditor *ShellEditor = new FileEditor(strViewFileName, cp,
-				        (GetCanLoseFocus()?FFILEEDIT_ENABLEF6:0)|(SaveToSaveAs?FFILEEDIT_SAVETOSAVEAS:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0),-2, static_cast<int>(FilePos), nullptr);
+				DWORD flags = (GetCanLoseFocus()?FFILEEDIT_ENABLEF6:0)|(SaveToSaveAs?FFILEEDIT_SAVETOSAVEAS:0)|(DisableHistory?FFILEEDIT_DISABLEHISTORY:0);
+				FileEditor *ShellEditor = new FileEditor(
+					strViewFileName, cp, flags, -2,
+					static_cast<int>(FilePos), // TODO: Editor StartChar should be __int64
+					str_title.IsEmpty() ? nullptr: &str_title,
+					-1,-1, -1, -1, delete_on_close );
 				ShellEditor->SetEnableF6(TRUE);
 				/* $ 07.05.2001 DJ сохраняем NamesList */
 				ShellEditor->SetNamesList(View.GetNamesList());
+
+				// Если переключаемся в редактор, то удалять файл уже не нужно
+				SetTempViewName(L"");
+				SetExitCode(0);
+
 				FrameManager->DeleteFrame(this); // Insert уже есть внутри конструктора
 				ShowTime(2);
 			}
@@ -425,6 +441,7 @@ void FileViewer::ShowConsoleTitle()
 
 void FileViewer::SetTempViewName(const wchar_t *Name, BOOL DeleteFolder)
 {
+	delete_on_close = (DeleteFolder ? 1 : 2);
 	View.SetTempViewName(Name, DeleteFolder);
 }
 

@@ -229,6 +229,15 @@ and it is not recommended to specify it during normal operation.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
 
+  #/ro#
+  Работа без сохранения изменений в базах настроек. Этот режим позволяет работать
+с настройками доступными только для чтения, в том числе на защищенных от записи носителях.
+Опция перекрывает значение ReadOnlyConfig из Far.exe.ini.
+
+  #/rw#
+  Нормальный (Read-Write) режим работы с БД настроек.
+Опция перекрывает значение ReadOnlyConfig из Far.exe.ini.
+
   It is possible to specify at most two paths (to folders, files or archives) or
 two commands with plugin prefix in the command line. The first path applies to the
 active panel, the second path - to the passive one:
