@@ -3,6 +3,24 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 07.06.2012 13:35:13 +0400 - build 2723
+
+1. M#2124: /$/m regex "non-standard" behavior
+
+w17 05.06.2012 21:27:50 +0400 - build 2722
+
+1. M#0000228: Save "delete file on close" flag in viewer/editor after F6
+
+2. FileViewer(__int64 ViewerStartPos)
+
+3. help invoked with far /ro [/rw]
+
+svs 04.06.2012 16:21:07 +0400 - build 2721
+
+1. A typo for Debug
+
+2. SQLite 3.7.12.1
+
 drkns 02.06.2012 14:54:41 +0200 - build 2720
 
 1. Completion with CtrlSpace did not work.
