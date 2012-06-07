@@ -125,22 +125,22 @@ static const int MAXDEPTH=256;
   \defgroup options Regular expression compile time options
 */
 /*@{*/
-//! Match in a case insensetive manner
+//! Match in a case insensitive manner
 static const int OP_IGNORECASE   =0x0001;
-//! Single line mode, dot metacharacter will match newline symbol
+//! Single line mode, dot meta-character will match newline symbol
 static const int OP_SINGLELINE   =0x0002;
-//! Multiline mode, ^ and $ can match line start and line end
+//! MultiLine mode, ^ and $ can match line start and line end
 static const int OP_MULTILINE    =0x0004;
 //! Extended syntax, spaces symbols are ignored unless escaped
 static const int OP_XTENDEDSYNTAX=0x0008;
-//! Perl style regexp provided. i.e. /expression/imsx
+//! Perl style RegExp provided. i.e. /expression/imsx
 static const int OP_PERLSTYLE    =0x0010;
 //! Optimize after compile
 static const int OP_OPTIMIZE     =0x0020;
-//! Strict escapes - only unrecognized escape will prodce errInvalidEscape error
+//! Strict escapes - only unrecognized escape will produce errInvalidEscape error
 static const int OP_STRICT       =0x0040;
 //! Replace backslash with slash, used
-//! when regexp source embeded in c++ sources
+//! when RegExp source embedded in c++ sources
 static const int OP_CPPMODE      =0x0080;
 /*@}*/
 
@@ -156,9 +156,9 @@ static const int TYPE_DIGITCHAR  =0x01;
 static const int TYPE_SPACECHAR  =0x02;
 //! alphanumeric and _
 static const int TYPE_WORDCHAR   =0x04;
-//! lowcase symbol
+//! lo-case symbol
 static const int TYPE_LOWCASE    =0x08;
-//! upcase symbol
+//! up-case symbol
 static const int TYPE_UPCASE     =0x10;
 //! letter
 static const int TYPE_ALPHACHAR  =0x20;

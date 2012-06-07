@@ -2594,16 +2594,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
 				}
 				case opLineEnd:
 				{
-					if (str==strend)continue;
-
-					if (str[0]==0x0d || str[0]==0x0a)
-					{
-						if (str[0]==0x0d)str++;
-
-						if (str[0]==0x0a)str++;
-
-						continue;
-					}
+					if (str==strend || str[0]==0x0d || str[0]==0x0a)continue;
 
 					break;
 				}
