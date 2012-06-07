@@ -2728,6 +2728,7 @@ while searching (so, for example, #Text# will not be found when searching for #t
         #Whole words#         - ^<wrap>the given text will be found only if it occurs in the text as a whole word.
 
         #Regular expressions# - ^<wrap>enable the use of ~regular expressions~@RegExp@ in the search string.
+Поиск построчный, поэтому многострочные конструкции и переводы строк не будут найдены.
 
     #Search for hex#
 
@@ -2872,7 +2873,8 @@ $ #Editor: search/replace#
 
       #Reverse search#      - ^<wrap>change the direction of search (from the end of file towards the beginning)
 
-      #Regular expressions# - ^<wrap>treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@)
+      #Regular expressions# - ^<wrap>treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
+Поиск построчный, поэтому многострочные конструкции и переводы строк не будут найдены.
 
     The following option is available in search dialog only:
 
