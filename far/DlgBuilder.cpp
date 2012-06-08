@@ -97,7 +97,7 @@ public:
 	{
 		if (!Mask)
 		{
-			Value = Item->Selected != BSTATE_UNCHECKED;
+			Value = Item->Selected;
 		}
 		else
 		{
