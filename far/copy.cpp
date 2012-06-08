@@ -78,7 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 /* ќбщее врем€ ожидани€ пользовател€ */
 extern long WaitUserTime;
-/* ƒлф того, что бы врем€ при одижании пользовател€ тикало, а remaining/speed нет */
+/* ƒл€ того, что бы врем€ при одижании пользовател€ тикало, а remaining/speed нет */
 static long OldCalcTime;
 
 #define SDDATA_SIZE   64*1024
@@ -362,6 +362,15 @@ void CopyProgress::SetNames(const wchar_t *Src,const wchar_t *Dst)
 	if (!BgInit)
 	{
 		CreateBackground();
+	}
+
+	if (Time)
+	{
+		if (!ShowTotalCopySize || 0 == TotalFiles)
+		{
+			CopyStartTime = clock();
+			WaitUserTime = OldCalcTime = 0;
+		}
 	}
 
 	const int NameWidth = Rect.Right-Rect.Left-9;
@@ -1454,10 +1463,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходна€ панель (активна€)
 			DestList.Reset();
 			TotalFiles=0;
 			TotalCopySize=TotalCopiedSize=TotalSkippedSize=0;
-
-			// «апомним врем€ начала
-			CopyStartTime = clock();
-			WaitUserTime = OldCalcTime = 0;
 
 			if (CountTarget > 1)
 				Move=0;
