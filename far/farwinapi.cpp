@@ -1701,3 +1701,24 @@ int EnumRegValueEx(HKEY hRegRootKey, const string& Key, DWORD Index, string &str
 	}
 	return RetCode;
 }
+
+bool apiGetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)
+{
+	bool Result = false;
+	NTPath NtObject(Object);
+	DWORD LengthNeeded = 0;
+	GetFileSecurity(NtObject, RequestedInformation, nullptr, 0, &LengthNeeded);
+	if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+	{
+		SecurityDescriptor.Size = LengthNeeded;
+		SecurityDescriptor.SecurityDescriptor = static_cast<PSECURITY_DESCRIPTOR>(xf_malloc(SecurityDescriptor.Size));
+		Result = GetFileSecurity(NtObject, RequestedInformation, SecurityDescriptor.SecurityDescriptor, LengthNeeded, &LengthNeeded) != FALSE;
+	}
+	return Result;
+}
+
+bool apiSetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)
+{
+	NTPath NtObject(Object);
+	return SetFileSecurity(NtObject, RequestedInformation, SecurityDescriptor.SecurityDescriptor) != FALSE;
+}

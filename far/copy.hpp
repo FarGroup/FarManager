@@ -84,7 +84,6 @@ class ShellCopy
 		string strSrcDriveRoot;
 		string strDestDriveRoot;
 		string strDestFSName;
-		char   *sddata; // Security
 		DizList DestDiz;
 		string strDestDizPath;
 		char *CopyBuffer;
@@ -119,9 +118,9 @@ class ShellCopy
 		int  AskOverwrite(const FAR_FIND_DATA_EX &SrcData,const string& SrcName,const string& DestName,
 		                  DWORD DestAttr,int SameName,int Rename,int AskAppend,
 		                  int &Append,string &strNewName,int &RetCode);
-		int  GetSecurity(const string& FileName,SECURITY_ATTRIBUTES &sa);
-		int  SetSecurity(const string& FileName,const SECURITY_ATTRIBUTES &sa);
-		int  SetRecursiveSecurity(const string& FileName,const SECURITY_ATTRIBUTES &sa);
+		int  GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR_EX& sd);
+		int  SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd);
+		int  SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd);
 		bool CalcTotalSize();
 		bool ShellSetAttr(const string& Dest,DWORD Attr);
 		void CheckUpdatePanel(); // выставляет флаг FCOPY_UPDATEPPANEL

@@ -59,7 +59,8 @@ class AutoObject:NonCopyable
 {
 public:
 	AutoObject():
-		Data(nullptr)
+		Data(nullptr),
+		size(0)
 	{
 	}
 
@@ -67,6 +68,7 @@ public:
 	{
 		Free();
 		Data=xf_malloc(Size);
+		size = Size;
 		return Data;
 	}
 
@@ -78,6 +80,8 @@ public:
 			Data=nullptr;
 		}
 	}
+
+	size_t Size() {return size;}
 
 	~AutoObject()
 	{
@@ -96,6 +100,7 @@ public:
 
 private:
 	LPVOID Data;
+	size_t size;
 };
 
 bool RawReadPipe(HANDLE Pipe, LPVOID Data, size_t DataSize)
@@ -117,10 +122,16 @@ inline bool ReadPipe(HANDLE Pipe, T& Data)
 }
 
 template<typename T>
+inline bool ReadPipe(HANDLE Pipe, T* Data) {static_assert(sizeof(T) < 0 /* always false */, "ReadPipe template requires a reference to an object"); return false;}
+
+template<typename T>
 inline bool WritePipe(HANDLE Pipe, const T& Data)
 {
 	return RawWritePipe(Pipe, &Data, sizeof(Data));
 }
+
+template<typename T>
+inline bool WritePipe(HANDLE Pipe, const T* Data) {static_assert(sizeof(T) < 0 /* always false */, "WritePipe template requires a reference to an object"); return false;}
 
 bool ReadPipeData(HANDLE Pipe, AutoObject& Data)
 {
@@ -215,11 +226,6 @@ void elevation::ResetApprove()
 	}
 }
 
-bool elevation::ReadData(AutoObject& Data) const
-{
-	return ReadPipeData(Pipe, Data);
-}
-
 bool elevation::WriteData(LPCVOID Data,size_t DataSize) const
 {
 	return WritePipeData(Pipe, Data, DataSize);
@@ -231,10 +237,22 @@ inline bool elevation::Read(T& Data) const
 	return ReadPipe(Pipe, Data);
 }
 
+template<>
+inline bool elevation::Read(AutoObject& Data) const
+{
+	return ReadPipeData(Pipe, Data);
+}
+
 template<typename T>
 inline bool elevation::Write(const T& Data) const
 {
 	return WritePipe(Pipe, Data);
+}
+
+template<>
+inline bool elevation::Write(const string& Data) const
+{
+	return WriteData(Data.CPtr(), (Data.GetLength()+1)*sizeof(wchar_t));
 }
 
 bool elevation::SendCommand(ELEVATION_COMMAND Command) const
@@ -242,12 +260,18 @@ bool elevation::SendCommand(ELEVATION_COMMAND Command) const
 	return WritePipe(Pipe, Command);
 }
 
+struct ERRORCODES
+{
+	DWORD Win32Error;
+	NTSTATUS NtError;
+};
+
 bool elevation::ReceiveLastError() const
 {
-	int ErrorCodes[2] = {ERROR_SUCCESS, STATUS_SUCCESS};
+	ERRORCODES ErrorCodes = {ERROR_SUCCESS, STATUS_SUCCESS};
 	bool Result = ReadPipe(Pipe, ErrorCodes);
-	SetLastError(ErrorCodes[0]);
-	ifn.RtlNtStatusToDosError(ErrorCodes[1]);
+	SetLastError(ErrorCodes.Win32Error);
+	ifn.RtlNtStatusToDosError(ErrorCodes.NtError);
 	return Result;
 }
 
@@ -463,7 +487,10 @@ void ElevationApproveDlgSync(LPVOID Param)
 	Dlg.SetHelp(L"ElevationDlg");
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 	Dlg.SetDialogMode(DMODE_FULLSHADOW|DMODE_NOPLUGINS);
+	Frame* Current = FrameManager->GetCurrentFrame();
+	Current->Lock();
 	Dlg.Process();
+	Current->Unlock();
 	Data->AskApprove=!ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
 	Data->Approve=Dlg.GetExitCode()==AAD_BUTTON_OK;
 	Data->DontAskAgain=ElevationApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
@@ -530,9 +557,9 @@ bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& O
 				if(SendCommand(C_FUNCTION_CREATEDIRECTORYEX))
 				{
 
-					if(WriteData(TemplateObject))
+					if(Write(TemplateObject))
 					{
-						if(WriteData(Object))
+						if(Write(Object))
 						{
 							// BUGBUG: SecurityAttributes ignored
 							int OpResult=0;
@@ -569,7 +596,7 @@ bool elevation::fRemoveDirectory(const string& Object)
 			{
 				if(SendCommand(C_FUNCTION_REMOVEDIRECTORY))
 				{
-					if(WriteData(Object))
+					if(Write(Object))
 					{
 						int OpResult=0;
 						if(Read(OpResult))
@@ -604,7 +631,7 @@ bool elevation::fDeleteFile(const string& Object)
 			{
 				if(SendCommand(C_FUNCTION_DELETEFILE))
 				{
-					if(WriteData(Object))
+					if(Write(Object))
 					{
 						int OpResult=0;
 						if(Read(OpResult))
@@ -627,16 +654,16 @@ void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 	if(ProgressRoutine)
 	{
 		AutoObject TotalFileSize;
-		if (ReadData(TotalFileSize))
+		if (Read(TotalFileSize))
 		{
 			AutoObject TotalBytesTransferred;
-			if (ReadData(TotalBytesTransferred))
+			if (Read(TotalBytesTransferred))
 			{
 				AutoObject StreamSize;
-				if (ReadData(StreamSize))
+				if (Read(StreamSize))
 				{
 					AutoObject StreamBytesTransferred;
-					if (ReadData(StreamBytesTransferred))
+					if (Read(StreamBytesTransferred))
 					{
 						int StreamNumber=0;
 						if (Read(StreamNumber))
@@ -646,7 +673,7 @@ void elevation::fCallbackRoutine(LPPROGRESS_ROUTINE ProgressRoutine) const
 							{
 								// BUGBUG: SourceFile, DestinationFile ignored
 								AutoObject Data;
-								if (ReadData(Data))
+								if (Read(Data))
 								{
 									int Result=ProgressRoutine(*static_cast<PLARGE_INTEGER>(TotalFileSize.Get()), *static_cast<PLARGE_INTEGER>(TotalBytesTransferred.Get()), *static_cast<PLARGE_INTEGER>(StreamSize.Get()), *static_cast<PLARGE_INTEGER>(StreamBytesTransferred.Get()), StreamNumber, CallbackReason, INVALID_HANDLE_VALUE, INVALID_HANDLE_VALUE, Data.Get());
 									if(Write(CallbackMagic))
@@ -680,9 +707,9 @@ bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROU
 			{
 				if(SendCommand(C_FUNCTION_COPYFILEEX))
 				{
-					if(WriteData(From))
+					if(Write(From))
 					{
-						if(WriteData(To))
+						if(Write(To))
 						{
 							if (WriteData(&ProgressRoutine, sizeof(ProgressRoutine)))
 							{
@@ -737,9 +764,9 @@ bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 			{
 				if(SendCommand(C_FUNCTION_MOVEFILEEX))
 				{
-					if(WriteData(From))
+					if(Write(From))
 					{
-						if(WriteData(To))
+						if(Write(To))
 						{
 							if(Write(Flags))
 							{
@@ -778,7 +805,7 @@ DWORD elevation::fGetFileAttributes(const string& Object)
 			{
 				if(SendCommand(C_FUNCTION_GETFILEATTRIBUTES))
 				{
-					if(WriteData(Object))
+					if(Write(Object))
 					{
 						int OpResult=0;
 						if(Read(OpResult))
@@ -813,7 +840,7 @@ bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 			{
 				if(SendCommand(C_FUNCTION_SETFILEATTRIBUTES))
 				{
-					if(WriteData(Object))
+					if(Write(Object))
 					{
 						if(Write(FileAttributes))
 						{
@@ -851,9 +878,9 @@ bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSE
 			{
 				if(SendCommand(C_FUNCTION_CREATEHARDLINK))
 				{
-					if(WriteData(Object))
+					if(Write(Object))
 					{
-						if(WriteData(Target))
+						if(Write(Target))
 						{
 							// BUGBUG: SecurityAttributes ignored.
 							int OpResult=0;
@@ -890,9 +917,9 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 			{
 				if(SendCommand(C_FUNCTION_CREATESYMBOLICLINK))
 				{
-					if(WriteData(Object))
+					if(Write(Object))
 					{
-						if(WriteData(Target))
+						if(Write(Target))
 						{
 							if(Write(Flags))
 							{
@@ -978,9 +1005,9 @@ bool elevation::fSetOwner(const string& Object, const string& Owner)
 			{
 				if(SendCommand(C_FUNCTION_SETOWNER))
 				{
-					if(WriteData(Object))
+					if(Write(Object))
 					{
-						if(WriteData(Owner))
+						if(Write(Owner))
 						{
 							int OpResult=0;
 							if(Read(OpResult))
@@ -1016,7 +1043,7 @@ HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD S
 			{
 				if(SendCommand(C_FUNCTION_CREATEFILE))
 				{
-					if(WriteData(Object))
+					if(Write(Object))
 					{
 						if(Write(DesiredAccess))
 						{
@@ -1029,7 +1056,7 @@ HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD S
 									{
 										// BUGBUG: TemplateFile ignored
 										AutoObject OpResult;
-										if(ReadData(OpResult))
+										if(Read(OpResult))
 										{
 											if(ReceiveLastError())
 											{
@@ -1065,7 +1092,7 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 			{
 				if(SendCommand(C_FUNCTION_SETENCRYPTION))
 				{
-					if(WriteData(Object))
+					if(Write(Object))
 					{
 						if(Write(Encrypt))
 						{
@@ -1084,7 +1111,6 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 		}
 	}
 	return Result;
-
 }
 
 
@@ -1184,7 +1210,7 @@ void CreateDirectoryExHandler()
 		{
 			// BUGBUG, SecurityAttributes ignored
 			int Result = *TemplateObject.GetStr()?CreateDirectoryEx(TemplateObject.GetStr(), Object.GetStr(), nullptr):CreateDirectory(Object.GetStr(), nullptr);
-			int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+			ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
 				WritePipe(Pipe, ErrorCodes);
@@ -1199,7 +1225,7 @@ void RemoveDirectoryHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		int Result = RemoveDirectory(Object.GetStr());
-		int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+		ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 		if(WritePipe(Pipe, Result))
 		{
 			WritePipe(Pipe, ErrorCodes);
@@ -1213,7 +1239,7 @@ void DeleteFileHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		int Result = DeleteFile(Object.GetStr());
-		int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+		ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 		if(WritePipe(Pipe, Result))
 		{
 			WritePipe(Pipe, ErrorCodes);
@@ -1240,7 +1266,7 @@ void CopyFileExHandler()
 					{
 						// BUGBUG: Cancel ignored
 						int Result = CopyFileEx(From.GetStr(), To.GetStr(), UserCopyProgressRoutine.Get()?ElevationCopyProgressRoutine:nullptr, Data.Get(), nullptr, Flags);
-						int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+						ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 						if(WritePipe(Pipe, Result))
 						{
 							WritePipe(Pipe, ErrorCodes);
@@ -1264,7 +1290,7 @@ void MoveFileExHandler()
 			if(ReadPipe(Pipe, Flags))
 			{
 				int Result = MoveFileEx(From.GetStr(), To.GetStr(), Flags);
-				int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+				ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 				if(WritePipe(Pipe, Result))
 				{
 					WritePipe(Pipe, ErrorCodes);
@@ -1280,7 +1306,7 @@ void GetFileAttributesHandler()
 	if(ReadPipeData(Pipe, Object))
 	{
 		int Result = GetFileAttributes(Object.GetStr());
-		int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+		ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 		if(WritePipe(Pipe, Result))
 		{
 			WritePipe(Pipe, ErrorCodes);
@@ -1297,7 +1323,7 @@ void SetFileAttributesHandler()
 		if(ReadPipe(Pipe, Attributes))
 		{
 			int Result = SetFileAttributes(Object.GetStr(), Attributes);
-			int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+			ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
 				WritePipe(Pipe, ErrorCodes);
@@ -1316,7 +1342,7 @@ void CreateHardLinkHandler()
 		{
 			// BUGBUG: SecurityAttributes ignored.
 			int Result = CreateHardLink(Object.GetStr(), Target.GetStr(), nullptr);
-			int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+			ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
 				WritePipe(Pipe, ErrorCodes);
@@ -1337,7 +1363,7 @@ void CreateSymbolicLinkHandler()
 			if(ReadPipe(Pipe, Flags))
 			{
 				int Result = CreateSymbolicLinkInternal(Object.GetStr(), Target.GetStr(), Flags);
-				int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+				ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 				if(WritePipe(Pipe, Result))
 				{
 					WritePipe(Pipe, ErrorCodes);
@@ -1379,7 +1405,7 @@ void SetOwnerHandler()
 		if(ReadPipeData(Pipe, Owner))
 		{
 			int Result = SetOwnerInternal(Object.GetStr(), Owner.GetStr());
-			int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+			ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
 				WritePipe(Pipe, ErrorCodes);
@@ -1421,7 +1447,7 @@ void CreateFileHandler()
 								CloseHandle(ParentProcess);
 							}
 						}
-						int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+						ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 						if(WritePipeData(Pipe, &Result, sizeof(Result)))
 						{
 							WritePipe(Pipe, ErrorCodes);
@@ -1442,7 +1468,7 @@ void SetEncryptionHandler()
 		if(ReadPipe(Pipe, Encrypt))
 		{
 			bool Result = apiSetFileEncryptionInternal(Object.GetStr(), Encrypt);
-			int ErrorCodes[2] = {(int)GetLastError(), ifn.RtlGetLastNtStatus()};
+			ERRORCODES ErrorCodes = {GetLastError(), ifn.RtlGetLastNtStatus()};
 			if(WritePipe(Pipe, Result))
 			{
 				WritePipe(Pipe, ErrorCodes);
@@ -1507,6 +1533,7 @@ bool Process(int Command)
 	case C_FUNCTION_CREATEFILE:
 		CreateFileHandler();
 		break;
+
 	case C_FUNCTION_SETENCRYPTION:
 		SetEncryptionHandler();
 		break;

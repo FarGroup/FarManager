@@ -848,7 +848,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
                      int &ToPlugin,          // =?
                      const wchar_t* PluginDestPath,
                      bool ToSubdir):
-	sddata(nullptr),
 	CopyBuffer(nullptr),
 	RPT(RP_EXACTCOPY)
 {
@@ -873,7 +872,6 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	IconicState=IsIconic(Console.GetWindow());
 	// Создадим объект фильтра
 	Filter=new FileFilter(SrcPanel, FFT_COPY);
-	sddata=new char[SDDATA_SIZE];
 	// $ 26.05.2001 OT Запретить перерисовку панелей во время копирования
 	_tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
 	(*FrameManager)[0]->Lock();
@@ -1674,9 +1672,6 @@ ShellCopy::~ShellCopy()
 	(*FrameManager)[0]->Unlock();
 	(*FrameManager)[0]->Refresh();
 
-	if (sddata)
-		delete[] sddata;
-
 	if (Filter) // Уничтожим объект фильтра
 		delete Filter;
 
@@ -2326,7 +2321,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			{
 				string strSrcFullName,strDestFullName;
 				ConvertNameToFull(Src,strSrcFullName);
-				SECURITY_ATTRIBUTES sa;
+				FAR_SECURITY_DESCRIPTOR_EX sd;
 
 				// для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
 				if (!(Flags&(FCOPY_COPYSECURITY|FCOPY_LEAVESECURITY)))
@@ -2338,10 +2333,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					else if (apiGetFileAttributes(strDest) == INVALID_FILE_ATTRIBUTES) // если каталога нет...
 					{
 						// ...получаем секьюрити родителя
-						if (GetSecurity(GetParentFolder(strDest,strDestFullName), sa))
+						if (GetSecurity(GetParentFolder(strDest,strDestFullName), sd))
 							IsSetSecuty=TRUE;
 					}
-					else if (GetSecurity(strDest,sa)) // иначе получаем секьюрити Dest`а
+					else if (GetSecurity(strDest,sd)) // иначе получаем секьюрити Dest`а
 						IsSetSecuty=TRUE;
 				}
 
@@ -2353,7 +2348,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (SuccessMove)
 					{
 						if (IsSetSecuty)// && !strcmp(DestFSName,"NTFS"))
-							SetRecursiveSecurity(strDestPath,sa);
+							SetRecursiveSecurity(strDestPath,sd);
 
 						if (PointToName(strDestPath)==strDestPath.CPtr())
 							strRenamedName = strDestPath;
@@ -2376,12 +2371,12 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							case 1:
 							{
 								int CopySecurity = Flags&FCOPY_COPYSECURITY;
-								SECURITY_ATTRIBUTES tmpsa;
+								FAR_SECURITY_DESCRIPTOR_EX tmpsd;
 
-								if ((CopySecurity) && !GetSecurity(Src,tmpsa))
+								if ((CopySecurity) && !GetSecurity(Src,tmpsd))
 									CopySecurity = FALSE;
-
-								if (apiCreateDirectory(strDestPath,CopySecurity?&tmpsa:nullptr))
+								SECURITY_ATTRIBUTES TmpSecAttr  ={sizeof(TmpSecAttr), tmpsd.SecurityDescriptor, FALSE};
+								if (apiCreateDirectory(strDestPath,CopySecurity?&TmpSecAttr:nullptr))
 								{
 									if (PointToName(strDestPath)==strDestPath.CPtr())
 										strRenamedName = strDestPath;
@@ -2399,18 +2394,18 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				} /* while */
 			} // if (Rename)
 
-			SECURITY_ATTRIBUTES sa;
+			FAR_SECURITY_DESCRIPTOR_EX sd;
 
-			if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,sa))
+			if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(Src,sd))
 				return COPY_CANCEL;
-
+			SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), sd.SecurityDescriptor, FALSE};
 			if (RPT!=RP_SYMLINKFILE && SrcData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 			{
 				while (!apiCreateDirectoryEx(
 					// CreateDirectoryEx preserves reparse points,
 					// so we shouldn't use template when copying with content
 					((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && (Flags&FCOPY_COPYSYMLINKCONTENTS))? L"" : Src,
-					strDestPath,(Flags&FCOPY_COPYSECURITY) ? &sa:nullptr))
+					strDestPath,(Flags&FCOPY_COPYSECURITY) ? &SecAttr:nullptr))
 				{
 					int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE,3,MSG(MError),
 					                MSG(MCopyCannotCreateFolder),strDestPath,MSG(MCopyRetry),
@@ -2608,7 +2603,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					if (NWFS_Attr)
 						apiSetFileAttributes(strSrcFullName,SrcData.dwFileAttributes&(~FILE_ATTRIBUTE_READONLY));
 
-					SECURITY_ATTRIBUTES sa;
+					FAR_SECURITY_DESCRIPTOR_EX sd;
 					IsSetSecuty=FALSE;
 
 					// для Move нам необходимо узнать каталог родитель, чтобы получить его секьюрити
@@ -2621,10 +2616,10 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 							string strDestFullName;
 
 							// ...получаем секьюрити родителя
-							if (GetSecurity(GetParentFolder(strDest,strDestFullName),sa))
+							if (GetSecurity(GetParentFolder(strDest,strDestFullName), sd))
 								IsSetSecuty=TRUE;
 						}
-						else if (GetSecurity(strDest,sa)) // иначе получаем секьюрити Dest`а
+						else if (GetSecurity(strDest, sd)) // иначе получаем секьюрити Dest`а
 							IsSetSecuty=TRUE;
 					}
 
@@ -2648,7 +2643,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 					else
 					{
 						if (IsSetSecuty)
-							SetSecurity(strDestPath,sa);
+							SetSecurity(strDestPath, sd);
 					}
 
 					if (NWFS_Attr)
@@ -3014,8 +3009,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 		}
 	}
 
-	SECURITY_ATTRIBUTES sa;
-	if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sa))
+	FAR_SECURITY_DESCRIPTOR_EX sd;
+	if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sd))
 		return COPY_CANCEL;
 
 	int OpenMode=FILE_SHARE_READ;
@@ -3048,7 +3043,8 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
 		//apiDeleteFile(DestName);
-		bool DstOpened = DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, (Flags&FCOPY_COPYSECURITY) ? &sa:nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), SrcData.dwFileAttributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN)));
+		SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), sd.SecurityDescriptor, FALSE};
+		bool DstOpened = DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, (Flags&FCOPY_COPYSECURITY) ? &SecAttr:nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), SrcData.dwFileAttributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN)));
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
 		if (!DstOpened)
@@ -3817,46 +3813,34 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 
 
 
-int ShellCopy::GetSecurity(const string& FileName,SECURITY_ATTRIBUTES &sa)
+int ShellCopy::GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR_EX& sd)
 {
-	SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
-	SECURITY_DESCRIPTOR *sd=(SECURITY_DESCRIPTOR *)sddata;
-	DWORD Needed;
-	BOOL RetSec=GetFileSecurity(NTPath(FileName),si,sd,SDDATA_SIZE,&Needed);
-	int LastError=GetLastError();
+	bool RetSec = apiGetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd);
 
-	if (!RetSec || Needed>SDDATA_SIZE)
+	if (!RetSec)
 	{
-		sd=nullptr;
-
+		int LastError = GetLastError();
 		if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
 		        Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 		                MSG(MCannotGetSecurity),FileName,MSG(MOk),MSG(MCancel))==1)
 			return FALSE;
 	}
-
-	sa.nLength=sizeof(SECURITY_ATTRIBUTES);
-	sa.lpSecurityDescriptor=sd;
-	sa.bInheritHandle=FALSE;
 	return TRUE;
 }
 
 
 
-int ShellCopy::SetSecurity(const string& FileName,const SECURITY_ATTRIBUTES &sa)
+int ShellCopy::SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd)
 {
-	SECURITY_INFORMATION si=DACL_SECURITY_INFORMATION;
-	BOOL RetSec=SetFileSecurity(NTPath(FileName),si,(PSECURITY_DESCRIPTOR)sa.lpSecurityDescriptor);
-	int LastError=GetLastError();
-
+	bool RetSec = apiSetFileSecurity(NTPath(FileName), DACL_SECURITY_INFORMATION, sd);
 	if (!RetSec)
 	{
+		int LastError = GetLastError();
 		if (LastError!=ERROR_SUCCESS && LastError!=ERROR_FILE_NOT_FOUND &&
 		        Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
 		                MSG(MCannotSetSecurity),FileName,MSG(MOk),MSG(MCancel))==1)
 			return FALSE;
 	}
-
 	return TRUE;
 }
 
@@ -3898,9 +3882,9 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
 }
 
 
-int ShellCopy::SetRecursiveSecurity(const string& FileName,const SECURITY_ATTRIBUTES &sa)
+int ShellCopy::SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd)
 {
-	if (SetSecurity(FileName,sa))
+	if (SetSecurity(FileName, sd))
 	{
 		if (apiGetFileAttributes(FileName) & FILE_ATTRIBUTE_DIRECTORY)
 		{
@@ -3914,7 +3898,7 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const SECURITY_ATTRIB
 				if (!ShellCopySecuryMsg(strFullName))
 					break;
 
-				if (!SetSecurity(strFullName,sa))
+				if (!SetSecurity(strFullName, sd))
 				{
 					return FALSE;
 				}
@@ -3931,9 +3915,9 @@ int ShellCopy::SetRecursiveSecurity(const string& FileName,const SECURITY_ATTRIB
 
 int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,const FAR_FIND_DATA_EX &SrcData)
 {
-	SECURITY_ATTRIBUTES sa;
+	FAR_SECURITY_DESCRIPTOR_EX sd;
 
-	if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName,sa))
+	if ((Flags&FCOPY_COPYSECURITY) && !GetSecurity(SrcName, sd))
 		return COPY_CANCEL;
 
 	CP->SetNames(SrcName,DestName);
@@ -3947,7 +3931,7 @@ int ShellCopy::ShellSystemCopy(const string& SrcName,const string& DestName,cons
 
 	Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
-	if ((Flags&FCOPY_COPYSECURITY) && !SetSecurity(DestName,sa))
+	if ((Flags&FCOPY_COPYSECURITY) && !SetSecurity(DestName, sd))
 		return COPY_CANCEL;
 
 	return COPY_SUCCESS;
