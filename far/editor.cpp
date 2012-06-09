@@ -6724,10 +6724,10 @@ Edit * Editor::GetStringByNumber(int DestLine)
 		return CurLine;
 	}
 
-	if (DestLine>NumLastLine)
+	if (DestLine>=NumLastLine)
 		return nullptr;
 
-	if(DestLine==0 || DestLine==NumLastLine)
+	if(DestLine==0 || DestLine==(NumLastLine-1))
 	{
 		if(DestLine==0)
 		{
