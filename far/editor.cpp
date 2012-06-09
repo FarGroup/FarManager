@@ -3845,7 +3845,7 @@ BOOL Editor::Search(int Next)
 					Item.UserData = &coord;
 					Item.UserDataSize = sizeof(coord);
 					FindAllList.AddItem(&Item);
-					CurPos+=SearchLength;
+					CurPos += SearchLength? SearchLength : 1;
 					if(NewNumLine != LastCheckedLine)
 					{
 						LastCheckedLine = NewNumLine;
