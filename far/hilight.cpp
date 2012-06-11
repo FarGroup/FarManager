@@ -103,10 +103,9 @@ static const wchar_t fmtLastGroup[]=L"LastGroup%d";
 static const wchar_t SortGroupsKeyName[]=L"SortGroups";
 static const wchar_t HighlightKeyName[]=L"Highlight";
 
-static void SetHighlighting(bool DeleteOld = false, HierarchicalConfig *ExternCfg = nullptr)
+static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 {
 	unsigned __int64 root;
-	HierarchicalConfig *cfg = ExternCfg?ExternCfg:CreateHighlightConfig();
 
 	if (DeleteOld)
 	{
@@ -185,11 +184,6 @@ static void SetHighlighting(bool DeleteOld = false, HierarchicalConfig *ExternCf
 				cfg->SetValue(key,HLS.MarkCharSelectedCursorColor, &DefaultColor, sizeof(FarColor));
 			}
 		}
-	}
-
-	if (cfg!=ExternCfg)
-	{
-		delete cfg;
 	}
 }
 
@@ -290,7 +284,7 @@ static void LoadFilter(HierarchicalConfig *cfg, unsigned __int64 key, FileFilter
 	HData->SetContinueProcessing(ContinueProcessing!=0);
 }
 
-void HighlightFiles::InitHighlightFiles(HierarchicalConfig *ExternCfg)
+void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 {
 	string strGroupName, strMask;
 	const int GroupDelta[4]={DEFAULT_SORT_GROUP,0,DEFAULT_SORT_GROUP+1,DEFAULT_SORT_GROUP};
@@ -299,7 +293,6 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig *ExternCfg)
 	int  *Count[4] = {&FirstCount,&UpperCount,&LowerCount,&LastCount};
 	HiData.Free();
 	FirstCount=UpperCount=LowerCount=LastCount=0;
-	HierarchicalConfig *cfg = ExternCfg? ExternCfg : CreateHighlightConfig();
 
 	for (int j=0; j<4; j++)
 	{
@@ -327,11 +320,6 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig *ExternCfg)
 			else
 				break;
 		}
-	}
-
-	if(cfg != ExternCfg)
-	{
-		delete cfg;
 	}
 }
 
@@ -618,7 +606,6 @@ int HighlightFiles::MenuPosToRealPos(int MenuPos, int **Count, bool Insert)
 
 void HighlightFiles::HiEdit(int MenuPos)
 {
-	Changed = true;
 	VMenu HiMenu(MSG(MHighlightTitle),nullptr,0,ScrY-4);
 	HiMenu.SetHelp(HLS.HighlightList);
 	HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
@@ -834,10 +821,11 @@ void HighlightFiles::HiEdit(int MenuPos)
 			// повтор€ющийс€ кусок!
 			if (NeedUpdate)
 			{
+				Changed = true;
+
 				ScrBuf.Lock(); // отмен€ем вс€кую прорисовку
 				HiMenu.Hide();
 				ProcessGroups();
-
 				if (Opt.AutoSaveSetup)
 					SaveHiData();
 

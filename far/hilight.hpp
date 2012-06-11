@@ -66,7 +66,7 @@ class HighlightFiles
 		bool Changed;
 
 	private:
-		void InitHighlightFiles(class HierarchicalConfig *ExternCfg = nullptr);
+		void InitHighlightFiles(class HierarchicalConfig* cfg);
 		void ClearData();
 
 		int  MenuPosToRealPos(int MenuPos, int **Count, bool Insert=false);
