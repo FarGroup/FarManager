@@ -33,7 +33,7 @@ namespace oldfar
 	};
 
 	typedef int (WINAPI *FARAPIMESSAGE)(
-	    INT_PTR PluginNumber,
+	    intptr_t PluginNumber,
 	    DWORD Flags,
 	    const char *HelpTopic,
 	    const char * const *Items,
@@ -351,7 +351,7 @@ namespace oldfar
 		int Focus;
 		union
 		{
-			DWORD_PTR Reserved;
+			intptr_t Reserved;
 			int Selected;
 			const char *History;
 			const char *Mask;
@@ -386,7 +386,7 @@ namespace oldfar
 		int Msg;
 		int Param1;
 		void* Param2;
-		LONG_PTR Result;
+		intptr_t Result;
 	};
 
 	struct OpenDlgPluginData
@@ -404,7 +404,7 @@ namespace oldfar
 		FDLG_NONMODAL            = 0x00000010,
 	};
 
-	typedef LONG_PTR(WINAPI *FARWINDOWPROC)(
+	typedef intptr_t(WINAPI *FARWINDOWPROC)(
 	    HANDLE   hDlg,
 	    int Msg,
 	    int      Param1,
@@ -412,7 +412,7 @@ namespace oldfar
 	);
 
 	typedef int (WINAPI *FARAPIDIALOG)(
-	    INT_PTR               PluginNumber,
+	    intptr_t               PluginNumber,
 	    int                   X1,
 	    int                   Y1,
 	    int                   X2,
@@ -423,7 +423,7 @@ namespace oldfar
 	);
 
 	typedef int (WINAPI *FARAPIDIALOGEX)(
-	    INT_PTR               PluginNumber,
+	    intptr_t               PluginNumber,
 	    int                   X1,
 	    int                   Y1,
 	    int                   X2,
@@ -467,7 +467,7 @@ namespace oldfar
 		};
 		DWORD AccelKey;
 		DWORD Reserved;
-		DWORD_PTR UserData;
+		intptr_t UserData;
 	};
 
 	enum FARMENUFLAGS
@@ -482,7 +482,7 @@ namespace oldfar
 	};
 
 	typedef int (WINAPI *FARAPIMENU)(
-	    INT_PTR                   PluginNumber,
+	    intptr_t                   PluginNumber,
 	    int                       X,
 	    int                       Y,
 	    int                       MaxHeight,
@@ -529,9 +529,9 @@ namespace oldfar
 		char                *Owner;
 		char               **CustomColumnData;
 		int                  CustomColumnNumber;
-		DWORD_PTR            UserData;
+		intptr_t             UserData;
 		DWORD                CRC32;
-		DWORD_PTR            Reserved[2];
+		intptr_t             Reserved[2];
 	};
 
 	enum PANELINFOFLAGS
@@ -651,7 +651,7 @@ namespace oldfar
 	);
 
 	typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
-	    INT_PTR                  PluginNumber,
+	    intptr_t                  PluginNumber,
 	    HANDLE                   hPlugin,
 	    const char              *Dir,
 	    struct PluginPanelItem **pPanelItem,
@@ -747,7 +747,7 @@ namespace oldfar
 	);
 
 	typedef const char*(WINAPI *FARAPIGETMSG)(
-	    INT_PTR PluginNumber,
+	    intptr_t PluginNumber,
 	    int     MsgId
 	);
 
@@ -970,7 +970,7 @@ namespace oldfar
 				const char *ErrMsg2;
 				const char *ErrMsg3;
 			} MacroResult;
-			DWORD_PTR Reserved[3];
+			intptr_t Reserved[3];
 		};
 	};
 
@@ -1014,8 +1014,8 @@ namespace oldfar
 		char Name[NM];
 	};
 
-	typedef INT_PTR(WINAPI *FARAPIADVCONTROL)(
-	    INT_PTR ModuleNumber,
+	typedef intptr_t(WINAPI *FARAPIADVCONTROL)(
+	    intptr_t ModuleNumber,
 	    oldfar::ADVANCED_CONTROL_COMMANDS Command,
 	    void   *Param
 	);
@@ -1513,7 +1513,7 @@ namespace oldfar
 		FARSTDSNPRINTF             snprintf;
 		// </C&C++>
 
-		DWORD_PTR                  Reserved[8];
+		intptr_t                   Reserved[8];
 
 		FARSTDLOCALISLOWER         LIsLower;
 		FARSTDLOCALISUPPER         LIsUpper;
@@ -1560,7 +1560,7 @@ namespace oldfar
 	{
 		int                    StructSize;
 		char                   ModuleName[NM];
-		INT_PTR                ModuleNumber;
+		intptr_t                ModuleNumber;
 		const char            *RootKey;
 
 		FARAPIMENU             Menu;
@@ -1588,7 +1588,7 @@ namespace oldfar
 		FARAPIDIALOGEX         DialogEx;
 		FARWINDOWPROC          SendDlgMessage;
 		FARWINDOWPROC          DefDlgProc;
-		DWORD_PTR              Reserved;
+		intptr_t               Reserved;
 		FARAPIVIEWERCONTROL    ViewerControl;
 	};
 

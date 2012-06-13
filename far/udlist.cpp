@@ -60,7 +60,7 @@ int UserDefinedListItem::operator<(const UserDefinedListItem &rhs) const
 		return StrCmpI(Str, rhs.Str)<0;
 }
 
-const UserDefinedListItem& UserDefinedListItem::operator=(const
+UserDefinedListItem& UserDefinedListItem::operator=(const
         UserDefinedListItem &rhs)
 {
 	if (this!=&rhs)
@@ -80,7 +80,7 @@ const UserDefinedListItem& UserDefinedListItem::operator=(const
 	return *this;
 }
 
-const UserDefinedListItem& UserDefinedListItem::operator=(const wchar_t *rhs)
+UserDefinedListItem& UserDefinedListItem::operator=(const wchar_t *rhs)
 {
 	if (Str!=rhs)
 	{

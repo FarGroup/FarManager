@@ -286,7 +286,7 @@ void SysLogLastError()
 	if (!IsLogON())
 		return;
 
-	wchar_t *lpMsgBuf;
+	wchar_t *lpMsgBuf = nullptr;
 	DWORD LastErr=GetLastError();
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
 	              nullptr,LastErr,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
@@ -948,7 +948,7 @@ string __EE_ToName(int Command)
 string __EEREDRAW_ToName(int Command)
 {
 #if defined(SYSLOG)
-#define DEF_EEREDRAW_(m) { (int)(INT_PTR)EEREDRAW_##m , L#m }
+#define DEF_EEREDRAW_(m) { (int)(intptr_t)EEREDRAW_##m , L#m }
 	__XXX_Name EEREDRAW[]=
 	{
 		DEF_EEREDRAW_(ALL),

@@ -73,7 +73,7 @@ FileFilterParams::FileFilterParams()
 	ClearAllFlags();
 }
 
-const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
+FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
 {
 	if (this != &FF)
 	{
@@ -84,6 +84,7 @@ const FileFilterParams &FileFilterParams::operator=(const FileFilterParams &FF)
 		FSize=FF.FSize;
 		FDate=FF.FDate;
 		FAttr=FF.FAttr;
+		FHardLinks = FF.FHardLinks;
 		FF.GetColors(&FHighlight.Colors);
 		FHighlight.SortGroup=FF.GetSortGroup();
 		FHighlight.bContinueProcessing=FF.GetContinueProcessing();
@@ -655,7 +656,7 @@ void FilterDlgRelativeDateItemsUpdate(HANDLE hDlg, bool bClear)
 	SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 }
 
-INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -700,7 +701,7 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 			else if (Param1==ID_FF_RESET) // Reset
 			{
 				SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
-				INT_PTR ColorConfig = SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
+				intptr_t ColorConfig = SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_MASKEDIT,const_cast<wchar_t*>(L"*"));
 				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZEFROMEDIT,nullptr);
 				SendDlgMessage(hDlg,DM_SETTEXTPTR,ID_FF_SIZETOEDIT,nullptr);
@@ -813,7 +814,7 @@ INT_PTR WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Para
 
 				if (!bTemp)
 				{
-					INT_PTR ColorConfig = SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
+					intptr_t ColorConfig = SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 					Message(MSG_WARNING,1,ColorConfig?MSG(MFileHilightTitle):MSG(MFileFilterTitle),MSG(MBadFileSizeFormat),MSG(MOk));
 					return FALSE;
 				}

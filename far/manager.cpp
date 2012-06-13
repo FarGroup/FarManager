@@ -79,6 +79,7 @@ Manager::Manager():
 	FramePos(-1),
 	ModalEVCount(0),
 	EndLoop(FALSE),
+	ModalExitCode(-1),
 	StartManager(FALSE)
 {
 }

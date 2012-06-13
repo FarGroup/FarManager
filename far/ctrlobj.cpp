@@ -55,7 +55,9 @@ ControlObject *CtrlObject;
 
 ControlObject::ControlObject():
 	FPanels(0),
-	CmdLine(0)
+	CmdLine(0),
+	MainKeyBar(nullptr),
+	TopMenuBar(nullptr)
 {
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
 	CtrlObject=this;

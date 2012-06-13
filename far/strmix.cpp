@@ -901,7 +901,7 @@ string& FarFormatText(const wchar_t *SrcText,     // источник
 		return strDestText;
 	}
 
-	long i=0, l=0, pgr=0, last=0;
+	long i=0, l=0, pgr=0;
 	wchar_t *newtext;
 	const wchar_t *text= strSrc;
 	long linelength = Width;
@@ -976,6 +976,7 @@ string& FarFormatText(const wchar_t *SrcText,     // источник
 	}
 	else
 	{
+		int last = 0;
 		/* Multiple character line break */
 		newtext = (wchar_t*)xf_malloc((strSrc.GetLength() * (breakcharlen+1)+1)*sizeof(wchar_t));
 
@@ -1086,8 +1087,7 @@ string& FarFormatText(const wchar_t *SrcText,     // источник
 */
 const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Start,int *End, const wchar_t *WordDiv0)
 {
-	int I, J, StartWPos, EndWPos;
-	DWORD DistLeft, DistRight;
+	int StartWPos, EndWPos;
 	int StrSize=StrLength(Str);
 
 	if (CurPos > StrSize)
@@ -1099,9 +1099,9 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 	if (IsWordDiv(strWordDiv,Str[CurPos]))
 	{
 		// вычисляем дистанцию - куда копать, где ближе слово - слева или справа
-		I=J=CurPos;
+		int I = CurPos, J = CurPos;
 		// копаем влево
-		DistLeft=-1;
+		DWORD DistLeft=-1;
 
 		while (I >= 0 && IsWordDiv(strWordDiv,Str[I]))
 		{
@@ -1113,7 +1113,7 @@ const wchar_t * const CalcWordFromString(const wchar_t *Str,int CurPos,int *Star
 			DistLeft=-1;
 
 		// копаем вправо
-		DistRight=-1;
+		DWORD DistRight=-1;
 
 		while (J < StrSize && IsWordDiv(strWordDiv,Str[J]))
 		{

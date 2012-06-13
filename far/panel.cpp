@@ -104,10 +104,10 @@ class ChDiskPluginItem
 		void Clear() { HotKey = 0; Item.Clear(); }
 		bool operator==(const ChDiskPluginItem &rhs) const { return HotKey==rhs.HotKey && !StrCmpI(Item.strName,rhs.Item.strName) && Item.UserData==rhs.Item.UserData; }
 		int operator<(const ChDiskPluginItem &rhs) const {return (Opt.ChangeDriveMode&DRIVE_SORT_PLUGINS_BY_HOTKEY && HotKey!=rhs.HotKey)?unsigned(HotKey-1)<unsigned(rhs.HotKey-1):StrCmpI(Item.strName,rhs.Item.strName)<0;}
-		const ChDiskPluginItem& operator=(const ChDiskPluginItem &rhs);
+		ChDiskPluginItem& operator=(const ChDiskPluginItem &rhs);
 };
 
-const ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
+ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
 {
 	if (this != &rhs)
 	{
@@ -121,13 +121,22 @@ const ChDiskPluginItem& ChDiskPluginItem::operator=(const ChDiskPluginItem &rhs)
 
 Panel::Panel():
 	Focus(0),
+	Type(0),
 	EnableUpdate(TRUE),
 	PanelMode(NORMAL_PANEL),
+	SortMode(0),
+	SortOrder(0),
+	SortGroups(0),
 	PrevViewMode(VIEW_3),
+	ViewMode(0),
+	CurTopFile(0),
+	CurFile(0),
+	ShowShortNames(0),
 	NumericSort(0),
 	CaseSensitiveSort(0),
 	DirectoriesFirst(1),
 	ModalMode(0),
+	PluginCommand(0),
 	ViewSettings(),
 	ProcessingPluginCommand(0)
 {
@@ -373,7 +382,7 @@ static void ConfigureChangeDriveMode()
 }
 
 
-INT_PTR WINAPI ChDiskDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI ChDiskDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -1349,7 +1358,7 @@ void Panel::FastFind(int FirstKey)
 	// // _SVS(CleverSysLog Clev(L"Panel::FastFind"));
 	INPUT_RECORD rec;
 	string strLastName, strName;
-	int Key,KeyToProcess=0;
+	int KeyToProcess=0;
 	WaitInFastFind++;
 	{
 		int FindX=Min(X1+9,ScrX-22);
@@ -1365,6 +1374,7 @@ void Panel::FastFind(int FirstKey)
 
 		while (!KeyToProcess)
 		{
+			int Key;
 			if (FirstKey)
 			{
 				FirstKey=_CorrectFastFindKbdLayout(FrameManager->GetLastInputRecord(),FirstKey);
@@ -2734,7 +2744,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 				}
 
 				OpenShortcutInfo info={sizeof(OpenShortcutInfo),strPluginFile.IsEmpty()?nullptr:strPluginFile.CPtr(),strPluginData.IsEmpty()?nullptr:strPluginData.CPtr()};
-				HANDLE hNewPlugin=CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(INT_PTR)&info);
+				HANDLE hNewPlugin=CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(intptr_t)&info);
 
 				if (hNewPlugin)
 				{

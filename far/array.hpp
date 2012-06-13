@@ -9,7 +9,7 @@ array.hpp
  // Object должен иметь конструктор по умолчанию и следующие операторы
  //  bool operator==(const Object &) const
  //  bool operator<(const Object &) const
- //  const Object& operator=(const Object &)
+ //  Object& operator=(const Object &)
 
  TPointerArray<Object> Array;
  Object должен иметь конструктор по умолчанию.

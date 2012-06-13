@@ -173,10 +173,9 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 		if (Append)
 		{
 			wchar_t *AppendBuf=clip.Paste();
-			int add=0;
-
 			if (AppendBuf)
 			{
+				int add=0;
 				size_t DataSize=StrLength(AppendBuf);
 
 				if (AppendBuf[DataSize-1]!=L'\n')

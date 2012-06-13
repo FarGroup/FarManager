@@ -2025,7 +2025,7 @@ int __parseMacroString(DWORD *&CurMacroBuffer, int &CurMacroBufferSize, const wc
 		CurMacroBuffer = CurMacro_Buffer;
 	else if (CurMacro_Buffer)
 	{
-		CurMacroBuffer = reinterpret_cast<DWORD*>((DWORD_PTR)(*CurMacro_Buffer));
+		CurMacroBuffer = reinterpret_cast<DWORD*>((intptr_t)(*CurMacro_Buffer));
 		xf_free(CurMacro_Buffer);
 	}
 

@@ -131,7 +131,7 @@ bool GetErrorString(string &strErrStr)
 #endif
 }
 
-INT_PTR WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -580,7 +580,6 @@ int Message(
 
 	for (I=0; I<StrCount; I++)
 	{
-		int PosX;
 		CPtrStr=Str[I];
 		wchar_t Chr=*CPtrStr;
 
@@ -613,7 +612,7 @@ int Message(
 
 		int Width=X2-X1+1;
 		wchar_t *lpwszTemp = nullptr;
-
+		int PosX;
 		if (Flags & MSG_LEFTALIGN)
 		{
 			lpwszTemp = (wchar_t*)xf_malloc((Width-10+1)*sizeof(wchar_t));

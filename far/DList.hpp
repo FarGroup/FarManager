@@ -6,7 +6,7 @@ DList.hpp
 Type должен иметь конструктор по умолчанию, если используются методы
 Push, Unshift, InsertBefore или InsertAfter с item должен так же
 существовать оператор копирования:
-      const Type& operator=(const Type &)
+      Type& operator=(const Type &)
 */
 /*
 Copyright © 2009 lort

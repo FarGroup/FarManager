@@ -107,10 +107,10 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		if (CtrlObject && CtrlObject->Cp())
 		{
 			if (CtrlObject->Cp()->LeftPanel && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
-				CtrlObject->Plugins->ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
+				CtrlObject->Plugins->ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
 
 			if (CtrlObject->Cp()->RightPanel && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
-				CtrlObject->Plugins->ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK,(void *)(DWORD_PTR)CtrlType);
+				CtrlObject->Plugins->ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
 		}
 		return TRUE;
 
@@ -129,9 +129,9 @@ void InitConsole(int FirstInit)
 {
 	InitRecodeOutTable();
 
-	DWORD Mode;
 	if (FirstInit)
 	{
+		DWORD Mode;
 		if(!Console.GetMode(Console.GetInputHandle(), Mode))
 		{
 			HANDLE ConIn = CreateFile(L"CONIN$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ, nullptr, OPEN_EXISTING, 0, nullptr);
@@ -1186,10 +1186,10 @@ int HiFindRealPos(const wchar_t *Str, int Pos, BOOL ShowAmp)
 	}
 
 	int RealPos = 0;
-	int VisPos = 0;
 
 	if (Str)
 	{
+		int VisPos = 0;
 		while (VisPos < Pos && *Str)
 		{
 			if (*Str == L'&')

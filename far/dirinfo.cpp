@@ -312,7 +312,7 @@ static void CopyPluginDirItem(PluginPanelItem *CurPanelItem)
 	if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
 	{
 		DWORD Size=*(DWORD *)CurPanelItem->UserData;
-		DestItem->UserData=(DWORD_PTR)xf_malloc(Size);
+		DestItem->UserData=(intptr_t)xf_malloc(Size);
 		memcpy((void *)DestItem->UserData,(void *)CurPanelItem->UserData,Size);
 	}
 
@@ -505,7 +505,7 @@ int GetPluginDirInfo(HANDLE hPlugin,const wchar_t *DirName,unsigned long &DirCou
 	FileSize=CompressedFileSize=0;
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 
-	if ((ExitCode=GetPluginDirList(ph->pPlugin, ph->hPlugin, DirName, &PanelItem,&ItemsNumber))==TRUE) //INT_PTR - BUGBUG
+	if ((ExitCode=GetPluginDirList(ph->pPlugin, ph->hPlugin, DirName, &PanelItem,&ItemsNumber))==TRUE) //intptr_t - BUGBUG
 	{
 		for (size_t I=0; I<ItemsNumber; I++)
 		{

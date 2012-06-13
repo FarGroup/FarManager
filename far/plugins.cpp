@@ -857,7 +857,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		{
 			pAnalyse = pResult;
 			OpenAnalyseInfo oainfo={sizeof(OpenAnalyseInfo),&Info,pResult->Analyse};
-			HANDLE h = pResult->Handle.pPlugin->Open(OPEN_ANALYSE, FarGuid, (INT_PTR)&oainfo);
+			HANDLE h = pResult->Handle.pPlugin->Open(OPEN_ANALYSE, FarGuid, (intptr_t)&oainfo);
 
 			if (h == PANEL_STOP)
 			{
@@ -1442,7 +1442,6 @@ void PluginManager::Configure(int StartPos)
 		for (;;)
 		{
 			bool NeedUpdateItems = true;
-			size_t MenuItemNumber = 0;
 			bool HotKeysPresent = PlHotkeyCfg->HotkeysPresent(PluginsHotkeysConfig::CONFIG_MENU);
 
 			if (NeedUpdateItems)
@@ -1450,7 +1449,6 @@ void PluginManager::Configure(int StartPos)
 				PluginList.ClearDone();
 				PluginList.DeleteItems();
 				PluginList.SetPosition(-1,-1,0,0);
-				MenuItemNumber=0;
 				LoadIfCacheAbsent();
 				string strHotKey, strName;
 				GUID guid;
@@ -1507,8 +1505,6 @@ void PluginManager::Configure(int StartPos)
 						else
 							ListItem.strName.Format(L"   %s", strName.CPtr());
 
-						//ListItem.SetSelect(MenuItemNumber++ == StartPos);
-						MenuItemNumber++;
 						PluginMenuItemData item;
 						item.pPlugin = pPlugin;
 						item.Guid = guid;
@@ -1608,7 +1604,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 	}
 
-	size_t MenuItemNumber = 0;
 	int PrevMacroMode = CtrlObject->Macro.GetMode();
 	CtrlObject->Macro.SetMode(MACRO_MENU);
 
@@ -1699,8 +1694,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						else
 							ListItem.strName.Format(L"   %s", strName.CPtr());
 
-						//ListItem.SetSelect(MenuItemNumber++ == StartPos);
-						MenuItemNumber++;
 						PluginMenuItemData item;
 						item.pPlugin = pPlugin;
 						item.Guid = guid;
@@ -1821,7 +1814,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 	int OpenCode=OPEN_PLUGINSMENU;
-	INT_PTR Item=0;
+	intptr_t Item=0;
 	OpenDlgPluginData pd={sizeof(OpenDlgPluginData)};
 
 	if (Editor)
@@ -1836,7 +1829,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	{
 		OpenCode=OPEN_DIALOG;
 		pd.hDlg=(HANDLE)FrameManager->GetCurrentFrame();
-		Item=(INT_PTR)&pd;
+		Item=(intptr_t)&pd;
 	}
 
 	HANDLE hPlugin=Open(item.pPlugin,OpenCode,item.Guid,Item);
@@ -2398,7 +2391,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		CtrlObject->CmdLine->SetString(L"");
 		string strPluginCommand=strCommand.CPtr()+(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 		RemoveTrailingSpaces(strPluginCommand);
-		HANDLE hPlugin=Open(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(INT_PTR)strPluginCommand.CPtr()); //BUGBUG
+		HANDLE hPlugin=Open(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)strPluginCommand.CPtr()); //BUGBUG
 
 		if (hPlugin)
 		{
@@ -2452,7 +2445,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Re
 	{
 		if (pPlugin->HasOpenPanel() && !ProcessException)
 		{
-			HANDLE hNewPlugin=Open(pPlugin,OpenFrom,FarGuid,(INT_PTR)Data);
+			HANDLE hNewPlugin=Open(pPlugin,OpenFrom,FarGuid,(intptr_t)Data);
 			bool process=false;
 
 			if (OpenFrom == OPEN_FROMMACRO)
@@ -2632,7 +2625,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 				{
 					ActivePanel=CtrlObject->Cp()->ActivePanel;
 					int OpenCode=OPEN_PLUGINSMENU;
-					INT_PTR Item=0;
+					intptr_t Item=0;
 					OpenDlgPluginData pd={sizeof(OpenDlgPluginData)};
 
 					if (Editor)
@@ -2647,7 +2640,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 					{
 						OpenCode=OPEN_DIALOG;
 						pd.hDlg=(HANDLE)FrameManager->GetCurrentFrame();
-						Item=(INT_PTR)&pd;
+						Item=(intptr_t)&pd;
 					}
 
 					hPlugin=Open(Data->pPlugin,OpenCode,Data->FoundGuid,Item);
@@ -2664,7 +2657,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 				{
 					ActivePanel=CtrlObject->Cp()->ActivePanel;
 					string command=Data->Command; // Нужна копия строки
-					hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(INT_PTR)command.CPtr());
+					hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)command.CPtr());
 
 					Result=TRUE;
 					break;
@@ -2711,7 +2704,7 @@ Plugin *PluginManager::FindPlugin(const GUID& SysID)
 	return result?*result:nullptr;
 }
 
-HANDLE PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,INT_PTR Item)
+HANDLE PluginManager::Open(Plugin *pPlugin,int OpenFrom,const GUID& Guid,intptr_t Item)
 {
 	HANDLE hPlugin = pPlugin->Open(OpenFrom, Guid, Item);
 	if (hPlugin)

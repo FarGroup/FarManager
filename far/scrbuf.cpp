@@ -69,10 +69,14 @@ ScreenBuf::ScreenBuf():
 	Buf(nullptr),
 	Shadow(nullptr),
 	LockCount(0),
+	CurSize(0),
 	BufX(0),
 	BufY(0),
+	CurX(0),
+	CurY(0),
 	MacroCharUsed(false),
-	ElevationCharUsed(false)
+	ElevationCharUsed(false),
+	CurVisible(false)
 {
 	SBFlags.Set(SBFLAGS_FLUSHED|SBFLAGS_FLUSHEDCURPOS|SBFLAGS_FLUSHEDCURTYPE);
 }
@@ -236,7 +240,6 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 		int I, J;
 
 		FAR_CHAR_INFO *PtrBuf;
-		FARCOLORFLAGS ExFlags;
 		if(PreserveExFlags)
 		{
 			for (I=0; I < Height; I++)
@@ -244,7 +247,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 				PtrBuf=Buf+(Y1+I)*BufX+X1;
 				for (J=0; J < Width; J++, ++PtrBuf)
 				{
-					ExFlags = PtrBuf->Attributes.Flags&FCF_EXTENDEDFLAGS;
+					FARCOLORFLAGS ExFlags = PtrBuf->Attributes.Flags&FCF_EXTENDEDFLAGS;
 					PtrBuf->Attributes=Color;
 					PtrBuf->Attributes.Flags = (PtrBuf->Attributes.Flags&~FCF_EXTENDEDFLAGS)|ExFlags;
 				}

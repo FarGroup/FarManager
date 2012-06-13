@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 FileMasksProcessor::FileMasksProcessor():
 	BaseFileMask(),
+	MaskPtr(nullptr),
 	re(nullptr),
 	m(nullptr),
 	n(0),

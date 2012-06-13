@@ -138,7 +138,7 @@ enum
 	DM_SETATTR = DM_USER+1,
 };
 
-INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	SetAttrDlgParam *DlgParam=reinterpret_cast<SetAttrDlgParam*>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
 
@@ -150,7 +150,7 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			{
 				if(Param1!=SA_CHECKBOX_SUBFOLDERS)
 				{
-					DlgParam->OriginalCBAttr[Param1-SA_ATTR_FIRST]=static_cast<int>(reinterpret_cast<INT_PTR>(Param2));
+					DlgParam->OriginalCBAttr[Param1-SA_ATTR_FIRST]=static_cast<int>(reinterpret_cast<intptr_t>(Param2));
 					DlgParam->OriginalCBAttr2[Param1-SA_ATTR_FIRST]=0;
 				}
 				int FocusPos=static_cast<int>(SendDlgMessage(hDlg,DM_GETFOCUS,0,0));
@@ -195,7 +195,7 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						}
 
 						// еще одна проверка
-						if (reinterpret_cast<INT_PTR>(Param2)==BSTATE_CHECKED)
+						if (reinterpret_cast<intptr_t>(Param2)==BSTATE_CHECKED)
 						{
 							if (FocusPos == SA_CHECKBOX_COMPRESSED && EncryptState)
 							{
@@ -457,7 +457,7 @@ INT_PTR WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			{
 				FILETIME ft;
 
-				if (reinterpret_cast<INT_PTR>(Param2)==-1)
+				if (reinterpret_cast<intptr_t>(Param2)==-1)
 				{
 					GetSystemTimeAsFileTime(&ft);
 				}
@@ -937,7 +937,6 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				NameList.Items=new FarListItem[NameList.ItemsNumber]();
 				strLinks=new string[NameList.ItemsNumber];
 				HANDLE hFind=apiFindFirstFileName(strSelName,0,strLinks[0]);
-				int Current=0;
 
 				if (hFind!=INVALID_HANDLE_VALUE)
 				{
@@ -945,6 +944,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					GetPathRoot(strSelName,strRoot);
 					DeleteEndSlash(strRoot);
 					strLinks[0]=strRoot+strLinks[0];
+					int Current=0;
 					NameList.Items[Current++].Text=strLinks[0];
 
 					while (apiFindNextFileName(hFind,strLinks[Current]))

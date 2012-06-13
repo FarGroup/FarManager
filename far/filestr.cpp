@@ -161,8 +161,6 @@ int OldGetFileString::GetAnsiString(char **DestStr, int &Length)
 {
 	int CurLength = 0;
 	int ExitCode = 1;
-	EolType Eol = FEOL_NONE;
-	int x = 0;
 	char *ReadBufPtr = ReadPos < ReadSize ? ReadBuf + ReadPos : nullptr;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
@@ -175,6 +173,8 @@ int OldGetFileString::GetAnsiString(char **DestStr, int &Length)
 	}
 	else
 	{
+		EolType Eol = FEOL_NONE;
+		int x = 0;
 		while (1)
 		{
 			if (ReadPos >= ReadSize)
@@ -258,8 +258,6 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 {
 	int CurLength = 0;
 	int ExitCode = 1;
-	EolType Eol = FEOL_NONE;
-	int x = 0;
 	wchar_t *ReadBufPtr = ReadPos < ReadSize ? wReadBuf + ReadPos / sizeof(wchar_t) : nullptr;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
@@ -272,6 +270,8 @@ int OldGetFileString::GetUnicodeString(wchar_t **DestStr, int &Length, bool bBig
 	}
 	else
 	{
+		EolType Eol = FEOL_NONE;
+		int x = 0;
 		while (1)
 		{
 			if (ReadPos >= ReadSize)
@@ -688,8 +688,6 @@ int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
 {
 	int CurLength = 0;
 	int ExitCode = 1;
-	EolType Eol = FEOL_NONE;
-	int x = 0;
 	LPSTR ReadBufPtr = ReadPos < ReadSize ? ReadBuf + ReadPos : nullptr;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
@@ -702,6 +700,8 @@ int GetFileString::GetAnsiString(LPSTR* DestStr, int& Length)
 	}
 	else
 	{
+		EolType Eol = FEOL_NONE;
+		int x = 0;
 		for(;;)
 		{
 			if (ReadPos >= ReadSize)
@@ -797,8 +797,6 @@ int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndia
 {
 	int CurLength = 0;
 	int ExitCode = 1;
-	EolType Eol = FEOL_NONE;
-	int x = 0;
 	LPWSTR ReadBufPtr = ReadPos < ReadSize ? wReadBuf + ReadPos / sizeof(wchar_t) : nullptr;
 
 	// Обработка ситуации, когда у нас пришёл двойной \r\r, а потом не было \n.
@@ -811,6 +809,8 @@ int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndia
 	}
 	else
 	{
+		EolType Eol = FEOL_NONE;
+		int x = 0;
 		for(;;)
 		{
 			if (ReadPos >= ReadSize)

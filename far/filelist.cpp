@@ -318,7 +318,6 @@ void FileList::SortFileList(int KeepPosition)
 int _cdecl SortList(const void *el1,const void *el2)
 {
 	int RetCode;
-	__int64 RetCode64;
 	const wchar_t *Ext1=nullptr,*Ext2=nullptr;
 	FileListItem *SPtr1,*SPtr2;
 	SPtr1=((FileListItem **)el1)[0];
@@ -374,6 +373,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 	// НЕ СОРТИРУЕМ КАТАЛОГИ В РЕЖИМЕ "ПО РАСШИРЕНИЮ" (Опционально!)
 	if (!(ListSortMode == BY_EXT && !Opt.SortFolderExt && ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))))
 	{
+		__int64 RetCode64;
 		switch (ListSortMode)
 		{
 			case BY_NAME:
@@ -1654,7 +1654,6 @@ int FileList::ProcessKey(int Key)
 				{
 					if (Edit)
 					{
-						int editorExitCode;
 						int EnableExternal=(((Key==KEY_F4 || Key==KEY_SHIFTF4) && Opt.EdOpt.UseExternalEditor) ||
 						                    ((Key==KEY_ALTF4 || Key==KEY_RALTF4) && !Opt.EdOpt.UseExternalEditor)) && !Opt.strExternalEditor.IsEmpty();
 						/* $ 02.08.2001 IS обработаем ассоциации для alt-f4 */
@@ -1677,7 +1676,6 @@ int FileList::ProcessKey(int Key)
 							{
 								RefreshedPanel=FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_EDITOR?FALSE:TRUE;
 								FileEditor ShellEditor(strFileName,codepage,(Key==KEY_SHIFTF4?FFILEEDIT_CANNEWFILE:0)|FFILEEDIT_DISABLEHISTORY,-1,-1,&strPluginData);
-								editorExitCode=ShellEditor.GetExitCode();
 								ShellEditor.SetDynamicallyBorn(false);
 								FrameManager->EnterModalEV();
 								FrameManager->ExecuteModal();//OT
@@ -1695,8 +1693,7 @@ int FileList::ProcessKey(int Key)
 
 								if (ShellEditor)
 								{
-									editorExitCode=ShellEditor->GetExitCode();
-
+									int editorExitCode=ShellEditor->GetExitCode();
 									if (editorExitCode == XC_LOADING_INTERRUPTED || editorExitCode == XC_OPEN_ERROR)
 									{
 										delete ShellEditor;
@@ -1898,7 +1895,7 @@ int FileList::ProcessKey(int Key)
 				int OldFileCount=FileCount,OldCurFile=CurFile;
 				assert(CurFile<FileCount);
 				int OldSelection=ListData[CurFile]->Selected;
-				int ToPlugin=0;
+
 				int RealName=PanelMode!=PLUGIN_PANEL;
 				ReturnCurrentFile=TRUE;
 
@@ -1911,6 +1908,7 @@ int FileList::ProcessKey(int Key)
 
 				if (RealName)
 				{
+					int ToPlugin=0;
 					ShellCopy ShCopy(this,Key==KEY_SHIFTF6,FALSE,TRUE,TRUE,ToPlugin,nullptr);
 				}
 				else
@@ -2319,7 +2317,7 @@ int FileList::ProcessKey(int Key)
 			//вызовем EMenu если он есть
 			if (CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<INT_PTR>(1))); // EMenu Plugin :-)
+				CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}
@@ -3783,7 +3781,6 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 	   диктуемая CmpName.
 	*/
 	string strMask=L"*.*", strRawMask;
-	int Selection=0,I;
 	bool WrapBrackets=false; // говорит о том, что нужно взять кв.скобки в скобки
 
 	if (CurFile>=FileCount)
@@ -3914,7 +3911,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 	if (bUseFilter || FileMask.Set(strMask, FMF_SILENT)) // Скомпилируем маски файлов и работаем
 	{                                                // дальше в зависимости от успеха компиляции
-		for (I=0; I < FileCount; I++)
+		for (int I=0; I < FileCount; I++)
 		{
 			CurPtr=ListData[I];
 			int Match=FALSE;
@@ -3931,6 +3928,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 			if (Match)
 			{
+				int Selection = 0;
 				switch (Mode)
 				{
 					case SELECT_ADD:
@@ -4098,12 +4096,12 @@ void FileList::CompareDir()
 			if ((Another->ListData[J]->FileAttr & FILE_ATTRIBUTE_DIRECTORY) != 0)
 				continue;
 
-			int Cmp=0;
 			PtrTempName1=PointToName(ListData[I]->strName);
 			PtrTempName2=PointToName(Another->ListData[J]->strName);
 
 			if (!StrCmpI(PtrTempName1,PtrTempName2))
 			{
+				int Cmp=0;
 				if (CompareFatTime)
 				{
 					WORD DosDate,DosTime,AnotherDosDate,AnotherDosTime;

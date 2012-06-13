@@ -54,7 +54,7 @@ struct FileListItem
 	DWORD NumberOfLinks;
 	DWORD NumberOfStreams;
 	UINT64 UserFlags;
-	DWORD_PTR UserData;
+	intptr_t UserData;
 
 	int Position;
 	int SortGroup;
@@ -147,6 +147,7 @@ struct FileListItem
 			StreamsSize = fliCopy.StreamsSize;
 			strName = fliCopy.strName;
 			strShortName = fliCopy.strShortName;
+			ReparseTag = fliCopy.ReparseTag;
 			strCustomData = fliCopy.strCustomData;
 		}
 

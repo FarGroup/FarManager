@@ -606,7 +606,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return (__int64)(CursorPos+1);
 		case MCODE_F_EDITOR_SEL:
 		{
-			int Action=(int)((INT_PTR)vParam);
+			int Action=(int)((intptr_t)vParam);
 
 			switch (Action)
 			{
@@ -2234,8 +2234,7 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 			}
 
 			int found = FALSE;
-			int pos, half = 0;
-
+			int half = 0;
 			if (!Reverse)
 			{
 				if (re.SearchEx(this->Str,this->Str+Position,this->Str+StrSize,pm,n))
@@ -2243,7 +2242,7 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 			}
 			else
 			{
-				pos = 0;
+				int pos = 0;
 				for (;;)
 				{
 					if (!re.SearchEx(this->Str,this->Str+pos,this->Str+StrSize,pm+half,n))
@@ -2286,10 +2285,9 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 
 				if (WholeWords)
 				{
-					wchar_t ChLeft,ChRight;
 					int locResultLeft=FALSE;
 					int locResultRight=FALSE;
-					ChLeft=this->Str[I-1];
+					wchar_t ChLeft=this->Str[I-1];
 
 					if (I>0)
 						locResultLeft=(IsSpace(ChLeft) || wcschr(WordDiv(),ChLeft));
@@ -2298,7 +2296,7 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 
 					if (I+Length<StrSize)
 					{
-						ChRight=this->Str[I+Length];
+						wchar_t ChRight=this->Str[I+Length];
 						locResultRight=(IsSpace(ChRight) || wcschr(WordDiv(),ChRight));
 					}
 					else
@@ -2420,8 +2418,6 @@ int Edit::GetTabCurPos()
 
 void Edit::SetTabCurPos(int NewPos)
 {
-	int Pos;
-
 	if (Mask && *Mask)
 	{
 		wchar_t *ShortStr=new wchar_t[StrSize+1];
@@ -2430,7 +2426,7 @@ void Edit::SetTabCurPos(int NewPos)
 			return;
 
 		xwcsncpy(ShortStr,Str,StrSize+1);
-		Pos=StrLength(RemoveTrailingSpaces(ShortStr));
+		int Pos=StrLength(RemoveTrailingSpaces(ShortStr));
 		delete[] ShortStr;
 
 		if (NewPos>Pos)
@@ -3016,7 +3012,7 @@ void Edit::Xlat(bool All)
 		   Обрабатываем только то слово, на котором стоит курсор, или то слово, что
 		   находится левее позиции курсора на 1 символ
 		*/
-		int start=CurPos, end, StrSize=StrLength(Str);
+		int start=CurPos, StrSize=StrLength(Str);
 		bool DoXlat=true;
 
 		if (IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]))
@@ -3032,7 +3028,7 @@ void Edit::Xlat(bool All)
 				start--;
 
 			start++;
-			end=start+1;
+			int end=start+1;
 
 			while (end<StrSize && !IsWordDiv(Opt.XLat.strWordDivForXlat,Str[end]))
 				end++;

@@ -103,7 +103,6 @@ void PrintFiles(Panel *SrcPanel)
 	_ALGO(CleverSysLog clv(L"Alt-F5 (PrintFiles)"));
 	string strPrinterName;
 	DWORD Needed,Returned;
-	int PrinterNumber;
 	DWORD FileAttr;
 	string strSelName;
 	size_t DirsCount=0;
@@ -170,9 +169,7 @@ void PrintFiles(Panel *SrcPanel)
 		PrinterList.SetPosition(-1,-1,0,0);
 		AddToPrintersMenu(&PrinterList,pi,Returned);
 		PrinterList.Process();
-		PrinterNumber=PrinterList.Modal::GetExitCode();
-
-		if (PrinterNumber<0)
+		if (PrinterList.Modal::GetExitCode()<0)
 		{
 			xf_free(pi);
 			_ALGO(SysLog(L"ESC"));

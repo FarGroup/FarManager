@@ -61,6 +61,8 @@ QuickView::QuickView():
 	QView(nullptr),
 	Directory(0),
 	PrevMacroMode(-1),
+	OldWrapMode(0),
+	OldWrapType(0),
 	uncomplete_dirscan(false)
 {
 	Type=QVIEW_PANEL;

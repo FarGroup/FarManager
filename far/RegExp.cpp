@@ -159,8 +159,8 @@ rechar* RegExp::charbits=(rechar*)RegExp::icharbits;
 #define ISLOWER(c) IsCharLower(c)
 #define ISUPPER(c) IsCharUpper(c)
 #define ISALPHA(c) IsCharAlpha(c)
-#define TOUPPER(c) ((rechar)(DWORD_PTR)CharUpper((LPTSTR)(DWORD_PTR)c))
-#define TOLOWER(c) ((rechar)(DWORD_PTR)CharLower((LPTSTR)(DWORD_PTR)c))
+#define TOUPPER(c) ((rechar)(intptr_t)CharUpper((LPTSTR)(intptr_t)c))
+#define TOLOWER(c) ((rechar)(intptr_t)CharLower((LPTSTR)(intptr_t)c))
 
 #else
 

@@ -39,6 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 TaskBarCore TBC;
 
 TaskBarCore::TaskBarCore():
+	State(TBPF_NOPROGRESS),
 	pTaskbarList(nullptr)
 {
 	HRESULT hRes=CoInitializeEx(nullptr,COINIT_APARTMENTTHREADED);

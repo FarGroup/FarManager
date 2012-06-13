@@ -47,7 +47,7 @@ struct PushPopRecord
 {
 	string strName;
 
-	const PushPopRecord& operator=(const PushPopRecord &rhs) {strName=rhs.strName; return *this;}
+	PushPopRecord& operator=(const PushPopRecord &rhs) {strName=rhs.strName; return *this;}
 };
 
 

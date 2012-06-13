@@ -125,7 +125,7 @@ static DWORD Flags=0;                  // дополнительные флаги - пока только оди
 
 extern void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-INT_PTR WINAPI ExcDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI ExcDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -448,28 +448,28 @@ DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags
 			static struct
 			{
 				BYTE      stack_space[32768];
-				DWORD_PTR ret_addr;
-				DWORD_PTR args[4];
+				intptr_t ret_addr;
+				intptr_t args[4];
 			} _stack;
 			_stack.ret_addr = 0;
 #ifndef _WIN64
 #ifdef _M_ARM
 			// BUGBUG
 #else
-			//_stack.args[0] = (DWORD_PTR)From;
-			//_stack.args[1] = (DWORD_PTR)xp;
-			//_stack.args[2] = (DWORD_PTR)Module;
+			//_stack.args[0] = (intptr_t)From;
+			//_stack.args[1] = (intptr_t)xp;
+			//_stack.args[2] = (intptr_t)Module;
 			//_stack.args[3] = Flags;
-			xp->ContextRecord->Esp = (DWORD)(DWORD_PTR)(&_stack.ret_addr);
-			xp->ContextRecord->Eip = (DWORD)(DWORD_PTR)(&_xfilter);
+			xp->ContextRecord->Esp = (DWORD)(intptr_t)(&_stack.ret_addr);
+			xp->ContextRecord->Eip = (DWORD)(intptr_t)(&_xfilter);
 #endif
 #else
-			//xp->ContextRecord->Rcx = (DWORD_PTR)From;
-			//xp->ContextRecord->Rdx = (DWORD_PTR)xp;
-			//xp->ContextRecord->R8  = (DWORD_PTR)Module;
+			//xp->ContextRecord->Rcx = (intptr_t)From;
+			//xp->ContextRecord->Rdx = (intptr_t)xp;
+			//xp->ContextRecord->R8  = (intptr_t)Module;
 			//xp->ContextRecord->R9  = Flags;
-			xp->ContextRecord->Rsp = (DWORD_PTR)(&_stack.ret_addr);
-			xp->ContextRecord->Rip = (DWORD_PTR)(&_xfilter);
+			xp->ContextRecord->Rsp = (intptr_t)(&_stack.ret_addr);
+			xp->ContextRecord->Rip = (intptr_t)(&_xfilter);
 #endif
 #endif
 			Result=EXCEPTION_CONTINUE_EXECUTION;

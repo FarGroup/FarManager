@@ -110,7 +110,7 @@ inline UINT GetMenuItemCodePage(int Position = -1)
 
 inline UINT GetListItemCodePage(int Position = -1)
 {
-	INT_PTR Data = SendDlgMessage(dialog, DM_LISTGETDATA, control, ToPtr(Position));
+	intptr_t Data = SendDlgMessage(dialog, DM_LISTGETDATA, control, ToPtr(Position));
 	return Data? *reinterpret_cast<UINT*>(Data) : 0;
 }
 
@@ -621,7 +621,7 @@ wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length,
 }
 
 // Каллбак для диалога редактирования имени кодовой страницы
-INT_PTR WINAPI EditDialogProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI EditDialogProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
 	if (Msg==DN_CLOSE)
 	{

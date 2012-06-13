@@ -197,15 +197,15 @@ typedef class UnicodeString
 
 		UnicodeString SubStr(size_t Pos, size_t Len = -1) const;
 
-		const UnicodeString& operator=(const UnicodeString &strCopy) { return Copy(strCopy); }
-		const UnicodeString& operator=(const char *lpszData) { return Copy(lpszData); }
-		const UnicodeString& operator=(const wchar_t *lpwszData) { return Copy(lpwszData); }
-		const UnicodeString& operator=(wchar_t chData) { return Copy(chData); }
+		UnicodeString& operator=(const UnicodeString &strCopy) { return Copy(strCopy); }
+		UnicodeString& operator=(const char *lpszData) { return Copy(lpszData); }
+		UnicodeString& operator=(const wchar_t *lpwszData) { return Copy(lpwszData); }
+		UnicodeString& operator=(wchar_t chData) { return Copy(chData); }
 
-		const UnicodeString& operator+=(const UnicodeString &strAdd) { return Append(strAdd); }
-		const UnicodeString& operator+=(const char *lpszAdd) { return Append(lpszAdd); }
-		const UnicodeString& operator+=(const wchar_t *lpwszAdd) { return Append(lpwszAdd); }
-		const UnicodeString& operator+=(wchar_t chAdd) { return Append(chAdd); }
+		UnicodeString& operator+=(const UnicodeString &strAdd) { return Append(strAdd); }
+		UnicodeString& operator+=(const char *lpszAdd) { return Append(lpszAdd); }
+		UnicodeString& operator+=(const wchar_t *lpwszAdd) { return Append(lpwszAdd); }
+		UnicodeString& operator+=(wchar_t chAdd) { return Append(chAdd); }
 
 		friend const UnicodeString operator+(const UnicodeString &strSrc1, const UnicodeString &strSrc2);
 		friend const UnicodeString operator+(const UnicodeString &strSrc1, const char *lpszSrc2);

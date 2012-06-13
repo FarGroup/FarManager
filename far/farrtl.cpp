@@ -908,15 +908,20 @@ static void  swap(
     size_t width
 )
 {
-	char tmp;
-
 	if (a != b)
+	{
 		while (width--)
 		{
-			tmp = *a;
-			*a++ = *b;
-			*b++ = tmp;
+			if (*a != *b)
+			{
+				*a ^= *b;
+				*b ^= *a;
+				*a ^= *b;
+			}
+			++a;
+			++b;
 		}
+	}
 }
 
 /* Always compile this module for speed, not size */

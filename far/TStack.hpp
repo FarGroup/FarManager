@@ -5,7 +5,7 @@
 
     TStack<Object> Stack;
     // Object должен иметь конструктор по умолчанию и оператор
-    // const Object& operator=(const Object &)
+    // Object& operator=(const Object &)
 */
 /*
 Copyright © 2009 Far Group

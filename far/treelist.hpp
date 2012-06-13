@@ -73,6 +73,7 @@ struct TreeItem
 		{
 			strName=tiCopy.strName;
 			*Last=*tiCopy.Last;
+			LastCount = tiCopy.LastCount;
 			Depth=tiCopy.Depth;
 		}
 

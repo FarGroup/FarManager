@@ -173,7 +173,9 @@ TreeList::TreeList(int IsPanel):
 	NumericSort(FALSE),
 	CaseSensitiveSort(FALSE),
 	ExitCode(1),
-	SaveListData(nullptr)
+	SaveListData(nullptr),
+	SaveTreeCount(0),
+	SaveWorkDir(0)
 {
 	Type=TREE_PANEL;
 	CurFile=CurTopFile=0;
@@ -1176,7 +1178,7 @@ int TreeList::ProcessKey(int Key)
 			//вызовем EMenu если он есть
 			if (CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<INT_PTR>(1))); // EMenu Plugin :-)
+				CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}

@@ -42,6 +42,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 
 Modal::Modal():
+	ReadKey(-1),
 	WriteKey(-1),
 	ExitCode(-1),
 	EndLoop(0)

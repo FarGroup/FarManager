@@ -187,7 +187,7 @@ int GetSearchReplaceString(
 
 
 // Функция для коррекции аля Shift-F4 Shift-Enter без отпускания Shift ;-)
-static INT_PTR WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+static intptr_t WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	/*
 	  if(Msg == DM_KEY)

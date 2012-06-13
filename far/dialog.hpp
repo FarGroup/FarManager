@@ -148,7 +148,7 @@ struct DialogItemEx: public FarDialogItem
 		SelEnd=0;
 	}
 
-	const DialogItemEx &operator=(const FarDialogItem &Other)
+	DialogItemEx &operator=(const FarDialogItem &Other)
 	{
 		*static_cast<FarDialogItem*>(this) = Other;
 		return *this;
@@ -191,8 +191,8 @@ class ConsoleTitle;
 class Dialog: public Frame
 {
 		friend class DlgEdit;
-		friend INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2);
-		friend INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
+		friend intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2);
+		friend intptr_t WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 
 	private:
 		bool bInitOK;               // диалог был успешно инициализирован
@@ -236,7 +236,7 @@ class Dialog: public Frame
 
 		void ShowDialog(unsigned ID=(unsigned)-1);  //    ID=-1 - отрисовать весь диалог
 
-		INT_PTR CtlColorDlgItem(FarColor Color[4], int ItemPos,int Type,int Focus,int Default,FARDIALOGITEMFLAGS Flags);
+		intptr_t CtlColorDlgItem(FarColor Color[4], int ItemPos,int Type,int Focus,int Default,FARDIALOGITEMFLAGS Flags);
 		/* $ 28.07.2000 SVS
 		   + Изменяет фокус ввода между двумя элементами.
 		     Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
@@ -285,7 +285,7 @@ class Dialog: public Frame
 		int Do_ProcessSpace();
 		void SetComboBoxPos(DialogItemEx* Item=nullptr);
 
-		INT_PTR CallDlgProc(int nMsg, int nParam1, void* Param2);
+		intptr_t CallDlgProc(int nMsg, int nParam1, void* Param2);
 
 		void ProcessKey(int Key, unsigned ItemPos);
 
@@ -330,7 +330,7 @@ class Dialog: public Frame
 		void ClearDone();
 		virtual void SetExitCode(int Code);
 
-		INT_PTR CloseDialog();
+		intptr_t CloseDialog();
 
 		virtual int GetTypeAndName(string &strType, string &strName);
 		virtual int GetType() { return MODALTYPE_DIALOG; }
@@ -354,7 +354,7 @@ class Dialog: public Frame
 		                  FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		                  FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
-		INT_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
+		intptr_t WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 
 		virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 
@@ -366,9 +366,9 @@ class Dialog: public Frame
 		friend class History;
 };
 
-INT_PTR WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2);
+intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2);
 
-INT_PTR WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
+intptr_t WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 
 bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 

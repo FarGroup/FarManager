@@ -132,7 +132,7 @@ class FileFilterParams
 
 		FileFilterParams();
 
-		const FileFilterParams &operator=(const FileFilterParams &FF);
+		FileFilterParams &operator=(const FileFilterParams &FF);
 
 		void SetTitle(const wchar_t *Title);
 		void SetMask(bool Used, const wchar_t *Mask);

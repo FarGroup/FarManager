@@ -764,7 +764,6 @@ void Viewer::ShowHex()
 {
 	wchar_t OutStr[128],TextStr[20];
 	int EndFile;
-	__int64 SelSize;
 	int X,Y,TextPos;
 	int SelStart, SelEnd;
 	bool bSelStartFound = false, bSelEndFound = false;
@@ -777,7 +776,7 @@ void Viewer::ShowHex()
 	{
 		bSelStartFound = false;
 		bSelEndFound = false;
-		SelSize=0;
+		__int64 SelSize=0;
 		SetColor(COL_VIEWERTEXT);
 		GotoXY(X1,Y);
 
@@ -1269,7 +1268,7 @@ __int64 Viewer::EndOfScreen( int line )
 
 __int64 Viewer::BegOfScreen()
 {
-	__int64 pos = FilePos, prev_pos;
+	__int64 pos = FilePos;
 
 	if (!VM.Hex && !VM.Wrap && LeftPos > 0)
 	{
@@ -1277,6 +1276,7 @@ __int64 Viewer::BegOfScreen()
 		int col = 0;
 		wchar_t ch;
 		pos = -1;
+		__int64 prev_pos;
 		for (;;)
 		{
 			prev_pos = vtell();
@@ -2191,15 +2191,14 @@ void Viewer::CacheLine( __int64 start, int length, bool have_eol )
 	}
 	else
 	{
-		int i, j;
 		bool reset = (start < lcache_first || start+length > lcache_last);
 		if ( reset )
 		{
-			i = CacheFindUp(start+length);
+			int i = CacheFindUp(start+length);
 			reset = (i < 0 || _abs64(lcache_lines[i]) != start);
-         if ( !reset )
+			if ( !reset )
 			{
-				j = (i + 1) % lcache_size;
+				int j = (i + 1) % lcache_size;
 				reset = (_abs64(lcache_lines[j]) != start+length);
 			}
 		}
@@ -2487,7 +2486,7 @@ struct MyDialogData
 	bool      recursive;
 };
 
-INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -2569,7 +2568,7 @@ INT_PTR WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 					string strTo;
 					my->viewer->SearchTextTransform(strTo, ps, !new_hex, esp.CurPos);
 
-					SendDlgMessage(hDlg, DM_SETTEXTPTR, sd_dst, ToPtr((INT_PTR)strTo.CPtr()));
+					SendDlgMessage(hDlg, DM_SETTEXTPTR, sd_dst, ToPtr((intptr_t)strTo.CPtr()));
 					SendDlgMessage(hDlg, DM_SDSETVISIBILITY, new_hex, 0);
 					if (esp.CurPos >= 0)
 					{
@@ -2644,8 +2643,8 @@ static void PR_ViewerSearchMsg()
 {
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	const wchar_t *name = (const wchar_t*)preRedrawItem.Param.Param1;
-	int percent = (int)(INT_PTR)preRedrawItem.Param.Param2;
-	int search_hex = (int)(INT_PTR)preRedrawItem.Param.Param3;
+	int percent = (int)(intptr_t)preRedrawItem.Param.Param2;
+	int search_hex = (int)(intptr_t)preRedrawItem.Param.Param3;
 	ViewerSearchMsg(name, percent, search_hex);
 }
 
@@ -2678,8 +2677,8 @@ void ViewerSearchMsg(const wchar_t *MsgStr, int Percent, int SearchHex)
 	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	preRedrawItem.Param.Param1=(void*)MsgStr;
-	preRedrawItem.Param.Param2=(LPVOID)(INT_PTR)Percent;
-	preRedrawItem.Param.Param3=(LPVOID)(INT_PTR)SearchHex;
+	preRedrawItem.Param.Param2=(LPVOID)(intptr_t)Percent;
+	preRedrawItem.Param.Param3=(LPVOID)(intptr_t)SearchHex;
 	PreRedraw.SetParam(preRedrawItem.Param);
 }
 
@@ -2745,7 +2744,7 @@ static int hex2ss(const wchar_t *from, char *c1, int mb, int *pos = 0)
 
 void Viewer::SearchTextTransform( UnicodeString &to, const wchar_t *from, bool hex2text, int &pos )
 {
-	int nb, i, v;
+	int nb;
 	char c1[128];
 	wchar_t ch, ss[ARRAYSIZE(c1)+1];
 
@@ -2755,11 +2754,11 @@ void Viewer::SearchTextTransform( UnicodeString &to, const wchar_t *from, bool h
 
 		if (IsUnicodeCodePage(VM.CodePage))
 		{
-			v = CP_REVERSEBOM == VM.CodePage ? 1 : 0;
+			int v = CP_REVERSEBOM == VM.CodePage ? 1 : 0;
 			if (nb & 1)
 				c1[nb++] = '\0';
 
-			for (i = 0; i < nb; i += 2)
+			for (int i = 0; i < nb; i += 2)
 			{
 				ch = MAKEWORD(c1[i+v], c1[i+1-v]);
 				if (!ch)
@@ -2776,7 +2775,7 @@ void Viewer::SearchTextTransform( UnicodeString &to, const wchar_t *from, bool h
 			{
 				pos = MultiByteToWideChar(VM.CodePage,0, c1,pos, NULL,0);
 			}
-			for (i=0; i < nw; ++i)
+			for (int i=0; i < nw; ++i)
 				if (!ss[i])
 					ss[i] = 0xffff;
 			ss[nw] = L'\0';
@@ -2985,7 +2984,7 @@ int Viewer::search_text_forward( search_data* sd )
 	if ( !up_half && nb + 3*(slen+ww) < bsize && !veof() )
 	{
 		int nw1 = vread(buff+nw, 3*(slen+ww), t_buff ? t_buff+nw : nullptr);
-		nw1 = (nw1 > slen+ww-1 ? slen+ww-1 : nw1);
+		nw1 = Max(nw1, slen+ww-1);
 		nw += nw1;
 		to1 = to + (t_buff ? GetStrBytesNum(t_buff, nw1) : sd->ch_size * nw1);
 	}
@@ -3328,7 +3327,7 @@ void Viewer::Search(int Next,int FirstChar)
 		my.hex_mode = (LastSearchHex != 0);
 		my.recursive = false;
 		//
-		SearchDlg[SD_EDIT_TEXT].UserData = (DWORD_PTR)&my;
+		SearchDlg[SD_EDIT_TEXT].UserData = (intptr_t)&my;
 
 		Dialog Dlg(SearchDlg,ARRAYSIZE(SearchDlg),ViewerSearchDlgProc);
 		Dlg.SetPosition(-1,-1,76,13);
@@ -3496,9 +3495,10 @@ void Viewer::Search(int Next,int FirstChar)
 				}
 
 				int percent = -1;
-				INT64 done, total = FileSize;
+				INT64 total = FileSize;
 				if ( total > 0 )
 				{
+					INT64 done;
 					if ( !ReverseSearch )
 					{
 						if ( sd.CurPos >= StartSearchPos )
@@ -3637,7 +3637,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 
 	while ( ic < nc )
 	{
-		unsigned char c4, c3, c2, c1 = ((const unsigned char *)s)[ic++];
+		unsigned char c1 = ((const unsigned char *)s)[ic++];
 
 		if (c1 < 0x80) // simple ASCII
 			wc = (wchar_t)c1;
@@ -3660,7 +3660,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 				}
 				return nw;
 			}
-			c2 = ((const unsigned char *)s)[ic];
+			unsigned char c2 = ((const unsigned char *)s)[ic];
 			if ( 0x80 != (c2 & 0xC0)        // illegal 2-nd byte
 				|| (0xE0 == c1 && c2 <= 0x9F) // illegal 3-byte start (overlaps with 2-byte)
 				|| (0xF0 == c1 && c2 <= 0x8F) // illegal 4-byte start (overlaps with 3-byte)
@@ -3678,7 +3678,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 			{ // 3 or 4-byte
 				if (ic + 1 >= nc )
 					goto unfinished;
-				c3 = ((const unsigned char *)s)[ic+1];
+				unsigned char c3 = ((const unsigned char *)s)[ic+1];
 				if ( 0x80 != (c3 & 0xC0) ) // illegal 3-rd byte
 					wc = -1;
 				else if ( c1 < 0xF0 )
@@ -3691,7 +3691,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 					if (ic + 2 >= nc )
 						goto unfinished;
 
-					c4 = ((const unsigned char *)s)[ic+2];
+					unsigned char c4 = ((const unsigned char *)s)[ic+2];
 					if ( 0x80 != (c4 & 0xC0) ) // illegal 4-th byte
 						wc = -1;
 					else
@@ -3953,7 +3953,6 @@ wchar_t Viewer::vgetc_prev()
 
 void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 {
-	__int64 Relative=0;
 	const wchar_t *LineHistoryName=L"ViewerOffset";
 	FarDialogItem GoToDlgData[]=
 	{
@@ -3973,6 +3972,7 @@ void Viewer::GoTo(int ShowDlg,__int64 Offset, UINT64 Flags)
 	GoToDlg[RB_PRC].Selected = GoToDlg[RB_HEX].Selected = GoToDlg[RB_DEC].Selected = 0;
 	GoToDlg[PrevMode].Selected = 1;
 	{
+		__int64 Relative=0;
 		if (ShowDlg)
 		{
 			Dialog Dlg(GoToDlg,ARRAYSIZE(GoToDlg));
@@ -4294,7 +4294,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 			}
 			else
 			{
-				if ((INT_PTR)Param != (INT_PTR)-1) // не только перерисовать?
+				if ((intptr_t)Param != (intptr_t)-1) // не только перерисовать?
 					ViewKeyBar->Change(Kbt);
 
 				ViewKeyBar->Show();

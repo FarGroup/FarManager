@@ -628,7 +628,7 @@ enum
 	DM_SWITCHRO = DM_USER+2,
 };
 
-INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 
 	CopyDlgParam *DlgParam=(CopyDlgParam *)SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
@@ -657,7 +657,7 @@ INT_PTR WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		{
 			if (Param1==ID_SC_USEFILTER) // "Use filter"
 			{
-				UseFilter=static_cast<int>(reinterpret_cast<INT_PTR>(Param2));
+				UseFilter=static_cast<int>(reinterpret_cast<intptr_t>(Param2));
 				return TRUE;
 			}
 
@@ -1691,10 +1691,9 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 	//SaveScreen SaveScr;
 	DWORD DestAttr=INVALID_FILE_ATTRIBUTES;
 	string strSelName, strSelShortName;
-	size_t Length;
 	DWORD FileAttr;
 
-	if (!(Length=Dest.GetLength()) || !StrCmp(Dest,L"."))
+	if (Dest.IsEmpty() || !StrCmp(Dest,L"."))
 		return COPY_FAILURE; //????
 
 	SetCursorType(FALSE,0);
@@ -3102,8 +3101,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 
 	CP->SetProgressValue(0,0);
 
-	DWORD BytesRead,BytesWritten;
-
 	if(SrcFile.InitWalk(CopyBufferSize))
 	{
 		while(SrcFile.Step())
@@ -3155,6 +3152,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 				return COPY_CANCEL;
 			}
 
+			DWORD BytesRead,BytesWritten;
 			while (!SrcFile.Read(CopyBuffer, SrcFile.GetChunkSize(), BytesRead))
 			{
 				int MsgCode = Message(MSG_WARNING|MSG_ERRORTYPE,2,MSG(MError),
@@ -3370,8 +3368,6 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 			{
 				CP->SetTotalProgressValue(TotalCopiedSize,TotalCopySize);
 			}
-
-			CP->SetNames(SrcName,strDestName);
 		}
 	}
 
@@ -3444,7 +3440,7 @@ enum
  DM_OPENVIEWER = DM_USER+33,
 };
 
-INT_PTR WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 {
 	switch (Msg)
 	{

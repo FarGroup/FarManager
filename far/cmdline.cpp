@@ -147,7 +147,7 @@ int CommandLine::ProcessKey(int Key)
 	const wchar_t *PStr;
 	string strStr;
 
-	if ((Key==KEY_CTRLEND || Key==KEY_RCTRLEND || Key==KEY_CTRLNUMPAD1 || Key==KEY_RCTRLNUMPAD1) && CmdStr.GetCurPos()==CmdStr.GetLength())
+	if ((Key==KEY_CTRLEND || Key==KEY_RCTRLEND || Key==KEY_CTRLNUMPAD1 || Key==KEY_RCTRLNUMPAD1) && (CmdStr.GetCurPos()==CmdStr.GetLength()))
 	{
 		if (LastCmdPartLength==-1)
 			strLastCmdStr = CmdStr.GetStringAddr();

@@ -344,7 +344,7 @@ void InitKeysArray()
 							if (dwKeyb <= 0xFFFF)
 								dwKeyb |= (dwKeyb << 16);
 
-							Layout[LayoutNumber++] = (HKL)((DWORD_PTR)dwKeyb);
+							Layout[LayoutNumber++] = (HKL)((intptr_t)dwKeyb);
 						}
 					}
 				}
@@ -681,7 +681,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 	if (!ExcludeMacro && CtrlObject && CtrlObject->Cp())
 	{
 		//_KEYMACRO(CleverSysLog SL(L"GetInputRecord()"));
-		int VirtKey,ControlState;
 		CtrlObject->Macro.RunStartMacro();
 		int MacroKey=CtrlObject->Macro.GetKey();
 
@@ -709,6 +708,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				}
 
 				ScrBuf.Flush();
+				int VirtKey,ControlState;
 				TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
 				rec->EventType=((((unsigned int)MacroKey >= KEY_MACRO_BASE && (unsigned int)MacroKey <= KEY_MACRO_ENDBASE) || ((unsigned int)MacroKey>=KEY_OP_BASE && (unsigned int)MacroKey <=KEY_OP_ENDBASE)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
 
@@ -1647,7 +1647,6 @@ int CheckForEscSilent()
 	}
 
 	INPUT_RECORD rec;
-	int Key;
 	BOOL Processed=TRUE;
 	/* TODO: Здесь, в общем то - ХЗ, т.к.
 	         по хорошему нужно проверять CtrlObject->Macro.PeekKey() на ESC или BREAK
@@ -1677,7 +1676,7 @@ int CheckForEscSilent()
 	{
 		int MMode=CtrlObject->Macro.GetMode();
 		CtrlObject->Macro.SetMode(MACRO_LAST); // чтобы не срабатывали макросы :-)
-		Key=GetInputRecord(&rec,false,false,false);
+		int Key=GetInputRecord(&rec,false,false,false);
 		CtrlObject->Macro.SetMode(MMode);
 
 		/*
@@ -1895,7 +1894,6 @@ int KeyNameToKey(const wchar_t *Name)
 BOOL KeyToText(int Key0, string &strKeyText0)
 {
 	string strKeyText;
-	int I, Len;
 	DWORD Key=(DWORD)Key0, FKey=(DWORD)Key0&0xFFFFFF;
 	//if(Key >= KEY_MACRO_BASE && Key <= KEY_MACRO_ENDBASE)
 	//  return KeyMacroToText(Key0, strKeyText0);
@@ -1906,6 +1904,7 @@ BOOL KeyToText(int Key0, string &strKeyText0)
 	}
 	else
 	{
+		int I, Len;
 		GetShiftKeyName(strKeyText,Key,Len);
 
 		for (I=0; I<int(ARRAYSIZE(FKeys1)); I++)

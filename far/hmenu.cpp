@@ -123,8 +123,7 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			return SelectPos+1;
 		case MCODE_F_MENU_CHECKHOTKEY:
 		{
-			const wchar_t *str = (const wchar_t *)vParam;
-			return (__int64)(CheckHighlights((WORD)*str, (int)iParam)+1);
+			return (__int64)(CheckHighlights(*(const wchar_t *)vParam, (int)iParam)+1);
 		}
 		case MCODE_F_MENU_GETHOTKEY:
 		case MCODE_F_MENU_GETVALUE: // S=Menu.GetValue([N])

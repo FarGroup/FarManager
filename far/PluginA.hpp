@@ -46,7 +46,7 @@ public:
 	virtual bool GetGlobalInfo(GlobalInfo *Info);
 	virtual bool SetStartupInfo();
 	virtual bool CheckMinFarVersion();
-	virtual HANDLE Open(int OpenFrom, const GUID& Guid, INT_PTR Item);
+	virtual HANDLE Open(int OpenFrom, const GUID& Guid, intptr_t Item);
 	virtual HANDLE OpenFilePlugin(const wchar_t *Name, const unsigned char *Data, size_t DataSize, int OpMode);
 	virtual int SetFindList(HANDLE hPlugin, const PluginPanelItem *PanelItem, size_t ItemsNumber);
 	virtual int GetFindData(HANDLE hPlugin, PluginPanelItem **pPanelItem, size_t *pItemsNumber, int OpMode);

@@ -142,7 +142,7 @@ private:
 class LangString:public BaseFormat, public string
 {
 public:
-	LangString() {};
+	LangString():Iteration(0) {};
 	LangString(enum LNGID MessageId);
 	template<class T>
 	LangString& operator<<(const T& param) {return static_cast<LangString&>(BaseFormat::operator<<(param));}

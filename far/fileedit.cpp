@@ -87,7 +87,7 @@ enum enumOpenEditor
 };
 
 
-INT_PTR WINAPI hndOpenEditor(HANDLE hDlg, int msg, int param1, void* param2)
+intptr_t WINAPI hndOpenEditor(HANDLE hDlg, int msg, int param1, void* param2)
 {
 	if (msg == DN_INITDIALOG)
 	{
@@ -164,7 +164,7 @@ enum enumSaveFileAs
 	ID_SF_CANCEL,
 };
 
-INT_PTR WINAPI hndSaveFileAs(HANDLE hDlg, int msg, int param1, void* param2)
+intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, int msg, int param1, void* param2)
 {
 	static UINT codepage=0;
 
@@ -483,11 +483,11 @@ void FileEditor::Init(
 		if (FramePos!=-1)
 		{
 			int SwitchTo=FALSE;
-			int MsgCode=0;
 
 			if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE) ||
 			        Opt.Confirm.AllowReedit)
 			{
+				int MsgCode=0;
 				if (OpenModeExstFile == FEOPMODE_QUERY)
 				{
 					SetMessageHelp(L"EditorReload");
@@ -827,8 +827,6 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 	if (Key!=KEY_F4 && Key!=KEY_IDLE)
 		F4KeyOnly=false;
 
-	DWORD FNAttr;
-
 	if (Flags.Check(FFILEEDIT_REDRAWTITLE) && (((unsigned int)Key & 0x00ffffff) < KEY_END_FKEY || IsInternalKeyReal((unsigned int)Key & 0x00ffffff)))
 		ShowConsoleTitle();
 
@@ -855,7 +853,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		{
 			if (Flags.Check(FFILEEDIT_ENABLEF6))
 			{
-				int FirstSave=1, NeedQuestion=1;
+				int FirstSave=1;
 				UINT cp=m_codepage;
 
 				// проверка на "а может это говно удалили уже?"
@@ -889,6 +887,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					/* $ 01.02.2001 IS
 					   ! Открываем вьюер с указанием длинного имени файла, а не короткого
 					*/
+					int NeedQuestion = 1;
 					if (ProcessQuitKey(FirstSave,NeedQuestion))
 					{
 						int delete_on_close = 0;
@@ -1016,11 +1015,10 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				BOOL Done=FALSE;
 				string strOldCurDir;
 				apiGetCurrentDirectory(strOldCurDir);
-
 				while (!Done) // бьемся до упора
 				{
 					size_t pos;
-
+					DWORD FNAttr;
 					// проверим путь к файлу, может его уже снесли...
 					if (FindLastSlash(pos,strFullFileName))
 					{
@@ -2500,7 +2498,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 
 	if (Command == ECTL_READINPUT || Command == ECTL_PROCESSINPUT)
 	{
-		_KEYMACRO(SysLog(L"(Command=%s, Param=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)((DWORD_PTR)Param),(int)((DWORD_PTR)Param),CtrlObject->Macro.IsExecuting()));
+		_KEYMACRO(SysLog(L"(Command=%s, Param=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)((intptr_t)Param),(int)((intptr_t)Param),CtrlObject->Macro.IsExecuting()));
 	}
 
 #else
@@ -2572,7 +2570,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_DELETESESSIONBOOKMARK:
 		{
-			return m_editor->DeleteSessionBookmark(m_editor->PointerToSessionBookmark((int)(INT_PTR)Param));
+			return m_editor->DeleteSessionBookmark(m_editor->PointerToSessionBookmark((int)(intptr_t)Param));
 		}
 		case ECTL_GETSESSIONBOOKMARKS:
 		{
@@ -2605,7 +2603,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 				InitKeyBar();
 			else
 			{
-				if ((INT_PTR)Param != (INT_PTR)-1) // не только перерисовать?
+				if ((intptr_t)Param != (intptr_t)-1) // не только перерисовать?
 					EditKeyBar.Change(Kbt);
 
 				EditKeyBar.Show();

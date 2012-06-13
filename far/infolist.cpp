@@ -67,7 +67,9 @@ static bool LastDizShowScrollbar = false;
 
 InfoList::InfoList():
 	DizView(nullptr),
-	PrevMacroMode(-1)
+	PrevMacroMode(-1),
+	OldWrapMode(nullptr),
+	OldWrapType(nullptr)
 {
 	Type=INFO_PANEL;
 
@@ -816,9 +818,10 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-	int DVX1,DVX2,DVY1=-1,DVY2;
+	int DVY1=-1;
 	if (DizView)
 	{
+		int DVX1,DVX2,DVY2;
 		DizView->GetPosition(DVX1,DVY1,DVX2,DVY2);
 		if (DVY1 < Y2)
 		{

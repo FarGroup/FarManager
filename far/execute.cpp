@@ -859,7 +859,6 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	DWORD dwError = 0;
 	HANDLE hProcess = nullptr;
 	LPCWSTR lpVerb = nullptr;
-	bool internal;
 
 	if (FolderRun && DirectRun)
 	{
@@ -867,15 +866,16 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 	else
 	{
+		bool internal;
 		FindModule(strNewCmdStr,strNewCmdStr,dwSubSystem,internal);
 
 		if (/*!*NewCmdPar && */ dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)
 		{
-			DWORD Error=0, dwSubSystem2=0;
 
 			const wchar_t *ExtPtr=wcsrchr(PointToName(strNewCmdStr), L'.');
 			if (ExtPtr)
 			{
+				DWORD Error=0, dwSubSystem2=0;
 				if (!(!StrCmpI(ExtPtr,L".exe") || !StrCmpI(ExtPtr,L".com") || IsBatchExtType(ExtPtr)))
 				{
 					lpVerb=GetShellAction(strNewCmdStr,dwSubSystem2,Error);

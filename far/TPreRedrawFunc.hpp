@@ -71,7 +71,7 @@ class TPreRedrawFunc
 		static struct PreRedrawItem errorStack;
 
 	public:
-		TPreRedrawFunc() : Total(0), Top(nullptr) {};
+		TPreRedrawFunc() : Total(0), Top(nullptr), current(nullptr) {};
 		~TPreRedrawFunc() { Free(); }
 
 	public:

@@ -383,7 +383,7 @@ struct FarListItem
 {
 	LISTITEMFLAGS Flags;
 	const wchar_t *Text;
-	DWORD_PTR Reserved[3];
+	intptr_t Reserved[3];
 };
 
 struct FarListUpdate
@@ -426,7 +426,7 @@ struct FarListFind
 	int StartIndex;
 	const wchar_t *Pattern;
 	FARLISTFINDFLAGS Flags;
-	DWORD_PTR Reserved;
+	intptr_t Reserved;
 };
 
 struct FarListDelete
@@ -454,7 +454,7 @@ struct FarListInfo
 	int TopPos;
 	int MaxHeight;
 	int MaxLength;
-	DWORD_PTR Reserved[6];
+	intptr_t Reserved[6];
 };
 
 struct FarListItemData
@@ -463,7 +463,7 @@ struct FarListItemData
 	int Index;
 	size_t DataSize;
 	void *Data;
-	DWORD_PTR Reserved;
+	intptr_t Reserved;
 };
 
 struct FarList
@@ -505,7 +505,7 @@ struct FarDialogItem
 		int Selected;
 		struct FarList *ListItems;
 		struct FAR_CHAR_INFO *VBuf;
-		DWORD_PTR Reserved;
+		intptr_t Reserved;
 	}
 #ifndef __cplusplus
 	Param
@@ -516,7 +516,7 @@ struct FarDialogItem
 	FARDIALOGITEMFLAGS Flags;
 	const wchar_t *Data;
 	size_t MaxLength; // terminate 0 not included (if == 0 string size is unlimited)
-	DWORD_PTR UserData;
+	intptr_t UserData;
 };
 
 struct FarDialogItemData
@@ -532,7 +532,7 @@ struct FarDialogEvent
 	int Msg;
 	int Param1;
 	void* Param2;
-	INT_PTR Result;
+	intptr_t Result;
 };
 
 struct OpenDlgPluginData
@@ -558,32 +558,32 @@ struct FarGetDialogItem
 #define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
 
 #define Dlg_GetDlgData(Info,hDlg)              Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0)
-#define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(INT_PTR)Data)
+#define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(intptr_t)Data)
 
 #define Dlg_GetDlgItemData(Info,hDlg,ID)       Info.SendDlgMessage(hDlg,DM_GETITEMDATA,0,0)
-#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.SendDlgMessage(hDlg,DM_SETITEMDATA,0,(INT_PTR)Data)
+#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.SendDlgMessage(hDlg,DM_SETITEMDATA,0,(intptr_t)Data)
 
 #define DlgItem_GetFocus(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_GETFOCUS,0,0)
 #define DlgItem_SetFocus(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_SETFOCUS,ID,0)
 #define DlgItem_Enable(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_ENABLE,ID,TRUE)
 #define DlgItem_Disable(Info,hDlg,ID)          Info.SendDlgMessage(hDlg,DM_ENABLE,ID,FALSE)
 #define DlgItem_IsEnable(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_ENABLE,ID,-1)
-#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(INT_PTR)Str)
+#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(intptr_t)Str)
 
 #define DlgItem_GetCheck(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_GETCHECK,ID,0)
 #define DlgItem_SetCheck(Info,hDlg,ID,State)   Info.SendDlgMessage(hDlg,DM_SETCHECK,ID,State)
 
-#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(INT_PTR)Str)
+#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(intptr_t)Str)
 
-#define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(INT_PTR)Str)
+#define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(intptr_t)Str)
 #define DlgList_GetCurPos(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID,0)
-#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={sizeof(FarListPos),NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(INT_PTR)&LPos);}
+#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={sizeof(FarListPos),NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(intptr_t)&LPos);}
 #define DlgList_ClearList(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,0)
-#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={sizeof(FarListDelete),Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(INT_PTR)&FLDItem);}
+#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={sizeof(FarListDelete),Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(intptr_t)&FLDItem);}
 #define DlgList_SortUp(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,0)
 #define DlgList_SortDown(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1)
 #define DlgList_GetItemData(Info,hDlg,ID,Index)          Info.SendDlgMessage(hDlg,DM_LISTGETDATA,ID,Index)
-#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{sizeof(FarListItemData),Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(INT_PTR)&FLID);}
+#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{sizeof(FarListItemData),Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(intptr_t)&FLID);}
 
 typedef unsigned __int64 FARDIALOGFLAGS;
 static const FARDIALOGFLAGS
@@ -597,21 +597,21 @@ static const FARDIALOGFLAGS
 #endif // END FAR_USE_INTERNALS
 	FDLG_NONE                = 0;
 
-typedef INT_PTR(WINAPI *FARWINDOWPROC)(
+typedef intptr_t(WINAPI *FARWINDOWPROC)(
     HANDLE   hDlg,
     int Msg,
     int      Param1,
     void* Param2
 );
 
-typedef INT_PTR(WINAPI *FARAPISENDDLGMESSAGE)(
+typedef intptr_t(WINAPI *FARAPISENDDLGMESSAGE)(
     HANDLE   hDlg,
     int Msg,
     int      Param1,
     void* Param2
 );
 
-typedef INT_PTR(WINAPI *FARAPIDEFDLGPROC)(
+typedef intptr_t(WINAPI *FARAPIDEFDLGPROC)(
     HANDLE   hDlg,
     int Msg,
     int      Param1,
@@ -628,7 +628,7 @@ typedef HANDLE(WINAPI *FARAPIDIALOGINIT)(
     const wchar_t        *HelpTopic,
     const struct FarDialogItem *Item,
     size_t                ItemsNumber,
-    DWORD_PTR             Reserved,
+    intptr_t             Reserved,
     FARDIALOGFLAGS        Flags,
     FARWINDOWPROC         DlgProc,
     void*                 Param
@@ -666,8 +666,8 @@ struct FarMenuItem
 	MENUITEMFLAGS Flags;
 	const wchar_t *Text;
 	struct FarKey AccelKey;
-	DWORD_PTR Reserved;
-	DWORD_PTR UserData;
+	intptr_t Reserved;
+	intptr_t UserData;
 };
 
 typedef unsigned __int64 FARMENUFLAGS;
@@ -726,11 +726,11 @@ struct PluginPanelItem
 	const wchar_t * const *CustomColumnData;
 	size_t CustomColumnNumber;
 	PLUGINPANELITEMFLAGS Flags;
-	DWORD_PTR UserData;
+	intptr_t UserData;
 	DWORD FileAttributes;
 	DWORD NumberOfLinks;
 	DWORD CRC32;
-	DWORD_PTR Reserved[2];
+	intptr_t Reserved[2];
 };
 
 struct FarGetPluginPanelItem
@@ -801,7 +801,7 @@ struct PanelInfo
 	int ViewMode;
 	enum PANELINFOTYPE PanelType;
 	enum OPENPANELINFO_SORTMODES SortMode;
-	DWORD_PTR Reserved;
+	intptr_t Reserved;
 };
 
 
@@ -1069,7 +1069,7 @@ struct ActlMediaType
 {
 	DWORD Letter;
 	FARMEDIATYPEFLAGS Flags;
-	DWORD_PTR Reserved[2];
+	intptr_t Reserved[2];
 };
 #endif // END FAR_USE_INTERNALS
 
@@ -1308,7 +1308,7 @@ static const WINDOWINFO_FLAGS
 struct WindowInfo
 {
 	size_t StructSize;
-	INT_PTR Id;
+	intptr_t Id;
 	wchar_t *TypeName;
 	wchar_t *Name;
 	int TypeNameSize;
@@ -1380,7 +1380,7 @@ struct ViewerSetMode
 #endif
 	;
 	VIEWER_SETMODEFLAGS_TYPES Flags;
-	DWORD_PTR Reserved;
+	intptr_t Reserved;
 };
 
 struct ViewerSelect
@@ -1409,7 +1409,7 @@ struct ViewerMode
 	int Wrap;
 	int WordWrap;
 	int Hex;
-	DWORD_PTR Reserved[4];
+	intptr_t Reserved[4];
 };
 
 struct ViewerInfo
@@ -1537,7 +1537,7 @@ struct EditorSetParameter
 	{
 		int iParam;
 		wchar_t *wszParam;
-		DWORD_PTR Reserved;
+		intptr_t Reserved;
 	}
 #ifndef __cplusplus
 	Param
@@ -1560,7 +1560,7 @@ enum EDITOR_UNDOREDO_COMMANDS
 struct EditorUndoRedo
 {
 	enum EDITOR_UNDOREDO_COMMANDS Command;
-	DWORD_PTR Reserved[3];
+	intptr_t Reserved[3];
 };
 
 struct EditorGetString
@@ -1645,7 +1645,7 @@ struct EditorInfo
 	int BookMarkCount;
 	DWORD CurState;
 	UINT CodePage;
-	DWORD_PTR Reserved[5];
+	intptr_t Reserved[5];
 };
 
 struct EditorBookMarks
@@ -1654,7 +1654,7 @@ struct EditorBookMarks
 	int *Cursor;
 	int *ScreenLine;
 	int *LeftPos;
-	DWORD_PTR Reserved[4];
+	intptr_t Reserved[4];
 };
 
 struct EditorSetPosition
@@ -1960,63 +1960,63 @@ struct FarSettingsValue
 	const wchar_t* Value;
 };
 
-typedef INT_PTR (WINAPI *FARAPIPANELCONTROL)(
+typedef intptr_t (WINAPI *FARAPIPANELCONTROL)(
     HANDLE hPanel,
     enum FILE_CONTROL_COMMANDS Command,
     int Param1,
     void* Param2
 );
 
-typedef INT_PTR(WINAPI *FARAPIADVCONTROL)(
+typedef intptr_t(WINAPI *FARAPIADVCONTROL)(
     const GUID* PluginId,
     enum ADVANCED_CONTROL_COMMANDS Command,
     int Param1,
     void* Param2
 );
 
-typedef INT_PTR (WINAPI *FARAPIVIEWERCONTROL)(
+typedef intptr_t (WINAPI *FARAPIVIEWERCONTROL)(
     int ViewerID,
     enum VIEWER_CONTROL_COMMANDS Command,
     int Param1,
     void* Param2
 );
 
-typedef INT_PTR (WINAPI *FARAPIEDITORCONTROL)(
+typedef intptr_t (WINAPI *FARAPIEDITORCONTROL)(
     int EditorID,
     enum EDITOR_CONTROL_COMMANDS Command,
     int Param1,
     void* Param2
 );
 
-typedef INT_PTR (WINAPI *FARAPIMACROCONTROL)(
+typedef intptr_t (WINAPI *FARAPIMACROCONTROL)(
     const GUID* PluginId,
     enum FAR_MACRO_CONTROL_COMMANDS Command,
     int Param1,
     void* Param2
 );
 
-typedef INT_PTR (WINAPI *FARAPIPLUGINSCONTROL)(
+typedef intptr_t (WINAPI *FARAPIPLUGINSCONTROL)(
     HANDLE hHandle,
     enum FAR_PLUGINS_CONTROL_COMMANDS Command,
     int Param1,
     void* Param2
 );
 
-typedef INT_PTR (WINAPI *FARAPIFILEFILTERCONTROL)(
+typedef intptr_t (WINAPI *FARAPIFILEFILTERCONTROL)(
     HANDLE hHandle,
     enum FAR_FILE_FILTER_CONTROL_COMMANDS Command,
     int Param1,
     void* Param2
 );
 
-typedef INT_PTR (WINAPI *FARAPIREGEXPCONTROL)(
+typedef intptr_t (WINAPI *FARAPIREGEXPCONTROL)(
     HANDLE hHandle,
     enum FAR_REGEXP_CONTROL_COMMANDS Command,
     int Param1,
     void* Param2
 );
 
-typedef INT_PTR (WINAPI *FARAPISETTINGSCONTROL)(
+typedef intptr_t (WINAPI *FARAPISETTINGSCONTROL)(
     HANDLE hHandle,
     enum FAR_SETTINGS_CONTROL_COMMANDS Command,
     int Param1,
@@ -2239,7 +2239,7 @@ struct PluginStartupInfo
 
 	FARAPISENDDLGMESSAGE   SendDlgMessage;
 	FARAPIDEFDLGPROC       DefDlgProc;
-	DWORD_PTR              Reserved;
+	intptr_t              Reserved;
 	FARAPIVIEWERCONTROL    ViewerControl;
 	FARAPIPLUGINSCONTROL   PluginsControl;
 	FARAPIFILEFILTERCONTROL FileFilterControl;
@@ -2525,7 +2525,7 @@ struct OpenInfo
 	size_t StructSize;
 	enum OPENFROM OpenFrom;
 	const GUID* Guid;
-	INT_PTR Data;
+	intptr_t Data;
 };
 
 struct SetDirectoryInfo
@@ -2533,7 +2533,7 @@ struct SetDirectoryInfo
 	size_t StructSize;
 	HANDLE hPanel;
 	const wchar_t *Dir;
-	DWORD_PTR UserData;
+	intptr_t UserData;
 	OPERATION_MODES OpMode;
 };
 

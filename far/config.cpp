@@ -1360,7 +1360,7 @@ void ReadConfig()
 			while (nullptr!=(ValPtr=DestList.GetNext()))
 			{
 				DWORD res=(DWORD)wcstoul(ValPtr, &endptr, 16);
-				Opt.XLat.Layouts[I]=(HKL)(INT_PTR)(HIWORD(res)? res : MAKELONG(res,res));
+				Opt.XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 
 				if (I >= ARRAYSIZE(Opt.XLat.Layouts))
@@ -1523,7 +1523,7 @@ void FillListItem(FarListItem& Item, FormatString& fs, FARConfig& cfg)
 	Item.Text = fs;
 }
 
-INT_PTR WINAPI AdvancedConfigDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI AdvancedConfigDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
 	static FormatString* fs;
 	switch (Msg)

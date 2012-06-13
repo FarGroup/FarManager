@@ -77,35 +77,35 @@ class Frame: public ScreenObject
 //    virtual int ProcessKey(int Key);
 //    virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
-		virtual int GetCanLoseFocus(int DynamicMode=FALSE) { return(CanLoseFocus); };
-		void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; };
-		int  GetExitCode() { return ExitCode; };
-		virtual void SetExitCode(int Code) { ExitCode=Code; };
+		virtual int GetCanLoseFocus(int DynamicMode=FALSE) { return(CanLoseFocus); }
+		void SetCanLoseFocus(int Mode) { CanLoseFocus=Mode; }
+		int  GetExitCode() { return ExitCode; }
+		virtual void SetExitCode(int Code) { ExitCode=Code; }
 
-		virtual BOOL IsFileModified() const { return FALSE; };
+		virtual BOOL IsFileModified() const { return FALSE; }
 
-		virtual const wchar_t *GetTypeName() {return L"[FarModal]";};
-		virtual int GetTypeAndName(string &strType, string &strName) {return(MODALTYPE_VIRTUAL);};
+		virtual const wchar_t *GetTypeName() {return L"[FarModal]";}
+		virtual int GetTypeAndName(string &strType, string &strName) {return(MODALTYPE_VIRTUAL);}
 		virtual int GetType() { return MODALTYPE_VIRTUAL; }
 
 		virtual void OnDestroy();  // вызывается перед уничтожением окна
-		virtual void OnCreate() {};   // вызывается перед созданием окна
+		virtual void OnCreate() {}   // вызывается перед созданием окна
 		virtual void OnChangeFocus(int focus); // вызывается при смене фокуса
-		virtual void Refresh() {OnChangeFocus(1);};  // Просто перерисоваться :)
+		virtual void Refresh() {OnChangeFocus(1);}  // Просто перерисоваться :)
 
 		virtual void InitKeyBar() {}
 		void SetKeyBar(KeyBar *FrameKeyBar);
 		void UpdateKeyBar();
-		virtual void RedrawKeyBar() { Frame::UpdateKeyBar(); };
+		virtual void RedrawKeyBar() { UpdateKeyBar(); }
 
-		int IsTitleBarVisible() const {return TitleBarVisible;};
+		int IsTitleBarVisible() const {return TitleBarVisible;}
 
 		/* $ 12.05.2001 DJ */
 		int IsTopFrame();
 		virtual int GetMacroMode() { return MacroMode; }
 		/* DJ $ */
 		void Push(Frame* Modalized);
-		Frame *GetTopModal() {return NextModal;};
+		Frame *GetTopModal() {return NextModal;}
 //    bool Pop();
 //    Frame *operator[](int Index);
 //    int operator[](Frame *ModalFarame);

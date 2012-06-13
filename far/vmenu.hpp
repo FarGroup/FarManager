@@ -144,7 +144,7 @@ struct MenuItemEx
 	}
 
 	//UserData не копируется.
-	const MenuItemEx& operator=(const MenuItemEx &srcMenu)
+	MenuItemEx& operator=(const MenuItemEx &srcMenu)
 	{
 		if (this != &srcMenu)
 		{
@@ -373,8 +373,8 @@ class VMenu: public Modal
 		static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);
 		static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);
 
-		static INT_PTR WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,void* Param2);
-		static INT_PTR WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,void* Param2);
+		static intptr_t WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,void* Param2);
+		static intptr_t WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,void* Param2);
 		void SetId(const GUID& Id);
 		const GUID& Id(void);
 };

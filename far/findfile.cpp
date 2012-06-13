@@ -760,7 +760,7 @@ void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=f
 	}
 }
 
-INT_PTR WINAPI AdvancedDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI AdvancedDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
 	switch (Msg)
 	{
@@ -836,7 +836,7 @@ void AdvancedDialog()
 	}
 }
 
-INT_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
 	Vars* v = reinterpret_cast<Vars*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
 	switch (Msg)
@@ -950,7 +950,7 @@ INT_PTR WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 					string strDataStr;
 					Transform(strDataStr,(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,Param2?FAD_EDIT_TEXT:FAD_EDIT_HEX,0),Param2?L'X':L'S');
 					SendDlgMessage(hDlg,DM_SETTEXTPTR,Param2?FAD_EDIT_HEX:FAD_EDIT_TEXT,const_cast<wchar_t*>(strDataStr.CPtr()));
-					INT_PTR iParam = reinterpret_cast<INT_PTR>(Param2);
+					intptr_t iParam = reinterpret_cast<intptr_t>(Param2);
 					SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_TEXT,ToPtr(!iParam));
 					SendDlgMessage(hDlg,DM_SHOWITEM,FAD_EDIT_HEX,ToPtr(iParam));
 					SendDlgMessage(hDlg,DM_ENABLE,FAD_TEXT_CP,ToPtr(!iParam));
@@ -1534,7 +1534,7 @@ bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD Fi
 	return FileFound;
 }
 
-INT_PTR WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
 	CriticalSectionLock Lock(PluginCS);
 	Vars* v = reinterpret_cast<Vars*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));

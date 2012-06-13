@@ -613,7 +613,7 @@ static void PR_ShellDeleteMsg()
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
 	LARGE_INTEGER i;
 	i.QuadPart = preRedrawItem.Param.Param5;
-	ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<DEL_MODE>(reinterpret_cast<INT_PTR>(preRedrawItem.Param.Param4)), i.LowPart, i.HighPart);
+	ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<DEL_MODE>(reinterpret_cast<intptr_t>(preRedrawItem.Param.Param4)), i.LowPart, i.HighPart);
 }
 
 void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePercent)

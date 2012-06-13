@@ -559,7 +559,7 @@ int ColorIndex[]=
 	F_BLACK|B_WHITE
 };
 
-static INT_PTR WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+static intptr_t WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 {
 	switch (Msg)
 	{

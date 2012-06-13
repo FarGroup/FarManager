@@ -91,7 +91,7 @@ class HelpRecord
 				HelpStr = xf_wcsdup(HStr);
 		};
 
-		const HelpRecord& operator=(const HelpRecord &rhs)
+		HelpRecord& operator=(const HelpRecord &rhs)
 		{
 			if (this != &rhs)
 			{

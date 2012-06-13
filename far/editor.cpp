@@ -479,7 +479,6 @@ int Editor::BlockEnd2NumLine(int *Pos)
 
 	if (eBlock)
 	{
-		int StartSel, EndSel;
 		Edit *eLine=eBlock;
 		iLine=BlockStart2NumLine(nullptr); // получили строку начала блока
 
@@ -497,6 +496,7 @@ int Editor::BlockEnd2NumLine(int *Pos)
 		{
 			while (eLine)  // поиск строки, содержащую конец блока
 			{
+				int StartSel, EndSel;
 				eLine->GetSelection(StartSel,EndSel);
 
 				if (EndSel == -1) // это значит, что конец блока "за строкой"
@@ -596,7 +596,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			__int64 Ret=-1;
 			int Val[1];
 			EditorBookMarks ebm={};
-			int iMode=(int)((INT_PTR)vParam);
+			int iMode=(int)((intptr_t)vParam);
 
 			switch (iMode)
 			{
@@ -619,7 +619,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		{
 			int iLine;
 			int iPos;
-			int Action=(int)((INT_PTR)vParam);
+			int Action=(int)((intptr_t)vParam);
 
 			switch (Action)
 			{
@@ -4546,7 +4546,7 @@ void Editor::DeleteBlock()
 		if (DeleteNext)
 		{
 			const wchar_t *NextStr,*EndSeq;
-			int NextLength,NextStartSel,NextEndSel;
+			int NextStartSel,NextEndSel;
 			CurPtr->m_next->GetSelection(NextStartSel,NextEndSel);
 
 			if (NextStartSel==-1)
@@ -4556,6 +4556,7 @@ void Editor::DeleteBlock()
 				EndSel=-1;
 			else
 			{
+				int NextLength;
 				CurPtr->m_next->GetBinaryString(&NextStr,&EndSeq,NextLength);
 				NextLength-=NextEndSel;
 
@@ -4664,7 +4665,7 @@ void Editor::UnmarkEmptyBlock()
 
 	if (BlockStart || VBlockStart) // присутствует выделение
 	{
-		int Lines=0,StartSel,EndSel;
+		int Lines=0;
 		Edit *Block=BlockStart;
 
 		if (VBlockStart)
@@ -4674,6 +4675,7 @@ void Editor::UnmarkEmptyBlock()
 		}
 		else while (Block) // пробегаем по всем выделенным строкам
 			{
+				int StartSel,EndSel;
 				Block->GetRealSelection(StartSel,EndSel);
 
 				if (StartSel==-1)
@@ -6844,7 +6846,6 @@ void Editor::BeginVBlockMarking()
 void Editor::AdjustVBlock(int PrevX)
 {
 	int x=GetLineCurPos();
-	int c2;
 
 	//_D(SysLog(L"AdjustVBlock, x=%i,   vblock is VBlockY=%i:%i, VBlockX=%i:%i, PrevX=%i",x,VBlockY,VBlockSizeY,VBlockX,VBlockSizeX,PrevX));
 	if (x==VBlockX+VBlockSizeX)   // ничего не случилось, никаких табуляций нет
@@ -6857,7 +6858,7 @@ void Editor::AdjustVBlock(int PrevX)
 	}
 	else if (x<VBlockX)   // курсор убежал за начало блока
 	{
-		c2=VBlockX;
+		int c2=VBlockX;
 
 		if (PrevX>VBlockX)      // сдвигались вправо, а пришли влево
 		{
@@ -6949,7 +6950,7 @@ void Editor::Xlat()
 		else
 		{
 			wchar_t *Str=CurLine->Str;
-			int start=CurLine->GetCurPos(), end, StrSize=CurLine->GetLength();//StrLength(Str);
+			int start=CurLine->GetCurPos(), StrSize=CurLine->GetLength();//StrLength(Str);
 			// $ 10.12.2000 IS
 			//   Обрабатываем только то слово, на котором стоит курсор, или то слово,
 			//   что находится левее позиции курсора на 1 символ
@@ -6968,7 +6969,7 @@ void Editor::Xlat()
 					start--;
 
 				start++;
-				end=start+1;
+				int end=start+1;
 
 				while (end<StrSize && !IsWordDiv(Opt.XLat.strWordDivForXlat,Str[end]))
 					end++;
@@ -7159,14 +7160,14 @@ void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_
 	preRedrawItem.Param.Param1=(void *)Title;
 	preRedrawItem.Param.Param2=(void *)Msg;
 	preRedrawItem.Param.Param3=(void *)Name;
-	preRedrawItem.Param.Param4=(void *)(INT_PTR)(Percent);
+	preRedrawItem.Param.Param4=(void *)(intptr_t)(Percent);
 	PreRedraw.SetParam(preRedrawItem.Param);
 }
 
 void Editor::PR_EditorShowMsg()
 {
 	PreRedrawItem preRedrawItem=PreRedraw.Peek();
-	Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3,(int)(INT_PTR)preRedrawItem.Param.Param4);
+	Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3,(int)(intptr_t)preRedrawItem.Param.Param4);
 }
 
 
