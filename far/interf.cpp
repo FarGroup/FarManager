@@ -374,9 +374,7 @@ void ChangeVideoMode(int NumLines,int NumColumns)
 		Console.SetSize(coordScreen);
 	}
 
-	// зашлем эвент только в случае, когда макросы не исполн€ютс€
-	if (CtrlObject && !CtrlObject->Macro.IsExecuting())
-		GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
+	GenerateWINDOW_BUFFER_SIZE_EVENT(NumColumns,NumLines);
 }
 
 void GenerateWINDOW_BUFFER_SIZE_EVENT(int Sx, int Sy)
