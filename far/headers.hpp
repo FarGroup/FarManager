@@ -45,7 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef __GNUC__
 #include <cctype>
 #include <climits>
-
+#include <stdint.h>
 #include <malloc.h>
 #endif //__GNUC__
 

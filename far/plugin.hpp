@@ -53,6 +53,7 @@ other possible license with no implications from the above license on them.
 
 #ifdef FAR_USE_INTERNALS
 #else // ELSE FAR_USE_INTERNALS
+#include <stdint.h>
 #include <windows.h>
 #endif // END FAR_USE_INTERNALS
 
