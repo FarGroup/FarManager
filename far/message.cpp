@@ -260,6 +260,57 @@ int Message(
 	if (IsErrorType)
 		ErrorSets = GetErrorString(strErrStr);
 
+#if 1 // try to replace inserts
+	if (Items && 0 != (Flags & MSG_INSERT_STRINGS))
+	{
+		string str_err(strErrStr);
+		DWORD insert_mask = 0;
+		size_t len = strErrStr.GetLength(), pos = 0, inserts_n = 0, inserts[10];
+
+		for (size_t i = 1; i <= ItemsNumber-Buttons; ++i)
+		{
+			if (0 != (Flags & MSG_INSERT_STR(i)))
+			{
+				inserts[inserts_n++] = i;
+				if (inserts_n >= ARRAYSIZE(inserts))
+					break;
+			}
+		}
+
+		while (str_err.Pos(pos, L"%", pos))
+		{
+			if (pos >= len-1)
+				break;
+
+			if (str_err.At(pos+1) >= L'1' && str_err.At(pos+1) <= L'9')
+			{
+				size_t insert_i = 0, pos1 = pos+1;
+				while (pos1 < len && str_err.At(pos1) >= L'0' && str_err.At(pos1) <= L'9')
+				{
+					insert_i = 10*insert_i + str_err.At(pos1) - L'0';
+					++pos1;
+				}
+				if (insert_i >= 1 && insert_i <= inserts_n)
+				{
+					insert_mask |= MSG_INSERT_STR(inserts[insert_i-1]);
+					const wchar_t *replacement = Items[inserts[insert_i-1]-1];
+					str_err.Replace(pos,pos1-pos,replacement);
+					len += wcslen(replacement) - (pos1-pos);
+					pos += wcslen(replacement) - (pos1-pos);
+				}
+				else
+					pos = pos1;
+			}
+			else if (str_err.At(pos+1) == L'%') // "%%"
+				pos += 2;
+			else
+				++pos;
+		}
+		if (insert_mask == (Flags & MSG_INSERT_STRINGS))
+			strErrStr = str_err;
+	}
+#endif
+
 	// выделим память под рабочий массив указателей на строки (+запас 16)
 	Str=(const wchar_t **)xf_malloc((ItemsNumber+ADDSPACEFORPSTRFORMESSAGE) * sizeof(wchar_t*));
 

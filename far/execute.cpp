@@ -1223,11 +1223,11 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		SetMessageHelp(L"ErrCannotExecute");
 		if(DirectRun)
 		{
-			Message(MSG_WARNING|MSG_ERRORTYPE, 1,MSG(MError), MSG(MCannotExecute), strNewCmdStr, MSG(MOk));
+			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1,MSG(MError), MSG(MCannotExecute), strNewCmdStr, MSG(MOk));
 		}
 		else
 		{
-			Message(MSG_WARNING|MSG_ERRORTYPE, 1, MSG(MError), MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar), MSG(MOk));
+			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1, MSG(MError), MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar), MSG(MOk));
 		}
 	}
 
