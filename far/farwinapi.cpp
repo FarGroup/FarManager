@@ -1719,6 +1719,22 @@ bool apiGetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInfo
 
 bool apiSetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor)
 {
+	return SetFileSecurity(NTPath(Object), RequestedInformation, SecurityDescriptor.SecurityDescriptor) != FALSE;
+}
+
+bool apiOpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)
+{
+	DWORD Result = ifn.OpenVirtualDisk(&VirtualStorageType, Object, VirtualDiskAccessMask, Flags, &Parameters, &Handle);
+	SetLastError(Result);
+	return Result == ERROR_SUCCESS;
+}
+bool apiOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)
+{
 	NTPath NtObject(Object);
-	return SetFileSecurity(NtObject, RequestedInformation, SecurityDescriptor.SecurityDescriptor) != FALSE;
+	bool Result = apiOpenVirtualDiskInternal(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
+	if(!Result && ElevationRequired(ELEVATION_READ_REQUEST))
+	{
+		Result = Elevation.fOpenVirtualDisk(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
+	}
+	return Result;
 }

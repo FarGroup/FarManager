@@ -22514,14 +22514,14 @@ upd:"to process this object:"
 "spracovanie tohto objektu:"
 
 MElevationRequiredCreate
-"для создания этого объекта:"
-"to create this object:"
-upd:"to create this object:"
-upd:"to create this object:"
-upd:"to create this object:"
-upd:"to create this object:"
-"para crear este objeto:"
-"vytvorenie tohto objektu:"
+"для открытия этого объекта:"
+"to open this object:"
+upd:"to open this object:"
+upd:"to open this object:"
+upd:"to open this object:"
+upd:"to open this object:"
+upd:"to open this object:"
+upd:"to open this object:"
 
 MElevationRequiredDelete
 "для удаления этого объекта:"

@@ -323,7 +323,7 @@ BOOL apiSetCurrentDirectory(
     bool Validate = true
 );
 
-// for elevation only, dont' use outside.
+// for elevation only, don't use outside.
 bool CreateSymbolicLinkInternal(const string& Object,const string& Target, DWORD dwFlags);
 bool apiSetFileEncryptionInternal(const wchar_t* Name, bool Encrypt);
 
@@ -404,3 +404,8 @@ struct FAR_SECURITY_DESCRIPTOR_EX:public FAR_SECURITY_DESCRIPTOR
 bool apiGetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
 
 bool apiSetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInformation, const FAR_SECURITY_DESCRIPTOR& SecurityDescriptor);
+
+// for elevation only, don't use outside.
+bool apiOpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
+
+bool apiOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
