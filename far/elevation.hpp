@@ -108,7 +108,7 @@ private:
 	CriticalSection CS;
 	string strPipeID;
 
-	bool WriteData(LPCVOID Data, size_t DataSize) const;
+	bool Write(LPCVOID Data, size_t DataSize) const;
 	template<typename T>
 	inline bool Read(T& Data) const;
 	template<typename T>

@@ -173,7 +173,7 @@ inline bool ReadPipe(HANDLE Pipe, AutoObject& Data)
 template<typename T>
 inline bool ReadPipe(HANDLE Pipe, T* Data) {static_assert(sizeof(T) < 0 /* always false */, "ReadPipe template requires a reference to an object"); return false;}
 
-bool WritePipeData(HANDLE Pipe, const void* Data, size_t DataSize)
+bool WritePipe(HANDLE Pipe, const void* Data, size_t DataSize)
 {
 	bool Result=false;
 	if(RawWritePipe(Pipe, &DataSize, sizeof(DataSize)) && RawWritePipe(Pipe, Data, DataSize))
@@ -186,7 +186,7 @@ bool WritePipeData(HANDLE Pipe, const void* Data, size_t DataSize)
 template<typename T>
 inline bool WritePipe(HANDLE Pipe, const T& Data)
 {
-	return WritePipeData(Pipe, &Data, sizeof(Data));
+	return WritePipe(Pipe, &Data, sizeof(Data));
 }
 
 template<typename T>
@@ -247,9 +247,9 @@ void elevation::ResetApprove()
 	}
 }
 
-bool elevation::WriteData(LPCVOID Data,size_t DataSize) const
+bool elevation::Write(LPCVOID Data,size_t DataSize) const
 {
-	return WritePipeData(Pipe, Data, DataSize);
+	return WritePipe(Pipe, Data, DataSize);
 }
 
 template<typename T>
@@ -273,7 +273,7 @@ inline bool elevation::Write(const T& Data) const
 template<>
 inline bool elevation::Write(const string& Data) const
 {
-	return WriteData(Data.CPtr(), (Data.GetLength()+1)*sizeof(wchar_t));
+	return Write(Data.CPtr(), (Data.GetLength()+1)*sizeof(wchar_t));
 }
 
 bool elevation::SendCommand(ELEVATION_COMMAND Command) const
@@ -664,7 +664,7 @@ bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROU
 			Result = CopyFileEx(From, To, ProgressRoutine, Data, Cancel, Flags) != FALSE;
 		}
 		// BUGBUG: Cancel ignored
-		else if(Initialize() && SendCommand(C_FUNCTION_COPYFILEEX) && Write(From) && Write(To) && WriteData(&ProgressRoutine, sizeof(ProgressRoutine)) && WriteData(&Data, sizeof(Data)) && Write(Flags))
+		else if(Initialize() && SendCommand(C_FUNCTION_COPYFILEEX) && Write(From) && Write(To) && Write(&ProgressRoutine, sizeof(ProgressRoutine)) && Write(&Data, sizeof(Data)) && Write(Flags))
 		{
 			int OpResult = 0;
 			if(Read(OpResult))
@@ -820,8 +820,8 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 			if(Initialize())
 			{
 				if(SendCommand(C_FUNCTION_MOVETORECYCLEBIN) && Write(FileOpStruct)
-					&& WriteData(FileOpStruct.pFrom,FileOpStruct.pFrom?(StrLength(FileOpStruct.pFrom)+1+1)*sizeof(WCHAR):0) // achtung! +1
-					&& WriteData(FileOpStruct.pTo,FileOpStruct.pTo?(StrLength(FileOpStruct.pTo)+1+1)*sizeof(WCHAR):0)) // achtung! +1
+					&& Write(FileOpStruct.pFrom,FileOpStruct.pFrom?(StrLength(FileOpStruct.pFrom)+1+1)*sizeof(WCHAR):0) // achtung! +1
+					&& Write(FileOpStruct.pTo,FileOpStruct.pTo?(StrLength(FileOpStruct.pTo)+1+1)*sizeof(WCHAR):0)) // achtung! +1
 				{
 					int OpResult = 0;
 					if(Read(OpResult) && Read(FileOpStruct.fAnyOperationsAborted))
@@ -920,7 +920,7 @@ bool elevation::fOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const
 		if(Opt.IsUserAdmin)
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
-			Result = ifn.OpenVirtualDisk(&VirtualStorageType, Object, VirtualDiskAccessMask, Flags, &Parameters, &Handle) == ERROR_SUCCESS;
+			Result = apiOpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
 		}
 		else if(Initialize() && SendCommand(C_FUNCTION_OPENVIRTUALDISK) && Write(VirtualStorageType) && Write(Object) && Write(VirtualDiskAccessMask) && Write(Flags) && Write(Parameters))
 		{
@@ -986,7 +986,7 @@ DWORD WINAPI ElevationCopyProgressRoutine(LARGE_INTEGER TotalFileSize, LARGE_INT
 {
 	int Result=0;
 	// BUGBUG: SourceFile, DestinationFile ignored
-	if (WritePipe(Pipe, CallbackMagic) && WritePipe(Pipe, TotalFileSize) && WritePipe(Pipe, TotalBytesTransferred) && WritePipe(Pipe, StreamSize) && WritePipe(Pipe, StreamBytesTransferred) && WritePipe(Pipe, StreamNumber) && WritePipe(Pipe, CallbackReason) && WritePipeData(Pipe, &Data, sizeof(Data)))
+	if (WritePipe(Pipe, CallbackMagic) && WritePipe(Pipe, TotalFileSize) && WritePipe(Pipe, TotalBytesTransferred) && WritePipe(Pipe, StreamSize) && WritePipe(Pipe, StreamBytesTransferred) && WritePipe(Pipe, StreamNumber) && WritePipe(Pipe, CallbackReason) && WritePipe(Pipe, &Data, sizeof(Data)))
 	{
 		for(;;)
 		{
