@@ -981,7 +981,7 @@ static struct FARConfig
 
 	{FSSF_PRIVATE,       NKeyPanel,L"AutoUpdateLimit", AddressAndType(Opt.AutoUpdateLimit), Default(0)},
 	{FSSF_PRIVATE,       NKeyPanel,L"CtrlAltShiftRule", AddressAndType(Opt.PanelCtrlAltShiftRule), Default(0)},
-	{FSSF_PRIVATE,       NKeyPanel,L"CtrlFRule", AddressAndType(Opt.PanelCtrlFRule), Default(1)},
+	{FSSF_PRIVATE,       NKeyPanel,L"CtrlFRule", AddressAndType(Opt.PanelCtrlFRule), Default(0)},
 	{FSSF_PRIVATE,       NKeyPanel,L"Highlight", AddressAndType(Opt.Highlight), Default(1)},
 	{FSSF_PRIVATE,       NKeyPanel,L"ReverseSort", AddressAndType(Opt.ReverseSort), Default(1)},
 	{FSSF_PRIVATE,       NKeyPanel,L"RememberLogicalDrives", AddressAndType(Opt.RememberLogicalDrives), Default(0)},
