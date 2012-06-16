@@ -3,6 +3,61 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 16.06.2012 16:03:01 +0200 - build 2735
+
+1. Panel.CtrlFRule (TI#14) is off by default.
+
+drkns 16.06.2012 01:36:09 +0200 - build 2734
+
+1. Correction of 2733.
+
+drkns 15.06.2012 23:09:58 +0200 - build 2733
+
+1. elevation: OpenVirtualDisk support and some makeup.
+
+w17 15.06.2012 15:30:17 +0400 - build 2732
+
+1. EXPERIMENTAL. M#2103: This version of %1 is not compatible with the version of Windows you're running
+
+svs 14.06.2012 12:58:15 +0400 - build 2731
+
+1. Mantis#0002068: Bug displaying panels size after a command (for example "pause")
+
+drkns 13.06.2012 09:15:54 +0200 - build 2730
+
+1. cppcheck warnings.
+
+2. In 2724, displaying of speed of copying to nul was broken.
+
+3. Using more common [u]intptr_t instead of <INT|LONG|DWORD>_PTR.
+
+drkns 11.06.2012 16:18:00 +0200 - build 2729
+
+1. With "auto save setup", highlighting groups were stored incorrectly.
+
+drkns 09.06.2012 19:34:06 +0200 - build 2728
+
+1. Endless search for all matches of /^$/m regex
+
+zg 09.06.2012 18:44:36 +0200 - build 2727
+
+1. 0002125: Errors with highlighting in editor
+
+drkns 09.06.2012 14:02:57 +0200 - build 2726
+
+1. Minor fixes in elevation and copier.
+
+2. DialogBuilder did not support negative numbers input.
+
+drkns 08.06.2012 15:36:03 +0200 - build 2725
+
+1. Third state of checkboxes was not stored in settings.
+
+w17 08.06.2012 09:51:35 +0400 - build 2724
+
+1. M#1666: information about copying multiple files
+	If [ ] show total size and [x] show time then current file copying speed is shown
+
 w17 07.06.2012 13:35:13 +0400 - build 2723
 
 1. M#2124: /$/m regex "non-standard" behavior
