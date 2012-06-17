@@ -2546,7 +2546,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 
 			bool bContinue=false;
 			WIN32_FIND_STREAM_DATA sd;
-			HANDLE hFindStream=nullptr;
+			HANDLE hFindStream = INVALID_HANDLE_VALUE;
 			bool FirstCall=true;
 			string strFindDataFileName=FindData.strFileName;
 
@@ -2561,7 +2561,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 
 				if (Opt.FindOpt.FindAlternateStreams)
 				{
-					if (hFindStream)
+					if (hFindStream != INVALID_HANDLE_VALUE)
 					{
 						if (!FirstCall)
 						{
@@ -2636,7 +2636,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 					AddMenuRecord(hDlg,strFullStreamName, FindData);
 				}
 
-				if (!Opt.FindOpt.FindAlternateStreams || !hFindStream)
+				if (!Opt.FindOpt.FindAlternateStreams || hFindStream == INVALID_HANDLE_VALUE)
 				{
 					break;
 				}
