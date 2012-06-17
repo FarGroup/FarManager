@@ -393,7 +393,7 @@ $(INTDIR)\initguid.obj: initguid.cpp
 .asm{$(INTDIR)}.obj:
 	ml /nologo /c /Fo$@ $<
 
-$(RES_FILE): bootstrap\far.rc res.hpp Far.ico
+$(RES_FILE): bootstrap\far.rc res.hpp Far.ico FarA.ico
 	echo compiling resource file
 	$(RC) $(RFLAGS) bootstrap\far.rc
 

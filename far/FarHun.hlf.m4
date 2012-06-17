@@ -155,9 +155,6 @@ nyitja meg. A /e után megadható, hogy melyik sor hányadik karakterhelyére
 
           Például: far /e70:2 readme.
 
-  #/i#    ^<wrap>Kicsi, 16x16-os ikont állít be a FAR konzolhoz. Néhány
-konfigurációnál a kapcsoló használata instabil működést eredményezhet.
-          ^<wrap>
   #/p[<path>]#  A "fő" plugineket a <path>-ben megadott elérési út
           ^<wrap>mappáiban keresi. Több keresési útvonal is megadható,
 ";"-vel elválasztva.

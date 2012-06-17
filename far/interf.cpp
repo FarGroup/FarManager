@@ -52,6 +52,56 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "imports.hpp"
 #include "event.hpp"
+#include "res.hpp"
+
+consoleicons ConsoleIcons;
+
+
+consoleicons::consoleicons():
+	LargeIcon(nullptr),
+	SmallIcon(nullptr),
+	PreviousLargeIcon(nullptr),
+	PreviousSmallIcon(nullptr),
+	Loaded(false)
+{
+}
+
+void consoleicons::setFarIcons()
+{
+	if(!Loaded)
+	{
+		if(Opt.SetIcon)
+		{
+			int IconId = (Opt.SetAdminIcon && Opt.IsUserAdmin)? FAR_ICON_A : FAR_ICON;
+			LargeIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), 0));
+			SmallIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), 0));
+		}
+		Loaded = true;
+	}
+
+	HWND hWnd = Console.GetWindow();
+	if (hWnd)
+	{
+		if(LargeIcon)
+		{
+			PreviousLargeIcon = reinterpret_cast<HICON>(SendMessage(hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(LargeIcon)));
+		}
+		if(SmallIcon)
+		{
+			PreviousSmallIcon = reinterpret_cast<HICON>(SendMessage(hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(SmallIcon)));
+		}
+	}
+}
+
+void consoleicons::restorePreviousIcons()
+{
+	HWND hWnd = Console.GetWindow();
+	if (hWnd)
+	{
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(PreviousLargeIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(PreviousSmallIcon));
+	}
+}
 
 static int CurX,CurY;
 static FarColor CurColor;
@@ -71,8 +121,6 @@ DWORD InitialConsoleMode=0;
 string strInitTitle;
 SMALL_RECT InitWindowRect;
 COORD InitialSize;
-
-static HICON hOldLargeIcon=nullptr, hOldSmallIcon=nullptr;
 
 //stack buffer size + stack vars size must be less than 16384
 const size_t StackBufferSize=0x3FC0;
@@ -190,19 +238,7 @@ void InitConsole(int FirstInit)
 	GetVideoMode(CurSize);
 	ScrBuf.FillBuf();
 
-	HWND hWnd = Console.GetWindow();
-	if (hWnd && Opt.SmallIcon)
-	{
-		HICON hSmallIcon=nullptr,hLargeIcon=nullptr;
-		ExtractIconEx(g_strFarModuleName,0,&hLargeIcon,&hSmallIcon,1);
-
-		if (hLargeIcon)
-			hOldLargeIcon=(HICON)SendMessage(hWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
-
-		if (hSmallIcon)
-			hOldSmallIcon=(HICON)SendMessage(hWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
-	}
-
+	ConsoleIcons.setFarIcons();
 }
 void CloseConsole()
 {
@@ -227,17 +263,7 @@ void CloseConsole()
 	delete KeyQueue;
 	KeyQueue=nullptr;
 
-	HWND hWnd = Console.GetWindow();
-
-	if (hWnd && Opt.SmallIcon)
-	{
-		if (hOldLargeIcon)
-		{
-			SendMessage(hWnd,WM_SETICON,1,(LPARAM)hOldLargeIcon);
-			SendMessage(hWnd,WM_SETICON,0,(LPARAM)(hOldSmallIcon ? hOldSmallIcon:hOldLargeIcon));
-		}
-	}
-
+	ConsoleIcons.restorePreviousIcons();
 }
 
 

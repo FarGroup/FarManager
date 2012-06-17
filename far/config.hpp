@@ -659,7 +659,8 @@ struct Options
 	BoolOption AutoUpdateRemoteDrive;
 
 	StringOption strLanguage;
-	bool SmallIcon;
+	BoolOption SetIcon;
+	BoolOption SetAdminIcon;
 #ifndef NO_WRAPPER
 	string strRegRoot;
 #endif // NO_WRAPPER

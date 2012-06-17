@@ -156,9 +156,6 @@ executing Far under telnet.
 and line position.
   For example: far /e70:2 readme.
 
-  #/i#
-  Set icon for Far console window.
-
   #/p[<path>]#
   Search for "main" plugins in the folder given in <path>.
   Several search paths may be given separated by ';'.

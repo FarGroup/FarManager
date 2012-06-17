@@ -1093,6 +1093,9 @@
     <None Include="Far.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="FarA.ico">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="bootstrap\farversion.inc">
       <Filter>Generated Files</Filter>
     </None>

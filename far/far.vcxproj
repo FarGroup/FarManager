@@ -1314,6 +1314,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity)</Outputs>
     </CustomBuild>
     <None Include="Far.ico" />
+    <None Include="FarA.ico" />
     <CustomBuild Include="copyright.inc.m4">
       <FileType>Document</FileType>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Compiling %(Identity)...</Message>

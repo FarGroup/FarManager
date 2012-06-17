@@ -1101,14 +1101,7 @@ int Execute(const string& CmdStr,  //  ом.строка дл€ исполнени€
 									        (ctrl ?bCtrl:!bCtrl) &&
 									        (shift ?bShift:!bShift))
 									{
-										HICON hSmallIcon=nullptr,hLargeIcon=nullptr;
-										HWND hWnd = Console.GetWindow();
-
-										if (hWnd)
-										{
-											hSmallIcon = CopyIcon((HICON)SendMessage(hWnd,WM_SETICON,0,(LPARAM)0));
-											hLargeIcon = CopyIcon((HICON)SendMessage(hWnd,WM_SETICON,1,(LPARAM)0));
-										}
+										ConsoleIcons.restorePreviousIcons();
 
 										Console.ReadInput(ir, 256, rd);
 										/*
@@ -1123,6 +1116,7 @@ int Execute(const string& CmdStr,  //  ом.строка дл€ исполнени€
 										Console.Free();
 										Console.Allocate();
 
+										HWND hWnd = Console.GetWindow();
 										if (hWnd)   // если окно имело HOTKEY, то старое должно его забыть.
 											SendMessage(hWnd,WM_SETHOTKEY,0,(LPARAM)0);
 
@@ -1132,21 +1126,7 @@ int Execute(const string& CmdStr,  //  ом.строка дл€ исполнени€
 										Sleep(100);
 										InitConsole(0);
 
-										hWnd = Console.GetWindow();
-
-										if (hWnd)
-										{
-											if (Opt.SmallIcon)
-											{
-												ExtractIconEx(g_strFarModuleName,0,&hLargeIcon,&hSmallIcon,1);
-											}
-
-											if (hLargeIcon )
-												SendMessage(hWnd,WM_SETICON,1,(LPARAM)hLargeIcon);
-
-											if (hSmallIcon )
-												SendMessage(hWnd,WM_SETICON,0,(LPARAM)hSmallIcon);
-										}
+										ConsoleIcons.setFarIcons();
 
 										stop=1;
 										break;

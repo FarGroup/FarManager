@@ -308,6 +308,10 @@ void InterfaceSettings()
 	Builder.AddCheckbox(MConfigDeleteTotal, Opt.DelOpt.DelShowTotal);
 	Builder.AddCheckbox(MConfigPgUpChangeDisk, Opt.PgUpChangeDisk, 0, true);
 	Builder.AddCheckbox(MConfigClearType, Opt.ClearType);
+	DialogItemEx* SetIconCheck = Builder.AddCheckbox(MConfigSetConsoleIcon, Opt.SetIcon);
+	DialogItemEx* SetAdminIconCheck = Builder.AddCheckbox(MConfigSetAdminConsoleIcon, Opt.SetAdminIcon);
+	SetAdminIconCheck->Indent(4);
+	Builder.LinkFlags(SetIconCheck, SetAdminIconCheck, DIF_DISABLE);
 	Builder.AddText(MConfigTitleAddons);
 	Builder.AddEditField(Opt.strTitleAddons, 47);
 	Builder.AddOKCancel();
@@ -946,6 +950,8 @@ static struct FARConfig
 	{FSSF_PRIVATE,       NKeyInterface, L"EditorTitleFormat", AddressAndType(Opt.strEditorTitleFormat), Default(L"%Lng %File")},
 	{FSSF_PRIVATE,       NKeyInterface, L"FormatNumberSeparators", AddressAndType(Opt.FormatNumberSeparators), Default(0)},
 	{FSSF_PRIVATE,       NKeyInterface, L"Mouse", AddressAndType(Opt.Mouse), Default(1)},
+	{FSSF_PRIVATE,       NKeyInterface, L"SetIcon", AddressAndType(Opt.SetIcon), Default(0)},
+	{FSSF_PRIVATE,       NKeyInterface, L"SetAdminIcon", AddressAndType(Opt.SetAdminIcon), Default(1)},
 	{FSSF_PRIVATE,       NKeyInterface, L"ShiftsKeyRules", AddressAndType(Opt.ShiftsKeyRules), Default(1)},
 	{FSSF_PRIVATE,       NKeyInterface, L"ShowDotsInRoot", AddressAndType(Opt.ShowDotsInRoot), Default(0)},
 	{FSSF_INTERFACE,     NKeyInterface, L"ShowMenuBar", AddressAndType(Opt.ShowMenuBar), Default(0)},

@@ -181,3 +181,20 @@ string& HiText2Str(string& strDest, const wchar_t *Str);
 #define RemoveHighlights(Str) RemoveChar(Str,L'&')
 
 bool IsConsoleFullscreen();
+
+class consoleicons
+{
+public:
+	consoleicons();
+	void setFarIcons();
+	void restorePreviousIcons();
+
+private:
+	HICON LargeIcon;
+	HICON SmallIcon;
+	HICON PreviousLargeIcon;
+	HICON PreviousSmallIcon;
+	bool Loaded;
+};
+
+extern consoleicons ConsoleIcons;

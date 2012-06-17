@@ -195,7 +195,7 @@ $(OBJDIR)headers.gch: headers.cpp
 
 $(OBJS): $(OBJDIR)headers.gch
 
-$(OBJDIR)far.rc.o: $(BOOTSTRAPDIR)far.rc res.hpp Far.ico
+$(OBJDIR)far.rc.o: $(BOOTSTRAPDIR)far.rc res.hpp Far.ico FarA.ico
 	@echo compiling resource file
 	@$(WINDRES) -i $< -o $@
 

@@ -85,7 +85,6 @@ static void show_help()
 #endif
 		L" /e[<line>[:<pos>]] <filename>\n"
 		L"      Edit the specified file.\n"
-		L" /i   Set icon for FAR console window.\n"
 		L" /m   Do not load macros.\n"
 		L" /ma  Do not execute auto run macros.\n"
 		L" /p[<path>]\n"
@@ -601,9 +600,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 							break;
 					}
 
-					break;
-				case L'I':
-					Opt.SmallIcon=TRUE;
 					break;
 				case L'X':
 					Opt.ExceptRules = 0;

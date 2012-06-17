@@ -2038,6 +2038,26 @@ upd:"ClearType friendly redraw (can be slow)"
 "Limpiar rediseño (puede ser lento)"
 "Použiť &ClearType (pomalšie)"
 
+MConfigSetConsoleIcon
+upd:"Set console icon"
+"Set console icon"
+upd:"Set icon for console window"
+upd:"Set icon for console window"
+upd:"Set icon for console window"
+upd:"Set icon for console window"
+upd:"Set icon for console window"
+upd:"Set icon for console window"
+
+MConfigSetAdminConsoleIcon
+upd:"Alternate for Administrator"
+"Alternate for Administrator"
+upd:"Alternate for Administrator"
+upd:"Alternate for Administrator"
+upd:"Alternate for Administrator"
+upd:"Alternate for Administrator"
+upd:"Alternate for Administrator"
+upd:"Alternate for Administrator"
+
 MConfigTitleAddons
 "Дополнительная информация для &заголовка окна:"
 "Far &window title addons:"
