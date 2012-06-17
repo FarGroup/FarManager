@@ -1590,15 +1590,15 @@ void Manager::DeleteCommit()
 	*/
 	DeletedFrame->OnDestroy();
 
+	if (CurrentFrame==DeletedFrame)
+	{
+		CurrentFrame=0;
+		InterlockedExchange(&CurrentWindowType,-1);
+	}
+
 	if (DeletedFrame->GetDynamicallyBorn())
 	{
-		_MANAGER(SysLog(L"delete DeletedFrame %p, CurrentFrame=%p",DeletedFrame,CurrentFrame));
-
-		if (CurrentFrame==DeletedFrame)
-		{
-			CurrentFrame=0;
-			InterlockedExchange(&CurrentWindowType,-1);
-		}
+		_MANAGER(SysLog(L"delete DeletedFrame %p", DeletedFrame));
 
 		/* $ 14.05.2002 SKV
 		  Так как в деструкторе фрэйма неявно может быть

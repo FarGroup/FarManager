@@ -512,9 +512,16 @@ void ElevationApproveDlgSync(LPVOID Param)
 	Dlg.SetPosition(-1,-1,DlgX,DlgY);
 	Dlg.SetDialogMode(DMODE_FULLSHADOW|DMODE_NOPLUGINS);
 	Frame* Current = FrameManager->GetCurrentFrame();
-	Current->Lock();
+	if(Current)
+	{
+		Current->Lock();
+	}
 	Dlg.Process();
-	Current->Unlock();
+	if(Current)
+	{
+		Current->Unlock();
+	}
+
 	Data->AskApprove=!ElevationApproveDlg[AAD_CHECKBOX_DOFORALL].Selected;
 	Data->Approve=Dlg.GetExitCode()==AAD_BUTTON_OK;
 	Data->DontAskAgain=ElevationApproveDlg[AAD_CHECKBOX_DONTASKAGAIN].Selected!=FALSE;
