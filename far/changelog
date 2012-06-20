@@ -1,3 +1,7 @@
+w17 20.06.2012 21:43:35 +0400 - build 2739
+
+1. FileList::Find -- case sensitive/insetsitive compare logic fixed
+
 drkns 17.06.2012 22:01:04 +0200 - build 2738
 
 1. Ключ /i (Set icon for FAR console window) перенесён в настройки интерфейса.

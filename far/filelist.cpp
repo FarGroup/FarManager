@@ -3228,6 +3228,7 @@ int FileList::GoToFile(const wchar_t *Name,BOOL OnlyPartName)
 
 long FileList::FindFile(const wchar_t *Name,BOOL OnlyPartName)
 {
+   long II = -1;
 	for (long I=0; I < FileCount; I++)
 	{
 		const wchar_t *CurPtrName=OnlyPartName?PointToName(ListData[I]->strName):ListData[I]->strName.CPtr();
@@ -3235,11 +3236,11 @@ long FileList::FindFile(const wchar_t *Name,BOOL OnlyPartName)
 		if (!StrCmp(Name,CurPtrName))
 			return I;
 
-		if (!StrCmpI(Name,CurPtrName))
-			return I;
+		if (II < 0 && !StrCmpI(Name,CurPtrName))
+			II = I;
 	}
 
-	return -1;
+	return II;
 }
 
 long FileList::FindFirst(const wchar_t *Name)
