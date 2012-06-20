@@ -201,9 +201,7 @@ void QuickView::DisplayObject()
 				default:
 					if (Opt.ShowUnknownReparsePoint)
 					{
-						FormatString strResult;
-						strResult<<L":"<<fmt::Radix(16)<<fmt::ExactWidth(8)<<ReparseTag;
-						Tmp = strResult;
+						Tmp = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
 						PtrName = Tmp;
 					}
 					else

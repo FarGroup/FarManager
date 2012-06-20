@@ -712,9 +712,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 				default:
 					if (Opt.ShowUnknownReparsePoint)
 					{
-						FormatString strResult;
-						strResult<<L":"<<fmt::Radix(16)<<fmt::ExactWidth(8)<<ReparseTag;
-						strMsg=strResult;
+						strMsg = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
 						PtrName = strMsg;
 					}
 					else

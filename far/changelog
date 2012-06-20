@@ -1,3 +1,7 @@
+drkns 20.06.2012 20:47:54 +0200 - build 2740
+
+1. Уточнение отображения неизвестных reparse points.
+
 w17 20.06.2012 21:43:35 +0400 - build 2739
 
 1. FileList::Find -- case sensitive/insetsitive compare logic fixed
