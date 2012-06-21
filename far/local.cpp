@@ -238,10 +238,10 @@ int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool I
 	return 0;
 }
 
-int __cdecl StrCmpNNC(const wchar_t *s1, int n1, const wchar_t *s2, int n2)
+int __cdecl StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
 {
-	int l1 = 0;
-	int l2 = 0;
+	size_t l1 = 0;
+	size_t l2 = 0;
 	while (l1 < n1 && l2 < n2 && *s1 && *s2)
 	{
 		if (IsUpper(*s1) && IsLower(*s2))

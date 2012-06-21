@@ -58,7 +58,7 @@ inline int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2) { return Compar
 inline int __cdecl StrCmpNN(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return CompareString(0,NORM_STOP_ON_NULL|SORT_STRINGSORT,s1,n1,s2,n2)-2; }
 inline int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n) { return StrCmpNN(s1,n,s2,n); }
 
-int __cdecl StrCmpNNC(const wchar_t *s1, int n1, const wchar_t *s2, int n2);
+int __cdecl StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2);
 inline int __cdecl StrCmpNC(const wchar_t *s1, const wchar_t *s2, int n) { return StrCmpNNC(s1,n,s2,n); }
 inline int __cdecl StrCmpC(const wchar_t *s1, const wchar_t *s2) { return StrCmpNNC(s1,-1, s2,-1); }
 
