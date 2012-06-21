@@ -238,17 +238,97 @@ int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool I
 	return 0;
 }
 
+static bool alt_sort_initialized = false;
+static wchar_t *alt_sort_table = nullptr;
+
+class AltSortTableCleaner
+{
+public:
+	AltSortTableCleaner()
+	{}
+
+	~AltSortTableCleaner()
+	{
+		xf_free(alt_sort_table);
+		alt_sort_table = nullptr;
+		alt_sort_initialized = true;
+	}
+};
+
+static AltSortTableCleaner alt_sort_cleaner;
+
+static int __cdecl cmp_w(const void *pv1, const void *pv2)
+{
+	wchar_t w1 = *((const wchar_t *)pv1), w2 = *((const wchar_t *)pv2);
+	return StrCmpNN(&w1,1, &w2,1);
+}
+
 int __cdecl StrCmpNNC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
 {
+	if (!alt_sort_table)
+	{
+		if (alt_sort_initialized)
+			return StrCmpNN(s1,(int)n1, s2,(int)n2); // unsuccessful init - use regular sort
+
+		alt_sort_initialized = true;
+
+		wchar_t *table = (wchar_t *)xf_malloc(0x10000*sizeof(wchar_t));
+		wchar_t *chars = (wchar_t *)xf_malloc(0x10000*sizeof(wchar_t));
+		if (!table || !chars)
+		{
+			xf_free(chars);
+			xf_free(table);
+			return StrCmpNN(s1,(int)n1, s2,(int)n2);
+		}
+
+		for (int ic=0; ic < 0x10000; ++ic)
+			chars[ic] = static_cast<wchar_t>(ic);
+
+		qsort(chars+1, 0x10000-1, sizeof(wchar_t), cmp_w);
+
+		int u_beg = 0, u_end = 0xffff;
+		for (int ic=0; ic < 0x10000; ++ic)
+		{
+			if (chars[ic] == 0x0061) // L'a'
+			{
+				u_beg = ic;
+				break;
+			}
+			table[chars[ic]] = static_cast<wchar_t>(ic);
+		}
+		for (int ic=0xffff; ic > u_beg; --ic)
+		{
+			if (IsUpper(chars[ic]))
+			{
+				u_end = ic;
+				break;
+			}
+			table[chars[ic]] = static_cast<wchar_t>(ic);
+		}
+		assert(u_beg > 0 && u_beg < u_end && u_end < 0xffff);
+
+		int cc = u_beg;
+		for (int ic=u_beg; ic <= u_end; ++ic) // uppercase first
+		{
+			if (IsUpper(chars[ic]))
+				table[chars[ic]] = static_cast<wchar_t>(cc++);
+		}
+		for (int ic=u_beg; ic <= u_end; ++ic) // than not uppercase
+		{
+			if (!IsUpper(chars[ic]))
+				table[chars[ic]] = static_cast<wchar_t>(cc++);
+		}
+		assert(cc == u_end+1);
+
+		xf_free(chars);
+		alt_sort_table = table;
+	}
+
 	size_t l1 = 0;
 	size_t l2 = 0;
 	while (l1 < n1 && l2 < n2 && *s1 && *s2)
 	{
-		if (IsUpper(*s1) && IsLower(*s2))
-			return -1;
-		if (IsLower(*s1) && IsUpper(*s2))
-			return +1;
-		int res = StrCmpNN(s1,1, s2,1);
+		int res = (int)alt_sort_table[*s1] - (int)alt_sort_table[*s2];
 		if (res)
 			return res;
 
