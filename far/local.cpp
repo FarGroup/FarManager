@@ -240,8 +240,8 @@ int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool I
 
 int __cdecl StrCmpNNC(const wchar_t *s1, int n1, const wchar_t *s2, int n2)
 {
-	size_t l1 = 0;
-	size_t l2 = 0;
+	int l1 = 0;
+	int l2 = 0;
 	while (l1 < n1 && l2 < n2 && *s1 && *s2)
 	{
 		if (IsUpper(*s1) && IsLower(*s2))
@@ -274,7 +274,7 @@ int __cdecl StrCmpNNC(const wchar_t *s1, int n1, const wchar_t *s2, int n2)
 	return 0;
 }
 
-int NumStrCmp_Case(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool IgnoreCase)
+int NumStrCmpC(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2)
 {
 	size_t l1 = 0;
 	size_t l2 = 0;
@@ -320,7 +320,7 @@ int NumStrCmp_Case(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, b
 		}
 		else
 		{
-			int res = IgnoreCase ? StrCmpNI(s1, s2, 1) : StrCmpNC(s1, s2, 1);
+			int res = StrCmpNC(s1, s2, 1);
 			if (res)
 				return res;
 
