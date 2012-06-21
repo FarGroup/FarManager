@@ -238,6 +238,115 @@ int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool I
 	return 0;
 }
 
+int __cdecl StrCmpNNC(const wchar_t *s1, int n1, const wchar_t *s2, int n2)
+{
+	size_t l1 = 0;
+	size_t l2 = 0;
+	while (l1 < n1 && l2 < n2 && *s1 && *s2)
+	{
+		if (IsUpper(*s1) && IsLower(*s2))
+			return -1;
+		if (IsLower(*s1) && IsUpper(*s2))
+			return +1;
+		int res = StrCmpNN(s1,1, s2,1);
+		if (res)
+			return res;
+
+		++s1; ++l1;
+		++s2; ++l2;
+	}
+
+	if ((l1 == n1 || !*s1) && (l2 == n2 || !*s2))
+	{
+		if (l1 < l2)
+			return -1;
+		else if (l1 == l2)
+			return 0;
+		else
+			return 1;
+	}
+	else if (l1 == n1 || !*s1)
+		return -1;
+	else if (l2 == n2 || !*s2)
+		return 1;
+
+	assert(false);
+	return 0;
+}
+
+int NumStrCmp_Case(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool IgnoreCase)
+{
+	size_t l1 = 0;
+	size_t l2 = 0;
+	while (l1 < n1 && l2 < n2 && *s1 && *s2)
+	{
+		if (iswdigit(*s1) && iswdigit(*s2))
+		{
+			// skip leading zeroes
+			while (l1 < n1 && *s1 == L'0')
+			{
+				s1++;
+				l1++;
+			}
+			while (l2 < n2 && *s2 == L'0')
+			{
+				s2++;
+				l2++;
+			}
+
+			// if end of string reached
+			if (l1 == n1 || !*s1 || l2 == n2 || !*s2)
+				break;
+
+			// compare numbers
+			int res = 0;
+			while (l1 < n1 && l2 < n2 && iswdigit(*s1) && iswdigit(*s2))
+			{
+				if (!res && *s1 != *s2)
+					res = *s1 < *s2 ? -1 : 1;
+
+				s1++; s2++;
+				l1++; l2++;
+			}
+			if ((l1 == n1 || !iswdigit(*s1)) && (l2 == n2 || !iswdigit(*s2)))
+			{
+				if (res)
+					return res;
+			}
+			else if (l1 == n1 || !iswdigit(*s1))
+				return -1;
+			else if (l2 == n2 || !iswdigit(*s2))
+				return 1;
+		}
+		else
+		{
+			int res = IgnoreCase ? StrCmpNI(s1, s2, 1) : StrCmpNC(s1, s2, 1);
+			if (res)
+				return res;
+
+			s1++; s2++;
+			l1++; l2++;
+		}
+	}
+
+	if ((l1 == n1 || !*s1) && (l2 == n2 || !*s2))
+	{
+		if (l1 < l2)
+			return -1;
+		else if (l1 == l2)
+			return 0;
+		else
+			return 1;
+	}
+	else if (l1 == n1 || !*s1)
+		return -1;
+	else if (l2 == n2 || !*s2)
+		return 1;
+
+	assert(false);
+	return 0;
+}
+
 SELF_TEST(
 	assert(!NumStrCmp(L"", -1, L"", -1, false));
 	assert(NumStrCmp(L"", -1, L"a", -1, false) < 0);

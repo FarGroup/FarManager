@@ -58,6 +58,10 @@ inline int __cdecl StrCmpI(const wchar_t *s1, const wchar_t *s2) { return Compar
 inline int __cdecl StrCmpNN(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return CompareString(0,NORM_STOP_ON_NULL|SORT_STRINGSORT,s1,n1,s2,n2)-2; }
 inline int __cdecl StrCmpN(const wchar_t *s1, const wchar_t *s2, int n) { return StrCmpNN(s1,n,s2,n); }
 
+int __cdecl StrCmpNNC(const wchar_t *s1, int n1, const wchar_t *s2, int n2);
+inline int __cdecl StrCmpNC(const wchar_t *s1, const wchar_t *s2, int n) { return StrCmpNNC(s1,n,s2,n); }
+inline int __cdecl StrCmpC(const wchar_t *s1, const wchar_t *s2) { return StrCmpNNC(s1,-1, s2,-1); }
+
 inline int __cdecl StrCmp(const wchar_t *s1, const wchar_t *s2) { return CompareString(0,SORT_STRINGSORT,s1,-1,s2,-1)-2; }
 
 inline int __cdecl IsUpper(wchar_t Ch) { return IsCharUpper(Ch); }
@@ -82,7 +86,10 @@ const wchar_t * __cdecl RevStrStr(const wchar_t *str1, const wchar_t *str2);
 const wchar_t * __cdecl RevStrStrI(const wchar_t *str1, const wchar_t *str2);
 
 int NumStrCmp(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool IgnoreCase);
+int NumStrCmp_Case(const wchar_t *s1, size_t n1, const wchar_t *s2, size_t n2, bool IgnoreCase);
 inline int NumStrCmpN(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return NumStrCmp(s1, n1, s2, n2, false); }
+inline int NumStrCmpN_Case(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return NumStrCmp_Case(s1, n1, s2, n2, false); }
 inline int NumStrCmpNI(const wchar_t *s1, int n1, const wchar_t *s2, int n2) { return NumStrCmp(s1, n1, s2, n2, true); }
 inline int NumStrCmp(const wchar_t *s1, const wchar_t *s2) { return NumStrCmp(s1, -1, s2, -1, false); }
+inline int NumStrCmp_Case(const wchar_t *s1, const wchar_t *s2) { return NumStrCmp_Case(s1, -1, s2, -1, false); }
 inline int NumStrCmpI(const wchar_t *s1, const wchar_t *s2) { return NumStrCmp(s1, -1, s2, -1, true); }

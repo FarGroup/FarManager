@@ -394,11 +394,11 @@ int _cdecl SortList(const void *el1,const void *el2)
 
 				if (ListNumericSort)
 				{
-					RetCode=ListSortOrder*(ListCaseSensitiveSort?NumStrCmp(Ext1+1,Ext2+1):NumStrCmpI(Ext1+1,Ext2+1));
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?NumStrCmp_Case(Ext1+1,Ext2+1):NumStrCmpI(Ext1+1,Ext2+1));
 				}
 				else
 				{
-					RetCode=ListSortOrder*(ListCaseSensitiveSort?StrCmp(Ext1+1,Ext2+1):StrCmpI(Ext1+1,Ext2+1));
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?StrCmpC(Ext1+1,Ext2+1):StrCmpI(Ext1+1,Ext2+1));
 				}
 
 				if (RetCode)
@@ -449,11 +449,11 @@ int _cdecl SortList(const void *el1,const void *el2)
 
 				if (ListNumericSort)
 				{
-					RetCode=ListSortOrder*(ListCaseSensitiveSort?NumStrCmp(SPtr1->DizText,SPtr2->DizText):NumStrCmpI(SPtr1->DizText,SPtr2->DizText));
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?NumStrCmp_Case(SPtr1->DizText,SPtr2->DizText):NumStrCmpI(SPtr1->DizText,SPtr2->DizText));
 				}
 				else
 				{
-					RetCode=ListSortOrder*(ListCaseSensitiveSort?StrCmp(SPtr1->DizText,SPtr2->DizText):StrCmpI(SPtr1->DizText,SPtr2->DizText));
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?StrCmpC(SPtr1->DizText,SPtr2->DizText):StrCmpI(SPtr1->DizText,SPtr2->DizText));
 				}
 
 				if (RetCode)
@@ -496,15 +496,15 @@ int _cdecl SortList(const void *el1,const void *el2)
 					const wchar_t *Path2 = SPtr2->strName.CPtr();
 					const wchar_t *Name1 = PointToName(SPtr1->strName);
 					const wchar_t *Name2 = PointToName(SPtr2->strName);
-					NameCmp = ListCaseSensitiveSort ? StrCmpNN(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2)) : StrCmpNNI(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2));
+					NameCmp = ListCaseSensitiveSort ? StrCmpNNC(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2)) : StrCmpNNI(Path1, static_cast<int>(Name1-Path1), Path2, static_cast<int>(Name2-Path2));
 					if (!NameCmp)
-						NameCmp = ListCaseSensitiveSort ? NumStrCmp(Name1, Name2) : NumStrCmpI(Name1, Name2);
+						NameCmp = ListCaseSensitiveSort ? NumStrCmp_Case(Name1, Name2) : NumStrCmpI(Name1, Name2);
 					else
-						NameCmp = ListCaseSensitiveSort ? StrCmp(Path1, Path2) : StrCmpI(Path1, Path2);
+						NameCmp = ListCaseSensitiveSort ? StrCmpC(Path1, Path2) : StrCmpI(Path1, Path2);
 				}
 				else
 				{
-					NameCmp = ListCaseSensitiveSort ? StrCmp(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName);
+					NameCmp = ListCaseSensitiveSort ? StrCmpC(SPtr1->strName, SPtr2->strName) : StrCmpI(SPtr1->strName, SPtr2->strName);
 				}
 				NameCmp *= ListSortOrder;
 				if (!NameCmp)
@@ -526,11 +526,11 @@ int _cdecl SortList(const void *el1,const void *el2)
 
 				if (ListNumericSort)
 				{
-					RetCode=ListSortOrder*(ListCaseSensitiveSort?NumStrCmp(SPtr1->strCustomData, SPtr2->strCustomData):NumStrCmpI(SPtr1->strCustomData, SPtr2->strCustomData));
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?NumStrCmp_Case(SPtr1->strCustomData, SPtr2->strCustomData):NumStrCmpI(SPtr1->strCustomData, SPtr2->strCustomData));
 				}
 				else
 				{
-					RetCode=ListSortOrder*(ListCaseSensitiveSort?StrCmp(SPtr1->strCustomData, SPtr2->strCustomData):StrCmpI(SPtr1->strCustomData, SPtr2->strCustomData));
+					RetCode=ListSortOrder*(ListCaseSensitiveSort?StrCmpC(SPtr1->strCustomData, SPtr2->strCustomData):StrCmpI(SPtr1->strCustomData, SPtr2->strCustomData));
 				}
 
 				if (RetCode)
@@ -563,16 +563,16 @@ int _cdecl SortList(const void *el1,const void *el2)
 	const wchar_t *Name2=PointToName(SPtr2->strName);
 
 	if (ListNumericSort)
-		NameCmp=ListCaseSensitiveSort?NumStrCmpN(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):NumStrCmpNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
+		NameCmp=ListCaseSensitiveSort?NumStrCmpN_Case(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):NumStrCmpNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
 	else
-		NameCmp=ListCaseSensitiveSort?StrCmpNN(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):StrCmpNNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
+		NameCmp=ListCaseSensitiveSort?StrCmpNNC(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2)):StrCmpNNI(Name1,static_cast<int>(Ext1-Name1),Name2,static_cast<int>(Ext2-Name2));
 
 	if (!NameCmp)
 	{
 		if (ListNumericSort)
-			NameCmp=ListCaseSensitiveSort?NumStrCmp(Ext1,Ext2):NumStrCmpI(Ext1,Ext2);
+			NameCmp=ListCaseSensitiveSort?NumStrCmp_Case(Ext1,Ext2):NumStrCmpI(Ext1,Ext2);
 		else
-			NameCmp=ListCaseSensitiveSort?StrCmp(Ext1,Ext2):StrCmpI(Ext1,Ext2);
+			NameCmp=ListCaseSensitiveSort?StrCmpC(Ext1,Ext2):StrCmpI(Ext1,Ext2);
 	}
 
 	NameCmp*=ListSortOrder;
