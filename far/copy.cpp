@@ -3035,15 +3035,17 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 
 	File DestFile;
 	__int64 AppendPos=0;
+	DWORD flags_attrs=0;
 
 	bool CopySparse=false;
-
+	
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
 		//apiDeleteFile(DestName);
 		SECURITY_ATTRIBUTES SecAttr = {sizeof(SecAttr), sd.SecurityDescriptor, FALSE};
-		bool DstOpened = DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, (Flags&FCOPY_COPYSECURITY) ? &SecAttr:nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), SrcData.dwFileAttributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN)));
+		flags_attrs = SrcData.dwFileAttributes&(~((Flags&(FCOPY_DECRYPTED_DESTINATION))?FILE_ATTRIBUTE_ENCRYPTED|FILE_FLAG_SEQUENTIAL_SCAN:FILE_FLAG_SEQUENTIAL_SCAN));
+		bool DstOpened = DestFile.Open(strDestName, GENERIC_WRITE, FILE_SHARE_READ, (Flags&FCOPY_COPYSECURITY) ? &SecAttr:nullptr, (Append ? OPEN_EXISTING:CREATE_ALWAYS), flags_attrs);
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
 		if (!DstOpened)
@@ -3391,6 +3393,21 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 		DestFile.Close();
 		// TODO: ЗДЕСЯ СТАВИТЬ Compressed???
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
+
+		if (MAKEWORD(WinVer.dwMinorVersion, WinVer.dwMajorVersion) == _WIN32_WINNT_WS03)	// WS2003-Share SetFileTime BUG
+		{
+			string strRoot;
+			GetPathRoot(strDestName, strRoot);
+			int DriveType = FAR_GetDriveType(strRoot, nullptr, 0);
+			if (DriveType == DRIVE_REMOTE)
+			{
+				if (DestFile.Open(strDestName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_EXISTING,flags_attrs))
+				{
+					DestFile.SetTime(nullptr, nullptr, &SrcData.ftLastWriteTime, nullptr);
+					DestFile.Close();
+				}
+			}
+		}
 	}
 
 	return COPY_SUCCESS;
