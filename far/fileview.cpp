@@ -499,16 +499,15 @@ void FileViewer::ShowStatus()
 		return;
 
 	GetTitle(strName);
-	int NameLength=ScrX-43-2; //???-41-2
+	int NameLength = ScrX+1 - 40;
 
 	if (Opt.ViewerEditorClock && IsFullScreen())
-		NameLength-=6;
+		NameLength -= 3+5;
 
-	if (NameLength<20)
-		NameLength=20;
+	NameLength = Max(NameLength, 20);
 
 	TruncPathStr(strName, NameLength);
-	const wchar_t *lpwszStatusFormat = L"%-*s %c %5u %13I64u %7.7s %-4I64d %s%3d%%";
+	const wchar_t *lpwszStatusFormat = L"%-*s %c %5u %13I64u %7.7s %-4I64d %3d%%";
 	strStatus.Format(
 	    lpwszStatusFormat,
 	    NameLength,
@@ -518,7 +517,6 @@ void FileViewer::ShowStatus()
 	    View.FileSize,
 	    MSG(MViewerStatusCol),
 	    View.LeftPos,
-	    Opt.ViewerEditorClock ? L"":L" ",
 	    (View.LastPage ? 100:ToPercent64(View.FilePos,View.FileSize))
 	);
 	SetColor(COL_VIEWERSTATUS);

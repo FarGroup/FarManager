@@ -2082,38 +2082,29 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	   шелчок мышью на статус баре */
 
 	/* $ 12.10.2001 SKV
-	  угу, а только если он нсть, statusline...
+	  угу, а только если он есть, statusline...
 	*/
-	if (IntKeyState.MouseY == (Y1-1) && (HostFileViewer && HostFileViewer->IsTitleBarVisible()))  // Status line
+	if (IntKeyState.MouseY == (Y1-1) && (HostFileViewer && HostFileViewer->IsTitleBarVisible()))
 	{
-		int XCodePage, XPos, NameLength;
-		NameLength=ObjWidth-40;
-
-		if (Opt.ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen())
-			NameLength-=6;
-
-		if (NameLength<20)
-			NameLength=20;
-
-		XCodePage=NameLength+1;
-		XPos=NameLength+1+10+1+10+1;
-
-		while (IsMouseButtonPressed());
-
+		while (IsMouseButtonPressed()) {}
 		if (IntKeyState.MouseY != Y1-1)
 			return TRUE;
 
-		//_D(SysLog(L"MsX=%i, XTable=%i, XPos=%i",MsX,XTable,XPos));
-		if (IntKeyState.MouseX>=XCodePage && IntKeyState.MouseX<=XCodePage+10)
-		{
-			ProcessKey(KEY_SHIFTF8);
-			return (TRUE);
-		}
+		int NameLen = Max(20, ObjWidth-40-(Opt.ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() ? 3+5 : 0));
+		wchar_t tt[10];
+		int cp_len = wsprintf(tt, L"%u", VM.CodePage);
+		//                           ViewMode     CopdePage             Goto
+		static const int keys[]   = {KEY_SHIFTF4, KEY_SHIFTF8,          KEY_ALTF8   };
+		int xpos[ARRAYSIZE(keys)] = {NameLen,     NameLen+3+(5-cp_len), NameLen+40-4};
+		int xlen[ARRAYSIZE(keys)] = {3,           cp_len,                          4};
 
-		if (IntKeyState.MouseX>=XPos && IntKeyState.MouseX<=XPos+7+1+4+1+3)
+		for (int i = 0; i < ARRAYSIZE(keys); ++i)
 		{
-			ProcessKey(KEY_ALTF8);
-			return (TRUE);
+			if (IntKeyState.MouseX >= xpos[i] && IntKeyState.MouseX < xpos[i]+xlen[i])
+			{
+				ProcessKey(keys[i]);
+				return TRUE;
+			}
 		}
 	}
 
