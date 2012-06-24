@@ -195,6 +195,8 @@ private:
 	HICON PreviousLargeIcon;
 	HICON PreviousSmallIcon;
 	bool Loaded;
+	bool LargeChanged;
+	bool SmallChanged;
 };
 
 extern consoleicons ConsoleIcons;

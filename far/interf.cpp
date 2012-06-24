@@ -62,44 +62,59 @@ consoleicons::consoleicons():
 	SmallIcon(nullptr),
 	PreviousLargeIcon(nullptr),
 	PreviousSmallIcon(nullptr),
-	Loaded(false)
+	Loaded(false),
+	LargeChanged(false),
+	SmallChanged(false)
 {
 }
 
 void consoleicons::setFarIcons()
 {
-	if(!Loaded)
+	if(Opt.SetIcon)
 	{
-		if(Opt.SetIcon)
+		if(!Loaded)
 		{
 			int IconId = (Opt.SetAdminIcon && Opt.IsUserAdmin)? FAR_ICON_A : FAR_ICON;
 			LargeIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), 0));
 			SmallIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), 0));
+			Loaded = true;
 		}
-		Loaded = true;
-	}
 
-	HWND hWnd = Console.GetWindow();
-	if (hWnd)
-	{
-		if(LargeIcon)
+		HWND hWnd = Console.GetWindow();
+		if (hWnd)
 		{
-			PreviousLargeIcon = reinterpret_cast<HICON>(SendMessage(hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(LargeIcon)));
-		}
-		if(SmallIcon)
-		{
-			PreviousSmallIcon = reinterpret_cast<HICON>(SendMessage(hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(SmallIcon)));
+			if(LargeIcon)
+			{
+				PreviousLargeIcon = reinterpret_cast<HICON>(SendMessage(hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(LargeIcon)));
+				LargeChanged = true;
+			}
+			if(SmallIcon)
+			{
+				PreviousSmallIcon = reinterpret_cast<HICON>(SendMessage(hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(SmallIcon)));
+				SmallChanged = true;
+			}
 		}
 	}
 }
 
 void consoleicons::restorePreviousIcons()
 {
-	HWND hWnd = Console.GetWindow();
-	if (hWnd)
+	if(Opt.SetIcon)
 	{
-		SendMessage(hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(PreviousLargeIcon));
-		SendMessage(hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(PreviousSmallIcon));
+		HWND hWnd = Console.GetWindow();
+		if (hWnd)
+		{
+			if(LargeChanged)
+			{
+				SendMessage(hWnd, WM_SETICON, ICON_BIG, reinterpret_cast<LPARAM>(PreviousLargeIcon));
+				LargeChanged = false;
+			}
+			if(SmallChanged)
+			{
+				SendMessage(hWnd, WM_SETICON, ICON_SMALL, reinterpret_cast<LPARAM>(PreviousSmallIcon));
+				SmallChanged = false;
+			}
+		}
 	}
 }
 
