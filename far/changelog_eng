@@ -3,6 +3,58 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 24.06.2012 16:21:55 +0200 - build 2747
+
+1. Correction of 2738.
+
+w17 23.06.2012 21:30:59 +0400 - build 2746
+
+1. M#1632: Correction of click position for codepages and Goto
+   ViewMode is clickable
+
+w17 22.06.2012 17:48:01 +0400 - build 2745
+
+1. M#1607: time setting error when copying to own share
+   M$ surprise workaround
+
+w17 22.06.2012 01:38:30 +0400 - build 2744
+
+1. 2471 again - building the sorting table with the use of CompareString standard sorting
+
+w17 21.06.2012 15:23:20 +0400 - build 2743
+
+1. another correction of 2741
+
+w17 21.06.2012 15:15:05 +0400 - build 2742
+
+1. correction of 2741
+
+w17 21.06.2012 14:53:36 +0400 - build 2741
+
+1. EXPERIMENTAL. M#1343,2019 Alternative sort mode for 'Use case sensitive sort'
+   It is not quite what it was in the old FAR, the more correct name is Uppercase First
+
+drkns 20.06.2012 20:47:54 +0200 - build 2740
+
+1. Correction of unknown reparse points displaying.
+
+w17 20.06.2012 21:43:35 +0400 - build 2739
+
+1. FileList::Find -- case sensitive/insetsitive compare logic fixed
+
+drkns 17.06.2012 22:01:04 +0200 - build 2738
+
+1. /i key (Set icon for FAR console window) moved to interface settings.
+   Also, there is a possibility of setting of separate icon when launched under admin account.
+
+drkns 17.06.2012 18:36:59 +0200 - build 2737
+
+1. Search malfunction in ADS.
+
+drkns 17.06.2012 13:10:15 +0200 - build 2736
+
+1. Crash at start if access to start directory is denied.
+
 drkns 16.06.2012 16:03:01 +0200 - build 2735
 
 1. Panel.CtrlFRule (TI#14) is off by default.
