@@ -167,7 +167,7 @@ Viewer::~Viewer()
 	{
 		ViewFile.Close();
 
-		if (Opt.ViOpt.SavePos)
+		if (Opt.ViOpt.SavePos || Opt.ViOpt.SaveCodepage || Opt.ViOpt.SaveWrapMode)
 		{
 			string strCacheName=strPluginData.IsEmpty()?strFullFileName:strPluginData+PointToName(strFileName);
 			UINT CodePage=0;
