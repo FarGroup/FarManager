@@ -2452,9 +2452,9 @@ public:
 		return b;
 	}
 
-	unsigned __int64 SetViewerPos(const wchar_t *Name, __int64 FilePos, __int64 LeftPos, int Hex, UINT CodePage)
+	unsigned __int64 SetViewerPos(const wchar_t *Name, __int64 FilePos, __int64 LeftPos, int Hex_Wrap, UINT CodePage)
 	{
-		if (stmtSetViewerPos.Bind(Name).Bind(GetCurrentUTCTimeInUI64()).Bind(FilePos).Bind(LeftPos).Bind(Hex).Bind((int)CodePage).StepAndReset())
+		if (stmtSetViewerPos.Bind(Name).Bind(GetCurrentUTCTimeInUI64()).Bind(FilePos).Bind(LeftPos).Bind(Hex_Wrap).Bind((int)CodePage).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}

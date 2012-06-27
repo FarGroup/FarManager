@@ -720,6 +720,7 @@ void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 	Builder.StartColumns();
 	Builder.AddCheckbox(MViewConfigPersistentSelection, ViOpt.PersistentBlocks);
 	DialogItemEx *SavePos = Builder.AddCheckbox(MViewConfigSavePos, Opt.ViOpt.SavePos); // can't be local
+	Builder.AddCheckbox(MViewConfigSaveCodepage, ViOpt.SaveCodepage);
 	Builder.AddCheckbox(MViewConfigEditAutofocus, ViOpt.SearchEditFocus);
 	DialogItemEx *TabSize = Builder.AddIntEditField(ViOpt.TabSize, 3);
 	Builder.AddTextAfter(TabSize, MViewConfigTabSize);
@@ -727,6 +728,7 @@ void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 	Builder.AddCheckbox(MViewConfigArrows, ViOpt.ShowArrows);
 	DialogItemEx *SaveShortPos = Builder.AddCheckbox(MViewConfigSaveShortPos, Opt.ViOpt.SaveShortPos); // can't be local
 	Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
+	Builder.AddCheckbox(MViewConfigSaveWrapMode, ViOpt.SaveWrapMode);
 	Builder.AddCheckbox(MViewConfigVisible0x00, ViOpt.Visible0x00);
 	Builder.AddCheckbox(MViewConfigScrollbar, ViOpt.ShowScrollbar);
 	Builder.EndColumns();
@@ -742,6 +744,8 @@ void ViewerConfig(ViewerOptions &ViOpt,bool Local)
 	Builder.AddOKCancel();
 	if (Builder.ShowDialog())
 	{
+		if (Opt.ViOpt.SavePos)
+			ViOpt.SaveCodepage = true; // codepage is part of saved position
 		if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
 			ViOpt.TabSize = DefaultTabSize;
 		if (!Opt.ViOpt.MaxLineSize)
@@ -1172,6 +1176,8 @@ static struct FARConfig
 	{FSSF_PRIVATE,       NKeyViewer,L"PersistentBlocks", AddressAndType(Opt.ViOpt.PersistentBlocks), Default(0)},
 	{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerPos", AddressAndType(Opt.ViOpt.SavePos), Default(1)},
 	{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerShortPos", AddressAndType(Opt.ViOpt.SaveShortPos), Default(1)},
+	{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerCodepage", AddressAndType(Opt.ViOpt.SaveCodepage), Default(1)},
+	{FSSF_PRIVATE,       NKeyViewer,L"SaveViewerWrapMode", AddressAndType(Opt.ViOpt.SaveWrapMode), Default(0)},
 	{FSSF_PRIVATE,       NKeyViewer,L"SearchEditFocus", AddressAndType(Opt.ViOpt.SearchEditFocus), Default(0)},
 	{FSSF_PRIVATE,       NKeyViewer,L"SearchRegexp", AddressAndType(Opt.ViOpt.SearchRegexp), Default(0)},
 	{FSSF_PRIVATE,       NKeyViewer,L"ShowArrows", AddressAndType(Opt.ViOpt.ShowArrows), Default(1)},

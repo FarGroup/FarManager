@@ -73,12 +73,12 @@ struct ViewerPosCache
 {
 	__int64 FilePos;
 	__int64 LeftPos;
-	int Hex;
+	int Hex_Wrap;
 	UINT CodePage;
 
 	ViewerBookmark bm;
 
-	void Clear() { FilePos=LeftPos=0; Hex=0; CodePage=0; bm.Clear(); }
+	void Clear() { FilePos=LeftPos=0; Hex_Wrap=0; CodePage=0; bm.Clear(); }
 };
 
 class FilePositionCache

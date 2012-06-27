@@ -116,7 +116,7 @@ bool FilePositionCache::GetPosition(const wchar_t *Name, EditorPosCache& poscach
 
 bool FilePositionCache::AddPosition(const wchar_t *Name, const ViewerPosCache& poscache)
 {
-	if (!Opt.ViOpt.SavePos)
+	if (!Opt.ViOpt.SavePos && !Opt.ViOpt.SaveCodepage && !Opt.ViOpt.SaveWrapMode)
 		return false;
 
 	string strFullName;
@@ -125,11 +125,11 @@ bool FilePositionCache::AddPosition(const wchar_t *Name, const ViewerPosCache& p
 	HistoryCfg->BeginTransaction();
 
 	bool ret = false;
-	unsigned __int64 id = HistoryCfg->SetViewerPos(strFullName, poscache.FilePos, poscache.LeftPos, poscache.Hex, poscache.CodePage);
+	unsigned __int64 id = HistoryCfg->SetViewerPos(strFullName, poscache.FilePos, poscache.LeftPos, poscache.Hex_Wrap, poscache.CodePage);
 
 	if (id)
 	{
-		if (Opt.ViOpt.SaveShortPos)
+		if (Opt.ViOpt.SavePos && Opt.ViOpt.SaveShortPos)
 		{
 			for (int i=0; i<BOOKMARK_COUNT; i++)
 			{
@@ -149,17 +149,17 @@ bool FilePositionCache::GetPosition(const wchar_t *Name, ViewerPosCache& poscach
 {
 	poscache.Clear();
 
-	if (!Opt.ViOpt.SavePos)
+	if (!Opt.ViOpt.SavePos && !Opt.ViOpt.SaveCodepage && !Opt.ViOpt.SaveWrapMode)
 		return false;
 
 	string strFullName;
 	GetFullName(Name,strFullName);
 
-	unsigned __int64 id = HistoryCfg->GetViewerPos(strFullName, &poscache.FilePos, &poscache.LeftPos, &poscache.Hex, &poscache.CodePage);
+	unsigned __int64 id = HistoryCfg->GetViewerPos(strFullName, &poscache.FilePos, &poscache.LeftPos, &poscache.Hex_Wrap, &poscache.CodePage);
 
 	if (id)
 	{
-		if (!Opt.ViOpt.SaveShortPos)
+		if (!Opt.ViOpt.SavePos || !Opt.ViOpt.SaveShortPos)
 			return true;
 
 		for (int i=0; i<BOOKMARK_COUNT; i++)

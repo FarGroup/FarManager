@@ -180,7 +180,7 @@ Viewer::~Viewer()
 			ViewerPosCache poscache;
 			poscache.FilePos=FilePos;
 			poscache.LeftPos=LeftPos;
-			poscache.Hex=VM.Hex;
+			poscache.Hex_Wrap=(VM.Hex & 0x03) | 0x10 | (VM.Wrap ? 0x20 : 0x00) | (VM.WordWrap ? 0x40 : 0x00);
 			poscache.CodePage=CodePage;
 			poscache.bm=BMSavePos;
 
@@ -311,28 +311,38 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	apiGetFindDataEx(strFileName, ViewFindData);
 	UINT CachedCodePage=0;
 
-	if (Opt.ViOpt.SavePos && !ReadStdin)
+	if ((Opt.ViOpt.SavePos || Opt.ViOpt.SaveCodepage || Opt.ViOpt.SaveWrapMode) && !ReadStdin)
 	{
 		__int64 NewLeftPos,NewFilePos;
 		string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
 		ViewerPosCache poscache;
 
 		bool found = FilePositionCache::GetPosition(strCacheName,poscache);
-		NewFilePos=poscache.FilePos;
-		NewLeftPos=poscache.LeftPos;
-		if ( found && VM.Hex == -1 ) // keep VM.Hex if file listed (Grey+ / Gray-)
+		if (Opt.ViOpt.SavePos)
 		{
-			if ( 1 != (VM.Hex = poscache.Hex) )
-				dump_text_mode = VM.Hex;
-		}
-		CachedCodePage=poscache.CodePage;
-		BMSavePos=poscache.bm;
+			NewFilePos=poscache.FilePos;
+			NewLeftPos=poscache.LeftPos;
+			if ( found && VM.Hex == -1 ) // keep VM.Hex if file listed (Grey+ / Gray-)
+			{
+				if ( 1 != (VM.Hex = (poscache.Hex_Wrap & 0x03)) )
+					dump_text_mode = VM.Hex;
+			}
+			BMSavePos=poscache.bm;
 
-		// Проверяем поддерживается или нет загруженная из кэша кодовая страница
-		if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
-			CachedCodePage = 0;
-		LastSelectPos=FilePos=NewFilePos;
-		LeftPos=NewLeftPos;
+			LastSelectPos=FilePos=NewFilePos;
+			LeftPos=NewLeftPos;
+		}
+		if (Opt.ViOpt.SaveCodepage || Opt.ViOpt.SavePos)
+		{
+			CachedCodePage=poscache.CodePage;
+			if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
+				CachedCodePage = 0;
+		}
+		if (Opt.ViOpt.SaveWrapMode && 0 != (poscache.Hex_Wrap & 0x10))
+		{
+			VM.Wrap     = (poscache.Hex_Wrap & 0x20 ? 1 : 0);
+			VM.WordWrap = (poscache.Hex_Wrap & 0x40 ? 1 : 0);
+		}
 	}
 	else
 	{
@@ -1538,7 +1548,7 @@ int Viewer::ProcessKey(int Key)
 
 				if (NextFileFound)
 				{
-					if (Opt.ViOpt.SavePos)
+					if (Opt.ViOpt.SavePos || Opt.ViOpt.SaveCodepage || Opt.ViOpt.SaveWrapMode)
 					{
 						string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
 						UINT CodePage=0;
@@ -1550,7 +1560,7 @@ int Viewer::ProcessKey(int Key)
 							ViewerPosCache poscache;
 							poscache.FilePos=FilePos;
 							poscache.LeftPos=LeftPos;
-							poscache.Hex=VM.Hex;
+							poscache.Hex_Wrap=(VM.Hex & 0x03) | 0x10 | (VM.Wrap ? 0x20 : 0x00) | (VM.WordWrap ? 0x40 : 0x00);
 							poscache.CodePage=CodePage;
 							poscache.bm=BMSavePos;
 

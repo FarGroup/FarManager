@@ -376,6 +376,8 @@ struct ViewerOptions
 	BoolOption ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
 	BoolOption ViewerWrap; // Wrap=0|WordWarp=1
 	BoolOption SavePos;
+	BoolOption SaveCodepage;
+	BoolOption SaveWrapMode;
 	BoolOption SaveShortPos;
 	BoolOption UseExternalViewer;
 	BoolOption ShowKeyBar; // $ 15.07.2000 tran + ShowKeyBar
