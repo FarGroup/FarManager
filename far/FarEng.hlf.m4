@@ -3298,6 +3298,12 @@ $ #Settings dialog: viewer#
                           (created with #RightCtrl-0..9# or
                           #Ctrl-Shift-0..9#)
 
+  #Save file codepage#      Save and restore selected file codepage.
+                          При включённой опции сохранения позиции кодировка также сохраняется,
+                          так как позиция в файле зависит от кодировки.
+
+  #Save wrap mode#          Save and restore file Wrap/WordWrap mode.
+
   #Search dialog#           Always returns focus to search text field in
   #auto-focus#              the ~Viewer~@Viewer@ search dialog.
 
