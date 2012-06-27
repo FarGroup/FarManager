@@ -166,26 +166,7 @@ Viewer::~Viewer()
 	if (ViewFile.Opened())
 	{
 		ViewFile.Close();
-
-		if (Opt.ViOpt.SavePos || Opt.ViOpt.SaveCodepage || Opt.ViOpt.SaveWrapMode)
-		{
-			string strCacheName=strPluginData.IsEmpty()?strFullFileName:strPluginData+PointToName(strFileName);
-			UINT CodePage=0;
-
-			if (CodePageChangedByUser)
-			{
-				CodePage=VM.CodePage;
-			}
-
-			ViewerPosCache poscache;
-			poscache.FilePos=FilePos;
-			poscache.LeftPos=LeftPos;
-			poscache.Hex_Wrap=(VM.Hex & 0x03) | 0x10 | (VM.Wrap ? 0x20 : 0x00) | (VM.WordWrap ? 0x40 : 0x00);
-			poscache.CodePage=CodePage;
-			poscache.bm=BMSavePos;
-
-			FilePositionCache::AddPosition(strCacheName,poscache);
-		}
+		SavePosition();
 	}
 
 	delete[] vString.lpData;
@@ -226,6 +207,24 @@ Viewer::~Viewer()
 	{
 		CtrlObject->Plugins->CurViewer=this; //HostFileViewer;
 		CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);
+	}
+}
+
+
+void Viewer::SavePosition()
+{
+	if (Opt.ViOpt.SavePos || Opt.ViOpt.SaveCodepage || Opt.ViOpt.SaveWrapMode)
+	{
+		ViewerPosCache poscache;
+
+		poscache.FilePos = FilePos;
+		poscache.LeftPos = LeftPos;
+		poscache.Hex_Wrap = (VM.Hex & 0x03) | 0x10 | (VM.Wrap ? 0x20 : 0x00) | (VM.WordWrap ? 0x40 : 0x00);
+		poscache.CodePage = CodePageChangedByUser ? VM.CodePage : 0;
+		poscache.bm = BMSavePos;
+
+		string strCacheName = strPluginData.IsEmpty() ? strFullFileName : strPluginData+PointToName(strFileName);
+		FilePositionCache::AddPosition(strCacheName, poscache);
 	}
 }
 
@@ -1548,27 +1547,8 @@ int Viewer::ProcessKey(int Key)
 
 				if (NextFileFound)
 				{
-					if (Opt.ViOpt.SavePos || Opt.ViOpt.SaveCodepage || Opt.ViOpt.SaveWrapMode)
-					{
-						string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
-						UINT CodePage=0;
-
-						if (CodePageChangedByUser)
-							CodePage=VM.CodePage;
-
-						{
-							ViewerPosCache poscache;
-							poscache.FilePos=FilePos;
-							poscache.LeftPos=LeftPos;
-							poscache.Hex_Wrap=(VM.Hex & 0x03) | 0x10 | (VM.Wrap ? 0x20 : 0x00) | (VM.WordWrap ? 0x40 : 0x00);
-							poscache.CodePage=CodePage;
-							poscache.bm=BMSavePos;
-
-							FilePositionCache::AddPosition(strCacheName,poscache);
-
-							BMSavePos.Clear(); //Preapare for new file loading
-						}
-					}
+					SavePosition();
+					BMSavePos.Clear(); //Prepare for new file loading
 
 					if (PointToName(strName) == strName)
 					{

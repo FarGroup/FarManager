@@ -228,6 +228,8 @@ class Viewer:public ScreenObject
 		int GetStrBytesNum(const wchar_t *Str, int Length);
 		bool isBinaryFile();
 
+		void SavePosition();
+
 	public:
 		Viewer(bool bQuickView = false, UINT aCodePage = CP_DEFAULT);
 		virtual ~Viewer();
