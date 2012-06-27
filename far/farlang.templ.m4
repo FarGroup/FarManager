@@ -2669,7 +2669,7 @@ MViewConfigSaveShortPos
 "Ukladať &záložky"
 
 MViewConfigSaveCodepage
-"Сохранять ко&довую страницу"
+"Сохранять ко&дировку файла"
 "Save file &codepage"
 upd:"Save file &codepage"
 upd:"Save file &codepage"
