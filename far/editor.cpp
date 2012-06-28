@@ -4064,7 +4064,9 @@ BOOL Editor::Search(int Next)
 						break;
 
 					CurPos = CurLine->GetCurPos();
-					CurPos += (Skip && !ReverseSearch ? 1:0) - (!Skip && ReverseSearch ? RStrLen:0); 
+					CurPos += (Skip && !ReverseSearch ? 1:0);
+					if (!Skip && ReverseSearch)
+						CurLine->SetCurPos(CurPos -= RStrLen); 
 				}
 			}
 			else
