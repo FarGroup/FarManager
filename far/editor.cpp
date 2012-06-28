@@ -3834,10 +3834,12 @@ BOOL Editor::Search(int Next)
 			if (CurPtr->Search(strSearchStr,strReplaceStrCurrent,CurPos,Case,WholeWords,ReverseSearch,Regexp,&SearchLength))
 			{
 				Match=1;
+				Edit *FoundPtr = CurPtr;
+				int iFoundPos = CurPtr->GetCurPos();
 
 				if(FindAllReferences)
 				{
-					CurPos = CurPtr->GetCurPos();
+					CurPos = iFoundPos;
 
 					MenuItemEx Item = {};
 					Item.strName = FormatString() << fmt::LeftAlign() << fmt::ExactWidth(11) << fmt::FillChar(L' ') << (FormatString() << NewNumLine+1 << L':' << CurPos+1) << BoxSymbols[BS_V1] << CurPtr->GetStringAddr() + CurPos;
@@ -3860,7 +3862,6 @@ BOOL Editor::Search(int Next)
 						Lock();
 						UnmarkBlock();
 						Flags.Set(FEDITOR_MARKINGBLOCK);
-						int iFoundPos = CurPtr->GetCurPos();
 						CurPtr->Select(iFoundPos, iFoundPos+SearchLength);
 						BlockStart = CurPtr;
 						BlockStartLine = NewNumLine;
@@ -3893,7 +3894,6 @@ BOOL Editor::Search(int Next)
 					NumLine=NewNumLine;
 					int LeftPos=CurPtr->GetLeftPos();
 					int TabCurPos=CurPtr->GetTabCurPos();
-					int SStrLen, RStrLen=0;
 
 					if (ObjWidth>8 && TabCurPos-LeftPos+SearchLength>ObjWidth-8)
 						CurPtr->SetLeftPos(TabCurPos+SearchLength-ObjWidth+8);
@@ -3945,7 +3945,6 @@ BOOL Editor::Search(int Next)
 								int SaveOvertypeMode=Flags.Check(FEDITOR_OVERTYPE);
 								Flags.Set(FEDITOR_OVERTYPE);
 								CurLine->SetOvertypeMode(TRUE);
-								//int CurPos=CurLine->GetCurPos();
 
 								int I=0;
 								for (; SearchLength && strReplaceStrCurrent[I]; I++,SearchLength--)
@@ -4019,8 +4018,8 @@ BOOL Editor::Search(int Next)
 								/* Fast method */
 								const wchar_t *Str,*Eol;
 								int StrLen,NewStrLen;
-								SStrLen=SearchLength;
-								RStrLen=(int)strReplaceStrCurrent.GetLength();
+								int SStrLen=SearchLength;
+								int RStrLen=(int)strReplaceStrCurrent.GetLength();
 								CurLine->GetBinaryString(&Str,&Eol,StrLen);
 								int EolLen=StrLength(Eol);
 								NewStrLen=StrLen;
@@ -4066,7 +4065,7 @@ BOOL Editor::Search(int Next)
 					CurPos = CurLine->GetCurPos();
 					CurPos += (Skip && !ReverseSearch ? 1:0);
 					if (!Skip && ReverseSearch)
-						CurLine->SetCurPos(CurPos -= RStrLen); 
+						(CurLine = CurPtr = FoundPtr)->SetCurPos(CurPos = iFoundPos); 
 				}
 			}
 			else
