@@ -1079,6 +1079,8 @@ void Help::CorrectPosition()
 		StackData.TopStr=0;
 }
 
+#ifdef FAR_LUA
+#else
 __int64 Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	switch (OpCode)
@@ -1098,6 +1100,7 @@ __int64 Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 1;
 }
+#endif
 
 int Help::ProcessKey(int Key)
 {

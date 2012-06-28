@@ -712,6 +712,8 @@ void DlgEdit::ResizeConsole()
 		lineEdit->ResizeConsole();
 }
 
+#ifdef FAR_LUA
+#else
 __int64 DlgEdit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
@@ -722,6 +724,7 @@ __int64 DlgEdit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 #endif
 		return lineEdit->VMProcess(OpCode,vParam,iParam);
 }
+#endif
 
 void DlgEdit::EditChange(void* aParam)
 {

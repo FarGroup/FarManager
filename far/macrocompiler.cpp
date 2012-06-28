@@ -32,6 +32,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef FAR_LUA
+#else
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.
@@ -2101,3 +2103,4 @@ void  __setMacroErrorCode(int ErrCode)
 {
 	_macro_ErrCode=ErrCode;
 }
+#endif

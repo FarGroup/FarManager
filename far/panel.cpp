@@ -1333,10 +1333,13 @@ void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLas
 	}
 }
 
+#ifdef FAR_LUA
+#else
 __int64 Panel::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	return 0;
 }
+#endif
 
 // корректировка букв
 static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)
@@ -2261,9 +2264,13 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			if (GetType()==FILE_PANEL && GetMode() == PLUGIN_PANEL)
 			{
 				PluginInfo PInfo = {sizeof(PInfo)};
+#ifdef FAR_LUA
+				//FIXME:!!!
+#else
 				FileList *DestPanel = ((FileList*)this);
 				if (DestPanel->VMProcess(MCODE_V_APANEL_PREFIX,&PInfo))
 					strTemp = PInfo.CommandPrefix;
+#endif
 			}
 
 			if (Param1&&Param2)

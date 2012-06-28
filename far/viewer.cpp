@@ -1311,6 +1311,8 @@ __int64 Viewer::BegOfScreen()
 }
 
 
+#ifdef FAR_LUA
+#else
 __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	switch (OpCode)
@@ -1345,6 +1347,7 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
+#endif
 
 /* $ 28.01.2001
    - Путем проверки ViewFile на nullptr избавляемся от падения

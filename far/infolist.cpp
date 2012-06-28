@@ -550,6 +550,8 @@ void InfoList::DisplayObject()
 	Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
+#ifdef FAR_LUA
+#else
 __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	if (DizView)
@@ -563,6 +565,7 @@ __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
+#endif
 
 void InfoList::SelectShowMode(void)
 {

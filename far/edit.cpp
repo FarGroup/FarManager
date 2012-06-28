@@ -588,6 +588,8 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 }
 
 
+#ifdef FAR_LUA
+#else
 __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	switch (OpCode)
@@ -690,6 +692,7 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
+#endif
 
 int Edit::ProcessKey(int Key)
 {

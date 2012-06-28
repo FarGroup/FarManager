@@ -1371,8 +1371,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		IntKeyState.PreMouseEventFlags=IntKeyState.MouseEventFlags;
 		IntKeyState.MouseEventFlags=rec->Event.MouseEvent.dwEventFlags;
 		DWORD CtrlState=rec->Event.MouseEvent.dwControlKeyState;
+#ifdef FAR_LUA
+#else
 		KeyMacro::SetMacroConst(constMsCtrlState,(__int64)CtrlState);
 		KeyMacro::SetMacroConst(constMsEventFlags,(__int64)IntKeyState.MouseEventFlags);
+#endif
 		/*
 		    // Сигнал на прорисовку ;-) Помогает прорисовать кейбар при движении мышью
 		    if(CtrlState != (IntKeyState.CtrlPressed|IntKeyState.AltPressed|IntKeyState.ShiftPressed))
@@ -1393,7 +1396,10 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
 		IntKeyState.RightShiftPressed=(CtrlState & SHIFT_PRESSED);
 		DWORD BtnState=rec->Event.MouseEvent.dwButtonState;
+#ifdef FAR_LUA
+#else
 		KeyMacro::SetMacroConst(constMsButton,(__int64)rec->Event.MouseEvent.dwButtonState);
+#endif
 
 		if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
 		{
@@ -1407,8 +1413,11 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		IntKeyState.PrevMouseY=IntKeyState.MouseY;
 		IntKeyState.MouseX=rec->Event.MouseEvent.dwMousePosition.X;
 		IntKeyState.MouseY=rec->Event.MouseEvent.dwMousePosition.Y;
+#ifdef FAR_LUA
+#else
 		KeyMacro::SetMacroConst(constMsX,(__int64)IntKeyState.MouseX);
 		KeyMacro::SetMacroConst(constMsY,(__int64)IntKeyState.MouseY);
+#endif
 
 		/* $ 26.04.2001 VVM
 		   + Обработка колесика мышки. */
@@ -1889,6 +1898,11 @@ int KeyNameToKey(const wchar_t *Name)
 	*/
 	// _SVS(SysLog(L"Key=0x%08X (%c) => '%s'",Key,(Key?Key:' '),Name));
 	return (!Key || Pos < Len)? -1: (int)Key;
+}
+
+bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText)
+{
+	return KeyToText(InputRecordToKey(Rec),strKeyText);
 }
 
 BOOL KeyToText(int Key0, string &strKeyText0)

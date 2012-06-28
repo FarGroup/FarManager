@@ -35,6 +35,8 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#ifdef FAR_LUA
+#else
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.
@@ -79,3 +81,4 @@ BOOL __getMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 BOOL __getMacroParseError(string* Err1, string* Err2, string* Err3, string* Err4);
 int  __getMacroErrorCode(int *nErr=nullptr);
 void  __setMacroErrorCode(int ErrCode);
+#endif

@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "colormix.hpp"
 #include "FarGuid.hpp"
+#include "keys.hpp"
 
 namespace wrapper
 {
@@ -3809,9 +3810,11 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 
 intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_COMMANDS Command, void *Param)
 {
+#ifndef FAR_LUA
 	static char *ErrMsg1 = nullptr;
 	static char *ErrMsg2 = nullptr;
 	static char *ErrMsg3 = nullptr;
+#endif
 
 	switch (Command)
 	{
@@ -3889,6 +3892,9 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_EJECTMEDIA, 0, Param);
 		case oldfar::ACTL_KEYMACRO:
 		{
+#ifdef FAR_LUA
+			return FALSE;
+#else
 			if (!Param) return FALSE;
 
 			oldfar::ActlKeyMacro *kmA=(oldfar::ActlKeyMacro *)Param;
@@ -3975,9 +3981,13 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			}
 
 			return res;
+#endif
 		}
 		case oldfar::ACTL_POSTKEYSEQUENCE:
 		{
+#ifdef FAR_LUA
+			return FALSE;
+#else
 			if (!Param)
 				return FALSE;
 
@@ -4011,6 +4021,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			xf_free(Sequence);
 
 			return ret;
+#endif
 		}
 		case oldfar::ACTL_GETSHORTWINDOWINFO:
 		case oldfar::ACTL_GETWINDOWINFO:

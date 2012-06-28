@@ -191,7 +191,10 @@ class Help:public Frame
 		virtual int GetTypeAndName(string &strType, string &strName);
 		virtual int GetType() { return MODALTYPE_HELP; }
 
+#ifdef FAR_LUA
+#else
 		virtual __int64 VMProcess(int OpCode,void *vParam,__int64 iParam);
+#endif
 
 		static string &MkTopic(class Plugin* pPlugin,const wchar_t *HelpTopic,string &strTopic);
 };

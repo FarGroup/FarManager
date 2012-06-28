@@ -774,7 +774,10 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
 
+#ifdef FAR_LUA
+#else
 	initMacroVarTable(1);
+#endif
 
 	ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Opt.ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(GeneralCfg->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
 	SetErrorMode(ErrorMode);
@@ -794,7 +797,10 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	int Result=MainProcessSEH(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
 
 	EmptyInternalClipboard();
+#ifdef FAR_LUA
+#else
 	doneMacroVarTable(1);
+#endif
 
 	ReleaseDb();
 

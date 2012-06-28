@@ -99,7 +99,10 @@ class FileEditor : public Frame
 		int EditorControl(int Command,void *Param);
 		bool SetCodePage(UINT codepage);  //BUGBUG
 		BOOL IsFileChanged() const { return m_editor->IsFileChanged(); };
+#ifdef FAR_LUA
+#else
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
+#endif
 		void GetEditorOptions(EditorOptions& EdOpt);
 		void SetEditorOptions(EditorOptions& EdOpt);
 		void CodepageChangedByUser() {Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);};

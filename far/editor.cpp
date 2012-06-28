@@ -540,6 +540,8 @@ int Editor::BlockEnd2NumLine(int *Pos)
 }
 
 
+#ifdef FAR_LUA
+#else
 __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	int CurPos=CurLine->GetCurPos();
@@ -850,6 +852,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
+#endif
 
 
 int Editor::ProcessKey(int Key)

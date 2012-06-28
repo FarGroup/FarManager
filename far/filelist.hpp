@@ -309,7 +309,10 @@ class FileList:public Panel
 	public:
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+#ifdef FAR_LUA
+#else
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
+#endif
 		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
 		virtual void SetFocus();
 		virtual void Update(int Mode);

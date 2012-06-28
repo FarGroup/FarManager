@@ -620,6 +620,8 @@ int FileList::SendKeyToPlugin(DWORD Key,bool Pred)
 	return FALSE;
 }
 
+#ifdef FAR_LUA
+#else
 __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	switch (OpCode)
@@ -847,6 +849,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
+#endif
 
 int FileList::ProcessKey(int Key)
 {

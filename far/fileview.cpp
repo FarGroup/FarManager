@@ -223,6 +223,8 @@ void FileViewer::DisplayObject()
 	View.Show();
 }
 
+#ifdef FAR_LUA
+#else
 __int64 FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	if (OpCode == MCODE_F_KEYBAR_SHOW)
@@ -255,6 +257,7 @@ __int64 FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	}
 	return View.VMProcess(OpCode,vParam,iParam);
 }
+#endif
 
 int FileViewer::ProcessKey(int Key)
 {

@@ -93,6 +93,8 @@ void HMenu::ShowMenu()
 }
 
 
+#ifdef FAR_LUA
+#else
 __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	SelectPos=0;
@@ -171,6 +173,7 @@ __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
+#endif
 
 int HMenu::ProcessKey(int Key)
 {

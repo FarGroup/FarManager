@@ -1997,6 +1997,8 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 						return Macro.PostNewMacro(PlainText->SequenceText,(PlainText->Flags<<8)|MFLAGS_POSTFROMPLUGIN,InputRecordToKey(&PlainText->AKey));
 					}
 
+#ifdef FAR_LUA
+#else
 					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 					case MSSC_EXEC:
 					{
@@ -2017,6 +2019,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 						return Ret;
 					}
+#endif
 				}
 
 				break;
@@ -2067,6 +2070,10 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 				return Macro.DelMacro(*PluginId,Param2);
 			}
 
+#ifdef FAR_LUA
+			default: //FIXME
+				break;
+#else
 			//Param1=size of buffer, Param2 - MacroParseResult*
 			case MCTL_GETLASTERROR:
 			{
@@ -2093,6 +2100,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				return Size;
 			}
+#endif
 		}
 	}
 

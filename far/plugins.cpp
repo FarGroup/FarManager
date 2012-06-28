@@ -2429,7 +2429,11 @@ void PluginManager::ReadUserBackgound(SaveScreen *SaveScr)
   Функция CallPlugin - найти плагин по ID и запустить
   в зачаточном состоянии!
 */
+#ifdef FAR_LUA
+int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **Ret)
+#else
 int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Ret)
+#endif
 {
 	if (FrameManager->GetCurrentFrame()->GetType() == MODALTYPE_DIALOG)
 	{
@@ -2479,7 +2483,11 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,int *Re
 			if (Ret)
 			{
 				PluginHandle *handle=(PluginHandle *)hNewPlugin;
+#ifdef FAR_LUA
+				*Ret = hNewPlugin?handle->hPlugin:nullptr;
+#else
 				*Ret = (hNewPlugin && handle->hPlugin) ? 1 : 0;
+#endif
 				delete handle;
 			}
 
