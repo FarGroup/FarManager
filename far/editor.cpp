@@ -3824,7 +3824,7 @@ BOOL Editor::Search(int Next)
 				SetCursorType(FALSE,-1);
 				int Total=ReverseSearch?StartLine:NumLastLine-StartLine;
 				int Current=abs(NewNumLine-StartLine);
-				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,Current*100/Total);
+				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,Total > 0 ? Current*100/Total : 100);
 				TBC.SetProgressValue(Current,Total);
 			}
 
@@ -3893,6 +3893,7 @@ BOOL Editor::Search(int Next)
 					NumLine=NewNumLine;
 					int LeftPos=CurPtr->GetLeftPos();
 					int TabCurPos=CurPtr->GetTabCurPos();
+					int SStrLen, RStrLen=0;
 
 					if (ObjWidth>8 && TabCurPos-LeftPos+SearchLength>ObjWidth-8)
 						CurPtr->SetLeftPos(TabCurPos+SearchLength-ObjWidth+8);
@@ -4018,8 +4019,8 @@ BOOL Editor::Search(int Next)
 								/* Fast method */
 								const wchar_t *Str,*Eol;
 								int StrLen,NewStrLen;
-								int SStrLen=SearchLength,
-											RStrLen=(int)strReplaceStrCurrent.GetLength();
+								SStrLen=SearchLength;
+								RStrLen=(int)strReplaceStrCurrent.GetLength();
 								CurLine->GetBinaryString(&Str,&Eol,StrLen);
 								int EolLen=StrLength(Eol);
 								NewStrLen=StrLen;
@@ -4062,11 +4063,8 @@ BOOL Editor::Search(int Next)
 					if (!ReplaceMode)
 						break;
 
-					CurPos=CurLine->GetCurPos();
-
-					if (Skip)
-						if (!ReverseSearch)
-							CurPos++;
+					CurPos = CurLine->GetCurPos();
+					CurPos += (Skip && !ReverseSearch ? 1:0) - (!Skip && ReverseSearch ? RStrLen:0); 
 				}
 			}
 			else
