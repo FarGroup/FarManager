@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // FIXME: for SciTE only.
-#ifndef FAR_LUA
+#if SCITE == 1
 #define FAR_LUA
 #endif
 

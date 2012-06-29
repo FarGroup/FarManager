@@ -32,7 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // FIXME: for SciTE only.
-#ifndef FAR_LUA
+#if SCITE == 1
 #define FAR_LUA
 #endif
 
@@ -239,6 +239,7 @@ bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 
 void KeyMacro::SaveMacros()
 {
+	WriteMacro();
 }
 
 int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
@@ -560,10 +561,16 @@ void KeyMacro::WriteMacro(void)
 		for(size_t jj=0;jj<m_Macros[ii].getSize();++jj)
 		{
 			MacroRecord& rec=*m_Macros[ii].getItem(jj);
-			if (!rec.IsSave())
-				continue;
-			rec.ClearSave();
-			MacroCfg->SetKeyMacro(GetAreaName(rec.Area()),rec.Name(),FlagsToString(rec.Flags()),rec.Code(),rec.Description());
+			if (rec.IsSave())
+			{
+				rec.ClearSave();
+				string Code = rec.Code();
+				RemoveExternalSpaces(Code);
+				if (Code.IsEmpty())
+					MacroCfg->DeleteKeyMacro(GetAreaName(rec.Area()), rec.Name());
+				else
+					MacroCfg->SetKeyMacro(GetAreaName(rec.Area()),rec.Name(),FlagsToString(rec.Flags()),Code,rec.Description());
+			}
 		}
 	}
 	MacroCfg->EndTransaction();
