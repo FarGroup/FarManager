@@ -295,28 +295,24 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			{
 				if (!*m_State.Peek())
 				{
-					for(int num=0; num<2; num++)
+					int Area, Index;
+					Index = GetIndex(&Area,Rec->IntKey,key,m_Mode,true,true);
+					if (Index != -1)
 					{
-						int mode = (num==0) ? m_Mode:MACRO_COMMON;
-						for(size_t ii=0;ii<m_Macros[mode].getSize();++ii)
+						MacroRecord* macro = m_Macros[Area].getItem(Index);
+						if (CheckAll(macro->Flags()) && (!macro->m_callback||macro->m_callback(macro->m_id,AKMFLAGS_NONE)))
 						{
-							MacroRecord* macro = m_Macros[mode].getItem(ii);
-							if(!(macro->Flags()&MFLAGS_DISABLEMACRO) && !StrCmpI(key,macro->Name()))
+							FarMacroValue values[1]={{FMVT_STRING,{0}}};
+							values[0].String=macro->Code();
+							OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
+							void* handle=CallPlugin(OPEN_MACROINIT,&info);
+							if (handle)
 							{
-								if (!CheckAll(macro->Flags()))
-									break;
-								FarMacroValue values[1]={{FMVT_STRING,{0}}};
-								values[0].String=macro->Code();
-								OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
-								void* handle=CallPlugin(OPEN_MACROINIT,&info);
-								if (handle)
-								{
-									//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"handle: %p\n",handle); fclose(log);}}
-									*m_State.Peek()=handle;
-									return true;
-								}
-								return false;
+								//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"handle: %p\n",handle); fclose(log);}}
+								*m_State.Peek()=handle;
+								return true;
 							}
+							return false;
 						}
 					}
 				}
@@ -476,8 +472,7 @@ int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool U
 		for (unsigned j=0; j<m_Macros[i].getSize(); j++)
 		{
 			MacroRecord* macro = m_Macros[i].getItem(j);
-			if (!StrCmpI(macro->Name(),strKey) && !(macro->Flags()&MFLAGS_DISABLEMACRO)
-					&& (!macro->m_callback||macro->m_callback(macro->m_id,AKMFLAGS_NONE)))
+			if (!StrCmpI(macro->Name(),strKey) && !(macro->Flags()&MFLAGS_DISABLEMACRO))
 			{
 				*area = i;
 				return j;

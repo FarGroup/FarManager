@@ -207,7 +207,8 @@ class KeyMacro
 		bool CheckWaitKeyFunc();
 		// Функция получения индекса нужного макроса в массиве
 		int GetIndex(int* area, int Key, string& strKey, int CheckMode, bool UseCommon=true, bool StrictKeys=false);
-		int GetIndex(int Key, string& strKey, int CheckMode, bool UseCommon=true, bool StrictKeys=false) { int dummy; return GetIndex(&dummy,Key,strKey,CheckMode,UseCommon,StrictKeys); }
+		int GetIndex(int Key, string& strKey, int CheckMode, bool UseCommon=true, bool StrictKeys=false)
+			{ int dummy; return GetIndex(&dummy,Key,strKey,CheckMode,UseCommon,StrictKeys); }
 		void RunStartMacro();
 		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);
