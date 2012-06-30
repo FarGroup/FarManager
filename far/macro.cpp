@@ -461,10 +461,15 @@ bool KeyMacro::CheckWaitKeyFunc()
 // Ret=-1 - не найден таковой.
 // если CheckMode=-1 - значит пофигу в каком режиме, т.е. первый попавшийся
 // StrictKeys=true - не пытаться подменить Левый Ctrl/Alt Правым (если Левый не нашли)
-// FIXME: parameters Key, StrictKeys.
+// FIXME: parameter StrictKeys.
 int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool UseCommon, bool StrictKeys)
 {
 	//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"GetIndex: %08x,%ls\n",Key,strKey.CPtr()); fclose(log);}}
+	const wchar_t *pKey=strKey;
+	string sTemp;
+	if (*pKey==0 && KeyToText(Key,sTemp))
+		pKey=sTemp;
+
 	int startindex = (CheckMode==-1) ? 0:CheckMode;
 	int endindex = (CheckMode==-1) ? MACRO_LAST:CheckMode+1;
 	for (int i=startindex; i<endindex; i++)
@@ -472,7 +477,7 @@ int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool U
 		for (unsigned j=0; j<m_Macros[i].getSize(); j++)
 		{
 			MacroRecord* macro = m_Macros[i].getItem(j);
-			if (!StrCmpI(macro->Name(),strKey) && !(macro->Flags()&MFLAGS_DISABLEMACRO))
+			if (!StrCmpI(macro->Name(),pKey) && !(macro->Flags()&MFLAGS_DISABLEMACRO))
 			{
 				*area = i;
 				return j;
