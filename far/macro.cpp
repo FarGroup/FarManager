@@ -264,7 +264,8 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 		return false;
 	//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"ProcessEvent: %08x\n",Rec->IntKey); fclose(log);}}
 	string key;
-	if (InputRecordToText(&Rec->Rec,key))
+	//if (InputRecordToText(&Rec->Rec,key))//FIXME: на голом Ctrl даёт код символа, а не текст.
+	if (KeyToText(Rec->IntKey,key))
 	{
 		bool ctrldot=(0==StrCmpI(key,L"Ctrl.")||0==StrCmpI(key,L"RCtrl."));
 		bool ctrlshiftdot=(0==StrCmpI(key,L"CtrlShift.")||0==StrCmpI(key,L"RCtrlShift."));
@@ -334,13 +335,13 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				FrameManager->ResetLastInputRecord();
 				FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
 
-				if (!m_RecCode.IsEmpty())
+				if (AssignRet && !m_RecCode.IsEmpty())
 				{
 					m_RecCode = L"far.Keys(\"" + m_RecCode + L"\")";
 					// добавим проверку на удаление
 					// если удаляем или был вызван диалог изменения, то не нужно выдавать диалог настройки.
 					//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
-					if (AssignRet && AssignRet!=2 && ctrlshiftdot)
+					if (AssignRet!=2 && ctrlshiftdot)
 					{
 						if (!GetMacroSettings(MacroKey,Flags))
 							AssignRet=0;
@@ -8146,21 +8147,23 @@ M1:
 				string strBufKey=Mac->Code();
 				InsertQuote(strBufKey);
 
-				unsigned __int64 DisFlags=Mac->Flags()&MFLAGS_DISABLEMACRO;
+				bool DisFlags = (Mac->Flags()&MFLAGS_DISABLEMACRO) != 0;
+				bool SetChange = MacroDlg->m_RecCode.IsEmpty();
 				LangString strBuf;
 				if (Area==MACRO_COMMON)
 				{
-					strBuf = MacroDlg->m_RecCode.IsEmpty() ? (DisFlags ? MMacroCommonDeleteAssign : MMacroCommonDeleteKey) : MMacroCommonReDefinedKey;
+					strBuf = SetChange ? (DisFlags?MMacroCommonDeleteAssign:MMacroCommonDeleteKey) : MMacroCommonReDefinedKey;
+					//"Общая макроклавиша '%1'     не активна              : будет удалена         : уже определена."
 				}
 				else
 				{
-					strBuf = MacroDlg->m_RecCode.IsEmpty() ? (DisFlags ? MMacroDeleteAssign : MMacroDeleteKey) : MMacroReDefinedKey;
+					strBuf = SetChange ? (DisFlags?MMacroDeleteAssign:MMacroDeleteKey) : MMacroReDefinedKey;
+					//"Макроклавиша '%1'           не активна        : будет удалена   : уже определена."
 				}
 				strBuf << strKeyText;
 
 				// проверим "а не совпадает ли всё?"
 				int Result=0;
-				bool SetChange=MacroDlg->m_RecCode.IsEmpty();
 				if (DisFlags || MacroDlg->m_RecCode != Mac->Code())
 				{
 					const wchar_t* NoKey=MSG(DisFlags && !SetChange?MMacroDisAnotherKey:MNo);
