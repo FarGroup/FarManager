@@ -1,7 +1,7 @@
 -- started: 2012-04-20
 
 local F = far.Flags
-F.OPEN_MACROINIT, F.OPEN_MACROSTEP, F.OPEN_MACROFINAL = 100,101,102
+F.OPEN_MACROINIT, F.OPEN_MACROSTEP, F.OPEN_MACROFINAL, F.OPEN_MACROPARSE = 100,101,102,103
 
 local co_create, co_yield, co_resume, co_status =
   coroutine.create, coroutine.yield, coroutine.resume, coroutine.status
@@ -9,6 +9,7 @@ local co_create, co_yield, co_resume, co_status =
 local ErrMsg = function(msg) far.Message(msg, "LuaMacro", nil, "w") end
 
 local macros = {}
+local LastError
 
 function far.Keys (str)
   assert(type(str) == "string", "arg. #1 to far.Keys must be string")
@@ -84,9 +85,30 @@ local function MacroFinal (handle)
   end
 end
 
+local function MacroParse (args)
+  local Text = args[1]
+  if Text and Text.Type==F.FMVT_STRING then
+    Text = Text.Value
+    local chunk, msg
+    if Text:sub(1,1) == "@" then return
+    else chunk, msg = loadstring(Text)
+    end
+    if chunk then
+      return
+    else
+      LastError = win.Utf8ToUtf16(msg).."\0\0" -- keep alive from gc
+      return LastError
+    end
+  else
+    LastError = win.Utf8ToUtf16("Invalid arguments.\0") -- keep alive from gc
+    return LastError
+  end
+end
+
 function export.Open (OpenFrom, Guid, Item)
   if     OpenFrom == F.OPEN_MACROINIT  then return MacroInit(Item)
   elseif OpenFrom == F.OPEN_MACROSTEP  then return MacroStep(Item)
   elseif OpenFrom == F.OPEN_MACROFINAL then return MacroFinal(Item)
+  elseif OpenFrom == F.OPEN_MACROPARSE then return MacroParse(Item)
   end
 end

@@ -247,7 +247,7 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
 	return 0;
 }
 
-const unsigned OPEN_MACROINIT=100, OPEN_MACROSTEP=101, OPEN_MACROFINAL=102;
+const unsigned OPEN_MACROINIT=100, OPEN_MACROSTEP=101, OPEN_MACROFINAL=102, OPEN_MACROPARSE=103;
 void* KeyMacro::CallPlugin(unsigned Type,void* Data)
 {
 	void* ptr;
@@ -497,12 +497,47 @@ void KeyMacro::RunStartMacro()
 
 int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
 {
-	return 0;
+	if (Area < 0 || Area >= MACRO_LAST)
+		return FALSE;
+
+	int Key = InputRecordToKey(&AKey);
+	string strKeyText;
+	if (!KeyToText(Key, strKeyText))
+		return FALSE;
+
+	FarMacroValue values[1]={{FMVT_STRING,{0}}};
+	values[0].String=PlainText;
+	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
+	void* handle=CallPlugin(OPEN_MACROPARSE,&info);
+	if (handle)
+		return FALSE;
+
+	MacroRecord macro(Area,Flags,strKeyText,PlainText,Description);
+	macro.m_guid = PluginId;
+	macro.m_id = Id;
+	macro.m_callback = Callback;
+	m_Macros[Area].addItem(macro);
+	return TRUE;
 }
 
 int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 {
-	return 0;
+	for (int i=0; i<MACRO_LAST; i++)
+	{
+		for (unsigned j=0; j<m_Macros[i].getSize(); j++)
+		{
+			MacroRecord* macro = m_Macros[i].getItem(j);
+			if (!(macro->m_flags&MFLAGS_DISABLEMACRO) && macro->m_id==Id && IsEqualGUID(macro->m_guid,PluginId))
+			{
+				macro->m_flags = MFLAGS_DISABLEMACRO;
+				macro->m_name.Clear();
+				macro->m_code.Clear();
+				macro->m_description.Clear();
+				return TRUE;
+			}
+		}
+	}
+	return FALSE;
 }
 
 int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
