@@ -1998,6 +1998,12 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					}
 
 #ifdef FAR_LUA
+					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
+					case MSSC_CHECK:
+					{
+						return Macro.ParseMacroString(PlainText->SequenceText,(PlainText->Flags&KMFLAGS_SILENTCHECK)!=0);
+					}
+
 #else
 					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 					case MSSC_EXEC:

@@ -500,16 +500,8 @@ int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum 
 	if (Area < 0 || Area >= MACRO_LAST)
 		return FALSE;
 
-	int Key = InputRecordToKey(&AKey);
 	string strKeyText;
-	if (!KeyToText(Key, strKeyText))
-		return FALSE;
-
-	FarMacroValue values[1]={{FMVT_STRING,{0}}};
-	values[0].String=PlainText;
-	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
-	void* handle=CallPlugin(OPEN_MACROPARSE,&info);
-	if (handle)
+	if (!(InputRecordToText(&AKey, strKeyText) && ParseMacroString(PlainText,true)))
 		return FALSE;
 
 	MacroRecord macro(Area,Flags,strKeyText,PlainText,Description);
@@ -564,6 +556,11 @@ bool KeyMacro::ReadMacro(MACROMODEAREA Area)
 		if (strSequence.IsEmpty())
 		{
 			//ErrorCount++; // Раскомментить, если не допускается пустой "Sequence"
+			continue;
+		}
+		if (!ParseMacroString(strSequence))
+		{
+			ErrorCount++;
 			continue;
 		}
 
@@ -823,9 +820,8 @@ intptr_t WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void*
 				LPCWSTR Sequence=(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MS_EDIT_SEQUENCE,0);
 				if (*Sequence)
 				{
-					MacroRecord mr;
 					KeyMacro *Macro=KMParam->Handle;
-					if (true) //FIXME: if (Macro->ParseMacroString(&mr,Sequence))
+					if (Macro->ParseMacroString(Sequence))
 					{
 						Macro->m_RecCode=Sequence;
 						Macro->m_RecDescription=(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MS_EDIT_DESCR,0);
@@ -971,6 +967,42 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	Flags|=MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected==2?0:
 	       (MacroSettingsDlg[MS_CHECKBOX_SELBLOCK].Selected==0?MFLAGS_EDITNOSELECTION:MFLAGS_EDITSELECTION);
 	return TRUE;
+}
+
+bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck)
+{
+	FarMacroValue values[1]={{FMVT_STRING,{0}}};
+	values[0].String=Sequence;
+	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
+	const wchar_t* ErrMsg = (const wchar_t*)CallPlugin(OPEN_MACROPARSE,&info);
+	if (ErrMsg==nullptr || onlyCheck)
+		return (ErrMsg==nullptr);
+
+#if 0
+	// TODO: ЭТОТ КУСОК ДОЛЖЕН ПРЕДПОЛАГАТЬ ВОЗМОЖНОСТЬ РЕЖИМА SILENT!
+	bool scrLocks = LockScr!=nullptr;
+	if (scrLocks) // если был - удалим
+	{
+		if (LockScr) delete LockScr;
+		LockScr=nullptr;
+	}
+
+	InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
+#endif
+
+	Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg,MSG(MOk));
+
+#if 0
+	InternalInput--;
+
+	if (scrLocks) // если стал - залочим
+	{
+		if (LockScr) delete LockScr;
+		LockScr=new LockScreen;
+	}
+#endif
+
+	return false;
 }
 
 #else
