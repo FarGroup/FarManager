@@ -144,6 +144,7 @@ class MacroRecord
 	public:
 		MacroRecord();
 		MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,string Name,string Code,string Description);
+		MacroRecord& operator= (const MacroRecord& src);
 	public:
 		MACROMODEAREA Area(void) {return m_area;}
 		MACROFLAGS_MFLAGS Flags(void) {return m_flags;}

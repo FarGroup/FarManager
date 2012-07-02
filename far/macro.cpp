@@ -142,6 +142,22 @@ MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,string Name,
 {
 }
 
+MacroRecord& MacroRecord::operator= (const MacroRecord& src)
+{
+	if (this != &src)
+	{
+		m_area = src.m_area;
+		m_flags = src.m_flags;
+		m_name = src.m_name;
+		m_code = src.m_code;
+		m_description = src.m_description;
+		m_guid = src.m_guid;
+		m_id = src.m_id;
+		m_callback = src.m_callback;
+	}
+	return *this;
+}
+
 KeyMacro::KeyMacro(): m_Mode(MACRO_SHELL),m_Recording(MACROMODE_NOMACRO),m_RecMode(MACRO_OTHER)
 {
 	m_State.Push(nullptr);
@@ -190,8 +206,13 @@ bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 {
 	int ErrCount=0;
 
+	for (int k=0; k<MACRO_LAST; k++)
+	{
+		m_Macros[k].Free();
+	}
+
 	if (Opt.Macro.DisableMacro&MDOL_ALL)
-		return FALSE;
+		return false;
 
 	int Areas[MACRO_LAST];
 
