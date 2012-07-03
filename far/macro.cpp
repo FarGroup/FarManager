@@ -357,16 +357,15 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				FrameManager->ResetLastInputRecord();
 				FrameManager->GetCurrentFrame()->Unlock(); // теперь можно :-)
 
-				if (AssignRet && !m_RecCode.IsEmpty())
+				if (AssignRet && AssignRet!=2 && !m_RecCode.IsEmpty())
 				{
 					m_RecCode = L"far.Keys(\"" + m_RecCode + L"\")";
 					// добавим проверку на удаление
 					// если удаляем или был вызван диалог изменения, то не нужно выдавать диалог настройки.
 					//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)
-					if (AssignRet!=2 && ctrlshiftdot)
+					if (ctrlshiftdot && !GetMacroSettings(MacroKey,Flags))
 					{
-						if (!GetMacroSettings(MacroKey,Flags))
-							AssignRet=0;
+						AssignRet=0;
 					}
 				}
 
@@ -8337,6 +8336,7 @@ M1:
 		}
 #else
 		// если УЖЕ есть такой макрос...
+		int Index;
 		if ((Index=MacroDlg->GetIndex((int)key,strKey,KMParam->Mode,true,true)) != -1)
 		{
 			MacroRecord *Mac=MacroDlg->MacroLIB+Index;
