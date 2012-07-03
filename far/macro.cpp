@@ -279,6 +279,21 @@ void* KeyMacro::CallPlugin(unsigned Type,void* Data)
 	return result?ptr:nullptr;
 }
 
+bool KeyMacro::InitMacroExecution(MacroRecord* macro)
+{
+	FarMacroValue values[1]={{FMVT_STRING,{0}}};
+	values[0].String=macro->Code();
+	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
+	void* handle=CallPlugin(OPEN_MACROINIT,&info);
+	if (handle)
+	{
+		//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"handle: %p\n",handle); fclose(log);}}
+		*m_State.Peek()=handle;
+		return true;
+	}
+	return false;
+}
+
 int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 {
 	if (Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !FrameManager->GetCurrentFrame()) //FIXME: избавиться от Rec->IntKey
@@ -323,17 +338,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 						MacroRecord* macro = m_Macros[Area].getItem(Index);
 						if (CheckAll(macro->Flags()) && (!macro->m_callback||macro->m_callback(macro->m_id,AKMFLAGS_NONE)))
 						{
-							FarMacroValue values[1]={{FMVT_STRING,{0}}};
-							values[0].String=macro->Code();
-							OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
-							void* handle=CallPlugin(OPEN_MACROINIT,&info);
-							if (handle)
-							{
-								//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"handle: %p\n",handle); fclose(log);}}
-								*m_State.Peek()=handle;
-								return true;
-							}
-							return false;
+							return InitMacroExecution(macro);
 						}
 					}
 				}
@@ -450,6 +455,17 @@ int KeyMacro::GetKey()
 		*m_State.Peek()=nullptr;
 		//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"-GetKey: %d\n",m_State.size()); fclose(log);}}
 	}
+
+	if (!IsExecuting() && !m_MacroQueue.Empty())
+	{
+		MacroRecord macro = *m_MacroQueue.First();
+		m_MacroQueue.Delete(m_MacroQueue.First());
+		if (InitMacroExecution(&macro))
+		{
+			return GetKey();
+		}
+	}
+
 	return 0;
 }
 
@@ -555,7 +571,15 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 
 int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
 {
-	return 0;
+	if (ParseMacroString(PlainText, onlyCheck))
+	{
+		string strKeyText;
+		KeyToText(AKey,strKeyText);
+		MacroRecord macro(MACRO_COMMON, Flags, strKeyText, PlainText, L"");
+		m_MacroQueue.Push(&macro);
+		return TRUE;
+	}
+	return FALSE;
 }
 
 bool KeyMacro::ReadMacro(MACROMODEAREA Area)

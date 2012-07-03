@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef FAR_LUA
 #include "array.hpp"
 #include "TStack.hpp"
+#include "DList.hpp"
 class Panel;
 
 enum MACRODISABLEONLOAD
@@ -160,6 +161,7 @@ class KeyMacro
 {
 	private:
 		TArray<MacroRecord> m_Macros[MACRO_LAST];
+		DList<MacroRecord> m_MacroQueue;
 		MACROMODEAREA m_Mode;
 		TStack<void*> m_State;
 		MACRORECORDANDEXECUTETYPE m_Recording;
@@ -175,6 +177,7 @@ class KeyMacro
 		static intptr_t WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 		static intptr_t WINAPI ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 		int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
+		bool InitMacroExecution(MacroRecord* macro);
 
 		BOOL CheckEditSelected(UINT64 CurFlags);
 		BOOL CheckInsidePlugin(UINT64 CurFlags);
