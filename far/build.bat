@@ -77,6 +77,7 @@ goto :EOF
   if /i "vc" == "%1" (set x=sln=%vcsln%) else (set x=dwarf=%dwarf%)
   echo build far-%2 %1 [clean=%clean% debug=%deb_b% %x%]
   echo.
+  for %%f in (copyright.inc far.rc) do if exist bootsrap\%%f del /q bootstrap\%%f >NUL
   call :set_%1 %2
 goto :EOF
 

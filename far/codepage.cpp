@@ -60,7 +60,8 @@ enum StandardCodePages
 	UTF16LE = 64,
 	UTF16BE = 128,
 	AllStandard = OEM | ANSI | UTF7 | UTF8 | UTF16BE | UTF16LE,
-	DefaultCP = 256
+	DefaultCP = 256,
+	AllowM2 = 512
 };
 
 // Источник вызова каллбака прохода по кодовым страницам
@@ -296,6 +297,8 @@ int GetCodePageInsertPosition(UINT codePage, int start, int length)
 	return start+length;
 }
 
+static bool allow_m2 = false;
+
 // Получаем информацию о кодовой странице
 bool GetCodePageInfo(UINT CodePage, CPINFOEX &CodePageInfoEx)
 {
@@ -315,7 +318,7 @@ bool GetCodePageInfo(UINT CodePage, CPINFOEX &CodePageInfoEx)
 
 	// BUBUG: Пока не поддерживаем многобайтовые кодовые страницы
 	if (CodePageInfoEx.MaxCharSize != 1)
-		return false;
+		return (allow_m2 ? (CodePageInfoEx.MaxCharSize == 2) : false);
 
 	return true;
 }
@@ -335,7 +338,7 @@ BOOL WINAPI EnumCodePagesProc(const wchar_t *lpwszCodePage)
 	if (!GetCodePageInfo(codePage, cpiex))
 		return CallbackCallSource == CodePageCheck ? FALSE : TRUE;
 
-	// Для функции провепки поддерживаемости кодовый страницы мы прошли все проверки и можем выходить
+	// Для функции проверки поддерживаемости кодовой страницы мы прошли все проверки и можем выходить
 	if (CallbackCallSource == CodePageCheck)
 	{
 		CodePageSupported = true;
@@ -419,6 +422,7 @@ void AddCodePages(DWORD codePages)
 	AddStandardCodePage(L"UTF-16 (Little endian)", CP_UNICODE, -1, (codePages & ::UTF16LE) != 0);
 	AddStandardCodePage(L"UTF-16 (Big endian)", CP_REVERSEBOM, -1, (codePages & ::UTF16BE) != 0);
 	// Получаем таблицы символов установленные в системе
+	allow_m2 = (codePages & ::AllowM2) != 0;
 	EnumSystemCodePages((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
 }
 
@@ -532,7 +536,7 @@ void ProcessSelected(bool select)
 }
 
 // Заполняем меню выбора таблиц символов
-void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool bShowAutoDetect=false)
+void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool bShowAutoDetect=false, bool bShowM2=false)
 {
 	UINT codePage = currentCodePage;
 
@@ -549,12 +553,12 @@ void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool b
 	CodePages->SetTitle(title);
 
 	// Добавляем таблицы символов
-	// BUBUG: Когда добавится поддержка UTF7 параметр bShowUTF7 нужно убрать отовсюду
 	AddCodePages(::OEM | ::ANSI
 		| (bShowUTF ? ::UTF8 : 0)
 		| (bShowUTF7 ? ::UTF7 : 0)
 		| (bShowUnicode ? (::UTF16BE | ::UTF16LE) : 0)
 		| (bShowAutoDetect ? ::Auto : 0)
+		| (bShowM2 ? ::AllowM2 : 0)
 	);
 	// Восстанавливаем оригинальню таблицу символов
 	currentCodePage = codePage;
@@ -749,7 +753,7 @@ UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowU
 }
 
 // Заполняем список таблицами символов
-UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll, bool allowDefault)
+UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowM2)
 {
 	CallbackCallSource = CodePagesFill;
 	// Устанавливаем переменные для доступа из каллбака
@@ -759,7 +763,7 @@ UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool 
 	favoriteCodePages = normalCodePages = 0;
 	selectedCodePages = !allowAuto && allowAll;
 	// Добавляем стндартные элементы в список
-	AddCodePages((allowDefault ? ::DefaultCP : 0) | (allowAuto ? ::Auto : 0) | (allowAll ? ::SearchAll : 0) | ::AllStandard);
+	AddCodePages((allowM2 ? ::AllowM2 : 0) | (allowDefault ? ::DefaultCP : 0) | (allowAuto ? ::Auto : 0) | (allowAll ? ::SearchAll : 0) | ::AllStandard);
 
 	if (CallbackCallSource == CodePagesFill)
 	{

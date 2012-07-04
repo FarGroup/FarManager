@@ -58,6 +58,6 @@ bool IsCodePageSupported(UINT CodePage);
 
 UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowUTF7=false, bool bShowAutoDetect=false);
 
-UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll, bool allowDefault=false);
+UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll, bool allowDefault=false, bool allowM2=false);
 
 wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length);

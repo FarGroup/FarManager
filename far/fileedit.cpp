@@ -92,7 +92,7 @@ intptr_t WINAPI hndOpenEditor(HANDLE hDlg, int msg, int param1, void* param2)
 	if (msg == DN_INITDIALOG)
 	{
 		int codepage = *(UINT*)param2;
-		FillCodePagesList(hDlg, ID_OE_CODEPAGE, codepage, true, false, true);
+		FillCodePagesList(hDlg, ID_OE_CODEPAGE, codepage, true, false, true, true);
 	}
 
 	if (msg == DN_CLOSE)
@@ -173,7 +173,7 @@ intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, int msg, int param1, void* param2)
 		case DN_INITDIALOG:
 		{
 			codepage=*(UINT*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
-			FillCodePagesList(hDlg, ID_SF_CODEPAGE, codepage, false, false);
+			FillCodePagesList(hDlg, ID_SF_CODEPAGE, codepage, false, false, false, true);
 
 			if (IsUnicodeOrUtfCodePage(codepage))
 			{
