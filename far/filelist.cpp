@@ -2715,7 +2715,8 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 			{
 				if (NetPath)
 				{
-					if (CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Network,OPEN_FILEPANEL,(void*)strCurDir.CPtr())) // NetWork Plugin :-)
+					string tmp = strCurDir;	// strCurDir can be overriten during next call
+					if (CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Network,OPEN_FILEPANEL,(void*)tmp.CPtr())) // NetWork Plugin :-)
 					{
 						return FALSE;
 					}
