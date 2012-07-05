@@ -101,6 +101,14 @@ void ControlObject::Init(int DirCount)
 	if (Opt.ShowKeyBar)
 		this->MainKeyBar->Show();
 
+	{//LoadPlugins() before panel updates
+		string strOldTitle;
+		Console.GetTitle(strOldTitle);
+		FrameManager->PluginCommit();
+		Plugins->LoadPlugins();
+		Console.SetTitle(strOldTitle);
+	}
+
 	Cp()->LeftPanel->Update(0);
 	Cp()->RightPanel->Update(0);
 
@@ -115,13 +123,7 @@ void ControlObject::Init(int DirCount)
 	Cp()->ActivePanel->GetCurDir(strStartCurDir);
 	FarChDir(strStartCurDir);
 	Cp()->ActivePanel->SetFocus();
-	{
-		string strOldTitle;
-		Console.GetTitle(strOldTitle);
-		FrameManager->PluginCommit();
-		Plugins->LoadPlugins();
-		Console.SetTitle(strOldTitle);
-	}
+
 	Macro.LoadMacros();
 	/*
 		FarChDir(StartCurDir);
