@@ -1353,7 +1353,7 @@ int ElevationMain(LPCWSTR guid, DWORD PID, bool UsePrivileges)
 			if(ParentProcess)
 			{
 				string strCurrentProcess, strParentProcess;
-				bool TrustedServer = apiGetModuleFileName(nullptr, strCurrentProcess) && apiGetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess, strParentProcess));
+				bool TrustedServer = apiGetModuleFileNameEx(GetCurrentProcess(), nullptr, strCurrentProcess) && apiGetModuleFileNameEx(ParentProcess, nullptr, strParentProcess) && (!StrCmpI(strCurrentProcess, strParentProcess));
 				CloseHandle(ParentProcess);
 				if(TrustedServer)
 				{
