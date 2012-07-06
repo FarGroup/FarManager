@@ -157,13 +157,28 @@ class MacroRecord
 		void ClearSave(void) {m_flags&=~MFLAGS_NEEDSAVEMACRO;}
 };
 
+class RunState
+{
+	friend class KeyMacro;
+	private:
+		void* m_handle;
+		MACROFLAGS_MFLAGS m_flags;
+	public:
+		RunState() : m_handle(nullptr),m_flags(0) {}
+		RunState(void* h,MACROFLAGS_MFLAGS f=0) : m_handle(h),m_flags(f) {}
+		RunState(const RunState& r) : m_handle(r.m_handle),m_flags(r.m_flags) {}
+		RunState& operator=(const RunState& r) { m_handle=r.m_handle; m_flags=r.m_flags; return *this; }
+		operator bool() { return m_handle != nullptr; }
+};
+
 class KeyMacro
 {
 	private:
 		TArray<MacroRecord> m_Macros[MACRO_LAST];
 		DList<MacroRecord> m_MacroQueue;
 		MACROMODEAREA m_Mode;
-		TStack<void*> m_State;
+		TStack<RunState> m_State;
+		RunState m_RunState;
 		MACRORECORDANDEXECUTETYPE m_Recording;
 		string m_RecCode;
 		string m_RecDescription;

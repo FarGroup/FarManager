@@ -169,12 +169,13 @@ KeyMacro::~KeyMacro()
 
 int KeyMacro::IsRecording()
 {
-	return (m_Recording==MACROMODE_NOMACRO)?false:true;
+	return m_Recording;
 }
 
 int KeyMacro::IsExecuting()
 {
-	return (m_State.size()>1||*m_State.Peek())?true:false;
+	return m_RunState ?	(m_RunState.m_flags&MFLAGS_NOSENDKEYSTOPLUGINS) ?
+		MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON:MACROMODE_NOMACRO;
 }
 
 int KeyMacro::IsExecutingLastKey()
@@ -265,7 +266,7 @@ void KeyMacro::SaveMacros()
 
 int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
 {
-	return 0;
+	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
 }
 
 const unsigned OPEN_MACROINIT=100, OPEN_MACROSTEP=101, OPEN_MACROFINAL=102, OPEN_MACROPARSE=103;
@@ -274,7 +275,7 @@ void* KeyMacro::CallPlugin(unsigned Type,void* Data)
 	void* ptr;
 	m_State.Push(nullptr);
 	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,Type,Data,&ptr);
-	void* dummy;
+	RunState dummy;
 	m_State.Pop(dummy);
 	return result?ptr:nullptr;
 }
@@ -288,7 +289,8 @@ bool KeyMacro::InitMacroExecution(MacroRecord* macro)
 	if (handle)
 	{
 		//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"handle: %p\n",handle); fclose(log);}}
-		*m_State.Peek()=handle;
+		m_RunState = RunState(handle,macro->m_flags);
+		*m_State.Peek()=m_RunState;
 		return true;
 	}
 	return false;
@@ -438,7 +440,7 @@ int KeyMacro::GetKey()
 	if(*m_State.Peek())
 	{
 		//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"+GetKey: %d\n",m_State.size()); fclose(log);}}
-		wchar_t* key=(wchar_t*)CallPlugin(OPEN_MACROSTEP,*m_State.Peek());
+		wchar_t* key=(wchar_t*)CallPlugin(OPEN_MACROSTEP,m_State.Peek()->m_handle);
 		if (key)
 		{
 			//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"result: %ls\n\n",key); fclose(log);}}
@@ -448,14 +450,15 @@ int KeyMacro::GetKey()
 			}
 			else
 			{
-				if (CallPlugin(OPEN_MACROFINAL,*m_State.Peek()));
+				if (CallPlugin(OPEN_MACROFINAL,m_State.Peek()->m_handle));
 			}
 		}
+		m_RunState=nullptr;
 		*m_State.Peek()=nullptr;
 		//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"-GetKey: %d\n",m_State.size()); fclose(log);}}
 	}
 
-	if (!IsExecuting() && !m_MacroQueue.Empty())
+	if (IsExecuting()==MACROMODE_NOMACRO && !m_MacroQueue.Empty())
 	{
 		MacroRecord macro = *m_MacroQueue.First();
 		m_MacroQueue.Delete(m_MacroQueue.First());
