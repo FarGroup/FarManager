@@ -488,7 +488,8 @@ int KeyMacro::GetKey()
 int KeyMacro::PeekKey()
 {
 	//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"PeekKey\n"); fclose(log);}}
-	return IsDsableOutput() ? 1:0; //FIXME: temporary hack!
+	// return IsDsableOutput() ? 1:0; //FIXME: temporary hack!
+	return 0;
 }
 
 int KeyMacro::GetAreaCode(const wchar_t *AreaName)
