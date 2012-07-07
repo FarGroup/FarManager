@@ -184,6 +184,7 @@ class KeyMacro
 		string m_RecDescription;
 		MACROMODEAREA m_RecMode;
 		MACROMODEAREA StartMode; //FIXME
+		class LockScreen* LockScr;
 	private:
 		bool ReadMacro(MACROMODEAREA Area);
 		void WriteMacro(void);
@@ -193,6 +194,7 @@ class KeyMacro
 		static intptr_t WINAPI ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 		int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 		bool InitMacroExecution(MacroRecord* macro);
+		bool UpdateLockScreen(bool recreate=false);
 
 		BOOL CheckEditSelected(UINT64 CurFlags);
 		BOOL CheckInsidePlugin(UINT64 CurFlags);

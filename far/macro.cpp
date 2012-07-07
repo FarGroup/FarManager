@@ -51,6 +51,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp" //???
 #include "keyboard.hpp"
 #include "keys.hpp" //FIXME
+#include "lockscrn.hpp"
 #include "manager.hpp"
 #include "message.hpp"
 #include "panel.hpp"
@@ -158,7 +159,7 @@ MacroRecord& MacroRecord::operator= (const MacroRecord& src)
 	return *this;
 }
 
-KeyMacro::KeyMacro(): m_Mode(MACRO_SHELL),m_Recording(MACROMODE_NOMACRO),m_RecMode(MACRO_OTHER)
+KeyMacro::KeyMacro(): m_Mode(MACRO_SHELL),m_Recording(MACROMODE_NOMACRO),m_RecMode(MACRO_OTHER),LockScr(nullptr)
 {
 	m_State.Push(nullptr);
 }
@@ -185,7 +186,7 @@ int KeyMacro::IsExecutingLastKey()
 
 int KeyMacro::IsDsableOutput()
 {
-	return false;
+	return m_RunState && (m_RunState.m_flags&MFLAGS_DISABLEOUTPUT);
 }
 
 bool KeyMacro::IsHistoryDisable(int TypeHistory)
@@ -289,6 +290,10 @@ bool KeyMacro::InitMacroExecution(MacroRecord* macro)
 	if (handle)
 	{
 		//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"handle: %p\n",handle); fclose(log);}}
+		if (macro->m_flags & MFLAGS_DISABLEOUTPUT)
+		{
+			UpdateLockScreen(true);
+		}
 		m_RunState = RunState(handle,macro->m_flags);
 		*m_State.Peek()=m_RunState;
 		return true;
@@ -315,6 +320,9 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				// Полиция 18
 				if (Opt.Policies.DisabledOptions&FFPOL_CREATEMACRO)
 					return false;
+
+				UpdateLockScreen(false);
+
 				// Где мы?
 				m_RecMode=(m_Mode==MACRO_SHELL&&!WaitInMainLoop)?MACRO_OTHER:m_Mode;
 				StartMode=m_RecMode;
@@ -453,6 +461,12 @@ int KeyMacro::GetKey()
 				if (CallPlugin(OPEN_MACROFINAL,m_State.Peek()->m_handle));
 			}
 		}
+		if (m_RunState.m_flags & MFLAGS_DISABLEOUTPUT)
+			UpdateLockScreen(false);
+
+		if (m_State.size()==1)
+			ScrBuf.RestoreMacroChar();
+
 		m_RunState=nullptr;
 		*m_State.Peek()=nullptr;
 		//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"-GetKey: %d\n",m_State.size()); fclose(log);}}
@@ -474,7 +488,7 @@ int KeyMacro::GetKey()
 int KeyMacro::PeekKey()
 {
 	//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"PeekKey\n"); fclose(log);}}
-	return 0;
+	return IsDsableOutput() ? 1:0; //FIXME: temporary hack!
 }
 
 int KeyMacro::GetAreaCode(const wchar_t *AreaName)
@@ -1025,15 +1039,10 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck)
 	if (ErrMsg==nullptr || onlyCheck)
 		return (ErrMsg==nullptr);
 
-#if 0
 	// TODO: ЭТОТ КУСОК ДОЛЖЕН ПРЕДПОЛАГАТЬ ВОЗМОЖНОСТЬ РЕЖИМА SILENT!
-	bool scrLocks = LockScr!=nullptr;
-	if (scrLocks) // если был - удалим
-	{
-		if (LockScr) delete LockScr;
-		LockScr=nullptr;
-	}
+	bool scrLocks = UpdateLockScreen(false);
 
+#if 0
 	InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
 #endif
 
@@ -1041,15 +1050,23 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck)
 
 #if 0
 	InternalInput--;
-
-	if (scrLocks) // если стал - залочим
-	{
-		if (LockScr) delete LockScr;
-		LockScr=new LockScreen;
-	}
 #endif
 
+	UpdateLockScreen(scrLocks);
 	return false;
+}
+
+bool KeyMacro::UpdateLockScreen(bool recreate)
+{
+	bool oldstate = (LockScr!=nullptr);
+	if (LockScr)
+	{
+		delete LockScr;
+		LockScr=nullptr;
+	}
+	if (recreate)
+		LockScr = new LockScreen;
+	return oldstate;
 }
 
 #else
