@@ -121,6 +121,7 @@ void ControlObject::Init(int DirCount)
 		Cp()->RightPanel->GoToFile(Opt.strRightCurFile);
 	}
 
+	FrameManager->InsertFrame(FPanels); // otherwise panels is empty
 	string strStartCurDir;
 	Cp()->ActivePanel->GetCurDir(strStartCurDir);
 	FarChDir(strStartCurDir);
