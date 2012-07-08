@@ -3,6 +3,39 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 08.07.2012 17:22:26 +0400 - build 2761
+
+1. correction of correction of 2757 (10x Denis)
+
+w17 08.07.2012 16:50:44 +0400 - build 2760
+
+1. correction of 2757 (from Shmuel)
+
+drkns 05.07.2012 21:37:04 +0200 - build 2759
+
+1. 0002132: If FAR has started at directory junction, privilege elevation does not work
+
+w17 05.07.2012 17:33:42 +0400 - build 2758
+
+1. M#2130: Active panel contents disappear when info panel on the other panel is opened.
+
+w17 05.07.2012 11:43:50 +0400 - build 2757
+
+1.M#2129: After FAR startup, ".." in the root of a network share is missing.
+
+w17 04.07.2012 12:16:35 +0400 - build 2756
+
+1. Editor can read and write files with 2-byte encodings (932, 936, ...)
+   Thus, there is no need to hide them in dialogs for ShiftF2/ShiftF4.
+
+svs 03.07.2012 13:37:10 +0400 - build 2755
+
+1. SQLite 3.7.13
+
+w17 03.07.2012 12:05:08 +0400 - build 2754
+
+1. M#2128: Folders containing more than 128 files at network share cannot be viewed
+
 w17 28.06.2012 17:15:04 +0400 - build 2753
 
 1. continuation of continuation of 2751
