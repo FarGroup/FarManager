@@ -175,6 +175,12 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 	{
 		File* Directory = static_cast<File*>(Handle->ObjectHandle);
 		Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, FALSE, nullptr, FALSE);
+		if (!Status && Handle->Extended)
+		{
+			Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, nullptr, FALSE);
+			if (Status)
+				Handle->Extended = false;
+		}
 	}
 
 	if(Status)

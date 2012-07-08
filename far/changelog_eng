@@ -3,6 +3,39 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 28.06.2012 17:15:04 +0400 - build 2753
+
+1. continuation of continuation of 2751
+
+w17 28.06.2012 16:02:33 +0400 - build 2752
+
+1. continuation of 2751
+
+w17 28.06.2012 14:21:36 +0400 - build 2751
+
+1. endless loop in editor replace reverse search
+   replacement of, say, ';' to ';+' never finished...
+
+
+w17 27.06.2012 21:44:29 +0400 - build 2750
+
+1. another correction of 2748 - avoid code duplication
+
+w17 27.06.2012 16:45:39 +0400 - build 2749
+
+1. correction of 2748
+
+w17 27.06.2012 15:43:12 +0400 - build 2748
+
+1. "Use case sensitive sort" is renamed
+   Better variants are welcome.
+
+2. M#0821: "Save file position" option also affects the storing of the current encoding
+   The encoding may be saved with no position (re)stored, the opposite is inaccessible.
+
+3. M#0011: wrap/wwrap/unwrap saved in history
+   Two more options in viewer settings for storing the encoding and word wrapping mode.
+
 drkns 24.06.2012 16:21:55 +0200 - build 2747
 
 1. Correction of 2738.

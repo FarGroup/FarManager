@@ -2091,7 +2091,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		int xpos[ARRAYSIZE(keys)] = {NameLen,     NameLen+3+(5-cp_len), NameLen+40-4};
 		int xlen[ARRAYSIZE(keys)] = {3,           cp_len,                          4};
 
-		for (int i = 0; i < ARRAYSIZE(keys); ++i)
+		for (int i = 0; i < static_cast<int>(ARRAYSIZE(keys)); ++i)
 		{
 			if (IntKeyState.MouseX >= xpos[i] && IntKeyState.MouseX < xpos[i]+xlen[i])
 			{
