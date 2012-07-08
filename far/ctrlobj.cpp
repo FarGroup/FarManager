@@ -101,7 +101,10 @@ void ControlObject::Init(int DirCount)
 	if (Opt.ShowKeyBar)
 		this->MainKeyBar->Show();
 
-	{//LoadPlugins() before panel updates
+	// LoadPlugins() before panel updates
+	//
+	FrameManager->InsertFrame(FPanels); // before PluginCommit()
+	{
 		string strOldTitle;
 		Console.GetTitle(strOldTitle);
 		FrameManager->PluginCommit();
@@ -118,7 +121,6 @@ void ControlObject::Init(int DirCount)
 		Cp()->RightPanel->GoToFile(Opt.strRightCurFile);
 	}
 
-	FrameManager->InsertFrame(FPanels);
 	string strStartCurDir;
 	Cp()->ActivePanel->GetCurDir(strStartCurDir);
 	FarChDir(strStartCurDir);
