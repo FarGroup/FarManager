@@ -470,6 +470,7 @@ void ShowTime(int ShowAlways)
 		return;
 	}
 
+OutputDebugString(L".");
 	if ((!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
 	        ScreenClockText[2].Char==L':') || ScreenSaverActive)
 		return;
@@ -488,6 +489,7 @@ void ShowTime(int ShowAlways)
 		         (ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
 		Text(strClockText);
 		//ScrBuf.Flush();
+OutputDebugString(L"+");
 	}
 
 	ProcessShowClock--;
