@@ -1459,7 +1459,20 @@ public:
 
 	PluginsCacheConfigDb()
 	{
-		Initialize(L"plugincache.db", true);
+		string namedb(L"plugincache"
+#if 1
+#if   defined(_M_IA64)
+			L"IA64"
+#elif defined(_M_AMD64)	|| defined(_M_X64)
+			L"64"
+#elif defined(_M_ARM)
+			L"ARM"
+#elif defined(_M_IX86)
+			L"32"
+#endif
+#endif
+			L".db");
+		Initialize(namedb.CPtr(), true);
 	}
 
 	bool BeginTransaction() { return SQLiteDb::BeginTransaction(); }

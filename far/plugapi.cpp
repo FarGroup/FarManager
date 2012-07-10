@@ -672,6 +672,20 @@ static DWORD NormalizeControlKeys(DWORD Value)
 	return result;
 }
 
+#ifdef FAR_LUA
+class MenuLock
+{
+	private:
+		Frame* frame;
+	public:
+		MenuLock(bool enable) {
+			frame = enable ? FrameManager->GetBottomFrame():nullptr;
+			if (frame) frame->Lock();
+		}
+		~MenuLock() { if (frame) frame->Unlock(); }
+};
+#endif
+
 int WINAPI apiMenuFn(
     const GUID* PluginId,
     const GUID* Id,
@@ -772,6 +786,9 @@ int WINAPI apiMenuFn(
 		if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
 			FarMenu.AssignHighlights(TRUE);
 
+#ifdef FAR_LUA
+		MenuLock menuLock(CtrlObject->Macro.IsExecuting()); //FIXME: dirty hack.
+#endif
 		FarMenu.SetTitle(Title);
 		FarMenu.Show();
 

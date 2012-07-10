@@ -1454,6 +1454,9 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_IDLE:
 		{
+			if (Opt.ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() && Opt.ViOpt.ShowTitleBar)
+				ShowTime(FALSE);
+
 			if (ViewFile.Opened() && update_check_period >= 0)
 			{
 				DWORD now_ticks = GetTickCount();
@@ -1506,10 +1509,6 @@ int Viewer::ProcessKey(int Key)
 					}
 				}
 			}
-
-			if (Opt.ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() && Opt.ViOpt.ShowTitleBar)
-				ShowTime(FALSE);
-
 			return TRUE;
 		}
 		case KEY_ALTBS:

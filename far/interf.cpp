@@ -478,16 +478,13 @@ void ShowTime(int ShowAlways)
 	lasttm=tm;
 	strClockText.Format(L"%02d:%02d",tm.wHour,tm.wMinute);
 	GotoXY(ScrX-4,0);
-	// Здесь хрень какая-то получается с ModType - все время не верное значение!
-	Frame *CurFrame=FrameManager->GetCurrentFrame();
 
+	Frame *CurFrame=FrameManager->GetTopModal();
 	if (CurFrame)
 	{
 		int ModType=CurFrame->GetType();
-		SetColor(ModType==MODALTYPE_VIEWER?COL_VIEWERCLOCK:
-		         (ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
+		SetColor(ModType==MODALTYPE_VIEWER?COL_VIEWERCLOCK:(ModType==MODALTYPE_EDITOR?COL_EDITORCLOCK:COL_CLOCK));
 		Text(strClockText);
-		//ScrBuf.Flush();
 	}
 
 	ProcessShowClock--;
