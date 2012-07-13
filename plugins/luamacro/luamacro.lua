@@ -14,6 +14,7 @@ local LastError
 function far.Keys (str)
   assert(type(str) == "string", "arg. #1 to far.Keys must be string")
   for key in str:gmatch("%S+") do co_yield(key) end
+  co_yield("last_key")
 end
 
 local PluginInfo = {

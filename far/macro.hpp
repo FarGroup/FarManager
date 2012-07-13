@@ -184,7 +184,8 @@ class KeyMacro
 		string m_RecDescription;
 		MACROMODEAREA m_RecMode;
 		MACROMODEAREA StartMode; //FIXME
-		class LockScreen* LockScr;
+		class LockScreen* m_LockScr;
+		string m_LastKey;
 	private:
 		bool ReadMacro(MACROMODEAREA Area);
 		void WriteMacro(void);

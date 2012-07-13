@@ -159,7 +159,7 @@ MacroRecord& MacroRecord::operator= (const MacroRecord& src)
 	return *this;
 }
 
-KeyMacro::KeyMacro(): m_Mode(MACRO_SHELL),m_Recording(MACROMODE_NOMACRO),m_RecMode(MACRO_OTHER),LockScr(nullptr)
+KeyMacro::KeyMacro(): m_Mode(MACRO_SHELL),m_Recording(MACROMODE_NOMACRO),m_RecMode(MACRO_OTHER),m_LockScr(nullptr)
 {
 	m_State.Push(nullptr);
 }
@@ -296,6 +296,7 @@ bool KeyMacro::InitMacroExecution(MacroRecord* macro)
 		}
 		m_RunState = RunState(handle,macro->m_flags);
 		*m_State.Peek()=m_RunState;
+		m_LastKey = L"first_key";
 		return true;
 	}
 	return false;
@@ -454,11 +455,13 @@ int KeyMacro::GetKey()
 			//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"result: %ls\n\n",key); fclose(log);}}
 			if(key[0])
 			{
-				return KeyNameToKey(key);
+				int iKey = KeyNameToKey(m_LastKey);
+				m_LastKey = key;
+				return iKey==-1 ? KEY_NONE:iKey;
 			}
 			else
 			{
-				if (CallPlugin(OPEN_MACROFINAL,m_State.Peek()->m_handle));
+				if (CallPlugin(OPEN_MACROFINAL,m_State.Peek()->m_handle)); //FIXME: process condition.
 			}
 		}
 		if (m_RunState.m_flags & MFLAGS_DISABLEOUTPUT)
@@ -487,9 +490,16 @@ int KeyMacro::GetKey()
 
 int KeyMacro::PeekKey()
 {
-	//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"PeekKey\n"); fclose(log);}}
-	// return IsDsableOutput() ? 1:0; //FIXME: temporary hack!
-	return 0;
+	//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"PeekKey\n"); fclose(log);}}
+	int key=0;
+	if (IsExecuting())
+	{
+		if (!StrCmp(m_LastKey, L"first_key")) //FIXME
+			return KEY_NONE;
+		if ((key=KeyNameToKey(m_LastKey)) == -1)
+			key=0;
+	}
+	return key;
 }
 
 int KeyMacro::GetAreaCode(const wchar_t *AreaName)
@@ -1059,14 +1069,14 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck)
 
 bool KeyMacro::UpdateLockScreen(bool recreate)
 {
-	bool oldstate = (LockScr!=nullptr);
-	if (LockScr)
+	bool oldstate = (m_LockScr!=nullptr);
+	if (m_LockScr)
 	{
-		delete LockScr;
-		LockScr=nullptr;
+		delete m_LockScr;
+		m_LockScr=nullptr;
 	}
 	if (recreate)
-		LockScr = new LockScreen;
+		m_LockScr = new LockScreen;
 	return oldstate;
 }
 
