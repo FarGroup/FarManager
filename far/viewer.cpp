@@ -239,7 +239,6 @@ void Viewer::KeepInitParameters()
 	Opt.ViOpt.ViewerIsWrap=VM.Wrap != 0;
 	Opt.ViOpt.ViewerWrap=VM.WordWrap != 0;
 	Opt.ViOpt.SearchRegexp=LastSearchRegexp;
-	//InitHex=VM.Hex;
 }
 
 

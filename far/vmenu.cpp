@@ -1395,16 +1395,22 @@ int VMenu::ProcessKey(int Key)
 		case KEY_LEFT:         case KEY_NUMPAD4:
 		case KEY_UP:           case KEY_NUMPAD8:
 		{
-			SetSelectPos(SelectPos-1,-1);
-			ShowMenu(true);
+			if (SelectPos != 0 || !IsRepeatedKey())
+			{
+				SetSelectPos(SelectPos-1,-1);
+				ShowMenu(true);
+			}
 			break;
 		}
 
 		case KEY_RIGHT:        case KEY_NUMPAD6:
 		case KEY_DOWN:         case KEY_NUMPAD2:
 		{
-			SetSelectPos(SelectPos+1,1);
-			ShowMenu(true);
+			if (SelectPos+1 != ItemCount || !IsRepeatedKey())
+			{
+				SetSelectPos(SelectPos+1,1);
+				ShowMenu(true);
+			}
 			break;
 		}
 
