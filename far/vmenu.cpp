@@ -230,7 +230,7 @@ void VMenu::UpdateItemFlags(int Pos, UINT64 NewFlags)
 }
 
 // переместить курсор c учётом пунктов которые не могу получать фокус
-int VMenu::SetSelectPos(int Pos, int Direct)
+int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 {
 	CriticalSectionLock Lock(CS);
 
@@ -278,6 +278,9 @@ int VMenu::SetSelectPos(int Pos, int Direct)
 		if (I>=ItemCount) // круг пройден - ничего не найдено :-(
 			Pass++;
 	}
+
+	if (stop_on_edge && CheckFlags(VMENU_WRAPMODE) && ((Direct>0 && Pos<SelectPos) || (Direct<0 && Pos>SelectPos)))
+		return SelectPos;
 
 	UpdateItemFlags(Pos, Item[Pos]->Flags|LIF_SELECTED);
 
@@ -1395,22 +1398,16 @@ int VMenu::ProcessKey(int Key)
 		case KEY_LEFT:         case KEY_NUMPAD4:
 		case KEY_UP:           case KEY_NUMPAD8:
 		{
-			if (SelectPos != 0 || !IsRepeatedKey())
-			{
-				SetSelectPos(SelectPos-1,-1);
-				ShowMenu(true);
-			}
+			SetSelectPos(SelectPos-1,-1,IsRepeatedKey());
+			ShowMenu(true);
 			break;
 		}
 
 		case KEY_RIGHT:        case KEY_NUMPAD6:
 		case KEY_DOWN:         case KEY_NUMPAD2:
 		{
-			if (SelectPos+1 != ItemCount || !IsRepeatedKey())
-			{
-				SetSelectPos(SelectPos+1,1);
-				ShowMenu(true);
-			}
+			SetSelectPos(SelectPos+1,1,IsRepeatedKey());
+			ShowMenu(true);
 			break;
 		}
 
