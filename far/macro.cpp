@@ -555,8 +555,29 @@ int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool U
 	return -1;
 }
 
+// Функция, запускающая макросы при старте ФАРа
 void KeyMacro::RunStartMacro()
 {
+	if ((Opt.Macro.DisableMacro&MDOL_ALL) || (Opt.Macro.DisableMacro&MDOL_AUTOSTART))
+		return;
+
+	if (!CtrlObject || !CtrlObject->Cp() || !CtrlObject->Cp()->ActivePanel || Opt.OnlyEditorViewerUsed || !CtrlObject->Plugins->IsPluginsLoaded())
+		return;
+
+	static int IsRunStartMacro=FALSE;
+	if (IsRunStartMacro)
+		return;
+
+	for (unsigned j=0; j<m_Macros[MACRO_SHELL].getSize(); j++)
+	{
+		MacroRecord* macro = m_Macros[MACRO_SHELL].getItem(j);
+		MACROFLAGS_MFLAGS flags = macro->Flags();
+		if (!(flags&MFLAGS_DISABLEMACRO) && (flags&MFLAGS_RUNAFTERFARSTART) && CheckAll(flags))
+		{
+			PostNewMacro(macro->Code(), flags&~MFLAGS_DISABLEOUTPUT); //FIXME
+		}
+	}
+	IsRunStartMacro=TRUE;
 }
 
 int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)

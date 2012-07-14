@@ -16,20 +16,15 @@ Spring
 Что работает
 -------------
 * Импорт макросов посредством команды far /import.
-* Запись макросов через `Ctrl.` или `CtrlShift.` (в диалоге работают все поля,
-  кроме "Execute after FAR start").
+* Запись макросов через `Ctrl.` или `CtrlShift.`.
 * Макросы могут использовать функции и библиотеки Lua и LuaFAR.
-* API `MacroControl` для плагинов: `MCTL_LOADALL`, `MCTL_SAVEALL`,
-  `MCTL_SENDSTRING`, `MCTL_GETAREA`, `MCTL_ADDMACRO`, `MCTL_DELMACRO`.
-  Эти функции доступны также из самих скриптов, в виде `far.MacroLoadAll`
-  и т.д. (см. мануал LuaFAR).
+* API `MacroControl` для плагинов: все операции, кроме `MCTL_GETLASTERROR`.
 
 Что не работает
 ----------------
 * Нет функций макроязыка (ушли вместе с ним). Часть этих функций, под другими
   названиями, с другими синтаксисом и семантикой, есть в Lua и LuaFAR, другая
   часть - в планах на написание.
-* API `MacroControl` для плагинов: `MCTL_GETLASTERROR`, `MCTL_GETSTATE`.
 
 Что отличается
 ---------------
