@@ -489,7 +489,7 @@ FileSize(0),
 	AllocSize(0),
 	ProcessedSize(0),
 	CurrentChunk(nullptr),
-	ChunkSize(ChunkSize),
+	ChunkSize(0),
 	Sparse(false)
 {
 	SingleChunk.Offset = 0;
@@ -566,7 +566,8 @@ bool FileWalker::Step()
 		if(NewOffset < FileSize)
 		{
 			CurrentChunk->Offset = NewOffset;
-			CurrentChunk->Size = Min(static_cast<DWORD>(FileSize - NewOffset), ChunkSize);
+			UINT64 rest = FileSize - NewOffset;
+			CurrentChunk->Size = (rest>=ChunkSize)?ChunkSize:rest;
 			ProcessedSize += CurrentChunk->Size;
 			Result = true;
 		}

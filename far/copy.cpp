@@ -3038,7 +3038,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 	DWORD flags_attrs=0;
 
 	bool CopySparse=false;
-	
+
 	if (!(Flags&FCOPY_COPYTONUL))
 	{
 		//if (DestAttr!=INVALID_FILE_ATTRIBUTES && !Append) //вот это портит копирование поверх хардлинков
