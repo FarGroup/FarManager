@@ -59,6 +59,21 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "syslog.hpp"
 
+void SZLOG (const char *fmt, ...)
+{
+	FILE* log=fopen("c:\\lua.log","at");
+	if (log)
+	{
+		va_list argp;
+		fprintf(log, "FAR: ");
+		va_start(argp, fmt);
+		vfprintf(log, fmt, argp);
+		va_end(argp);
+		fprintf(log, "\n");
+		fclose(log);
+	}
+}
+
 // для диалога назначения клавиши
 struct DlgParam
 {
@@ -502,14 +517,56 @@ int KeyMacro::PeekKey()
 	return key;
 }
 
+// получить код моды по имени
 int KeyMacro::GetAreaCode(const wchar_t *AreaName)
 {
-	return 0;
+	for (int i=MACRO_OTHER; i < MACRO_LAST; i++)
+		if (!StrCmpI(MKeywordsArea[i].Name,AreaName))
+			return i;
+
+	return -4; //FIXME: MACRO_FUNCS-1;
 }
 
-int KeyMacro::GetMacroKeyInfo(bool FromDB,int Mode,int Pos,string &strKeyName,string &strDescription)
+int KeyMacro::GetMacroKeyInfo(bool FromDB, int Mode, int Pos, string &strKeyName, string &strDescription)
 {
-	return 0;
+	const int MACRO_FUNCS = -3;
+	if (Mode >= MACRO_FUNCS && Mode < MACRO_LAST)
+	{
+		if (FromDB)
+		{
+			if (Mode >= MACRO_OTHER)
+			{
+				// TODO
+				return Pos+1;
+			}
+			else if (Mode == MACRO_FUNCS)
+			{
+				// TODO: MACRO_FUNCS
+				return -1;
+			}
+			else
+			{
+				// TODO
+				return Pos+1;
+			}
+		}
+		else
+		{
+			if (Mode >= MACRO_OTHER)
+			{
+				int Len=CtrlObject->Macro.m_Macros[Mode].getSize();
+				if (Len && Pos < Len)
+				{
+					MacroRecord *MPtr=CtrlObject->Macro.m_Macros[Mode].getItem(Pos);
+					strKeyName=MPtr->Name();
+					strDescription=NullToEmpty(MPtr->Description());
+					return Pos+1;
+				}
+			}
+		}
+	}
+
+	return -1;
 }
 
 void KeyMacro::SendDropProcess()
@@ -558,10 +615,10 @@ int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool U
 // Функция, запускающая макросы при старте ФАРа
 void KeyMacro::RunStartMacro()
 {
-	if ((Opt.Macro.DisableMacro&MDOL_ALL) || (Opt.Macro.DisableMacro&MDOL_AUTOSTART))
+	if ((Opt.Macro.DisableMacro&MDOL_ALL) || (Opt.Macro.DisableMacro&MDOL_AUTOSTART) || Opt.OnlyEditorViewerUsed)
 		return;
 
-	if (!CtrlObject || !CtrlObject->Cp() || !CtrlObject->Cp()->ActivePanel || Opt.OnlyEditorViewerUsed || !CtrlObject->Plugins->IsPluginsLoaded())
+	if (!CtrlObject || !CtrlObject->Cp() || !CtrlObject->Cp()->ActivePanel || !CtrlObject->Plugins->IsPluginsLoaded())
 		return;
 
 	static int IsRunStartMacro=FALSE;
