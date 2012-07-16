@@ -1461,13 +1461,13 @@ public:
 	{
 		string namedb(L"plugincache"
 #if 1
-#if   defined(_M_IA64)
+#if   defined(_M_IA64) || defined(__ia64)|| defined(__ia64__)
 			L"IA64"
-#elif defined(_M_AMD64)	|| defined(_M_X64)
+#elif defined(_M_AMD64)|| defined(_M_X64)|| defined(__amd64)|| defined(__amd64__)|| defined(__x86_64)|| defined(__x86_64__)
 			L"64"
-#elif defined(_M_ARM)
+#elif defined(_M_ARM)  || defined(__arm) || defined(__arm__)|| defined(_ARM_)
 			L"ARM"
-#elif defined(_M_IX86)
+#elif defined(_M_IX86) || defined(__i386)|| defined(__i386__)
 			L"32"
 #endif
 #endif

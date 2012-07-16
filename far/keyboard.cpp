@@ -630,6 +630,14 @@ void ReloadEnvironment()
 	}
 }
 
+static bool was_repeat = false;
+static WORD last_pressed_keycode = (WORD)-1;
+
+bool IsRepeatedKey()
+{
+	return was_repeat;
+}
+
 #if defined(MANTIS_0001687)
 static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool AllowSynchro);
 
@@ -823,6 +831,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				INPUT_RECORD pinp;
 				size_t nread;
 				Console.ReadInput(&pinp, 1, nread);
+				was_repeat = false;
+				last_pressed_keycode = (WORD)-1;
 				continue;
 			}
 
@@ -967,32 +977,19 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 	clock_t CurClock=clock();
 
-	if (rec->EventType==FOCUS_EVENT)
-	{
-		/* $ 28.04.2001 VVM
-		  + Ќе только обработаем сами смену фокуса, но и передадим дальше */
-		IntKeyState.ShiftPressed=RightShiftPressedLast=ShiftPressedLast=FALSE;
-		IntKeyState.CtrlPressed=CtrlPressedLast=RightCtrlPressedLast=FALSE;
-		IntKeyState.AltPressed=AltPressedLast=RightAltPressedLast=FALSE;
-		IntKeyState.MouseButtonState=0;
-		ShiftState=FALSE;
-		PressedLastTime=0;
-		Console.ReadInput(rec, 1, ReadCount);
-		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
-		//ClearStruct(*rec);
-		//rec->EventType=KEY_EVENT;
-		//чтоб решить баг винды привод€щий к по€влению скролов и т.п. после потери фокуса
-		if (CalcKey == KEY_GOTFOCUS)
-			RestoreConsoleWindowRect();
-		else
-			SaveConsoleWindowRect();
-
-		return CalcKey;
-	}
-
-
 	if (rec->EventType==KEY_EVENT)
 	{
+		if (!rec->Event.KeyEvent.bKeyDown)
+		{
+			was_repeat = false;
+			last_pressed_keycode = (WORD)-1;
+		}
+		else
+		{
+			was_repeat = (last_pressed_keycode == rec->Event.KeyEvent.wVirtualKeyCode);
+			last_pressed_keycode = rec->Event.KeyEvent.wVirtualKeyCode;
+		}
+
 		/* коррекци€ шифта, т.к.
 		NumLock=ON Shift-Numpad1
 		   Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
@@ -1076,6 +1073,34 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			IsKeyRCASPressed=FALSE;
 			return KEY_RCTRLALTSHIFTRELEASE;
 		}
+	}
+	else
+	{
+		was_repeat = false;
+		last_pressed_keycode = (WORD)-1;
+	}
+
+	if (rec->EventType==FOCUS_EVENT)
+	{
+		/* $ 28.04.2001 VVM
+		  + Ќе только обработаем сами смену фокуса, но и передадим дальше */
+		IntKeyState.ShiftPressed=RightShiftPressedLast=ShiftPressedLast=FALSE;
+		IntKeyState.CtrlPressed=CtrlPressedLast=RightCtrlPressedLast=FALSE;
+		IntKeyState.AltPressed=AltPressedLast=RightAltPressedLast=FALSE;
+		IntKeyState.MouseButtonState=0;
+		ShiftState=FALSE;
+		PressedLastTime=0;
+		Console.ReadInput(rec, 1, ReadCount);
+		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
+		//ClearStruct(*rec);
+		//rec->EventType=KEY_EVENT;
+		//чтоб решить баг винды привод€щий к по€влению скролов и т.п. после потери фокуса
+		if (CalcKey == KEY_GOTFOCUS)
+			RestoreConsoleWindowRect();
+		else
+			SaveConsoleWindowRect();
+
+		return CalcKey;
 	}
 
 	//_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));

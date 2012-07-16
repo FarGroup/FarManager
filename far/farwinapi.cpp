@@ -175,7 +175,7 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 	{
 		File* Directory = static_cast<File*>(Handle->ObjectHandle);
 		Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, FALSE, nullptr, FALSE);
-		if (!Status && Handle->Extended)
+		if (!Status && Handle->Extended && GetLastError() == ERROR_INVALID_LEVEL)
 		{
 			Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, nullptr, FALSE);
 			if (Status)
@@ -489,7 +489,7 @@ FileSize(0),
 	AllocSize(0),
 	ProcessedSize(0),
 	CurrentChunk(nullptr),
-	ChunkSize(ChunkSize),
+	ChunkSize(0),
 	Sparse(false)
 {
 	SingleChunk.Offset = 0;
@@ -566,7 +566,8 @@ bool FileWalker::Step()
 		if(NewOffset < FileSize)
 		{
 			CurrentChunk->Offset = NewOffset;
-			CurrentChunk->Size = Min(static_cast<DWORD>(FileSize - NewOffset), ChunkSize);
+			UINT64 rest = FileSize - NewOffset;
+			CurrentChunk->Size = (rest>=ChunkSize)?ChunkSize:rest;
 			ProcessedSize += CurrentChunk->Size;
 			Result = true;
 		}

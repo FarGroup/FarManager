@@ -346,7 +346,7 @@ class VMenu: public Modal
 		int  GetSelectPos() { return SelectPos; }
 		int  GetSelectPos(struct FarListPos *ListPos);
 		int  SetSelectPos(struct FarListPos *ListPos, int Direct=0);
-		int  SetSelectPos(int Pos, int Direct);
+		int  SetSelectPos(int Pos, int Direct, bool stop_on_edge=false);
 		int  GetCheck(int Position=-1);
 		void SetCheck(int Check, int Position=-1);
 
