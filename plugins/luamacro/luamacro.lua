@@ -11,10 +11,17 @@ local ErrMsg = function(msg) far.Message(msg, "LuaMacro", nil, "w") end
 local macros = {}
 local LastError
 
+local function LOG (fmt, ...)
+  local log = io.open("c:\\lua.log","at")
+  if log then
+    log:write("LUA: ", fmt:format(...), "\n")
+    log:close()
+  end
+end
+
 function far.Keys (str)
   assert(type(str) == "string", "arg. #1 to far.Keys must be string")
   for key in str:gmatch("%S+") do co_yield(key) end
-  co_yield("last_key")
 end
 
 local PluginInfo = {

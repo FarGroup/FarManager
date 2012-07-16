@@ -290,7 +290,12 @@ void* KeyMacro::CallPlugin(unsigned Type,void* Data)
 {
 	void* ptr;
 	m_State.Push(nullptr);
+
+	int lockCount=ScrBuf.GetLockCount();
+	ScrBuf.SetLockCount(0);
 	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,Type,Data,&ptr);
+	ScrBuf.SetLockCount(lockCount);
+
 	RunState dummy;
 	m_State.Pop(dummy);
 	return result?ptr:nullptr;
@@ -305,10 +310,6 @@ bool KeyMacro::InitMacroExecution(MacroRecord* macro)
 	if (handle)
 	{
 		//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"handle: %p\n",handle); fclose(log);}}
-		if (macro->m_flags & MFLAGS_DISABLEOUTPUT)
-		{
-			UpdateLockScreen(true);
-		}
 		m_RunState = RunState(handle,macro->m_flags);
 		*m_State.Peek()=m_RunState;
 		m_LastKey = L"first_key";
@@ -470,7 +471,11 @@ int KeyMacro::GetKey()
 			//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"result: %ls\n\n",key); fclose(log);}}
 			if(key[0])
 			{
-				int iKey = KeyNameToKey(m_LastKey);
+				if ((m_RunState.m_flags&MFLAGS_DISABLEOUTPUT) && ScrBuf.GetLockCount()==0)
+				{
+					ScrBuf.Lock();
+				}
+				int iKey = KeyNameToKey(key);
 				m_LastKey = key;
 				return iKey==-1 ? KEY_NONE:iKey;
 			}
@@ -480,7 +485,7 @@ int KeyMacro::GetKey()
 			}
 		}
 		if (m_RunState.m_flags & MFLAGS_DISABLEOUTPUT)
-			UpdateLockScreen(false);
+			ScrBuf.Unlock();
 
 		if (m_State.size()==1)
 			ScrBuf.RestoreMacroChar();
