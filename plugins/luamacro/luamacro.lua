@@ -94,22 +94,16 @@ local function MacroFinal (handle)
 end
 
 local function MacroParse (args)
-  local Text = args[1]
-  if Text and Text.Type==F.FMVT_STRING then
-    Text = Text.Value
-    local chunk, msg
-    if Text:sub(1,1) == "@" then return
-    else chunk, msg = loadstring(Text)
-    end
-    if chunk then
-      return
-    else
+  local text, onlyCheck, title, buttons = args[1], args[2], args[3], args[4]
+  if text.Value:sub(1,1) ~= "@" then
+    local chunk, msg = loadstring(text.Value)
+    if not chunk then
+      if onlyCheck.Value == 0 then
+        far.Message(msg, title.Value, buttons.Value, "lw")
+      end
       LastError = win.Utf8ToUtf16(msg).."\0\0" -- keep alive from gc
       return LastError
     end
-  else
-    LastError = win.Utf8ToUtf16("Invalid arguments.\0") -- keep alive from gc
-    return LastError
   end
 end
 

@@ -1126,28 +1126,20 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 
 bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck)
 {
-	FarMacroValue values[1]={{FMVT_STRING,{0}}};
+	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
+	// не умеет сворачивать строки и обрезает сообщение.
+	FarMacroValue values[4]={{FMVT_STRING,{0}},{FMVT_INTEGER,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
 	values[0].String=Sequence;
+	values[1].Integer=onlyCheck?1:0;
+	values[2].String=MSG(MMacroPErrorTitle);
+	values[3].String=MSG(MOk);
 	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
 	const wchar_t* ErrMsg = (const wchar_t*)CallPlugin(OPEN_MACROPARSE,&info);
-	if (ErrMsg==nullptr || onlyCheck)
-		return (ErrMsg==nullptr);
-
-	// TODO: ЭТОТ КУСОК ДОЛЖЕН ПРЕДПОЛАГАТЬ ВОЗМОЖНОСТЬ РЕЖИМА SILENT!
-	bool scrLocks = UpdateLockScreen(false);
-
-#if 0
-	InternalInput++; // InternalInput - ограничитель того, чтобы макрос не продолжал свое исполнение
-#endif
-
-	Message(MSG_WARNING|MSG_LEFTALIGN,1,MSG(MMacroPErrorTitle),ErrMsg,MSG(MOk));
-
-#if 0
-	InternalInput--;
-#endif
-
-	UpdateLockScreen(scrLocks);
-	return false;
+	if (ErrMsg && !onlyCheck)
+	{
+		FrameManager->RefreshFrame(); // Нужно после вывода сообщения плагином. Иначе панели не перерисовываются.
+	}
+	return !ErrMsg;
 }
 
 bool KeyMacro::UpdateLockScreen(bool recreate)
