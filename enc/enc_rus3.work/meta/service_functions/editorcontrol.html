@@ -56,7 +56,7 @@ INT_PTR WINAPI EditorControl(
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETEBLOCK">ECTL_DELETEBLOCK</a></td>
     <td class="cont" width="60%">Удалить блок в редакторе.<br>
     <var>Param1</var> и <var>Param2</var> должны быть <code>NULL</code>.<br>
-    Функция вернёт <code>TRUE</code> в случае удачного удаления блока и <code>FALSE</code>, если редактор заблокирован (пользователь нажал <kbd>Ctrl-L</kbd>) или нет выделенного блока.</td></tr>
+    Функция вернёт <code>TRUE</code> в случае удачного удаления блока и <code>FALSE</code>, если редактор заблокирован (пользователь нажал <kbd>Ctrl</kbd>+<kbd>L</kbd>) или нет выделенного блока.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELCOLOR">ECTL_DELCOLOR</a></td>
     <td class="cont" width="60%">Удалить цветовую область в строке. Эта команда может быть вызвана несколько раз для одной и той же строки.<br>
@@ -65,7 +65,7 @@ INT_PTR WINAPI EditorControl(
     Если указанная строка отсутствует, то возвращается <code>FALSE</code>, иначе <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETECHAR">ECTL_DELETECHAR</a></td>
-    <td class="cont" width="60%">Удалить символ под курсором.<br> 
+    <td class="cont" width="60%">Удалить символ под курсором.<br>
     <var>Param1</var> и <var>Param2</var> должны быть <code>NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="ECTL_DELETESTACKBOOKMARK">ECTL_DELETESTACKBOOKMARK</a></td>

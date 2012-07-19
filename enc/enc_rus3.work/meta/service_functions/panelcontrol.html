@@ -64,7 +64,7 @@ INT_PTR WINAPI PanelControl(
     Far Manager вызывает экспортируемую функцию <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a> того плагина, которому принадлежит панель.
     Far Manager содержит защиту от бесконечной рекурсии: в случае, когда плагин из обработчика <code>GetOpenPanelInfoW()</code> тоже вызывает
     <code>Info.PanelControl(...,FCTL_GETPANELINFO)</code>, повторного вложенного вызова <code>GetOpenPanelInfoW()</code> не произойдёт.
-    <p>В некоторых случаях (пример: поиск в архивах по <kbd>Alt-F7</kbd>) физически панель плагина не создаётся, поэтому необходимо
+    <p>В некоторых случаях (пример: поиск в архивах по <kbd>Alt</kbd>+<kbd>F7</kbd>) физически панель плагина не создаётся, поэтому необходимо
     обязательно проверять код возврата у <dfn>PanelControl</dfn>, чтобы не упасть в самый не подходящий момент, выполнив работу для панели, которой нет.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_GETCOLUMNTYPES">FCTL_GETCOLUMNTYPES</a></td>
@@ -169,7 +169,7 @@ for(int J=0; J < PInfo.ItemsNumber; J++)
     <var>Param1</var> = 0 (не используется). <br>
     <var>Param2</var> указывает на структуру типа <a href="../structures/farpaneldirectory.html">FarPanelDirectory</a>.<br>
     Если плагин поддерживает свою собственную панель, он будет закрыт после выполнения этой команды.
-    <p>После выполнения этой функции пропадёт выделение с элементов каталога и его будет невозможно восстановить (комбинация <kbd>Ctrl-M</kbd>) по желанию
+    <p>После выполнения этой функции пропадёт выделение с элементов каталога и его будет невозможно восстановить (комбинация <kbd>Ctrl</kbd>+<kbd>M</kbd>) по желанию
     пользователя, даже если новый каталог равен старому.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_BEGINSELECTION">FCTL_BEGINSELECTION</a><br>

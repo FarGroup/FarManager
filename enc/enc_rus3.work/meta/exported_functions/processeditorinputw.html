@@ -35,7 +35,7 @@ int WINAPI ProcessEditorInputW(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Если плагин должен передать управление в редактор Far Manager`а, то верните 0. 
+Если плагин должен передать управление в редактор Far Manager`а, то верните 0.
 Если плагин в полной мере отработал событие или вы хотите, чтобы Far Manager игнорировал это событие, то верните 1.
 </div>
 
@@ -48,11 +48,11 @@ int WINAPI ProcessEditorInputW(
 <li>Плагин может вызвать команду <a href="../service_functions/editorcontrol.html">EditorControl</a>
     из этой функции, но будьте осторожны, когда вызываете здесь <a href="../service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>,
     потому что эта команда вызывает функцию <dfn>ProcessEditorInputW</dfn> снова. Таким образом, плагин должен сам предотвратить такой самовызов, или он впадёт в бесконечный цикл.</li>
-<li>Плагину не приходят клавиши: <kbd>Ctrl-W</kbd>, <kbd>F11</kbd>, <kbd>Alt-F9</kbd>, <kbd>F12</kbd>, <kbd>Ctrl-Tab</kbd>, <kbd>Ctrl-Shift-Tab</kbd>, <kbd>Alt-Ins</kbd> и <kbd>Ctrl-Alt-Shift</kbd>.</li>
+<li>Плагину не приходят клавиши: <kbd>Ctrl</kbd>+<kbd>W</kbd>, <kbd>F11</kbd>, <kbd>Alt</kbd>+<kbd>F9</kbd>, <kbd>F12</kbd>, <kbd>Ctrl</kbd>+<kbd>Tab</kbd>, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd>, <kbd>Alt</kbd>+<kbd>Ins</kbd> и <kbd>Ctrl</kbd>+<kbd>Alt-Shift</kbd>.</li>
 <li>Плагину приходят клавиши (с ограничениями):
   <ul>
-  <li><kbd>Alt-F5</kbd>  - если плагин PrintMan не установлен
-  <li><kbd>Alt-F11</kbd> - если редактор модальный
+  <li><kbd>Alt</kbd>+<kbd>F5</kbd>  - если плагин PrintMan не установлен
+  <li><kbd>Alt</kbd>+<kbd>F11</kbd> - если редактор модальный
   <li><kbd>F6</kbd> - если есть запрет на переключение в программу просмотра (при вызове функции <a href="../service_functions/editor.html">Editor</a>
    не указан флаг <a href="../service_functions/editor.html#EF_ENABLE_F6">EF_ENABLE_F6</a>).</ul></li>
 </ol>

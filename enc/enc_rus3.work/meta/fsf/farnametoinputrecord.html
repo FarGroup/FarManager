@@ -49,9 +49,9 @@ BOOL WINAPI FarNameToInputRecord(
 <div class=descr>
 <ol>
 <li>Если в комбинации клавиш присутствует <kbd>Ctrl</kbd> или <kbd>Alt</kbd> и клавиша - "буква", то "буква"
-    принудительно приводится к верхнему регистру. Например, <code>FarNameToInputRecord("CtrlAltz")</code> вернёт <kbd>KEY_CTRLALTZ</kbd>.
+    принудительно приводится к верхнему регистру. Например, <code>FarNameToInputRecord("CtrlAltz")</code> вернёт <code>KEY_CTRLALTZ</code>.
 <li>Если в комбинации клавиш присутствует <kbd>Ctrl</kbd> или <kbd>Alt</kbd> и клавиша - "буква национального алфавита", то "буква"
-    принудительно заменяется на клавиатурный эквивалент и приводится к верхнему регистру. Например, <code>FarNameToInputRecord("CtrlУ")</code> вернёт <kbd>KEY_CTRLE</kbd>.
+    принудительно заменяется на клавиатурный эквивалент и приводится к верхнему регистру. Например, <code>FarNameToInputRecord("CtrlУ")</code> вернёт <code>KEY_CTRLE</code>.
 <li>Комбинации клавиш <kbd>Shift</kbd>-"буква" преобразуется к "БУКВА" (т.е. удаляется компонента Shift и "буква" переводится в верхний регистр).
 </ol>
 </div>

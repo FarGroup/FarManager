@@ -52,7 +52,7 @@ int WINAPI Viewer (
     <tr class="cont"><td class="cont" width="40%"><a name="VF_DELETEONLYFILEONCLOSE">VF_DELETEONLYFILEONCLOSE</a></td>
     <td class="cont" width="60%">Аналог <dfn>VF_DELETEONCLOSE</dfn>, но удаляется только файл. Этот флаг имеет более низкий приоритет при обработке, чем <dfn>VF_DELETEONCLOSE</dfn>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VF_DISABLEHISTORY">VF_DISABLEHISTORY</a></td>
-    <td class="cont" width="60%">Запретить добавление имени файла в историю просмотра (<kbd>Alt-F11</kbd>). По умолчанию имя в историю добавляется.</td></tr>
+    <td class="cont" width="60%">Запретить добавление имени файла в историю просмотра (<kbd>Alt</kbd>+<kbd>F11</kbd>). По умолчанию имя в историю добавляется.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VF_ENABLE_F6">VF_ENABLE_F6</a></td>
     <td class="cont" width="60%">Разрешает переключение по <kbd>F6</kbd> из вьюера в редактор.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VF_IMMEDIATERETURN">VF_IMMEDIATERETURN</a></td>
@@ -60,7 +60,7 @@ int WINAPI Viewer (
     Выставлять этот флаг имеет смысл <u>только</u> в паре с флагом <dfn>VF_NONMODAL</dfn>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VF_NONMODAL">VF_NONMODAL</a></td>
     <td class="cont" width="60%">Создать немодальное окно вьюера. Если этот флаг присутствует, пользователь сможет переключаться между программой просмотра и другими окнами Far Manager.
-    <p>Плагин получит управление только после закрытия или ухода из открытой программы просмотра (например, пользователь нажал <kbd>Ctrl-Tab</kbd>).
+    <p>Плагин получит управление только после закрытия или ухода из открытой программы просмотра (например, пользователь нажал <kbd>Ctrl</kbd>+<kbd>Tab</kbd>).
     Если вам нужно, чтобы плагин получал управление сразу же после открытия программы просмотра, то используйте флаг <dfn>VF_IMMEDIATERETURN</dfn>.</td></tr>
     </table>
     </div>
