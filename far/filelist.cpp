@@ -125,7 +125,7 @@ FileList::FileList():
 	TotalFileCount(0),
 	SelFileSize(0),
 	TotalFileSize(0),
-	FreeDiskSize(0),
+	FreeDiskSize(-1),
 	LastUpdateTime(0),
 	Height(0),
 	LeftPos(0),

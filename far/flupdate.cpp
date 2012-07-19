@@ -186,13 +186,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	TotalFileSize=0;
 	CacheSelIndex=-1;
 	CacheSelClearIndex=-1;
-
+	FreeDiskSize = -1;
 	if (Opt.ShowPanelFree)
 	{
-		unsigned __int64 TotalSize,TotalFree;
-
-		if (!apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&FreeDiskSize))
-			FreeDiskSize=0;
+		apiGetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
 	}
 
 	if (FileCount>0)
@@ -641,14 +638,12 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	OpenPanelInfo Info;
 	CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 
-	FreeDiskSize=0;
+	FreeDiskSize=-1;
 	if (Opt.ShowPanelFree)
 	{
 		if (Info.Flags & OPIF_REALNAMES)
 		{
-			unsigned __int64 TotalSize,TotalFree;
-			if (!apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&FreeDiskSize))
-				FreeDiskSize=0;
+			apiGetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
 		}
 		else if (Info.Flags & OPIF_USEFREESIZE)
 			FreeDiskSize=Info.FreeSize;

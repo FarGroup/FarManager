@@ -278,7 +278,7 @@ int apiGetFileTypeByName(
     const string& Name
 );
 
-BOOL apiGetDiskSize(
+bool apiGetDiskSize(
     const string& Path,
     unsigned __int64 *TotalSize,
     unsigned __int64 *TotalFree,
