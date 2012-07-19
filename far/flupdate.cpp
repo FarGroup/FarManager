@@ -569,9 +569,9 @@ void FileList::InitFSWatcher(bool CheckTree)
 	}
 }
 
-void FileList::StartFSWatcher()
+void FileList::StartFSWatcher(bool got_focus)
 {
-	FSWatcher.Watch();
+	FSWatcher.Watch(got_focus);
 }
 
 void FileList::StopFSWatcher()

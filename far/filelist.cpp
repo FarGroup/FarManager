@@ -985,8 +985,8 @@ int FileList::ProcessKey(int Key)
 		case KEY_GOTFOCUS:
 			if (Opt.SmartFolderMonitor)
 			{
-				StartFSWatcher();
-				CtrlObject->Cp()->GetAnotherPanel(this)->StartFSWatcher();
+				StartFSWatcher(true);
+				CtrlObject->Cp()->GetAnotherPanel(this)->StartFSWatcher(true);
 			}
 			break;
 
