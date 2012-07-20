@@ -1,0 +1,308 @@
+<header>
+tag=SMZ1
+ver=2.7
+</header>
+<node>
+id=1
+lv=0
+dt=Text
+nm=Spring
+ctime=3551829092
+mtime=3551990527
+<article>
+#_<markdown>
+#_
+#_**Spring** - это модификация Фар 3, в которой вместо встроенного макроязыка
+#_используется скриптовый язык Lua 5.1.
+#_
+#_Под макросом понимается Lua-скрипт и его мета-данные, такие как:
+#_
+#_* Область начала исполнения скрипта.
+#_* Клавиша, инициирующая исполнение скрипта из данной области.
+#_* Предварительные условия для исполнения скрипта.
+#_* Флаги времени исполнения: DisableOutput и NoSendKeysToPlugins.
+#_
+#_Текущее состояние проекта
+#_==========================
+#_
+#_Что работает
+#_-------------
+#_* Импорт макросов посредством команды far /import.
+#_* Запись макросов через `Ctrl.` или `CtrlShift.`.
+#_* Макросы могут использовать функции и библиотеки Lua и LuaFAR.
+#_* API `MacroControl` для плагинов: все операции, кроме `MCTL_GETLASTERROR`.
+#_
+#_Что не работает
+#_----------------
+#_* Нет функций макроязыка (ушли вместе с ним). Часть этих функций, под другими
+#_  названиями, с другими синтаксисом и семантикой, есть в Lua и LuaFAR, другая
+#_  часть - в процессе написания.
+#_
+</article>
+</node>
+<node>
+id=6
+lv=1
+dt=Text
+nm=Functions
+ctime=3551990812
+mtime=3551990812
+<article>
+</article>
+</node>
+<node>
+id=4
+lv=2
+dt=Text
+nm=far.Keys
+ctime=3551902602
+mtime=3551988926
+<article>
+#_far.Keys (str)
+#_
+#_**Parameters:**
+#_  str: string
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Description:**
+#_  Send one or more keys to Far.
+#_
+#_**Note:**
+#_  If a script creates coroutines, this function should **not** be called from them.
+#_
+#_**Example:**
+#_  far.Keys("A b CtrlC ShiftEnter")
+#_
+</article>
+</node>
+<node>
+id=8
+lv=1
+dt=Text
+nm=Globals
+ctime=3551992009
+mtime=3551992277
+<article>
+#_<markdown>
+#_Скрипт получает окружение, в котором установлены некоторые глобальные переменные (помимо глобальных переменных, устанавливаемых Lua и LuaFAR'ом).
+#_
+#_
+</article>
+</node>
+<node>
+id=9
+lv=2
+dt=Text
+nm=AKey
+ctime=3551992029
+mtime=3551992129
+<article>
+#_AKey: string
+#_
+#_**Description:**
+#_  The key that invoked this macro's execution.
+#_
+</article>
+</node>
+<node>
+id=10
+lv=2
+dt=Text
+nm=APanel, PPanel
+ctime=3551992161
+mtime=3551993104
+<article>
+#_**APanel**, **PPanel**: tables with the following fields:
+#_
+#_  CurPos:      integer, [rw]
+#_  ColumnCount: integer, [r]
+#_  ItemCount:   integer, [r]
+#_  SelCount:    integer, [r]
+#_  Current:     string,  [r]
+#_  Path:        string,  [r]
+#_  Root:        string,  [r]
+#_  Folder:      boolean, [r]
+#_  Plugin:      boolean, [r]
+#_  FilePanel:   boolean, [r]
+#_  Left:        boolean, [r]
+#_  Visible:     boolean, [r]
+#_
+#_
+</article>
+</node>
+<node>
+id=11
+lv=2
+dt=Text
+nm=MacroArea
+ctime=3551992166
+mtime=3551992166
+<article>
+</article>
+</node>
+<node>
+id=12
+lv=2
+dt=Text
+nm=msave
+ctime=3551993205
+mtime=3551993205
+<article>
+</article>
+</node>
+<node>
+id=13
+lv=2
+dt=Text
+nm=mload
+ctime=3551993209
+mtime=3551993209
+<article>
+</article>
+</node>
+<node>
+id=7
+lv=1
+dt=Text
+nm=Plugin Luamacro
+ctime=3551991405
+mtime=3551994628
+<article>
+#_@@@
+#_<markdown>
+#_Описание работы плагина
+#_
+#_* Приспособить для плагина ф-цию OpenW, ввести особые значение для параметра
+#_  OpenFrom: OPEN_MACROINIT=100, OPEN_MACROSTEP=101, OPEN_MACROFINAL=102.
+#_
+#_* Ф-ция OpenW получает от Фара:
+#_    OPEN_MACROINIT:
+#_      Аргументы передаются как в OPEN_FROMMACRO.
+#_      1. Text  : FMVT_STRING; если начинается с L'@', то остаток - имя файла,
+#_                 иначе - собственно текст скрипта (альтернативно - можно было бы
+#_                 добавить бит во Flags ("код" или "имя файла")
+#_      2. AKey  : FMVT_STRING (optional)
+#_      3. Flags : FMVT_INTEGER (optional)
+#_    OPEN_MACROSTEP:
+#_      1. Handle
+#_    OPEN_MACROFINAL:
+#_      1. Handle
+#_    OPEN_MACROPARSE:
+#_      1. Text (те же правила, что для аргумента 1 в OPEN_MACROINIT).
+#_
+#_* Ф-ция OpenW возвращает Фару:
+#_    OPEN_MACROINIT:
+#_      скрипт успешно скомпилирован         : handle
+#_      ошибка открытия файла или компиляции : NULL
+#_
+#_    OPEN_MACROSTEP:
+#_      скрипт завершён без ошибок           : указатель на L""
+#_      передана клавиша                     : указатель на текст клавиши в UTF-16
+#_                                             (валидный до следующего вызова)
+#_      ошибка исполнения                    : NULL
+#_      нет такого хэндла или уже выгружен   : NULL
+#_
+#_    OPEN_MACROFINAL:
+#_      скрипт выгружен                      : не NULL
+#_      нет такого хэндла или уже выгружен   : NULL
+#_
+#_    OPEN_MACROPARSE:
+#_      успешная компиляция                  : NULL
+#_      ошибка компиляции                    : указатель на текст ошибки в UTF-16
+#_                                             (валидный до следующего вызова)
+#_
+#_* Если текст макроса начинается с символа '@', то его последующая часть
+#_  рассматривается как имя файла, содержащего скрипт. В имени файла
+#_  поддерживаются переменные окружения, например '%FARHOME%'.
+#_    
+#_  TODO 1:
+#_    Не организовать ли здесь поиск файла по шаблону, как это сделано в LUA_PATH
+#_    & co.
+#_    -- с кэшированием ?
+#_    -- с шаблоном по умолчанию ?
+#_
+#_* Скрипт получает окружение, в котором установлены следующие глобальные
+#_  переменные (помимо глобальных переменных, устанавливаемых Lua и LuaFAR'ом):
+#_  * AKey : string
+#_  * APanel : table
+#_  * PPanel : table
+#_  * MacroArea : function (без параметров; возвращает string)
+#_  * msave : function
+#_  * mload : function
+#_
+#_* Скрипт может устанавливать "временные" глобальные переменные, значения
+#_  которых будут сохраняться только в течение времени исполнения скрипта.
+#_      Пример: foo = 15
+#_
+#_* Для установки "постоянных" глобальных переменных, значения которых будут
+#_  сохраняться в течение всей сессии Фара и будут доступны всем скриптам, нужно
+#_  использовать таблицу _G.
+#_      Пример: _G.foo = 15
+#_
+#_================================================================================
+#_Интерфейс хранения данных в базе.
+#_
+#_Определение:
+#_  типы NSB:  number, string, boolean.
+#_  типы NSBT: number, string, boolean, table.
+#_
+#_1. Функция 'msave' сохраняет в базе значение, относящееся к одному из типов NSBT.
+#_При сохранении таблицы будут сохраняться только ключи и значения типов NSB.
+#_
+#_    msave (key, name, value)
+#_
+#_2. Функция 'mload' загружает значение из базы.
+#_
+#_    ret = mload (key, name) -- ret: value, or nil
+#_
+#_================================================================================
+#_
+</article>
+</node>
+<node>
+id=5
+lv=1
+dt=Text
+nm=Misc
+ctime=3551990771
+mtime=3551990771
+<article>
+</article>
+</node>
+<node>
+id=2
+lv=2
+dt=Text
+nm=Macros beginning with @
+ctime=3551901528
+mtime=3551991211
+<article>
+#_<markdown>
+#_If a macro sequence begins with a character `@` then the rest of it is interpreted
+#_as a name of file containing the script.
+#_
+#_Environment variables are expanded.
+#_
+#_Such macros are easier to debug and modify, since no reloading to database is needed.
+#_
+#_**Example:** `@%FARHOME%\macros\editor\shift.lua`
+#_
+</article>
+</node>
+<node>
+id=3
+lv=2
+dt=Text
+nm=No action macros
+ctime=3551902073
+mtime=3551902386
+<article>
+#_<markdown>
+#_Sometimes there's a need to cancel the predefined action of some key (e.g. F2 in the editor)
+#_and not to perform any other action. This can be achieved by assigning that key a macro
+#_consisting of just a comment `--` (two dashes).
+#_
+</article>
+</node>

@@ -303,8 +303,9 @@ void* KeyMacro::CallPlugin(unsigned Type,void* Data)
 
 bool KeyMacro::InitMacroExecution(MacroRecord* macro)
 {
-	FarMacroValue values[1]={{FMVT_STRING,{0}}};
+	FarMacroValue values[2]={{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
 	values[0].String=macro->Code();
+	values[1].String=macro->Name();
 	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
 	void* handle=CallPlugin(OPEN_MACROINIT,&info);
 	if (handle)

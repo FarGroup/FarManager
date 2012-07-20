@@ -1,5 +1,13 @@
 -- started: 2012-04-20
 
+-- local function LOG (fmt, ...)
+--   local log = io.open("c:\\lua.log","at")
+--   if log then
+--     log:write("LUA: ", fmt:format(...), "\n")
+--     log:close()
+--   end
+-- end
+
 local F = far.Flags
 F.OPEN_MACROINIT, F.OPEN_MACROSTEP, F.OPEN_MACROFINAL, F.OPEN_MACROPARSE = 100,101,102,103
 
@@ -10,14 +18,7 @@ local ErrMsg = function(msg) far.Message(msg, "LuaMacro", nil, "w") end
 
 local macros = {}
 local LastError
-
-local function LOG (fmt, ...)
-  local log = io.open("c:\\lua.log","at")
-  if log then
-    log:write("LUA: ", fmt:format(...), "\n")
-    log:close()
-  end
-end
+local gmeta = { __index=_G }
 
 function far.Keys (str)
   assert(type(str) == "string", "arg. #1 to far.Keys must be string")
@@ -36,13 +37,18 @@ local function MacroInit (args)
   if Text and Text.Type==F.FMVT_STRING then
     Text = Text.Value
     local chunk, msg
-    if Text:sub(1,1) == "@" then chunk, msg = loadfile(Text:sub(2))
-    else                         chunk, msg = loadstring(Text)
+    if string.sub(Text,1,1) == "@" then
+      Text = string.sub(Text,2):gsub("%%(.-)%%", win.GetEnv)
+      chunk, msg = loadfile(Text)
+    else
+      chunk, msg = loadstring(Text)
     end
     if chunk then
+      local env = setmetatable({}, gmeta)
+      setfenv(chunk, env)
       local macro = { coro=co_create(chunk), step=0 }
-      if AKey and AKey.Type==F.FMVT_STRING then macro.AKey = AKey.Value end
-      if Flags and Flags.Type==F.FMVT_INTEGER then macro.Flags = Flags.Value end
+      if AKey and AKey.Type==F.FMVT_STRING then env.AKey = AKey.Value end
+      if Flags and Flags.Type==F.FMVT_INTEGER then env.Flags = Flags.Value end
       table.insert(macros, macro)
       return #macros
     else
@@ -56,12 +62,7 @@ local function MacroStep (handle)
   if macro then
     local status = co_status(macro.coro)
     if status == "suspended" then
-      local ok, ret
-      if macro.step == 0 then
-        ok, ret = co_resume(macro.coro, macro.AKey, macro.Flags)
-      else
-        ok, ret = co_resume(macro.coro)
-      end
+      local ok, ret = co_resume(macro.coro)
       if ok then
         macro.step = macro.step + 1
         status = co_status(macro.coro)
@@ -95,7 +96,7 @@ end
 
 local function MacroParse (args)
   local text, onlyCheck, title, buttons = args[1], args[2], args[3], args[4]
-  if text.Value:sub(1,1) ~= "@" then
+  if string.sub(text.Value,1,1) ~= "@" then
     local chunk, msg = loadstring(text.Value)
     if not chunk then
       if onlyCheck.Value == 0 then
@@ -113,4 +114,9 @@ function export.Open (OpenFrom, Guid, Item)
   elseif OpenFrom == F.OPEN_MACROFINAL then return MacroFinal(Item)
   elseif OpenFrom == F.OPEN_MACROPARSE then return MacroParse(Item)
   end
+end
+
+do
+  local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."api.lua")
+  if func then func() else ErrMsg(msg) end
 end
