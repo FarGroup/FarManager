@@ -1188,28 +1188,6 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 			ProcessShowClock--;
 		}
 	}
-	else
-	{
-
-		if (!Silent)
-		{
-			CtrlObject->Cp()->Redraw();
-			if (Opt.ShowKeyBar)
-			{
-				CtrlObject->MainKeyBar->Show();
-			}
-		}
-
-		SetMessageHelp(L"ErrCannotExecute");
-		if(DirectRun)
-		{
-			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1,MSG(MError), MSG(MCannotExecute), strNewCmdStr, MSG(MOk));
-		}
-		else
-		{
-			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1, MSG(MError), MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar), MSG(MOk));
-		}
-	}
 
 	SetFarConsoleMode(TRUE);
 	/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
@@ -1234,6 +1212,28 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 
 	Console.SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+
+	if(dwError)
+	{
+		if (!Silent)
+		{
+			CtrlObject->Cp()->Redraw();
+			if (Opt.ShowKeyBar)
+			{
+				CtrlObject->MainKeyBar->Show();
+			}
+		}
+
+		SetMessageHelp(L"ErrCannotExecute");
+		if(DirectRun)
+		{
+			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1,MSG(MError), MSG(MCannotExecute), strNewCmdStr, MSG(MOk));
+		}
+		else
+		{
+			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1, MSG(MError), MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar), MSG(MOk));
+		}
+	}
 
 	return nResult;
 }
