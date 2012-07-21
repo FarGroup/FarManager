@@ -1,6 +1,13 @@
 -- api.lua
 
 local F=far.Flags
+local band = bit64.band
+
+local function range (x,a,b)
+  if a>b then a,b=b,a end
+  if x<a then x=a elseif x>b then x=b end
+  return x
+end
 
 local function checkarg (arg, argnum, reftype)
   if type(arg) ~= reftype then
@@ -13,37 +20,56 @@ local meta = { __metatable="access denied" }
 
 function meta.__index (tb, s)
   local pnum = tb==PPanel and 0 or 1
-  if     s == "CurPos" then
-    return panel.GetPanelInfo(nil, pnum).CurrentItem
+  local panelInfo = panel.GetPanelInfo(nil, pnum)
+  if not panelInfo then return nil end
+  ------------------------------------------------------------------------------
+  if s     == "Root" then
+    return not not panel.GetPanelDirectory(nil, pnum).Name:match("^[A-Za-z]:\\$") -- FIXME
+  elseif s == "Bof" then
+    return panelInfo.CurrentItem == 1
+  elseif s == "Eof" then
+    return panelInfo.CurrentItem == panelInfo.ItemsNumber
+  elseif s == "Empty" then
+    return (panelInfo.ItemsNumber == 0) or (panelInfo.ItemsNumber == 1 and
+      not not panel.GetPanelItem(nil,pnum,1).FileName:find("^%.%.[\\/]?$"))
+  elseif s == "Selected" then
+    local item = panel.GetSelectedPanelItem(nil,pnum,1)
+    return item and 0 ~= band(item.Flags, F.PPIF_SELECTED)
+  elseif s == "Folder" then
+    return not not panel.GetCurrentPanelItem(nil, pnum).FileAttributes:find"d"
+  elseif s == "Plugin" then
+    return 0 ~= band(panelInfo.Flags, F.PFLAGS_PLUGIN)
+  ------------------------------------------------------------------------------
+  elseif s == "FilePanel" then
+    return panelInfo.PanelType == F.PTYPE_FILEPANEL
+  elseif s == "Left" then
+    return 0 ~= band(panelInfo.Flags, F.PFLAGS_PANELLEFT)
+  elseif s == "Visible" then
+    return 0 ~= band(panelInfo.Flags, F.PFLAGS_VISIBLE)
+  ------------------------------------------------------------------------------
   elseif s == "ColumnCount" then
     local _,n = panel.GetColumnTypes(nil, pnum):gsub("," ,"")
     return n + 1
   elseif s == "ItemCount" then
-    return panel.GetPanelInfo(nil, pnum).ItemsNumber
+    return panelInfo.ItemsNumber
+  elseif s == "CurPos" then
+    return panelInfo.CurrentItem
   elseif s == "SelCount" then
-    return panel.GetPanelInfo(nil, pnum).SelectedItemsNumber
+    return panelInfo.SelectedItemsNumber
   elseif s == "Current" then
-    return panel.GetCurrentPanelItem(nil, pnum).FileName
+    local item = panel.GetCurrentPanelItem(nil, pnum)
+    return item and item.FileName or ""
   elseif s == "Path" then
-    return (panel.GetPanelDirectory(nil, pnum):gsub("\\$", ""))
-  elseif s == "Root" then
-    return not not panel.GetPanelDirectory(nil, pnum):match("^[A-Za-z]:\\$")
-  elseif s == "Folder" then
-    return not not panel.GetCurrentPanelItem(nil, pnum).FileAttributes:find"d"
-  elseif s == "Plugin" then
-    return 0 ~= bit64.band(panel.GetPanelInfo(nil, pnum).Flags, F.PFLAGS_PLUGIN)
-  elseif s == "FilePanel" then
-    return panel.GetPanelInfo(nil, pnum).PanelType == F.PTYPE_FILEPANEL
-  elseif s == "Left" then
-    return 0 ~= bit64.band(panel.GetPanelInfo(nil, pnum).Flags, F.PFLAGS_PANELLEFT)
-  elseif s == "Visible" then
-    return 0 ~= bit64.band(panel.GetPanelInfo(nil, pnum).Flags, F.PFLAGS_VISIBLE)
+    return (panel.GetPanelDirectory(nil, pnum).Name:gsub("\\$", ""))
   end
 end
 
 function meta.__newindex (tb, s, i)
   local pnum = tb==APanel and 1 or 0
+  local panelInfo = panel.GetPanelInfo(nil, pnum)
+  if not panelInfo then return end
   if s == "CurPos" then
+    i = range(i, 1, panelInfo.ItemsNumber) -- out of range can crash Far
     panel.RedrawPanel(nil, pnum, { CurrentItem = i })
   end
 end
