@@ -33,10 +33,14 @@ function meta.__index (tb, s)
     return (panelInfo.ItemsNumber == 0) or (panelInfo.ItemsNumber == 1 and
       not not panel.GetPanelItem(nil,pnum,1).FileName:find("^%.%.[\\/]?$"))
   elseif s == "Selected" then
-    local item = panel.GetSelectedPanelItem(nil,pnum,1)
-    return item and 0 ~= band(item.Flags, F.PPIF_SELECTED)
+    if panelInfo.SelectedItemsNumber == 1 then
+      local item = panel.GetSelectedPanelItem(nil,pnum,1)
+      return item and 0 ~= band(item.Flags, F.PPIF_SELECTED)
+    end
+    return panelInfo.SelectedItemsNumber > 1
   elseif s == "Folder" then
-    return not not panel.GetCurrentPanelItem(nil, pnum).FileAttributes:find"d"
+    local item = panel.GetCurrentPanelItem(nil, pnum)
+    return not not (item and item.FileAttributes:find"d")
   elseif s == "Plugin" then
     return 0 ~= band(panelInfo.Flags, F.PFLAGS_PLUGIN)
   ------------------------------------------------------------------------------
@@ -59,8 +63,13 @@ function meta.__index (tb, s)
   elseif s == "Current" then
     local item = panel.GetCurrentPanelItem(nil, pnum)
     return item and item.FileName or ""
-  elseif s == "Path" then
+  elseif s == "Path" then -- FIXME
     return (panel.GetPanelDirectory(nil, pnum).Name:gsub("\\$", ""))
+  ------------------------------------------------------------------------------
+  elseif s == "HostFile" then
+    return panel.GetPanelHostFile(nil, pnum)
+  elseif s == "Prefix" then
+    return panel.GetPanelPrefix(nil, pnum)
   end
 end
 
@@ -130,13 +139,26 @@ local function serialize (o)
   return table.concat(t, "\n")
 end
 
+function mdelete (key, name)
+  checkarg(key, 1, "string")
+  if name then
+    checkarg(name, 2, "string")
+  end
+  local obj = far.CreateSettings()
+  local subkey = obj:OpenSubkey(0, key)
+  if subkey then
+    obj:Delete(subkey, name or nil)
+  end
+  obj:Free()
+end
+
 function msave (key, name, value)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
   local str = serialize(value)
   if str then
     local obj = far.CreateSettings()
-    local subkey = obj:CreateSubkey(0, key, "description here")
+    local subkey = obj:CreateSubkey(0, key)
     obj:Set(subkey, name, F.FST_DATA, str)
     obj:Free()
   end
@@ -146,10 +168,11 @@ function mload (key, name)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
   local obj = far.CreateSettings()
-  local subkey = obj:CreateSubkey(0, key, "description here")
-  local value = obj:Get(subkey, name, F.FST_DATA)
+  local subkey = obj:OpenSubkey(0, key)
+  local chunk = subkey and obj:Get(subkey, name, F.FST_DATA)
   obj:Free()
-  if value then
-    return assert(loadstring(value))()
+  if chunk then
+    return assert(loadstring(chunk))()
   end
+  return nil
 end

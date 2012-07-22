@@ -2264,10 +2264,11 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			if (GetType()==FILE_PANEL && GetMode() == PLUGIN_PANEL)
 			{
 				PluginInfo PInfo = {sizeof(PInfo)};
-#ifdef FAR_LUA
-				//FIXME:!!!
-#else
 				FileList *DestPanel = ((FileList*)this);
+#ifdef FAR_LUA
+				if (DestPanel->GetPluginInfo(&PInfo))
+					strTemp = PInfo.CommandPrefix;
+#else
 				if (DestPanel->VMProcess(MCODE_V_APANEL_PREFIX,&PInfo))
 					strTemp = PInfo.CommandPrefix;
 #endif

@@ -310,6 +310,7 @@ class FileList:public Panel
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 #ifdef FAR_LUA
+		virtual bool GetPluginInfo(PluginInfo *PInfo);
 #else
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 #endif

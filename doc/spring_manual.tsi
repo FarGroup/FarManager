@@ -44,7 +44,7 @@ mtime=3551990527
 id=8
 lv=1
 dt=Text
-nm=Globals
+nm=Global functions
 ctime=3551992009
 mtime=3551992277
 <article>
@@ -55,59 +55,12 @@ mtime=3551992277
 </article>
 </node>
 <node>
-id=9
-lv=2
-dt=Text
-nm=AKey
-ctime=3551992029
-mtime=3551992129
-<article>
-#_AKey: string
-#_
-#_**Description:**
-#_  The key that invoked this macro's execution.
-#_
-</article>
-</node>
-<node>
-id=10
-lv=2
-dt=Text
-nm=APanel, PPanel
-ctime=3551992161
-mtime=3552032883
-<article>
-#_**APanel**, **PPanel**: tables with the following fields:
-#_
-#_  Root:        boolean, [r]
-#_  Bof:         boolean, [r]
-#_  Eof:         boolean, [r]
-#_  Empty:       boolean, [r]
-#_  Selected:    boolean, [r]
-#_  Folder:      boolean, [r]
-#_  Plugin:      boolean, [r]
-#_
-#_  FilePanel:   boolean, [r]
-#_  Left:        boolean, [r]
-#_  Visible:     boolean, [r]
-#_
-#_  ColumnCount: integer, [r]
-#_  ItemCount:   integer, [r]
-#_  CurPos:      integer, [rw]
-#_  SelCount:    integer, [r]
-#_  Current:     string,  [r]
-#_  Path:        string,  [r]
-#_
-#_
-</article>
-</node>
-<node>
 id=11
 lv=2
 dt=Text
 nm=MacroArea
 ctime=3551992166
-mtime=3552030778
+mtime=3552142656
 <article>
 #_area = MacroArea()
 #_
@@ -141,12 +94,34 @@ mtime=3552030778
 </article>
 </node>
 <node>
+id=15
+lv=2
+dt=Text
+nm=mdelete
+ctime=3552066075
+mtime=3552067004
+<article>
+#_mdelete (key [, name])
+#_
+#_**Parameters:**
+#_  key:  string
+#_  name: string (if *name* is not specified then *key* is deleted)
+#_
+#_**Returns:**
+#_  nothing
+#_
+#_**Description:**
+#_  Функция *mdelete* удаляет значение или ключ из базы данных.
+#_
+</article>
+</node>
+<node>
 id=13
 lv=2
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3552030525
+mtime=3552066946
 <article>
 #_ret = mload (key, name)
 #_
@@ -169,14 +144,14 @@ lv=2
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3552030183
+mtime=3552066938
 <article>
 #_msave (key, name, value)
 #_
 #_**Parameters:**
-#_  key:   string
-#_  name:  string
-#_  value: number, string, boolean, or table.
+#_  key:         string
+#_  name:        string
+#_  value:       number, string, boolean, or table
 #_
 #_**Returns:**
 #_  nothing
@@ -212,6 +187,75 @@ mtime=3552034716
 #_
 #_**Example:**
 #_  SendKeys("A b CtrlC ShiftEnter")
+#_
+</article>
+</node>
+<node>
+id=16
+lv=1
+dt=Text
+nm=Global tables
+ctime=3552142545
+mtime=3552142545
+<article>
+</article>
+</node>
+<node>
+id=10
+lv=2
+dt=Text
+nm=APanel, PPanel
+ctime=3551992161
+mtime=3552077603
+<article>
+#_**APanel**, **PPanel**: tables with the following fields:
+#_
+#_  Root:        boolean, [r]
+#_  Bof:         boolean, [r]
+#_  Eof:         boolean, [r]
+#_  Empty:       boolean, [r]
+#_  Selected:    boolean, [r]
+#_  Folder:      boolean, [r]
+#_  Plugin:      boolean, [r]
+#_
+#_  FilePanel:   boolean, [r]
+#_  Left:        boolean, [r]
+#_  Visible:     boolean, [r]
+#_
+#_  ColumnCount: integer, [r]
+#_  ItemCount:   integer, [r]
+#_  CurPos:      integer, [rw]
+#_  SelCount:    integer, [r]
+#_  Current:     string,  [r]
+#_  Path:        string,  [r]
+#_
+#_  HostFile:    string,  [r]
+#_  Prefix:      string,  [r]
+#_
+</article>
+</node>
+<node>
+id=17
+lv=1
+dt=Text
+nm=Global strings
+ctime=3552142557
+mtime=3552142557
+<article>
+</article>
+</node>
+<node>
+id=9
+lv=2
+dt=Text
+nm=AKey
+ctime=3551992029
+mtime=3552142487
+<article>
+#_**AKey:** string
+#_
+#_**Description:**
+#_  The key that invoked this macro's execution.
 #_
 </article>
 </node>
