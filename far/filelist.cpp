@@ -624,7 +624,10 @@ int FileList::SendKeyToPlugin(DWORD Key,bool Pred)
 bool FileList::GetPluginInfo(PluginInfo *PInfo)
 {
 	if (GetMode() == PLUGIN_PANEL && hPlugin && ((PluginHandle*)hPlugin)->pPlugin)
-		return ((PluginHandle*)hPlugin)->pPlugin->GetPluginInfo(PInfo)?true:false;
+	{
+		PInfo->StructSize=sizeof(PluginInfo);
+		return ((PluginHandle*)hPlugin)->pPlugin->GetPluginInfo(PInfo) != 0;
+	}
 	return false;
 }
 #else

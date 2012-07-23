@@ -23,8 +23,9 @@ function meta.__index (tb, s)
   local panelInfo = panel.GetPanelInfo(nil, pnum)
   if not panelInfo then return nil end
   ------------------------------------------------------------------------------
-  if s     == "Root" then
-    return not not panel.GetPanelDirectory(nil, pnum).Name:match("^[A-Za-z]:\\$") -- FIXME
+  if s == "Root" then
+    local dir = panel.GetPanelDirectory(nil, pnum).Name
+    return dir:lower() == far.GetPathRoot(dir):lower()
   elseif s == "Bof" then
     return panelInfo.CurrentItem == 1
   elseif s == "Eof" then
@@ -63,7 +64,7 @@ function meta.__index (tb, s)
   elseif s == "Current" then
     local item = panel.GetCurrentPanelItem(nil, pnum)
     return item and item.FileName or ""
-  elseif s == "Path" then -- FIXME
+  elseif s == "Path" then
     return (panel.GetPanelDirectory(nil, pnum).Name:gsub("\\$", ""))
   ------------------------------------------------------------------------------
   elseif s == "HostFile" then
