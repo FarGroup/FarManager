@@ -923,12 +923,13 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	COORD ConsoleSize={};
 	int ConsoleCP = CP_OEMCP;
 	int ConsoleOutputCP = CP_OEMCP;
+	int process_show_clock = ProcessShowClock;
 
 	if(!Silent)
 	{
 		int X1, X2, Y1, Y2;
 		CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
-		ProcessShowClock++;
+		++ProcessShowClock;
 		CtrlObject->CmdLine->ShowBackground();
 		CtrlObject->CmdLine->Redraw();
 		GotoXY(X2+1,Y1);
@@ -1185,9 +1186,9 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		{
 			ScrBuf.FillBuf();
 			CtrlObject->CmdLine->SaveBackground();
-			ProcessShowClock--;
 		}
 	}
+	ProcessShowClock = process_show_clock;
 
 	SetFarConsoleMode(TRUE);
 	/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
@@ -1222,6 +1223,8 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 			{
 				CtrlObject->MainKeyBar->Show();
 			}
+			if (Opt.Clock)
+				ShowTime(1);
 		}
 
 		SetMessageHelp(L"ErrCannotExecute");
@@ -1327,6 +1330,8 @@ int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool S
 			CtrlObject->MainKeyBar->Show();
 		}
 	}
+	if (Opt.Clock)
+		ShowTime(0);
 	ScrBuf.Flush();
 	return Code;
 }

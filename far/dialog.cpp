@@ -374,6 +374,8 @@ Dialog::~Dialog()
 		CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	Hide();
+	if (Opt.Clock && FrameManager->IsPanelsActive(true))
+		ShowTime(0);
 	ScrBuf.Flush();
 
 	if (HelpTopic)
