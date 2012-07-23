@@ -41,22 +41,57 @@ mtime=3551990527
 </article>
 </node>
 <node>
-id=8
+id=19
 lv=1
 dt=Text
-nm=Global functions
-ctime=3551992009
-mtime=3551992277
+nm=Свойства и функции: по областям
+ctime=3552220773
+mtime=3552220773
 <article>
-#_<markdown>
-#_Скрипт получает окружение, в котором установлены некоторые глобальные переменные (помимо глобальных переменных, устанавливаемых Lua и LuaFAR'ом).
+</article>
+</node>
+<node>
+id=20
+lv=2
+dt=Text
+nm=Общие
+ctime=3552221109
+mtime=3552221109
+<article>
+</article>
+</node>
+<node>
+id=9
+lv=3
+dt=Text
+nm=AKey
+ctime=3551992029
+mtime=3552142487
+<article>
+#_**AKey:** string
 #_
+#_**Description:**
+#_  The key that invoked this macro's execution.
+#_
+</article>
+</node>
+<node>
+id=18
+lv=3
+dt=Text
+nm=IsUserAdmin
+ctime=3552217641
+mtime=3552217683
+<article>
+#_ret = IsUserAdmin()
+#_
+#_ret: boolean
 #_
 </article>
 </node>
 <node>
 id=11
-lv=2
+lv=3
 dt=Text
 nm=MacroArea
 ctime=3551992166
@@ -95,7 +130,7 @@ mtime=3552142656
 </node>
 <node>
 id=15
-lv=2
+lv=3
 dt=Text
 nm=mdelete
 ctime=3552066075
@@ -117,7 +152,7 @@ mtime=3552067004
 </node>
 <node>
 id=13
-lv=2
+lv=3
 dt=Text
 nm=mload
 ctime=3551993209
@@ -140,7 +175,7 @@ mtime=3552066946
 </node>
 <node>
 id=12
-lv=2
+lv=3
 dt=Text
 nm=msave
 ctime=3551993205
@@ -165,7 +200,7 @@ mtime=3552066938
 </node>
 <node>
 id=4
-lv=2
+lv=3
 dt=Text
 nm=SendKeys
 ctime=3551902602
@@ -191,22 +226,32 @@ mtime=3552034716
 </article>
 </node>
 <node>
-id=16
-lv=1
+id=21
+lv=2
 dt=Text
-nm=Global tables
-ctime=3552142545
-mtime=3552142545
+nm=Зависящие от контекста исполнения
+ctime=3552221116
+mtime=3552221116
+<article>
+</article>
+</node>
+<node>
+id=22
+lv=2
+dt=Text
+nm=Для панелей
+ctime=3552221146
+mtime=3552221146
 <article>
 </article>
 </node>
 <node>
 id=10
-lv=2
+lv=3
 dt=Text
 nm=APanel, PPanel
 ctime=3551992161
-mtime=3552077603
+mtime=3552204538
 <article>
 #_**APanel**, **PPanel**: tables with the following fields:
 #_
@@ -232,31 +277,90 @@ mtime=3552077603
 #_  HostFile:    string,  [r]
 #_  Prefix:      string,  [r]
 #_
+#_  Height:      integer, [r]
+#_  Width:       integer, [r]
+#_  Type:        integer, [r]
+#_
 </article>
 </node>
 <node>
-id=17
-lv=1
-dt=Text
-nm=Global strings
-ctime=3552142557
-mtime=3552142557
-<article>
-</article>
-</node>
-<node>
-id=9
+id=23
 lv=2
 dt=Text
-nm=AKey
-ctime=3551992029
-mtime=3552142487
+nm=Для командной строки
+ctime=3552221152
+mtime=3552221152
 <article>
-#_**AKey:** string
+</article>
+</node>
+<node>
+id=31
+lv=3
+dt=Text
+nm=CmdLine
+ctime=3552224659
+mtime=3552224774
+<article>
+#_**CmdLine**: table with the following fields:
 #_
-#_**Description:**
-#_  The key that invoked this macro's execution.
+#_  Bof:         boolean, [r]
+#_  Eof:         boolean, [r]
+#_  Empty:       boolean, [r]
+#_  Selected:    boolean, [r]
+#_  ItemCount:   integer, [r]
+#_  CurPos:      integer, [r]
+#_  Value:       string,  [r]
 #_
+</article>
+</node>
+<node>
+id=24
+lv=2
+dt=Text
+nm=Для редактора
+ctime=3552221161
+mtime=3552221161
+<article>
+</article>
+</node>
+<node>
+id=25
+lv=2
+dt=Text
+nm=Для внутренней программы просмотра
+ctime=3552221188
+mtime=3552221188
+<article>
+</article>
+</node>
+<node>
+id=26
+lv=2
+dt=Text
+nm=Для диалогов
+ctime=3552221202
+mtime=3552221202
+<article>
+</article>
+</node>
+<node>
+id=27
+lv=2
+dt=Text
+nm=Для меню и списков
+ctime=3552221220
+mtime=3552221220
+<article>
+</article>
+</node>
+<node>
+id=28
+lv=2
+dt=Text
+nm=Для системы помощи
+ctime=3552221228
+mtime=3552221228
+<article>
 </article>
 </node>
 <node>
@@ -392,6 +496,53 @@ mtime=3552030311
 #_    -- с шаблоном по умолчанию ?
 #_
 #_================================================================================
+#_
+</article>
+</node>
+<node>
+id=8
+lv=2
+dt=Text
+nm=Globals
+ctime=3551992009
+mtime=3551992277
+<article>
+#_<markdown>
+#_Скрипт получает окружение, в котором установлены некоторые глобальные переменные (помимо глобальных переменных, устанавливаемых Lua и LuaFAR'ом).
+#_
+#_
+</article>
+</node>
+<node>
+id=29
+lv=1
+dt=Text
+nm=Examples
+ctime=3552222267
+mtime=3552222267
+<article>
+</article>
+</node>
+<node>
+id=30
+lv=2
+dt=Text
+nm=Select newer files
+ctime=3552222560
+mtime=3552222847
+<article>
+#_-- Выделить в активной панели все файлы/папки новее текущего
+#_
+#_local info=panel.GetPanelInfo(nil,1)
+#_local curItem=panel.GetCurrentPanelItem(nil,1)
+#_for i=1,info.ItemsNumber do
+#_  local item=panel.GetPanelItem(nil,1,i)
+#_  if item.LastWriteTime > curItem.LastWriteTime then
+#_    panel.SetSelection(nil,1,i,true)
+#_  end
+#_end
+#_panel.RedrawPanel(nil,1)
+#_
 #_
 </article>
 </node>

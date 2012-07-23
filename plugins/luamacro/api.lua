@@ -15,77 +15,13 @@ local function checkarg (arg, argnum, reftype)
   end
 end
 
-APanel, PPanel = {}, {}
-local meta = { __metatable="access denied" }
+--------------------------------------------------------------------------------
+-- наыхе
+--------------------------------------------------------------------------------
 
-function meta.__index (tb, s)
-  local pnum = tb==PPanel and 0 or 1
-  local panelInfo = panel.GetPanelInfo(nil, pnum)
-  if not panelInfo then return nil end
-  ------------------------------------------------------------------------------
-  if s == "Root" then
-    local dir = panel.GetPanelDirectory(nil, pnum).Name
-    return dir:lower() == far.GetPathRoot(dir):lower()
-  elseif s == "Bof" then
-    return panelInfo.CurrentItem == 1
-  elseif s == "Eof" then
-    return panelInfo.CurrentItem == panelInfo.ItemsNumber
-  elseif s == "Empty" then
-    return (panelInfo.ItemsNumber == 0) or (panelInfo.ItemsNumber == 1 and
-      not not panel.GetPanelItem(nil,pnum,1).FileName:find("^%.%.[\\/]?$"))
-  elseif s == "Selected" then
-    if panelInfo.SelectedItemsNumber == 1 then
-      local item = panel.GetSelectedPanelItem(nil,pnum,1)
-      return item and 0 ~= band(item.Flags, F.PPIF_SELECTED)
-    end
-    return panelInfo.SelectedItemsNumber > 1
-  elseif s == "Folder" then
-    local item = panel.GetCurrentPanelItem(nil, pnum)
-    return not not (item and item.FileAttributes:find"d")
-  elseif s == "Plugin" then
-    return 0 ~= band(panelInfo.Flags, F.PFLAGS_PLUGIN)
-  ------------------------------------------------------------------------------
-  elseif s == "FilePanel" then
-    return panelInfo.PanelType == F.PTYPE_FILEPANEL
-  elseif s == "Left" then
-    return 0 ~= band(panelInfo.Flags, F.PFLAGS_PANELLEFT)
-  elseif s == "Visible" then
-    return 0 ~= band(panelInfo.Flags, F.PFLAGS_VISIBLE)
-  ------------------------------------------------------------------------------
-  elseif s == "ColumnCount" then
-    local _,n = panel.GetColumnTypes(nil, pnum):gsub("," ,"")
-    return n + 1
-  elseif s == "ItemCount" then
-    return panelInfo.ItemsNumber
-  elseif s == "CurPos" then
-    return panelInfo.CurrentItem
-  elseif s == "SelCount" then
-    return panelInfo.SelectedItemsNumber
-  elseif s == "Current" then
-    local item = panel.GetCurrentPanelItem(nil, pnum)
-    return item and item.FileName or ""
-  elseif s == "Path" then
-    return (panel.GetPanelDirectory(nil, pnum).Name:gsub("\\$", ""))
-  ------------------------------------------------------------------------------
-  elseif s == "HostFile" then
-    return panel.GetPanelHostFile(nil, pnum)
-  elseif s == "Prefix" then
-    return panel.GetPanelPrefix(nil, pnum)
-  end
+function IsUserAdmin()
+  return win.GetEnv("FarAdminMode") == "1"
 end
-
-function meta.__newindex (tb, s, i)
-  local pnum = tb==APanel and 1 or 0
-  local panelInfo = panel.GetPanelInfo(nil, pnum)
-  if not panelInfo then return end
-  if s == "CurPos" then
-    i = range(i, 1, panelInfo.ItemsNumber) -- out of range can crash Far
-    panel.RedrawPanel(nil, pnum, { CurrentItem = i })
-  end
-end
-
-setmetatable(APanel, meta)
-setmetatable(PPanel, meta)
 
 local areas = {
   [F.MACROAREA_OTHER]                = "Other",
@@ -177,3 +113,140 @@ function mload (key, name)
   end
   return nil
 end
+
+--------------------------------------------------------------------------------
+-- гюбхяъыхе нр йнмрейярю хяонкмемхъ
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-- дкъ оюмекеи
+--------------------------------------------------------------------------------
+
+APanel, PPanel = {}, {}
+local meta = { __metatable="access denied" }
+
+function meta.__index (tb, s)
+  local pnum = tb==PPanel and 0 or 1
+  local panelInfo = panel.GetPanelInfo(nil, pnum)
+  if not panelInfo then return nil end
+  ------------------------------------------------------------------------------
+  if s == "Root" then
+    local dir = panel.GetPanelDirectory(nil, pnum).Name
+    return dir:lower() == far.GetPathRoot(dir):lower()
+  elseif s == "Bof" then
+    return panelInfo.CurrentItem == 1
+  elseif s == "Eof" then
+    return panelInfo.CurrentItem == panelInfo.ItemsNumber
+  elseif s == "Empty" then
+    return (panelInfo.ItemsNumber == 0) or (panelInfo.ItemsNumber == 1 and
+      not not panel.GetPanelItem(nil,pnum,1).FileName:find("^%.%.[\\/]?$"))
+  elseif s == "Selected" then
+    if panelInfo.SelectedItemsNumber == 1 then
+      local item = panel.GetSelectedPanelItem(nil,pnum,1)
+      return item and 0 ~= band(item.Flags, F.PPIF_SELECTED)
+    end
+    return panelInfo.SelectedItemsNumber > 1
+  elseif s == "Folder" then
+    local item = panel.GetCurrentPanelItem(nil, pnum)
+    return not not (item and item.FileAttributes:find"d")
+  elseif s == "Plugin" then
+    return 0 ~= band(panelInfo.Flags, F.PFLAGS_PLUGIN)
+  ------------------------------------------------------------------------------
+  elseif s == "FilePanel" then
+    return panelInfo.PanelType == F.PTYPE_FILEPANEL
+  elseif s == "Left" then
+    return 0 ~= band(panelInfo.Flags, F.PFLAGS_PANELLEFT)
+  elseif s == "Visible" then
+    return 0 ~= band(panelInfo.Flags, F.PFLAGS_VISIBLE)
+  ------------------------------------------------------------------------------
+  elseif s == "ColumnCount" then
+    local _,n = panel.GetColumnTypes(nil, pnum):gsub("," ,"")
+    return n + 1
+  elseif s == "ItemCount" then
+    return panelInfo.ItemsNumber
+  elseif s == "CurPos" then
+    return panelInfo.CurrentItem
+  elseif s == "SelCount" then
+    return panelInfo.SelectedItemsNumber
+  elseif s == "Current" then
+    local item = panel.GetCurrentPanelItem(nil, pnum)
+    return item and item.FileName or ""
+  elseif s == "Path" then
+    return (panel.GetPanelDirectory(nil, pnum).Name:gsub("\\$", ""))
+  ------------------------------------------------------------------------------
+  elseif s == "HostFile" then
+    return panel.GetPanelHostFile(nil, pnum)
+  elseif s == "Prefix" then
+    return panel.GetPanelPrefix(nil, pnum)
+  ------------------------------------------------------------------------------
+  elseif s == "Height" then
+    return panelInfo.PanelRect.bottom - panelInfo.PanelRect.top + 1
+  elseif s == "Width" then
+    return panelInfo.PanelRect.right - panelInfo.PanelRect.left + 1
+  elseif s == "Type" then
+    return panelInfo.PanelType
+  end
+end
+
+function meta.__newindex (tb, s, i)
+  local pnum = tb==APanel and 1 or 0
+  local panelInfo = panel.GetPanelInfo(nil, pnum)
+  if not panelInfo then return end
+  if s == "CurPos" then
+    i = range(i, 1, panelInfo.ItemsNumber) -- out of range can crash Far
+    panel.RedrawPanel(nil, pnum, { CurrentItem = i })
+  end
+end
+
+setmetatable(APanel, meta)
+setmetatable(PPanel, meta)
+
+--------------------------------------------------------------------------------
+-- дкъ йнлюмдмни ярпнйх
+--------------------------------------------------------------------------------
+CmdLine = {}
+local meta = { __metatable="access denied" }
+
+function meta.__index (tb, s)
+  if s == "Bof" then
+    return panel.GetCmdLinePos()==1
+  elseif s == "Eof" then
+    return panel.GetCmdLinePos()==panel.GetCmdLine():len()+1
+  elseif s == "Empty" then
+    return panel.GetCmdLine()==""
+  elseif s == "Selected" then
+    local from,to = panel.GetCmdLineSelection()
+    return to >= from
+  elseif s == "ItemCount" then
+    return panel.GetCmdLine():len()
+  elseif s == "CurPos" then
+    return panel.GetCmdLinePos()
+  elseif s == "Value" then
+    return panel.GetCmdLine()
+  end
+end
+
+function meta.__newindex (tb, s, i)
+end
+
+setmetatable(CmdLine, meta)
+
+--------------------------------------------------------------------------------
+-- дкъ педюйрнпю
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-- дкъ бмсрпеммеи опнцпюллш опнялнрпю
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-- дкъ дхюкнцнб
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-- дкъ лемч х яохяйнб
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+-- дкъ яхярелш онлных
+--------------------------------------------------------------------------------
