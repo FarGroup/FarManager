@@ -208,7 +208,7 @@ class Panel:public ScreenObject
 		*/
 		virtual void UpdateIfRequired() {}
 
-		virtual void StartFSWatcher() {}
+		virtual void StartFSWatcher(bool got_focus=false) {}
 		virtual void StopFSWatcher() {}
 		virtual int FindPartName(const wchar_t *Name,int Next,int Direct=1,int ExcludeSets=0) {return FALSE;}
 		virtual bool GetPlainString(string& Dest,int ListPos){return false;}

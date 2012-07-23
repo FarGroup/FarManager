@@ -539,9 +539,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if (Opt.ChangeDriveMode & (DRIVE_SHOW_SIZE|DRIVE_SHOW_SIZE_FLOAT))
 			{
 				string strTotalText, strFreeText;
-				unsigned __int64 TotalSize = 0, TotalFree = 0, UserFree = 0;
+				unsigned __int64 TotalSize = 0, UserFree = 0;
 
-				if (ShowDisk && apiGetDiskSize(strRootDir,&TotalSize,&TotalFree,&UserFree))
+				if (ShowDisk && apiGetDiskSize(strRootDir,&TotalSize, nullptr, &UserFree))
 				{
 					if (Opt.ChangeDriveMode & DRIVE_SHOW_SIZE)
 					{

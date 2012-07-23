@@ -251,35 +251,35 @@ lv=3
 dt=Text
 nm=APanel, PPanel
 ctime=3551992161
-mtime=3552204538
+mtime=3552248079
 <article>
 #_**APanel**, **PPanel**: tables with the following fields:
 #_
-#_  Root:        boolean, [r]
-#_  Bof:         boolean, [r]
-#_  Eof:         boolean, [r]
-#_  Empty:       boolean, [r]
-#_  Selected:    boolean, [r]
-#_  Folder:      boolean, [r]
-#_  Plugin:      boolean, [r]
+#_  Root:        boolean
+#_  Bof:         boolean
+#_  Eof:         boolean
+#_  Empty:       boolean
+#_  Selected:    boolean
+#_  Folder:      boolean
+#_  Plugin:      boolean
 #_
-#_  FilePanel:   boolean, [r]
-#_  Left:        boolean, [r]
-#_  Visible:     boolean, [r]
+#_  FilePanel:   boolean
+#_  Left:        boolean
+#_  Visible:     boolean
 #_
-#_  ColumnCount: integer, [r]
-#_  ItemCount:   integer, [r]
-#_  CurPos:      integer, [rw]
-#_  SelCount:    integer, [r]
-#_  Current:     string,  [r]
-#_  Path:        string,  [r]
+#_  ColumnCount: integer
+#_  ItemCount:   integer
+#_  CurPos:      integer
+#_  SelCount:    integer
+#_  Current:     string
+#_  Path:        string
 #_
-#_  HostFile:    string,  [r]
-#_  Prefix:      string,  [r]
+#_  HostFile:    string
+#_  Prefix:      string
 #_
-#_  Height:      integer, [r]
-#_  Width:       integer, [r]
-#_  Type:        integer, [r]
+#_  Height:      integer
+#_  Width:       integer
+#_  Type:        integer
 #_
 </article>
 </node>
@@ -299,17 +299,17 @@ lv=3
 dt=Text
 nm=CmdLine
 ctime=3552224659
-mtime=3552224774
+mtime=3552248108
 <article>
 #_**CmdLine**: table with the following fields:
 #_
-#_  Bof:         boolean, [r]
-#_  Eof:         boolean, [r]
-#_  Empty:       boolean, [r]
-#_  Selected:    boolean, [r]
-#_  ItemCount:   integer, [r]
-#_  CurPos:      integer, [r]
-#_  Value:       string,  [r]
+#_  Bof:         boolean
+#_  Eof:         boolean
+#_  Empty:       boolean
+#_  Selected:    boolean
+#_  ItemCount:   integer
+#_  CurPos:      integer
+#_  Value:       string
 #_
 </article>
 </node>
@@ -321,6 +321,26 @@ nm=Для редактора
 ctime=3552221161
 mtime=3552221161
 <article>
+</article>
+</node>
+<node>
+id=32
+lv=3
+dt=Text
+nm=Editor
+ctime=3552241023
+mtime=3552248119
+<article>
+#_**Editor**: table with the following fields:
+#_
+#_  FileName:    string
+#_  Lines:       integer
+#_  CurLine:     integer
+#_  CurPos:      integer
+#_  RealPos:     integer
+#_  Value:       string
+#_  SelValue:    string
+#_
 </article>
 </node>
 <node>
@@ -367,7 +387,7 @@ mtime=3552221228
 id=5
 lv=1
 dt=Text
-nm=Misc
+nm=Разное
 ctime=3551990771
 mtime=3551990771
 <article>
@@ -517,7 +537,7 @@ mtime=3551992277
 id=29
 lv=1
 dt=Text
-nm=Examples
+nm=Примеры
 ctime=3552222267
 mtime=3552222267
 <article>

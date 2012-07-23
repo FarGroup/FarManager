@@ -1059,27 +1059,29 @@ int apiGetFileTypeByName(const string& Name)
 	return Type;
 }
 
-BOOL apiGetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
+bool apiGetDiskSize(const string& Path,unsigned __int64 *TotalSize, unsigned __int64 *TotalFree, unsigned __int64 *UserFree)
 {
-	int ExitCode=0;
+	bool Result = false;
 	unsigned __int64 uiTotalSize,uiTotalFree,uiUserFree;
 	uiUserFree=0;
 	uiTotalSize=0;
 	uiTotalFree=0;
 	NTPath strPath(Path);
 	AddEndSlash(strPath);
-	ExitCode=GetDiskFreeSpaceEx(strPath,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree);
+	if(GetDiskFreeSpaceEx(strPath,(PULARGE_INTEGER)&uiUserFree,(PULARGE_INTEGER)&uiTotalSize,(PULARGE_INTEGER)&uiTotalFree))
+	{
+		Result = true;
 
-	if (TotalSize)
-		*TotalSize = uiTotalSize;
+		if (TotalSize)
+			*TotalSize = uiTotalSize;
 
-	if (TotalFree)
-		*TotalFree = uiTotalFree;
+		if (TotalFree)
+			*TotalFree = uiTotalFree;
 
-	if (UserFree)
-		*UserFree = uiUserFree;
-
-	return ExitCode;
+		if (UserFree)
+			*UserFree = uiUserFree;
+	}
+	return Result;
 }
 
 HANDLE apiFindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkName)

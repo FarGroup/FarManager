@@ -345,9 +345,9 @@ void InfoList::DisplayObject()
 	if (SectionState[ILSS_DISKINFO].Show)
 	{
 		/* #2.2 - disk info: size */
-		unsigned __int64 TotalSize,TotalFree,UserFree;
+		unsigned __int64 TotalSize, UserFree;
 
-		if (apiGetDiskSize(strCurDir,&TotalSize,&TotalFree,&UserFree))
+		if (apiGetDiskSize(strCurDir,&TotalSize, nullptr, &UserFree))
 		{
 			GotoXY(X1+2,CurY++);
 			PrintText(MInfoDiskTotal);

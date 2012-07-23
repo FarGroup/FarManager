@@ -64,7 +64,7 @@ void FileSystemWatcher::Set(const wchar_t* Directory, bool WatchSubtree)
 	}
 }
 
-bool FileSystemWatcher::Watch()
+bool FileSystemWatcher::Watch(bool got_focus)
 {
 	DisableElevation de;
 	if(Handle == INVALID_HANDLE_VALUE)
@@ -77,21 +77,25 @@ bool FileSystemWatcher::Watch()
 		FILE_NOTIFY_CHANGE_LAST_WRITE);
 	}
 
-	bool isFAT = false;
-	string strRoot, strFileSystem;
-	GetPathRoot(Directory.CPtr(), strRoot);
-	if (!strRoot.IsEmpty())
+	bool check_time = true;
+	if (got_focus)
 	{
-		if (apiGetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
-			isFAT = (strFileSystem.SubStr(0,3) == L"FAT");
+		bool isFAT = false;
+		string strRoot, strFileSystem;
+		GetPathRoot(Directory.CPtr(), strRoot);
+		if (!strRoot.IsEmpty())
+		{
+			if (apiGetVolumeInformation(strRoot, nullptr, nullptr, nullptr, nullptr, &strFileSystem))
+				isFAT = (strFileSystem.SubStr(0,3) == L"FAT");
+		}
+		if (isFAT)             // emulate FAT folder time change
+		{                      // otherwise changes missed (FAT folder time is NOT modified)
+			check_time = false; // the price is directory reload on each GOT_FOCUS event
+			PreviousLastWriteTime.dwLowDateTime = CurrentLastWriteTime.dwLowDateTime - 1;
+		}
 	}
 
-	if (isFAT)
-	{
-		if (++CurrentLastWriteTime.dwLowDateTime == 0)
-			++CurrentLastWriteTime.dwHighDateTime;
-	}
-	else
+	if (check_time)
 	{
 		File dir;
 		bool TimeOk = false;

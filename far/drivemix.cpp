@@ -119,13 +119,12 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 		if (Upper(strDestRoot.At(0))==Upper(strSrcRoot.At(0)))
 			return TRUE;
 
-		unsigned __int64 SrcTotalSize,SrcTotalFree,SrcUserFree;
-		unsigned __int64 DestTotalSize,DestTotalFree,DestUserFree;
+		unsigned __int64 SrcTotalSize, DestTotalSize;
 
-		if (!apiGetDiskSize(SrcPath,&SrcTotalSize,&SrcTotalFree,&SrcUserFree))
+		if (!apiGetDiskSize(SrcPath, &SrcTotalSize, nullptr, nullptr))
 			return FALSE;
 
-		if (!apiGetDiskSize(DestPath,&DestTotalSize,&DestTotalFree,&DestUserFree))
+		if (!apiGetDiskSize(DestPath, &DestTotalSize, nullptr, nullptr))
 			return FALSE;
 
 		if (!(SrcVolumeNumber &&

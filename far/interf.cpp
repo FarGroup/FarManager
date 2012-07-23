@@ -457,12 +457,7 @@ void GetVideoMode(COORD& Size)
 
 void ShowTime(int ShowAlways)
 {
-	string strClockText;
 	static SYSTEMTIME lasttm={};
-	SYSTEMTIME tm;
-	GetLocalTime(&tm);
-	FAR_CHAR_INFO ScreenClockText[5];
-	GetText(ScrX-4,0,ScrX,0,ScreenClockText,sizeof(ScreenClockText));
 
 	if (ShowAlways==2)
 	{
@@ -470,12 +465,20 @@ void ShowTime(int ShowAlways)
 		return;
 	}
 
-	if ((!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour &&
-	        ScreenClockText[2].Char==L':') || ScreenSaverActive)
+	if (ScreenSaverActive)
+		return;
+
+	SYSTEMTIME tm;
+	FAR_CHAR_INFO colon;
+	GetLocalTime(&tm);
+	GetText(ScrX-4+2,0,ScrX-4+2,0,&colon,sizeof(colon));
+	if (!ShowAlways && lasttm.wMinute==tm.wMinute && lasttm.wHour==tm.wHour && colon.Char==L':')
 		return;
 
 	ProcessShowClock++;
+
 	lasttm=tm;
+	string strClockText;
 	strClockText.Format(L"%02d:%02d",tm.wHour,tm.wMinute);
 	GotoXY(ScrX-4,0);
 

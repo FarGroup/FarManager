@@ -697,7 +697,7 @@ void Manager::ProcessMainLoop()
 	else
 	{
 		// Mantis#0000073: Не работает автоскролинг в QView
-		WaitInMainLoop=IsPanelsActive() && ((FilePanels*)CurrentFrame)->ActivePanel->GetType()!=QVIEW_PANEL;
+		WaitInMainLoop=IsPanelsActive(true);
 		//WaitInFastFind++;
 		int Key=GetInputRecord(&LastInputRecord);
 		//WaitInFastFind--;
@@ -1248,11 +1248,13 @@ void Manager::PluginsMenu()
 	_MANAGER(SysLog(-1));
 }
 
-bool Manager::IsPanelsActive()
+bool Manager::IsPanelsActive(bool and_not_qview)
 {
-	if (FramePos>=0)
+	if (FramePos>=0 && CurrentFrame)
 	{
-		return CurrentFrame?CurrentFrame->GetType() == MODALTYPE_PANELS:false;
+		return CurrentFrame->GetType() == MODALTYPE_PANELS &&
+		   (!and_not_qview || ((FilePanels*)CurrentFrame)->ActivePanel->GetType()!=QVIEW_PANEL)
+		;
 	}
 	else
 	{

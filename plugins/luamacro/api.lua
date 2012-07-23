@@ -1,7 +1,7 @@
 -- api.lua
 
 local F=far.Flags
-local band = bit64.band
+local band,bor = bit64.band,bit64.bor
 
 local function range (x,a,b)
   if a>b then a,b=b,a end
@@ -13,6 +13,10 @@ local function checkarg (arg, argnum, reftype)
   if type(arg) ~= reftype then
     error(("arg. #%d: %s expected, got %s"):format(argnum, reftype, type(arg)), 3)
   end
+end
+
+local function UnsupportedProperty (s)
+  error("property not supported: "..tostring(s), 3)
 end
 
 --------------------------------------------------------------------------------
@@ -185,17 +189,12 @@ function meta.__index (tb, s)
     return panelInfo.PanelRect.right - panelInfo.PanelRect.left + 1
   elseif s == "Type" then
     return panelInfo.PanelType
+  else
+    UnsupportedProperty(s)
   end
 end
 
 function meta.__newindex (tb, s, i)
-  local pnum = tb==APanel and 1 or 0
-  local panelInfo = panel.GetPanelInfo(nil, pnum)
-  if not panelInfo then return end
-  if s == "CurPos" then
-    i = range(i, 1, panelInfo.ItemsNumber) -- out of range can crash Far
-    panel.RedrawPanel(nil, pnum, { CurrentItem = i })
-  end
 end
 
 setmetatable(APanel, meta)
@@ -223,6 +222,8 @@ function meta.__index (tb, s)
     return panel.GetCmdLinePos()
   elseif s == "Value" then
     return panel.GetCmdLine()
+  else
+    UnsupportedProperty(s)
   end
 end
 
@@ -234,6 +235,54 @@ setmetatable(CmdLine, meta)
 --------------------------------------------------------------------------------
 -- ƒÀﬂ –≈ƒ¿ “Œ–¿
 --------------------------------------------------------------------------------
+Editor = {}
+local meta = { __metatable="access denied" }
+
+-- Taken from plugin LF4Ed.
+local function GetSelectedText()
+  local ei = editor.GetInfo()
+  if ei and ei.BlockType ~= F.BTYPE_NONE then
+    local t = {}
+    local n = ei.BlockStartLine
+    while true do
+      local s = editor.GetString(nil, n, 1)
+      if not s or s.SelStart == -1 then
+        break
+      end
+      local sel = s.StringText:sub (s.SelStart+1, s.SelEnd)
+      table.insert(t, sel)
+      n = n + 1
+    end
+    editor.SetPosition(nil, ei)
+    return table.concat(t, "\n")
+  end
+end
+
+function meta.__index (tb, s)
+  local info = assert(editor.GetInfo(), "no editor instance is open.")
+  if s == "FileName" then
+    return info.FileName
+  elseif s == "Lines" then
+    return info.TotalLines
+  elseif s == "CurLine" then
+    return info.CurLine+1
+  elseif s == "CurPos" then
+    return info.CurTabPos+1
+  elseif s == "RealPos" then
+    return info.CurPos+1
+  elseif s == "Value" then
+    return editor.GetString().StringText
+  elseif s == "SelValue" then
+    return GetSelectedText() or ""
+  else
+    UnsupportedProperty(s)
+  end
+end
+
+function meta.__newindex (tb, s, i)
+end
+
+setmetatable(Editor, meta)
 
 --------------------------------------------------------------------------------
 -- ƒÀﬂ ¬Õ”“–≈ÕÕ≈… œ–Œ√–¿ÃÃ€ œ–Œ—ÃŒ“–¿
