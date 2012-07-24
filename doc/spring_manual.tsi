@@ -66,12 +66,12 @@ lv=3
 dt=Text
 nm=AKey
 ctime=3551992029
-mtime=3552142487
+mtime=3552331443
 <article>
 #_**AKey:** string
 #_
-#_**Description:**
-#_  The key that invoked this macro's execution.
+#_**Описание:**
+#_  Ключ, запустивший данный макрос на исполнение.
 #_
 </article>
 </node>
@@ -95,15 +95,15 @@ lv=3
 dt=Text
 nm=MacroArea
 ctime=3551992166
-mtime=3552142656
+mtime=3552331520
 <article>
 #_area = MacroArea()
 #_
-#_**Parameters:**
-#_  none
+#_**Параметры:**
+#_  нет
 #_
-#_**Returns:**
-#_  area: string (one of the string literals below)
+#_**Возвращает:**
+#_  area: string (один из следующих стринговых литералов)
 #_    "Other"
 #_    "Shell"
 #_    "Viewer"
@@ -123,8 +123,8 @@ mtime=3552142656
 #_    "DialogAutoCompletion"
 #_    "Unknown"
 #_
-#_**Description:**
-#_  Returns the current area of macro execution.
+#_**Описание:**
+#_  Возвращает текущую область исполнения макроса.
 #_
 </article>
 </node>
@@ -134,19 +134,20 @@ lv=3
 dt=Text
 nm=mdelete
 ctime=3552066075
-mtime=3552067004
+mtime=3552331539
 <article>
-#_mdelete (key [, name])
+#_mdelete (key, name)
 #_
-#_**Parameters:**
+#_**Параметры:**
 #_  key:  string
-#_  name: string (if *name* is not specified then *key* is deleted)
+#_  name: string
 #_
-#_**Returns:**
-#_  nothing
+#_**Возвращает:**
+#_  ничего
 #_
-#_**Description:**
+#_**Описание:**
 #_  Функция *mdelete* удаляет значение или ключ из базы данных.
+#_  Для удаления ключа следует указать параметр *name* == `"*"` (звёздочку).
 #_
 </article>
 </node>
@@ -156,18 +157,18 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3552066946
+mtime=3552331561
 <article>
 #_ret = mload (key, name)
 #_
-#_**Parameters:**
+#_**Параметры:**
 #_  key:   string
 #_  name:  string
 #_
-#_**Returns:**
-#_  ret:   number, string, boolean, table, or nil.
+#_**Возвращает:**
+#_  ret:   number, string, boolean, table или nil.
 #_
-#_**Description:**
+#_**Описание:**
 #_  Функция *mload* читает значение из базы данных.
 #_
 #_
@@ -179,21 +180,22 @@ lv=3
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3552066938
+mtime=3552332698
 <article>
 #_msave (key, name, value)
 #_
-#_**Parameters:**
+#_**Параметры:**
 #_  key:         string
 #_  name:        string
-#_  value:       number, string, boolean, or table
+#_  value:       number, string, boolean или table
 #_
-#_**Returns:**
-#_  nothing
+#_**Возвращает:**
+#_  ничего
 #_
-#_**Description:**
-#_  Функция *msave* сохраняет переданное значение в базу данных. При сохранении
-#_  таблиц будут сохраняться только ключи и значения типов number, string, boolean.
+#_**Описание:**
+#_  Функция *msave* сохраняет переданное значение в базу данных.
+#_  При сохранении таблиц будут сохраняться только ключи и значения
+#_  типов: number, string, boolean.
 #_
 #_
 </article>
@@ -204,23 +206,23 @@ lv=3
 dt=Text
 nm=SendKeys
 ctime=3551902602
-mtime=3552034716
+mtime=3552331701
 <article>
 #_SendKeys (str)
 #_
-#_**Parameters:**
+#_**Параметры:**
 #_  str: string
 #_
-#_**Returns:**
-#_  nothing
+#_**Возвращает:**
+#_  ничего
 #_
-#_**Description:**
-#_  Send one or more keys to Far.
+#_**Описание:**
+#_  Послать один или более ключей Фару.
 #_
 #_**Note:**
-#_  If a script creates coroutines, this function should **not** be called from them.
+#_  Если скрипт создаёт корутины, не следует вызывать данную функцию из них.
 #_
-#_**Example:**
+#_**Пример:**
 #_  SendKeys("A b CtrlC ShiftEnter")
 #_
 </article>
@@ -251,9 +253,9 @@ lv=3
 dt=Text
 nm=APanel, PPanel
 ctime=3551992161
-mtime=3552248079
+mtime=3552331754
 <article>
-#_**APanel**, **PPanel**: tables with the following fields:
+#_**APanel**, **PPanel**: таблицы со следующими полями:
 #_
 #_  Root:        boolean
 #_  Bof:         boolean
@@ -299,9 +301,9 @@ lv=3
 dt=Text
 nm=CmdLine
 ctime=3552224659
-mtime=3552248108
+mtime=3552331778
 <article>
-#_**CmdLine**: table with the following fields:
+#_**CmdLine**: таблица со следующими полями:
 #_
 #_  Bof:         boolean
 #_  Eof:         boolean
@@ -329,9 +331,9 @@ lv=3
 dt=Text
 nm=Editor
 ctime=3552241023
-mtime=3552248119
+mtime=3552331789
 <article>
-#_**Editor**: table with the following fields:
+#_**Editor**: таблица со следующими полями:
 #_
 #_  FileName:    string
 #_  Lines:       integer
@@ -351,6 +353,20 @@ nm=Для внутренней программы просмотра
 ctime=3552221188
 mtime=3552221188
 <article>
+</article>
+</node>
+<node>
+id=33
+lv=3
+dt=Text
+nm=Viewer
+ctime=3552334661
+mtime=3552334674
+<article>
+#_**Viewer**: таблица со следующими полями:
+#_
+#_  FileName:    string
+#_
 </article>
 </node>
 <node>
@@ -397,19 +413,18 @@ mtime=3551990771
 id=2
 lv=2
 dt=Text
-nm=Macros beginning with @
+nm=Макросы, начинающиеся с @
 ctime=3551901528
-mtime=3551991211
+mtime=3552332009
 <article>
 #_<markdown>
-#_If a macro sequence begins with a character `@` then the rest of it is interpreted
-#_as a name of file containing the script.
+#_Если макропоследовательность начинается с символа `@`, то последующая её часть интерпретируется как имя файла, содержащего скрипт.
 #_
-#_Environment variables are expanded.
+#_Переменные окружения расширяются.
 #_
-#_Such macros are easier to debug and modify, since no reloading to database is needed.
+#_Такие макросы легче отлаживать и модифицировать, так как не требуется их перезагрузка в базу данных.
 #_
-#_**Example:** `@%FARHOME%\macros\editor\shift.lua`
+#_**Пример:** `@%FARHOME%\macros\editor\shift.lua`
 #_
 </article>
 </node>
@@ -417,7 +432,7 @@ mtime=3551991211
 id=14
 lv=2
 dt=Text
-nm=Variables
+nm=Переменные
 ctime=3552028510
 mtime=3552029446
 <article>
@@ -443,22 +458,19 @@ mtime=3552029446
 id=3
 lv=2
 dt=Text
-nm=No action macros
+nm=Макросы без действия
 ctime=3551902073
-mtime=3551902386
+mtime=3552332235
 <article>
 #_<markdown>
-#_Sometimes there's a need to cancel the predefined action of some key (e.g. F2 in the editor)
-#_and not to perform any other action. This can be achieved by assigning that key a macro
-#_consisting of just a comment `--` (two dashes).
-#_
+#_Иногда нужно отменить действие какой-либо клавиши (например F2 в редакторе), не выполняя при этом никакого другого действия. Это можно сделать, назначив данной клавише макрос, состоящий только из комментария `--` (два минуса).
 </article>
 </node>
 <node>
 id=7
 lv=2
 dt=Text
-nm=Plugin Luamacro
+nm=Плагин Luamacro
 ctime=3551991405
 mtime=3552030311
 <article>
@@ -520,20 +532,6 @@ mtime=3552030311
 </article>
 </node>
 <node>
-id=8
-lv=2
-dt=Text
-nm=Globals
-ctime=3551992009
-mtime=3551992277
-<article>
-#_<markdown>
-#_Скрипт получает окружение, в котором установлены некоторые глобальные переменные (помимо глобальных переменных, устанавливаемых Lua и LuaFAR'ом).
-#_
-#_
-</article>
-</node>
-<node>
 id=29
 lv=1
 dt=Text
@@ -547,7 +545,7 @@ mtime=3552222267
 id=30
 lv=2
 dt=Text
-nm=Select newer files
+nm=Выделить файлы новее текущего
 ctime=3552222560
 mtime=3552222847
 <article>

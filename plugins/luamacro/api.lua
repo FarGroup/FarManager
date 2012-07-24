@@ -82,13 +82,11 @@ end
 
 function mdelete (key, name)
   checkarg(key, 1, "string")
-  if name then
-    checkarg(name, 2, "string")
-  end
+  checkarg(name, 2, "string")
   local obj = far.CreateSettings()
   local subkey = obj:OpenSubkey(0, key)
   if subkey then
-    obj:Delete(subkey, name or nil)
+    obj:Delete(subkey, name~="*" and name or nil)
   end
   obj:Free()
 end
@@ -287,6 +285,22 @@ setmetatable(Editor, meta)
 --------------------------------------------------------------------------------
 -- дкъ бмсрпеммеи опнцпюллш опнялнрпю
 --------------------------------------------------------------------------------
+Viewer = {}
+local meta = { __metatable="access denied" }
+
+function meta.__index (tb, s)
+  local info = assert(viewer.GetInfo(), "no viewer instance is open.")
+  if s == "FileName" then
+    return info.FileName
+  else
+    UnsupportedProperty(s)
+  end
+end
+
+function meta.__newindex (tb, s, i)
+end
+
+setmetatable(Viewer, meta)
 
 --------------------------------------------------------------------------------
 -- дкъ дхюкнцнб
