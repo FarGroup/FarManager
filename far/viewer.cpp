@@ -208,6 +208,9 @@ Viewer::~Viewer()
 		CtrlObject->Plugins->CurViewer=this; //HostFileViewer;
 		CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);
 	}
+
+	if (this == CtrlObject->Plugins->CurViewer)
+		CtrlObject->Plugins->CurViewer = nullptr;
 }
 
 

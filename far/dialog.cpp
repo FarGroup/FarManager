@@ -2425,6 +2425,34 @@ int Dialog::ProcessKey(int Key)
 
 	if (!(/*(Key>=KEY_MACRO_BASE && Key <=KEY_MACRO_ENDBASE) ||*/ ((unsigned int)Key>=KEY_OP_BASE && (unsigned int)Key <=KEY_OP_ENDBASE)) && !DialogMode.Check(DMODE_KEY))
 	{
+#if 1	// wrap-stop mode for user lists
+		if ((Key==KEY_UP || Key==KEY_NUMPAD8 || Key==KEY_DOWN || Key==KEY_NUMPAD2) && IsRepeatedKey())
+		{
+			int n = -1, pos = -1;
+
+			FarGetValue fgv = {11, {FMVT_INTEGER}}; // Item Count
+			fgv.Value.Integer = -1;
+			if (SendDlgMessage((HANDLE)this,DN_GETVALUE,FocusPos,&fgv) && fgv.Value.Type==FMVT_INTEGER)
+				n = static_cast<int>(fgv.Value.Integer);
+
+			if (n > 1)
+			{
+				fgv.Type = 7; // Current Item
+				fgv.Value.Integer = -1;
+				if (SendDlgMessage((HANDLE)this,DN_GETVALUE,FocusPos,&fgv) && fgv.Value.Type==FMVT_INTEGER)
+					pos = static_cast<int>(fgv.Value.Integer);
+
+				bool up = (Key==KEY_UP || Key==KEY_NUMPAD8);
+
+				if ((pos==1 && up) || (pos==n && !up))
+					return TRUE;
+				else if (pos==2 && up)   // workaround for first not selectable
+					Key = KEY_HOME;
+				else if (pos==n-1 && !up) // workaround for last not selectable
+					Key = KEY_END;
+			}
+		}
+#endif
 		INPUT_RECORD rec;
 		if (KeyToInputRecord(Key,&rec) && DlgProc(this,DN_CONTROLINPUT,FocusPos,&rec))
 			return TRUE;

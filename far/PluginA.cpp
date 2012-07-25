@@ -2590,6 +2590,8 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 	}
 	else switch (OldMsg)
 	{
+		case oldfar::DN_BTNCLICK:     Msg = DN_BTNCLICK; break;
+
 		case oldfar::DM_CLOSE:        Msg = DM_CLOSE; break;
 		case oldfar::DM_ENABLE:       Msg = DM_ENABLE; break;
 		case oldfar::DM_ENABLEREDRAW: Msg = DM_ENABLEREDRAW; break;

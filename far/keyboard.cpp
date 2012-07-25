@@ -433,18 +433,10 @@ int KeyToKeyLayout(int Key)
 
 /*
   State:
-    -1 get state
-     0 off
-     1 on
-     2 flip
+    -1 get state, 0 off, 1 on, 2 flip
 */
 int SetFLockState(UINT vkKey, int State)
 {
-	/*
-	   VK_NUMLOCK (90)
-	   VK_SCROLL (91)
-	   VK_CAPITAL (14)
-	*/
 	UINT ExKey=(vkKey==VK_CAPITAL?0:KEYEVENTF_EXTENDEDKEY);
 
 	switch (vkKey)
@@ -825,7 +817,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		   ! Убрал подмену колесика */
 		if (ReadCount)
 		{
-			//cheat for flock
+			//check for flock
 			if (rec->EventType==KEY_EVENT && !rec->Event.KeyEvent.wVirtualScanCode && (rec->Event.KeyEvent.wVirtualKeyCode==VK_NUMLOCK||rec->Event.KeyEvent.wVirtualKeyCode==VK_CAPITAL||rec->Event.KeyEvent.wVirtualKeyCode==VK_SCROLL))
 			{
 				INPUT_RECORD pinp;
@@ -835,55 +827,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 				last_pressed_keycode = (WORD)-1;
 				continue;
 			}
-
-			//_SVS(INPUT_RECORD_DumpBuffer());
-			#if 0
-
-			if (rec->EventType==KEY_EVENT)
-			{
-				// берем количество оставшейся порции эвентов
-				DWORD ReadCount2;
-				GetNumberOfConsoleInputEvents(Console.GetInputHandle(),&ReadCount2);
-
-				// если их безобразно много, то просмотрим все на предмет KEY_EVENT
-				if (ReadCount2 > 1)
-				{
-					INPUT_RECORD *TmpRec=(INPUT_RECORD*)xf_malloc(sizeof(INPUT_RECORD)*ReadCount2);
-
-					if (TmpRec)
-					{
-						DWORD ReadCount3;
-						INPUT_RECORD TmpRec2;
-						Console.PeekInput(Console.GetInputHandle(),TmpRec,ReadCount2,&ReadCount3);
-
-						for (int I=0; I < ReadCount2; ++I)
-						{
-							if (TmpRec[I].EventType!=KEY_EVENT)
-								break;
-
-							// // _SVS(SysLog(L"%d> %s",I,_INPUT_RECORD_Dump(rec)));
-							Console.ReadInput((Console.GetInputHandle(),&TmpRec2,1,&ReadCount3);
-
-							if (TmpRec[I].Event.KeyEvent.bKeyDown==1)
-							{
-								if (TmpRec[I].Event.KeyEvent.uChar.AsciiChar )
-									WriteInput(TmpRec[I].Event.KeyEvent.uChar.AsciiChar,0);
-							}
-							else if (TmpRec[I].Event.KeyEvent.wVirtualKeyCode==0x12)
-							{
-								if (TmpRec[I].Event.KeyEvent.uChar.AsciiChar )
-									WriteInput(TmpRec[I].Event.KeyEvent.uChar.AsciiChar,0);
-							}
-						}
-
-						// освободим память
-						xf_free(TmpRec);
-						return KEY_NONE;
-					}
-				}
-			}
-
-			#endif
 			break;
 		}
 
@@ -909,33 +852,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			{
 				if (!(LoopCount & 63))
 				{
-					static int Reenter=0;
-
-					if (!Reenter)
-					{
-						Reenter++;
-						SHORT X,Y;
-						GetRealCursorPos(X,Y);
-
-						if (!X && Y==ScrY && CtrlObject->CmdLine->IsVisible())
-						{
-							for (;;)
-							{
-								INPUT_RECORD tmprec;
-								int Key=GetInputRecord(&tmprec);
-
-								if ((DWORD)Key==KEY_NONE || ((DWORD)Key!=KEY_SHIFT && tmprec.Event.KeyEvent.bKeyDown))
-									break;
-							}
-
-							CtrlObject->Cp()->SetScreenPosition();
-							ScrBuf.ResetShadow();
-							ScrBuf.Flush();
-						}
-
-						Reenter--;
-					}
-
 					static int UpdateReenter=0;
 
 					if (!UpdateReenter && CurTime-KeyPressedLastTime>300)
@@ -990,38 +906,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 			last_pressed_keycode = rec->Event.KeyEvent.wVirtualKeyCode;
 		}
 
-		/* коррекция шифта, т.к.
-		NumLock=ON Shift-Numpad1
-		   Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
-		   Dn, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
-		   Up, 1, Vk=0x0023, Scan=0x004F Ctrl=0x00000020 (casa - cecN)
-		>>>Dn, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000030 (caSa - cecN)
-		   Up, 1, Vk=0x0010, Scan=0x002A Ctrl=0x00000020 (casa - cecN)
-		винда вставляет лишний шифт
-		*/
-		/*
-		    if(rec->Event.KeyEvent.wVirtualKeyCode == VK_SHIFT)
-		    {
-		      if(rec->Event.KeyEvent.bKeyDown)
-		      {
-		        if(!ShiftState)
-		          ShiftState=TRUE;
-		        else // Здесь удалим из очереди... этот самый кривой шифт
-		        {
-		          INPUT_RECORD pinp;
-		          DWORD nread;
-		          Console.ReadInput((Console.GetInputHandle(), &pinp, 1, &nread);
-		          return KEY_NONE;
-		        }
-		      }
-		      else if(!rec->Event.KeyEvent.bKeyDown)
-		        ShiftState=FALSE;
-		    }
-
-		    if(!(rec->Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED) && ShiftState)
-		      rec->Event.KeyEvent.dwControlKeyState|=SHIFT_PRESSED;
-		*/
-		//_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"%s",_INPUT_RECORD_Dump(rec)));
 		DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
 
 		//_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
@@ -1106,22 +990,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 	//_SVS(if(rec->EventType==KEY_EVENT)SysLog(L"[%d] if(rec->EventType==KEY_EVENT) >>> %s",__LINE__,_INPUT_RECORD_Dump(rec)));
 	IntKeyState.ReturnAltValue=FALSE;
 	CalcKey=CalcKeyCode(rec,TRUE,&NotMacros);
-	/*
-	  if(CtrlObject && CtrlObject->Macro.IsRecording() && (CalcKey == (KEY_ALT|KEY_NUMPAD0) || CalcKey == (KEY_ALT|KEY_INS)))
-	  {
-	  	_KEYMACRO(SysLog(L"[%d] CALL CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));
-	  	FrameManager->SetLastInputRecord(rec);
-	  	irec.IntKey=CalcKey;
-	  	irec.Rec=*rec;
-	    if(CtrlObject->Macro.ProcessEvent(&irec))
-	    {
-	      RunGraber();
-	      rec->EventType=0;
-	      CalcKey=KEY_NONE;
-	    }
-	    return(CalcKey);
-	  }
-	*/
 
 	//_SVS(SysLog(L"1) CalcKey=%s",_FARKEY_ToName(CalcKey)));
 	if (IntKeyState.ReturnAltValue && !NotMacros)
@@ -1170,10 +1038,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		}
 		else
 		{
-			if(Opt.WindowMode && (PScrX+1>CurSize.X || PScrY+1>CurSize.Y))
-			{
-				//Console.ClearExtraRegions(FarColorToReal(COL_COMMANDLINEUSERSCREEN));
-			}
 			PrevScrX=PScrX;
 			PrevScrY=PScrY;
 			// _SVS(SysLog(-1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT); return KEY_CONSOLE_BUFFER_RESIZE"));
@@ -1401,19 +1265,6 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		KeyMacro::SetMacroConst(constMsCtrlState,(__int64)CtrlState);
 		KeyMacro::SetMacroConst(constMsEventFlags,(__int64)IntKeyState.MouseEventFlags);
 #endif
-		/*
-		    // Сигнал на прорисовку ;-) Помогает прорисовать кейбар при движении мышью
-		    if(CtrlState != (IntKeyState.CtrlPressed|IntKeyState.AltPressed|IntKeyState.ShiftPressed))
-		    {
-		      static INPUT_RECORD TempRec[2]={
-		        {KEY_EVENT,{1,1,VK_F16,0,{},0}},
-		        {KEY_EVENT,{0,1,VK_F16,0,{},0}}
-		      };
-		      DWORD WriteCount;
-		      TempRec[0].Event.KeyEvent.dwControlKeyState=TempRec[1].Event.KeyEvent.dwControlKeyState=CtrlState;
-					Console.WriteInput(*TempRec, 2, WriteCount);
-		    }
-		*/
 		IntKeyState.CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
 		IntKeyState.AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
 		IntKeyState.ShiftPressed=(CtrlState & SHIFT_PRESSED);
@@ -1690,20 +1541,8 @@ int CheckForEscSilent()
 	// если в "макросе"...
 	if (CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO && FrameManager->GetCurrentFrame())
 	{
-		#if 0
-
-		// ...но ЭТО конец последовательности (не Op-код)...
-		if (CtrlObject->Macro.IsExecutingLastKey() && !CtrlObject->Macro.IsOpCode(CtrlObject->Macro.PeekKey()))
-			CtrlObject->Macro.GetKey(); // ...то "завершим" макрос
-		else
-			Processed=FALSE;
-
-		#else
-
 		if (CtrlObject->Macro.IsDsableOutput())
 			Processed=FALSE;
-
-		#endif
 	}
 
 	if (Processed && PeekInputRecord(&rec))
@@ -1713,22 +1552,6 @@ int CheckForEscSilent()
 		int Key=GetInputRecord(&rec,false,false,false);
 		CtrlObject->Macro.SetMode(MMode);
 
-		/*
-		if(Key == KEY_CONSOLE_BUFFER_RESIZE)
-		{
-		  // апдейтим панели (именно они сейчас!)
-		  LockScreen LckScr;
-		  FrameManager->ResizeAllFrame();
-		  FrameManager->GetCurrentFrame()->Show();
-		  PreRedrawItem preRedrawItem=PreRedraw.Peek();
-		  if(preRedrawItem.PreRedrawFunc)
-		  {
-		    preRedrawItem.PreRedrawFunc();
-		  }
-
-		}
-		else
-		*/
 		if (Key==KEY_ESC)
 			return TRUE;
 		if (Key==KEY_BREAK)
@@ -1914,21 +1737,16 @@ int KeyNameToKey(const wchar_t *Name)
 		}
 	}
 
-	/*
-	if(!(Key&(KEY_ALT|KEY_RCTRL|KEY_CTRL|KEY_RALT|KEY_ALTDIGIT)) && (Key&KEY_SHIFT) && LocalIsalpha(Key&(~KEY_CTRLMASK)))
-	{
-		Key&=~KEY_SHIFT;
-		Key=LocalUpper(Key);
-	}
-	*/
 	// _SVS(SysLog(L"Key=0x%08X (%c) => '%s'",Key,(Key?Key:' '),Name));
 	return (!Key || Pos < Len)? -1: (int)Key;
 }
 
+#ifdef FAR_LUA
 bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText)
 {
 	return KeyToText(InputRecordToKey(Rec),strKeyText);
 }
+#endif
 
 BOOL KeyToText(int Key0, string &strKeyText0)
 {
@@ -2890,24 +2708,11 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 	switch (KeyCode)
 	{
 		case VK_RETURN:
-			//  !!!!!!!!!!!!! - Если "!IntKeyState.ShiftPressed", то Shift-F4 Shift-Enter, не
-			//                  отпуская Shift...
-//_SVS(SysLog(L"IntKeyState.ShiftPressed=%d RealKey=%d !ShiftPressedLast=%d !IntKeyState.CtrlPressed=%d !IntKeyState.AltPressed=%d (%d)",IntKeyState.ShiftPressed,RealKey,ShiftPressedLast,IntKeyState.CtrlPressed,IntKeyState.AltPressed,(IntKeyState.ShiftPressed && RealKey && !ShiftPressedLast && !IntKeyState.CtrlPressed && !IntKeyState.AltPressed)));
-#if 0
-
-			if (IntKeyState.ShiftPressed && RealKey && !ShiftPressedLast && !IntKeyState.CtrlPressed && !IntKeyState.AltPressed && !LastShiftEnterPressed)
-				return(KEY_ENTER);
-
-			LastShiftEnterPressed=Modif&KEY_SHIFT?TRUE:FALSE;
-			return(Modif|KEY_ENTER);
-#else
-
 			if (IntKeyState.ShiftPressed && RealKey && !ShiftPressedLast && !IntKeyState.CtrlPressed && !IntKeyState.AltPressed && !LastShiftEnterPressed)
 				return (CtrlState&ENHANCED_KEY)?KEY_NUMENTER:KEY_ENTER;
 
 			LastShiftEnterPressed=Modif&KEY_SHIFT?TRUE:FALSE;
 			return Modif|((CtrlState&ENHANCED_KEY)?KEY_NUMENTER:KEY_ENTER);
-#endif
 		case VK_BROWSER_BACK:
 			return Modif|KEY_BROWSER_BACK;
 		case VK_BROWSER_FORWARD:
@@ -3147,9 +2952,6 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 				case VK_OEM_1:
 					return(Modif+KEY_SEMICOLON);
 				case VK_OEM_2:
-					//if(WaitInFastFind)
-					//  return(Modif+'?');
-					//else
 					return(Modif+KEY_SLASH);
 				case VK_OEM_PERIOD:
 					return(Modif+KEY_DOT);
@@ -3162,16 +2964,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 		switch (KeyCode)
 		{
 			case VK_DIVIDE:
-				//if(WaitInFastFind)
-				//  return(Modif+'/');
-				//else
 				return(Modif|KEY_DIVIDE);
 			case VK_MULTIPLY:
-				//if(WaitInFastFind)
-				//{
-				//  return(Modif+'*');
-				//}
-				//else
 				return(Modif|KEY_MULTIPLY);
 			case VK_PAUSE:
 				return(Modif|KEY_PAUSE);
@@ -3377,9 +3171,6 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 				case VK_OEM_3:
 					return(ModifAlt+'`');
 				case VK_OEM_MINUS:
-					//if(WaitInFastFind)
-					//  return(KEY_ALT+KEY_SHIFT+'_');
-					//else
 					return(ModifAlt+'-');
 				case VK_OEM_PLUS:
 					return(ModifAlt+'=');
@@ -3406,14 +3197,8 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			case VK_OEM_PERIOD:
 				return(ModifAlt|KEY_DOT);
 			case VK_DIVIDE:
-				//if(WaitInFastFind)
-				//  return(KEY_ALT+KEY_SHIFT+'/');
-				//else
 				return(ModifAlt|KEY_DIVIDE);
 			case VK_MULTIPLY:
-//        if(WaitInFastFind)
-//          return(KEY_ALT+KEY_SHIFT+'*');
-//        else
 				return(ModifAlt|KEY_MULTIPLY);
 			case VK_PAUSE:
 				return(ModifAlt+KEY_PAUSE);
@@ -3477,7 +3262,6 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			else if (KeyCode == VK_RSHIFT)
 				return KEY_RSHIFT;
 		}
-
 	}
 
 	if (Char && (ModifAlt || ModifCtrl))

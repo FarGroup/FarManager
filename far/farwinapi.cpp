@@ -48,7 +48,9 @@ struct PSEUDO_HANDLE
 	PVOID BufferBase;
 	ULONG NextOffset;
 	ULONG BufferSize;
+   PVOID Buffer2;
 	bool Extended;
+	bool ReadDone;
 };
 
 HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
@@ -75,8 +77,30 @@ HANDLE FindFirstFileInternal(const string& Name, FAR_FIND_DATA_EX& FindData)
 					{
 						LPCWSTR NamePtr = PointToName(Name);
 						Handle->Extended = true;
+						Handle->Buffer2 = nullptr;
+						Handle->ReadDone = false;
 
 						bool QueryResult = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, TRUE);
+						if (QueryResult) // try next read immediately to avoid M#2128 bug
+						{
+							Handle->Buffer2 = xf_malloc(Handle->BufferSize);
+							if (!Handle->Buffer2)
+								QueryResult = false;
+							else
+							{
+								bool QueryResult2 = Directory->NtQueryDirectoryFile(Handle->Buffer2, Handle->BufferSize, FileIdBothDirectoryInformation, FALSE, NamePtr, FALSE);
+								if (!QueryResult2)
+								{
+									xf_free(Handle->Buffer2);
+									Handle->Buffer2 = nullptr;
+									if (GetLastError() != ERROR_INVALID_LEVEL)
+										Handle->ReadDone = true;
+									else
+										QueryResult = false;
+								}
+							}
+						}
+
 						if(!QueryResult)
 						{
 							Handle->Extended = false;
@@ -173,13 +197,23 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 	}
 	else
 	{
-		File* Directory = static_cast<File*>(Handle->ObjectHandle);
-		Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, FALSE, nullptr, FALSE);
-		if (!Status && Handle->Extended && GetLastError() == ERROR_INVALID_LEVEL)
+		if (Handle->ReadDone)
 		{
-			Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, FileBothDirectoryInformation, FALSE, nullptr, FALSE);
-			if (Status)
-				Handle->Extended = false;
+			Status = false;
+		}
+		else
+		{
+			if (Handle->Buffer2)
+			{
+				xf_free(Handle->BufferBase);
+				DirectoryInfo = reinterpret_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase = Handle->Buffer2);
+				Handle->Buffer2 = nullptr;
+			}
+			else
+			{
+				File* Directory = static_cast<File*>(Handle->ObjectHandle);
+				Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, FALSE, nullptr, FALSE);
+			}
 		}
 	}
 
@@ -232,6 +266,7 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 bool FindCloseInternal(HANDLE Find)
 {
 	PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(Find);
+   xf_free(Handle->Buffer2);
 	xf_free(Handle->BufferBase);
 	File* Directory = static_cast<File*>(Handle->ObjectHandle);
 	delete Directory;

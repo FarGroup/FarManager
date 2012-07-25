@@ -923,13 +923,13 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	COORD ConsoleSize={};
 	int ConsoleCP = CP_OEMCP;
 	int ConsoleOutputCP = CP_OEMCP;
-	int process_show_clock = ProcessShowClock;
+	int add_show_clock = 0;
 
 	if(!Silent)
 	{
 		int X1, X2, Y1, Y2;
 		CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
-		++ProcessShowClock;
+		ProcessShowClock += (add_show_clock = 1);
 		CtrlObject->CmdLine->ShowBackground();
 		CtrlObject->CmdLine->Redraw();
 		GotoXY(X2+1,Y1);
@@ -1188,7 +1188,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 			CtrlObject->CmdLine->SaveBackground();
 		}
 	}
-	ProcessShowClock = process_show_clock;
+	ProcessShowClock -= add_show_clock;
 
 	SetFarConsoleMode(TRUE);
 	/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
