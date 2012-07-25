@@ -241,30 +241,30 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	{
 		if (Pos<0)
 		{
-			if (CheckFlags(VMENU_WRAPMODE))
+			//if (CheckFlags(VMENU_WRAPMODE))
 			{
 				Pos = ItemCount-1;
 			}
-			else
-			{
-				Pos = 0;
-				TopPos = 0;
-				Pass++;
-			}
+			//else
+			//{
+			//	Pos = 0;
+			//	TopPos = 0;
+			//	Pass++;
+			//}
 		}
 
 		if (Pos>=ItemCount)
 		{
-			if (CheckFlags(VMENU_WRAPMODE))
+			//if (CheckFlags(VMENU_WRAPMODE))
 			{
 				Pos = 0;
 				TopPos = 0;
 			}
-			else
-			{
-				Pos = ItemCount-1;
-				Pass++;
-			}
+			//else
+			//{
+			//	Pos = ItemCount-1;
+			//	Pass++;
+			//}
 		}
 
 		if (ItemCanHaveFocus(Item[Pos]->Flags))
