@@ -3,11 +3,11 @@
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
 
-local function range (x,a,b)
-  if a>b then a,b=b,a end
-  if x<a then x=a elseif x>b then x=b end
-  return x
-end
+-- local function range (x,a,b)
+--   if a>b then a,b=b,a end
+--   if x<a then x=a elseif x>b then x=b end
+--   return x
+-- end
 
 local function checkarg (arg, argnum, reftype)
   if type(arg) ~= reftype then
@@ -305,6 +305,33 @@ setmetatable(Viewer, meta)
 --------------------------------------------------------------------------------
 -- ƒÀﬂ ƒ»¿ÀŒ√Œ¬
 --------------------------------------------------------------------------------
+Dlg = {}
+local meta = { __metatable="access denied" }
+
+function meta.__index (tb, s)
+  local hDlg = far.AdvControl("ACTL_GETWINDOWINFO").Id
+  assert(type(hDlg)=="userdata", "active window is not dialog.")
+  local info = far.SendDlgMessage(hDlg, "DM_GETDIALOGINFO")
+  if s == "ItemCount" then
+    return info.ItemsNumber
+  elseif s == "CurPos" then
+    return info.FocusPos+1
+  elseif s == "PrevPos" then
+    return info.PrevFocusPos+1
+  elseif s == "Id" then
+    return win.Uuid(info.Id)
+  elseif s == "ItemType" then
+    local item = far.SendDlgMessage(hDlg, "DM_GETDLGITEM", info.FocusPos)
+    return item and item[1] or -1
+  else
+    UnsupportedProperty(s)
+  end
+end
+
+function meta.__newindex (tb, s, i)
+end
+
+setmetatable(Dlg, meta)
 
 --------------------------------------------------------------------------------
 -- ƒÀﬂ Ã≈Õﬁ » —œ»— Œ¬

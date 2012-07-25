@@ -287,6 +287,10 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		PluginSynchroManager.Synchro(true, *PluginId, Param2);
 		return 0;
 	}
+#ifdef FAR_LUA
+	if (2012==Command) // Дадим LuaFAR'у возможность узнать, что это "Spring-версия" Фара.
+		return 2012;
+#endif
 	if (ACTL_GETWINDOWTYPE==Command)
 	{
 		WindowType* info=(WindowType*)Param2;

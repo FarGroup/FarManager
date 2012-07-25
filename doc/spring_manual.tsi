@@ -8,7 +8,7 @@ lv=0
 dt=Text
 nm=Spring
 ctime=3551829092
-mtime=3551990527
+mtime=3552365220
 <article>
 #_<markdown>
 #_
@@ -27,7 +27,7 @@ mtime=3551990527
 #_
 #_Что работает
 #_-------------
-#_* Импорт макросов посредством команды far /import.
+#_* Импорт макросов посредством команды `far /import`.
 #_* Запись макросов через `Ctrl.` или `CtrlShift.`.
 #_* Макросы могут использовать функции и библиотеки Lua и LuaFAR.
 #_* API `MacroControl` для плагинов: все операции, кроме `MCTL_GETLASTERROR`.
@@ -206,7 +206,7 @@ lv=3
 dt=Text
 nm=SendKeys
 ctime=3551902602
-mtime=3552331701
+mtime=3552417085
 <article>
 #_SendKeys (str)
 #_
@@ -219,7 +219,7 @@ mtime=3552331701
 #_**Описание:**
 #_  Послать один или более ключей Фару.
 #_
-#_**Note:**
+#_**Примечание:**
 #_  Если скрипт создаёт корутины, не следует вызывать данную функцию из них.
 #_
 #_**Пример:**
@@ -377,6 +377,24 @@ nm=Для диалогов
 ctime=3552221202
 mtime=3552221202
 <article>
+</article>
+</node>
+<node>
+id=34
+lv=3
+dt=Text
+nm=Dlg
+ctime=3552418893
+mtime=3552419087
+<article>
+#_**Dlg**: таблица со следующими полями:
+#_
+#_  ItemCount:   integer
+#_  CurPos:      integer
+#_  PrevPos:     integer
+#_  Id:          string (GUID в текстовом представлении)
+#_  ItemType:    integer
+#_
 </article>
 </node>
 <node>
