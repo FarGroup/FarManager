@@ -279,7 +279,8 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 			Pass++;
 	}
 
-	if (stop_on_edge && CheckFlags(VMENU_WRAPMODE) && ((Direct>0 && Pos<SelectPos) || (Direct<0 && Pos>SelectPos)))
+	// wrap-stop for all lists (not only VMENU_WRAPMODE)
+	if (stop_on_edge && /*CheckFlags(VMENU_WRAPMODE) &&*/ ((Direct>0 && Pos<SelectPos) || (Direct<0 && Pos>SelectPos)))
 		return SelectPos;
 
 	UpdateItemFlags(Pos, Item[Pos]->Flags|LIF_SELECTED);
