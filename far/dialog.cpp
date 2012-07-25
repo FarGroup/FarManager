@@ -2440,7 +2440,7 @@ int Dialog::ProcessKey(int Key)
 					pos = static_cast<int>(fgv.Value.Integer);
 
 				if ((pos==1 && (Key==KEY_UP || Key==KEY_NUMPAD8)) || (pos==n && (Key==KEY_DOWN||Key==KEY_NUMPAD2)))
-					return FALSE;
+					return TRUE;
 			}
 		}
 #endif
