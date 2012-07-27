@@ -239,6 +239,7 @@ class KeyMacro
 		// Поместить временное строковое представление макроса
 		int PostNewMacro(const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
 		bool ParseMacroString(const wchar_t *Sequence,bool onlyCheck=false);
+		int CallFar(int OpCode, FarMacroCall* Data);
 };
 
 const wchar_t *eStackAsString(int Pos=0);

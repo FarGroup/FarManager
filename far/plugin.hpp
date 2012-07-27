@@ -1090,6 +1090,11 @@ enum FAR_MACRO_CONTROL_COMMANDS
 	MCTL_ADDMACRO          = 7,
 	MCTL_DELMACRO          = 8,
 	MCTL_GETLASTERROR      = 9,
+
+#ifdef FAR_LUA
+	MCTL_ISFARSPRING       = 100,
+	MCTL_CALLFAR           = 101,
+#endif
 };
 
 typedef unsigned __int64 FARKEYMACROFLAGS;
@@ -1217,6 +1222,16 @@ struct FarMacroValue
 #endif
 	;
 };
+
+#ifdef FAR_LUA
+struct FarMacroCall
+{
+	struct FarMacroValue *Args;
+	int ArgNum;
+	wchar_t *RetString;
+	size_t RetStringSize;
+};
+#endif
 
 #ifdef FAR_USE_INTERNALS
 #if defined(MANTIS_0000466)
@@ -2499,6 +2514,13 @@ enum OPENFROM
 	OPEN_ANALYSE            = 9,
 	OPEN_RIGHTDISKMENU      = 10,
 	OPEN_FROMMACRO          = 11,
+
+#ifdef FAR_LUA
+	OPEN_MACROINIT          = 100,
+	OPEN_MACROSTEP          = 101,
+	OPEN_MACROFINAL         = 102,
+	OPEN_MACROPARSE         = 103,
+#endif
 };
 
 #ifdef FAR_USE_INTERNALS

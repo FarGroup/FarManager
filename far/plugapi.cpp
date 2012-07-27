@@ -287,10 +287,6 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		PluginSynchroManager.Synchro(true, *PluginId, Param2);
 		return 0;
 	}
-#ifdef FAR_LUA
-	if (2012==Command) // Дадим LuaFAR'у возможность узнать, что это "Spring-версия" Фара.
-		return 2012;
-#endif
 	if (ACTL_GETWINDOWTYPE==Command)
 	{
 		WindowType* info=(WindowType*)Param2;
@@ -2098,6 +2094,16 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			}
 
 #ifdef FAR_LUA
+			case MCTL_ISFARSPRING:
+			{
+				return 1; // Дадим LuaFAR'у возможность узнать, что это "Spring-версия" Фара.
+			}
+
+			case MCTL_CALLFAR:
+			{
+				return Macro.CallFar(Param1, (FarMacroCall*)Param2);
+			}
+
 			default: //FIXME
 				break;
 #else

@@ -8,7 +8,7 @@ lv=0
 dt=Text
 nm=Spring
 ctime=3551829092
-mtime=3552365220
+mtime=3552492113
 <article>
 #_<markdown>
 #_
@@ -81,11 +81,15 @@ lv=3
 dt=Text
 nm=IsUserAdmin
 ctime=3552217641
-mtime=3552217683
+mtime=3552453574
 <article>
 #_ret = IsUserAdmin()
 #_
-#_ret: boolean
+#_**Параметры:**
+#_  нет
+#_
+#_**Возвращает:**
+#_  ret: boolean
 #_
 </article>
 </node>
@@ -197,6 +201,28 @@ mtime=3552332698
 #_  При сохранении таблиц будут сохраняться только ключи и значения
 #_  типов: number, string, boolean.
 #_
+#_
+</article>
+</node>
+<node>
+id=35
+lv=3
+dt=Text
+nm=print
+ctime=3552434324
+mtime=3552434548
+<article>
+#_print (arg)
+#_
+#_**Параметры:**
+#_  arg: любой тип (преобразуется в стринг)
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  Функция *print* вставляет текст в текущую позицию командной строки,
+#_  редактора или редакторного поля диалога.
 #_
 </article>
 </node>
@@ -565,8 +591,10 @@ lv=2
 dt=Text
 nm=Выделить файлы новее текущего
 ctime=3552222560
-mtime=3552222847
+mtime=3552493600
 <article>
+#_<markdown>
+#_```
 #_-- Выделить в активной панели все файлы/папки новее текущего
 #_
 #_local info=panel.GetPanelInfo(nil,1)
@@ -578,7 +606,7 @@ mtime=3552222847
 #_  end
 #_end
 #_panel.RedrawPanel(nil,1)
-#_
+#_```
 #_
 </article>
 </node>

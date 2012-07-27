@@ -9,7 +9,6 @@
 -- end
 
 local F = far.Flags
-F.OPEN_MACROINIT, F.OPEN_MACROSTEP, F.OPEN_MACROFINAL, F.OPEN_MACROPARSE = 100,101,102,103
 
 local co_create, co_yield, co_resume, co_status =
   coroutine.create, coroutine.yield, coroutine.resume, coroutine.status

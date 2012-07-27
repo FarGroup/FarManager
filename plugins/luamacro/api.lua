@@ -2,6 +2,7 @@
 
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
+local SendDlgMessage = far.SendDlgMessage
 
 -- local function range (x,a,b)
 --   if a>b then a,b=b,a end
@@ -26,6 +27,11 @@ end
 function IsUserAdmin()
   return win.GetEnv("FarAdminMode") == "1"
 end
+
+-- function Fullscreen() return far.MacroCallFar(0) ~= 0 end
+-- function FarWidth()   return far.MacroCallFar(2) end
+-- function FarHeight()  return far.MacroCallFar(3) end
+-- function FarTitle()   return far.MacroCallFar(4) end
 
 local areas = {
   [F.MACROAREA_OTHER]                = "Other",
@@ -114,6 +120,34 @@ function mload (key, name)
     return assert(loadstring(chunk))()
   end
   return nil
+end
+
+function print (arg)
+  arg = tostring(arg)
+  local area = far.MacroGetArea()
+  if area == F.MACROAREA_SHELL then
+    panel.InsertCmdLine(nil, arg)
+  elseif area == F.MACROAREA_EDITOR then
+    editor.UndoRedo(Id, "EUR_BEGIN")
+    editor.InsertText(nil, arg)
+    editor.UndoRedo(Id, "EUR_END")
+    editor.Redraw()
+  elseif area == F.MACROAREA_DIALOG then
+    local hDlg = far.AdvControl("ACTL_GETWINDOWINFO").Id
+    local pos = SendDlgMessage(hDlg, "DM_GETFOCUS")
+    if pos >= 0 then
+      local item = SendDlgMessage(hDlg, "DM_GETDLGITEM", pos)
+      if item then
+        if item[1]==F.DI_EDIT or item[1]==F.DI_FIXEDIT or item[1]==F.DI_PSWEDIT then
+          local text = SendDlgMessage(hDlg, "DM_GETTEXT", pos)
+          local cursor = SendDlgMessage(hDlg, "DM_GETCURSORPOS", pos)
+          SendDlgMessage(hDlg, "DM_SETTEXT", pos, text:sub(1,cursor.X)..arg..text:sub(cursor.X+1))
+          cursor.X = cursor.X + arg:len()
+          SendDlgMessage(hDlg, "DM_SETCURSORPOS", pos, cursor)
+        end
+      end
+    end
+  end
 end
 
 --------------------------------------------------------------------------------
@@ -311,7 +345,7 @@ local meta = { __metatable="access denied" }
 function meta.__index (tb, s)
   local hDlg = far.AdvControl("ACTL_GETWINDOWINFO").Id
   assert(type(hDlg)=="userdata", "active window is not dialog.")
-  local info = far.SendDlgMessage(hDlg, "DM_GETDIALOGINFO")
+  local info = SendDlgMessage(hDlg, "DM_GETDIALOGINFO")
   if s == "ItemCount" then
     return info.ItemsNumber
   elseif s == "CurPos" then
@@ -321,7 +355,7 @@ function meta.__index (tb, s)
   elseif s == "Id" then
     return win.Uuid(info.Id)
   elseif s == "ItemType" then
-    local item = far.SendDlgMessage(hDlg, "DM_GETDLGITEM", info.FocusPos)
+    local item = SendDlgMessage(hDlg, "DM_GETDLGITEM", info.FocusPos)
     return item and item[1] or -1
   else
     UnsupportedProperty(s)

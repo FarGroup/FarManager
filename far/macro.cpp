@@ -59,6 +59,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "syslog.hpp"
 
+#include "macroopcode.hpp"
+#include "interf.hpp"
+#include "console.hpp"
+
 void SZLOG (const char *fmt, ...)
 {
 	FILE* log=fopen("c:\\lua.log","at");
@@ -285,7 +289,6 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
 	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
 }
 
-const unsigned OPEN_MACROINIT=100, OPEN_MACROSTEP=101, OPEN_MACROFINAL=102, OPEN_MACROPARSE=103;
 void* KeyMacro::CallPlugin(unsigned Type,void* Data)
 {
 	void* ptr;
@@ -1154,6 +1157,48 @@ bool KeyMacro::UpdateLockScreen(bool recreate)
 	if (recreate)
 		m_LockScr = new LockScreen;
 	return oldstate;
+}
+
+int KeyMacro::CallFar(int OpCode, FarMacroCall* Data)
+{
+	int ret = 0;
+	string str;
+	size_t size;
+
+	switch (OpCode)
+	{
+		case 0://MCODE_C_FULLSCREENMODE:
+			return IsConsoleFullscreen() ? 1:0;
+
+		case 1://MCODE_C_ISUSERADMIN:
+			return Opt.IsUserAdmin ? 1:0;
+
+		case 2://MCODE_V_FAR_WIDTH:
+			return ScrX+1;
+
+		case 3://MCODE_V_FAR_HEIGHT:
+			return ScrY+1;
+
+		case 4://MCODE_V_FAR_TITLE: /*L"Far.Title", */
+			Console.GetTitle(str);
+			size = wcslen(str)+1;
+			if (Data->RetStringSize >= size)
+			{
+				wcscpy(Data->RetString, str);
+			}
+			Data->RetStringSize = size;
+			return size;
+
+		case MCODE_V_FAR_UPTIME: /*L"Far.UpTime",*/
+			break;
+
+		case MCODE_V_FAR_PID: /*L"Far.PID",   */
+			break;
+
+		case MCODE_V_MACRO_AREA: /*L"Macro.Area",*/
+			break;
+	}
+	return ret;
 }
 
 #else
