@@ -12001,7 +12001,7 @@ MMenuOwnersView
 "Vlastníci s&úboru         LCtrl-8"
 
 MMenuLinksView
-"Свя&зи файлов             LCtrl-9"
+"Ссылки файлов             LCtrl-9"
 "File lin&ks         LCtrl-9"
 "Souborové lin&ky          LCtrl-9"
 "Dateilin&ks           LStrg-9"
@@ -16677,7 +16677,7 @@ MEditPanelModesOwners
 "Mód vlastníkov s&úborov"
 
 MEditPanelModesLinks
-"Свя&зи файлов"
+"Ссылки файлов"
 "Lin&ks mode"
 "Lin&kový mód"
 "Dateilin&ks"
