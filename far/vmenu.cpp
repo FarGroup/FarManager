@@ -295,7 +295,8 @@ int VMenu::SetSelectPos(FarListPos *ListPos, int Direct)
 {
 	CriticalSectionLock Lock(CS);
 
-	int Ret = SetSelectPos(ListPos->SelectPos,Direct ? Direct : ListPos->SelectPos > SelectPos? 1 : -1);
+	int pos = Min(ItemCount-1, Max(0, ListPos->SelectPos));
+	int Ret = SetSelectPos(pos, Direct ? Direct : pos > SelectPos? 1 : -1);
 
 	if (Ret >= 0)
 	{
