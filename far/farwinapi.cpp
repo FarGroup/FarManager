@@ -189,7 +189,7 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 {
 	bool Result = false;
 	PSEUDO_HANDLE* Handle = static_cast<PSEUDO_HANDLE*>(Find);
-	bool Status = true;
+	bool Status = true, set_errcode = true;
 	PFILE_ID_BOTH_DIR_INFORMATION DirectoryInfo = static_cast<PFILE_ID_BOTH_DIR_INFORMATION>(Handle->BufferBase);
 	if(Handle->NextOffset)
 	{
@@ -213,6 +213,7 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 			{
 				File* Directory = static_cast<File*>(Handle->ObjectHandle);
 				Status = Directory->NtQueryDirectoryFile(Handle->BufferBase, Handle->BufferSize, Handle->Extended? FileIdBothDirectoryInformation : FileBothDirectoryInformation, FALSE, nullptr, FALSE);
+				set_errcode = false;
 			}
 		}
 	}
@@ -260,6 +261,10 @@ bool FindNextFileInternal(HANDLE Find, FAR_FIND_DATA_EX& FindData)
 		Handle->NextOffset = DirectoryInfo->NextEntryOffset?Handle->NextOffset+DirectoryInfo->NextEntryOffset:0;
 		Result = true;
 	}
+
+	if (set_errcode)
+		SetLastError(Result ? ERROR_SUCCESS : ERROR_NO_MORE_FILES);
+
 	return Result;
 }
 
