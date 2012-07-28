@@ -1079,7 +1079,7 @@ void Help::CorrectPosition()
 		StackData.TopStr=0;
 }
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 Help::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

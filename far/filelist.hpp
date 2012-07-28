@@ -311,6 +311,9 @@ class FileList:public Panel
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 #ifdef FAR_LUA
 		virtual bool GetPluginInfo(PluginInfo *PInfo);
+#endif
+
+#ifdef FAR_LUA_TEMP
 #else
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 #endif

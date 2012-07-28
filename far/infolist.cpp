@@ -550,7 +550,7 @@ void InfoList::DisplayObject()
 	Flags.Clear(FSCROBJ_ISREDRAWING);
 }
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 InfoList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

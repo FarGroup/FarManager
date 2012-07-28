@@ -1313,7 +1313,7 @@ __int64 Viewer::BegOfScreen()
 }
 
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

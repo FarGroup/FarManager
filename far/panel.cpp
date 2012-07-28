@@ -1333,7 +1333,7 @@ void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLas
 	}
 }
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 Panel::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

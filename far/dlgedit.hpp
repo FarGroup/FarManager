@@ -78,7 +78,7 @@ class DlgEdit: public ScreenObject
 		virtual void ShowConsoleTitle();
 		virtual void SetScreenPosition();
 		virtual void ResizeConsole();
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 		virtual __int64  VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 #endif

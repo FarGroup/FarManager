@@ -122,7 +122,7 @@ void CommandLine::SetCurPos(int Pos, int LeftPos)
 	CmdStr.Redraw();
 }
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

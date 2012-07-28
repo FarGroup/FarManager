@@ -540,7 +540,7 @@ int Editor::BlockEnd2NumLine(int *Pos)
 }
 
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

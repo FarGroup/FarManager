@@ -820,7 +820,7 @@ UINT TreeList::CountSlash(const wchar_t *Str)
 }
 
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 TreeList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

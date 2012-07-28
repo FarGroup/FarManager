@@ -53,6 +53,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "stddlg.hpp"
 
+#ifdef FAR_LUA
+#include "macroopcode.hpp"
+#endif
+
 FileViewer::FileViewer(
 	const wchar_t *Name,int EnableSwitch,int DisableHistory,
 	int DisableEdit,__int64 ViewStartPos,const wchar_t *PluginData,
@@ -223,7 +227,7 @@ void FileViewer::DisplayObject()
 	View.Show();
 }
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

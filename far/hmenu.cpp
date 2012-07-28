@@ -93,7 +93,7 @@ void HMenu::ShowMenu()
 }
 
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 HMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

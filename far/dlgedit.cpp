@@ -712,7 +712,7 @@ void DlgEdit::ResizeConsole()
 		lineEdit->ResizeConsole();
 }
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 DlgEdit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

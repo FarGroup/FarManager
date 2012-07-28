@@ -409,7 +409,7 @@ int FilePanels::SwapPanels()
 	return Ret;
 }
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

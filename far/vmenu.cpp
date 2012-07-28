@@ -863,7 +863,7 @@ int VMenu::ReadInput(INPUT_RECORD *GetReadRec)
 	return ReadKey;
 }
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

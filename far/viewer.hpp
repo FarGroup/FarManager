@@ -240,7 +240,7 @@ class Viewer:public ScreenObject
 
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 #endif
