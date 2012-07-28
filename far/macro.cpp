@@ -1159,11 +1159,43 @@ bool KeyMacro::UpdateLockScreen(bool recreate)
 	return oldstate;
 }
 
+void PassString (const wchar_t* str, FarMacroCall* Data)
+{
+	if (Data->Callback)
+	{
+		FarMacroValue val;
+		val.Type = FMVT_STRING;
+		val.String = str;
+		Data->Callback(Data->CallbackData, &val);
+	}
+}
+
+void PassInteger (__int64 Int, FarMacroCall* Data)
+{
+	if (Data->Callback)
+	{
+		FarMacroValue val;
+		val.Type = FMVT_INTEGER;
+		val.Integer = Int;
+		Data->Callback(Data->CallbackData, &val);
+	}
+}
+
+void PassDouble (double dbl, FarMacroCall* Data)
+{
+	if (Data->Callback)
+	{
+		FarMacroValue val;
+		val.Type = FMVT_DOUBLE;
+		val.Double = dbl;
+		Data->Callback(Data->CallbackData, &val);
+	}
+}
+
 int KeyMacro::CallFar(int OpCode, FarMacroCall* Data)
 {
 	int ret = 0;
 	string str;
-	size_t size;
 
 	switch (OpCode)
 	{
@@ -1181,13 +1213,8 @@ int KeyMacro::CallFar(int OpCode, FarMacroCall* Data)
 
 		case 4://MCODE_V_FAR_TITLE: /*L"Far.Title", */
 			Console.GetTitle(str);
-			size = wcslen(str)+1;
-			if (Data->RetStringSize >= size)
-			{
-				wcscpy(Data->RetString, str);
-			}
-			Data->RetStringSize = size;
-			return size;
+			PassString(str, Data);
+			return 1;
 
 		case MCODE_V_FAR_UPTIME: /*L"Far.UpTime",*/
 			break;

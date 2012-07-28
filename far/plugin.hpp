@@ -1228,8 +1228,8 @@ struct FarMacroCall
 {
 	struct FarMacroValue *Args;
 	int ArgNum;
-	wchar_t *RetString;
-	size_t RetStringSize;
+	void (_cdecl *Callback)(void *CallbackData, struct FarMacroValue *Value);
+	void *CallbackData;
 };
 #endif
 
