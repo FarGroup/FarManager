@@ -44,6 +44,7 @@ extern void SZLOG (const char *fmt, ...);
 #include "array.hpp"
 #include "TStack.hpp"
 #include "DList.hpp"
+#include "tvar.hpp"
 class Panel;
 
 enum MACRODISABLEONLOAD
@@ -116,6 +117,14 @@ enum MACROMODEAREA
 
 	MACRO_COMMON,                     // ВЕЗДЕ! - должен быть предпоследним, т.к. приоритет самый низший !!!
 	MACRO_LAST                        // Должен быть всегда последним! Используется в циклах
+};
+
+struct MacroPanelSelect {
+	__int64 Index;
+	TVar    *Item;
+	int     Action;
+	DWORD   ActionFlags;
+	int     Mode;
 };
 
 /*
@@ -239,7 +248,7 @@ class KeyMacro
 		// Поместить временное строковое представление макроса
 		int PostNewMacro(const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
 		bool ParseMacroString(const wchar_t *Sequence,bool onlyCheck=false);
-		int CallFar(int OpCode, FarMacroCall* Data);
+		__int64 CallFar(int OpCode, FarMacroCall* Data);
 };
 
 const wchar_t *eStackAsString(int Pos=0);

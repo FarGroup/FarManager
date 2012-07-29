@@ -62,6 +62,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "macroopcode.hpp"
 #include "interf.hpp"
 #include "console.hpp"
+#include "pathmix.hpp"
+#include "panelmix.hpp"
+#include "flink.hpp"
+#include "cddrv.hpp"
+#include "fileedit.hpp"
+#include "viewer.hpp"
 
 void SZLOG (const char *fmt, ...)
 {
@@ -1192,40 +1198,682 @@ void PassDouble (double dbl, FarMacroCall* Data)
 	}
 }
 
-int KeyMacro::CallFar(int OpCode, FarMacroCall* Data)
+__int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 {
-	int ret = 0;
-	string str;
+	__int64 ret=0;
+	string strFileName;
+	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
-	switch (OpCode)
+	// проверка на область
+	if (CheckCode >= MACRO_OTHER && CheckCode < MACRO_LAST) //FIXME: CheckCode range
 	{
-		case 0://MCODE_C_FULLSCREENMODE:
-			return IsConsoleFullscreen() ? 1:0;
+		return WaitInMainLoop ?
+			CheckCode == FrameManager->GetCurrentFrame()->GetMacroMode() :
+		  CheckCode == CtrlObject->Macro.GetMode();
+	}
 
-		case 1://MCODE_C_ISUSERADMIN:
-			return Opt.IsUserAdmin ? 1:0;
+	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *PassivePanel=nullptr;
 
-		case 2://MCODE_V_FAR_WIDTH:
-			return ScrX+1;
+	if (ActivePanel)
+		PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
-		case 3://MCODE_V_FAR_HEIGHT:
-			return ScrY+1;
+	Frame* CurFrame=FrameManager->GetCurrentFrame();
 
-		case 4://MCODE_V_FAR_TITLE: /*L"Far.Title", */
-			Console.GetTitle(str);
-			PassString(str, Data);
+	switch (CheckCode)
+	{
+		case MCODE_V_FAR_WIDTH:
+			return (ScrX+1);
+
+		case MCODE_V_FAR_HEIGHT:
+			return (ScrY+1);
+
+		case MCODE_V_FAR_TITLE:
+			Console.GetTitle(strFileName);
+			PassString(strFileName, Data);
 			return 1;
 
-		case MCODE_V_FAR_UPTIME: /*L"Far.UpTime",*/
-			break;
+		case MCODE_V_FAR_PID:
+			return GetCurrentProcessId();
 
-		case MCODE_V_FAR_PID: /*L"Far.PID",   */
-			break;
+		case MCODE_V_FAR_UPTIME:
+		{
+			LARGE_INTEGER Frequency, Counter;
+			QueryPerformanceFrequency(&Frequency);
+			QueryPerformanceCounter(&Counter);
+			return ((Counter.QuadPart-FarUpTime.QuadPart)*1000)/Frequency.QuadPart;
+		}
 
-		case MCODE_V_MACRO_AREA: /*L"Macro.Area",*/
-			break;
+		case MCODE_V_MACRO_AREA:
+			PassString(GetAreaName(CtrlObject->Macro.GetMode()), Data);
+			return 1;
+
+		case MCODE_C_FULLSCREENMODE: // Fullscreen?
+			return IsConsoleFullscreen()?1:0;
+
+		case MCODE_C_ISUSERADMIN: // IsUserAdmin?
+			return Opt.IsUserAdmin;
+
+		case MCODE_V_DRVSHOWPOS: // Drv.ShowPos
+			return Macro_DskShowPosType;
+
+		case MCODE_V_DRVSHOWMODE: // Drv.ShowMode
+			return Opt.ChangeDriveMode;
+
+		case MCODE_C_CMDLINE_BOF:              // CmdLine.Bof - курсор в начале cmd-строки редактирования?
+		case MCODE_C_CMDLINE_EOF:              // CmdLine.Eof - курсор в конеце cmd-строки редактирования?
+		case MCODE_C_CMDLINE_EMPTY:            // CmdLine.Empty
+		case MCODE_C_CMDLINE_SELECTED:         // CmdLine.Selected
+		case MCODE_V_CMDLINE_ITEMCOUNT:        // CmdLine.ItemCount
+		case MCODE_V_CMDLINE_CURPOS:           // CmdLine.CurPos
+		{
+			 return CtrlObject->CmdLine?CtrlObject->CmdLine->VMProcess(CheckCode):-1;
+		}
+
+		case MCODE_V_CMDLINE_VALUE:            // CmdLine.Value
+		{
+			if (CtrlObject->CmdLine)
+				CtrlObject->CmdLine->GetString(strFileName);
+			PassString(strFileName, Data);
+			return 1;
+		}
+
+		case MCODE_C_APANEL_ROOT:  // APanel.Root
+		case MCODE_C_PPANEL_ROOT:  // PPanel.Root
+		{
+			Panel *SelPanel=(CheckCode==MCODE_C_APANEL_ROOT)?ActivePanel:PassivePanel;
+			return SelPanel ? SelPanel->VMProcess(MCODE_C_ROOTFOLDER) ? 1:0:0;
+		}
+
+		case MCODE_C_APANEL_BOF:
+		case MCODE_C_PPANEL_BOF:
+		case MCODE_C_APANEL_EOF:
+		case MCODE_C_PPANEL_EOF:
+		{
+			Panel *SelPanel=(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_APANEL_EOF)?ActivePanel:PassivePanel;
+			if (SelPanel)
+				ret=SelPanel->VMProcess(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_PPANEL_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
+			return ret;
+		}
+
+		case MCODE_C_SELECTED:    // Selected?
+		{
+			int NeedType = m_Mode == MACRO_EDITOR? MODALTYPE_EDITOR : (m_Mode == MACRO_VIEWER? MODALTYPE_VIEWER : (m_Mode == MACRO_DIALOG? MODALTYPE_DIALOG : MODALTYPE_PANELS));
+
+			if (!(m_Mode == MACRO_USERMENU || m_Mode == MACRO_MAINMENU || m_Mode == MACRO_MENU) && CurFrame && CurFrame->GetType()==NeedType)
+			{
+				int CurSelected;
+
+				if (m_Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
+					CurSelected=(int)CtrlObject->CmdLine->VMProcess(CheckCode);
+				else
+					CurSelected=(int)CurFrame->VMProcess(CheckCode);
+
+				return CurSelected?1:0;
+			}
+			else
+			{
+				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+
+				while (f)
+				{
+					fo=f;
+					f=f->GetTopModal();
+				}
+
+				if (!f)
+					f=fo;
+
+				if (f)
+				{
+					ret=f->VMProcess(CheckCode);
+				}
+			}
+			return ret;
+		}
+
+		case MCODE_C_EMPTY:   // Empty
+		case MCODE_C_BOF:
+		case MCODE_C_EOF:
+		{
+			int CurMMode=CtrlObject->Macro.GetMode();
+
+			if (!(m_Mode == MACRO_USERMENU || m_Mode == MACRO_MAINMENU || m_Mode == MACRO_MENU) && CurFrame && CurFrame->GetType() == MODALTYPE_PANELS && !(CurMMode == MACRO_INFOPANEL || CurMMode == MACRO_QVIEWPANEL || CurMMode == MACRO_TREEPANEL))
+			{
+				if (CheckCode == MCODE_C_EMPTY)
+					ret=CtrlObject->CmdLine->GetLength()?0:1;
+				else
+					ret=CtrlObject->CmdLine->VMProcess(CheckCode);
+			}
+			else
+			{
+				{
+					Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+
+					while (f)
+					{
+						fo=f;
+						f=f->GetTopModal();
+					}
+
+					if (!f)
+						f=fo;
+
+					if (f)
+					{
+						ret=f->VMProcess(CheckCode);
+					}
+				}
+			}
+
+			return ret;
+		}
+
+		case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
+		case MCODE_V_DLGCURPOS:    // Dlg.CurPos
+		case MCODE_V_DLGITEMTYPE:  // Dlg.ItemType
+		case MCODE_V_DLGPREVPOS:   // Dlg.PrevPos
+		{
+			if (CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG) // ?? m_Mode == MACRO_DIALOG ??
+				return CurFrame->VMProcess(CheckCode);
+			return 0;
+		}
+
+		case MCODE_V_DLGINFOID:        // Dlg.Info.Id
+		case MCODE_V_DLGINFOOWNER:     // Dlg.Info.Owner
+		{
+			if (CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
+			{
+				PassString(reinterpret_cast<LPCWSTR>(static_cast<intptr_t>(CurFrame->VMProcess(CheckCode))), Data);
+				return 1;
+			}
+			return 0;
+		}
+
+		case MCODE_C_APANEL_VISIBLE:  // APanel.Visible
+		case MCODE_C_PPANEL_VISIBLE:  // PPanel.Visible
+		{
+			Panel *SelPanel=CheckCode==MCODE_C_APANEL_VISIBLE?ActivePanel:PassivePanel;
+			return SelPanel ? SelPanel->IsVisible() ? 1:0:0;
+		}
+
+		case MCODE_C_APANEL_ISEMPTY: // APanel.Empty
+		case MCODE_C_PPANEL_ISEMPTY: // PPanel.Empty
+		{
+			Panel *SelPanel=CheckCode==MCODE_C_APANEL_ISEMPTY?ActivePanel:PassivePanel;
+			if (SelPanel)
+			{
+				SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
+				int GetFileCount=SelPanel->GetFileCount();
+				ret=(!GetFileCount || (GetFileCount == 1 && TestParentFolderName(strFileName))) ? 1:0;
+			}
+			return ret;
+		}
+
+		case MCODE_C_APANEL_FILTER:
+		case MCODE_C_PPANEL_FILTER:
+		{
+			Panel *SelPanel=(CheckCode==MCODE_C_APANEL_FILTER)?ActivePanel:PassivePanel;
+			return SelPanel ? SelPanel->VMProcess(MCODE_C_APANEL_FILTER) ? 1:0:0;
+		}
+
+		case MCODE_C_APANEL_LFN:
+		case MCODE_C_PPANEL_LFN:
+		{
+			Panel *SelPanel = CheckCode == MCODE_C_APANEL_LFN ? ActivePanel : PassivePanel;
+			return SelPanel ? SelPanel->GetShowShortNamesMode() ? 0:1:0;
+		}
+
+		case MCODE_C_APANEL_LEFT: // APanel.Left
+		case MCODE_C_PPANEL_LEFT: // PPanel.Left
+		{
+			Panel *SelPanel = CheckCode == MCODE_C_APANEL_LEFT ? ActivePanel : PassivePanel;
+			return SelPanel ? SelPanel == CtrlObject->Cp()->LeftPanel ? 1:0:0;
+		}
+
+		case MCODE_C_APANEL_FILEPANEL: // APanel.FilePanel
+		case MCODE_C_PPANEL_FILEPANEL: // PPanel.FilePanel
+		{
+			Panel *SelPanel = CheckCode == MCODE_C_APANEL_FILEPANEL ? ActivePanel : PassivePanel;
+			return SelPanel ? SelPanel->GetType() == FILE_PANEL : 0;
+		}
+
+		case MCODE_C_APANEL_PLUGIN: // APanel.Plugin
+		case MCODE_C_PPANEL_PLUGIN: // PPanel.Plugin
+		{
+			Panel *SelPanel=CheckCode==MCODE_C_APANEL_PLUGIN?ActivePanel:PassivePanel;
+			return SelPanel ? SelPanel->GetMode() == PLUGIN_PANEL : 0;
+		}
+
+		case MCODE_C_APANEL_FOLDER: // APanel.Folder
+		case MCODE_C_PPANEL_FOLDER: // PPanel.Folder
+		{
+			Panel *SelPanel=CheckCode==MCODE_C_APANEL_FOLDER?ActivePanel:PassivePanel;
+			if (SelPanel)
+			{
+				SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
+
+				if (FileAttr != INVALID_FILE_ATTRIBUTES)
+					ret=(FileAttr&FILE_ATTRIBUTE_DIRECTORY)?1:0;
+			}
+			return ret;
+		}
+
+		case MCODE_C_APANEL_SELECTED: // APanel.Selected
+		case MCODE_C_PPANEL_SELECTED: // PPanel.Selected
+		{
+			Panel *SelPanel=CheckCode==MCODE_C_APANEL_SELECTED?ActivePanel:PassivePanel;
+			return SelPanel ? SelPanel->GetRealSelCount() > 0 : 0;
+		}
+
+		case MCODE_V_APANEL_CURRENT: // APanel.Current
+		case MCODE_V_PPANEL_CURRENT: // PPanel.Current
+		{
+			Panel *SelPanel = CheckCode == MCODE_V_APANEL_CURRENT ? ActivePanel : PassivePanel;
+			const wchar_t *ptr = L"";
+			if (SelPanel )
+			{
+				SelPanel->GetFileName(strFileName,SelPanel->GetCurrentPos(),FileAttr);
+				if (FileAttr != INVALID_FILE_ATTRIBUTES)
+					ptr = strFileName.CPtr();
+			}
+			PassString(ptr, Data);
+			return 1;
+		}
+
+		case MCODE_V_APANEL_SELCOUNT: // APanel.SelCount
+		case MCODE_V_PPANEL_SELCOUNT: // PPanel.SelCount
+		{
+			Panel *SelPanel = CheckCode == MCODE_V_APANEL_SELCOUNT ? ActivePanel : PassivePanel;
+			return SelPanel ? SelPanel->GetRealSelCount() : 0;
+		}
+
+		case MCODE_V_APANEL_COLUMNCOUNT:       // APanel.ColumnCount - активная панель:  количество колонок
+		case MCODE_V_PPANEL_COLUMNCOUNT:       // PPanel.ColumnCount - пассивная панель: количество колонок
+		{
+			Panel *SelPanel = CheckCode == MCODE_V_APANEL_COLUMNCOUNT ? ActivePanel : PassivePanel;
+			return SelPanel ? SelPanel->GetColumnsCount() : 0;
+		}
+
+		case MCODE_V_APANEL_WIDTH: // APanel.Width
+		case MCODE_V_PPANEL_WIDTH: // PPanel.Width
+		case MCODE_V_APANEL_HEIGHT: // APanel.Height
+		case MCODE_V_PPANEL_HEIGHT: // PPanel.Height
+		{
+			Panel *SelPanel = CheckCode == MCODE_V_APANEL_WIDTH || CheckCode == MCODE_V_APANEL_HEIGHT? ActivePanel : PassivePanel;
+
+			if (SelPanel )
+			{
+				int X1, Y1, X2, Y2;
+				SelPanel->GetPosition(X1,Y1,X2,Y2);
+
+				if (CheckCode == MCODE_V_APANEL_HEIGHT || CheckCode == MCODE_V_PPANEL_HEIGHT)
+					ret = Y2-Y1+1;
+				else
+					ret = X2-X1+1;
+			}
+			return ret;
+		}
+
+		case MCODE_V_APANEL_OPIFLAGS:  // APanel.OPIFlags
+		case MCODE_V_PPANEL_OPIFLAGS:  // PPanel.OPIFlags
+		case MCODE_V_APANEL_HOSTFILE: // APanel.HostFile
+		case MCODE_V_PPANEL_HOSTFILE: // PPanel.HostFile
+		case MCODE_V_APANEL_FORMAT:           // APanel.Format
+		case MCODE_V_PPANEL_FORMAT:           // PPanel.Format
+		{
+			Panel *SelPanel =
+					CheckCode == MCODE_V_APANEL_OPIFLAGS ||
+					CheckCode == MCODE_V_APANEL_HOSTFILE ||
+					CheckCode == MCODE_V_APANEL_FORMAT? ActivePanel : PassivePanel;
+
+			const wchar_t* ptr = nullptr;
+			if (CheckCode == MCODE_V_APANEL_HOSTFILE || CheckCode == MCODE_V_PPANEL_HOSTFILE ||
+				CheckCode == MCODE_V_APANEL_FORMAT || CheckCode == MCODE_V_PPANEL_FORMAT)
+				ptr = L"";
+
+			if (SelPanel )
+			{
+				if (SelPanel->GetMode() == PLUGIN_PANEL)
+				{
+					OpenPanelInfo Info={};
+					Info.StructSize=sizeof(OpenPanelInfo);
+					SelPanel->GetOpenPanelInfo(&Info);
+					switch (CheckCode)
+					{
+						case MCODE_V_APANEL_OPIFLAGS:
+						case MCODE_V_PPANEL_OPIFLAGS:
+							return Info.Flags;
+						case MCODE_V_APANEL_HOSTFILE:
+						case MCODE_V_PPANEL_HOSTFILE:
+							PassString(Info.HostFile, Data);
+							return 1;
+						case MCODE_V_APANEL_FORMAT:
+						case MCODE_V_PPANEL_FORMAT:
+							PassString(Info.Format, Data);
+							return 1;
+					}
+				}
+			}
+			if (ptr)
+				PassString(ptr, Data);
+
+			return 0;
+		}
+
+		case MCODE_V_APANEL_PREFIX:           // APanel.Prefix
+		case MCODE_V_PPANEL_PREFIX:           // PPanel.Prefix
+		{
+			Panel *SelPanel = CheckCode == MCODE_V_APANEL_PREFIX ? ActivePanel : PassivePanel;
+			const wchar_t *ptr = L"";
+			if (SelPanel)
+			{
+				PluginInfo PInfo = {sizeof(PInfo)};
+				if (SelPanel->VMProcess(MCODE_V_APANEL_PREFIX,&PInfo))
+					ptr = PInfo.CommandPrefix;
+			}
+			PassString(ptr, Data);
+			return 1;
+		}
+
+		case MCODE_V_APANEL_PATH0:           // APanel.Path0
+		case MCODE_V_PPANEL_PATH0:           // PPanel.Path0
+		{
+			Panel *SelPanel = CheckCode == MCODE_V_APANEL_PATH0 ? ActivePanel : PassivePanel;
+			const wchar_t *ptr = L"";
+			if (SelPanel )
+			{
+				if (!SelPanel->VMProcess(CheckCode,&strFileName,0))
+					SelPanel->GetCurDir(strFileName);
+				ptr = strFileName.CPtr();
+			}
+			PassString(ptr, Data);
+			return 1;
+		}
+
+		case MCODE_V_APANEL_PATH: // APanel.Path
+		case MCODE_V_PPANEL_PATH: // PPanel.Path
+		{
+			Panel *SelPanel = CheckCode == MCODE_V_APANEL_PATH ? ActivePanel : PassivePanel;
+			const wchar_t *ptr = L"";
+			if (SelPanel)
+			{
+				if (SelPanel->GetMode() == PLUGIN_PANEL)
+				{
+					OpenPanelInfo Info={};
+					Info.StructSize=sizeof(OpenPanelInfo);
+					SelPanel->GetOpenPanelInfo(&Info);
+					strFileName = Info.CurDir;
+				}
+				else
+					SelPanel->GetCurDir(strFileName);
+
+				DeleteEndSlash(strFileName); // - чтобы у корня диска было C:, тогда можно писать так: APanel.Path + "\\file"
+				ptr = strFileName.CPtr();
+			}
+			PassString(ptr, Data);
+			return 1;
+		}
+
+		case MCODE_V_APANEL_UNCPATH: // APanel.UNCPath
+		case MCODE_V_PPANEL_UNCPATH: // PPanel.UNCPath
+		{
+			const wchar_t *ptr = L"";
+			if (_MakePath1(CheckCode == MCODE_V_APANEL_UNCPATH?KEY_ALTSHIFTBRACKET:KEY_ALTSHIFTBACKBRACKET,strFileName,L""))
+			{
+				UnquoteExternal(strFileName);
+				DeleteEndSlash(strFileName);
+				ptr = strFileName.CPtr();
+			}
+			PassString(ptr, Data);
+			return 1;
+		}
+
+		//FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
+		case MCODE_V_APANEL_TYPE: // APanel.Type
+		case MCODE_V_PPANEL_TYPE: // PPanel.Type
+		{
+			Panel *SelPanel = CheckCode == MCODE_V_APANEL_TYPE ? ActivePanel : PassivePanel;
+			return SelPanel ? SelPanel->GetType() : 0;
+		}
+
+		case MCODE_V_APANEL_DRIVETYPE: // APanel.DriveType - активная панель: тип привода
+		case MCODE_V_PPANEL_DRIVETYPE: // PPanel.DriveType - пассивная панель: тип привода
+		{
+			Panel *SelPanel = CheckCode == MCODE_V_APANEL_DRIVETYPE ? ActivePanel : PassivePanel;
+			ret=-1;
+
+			if (SelPanel  && SelPanel->GetMode() != PLUGIN_PANEL)
+			{
+				SelPanel->GetCurDir(strFileName);
+				GetPathRoot(strFileName, strFileName);
+				UINT DriveType=FAR_GetDriveType(strFileName,nullptr,0);
+
+				// BUGBUG: useless, GetPathRoot expands subst itself
+
+				/*if (ParsePath(strFileName) == PATH_DRIVELETTER)
+				{
+					string strRemoteName;
+					strFileName.SetLength(2);
+
+					if (GetSubstName(DriveType,strFileName,strRemoteName))
+						DriveType=DRIVE_SUBSTITUTE;
+				}*/
+
+				ret = DriveType;
+			}
+
+			return ret;
+		}
+
+		case MCODE_V_APANEL_ITEMCOUNT: // APanel.ItemCount
+		case MCODE_V_PPANEL_ITEMCOUNT: // PPanel.ItemCount
+		{
+			Panel *SelPanel = CheckCode == MCODE_V_APANEL_ITEMCOUNT ? ActivePanel : PassivePanel;
+			return SelPanel ? SelPanel->GetFileCount() : 0;
+		}
+
+		case MCODE_V_APANEL_CURPOS: // APanel.CurPos
+		case MCODE_V_PPANEL_CURPOS: // PPanel.CurPos
+		{
+			Panel *SelPanel = CheckCode == MCODE_V_APANEL_CURPOS ? ActivePanel : PassivePanel;
+			return SelPanel ? SelPanel->GetCurrentPos()+(SelPanel->GetFileCount()>0?1:0) : 0;
+		}
+
+		case MCODE_V_TITLE: // Title
+		{
+			Frame *f=FrameManager->GetTopModal();
+
+			if (f)
+			{
+				if (CtrlObject->Cp() == f)
+				{
+					ActivePanel->GetTitle(strFileName);
+				}
+				else
+				{
+					string strType;
+
+					switch (f->GetTypeAndName(strType,strFileName))
+					{
+						case MODALTYPE_EDITOR:
+						case MODALTYPE_VIEWER:
+							f->GetTitle(strFileName);
+							break;
+					}
+				}
+
+				RemoveExternalSpaces(strFileName);
+			}
+
+			PassString(strFileName, Data);
+			return 1;
+		}
+
+		case MCODE_V_HEIGHT:  // Height - высота текущего объекта
+		case MCODE_V_WIDTH:   // Width - ширина текущего объекта
+		{
+			Frame *f=FrameManager->GetTopModal();
+
+			if (f)
+			{
+				int X1, Y1, X2, Y2;
+				f->GetPosition(X1,Y1,X2,Y2);
+
+				if (CheckCode == MCODE_V_HEIGHT)
+					ret = Y2-Y1+1;
+				else
+					ret = X2-X1+1;
+			}
+
+			return ret;
+		}
+
+		case MCODE_V_MENU_VALUE: // Menu.Value
+		case MCODE_V_MENUINFOID: // Menu.Info.Id
+		{
+			int CurMMode=GetMode();
+			const wchar_t* ptr = L"";
+
+			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
+			{
+				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+
+				while (f)
+				{
+					fo=f;
+					f=f->GetTopModal();
+				}
+
+				if (!f)
+					f=fo;
+
+				if (f)
+				{
+					string NewStr;
+
+					switch(CheckCode)
+					{
+						case MCODE_V_MENU_VALUE:
+							if (f->VMProcess(CheckCode,&NewStr))
+							{
+								HiText2Str(strFileName, NewStr);
+								RemoveExternalSpaces(strFileName);
+								ptr=strFileName.CPtr();
+							}
+							break;
+						case MCODE_V_MENUINFOID:
+							ptr=reinterpret_cast<LPCWSTR>(static_cast<intptr_t>(f->VMProcess(CheckCode)));
+							break;
+					}
+				}
+			}
+
+			PassString(ptr, Data);
+			return 1;
+		}
+
+		case MCODE_V_ITEMCOUNT: // ItemCount - число элементов в текущем объекте
+		case MCODE_V_CURPOS: // CurPos - текущий индекс в текущем объекте
+		{
+			Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+
+			while (f)
+			{
+				fo=f;
+				f=f->GetTopModal();
+			}
+
+			if (!f)
+				f=fo;
+
+			if (f)
+			{
+				ret=f->VMProcess(CheckCode);
+			}
+			return ret;
+		}
+
+		case MCODE_V_EDITORCURLINE: // Editor.CurLine - текущая линия в редакторе (в дополнении к Count)
+		case MCODE_V_EDITORSTATE:   // Editor.State
+		case MCODE_V_EDITORLINES:   // Editor.Lines
+		case MCODE_V_EDITORCURPOS:  // Editor.CurPos
+		case MCODE_V_EDITORREALPOS: // Editor.RealPos
+		case MCODE_V_EDITORFILENAME: // Editor.FileName
+		case MCODE_V_EDITORVALUE:   // Editor.Value
+		case MCODE_V_EDITORSELVALUE: // Editor.SelValue
+		{
+			const wchar_t* ptr = nullptr;
+			if (CheckCode == MCODE_V_EDITORVALUE || CheckCode == MCODE_V_EDITORSELVALUE)
+				ptr=L"";
+
+			if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+			{
+				if (CheckCode == MCODE_V_EDITORFILENAME)
+				{
+					string strType;
+					CtrlObject->Plugins->CurEditor->GetTypeAndName(strType, strFileName);
+					ptr=strFileName.CPtr();
+				}
+				else if (CheckCode == MCODE_V_EDITORVALUE)
+				{
+					EditorGetString egs;
+					egs.StringNumber=-1;
+					CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETSTRING,&egs);
+					ptr=egs.StringText;
+				}
+				else if (CheckCode == MCODE_V_EDITORSELVALUE)
+				{
+					CtrlObject->Plugins->CurEditor->VMProcess(CheckCode,&strFileName);
+					ptr=strFileName.CPtr();
+				}
+				else
+					return CtrlObject->Plugins->CurEditor->VMProcess(CheckCode);
+			}
+
+			if (ptr)
+				PassString(ptr, Data);
+			return 1;
+		}
+
+		case MCODE_V_HELPFILENAME:  // Help.FileName
+		case MCODE_V_HELPTOPIC:     // Help.Topic
+		case MCODE_V_HELPSELTOPIC:  // Help.SelTopic
+		{
+			const wchar_t* ptr=L"";
+			if (CtrlObject->Macro.GetMode() == MACRO_HELP)
+			{
+				CurFrame->VMProcess(CheckCode,&strFileName,0);
+				ptr=strFileName.CPtr();
+			}
+			PassString(ptr, Data);
+			return 1;
+		}
+
+		case MCODE_V_VIEWERFILENAME: // Viewer.FileName
+		case MCODE_V_VIEWERSTATE: // Viewer.State
+		{
+			if ((CtrlObject->Macro.GetMode()==MACRO_VIEWER || CtrlObject->Macro.GetMode()==MACRO_QVIEWPANEL) &&
+							CtrlObject->Plugins->CurViewer && CtrlObject->Plugins->CurViewer->IsVisible())
+			{
+				if (CheckCode == MCODE_V_VIEWERFILENAME)
+				{
+					CtrlObject->Plugins->CurViewer->GetFileName(strFileName);//GetTypeAndName(nullptr,FileName);
+					PassString(strFileName, Data);
+					return 1;
+				}
+				else
+					return CtrlObject->Plugins->CurViewer->VMProcess(MCODE_V_VIEWERSTATE);
+			}
+
+			if (CheckCode == MCODE_V_VIEWERFILENAME)
+				PassString(L"", Data);
+
+			return 0;
+		}
 	}
-	return ret;
+
+	return 0;
 }
 
 #else

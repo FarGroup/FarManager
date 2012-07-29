@@ -3,12 +3,17 @@
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
 local SendDlgMessage = far.SendDlgMessage
+local MacroCallFar = far.MacroCallFar
 
 -- local function range (x,a,b)
 --   if a>b then a,b=b,a end
 --   if x<a then x=a elseif x>b then x=b end
 --   return x
 -- end
+
+local function CreateMeta()
+  return { __metatable="access denied", __newindex=function() end }
+end
 
 local function checkarg (arg, argnum, reftype)
   if type(arg) ~= reftype then
@@ -28,11 +33,14 @@ function IsUserAdmin()
   return win.GetEnv("FarAdminMode") == "1"
 end
 
--- function Fullscreen() return far.MacroCallFar(0) ~= 0 end
--- function FarWidth()   return far.MacroCallFar(2) end
--- function FarHeight()  return far.MacroCallFar(3) end
--- function FarTitle()   return far.MacroCallFar(4) end
+-- function Fullscreen() return MacroCallFar(0) ~= 0 end
+-- function FarWidth()   return MacroCallFar(2) end
+-- function FarHeight()  return MacroCallFar(3) end
+-- function FarTitle()   return MacroCallFar(4) end
 
+--------------------------------------------------------------------------------
+-- Œ¡Ÿ»≈: Area
+--------------------------------------------------------------------------------
 local areas = {
   [F.MACROAREA_OTHER]                = "Other",
   [F.MACROAREA_SHELL]                = "Shell",
@@ -52,8 +60,20 @@ local areas = {
   [F.MACROAREA_SHELLAUTOCOMPLETION]  = "ShellAutoCompletion",
   [F.MACROAREA_DIALOGAUTOCOMPLETION] = "DialogAutoCompletion",
 }
+local areacodes = {}; for k,v in pairs(areas) do areacodes[v]=k end
 
-function MacroArea() return areas[far.MacroGetArea()] or "Unknown" end
+function GetArea() return areas[far.MacroGetArea()] end
+
+local meta = CreateMeta()
+Area = setmetatable({}, meta)
+
+function meta.__index (tb, s)
+  local code = areacodes[s]
+  if code then return MacroCallFar(code) ~= 0 end
+  UnsupportedProperty(s)
+end
+
+--------------------------------------------------------------------------------
 
 local function basicSerialize (o)
   local tp = type(o)
@@ -157,9 +177,9 @@ end
 --------------------------------------------------------------------------------
 -- ƒÀﬂ œ¿Õ≈À≈…
 --------------------------------------------------------------------------------
-
-APanel, PPanel = {}, {}
-local meta = { __metatable="access denied" }
+local meta = CreateMeta()
+APanel = setmetatable({}, meta)
+PPanel = setmetatable({}, meta)
 
 function meta.__index (tb, s)
   local pnum = tb==PPanel and 0 or 1
@@ -226,17 +246,11 @@ function meta.__index (tb, s)
   end
 end
 
-function meta.__newindex (tb, s, i)
-end
-
-setmetatable(APanel, meta)
-setmetatable(PPanel, meta)
-
 --------------------------------------------------------------------------------
 -- ƒÀﬂ  ŒÃ¿ÕƒÕŒ… —“–Œ »
 --------------------------------------------------------------------------------
-CmdLine = {}
-local meta = { __metatable="access denied" }
+local meta = CreateMeta()
+CmdLine = setmetatable({}, meta)
 
 function meta.__index (tb, s)
   if s == "Bof" then
@@ -259,16 +273,11 @@ function meta.__index (tb, s)
   end
 end
 
-function meta.__newindex (tb, s, i)
-end
-
-setmetatable(CmdLine, meta)
-
 --------------------------------------------------------------------------------
 -- ƒÀﬂ –≈ƒ¿ “Œ–¿
 --------------------------------------------------------------------------------
-Editor = {}
-local meta = { __metatable="access denied" }
+local meta = CreateMeta()
+Editor = setmetatable({}, meta)
 
 -- Taken from plugin LF4Ed.
 local function GetSelectedText()
@@ -311,16 +320,11 @@ function meta.__index (tb, s)
   end
 end
 
-function meta.__newindex (tb, s, i)
-end
-
-setmetatable(Editor, meta)
-
 --------------------------------------------------------------------------------
 -- ƒÀﬂ ¬Õ”“–≈ÕÕ≈… œ–Œ√–¿ÃÃ€ œ–Œ—ÃŒ“–¿
 --------------------------------------------------------------------------------
-Viewer = {}
-local meta = { __metatable="access denied" }
+local meta = CreateMeta()
+Viewer = setmetatable({}, meta)
 
 function meta.__index (tb, s)
   local info = assert(viewer.GetInfo(), "no viewer instance is open.")
@@ -331,16 +335,11 @@ function meta.__index (tb, s)
   end
 end
 
-function meta.__newindex (tb, s, i)
-end
-
-setmetatable(Viewer, meta)
-
 --------------------------------------------------------------------------------
 -- ƒÀﬂ ƒ»¿ÀŒ√Œ¬
 --------------------------------------------------------------------------------
-Dlg = {}
-local meta = { __metatable="access denied" }
+local meta = CreateMeta()
+Dlg = setmetatable({}, meta)
 
 function meta.__index (tb, s)
   local hDlg = far.AdvControl("ACTL_GETWINDOWINFO").Id
@@ -361,11 +360,6 @@ function meta.__index (tb, s)
     UnsupportedProperty(s)
   end
 end
-
-function meta.__newindex (tb, s, i)
-end
-
-setmetatable(Dlg, meta)
 
 --------------------------------------------------------------------------------
 -- ƒÀﬂ Ã≈Õﬁ » —œ»— Œ¬

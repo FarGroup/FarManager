@@ -76,6 +76,60 @@ mtime=3552331443
 </article>
 </node>
 <node>
+id=36
+lv=3
+dt=Text
+nm=Area
+ctime=3552736839
+mtime=3552737170
+<article>
+#_**Area**: таблица со следующими полями:
+#_
+#_  Other:                 boolean
+#_  Shell:                 boolean
+#_  Viewer:                boolean
+#_  Editor:                boolean
+#_  Dialog:                boolean
+#_  Search:                boolean
+#_  Disks:                 boolean
+#_  MainMenu:              boolean
+#_  Menu:                  boolean
+#_  Help:                  boolean
+#_  Info:                  boolean
+#_  QView:                 boolean
+#_  Tree:                  boolean
+#_  FindFolder:            boolean
+#_  UserMenu:              boolean
+#_  ShellAutoCompletion:   boolean
+#_  DialogAutoCompletion:  boolean
+#_
+</article>
+</node>
+<node>
+id=11
+lv=3
+dt=Text
+nm=GetArea
+ctime=3551992166
+mtime=3552748474
+<article>
+#_area = GetArea()
+#_
+#_**Параметры:**
+#_  нет
+#_
+#_**Возвращает:**
+#_  area: string (один из следующих стринговых литералов)
+#_    "Other", "Shell", "Viewer", "Editor", "Dialog", "Search", "Disks",
+#_    "MainMenu", "Menu", "Help", "Info", "QView", "Tree", "FindFolder",
+#_    "UserMenu", "ShellAutoCompletion", "DialogAutoCompletion".
+#_
+#_**Описание:**
+#_  Возвращает название текущей области исполнения макроса.
+#_
+</article>
+</node>
+<node>
 id=18
 lv=3
 dt=Text
@@ -90,45 +144,6 @@ mtime=3552453574
 #_
 #_**Возвращает:**
 #_  ret: boolean
-#_
-</article>
-</node>
-<node>
-id=11
-lv=3
-dt=Text
-nm=MacroArea
-ctime=3551992166
-mtime=3552331520
-<article>
-#_area = MacroArea()
-#_
-#_**Параметры:**
-#_  нет
-#_
-#_**Возвращает:**
-#_  area: string (один из следующих стринговых литералов)
-#_    "Other"
-#_    "Shell"
-#_    "Viewer"
-#_    "Editor"
-#_    "Dialog"
-#_    "Search"
-#_    "Disks"
-#_    "MainMenu"
-#_    "Menu"
-#_    "Help"
-#_    "Info"
-#_    "QView"
-#_    "Tree"
-#_    "FindFolder"
-#_    "UserMenu"
-#_    "ShellAutoCompletion"
-#_    "DialogAutoCompletion"
-#_    "Unknown"
-#_
-#_**Описание:**
-#_  Возвращает текущую область исполнения макроса.
 #_
 </article>
 </node>

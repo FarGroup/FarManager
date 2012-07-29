@@ -32,7 +32,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef FAR_LUA
+#ifdef FAR_LUA_TEMP
 #else
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.

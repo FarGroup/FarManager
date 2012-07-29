@@ -700,7 +700,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			*(string *)vParam = (*PluginsList.Last())->strPrevOriginalCurDir;
 			return 1;
 		}
-/* FIXME
+
 		case MCODE_F_PANEL_SELECT:
 		{
 			// vParam = MacroPanelSelect*, iParam = 0
@@ -857,7 +857,6 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 			return Result;
 		}
-*/
 	}
 
 	return 0;
