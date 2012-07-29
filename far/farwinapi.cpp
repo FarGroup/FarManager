@@ -701,9 +701,13 @@ BOOL apiCopyFileEx(
 		strTo += PointToName(strFrom);
 	}
 	BOOL Result = CopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
-	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
+	if(!Result)
 	{
-		Result = Elevation.fCopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+		if (STATUS_FILE_IS_A_DIRECTORY == GetLastNtStatus())
+			SetLastError(ERROR_FILE_EXISTS);
+
+		else if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
+			Result = Elevation.fCopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 	}
 	return Result;
 }
@@ -738,9 +742,16 @@ BOOL apiMoveFileEx(
 		strTo += PointToName(strFrom);
 	}
 	BOOL Result = MoveFileEx(strFrom, strTo, dwFlags);
-	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
+	if(!Result)
 	{
-		Result = Elevation.fMoveFileEx(strFrom, strTo, dwFlags);
+		DWORD f = apiGetFileAttributes(strFrom);
+		DWORD t = apiGetFileAttributes(strTo);
+
+		if (f!=INVALID_FILE_ATTRIBUTES && t!=INVALID_FILE_ATTRIBUTES && 0==(f & FILE_ATTRIBUTE_DIRECTORY) && 0!=(t & FILE_ATTRIBUTE_DIRECTORY))
+			SetLastError(ERROR_FILE_EXISTS);
+
+		else if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
+			Result = Elevation.fMoveFileEx(strFrom, strTo, dwFlags);
 	}
 	return Result;
 }
