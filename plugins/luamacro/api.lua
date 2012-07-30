@@ -33,6 +33,7 @@ function IsUserAdmin()
   return win.GetEnv("FarAdminMode") == "1"
 end
 
+function Abs (dbl) return MacroCallFar(527361,dbl) end
 -- function Fullscreen() return MacroCallFar(0) ~= 0 end
 -- function FarWidth()   return MacroCallFar(2) end
 -- function FarHeight()  return MacroCallFar(3) end

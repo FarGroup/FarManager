@@ -127,20 +127,24 @@ struct MacroPanelSelect {
 	int     Mode;
 };
 
-/*
-struct MacroRecord
-{
-	MACROMODEAREA Area;
-	MACROFLAGS_MFLAGS  Flags;        // Флаги макропоследовательности
-	wchar_t *Name;                   // имя записи, может совпадать с именем клавиши
-	int    Key;                      // Назначенная клавиша
-	wchar_t  *Src;                   // оригинальный "текст" макроса
-	wchar_t  *Description;           // описание макроса
-	GUID Guid;                       // Гуид владельца макроса
-	void* Id;                        // параметр калбака
-	FARMACROCALLBACK Callback;       // каллбак для плагинов
+struct TMacroFunction;
+typedef bool (*INTMACROFUNC)(const TMacroFunction*, FarMacroCall*);
+
+enum INTMF_FLAGS{
+	IMFF_UNLOCKSCREEN               =0x00000001,
+	IMFF_DISABLEINTINPUT            =0x00000002,
 };
-*/
+
+struct TMacroFunction
+{
+	const wchar_t *Name;             // имя функции
+	const wchar_t *fnGUID;           // GUID обработчика функции
+	const wchar_t *Syntax;           // Синтаксис функции
+	INTMACROFUNC Func;               // функция
+	DWORD IntFlags;                  // флаги из INTMF_FLAGS (в основном отвечающие "как вызывать функцию")
+	int Code;                        // байткод функции
+};
+
 class MacroRecord
 {
 	friend class KeyMacro;
