@@ -1,3 +1,8 @@
+w17 30.07.2012 22:12:25 +0400 - build 2783
+
+1. VMENU_WRAPMODE снова используется для DI_LISTBOX
+   Если есть флаг - wrap-stop, иначе wrap-нет:)
+
 w17 29.07.2012 13:54:09 +0400 - build 2782
 
 1. M#2139: inconsistent error message when trying to create a file with same name as existing directory
