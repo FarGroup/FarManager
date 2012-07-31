@@ -76,6 +76,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 #include "filelist.hpp"
 #include "treelist.hpp"
+#include "dirmix.hpp"
+#include "elevation.hpp"
 
 void SZLOG (const char *fmt, ...)
 {
@@ -224,7 +226,7 @@ int KeyMacro::IsDsableOutput()
 
 bool KeyMacro::IsHistoryDisable(int TypeHistory)
 {
-	return false;
+	return m_RunState && (m_RunState.m_HistoryDisable & (1 << TypeHistory));
 }
 
 void KeyMacro::SetMode(int Mode) //FIXME: int->MACROMODEAREA
@@ -1199,7 +1201,7 @@ static bool floatFunc(const TMacroFunction*, FarMacroCall*);
 static bool flockFunc(const TMacroFunction*, FarMacroCall*);
 static bool fmatchFunc(const TMacroFunction*, FarMacroCall*);
 static bool fsplitFunc(const TMacroFunction*, FarMacroCall*);
-static bool iifFunc(const TMacroFunction*, FarMacroCall*);
+// ÍÅ ÍÓÆÍÀ // static bool iifFunc(const TMacroFunction*, FarMacroCall*);
 static bool indexFunc(const TMacroFunction*, FarMacroCall*);
 static bool intFunc(const TMacroFunction*, FarMacroCall*);
 static bool itowFunc(const TMacroFunction*, FarMacroCall*);
@@ -1208,16 +1210,16 @@ static bool keybarshowFunc(const TMacroFunction*, FarMacroCall*);
 static bool keyFunc(const TMacroFunction*, FarMacroCall*);
 static bool lcaseFunc(const TMacroFunction*, FarMacroCall*);
 static bool lenFunc(const TMacroFunction*, FarMacroCall*);
-static bool macroenumkwdFunc(const TMacroFunction*, FarMacroCall*);
-static bool macroenumfuncFunc(const TMacroFunction*, FarMacroCall*);
-static bool macroenumvarFunc(const TMacroFunction*, FarMacroCall*);
-static bool macroenumConstFunc(const TMacroFunction*, FarMacroCall*);
+// ÍÅ ÑÅÉ×ÀÑ // static bool macroenumkwdFunc(const TMacroFunction*, FarMacroCall*);
+// ÍÅ ÑÅÉ×ÀÑ // static bool macroenumfuncFunc(const TMacroFunction*, FarMacroCall*);
+// ÍÅ ÑÅÉ×ÀÑ // static bool macroenumvarFunc(const TMacroFunction*, FarMacroCall*);
+// ÍÅ ÑÅÉ×ÀÑ // static bool macroenumConstFunc(const TMacroFunction*, FarMacroCall*);
 static bool maxFunc(const TMacroFunction*, FarMacroCall*);
 static bool menushowFunc(const TMacroFunction*, FarMacroCall*);
 static bool minFunc(const TMacroFunction*, FarMacroCall*);
-static bool mloadFunc(const TMacroFunction*, FarMacroCall*);
+// ÇÀÌÅÍÅÍÀ // static bool mloadFunc(const TMacroFunction*, FarMacroCall*);
 static bool modFunc(const TMacroFunction*, FarMacroCall*);
-static bool msaveFunc(const TMacroFunction*, FarMacroCall*);
+// ÇÀÌÅÍÅÍÀ // static bool msaveFunc(const TMacroFunction*, FarMacroCall*);
 static bool msgBoxFunc(const TMacroFunction*, FarMacroCall*);
 static bool panelfattrFunc(const TMacroFunction*, FarMacroCall*);
 static bool panelfexistFunc(const TMacroFunction*, FarMacroCall*);
@@ -1226,8 +1228,8 @@ static bool panelselectFunc(const TMacroFunction*, FarMacroCall*);
 static bool panelsetpathFunc(const TMacroFunction*, FarMacroCall*);
 static bool panelsetposFunc(const TMacroFunction*, FarMacroCall*);
 static bool panelsetposidxFunc(const TMacroFunction*, FarMacroCall*);
-static bool pluginsFunc(const TMacroFunction*, FarMacroCall*);
-static bool promptFunc(const TMacroFunction*, FarMacroCall*);
+// ÍÅ ÑÅÉ×ÀÑ // static bool pluginsFunc(const TMacroFunction*, FarMacroCall*);
+// static bool promptFunc(const TMacroFunction*, FarMacroCall*);
 static bool replaceFunc(const TMacroFunction*, FarMacroCall*);
 static bool rindexFunc(const TMacroFunction*, FarMacroCall*);
 static bool size2strFunc(const TMacroFunction*, FarMacroCall*);
@@ -1239,7 +1241,7 @@ static bool substrFunc(const TMacroFunction*, FarMacroCall*);
 static bool testfolderFunc(const TMacroFunction*, FarMacroCall*);
 static bool trimFunc(const TMacroFunction*, FarMacroCall*);
 static bool ucaseFunc(const TMacroFunction*, FarMacroCall*);
-static bool usersFunc(const TMacroFunction*, FarMacroCall*);
+// static bool usersFunc(const TMacroFunction*, FarMacroCall*);
 static bool waitkeyFunc(const TMacroFunction*, FarMacroCall*);
 static bool windowscrollFunc(const TMacroFunction*, FarMacroCall*);
 static bool xlatFunc(const TMacroFunction*, FarMacroCall*);
@@ -1247,27 +1249,29 @@ static bool pluginloadFunc(const TMacroFunction*, FarMacroCall*);
 static bool pluginunloadFunc(const TMacroFunction*, FarMacroCall*);
 static bool pluginexistFunc(const TMacroFunction*, FarMacroCall*);
 
+static bool akeyFunc(const TMacroFunction*, FarMacroCall*);
+
 static TMacroFunction intMacroFunction[]=
 {
 	//Name                fnGUID   Syntax                                                        Func                IntFlags                                Code
 	{L"Abs",              nullptr, L"N=Abs(N)",                                                  absFunc,            0,                                      MCODE_F_ABS,             },
-	{L"Akey",             nullptr, L"V=Akey(Mode[,Type])",                                       usersFunc,          0,                                      MCODE_F_AKEY,            },
+	{L"Akey",             nullptr, L"V=Akey(Mode[,Type])",                                       akeyFunc,           0,                                      MCODE_F_AKEY,            },
 	{L"Asc",              nullptr, L"N=Asc(N)",                                                  ascFunc,            0,                                      MCODE_F_ASC,             },
 	{L"Atoi",             nullptr, L"N=Atoi(S[,Radix])",                                         atoiFunc,           0,                                      MCODE_F_ATOI,            },
 	{L"Beep",             nullptr, L"N=Beep([N])",                                               beepFunc,           0,                                      MCODE_F_BEEP,            },
-	{L"BM.Add",           nullptr, L"N=BM.Add()",                                                usersFunc,          0,                                      MCODE_F_BM_ADD,          },
-	{L"BM.Clear",         nullptr, L"N=BM.Clear()",                                              usersFunc,          0,                                      MCODE_F_BM_CLEAR,        },
-	{L"BM.Del",           nullptr, L"N=BM.Del([Idx])",                                           usersFunc,          0,                                      MCODE_F_BM_DEL,          },
-	{L"BM.Get",           nullptr, L"N=BM.Get(Idx,M)",                                           usersFunc,          0,                                      MCODE_F_BM_GET,          },
-	{L"BM.Goto",          nullptr, L"N=BM.Goto([N])",                                            usersFunc,          0,                                      MCODE_F_BM_GOTO,         },
-	{L"BM.Next",          nullptr, L"N=BM.Next()",                                               usersFunc,          0,                                      MCODE_F_BM_NEXT,         },
-	{L"BM.Pop",           nullptr, L"N=BM.Pop()",                                                usersFunc,          0,                                      MCODE_F_BM_POP,          },
-	{L"BM.Prev",          nullptr, L"N=BM.Prev()",                                               usersFunc,          0,                                      MCODE_F_BM_PREV,         },
-	{L"BM.Back",          nullptr, L"N=BM.Back()",                                               usersFunc,          0,                                      MCODE_F_BM_BACK,         },
-	{L"BM.Push",          nullptr, L"N=BM.Push()",                                               usersFunc,          0,                                      MCODE_F_BM_PUSH,         },
-	{L"BM.Stat",          nullptr, L"N=BM.Stat([N])",                                            usersFunc,          0,                                      MCODE_F_BM_STAT,         },
-	{L"CallPlugin",       nullptr, L"V=CallPlugin(SysID[,param])",                               usersFunc,          0,                                      MCODE_F_CALLPLUGIN,      },
-	{L"CheckHotkey",      nullptr, L"N=CheckHotkey(S[,N])",                                      usersFunc,          0,                                      MCODE_F_MENU_CHECKHOTKEY,},
+//	{L"BM.Add",           nullptr, L"N=BM.Add()",                                                usersFunc,          0,                                      MCODE_F_BM_ADD,          },
+//	{L"BM.Clear",         nullptr, L"N=BM.Clear()",                                              usersFunc,          0,                                      MCODE_F_BM_CLEAR,        },
+//	{L"BM.Del",           nullptr, L"N=BM.Del([Idx])",                                           usersFunc,          0,                                      MCODE_F_BM_DEL,          },
+//	{L"BM.Get",           nullptr, L"N=BM.Get(Idx,M)",                                           usersFunc,          0,                                      MCODE_F_BM_GET,          },
+//	{L"BM.Goto",          nullptr, L"N=BM.Goto([N])",                                            usersFunc,          0,                                      MCODE_F_BM_GOTO,         },
+//	{L"BM.Next",          nullptr, L"N=BM.Next()",                                               usersFunc,          0,                                      MCODE_F_BM_NEXT,         },
+//	{L"BM.Pop",           nullptr, L"N=BM.Pop()",                                                usersFunc,          0,                                      MCODE_F_BM_POP,          },
+//	{L"BM.Prev",          nullptr, L"N=BM.Prev()",                                               usersFunc,          0,                                      MCODE_F_BM_PREV,         },
+//	{L"BM.Back",          nullptr, L"N=BM.Back()",                                               usersFunc,          0,                                      MCODE_F_BM_BACK,         },
+//	{L"BM.Push",          nullptr, L"N=BM.Push()",                                               usersFunc,          0,                                      MCODE_F_BM_PUSH,         },
+//	{L"BM.Stat",          nullptr, L"N=BM.Stat([N])",                                            usersFunc,          0,                                      MCODE_F_BM_STAT,         },
+//	{L"CallPlugin",       nullptr, L"V=CallPlugin(SysID[,param])",                               usersFunc,          0,                                      MCODE_F_CALLPLUGIN,      },
+//	{L"CheckHotkey",      nullptr, L"N=CheckHotkey(S[,N])",                                      usersFunc,          0,                                      MCODE_F_MENU_CHECKHOTKEY,},
 	{L"Chr",              nullptr, L"S=Chr(N)",                                                  chrFunc,            0,                                      MCODE_F_CHR,             },
 	{L"Clip",             nullptr, L"V=Clip(N[,V])",                                             clipFunc,           0,                                      MCODE_F_CLIP,            },
 	{L"Date",             nullptr, L"S=Date([S])",                                               dateFunc,           0,                                      MCODE_F_DATE,            },
@@ -1283,7 +1287,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"Editor.Settitle",  nullptr, L"N=Editor.SetTitle([Title])",                                editorsettitleFunc, 0,                                      MCODE_F_EDITOR_SETTITLE, },
 	{L"Editor.Undo",      nullptr, L"V=Editor.Undo(N)",                                          editorundoFunc,     0,                                      MCODE_F_EDITOR_UNDO,     },
 	{L"Env",              nullptr, L"S=Env(S[,Mode[,Value]])",                                   environFunc,        0,                                      MCODE_F_ENVIRON,         },
-	{L"Eval",             nullptr, L"N=Eval(S[,N])",                                             usersFunc,          0,                                      MCODE_F_EVAL,            },
+//	{L"Eval",             nullptr, L"N=Eval(S[,N])",                                             usersFunc,          0,                                      MCODE_F_EVAL,            },
 	{L"Far.Cfg.Get",      nullptr, L"V=Far.Cfg.Get(Key,Name)",                                   farcfggetFunc,      0,                                      MCODE_F_FAR_CFG_GET,     },
 	{L"FAttr",            nullptr, L"N=FAttr(S)",                                                fattrFunc,          0,                                      MCODE_F_FATTR,           },
 	{L"FExist",           nullptr, L"N=FExist(S)",                                               fexistFunc,         0,                                      MCODE_F_FEXIST,          },
@@ -1291,9 +1295,9 @@ static TMacroFunction intMacroFunction[]=
 	{L"FLock",            nullptr, L"N=FLock(N,N)",                                              flockFunc,          0,                                      MCODE_F_FLOCK,           },
 	{L"FMatch",           nullptr, L"N=FMatch(S,Mask)",                                          fmatchFunc,         0,                                      MCODE_F_FMATCH,          },
 	{L"FSplit",           nullptr, L"S=FSplit(S,N)",                                             fsplitFunc,         0,                                      MCODE_F_FSPLIT,          },
-	{L"GetHotkey",        nullptr, L"S=GetHotkey([N])",                                          usersFunc,          0,                                      MCODE_F_MENU_GETHOTKEY,  },
-	{L"History.Disable",  nullptr, L"N=History.Disable([State])",                                usersFunc,          0,                                      MCODE_F_HISTIORY_DISABLE,},
-	{L"Iif",              nullptr, L"V=Iif(Condition,V1,V2)",                                    iifFunc,            0,                                      MCODE_F_IIF,             },
+//	{L"GetHotkey",        nullptr, L"S=GetHotkey([N])",                                          usersFunc,          0,                                      MCODE_F_MENU_GETHOTKEY,  },
+//	{L"History.Disable",  nullptr, L"N=History.Disable([State])",                                usersFunc,          0,                                      MCODE_F_HISTIORY_DISABLE,},
+//	{L"Iif",              nullptr, L"V=Iif(Condition,V1,V2)",                                    iifFunc,            0,                                      MCODE_F_IIF,             },
 	{L"Index",            nullptr, L"S=Index(S1,S2[,Mode])",                                     indexFunc,          0,                                      MCODE_F_INDEX,           },
 	{L"Int",              nullptr, L"N=Int(V)",                                                  intFunc,            0,                                      MCODE_F_INT,             },
 	{L"Itoa",             nullptr, L"S=Itoa(N[,radix])",                                         itowFunc,           0,                                      MCODE_F_ITOA,            },
@@ -1302,22 +1306,22 @@ static TMacroFunction intMacroFunction[]=
 	{L"KeyBar.Show",      nullptr, L"N=KeyBar.Show([N])",                                        keybarshowFunc,     0,                                      MCODE_F_KEYBAR_SHOW,     },
 	{L"LCase",            nullptr, L"S=LCase(S1)",                                               lcaseFunc,          0,                                      MCODE_F_LCASE,           },
 	{L"Len",              nullptr, L"N=Len(S)",                                                  lenFunc,            0,                                      MCODE_F_LEN,             },
-	{L"Macro.Const",      nullptr, L"S=Macro.Const(Index[,Type])",                               macroenumConstFunc, 0,                                      MCODE_F_MACRO_CONST,     },
-	{L"Macro.Func",       nullptr, L"S=Macro.Func(Index[,Type])",                                macroenumfuncFunc,  0,                                      MCODE_F_MACRO_FUNC,      },
-	{L"Macro.Keyword",    nullptr, L"S=Macro.Keyword(Index[,Type])",                             macroenumkwdFunc,   0,                                      MCODE_F_MACRO_KEYWORD,   },
-	{L"Macro.Var",        nullptr, L"S=Macro.Var(Index[,Type])",                                 macroenumvarFunc,   0,                                      MCODE_F_MACRO_VAR,       },
+//	{L"Macro.Const",      nullptr, L"S=Macro.Const(Index[,Type])",                               macroenumConstFunc, 0,                                      MCODE_F_MACRO_CONST,     },
+//	{L"Macro.Func",       nullptr, L"S=Macro.Func(Index[,Type])",                                macroenumfuncFunc,  0,                                      MCODE_F_MACRO_FUNC,      },
+//	{L"Macro.Keyword",    nullptr, L"S=Macro.Keyword(Index[,Type])",                             macroenumkwdFunc,   0,                                      MCODE_F_MACRO_KEYWORD,   },
+//	{L"Macro.Var",        nullptr, L"S=Macro.Var(Index[,Type])",                                 macroenumvarFunc,   0,                                      MCODE_F_MACRO_VAR,       },
 	{L"Max",              nullptr, L"N=Max(N1,N2)",                                              maxFunc,            0,                                      MCODE_F_MAX,             },
-	{L"Menu.Filter",      nullptr, L"N=Menu.Filter([Action[,Mode]])",                            usersFunc,          0,                                      MCODE_F_MENU_FILTER,     },
-	{L"Menu.FilterStr",   nullptr, L"N=Menu.FilterStr([Action[,S]])",                            usersFunc,          0,                                      MCODE_F_MENU_FILTERSTR,  },
-	{L"Menu.GetValue",    nullptr, L"S=Menu.GetValue([N])",                                      usersFunc,          0,                                      MCODE_F_MENU_GETVALUE,   },
-	{L"Menu.ItemStatus",  nullptr, L"N=Menu.ItemStatus([N])",                                    usersFunc,          0,                                      MCODE_F_MENU_ITEMSTATUS, },
-	{L"Menu.Select",      nullptr, L"N=Menu.Select(S[,N[,Dir]])",                                usersFunc,          0,                                      MCODE_F_MENU_SELECT,     },
+//	{L"Menu.Filter",      nullptr, L"N=Menu.Filter([Action[,Mode]])",                            usersFunc,          0,                                      MCODE_F_MENU_FILTER,     },
+//	{L"Menu.FilterStr",   nullptr, L"N=Menu.FilterStr([Action[,S]])",                            usersFunc,          0,                                      MCODE_F_MENU_FILTERSTR,  },
+//	{L"Menu.GetValue",    nullptr, L"S=Menu.GetValue([N])",                                      usersFunc,          0,                                      MCODE_F_MENU_GETVALUE,   },
+//	{L"Menu.ItemStatus",  nullptr, L"N=Menu.ItemStatus([N])",                                    usersFunc,          0,                                      MCODE_F_MENU_ITEMSTATUS, },
+//	{L"Menu.Select",      nullptr, L"N=Menu.Select(S[,N[,Dir]])",                                usersFunc,          0,                                      MCODE_F_MENU_SELECT,     },
 	{L"Menu.Show",        nullptr, L"S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])", menushowFunc,       IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_MENU_SHOW,       },
 	{L"Min",              nullptr, L"N=Min(N1,N2)",                                              minFunc,            0,                                      MCODE_F_MIN,             },
-	{L"MLoad",            nullptr, L"N=MLoad(S)",                                                mloadFunc,          0,                                      MCODE_F_MLOAD,           },
-	{L"MMode",            nullptr, L"N=MMode(Action[,Value])",                                   usersFunc,          0,                                      MCODE_F_MMODE,           },
+//	{L"MLoad",            nullptr, L"N=MLoad(S)",                                                mloadFunc,          0,                                      MCODE_F_MLOAD,           },
+//	{L"MMode",            nullptr, L"N=MMode(Action[,Value])",                                   usersFunc,          0,                                      MCODE_F_MMODE,           },
 	{L"Mod",              nullptr, L"N=Mod(a,b)",                                                modFunc,            0,                                      MCODE_F_MOD,             },
-	{L"MSave",            nullptr, L"N=MSave(S)",                                                msaveFunc,          0,                                      MCODE_F_MSAVE,           },
+//	{L"MSave",            nullptr, L"N=MSave(S)",                                                msaveFunc,          0,                                      MCODE_F_MSAVE,           },
 	{L"MsgBox",           nullptr, L"N=MsgBox([Title[,Text[,flags]]])",                          msgBoxFunc,         IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_MSGBOX,          },
 	{L"Panel.FAttr",      nullptr, L"N=Panel.FAttr(panelType,fileMask)",                         panelfattrFunc,     0,                                      MCODE_F_PANEL_FATTR,     },
 	{L"Panel.FExist",     nullptr, L"N=Panel.FExist(panelType,fileMask)",                        panelfexistFunc,    0,                                      MCODE_F_PANEL_FEXIST,    },
@@ -1326,18 +1330,18 @@ static TMacroFunction intMacroFunction[]=
 	{L"Panel.SetPath",    nullptr, L"N=panel.SetPath(panelType,pathName[,fileName])",            panelsetpathFunc,   IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPATH,   },
 	{L"Panel.SetPos",     nullptr, L"N=panel.SetPos(panelType,fileName)",                        panelsetposFunc,    IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOS,    },
 	{L"Panel.SetPosIdx",  nullptr, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])",            panelsetposidxFunc, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOSIDX, },
-	{L"Plugin.Call",      nullptr, L"N=Plugin.Call(Guid[,Item])",                                usersFunc,          0,                                      MCODE_F_PLUGIN_CALL,     },
-	{L"Plugin.Command",   nullptr, L"N=Plugin.Command(Guid[,Command])",                          usersFunc,          0,                                      MCODE_F_PLUGIN_COMMAND,  },
-	{L"Plugin.Config",    nullptr, L"N=Plugin.Config(Guid[,MenuGuid])",                          usersFunc,          0,                                      MCODE_F_PLUGIN_CONFIG,   },
+//	{L"Plugin.Call",      nullptr, L"N=Plugin.Call(Guid[,Item])",                                usersFunc,          0,                                      MCODE_F_PLUGIN_CALL,     },
+//	{L"Plugin.Command",   nullptr, L"N=Plugin.Command(Guid[,Command])",                          usersFunc,          0,                                      MCODE_F_PLUGIN_COMMAND,  },
+//	{L"Plugin.Config",    nullptr, L"N=Plugin.Config(Guid[,MenuGuid])",                          usersFunc,          0,                                      MCODE_F_PLUGIN_CONFIG,   },
 	{L"Plugin.Exist",     nullptr, L"N=Plugin.Exist(Guid)",                                      pluginexistFunc,    0,                                      MCODE_F_PLUGIN_EXIST,    },
 	{L"Plugin.Load",      nullptr, L"N=Plugin.Load(DllPath[,ForceLoad])",                        pluginloadFunc,     0,                                      MCODE_F_PLUGIN_LOAD,     },
-	{L"Plugin.Menu",      nullptr, L"N=Plugin.Menu(Guid[,MenuGuid])",                            usersFunc,          0,                                      MCODE_F_PLUGIN_MENU,     },
+//	{L"Plugin.Menu",      nullptr, L"N=Plugin.Menu(Guid[,MenuGuid])",                            usersFunc,          0,                                      MCODE_F_PLUGIN_MENU,     },
 	{L"Plugin.UnLoad",    nullptr, L"N=Plugin.UnLoad(DllPath)",                                  pluginunloadFunc,   0,                                      MCODE_F_PLUGIN_UNLOAD,   },
-	{L"Print",            nullptr, L"N=Print(Str)",                                              usersFunc,          0,                                      MCODE_F_PRINT,           },
-	{L"Prompt",           nullptr, L"S=Prompt([Title[,Prompt[,flags[,Src[,History]]]]])",        promptFunc,         IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PROMPT,          },
+//	{L"Print",            nullptr, L"N=Print(Str)",                                              usersFunc,          0,                                      MCODE_F_PRINT,           },
+//	{L"Prompt",           nullptr, L"S=Prompt([Title[,Prompt[,flags[,Src[,History]]]]])",        promptFunc,         IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PROMPT,          },
 	{L"Replace",          nullptr, L"S=Replace(Str,Find,Replace[,Cnt[,Mode]])",                  replaceFunc,        0,                                      MCODE_F_REPLACE,         },
 	{L"Rindex",           nullptr, L"S=RIndex(S1,S2[,Mode])",                                    rindexFunc,         0,                                      MCODE_F_RINDEX,          },
- 	{L"Size2Str",         nullptr, L"S=Size2Str(N,Flags[,Width])",                               size2strFunc,       0,                                      MCODE_F_SIZE2STR,        },
+	{L"Size2Str",         nullptr, L"S=Size2Str(N,Flags[,Width])",                               size2strFunc,       0,                                      MCODE_F_SIZE2STR,        },
 	{L"Sleep",            nullptr, L"N=Sleep(N)",                                                sleepFunc,          0,                                      MCODE_F_SLEEP,           },
 	{L"String",           nullptr, L"S=String(V)",                                               stringFunc,         0,                                      MCODE_F_STRING,          },
 	{L"StrPad",           nullptr, L"S=StrPad(Src,Cnt[,Fill[,Op]])",                             strpadFunc,         0,                                      MCODE_F_STRPAD,          },
@@ -1351,7 +1355,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"Xlat",             nullptr, L"S=Xlat(S[,Flags])",                                         xlatFunc,           0,                                      MCODE_F_XLAT,            },
 };
 
-void PassString (const wchar_t* str, FarMacroCall* Data)
+int PassString (const wchar_t* str, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -1360,9 +1364,10 @@ void PassString (const wchar_t* str, FarMacroCall* Data)
 		val.String = str;
 		Data->Callback(Data->CallbackData, &val);
 	}
+	return 1;
 }
 
-void PassNumber (double dbl, FarMacroCall* Data)
+int PassNumber (double dbl, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -1371,9 +1376,34 @@ void PassNumber (double dbl, FarMacroCall* Data)
 		val.Double = dbl;
 		Data->Callback(Data->CallbackData, &val);
 	}
+	return 1;
 }
 
-void PassValue (TVar* Var, FarMacroCall* Data)
+int PassInteger (__int64 Int, FarMacroCall* Data)
+{
+	if (Data->Callback)
+	{
+		FarMacroValue val;
+		val.Type = FMVT_INTEGER;
+		val.Integer = Int;
+		Data->Callback(Data->CallbackData, &val);
+	}
+	return 1;
+}
+
+int PassBoolean (int b, FarMacroCall* Data)
+{
+	if (Data->Callback)
+	{
+		FarMacroValue val;
+		val.Type = FMVT_BOOLEAN;
+		val.Integer = b;
+		Data->Callback(Data->CallbackData, &val);
+	}
+	return 1;
+}
+
+int PassValue (TVar* Var, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -1397,6 +1427,7 @@ void PassValue (TVar* Var, FarMacroCall* Data)
 
 		Data->Callback(Data->CallbackData, &val);
 	}
+	return 1;
 }
 
 static void __parseParams(int Count, TVar* Params, FarMacroCall* Data)
@@ -1410,10 +1441,15 @@ static void __parseParams(int Count, TVar* Params, FarMacroCall* Data)
 	{
 		switch (Data->Args[i].Type)
 		{
-			case FMVT_UNKNOWN: Params[i].SetType(vtUnknown); break;
-			case FMVT_INTEGER: Params[i] = Data->Args[i].Integer; break;
-			case FMVT_STRING:  Params[i] = Data->Args[i].String; break;
-			case FMVT_DOUBLE:  Params[i] = Data->Args[i].Double; break;
+			case FMVT_INTEGER:
+			case FMVT_BOOLEAN:
+				Params[i] = Data->Args[i].Integer; break;
+			case FMVT_DOUBLE:
+				Params[i] = Data->Args[i].Double; break;
+			case FMVT_STRING:
+				Params[i] = Data->Args[i].String; break;
+			default:
+				Params[i].SetType(vtUnknown); break;
 		}
 	}
 }
@@ -1428,9 +1464,9 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 	// ïðîâåðêà íà îáëàñòü
 	if (CheckCode >= MACRO_OTHER && CheckCode < MACRO_LAST) //FIXME: CheckCode range
 	{
-		return WaitInMainLoop ?
+		return PassBoolean (WaitInMainLoop ?
 			CheckCode == FrameManager->GetCurrentFrame()->GetMacroMode() :
-		  CheckCode == CtrlObject->Macro.GetMode();
+		  CheckCode == CtrlObject->Macro.GetMode(), Data);
 	}
 
 	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
@@ -1451,8 +1487,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 
 		case MCODE_V_FAR_TITLE:
 			Console.GetTitle(strFileName);
-			PassString(strFileName, Data);
-			return 1;
+			return PassString(strFileName, Data);
 
 		case MCODE_V_FAR_PID:
 			return GetCurrentProcessId();
@@ -1466,14 +1501,13 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		}
 
 		case MCODE_V_MACRO_AREA:
-			PassString(GetAreaName(CtrlObject->Macro.GetMode()), Data);
-			return 1;
+			return PassString(GetAreaName(CtrlObject->Macro.GetMode()), Data);
 
 		case MCODE_C_FULLSCREENMODE: // Fullscreen?
-			return IsConsoleFullscreen()?1:0;
+			return PassBoolean(IsConsoleFullscreen(), Data);
 
 		case MCODE_C_ISUSERADMIN: // IsUserAdmin?
-			return Opt.IsUserAdmin;
+			return PassBoolean(Opt.IsUserAdmin, Data);
 
 		case MCODE_V_DRVSHOWPOS: // Drv.ShowPos
 			return Macro_DskShowPosType;
@@ -1495,15 +1529,14 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		{
 			if (CtrlObject->CmdLine)
 				CtrlObject->CmdLine->GetString(strFileName);
-			PassString(strFileName, Data);
-			return 1;
+			return PassString(strFileName, Data);
 		}
 
 		case MCODE_C_APANEL_ROOT:  // APanel.Root
 		case MCODE_C_PPANEL_ROOT:  // PPanel.Root
 		{
 			Panel *SelPanel=(CheckCode==MCODE_C_APANEL_ROOT)?ActivePanel:PassivePanel;
-			return SelPanel ? SelPanel->VMProcess(MCODE_C_ROOTFOLDER) ? 1:0:0;
+			return PassBoolean((SelPanel ? SelPanel->VMProcess(MCODE_C_ROOTFOLDER) ? 1:0:0), Data);
 		}
 
 		case MCODE_C_APANEL_BOF:
@@ -1514,7 +1547,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 			Panel *SelPanel=(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_APANEL_EOF)?ActivePanel:PassivePanel;
 			if (SelPanel)
 				ret=SelPanel->VMProcess(CheckCode==MCODE_C_APANEL_BOF || CheckCode==MCODE_C_PPANEL_BOF?MCODE_C_BOF:MCODE_C_EOF)?1:0;
-			return ret;
+			return PassBoolean(ret, Data);
 		}
 
 		case MCODE_C_SELECTED:    // Selected?
@@ -1530,7 +1563,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				else
 					CurSelected=(int)CurFrame->VMProcess(CheckCode);
 
-				return CurSelected?1:0;
+				return PassBoolean(CurSelected, Data);
 			}
 			else
 			{
@@ -1550,7 +1583,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 					ret=f->VMProcess(CheckCode);
 				}
 			}
-			return ret;
+			return PassBoolean(ret, Data);
 		}
 
 		case MCODE_C_EMPTY:   // Empty
@@ -1587,7 +1620,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				}
 			}
 
-			return ret;
+			return PassBoolean(ret, Data);
 		}
 
 		case MCODE_V_DLGITEMCOUNT: // Dlg.ItemCount
@@ -1605,17 +1638,16 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		{
 			if (CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
 			{
-				PassString(reinterpret_cast<LPCWSTR>(static_cast<intptr_t>(CurFrame->VMProcess(CheckCode))), Data);
-				return 1;
+				return PassString(reinterpret_cast<LPCWSTR>(static_cast<intptr_t>(CurFrame->VMProcess(CheckCode))), Data);
 			}
-			return 0;
+			return PassString(L"", Data);
 		}
 
 		case MCODE_C_APANEL_VISIBLE:  // APanel.Visible
 		case MCODE_C_PPANEL_VISIBLE:  // PPanel.Visible
 		{
 			Panel *SelPanel=CheckCode==MCODE_C_APANEL_VISIBLE?ActivePanel:PassivePanel;
-			return SelPanel ? SelPanel->IsVisible() ? 1:0:0;
+			return PassBoolean(SelPanel && SelPanel->IsVisible(), Data);
 		}
 
 		case MCODE_C_APANEL_ISEMPTY: // APanel.Empty
@@ -1628,42 +1660,42 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				int GetFileCount=SelPanel->GetFileCount();
 				ret=(!GetFileCount || (GetFileCount == 1 && TestParentFolderName(strFileName))) ? 1:0;
 			}
-			return ret;
+			return PassBoolean(ret, Data);
 		}
 
 		case MCODE_C_APANEL_FILTER:
 		case MCODE_C_PPANEL_FILTER:
 		{
 			Panel *SelPanel=(CheckCode==MCODE_C_APANEL_FILTER)?ActivePanel:PassivePanel;
-			return SelPanel ? SelPanel->VMProcess(MCODE_C_APANEL_FILTER) ? 1:0:0;
+			return PassBoolean(SelPanel && SelPanel->VMProcess(MCODE_C_APANEL_FILTER), Data);
 		}
 
 		case MCODE_C_APANEL_LFN:
 		case MCODE_C_PPANEL_LFN:
 		{
 			Panel *SelPanel = CheckCode == MCODE_C_APANEL_LFN ? ActivePanel : PassivePanel;
-			return SelPanel ? SelPanel->GetShowShortNamesMode() ? 0:1:0;
+			return PassBoolean(SelPanel && !SelPanel->GetShowShortNamesMode(), Data);
 		}
 
 		case MCODE_C_APANEL_LEFT: // APanel.Left
 		case MCODE_C_PPANEL_LEFT: // PPanel.Left
 		{
 			Panel *SelPanel = CheckCode == MCODE_C_APANEL_LEFT ? ActivePanel : PassivePanel;
-			return SelPanel ? SelPanel == CtrlObject->Cp()->LeftPanel ? 1:0:0;
+			return PassBoolean(SelPanel && SelPanel==CtrlObject->Cp()->LeftPanel, Data);
 		}
 
 		case MCODE_C_APANEL_FILEPANEL: // APanel.FilePanel
 		case MCODE_C_PPANEL_FILEPANEL: // PPanel.FilePanel
 		{
 			Panel *SelPanel = CheckCode == MCODE_C_APANEL_FILEPANEL ? ActivePanel : PassivePanel;
-			return SelPanel ? SelPanel->GetType() == FILE_PANEL : 0;
+			return PassBoolean(SelPanel && SelPanel->GetType()==FILE_PANEL, Data);
 		}
 
 		case MCODE_C_APANEL_PLUGIN: // APanel.Plugin
 		case MCODE_C_PPANEL_PLUGIN: // PPanel.Plugin
 		{
 			Panel *SelPanel=CheckCode==MCODE_C_APANEL_PLUGIN?ActivePanel:PassivePanel;
-			return SelPanel ? SelPanel->GetMode() == PLUGIN_PANEL : 0;
+			return PassBoolean(SelPanel && SelPanel->GetMode()==PLUGIN_PANEL, Data);
 		}
 
 		case MCODE_C_APANEL_FOLDER: // APanel.Folder
@@ -1677,14 +1709,14 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				if (FileAttr != INVALID_FILE_ATTRIBUTES)
 					ret=(FileAttr&FILE_ATTRIBUTE_DIRECTORY)?1:0;
 			}
-			return ret;
+			return PassBoolean(ret, Data);
 		}
 
 		case MCODE_C_APANEL_SELECTED: // APanel.Selected
 		case MCODE_C_PPANEL_SELECTED: // PPanel.Selected
 		{
 			Panel *SelPanel=CheckCode==MCODE_C_APANEL_SELECTED?ActivePanel:PassivePanel;
-			return SelPanel ? SelPanel->GetRealSelCount() > 0 : 0;
+			return PassBoolean(SelPanel && SelPanel->GetRealSelCount() > 0, Data);
 		}
 
 		case MCODE_V_APANEL_CURRENT: // APanel.Current
@@ -1698,8 +1730,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				if (FileAttr != INVALID_FILE_ATTRIBUTES)
 					ptr = strFileName.CPtr();
 			}
-			PassString(ptr, Data);
-			return 1;
+			return PassString(ptr, Data);
 		}
 
 		case MCODE_V_APANEL_SELCOUNT: // APanel.SelCount
@@ -1767,19 +1798,15 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 							return Info.Flags;
 						case MCODE_V_APANEL_HOSTFILE:
 						case MCODE_V_PPANEL_HOSTFILE:
-							PassString(Info.HostFile, Data);
-							return 1;
+							return PassString(Info.HostFile, Data);
 						case MCODE_V_APANEL_FORMAT:
 						case MCODE_V_PPANEL_FORMAT:
-							PassString(Info.Format, Data);
-							return 1;
+							return PassString(Info.Format, Data);
 					}
 				}
 			}
-			if (ptr)
-				PassString(ptr, Data);
 
-			return 0;
+			return ptr ? PassString(ptr, Data) : 0;
 		}
 
 		case MCODE_V_APANEL_PREFIX:           // APanel.Prefix
@@ -1793,8 +1820,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				if (SelPanel->VMProcess(MCODE_V_APANEL_PREFIX,&PInfo))
 					ptr = PInfo.CommandPrefix;
 			}
-			PassString(ptr, Data);
-			return 1;
+			return PassString(ptr, Data);
 		}
 
 		case MCODE_V_APANEL_PATH0:           // APanel.Path0
@@ -1808,8 +1834,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 					SelPanel->GetCurDir(strFileName);
 				ptr = strFileName.CPtr();
 			}
-			PassString(ptr, Data);
-			return 1;
+			return PassString(ptr, Data);
 		}
 
 		case MCODE_V_APANEL_PATH: // APanel.Path
@@ -1832,8 +1857,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				DeleteEndSlash(strFileName); // - ÷òîáû ó êîðíÿ äèñêà áûëî C:, òîãäà ìîæíî ïèñàòü òàê: APanel.Path + "\\file"
 				ptr = strFileName.CPtr();
 			}
-			PassString(ptr, Data);
-			return 1;
+			return PassString(ptr, Data);
 		}
 
 		case MCODE_V_APANEL_UNCPATH: // APanel.UNCPath
@@ -1846,8 +1870,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				DeleteEndSlash(strFileName);
 				ptr = strFileName.CPtr();
 			}
-			PassString(ptr, Data);
-			return 1;
+			return PassString(ptr, Data);
 		}
 
 		//FILE_PANEL,TREE_PANEL,QVIEW_PANEL,INFO_PANEL
@@ -1927,8 +1950,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				RemoveExternalSpaces(strFileName);
 			}
 
-			PassString(strFileName, Data);
-			return 1;
+			return PassString(strFileName, Data);
 		}
 
 		case MCODE_V_HEIGHT:  // Height - âûñîòà òåêóùåãî îáúåêòà
@@ -1990,8 +2012,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				}
 			}
 
-			PassString(ptr, Data);
-			return 1;
+			return PassString(ptr, Data);
 		}
 
 		case MCODE_V_ITEMCOUNT: // ItemCount - ÷èñëî ýëåìåíòîâ â òåêóùåì îáúåêòå
@@ -2052,9 +2073,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 					return CtrlObject->Plugins->CurEditor->VMProcess(CheckCode);
 			}
 
-			if (ptr)
-				PassString(ptr, Data);
-			return 1;
+			return ptr ? PassString(ptr, Data) : 0;
 		}
 
 		case MCODE_V_HELPFILENAME:  // Help.FileName
@@ -2067,8 +2086,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				CurFrame->VMProcess(CheckCode,&strFileName,0);
 				ptr=strFileName.CPtr();
 			}
-			PassString(ptr, Data);
-			return 1;
+			return PassString(ptr, Data);
 		}
 
 		case MCODE_V_VIEWERFILENAME: // Viewer.FileName
@@ -2087,10 +2105,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 					return CtrlObject->Plugins->CurViewer->VMProcess(MCODE_V_VIEWERSTATE);
 			}
 
-			if (CheckCode == MCODE_V_VIEWERFILENAME)
-				PassString(L"", Data);
-
-			return 0;
+			return (CheckCode == MCODE_V_VIEWERFILENAME) ? PassString(L"", Data) : 0;
 		}
 
 		// =========================================================================
@@ -2105,8 +2120,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 			if (tmpVar < 0ll)
 				tmpVar=-tmpVar;
 
-			PassNumber(tmpVar.toDouble(), Data);
-			return 1;
+			return PassNumber(tmpVar.toDouble(), Data);
 		}
 	}
 
@@ -2335,37 +2349,15 @@ static bool fsplitFunc(const TMacroFunction*, FarMacroCall* Data)
 	return Ret;
 }
 
-#if 0
-// S=Meta("!.!") - â ìàêðîñàõ þçàåì ÔÀÐîâû ìåòàñèìâîëû
-static bool metaFunc(const TMacroFunction*, FarMacroCall* Data)
-{
-	parseParams(1,Params,Data);
-	const wchar_t *s = Params[0].toString();
-
-	if (s && *s)
-	{
-		char SubstText[512];
-		char Name[NM],ShortName[NM];
-		xstrncpy(SubstText,s,sizeof(SubstText));
-		SubstFileName(SubstText,sizeof(SubstText),Name,ShortName,nullptr,nullptr,TRUE);
-		return TVar(SubstText);
-	}
-
-	return TVar(L"");
-}
-#endif
-
-
 // N=atoi(S[,radix])
 static bool atoiFunc(const TMacroFunction*, FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	bool Ret=true;
 	wchar_t *endptr;
-	PassNumber(_wcstoi64(Params[0].toString(),&endptr,(int)Params[1].toInteger()), Data);
+	PassInteger(_wcstoi64(Params[0].toString(),&endptr,(int)Params[1].toInteger()), Data);
 	return Ret;
 }
-
 
 // N=Window.Scroll(Lines[,Axis])
 static bool windowscrollFunc(const TMacroFunction*, FarMacroCall* Data)
@@ -2432,7 +2424,7 @@ static bool sleepFunc(const TMacroFunction*, FarMacroCall* Data)
 		return true;
 	}
 
-	PassValue(0ll, Data);
+	PassNumber(0, Data);
 	return false;
 }
 
@@ -2542,7 +2534,7 @@ static bool modFunc(const TMacroFunction*, FarMacroCall* Data)
 	if (!Params[1].i())
 	{
 		_KEYMACRO(___FILEFUNCLINE___;SysLog(L"Error: Divide (mod) by zero"));
-		PassValue(0ll, Data);
+		PassNumber(0, Data);
 		return false;
 	}
 
@@ -3389,7 +3381,6 @@ static bool dlgsetfocusFunc(const TMacroFunction*, FarMacroCall* Data)
 	return Ret.i()!=-1; // ?? <= 0 ??
 }
 
-#if 0 // FIXME
 // V=Far.Cfg.Get(Key,Name)
 bool farcfggetFunc(const TMacroFunction*, FarMacroCall* Data)
 {
@@ -3399,12 +3390,11 @@ bool farcfggetFunc(const TMacroFunction*, FarMacroCall* Data)
 
 	string strValue;
 	bool resultGetCfg = GetConfigValue(Key.s(),Name.s(), strValue);
-	KeyMacro::SetMacroConst(constFarCfgErr,resultGetCfg?0:1);
+	// KeyMacro::SetMacroConst(constFarCfgErr,resultGetCfg?0:1);
 	PassString(resultGetCfg?strValue.CPtr():L"", Data);
 
 	return resultGetCfg;
 }
-#endif
 
 // V=Dlg.GetValue([Pos[,InfoID]])
 static bool dlggetvalueFunc(const TMacroFunction*, FarMacroCall* Data)
@@ -3840,63 +3830,6 @@ static bool editorsetFunc(const TMacroFunction*, FarMacroCall* Data)
 	return Ret.i()==-1;
 }
 
-#if 0 // FIXME
-// b=mload(var)
-bool mloadFunc(const TMacroFunction*, FarMacroCall* Data)
-{
-	parseParams(1,Params,Data);
-	TVar& Val(Params[0]);
-	TVar TempVar;
-	const wchar_t *Name=Val.s();
-
-	if (!Name || *Name!= L'%')
-	{
-		PassValue(0ll, Data);
-		return false;
-	}
-
-	__int64 Ret=CtrlObject->Macro.LoadVarFromDB(Name, TempVar);
-
-	if(Ret)
-		varInsert(glbVarTable, Name+1)->value = TempVar.s();
-
-	PassValue(Ret, Data);
-	return Ret != 0;
-}
-#endif
-
-#if 0 // FIXME
-// b=msave(var)
-bool msaveFunc(const TMacroFunction*, FarMacroCall* Data)
-{
-	parseParams(1,Params,Data);
-	TVar& Val(Params[0]);
-	TVarTable *t = &glbVarTable;
-	const wchar_t *Name=Val.s();
-
-	if (!Name || *Name!= L'%')
-	{
-		PassValue(0ll, Data);
-		return false;
-	}
-
-	TVarSet *tmpVarSet=varLook(*t, Name+1);
-
-	if (!tmpVarSet)
-	{
-		PassValue(0ll, Data);
-		return false;
-	}
-
-	string strValueName = Val.s();
-
-	__int64 Ret=CtrlObject->Macro.SaveVarToDB(strValueName, tmpVarSet->value);
-
-	PassValue(Ret, Data);
-	return Ret != 0;
-}
-#endif
-
 // V=Clip(N[,V])
 static bool clipFunc(const TMacroFunction*, FarMacroCall* Data)
 {
@@ -3921,9 +3854,8 @@ static bool clipFunc(const TMacroFunction*, FarMacroCall* Data)
 
 			if (ClipText)
 			{
-				TVar varClip(ClipText);
+				PassString(ClipText, Data);
 				xf_free(ClipText);
-				PassValue(&varClip, Data);
 				return true;
 			}
 
@@ -5118,10 +5050,11 @@ static bool testfolderFunc(const TMacroFunction*, FarMacroCall* Data)
 		Ret=(__int64)TestFolder(tmpVar.s());
 	}
 
-	PassValue(Ret, Data);
+	PassNumber(Ret, Data);
 	return Ret?true:false;
 }
 
+#if 0 // FIXME
 // âûçîâ ïëàãèíîâîé ôóíêöèè
 static bool pluginsFunc(const TMacroFunction *thisFunc)
 {
@@ -5231,7 +5164,9 @@ struct ProcessMacroFuncInfo
 #endif
 	return Ret;
 }
+#endif
 
+#if 0 // FIXME
 // âûçîâ ïîëüçîâàòåëüñêîé ôóíêöèè
 static bool usersFunc(const TMacroFunction *thisFunc)
 {
@@ -5243,6 +5178,43 @@ static bool usersFunc(const TMacroFunction *thisFunc)
 
 	PassValue(0, Data);
 	return Ret;
+}
+#endif
+
+// V=akey(Mode[,Type])
+static bool akeyFunc(const TMacroFunction*, FarMacroCall* Data)
+{
+	parseParams(2,Params,Data);
+	int tmpType=(int)Params[1].getInteger();
+	int tmpMode=(int)Params[0].getInteger();
+
+	DWORD aKey=MR->Key;
+
+	if (!tmpType)
+	{
+		if (!(MR->Flags&MFLAGS_POSTFROMPLUGIN))
+		{
+			INPUT_RECORD *inRec=&Work.cRec;
+			if (!inRec->EventType)
+				inRec->EventType = KEY_EVENT;
+			if(inRec->EventType == MOUSE_EVENT || inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
+				aKey=ShieldCalcKeyCode(inRec,FALSE,nullptr);
+		}
+		else if (!aKey)
+			aKey=KEY_NONE;
+	}
+
+	TVar tmpVar;
+	if (!tmpMode)
+		tmpVar=(__int64)aKey;
+	else
+	{
+		string value;
+		KeyToText(aKey,value);
+		tmpVar=value.CPtr();
+		tmpVar.toString();
+	}
+	return PassValue(&tmpVar, Data);
 }
 
 #else

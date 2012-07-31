@@ -178,11 +178,12 @@ class RunState
 	private:
 		void* m_handle;
 		MACROFLAGS_MFLAGS m_flags;
+		DWORD m_HistoryDisable;
 	public:
-		RunState() : m_handle(nullptr),m_flags(0) {}
-		RunState(void* h,MACROFLAGS_MFLAGS f=0) : m_handle(h),m_flags(f) {}
-		RunState(const RunState& r) : m_handle(r.m_handle),m_flags(r.m_flags) {}
-		RunState& operator=(const RunState& r) { m_handle=r.m_handle; m_flags=r.m_flags; return *this; }
+		RunState() : m_handle(nullptr),m_flags(0),m_HistoryDisable(0) {}
+		RunState(void* h,MACROFLAGS_MFLAGS f=0,DWORD hd=0) : m_handle(h),m_flags(f),m_HistoryDisable(hd) {}
+		RunState(const RunState& r) : m_handle(r.m_handle),m_flags(r.m_flags),m_HistoryDisable(r.m_HistoryDisable) {}
+		RunState& operator=(const RunState& r) { m_handle=r.m_handle; m_flags=r.m_flags; m_HistoryDisable=r.m_HistoryDisable; return *this; }
 		operator bool() { return m_handle != nullptr; }
 };
 
