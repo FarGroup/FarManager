@@ -1206,6 +1206,9 @@ enum FARMACROVARTYPE
 	FMVT_INTEGER                = 1,
 	FMVT_STRING                 = 2,
 	FMVT_DOUBLE                 = 3,
+#ifdef FAR_LUA
+	FMVT_BOOLEAN                = 4,
+#endif
 };
 
 struct FarMacroValue

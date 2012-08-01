@@ -220,6 +220,11 @@ class KeyMacro
 		BOOL CheckFileFolder(Panel *ActivePanel,UINT64 CurFlags, BOOL IsPassivePanel);
 		BOOL CheckAll(UINT64 CurFlags);
 
+	private:
+		bool AKey (const TMacroFunction*, FarMacroCall* Data);
+		bool DisableHistory (const TMacroFunction*, FarMacroCall* Data);
+		bool MMode (const TMacroFunction*, FarMacroCall* Data);
+
 	public:
 		KeyMacro();
 		~KeyMacro();
