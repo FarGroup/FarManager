@@ -471,8 +471,15 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	InitFSWatcher(false);
 	CorrectPosition();
 
+   string strLastSel, strGetSel;
+
 	if (KeepSelection || PrevSelFileCount>0)
 	{
+		if (LastSelPosition >= 0 && LastSelPosition < OldFileCount)
+			strLastSel = OldData[LastSelPosition]->strName;
+		if (GetSelPosition >= 0 && GetSelPosition < OldFileCount)
+			strGetSel = OldData[GetSelPosition]->strName;
+
 		MoveSelection(ListData,FileCount,OldData,OldFileCount);
 		DeleteListData(OldData,OldFileCount);
 	}
@@ -487,6 +494,11 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	}
 
 	SortFileList(FALSE);
+
+	if (!strLastSel.IsEmpty())
+		LastSelPosition = FindFile(strLastSel, FALSE);
+	if (!strGetSel.IsEmpty())
+		GetSelPosition = FindFile(strGetSel, FALSE);
 
 	if (CurFile>=FileCount || StrCmpI(ListData[CurFile]->strName,strCurName))
 		if (!GoToFile(strCurName) && !strNextCurName.IsEmpty())
@@ -814,8 +826,15 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	CorrectPosition();
 	CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,PluginFileCount);
 
+	string strLastSel, strGetSel;
+
 	if (KeepSelection || PrevSelFileCount>0)
 	{
+		if (LastSelPosition >= 0 && LastSelPosition < OldFileCount)
+			strLastSel = OldData[LastSelPosition]->strName;
+		if (GetSelPosition >= 0 && GetSelPosition < OldFileCount)
+			strGetSel = OldData[GetSelPosition]->strName;
+
 		MoveSelection(ListData,FileCount,OldData,OldFileCount);
 		DeleteListData(OldData,OldFileCount);
 	}
@@ -827,6 +846,11 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	}
 
 	SortFileList(FALSE);
+
+	if (!strLastSel.IsEmpty())
+		LastSelPosition = FindFile(strLastSel, FALSE);
+	if (!strGetSel.IsEmpty())
+		GetSelPosition = FindFile(strGetSel, FALSE);
 
 	if (CurFile>=FileCount || StrCmpI(ListData[CurFile]->strName,strCurName))
 		if (!GoToFile(strCurName) && !strNextCurName.IsEmpty())

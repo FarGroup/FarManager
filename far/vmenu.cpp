@@ -241,30 +241,30 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 	{
 		if (Pos<0)
 		{
-			//if (CheckFlags(VMENU_WRAPMODE))
+			if (CheckFlags(VMENU_WRAPMODE))
 			{
 				Pos = ItemCount-1;
 			}
-			//else
-			//{
-			//	Pos = 0;
-			//	TopPos = 0;
-			//	Pass++;
-			//}
+			else
+			{
+				Pos = 0;
+				TopPos = 0;
+				Pass++;
+			}
 		}
 
 		if (Pos>=ItemCount)
 		{
-			//if (CheckFlags(VMENU_WRAPMODE))
+			if (CheckFlags(VMENU_WRAPMODE))
 			{
 				Pos = 0;
 				TopPos = 0;
 			}
-			//else
-			//{
-			//	Pos = ItemCount-1;
-			//	Pass++;
-			//}
+			else
+			{
+				Pos = ItemCount-1;
+				Pass++;
+			}
 		}
 
 		if (ItemCanHaveFocus(Item[Pos]->Flags))
@@ -279,8 +279,7 @@ int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 			Pass++;
 	}
 
-	// wrap-stop for all lists (not only VMENU_WRAPMODE)
-	if (stop_on_edge && /*CheckFlags(VMENU_WRAPMODE) &&*/ ((Direct>0 && Pos<SelectPos) || (Direct<0 && Pos>SelectPos)))
+	if (stop_on_edge && CheckFlags(VMENU_WRAPMODE) && ((Direct>0 && Pos<SelectPos) || (Direct<0 && Pos>SelectPos)))
 		return SelectPos;
 
 	UpdateItemFlags(Pos, Item[Pos]->Flags|LIF_SELECTED);
@@ -295,7 +294,8 @@ int VMenu::SetSelectPos(FarListPos *ListPos, int Direct)
 {
 	CriticalSectionLock Lock(CS);
 
-	int Ret = SetSelectPos(ListPos->SelectPos,Direct ? Direct : ListPos->SelectPos > SelectPos? 1 : -1);
+	int pos = Min(ItemCount-1, Max(0, ListPos->SelectPos));
+	int Ret = SetSelectPos(pos, Direct ? Direct : pos > SelectPos? 1 : -1);
 
 	if (Ret >= 0)
 	{

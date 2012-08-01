@@ -121,7 +121,7 @@ FileList::FileList():
 	LastCurFile(-1),
 	ReturnCurrentFile(FALSE),
 	SelFileCount(0),
-	GetSelPosition(0),
+	GetSelPosition(0), LastSelPosition(-1),
 	TotalFileCount(0),
 	SelFileSize(0),
 	TotalFileSize(0),
@@ -132,12 +132,15 @@ FileList::FileList():
 	ShiftSelection(-1),
 	MouseSelection(0),
 	SelectedFirst(0),
+	IsEmpty(TRUE),
 	AccessTimeUpdateRequired(FALSE),
 	UpdateRequired(FALSE),
+	UpdateRequiredMode(0),
 	UpdateDisabled(0),
+	SortGroupsRead(FALSE),
 	InternalProcessKey(FALSE),
-	CacheSelIndex(-1),
-	CacheSelClearIndex(-1)
+	CacheSelIndex(-1), CacheSelPos(0),
+	CacheSelClearIndex(-1), CacheSelClearPos(0)
 {
 	_OT(SysLog(L"[%p] FileList::FileList()", this));
 	{
