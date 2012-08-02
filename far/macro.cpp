@@ -1601,13 +1601,11 @@ static bool pluginloadFunc(const TMacroFunction*, FarMacroCall*);
 static bool pluginunloadFunc(const TMacroFunction*, FarMacroCall*);
 static bool pluginexistFunc(const TMacroFunction*, FarMacroCall*);
 
-static bool akeyFunc(const TMacroFunction*, FarMacroCall*);
-
 static TMacroFunction intMacroFunction[]=
 {
 	//Name                fnGUID   Syntax                                                        Func                IntFlags                                Code
 	{L"Abs",              nullptr, L"N=Abs(N)",                                                  absFunc,            0,                                      MCODE_F_ABS,             },
-	{L"Akey",             nullptr, L"V=Akey(Mode[,Type])",                                       akeyFunc,           0,                                      MCODE_F_AKEY,            },
+//	{L"Akey",             nullptr, L"V=Akey(Mode[,Type])",                                       usersFunc,           0,                                      MCODE_F_AKEY,            },
 	{L"Asc",              nullptr, L"N=Asc(N)",                                                  ascFunc,            0,                                      MCODE_F_ASC,             },
 	{L"Atoi",             nullptr, L"N=Atoi(S[,Radix])",                                         atoiFunc,           0,                                      MCODE_F_ATOI,            },
 	{L"Beep",             nullptr, L"N=Beep([N])",                                               beepFunc,           0,                                      MCODE_F_BEEP,            },
@@ -2464,16 +2462,68 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		// Functions
 		// =========================================================================
 
-		case MCODE_F_ABS:
-		{
-			parseParams(1,Params,Data);
-			TVar& tmpVar(Params[0]);
-
-			if (tmpVar < 0ll)
-				tmpVar=-tmpVar;
-
-			return PassNumber(tmpVar.toDouble(), Data);
-		}
+		case MCODE_F_ABS:             return absFunc(nullptr,Data);
+		case MCODE_F_ASC:             return ascFunc(nullptr,Data);
+		case MCODE_F_ATOI:            return atoiFunc(nullptr,Data);
+		case MCODE_F_BEEP:            return beepFunc(nullptr,Data);
+		case MCODE_F_CHR:             return chrFunc(nullptr,Data);
+		case MCODE_F_CLIP:            return clipFunc(nullptr,Data);
+		case MCODE_F_DATE:            return dateFunc(nullptr,Data);
+		case MCODE_F_DLG_GETVALUE:    return dlggetvalueFunc(nullptr,Data);
+		case MCODE_F_DLG_SETFOCUS:    return dlgsetfocusFunc(nullptr,Data);
+		case MCODE_F_EDITOR_DELLINE:  return editordellineFunc(nullptr,Data);
+		case MCODE_F_EDITOR_GETSTR:   return editorgetstrFunc(nullptr,Data);
+		case MCODE_F_EDITOR_INSSTR:   return editorinsstrFunc(nullptr,Data);
+		case MCODE_F_EDITOR_POS:      return editorposFunc(nullptr,Data);
+		case MCODE_F_EDITOR_SEL:      return editorselFunc(nullptr,Data);
+		case MCODE_F_EDITOR_SET:      return editorsetFunc(nullptr,Data);
+		case MCODE_F_EDITOR_SETSTR:   return editorsetstrFunc(nullptr,Data);
+		case MCODE_F_EDITOR_SETTITLE: return editorsettitleFunc(nullptr,Data);
+		case MCODE_F_EDITOR_UNDO:     return editorundoFunc(nullptr,Data);
+		case MCODE_F_ENVIRON:         return environFunc(nullptr,Data);
+		case MCODE_F_FAR_CFG_GET:     return farcfggetFunc(nullptr,Data);
+		case MCODE_F_FATTR:           return fattrFunc(nullptr,Data);
+		case MCODE_F_FEXIST:          return fexistFunc(nullptr,Data);
+		case MCODE_F_FLOAT:           return floatFunc(nullptr,Data);
+		case MCODE_F_FLOCK:           return flockFunc(nullptr,Data);
+		case MCODE_F_FMATCH:          return fmatchFunc(nullptr,Data);
+		case MCODE_F_FSPLIT:          return fsplitFunc(nullptr,Data);
+		case MCODE_F_INDEX:           return indexFunc(nullptr,Data);
+		case MCODE_F_INT:             return intFunc(nullptr,Data);
+		case MCODE_F_ITOA:            return itowFunc(nullptr,Data);
+		case MCODE_F_KBDLAYOUT:       return kbdLayoutFunc(nullptr,Data);
+		case MCODE_F_KEY:             return keyFunc(nullptr,Data);
+		case MCODE_F_KEYBAR_SHOW:     return keybarshowFunc(nullptr,Data);
+		case MCODE_F_LCASE:           return lcaseFunc(nullptr,Data);
+		case MCODE_F_LEN:             return lenFunc(nullptr,Data);
+		case MCODE_F_MAX:             return maxFunc(nullptr,Data);
+		case MCODE_F_MENU_SHOW:       return menushowFunc(nullptr,Data);
+		case MCODE_F_MIN:             return minFunc(nullptr,Data);
+		case MCODE_F_MOD:             return modFunc(nullptr,Data);
+		case MCODE_F_MSGBOX:          return msgBoxFunc(nullptr,Data);
+		case MCODE_F_PANEL_FATTR:     return panelfattrFunc(nullptr,Data);
+		case MCODE_F_PANEL_FEXIST:    return panelfexistFunc(nullptr,Data);
+		case MCODE_F_PANELITEM:       return panelitemFunc(nullptr,Data);
+		case MCODE_F_PANEL_SELECT:    return panelselectFunc(nullptr,Data);
+		case MCODE_F_PANEL_SETPATH:   return panelsetpathFunc(nullptr,Data);
+		case MCODE_F_PANEL_SETPOS:    return panelsetposFunc(nullptr,Data);
+		case MCODE_F_PANEL_SETPOSIDX: return panelsetposidxFunc(nullptr,Data);
+		case MCODE_F_PLUGIN_EXIST:    return pluginexistFunc(nullptr,Data);
+		case MCODE_F_PLUGIN_LOAD:     return pluginloadFunc(nullptr,Data);
+		case MCODE_F_PLUGIN_UNLOAD:   return pluginunloadFunc(nullptr,Data);
+		case MCODE_F_REPLACE:         return replaceFunc(nullptr,Data);
+		case MCODE_F_RINDEX:          return rindexFunc(nullptr,Data);
+		case MCODE_F_SIZE2STR:        return size2strFunc(nullptr,Data);
+		case MCODE_F_SLEEP:           return sleepFunc(nullptr,Data);
+		case MCODE_F_STRING:          return stringFunc(nullptr,Data);
+		case MCODE_F_STRWRAP:         return strwrapFunc(nullptr,Data);
+		case MCODE_F_SUBSTR:          return substrFunc(nullptr,Data);
+		case MCODE_F_TESTFOLDER:      return testfolderFunc(nullptr,Data);
+		case MCODE_F_TRIM:            return trimFunc(nullptr,Data);
+		case MCODE_F_UCASE:           return ucaseFunc(nullptr,Data);
+		case MCODE_F_WAITKEY:         return waitkeyFunc(nullptr,Data);
+		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(nullptr,Data);
+		case MCODE_F_XLAT:            return xlatFunc(nullptr,Data);
 	}
 
 	return 0;
@@ -3134,6 +3184,7 @@ static bool promptFunc(const TMacroFunction*, FarMacroCall* Data)
 // N=msgbox(["Title"[,"Text"[,flags]]])
 static bool msgBoxFunc(const TMacroFunction*, FarMacroCall* Data)
 {
+//FIXME: has flags IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT
 	parseParams(3,Params,Data);
 	DWORD Flags = (DWORD)Params[2].getInteger();
 	TVar& ValB(Params[1]);

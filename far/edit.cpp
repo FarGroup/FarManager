@@ -588,8 +588,6 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 }
 
 
-#ifdef FAR_LUA_TEMP
-#else
 __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	switch (OpCode)
@@ -692,7 +690,6 @@ __int64 Edit::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
-#endif
 
 int Edit::ProcessKey(int Key)
 {
@@ -3430,7 +3427,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 	string CurrentLine;
 	size_t EventsCount = 0;
 	Console.GetNumberOfInputEvents(EventsCount);
-	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual))
+	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual)) 
 	{
 		Reenter++;
 
@@ -3624,7 +3621,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 							// "классический" перебор
 							case KEY_CTRLEND:
 							case KEY_RCTRLEND:
-
+							
 							case KEY_CTRLSPACE:
 							case KEY_RCTRLSPACE:
 								{

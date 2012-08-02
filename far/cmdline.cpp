@@ -122,8 +122,6 @@ void CommandLine::SetCurPos(int Pos, int LeftPos)
 	CmdStr.Redraw();
 }
 
-#ifdef FAR_LUA_TEMP
-#else
 __int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	if (OpCode >= MCODE_C_CMDLINE_BOF && OpCode <= MCODE_C_CMDLINE_SELECTED)
@@ -143,7 +141,6 @@ __int64 CommandLine::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
-#endif
 
 int CommandLine::ProcessKey(int Key)
 {

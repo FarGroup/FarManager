@@ -300,10 +300,7 @@ class Dialog: public Frame
 	public:
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-#ifdef FAR_LUA_TEMP
-#else
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-#endif
 		virtual void Show();
 		virtual void Hide();
 		void FastShow() {ShowDialog();}

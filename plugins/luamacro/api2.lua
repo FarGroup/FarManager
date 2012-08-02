@@ -305,41 +305,18 @@ mf = {
   asc             = function(...) return MacroCallFar(0x80C03, ...) end,
   atoi            = function(...) return MacroCallFar(0x80C04, ...) end,
   beep            = function(...) return MacroCallFar(0x80C48, ...) end,
-  BM_Add          = function(...) return MacroCallFar(0x80C35, ...) end,
-  BM_Back         = function(...) return MacroCallFar(0x80C3D, ...) end,
-  BM_Clear        = function(...) return MacroCallFar(0x80C36, ...) end,
-  BM_Del          = function(...) return MacroCallFar(0x80C37, ...) end,
-  BM_Get          = function(...) return MacroCallFar(0x80C38, ...) end,
-  BM_Goto         = function(...) return MacroCallFar(0x80C39, ...) end,
-  BM_Next         = function(...) return MacroCallFar(0x80C3A, ...) end,
-  BM_Pop          = function(...) return MacroCallFar(0x80C3B, ...) end,
-  BM_Prev         = function(...) return MacroCallFar(0x80C3C, ...) end,
-  BM_Push         = function(...) return MacroCallFar(0x80C3E, ...) end,
-  BM_Stat         = function(...) return MacroCallFar(0x80C3F, ...) end,
   callplugin      = function(...) return MacroCallFar(0x80C32, ...) end,
   checkhotkey     = function(...) return MacroCallFar(0x80C19, ...) end,
   chr             = function(...) return MacroCallFar(0x80C06, ...) end,
   clip            = function(...) return MacroCallFar(0x80C05, ...) end,
   date            = function(...) return MacroCallFar(0x80C07, ...) end,
-  Dlg_GetValue    = function(...) return MacroCallFar(0x80C08, ...) end,
-  Dlg_SetFocus    = function(...) return MacroCallFar(0x80C57, ...) end,
-  Editor_DelLine  = function(...) return MacroCallFar(0x80C60, ...) end,
-  Editor_GetStr   = function(...) return MacroCallFar(0x80C61, ...) end,
-  Editor_InsStr   = function(...) return MacroCallFar(0x80C62, ...) end,
-  Editor_Pos      = function(...) return MacroCallFar(0x80C0C, ...) end,
-  Editor_Sel      = function(...) return MacroCallFar(0x80C09, ...) end,
-  Editor_Set      = function(...) return MacroCallFar(0x80C0A, ...) end,
-  Editor_SetStr   = function(...) return MacroCallFar(0x80C63, ...) end,
-  Editor_SetTitle = function(...) return MacroCallFar(0x80C45, ...) end,
-  Editor_Undo     = function(...) return MacroCallFar(0x80C0B, ...) end,
-  Env             = function(...) return MacroCallFar(0x80C0D, ...) end,
+  env             = function(...) return MacroCallFar(0x80C0D, ...) end,
   eval            = function(...) return MacroCallFar(0x80C29, ...) end,
-  Far_Cfg_Get     = function(...) return MacroCallFar(0x80C58, ...) end,
   fattr           = function(...) return MacroCallFar(0x80C0E, ...) end,
   fexist          = function(...) return MacroCallFar(0x80C0F, ...) end,
   float           = function(...) return MacroCallFar(0x80C41, ...) end,
-  FLock           = function(...) return MacroCallFar(0x80C31, ...) end,
-  FMatch          = function(...) return MacroCallFar(0x80C4D, ...) end,
+  flock           = function(...) return MacroCallFar(0x80C31, ...) end,
+  fmatch          = function(...) return MacroCallFar(0x80C4D, ...) end,
   fsplit          = function(...) return MacroCallFar(0x80C10, ...) end,
   gethotkey       = function(...) return MacroCallFar(0x80C1A, ...) end,
   History_Disable = function(...) return MacroCallFar(0x80C4C, ...) end,
@@ -357,41 +334,21 @@ mf = {
   Macro_Keyword   = function(...) return MacroCallFar(0x80C5B, ...) end,
   Macro_Var       = function(...) return MacroCallFar(0x80C5D, ...) end,
   max             = function(...) return MacroCallFar(0x80C18, ...) end,
-  Menu_Filter     = function(...) return MacroCallFar(0x80C55, ...) end,
-  Menu_FilterStr  = function(...) return MacroCallFar(0x80C56, ...) end,
-  Menu_GetValue   = function(...) return MacroCallFar(0x80C46, ...) end,
-  Menu_ItemStatus = function(...) return MacroCallFar(0x80C47, ...) end,
-  Menu_Select     = function(...) return MacroCallFar(0x80C1B, ...) end,
-  Menu_Show       = function(...) return MacroCallFar(0x80C1C, ...) end,
   min             = function(...) return MacroCallFar(0x80C1D, ...) end,
   mload           = function(...) return MacroCallFar(0x80C1F, ...) end,
-  MMode           = function(...) return MacroCallFar(0x80C44, ...) end,
+  mmode           = function(...) return MacroCallFar(0x80C44, ...) end,
   mod             = function(...) return MacroCallFar(0x80C1E, ...) end,
   msave           = function(...) return MacroCallFar(0x80C20, ...) end,
   msgbox          = function(...) return MacroCallFar(0x80C21, ...) end,
-  Panel_FAttr     = function(...) return MacroCallFar(0x80C22, ...) end,
-  Panel_FExist    = function(...) return MacroCallFar(0x80C24, ...) end,
-  Panel_Select    = function(...) return MacroCallFar(0x80C27, ...) end,
-  Panel_SetPath   = function(...) return MacroCallFar(0x80C23, ...) end,
-  Panel_SetPos    = function(...) return MacroCallFar(0x80C25, ...) end,
-  Panel_SetPosIdx = function(...) return MacroCallFar(0x80C26, ...) end,
-  PanelItem       = function(...) return MacroCallFar(0x80C28, ...) end,
-  Plugin_Call     = function(...) return MacroCallFar(0x80C50, ...) end,
-  Plugin_Command  = function(...) return MacroCallFar(0x80C52, ...) end,
-  Plugin_Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
-  Plugin_Exist    = function(...) return MacroCallFar(0x80C54, ...) end,
-  Plugin_Load     = function(...) return MacroCallFar(0x80C51, ...) end,
-  Plugin_Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
-  Plugin_Unload   = function(...) return MacroCallFar(0x80C53, ...) end,
-  Print           = function(...) return MacroCallFar(0x80C43, ...) end,
+  print           = function(...) return MacroCallFar(0x80C43, ...) end,
   prompt          = function(...) return MacroCallFar(0x80C34, ...) end,
   replace         = function(...) return MacroCallFar(0x80C33, ...) end,
   rindex          = function(...) return MacroCallFar(0x80C2A, ...) end,
-  Size2Str        = function(...) return MacroCallFar(0x80C59, ...) end,
-  Sleep           = function(...) return MacroCallFar(0x80C2B, ...) end,
+  size2str        = function(...) return MacroCallFar(0x80C59, ...) end,
+  sleep           = function(...) return MacroCallFar(0x80C2B, ...) end,
   string          = function(...) return MacroCallFar(0x80C2C, ...) end,
-  StrPad          = function(...) return MacroCallFar(0x80C5F, ...) end,
-  StrWrap         = function(...) return MacroCallFar(0x80C5A, ...) end,
+  strpad          = function(...) return MacroCallFar(0x80C5F, ...) end,
+  strwrap         = function(...) return MacroCallFar(0x80C5A, ...) end,
   substr          = function(...) return MacroCallFar(0x80C2D, ...) end,
   testfolder      = function(...) return MacroCallFar(0x80C42, ...) end,
   trim            = function(...) return MacroCallFar(0x80C40, ...) end,
@@ -401,16 +358,13 @@ mf = {
   xlat            = function(...) return MacroCallFar(0x80C30, ...) end,
 }
 
-local properties = {
+local prop_Object = { --TODO: document this change (all these properties were global)
   Bof = function() return MacroCallFar(0x80413) end,
   CurPos = function() return MacroCallFar(0x80827) end,
   Empty = function() return MacroCallFar(0x80415) end,
   Eof = function() return MacroCallFar(0x80414) end,
-  FullScreenMode = function() return MacroCallFar(0x80411) end,
   Height = function() return MacroCallFar(0x80829) end,
-  IsUserAdmin = function() return MacroCallFar(0x80412) end,
   ItemCount = function() return MacroCallFar(0x80826) end,
-  MacroArea = function() return MacroCallFar(0x80805) end,
   RootFolder = function() return MacroCallFar(0x80417) end,
   Selected = function() return MacroCallFar(0x80416) end,
   Title = function() return MacroCallFar(0x80828) end,
@@ -418,9 +372,10 @@ local properties = {
 }
 
 local prop_Area = {
+  Current = function() return MacroCallFar(0x80805) end, --TODO: document this change (was: global MacroArea)
   -- Note: 0x80400 is subtracted from opcodes here.
   Dialog = function() return MacroCallFar(0x04) end,
-  Dialog_Autocompletion = function() return MacroCallFar(0x10) end,
+  Dialog_Autocompletion = function() return MacroCallFar(0x10) end, --TODO: document this change
   Disks = function() return MacroCallFar(0x06) end,
   Editor = function() return MacroCallFar(0x03) end,
   FindFolder = function() return MacroCallFar(0x0D) end,
@@ -432,7 +387,7 @@ local prop_Area = {
   QviewPanel = function() return MacroCallFar(0x0B) end,
   Search = function() return MacroCallFar(0x05) end,
   Shell = function() return MacroCallFar(0x01) end,
-  Shell_Autocompletion = function() return MacroCallFar(0x0F) end,
+  Shell_Autocompletion = function() return MacroCallFar(0x0F) end, --TODO: document this change
   TreePanel = function() return MacroCallFar(0x0C) end,
   UserMenu = function() return MacroCallFar(0x0E) end,
   Viewer = function() return MacroCallFar(0x02) end,
@@ -510,34 +465,6 @@ local prop_CmdLine = {
   Value = function() return MacroCallFar(0x8083D) end,
 }
 
-local prop_Dlg = {
-  CurPos = function() return MacroCallFar(0x80835) end,
-  Info_Id = function() return MacroCallFar(0x80837) end,
-  Info_Owner = function() return MacroCallFar(0x80838) end,
-  ItemCount = function() return MacroCallFar(0x80834) end,
-  ItemType = function() return MacroCallFar(0x80833) end,
-  PrevPos = function() return MacroCallFar(0x80836) end,
-}
-
-local prop_Editor = {
-  CurLine = function() return MacroCallFar(0x8082D) end,
-  CurPos = function() return MacroCallFar(0x8082E) end,
-  FileName = function() return MacroCallFar(0x8082B) end,
-  Lines = function() return MacroCallFar(0x8082C) end,
-  RealPos = function() return MacroCallFar(0x8082F) end,
-  SelValue = function() return MacroCallFar(0x80832) end,
-  State = function() return MacroCallFar(0x80830) end,
-  Value = function() return MacroCallFar(0x80831) end,
-}
-
-local prop_Far = {
-  Height = function() return MacroCallFar(0x80801) end,
-  PID = function() return MacroCallFar(0x80804) end,
-  Title = function() return MacroCallFar(0x80802) end,
-  UpTime = function() return MacroCallFar(0x80803) end,
-  Width = function() return MacroCallFar(0x80800) end,
-}
-
 local prop_Drv = {
   ShowMode = function() return MacroCallFar(0x8083F) end,
   ShowPos = function() return MacroCallFar(0x8083E) end,
@@ -549,17 +476,12 @@ local prop_Help = {
   Topic = function() return MacroCallFar(0x80841) end,
 }
 
-local prop_Menu = {
-  Info_Id = function() return MacroCallFar(0x80844) end,
-  Value = function() return MacroCallFar(0x80843) end,
-}
-
 local prop_Viewer = {
   FileName = function() return MacroCallFar(0x80839) end,
   State = function() return MacroCallFar(0x8083A) end,
 }
 
-local function RegisterProperties (namespace, proptable)
+local function SetProperties (namespace, proptable)
   local meta = { __metatable="access denied", __newindex=function() end }
   meta.__index = function(tb,nm)
     local f = proptable[nm]
@@ -570,15 +492,120 @@ local function RegisterProperties (namespace, proptable)
   return namespace
 end
 
---==============================================================================
-Area    = RegisterProperties({}, prop_Area)
-APanel  = RegisterProperties({}, prop_APanel)
-PPanel  = RegisterProperties({}, prop_PPanel)
-CmdLine = RegisterProperties({}, prop_CmdLine)
-Dlg     = RegisterProperties({}, prop_Dlg)
-Editor  = RegisterProperties({}, prop_Editor)
-Far     = RegisterProperties({}, prop_Far)
-Drv     = RegisterProperties({}, prop_Drv)
-Help    = RegisterProperties({}, prop_Help)
-Menu    = RegisterProperties({}, prop_Menu)
-Viewer  = RegisterProperties({}, prop_Viewer)
+--------------------------------------------------------------------------------
+
+Dlg = {
+  GetValue   = function(...) return MacroCallFar(0x80C08, ...) end,
+  SetFocus   = function(...) return MacroCallFar(0x80C57, ...) end,
+}
+
+SetProperties(Dlg, {
+  CurPos     = function() return MacroCallFar(0x80835) end,
+  Info_Id    = function() return MacroCallFar(0x80837) end, --TODO: document this change
+  Info_Owner = function() return MacroCallFar(0x80838) end, --TODO: document this change
+  ItemCount  = function() return MacroCallFar(0x80834) end,
+  ItemType   = function() return MacroCallFar(0x80833) end,
+  PrevPos    = function() return MacroCallFar(0x80836) end,
+})
+--------------------------------------------------------------------------------
+
+Editor = {
+  DelLine  = function(...) return MacroCallFar(0x80C60, ...) end,
+  GetStr   = function(...) return MacroCallFar(0x80C61, ...) end,
+  InsStr   = function(...) return MacroCallFar(0x80C62, ...) end,
+  Pos      = function(...) return MacroCallFar(0x80C0C, ...) end,
+  Sel      = function(...) return MacroCallFar(0x80C09, ...) end,
+  Set      = function(...) return MacroCallFar(0x80C0A, ...) end,
+  SetStr   = function(...) return MacroCallFar(0x80C63, ...) end,
+  SetTitle = function(...) return MacroCallFar(0x80C45, ...) end,
+  Undo     = function(...) return MacroCallFar(0x80C0B, ...) end,
+}
+
+SetProperties(Editor, {
+  CurLine  = function() return MacroCallFar(0x8082D) end,
+  CurPos   = function() return MacroCallFar(0x8082E) end,
+  FileName = function() return MacroCallFar(0x8082B) end,
+  Lines    = function() return MacroCallFar(0x8082C) end,
+  RealPos  = function() return MacroCallFar(0x8082F) end,
+  SelValue = function() return MacroCallFar(0x80832) end,
+  State    = function() return MacroCallFar(0x80830) end,
+  Value    = function() return MacroCallFar(0x80831) end,
+})
+--------------------------------------------------------------------------------
+
+Menu = {
+  Filter     = function(...) return MacroCallFar(0x80C55, ...) end,
+  FilterStr  = function(...) return MacroCallFar(0x80C56, ...) end,
+  GetValue   = function(...) return MacroCallFar(0x80C46, ...) end,
+  ItemStatus = function(...) return MacroCallFar(0x80C47, ...) end,
+  Select     = function(...) return MacroCallFar(0x80C1B, ...) end,
+  Show       = function(...) return MacroCallFar(0x80C1C, ...) end,
+}
+
+SetProperties(Menu, {
+  Info_Id    = function() return MacroCallFar(0x80844) end, --TODO: document this change
+  Value      = function() return MacroCallFar(0x80843) end,
+})
+--------------------------------------------------------------------------------
+
+Far = {
+  Cfg_Get = function(...) return MacroCallFar(0x80C58, ...) end,
+}
+
+SetProperties(Far, {
+  FullScreenMode = function() return MacroCallFar(0x80411) end, --TODO: document this change
+  Height = function() return MacroCallFar(0x80801) end,
+  IsUserAdmin = function() return MacroCallFar(0x80412) end, --TODO: document this change
+  PID = function() return MacroCallFar(0x80804) end,
+  Title = function() return MacroCallFar(0x80802) end,
+  UpTime = function() return MacroCallFar(0x80803) end,
+  Width = function() return MacroCallFar(0x80800) end,
+})
+--------------------------------------------------------------------------------
+
+BM = {
+  Add   = function(...) return MacroCallFar(0x80C35, ...) end,
+  Back  = function(...) return MacroCallFar(0x80C3D, ...) end,
+  Clear = function(...) return MacroCallFar(0x80C36, ...) end,
+  Del   = function(...) return MacroCallFar(0x80C37, ...) end,
+  Get   = function(...) return MacroCallFar(0x80C38, ...) end,
+  Goto  = function(...) return MacroCallFar(0x80C39, ...) end,
+  Next  = function(...) return MacroCallFar(0x80C3A, ...) end,
+  Pop   = function(...) return MacroCallFar(0x80C3B, ...) end,
+  Prev  = function(...) return MacroCallFar(0x80C3C, ...) end,
+  Push  = function(...) return MacroCallFar(0x80C3E, ...) end,
+  Stat  = function(...) return MacroCallFar(0x80C3F, ...) end,
+}
+--------------------------------------------------------------------------------
+
+Plugin = {
+  Call     = function(...) return MacroCallFar(0x80C50, ...) end,
+  Command  = function(...) return MacroCallFar(0x80C52, ...) end,
+  Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
+  Exist    = function(...) return MacroCallFar(0x80C54, ...) end,
+  Load     = function(...) return MacroCallFar(0x80C51, ...) end,
+  Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
+  Unload   = function(...) return MacroCallFar(0x80C53, ...) end,
+}
+--------------------------------------------------------------------------------
+
+Panel = {
+  FAttr     = function(...) return MacroCallFar(0x80C22, ...) end,
+  FExist    = function(...) return MacroCallFar(0x80C24, ...) end,
+  Item      = function(...) return MacroCallFar(0x80C28, ...) end,
+  Select    = function(...) return MacroCallFar(0x80C27, ...) end,
+  SetPath   = function(...) return MacroCallFar(0x80C23, ...) end,
+  SetPos    = function(...) return MacroCallFar(0x80C25, ...) end,
+  SetPosIdx = function(...) return MacroCallFar(0x80C26, ...) end,
+}
+--------------------------------------------------------------------------------
+
+Area    = SetProperties({}, prop_Area)
+APanel  = SetProperties({}, prop_APanel)
+PPanel  = SetProperties({}, prop_PPanel)
+CmdLine = SetProperties({}, prop_CmdLine)
+Drv     = SetProperties({}, prop_Drv)
+Help    = SetProperties({}, prop_Help)
+Viewer  = SetProperties({}, prop_Viewer)
+Object  = SetProperties({}, prop_Object)
+--------------------------------------------------------------------------------

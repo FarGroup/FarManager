@@ -1333,13 +1333,10 @@ void Panel::FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLas
 	}
 }
 
-#ifdef FAR_LUA_TEMP
-#else
 __int64 Panel::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	return 0;
 }
-#endif
 
 // корректировка букв
 static DWORD _CorrectFastFindKbdLayout(INPUT_RECORD *rec,DWORD Key)

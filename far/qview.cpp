@@ -296,8 +296,6 @@ void QuickView::DisplayObject()
 }
 
 
-#ifdef FAR_LUA_TEMP
-#else
 __int64 QuickView::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	if (!Directory && QView)
@@ -311,7 +309,6 @@ __int64 QuickView::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
-#endif
 
 int QuickView::ProcessKey(int Key)
 {

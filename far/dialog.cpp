@@ -2216,8 +2216,6 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 	return (FALSE);
 }
 
-#ifdef FAR_LUA_TEMP
-#else
 __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	switch (OpCode)
@@ -2387,7 +2385,6 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
-#endif
 
 //////////////////////////////////////////////////////////////////////////
 /* Public, Virtual:

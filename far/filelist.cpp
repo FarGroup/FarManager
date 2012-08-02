@@ -635,8 +635,6 @@ bool FileList::GetPluginInfo(PluginInfo *PInfo)
 }
 #endif
 
-#ifdef FAR_LUA_TEMP
-#else
 __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	switch (OpCode)
@@ -864,7 +862,6 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
-#endif
 
 int FileList::ProcessKey(int Key)
 {

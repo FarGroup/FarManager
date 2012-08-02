@@ -73,10 +73,7 @@ class QuickView:public Panel
 	public:
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-#ifdef FAR_LUA_TEMP
-#else
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-#endif
 		virtual void Update(int Mode);
 		void ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin);
 		virtual void CloseFile();

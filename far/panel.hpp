@@ -288,10 +288,7 @@ class Panel:public ScreenObject
 		virtual void SetTitle();
 		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 
-#ifdef FAR_LUA_TEMP
-#else
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-#endif
 
 		virtual void IfGoHome(wchar_t Drive) {}
 

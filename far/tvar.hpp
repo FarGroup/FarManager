@@ -35,8 +35,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef FAR_LUA_TEMP
-#else
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.
@@ -185,5 +183,3 @@ inline TVarSet *varInsert(TVarTable t, const wchar_t *s)
 {
 	return varLook(t, s, true);
 }
-
-#endif

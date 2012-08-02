@@ -81,10 +81,7 @@ class ScreenObject
 		virtual void SetScreenPosition();
 		virtual void ResizeConsole() {};
 
-#ifdef FAR_LUA_TEMP
-#else
 		virtual __int64  VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0) {return 0;};
-#endif
 
 		void Lock();
 		void Unlock();

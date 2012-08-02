@@ -313,10 +313,7 @@ class FileList:public Panel
 		virtual bool GetPluginInfo(PluginInfo *PInfo);
 #endif
 
-#ifdef FAR_LUA_TEMP
-#else
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-#endif
 		virtual void MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent);
 		virtual void SetFocus();
 		virtual void Update(int Mode);

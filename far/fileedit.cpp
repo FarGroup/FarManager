@@ -754,8 +754,6 @@ void FileEditor::DisplayObject()
 	}
 }
 
-#ifdef FAR_LUA_TEMP
-#else
 __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	if (OpCode == MCODE_V_EDITORSTATE)
@@ -817,7 +815,6 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return m_editor->VMProcess(OpCode,vParam,iParam);
 }
-#endif
 
 
 int FileEditor::ProcessKey(int Key)

@@ -863,8 +863,6 @@ int VMenu::ReadInput(INPUT_RECORD *GetReadRec)
 	return ReadKey;
 }
 
-#ifdef FAR_LUA_TEMP
-#else
 __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	switch (OpCode)
@@ -1157,7 +1155,6 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	return 0;
 }
-#endif
 
 bool VMenu::AddToFilter(const wchar_t *str)
 {
