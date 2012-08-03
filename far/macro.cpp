@@ -758,7 +758,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 
 				if (AssignRet && AssignRet!=2 && !m_RecCode.IsEmpty())
 				{
-					m_RecCode = L"SendKeys(\"" + m_RecCode + L"\")";
+					m_RecCode = L"Keys(\"" + m_RecCode + L"\")";
 					// добавим проверку на удаление
 					// если удаляем или был вызван диалог изменения, то не нужно выдавать диалог настройки.
 					//if (MacroKey != (DWORD)-1 && (Key==KEY_CTRLSHIFTDOT || Recording==2) && RecBufferSize)

@@ -19,8 +19,8 @@ local macros = {}
 local LastError
 local gmeta = { __index=_G }
 
-function SendKeys (str)
-  assert(type(str) == "string", "arg. #1 to SendKeys must be string")
+function Keys (str)
+  assert(type(str) == "string", "arg. #1 to Keys() must be string")
   for key in str:gmatch("%S+") do co_yield(key) end
 end
 

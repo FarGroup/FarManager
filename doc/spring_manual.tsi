@@ -8,7 +8,7 @@ lv=0
 dt=Text
 nm=Spring
 ctime=3551829092
-mtime=3552492113
+mtime=3553190368
 <article>
 #_<markdown>
 #_
@@ -34,9 +34,8 @@ mtime=3552492113
 #_
 #_Что не работает
 #_----------------
-#_* Нет функций макроязыка (ушли вместе с ним). Часть этих функций, под другими
-#_  названиями, с другими синтаксисом и семантикой, есть в Lua и LuaFAR, другая
-#_  часть - в процессе написания.
+#_* Не все функции макроязыка реализованы, см. список нереализованных функций
+#_  в данном мануале.
 #_
 </article>
 </node>
@@ -81,10 +80,11 @@ lv=3
 dt=Text
 nm=Area
 ctime=3552736839
-mtime=3552737170
+mtime=3553190545
 <article>
 #_**Area**: таблица со следующими полями:
 #_
+#_  Current:               string
 #_  Other:                 boolean
 #_  Shell:                 boolean
 #_  Viewer:                boolean
@@ -106,44 +106,29 @@ mtime=3552737170
 </article>
 </node>
 <node>
-id=11
+id=4
 lv=3
 dt=Text
-nm=GetArea
-ctime=3551992166
-mtime=3552748474
+nm=Keys
+ctime=3551902602
+mtime=3553118704
 <article>
-#_area = GetArea()
+#_Keys (str)
 #_
 #_**Параметры:**
-#_  нет
+#_  str: string
 #_
 #_**Возвращает:**
-#_  area: string (один из следующих стринговых литералов)
-#_    "Other", "Shell", "Viewer", "Editor", "Dialog", "Search", "Disks",
-#_    "MainMenu", "Menu", "Help", "Info", "QView", "Tree", "FindFolder",
-#_    "UserMenu", "ShellAutoCompletion", "DialogAutoCompletion".
+#_  ничего
 #_
 #_**Описание:**
-#_  Возвращает название текущей области исполнения макроса.
+#_  Послать один или более ключей Фару.
 #_
-</article>
-</node>
-<node>
-id=18
-lv=3
-dt=Text
-nm=IsUserAdmin
-ctime=3552217641
-mtime=3552453574
-<article>
-#_ret = IsUserAdmin()
+#_**Примечание:**
+#_  Если скрипт создаёт корутины, не следует вызывать данную функцию из них.
 #_
-#_**Параметры:**
-#_  нет
-#_
-#_**Возвращает:**
-#_  ret: boolean
+#_**Пример:**
+#_  Keys("A b CtrlC ShiftEnter")
 #_
 </article>
 </node>
@@ -220,242 +205,76 @@ mtime=3552332698
 </article>
 </node>
 <node>
-id=35
-lv=3
+id=38
+lv=1
 dt=Text
-nm=print
-ctime=3552434324
-mtime=3552434548
+nm=Изменения API в сравнении с макроязыком
+ctime=3553185939
+mtime=3553190719
 <article>
-#_print (arg)
+#_<markdown>
 #_
-#_**Параметры:**
-#_  arg: любой тип (преобразуется в стринг)
-#_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Описание:**
-#_  Функция *print* вставляет текст в текущую позицию командной строки,
-#_  редактора или редакторного поля диалога.
-#_
+#_* Большинство функций находятся в таблице `mf` (от *macrofunctions*), например: `mf.abs`, `mf.fsplit` и т.д.
+#_* Глобальные функции: `Keys`, `mdelete`, `mload`, `msave`, `msgbox`, `print`, `prompt`.
+#_* Функции `mload` и `msave` изменились, см. их описание.
+#_* Свойства, зависящие от контекста исполнения, находятся в таблице `Object`, например: `Object.CurPos`, `Object.Empty`.
+#_* Логические свойства проверки области исполнения находятся в таблице `Area`, например: `Area.Editor`, `Area.Shell`.
+#_* `MacroArea -> Area.Current`.
+#_* `Dialog.Autocompletion -> Area.DialogAutocompletion`
+#_* `Shell.Autocompletion  -> Area.ShellAutocompletion`
+#_* `Dlg.Info.Id -> Dlg.Id`
+#_* `Dlg.Info.Owner -> Dlg.Owner`
+#_* `Menu.Info.Id -> Menu.Id`
+#_* `Far.Cfg.Get -> Far.Cfg_Get`
+#_* `FullScreenMode -> Far.FullScreenMode`
+#_* `IsUserAdmin -> Far.IsUserAdmin`
 </article>
 </node>
 <node>
-id=4
-lv=3
+id=37
+lv=1
 dt=Text
-nm=SendKeys
-ctime=3551902602
-mtime=3552417085
+nm=Список нереализованных функций
+ctime=3553185283
+mtime=3553186798
 <article>
-#_SendKeys (str)
+#_<markdown>
+#_На текущий момент не реализованы следующие функции макроязыка:
 #_
-#_**Параметры:**
-#_  str: string
+#_1. `Akey`
+#_1. `BM.Add`
+#_1. `BM.Clear`
+#_1. `BM.Del`
+#_1. `BM.Get`
+#_1. `BM.Goto`
+#_1. `BM.Next`
+#_1. `BM.Pop`
+#_1. `BM.Prev`
+#_1. `BM.Back`
+#_1. `BM.Push`
+#_1. `BM.Stat`
+#_1. `CallPlugin`
+#_1. `CheckHotkey`
+#_1. `Eval`
+#_1. `GetHotkey`
+#_1. `History.Disable`
+#_1. `Iif`
+#_1. `Macro.Const`
+#_1. `Macro.Func`
+#_1. `Macro.Keyword`
+#_1. `Macro.Var`
+#_1. `Menu.Filter`
+#_1. `Menu.FilterStr`
+#_1. `Menu.GetValue`
+#_1. `Menu.ItemStatus`
+#_1. `Menu.Select`
+#_1. `MMode`
+#_1. `Plugin.Call`
+#_1. `Plugin.Command`
+#_1. `Plugin.Config`
+#_1. `Plugin.Menu`
+#_1. `Prompt`
 #_
-#_**Возвращает:**
-#_  ничего
-#_
-#_**Описание:**
-#_  Послать один или более ключей Фару.
-#_
-#_**Примечание:**
-#_  Если скрипт создаёт корутины, не следует вызывать данную функцию из них.
-#_
-#_**Пример:**
-#_  SendKeys("A b CtrlC ShiftEnter")
-#_
-</article>
-</node>
-<node>
-id=21
-lv=2
-dt=Text
-nm=Зависящие от контекста исполнения
-ctime=3552221116
-mtime=3552221116
-<article>
-</article>
-</node>
-<node>
-id=22
-lv=2
-dt=Text
-nm=Для панелей
-ctime=3552221146
-mtime=3552221146
-<article>
-</article>
-</node>
-<node>
-id=10
-lv=3
-dt=Text
-nm=APanel, PPanel
-ctime=3551992161
-mtime=3552331754
-<article>
-#_**APanel**, **PPanel**: таблицы со следующими полями:
-#_
-#_  Root:        boolean
-#_  Bof:         boolean
-#_  Eof:         boolean
-#_  Empty:       boolean
-#_  Selected:    boolean
-#_  Folder:      boolean
-#_  Plugin:      boolean
-#_
-#_  FilePanel:   boolean
-#_  Left:        boolean
-#_  Visible:     boolean
-#_
-#_  ColumnCount: integer
-#_  ItemCount:   integer
-#_  CurPos:      integer
-#_  SelCount:    integer
-#_  Current:     string
-#_  Path:        string
-#_
-#_  HostFile:    string
-#_  Prefix:      string
-#_
-#_  Height:      integer
-#_  Width:       integer
-#_  Type:        integer
-#_
-</article>
-</node>
-<node>
-id=23
-lv=2
-dt=Text
-nm=Для командной строки
-ctime=3552221152
-mtime=3552221152
-<article>
-</article>
-</node>
-<node>
-id=31
-lv=3
-dt=Text
-nm=CmdLine
-ctime=3552224659
-mtime=3552331778
-<article>
-#_**CmdLine**: таблица со следующими полями:
-#_
-#_  Bof:         boolean
-#_  Eof:         boolean
-#_  Empty:       boolean
-#_  Selected:    boolean
-#_  ItemCount:   integer
-#_  CurPos:      integer
-#_  Value:       string
-#_
-</article>
-</node>
-<node>
-id=24
-lv=2
-dt=Text
-nm=Для редактора
-ctime=3552221161
-mtime=3552221161
-<article>
-</article>
-</node>
-<node>
-id=32
-lv=3
-dt=Text
-nm=Editor
-ctime=3552241023
-mtime=3552331789
-<article>
-#_**Editor**: таблица со следующими полями:
-#_
-#_  FileName:    string
-#_  Lines:       integer
-#_  CurLine:     integer
-#_  CurPos:      integer
-#_  RealPos:     integer
-#_  Value:       string
-#_  SelValue:    string
-#_
-</article>
-</node>
-<node>
-id=25
-lv=2
-dt=Text
-nm=Для внутренней программы просмотра
-ctime=3552221188
-mtime=3552221188
-<article>
-</article>
-</node>
-<node>
-id=33
-lv=3
-dt=Text
-nm=Viewer
-ctime=3552334661
-mtime=3552334674
-<article>
-#_**Viewer**: таблица со следующими полями:
-#_
-#_  FileName:    string
-#_
-</article>
-</node>
-<node>
-id=26
-lv=2
-dt=Text
-nm=Для диалогов
-ctime=3552221202
-mtime=3552221202
-<article>
-</article>
-</node>
-<node>
-id=34
-lv=3
-dt=Text
-nm=Dlg
-ctime=3552418893
-mtime=3552419087
-<article>
-#_**Dlg**: таблица со следующими полями:
-#_
-#_  ItemCount:   integer
-#_  CurPos:      integer
-#_  PrevPos:     integer
-#_  Id:          string (GUID в текстовом представлении)
-#_  ItemType:    integer
-#_
-</article>
-</node>
-<node>
-id=27
-lv=2
-dt=Text
-nm=Для меню и списков
-ctime=3552221220
-mtime=3552221220
-<article>
-</article>
-</node>
-<node>
-id=28
-lv=2
-dt=Text
-nm=Для системы помощи
-ctime=3552221228
-mtime=3552221228
-<article>
 </article>
 </node>
 <node>
@@ -606,22 +425,36 @@ lv=2
 dt=Text
 nm=Выделить файлы новее текущего
 ctime=3552222560
-mtime=3552493600
+mtime=3553184334
 <article>
 #_<markdown>
 #_```
-#_-- Выделить в активной панели все файлы/папки новее текущего
+#_-- Выделить в активной панели все файлы/папки новее текущего,
+#_-- используя API плагинов (LuaFAR).
 #_
-#_local info=panel.GetPanelInfo(nil,1)
-#_local curItem=panel.GetCurrentPanelItem(nil,1)
+#_local info = panel.GetPanelInfo(nil,1)
+#_local curItem = panel.GetCurrentPanelItem(nil,1)
 #_for i=1,info.ItemsNumber do
-#_  local item=panel.GetPanelItem(nil,1,i)
+#_  local item = panel.GetPanelItem(nil,1,i)
 #_  if item.LastWriteTime > curItem.LastWriteTime then
 #_    panel.SetSelection(nil,1,i,true)
 #_  end
 #_end
 #_panel.RedrawPanel(nil,1)
 #_```
+#_
+#_```
+#_-- Выделить в активной панели все файлы/папки новее текущего,
+#_-- используя API макросов (LuaFAR + LuaMacro).
+#_
+#_d = Panel.Item(0,0,17)
+#_for i=1,APanel.ItemCount do
+#_  if Panel.Item(0,i,17) > d then
+#_    Panel.Select(0,1,1,i)
+#_  end
+#_end
+#_```
+#_
 #_
 </article>
 </node>
