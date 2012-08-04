@@ -8,7 +8,7 @@ lv=0
 dt=Text
 nm=Spring
 ctime=3551829092
-mtime=3553190368
+mtime=3553246500
 <article>
 #_<markdown>
 #_
@@ -34,74 +34,98 @@ mtime=3553190368
 #_
 #_Что не работает
 #_----------------
-#_* Не все функции макроязыка реализованы, см. список нереализованных функций
-#_  в данном мануале.
+#_* Не все функции макроязыка реализованы, см. [список нереализованных функций][unimplemented].
+#_
+#_[unimplemented]: 37.html
 #_
 </article>
 </node>
 <node>
-id=19
+id=38
 lv=1
 dt=Text
-nm=Свойства и функции: по областям
-ctime=3552220773
-mtime=3552220773
+nm=Изменения API в сравнении с макроязыком
+ctime=3553185939
+mtime=3553247417
 <article>
+#_<markdown>
+#_
+#_* Все идентификаторы чувствительны к регистру символов.
+#_* Логические свойства имеют тип *boolean* (поэтому нет смысла сравнивать их с нулём).
+#_* Многие функции помещены в таблицу [`mf`] [mf] (сокращение от *macrofunctions*),
+#_  например: `mf.abs`, `mf.fsplit` и т.д.
+#_* Глобальные функции: `callplugin`, [`Keys`][Keys], `msgbox`, `print`, `prompt`.
+#_* Функции [`mload`] [mload] и [`msave`] [msave] изменились, см. их описание.
+#_* Свойства, зависящие от контекста исполнения, находятся в таблице [`Object`][Object],
+#_  например: `Object.CurPos`, `Object.Empty`.
+#_* Логические свойства проверки области исполнения находятся в таблице [`Area`][Area],
+#_  например: `Area.Editor`, `Area.Shell`.
+#_* `MacroArea -> Area.Current`.
+#_* `Dialog.AutoCompletion -> Area.DialogAutoCompletion`
+#_* `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
+#_* `Dlg.Info.Id -> Dlg.Id`
+#_* `Dlg.Info.Owner -> Dlg.Owner`
+#_* `Menu.Info.Id -> Menu.Id`
+#_* `Far.Cfg.Get -> Far.Cfg_Get`
+#_* `FullScreenMode -> Far.FullScreenMode`
+#_* `IsUserAdmin -> Far.IsUserAdmin`
+#_
+#_[mload]: 13.html
+#_[msave]: 12.html
+#_[mf]: 44.html
+#_[Keys]: 4.html
+#_[Area]: 36.html
+#_[Object]: 45.html
+#_
+#_
+</article>
+</node>
+<node>
+id=42
+lv=1
+dt=Text
+nm=Свойства и функции
+ctime=3553243413
+mtime=3553261942
+<article>
+#_<markdown>
+#_Описание API в данном документе не является самодостаточным,
+#_оно является *дополняющим и уточняющим* к описанию свойств и
+#_функций объектов Фара в разделе **Макроязык** Энциклопедии Фара.
+#_
+#_В идеале, API должен совпадать с API макроязыка, за исключением
+#_случаев, перечисленных в статье [Изменения API в сравнении с
+#_макроязыком][APIchanges].
+#_
+#_[APIchanges]: 38.html
+#_
 </article>
 </node>
 <node>
 id=20
 lv=2
 dt=Text
-nm=Общие
+nm=Глобальные
 ctime=3552221109
-mtime=3552221109
+mtime=3553255988
 <article>
-</article>
-</node>
-<node>
-id=9
-lv=3
-dt=Text
-nm=AKey
-ctime=3551992029
-mtime=3552331443
-<article>
-#_**AKey:** string
+#_**Глобальные переменные.**
 #_
-#_**Описание:**
-#_  Ключ, запустивший данный макрос на исполнение.
+#_**Свойства:**
 #_
-</article>
-</node>
-<node>
-id=36
-lv=3
-dt=Text
-nm=Area
-ctime=3552736839
-mtime=3553190545
-<article>
-#_**Area**: таблица со следующими полями:
+#_  AKey:        string
 #_
-#_  Current:               string
-#_  Other:                 boolean
-#_  Shell:                 boolean
-#_  Viewer:                boolean
-#_  Editor:                boolean
-#_  Dialog:                boolean
-#_  Search:                boolean
-#_  Disks:                 boolean
-#_  MainMenu:              boolean
-#_  Menu:                  boolean
-#_  Help:                  boolean
-#_  Info:                  boolean
-#_  QView:                 boolean
-#_  Tree:                  boolean
-#_  FindFolder:            boolean
-#_  UserMenu:              boolean
-#_  ShellAutoCompletion:   boolean
-#_  DialogAutoCompletion:  boolean
+#_**Функции:**
+#_
+#_  callplugin
+#_  Keys
+#_  msgbox
+#_  print
+#_
+#_@@@
+#_<lua> Links = {
+#_  Keys="4.html",
+#_} </lua>
 #_
 </article>
 </node>
@@ -133,14 +157,57 @@ mtime=3553118704
 </article>
 </node>
 <node>
+id=44
+lv=2
+dt=Text
+nm=mf
+ctime=3553243522
+mtime=3553256080
+<article>
+#_**Свойства:**
+#_
+#_  Нет.
+#_
+#_**Функции:**
+#_
+#_  abs                          len
+#_  asc                          max
+#_  atoi                         mdelete
+#_  beep                         min
+#_  chr                          mload
+#_  clip                         mod
+#_  date                         msave
+#_  env                          replace
+#_  fattr                        rindex
+#_  fexist                       size2str
+#_  float                        sleep
+#_  flock                        string
+#_  fmatch                       strpad
+#_  fsplit                       strwrap
+#_  index                        substr
+#_  int                          testfolder
+#_  itoa                         trim
+#_  kbdLayout                    ucase
+#_  key                          waitkey
+#_  KeyBar_Show                  Window_Scroll
+#_  lcase                        xlat
+#_
+#_@@@
+#_<lua> Links = {
+#_  mload="13.html", msave="12.html", mdelete="15.html",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
 id=15
 lv=3
 dt=Text
 nm=mdelete
 ctime=3552066075
-mtime=3552331539
+mtime=3553243618
 <article>
-#_mdelete (key, name)
+#_mf.mdelete (key, name)
 #_
 #_**Параметры:**
 #_  key:  string
@@ -161,9 +228,9 @@ lv=3
 dt=Text
 nm=mload
 ctime=3551993209
-mtime=3552331561
+mtime=3553243630
 <article>
-#_ret = mload (key, name)
+#_ret = mf.mload (key, name)
 #_
 #_**Параметры:**
 #_  key:   string
@@ -184,9 +251,9 @@ lv=3
 dt=Text
 nm=msave
 ctime=3551993205
-mtime=3552332698
+mtime=3553243637
 <article>
-#_msave (key, name, value)
+#_mf.msave (key, name, value)
 #_
 #_**Параметры:**
 #_  key:         string
@@ -205,29 +272,363 @@ mtime=3552332698
 </article>
 </node>
 <node>
-id=38
-lv=1
+id=36
+lv=2
 dt=Text
-nm=Изменения API в сравнении с макроязыком
-ctime=3553185939
-mtime=3553190719
+nm=Area
+ctime=3552736839
+mtime=3553252985
 <article>
-#_<markdown>
+#_**Area** - таблица со следующими полями:
 #_
-#_* Большинство функций находятся в таблице `mf` (от *macrofunctions*), например: `mf.abs`, `mf.fsplit` и т.д.
-#_* Глобальные функции: `Keys`, `mdelete`, `mload`, `msave`, `msgbox`, `print`, `prompt`.
-#_* Функции `mload` и `msave` изменились, см. их описание.
-#_* Свойства, зависящие от контекста исполнения, находятся в таблице `Object`, например: `Object.CurPos`, `Object.Empty`.
-#_* Логические свойства проверки области исполнения находятся в таблице `Area`, например: `Area.Editor`, `Area.Shell`.
-#_* `MacroArea -> Area.Current`.
-#_* `Dialog.Autocompletion -> Area.DialogAutocompletion`
-#_* `Shell.Autocompletion  -> Area.ShellAutocompletion`
-#_* `Dlg.Info.Id -> Dlg.Id`
-#_* `Dlg.Info.Owner -> Dlg.Owner`
-#_* `Menu.Info.Id -> Menu.Id`
-#_* `Far.Cfg.Get -> Far.Cfg_Get`
-#_* `FullScreenMode -> Far.FullScreenMode`
-#_* `IsUserAdmin -> Far.IsUserAdmin`
+#_**Свойства:**
+#_
+#_  Current:               string
+#_  Other:                 boolean
+#_  Shell:                 boolean
+#_  Viewer:                boolean
+#_  Editor:                boolean
+#_  Dialog:                boolean
+#_  Search:                boolean
+#_  Disks:                 boolean
+#_  MainMenu:              boolean
+#_  Menu:                  boolean
+#_  Help:                  boolean
+#_  Info:                  boolean
+#_  QView:                 boolean
+#_  Tree:                  boolean
+#_  FindFolder:            boolean
+#_  UserMenu:              boolean
+#_  ShellAutoCompletion:   boolean
+#_  DialogAutoCompletion:  boolean
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+</article>
+</node>
+<node>
+id=46
+lv=2
+dt=Text
+nm=APanel, PPanel
+ctime=3553252677
+mtime=3553260679
+<article>
+#_**APanel**, **PPanel** - таблицы со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Bof:          boolean
+#_  ColumnCount:  number
+#_  CurPos:       number
+#_  Current:      string
+#_  DriveType:    number
+#_  Empty:        boolean
+#_  Eof:          boolean
+#_  FilePanel:    boolean
+#_  Filter:       boolean
+#_  Folder:       boolean
+#_  Format:       string
+#_  Height:       number
+#_  HostFile:     string
+#_  ItemCount:    number
+#_  Left:         boolean
+#_  LFN:          boolean
+#_  OPIFlags:     number
+#_  Path:         string
+#_  Path0:        string
+#_  Plugin:       boolean
+#_  Prefix:       string
+#_  Root:         boolean
+#_  SelCount:     number
+#_  Selected:     boolean
+#_  Type:         number
+#_  UNCPath:      string
+#_  Visible:      boolean
+#_  Width:        number
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+</article>
+</node>
+<node>
+id=57
+lv=2
+dt=Text
+nm=Panel
+ctime=3553252776
+mtime=3553254750
+<article>
+#_**Panel** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Нет.
+#_
+#_**Функции:**
+#_
+#_  FAttr
+#_  FExist
+#_  Item
+#_  Select
+#_  SetPath
+#_  SetPos
+#_  SetPosIdx
+#_
+</article>
+</node>
+<node>
+id=47
+lv=2
+dt=Text
+nm=CmdLine
+ctime=3553252699
+mtime=3553260697
+<article>
+#_**CmdLine** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Bof:        boolean
+#_  Empty:      boolean
+#_  Eof:        boolean
+#_  Selected:   boolean
+#_  CurPos:     number
+#_  ItemCount:  number
+#_  Value:      string
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+</article>
+</node>
+<node>
+id=51
+lv=2
+dt=Text
+nm=Dlg
+ctime=3553252729
+mtime=3553260711
+<article>
+#_**Dlg** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  CurPos:     number
+#_  Id:         string (GUID)
+#_  Owner:      string (GUID)
+#_  ItemCount:  number
+#_  ItemType:   number
+#_  PrevPos:    number
+#_
+#_**Функции:**
+#_
+#_  GetValue
+#_  SetFocus
+#_
+#_
+</article>
+</node>
+<node>
+id=48
+lv=2
+dt=Text
+nm=Drv
+ctime=3553252704
+mtime=3553260726
+<article>
+#_**Drv** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  ShowMode:  number
+#_  ShowPos:   number
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+</article>
+</node>
+<node>
+id=52
+lv=2
+dt=Text
+nm=Editor
+ctime=3553252733
+mtime=3553260742
+<article>
+#_**Editor** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  CurLine:   number
+#_  CurPos:    number
+#_  FileName:  string
+#_  Lines:     number
+#_  RealPos:   number
+#_  SelValue:  string
+#_  State:     number
+#_  Value:     string
+#_
+#_**Функции:**
+#_
+#_  DelLine
+#_  GetStr
+#_  InsStr
+#_  Pos
+#_  Sel
+#_  Set
+#_  SetStr
+#_  SetTitle
+#_  Undo
+#_
+</article>
+</node>
+<node>
+id=54
+lv=2
+dt=Text
+nm=Far
+ctime=3553252749
+mtime=3553260762
+<article>
+#_**Far** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  FullScreenMode:  boolean
+#_  Height:          number
+#_  IsUserAdmin:     boolean
+#_  PID:             number
+#_  Title:           string
+#_  UpTime:          number
+#_  Width:           number
+#_
+#_**Функции:**
+#_
+#_  Cfg_Get
+#_
+#_
+</article>
+</node>
+<node>
+id=49
+lv=2
+dt=Text
+nm=Help
+ctime=3553252714
+mtime=3553260782
+<article>
+#_**Help** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  FileName:  string
+#_  SelTopic:  string
+#_  Topic:     string
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+</article>
+</node>
+<node>
+id=53
+lv=2
+dt=Text
+nm=Menu
+ctime=3553252746
+mtime=3553260796
+<article>
+#_**Menu** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Id:     string (GUID)
+#_  Value:  string
+#_
+#_**Функции:**
+#_
+#_  Show
+#_
+</article>
+</node>
+<node>
+id=45
+lv=2
+dt=Text
+nm=Object
+ctime=3553245384
+mtime=3553247255
+<article>
+#_**Свойства, зависящие от контекста исполнения.**
+#_
+#_**Object**: таблица со следующими полями:
+#_
+#_  Bof:         boolean
+#_  CurPos:      integer
+#_  Empty:       boolean
+#_  Eof:         boolean
+#_  Height:      integer
+#_  ItemCount:   integer
+#_  RootFolder:  boolean
+#_  Selected:    boolean
+#_  Title:       string
+#_  Width:       integer
+#_
+</article>
+</node>
+<node>
+id=56
+lv=2
+dt=Text
+nm=Plugin
+ctime=3553252766
+mtime=3553254654
+<article>
+#_**Plugin** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Нет.
+#_
+#_**Функции:**
+#_
+#_  Call
+#_  Exist
+#_  Load
+#_  Unload
+#_
+#_
+</article>
+</node>
+<node>
+id=50
+lv=2
+dt=Text
+nm=Viewer
+ctime=3553252718
+mtime=3553260812
+<article>
+#_**Viewer** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  FileName:  string
+#_  State:     number
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+#_
 </article>
 </node>
 <node>
@@ -236,24 +637,14 @@ lv=1
 dt=Text
 nm=Список нереализованных функций
 ctime=3553185283
-mtime=3553186798
+mtime=3553240467
 <article>
 #_<markdown>
-#_На текущий момент не реализованы следующие функции макроязыка:
+#_На текущий момент не реализованы следующие функции API макроязыка:
 #_
 #_1. `Akey`
-#_1. `BM.Add`
-#_1. `BM.Clear`
-#_1. `BM.Del`
-#_1. `BM.Get`
-#_1. `BM.Goto`
-#_1. `BM.Next`
-#_1. `BM.Pop`
-#_1. `BM.Prev`
-#_1. `BM.Back`
-#_1. `BM.Push`
-#_1. `BM.Stat`
-#_1. `CallPlugin`
+#_1. `BM.Add`, `BM.Clear`, `BM.Del`, `BM.Get`, `BM.Goto`, `BM.Next`, `BM.Pop`, `BM.Prev`,
+#_   `BM.Back`, `BM.Push`, `BM.Stat`
 #_1. `CheckHotkey`
 #_1. `Eval`
 #_1. `GetHotkey`
@@ -269,7 +660,6 @@ mtime=3553186798
 #_1. `Menu.ItemStatus`
 #_1. `Menu.Select`
 #_1. `MMode`
-#_1. `Plugin.Call`
 #_1. `Plugin.Command`
 #_1. `Plugin.Config`
 #_1. `Plugin.Menu`
@@ -420,14 +810,62 @@ mtime=3552222267
 </article>
 </node>
 <node>
+id=39
+lv=2
+dt=Text
+nm=Выделить слово под курсором
+ctime=3553195063
+mtime=3553206929
+<article>
+#_<markdown>
+#_(`area="Editor"`)
+#_
+#_```
+#_-- выделить/снять выделение слова под курсором
+#_
+#_Keys"RCtrl9 CtrlRight CtrlLeft"
+#_Keys(Object.Selected and "CtrlU" or "CtrlShiftRight")
+#_Keys"Ctrl9"
+#_```
+#_
+</article>
+</node>
+<node>
+id=40
+lv=2
+dt=Text
+nm=Переход в меню выбора дисков
+ctime=3553195940
+mtime=3553199764
+<article>
+#_<markdown>
+#_(`area="Disks"`)
+#_
+#_```
+#_-- Переход в меню выбора дисков на противоположной панели,
+#_-- включение видимости панели, в которой будет происходить
+#_-- смена диска, если её не было.
+#_
+#_Keys"Esc"
+#_if not PPanel.Visible then
+#_  Keys(APanel.Left and "CtrlF2" or "CtrlF1")
+#_end
+#_Keys"Tab F9 Enter End Enter"
+#_```
+#_
+</article>
+</node>
+<node>
 id=30
 lv=2
 dt=Text
 nm=Выделить файлы новее текущего
 ctime=3552222560
-mtime=3553184334
+mtime=3553206935
 <article>
 #_<markdown>
+#_(`area="Shell"`)
+#_
 #_```
 #_-- Выделить в активной панели все файлы/папки новее текущего,
 #_-- используя API плагинов (LuaFAR).
@@ -455,6 +893,31 @@ mtime=3553184334
 #_end
 #_```
 #_
+#_
+</article>
+</node>
+<node>
+id=41
+lv=2
+dt=Text
+nm=Cоздание папки с именем = текущей дате
+ctime=3553206604
+mtime=3553206942
+<article>
+#_<markdown>
+#_```
+#_-- area="Shell"
+#_-- key="CtrlShiftF7"
+#_-- flags="DisableOutput|NoPluginPanels"
+#_-- description="создание папки с именем = текущей дате"
+#_
+#_folder = mf.date("%d.%m0.%Y")
+#_if Panel.FExist(0,folder)==0 then
+#_  Keys"F7 CtrlY"
+#_  print(folder)
+#_  Keys"Enter"
+#_end
+#_```
 #_
 </article>
 </node>

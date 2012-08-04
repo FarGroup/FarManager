@@ -24,6 +24,11 @@ function Keys (str)
   for key in str:gmatch("%S+") do co_yield(key) end
 end
 
+function print (str)
+  str = tostring(str)
+  co_yield("print:"..str)
+end
+
 local PluginInfo = {
   Flags = F.PF_PRELOAD,
 }

@@ -324,26 +324,26 @@ end
 -- "mf" ("macrofunctions") namespace
 mf = {
   abs             = function(...) return MacroCallFar(0x80C01, ...) end,
-  akey            = function(...) return MacroCallFar(0x80C02, ...) end,
+  --NYI--akey            = function(...) return MacroCallFar(0x80C02, ...) end,
   asc             = function(...) return MacroCallFar(0x80C03, ...) end,
   atoi            = function(...) return MacroCallFar(0x80C04, ...) end,
   beep            = function(...) return MacroCallFar(0x80C48, ...) end,
-  callplugin      = function(...) return MacroCallFar(0x80C32, ...) end,
-  checkhotkey     = function(...) return MacroCallFar(0x80C19, ...) end,
+--callplugin      = function(...) return MacroCallFar(0x80C32, ...) end, -- made global
+  --NYI--checkhotkey     = function(...) return MacroCallFar(0x80C19, ...) end,
   chr             = function(...) return MacroCallFar(0x80C06, ...) end,
   clip            = function(...) return MacroCallFar(0x80C05, ...) end,
   date            = function(...) return MacroCallFar(0x80C07, ...) end,
   env             = function(...) return MacroCallFar(0x80C0D, ...) end,
-  eval            = function(...) return MacroCallFar(0x80C29, ...) end,
+  --NYI--eval            = function(...) return MacroCallFar(0x80C29, ...) end,
   fattr           = function(...) return MacroCallFar(0x80C0E, ...) end,
   fexist          = function(...) return MacroCallFar(0x80C0F, ...) end,
   float           = function(...) return MacroCallFar(0x80C41, ...) end,
   flock           = function(...) return MacroCallFar(0x80C31, ...) end,
   fmatch          = function(...) return MacroCallFar(0x80C4D, ...) end,
   fsplit          = function(...) return MacroCallFar(0x80C10, ...) end,
-  gethotkey       = function(...) return MacroCallFar(0x80C1A, ...) end,
-  History_Disable = function(...) return MacroCallFar(0x80C4C, ...) end,
-  iif             = function(...) return MacroCallFar(0x80C11, ...) end,
+  --NYI--gethotkey       = function(...) return MacroCallFar(0x80C1A, ...) end,
+  --NYI--History_Disable = function(...) return MacroCallFar(0x80C4C, ...) end,
+  --NYI--iif             = function(...) return MacroCallFar(0x80C11, ...) end,
   index           = function(...) return MacroCallFar(0x80C12, ...) end,
   int             = function(...) return MacroCallFar(0x80C13, ...) end,
   itoa            = function(...) return MacroCallFar(0x80C14, ...) end,
@@ -352,19 +352,19 @@ mf = {
   KeyBar_Show     = function(...) return MacroCallFar(0x80C4B, ...) end,
   lcase           = function(...) return MacroCallFar(0x80C16, ...) end,
   len             = function(...) return MacroCallFar(0x80C17, ...) end,
-  Macro_Const     = function(...) return MacroCallFar(0x80C5E, ...) end,
-  Macro_Func      = function(...) return MacroCallFar(0x80C5C, ...) end,
-  Macro_Keyword   = function(...) return MacroCallFar(0x80C5B, ...) end,
-  Macro_Var       = function(...) return MacroCallFar(0x80C5D, ...) end,
+  --NYI--Macro_Const     = function(...) return MacroCallFar(0x80C5E, ...) end,
+  --NYI--Macro_Func      = function(...) return MacroCallFar(0x80C5C, ...) end,
+  --NYI--Macro_Keyword   = function(...) return MacroCallFar(0x80C5B, ...) end,
+  --NYI--Macro_Var       = function(...) return MacroCallFar(0x80C5D, ...) end,
   max             = function(...) return MacroCallFar(0x80C18, ...) end,
   min             = function(...) return MacroCallFar(0x80C1D, ...) end,
 --mload           = function(...) return MacroCallFar(0x80C1F, ...) end, -- other function used
-  mmode           = function(...) return MacroCallFar(0x80C44, ...) end,
+  --NYI--mmode           = function(...) return MacroCallFar(0x80C44, ...) end,
   mod             = function(...) return MacroCallFar(0x80C1E, ...) end,
 --msave           = function(...) return MacroCallFar(0x80C20, ...) end, -- other function used
 --msgbox          = function(...) return MacroCallFar(0x80C21, ...) end, -- made global
---print           = function(...) return MacroCallFar(0x80C43, ...) end, -- other function used
-  prompt          = function(...) return MacroCallFar(0x80C34, ...) end,
+--print           = function(...) return MacroCallFar(0x80C43, ...) end, -- implemented as yield
+  --NYI--prompt          = function(...) return MacroCallFar(0x80C34, ...) end,
   replace         = function(...) return MacroCallFar(0x80C33, ...) end,
   rindex          = function(...) return MacroCallFar(0x80C2A, ...) end,
   size2str        = function(...) return MacroCallFar(0x80C59, ...) end,
@@ -398,20 +398,20 @@ local prop_Area = {
   Current    = function() return MacroCallFar(0x80805) end, --TODO: document this change (was: global MacroArea)
   -- Note: 0x80400 is subtracted from opcodes here.
   Dialog     = function() return MacroCallFar(0x04) end,
-  DialogAutocompletion = function() return MacroCallFar(0x10) end, --TODO: document this change
+  DialogAutoCompletion = function() return MacroCallFar(0x10) end, --TODO: document this change
   Disks      = function() return MacroCallFar(0x06) end,
   Editor     = function() return MacroCallFar(0x03) end,
   FindFolder = function() return MacroCallFar(0x0D) end,
   Help       = function() return MacroCallFar(0x09) end,
-  InfoPanel  = function() return MacroCallFar(0x0A) end,
+  Info       = function() return MacroCallFar(0x0A) end,
   MainMenu   = function() return MacroCallFar(0x07) end,
   Menu       = function() return MacroCallFar(0x08) end,
   Other      = function() return MacroCallFar(0x00) end,
-  QviewPanel = function() return MacroCallFar(0x0B) end,
+  QView      = function() return MacroCallFar(0x0B) end,
   Search     = function() return MacroCallFar(0x05) end,
   Shell      = function() return MacroCallFar(0x01) end,
-  ShellAutocompletion = function() return MacroCallFar(0x0F) end, --TODO: document this change
-  TreePanel  = function() return MacroCallFar(0x0C) end,
+  ShellAutoCompletion = function() return MacroCallFar(0x0F) end, --TODO: document this change
+  Tree       = function() return MacroCallFar(0x0C) end,
   UserMenu   = function() return MacroCallFar(0x0E) end,
   Viewer     = function() return MacroCallFar(0x02) end,
 }
@@ -422,6 +422,7 @@ local prop_APanel = {
   CurPos      = function() return MacroCallFar(0x80816) end,
   Current     = function() return MacroCallFar(0x80806) end,
   DriveType   = function() return MacroCallFar(0x8081A) end,
+  Empty       = function() return MacroCallFar(0x8041C) end,
   Eof         = function() return MacroCallFar(0x8041A) end,
   FilePanel   = function() return MacroCallFar(0x80426) end,
   Filter      = function() return MacroCallFar(0x8042E) end,
@@ -429,10 +430,9 @@ local prop_APanel = {
   Format      = function() return MacroCallFar(0x80824) end,
   Height      = function() return MacroCallFar(0x8081C) end,
   HostFile    = function() return MacroCallFar(0x80820) end,
-  IsEmpty     = function() return MacroCallFar(0x8041C) end,
   ItemCount   = function() return MacroCallFar(0x80814) end,
   Left        = function() return MacroCallFar(0x8042A) end,
-  Lfn         = function() return MacroCallFar(0x8042C) end,
+  LFN         = function() return MacroCallFar(0x8042C) end,
   OPIFlags    = function() return MacroCallFar(0x80818) end,
   Path        = function() return MacroCallFar(0x8080A) end,
   Path0       = function() return MacroCallFar(0x8080C) end,
@@ -545,11 +545,11 @@ SetProperties(Editor, {
 --------------------------------------------------------------------------------
 
 Menu = {
-  Filter     = function(...) return MacroCallFar(0x80C55, ...) end,
-  FilterStr  = function(...) return MacroCallFar(0x80C56, ...) end,
-  GetValue   = function(...) return MacroCallFar(0x80C46, ...) end,
-  ItemStatus = function(...) return MacroCallFar(0x80C47, ...) end,
-  Select     = function(...) return MacroCallFar(0x80C1B, ...) end,
+  --NYI--Filter     = function(...) return MacroCallFar(0x80C55, ...) end,
+  --NYI--FilterStr  = function(...) return MacroCallFar(0x80C56, ...) end,
+  --NYI--GetValue   = function(...) return MacroCallFar(0x80C46, ...) end,
+  --NYI--ItemStatus = function(...) return MacroCallFar(0x80C47, ...) end,
+  --NYI--Select     = function(...) return MacroCallFar(0x80C1B, ...) end,
   Show       = function(...) return MacroCallFar(0x80C1C, ...) end,
 }
 
@@ -591,11 +591,11 @@ BM = {
 
 Plugin = {
   Call     = function(...) return MacroCallFar(0x80C50, ...) end,
-  Command  = function(...) return MacroCallFar(0x80C52, ...) end,
-  Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
+  --NYI--Command  = function(...) return MacroCallFar(0x80C52, ...) end,
+  --NYI--Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
   Exist    = function(...) return MacroCallFar(0x80C54, ...) end,
   Load     = function(...) return MacroCallFar(0x80C51, ...) end,
-  Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
+  --NYI--Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
   Unload   = function(...) return MacroCallFar(0x80C53, ...) end,
 }
 --------------------------------------------------------------------------------
@@ -621,36 +621,8 @@ Viewer  = SetProperties({}, prop_Viewer)
 Object  = SetProperties({}, prop_Object)
 --------------------------------------------------------------------------------
 
-msgbox = function(...) return MacroCallFar(0x80C21, ...) end
---------------------------------------------------------------------------------
-
-function print (arg)
-  arg = tostring(arg)
-  local area = far.MacroGetArea()
-  if area == F.MACROAREA_SHELL then
-    panel.InsertCmdLine(nil, arg)
-  elseif area == F.MACROAREA_EDITOR then
-    editor.UndoRedo(Id, "EUR_BEGIN")
-    editor.InsertText(nil, arg)
-    editor.UndoRedo(Id, "EUR_END")
-    editor.Redraw()
-  elseif area == F.MACROAREA_DIALOG then
-    local hDlg = far.AdvControl("ACTL_GETWINDOWINFO").Id
-    local pos = SendDlgMessage(hDlg, "DM_GETFOCUS")
-    if pos >= 0 then
-      local item = SendDlgMessage(hDlg, "DM_GETDLGITEM", pos)
-      if item then
-        if item[1]==F.DI_EDIT or item[1]==F.DI_FIXEDIT or item[1]==F.DI_PSWEDIT then
-          local text = SendDlgMessage(hDlg, "DM_GETTEXT", pos)
-          local cursor = SendDlgMessage(hDlg, "DM_GETCURSORPOS", pos)
-          SendDlgMessage(hDlg, "DM_SETTEXT", pos, text:sub(1,cursor.X)..arg..text:sub(cursor.X+1))
-          cursor.X = cursor.X + arg:len()
-          SendDlgMessage(hDlg, "DM_SETCURSORPOS", pos, cursor)
-        end
-      end
-    end
-  end
-end
+callplugin = function(...) return MacroCallFar(0x80C32, ...) end
+msgbox     = function(...) return MacroCallFar(0x80C21, ...) end
 --------------------------------------------------------------------------------
 
 local function basicSerialize (o)
@@ -684,7 +656,7 @@ local function serialize (o)
   return table.concat(t, "\n")
 end
 
-function mdelete (key, name)
+function mf.mdelete (key, name)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
   local obj = far.CreateSettings()
@@ -695,7 +667,7 @@ function mdelete (key, name)
   obj:Free()
 end
 
-function msave (key, name, value)
+function mf.msave (key, name, value)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
   local str = serialize(value)
@@ -707,7 +679,7 @@ function msave (key, name, value)
   end
 end
 
-function mload (key, name)
+function mf.mload (key, name)
   checkarg(key, 1, "string")
   checkarg(name, 2, "string")
   local obj = far.CreateSettings()

@@ -445,6 +445,8 @@ void SZLOG (const char *fmt, ...)
 	}
 }
 
+static TVar __varTextDate;
+
 // для диалога назначения клавиши
 struct DlgParam
 {
@@ -847,6 +849,14 @@ int KeyMacro::GetKey()
 				{
 					ScrBuf.Lock();
 				}
+
+				if (wcsstr(key, L"print:") == key)
+				{
+					__varTextDate = key+6;
+					m_LastKey = key;
+					return KEY_OP_PLAINTEXT;
+				}
+
 				int iKey = KeyNameToKey(key);
 				m_LastKey = key;
 				return iKey==-1 ? KEY_NONE:iKey;
@@ -1136,9 +1146,10 @@ void KeyMacro::WriteMacro(void)
 	MacroCfg->EndTransaction();
 }
 
-const wchar_t *eStackAsString(int Pos)
+const wchar_t *eStackAsString(int)
 {
-	return L"";
+	const wchar_t *s=__varTextDate.toString();
+	return !s?L"":s;
 }
 
 BOOL KeyMacro::CheckEditSelected(UINT64 CurFlags)
@@ -2524,6 +2535,55 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		case MCODE_F_WAITKEY:         return waitkeyFunc(nullptr,Data);
 		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(nullptr,Data);
 		case MCODE_F_XLAT:            return xlatFunc(nullptr,Data);
+
+		case MCODE_F_CALLPLUGIN: // V=callplugin(SysID[,param])
+		// Алиас CallPlugin, для общности
+		case MCODE_F_PLUGIN_CALL: // V=Plugin.Call(SysID[,param])
+		{
+			__int64 Ret=0;
+			size_t count=Data->ArgNum;
+			if(count>0 && Data->Args[0].Type==FMVT_STRING)
+			{
+				TVar SysID = Data->Args[0].String;
+				GUID guid;
+
+				if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
+				{
+					FarMacroValue *vParams = count>1 ? Data->Args+1:nullptr;
+					OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
+					bool CallPluginRules = m_RunState && (m_RunState.m_flags&MFLAGS_CALLPLUGINENABLEMACRO);
+					if( CallPluginRules) // FIXME
+					{
+						//PushState(true);
+						//VMStack.Push(1);
+					}
+					//else
+						//InternalInput++;
+
+					void* ResultCallPlugin=nullptr;
+
+					if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
+						Ret=(__int64)ResultCallPlugin;
+
+					//if (MR != Work.MacroWORK) // ??? Mantis#0002094 ???
+						//MR=Work.MacroWORK;
+
+					//if( CallPluginRules == 1 )
+						//PopState();
+					//else
+					//{
+						//VMStack.Push(Ret);
+						//InternalInput--;
+					//}
+				}
+				//else
+					//VMStack.Push(Ret);
+
+				//if (Work.Executing == MACROMODE_NOMACRO)
+					//goto return_func;
+			}
+			return Ret;
+		}
 	}
 
 	return 0;
