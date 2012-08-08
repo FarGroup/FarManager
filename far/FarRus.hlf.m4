@@ -188,8 +188,9 @@ $ # Far: параметры командной строки#
   #/ma#
   При старте Far не будет выполнять макрокоманды с опцией "Выполнять после запуска Far".
 
-  #/s <path>#
-  Конфигурационные файлы искать в каталоге <path> (перекрывает значение UserProfileDir из Far.exe.ini).
+  #/s <path> [<localpath>]#
+  Конфигурационные файлы искать в каталоге <path> [<localpath>]
+  (перекрывает значение UserProfileDir [UserLocalProfileDir] из Far.exe.ini).
 
   #/u <username>#
   Позволяет использовать раздельные настройки для различных пользователей (влияет только на плагины от Far Manager 1.x)
@@ -213,20 +214,23 @@ $ # Far: параметры командной строки#
   Отключить обработку исключительных ситуаций. Данная опция предназначена для
 разработчиков плагинов и в нормальной ситуации указывать эту опцию не рекомендуется.
 
-  #/clearcache [profilepath]#
+  #/clearcache [profilepath [localprofilepath]]#
   Очистить кэш плагинов и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
+Параметр localprofilepath перекрывает значение UserLocalProfileDir из Far.exe.ini.
 
-  #/export <out.farconfig> [profilepath]#
+  #/export <out.farconfig> [profilepath [localprofilepath]]#
   Экспортировать все настройки в файл out.farconfig и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
+Параметр localprofilepath перекрывает значение UserLocalProfileDir из Far.exe.ini.
 
-  #/import <in.farconfig> [profilepath]#
+  #/import <in.farconfig> [profilepath [localprofilepath]]#
   Импортировать все настройки из файла in.farconfig и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
+Параметр localprofilepath перекрывает значение UserLocalProfileDir из Far.exe.ini.
 
   #/ro#
   Работа без сохранения изменений в базах настроек. Этот режим позволяет работать

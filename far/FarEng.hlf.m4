@@ -185,7 +185,7 @@ user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
   #/ma#
   Macros with the "Run after Far start" option set will not be run when Far is started.
 
-  #/s <path>#
+  #/s <path> [<localpath>]#
   Custom location for Far configuration files - overrides Far.exe.ini.
 
   #/u <username>#
@@ -211,12 +211,13 @@ in the input stream until you press Ctrl-Break.
   Disable exception handling. This option has been designed for plugin developers,
 and it is not recommended to specify it during normal operation.
 
-  #/clearcache [profilepath]#
+  #/clearcache [profilepath [localprofilepath]]#
   Очистить кэш плагинов и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
+Параметр localprofilepath перекрывает значение UserLocalProfileDir из Far.exe.ini.
 
-  #/export <out.farconfig> [profilepath]#
+  #/export <out.farconfig> [profilepath [localprofilepath]]#
   Экспортировать все настройки в файл out.farconfig и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
@@ -225,6 +226,7 @@ and it is not recommended to specify it during normal operation.
   Импортировать все настройки из файла in.farconfig и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
+Параметр localprofilepath перекрывает значение UserLocalProfileDir из Far.exe.ini.
 
   #/ro#
   Работа без сохранения изменений в базах настроек. Этот режим позволяет работать
