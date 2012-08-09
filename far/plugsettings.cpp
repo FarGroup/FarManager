@@ -337,6 +337,10 @@ int FarSettings::Get(FarSettingsItem& Item)
 				Item.Type=FST_QWORD;
 				Item.Number=static_cast<BoolOption*>(Data)->Get();
 				break;
+			case GeneralConfig::TYPE_BOOLEAN3:
+				Item.Type=FST_QWORD;
+				Item.Number=static_cast<Bool3Option*>(Data)->Get();
+				break;
 			case GeneralConfig::TYPE_INTEGER:
 				Item.Type=FST_QWORD;
 				Item.Number=static_cast<IntOption*>(Data)->Get();

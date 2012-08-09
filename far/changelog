@@ -1,3 +1,11 @@
+w17 09.08.2012 17:32:48 +0400 - build 2787
+
+1. far:config hex int editor
+
+2. far:config help
+
+3. other help corrections and minor code fix
+
 w17 08.08.2012 15:51:16 +0400 - build 2786
 
 1. M#2142: Задавать каталог для хранения настроек раздельно для историй/кэша и остальных настроек

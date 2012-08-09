@@ -7121,10 +7121,10 @@ void Editor::GetSavePosMode(int &SavePos, int &SaveShortPos)
 void Editor::SetSavePosMode(int SavePos, int SaveShortPos)
 {
 	if (SavePos!=-1)
-		EdOpt.SavePos=SavePos;
+		EdOpt.SavePos = (0 != SavePos);
 
 	if (SaveShortPos!=-1)
-		EdOpt.SaveShortPos=SaveShortPos;
+		EdOpt.SaveShortPos = (0 != SaveShortPos);
 }
 
 void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_t* Name,int Percent)
