@@ -46,18 +46,21 @@ lv=1
 dt=Text
 nm=Изменения API в сравнении с макроязыком
 ctime=3553185939
-mtime=3553247417
+mtime=3553688772
 <article>
 #_<markdown>
 #_
 #_* Все идентификаторы чувствительны к регистру символов.
-#_* Логические свойства имеют тип *boolean* (поэтому нет смысла сравнивать их с нулём).
+#_* Логические свойства имеют тип *boolean* (поэтому нет смысла сравнивать их с числом `0`).
+#_* Функция `prompt` может возвращать либо стринг, либо `false` (но никогда не число `0`).
 #_* Многие функции помещены в таблицу [`mf`] [mf] (сокращение от *macrofunctions*),
 #_  например: `mf.abs`, `mf.fsplit` и т.д.
-#_* Глобальные функции: `callplugin`, [`Keys`][Keys], `msgbox`, `print`, `prompt`.
+#_* Глобальные функции: `callplugin`, `iif`, [`Keys`][Keys], `msgbox`, `print`, `prompt`.
 #_* Функции [`mload`] [mload] и [`msave`] [msave] изменились, см. их описание.
 #_* Свойства, зависящие от контекста исполнения, находятся в таблице [`Object`][Object],
 #_  например: `Object.CurPos`, `Object.Empty`.
+#_* `CheckHotkey -> Object.CheckHotkey`
+#_* `GetHotkey -> Object.GetHotkey`
 #_* Логические свойства проверки области исполнения находятся в таблице [`Area`][Area],
 #_  например: `Area.Editor`, `Area.Shell`.
 #_* `MacroArea -> Area.Current`.
@@ -107,7 +110,7 @@ lv=2
 dt=Text
 nm=Глобальные
 ctime=3552221109
-mtime=3553255988
+mtime=3553688869
 <article>
 #_**Глобальные переменные.**
 #_
@@ -118,6 +121,7 @@ mtime=3553255988
 #_**Функции:**
 #_
 #_  callplugin
+#_  iif
 #_  Keys
 #_  msgbox
 #_  print
@@ -382,6 +386,36 @@ mtime=3553254750
 </article>
 </node>
 <node>
+id=58
+lv=2
+dt=Text
+nm=BM
+ctime=3553686730
+mtime=3553686801
+<article>
+#_**BM** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Нет.
+#_
+#_**Функции:**
+#_
+#_  Add
+#_  Back
+#_  Clear
+#_  Del
+#_  Get
+#_  Goto
+#_  Next
+#_  Pop
+#_  Prev
+#_  Push
+#_  Stat
+#_
+</article>
+</node>
+<node>
 id=47
 lv=2
 dt=Text
@@ -545,7 +579,7 @@ lv=2
 dt=Text
 nm=Menu
 ctime=3553252746
-mtime=3553260796
+mtime=3553678755
 <article>
 #_**Menu** - таблица со следующими полями:
 #_
@@ -556,6 +590,11 @@ mtime=3553260796
 #_
 #_**Функции:**
 #_
+#_  Filter
+#_  FilterStr
+#_  GetValue
+#_  ItemStatus
+#_  Select
 #_  Show
 #_
 </article>
@@ -566,11 +605,13 @@ lv=2
 dt=Text
 nm=Object
 ctime=3553245384
-mtime=3553247255
+mtime=3553669389
 <article>
 #_**Свойства, зависящие от контекста исполнения.**
 #_
 #_**Object**: таблица со следующими полями:
+#_
+#_**Свойства:**
 #_
 #_  Bof:         boolean
 #_  CurPos:      integer
@@ -583,6 +624,12 @@ mtime=3553247255
 #_  Title:       string
 #_  Width:       integer
 #_
+#_**Функции:**
+#_
+#_  CheckHotkey
+#_  GetHotkey
+#_
+#_
 </article>
 </node>
 <node>
@@ -591,7 +638,7 @@ lv=2
 dt=Text
 nm=Plugin
 ctime=3553252766
-mtime=3553254654
+mtime=3553679763
 <article>
 #_**Plugin** - таблица со следующими полями:
 #_
@@ -602,10 +649,12 @@ mtime=3553254654
 #_**Функции:**
 #_
 #_  Call
+#_  Command
+#_  Config
 #_  Exist
 #_  Load
+#_  Menu
 #_  Unload
-#_
 #_
 </article>
 </node>
@@ -637,33 +686,19 @@ lv=1
 dt=Text
 nm=Список нереализованных функций
 ctime=3553185283
-mtime=3553240467
+mtime=3553688824
 <article>
 #_<markdown>
 #_На текущий момент не реализованы следующие функции API макроязыка:
 #_
 #_1. `Akey`
-#_1. `BM.Add`, `BM.Clear`, `BM.Del`, `BM.Get`, `BM.Goto`, `BM.Next`, `BM.Pop`, `BM.Prev`,
-#_   `BM.Back`, `BM.Push`, `BM.Stat`
-#_1. `CheckHotkey`
 #_1. `Eval`
-#_1. `GetHotkey`
 #_1. `History.Disable`
-#_1. `Iif`
 #_1. `Macro.Const`
 #_1. `Macro.Func`
 #_1. `Macro.Keyword`
 #_1. `Macro.Var`
-#_1. `Menu.Filter`
-#_1. `Menu.FilterStr`
-#_1. `Menu.GetValue`
-#_1. `Menu.ItemStatus`
-#_1. `Menu.Select`
 #_1. `MMode`
-#_1. `Plugin.Command`
-#_1. `Plugin.Config`
-#_1. `Plugin.Menu`
-#_1. `Prompt`
 #_
 </article>
 </node>

@@ -78,6 +78,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "dirmix.hpp"
 #include "elevation.hpp"
+#include "stddlg.hpp"
 
 #if 0
 void print_opcodes()
@@ -1592,7 +1593,7 @@ static bool panelsetpathFunc(const TMacroFunction*, FarMacroCall*);
 static bool panelsetposFunc(const TMacroFunction*, FarMacroCall*);
 static bool panelsetposidxFunc(const TMacroFunction*, FarMacroCall*);
 // НЕ СЕЙЧАС // static bool pluginsFunc(const TMacroFunction*, FarMacroCall*);
-// static bool promptFunc(const TMacroFunction*, FarMacroCall*);
+static bool promptFunc(const TMacroFunction*, FarMacroCall*);
 static bool replaceFunc(const TMacroFunction*, FarMacroCall*);
 static bool rindexFunc(const TMacroFunction*, FarMacroCall*);
 static bool size2strFunc(const TMacroFunction*, FarMacroCall*);
@@ -1620,19 +1621,19 @@ static TMacroFunction intMacroFunction[]=
 	{L"Asc",              nullptr, L"N=Asc(N)",                                                  ascFunc,            0,                                      MCODE_F_ASC,             },
 	{L"Atoi",             nullptr, L"N=Atoi(S[,Radix])",                                         atoiFunc,           0,                                      MCODE_F_ATOI,            },
 	{L"Beep",             nullptr, L"N=Beep([N])",                                               beepFunc,           0,                                      MCODE_F_BEEP,            },
-//	{L"BM.Add",           nullptr, L"N=BM.Add()",                                                usersFunc,          0,                                      MCODE_F_BM_ADD,          },
-//	{L"BM.Clear",         nullptr, L"N=BM.Clear()",                                              usersFunc,          0,                                      MCODE_F_BM_CLEAR,        },
-//	{L"BM.Del",           nullptr, L"N=BM.Del([Idx])",                                           usersFunc,          0,                                      MCODE_F_BM_DEL,          },
-//	{L"BM.Get",           nullptr, L"N=BM.Get(Idx,M)",                                           usersFunc,          0,                                      MCODE_F_BM_GET,          },
-//	{L"BM.Goto",          nullptr, L"N=BM.Goto([N])",                                            usersFunc,          0,                                      MCODE_F_BM_GOTO,         },
-//	{L"BM.Next",          nullptr, L"N=BM.Next()",                                               usersFunc,          0,                                      MCODE_F_BM_NEXT,         },
-//	{L"BM.Pop",           nullptr, L"N=BM.Pop()",                                                usersFunc,          0,                                      MCODE_F_BM_POP,          },
-//	{L"BM.Prev",          nullptr, L"N=BM.Prev()",                                               usersFunc,          0,                                      MCODE_F_BM_PREV,         },
-//	{L"BM.Back",          nullptr, L"N=BM.Back()",                                               usersFunc,          0,                                      MCODE_F_BM_BACK,         },
-//	{L"BM.Push",          nullptr, L"N=BM.Push()",                                               usersFunc,          0,                                      MCODE_F_BM_PUSH,         },
-//	{L"BM.Stat",          nullptr, L"N=BM.Stat([N])",                                            usersFunc,          0,                                      MCODE_F_BM_STAT,         },
-//	{L"CallPlugin",       nullptr, L"V=CallPlugin(SysID[,param])",                               usersFunc,          0,                                      MCODE_F_CALLPLUGIN,      },
-//	{L"CheckHotkey",      nullptr, L"N=CheckHotkey(S[,N])",                                      usersFunc,          0,                                      MCODE_F_MENU_CHECKHOTKEY,},
+	{L"BM.Add",           nullptr, L"N=BM.Add()",                                                nullptr,            0,                                      MCODE_F_BM_ADD,          },
+	{L"BM.Clear",         nullptr, L"N=BM.Clear()",                                              nullptr,            0,                                      MCODE_F_BM_CLEAR,        },
+	{L"BM.Del",           nullptr, L"N=BM.Del([Idx])",                                           nullptr,            0,                                      MCODE_F_BM_DEL,          },
+	{L"BM.Get",           nullptr, L"N=BM.Get(Idx,M)",                                           nullptr,            0,                                      MCODE_F_BM_GET,          },
+	{L"BM.Goto",          nullptr, L"N=BM.Goto([N])",                                            nullptr,            0,                                      MCODE_F_BM_GOTO,         },
+	{L"BM.Next",          nullptr, L"N=BM.Next()",                                               nullptr,            0,                                      MCODE_F_BM_NEXT,         },
+	{L"BM.Pop",           nullptr, L"N=BM.Pop()",                                                nullptr,            0,                                      MCODE_F_BM_POP,          },
+	{L"BM.Prev",          nullptr, L"N=BM.Prev()",                                               nullptr,            0,                                      MCODE_F_BM_PREV,         },
+	{L"BM.Back",          nullptr, L"N=BM.Back()",                                               nullptr,            0,                                      MCODE_F_BM_BACK,         },
+	{L"BM.Push",          nullptr, L"N=BM.Push()",                                               nullptr,            0,                                      MCODE_F_BM_PUSH,         },
+	{L"BM.Stat",          nullptr, L"N=BM.Stat([N])",                                            nullptr,            0,                                      MCODE_F_BM_STAT,         },
+	{L"CallPlugin",       nullptr, L"V=CallPlugin(SysID[,param])",                               nullptr,            0,                                      MCODE_F_CALLPLUGIN,      },
+	{L"CheckHotkey",      nullptr, L"N=CheckHotkey(S[,N])",                                      nullptr,            0,                                      MCODE_F_MENU_CHECKHOTKEY,},
 	{L"Chr",              nullptr, L"S=Chr(N)",                                                  chrFunc,            0,                                      MCODE_F_CHR,             },
 	{L"Clip",             nullptr, L"V=Clip(N[,V])",                                             clipFunc,           0,                                      MCODE_F_CLIP,            },
 	{L"Date",             nullptr, L"S=Date([S])",                                               dateFunc,           0,                                      MCODE_F_DATE,            },
@@ -1656,7 +1657,7 @@ static TMacroFunction intMacroFunction[]=
 	{L"FLock",            nullptr, L"N=FLock(N,N)",                                              flockFunc,          0,                                      MCODE_F_FLOCK,           },
 	{L"FMatch",           nullptr, L"N=FMatch(S,Mask)",                                          fmatchFunc,         0,                                      MCODE_F_FMATCH,          },
 	{L"FSplit",           nullptr, L"S=FSplit(S,N)",                                             fsplitFunc,         0,                                      MCODE_F_FSPLIT,          },
-//	{L"GetHotkey",        nullptr, L"S=GetHotkey([N])",                                          usersFunc,          0,                                      MCODE_F_MENU_GETHOTKEY,  },
+	{L"GetHotkey",        nullptr, L"S=GetHotkey([N])",                                          nullptr,            0,                                      MCODE_F_MENU_GETHOTKEY,  },
 //	{L"History.Disable",  nullptr, L"N=History.Disable([State])",                                usersFunc,          0,                                      MCODE_F_HISTIORY_DISABLE,},
 //	{L"Iif",              nullptr, L"V=Iif(Condition,V1,V2)",                                    iifFunc,            0,                                      MCODE_F_IIF,             },
 	{L"Index",            nullptr, L"S=Index(S1,S2[,Mode])",                                     indexFunc,          0,                                      MCODE_F_INDEX,           },
@@ -1672,11 +1673,11 @@ static TMacroFunction intMacroFunction[]=
 //	{L"Macro.Keyword",    nullptr, L"S=Macro.Keyword(Index[,Type])",                             macroenumkwdFunc,   0,                                      MCODE_F_MACRO_KEYWORD,   },
 //	{L"Macro.Var",        nullptr, L"S=Macro.Var(Index[,Type])",                                 macroenumvarFunc,   0,                                      MCODE_F_MACRO_VAR,       },
 	{L"Max",              nullptr, L"N=Max(N1,N2)",                                              maxFunc,            0,                                      MCODE_F_MAX,             },
-//	{L"Menu.Filter",      nullptr, L"N=Menu.Filter([Action[,Mode]])",                            usersFunc,          0,                                      MCODE_F_MENU_FILTER,     },
-//	{L"Menu.FilterStr",   nullptr, L"N=Menu.FilterStr([Action[,S]])",                            usersFunc,          0,                                      MCODE_F_MENU_FILTERSTR,  },
-//	{L"Menu.GetValue",    nullptr, L"S=Menu.GetValue([N])",                                      usersFunc,          0,                                      MCODE_F_MENU_GETVALUE,   },
-//	{L"Menu.ItemStatus",  nullptr, L"N=Menu.ItemStatus([N])",                                    usersFunc,          0,                                      MCODE_F_MENU_ITEMSTATUS, },
-//	{L"Menu.Select",      nullptr, L"N=Menu.Select(S[,N[,Dir]])",                                usersFunc,          0,                                      MCODE_F_MENU_SELECT,     },
+	{L"Menu.Filter",      nullptr, L"N=Menu.Filter([Action[,Mode]])",                            nullptr,            0,                                      MCODE_F_MENU_FILTER,     },
+	{L"Menu.FilterStr",   nullptr, L"N=Menu.FilterStr([Action[,S]])",                            nullptr,            0,                                      MCODE_F_MENU_FILTERSTR,  },
+	{L"Menu.GetValue",    nullptr, L"S=Menu.GetValue([N])",                                      nullptr,            0,                                      MCODE_F_MENU_GETVALUE,   },
+	{L"Menu.ItemStatus",  nullptr, L"N=Menu.ItemStatus([N])",                                    nullptr,            0,                                      MCODE_F_MENU_ITEMSTATUS, },
+	{L"Menu.Select",      nullptr, L"N=Menu.Select(S[,N[,Dir]])",                                nullptr,            0,                                      MCODE_F_MENU_SELECT,     },
 	{L"Menu.Show",        nullptr, L"S=Menu.Show(Items[,Title[,Flags[,FindOrFilter[,X[,Y]]]]])", menushowFunc,       IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_MENU_SHOW,       },
 	{L"Min",              nullptr, L"N=Min(N1,N2)",                                              minFunc,            0,                                      MCODE_F_MIN,             },
 //	{L"MLoad",            nullptr, L"N=MLoad(S)",                                                mloadFunc,          0,                                      MCODE_F_MLOAD,           },
@@ -1691,15 +1692,15 @@ static TMacroFunction intMacroFunction[]=
 	{L"Panel.SetPath",    nullptr, L"N=panel.SetPath(panelType,pathName[,fileName])",            panelsetpathFunc,   IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPATH,   },
 	{L"Panel.SetPos",     nullptr, L"N=panel.SetPos(panelType,fileName)",                        panelsetposFunc,    IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOS,    },
 	{L"Panel.SetPosIdx",  nullptr, L"N=Panel.SetPosIdx(panelType,Idx[,InSelection])",            panelsetposidxFunc, IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PANEL_SETPOSIDX, },
-//	{L"Plugin.Call",      nullptr, L"N=Plugin.Call(Guid[,Item])",                                usersFunc,          0,                                      MCODE_F_PLUGIN_CALL,     },
-//	{L"Plugin.Command",   nullptr, L"N=Plugin.Command(Guid[,Command])",                          usersFunc,          0,                                      MCODE_F_PLUGIN_COMMAND,  },
-//	{L"Plugin.Config",    nullptr, L"N=Plugin.Config(Guid[,MenuGuid])",                          usersFunc,          0,                                      MCODE_F_PLUGIN_CONFIG,   },
+	{L"Plugin.Call",      nullptr, L"N=Plugin.Call(Guid[,Item])",                                nullptr,            0,                                      MCODE_F_PLUGIN_CALL,     },
+	{L"Plugin.Command",   nullptr, L"N=Plugin.Command(Guid[,Command])",                          nullptr,            0,                                      MCODE_F_PLUGIN_COMMAND,  },
+	{L"Plugin.Config",    nullptr, L"N=Plugin.Config(Guid[,MenuGuid])",                          nullptr,            0,                                      MCODE_F_PLUGIN_CONFIG,   },
 	{L"Plugin.Exist",     nullptr, L"N=Plugin.Exist(Guid)",                                      pluginexistFunc,    0,                                      MCODE_F_PLUGIN_EXIST,    },
 	{L"Plugin.Load",      nullptr, L"N=Plugin.Load(DllPath[,ForceLoad])",                        pluginloadFunc,     0,                                      MCODE_F_PLUGIN_LOAD,     },
-//	{L"Plugin.Menu",      nullptr, L"N=Plugin.Menu(Guid[,MenuGuid])",                            usersFunc,          0,                                      MCODE_F_PLUGIN_MENU,     },
+	{L"Plugin.Menu",      nullptr, L"N=Plugin.Menu(Guid[,MenuGuid])",                            nullptr,            0,                                      MCODE_F_PLUGIN_MENU,     },
 	{L"Plugin.UnLoad",    nullptr, L"N=Plugin.UnLoad(DllPath)",                                  pluginunloadFunc,   0,                                      MCODE_F_PLUGIN_UNLOAD,   },
-//	{L"Print",            nullptr, L"N=Print(Str)",                                              usersFunc,          0,                                      MCODE_F_PRINT,           },
-//	{L"Prompt",           nullptr, L"S=Prompt([Title[,Prompt[,flags[,Src[,History]]]]])",        promptFunc,         IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PROMPT,          },
+	{L"Print",            nullptr, L"N=Print(Str)",                                              nullptr,            0,                                      MCODE_F_PRINT,           },
+	{L"Prompt",           nullptr, L"S=Prompt([Title[,Prompt[,flags[,Src[,History]]]]])",        promptFunc,         IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT, MCODE_F_PROMPT,          },
 	{L"Replace",          nullptr, L"S=Replace(Str,Find,Replace[,Cnt[,Mode]])",                  replaceFunc,        0,                                      MCODE_F_REPLACE,         },
 	{L"Rindex",           nullptr, L"S=RIndex(S1,S2[,Mode])",                                    rindexFunc,         0,                                      MCODE_F_RINDEX,          },
 	{L"Size2Str",         nullptr, L"S=Size2Str(N,Flags[,Width])",                               size2strFunc,       0,                                      MCODE_F_SIZE2STR,        },
@@ -2535,6 +2536,217 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		case MCODE_F_WAITKEY:         return waitkeyFunc(nullptr,Data);
 		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(nullptr,Data);
 		case MCODE_F_XLAT:            return xlatFunc(nullptr,Data);
+		case MCODE_F_PROMPT:          return promptFunc(nullptr,Data);
+
+		case MCODE_F_BM_ADD:              // N=BM.Add()
+		case MCODE_F_BM_CLEAR:            // N=BM.Clear()
+		case MCODE_F_BM_NEXT:             // N=BM.Next()
+		case MCODE_F_BM_PREV:             // N=BM.Prev()
+		case MCODE_F_BM_BACK:             // N=BM.Back()
+		case MCODE_F_BM_STAT:             // N=BM.Stat([N])
+		case MCODE_F_BM_DEL:              // N=BM.Del([Idx]) - удаляет закладку с указанным индексом (x=1...), 0 - удаляет текущую закладку
+		case MCODE_F_BM_GET:              // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
+		case MCODE_F_BM_GOTO:             // N=BM.Goto([n]) - переход на закладку с указанным индексом (0 --> текущую)
+		case MCODE_F_BM_PUSH:             // N=BM.Push() - сохранить текущую позицию в виде закладки в конце стека
+		case MCODE_F_BM_POP:              // N=BM.Pop() - восстановить текущую позицию из закладки в конце стека и удалить закладку
+		{
+			parseParams(2,Params,Data);
+			TVar& p1(Params[0]);
+			TVar& p2(Params[1]);
+
+			__int64 Result=0;
+			Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+
+			while (f)
+			{
+				fo=f;
+				f=f->GetTopModal();
+			}
+
+			if (!f)
+				f=fo;
+
+			if (f)
+			{
+				p1.toInteger();
+				p2.toInteger();
+				Result=f->VMProcess(CheckCode,ToPtr(p2.i()),p1.i());
+			}
+
+			return Result;
+		}
+
+		case MCODE_F_MENU_ITEMSTATUS:     // N=Menu.ItemStatus([N])
+		case MCODE_F_MENU_GETVALUE:       // S=Menu.GetValue([N])
+		case MCODE_F_MENU_GETHOTKEY:      // S=gethotkey([N])
+		{
+			parseParams(1,Params,Data);
+			TVar tmpVar=Params[0];
+
+			tmpVar.toInteger();
+
+			int CurMMode=CtrlObject->Macro.GetMode();
+
+			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
+			{
+				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+
+				while (f)
+				{
+					fo=f;
+					f=f->GetTopModal();
+				}
+
+				if (!f)
+					f=fo;
+
+				__int64 Result=0;
+
+				if (f)
+				{
+					__int64 MenuItemPos=tmpVar.i()-1;
+					if (CheckCode == MCODE_F_MENU_GETHOTKEY)
+					{
+						if ((Result=f->VMProcess(CheckCode,nullptr,MenuItemPos)) )
+						{
+
+							const wchar_t _value[]={static_cast<wchar_t>(Result),0};
+							tmpVar=_value;
+						}
+						else
+							tmpVar=L"";
+					}
+					else if (CheckCode == MCODE_F_MENU_GETVALUE)
+					{
+						string NewStr;
+						if (f->VMProcess(CheckCode,&NewStr,MenuItemPos))
+						{
+							HiText2Str(NewStr, NewStr);
+							RemoveExternalSpaces(NewStr);
+							tmpVar=NewStr.CPtr();
+						}
+						else
+							tmpVar=L"";
+					}
+					else if (CheckCode == MCODE_F_MENU_ITEMSTATUS)
+					{
+						tmpVar=f->VMProcess(CheckCode,nullptr,MenuItemPos);
+					}
+				}
+				else
+					tmpVar=L"";
+			}
+			else
+				tmpVar=L"";
+
+			PassValue(&tmpVar,Data);
+			return 0;
+		}
+
+		case MCODE_F_MENU_SELECT:      // N=Menu.Select(S[,N[,Dir]])
+		case MCODE_F_MENU_CHECKHOTKEY: // N=checkhotkey(S[,N])
+		{
+			parseParams(3,Params,Data);
+			__int64 Result=-1;
+			__int64 tmpMode=0;
+			__int64 tmpDir=0;
+
+			if (CheckCode == MCODE_F_MENU_SELECT)
+				tmpDir=Params[2].getInteger();
+
+			tmpMode=Params[1].getInteger();
+
+			if (CheckCode == MCODE_F_MENU_SELECT)
+				tmpMode |= (tmpDir << 8);
+			else
+			{
+				if (tmpMode > 0)
+					tmpMode--;
+			}
+
+			int CurMMode=CtrlObject->Macro.GetMode();
+
+			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
+			{
+				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+
+				while (f)
+				{
+					fo=f;
+					f=f->GetTopModal();
+				}
+
+				if (!f)
+					f=fo;
+
+				if (f)
+					Result=f->VMProcess(CheckCode,(void*)Params[0].toString(),tmpMode);
+			}
+
+			PassNumber(Result,Data);
+			return 0;
+		}
+
+		case MCODE_F_MENU_FILTER:      // N=Menu.Filter([Action[,Mode]])
+		case MCODE_F_MENU_FILTERSTR:   // S=Menu.FilterStr([Action[,S]])
+		{
+			parseParams(2,Params,Data);
+			bool success=false;
+			TVar& tmpAction(Params[0]);
+
+			TVar tmpVar=Params[1];
+			if (tmpAction.isUnknown())
+				tmpAction=CheckCode == MCODE_F_MENU_FILTER ? 4 : 0;
+
+			int CurMMode=CtrlObject->Macro.GetMode();
+
+			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
+			{
+				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
+
+				while (f)
+				{
+					fo=f;
+					f=f->GetTopModal();
+				}
+
+				if (!f)
+					f=fo;
+
+				if (f)
+				{
+					if (CheckCode == MCODE_F_MENU_FILTER)
+					{
+						if (tmpVar.isUnknown())
+							tmpVar = -1;
+						tmpVar=f->VMProcess(CheckCode,(void*)static_cast<intptr_t>(tmpVar.toInteger()),tmpAction.toInteger());
+						success=true;
+					}
+					else
+					{
+						string NewStr;
+						if (tmpVar.isString())
+							NewStr = tmpVar.toString();
+						if (f->VMProcess(CheckCode,(void*)&NewStr,tmpAction.toInteger()))
+						{
+							tmpVar=NewStr.CPtr();
+							success=true;
+						}
+					}
+				}
+			}
+
+			if (!success)
+			{
+				if (CheckCode == MCODE_F_MENU_FILTER)
+					tmpVar = -1;
+				else
+					tmpVar = L"";
+			}
+
+			PassValue(&tmpVar,Data);
+			return success;
+		}
 
 		case MCODE_F_CALLPLUGIN: // V=callplugin(SysID[,param])
 		// Алиас CallPlugin, для общности
@@ -2584,6 +2796,85 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 			}
 			return Ret;
 		}
+
+		case MCODE_F_PLUGIN_MENU:   // N=Plugin.Menu(Guid[,MenuGuid])
+		case MCODE_F_PLUGIN_CONFIG: // N=Plugin.Config(Guid[,MenuGuid])
+		case MCODE_F_PLUGIN_COMMAND: // N=Plugin.Command(Guid[,Command])
+		{
+			__int64 Ret=0;
+			parseParams(2,Params,Data);
+			TVar& Arg = (Params[1]);
+			TVar& Guid = (Params[0]);
+			GUID guid, menuGuid;
+			CallPluginInfo cpInfo={CPT_CHECKONLY};
+			wchar_t EmptyStr[1]={};
+			bool ItemFailed=false;
+
+
+			switch (CheckCode)
+			{
+				case MCODE_F_PLUGIN_MENU:
+					cpInfo.CallFlags |= CPT_MENU;
+					if (!Arg.isUnknown())
+					{
+						if (StrToGuid(Arg.s(),menuGuid))
+							cpInfo.ItemGuid=&menuGuid;
+						else
+							ItemFailed=true;
+					}
+					break;
+				case MCODE_F_PLUGIN_CONFIG:
+					cpInfo.CallFlags |= CPT_CONFIGURE;
+					if (!Arg.isUnknown())
+					{
+						if (StrToGuid(Arg.s(),menuGuid))
+							cpInfo.ItemGuid=&menuGuid;
+						else
+							ItemFailed=true;
+					}
+					break;
+				case MCODE_F_PLUGIN_COMMAND:
+					cpInfo.CallFlags |= CPT_CMDLINE;
+					if (Arg.isString())
+						cpInfo.Command=Arg.s();
+					else
+						cpInfo.Command=EmptyStr;
+					break;
+			}
+
+			if (!ItemFailed && StrToGuid(Guid.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
+			{
+				// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
+				Ret=CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
+				PassInteger(Ret,Data);
+
+				if (Ret)
+				{
+					// Если нашли успешно - то теперь выполнение
+					cpInfo.CallFlags&=~CPT_CHECKONLY;
+					CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
+#if 0 //FIXME
+					if (MR != Work.MacroWORK)
+						MR=Work.MacroWORK;
+#endif
+				}
+			}
+			else
+			{
+				PassInteger(Ret,Data);
+			}
+
+			// По аналогии с KEY_F11
+			FrameManager->RefreshFrame();
+
+#if 0 //FIXME
+			if (Work.Executing == MACROMODE_NOMACRO)
+				goto return_func;
+
+			goto begin;
+#endif
+		}
+		return 0;
 	}
 
 	return 0;
@@ -3186,7 +3477,6 @@ static bool kbdLayoutFunc(const TMacroFunction*, FarMacroCall* Data)
 	return Ret?true:false;
 }
 
-#if 0 // FIXME
 // S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])
 static bool promptFunc(const TMacroFunction*, FarMacroCall* Data)
 {
@@ -3196,7 +3486,6 @@ static bool promptFunc(const TMacroFunction*, FarMacroCall* Data)
 	DWORD Flags = (DWORD)Params[2].getInteger();
 	TVar& ValPrompt(Params[1]);
 	TVar& ValTitle(Params[0]);
-	TVar Result(L"");
 	bool Ret=false;
 
 	const wchar_t *history=nullptr;
@@ -3220,26 +3509,27 @@ static bool promptFunc(const TMacroFunction*, FarMacroCall* Data)
 
 	string strDest;
 
+#if 0 //FIXME
 	DWORD oldHistoryDisable=CtrlObject->Macro.GetHistoryDisableMask();
 
 	if (!(history && *history)) // Mantis#0001743: Возможность отключения истории
 		CtrlObject->Macro.SetHistoryDisableMask(8); // если не указан history, то принудительно отключаем историю для ЭТОГО prompt()
+#endif
 
 	if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
 	{
-		Result=strDest.CPtr();
-		Result.toString();
+		PassString(strDest,Data);
 		Ret=true;
 	}
 	else
-		Result=0;
+		PassBoolean(0,Data);
 
+#if 0 //FIXME
 	CtrlObject->Macro.SetHistoryDisableMask(oldHistoryDisable);
+#endif
 
-	PassValue(Result, Data);
 	return Ret;
 }
-#endif
 
 // N=msgbox(["Title"[,"Text"[,flags]]])
 static bool msgBoxFunc(const TMacroFunction*, FarMacroCall* Data)

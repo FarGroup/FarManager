@@ -329,7 +329,7 @@ mf = {
   atoi            = function(...) return MacroCallFar(0x80C04, ...) end,
   beep            = function(...) return MacroCallFar(0x80C48, ...) end,
 --callplugin      = function(...) return MacroCallFar(0x80C32, ...) end, -- made global
-  --NYI--checkhotkey     = function(...) return MacroCallFar(0x80C19, ...) end,
+--checkhotkey     = function(...) return MacroCallFar(0x80C19, ...) end, -- moved to Object
   chr             = function(...) return MacroCallFar(0x80C06, ...) end,
   clip            = function(...) return MacroCallFar(0x80C05, ...) end,
   date            = function(...) return MacroCallFar(0x80C07, ...) end,
@@ -341,9 +341,9 @@ mf = {
   flock           = function(...) return MacroCallFar(0x80C31, ...) end,
   fmatch          = function(...) return MacroCallFar(0x80C4D, ...) end,
   fsplit          = function(...) return MacroCallFar(0x80C10, ...) end,
-  --NYI--gethotkey       = function(...) return MacroCallFar(0x80C1A, ...) end,
+--gethotkey       = function(...) return MacroCallFar(0x80C1A, ...) end, -- moved to Object
   --NYI--History_Disable = function(...) return MacroCallFar(0x80C4C, ...) end,
-  --NYI--iif             = function(...) return MacroCallFar(0x80C11, ...) end,
+--iif             = function(...) return MacroCallFar(0x80C11, ...) end, -- made global
   index           = function(...) return MacroCallFar(0x80C12, ...) end,
   int             = function(...) return MacroCallFar(0x80C13, ...) end,
   itoa            = function(...) return MacroCallFar(0x80C14, ...) end,
@@ -364,7 +364,7 @@ mf = {
 --msave           = function(...) return MacroCallFar(0x80C20, ...) end, -- other function used
 --msgbox          = function(...) return MacroCallFar(0x80C21, ...) end, -- made global
 --print           = function(...) return MacroCallFar(0x80C43, ...) end, -- implemented as yield
-  --NYI--prompt          = function(...) return MacroCallFar(0x80C34, ...) end,
+--prompt          = function(...) return MacroCallFar(0x80C34, ...) end, -- made global
   replace         = function(...) return MacroCallFar(0x80C33, ...) end,
   rindex          = function(...) return MacroCallFar(0x80C2A, ...) end,
   size2str        = function(...) return MacroCallFar(0x80C59, ...) end,
@@ -381,7 +381,14 @@ mf = {
   xlat            = function(...) return MacroCallFar(0x80C30, ...) end,
 }
 
-local prop_Object = { --TODO: document this change (all these properties were global)
+--------------------------------------------------------------------------------
+
+Object = {
+  CheckHotkey = function(...) return MacroCallFar(0x80C19, ...) end,
+  GetHotkey   = function(...) return MacroCallFar(0x80C1A, ...) end,
+}
+
+SetProperties(Object, {
   Bof        = function() return MacroCallFar(0x80413) end,
   CurPos     = function() return MacroCallFar(0x80827) end,
   Empty      = function() return MacroCallFar(0x80415) end,
@@ -392,7 +399,8 @@ local prop_Object = { --TODO: document this change (all these properties were gl
   Selected   = function() return MacroCallFar(0x80416) end,
   Title      = function() return MacroCallFar(0x80828) end,
   Width      = function() return MacroCallFar(0x8082A) end,
-}
+})
+--------------------------------------------------------------------------------
 
 local prop_Area = {
   Current    = function() return MacroCallFar(0x80805) end, --TODO: document this change (was: global MacroArea)
@@ -545,11 +553,11 @@ SetProperties(Editor, {
 --------------------------------------------------------------------------------
 
 Menu = {
-  --NYI--Filter     = function(...) return MacroCallFar(0x80C55, ...) end,
-  --NYI--FilterStr  = function(...) return MacroCallFar(0x80C56, ...) end,
-  --NYI--GetValue   = function(...) return MacroCallFar(0x80C46, ...) end,
-  --NYI--ItemStatus = function(...) return MacroCallFar(0x80C47, ...) end,
-  --NYI--Select     = function(...) return MacroCallFar(0x80C1B, ...) end,
+  Filter     = function(...) return MacroCallFar(0x80C55, ...) end,
+  FilterStr  = function(...) return MacroCallFar(0x80C56, ...) end,
+  GetValue   = function(...) return MacroCallFar(0x80C46, ...) end,
+  ItemStatus = function(...) return MacroCallFar(0x80C47, ...) end,
+  Select     = function(...) return MacroCallFar(0x80C1B, ...) end,
   Show       = function(...) return MacroCallFar(0x80C1C, ...) end,
 }
 
@@ -591,11 +599,11 @@ BM = {
 
 Plugin = {
   Call     = function(...) return MacroCallFar(0x80C50, ...) end,
-  --NYI--Command  = function(...) return MacroCallFar(0x80C52, ...) end,
-  --NYI--Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
+  Command  = function(...) return MacroCallFar(0x80C52, ...) end,
+  Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
   Exist    = function(...) return MacroCallFar(0x80C54, ...) end,
   Load     = function(...) return MacroCallFar(0x80C51, ...) end,
-  --NYI--Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
+  Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
   Unload   = function(...) return MacroCallFar(0x80C53, ...) end,
 }
 --------------------------------------------------------------------------------
@@ -618,11 +626,14 @@ CmdLine = SetProperties({}, prop_CmdLine)
 Drv     = SetProperties({}, prop_Drv)
 Help    = SetProperties({}, prop_Help)
 Viewer  = SetProperties({}, prop_Viewer)
-Object  = SetProperties({}, prop_Object)
 --------------------------------------------------------------------------------
 
 callplugin = function(...) return MacroCallFar(0x80C32, ...) end
+iif        = function(Expr, res1, res2)
+               if Expr and Expr~="" then return res1 else return res2 end
+             end
 msgbox     = function(...) return MacroCallFar(0x80C21, ...) end
+prompt     = function(...) return MacroCallFar(0x80C34, ...) end
 --------------------------------------------------------------------------------
 
 local function basicSerialize (o)
