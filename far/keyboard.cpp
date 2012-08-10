@@ -1260,11 +1260,9 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		IntKeyState.PreMouseEventFlags=IntKeyState.MouseEventFlags;
 		IntKeyState.MouseEventFlags=rec->Event.MouseEvent.dwEventFlags;
 		DWORD CtrlState=rec->Event.MouseEvent.dwControlKeyState;
-#ifdef FAR_LUA
-#else
 		KeyMacro::SetMacroConst(constMsCtrlState,(__int64)CtrlState);
 		KeyMacro::SetMacroConst(constMsEventFlags,(__int64)IntKeyState.MouseEventFlags);
-#endif
+
 		IntKeyState.CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
 		IntKeyState.AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
 		IntKeyState.ShiftPressed=(CtrlState & SHIFT_PRESSED);
@@ -1272,10 +1270,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
 		IntKeyState.RightShiftPressed=(CtrlState & SHIFT_PRESSED);
 		DWORD BtnState=rec->Event.MouseEvent.dwButtonState;
-#ifdef FAR_LUA
-#else
 		KeyMacro::SetMacroConst(constMsButton,(__int64)rec->Event.MouseEvent.dwButtonState);
-#endif
 
 		if (IntKeyState.MouseEventFlags != MOUSE_MOVED)
 		{
@@ -1289,11 +1284,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		IntKeyState.PrevMouseY=IntKeyState.MouseY;
 		IntKeyState.MouseX=rec->Event.MouseEvent.dwMousePosition.X;
 		IntKeyState.MouseY=rec->Event.MouseEvent.dwMousePosition.Y;
-#ifdef FAR_LUA
-#else
 		KeyMacro::SetMacroConst(constMsX,(__int64)IntKeyState.MouseX);
 		KeyMacro::SetMacroConst(constMsY,(__int64)IntKeyState.MouseY);
-#endif
 
 		/* $ 26.04.2001 VVM
 		   + Обработка колесика мышки. */

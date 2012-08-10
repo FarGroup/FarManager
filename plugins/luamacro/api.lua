@@ -328,8 +328,8 @@ mf = {
   asc             = function(...) return MacroCallFar(0x80C03, ...) end,
   atoi            = function(...) return MacroCallFar(0x80C04, ...) end,
   beep            = function(...) return MacroCallFar(0x80C48, ...) end,
---callplugin      = function(...) return MacroCallFar(0x80C32, ...) end, -- made global
---checkhotkey     = function(...) return MacroCallFar(0x80C19, ...) end, -- moved to Object
+--callplugin      = function(...) return MacroCallFar(0x80C32, ...) end, --> Plugin.Call
+--checkhotkey     = function(...) return MacroCallFar(0x80C19, ...) end, --> Object.CheckHotkey
   chr             = function(...) return MacroCallFar(0x80C06, ...) end,
   clip            = function(...) return MacroCallFar(0x80C05, ...) end,
   date            = function(...) return MacroCallFar(0x80C07, ...) end,
@@ -341,9 +341,9 @@ mf = {
   flock           = function(...) return MacroCallFar(0x80C31, ...) end,
   fmatch          = function(...) return MacroCallFar(0x80C4D, ...) end,
   fsplit          = function(...) return MacroCallFar(0x80C10, ...) end,
---gethotkey       = function(...) return MacroCallFar(0x80C1A, ...) end, -- moved to Object
+--gethotkey       = function(...) return MacroCallFar(0x80C1A, ...) end, --> Object.GetHotkey
   --NYI--History_Disable = function(...) return MacroCallFar(0x80C4C, ...) end,
---iif             = function(...) return MacroCallFar(0x80C11, ...) end, -- made global
+--iif             = function(...) return MacroCallFar(0x80C11, ...) end, --> new implementation
   index           = function(...) return MacroCallFar(0x80C12, ...) end,
   int             = function(...) return MacroCallFar(0x80C13, ...) end,
   itoa            = function(...) return MacroCallFar(0x80C14, ...) end,
@@ -358,13 +358,13 @@ mf = {
   --NYI--Macro_Var       = function(...) return MacroCallFar(0x80C5D, ...) end,
   max             = function(...) return MacroCallFar(0x80C18, ...) end,
   min             = function(...) return MacroCallFar(0x80C1D, ...) end,
---mload           = function(...) return MacroCallFar(0x80C1F, ...) end, -- other function used
+--mload           = function(...) return MacroCallFar(0x80C1F, ...) end, --> new implementation
   --NYI--mmode           = function(...) return MacroCallFar(0x80C44, ...) end,
   mod             = function(...) return MacroCallFar(0x80C1E, ...) end,
---msave           = function(...) return MacroCallFar(0x80C20, ...) end, -- other function used
---msgbox          = function(...) return MacroCallFar(0x80C21, ...) end, -- made global
---print           = function(...) return MacroCallFar(0x80C43, ...) end, -- implemented as yield
---prompt          = function(...) return MacroCallFar(0x80C34, ...) end, -- made global
+--msave           = function(...) return MacroCallFar(0x80C20, ...) end, --> new implementation
+--msgbox          = function(...) return MacroCallFar(0x80C21, ...) end, --> made global
+--print           = function(...) return MacroCallFar(0x80C43, ...) end, --> implemented as yield
+--prompt          = function(...) return MacroCallFar(0x80C34, ...) end, --> made global
   replace         = function(...) return MacroCallFar(0x80C33, ...) end,
   rindex          = function(...) return MacroCallFar(0x80C2A, ...) end,
   size2str        = function(...) return MacroCallFar(0x80C59, ...) end,
@@ -381,6 +381,9 @@ mf = {
   xlat            = function(...) return MacroCallFar(0x80C30, ...) end,
 }
 
+mf.iif = function(Expr, res1, res2)
+  if Expr and Expr~="" then return res1 else return res2 end
+end
 --------------------------------------------------------------------------------
 
 Object = {
@@ -507,6 +510,14 @@ local prop_Help = {
   Topic    = function() return MacroCallFar(0x80841) end,
 }
 
+local prop_Mouse = {
+  X          = function() return MacroCallFar(0x80001) end,
+  Y          = function() return MacroCallFar(0x80002) end,
+  Button     = function() return MacroCallFar(0x80003) end,
+  CtrlState  = function() return MacroCallFar(0x80004) end,
+  EventFlags = function() return MacroCallFar(0x80005) end,
+}
+
 local prop_Viewer = {
   FileName = function() return MacroCallFar(0x80839) end,
   State    = function() return MacroCallFar(0x8083A) end,
@@ -625,15 +636,13 @@ PPanel  = SetProperties({}, prop_PPanel)
 CmdLine = SetProperties({}, prop_CmdLine)
 Drv     = SetProperties({}, prop_Drv)
 Help    = SetProperties({}, prop_Help)
+Mouse   = SetProperties({}, prop_Mouse)
 Viewer  = SetProperties({}, prop_Viewer)
 --------------------------------------------------------------------------------
 
-callplugin = function(...) return MacroCallFar(0x80C32, ...) end
-iif        = function(Expr, res1, res2)
-               if Expr and Expr~="" then return res1 else return res2 end
-             end
-msgbox     = function(...) return MacroCallFar(0x80C21, ...) end
-prompt     = function(...) return MacroCallFar(0x80C34, ...) end
+_G.band,_G.bnot,_G.bor,_G.bxor = bit64.band,bit64.bnot,bit64.bor,bit64.bxor
+_G.msgbox = function(...) return MacroCallFar(0x80C21, ...) end
+_G.prompt = function(...) return MacroCallFar(0x80C34, ...) end
 --------------------------------------------------------------------------------
 
 local function basicSerialize (o)
@@ -646,25 +655,31 @@ local function basicSerialize (o)
   elseif tp == "string" then
     return string.format("%q", o)
   end
-  return nil, tp
+end
+
+local function int64Serialize (o)
+  if bit64.isint64(o) then
+    return "bit64.new(\"" .. tostring(o) .. "\")"
+  end
 end
 
 local function serialize (o)
-  local s, tp = basicSerialize(o)
+  local s = basicSerialize(o) or int64Serialize(o)
   if s then return "return "..s end
-  if tp ~= "table" then return nil end
-  local t = { "return {" }
-  for k,v in pairs(o) do
-    local k2 = basicSerialize(k)
-    if k2 then
-      local v2 = basicSerialize(v)
-      if v2 then
-        t[#t+1] = string.format("  [%s] = %s,", k2, v2)
+  if type(o) == "table" then
+    local t = { "return {" }
+    for k,v in pairs(o) do
+      local k2 = basicSerialize(k)
+      if k2 then
+        local v2 = basicSerialize(v) or int64Serialize(v)
+        if v2 then
+          t[#t+1] = string.format("  [%s] = %s,", k2, v2)
+        end
       end
     end
+    t[#t+1] = "}\n"
+    return table.concat(t, "\n")
   end
-  t[#t+1] = "}\n"
-  return table.concat(t, "\n")
 end
 
 function mf.mdelete (key, name)

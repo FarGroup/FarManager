@@ -99,6 +99,7 @@ string g_strDirToSet;
 
 int Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
 
+#ifndef FAR_LUA
 // Macro Const
 const wchar_t constMsX[]=L"MsX";
 const wchar_t constMsY[]=L"MsY";
@@ -107,6 +108,7 @@ const wchar_t constMsCtrlState[]=L"MsCtrlState";
 const wchar_t constMsEventFlags[]=L"MsEventFlags";
 const wchar_t constRCounter[]=L"RCounter";
 const wchar_t constFarCfgErr[]=L"Far.Cfg.Err";
+#endif
 
 DWORD RedrawTimeout=200;
 

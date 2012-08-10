@@ -243,8 +243,9 @@ class KeyMacro
 		int ProcessEvent(const struct FAR_INPUT_RECORD *Rec);
 		int GetKey();
 		int PeekKey();
-		static int   GetAreaCode(const wchar_t *AreaName);
-		static int   GetMacroKeyInfo(bool FromDB,int Mode,int Pos,string &strKeyName,string &strDescription);
+		static int GetAreaCode(const wchar_t *AreaName);
+		static int GetMacroKeyInfo(bool FromDB,int Mode,int Pos,string &strKeyName,string &strDescription);
+		static void SetMacroConst(int ConstName, __int64 Value);
 		// послать сигнал на прерывание макроса
 		void SendDropProcess();
 		bool CheckWaitKeyFunc();

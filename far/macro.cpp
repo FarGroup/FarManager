@@ -655,6 +655,13 @@ void KeyMacro::SaveMacros()
 	WriteMacro();
 }
 
+static __int64 msValues[constMsLAST];
+
+void KeyMacro::SetMacroConst(int ConstIndex, __int64 Value)
+{
+	msValues[ConstIndex] = Value;
+}
+
 int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
 {
 	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
@@ -2470,6 +2477,12 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 			return (CheckCode == MCODE_V_VIEWERFILENAME) ? PassString(L"", Data) : 0;
 		}
 
+		case MCODE_OP_JMP:  return msValues[constMsX];
+		case MCODE_OP_JZ:   return msValues[constMsY];
+		case MCODE_OP_JNZ:  return msValues[constMsButton];
+		case MCODE_OP_JLT:  return msValues[constMsCtrlState];
+		case MCODE_OP_JLE:  return msValues[constMsEventFlags];
+
 		// =========================================================================
 		// Functions
 		// =========================================================================
@@ -4142,11 +4155,9 @@ bool farcfggetFunc(const TMacroFunction*, FarMacroCall* Data)
 	TVar& Key(Params[0]);
 
 	string strValue;
-	bool resultGetCfg = GetConfigValue(Key.s(),Name.s(), strValue);
-	// KeyMacro::SetMacroConst(constFarCfgErr,resultGetCfg?0:1);
-	PassString(resultGetCfg?strValue.CPtr():L"", Data);
-
-	return resultGetCfg;
+	bool result = GetConfigValue(Key.s(),Name.s(), strValue);
+	result ? PassString(strValue,Data) : PassBoolean(0,Data);
+	return result;
 }
 
 // V=Dlg.GetValue([Pos[,InfoID]])

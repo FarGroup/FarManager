@@ -46,16 +46,16 @@ lv=1
 dt=Text
 nm=Изменения API в сравнении с макроязыком
 ctime=3553185939
-mtime=3553688772
+mtime=3553790531
 <article>
 #_<markdown>
 #_
 #_* Все идентификаторы чувствительны к регистру символов.
+#_* Вместо прямого указания клавиш используется функция [`Keys`][Keys].
 #_* Логические свойства имеют тип *boolean* (поэтому нет смысла сравнивать их с числом `0`).
 #_* Функция `prompt` может возвращать либо стринг, либо `false` (но никогда не число `0`).
 #_* Многие функции помещены в таблицу [`mf`] [mf] (сокращение от *macrofunctions*),
 #_  например: `mf.abs`, `mf.fsplit` и т.д.
-#_* Глобальные функции: `callplugin`, `iif`, [`Keys`][Keys], `msgbox`, `print`, `prompt`.
 #_* Функции [`mload`] [mload] и [`msave`] [msave] изменились, см. их описание.
 #_* Свойства, зависящие от контекста исполнения, находятся в таблице [`Object`][Object],
 #_  например: `Object.CurPos`, `Object.Empty`.
@@ -66,12 +66,17 @@ mtime=3553688772
 #_* `MacroArea -> Area.Current`.
 #_* `Dialog.AutoCompletion -> Area.DialogAutoCompletion`
 #_* `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
+#_* `CallPlugin -> Plugin.Call`
 #_* `Dlg.Info.Id -> Dlg.Id`
 #_* `Dlg.Info.Owner -> Dlg.Owner`
-#_* `Menu.Info.Id -> Menu.Id`
-#_* `Far.Cfg.Get -> Far.Cfg_Get`
+#_* `Far.Cfg.Get -> Far.Cfg_Get`. Эта функция возвращает стринг в случае успеха
+#_   или `false` в случае неудачи.
+#_* `Far.Cfg.Err` больше не существует.
 #_* `FullScreenMode -> Far.FullScreenMode`
 #_* `IsUserAdmin -> Far.IsUserAdmin`
+#_* `Menu.Info.Id -> Menu.Id`
+#_* `MsX`, `MsY`, `MsButton`, `MsCtrlState`, `MsEventFlags` -- см. таблицу [`Mouse`][Mouse]
+#_* `RCounter` больше не существует.
 #_
 #_[mload]: 13.html
 #_[msave]: 12.html
@@ -79,7 +84,7 @@ mtime=3553688772
 #_[Keys]: 4.html
 #_[Area]: 36.html
 #_[Object]: 45.html
-#_
+#_[Mouse]: 59.html
 #_
 </article>
 </node>
@@ -108,23 +113,26 @@ mtime=3553261942
 id=20
 lv=2
 dt=Text
-nm=Глобальные
+nm=Глобальные свойства и функции
 ctime=3552221109
-mtime=3553688869
+mtime=3553766886
 <article>
-#_**Глобальные переменные.**
-#_
 #_**Свойства:**
 #_
-#_  AKey:        string
+#_  AKey:  string
 #_
 #_**Функции:**
 #_
-#_  callplugin
-#_  iif
+#_  band, bnot, bor, bxor
 #_  Keys
 #_  msgbox
 #_  print
+#_  prompt
+#_
+#_**Примечание:**
+#_
+#_Функции *band*, *bnot*, *bor* и *bxor* (операции с битами) - это глобальные
+#_ссылки на одноимённые функции из библиотеки *bit64* (см. LuaFAR manual).
 #_
 #_@@@
 #_<lua> Links = {
@@ -166,7 +174,7 @@ lv=2
 dt=Text
 nm=mf
 ctime=3553243522
-mtime=3553256080
+mtime=3553745112
 <article>
 #_**Свойства:**
 #_
@@ -188,13 +196,14 @@ mtime=3553256080
 #_  flock                        string
 #_  fmatch                       strpad
 #_  fsplit                       strwrap
-#_  index                        substr
-#_  int                          testfolder
-#_  itoa                         trim
-#_  kbdLayout                    ucase
-#_  key                          waitkey
-#_  KeyBar_Show                  Window_Scroll
-#_  lcase                        xlat
+#_  iif                          substr
+#_  index                        testfolder
+#_  int                          trim
+#_  itoa                         ucase
+#_  kbdLayout                    waitkey
+#_  key                          Window_Scroll
+#_  KeyBar_Show                  xlat
+#_  lcase
 #_
 #_@@@
 #_<lua> Links = {
@@ -600,6 +609,31 @@ mtime=3553678755
 </article>
 </node>
 <node>
+id=59
+lv=2
+dt=Text
+nm=Mouse
+ctime=3553790262
+mtime=3553790356
+<article>
+#_**Mouse** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  X:           number
+#_  Y:           number 
+#_  Button:      number
+#_  CtrlState:   number
+#_  EventFlags:  number
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+#_
+</article>
+</node>
+<node>
 id=45
 lv=2
 dt=Text
@@ -686,10 +720,10 @@ lv=1
 dt=Text
 nm=Список нереализованных функций
 ctime=3553185283
-mtime=3553688824
+mtime=3553790872
 <article>
 #_<markdown>
-#_На текущий момент не реализованы следующие функции API макроязыка:
+#_На текущий момент не реализованы следующие функции и свойства API макроязыка:
 #_
 #_1. `Akey`
 #_1. `Eval`

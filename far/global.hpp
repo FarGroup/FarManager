@@ -92,6 +92,16 @@ extern string g_strDirToSet; //RAVE!!!
 extern int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
 
 // Macro Const
+#ifdef FAR_LUA
+enum {
+	constMsX          = 0,
+	constMsY          = 1,
+	constMsButton     = 2,
+	constMsCtrlState  = 3,
+	constMsEventFlags = 4,
+	constMsLAST       = 5,
+};
+#else
 extern const wchar_t constMsX[];
 extern const wchar_t constMsY[];
 extern const wchar_t constMsButton[];
@@ -99,6 +109,7 @@ extern const wchar_t constMsCtrlState[];
 extern const wchar_t constMsEventFlags[];
 extern const wchar_t constRCounter[];
 extern const wchar_t constFarCfgErr[];
+#endif
 
 extern DWORD RedrawTimeout;
 
