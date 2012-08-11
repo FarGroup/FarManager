@@ -771,7 +771,6 @@ void Archive::set_properties(IOutArchive* out_arc, const UpdateOptions& options)
   if (SUCCEEDED(out_arc->QueryInterface(IID_ISetProperties, reinterpret_cast<void**>(&set_props)))) {
     vector<wstring> names;
     vector<PropVariant> values;
-    names.push_back(L"x"); values.push_back(options.level);
     if (options.arc_type == c_7z) {
       if (options.level != 0) {
         names.push_back(L"0"); values.push_back(options.method);
