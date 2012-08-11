@@ -53,7 +53,8 @@ struct ArcFormat {
   wstring name;
   bool updatable;
   ByteVector start_signature;
-  wstring extension_list;
+  list<wstring> extension_list;
+  map<wstring, wstring> nested_ext_mapping;
   wstring default_extension() const;
 };
 

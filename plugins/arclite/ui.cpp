@@ -1516,9 +1516,8 @@ private:
     for (auto format_iter = ArcAPI::formats().cbegin(); format_iter != ArcAPI::formats().cend(); ++format_iter) {
       const ArcFormat& format = format_iter->second;
       if (format.lib_index == lib_index) {
-        list<wstring> ext_list = split(format.extension_list, L' ');
-        for_each(ext_list.begin(), ext_list.end(), [&] (const wstring& ext) {
-          masks += L"*." + ext + L",";
+        for_each(format.extension_list.cbegin(), format.extension_list.cend(), [&] (const wstring& ext) {
+          masks += L"*" + ext + L",";
         });
       }
     }
@@ -1729,9 +1728,8 @@ private:
     const ArcFormats& arc_formats = ArcAPI::formats();
     wstring masks;
     for_each(arc_formats.begin(), arc_formats.end(), [&] (const pair<const ArcType, ArcFormat>& arc_type_format) {
-      list<wstring> ext_list = split(arc_type_format.second.extension_list, L' ');
-      for_each(ext_list.begin(), ext_list.end(), [&] (const wstring& ext) {
-        masks += L"*." + ext + L",";
+      for_each(arc_type_format.second.extension_list.cbegin(), arc_type_format.second.extension_list.cend(), [&] (const wstring& ext) {
+        masks += L"*" + ext + L",";
       });
     });
     if (!masks.empty())

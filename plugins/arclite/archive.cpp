@@ -85,11 +85,10 @@ HRESULT ArcLib::get_bytes_prop(UInt32 index, PROPID prop_id, ByteVector& value) 
 
 
 wstring ArcFormat::default_extension() const {
-  wstring ext = L"." + extension_list;
-  size_t pos = ext.find(L' ');
-  if (pos != wstring::npos)
-    ext.erase(pos);
-  return ext;
+  if (extension_list.empty())
+    return wstring();
+  else
+    return extension_list.front();
 }
 
 
@@ -113,13 +112,12 @@ ArcTypes ArcFormats::find_by_name(const wstring& name) const {
 
 ArcTypes ArcFormats::find_by_ext(const wstring& ext) const {
   ArcTypes types;
-  if (ext.size() <= 1)
+  if (ext.empty())
     return types;
-  wstring uc_ext = upcase(ext.substr(1));
+  wstring uc_ext = upcase(ext);
   for (const_iterator fmt = begin(); fmt != end(); fmt++) {
-    list<wstring> ext_list = split(upcase(fmt->second.extension_list), L' ');
-    for (list<wstring>::const_iterator ext_iter = ext_list.begin(); ext_iter != ext_list.end(); ext_iter++) {
-      if (*ext_iter == uc_ext) {
+    for (auto ext_iter = fmt->second.extension_list.cbegin(); ext_iter != fmt->second.extension_list.cend(); ext_iter++) {
+      if (upcase(*ext_iter) == uc_ext) {
         types.push_back(fmt->first);
         break;
       }
@@ -295,7 +293,23 @@ void ArcAPI::load() {
       if (arc_lib.get_bool_prop(idx, NArchive::kUpdate, arc_format.updatable) != S_OK)
         arc_format.updatable = false;
       arc_lib.get_bytes_prop(idx, NArchive::kStartSignature, arc_format.start_signature);
-      arc_lib.get_string_prop(idx, NArchive::kExtension, arc_format.extension_list);
+      wstring extension_list_str;
+      arc_lib.get_string_prop(idx, NArchive::kExtension, extension_list_str);
+      arc_format.extension_list = split(extension_list_str, L' ');
+      wstring add_extension_list_str;
+      arc_lib.get_string_prop(idx, NArchive::kAddExtension, add_extension_list_str);
+      std::list<wstring> add_extension_list = split(add_extension_list_str, L' ');
+      auto add_ext_iter = add_extension_list.cbegin();
+      for (auto ext_iter = arc_format.extension_list.begin(); ext_iter != arc_format.extension_list.end(); ++ext_iter) {
+        ext_iter->insert(0, 1, L'.');
+        if (add_ext_iter != add_extension_list.cend()) {
+          if (*add_ext_iter != L"*") {
+            arc_format.nested_ext_mapping[upcase(*ext_iter)] = *add_ext_iter;
+          }
+          ++add_ext_iter;
+        }
+      }
+
       ArcFormats::const_iterator existing_format = arc_formats.find(type);
       if (existing_format == arc_formats.end() || arc_libs[existing_format->second.lib_index].version < arc_lib.version)
         arc_formats[type] = arc_format;
@@ -332,11 +346,21 @@ void ArcAPI::free() {
 
 wstring Archive::get_default_name() const {
   wstring name = arc_name();
-  size_t pos = name.find_last_of(L'.');
-  if (pos == wstring::npos)
+  wstring ext = extract_file_ext(name);
+  name.erase(name.size() - ext.size(), ext.size());
+  if (arc_chain.empty())
     return name;
-  else
-    return name.substr(0, pos);
+  const ArcType& arc_type = arc_chain.back().type;
+  auto& nested_ext_mapping = ArcAPI::formats().at(arc_type).nested_ext_mapping;
+  auto nested_ext_iter = nested_ext_mapping.find(upcase(ext));
+  if (nested_ext_iter == nested_ext_mapping.end())
+    return name;
+  const wstring& nested_ext = nested_ext_iter->second;
+  ext = extract_file_ext(name);
+  if (upcase(nested_ext) == upcase(ext))
+    return name;
+  name.replace(name.size() - ext.size(), ext.size(), nested_ext);
+  return name;
 }
 
 wstring Archive::get_temp_file_name() const {
