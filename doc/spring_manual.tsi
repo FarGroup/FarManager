@@ -115,7 +115,7 @@ lv=2
 dt=Text
 nm=Глобальные свойства и функции
 ctime=3552221109
-mtime=3553766886
+mtime=3553878748
 <article>
 #_**Свойства:**
 #_
@@ -124,6 +124,7 @@ mtime=3553766886
 #_**Функции:**
 #_
 #_  band, bnot, bor, bxor
+#_  eval
 #_  Keys
 #_  msgbox
 #_  print
@@ -639,7 +640,7 @@ lv=2
 dt=Text
 nm=Object
 ctime=3553245384
-mtime=3553669389
+mtime=3553795938
 <article>
 #_**Свойства, зависящие от контекста исполнения.**
 #_
@@ -648,15 +649,15 @@ mtime=3553669389
 #_**Свойства:**
 #_
 #_  Bof:         boolean
-#_  CurPos:      integer
+#_  CurPos:      number
 #_  Empty:       boolean
 #_  Eof:         boolean
-#_  Height:      integer
-#_  ItemCount:   integer
+#_  Height:      number
+#_  ItemCount:   number
 #_  RootFolder:  boolean
 #_  Selected:    boolean
 #_  Title:       string
-#_  Width:       integer
+#_  Width:       number
 #_
 #_**Функции:**
 #_
@@ -720,13 +721,12 @@ lv=1
 dt=Text
 nm=Список нереализованных функций
 ctime=3553185283
-mtime=3553790872
+mtime=3553878757
 <article>
 #_<markdown>
 #_На текущий момент не реализованы следующие функции и свойства API макроязыка:
 #_
 #_1. `Akey`
-#_1. `Eval`
 #_1. `History.Disable`
 #_1. `Macro.Const`
 #_1. `Macro.Func`

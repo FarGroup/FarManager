@@ -2551,6 +2551,75 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		case MCODE_F_XLAT:            return xlatFunc(nullptr,Data);
 		case MCODE_F_PROMPT:          return promptFunc(nullptr,Data);
 
+		case MCODE_OP_JGT: // Получение кода макроса для Eval(S,2).
+		{
+			parseParams(1,Params,Data);
+			TVar& Val(Params[0]);
+
+			if (!(Val.isInteger() && !Val.i())) // учитываем только нормальное содержимое строки компиляции
+			{
+				// программный вызов макроса, назначенный на кнопкосочетание
+				/*
+					 Для этого:
+					 а) второй параметр функции установить в 2
+					 б) первым параметром указать строку в формате "Area/Key"
+							здесь:
+								"Area" - область, из которой хотим вызвать макрос
+								"/" - разделитель
+								"Key" - название клавиши
+							"Area/" можно не указывать, в этом случае поиск "Key" будет вестись в текущей активной макрообласти,
+								 если в текущей области "Key" не найден, то поиск продолжится в области Common.
+								 Что бы отключить поиск в области Common (ограничится только "этой" областью),
+								 необходимо в качестве "Area" указать точку.
+
+					 Для режима 2 функция вернет
+						 -1 - ошибка
+						 -2 - нет макроса, заданного кпопкосочетанием (или макрос заблокирован)
+							0 - Ok
+				*/
+				int _Mode;
+				bool UseCommon=true;
+				string strVal=Val.toString();
+				strVal=RemoveExternalSpaces(strVal);
+
+				wchar_t *lpwszVal = strVal.GetBuffer();
+				wchar_t *p=wcsrchr(lpwszVal,L'/');
+
+				if (p  && p[1])
+				{
+					*p++=0;
+					if ((_Mode = GetAreaCode(lpwszVal)) < 0)
+					{
+						_Mode=GetMode();
+						if (lpwszVal[0] == L'.' && !lpwszVal[1]) // вариант "./Key" не подразумевает поиск в Common`е
+							UseCommon=false;
+					}
+					else
+						UseCommon=false;
+				}
+				else
+				{
+					p=lpwszVal;
+					_Mode=GetMode();
+				}
+
+				string strKeyName=p;
+				int Area;
+				int I=GetIndex(&Area,0,strKeyName,_Mode,UseCommon);
+				if (I != -1)
+				{
+					MacroRecord* macro = m_Macros[Area].getItem(I);
+					if (!(macro->Flags() & MFLAGS_DISABLEMACRO))
+					{
+						PassString(macro->Code(), Data);
+						return 1;
+					}
+				}
+			}
+			PassBoolean(0, Data);
+			return 0;
+		}
+
 		case MCODE_F_BM_ADD:              // N=BM.Add()
 		case MCODE_F_BM_CLEAR:            // N=BM.Clear()
 		case MCODE_F_BM_NEXT:             // N=BM.Next()

@@ -314,7 +314,7 @@ local function SetProperties (namespace, proptable)
   meta.__index = function(tb,nm)
     local f = proptable[nm]
     if f then return f() end
-    error("property not supported: "..tostring(s), 2)
+    error("property not supported: "..tostring(nm), 2)
   end
   setmetatable(namespace, meta)
   return namespace
@@ -643,6 +643,36 @@ Viewer  = SetProperties({}, prop_Viewer)
 _G.band,_G.bnot,_G.bor,_G.bxor = bit64.band,bit64.bnot,bit64.bor,bit64.bxor
 _G.msgbox = function(...) return MacroCallFar(0x80C21, ...) end
 _G.prompt = function(...) return MacroCallFar(0x80C34, ...) end
+
+_G.eval = function (str, mode)
+  if type(str) ~= "string" then return -1 end
+  mode = mode or 0
+  if not (mode==0 or mode==1 or mode==2 or mode==3) then return -1 end
+
+  if mode == 2 then
+    str = MacroCallFar(0x80006, str)
+    if not str then return -2 end
+  end
+
+  local chunk, msg
+  if string.sub(str,1,1) == "@" then
+    str = string.sub(str,2):gsub("%%(.-)%%", win.GetEnv)
+    chunk, msg = loadfile(str)
+  else
+    chunk, msg = loadstring(str)
+  end
+
+  if chunk then
+    if mode==1 then return 0 end
+    if mode==3 then return "" end
+    setfenv(chunk, getfenv(2))
+    chunk()
+    return 0
+  else
+    far.Message(msg, "LuaMacro", nil, "wl")
+    return mode==3 and msg or 11
+  end
+end
 --------------------------------------------------------------------------------
 
 local function basicSerialize (o)

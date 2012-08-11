@@ -245,7 +245,7 @@ class KeyMacro
 		int PeekKey();
 		static int GetAreaCode(const wchar_t *AreaName);
 		static int GetMacroKeyInfo(bool FromDB,int Mode,int Pos,string &strKeyName,string &strDescription);
-		static void SetMacroConst(int ConstName, __int64 Value);
+		static void SetMacroConst(int ConstIndex, __int64 Value);
 		// послать сигнал на прерывание макроса
 		void SendDropProcess();
 		bool CheckWaitKeyFunc();
