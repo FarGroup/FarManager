@@ -1578,7 +1578,7 @@ private:
   }
 
 public:
-  FormatLibraryInfoDialog(): Far::Dialog(Far::get_msg(MSG_SETTINGS_DLG_LIB_INFO), &c_format_library_info_dialog_guid, Far::get_optimal_msg_width()) {
+  FormatLibraryInfoDialog(): Far::Dialog(Far::get_msg(MSG_SETTINGS_DLG_LIB_INFO), &c_format_library_info_dialog_guid) {
   }
 
   void show() {
@@ -1588,8 +1588,16 @@ public:
       new_line();
     }
     else {
+      unsigned width = 0;
       for (unsigned lib_index = 0; lib_index < libs.size(); ++lib_index) {
-        edit_box(libs[lib_index].module_path, AUTO_SIZE, DIF_READONLY);
+        if (width < libs[lib_index].module_path.size())
+          width = libs[lib_index].module_path.size();
+      }
+      width += 1;
+      if (width > Far::get_optimal_msg_width())
+        width = Far::get_optimal_msg_width();
+      for (unsigned lib_index = 0; lib_index < libs.size(); ++lib_index) {
+        edit_box(libs[lib_index].module_path, width, DIF_READONLY);
         new_line();
         label(Far::get_msg(MSG_SETTINGS_DLG_LIB_VERSION) + L' ' +
           int_to_str(HIWORD(libs[lib_index].version >> 32)) + L'.' + int_to_str(LOWORD(libs[lib_index].version >> 32)) + L'.' +
