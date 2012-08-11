@@ -464,9 +464,6 @@ public:
       else
         options.arc_type = arc_types.front();
       options.sfx_options = g_options.update_sfx_options;
-      if (ArcAPI::formats().count(options.arc_type))
-        options.arc_path += ArcAPI::formats().at(options.arc_type).default_extension();
-
       options.level = g_options.update_level;
       options.method = g_options.update_method;
       options.solid = g_options.update_solid;
@@ -502,8 +499,6 @@ public:
     if (ArcAPI::formats().count(options.arc_type) == 0)
       FAIL_MSG(Far::get_msg(MSG_ERROR_NO_FORMAT));
     if (new_arc) {
-      if (!is_absolute_path(options.arc_path))
-        options.arc_path = Far::get_absolute_path(options.arc_path);
       if (File::exists(options.arc_path)) {
         if (Far::message(c_overwrite_archive_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_OVERWRITE), 0, FMSG_MB_YESNO) != 0)
           FAIL(E_ABORT);
@@ -573,9 +568,6 @@ public:
     else
       options.arc_type = arc_types.front();
     options.sfx_options = g_options.update_sfx_options;
-    if (ArcAPI::formats().count(options.arc_type))
-      options.arc_path += ArcAPI::formats().at(options.arc_type).default_extension();
-
     options.level = g_options.update_level;
     options.method = g_options.update_method;
     options.solid = g_options.update_solid;
@@ -596,8 +588,6 @@ public:
     if (ArcAPI::formats().count(options.arc_type) == 0)
       FAIL_MSG(Far::get_msg(MSG_ERROR_NO_FORMAT));
 
-    if (!is_absolute_path(options.arc_path))
-      options.arc_path = Far::get_absolute_path(options.arc_path);
     if (File::exists(options.arc_path)) {
       if (Far::message(c_overwrite_archive_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME) + L"\n" + Far::get_msg(MSG_UPDATE_DLG_CONFIRM_OVERWRITE), 0, FMSG_MB_YESNO) != 0)
         FAIL(E_ABORT);

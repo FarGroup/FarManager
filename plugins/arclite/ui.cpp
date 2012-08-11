@@ -825,7 +825,7 @@ private:
   wstring eval_arc_path() {
     wstring arc_path = expand_env_vars(search_and_replace(expand_macros(strip(get_text(arc_path_ctrl_id))), L"\"", wstring()));
     if (arc_path.empty() || arc_path.back() == L'\\')
-      arc_path += default_arc_name;
+      arc_path += default_arc_name + get_default_ext();
     if (get_check(append_ext_ctrl_id)) {
       wstring ext = get_default_ext();
       if (ext.size() > arc_path.size() || upcase(arc_path.substr(arc_path.size() - ext.size())) != upcase(ext))
@@ -1190,7 +1190,8 @@ public:
 
   bool show() {
     if (new_arc) {
-      old_ext = extract_file_ext(options.arc_path);
+      if (ArcAPI::formats().count(options.arc_type))
+        old_ext = ArcAPI::formats().at(options.arc_type).default_extension();
 
       vector<wstring> profile_names;
       profile_names.reserve(profiles.size());
@@ -1217,7 +1218,7 @@ public:
       spacer(1);
       append_ext_ctrl_id = check_box(Far::get_msg(MSG_UPDATE_DLG_APPEND_EXT), options.append_ext);
       new_line();
-      arc_path_ctrl_id = history_edit_box(options.arc_path, L"arclite.arc_path", c_client_xs, DIF_EDITPATH);
+      arc_path_ctrl_id = history_edit_box(options.arc_path + old_ext, L"arclite.arc_path", c_client_xs, DIF_EDITPATH);
       new_line();
       separator();
       new_line();
