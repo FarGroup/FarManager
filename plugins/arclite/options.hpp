@@ -23,6 +23,7 @@ struct Options {
   OverwriteAction update_overwrite;
   bool update_append_ext;
   // panel mode
+  bool own_panel_view_mode;
   unsigned panel_view_mode;
   OPENPANELINFO_SORTMODES panel_sort_mode;
   bool panel_reverse_sort;

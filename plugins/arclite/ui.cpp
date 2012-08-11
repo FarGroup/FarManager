@@ -1625,6 +1625,7 @@ private:
 
   int handle_create_ctrl_id;
   int handle_commands_ctrl_id;
+  int own_panel_view_mode_ctrl_id;
   int use_include_masks_ctrl_id;
   int edit_include_masks_ctrl_id;
   int include_masks_ctrl_id;
@@ -1649,6 +1650,7 @@ private:
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
       settings.handle_create = get_check(handle_create_ctrl_id);
       settings.handle_commands = get_check(handle_commands_ctrl_id);
+      settings.own_panel_view_mode = get_check(own_panel_view_mode_ctrl_id);
       settings.use_include_masks = get_check(use_include_masks_ctrl_id);
       settings.include_masks = get_text(include_masks_ctrl_id);
       settings.use_exclude_masks = get_check(use_exclude_masks_ctrl_id);
@@ -1776,6 +1778,8 @@ public:
     handle_create_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_HANDLE_CREATE), settings.handle_create);
     new_line();
     handle_commands_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_HANDLE_COMMANDS), settings.handle_commands);
+    new_line();
+    own_panel_view_mode_ctrl_id = check_box(Far::get_msg(MSG_SETTINGS_DLG_OWN_PANEL_VIEW_MODE), settings.own_panel_view_mode);
     new_line();
     separator();
     new_line();

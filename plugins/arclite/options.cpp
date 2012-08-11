@@ -92,6 +92,7 @@ Options::Options():
   update_ignore_errors(false),
   update_overwrite(oaAsk),
   update_append_ext(false),
+  own_panel_view_mode(true),
   panel_view_mode(2),
   panel_sort_mode(SM_NAME),
   panel_reverse_sort(false),
@@ -179,6 +180,7 @@ void Options::load() {
   GET_VALUE(update_ignore_errors, bool);
   GET_VALUE(update_overwrite, int);
   GET_VALUE(update_append_ext, bool);
+  GET_VALUE(own_panel_view_mode, bool);
   GET_VALUE(panel_view_mode, int);
   GET_VALUE(panel_sort_mode, int);
   GET_VALUE(panel_reverse_sort, bool);
@@ -219,6 +221,7 @@ void Options::save() const {
   SET_VALUE(update_ignore_errors, bool);
   SET_VALUE(update_overwrite, int);
   SET_VALUE(update_append_ext, bool);
+  SET_VALUE(own_panel_view_mode, bool);
   SET_VALUE(panel_view_mode, int);
   SET_VALUE(panel_sort_mode, int);
   SET_VALUE(panel_reverse_sort, bool);

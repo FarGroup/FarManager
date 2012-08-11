@@ -70,9 +70,11 @@ public:
     opi->HostFile = host_file.c_str();
     opi->Format = g_plugin_prefix.c_str();
     opi->PanelTitle = panel_title.c_str();
-    opi->StartPanelMode = '0' + g_options.panel_view_mode;
-    opi->StartSortMode = g_options.panel_sort_mode;
-    opi->StartSortOrder = g_options.panel_reverse_sort;
+    if (g_options.own_panel_view_mode) {
+      opi->StartPanelMode = '0' + g_options.panel_view_mode;
+      opi->StartSortMode = g_options.panel_sort_mode;
+      opi->StartSortOrder = g_options.panel_reverse_sort;
+    }
 
     info_lines.clear();
     info_lines.reserve(archive->arc_attr.size() + 1);
@@ -1087,6 +1089,7 @@ int WINAPI ConfigureW(const struct ConfigureInfo* info) {
   PluginSettings settings;
   settings.handle_create = g_options.handle_create;
   settings.handle_commands = g_options.handle_commands;
+  settings.own_panel_view_mode = g_options.own_panel_view_mode;
   settings.use_include_masks = g_options.use_include_masks;
   settings.include_masks = g_options.include_masks;
   settings.use_exclude_masks = g_options.use_exclude_masks;
@@ -1100,6 +1103,7 @@ int WINAPI ConfigureW(const struct ConfigureInfo* info) {
   if (settings_dialog(settings)) {
     g_options.handle_create = settings.handle_create;
     g_options.handle_commands = settings.handle_commands;
+    g_options.own_panel_view_mode = settings.own_panel_view_mode;
     g_options.use_include_masks = settings.use_include_masks;
     g_options.include_masks = settings.include_masks;
     g_options.use_exclude_masks = settings.use_exclude_masks;
