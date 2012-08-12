@@ -2008,20 +2008,25 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				switch (Param1)
 				{
+#ifdef FAR_LUA
+					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
+					case MSSC_POST:
+					{
+						return Macro.PostNewMacro(PlainText->SequenceText,PlainText->Flags|MFLAGS_POSTFROMPLUGIN,InputRecordToKey(&PlainText->AKey));
+					}
+
+					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
+					case MSSC_CHECK:
+					{
+						return Macro.ParseMacroString(PlainText->SequenceText,(PlainText->Flags&KMFLAGS_SILENTCHECK)!=0);
+					}
+#else
 					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 					case MSSC_POST:
 					{
 						return Macro.PostNewMacro(PlainText->SequenceText,(PlainText->Flags<<8)|MFLAGS_POSTFROMPLUGIN,InputRecordToKey(&PlainText->AKey));
 					}
 
-#ifdef FAR_LUA
-					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
-					case MSSC_CHECK:
-					{
-						return Macro.ParseMacroString(PlainText->SequenceText,(PlainText->Flags&KMFLAGS_SILENTCHECK)!=0);
-					}
-
-#else
 					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 					case MSSC_EXEC:
 					{

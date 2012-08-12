@@ -46,37 +46,40 @@ lv=1
 dt=Text
 nm=Изменения API в сравнении с макроязыком
 ctime=3553185939
-mtime=3553790531
+mtime=3553959423
 <article>
 #_<markdown>
 #_
-#_* Все идентификаторы чувствительны к регистру символов.
-#_* Вместо прямого указания клавиш используется функция [`Keys`][Keys].
-#_* Логические свойства имеют тип *boolean* (поэтому нет смысла сравнивать их с числом `0`).
-#_* Функция `prompt` может возвращать либо стринг, либо `false` (но никогда не число `0`).
-#_* Многие функции помещены в таблицу [`mf`] [mf] (сокращение от *macrofunctions*),
-#_  например: `mf.abs`, `mf.fsplit` и т.д.
-#_* Функции [`mload`] [mload] и [`msave`] [msave] изменились, см. их описание.
-#_* Свойства, зависящие от контекста исполнения, находятся в таблице [`Object`][Object],
-#_  например: `Object.CurPos`, `Object.Empty`.
-#_* `CheckHotkey -> Object.CheckHotkey`
-#_* `GetHotkey -> Object.GetHotkey`
-#_* Логические свойства проверки области исполнения находятся в таблице [`Area`][Area],
-#_  например: `Area.Editor`, `Area.Shell`.
-#_* `MacroArea -> Area.Current`.
-#_* `Dialog.AutoCompletion -> Area.DialogAutoCompletion`
-#_* `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
-#_* `CallPlugin -> Plugin.Call`
-#_* `Dlg.Info.Id -> Dlg.Id`
-#_* `Dlg.Info.Owner -> Dlg.Owner`
-#_* `Far.Cfg.Get -> Far.Cfg_Get`. Эта функция возвращает стринг в случае успеха
-#_   или `false` в случае неудачи.
-#_* `Far.Cfg.Err` больше не существует.
-#_* `FullScreenMode -> Far.FullScreenMode`
-#_* `IsUserAdmin -> Far.IsUserAdmin`
-#_* `Menu.Info.Id -> Menu.Id`
-#_* `MsX`, `MsY`, `MsButton`, `MsCtrlState`, `MsEventFlags` -- см. таблицу [`Mouse`][Mouse]
-#_* `RCounter` больше не существует.
+#_1. Все идентификаторы чувствительны к регистру символов.
+#_1. Вместо прямого указания клавиш используется функция [`Keys`][Keys].
+#_1. Логические свойства имеют тип *boolean* (поэтому нет смысла сравнивать их с числом `0`).
+#_1. Функция `prompt` может возвращать либо стринг, либо `false` (но никогда не число `0`).
+#_1. Многие функции помещены в таблицу [`mf`] [mf] (сокращение от *macrofunctions*),
+#_   например: `mf.abs`, `mf.fsplit` и т.д.
+#_1. Функции [`mload`] [mload] и [`msave`] [msave] изменились, см. их описание.
+#_1. Свойства, зависящие от контекста исполнения, находятся в таблице [`Object`][Object],
+#_   например: `Object.CurPos`, `Object.Empty`.
+#_1. `CheckHotkey -> Object.CheckHotkey`
+#_1. `GetHotkey -> Object.GetHotkey`
+#_1. Логические свойства проверки области исполнения находятся в таблице [`Area`][Area],
+#_   например: `Area.Editor`, `Area.Shell`.
+#_1. `MacroArea -> Area.Current`.
+#_1. `Dialog.AutoCompletion -> Area.DialogAutoCompletion`
+#_1. `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
+#_1. `CallPlugin -> Plugin.Call`
+#_1. `Dlg.Info.Id -> Dlg.Id`
+#_1. `Dlg.Info.Owner -> Dlg.Owner`
+#_1. `Far.Cfg.Get -> Far.Cfg_Get`. Эта функция возвращает стринг в случае успеха
+#_    или `false` в случае неудачи.
+#_1. `Far.Cfg.Err` больше не существует.
+#_1. `FullScreenMode -> Far.FullScreenMode`
+#_1. `IsUserAdmin -> Far.IsUserAdmin`
+#_1. `Menu.Info.Id -> Menu.Id`
+#_1. `MsX`, `MsY`, `MsButton`, `MsCtrlState`, `MsEventFlags` -- см. таблицу [`Mouse`][Mouse]
+#_1. `RCounter` больше не существует.
+#_1. `$SelWord -> Keys("SelWord")`
+#_1. `$XLat -> Keys("XLat")`
+#_1. `Macro.Const`, `Macro.Func`, `Macro.Keyword` и `Macro.Var` больше не существуют.
 #_
 #_[mload]: 13.html
 #_[msave]: 12.html
@@ -85,6 +88,7 @@ mtime=3553790531
 #_[Area]: 36.html
 #_[Object]: 45.html
 #_[Mouse]: 59.html
+#_
 #_
 </article>
 </node>
@@ -721,17 +725,13 @@ lv=1
 dt=Text
 nm=Список нереализованных функций
 ctime=3553185283
-mtime=3553878757
+mtime=3553958217
 <article>
 #_<markdown>
 #_На текущий момент не реализованы следующие функции и свойства API макроязыка:
 #_
 #_1. `Akey`
 #_1. `History.Disable`
-#_1. `Macro.Const`
-#_1. `Macro.Func`
-#_1. `Macro.Keyword`
-#_1. `Macro.Var`
 #_1. `MMode`
 #_
 </article>
