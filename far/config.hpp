@@ -154,9 +154,9 @@ public:
 	Bool3Option(const int& Value):Option(Value % 3){}
 	const int Get() const {return GetInt() % 3;}
 	Bool3Option& operator=(int Value){Set(Value % 3); return *this;}
-	Bool3Option& operator--(){Set((GetInt()-1) % 3); return *this;}
+	Bool3Option& operator--(){Set((GetInt()+2) % 3); return *this;}
 	Bool3Option& operator++(){Set((GetInt()+1) % 3); return *this;}
-	Bool3Option operator--(int){int Current = GetInt() % 3; Set((Current-1) % 3); return Current;}
+	Bool3Option operator--(int){int Current = GetInt() % 3; Set((Current+2) % 3); return Current;}
 	Bool3Option operator++(int){int Current = GetInt() % 3; Set((Current+1) % 3); return Current;}
 	operator int() const {return GetInt() % 3;}
 	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, int Default);
