@@ -19,9 +19,12 @@ local macros = {}
 local LastError
 local gmeta = { __index=_G }
 
-function _G.Keys (str)
-  assert(type(str) == "string", "arg. #1 to Keys() must be string")
-  for key in str:gmatch("%S+") do co_yield(key) end
+function _G.Keys (...)
+  for n=1,select("#",...) do
+    local str=select(n,...)
+    if type(str) ~= "string" then return end
+    for key in str:gmatch("%S+") do co_yield(key) end
+  end
 end
 
 function _G.print (str)

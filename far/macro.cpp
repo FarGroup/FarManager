@@ -853,30 +853,24 @@ int KeyMacro::GetKey()
 			//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"result: %ls\n\n",key); fclose(log);}}
 			if(key[0])
 			{
+				m_LastKey = key;
+
 				if ((m_RunState.m_flags&MFLAGS_DISABLEOUTPUT) && ScrBuf.GetLockCount()==0)
-				{
 					ScrBuf.Lock();
-				}
 
 				if (!wcsncmp(key, L"print:", 6))
 				{
 					__varTextDate = key+6;
-					m_LastKey = key;
 					return KEY_OP_PLAINTEXT;
 				}
+
 				if (!wcsicmp(key, L"SelWord"))
-				{
-					m_LastKey = key;
 					return KEY_OP_SELWORD;
-				}
+
 				if (!wcsicmp(key, L"XLat"))
-				{
-					m_LastKey = key;
 					return KEY_OP_XLAT;
-				}
 
 				int iKey = KeyNameToKey(key);
-				m_LastKey = key;
 				return iKey==-1 ? KEY_NONE:iKey;
 			}
 			else
@@ -1556,79 +1550,79 @@ bool KeyMacro::UpdateLockScreen(bool recreate)
 	return oldstate;
 }
 
-static bool absFunc(const TMacroFunction*, FarMacroCall*);
-static bool ascFunc(const TMacroFunction*, FarMacroCall*);
-static bool atoiFunc(const TMacroFunction*, FarMacroCall*);
-static bool beepFunc(const TMacroFunction*, FarMacroCall*);
-static bool chrFunc(const TMacroFunction*, FarMacroCall*);
-static bool clipFunc(const TMacroFunction*, FarMacroCall*);
-static bool dateFunc(const TMacroFunction*, FarMacroCall*);
-static bool dlggetvalueFunc(const TMacroFunction*, FarMacroCall*);
-static bool dlgsetfocusFunc(const TMacroFunction*, FarMacroCall*);
-static bool editordellineFunc(const TMacroFunction*, FarMacroCall*);
-static bool editorgetstrFunc(const TMacroFunction*, FarMacroCall*);
-static bool editorinsstrFunc(const TMacroFunction*, FarMacroCall*);
-static bool editorposFunc(const TMacroFunction*, FarMacroCall*);
-static bool editorselFunc(const TMacroFunction*, FarMacroCall*);
-static bool editorsetFunc(const TMacroFunction*, FarMacroCall*);
-static bool editorsetstrFunc(const TMacroFunction*, FarMacroCall*);
-static bool editorsettitleFunc(const TMacroFunction*, FarMacroCall*);
-static bool editorundoFunc(const TMacroFunction*, FarMacroCall*);
-static bool environFunc(const TMacroFunction*, FarMacroCall*);
-static bool farcfggetFunc(const TMacroFunction*, FarMacroCall*);
-static bool fattrFunc(const TMacroFunction*, FarMacroCall*);
-static bool fexistFunc(const TMacroFunction*, FarMacroCall*);
-static bool floatFunc(const TMacroFunction*, FarMacroCall*);
-static bool flockFunc(const TMacroFunction*, FarMacroCall*);
-static bool fmatchFunc(const TMacroFunction*, FarMacroCall*);
-static bool fsplitFunc(const TMacroFunction*, FarMacroCall*);
-// НЕ НУЖНА // static bool iifFunc(const TMacroFunction*, FarMacroCall*);
-static bool indexFunc(const TMacroFunction*, FarMacroCall*);
-static bool intFunc(const TMacroFunction*, FarMacroCall*);
-static bool itowFunc(const TMacroFunction*, FarMacroCall*);
-static bool kbdLayoutFunc(const TMacroFunction*, FarMacroCall*);
-static bool keybarshowFunc(const TMacroFunction*, FarMacroCall*);
-static bool keyFunc(const TMacroFunction*, FarMacroCall*);
-static bool lcaseFunc(const TMacroFunction*, FarMacroCall*);
-static bool lenFunc(const TMacroFunction*, FarMacroCall*);
-// НЕ СЕЙЧАС // static bool macroenumkwdFunc(const TMacroFunction*, FarMacroCall*);
-// НЕ СЕЙЧАС // static bool macroenumfuncFunc(const TMacroFunction*, FarMacroCall*);
-// НЕ СЕЙЧАС // static bool macroenumvarFunc(const TMacroFunction*, FarMacroCall*);
-// НЕ СЕЙЧАС // static bool macroenumConstFunc(const TMacroFunction*, FarMacroCall*);
-static bool maxFunc(const TMacroFunction*, FarMacroCall*);
-static bool menushowFunc(const TMacroFunction*, FarMacroCall*);
-static bool minFunc(const TMacroFunction*, FarMacroCall*);
-// ЗАМЕНЕНА // static bool mloadFunc(const TMacroFunction*, FarMacroCall*);
-static bool modFunc(const TMacroFunction*, FarMacroCall*);
-// ЗАМЕНЕНА // static bool msaveFunc(const TMacroFunction*, FarMacroCall*);
-static bool msgBoxFunc(const TMacroFunction*, FarMacroCall*);
-static bool panelfattrFunc(const TMacroFunction*, FarMacroCall*);
-static bool panelfexistFunc(const TMacroFunction*, FarMacroCall*);
-static bool panelitemFunc(const TMacroFunction*, FarMacroCall*);
-static bool panelselectFunc(const TMacroFunction*, FarMacroCall*);
-static bool panelsetpathFunc(const TMacroFunction*, FarMacroCall*);
-static bool panelsetposFunc(const TMacroFunction*, FarMacroCall*);
-static bool panelsetposidxFunc(const TMacroFunction*, FarMacroCall*);
-// НЕ СЕЙЧАС // static bool pluginsFunc(const TMacroFunction*, FarMacroCall*);
-static bool promptFunc(const TMacroFunction*, FarMacroCall*);
-static bool replaceFunc(const TMacroFunction*, FarMacroCall*);
-static bool rindexFunc(const TMacroFunction*, FarMacroCall*);
-static bool size2strFunc(const TMacroFunction*, FarMacroCall*);
-static bool sleepFunc(const TMacroFunction*, FarMacroCall*);
-static bool stringFunc(const TMacroFunction*, FarMacroCall*);
-static bool strwrapFunc(const TMacroFunction*, FarMacroCall*);
-static bool strpadFunc(const TMacroFunction*, FarMacroCall*);
-static bool substrFunc(const TMacroFunction*, FarMacroCall*);
-static bool testfolderFunc(const TMacroFunction*, FarMacroCall*);
-static bool trimFunc(const TMacroFunction*, FarMacroCall*);
-static bool ucaseFunc(const TMacroFunction*, FarMacroCall*);
-// static bool usersFunc(const TMacroFunction*, FarMacroCall*);
-static bool waitkeyFunc(const TMacroFunction*, FarMacroCall*);
-static bool windowscrollFunc(const TMacroFunction*, FarMacroCall*);
-static bool xlatFunc(const TMacroFunction*, FarMacroCall*);
-static bool pluginloadFunc(const TMacroFunction*, FarMacroCall*);
-static bool pluginunloadFunc(const TMacroFunction*, FarMacroCall*);
-static bool pluginexistFunc(const TMacroFunction*, FarMacroCall*);
+static bool absFunc(FarMacroCall*);
+static bool ascFunc(FarMacroCall*);
+static bool atoiFunc(FarMacroCall*);
+static bool beepFunc(FarMacroCall*);
+static bool chrFunc(FarMacroCall*);
+static bool clipFunc(FarMacroCall*);
+static bool dateFunc(FarMacroCall*);
+static bool dlggetvalueFunc(FarMacroCall*);
+static bool dlgsetfocusFunc(FarMacroCall*);
+static bool editordellineFunc(FarMacroCall*);
+static bool editorgetstrFunc(FarMacroCall*);
+static bool editorinsstrFunc(FarMacroCall*);
+static bool editorposFunc(FarMacroCall*);
+static bool editorselFunc(FarMacroCall*);
+static bool editorsetFunc(FarMacroCall*);
+static bool editorsetstrFunc(FarMacroCall*);
+static bool editorsettitleFunc(FarMacroCall*);
+static bool editorundoFunc(FarMacroCall*);
+static bool environFunc(FarMacroCall*);
+static bool farcfggetFunc(FarMacroCall*);
+static bool fattrFunc(FarMacroCall*);
+static bool fexistFunc(FarMacroCall*);
+static bool floatFunc(FarMacroCall*);
+static bool flockFunc(FarMacroCall*);
+static bool fmatchFunc(FarMacroCall*);
+static bool fsplitFunc(FarMacroCall*);
+// НЕ НУЖНА // static bool iifFunc(FarMacroCall*);
+static bool indexFunc(FarMacroCall*);
+static bool intFunc(FarMacroCall*);
+static bool itowFunc(FarMacroCall*);
+static bool kbdLayoutFunc(FarMacroCall*);
+static bool keybarshowFunc(FarMacroCall*);
+static bool keyFunc(FarMacroCall*);
+static bool lcaseFunc(FarMacroCall*);
+static bool lenFunc(FarMacroCall*);
+// НЕ СЕЙЧАС // static bool macroenumkwdFunc(FarMacroCall*);
+// НЕ СЕЙЧАС // static bool macroenumfuncFunc(FarMacroCall*);
+// НЕ СЕЙЧАС // static bool macroenumvarFunc(FarMacroCall*);
+// НЕ СЕЙЧАС // static bool macroenumConstFunc(FarMacroCall*);
+static bool maxFunc(FarMacroCall*);
+static bool menushowFunc(FarMacroCall*);
+static bool minFunc(FarMacroCall*);
+// ЗАМЕНЕНА // static bool mloadFunc(FarMacroCall*);
+static bool modFunc(FarMacroCall*);
+// ЗАМЕНЕНА // static bool msaveFunc(FarMacroCall*);
+static bool msgBoxFunc(FarMacroCall*);
+static bool panelfattrFunc(FarMacroCall*);
+static bool panelfexistFunc(FarMacroCall*);
+static bool panelitemFunc(FarMacroCall*);
+static bool panelselectFunc(FarMacroCall*);
+static bool panelsetpathFunc(FarMacroCall*);
+static bool panelsetposFunc(FarMacroCall*);
+static bool panelsetposidxFunc(FarMacroCall*);
+// НЕ СЕЙЧАС // static bool pluginsFunc(FarMacroCall*);
+static bool promptFunc(FarMacroCall*);
+static bool replaceFunc(FarMacroCall*);
+static bool rindexFunc(FarMacroCall*);
+static bool size2strFunc(FarMacroCall*);
+static bool sleepFunc(FarMacroCall*);
+static bool stringFunc(FarMacroCall*);
+static bool strwrapFunc(FarMacroCall*);
+static bool strpadFunc(FarMacroCall*);
+static bool substrFunc(FarMacroCall*);
+static bool testfolderFunc(FarMacroCall*);
+static bool trimFunc(FarMacroCall*);
+static bool ucaseFunc(FarMacroCall*);
+// static bool usersFunc(FarMacroCall*);
+static bool waitkeyFunc(FarMacroCall*);
+static bool windowscrollFunc(FarMacroCall*);
+static bool xlatFunc(FarMacroCall*);
+static bool pluginloadFunc(FarMacroCall*);
+static bool pluginunloadFunc(FarMacroCall*);
+static bool pluginexistFunc(FarMacroCall*);
 
 int PassString (const wchar_t* str, FarMacroCall* Data)
 {
@@ -2393,70 +2387,70 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		// Functions
 		// =========================================================================
 
-		case MCODE_F_ABS:             return absFunc(nullptr,Data);
-		case MCODE_F_ASC:             return ascFunc(nullptr,Data);
-		case MCODE_F_ATOI:            return atoiFunc(nullptr,Data);
-		case MCODE_F_BEEP:            return beepFunc(nullptr,Data);
-		case MCODE_F_CHR:             return chrFunc(nullptr,Data);
-		case MCODE_F_CLIP:            return clipFunc(nullptr,Data);
-		case MCODE_F_DATE:            return dateFunc(nullptr,Data);
-		case MCODE_F_DLG_GETVALUE:    return dlggetvalueFunc(nullptr,Data);
-		case MCODE_F_DLG_SETFOCUS:    return dlgsetfocusFunc(nullptr,Data);
-		case MCODE_F_EDITOR_DELLINE:  return editordellineFunc(nullptr,Data);
-		case MCODE_F_EDITOR_GETSTR:   return editorgetstrFunc(nullptr,Data);
-		case MCODE_F_EDITOR_INSSTR:   return editorinsstrFunc(nullptr,Data);
-		case MCODE_F_EDITOR_POS:      return editorposFunc(nullptr,Data);
-		case MCODE_F_EDITOR_SEL:      return editorselFunc(nullptr,Data);
-		case MCODE_F_EDITOR_SET:      return editorsetFunc(nullptr,Data);
-		case MCODE_F_EDITOR_SETSTR:   return editorsetstrFunc(nullptr,Data);
-		case MCODE_F_EDITOR_SETTITLE: return editorsettitleFunc(nullptr,Data);
-		case MCODE_F_EDITOR_UNDO:     return editorundoFunc(nullptr,Data);
-		case MCODE_F_ENVIRON:         return environFunc(nullptr,Data);
-		case MCODE_F_FAR_CFG_GET:     return farcfggetFunc(nullptr,Data);
-		case MCODE_F_FATTR:           return fattrFunc(nullptr,Data);
-		case MCODE_F_FEXIST:          return fexistFunc(nullptr,Data);
-		case MCODE_F_FLOAT:           return floatFunc(nullptr,Data);
-		case MCODE_F_FLOCK:           return flockFunc(nullptr,Data);
-		case MCODE_F_FMATCH:          return fmatchFunc(nullptr,Data);
-		case MCODE_F_FSPLIT:          return fsplitFunc(nullptr,Data);
-		case MCODE_F_INDEX:           return indexFunc(nullptr,Data);
-		case MCODE_F_INT:             return intFunc(nullptr,Data);
-		case MCODE_F_ITOA:            return itowFunc(nullptr,Data);
-		case MCODE_F_KBDLAYOUT:       return kbdLayoutFunc(nullptr,Data);
-		case MCODE_F_KEY:             return keyFunc(nullptr,Data);
-		case MCODE_F_KEYBAR_SHOW:     return keybarshowFunc(nullptr,Data);
-		case MCODE_F_LCASE:           return lcaseFunc(nullptr,Data);
-		case MCODE_F_LEN:             return lenFunc(nullptr,Data);
-		case MCODE_F_MAX:             return maxFunc(nullptr,Data);
-		case MCODE_F_MENU_SHOW:       return menushowFunc(nullptr,Data);
-		case MCODE_F_MIN:             return minFunc(nullptr,Data);
-		case MCODE_F_MOD:             return modFunc(nullptr,Data);
-		case MCODE_F_MSGBOX:          return msgBoxFunc(nullptr,Data);
-		case MCODE_F_PANEL_FATTR:     return panelfattrFunc(nullptr,Data);
-		case MCODE_F_PANEL_FEXIST:    return panelfexistFunc(nullptr,Data);
-		case MCODE_F_PANELITEM:       return panelitemFunc(nullptr,Data);
-		case MCODE_F_PANEL_SELECT:    return panelselectFunc(nullptr,Data);
-		case MCODE_F_PANEL_SETPATH:   return panelsetpathFunc(nullptr,Data);
-		case MCODE_F_PANEL_SETPOS:    return panelsetposFunc(nullptr,Data);
-		case MCODE_F_PANEL_SETPOSIDX: return panelsetposidxFunc(nullptr,Data);
-		case MCODE_F_PLUGIN_EXIST:    return pluginexistFunc(nullptr,Data);
-		case MCODE_F_PLUGIN_LOAD:     return pluginloadFunc(nullptr,Data);
-		case MCODE_F_PLUGIN_UNLOAD:   return pluginunloadFunc(nullptr,Data);
-		case MCODE_F_REPLACE:         return replaceFunc(nullptr,Data);
-		case MCODE_F_RINDEX:          return rindexFunc(nullptr,Data);
-		case MCODE_F_SIZE2STR:        return size2strFunc(nullptr,Data);
-		case MCODE_F_SLEEP:           return sleepFunc(nullptr,Data);
-		case MCODE_F_STRING:          return stringFunc(nullptr,Data);
-		case MCODE_F_STRPAD:          return strpadFunc(nullptr,Data);
-		case MCODE_F_STRWRAP:         return strwrapFunc(nullptr,Data);
-		case MCODE_F_SUBSTR:          return substrFunc(nullptr,Data);
-		case MCODE_F_TESTFOLDER:      return testfolderFunc(nullptr,Data);
-		case MCODE_F_TRIM:            return trimFunc(nullptr,Data);
-		case MCODE_F_UCASE:           return ucaseFunc(nullptr,Data);
-		case MCODE_F_WAITKEY:         return waitkeyFunc(nullptr,Data);
-		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(nullptr,Data);
-		case MCODE_F_XLAT:            return xlatFunc(nullptr,Data);
-		case MCODE_F_PROMPT:          return promptFunc(nullptr,Data);
+		case MCODE_F_ABS:             return absFunc(Data);
+		case MCODE_F_ASC:             return ascFunc(Data);
+		case MCODE_F_ATOI:            return atoiFunc(Data);
+		case MCODE_F_BEEP:            return beepFunc(Data);
+		case MCODE_F_CHR:             return chrFunc(Data);
+		case MCODE_F_CLIP:            return clipFunc(Data);
+		case MCODE_F_DATE:            return dateFunc(Data);
+		case MCODE_F_DLG_GETVALUE:    return dlggetvalueFunc(Data);
+		case MCODE_F_DLG_SETFOCUS:    return dlgsetfocusFunc(Data);
+		case MCODE_F_EDITOR_DELLINE:  return editordellineFunc(Data);
+		case MCODE_F_EDITOR_GETSTR:   return editorgetstrFunc(Data);
+		case MCODE_F_EDITOR_INSSTR:   return editorinsstrFunc(Data);
+		case MCODE_F_EDITOR_POS:      return editorposFunc(Data);
+		case MCODE_F_EDITOR_SEL:      return editorselFunc(Data);
+		case MCODE_F_EDITOR_SET:      return editorsetFunc(Data);
+		case MCODE_F_EDITOR_SETSTR:   return editorsetstrFunc(Data);
+		case MCODE_F_EDITOR_SETTITLE: return editorsettitleFunc(Data);
+		case MCODE_F_EDITOR_UNDO:     return editorundoFunc(Data);
+		case MCODE_F_ENVIRON:         return environFunc(Data);
+		case MCODE_F_FAR_CFG_GET:     return farcfggetFunc(Data);
+		case MCODE_F_FATTR:           return fattrFunc(Data);
+		case MCODE_F_FEXIST:          return fexistFunc(Data);
+		case MCODE_F_FLOAT:           return floatFunc(Data);
+		case MCODE_F_FLOCK:           return flockFunc(Data);
+		case MCODE_F_FMATCH:          return fmatchFunc(Data);
+		case MCODE_F_FSPLIT:          return fsplitFunc(Data);
+		case MCODE_F_INDEX:           return indexFunc(Data);
+		case MCODE_F_INT:             return intFunc(Data);
+		case MCODE_F_ITOA:            return itowFunc(Data);
+		case MCODE_F_KBDLAYOUT:       return kbdLayoutFunc(Data);
+		case MCODE_F_KEY:             return keyFunc(Data);
+		case MCODE_F_KEYBAR_SHOW:     return keybarshowFunc(Data);
+		case MCODE_F_LCASE:           return lcaseFunc(Data);
+		case MCODE_F_LEN:             return lenFunc(Data);
+		case MCODE_F_MAX:             return maxFunc(Data);
+		case MCODE_F_MENU_SHOW:       return menushowFunc(Data);
+		case MCODE_F_MIN:             return minFunc(Data);
+		case MCODE_F_MOD:             return modFunc(Data);
+		case MCODE_F_MSGBOX:          return msgBoxFunc(Data);
+		case MCODE_F_PANEL_FATTR:     return panelfattrFunc(Data);
+		case MCODE_F_PANEL_FEXIST:    return panelfexistFunc(Data);
+		case MCODE_F_PANELITEM:       return panelitemFunc(Data);
+		case MCODE_F_PANEL_SELECT:    return panelselectFunc(Data);
+		case MCODE_F_PANEL_SETPATH:   return panelsetpathFunc(Data);
+		case MCODE_F_PANEL_SETPOS:    return panelsetposFunc(Data);
+		case MCODE_F_PANEL_SETPOSIDX: return panelsetposidxFunc(Data);
+		case MCODE_F_PLUGIN_EXIST:    return pluginexistFunc(Data);
+		case MCODE_F_PLUGIN_LOAD:     return pluginloadFunc(Data);
+		case MCODE_F_PLUGIN_UNLOAD:   return pluginunloadFunc(Data);
+		case MCODE_F_REPLACE:         return replaceFunc(Data);
+		case MCODE_F_RINDEX:          return rindexFunc(Data);
+		case MCODE_F_SIZE2STR:        return size2strFunc(Data);
+		case MCODE_F_SLEEP:           return sleepFunc(Data);
+		case MCODE_F_STRING:          return stringFunc(Data);
+		case MCODE_F_STRPAD:          return strpadFunc(Data);
+		case MCODE_F_STRWRAP:         return strwrapFunc(Data);
+		case MCODE_F_SUBSTR:          return substrFunc(Data);
+		case MCODE_F_TESTFOLDER:      return testfolderFunc(Data);
+		case MCODE_F_TRIM:            return trimFunc(Data);
+		case MCODE_F_UCASE:           return ucaseFunc(Data);
+		case MCODE_F_WAITKEY:         return waitkeyFunc(Data);
+		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(Data);
+		case MCODE_F_XLAT:            return xlatFunc(Data);
+		case MCODE_F_PROMPT:          return promptFunc(Data);
 
 		case MCODE_OP_JGT: // Получение кода макроса для Eval(S,2).
 		{
@@ -2871,7 +2865,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 
 /* ------------------------------------------------------------------- */
 // S=trim(S[,N])
-static bool trimFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool trimFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	int  mode = (int) Params[1].getInteger();
@@ -2891,7 +2885,7 @@ static bool trimFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // S=substr(S,start[,length])
-static bool substrFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool substrFunc(FarMacroCall* Data)
 {
 	/*
 		TODO: http://bugs.farmanager.com/view.php?id=1480
@@ -3074,7 +3068,7 @@ static BOOL SplitFileName(const wchar_t *lpFullName,string &strDest,int nFlags)
 
 
 // S=fsplit(S,N)
-static bool fsplitFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool fsplitFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	int m = (int)Params[1].getInteger();
@@ -3092,7 +3086,7 @@ static bool fsplitFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=atoi(S[,radix])
-static bool atoiFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool atoiFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	bool Ret=true;
@@ -3102,7 +3096,7 @@ static bool atoiFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=Window.Scroll(Lines[,Axis])
-static bool windowscrollFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool windowscrollFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	bool Ret=false;
@@ -3132,7 +3126,7 @@ static bool windowscrollFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // S=itoa(N[,radix])
-static bool itowFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool itowFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	bool Ret=false;
@@ -3154,7 +3148,7 @@ static bool itowFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=sleep(N)
-static bool sleepFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool sleepFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	long Period=(long)Params[0].getInteger();
@@ -3172,7 +3166,7 @@ static bool sleepFunc(const TMacroFunction*, FarMacroCall* Data)
 
 
 // N=KeyBar.Show([N])
-static bool keybarshowFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool keybarshowFunc(FarMacroCall* Data)
 {
 	/*
 	Mode:
@@ -3202,7 +3196,7 @@ static bool keybarshowFunc(const TMacroFunction*, FarMacroCall* Data)
 
 
 // S=key(V)
-static bool keyFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool keyFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	string strKeyText;
@@ -3226,7 +3220,7 @@ static bool keyFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // V=waitkey([N,[T]])
-static bool waitkeyFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool waitkeyFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	long Type=(long)Params[1].getInteger();
@@ -3253,7 +3247,7 @@ static bool waitkeyFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // n=min(n1,n2)
-static bool minFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool minFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	PassValue(Params[1] < Params[0] ? &Params[1] : &Params[0], Data);
@@ -3261,7 +3255,7 @@ static bool minFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // n=max(n1.n2)
-static bool maxFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool maxFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	PassValue(Params[1] > Params[0]  ? &Params[1] : &Params[0], Data);
@@ -3269,7 +3263,7 @@ static bool maxFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // n=mod(n1,n2)
-static bool modFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool modFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 
@@ -3286,7 +3280,7 @@ static bool modFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=index(S1,S2[,Mode])
-static bool indexFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool indexFunc(FarMacroCall* Data)
 {
 	parseParams(3,Params,Data);
 	const wchar_t *s = Params[0].toString();
@@ -3298,7 +3292,7 @@ static bool indexFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // S=rindex(S1,S2[,Mode])
-static bool rindexFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool rindexFunc(FarMacroCall* Data)
 {
 	parseParams(3,Params,Data);
 	const wchar_t *s = Params[0].toString();
@@ -3310,7 +3304,7 @@ static bool rindexFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // S=Size2Str(Size,Flags[,Width])
-static bool size2strFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool size2strFunc(FarMacroCall* Data)
 {
 	parseParams(3,Params,Data);
 	int Width = (int)Params[2].getInteger();
@@ -3323,7 +3317,7 @@ static bool size2strFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // S=date([S])
-static bool dateFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool dateFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 
@@ -3350,7 +3344,7 @@ static bool dateFunc(const TMacroFunction*, FarMacroCall* Data)
 	XLAT_SWITCHKEYBBEEP    = 2
 	XLAT_USEKEYBLAYOUTNAME = 4
 */
-static bool xlatFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool xlatFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	wchar_t *Str = (wchar_t *)Params[0].toString();
@@ -3360,7 +3354,7 @@ static bool xlatFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=beep([N])
-static bool beepFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool beepFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	/*
@@ -3410,7 +3404,7 @@ Res=kbdLayout([N])
 Возвращает предыдущую раскладку (для N=0 текущую)
 */
 // N=kbdLayout([N])
-static bool kbdLayoutFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool kbdLayoutFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	DWORD dwLayout = (DWORD)Params[0].getInteger();
@@ -3457,7 +3451,7 @@ static bool kbdLayoutFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // S=prompt(["Title"[,"Prompt"[,flags[, "Src"[, "History"]]]]])
-static bool promptFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool promptFunc(FarMacroCall* Data)
 {
 	parseParams(5,Params,Data);
 	TVar& ValHistory(Params[4]);
@@ -3511,7 +3505,7 @@ static bool promptFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=msgbox(["Title"[,"Text"[,flags]]])
-static bool msgBoxFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool msgBoxFunc(FarMacroCall* Data)
 {
 //FIXME: has flags IMFF_UNLOCKSCREEN|IMFF_DISABLEINTINPUT
 	parseParams(3,Params,Data);
@@ -3576,7 +3570,7 @@ static int WINAPI CompareItems(const MenuItemEx **el1, const MenuItemEx **el2, c
 //0x200 - автоматическая нумерация строк
 //0x400 - однократное выполнение цикла меню
 //0x800 -
-static bool menushowFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool menushowFunc(FarMacroCall* Data)
 {
 	parseParams(6,Params,Data);
 	TVar& VY(Params[5]);
@@ -3894,7 +3888,7 @@ static bool menushowFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // S=Env(S[,Mode[,Value]])
-static bool environFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool environFunc(FarMacroCall* Data)
 {
 	parseParams(3,Params,Data);
 	TVar& Value(Params[2]);
@@ -3919,7 +3913,7 @@ static bool environFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // V=Panel.Select(panelType,Action[,Mode[,Items]])
-static bool panelselectFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool panelselectFunc(FarMacroCall* Data)
 {
 	parseParams(4,Params,Data);
 	TVar& ValItems(Params[3]);
@@ -4025,25 +4019,25 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 }
 
 // N=fattr(S)
-static bool fattrFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool fattrFunc(FarMacroCall* Data)
 {
 	return _fattrFunc(0, Data);
 }
 
 // N=fexist(S)
-static bool fexistFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool fexistFunc(FarMacroCall* Data)
 {
 	return _fattrFunc(2, Data);
 }
 
 // N=panel.fattr(S)
-static bool panelfattrFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool panelfattrFunc(FarMacroCall* Data)
 {
 	return _fattrFunc(1, Data);
 }
 
 // N=panel.fexist(S)
-static bool panelfexistFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool panelfexistFunc(FarMacroCall* Data)
 {
 	return _fattrFunc(3, Data);
 }
@@ -4061,7 +4055,7 @@ static bool panelfexistFunc(const TMacroFunction*, FarMacroCall* Data)
      1 on
      2 flip
 */
-static bool flockFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool flockFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	TVar Ret(-1);
@@ -4092,7 +4086,7 @@ static bool flockFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=Dlg.SetFocus([ID])
-static bool dlgsetfocusFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool dlgsetfocusFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar Ret(-1);
@@ -4114,7 +4108,7 @@ static bool dlgsetfocusFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // V=Far.Cfg.Get(Key,Name)
-bool farcfggetFunc(const TMacroFunction*, FarMacroCall* Data)
+bool farcfggetFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	TVar& Name(Params[1]);
@@ -4127,7 +4121,7 @@ bool farcfggetFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // V=Dlg.GetValue([Pos[,InfoID]])
-static bool dlggetvalueFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool dlggetvalueFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	TVar Ret(-1);
@@ -4315,7 +4309,7 @@ static bool dlggetvalueFunc(const TMacroFunction*, FarMacroCall* Data)
 
 // N=Editor.Pos(Op,What[,Where])
 // Op: 0 - get, 1 - set
-static bool editorposFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool editorposFunc(FarMacroCall* Data)
 {
 	parseParams(3,Params,Data);
 	TVar Ret(-1);
@@ -4428,7 +4422,7 @@ static bool editorposFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // OldVar=Editor.Set(Idx,Value)
-static bool editorsetFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool editorsetFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	TVar Ret(-1);
@@ -4561,7 +4555,7 @@ static bool editorsetFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // V=Clip(N[,V])
-static bool clipFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool clipFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	TVar& Val(Params[1]);
@@ -4691,7 +4685,7 @@ static bool clipFunc(const TMacroFunction*, FarMacroCall* Data)
 // N=Panel.SetPosIdx(panelType,Idx[,InSelection])
 /*
 */
-static bool panelsetposidxFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool panelsetposidxFunc(FarMacroCall* Data)
 {
 	parseParams(3,Params,Data);
 	int InSelection=(int)Params[2].getInteger();
@@ -4814,7 +4808,7 @@ static bool panelsetposidxFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=panel.SetPath(panelType,pathName[,fileName])
-static bool panelsetpathFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool panelsetpathFunc(FarMacroCall* Data)
 {
 	parseParams(3,Params,Data);
 	TVar& ValFileName(Params[2]);
@@ -4871,7 +4865,7 @@ static bool panelsetpathFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=Panel.SetPos(panelType,fileName)
-static bool panelsetposFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool panelsetposFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	TVar& Val(Params[1]);
@@ -4927,7 +4921,7 @@ Mode:
       1 - case sensitive
 
 */
-static bool replaceFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool replaceFunc(FarMacroCall* Data)
 {
 	parseParams(5,Params,Data);
 	int Mode=(int)Params[4].getInteger();
@@ -4985,7 +4979,7 @@ static bool replaceFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // V=Panel.Item(typePanel,Index,TypeInfo)
-static bool panelitemFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool panelitemFunc(FarMacroCall* Data)
 {
 	parseParams(3,Params,Data);
 	TVar& P2(Params[2]);
@@ -5135,14 +5129,14 @@ static bool panelitemFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=len(V)
-static bool lenFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool lenFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	PassNumber(StrLength(Params[0].toString()), Data);
 	return true;
 }
 
-static bool ucaseFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool ucaseFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& Val(Params[0]);
@@ -5151,7 +5145,7 @@ static bool ucaseFunc(const TMacroFunction*, FarMacroCall* Data)
 	return true;
 }
 
-static bool lcaseFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool lcaseFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& Val(Params[0]);
@@ -5160,7 +5154,7 @@ static bool lcaseFunc(const TMacroFunction*, FarMacroCall* Data)
 	return true;
 }
 
-static bool stringFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool stringFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& Val(Params[0]);
@@ -5170,7 +5164,7 @@ static bool stringFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // S=StrPad(Src,Cnt[,Fill[,Op]])
-static bool strpadFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool strpadFunc(FarMacroCall* Data)
 {
 	string strDest;
 	parseParams(4,Params,Data);
@@ -5240,7 +5234,7 @@ static bool strpadFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // S=StrWrap(Text,Width[,Break[,Flags]])
-static bool strwrapFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool strwrapFunc(FarMacroCall* Data)
 {
 	parseParams(4,Params,Data);
 	DWORD Flags=(DWORD)Params[3].getInteger();
@@ -5261,7 +5255,7 @@ static bool strwrapFunc(const TMacroFunction*, FarMacroCall* Data)
 	return true;
 }
 
-static bool intFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool intFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& Val(Params[0]);
@@ -5270,7 +5264,7 @@ static bool intFunc(const TMacroFunction*, FarMacroCall* Data)
 	return true;
 }
 
-static bool floatFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool floatFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& Val(Params[0]);
@@ -5279,7 +5273,7 @@ static bool floatFunc(const TMacroFunction*, FarMacroCall* Data)
 	return true;
 }
 
-static bool absFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool absFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& tmpVar(Params[0]);
@@ -5291,7 +5285,7 @@ static bool absFunc(const TMacroFunction*, FarMacroCall* Data)
 	return true;
 }
 
-static bool ascFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool ascFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& tmpVar(Params[0]);
@@ -5306,7 +5300,7 @@ static bool ascFunc(const TMacroFunction*, FarMacroCall* Data)
 	return true;
 }
 
-static bool chrFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool chrFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& tmpVar(Params[0]);
@@ -5323,7 +5317,7 @@ static bool chrFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=FMatch(S,Mask)
-static bool fmatchFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool fmatchFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	TVar& Mask(Params[1]);
@@ -5338,7 +5332,7 @@ static bool fmatchFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // V=Editor.Sel(Action[,Opt])
-static bool editorselFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool editorselFunc(FarMacroCall* Data)
 {
 	/*
 	 MCODE_F_EDITOR_SEL
@@ -5390,7 +5384,7 @@ static bool editorselFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // V=Editor.Undo(Action)
-static bool editorundoFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool editorundoFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar Ret(0ll);
@@ -5408,7 +5402,7 @@ static bool editorundoFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=Editor.SetTitle([Title])
-static bool editorsettitleFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool editorsettitleFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar Ret(0ll);
@@ -5429,7 +5423,7 @@ static bool editorsettitleFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=Editor.DelLine([Line])
-static bool editordellineFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool editordellineFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar Ret(0ll);
@@ -5448,7 +5442,7 @@ static bool editordellineFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // S=Editor.GetStr([Line])
-static bool editorgetstrFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool editorgetstrFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	__int64 Ret=0;
@@ -5470,7 +5464,7 @@ static bool editorgetstrFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=Editor.InsStr([S[,Line]])
-static bool editorinsstrFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool editorinsstrFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	TVar Ret(0ll);
@@ -5496,7 +5490,7 @@ static bool editorinsstrFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=Editor.SetStr([S[,Line]])
-static bool editorsetstrFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool editorsetstrFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	TVar Ret(0ll);
@@ -5522,7 +5516,7 @@ static bool editorsetstrFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=Plugin.Exist(Guid)
-static bool pluginexistFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool pluginexistFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar Ret(0ll);
@@ -5539,7 +5533,7 @@ static bool pluginexistFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=Plugin.Load(DllPath[,ForceLoad])
-static bool pluginloadFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool pluginloadFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	TVar Ret(0ll);
@@ -5552,7 +5546,7 @@ static bool pluginloadFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // N=Plugin.UnLoad(DllPath)
-static bool pluginunloadFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool pluginunloadFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar Ret(0ll);
@@ -5580,7 +5574,7 @@ TSTFLD_EMPTY      (0) - пусто
 TSTFLD_NOTACCESS (-1) - нет доступа
 TSTFLD_ERROR     (-2) - ошибка (кривые параметры или нехватило памяти для выделения промежуточных буферов)
 */
-static bool testfolderFunc(const TMacroFunction*, FarMacroCall* Data)
+static bool testfolderFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& tmpVar(Params[0]);
@@ -5597,7 +5591,7 @@ static bool testfolderFunc(const TMacroFunction*, FarMacroCall* Data)
 }
 
 // V=akey(Mode[,Type])
-bool KeyMacro::AKey (const TMacroFunction*, FarMacroCall* Data)
+bool KeyMacro::AKey (FarMacroCall* Data)
 {
 //	parseParams(2,Params,Data);
 //	int tmpType=(int)Params[1].getInteger();
@@ -5634,12 +5628,12 @@ bool KeyMacro::AKey (const TMacroFunction*, FarMacroCall* Data)
 	return false;
 }
 
-bool KeyMacro::DisableHistory (const TMacroFunction*, FarMacroCall* Data)
+bool KeyMacro::DisableHistory (FarMacroCall* Data)
 {
 	return false;
 }
 
-bool KeyMacro::MMode (const TMacroFunction*, FarMacroCall* Data)
+bool KeyMacro::MMode (FarMacroCall* Data)
 {
 	return false;
 }

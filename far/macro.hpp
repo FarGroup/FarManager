@@ -127,22 +127,9 @@ struct MacroPanelSelect {
 	int     Mode;
 };
 
-struct TMacroFunction;
-typedef bool (*INTMACROFUNC)(const TMacroFunction*, FarMacroCall*);
-
 enum INTMF_FLAGS{
 	IMFF_UNLOCKSCREEN               =0x00000001,
 	IMFF_DISABLEINTINPUT            =0x00000002,
-};
-
-struct TMacroFunction
-{
-	const wchar_t *Name;             // имя функции
-	const wchar_t *fnGUID;           // GUID обработчика функции
-	const wchar_t *Syntax;           // Синтаксис функции
-	INTMACROFUNC Func;               // функция
-	DWORD IntFlags;                  // флаги из INTMF_FLAGS (в основном отвечающие "как вызывать функцию")
-	int Code;                        // байткод функции
 };
 
 class MacroRecord
@@ -221,9 +208,9 @@ class KeyMacro
 		BOOL CheckAll(UINT64 CurFlags);
 
 	private:
-		bool AKey (const TMacroFunction*, FarMacroCall* Data);
-		bool DisableHistory (const TMacroFunction*, FarMacroCall* Data);
-		bool MMode (const TMacroFunction*, FarMacroCall* Data);
+		bool AKey (FarMacroCall* Data);
+		bool DisableHistory (FarMacroCall* Data);
+		bool MMode (FarMacroCall* Data);
 
 	public:
 		KeyMacro();
