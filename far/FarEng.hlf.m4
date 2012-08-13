@@ -1444,11 +1444,24 @@ $ #Menus: options menu#
 
    #Command line settings# Shows ~command line settings~@CmdlineSettings@ dialog.
 
+   #AutoComplete settings# Shows ~auto complete settings~@AutoCompleteSettings@.
+   
+   #Настройки#            Вызывает диалог 
+   #информационной#       ~настроек информационной панели~@VMenuSettings@.
+   #панели#
+
+
    #Languages#             Select main and help language.
                          Use "Save setup" to save selected languages.
 
    #Plugins#               Configure ~plugins~@Plugins@.
    #configuration#
+
+   #Plugin manager#        Shows ~plugin manager settings~@PluginsManagerSettings@.
+   #settings#
+
+   #File group mask#       Shows ~file group mask settings~@MaskGroupsSettings@.
+   #settings#
 
    #Confirmation#          Switch on or off ~confirmations~@ConfirmDlg@ for
                          some operations.
@@ -1464,6 +1477,9 @@ $ #Menus: options menu#
    #Viewer settings#       External and internal ~viewer settings~@ViewerSettings@.
 
    #Editor settings#       External and internal ~editor settings~@EditorSettings@.
+
+   #Codepages#             Shows ~codepages menu~@CodePagesMenu@
+
 
    #Colors#                Allows to select colors for different
                          interface items, to change the entire Far
