@@ -161,7 +161,7 @@ public:
 	operator int() const {return GetInt() % 3;}
 	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, int Default);
 	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName);
-	virtual const string toString(){ int v = Get(); return v ? (v == 1 ? L"Yes" : L"Any") : L"No"; }
+	virtual const string toString(){ int v = Get(); return v ? (v == 1 ? L"True" : L"Other") : L"False"; }
 private:
 	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(KeyName, ValueName, static_cast<int>(reinterpret_cast<intptr_t>(Default)));}
 };
