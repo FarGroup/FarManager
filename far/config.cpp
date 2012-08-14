@@ -1772,7 +1772,7 @@ bool Bool3Option::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName,
 {
 	int CfgValue = Default;
 	bool Result = GeneralCfg->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
-	Set(CfgValue != 0);
+	Set(CfgValue);
 	return Result;
 }
 
