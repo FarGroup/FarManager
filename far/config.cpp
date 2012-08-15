@@ -1532,10 +1532,10 @@ void FillListItem(FarListItem& Item, FormatString& fs, FARConfig& cfg)
 			wchar_t w1 = static_cast<wchar_t>(v);
 			wchar_t w2 = static_cast<wchar_t>(v >> 16);
 			fs << L" = 0x" << fmt::MaxWidth(8) << fmt::Radix(16) << v;
-			if (w1 && 0 == (w1 & 0x8000))
+			if (w1 > 0x001f && w1 < 0x8000)
 			{
 				fs << L" = '" << w1;
-				if (w2 && 0 == (w2 & 0x8000)) fs << w2;
+				if (w2 > 0x001f && w2 < 0x8000) fs << w2;
 				fs << L"'";
 			}
 		}
