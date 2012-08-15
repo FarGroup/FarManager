@@ -147,6 +147,25 @@ private:
 
 };
 
+class Bool3Option:public Option
+{
+public:
+	Bool3Option():Option(0){}
+	Bool3Option(const int& Value):Option(Value % 3){}
+	const int Get() const {return GetInt() % 3;}
+	Bool3Option& operator=(int Value){Set(Value % 3); return *this;}
+	Bool3Option& operator--(){Set((GetInt()+2) % 3); return *this;}
+	Bool3Option& operator++(){Set((GetInt()+1) % 3); return *this;}
+	Bool3Option operator--(int){int Current = GetInt() % 3; Set((Current+2) % 3); return Current;}
+	Bool3Option operator++(int){int Current = GetInt() % 3; Set((Current+1) % 3); return Current;}
+	operator int() const {return GetInt() % 3;}
+	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, int Default);
+	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName);
+	virtual const string toString(){ int v = Get(); return v ? (v == 1 ? L"True" : L"Other") : L"False"; }
+private:
+	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(KeyName, ValueName, static_cast<int>(reinterpret_cast<intptr_t>(Default)));}
+};
+
 class IntOption:public Option
 {
 public:
@@ -215,15 +234,15 @@ struct AutoCompleteOptions
 	BoolOption ModalList;
 	BoolOption AppendCompletion;
 
-	IntOption UseFilesystem;
-	IntOption UseHistory;
-	IntOption UsePath;
+	Bool3Option UseFilesystem;
+	Bool3Option UseHistory;
+	Bool3Option UsePath;
 };
 
 
 struct PluginConfirmation
 {
-	IntOption OpenFilePlugin;
+	Bool3Option OpenFilePlugin;
 	BoolOption StandardAssociation;
 	BoolOption EvenIfOnlyOnePlugin;
 	BoolOption SetFindList;
@@ -302,8 +321,8 @@ struct EditorOptions
 	BoolOption CursorBeyondEOL;
 	BoolOption BSLikeDel;
 	IntOption CharCodeBase;
-	IntOption SavePos;
-	IntOption SaveShortPos;
+	BoolOption SavePos;
+	BoolOption SaveShortPos;
 	BoolOption F7Rules; // $ 28.11.2000 SVS - Правило на счет поиска в редакторе
 	BoolOption AllowEmptySpaceAfterEof; // $ 21.06.2005 SKV - разрешить показывать пустое пространство после последней строки редактируемого файла.
 	IntOption ReadOnlyLock; // $ 29.11.2000 SVS - лочить файл при открытии в редакторе, если он имеет атрибуты R|S|H
@@ -318,7 +337,7 @@ struct EditorOptions
 	BoolOption SearchSelFound;
 	BoolOption SearchRegexp;
 	BoolOption SearchPickUpWord;
-	IntOption ShowWhiteSpace;
+	Bool3Option ShowWhiteSpace;
 
 	StringOption strWordDiv;
 
@@ -755,7 +774,7 @@ struct Options
 
 	BoolOption ClearType;
 
-	IntOption PgUpChangeDisk;
+	Bool3Option PgUpChangeDisk;
 	BoolOption ShowDotsInRoot;
 	BoolOption ShowCheckingFile;
 	BoolOption CloseCDGate;       // автомонтирование CD

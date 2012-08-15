@@ -85,6 +85,33 @@ struct EditFieldIntBinding: public DialogItemBinding<DialogItemEx>
 };
 
 template<class T>
+struct EditFieldHexBinding: public DialogItemBinding<DialogItemEx>
+{
+	T *IntValue;
+	wchar_t Mask[1+16+1];
+
+	EditFieldHexBinding(T *aIntValue, int Width) : IntValue(aIntValue)
+	{
+		int MaskWidth = Min(static_cast<int>(ARRAYSIZE(Mask)-1), Width);
+		for(int i=0; i<MaskWidth; i++)
+			Mask[i] = L'H';
+		Mask[MaskWidth] = L'\0';
+		Mask[0] = L'x';
+	}
+
+	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex)
+	{
+		wchar_t *endptr;
+		*IntValue = wcstoul(Item->strData.CPtr()+1, &endptr, 16);
+	}
+
+	const wchar_t *GetMask()
+	{
+		return Mask;
+	}
+};
+
+template<class T>
 struct FarCheckBoxIntBinding: public DialogItemBinding<DialogItemEx>
 {
 private:
@@ -107,6 +134,21 @@ public:
 			else
 				Value &= ~Mask;
 		}
+	}
+};
+
+template<class T>
+struct FarCheckBoxBool3Binding: public DialogItemBinding<DialogItemEx>
+{
+private:
+	T& Value;
+
+public:
+	FarCheckBoxBool3Binding(T& aValue) : Value(aValue) { }
+
+	virtual void SaveValue(DialogItemEx *Item, int RadioGroupIndex)
+	{
+		Value = Item->Selected;
 	}
 };
 
@@ -215,6 +257,11 @@ DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(BOOL* Valu
 DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(IntOption& Value, int Mask)
 {
 	return new FarCheckBoxIntBinding<IntOption>(Value, Mask);
+}
+
+DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(Bool3Option& Value)
+{
+	return new FarCheckBoxBool3Binding<Bool3Option>(Value);
 }
 
 DialogItemBinding<DialogItemEx> *DialogBuilder::CreateCheckBoxBinding(BoolOption& Value)
@@ -331,6 +378,20 @@ DialogItemEx *DialogBuilder::AddIntEditField(IntOption& Value, int Width)
 	return Item;
 }
 
+DialogItemEx *DialogBuilder::AddHexEditField(IntOption& Value, int Width)
+{
+	DialogItemEx *Item = AddDialogItem(DI_FIXEDIT, L"");
+	Item->strData = FormatString() << L'x' << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << Value.Get();
+	SetNextY(Item);
+	Item->X2 = Item->X1 + Width - 1;
+
+	auto *Binding = new EditFieldHexBinding<IntOption>(&Value, Width);
+	SetLastItemBinding(Binding);
+	Item->Flags |= DIF_MASKEDIT;
+	Item->strMask = Binding->GetMask();
+	return Item;
+}
+
 DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
 										 DialogBuilderListItem *Items, size_t ItemCount,
 										 FARDIALOGITEMFLAGS Flags)
@@ -381,6 +442,16 @@ DialogItemEx *DialogBuilder::AddComboBox(IntOption& Value, int Width,
 	return Item;
 }
 
+DialogItemEx *DialogBuilder::AddCheckbox(int TextMessageId, Bool3Option& Value)
+{
+	DialogItemEx *Item = AddDialogItem(DI_CHECKBOX, GetLangString(TextMessageId));
+	Item->Flags |= DIF_3STATE;
+	SetNextY(Item);
+	Item->X2 = Item->X1 + ItemWidth(*Item);
+	Item->Selected = Value;
+	SetLastItemBinding(CreateCheckBoxBinding(Value));
+	return Item;
+}
 
 DialogItemEx *DialogBuilder::AddCheckbox(int TextMessageId, IntOption& Value, int Mask, bool ThreeState)
 {

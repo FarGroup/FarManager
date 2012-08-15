@@ -62,6 +62,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 
 		virtual DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL* Value, int Mask);
 		DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(IntOption &Value, int Mask);
+		DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(Bool3Option& Value);
 		DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BoolOption& Value);
 		virtual DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(int *Value);
 		DialogItemBinding<DialogItemEx> *CreateRadioButtonBinding(IntOption& Value);
@@ -85,6 +86,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
 		virtual DialogItemEx *AddIntEditField(int *Value, int Width);
 		virtual DialogItemEx *AddIntEditField(IntOption& Value, int Width);
+		virtual DialogItemEx *AddHexEditField(IntOption& Value, int Width);
 
 		// Добавляет выпадающий список с указанными значениями.
 		DialogItemEx *AddComboBox(int *Value, int Width, DialogBuilderListItem *Items, size_t ItemCount, FARDIALOGITEMFLAGS Flags = DIF_NONE);
@@ -95,6 +97,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 			return DialogBuilderBase<DialogItemEx>::AddCheckbox(TextMessageId, Value, Mask, ThreeState);
 		}
 		DialogItemEx *AddCheckbox(int TextMessageId, IntOption& Value, int Mask=0, bool ThreeState=false);
+		DialogItemEx *AddCheckbox(int TextMessageId, Bool3Option& Value);
 		DialogItemEx *AddCheckbox(int TextMessageId, BoolOption& Value);
 		DialogItemEx *AddCheckbox(const wchar_t* Caption, BoolOption& Value);
 

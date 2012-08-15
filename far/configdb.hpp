@@ -64,6 +64,7 @@ public:
 	enum OptionType
 	{
 		TYPE_BOOLEAN,
+		TYPE_BOOLEAN3,
 		TYPE_INTEGER,
 		TYPE_STRING,
 		TYPE_LAST = TYPE_STRING,

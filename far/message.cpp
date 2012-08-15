@@ -255,10 +255,8 @@ int Message(
 	{
 		LastError = GetLastError();
 		NtStatus = ifn.RtlGetLastNtStatus();
-	}
-
-	if (IsErrorType)
 		ErrorSets = GetErrorString(strErrStr);
+	}
 
 #if 1 // try to replace inserts
 	if (Items && 0 != (Flags & MSG_INSERT_STRINGS))
@@ -337,7 +335,7 @@ int Message(
 			MaxLength=Length;
 	}
 
-	// учтем так же размер заголовка
+	// учтем размер заголовка
 	if (Title && *Title)
 	{
 		I=(DWORD)StrLength(Title)+2;
@@ -348,9 +346,8 @@ int Message(
 		strClipText.Append(Title).Append(L"\r\n\r\n");
 	}
 
-	// певая коррекция максимального размера
-	if (MaxLength > MAX_WIDTH_MESSAGE)
-		MaxLength=MAX_WIDTH_MESSAGE;
+	// первая коррекция максимального размера
+	MaxLength = Min(MaxLength, MAX_WIDTH_MESSAGE);
 
 	// теперь обработаем MSG_ERRORTYPE
 	DWORD CountErrorLine=0;
@@ -383,11 +380,10 @@ int Message(
 		MaxLength = Max(MaxLength, LenErrStr);
 
 		// а теперь проврапим
-		//PtrStr=FarFormatText(ErrStr,MaxLength-(MaxLength > MAX_WIDTH_MESSAGE/2?1:0),ErrStr,sizeof(ErrStr),"\n",0); //?? MaxLength ??
 		FarFormatText(strErrStr,LenErrStr,strErrStr,L"\n",0); //?? MaxLength ??
 		PtrStr = strErrStr.GetBuffer();
 
-		//BUGBUG: string не преднозначен для хранения строк разделённых \0
+		//BUGBUG: string не предназначен для хранения строк разделённых \0
 		while ((PtrStr=wcschr(PtrStr,L'\n')) )
 		{
 			*PtrStr++=0;

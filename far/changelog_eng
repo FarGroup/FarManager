@@ -3,6 +3,58 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+w17 31.07.2012 13:43:58 +0400 - build 2784
+
+1. FileList fix
+   Initializing all members, correcting the numbers of selected items on update.
+
+w17 30.07.2012 22:12:25 +0400 - build 2783
+
+1. VMENU_WRAPMODE is used again for DI_LISTBOX
+   If the flag is present then wrap-stop, else wrap-none :)
+
+w17 29.07.2012 13:54:09 +0400 - build 2782
+
+1. M#2139: inconsistent error message when trying to create a file with same name as existing directory
+
+w17 28.07.2012 22:39:24 +0400 - build 2781
+
+1. 2754 again
+
+w17 28.07.2012 19:35:45 +0400 - build 2780
+
+1. another correction for 2766
+
+w17 25.07.2012 17:59:51 +0400 - build 2779
+
+1. M#2138 Shift-F1 does not work for archiver change
+
+w17 25.07.2012 15:52:30 +0400 - build 2778
+
+1. more of 2766 - not all checks were switched off
+
+w17 25.07.2012 14:31:47 +0400 - build 2777
+
+1. correction of wrap-stop for 'custom' with DN_GETVALUE.
+
+w17 25.07.2012 13:20:38 +0400 - build 2776
+
+1. once more, correction of 2754
+
+w17 25.07.2012 12:56:49 +0400 - build 2775
+
+1. continuation of 2766
+   VMENU_WRAPMODE is ignored - all lists (custom with DN_GETVALUE too) are in 'wrap-stop' mode.
+   if there is no objections, VMENU_WRAPMODE is pending for full removal.
+
+w17 25.07.2012 00:57:48 +0400 - build 2774
+
+1. M#0002137: VCTL_GETINFO returns true even if there's no viewers opened
+
+w17 24.07.2012 12:36:10 +0400 - build 2773
+
+1. keyboard.cpp - removed useless(?) piece of code
+
 w17 23.07.2012 13:36:10 +0400 - build 2772
 
 1. Launcher and Opt.Clock

@@ -744,14 +744,17 @@ BOOL apiMoveFileEx(
 	BOOL Result = MoveFileEx(strFrom, strTo, dwFlags);
 	if(!Result)
 	{
-		DWORD f = apiGetFileAttributes(strFrom);
-		DWORD t = apiGetFileAttributes(strTo);
+		if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
+		{
+			// exclude fake elevation request for: move file over existing directory with same name
+			DWORD f = apiGetFileAttributes(strFrom);
+			DWORD t = apiGetFileAttributes(strTo);
 
-		if (f!=INVALID_FILE_ATTRIBUTES && t!=INVALID_FILE_ATTRIBUTES && 0==(f & FILE_ATTRIBUTE_DIRECTORY) && 0!=(t & FILE_ATTRIBUTE_DIRECTORY))
-			SetLastError(ERROR_FILE_EXISTS);
-
-		else if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
-			Result = Elevation.fMoveFileEx(strFrom, strTo, dwFlags);
+			if (f!=INVALID_FILE_ATTRIBUTES && t!=INVALID_FILE_ATTRIBUTES && 0==(f & FILE_ATTRIBUTE_DIRECTORY) && 0!=(t & FILE_ATTRIBUTE_DIRECTORY))
+				SetLastError(ERROR_FILE_EXISTS); // existing directory name == moved file name
+			else
+				Result = Elevation.fMoveFileEx(strFrom, strTo, dwFlags);
+		}
 	}
 	return Result;
 }

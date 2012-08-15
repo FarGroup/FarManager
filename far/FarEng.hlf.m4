@@ -3,6 +3,13 @@
 .Options CtrlColorChar=\
 .Options CtrlStartPosChar=^<wrap>
 
+@ConfirmationsSettings=ConfirmDlg
+@InterfaceSettings=InterfSettings
+@ScreenSettings=InterfSettings
+@DescriptionsSettings=FileDiz
+@CodepagesSettings=CodepagesMenu
+@Interface.CompletionSettings=AutoCompleteSettings
+
 @Contents
 $^#File and archive manager#
 `$^#'FULLVERSIONNOBRACES`#'
@@ -185,7 +192,7 @@ user profile folder (#%APPDATA%\\Far Manager\\Profile# by default).
   #/ma#
   Macros with the "Run after Far start" option set will not be run when Far is started.
 
-  #/s <path>#
+  #/s <path> [<localpath>]#
   Custom location for Far configuration files - overrides Far.exe.ini.
 
   #/u <username>#
@@ -211,12 +218,13 @@ in the input stream until you press Ctrl-Break.
   Disable exception handling. This option has been designed for plugin developers,
 and it is not recommended to specify it during normal operation.
 
-  #/clearcache [profilepath]#
+  #/clearcache [profilepath [localprofilepath]]#
   Очистить кэш плагинов и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
+Параметр localprofilepath перекрывает значение UserLocalProfileDir из Far.exe.ini.
 
-  #/export <out.farconfig> [profilepath]#
+  #/export <out.farconfig> [profilepath [localprofilepath]]#
   Экспортировать все настройки в файл out.farconfig и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
@@ -225,6 +233,7 @@ and it is not recommended to specify it during normal operation.
   Импортировать все настройки из файла in.farconfig и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.
 Параметр profilepath перекрывает значение UserProfileDir из Far.exe.ini.
+Параметр localprofilepath перекрывает значение UserLocalProfileDir из Far.exe.ini.
 
   #/ro#
   Работа без сохранения изменений в базах настроек. Этот режим позволяет работать
@@ -1435,11 +1444,24 @@ $ #Menus: options menu#
 
    #Command line settings# Shows ~command line settings~@CmdlineSettings@ dialog.
 
+   #AutoComplete settings# Shows ~auto complete settings~@AutoCompleteSettings@.
+   
+   #Настройки#            Вызывает диалог 
+   #информационной#       ~настроек информационной панели~@VMenuSettings@.
+   #панели#
+
+
    #Languages#             Select main and help language.
                          Use "Save setup" to save selected languages.
 
    #Plugins#               Configure ~plugins~@Plugins@.
    #configuration#
+
+   #Plugin manager#        Shows ~plugin manager settings~@PluginsManagerSettings@.
+   #settings#
+
+   #File group mask#       Shows ~file group mask settings~@MaskGroupsSettings@.
+   #settings#
 
    #Confirmation#          Switch on or off ~confirmations~@ConfirmDlg@ for
                          some operations.
@@ -1455,6 +1477,9 @@ $ #Menus: options menu#
    #Viewer settings#       External and internal ~viewer settings~@ViewerSettings@.
 
    #Editor settings#       External and internal ~editor settings~@EditorSettings@.
+
+   #Codepages#             Shows ~codepages menu~@CodePagesMenu@
+
 
    #Colors#                Allows to select colors for different
                          interface items, to change the entire Far
@@ -2551,6 +2576,11 @@ $ #Settings dialog: AutoComplete#
   #Подставлять первый подходящий вариант#
   По мере ввода строка будет дополняться первым подходящим значением.
 
+  Кроме того есть три параметра, для управления тем, что используется для построения списка автозавершения:
+#Interface.Completion.UseFilesystem#, #Interface.Completion.UseHistory# и #Interface.Completion.UsePath#.
+Все параметры могут принимаеть 3 состояния - да, нет, только в ручном режиме (после #Ctrl-Space#).
+Управлять этими параметрами можно через ~far:config~@FarConfig@
+
 
 @CommandPrompt
 $ #Command line prompt format#
@@ -2903,11 +2933,35 @@ $ #Редактор: меню с результатами поиска всех 
 $ #Editor: Open/Create file#
     With #Shift-F4#, one can open the existing file or create a new file.
 
-    According to ~editor settings~@EditorSettings@, newly created file
-is assigned to OEM or ANSI codepage. You can change the codepage with #Shift-F8#.
+    Если файл с заданным именем не найден, то создаётся новый.
+По умолчанию используется кодовая страница ANSI или OEM
+(в зависимости от ~настроек редактора~@EditorSettings@).
+При необходимости из #списка# можно выбрать другую кодовую страницу.
 
-    For existing file, changing the codepage has sense if it hasn't been
-correctly detected at open.
+    При открытии существующего файла кодовая страница выбирается
+по ряду правил (см. Примечания).
+При необходимости требуемую кодовую страницу можно задать явно, выбрав её из #списка#.
+Там же доступно и "~Автоматическое определение~@CodePageAuto@".
+
+    Примечания.
+
+    Если при открытии существующего файла не задавать кодовую страницу явно (активен пункт "По умолчанию"),
+то кодовая страница будет выбрана исходя из следующих правил:
+
+    1) Если файл открывался ранее, то возможно для него уже сохранена информация о
+кодовой странице (зависит от состояния параметра "[x] Сохранять позицию файла"
+в ~настройках редактора~@EditorSettings@).
+В этом случае используется запомненная ранее кодовая страница.
+
+    2) Если запомненной кодовой страницы нет, то файл проверяется на
+юникодность по наличию Byte Order Mark. Таким образом могут быть определены
+страницы UTF-8, UTF-16 (Little endian), UTF-16 (big endian).
+
+    3) Если BOM отсутствует, то будет произведена попытка определить определить кодовую
+страницу ~автоматически~@CodePageAuto@.
+
+    4) Если автоматическое определение кодовой страницы отключено,
+то используется ANSI или OEM (в зависимости от ~настроек редактора~@EditorSettings@).
 
 
 @FileSaveAs
@@ -3022,6 +3076,10 @@ $ #Code pages menu#
 
     The menu has two modes: full mode with visible #Other# section and brief
 mode with hidden #Other# section. The modes can be switched by pressing #Ctrl-H#.
+
+    Current menu mode state corresponds to ~far:config~@FarConfig@ parameter #Codepages.CPMenuMode#.
+It can alter the way of ~codepage autodetect~@CodePageAuto@ in builtin Editor/Viewer.
+See also ~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@ parameter.
 
     #Ins# keypress moves codepage from #Other# to #Favorites#, #Del# moves the
 codepage back. Клавиша #F4# позволяет изменять отображаемые
@@ -3307,8 +3365,8 @@ $ #Settings dialog: viewer#
   #Search dialog#           Always returns focus to search text field in
   #auto-focus#              the ~Viewer~@Viewer@ search dialog.
 
-  #Visible '\0'#            Shows visible character (configurable) instead of space
-                          for '\0' character.
+  #Visible '\0'#            Shows visible character instead of space for '\0' character.
+                          Character can be set in ~far:config~@FarConfig@ #Viewer.ZeroChar#
 
   #Tab size#                Number of spaces in a tab character.
 
@@ -3319,7 +3377,7 @@ $ #Settings dialog: viewer#
   #Maximum line width#      Maximum number of columns for text mode viewer.
                           Min=100, Max=100000, Default=10000.
 
-  #Auto detect#             ~Auto detect~@CodePage@ the code page of
+  #Auto detect#             ~Auto detect~@CodePageAuto@ the code page of
   #code page#               the file being viewed.
 
   #Use ANSI code page#      Use ANSI code page for viewing files,
@@ -3403,7 +3461,7 @@ $ #Settings dialog: editor#
                           поиска будет подставляться слово, на
                           котором стоит курсор.
 
-  #Auto detect#             ~Auto detect~@CodePage@ the code page of
+  #Auto detect#             ~Auto detect~@CodePageAuto@ the code page of
   #code page#               the file being edited.
 
   #Edit files opened#       Allows to edit files that are opened
@@ -3439,11 +3497,13 @@ by pressing #Alt-Shift-F9#. The changes will come into force immediately but
 will affect only the current session.
 
 
-@CodePage
+@CodePageAuto
 $ #Auto detect code pages#
     Far will try to choose the correct code page for viewing/editing a file.
 Note that correct detection is not guaranteed, especially for small or
 non-typical text files.
+
+    See also ~codepages~@CodePagesMenu@ and ~far:config Codepages.NoAutoDetectCP~@Codepages.NoAutoDetectCP@
 
 
 @FileAttrDlg
@@ -4936,6 +4996,58 @@ $ #Макросы: Автодополнение в диалогах#
 <!Macro:Dialog.AutoCompletion!>
 
     См. так же ~«Список установленных макросов»~@KeyMacroList@
+
+
+@FarConfig
+$ #Глобальный конфигуратор#
+    Запускается из командной строки #far:config#
+
+    Позволяет посмотреть и изменить все настройки Far Manager.
+    Большинство параметров можно задать в соответсвующих разделах настроек farmanager (F9 ...),
+но некоторые настраиваются только здесь или через импорт конфигурации. Параметры показаны в виде единого списка,
+состоящего из 3-х полей: имя=SectionName.ParamName (например Editor.TabSize), тип параметра (boolean, 3-state, integer, string)
+и значение параметра (для типа integer показываются десятичное и шестнадцатиричное представления и возможно символьный эквивалент).
+Если значение параметра отличается от умолчательного он помечается символом '*' слева от имени.
+
+    Кроме клавиш перемещения по списку работают следующие комбинации:
+
+    #Enter# или #F4#  изменить значение параметра,
+                  boolean и 3-state на месте,
+                  для integer и string вызывается диалог
+
+    #Shift-F4#      Если тип integer вызывается диалог ввода шестнадцатиричного числа,
+                  всё прочее как для F4
+    #Ctrl-H#        Скрыть/показать неизменённые (равные умолчательным) параметры
+
+    #Shift-F1#      Показать описание параметра, если оно есть.
+                  Пытаемся открыть следующие разделы помощи:
+                  #SectionName.ParamName# затем #SectionNameSettings#
+
+    #Ctrl-Alt-F#    Включить/Выключить режим фильтрации
+
+
+@Codepages.NoAutoDetectCP
+$ #far:config Codepages.NoAutoDetectCP#
+    Это строка, при помощи которой можно задать кодовые страницы, которые будут исключены
+из автоопределения кодовой страницы UCD (Universal Codepage Detector). Иногда (особенно на
+небольших файлах) UCD назойливо выбирает неподходящие кодовые страницы.
+
+    Умолчательное значение это пустая строка #""#, в этом случае все кодовые страницы которые
+может выдать UCD (около двух десятков - гораздо меньше чем может быть установлено на компьютере)
+разрешены.
+
+    Если параметр равен строке #"-1"#, то в зависимости от того включён или нет показ
+только 'любимых' (favorites) кодовых страниц (#Ctrl-H# в ~меню кодовых страниц~@CodePagesMenu@),
+будут разрешены только стандартные (ANSI, OEM, Unicode) и любимые, либо все.
+
+    В противном случае параметр должен быть списком запрещённых номеров кодовых страниц.
+Например "1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598".
+
+    Юникодные кодовые страницы (1200, 1201, 65001) проверяются отдельно от UCD, поэтому не могут быть
+отключены, даже если они есть в списке исключения.
+
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
+
 
 @Index
 $ #Index help file#

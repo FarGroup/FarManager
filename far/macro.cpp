@@ -9280,13 +9280,13 @@ static bool editorsetFunc(const TMacroFunction*)
 				case 7:  // CursorBeyondEOL;
 					EdOpt.CursorBeyondEOL=longState != 0; break;
 				case 8:  // BSLikeDel;
-					EdOpt.BSLikeDel=longState != 0; break;
+					EdOpt.BSLikeDel=(longState != 0); break;
 				case 9:  // CharCodeBase;
 					EdOpt.CharCodeBase=longState; break;
 				case 10: // SavePos;
-					EdOpt.SavePos=longState; break;
+					EdOpt.SavePos=(longState != 0); break;
 				case 11: // SaveShortPos;
-					EdOpt.SaveShortPos=longState; break;
+					EdOpt.SaveShortPos=(longState != 0); break;
 				case 12: // char WordDiv[256];
 					EdOpt.strWordDiv = Value.toString(); break;
 				case 13: // F7Rules;
