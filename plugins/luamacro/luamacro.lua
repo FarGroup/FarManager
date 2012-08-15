@@ -40,7 +40,7 @@ function export.GetPluginInfo()
 end
 
 local function MacroInit (args)
-  local Text, AKey, Flags = args[1], args[2], args[3]
+  local Text, AKey = args[1], args[2]
   if Text and Text.Type==F.FMVT_STRING then
     Text = Text.Value
     local chunk, msg
@@ -55,7 +55,6 @@ local function MacroInit (args)
       setfenv(chunk, env)
       local macro = { coro=co_create(chunk), step=0 }
       if AKey and AKey.Type==F.FMVT_STRING then env.AKey = AKey.Value end
-      if Flags and Flags.Type==F.FMVT_INTEGER then env.Flags = Flags.Value end
       table.insert(macros, macro)
       return #macros
     else
@@ -83,7 +82,7 @@ local function MacroStep (handle)
         ErrMsg(ret)
       end
     else
-      ErrMsg("Step: step called on finished macro")
+      ErrMsg("Step: called on macro in "..status.." status")
     end
   else
     -- Far debug only: should not be here

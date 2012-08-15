@@ -524,11 +524,26 @@ FARKEYMACROFLAGS StringToFlags(const string& strFlags)
 	return StringToFlags(strFlags, MKeywordsFlags);
 }
 
-MacroRecord::MacroRecord(): m_area(MACRO_COMMON),m_flags(0),m_guid(FarGuid),m_id(nullptr),m_callback(nullptr)
+MacroRecord::MacroRecord():
+	m_area(MACRO_COMMON),
+	m_flags(0),
+	m_key(-1),
+	m_guid(FarGuid),
+	m_id(nullptr),
+	m_callback(nullptr)
 {
 }
 
-MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,string Name,string Code,string Description): m_area(Area),m_flags(Flags),m_name(Name),m_code(Code),m_description(Description),m_guid(FarGuid),m_id(nullptr),m_callback(nullptr)
+MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int Key,string Name,string Code,string Description):
+	m_area(Area),
+	m_flags(Flags),
+	m_key(Key),
+	m_name(Name),
+	m_code(Code),
+	m_description(Description),
+	m_guid(FarGuid),
+	m_id(nullptr),
+	m_callback(nullptr)
 {
 }
 
@@ -538,6 +553,7 @@ MacroRecord& MacroRecord::operator= (const MacroRecord& src)
 	{
 		m_area = src.m_area;
 		m_flags = src.m_flags;
+		m_key = src.m_key;
 		m_name = src.m_name;
 		m_code = src.m_code;
 		m_description = src.m_description;
@@ -548,7 +564,11 @@ MacroRecord& MacroRecord::operator= (const MacroRecord& src)
 	return *this;
 }
 
-KeyMacro::KeyMacro(): m_Mode(MACRO_SHELL),m_Recording(MACROMODE_NOMACRO),m_RecMode(MACRO_OTHER),m_LockScr(nullptr)
+KeyMacro::KeyMacro():
+	m_Mode(MACRO_SHELL),
+	m_Recording(MACROMODE_NOMACRO),
+	m_RecMode(MACRO_OTHER),
+	m_LockScr(nullptr)
 {
 	//print_opcodes();
 	m_State.Push(nullptr);
@@ -631,7 +651,7 @@ bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 	for (int ii=MACRO_OTHER;ii<MACRO_LAST;++ii)
 	{
 		if (Areas[ii]==MACRO_LAST) continue;
-		if (!ReadMacro((MACROMODEAREA)ii))
+		if (!ReadKeyMacro((MACROMODEAREA)ii))
 		{
 			ErrCount++;
 		}
@@ -691,7 +711,7 @@ bool KeyMacro::InitMacroExecution(MacroRecord* macro)
 	void* handle=CallPlugin(OPEN_MACROINIT,&info);
 	if (handle)
 	{
-		//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"handle: %p\n",handle); fclose(log);}}
+		//SZLOG("handle: %p\n",handle);
 		m_RunState = RunState(handle,macro->m_flags);
 		*m_State.Peek()=m_RunState;
 		m_LastKey = L"first_key";
@@ -705,12 +725,12 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 	if (Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !FrameManager->GetCurrentFrame()) //FIXME: избавиться от Rec->IntKey
 		return false;
 	//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"ProcessEvent: %08x\n",Rec->IntKey); fclose(log);}}
-	string key;
-	//if (InputRecordToText(&Rec->Rec,key))//FIXME: на голом Ctrl даёт код символа, а не текст.
-	if (KeyToText(Rec->IntKey,key))
+	string textKey;
+	//if (InputRecordToText(&Rec->Rec,textKey))//FIXME: на голом Ctrl даёт код символа, а не текст.
+	if (KeyToText(Rec->IntKey,textKey))
 	{
-		bool ctrldot=(0==StrCmpI(key,L"Ctrl.")||0==StrCmpI(key,L"RCtrl."));
-		bool ctrlshiftdot=(0==StrCmpI(key,L"CtrlShift.")||0==StrCmpI(key,L"RCtrlShift."));
+		bool ctrldot=(0==StrCmpI(textKey,L"Ctrl.")||0==StrCmpI(textKey,L"RCtrl."));
+		bool ctrlshiftdot=(0==StrCmpI(textKey,L"CtrlShift.")||0==StrCmpI(textKey,L"RCtrlShift."));
 
 		if (m_Recording==MACROMODE_NOMACRO)
 		{
@@ -740,8 +760,18 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			{
 				if (!*m_State.Peek())
 				{
+					int Key = Rec->IntKey;
+					if ((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
+					{
+						if ((Key&(~KEY_CTRLMASK)) > 0x7F && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN)
+							Key=KeyToKeyLayout(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+
+						if ((DWORD)Key < KEY_FKEY_BEGIN)
+							Key=Upper(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
+					}
+
 					int Area, Index;
-					Index = GetIndex(&Area,Rec->IntKey,key,m_Mode,true,true);
+					Index = GetIndex(&Area,Key,textKey,m_Mode,true,true);
 					if (Index != -1)
 					{
 						MacroRecord* macro = m_Macros[Area].getItem(Index);
@@ -795,7 +825,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 					{
 						if (!m_RecCode.IsEmpty())
 						{
-							m_Macros[StartMode].addItem(MacroRecord(StartMode,Flags,strKey,m_RecCode,m_RecDescription));
+							m_Macros[StartMode].addItem(MacroRecord(StartMode,Flags,MacroKey,strKey,m_RecCode,m_RecDescription));
 						}
 					}
 					else
@@ -833,7 +863,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				if (!IsProcessAssignMacroKey)
 				{
 					if(!m_RecCode.IsEmpty()) m_RecCode+=L" ";
-					m_RecCode+=key;
+					m_RecCode+=textKey;
 				}
 				return false;
 			}
@@ -846,11 +876,11 @@ int KeyMacro::GetKey()
 {
 	if(*m_State.Peek())
 	{
-		//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"+GetKey: %d\n",m_State.size()); fclose(log);}}
+		//SZLOG("+GetKey: %d\n",m_State.size());
 		wchar_t* key=(wchar_t*)CallPlugin(OPEN_MACROSTEP,m_State.Peek()->m_handle);
 		if (key)
 		{
-			//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"result: %ls\n\n",key); fclose(log);}}
+			//SZLOG("result: %ls\n\n",key);
 			if(key[0])
 			{
 				m_LastKey = key;
@@ -886,7 +916,7 @@ int KeyMacro::GetKey()
 
 		m_RunState=nullptr;
 		*m_State.Peek()=nullptr;
-		//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"-GetKey: %d\n",m_State.size()); fclose(log);}}
+		//SZLOG("-GetKey: %d\n",m_State.size());
 	}
 
 	if (IsExecuting()==MACROMODE_NOMACRO && !m_MacroQueue.Empty())
@@ -984,23 +1014,23 @@ bool KeyMacro::CheckWaitKeyFunc()
 // FIXME: parameter StrictKeys.
 int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool UseCommon, bool StrictKeys)
 {
-	//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"GetIndex: %08x,%ls\n",Key,strKey.CPtr()); fclose(log);}}
-	const wchar_t *pKey=strKey;
-	string sTemp;
-	if (*pKey==0 && KeyToText(Key,sTemp))
-		pKey=sTemp;
-
-	int startindex = (CheckMode==-1) ? 0:CheckMode;
-	int endindex = (CheckMode==-1) ? MACRO_LAST:CheckMode+1;
-	for (int i=startindex; i<endindex; i++)
+	// SZLOG("GetIndex: %08x,%ls\n",Key,strKey.CPtr());
+	int startArea = (CheckMode==-1) ? 0:CheckMode;
+	int endArea = (CheckMode==-1) ? MACRO_LAST:CheckMode+1;
+	for (int i=startArea; i<endArea; i++)
 	{
 		for (unsigned j=0; j<m_Macros[i].getSize(); j++)
 		{
-			MacroRecord* macro = m_Macros[i].getItem(j);
-			if (!StrCmpI(macro->Name(),pKey) && !(macro->Flags()&MFLAGS_DISABLEMACRO))
+			MacroRecord* MPtr = m_Macros[i].getItem(j);
+			bool found = (Key != -1) ?
+				!((MPtr->Key() ^ Key) & ~0xFFFF) &&
+						Upper(static_cast<WCHAR>(MPtr->Key()))==Upper(static_cast<WCHAR>(Key)) :
+				!strKey.IsEmpty() && !StrCmpI(strKey,MPtr->Name());
+
+			if (found && !(MPtr->Flags()&MFLAGS_DISABLEMACRO))
+					//&& (!MPtr->m_callback || MPtr->m_callback(MPtr->m_id,AKMFLAGS_NONE)))
 			{
-				*area = i;
-				return j;
+				*area = i; return j;
 			}
 		}
 	}
@@ -1045,7 +1075,8 @@ int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum 
 	if (!(InputRecordToText(&AKey, strKeyText) && ParseMacroString(PlainText,true)))
 		return FALSE;
 
-	MacroRecord macro(Area,Flags,strKeyText,PlainText,Description);
+	int Key=InputRecordToKey(&AKey);
+	MacroRecord macro(Area,Flags,Key,strKeyText,PlainText,Description);
 	macro.m_guid = PluginId;
 	macro.m_id = Id;
 	macro.m_callback = Callback;
@@ -1079,14 +1110,14 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool
 	{
 		string strKeyText;
 		KeyToText(AKey,strKeyText);
-		MacroRecord macro(MACRO_COMMON, Flags, strKeyText, PlainText, L"");
+		MacroRecord macro(MACRO_COMMON, Flags, AKey, strKeyText, PlainText, L"");
 		m_MacroQueue.Push(&macro);
 		return TRUE;
 	}
 	return FALSE;
 }
 
-bool KeyMacro::ReadMacro(MACROMODEAREA Area)
+bool KeyMacro::ReadKeyMacro(MACROMODEAREA Area)
 {
 	unsigned __int64 MFlags=0;
 	string strKey,strArea,strMFlags;
@@ -1129,7 +1160,8 @@ bool KeyMacro::ReadMacro(MACROMODEAREA Area)
 				MFlags|=MFLAGS_EDITNOSELECTION;
 			}
 		}
-		m_Macros[Area].addItem(MacroRecord(Area,MFlags,strKey,strSequence,strDescription));
+		int Key=KeyNameToKey(strKey);
+		m_Macros[Area].addItem(MacroRecord(Area,MFlags,Key,strKey,strSequence,strDescription));
 	}
 
 	return ErrorCount?false:true;

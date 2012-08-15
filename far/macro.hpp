@@ -138,6 +138,7 @@ class MacroRecord
 	private:
 		MACROMODEAREA m_area;
 		MACROFLAGS_MFLAGS m_flags;
+		int m_key;
 		string m_name;
 		string m_code;
 		string m_description;
@@ -146,11 +147,12 @@ class MacroRecord
 		FARMACROCALLBACK m_callback;
 	public:
 		MacroRecord();
-		MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,string Name,string Code,string Description);
+		MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int Key,string Name,string Code,string Description);
 		MacroRecord& operator= (const MacroRecord& src);
 	public:
 		MACROMODEAREA Area(void) {return m_area;}
 		MACROFLAGS_MFLAGS Flags(void) {return m_flags;}
+		int Key() { return m_key; }
 		const string& Code(void) {return m_code;}
 		const string& Name(void) {return m_name;}
 		const string& Description(void) {return m_description;}
@@ -190,7 +192,7 @@ class KeyMacro
 		class LockScreen* m_LockScr;
 		string m_LastKey;
 	private:
-		bool ReadMacro(MACROMODEAREA Area);
+		bool ReadKeyMacro(MACROMODEAREA Area);
 		void WriteMacro(void);
 		void* CallPlugin(unsigned Type,void* Data);
 		int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
