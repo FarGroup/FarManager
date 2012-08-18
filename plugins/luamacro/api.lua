@@ -303,6 +303,7 @@ local band,bor = bit64.band,bit64.bor
 local SendDlgMessage = far.SendDlgMessage
 local MacroCallFar = far.MacroCallFar
 
+--FIXME: function duplicated in luamacro.lua and api.lua.
 local function checkarg (arg, argnum, reftype)
   if type(arg) ~= reftype then
     error(("arg. #%d: %s expected, got %s"):format(argnum, reftype, type(arg)), 3)

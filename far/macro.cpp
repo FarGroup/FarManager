@@ -433,7 +433,7 @@ void print_opcodes()
 
 void SZLOG (const char *fmt, ...)
 {
-	FILE* log=fopen("c:\\lua.log","at");
+	FILE* log=_wfopen(L"c:\\lua.log",L"at");
 	if (log)
 	{
 		va_list argp;
@@ -530,7 +530,8 @@ MacroRecord::MacroRecord():
 	m_key(-1),
 	m_guid(FarGuid),
 	m_id(nullptr),
-	m_callback(nullptr)
+	m_callback(nullptr),
+	m_handle(nullptr)
 {
 }
 
@@ -543,7 +544,8 @@ MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int Key,stri
 	m_description(Description),
 	m_guid(FarGuid),
 	m_id(nullptr),
-	m_callback(nullptr)
+	m_callback(nullptr),
+	m_handle(nullptr)
 {
 }
 
@@ -560,7 +562,37 @@ MacroRecord& MacroRecord::operator= (const MacroRecord& src)
 		m_guid = src.m_guid;
 		m_id = src.m_id;
 		m_callback = src.m_callback;
+		m_handle = src.m_handle;
 	}
+	return *this;
+}
+
+MacroState::MacroState() :
+	Executing(0),
+	KeyProcess(0),
+	HistoryDisable(0),
+	UseInternalClipboard(false)
+{
+}
+
+MacroState& MacroState::operator= (const MacroState& src)
+{
+	cRec=src.cRec;
+	Executing=src.Executing;
+
+	//m_MacroQueue=src.m_MacroQueue; // так нельзя (нет копи-конструктора)
+	m_MacroQueue.Clear();
+	MacroState* ms = const_cast<MacroState*>(&src); // убираем варнинги
+	MacroRecord* curr = ms->m_MacroQueue.First();
+	while (curr)
+	{
+		m_MacroQueue.Push(curr);
+		curr = ms->m_MacroQueue.Next(curr);
+	}
+
+	KeyProcess=src.KeyProcess;
+	HistoryDisable=src.HistoryDisable;
+	UseInternalClipboard=src.UseInternalClipboard;
 	return *this;
 }
 
@@ -568,10 +600,10 @@ KeyMacro::KeyMacro():
 	m_Mode(MACRO_SHELL),
 	m_Recording(MACROMODE_NOMACRO),
 	m_RecMode(MACRO_OTHER),
-	m_LockScr(nullptr)
+	m_LockScr(nullptr),
+	m_PluginIsRunning(0)
 {
 	//print_opcodes();
-	m_State.Push(nullptr);
 }
 
 KeyMacro::~KeyMacro()
@@ -585,8 +617,9 @@ int KeyMacro::IsRecording()
 
 int KeyMacro::IsExecuting()
 {
-	return m_RunState ?	(m_RunState.m_flags&MFLAGS_NOSENDKEYSTOPLUGINS) ?
-		MACROMODE_EXECUTING:MACROMODE_EXECUTING_COMMON:MACROMODE_NOMACRO;
+	MacroRecord* m = GetCurMacro();
+	return m ? (m->Flags()&MFLAGS_NOSENDKEYSTOPLUGINS) ?
+		MACROMODE_EXECUTING : MACROMODE_EXECUTING_COMMON : MACROMODE_NOMACRO;
 }
 
 int KeyMacro::IsExecutingLastKey()
@@ -596,12 +629,13 @@ int KeyMacro::IsExecutingLastKey()
 
 int KeyMacro::IsDsableOutput()
 {
-	return m_RunState && (m_RunState.m_flags&MFLAGS_DISABLEOUTPUT);
+	MacroRecord* m = GetCurMacro();
+	return m && (m->Flags()&MFLAGS_DISABLEOUTPUT);
 }
 
 bool KeyMacro::IsHistoryDisable(int TypeHistory)
 {
-	return m_RunState && (m_RunState.m_HistoryDisable & (1 << TypeHistory));
+	return !m_CurState.m_MacroQueue.Empty() && (m_CurState.HistoryDisable & (1 << TypeHistory));
 }
 
 void KeyMacro::SetMode(int Mode) //FIXME: int->MACROMODEAREA
@@ -616,6 +650,7 @@ MACROMODEAREA KeyMacro::GetMode(void)
 
 bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 {
+	//SZLOG("+KeyMacro::LoadMacros");
 	int ErrCount=0;
 
 	for (int k=0; k<MACRO_LAST; k++)
@@ -689,39 +724,52 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
 
 void* KeyMacro::CallPlugin(unsigned Type,void* Data)
 {
+	//SZLOG("+KeyMacro::CallPlugin");
 	void* ptr;
-	m_State.Push(nullptr);
+	m_PluginIsRunning++;
 
 	int lockCount=ScrBuf.GetLockCount();
 	ScrBuf.SetLockCount(0);
 	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,Type,Data,&ptr);
 	ScrBuf.SetLockCount(lockCount);
 
-	RunState dummy;
-	m_State.Pop(dummy);
+	m_PluginIsRunning--;
 	return result?ptr:nullptr;
 }
 
-bool KeyMacro::InitMacroExecution(MacroRecord* macro)
+void KeyMacro::RemoveCurMacro()
 {
-	FarMacroValue values[2]={{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
-	values[0].String=macro->Code();
-	values[1].String=macro->Name();
-	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
-	void* handle=CallPlugin(OPEN_MACROINIT,&info);
-	if (handle)
+	m_CurState.RemoveCurMacro();
+	if (m_CurState.m_MacroQueue.Empty() && m_StateStack.size())
 	{
-		//SZLOG("handle: %p\n",handle);
-		m_RunState = RunState(handle,macro->m_flags);
-		*m_State.Peek()=m_RunState;
-		m_LastKey = L"first_key";
-		return true;
+		m_StateStack.Pop(m_CurState);
+	}
+}
+
+bool KeyMacro::InitMacroExecution()
+{
+	//SZLOG("+InitMacroExecution");
+	MacroRecord* macro = GetCurMacro();
+	if (macro)
+	{
+		FarMacroValue values[2]={{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
+		values[0].String=macro->Code();
+		values[1].String=macro->Name();
+		OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
+		macro->m_handle=CallPlugin(OPEN_MACROINIT,&info);
+		if (macro->m_handle)
+		{
+			m_LastKey = L"first_key";
+			return true;
+		}
+		RemoveCurMacro();
 	}
 	return false;
 }
 
 int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 {
+	//SZLOG("+KeyMacro::ProcessEvent");
 	if (Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !FrameManager->GetCurrentFrame()) //FIXME: избавиться от Rec->IntKey
 		return false;
 	//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"ProcessEvent: %08x\n",Rec->IntKey); fclose(log);}}
@@ -758,7 +806,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			}
 			else
 			{
-				if (!*m_State.Peek())
+				if (m_CurState.m_MacroQueue.Empty())
 				{
 					int Key = Rec->IntKey;
 					if ((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
@@ -777,7 +825,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 						MacroRecord* macro = m_Macros[Area].getItem(Index);
 						if (CheckAll(macro->Flags()) && (!macro->m_callback||macro->m_callback(macro->m_id,AKMFLAGS_NONE)))
 						{
-							return InitMacroExecution(macro);
+							return PostNewMacro(macro->Code(),macro->Flags(),Rec->IntKey,false);
 						}
 					}
 				}
@@ -874,10 +922,14 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 
 int KeyMacro::GetKey()
 {
-	if(*m_State.Peek())
+	//SZLOG("+KeyMacro::GetKey");
+	MacroRecord* macro = GetCurMacro();
+	if(macro && !m_PluginIsRunning)
 	{
-		//SZLOG("+GetKey: %d\n",m_State.size());
-		wchar_t* key=(wchar_t*)CallPlugin(OPEN_MACROSTEP,m_State.Peek()->m_handle);
+		if (!macro->m_handle && !InitMacroExecution())
+			return 0;
+
+		wchar_t* key=(wchar_t*)CallPlugin(OPEN_MACROSTEP,macro->m_handle);
 		if (key)
 		{
 			//SZLOG("result: %ls\n\n",key);
@@ -885,7 +937,7 @@ int KeyMacro::GetKey()
 			{
 				m_LastKey = key;
 
-				if ((m_RunState.m_flags&MFLAGS_DISABLEOUTPUT) && ScrBuf.GetLockCount()==0)
+				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && ScrBuf.GetLockCount()==0)
 					ScrBuf.Lock();
 
 				if (!wcsncmp(key, L"print:", 6))
@@ -905,28 +957,17 @@ int KeyMacro::GetKey()
 			}
 			else
 			{
-				if (CallPlugin(OPEN_MACROFINAL,m_State.Peek()->m_handle)); //FIXME: process condition.
+				if (CallPlugin(OPEN_MACROFINAL,macro->m_handle)); //FIXME: process condition.
 			}
 		}
-		if (m_RunState.m_flags & MFLAGS_DISABLEOUTPUT)
+		if (macro->Flags() & MFLAGS_DISABLEOUTPUT)
 			ScrBuf.Unlock();
 
-		if (m_State.size()==1)
+		RemoveCurMacro();
+		if (m_CurState.m_MacroQueue.Empty())
 			ScrBuf.RestoreMacroChar();
 
-		m_RunState=nullptr;
-		*m_State.Peek()=nullptr;
-		//SZLOG("-GetKey: %d\n",m_State.size());
-	}
 
-	if (IsExecuting()==MACROMODE_NOMACRO && !m_MacroQueue.Empty())
-	{
-		MacroRecord macro = *m_MacroQueue.First();
-		m_MacroQueue.Delete(m_MacroQueue.First());
-		if (InitMacroExecution(&macro))
-		{
-			return GetKey();
-		}
 	}
 
 	return 0;
@@ -999,11 +1040,11 @@ int KeyMacro::GetMacroKeyInfo(bool FromDB, int Mode, int Pos, string &strKeyName
 }
 
 void KeyMacro::SendDropProcess()
-{
+{//FIXME
 }
 
 bool KeyMacro::CheckWaitKeyFunc()
-{
+{//FIXME
 	return false;
 }
 
@@ -1014,7 +1055,7 @@ bool KeyMacro::CheckWaitKeyFunc()
 // FIXME: parameter StrictKeys.
 int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool UseCommon, bool StrictKeys)
 {
-	// SZLOG("GetIndex: %08x,%ls\n",Key,strKey.CPtr());
+	//SZLOG("GetIndex: %08x,%ls",Key,strKey.CPtr());
 	int startArea = (CheckMode==-1) ? 0:CheckMode;
 	int endArea = (CheckMode==-1) ? MACRO_LAST:CheckMode+1;
 	for (int i=startArea; i<endArea; i++)
@@ -1111,7 +1152,7 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool
 		string strKeyText;
 		KeyToText(AKey,strKeyText);
 		MacroRecord macro(MACRO_COMMON, Flags, AKey, strKeyText, PlainText, L"");
-		m_MacroQueue.Push(&macro);
+		m_CurState.m_MacroQueue.Push(&macro);
 		return TRUE;
 	}
 	return FALSE;
@@ -1561,12 +1602,13 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck)
 	values[2].String=MSG(MMacroPErrorTitle);
 	values[3].String=MSG(MOk);
 	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
-	const wchar_t* ErrMsg = (const wchar_t*)CallPlugin(OPEN_MACROPARSE,&info);
-	if (ErrMsg && !onlyCheck)
+	const wchar_t* Msg = (const wchar_t*)CallPlugin(OPEN_MACROPARSE,&info);
+	bool IsOK = Msg && !wcscmp(Msg, L"OK");
+	if (Msg && !IsOK && !onlyCheck)
 	{
 		FrameManager->RefreshFrame(); // Нужно после вывода сообщения плагином. Иначе панели не перерисовываются.
 	}
-	return !ErrMsg;
+	return IsOK;
 }
 
 bool KeyMacro::UpdateLockScreen(bool recreate)
@@ -2778,7 +2820,8 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				{
 					FarMacroValue *vParams = count>1 ? Data->Args+1:nullptr;
 					OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
-					bool CallPluginRules = m_RunState && (m_RunState.m_flags&MFLAGS_CALLPLUGINENABLEMACRO);
+					MacroRecord* macro = GetCurMacro();
+					bool CallPluginRules = macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO;
 					if( CallPluginRules) // FIXME
 					{
 						//PushState(true);
@@ -4545,13 +4588,13 @@ static bool editorsetFunc(FarMacroCall* Data)
 				case 7:  // CursorBeyondEOL;
 					EdOpt.CursorBeyondEOL=longState != 0; break;
 				case 8:  // BSLikeDel;
-					EdOpt.BSLikeDel=longState != 0; break;
+					EdOpt.BSLikeDel=(longState != 0); break;
 				case 9:  // CharCodeBase;
 					EdOpt.CharCodeBase=longState; break;
 				case 10: // SavePos;
-					EdOpt.SavePos=longState; break;
+					EdOpt.SavePos=(longState != 0); break;
 				case 11: // SaveShortPos;
-					EdOpt.SaveShortPos=longState; break;
+					EdOpt.SaveShortPos=(longState != 0); break;
 				case 12: // char WordDiv[256];
 					EdOpt.strWordDiv = Value.toString(); break;
 				case 13: // F7Rules;

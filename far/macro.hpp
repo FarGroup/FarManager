@@ -145,6 +145,7 @@ class MacroRecord
 		GUID m_guid;
 		void* m_id;
 		FARMACROCALLBACK m_callback;
+		void* m_handle;
 	public:
 		MacroRecord();
 		MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int Key,string Name,string Code,string Description);
@@ -161,29 +162,30 @@ class MacroRecord
 		void ClearSave(void) {m_flags&=~MFLAGS_NEEDSAVEMACRO;}
 };
 
-class RunState
+class MacroState
 {
 	friend class KeyMacro;
 	private:
-		void* m_handle;
-		MACROFLAGS_MFLAGS m_flags;
-		DWORD m_HistoryDisable;
+		INPUT_RECORD cRec; // "описание реально нажатой клавиши"
+		int Executing;
+		DList<MacroRecord> m_MacroQueue;
+		int KeyProcess;
+		DWORD HistoryDisable;
+		bool UseInternalClipboard;
 	public:
-		RunState() : m_handle(nullptr),m_flags(0),m_HistoryDisable(0) {}
-		RunState(void* h,MACROFLAGS_MFLAGS f=0,DWORD hd=0) : m_handle(h),m_flags(f),m_HistoryDisable(hd) {}
-		RunState(const RunState& r) : m_handle(r.m_handle),m_flags(r.m_flags),m_HistoryDisable(r.m_HistoryDisable) {}
-		RunState& operator=(const RunState& r) { m_handle=r.m_handle; m_flags=r.m_flags; m_HistoryDisable=r.m_HistoryDisable; return *this; }
-		operator bool() { return m_handle != nullptr; }
+		MacroState();
+		MacroState& operator= (const MacroState&);
+		MacroRecord* GetCurMacro() { return m_MacroQueue.Empty() ? nullptr : m_MacroQueue.First(); }
+		void RemoveCurMacro() { if (!m_MacroQueue.Empty()) m_MacroQueue.Delete(m_MacroQueue.First()); }
 };
 
 class KeyMacro
 {
 	private:
 		TArray<MacroRecord> m_Macros[MACRO_LAST];
-		DList<MacroRecord> m_MacroQueue;
 		MACROMODEAREA m_Mode;
-		TStack<RunState> m_State;
-		RunState m_RunState;
+		MacroState m_CurState;
+		TStack<MacroState> m_StateStack;
 		MACRORECORDANDEXECUTETYPE m_Recording;
 		string m_RecCode;
 		string m_RecDescription;
@@ -191,6 +193,7 @@ class KeyMacro
 		MACROMODEAREA StartMode; //FIXME
 		class LockScreen* m_LockScr;
 		string m_LastKey;
+		int m_PluginIsRunning;
 	private:
 		bool ReadKeyMacro(MACROMODEAREA Area);
 		void WriteMacro(void);
@@ -199,8 +202,10 @@ class KeyMacro
 		static intptr_t WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 		static intptr_t WINAPI ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 		int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
-		bool InitMacroExecution(MacroRecord* macro);
+		bool InitMacroExecution(void);
 		bool UpdateLockScreen(bool recreate=false);
+		MacroRecord* GetCurMacro() { return m_CurState.GetCurMacro(); }
+		void RemoveCurMacro();
 
 		BOOL CheckEditSelected(UINT64 CurFlags);
 		BOOL CheckInsidePlugin(UINT64 CurFlags);

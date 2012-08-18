@@ -1,12 +1,12 @@
 -- started: 2012-04-20
 
--- local function LOG (fmt, ...)
---   local log = io.open("c:\\lua.log","at")
---   if log then
---     log:write("LUA: ", fmt:format(...), "\n")
---     log:close()
---   end
--- end
+local function LOG (fmt, ...)
+  local log = io.open("c:\\lua.log","at")
+  if log then
+    log:write("LUA: ", fmt:format(...), "\n")
+    log:close()
+  end
+end
 
 local F = far.Flags
 
@@ -19,17 +19,30 @@ local macros = {}
 local LastError
 local gmeta = { __index=_G }
 
+--FIXME: function duplicated in luamacro.lua and api.lua.
+local function checkarg (arg, argnum, reftype)
+  if type(arg) ~= reftype then
+    error(("arg. #%d: %s expected, got %s"):format(argnum, reftype, type(arg)), 3)
+  end
+end
+
 function _G.Keys (...)
   for n=1,select("#",...) do
     local str=select(n,...)
-    if type(str) ~= "string" then return end
-    for key in str:gmatch("%S+") do co_yield(key) end
+    if type(str)=="string" then
+      for key in str:gmatch("%S+") do co_yield(key) end
+    end
   end
 end
 
 function _G.print (str)
   str = tostring(str)
   co_yield("print:"..str)
+end
+
+function _G.printf (fmt, ...)
+  checkarg(fmt,1,"string")
+  return _G.print(fmt:format(...))
 end
 
 local PluginInfo = {
@@ -112,6 +125,8 @@ local function MacroParse (args)
       return LastError
     end
   end
+  LastError = win.Utf8ToUtf16("OK\0")
+  return LastError
 end
 
 function export.Open (OpenFrom, Guid, Item)
