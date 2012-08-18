@@ -325,7 +325,7 @@ end
 -- "mf" ("macrofunctions") namespace
 mf = {
   abs             = function(...) return MacroCallFar(0x80C01, ...) end,
-  --NYI--akey            = function(...) return MacroCallFar(0x80C02, ...) end,
+--akey            = function(...) return MacroCallFar(0x80C02, ...) end, --> made global
   asc             = function(...) return MacroCallFar(0x80C03, ...) end,
   atoi            = function(...) return MacroCallFar(0x80C04, ...) end,
   beep            = function(...) return MacroCallFar(0x80C48, ...) end,
@@ -343,7 +343,7 @@ mf = {
   fmatch          = function(...) return MacroCallFar(0x80C4D, ...) end,
   fsplit          = function(...) return MacroCallFar(0x80C10, ...) end,
 --gethotkey       = function(...) return MacroCallFar(0x80C1A, ...) end, --> Object.GetHotkey
-  --NYI--History_Disable = function(...) return MacroCallFar(0x80C4C, ...) end,
+--History_Disable = function(...) return MacroCallFar(0x80C4C, ...) end, --> Far.DisableHistory
 --iif             = function(...) return MacroCallFar(0x80C11, ...) end, --> new implementation
   index           = function(...) return MacroCallFar(0x80C12, ...) end,
   int             = function(...) return MacroCallFar(0x80C13, ...) end,
@@ -580,7 +580,8 @@ SetProperties(Menu, {
 --------------------------------------------------------------------------------
 
 Far = {
-  Cfg_Get = function(...) return MacroCallFar(0x80C58, ...) end,
+  Cfg_Get        = function(...) return MacroCallFar(0x80C58, ...) end,
+  DisableHistory = function(...) return MacroCallFar(0x80C4C, ...) end,
 }
 
 SetProperties(Far, {
@@ -642,6 +643,7 @@ Viewer  = SetProperties({}, prop_Viewer)
 --------------------------------------------------------------------------------
 
 _G.band,_G.bnot,_G.bor,_G.bxor = bit64.band,bit64.bnot,bit64.bor,bit64.bxor
+_G.akey   = function(...) return MacroCallFar(0x80C02, ...) end
 _G.msgbox = function(...) return MacroCallFar(0x80C21, ...) end
 _G.prompt = function(...) return MacroCallFar(0x80C34, ...) end
 

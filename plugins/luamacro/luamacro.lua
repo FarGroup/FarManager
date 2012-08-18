@@ -53,7 +53,7 @@ function export.GetPluginInfo()
 end
 
 local function MacroInit (args)
-  local Text, AKey = args[1], args[2]
+  local Text = args[1]
   if Text and Text.Type==F.FMVT_STRING then
     Text = Text.Value
     local chunk, msg
@@ -67,7 +67,6 @@ local function MacroInit (args)
       local env = setmetatable({}, gmeta)
       setfenv(chunk, env)
       local macro = { coro=co_create(chunk), step=0 }
-      if AKey and AKey.Type==F.FMVT_STRING then env.AKey = AKey.Value end
       table.insert(macros, macro)
       return #macros
     else

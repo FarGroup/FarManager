@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 extern void SZLOG (const char *fmt, ...);
 
 // FIXME: for SciTE only.
-#if SCITE == 1
+#if !defined (__GNUC__) && !defined (_MSC_VER)
 #define FAR_LUA
 #endif
 
@@ -215,8 +215,6 @@ class KeyMacro
 		BOOL CheckAll(UINT64 CurFlags);
 
 	private:
-		bool AKey (FarMacroCall* Data);
-		bool DisableHistory (FarMacroCall* Data);
 		bool MMode (FarMacroCall* Data);
 
 	public:
@@ -228,6 +226,8 @@ class KeyMacro
 		int  IsExecutingLastKey();
 		int  IsDsableOutput();
 		bool IsHistoryDisable(int TypeHistory);
+		DWORD SetHistoryDisableMask(DWORD Mask);
+		DWORD GetHistoryDisableMask();
 		void SetMode(int Mode); //FIXME: int->MACROMODEAREA
 		MACROMODEAREA GetMode(void);
 		bool LoadMacros(bool InitedRAM=true,bool LoadAll=true);

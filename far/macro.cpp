@@ -32,7 +32,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 // FIXME: for SciTE only.
-#if SCITE == 1
+#if !defined (__GNUC__) && !defined (_MSC_VER)
 #define FAR_LUA
 #endif
 
@@ -633,6 +633,18 @@ int KeyMacro::IsDsableOutput()
 	return m && (m->Flags()&MFLAGS_DISABLEOUTPUT);
 }
 
+DWORD KeyMacro::SetHistoryDisableMask(DWORD Mask)
+{
+	DWORD OldHistoryDisable=m_CurState.HistoryDisable;
+	m_CurState.HistoryDisable=Mask;
+	return OldHistoryDisable;
+}
+
+DWORD KeyMacro::GetHistoryDisableMask()
+{
+	return m_CurState.HistoryDisable;
+}
+
 bool KeyMacro::IsHistoryDisable(int TypeHistory)
 {
 	return !m_CurState.m_MacroQueue.Empty() && (m_CurState.HistoryDisable & (1 << TypeHistory));
@@ -752,9 +764,8 @@ bool KeyMacro::InitMacroExecution()
 	MacroRecord* macro = GetCurMacro();
 	if (macro)
 	{
-		FarMacroValue values[2]={{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
+		FarMacroValue values[1]={{FMVT_STRING,{0}}};
 		values[0].String=macro->Code();
-		values[1].String=macro->Name();
 		OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
 		macro->m_handle=CallPlugin(OPEN_MACROINIT,&info);
 		if (macro->m_handle)
@@ -825,7 +836,14 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 						MacroRecord* macro = m_Macros[Area].getItem(Index);
 						if (CheckAll(macro->Flags()) && (!macro->m_callback||macro->m_callback(macro->m_id,AKMFLAGS_NONE)))
 						{
-							return PostNewMacro(macro->Code(),macro->Flags(),Rec->IntKey,false);
+							int ret = PostNewMacro(macro->Code(),macro->Flags(),Rec->IntKey,false);
+							if (ret)
+							{
+								m_CurState.HistoryDisable=0;
+								m_CurState.cRec=Rec->Rec;
+								//IsRedrawEditor=CtrlObject->Plugins->CheckFlags(PSIF_ENTERTOOPENPLUGIN)?FALSE:TRUE; //FIXME
+							}
+							return ret;
 						}
 					}
 				}
@@ -932,7 +950,6 @@ int KeyMacro::GetKey()
 		wchar_t* key=(wchar_t*)CallPlugin(OPEN_MACROSTEP,macro->m_handle);
 		if (key)
 		{
-			//SZLOG("result: %ls\n\n",key);
 			if(key[0])
 			{
 				m_LastKey = key;
@@ -944,6 +961,23 @@ int KeyMacro::GetKey()
 				{
 					__varTextDate = key+6;
 					return KEY_OP_PLAINTEXT;
+				}
+
+				if (!wcsicmp(key, L"AKey"))
+				{
+					DWORD aKey=KEY_NONE;
+					MacroRecord* MR = GetCurMacro();
+					if (!(MR->Flags()&MFLAGS_POSTFROMPLUGIN))
+					{
+						INPUT_RECORD *inRec=&m_CurState.cRec;
+						if (!inRec->EventType)
+							inRec->EventType = KEY_EVENT;
+						if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
+							aKey=ShieldCalcKeyCode(inRec,FALSE,nullptr);
+					}
+					else
+						aKey=MR->Key();
+					return aKey;
 				}
 
 				if (!wcsicmp(key, L"SelWord"))
@@ -2822,11 +2856,8 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 					OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
 					MacroRecord* macro = GetCurMacro();
 					bool CallPluginRules = macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO;
-					if( CallPluginRules) // FIXME
-					{
-						//PushState(true);
-						//VMStack.Push(1);
-					}
+					if( CallPluginRules)
+						m_StateStack.Push(m_CurState);
 					//else
 						//InternalInput++;
 
@@ -2838,8 +2869,8 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 					//if (MR != Work.MacroWORK) // ??? Mantis#0002094 ???
 						//MR=Work.MacroWORK;
 
-					//if( CallPluginRules == 1 )
-						//PopState();
+					if( CallPluginRules == 1 )
+						m_StateStack.Pop(m_CurState);
 					//else
 					//{
 						//VMStack.Push(Ret);
@@ -2932,7 +2963,54 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 			goto begin;
 #endif
 		}
-		return 0;
+
+		case MCODE_F_AKEY:                // V=akey(Mode[,Type])
+		{
+			parseParams(2,Params,Data);
+			int tmpType=(int)Params[1].getInteger();
+			int tmpMode=(int)Params[0].getInteger();
+
+			MacroRecord* MR=GetCurMacro();
+			DWORD aKey=MR->Key();
+
+			if (!tmpType)
+			{
+				if (!(MR->Flags()&MFLAGS_POSTFROMPLUGIN))
+				{
+					INPUT_RECORD *inRec=&m_CurState.cRec;
+					if (!inRec->EventType)
+						inRec->EventType = KEY_EVENT;
+					if(inRec->EventType == MOUSE_EVENT || inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
+						aKey=ShieldCalcKeyCode(inRec,FALSE,nullptr);
+				}
+				else if (!aKey)
+					aKey=KEY_NONE;
+			}
+
+			if (!tmpMode)
+				return (__int64)aKey;
+			else
+			{
+				string value;
+				KeyToText(aKey,value);
+				PassString(value,Data);
+				return 1;
+			}
+		}
+
+		case MCODE_F_HISTIORY_DISABLE: // N=History.Disable([State])
+		{
+			parseParams(1,Params,Data);
+			TVar State(Params[0]);
+
+			DWORD oldHistoryDisable=m_CurState.HistoryDisable;
+
+			if (!State.isUnknown())
+				m_CurState.HistoryDisable=(DWORD)State.getInteger();
+
+			return (__int64)oldHistoryDisable;
+		}
+
 	}
 
 	return 0;
@@ -3557,12 +3635,10 @@ static bool promptFunc(FarMacroCall* Data)
 
 	string strDest;
 
-#if 0 //FIXME
 	DWORD oldHistoryDisable=CtrlObject->Macro.GetHistoryDisableMask();
 
 	if (!(history && *history)) // Mantis#0001743: Возможность отключения истории
 		CtrlObject->Macro.SetHistoryDisableMask(8); // если не указан history, то принудительно отключаем историю для ЭТОГО prompt()
-#endif
 
 	if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
 	{
@@ -3572,9 +3648,7 @@ static bool promptFunc(FarMacroCall* Data)
 	else
 		PassBoolean(0,Data);
 
-#if 0 //FIXME
 	CtrlObject->Macro.SetHistoryDisableMask(oldHistoryDisable);
-#endif
 
 	return Ret;
 }
@@ -5663,49 +5737,6 @@ static bool testfolderFunc(FarMacroCall* Data)
 
 	PassNumber(Ret, Data);
 	return Ret?true:false;
-}
-
-// V=akey(Mode[,Type])
-bool KeyMacro::AKey (FarMacroCall* Data)
-{
-//	parseParams(2,Params,Data);
-//	int tmpType=(int)Params[1].getInteger();
-//	int tmpMode=(int)Params[0].getInteger();
-//
-//	DWORD aKey=MR->Key;
-//
-//	if (!tmpType)
-//	{
-//		if (!(m_RunState.m_flags&MFLAGS_POSTFROMPLUGIN))
-//		{
-//			INPUT_RECORD *inRec=&Work.cRec;
-//			if (!inRec->EventType)
-//				inRec->EventType = KEY_EVENT;
-//			if(inRec->EventType == MOUSE_EVENT || inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
-//				aKey=ShieldCalcKeyCode(inRec,FALSE,nullptr);
-//		}
-//		else if (!aKey)
-//			aKey=KEY_NONE;
-//	}
-//
-//	TVar tmpVar;
-//	if (!tmpMode)
-//		tmpVar=(__int64)aKey;
-//	else
-//	{
-//		string value;
-//		KeyToText(aKey,value);
-//		tmpVar=value.CPtr();
-//		tmpVar.toString();
-//	}
-//	return PassValue(&tmpVar, Data);
-
-	return false;
-}
-
-bool KeyMacro::DisableHistory (FarMacroCall* Data)
-{
-	return false;
 }
 
 bool KeyMacro::MMode (FarMacroCall* Data)
