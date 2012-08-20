@@ -197,7 +197,7 @@ class KeyMacro
 	private:
 		bool ReadKeyMacro(MACROMODEAREA Area);
 		void WriteMacro(void);
-		void* CallPlugin(unsigned Type,void* Data);
+		void* CallMacroPlugin(unsigned Type,void* Data);
 		int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
 		static intptr_t WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
 		static intptr_t WINAPI ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
@@ -213,9 +213,6 @@ class KeyMacro
 		BOOL CheckCmdLine(int CmdLength,UINT64 Flags);
 		BOOL CheckFileFolder(Panel *ActivePanel,UINT64 CurFlags, BOOL IsPassivePanel);
 		BOOL CheckAll(UINT64 CurFlags);
-
-	private:
-		bool MMode (FarMacroCall* Data);
 
 	public:
 		KeyMacro();

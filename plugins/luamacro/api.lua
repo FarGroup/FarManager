@@ -300,8 +300,8 @@
 
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
-local SendDlgMessage = far.SendDlgMessage
 local MacroCallFar = far.MacroCallFar
+local co_yield = coroutine.yield
 
 --FIXME: function duplicated in luamacro.lua and api.lua.
 local function checkarg (arg, argnum, reftype)
@@ -335,7 +335,7 @@ mf = {
   clip            = function(...) return MacroCallFar(0x80C05, ...) end,
   date            = function(...) return MacroCallFar(0x80C07, ...) end,
   env             = function(...) return MacroCallFar(0x80C0D, ...) end,
-  --NYI--eval            = function(...) return MacroCallFar(0x80C29, ...) end,
+--eval            = function(...) return MacroCallFar(0x80C29, ...) end, --> new implementation
   fattr           = function(...) return MacroCallFar(0x80C0E, ...) end,
   fexist          = function(...) return MacroCallFar(0x80C0F, ...) end,
   float           = function(...) return MacroCallFar(0x80C41, ...) end,
@@ -353,14 +353,14 @@ mf = {
   KeyBar_Show     = function(...) return MacroCallFar(0x80C4B, ...) end,
   lcase           = function(...) return MacroCallFar(0x80C16, ...) end,
   len             = function(...) return MacroCallFar(0x80C17, ...) end,
-  --NYI--Macro_Const     = function(...) return MacroCallFar(0x80C5E, ...) end,
-  --NYI--Macro_Func      = function(...) return MacroCallFar(0x80C5C, ...) end,
-  --NYI--Macro_Keyword   = function(...) return MacroCallFar(0x80C5B, ...) end,
-  --NYI--Macro_Var       = function(...) return MacroCallFar(0x80C5D, ...) end,
+--Macro_Const     = function(...) return MacroCallFar(0x80C5E, ...) end, -> removed
+--Macro_Func      = function(...) return MacroCallFar(0x80C5C, ...) end, -> removed
+--Macro_Keyword   = function(...) return MacroCallFar(0x80C5B, ...) end, -> removed
+--Macro_Var       = function(...) return MacroCallFar(0x80C5D, ...) end, -> removed
   max             = function(...) return MacroCallFar(0x80C18, ...) end,
   min             = function(...) return MacroCallFar(0x80C1D, ...) end,
 --mload           = function(...) return MacroCallFar(0x80C1F, ...) end, --> new implementation
-  --NYI--mmode           = function(...) return MacroCallFar(0x80C44, ...) end,
+--mmode           = function(...) return MacroCallFar(0x80C44, ...) end, --> made global
   mod             = function(...) return MacroCallFar(0x80C1E, ...) end,
 --msave           = function(...) return MacroCallFar(0x80C20, ...) end, --> new implementation
 --msgbox          = function(...) return MacroCallFar(0x80C21, ...) end, --> made global
@@ -407,10 +407,10 @@ SetProperties(Object, {
 --------------------------------------------------------------------------------
 
 local prop_Area = {
-  Current    = function() return MacroCallFar(0x80805) end, --TODO: document this change (was: global MacroArea)
+  Current    = function() return MacroCallFar(0x80805) end,
   -- Note: 0x80400 is subtracted from opcodes here.
   Dialog     = function() return MacroCallFar(0x04) end,
-  DialogAutoCompletion = function() return MacroCallFar(0x10) end, --TODO: document this change
+  DialogAutoCompletion = function() return MacroCallFar(0x10) end,
   Disks      = function() return MacroCallFar(0x06) end,
   Editor     = function() return MacroCallFar(0x03) end,
   FindFolder = function() return MacroCallFar(0x0D) end,
@@ -422,7 +422,7 @@ local prop_Area = {
   QView      = function() return MacroCallFar(0x0B) end,
   Search     = function() return MacroCallFar(0x05) end,
   Shell      = function() return MacroCallFar(0x01) end,
-  ShellAutoCompletion = function() return MacroCallFar(0x0F) end, --TODO: document this change
+  ShellAutoCompletion = function() return MacroCallFar(0x0F) end,
   Tree       = function() return MacroCallFar(0x0C) end,
   UserMenu   = function() return MacroCallFar(0x0E) end,
   Viewer     = function() return MacroCallFar(0x02) end,
@@ -532,8 +532,8 @@ Dlg = {
 
 SetProperties(Dlg, {
   CurPos     = function() return MacroCallFar(0x80835) end,
-  Id         = function() return MacroCallFar(0x80837) end, --TODO: document this change
-  Owner      = function() return MacroCallFar(0x80838) end, --TODO: document this change
+  Id         = function() return MacroCallFar(0x80837) end,
+  Owner      = function() return MacroCallFar(0x80838) end,
   ItemCount  = function() return MacroCallFar(0x80834) end,
   ItemType   = function() return MacroCallFar(0x80833) end,
   PrevPos    = function() return MacroCallFar(0x80836) end,
@@ -574,7 +574,7 @@ Menu = {
 }
 
 SetProperties(Menu, {
-  Id         = function() return MacroCallFar(0x80844) end, --TODO: document this change
+  Id         = function() return MacroCallFar(0x80844) end,
   Value      = function() return MacroCallFar(0x80843) end,
 })
 --------------------------------------------------------------------------------
@@ -585,9 +585,9 @@ Far = {
 }
 
 SetProperties(Far, {
-  FullScreenMode = function() return MacroCallFar(0x80411) end, --TODO: document this change
+  FullScreenMode = function() return MacroCallFar(0x80411) end,
   Height         = function() return MacroCallFar(0x80801) end,
-  IsUserAdmin    = function() return MacroCallFar(0x80412) end, --TODO: document this change
+  IsUserAdmin    = function() return MacroCallFar(0x80412) end,
   PID            = function() return MacroCallFar(0x80804) end,
   Title          = function() return MacroCallFar(0x80802) end,
   UpTime         = function() return MacroCallFar(0x80803) end,
@@ -611,7 +611,7 @@ BM = {
 --------------------------------------------------------------------------------
 
 Plugin = {
-  Call     = function(...) return MacroCallFar(0x80C50, ...) end,
+--Call     = function(...) return MacroCallFar(0x80C50, ...) end,
   Command  = function(...) return MacroCallFar(0x80C52, ...) end,
   Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
   Exist    = function(...) return MacroCallFar(0x80C54, ...) end,
@@ -619,6 +619,10 @@ Plugin = {
   Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
   Unload   = function(...) return MacroCallFar(0x80C53, ...) end,
 }
+
+Plugin.Call = function(...)
+  return co_yield(F.MPRT_PLUGINCALL, { n=select("#",...), ... })
+end
 --------------------------------------------------------------------------------
 
 Panel = {
@@ -644,6 +648,7 @@ Viewer  = SetProperties({}, prop_Viewer)
 
 _G.band,_G.bnot,_G.bor,_G.bxor = bit64.band,bit64.bnot,bit64.bor,bit64.bxor
 _G.akey   = function(...) return MacroCallFar(0x80C02, ...) end
+_G.mmode  = function(...) return MacroCallFar(0x80C44, ...) end
 _G.msgbox = function(...) return MacroCallFar(0x80C21, ...) end
 _G.prompt = function(...) return MacroCallFar(0x80C34, ...) end
 

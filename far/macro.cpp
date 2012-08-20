@@ -734,9 +734,9 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
 	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
 }
 
-void* KeyMacro::CallPlugin(unsigned Type,void* Data)
+void* KeyMacro::CallMacroPlugin(unsigned Type,void* Data)
 {
-	//SZLOG("+KeyMacro::CallPlugin");
+	//SZLOG("+KeyMacro::CallMacroPlugin");
 	void* ptr;
 	m_PluginIsRunning++;
 
@@ -767,7 +767,7 @@ bool KeyMacro::InitMacroExecution()
 		FarMacroValue values[1]={{FMVT_STRING,{0}}};
 		values[0].String=macro->Code();
 		OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
-		macro->m_handle=CallPlugin(OPEN_MACROINIT,&info);
+		macro->m_handle=CallMacroPlugin(OPEN_MACROINIT,&info);
 		if (macro->m_handle)
 		{
 			m_LastKey = L"first_key";
@@ -947,21 +947,25 @@ int KeyMacro::GetKey()
 		if (!macro->m_handle && !InitMacroExecution())
 			return 0;
 
-		wchar_t* key=(wchar_t*)CallPlugin(OPEN_MACROSTEP,macro->m_handle);
-		if (key)
+		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_MACROSTEP,macro->m_handle);
+		if (mpr == nullptr)
+			return 0;
+
+		switch (mpr->ReturnType)
 		{
-			if(key[0])
+			case MPRT_NORMALFINISH:
+			case MPRT_ERRORFINISH:
 			{
+				break;
+			}
+
+			case MPRT_KEYS:
+			{
+				const wchar_t* key = mpr->Args[0].String;
 				m_LastKey = key;
 
 				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && ScrBuf.GetLockCount()==0)
 					ScrBuf.Lock();
-
-				if (!wcsncmp(key, L"print:", 6))
-				{
-					__varTextDate = key+6;
-					return KEY_OP_PLAINTEXT;
-				}
 
 				if (!wcsicmp(key, L"AKey"))
 				{
@@ -989,19 +993,68 @@ int KeyMacro::GetKey()
 				int iKey = KeyNameToKey(key);
 				return iKey==-1 ? KEY_NONE:iKey;
 			}
-			else
+
+			case MPRT_PRINT:
 			{
-				if (CallPlugin(OPEN_MACROFINAL,macro->m_handle)); //FIXME: process condition.
+				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && ScrBuf.GetLockCount()==0)
+					ScrBuf.Lock();
+
+				__varTextDate = mpr->Args[0].String;
+				return KEY_OP_PLAINTEXT;
+			}
+
+			case MPRT_PLUGINCALL: // V=Plugin.Call(SysID[,param])
+			{
+				__int64 Ret=0;
+				size_t count = mpr->ArgNum;
+				if(count>0 && mpr->Args[0].Type==FMVT_STRING)
+				{
+					TVar SysID = mpr->Args[0].String;
+					GUID guid;
+
+					if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
+					{
+						FarMacroValue *vParams = count>1 ? mpr->Args+1:nullptr;
+						OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
+						MacroRecord* macro = GetCurMacro();
+						bool CallPluginRules = macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO;
+						if( CallPluginRules)
+							m_StateStack.Push(m_CurState);
+						//else
+							//InternalInput++;
+
+						void* ResultCallPlugin=nullptr;
+
+						if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
+							Ret=(__int64)ResultCallPlugin;
+
+						//if (MR != Work.MacroWORK) // ??? Mantis#0002094 ???
+							//MR=Work.MacroWORK;
+
+						if( CallPluginRules == 1 )
+							m_StateStack.Pop(m_CurState);
+						//else
+						//{
+							//VMStack.Push(Ret);
+							//InternalInput--;
+						//}
+					}
+					//else
+						//VMStack.Push(Ret);
+
+					//if (Work.Executing == MACROMODE_NOMACRO)
+						//goto return_func;
+				}
+				//return Ret;
 			}
 		}
+
 		if (macro->Flags() & MFLAGS_DISABLEOUTPUT)
 			ScrBuf.Unlock();
 
 		RemoveCurMacro();
 		if (m_CurState.m_MacroQueue.Empty())
 			ScrBuf.RestoreMacroChar();
-
-
 	}
 
 	return 0;
@@ -1636,9 +1689,10 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck)
 	values[2].String=MSG(MMacroPErrorTitle);
 	values[3].String=MSG(MOk);
 	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
-	const wchar_t* Msg = (const wchar_t*)CallPlugin(OPEN_MACROPARSE,&info);
-	bool IsOK = Msg && !wcscmp(Msg, L"OK");
-	if (Msg && !IsOK && !onlyCheck)
+
+	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_MACROPARSE,&info);
+	bool IsOK = mpr && mpr->ReturnType==MPRT_NORMALFINISH;
+	if (mpr && !IsOK && !onlyCheck)
 	{
 		FrameManager->RefreshFrame(); // Нужно после вывода сообщения плагином. Иначе панели не перерисовываются.
 	}
@@ -2839,53 +2893,6 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 			return success;
 		}
 
-		case MCODE_F_CALLPLUGIN: // V=callplugin(SysID[,param])
-		// Алиас CallPlugin, для общности
-		case MCODE_F_PLUGIN_CALL: // V=Plugin.Call(SysID[,param])
-		{
-			__int64 Ret=0;
-			size_t count=Data->ArgNum;
-			if(count>0 && Data->Args[0].Type==FMVT_STRING)
-			{
-				TVar SysID = Data->Args[0].String;
-				GUID guid;
-
-				if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
-				{
-					FarMacroValue *vParams = count>1 ? Data->Args+1:nullptr;
-					OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
-					MacroRecord* macro = GetCurMacro();
-					bool CallPluginRules = macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO;
-					if( CallPluginRules)
-						m_StateStack.Push(m_CurState);
-					//else
-						//InternalInput++;
-
-					void* ResultCallPlugin=nullptr;
-
-					if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
-						Ret=(__int64)ResultCallPlugin;
-
-					//if (MR != Work.MacroWORK) // ??? Mantis#0002094 ???
-						//MR=Work.MacroWORK;
-
-					if( CallPluginRules == 1 )
-						m_StateStack.Pop(m_CurState);
-					//else
-					//{
-						//VMStack.Push(Ret);
-						//InternalInput--;
-					//}
-				}
-				//else
-					//VMStack.Push(Ret);
-
-				//if (Work.Executing == MACROMODE_NOMACRO)
-					//goto return_func;
-			}
-			return Ret;
-		}
-
 		case MCODE_F_PLUGIN_MENU:   // N=Plugin.Menu(Guid[,MenuGuid])
 		case MCODE_F_PLUGIN_CONFIG: // N=Plugin.Config(Guid[,MenuGuid])
 		case MCODE_F_PLUGIN_COMMAND: // N=Plugin.Command(Guid[,Command])
@@ -3011,6 +3018,82 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 			return (__int64)oldHistoryDisable;
 		}
 
+		case MCODE_F_MMODE:               // N=MMode(Action[,Value])
+		{
+			parseParams(2,Params,Data);
+			__int64 nValue = Params[1].getInteger();
+			TVar& Action(Params[0]);
+
+			MacroRecord* MR=GetCurMacro();
+			__int64 Result=0;
+
+			switch (Action.getInteger())
+			{
+#if 0 //FIXME
+				case 1: // DisableOutput
+				{
+					Result=LockScr?1:0;
+
+					if (nValue == 2) // изменяет режим отображения ("DisableOutput").
+					{
+						if (MR->Flags()&MFLAGS_DISABLEOUTPUT)
+							nValue=0;
+						else
+							nValue=1;
+					}
+
+					switch (nValue)
+					{
+						case 0: // DisableOutput=0, разлочить экран
+							if (LockScr)
+							{
+								delete LockScr;
+								LockScr=nullptr;
+							}
+							MR->m_flags&=~MFLAGS_DISABLEOUTPUT;
+							break;
+						case 1: // DisableOutput=1, залочить экран
+							if (!LockScr)
+								LockScr=new LockScreen;
+							MR->m_flags|=MFLAGS_DISABLEOUTPUT;
+							break;
+					}
+
+					break;
+				}
+#endif
+				case 2: // Get MacroRecord Flags
+				{
+					Result=(__int64)MR->Flags();
+#if 0 //FIXME
+					if ((Result&MFLAGS_MODEMASK) == MACRO_COMMON)
+						Result|=0x00FF; // ...что бы Common был всегда последним.
+#endif
+					break;
+				}
+
+				case 3: // CallPlugin Rules
+				{
+					Result=MR->Flags()&MFLAGS_CALLPLUGINENABLEMACRO?1:0;
+					switch (nValue)
+					{
+						case 0: // блокировать макросы при вызове плагина функцией CallPlugin
+							MR->m_flags&=~MFLAGS_CALLPLUGINENABLEMACRO;
+							break;
+						case 1: // разрешить макросы
+							MR->m_flags|=MFLAGS_CALLPLUGINENABLEMACRO;
+							break;
+						case 2: // изменяет режим
+							MR->m_flags^=MFLAGS_CALLPLUGINENABLEMACRO;
+							break;
+					}
+
+					break;
+				}
+			}
+
+			return Result;
+		}
 	}
 
 	return 0;
@@ -5737,11 +5820,6 @@ static bool testfolderFunc(FarMacroCall* Data)
 
 	PassNumber(Ret, Data);
 	return Ret?true:false;
-}
-
-bool KeyMacro::MMode (FarMacroCall* Data)
-{
-	return false;
 }
 
 #else

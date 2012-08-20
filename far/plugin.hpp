@@ -1227,6 +1227,22 @@ struct FarMacroValue
 };
 
 #ifdef FAR_LUA
+enum MACROPLUGINRETURNTYPE
+{
+	MPRT_NORMALFINISH = 0,
+	MPRT_ERRORFINISH  = 1,
+	MPRT_KEYS         = 2,
+	MPRT_PRINT        = 3,
+	MPRT_PLUGINCALL   = 4,
+};
+
+struct MacroPluginReturn
+{
+	struct FarMacroValue *Args;
+	int ArgNum;
+	enum MACROPLUGINRETURNTYPE ReturnType;
+};
+
 struct FarMacroCall
 {
 	struct FarMacroValue *Args;

@@ -16,7 +16,7 @@ local co_create, co_yield, co_resume, co_status =
 local ErrMsg = function(msg) far.Message(msg, "LuaMacro", nil, "w") end
 
 local macros = {}
-local LastError
+local LastMessage = {}
 local gmeta = { __index=_G }
 
 --FIXME: function duplicated in luamacro.lua and api.lua.
@@ -30,14 +30,14 @@ function _G.Keys (...)
   for n=1,select("#",...) do
     local str=select(n,...)
     if type(str)=="string" then
-      for key in str:gmatch("%S+") do co_yield(key) end
+      for key in str:gmatch("%S+") do co_yield(F.MPRT_KEYS, key) end
     end
   end
 end
 
 function _G.print (str)
   str = tostring(str)
-  co_yield("print:"..str)
+  co_yield(F.MPRT_PRINT, str)
 end
 
 function _G.printf (fmt, ...)
@@ -66,8 +66,9 @@ local function MacroInit (args)
     if chunk then
       local env = setmetatable({}, gmeta)
       setfenv(chunk, env)
-      local macro = { coro=co_create(chunk), step=0 }
+      local macro = { coro=co_create(chunk), step=0, store={} }
       table.insert(macros, macro)
+      --far.Message("Init: created handle "..#macros)
       return #macros
     else
       ErrMsg(msg)
@@ -80,35 +81,41 @@ local function MacroStep (handle)
   if macro then
     local status = co_status(macro.coro)
     if status == "suspended" then
-      local ok, ret = co_resume(macro.coro)
+      local ok, ret1, ret2 = co_resume(macro.coro)
       if ok then
         macro.step = macro.step + 1
         status = co_status(macro.coro)
-        if status == "suspended" and type(ret) == "string" then
-          macro.lastkey = win.Utf8ToUtf16(ret).."\0\0" -- keep alive from gc
+        if status == "suspended" then
+          macro.store[1] = ret2
+          return ret1, (ret1 ~= F.MPRT_PLUGINCALL) and macro.store or ret2
         else
-          macro.lastkey = "\0\0"
+          macro[handle] = false
+          LastMessage[1] = "OK"
+          return F.MPRT_NORMALFINISH, LastMessage
         end
-        return macro.lastkey
       else
-        ErrMsg(ret)
+        ErrMsg(ret1)
+        macro[handle] = false
+        LastMessage[1] = ret1
+        return F.MPRT_ERRORFINISH, LastMessage
       end
     else
       ErrMsg("Step: called on macro in "..status.." status")
     end
   else
     -- Far debug only: should not be here
-    ErrMsg("Step: handle does not exist")
+    ErrMsg(("Step: handle %d does not exist"):format(handle))
   end
 end
 
 local function MacroFinal (handle)
   if macros[handle] then
     macros[handle] = false -- false, not nil!
+    --far.Message("Final: closed handle "..handle)
     return 1
   else
     -- Far debug only: should not be here
-    ErrMsg("Final: handle does not exist")
+    ErrMsg(("Final: handle %d does not exist"):format(handle))
   end
 end
 
@@ -120,12 +127,12 @@ local function MacroParse (args)
       if onlyCheck.Value == 0 then
         far.Message(msg, title.Value, buttons.Value, "lw")
       end
-      LastError = win.Utf8ToUtf16(msg).."\0\0" -- keep alive from gc
-      return LastError
+      LastMessage[1] = msg -- keep alive from gc
+      return F.MPRT_ERRORFINISH, LastMessage
     end
   end
-  LastError = win.Utf8ToUtf16("OK\0")
-  return LastError
+  LastMessage[1] = "OK"
+  return F.MPRT_NORMALFINISH, LastMessage
 end
 
 function export.Open (OpenFrom, Guid, Item)
