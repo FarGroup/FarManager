@@ -1950,10 +1950,15 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		case MCODE_C_CMDLINE_EOF:              // CmdLine.Eof - курсор в конеце cmd-строки редактирования?
 		case MCODE_C_CMDLINE_EMPTY:            // CmdLine.Empty
 		case MCODE_C_CMDLINE_SELECTED:         // CmdLine.Selected
+		{
+			PassBoolean(CtrlObject->CmdLine && CtrlObject->CmdLine->VMProcess(CheckCode), Data);
+			return 1;
+		}
+
 		case MCODE_V_CMDLINE_ITEMCOUNT:        // CmdLine.ItemCount
 		case MCODE_V_CMDLINE_CURPOS:           // CmdLine.CurPos
 		{
-			 return CtrlObject->CmdLine?CtrlObject->CmdLine->VMProcess(CheckCode):-1;
+			return CtrlObject->CmdLine?CtrlObject->CmdLine->VMProcess(CheckCode):-1;
 		}
 
 		case MCODE_V_CMDLINE_VALUE:            // CmdLine.Value
@@ -5535,9 +5540,9 @@ static bool ascFunc(FarMacroCall* Data)
 static bool chrFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
-	TVar& tmpVar(Params[0]);
+	TVar tmpVar(Params[0]);
 
-	if (tmpVar.isInteger())
+	if (tmpVar.isNumber())
 	{
 		const wchar_t tmp[]={static_cast<wchar_t>(tmpVar.i()), L'\0'};
 		tmpVar = tmp;
