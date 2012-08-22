@@ -3372,7 +3372,7 @@ static bool itowFunc(FarMacroCall* Data)
 	parseParams(2,Params,Data);
 	bool Ret=false;
 
-	if (Params[0].isInteger())
+	if (Params[0].isInteger() || Params[0].isDouble())
 	{
 		wchar_t value[65];
 		int Radix=(int)Params[1].toInteger();
@@ -3442,7 +3442,7 @@ static bool keyFunc(FarMacroCall* Data)
 	parseParams(1,Params,Data);
 	string strKeyText;
 
-	if (Params[0].isInteger())
+	if (Params[0].isInteger() || Params[0].isDouble())
 	{
 		if (Params[0].i())
 			KeyToText((int)Params[0].i(),strKeyText);
@@ -3452,7 +3452,7 @@ static bool keyFunc(FarMacroCall* Data)
 		// Проверим...
 		DWORD Key=(DWORD)KeyNameToKey(Params[0].s());
 
-		if (Key != (DWORD)-1 && Key==(DWORD)Params[0].i())
+		if (Key != (DWORD)-1)
 			strKeyText=Params[0].s();
 	}
 
@@ -4247,7 +4247,10 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 	}
 
 	if (Type == 2) // fexist(2)
-		FileAttr=(FileAttr!=INVALID_FILE_ATTRIBUTES)?1:0;
+	{
+		PassBoolean(FileAttr!=INVALID_FILE_ATTRIBUTES, Data);
+		return 1;
+	}
 	else if (Type == 3) // panel.fexist(3)
 		FileAttr=(DWORD)Pos+1;
 
@@ -4295,7 +4298,7 @@ static bool panelfexistFunc(FarMacroCall* Data)
 static bool flockFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
-	TVar Ret(-1);
+	__int64 Ret = -1;
 	int stateFLock=(int)Params[1].getInteger();
 	UINT vkKey=(UINT)Params[0].getInteger();
 
@@ -4316,10 +4319,9 @@ static bool flockFunc(FarMacroCall* Data)
 	}
 
 	if (vkKey)
-		Ret=(__int64)SetFLockState(vkKey,stateFLock);
+		Ret=SetFLockState(vkKey,stateFLock);
 
-	PassValue(&Ret, Data);
-	return Ret.i()!=-1;
+	return Ret;
 }
 
 // N=Dlg.SetFocus([ID])
@@ -5485,7 +5487,6 @@ static bool strwrapFunc(FarMacroCall* Data)
 		Break.toString();
 	}
 
-
 	string strDest;
 	FarFormatText(Text.s(),Width,strDest,*Break.s()?Break.s():nullptr,Flags);
 	PassString(strDest.CPtr(), Data);
@@ -5505,7 +5506,7 @@ static bool floatFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
 	TVar& Val(Params[0]);
-	//Val.toDouble();
+	Val.toDouble();
 	PassValue(&Val, Data);
 	return true;
 }
