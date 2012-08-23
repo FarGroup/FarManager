@@ -482,8 +482,8 @@ TMacroKeywords MKeywordsArea[] =
 	{L"Tree",                     MACRO_TREEPANEL},
 	{L"FindFolder",               MACRO_FINDFOLDER},
 	{L"UserMenu",                 MACRO_USERMENU},
-	{L"Shell.AutoCompletion",     MACRO_SHELLAUTOCOMPLETION},
-	{L"Dialog.AutoCompletion",    MACRO_DIALOGAUTOCOMPLETION},
+	{L"ShellAutoCompletion",      MACRO_SHELLAUTOCOMPLETION},
+	{L"DialogAutoCompletion",     MACRO_DIALOGAUTOCOMPLETION},
 	{L"Common",                   MACRO_COMMON},
 };
 TMacroKeywords MKeywordsFlags[] =
@@ -610,6 +610,33 @@ KeyMacro::~KeyMacro()
 {
 }
 
+// инициализация всех переменных
+void KeyMacro::InitInternalVars(bool InitedRAM)
+{
+	//InitInternalLIBVars();
+
+	//if (LockScr)
+	//{
+	//	delete LockScr;
+	//	LockScr=nullptr;
+	//}
+
+	if (InitedRAM)
+	{
+		m_CurState.m_MacroQueue.Clear();
+		m_CurState.Executing=MACROMODE_NOMACRO;
+	}
+
+	m_CurState.HistoryDisable=0;
+	m_RecCode.Clear();
+	m_RecDescription.Clear();
+
+	m_Recording=MACROMODE_NOMACRO;
+	m_StateStack.Free();
+	//InternalInput=FALSE;
+	//VMStack.Free();
+}
+
 int KeyMacro::IsRecording()
 {
 	return m_Recording;
@@ -662,8 +689,9 @@ MACROMODEAREA KeyMacro::GetMode(void)
 
 bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 {
-	//SZLOG("+KeyMacro::LoadMacros");
+	//SZLOG("+KeyMacro::LoadMacros, InitedRAM=%s, LoadALL=%s", InitedRAM?"true":"false", LoadAll?"true":"false");
 	int ErrCount=0;
+	InitInternalVars(InitedRAM);
 
 	for (int k=0; k<MACRO_LAST; k++)
 	{
@@ -736,7 +764,7 @@ int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
 
 void* KeyMacro::CallMacroPlugin(unsigned Type,void* Data)
 {
-	//SZLOG("+KeyMacro::CallMacroPlugin");
+	//SZLOG("+KeyMacro::CallMacroPlugin, Type=%s", Type==OPEN_MACROINIT?"OPEN_MACROINIT":	Type==OPEN_MACROSTEP?"OPEN_MACROSTEP": Type==OPEN_MACROPARSE ? "OPEN_MACROPARSE": "UNKNOWN");
 	void* ptr;
 	m_PluginIsRunning++;
 
@@ -746,6 +774,7 @@ void* KeyMacro::CallMacroPlugin(unsigned Type,void* Data)
 	ScrBuf.SetLockCount(lockCount);
 
 	m_PluginIsRunning--;
+	//SZLOG("-KeyMacro::CallMacroPlugin, return=%p", result?ptr:nullptr);
 	return result?ptr:nullptr;
 }
 
@@ -940,23 +969,27 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 
 int KeyMacro::GetKey()
 {
-	//SZLOG("+KeyMacro::GetKey");
-	MacroRecord* macro = GetCurMacro();
-	if(macro && !m_PluginIsRunning)
+	//SZLOG("+KeyMacro::GetKey, m_PluginIsRunning=%d", m_PluginIsRunning);
+	MacroRecord* macro;
+	while (!m_PluginIsRunning && (macro=GetCurMacro()) != nullptr && (macro->m_handle || InitMacroExecution()))
 	{
-		if (!macro->m_handle && !InitMacroExecution())
-			return 0;
-
 		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_MACROSTEP,macro->m_handle);
 		if (mpr == nullptr)
-			return 0;
+			break;
 
 		switch (mpr->ReturnType)
 		{
 			case MPRT_NORMALFINISH:
 			case MPRT_ERRORFINISH:
 			{
-				break;
+				if (macro->Flags() & MFLAGS_DISABLEOUTPUT)
+					ScrBuf.Unlock();
+
+				RemoveCurMacro();
+				if (m_CurState.m_MacroQueue.Empty())
+					ScrBuf.RestoreMacroChar();
+
+				continue;
 			}
 
 			case MPRT_KEYS:
@@ -970,8 +1003,7 @@ int KeyMacro::GetKey()
 				if (!wcsicmp(key, L"AKey"))
 				{
 					DWORD aKey=KEY_NONE;
-					MacroRecord* MR = GetCurMacro();
-					if (!(MR->Flags()&MFLAGS_POSTFROMPLUGIN))
+					if (!(macro->Flags()&MFLAGS_POSTFROMPLUGIN))
 					{
 						INPUT_RECORD *inRec=&m_CurState.cRec;
 						if (!inRec->EventType)
@@ -980,7 +1012,8 @@ int KeyMacro::GetKey()
 							aKey=ShieldCalcKeyCode(inRec,FALSE,nullptr);
 					}
 					else
-						aKey=MR->Key();
+						aKey=macro->Key();
+					//SZLOG("-KeyMacro::GetKey, returned 0x%X", aKey);
 					return aKey;
 				}
 
@@ -991,6 +1024,7 @@ int KeyMacro::GetKey()
 					return KEY_OP_XLAT;
 
 				int iKey = KeyNameToKey(key);
+				//SZLOG("-KeyMacro::GetKey, returned 0x%X", iKey==-1 ? KEY_NONE:iKey);
 				return iKey==-1 ? KEY_NONE:iKey;
 			}
 
@@ -1057,6 +1091,7 @@ int KeyMacro::GetKey()
 			ScrBuf.RestoreMacroChar();
 	}
 
+	//SZLOG("-KeyMacro::GetKey, returned 0");
 	return 0;
 }
 
@@ -1143,28 +1178,30 @@ bool KeyMacro::CheckWaitKeyFunc()
 int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool UseCommon, bool StrictKeys)
 {
 	//SZLOG("GetIndex: %08x,%ls",Key,strKey.CPtr());
-	int startArea = (CheckMode==-1) ? 0:CheckMode;
-	int endArea = (CheckMode==-1) ? MACRO_LAST:CheckMode+1;
-	for (int i=startArea; i<endArea; i++)
+	int loops = UseCommon && CheckMode!=-1 && CheckMode!=MACRO_COMMON ? 2:1;
+	for (int k=0; k<loops; k++)
 	{
-		for (unsigned j=0; j<m_Macros[i].getSize(); j++)
+		int startArea = (CheckMode==-1) ? 0:CheckMode;
+		int endArea = (CheckMode==-1) ? MACRO_LAST:CheckMode+1;
+		for (int i=startArea; i<endArea; i++)
 		{
-			MacroRecord* MPtr = m_Macros[i].getItem(j);
-			bool found = (Key != -1) ?
-				!((MPtr->Key() ^ Key) & ~0xFFFF) &&
-						Upper(static_cast<WCHAR>(MPtr->Key()))==Upper(static_cast<WCHAR>(Key)) :
-				!strKey.IsEmpty() && !StrCmpI(strKey,MPtr->Name());
-
-			if (found && !(MPtr->Flags()&MFLAGS_DISABLEMACRO))
-					//&& (!MPtr->m_callback || MPtr->m_callback(MPtr->m_id,AKMFLAGS_NONE)))
+			for (unsigned j=0; j<m_Macros[i].getSize(); j++)
 			{
-				*area = i; return j;
+				MacroRecord* MPtr = m_Macros[i].getItem(j);
+				bool found = (Key != -1) ?
+					!((MPtr->Key() ^ Key) & ~0xFFFF) &&
+							Upper(static_cast<WCHAR>(MPtr->Key()))==Upper(static_cast<WCHAR>(Key)) :
+					!strKey.IsEmpty() && !StrCmpI(strKey,MPtr->Name());
+
+				if (found && !(MPtr->Flags()&MFLAGS_DISABLEMACRO))
+						//&& (!MPtr->m_callback || MPtr->m_callback(MPtr->m_id,AKMFLAGS_NONE)))
+				{
+					*area = i; return j;
+				}
 			}
 		}
+		CheckMode=MACRO_COMMON;
 	}
-	if (UseCommon && CheckMode!=-1)
-		return GetIndex(area, Key, strKey, MACRO_COMMON, false, StrictKeys);
-
 	*area = -1;
 	return -1;
 }
