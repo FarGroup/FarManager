@@ -696,7 +696,7 @@ local function basicSerialize (o)
 end
 
 local function int64Serialize (o)
-  if bit64.isint64(o) then
+  if bit64.type(o) then
     return "bit64.new(\"" .. tostring(o) .. "\")"
   end
 end

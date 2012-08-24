@@ -596,12 +596,29 @@ MacroState& MacroState::operator= (const MacroState& src)
 	return *this;
 }
 
+void KeyMacro::PushState()
+{
+	m_CurState.UseInternalClipboard=Clipboard::GetUseInternalClipboardState();
+	m_StateStack.Push(m_CurState);
+	m_CurState = MacroState();
+}
+
+void KeyMacro::PopState()
+{
+	if (!m_StateStack.empty())
+	{
+		m_StateStack.Pop(m_CurState);
+		Clipboard::SetUseInternalClipboardState(m_CurState.UseInternalClipboard);
+	}
+}
+
 KeyMacro::KeyMacro():
 	m_Mode(MACRO_SHELL),
 	m_Recording(MACROMODE_NOMACRO),
 	m_RecMode(MACRO_OTHER),
 	m_LockScr(nullptr),
-	m_PluginIsRunning(0)
+	m_PluginIsRunning(0),
+	m_InternalInput(0)
 {
 	//print_opcodes();
 }
@@ -633,7 +650,7 @@ void KeyMacro::InitInternalVars(bool InitedRAM)
 
 	m_Recording=MACROMODE_NOMACRO;
 	m_StateStack.Free();
-	//InternalInput=FALSE;
+	m_InternalInput=0;
 	//VMStack.Free();
 }
 
@@ -778,15 +795,6 @@ void* KeyMacro::CallMacroPlugin(unsigned Type,void* Data)
 	return result?ptr:nullptr;
 }
 
-void KeyMacro::RemoveCurMacro()
-{
-	m_CurState.RemoveCurMacro();
-	if (m_CurState.m_MacroQueue.Empty() && m_StateStack.size())
-	{
-		m_StateStack.Pop(m_CurState);
-	}
-}
-
 bool KeyMacro::InitMacroExecution()
 {
 	//SZLOG("+InitMacroExecution");
@@ -810,7 +818,7 @@ bool KeyMacro::InitMacroExecution()
 int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 {
 	//SZLOG("+KeyMacro::ProcessEvent");
-	if (Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !FrameManager->GetCurrentFrame()) //FIXME: избавиться от Rec->IntKey
+	if (m_InternalInput || Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !FrameManager->GetCurrentFrame()) //FIXME: избавиться от Rec->IntKey
 		return false;
 	//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"ProcessEvent: %08x\n",Rec->IntKey); fclose(log);}}
 	string textKey;
@@ -880,8 +888,9 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 		}
 		else // m_Recording!=MACROMODE_NOMACRO
 		{
-			if (ctrldot||ctrlshiftdot)
+			if (ctrldot||ctrlshiftdot) // признак конца записи?
 			{
+				m_InternalInput=1;
 				// Залочить _текущий_ фрейм, а не _последний немодальный_
 				FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
 				DWORD MacroKey;
@@ -905,7 +914,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 
 				//> FIXME:
 				//> WaitInMainLoop=WaitInMainLoop0;
-				//> InternalInput=FALSE;
+				m_InternalInput=0;
 				if (AssignRet)
 				{
 					int Area, Pos;
@@ -970,6 +979,11 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 int KeyMacro::GetKey()
 {
 	//SZLOG("+KeyMacro::GetKey, m_PluginIsRunning=%d", m_PluginIsRunning);
+	if (m_InternalInput || !FrameManager->GetCurrentFrame())
+	{
+		return 0;
+	}
+
 	MacroRecord* macro;
 	while (!m_PluginIsRunning && (macro=GetCurMacro()) != nullptr && (macro->m_handle || InitMacroExecution()))
 	{
@@ -987,7 +1001,10 @@ int KeyMacro::GetKey()
 
 				RemoveCurMacro();
 				if (m_CurState.m_MacroQueue.Empty())
+				{
 					ScrBuf.RestoreMacroChar();
+					return 0;
+				}
 
 				continue;
 			}
@@ -1000,7 +1017,7 @@ int KeyMacro::GetKey()
 				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && ScrBuf.GetLockCount()==0)
 					ScrBuf.Lock();
 
-				if (!wcsicmp(key, L"AKey"))
+				if (!StrCmpI(key, L"AKey"))
 				{
 					DWORD aKey=KEY_NONE;
 					if (!(macro->Flags()&MFLAGS_POSTFROMPLUGIN))
@@ -1017,10 +1034,10 @@ int KeyMacro::GetKey()
 					return aKey;
 				}
 
-				if (!wcsicmp(key, L"SelWord"))
+				if (!StrCmpI(key, L"SelWord"))
 					return KEY_OP_SELWORD;
 
-				if (!wcsicmp(key, L"XLat"))
+				if (!StrCmpI(key, L"XLat"))
 					return KEY_OP_XLAT;
 
 				int iKey = KeyNameToKey(key);
@@ -1052,10 +1069,10 @@ int KeyMacro::GetKey()
 						OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
 						MacroRecord* macro = GetCurMacro();
 						bool CallPluginRules = macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO;
-						if( CallPluginRules)
-							m_StateStack.Push(m_CurState);
-						//else
-							//InternalInput++;
+						if (CallPluginRules)
+							PushState();
+						else
+							m_InternalInput++;
 
 						void* ResultCallPlugin=nullptr;
 
@@ -1065,13 +1082,13 @@ int KeyMacro::GetKey()
 						//if (MR != Work.MacroWORK) // ??? Mantis#0002094 ???
 							//MR=Work.MacroWORK;
 
-						if( CallPluginRules == 1 )
-							m_StateStack.Pop(m_CurState);
-						//else
-						//{
+						if (CallPluginRules)
+							PopState();
+						else
+						{
 							//VMStack.Push(Ret);
-							//InternalInput--;
-						//}
+							m_InternalInput--;
+						}
 					}
 					//else
 						//VMStack.Push(Ret);
@@ -1082,13 +1099,6 @@ int KeyMacro::GetKey()
 				//return Ret;
 			}
 		}
-
-		if (macro->Flags() & MFLAGS_DISABLEOUTPUT)
-			ScrBuf.Unlock();
-
-		RemoveCurMacro();
-		if (m_CurState.m_MacroQueue.Empty())
-			ScrBuf.RestoreMacroChar();
 	}
 
 	//SZLOG("-KeyMacro::GetKey, returned 0");
@@ -1097,9 +1107,9 @@ int KeyMacro::GetKey()
 
 int KeyMacro::PeekKey()
 {
-	//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"PeekKey\n"); fclose(log);}}
+	//SZLOG("+PeekKey");
 	int key=0;
-	if (IsExecuting())
+	if (!m_InternalInput && IsExecuting())
 	{
 		if (!StrCmp(m_LastKey, L"first_key")) //FIXME
 			return KEY_NONE;
@@ -1271,7 +1281,7 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 
 int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
 {
-	if (ParseMacroString(PlainText, onlyCheck))
+	if (!m_InternalInput && ParseMacroString(PlainText, onlyCheck))
 	{
 		string strKeyText;
 		KeyToText(AKey,strKeyText);

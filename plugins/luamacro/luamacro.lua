@@ -54,8 +54,7 @@ end
 
 local function MacroInit (args)
   local Text = args[1]
-  if Text and Text.Type==F.FMVT_STRING then
-    Text = Text.Value
+  if Text and type(Text)=="string" then
     local chunk, msg
     if string.sub(Text,1,1) == "@" then
       Text = string.sub(Text,2):gsub("%%(.-)%%", win.GetEnv)
@@ -121,11 +120,11 @@ end
 
 local function MacroParse (args)
   local text, onlyCheck, title, buttons = args[1], args[2], args[3], args[4]
-  if string.sub(text.Value,1,1) ~= "@" then
-    local chunk, msg = loadstring(text.Value)
+  if string.sub(text,1,1) ~= "@" then
+    local chunk, msg = loadstring(text)
     if not chunk then
-      if onlyCheck.Value == 0 then
-        far.Message(msg, title.Value, buttons.Value, "lw")
+      if onlyCheck == 0 then
+        far.Message(msg, title, buttons, "lw")
       end
       LastMessage[1] = msg -- keep alive from gc
       return F.MPRT_ERRORFINISH, LastMessage

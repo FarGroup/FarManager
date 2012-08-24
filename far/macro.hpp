@@ -194,6 +194,7 @@ class KeyMacro
 		class LockScreen* m_LockScr;
 		string m_LastKey;
 		int m_PluginIsRunning;
+		int m_InternalInput;
 	private:
 		bool ReadKeyMacro(MACROMODEAREA Area);
 		void WriteMacro(void);
@@ -206,7 +207,7 @@ class KeyMacro
 		bool InitMacroExecution(void);
 		bool UpdateLockScreen(bool recreate=false);
 		MacroRecord* GetCurMacro() { return m_CurState.GetCurMacro(); }
-		void RemoveCurMacro();
+		void RemoveCurMacro() { m_CurState.RemoveCurMacro(); }
 
 		BOOL CheckEditSelected(UINT64 CurFlags);
 		BOOL CheckInsidePlugin(UINT64 CurFlags);
@@ -241,6 +242,10 @@ class KeyMacro
 		// послать сигнал на прерывание макроса
 		void SendDropProcess();
 		bool CheckWaitKeyFunc();
+
+		void PushState();
+		void PopState();
+
 		// ‘ункци€ получени€ индекса нужного макроса в массиве
 		int GetIndex(int* area, int Key, string& strKey, int CheckMode, bool UseCommon=true, bool StrictKeys=false);
 		int GetIndex(int Key, string& strKey, int CheckMode, bool UseCommon=true, bool StrictKeys=false)
