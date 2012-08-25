@@ -255,7 +255,7 @@ lv=2
 dt=Text
 nm=Глобальные свойства и функции
 ctime=3552221109
-mtime=3554456463
+mtime=3555080499
 <article>
 #_**Свойства:**
 #_
@@ -267,6 +267,7 @@ mtime=3554456463
 #_  band, bnot, bor, bxor
 #_  eval
 #_  Keys
+#_  mmode
 #_  msgbox
 #_  print
 #_  printf

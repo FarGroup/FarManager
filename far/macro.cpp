@@ -793,7 +793,7 @@ void* KeyMacro::CallMacroPlugin(unsigned Type,void* Data)
 
 	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,Type,Data,&ptr);
 
-	if (macro && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
+	if (macro && macro->m_handle && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
 		ScrBuf.Lock();
 
 	m_PluginIsRunning--;
@@ -1205,7 +1205,7 @@ int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool U
 			for (unsigned j=0; j<m_Macros[i].getSize(); j++)
 			{
 				MacroRecord* MPtr = m_Macros[i].getItem(j);
-				bool found = (Key != -1) ?
+				bool found = (Key != -1 && Key != 0) ?
 					!((MPtr->Key() ^ Key) & ~0xFFFF) &&
 							Upper(static_cast<WCHAR>(MPtr->Key()))==Upper(static_cast<WCHAR>(Key)) :
 					!strKey.IsEmpty() && !StrCmpI(strKey,MPtr->Name());
@@ -4390,7 +4390,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 	{
 		TVarType typeIndex=Params[0].type();
 		unsigned Index=(unsigned)Params[0].getInteger()-1;
-		if (typeIndex == vtUnknown || (typeIndex == vtInteger && (int)Index < -1))
+		if (typeIndex == vtUnknown || ((typeIndex==vtInteger || typeIndex==vtDouble) && (int)Index < -1))
 			Index=((Dialog*)CurFrame)->GetDlgFocusPos();
 
 		TVarType typeInfoID=Params[1].type();
