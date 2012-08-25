@@ -181,7 +181,7 @@ void InfoList::DisplayObject()
 		LPSERVER_INFO_101 ServerInfo = nullptr;
 		if(NetServerGetInfo(nullptr, 101, reinterpret_cast<LPBYTE*>(&ServerInfo)) == NERR_Success)
 		{
-			if(*ServerInfo->sv101_comment)
+			if(ServerInfo->sv101_comment && *ServerInfo->sv101_comment)
 			{
 				GotoXY(X1+2,CurY++);
 				PrintText(MInfoCompDescription);
@@ -211,7 +211,7 @@ void InfoList::DisplayObject()
 			LPUSER_INFO_1 UserInfo = nullptr;
 			if(NetUserGetInfo(nullptr, strUserName, 1, reinterpret_cast<LPBYTE*>(&UserInfo)) == NERR_Success)
 			{
-				if(*UserInfo->usri1_comment)
+				if(UserInfo->usri1_comment && *UserInfo->usri1_comment)
 				{
 					GotoXY(X1+2,CurY++);
 					PrintText(MInfoUserDescription);
