@@ -80,6 +80,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "stddlg.hpp"
 
+static BOOL CheckAll(MACROMODEAREA Mode, UINT64 CurFlags);
+
 #if 0
 void print_opcodes()
 {
@@ -785,10 +787,14 @@ void* KeyMacro::CallMacroPlugin(unsigned Type,void* Data)
 	void* ptr;
 	m_PluginIsRunning++;
 
-	int lockCount=ScrBuf.GetLockCount();
-	ScrBuf.SetLockCount(0);
+	MacroRecord* macro = GetCurMacro();
+	if (macro)
+		ScrBuf.SetLockCount(0);
+
 	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,Type,Data,&ptr);
-	ScrBuf.SetLockCount(lockCount);
+
+	if (macro && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
+		ScrBuf.Lock();
 
 	m_PluginIsRunning--;
 	//SZLOG("-KeyMacro::CallMacroPlugin, return=%p", result?ptr:nullptr);
@@ -871,7 +877,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 					if (Index != -1)
 					{
 						MacroRecord* macro = m_Macros[Area].getItem(Index);
-						if (CheckAll(macro->Flags()) && (!macro->m_callback||macro->m_callback(macro->m_id,AKMFLAGS_NONE)))
+						if (CheckAll(macro->Area(), macro->Flags()) && (!macro->m_callback||macro->m_callback(macro->m_id,AKMFLAGS_NONE)))
 						{
 							int ret = PostNewMacro(macro->Code(),macro->Flags(),Rec->IntKey,false);
 							if (ret)
@@ -890,7 +896,9 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 		{
 			if (ctrldot||ctrlshiftdot) // признак конца записи?
 			{
+				int WaitInMainLoop0=WaitInMainLoop;
 				m_InternalInput=1;
+				WaitInMainLoop=FALSE;
 				// Залочить _текущий_ фрейм, а не _последний немодальный_
 				FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
 				DWORD MacroKey;
@@ -912,8 +920,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 					}
 				}
 
-				//> FIXME:
-				//> WaitInMainLoop=WaitInMainLoop0;
+				WaitInMainLoop=WaitInMainLoop0;
 				m_InternalInput=0;
 				if (AssignRet)
 				{
@@ -1233,7 +1240,7 @@ void KeyMacro::RunStartMacro()
 	{
 		MacroRecord* macro = m_Macros[MACRO_SHELL].getItem(j);
 		MACROFLAGS_MFLAGS flags = macro->Flags();
-		if (!(flags&MFLAGS_DISABLEMACRO) && (flags&MFLAGS_RUNAFTERFARSTART) && CheckAll(flags))
+		if (!(flags&MFLAGS_DISABLEMACRO) && (flags&MFLAGS_RUNAFTERFARSTART) && CheckAll(macro->Area(), flags))
 		{
 			PostNewMacro(macro->Code(), flags&~MFLAGS_DISABLEOUTPUT); //FIXME
 		}
@@ -1279,7 +1286,7 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 	return FALSE;
 }
 
-int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
+bool KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
 {
 	if (!m_InternalInput && ParseMacroString(PlainText, onlyCheck))
 	{
@@ -1287,9 +1294,9 @@ int KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool
 		KeyToText(AKey,strKeyText);
 		MacroRecord macro(MACRO_COMMON, Flags, AKey, strKeyText, PlainText, L"");
 		m_CurState.m_MacroQueue.Push(&macro);
-		return TRUE;
+		return true;
 	}
-	return FALSE;
+	return false;
 }
 
 bool KeyMacro::ReadKeyMacro(MACROMODEAREA Area)
@@ -1371,18 +1378,18 @@ const wchar_t *eStackAsString(int)
 	return !s?L"":s;
 }
 
-BOOL KeyMacro::CheckEditSelected(UINT64 CurFlags)
+static BOOL CheckEditSelected(MACROMODEAREA Mode, UINT64 CurFlags)
 {
-	if (m_Mode==MACRO_EDITOR || m_Mode==MACRO_DIALOG || m_Mode==MACRO_VIEWER || (m_Mode==MACRO_SHELL&&CtrlObject->CmdLine->IsVisible()))
+	if (Mode==MACRO_EDITOR || Mode==MACRO_DIALOG || Mode==MACRO_VIEWER || (Mode==MACRO_SHELL&&CtrlObject->CmdLine->IsVisible()))
 	{
-		int NeedType = m_Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(m_Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(m_Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS));
+		int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS));
 		Frame* CurFrame=FrameManager->GetCurrentFrame();
 
 		if (CurFrame && CurFrame->GetType()==NeedType)
 		{
 			int CurSelected;
 
-			if (m_Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
+			if (Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
 			{
 				int SelStart,SelEnd;
 				CtrlObject->CmdLine->GetSelection(SelStart,SelEnd);
@@ -1399,7 +1406,7 @@ BOOL KeyMacro::CheckEditSelected(UINT64 CurFlags)
 	return TRUE;
 }
 
-BOOL KeyMacro::CheckInsidePlugin(UINT64 CurFlags)
+static BOOL CheckInsidePlugin(UINT64 CurFlags)
 {
 	if (CtrlObject && CtrlObject->Plugins->CurPluginItem && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS)) // ?????
 		//if(CtrlObject && CtrlObject->Plugins->CurEditor && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS))
@@ -1408,7 +1415,7 @@ BOOL KeyMacro::CheckInsidePlugin(UINT64 CurFlags)
 	return TRUE;
 }
 
-BOOL KeyMacro::CheckCmdLine(int CmdLength,UINT64 CurFlags)
+static BOOL CheckCmdLine(int CmdLength,UINT64 CurFlags)
 {
 	if (((CurFlags&MFLAGS_EMPTYCOMMANDLINE) && CmdLength) || ((CurFlags&MFLAGS_NOTEMPTYCOMMANDLINE) && CmdLength==0))
 		return FALSE;
@@ -1416,7 +1423,7 @@ BOOL KeyMacro::CheckCmdLine(int CmdLength,UINT64 CurFlags)
 	return TRUE;
 }
 
-BOOL KeyMacro::CheckPanel(int PanelMode,UINT64 CurFlags,BOOL IsPassivePanel)
+static BOOL CheckPanel(int PanelMode,UINT64 CurFlags,BOOL IsPassivePanel)
 {
 	if (IsPassivePanel)
 	{
@@ -1432,7 +1439,7 @@ BOOL KeyMacro::CheckPanel(int PanelMode,UINT64 CurFlags,BOOL IsPassivePanel)
 	return TRUE;
 }
 
-BOOL KeyMacro::CheckFileFolder(Panel *CheckPanel,UINT64 CurFlags, BOOL IsPassivePanel)
+static BOOL CheckFileFolder(Panel *CheckPanel,UINT64 CurFlags, BOOL IsPassivePanel)
 {
 	string strFileName;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
@@ -1455,7 +1462,7 @@ BOOL KeyMacro::CheckFileFolder(Panel *CheckPanel,UINT64 CurFlags, BOOL IsPassive
 	return TRUE;
 }
 
-BOOL KeyMacro::CheckAll(UINT64 CurFlags)
+static BOOL CheckAll (MACROMODEAREA Mode, UINT64 CurFlags)
 {
 	/* $TODO:
 		Здесь вместо Check*() попробовать заюзать IfCondition()
@@ -1497,7 +1504,7 @@ BOOL KeyMacro::CheckAll(UINT64 CurFlags)
 				return FALSE;
 
 		if (CurFlags&(MFLAGS_SELECTION|MFLAGS_NOSELECTION|MFLAGS_PSELECTION|MFLAGS_PNOSELECTION))
-			if (m_Mode!=MACRO_EDITOR && m_Mode != MACRO_DIALOG && m_Mode!=MACRO_VIEWER)
+			if (Mode!=MACRO_EDITOR && Mode != MACRO_DIALOG && Mode!=MACRO_VIEWER)
 			{
 				size_t SelCount=ActivePanel->GetRealSelCount();
 
@@ -1511,7 +1518,7 @@ BOOL KeyMacro::CheckAll(UINT64 CurFlags)
 			}
 	}
 
-	if (!CheckEditSelected(CurFlags))
+	if (!CheckEditSelected(Mode, CurFlags))
 		return FALSE;
 
 	return TRUE;
@@ -1785,7 +1792,6 @@ static bool floatFunc(FarMacroCall*);
 static bool flockFunc(FarMacroCall*);
 static bool fmatchFunc(FarMacroCall*);
 static bool fsplitFunc(FarMacroCall*);
-// НЕ НУЖНА // static bool iifFunc(FarMacroCall*);
 static bool indexFunc(FarMacroCall*);
 static bool intFunc(FarMacroCall*);
 static bool itowFunc(FarMacroCall*);
@@ -1794,16 +1800,10 @@ static bool keybarshowFunc(FarMacroCall*);
 static bool keyFunc(FarMacroCall*);
 static bool lcaseFunc(FarMacroCall*);
 static bool lenFunc(FarMacroCall*);
-// НЕ СЕЙЧАС // static bool macroenumkwdFunc(FarMacroCall*);
-// НЕ СЕЙЧАС // static bool macroenumfuncFunc(FarMacroCall*);
-// НЕ СЕЙЧАС // static bool macroenumvarFunc(FarMacroCall*);
-// НЕ СЕЙЧАС // static bool macroenumConstFunc(FarMacroCall*);
 static bool maxFunc(FarMacroCall*);
 static bool menushowFunc(FarMacroCall*);
 static bool minFunc(FarMacroCall*);
-// ЗАМЕНЕНА // static bool mloadFunc(FarMacroCall*);
 static bool modFunc(FarMacroCall*);
-// ЗАМЕНЕНА // static bool msaveFunc(FarMacroCall*);
 static bool msgBoxFunc(FarMacroCall*);
 static bool panelfattrFunc(FarMacroCall*);
 static bool panelfexistFunc(FarMacroCall*);
@@ -1812,7 +1812,6 @@ static bool panelselectFunc(FarMacroCall*);
 static bool panelsetpathFunc(FarMacroCall*);
 static bool panelsetposFunc(FarMacroCall*);
 static bool panelsetposidxFunc(FarMacroCall*);
-// НЕ СЕЙЧАС // static bool pluginsFunc(FarMacroCall*);
 static bool promptFunc(FarMacroCall*);
 static bool replaceFunc(FarMacroCall*);
 static bool rindexFunc(FarMacroCall*);
@@ -1825,7 +1824,6 @@ static bool substrFunc(FarMacroCall*);
 static bool testfolderFunc(FarMacroCall*);
 static bool trimFunc(FarMacroCall*);
 static bool ucaseFunc(FarMacroCall*);
-// static bool usersFunc(FarMacroCall*);
 static bool waitkeyFunc(FarMacroCall*);
 static bool windowscrollFunc(FarMacroCall*);
 static bool xlatFunc(FarMacroCall*);
@@ -1933,9 +1931,9 @@ static void __parseParams(int Count, TVar* Params, FarMacroCall* Data)
 }
 #define parseParams(c,v,d) TVar v[c]; __parseParams(c,v,d)
 
-__int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
+int KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 {
-	__int64 ret=0;
+	int ret=0;
 	string strFileName;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
@@ -1968,14 +1966,14 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 			return PassString(strFileName, Data);
 
 		case MCODE_V_FAR_PID:
-			return GetCurrentProcessId();
+			return PassNumber(GetCurrentProcessId(), Data);
 
 		case MCODE_V_FAR_UPTIME:
 		{
 			LARGE_INTEGER Frequency, Counter;
 			QueryPerformanceFrequency(&Frequency);
 			QueryPerformanceCounter(&Counter);
-			return ((Counter.QuadPart-FarUpTime.QuadPart)*1000)/Frequency.QuadPart;
+			return PassNumber(((Counter.QuadPart-FarUpTime.QuadPart)*1000)/Frequency.QuadPart, Data);
 		}
 
 		case MCODE_V_MACRO_AREA:
@@ -1998,8 +1996,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		case MCODE_C_CMDLINE_EMPTY:            // CmdLine.Empty
 		case MCODE_C_CMDLINE_SELECTED:         // CmdLine.Selected
 		{
-			PassBoolean(CtrlObject->CmdLine && CtrlObject->CmdLine->VMProcess(CheckCode), Data);
-			return 1;
+			return PassBoolean(CtrlObject->CmdLine && CtrlObject->CmdLine->VMProcess(CheckCode), Data);
 		}
 
 		case MCODE_V_CMDLINE_ITEMCOUNT:        // CmdLine.ItemCount
@@ -2581,21 +2578,20 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 				if (CheckCode == MCODE_V_VIEWERFILENAME)
 				{
 					CtrlObject->Plugins->CurViewer->GetFileName(strFileName);//GetTypeAndName(nullptr,FileName);
-					PassString(strFileName, Data);
-					return 1;
+					return PassString(strFileName, Data);
 				}
 				else
-					return CtrlObject->Plugins->CurViewer->VMProcess(MCODE_V_VIEWERSTATE);
+					return PassNumber(CtrlObject->Plugins->CurViewer->VMProcess(MCODE_V_VIEWERSTATE), Data);
 			}
 
 			return (CheckCode == MCODE_V_VIEWERFILENAME) ? PassString(L"", Data) : 0;
 		}
 
-		case MCODE_OP_JMP:  return msValues[constMsX];
-		case MCODE_OP_JZ:   return msValues[constMsY];
-		case MCODE_OP_JNZ:  return msValues[constMsButton];
-		case MCODE_OP_JLT:  return msValues[constMsCtrlState];
-		case MCODE_OP_JLE:  return msValues[constMsEventFlags];
+		case MCODE_OP_JMP:  return PassNumber(msValues[constMsX], Data);
+		case MCODE_OP_JZ:   return PassNumber(msValues[constMsY], Data);
+		case MCODE_OP_JNZ:  return PassNumber(msValues[constMsButton], Data);
+		case MCODE_OP_JLT:  return PassNumber(msValues[constMsCtrlState], Data);
+		case MCODE_OP_JLE:  return PassNumber(msValues[constMsEventFlags], Data);
 
 		// =========================================================================
 		// Functions
@@ -2949,7 +2945,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		case MCODE_F_PLUGIN_CONFIG: // N=Plugin.Config(Guid[,MenuGuid])
 		case MCODE_F_PLUGIN_COMMAND: // N=Plugin.Command(Guid[,Command])
 		{
-			__int64 Ret=0;
+			int Ret=0;
 			parseParams(2,Params,Data);
 			TVar& Arg = (Params[1]);
 			TVar& Guid = (Params[0]);
@@ -2994,7 +2990,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 			{
 				// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
 				Ret=CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
-				PassInteger(Ret,Data);
+				PassNumber(Ret,Data);
 
 				if (Ret)
 				{
@@ -3009,7 +3005,7 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 			}
 			else
 			{
-				PassInteger(Ret,Data);
+				PassNumber(Ret,Data);
 			}
 
 			// По аналогии с KEY_F11
@@ -3081,47 +3077,30 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 
 			switch (Action.getInteger())
 			{
-#if 0 //FIXME
 				case 1: // DisableOutput
 				{
-					Result=LockScr?1:0;
+					Result = (MR->Flags()&MFLAGS_DISABLEOUTPUT) ? 1:0;
 
-					if (nValue == 2) // изменяет режим отображения ("DisableOutput").
+					if (Result && (nValue==0 || nValue==2))
 					{
-						if (MR->Flags()&MFLAGS_DISABLEOUTPUT)
-							nValue=0;
-						else
-							nValue=1;
+						ScrBuf.Unlock();
+						ScrBuf.Flush();
+						MR->m_flags&=~MFLAGS_DISABLEOUTPUT;
+					}
+					else if (!Result && (nValue==1 || nValue==2))
+					{
+						ScrBuf.Lock();
+						MR->m_flags|=MFLAGS_DISABLEOUTPUT;
 					}
 
-					switch (nValue)
-					{
-						case 0: // DisableOutput=0, разлочить экран
-							if (LockScr)
-							{
-								delete LockScr;
-								LockScr=nullptr;
-							}
-							MR->m_flags&=~MFLAGS_DISABLEOUTPUT;
-							break;
-						case 1: // DisableOutput=1, залочить экран
-							if (!LockScr)
-								LockScr=new LockScreen;
-							MR->m_flags|=MFLAGS_DISABLEOUTPUT;
-							break;
-					}
-
-					break;
+					return PassNumber(Result, Data);
 				}
-#endif
+
 				case 2: // Get MacroRecord Flags
 				{
-					Result=(__int64)MR->Flags();
-#if 0 //FIXME
-					if ((Result&MFLAGS_MODEMASK) == MACRO_COMMON)
-						Result|=0x00FF; // ...что бы Common был всегда последним.
-#endif
-					break;
+					Result = MR->Flags();
+					Result = (Result<<8) | (MR->Area()==MACRO_COMMON ? 0xFF : MR->Area());
+					return PassNumber(Result, Data);
 				}
 
 				case 3: // CallPlugin Rules
@@ -3139,12 +3118,9 @@ __int64 KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 							MR->m_flags^=MFLAGS_CALLPLUGINENABLEMACRO;
 							break;
 					}
-
-					break;
+					return PassNumber(Result, Data);
 				}
 			}
-
-			return Result;
 		}
 	}
 
@@ -3388,12 +3364,11 @@ static bool windowscrollFunc(FarMacroCall* Data)
 {
 	parseParams(2,Params,Data);
 	bool Ret=false;
-	TVar L=Params[0];
+	int L=0;
 
 	if (Opt.WindowMode)
 	{
 		int Lines=(int)Params[0].i(), Columns=0;
-		L=0;
 		if (Params[1].i())
 		{
 			Columns=Lines;
@@ -3406,10 +3381,8 @@ static bool windowscrollFunc(FarMacroCall* Data)
 			L=1;
 		}
 	}
-	else
-		L=0;
 
-	PassValue(&L, Data);
+	PassNumber(L, Data);
 	return Ret;
 }
 
@@ -3629,8 +3602,8 @@ static bool dateFunc(FarMacroCall* Data)
 /*
   Flags:
   	XLAT_SWITCHKEYBLAYOUT  = 1
-	XLAT_SWITCHKEYBBEEP    = 2
-	XLAT_USEKEYBLAYOUTNAME = 4
+		XLAT_SWITCHKEYBBEEP    = 2
+		XLAT_USEKEYBLAYOUTNAME = 4
 */
 static bool xlatFunc(FarMacroCall* Data)
 {
@@ -4301,7 +4274,7 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 	else if (Type == 3) // panel.fexist(3)
 		FileAttr=(DWORD)Pos+1;
 
-	PassNumber(FileAttr, Data);
+	PassNumber((long)FileAttr, Data);
 	return Ret;
 }
 
@@ -5328,8 +5301,8 @@ static bool panelitemFunc(FarMacroCall* Data)
 				Ret=TVar(filelistItem.strShortName);
 				break;
 			case 2:  // FileAttr
-				Ret=TVar((__int64)(long)filelistItem.FileAttr);
-				break;
+				PassNumber((long)filelistItem.FileAttr, Data);
+				return false;
 			case 3:  // CreationTime
 				ConvertDate(filelistItem.CreationTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
 				strDate += L" ";
@@ -5355,14 +5328,14 @@ static bool panelitemFunc(FarMacroCall* Data)
 				Ret=TVar((__int64)filelistItem.AllocationSize);
 				break;
 			case 8:  // Selected
-				Ret=TVar((__int64)((DWORD)filelistItem.Selected));
-				break;
+				PassNumber((DWORD)filelistItem.Selected, Data);
+				return false;
 			case 9:  // NumberOfLinks
-				Ret=TVar((__int64)filelistItem.NumberOfLinks);
-				break;
+				PassNumber(filelistItem.NumberOfLinks, Data);
+				return false;
 			case 10:  // SortGroup
-				Ret=TVar((__int64)filelistItem.SortGroup);
-				break;
+				PassNumber(filelistItem.SortGroup, Data);
+				return false;
 			case 11:  // DizText
 				Ret=TVar((const wchar_t *)filelistItem.DizText);
 				break;
@@ -5370,11 +5343,11 @@ static bool panelitemFunc(FarMacroCall* Data)
 				Ret=TVar(filelistItem.strOwner);
 				break;
 			case 13:  // CRC32
-				Ret=TVar((__int64)filelistItem.CRC32);
-				break;
+				PassNumber(filelistItem.CRC32, Data);
+				return false;
 			case 14:  // Position
-				Ret=TVar((__int64)filelistItem.Position);
-				break;
+				PassNumber(filelistItem.Position, Data);
+				return false;
 			case 15:  // CreationTime (FILETIME)
 				Ret=TVar((__int64)FileTimeToUI64(&filelistItem.CreationTime));
 				break;
@@ -5385,8 +5358,8 @@ static bool panelitemFunc(FarMacroCall* Data)
 				Ret=TVar((__int64)FileTimeToUI64(&filelistItem.WriteTime));
 				break;
 			case 18: // NumberOfStreams
-				Ret=TVar((__int64)filelistItem.NumberOfStreams);
-				break;
+				PassNumber(filelistItem.NumberOfStreams, Data);
+				return false;
 			case 19: // StreamsSize
 				Ret=TVar((__int64)filelistItem.StreamsSize);
 				break;
@@ -5404,8 +5377,8 @@ static bool panelitemFunc(FarMacroCall* Data)
 				break;
 			case 23:  // ReparseTag
 			{
-				Ret=TVar((__int64)filelistItem.ReparseTag);
-				break;
+				PassNumber(filelistItem.ReparseTag, Data);
+				return false;
 			}
 		}
 	}
@@ -5576,12 +5549,10 @@ static bool ascFunc(FarMacroCall* Data)
 	TVar& tmpVar(Params[0]);
 
 	if (tmpVar.isString())
-	{
-		tmpVar = (__int64)((DWORD)((WORD)*tmpVar.toString()));
-		tmpVar.toInteger();
-	}
+		PassNumber((DWORD)(WORD)*tmpVar.toString(), Data);
+	else
+		PassValue(&tmpVar, Data);
 
-	PassValue(&tmpVar, Data);
 	return true;
 }
 

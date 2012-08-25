@@ -55,10 +55,10 @@ enum MACRODISABLEONLOAD
 
 typedef unsigned __int64 MACROFLAGS_MFLAGS;
 static const MACROFLAGS_MFLAGS
-	MFLAGS_DISABLEOUTPUT           =0x0000000000000001, //! подавить обновление экрана во время выполнения макроса
+	MFLAGS_DISABLEOUTPUT           =0x0000000000000001, // подавить обновление экрана во время выполнения макроса
 	MFLAGS_NOSENDKEYSTOPLUGINS     =0x0000000000000002, // НЕ передавать плагинам клавиши во время записи/воспроизведения макроса
 	MFLAGS_RUNAFTERFARSTARTED      =0x0000000000000004, //! этот макрос уже запускался при старте ФАРа
-	MFLAGS_RUNAFTERFARSTART        =0x0000000000000008, //! этот макрос запускается при старте ФАРа
+	MFLAGS_RUNAFTERFARSTART        =0x0000000000000008, // этот макрос запускается при старте ФАРа
 
 	MFLAGS_EMPTYCOMMANDLINE        =0x0000000000000010, // запускать, если командная линия пуста
 	MFLAGS_NOTEMPTYCOMMANDLINE     =0x0000000000000020, // запускать, если командная линия не пуста
@@ -81,7 +81,7 @@ static const MACROFLAGS_MFLAGS
 	MFLAGS_POSTFROMPLUGIN          =0x0000000000200000, //! последовательность пришла от АПИ
 	MFLAGS_NEEDSAVEMACRO           =0x0000000000400000, //! необходимо этот макрос запомнить
 	MFLAGS_DISABLEMACRO            =0x0000000000800000, //! этот макрос отключен
-	MFLAGS_CALLPLUGINENABLEMACRO   =0x0000000001000000; //! разрешить макросы при вызове плагина функцией CallPlugin
+	MFLAGS_CALLPLUGINENABLEMACRO   =0x0000000001000000; // разрешить макросы при вызове плагина функцией CallPlugin
 
 
 // коды возврата для KeyMacro::GetCurRecord()
@@ -209,13 +209,6 @@ class KeyMacro
 		MacroRecord* GetCurMacro() { return m_CurState.GetCurMacro(); }
 		void RemoveCurMacro() { m_CurState.RemoveCurMacro(); }
 
-		BOOL CheckEditSelected(UINT64 CurFlags);
-		BOOL CheckInsidePlugin(UINT64 CurFlags);
-		BOOL CheckPanel(int PanelMode,UINT64 CurFlags, BOOL IsPassivePanel);
-		BOOL CheckCmdLine(int CmdLength,UINT64 Flags);
-		BOOL CheckFileFolder(Panel *ActivePanel,UINT64 CurFlags, BOOL IsPassivePanel);
-		BOOL CheckAll(UINT64 CurFlags);
-
 	public:
 		KeyMacro();
 		~KeyMacro();
@@ -254,9 +247,9 @@ class KeyMacro
 		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);
 		// Поместить временное строковое представление макроса
-		int PostNewMacro(const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
+		bool PostNewMacro(const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
 		bool ParseMacroString(const wchar_t *Sequence,bool onlyCheck=false);
-		__int64 CallFar(int OpCode, FarMacroCall* Data);
+		int CallFar(int OpCode, FarMacroCall* Data);
 };
 
 const wchar_t *eStackAsString(int Pos=0);

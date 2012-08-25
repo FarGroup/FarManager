@@ -348,9 +348,9 @@ mf = {
   index           = function(...) return MacroCallFar(0x80C12, ...) end,
   int             = function(...) return MacroCallFar(0x80C13, ...) end,
   itoa            = function(...) return MacroCallFar(0x80C14, ...) end,
-  kbdLayout       = function(...) return MacroCallFar(0x80C49, ...) end,
+--kbdLayout       = function(...) return MacroCallFar(0x80C49, ...) end, --> Far.KbdLayout
   key             = function(...) return MacroCallFar(0x80C15, ...) end,
-  KeyBar_Show     = function(...) return MacroCallFar(0x80C4B, ...) end,
+--KeyBar_Show     = function(...) return MacroCallFar(0x80C4B, ...) end, --> Far.KeyBar_Show
   lcase           = function(...) return MacroCallFar(0x80C16, ...) end,
   len             = function(...) return MacroCallFar(0x80C17, ...) end,
 --Macro_Const     = function(...) return MacroCallFar(0x80C5E, ...) end, -> removed
@@ -378,7 +378,7 @@ mf = {
   trim            = function(...) return MacroCallFar(0x80C40, ...) end,
   ucase           = function(...) return MacroCallFar(0x80C2E, ...) end,
   waitkey         = function(...) return MacroCallFar(0x80C2F, ...) end,
-  Window_Scroll   = function(...) return MacroCallFar(0x80C4A, ...) end,
+--Window_Scroll   = function(...) return MacroCallFar(0x80C4A, ...) end, --> Far.Window_Scroll
   xlat            = function(...) return MacroCallFar(0x80C30, ...) end,
 }
 
@@ -582,6 +582,9 @@ SetProperties(Menu, {
 Far = {
   Cfg_Get        = function(...) return MacroCallFar(0x80C58, ...) end,
   DisableHistory = function(...) return MacroCallFar(0x80C4C, ...) end,
+  KbdLayout      = function(...) return MacroCallFar(0x80C49, ...) end,
+  KeyBar_Show    = function(...) return MacroCallFar(0x80C4B, ...) end,
+  Window_Scroll  = function(...) return MacroCallFar(0x80C4A, ...) end,
 }
 
 SetProperties(Far, {
