@@ -986,15 +986,21 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 int KeyMacro::GetKey()
 {
 	//SZLOG("+KeyMacro::GetKey, m_PluginIsRunning=%d", m_PluginIsRunning);
-	if (m_InternalInput || !FrameManager->GetCurrentFrame())
+	if (m_PluginIsRunning || m_InternalInput || !FrameManager->GetCurrentFrame())
 	{
 		return 0;
 	}
 
 	MacroRecord* macro;
-	while (!m_PluginIsRunning && (macro=GetCurMacro()) != nullptr && (macro->m_handle || InitMacroExecution()))
+	FarMacroValue mp_values[2]={{FMVT_DOUBLE,{0}},{FMVT_DOUBLE,{0}}};
+	OpenMacroInfo mp_info={sizeof(OpenMacroInfo), 1, mp_values};
+
+	while ((macro=GetCurMacro()) != nullptr && (macro->m_handle || InitMacroExecution()))
 	{
-		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_MACROSTEP,macro->m_handle);
+		mp_values[0].Double=(intptr_t)macro->m_handle;
+
+		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_MACROSTEP,&mp_info);
+		mp_info.Count=1;
 		if (mpr == nullptr)
 			break;
 
@@ -1063,7 +1069,7 @@ int KeyMacro::GetKey()
 
 			case MPRT_PLUGINCALL: // V=Plugin.Call(SysID[,param])
 			{
-				__int64 Ret=0;
+				int Ret=0;
 				size_t count = mpr->ArgNum;
 				if(count>0 && mpr->Args[0].Type==FMVT_STRING)
 				{
@@ -1084,7 +1090,10 @@ int KeyMacro::GetKey()
 						void* ResultCallPlugin=nullptr;
 
 						if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
-							Ret=(__int64)ResultCallPlugin;
+							Ret=(intptr_t)ResultCallPlugin;
+
+						mp_values[1].Double=Ret;
+						mp_info.Count=2;
 
 						//if (MR != Work.MacroWORK) // ??? Mantis#0002094 ???
 							//MR=Work.MacroWORK;

@@ -75,12 +75,13 @@ local function MacroInit (args)
   end
 end
 
-local function MacroStep (handle)
+local function MacroStep (args)
+  local handle = args[1]
   local macro = macros[handle]
   if macro then
     local status = co_status(macro.coro)
     if status == "suspended" then
-      local ok, ret1, ret2 = co_resume(macro.coro)
+      local ok, ret1, ret2 = co_resume(macro.coro, unpack(args, 2))
       if ok then
         macro.step = macro.step + 1
         status = co_status(macro.coro)
@@ -107,7 +108,8 @@ local function MacroStep (handle)
   end
 end
 
-local function MacroFinal (handle)
+local function MacroFinal (args)
+  local handle = args[1]
   if macros[handle] then
     macros[handle] = false -- false, not nil!
     --far.Message("Final: closed handle "..handle)
