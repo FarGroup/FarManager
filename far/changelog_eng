@@ -3,6 +3,14 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 27.08.2012 15:26:16 +0200 - build 2791
+
+1. Properties could not be shown in the disk menu in old Windows versions.
+
+drkns 25.08.2012 23:22:21 +0200 - build 2790
+
+1. Info panel invocation could cause crash in some cases.
+
 w17 14.08.2012 20:17:00 +0400 - build 2789
 
 1. M#0002144: Interface.CtrlPgUp option change was not stored
