@@ -10875,7 +10875,7 @@ upd:"Unicode"
 "Unicode"
 
 MGetCodePageFavorites
-"Избранные"
+"Любимые"
 "Favorites"
 upd:"Favorites"
 upd:"Favorites"
