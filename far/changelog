@@ -1,3 +1,15 @@
+svs 04.09.2012 20:02:31 +0400 - build 2793
+
+1. SQLite 3.7.14
+
+2. Mantis#0002141: Не работает $AKey в макросах на MsWheelUp/MsWheelDown
+
+3. Немного хелпа для TI:
+     #12 Help.ActivateURL
+     #47 Confirmations.EscTwiceToInterrupt
+     #7  System.AllCtrlAltShiftRule
+     #68 System.CASRule
+
 w17 04.09.2012 19:41:42 +0400 - build 2792
 
 1. M#2147 -- UTF7 excluded from FindFile 'AllCodepages'

@@ -5327,7 +5327,7 @@ done:
 				INPUT_RECORD *inRec=&Work.cRec;
 				if (!inRec->EventType)
 					inRec->EventType = KEY_EVENT;
-				if(inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
+				if(inRec->EventType == MOUSE_EVENT || inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
 					aKey=ShieldCalcKeyCode(inRec,FALSE,nullptr);
 			}
 			else
