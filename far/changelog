@@ -1,3 +1,7 @@
+w17 04.09.2012 19:41:42 +0400 - build 2792
+
+1. M#2147 -- UTF7 excluded from FindFile 'AllCodepages'
+
 drkns 27.08.2012 15:26:16 +0200 - build 2791
 
 1. Не работал вызов свойств из меню дисков в старых версиях Windows.
