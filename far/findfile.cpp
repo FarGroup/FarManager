@@ -523,14 +523,13 @@ void InitInFileSearch()
 				// Добавляем стандартные таблицы символов
 				if (!hasSelected)
 				{
-					codePagesCount = StandardCPCount;
+					codePagesCount = 5;
 					codePages = (CodePageInfo *)xf_malloc(codePagesCount*sizeof(CodePageInfo));
 					codePages[0].CodePage = GetOEMCP();
 					codePages[1].CodePage = GetACP();
-					codePages[2].CodePage = CP_UTF7;
-					codePages[3].CodePage = CP_UTF8;
-					codePages[4].CodePage = CP_UNICODE;
-					codePages[5].CodePage = CP_REVERSEBOM;
+					codePages[2].CodePage = CP_UTF8;
+					codePages[3].CodePage = CP_UNICODE;
+					codePages[4].CodePage = CP_REVERSEBOM;
 				}
 				else
 				{
@@ -538,7 +537,7 @@ void InitInFileSearch()
 					codePages = nullptr;
 				}
 
-				// Добавляем стандартные таблицы символов
+				// Добавляем любимые таблицы символов
 				for (DWORD i=0; GeneralCfg->EnumValues(FavoriteCodePagesKey, i, codePageName, &data); i++)
 				{
 					if (data & (hasSelected?CPST_FIND:CPST_FAVORITE))

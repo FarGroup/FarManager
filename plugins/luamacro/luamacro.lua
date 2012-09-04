@@ -36,13 +36,16 @@ function _G.Keys (...)
 end
 
 function _G.print (str)
-  str = tostring(str)
-  co_yield(F.MPRT_PRINT, str)
+  co_yield(F.MPRT_PRINT, tostring(str))
 end
 
 function _G.printf (fmt, ...)
   checkarg(fmt,1,"string")
   return _G.print(fmt:format(...))
+end
+
+function _G.exit ()
+  co_yield("exit")
 end
 
 local PluginInfo = {
@@ -85,7 +88,7 @@ local function MacroStep (args)
       if ok then
         macro.step = macro.step + 1
         status = co_status(macro.coro)
-        if status == "suspended" then
+        if status == "suspended" and ret1 ~= "exit" then
           macro.store[1] = ret2
           return ret1, (ret1 ~= F.MPRT_PLUGINCALL) and macro.store or ret2
         else

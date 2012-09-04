@@ -197,7 +197,7 @@ lv=2
 dt=Text
 nm=Изменения API в сравнении с макроязыком
 ctime=3553185939
-mtime=3555077219
+mtime=3555411576
 <article>
 #_<markdown>
 #_
@@ -206,6 +206,7 @@ mtime=3555077219
 #_1. `$AKey -> Keys("AKey")`
 #_1. `$SelWord -> Keys("SelWord")`
 #_1. `$XLat -> Keys("XLat")`
+#_1. `$Exit ->` ` `[`exit()`][exit]
 #_1. Логические свойства имеют тип *boolean* (поэтому нет смысла сравнивать их с числом `0`).
 #_1. Функция `prompt` может возвращать либо стринг, либо `false` (но никогда не число `0`).
 #_1. Многие функции помещены в таблицу [`mf`] [mf] (сокращение от *macrofunctions*),
@@ -218,7 +219,7 @@ mtime=3555077219
 #_1. `GetHotkey -> Object.GetHotkey`
 #_1. Логические свойства проверки области исполнения находятся в таблице [`Area`][Area],
 #_   например: `Area.Editor`, `Area.Shell`.
-#_1. `MacroArea -> Area.Current`.
+#_1. `Macro.Area -> Area.Current`.
 #_1. `Dialog.AutoCompletion -> Area.DialogAutoCompletion`
 #_1. `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
 #_1. `CallPlugin -> Plugin.Call`
@@ -227,7 +228,7 @@ mtime=3555077219
 #_1. `Far.Cfg.Get -> Far.Cfg_Get`. Эта функция возвращает стринг в случае успеха
 #_    или `false` в случае неудачи.
 #_1. `Far.Cfg.Err` больше не существует.
-#_1. `FullScreenMode -> Far.FullScreenMode`
+#_1. `FullScreen -> Far.FullScreen`
 #_1. `IsUserAdmin -> Far.IsUserAdmin`
 #_1. `History.Disable -> Far.DisableHistory`
 #_1. `KbdLayout -> Far.KbdLayout`
@@ -238,6 +239,7 @@ mtime=3555077219
 #_1. `RCounter` больше не существует.
 #_1. `Macro.Const`, `Macro.Func`, `Macro.Keyword` и `Macro.Var` больше не существуют.
 #_
+#_[exit]: 61.html
 #_[mload]: 13.html
 #_[msave]: 12.html
 #_[mf]: 44.html
@@ -255,7 +257,7 @@ lv=2
 dt=Text
 nm=Глобальные свойства и функции
 ctime=3552221109
-mtime=3555080499
+mtime=3555648492
 <article>
 #_**Свойства:**
 #_
@@ -264,8 +266,9 @@ mtime=3555080499
 #_**Функции:**
 #_
 #_  akey
-#_  band, bnot, bor, bxor
+#_  band, bnot, bor, bxor, lshift, rshift
 #_  eval
+#_  exit
 #_  Keys
 #_  mmode
 #_  msgbox
@@ -275,14 +278,37 @@ mtime=3555080499
 #_
 #_**Примечание:**
 #_
-#_Функции *band*, *bnot*, *bor* и *bxor* (операции с битами) - это глобальные
-#_ссылки на одноимённые функции из библиотеки *bit64* (см. LuaFAR manual).
+#_Функции *band*, *bnot*, *bor*, *bxor*, *lshift* и *rshift* (операции с битами)
+#_- это глобальные ссылки на одноимённые функции из библиотеки *bit64*
+#_(см. LuaFAR manual).
 #_
 #_@@@
 #_<lua> Links = {
+#_  exit="61.html",
 #_  Keys="4.html",
-#_  printf="60.html"
+#_  printf="60.html",
 #_} </lua>
+#_
+</article>
+</node>
+<node>
+id=61
+lv=3
+dt=Text
+nm=exit
+ctime=3555411121
+mtime=3555411243
+<article>
+#_exit ()
+#_
+#_**Параметры:**
+#_  нет
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  Завершить работу макроса.
 #_
 </article>
 </node>
@@ -292,7 +318,7 @@ lv=3
 dt=Text
 nm=Keys
 ctime=3551902602
-mtime=3554450327
+mtime=3555215307
 <article>
 #_Keys (...)
 #_
@@ -317,7 +343,7 @@ mtime=3554450327
 #_
 #_**Пример:**
 #_  mykeys = "CtrlF5 Esc"
-#_  Keys(AKey, "A b CtrlC ShiftEnter", mykeys)
+#_  Keys("AKey A b CtrlC ShiftEnter", mykeys)
 #_
 #_
 </article>
@@ -720,13 +746,13 @@ lv=2
 dt=Text
 nm=Far
 ctime=3553252749
-mtime=3555076694
+mtime=3555391522
 <article>
 #_**Far** - таблица со следующими полями:
 #_
 #_**Свойства:**
 #_
-#_  FullScreenMode:  boolean
+#_  FullScreen:      boolean
 #_  Height:          number
 #_  IsUserAdmin:     boolean
 #_  PID:             number

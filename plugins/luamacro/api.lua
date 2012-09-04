@@ -588,7 +588,7 @@ Far = {
 }
 
 SetProperties(Far, {
-  FullScreenMode = function() return MacroCallFar(0x80411) end,
+  FullScreen     = function() return MacroCallFar(0x80411) end,
   Height         = function() return MacroCallFar(0x80801) end,
   IsUserAdmin    = function() return MacroCallFar(0x80412) end,
   PID            = function() return MacroCallFar(0x80804) end,
@@ -649,7 +649,9 @@ Mouse   = SetProperties({}, prop_Mouse)
 Viewer  = SetProperties({}, prop_Viewer)
 --------------------------------------------------------------------------------
 
-_G.band,_G.bnot,_G.bor,_G.bxor = bit64.band,bit64.bnot,bit64.bor,bit64.bxor
+_G.band, _G.bnot, _G.bor, _G.bxor, _G.lshift, _G.rshift =
+  bit64.band, bit64.bnot, bit64.bor, bit64.bxor, bit64.lshift, bit64.rshift
+
 _G.akey   = function(...) return MacroCallFar(0x80C02, ...) end
 _G.mmode  = function(...) return MacroCallFar(0x80C44, ...) end
 _G.msgbox = function(...) return MacroCallFar(0x80C21, ...) end

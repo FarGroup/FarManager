@@ -1606,7 +1606,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
 				// "\\?\c:\" fails on old windows
 				bool Root;
-				string strFullName((ParsePath(strSelName, nullptr, &Root) == PATH_DRIVELETTERUNC && Root)?strSelName:NTPath(strSelName));
+				string strFullName((ParsePath(strSelName, nullptr, &Root) == PATH_DRIVELETTER && Root)?strSelName:NTPath(strSelName));
 				if(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 				{
 					AddEndSlash(strFullName);
