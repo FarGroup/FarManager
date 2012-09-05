@@ -1,3 +1,8 @@
+w17 05.09.2012 16:19:47 +0400 - build 2794
+
+1. M#2135: typing 'shift + letter' diacritic sequence also outputs the + character
+   (from Maximus)
+
 svs 04.09.2012 20:02:31 +0400 - build 2793
 
 1. SQLite 3.7.14
