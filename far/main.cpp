@@ -746,8 +746,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	ReadConfig();
 
-	SetEnvironmentVariable(L"FARCONFIGMODE", Opt.ReadOnlyConfig?L"RO":nullptr);
-
 	//Настройка OEM сортировки
 #ifndef NO_WRAPPER
 	wrapper::LocalUpperInit();

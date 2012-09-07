@@ -100,8 +100,6 @@ extern const wchar_t constMsEventFlags[];
 extern const wchar_t constRCounter[];
 extern const wchar_t constFarCfgErr[];
 
-extern DWORD RedrawTimeout;
-
 extern SYSTEM_INFO SystemInfo;
 inline bool IsPtr(const void* Address)
 {

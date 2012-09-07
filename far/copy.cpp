@@ -228,7 +228,7 @@ bool CopyProgress::Timer()
 	bool Result=false;
 	DWORD Time=GetTickCount();
 
-	if (!LastWriteTime||(Time-LastWriteTime>=RedrawTimeout))
+	if (!LastWriteTime||(Time-LastWriteTime>=(DWORD)Opt.RedrawTimeout))
 	{
 		LastWriteTime=Time;
 		Result=true;
@@ -3859,15 +3859,16 @@ int ShellCopy::SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_
 
 BOOL ShellCopySecuryMsg(const wchar_t *Name)
 {
-	static clock_t PrepareSecuryStartTime;
+	static DWORD PrepareSecuryStartTime=0;
 
-	if (!Name || !*Name || (static_cast<clock_t>(clock() - PrepareSecuryStartTime) > static_cast<clock_t>(Opt.ShowTimeoutDACLFiles)))
+	DWORD CurTime=GetTickCount();
+	if (!Name || !*Name || ((CurTime - PrepareSecuryStartTime) > (DWORD)Opt.RedrawTimeout))
 	{
 		static int Width=30;
 		int WidthTemp;
 		if (Name && *Name)
 		{
-			PrepareSecuryStartTime = clock();     // Первый файл рисуется всегда
+			PrepareSecuryStartTime = CurTime;     // Первый файл рисуется всегда
 			WidthTemp=Max(StrLength(Name),30);
 		}
 		else

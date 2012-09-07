@@ -342,7 +342,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 //      FileCount++;
 
 			DWORD CurTime = GetTickCount();
-			if (CurTime - StartTime > RedrawTimeout)
+			if (CurTime - StartTime > (DWORD)Opt.RedrawTimeout)
 			{
 				StartTime = CurTime;
 				if (IsVisible())

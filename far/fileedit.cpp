@@ -1592,7 +1592,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		LastLineCR=0;
 		DWORD CurTime=GetTickCount();
 
-		if (CurTime-StartTime>RedrawTimeout)
+		if (CurTime-StartTime>(DWORD)Opt.RedrawTimeout)
 		{
 			StartTime=CurTime;
 
@@ -1963,7 +1963,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		{
 			DWORD CurTime=GetTickCount();
 
-			if (CurTime-StartTime>RedrawTimeout)
+			if (CurTime-StartTime>(DWORD)Opt.RedrawTimeout)
 			{
 				StartTime=CurTime;
 				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,(int)(LineNumber*100/m_editor->NumLastLine));
