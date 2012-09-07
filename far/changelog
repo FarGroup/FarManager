@@ -1,3 +1,23 @@
+svs 07.09.2012 14:09:44 +0400 - build 2795
+
+1. Немного хелпа для TI:
+     #75 Panel.ShellRightLeftArrowsRule
+     #43 Panel.Layout.ScrollbarMenu
+     #14 Panel.CtrlFRule
+     #8  Panel.CtrlAltShiftRule
+     #6  Panel.RightClickRule
+     #79 System.ExcludeCmdHistory
+     #45 System.Executor.RestoreCP
+     #49 System.Executor.UseAppPath
+     #54 System.Executor.ExcludeCmds
+     #74 System.Executor.FullTitle
+     #78 Interface.FormatNumberSeparators
+     #73 System.Executor.BatchType
+
+2. ФАР выставляет переменную среды FARCONFIGMODE = RO, если работает с базами конфигурации 
+   в readonly-режиме (указан параметр ком.строки "/ro").
+   В нормальном режиме работы с базами переменная FARCONFIGMODE отсутствует.
+
 w17 05.09.2012 16:19:47 +0400 - build 2794
 
 1. M#2135: typing 'shift + letter' diacritic sequence also outputs the + character
