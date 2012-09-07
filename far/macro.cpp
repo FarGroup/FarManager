@@ -1839,6 +1839,7 @@ static bool xlatFunc(FarMacroCall*);
 static bool pluginloadFunc(FarMacroCall*);
 static bool pluginunloadFunc(FarMacroCall*);
 static bool pluginexistFunc(FarMacroCall*);
+static bool ReadVarsConsts(FarMacroCall*);
 
 int PassString (const wchar_t* str, FarMacroCall* Data)
 {
@@ -2670,6 +2671,7 @@ int KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
 		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(Data);
 		case MCODE_F_XLAT:            return xlatFunc(Data);
 		case MCODE_F_PROMPT:          return promptFunc(Data);
+		case MCODE_OP_JGE:            return ReadVarsConsts(Data);
 
 		case MCODE_OP_JGT: // Получение кода макроса для Eval(S,2).
 		{
@@ -5853,6 +5855,30 @@ static bool testfolderFunc(FarMacroCall* Data)
 
 	PassNumber(Ret, Data);
 	return Ret?true:false;
+}
+
+static bool ReadVarsConsts (FarMacroCall* Data)
+{
+	parseParams(1,Params,Data);
+	string strName;
+	string Value, strType;
+	bool received = false;
+
+	if (!StrCmp(Params[0].s(), L"consts"))
+		received = MacroCfg->EnumConsts(strName, Value, strType);
+	else if (!StrCmp(Params[0].s(), L"vars"))
+		received = MacroCfg->EnumVars(strName, Value, strType);
+
+	if (received)
+	{
+		PassString(strName,Data);
+		PassString(Value,Data);
+		PassString(strType,Data);
+	}
+	else
+		PassBoolean(0, Data);
+
+	return true;
 }
 
 #else

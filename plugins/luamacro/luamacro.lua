@@ -147,7 +147,23 @@ function export.Open (OpenFrom, Guid, Item)
   end
 end
 
+local function ReadVarsConsts (region)
+  while true do
+    local sName,sValue,sType = far.MacroCallFar(0x80007,region)
+    if not sName then break end
+    if _G[sName] == nil then -- protect existing globals
+      if     sType=="text"    then _G[sName]=sValue
+      elseif sType=="real"    then _G[sName]=tonumber(sValue)
+      elseif sType=="integer" then _G[sName]=bit64.new(sValue)
+      end
+    end
+  end
+end
+
 do
   local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."api.lua")
   if func then func() else ErrMsg(msg) end
+
+  ReadVarsConsts("consts")
+  ReadVarsConsts("vars")
 end
