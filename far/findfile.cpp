@@ -1547,7 +1547,7 @@ intptr_t WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 	{
 		Recurse=true;
 		DWORD Time=GetTickCount();
-		if(Time-ShowTime>RedrawTimeout)
+		if(Time-ShowTime>(DWORD)Opt.RedrawTimeout)
 		{
 			ShowTime=Time;
 			if (!StopEvent.Signaled())
@@ -1883,7 +1883,7 @@ intptr_t WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 								{
 									FINDLIST FindItem;
 									itd.GetFindListItem(I, FindItem);
-									
+
 									bool RealNames=true;
 									if(FindItem.ArcIndex != LIST_INDEX_NONE)
 									{

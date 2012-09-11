@@ -110,8 +110,6 @@ const wchar_t constRCounter[]=L"RCounter";
 const wchar_t constFarCfgErr[]=L"Far.Cfg.Err";
 #endif
 
-DWORD RedrawTimeout=200;
-
 SYSTEM_INFO SystemInfo;
 
 FormatScreen FS;

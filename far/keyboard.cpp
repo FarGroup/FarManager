@@ -895,6 +895,8 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 
 	if (rec->EventType==KEY_EVENT)
 	{
+		static bool bForceAltGr = false;
+
 		if (!rec->Event.KeyEvent.bKeyDown)
 		{
 			was_repeat = false;
@@ -904,6 +906,19 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		{
 			was_repeat = (last_pressed_keycode == rec->Event.KeyEvent.wVirtualKeyCode);
 			last_pressed_keycode = rec->Event.KeyEvent.wVirtualKeyCode;
+
+			if (rec->Event.KeyEvent.wVirtualKeyCode == VK_MENU)
+			{
+				// Шаманство с AltGr (виртуальная клавиатура)
+				bForceAltGr = (rec->Event.KeyEvent.wVirtualScanCode == 0)
+					&& ((rec->Event.KeyEvent.dwControlKeyState & 0x1F) == 0x0A);
+			}
+		}
+
+		if (bForceAltGr && (rec->Event.KeyEvent.dwControlKeyState & 0x1F) == 0x0A)
+		{
+			rec->Event.KeyEvent.dwControlKeyState &= ~LEFT_ALT_PRESSED;
+			rec->Event.KeyEvent.dwControlKeyState |= RIGHT_ALT_PRESSED;
 		}
 
 		DWORD CtrlState=rec->Event.KeyEvent.dwControlKeyState;
@@ -2395,6 +2410,19 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 	{
 		if (Char>=' ')
 			return Char;
+		else if (RealKey && ScanCode && !Char && (KeyCode && KeyCode != VK_MENU))
+			//Это шаманство для ввода всяческих букв с тильдами, акцентами и прочим.
+			//Напимер на Шведской раскладке, "AltGr+VK_OEM_1" вообще не должно обрабатываться фаром, т.к. это DeadKey
+			//Dn, 1, Vk="VK_CONTROL" [17/0x0011], Scan=0x001D uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000008 (Casac - ecns)
+			//Dn, 1, Vk="VK_MENU" [18/0x0012], Scan=0x0038 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000109 (CasAc - Ecns)
+			//Dn, 1, Vk="VK_OEM_1" [186/0x00BA], Scan=0x001B uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000009 (CasAc - ecns)
+			//Up, 1, Vk="VK_CONTROL" [17/0x0011], Scan=0x001D uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000001 (casAc - ecns)
+			//Up, 1, Vk="VK_MENU" [18/0x0012], Scan=0x0038 uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00000100 (casac - Ecns)
+			//Up, 1, Vk="VK_OEM_1" [186/0x00BA], Scan=0x0000 uChar=[U='~' (0x007E): A='~' (0x7E)] Ctrl=0x00000000 (casac - ecns)
+			//Up, 1, Vk="VK_OEM_1" [186/0x00BA], Scan=0x001B uChar=[U='и' (0x00A8): A='' (0xA8)] Ctrl=0x00000000 (casac - ecns)
+			//Dn, 1, Vk="VK_A" [65/0x0041], Scan=0x001E uChar=[U='у' (0x00E3): A='' (0xE3)] Ctrl=0x00000000 (casac - ecns)
+			//Up, 1, Vk="VK_A" [65/0x0041], Scan=0x001E uChar=[U='a' (0x0061): A='a' (0x61)] Ctrl=0x00000000 (casac - ecns)
+			return KEY_NONE;
 		else
 			IntKeyState.CtrlPressed=0;
 	}
@@ -3221,6 +3249,22 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 
 		if (KeyCode)
 			return ModifAlt|KeyCode;
+	}
+
+	if (!IntKeyState.CtrlPressed && !IntKeyState.AltPressed && (KeyCode >= VK_OEM_1 && KeyCode <= VK_OEM_8) && !Char)
+	{
+		//Это шаманство для того, чтобы фар не реагировал на DeadKeys (могут быть нажаты с Shift-ом)
+		//которые используются для ввода символов с диакритикой (тильды, шапки, и пр.)
+		//Dn, Vk="VK_SHIFT"    [ 16/0x0010], Scan=0x002A uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x10
+		//Dn, Vk="VK_OEM_PLUS" [187/0x00BB], Scan=0x000D uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x10
+		//Up, Vk="VK_OEM_PLUS" [187/0x00BB], Scan=0x0000 uChar=[U=''  (0x02C7): A='?' (0xC7)] Ctrl=0x10
+		//Up, Vk="VK_OEM_PLUS" [187/0x00BB], Scan=0x000D uChar=[U=''  (0x02C7): A='?' (0xC7)] Ctrl=0x10
+		//Up, Vk="VK_SHIFT"    [ 16/0x0010], Scan=0x002A uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00
+		//Dn, Vk="VK_C"        [ 67/0x0043], Scan=0x002E uChar=[U=''  (0x010D): A=' ' (0x0D)] Ctrl=0x00
+		//Up, Vk="VK_C"        [ 67/0x0043], Scan=0x002E uChar=[U='c' (0x0063): A='c' (0x63)] Ctrl=0x00
+		UINT uCalcChar=MapVirtualKey(KeyCode,MAPVK_VK_TO_CHAR);
+		if (!uCalcChar)
+			return KEY_NONE;
 	}
 
 	if (IntKeyState.ShiftPressed)

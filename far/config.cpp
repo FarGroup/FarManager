@@ -899,7 +899,7 @@ static struct FARConfig
 	{FSSF_PRIVATE,       NKeyDialog,L"MouseButton", AddressAndType(Opt.Dialogs.MouseButton), Default(0xFFFF)},
 	{FSSF_PRIVATE,       NKeyDialog,L"SelectFromHistory", AddressAndType(Opt.Dialogs.SelectFromHistory), Default(0)},
 
-	{FSSF_PRIVATE,       NKeyEditor,L"AllowEmptySpaceAfterEof", AddressAndType(Opt.EdOpt.AllowEmptySpaceAfterEof),0,},
+	{FSSF_PRIVATE,       NKeyEditor,L"AllowEmptySpaceAfterEof", AddressAndType(Opt.EdOpt.AllowEmptySpaceAfterEof),Default(0)},
 	{FSSF_PRIVATE,       NKeyEditor,L"AnsiCodePageAsDefault", AddressAndType(Opt.EdOpt.AnsiCodePageAsDefault), Default(1)},
 	{FSSF_PRIVATE,       NKeyEditor,L"AnsiCodePageForNewFile", AddressAndType(Opt.EdOpt.AnsiCodePageForNewFile), Default(1)},
 	{FSSF_PRIVATE,       NKeyEditor,L"AutoDetectCodePage", AddressAndType(Opt.EdOpt.AutoDetectCodePage), Default(1)},
@@ -959,8 +959,7 @@ static struct FARConfig
 	{FSSF_PRIVATE,       NKeyInterface, L"ShiftsKeyRules", AddressAndType(Opt.ShiftsKeyRules), Default(1)},
 	{FSSF_PRIVATE,       NKeyInterface, L"ShowDotsInRoot", AddressAndType(Opt.ShowDotsInRoot), Default(0)},
 	{FSSF_INTERFACE,     NKeyInterface, L"ShowMenuBar", AddressAndType(Opt.ShowMenuBar), Default(0)},
-	{FSSF_PRIVATE,       NKeyInterface, L"ShowTimeoutDACLFiles", AddressAndType(Opt.ShowTimeoutDACLFiles), Default(50)},
-	{FSSF_PRIVATE,       NKeyInterface, L"ShowTimeoutDelFiles", AddressAndType(Opt.ShowTimeoutDelFiles), Default(50)},
+	{FSSF_PRIVATE,       NKeyInterface, L"RedrawTimeout", AddressAndType(Opt.RedrawTimeout), Default(200)},
 	{FSSF_PRIVATE,       NKeyInterface, L"TitleAddons", AddressAndType(Opt.strTitleAddons), Default(L"%Ver.%Build %Platform %Admin")},
 	{FSSF_PRIVATE,       NKeyInterface, L"UseVk_oem_x", AddressAndType(Opt.UseVk_oem_x), Default(1)},
 	{FSSF_PRIVATE,       NKeyInterface, L"ViewerTitleFormat", AddressAndType(Opt.strViewerTitleFormat), Default(L"%Lng %File")},

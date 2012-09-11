@@ -1348,7 +1348,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		//    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
 						DWORD CurTime=GetTickCount();
 
-						if (CurTime-LastTime>RedrawTimeout)
+						if (CurTime-LastTime>(DWORD)Opt.RedrawTimeout)
 						{
 							LastTime=CurTime;
 							ShellSetFileAttributesMsg(strSelName);
@@ -1467,7 +1467,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								{
 									CurTime=GetTickCount();
 
-									if (CurTime-LastTime2>RedrawTimeout)
+									if (CurTime-LastTime2>(DWORD)Opt.RedrawTimeout)
 									{
 										LastTime2=CurTime;
 										ShellSetFileAttributesMsg(strFullName);

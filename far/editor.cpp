@@ -3806,7 +3806,7 @@ BOOL Editor::Search(int Next)
 		{
 			DWORD CurTime=GetTickCount();
 
-			if (CurTime-StartTime>RedrawTimeout)
+			if (CurTime-StartTime>(DWORD)Opt.RedrawTimeout)
 			{
 				StartTime=CurTime;
 
@@ -4065,7 +4065,7 @@ BOOL Editor::Search(int Next)
 					CurPos = CurLine->GetCurPos();
 					CurPos += (Skip && !ReverseSearch ? 1:0);
 					if (!Skip && ReverseSearch)
-						(CurLine = CurPtr = FoundPtr)->SetCurPos(CurPos = iFoundPos); 
+						(CurLine = CurPtr = FoundPtr)->SetCurPos(CurPos = iFoundPos);
 				}
 			}
 			else

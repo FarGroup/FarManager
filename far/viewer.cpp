@@ -3463,7 +3463,7 @@ void Viewer::Search(int Next,int FirstChar)
 				break;
 
 			DWORD cur_time = GetTickCount();
-			if ( cur_time - start_time > RedrawTimeout )
+			if ( cur_time - start_time > (DWORD)Opt.RedrawTimeout )
 			{
 				start_time = cur_time;
 

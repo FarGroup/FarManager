@@ -144,7 +144,7 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 		         !CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey()))
 		{
 			DWORD CurTime=GetTickCount();
-			if(CurTime-ShowTime>RedrawTimeout || Force)
+			if(CurTime-ShowTime>(DWORD)Opt.RedrawTimeout || Force)
 			{
 				ShowTime=CurTime;
 				Console.SetTitle(strFarTitle);

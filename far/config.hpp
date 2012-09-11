@@ -785,8 +785,7 @@ struct Options
 	IntOption PluginMaxReadData;
 	BoolOption ScanJunction;
 
-	IntOption ShowTimeoutDelFiles; // тайаут в процессе удаления (в ms)
-	IntOption ShowTimeoutDACLFiles;
+	IntOption RedrawTimeout;
 	IntOption DelThreadPriority; // приоритет процесса удаления, по умолчанию = THREAD_PRIORITY_NORMAL
 
 	LoadPluginsOptions LoadPlug;

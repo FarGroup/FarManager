@@ -111,8 +111,6 @@ extern const wchar_t constRCounter[];
 extern const wchar_t constFarCfgErr[];
 #endif
 
-extern DWORD RedrawTimeout;
-
 extern SYSTEM_INFO SystemInfo;
 inline bool IsPtr(const void* Address)
 {
