@@ -701,14 +701,16 @@ void FileEditor::InitKeyBar()
 	if (!GetCanLoseFocus())
 		EditKeyBar.Change(KBL_ALT,L"",11-1);
 
-	if (m_codepage!=GetOEMCP())
-		EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
-	else
+	if (m_codepage!=GetACP())
 		EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+	else
+		EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
 
 	EditKeyBar.ReadRegGroup(L"Editor",Opt.strLanguage);
 	EditKeyBar.SetAllRegGroup();
 	EditKeyBar.Show();
+	if (!Opt.EdOpt.ShowKeyBar)
+		EditKeyBar.Hide0();
 	m_editor->SetPosition(X1,Y1+(Opt.EdOpt.ShowTitleBar?1:0),X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
 	SetKeyBar(&EditKeyBar);
 }
@@ -1339,6 +1341,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					if (codepage != static_cast<UINT>(-1))
 					{
 						SetCodePage(codepage);
+						InitKeyBar();
 						Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 					}
 				}
@@ -2257,10 +2260,10 @@ void FileEditor::SetTitle(const string* Title)
 
 void FileEditor::ChangeEditKeyBar()
 {
-	if (m_codepage!=GetOEMCP())
-		EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
-	else
+	if (m_codepage!=GetACP())
 		EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+	else
+		EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
 
 	EditKeyBar.Redraw();
 }
