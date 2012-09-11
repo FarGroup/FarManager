@@ -1317,7 +1317,11 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 
 						case NUMLINK_COLUMN:
 						{
-							FS<<fmt::ExactWidth(ColumnWidth)<<ListData[ListPos]->NumberOfLinks;
+							int nlink = ListData[ListPos]->NumberOfLinks;
+							if (nlink >= 0)
+								FS<<fmt::ExactWidth(ColumnWidth) << nlink;
+							else
+								FS<<fmt::ExactWidth(ColumnWidth) << "?";
 							break;
 						}
 

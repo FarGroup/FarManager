@@ -444,7 +444,7 @@ void FileEditor::Init(
 
 	m_codepage = codepage;
 	m_editor->SetOwner(this);
-	m_editor->SetCodePage(m_codepage, false);
+	m_editor->SetCodePage(m_codepage);
 	*AttrStr=0;
 	CurrentEditor=this;
 	FileAttributes=INVALID_FILE_ATTRIBUTES;
@@ -648,7 +648,7 @@ void FileEditor::Init(
 		if (m_codepage==CP_DEFAULT || m_codepage == CP_REDETECT)
 			m_codepage=Opt.EdOpt.AnsiCodePageForNewFile?GetACP():GetOEMCP();
 
-		m_editor->SetCodePage(m_codepage, false);
+		m_editor->SetCodePage(m_codepage);
 		Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 		break;
 	}
@@ -1570,7 +1570,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 	}
 
-	m_editor->SetCodePage(m_codepage, false);  //BUGBUG
+	m_editor->SetCodePage(m_codepage);  //BUGBUG
 
 	if (!IsUnicodeOrUtfCodePage(m_codepage))
 	{
@@ -1860,8 +1860,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				if (!BadSaveConfirmed && (UsedDefaultCharStr||UsedDefaultCharEOL))
 				{
 					//SetMessageHelp(L"EditorDataLostWarning")
-					int Result=Message(MSG_WARNING,3,MSG(MWarning),MSG(MEditorSaveCPWarn1),MSG(MEditorSaveCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MOk),MSG(MEditorSaveCPWarnShow),MSG(MCancel));
-					if (!Result)
+					int Result=Message(MSG_WARNING,3,MSG(MWarning),MSG(MEditorSaveCPWarn1),MSG(MEditorSaveCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MCancel),MSG(MEditorSaveCPWarnShow),MSG(MOk));
+					if (Result==2)
 					{
 						BadSaveConfirmed=true;
 						break;
@@ -2815,15 +2815,26 @@ bool FileEditor::SetCodePage(UINT codepage)
 	if (codepage == m_codepage || !m_editor)
 		return false;
 
-	if (!m_editor->SetCodePage(codepage, true))
+   int x, y;
+	if (!m_editor->TryCodePage(codepage, x, y))
 	{
-		if (Message(MSG_WARNING, 2, MSG(MWarning),
+		int ret = Message(MSG_WARNING, 3, MSG(MWarning),
 			MSG(MEditorSwitchCPWarn1), MSG(MEditorSwitchCPWarn2), MSG(MEditorSwitchCPConfirm),
-			MSG(MOk), MSG(MCancel)
-		)) return false; // return if not confirmed
+			MSG(MCancel), MSG(MEditorSaveCPWarnShow), MSG(MOk) );
+
+		if (ret < 2) // not confirmed
+		{
+			if (ret == 1)
+			{
+				m_editor->GoToLine(y);
+				m_editor->CurLine->SetCurPos(x);
+				Show();
+			}
+			return false;
+		}
 	}
 	m_codepage = codepage;
-	BadConversion = !m_editor->SetCodePage(m_codepage, false);
+	BadConversion = !m_editor->SetCodePage(m_codepage);
 	return true;
 }
 

@@ -6291,7 +6291,7 @@ int Editor::EditorControl(int Command,void *Param)
 							}
 							else
 							{
-								SetCodePage(espar->iParam, false);
+								SetCodePage(espar->iParam);
 							}
 
 							Show();
@@ -7365,36 +7365,59 @@ void Editor::GetCacheParams(EditorPosCache &pc)
 }
 
 
-bool Editor::SetCodePage( UINT codepage, bool check_onky )
+bool Editor::TryCodePage(UINT codepage, int &X, int &Y)
+{
+	if ( m_codepage == codepage )
+		return true;
+
+   int line = 0;
+	Edit *current = TopList;
+
+	while (current)
+	{
+		DWORD Result = current->SetCodePage(codepage, true, buffer_line, buffer_size);
+		if ( Result )
+		{
+			Y = line;
+			X = 0;
+			BOOL def = FALSE, *p_def = (m_codepage == CP_UTF8 || CP_UTF7 ? nullptr : &def);
+			DWORD mb2wcFlags = (codepage == CP_UTF7  ? 0 : MB_ERR_INVALID_CHARS);
+         for (int i=0; i < current->StrSize; ++i)
+			{
+				char s[10];
+				int len = WideCharToMultiByte(m_codepage, 0, current->Str+i, 1, s, sizeof(s), nullptr, p_def);
+				if (len <= 0 || def)	{
+					X = i; break;
+				}
+				int len2 = MultiByteToWideChar(codepage, mb2wcFlags, s, len, nullptr, 0);
+				if (len2 <= 0 && GetLastError() == ERROR_NO_UNICODE_TRANSLATION) {
+					X = i; break;
+				}
+			}
+			return false;
+		}
+		++line;
+		current = current->m_next;
+	}
+	return true;
+}
+
+bool Editor::SetCodePage( UINT codepage )
 {
 	if ( m_codepage == codepage )
 		return true;
 
 	DWORD Result = 0;
 	Edit *current = TopList;
+	m_codepage = codepage;
 
-	if ( check_onky )
+	while (current)
 	{
-		while ( current && !Result )
-		{
-			Result |= current->SetCodePage(codepage, true, buffer_line, buffer_size);
-			current = current->m_next;
-		}
-
-	}
-	else
-	{
-		m_codepage = codepage;
-
-		while (current)
-		{
-			Result |= current->SetCodePage(codepage, false, buffer_line, buffer_size);
-			current = current->m_next;
-		}
-
-		Show();
+		Result |= current->SetCodePage(codepage, false, buffer_line, buffer_size);
+		current = current->m_next;
 	}
 
+	Show();
 	return (Result == 0); // BUGBUG, more details
 }
 

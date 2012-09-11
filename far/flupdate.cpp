@@ -308,7 +308,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 				TotalFileSize += NewPtr->FileSize;
 
 				if (ReadNumLinks)
-					NewPtr->NumberOfLinks=GetNumberOfLinks(fdata.strFileName);
+					NewPtr->NumberOfLinks = GetNumberOfLinks(fdata.strFileName, true);
 			}
 			else
 			{
