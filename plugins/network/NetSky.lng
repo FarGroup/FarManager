@@ -1,0 +1,72 @@
+﻿.Language=Slovak,Slovak (Slovenčina)
+
+"OK"
+"Zrušiť"
+"Chyba"
+"Áno"
+
+"Prehliadač siete"
+
+"sieť"
+
+"Map"
+"MapTo"
+"TMap"
+"TMapTo"
+"Unmap"
+"Odstrániť"
+"ManCon"
+
+"Čakajte"
+"Prehliadam sieť..."
+
+"Nedá sa prehliadať sieť"
+"Nemôžem pripojiť \"%.40s\" k %s"
+"Názov disku má zapamätané pripojenie"
+
+"Akl nezatvoríte otvorené súbory, dáta sa môžu stratiť."
+"Aj tak chcete odpojiť zariadenie?"
+"Nemôžem odpojiť od %s"
+
+"Nie sú k dispozícii voľné písmená diskov"
+
+"Užívateľské meno"
+"Užívateľské heslo"
+
+"Trvalé pripojenie k"
+"Dočasné prípojenie k"
+"F6 - dočasné"
+"F6 - trvalé"
+
+"Sieť"
+"Názov siete"
+"*:"
+"Komentár"
+
+"Prehliadač siete"
+"Pridať do menu &Disky"
+"Pridať do menu &Moduly"
+"S&kratkový kláves menu diskov ('1'-'9'). Nechajte prázdne pre automatické priradenie."
+"&Zobraziť miestnu sieť"
+"Show h&idden shares"
+"Zobraziť tlačiar&ne"
+"Show share &full name"
+"Zobraziť \"..\" medzi poskytovateľmi"
+"Ak sa dá, &prehliadať až po obľúbené"
+"Skont&rolovať dostupnosť zdrojov"
+
+"Odpojiť sieťovú jednotku"
+"Chcete odpojiť od jednotky %s?"
+"Jednotka %s je namapovaná na"
+"Znova p&ripojiť pri prihlásení"
+
+"Odpojiť sieťovú jednotku\nJednotka %s je namapovaná na viacero písmen diskov\nKtoré chcete odpojiť?\n"
+
+"Obľúbené"
+"Priečinok Obľúbené"
+
+"Za&pamätať heslo"
+
+"Odstrániť z Obľúbených"
+"Odstrániť \"%s\" z Obľúbených"
+"Odstrániť %d položiek z Obľúbených"
