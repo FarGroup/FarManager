@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 2674
+  Dynamic construction of dialogs for FAR Manager 3.0 build 2799
 */
 
 /*
@@ -736,9 +736,10 @@ public:
 	{
 		aInfo.FSF->sprintf(Buffer, L"%u", *aValue);
 		int MaskWidth = Width < 31 ? Width : 31;
-		for(int i=0; i<MaskWidth; i++)
-			Mask[i] = '9';
-		Mask[MaskWidth] = '\0';
+		for(int i=1; i<MaskWidth; i++)
+			Mask[i] = L'9';
+		Mask[0] = L'#';
+		Mask[MaskWidth] = L'\0';
 	}
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
