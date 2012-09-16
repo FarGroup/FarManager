@@ -1544,7 +1544,7 @@ int WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 	return TRUE;
 }
 
-int WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, int X1, int Y1, int X2, int Y2, unsigned __int64 Flags, int StartLine, int StartChar, UINT CodePage)
+int WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, int X1, int Y1, int X2, int Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, UINT CodePage)
 {
 	if (FrameManager->ManagerIsDown())
 		return EEC_OPEN_ERROR;
@@ -2613,7 +2613,7 @@ BOOL WINAPI apiAddEndSlash(wchar_t *Path)
 	return AddEndSlash(Path);
 }
 
-wchar_t* WINAPI apiXlat(wchar_t *Line,int StartPos,int EndPos,XLAT_FLAGS Flags)
+wchar_t* WINAPI apiXlat(wchar_t *Line,intptr_t StartPos,intptr_t EndPos,XLAT_FLAGS Flags)
 {
 	return Xlat(Line, StartPos, EndPos, Flags);
 }

@@ -291,5 +291,5 @@ class Viewer:public ScreenObject
 		int ProcessWrapMode(int newMode, bool isRedraw=TRUE);
 		int ProcessTypeWrapMode(int newMode, bool isRedraw=TRUE);
 
-		void SearchTextTransform(UnicodeString &to, const wchar_t *from, bool hex2text, int &pos);
+		void SearchTextTransform(UnicodeString &to, const wchar_t *from, bool hex2text, intptr_t &pos);
 };

@@ -92,7 +92,7 @@ namespace pluginapi
 	int      WINAPI apiGetDirList(const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber);
 	void     WINAPI apiFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber);
 	int      WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,int X1,int Y1,int X2,int Y2,unsigned __int64 Flags, UINT CodePage);
-	int      WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title,int X1, int Y1, int X2, int Y2, unsigned __int64 Flags, int StartLine, int StartChar, UINT CodePage);
+	int      WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title,int X1, int Y1, int X2, int Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, UINT CodePage);
 	void     WINAPI apiText(int X,int Y,const FarColor* Color,const wchar_t *Str);
 	intptr_t  WINAPI apiEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int Param1, void* Param2);
 	intptr_t  WINAPI apiViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, int Param1, void* Param2);
@@ -120,7 +120,7 @@ namespace pluginapi
 	BOOL     WINAPI apiKeyNameToInputRecord(const wchar_t *Name,INPUT_RECORD* RecKey);
 	BOOL     WINAPI apiMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MKLINK_FLAGS Flags);
 	BOOL     WINAPI apiAddEndSlash(wchar_t *Path);
-	wchar_t* WINAPI apiXlat(wchar_t *Line,int StartPos,int EndPos,XLAT_FLAGS Flags);
+	wchar_t* WINAPI apiXlat(wchar_t *Line,intptr_t StartPos,intptr_t EndPos,XLAT_FLAGS Flags);
 	//arclite
 	HANDLE   WINAPI apiCreateFile(const wchar_t *Object,DWORD DesiredAccess,DWORD ShareMode,LPSECURITY_ATTRIBUTES SecurityAttributes,DWORD CreationDistribution,DWORD FlagsAndAttributes,HANDLE TemplateFile);
 	DWORD    WINAPI apiGetFileAttributes(const wchar_t *FileName);

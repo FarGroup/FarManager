@@ -2945,7 +2945,7 @@ int Dialog::ProcessKey(int Key)
 							{
 								int CurPos=edt->GetCurPos();
 								int Length=edt->GetLength();
-								int SelStart, SelEnd;
+								intptr_t SelStart, SelEnd;
 								edt->GetSelection(SelStart, SelEnd);
 								edt->GetString(strStr);
 

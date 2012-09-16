@@ -130,7 +130,7 @@ class DlgEdit: public ScreenObject
 		void  DeleteBlock();
 
 		void  Select(int Start,int End);           // TODO: не учтено для multiline!
-		void  GetSelection(int &Start,int &End);   // TODO: не учтено для multiline!
+		void  GetSelection(intptr_t &Start,intptr_t &End);   // TODO: не учтено для multiline!
 
 		void Xlat(bool All=false);
 

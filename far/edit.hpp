@@ -192,7 +192,7 @@ class Edit:public ScreenObject
 
 		void  SetBinaryString(const wchar_t *Str,int Length);
 
-		void  GetBinaryString(const wchar_t **Str, const wchar_t **EOL,int &Length);
+		void  GetBinaryString(const wchar_t **Str, const wchar_t **EOL,intptr_t &Length);
 
 		void  SetEOL(const wchar_t *EOL);
 		const wchar_t *GetEOL();
@@ -235,9 +235,9 @@ class Edit:public ScreenObject
 		int   TabPosToReal(int Pos);
 		void  Select(int Start,int End);
 		void  AddSelect(int Start,int End);
-		void  GetSelection(int &Start,int &End);
+		void  GetSelection(intptr_t &Start,intptr_t &End);
 		BOOL  IsSelection() {return  SelStart==-1 && !SelEnd?FALSE:TRUE; };
-		void  GetRealSelection(int &Start,int &End);
+		void  GetRealSelection(intptr_t &Start,intptr_t &End);
 		void  SetEditBeyondEnd(int Mode) {Flags.Change(FEDITLINE_EDITBEYONDEND,Mode);};
 		void  SetEditorMode(int Mode) {Flags.Change(FEDITLINE_EDITORMODE,Mode);};
 		bool  ReplaceTabs();

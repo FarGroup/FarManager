@@ -1510,7 +1510,7 @@ public:
 			)
 		) return false;
 
-		
+
 		//get menu item text and guid statement
 		bool ok = InitStmt(stmtGetMenuItem, L"SELECT name, guid FROM menuitems WHERE cid=?1 AND type=?2 AND number=?3;");
 
@@ -1605,7 +1605,7 @@ public:
 
 		//enum cache names statement
 		ok = ok && InitStmt(stmtEnumCache, L"SELECT name FROM cachename ORDER BY name;");
-		
+
 		if (ok)
 			return true;
 
@@ -3103,7 +3103,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 
 	bool ret = false;
 
-	int mc;
+	intptr_t mc;
 	SMatch m[2];
 	RegExp re;
 	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);

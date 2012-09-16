@@ -569,7 +569,7 @@ void DlgEdit::Select(int Start,int End)
 		lineEdit->Select(Start,End);
 }
 
-void DlgEdit::GetSelection(int &Start,int &End)
+void DlgEdit::GetSelection(intptr_t &Start,intptr_t &End)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 

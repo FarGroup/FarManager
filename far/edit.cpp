@@ -1902,7 +1902,7 @@ void Edit::SetBinaryString(const wchar_t *Str,int Length)
 	Changed();
 }
 
-void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL,int &Length)
+void Edit::GetBinaryString(const wchar_t **Str,const wchar_t **EOL,intptr_t &Length)
 {
 	*Str=this->Str;
 
@@ -2225,7 +2225,7 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 				return FALSE;
 
 			SMatch m[10*2], *pm = m;
-			int n = re.GetBracketsCount();
+			intptr_t n = re.GetBracketsCount();
 			if (n > static_cast<int>(ARRAYSIZE(m)/2))
 			{
 				pm = (SMatch *)xf_malloc(2*n*sizeof(SMatch));
@@ -2581,7 +2581,7 @@ void Edit::AddSelect(int Start,int End)
 }
 
 
-void Edit::GetSelection(int &Start,int &End)
+void Edit::GetSelection(intptr_t &Start,intptr_t &End)
 {
 	/* $ 17.09.2002 SKV
 	  Мало того, что это нарушение правил OO design'а,
@@ -2603,7 +2603,7 @@ void Edit::GetSelection(int &Start,int &End)
 }
 
 
-void Edit::GetRealSelection(int &Start,int &End)
+void Edit::GetRealSelection(intptr_t &Start,intptr_t &End)
 {
 	Start=SelStart;
 	End=SelEnd;

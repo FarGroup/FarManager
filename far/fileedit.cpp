@@ -1847,7 +1847,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			for (Edit *CurPtr=m_editor->TopList; CurPtr; CurPtr=CurPtr->m_next,LineNumber++)
 			{
 				const wchar_t *SaveStr, *EndSeq;
-				int Length;
+				intptr_t Length;
 				CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 				BOOL UsedDefaultCharStr=FALSE,UsedDefaultCharEOL=FALSE;
 				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,SaveStr,Length,nullptr,0,nullptr,&UsedDefaultCharStr);
@@ -1974,7 +1974,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 			const wchar_t *SaveStr, *EndSeq;
 
-			int Length;
+			intptr_t Length;
 
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 
@@ -2337,7 +2337,7 @@ void FileEditor::ShowStatus()
 	FS<<fmt::LeftAlign()<<fmt::ExactWidth(StatusWidth)<<FString;
 	{
 		const wchar_t *Str;
-		int Length;
+		intptr_t Length;
 		m_editor->CurLine->GetBinaryString(&Str,nullptr,Length);
 		int CurPos=m_editor->CurLine->GetCurPos();
 

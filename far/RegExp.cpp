@@ -2521,7 +2521,7 @@ static void KillMatchList(MatchList *ml)
 #endif
 
 
-int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& matchcount
+int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
                        ,PMatchHash hmatch
 #endif
@@ -4243,7 +4243,7 @@ int RegExp::InnerMatch(const prechar str,const prechar strend,PMatch match,int& 
 	return 1;
 }
 
-int RegExp::Match(const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+int RegExp::Match(const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
                   ,PMatchHash hmatch
 #endif
@@ -4280,7 +4280,7 @@ int RegExp::Match(const RECHAR* textstart,const RECHAR* textend,PMatch match,int
 	return res;
 }
 
-int RegExp::MatchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+int RegExp::MatchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
                     ,PMatchHash hmatch
 #endif
@@ -4328,7 +4328,7 @@ int RegExp::MatchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR
 }
 
 
-int RegExp::Match(const RECHAR* textstart,PMatch match,int& matchcount
+int RegExp::Match(const RECHAR* textstart,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
                   ,PMatchHash hmatch
 #endif
@@ -4610,7 +4610,7 @@ int RegExp::Optimize()
 	return 1;
 }
 
-int RegExp::Search(const RECHAR* textstart,PMatch match,int& matchcount
+int RegExp::Search(const RECHAR* textstart,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
                    ,PMatchHash hmatch
 #endif
@@ -4624,7 +4624,7 @@ int RegExp::Search(const RECHAR* textstart,PMatch match,int& matchcount
 	             );
 }
 
-int RegExp::Search(const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+int RegExp::Search(const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
                    ,PMatchHash hmatch
 #endif
@@ -4718,7 +4718,7 @@ int RegExp::Search(const RECHAR* textstart,const RECHAR* textend,PMatch match,in
 	return res;
 }
 
-int RegExp::SearchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+int RegExp::SearchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
                      ,PMatchHash hmatch
 #endif

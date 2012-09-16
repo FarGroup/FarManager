@@ -817,8 +817,8 @@ struct PanelRedrawInfo
 struct CmdLineSelect
 {
 	size_t StructSize;
-	int SelStart;
-	int SelEnd;
+	intptr_t SelStart;
+	intptr_t SelEnd;
 };
 
 struct FarPanelDirectory
@@ -969,8 +969,8 @@ typedef int (WINAPI *FARAPIEDITOR)(
     int X2,
     int Y2,
     EDITOR_FLAGS Flags,
-    int StartLine,
-    int StartChar,
+    intptr_t StartLine,
+    intptr_t StartChar,
     UINT CodePage
 );
 
@@ -1319,8 +1319,8 @@ struct WindowInfo
 	intptr_t Id;
 	wchar_t *TypeName;
 	wchar_t *Name;
-	int TypeNameSize;
-	int NameSize;
+	intptr_t TypeNameSize;
+	intptr_t NameSize;
 	int Pos;
 	enum WINDOWINFO_TYPE Type;
 	WINDOWINFO_FLAGS Flags;
@@ -1397,7 +1397,7 @@ struct ViewerSelect
 {
 	size_t StructSize;
 	__int64 BlockStartPos;
-	int     BlockLen;
+	__int64 BlockLen;
 };
 
 typedef unsigned __int64 VIEWER_SETPOS_FLAGS;
@@ -1581,8 +1581,8 @@ struct EditorUndoRedo
 struct EditorGetString
 {
 	size_t StructSize;
-	int StringNumber;
-	int StringLength;
+	intptr_t StringNumber;
+	intptr_t StringLength;
 #ifdef FAR_USE_INTERNALS
 	wchar_t *StringText;
 	wchar_t *StringEOL;
@@ -1590,16 +1590,16 @@ struct EditorGetString
 	const wchar_t *StringText;
 	const wchar_t *StringEOL;
 #endif // END FAR_USE_INTERNALS
-	int SelStart;
-	int SelEnd;
+	intptr_t SelStart;
+	intptr_t SelEnd;
 };
 
 
 struct EditorSetString
 {
 	size_t StructSize;
-	int StringNumber;
-	int StringLength;
+	intptr_t StringNumber;
+	intptr_t StringLength;
 	const wchar_t *StringText;
 	const wchar_t *StringEOL;
 };
@@ -1649,15 +1649,15 @@ struct EditorInfo
 	int EditorID;
 	int WindowSizeX;
 	int WindowSizeY;
-	int TotalLines;
-	int CurLine;
-	int CurPos;
-	int CurTabPos;
-	int TopScreenLine;
-	int LeftPos;
+	intptr_t TotalLines;
+	intptr_t CurLine;
+	intptr_t CurPos;
+	intptr_t CurTabPos;
+	intptr_t TopScreenLine;
+	intptr_t LeftPos;
 	int Overtype;
 	int BlockType;
-	int BlockStartLine;
+	intptr_t BlockStartLine;
 	DWORD Options;
 	int TabSize;
 	int BookMarkCount;
@@ -1669,21 +1669,21 @@ struct EditorInfo
 struct EditorBookMarks
 {
 	size_t StructSize;
-	int *Line;
-	int *Cursor;
-	int *ScreenLine;
-	int *LeftPos;
+	intptr_t *Line;
+	intptr_t *Cursor;
+	intptr_t *ScreenLine;
+	intptr_t *LeftPos;
 	intptr_t Reserved[4];
 };
 
 struct EditorSetPosition
 {
 	size_t StructSize;
-	int CurLine;
-	int CurPos;
-	int CurTabPos;
-	int TopScreenLine;
-	int LeftPos;
+	intptr_t CurLine;
+	intptr_t CurPos;
+	intptr_t CurTabPos;
+	intptr_t TopScreenLine;
+	intptr_t LeftPos;
 	int Overtype;
 };
 
@@ -1692,19 +1692,19 @@ struct EditorSelect
 {
 	size_t StructSize;
 	int BlockType;
-	int BlockStartLine;
-	int BlockStartPos;
-	int BlockWidth;
-	int BlockHeight;
+	intptr_t BlockStartLine;
+	intptr_t BlockStartPos;
+	intptr_t BlockWidth;
+	intptr_t BlockHeight;
 };
 
 
 struct EditorConvertPos
 {
 	size_t StructSize;
-	int StringNumber;
-	int SrcPos;
-	int DestPos;
+	intptr_t StringNumber;
+	intptr_t SrcPos;
+	intptr_t DestPos;
 };
 
 
@@ -1716,10 +1716,10 @@ static const EDITORCOLORFLAGS
 struct EditorColor
 {
 	size_t StructSize;
-	int StringNumber;
+	intptr_t StringNumber;
 	int ColorItem;
-	int StartPos;
-	int EndPos;
+	intptr_t StartPos;
+	intptr_t EndPos;
 	unsigned Priority;
 	EDITORCOLORFLAGS Flags;
 	struct FarColor Color;
@@ -1730,8 +1730,8 @@ struct EditorDeleteColor
 {
 	size_t StructSize;
 	GUID Owner;
-	int StringNumber;
-	int StartPos;
+	intptr_t StringNumber;
+	intptr_t StartPos;
 };
 
 #define EDITOR_COLOR_NORMAL_PRIORITY 0x80000000U
@@ -1755,7 +1755,7 @@ struct EditorChange
 {
 	size_t StructSize;
 	enum EDITOR_CHANGETYPE Type;
-	int StringNumber;
+	intptr_t StringNumber;
 };
 
 typedef unsigned __int64 INPUTBOXFLAGS;
@@ -1844,16 +1844,16 @@ enum FAR_REGEXP_CONTROL_COMMANDS
 
 struct RegExpMatch
 {
-	int start,end;
+	intptr_t start,end;
 };
 
 struct RegExpSearch
 {
 	const wchar_t* Text;
-	int Position;
-	int Length;
+	intptr_t Position;
+	intptr_t Length;
 	struct RegExpMatch* Match;
-	int Count;
+	intptr_t Count;
 	void* Reserved;
 };
 
@@ -2109,7 +2109,7 @@ static const XLAT_FLAGS
 
 typedef size_t (WINAPI *FARSTDINPUTRECORDTOKEYNAME)(const INPUT_RECORD* Key, wchar_t *KeyText, size_t Size);
 
-typedef wchar_t*(WINAPI *FARSTDXLAT)(wchar_t *Line,int StartPos,int EndPos,XLAT_FLAGS Flags);
+typedef wchar_t*(WINAPI *FARSTDXLAT)(wchar_t *Line,intptr_t StartPos,intptr_t EndPos,XLAT_FLAGS Flags);
 
 typedef BOOL (WINAPI *FARSTDKEYNAMETOINPUTRECORD)(const wchar_t *Name,INPUT_RECORD* Key);
 
