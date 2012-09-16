@@ -398,7 +398,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *Info)
 
 	if (Info->OpenFrom==OPEN_COMMANDLINE)
 	{
-		wchar_t *argv=(wchar_t*)Info->Data;
+		wchar_t *argv=(wchar_t *)(((OpenCommandLineInfo*)Info->Data)->CommandLine); //BUGBUG
 		#define OPT_COUNT 5
 		static const wchar_t ParamsStr[OPT_COUNT][8]=
 		{

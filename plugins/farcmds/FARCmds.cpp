@@ -86,7 +86,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	if (OInfo->OpenFrom==OPEN_COMMANDLINE)
 	{
 		DstPanel = PANEL_ACTIVE;
-		OpenFromCommandLine((wchar_t *)OInfo->Data);
+		OpenFromCommandLine(((OpenCommandLineInfo *)OInfo->Data)->CommandLine);
 	}
 	else if (OInfo->OpenFrom == OPEN_PLUGINSMENU && !OInfo->Data && PInfo.PanelType != PTYPE_FILEPANEL)
 	{

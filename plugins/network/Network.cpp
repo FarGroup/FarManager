@@ -48,7 +48,7 @@ HANDLE WINAPI OpenW(const OpenInfo *OInfo)
 	{
 		wchar_t Path[MAX_PATH] = L"\\\\";
 		int I=0;
-		wchar_t *cmd=(wchar_t *)OInfo->Data;
+		wchar_t *cmd=(wchar_t *)(((OpenCommandLineInfo*)OInfo->Data)->CommandLine); //BUGBUG
 		wchar_t *p=wcschr(cmd, L':');
 
 		if (!p || !*p)

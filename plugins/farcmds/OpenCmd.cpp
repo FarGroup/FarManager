@@ -437,7 +437,7 @@ static int TestPrefix(wchar_t*& Src,const wchar_t *Pref)
 	return 0;
 }
 
-int OpenFromCommandLine(wchar_t *_farcmd)
+int OpenFromCommandLine(const wchar_t *_farcmd)
 {
 	if (!_farcmd) return FALSE;
 

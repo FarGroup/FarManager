@@ -102,10 +102,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
 	if (OInfo->OpenFrom==OPEN_COMMANDLINE)
 	{
-		if (lstrlen((const wchar_t *)OInfo->Data))
+		const wchar_t* cmd=((OpenCommandLineInfo*)OInfo->Data)->CommandLine;
+		if (lstrlen(cmd))
 		{
 			static wchar_t cmdbuf[1024], FileName[MAX_PATH], *ptrTopic, *ptrName;
-			lstrcpyn(cmdbuf,(const wchar_t *)OInfo->Data,ARRAYSIZE(cmdbuf));
+			lstrcpyn(cmdbuf,cmd,ARRAYSIZE(cmdbuf));
 			FSF.Trim(cmdbuf);
 			ptrName=ptrTopic=cmdbuf;
 

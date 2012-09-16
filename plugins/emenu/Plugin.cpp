@@ -252,7 +252,7 @@ CPlugin::EDoMenu CPlugin::OpenPluginBkg(int nOpenFrom, INT_PTR nItem)
   {
   case OPEN_COMMANDLINE:
     {
-      LPCWSTR sz=reinterpret_cast<LPCWSTR>(nItem);
+      LPCWSTR sz=reinterpret_cast<OpenCommandLineInfo*>(nItem)->CommandLine;
       size_t nLen=512;
       do
       {

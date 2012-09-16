@@ -946,7 +946,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
   }
   else if (info->OpenFrom == OPEN_COMMANDLINE) {
     try {
-      CommandArgs cmd_args = parse_command(reinterpret_cast<const wchar_t*>(info->Data));
+      CommandArgs cmd_args = parse_command(reinterpret_cast<OpenCommandLineInfo*>(info->Data)->CommandLine);
       switch (cmd_args.cmd) {
       case cmdOpen: {
         OpenOptions options = parse_open_command(cmd_args).options;

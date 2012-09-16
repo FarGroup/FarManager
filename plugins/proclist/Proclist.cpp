@@ -215,9 +215,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	Opt.Read();
 	Plist* hPlugin = new Plist();
 
-	if (OInfo->OpenFrom == OPEN_COMMANDLINE && (NORM_M_PREFIX(reinterpret_cast<LPCWSTR>(OInfo->Data))))
+	if (OInfo->OpenFrom == OPEN_COMMANDLINE && (NORM_M_PREFIX(reinterpret_cast<OpenCommandLineInfo*>(OInfo->Data)->CommandLine)))
 	{
-		if (!hPlugin->Connect((wchar_t*)OInfo->Data))
+		if (!hPlugin->Connect(reinterpret_cast<OpenCommandLineInfo*>(OInfo->Data)->CommandLine))
 		{
 			delete hPlugin;
 			hPlugin = nullptr;
