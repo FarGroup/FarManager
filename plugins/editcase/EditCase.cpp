@@ -147,7 +147,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		case -1:
 			break;
 		default:
-			EditorInfo ei;
+			EditorInfo ei={sizeof(EditorInfo)};
 			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 			// Current line number
 			int CurLine=ei.CurLine;
@@ -174,11 +174,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 					if (CurLine >= ei.TotalLines)
 						break;
 
-					struct EditorSetPosition esp = {CurLine++,-1,-1,-1,-1,-1};
+					struct EditorSetPosition esp = {sizeof(EditorSetPosition),CurLine++,-1,-1,-1,-1,-1};
 					Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 				}
 
-				struct EditorGetString egs;
+				struct EditorGetString egs={sizeof(EditorGetString)};
 
 				egs.StringNumber=-1;
 
@@ -238,7 +238,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 					// Do the conversion
 					ChangeCase(NewString, egs.SelStart, egs.SelEnd, CCType);
 					// Put converted string to editor
-					struct EditorSetString ess;
+					struct EditorSetString ess={sizeof(EditorSetString)};
 					ess.StringNumber=-1;
 					ess.StringText=NewString;
 					ess.StringEOL=(wchar_t*)egs.StringEOL;
@@ -250,7 +250,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 				if (!IsBlock)
 				{
-					struct EditorSelect esel;
+					struct EditorSelect esel={EditorSelect};
 					esel.BlockType=BTYPE_STREAM;
 					esel.BlockStartLine=-1;
 					esel.BlockStartPos=egs.SelStart;
@@ -270,7 +270,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 			if (IsBlock)
 			{
-				struct EditorSetPosition esp = {ei.CurLine,ei.CurPos,-1,ei.TopScreenLine,ei.LeftPos,ei.Overtype};
+				struct EditorSetPosition esp = {sizeof(EditorSetPosition),ei.CurLine,ei.CurPos,-1,ei.TopScreenLine,ei.LeftPos,ei.Overtype};
 				Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 			}
 	} // switch

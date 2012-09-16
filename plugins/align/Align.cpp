@@ -104,14 +104,13 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 void ReformatBlock(int RightMargin,int SmartMode,int Justify)
 {
-  EditorInfo ei;
+  EditorInfo ei={sizeof(EditorInfo)};
   Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
   if (ei.BlockType!=BTYPE_STREAM || RightMargin<1)
     return;
 
-  struct EditorSetPosition esp;
-  memset(&esp,-1,sizeof(esp));
+  struct EditorSetPosition esp={sizeof(EditorSetPosition)};
   esp.CurLine=ei.BlockStartLine;
   esp.CurPos=0;
   Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
@@ -121,7 +120,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
 
   while (1)
   {
-    struct EditorGetString egs;
+    struct EditorGetString egs={sizeof(EditorGetString)};
     egs.StringNumber=-1;
     if (!Info.EditorControl(-1,ECTL_GETSTRING,0,&egs))
       break;
@@ -227,7 +226,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
 
       I=PrevSpacePos;
 
-      struct EditorSetString ess;
+      struct EditorSetString ess={sizeof(EditorSetString)};
       ess.StringNumber=-1;
       ess.StringText=TotalString+LastSplitPos;
       ess.StringEOL=NULL;
@@ -242,8 +241,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
       while (I<TotalLength && TotalString[I]==L' ')
         PrevSpacePos=I++;
 
-      struct EditorSetPosition esp;
-      memset(&esp,-1,sizeof(esp));
+      struct EditorSetPosition esp={sizeof(EditorSetPosition)};
       esp.CurLine=-1;
 
       if (IndentSize>0)
@@ -262,7 +260,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
     if (TotalString[I]==L' ')
       PrevSpacePos=I;
   }
-  struct EditorSetString ess;
+  struct EditorSetString ess={sizeof(EditorSetString)};
   ess.StringNumber=-1;
   ess.StringText=TotalString+LastSplitPos;
   ess.StringEOL=NULL;
@@ -273,8 +271,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
 
   if (IndentSize>0)
   {
-    struct EditorSetPosition esp;
-    memset(&esp,-1,sizeof(esp));
+    struct EditorSetPosition esp={sizeof(EditorSetPosition)};
     esp.CurLine=-1;
     esp.CurPos=0;
     Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
@@ -292,13 +289,13 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
 
 void JustifyBlock(int RightMargin)
 {
-  EditorInfo ei;
+  EditorInfo ei={sizeof(EditorInfo)};
   Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
   if (ei.BlockType!=BTYPE_STREAM)
     return;
 
-  struct EditorGetString egs;
+  struct EditorGetString egs={sizeof(EditorGetString)};
   egs.StringNumber=ei.BlockStartLine;
 
   while (1)
@@ -312,7 +309,7 @@ void JustifyBlock(int RightMargin)
       break;
     Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
-    struct EditorSetString ess;
+    struct EditorSetString ess={sizeof(EditorSetString)};
     ess.StringNumber=egs.StringNumber;
 
     ess.StringText=(wchar_t*)egs.StringText;

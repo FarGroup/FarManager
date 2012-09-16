@@ -140,9 +140,9 @@ int ShowMenu(int Type)
 
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
-	struct EditorGetString egs;
-	struct EditorSetPosition esp,espo;
-	struct EditorSelect es;
+	struct EditorGetString egs={sizeof(EditorGetString)};
+	struct EditorSetPosition esp={sizeof(EditorSetPosition)},espo={sizeof(EditorSetPosition)};
+	struct EditorSelect es={sizeof(EditorSelect)};
 
 	wchar_t Bracket,Bracket1,Bracket_1;
 	wchar_t Ch,Ch1,Ch_1;
@@ -161,7 +161,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	int idxBrackets2=0;
 	int lenBrackets2=0;
 
-	EditorInfo ei;
+	EditorInfo ei={sizeof(EditorInfo)};
 	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
 	espo.CurTabPos=ei.CurTabPos;

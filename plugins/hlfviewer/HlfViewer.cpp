@@ -49,9 +49,9 @@ static struct Options
 static struct PluginStartupInfo Info;
 static struct FarStandardFunctions FSF;
 
-static struct EditorInfo ei;
-static struct EditorGetString egs;
-static struct EditorSetPosition esp;
+static struct EditorInfo ei={sizeof(EditorInfo)};
+static struct EditorGetString egs={sizeof(EditorGetString)};
+static struct EditorSetPosition esp={sizeof(EditorSetPosition)};
 
 
 static INPUT_RECORD _DefKey={KEY_EVENT,{{TRUE,1,VK_F1,0x3B,{0},0}}};
@@ -290,7 +290,7 @@ void ShowCurrentHelpTopic()
 
 void ShowHelpFromTempFile()
 {
-	struct EditorSaveFile esf;
+	struct EditorSaveFile esf={sizeof(EditorSaveFile)};
 	wchar_t fname[MAX_PATH];
 	esf.FileName = fname;
 
@@ -303,8 +303,8 @@ void ShowHelpFromTempFile()
 		  ShowHelp(esf.FileName, FindTopic());
 		  DeleteFile(esf.FileName);
 		*/
-		struct EditorGetString egs;
-		struct EditorInfo ei;
+		struct EditorGetString egs={sizeof(EditorGetString)};
+		struct EditorInfo ei={sizeof(EditorInfo)};
 		DWORD Count;
 
 		HANDLE Handle=CreateFile(esf.FileName, GENERIC_WRITE, FILE_SHARE_READ,

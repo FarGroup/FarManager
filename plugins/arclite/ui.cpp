@@ -1545,7 +1545,7 @@ private:
       FarDialogItem dlg_item;
       for (unsigned ctrl_id = 0; send_message(DM_GETDLGITEMSHORT, ctrl_id, &dlg_item); ctrl_id++) {
         if (dlg_item.Type == DI_EDIT) {
-          EditorSetPosition esp = { 0 };
+          EditorSetPosition esp = { sizeof(EditorSetPosition) };
           send_message(DM_SETEDITPOSITION, ctrl_id, &esp);
         }
       }
@@ -1859,7 +1859,7 @@ private:
       FarDialogItem dlg_item;
       for (unsigned ctrl_id = 0; send_message(DM_GETDLGITEMSHORT, ctrl_id, &dlg_item); ctrl_id++) {
         if (dlg_item.Type == DI_EDIT) {
-          EditorSetPosition esp = { 0 };
+          EditorSetPosition esp = { sizeof(EditorSetPosition) };
           send_message(DM_SETEDITPOSITION, ctrl_id, &esp);
         }
       }

@@ -104,7 +104,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		}
 	}
 
-	struct EditorUndoRedo eur;
+	struct EditorUndoRedo eur={sizeof(EditorUndoRedo)};
 	eur.Command=EUR_BEGIN;
 	Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur);
 
@@ -213,14 +213,14 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				{
 					if (rec.Event.KeyEvent.dwControlKeyState & SHIFT_PRESSED)
 					{
-						struct EditorUndoRedo eur2;
+						struct EditorUndoRedo eur2={sizeof(EditorUndoRedo)};
 						eur2.Command=EUR_BEGIN;
 						Info.EditorControl(-1,ECTL_UNDOREDO,0,&eur2);
 
 						#if defined(DRAWLINE_MULTIEDITSTYLE)
 						if (rec.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED))
 						{
-							EditorInfo ei;
+							EditorInfo ei={sizeof(EditorInfo)};
 							Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
 							for (int i=0; i < ei.TabSize; ++i)
@@ -292,9 +292,9 @@ bool SetTitle(int LineWidth,int IDTitle)
 
 void ProcessShiftKey(int KeyCode,int LineWidth)
 {
-	EditorInfo ei;
+	EditorInfo ei={sizeof(EditorInfo)};
 	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
-	struct EditorSetPosition esp;
+	struct EditorSetPosition esp={sizeof(EditorSetPosition)};
 	esp.CurLine=ei.CurLine;
 	esp.CurPos=ei.CurTabPos;
 	esp.CurTabPos=-1;
@@ -312,11 +312,11 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 
 	if (ei.CurLine>=ei.TotalLines-1)
 	{
-		struct EditorGetString egs={};
+		struct EditorGetString egs={sizeof(EditorGetString)};
 		egs.StringNumber=ei.CurLine;
 		Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
-		struct EditorSetPosition esp;
+		struct EditorSetPosition esp={sizeof(EditorSetPosition)};
 		esp.CurLine=ei.CurLine;
 		esp.CurPos=egs.StringLength;
 		esp.CurTabPos=-1;
@@ -387,7 +387,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 
 	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 
-	struct EditorGetString egs={};
+	struct EditorGetString egs={sizeof(EditorGetString)};
 	egs.StringNumber=ei.CurLine;
 	Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
@@ -467,7 +467,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 		if (LeftLine==BoxLeft[I] && UpLine==BoxUp[I] && RightLine==BoxRight[I] && DownLine==BoxDown[I])
 		{
 			NewString[ei.CurPos]=BoxChar[I];
-			struct EditorSetString ess;
+			struct EditorSetString ess={sizeof(EditorSetString)};
 			ess.StringNumber=egs.StringNumber;
 			ess.StringText=NewString;
 			ess.StringEOL=(wchar_t*)egs.StringEOL;
@@ -499,7 +499,7 @@ void GetEnvType(wchar_t *NewString,int StringLength,struct EditorInfo *ei,
 
 	if (ei->CurLine>0)
 	{
-		struct EditorGetString UpStr;
+		struct EditorGetString UpStr={sizeof(EditorGetString)};
 		UpStr.StringNumber=ei->CurLine-1;
 		Info.EditorControl(-1,ECTL_GETSTRING,0,&UpStr);
 
@@ -509,7 +509,7 @@ void GetEnvType(wchar_t *NewString,int StringLength,struct EditorInfo *ei,
 
 	if (ei->CurLine<ei->TotalLines-1)
 	{
-		struct EditorGetString DownStr;
+		struct EditorGetString DownStr={sizeof(EditorGetString)};
 		DownStr.StringNumber=ei->CurLine+1;
 		Info.EditorControl(-1,ECTL_GETSTRING,0,&DownStr);
 

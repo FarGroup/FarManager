@@ -112,10 +112,10 @@ int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
   if (Reenter || InputInfo->Rec.EventType!=KEY_EVENT || !InputInfo->Rec.Event.KeyEvent.bKeyDown || InputInfo->Rec.Event.KeyEvent.wVirtualKeyCode==VK_F1)
     return FALSE;
 
-  struct EditorInfo startei;
+  struct EditorInfo startei={sizeof(EditorInfo)};
   Info.EditorControl(-1,ECTL_GETINFO,0,&startei);
 
-  struct EditorGetString prevegs;
+  struct EditorGetString prevegs={sizeof(EditorGetString)};
   prevegs.StringNumber=-1;
   Info.EditorControl(-1,ECTL_GETSTRING,0,&prevegs);
 
@@ -125,7 +125,7 @@ int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 
   for (int Pass=1;;Pass++)
   {
-    EditorInfo ei;
+    EditorInfo ei={sizeof(EditorInfo)};
     Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
     LPWSTR FileName=nullptr;
     size_t FileNameSize=Info.EditorControl(-1,ECTL_GETFILENAME,0,0);
@@ -181,7 +181,7 @@ int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
     if(FileName)
       delete[] FileName;
 
-    struct EditorGetString egs;
+    struct EditorGetString egs={sizeof(EditorGetString)};
     egs.StringNumber=ei.CurLine;
     Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
@@ -189,7 +189,7 @@ int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
     int TabLength=egs.StringLength;
     if (TabPresent)
     {
-      struct EditorConvertPos ecp;
+      struct EditorConvertPos ecp={sizeof(EditorConvertPos)};
       ecp.StringNumber=-1;
       ecp.SrcPos=egs.StringLength;
       Info.EditorControl(-1,ECTL_REALTOTAB,0,&ecp);
@@ -208,7 +208,7 @@ int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
           int TabPos=I;
           if (TabPresent)
           {
-            struct EditorConvertPos ecp;
+            struct EditorConvertPos ecp={sizeof(EditorConvertPos)};
             ecp.StringNumber=-1;
             ecp.SrcPos=I;
             Info.EditorControl(-1,ECTL_REALTOTAB,0,&ecp);
@@ -235,8 +235,7 @@ int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
       if (SpaceOnly)
         break;
 
-      struct EditorSetPosition esp;
-      memset(&esp,-1,sizeof(esp));
+      struct EditorSetPosition esp={sizeof(EditorSetPosition)};
       esp.CurPos=SpacePos+1;
       Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
       int Indent=TRUE;
