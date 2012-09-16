@@ -2824,7 +2824,7 @@ void Edit::ApplyColor()
 	int XPos = 0;
 	if(Flags.Check(FEDITLINE_EDITORMODE))
 	{
-		EditorInfo ei={};
+		EditorInfo ei={sizeof(EditorInfo)};
 		CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO, &ei);
 		XPos = ei.CurTabPos - ei.LeftPos;
 	}
@@ -3427,7 +3427,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 	string CurrentLine;
 	size_t EventsCount = 0;
 	Console.GetNumberOfInputEvents(EventsCount);
-	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual)) 
+	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual))
 	{
 		Reenter++;
 
@@ -3621,7 +3621,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 							// "классический" перебор
 							case KEY_CTRLEND:
 							case KEY_RCTRLEND:
-							
+
 							case KEY_CTRLSPACE:
 							case KEY_RCTRLSPACE:
 								{

@@ -1876,7 +1876,7 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 						}
 						else if (CheckCode == MCODE_V_EDITORVALUE)
 						{
-							EditorGetString egs;
+							EditorGetString egs={sizeof(EditorGetString)};
 							egs.StringNumber=-1;
 							CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETSTRING,&egs);
 							Cond=egs.StringText;
@@ -3446,7 +3446,7 @@ static bool editorposFunc(const TMacroFunction*)
 
 	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 	{
-		EditorInfo ei;
+		EditorInfo ei={sizeof(EditorInfo)};
 		CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO,&ei);
 
 		switch (Op)
@@ -3479,7 +3479,7 @@ static bool editorposFunc(const TMacroFunction*)
 			}
 			case 1: // set
 			{
-				EditorSetPosition esp;
+				EditorSetPosition esp={sizeof(EditorSetPosition)};
 				esp.CurLine=-1;
 				esp.CurPos=-1;
 				esp.CurTabPos=-1;
@@ -4573,7 +4573,7 @@ static bool editorundoFunc(const TMacroFunction*)
 
 	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 	{
-		EditorUndoRedo eur;
+		EditorUndoRedo eur={sizeof(EditorUndoRedo)};
 		eur.Command=static_cast<EDITOR_UNDOREDO_COMMANDS>(Action.toInteger());
 		Ret=(__int64)CtrlObject->Plugins->CurEditor->EditorControl(ECTL_UNDOREDO,&eur);
 	}

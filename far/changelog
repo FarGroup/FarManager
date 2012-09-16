@@ -1,3 +1,19 @@
+zg 16.09.2012 17:12:23 +0200 - build 2801
+
+1. поле StructSize добавлено в следующие структуры:
+   EditorServiceRegion
+   EditorSetParameter
+   EditorUndoRedo
+   EditorGetString
+   EditorSetString
+   EditorInfo
+   EditorBookMarks
+   EditorSetPosition
+   EditorSelect
+   EditorConvertPos
+   EditorSaveFile
+   все нативные плагины перестали работать.
+
 zg 16.09.2012 15:48:35 +0200 - build 2800
 
 1. поле StructSize добавлено в следующие структуры:

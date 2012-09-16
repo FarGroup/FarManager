@@ -2526,9 +2526,9 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_GETBOOKMARKS:
 		{
-			if (!Flags.Check(FFILEEDIT_OPENFAILED) && Param)
+			EditorBookMarks *ebm = static_cast<EditorBookMarks*>(Param);
+			if (!Flags.Check(FFILEEDIT_OPENFAILED) && CheckStructSize(ebm))
 			{
-				EditorBookMarks *ebm = static_cast<EditorBookMarks*>(Param);
 				for(int i = 0; i < BOOKMARK_COUNT; i++)
 				{
 					if (ebm->Line)
@@ -2577,7 +2577,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_GETSESSIONBOOKMARKS:
 		{
-			return m_editor->GetSessionBookmarks((EditorBookMarks *)Param);
+			return CheckStructSize((EditorBookMarks *)Param)?m_editor->GetSessionBookmarks((EditorBookMarks *)Param):0;
 		}
 		case ECTL_SETTITLE:
 		{
@@ -2620,9 +2620,9 @@ int FileEditor::EditorControl(int Command, void *Param)
 			int EOL=0;
 			UINT codepage=m_codepage;
 
-			if (Param)
+			EditorSaveFile *esf=(EditorSaveFile *)Param;
+			if (CheckStructSize(esf))
 			{
-				EditorSaveFile *esf=(EditorSaveFile *)Param;
 
 				if (*esf->FileName) strName=esf->FileName;
 
@@ -2749,9 +2749,9 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_SETPARAM:
 		{
-			if (Param)
+			EditorSetParameter *espar=(EditorSetParameter *)Param;
+			if (CheckStructSize(espar))
 			{
-				EditorSetParameter *espar=(EditorSetParameter *)Param;
 				if (ESPT_SETBOM==espar->Type)
 				{
 				    if(IsUnicodeOrUtfCodePage(m_codepage))
@@ -2770,7 +2770,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 	if (result&&Param&&ECTL_GETINFO==Command)
 	{
 		EditorInfo *Info=(EditorInfo *)Param;
-		if (m_bAddSignature)
+		if (CheckStructSize(Info)&&m_bAddSignature)
 			Info->Options|=EOPT_BOM;
 	}
 	return result;

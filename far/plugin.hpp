@@ -1536,6 +1536,7 @@ enum EDITOR_SETPARAMETER_TYPES
 #ifdef FAR_USE_INTERNALS
 struct EditorServiceRegion
 {
+	size_t StructSize;
 	int Command;
 	unsigned __int64 Flags;
 };
@@ -1544,6 +1545,7 @@ struct EditorServiceRegion
 
 struct EditorSetParameter
 {
+	size_t StructSize;
 	enum EDITOR_SETPARAMETER_TYPES Type;
 	union
 	{
@@ -1571,12 +1573,14 @@ enum EDITOR_UNDOREDO_COMMANDS
 
 struct EditorUndoRedo
 {
+	size_t StructSize;
 	enum EDITOR_UNDOREDO_COMMANDS Command;
 	intptr_t Reserved[3];
 };
 
 struct EditorGetString
 {
+	size_t StructSize;
 	int StringNumber;
 	int StringLength;
 #ifdef FAR_USE_INTERNALS
@@ -1593,6 +1597,7 @@ struct EditorGetString
 
 struct EditorSetString
 {
+	size_t StructSize;
 	int StringNumber;
 	int StringLength;
 	const wchar_t *StringText;
@@ -1640,6 +1645,7 @@ enum EDITOR_CURRENTSTATE
 
 struct EditorInfo
 {
+	size_t StructSize;
 	int EditorID;
 	int WindowSizeX;
 	int WindowSizeY;
@@ -1662,6 +1668,7 @@ struct EditorInfo
 
 struct EditorBookMarks
 {
+	size_t StructSize;
 	int *Line;
 	int *Cursor;
 	int *ScreenLine;
@@ -1671,6 +1678,7 @@ struct EditorBookMarks
 
 struct EditorSetPosition
 {
+	size_t StructSize;
 	int CurLine;
 	int CurPos;
 	int CurTabPos;
@@ -1682,6 +1690,7 @@ struct EditorSetPosition
 
 struct EditorSelect
 {
+	size_t StructSize;
 	int BlockType;
 	int BlockStartLine;
 	int BlockStartPos;
@@ -1692,6 +1701,7 @@ struct EditorSelect
 
 struct EditorConvertPos
 {
+	size_t StructSize;
 	int StringNumber;
 	int SrcPos;
 	int DestPos;
@@ -1728,6 +1738,7 @@ struct EditorDeleteColor
 
 struct EditorSaveFile
 {
+	size_t StructSize;
 	const wchar_t *FileName;
 	const wchar_t *FileEOL;
 	UINT CodePage;

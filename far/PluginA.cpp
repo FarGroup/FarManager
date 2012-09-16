@@ -3104,7 +3104,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		{
 			if (!Param2) return FALSE;
 
-			EditorSelect es;
+			EditorSelect es={sizeof(EditorSelect)};
 			intptr_t ret=NativeInfo.SendDlgMessage(hDlg, DM_GETSELECTION, Param1, &es);
 			oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
 			esA->BlockType      = es.BlockType;
@@ -3119,7 +3119,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2) return FALSE;
 
 			oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
-			EditorSelect es;
+			EditorSelect es={sizeof(EditorSelect)};
 			es.BlockType      = esA->BlockType;
 			es.BlockStartLine = esA->BlockStartLine;
 			es.BlockStartPos  = esA->BlockStartPos;
@@ -4187,7 +4187,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 
 UINT GetEditorCodePageA()
 {
-	EditorInfo info={};
+	EditorInfo info={sizeof(EditorInfo)};
 	NativeInfo.EditorControl(-1,ECTL_GETINFO,0,&info);
 	UINT CodePage=info.CodePage;
 	CPINFO cpi;
@@ -4337,7 +4337,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 
 		case oldfar::ECTL_GETSTRING:
 		{
-			EditorGetString egs;
+			EditorGetString egs={sizeof(EditorGetString)};
 			oldfar::EditorGetString *oegs=(oldfar::EditorGetString *)Param;
 
 			if (!oegs) return FALSE;
@@ -4377,7 +4377,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		}
 		case oldfar::ECTL_GETINFO:
 		{
-			EditorInfo ei={};
+			EditorInfo ei={sizeof(EditorInfo)};
 			oldfar::EditorInfo *oei=(oldfar::EditorInfo *)Param;
 
 			if (!oei)
@@ -4438,7 +4438,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		}
 		case oldfar::ECTL_SAVEFILE:
 		{
-			EditorSaveFile newsf = {};
+			EditorSaveFile newsf = {sizeof(EditorSaveFile)};
 
 			if (Param)
 			{
@@ -4539,7 +4539,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		}
 		case oldfar::ECTL_SETPARAM:
 		{
-			EditorSetParameter newsp = {};
+			EditorSetParameter newsp = {sizeof(EditorSetParameter)};
 
 			if (Param)
 			{
@@ -4655,7 +4655,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		}
 		case oldfar::ECTL_SETSTRING:
 		{
-			EditorSetString newss = {};
+			EditorSetString newss = {sizeof(EditorSetString)};
 
 			if (Param)
 			{

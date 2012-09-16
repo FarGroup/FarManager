@@ -2543,7 +2543,7 @@ intptr_t WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 					int sd_dst = new_hex ? SD_EDIT_HEX : SD_EDIT_TEXT;
 					int sd_src = new_hex ? SD_EDIT_TEXT : SD_EDIT_HEX;
 
-					EditorSetPosition esp;
+					EditorSetPosition esp={sizeof(EditorSetPosition)};
 					esp.CurPos = -1;
 					SendDlgMessage(hDlg, DM_GETEDITPOSITION, sd_src, &esp);
 					const wchar_t *ps = (const wchar_t *)SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, sd_src, 0);

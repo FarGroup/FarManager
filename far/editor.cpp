@@ -595,7 +595,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		{
 			__int64 Ret=-1;
 			int Val[1];
-			EditorBookMarks ebm={};
+			EditorBookMarks ebm={sizeof(EditorBookMarks)};
 			int iMode=(int)((intptr_t)vParam);
 
 			switch (iMode)
@@ -709,7 +709,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 							if (CheckLine(MBlockStart))
 							{
-								EditorSelect eSel;
+								EditorSelect eSel={sizeof(EditorSelect)};
 								eSel.BlockType=(Action == 2)?BTYPE_STREAM:BTYPE_COLUMN;
 								eSel.BlockStartPos=MBlockStartX;
 								eSel.BlockWidth=CurLine->GetCurPos()-MBlockStartX;
@@ -5626,7 +5626,7 @@ int Editor::EditorControl(int Command,void *Param)
 		{
 			EditorGetString *GetString=(EditorGetString *)Param;
 
-			if (GetString)
+			if (CheckStructSize(GetString))
 			{
 				Edit *CurPtr=GetStringByNumber(GetString->StringNumber);
 
@@ -5740,7 +5740,7 @@ int Editor::EditorControl(int Command,void *Param)
 		{
 			EditorSetString *SetString=(EditorSetString *)Param;
 
-			if (!SetString)
+			if (!CheckStructSize(SetString))
 				break;
 
 			_ECTLLOG(SysLog(L"EditorSetString{"));
@@ -5839,7 +5839,7 @@ int Editor::EditorControl(int Command,void *Param)
 		{
 			EditorInfo *Info=(EditorInfo *)Param;
 
-			if (Info)
+			if (CheckStructSize(Info))
 			{
 				Info->EditorID=Editor::EditorID;
 				Info->WindowSizeX=ObjWidth;
@@ -5901,11 +5901,9 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_SETPOSITION:
 		{
-			// "Вначале было слово..."
-			if (Param)
+			EditorSetPosition *Pos=(EditorSetPosition *)Param;
+			if (CheckStructSize(Pos))
 			{
-				// ...а вот теперь поработаем с тем, что передалаи
-				EditorSetPosition *Pos=(EditorSetPosition *)Param;
 				_ECTLLOG(SysLog(L"EditorSetPosition{"));
 				_ECTLLOG(SysLog(L"  CurLine       = %d",Pos->CurLine));
 				_ECTLLOG(SysLog(L"  CurPos        = %d",Pos->CurPos));
@@ -5969,9 +5967,9 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_SELECT:
 		{
-			if (Param)
+			EditorSelect *Sel=(EditorSelect *)Param;
+			if (CheckStructSize(Sel))
 			{
-				EditorSelect *Sel=(EditorSelect *)Param;
 				_ECTLLOG(SysLog(L"EditorSelect{"));
 				_ECTLLOG(SysLog(L"  BlockType     =%s (%d)",(Sel->BlockType==BTYPE_NONE?L"BTYPE_NONE":(Sel->BlockType==BTYPE_STREAM?L"":(Sel->BlockType==BTYPE_COLUMN?L"BTYPE_COLUMN":L"BTYPE_?????"))),Sel->BlockType));
 				_ECTLLOG(SysLog(L"  BlockStartLine=%d",Sel->BlockStartLine));
@@ -6063,9 +6061,9 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_TABTOREAL:
 		{
-			if (Param)
+			EditorConvertPos *ecp=(EditorConvertPos *)Param;
+			if (CheckStructSize(ecp))
 			{
-				EditorConvertPos *ecp=(EditorConvertPos *)Param;
 				Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
 
 				if (!CurPtr)
@@ -6087,9 +6085,9 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_REALTOTAB:
 		{
-			if (Param)
+			EditorConvertPos *ecp=(EditorConvertPos *)Param;
+			if (CheckStructSize(ecp))
 			{
-				EditorConvertPos *ecp=(EditorConvertPos *)Param;
 				Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
 
 				if (!CurPtr)
@@ -6233,9 +6231,9 @@ int Editor::EditorControl(int Command,void *Param)
 		*/
 		case ECTL_SETPARAM:
 		{
-			if (Param)
+			EditorSetParameter *espar=(EditorSetParameter *)Param;
+			if (CheckStructSize(espar))
 			{
-				EditorSetParameter *espar=(EditorSetParameter *)Param;
 				int rc=TRUE;
 				_ECTLLOG(SysLog(L"EditorSetParameter{"));
 				_ECTLLOG(SysLog(L"  Type        =%s",_ESPT_ToName(espar->Type)));
@@ -6341,9 +6339,9 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_UNDOREDO:
 		{
-			if (Param)
+			EditorUndoRedo *eur=(EditorUndoRedo *)Param;
+			if (CheckStructSize(eur))
 			{
-				EditorUndoRedo *eur=(EditorUndoRedo *)Param;
 
 				switch (eur->Command)
 				{
