@@ -2500,6 +2500,12 @@ struct OpenShortcutInfo
 	const wchar_t *ShortcutData;
 };
 
+struct OpenCommandLineInfo
+{
+	size_t StructSize;
+	const wchar_t *CommandLine;
+};
+
 enum OPENFROM
 {
 	OPEN_FROM_MASK          = 0x000000FF,

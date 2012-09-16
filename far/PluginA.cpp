@@ -5154,9 +5154,14 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 		char *ItemA = nullptr;
 		oldfar::OpenDlgPluginData DlgData;
 
-		if (Item && (OpenFrom == OPEN_COMMANDLINE  || OpenFrom == OPEN_SHORTCUT))
+		if (Item && OpenFrom == OPEN_COMMANDLINE)
 		{
-			ItemA = UnicodeToAnsi((const wchar_t *)Item);
+			ItemA = UnicodeToAnsi(((OpenCommandLineInfo *)Item)->CommandLine);
+			Item = (intptr_t)ItemA;
+		}
+		if (Item && OpenFrom == OPEN_SHORTCUT)
+		{
+			ItemA = UnicodeToAnsi(((OpenShortcutInfo *)Item)->ShortcutData);
 			Item = (intptr_t)ItemA;
 		}
 		if (OpenFrom == OPEN_LEFTDISKMENU || OpenFrom == OPEN_RIGHTDISKMENU || OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_EDITOR || OpenFrom == OPEN_VIEWER)
