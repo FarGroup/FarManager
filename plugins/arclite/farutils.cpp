@@ -575,10 +575,12 @@ int Dialog::show() {
 }
 
 wstring Dialog::get_text(unsigned ctrl_id) const {
-  size_t len = g_far.SendDlgMessage(h_dlg, DM_GETTEXTLENGTH, ctrl_id, 0);
-  Buffer<wchar_t> buf(len + 1);
-  g_far.SendDlgMessage(h_dlg, DM_GETTEXTPTR, ctrl_id, buf.data());
-  return wstring(buf.data(), len);
+  FarDialogItemData item = { sizeof(FarDialogItemData) };
+  item.PtrLength = g_far.SendDlgMessage(h_dlg, DM_GETTEXT, ctrl_id, 0);
+  Buffer<wchar_t> buf(item.PtrLength + 1);
+  item.PtrData = buf.data();
+  g_far.SendDlgMessage(h_dlg, DM_GETTEXT, ctrl_id, &item);
+  return wstring(item.PtrData, item.PtrLength);
 }
 
 void Dialog::set_text(unsigned ctrl_id, const wstring& text) {
