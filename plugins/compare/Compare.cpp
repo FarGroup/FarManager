@@ -1101,7 +1101,7 @@ void GetPanelItem(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,Plugin
 
 	if (item)
 	{
-		FarGetPluginPanelItem gpi = {Size, item};
+		FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), Size, item};
 		Info.PanelControl(hPlugin,Command,Param1,&gpi);
 		*Param2=*item;
 		Param2->FileName=wcsdup(item->FileName);

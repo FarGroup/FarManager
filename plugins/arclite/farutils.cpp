@@ -80,6 +80,7 @@ void set_progress_state(TBPFLAG state) {
 
 void set_progress_value(unsigned __int64 completed, unsigned __int64 total) {
   ProgressValue pv;
+  pv.StructSize = sizeof(ProgressValue);
   pv.Completed = completed;
   pv.Total = total;
   g_far.AdvControl(&c_plugin_guid, ACTL_SETPROGRESSVALUE, 0, &pv);
@@ -175,6 +176,7 @@ wstring get_panel_dir(HANDLE h_panel) {
 
 void get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, size_t index, Buffer<unsigned char>& buf) {
   FarGetPluginPanelItem gpi;
+  gpi.StructSize = sizeof(FarGetPluginPanelItem);
   gpi.Size = buf.size();
   gpi.Item = reinterpret_cast<PluginPanelItem*>(buf.data());
   size_t size = g_far.PanelControl(h_panel, command, index, &gpi);
@@ -755,7 +757,7 @@ bool panel_go_to_file(HANDLE h_panel, const wstring& file_path) {
   if (!g_far.PanelControl(h_panel, FCTL_GETPANELINFO, 0, &panel_info))
     return false;
   wstring file_name = upcase(extract_file_name(file_path));
-  PanelRedrawInfo panel_ri = { 0 };
+  PanelRedrawInfo panel_ri = { sizeof(PanelRedrawInfo) };
   Buffer<unsigned char> buf(0x1000);
   size_t i;
   for (i = 0; i < panel_info.ItemsNumber; i++) {

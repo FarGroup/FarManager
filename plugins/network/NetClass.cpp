@@ -1359,7 +1359,7 @@ BOOL NetBrowser::EditFavorites()
 
 	if (PPI)
 	{
-		FarGetPluginPanelItem gpi={Size, PPI};
+		FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 		Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 		Path += PPI->FileName;
 		free(PPI);
@@ -1434,7 +1434,7 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 
 				if (PPI)
 				{
-					FarGetPluginPanelItem gpi={Size, PPI};
+					FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 					Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,&gpi);
 					pRemoteName = PPI->FileName;
 					if (!Opt.FullPathShares)
@@ -1492,7 +1492,7 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 
 		if (PPI)
 		{
-			FarGetPluginPanelItem gpi={Size, PPI};
+			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,0,&gpi);
 		}
 
@@ -1502,7 +1502,7 @@ int NetBrowser::ProcessKey(const INPUT_RECORD *Rec)
 				        PPI->FileName <= 2)
 				{
 					Info.PanelControl(this,FCTL_UPDATEPANEL,1,0);
-					PanelRedrawInfo ri = {0};
+					PanelRedrawInfo ri = {sizeof(PanelRedrawInfo)};
 					ri.CurrentItem = ri.TopPanelItem = 0;
 					Info.PanelControl(this,FCTL_REDRAWPANEL,0,&ri);
 				}
@@ -1959,7 +1959,7 @@ void NetBrowser::FileNames2Clipboard(BOOL ToCommandLine)
 
 			if (PPI)
 			{
-				FarGetPluginPanelItem gpi={Size, PPI};
+				FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 				Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 				lstrcpy(CurFile,PPI->FileName);
 				free(PPI);
@@ -1995,7 +1995,7 @@ void NetBrowser::FileNames2Clipboard(BOOL ToCommandLine)
 
 		if (PPI)
 		{
-			FarGetPluginPanelItem gpi={Size, PPI};
+			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,I,&gpi);
 
 			lstrcpy(CurFile,PPI->FileName);
@@ -2053,7 +2053,7 @@ void NetBrowser::ManualConnect()
 
 		if (PPI)
 		{
-			FarGetPluginPanelItem gpi={Size, PPI};
+			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 			ChangeToDirectory(PPI->FileName, FALSE, TRUE);
 			free(PPI);
@@ -2262,7 +2262,7 @@ void NetBrowser::SetCursorToShare(wchar_t *Share)
 
 			if (PPI)
 			{
-				FarGetPluginPanelItem gpi={Size, PPI};
+				FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 				Info.PanelControl(this,FCTL_GETPANELITEM,i,&gpi);
 				lstrcpy(szAnsiName,PPI->FileName);
 				free(PPI);
@@ -2270,7 +2270,7 @@ void NetBrowser::SetCursorToShare(wchar_t *Share)
 
 			if (!FSF.LStricmp(szAnsiName, Opt.FullPathShares?Share:FSF.PointToName(Share)))
 			{
-				PanelRedrawInfo info;
+				PanelRedrawInfo info={sizeof(PanelRedrawInfo)};
 				info.CurrentItem = i;
 				info.TopPanelItem = 0;
 				Info.PanelControl(this, FCTL_REDRAWPANEL,0,&info);
@@ -2310,7 +2310,7 @@ void NetBrowser::RemoveItems()
 
 		if (PPI)
 		{
-			FarGetPluginPanelItem gpi={Size, PPI};
+			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,0,&gpi);
 			FSF.sprintf(szConfirmation, GetMsg(MRemoveFavItem), PPI->FileName);
 			free(PPI);
@@ -2345,7 +2345,7 @@ void NetBrowser::RemoveItems()
 
 		if (PPI)
 		{
-			FarGetPluginPanelItem gpi={Size, PPI};
+			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,&gpi);
 			lstrcpy(p,PPI->FileName);
 			free(PPI);

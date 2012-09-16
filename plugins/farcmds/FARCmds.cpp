@@ -116,7 +116,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 		if (PPI)
 		{
-			FarGetPluginPanelItem gpi={Size, PPI};
+			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(SrcPanel,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 			lstrcat(selectItem,PPI->FileName);
 			free(PPI);
@@ -126,7 +126,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	/*установить курсор на объект*/
 	if (lstrlen(selectItem))
 	{
-		static struct PanelRedrawInfo PRI;
+		static struct PanelRedrawInfo PRI={sizeof(PanelRedrawInfo)};
 		static wchar_t Name[MAX_PATH], Dir[MAX_PATH*5];
 		int pathlen;
 		lstrcpy(Name,FSF.PointToName(selectItem));
@@ -159,7 +159,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 			if (PPI)
 			{
-				FarGetPluginPanelItem gpi={Size, PPI};
+				FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 				Info.PanelControl(DstPanel,FCTL_GETPANELITEM,J,&gpi);
 				Equal=!FSF.LStricmp(Name,FSF.PointToName(PPI->FileName));
 				free(PPI);

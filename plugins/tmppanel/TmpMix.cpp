@@ -55,7 +55,7 @@ wchar_t *ParseParam(wchar_t *& str)
 void GoToFile(const wchar_t *Target, BOOL AnotherPanel)
 {
 	HANDLE  _PANEL_HANDLE = AnotherPanel?PANEL_PASSIVE:PANEL_ACTIVE;
-	PanelRedrawInfo PRI;
+	PanelRedrawInfo PRI = {sizeof(PanelRedrawInfo)};
 	PanelInfo PInfo = {sizeof(PanelInfo)};
 	int pathlen;
 	const wchar_t *p = FSF.PointToName(const_cast<wchar_t*>(Target));
@@ -90,7 +90,7 @@ void GoToFile(const wchar_t *Target, BOOL AnotherPanel)
 
 		if (PPI)
 		{
-			FarGetPluginPanelItem gpi={Size, PPI};
+			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(_PANEL_HANDLE,FCTL_GETPANELITEM,J,&gpi);
 		}
 

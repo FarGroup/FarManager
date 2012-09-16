@@ -592,7 +592,7 @@ bool TmpPanel::IsCurrentFileCorrect(wchar_t **pCurFileName)
 
 	if (PPI)
 	{
-		FarGetPluginPanelItem gpi={Size, PPI};
+		FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 		Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 		CurFileName = PPI->FileName;
 	}
@@ -648,7 +648,7 @@ int TmpPanel::ProcessKey(const INPUT_RECORD *Rec)
 
 				if (PPI)
 				{
-					FarGetPluginPanelItem gpi={Size, PPI};
+					FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 					Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
 					attributes=PPI->FileAttributes;
 					free(PPI);
@@ -752,7 +752,7 @@ void TmpPanel::ProcessRemoveKey()
 
 		if (PPI)
 		{
-			FarGetPluginPanelItem gpi={Size, PPI};
+			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,&gpi);
 			RemovedItem = TmpPanelItem + PPI->UserData;
 		}

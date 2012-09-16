@@ -1191,7 +1191,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 			PluginPanelItem* CurItem=static_cast<PluginPanelItem*>(malloc(Size));
 			if (CurItem)
 			{
-				FarGetPluginPanelItem gpi={Size, CurItem};
+				FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, CurItem};
 				Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(PInfo.CurrentItem),&gpi);
 
 				if (!CurItem->UserData)
@@ -1245,7 +1245,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		PluginPanelItem* PPI=static_cast<PluginPanelItem*>(malloc(Size));
 		if (PPI)
 		{
-			FarGetPluginPanelItem gpi={Size, PPI};
+			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),&gpi);
 			bool Exit=pi.CurrentItem >= pi.ItemsNumber || !lstrcmp(PPI->FileName,L"..");
 			free(PPI);
@@ -1279,7 +1279,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 		PPI=(PluginPanelItem*)new char[Size];
 		if (PPI)
 		{
-			FarGetPluginPanelItem gpi={Size, PPI};
+			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),&gpi);
 
 			if (GetFiles(PPI, 1, 0, WADDR lpFileName, OPM_VIEW|0x10000, LocalOpt))
@@ -1437,7 +1437,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 				PluginPanelItem* PPI = reinterpret_cast<PluginPanelItem*>(new char[Size]);
 				if(PPI)
 				{
-					FarGetPluginPanelItem gpi = {Size, PPI};
+					FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), Size, PPI};
 					Info.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, static_cast<int>(i), &gpi);
 					SetLastError(0);
 
@@ -1554,7 +1554,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 			PluginPanelItem* PPI=static_cast<PluginPanelItem*>(malloc(Size));
 			if (PPI)
 			{
-				FarGetPluginPanelItem gpi={Size, PPI};
+				FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 				Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),&gpi);
 
 				ProcessData* pData = (ProcessData *)PPI->UserData;
