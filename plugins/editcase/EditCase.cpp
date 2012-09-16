@@ -55,12 +55,12 @@ static wchar_t* WordDiv;
 static int WordDivLen;
 
 const wchar_t *GetMsg(int MsgId);
-bool FindBounds(wchar_t *Str, int Len, int Pos, int &Start, int &End);
-int FindEnd(wchar_t *Str, int Len, int Pos);
-int FindStart(wchar_t *Str, int Len, int Pos);
+bool FindBounds(wchar_t *Str, intptr_t Len, intptr_t Pos, intptr_t &Start, intptr_t &End);
+int FindEnd(wchar_t *Str, intptr_t Len, intptr_t Pos);
+int FindStart(wchar_t *Str, intptr_t Len, intptr_t Pos);
 bool MyIsAlpha(int c);
-int GetNextCCType(wchar_t *Str, int StrLen, int Start, int End);
-int ChangeCase(wchar_t *NewString, int Start, int End, int CCType);
+int GetNextCCType(wchar_t *Str, intptr_t StrLen, intptr_t Start, intptr_t End);
+int ChangeCase(wchar_t *NewString, intptr_t Start, intptr_t End, int CCType);
 
 void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
@@ -306,7 +306,7 @@ bool MyIsAlpha(int c)
 }
 
 // Finding word bounds (what'll be converted) (Str is in OEM)
-bool FindBounds(wchar_t *Str, int Len, int Pos, int &Start, int &End)
+bool FindBounds(wchar_t *Str, intptr_t Len, intptr_t Pos, intptr_t &Start, intptr_t &End)
 {
 	int i=1;
 	bool ret = false;
@@ -377,7 +377,7 @@ bool FindBounds(wchar_t *Str, int Len, int Pos, int &Start, int &End)
 	return ret;
 }
 
-int FindStart(wchar_t *Str, int Start, int End)
+int FindStart(wchar_t *Str, intptr_t Start, intptr_t End)
 {
 	// Current pos in Str
 	int CurPos=End-1;
@@ -389,7 +389,7 @@ int FindStart(wchar_t *Str, int Start, int End)
 	return CurPos+1;
 }
 
-int FindEnd(wchar_t *Str, int Start, int End)
+int FindEnd(wchar_t *Str, intptr_t Start, intptr_t End)
 {
 	// Current pos in Str
 	int CurPos=Start;
@@ -403,7 +403,7 @@ int FindEnd(wchar_t *Str, int Start, int End)
 
 // Changes Case of NewString from position Start till End
 // to CCType and returns amount of changes
-int ChangeCase(wchar_t *NewString, int Start, int End, int CCType)
+int ChangeCase(wchar_t *NewString, intptr_t Start, intptr_t End, int CCType)
 {
 	// If previous symbol is letter, then IsPrevSymbAlpha!=0
 	bool IsPrevSymbAlpha=false;
@@ -456,11 +456,11 @@ int ChangeCase(wchar_t *NewString, int Start, int End, int CCType)
 
 // Return CCType by rule: lower->Title->UPPER
 // If Str contains no letters, then return CCCyclic
-int GetNextCCType(wchar_t *Str, int StrLen, int Start, int End)
+int GetNextCCType(wchar_t *Str, intptr_t StrLen, intptr_t Start, intptr_t End)
 {
-	int SignalWordStart=Start,
+	intptr_t SignalWordStart=Start,
 	                    SignalWordEnd=End;
-	int SignalWordLen=Max(Start,End);
+	intptr_t SignalWordLen=Max(Start,End);
 	// Default conversion is to lower case
 	int CCType=CCLower;
 	Start=Min(Start,End);
