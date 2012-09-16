@@ -1215,6 +1215,7 @@ static const VIEWER_SETMODEFLAGS_TYPES
 
 struct ViewerSetMode
 {
+	size_t StructSize;
 	enum VIEWER_SETMODE_TYPES Type;
 	union
 	{
@@ -1231,6 +1232,7 @@ struct ViewerSetMode
 
 struct ViewerSelect
 {
+	size_t StructSize;
 	__int64 BlockStartPos;
 	int     BlockLen;
 };
@@ -1244,6 +1246,7 @@ static const VIEWER_SETPOS_FLAGS
 
 struct ViewerSetPosition
 {
+	size_t StructSize;
 	VIEWER_SETPOS_FLAGS Flags;
 	__int64 StartPos;
 	__int64 LeftPos;
