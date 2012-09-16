@@ -4207,9 +4207,9 @@ int Viewer::ViewerControl(int Command,void *Param)
 		*/
 		case VCTL_SETPOSITION:
 		{
-			if (Param)
+			ViewerSetPosition *vsp=(ViewerSetPosition*)Param;
+			if (CheckStructSize(vsp))
 			{
-				ViewerSetPosition *vsp=(ViewerSetPosition*)Param;
 				bool isReShow=vsp->StartPos != FilePos;
 
 				if ((LeftPos=vsp->LeftPos) < 0)
@@ -4234,9 +4234,9 @@ int Viewer::ViewerControl(int Command,void *Param)
 		// Param=ViewerSelect
 		case VCTL_SELECT:
 		{
-			if (Param)
+			ViewerSelect *vs=(ViewerSelect *)Param;
+			if (CheckStructSize(vs))
 			{
-				ViewerSelect *vs=(ViewerSelect *)Param;
 				__int64 SPos=vs->BlockStartPos;
 				int SSize=vs->BlockLen;
 
@@ -4252,7 +4252,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 					return TRUE;
 				}
 			}
-			else
+			else if (!Param)
 			{
 				SelectSize = -1;
 				Show();
@@ -4321,7 +4321,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 		{
 			ViewerSetMode *vsmode=(ViewerSetMode *)Param;
 
-			if (vsmode)
+			if (CheckStructSize(vsmode))
 			{
 				bool isRedraw=vsmode->Flags&VSMFL_REDRAW?true:false;
 

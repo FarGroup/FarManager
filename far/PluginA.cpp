@@ -4786,7 +4786,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			if (!Param) return FALSE;
 
 			oldfar::ViewerSetPosition* vspA = (oldfar::ViewerSetPosition*)Param;
-			ViewerSetPosition vsp;
+			ViewerSetPosition vsp={sizeof(ViewerSetPosition)};
 			vsp.Flags = 0;
 
 			if (vspA->Flags&oldfar::VSP_NOREDRAW)    vsp.Flags|=VSP_NOREDRAW;
@@ -4808,7 +4808,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			if (!Param) return static_cast<int>(NativeInfo.ViewerControl(-1,VCTL_SELECT,0, 0));
 
 			oldfar::ViewerSelect* vsA = (oldfar::ViewerSelect*)Param;
-			ViewerSelect vs = {vsA->BlockStartPos,vsA->BlockLen};
+			ViewerSelect vs = {sizeof(ViewerSelect),vsA->BlockStartPos,vsA->BlockLen};
 			return static_cast<int>(NativeInfo.ViewerControl(-1,VCTL_SELECT,0, &vs));
 		}
 		case oldfar::VCTL_SETMODE:
@@ -4816,7 +4816,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			if (!Param) return FALSE;
 
 			oldfar::ViewerSetMode* vsmA = (oldfar::ViewerSetMode*)Param;
-			ViewerSetMode vsm={};
+			ViewerSetMode vsm={sizeof(ViewerSetMode)};
 
 			switch (vsmA->Type)
 			{
