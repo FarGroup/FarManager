@@ -1,3 +1,16 @@
+zg 16.09.2012 14:35:28 +0200 - build 2799
+
+1. поле StructSize добавлено в следующие структуры:
+   FarGetPluginPanelItem
+   PanelRedrawInfo
+   CmdLineSelect
+   ActlEjectMedia
+   ActlMediaType
+   FarGetValue
+   FarSetColors
+   ProgressValue
+   все нативные плагины перестали работать.
+
 w17 12.09.2012 01:00:31 +0400 - build 2798
 
 1. Editor [Shift]F8 and KeyBar

@@ -387,9 +387,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_SETARRAYCOLOR:
 		{
-			if (Param2)
+			FarSetColors *Pal=(FarSetColors*)Param2;
+			if (CheckStructSize(Pal))
 			{
-				FarSetColors *Pal=(FarSetColors*)Param2;
 
 				if (Pal->Colors && Pal->StartIndex+Pal->ColorsCount <= Opt.Palette.SizeArrayPalette)
 				{
@@ -416,7 +416,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_EJECTMEDIA:
 		{
-			return Param2?EjectVolume((wchar_t)((ActlEjectMedia*)Param2)->Letter,
+			return CheckStructSize((ActlEjectMedia*)Param2)?EjectVolume((wchar_t)((ActlEjectMedia*)Param2)->Letter,
 			                         ((ActlEjectMedia*)Param2)->Flags):FALSE;
 			/*
 			      if(Param)
@@ -584,9 +584,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_SETPROGRESSVALUE:
 		{
 			BOOL Result=FALSE;
-			if(Param2)
+			ProgressValue* PV=static_cast<ProgressValue*>(Param2);
+			if(CheckStructSize(PV))
 			{
-				ProgressValue* PV=static_cast<ProgressValue*>(Param2);
 				TBC.SetProgressValue(PV->Completed,PV->Total);
 				Result=TRUE;
 			}
@@ -1277,9 +1277,9 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		}
 		case FCTL_GETCMDLINESELECTION:
 		{
-			if (Param2)
+			CmdLineSelect *sel=(CmdLineSelect*)Param2;
+			if (CheckStructSize(sel))
 			{
-				CmdLineSelect *sel=(CmdLineSelect*)Param2;
 				CmdLine->GetSelection(sel->SelStart,sel->SelEnd);
 				return TRUE;
 			}
@@ -1288,9 +1288,9 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		}
 		case FCTL_SETCMDLINESELECTION:
 		{
-			if (Param2)
+			CmdLineSelect *sel=(CmdLineSelect*)Param2;
+			if (CheckStructSize(sel))
 			{
-				CmdLineSelect *sel=(CmdLineSelect*)Param2;
 				CmdLine->Select(sel->SelStart,sel->SelEnd);
 				CmdLine->Redraw();
 				return TRUE;

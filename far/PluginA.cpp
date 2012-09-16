@@ -3419,7 +3419,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 								else
 									break;
 							}
-							FarGetPluginPanelItem gpi = {(size_t)PPISize, PPI};
+							FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), (size_t)PPISize, PPI};
 							NativeInfo.PanelControl(hPlugin,FCTL_GETPANELITEM, i, &gpi);
 							if(PPI)
 							{
@@ -3457,7 +3457,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 								else
 									break;
 							}
-							FarGetPluginPanelItem gpi = {(size_t)PPISize, PPI};
+							FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), (size_t)PPISize, PPI};
 							NativeInfo.PanelControl(hPlugin,FCTL_GETSELECTEDPANELITEM, i, &gpi);
 							if(PPI)
 							{
@@ -3558,7 +3558,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL,0,0));
 
 			oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
-			PanelRedrawInfo pri = {(size_t)priA->CurrentItem,(size_t)priA->TopPanelItem};
+			PanelRedrawInfo pri = {sizeof(PanelRedrawInfo), (size_t)priA->CurrentItem,(size_t)priA->TopPanelItem};
 			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL,0,&pri));
 		}
 		case oldfar::FCTL_SETANOTHERNUMERICSORT:
@@ -3608,7 +3608,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				NativeInfo.PanelControl(hPlugin, FCTL_GETCMDLINE, Size, s);
 				if(Command==oldfar::FCTL_GETCMDLINESELECTEDTEXT)
 				{
-					CmdLineSelect cls;
+					CmdLineSelect cls={sizeof(CmdLineSelect)};
 					NativeInfo.PanelControl(hPlugin,FCTL_GETCMDLINESELECTION, 0, &cls);
 					if(cls.SelStart >=0 && cls.SelEnd > cls.SelStart)
 					{
@@ -3633,7 +3633,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 			if (!Param)
 				return FALSE;
 
-			CmdLineSelect cls;
+			CmdLineSelect cls={sizeof(CmdLineSelect)};
 			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_GETCMDLINESELECTION,0,&cls));
 
 			if (ret)
@@ -3677,7 +3677,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
-			CmdLineSelect cls = {clsA->SelStart,clsA->SelEnd};
+			CmdLineSelect cls = {sizeof(CmdLineSelect),clsA->SelStart,clsA->SelEnd};
 			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETCMDLINESELECTION,0,&cls));
 		}
 		case oldfar::FCTL_GETUSERSCREEN:
@@ -3888,7 +3888,17 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			}
 			break;
 		case oldfar::ACTL_EJECTMEDIA:
-			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_EJECTMEDIA, 0, Param);
+		{
+
+			ActlEjectMedia eject={sizeof(ActlEjectMedia)};
+			if(Param)
+			{
+				oldfar::ActlEjectMedia* ejectA=(oldfar::ActlEjectMedia*)Param;
+				eject.Letter=ejectA->Letter;
+				eject.Flags=ejectA->Flags;
+			}
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_EJECTMEDIA, 0, &eject);
+		}
 		case oldfar::ACTL_KEYMACRO:
 		{
 			if (!Param) return FALSE;
@@ -4141,7 +4151,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			if (!Param) return FALSE;
 
 			oldfar::FarSetColors *scA = (oldfar::FarSetColors *)Param;
-			FarSetColors sc = {0, (size_t)scA->StartIndex, (size_t)scA->ColorCount, new FarColor[scA->ColorCount]};
+			FarSetColors sc = {sizeof(FarSetColors), 0, (size_t)scA->StartIndex, (size_t)scA->ColorCount, new FarColor[scA->ColorCount]};
 			for(size_t i = 0; i < sc.ColorsCount; ++i)
 			{
 				Colors::ConsoleColorToFarColor(scA->Colors[i], sc.Colors[i]);

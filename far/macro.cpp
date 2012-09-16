@@ -3266,7 +3266,7 @@ static bool dlggetvalueFunc(const TMacroFunction*)
 		if (typeInfoID == vtUnknown || (typeInfoID == vtInteger && InfoID < 0))
 			InfoID=0;
 
-		FarGetValue fgv={InfoID,FMVT_UNKNOWN};
+		FarGetValue fgv={sizeof(FarGetValue),InfoID,FMVT_UNKNOWN};
 		unsigned DlgItemCount=((Dialog*)CurFrame)->GetAllItemCount();
 		const DialogItemEx **DlgItem=((Dialog*)CurFrame)->GetAllItem();
 		bool CallDialog=true;

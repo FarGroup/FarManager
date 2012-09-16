@@ -736,6 +736,7 @@ struct PluginPanelItem
 
 struct FarGetPluginPanelItem
 {
+	size_t StructSize;
 	size_t Size;
 	struct PluginPanelItem* Item;
 };
@@ -808,12 +809,14 @@ struct PanelInfo
 
 struct PanelRedrawInfo
 {
+	size_t StructSize;
 	size_t CurrentItem;
 	size_t TopPanelItem;
 };
 
 struct CmdLineSelect
 {
+	size_t StructSize;
 	int SelStart;
 	int SelEnd;
 };
@@ -1035,6 +1038,7 @@ static const FAREJECTMEDIAFLAGS
 
 struct ActlEjectMedia
 {
+	size_t StructSize;
 	DWORD Letter;
 	FAREJECTMEDIAFLAGS Flags;
 };
@@ -1068,6 +1072,7 @@ static const FARMEDIATYPEFLAGS
 
 struct ActlMediaType
 {
+	size_t StructSize;
 	DWORD Letter;
 	FARMEDIATYPEFLAGS Flags;
 	intptr_t Reserved[2];
@@ -1265,6 +1270,7 @@ struct ProcessMacroInfo
 
 struct FarGetValue
 {
+	size_t StructSize;
 	int Type;
 	struct FarMacroValue Value;
 };
@@ -1276,6 +1282,7 @@ static const FARSETCOLORFLAGS
 
 struct FarSetColors
 {
+	size_t StructSize;
 	FARSETCOLORFLAGS Flags;
 	size_t StartIndex;
 	size_t ColorsCount;
@@ -1336,6 +1343,7 @@ enum TASKBARPROGRESSTATE
 
 struct ProgressValue
 {
+	size_t StructSize;
 	unsigned __int64 Completed;
 	unsigned __int64 Total;
 };
