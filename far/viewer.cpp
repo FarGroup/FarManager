@@ -2496,15 +2496,16 @@ intptr_t WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			int show = 1;
 			if ( Param1 )
 			{
-				int tlen = (int)SendDlgMessage(hDlg, DM_GETTEXTPTR, SD_EDIT_TEXT, 0);
+				int tlen = (int)SendDlgMessage(hDlg, DM_GETTEXT, SD_EDIT_TEXT, 0);
 				show = 0;
 				if ( tlen > 0 )
 				{
 					RegExp re;
 					wchar_t t[128], *tmp = t;
-					if (tlen > (int)ARRAYSIZE(t))
-						tmp = new wchar_t[tlen];
-					SendDlgMessage(hDlg, DM_GETTEXTPTR, SD_EDIT_TEXT, tmp);
+					if (tlen > (int)(ARRAYSIZE(t)-1))
+						tmp = new wchar_t[tlen+1];
+					FarDialogItemData item = {sizeof(FarDialogItemData), tlen, tmp};
+					SendDlgMessage(hDlg, DM_GETTEXT, SD_EDIT_TEXT, &item);
 					string sre = tmp;
 					InsertRegexpQuote(sre);
 					show = re.Compile(sre.CPtr(), OP_PERLSTYLE);

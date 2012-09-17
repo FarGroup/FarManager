@@ -5726,15 +5726,6 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			return (intptr_t)Ptr;
 		}
 		/*****************************************************************/
-		case DM_GETTEXTPTR:
-
-			if (Param2)
-			{
-				FarDialogItemData IData={sizeof(FarDialogItemData),0,(wchar_t *)Param2};
-				return SendDlgMessage(hDlg,DM_GETTEXT,Param1,&IData);
-			}
-
-			/*****************************************************************/
 		case DM_GETTEXT:
 		{
 			FarDialogItemData *did=(FarDialogItemData*)Param2;
@@ -5808,12 +5799,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 				return Len-(!Len?0:1);
 			}
 
-			// здесь умышленно не ставим return, т.к. хотим получить размер
-			// следовательно сразу должен идти "case DM_GETTEXTLENGTH"!!!
-			/*****************************************************************/
-		}
-		case DM_GETTEXTLENGTH:
-		{
+			//получаем размер
 			switch (Type)
 			{
 				case DI_BUTTON:

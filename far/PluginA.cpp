@@ -2633,7 +2633,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			xf_free(text);
 			return ret;
 		}
-		case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXTLENGTH; break;
+		case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXT; break;
 
 		case oldfar::DM_KEY:
 		{
@@ -2700,12 +2700,13 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		case oldfar::DM_SETCURSORPOS:     Msg = DM_SETCURSORPOS; break;
 		case oldfar::DM_GETTEXTPTR:
 		{
-			intptr_t length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, 0);
+			intptr_t length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, 0);
 
 			if (!Param2) return length;
 
 			wchar_t* text = (wchar_t *) xf_malloc((length +1)* sizeof(wchar_t));
-			length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, text);
+			FarDialogItemData item = {sizeof(FarDialogItemData), length, text};
+			length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &item);
 			UnicodeToOEM(text, (char *)Param2, length+1);
 			xf_free(text);
 			return length;

@@ -769,9 +769,10 @@ intptr_t WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Par
 				size_t Size = SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);
 				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, static_cast<FarDialogItem*>(xf_malloc(Size))};
 				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
+				//MarkChar это FIXEDIT размером в 1 символ
 				wchar_t MarkChar[2];
-				//MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
-				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,MarkChar);
+				FarDialogItemData item={sizeof(FarDialogItemData),1,MarkChar};
+				SendDlgMessage(hDlg,DM_GETTEXT,ID_HER_MARKEDIT,&item);
 				EditData->MarkChar=*MarkChar;
 				HighlightDlgUpdateUserControl(gdi.Item->VBuf,*EditData);
 				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,gdi.Item);
@@ -788,9 +789,10 @@ intptr_t WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Par
 				size_t Size = SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);
 				FarGetDialogItem gdi = {sizeof(FarGetDialogItem), Size, static_cast<FarDialogItem*>(xf_malloc(Size))};
 				SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,&gdi);
+				//MarkChar это FIXEDIT размером в 1 символ
 				wchar_t MarkChar[2];
-				//MarkChar это FIXEDIT размером в 1 символ так что проверять размер строки не надо
-				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_HER_MARKEDIT,MarkChar);
+				FarDialogItemData item={sizeof(FarDialogItemData),1,MarkChar};
+				SendDlgMessage(hDlg,DM_GETTEXT,ID_HER_MARKEDIT,&item);
 				EditData->MarkChar=*MarkChar;
 				HighlightDlgUpdateUserControl(gdi.Item->VBuf,*EditData);
 				SendDlgMessage(hDlg,DM_SETDLGITEM,ID_HER_COLOREXAMPLE,gdi.Item);
@@ -804,13 +806,15 @@ intptr_t WINAPI FileFilterConfigDlgProc(HANDLE hDlg,int Msg,int Param1,void* Par
 			if (Param1 == ID_FF_OK && SendDlgMessage(hDlg,DM_GETCHECK,ID_FF_MATCHSIZE,0))
 			{
 				string strTemp;
-				wchar_t *temp;
-				temp = strTemp.GetBuffer(SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,0)+1);
-				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZEFROMEDIT,temp);
-				bool bTemp = !*temp || CheckFileSizeStringFormat(temp);
-				temp = strTemp.GetBuffer(SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZETOEDIT,0)+1);
-				SendDlgMessage(hDlg,DM_GETTEXTPTR,ID_FF_SIZETOEDIT,temp);
-				bTemp = bTemp && (!*temp || CheckFileSizeStringFormat(temp));
+				FarDialogItemData item = {sizeof(FarDialogItemData)};
+				item.PtrLength = SendDlgMessage(hDlg,DM_GETTEXT,ID_FF_SIZEFROMEDIT,0);
+				item.PtrData = strTemp.GetBuffer(item.PtrLength+1);
+				SendDlgMessage(hDlg,DM_GETTEXT,ID_FF_SIZEFROMEDIT,&item);
+				bool bTemp = !*item.PtrData || CheckFileSizeStringFormat(item.PtrData);
+				item.PtrLength = SendDlgMessage(hDlg,DM_GETTEXT,ID_FF_SIZETOEDIT,0);
+				item.PtrData = strTemp.GetBuffer(item.PtrLength+1);
+				SendDlgMessage(hDlg,DM_GETTEXT,ID_FF_SIZETOEDIT,&item);
+				bTemp = bTemp && (!*item.PtrData || CheckFileSizeStringFormat(item.PtrData));
 
 				if (!bTemp)
 				{
