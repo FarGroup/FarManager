@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2803
+  Plugin API for Far Manager 3.0 build 2804
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2803
+#define FARMANAGERVERSION_BUILD 2804
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -219,7 +219,6 @@ enum FARMESSAGE
 	DM_GETDLGITEM                   = 5,
 	DM_GETDLGRECT                   = 6,
 	DM_GETTEXT                      = 7,
-	DM_GETTEXTLENGTH                = 8,
 	DM_KEY                          = 9,
 	DM_MOVEDIALOG                   = 10,
 	DM_SETDLGDATA                   = 11,
@@ -232,7 +231,6 @@ enum FARMESSAGE
 	DM_GETFOCUS                     = 18,
 	DM_GETCURSORPOS                 = 19,
 	DM_SETCURSORPOS                 = 20,
-	DM_GETTEXTPTR                   = 21,
 	DM_SETTEXTPTR                   = 22,
 	DM_SHOWITEM                     = 23,
 	DM_ADDHISTORY                   = 24,
