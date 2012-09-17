@@ -2496,15 +2496,16 @@ intptr_t WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			int show = 1;
 			if ( Param1 )
 			{
-				int tlen = (int)SendDlgMessage(hDlg, DM_GETTEXTPTR, SD_EDIT_TEXT, 0);
+				int tlen = (int)SendDlgMessage(hDlg, DM_GETTEXT, SD_EDIT_TEXT, 0);
 				show = 0;
 				if ( tlen > 0 )
 				{
 					RegExp re;
 					wchar_t t[128], *tmp = t;
-					if (tlen > (int)ARRAYSIZE(t))
-						tmp = new wchar_t[tlen];
-					SendDlgMessage(hDlg, DM_GETTEXTPTR, SD_EDIT_TEXT, tmp);
+					if (tlen > (int)(ARRAYSIZE(t)-1))
+						tmp = new wchar_t[tlen+1];
+					FarDialogItemData item = {sizeof(FarDialogItemData), tlen, tmp};
+					SendDlgMessage(hDlg, DM_GETTEXT, SD_EDIT_TEXT, &item);
 					string sre = tmp;
 					InsertRegexpQuote(sre);
 					show = re.Compile(sre.CPtr(), OP_PERLSTYLE);
@@ -2543,7 +2544,7 @@ intptr_t WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 					int sd_dst = new_hex ? SD_EDIT_HEX : SD_EDIT_TEXT;
 					int sd_src = new_hex ? SD_EDIT_TEXT : SD_EDIT_HEX;
 
-					EditorSetPosition esp;
+					EditorSetPosition esp={sizeof(EditorSetPosition)};
 					esp.CurPos = -1;
 					SendDlgMessage(hDlg, DM_GETEDITPOSITION, sd_src, &esp);
 					const wchar_t *ps = (const wchar_t *)SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, sd_src, 0);
@@ -2677,7 +2678,7 @@ static void ss2hex(string& to, const char *c1, int len, wchar_t sep = L' ')
 	}
 }
 
-static int hex2ss(const wchar_t *from, char *c1, int mb, int *pos = 0)
+static int hex2ss(const wchar_t *from, char *c1, int mb, intptr_t *pos = 0)
 {
 	int nb, i, v, sub = 0, ps = 0, p0 = (pos ? *pos : -1), p1 = -1;
 	wchar_t ch;
@@ -2724,7 +2725,7 @@ static int hex2ss(const wchar_t *from, char *c1, int mb, int *pos = 0)
 	return nb;
 }
 
-void Viewer::SearchTextTransform( UnicodeString &to, const wchar_t *from, bool hex2text, int &pos )
+void Viewer::SearchTextTransform( UnicodeString &to, const wchar_t *from, bool hex2text, intptr_t &pos )
 {
 	int nb;
 	char c1[128];
@@ -3142,7 +3143,7 @@ int Viewer::search_regex_forward( search_data* sd )
 			break;
 
 		SMatch m[1];
-		int n = static_cast<int>(ARRAYSIZE(m));
+		intptr_t n = static_cast<int>(ARRAYSIZE(m));
 		if ( !sd->pRex->SearchEx(line, line+off, line+nw, m, n) )  // doesn't match
 			break;
 
@@ -3198,7 +3199,7 @@ int Viewer::search_regex_backward( search_data* sd )
 			break;
 
 		SMatch m[1];
-		int n = static_cast<int>(ARRAYSIZE(m));
+		intptr_t n = ARRAYSIZE(m);
 		if ( !sd->pRex->SearchEx(line, line+off, line+nw, m, n) )
 			break;
 
@@ -4207,9 +4208,9 @@ int Viewer::ViewerControl(int Command,void *Param)
 		*/
 		case VCTL_SETPOSITION:
 		{
-			if (Param)
+			ViewerSetPosition *vsp=(ViewerSetPosition*)Param;
+			if (CheckStructSize(vsp))
 			{
-				ViewerSetPosition *vsp=(ViewerSetPosition*)Param;
 				bool isReShow=vsp->StartPos != FilePos;
 
 				if ((LeftPos=vsp->LeftPos) < 0)
@@ -4234,9 +4235,9 @@ int Viewer::ViewerControl(int Command,void *Param)
 		// Param=ViewerSelect
 		case VCTL_SELECT:
 		{
-			if (Param)
+			ViewerSelect *vs=(ViewerSelect *)Param;
+			if (CheckStructSize(vs))
 			{
-				ViewerSelect *vs=(ViewerSelect *)Param;
 				__int64 SPos=vs->BlockStartPos;
 				int SSize=vs->BlockLen;
 
@@ -4252,7 +4253,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 					return TRUE;
 				}
 			}
-			else
+			else if (!Param)
 			{
 				SelectSize = -1;
 				Show();
@@ -4321,7 +4322,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 		{
 			ViewerSetMode *vsmode=(ViewerSetMode *)Param;
 
-			if (vsmode)
+			if (CheckStructSize(vsmode))
 			{
 				bool isRedraw=vsmode->Flags&VSMFL_REDRAW?true:false;
 

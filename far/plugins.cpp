@@ -2391,7 +2391,8 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 		CtrlObject->CmdLine->SetString(L"");
 		string strPluginCommand=strCommand.CPtr()+(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 		RemoveTrailingSpaces(strPluginCommand);
-		HANDLE hPlugin=Open(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)strPluginCommand.CPtr()); //BUGBUG
+		OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.CPtr()}; //BUGBUG
+		HANDLE hPlugin=Open(PData->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);
 
 		if (hPlugin)
 		{
@@ -2665,7 +2666,8 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 				{
 					ActivePanel=CtrlObject->Cp()->ActivePanel;
 					string command=Data->Command; // Нужна копия строки
-					hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)command.CPtr());
+					OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),command.CPtr()};
+					hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);
 
 					Result=TRUE;
 					break;

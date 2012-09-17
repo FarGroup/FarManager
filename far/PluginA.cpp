@@ -2634,7 +2634,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			xf_free(text);
 			return ret;
 		}
-		case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXTLENGTH; break;
+		case oldfar::DM_GETTEXTLENGTH: Msg = DM_GETTEXT; break;
 
 		case oldfar::DM_KEY:
 		{
@@ -2701,12 +2701,13 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		case oldfar::DM_SETCURSORPOS:     Msg = DM_SETCURSORPOS; break;
 		case oldfar::DM_GETTEXTPTR:
 		{
-			intptr_t length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, 0);
+			intptr_t length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, 0);
 
 			if (!Param2) return length;
 
 			wchar_t* text = (wchar_t *) xf_malloc((length +1)* sizeof(wchar_t));
-			length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXTPTR, Param1, text);
+			FarDialogItemData item = {sizeof(FarDialogItemData), length, text};
+			length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &item);
 			UnicodeToOEM(text, (char *)Param2, length+1);
 			xf_free(text);
 			return length;
@@ -3105,7 +3106,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		{
 			if (!Param2) return FALSE;
 
-			EditorSelect es;
+			EditorSelect es={sizeof(EditorSelect)};
 			intptr_t ret=NativeInfo.SendDlgMessage(hDlg, DM_GETSELECTION, Param1, &es);
 			oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
 			esA->BlockType      = es.BlockType;
@@ -3120,7 +3121,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2) return FALSE;
 
 			oldfar::EditorSelect *esA = (oldfar::EditorSelect *)Param2;
-			EditorSelect es;
+			EditorSelect es={sizeof(EditorSelect)};
 			es.BlockType      = esA->BlockType;
 			es.BlockStartLine = esA->BlockStartLine;
 			es.BlockStartPos  = esA->BlockStartPos;
@@ -3420,7 +3421,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 								else
 									break;
 							}
-							FarGetPluginPanelItem gpi = {(size_t)PPISize, PPI};
+							FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), (size_t)PPISize, PPI};
 							NativeInfo.PanelControl(hPlugin,FCTL_GETPANELITEM, i, &gpi);
 							if(PPI)
 							{
@@ -3458,7 +3459,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 								else
 									break;
 							}
-							FarGetPluginPanelItem gpi = {(size_t)PPISize, PPI};
+							FarGetPluginPanelItem gpi = {sizeof(FarGetPluginPanelItem), (size_t)PPISize, PPI};
 							NativeInfo.PanelControl(hPlugin,FCTL_GETSELECTEDPANELITEM, i, &gpi);
 							if(PPI)
 							{
@@ -3559,7 +3560,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL,0,0));
 
 			oldfar::PanelRedrawInfo* priA = (oldfar::PanelRedrawInfo*)Param;
-			PanelRedrawInfo pri = {(size_t)priA->CurrentItem,(size_t)priA->TopPanelItem};
+			PanelRedrawInfo pri = {sizeof(PanelRedrawInfo), (size_t)priA->CurrentItem,(size_t)priA->TopPanelItem};
 			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_REDRAWPANEL,0,&pri));
 		}
 		case oldfar::FCTL_SETANOTHERNUMERICSORT:
@@ -3609,7 +3610,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				NativeInfo.PanelControl(hPlugin, FCTL_GETCMDLINE, Size, s);
 				if(Command==oldfar::FCTL_GETCMDLINESELECTEDTEXT)
 				{
-					CmdLineSelect cls;
+					CmdLineSelect cls={sizeof(CmdLineSelect)};
 					NativeInfo.PanelControl(hPlugin,FCTL_GETCMDLINESELECTION, 0, &cls);
 					if(cls.SelStart >=0 && cls.SelEnd > cls.SelStart)
 					{
@@ -3634,7 +3635,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 			if (!Param)
 				return FALSE;
 
-			CmdLineSelect cls;
+			CmdLineSelect cls={sizeof(CmdLineSelect)};
 			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_GETCMDLINESELECTION,0,&cls));
 
 			if (ret)
@@ -3678,7 +3679,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 				return FALSE;
 
 			oldfar::CmdLineSelect* clsA = (oldfar::CmdLineSelect*)Param;
-			CmdLineSelect cls = {clsA->SelStart,clsA->SelEnd};
+			CmdLineSelect cls = {sizeof(CmdLineSelect),clsA->SelStart,clsA->SelEnd};
 			return static_cast<int>(NativeInfo.PanelControl(hPlugin, FCTL_SETCMDLINESELECTION,0,&cls));
 		}
 		case oldfar::FCTL_GETUSERSCREEN:
@@ -3891,7 +3892,17 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			}
 			break;
 		case oldfar::ACTL_EJECTMEDIA:
-			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_EJECTMEDIA, 0, Param);
+		{
+
+			ActlEjectMedia eject={sizeof(ActlEjectMedia)};
+			if(Param)
+			{
+				oldfar::ActlEjectMedia* ejectA=(oldfar::ActlEjectMedia*)Param;
+				eject.Letter=ejectA->Letter;
+				eject.Flags=ejectA->Flags;
+			}
+			return NativeInfo.AdvControl(GetPluginGuid(ModuleNumber), ACTL_EJECTMEDIA, 0, &eject);
+		}
 		case oldfar::ACTL_KEYMACRO:
 		{
 #ifdef FAR_LUA
@@ -4152,7 +4163,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			if (!Param) return FALSE;
 
 			oldfar::FarSetColors *scA = (oldfar::FarSetColors *)Param;
-			FarSetColors sc = {0, (size_t)scA->StartIndex, (size_t)scA->ColorCount, new FarColor[scA->ColorCount]};
+			FarSetColors sc = {sizeof(FarSetColors), 0, (size_t)scA->StartIndex, (size_t)scA->ColorCount, new FarColor[scA->ColorCount]};
 			for(size_t i = 0; i < sc.ColorsCount; ++i)
 			{
 				Colors::ConsoleColorToFarColor(scA->Colors[i], sc.Colors[i]);
@@ -4188,7 +4199,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 
 UINT GetEditorCodePageA()
 {
-	EditorInfo info={};
+	EditorInfo info={sizeof(EditorInfo)};
 	NativeInfo.EditorControl(-1,ECTL_GETINFO,0,&info);
 	UINT CodePage=info.CodePage;
 	CPINFO cpi;
@@ -4338,7 +4349,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 
 		case oldfar::ECTL_GETSTRING:
 		{
-			EditorGetString egs;
+			EditorGetString egs={sizeof(EditorGetString)};
 			oldfar::EditorGetString *oegs=(oldfar::EditorGetString *)Param;
 
 			if (!oegs) return FALSE;
@@ -4378,7 +4389,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		}
 		case oldfar::ECTL_GETINFO:
 		{
-			EditorInfo ei={};
+			EditorInfo ei={sizeof(EditorInfo)};
 			oldfar::EditorInfo *oei=(oldfar::EditorInfo *)Param;
 
 			if (!oei)
@@ -4439,7 +4450,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		}
 		case oldfar::ECTL_SAVEFILE:
 		{
-			EditorSaveFile newsf = {};
+			EditorSaveFile newsf = {sizeof(EditorSaveFile)};
 
 			if (Param)
 			{
@@ -4540,7 +4551,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		}
 		case oldfar::ECTL_SETPARAM:
 		{
-			EditorSetParameter newsp = {};
+			EditorSetParameter newsp = {sizeof(EditorSetParameter)};
 
 			if (Param)
 			{
@@ -4656,7 +4667,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		}
 		case oldfar::ECTL_SETSTRING:
 		{
-			EditorSetString newss = {};
+			EditorSetString newss = {sizeof(EditorSetString)};
 
 			if (Param)
 			{
@@ -4787,7 +4798,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			if (!Param) return FALSE;
 
 			oldfar::ViewerSetPosition* vspA = (oldfar::ViewerSetPosition*)Param;
-			ViewerSetPosition vsp;
+			ViewerSetPosition vsp={sizeof(ViewerSetPosition)};
 			vsp.Flags = 0;
 
 			if (vspA->Flags&oldfar::VSP_NOREDRAW)    vsp.Flags|=VSP_NOREDRAW;
@@ -4809,7 +4820,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			if (!Param) return static_cast<int>(NativeInfo.ViewerControl(-1,VCTL_SELECT,0, 0));
 
 			oldfar::ViewerSelect* vsA = (oldfar::ViewerSelect*)Param;
-			ViewerSelect vs = {vsA->BlockStartPos,vsA->BlockLen};
+			ViewerSelect vs = {sizeof(ViewerSelect),vsA->BlockStartPos,vsA->BlockLen};
 			return static_cast<int>(NativeInfo.ViewerControl(-1,VCTL_SELECT,0, &vs));
 		}
 		case oldfar::VCTL_SETMODE:
@@ -4817,7 +4828,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			if (!Param) return FALSE;
 
 			oldfar::ViewerSetMode* vsmA = (oldfar::ViewerSetMode*)Param;
-			ViewerSetMode vsm={};
+			ViewerSetMode vsm={sizeof(ViewerSetMode)};
 
 			switch (vsmA->Type)
 			{
@@ -5155,9 +5166,14 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 		char *ItemA = nullptr;
 		oldfar::OpenDlgPluginData DlgData;
 
-		if (Item && (OpenFrom == OPEN_COMMANDLINE  || OpenFrom == OPEN_SHORTCUT))
+		if (Item && OpenFrom == OPEN_COMMANDLINE)
 		{
-			ItemA = UnicodeToAnsi((const wchar_t *)Item);
+			ItemA = UnicodeToAnsi(((OpenCommandLineInfo *)Item)->CommandLine);
+			Item = (intptr_t)ItemA;
+		}
+		if (Item && OpenFrom == OPEN_SHORTCUT)
+		{
+			ItemA = UnicodeToAnsi(((OpenShortcutInfo *)Item)->ShortcutData);
 			Item = (intptr_t)ItemA;
 		}
 		if (OpenFrom == OPEN_LEFTDISKMENU || OpenFrom == OPEN_RIGHTDISKMENU || OpenFrom == OPEN_PLUGINSMENU || OpenFrom == OPEN_EDITOR || OpenFrom == OPEN_VIEWER)

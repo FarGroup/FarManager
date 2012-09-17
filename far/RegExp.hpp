@@ -353,7 +353,7 @@ class RegExp
 		int CalcLength(const prechar src,int srclength);
 		int InnerCompile(const prechar src,int srclength,int options);
 
-		int InnerMatch(const prechar str,const prechar end,PMatch match,int& matchcount
+		int InnerMatch(const prechar str,const prechar end,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
 		               ,PMatchHash hmatch
 #endif
@@ -461,7 +461,7 @@ class RegExp
 		    \return 1 on success, 0 if match failed.
 		    \sa SMatch
 		*/
-		int Match(const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+		int Match(const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
 		          ,PMatchHash hmatch=nullptr
 #endif
@@ -469,7 +469,7 @@ class RegExp
 		/*! Same as Match(const char* textstart,const char* textend,...), but for ASCIIZ string.
 		    textend calculated automatically.
 		*/
-		int Match(const RECHAR* textstart,PMatch match,int& matchcount
+		int Match(const RECHAR* textstart,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
 		          ,PMatchHash hmatch=nullptr
 #endif
@@ -477,7 +477,7 @@ class RegExp
 		/*! Advanced version of match. Can be used for multiple matches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int MatchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+		int MatchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
 		            ,PMatchHash hmatch=nullptr
 #endif
@@ -486,7 +486,7 @@ class RegExp
 		    Parameters and return value are the same as for Match.
 		    It is highly recommended to call Optimize before Search.
 		*/
-		int Search(const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+		int Search(const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
 		           ,PMatchHash hmatch=nullptr
 #endif
@@ -494,7 +494,7 @@ class RegExp
 		/*! Same as Search with specified textend, but for ASCIIZ strings only.
 		    textend calculated automatically.
 		*/
-		int Search(const RECHAR* textstart,PMatch match,int& matchcount
+		int Search(const RECHAR* textstart,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
 		           ,PMatchHash hmatch=nullptr
 #endif
@@ -502,7 +502,7 @@ class RegExp
 		/*! Advanced version of search. Can be used for multiple searches
 		    on one string (to imitate /g modifier of perl regexp
 		*/
-		int SearchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,int& matchcount
+		int SearchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHAR* textend,PMatch match,intptr_t& matchcount
 #ifdef NAMEDBRACKETS
 		             ,PMatchHash hmatch=nullptr
 #endif

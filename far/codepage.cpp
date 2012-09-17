@@ -637,8 +637,10 @@ intptr_t WINAPI EditDialogProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
 			strCodePage<<CodePage;
 			if (Param1==EDITCP_OK)
 			{
-				wchar_t *CodePageName = strCodePageName.GetBuffer(SendDlgMessage(hDlg, DM_GETTEXTPTR, EDITCP_EDIT, 0)+1);
-				SendDlgMessage(hDlg, DM_GETTEXTPTR, EDITCP_EDIT, CodePageName);
+				FarDialogItemData item = {sizeof(FarDialogItemData)};
+				item.PtrLength = SendDlgMessage(hDlg, DM_GETTEXT, EDITCP_EDIT, 0);
+				item.PtrData = strCodePageName.GetBuffer(item.PtrLength+1);
+				SendDlgMessage(hDlg, DM_GETTEXT, EDITCP_EDIT, &item);
 				strCodePageName.ReleaseBuffer();
 			}
 			// Если имя кодовой страницы пустое, то считаем, что имя не задано

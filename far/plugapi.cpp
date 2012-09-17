@@ -387,9 +387,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_SETARRAYCOLOR:
 		{
-			if (Param2)
+			FarSetColors *Pal=(FarSetColors*)Param2;
+			if (CheckStructSize(Pal))
 			{
-				FarSetColors *Pal=(FarSetColors*)Param2;
 
 				if (Pal->Colors && Pal->StartIndex+Pal->ColorsCount <= Opt.Palette.SizeArrayPalette)
 				{
@@ -416,7 +416,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_EJECTMEDIA:
 		{
-			return Param2?EjectVolume((wchar_t)((ActlEjectMedia*)Param2)->Letter,
+			return CheckStructSize((ActlEjectMedia*)Param2)?EjectVolume((wchar_t)((ActlEjectMedia*)Param2)->Letter,
 			                         ((ActlEjectMedia*)Param2)->Flags):FALSE;
 			/*
 			      if(Param)
@@ -584,9 +584,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		case ACTL_SETPROGRESSVALUE:
 		{
 			BOOL Result=FALSE;
-			if(Param2)
+			ProgressValue* PV=static_cast<ProgressValue*>(Param2);
+			if(CheckStructSize(PV))
 			{
-				ProgressValue* PV=static_cast<ProgressValue*>(Param2);
 				TBC.SetProgressValue(PV->Completed,PV->Total);
 				Result=TRUE;
 			}
@@ -1294,9 +1294,9 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		}
 		case FCTL_GETCMDLINESELECTION:
 		{
-			if (Param2)
+			CmdLineSelect *sel=(CmdLineSelect*)Param2;
+			if (CheckStructSize(sel))
 			{
-				CmdLineSelect *sel=(CmdLineSelect*)Param2;
 				CmdLine->GetSelection(sel->SelStart,sel->SelEnd);
 				return TRUE;
 			}
@@ -1305,9 +1305,9 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		}
 		case FCTL_SETCMDLINESELECTION:
 		{
-			if (Param2)
+			CmdLineSelect *sel=(CmdLineSelect*)Param2;
+			if (CheckStructSize(sel))
 			{
-				CmdLineSelect *sel=(CmdLineSelect*)Param2;
 				CmdLine->Select(sel->SelStart,sel->SelEnd);
 				CmdLine->Redraw();
 				return TRUE;
@@ -1561,7 +1561,7 @@ int WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 	return TRUE;
 }
 
-int WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, int X1, int Y1, int X2, int Y2, unsigned __int64 Flags, int StartLine, int StartChar, UINT CodePage)
+int WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, int X1, int Y1, int X2, int Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, UINT CodePage)
 {
 	if (FrameManager->ManagerIsDown())
 		return EEC_OPEN_ERROR;
@@ -2659,7 +2659,7 @@ BOOL WINAPI apiAddEndSlash(wchar_t *Path)
 	return AddEndSlash(Path);
 }
 
-wchar_t* WINAPI apiXlat(wchar_t *Line,int StartPos,int EndPos,XLAT_FLAGS Flags)
+wchar_t* WINAPI apiXlat(wchar_t *Line,intptr_t StartPos,intptr_t EndPos,XLAT_FLAGS Flags)
 {
 	return Xlat(Line, StartPos, EndPos, Flags);
 }

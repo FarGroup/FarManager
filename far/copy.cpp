@@ -752,7 +752,7 @@ intptr_t WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			string strOldFolder;
 			int nLength;
 			FarDialogItemData Data={sizeof(FarDialogItemData)};
-			nLength = (int)SendDlgMessage(hDlg, DM_GETTEXTLENGTH, ID_SC_TARGETEDIT, 0);
+			nLength = (int)SendDlgMessage(hDlg, DM_GETTEXT, ID_SC_TARGETEDIT, 0);
 			Data.PtrData = strOldFolder.GetBuffer(nLength+1);
 			Data.PtrLength = nLength;
 			SendDlgMessage(hDlg,DM_GETTEXT,ID_SC_TARGETEDIT,&Data);

@@ -102,7 +102,7 @@ class CommandLine:public ScreenObject
 		void SetAutoComplete(int Mode);
 
 		void GetSelString(string &strStr) { CmdStr.GetSelString(strStr); };
-		void GetSelection(int &Start,int &End) { CmdStr.GetSelection(Start,End); };
+		void GetSelection(intptr_t &Start,intptr_t &End) { CmdStr.GetSelection(Start,End); };
 		void Select(int Start, int End) { CmdStr.Select(Start,End); };
 
 		void SaveBackground(int X1,int Y1,int X2,int Y2);

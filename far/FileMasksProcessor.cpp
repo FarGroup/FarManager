@@ -81,7 +81,7 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 	DList<string> UsedGroups;
 	for(;;)
 	{
-		
+
 		size_t LBPos, RBPos;
 		if(expmasks.Pos(LBPos, L'<') && expmasks.Pos(RBPos, L'>', LBPos))
 		{
@@ -168,7 +168,7 @@ bool FileMasksProcessor::Compare(const string& FileName)
 {
 	if (bRE)
 	{
-		int i = n;
+		intptr_t i = n;
 		size_t len = FileName.GetLength();
 		bool ret = re->Search(FileName,FileName+len,m,i) ? TRUE : FALSE;
 

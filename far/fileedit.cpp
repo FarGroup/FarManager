@@ -444,7 +444,7 @@ void FileEditor::Init(
 
 	m_codepage = codepage;
 	m_editor->SetOwner(this);
-	m_editor->SetCodePage(m_codepage, false);
+	m_editor->SetCodePage(m_codepage);
 	*AttrStr=0;
 	CurrentEditor=this;
 	FileAttributes=INVALID_FILE_ATTRIBUTES;
@@ -648,7 +648,7 @@ void FileEditor::Init(
 		if (m_codepage==CP_DEFAULT || m_codepage == CP_REDETECT)
 			m_codepage=Opt.EdOpt.AnsiCodePageForNewFile?GetACP():GetOEMCP();
 
-		m_editor->SetCodePage(m_codepage, false);
+		m_editor->SetCodePage(m_codepage);
 		Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 		break;
 	}
@@ -701,14 +701,16 @@ void FileEditor::InitKeyBar()
 	if (!GetCanLoseFocus())
 		EditKeyBar.Change(KBL_ALT,L"",11-1);
 
-	if (m_codepage!=GetOEMCP())
-		EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
-	else
+	if (m_codepage!=GetACP())
 		EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+	else
+		EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
 
 	EditKeyBar.ReadRegGroup(L"Editor",Opt.strLanguage);
 	EditKeyBar.SetAllRegGroup();
 	EditKeyBar.Show();
+	if (!Opt.EdOpt.ShowKeyBar)
+		EditKeyBar.Hide0();
 	m_editor->SetPosition(X1,Y1+(Opt.EdOpt.ShowTitleBar?1:0),X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
 	SetKeyBar(&EditKeyBar);
 }
@@ -1339,6 +1341,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					if (codepage != static_cast<UINT>(-1))
 					{
 						SetCodePage(codepage);
+						InitKeyBar();
 						Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 					}
 				}
@@ -1570,7 +1573,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
 	}
 
-	m_editor->SetCodePage(m_codepage, false);  //BUGBUG
+	m_editor->SetCodePage(m_codepage);  //BUGBUG
 
 	if (!IsUnicodeOrUtfCodePage(m_codepage))
 	{
@@ -1844,7 +1847,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			for (Edit *CurPtr=m_editor->TopList; CurPtr; CurPtr=CurPtr->m_next,LineNumber++)
 			{
 				const wchar_t *SaveStr, *EndSeq;
-				int Length;
+				intptr_t Length;
 				CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 				BOOL UsedDefaultCharStr=FALSE,UsedDefaultCharEOL=FALSE;
 				WideCharToMultiByte(codepage,WC_NO_BEST_FIT_CHARS,SaveStr,Length,nullptr,0,nullptr,&UsedDefaultCharStr);
@@ -1860,8 +1863,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 				if (!BadSaveConfirmed && (UsedDefaultCharStr||UsedDefaultCharEOL))
 				{
 					//SetMessageHelp(L"EditorDataLostWarning")
-					int Result=Message(MSG_WARNING,3,MSG(MWarning),MSG(MEditorSaveCPWarn1),MSG(MEditorSaveCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MOk),MSG(MEditorSaveCPWarnShow),MSG(MCancel));
-					if (!Result)
+					int Result=Message(MSG_WARNING,3,MSG(MWarning),MSG(MEditorSaveCPWarn1),MSG(MEditorSaveCPWarn2),MSG(MEditorSaveNotRecommended),MSG(MCancel),MSG(MEditorSaveCPWarnShow),MSG(MOk));
+					if (Result==2)
 					{
 						BadSaveConfirmed=true;
 						break;
@@ -1971,7 +1974,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 			const wchar_t *SaveStr, *EndSeq;
 
-			int Length;
+			intptr_t Length;
 
 			CurPtr->GetBinaryString(&SaveStr,&EndSeq,Length);
 
@@ -2257,10 +2260,10 @@ void FileEditor::SetTitle(const string* Title)
 
 void FileEditor::ChangeEditKeyBar()
 {
-	if (m_codepage!=GetOEMCP())
-		EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
-	else
+	if (m_codepage!=GetACP())
 		EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+	else
+		EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
 
 	EditKeyBar.Redraw();
 }
@@ -2334,7 +2337,7 @@ void FileEditor::ShowStatus()
 	FS<<fmt::LeftAlign()<<fmt::ExactWidth(StatusWidth)<<FString;
 	{
 		const wchar_t *Str;
-		int Length;
+		intptr_t Length;
 		m_editor->CurLine->GetBinaryString(&Str,nullptr,Length);
 		int CurPos=m_editor->CurLine->GetCurPos();
 
@@ -2523,9 +2526,9 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_GETBOOKMARKS:
 		{
-			if (!Flags.Check(FFILEEDIT_OPENFAILED) && Param)
+			EditorBookMarks *ebm = static_cast<EditorBookMarks*>(Param);
+			if (!Flags.Check(FFILEEDIT_OPENFAILED) && CheckStructSize(ebm))
 			{
-				EditorBookMarks *ebm = static_cast<EditorBookMarks*>(Param);
 				for(int i = 0; i < BOOKMARK_COUNT; i++)
 				{
 					if (ebm->Line)
@@ -2574,7 +2577,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_GETSESSIONBOOKMARKS:
 		{
-			return m_editor->GetSessionBookmarks((EditorBookMarks *)Param);
+			return CheckStructSize((EditorBookMarks *)Param)?m_editor->GetSessionBookmarks((EditorBookMarks *)Param):0;
 		}
 		case ECTL_SETTITLE:
 		{
@@ -2617,9 +2620,9 @@ int FileEditor::EditorControl(int Command, void *Param)
 			int EOL=0;
 			UINT codepage=m_codepage;
 
-			if (Param)
+			EditorSaveFile *esf=(EditorSaveFile *)Param;
+			if (CheckStructSize(esf))
 			{
-				EditorSaveFile *esf=(EditorSaveFile *)Param;
 
 				if (*esf->FileName) strName=esf->FileName;
 
@@ -2746,9 +2749,9 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_SETPARAM:
 		{
-			if (Param)
+			EditorSetParameter *espar=(EditorSetParameter *)Param;
+			if (CheckStructSize(espar))
 			{
-				EditorSetParameter *espar=(EditorSetParameter *)Param;
 				if (ESPT_SETBOM==espar->Type)
 				{
 				    if(IsUnicodeOrUtfCodePage(m_codepage))
@@ -2767,7 +2770,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 	if (result&&Param&&ECTL_GETINFO==Command)
 	{
 		EditorInfo *Info=(EditorInfo *)Param;
-		if (m_bAddSignature)
+		if (CheckStructSize(Info)&&m_bAddSignature)
 			Info->Options|=EOPT_BOM;
 	}
 	return result;
@@ -2815,15 +2818,26 @@ bool FileEditor::SetCodePage(UINT codepage)
 	if (codepage == m_codepage || !m_editor)
 		return false;
 
-	if (!m_editor->SetCodePage(codepage, true))
+   int x, y;
+	if (!m_editor->TryCodePage(codepage, x, y))
 	{
-		if (Message(MSG_WARNING, 2, MSG(MWarning),
+		int ret = Message(MSG_WARNING, 3, MSG(MWarning),
 			MSG(MEditorSwitchCPWarn1), MSG(MEditorSwitchCPWarn2), MSG(MEditorSwitchCPConfirm),
-			MSG(MOk), MSG(MCancel)
-		)) return false; // return if not confirmed
+			MSG(MCancel), MSG(MEditorSaveCPWarnShow), MSG(MOk) );
+
+		if (ret < 2) // not confirmed
+		{
+			if (ret == 1)
+			{
+				m_editor->GoToLine(y);
+				m_editor->CurLine->SetCurPos(x);
+				Show();
+			}
+			return false;
+		}
 	}
 	m_codepage = codepage;
-	BadConversion = !m_editor->SetCodePage(m_codepage, false);
+	BadConversion = !m_editor->SetCodePage(m_codepage);
 	return true;
 }
 

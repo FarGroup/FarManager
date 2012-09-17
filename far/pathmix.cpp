@@ -109,7 +109,7 @@ PATH_TYPE ParsePath(const wchar_t* path, const wchar_t** DirPtr, bool* Root)
 	{
 		if(PathTypes[i].Compiled)
 		{
-			int n = PathTypes[i].re.GetBracketsCount();
+			intptr_t n = PathTypes[i].re.GetBracketsCount();
 			if(PathTypes[i].re.Search(path, m, n))
 			{
 				if(DirPtr)

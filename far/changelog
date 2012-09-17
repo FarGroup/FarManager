@@ -1,3 +1,68 @@
+zg 17.09.2012 03:15:55 +0200 - build 2804
+
+1. DM_GETTEXTLENGTH & DM_GETTEXTPTR удалены.
+   некоторые нативные плагины перестали работать.
+
+zg 16.09.2012 20:27:31 +0200 - build 2803
+
+1. в API для длинстрок и смещений внутри строк тип изменен с int на intptr_t.
+   все нативные x64 плагины перестали работать. в фаре x64 тоже возможны побочные эффекты.
+
+2. в ViewerSelect тип BlockLen __int64.
+   все нативные плагины перестали работать.
+
+zg 16.09.2012 18:29:46 +0200 - build 2802
+
+1. для OPEN_COMMANDLINE вместо указателя на строку передаётся указатель на OpenCommandLineInfo.
+   все нативные плагины перестали работать.
+
+zg 16.09.2012 17:12:23 +0200 - build 2801
+
+1. поле StructSize добавлено в следующие структуры:
+   EditorServiceRegion
+   EditorSetParameter
+   EditorUndoRedo
+   EditorGetString
+   EditorSetString
+   EditorInfo
+   EditorBookMarks
+   EditorSetPosition
+   EditorSelect
+   EditorConvertPos
+   EditorSaveFile
+   все нативные плагины перестали работать.
+
+zg 16.09.2012 15:48:35 +0200 - build 2800
+
+1. поле StructSize добавлено в следующие структуры:
+   ViewerSetMode
+   ViewerSelect
+   ViewerSetPosition
+   все нативные плагины перестали работать.
+
+zg 16.09.2012 14:35:28 +0200 - build 2799
+
+1. поле StructSize добавлено в следующие структуры:
+   FarGetPluginPanelItem
+   PanelRedrawInfo
+   CmdLineSelect
+   ActlEjectMedia
+   ActlMediaType
+   FarGetValue
+   FarSetColors
+   ProgressValue
+   все нативные плагины перестали работать.
+
+w17 12.09.2012 01:00:31 +0400 - build 2798
+
+1. Editor [Shift]F8 and KeyBar
+
+w17 11.09.2012 18:33:46 +0400 - build 2797
+
+1. M#868: Порча текста при смене кодировки на "несовместимую" -- добавлена кнопка [Show]
+
+2. M#1555: Если доступ к файлу запрещен, то количество хардлинков всегда 1
+
 svs 07.09.2012 16:44:59 +0400 - build 2796
 
 1. Долой "FARCONFIGMODE"

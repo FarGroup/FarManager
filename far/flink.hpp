@@ -48,7 +48,7 @@ enum ReparsePointTypes
 
 int   MkHardLink(const wchar_t *ExistingName,const wchar_t *NewName);
 
-int   GetNumberOfLinks(const string& Name);
+int   GetNumberOfLinks(const string& Name, bool negative_if_error=false);
 bool CreateVolumeMountPoint(const string& TargetVolume, const string& Object);
 
 bool  CreateReparsePoint(const string& Target, const string& Object,ReparsePointTypes Type=RP_JUNCTION);

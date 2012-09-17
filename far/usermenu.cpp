@@ -719,7 +719,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 		CtrlObject->CmdLine->GetString(strOldCmdLine);
 		int OldCmdLineCurPos = CtrlObject->CmdLine->GetCurPos();
 		int OldCmdLineLeftPos = CtrlObject->CmdLine->GetLeftPos();
-		int OldCmdLineSelStart, OldCmdLineSelEnd;
+		intptr_t OldCmdLineSelStart, OldCmdLineSelEnd;
 		CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
 		CtrlObject->CmdLine->LockUpdatePanel(TRUE);
 

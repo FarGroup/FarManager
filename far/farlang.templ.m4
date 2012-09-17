@@ -2676,7 +2676,7 @@ upd:"Save file &codepage"
 upd:"Save file &codepage"
 upd:"Save file &codepage"
 upd:"Save file &codepage"
-upd:"Save file &codepage"
+"Uložiť tabuľku z&nakov súboru"
 
 MViewConfigSaveWrapMode
 "Сохранять &режим переноса"
@@ -2686,7 +2686,7 @@ upd:"Save w&rap mode"
 upd:"Save w&rap mode"
 upd:"Save w&rap mode"
 upd:"Save w&rap mode"
-upd:"Save w&rap mode"
+"Uložiť &režim zalomenia"
 
 MViewAutoDetectCodePage
 "&Автоопределение кодовой страницы"
@@ -2776,7 +2776,7 @@ upd:"Search dialog auto-focus"
 upd:"Search dialog auto-focus"
 upd:"Search dialog auto-focus"
 "Auto-enfocar búsqueda en &diálogo"
-"Search dialog auto-focus"
+"Automaticky aktivovať dialóg hľadania"
 
 MEditConfigTitle
 l:
@@ -3782,7 +3782,7 @@ MCopyStream4
 "Az adatok egy része el fog veszni."
 "Nie wszystkie dane zostaną zachowane."
 "Algunos datos no serán preservados como un resultado."
-"To bude mať za následok, že sa niekteré dáta nezachovajú."
+"To bude mať za následok, že sa niektoré dáta nezachovajú."
 
 MCopyDirectoryOrFile
 l:
@@ -7619,7 +7619,7 @@ upd:"Allocated"
 upd:"Allocated"
 upd:"Allocated"
 "Compresión"
-"Allocated"
+"Alokovaný"
 
 MColumnDate
 "Дата"
@@ -13590,7 +13590,7 @@ upd:"Show &CD drive parameters"
 upd:"Show &CD drive parameters"
 upd:"Show &CD drive parameters"
 "Mostrar parámetros unidad de &CD"
-"Zobraziť parametre jwednotky &CD"
+"Zobraziť parametre jednotky &CD"
 
 MChangeDriveShowNetworkDrive
 "Показывать параметры се&тевых дисков"
@@ -14892,7 +14892,7 @@ l:
 "Normál szöveg"
 "Tekst zwykły"
 "Texto normal"
-"Normály text"
+"Normálny text"
 
 MSetColorDialogListSelectedText
 "Выбранный текст"
@@ -15073,7 +15073,7 @@ upd:"Grayed text"
 "Szürke szöveg"
 upd:"Grayed text"
 "Texto en gris"
-"Grayed text"
+"Stmavený text"
 
 MSetColorMenuSelectedGrayed
 "Выбранный серый текст"
@@ -15083,7 +15083,7 @@ upd:"Selected grayed text"
 "Kijelölt szürke szöveg"
 upd:"Selected grayed text"
 "Texto en gris seleccionado"
-"Selected grayed text"
+"Vybraný stmavený text"
 
 MSetColorMenuBox
 "Рамка"
@@ -17374,7 +17374,7 @@ upd:"$Break outside the loop"
 upd:"$Break outside the loop"
 upd:"$Break outside the loop"
 upd:"$Break outside the loop"
-upd:"$Break outside the loop"
+"$Prerušiť mimo slučky"
 
 MCannotSaveFile
 l:
@@ -22561,7 +22561,7 @@ upd:"to open this object:"
 upd:"to open this object:"
 upd:"to open this object:"
 upd:"to open this object:"
-upd:"to open this object:"
+"otvorenie tohto objektu:"
 
 MElevationRequiredDelete
 "для удаления этого объекта:"
@@ -22741,7 +22741,7 @@ upd:"Object is being %1 in:"
 upd:"Object is being %1 in:"
 upd:"Object is being %1 in:"
 "Objecto comienza %1 en:"
-"Object is being %1 in:"
+"Objekt %1 v:"
 
 MObjectLockedReasonPlayed
 "воспроизводится"
@@ -22751,7 +22751,7 @@ upd:"played"
 upd:"played"
 upd:"played"
 "reproducido"
-"played"
+"sa prehráva"
 
 MObjectLockedReasonEdited
 "редактируется"
@@ -22761,7 +22761,7 @@ upd:"edited"
 upd:"edited"
 upd:"edited"
 "editado"
-"edited"
+"sa upravuje"
 
 MObjectLockedReasonOpened
 "открыт"
@@ -22771,7 +22771,7 @@ upd:"opened"
 upd:"opened"
 upd:"opened"
 "abierto"
-"opened"
+"je otvorený"
 
 MObjectLockedSwitchTo
 "Переключиться"

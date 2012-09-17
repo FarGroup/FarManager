@@ -2351,7 +2351,7 @@ __int64 Dialog::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					return 0;
 			}
 
-			FarGetValue fgv={OpCode==MCODE_V_ITEMCOUNT?11:7,{FMVT_INTEGER}};
+			FarGetValue fgv={sizeof(FarGetValue),OpCode==MCODE_V_ITEMCOUNT?11:7,{FMVT_INTEGER}};
 			fgv.Value.Integer=Ret;
 
 			if (SendDlgMessage((HANDLE)this,DN_GETVALUE,FocusPos,&fgv))
@@ -2427,7 +2427,7 @@ int Dialog::ProcessKey(int Key)
 		{
 			int n = -1, pos = -1;
 
-			FarGetValue fgv = {11, {FMVT_INTEGER}}; // Item Count
+			FarGetValue fgv = {sizeof(FarGetValue),11, {FMVT_INTEGER}}; // Item Count
 			fgv.Value.Integer = -1;
 			if (SendDlgMessage((HANDLE)this,DN_GETVALUE,FocusPos,&fgv) && fgv.Value.Type==FMVT_INTEGER)
 				n = static_cast<int>(fgv.Value.Integer);
@@ -2945,7 +2945,7 @@ int Dialog::ProcessKey(int Key)
 							{
 								int CurPos=edt->GetCurPos();
 								int Length=edt->GetLength();
-								int SelStart, SelEnd;
+								intptr_t SelStart, SelEnd;
 								edt->GetSelection(SelStart, SelEnd);
 								edt->GetString(strStr);
 
@@ -5473,14 +5473,17 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 				else
 				{
 					EditorSetPosition *esp=(EditorSetPosition *)Param2;
-					DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
-					esp->CurLine=0;
-					esp->CurPos=EditPtr->GetCurPos();
-					esp->CurTabPos=EditPtr->GetTabCurPos();
-					esp->TopScreenLine=0;
-					esp->LeftPos=EditPtr->GetLeftPos();
-					esp->Overtype=EditPtr->GetOvertypeMode();
-					return TRUE;
+					if (CheckStructSize(esp))
+					{
+						DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
+						esp->CurLine=0;
+						esp->CurPos=EditPtr->GetCurPos();
+						esp->CurTabPos=EditPtr->GetTabCurPos();
+						esp->TopScreenLine=0;
+						esp->LeftPos=EditPtr->GetLeftPos();
+						esp->Overtype=EditPtr->GetOvertypeMode();
+						return TRUE;
+					}
 				}
 			}
 
@@ -5499,14 +5502,17 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 				else
 				{
 					EditorSetPosition *esp=(EditorSetPosition *)Param2;
-					DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
-					EditPtr->SetCurPos(esp->CurPos);
-					EditPtr->SetTabCurPos(esp->CurTabPos);
-					EditPtr->SetLeftPos(esp->LeftPos);
-					EditPtr->SetOvertypeMode(esp->Overtype);
-					Dlg->ShowDialog(Param1);
-					ScrBuf.Flush();
-					return TRUE;
+					if (CheckStructSize(esp))
+					{
+						DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
+						EditPtr->SetCurPos(esp->CurPos);
+						EditPtr->SetTabCurPos(esp->CurTabPos);
+						EditPtr->SetLeftPos(esp->LeftPos);
+						EditPtr->SetOvertypeMode(esp->Overtype);
+						Dlg->ShowDialog(Param1);
+						ScrBuf.Flush();
+						return TRUE;
+					}
 				}
 			}
 
@@ -5743,15 +5749,6 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 			return (intptr_t)Ptr;
 		}
 		/*****************************************************************/
-		case DM_GETTEXTPTR:
-
-			if (Param2)
-			{
-				FarDialogItemData IData={sizeof(FarDialogItemData),0,(wchar_t *)Param2};
-				return SendDlgMessage(hDlg,DM_GETTEXT,Param1,&IData);
-			}
-
-			/*****************************************************************/
 		case DM_GETTEXT:
 		{
 			FarDialogItemData *did=(FarDialogItemData*)Param2;
@@ -5825,12 +5822,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 				return Len-(!Len?0:1);
 			}
 
-			// здесь умышленно не ставим return, т.к. хотим получить размер
-			// следовательно сразу должен идти "case DM_GETTEXTLENGTH"!!!
-			/*****************************************************************/
-		}
-		case DM_GETTEXTLENGTH:
-		{
+			//получаем размер
 			switch (Type)
 			{
 				case DI_BUTTON:
@@ -6239,11 +6231,11 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		case DM_GETSELECTION: // Msg=DM_GETSELECTION, Param1=ID, Param2=*EditorSelect
 		case DM_SETSELECTION: // Msg=DM_SETSELECTION, Param1=ID, Param2=*EditorSelect
 		{
-			if (IsEdit(Type) && Param2)
+			EditorSelect *EdSel=(EditorSelect *)Param2;
+			if (IsEdit(Type) && CheckStructSize(EdSel))
 			{
 				if (Msg == DM_GETSELECTION)
 				{
-					EditorSelect *EdSel=(EditorSelect *)Param2;
 					DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
 					EdSel->BlockStartLine=0;
 					EdSel->BlockHeight=1;
@@ -6261,27 +6253,23 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 				}
 				else
 				{
-					if (Param2)
+					DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
+
+					//EdSel->BlockType=BTYPE_STREAM;
+					//EdSel->BlockStartLine=0;
+					//EdSel->BlockHeight=1;
+					if (EdSel->BlockType==BTYPE_NONE)
+						EditLine->Select(-1,0);
+					else
+						EditLine->Select(EdSel->BlockStartPos,EdSel->BlockStartPos+EdSel->BlockWidth);
+
+					if (Dlg->DialogMode.Check(DMODE_SHOW)) //???
 					{
-						EditorSelect *EdSel=(EditorSelect *)Param2;
-						DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
-
-						//EdSel->BlockType=BTYPE_STREAM;
-						//EdSel->BlockStartLine=0;
-						//EdSel->BlockHeight=1;
-						if (EdSel->BlockType==BTYPE_NONE)
-							EditLine->Select(-1,0);
-						else
-							EditLine->Select(EdSel->BlockStartPos,EdSel->BlockStartPos+EdSel->BlockWidth);
-
-						if (Dlg->DialogMode.Check(DMODE_SHOW)) //???
-						{
-							Dlg->ShowDialog(Param1);
-							ScrBuf.Flush();
-						}
-
-						return TRUE;
+						Dlg->ShowDialog(Param1);
+						ScrBuf.Flush();
 					}
+
+					return TRUE;
 				}
 			}
 

@@ -4861,7 +4861,7 @@ bool FileList::ApplyCommand()
 
 	string CommandLine;
 	CtrlObject->CmdLine->GetString(CommandLine);
-	int SelStart, SelEnd;
+	intptr_t SelStart, SelEnd;
 	CtrlObject->CmdLine->GetSelection(SelStart, SelEnd);
 	int CursorPosition = CtrlObject->CmdLine->GetCurPos();
 	int LeftPosition = CtrlObject->CmdLine->GetLeftPos();

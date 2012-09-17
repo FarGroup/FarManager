@@ -361,9 +361,9 @@ DWORD GetReparsePointInfo(const string& Object, string &strDestBuff,LPDWORD lpRe
 	return NameLength;
 }
 
-int GetNumberOfLinks(const string& Name)
+int GetNumberOfLinks(const string& Name, bool negative_if_error)
 {
-	int NumberOfLinks=1;
+	int NumberOfLinks = (negative_if_error ? -1 : +1);
 	File file;
 	if(file.Open(Name, 0, FILE_SHARE_READ|FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT))
 	{

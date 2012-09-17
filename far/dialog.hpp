@@ -123,8 +123,8 @@ struct DialogItemEx: public FarDialogItem
 	void *ObjPtr;
 	VMenu *ListPtr;
 	DlgUserControl *UCData;
-	int SelStart;
-	int SelEnd;
+	intptr_t SelStart;
+	intptr_t SelEnd;
 
 	DialogItemEx() {Clear();}
 

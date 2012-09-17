@@ -398,7 +398,7 @@ int Message(
 			CountErrorLine=ADDSPACEFORPSTRFORMESSAGE; //??
 	}
 
-	//BUGBUG: string не преднозначен для хранения строк разделённых \0
+	//BUGBUG: string не предназначен для хранения строк разделённых \0
 	// заполняем массив...
 	CPtrStr=strErrStr;
 
