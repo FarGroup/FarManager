@@ -3,6 +3,142 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 17.09.2012 16:55:00 +0200 - build 2806
+
+1. correction of 2799.
+
+w17 17.09.2012 12:54:32 +0400 - build 2805
+
+1. fix for 2797.1
+
+zg 17.09.2012 03:15:55 +0200 - build 2804
+
+1. DM_GETTEXTLENGTH & DM_GETTEXTPTR are removed.
+   some native plugins are broken.
+
+zg 16.09.2012 20:27:31 +0200 - build 2803
+
+1. API is changed: the type for string lengths and in-string offsets is changed from int to intptr_t.
+   all native plugins are broken. also, side effects are possible for x64 FAR.
+
+2. в ViewerSelect тип BlockLen __int64.
+   all native plugins are broken.
+
+zg 16.09.2012 18:29:46 +0200 - build 2802
+
+1. for OPEN_COMMANDLINE, pointer to OpenCommandLineInfo is passed instead of pointer to a string.
+   all native plugins are broken.
+
+zg 16.09.2012 17:12:23 +0200 - build 2801
+
+1. StructSize field is added to the following structures:
+   EditorServiceRegion
+   EditorSetParameter
+   EditorUndoRedo
+   EditorGetString
+   EditorSetString
+   EditorInfo
+   EditorBookMarks
+   EditorSetPosition
+   EditorSelect
+   EditorConvertPos
+   EditorSaveFile
+   all native plugins are broken.
+
+zg 16.09.2012 15:48:35 +0200 - build 2800
+
+1. StructSize field is added to the following structures:
+   ViewerSetMode
+   ViewerSelect
+   ViewerSetPosition
+   all native plugins are broken.
+
+zg 16.09.2012 14:35:28 +0200 - build 2799
+
+1. StructSize field is added to the following structures:
+   FarGetPluginPanelItem
+   PanelRedrawInfo
+   CmdLineSelect
+   ActlEjectMedia
+   ActlMediaType
+   FarGetValue
+   FarSetColors
+   ProgressValue
+   all native plugins are broken.
+
+w17 12.09.2012 01:00:31 +0400 - build 2798
+
+1. Editor [Shift]F8 and KeyBar
+
+w17 11.09.2012 18:33:46 +0400 - build 2797
+
+1. M#868: Text garbled when encoding changed to an "incompatible" one -- [Show] button is added
+
+2. M#1555: When file access denied, the number of hard links is always 1
+
+svs 07.09.2012 16:44:59 +0400 - build 2796
+
+1. "FARCONFIGMODE" removed
+
+2. Some help for TI:
+     #9  System.CmdHistoryRule
+     #27 System.ConsoleDetachKey
+     #34 System.QuotedSymbols
+     #50 System.QuotedName
+     #38 Interface.AltF9
+     #61 Dialog.CBoxMaxHeight
+     #44 Editor.EditorUndoSize
+     #32 Editor.CharCodeBase
+     #13 Editor.BSLikeDel
+     #18 Editor.EditorF7Rules
+     #67 Editor.AllowEmptySpaceAfterEof
+     #24 Interface.ShiftsKeyRules
+
+3. Interface.ShowTimeoutDACLFiles and Interface.ShowTimeoutDelFiles are removed
+
+4. Interface.RedrawTimeout is added
+
+svs 07.09.2012 14:09:44 +0400 - build 2795
+
+1. Some help for TI:
+     #75 Panel.ShellRightLeftArrowsRule
+     #43 Panel.Layout.ScrollbarMenu
+     #14 Panel.CtrlFRule
+     #8  Panel.CtrlAltShiftRule
+     #6  Panel.RightClickRule
+     #79 System.ExcludeCmdHistory
+     #45 System.Executor.RestoreCP
+     #49 System.Executor.UseAppPath
+     #54 System.Executor.ExcludeCmds
+     #74 System.Executor.FullTitle
+     #78 Interface.FormatNumberSeparators
+     #73 System.Executor.BatchType
+
+2. FAR sets FARCONFIGMODE = RO variable while working with configuration bases
+   in read-only mode ("/ro" switch is set).
+   In normal DB operations mode, the FARCONFIGMODE variable is absent.
+
+w17 05.09.2012 16:19:47 +0400 - build 2794
+
+1. M#2135: typing 'shift + letter' diacritic sequence also outputs the + character
+   (from Maximus)
+
+svs 04.09.2012 20:02:31 +0400 - build 2793
+
+1. SQLite 3.7.14
+
+2. Mantis#0002141: $AKey malfunction in macros for MsWheelUp/MsWheelDown
+
+3. Some help for TI:
+     #12 Help.ActivateURL
+     #47 Confirmations.EscTwiceToInterrupt
+     #7  System.AllCtrlAltShiftRule
+     #68 System.CASRule
+
+w17 04.09.2012 19:41:42 +0400 - build 2792
+
+1. M#2147 -- UTF7 excluded from FindFile 'AllCodepages'
+
 drkns 27.08.2012 15:26:16 +0200 - build 2791
 
 1. Properties could not be shown in the disk menu in old Windows versions.
