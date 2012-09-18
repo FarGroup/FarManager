@@ -54,7 +54,8 @@ struct FileListItem
 	DWORD NumberOfLinks;
 	DWORD NumberOfStreams;
 	UINT64 UserFlags;
-	intptr_t UserData;
+	void* UserData;
+	FARPANELITEMFREECALLBACK Callback;
 
 	int Position;
 	int SortGroup;

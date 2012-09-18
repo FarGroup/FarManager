@@ -208,8 +208,10 @@ void FileList::DeleteListData(FileListItem **(&ListData),int &FileCount)
 				delete[] ListData[I]->CustomColumnData;
 			}
 
-			if (ListData[I]->UserFlags & PPIF_USERDATA)
-				xf_free((void *)ListData[I]->UserData);
+			if (PanelMode==PLUGIN_PANEL&&ListData[I]->Callback)
+			{
+				ListData[I]->Callback(ListData[I]->UserData,hPlugin,0);
+			}
 
 			if (ListData[I]->DizText && ListData[I]->DeleteDiz)
 				delete[] ListData[I]->DizText;
