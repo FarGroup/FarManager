@@ -94,7 +94,8 @@ struct FileListItem
 		NumberOfLinks = 0;
 		NumberOfStreams = 0;
 		UserFlags = 0;
-		UserData = 0;
+		UserData = nullptr;
+		Callback = nullptr;
 		Position = 0;
 		SortGroup = 0;
 		DizText = nullptr;
@@ -130,6 +131,7 @@ struct FileListItem
 			NumberOfStreams = fliCopy.NumberOfStreams;
 			UserFlags = fliCopy.UserFlags;
 			UserData = fliCopy.UserData;
+			Callback = fliCopy.Callback;
 			Position = fliCopy.Position;
 			SortGroup = fliCopy.SortGroup;
 			DizText = fliCopy.DizText;
