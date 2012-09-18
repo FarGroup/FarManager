@@ -82,7 +82,7 @@ struct PanelItem {
   unsigned __int64 pack_size;
   wstring file_name;
   wstring alt_file_name;
-  DWORD_PTR user_data;
+  void* user_data;
 };
 PanelItem get_current_panel_item(HANDLE h_panel);
 PanelItem get_panel_item(HANDLE h_panel, size_t index);
@@ -214,9 +214,9 @@ public:
 };
 
 class Selection {
-private:  
+private:
   HANDLE h_plugin;
-public:  
+public:
   Selection(HANDLE h_plugin);
   ~Selection();
   void select(unsigned idx, bool value);

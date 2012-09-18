@@ -202,7 +202,7 @@ PanelItem get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, size_t i
   pi.pack_size = panel_item->AllocationSize;
   pi.file_name = panel_item->FileName;
   pi.alt_file_name = panel_item->AlternateFileName;
-  pi.user_data = panel_item->UserData;
+  pi.user_data = panel_item->UserData.UserData;
   return pi;
 }
 

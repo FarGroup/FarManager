@@ -299,6 +299,11 @@ bool GetPDataNT(ProcessDataNT& DATA, ProcessPerfData& pd)
 	return true;
 }
 
+static void WINAPI FreeUserData(void* UserData,HANDLE hPlugin,unsigned __int64 Flags)
+{
+	delete(ProcessData *)UserData;
+}
+
 BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread)
 {
 	DWORD numTasks;
@@ -320,7 +325,7 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 	{
 		PluginPanelItem& CurItem = pPanelItem[i];
 		ProcessPerfData& pd = pData[i];
-		CurItem.Flags|=PPIF_USERDATA;
+		CurItem.UserData.Callback=FreeUserData;
  		//delete CurItem.FileName;  // ???
  		CurItem.FileName = new wchar_t[lstrlen(pd.ProcessName)+1];
  		lstrcpy((wchar_t*)CurItem.FileName, pd.ProcessName);
@@ -331,8 +336,8 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 			lstrcpy((wchar_t*)CurItem.Owner, pd.Owner);
 		}
 
-		CurItem.UserData = (DWORD_PTR) new ProcessDataNT;
-		memset((void*)CurItem.UserData, 0, sizeof(ProcessDataNT));
+		CurItem.UserData.UserData = new ProcessDataNT;
+		memset(CurItem.UserData.UserData, 0, sizeof(ProcessDataNT));
 
 		if (!pd.ftCreation.dwHighDateTime && pd.dwElapsedTime)
 		{
@@ -355,7 +360,7 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 		FSF.itoa(pd.dwProcessId, (wchar_t*)CurItem.AlternateFileName, 10);
 
 		CurItem.NumberOfLinks = pd.dwThreads;
-		GetPDataNT(*(ProcessDataNT*)CurItem.UserData, pd);
+		GetPDataNT(*(ProcessDataNT*)CurItem.UserData.UserData, pd);
 
 		if (pd.dwProcessId==0 && pd.dwThreads >5) //_Total
 			CurItem.FileAttributes |= FILE_ATTRIBUTE_HIDDEN;
