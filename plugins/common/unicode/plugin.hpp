@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2804
+  Plugin API for Far Manager 3.0 build 2807
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2804
+#define FARMANAGERVERSION_BUILD 2807
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -661,10 +661,11 @@ typedef int (WINAPI *FARAPIMENU)(
 
 typedef unsigned __int64 PLUGINPANELITEMFLAGS;
 static const PLUGINPANELITEMFLAGS
-	PPIF_USERDATA               = 0x0000000020000000ULL,
 	PPIF_SELECTED               = 0x0000000040000000ULL,
 	PPIF_PROCESSDESCR           = 0x0000000080000000ULL,
 	PPIF_NONE                   = 0;
+
+typedef void (WINAPI *FARPANELITEMFREECALLBACK)(void* UserData,HANDLE hPlugin,unsigned __int64 Flags);
 
 struct PluginPanelItem
 {
@@ -681,7 +682,11 @@ struct PluginPanelItem
 	const wchar_t * const *CustomColumnData;
 	size_t CustomColumnNumber;
 	PLUGINPANELITEMFLAGS Flags;
-	intptr_t UserData;
+	struct
+	{
+		void* UserData;
+		FARPANELITEMFREECALLBACK Callback;
+	} UserData;
 	DWORD FileAttributes;
 	DWORD NumberOfLinks;
 	DWORD CRC32;
@@ -855,7 +860,7 @@ typedef int (WINAPI *FARAPIGETPLUGINDIRLIST)(
 );
 
 typedef void (WINAPI *FARAPIFREEDIRLIST)(struct PluginPanelItem *PanelItem, size_t nItemsNumber);
-typedef void (WINAPI *FARAPIFREEPLUGINDIRLIST)(struct PluginPanelItem *PanelItem, size_t nItemsNumber);
+typedef void (WINAPI *FARAPIFREEPLUGINDIRLIST)(HANDLE hPanel, struct PluginPanelItem *PanelItem, size_t nItemsNumber);
 
 typedef unsigned __int64 VIEWER_FLAGS;
 static const VIEWER_FLAGS
