@@ -57,6 +57,9 @@
     <CustomBuild Include="DrawRus.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="DrawSky.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="DrawEng.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>

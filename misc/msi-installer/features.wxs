@@ -203,6 +203,7 @@
           <Feature Id="Align" Level="1" Title="!(loc.Feature.Title.Align)" AllowAdvertise="no" Description="!(loc.Feature.Description.Align)">
             <ComponentRef Id="Align.dll" />
             <ComponentRef Id="AlignEng.lng" />
+            <ComponentRef Id="AlignSky.lng" />
             <Feature Id="Align.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="AlignRus.lng" />
             </Feature>
@@ -218,6 +219,7 @@
           <Feature Id="AutoWrap" Level="1" Title="!(loc.Feature.Title.AutoWrap)" AllowAdvertise="no" Description="!(loc.Feature.Description.AutoWrap)">
             <ComponentRef Id="AutoWrap.dll" />
             <ComponentRef Id="WrapEng.lng" />
+            <ComponentRef Id="WrapSky.lng" />
             <Feature Id="AutoWrap.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="WrapRus.lng" />
             </Feature>
@@ -233,6 +235,7 @@
           <Feature Id="Brackets" Level="1" Title="!(loc.Feature.Title.Brackets)" AllowAdvertise="no" Description="!(loc.Feature.Description.Brackets)">
             <ComponentRef Id="BrackEng.hlf" />
             <ComponentRef Id="BrackEng.lng" />
+            <ComponentRef Id="BrackSky.lng" />
             <ComponentRef Id="BrackEng.farconfig" />
             <ComponentRef Id="Brackets.dll" />
             <Feature Id="Brackets.Russian" Level="1" Display="hidden" AllowAdvertise="no">
@@ -252,6 +255,7 @@
           <Feature Id="DrawLine" Level="1" Title="!(loc.Feature.Title.DrawLine)" AllowAdvertise="no" Description="!(loc.Feature.Description.DrawLine)">
             <ComponentRef Id="DrawEng.hlf" />
             <ComponentRef Id="DrawEng.lng" />
+            <ComponentRef Id="DrawSky.lng" />
             <ComponentRef Id="DrawLine.dll" />
             <Feature Id="DrawLine.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="DrawRus.hlf" />
@@ -269,6 +273,7 @@
           <Feature Id="EditCase" Level="1" Title="!(loc.Feature.Title.EditCase)" AllowAdvertise="no" Description="!(loc.Feature.Description.EditCase)">
             <ComponentRef Id="ECaseEng.hlf" />
             <ComponentRef Id="ECaseEng.lng" />
+            <ComponentRef Id="ECaseSky.lng" />
             <ComponentRef Id="EditCase.dll" />
             <Feature Id="EditCase.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="ECaseRus.hlf" />
@@ -325,6 +330,7 @@
           <ComponentRef Id="CmpEng.hlf" />
           <ComponentRef Id="Compare.dll" />
           <ComponentRef Id="CompEng.lng" />
+          <ComponentRef Id="CompSky.lng" />
           <Feature Id="Compare.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="CmpRus.hlf" />
             <ComponentRef Id="CompRus.lng" />
@@ -342,6 +348,7 @@
           <ComponentRef Id="EMenu.dll" />
           <ComponentRef Id="EMenuEng.hlf" />
           <ComponentRef Id="EMenuEng.lng" />
+          <ComponentRef Id="EMenuSky.lng" />
           <ComponentRef Id="Hotkey.farconfig" />
           <ComponentRef Id="HotkeyClipboard.farconfig" />
           <ComponentRef Id="HotkeyProperties.farconfig" />
@@ -362,6 +369,7 @@
           <ComponentRef Id="FARCmds.dll" />
           <ComponentRef Id="FARCmdsEng.hlf" />
           <ComponentRef Id="FARCmdsEng.lng" />
+          <ComponentRef Id="FARCmdsSky.lng" />
           <Feature Id="FARCmds.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="FARCmdsRus.hlf" />
             <ComponentRef Id="FARCmdsRus.lng" />
@@ -439,6 +447,7 @@
           <ComponentRef Id="HlfViewer.dll" />
           <ComponentRef Id="HlfViewerEng.hlf" />
           <ComponentRef Id="HlfViewerEng.lng" />
+          <ComponentRef Id="HlfViewerSky.lng" />
           <Feature Id="HlfViewer.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="HlfViewerRus.hlf" />
             <ComponentRef Id="HlfViewerRus.lng" />
@@ -455,6 +464,7 @@
         <Feature Id="Network" Level="1" Title="!(loc.Feature.Title.Network)" AllowAdvertise="no" Description="!(loc.Feature.Description.Network)">
           <ComponentRef Id="NetEng.hlf" />
           <ComponentRef Id="NetEng.lng" />
+          <ComponentRef Id="NetSky.lng" />
           <ComponentRef Id="Network.dll" />
           <Feature Id="Network.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="NetRus.hlf" />

@@ -4,7 +4,7 @@
 
 NAME = Compare
 LINK_OBJS = $(OBJDIR)\Compare.obj
-DOCS = CmpEng.hlf CmpRus.hlf CompEng.lng CompRus.lng
+DOCS = CmpEng.hlf CmpRus.hlf CompEng.lng CompRus.lng CompSky.lng
 
 !include ..\makefile_vc_def_inc
 

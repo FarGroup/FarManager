@@ -66,6 +66,9 @@
     <CustomBuild Include="FARCmdsRus.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="FARCmdsSky.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="FARCmdsEng.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>

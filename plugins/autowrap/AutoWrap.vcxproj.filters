@@ -60,5 +60,8 @@
     <CustomBuild Include="WrapRus.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="WrapSky.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

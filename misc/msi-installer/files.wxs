@@ -413,6 +413,9 @@
           <Component Id="AlignRus.lng" Guid="$(var.Guid.AlignRus.lng)" Win64="$(var.Win64)">
             <File Id="AlignRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\AlignRus.lng" />
           </Component>
+          <Component Id="AlignSky.lng" Guid="$(var.Guid.AlignSky.lng)" Win64="$(var.Win64)">
+            <File Id="AlignSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\AlignSky.lng" />
+          </Component>
           <Component Id="changelog_2" Guid="$(var.Guid.changelog_2)" Win64="$(var.Win64)">
             <File Id="changelog_2" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Align\changelog" />
           </Component>
@@ -478,6 +481,9 @@
           <Component Id="WrapRus.lng" Guid="$(var.Guid.WrapRus.lng)" Win64="$(var.Win64)">
             <File Id="WrapRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\WrapRus.lng" />
           </Component>
+          <Component Id="WrapSky.lng" Guid="$(var.Guid.WrapSky.lng)" Win64="$(var.Win64)">
+            <File Id="WrapSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\AutoWrap\WrapSky.lng" />
+          </Component>
         </Directory>
         <Directory Id="Brackets" Name="Brackets">
           <Component Id="BrackEng.hlf" Guid="$(var.Guid.BrackEng.hlf)" Win64="$(var.Win64)">
@@ -502,6 +508,9 @@
           </Component>
           <Component Id="BrackRus.lng" Guid="$(var.Guid.BrackRus.lng)" Win64="$(var.Win64)">
             <File Id="BrackRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.lng" />
+          </Component>
+          <Component Id="BrackSky.lng" Guid="$(var.Guid.BrackSky.lng)" Win64="$(var.Win64)">
+            <File Id="BrackSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackSky.lng" />
           </Component>
           <Component Id="BrackRus.farconfig" Guid="$(var.Guid.BrackRus.farconfig)" Win64="$(var.Win64)">
             <File Id="BrackRus.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.farconfig" />
@@ -534,6 +543,9 @@
           <Component Id="CompRus.lng" Guid="$(var.Guid.CompRus.lng)" Win64="$(var.Win64)">
             <File Id="CompRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CompRus.lng" />
           </Component>
+          <Component Id="CompSky.lng" Guid="$(var.Guid.CompSky.lng)" Win64="$(var.Win64)">
+            <File Id="CompSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Compare\CompSky.lng" />
+          </Component>
         </Directory>
         <Directory Id="DrawLine" Name="DrawLine">
           <Component Id="changelog_6" Guid="$(var.Guid.changelog_6)" Win64="$(var.Win64)">
@@ -559,6 +571,9 @@
           <Component Id="DrawRus.lng" Guid="$(var.Guid.DrawRus.lng)" Win64="$(var.Win64)">
             <File Id="DrawRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawRus.lng" />
           </Component>
+          <Component Id="DrawSky.lng" Guid="$(var.Guid.DrawSky.lng)" Win64="$(var.Win64)">
+            <File Id="DrawSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\DrawLine\DrawSky.lng" />
+          </Component>
         </Directory>
         <Directory Id="EditCase" Name="EditCase">
           <Component Id="changelog_7" Guid="$(var.Guid.changelog_7)" Win64="$(var.Win64)">
@@ -575,6 +590,9 @@
           </Component>
           <Component Id="ECaseRus.lng" Guid="$(var.Guid.ECaseRus.lng)" Win64="$(var.Win64)">
             <File Id="ECaseRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseRus.lng" />
+          </Component>
+          <Component Id="ECaseSky.lng" Guid="$(var.Guid.ECaseSky.lng)" Win64="$(var.Win64)">
+            <File Id="ECaseSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\ECaseSky.lng" />
           </Component>
           <Component Id="EditCase.dll" Guid="$(var.Guid.EditCase.dll)" Win64="$(var.Win64)">
             <File Id="EditCase.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EditCase\EditCase.dll" />
@@ -609,6 +627,9 @@
           <Component Id="EMenuRus.lng" Guid="$(var.Guid.EMenuRus.lng)" Win64="$(var.Win64)">
             <File Id="EMenuRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuRus.lng" />
           </Component>
+          <Component Id="EMenuSky.lng" Guid="$(var.Guid.EMenuSky.lng)" Win64="$(var.Win64)">
+            <File Id="EMenuSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\EMenuSky.lng" />
+          </Component>
           <Component Id="Hotkey.farconfig" Guid="$(var.Guid.Hotkey.farconfig)" Win64="$(var.Win64)">
             <File Id="Hotkey.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\Hotkey.farconfig" />
           </Component>
@@ -642,6 +663,9 @@
           </Component>
           <Component Id="FARCmdsRus.lng" Guid="$(var.Guid.FARCmdsRus.lng)" Win64="$(var.Win64)">
             <File Id="FARCmdsRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsRus.lng" />
+          </Component>
+          <Component Id="FARCmdsSky.lng" Guid="$(var.Guid.FARCmdsSky.lng)" Win64="$(var.Win64)">
+            <File Id="FARCmdsSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\FarCmds\FARCmdsSky.lng" />
           </Component>
         </Directory>
         <Directory Id="FileCase" Name="FileCase">
@@ -764,6 +788,9 @@
           <Component Id="HlfViewerRus.lng" Guid="$(var.Guid.HlfViewerRus.lng)" Win64="$(var.Win64)">
             <File Id="HlfViewerRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerRus.lng" />
           </Component>
+          <Component Id="HlfViewerSky.lng" Guid="$(var.Guid.HlfViewerSky.lng)" Win64="$(var.Win64)">
+            <File Id="HlfViewerSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerSky.lng" />
+          </Component>
         </Directory>
         <Directory Id="Network" Name="Network">
           <Component Id="changelog_15" Guid="$(var.Guid.changelog_15)" Win64="$(var.Win64)">
@@ -780,6 +807,9 @@
           </Component>
           <Component Id="NetRus.lng" Guid="$(var.Guid.NetRus.lng)" Win64="$(var.Win64)">
             <File Id="NetRus.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetRus.lng" />
+          </Component>
+          <Component Id="NetSky.lng" Guid="$(var.Guid.NetSky.lng)" Win64="$(var.Win64)">
+            <File Id="NetSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\NetSky.lng" />
           </Component>
           <Component Id="Network.dll" Guid="$(var.Guid.Network.dll)" Win64="$(var.Win64)">
             <File Id="Network.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\Network.dll" />

@@ -9,7 +9,7 @@ $(OBJDIR)\NetClass.obj \
 $(OBJDIR)\NetCommon.obj \
 $(OBJDIR)\NetFavorites.obj \
 $(OBJDIR)\NetMix.obj
-DOCS = NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng
+DOCS = NetEng.hlf NetRus.hlf NetEng.lng NetRus.lng NetSky.lng
 
 !if defined(DEBUG) && !defined(NO_LOG)
 USERCPP=/DNETWORK_LOGGING

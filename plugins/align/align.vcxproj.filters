@@ -60,5 +60,8 @@
     <CustomBuild Include="AlignRus.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="AlignSky.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

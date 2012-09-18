@@ -4,7 +4,7 @@
 
 NAME = DrawLine
 LINK_OBJS = $(OBJDIR)\DrawLine.obj
-DOCS = DrawEng.hlf DrawRus.hlf DrawEng.lng DrawRus.lng
+DOCS = DrawEng.hlf DrawRus.hlf DrawEng.lng DrawRus.lng DrawSky.lng
 
 !include ..\makefile_vc_def_inc
 

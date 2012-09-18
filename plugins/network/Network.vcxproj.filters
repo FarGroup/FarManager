@@ -93,6 +93,9 @@
     <CustomBuild Include="NetRus.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="NetSky.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="NetEng.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>

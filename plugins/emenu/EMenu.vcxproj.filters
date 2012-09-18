@@ -108,6 +108,9 @@
     <CustomBuild Include="EMenuRus.lng">
       <Filter>Language Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="EMenuSky.lng">
+      <Filter>Language Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="EMenuEng.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>

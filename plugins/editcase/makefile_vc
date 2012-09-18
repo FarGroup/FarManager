@@ -4,7 +4,7 @@
 
 NAME = EditCase
 LINK_OBJS = $(OBJDIR)\EditCase.obj
-DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng
+DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng
 
 !include ..\makefile_vc_def_inc
 
