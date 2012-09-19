@@ -1465,7 +1465,7 @@ void WINAPI apiFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber)
 	return FreeDirList(PanelItem, nItemsNumber);
 }
 
-void WINAPI apiFreePluginDirList(PluginPanelItem *PanelItem, size_t ItemsNumber)
+void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber)
 {
 	if (!PanelItem)
 		return;
@@ -1473,12 +1473,10 @@ void WINAPI apiFreePluginDirList(PluginPanelItem *PanelItem, size_t ItemsNumber)
 	for (size_t I=0; I<ItemsNumber; I++)
 	{
 		PluginPanelItem *CurPanelItem=PanelItem+I;
-
-		if (CurPanelItem->UserData && (CurPanelItem->Flags & PPIF_USERDATA))
+		if(CurPanelItem->UserData.Callback)
 		{
-			xf_free((void *)CurPanelItem->UserData);
+			CurPanelItem->UserData.Callback(CurPanelItem->UserData.UserData,hPlugin,0);
 		}
-
 		FreePluginPanelItem(CurPanelItem);
 	}
 

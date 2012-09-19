@@ -7378,7 +7378,7 @@ bool Editor::TryCodePage(UINT codepage, int &X, int &Y)
 		{
 			Y = line;
 			X = 0;
-			BOOL def = FALSE, *p_def = (m_codepage == CP_UTF8 || CP_UTF7 ? nullptr : &def);
+			BOOL def = FALSE, *p_def = (m_codepage == CP_UTF8 || m_codepage == CP_UTF7 ? nullptr : &def);
 			DWORD mb2wcFlags = (codepage == CP_UTF7  ? 0 : MB_ERR_INVALID_CHARS);
          for (int i=0; i < current->StrSize; ++i)
 			{

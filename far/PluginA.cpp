@@ -851,6 +851,11 @@ void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
 	}
 }
 
+static void WINAPI FreeUserData(void* UserData,HANDLE hPlugin,unsigned __int64 Flags)
+{
+	xf_free(UserData);
+}
+
 void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelItem **PanelItemW, size_t ItemsNumber)
 {
 	*PanelItemW = (PluginPanelItem *)xf_malloc(ItemsNumber*sizeof(PluginPanelItem));
@@ -858,7 +863,12 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 
 	for (size_t i=0; i<ItemsNumber; i++)
 	{
-		(*PanelItemW)[i].Flags = PanelItemA[i].Flags;
+		(*PanelItemW)[i].Flags = 0;
+		if(PanelItemA[i].Flags&oldfar::PPIF_PROCESSDESCR)
+			(*PanelItemW)[i].Flags|=PPIF_PROCESSDESCR;
+		if(PanelItemA[i].Flags&oldfar::PPIF_SELECTED)
+			(*PanelItemW)[i].Flags|=PPIF_SELECTED;
+
 		(*PanelItemW)[i].NumberOfLinks = PanelItemA[i].NumberOfLinks;
 
 		if (PanelItemA[i].Description)
@@ -873,7 +883,19 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 			(*PanelItemW)[i].CustomColumnData = ArrayAnsiToUnicode(PanelItemA[i].CustomColumnData,PanelItemA[i].CustomColumnNumber);
 		}
 
-		(*PanelItemW)[i].UserData = PanelItemA[i].UserData;
+		if(PanelItemA[i].Flags&oldfar::PPIF_USERDATA)
+		{
+			void* UserData = (void*)PanelItemA[i].UserData;
+			DWORD Size=*(DWORD *)UserData;
+			(*PanelItemW)[i].UserData.UserData = xf_malloc(Size);
+			memcpy((*PanelItemW)[i].UserData.UserData,UserData,Size);
+			(*PanelItemW)[i].UserData.Callback = FreeUserData;
+		}
+		else
+		{
+			(*PanelItemW)[i].UserData.UserData = (void*)PanelItemA[i].UserData;
+			(*PanelItemW)[i].UserData.Callback = nullptr;
+		}
 		(*PanelItemW)[i].CRC32 = PanelItemA[i].CRC32;
 		(*PanelItemW)[i].FileAttributes = PanelItemA[i].FindData.dwFileAttributes;
 		(*PanelItemW)[i].CreationTime = PanelItemA[i].FindData.ftCreationTime;
@@ -896,7 +918,7 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 	if(PanelItem.Flags&PPIF_SELECTED)
 		PanelItemA.Flags|=oldfar::PPIF_SELECTED;
 
-	if(PanelItem.Flags&PPIF_USERDATA)
+	if(PanelItem.UserData.Callback==FreeUserData)
 		PanelItemA.Flags|=oldfar::PPIF_USERDATA;
 
 	PanelItemA.NumberOfLinks=PanelItem.NumberOfLinks;
@@ -916,14 +938,14 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 			PanelItemA.CustomColumnData[j] = UnicodeToAnsi(PanelItem.CustomColumnData[j]);
 	}
 
-	if (PanelItem.UserData&&PanelItem.Flags&PPIF_USERDATA)
+	if (PanelItem.UserData.UserData&&PanelItem.UserData.Callback==FreeUserData)
 	{
-		DWORD Size=*(DWORD *)PanelItem.UserData;
+		DWORD Size=*(DWORD *)PanelItem.UserData.UserData;
 		PanelItemA.UserData=(intptr_t)xf_malloc(Size);
-		memcpy((void *)PanelItemA.UserData,(void *)PanelItem.UserData,Size);
+		memcpy((void *)PanelItemA.UserData,PanelItem.UserData.UserData,Size);
 	}
 	else
-		PanelItemA.UserData = PanelItem.UserData;
+		PanelItemA.UserData = (intptr_t)PanelItem.UserData.UserData;
 
 	PanelItemA.CRC32 = PanelItem.CRC32;
 	PanelItemA.FindData.dwFileAttributes = PanelItem.FileAttributes;
@@ -3777,7 +3799,7 @@ int WINAPI FarGetPluginDirListA(intptr_t PluginNumber,HANDLE hPlugin,const char 
 			ret = FALSE;
 		}
 
-		NativeInfo.FreePluginDirList(pPanelItemW, ItemsNumber);
+		NativeInfo.FreePluginDirList(hPlugin, pPanelItemW, ItemsNumber);
 	}
 
 	return ret;

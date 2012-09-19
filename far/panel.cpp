@@ -2374,13 +2374,13 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 
 		case FCTL_GETPANELITEM:
 		{
-			Result=CheckStructSize((FarGetPluginPanelItem*)Param2)?(int)((FileList*)this)->PluginGetPanelItem(Param1,(FarGetPluginPanelItem*)Param2):0;
+			Result=CheckNullOrStructSize((FarGetPluginPanelItem*)Param2)?(int)((FileList*)this)->PluginGetPanelItem(Param1,(FarGetPluginPanelItem*)Param2):0;
 			break;
 		}
 
 		case FCTL_GETSELECTEDPANELITEM:
 		{
-			Result=CheckStructSize((FarGetPluginPanelItem*)Param2)?(int)((FileList*)this)->PluginGetSelectedPanelItem(Param1,(FarGetPluginPanelItem*)Param2):0;
+			Result=CheckNullOrStructSize((FarGetPluginPanelItem*)Param2)?(int)((FileList*)this)->PluginGetSelectedPanelItem(Param1,(FarGetPluginPanelItem*)Param2):0;
 			break;
 		}
 
@@ -2389,7 +2389,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			PanelInfo Info;
 			FileList *DestPanel = ((FileList*)this);
 			DestPanel->PluginGetPanelInfo(Info);
-			Result = CheckStructSize((FarGetPluginPanelItem*)Param2)?(int)DestPanel->PluginGetPanelItem(static_cast<int>(Info.CurrentItem),(FarGetPluginPanelItem*)Param2):0;
+			Result = CheckNullOrStructSize((FarGetPluginPanelItem*)Param2)?(int)DestPanel->PluginGetPanelItem(static_cast<int>(Info.CurrentItem),(FarGetPluginPanelItem*)Param2):0;
 			break;
 		}
 

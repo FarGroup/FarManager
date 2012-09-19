@@ -192,6 +192,8 @@ enum LNGID:int;
 #endif
 
 template <typename T>
+bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T));}
+template <typename T>
 bool CheckStructSize(const T* s) {return s && (s->StructSize >= sizeof(T));}
 
 
