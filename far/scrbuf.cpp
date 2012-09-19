@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
+#include "constitle.hpp"
 
 enum
 {
@@ -547,9 +548,15 @@ void ScreenBuf::Lock()
 void ScreenBuf::Unlock()
 {
 	if (LockCount>0)
-		LockCount--;
+		SetLockCount(LockCount-1);
 }
 
+void ScreenBuf::SetLockCount(int Count)
+{
+	LockCount=Count;
+	if (!LockCount && ConsoleTitle::WasTitleModified())
+		ConsoleTitle::SetFarTitle(nullptr);
+}
 
 void ScreenBuf::ResetShadow()
 {
