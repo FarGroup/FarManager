@@ -3267,7 +3267,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			case VK_OEM_MINUS:
 				return (Char>=' ')?Char:KEY_SHIFT|'-';
 			case VK_OEM_PLUS:
-				return (Char>=' ')?Char:KEY_SHIFT|'+';;
+				return (Char>=' ')?Char:KEY_SHIFT|'+';
 			case VK_DIVIDE:
 				return KEY_SHIFT|KEY_DIVIDE;
 			case VK_MULTIPLY:
