@@ -1,3 +1,7 @@
+zg 21.09.2012 02:25:27 +0200 - build 2818
+
+1. удалена ACTL_ENABLEREDRAW.
+
 zg 21.09.2012 02:15:53 +0200 - build 2817
 
 1. в EditorInfo добавлено поле SessionBookmarkCount.
