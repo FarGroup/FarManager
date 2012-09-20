@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2814
+  Plugin API for Far Manager 3.0 build 2815
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2814
+#define FARMANAGERVERSION_BUILD 2815
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1497,9 +1497,11 @@ struct EditorInfo
 	intptr_t Reserved[5];
 };
 
-struct EditorBookMarks
+struct EditorBookmarks
 {
 	size_t StructSize;
+	size_t Size;
+	size_t Count;
 	intptr_t *Line;
 	intptr_t *Cursor;
 	intptr_t *ScreenLine;
