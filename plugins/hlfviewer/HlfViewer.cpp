@@ -226,7 +226,7 @@ int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 
 				if (FileName)
 				{
-					Info.EditorControl(-1,ECTL_GETFILENAME,0,FileName);
+					Info.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
 				}
 			}
 
