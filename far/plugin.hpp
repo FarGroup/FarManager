@@ -1670,7 +1670,8 @@ struct EditorInfo
 	intptr_t BlockStartLine;
 	DWORD Options;
 	int TabSize;
-	int BookMarkCount;
+	int BookmarkCount;
+	int SessionBookmarkCount;
 	DWORD CurState;
 	UINT CodePage;
 	intptr_t Reserved[5];

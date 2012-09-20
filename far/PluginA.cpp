@@ -4445,7 +4445,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				oei->TableNum=GetEditorCodePageFavA();
 				oei->Options=ei.Options;
 				oei->TabSize=ei.TabSize;
-				oei->BookMarkCount=ei.BookMarkCount;
+				oei->BookMarkCount=ei.BookmarkCount;
 				oei->CurState=ei.CurState;
 				return TRUE;
 			}

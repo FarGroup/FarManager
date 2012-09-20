@@ -1,3 +1,7 @@
+zg 21.09.2012 02:15:53 +0200 - build 2817
+
+1. в EditorInfo добавлено поле SessionBookmarkCount.
+
 zg 21.09.2012 02:01:45 +0200 - build 2816
 
 1. для ECTL_GETFILENAME в Param1 необходимо указывать размер передаваемого буфера.
