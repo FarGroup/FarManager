@@ -1676,9 +1676,11 @@ struct EditorInfo
 	intptr_t Reserved[5];
 };
 
-struct EditorBookMarks
+struct EditorBookmarks
 {
 	size_t StructSize;
+	size_t Size;
+	size_t Count;
 	intptr_t *Line;
 	intptr_t *Cursor;
 	intptr_t *ScreenLine;

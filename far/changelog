@@ -1,3 +1,9 @@
+zg 21.09.2012 00:43:26 +0200 - build 2815
+
+1. EditorBookMarks -> EditorBookmarks. в Size размер выделенной памяти по аналогии с FarGetPluginPanelItem.
+   нужный размер можно узнать вызвав ECTL_GETBOOKMARKS/ECTL_GETSESSIONBOOKMARKS.
+   в Count возвращается количество букмарк.
+
 zg 20.09.2012 22:32:55 +0200 - build 2814
 
 1. уточнение 2807.1.

@@ -299,7 +299,7 @@ bool GetPDataNT(ProcessDataNT& DATA, ProcessPerfData& pd)
 	return true;
 }
 
-static void WINAPI FreeUserData(void* UserData,HANDLE hPlugin,unsigned __int64 Flags)
+static void WINAPI FreeUserData(void* UserData,const FarPanelItemFreeInfo* Info)
 {
 	delete(ProcessData *)UserData;
 }

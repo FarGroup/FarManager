@@ -594,21 +594,19 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_F_BM_GET:                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
 		{
 			__int64 Ret=-1;
-			intptr_t Val[1];
-			EditorBookMarks ebm={sizeof(EditorBookMarks)};
+			InternalEditorBookmark ebm={0};
 			int iMode=(int)((intptr_t)vParam);
 
-			switch (iMode)
+			if (iMode >= 0 && iMode <= 3 && GetSessionBookmark((int)iParam-1,&ebm))
 			{
-				case 0: ebm.Line=Val;  break;
-				case 1: ebm.Cursor=Val; break;
-				case 2: ebm.LeftPos=Val; break;
-				case 3: ebm.ScreenLine=Val; break;
-				default: iMode=-1; break;
+				switch (iMode)
+				{
+					case 0: Ret=(__int64)((DWORD)ebm.Line+1);  break;
+					case 1: Ret=(__int64)((DWORD)ebm.Cursor+1); break;
+					case 2: Ret=(__int64)((DWORD)ebm.LeftPos+1); break;
+					case 3: Ret=(__int64)((DWORD)ebm.ScreenLine+1); break;
+				}
 			}
-
-			if (iMode >= 0 && GetSessionBookmark((int)iParam-1,&ebm))
-				Ret=(__int64)((DWORD)Val[0]+1);
 
 			return Ret;
 		}
@@ -6660,16 +6658,16 @@ int Editor::CurrentSessionBookmarkIdx()
 	return -1;
 }
 
-int Editor::GetSessionBookmark(int iIdx,EditorBookMarks *Param)
+int Editor::GetSessionBookmark(int iIdx,InternalEditorBookmark *Param)
 {
 	InternalEditorSessionBookMark *sb_temp = PointerToSessionBookmark(iIdx);
 
 	if (sb_temp && Param)
 	{
-		if (Param->Line)       Param->Line[0]       =sb_temp->Line;
-		if (Param->Cursor)     Param->Cursor[0]     =sb_temp->Cursor;
-		if (Param->LeftPos)    Param->LeftPos[0]    =sb_temp->LeftPos;
-		if (Param->ScreenLine) Param->ScreenLine[0] =sb_temp->ScreenLine;
+		if (Param->Line)       Param->Line       =sb_temp->Line;
+		if (Param->Cursor)     Param->Cursor     =sb_temp->Cursor;
+		if (Param->LeftPos)    Param->LeftPos    =sb_temp->LeftPos;
+		if (Param->ScreenLine) Param->ScreenLine =sb_temp->ScreenLine;
 
 		return TRUE;
 	}
@@ -6677,7 +6675,7 @@ int Editor::GetSessionBookmark(int iIdx,EditorBookMarks *Param)
 	return FALSE;
 }
 
-int Editor::GetSessionBookmarks(EditorBookMarks *Param)
+int Editor::GetSessionBookmarks(EditorBookmarks *Param)
 {
 	int iCount=0;
 
@@ -6712,6 +6710,30 @@ int Editor::GetSessionBookmarks(EditorBookMarks *Param)
 	}
 
 	return iCount;
+}
+
+size_t Editor::GetSessionBookmarksForPlugin(EditorBookmarks *Param)
+{
+	size_t count=GetSessionBookmarks(nullptr),size;
+	if(InitSessionBookmarksForPlugin(Param,count,size)) GetSessionBookmarks(Param);
+	return size;
+}
+
+bool Editor::InitSessionBookmarksForPlugin(EditorBookmarks *Param,size_t Count,size_t& Size)
+{
+	Size=sizeof(EditorBookmarks)+sizeof(intptr_t)*4*Count;
+	if(Param&&Param->Size>=Size)
+	{
+		intptr_t* data=(intptr_t*)(Param+1);
+		Param->Count=Count;
+		Param->Line=data;
+		Param->Cursor=data+Count;
+		Param->ScreenLine=data+2*Count;
+		Param->LeftPos=data+3*Count;
+		for(size_t ii=0;ii<ARRAYSIZE(Param->Reserved);++ii) Param->Reserved[ii]=0;
+		return true;
+	}
+	return false;
 }
 
 Edit * Editor::GetStringByNumber(int DestLine)

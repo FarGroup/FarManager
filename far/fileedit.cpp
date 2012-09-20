@@ -2526,32 +2526,35 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_GETBOOKMARKS:
 		{
-			EditorBookMarks *ebm = static_cast<EditorBookMarks*>(Param);
-			if (!Flags.Check(FFILEEDIT_OPENFAILED) && CheckStructSize(ebm))
+			EditorBookmarks *ebm = static_cast<EditorBookmarks*>(Param);
+			if (!Flags.Check(FFILEEDIT_OPENFAILED) && CheckNullOrStructSize(ebm))
 			{
-				for(int i = 0; i < BOOKMARK_COUNT; i++)
+				size_t count=BOOKMARK_COUNT,size;
+				if(Editor::InitSessionBookmarksForPlugin(ebm,count,size))
 				{
-					if (ebm->Line)
+					for(size_t ii=0;ii<count;++ii)
 					{
-						ebm->Line[i] = m_editor->SavePos.Line[i];
-					}
-					if (ebm->Cursor)
-					{
-						ebm->Cursor[i] = m_editor->SavePos.LinePos[i];
-					}
-					if (ebm->ScreenLine)
-					{
-						ebm->ScreenLine[i] = m_editor->SavePos.ScreenLine[i];
-					}
-					if (ebm->LeftPos)
-					{
-						ebm->LeftPos[i] = m_editor->SavePos.LeftPos[i];
+						if (ebm->Line)
+						{
+							ebm->Line[ii] = m_editor->SavePos.Line[ii];
+						}
+						if (ebm->Cursor)
+						{
+							ebm->Cursor[ii] = m_editor->SavePos.LinePos[ii];
+						}
+						if (ebm->ScreenLine)
+						{
+							ebm->ScreenLine[ii] = m_editor->SavePos.ScreenLine[ii];
+						}
+						if (ebm->LeftPos)
+						{
+							ebm->LeftPos[ii] = m_editor->SavePos.LeftPos[ii];
+						}
 					}
 				}
-				return TRUE;
+				return size;
 			}
-
-			return FALSE;
+			return 0;
 		}
 		case ECTL_ADDSESSIONBOOKMARK:
 		{
@@ -2577,7 +2580,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_GETSESSIONBOOKMARKS:
 		{
-			return CheckStructSize((EditorBookMarks *)Param)?m_editor->GetSessionBookmarks((EditorBookMarks *)Param):0;
+			return CheckNullOrStructSize((EditorBookmarks *)Param)?m_editor->GetSessionBookmarksForPlugin((EditorBookmarks *)Param):0;
 		}
 		case ECTL_SETTITLE:
 		{
