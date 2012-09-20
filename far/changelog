@@ -1,3 +1,7 @@
+zg 21.09.2012 02:01:45 +0200 - build 2816
+
+1. для ECTL_GETFILENAME в Param1 необходимо указывать размер передаваемого буфера.
+
 zg 21.09.2012 00:43:26 +0200 - build 2815
 
 1. EditorBookMarks -> EditorBookmarks. в Size размер выделенной памяти по аналогии с FarGetPluginPanelItem.

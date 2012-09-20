@@ -96,7 +96,7 @@ class FileEditor : public Frame
 		void SetSaveToSaveAs(int ToSaveAs) { Flags.Change(FFILEEDIT_SAVETOSAVEAS,ToSaveAs); InitKeyBar(); }
 		virtual BOOL IsFileModified() const { return m_editor->IsFileModified(); };
 		virtual int GetTypeAndName(string &strType, string &strName);
-		int EditorControl(int Command,void *Param);
+		int EditorControl(int Command, intptr_t Param1, void *Param2);
 		bool SetCodePage(UINT codepage);  //BUGBUG
 		BOOL IsFileChanged() const { return m_editor->IsFileChanged(); };
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);

@@ -1878,7 +1878,7 @@ TVar KeyMacro::FARPseudoVariable(UINT64 Flags,DWORD CheckCode,DWORD& Err)
 						{
 							EditorGetString egs={sizeof(EditorGetString)};
 							egs.StringNumber=-1;
-							CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETSTRING,&egs);
+							CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETSTRING,0,&egs);
 							Cond=egs.StringText;
 						}
 						else if (CheckCode == MCODE_V_EDITORSELVALUE)
@@ -3447,7 +3447,7 @@ static bool editorposFunc(const TMacroFunction*)
 	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		EditorInfo ei={sizeof(EditorInfo)};
-		CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO,&ei);
+		CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO,0,&ei);
 
 		switch (Op)
 		{
@@ -3533,10 +3533,10 @@ static bool editorposFunc(const TMacroFunction*)
 						break;
 				}
 
-				int Result=CtrlObject->Plugins->CurEditor->EditorControl(ECTL_SETPOSITION,&esp);
+				int Result=CtrlObject->Plugins->CurEditor->EditorControl(ECTL_SETPOSITION,0,&esp);
 
 				if (Result)
-					CtrlObject->Plugins->CurEditor->EditorControl(ECTL_REDRAW,nullptr);
+					CtrlObject->Plugins->CurEditor->EditorControl(ECTL_REDRAW,0,nullptr);
 
 				Ret=Result;
 				break;
@@ -4575,7 +4575,7 @@ static bool editorundoFunc(const TMacroFunction*)
 	{
 		EditorUndoRedo eur={sizeof(EditorUndoRedo)};
 		eur.Command=static_cast<EDITOR_UNDOREDO_COMMANDS>(Action.toInteger());
-		Ret=(__int64)CtrlObject->Plugins->CurEditor->EditorControl(ECTL_UNDOREDO,&eur);
+		Ret=(__int64)CtrlObject->Plugins->CurEditor->EditorControl(ECTL_UNDOREDO,0,&eur);
 	}
 
 	VMStack.Push(Ret);
@@ -4596,7 +4596,7 @@ static bool editorsettitleFunc(const TMacroFunction*)
 			Title=L"";
 			Title.toString();
 		}
-		Ret=(__int64)CtrlObject->Plugins->CurEditor->EditorControl(ECTL_SETTITLE,(void*)Title.s());
+		Ret=(__int64)CtrlObject->Plugins->CurEditor->EditorControl(ECTL_SETTITLE,0,(void*)Title.s());
 	}
 
 	VMStack.Push(Ret);

@@ -323,7 +323,7 @@ class Editor:public ScreenObject
 		BOOL IsFileChanged() const;
 		void SetTitle(const wchar_t *Title);
 		long GetCurPos( bool file_pos=false, bool add_bom=false );
-		int EditorControl(int Command,void *Param);
+		int EditorControl(int Command, intptr_t Param1, void *Param2);
 		void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
 		static void SetReplaceMode(bool Mode);
 		FileEditor *GetHostFileEditor() {return HostFileEditor;};

@@ -1711,7 +1711,7 @@ intptr_t WINAPI apiEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, 
 	if (EditorID == -1)
 	{
 		if (CtrlObject->Plugins->CurEditor)
-			return CtrlObject->Plugins->CurEditor->EditorControl(Command,(void *)Param2);
+			return CtrlObject->Plugins->CurEditor->EditorControl(Command,Param1,Param2);
 
 		return 0;
 	}
@@ -1732,7 +1732,7 @@ intptr_t WINAPI apiEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, 
 				{
 					if (((FileEditor*)frame)->GetId() == EditorID)
 					{
-						return ((FileEditor*)frame)->EditorControl(Command,(void *)Param2);
+						return ((FileEditor*)frame)->EditorControl(Command,Param1,Param2);
 					}
 				}
 			}

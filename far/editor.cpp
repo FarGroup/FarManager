@@ -738,7 +738,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 										eSel.BlockStartPos=CurLine->GetCurPos();
 									}
 
-									Ret=EditorControl(ECTL_SELECT,&eSel);
+									Ret=EditorControl(ECTL_SELECT,0,&eSel);
 								}
 							}
 
@@ -5612,17 +5612,17 @@ void Editor::VBlockShift(int Left)
 }
 
 
-int Editor::EditorControl(int Command,void *Param)
+int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 {
 	_ECTLLOG(CleverSysLog SL(L"Editor::EditorControl()"));
-	_ECTLLOG(SysLog(L"Command=%s Param=[%d/0x%08X]",_ECTL_ToName(Command),Param,Param));
+	_ECTLLOG(SysLog(L"Command=%s Param2=[%d/0x%08X]",_ECTL_ToName(Command),Param2,Param2));
 
 	if(EditorControlLocked()) return FALSE;
 	switch (Command)
 	{
 		case ECTL_GETSTRING:
 		{
-			EditorGetString *GetString=(EditorGetString *)Param;
+			EditorGetString *GetString=(EditorGetString *)Param2;
 
 			if (CheckStructSize(GetString))
 			{
@@ -5679,7 +5679,7 @@ int Editor::EditorControl(int Command,void *Param)
 			else
 			{
 				TurnOffMarkingBlock();
-				int Indent=Param && *(int *)Param!=FALSE;
+				int Indent=Param2 && *(int *)Param2!=FALSE;
 
 				if (!Indent)
 					Pasting++;
@@ -5696,10 +5696,10 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_INSERTTEXT:
 		{
-			if (!Param)
+			if (!Param2)
 				return FALSE;
 
-			_ECTLLOG(SysLog(L"(const wchar_t *)Param='%s'",(const wchar_t *)Param));
+			_ECTLLOG(SysLog(L"(const wchar_t *)Param2='%s'",(const wchar_t *)Param2));
 
 			if (Flags.Check(FEDITOR_LOCKMODE))
 			{
@@ -5709,7 +5709,7 @@ int Editor::EditorControl(int Command,void *Param)
 			else
 			{
 				TurnOffMarkingBlock();
-				const wchar_t *Str=(const wchar_t *)Param;
+				const wchar_t *Str=(const wchar_t *)Param2;
 				Pasting++;
 				Lock();
 
@@ -5736,7 +5736,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_SETSTRING:
 		{
-			EditorSetString *SetString=(EditorSetString *)Param;
+			EditorSetString *SetString=(EditorSetString *)Param2;
 
 			if (!CheckStructSize(SetString))
 				break;
@@ -5835,7 +5835,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_GETINFO:
 		{
-			EditorInfo *Info=(EditorInfo *)Param;
+			EditorInfo *Info=(EditorInfo *)Param2;
 
 			if (CheckStructSize(Info))
 			{
@@ -5894,12 +5894,12 @@ int Editor::EditorControl(int Command,void *Param)
 				return TRUE;
 			}
 
-			_ECTLLOG(SysLog(L"Error: !Param"));
+			_ECTLLOG(SysLog(L"Error: !Param2"));
 			return FALSE;
 		}
 		case ECTL_SETPOSITION:
 		{
-			EditorSetPosition *Pos=(EditorSetPosition *)Param;
+			EditorSetPosition *Pos=(EditorSetPosition *)Param2;
 			if (CheckStructSize(Pos))
 			{
 				_ECTLLOG(SysLog(L"EditorSetPosition{"));
@@ -5960,12 +5960,12 @@ int Editor::EditorControl(int Command,void *Param)
 				return TRUE;
 			}
 
-			_ECTLLOG(SysLog(L"Error: !Param"));
+			_ECTLLOG(SysLog(L"Error: !Param2"));
 			break;
 		}
 		case ECTL_SELECT:
 		{
-			EditorSelect *Sel=(EditorSelect *)Param;
+			EditorSelect *Sel=(EditorSelect *)Param2;
 			if (CheckStructSize(Sel))
 			{
 				_ECTLLOG(SysLog(L"EditorSelect{"));
@@ -6048,7 +6048,7 @@ int Editor::EditorControl(int Command,void *Param)
 				return TRUE;
 			}
 
-			_ECTLLOG(SysLog(L"Error: !Param"));
+			_ECTLLOG(SysLog(L"Error: !Param2"));
 			break;
 		}
 		case ECTL_REDRAW:
@@ -6059,7 +6059,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_TABTOREAL:
 		{
-			EditorConvertPos *ecp=(EditorConvertPos *)Param;
+			EditorConvertPos *ecp=(EditorConvertPos *)Param2;
 			if (CheckStructSize(ecp))
 			{
 				Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
@@ -6083,7 +6083,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_REALTOTAB:
 		{
-			EditorConvertPos *ecp=(EditorConvertPos *)Param;
+			EditorConvertPos *ecp=(EditorConvertPos *)Param2;
 			if (CheckStructSize(ecp))
 			{
 				Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
@@ -6114,7 +6114,7 @@ int Editor::EditorControl(int Command,void *Param)
 			}
 			else
 			{
-				int StringNumber=*(int *)Param;
+				int StringNumber=*(int *)Param2;
 				Edit *CurPtr=GetStringByNumber(StringNumber);
 
 				if (!CurPtr)
@@ -6132,7 +6132,7 @@ int Editor::EditorControl(int Command,void *Param)
 		// TODO: ≈сли DI_MEMOEDIT не будет юзать раскаску, то должно выполн€етс€ в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_ADDCOLOR:
 		{
-			EditorColor *col=(EditorColor *)Param;
+			EditorColor *col=(EditorColor *)Param2;
 			if (CheckStructSize(col))
 			{
 				_ECTLLOG(SysLog(L"EditorColor{"));
@@ -6167,7 +6167,7 @@ int Editor::EditorControl(int Command,void *Param)
 		// TODO: ≈сли DI_MEMOEDIT не будет юзать раскаску, то должно выполн€етс€ в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_GETCOLOR:
 		{
-			EditorColor *col=(EditorColor *)Param;
+			EditorColor *col=(EditorColor *)Param2;
 			if (CheckStructSize(col))
 			{
 				Edit *CurPtr=GetStringByNumber(col->StringNumber);
@@ -6206,7 +6206,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_DELCOLOR:
 		{
-			EditorDeleteColor *col=(EditorDeleteColor *)Param;
+			EditorDeleteColor *col=(EditorDeleteColor *)Param2;
 			if (CheckStructSize(col))
 			{
 				Edit *CurPtr=GetStringByNumber(col->StringNumber);
@@ -6224,12 +6224,12 @@ int Editor::EditorControl(int Command,void *Param)
 			break;
 		}
 		/* $ 16.02.2001 IS
-		     »зменение некоторых внутренних настроек редактора. Param указывает на
+		     »зменение некоторых внутренних настроек редактора. Param2 указывает на
 		     структуру EditorSetParameter
 		*/
 		case ECTL_SETPARAM:
 		{
-			EditorSetParameter *espar=(EditorSetParameter *)Param;
+			EditorSetParameter *espar=(EditorSetParameter *)Param2;
 			if (CheckStructSize(espar))
 			{
 				int rc=TRUE;
@@ -6337,7 +6337,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_UNDOREDO:
 		{
-			EditorUndoRedo *eur=(EditorUndoRedo *)Param;
+			EditorUndoRedo *eur=(EditorUndoRedo *)Param2;
 			if (CheckStructSize(eur))
 			{
 

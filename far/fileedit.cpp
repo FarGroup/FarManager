@@ -2494,19 +2494,19 @@ void FileEditor::OnChangeFocus(int focus)
 }
 
 
-int FileEditor::EditorControl(int Command, void *Param)
+int FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 {
 #if defined(SYSLOG_KEYMACRO)
 	_KEYMACRO(CleverSysLog SL(L"FileEditor::EditorControl()"));
 
 	if (Command == ECTL_READINPUT || Command == ECTL_PROCESSINPUT)
 	{
-		_KEYMACRO(SysLog(L"(Command=%s, Param=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)((intptr_t)Param),(int)((intptr_t)Param),CtrlObject->Macro.IsExecuting()));
+		_KEYMACRO(SysLog(L"(Command=%s, Param2=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)((intptr_t)Param2),(int)((intptr_t)Param2),CtrlObject->Macro.IsExecuting()));
 	}
 
 #else
 	_ECTLLOG(CleverSysLog SL(L"FileEditor::EditorControl()"));
-	_ECTLLOG(SysLog(L"(Command=%s, Param=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param,Param));
+	_ECTLLOG(SysLog(L"(Command=%s, Param2=[%d/0x%08X])",_ECTL_ToName(Command),(int)Param2,Param2));
 #endif
 
 	if(m_editor->EditorControlLocked()) return FALSE;
@@ -2517,16 +2517,16 @@ int FileEditor::EditorControl(int Command, void *Param)
 	{
 		case ECTL_GETFILENAME:
 		{
-			if (Param)
+			if (Param2&&(size_t)Param1>strFullFileName.GetLength())
 			{
-				wcscpy(static_cast<LPWSTR>(Param),strFullFileName);
+				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName);
 			}
 
 			return static_cast<int>(strFullFileName.GetLength()+1);
 		}
 		case ECTL_GETBOOKMARKS:
 		{
-			EditorBookmarks *ebm = static_cast<EditorBookmarks*>(Param);
+			EditorBookmarks *ebm = static_cast<EditorBookmarks*>(Param2);
 			if (!Flags.Check(FFILEEDIT_OPENFAILED) && CheckNullOrStructSize(ebm))
 			{
 				size_t count=BOOKMARK_COUNT,size;
@@ -2576,15 +2576,15 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_DELETESESSIONBOOKMARK:
 		{
-			return m_editor->DeleteSessionBookmark(m_editor->PointerToSessionBookmark((int)(intptr_t)Param));
+			return m_editor->DeleteSessionBookmark(m_editor->PointerToSessionBookmark((int)(intptr_t)Param2));
 		}
 		case ECTL_GETSESSIONBOOKMARKS:
 		{
-			return CheckNullOrStructSize((EditorBookmarks *)Param)?m_editor->GetSessionBookmarksForPlugin((EditorBookmarks *)Param):0;
+			return CheckNullOrStructSize((EditorBookmarks *)Param2)?m_editor->GetSessionBookmarksForPlugin((EditorBookmarks *)Param2):0;
 		}
 		case ECTL_SETTITLE:
 		{
-			strPluginTitle = (const wchar_t*)Param;
+			strPluginTitle = (const wchar_t*)Param2;
 			ShowStatus();
 			ScrBuf.Flush(); //???
 			return TRUE;
@@ -2597,19 +2597,19 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		/*
 			Функция установки Keybar Labels
-			Param = nullptr - восстановить, пред. значение
-			Param = -1   - обновить полосу (перерисовать)
-			Param = KeyBarTitles
+			Param2 = nullptr - восстановить, пред. значение
+			Param2 = -1   - обновить полосу (перерисовать)
+			Param2 = KeyBarTitles
 		*/
 		case ECTL_SETKEYBAR:
 		{
-			KeyBarTitles *Kbt = (KeyBarTitles*)Param;
+			KeyBarTitles *Kbt = (KeyBarTitles*)Param2;
 
 			if (!Kbt)   //восстановить изначальное
 				InitKeyBar();
 			else
 			{
-				if ((intptr_t)Param != (intptr_t)-1) // не только перерисовать?
+				if ((intptr_t)Param2 != (intptr_t)-1) // не только перерисовать?
 					EditKeyBar.Change(Kbt);
 
 				EditKeyBar.Show();
@@ -2623,7 +2623,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 			int EOL=0;
 			UINT codepage=m_codepage;
 
-			EditorSaveFile *esf=(EditorSaveFile *)Param;
+			EditorSaveFile *esf=(EditorSaveFile *)Param2;
 			if (CheckStructSize(esf))
 			{
 
@@ -2679,9 +2679,9 @@ int FileEditor::EditorControl(int Command, void *Param)
 //        return FALSE;
 			}
 
-			if (Param)
+			if (Param2)
 			{
-				INPUT_RECORD *rec=(INPUT_RECORD *)Param;
+				INPUT_RECORD *rec=(INPUT_RECORD *)Param2;
 				DWORD Key;
 
 				for (;;)
@@ -2717,9 +2717,9 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_PROCESSINPUT:
 		{
-			if (Param)
+			if (Param2)
 			{
-				INPUT_RECORD *rec=(INPUT_RECORD *)Param;
+				INPUT_RECORD *rec=(INPUT_RECORD *)Param2;
 
 				if (ProcessEditorInput(rec))
 					return TRUE;
@@ -2752,7 +2752,7 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 		case ECTL_SETPARAM:
 		{
-			EditorSetParameter *espar=(EditorSetParameter *)Param;
+			EditorSetParameter *espar=(EditorSetParameter *)Param2;
 			if (CheckStructSize(espar))
 			{
 				if (ESPT_SETBOM==espar->Type)
@@ -2769,10 +2769,10 @@ int FileEditor::EditorControl(int Command, void *Param)
 		}
 	}
 
-	int result=m_editor->EditorControl(Command,Param);
-	if (result&&Param&&ECTL_GETINFO==Command)
+	int result=m_editor->EditorControl(Command,Param1,Param2);
+	if (result&&Param2&&ECTL_GETINFO==Command)
 	{
-		EditorInfo *Info=(EditorInfo *)Param;
+		EditorInfo *Info=(EditorInfo *)Param2;
 		if (CheckStructSize(Info)&&m_bAddSignature)
 			Info->Options|=EOPT_BOM;
 	}
