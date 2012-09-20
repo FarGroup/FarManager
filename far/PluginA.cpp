@@ -1295,7 +1295,7 @@ void WINAPI GetPathRootA(const char *Path, char *Root)
 int WINAPI CopyToClipboardA(const char *Data)
 {
 	wchar_t *p = Data?AnsiToUnicode(Data):nullptr;
-	int ret = NativeFSF.CopyToClipboard(p);
+	int ret = NativeFSF.CopyToClipboard(FCT_STREAM, p);
 
 	if (p) xf_free(p);
 
@@ -1304,11 +1304,15 @@ int WINAPI CopyToClipboardA(const char *Data)
 
 char* WINAPI PasteFromClipboardA()
 {
-	wchar_t *p = NativeFSF.PasteFromClipboard();
-
-	if (p)
-		return UnicodeToAnsi(p);
-
+	size_t size = NativeFSF.PasteFromClipboard(FCT_ANY,nullptr,0);
+	if (size)
+	{
+		wchar_t* p = (wchar_t*)xf_malloc(size);
+		NativeFSF.PasteFromClipboard(FCT_STREAM,p,size);
+		char* result=UnicodeToAnsi(p);
+		xf_free(p);
+		return result;
+	}
 	return nullptr;
 }
 

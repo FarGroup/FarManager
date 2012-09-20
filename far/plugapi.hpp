@@ -79,8 +79,8 @@ namespace pluginapi
 	size_t   WINAPI apiGetReparsePointInfo(const wchar_t *Src,wchar_t *Dest,size_t DestSize);
 	size_t   WINAPI apiGetNumberOfLinks(const wchar_t* Name);
 	size_t   WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize);
-	int      WINAPI apiCopyToClipboard(const wchar_t *Data);
-	wchar_t* WINAPI apiPasteFromClipboard();
+	BOOL     WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data);
+	size_t   WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, size_t Length);
 	int      WINAPI apiGetPluginDirList(const GUID* PluginId,HANDLE hPlugin,const wchar_t *Dir,struct PluginPanelItem **pPanelItem,size_t *pItemsNumber);
 	void     WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber);
 	int      WINAPI apiMenuFn(const GUID* PluginId,const GUID* Id,int X,int Y,int MaxHeight,unsigned __int64 Flags,const wchar_t *Title,const wchar_t *Bottom,const wchar_t *HelpTopic,const FarKey *BreakKeys,int *BreakCode,const struct FarMenuItem *Item, size_t ItemsNumber);
