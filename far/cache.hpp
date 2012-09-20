@@ -60,7 +60,7 @@ class CachedWrite
 public:
 	CachedWrite(File& file);
 	~CachedWrite();
-	bool Write(LPCVOID Data, DWORD DataSize);
+	bool Write(LPCVOID Data, size_t DataSize);
 	bool Flush();
 
 private:

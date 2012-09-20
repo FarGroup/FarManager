@@ -298,17 +298,12 @@
   MCODE_V_MENUINFOID=0x80844, -- Menu.Info.Id
 --]=]
 
+local args = (...) or {}
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
 local MacroCallFar = far.MacroCallFar
-local co_yield = coroutine.yield
 
---FIXME: function duplicated in luamacro.lua and api.lua.
-local function checkarg (arg, argnum, reftype)
-  if type(arg) ~= reftype then
-    error(("arg. #%d: %s expected, got %s"):format(argnum, reftype, type(arg)), 3)
-  end
-end
+local checkarg = args.checkarg
 
 local function SetProperties (namespace, proptable)
   local meta = { __metatable="access denied", __newindex=function() end }
@@ -615,6 +610,7 @@ BM = {
 
 Plugin = {
 --Call     = function(...) return MacroCallFar(0x80C50, ...) end,
+  Call     = args.PluginCall,
   Command  = function(...) return MacroCallFar(0x80C52, ...) end,
   Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
   Exist    = function(...) return MacroCallFar(0x80C54, ...) end,
@@ -622,10 +618,6 @@ Plugin = {
   Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
   Unload   = function(...) return MacroCallFar(0x80C53, ...) end,
 }
-
-Plugin.Call = function(...)
-  return co_yield(F.MPRT_PLUGINCALL, { n=select("#",...), ... })
-end
 --------------------------------------------------------------------------------
 
 Panel = {

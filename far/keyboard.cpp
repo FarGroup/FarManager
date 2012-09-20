@@ -3262,9 +3262,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 		//Up, Vk="VK_SHIFT"    [ 16/0x0010], Scan=0x002A uChar=[U=' ' (0x0000): A=' ' (0x00)] Ctrl=0x00
 		//Dn, Vk="VK_C"        [ 67/0x0043], Scan=0x002E uChar=[U=''  (0x010D): A=' ' (0x0D)] Ctrl=0x00
 		//Up, Vk="VK_C"        [ 67/0x0043], Scan=0x002E uChar=[U='c' (0x0063): A='c' (0x63)] Ctrl=0x00
-		UINT uCalcChar=MapVirtualKey(KeyCode,MAPVK_VK_TO_CHAR);
-		if (!uCalcChar)
-			return KEY_NONE;
+		return KEY_NONE;
 	}
 
 	if (IntKeyState.ShiftPressed)
@@ -3274,11 +3272,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 		{
 
 			case VK_OEM_MINUS:
-				return (Char>=' ')?Char:'_';
-				//return KEY_SHIFT|'-';
+				return (Char>=' ')?Char:KEY_SHIFT|'-';
 			case VK_OEM_PLUS:
-				return (Char>=' ')?Char:'+';
-				//return KEY_SHIFT|'+';
+				return (Char>=' ')?Char:KEY_SHIFT|'+';
 			case VK_DIVIDE:
 				return KEY_SHIFT|KEY_DIVIDE;
 			case VK_MULTIPLY:

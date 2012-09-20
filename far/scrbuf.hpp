@@ -63,7 +63,7 @@ class ScreenBuf
 		void Lock();
 		void Unlock();
 		int  GetLockCount() {return(LockCount);};
-		void SetLockCount(int Count) {LockCount=Count;};
+		void SetLockCount(int Count);
 		void ResetShadow();
 		void MoveCursor(int X,int Y);
 		void GetCursorPos(SHORT& X,SHORT& Y);

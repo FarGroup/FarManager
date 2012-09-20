@@ -656,6 +656,22 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			TBC.Flash();
 			return TRUE;
 		}
+
+		case ACTL_ENABLEREDRAW:
+		{
+			static LockScreen *lock=nullptr;
+			int r=lock ? 0 : 1;
+			if(Param1==1 && lock)
+			{
+				delete lock;
+				lock=nullptr;
+			}
+			if(Param1==0 && !lock)
+			{
+				lock=new LockScreen;
+			}
+			return r;
+		}
 		default:
 			break;
 

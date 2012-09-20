@@ -230,7 +230,7 @@ static void CheckScreenLock()
 {
 	if (ScrBuf.GetLockCount() > 0 && !CtrlObject->Macro.PeekKey())
 	{
-		ScrBuf.SetLockCount(0);
+//		ScrBuf.SetLockCount(0);
 		ScrBuf.Flush();
 	}
 }

@@ -10,8 +10,25 @@ end
 
 local F = far.Flags
 
-local co_create, co_yield, co_resume, co_status =
-  coroutine.create, coroutine.yield, coroutine.resume, coroutine.status
+local co_create, co_yield, co_resume, co_status, co_wrap =
+  coroutine.create, coroutine.yield, coroutine.resume, coroutine.status, coroutine.wrap
+
+-- A unique value, inaccessible to scripts.
+local PROPAGATE={}
+
+local function pack (...)
+  return { n=select("#",...), ... }
+end
+
+-- Override coroutine.resume for scripts, making it possible to call Keys(),
+-- print(), Plugin.Call(), exit(), etc. from nested coroutines.
+function coroutine.resume(co, ...)
+  local t = pack(co_resume(co, ...))
+  while t[1]==true and t[2]==PROPAGATE do
+    t = pack(co_resume(co, co_yield(unpack(t, 2, t.n))))
+  end
+  return unpack(t, 1, t.n)
+end
 
 local ErrMsg = function(msg) far.Message(msg, "LuaMacro", nil, "w") end
 
@@ -19,24 +36,29 @@ local macros = {}
 local LastMessage = {}
 local gmeta = { __index=_G }
 
---FIXME: function duplicated in luamacro.lua and api.lua.
 local function checkarg (arg, argnum, reftype)
   if type(arg) ~= reftype then
     error(("arg. #%d: %s expected, got %s"):format(argnum, reftype, type(arg)), 3)
   end
 end
 
+-------------------------------------------------------------------------------
+-- Functions implemented via "returning a key" to Far
+-------------------------------------------------------------------------------
+
 function _G.Keys (...)
   for n=1,select("#",...) do
     local str=select(n,...)
     if type(str)=="string" then
-      for key in str:gmatch("%S+") do co_yield(F.MPRT_KEYS, key) end
+      for key in str:gmatch("%S+") do
+        co_yield(PROPAGATE, F.MPRT_KEYS, key)
+      end
     end
   end
 end
 
 function _G.print (str)
-  co_yield(F.MPRT_PRINT, tostring(str))
+  co_yield(PROPAGATE, F.MPRT_PRINT, tostring(str))
 end
 
 function _G.printf (fmt, ...)
@@ -44,9 +66,17 @@ function _G.printf (fmt, ...)
   return _G.print(fmt:format(...))
 end
 
-function _G.exit ()
-  co_yield("exit")
+local function PluginCall (...)
+  return co_yield(PROPAGATE, F.MPRT_PLUGINCALL, pack(...))
 end
+
+function _G.exit ()
+  co_yield(PROPAGATE, "exit")
+end
+
+-------------------------------------------------------------------------------
+-- END: Functions implemented via "returning a key" to Far
+-------------------------------------------------------------------------------
 
 local PluginInfo = {
   Flags = F.PF_PRELOAD,
@@ -84,8 +114,9 @@ local function MacroStep (args)
   if macro then
     local status = co_status(macro.coro)
     if status == "suspended" then
-      local ok, ret1, ret2 = co_resume(macro.coro, unpack(args, 2))
+      local ok, ret1, ret2, ret3 = co_resume(macro.coro, unpack(args, 2))
       if ok then
+        if ret1==PROPAGATE then ret1,ret2=ret2,ret3 end
         macro.step = macro.step + 1
         status = co_status(macro.coro)
         if status == "suspended" and ret1 ~= "exit" then
@@ -162,7 +193,9 @@ end
 
 do
   local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."api.lua")
-  if func then func() else ErrMsg(msg) end
+  if func then func { checkarg=checkarg, PluginCall=PluginCall }
+  else ErrMsg(msg)
+  end
 
   ReadVarsConsts("consts")
   ReadVarsConsts("vars")
