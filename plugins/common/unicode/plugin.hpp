@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2813
+  Plugin API for Far Manager 3.0 build 2814
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2813
+#define FARMANAGERVERSION_BUILD 2814
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -665,7 +665,13 @@ static const PLUGINPANELITEMFLAGS
 	PPIF_PROCESSDESCR           = 0x0000000080000000ULL,
 	PPIF_NONE                   = 0;
 
-typedef void (WINAPI *FARPANELITEMFREECALLBACK)(void* UserData,HANDLE hPlugin,unsigned __int64 Flags);
+struct FarPanelItemFreeInfo
+{
+	size_t StructSize;
+	HANDLE hPlugin;
+};
+
+typedef void (WINAPI *FARPANELITEMFREECALLBACK)(void* UserData, const struct FarPanelItemFreeInfo* Info);
 
 struct PluginPanelItem
 {
