@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2815
+  Plugin API for Far Manager 3.0 build 2818
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2815
+#define FARMANAGERVERSION_BUILD 2818
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -967,7 +967,6 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_SETCURSORPOS               = 26,
 	ACTL_PROGRESSNOTIFY             = 27,
 	ACTL_GETWINDOWTYPE              = 28,
-	ACTL_ENABLEREDRAW               = 29,
 
 
 };
@@ -1491,7 +1490,8 @@ struct EditorInfo
 	intptr_t BlockStartLine;
 	DWORD Options;
 	int TabSize;
-	int BookMarkCount;
+	int BookmarkCount;
+	int SessionBookmarkCount;
 	DWORD CurState;
 	UINT CodePage;
 	intptr_t Reserved[5];
