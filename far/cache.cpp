@@ -209,7 +209,7 @@ CachedWrite::~CachedWrite()
 	}
 }
 
-bool CachedWrite::Write(LPCVOID Data, DWORD DataSize)
+bool CachedWrite::Write(LPCVOID Data, size_t DataSize)
 {
 	bool Result=false;
 	bool SuccessFlush=true;
@@ -225,7 +225,7 @@ bool CachedWrite::Write(LPCVOID Data, DWORD DataSize)
 		{
 			if (DataSize>FreeSize)
 			{
-				DWORD WrittenSize=0;
+				size_t WrittenSize=0;
 
 				if (file.Write(Data, DataSize,WrittenSize) && DataSize==WrittenSize)
 				{
@@ -235,7 +235,7 @@ bool CachedWrite::Write(LPCVOID Data, DWORD DataSize)
 			else
 			{
 				memcpy(&Buffer[BufferSize-FreeSize],Data,DataSize);
-				FreeSize-=DataSize;
+				FreeSize -= static_cast<DWORD>(DataSize);
 				Flushed=false;
 				Result=true;
 			}

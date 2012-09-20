@@ -1,3 +1,7 @@
+w17 20.09.2012 16:44:39 +0400 - build 2812
+
+1. size_t in Read/Write
+
 zg 20.09.2012 13:28:23 +0200 - build 2811
 
 1. изменения в ProcessPanelEventInfo от Alexey Samlyukov.
