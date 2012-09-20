@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2811
+  Plugin API for Far Manager 3.0 build 2813
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2811
+#define FARMANAGERVERSION_BUILD 2813
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1862,6 +1862,13 @@ typedef intptr_t (WINAPI *FARAPISETTINGSCONTROL)(
     void* Param2
 );
 
+enum FARCLIPBOARD_TYPE
+{
+	FCT_ANY=0,
+	FCT_STREAM=1,
+	FCT_COLUMN=2
+};
+
 // <C&C++>
 typedef int (WINAPIV *FARSTDSPRINTF)(wchar_t *Buffer,const wchar_t *Format,...);
 typedef int (WINAPIV *FARSTDSNPRINTF)(wchar_t *Buffer,size_t Sizebuf,const wchar_t *Format,...);
@@ -1883,8 +1890,8 @@ typedef wchar_t   *(WINAPI *FARSTDTRUNCPATHSTR)(wchar_t *Str,int MaxLength);
 typedef wchar_t   *(WINAPI *FARSTDQUOTESPACEONLY)(wchar_t *Str);
 typedef const wchar_t*(WINAPI *FARSTDPOINTTONAME)(const wchar_t *Path);
 typedef BOOL (WINAPI *FARSTDADDENDSLASH)(wchar_t *Path);
-typedef int (WINAPI *FARSTDCOPYTOCLIPBOARD)(const wchar_t *Data);
-typedef wchar_t *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
+typedef BOOL (WINAPI *FARSTDCOPYTOCLIPBOARD)(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data);
+typedef size_t (WINAPI *FARSTDPASTEFROMCLIPBOARD)(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, size_t Length);
 typedef int (WINAPI *FARSTDLOCALISLOWER)(wchar_t Ch);
 typedef int (WINAPI *FARSTDLOCALISUPPER)(wchar_t Ch);
 typedef int (WINAPI *FARSTDLOCALISALPHA)(wchar_t Ch);
@@ -1943,7 +1950,6 @@ static const FRSMODE
 
 typedef void (WINAPI *FARSTDRECURSIVESEARCH)(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,FRSMODE Flags,void *Param);
 typedef size_t (WINAPI *FARSTDMKTEMP)(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix);
-typedef void (WINAPI *FARSTDDELETEBUFFER)(void *Buffer);
 typedef size_t (WINAPI *FARSTDGETPATHROOT)(const wchar_t *Path,wchar_t *Root, size_t DestSize);
 
 enum LINK_TYPE
@@ -2038,7 +2044,6 @@ typedef struct FarStandardFunctions
 	FARSTDGETNUMBEROFLINKS     GetNumberOfLinks;
 	FARSTDRECURSIVESEARCH      FarRecursiveSearch;
 	FARSTDMKTEMP               MkTemp;
-	FARSTDDELETEBUFFER         DeleteBuffer;
 	FARSTDPROCESSNAME          ProcessName;
 	FARSTDMKLINK               MkLink;
 	FARCONVERTPATH             ConvertPath;
