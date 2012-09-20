@@ -2035,7 +2035,7 @@ void NetBrowser::FileNames2Clipboard(BOOL ToCommandLine)
 
 	if (CopyData)
 	{
-		FSF.CopyToClipboard(CopyData);
+		FSF.CopyToClipboard(FCT_STREAM,CopyData);
 		free(CopyData);
 	}
 }
