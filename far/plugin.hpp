@@ -2624,6 +2624,7 @@ struct GetFindDataInfo
 	OPERATION_MODES OpMode;
 };
 
+#ifdef FAR_USE_INTERNALS
 struct GetVirtualFindDataInfo
 {
 	size_t StructSize;
@@ -2632,6 +2633,7 @@ struct GetVirtualFindDataInfo
 	size_t ItemsNumber;
 	const wchar_t *Path;
 };
+#endif // END FAR_USE_INTERNALS
 
 struct FreeFindDataInfo
 {
@@ -2699,9 +2701,9 @@ struct ExitInfo
 struct ProcessPanelEventInfo
 {
 	size_t StructSize;
-	HANDLE hPanel;
 	int Event;
 	void* Param;
+	HANDLE hPanel;
 };
 
 struct ProcessEditorEventInfo
@@ -2766,13 +2768,17 @@ extern "C"
 	int    WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info);
 	void   WINAPI ExitFARW(const struct ExitInfo *Info);
 	void   WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info);
+#ifdef FAR_USE_INTERNALS
 	void   WINAPI FreeVirtualFindDataW(const struct FreeFindDataInfo *Info);
+#endif // END FAR_USE_INTERNALS
 	int    WINAPI GetFilesW(struct GetFilesInfo *Info);
 	int    WINAPI GetFindDataW(struct GetFindDataInfo *Info);
 	void   WINAPI GetGlobalInfoW(struct GlobalInfo *Info);
 	void   WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info);
 	void   WINAPI GetPluginInfoW(struct PluginInfo *Info);
+#ifdef FAR_USE_INTERNALS
 	int    WINAPI GetVirtualFindDataW(struct GetVirtualFindDataInfo *Info);
+#endif // END FAR_USE_INTERNALS
 	int    WINAPI MakeDirectoryW(struct MakeDirectoryInfo *Info);
 	HANDLE WINAPI OpenW(const struct OpenInfo *Info);
 	int    WINAPI ProcessDialogEventW(const struct ProcessDialogEventInfo *Info);
