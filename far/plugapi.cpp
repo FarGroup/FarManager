@@ -1469,7 +1469,8 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, siz
 		PluginPanelItem *CurPanelItem=PanelItem+I;
 		if(CurPanelItem->UserData.Callback)
 		{
-			CurPanelItem->UserData.Callback(CurPanelItem->UserData.UserData,hPlugin,0);
+			FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),hPlugin};
+			CurPanelItem->UserData.Callback(CurPanelItem->UserData.UserData,&info);
 		}
 		FreePluginPanelItem(CurPanelItem);
 	}

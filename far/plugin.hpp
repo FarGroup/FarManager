@@ -704,7 +704,13 @@ static const PLUGINPANELITEMFLAGS
 	PPIF_PROCESSDESCR           = 0x0000000080000000ULL,
 	PPIF_NONE                   = 0;
 
-typedef void (WINAPI *FARPANELITEMFREECALLBACK)(void* UserData,HANDLE hPlugin,unsigned __int64 Flags);
+struct FarPanelItemFreeInfo
+{
+	size_t StructSize;
+	HANDLE hPlugin;
+};
+
+typedef void (WINAPI *FARPANELITEMFREECALLBACK)(void* UserData, const struct FarPanelItemFreeInfo* Info);
 
 struct PluginPanelItem
 {

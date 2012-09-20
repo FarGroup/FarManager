@@ -210,7 +210,8 @@ void FileList::DeleteListData(FileListItem **(&ListData),int &FileCount)
 
 			if (PanelMode==PLUGIN_PANEL&&ListData[I]->Callback)
 			{
-				ListData[I]->Callback(ListData[I]->UserData,hPlugin,0);
+				FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),hPlugin};
+				ListData[I]->Callback(ListData[I]->UserData,&info);
 			}
 
 			if (ListData[I]->DizText && ListData[I]->DeleteDiz)

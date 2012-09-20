@@ -850,7 +850,7 @@ void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
 	}
 }
 
-static void WINAPI FreeUserData(void* UserData,HANDLE hPlugin,unsigned __int64 Flags)
+static void WINAPI FreeUserData(void* UserData,const FarPanelItemFreeInfo* Info)
 {
 	xf_free(UserData);
 }
