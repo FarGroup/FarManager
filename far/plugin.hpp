@@ -1939,6 +1939,7 @@ struct FarSettingsCreate
 
 struct FarSettingsItem
 {
+	size_t StructSize;
 	size_t Root;
 	const wchar_t* Name;
 	enum FARSETTINGSTYPES Type;
@@ -1976,6 +1977,7 @@ struct FarSettingsHistory
 
 struct FarSettingsEnum
 {
+	size_t StructSize;
 	size_t Root;
 	size_t Count;
 	union
@@ -1991,6 +1993,7 @@ struct FarSettingsEnum
 
 struct FarSettingsValue
 {
+	size_t StructSize;
 	size_t Root;
 	const wchar_t* Value;
 };
