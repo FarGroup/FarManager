@@ -185,11 +185,6 @@ wchar_t* WINAPI apiQuoteSpaceOnly(wchar_t *Str)
 	return QuoteSpaceOnly(Str);
 }
 
-void WINAPI apiDeleteBuffer(void *Buffer)
-{
-	if (Buffer) xf_free(Buffer);
-}
-
 int WINAPI apiInputBox(
     const GUID* PluginId,
     const GUID* Id,
@@ -657,21 +652,6 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			return TRUE;
 		}
 
-		case ACTL_ENABLEREDRAW:
-		{
-			static LockScreen *lock=nullptr;
-			int r=lock ? 0 : 1;
-			if(Param1==1 && lock)
-			{
-				delete lock;
-				lock=nullptr;
-			}
-			if(Param1==0 && !lock)
-			{
-				lock=new LockScreen;
-			}
-			return r;
-		}
 		default:
 			break;
 
@@ -1491,7 +1471,8 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, siz
 		PluginPanelItem *CurPanelItem=PanelItem+I;
 		if(CurPanelItem->UserData.Callback)
 		{
-			CurPanelItem->UserData.Callback(CurPanelItem->UserData.UserData,hPlugin,0);
+			FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),hPlugin};
+			CurPanelItem->UserData.Callback(CurPanelItem->UserData.UserData,&info);
 		}
 		FreePluginPanelItem(CurPanelItem);
 	}
@@ -1732,7 +1713,7 @@ intptr_t WINAPI apiEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, 
 	if (EditorID == -1)
 	{
 		if (CtrlObject->Plugins->CurEditor)
-			return CtrlObject->Plugins->CurEditor->EditorControl(Command,(void *)Param2);
+			return CtrlObject->Plugins->CurEditor->EditorControl(Command,Param1,Param2);
 
 		return 0;
 	}
@@ -1753,7 +1734,7 @@ intptr_t WINAPI apiEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, 
 				{
 					if (((FileEditor*)frame)->GetId() == EditorID)
 					{
-						return ((FileEditor*)frame)->EditorControl(Command,(void *)Param2);
+						return ((FileEditor*)frame)->EditorControl(Command,Param1,Param2);
 					}
 				}
 			}
@@ -1973,14 +1954,60 @@ size_t WINAPI apiGetPathRoot(const wchar_t *Path, wchar_t *Root, size_t DestSize
 	}
 }
 
-int WINAPI apiCopyToClipboard(const wchar_t *Data)
+BOOL WINAPI apiCopyToClipboard(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data)
 {
-	return CopyToClipboard(Data);
+	switch(Type)
+	{
+		case FCT_STREAM:
+			return CopyToClipboard(Data);
+		case FCT_COLUMN:
+			return CopyFormatToClipboard(FAR_VerticalBlock_Unicode, Data);
+		default:
+			break;
+	}
+	return FALSE;
 }
 
-wchar_t* WINAPI apiPasteFromClipboard()
+static size_t apiPasteFromClipboardEx(bool Type, wchar_t *Data, size_t Length)
 {
-	return PasteFromClipboard();
+	size_t size=0;
+	wchar_t* str=Type?PasteFormatFromClipboard(FAR_VerticalBlock_Unicode):PasteFromClipboard();
+	if(str)
+	{
+		size=wcslen(str)+1;
+		if(Data&&Length)
+		{
+			if(Length>size) Length=size;
+			wmemcpy(Data,str,Length-1);
+			Data[Length-1]=0;
+		}
+		xf_free(str);
+	}
+	return size;
+}
+
+size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, size_t Length)
+{
+	size_t size=0;
+	switch(Type)
+	{
+		case FCT_STREAM:
+			{
+				wchar_t* str=PasteFormatFromClipboard(FAR_VerticalBlock_Unicode);
+				if(str)
+				{
+					xf_free(str);
+					break;
+				}
+			}
+		case FCT_ANY:
+			size=apiPasteFromClipboardEx(false,Data,Length);
+			break;
+		case FCT_COLUMN:
+			size=apiPasteFromClipboardEx(true,Data,Length);
+			break;
+	}
+	return size;
 }
 
 intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, int Param1, void* Param2)

@@ -210,7 +210,8 @@ void FileList::DeleteListData(FileListItem **(&ListData),int &FileCount)
 
 			if (PanelMode==PLUGIN_PANEL&&ListData[I]->Callback)
 			{
-				ListData[I]->Callback(ListData[I]->UserData,hPlugin,0);
+				FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),hPlugin};
+				ListData[I]->Callback(ListData[I]->UserData,&info);
 			}
 
 			if (ListData[I]->DizText && ListData[I]->DeleteDiz)
@@ -2237,10 +2238,15 @@ int FileList::ProcessKey(int Key)
 			assert(CurFile<FileCount);
 			CurPtr=ListData[CurFile];
 			Select(CurPtr,!CurPtr->Selected);
+			bool avoid_up_jump = SelectedFirst && (CurFile > 0) && (CurFile+1 == FileCount) && CurPtr->Selected;
 			Down(1);
 
 			if (SelectedFirst)
+			{
 				SortFileList(TRUE);
+				if (avoid_up_jump)
+					Down(0x10000000);
+			}
 
 			ShowFileList(TRUE);
 			return TRUE;

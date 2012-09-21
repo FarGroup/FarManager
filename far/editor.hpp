@@ -52,6 +52,14 @@ struct InternalEditorSessionBookMark
 	InternalEditorSessionBookMark *prev, *next;
 };
 
+struct InternalEditorBookmark
+{
+	intptr_t Line;
+	intptr_t Cursor;
+	intptr_t ScreenLine;
+	intptr_t LeftPos;
+};
+
 struct EditorUndoData
 {
 	int Type;
@@ -274,8 +282,10 @@ class Editor:public ScreenObject
 		int PushSessionBookMark();
 		int PopSessionBookMark();
 		int CurrentSessionBookmarkIdx();
-		int GetSessionBookmark(int iIdx,EditorBookMarks *Param);
-		int GetSessionBookmarks(EditorBookMarks *Param);
+		int GetSessionBookmark(int iIdx,InternalEditorBookmark *Param);
+		int GetSessionBookmarks(EditorBookmarks *Param);
+		size_t GetSessionBookmarksForPlugin(EditorBookmarks *Param);
+		static bool InitSessionBookmarksForPlugin(EditorBookmarks *Param,size_t Count,size_t& Size);
 
 		int BlockStart2NumLine(int *Pos);
 		int BlockEnd2NumLine(int *Pos);
@@ -313,7 +323,7 @@ class Editor:public ScreenObject
 		BOOL IsFileChanged() const;
 		void SetTitle(const wchar_t *Title);
 		long GetCurPos( bool file_pos=false, bool add_bom=false );
-		int EditorControl(int Command,void *Param);
+		int EditorControl(int Command, intptr_t Param1, void *Param2);
 		void SetHostFileEditor(FileEditor *Editor) {HostFileEditor=Editor;};
 		static void SetReplaceMode(bool Mode);
 		FileEditor *GetHostFileEditor() {return HostFileEditor;};

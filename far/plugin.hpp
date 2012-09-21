@@ -709,7 +709,13 @@ static const PLUGINPANELITEMFLAGS
 	PPIF_PROCESSDESCR           = 0x0000000080000000ULL,
 	PPIF_NONE                   = 0;
 
-typedef void (WINAPI *FARPANELITEMFREECALLBACK)(void* UserData,HANDLE hPlugin,unsigned __int64 Flags);
+struct FarPanelItemFreeInfo
+{
+	size_t StructSize;
+	HANDLE hPlugin;
+};
+
+typedef void (WINAPI *FARPANELITEMFREECALLBACK)(void* UserData, const struct FarPanelItemFreeInfo* Info);
 
 struct PluginPanelItem
 {
@@ -1026,7 +1032,6 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_SETCURSORPOS               = 26,
 	ACTL_PROGRESSNOTIFY             = 27,
 	ACTL_GETWINDOWTYPE              = 28,
-	ACTL_ENABLEREDRAW               = 29,
 
 #ifdef FAR_USE_INTERNALS
 	ACTL_REMOVEMEDIA,
@@ -1703,15 +1708,18 @@ struct EditorInfo
 	intptr_t BlockStartLine;
 	DWORD Options;
 	int TabSize;
-	int BookMarkCount;
+	int BookmarkCount;
+	int SessionBookmarkCount;
 	DWORD CurState;
 	UINT CodePage;
 	intptr_t Reserved[5];
 };
 
-struct EditorBookMarks
+struct EditorBookmarks
 {
 	size_t StructSize;
+	size_t Size;
+	size_t Count;
 	intptr_t *Line;
 	intptr_t *Cursor;
 	intptr_t *ScreenLine;
@@ -2089,6 +2097,13 @@ typedef intptr_t (WINAPI *FARAPISETTINGSCONTROL)(
     void* Param2
 );
 
+enum FARCLIPBOARD_TYPE
+{
+	FCT_ANY=0,
+	FCT_STREAM=1,
+	FCT_COLUMN=2
+};
+
 // <C&C++>
 typedef int (WINAPIV *FARSTDSPRINTF)(wchar_t *Buffer,const wchar_t *Format,...);
 typedef int (WINAPIV *FARSTDSNPRINTF)(wchar_t *Buffer,size_t Sizebuf,const wchar_t *Format,...);
@@ -2110,8 +2125,8 @@ typedef wchar_t   *(WINAPI *FARSTDTRUNCPATHSTR)(wchar_t *Str,int MaxLength);
 typedef wchar_t   *(WINAPI *FARSTDQUOTESPACEONLY)(wchar_t *Str);
 typedef const wchar_t*(WINAPI *FARSTDPOINTTONAME)(const wchar_t *Path);
 typedef BOOL (WINAPI *FARSTDADDENDSLASH)(wchar_t *Path);
-typedef int (WINAPI *FARSTDCOPYTOCLIPBOARD)(const wchar_t *Data);
-typedef wchar_t *(WINAPI *FARSTDPASTEFROMCLIPBOARD)(void);
+typedef BOOL (WINAPI *FARSTDCOPYTOCLIPBOARD)(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data);
+typedef size_t (WINAPI *FARSTDPASTEFROMCLIPBOARD)(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, size_t Length);
 typedef int (WINAPI *FARSTDLOCALISLOWER)(wchar_t Ch);
 typedef int (WINAPI *FARSTDLOCALISUPPER)(wchar_t Ch);
 typedef int (WINAPI *FARSTDLOCALISALPHA)(wchar_t Ch);
@@ -2170,7 +2185,6 @@ static const FRSMODE
 
 typedef void (WINAPI *FARSTDRECURSIVESEARCH)(const wchar_t *InitDir,const wchar_t *Mask,FRSUSERFUNC Func,FRSMODE Flags,void *Param);
 typedef size_t (WINAPI *FARSTDMKTEMP)(wchar_t *Dest, size_t DestSize, const wchar_t *Prefix);
-typedef void (WINAPI *FARSTDDELETEBUFFER)(void *Buffer);
 typedef size_t (WINAPI *FARSTDGETPATHROOT)(const wchar_t *Path,wchar_t *Root, size_t DestSize);
 
 enum LINK_TYPE
@@ -2265,7 +2279,6 @@ typedef struct FarStandardFunctions
 	FARSTDGETNUMBEROFLINKS     GetNumberOfLinks;
 	FARSTDRECURSIVESEARCH      FarRecursiveSearch;
 	FARSTDMKTEMP               MkTemp;
-	FARSTDDELETEBUFFER         DeleteBuffer;
 	FARSTDPROCESSNAME          ProcessName;
 	FARSTDMKLINK               MkLink;
 	FARCONVERTPATH             ConvertPath;

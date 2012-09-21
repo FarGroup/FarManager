@@ -278,7 +278,6 @@ FarStandardFunctions NativeFSF =
 	pluginapi::apiGetNumberOfLinks,
 	pluginapi::apiRecursiveSearch,
 	pluginapi::apiMkTemp,
-	pluginapi::apiDeleteBuffer,
 	pluginapi::apiProcessName,
 	pluginapi::apiMkLink,
 	pluginapi::apiConvertPath,

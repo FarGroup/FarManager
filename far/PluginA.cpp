@@ -851,7 +851,7 @@ void FreeUnicodeKeyBarTitles(KeyBarTitles *kbtW)
 	}
 }
 
-static void WINAPI FreeUserData(void* UserData,HANDLE hPlugin,unsigned __int64 Flags)
+static void WINAPI FreeUserData(void* UserData,const FarPanelItemFreeInfo* Info)
 {
 	xf_free(UserData);
 }
@@ -1296,7 +1296,7 @@ void WINAPI GetPathRootA(const char *Path, char *Root)
 int WINAPI CopyToClipboardA(const char *Data)
 {
 	wchar_t *p = Data?AnsiToUnicode(Data):nullptr;
-	int ret = NativeFSF.CopyToClipboard(p);
+	int ret = NativeFSF.CopyToClipboard(FCT_STREAM, p);
 
 	if (p) xf_free(p);
 
@@ -1305,11 +1305,15 @@ int WINAPI CopyToClipboardA(const char *Data)
 
 char* WINAPI PasteFromClipboardA()
 {
-	wchar_t *p = NativeFSF.PasteFromClipboard();
-
-	if (p)
-		return UnicodeToAnsi(p);
-
+	size_t size = NativeFSF.PasteFromClipboard(FCT_ANY,nullptr,0);
+	if (size)
+	{
+		wchar_t* p = (wchar_t*)xf_malloc(size);
+		NativeFSF.PasteFromClipboard(FCT_STREAM,p,size);
+		char* result=UnicodeToAnsi(p);
+		xf_free(p);
+		return result;
+	}
 	return nullptr;
 }
 
@@ -4452,7 +4456,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				oei->TableNum=GetEditorCodePageFavA();
 				oei->Options=ei.Options;
 				oei->TabSize=ei.TabSize;
-				oei->BookMarkCount=ei.BookMarkCount;
+				oei->BookMarkCount=ei.BookmarkCount;
 				oei->CurState=ei.CurState;
 				return TRUE;
 			}

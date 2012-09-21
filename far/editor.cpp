@@ -594,21 +594,19 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_F_BM_GET:                   // N=BM.Get(Idx,M) - возвращает координаты строки (M==0) или колонки (M==1) закладки с индексом (Idx=1...)
 		{
 			__int64 Ret=-1;
-			intptr_t Val[1];
-			EditorBookMarks ebm={sizeof(EditorBookMarks)};
+			InternalEditorBookmark ebm={0};
 			int iMode=(int)((intptr_t)vParam);
 
-			switch (iMode)
+			if (iMode >= 0 && iMode <= 3 && GetSessionBookmark((int)iParam-1,&ebm))
 			{
-				case 0: ebm.Line=Val;  break;
-				case 1: ebm.Cursor=Val; break;
-				case 2: ebm.LeftPos=Val; break;
-				case 3: ebm.ScreenLine=Val; break;
-				default: iMode=-1; break;
+				switch (iMode)
+				{
+					case 0: Ret=(__int64)((DWORD)ebm.Line+1);  break;
+					case 1: Ret=(__int64)((DWORD)ebm.Cursor+1); break;
+					case 2: Ret=(__int64)((DWORD)ebm.LeftPos+1); break;
+					case 3: Ret=(__int64)((DWORD)ebm.ScreenLine+1); break;
+				}
 			}
-
-			if (iMode >= 0 && GetSessionBookmark((int)iParam-1,&ebm))
-				Ret=(__int64)((DWORD)Val[0]+1);
 
 			return Ret;
 		}
@@ -740,7 +738,7 @@ __int64 Editor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 										eSel.BlockStartPos=CurLine->GetCurPos();
 									}
 
-									Ret=EditorControl(ECTL_SELECT,&eSel);
+									Ret=EditorControl(ECTL_SELECT,0,&eSel);
 								}
 							}
 
@@ -5614,17 +5612,17 @@ void Editor::VBlockShift(int Left)
 }
 
 
-int Editor::EditorControl(int Command,void *Param)
+int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 {
 	_ECTLLOG(CleverSysLog SL(L"Editor::EditorControl()"));
-	_ECTLLOG(SysLog(L"Command=%s Param=[%d/0x%08X]",_ECTL_ToName(Command),Param,Param));
+	_ECTLLOG(SysLog(L"Command=%s Param2=[%d/0x%08X]",_ECTL_ToName(Command),Param2,Param2));
 
 	if(EditorControlLocked()) return FALSE;
 	switch (Command)
 	{
 		case ECTL_GETSTRING:
 		{
-			EditorGetString *GetString=(EditorGetString *)Param;
+			EditorGetString *GetString=(EditorGetString *)Param2;
 
 			if (CheckStructSize(GetString))
 			{
@@ -5681,7 +5679,7 @@ int Editor::EditorControl(int Command,void *Param)
 			else
 			{
 				TurnOffMarkingBlock();
-				int Indent=Param && *(int *)Param!=FALSE;
+				int Indent=Param2 && *(int *)Param2!=FALSE;
 
 				if (!Indent)
 					Pasting++;
@@ -5698,10 +5696,10 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_INSERTTEXT:
 		{
-			if (!Param)
+			if (!Param2)
 				return FALSE;
 
-			_ECTLLOG(SysLog(L"(const wchar_t *)Param='%s'",(const wchar_t *)Param));
+			_ECTLLOG(SysLog(L"(const wchar_t *)Param2='%s'",(const wchar_t *)Param2));
 
 			if (Flags.Check(FEDITOR_LOCKMODE))
 			{
@@ -5711,7 +5709,7 @@ int Editor::EditorControl(int Command,void *Param)
 			else
 			{
 				TurnOffMarkingBlock();
-				const wchar_t *Str=(const wchar_t *)Param;
+				const wchar_t *Str=(const wchar_t *)Param2;
 				Pasting++;
 				Lock();
 
@@ -5738,7 +5736,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_SETSTRING:
 		{
-			EditorSetString *SetString=(EditorSetString *)Param;
+			EditorSetString *SetString=(EditorSetString *)Param2;
 
 			if (!CheckStructSize(SetString))
 				break;
@@ -5837,7 +5835,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_GETINFO:
 		{
-			EditorInfo *Info=(EditorInfo *)Param;
+			EditorInfo *Info=(EditorInfo *)Param2;
 
 			if (CheckStructSize(Info))
 			{
@@ -5888,7 +5886,8 @@ int Editor::EditorControl(int Command,void *Param)
 				}
 
 				Info->TabSize=EdOpt.TabSize;
-				Info->BookMarkCount=BOOKMARK_COUNT;
+				Info->BookmarkCount=BOOKMARK_COUNT;
+				Info->SessionBookmarkCount=GetSessionBookmarks(nullptr);
 				Info->CurState=Flags.Check(FEDITOR_LOCKMODE)?ECSTATE_LOCKED:0;
 				Info->CurState|=!Flags.Check(FEDITOR_MODIFIED)?ECSTATE_SAVED:0;
 				Info->CurState|=Flags.Check(FEDITOR_MODIFIED|FEDITOR_WASCHANGED)?ECSTATE_MODIFIED:0;
@@ -5896,12 +5895,12 @@ int Editor::EditorControl(int Command,void *Param)
 				return TRUE;
 			}
 
-			_ECTLLOG(SysLog(L"Error: !Param"));
+			_ECTLLOG(SysLog(L"Error: !Param2"));
 			return FALSE;
 		}
 		case ECTL_SETPOSITION:
 		{
-			EditorSetPosition *Pos=(EditorSetPosition *)Param;
+			EditorSetPosition *Pos=(EditorSetPosition *)Param2;
 			if (CheckStructSize(Pos))
 			{
 				_ECTLLOG(SysLog(L"EditorSetPosition{"));
@@ -5962,12 +5961,12 @@ int Editor::EditorControl(int Command,void *Param)
 				return TRUE;
 			}
 
-			_ECTLLOG(SysLog(L"Error: !Param"));
+			_ECTLLOG(SysLog(L"Error: !Param2"));
 			break;
 		}
 		case ECTL_SELECT:
 		{
-			EditorSelect *Sel=(EditorSelect *)Param;
+			EditorSelect *Sel=(EditorSelect *)Param2;
 			if (CheckStructSize(Sel))
 			{
 				_ECTLLOG(SysLog(L"EditorSelect{"));
@@ -6050,7 +6049,7 @@ int Editor::EditorControl(int Command,void *Param)
 				return TRUE;
 			}
 
-			_ECTLLOG(SysLog(L"Error: !Param"));
+			_ECTLLOG(SysLog(L"Error: !Param2"));
 			break;
 		}
 		case ECTL_REDRAW:
@@ -6061,7 +6060,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_TABTOREAL:
 		{
-			EditorConvertPos *ecp=(EditorConvertPos *)Param;
+			EditorConvertPos *ecp=(EditorConvertPos *)Param2;
 			if (CheckStructSize(ecp))
 			{
 				Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
@@ -6085,7 +6084,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_REALTOTAB:
 		{
-			EditorConvertPos *ecp=(EditorConvertPos *)Param;
+			EditorConvertPos *ecp=(EditorConvertPos *)Param2;
 			if (CheckStructSize(ecp))
 			{
 				Edit *CurPtr=GetStringByNumber(ecp->StringNumber);
@@ -6116,7 +6115,7 @@ int Editor::EditorControl(int Command,void *Param)
 			}
 			else
 			{
-				int StringNumber=*(int *)Param;
+				int StringNumber=*(int *)Param2;
 				Edit *CurPtr=GetStringByNumber(StringNumber);
 
 				if (!CurPtr)
@@ -6134,7 +6133,7 @@ int Editor::EditorControl(int Command,void *Param)
 		// TODO: ≈сли DI_MEMOEDIT не будет юзать раскаску, то должно выполн€етс€ в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_ADDCOLOR:
 		{
-			EditorColor *col=(EditorColor *)Param;
+			EditorColor *col=(EditorColor *)Param2;
 			if (CheckStructSize(col))
 			{
 				_ECTLLOG(SysLog(L"EditorColor{"));
@@ -6169,7 +6168,7 @@ int Editor::EditorControl(int Command,void *Param)
 		// TODO: ≈сли DI_MEMOEDIT не будет юзать раскаску, то должно выполн€етс€ в FileEditor::EditorControl(), в диалоге - нафиг ненать
 		case ECTL_GETCOLOR:
 		{
-			EditorColor *col=(EditorColor *)Param;
+			EditorColor *col=(EditorColor *)Param2;
 			if (CheckStructSize(col))
 			{
 				Edit *CurPtr=GetStringByNumber(col->StringNumber);
@@ -6208,7 +6207,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_DELCOLOR:
 		{
-			EditorDeleteColor *col=(EditorDeleteColor *)Param;
+			EditorDeleteColor *col=(EditorDeleteColor *)Param2;
 			if (CheckStructSize(col))
 			{
 				Edit *CurPtr=GetStringByNumber(col->StringNumber);
@@ -6226,12 +6225,12 @@ int Editor::EditorControl(int Command,void *Param)
 			break;
 		}
 		/* $ 16.02.2001 IS
-		     »зменение некоторых внутренних настроек редактора. Param указывает на
+		     »зменение некоторых внутренних настроек редактора. Param2 указывает на
 		     структуру EditorSetParameter
 		*/
 		case ECTL_SETPARAM:
 		{
-			EditorSetParameter *espar=(EditorSetParameter *)Param;
+			EditorSetParameter *espar=(EditorSetParameter *)Param2;
 			if (CheckStructSize(espar))
 			{
 				int rc=TRUE;
@@ -6339,7 +6338,7 @@ int Editor::EditorControl(int Command,void *Param)
 		}
 		case ECTL_UNDOREDO:
 		{
-			EditorUndoRedo *eur=(EditorUndoRedo *)Param;
+			EditorUndoRedo *eur=(EditorUndoRedo *)Param2;
 			if (CheckStructSize(eur))
 			{
 
@@ -6660,16 +6659,16 @@ int Editor::CurrentSessionBookmarkIdx()
 	return -1;
 }
 
-int Editor::GetSessionBookmark(int iIdx,EditorBookMarks *Param)
+int Editor::GetSessionBookmark(int iIdx,InternalEditorBookmark *Param)
 {
 	InternalEditorSessionBookMark *sb_temp = PointerToSessionBookmark(iIdx);
 
 	if (sb_temp && Param)
 	{
-		if (Param->Line)       Param->Line[0]       =sb_temp->Line;
-		if (Param->Cursor)     Param->Cursor[0]     =sb_temp->Cursor;
-		if (Param->LeftPos)    Param->LeftPos[0]    =sb_temp->LeftPos;
-		if (Param->ScreenLine) Param->ScreenLine[0] =sb_temp->ScreenLine;
+		if (Param->Line)       Param->Line       =sb_temp->Line;
+		if (Param->Cursor)     Param->Cursor     =sb_temp->Cursor;
+		if (Param->LeftPos)    Param->LeftPos    =sb_temp->LeftPos;
+		if (Param->ScreenLine) Param->ScreenLine =sb_temp->ScreenLine;
 
 		return TRUE;
 	}
@@ -6677,7 +6676,7 @@ int Editor::GetSessionBookmark(int iIdx,EditorBookMarks *Param)
 	return FALSE;
 }
 
-int Editor::GetSessionBookmarks(EditorBookMarks *Param)
+int Editor::GetSessionBookmarks(EditorBookmarks *Param)
 {
 	int iCount=0;
 
@@ -6712,6 +6711,30 @@ int Editor::GetSessionBookmarks(EditorBookMarks *Param)
 	}
 
 	return iCount;
+}
+
+size_t Editor::GetSessionBookmarksForPlugin(EditorBookmarks *Param)
+{
+	size_t count=GetSessionBookmarks(nullptr),size;
+	if(InitSessionBookmarksForPlugin(Param,count,size)) GetSessionBookmarks(Param);
+	return size;
+}
+
+bool Editor::InitSessionBookmarksForPlugin(EditorBookmarks *Param,size_t Count,size_t& Size)
+{
+	Size=sizeof(EditorBookmarks)+sizeof(intptr_t)*4*Count;
+	if(Param&&Param->Size>=Size)
+	{
+		intptr_t* data=(intptr_t*)(Param+1);
+		Param->Count=Count;
+		Param->Line=data;
+		Param->Cursor=data+Count;
+		Param->ScreenLine=data+2*Count;
+		Param->LeftPos=data+3*Count;
+		for(size_t ii=0;ii<ARRAYSIZE(Param->Reserved);++ii) Param->Reserved[ii]=0;
+		return true;
+	}
+	return false;
 }
 
 Edit * Editor::GetStringByNumber(int DestLine)

@@ -1411,7 +1411,7 @@ MConfigRO
 "Schreibschutz von CD-Dateien ent&fernen"
 "&Csak olvasható attr. törlése CD fájlokról"
 "Wyczyść atrybut &R/O przy kopiowaniu z CD"
-"&Borrar atributos R/O de archivos de CD"
+"&Borrar atributos R/O de archivos de CD\DVD\BD"
 "Z&rušiť atribút R/O pri súboroch z CD"
 
 MConfigRecycleBin
@@ -1531,7 +1531,7 @@ MConfigCloseCDGate
 "CD-Laufwerk auto&matisch schließen"
 "CD tálca a&utomatikus behúzása"
 "&Montuj CD automatycznie"
-"CD-ROM: automontar unidad"
+"CD\DVD\BD-ROM: automontar unidad"
 "Automaticky pr&ipojiť jednotku CD"
 
 MConfigUpdateEnvironment
@@ -1824,7 +1824,7 @@ upd:"Determine Volume Mount point"
 upd:"Determine Volume Mount point"
 upd:"Determine Volume Mount point"
 upd:"Determine Volume Mount point"
-upd:"Determine Volume Mount point"
+"Determinar punto Montaje Volumen"
 upd:"Determine Volume Mount point"
 
 MConfigShowTotal
@@ -2045,7 +2045,7 @@ upd:"Set icon for console window"
 upd:"Set icon for console window"
 upd:"Set icon for console window"
 upd:"Set icon for console window"
-upd:"Set icon for console window"
+"Poner ícono para ventana de consola"
 upd:"Set icon for console window"
 
 MConfigSetAdminConsoleIcon
@@ -2055,7 +2055,7 @@ upd:"Alternate for Administrator"
 upd:"Alternate for Administrator"
 upd:"Alternate for Administrator"
 upd:"Alternate for Administrator"
-upd:"Alternate for Administrator"
+"Alternar por Administrador"
 upd:"Alternate for Administrator"
 
 MConfigTitleAddons
@@ -2258,7 +2258,7 @@ MConfigCmdlineUsePromptFormat
 "&Promptformat der Kommandozeile"
 "Parancssori &prompt formátuma"
 "Wy&gląd znaku zachęty linii poleceń"
-"Formato para línea de comando (&prompt)"
+"Formato línea de comando (&prompt)"
 "Nastaviť formát &príkazového riadka"
 
 MConfigCmdlineUseHomeDir
@@ -2268,7 +2268,7 @@ MConfigCmdlineUseHomeDir
 upd:"Use &home dir"
 upd:"Use &home dir"
 upd:"Use &home dir"
-upd:"Use &home dir"
+"Usar directorio &local"
 upd:"Use &home dir"
 
 MConfigCmdlinePromptFormatAdmin
@@ -2343,7 +2343,7 @@ upd:"Computer&Name format"
 upd:"Computer&Name format"
 upd:"Computer&Name format"
 upd:"Computer&Name format"
-"Forma&to nombre computadora"
+"Formato nombre de &computadora"
 "Computer&Name format"
 
 MConfigInfoPanelCNPhysicalNetBIOS
@@ -2543,7 +2543,7 @@ MConfigInfoPanelShowCDInfo
 upd:"Show &CD drive parameters"
 upd:"Show &CD drive parameters"
 upd:"Show &CD drive parameters"
-"Mostrar parámetros unidad de &CD"
+"Mostrar parámetros uni&dad de CD\DVD\BD"
 "Zobraziť parametre jwednotky &CD"
 
 MMenuInfoShowModeTitle
@@ -2675,7 +2675,7 @@ MViewConfigSaveCodepage
 upd:"Save file &codepage"
 upd:"Save file &codepage"
 upd:"Save file &codepage"
-upd:"Save file &codepage"
+"Guardar página de &códigos de archivo"
 "Uložiť tabuľku z&nakov súboru"
 
 MViewConfigSaveWrapMode
@@ -2685,7 +2685,7 @@ MViewConfigSaveWrapMode
 upd:"Save w&rap mode"
 upd:"Save w&rap mode"
 upd:"Save w&rap mode"
-upd:"Save w&rap mode"
+"Guardar modo de ajuste de línea"
 "Uložiť &režim zalomenia"
 
 MViewAutoDetectCodePage
@@ -4289,7 +4289,7 @@ MAskDeleteLink
 "ist ein Link auf"
 "linkelve ide:"
 "jest linkiem do"
-"es un enlace al"
+"es un enlace simbólico al"
 "je prepojenie na"
 
 MAskDeleteLinkFolder
@@ -4585,7 +4585,7 @@ l:
 "Mehrere Hardlinks zeigen auf diese Datei."
 "Több hardlink kapcsolódik a fájlhoz, a fájl"
 "Do tego pliku prowadzi wiele linków trwałych."
-"Demasiados enlaces rígidos a este archivo."
+"Demasiados enlaces duros a este archivo."
 "Niekoľko pevných prepojení ukazuje na tento súbor."
 
 MDeleteHardLink2
@@ -5087,7 +5087,7 @@ MEditFindAllMenuFooter
 "F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
 "F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
 "F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
-"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
+"F1, F5, Ctrl-Enter, Ctrl-Up/Down, Añadir"
 "F1, F5, Ctrl-Enter, Ctrl-Up/Down, Add"
 
 MEditNotFound
@@ -9397,7 +9397,7 @@ l:// this is another text for F2
 "KeinUm"
 "NemTör"
 "Rozwij"
-"Unwrap"
+"DsAjus"
 "Nezalom."
 
 MSingleViewF4Text
@@ -12149,7 +12149,7 @@ MMenuLink
 upd:"Link               Alt-F6"
 upd:"Link               Alt-F6"
 upd:"Link               Alt-F6"
-upd:"Link               Alt-F6"
+"Enlace                        Alt-F6"
 upd:"Link               Alt-F6"
 
 MMenuCreateFolder
@@ -12611,7 +12611,7 @@ MMenuFileDescriptions
 "&Dateibeschreibungen"
 "Fájl &megjegyzésfájlok"
 "Opis&y plików"
-"&Descripción de archivos"
+"Descripción de &archivos"
 "Popi&sy súborov"
 
 MMenuFolderInfoFiles
@@ -12621,7 +12621,7 @@ MMenuFolderInfoFiles
 "O&rdnerbeschreibungen"
 "M&appa megjegyzésfájlok"
 "Pliki opisu &katalogu"
-"&Archivo de descripción de directorios"
+"Descripción de &directorios"
 "Popisy pr&iečinkov"
 
 MMenuViewer
@@ -12883,7 +12883,7 @@ MMenuSortByNumLinks
 "Anzahl an &Links"
 "Hardlinkek s&záma"
 "&liczby dowiązań"
-"Número de enlaces &rígidos"
+"Número de enlaces du&ros"
 "Poč&tu pevných prepojení"
 
 MMenuSortByNumStreams
@@ -13064,7 +13064,7 @@ MChangeDriveRemovable
 "wechsel."
 "kivehető"
 "wyjmowalny"
-"removible"
+"Removible"
 "vymeniteľný"
 
 MChangeDriveFixed
@@ -13074,7 +13074,7 @@ MChangeDriveFixed
 "fest"
 "fix"
 "stały"
-"rígido   "
+"Disco duro "
 "pevný"
 
 MChangeDriveNetwork
@@ -13084,7 +13084,7 @@ MChangeDriveNetwork
 "Netzwerk"
 "hálózati"
 "sieciowy"
-"red      "
+"Red"
 "sieťový"
 
 MChangeDriveDisconnectedNetwork
@@ -13094,7 +13094,7 @@ MChangeDriveDisconnectedNetwork
 upd:"disconnected"
 "leválasztva"
 upd:"disconnected"
-"desconectado"
+"Desconectado"
 "odpojený"
 
 MChangeDriveCDROM
@@ -13104,7 +13104,7 @@ MChangeDriveCDROM
 "CD-ROM"
 "CD-ROM"
 "CD-ROM"
-"CD-ROM   "
+"CD-ROM"
 "CD-ROM"
 
 MChangeDriveCD_RW
@@ -13215,7 +13215,7 @@ MChangeDriveSUBST
 "Subst"
 "virtuális"
 "subst"
-"subst    "
+"subst"
 "SUBST"
 
 MChangeDriveVirtual
@@ -13589,7 +13589,7 @@ MChangeDriveShowCD
 upd:"Show &CD drive parameters"
 upd:"Show &CD drive parameters"
 upd:"Show &CD drive parameters"
-"Mostrar parámetros unidad de &CD"
+"Mostrar parámetros unidad de &CD\DVD\BD"
 "Zobraziť parametre jednotky &CD"
 
 MChangeDriveShowNetworkDrive
@@ -14024,7 +14024,7 @@ MSetAttrHardLinks
 "Hardlinks"
 "hardlink"
 "linków trwałych"
-"Enlace rígido"
+"Enlaces duro"
 "pevné prepojenia"
 
 MSetAttrJunction
@@ -16815,7 +16815,7 @@ l:
 "Ordnerbeschreibungen"
 "Mappa megjegyzésfájlok"
 "Pliki opisu katalogu"
-"Descripciones de directorio"
+"Descripción de directorios"
 "Súbory s popisom priečinka"
 
 MSetFolderInfoNames
@@ -16825,7 +16825,7 @@ MSetFolderInfoNames
 "Dateiliste, getrennt mit Komma (Jokerzeichen möglich):"
 "Fájlnevek, vesszővel elválasztva (joker is használható)"
 "Nazwy plików oddzielone przecinkami (znaki ? i * dopuszczalne)"
-"Ingrese nombre de archivo delimitado con comas (comodines permitidos)"
+"Ingrese nombre archivo delimitado con comas (comodines permitidos)"
 "Zadajte názvy súborov oddelené čiarkami (* je povolené)"
 
 MScreensTitle
@@ -17363,7 +17363,7 @@ upd:"$Continue outside the loop"
 upd:"$Continue outside the loop"
 upd:"$Continue outside the loop"
 upd:"$Continue outside the loop"
-"$Continuar por fuera del loop"
+"$Continuar por fuera del bucle"
 "$Pokračovať mimo slučky"
 
 MMacroPErrBreakOutsideTheLoop
@@ -17373,7 +17373,7 @@ upd:"$Break outside the loop"
 upd:"$Break outside the loop"
 upd:"$Break outside the loop"
 upd:"$Break outside the loop"
-upd:"$Break outside the loop"
+"$Romper por fuera del bucle"
 "$Prerušiť mimo slučky"
 
 MCannotSaveFile
@@ -22021,7 +22021,7 @@ l:
 "Zeit: %1   Verbleibend: %2   %3B/s"
 "Eltelt: %1    Maradt: %2    %3B/s"
 "Czas: %1    Pozostało: %2    %3B/s"
-"Tiempo: %1    Restante: %2    %3B/s"
+"Tiempo: %1    Restante: %2    %3b/s"
 "Čas: %1      Zostáva: %2      %3B/s"
 
 MKeyESCWasPressed
@@ -22560,7 +22560,7 @@ MElevationRequiredCreate
 upd:"to open this object:"
 upd:"to open this object:"
 upd:"to open this object:"
-upd:"to open this object:"
+"para abrir este objeto:"
 "otvorenie tohto objektu:"
 
 MElevationRequiredDelete
@@ -22620,7 +22620,7 @@ MElevationRequiredHardLink
 upd:"to create this hard link:"
 upd:"to create this hard link:"
 upd:"to create this hard link:"
-"para crear este enlace rígido:"
+"para crear este enlace duro:"
 "vytvorenie tohto pevného prepojenia:"
 
 MElevationRequiredSymLink
