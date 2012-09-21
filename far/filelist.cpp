@@ -2226,10 +2226,15 @@ int FileList::ProcessKey(int Key)
 			assert(CurFile<FileCount);
 			CurPtr=ListData[CurFile];
 			Select(CurPtr,!CurPtr->Selected);
+			bool avoid_up_jump = SelectedFirst && (CurFile > 0) && (CurFile+1 == FileCount) && CurPtr->Selected;
 			Down(1);
 
 			if (SelectedFirst)
+			{
 				SortFileList(TRUE);
+				if (avoid_up_jump)
+					Down(0x10000000);
+			}
 
 			ShowFileList(TRUE);
 			return TRUE;
