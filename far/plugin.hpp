@@ -2390,8 +2390,8 @@ struct FarGetPluginInformation
 	size_t StructSize;
 	const wchar_t *ModuleName;
 	FAR_PLUGIN_FLAGS Flags;
-	struct PluginInfo PInfo;
-	struct GlobalInfo GInfo;
+	struct PluginInfo *PInfo;
+	struct GlobalInfo *GInfo;
 };
 
 struct InfoPanelLine
