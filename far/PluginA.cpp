@@ -4423,7 +4423,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				if (FileNameSize)
 				{
 					LPWSTR FileName=new wchar_t[FileNameSize];
-					NativeInfo.EditorControl(-1,ECTL_GETFILENAME,0,FileName);
+					NativeInfo.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
 					fn = UnicodeToAnsi(FileName);
 					oei->FileName=fn;
 					delete[] FileName;
@@ -4764,8 +4764,16 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 			if (filename) xf_free(filename);
 
-			filename = UnicodeToAnsi(viW.FileName);
-			viA->FileName = filename;
+			size_t FileNameSize=NativeInfo.ViewerControl(-1,VCTL_GETFILENAME,0,0);
+
+			if (FileNameSize)
+			{
+				LPWSTR FileName=new wchar_t[FileNameSize];
+				NativeInfo.ViewerControl(-1,VCTL_GETFILENAME,FileNameSize,FileName);
+				filename = UnicodeToAnsi(FileName);
+				viA->FileName = filename;
+				delete[] FileName;
+			}
 			viA->FileSize = viW.FileSize;
 			viA->FilePos = viW.FilePos;
 			viA->WindowSizeX = viW.WindowSizeX;

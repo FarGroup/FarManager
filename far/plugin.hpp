@@ -1366,6 +1366,7 @@ enum VIEWER_CONTROL_COMMANDS
 	VCTL_SETPOSITION                = 4,
 	VCTL_SELECT                     = 5,
 	VCTL_SETMODE                    = 6,
+	VCTL_GETFILENAME                = 7,
 };
 
 typedef unsigned __int64 VIEWER_OPTIONS;
@@ -1438,7 +1439,6 @@ struct ViewerInfo
 	size_t StructSize;
 	int ViewerID;
 	int TabSize;
-	const wchar_t *FileName;
 	struct ViewerMode CurMode;
 	__int64 FileSize;
 	__int64 FilePos;
@@ -2087,7 +2087,7 @@ typedef wchar_t   *(WINAPI *FARSTDQUOTESPACEONLY)(wchar_t *Str);
 typedef const wchar_t*(WINAPI *FARSTDPOINTTONAME)(const wchar_t *Path);
 typedef BOOL (WINAPI *FARSTDADDENDSLASH)(wchar_t *Path);
 typedef BOOL (WINAPI *FARSTDCOPYTOCLIPBOARD)(enum FARCLIPBOARD_TYPE Type, const wchar_t *Data);
-typedef size_t (WINAPI *FARSTDPASTEFROMCLIPBOARD)(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, size_t Length);
+typedef size_t (WINAPI *FARSTDPASTEFROMCLIPBOARD)(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, size_t Size);
 typedef int (WINAPI *FARSTDLOCALISLOWER)(wchar_t Ch);
 typedef int (WINAPI *FARSTDLOCALISUPPER)(wchar_t Ch);
 typedef int (WINAPI *FARSTDLOCALISALPHA)(wchar_t Ch);

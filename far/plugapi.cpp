@@ -1735,7 +1735,7 @@ intptr_t WINAPI apiViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, 
 	if (ViewerID == -1)
 	{
 		if (CtrlObject->Plugins->CurViewer)
-			return CtrlObject->Plugins->CurViewer->ViewerControl(Command,(void *)Param2);
+			return CtrlObject->Plugins->CurViewer->ViewerControl(Command,Param1,Param2);
 
 		return 0;
 	}
@@ -1749,7 +1749,7 @@ intptr_t WINAPI apiViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, 
 			{
 				if (((FileViewer*)frame)->GetId() == ViewerID)
 				{
-					return ((FileViewer*)frame)->ViewerControl(Command,(void *)Param2);
+					return ((FileViewer*)frame)->ViewerControl(Command,Param1,Param2);
 				}
 			}
 		}

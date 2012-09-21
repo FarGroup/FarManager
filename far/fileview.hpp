@@ -102,7 +102,7 @@ class FileViewer:public Frame
 		  архива для клавиши F2 сделать вызов ShiftF2.
 		*/
 		void SetSaveToSaveAs(int ToSaveAs) { SaveToSaveAs=ToSaveAs; InitKeyBar(); }
-		int  ViewerControl(int Command,void *Param);
+		int  ViewerControl(int Command, intptr_t Param1, void *Param2);
 		bool IsFullScreen() {return FullScreen;}
 		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 		__int64 GetViewFileSize() const;
