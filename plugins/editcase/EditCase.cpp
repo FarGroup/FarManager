@@ -85,7 +85,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 	HANDLE Settings=::Info.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
 	if(Settings)
 	{
-		FarSettingsItem item={FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{0}};
+		FarSettingsItem item={sizeof(FarSettingsItem),FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{0}};
 		if(::Info.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
 		{
 			WordDivLen=lstrlen(item.String)+lstrlen(AddWordDiv)+ARRAYSIZE(L" \n\r\t");

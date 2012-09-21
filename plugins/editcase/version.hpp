@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 22
+#define PLUGIN_BUILD 23
 #define PLUGIN_DESC L"Text case conversion for Far Manager"
 #define PLUGIN_NAME L"EditCase"
 #define PLUGIN_FILENAME L"EditCase.dll"

@@ -27,31 +27,31 @@ public:
 
 	int CreateSubKey(int Root, const wchar_t *Name)
 	{
-		FarSettingsValue value={Root,Name};
+		FarSettingsValue value={sizeof(FarSettingsValue),Root,Name};
 		return (int)SettingsControl(handle,SCTL_CREATESUBKEY,0,&value);
 	}
 
 	int OpenSubKey(int Root, const wchar_t *Name)
 	{
-		FarSettingsValue value={Root,Name};
+		FarSettingsValue value={sizeof(FarSettingsValue),Root,Name};
 		return (int)SettingsControl(handle,SCTL_OPENSUBKEY,0,&value);
 	}
 
 	bool DeleteSubKey(int Root)
 	{
-		FarSettingsValue value={Root,nullptr};
+		FarSettingsValue value={sizeof(FarSettingsValue),Root,nullptr};
 		return (int)SettingsControl(handle,SCTL_DELETE,0,&value) ? true : false;
 	}
 
 	bool DeleteValue(int Root, const wchar_t *Name)
 	{
-		FarSettingsValue value={Root,Name};
+		FarSettingsValue value={sizeof(FarSettingsValue),Root,Name};
 		return (int)SettingsControl(handle,SCTL_DELETE,0,&value) ? true : false;
 	}
 
 	const wchar_t *Get(int Root, const wchar_t *Name, const wchar_t *Default)
 	{
-		FarSettingsItem item={Root,Name,FST_STRING};
+		FarSettingsItem item={sizeof(FarSettingsItem),Root,Name,FST_STRING};
 		if (SettingsControl(handle,SCTL_GET,0,&item))
 		{
 			return item.String;
@@ -66,7 +66,7 @@ public:
 
 	unsigned __int64 Get(int Root, const wchar_t *Name, unsigned __int64 Default)
 	{
-		FarSettingsItem item={Root,Name,FST_QWORD};
+		FarSettingsItem item={sizeof(FarSettingsItem),Root,Name,FST_QWORD};
 		if (SettingsControl(handle,SCTL_GET,0,&item))
 		{
 			return item.Number;
@@ -82,7 +82,7 @@ public:
 
 	size_t Get(int Root, const wchar_t *Name, void *Value, size_t Size)
 	{
-		FarSettingsItem item={Root,Name,FST_DATA};
+		FarSettingsItem item={sizeof(FarSettingsItem),Root,Name,FST_DATA};
 		if (SettingsControl(handle,SCTL_GET,0,&item))
 		{
 			Size = (item.Data.Size>Size)?Size:item.Data.Size;
@@ -94,14 +94,14 @@ public:
 
 	bool Set(int Root, const wchar_t *Name, const wchar_t *Value)
 	{
-		FarSettingsItem item={Root,Name,FST_STRING};
+		FarSettingsItem item={sizeof(FarSettingsItem),Root,Name,FST_STRING};
 		item.String=Value;
 		return SettingsControl(handle,SCTL_SET,0,&item)!=FALSE;
 	}
 
 	bool Set(int Root, const wchar_t *Name, unsigned __int64 Value)
 	{
-		FarSettingsItem item={Root,Name,FST_QWORD};
+		FarSettingsItem item={sizeof(FarSettingsItem),Root,Name,FST_QWORD};
 		item.Number=Value;
 		return SettingsControl(handle,SCTL_SET,0,&item)!=FALSE;
 	}
@@ -114,7 +114,7 @@ public:
 
 	bool Set(int Root, const wchar_t *Name, const void *Value, size_t Size)
 	{
-		FarSettingsItem item={Root,Name,FST_DATA};
+		FarSettingsItem item={sizeof(FarSettingsItem),Root,Name,FST_DATA};
 		item.Data.Size=Size;
 		item.Data.Data=Value;
 		return SettingsControl(handle,SCTL_SET,0,&item)!=FALSE;
