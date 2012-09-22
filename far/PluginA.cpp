@@ -671,7 +671,9 @@ void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **p
 			{
 				iplW[i].Text=AnsiToUnicodeBin(iplA[i].Text,80); //BUGBUG
 				iplW[i].Data=AnsiToUnicodeBin(iplA[i].Data,80); //BUGBUG
-				iplW[i].Separator=iplA[i].Separator;
+				iplW[i].Flags=0;
+				if (iplA[i].Separator)
+					iplW[i].Flags|=IPLFLAGS_SEPARATOR;
 			}
 		}
 

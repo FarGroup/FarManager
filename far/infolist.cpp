@@ -966,7 +966,7 @@ bool InfoList::ShowPluginDescription(int YPos)
 		Text(VertcalLine);
 		GotoXY(X1+2,Y);
 
-		if (InfoLine->Separator)
+		if (InfoLine->Flags&IPLFLAGS_SEPARATOR)
 		{
 			string strTitle;
 

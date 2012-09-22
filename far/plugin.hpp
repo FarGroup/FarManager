@@ -2394,11 +2394,15 @@ struct FarGetPluginInformation
 	struct GlobalInfo *GInfo;
 };
 
+typedef unsigned __int64 INFOPANELLINE_FLAGS;
+static const INFOPANELLINE_FLAGS
+	IPLFLAGS_SEPARATOR      = 0x0000000000000001ULL;
+
 struct InfoPanelLine
 {
 	const wchar_t *Text;
 	const wchar_t *Data;
-	int  Separator;
+	INFOPANELLINE_FLAGS Flags;
 };
 
 typedef unsigned __int64 PANELMODE_FLAGS;
