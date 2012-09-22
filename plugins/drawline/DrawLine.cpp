@@ -267,6 +267,7 @@ bool SetTitle(int LineWidth,int IDTitle)
 	const DWORD control[] = {0, LEFT_CTRL_PRESSED, LEFT_ALT_PRESSED, SHIFT_PRESSED, SHIFT_PRESSED|LEFT_CTRL_PRESSED, SHIFT_PRESSED|LEFT_ALT_PRESSED, LEFT_CTRL_PRESSED|LEFT_ALT_PRESSED};
 	struct KeyBarLabel kbl[24*7];
 	struct KeyBarTitles kbt = {ARRAYSIZE(kbl), kbl};
+	struct FarSetKeyBarTitles fskbt = {sizeof(FarSetKeyBarTitles), &kbt};
 
 	for (int c=0, i=0; c<7; c++)
 	{
@@ -283,7 +284,7 @@ bool SetTitle(int LineWidth,int IDTitle)
 	kbl[2-1].Text=kbl[2-1].LongText=GetMsg((LineWidth==1)?MDouble:MSingle);
 	kbl[10-1].Text=kbl[10-1].LongText=GetMsg(MQuit);
 
-	if (Info.EditorControl(-1,ECTL_SETKEYBAR,0,&kbt))
+	if (Info.EditorControl(-1,ECTL_SETKEYBAR,0,&fskbt))
 		if (Info.EditorControl(-1,ECTL_SETTITLE,0,(void *)GetMsg(IDTitle)))
 			return true;
 
