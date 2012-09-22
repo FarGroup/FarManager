@@ -32,7 +32,7 @@ end
 
 local ErrMsg = function(msg) far.Message(msg, "LuaMacro", nil, "w") end
 
-local macros = {}
+local MacroTable = {}
 local LastMessage = {}
 local gmeta = { __index=_G }
 
@@ -98,10 +98,10 @@ local function MacroInit (args)
     if chunk then
       local env = setmetatable({}, gmeta)
       setfenv(chunk, env)
-      local macro = { coro=co_create(chunk), step=0, store={} }
-      table.insert(macros, macro)
-      --far.Message("Init: created handle "..#macros)
-      return #macros
+      local macro = { coro=co_create(chunk), store={} }
+      table.insert(MacroTable, macro)
+      --far.Message("Init: created handle "..#MacroTable)
+      return #MacroTable
     else
       ErrMsg(msg)
     end
@@ -110,26 +110,24 @@ end
 
 local function MacroStep (args)
   local handle = args[1]
-  local macro = macros[handle]
+  local macro = MacroTable[handle]
   if macro then
     local status = co_status(macro.coro)
     if status == "suspended" then
       local ok, ret1, ret2, ret3 = co_resume(macro.coro, unpack(args, 2))
       if ok then
-        if ret1==PROPAGATE then ret1,ret2=ret2,ret3 end
-        macro.step = macro.step + 1
         status = co_status(macro.coro)
-        if status == "suspended" and ret1 ~= "exit" then
-          macro.store[1] = ret2
-          return ret1, (ret1 ~= F.MPRT_PLUGINCALL) and macro.store or ret2
+        if status == "suspended" and ret1 == PROPAGATE and ret2 ~= "exit" then
+          macro.store[1] = ret3
+          return ret2, (ret2 ~= F.MPRT_PLUGINCALL) and macro.store or ret3
         else
-          macro[handle] = false
+          MacroTable[handle] = false
           LastMessage[1] = "OK"
           return F.MPRT_NORMALFINISH, LastMessage
         end
       else
         ErrMsg(ret1)
-        macro[handle] = false
+        MacroTable[handle] = false
         LastMessage[1] = ret1
         return F.MPRT_ERRORFINISH, LastMessage
       end
@@ -144,8 +142,8 @@ end
 
 local function MacroFinal (args)
   local handle = args[1]
-  if macros[handle] then
-    macros[handle] = false -- false, not nil!
+  if MacroTable[handle] then
+    MacroTable[handle] = false -- false, not nil!
     --far.Message("Final: closed handle "..handle)
     return 1
   else

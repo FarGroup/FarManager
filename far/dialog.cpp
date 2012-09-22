@@ -4646,28 +4646,6 @@ intptr_t WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 
 			if (Param2)
 			{
-#ifdef FAR_LUA
-				{
-					DialogInfo *di=reinterpret_cast<DialogInfo*>(Param2);
-
-					if (CheckStructSize(di))
-					{
-						di->Id = Dlg->IdExist ? Dlg->Id : *(GUID*)("\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0");
-						di->Owner=FarGuid;
-						Result=true;
-						if (Dlg->PluginOwner)
-						{
-							di->Owner = Dlg->PluginOwner->GetGUID();
-						}
-						if (di->StructSize >= offsetof(DialogInfo,ItemsNumber) + sizeof(di->ItemsNumber))
-							di->ItemsNumber = Dlg->ItemCount;
-						if (di->StructSize >= offsetof(DialogInfo,FocusPos) + sizeof(di->FocusPos))
-							di->FocusPos = Dlg->FocusPos;
-						if (di->StructSize >= offsetof(DialogInfo,PrevFocusPos) + sizeof(di->PrevFocusPos))
-							di->PrevFocusPos = Dlg->PrevFocusPos;
-					}
-				}
-#else
 				if (Dlg->IdExist)
 				{
 					DialogInfo *di=reinterpret_cast<DialogInfo*>(Param2);
@@ -4683,7 +4661,6 @@ intptr_t WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						}
 					}
 				}
-#endif
 			}
 
 			return Result;

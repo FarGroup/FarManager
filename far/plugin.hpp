@@ -545,11 +545,6 @@ struct DialogInfo
 	size_t StructSize;
 	GUID Id;
 	GUID Owner;
-#ifdef FAR_LUA
-	size_t ItemsNumber;
-	int FocusPos;
-	int PrevFocusPos;
-#endif
 };
 
 struct FarGetDialogItem
