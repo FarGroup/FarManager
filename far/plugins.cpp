@@ -2088,10 +2088,15 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		}
 	}
 
-	FarGetPluginInformation Temp;
+	struct
+	{
+		FarGetPluginInformation fgpi;
+		PluginInfo PInfo;
+		GlobalInfo GInfo;
+	} Temp;
 	char* Buffer = nullptr;
 	size_t Rest = 0;
-	size_t Size = sizeof(FarGetPluginInformation) + sizeof(PluginInfo) + sizeof(GlobalInfo);
+	size_t Size = sizeof(Temp);
 
 	if (pInfo)
 	{
@@ -2100,7 +2105,7 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 	}
 	else
 	{
-		pInfo = &Temp;
+		pInfo = &Temp.fgpi;
 	}
 
 	pInfo->PInfo = reinterpret_cast<PluginInfo*>(pInfo+1);

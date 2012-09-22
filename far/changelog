@@ -1,3 +1,7 @@
+zg 22.09.2012 04:39:38 +0200 - build 2823
+
+1. From Shmuel Zeigerman: уточнение 2822.
+
 zg 22.09.2012 02:25:21 +0200 - build 2822
 
 1. по очевидным причинам поля PInfo и GInfo в FarGetPluginInformation сделаны указателями.
