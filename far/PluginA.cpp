@@ -4558,8 +4558,9 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				default:
 					oldfar::KeyBarTitles* oldkbt = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles newkbt;
+					FarSetKeyBarTitles newfskbt={sizeof(FarSetKeyBarTitles),&newkbt};
 					ConvertKeyBarTitlesA(oldkbt, &newkbt);
-					int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETKEYBAR, 0, &newkbt));
+					int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETKEYBAR, 0, &newfskbt));
 					FreeUnicodeKeyBarTitles(&newkbt);
 					return ret;
 			}
@@ -4810,8 +4811,9 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 				default:
 					oldfar::KeyBarTitles* kbtA = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles kbt;
+					FarSetKeyBarTitles newfskbt={sizeof(FarSetKeyBarTitles),&kbt};
 					ConvertKeyBarTitlesA(kbtA, &kbt);
-					int ret=static_cast<int>(NativeInfo.ViewerControl(-1,VCTL_SETKEYBAR,0, &kbt));
+					int ret=static_cast<int>(NativeInfo.ViewerControl(-1,VCTL_SETKEYBAR,0, &newfskbt));
 					FreeUnicodeKeyBarTitles(&kbt);
 					return ret;
 			}

@@ -2603,17 +2603,18 @@ int FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		*/
 		case ECTL_SETKEYBAR:
 		{
-			KeyBarTitles *Kbt = (KeyBarTitles*)Param2;
+			FarSetKeyBarTitles *Kbt = (FarSetKeyBarTitles*)Param2;
 
 			if (!Kbt)   //восстановить изначальное
 				InitKeyBar();
-			else
+			else if(CheckStructSize(Kbt))
 			{
 				if ((intptr_t)Param2 != (intptr_t)-1) // не только перерисовать?
-					EditKeyBar.Change(Kbt);
+					EditKeyBar.Change(Kbt->Titles);
 
 				EditKeyBar.Show();
 			}
+			else return FALSE;
 
 			return TRUE;
 		}

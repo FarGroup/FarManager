@@ -4267,21 +4267,22 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		*/
 		case VCTL_SETKEYBAR:
 		{
-			KeyBarTitles *Kbt=(KeyBarTitles*)Param2;
+			FarSetKeyBarTitles *Kbt=(FarSetKeyBarTitles*)Param2;
 
 			if (!Kbt)
 			{        // восстановить пред значение!
 				if (HostFileViewer)
 					HostFileViewer->InitKeyBar();
 			}
-			else
+			else if(CheckStructSize(Kbt))
 			{
 				if ((intptr_t)Param2 != (intptr_t)-1) // не только перерисовать?
-					ViewKeyBar->Change(Kbt);
+					ViewKeyBar->Change(Kbt->Titles);
 
 				ViewKeyBar->Show();
 				ScrBuf.Flush(); //?????
 			}
+			else return FALSE;
 
 			return TRUE;
 		}

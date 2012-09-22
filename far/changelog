@@ -1,3 +1,7 @@
+zg 22.09.2012 21:37:30 +0200 - build 2824
+
+1. в ECTL_SETKEYBAR/VCTL_SETKEYBAR вместо KeyBarTitles должна передаваться FarSetKeyBarTitles.
+
 zg 22.09.2012 04:39:38 +0200 - build 2823
 
 1. From Shmuel Zeigerman: уточнение 2822.

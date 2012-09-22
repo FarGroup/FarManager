@@ -2454,6 +2454,12 @@ struct KeyBarTitles
 	struct KeyBarLabel *Labels;
 };
 
+struct FarSetKeyBarTitles
+{
+	size_t StructSize;
+	struct KeyBarTitles *Titles;
+};
+
 typedef unsigned __int64 OPERATION_MODES;
 static const OPERATION_MODES
 	OPM_SILENT     =0x0000000000000001ULL,
