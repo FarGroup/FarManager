@@ -2904,10 +2904,6 @@ $ #Editor: search/replace#
       #Regular expressions# - ^<wrap>treat input as Perl regular expression (~search~@RegExp@ and ~replace~@RegExpRepl@).
 Поиск построчный, поэтому многострочные конструкции и переводы строк не будут найдены.
 
-    The following option is available in search dialog only:
-
-      #Select found#        - ^<wrap>found text is selected
-
     При нажатии кнопки #Всё# будет показано ~меню~@FindAllMenu@ с результатами поиска всех вхождений.
 
 
@@ -3461,6 +3457,8 @@ $ #Settings dialog: editor#
   #Pick up the word#        При вызове диалога поиска/замены в строку
                           поиска будет подставляться слово, на
                           котором стоит курсор.
+
+  #Select found#            Found text is selected
 
   #Auto detect#             ~Auto detect~@CodePageAuto@ the code page of
   #code page#               the file being edited.

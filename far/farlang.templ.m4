@@ -2992,7 +2992,7 @@ upd:"Show white space"
 "Show white space"
 
 MEditConfigPickUpWord
-"Cлово под к&урсором"
+"Слово под к&урсором"
 "Pick &up the word"
 upd:"Pick &up the word"
 upd:"Pick &up the word"
@@ -3000,6 +3000,26 @@ upd:"Pick &up the word"
 upd:"Pick &up the word"
 "Tomar la &palabra"
 "Pick &up the word"
+
+MEditConfigSelFound
+"&Выделять найденное"
+"Se&lect found"
+"Vy&ber nalezené"
+"Treffer &markieren"
+"&Találat kijelölése"
+"W&ybierz znalezione"
+"Se&leccionado encontrado"
+"Vy&brať nájdené"
+
+MEditConfigCursorAtEnd
+"Курсор в конце"
+"Cursor at end"
+upd:"Cursor at end"
+upd:"Cursor at end"
+upd:"Cursor at end"
+upd:"Cursor at end"
+upd:"Cursor at end"
+upd:"Cursor at end"
 
 MEditConfigAnsiCodePageAsDefault
 "&Использовать кодовую страницу ANSI по умолчанию"
@@ -4977,16 +4997,6 @@ MEditSearchReverse
 "Szukaj w &odwrotnym kierunku"
 "Búsqueda in&versa"
 "Opačné h&ľadanie"
-
-MEditSearchSelFound
-"&Выделять найденное"
-"Se&lect found"
-"Vy&ber nalezené"
-"Treffer &markieren"
-"&Találat kijelölése"
-"W&ybierz znalezione"
-"Se&leccionado encontrado"
-"Vy&brať nájdené"
 
 MEditSearchRegexp
 "&Регулярные выражения"
