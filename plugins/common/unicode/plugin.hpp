@@ -1256,13 +1256,23 @@ struct ViewerSetPosition
 	__int64 LeftPos;
 };
 
+typedef unsigned __int64 VIEWER_MODE_FLAGS;
+static const VIEWER_MODE_FLAGS
+	VMF_WRAP     = 0x0000000000000001ULL,
+	VMF_WORDWRAP = 0x0000000000000002ULL;
+
+enum VIEWER_MODE_TYPE
+{
+	VMT_TEXT    =0,
+	VMT_HEX     =1,
+	VMT_DUMP    =2,
+};
+
 struct ViewerMode
 {
 	UINT CodePage;
-	int Wrap;
-	int WordWrap;
-	int Hex;
-	intptr_t Reserved[4];
+	VIEWER_MODE_FLAGS Flags;
+	enum VIEWER_MODE_TYPE Type;
 };
 
 struct ViewerInfo
