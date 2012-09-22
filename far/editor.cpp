@@ -6745,7 +6745,6 @@ bool Editor::InitSessionBookmarksForPlugin(EditorBookmarks *Param,size_t Count,s
 		Param->Cursor=data+Count;
 		Param->ScreenLine=data+2*Count;
 		Param->LeftPos=data+3*Count;
-		for(size_t ii=0;ii<ARRAYSIZE(Param->Reserved);++ii) Param->Reserved[ii]=0;
 		return true;
 	}
 	return false;

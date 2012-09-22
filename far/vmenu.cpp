@@ -2899,7 +2899,6 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 		Info->TopPos = TopPos;
 		Info->MaxHeight = MaxHeight;
 		Info->MaxLength = MaxLength;
-		ClearArray(Info->Reserved);
 		return TRUE;
 	}
 

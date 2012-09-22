@@ -314,7 +314,6 @@ PluginStartupInfo NativeInfo =
 	pluginapi::apiDialogFree,
 	pluginapi::apiSendDlgMessage,
 	pluginapi::apiDefDlgProc,
-	0, //Reserved
 	pluginapi::apiViewerControl,
 	pluginapi::apiPluginsControl,
 	pluginapi::apiFileFilterControl,
