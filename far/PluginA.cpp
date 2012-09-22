@@ -4790,9 +4790,9 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			viA->CurMode.TableNum       = 0;
 			viA->CurMode.AnsiMode       = viW.CurMode.CodePage == GetACP();
 			viA->CurMode.Unicode        = IsUnicodeCodePage(viW.CurMode.CodePage);
-			viA->CurMode.Wrap           = viW.CurMode.Wrap;
-			viA->CurMode.WordWrap       = viW.CurMode.WordWrap;
-			viA->CurMode.Hex            = viW.CurMode.Hex;
+			viA->CurMode.Wrap           = (viW.CurMode.Flags&VMF_WRAP)?1:0;
+			viA->CurMode.WordWrap       = (viW.CurMode.Flags&VMF_WORDWRAP)?1:0;
+			viA->CurMode.Hex            = viW.CurMode.Type;
 			viA->LeftPos = (int)viW.LeftPos;
 			viA->Reserved3 = 0;
 			break;

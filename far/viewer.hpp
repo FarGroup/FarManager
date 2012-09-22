@@ -67,6 +67,14 @@ struct ViewerUndoData
 	__int64 UndoLeft;
 };
 
+struct ViewerModeInternal
+{
+ 	UINT CodePage;
+	int Wrap;
+	int WordWrap;
+	int Hex;
+};
+
 enum SHOW_MODES
 {
 	SHOW_RELOAD,
@@ -107,7 +115,7 @@ class Viewer:public ScreenObject
 		int LastSearchDirection;
 		__int64 StartSearchPos;
 
-		struct ViewerMode VM;
+		ViewerModeInternal VM;
 
 		__int64 FilePos;
 		__int64 SecondPos;
