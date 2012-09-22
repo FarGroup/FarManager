@@ -82,7 +82,7 @@ public:
     for_each(archive->arc_attr.begin(), archive->arc_attr.end(), [&] (const Attr& attr) {
       ipl.Text = attr.name.c_str();
       ipl.Data = attr.value.c_str();
-      ipl.Separator = 0;
+      ipl.Flags = 0;
       info_lines.push_back(ipl);
     });
     opi->InfoLines = info_lines.data();
