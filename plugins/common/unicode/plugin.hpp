@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2825
+  Plugin API for Far Manager 3.0 build 2827
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2825
+#define FARMANAGERVERSION_BUILD 2827
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -395,7 +395,6 @@ struct FarListFind
 	int StartIndex;
 	const wchar_t *Pattern;
 	FARLISTFINDFLAGS Flags;
-	intptr_t Reserved;
 };
 
 struct FarListDelete
@@ -423,7 +422,6 @@ struct FarListInfo
 	int TopPos;
 	int MaxHeight;
 	int MaxLength;
-	intptr_t Reserved[6];
 };
 
 struct FarListItemData
@@ -432,7 +430,6 @@ struct FarListItemData
 	int Index;
 	size_t DataSize;
 	void *Data;
-	intptr_t Reserved;
 };
 
 struct FarList
@@ -456,7 +453,6 @@ struct FarDialogItemColors
 	unsigned __int64 Flags;
 	size_t ColorsCount;
 	struct FarColor* Colors;
-	void* Reserved;
 };
 
 struct FAR_CHAR_INFO
@@ -768,7 +764,6 @@ struct PanelInfo
 	int ViewMode;
 	enum PANELINFOTYPE PanelType;
 	enum OPENPANELINFO_SORTMODES SortMode;
-	intptr_t Reserved;
 };
 
 
@@ -1237,7 +1232,6 @@ struct ViewerSetMode
 #endif
 	;
 	VIEWER_SETMODEFLAGS_TYPES Flags;
-	intptr_t Reserved;
 };
 
 struct ViewerSelect
@@ -1410,7 +1404,6 @@ struct EditorUndoRedo
 {
 	size_t StructSize;
 	enum EDITOR_UNDOREDO_COMMANDS Command;
-	intptr_t Reserved[3];
 };
 
 struct EditorGetString
@@ -1494,7 +1487,6 @@ struct EditorInfo
 	int SessionBookmarkCount;
 	DWORD CurState;
 	UINT CodePage;
-	intptr_t Reserved[5];
 };
 
 struct EditorBookmarks
@@ -1506,7 +1498,6 @@ struct EditorBookmarks
 	intptr_t *Cursor;
 	intptr_t *ScreenLine;
 	intptr_t *LeftPos;
-	intptr_t Reserved[4];
 };
 
 struct EditorSetPosition
@@ -2094,7 +2085,6 @@ struct PluginStartupInfo
 
 	FARAPISENDDLGMESSAGE   SendDlgMessage;
 	FARAPIDEFDLGPROC       DefDlgProc;
-	intptr_t              Reserved;
 	FARAPIVIEWERCONTROL    ViewerControl;
 	FARAPIPLUGINSCONTROL   PluginsControl;
 	FARAPIFILEFILTERCONTROL FileFilterControl;
@@ -2221,7 +2211,6 @@ static const PANELMODE_FLAGS
 
 struct PanelMode
 {
-	size_t StructSize;
 	const wchar_t *ColumnTypes;
 	const wchar_t *ColumnWidths;
 	const wchar_t * const *ColumnTitles;
