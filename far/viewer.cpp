@@ -4171,18 +4171,17 @@ void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, cons
 }
 
 
-int Viewer::ViewerControl(int Command,void *Param)
+int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 {
 	switch (Command)
 	{
 		case VCTL_GETINFO:
 		{
-			ViewerInfo *Info=(ViewerInfo *)Param;
+			ViewerInfo *Info=(ViewerInfo *)Param2;
 			if (CheckStructSize(Info))
 			{
 				memset(&Info->ViewerID,0,Info->StructSize-sizeof(Info->StructSize));
 				Info->ViewerID=Viewer::ViewerID;
-				Info->FileName=strFullFileName;
 				Info->WindowSizeX=ObjWidth;
 				Info->WindowSizeY=Y2-Y1+1;
 				Info->FilePos=FilePos;
@@ -4202,13 +4201,13 @@ int Viewer::ViewerControl(int Command,void *Param)
 			break;
 		}
 		/*
-		   Param = ViewerSetPosition
+		   Param2 = ViewerSetPosition
 		           сюда же будет записано новое смещение
 		           В основном совпадает с переданным
 		*/
 		case VCTL_SETPOSITION:
 		{
-			ViewerSetPosition *vsp=(ViewerSetPosition*)Param;
+			ViewerSetPosition *vsp=(ViewerSetPosition*)Param2;
 			if (CheckStructSize(vsp))
 			{
 				bool isReShow=vsp->StartPos != FilePos;
@@ -4232,10 +4231,10 @@ int Viewer::ViewerControl(int Command,void *Param)
 
 			break;
 		}
-		// Param=ViewerSelect
+		// Param2=ViewerSelect
 		case VCTL_SELECT:
 		{
-			ViewerSelect *vs=(ViewerSelect *)Param;
+			ViewerSelect *vs=(ViewerSelect *)Param2;
 			if (CheckStructSize(vs))
 			{
 				__int64 SPos=vs->BlockStartPos;
@@ -4253,7 +4252,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 					return TRUE;
 				}
 			}
-			else if (!Param)
+			else if (!Param2)
 			{
 				SelectSize = -1;
 				Show();
@@ -4262,13 +4261,13 @@ int Viewer::ViewerControl(int Command,void *Param)
 			break;
 		}
 		/* Функция установки Keybar Labels
-		     Param = nullptr - восстановить, пред. значение
-		     Param = -1   - обновить полосу (перерисовать)
-		     Param = KeyBarTitles
+		     Param2 = nullptr - восстановить, пред. значение
+		     Param2 = -1   - обновить полосу (перерисовать)
+		     Param2 = KeyBarTitles
 		*/
 		case VCTL_SETKEYBAR:
 		{
-			KeyBarTitles *Kbt=(KeyBarTitles*)Param;
+			KeyBarTitles *Kbt=(KeyBarTitles*)Param2;
 
 			if (!Kbt)
 			{        // восстановить пред значение!
@@ -4277,7 +4276,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 			}
 			else
 			{
-				if ((intptr_t)Param != (intptr_t)-1) // не только перерисовать?
+				if ((intptr_t)Param2 != (intptr_t)-1) // не только перерисовать?
 					ViewKeyBar->Change(Kbt);
 
 				ViewKeyBar->Show();
@@ -4286,7 +4285,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 
 			return TRUE;
 		}
-		// Param=0
+		// Param2=0
 		case VCTL_REDRAW:
 		{
 			ChangeViewKeyBar();
@@ -4294,7 +4293,7 @@ int Viewer::ViewerControl(int Command,void *Param)
 			ScrBuf.Flush();
 			return TRUE;
 		}
-		// Param=0
+		// Param2=0
 		case VCTL_QUIT:
 		{
 			/* $ 28.12.2002 IS
@@ -4316,11 +4315,11 @@ int Viewer::ViewerControl(int Command,void *Param)
 			}
 		}
 		/* Функция установки режимов
-		     Param = ViewerSetMode
+		     Param2 = ViewerSetMode
 		*/
 		case VCTL_SETMODE:
 		{
-			ViewerSetMode *vsmode=(ViewerSetMode *)Param;
+			ViewerSetMode *vsmode=(ViewerSetMode *)Param2;
 
 			if (CheckStructSize(vsmode))
 			{
@@ -4341,6 +4340,15 @@ int Viewer::ViewerControl(int Command,void *Param)
 			}
 
 			return FALSE;
+		}
+		case VCTL_GETFILENAME:
+		{
+			if (Param2&&(size_t)Param1>strFullFileName.GetLength())
+			{
+				wcscpy(static_cast<LPWSTR>(Param2),strFullFileName);
+			}
+
+			return static_cast<int>(strFullFileName.GetLength()+1);
 		}
 	}
 

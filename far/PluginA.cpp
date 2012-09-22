@@ -3827,7 +3827,7 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 	HANDLE Settings=NativeInfo.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
 	if(Settings)
 	{
-		FarSettingsItem item={Root,Name,FST_UNKNOWN,{0}};
+		FarSettingsItem item={sizeof(FarSettingsItem),Root,Name,FST_UNKNOWN,{0}};
 		if(NativeInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_QWORD==item.Type)
 		{
 			result=item.Number;
@@ -3868,7 +3868,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			HANDLE Settings=NativeInfo.SettingsControl(INVALID_HANDLE_VALUE,SCTL_CREATE,0,&settings)?settings.Handle:0;
 			if(Settings)
 			{
-				FarSettingsItem item={FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{0}};
+				FarSettingsItem item={sizeof(FarSettingsItem),FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{0}};
 				if(NativeInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
 				{
 					Length=Min(oldfar::NM,StrLength(item.String)+1);
@@ -4434,7 +4434,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				if (FileNameSize)
 				{
 					LPWSTR FileName=new wchar_t[FileNameSize];
-					NativeInfo.EditorControl(-1,ECTL_GETFILENAME,0,FileName);
+					NativeInfo.EditorControl(-1,ECTL_GETFILENAME,FileNameSize,FileName);
 					fn = UnicodeToAnsi(FileName);
 					oei->FileName=fn;
 					delete[] FileName;
@@ -4775,8 +4775,16 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 			if (filename) xf_free(filename);
 
-			filename = UnicodeToAnsi(viW.FileName);
-			viA->FileName = filename;
+			size_t FileNameSize=NativeInfo.ViewerControl(-1,VCTL_GETFILENAME,0,0);
+
+			if (FileNameSize)
+			{
+				LPWSTR FileName=new wchar_t[FileNameSize];
+				NativeInfo.ViewerControl(-1,VCTL_GETFILENAME,FileNameSize,FileName);
+				filename = UnicodeToAnsi(FileName);
+				viA->FileName = filename;
+				delete[] FileName;
+			}
 			viA->FileSize = viW.FileSize;
 			viA->FilePos = viW.FilePos;
 			viA->WindowSizeX = viW.WindowSizeX;

@@ -265,7 +265,7 @@ class Viewer:public ScreenObject
 		void SetPluginData(const wchar_t *PluginData);
 		void SetNamesList(NamesList *List);
 
-		int  ViewerControl(int Command,void *Param);
+		int  ViewerControl(int Command, intptr_t Param1, void *Param2);
 		void SetHostFileViewer(FileViewer *Viewer) {HostFileViewer=Viewer;};
 
 		void GoTo(int ShowDlg=TRUE,__int64 NewPos=0,UINT64 Flags=0);

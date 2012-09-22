@@ -2088,22 +2088,28 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 		}
 	}
 
-	FarGetPluginInformation Temp;
+	struct
+	{
+		FarGetPluginInformation fgpi;
+		PluginInfo PInfo;
+		GlobalInfo GInfo;
+	} Temp;
 	char* Buffer = nullptr;
 	size_t Rest = 0;
+	size_t Size = sizeof(Temp);
 
 	if (pInfo)
 	{
-		Rest = BufferSize - sizeof(FarGetPluginInformation);
-		Buffer = reinterpret_cast<char*>(pInfo+1);
+		Rest = BufferSize - Size;
+		Buffer = reinterpret_cast<char*>(pInfo) + Size;
 	}
 	else
 	{
-		pInfo = &Temp;
+		pInfo = &Temp.fgpi;
 	}
 
-	size_t Size = sizeof(FarGetPluginInformation);
-
+	pInfo->PInfo = reinterpret_cast<PluginInfo*>(pInfo+1);
+	pInfo->GInfo = reinterpret_cast<GlobalInfo*>(pInfo->PInfo+1);
 	pInfo->ModuleName = StrToBuf(pPlugin->GetModuleName(), Buffer, Rest, Size);
 
 	pInfo->Flags = 0;
@@ -2119,23 +2125,23 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 	}
 #endif // NO_WRAPPER
 
-	pInfo->GInfo.StructSize = sizeof(GlobalInfo);
-	pInfo->GInfo.Guid = pPlugin->GetGUID();
-	pInfo->GInfo.Version = pPlugin->GetVersion();
-	pInfo->GInfo.Title = StrToBuf(pPlugin->strTitle, Buffer, Rest, Size);
-	pInfo->GInfo.Description = StrToBuf(pPlugin->strDescription, Buffer, Rest, Size);
-	pInfo->GInfo.Author = StrToBuf(pPlugin->strAuthor, Buffer, Rest, Size);
+	pInfo->GInfo->StructSize = sizeof(GlobalInfo);
+	pInfo->GInfo->Guid = pPlugin->GetGUID();
+	pInfo->GInfo->Version = pPlugin->GetVersion();
+	pInfo->GInfo->Title = StrToBuf(pPlugin->strTitle, Buffer, Rest, Size);
+	pInfo->GInfo->Description = StrToBuf(pPlugin->strDescription, Buffer, Rest, Size);
+	pInfo->GInfo->Author = StrToBuf(pPlugin->strAuthor, Buffer, Rest, Size);
 
-	pInfo->PInfo.StructSize = sizeof(PluginInfo);
-	pInfo->PInfo.Flags = Flags;
-	pInfo->PInfo.CommandPrefix = StrToBuf(Prefix, Buffer, Rest, Size);
+	pInfo->PInfo->StructSize = sizeof(PluginInfo);
+	pInfo->PInfo->Flags = Flags;
+	pInfo->PInfo->CommandPrefix = StrToBuf(Prefix, Buffer, Rest, Size);
 #if defined(MANTIS_0000466)
-	pInfo->PInfo.MacroFunctions = StrToBuf(MacroFunc, Buffer, Rest, Size);
+	pInfo->PInfo->MacroFunctions = StrToBuf(MacroFunc, Buffer, Rest, Size);
 #endif
 
-	ItemsToBuf(pInfo->PInfo.DiskMenu, DiskNames, DiskGuids, Buffer, Rest, Size);
-	ItemsToBuf(pInfo->PInfo.PluginMenu, MenuNames, MenuGuids, Buffer, Rest, Size);
-	ItemsToBuf(pInfo->PInfo.PluginConfig, ConfNames, ConfGuids, Buffer, Rest, Size);
+	ItemsToBuf(pInfo->PInfo->DiskMenu, DiskNames, DiskGuids, Buffer, Rest, Size);
+	ItemsToBuf(pInfo->PInfo->PluginMenu, MenuNames, MenuGuids, Buffer, Rest, Size);
+	ItemsToBuf(pInfo->PInfo->PluginConfig, ConfNames, ConfGuids, Buffer, Rest, Size);
 
 	return Size;
 }

@@ -1752,7 +1752,7 @@ intptr_t WINAPI apiViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, 
 	if (ViewerID == -1)
 	{
 		if (CtrlObject->Plugins->CurViewer)
-			return CtrlObject->Plugins->CurViewer->ViewerControl(Command,(void *)Param2);
+			return CtrlObject->Plugins->CurViewer->ViewerControl(Command,Param1,Param2);
 
 		return 0;
 	}
@@ -1766,7 +1766,7 @@ intptr_t WINAPI apiViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, 
 			{
 				if (((FileViewer*)frame)->GetId() == ViewerID)
 				{
-					return ((FileViewer*)frame)->ViewerControl(Command,(void *)Param2);
+					return ((FileViewer*)frame)->ViewerControl(Command,Param1,Param2);
 				}
 			}
 		}
@@ -2443,16 +2443,16 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 			delete settings;
 			return TRUE;
 		case SCTL_SET:
-			return settings->Set(*(const FarSettingsItem*)Param2);
+			return CheckStructSize((const FarSettingsItem*)Param2)?settings->Set(*(const FarSettingsItem*)Param2):FALSE;
 		case SCTL_GET:
-			return settings->Get(*(FarSettingsItem*)Param2);
+			return CheckStructSize((const FarSettingsItem*)Param2)?settings->Get(*(FarSettingsItem*)Param2):FALSE;
 		case SCTL_ENUM:
-			return settings->Enum(*(FarSettingsEnum*)Param2);
+			return CheckStructSize((FarSettingsEnum*)Param2)?settings->Enum(*(FarSettingsEnum*)Param2):FALSE;
 		case SCTL_DELETE:
-			return settings->Delete(*(const FarSettingsValue*)Param2);
+			return CheckStructSize((const FarSettingsValue*)Param2)?settings->Delete(*(const FarSettingsValue*)Param2):FALSE;
 		case SCTL_CREATESUBKEY:
 		case SCTL_OPENSUBKEY:
-			return settings->SubKey(*(const FarSettingsValue*)Param2, Command==SCTL_CREATESUBKEY);
+			return CheckStructSize((const FarSettingsValue*)Param2)?settings->SubKey(*(const FarSettingsValue*)Param2, Command==SCTL_CREATESUBKEY):0;
 	}
 
 	return FALSE;
