@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2830
+  Plugin API for Far Manager 3.0 build 2831
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2830
+#define FARMANAGERVERSION_BUILD 2831
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -56,10 +56,10 @@ other possible license with no implications from the above license on them.
 #define FARMACRO_KEY_EVENT  (KEY_EVENT|0x8000)
 
 
-#define CP_UNICODE    1200
-#define CP_REVERSEBOM 1201
-#define CP_DEFAULT    ((UINT)-1)
-#define CP_REDETECT   ((UINT)-2)
+#define CP_UNICODE    ((uintptr_t)1200)
+#define CP_REVERSEBOM ((uintptr_t)1201)
+#define CP_DEFAULT    ((uintptr_t)-1)
+#define CP_REDETECT   ((uintptr_t)-2)
 
 typedef unsigned __int64 FARCOLORFLAGS;
 static const FARCOLORFLAGS
@@ -692,9 +692,9 @@ struct PluginPanelItem
 		void* UserData;
 		FARPANELITEMFREECALLBACK Callback;
 	} UserData;
-	DWORD FileAttributes;
-	DWORD NumberOfLinks;
-	DWORD CRC32;
+	uintptr_t FileAttributes;
+	uintptr_t NumberOfLinks;
+	uintptr_t CRC32;
 	intptr_t Reserved[2];
 };
 
@@ -884,7 +884,7 @@ typedef intptr_t (WINAPI *FARAPIVIEWER)(
     intptr_t X2,
     intptr_t Y2,
     VIEWER_FLAGS Flags,
-    UINT CodePage
+    uintptr_t CodePage
 );
 
 typedef unsigned __int64 EDITOR_FLAGS;
@@ -918,7 +918,7 @@ typedef intptr_t (WINAPI *FARAPIEDITOR)(
     EDITOR_FLAGS Flags,
     intptr_t StartLine,
     intptr_t StartChar,
-    UINT CodePage
+    uintptr_t CodePage
 );
 
 typedef const wchar_t*(WINAPI *FARAPIGETMSG)(
@@ -1273,7 +1273,7 @@ enum VIEWER_MODE_TYPE
 
 struct ViewerMode
 {
-	UINT CodePage;
+	uintptr_t CodePage;
 	VIEWER_MODE_FLAGS Flags;
 	enum VIEWER_MODE_TYPE Type;
 };
@@ -1494,12 +1494,12 @@ struct EditorInfo
 	intptr_t Overtype;
 	intptr_t BlockType;
 	intptr_t BlockStartLine;
-	DWORD Options;
+	uintptr_t Options;
 	intptr_t TabSize;
 	intptr_t BookmarkCount;
 	intptr_t SessionBookmarkCount;
-	DWORD CurState;
-	UINT CodePage;
+	uintptr_t CurState;
+	uintptr_t CodePage;
 };
 
 struct EditorBookmarks
@@ -1557,7 +1557,7 @@ struct EditorColor
 	intptr_t ColorItem;
 	intptr_t StartPos;
 	intptr_t EndPos;
-	unsigned Priority;
+	uintptr_t Priority;
 	EDITORCOLORFLAGS Flags;
 	struct FarColor Color;
 	GUID Owner;
@@ -1578,7 +1578,7 @@ struct EditorSaveFile
 	size_t StructSize;
 	const wchar_t *FileName;
 	const wchar_t *FileEOL;
-	UINT CodePage;
+	uintptr_t CodePage;
 };
 
 enum EDITOR_CHANGETYPE
