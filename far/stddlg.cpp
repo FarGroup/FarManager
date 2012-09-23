@@ -56,7 +56,6 @@ int GetSearchReplaceString(
     bool& Case,
     bool& WholeWords,
     bool& Reverse,
-    bool& SelectFound,
     bool& Regexp,
     const wchar_t *HelpTopic)
 {
@@ -136,32 +135,30 @@ int GetSearchReplaceString(
 		03   |                                                                    |
 		04   +--------------------------------------------------------------------+
 		05   | [ ] Case sensitive                 [ ] Regular expressions         |
-		06   | [ ] Whole words                    [ ] Select found                |
-		07   | [ ] Reverse search                                                 |
-		08   +--------------------------------------------------------------------+
-		09   |                       [ Search ]  [ Cancel ]                       |
-		10   +--------------------------------------------------------------------+
+		06   | [ ] Whole words                    [ ] Reverse search              |
+		07   +--------------------------------------------------------------------+
+		08   |                       [ Search ]  [ Cancel ]                       |
+		09   +--------------------------------------------------------------------+
 		*/
 		FarDialogItem SearchDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,72,10,0,nullptr,nullptr,0,MSG(MEditSearchTitle)},
+			{DI_DOUBLEBOX,3,1,72,9,0,nullptr,nullptr,0,MSG(MEditSearchTitle)},
 			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MEditSearchFor)},
 			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr},
 			{DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_CHECKBOX,5,5,0,5,Case,nullptr,nullptr,0,MSG(MEditSearchCase)},
 			{DI_CHECKBOX,5,6,0,6,WholeWords,nullptr,nullptr,0,MSG(MEditSearchWholeWords)},
-			{DI_CHECKBOX,5,7,0,7,Reverse,nullptr,nullptr,0,MSG(MEditSearchReverse)},
 			{DI_CHECKBOX,40,5,0,5,Regexp,nullptr,nullptr,0,MSG(MEditSearchRegexp)},
-			{DI_CHECKBOX,40,6,0,6,SelectFound,nullptr,nullptr,0,MSG(MEditSearchSelFound)},
-			{DI_TEXT,3,8,0,8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
-			{DI_BUTTON,0,9,0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MEditSearchSearch)},
-			{DI_BUTTON,0,9,0,9,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchAll)},
-			{DI_BUTTON,0,9,0,9,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchCancel)},
+			{DI_CHECKBOX,40,6,0,6,Reverse,nullptr,nullptr,0,MSG(MEditSearchReverse)},
+			{DI_TEXT,3,7,0,7,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+			{DI_BUTTON,0,8,0,8,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MEditSearchSearch)},
+			{DI_BUTTON,0,8,0,8,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchAll)},
+			{DI_BUTTON,0,8,0,8,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchCancel)},
 		};
 		MakeDialogItemsEx(SearchDlgData,SearchDlg);
 
 		Dialog Dlg(SearchDlg,ARRAYSIZE(SearchDlg));
-		Dlg.SetPosition(-1,-1,76,12);
+		Dlg.SetPosition(-1,-1,76,11);
 
 		if (HelpTopic && *HelpTopic)
 			Dlg.SetHelp(HelpTopic);
@@ -169,16 +166,15 @@ int GetSearchReplaceString(
 		Dlg.Process();
 		int ExitCode = Dlg.GetExitCode();
 
-		if (ExitCode == 10 || ExitCode == 11)
+		if (ExitCode == 9 || ExitCode == 10)
 		{
-			Result = ExitCode == 10? 1 : 2;
+			Result = ExitCode == 9? 1 : 2;
 			SearchStr = SearchDlg[2].strData;
 			ReplaceStr.Clear();
 			Case=SearchDlg[4].Selected == BSTATE_CHECKED;
 			WholeWords=SearchDlg[5].Selected == BSTATE_CHECKED;
-			Reverse=SearchDlg[6].Selected == BSTATE_CHECKED;
-			Regexp=SearchDlg[7].Selected == BSTATE_CHECKED;
-			SelectFound=SearchDlg[8].Selected == BSTATE_CHECKED;
+			Regexp=SearchDlg[6].Selected == BSTATE_CHECKED;
+			Reverse=SearchDlg[7].Selected == BSTATE_CHECKED;
 		}
 	}
 

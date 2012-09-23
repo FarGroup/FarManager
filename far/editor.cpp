@@ -85,7 +85,6 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	LastSearchCase(GlobalSearchCase),
 	LastSearchWholeWords(GlobalSearchWholeWords),
 	LastSearchReverse(GlobalSearchReverse),
-	LastSearchSelFound(Opt.EdOpt.SearchSelFound),
 	LastSearchRegexp(Opt.EdOpt.SearchRegexp),
 	m_codepage(CP_DEFAULT),
 	StartLine(-1),
@@ -168,7 +167,6 @@ void Editor::KeepInitParameters()
 	GlobalSearchCase=LastSearchCase;
 	GlobalSearchWholeWords=LastSearchWholeWords;
 	GlobalSearchReverse=LastSearchReverse;
-	Opt.EdOpt.SearchSelFound=LastSearchSelFound;
 	Opt.EdOpt.SearchRegexp=LastSearchRegexp;
 }
 
@@ -3681,7 +3679,7 @@ BOOL Editor::Search(int Next)
 	string strMsgStr;
 	const wchar_t *TextHistoryName=L"SearchText",*ReplaceHistoryName=L"ReplaceText";
 	int CurPos, NewNumLine;
-	bool Case,WholeWords,ReverseSearch,SelectFound,Regexp,Match,UserBreak;
+	bool Case,WholeWords,ReverseSearch,Regexp,Match,UserBreak;
 
 	if (Next && strLastSearchStr.IsEmpty())
 		return TRUE;
@@ -3691,7 +3689,6 @@ BOOL Editor::Search(int Next)
 	Case=LastSearchCase;
 	WholeWords=LastSearchWholeWords;
 	ReverseSearch=LastSearchReverse;
-	SelectFound=LastSearchSelFound;
 	Regexp=LastSearchRegexp;
 
 	bool FindAllReferences = false;
@@ -3701,7 +3698,7 @@ BOOL Editor::Search(int Next)
 		if (EdOpt.SearchPickUpWord)
 		{
 			int StartPickPos=-1,EndPickPos=-1;
-			const wchar_t *Ptr=CalcWordFromString(CurLine->GetStringAddr(),CurLine->GetCurPos(),&StartPickPos,&EndPickPos, GetWordDiv());
+			const wchar_t *Ptr=CalcWordFromString(CurLine->GetStringAddr(),CurLine->GetCurPos(),&StartPickPos,&EndPickPos, EdOpt.strWordDiv);
 
 			if (Ptr)
 			{
@@ -3710,7 +3707,7 @@ BOOL Editor::Search(int Next)
 			}
 		}
 
-		int DlgResult = GetSearchReplaceString(ReplaceMode, strSearchStr, strReplaceStr, TextHistoryName, ReplaceHistoryName, Case, WholeWords, ReverseSearch, SelectFound, Regexp, L"EditorSearch");
+		int DlgResult = GetSearchReplaceString(ReplaceMode, strSearchStr, strReplaceStr, TextHistoryName, ReplaceHistoryName, Case, WholeWords, ReverseSearch,Regexp, L"EditorSearch");
 		if (!DlgResult)
 		{
 			return FALSE;
@@ -3726,7 +3723,6 @@ BOOL Editor::Search(int Next)
 	LastSearchCase=Case;
 	LastSearchWholeWords=WholeWords;
 	LastSearchReverse=ReverseSearch;
-	LastSearchSelFound=SelectFound;
 	LastSearchRegexp=Regexp;
 
 	if(FindAllReferences)
@@ -3737,7 +3733,7 @@ BOOL Editor::Search(int Next)
 	if (strSearchStr.IsEmpty())
 		return TRUE;
 
-	if (!EdOpt.PersistentBlocks || (SelectFound && !ReplaceMode))
+	if (!EdOpt.PersistentBlocks || (EdOpt.SearchSelFound && !ReplaceMode))
 		UnmarkBlock();
 
 	struct FindCoord
@@ -3854,7 +3850,7 @@ BOOL Editor::Search(int Next)
 				}
 				else
 				{
-					if (SelectFound && !ReplaceMode)
+					if (EdOpt.SearchSelFound && !ReplaceMode)
 					{
 						Pasting++;
 						Lock();
@@ -3865,6 +3861,11 @@ BOOL Editor::Search(int Next)
 						BlockStartLine = NewNumLine;
 						Unlock();
 						Pasting--;
+					}
+
+					if (EdOpt.SearchCursorAtEnd)
+					{
+						CurPtr->SetCurPos(iFoundPos+SearchLength);
 					}
 
 					int Skip=FALSE;
@@ -4034,13 +4035,18 @@ BOOL Editor::Search(int Next)
 								CurLine->SetBinaryString(NewStr,NewStrLen);
 								CurLine->SetCurPos(CurPos+RStrLen);
 
-								if (SelectFound && !ReplaceMode)
+								if (EdOpt.SearchSelFound && !ReplaceMode)
 								{
 									UnmarkBlock();
 									Flags.Set(FEDITOR_MARKINGBLOCK);
 									CurPtr->Select(CurPos, CurPos+RStrLen);
 									BlockStart = CurPtr;
 									BlockStartLine = NewNumLine;
+								}
+
+								if (EdOpt.SearchCursorAtEnd)
+								{
+									CurPtr->SetCurPos(CurPos+RStrLen);
 								}
 
 								delete [] NewStr;
@@ -4125,7 +4131,7 @@ BOOL Editor::Search(int Next)
 					coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, SelectedPos));
 					GoToLine(coord->Line);
 					CurLine->SetCurPos(coord->Pos);
-					if (SelectFound)
+					if (EdOpt.SearchSelFound)
 					{
 						Pasting++;
 						Lock();
@@ -4138,6 +4144,10 @@ BOOL Editor::Search(int Next)
 						Unlock();
 						Pasting--;
 						Show();
+					}
+					if (EdOpt.SearchCursorAtEnd)
+					{
+						CurPtr->SetCurPos(coord->Pos+coord->Pos+coord->SearchLen);
 					}
 					FindAllList.Show();
 					break;
@@ -4178,7 +4188,7 @@ BOOL Editor::Search(int Next)
 			coord = reinterpret_cast<FindCoord*>(FindAllList.GetUserData(nullptr, 0, ExitCode));
 			GoToLine(coord->Line);
 			CurLine->SetCurPos(coord->Pos);
-			if (SelectFound)
+			if (EdOpt.SearchSelFound)
 			{
 				Pasting++;
 				Lock();
@@ -4190,6 +4200,10 @@ BOOL Editor::Search(int Next)
 				BlockStartLine = coord->Line;
 				Unlock();
 				Pasting--;
+			}
+			if (EdOpt.SearchCursorAtEnd)
+			{
+				CurPtr->SetCurPos(coord->Pos+coord->Pos+coord->SearchLen);
 			}
 		}
 	}
@@ -6731,7 +6745,6 @@ bool Editor::InitSessionBookmarksForPlugin(EditorBookmarks *Param,size_t Count,s
 		Param->Cursor=data+Count;
 		Param->ScreenLine=data+2*Count;
 		Param->LeftPos=data+3*Count;
-		for(size_t ii=0;ii<ARRAYSIZE(Param->Reserved);++ii) Param->Reserved[ii]=0;
 		return true;
 	}
 	return false;

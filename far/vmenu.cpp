@@ -434,7 +434,7 @@ int VMenu::AddItem(const wchar_t *NewStrItem)
 		FarListItem0.Text=NewStrItem;
 	}
 
-	FarList FarList0={1,&FarListItem0};
+	FarList FarList0={sizeof(FarList),1,&FarListItem0};
 
 	return AddItem(&FarList0)-1; //-1 потому что AddItem(FarList) возвращает количество элементов
 }
@@ -2899,7 +2899,6 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 		Info->TopPos = TopPos;
 		Info->MaxHeight = MaxHeight;
 		Info->MaxLength = MaxLength;
-		ClearArray(Info->Reserved);
 		return TRUE;
 	}
 

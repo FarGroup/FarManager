@@ -97,7 +97,6 @@ int GetSearchReplaceString(
     bool& Case,
     bool& WholeWords,
     bool& Reverse,
-    bool& SelectFound,
     bool& Regexp,
     const wchar_t *HelpTopic=nullptr);
 

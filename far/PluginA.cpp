@@ -672,7 +672,9 @@ void ConvertInfoPanelLinesA(const oldfar::InfoPanelLine *iplA, InfoPanelLine **p
 			{
 				iplW[i].Text=AnsiToUnicodeBin(iplA[i].Text,80); //BUGBUG
 				iplW[i].Data=AnsiToUnicodeBin(iplA[i].Data,80); //BUGBUG
-				iplW[i].Separator=iplA[i].Separator;
+				iplW[i].Flags=0;
+				if (iplA[i].Separator)
+					iplW[i].Flags|=IPLFLAGS_SEPARATOR;
 			}
 		}
 
@@ -720,7 +722,6 @@ void ConvertPanelModesA(const oldfar::PanelMode *pnmA, PanelMode **ppnmW, size_t
 					xf_free(lpTypes);
 				}
 
-				pnmW[i].StructSize = sizeof(PanelMode);
 				pnmW[i].ColumnTypes = (pnmA[i].ColumnTypes)?AnsiToUnicode(pnmA[i].ColumnTypes):nullptr;
 				pnmW[i].ColumnWidths = (pnmA[i].ColumnWidths)?AnsiToUnicode(pnmA[i].ColumnWidths):nullptr;
 				pnmW[i].ColumnTitles = (pnmA[i].ColumnTitles && (iColumnCount>0))?ArrayAnsiToUnicode(pnmA[i].ColumnTitles,iColumnCount):nullptr;
@@ -1693,7 +1694,8 @@ int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flag
 			KeyToInputRecord(OldKeyToKey(p[i].AccelKey),&input);
 			mi[i].AccelKey.VirtualKeyCode = input.Event.KeyEvent.dwControlKeyState;
 			mi[i].AccelKey.ControlKeyState = input.Event.KeyEvent.dwControlKeyState;
-			mi[i].Reserved = p[i].Reserved;
+			mi[i].Reserved[0] = p[i].Reserved;
+			mi[i].Reserved[1] = 0;
 			mi[i].UserData = p[i].UserData;
 		}
 	}
@@ -1726,7 +1728,7 @@ int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flag
 
 			mi[i].AccelKey.VirtualKeyCode = 0;
 			mi[i].AccelKey.ControlKeyState = 0;
-			mi[i].Reserved = 0;
+			mi[i].Reserved[0] = mi[i].Reserved[1] = 0;
 			mi[i].UserData = 0;
 		}
 	}
@@ -2445,7 +2447,7 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 
 intptr_t WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 {
-	FarDialogEvent e = {hDlg, NewMsg, Param1, Param2};
+	FarDialogEvent e = {sizeof(FarDialogEvent), hDlg, NewMsg, Param1, Param2};
 	StackHandler sh(e);
 
 	static wchar_t* HelpTopic = nullptr;
@@ -2838,7 +2840,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		}
 		case oldfar::DM_LISTADD:
 		{
-			FarList newlist = {};
+			FarList newlist = {sizeof(FarList)};
 
 			if (Param2)
 			{
@@ -3065,7 +3067,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		case oldfar::DM_SETITEMDATA:         Msg = DM_SETITEMDATA; break;
 		case oldfar::DM_LISTSET:
 		{
-			FarList newlist = {};
+			FarList newlist = {sizeof(FarList)};
 
 			if (Param2)
 			{
@@ -3353,7 +3355,6 @@ void ConvertUnicodePanelInfoToAnsi(PanelInfo* PIW, oldfar::PanelInfo* PIA)
 
 	if (PIW->Flags&PFLAGS_PANELLEFT)        PIA->Flags|=oldfar::PFLAGS_PANELLEFT;
 
-	PIA->Reserved = PIW->Reserved;
 }
 
 void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
@@ -4569,8 +4570,9 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				default:
 					oldfar::KeyBarTitles* oldkbt = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles newkbt;
+					FarSetKeyBarTitles newfskbt={sizeof(FarSetKeyBarTitles),&newkbt};
 					ConvertKeyBarTitlesA(oldkbt, &newkbt);
-					int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETKEYBAR, 0, &newkbt));
+					int ret = static_cast<int>(NativeInfo.EditorControl(-1,ECTL_SETKEYBAR, 0, &newfskbt));
 					FreeUnicodeKeyBarTitles(&newkbt);
 					return ret;
 			}
@@ -4800,9 +4802,9 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			viA->CurMode.TableNum       = 0;
 			viA->CurMode.AnsiMode       = viW.CurMode.CodePage == GetACP();
 			viA->CurMode.Unicode        = IsUnicodeCodePage(viW.CurMode.CodePage);
-			viA->CurMode.Wrap           = viW.CurMode.Wrap;
-			viA->CurMode.WordWrap       = viW.CurMode.WordWrap;
-			viA->CurMode.Hex            = viW.CurMode.Hex;
+			viA->CurMode.Wrap           = (viW.CurMode.Flags&VMF_WRAP)?1:0;
+			viA->CurMode.WordWrap       = (viW.CurMode.Flags&VMF_WORDWRAP)?1:0;
+			viA->CurMode.Hex            = viW.CurMode.Type;
 			viA->LeftPos = (int)viW.LeftPos;
 			viA->Reserved3 = 0;
 			break;
@@ -4821,8 +4823,9 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 				default:
 					oldfar::KeyBarTitles* kbtA = (oldfar::KeyBarTitles*)Param;
 					KeyBarTitles kbt;
+					FarSetKeyBarTitles newfskbt={sizeof(FarSetKeyBarTitles),&kbt};
 					ConvertKeyBarTitlesA(kbtA, &kbt);
-					int ret=static_cast<int>(NativeInfo.ViewerControl(-1,VCTL_SETKEYBAR,0, &kbt));
+					int ret=static_cast<int>(NativeInfo.ViewerControl(-1,VCTL_SETKEYBAR,0, &newfskbt));
 					FreeUnicodeKeyBarTitles(&kbt);
 					return ret;
 			}

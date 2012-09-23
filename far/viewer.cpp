@@ -4186,7 +4186,13 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				Info->WindowSizeY=Y2-Y1+1;
 				Info->FilePos=FilePos;
 				Info->FileSize=FileSize;
-				Info->CurMode=VM;
+				Info->CurMode.CodePage=VM.CodePage;
+				Info->CurMode.Flags=0;
+				if (VM.Wrap) Info->CurMode.Flags|=VMF_WRAP;
+				if (VM.WordWrap) Info->CurMode.Flags|=VMF_WORDWRAP;
+				Info->CurMode.Type=VMT_TEXT;
+				if (1==VM.Hex) Info->CurMode.Type=VMT_HEX;
+				if (2==VM.Hex) Info->CurMode.Type=VMT_DUMP;
 				Info->Options=0;
 
 				if (Opt.ViOpt.SavePos)   Info->Options|=VOPT_SAVEFILEPOSITION;
@@ -4267,21 +4273,22 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		*/
 		case VCTL_SETKEYBAR:
 		{
-			KeyBarTitles *Kbt=(KeyBarTitles*)Param2;
+			FarSetKeyBarTitles *Kbt=(FarSetKeyBarTitles*)Param2;
 
 			if (!Kbt)
 			{        // восстановить пред значение!
 				if (HostFileViewer)
 					HostFileViewer->InitKeyBar();
 			}
-			else
+			else if(CheckStructSize(Kbt))
 			{
 				if ((intptr_t)Param2 != (intptr_t)-1) // не только перерисовать?
-					ViewKeyBar->Change(Kbt);
+					ViewKeyBar->Change(Kbt->Titles);
 
 				ViewKeyBar->Show();
 				ScrBuf.Flush(); //?????
 			}
+			else return FALSE;
 
 			return TRUE;
 		}

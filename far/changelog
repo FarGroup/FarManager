@@ -1,3 +1,36 @@
+zg 23.09.2012 03:09:28 +0200 - build 2829
+
+1. добавлены Reserved в паре структур.
+
+2. поле StructSize добавлено в следующие структуры:
+   FarDialogEvent
+   FarList
+
+zg 23.09.2012 01:52:19 +0200 - build 2828
+
+1. переделана ViewerMode. Wrap&WordWrap -> Flags. Hex -> Type.
+
+zg 23.09.2012 00:37:48 +0200 - build 2827
+
+1. из PanelMode убрано поле StructSize.
+
+2. из некоторых структур убраны поля Reserved.
+
+drkns 23.09.2012 00:00:16 +0200 - build 2826
+
+1. В настройках редактора новая опция - "cusror at end", если вкл - при поиске курсор установится в конец найденного фрагмента
+
+2. Опция "select found" переехала из диалога поиска в диалог настроек редактора.
+
+zg 22.09.2012 22:38:35 +0200 - build 2825
+
+1. в InfoPanelLine Separator заменён на Flags. добавлен флаг IPLFLAGS_SEPARATOR.
+   все нативные плагины перестали работать.
+
+zg 22.09.2012 21:37:30 +0200 - build 2824
+
+1. в ECTL_SETKEYBAR/VCTL_SETKEYBAR вместо KeyBarTitles должна передаваться FarSetKeyBarTitles.
+
 zg 22.09.2012 04:39:38 +0200 - build 2823
 
 1. From Shmuel Zeigerman: уточнение 2822.

@@ -204,7 +204,7 @@ class Editor:public ScreenObject
 		/* $ 30.07.2000 KM
 		   Новая переменная для поиска "Whole words"
 		*/
-		bool LastSearchCase,LastSearchWholeWords,LastSearchReverse,LastSearchSelFound,LastSearchRegexp;
+		bool LastSearchCase,LastSearchWholeWords,LastSearchReverse, LastSearchRegexp;
 
 		UINT m_codepage; //BUGBUG
 
@@ -329,6 +329,7 @@ class Editor:public ScreenObject
 		FileEditor *GetHostFileEditor() {return HostFileEditor;};
 		void PrepareResizedConsole() {Flags.Set(FEDITOR_ISRESIZEDCONSOLE);}
 
+		void SetOptions(const EditorOptions& Options) {EdOpt = Options;}
 		void SetTabSize(int NewSize);
 		int  GetTabSize() const {return EdOpt.TabSize; }
 
@@ -362,6 +363,8 @@ class Editor:public ScreenObject
 		void SetShowScrollBar(bool NewMode) {EdOpt.ShowScrollBar=NewMode;}
 
 		void SetSearchPickUpWord(bool NewMode) {EdOpt.SearchPickUpWord=NewMode;}
+
+		void SetSearchCursorAtEnd(bool NewMode) {EdOpt.SearchCursorAtEnd=NewMode;}
 
 		void SetWordDiv(const wchar_t *WordDiv) { EdOpt.strWordDiv = WordDiv; }
 		const wchar_t *GetWordDiv() { return EdOpt.strWordDiv; }

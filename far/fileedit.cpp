@@ -2464,25 +2464,7 @@ void FileEditor::GetEditorOptions(EditorOptions& EdOpt)
 
 void FileEditor::SetEditorOptions(EditorOptions& EdOpt)
 {
-	m_editor->SetTabSize(EdOpt.TabSize);
-	m_editor->SetConvertTabs(EdOpt.ExpandTabs);
-	m_editor->SetPersistentBlocks(EdOpt.PersistentBlocks);
-	m_editor->SetDelRemovesBlocks(EdOpt.DelRemovesBlocks);
-	m_editor->SetAutoIndent(EdOpt.AutoIndent);
-	m_editor->SetAutoDetectCodePage(EdOpt.AutoDetectCodePage);
-	m_editor->SetCursorBeyondEOL(EdOpt.CursorBeyondEOL);
-	m_editor->SetCharCodeBase(EdOpt.CharCodeBase);
-	m_editor->SetSavePosMode(EdOpt.SavePos, EdOpt.SaveShortPos);
-	m_editor->SetReadOnlyLock(EdOpt.ReadOnlyLock);
-	m_editor->SetShowScrollBar(EdOpt.ShowScrollBar);
-	m_editor->SetShowWhiteSpace(EdOpt.ShowWhiteSpace);
-	m_editor->SetSearchPickUpWord(EdOpt.SearchPickUpWord);
-	m_editor->SetBSLikeDel(EdOpt.BSLikeDel);
-	m_editor->SetWordDiv(EdOpt.strWordDiv);
-	m_editor->SetF7Rules(EdOpt.F7Rules);
-	m_editor->SetAllowEmptySpaceAfterEof(EdOpt.AllowEmptySpaceAfterEof);
-	m_editor->SetSearchSelFound(EdOpt.SearchSelFound);
-	m_editor->SetSearchRegexp(EdOpt.SearchRegexp);
+	m_editor->SetOptions(EdOpt);
 }
 
 void FileEditor::OnChangeFocus(int focus)
@@ -2603,17 +2585,18 @@ int FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		*/
 		case ECTL_SETKEYBAR:
 		{
-			KeyBarTitles *Kbt = (KeyBarTitles*)Param2;
+			FarSetKeyBarTitles *Kbt = (FarSetKeyBarTitles*)Param2;
 
 			if (!Kbt)   //восстановить изначальное
 				InitKeyBar();
-			else
+			else if(CheckStructSize(Kbt))
 			{
 				if ((intptr_t)Param2 != (intptr_t)-1) // не только перерисовать?
-					EditKeyBar.Change(Kbt);
+					EditKeyBar.Change(Kbt->Titles);
 
 				EditKeyBar.Show();
 			}
+			else return FALSE;
 
 			return TRUE;
 		}

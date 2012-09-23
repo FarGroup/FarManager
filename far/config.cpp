@@ -777,18 +777,20 @@ void EditorConfig(EditorOptions &EdOpt,bool Local)
 
 	Builder.StartColumns();
 	Builder.AddCheckbox(MEditConfigPersistentBlocks, EdOpt.PersistentBlocks);
-	DialogItemEx *SavePos = Builder.AddCheckbox(MEditConfigSavePos, EdOpt.SavePos);
+	Builder.AddCheckbox(MEditConfigDelRemovesBlocks, EdOpt.DelRemovesBlocks);
 	Builder.AddCheckbox(MEditConfigAutoIndent, EdOpt.AutoIndent);
 	DialogItemEx *TabSize = Builder.AddIntEditField(EdOpt.TabSize, 3);
 	Builder.AddTextAfter(TabSize, MEditConfigTabSize);
 	Builder.AddCheckbox(MEditShowWhiteSpace, EdOpt.ShowWhiteSpace);
+	Builder.AddCheckbox(MEditConfigScrollbar, EdOpt.ShowScrollBar);
 	Builder.ColumnBreak();
-	Builder.AddCheckbox(MEditConfigDelRemovesBlocks, EdOpt.DelRemovesBlocks);
+	Builder.AddCheckbox(MEditCursorBeyondEnd, EdOpt.CursorBeyondEOL);
+	DialogItemEx *SavePos = Builder.AddCheckbox(MEditConfigSavePos, EdOpt.SavePos);
 	DialogItemEx *SaveShortPos = Builder.AddCheckbox(MEditConfigSaveShortPos, EdOpt.SaveShortPos);
 	Builder.LinkFlags(SavePos, SaveShortPos, DIF_DISABLE);
-	Builder.AddCheckbox(MEditCursorBeyondEnd, EdOpt.CursorBeyondEOL);
-	Builder.AddCheckbox(MEditConfigScrollbar, EdOpt.ShowScrollBar);
 	Builder.AddCheckbox(MEditConfigPickUpWord, EdOpt.SearchPickUpWord);
+	Builder.AddCheckbox(MEditConfigSelFound, EdOpt.SearchSelFound);
+	Builder.AddCheckbox(MEditConfigCursorAtEnd, EdOpt.SearchCursorAtEnd);
 	Builder.EndColumns();
 
 	if (!Local)
@@ -922,6 +924,7 @@ static struct FARConfig
 	{FSSF_PRIVATE,       NKeyEditor,L"SearchPickUpWord", AddressAndType(Opt.EdOpt.SearchPickUpWord), Default(0)},
 	{FSSF_PRIVATE,       NKeyEditor,L"SearchRegexp", AddressAndType(Opt.EdOpt.SearchRegexp), Default(0)},
 	{FSSF_PRIVATE,       NKeyEditor,L"SearchSelFound", AddressAndType(Opt.EdOpt.SearchSelFound), Default(0)},
+	{FSSF_PRIVATE,       NKeyEditor,L"SearchCursorAtEnd", AddressAndType(Opt.EdOpt.SearchCursorAtEnd), Default(0)},
 	{FSSF_PRIVATE,       NKeyEditor,L"ShowKeyBar", AddressAndType(Opt.EdOpt.ShowKeyBar), Default(1)},
 	{FSSF_PRIVATE,       NKeyEditor,L"ShowScrollBar", AddressAndType(Opt.EdOpt.ShowScrollBar), Default(0)},
 	{FSSF_PRIVATE,       NKeyEditor,L"ShowTitleBar", AddressAndType(Opt.EdOpt.ShowTitleBar), Default(1)},
@@ -1733,7 +1736,7 @@ bool AdvancedConfig()
 	};
 	MakeDialogItemsEx(AdvancedConfigDlgData,AdvancedConfigDlg);
 
-	FarList Items;
+	FarList Items={sizeof(FarList)};
 	Items.ItemsNumber = ARRAYSIZE(CFG);
 	Items.Items = new FarListItem[Items.ItemsNumber];
 

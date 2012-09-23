@@ -703,7 +703,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		}
 	}
 
-	FarList NameList={};
+	FarList NameList={sizeof(FarList)};
 	string *strLinks=nullptr;
 
 	if (!DlgParam.Plugin)

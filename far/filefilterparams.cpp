@@ -1018,7 +1018,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 			FilterDlg[i].Flags|=DIF_DISABLE;
 
 	// Лист для комбобокса времени файла
-	FarList DateList;
+	FarList DateList={sizeof(FarList)};
 	FarListItem TableItemDate[FDATE_COUNT]={};
 	// Настройка списка типов дат файла
 	DateList.Items=TableItemDate;

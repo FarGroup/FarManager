@@ -335,6 +335,7 @@ struct EditorOptions
 	BoolOption ShowScrollBar;
 	BoolOption EditOpenedForWrite;
 	BoolOption SearchSelFound;
+	BoolOption SearchCursorAtEnd;
 	BoolOption SearchRegexp;
 	BoolOption SearchPickUpWord;
 	Bool3Option ShowWhiteSpace;
@@ -366,6 +367,7 @@ struct EditorOptions
 		ShowScrollBar=0;
 		EditOpenedForWrite=0;
 		SearchSelFound=0;
+		SearchCursorAtEnd=0;
 		SearchRegexp=0;
 		SearchPickUpWord=0;
 		ShowWhiteSpace=0;

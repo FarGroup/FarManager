@@ -382,7 +382,7 @@ struct FarListItem
 {
 	LISTITEMFLAGS Flags;
 	const wchar_t *Text;
-	intptr_t Reserved[3];
+	intptr_t Reserved[2];
 };
 
 struct FarListUpdate
@@ -425,7 +425,6 @@ struct FarListFind
 	int StartIndex;
 	const wchar_t *Pattern;
 	FARLISTFINDFLAGS Flags;
-	intptr_t Reserved;
 };
 
 struct FarListDelete
@@ -453,7 +452,6 @@ struct FarListInfo
 	int TopPos;
 	int MaxHeight;
 	int MaxLength;
-	intptr_t Reserved[6];
 };
 
 struct FarListItemData
@@ -462,11 +460,11 @@ struct FarListItemData
 	int Index;
 	size_t DataSize;
 	void *Data;
-	intptr_t Reserved;
 };
 
 struct FarList
 {
+	size_t StructSize;
 	size_t ItemsNumber;
 	struct FarListItem *Items;
 };
@@ -486,7 +484,6 @@ struct FarDialogItemColors
 	unsigned __int64 Flags;
 	size_t ColorsCount;
 	struct FarColor* Colors;
-	void* Reserved;
 };
 
 struct FAR_CHAR_INFO
@@ -504,7 +501,7 @@ struct FarDialogItem
 		int Selected;
 		struct FarList *ListItems;
 		struct FAR_CHAR_INFO *VBuf;
-		intptr_t Reserved;
+		intptr_t Reserved0;
 	}
 #ifndef __cplusplus
 	Param
@@ -516,6 +513,7 @@ struct FarDialogItem
 	const wchar_t *Data;
 	size_t MaxLength; // terminate 0 not included (if == 0 string size is unlimited)
 	intptr_t UserData;
+	intptr_t Reserved[2];
 };
 
 struct FarDialogItemData
@@ -527,6 +525,7 @@ struct FarDialogItemData
 
 struct FarDialogEvent
 {
+	size_t StructSize;
 	HANDLE hDlg;
 	int Msg;
 	int Param1;
@@ -665,8 +664,8 @@ struct FarMenuItem
 	MENUITEMFLAGS Flags;
 	const wchar_t *Text;
 	struct FarKey AccelKey;
-	intptr_t Reserved;
 	intptr_t UserData;
+	intptr_t Reserved[2];
 };
 
 typedef unsigned __int64 FARMENUFLAGS;
@@ -812,7 +811,6 @@ struct PanelInfo
 	int ViewMode;
 	enum PANELINFOTYPE PanelType;
 	enum OPENPANELINFO_SORTMODES SortMode;
-	intptr_t Reserved;
 };
 
 
@@ -1084,7 +1082,6 @@ struct ActlMediaType
 	size_t StructSize;
 	DWORD Letter;
 	FARMEDIATYPEFLAGS Flags;
-	intptr_t Reserved[2];
 };
 #endif // END FAR_USE_INTERNALS
 
@@ -1434,7 +1431,6 @@ struct ViewerSetMode
 #endif
 	;
 	VIEWER_SETMODEFLAGS_TYPES Flags;
-	intptr_t Reserved;
 };
 
 struct ViewerSelect
@@ -1459,13 +1455,23 @@ struct ViewerSetPosition
 	__int64 LeftPos;
 };
 
+typedef unsigned __int64 VIEWER_MODE_FLAGS;
+static const VIEWER_MODE_FLAGS
+	VMF_WRAP     = 0x0000000000000001ULL,
+	VMF_WORDWRAP = 0x0000000000000002ULL;
+
+enum VIEWER_MODE_TYPE
+{
+	VMT_TEXT    =0,
+	VMT_HEX     =1,
+	VMT_DUMP    =2,
+};
+
 struct ViewerMode
 {
 	UINT CodePage;
-	int Wrap;
-	int WordWrap;
-	int Hex;
-	intptr_t Reserved[4];
+	VIEWER_MODE_FLAGS Flags;
+	enum VIEWER_MODE_TYPE Type;
 };
 
 struct ViewerInfo
@@ -1618,7 +1624,6 @@ struct EditorUndoRedo
 {
 	size_t StructSize;
 	enum EDITOR_UNDOREDO_COMMANDS Command;
-	intptr_t Reserved[3];
 };
 
 struct EditorGetString
@@ -1707,7 +1712,6 @@ struct EditorInfo
 	int SessionBookmarkCount;
 	DWORD CurState;
 	UINT CodePage;
-	intptr_t Reserved[5];
 };
 
 struct EditorBookmarks
@@ -1719,7 +1723,6 @@ struct EditorBookmarks
 	intptr_t *Cursor;
 	intptr_t *ScreenLine;
 	intptr_t *LeftPos;
-	intptr_t Reserved[4];
 };
 
 struct EditorSetPosition
@@ -2316,7 +2319,6 @@ struct PluginStartupInfo
 
 	FARAPISENDDLGMESSAGE   SendDlgMessage;
 	FARAPIDEFDLGPROC       DefDlgProc;
-	intptr_t              Reserved;
 	FARAPIVIEWERCONTROL    ViewerControl;
 	FARAPIPLUGINSCONTROL   PluginsControl;
 	FARAPIFILEFILTERCONTROL FileFilterControl;
@@ -2428,11 +2430,15 @@ struct FarGetPluginInformation
 	struct GlobalInfo *GInfo;
 };
 
+typedef unsigned __int64 INFOPANELLINE_FLAGS;
+static const INFOPANELLINE_FLAGS
+	IPLFLAGS_SEPARATOR      = 0x0000000000000001ULL;
+
 struct InfoPanelLine
 {
 	const wchar_t *Text;
 	const wchar_t *Data;
-	int  Separator;
+	INFOPANELLINE_FLAGS Flags;
 };
 
 typedef unsigned __int64 PANELMODE_FLAGS;
@@ -2444,7 +2450,6 @@ static const PANELMODE_FLAGS
 
 struct PanelMode
 {
-	size_t StructSize;
 	const wchar_t *ColumnTypes;
 	const wchar_t *ColumnWidths;
 	const wchar_t * const *ColumnTitles;
@@ -2486,6 +2491,12 @@ struct KeyBarTitles
 {
 	size_t CountLabels;
 	struct KeyBarLabel *Labels;
+};
+
+struct FarSetKeyBarTitles
+{
+	size_t StructSize;
+	struct KeyBarTitles *Titles;
 };
 
 typedef unsigned __int64 OPERATION_MODES;
