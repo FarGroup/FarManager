@@ -106,6 +106,17 @@ intptr_t WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format,
 	return Result;
 }
 
+#ifndef _MSC_VER
+intptr_t WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...)
+{
+	va_list argptr;
+	va_start(argptr, Format);
+	int Result = vswscanf(Src, Format, argptr);
+	va_end(argptr);
+	return Result;
+}
+#endif
+
 wchar_t *WINAPI apiItoa(intptr_t value, wchar_t *string, intptr_t radix)
 {
 	if (string)

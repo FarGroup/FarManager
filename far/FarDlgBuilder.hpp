@@ -58,7 +58,7 @@ class DialogBuilder: public DialogBuilderBase<DialogItemEx>
 		virtual void InitDialogItem(DialogItemEx *Item, const TCHAR *Text);
 		virtual int TextWidth(const DialogItemEx &Item);
 		virtual const TCHAR *GetLangString(int MessageID);
-		virtual int DoShowDialog();
+		virtual intptr_t DoShowDialog();
 
 		virtual DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(BOOL* Value, int Mask);
 		DialogItemBinding<DialogItemEx> *CreateCheckBoxBinding(IntOption &Value, int Mask);

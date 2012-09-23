@@ -233,7 +233,7 @@ class DialogBuilderBase
 			Item->Y1 = Item->Y2 = NextY++;
 		}
 
-		int ItemWidth(const T &Item)
+		intptr_t ItemWidth(const T &Item)
 		{
 			switch(Item.Type)
 			{
@@ -250,7 +250,7 @@ class DialogBuilderBase
 			case DI_COMBOBOX:
 			case DI_PSWEDIT:
 				{
-					int Width = Item.X2 - Item.X1 + 1;
+					intptr_t Width = Item.X2 - Item.X1 + 1;
 					// стрелка history занимает дополнительное место, но раньше она рисовалась поверх рамки???
 					if (Item.Flags & DIF_HISTORY)
 						Width++;
@@ -290,14 +290,14 @@ class DialogBuilderBase
 			Indent = 0;
 		}
 
-		int MaxTextWidth()
+		intptr_t MaxTextWidth()
 		{
-			int MaxWidth = 0;
+			intptr_t MaxWidth = 0;
 			for(int i=1; i<DialogItemsCount; i++)
 			{
 				if (DialogItems [i].X1 == SECOND_COLUMN) continue;
-				int Width = ItemWidth(DialogItems [i]);
-				int Indent = DialogItems [i].X1 - 5;
+				intptr_t Width = ItemWidth(DialogItems [i]);
+				intptr_t Indent = DialogItems [i].X1 - 5;
 				Width += Indent;
 
 				if (MaxWidth < Width)
@@ -311,12 +311,12 @@ class DialogBuilderBase
 
 		void UpdateSecondColumnPosition()
 		{
-			int SecondColumnX1 = 6 + (DialogItems [0].X2 - DialogItems [0].X1 - 1)/2;
+			intptr_t SecondColumnX1 = 6 + (DialogItems [0].X2 - DialogItems [0].X1 - 1)/2;
 			for(int i=0; i<DialogItemsCount; i++)
 			{
 				if (DialogItems [i].X1 == SECOND_COLUMN)
 				{
-					int Width = DialogItems [i].X2 - DialogItems [i].X1;
+					intptr_t Width = DialogItems [i].X2 - DialogItems [i].X1;
 					DialogItems [i].X1 = SecondColumnX1;
 					DialogItems [i].X2 = DialogItems [i].X1 + Width;
 				}
@@ -373,7 +373,7 @@ class DialogBuilderBase
 			return nullptr;
 		}
 
-		virtual int DoShowDialog()
+		virtual intptr_t DoShowDialog()
 		{
 			return -1;
 		}
@@ -619,11 +619,11 @@ class DialogBuilderBase
 			}
 		}
 
-		int ShowDialogEx()
+		intptr_t ShowDialogEx()
 		{
 			UpdateBorderSize();
 			UpdateSecondColumnPosition();
-			int Result = DoShowDialog();
+			intptr_t Result = DoShowDialog();
 			if (Result == OKButtonID)
 			{
 				SaveValues();
@@ -792,10 +792,10 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			return Info.GetMsg(&PluginId, MessageID);
 		}
 
-		virtual int DoShowDialog()
+		virtual intptr_t DoShowDialog()
 		{
-			int Width = DialogItems [0].X2+4;
-			int Height = DialogItems [0].Y2+2;
+			intptr_t Width = DialogItems [0].X2+4;
+			intptr_t Height = DialogItems [0].Y2+2;
 			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height, HelpTopic, DialogItems, DialogItemsCount, 0, 0, DlgProc, UserParam);
 			return Info.DialogRun(DialogHandle);
 		}

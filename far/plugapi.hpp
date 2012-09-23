@@ -43,6 +43,9 @@ namespace pluginapi
 {
 	intptr_t WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...);
 	intptr_t WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...);
+#ifndef _MSC_VER
+	intptr_t WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...);
+#endif
 	wchar_t* WINAPI apiItoa(intptr_t value, wchar_t *string, intptr_t radix);
 	__int64  WINAPI apiAtoi64(const wchar_t *s);
 	wchar_t* WINAPI apiItoa64(__int64 value, wchar_t *string, intptr_t radix);
