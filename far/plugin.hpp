@@ -1008,7 +1008,9 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_WAITKEY                    = 2,
 	ACTL_GETCOLOR                   = 3,
 	ACTL_GETARRAYCOLOR              = 4,
+#ifdef FAR_USE_INTERNALS
 	ACTL_EJECTMEDIA                 = 5,
+#endif // END FAR_USE_INTERNALS
 	ACTL_GETWINDOWINFO              = 6,
 	ACTL_GETWINDOWCOUNT             = 7,
 	ACTL_SETCURRENTWINDOW           = 8,
@@ -1033,6 +1035,7 @@ enum ADVANCED_CONTROL_COMMANDS
 
 };
 
+#ifdef FAR_USE_INTERNALS
 typedef unsigned __int64 FAREJECTMEDIAFLAGS;
 static const FAREJECTMEDIAFLAGS
 	EJECT_NO_MESSAGE                    = 0x0000000000000001ULL,
@@ -1049,6 +1052,7 @@ struct ActlEjectMedia
 	DWORD Letter;
 	FAREJECTMEDIAFLAGS Flags;
 };
+#endif // END FAR_USE_INTERNALS
 
 #ifdef FAR_USE_INTERNALS
 enum FARMEDIATYPE
