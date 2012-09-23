@@ -315,7 +315,7 @@ static void ShowMenuFromList(wchar_t *Name)
 		FSF.ProcessName(FSF.PointToName(Name),lstrcpy(Title,L"*."),ARRAYSIZE(Title),PN_GENERATENAME);
 		FSF.TruncPathStr(Title,64);
 		FarKey BreakKeys[]={{VK_RETURN,SHIFT_PRESSED}, {0,0}};
-		int BreakCode;
+		intptr_t BreakCode;
 		int ExitCode=Info.Menu(&MainGuid, nullptr, -1, -1, 0,
 		                       FMENU_WRAPMODE, Title, NULL, L"Contents",
 		                       &BreakKeys[0], &BreakCode, fmi, argc);
@@ -545,7 +545,7 @@ void WINAPI ExitFARW(const struct ExitInfo *Info)
 }
 
 
-int WINAPI GetFindDataW(struct GetFindDataInfo *Info)
+intptr_t WINAPI GetFindDataW(struct GetFindDataInfo *Info)
 {
 	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
 	return Panel->GetFindData(&Info->PanelItem,&Info->ItemsNumber,Info->OpMode);
@@ -589,36 +589,36 @@ void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info)
 	Panel->GetOpenPanelInfo(Info);
 }
 
-int WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
+intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
 {
 	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
 	return(Panel->SetDirectory(Info->Dir,Info->OpMode));
 }
 
-int WINAPI PutFilesW(const struct PutFilesInfo *Info)
+intptr_t WINAPI PutFilesW(const struct PutFilesInfo *Info)
 {
 	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
 	return Panel->PutFiles(Info->PanelItem,Info->ItemsNumber,Info->Move,Info->SrcPath,Info->OpMode);
 }
 
-int WINAPI SetFindListW(const struct SetFindListInfo *Info)
+intptr_t WINAPI SetFindListW(const struct SetFindListInfo *Info)
 {
 	TmpPanel *Panel=(TmpPanel *)Info->hPanel;
 	return(Panel->SetFindList(Info->PanelItem,Info->ItemsNumber));
 }
 
 
-int WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
+intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
 {
 	return ((TmpPanel *)Info->hPanel)->ProcessEvent(Info->Event,Info->Param);
 }
 
-int WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
+intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
 {
 	return ((TmpPanel *)Info->hPanel)->ProcessKey(&Info->Rec);
 }
 
-int WINAPI ConfigureW(const struct ConfigureInfo *Info)
+intptr_t WINAPI ConfigureW(const struct ConfigureInfo *Info)
 {
 	return Config();
 }

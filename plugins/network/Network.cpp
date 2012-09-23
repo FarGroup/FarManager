@@ -140,7 +140,7 @@ void WINAPI ClosePanelW(const ClosePanelInfo* Info)
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI GetFindDataW(GetFindDataInfo *Info)
+intptr_t WINAPI GetFindDataW(GetFindDataInfo *Info)
 {
 	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
 	return(Browser->GetFindData(&Info->PanelItem,&Info->ItemsNumber,Info->OpMode));
@@ -161,28 +161,28 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo *Info)
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
+intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
 {
 	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
 	return(Browser->SetDirectory(Info->Dir,Info->OpMode));
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
+intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
 {
 	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
 	return(Browser->DeleteFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->OpMode));
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI ProcessPanelInputW(const ProcessPanelInputInfo *Info)
+intptr_t WINAPI ProcessPanelInputW(const ProcessPanelInputInfo *Info)
 {
 	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
 	return(Browser->ProcessKey(&Info->Rec));
 }
 
 //-----------------------------------------------------------------------------
-int WINAPI ProcessPanelEventW(const ProcessPanelEventInfo *Info)
+intptr_t WINAPI ProcessPanelEventW(const ProcessPanelEventInfo *Info)
 {
 	NetBrowser *Browser=(NetBrowser *)Info->hPanel;
 	return Browser->ProcessEvent(Info->Event, Info->Param);

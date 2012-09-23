@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 24
+#define PLUGIN_BUILD 25
 #define PLUGIN_DESC L"Auto wrap for Far Manager"
 #define PLUGIN_NAME L"AutoWrap"
 #define PLUGIN_FILENAME L"AutoWrap.dll"

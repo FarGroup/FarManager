@@ -1918,7 +1918,7 @@ int Plist::Compare(const PluginPanelItem *Item1, const PluginPanelItem *Item2,
 	}
 
 	if (diff==0)
-		diff = (DWORD)Item1->UserData.UserData - (DWORD)Item2->UserData.UserData; // unsorted
+		diff = (uintptr_t)Item1->UserData.UserData - (uintptr_t)Item2->UserData.UserData; // unsorted
 
 	return diff<0 ? -1 : diff==0 ? 0 : 1;
 }

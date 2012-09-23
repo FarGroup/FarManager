@@ -1652,7 +1652,7 @@ BOOL NetBrowser::AskMapDrive(wchar_t *NewLocalName, BOOL &Permanent)
 		}
 
 		FarKey BreakKeys[]={{VK_F6,0}, {0,0}};
-		int BreakCode;
+		intptr_t BreakCode;
 		ExitCode=Info.Menu(&MainGuid, nullptr,-1,-1,0,0,
 		                   MenuTitle,MenuBottom,StrHelpNetBrowse,
 		                   BreakKeys,&BreakCode,MenuItems,MenuItemsNumber);

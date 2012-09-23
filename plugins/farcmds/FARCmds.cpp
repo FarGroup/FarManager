@@ -216,7 +216,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->CommandPrefix=L"far:view:edit:goto:clip:whereis:macro:link:run:load:unload";
 }
 
-int WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
+intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 {
     PluginDialogBuilder Builder(Info, MainGuid, DialogGuid, MConfig, L"Config");
 

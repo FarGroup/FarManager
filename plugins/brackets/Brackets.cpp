@@ -110,7 +110,7 @@ int Config()
 	return FALSE;
 }
 
-int WINAPI ConfigureW(const ConfigureInfo* Info)
+intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)
 {
 	return Config();
 }

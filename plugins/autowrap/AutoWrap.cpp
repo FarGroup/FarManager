@@ -102,7 +102,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 }
 
 
-int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
+intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 {
   if (!Opt.Wrap)
     return FALSE;

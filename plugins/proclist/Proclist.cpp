@@ -234,7 +234,7 @@ void WINAPI ClosePanelW(const struct ClosePanelInfo *Info)
 }
 
 
-int WINAPI GetFindDataW(struct GetFindDataInfo *Info)
+intptr_t WINAPI GetFindDataW(struct GetFindDataInfo *Info)
 {
 	Plist *Panel=(Plist *)Info->hPanel;
 	return Panel->GetFindData(Info->PanelItem,Info->ItemsNumber,Info->OpMode);
@@ -288,35 +288,35 @@ void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info)
 }
 
 
-int WINAPI GetFilesW(struct GetFilesInfo *Info)
+intptr_t WINAPI GetFilesW(struct GetFilesInfo *Info)
 {
 	return ((Plist *)Info->hPanel)->GetFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->Move,&Info->DestPath,Info->OpMode);
 }
 
 
-int WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
+intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
 {
 	return ((Plist *)Info->hPanel)->DeleteFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->OpMode);
 }
 
 
-int WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
+intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
 {
 	return ((Plist *)Info->hPanel)->ProcessEvent(Info->Event,Info->Param);
 }
 
 
-int WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
+intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
 {
 	return ((Plist *)Info->hPanel)->ProcessKey(&Info->Rec);
 }
 
-int WINAPI ConfigureW(const struct ConfigureInfo *Info)
+intptr_t WINAPI ConfigureW(const struct ConfigureInfo *Info)
 {
 	return Config();
 }
 
-int WINAPI CompareW(const struct CompareInfo *Info)
+intptr_t WINAPI CompareW(const struct CompareInfo *Info)
 {
 	return ((Plist *)Info->hPanel)->Compare(Info->Item1, Info->Item2, Info->Mode);
 }

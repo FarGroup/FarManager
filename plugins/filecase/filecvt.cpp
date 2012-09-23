@@ -1,7 +1,7 @@
 int ResetButtonID;
 int WordDivEditID;
 
-INT_PTR WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,void *Param2)
+INT_PTR WINAPI DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void *Param2)
 {
 	switch (Msg)
 	{

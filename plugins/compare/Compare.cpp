@@ -162,7 +162,7 @@ static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
 /****************************************************************************
  * Обработчик диалога для ShowDialog
  ****************************************************************************/
-INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, int Msg, int Param1, void *Param2)
+INT_PTR WINAPI ShowDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
 {
 	static int CompareContents,
 	CompareContentsIgnore,
@@ -503,7 +503,7 @@ struct FileIndex
  * Функция сравнения имён файлов в двух структурах PluginPanelItem
  * для нужд qsort()
  ****************************************************************************/
-static int WINAPI PICompare(const void *el1, const void *el2, void*)
+static intptr_t WINAPI PICompare(const void *el1, const void *el2, void*)
 {
 	const PluginPanelItem *ppi1 = *(const PluginPanelItem **)el1, *ppi2 = *(const PluginPanelItem **)el2;
 

@@ -33,7 +33,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 	NetResourceList::InitNetResource(CommonCurResource);
 }
 
-int WINAPI ConfigureW(const ConfigureInfo* Info)
+intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)
 {
 	return Config();
 }

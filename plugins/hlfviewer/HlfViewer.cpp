@@ -208,7 +208,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->CommandPrefix=L"HLF";
 }
 
-int WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
+intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
 {
 	LPWSTR FileName=NULL;
 	BOOL Result=FALSE;
@@ -338,7 +338,7 @@ void ShowHelpFromTempFile()
 	}
 }
 
-int WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
+intptr_t WINAPI ConfigureW(const ConfigureInfo* CfgInfo)
 {
 	GetPluginConfig();
 

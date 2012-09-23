@@ -354,7 +354,7 @@ void TmpPanel::FindSearchResultsPanel()
 	}
 }
 
-int WINAPI SortListCmp(const void *el1, const void *el2, void *userparam)
+intptr_t WINAPI SortListCmp(const void *el1, const void *el2, void *userparam)
 {
 	PluginPanelItem* TmpPanelItem = reinterpret_cast<PluginPanelItem*>(userparam);
 	int idx1 = *reinterpret_cast<const int*>(el1);
@@ -414,7 +414,7 @@ void TmpPanel::RemoveEmptyItems()
 		}
 		else if (EmptyCount)
 		{
-			CurItem->UserData.UserData = (void*)((int)CurItem->UserData.UserData - EmptyCount);
+			CurItem->UserData.UserData = (void*)((intptr_t)CurItem->UserData.UserData - EmptyCount);
 			*(CurItem-EmptyCount)=*CurItem;
 			memset(CurItem, 0, sizeof(*CurItem));
 		}
