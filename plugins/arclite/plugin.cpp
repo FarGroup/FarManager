@@ -1008,14 +1008,14 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* info) {
   FAR_ERROR_HANDLER_END(return, return, false);
 }
 
-int WINAPI SetDirectoryW(const SetDirectoryInfo* info) {
+intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(info->hPanel)->set_dir(info->Dir);
   return TRUE;
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & (OPM_SILENT | OPM_FIND)) != 0);
 }
 
-int WINAPI GetFindDataW(GetFindDataInfo* info) {
+intptr_t WINAPI GetFindDataW(GetFindDataInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(info->hPanel)->list(&info->PanelItem, &info->ItemsNumber);
   return TRUE;
@@ -1028,35 +1028,35 @@ void WINAPI FreeFindDataW(const FreeFindDataInfo* info) {
   FAR_ERROR_HANDLER_END(return, return, false);
 }
 
-int WINAPI GetFilesW(GetFilesInfo *info) {
+intptr_t WINAPI GetFilesW(GetFilesInfo *info) {
   FAR_ERROR_HANDLER_BEGIN
   reinterpret_cast<Plugin*>(info->hPanel)->get_files(info->PanelItem, info->ItemsNumber, info->Move, &info->DestPath, info->OpMode);
   return 1;
   FAR_ERROR_HANDLER_END(return 0, return -1, (info->OpMode & (OPM_FIND | OPM_QUICKVIEW)) != 0);
 }
 
-int WINAPI PutFilesW(const PutFilesInfo* info) {
+intptr_t WINAPI PutFilesW(const PutFilesInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(info->hPanel)->put_files(info->PanelItem, info->ItemsNumber, info->Move, info->SrcPath, info->OpMode);
   return 2;
   FAR_ERROR_HANDLER_END(return 0, return -1, (info->OpMode & OPM_FIND) != 0);
 }
 
-int WINAPI DeleteFilesW(const DeleteFilesInfo* info) {
+intptr_t WINAPI DeleteFilesW(const DeleteFilesInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(info->hPanel)->delete_files(info->PanelItem, info->ItemsNumber, info->OpMode);
   return TRUE;
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & OPM_SILENT) != 0);
 }
 
-int WINAPI MakeDirectoryW(MakeDirectoryInfo* info) {
+intptr_t WINAPI MakeDirectoryW(MakeDirectoryInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   reinterpret_cast<Plugin*>(info->hPanel)->create_dir(&info->Name, info->OpMode);
   return 1;
   FAR_ERROR_HANDLER_END(return -1, return -1, (info->OpMode & OPM_SILENT) != 0);
 }
 
-int WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
+intptr_t WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   Far::MenuItems menu_items;
   menu_items.add(Far::get_msg(MSG_TEST_MENU));
@@ -1067,7 +1067,7 @@ int WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, (info->OpMode & OPM_SILENT) != 0);
 }
 
-int WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* info) {
+intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   if (info->Rec.EventType == KEY_EVENT) {
     const KEY_EVENT_RECORD& key_event = info->Rec.Event.KeyEvent;
@@ -1084,7 +1084,7 @@ int WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* info) {
   FAR_ERROR_HANDLER_END(return FALSE, return FALSE, false);
 }
 
-int WINAPI ConfigureW(const struct ConfigureInfo* info) {
+intptr_t WINAPI ConfigureW(const struct ConfigureInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   PluginSettings settings;
   settings.handle_create = g_options.handle_create;

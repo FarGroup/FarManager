@@ -131,7 +131,7 @@ private:
   void frame(const wstring& text);
   void calc_frame_size();
   unsigned new_item(const DialogItem& di);
-  static INT_PTR WINAPI internal_dialog_proc(HANDLE h_dlg, int msg, int param1, void* param2);
+  static intptr_t WINAPI internal_dialog_proc(HANDLE h_dlg, intptr_t msg, intptr_t param1, void* param2);
   bool events_enabled;
 protected:
   class DisableEvents {

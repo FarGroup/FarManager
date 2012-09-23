@@ -292,7 +292,7 @@ unsigned Dialog::new_item(const DialogItem& di) {
   return static_cast<unsigned>(items.size()) - 1;
 }
 
-INT_PTR WINAPI Dialog::internal_dialog_proc(HANDLE h_dlg, int msg, int param1, void* param2) {
+intptr_t WINAPI Dialog::internal_dialog_proc(HANDLE h_dlg, intptr_t msg, intptr_t param1, void* param2) {
   Dialog* dlg = reinterpret_cast<Dialog*>(g_far.SendDlgMessage(h_dlg, DM_GETDLGDATA, 0, 0));
   dlg->h_dlg = h_dlg;
   FAR_ERROR_HANDLER_BEGIN

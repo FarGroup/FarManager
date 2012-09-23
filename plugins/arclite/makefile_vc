@@ -9,7 +9,7 @@ LINKFLAGS = -nologo -incremental:no -map -manifest:no -dynamicbase -nxcompat -la
 RCFLAGS = -nologo
 ASFLAGS = -nologo -c
 
-!if "$(CPU)" == "AMD64" || "$(PLATFORM)" == "x64"
+!if "$(CPU)" == "AMD64" || "$(PLATFORM)" == "x64" || "$(PLATFORM)" == "X64"
 BITS = 64
 RCFLAGS = $(RCFLAGS) -Dx64
 !else
