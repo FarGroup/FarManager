@@ -1,3 +1,31 @@
+zg 23.09.2012 21:22:44 +0200 - build 2835
+
+1. удалена ACTL_EJECTMEDIA.
+
+zg 23.09.2012 20:56:39 +0200 - build 2834
+
+1. от Alexey Samlyukov:
+   PluginPanelItem.UserData.UserData -> PluginPanelItem.UserData.Data
+   PluginPanelItem.UserData.Callback -> PluginPanelItem.UserData.FreeData
+
+drkns 23.09.2012 20:31:24 +0200 - build 2833
+
+1. intptr_t & DlgBuilder 
+
+2. Оставим vswscanf для gcc.
+
+zg 23.09.2012 20:03:02 +0200 - build 2832
+
+1. в vc vswscanf нет.
+
+zg 23.09.2012 19:12:13 +0200 - build 2831
+
+1. в апи некоторые UINT/DWORD заменены на uintptr_t.
+
+zg 23.09.2012 17:19:39 +0200 - build 2830
+
+1. во всём апи int заменён на intptr_t.
+
 zg 23.09.2012 03:09:28 +0200 - build 2829
 
 1. добавлены Reserved в паре структур.

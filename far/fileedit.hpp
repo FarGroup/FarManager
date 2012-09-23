@@ -82,8 +82,8 @@ enum FFILEEDIT_FLAGS
 class FileEditor : public Frame
 {
 	public:
-		FileEditor(const string&  Name, UINT codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const string* PluginData=nullptr,int OpenModeExstFile=FEOPMODE_QUERY);
-		FileEditor(const string&  Name, UINT codepage, DWORD InitFlags,int StartLine,int StartChar,const string* Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,int OpenModeExstFile=FEOPMODE_QUERY);
+		FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags,int StartLine=-1,int StartChar=-1,const string* PluginData=nullptr,int OpenModeExstFile=FEOPMODE_QUERY);
+		FileEditor(const string&  Name, uintptr_t codepage, DWORD InitFlags,int StartLine,int StartChar,const string* Title,int X1,int Y1,int X2,int Y2,int DeleteOnClose=0,int OpenModeExstFile=FEOPMODE_QUERY);
 		virtual ~FileEditor();
 
 		void ShowStatus();
@@ -129,7 +129,7 @@ class FileEditor : public Frame
 		bool bEE_READ_Sent;
 		bool m_bAddSignature;
 		bool BadConversion;
-		UINT m_codepage; //BUGBUG
+		uintptr_t m_codepage; //BUGBUG
 
 		virtual void DisplayObject();
 		int  ProcessQuitKey(int FirstSave,BOOL NeedQuestion=TRUE);
@@ -173,4 +173,4 @@ class FileEditor : public Frame
 		void SaveToCache();
 };
 
-bool dlgOpenEditor(string &strFileName, UINT &codepage);
+bool dlgOpenEditor(string &strFileName, uintptr_t &codepage);

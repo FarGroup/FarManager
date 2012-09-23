@@ -353,7 +353,7 @@ Event PauseEvent(true, true);
 Event StopEvent(true, false);
 
 bool UseFilter=false;
-UINT CodePage=CP_DEFAULT;
+uintptr_t CodePage=CP_DEFAULT;
 UINT64 SearchInFirst=0;
 
 char *readBufferA;
@@ -759,7 +759,7 @@ void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=f
 	}
 }
 
-intptr_t WINAPI AdvancedDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI AdvancedDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	switch (Msg)
 	{
@@ -835,7 +835,7 @@ void AdvancedDialog()
 	}
 }
 
-intptr_t WINAPI MainDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	Vars* v = reinterpret_cast<Vars*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
 	switch (Msg)
@@ -1533,7 +1533,7 @@ bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD Fi
 	return FileFound;
 }
 
-intptr_t WINAPI FindDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	CriticalSectionLock Lock(PluginCS);
 	Vars* v = reinterpret_cast<Vars*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));

@@ -406,7 +406,7 @@ enum EDITTYPERECORD
 	ETR_BUTTON_CANCEL,
 };
 
-intptr_t WINAPI EditTypeRecordDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI EditTypeRecordDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{

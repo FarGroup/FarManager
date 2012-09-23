@@ -256,12 +256,12 @@ struct QsortexHelper
 	void* user;
 };
 
-int WINAPI qsortCmp(const void *one, const void *two,void *user)
+intptr_t WINAPI qsortCmp(const void *one, const void *two,void *user)
 {
 	return reinterpret_cast<int(__cdecl*)(const void*,const void*)>(user)(one,two);
 }
 
-int WINAPI qsortexCmp(const void *one, const void *two,void *user)
+intptr_t WINAPI qsortexCmp(const void *one, const void *two,void *user)
 {
 	QsortexHelper* helper=static_cast<QsortexHelper*>(user);
 	return helper->fcmp(one,two,helper->user);
@@ -888,14 +888,14 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 		{
 			void* UserData = (void*)PanelItemA[i].UserData;
 			DWORD Size=*(DWORD *)UserData;
-			(*PanelItemW)[i].UserData.UserData = xf_malloc(Size);
-			memcpy((*PanelItemW)[i].UserData.UserData,UserData,Size);
-			(*PanelItemW)[i].UserData.Callback = FreeUserData;
+			(*PanelItemW)[i].UserData.Data = xf_malloc(Size);
+			memcpy((*PanelItemW)[i].UserData.Data,UserData,Size);
+			(*PanelItemW)[i].UserData.FreeData = FreeUserData;
 		}
 		else
 		{
-			(*PanelItemW)[i].UserData.UserData = (void*)PanelItemA[i].UserData;
-			(*PanelItemW)[i].UserData.Callback = nullptr;
+			(*PanelItemW)[i].UserData.Data = (void*)PanelItemA[i].UserData;
+			(*PanelItemW)[i].UserData.FreeData = nullptr;
 		}
 		(*PanelItemW)[i].CRC32 = PanelItemA[i].CRC32;
 		(*PanelItemW)[i].FileAttributes = PanelItemA[i].FindData.dwFileAttributes;
@@ -919,7 +919,7 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 	if(PanelItem.Flags&PPIF_SELECTED)
 		PanelItemA.Flags|=oldfar::PPIF_SELECTED;
 
-	if(PanelItem.UserData.Callback==FreeUserData)
+	if(PanelItem.UserData.FreeData==FreeUserData)
 		PanelItemA.Flags|=oldfar::PPIF_USERDATA;
 
 	PanelItemA.NumberOfLinks=PanelItem.NumberOfLinks;
@@ -939,14 +939,14 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 			PanelItemA.CustomColumnData[j] = UnicodeToAnsi(PanelItem.CustomColumnData[j]);
 	}
 
-	if (PanelItem.UserData.UserData&&PanelItem.UserData.Callback==FreeUserData)
+	if (PanelItem.UserData.Data&&PanelItem.UserData.FreeData==FreeUserData)
 	{
-		DWORD Size=*(DWORD *)PanelItem.UserData.UserData;
+		DWORD Size=*(DWORD *)PanelItem.UserData.Data;
 		PanelItemA.UserData=(intptr_t)xf_malloc(Size);
-		memcpy((void *)PanelItemA.UserData,PanelItem.UserData.UserData,Size);
+		memcpy((void *)PanelItemA.UserData,PanelItem.UserData.Data,Size);
 	}
 	else
-		PanelItemA.UserData = (intptr_t)PanelItem.UserData.UserData;
+		PanelItemA.UserData = (intptr_t)PanelItem.UserData.Data;
 
 	PanelItemA.CRC32 = PanelItem.CRC32;
 	PanelItemA.FindData.dwFileAttributes = PanelItem.FileAttributes;
@@ -1463,7 +1463,7 @@ struct FAR_SEARCH_A_CALLBACK_PARAM
 	void *Param;
 };
 
-static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData,const wchar_t *FullName,void *param)
+static intptr_t WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData,const wchar_t *FullName,void *param)
 {
 	FAR_SEARCH_A_CALLBACK_PARAM* pCallbackParam = static_cast<FAR_SEARCH_A_CALLBACK_PARAM*>(param);
 	WIN32_FIND_DATAA FindData={};
@@ -1753,7 +1753,9 @@ int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flag
 		}
 	}
 
-	int ret = NativeInfo.Menu(GetPluginGuid(PluginNumber),&FarGuid,X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,NewBreakKeys,BreakCode,mi,ItemsNumber);
+	intptr_t NewBreakCode;
+	int ret = NativeInfo.Menu(GetPluginGuid(PluginNumber),&FarGuid,X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,NewBreakKeys,&NewBreakCode,mi,ItemsNumber);
+	if (BreakCode) *BreakCode=NewBreakCode;
 
 	for (int i=0; i<ItemsNumber; i++)
 		if (mi[i].Text) xf_free((wchar_t *)mi[i].Text);
@@ -1833,7 +1835,7 @@ intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 	return Result;
 }
 
-intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	PDialogData Data=FindCurrentDialogData(hDlg);
 	return (Data && Data->DlgProc)? Data->DlgProc(Data->hDlg,Msg,Param1,Param2) : FarDefDlgProcA(hDlg, Msg, Param1, Param2);
@@ -2445,7 +2447,7 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 	return diA;
 }
 
-intptr_t WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
+intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, void* Param2)
 {
 	FarDialogEvent e = {sizeof(FarDialogEvent), hDlg, NewMsg, Param1, Param2};
 	StackHandler sh(e);
@@ -3718,6 +3720,11 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 	return FALSE;
 }
 
+HANDLE WINAPI FarSaveScreenA(int X1, int Y1, int X2, int Y2)
+{
+	return NativeInfo.SaveScreen(X1, Y1, X2, Y2);
+}
+
 int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
 {
 	if (!Dir || !*Dir || !pPanelItem || !pItemsNumber)
@@ -3840,7 +3847,7 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 
 intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_COMMANDS Command, void *Param)
 {
-#ifndef FAR_LUA
+#if 1 //ndef FAR_LUA
 	static char *ErrMsg1 = nullptr;
 	static char *ErrMsg2 = nullptr;
 	static char *ErrMsg3 = nullptr;
@@ -3932,9 +3939,6 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 		}
 		case oldfar::ACTL_KEYMACRO:
 		{
-#ifdef FAR_LUA
-			return FALSE;
-#else
 			if (!Param) return FALSE;
 
 			oldfar::ActlKeyMacro *kmA=(oldfar::ActlKeyMacro *)Param;
@@ -3997,9 +4001,9 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 							if (ErrMsg3) xf_free(ErrMsg3);
 
 							string ErrMessage[3];
-
+#ifndef FAR_LUA
 							CtrlObject->Macro.GetMacroParseError(&ErrMessage[0],&ErrMessage[1],&ErrMessage[2],nullptr);
-
+#endif
 							kmA->MacroResult.ErrMsg1 = ErrMsg1 = UnicodeToAnsi(ErrMessage[0]);
 							kmA->MacroResult.ErrMsg2 = ErrMsg2 = UnicodeToAnsi(ErrMessage[1]);
 							kmA->MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(ErrMessage[2]);
@@ -4021,7 +4025,6 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			}
 
 			return res;
-#endif
 		}
 		case oldfar::ACTL_POSTKEYSEQUENCE:
 		{
@@ -4287,10 +4290,10 @@ void MultiByteRecode(UINT nCPin, UINT nCPout, char *szBuffer, int nLength)
 	}
 };
 
-UINT ConvertCharTableToCodePage(int Command)
+uintptr_t ConvertCharTableToCodePage(int Command)
 {
 	string strTableName;
-	UINT nCP = 0;
+	uintptr_t nCP = 0;
 
 	if (Command<0)
 	{
@@ -5076,7 +5079,7 @@ oldfar::PluginStartupInfo StartupInfo =
 	wrapper::FarMessageFnA,
 	wrapper::FarGetMsgFnA,
 	wrapper::FarPanelControlA,
-	nullptr, // copy from NativeInfo
+	wrapper::FarSaveScreenA,
 	nullptr, // copy from NativeInfo
 	wrapper::FarGetDirListA,
 	wrapper::FarGetPluginDirListA,
@@ -5100,7 +5103,6 @@ oldfar::PluginStartupInfo StartupInfo =
 
 static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo *PSI, oldfar::FarStandardFunctions *FSF)
 {
-	StartupInfo.SaveScreen = NativeInfo.SaveScreen;
 	StartupInfo.RestoreScreen = NativeInfo.RestoreScreen;
 
 	*PSI=StartupInfo;

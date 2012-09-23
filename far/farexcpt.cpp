@@ -125,7 +125,7 @@ static DWORD Flags=0;                  // дополнительные флаги - пока только оди
 
 extern void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-intptr_t WINAPI ExcDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI ExcDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{

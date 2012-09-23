@@ -170,23 +170,23 @@ class IntOption:public Option
 {
 public:
 	IntOption():Option(0){}
-	IntOption(const int& Value):Option(Value){}
-	const int Get() const {return GetInt();}
-	IntOption& operator=(int Value){Set(Value); return *this;}
-	IntOption& operator|=(const int& Value){Set(GetInt()|Value); return *this;}
-	IntOption& operator&=(const int& Value){Set(GetInt()&Value); return *this;}
-	IntOption& operator%=(const int& Value){Set(GetInt()%Value); return *this;}
-	IntOption& operator^=(const int& Value){Set(GetInt()^Value); return *this;}
+	IntOption(const intptr_t& Value):Option(Value){}
+	const intptr_t Get() const {return GetInt();}
+	IntOption& operator=(intptr_t Value){Set(Value); return *this;}
+	IntOption& operator|=(const intptr_t& Value){Set(GetInt()|Value); return *this;}
+	IntOption& operator&=(const intptr_t& Value){Set(GetInt()&Value); return *this;}
+	IntOption& operator%=(const intptr_t& Value){Set(GetInt()%Value); return *this;}
+	IntOption& operator^=(const intptr_t& Value){Set(GetInt()^Value); return *this;}
 	IntOption& operator--(){Set(GetInt()-1); return *this;}
 	IntOption& operator++(){Set(GetInt()+1); return *this;}
-	IntOption operator--(int){int Current = GetInt(); Set(Current-1); return Current;}
-	IntOption operator++(int){int Current = GetInt(); Set(Current+1); return Current;}
-	operator int() const {return GetInt();}
-	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, int Default);
+	IntOption operator--(int){intptr_t Current = GetInt(); Set(Current-1); return Current;}
+	IntOption operator++(int){intptr_t Current = GetInt(); Set(Current+1); return Current;}
+	operator intptr_t() const {return GetInt();}
+	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, intptr_t Default);
 	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName);
 	virtual const string toString(){FormatString s; s << Get(); return s;}
 private:
-	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(KeyName, ValueName, static_cast<int>(reinterpret_cast<intptr_t>(Default)));}
+	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(KeyName, ValueName, reinterpret_cast<intptr_t>(Default));}
 };
 
 class StringOption:public Option

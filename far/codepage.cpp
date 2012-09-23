@@ -216,7 +216,7 @@ void AddCodePage(const wchar_t *codePageName, UINT codePage, int position, bool 
 }
 
 // Добавляем стандартную таблицу символов
-void AddStandardCodePage(const wchar_t *codePageName, UINT codePage, int position = -1, bool enabled = true)
+void AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position = -1, bool enabled = true)
 {
 	bool checked = false;
 
@@ -406,7 +406,7 @@ void AddCodePages(DWORD codePages)
 {
 	// Добавляем стандартные таблицы символов
 
-	UINT cp_auto = CP_DEFAULT;
+	uintptr_t cp_auto = CP_DEFAULT;
 	if ( 0 != (codePages & ::DefaultCP) )
 	{
 		AddStandardCodePage(MSG(MDefaultCP), CP_DEFAULT, -1, true);
@@ -625,7 +625,7 @@ wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length,
 }
 
 // Каллбак для диалога редактирования имени кодовой страницы
-intptr_t WINAPI EditDialogProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI EditDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	if (Msg==DN_CLOSE)
 	{
@@ -701,7 +701,7 @@ void EditCodePageName()
 	Dlg.Process();
 }
 
-UINT SelectCodePage(UINT nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool bShowAutoDetect)
+UINT SelectCodePage(uintptr_t nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool bShowAutoDetect)
 {
 	CallbackCallSource = CodePageSelect;
 	currentCodePage = nCurrent;

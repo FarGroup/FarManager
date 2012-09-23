@@ -138,7 +138,7 @@ enum
 	DM_SETATTR = DM_USER+1,
 };
 
-intptr_t WINAPI SetAttrDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI SetAttrDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	SetAttrDlgParam *DlgParam=reinterpret_cast<SetAttrDlgParam*>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
 

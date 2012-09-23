@@ -80,7 +80,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 #define BOM_CHAR      0xFEFF // Zero Length Space
 #define ZERO_CHAR     (ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? (wchar_t)(ViOpt.ZeroChar) : L' ')
 
-Viewer::Viewer(bool bQuickView, UINT aCodePage):
+Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	ViOpt(Opt.ViOpt),
 	Reader(ViewFile, (Opt.ViOpt.MaxLineSize*2*64 > 64*1024 ? Opt.ViOpt.MaxLineSize*2*64 : 64*1024)),
 	m_bQuickView(bQuickView)
@@ -134,7 +134,7 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	vgetc_cb = vgetc_ib = 0;
 	vgetc_composite = L'\0';
 
-	vread_buffer_size = Max(MAX_VIEWLINEB, 8192);
+	vread_buffer_size = Max(MAX_VIEWLINEB, (intptr_t)8192);
 	vread_buffer = new char[vread_buffer_size];
 
 	lcache_first = lcache_last = -1;
@@ -144,14 +144,14 @@ Viewer::Viewer(bool bQuickView, UINT aCodePage):
 	lcache_ready = false;
 	lcache_wrap = lcache_wwrap = lcache_width = -1;
 
-	int cached_buffer_size = 64*Max(Opt.ViOpt.MaxLineSize*2, 1024);
+	int cached_buffer_size = 64*Max(Opt.ViOpt.MaxLineSize*2, (intptr_t)1024);
 	max_backward_size = ViewerOptions::eMaxLineSize*3;
 	if ( max_backward_size > cached_buffer_size/2 )
 		max_backward_size = cached_buffer_size / 2;
 	llengths_size = max_backward_size / 40;
 	llengths = new int[llengths_size];
 
-	Search_buffer_size = 3 * Max(MAX_VIEWLINEB, 8000);
+	Search_buffer_size = 3 * Max(MAX_VIEWLINEB, (intptr_t)8000);
 	Search_buffer = new wchar_t[Search_buffer_size];
 
 	ClearStruct(vString);
@@ -358,7 +358,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	//if(ViOpt.AutoDetectTable)
 	{
 		bool Detect=false;
-		UINT CodePage=0;
+		uintptr_t CodePage=0;
 
 		if (VM.CodePage == CP_DEFAULT || IsUnicodeOrUtfCodePage(VM.CodePage))
 		{
@@ -1641,7 +1641,7 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_SHIFTF8:
 		{
-			UINT nCodePage = SelectCodePage(VM.CodePage, true, true, false, true);
+			uintptr_t nCodePage = SelectCodePage(VM.CodePage, true, true, false, true);
 			if (nCodePage != static_cast<UINT>(-1))
 			{
 				if (nCodePage == (CP_DEFAULT & 0xffff))
@@ -2468,7 +2468,7 @@ struct MyDialogData
 	bool      recursive;
 };
 
-intptr_t WINAPI ViewerSearchDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{

@@ -50,7 +50,7 @@ const wchar_t LangFileMask[] = L"*.lng";
 Language Lang;
 Language OldLang;
 
-FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, UINT &nCodePage, BOOL StrongLang,string *pstrLangName)
+FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, uintptr_t &nCodePage, BOOL StrongLang,string *pstrLangName)
 {
 	strFileName.Clear();
 	FILE *LangFile=nullptr;
@@ -199,7 +199,7 @@ bool Select(int HelpLanguage,VMenu **MenuPtr)
 		if (!LangFile)
 			continue;
 
-		UINT nCodePage=CP_OEMCP;
+		uintptr_t nCodePage=CP_OEMCP;
 		OldGetFileFormat(LangFile, nCodePage, nullptr, false);
 		string strLangName, strLangDescr;
 
@@ -357,7 +357,7 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 		return true;
 	GuardLastError gle;
 	LastError = LERROR_SUCCESS;
-	UINT nCodePage = CP_OEMCP;
+	uintptr_t nCodePage = CP_OEMCP;
 	string strLangName=Opt.strLanguage.Get();
 	FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nCodePage,FALSE, &strLangName);
 

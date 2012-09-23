@@ -262,8 +262,8 @@ void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
 	if (Opt.WidthDecrement > (ScrX/2-10))
 		Opt.WidthDecrement=(ScrX/2-10);
 
-	Opt.LeftHeightDecrement=Max(0,Min(Opt.LeftHeightDecrement.Get(),ScrY-7));
-	Opt.RightHeightDecrement=Max(0,Min(Opt.RightHeightDecrement.Get(),ScrY-7));
+	Opt.LeftHeightDecrement=Max((intptr_t)0,Min(Opt.LeftHeightDecrement.Get(),static_cast<intptr_t>(ScrY-7)));
+	Opt.RightHeightDecrement=Max((intptr_t)0,Min(Opt.RightHeightDecrement.Get(),static_cast<intptr_t>(ScrY-7)));
 
 	if (LeftFullScreen)
 	{

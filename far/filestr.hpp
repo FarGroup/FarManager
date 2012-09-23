@@ -63,7 +63,7 @@ class OldGetFileString
 };
 
 // BUGBUG, delete!
-bool OldGetFileFormat(FILE *file, UINT &nCodePage, bool *pSignatureFound = nullptr, bool bUseHeuristics = true);
+bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound = nullptr, bool bUseHeuristics = true);
 wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePage);
 
 //-----------------------------------------------------------------------------
@@ -73,8 +73,8 @@ class GetFileString
 	public:
 		GetFileString(File& SrcFile);
 		~GetFileString();
-		int PeekString(LPWSTR* DestStr, UINT nCodePage, int& Length);
-		int GetString(LPWSTR* DestStr, UINT nCodePage, int& Length);
+		int PeekString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length);
+		int GetString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length);
 		bool IsConversionValid() { return !SomeDataLost; }
 
 	private:
@@ -102,4 +102,4 @@ class GetFileString
 		int GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndian);
 };
 
-bool GetFileFormat(File& file, UINT& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true);
+bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound = nullptr, bool bUseHeuristics = true);

@@ -1570,7 +1570,7 @@ enum MACROSETTINGSDLG
 	MS_BUTTON_CANCEL,
 };
 
-intptr_t WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	static DlgParam *KMParam=nullptr;
 
@@ -3811,7 +3811,7 @@ static bool msgBoxFunc(FarMacroCall* Data)
 }
 
 
-static int WINAPI CompareItems(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
+static intptr_t WINAPI CompareItems(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
 {
 	if (((*el1)->Flags & LIF_SEPARATOR) || ((*el2)->Flags & LIF_SEPARATOR))
 		return 0;
@@ -8519,7 +8519,7 @@ static bool msgBoxFunc(const TMacroFunction*)
 }
 
 
-static int WINAPI CompareItems(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
+static intptr_t WINAPI CompareItems(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
 {
 	if (((*el1)->Flags & LIF_SEPARATOR) || ((*el2)->Flags & LIF_SEPARATOR))
 		return 0;
@@ -12933,7 +12933,7 @@ void KeyMacro::RunStartMacro()
 #endif
 
 // обработчик диалогового окна назначения клавиши
-intptr_t WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	string strKeyText;
 	static int LastKey=0;
@@ -13351,7 +13351,7 @@ enum MACROSETTINGSDLG
 	MS_BUTTON_CANCEL,
 };
 
-intptr_t WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	static DlgParam *KMParam=nullptr;
 

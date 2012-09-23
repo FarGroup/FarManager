@@ -532,7 +532,7 @@ void DialogBuilder::LinkFlagsByID(DialogItemEx *Parent, int TargetID, FARDIALOGI
 	}
 }
 
-int DialogBuilder::DoShowDialog()
+intptr_t DialogBuilder::DoShowDialog()
 {
 	Dialog Dlg(DialogItems, DialogItemsCount);
 	Dlg.SetHelp(HelpTopic);

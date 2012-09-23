@@ -1534,7 +1534,7 @@ int FileList::ProcessKey(int Key)
 				if (!PluginMode)
 					strPluginData.Clear();
 
-				UINT codepage = CP_DEFAULT;
+				uintptr_t codepage = CP_DEFAULT;
 
 				if (Key==KEY_SHIFTF4)
 				{
@@ -5258,7 +5258,7 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	strPath = ph->pPlugin->GetModuleName();
 	CutToSlash(strPath);
-	UINT nCodePage = CP_OEMCP;
+	uintptr_t nCodePage = CP_OEMCP;
 	FILE *HelpFile=OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFileName, nCodePage);
 
 	if (!HelpFile)

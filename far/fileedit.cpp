@@ -87,11 +87,11 @@ enum enumOpenEditor
 };
 
 
-intptr_t WINAPI hndOpenEditor(HANDLE hDlg, int msg, int param1, void* param2)
+intptr_t WINAPI hndOpenEditor(HANDLE hDlg, intptr_t msg, intptr_t param1, void* param2)
 {
 	if (msg == DN_INITDIALOG)
 	{
-		int codepage = *(UINT*)param2;
+		int codepage = *(uintptr_t*)param2;
 		FillCodePagesList(hDlg, ID_OE_CODEPAGE, codepage, true, false, true, true);
 	}
 
@@ -99,7 +99,7 @@ intptr_t WINAPI hndOpenEditor(HANDLE hDlg, int msg, int param1, void* param2)
 	{
 		if (param1 == ID_OE_OK)
 		{
-			UINT* param = (UINT*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
+			uintptr_t* param = (uintptr_t*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 			FarListPos pos={sizeof(FarListPos)};
 			SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
 			*param = *(UINT*)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
@@ -110,7 +110,7 @@ intptr_t WINAPI hndOpenEditor(HANDLE hDlg, int msg, int param1, void* param2)
 	return DefDlgProc(hDlg, msg, param1, param2);
 }
 
-bool dlgOpenEditor(string &strFileName, UINT &codepage)
+bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
 {
 	const wchar_t *HistoryName=L"NewEdit";
 	FarDialogItem EditDlgData[]=
@@ -164,7 +164,7 @@ enum enumSaveFileAs
 	ID_SF_CANCEL,
 };
 
-intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, int msg, int param1, void* param2)
+intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, intptr_t msg, intptr_t param1, void* param2)
 {
 	static UINT codepage=0;
 
@@ -297,7 +297,7 @@ bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &Ad
 
 const FileEditor *FileEditor::CurrentEditor = nullptr;
 
-FileEditor::FileEditor(const string& Name, UINT codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int OpenModeExstFile):
+FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int OpenModeExstFile):
 	BadConversion(false)
 {
 	ScreenObject::SetPosition(0,0,ScrX,ScrY);
@@ -307,7 +307,7 @@ FileEditor::FileEditor(const string& Name, UINT codepage, DWORD InitFlags, int S
 }
 
 
-FileEditor::FileEditor(const string& Name, UINT codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, int OpenModeExstFile):
+FileEditor::FileEditor(const string& Name, uintptr_t codepage, DWORD InitFlags, int StartLine, int StartChar, const string* Title, int X1, int Y1, int X2, int Y2, int DeleteOnClose, int OpenModeExstFile):
 	BadConversion(false)
 {
 	Flags.Set(InitFlags);
@@ -1306,7 +1306,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			{
 				if (!IsUnicodeCodePage(m_codepage))
 				{
-					UINT codepage = SelectCodePage(m_codepage, false, true, false, true);
+					uintptr_t codepage = SelectCodePage(m_codepage, false, true, false, true);
 					if ( codepage == (CP_DEFAULT & 0xffff) )
 					{
 						File edit_file;
@@ -1533,7 +1533,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	*m_editor->GlobalEOL=0; //BUGBUG???
 	wchar_t *Str;
 	int StrLength,GetCode;
-	UINT dwCP=0;
+	uintptr_t dwCP=0;
 	bool Detect=false;
 
 	bool redetect = (m_codepage == CP_REDETECT);

@@ -457,7 +457,7 @@ enum ELEVATIONAPPROVEDLGITEM
 	AAD_BUTTON_SKIP,
 };
 
-intptr_t WINAPI ElevationApproveDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI ElevationApproveDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{

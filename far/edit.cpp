@@ -3150,7 +3150,7 @@ void EditControl::SetMenuPos(VMenu& menu)
 {
 	if(ScrY-Y1<Min(Opt.Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())+2 && Y1>ScrY/2)
 	{
-		menu.SetPosition(X1,Max(0,Y1-1-Min(Opt.Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())-1),Min(ScrX-2,X2),Y1-1);
+		menu.SetPosition(X1,Max((intptr_t)0,Y1-1-Min(Opt.Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())-1),Min(ScrX-2,X2),Y1-1);
 	}
 	else
 	{

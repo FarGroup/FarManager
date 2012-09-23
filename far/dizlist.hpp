@@ -51,7 +51,7 @@ class DizList
 		size_t IndexCount;
 		bool Modified;
 		bool NeedRebuild;
-		UINT OrigCodePage;
+		uintptr_t OrigCodePage;
 		char *AnsiBuf;
 
 	private:

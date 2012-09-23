@@ -131,7 +131,7 @@ bool GetErrorString(string &strErrStr)
 #endif
 }
 
-intptr_t WINAPI MsgDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{

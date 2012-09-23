@@ -88,7 +88,7 @@ namespace pluginapi
 {
 inline Plugin* GuidToPlugin(const GUID* Id) {return (Id && CtrlObject)? CtrlObject->Plugins->FindPlugin(*Id) : nullptr;}
 
-int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) //?deprecated
+intptr_t WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) //?deprecated
 {
 	va_list argptr;
 	va_start(argptr, Format);
@@ -97,7 +97,7 @@ int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) //?deprecated
 	return Result;
 }
 
-int WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...)
+intptr_t WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...)
 {
 	va_list argptr;
 	va_start(argptr, Format);
@@ -106,7 +106,18 @@ int WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...)
 	return Result;
 }
 
-wchar_t *WINAPI apiItoa(int value, wchar_t *string, int radix)
+#ifndef _MSC_VER
+intptr_t WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...)
+{
+	va_list argptr;
+	va_start(argptr, Format);
+	int Result = vswscanf(Src, Format, argptr);
+	va_end(argptr);
+	return Result;
+}
+#endif
+
+wchar_t *WINAPI apiItoa(intptr_t value, wchar_t *string, intptr_t radix)
 {
 	if (string)
 		return _itow(value,string,radix);
@@ -114,7 +125,7 @@ wchar_t *WINAPI apiItoa(int value, wchar_t *string, int radix)
 	return nullptr;
 }
 
-wchar_t *WINAPI apiItoa64(__int64 value, wchar_t *string, int radix)
+wchar_t *WINAPI apiItoa64(__int64 value, wchar_t *string, intptr_t radix)
 {
 	if (string)
 		return _i64tow(value, string, radix);
@@ -122,7 +133,7 @@ wchar_t *WINAPI apiItoa64(__int64 value, wchar_t *string, int radix)
 	return nullptr;
 }
 
-int WINAPI apiAtoi(const wchar_t *s)
+intptr_t WINAPI apiAtoi(const wchar_t *s)
 {
 	if (s)
 		return _wtoi(s);
@@ -134,7 +145,7 @@ __int64 WINAPI apiAtoi64(const wchar_t *s)
 	return s?_wtoi64(s):0;
 }
 
-void WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *,void *),void *user)
+void WINAPI apiQsort(void *base, size_t nelem, size_t width, intptr_t (WINAPI *fcmp)(const void *, const void *,void *),void *user)
 {
 	if (base && fcmp)
 	{
@@ -142,7 +153,7 @@ void WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(
 	}
 }
 
-void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *),void *user)
+void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, intptr_t (WINAPI *fcmp)(const void *, const void *, void *),void *user)
 {
 	if (key && fcmp && base)
 		return bsearchex(key,base,nelem,width,fcmp,user);
@@ -185,7 +196,7 @@ wchar_t* WINAPI apiQuoteSpaceOnly(wchar_t *Str)
 	return QuoteSpaceOnly(Str);
 }
 
-int WINAPI apiInputBox(
+intptr_t WINAPI apiInputBox(
     const GUID* PluginId,
     const GUID* Id,
     const wchar_t *Title,
@@ -275,7 +286,7 @@ BOOL WINAPI apiShowHelp(
 /* $ 05.07.2000 IS
   Функция, которая будет действовать и в редакторе, и в панелях, и...
 */
-intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, int Param1, void* Param2)
+intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
 	if (ACTL_SYNCHRO==Command) //must be first
 	{
@@ -682,18 +693,18 @@ class MenuLock
 };
 #endif
 
-int WINAPI apiMenuFn(
+intptr_t WINAPI apiMenuFn(
     const GUID* PluginId,
     const GUID* Id,
-    int X,
-    int Y,
-    int MaxHeight,
+    intptr_t X,
+    intptr_t Y,
+    intptr_t MaxHeight,
     unsigned __int64 Flags,
     const wchar_t *Title,
     const wchar_t *Bottom,
     const wchar_t *HelpTopic,
     const FarKey *BreakKeys,
-    int *BreakCode,
+    intptr_t *BreakCode,
     const FarMenuItem *Item,
     size_t ItemsNumber
 )
@@ -841,7 +852,7 @@ int WINAPI apiMenuFn(
 }
 
 // Функция FarDefDlgProc обработки диалога по умолчанию
-intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return DefDlgProc(hDlg,Msg,Param1,Param2);
@@ -850,7 +861,7 @@ intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 }
 
 // Посылка сообщения диалогу
-intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
 		return SendDlgMessage(hDlg,Msg,Param1,Param2);
@@ -858,7 +869,7 @@ intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 	return 0;
 }
 
-HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, int X1, int Y1, int X2, int Y2,
+HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2,
                             const wchar_t *HelpTopic, const FarDialogItem *Item,
                             size_t ItemsNumber, intptr_t Reserved, unsigned __int64 Flags,
                             FARWINDOWPROC DlgProc, void* Param)
@@ -919,7 +930,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, int X1, int Y1
 	return hDlg;
 }
 
-int WINAPI apiDialogRun(HANDLE hDlg)
+intptr_t WINAPI apiDialogRun(HANDLE hDlg)
 {
 	if (FrameManager->ManagerIsDown())
 		return -1;
@@ -947,7 +958,7 @@ void WINAPI apiDialogFree(HANDLE hDlg)
 	}
 }
 
-const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,int MsgId)
+const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,intptr_t MsgId)
 {
 	Plugin *pPlugin = GuidToPlugin(PluginId);
 	if (pPlugin)
@@ -961,9 +972,9 @@ const wchar_t* WINAPI apiGetMsgFn(const GUID* PluginId,int MsgId)
 	return L"";
 }
 
-int WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int64 Flags,const wchar_t *HelpTopic,
+intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int64 Flags,const wchar_t *HelpTopic,
                         const wchar_t * const *Items,size_t ItemsNumber,
-                        int ButtonsNumber)
+                        intptr_t ButtonsNumber)
 {
 	if (FrameManager->ManagerIsDown())
 		return -1;
@@ -1119,7 +1130,7 @@ int WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int64 Fla
 	return MsgCode;
 }
 
-intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,void* Param2)
+intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,intptr_t Param1,void* Param2)
 {
 	_FCTLLOG(CleverSysLog CSL(L"Control"));
 	_FCTLLOG(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
@@ -1340,7 +1351,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 }
 
 
-HANDLE WINAPI apiSaveScreen(int X1,int Y1,int X2,int Y2)
+HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2)
 {
 	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return nullptr;
@@ -1384,7 +1395,7 @@ void FreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber)
 	xf_free(PanelItem);
 }
 
-int WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t *pItemsNumber)
+intptr_t WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t *pItemsNumber)
 {
 	if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
 		return FALSE;
@@ -1449,7 +1460,7 @@ int WINAPI apiGetDirList(const wchar_t *Dir,PluginPanelItem **pPanelItem,size_t 
 	return TRUE;
 }
 
-int WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
+intptr_t WINAPI apiGetPluginDirList(const GUID* PluginId, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
 {
 	if (FrameManager->ManagerIsDown() || !Dir || !*Dir || !pItemsNumber || !pPanelItem)
 		return FALSE;
@@ -1469,10 +1480,10 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, siz
 	for (size_t I=0; I<ItemsNumber; I++)
 	{
 		PluginPanelItem *CurPanelItem=PanelItem+I;
-		if(CurPanelItem->UserData.Callback)
+		if(CurPanelItem->UserData.FreeData)
 		{
 			FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),hPlugin};
-			CurPanelItem->UserData.Callback(CurPanelItem->UserData.UserData,&info);
+			CurPanelItem->UserData.FreeData(CurPanelItem->UserData.Data,&info);
 		}
 		FreePluginPanelItem(CurPanelItem);
 	}
@@ -1480,8 +1491,8 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, siz
 	xf_free(PanelItem);
 }
 
-int WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
-                     int X1,int Y1,int X2, int Y2,unsigned __int64 Flags, UINT CodePage)
+intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
+                     intptr_t X1,intptr_t Y1,intptr_t X2, intptr_t Y2,unsigned __int64 Flags, uintptr_t CodePage)
 {
 	if (FrameManager->ManagerIsDown())
 		return FALSE;
@@ -1556,7 +1567,7 @@ int WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 	return TRUE;
 }
 
-int WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, int X1, int Y1, int X2, int Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, UINT CodePage)
+intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, uintptr_t CodePage)
 {
 	if (FrameManager->ManagerIsDown())
 		return EEC_OPEN_ERROR;
@@ -1687,7 +1698,7 @@ int WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, int X1, int 
 	return ExitCode;
 }
 
-void WINAPI apiText(int X,int Y,const FarColor* Color,const wchar_t *Str)
+void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *Str)
 {
 	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return;
@@ -1705,7 +1716,7 @@ void WINAPI apiText(int X,int Y,const FarColor* Color,const wchar_t *Str)
 	}
 }
 
-intptr_t WINAPI apiEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, int Param1, void* Param2)
+intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
 	if (FrameManager->ManagerIsDown())
 		return 0;
@@ -1744,7 +1755,7 @@ intptr_t WINAPI apiEditorControl(int EditorID, EDITOR_CONTROL_COMMANDS Command, 
 	return 0;
 }
 
-intptr_t WINAPI apiViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, int Param1, void* Param2)
+intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
 	if (FrameManager->ManagerIsDown())
 		return 0;
@@ -1775,12 +1786,12 @@ intptr_t WINAPI apiViewerControl(int ViewerID, VIEWER_CONTROL_COMMANDS Command, 
 	return 0;
 }
 
-void WINAPI apiUpperBuf(wchar_t *Buf, int Length)
+void WINAPI apiUpperBuf(wchar_t *Buf, intptr_t Length)
 {
 	return UpperBuf(Buf, Length);
 }
 
-void WINAPI apiLowerBuf(wchar_t *Buf, int Length)
+void WINAPI apiLowerBuf(wchar_t *Buf, intptr_t Length)
 {
 	return LowerBuf(Buf, Length);
 }
@@ -1805,52 +1816,52 @@ wchar_t WINAPI apiLower(wchar_t Ch)
 	return Lower(Ch);
 }
 
-int WINAPI apiStrCmpNI(const wchar_t *s1, const wchar_t *s2, int n)
+intptr_t WINAPI apiStrCmpNI(const wchar_t *s1, const wchar_t *s2, intptr_t n)
 {
 	return StrCmpNI(s1, s2, n);
 }
 
-int WINAPI apiStrCmpI(const wchar_t *s1, const wchar_t *s2)
+intptr_t WINAPI apiStrCmpI(const wchar_t *s1, const wchar_t *s2)
 {
 	return StrCmpI(s1, s2);
 }
 
-int WINAPI apiIsLower(wchar_t Ch)
+intptr_t WINAPI apiIsLower(wchar_t Ch)
 {
 	return IsLower(Ch);
 }
 
-int WINAPI apiIsUpper(wchar_t Ch)
+intptr_t WINAPI apiIsUpper(wchar_t Ch)
 {
 	return IsUpper(Ch);
 }
 
-int WINAPI apiIsAlpha(wchar_t Ch)
+intptr_t WINAPI apiIsAlpha(wchar_t Ch)
 {
 	return IsAlpha(Ch);
 }
 
-int WINAPI apiIsAlphaNum(wchar_t Ch)
+intptr_t WINAPI apiIsAlphaNum(wchar_t Ch)
 {
 	return IsAlphaNum(Ch);
 }
 
-wchar_t* WINAPI apiTruncStr(wchar_t *Str,int MaxLength)
+wchar_t* WINAPI apiTruncStr(wchar_t *Str,intptr_t MaxLength)
 {
 	return TruncStr(Str, MaxLength);
 }
 
-wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, int MaxLength)
+wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, intptr_t MaxLength)
 {
 	return TruncStrFromCenter(Str, MaxLength);
 }
 
-wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str,int MaxLength)
+wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str,intptr_t MaxLength)
 {
 	return TruncStrFromEnd(Str, MaxLength);
 }
 
-wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, int MaxLength)
+wchar_t* WINAPI apiTruncPathStr(wchar_t *Str, intptr_t MaxLength)
 {
 	return TruncPathStr(Str, MaxLength);
 }
@@ -2010,7 +2021,7 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 	return size;
 }
 
-intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, int Param1, void* Param2)
+intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
 	if (CtrlObject) // все зависит от этой бадяги.
 	{
@@ -2187,7 +2198,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 	return 0;
 }
 
-intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Command, int Param1, void* Param2)
+intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
 	switch (Command)
 	{
@@ -2273,7 +2284,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 	return 0;
 }
 
-intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, int Param1, void* Param2)
+intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
 	FileFilter *Filter=nullptr;
 
@@ -2344,7 +2355,7 @@ intptr_t WINAPI apiFileFilterControl(HANDLE hHandle, FAR_FILE_FILTER_CONTROL_COM
 	return FALSE;
 }
 
-intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, int Param1, void* Param2)
+intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
 	RegExp* re=nullptr;
 
@@ -2405,7 +2416,7 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 	return FALSE;
 }
 
-intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, int Param1, void* Param2)
+intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
 	AbstractSettings* settings=nullptr;
 
@@ -2471,7 +2482,7 @@ size_t WINAPI apiGetCurrentDirectory(size_t Size,wchar_t* Buffer)
 	return strCurDir.GetLength()+1;
 }
 
-size_t WINAPI apiFormatFileSize(unsigned __int64 Size, int Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize)
+size_t WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize)
 {
 	static unsigned __int64 FlagsPair[]={
 		FFFS_COMMAS,            COLUMN_COMMAS,         // Вставлять разделитель между тысячами

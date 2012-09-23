@@ -591,7 +591,7 @@ void FileList::StopFSWatcher()
 	FSWatcher.Release();
 }
 
-static int WINAPI SortSearchList(const void *el1,const void *el2,void*)
+static intptr_t WINAPI SortSearchList(const void *el1,const void *el2,void*)
 {
 	FileListItem **SPtr1=(FileListItem **)el1,**SPtr2=(FileListItem **)el2;
 	return StrCmp(SPtr1[0]->strName,SPtr2[0]->strName);

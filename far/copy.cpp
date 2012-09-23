@@ -628,7 +628,7 @@ enum
 	DM_SWITCHRO = DM_USER+2,
 };
 
-intptr_t WINAPI CopyDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI CopyDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 
 	CopyDlgParam *DlgParam=(CopyDlgParam *)SendDlgMessage(hDlg,DM_GETDLGDATA,0,0);
@@ -3457,7 +3457,7 @@ enum
  DM_OPENVIEWER = DM_USER+33,
 };
 
-intptr_t WINAPI WarnDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI WarnDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{

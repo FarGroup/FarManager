@@ -200,8 +200,8 @@ class KeyMacro
 		void WriteMacro(void);
 		void* CallMacroPlugin(unsigned Type,void* Data);
 		int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
-		static intptr_t WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
-		static intptr_t WINAPI ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
+		static intptr_t WINAPI AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+		static intptr_t WINAPI ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 		int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 		void InitInternalVars(bool InitedRAM=true);
 		bool InitMacroExecution(void);
@@ -488,8 +488,8 @@ class KeyMacro
 		DWORD SetOpCode(struct MacroRecord *MR,int PC,DWORD OpCode);
 
 	private:
-		static intptr_t WINAPI AssignMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
-		static intptr_t WINAPI ParamMacroDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
+		static intptr_t WINAPI AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+		static intptr_t WINAPI ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 	public:
 		KeyMacro();

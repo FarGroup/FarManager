@@ -233,7 +233,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 		return TRUE;
 	}
 
-	UINT nCodePage = CP_OEMCP;
+	uintptr_t nCodePage = CP_OEMCP;
 	FILE *HelpFile=OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFullHelpPathName, nCodePage);
 
 	if (!HelpFile)
@@ -1851,7 +1851,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 			{
 				strPath = CtrlObject->Plugins->GetPlugin(I)->GetModuleName();
 				CutToSlash(strPath);
-				UINT nCodePage = CP_OEMCP;
+				uintptr_t nCodePage = CP_OEMCP;
 				FILE *HelpFile=OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFullFileName, nCodePage);
 
 				if (HelpFile)

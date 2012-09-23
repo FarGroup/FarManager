@@ -191,8 +191,8 @@ class ConsoleTitle;
 class Dialog: public Frame
 {
 		friend class DlgEdit;
-		friend intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2);
-		friend intptr_t WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
+		friend intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+		friend intptr_t WINAPI DefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 	private:
 		bool bInitOK;               // диалог был успешно инициализирован
@@ -354,7 +354,7 @@ class Dialog: public Frame
 		                  FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		                  FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
-		intptr_t WINAPI DlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
+		intptr_t WINAPI DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 		virtual void SetPosition(int X1,int Y1,int X2,int Y2);
 
@@ -366,9 +366,9 @@ class Dialog: public Frame
 		friend class History;
 };
 
-intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2);
+intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
-intptr_t WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2);
+intptr_t WINAPI DefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 

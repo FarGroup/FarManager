@@ -60,7 +60,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 FileViewer::FileViewer(
 	const wchar_t *Name,int EnableSwitch,int DisableHistory,
 	int DisableEdit,__int64 ViewStartPos,const wchar_t *PluginData,
-	NamesList *ViewNamesList,int ToSaveAs,UINT aCodePage,
+	NamesList *ViewNamesList,int ToSaveAs,uintptr_t aCodePage,
 	const wchar_t *Title, int DeleteOnClose)
  : View(false,aCodePage),
 	FullScreen(true),
@@ -82,7 +82,7 @@ FileViewer::FileViewer(
 
 
 FileViewer::FileViewer(const wchar_t *Name,int EnableSwitch,int DisableHistory,
-                       const wchar_t *Title, int X1,int Y1,int X2,int Y2,UINT aCodePage): View(false,aCodePage)
+                       const wchar_t *Title, int X1,int Y1,int X2,int Y2,uintptr_t aCodePage): View(false,aCodePage)
 {
 	_OT(SysLog(L"[%p] FileViewer::FileViewer(II variant...)", this));
 	DisableEdit=TRUE;

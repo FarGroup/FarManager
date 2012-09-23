@@ -395,7 +395,7 @@ bool IsTextUTF8(const LPBYTE Buffer,size_t Length)
 	return (Octets>0||Ascii)?false:true;
 }
 
-bool OldGetFileFormat(FILE *file, UINT &nCodePage, bool *pSignatureFound, bool bUseHeuristics)
+bool OldGetFileFormat(FILE *file, uintptr_t &nCodePage, bool *pSignatureFound, bool bUseHeuristics)
 {
 	DWORD dwTemp=0;
 	bool bSignatureFound = false;
@@ -590,7 +590,7 @@ GetFileString::~GetFileString()
 	delete[] ReadBuf;
 }
 
-int GetFileString::PeekString(LPWSTR* DestStr, UINT nCodePage, int& Length)
+int GetFileString::PeekString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length)
 {
 	if(!Peek)
 	{
@@ -607,7 +607,7 @@ int GetFileString::PeekString(LPWSTR* DestStr, UINT nCodePage, int& Length)
 	return LastResult;
 }
 
-int GetFileString::GetString(LPWSTR* DestStr, UINT nCodePage, int& Length)
+int GetFileString::GetString(LPWSTR* DestStr, uintptr_t nCodePage, int& Length)
 {
 	if(Peek)
 	{
@@ -906,7 +906,7 @@ int GetFileString::GetUnicodeString(LPWSTR* DestStr, int& Length, bool bBigEndia
 	return ExitCode;
 }
 
-bool GetFileFormat(File& file, UINT& nCodePage, bool* pSignatureFound, bool bUseHeuristics)
+bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool bUseHeuristics)
 {
 	DWORD dwTemp=0;
 	bool bSignatureFound = false;

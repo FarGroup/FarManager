@@ -250,8 +250,8 @@ void FileList::FileListToPluginItem(FileListItem *fi,PluginPanelItem *pi)
 	pi->CustomColumnNumber=fi->CustomColumnNumber;
 	pi->Description=fi->DizText; //BUGBUG???
 
-	pi->UserData.UserData=fi->UserData;
-	pi->UserData.Callback=fi->Callback;
+	pi->UserData.Data=fi->UserData;
+	pi->UserData.FreeData=fi->Callback;
 
 	pi->CRC32=fi->CRC32;
 	pi->Reserved[0]=pi->Reserved[1]=0;
@@ -299,8 +299,8 @@ size_t FileList::FileListToPluginItem2(FileListItem *fi,FarGetPluginPanelItem *g
 			gpi->Item->CustomColumnData=(wchar_t**)data;
 			data+=fi->CustomColumnNumber*sizeof(wchar_t*);
 
-			gpi->Item->UserData.UserData=fi->UserData;
-			gpi->Item->UserData.Callback=fi->Callback;
+			gpi->Item->UserData.Data=fi->UserData;
+			gpi->Item->UserData.FreeData=fi->Callback;
 
 			gpi->Item->FileName=wcscpy((wchar_t*)data,fi->strName);
 			data+=sizeof(wchar_t)*(fi->strName.GetLength()+1);
@@ -372,8 +372,8 @@ void FileList::PluginToFileListItem(PluginPanelItem *pi,FileListItem *fi)
 	fi->NumberOfStreams=1;
 	fi->UserFlags=pi->Flags;
 
-	fi->UserData=pi->UserData.UserData;
-	fi->Callback=pi->UserData.Callback;
+	fi->UserData=pi->UserData.Data;
+	fi->Callback=pi->UserData.FreeData;
 
 	if (pi->CustomColumnNumber>0)
 	{

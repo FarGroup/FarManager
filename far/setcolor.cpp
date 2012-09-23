@@ -79,7 +79,7 @@ void GetColor(int PaletteIndex, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2, VMen
 		FrameManager->PluginCommit(); // коммитим.
 		MenuToRedraw1->SetColors();
 		MenuToRedraw1->Show(); // кажем
-		
+
 		if(MenuToRedraw2)
 		{
 			MenuToRedraw2->SetColors();
@@ -559,7 +559,7 @@ int ColorIndex[]=
 	F_BLACK|B_WHITE
 };
 
-static intptr_t WINAPI GetColorDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+static intptr_t WINAPI GetColorDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	switch (Msg)
 	{
