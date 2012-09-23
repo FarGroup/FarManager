@@ -3309,7 +3309,7 @@ FindFiles::FindFiles()
 			{0,MSG(MSearchInSelected)},
 		};
 		li[FADC_ALLDISKS+SearchMode].Flags|=LIF_SELECTED;
-		FarList l={ARRAYSIZE(li),li};
+		FarList l={sizeof(FarList),ARRAYSIZE(li),li};
 		FindAskDlg[FAD_COMBOBOX_WHERE].ListItems=&l;
 
 		if (v.PluginMode)

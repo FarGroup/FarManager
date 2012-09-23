@@ -121,7 +121,7 @@ intptr_t WINAPI MkDirDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 
 void ShellMakeDir(Panel *SrcPanel)
 {
-	FarList ComboList;
+	FarList ComboList={sizeof(FarList)};
 	FarListItem LinkTypeItems[3]={};
 	ComboList.ItemsNumber=ARRAYSIZE(LinkTypeItems);
 	ComboList.Items=LinkTypeItems;

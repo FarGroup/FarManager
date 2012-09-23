@@ -1736,7 +1736,7 @@ bool AdvancedConfig()
 	};
 	MakeDialogItemsEx(AdvancedConfigDlgData,AdvancedConfigDlg);
 
-	FarList Items;
+	FarList Items={sizeof(FarList)};
 	Items.ItemsNumber = ARRAYSIZE(CFG);
 	Items.Items = new FarListItem[Items.ItemsNumber];
 

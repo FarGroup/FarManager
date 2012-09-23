@@ -409,6 +409,7 @@ DialogItemEx *DialogBuilder::AddComboBox(int *Value, int Width,
 		ListItems [i].Reserved [0] = Items [i].ItemValue;
 	}
 	FarList *List = new FarList;
+	List->StructSize = sizeof(FarList);
 	List->Items = ListItems;
 	List->ItemsNumber = ItemCount;
 	Item->ListItems = List;
@@ -434,6 +435,7 @@ DialogItemEx *DialogBuilder::AddComboBox(IntOption& Value, int Width,
 		ListItems [i].Reserved [0] = Items [i].ItemValue;
 	}
 	FarList *List = new FarList;
+	List->StructSize = sizeof(FarList);
 	List->Items = ListItems;
 	List->ItemsNumber = ItemCount;
 	Item->ListItems = List;

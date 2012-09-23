@@ -382,7 +382,7 @@ struct FarListItem
 {
 	LISTITEMFLAGS Flags;
 	const wchar_t *Text;
-	intptr_t Reserved[3];
+	intptr_t Reserved[2];
 };
 
 struct FarListUpdate
@@ -464,6 +464,7 @@ struct FarListItemData
 
 struct FarList
 {
+	size_t StructSize;
 	size_t ItemsNumber;
 	struct FarListItem *Items;
 };
@@ -500,7 +501,7 @@ struct FarDialogItem
 		int Selected;
 		struct FarList *ListItems;
 		struct FAR_CHAR_INFO *VBuf;
-		intptr_t Reserved;
+		intptr_t Reserved0;
 	}
 #ifndef __cplusplus
 	Param
@@ -512,6 +513,7 @@ struct FarDialogItem
 	const wchar_t *Data;
 	size_t MaxLength; // terminate 0 not included (if == 0 string size is unlimited)
 	intptr_t UserData;
+	intptr_t Reserved[2];
 };
 
 struct FarDialogItemData
@@ -523,6 +525,7 @@ struct FarDialogItemData
 
 struct FarDialogEvent
 {
+	size_t StructSize;
 	HANDLE hDlg;
 	int Msg;
 	int Param1;
@@ -661,8 +664,8 @@ struct FarMenuItem
 	MENUITEMFLAGS Flags;
 	const wchar_t *Text;
 	struct FarKey AccelKey;
-	intptr_t Reserved;
 	intptr_t UserData;
+	intptr_t Reserved[2];
 };
 
 typedef unsigned __int64 FARMENUFLAGS;

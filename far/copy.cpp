@@ -1216,7 +1216,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	// ***********************************************************************
 	if (Ask)
 	{
-		FarList ComboList;
+		FarList ComboList={sizeof(FarList)};
 		FarListItem LinkTypeItems[5]={},CopyModeItems[8]={};
 
 		if (Link)

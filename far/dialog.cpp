@@ -167,7 +167,7 @@ static void ConvertItemSmall(const DialogItemEx& From, FarDialogItem& To)
 	To.Data = nullptr;
 	To.History = nullptr;
 	To.Mask = nullptr;
-	To.Reserved = From.Reserved;
+	To.Reserved0 = From.Reserved0;
 	To.UserData = From.UserData;
 }
 
@@ -4550,7 +4550,7 @@ intptr_t WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 		return 0;
 
 	intptr_t Result;
-	FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
+	FarDialogEvent de={sizeof(FarDialogEvent),hDlg,Msg,Param1,Param2,0};
 
 	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
@@ -4581,7 +4581,7 @@ intptr_t WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
 	if (!hDlg || hDlg==INVALID_HANDLE_VALUE)
 		return 0;
 
-	FarDialogEvent de={hDlg,Msg,Param1,Param2,0};
+	FarDialogEvent de={sizeof(FarDialogEvent),hDlg,Msg,Param1,Param2,0};
 
 	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
@@ -5118,7 +5118,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						{
 							FarList *ListItems=(FarList *)Param2;
 
-							if (!ListItems)
+							if (!ListItems||CheckStructSize(ListItems))
 								return FALSE;
 
 							Ret=ListBox->AddItem(ListItems);
@@ -5217,7 +5217,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
 						{
 							FarList *ListItems=(FarList *)Param2;
 
-							if (!ListItems)
+							if (!ListItems||CheckStructSize(ListItems))
 								return FALSE;
 
 							ListBox->DeleteItems();

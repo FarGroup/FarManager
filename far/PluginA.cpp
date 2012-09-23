@@ -1693,7 +1693,8 @@ int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flag
 			KeyToInputRecord(OldKeyToKey(p[i].AccelKey),&input);
 			mi[i].AccelKey.VirtualKeyCode = input.Event.KeyEvent.dwControlKeyState;
 			mi[i].AccelKey.ControlKeyState = input.Event.KeyEvent.dwControlKeyState;
-			mi[i].Reserved = p[i].Reserved;
+			mi[i].Reserved[0] = p[i].Reserved;
+			mi[i].Reserved[1] = 0;
 			mi[i].UserData = p[i].UserData;
 		}
 	}
@@ -1726,7 +1727,7 @@ int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flag
 
 			mi[i].AccelKey.VirtualKeyCode = 0;
 			mi[i].AccelKey.ControlKeyState = 0;
-			mi[i].Reserved = 0;
+			mi[i].Reserved[0] = mi[i].Reserved[1] = 0;
 			mi[i].UserData = 0;
 		}
 	}
@@ -2445,7 +2446,7 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 
 intptr_t WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
 {
-	FarDialogEvent e = {hDlg, NewMsg, Param1, Param2};
+	FarDialogEvent e = {sizeof(FarDialogEvent), hDlg, NewMsg, Param1, Param2};
 	StackHandler sh(e);
 
 	static wchar_t* HelpTopic = nullptr;
@@ -2838,7 +2839,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		}
 		case oldfar::DM_LISTADD:
 		{
-			FarList newlist = {};
+			FarList newlist = {sizeof(FarList)};
 
 			if (Param2)
 			{
@@ -3065,7 +3066,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 		case oldfar::DM_SETITEMDATA:         Msg = DM_SETITEMDATA; break;
 		case oldfar::DM_LISTSET:
 		{
-			FarList newlist = {};
+			FarList newlist = {sizeof(FarList)};
 
 			if (Param2)
 			{
