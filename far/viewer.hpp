@@ -69,7 +69,7 @@ struct ViewerUndoData
 
 struct ViewerModeInternal
 {
- 	UINT CodePage;
+ 	uintptr_t CodePage;
 	int Wrap;
 	int WordWrap;
 	int Hex;
@@ -149,7 +149,7 @@ class Viewer:public ScreenObject
 
 		bool m_bQuickView;
 
-		UINT DefCodePage;
+		uintptr_t DefCodePage;
 
 		int update_check_period;
 		DWORD last_update_check;
@@ -239,7 +239,7 @@ class Viewer:public ScreenObject
 		void SavePosition();
 
 	public:
-		Viewer(bool bQuickView = false, UINT aCodePage = CP_DEFAULT);
+		Viewer(bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);
 		virtual ~Viewer();
 
 	public:
@@ -286,7 +286,7 @@ class Viewer:public ScreenObject
 
 		int GetHexMode() const { return VM.Hex; }
 
-		UINT GetCodePage() const { return VM.CodePage; }
+		uintptr_t GetCodePage() const { return VM.CodePage; }
 
 		NamesList *GetNamesList() { return &ViewNamesList; }
 

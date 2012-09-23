@@ -80,7 +80,7 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 #define BOM_CHAR      0xFEFF // Zero Length Space
 #define ZERO_CHAR     (ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? (wchar_t)(ViOpt.ZeroChar) : L' ')
 
-Viewer::Viewer(bool bQuickView, UINT aCodePage):
+Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	ViOpt(Opt.ViOpt),
 	Reader(ViewFile, (Opt.ViOpt.MaxLineSize*2*64 > 64*1024 ? Opt.ViOpt.MaxLineSize*2*64 : 64*1024)),
 	m_bQuickView(bQuickView)
@@ -358,7 +358,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	//if(ViOpt.AutoDetectTable)
 	{
 		bool Detect=false;
-		UINT CodePage=0;
+		uintptr_t CodePage=0;
 
 		if (VM.CodePage == CP_DEFAULT || IsUnicodeOrUtfCodePage(VM.CodePage))
 		{
@@ -1641,7 +1641,7 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_SHIFTF8:
 		{
-			UINT nCodePage = SelectCodePage(VM.CodePage, true, true, false, true);
+			uintptr_t nCodePage = SelectCodePage(VM.CodePage, true, true, false, true);
 			if (nCodePage != static_cast<UINT>(-1))
 			{
 				if (nCodePage == (CP_DEFAULT & 0xffff))

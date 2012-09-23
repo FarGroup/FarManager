@@ -353,7 +353,7 @@ Event PauseEvent(true, true);
 Event StopEvent(true, false);
 
 bool UseFilter=false;
-UINT CodePage=CP_DEFAULT;
+uintptr_t CodePage=CP_DEFAULT;
 UINT64 SearchInFirst=0;
 
 char *readBufferA;

@@ -4283,10 +4283,10 @@ void MultiByteRecode(UINT nCPin, UINT nCPout, char *szBuffer, int nLength)
 	}
 };
 
-UINT ConvertCharTableToCodePage(int Command)
+uintptr_t ConvertCharTableToCodePage(int Command)
 {
 	string strTableName;
-	UINT nCP = 0;
+	uintptr_t nCP = 0;
 
 	if (Command<0)
 	{

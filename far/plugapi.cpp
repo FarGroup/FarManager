@@ -1473,7 +1473,7 @@ void WINAPI apiFreePluginDirList(HANDLE hPlugin, PluginPanelItem *PanelItem, siz
 }
 
 intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
-                     intptr_t X1,intptr_t Y1,intptr_t X2, intptr_t Y2,unsigned __int64 Flags, UINT CodePage)
+                     intptr_t X1,intptr_t Y1,intptr_t X2, intptr_t Y2,unsigned __int64 Flags, uintptr_t CodePage)
 {
 	if (FrameManager->ManagerIsDown())
 		return FALSE;
@@ -1548,7 +1548,7 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 	return TRUE;
 }
 
-intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, UINT CodePage)
+intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, uintptr_t CodePage)
 {
 	if (FrameManager->ManagerIsDown())
 		return EEC_OPEN_ERROR;

@@ -133,7 +133,7 @@ void MenuListToFile(DList<UserMenuItem> *Menu, CachedWrite& CW)
 	}
 }
 
-void MenuFileToList(DList<UserMenuItem> *Menu, File& MenuFile, GetFileString& GetStr, UINT MenuCP = CP_UNICODE)
+void MenuFileToList(DList<UserMenuItem> *Menu, File& MenuFile, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
 {
 	INT64 Pos = MenuFile.GetPointer();
 	if (!Pos)

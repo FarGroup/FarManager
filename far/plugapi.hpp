@@ -92,8 +92,8 @@ namespace pluginapi
 	void     WINAPI apiRestoreScreen(HANDLE hScreen);
 	intptr_t WINAPI apiGetDirList(const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber);
 	void     WINAPI apiFreeDirList(PluginPanelItem *PanelItem, size_t nItemsNumber);
-	intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2,unsigned __int64 Flags, UINT CodePage);
-	intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title,intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, UINT CodePage);
+	intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2,unsigned __int64 Flags, uintptr_t CodePage);
+	intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title,intptr_t X1, intptr_t Y1, intptr_t X2, intptr_t Y2, unsigned __int64 Flags, intptr_t StartLine, intptr_t StartChar, uintptr_t CodePage);
 	void     WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *Str);
 	intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2);
 	intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2);

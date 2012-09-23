@@ -206,7 +206,7 @@ class Editor:public ScreenObject
 		*/
 		bool LastSearchCase,LastSearchWholeWords,LastSearchReverse, LastSearchRegexp;
 
-		UINT m_codepage; //BUGBUG
+		uintptr_t m_codepage; //BUGBUG
 
 		int StartLine;
 		int StartChar;

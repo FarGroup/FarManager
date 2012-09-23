@@ -132,7 +132,7 @@ void DizList::Read(const string& Path, const string* DizName)
 			wchar_t *DizText;
 			int DizLength;
 			clock_t StartTime=clock();
-			UINT CodePage=CP_DEFAULT;
+			uintptr_t CodePage=CP_DEFAULT;
 			bool bSigFound=false;
 
 			if (!GetFileFormat(DizFile,CodePage,&bSigFound,false) || !bSigFound)
