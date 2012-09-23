@@ -1,33 +1,46 @@
 #ifndef __CRT_HPP__
 #define __CRT_HPP__
 
-#define MSC_VER2(major,minor) (100*(major) + 10*(minor) + 600)
-#define PREREQ_MSC(major,minor) (defined(_MSC_VER) && _MSC_VER >= MSC_VER2(major,minor))
+#ifdef _MSC_VER
+ #define VC2005 1400
+ #define VC2008 1500
+ #define VC2010 1600
+ #define VC2012 1700
+#endif // _MSC_VER
 
-#define GCC_VER2(major,minor) (100*(major) + 10*(minor))
-#define _GCC_VER GCC_VER2(__GNUC__, __GNUC_MINOR__)
-#define PREREQ_GCC(major,minor) (defined(__GNUC__) && _GCC_VER >= GCC_VER2(major,minor))
+#ifdef __GNUC__
+ #define GCC_VER_(gcc_major,gcc_minor,gcc_patch) (100*(gcc_major) + 10*(gcc_minor) + (gcc_patch))
+ #define _GCC_VER GCC_VER_(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
+#endif // __GNUC__
 
-#if PREREQ_GCC(4,5)
-# define _CRTIMP
-# define __CRT__NO_INLINE
-#endif
+#ifdef __GNUC__
+ #if _GCC_VER < GCC_VER_(4,5,0)
+  #define _CRTIMP
+  #define __CRT__NO_INLINE
+ #endif
+#endif // __GNUC__
 
-#if PREREQ_MSC(5,0)
-# pragma once
-# if PREREQ_MSC(8,0)
-#  undef _USE_DECLSPECS_FOR_SAL
-#  define _USE_DECLSPECS_FOR_SAL 1
-# endif
+#ifdef _MSC_VER
+ #pragma once
+ #if _MSC_VER >= VC2005
+  #undef _USE_DECLSPECS_FOR_SAL
+  #define _USE_DECLSPECS_FOR_SAL 1
+ #endif
 #endif
 
 #include <stdlib.h>
 #include <stddef.h>
-#if defined(_MSC_VER) && !PREREQ_MSC(8,0)
-# define _WCTYPE_INLINE_DEFINED
-#elif defined(__GNUC__)
-# define __WCTYPE_INLINES_DEFINED
+
+#ifdef _MSC_VER
+ #if _MSC_VER >= VC2005
+  #define _WCTYPE_INLINE_DEFINED
+ #endif
 #endif
+
+#ifdef __GNUC__
+ #define __WCTYPE_INLINES_DEFINED
+#endif
+
 #include <wchar.h>
 #include <tchar.h>
 
@@ -35,14 +48,14 @@
 # define _CONST_RETURN
 # define _CONST_RETURN_W
 # define __cdecl_inline  __cdecl
-# if PREREQ_MSC(7,0)
-#  if defined(__cplusplus) || _MSC_VER < MSC_VER2(8,0)
+# ifdef _MSC_VER
+#  if defined(__cplusplus) || _MSC_VER < VC2005
 #   undef __cdecl_inline
 #   define __cdecl_inline
 #   undef _CONST_RETURN_W
 #   define _CONST_RETURN_W const
 #  endif
-#  if defined(__cplusplus) && _MSC_VER >= MSC_VER2(8,0)
+#  if defined(__cplusplus) && _MSC_VER >= VC2005
 #   undef _CONST_RETURN
 #   define _CONST_RETURN const
 #   define _CRT_CONST_CORRECT_OVERLOADS
@@ -195,8 +208,16 @@ extern "C"
 #define _ui64(n)  n ## ui64
 #endif
 
-#if !PREREQ_GCC(4,6) && !PREREQ_MSC(10,0)
-# define nullptr NULL
-#endif
+#ifdef _MSC_VER
+ #if _MSC_VER < VC2010
+  #define nullptr NULL
+ #endif
+#endif // __GNUC__
+
+#ifdef __GNUC__
+ #if _GCC_VER < GCC_VER_(4,6,0)
+  #define nullptr NULL
+ #endif
+#endif // __GNUC__
 
 #endif
