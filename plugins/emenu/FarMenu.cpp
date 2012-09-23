@@ -204,11 +204,11 @@ int CFarMenu::Show(LPCWSTR szTitle, int nSelItem/*=0*/, bool bAtCursorPos/*=fals
                        {VK_SPACE,SHIFT_PRESSED},
                        {VK_F9,SHIFT_PRESSED|LEFT_ALT_PRESSED},
                        {0,0}};
-  int nBreakCode;
+  intptr_t nBreakCode;
   while (1)
   {
     SetSelectedItem(nSelItem);
-    nSelItem=thePlug->Menu(&MainGuid, m_Id, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, NULL, m_szHelp, pBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
+    nSelItem=(int)thePlug->Menu(&MainGuid, m_Id, nX, nY, MAX_HEIGHT, FMENU_WRAPMODE, szTitle, NULL, m_szHelp, pBreakKeys, &nBreakCode, m_pfmi, m_nItemCnt);
     if (-1==nBreakCode) return nSelItem;
     assert(-1!=nSelItem);
     switch (pBreakKeys[nBreakCode].VirtualKeyCode)

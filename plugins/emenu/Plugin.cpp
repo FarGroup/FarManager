@@ -103,13 +103,13 @@ LPCWSTR CPlugin::GetMsg(int nMsgId)
   return PluginStartupInfo::GetMsg(&MainGuid, nMsgId);
 }
 
-int CPlugin::Message(DWORD nFlags, LPCWSTR szHelpTopic, const LPCWSTR* pItems, int nItemsNumber, int nButtonsNumber)
+intptr_t CPlugin::Message(DWORD nFlags, LPCWSTR szHelpTopic, const LPCWSTR* pItems, int nItemsNumber, int nButtonsNumber)
 {
   if (m_Silent) return -1;
   return PluginStartupInfo::Message(&MainGuid, nullptr, nFlags, szHelpTopic, pItems, nItemsNumber, nButtonsNumber);
 }
 
-INT_PTR WINAPI CPlugin::CfgDlgProcStatic(HANDLE hDlg, int Msg, int Param1, void *Param2)
+INT_PTR WINAPI CPlugin::CfgDlgProcStatic(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
 {
   static CPlugin* pThis=NULL;
   if (DN_INITDIALOG==Msg)
@@ -120,7 +120,7 @@ INT_PTR WINAPI CPlugin::CfgDlgProcStatic(HANDLE hDlg, int Msg, int Param1, void 
   return thePlug->DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-void CPlugin::CfgDlgProc(HANDLE hDlg, int Msg, int Param1, void *Param2)
+void CPlugin::CfgDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2)
 {
   if (DN_INITDIALOG==Msg)
   {

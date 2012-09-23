@@ -45,7 +45,7 @@ public:
   IMalloc* m_pMalloc;
 protected:
   LPCWSTR GetMsg(int nMsgId);
-  int Message(DWORD nFlags, LPCWSTR szHelpTopic, const LPCWSTR* pItems, int nItemsNumber, int nButtonsNumber);
+  intptr_t Message(DWORD nFlags, LPCWSTR szHelpTopic, const LPCWSTR* pItems, int nItemsNumber, int nButtonsNumber);
   EDoMenu DoMenu(LPWSTR szCmdLine, CallMode Mode);
   EDoMenu SelectDrive();
   enum EAutoItem
@@ -66,8 +66,8 @@ protected:
   static bool IsSpace(wchar_t ch) {return L' '==ch || L'\t'==ch;}
   unsigned ParseParams(LPWSTR szParams, LPCWSTR* pFiles=NULL);
   void ReadRegValues();
-  static INT_PTR WINAPI CfgDlgProcStatic(HANDLE hDlg, int Msg, int Param1, void *Param2);
-  void CfgDlgProc(HANDLE hDlg, int Msg, int Param1, void *Param2);
+  static intptr_t WINAPI CfgDlgProcStatic(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2);
+  void CfgDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void *Param2);
   enum EAdditionalStr {AS_NONE=0, AS_HELPTEXT=1, AS_VERB=2};
   bool GetAdditionalString(IContextMenu* pContextMenu, UINT nID, EAdditionalStr enAdditionalString, auto_sz* pstr);
 protected:
