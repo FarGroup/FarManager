@@ -97,15 +97,6 @@ intptr_t WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) //?deprec
 	return Result;
 }
 
-intptr_t WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...)
-{
-	va_list argptr;
-	va_start(argptr, Format);
-	int Result = vswscanf(Src, Format, argptr);
-	va_end(argptr);
-	return Result;
-}
-
 intptr_t WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...)
 {
 	va_list argptr;
