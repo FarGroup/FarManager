@@ -14,7 +14,7 @@
 #endif // __GNUC__
 
 #ifdef __GNUC__
- #if _GCC_VER < GCC_VER_(4,5,0)
+ #if _GCC_VER >= GCC_VER_(4,5,0)
   #define _CRTIMP
   #define __CRT__NO_INLINE
  #endif
