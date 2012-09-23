@@ -28,7 +28,8 @@ int WINAPI GetFindDataW(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a  href="../structures/getfinddatainfo.html">GetFindDataInfo</a>. Плагин заполняет структуру в этой функции.</div>
+    <div class=dfndescr>Указатель на структуру <a  href="../structures/getfinddatainfo.html">GetFindDataInfo</a>. Плагин передает Far Manager'у информацию об элементах (список файлов) для панели в этой функции.<br>
+    В начале функции проверьте, что поле <code>GetFindDataInfo.StructSize >= sizeof(GetFindDataInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -49,6 +50,16 @@ int WINAPI GetFindDataW(
 </ol>
 </div>
 
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "ProcList".
+<pre class=code>
+int WINAPI GetFindDataW(struct GetFindDataInfo *Info)
+{
+  return ((Plist *)Info->hPanel)->GetFindData(Info->PanelItem,Info->ItemsNumber,Info->OpMode);
+}
+</pre>
+</div>
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="freefinddataw.html">FreeFindDataW</a>

@@ -28,7 +28,8 @@ int WINAPI MakeDirectoryW(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a  href="../structures/makedirectoryinfo.html">MakeDirectoryInfo</a>, плагин передает информацию о создаваемом каталоге.</div>
+    <div class=dfndescr>Указатель на структуру <a  href="../structures/makedirectoryinfo.html">MakeDirectoryInfo</a>, плагин передает информацию о создаваемом каталоге.<br>
+    В начале функции проверьте, что поле <code>MakeDirectoryInfo.StructSize >= sizeof(MakeDirectoryInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>

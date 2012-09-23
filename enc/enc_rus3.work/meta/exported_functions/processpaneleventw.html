@@ -28,13 +28,24 @@ int WINAPI ProcessPanelEventW(
 <div class=descr>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/processpaneleventinfo.html">ProcessPanelEventInfo</a>, Far Manager передает информацию о событии.<br>
-    В начале функции обязательно проверьте, что поле <code>ProcessPanelEventInfo.StructSize >= sizeof(ProcessPanelEventInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>ProcessPanelEventInfo.StructSize >= sizeof(ProcessPanelEventInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
 Возвращаемое значение зависит от типа события, смотрите описание событий для уточнения информации.<br>
 Для необрабатываемых плагином событий, функция должна возвращать 0.
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "ProcList".
+<pre class=code>
+int WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
+{
+  return ((Plist *)Info->hPanel)->ProcessEvent(Info->Event,Info->Param);
+}
+</pre>
 </div>
 
 </body>

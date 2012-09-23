@@ -29,7 +29,8 @@ int WINAPI PutFilesW(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на заполненную структуру <a href="../structures/putfilesinfo.html">PutFilesInfo</a>, содержит перемещаемые элементы.</div>
+    <div class=dfndescr>Указатель на заполненную структуру <a href="../structures/putfilesinfo.html">PutFilesInfo</a>, содержит перемещаемые элементы.<br>
+    В начале функции проверьте, что поле <code>PutFilesInfo.StructSize >= sizeof(PutFilesInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -45,6 +46,18 @@ int WINAPI PutFilesW(
 <li>Если операция была прервана, но часть файлов всё же была скопирована, плагин может убрать выделение только с обработанных файлов. Для этого он должен 
 сбросить флаг <a href="../structures/pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a> у соответствующих структур файлов, передаваемых в функцию через параметр <i>PutFilesInfo.PanelItem</i>.
 </ol>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "TmpPanel".
+<pre class=code>
+int WINAPI PutFilesW(const struct PutFilesInfo *Info)
+{
+  TmpPanel *Panel=(TmpPanel *)Info->hPanel;
+  return Panel->PutFiles(Info->PanelItem,Info->ItemsNumber,Info->Move,Info->SrcPath,Info->OpMode);
+}
+</pre>
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>

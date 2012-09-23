@@ -30,7 +30,7 @@ int WINAPI DeleteFilesW(
 <div class=descr>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/deletefilesinfo.html">DeleteFilesInfo</a> - информация, переданная Far Manager'ом плагину, об удаляемых элементах.<br>
-    В начале функции обязательно проверьте, что поле <code>DeleteFilesInfo.StructSize >= sizeof(DeleteFilesInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>DeleteFilesInfo.StructSize >= sizeof(DeleteFilesInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -50,7 +50,8 @@ int WINAPI DeleteFilesW(
 
 <h3>Пример</h3>
 <div class=descr>
-<pre class=code>int WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
+<pre class=code>
+int WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
 {
   struct PluginPanelItem * curPI=&amp;Info->PanelItem[0];
   for(int CurItem=0; CurItem&lt;Info->ItemsNumber; CurItem++, curPI++)

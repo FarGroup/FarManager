@@ -31,24 +31,41 @@ HANDLE WINAPI AnalyseW(
 <div class=descr>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/analyseinfo.html">AnalyseInfo</a> -  информация, переданная Far Manager'ом, для анализа плагином содержимого файла.<br>
-    В начале функции обязательно проверьте, что поле <code>AnalyseInfo.StructSize >= sizeof(AnalyseInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>AnalyseInfo.StructSize >= sizeof(AnalyseInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Если плагин обрабатывает переданный файл и на базе него эмулирует файловую систему, то плагин должен возвращать валидный HANDLE. Иначе функция должна возвращать INVALID_HANDLE_VALUE.
+Если плагин обрабатывает переданный файл и на базе него эмулирует файловую систему, то плагин должен возвращать описатель, отличный от NULL (INVALID_HANDLE_VALUE считается валидным описателем).
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Возвращенный плагином HANDLE будет равен значению поля OpenAnalyseInfo.Handle в функции <a href="openw.html">OpenW(OPEN_ANALYSE,...)</a>.
-<li>Плагин должен освободить HANDLE в функции <a href="closeanalysew.html">CloseAnalyseW</a> (значение поля CloseAnalyseInfo.Handle).
+<li>Возвращенный плагином описатель будет равен значению поля OpenAnalyseInfo.Handle в функции <a href="openw.html">OpenW(OPEN_ANALYSE,...)</a>.
+<li>Плагин должен освободить память выделенную под описатель в функции <a href="closeanalysew.html">CloseAnalyseW</a> (значение поля CloseAnalyseInfo.Handle).
 <li>Если плагин будет эмулировать файловую систему, то необходимо сохранить значение поля AnalyseInfo.FileName во внутренних переменных, т.к. позже оно может понадобиться плагину.
 <li>Far Manager при нажатии <kbd>Enter</kbd> на выбранном файле опрашивает все плагины, экспортирующих эту функцию. Плагины просматриваются в алфавитном порядке (по имени DLL-модуля) и
-кто первый вернул значение, отличное от INVALID_HANDLE_VALUE - тому и отдаётся управление. Данное поведение по умолчанию дополнительно регулируется опцией "Параметры менеджера плагинов" - "Обработка файла",
-если опция включена, то будет показано меню со всеми плагинами, экспортирующими эту функцию.
+кто первый вернул значение, отличное от NULL - тому и отдаётся управление. Данное поведение по умолчанию дополнительно регулируется опцией Far Manager "Параметры менеджера плагинов" - "Обработка файла",
+если опция включена, то будет показано меню со всеми плагинами, экспортирующими эту функцию (подробности смотрите в файле помощи Far Manager).
 </ol>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "TmpPanel".
+<pre class=code>
+HANDLE WINAPI AnalyseW(const struct AnalyseInfo *Info)
+{
+  if (Info->FileName == nullptr || !Info->BufferSize)
+    return nullptr;
+
+  if (!FSF.ProcessName(Opt.Mask, (wchar_t*)Info->FileName, lstrlen(Info->FileName),PN_CMPNAMELIST))
+    return nullptr;
+
+  return HANDLE(1); // будем эмулировать панель на базе переданного Far Manager'ом файла
+}
+</pre>
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>

@@ -30,7 +30,7 @@ int WINAPI CompareW(
 <div class=descr>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/compareinfo.html">CompareInfo</a> -  информация, переданная Far Manager'ом плагину, для сортировки элементов.<br>
-    В начале функции обязательно проверьте, что поле <code>CompareInfo.StructSize >= sizeof(CompareInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>CompareInfo.StructSize >= sizeof(CompareInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -46,6 +46,17 @@ int WINAPI CompareW(
 <div class=descr>
 Для сортировки элементов Far Manager использует стандартную RTL-функцию <dfn>qsort</dfn>, которая реализует нестабильную сортировку. Иными словами, если элементы массива
 равны с точки зрения функции сравнения, на панели они будут отображаться в произвольном порядке, меняющемся при каждом перечитывании панели.
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "ProcList".
+<pre class=code>
+int WINAPI CompareW(const struct CompareInfo *Info)
+{
+  return ((Plist *)Info->hPanel)->Compare(Info->Item1, Info->Item2, Info->Mode);
+}
+</pre>
 </div>
 
 </body>

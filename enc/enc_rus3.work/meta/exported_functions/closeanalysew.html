@@ -30,12 +30,24 @@ void WINAPI CloseAnalyseW(
 <div class=descr>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/closeanalyseinfo.html">CloseAnalyseInfo</a>, переданная Far Manager'ом плагину информация.<br>
+    В начале функции проверьте, что поле <code>CloseAnalyseInfo.StructSize >= sizeof(CloseAnalyseInfo)</code>.</div>
     </div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
 Нет.
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "arclite".
+<pre class=code>
+void WINAPI CloseAnalyseW(const struct CloseAnalyseInfo *info)
+{
+  delete static_cast<Archives*>(info->Handle);
+}
+</pre>
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>

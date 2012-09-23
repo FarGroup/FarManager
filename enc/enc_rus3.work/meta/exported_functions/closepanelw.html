@@ -30,12 +30,23 @@ void WINAPI ClosePanelW(
 <div class=descr>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/closepanelinfo.html">ClosePanelInfo</a> -  информация, переданная Far Manager'ом плагину, о закрываемой панели.<br>
-    В начале функции обязательно проверьте, что поле <code>ClosePanelInfo.StructSize >= sizeof(ClosePanelInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>ClosePanelInfo.StructSize >= sizeof(ClosePanelInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
 Нет.
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "TmpPanel".
+<pre class=code>
+void WINAPI ClosePanelW(const struct ClosePanelInfo *Info)
+{
+  delete(TmpPanel *)Info->hPanel;
+}
+</pre>
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>

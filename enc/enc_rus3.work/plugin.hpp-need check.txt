@@ -1,9 +1,0 @@
-/*
-  plugin.hpp
-
-  Plugin API for Far Manager 3.0 build 2188
-*/
-
-typedef unsigned __int64 FARADDKEYMACROFLAGS;
-static const FARADDKEYMACROFLAGS
-	AKMFLAGS_NONE                = 0;

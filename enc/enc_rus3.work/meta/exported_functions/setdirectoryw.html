@@ -28,7 +28,8 @@ int WINAPI SetDirectoryW(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/setdirectoryinfo.html">SetDirectoryInfo</a>, Far Manager передает плагину информацию о новом каталоге.</div>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/setdirectoryinfo.html">SetDirectoryInfo</a>, Far Manager передает плагину информацию о новом каталоге.<br>
+    В начале функции проверьте, что поле <code>SetDirectoryInfo.StructSize >= sizeof(SetDirectoryInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -44,6 +45,18 @@ int WINAPI SetDirectoryW(
 Поэтому плагин не должен производить никаких действий кроме смены каталога и возвращения TRUE в случае удачи или FALSE в случае невозможности сменить каталог.
 <li>плагин должен аккуратно обрабатывать каталог ".." и при невозможности сменить его - возвращать FALSE. Иначе поиск может зациклиться на панели этого плагина.
 </ol>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "TmpPanel".
+<pre class=code>
+int WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
+{
+  TmpPanel *Panel=(TmpPanel *)Info->hPanel;
+  return Panel->SetDirectory(Info->Dir,Info->OpMode);
+}
+</pre>
 </div>
 
 </body>

@@ -29,7 +29,7 @@ int WINAPI ProcessPanelInputW(
 <div class=descr>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/processpanelinputinfo.html">ProcessPanelInputInfo</a>. Эта структура содержит информацию о последнем событии от клавиатуры или мыши.<br>
-    В начале функции обязательно проверьте, что поле <code>ProcessPanelInputInfo.StructSize >= sizeof(ProcessPanelInputInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>ProcessPanelInputInfo.StructSize >= sizeof(ProcessPanelInputInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -45,6 +45,17 @@ int WINAPI ProcessPanelInputW(
     и, в случае если плагин данное событие не обрабатывает, вернуть управление в Far Manager.</li>
 <li>Во время "проигрывания" макроса клавиатурные события (KEY_EVENT) имеют "новый" тип - поле <code>Info->INPUT_RECORD.EventType</code> равно значению <code>0x8001</code>.</li>
 </ol>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "ProcList".
+<pre class=code>
+int WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
+{
+  return ((Plist *)Info->hPanel)->ProcessKey(&Info->Rec);
+}
+</pre>
 </div>
 
 </body>

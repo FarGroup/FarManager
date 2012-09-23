@@ -29,7 +29,8 @@ int WINAPI GetFilesW(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a  href="../structures/getfilesinfo.html">GetFilesInfo</a>. Плагин заполняет структуру в этой функции.</div>
+    <div class=dfndescr>Указатель на структуру <a  href="../structures/getfilesinfo.html">GetFilesInfo</a>. Far Manager передает информацию об элементах, которые он запросил для обработки. Плагин может изменять некоторые поля структуры в этой функции.<br>
+    В начале функции проверьте, что поле <code>GetFilesInfo.StructSize >= sizeof(GetFilesInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -48,6 +49,17 @@ int WINAPI GetFilesW(
     Для этого необходимо при вызове <a href="getopenpanelinfow.html">GetOpenPanelInfoW</a> снять флаг <a href="../structures/openpanelinfo.html#OPIF_REALNAMES">OPIF_REALNAMES</a>,
     иначе данная функция никогда не будет вызвана.
 </ol>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "ProcList".
+<pre class=code>
+int WINAPI GetFilesW(struct GetFilesInfo *Info)
+{
+  return ((Plist *)Info->hPanel)->GetFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->Move,&Info->DestPath,Info->OpMode);
+}
+</pre>
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>

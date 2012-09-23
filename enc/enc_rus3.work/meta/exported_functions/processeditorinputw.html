@@ -30,7 +30,7 @@ int WINAPI ProcessEditorInputW(
 <div class=descr>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/processeditorinputinfo.html">ProcessEditorInputInfo</a>. Эта структура содержит информацию о последнем событии от клавиатуры или мыши.<br>
-    В начале функции обязательно проверьте, что поле <code>ProcessEditorInputInfo.StructSize >= sizeof(ProcessEditorInputInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>ProcessEditorInputInfo.StructSize >= sizeof(ProcessEditorInputInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -48,7 +48,7 @@ int WINAPI ProcessEditorInputW(
 <li>Плагин может вызвать команду <a href="../service_functions/editorcontrol.html">EditorControl</a>
     из этой функции, но будьте осторожны, когда вызываете здесь <a href="../service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>,
     потому что эта команда вызывает функцию <dfn>ProcessEditorInputW</dfn> снова. Таким образом, плагин должен сам предотвратить такой самовызов, или он впадёт в бесконечный цикл.</li>
-<li>Плагину не приходят клавиши: <kbd>Ctrl</kbd>+<kbd>W</kbd>, <kbd>F11</kbd>, <kbd>Alt</kbd>+<kbd>F9</kbd>, <kbd>F12</kbd>, <kbd>Ctrl</kbd>+<kbd>Tab</kbd>, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd>, <kbd>Alt</kbd>+<kbd>Ins</kbd> и <kbd>Ctrl</kbd>+<kbd>Alt-Shift</kbd>.</li>
+<li>Плагину не приходят клавиши: <kbd>Ctrl</kbd>+<kbd>W</kbd>, <kbd>F11</kbd>, <kbd>Alt</kbd>+<kbd>F9</kbd>, <kbd>F12</kbd>, <kbd>Ctrl</kbd>+<kbd>Tab</kbd>, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd>, <kbd>Alt</kbd>+<kbd>Ins</kbd> и <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>.</li>
 <li>Плагину приходят клавиши (с ограничениями):
   <ul>
   <li><kbd>Alt</kbd>+<kbd>F5</kbd>  - если плагин PrintMan не установлен

@@ -29,7 +29,7 @@ int WINAPI ConfigureW(
 <div class=descr>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/configureinfo.html">ConfigureInfo</a> -  информация, переданная Far Manager'ом плагину, о выбранном пункте меню.<br>
-    В начале функции обязательно проверьте, что поле <code>ConfigureInfo.StructSize >= sizeof(ConfigureInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>ConfigureInfo.StructSize >= sizeof(ConfigureInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -44,11 +44,14 @@ int WINAPI ConfigureW(
 </div>
 
 <h3>Пример</h3>
-
-<pre class=code>int WINAPI ConfigureW(const struct ConfigureInfo *Info)
+<div class=descr>
+Пример из плагина "TmpPanel".
+<pre class=code>
+int WINAPI ConfigureW(const struct ConfigureInfo *Info)
 {
   return Config();
 }
+</div>
 </pre>
 
 <div class=see>Смотрите также:</div><div class=seecont>

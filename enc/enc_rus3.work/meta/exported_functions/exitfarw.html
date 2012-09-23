@@ -35,6 +35,18 @@ void WINAPI ExitFARW(
 Нет.
 </div>
 
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "TmpPanel".
+<pre class=code>
+void WINAPI ExitFARW(const struct ExitInfo *Info)
+{
+  for (int i=0; i < COMMONPANELSNUMBER; ++i)
+    FreePanelItems(CommonPanels[i].Items, CommonPanels[i].ItemsNumber);
+}
+</pre>
+</div>
+
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="closepanelw.html">ClosePanelW</A>
 </div>

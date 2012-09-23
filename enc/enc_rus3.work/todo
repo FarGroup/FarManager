@@ -1,0 +1,6 @@
+требуется уточнения:
+
+deletefilesw.html
+<li>Хорошим тоном считается вариант, когда плагин перед удалением "попросит" подтвердить пользователя о своих намерениях (см. так же <a href="../service_functions/advcontrol.html#ACTL_GETCONFIRMATIONS">ACTL_GETCONFIRMATIONS</a>,
+флаги <a href="../service_functions/advcontrol.html#FCS_DELETE">FCS_DELETE</a> и <a href="../service_functions/advcontrol.html#FCS_DELETENONEMPTYFOLDERS">FCS_DELETENONEMPTYFOLDERS</a>)
+

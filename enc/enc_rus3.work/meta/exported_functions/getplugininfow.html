@@ -40,9 +40,9 @@ void WINAPI GetPluginInfoW(
 <ol>
 <li>Функция вызывается для получения информации о плагине перед выполнением следующих действий:
 <ul>
-<li>перед показом меню конфигурации (Alt-Shift-F9) из функции <a href="configurew.html">ConfigureW</a></li>
-<li>перед показом меню плагинов (F11)</li>
-<li>перед показом меню выбора дисков (Alt-F1/Alt-F2)</li>
+<li>перед показом меню конфигурации (<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F9</kbd>) из функции <a href="configurew.html">ConfigureW</a></li>
+<li>перед показом меню плагинов (<kbd>F11</kbd>)</li>
+<li>перед показом меню выбора дисков (<kbd>Alt</kbd>+<kbd>F1</kbd> / <kbd>Alt</kbd>+<kbd>F2</kbd>)</li>
 <li>из командной строки по префиксу (например, <code>net:\\share</code>)</li>
 </ul>
 <li>Структура <a href="../structures/plugininfo.html">PluginInfo</a>, передаваемая функции <dfn>GetPluginInfoW</dfn>, уже заполнена 0. Плагин обязательно должен заполнить поле PluginInfo.StructSize</li>

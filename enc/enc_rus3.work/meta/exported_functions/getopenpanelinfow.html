@@ -43,6 +43,18 @@ void WINAPI GetOpenPanelInfoW(
 </ol>
 </div>
 
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "TmpPanel".
+<pre class=code>
+void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info)
+{
+  TmpPanel *Panel=(TmpPanel *)Info->hPanel;
+  Panel->GetOpenPanelInfo(Info);
+}
+</pre>
+</div>
+
 <div class=see>Смотрите также:</div><div class=seecont>
 <a  href="../structures/openpanelinfo.html">OpenPanelInfo</a>
 </div>

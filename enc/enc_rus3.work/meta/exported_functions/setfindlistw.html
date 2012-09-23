@@ -30,7 +30,7 @@ int WINAPI SetFindListW(
 <div class=descr>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/setfindlistinfo.html">SetFindListInfo</a>, Far Manager передает плагину найденные объекты.<br>
-    В начале функции обязательно проверьте, что поле <code>SetFindListInfo.StructSize >= sizeof(SetFindListInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>SetFindListInfo.StructSize >= sizeof(SetFindListInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -44,6 +44,18 @@ int WINAPI SetFindListW(
 <li>Типичный представитель, использующий данную функцию - плагин Temporary panel (TMPCLASS.CPP, функция TmpPanel::SetFindList)
 <li>Перед вызовом этой функции Far Manager вызывает функцию <a href="openw.html">OpenW</a>(OPEN_FINDLIST...) и только после успешного её завершения вызовет <dfn>SetFindListW</dfn>.
 </ul>
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "TmpPanel".
+<pre class=code>
+int WINAPI SetFindListW(const struct SetFindListInfo *Info)
+{
+  TmpPanel *Panel=(TmpPanel *)Info->hPanel;
+  return Panel->SetFindList(Info->PanelItem,Info->ItemsNumber);
+}
+</pre>
 </div>
 
 </body>

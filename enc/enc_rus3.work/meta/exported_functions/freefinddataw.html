@@ -29,7 +29,7 @@ void WINAPI FreeFindDataW(
 <div class=descr>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/freefinddatainfo.html">FreeFindDataInfo</a>, Far Manager передает плагину информацию об элементах, которые необходимо освободить.<br>
-    В начале функции обязательно проверьте, что поле <code>FreeFindDataInfo.StructSize >= sizeof(FreeFindDataInfo)</code>.</div>
+    В начале функции проверьте, что поле <code>FreeFindDataInfo.StructSize >= sizeof(FreeFindDataInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -37,6 +37,16 @@ void WINAPI FreeFindDataW(
 Нет.
 </div>
 
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "ProcList".
+<pre class=code>
+void WINAPI FreeFindDataW(const struct FreeFindDataInfo *Info)
+{
+  ((Plist *)Info->hPanel)->FreeFindData(Info->PanelItem,(int)Info->ItemsNumber);
+}
+</pre>
+</div>
 
 <div class=see>Смотрите также:</div><div class=seecont>
 <a href="getfinddataw.html">GetFindDataW</a>
