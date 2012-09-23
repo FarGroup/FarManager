@@ -128,7 +128,7 @@ public:
       items[idx].FileSize = archive->get_size(file_index);
       items[idx].AllocationSize = archive->get_psize(file_index);
       items[idx].FileName = const_cast<wchar_t*>(file_info.name.c_str());
-      items[idx].UserData.UserData = reinterpret_cast<void*>(file_index);
+      items[idx].UserData.Data = reinterpret_cast<void*>(file_index);
       items[idx].CRC32 = archive->get_crc(file_index);
       idx++;
     });
@@ -196,7 +196,7 @@ public:
     vector<UInt32> indices;
     indices.reserve(panel_items.size());
     for (size_t i = 0; i < panel_items.size(); i++) {
-      indices.push_back(reinterpret_cast<UInt32>(panel_items.get(i)->UserData.UserData));
+      indices.push_back(reinterpret_cast<UInt32>(panel_items.get(i)->UserData.Data));
     }
 
     shared_ptr<ErrorLog> error_log(new ErrorLog());
@@ -383,7 +383,7 @@ public:
     vector<UInt32> indices;
     indices.reserve(items_number);
     for (int i = 0; i < items_number; i++) {
-      indices.push_back(reinterpret_cast<UInt32>(panel_items[i].UserData.UserData));
+      indices.push_back(reinterpret_cast<UInt32>(panel_items[i].UserData.Data));
     }
     archive->test(src_dir_index, indices);
     Far::info_dlg(c_test_ok_dialog_guid, Far::get_msg(MSG_PLUGIN_NAME), Far::get_msg(MSG_TEST_OK));
@@ -715,7 +715,7 @@ public:
     vector<UInt32> indices;
     indices.reserve(items_number);
     for (int i = 0; i < items_number; i++) {
-      indices.push_back(reinterpret_cast<UInt32>(panel_items[i].UserData.UserData));
+      indices.push_back(reinterpret_cast<UInt32>(panel_items[i].UserData.Data));
     }
     archive->delete_files(indices);
 

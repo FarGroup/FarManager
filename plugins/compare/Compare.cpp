@@ -1110,8 +1110,8 @@ void GetPanelItem(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,Plugin
 		Param2->Owner=NULL;
 		Param2->CustomColumnData=NULL;
 		Param2->CustomColumnNumber=0;
-		Param2->UserData.UserData=NULL;
-		Param2->UserData.Callback=NULL;
+		Param2->UserData.Data=NULL;
+		Param2->UserData.FreeData=NULL;
 		free(item);
 	}
 }

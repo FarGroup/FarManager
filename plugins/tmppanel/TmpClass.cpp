@@ -182,7 +182,7 @@ int TmpPanel::PutDirectoryContents(const wchar_t* Path)
 		for (size_t i=0; i<DirItemsNumber; i++)
 		{
 			struct PluginPanelItem *CurPanelItem=&TmpPanelItem[TmpItemsNumber];
-			CurPanelItem->UserData.UserData = (void*)TmpItemsNumber;
+			CurPanelItem->UserData.Data = (void*)TmpItemsNumber;
 			TmpItemsNumber++;
 			CurPanelItem->FileAttributes=DirItems[i].FileAttributes;
 			CurPanelItem->CreationTime=DirItems[i].CreationTime;
@@ -219,7 +219,7 @@ int TmpPanel::PutOneFile(const wchar_t* SrcPath, PluginPanelItem &PanelItem)
 	CurPanelItem->ChangeTime=PanelItem.ChangeTime;
 	CurPanelItem->FileSize=PanelItem.FileSize;
 	CurPanelItem->AllocationSize=PanelItem.AllocationSize;
-	CurPanelItem->UserData.UserData = (void*)TmpItemsNumber;
+	CurPanelItem->UserData.Data = (void*)TmpItemsNumber;
 	CurPanelItem->FileName = reinterpret_cast<wchar_t*>(malloc((lstrlen(SrcPath)+1+lstrlen(PanelItem.FileName)+1)*sizeof(wchar_t)));
 
 	if (CurPanelItem->FileName==NULL)
@@ -252,7 +252,7 @@ int TmpPanel::PutOneFile(const wchar_t* FilePath)
 	TmpPanelItem=NewPanelItem;
 	struct PluginPanelItem *CurPanelItem=&TmpPanelItem[TmpItemsNumber];
 	memset(CurPanelItem,0,sizeof(*CurPanelItem));
-	CurPanelItem->UserData.UserData = (void*)TmpItemsNumber;
+	CurPanelItem->UserData.Data = (void*)TmpItemsNumber;
 
 	if (GetFileInfoAndValidate(FilePath, CurPanelItem, Opt.AnyInPanel))
 	{
@@ -289,7 +289,7 @@ int TmpPanel::SetFindList(const struct PluginPanelItem *PanelItem,size_t ItemsNu
 
 		for (size_t i=0; i<ItemsNumber; ++i)
 		{
-			TmpPanelItem[i].UserData.UserData = (void*)i;
+			TmpPanelItem[i].UserData.Data = (void*)i;
 
 			TmpPanelItem[i].FileAttributes=PanelItem[i].FileAttributes;
 			TmpPanelItem[i].CreationTime=PanelItem[i].CreationTime;
@@ -414,7 +414,7 @@ void TmpPanel::RemoveEmptyItems()
 		}
 		else if (EmptyCount)
 		{
-			CurItem->UserData.UserData = (void*)((intptr_t)CurItem->UserData.UserData - EmptyCount);
+			CurItem->UserData.Data = (void*)((intptr_t)CurItem->UserData.Data - EmptyCount);
 			*(CurItem-EmptyCount)=*CurItem;
 			memset(CurItem, 0, sizeof(*CurItem));
 		}
@@ -754,7 +754,7 @@ void TmpPanel::ProcessRemoveKey()
 		{
 			FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 			Info.PanelControl(this,FCTL_GETSELECTEDPANELITEM,i,&gpi);
-			RemovedItem = TmpPanelItem + (size_t)PPI->UserData.UserData;
+			RemovedItem = TmpPanelItem + (size_t)PPI->UserData.Data;
 		}
 
 		if (RemovedItem!=NULL)

@@ -325,7 +325,7 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 	{
 		PluginPanelItem& CurItem = pPanelItem[i];
 		ProcessPerfData& pd = pData[i];
-		CurItem.UserData.Callback=FreeUserData;
+		CurItem.UserData.FreeData=FreeUserData;
  		//delete CurItem.FileName;  // ???
  		CurItem.FileName = new wchar_t[lstrlen(pd.ProcessName)+1];
  		lstrcpy((wchar_t*)CurItem.FileName, pd.ProcessName);
@@ -336,8 +336,8 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 			lstrcpy((wchar_t*)CurItem.Owner, pd.Owner);
 		}
 
-		CurItem.UserData.UserData = new ProcessDataNT;
-		memset(CurItem.UserData.UserData, 0, sizeof(ProcessDataNT));
+		CurItem.UserData.Data = new ProcessDataNT;
+		memset(CurItem.UserData.Data, 0, sizeof(ProcessDataNT));
 
 		if (!pd.ftCreation.dwHighDateTime && pd.dwElapsedTime)
 		{
@@ -360,7 +360,7 @@ BOOL GetList(PluginPanelItem* &pPanelItem,size_t &ItemsNumber,PerfThread& Thread
 		FSF.itoa(pd.dwProcessId, (wchar_t*)CurItem.AlternateFileName, 10);
 
 		CurItem.NumberOfLinks = pd.dwThreads;
-		GetPDataNT(*(ProcessDataNT*)CurItem.UserData.UserData, pd);
+		GetPDataNT(*(ProcessDataNT*)CurItem.UserData.Data, pd);
 
 		if (pd.dwProcessId==0 && pd.dwThreads >5) //_Total
 			CurItem.FileAttributes |= FILE_ATTRIBUTE_HIDDEN;

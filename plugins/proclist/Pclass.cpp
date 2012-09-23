@@ -499,7 +499,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 	for (size_t i = 0; i < ItemsNumber; i++)
 	{
 		PluginPanelItem &CurItem = pPanelItem[i];
-		ProcessData & pdata = *((ProcessData *)CurItem.UserData.UserData);
+		ProcessData & pdata = *((ProcessData *)CurItem.UserData.Data);
 		// Make descriptions
 		wchar_t Title[MAX_PATH];
 		*Title=0;
@@ -538,7 +538,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 					break;
 				case L'c':
 				case L'C':
-					pDesc = ((ProcessDataNT *)CurItem.UserData.UserData)->CommandLine;
+					pDesc = ((ProcessDataNT *)CurItem.UserData.Data)->CommandLine;
 
 					break;
 				default:
@@ -702,7 +702,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 	for (int I=0; I<ItemsNumber; I++)
 	{
 		PluginPanelItem &CurItem = PanelItem[I];
-		ProcessData *pdata=(ProcessData *)CurItem.UserData.UserData;
+		ProcessData *pdata=(ProcessData *)CurItem.UserData.Data;
 		ProcessDataNT PData;
 
 		if (!pdata)
@@ -981,7 +981,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODE
 	for (int I=0; I<ItemsNumber; I++)
 	{
 		PluginPanelItem& CurItem = PanelItem[I];
-		ProcessData *pdata=(ProcessData *)CurItem.UserData.UserData;
+		ProcessData *pdata=(ProcessData *)CurItem.UserData.Data;
 		BOOL Success;
 		int MsgId = 0;
 
@@ -1193,7 +1193,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 				FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, CurItem};
 				Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(PInfo.CurrentItem),&gpi);
 
-				if (!CurItem->UserData.UserData)
+				if (!CurItem->UserData.Data)
 				{
 					free(CurItem);
 					return FALSE;
@@ -1202,7 +1202,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 			else
 				return FALSE;
 
-			HWND hWnd = ((ProcessData *)CurItem->UserData.UserData)->hwnd;
+			HWND hWnd = ((ProcessData *)CurItem->UserData.Data)->hwnd;
 			free(CurItem);
 
 
@@ -1440,11 +1440,11 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 					Info.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, static_cast<int>(i), &gpi);
 					SetLastError(0);
 
-					if (((ProcessData*)PPI->UserData.UserData)->dwPID)
+					if (((ProcessData*)PPI->UserData.Data)->dwPID)
 					{
 						if (!*HostName)
 						{
-							HANDLE hProcess=OpenProcessForced(&token, PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION,((ProcessData*)PPI->UserData.UserData)->dwPID);
+							HANDLE hProcess=OpenProcessForced(&token, PROCESS_QUERY_INFORMATION|PROCESS_SET_INFORMATION,((ProcessData*)PPI->UserData.Data)->dwPID);
 
 							if (hProcess)
 							{
@@ -1485,7 +1485,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 						}
 						else if (pWMI)  //*HostName
 						{
-							DWORD dwPriorityClass = pWMI->GetProcessPriority(((ProcessData*)PPI->UserData.UserData)->dwPID);
+							DWORD dwPriorityClass = pWMI->GetProcessPriority(((ProcessData*)PPI->UserData.Data)->dwPID);
 
 							if (!dwPriorityClass)
 							{
@@ -1510,7 +1510,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 										i++;
 										bChange = true;
 									}
-									if (bChange && pWMI->SetProcessPriority(((ProcessData*)PPI->UserData.UserData)->dwPID, PrClasses[i])!=0)
+									if (bChange && pWMI->SetProcessPriority(((ProcessData*)PPI->UserData.Data)->dwPID, PrClasses[i])!=0)
 										WmiError();
 									break;
 								}
@@ -1556,7 +1556,7 @@ int Plist::ProcessKey(const INPUT_RECORD *Rec)
 				FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 				Info.PanelControl(this,FCTL_GETPANELITEM,static_cast<int>(pi.CurrentItem),&gpi);
 
-				ProcessData* pData = (ProcessData *)PPI->UserData.UserData;
+				ProcessData* pData = (ProcessData *)PPI->UserData.Data;
 				if (pData)
 					PutToCmdLine(pData->FullPath);
 
@@ -1881,19 +1881,19 @@ int Plist::Compare(const PluginPanelItem *Item1, const PluginPanelItem *Item2,
 
 	switch (SortMode)
 	{
-		case SM_PID: diff = ((ProcessData*)Item1->UserData.UserData)->dwPID - ((ProcessData*)Item2->UserData.UserData)->dwPID;
+		case SM_PID: diff = ((ProcessData*)Item1->UserData.Data)->dwPID - ((ProcessData*)Item2->UserData.Data)->dwPID;
 			break;
-		case SM_PARENTPID: diff = ((ProcessData*)Item1->UserData.UserData)->dwParentPID - ((ProcessData*)Item2->UserData.UserData)->dwParentPID;
+		case SM_PARENTPID: diff = ((ProcessData*)Item1->UserData.Data)->dwParentPID - ((ProcessData*)Item2->UserData.Data)->dwParentPID;
 			break;
-		case SM_PRIOR: diff = ((ProcessData*)Item2->UserData.UserData)->dwPrBase - ((ProcessData*)Item1->UserData.UserData)->dwPrBase;
+		case SM_PRIOR: diff = ((ProcessData*)Item2->UserData.Data)->dwPrBase - ((ProcessData*)Item1->UserData.Data)->dwPrBase;
 			break;
 		default:
 		{
 			Lock l(pPerfThread);
 			ProcessPerfData* data1 = pPerfThread->GetProcessData(
-			                             ((ProcessData*)Item1->UserData.UserData)->dwPID,Item1->NumberOfLinks);
+			                             ((ProcessData*)Item1->UserData.Data)->dwPID,Item1->NumberOfLinks);
 			ProcessPerfData* data2 = pPerfThread->GetProcessData(
-			                             ((ProcessData*)Item2->UserData.UserData)->dwPID,Item2->NumberOfLinks);
+			                             ((ProcessData*)Item2->UserData.Data)->dwPID,Item2->NumberOfLinks);
 
 			if (data1==0) return data2 ? 1 : 0;
 
@@ -1918,7 +1918,7 @@ int Plist::Compare(const PluginPanelItem *Item1, const PluginPanelItem *Item2,
 	}
 
 	if (diff==0)
-		diff = (uintptr_t)Item1->UserData.UserData - (uintptr_t)Item2->UserData.UserData; // unsorted
+		diff = (uintptr_t)Item1->UserData.Data - (uintptr_t)Item2->UserData.Data; // unsorted
 
 	return diff<0 ? -1 : diff==0 ? 0 : 1;
 }
