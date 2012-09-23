@@ -19,7 +19,7 @@
 </div>
 
 <pre class=syntax>
-int WINAPI ProcessPanelEventW(
+intptr_t WINAPI ProcessPanelEventW(
   const struct ProcessPanelEventInfo *Info
 );
 </pre>
@@ -41,7 +41,7 @@ int WINAPI ProcessPanelEventW(
 <div class=descr>
 Пример из плагина "ProcList".
 <pre class=code>
-int WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
+intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info)
 {
   return ((Plist *)Info->hPanel)->ProcessEvent(Info->Event,Info->Param);
 }

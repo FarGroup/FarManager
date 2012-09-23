@@ -20,7 +20,7 @@
 </div>
 
 <pre class=syntax>
-int WINAPI ConfigureW(
+intptr_t WINAPI ConfigureW(
   const struct ConfigureInfo *Info
 );
 </pre>
@@ -47,7 +47,7 @@ int WINAPI ConfigureW(
 <div class=descr>
 Пример из плагина "TmpPanel".
 <pre class=code>
-int WINAPI ConfigureW(const struct ConfigureInfo *Info)
+intptr_t WINAPI ConfigureW(const struct ConfigureInfo *Info)
 {
   return Config();
 }

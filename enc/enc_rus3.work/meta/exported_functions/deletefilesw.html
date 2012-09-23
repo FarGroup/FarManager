@@ -21,7 +21,7 @@
 </div>
 
 <pre class=syntax>
-int WINAPI DeleteFilesW(
+intptr_t WINAPI DeleteFilesW(
   const struct DeleteFilesInfo *Info
 );
 </pre>
@@ -51,7 +51,7 @@ int WINAPI DeleteFilesW(
 <h3>Пример</h3>
 <div class=descr>
 <pre class=code>
-int WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
+intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
 {
   struct PluginPanelItem * curPI=&amp;Info->PanelItem[0];
   for(int CurItem=0; CurItem&lt;Info->ItemsNumber; CurItem++, curPI++)

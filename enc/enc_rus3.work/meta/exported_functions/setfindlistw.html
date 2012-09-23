@@ -21,7 +21,7 @@
 </div>
 
 <pre class=syntax>
-int WINAPI SetFindListW(
+intptr_t WINAPI SetFindListW(
   const struct SetFindListInfo *Info
 );
 </pre>
@@ -50,7 +50,7 @@ int WINAPI SetFindListW(
 <div class=descr>
 Пример из плагина "TmpPanel".
 <pre class=code>
-int WINAPI SetFindListW(const struct SetFindListInfo *Info)
+intptr_t WINAPI SetFindListW(const struct SetFindListInfo *Info)
 {
   TmpPanel *Panel=(TmpPanel *)Info->hPanel;
   return Panel->SetFindList(Info->PanelItem,Info->ItemsNumber);

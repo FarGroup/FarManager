@@ -20,7 +20,7 @@
 </div>
 
 <pre class=syntax>
-int WINAPI SetDirectoryW(
+intptr_t WINAPI SetDirectoryW(
   const struct SetDirectoryInfo *Info
 );
 </pre>
@@ -51,7 +51,7 @@ int WINAPI SetDirectoryW(
 <div class=descr>
 Пример из плагина "TmpPanel".
 <pre class=code>
-int WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
+intptr_t WINAPI SetDirectoryW(const struct SetDirectoryInfo *Info)
 {
   TmpPanel *Panel=(TmpPanel *)Info->hPanel;
   return Panel->SetDirectory(Info->Dir,Info->OpMode);

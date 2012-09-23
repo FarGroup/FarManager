@@ -20,7 +20,7 @@
 </div>
 
 <pre class=syntax>
-int WINAPI ProcessPanelInputW(
+intptr_t WINAPI ProcessPanelInputW(
   const struct ProcessPanelInputInfo *Info
 );
 </pre>
@@ -51,7 +51,7 @@ int WINAPI ProcessPanelInputW(
 <div class=descr>
 Пример из плагина "ProcList".
 <pre class=code>
-int WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
+intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info)
 {
   return ((Plist *)Info->hPanel)->ProcessKey(&Info->Rec);
 }

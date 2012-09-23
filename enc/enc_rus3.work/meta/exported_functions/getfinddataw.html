@@ -21,7 +21,7 @@
 </div>
 
 <pre class=syntax>
-int WINAPI GetFindDataW(
+intptr_t WINAPI GetFindDataW(
   struct GetFindDataInfo *Info
 );</pre>
 
@@ -54,7 +54,7 @@ int WINAPI GetFindDataW(
 <div class=descr>
 Пример из плагина "ProcList".
 <pre class=code>
-int WINAPI GetFindDataW(struct GetFindDataInfo *Info)
+intptr_t WINAPI GetFindDataW(struct GetFindDataInfo *Info)
 {
   return ((Plist *)Info->hPanel)->GetFindData(Info->PanelItem,Info->ItemsNumber,Info->OpMode);
 }

@@ -21,7 +21,7 @@
 </div>
 
 <pre class=syntax>
-int WINAPI PutFilesW(
+intptr_t WINAPI PutFilesW(
   const struct PutFilesInfo *Info
 );
 </pre>
@@ -52,7 +52,7 @@ int WINAPI PutFilesW(
 <div class=descr>
 Пример из плагина "TmpPanel".
 <pre class=code>
-int WINAPI PutFilesW(const struct PutFilesInfo *Info)
+intptr_t WINAPI PutFilesW(const struct PutFilesInfo *Info)
 {
   TmpPanel *Panel=(TmpPanel *)Info->hPanel;
   return Panel->PutFiles(Info->PanelItem,Info->ItemsNumber,Info->Move,Info->SrcPath,Info->OpMode);

@@ -21,7 +21,7 @@
 </div>
 
 <pre class=syntax>
-int WINAPI GetFilesW(
+intptr_t WINAPI GetFilesW(
   struct GetFilesInfo *Info
 );
 </pre>
@@ -55,7 +55,7 @@ int WINAPI GetFilesW(
 <div class=descr>
 Пример из плагина "ProcList".
 <pre class=code>
-int WINAPI GetFilesW(struct GetFilesInfo *Info)
+intptr_t WINAPI GetFilesW(struct GetFilesInfo *Info)
 {
   return ((Plist *)Info->hPanel)->GetFiles(Info->PanelItem,(int)Info->ItemsNumber,Info->Move,&Info->DestPath,Info->OpMode);
 }
