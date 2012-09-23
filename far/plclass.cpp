@@ -243,7 +243,7 @@ FarStandardFunctions NativeFSF =
 	pluginapi::apiItoa,
 	pluginapi::apiItoa64,
 	pluginapi::apiSprintf,
-	swscanf,
+	pluginapi::apiSscanf,
 	pluginapi::apiQsort,
 	pluginapi::apiBsearch,
 	pluginapi::apiSnprintf,

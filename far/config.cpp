@@ -1553,7 +1553,7 @@ void FillListItem(FarListItem& Item, FormatString& fs, FARConfig& cfg)
 	Item.Text = fs;
 }
 
-intptr_t WINAPI AdvancedConfigDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI AdvancedConfigDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	static FormatString* fs;
 	switch (Msg)
@@ -1783,7 +1783,7 @@ bool Bool3Option::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
 	return !Changed() || GeneralCfg->SetValue(KeyName, ValueName, Get());
 }
 
-bool IntOption::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, int Default)
+bool IntOption::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, intptr_t Default)
 {
 	int CfgValue = Default;
 	bool Result = GeneralCfg->GetValue(KeyName, ValueName, &CfgValue, CfgValue);

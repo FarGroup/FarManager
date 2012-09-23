@@ -4544,7 +4544,7 @@ void Dialog::ResizeConsole()
 //  }
 //};
 
-intptr_t WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI Dialog::DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	if (DialogMode.Check(DMODE_ENDLOOP))
 		return 0;
@@ -4573,7 +4573,7 @@ intptr_t WINAPI Dialog::DlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
    Вот именно эта функция и является последним рубежом обработки диалога.
    Т.е. здесь должна быть ВСЯ обработка ВСЕХ сообщений!!!
 */
-intptr_t WINAPI DefDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI DefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	_DIALOG(CleverSysLog CL(L"Dialog.DefDlgProc()"));
 	_DIALOG(SysLog(L"hDlg=%p, Msg=%s, Param1=%d (0x%08X), Param2=%d (0x%08X)",hDlg,_DLGMSG_ToName(Msg),Param1,Param1,Param2,Param2));
@@ -4719,7 +4719,7 @@ intptr_t Dialog::CallDlgProc(int nMsg, int nParam1, void* nParam2)
    Некоторые сообщения эта функция обрабатывает сама, не передавая управление
    обработчику диалога.
 */
-intptr_t WINAPI SendDlgMessage(HANDLE hDlg,int Msg,int Param1,void* Param2)
+intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	if (!hDlg)
 		return 0;
@@ -6298,7 +6298,7 @@ void Dialog::SetComboBoxPos(DialogItemEx* CurItem)
 			EditX2=EditX1+20;
 
 		if (ScrY-EditY1<Min(Opt.Dialogs.CBoxMaxHeight.Get(),CurItem->ListPtr->GetItemCount())+2 && EditY1>ScrY/2)
-			CurItem->ListPtr->SetPosition(EditX1,Max(0,EditY1-1-Min(Opt.Dialogs.CBoxMaxHeight.Get(),CurItem->ListPtr->GetItemCount())-1),EditX2,EditY1-1);
+			CurItem->ListPtr->SetPosition(EditX1,Max((intptr_t)0,EditY1-1-Min(Opt.Dialogs.CBoxMaxHeight.Get(),CurItem->ListPtr->GetItemCount())-1),EditX2,EditY1-1);
 		else
 			CurItem->ListPtr->SetPosition(EditX1,EditY1+1,EditX2,0);
 	}

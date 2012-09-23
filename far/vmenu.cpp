@@ -294,7 +294,7 @@ int VMenu::SetSelectPos(FarListPos *ListPos, int Direct)
 {
 	CriticalSectionLock Lock(CS);
 
-	int pos = Min(ItemCount-1, Max(0, ListPos->SelectPos));
+	int pos = Min(ItemCount-1, Max((intptr_t)0, ListPos->SelectPos));
 	int Ret = SetSelectPos(pos, Direct ? Direct : pos > SelectPos? 1 : -1);
 
 	if (Ret >= 0)
@@ -2906,13 +2906,13 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 }
 
 // функция обработки меню (по умолчанию)
-intptr_t WINAPI VMenu::DefMenuProc(HANDLE hVMenu, int Msg, int Param1, void* Param2)
+intptr_t WINAPI VMenu::DefMenuProc(HANDLE hVMenu, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	return 0;
 }
 
 // функция посылки сообщений меню
-intptr_t WINAPI VMenu::SendMenuMessage(HANDLE hVMenu, int Msg, int Param1, void* Param2)
+intptr_t WINAPI VMenu::SendMenuMessage(HANDLE hVMenu, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	CriticalSectionLock Lock(((VMenu*)hVMenu)->CS);
 
@@ -3094,7 +3094,7 @@ static int WINAPI SortItem(const MenuItemEx **el1, const MenuItemEx **el2, const
 	return (Param->Direction?(Res<0?1:(Res>0?-1:0)):Res);
 }
 
-static int WINAPI SortItemDataDWORD(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
+static intptr_t WINAPI SortItemDataDWORD(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
 {
 	int Res;
 	DWORD Dw1=(DWORD)(intptr_t)((*el1)->UserData);
@@ -3116,7 +3116,7 @@ void VMenu::SortItems(int Direction, int Offset, BOOL SortForDataDWORD)
 {
 	CriticalSectionLock Lock(CS);
 
-	typedef int (WINAPI *qsortex_fn)(const void*,const void*,void*);
+	typedef intptr_t (WINAPI *qsortex_fn)(const void*,const void*,void*);
 
 	SortItemParam Param;
 	Param.Direction=Direction;
@@ -3149,7 +3149,7 @@ void VMenu::SortItems(TMENUITEMEXCMPFUNC user_cmp_func,int Direction,int Offset)
 {
 	CriticalSectionLock Lock(CS);
 
-	typedef int (WINAPI *qsortex_fn)(const void*,const void*,void*);
+	typedef intptr_t (WINAPI *qsortex_fn)(const void*,const void*,void*);
 
 	SortItemParam Param;
 	Param.Direction=Direction;

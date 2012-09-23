@@ -183,7 +183,7 @@ int GetSearchReplaceString(
 
 
 // Функция для коррекции аля Shift-F4 Shift-Enter без отпускания Shift ;-)
-static intptr_t WINAPI GetStringDlgProc(HANDLE hDlg,int Msg,int Param1,void* Param2)
+static intptr_t WINAPI GetStringDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	/*
 	  if(Msg == DM_KEY)
@@ -454,7 +454,7 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 	DWORD Error = GetLastError();
 	if(Error == ERROR_ACCESS_DENIED ||
 		Error == ERROR_SHARING_VIOLATION ||
-		Error == ERROR_LOCK_VIOLATION || 
+		Error == ERROR_LOCK_VIOLATION ||
 		Error == ERROR_DRIVE_LOCKED)
 	{
 		GuardLastError gl;
@@ -512,7 +512,7 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 					{
 						nProcInfo = nProcInfoNeeded;
 						delete[] rgpi;
-						rgpi = new RM_PROCESS_INFO[nProcInfo]; 
+						rgpi = new RM_PROCESS_INFO[nProcInfo];
 					}
 					if(RmGetListResult ==ERROR_SUCCESS)
 					{
@@ -572,7 +572,7 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 		Msgs[LineCount-2] = MSG(MDeleteFileSkipAll);
 	}
 	Msgs[LineCount-1] = MSG(MDeleteCancel);
-	
+
 	int Result = -1;
 	for(;;)
 	{

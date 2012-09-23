@@ -195,7 +195,7 @@ struct SortItemParam
 	int Offset;
 };
 
-typedef int (WINAPI *TMENUITEMEXCMPFUNC)(const MenuItemEx *el1,const MenuItemEx *el2, const SortItemParam *Param);
+typedef intptr_t (WINAPI *TMENUITEMEXCMPFUNC)(const MenuItemEx *el1,const MenuItemEx *el2, const SortItemParam *Param);
 
 
 class ConsoleTitle;
@@ -235,9 +235,9 @@ class VMenu: public Modal
 
 		MenuItemEx **Item;
 
-		int ItemCount;
-		int ItemHiddenCount;
-		int ItemSubMenusCount;
+		intptr_t ItemCount;
+		intptr_t ItemHiddenCount;
+		intptr_t ItemSubMenusCount;
 
 		FarColor Colors[VMENU_COLOR_COUNT];
 
@@ -331,7 +331,7 @@ class VMenu: public Modal
  		bool AddToFilter(const wchar_t *str);
  		void SetFilterString(const wchar_t *str);
 
-		int  GetItemCount() { return ItemCount; };
+		intptr_t GetItemCount() { return ItemCount; };
 		int  GetShowItemCount() { return ItemCount-ItemHiddenCount; };
 		int  GetVisualPos(int Pos);
 		int  VisualPosToReal(int VPos);
@@ -373,8 +373,8 @@ class VMenu: public Modal
 		static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);
 		static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);
 
-		static intptr_t WINAPI DefMenuProc(HANDLE hVMenu,int Msg,int Param1,void* Param2);
-		static intptr_t WINAPI SendMenuMessage(HANDLE hVMenu,int Msg,int Param1,void* Param2);
+		static intptr_t WINAPI DefMenuProc(HANDLE hVMenu,intptr_t Msg,intptr_t Param1,void* Param2);
+		static intptr_t WINAPI SendMenuMessage(HANDLE hVMenu,intptr_t Msg,intptr_t Param1,void* Param2);
 		void SetId(const GUID& Id);
 		const GUID& Id(void);
 };

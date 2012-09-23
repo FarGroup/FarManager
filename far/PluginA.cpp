@@ -255,12 +255,12 @@ struct QsortexHelper
 	void* user;
 };
 
-int WINAPI qsortCmp(const void *one, const void *two,void *user)
+intptr_t WINAPI qsortCmp(const void *one, const void *two,void *user)
 {
 	return reinterpret_cast<int(__cdecl*)(const void*,const void*)>(user)(one,two);
 }
 
-int WINAPI qsortexCmp(const void *one, const void *two,void *user)
+intptr_t WINAPI qsortexCmp(const void *one, const void *two,void *user)
 {
 	QsortexHelper* helper=static_cast<QsortexHelper*>(user);
 	return helper->fcmp(one,two,helper->user);
@@ -1462,7 +1462,7 @@ struct FAR_SEARCH_A_CALLBACK_PARAM
 	void *Param;
 };
 
-static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData,const wchar_t *FullName,void *param)
+static intptr_t WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData,const wchar_t *FullName,void *param)
 {
 	FAR_SEARCH_A_CALLBACK_PARAM* pCallbackParam = static_cast<FAR_SEARCH_A_CALLBACK_PARAM*>(param);
 	WIN32_FIND_DATAA FindData={};
@@ -1752,7 +1752,9 @@ int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flag
 		}
 	}
 
-	int ret = NativeInfo.Menu(GetPluginGuid(PluginNumber),&FarGuid,X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,NewBreakKeys,BreakCode,mi,ItemsNumber);
+	intptr_t NewBreakCode;
+	int ret = NativeInfo.Menu(GetPluginGuid(PluginNumber),&FarGuid,X,Y,MaxHeight,NewFlags,wszT,wszB,wszHT,NewBreakKeys,&NewBreakCode,mi,ItemsNumber);
+	if (BreakCode) *BreakCode=NewBreakCode;
 
 	for (int i=0; i<ItemsNumber; i++)
 		if (mi[i].Text) xf_free((wchar_t *)mi[i].Text);
@@ -1832,7 +1834,7 @@ intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 	return Result;
 }
 
-intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, int Msg, int Param1, void* Param2)
+intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	PDialogData Data=FindCurrentDialogData(hDlg);
 	return (Data && Data->DlgProc)? Data->DlgProc(Data->hDlg,Msg,Param1,Param2) : FarDefDlgProcA(hDlg, Msg, Param1, Param2);
@@ -2444,7 +2446,7 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 	return diA;
 }
 
-intptr_t WINAPI DlgProcA(HANDLE hDlg, int NewMsg, int Param1, void* Param2)
+intptr_t WINAPI DlgProcA(HANDLE hDlg, intptr_t NewMsg, intptr_t Param1, void* Param2)
 {
 	FarDialogEvent e = {sizeof(FarDialogEvent), hDlg, NewMsg, Param1, Param2};
 	StackHandler sh(e);
@@ -3715,6 +3717,11 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 	}
 
 	return FALSE;
+}
+
+HANDLE WINAPI FarSaveScreenA(int X1, int Y1, int X2, int Y2)
+{
+	return NativeInfo.SaveScreen(X1, Y1, X2, Y2);
 }
 
 int WINAPI FarGetDirListA(const char *Dir,oldfar::PluginPanelItem **pPanelItem,int *pItemsNumber)
@@ -5065,7 +5072,7 @@ oldfar::PluginStartupInfo StartupInfo =
 	wrapper::FarMessageFnA,
 	wrapper::FarGetMsgFnA,
 	wrapper::FarPanelControlA,
-	nullptr, // copy from NativeInfo
+	wrapper::FarSaveScreenA,
 	nullptr, // copy from NativeInfo
 	wrapper::FarGetDirListA,
 	wrapper::FarGetPluginDirListA,
@@ -5089,7 +5096,6 @@ oldfar::PluginStartupInfo StartupInfo =
 
 static void CreatePluginStartupInfoA(PluginA *pPlugin, oldfar::PluginStartupInfo *PSI, oldfar::FarStandardFunctions *FSF)
 {
-	StartupInfo.SaveScreen = NativeInfo.SaveScreen;
 	StartupInfo.RestoreScreen = NativeInfo.RestoreScreen;
 
 	*PSI=StartupInfo;
