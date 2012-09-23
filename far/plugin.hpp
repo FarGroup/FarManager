@@ -733,8 +733,8 @@ struct PluginPanelItem
 	PLUGINPANELITEMFLAGS Flags;
 	struct
 	{
-		void* UserData;
-		FARPANELITEMFREECALLBACK Callback;
+		void* Data;
+		FARPANELITEMFREECALLBACK FreeData;
 	} UserData;
 	uintptr_t FileAttributes;
 	uintptr_t NumberOfLinks;

@@ -887,14 +887,14 @@ void ConvertPanelItemA(const oldfar::PluginPanelItem *PanelItemA, PluginPanelIte
 		{
 			void* UserData = (void*)PanelItemA[i].UserData;
 			DWORD Size=*(DWORD *)UserData;
-			(*PanelItemW)[i].UserData.UserData = xf_malloc(Size);
-			memcpy((*PanelItemW)[i].UserData.UserData,UserData,Size);
-			(*PanelItemW)[i].UserData.Callback = FreeUserData;
+			(*PanelItemW)[i].UserData.Data = xf_malloc(Size);
+			memcpy((*PanelItemW)[i].UserData.Data,UserData,Size);
+			(*PanelItemW)[i].UserData.FreeData = FreeUserData;
 		}
 		else
 		{
-			(*PanelItemW)[i].UserData.UserData = (void*)PanelItemA[i].UserData;
-			(*PanelItemW)[i].UserData.Callback = nullptr;
+			(*PanelItemW)[i].UserData.Data = (void*)PanelItemA[i].UserData;
+			(*PanelItemW)[i].UserData.FreeData = nullptr;
 		}
 		(*PanelItemW)[i].CRC32 = PanelItemA[i].CRC32;
 		(*PanelItemW)[i].FileAttributes = PanelItemA[i].FindData.dwFileAttributes;
@@ -918,7 +918,7 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 	if(PanelItem.Flags&PPIF_SELECTED)
 		PanelItemA.Flags|=oldfar::PPIF_SELECTED;
 
-	if(PanelItem.UserData.Callback==FreeUserData)
+	if(PanelItem.UserData.FreeData==FreeUserData)
 		PanelItemA.Flags|=oldfar::PPIF_USERDATA;
 
 	PanelItemA.NumberOfLinks=PanelItem.NumberOfLinks;
@@ -938,14 +938,14 @@ void ConvertPanelItemToAnsi(const PluginPanelItem &PanelItem, oldfar::PluginPane
 			PanelItemA.CustomColumnData[j] = UnicodeToAnsi(PanelItem.CustomColumnData[j]);
 	}
 
-	if (PanelItem.UserData.UserData&&PanelItem.UserData.Callback==FreeUserData)
+	if (PanelItem.UserData.Data&&PanelItem.UserData.FreeData==FreeUserData)
 	{
-		DWORD Size=*(DWORD *)PanelItem.UserData.UserData;
+		DWORD Size=*(DWORD *)PanelItem.UserData.Data;
 		PanelItemA.UserData=(intptr_t)xf_malloc(Size);
-		memcpy((void *)PanelItemA.UserData,PanelItem.UserData.UserData,Size);
+		memcpy((void *)PanelItemA.UserData,PanelItem.UserData.Data,Size);
 	}
 	else
-		PanelItemA.UserData = (intptr_t)PanelItem.UserData.UserData;
+		PanelItemA.UserData = (intptr_t)PanelItem.UserData.Data;
 
 	PanelItemA.CRC32 = PanelItem.CRC32;
 	PanelItemA.FindData.dwFileAttributes = PanelItem.FileAttributes;

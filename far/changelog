@@ -1,3 +1,9 @@
+zg 23.09.2012 20:56:39 +0200 - build 2834
+
+1. от Alexey Samlyukov:
+   PluginPanelItem.UserData.UserData -> PluginPanelItem.UserData.Data
+   PluginPanelItem.UserData.Callback -> PluginPanelItem.UserData.FreeData
+
 drkns 23.09.2012 20:31:24 +0200 - build 2833
 
 1. intptr_t & DlgBuilder 
