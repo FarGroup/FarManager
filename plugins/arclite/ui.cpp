@@ -1013,6 +1013,7 @@ private:
     fl_item.Text = L"";
     fl_items.push_back(fl_item);
     FarList fl;
+    fl.StructSize = sizeof(FarList);
     fl.ItemsNumber = profiles.size() + 1;
     fl.Items = fl_items.data();
     send_message(DM_LISTSET, profile_ctrl_id, &fl);

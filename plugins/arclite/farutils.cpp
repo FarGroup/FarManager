@@ -551,6 +551,7 @@ int Dialog::show() {
       dlg_item->Data = get_value(items[i].text_idx);
     if (items[i].list_idx) {
       FarList* fl = far_lists.data() + fl_idx;
+      fl->StructSize = sizeof(FarList);
       fl->Items = far_list_items.data() + fli_idx;
       fl->ItemsNumber = items[i].list_size;
       for (unsigned j = 0; j < items[i].list_size; j++) {
