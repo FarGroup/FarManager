@@ -948,7 +948,6 @@ enum ADVANCED_CONTROL_COMMANDS
 	ACTL_WAITKEY                    = 2,
 	ACTL_GETCOLOR                   = 3,
 	ACTL_GETARRAYCOLOR              = 4,
-	ACTL_EJECTMEDIA                 = 5,
 	ACTL_GETWINDOWINFO              = 6,
 	ACTL_GETWINDOWCOUNT             = 7,
 	ACTL_SETCURRENTWINDOW           = 8,
@@ -969,18 +968,6 @@ enum ADVANCED_CONTROL_COMMANDS
 
 };
 
-typedef unsigned __int64 FAREJECTMEDIAFLAGS;
-static const FAREJECTMEDIAFLAGS
-	EJECT_NO_MESSAGE                    = 0x0000000000000001ULL,
-	EJECT_LOAD_MEDIA                    = 0x0000000000000002ULL,
-	EJECT_NONE                          = 0;
-
-struct ActlEjectMedia
-{
-	size_t StructSize;
-	DWORD Letter;
-	FAREJECTMEDIAFLAGS Flags;
-};
 
 
 
