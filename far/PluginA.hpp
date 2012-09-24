@@ -74,9 +74,7 @@ public:
 #if defined(MANTIS_0000466)
 	virtual int ProcessMacro(ProcessMacroInfo *Info) {return 0;}
 #endif
-#if defined(MANTIS_0001687)
 	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info) {return 0;}
-#endif
 	virtual HANDLE Analyse(const AnalyseInfo *Info) { return nullptr; }
 	virtual void CloseAnalyse(HANDLE hHandle) {}
 	virtual bool GetPluginInfo(PluginInfo *pi);

@@ -123,9 +123,7 @@ enum EXPORTS_ENUM
 #if defined(MANTIS_0000466)
 	iProcessMacro,
 #endif
-#if defined(MANTIS_0001687)
 	iProcessConsoleInput,
-#endif
 	iAnalyse,
 	iGetCustomData,
 	iFreeCustomData,
@@ -173,9 +171,7 @@ public:
 #if defined(MANTIS_0000466)
 	virtual int ProcessMacro(ProcessMacroInfo *Info);
 #endif
-#if defined(MANTIS_0001687)
 	virtual int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
-#endif
 	virtual HANDLE Analyse(const AnalyseInfo *Info);
 	virtual void CloseAnalyse(HANDLE hHandle);
 	virtual bool GetPluginInfo(PluginInfo *pi);
@@ -219,9 +215,7 @@ public:
 #if defined(MANTIS_0000466)
 	bool HasProcessMacro()        const { return Exports[iProcessMacro]!=nullptr; }
 #endif
-#if defined(MANTIS_0001687)
 	bool HasProcessConsoleInput() const { return Exports[iProcessConsoleInput]!=nullptr; }
-#endif
 	bool HasAnalyse()             const { return Exports[iAnalyse]!=nullptr; }
 	bool HasGetCustomData()       const { return Exports[iGetCustomData]!=nullptr; }
 	bool HasFreeCustomData()      const { return Exports[iFreeCustomData]!=nullptr; }

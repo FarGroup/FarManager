@@ -1103,7 +1103,6 @@ int PluginManager::ProcessMacro(const GUID& guid,ProcessMacroInfo *Info)
 }
 #endif
 
-#if defined(MANTIS_0001687)
 int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 {
 	int nResult = 0;
@@ -1129,7 +1128,6 @@ int PluginManager::ProcessConsoleInput(ProcessConsoleInputInfo *Info)
 
 	return nResult;
 }
-#endif
 
 
 int PluginManager::GetFindData(

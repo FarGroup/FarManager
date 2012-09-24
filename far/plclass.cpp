@@ -78,9 +78,7 @@ typedef int    (WINAPI *iProcessSynchroEventPrototype) (const ProcessSynchroEven
 #if defined(MANTIS_0000466)
 typedef int    (WINAPI *iProcessMacroPrototype)        (const ProcessMacroInfo *Info);
 #endif
-#if defined(MANTIS_0001687)
 typedef int    (WINAPI *iProcessConsoleInputPrototype) (const ProcessConsoleInputInfo *Info);
-#endif
 typedef HANDLE (WINAPI *iAnalysePrototype)             (const AnalyseInfo *Info);
 typedef int    (WINAPI *iGetCustomDataPrototype)       (const wchar_t *FilePath, wchar_t **CustomData);
 typedef void   (WINAPI *iFreeCustomDataPrototype)      (wchar_t *CustomData);
@@ -117,9 +115,7 @@ typedef void   (WINAPI *iCloseAnalysePrototype)        (const CloseAnalyseInfo *
 #if defined(MANTIS_0000466)
 #define EXP_PROCESSMACRO        "ProcessMacroW"
 #endif
-#if defined(MANTIS_0001687)
 #define EXP_PROCESSCONSOLEINPUT "ProcessConsoleInputW"
-#endif
 #define EXP_ANALYSE             "AnalyseW"
 #define EXP_GETCUSTOMDATA       "GetCustomDataW"
 #define EXP_FREECUSTOMDATA      "FreeCustomDataW"
@@ -161,9 +157,7 @@ static const char* _ExportsNamesA[i_LAST] =
 #if defined(MANTIS_0000466)
 	EXP_PROCESSMACRO,
 #endif
-#if defined(MANTIS_0001687)
 	EXP_PROCESSCONSOLEINPUT,
-#endif
 	EXP_ANALYSE,
 	EXP_GETCUSTOMDATA,
 	EXP_FREECUSTOMDATA,
@@ -206,9 +200,7 @@ static const wchar_t* _ExportsNamesW[i_LAST] =
 #if defined(MANTIS_0000466)
 	W(EXP_PROCESSMACRO),
 #endif
-#if defined(MANTIS_0001687)
 	W(EXP_PROCESSCONSOLEINPUT),
-#endif
 	W(EXP_ANALYSE),
 	W(EXP_GETCUSTOMDATA),
 	W(EXP_FREECUSTOMDATA),
@@ -380,9 +372,7 @@ bool Plugin::SaveToCache()
 #if defined(MANTIS_0000466)
 		Exports[iProcessMacro] ||
 #endif
-#if defined(MANTIS_0001687)
 		Exports[iProcessConsoleInput] ||
-#endif
 		Exports[iAnalyse] ||
 		Exports[iGetCustomData]
 	)
@@ -461,9 +451,7 @@ bool Plugin::SaveToCache()
 #if defined(MANTIS_0000466)
 		OPT_SETEXPORT(iProcessMacro);
 #endif
-#if defined(MANTIS_0001687)
 		OPT_SETEXPORT(iProcessConsoleInput);
-#endif
 		OPT_SETEXPORT(iConfigure);
 		OPT_SETEXPORT(iAnalyse);
 		OPT_SETEXPORT(iGetCustomData);
@@ -510,9 +498,7 @@ void Plugin::InitExports()
 #if defined(MANTIS_0000466)
 	OPT_GetProcAddress(iProcessMacro);
 #endif
-#if defined(MANTIS_0001687)
 	OPT_GetProcAddress(iProcessConsoleInput);
-#endif
 	OPT_GetProcAddress(iAnalyse);
 	OPT_GetProcAddress(iGetCustomData);
 	OPT_GetProcAddress(iFreeCustomData);
@@ -752,9 +738,7 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 #if defined(MANTIS_0000466)
 		OPT_GETEXPORT(iProcessMacro);
 #endif
-#if defined(MANTIS_0001687)
 		OPT_GETEXPORT(iProcessConsoleInput);
-#endif
 		OPT_GETEXPORT(iConfigure);
 		OPT_GETEXPORT(iAnalyse);
 		OPT_GETEXPORT(iGetCustomData);
@@ -1109,7 +1093,6 @@ int Plugin::ProcessMacro(
 }
 #endif
 
-#if defined(MANTIS_0001687)
 int Plugin::ProcessConsoleInput(
 	ProcessConsoleInputInfo *Info
 )
@@ -1129,7 +1112,6 @@ int Plugin::ProcessConsoleInput(
 
 	return nResult;
 }
-#endif
 
 
 int Plugin::GetVirtualFindData(

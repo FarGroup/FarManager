@@ -82,9 +82,7 @@ namespace wrapper
 #if defined(MANTIS_0000466)
 #define EXP_PROCESSMACRO        ""
 #endif
-#if defined(MANTIS_0001687)
 #define EXP_PROCESSCONSOLEINPUT ""
-#endif
 #define EXP_ANALYSE             ""
 #define EXP_GETCUSTOMDATA       ""
 #define EXP_FREECUSTOMDATA      ""
@@ -126,9 +124,7 @@ static const char* _ExportsNamesA[i_LAST] =
 #if defined(MANTIS_0000466)
 	EXP_PROCESSMACRO,
 #endif
-#if defined(MANTIS_0001687)
 	EXP_PROCESSCONSOLEINPUT,
-#endif
 	EXP_ANALYSE,
 	EXP_GETCUSTOMDATA,
 	EXP_FREECUSTOMDATA,
@@ -171,9 +167,7 @@ static const wchar_t* _ExportsNamesW[i_LAST] =
 #if defined(MANTIS_0000466)
 	W(EXP_PROCESSMACRO),
 #endif
-#if defined(MANTIS_0001687)
 	W(EXP_PROCESSCONSOLEINPUT),
-#endif
 	W(EXP_ANALYSE),
 	W(EXP_GETCUSTOMDATA),
 	W(EXP_FREECUSTOMDATA),
