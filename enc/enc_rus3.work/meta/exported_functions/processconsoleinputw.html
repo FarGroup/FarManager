@@ -11,7 +11,7 @@
 <h1>ProcessConsoleInputW</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
-<a href="index.html">экспортируемые функции</a> |
+<a href="index.html">экспортируемые функции</a>
 </div>
 
 <div class=shortdescr>
@@ -27,16 +27,16 @@ intptr_t WINAPI ProcessConsoleInputW(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/processconsoleinputinfo.html">ProcessConsoleInputInfo</a>.
+    <div class=dfndescr>Указатель на структуру <a href="../structures/processconsoleinputinfo.html">ProcessConsoleInputInfo</a>. Far Manager передает информацию о консольных событиях.<br>
     В начале функции проверьте, что поле <code>ProcessConsoleInputInfo.StructSize >= sizeof(ProcessConsoleInputInfo)</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
 <ul>
-<li>0 - продолжить в фаре. Никаких изменений со стороны плагина не производилось;
-<li>1 - плагин всё сделал сам, дальнейшая обработку события в FAR`е не требуется;
-<li>2 - плагин поменял поле <code>ProcessConsoleInputInfo.Rec</code>, FAR должен принять новое значение.
+<li>0 - продолжить обработку собитий в Far Manager. Никаких изменений со стороны плагина не производилось;
+<li>1 - плагин всё сделал сам, дальнейшей обработки событий в Far Manager не требуется;
+<li>2 - плагин поменял поле <code>ProcessConsoleInputInfo.Rec</code>, Far Manager должен принять новое значение.
 </ul>
 </div>
 

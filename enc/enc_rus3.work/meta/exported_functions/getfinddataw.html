@@ -28,7 +28,7 @@ intptr_t WINAPI GetFindDataW(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a  href="../structures/getfinddatainfo.html">GetFindDataInfo</a>. Плагин передает Far Manager'у информацию об элементах (список файлов) для панели в этой функции.<br>
+    <div class=dfndescr>Указатель на структуру <a  href="../structures/getfinddatainfo.html">GetFindDataInfo</a>. Плагин передает Far Manager'у информацию об элементах (список файлов) для панели.<br>
     В начале функции проверьте, что поле <code>GetFindDataInfo.StructSize >= sizeof(GetFindDataInfo)</code>.</div>
 </div>
 
@@ -40,7 +40,7 @@ intptr_t WINAPI GetFindDataW(
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Плагин сам должен выделять память под запрошенные данные. Если это происходит, то необходимо позаботиться об освобождении памяти, т.е.
+<li>В этой функции плагин динамически формирует список элементов, если это происходит, то необходимо позаботиться об освобождении памяти, когда список уже не нужен, т.е.
     не забыть бы про экспортирование функции <a href="freefinddataw.html">FreeFindDataW</a>.
 <li>Если функция вернёт FALSE, плагин будет закрыт.
 <li>В некоторых случаях (пример: поиск в архивах по <kbd>Alt</kbd>+<kbd>F7</kbd>) физически панель плагина не создаётся, поэтому необходимо обязательно проверять код
