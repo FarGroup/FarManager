@@ -35,11 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 extern void SZLOG (const char *fmt, ...);
 
-// FIXME: for SciTE only.
-#if !defined (__GNUC__) && !defined (_MSC_VER)
-#define FAR_LUA
-#endif
-
 #ifdef FAR_LUA
 #include "array.hpp"
 #include "TStack.hpp"

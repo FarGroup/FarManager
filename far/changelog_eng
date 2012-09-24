@@ -3,6 +3,169 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+zg 23.09.2012 21:22:44 +0200 - build 2835
+
+1. ACTL_EJECTMEDIA is removed.
+
+zg 23.09.2012 20:56:39 +0200 - build 2834
+
+1. from Alexey Samlyukov:
+   PluginPanelItem.UserData.UserData -> PluginPanelItem.UserData.Data
+   PluginPanelItem.UserData.Callback -> PluginPanelItem.UserData.FreeData
+
+drkns 23.09.2012 20:31:24 +0200 - build 2833
+
+1. intptr_t & DlgBuilder 
+
+2. Leave vswscanf for gcc.
+
+zg 23.09.2012 20:03:02 +0200 - build 2832
+
+1. vc has no vswscanf.
+
+zg 23.09.2012 19:12:13 +0200 - build 2831
+
+1. in API, some UINT/DWORD are replaced with uintptr_t.
+
+zg 23.09.2012 17:19:39 +0200 - build 2830
+
+1. int is replaced with intptr_t throughout whole API.
+
+zg 23.09.2012 03:09:28 +0200 - build 2829
+
+1. Reserved is added to a couple of structures.
+
+2. StructSize field is added to the following structures:
+   FarDialogEvent
+   FarList
+
+zg 23.09.2012 01:52:19 +0200 - build 2828
+
+1. ViewerMode is redone. Wrap&WordWrap -> Flags. Hex -> Type.
+
+zg 23.09.2012 00:37:48 +0200 - build 2827
+
+1. PanelMode got rid of StructSize field.
+
+2. some structures lost the Reserved field.
+
+drkns 23.09.2012 00:00:16 +0200 - build 2826
+
+1. A new opti "cursor at end" in editor settings, when switched on, search places the cursor to the end of found text
+
+2. "select found" option moved from search dialog to editor settings dialog.
+
+zg 22.09.2012 22:38:35 +0200 - build 2825
+
+1. in InfoPanelLine, Separator is replaced with Flags. IPLFLAGS_SEPARATOR flag is added.
+   all native plugins are broken.
+
+zg 22.09.2012 21:37:30 +0200 - build 2824
+
+1. in ECTL_SETKEYBAR/VCTL_SETKEYBAR, FarSetKeyBarTitles must be passed instead of KeyBarTitles.
+
+zg 22.09.2012 04:39:38 +0200 - build 2823
+
+1. From Shmuel Zeigerman: correction of 2822.
+
+zg 22.09.2012 02:25:21 +0200 - build 2822
+
+1. for obvious reasons, PInfo and GInfo fields in FarGetPluginInformation are made pointers.
+   PCTL_GETPLUGININFORMATION functioning is unchanged.
+
+zg 22.09.2012 01:17:59 +0200 - build 2821
+
+1. StructSize field added to the following structures:
+   FarSettingsItem
+   FarSettingsEnum
+   FarSettingsValue
+   all native plugins are broken.
+
+zg 21.09.2012 17:01:33 +0200 - build 2820
+
+1. ViewerInfo got rid of FileName field, like in editor. 
+
+2. in order to obtain file name, VCTL_GETFILENAME is added, similar to ECTL_GETFILENAME.
+
+3. correction of 2816 for ANSI plugins.
+
+4. all native plugins are broken.
+
+w17 21.09.2012 13:02:47 +0400 - build 2819
+
+1. M#1870: in Show selected first, selection of the last item gets the cursor "jump" to the item
+
+zg 21.09.2012 02:25:27 +0200 - build 2818
+
+1. ACTL_ENABLEREDRAW is removed.
+
+zg 21.09.2012 02:15:53 +0200 - build 2817
+
+1. SessionBookmarkCount field is added to EditorInfo.
+
+zg 21.09.2012 02:01:45 +0200 - build 2816
+
+1. for ECTL_GETFILENAME the buffer size is passed in Param1.
+
+zg 21.09.2012 00:43:26 +0200 - build 2815
+
+1. EditorBookMarks -> EditorBookmarks. Size is the size of allocated memory as in FarGetPluginPanelItem.
+   required size can be obtained with ECTL_GETBOOKMARKS/ECTL_GETSESSIONBOOKMARKS call.
+   Count returns bookmarks count.
+
+zg 20.09.2012 22:32:55 +0200 - build 2814
+
+1. correction of 2807.1.
+
+zg 20.09.2012 21:24:01 +0200 - build 2813
+
+1. FSF.DeleteBuffer is removed.
+
+2. FSF.CopyToClipboard got 1 extra parameter - the type of the block being placed to clipboard. FCT_STREAM - the streaming one. FCT_COLUMN - the vertical one.
+   returned value is TRUE in case of success, FALSE otherwise.
+
+3. FSF.PasteFromClipboard writes to Data maximum of Length characters including '\0' from the clipboard. the returned value is the required buffer size.
+   if there's no requested content type in the clipboard then the returned value is 0.
+   FCT_ANY - return any block.
+   FCT_STREAM - return streaming block only.
+   FCT_COLUMN - return vertical block only.
+
+4. all native plugins are broken.
+
+w17 20.09.2012 16:44:39 +0400 - build 2812
+
+1. size_t in Read/Write
+
+zg 20.09.2012 13:28:23 +0200 - build 2811
+
+1. changes in ProcessPanelEventInfo by Alexey Samlyukov.
+   all native plugins are broken.
+
+2. GetVirtualFindDataInfo, FreeVirtualFindDataW and GetVirtualFindDataW are removed.
+
+lort 19.09.2012 19:52:41 +0400 - build 2810
+
+1. A new command ACTL_ENABLEREDRAW, Param1=1 - enable FAR window redraw, Param1=0 - disable it. 
+   Returned value is the previous state, to obtain the current state set Param1=-1
+
+w17 19.09.2012 13:40:39 +0400 - build 2809
+
+1. correction of 2794
+
+zg 19.09.2012 00:47:09 +0200 - build 2808
+
+1. correction of 2807.1.
+
+zg 18.09.2012 22:33:00 +0200 - build 2807
+
+1. 0001699: Ease the use of UserData for storing data by panel plugins
+   UserData in PluginPanelItem is a structure.
+   UserData is a pointer to anything.
+   Callback is a function that removes UserData.
+2. As plugin authors do not want UserData contain the plugin handle and demand it be passed via Callback,
+   FreePluginDirList got an additional parameter.
+   all native plugins are broken.
+
 zg 17.09.2012 16:55:00 +0200 - build 2806
 
 1. correction of 2799.

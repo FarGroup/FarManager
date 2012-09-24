@@ -106,9 +106,7 @@ enum PLUGINITEMCALLFUNCFLAGS
 #if defined(MANTIS_0000466)
 	PICFF_PROCESSMACRO         = 0x40000000, //
 #endif
-#if defined(MANTIS_0001687)
 	PICFF_PROCESSCONSOLEINPUT  = 0x80000000, //
-#endif
 };
 
 // флаги для поля PluginManager.Flags
@@ -296,9 +294,7 @@ class PluginManager
 #if defined(MANTIS_0000466)
 		int ProcessMacro(const GUID& guid,ProcessMacroInfo *Info);
 #endif
-#if defined(MANTIS_0001687)
 		int ProcessConsoleInput(ProcessConsoleInputInfo *Info);
-#endif
 		void GetCustomData(FileListItem *ListItem);
 
 		friend class Plugin;

@@ -2748,8 +2748,6 @@ struct ProcessEditorInputInfo
 	INPUT_RECORD Rec;
 };
 
-#ifdef FAR_USE_INTERNALS
-#if defined(MANTIS_0001687)
 typedef unsigned __int64 PROCESSCONSOLEINPUT_FLAGS;
 static const PROCESSCONSOLEINPUT_FLAGS
 	PCIF_FROMMAIN = 0x0000000000000001ULL,
@@ -2762,8 +2760,6 @@ struct ProcessConsoleInputInfo
 	INPUT_RECORD Rec;
 	HANDLE hPanel;
 };
-#endif
-#endif // END FAR_USE_INTERNALS
 
 struct ExitInfo
 {
@@ -2864,11 +2860,7 @@ extern "C"
 	intptr_t WINAPI ProcessMacroW(struct ProcessMacroInfo *Info);
 #endif
 #endif // END FAR_USE_INTERNALS
-#ifdef FAR_USE_INTERNALS
-#if defined(MANTIS_0001687)
 	intptr_t WINAPI ProcessConsoleInputW(struct ProcessConsoleInputInfo *Info);
-#endif
-#endif // END FAR_USE_INTERNALS
 	intptr_t WINAPI ProcessSynchroEventW(const struct ProcessSynchroEventInfo *Info);
 	intptr_t WINAPI ProcessViewerEventW(const struct ProcessViewerEventInfo *Info);
 	intptr_t WINAPI PutFilesW(const struct PutFilesInfo *Info);

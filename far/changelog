@@ -1,3 +1,13 @@
+svs 24.09.2012 11:32:50 +0400 - build 2937
+
+1. Mantis#0001687: ProcessConsoleInput
+   Открыто.
+   Баги в рамках новых Инцов.
+
+w17 24.09.2012 10:52:12 +0400 - build 2836
+
+1. Debug build fix
+
 zg 23.09.2012 21:22:44 +0200 - build 2835
 
 1. удалена ACTL_EJECTMEDIA.

@@ -31,11 +31,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// FIXME: for SciTE only.
-#if !defined (__GNUC__) && !defined (_MSC_VER)
-#define FAR_LUA
-#endif
-
 #ifdef FAR_LUA
 #include "headers.hpp"
 #pragma hdrstop

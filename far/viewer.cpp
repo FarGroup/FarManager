@@ -2504,7 +2504,7 @@ intptr_t WINAPI ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,voi
 					wchar_t t[128], *tmp = t;
 					if (tlen > (int)(ARRAYSIZE(t)-1))
 						tmp = new wchar_t[tlen+1];
-					FarDialogItemData item = {sizeof(FarDialogItemData), tlen, tmp};
+					FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(tlen), tmp};
 					SendDlgMessage(hDlg, DM_GETTEXT, SD_EDIT_TEXT, &item);
 					string sre = tmp;
 					InsertRegexpQuote(sre);

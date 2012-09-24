@@ -83,9 +83,7 @@ namespace wrapper
 #if defined(MANTIS_0000466)
 #define EXP_PROCESSMACRO        ""
 #endif
-#if defined(MANTIS_0001687)
 #define EXP_PROCESSCONSOLEINPUT ""
-#endif
 #define EXP_ANALYSE             ""
 #define EXP_GETCUSTOMDATA       ""
 #define EXP_FREECUSTOMDATA      ""
@@ -127,9 +125,7 @@ static const char* _ExportsNamesA[i_LAST] =
 #if defined(MANTIS_0000466)
 	EXP_PROCESSMACRO,
 #endif
-#if defined(MANTIS_0001687)
 	EXP_PROCESSCONSOLEINPUT,
-#endif
 	EXP_ANALYSE,
 	EXP_GETCUSTOMDATA,
 	EXP_FREECUSTOMDATA,
@@ -172,9 +168,7 @@ static const wchar_t* _ExportsNamesW[i_LAST] =
 #if defined(MANTIS_0000466)
 	W(EXP_PROCESSMACRO),
 #endif
-#if defined(MANTIS_0001687)
 	W(EXP_PROCESSCONSOLEINPUT),
-#endif
 	W(EXP_ANALYSE),
 	W(EXP_GETCUSTOMDATA),
 	W(EXP_FREECUSTOMDATA),
@@ -2736,7 +2730,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2) return length;
 
 			wchar_t* text = (wchar_t *) xf_malloc((length +1)* sizeof(wchar_t));
-			FarDialogItemData item = {sizeof(FarDialogItemData), length, text};
+			FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(length), text};
 			length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &item);
 			UnicodeToOEM(text, (char *)Param2, length+1);
 			xf_free(text);

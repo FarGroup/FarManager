@@ -236,9 +236,7 @@ enum ExceptFunctionsType
 #if defined(MANTIS_0000466)
 	EXCEPT_PROCESSMACRO,
 #endif
-#if defined(MANTIS_0001687)
 	EXCEPT_PROCESSCONSOLEINPUT,
-#endif
 };
 
 typedef BOOL (WINAPI *FARPROCESSEVENT)(FARExceptionState * Context);
