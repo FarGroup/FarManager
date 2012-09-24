@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2834
+  Plugin API for Far Manager 3.0 build 2837
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2834
+#define FARMANAGERVERSION_BUILD 2837
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -2477,6 +2477,18 @@ struct ProcessEditorInputInfo
 	INPUT_RECORD Rec;
 };
 
+typedef unsigned __int64 PROCESSCONSOLEINPUT_FLAGS;
+static const PROCESSCONSOLEINPUT_FLAGS
+	PCIF_FROMMAIN = 0x0000000000000001ULL,
+	PCIF_NONE     = 0;
+
+struct ProcessConsoleInputInfo
+{
+	size_t StructSize;
+	PROCESSCONSOLEINPUT_FLAGS Flags;
+	INPUT_RECORD Rec;
+	HANDLE hPanel;
+};
 
 struct ExitInfo
 {
@@ -2566,6 +2578,7 @@ extern "C"
 	intptr_t WINAPI ProcessPanelEventW(const struct ProcessPanelEventInfo *Info);
 	intptr_t WINAPI ProcessHostFileW(const struct ProcessHostFileInfo *Info);
 	intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo *Info);
+	intptr_t WINAPI ProcessConsoleInputW(struct ProcessConsoleInputInfo *Info);
 	intptr_t WINAPI ProcessSynchroEventW(const struct ProcessSynchroEventInfo *Info);
 	intptr_t WINAPI ProcessViewerEventW(const struct ProcessViewerEventInfo *Info);
 	intptr_t WINAPI PutFilesW(const struct PutFilesInfo *Info);
