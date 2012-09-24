@@ -1400,7 +1400,7 @@ static BOOL CheckEditSelected(MACROMODEAREA Mode, UINT64 CurFlags)
 
 			if (Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
 			{
-				int SelStart,SelEnd;
+				intptr_t SelStart,SelEnd;
 				CtrlObject->CmdLine->GetSelection(SelStart,SelEnd);
 				CurSelected = (SelStart != -1 && SelStart < SelEnd);
 			}
