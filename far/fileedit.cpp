@@ -2476,7 +2476,7 @@ void FileEditor::OnChangeFocus(int focus)
 }
 
 
-int FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
+intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 {
 #if defined(SYSLOG_KEYMACRO)
 	_KEYMACRO(CleverSysLog SL(L"FileEditor::EditorControl()"));

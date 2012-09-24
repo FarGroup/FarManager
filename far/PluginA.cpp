@@ -2735,7 +2735,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 			if (!Param2) return length;
 
 			wchar_t* text = (wchar_t *) xf_malloc((length +1)* sizeof(wchar_t));
-			FarDialogItemData item = {sizeof(FarDialogItemData), length, text};
+			FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(length), text};
 			length = NativeInfo.SendDlgMessage(hDlg, DM_GETTEXT, Param1, &item);
 			UnicodeToOEM(text, (char *)Param2, length+1);
 			xf_free(text);
