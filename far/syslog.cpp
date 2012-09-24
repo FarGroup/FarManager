@@ -582,8 +582,8 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 		{
 			for (size_t I=0; I<Info->InfoLinesNumber; ++I)
 			{
-				fwprintf(fp,L"\t\t%u) Text=[%s], Data=[%s], Separator=[%d]\n",static_cast<unsigned>(I),
-				         NullToEmpty(Info->InfoLines[I].Text),NullToEmpty(Info->InfoLines[I].Data),Info->InfoLines[I].Separator);
+				fwprintf(fp,L"\t\t%u) Text=[%s], Data=[%s], Flags=[0x%I64X]\n",static_cast<unsigned>(I),
+				         NullToEmpty(Info->InfoLines[I].Text),NullToEmpty(Info->InfoLines[I].Data),Info->InfoLines[I].Flags);
 			}
 		}
 
