@@ -406,7 +406,7 @@ FileEditor::~FileEditor()
 
 void FileEditor::Init(
     const string& Name,
-    UINT codepage,
+    uintptr_t codepage,
     const string* Title,
     DWORD InitFlags,
     int StartLine,
