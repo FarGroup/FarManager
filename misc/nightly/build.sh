@@ -1,11 +1,11 @@
 #!/bin/sh
 
-./far.sh &> logfar
+./far.sh &> logs/far
 
-./plugins.sh &> logplugins
+./plugins.sh &> logs/plugins
 
-#./enc.sh &> logenc
+#./enc.sh &> logs/enc
 
-./docs.sh &> logdocs
+./docs.sh &> logs/docs
 
-./publish.sh &> logpublish
+./publish.sh &> logs/publish

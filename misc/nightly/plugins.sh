@@ -24,7 +24,7 @@ if [ $ADD -eq 1 ]; then
   eval "mkdir -p ${FINAL}/$6"
 fi
 
-wine cmd /c ../../plugin.${BIT}.bat &> ../../log${PLUGIN}${BIT}
+wine cmd /c ../../plugin.${BIT}.bat &> ../../logs/${PLUGIN}${BIT}
 
 if [ "$PLUGIN" == "FExcept" ]; then
   mkdir -p ../../outfinalnew${BIT}/FExcept/
@@ -135,8 +135,8 @@ cd plugins/common/CRT
 
 mkdir -p obj.32.vc/wide
 mkdir -p obj.64.vc/wide
-wine cmd /c ../../../common.32.bat &> ../../../logCRT32
-wine cmd /c ../../../common.64.bat &> ../../../logCRT64
+wine cmd /c ../../../common.32.bat &> ../../../logs/CRT32
+wine cmd /c ../../../common.64.bat &> ../../../logs/CRT64
 
 cd ../..
 
