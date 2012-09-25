@@ -4045,7 +4045,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS)
 			  Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
 
-			string strSequence=L"Keys(";
+			string strSequence=L"Keys(\"";
 			string strKeyText;
 			for (int i=0; i<ksA->Count; i++)
 			{
@@ -4054,7 +4054,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 					strSequence += L" " + strKeyText;
 				}
 			}
-			strSequence += L")";
+			strSequence += L"\")";
 
 			intptr_t ret = CtrlObject->Macro.PostNewMacro(strSequence, Flags);
 
