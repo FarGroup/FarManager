@@ -3841,7 +3841,7 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 
 intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_COMMANDS Command, void *Param)
 {
-#if 1 //ndef FAR_LUA
+#ifndef FAR_LUA
 	static char *ErrMsg1 = nullptr;
 	static char *ErrMsg2 = nullptr;
 	static char *ErrMsg3 = nullptr;
@@ -3988,6 +3988,11 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 					{
 						case MSSC_CHECK:
 						{
+#ifdef FAR_LUA
+							kmA->MacroResult.ErrMsg1 = "";
+							kmA->MacroResult.ErrMsg2 = "";
+							kmA->MacroResult.ErrMsg3 = "";
+#else
 							if (ErrMsg1) xf_free(ErrMsg1);
 
 							if (ErrMsg2) xf_free(ErrMsg2);
@@ -3995,9 +4000,9 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 							if (ErrMsg3) xf_free(ErrMsg3);
 
 							string ErrMessage[3];
-#ifndef FAR_LUA
+
 							CtrlObject->Macro.GetMacroParseError(&ErrMessage[0],&ErrMessage[1],&ErrMessage[2],nullptr);
-#endif
+
 							kmA->MacroResult.ErrMsg1 = ErrMsg1 = UnicodeToAnsi(ErrMessage[0]);
 							kmA->MacroResult.ErrMsg2 = ErrMsg2 = UnicodeToAnsi(ErrMessage[1]);
 							kmA->MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(ErrMessage[2]);
@@ -4006,6 +4011,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 								xf_free((void*)mtW.SequenceText);
 
 							break;
+#endif
 						}
 
 						case MSSC_POST:
@@ -4023,7 +4029,36 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 		case oldfar::ACTL_POSTKEYSEQUENCE:
 		{
 #ifdef FAR_LUA
-			return FALSE;
+			if (!Param)
+				return FALSE;
+
+			oldfar::KeySequence *ksA = (oldfar::KeySequence*)Param;
+
+			if (!ksA->Count || !ksA->Sequence)
+				return FALSE;
+
+			MACROFLAGS_MFLAGS Flags=0;
+
+			if (ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT)
+			  Flags|=MFLAGS_DISABLEOUTPUT;
+
+			if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS)
+			  Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
+
+			string strSequence=L"Keys(";
+			string strKeyText;
+			for (int i=0; i<ksA->Count; i++)
+			{
+				if (KeyToText(OldKeyToKey(ksA->Sequence[i]), strKeyText))
+				{
+					strSequence += L" " + strKeyText;
+				}
+			}
+			strSequence += L")";
+
+			intptr_t ret = CtrlObject->Macro.PostNewMacro(strSequence, Flags);
+
+			return ret;
 #else
 			if (!Param)
 				return FALSE;
