@@ -185,11 +185,11 @@ H6
     MARGIN-LEFT: -18px;
     FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
 }
-DFN
+CODE
 {
     FONT-WEIGHT: bold;
     FONT-STYLE: normal;
-    FONT-FAMILY: verdana, tahoma, Lucida console,  Courier, arial, helvetica
+    FONT-FAMILY: verdana, tahoma, arial, Lucida console, Courier, helvetica
 }
 DIV.shortdescr
 {
@@ -307,10 +307,6 @@ PRE.syntax
     COLOR: #101030;
     PADDING-TOP: 2pt;
     FONT-FAMILY: Courier New,Lucida Console, Courier New, Courier, monospace
-}
-CODE
-{
-    FONT-FAMILY: Courier New,Lucida Console, Courier, monospace
 }
 KBD
 {

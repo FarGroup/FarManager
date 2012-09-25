@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>ProcessConsoleInputW</dfn> позволяет плагину выполнить предобработку консольных событий.
+Функция <code>ProcessConsoleInputW</code> позволяет плагину выполнить предобработку консольных событий.
 </div>
 
 <pre class=syntax>
@@ -34,9 +34,9 @@ intptr_t WINAPI ProcessConsoleInputW(
 <h3>Возвращаемое значение</h3>
 <div class=descr>
 <ul>
-<li>0 - продолжить обработку собитий в Far Manager. Никаких изменений со стороны плагина не производилось;
-<li>1 - плагин всё сделал сам, дальнейшей обработки событий в Far Manager не требуется;
-<li>2 - плагин поменял поле <code>ProcessConsoleInputInfo.Rec</code>, Far Manager должен принять новое значение.
+<li><code>0</code> - продолжить обработку собитий в Far Manager, никаких изменений со стороны плагина не производилось;
+<li><code>1</code> - плагин всё сделал сам, дальнейшей обработки событий в Far Manager не требуется;
+<li><code>2</code> - плагин поменял поле <code>ProcessConsoleInputInfo.Rec</code>, Far Manager должен принять новое значение.
 </ul>
 </div>
 

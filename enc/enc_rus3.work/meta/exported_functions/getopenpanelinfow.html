@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>GetOpenPanelInfoW</dfn> вызывается Far Manager для получения информации об открываемой панели плагина.
+Функция <code>GetOpenPanelInfoW</code> вызывается Far Manager для получения информации об открываемой панели плагина.
 </div>
 
 <pre class=syntax>
@@ -38,8 +38,8 @@ void WINAPI GetOpenPanelInfoW(
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Структура <a  href="../structures/openpanelinfo.html">OpenPanelInfo</a>, передаваемая функции <dfn>GetOpenPanelInfoW</dfn>, уже заполнена 0. Плагин обязательно должен заполнить поле OpenPanelInfo.StructSize</li>
-<li>Far Manager вызывает функцию <dfn>GetOpenPanelInfoW</dfn> достаточно часто, поэтому при проектировании плагина необходимо минимизировать "расчёты", производимые в этой функции.</li>
+<li>Структура <a  href="../structures/openpanelinfo.html">OpenPanelInfo</a>, передаваемая функции <code>GetOpenPanelInfoW</code>, уже заполнена <code>0</code>. Плагин обязательно должен заполнить поле <code>OpenPanelInfo.StructSize</code></li>
+<li>Far Manager вызывает функцию <code>GetOpenPanelInfoW</code> достаточно часто, поэтому при проектировании плагина необходимо минимизировать "расчёты", производимые в этой функции.</li>
 </ol>
 </div>
 
@@ -55,7 +55,8 @@ void WINAPI GetOpenPanelInfoW(struct OpenPanelInfo *Info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a  href="../structures/openpanelinfo.html">OpenPanelInfo</a>
 </div>
 

@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>SetStartupInfoW</dfn> вызывается один раз, после загрузки DLL-модуля в память. Far Manager передаёт плагину информацию, необходимую для дальнейшей работы.
+Функция <code>SetStartupInfoW</code> вызывается один раз, после загрузки DLL-модуля в память. Far Manager передаёт плагину информацию, необходимую для дальнейшей работы.
 </div>
 
 <pre class=syntax>
@@ -41,7 +41,7 @@ void WINAPI SetStartupInfoW(
 <div class=descr>
 <ol>
 <li>Эта функция вызывается сразу же после вызова функции <a href="getglobalinfow.html">GetGlobalInfoW</a>.
-<li>Указатель <i>Info</i> действителен только в области видимости данной функции (до выхода из функции), так что структура должна копироваться во внутреннюю переменную плагина для дальнейшего использования:
+<li>Указатель <code>Info</code> действителен только в области видимости данной функции (до выхода из функции), так что структура должна копироваться во внутреннюю переменную плагина для дальнейшего использования:
 <pre class=code>static struct PluginStartupInfo Info;
 ...
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)

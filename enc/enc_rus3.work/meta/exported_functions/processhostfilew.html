@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>ProcessHostFileW</dfn> вызывается, чтобы выполнить архивные команды Far Manager.
+Функция <code>ProcessHostFileW</code> вызывается, чтобы выполнить архивные команды Far Manager.
 Рекомендуется поместить сюда дополнительные операции, которые обрабатывают файл, на основании которого плагин эмулирует файловую систему.
 </div>
 
@@ -35,13 +35,13 @@ intptr_t WINAPI ProcessHostFileW(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-В случае успеха должно возвращаться TRUE. Иначе - FALSE.
+В случае успеха должно возвращаться <code>1</code>. Иначе - <code>0</code>.
 </div>
 
 <h3>Примечание</h3>
 <div class=descr>
 Если операция не удалась, но часть файлов была успешно обработана, плагин может удалить выделение только с обработанных файлов. Для этого он должен очистить
-флаг <a href="../structures/pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a> у обработанных элементов переданного функции списка PluginPanelItem.
+флаг <a href="../structures/pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a> у обработанных элементов переданного функции списка <code>PluginPanelItem</code>.
 </div>
 
 </body>

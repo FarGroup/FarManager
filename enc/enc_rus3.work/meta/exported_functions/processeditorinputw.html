@@ -17,7 +17,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>ProcessEditorInputW</dfn> вызывается всякий раз, когда внутренний редактор Far Manager обрабатывает событие от клавиатуры или мыши.
+Функция <code>ProcessEditorInputW</code> вызывается всякий раз, когда внутренний редактор Far Manager обрабатывает событие от клавиатуры или мыши.
 </div>
 
 <pre class=syntax>
@@ -35,31 +35,34 @@ intptr_t WINAPI ProcessEditorInputW(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Если плагин должен передать управление в редактор Far Manager`а, то верните 0.
-Если плагин в полной мере отработал событие или вы хотите, чтобы Far Manager игнорировал это событие, то верните 1.
+<ul>
+<li>Если плагин должен передать управление в редактор Far Manager`а, то верните <code>0</code>.
+<li>Если плагин в полной мере отработал событие или вы хотите, чтобы Far Manager игнорировал это событие, то верните <code>1</code>.
+</ul>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
 <li>Плагин должен корректно обрабатывать входные события путём анализа поля <code>Info->INPUT_RECORD.EventType</code>
-    и, в случае если плагин данное событие не обрабатывает, вернуть управление в Far Manager.</li>
-<li>Во время "проигрывания" макроса клавиатурные события (KEY_EVENT) имеют "новый" тип - поле <code>Info->INPUT_RECORD.EventType</code> равно значению <code>0x8001</code>.</li>
+    и, в случае если плагин данное событие не обрабатывает, вернуть управление в Far Manager.
+<li>Во время "проигрывания" макроса клавиатурные события (<code>KEY_EVENT</code>) имеют "новый" тип - поле <code>Info->INPUT_RECORD.EventType</code> равно значению <code>0x8001</code>.
 <li>Плагин может вызвать команду <a href="../service_functions/editorcontrol.html">EditorControl</a>
     из этой функции, но будьте осторожны, когда вызываете здесь <a href="../service_functions/editorcontrol.html#ECTL_PROCESSINPUT">ECTL_PROCESSINPUT</a>,
-    потому что эта команда вызывает функцию <dfn>ProcessEditorInputW</dfn> снова. Таким образом, плагин должен сам предотвратить такой самовызов, или он впадёт в бесконечный цикл.</li>
-<li>Плагину не приходят клавиши: <kbd>Ctrl</kbd>+<kbd>W</kbd>, <kbd>F11</kbd>, <kbd>Alt</kbd>+<kbd>F9</kbd>, <kbd>F12</kbd>, <kbd>Ctrl</kbd>+<kbd>Tab</kbd>, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd>, <kbd>Alt</kbd>+<kbd>Ins</kbd> и <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>.</li>
+    потому что эта команда вызывает функцию <code>ProcessEditorInputW</code> снова. Таким образом, плагин должен сам предотвратить такой самовызов, или он впадёт в бесконечный цикл.
+<li>Плагину не приходят клавиши: <kbd>Ctrl</kbd>+<kbd>W</kbd>, <kbd>F11</kbd>, <kbd>Alt</kbd>+<kbd>F9</kbd>, <kbd>F12</kbd>, <kbd>Ctrl</kbd>+<kbd>Tab</kbd>, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Tab</kbd>, <kbd>Alt</kbd>+<kbd>Ins</kbd> и <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>.
 <li>Плагину приходят клавиши (с ограничениями):
   <ul>
   <li><kbd>Alt</kbd>+<kbd>F5</kbd>  - если плагин PrintMan не установлен
   <li><kbd>Alt</kbd>+<kbd>F11</kbd> - если редактор модальный
   <li><kbd>F6</kbd> - если есть запрет на переключение в программу просмотра (при вызове функции <a href="../service_functions/editor.html">Editor</a>
-   не указан флаг <a href="../service_functions/editor.html#EF_ENABLE_F6">EF_ENABLE_F6</a>).</ul></li>
+   не указан флаг <a href="../service_functions/editor.html#EF_ENABLE_F6">EF_ENABLE_F6</a>).</ul>
 </ol>
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../winapi/input_record.html">INPUT_RECORD</a>
 </div>
 

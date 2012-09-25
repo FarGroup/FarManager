@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>PutFilesW</dfn> вызывается Far Manager для перемещения файлов на панель эмулируемой файловой системы.<br>
+Функция <code>PutFilesW</code> вызывается Far Manager для перемещения файлов на панель эмулируемой файловой системы.<br>
 (Far Manager плагину: <em>"этот/эти файл(ы) для тебя, можешь поместить на свою панель"</em>).
 </div>
 
@@ -35,16 +35,16 @@ intptr_t WINAPI PutFilesW(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-В случае удачи, функция должна возвращать 1 или 2. Если плагин возвращает 1, то Far Manager пытается установить курсор на последний по дате создания файл текущей
-панели. Если плагин возвращает 2, то Far Manager никаких перемещений курсора не предпринимает. Если функция завершилась неудачей, должен возвращаться 0.
-Если же функция была прервана пользователем, то возвращаемое значение должно равняться -1.
+В случае удачи, функция должна возвращать <code>1</code> или <code>2</code>. Если плагин возвращает <code>1</code>, то Far Manager пытается установить курсор на последний по дате создания файл текущей
+панели. Если плагин возвращает <code>2</code>, то Far Manager никаких перемещений курсора не предпринимает. Если функция завершилась неудачей, должен возвращаться <code>0</code>.
+Если же функция была прервана пользователем, то возвращаемое значение должно равняться <code>-1</code>.
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
 <li>Если операция была прервана, но часть файлов всё же была скопирована, плагин может убрать выделение только с обработанных файлов. Для этого он должен 
-сбросить флаг <a href="../structures/pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a> у соответствующих структур файлов, передаваемых в функцию через параметр <i>PutFilesInfo.PanelItem</i>.
+сбросить флаг <a href="../structures/pluginpanelitem.html#PPIF_SELECTED">PPIF_SELECTED</a> у соответствующих структур файлов, передаваемых в функцию через параметр <code>PutFilesInfo.PanelItem</code>.
 </ol>
 </div>
 
@@ -60,11 +60,11 @@ intptr_t WINAPI PutFilesW(const struct PutFilesInfo *Info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="getfilesw.html">GetFilesW</a>,
 <a href="../service_functions/getdirlist.html">GetDirList</a>,
 <a href="../service_functions/getplugindirlist.html">GetPluginDirList</a>
-
 </div>
 
 </body>

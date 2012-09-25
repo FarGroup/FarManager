@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>ProcessDialogEventW</dfn> сообщает плагину о событиях, происходящих в диалоге Far Manager.
+Функция <code>ProcessDialogEventW</code> сообщает плагину о событиях, происходящих в диалоге Far Manager.
 </div>
 
 <pre class=syntax>
@@ -33,15 +33,18 @@ intptr_t WINAPI ProcessDialogEventW(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-TRUE - плагин самостоятельно обработал событие. Переменная ProcessDialogEventInfo.FarDialogEvent.Result будет использована в качестве возвращаемого значения обработчика диалога.<br>
-FALSE - продолжить обработку события.
+<ul>
+<li><code>1</code> - плагин самостоятельно обработал событие. Переменная <code>ProcessDialogEventInfo.FarDialogEvent.Result</code> будет использована в качестве возвращаемого значения обработчика диалога.
+<li><code>0</code> - продолжить обработку события.
+</ul>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../structures/fardialogevent.html">FarDialogEvent</a>,
 <a href="../dialogapi/dmsg/index_dn.html">события</a>,
 <a href="../dialogapi/index.html">Dialog API</a>

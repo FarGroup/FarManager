@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>DeleteFilesW</dfn> вызывается для удаления файлов из эмулируемой файловой системы<br>
+Функция <code>DeleteFilesW</code> вызывается для удаления файлов из эмулируемой файловой системы<br>
 (Far Manager плагину: <em>"этот (эти) файлы с твоей панели нужно удалить"</em>).
 </div>
 
@@ -35,7 +35,7 @@ intptr_t WINAPI DeleteFilesW(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Если функция выполнила свои действия успешно, то верните TRUE. В противном случае - FALSE.
+Если функция выполнила свои действия успешно, то верните <code>1</code>. В противном случае - <code>0</code>.
 </div>
 
 <h3>Замечания</h3>
@@ -62,10 +62,10 @@ intptr_t WINAPI DeleteFilesW(const struct DeleteFilesInfo *Info)
       wchar_t *MsgItems[]={L&quot;Delete failed&quot;,L&quot;&quot;,L&quot;OK&quot;};
       MsgItems[1] = GetErrorStringFS();
       Message(&amp;MainGUID,&amp;MsgGUID,0,NULL,MsgItems,sizeof(MsgItems)/sizeof(MsgItems[0]),1);
-      return(FALSE);
+      return 0;
     }
   }
-  return(TRUE);
+  return 1;
 }
 </pre>
 </div>

@@ -39,7 +39,7 @@ struct FarColor
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_BG_4BIT">FCF_BG_4BIT</a></td>
     <td class="cont" width="60%">цвет фона символа задан стандартным кодом в 4 бита</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_4BITMASK">FCF_4BITMASK</a></td>
-    <td class="cont" width="60%">FCF_FG_4BIT|FCF_BG_4BIT</td></tr>
+    <td class="cont" width="60%">стандартный четырехбитный цвет (FCF_FG_4BIT|FCF_BG_4BIT)</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_EXTENDEDFLAGS">FCF_EXTENDEDFLAGS</a></td>
     <td class="cont" width="60%">расширенные атрибуты (~FCF_4BITMASK)</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_FG_BOLD">FCF_FG_BOLD</a></td>
@@ -51,18 +51,20 @@ struct FarColor
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_STYLEMASK">FCF_STYLEMASK</a></td>
     <td class="cont" width="60%">расширенные атрибуты, используются стили (FCF_FG_BOLD|FCF_FG_ITALIC|FCF_FG_UNDERLINE)</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FCF_NONE">FCF_NONE</a></td>
-    <td class="cont" width="60%">...</td></tr>
+    <td class="cont" width="60%">нулевой флаг</td></tr>
     </table>
     </div>
-  <div class=dfn>ForegroundColor, BackgroundColor</div>
-    <div class=dfndescr>Цвета символа и фона символа, значение типа <b>COLORREF</b>.</div>
+  <div class=dfn>ForegroundColor</div>
+    <div class=dfndescr>Цвета символа, значение типа <b>COLORREF</b>.</div>
+  <div class=dfn>BackgroundColor</div>
+    <div class=dfndescr>Цвета фона символа, значение типа <b>COLORREF</b>.</div>
   <div class=dfn>Reserved</div>
     <div class=dfndescr>Не используется.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-При формировании цвета для стандартной консоли Windows обязательно указывайте флаги FCF_FG_4BIT и FCF_BG_4BIT.
+При формировании цвета для стандартной консоли Windows обязательно указывайте флаги <code>FCF_FG_4BIT</code> и <code>FCF_BG_4BIT</code>.
 </div>
 
 <div class=see>Смотрите также:</div><div class=seecont>

@@ -17,7 +17,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>CloseAnalyseW</dfn> вызывается Far Manager для передачи плагину данных, которые плагин может удалить.
+Функция <code>CloseAnalyseW</code> вызывается Far Manager для передачи плагину данных, которые плагин может удалить.
 </div>
 
 <pre class=syntax>
@@ -31,7 +31,6 @@ void WINAPI CloseAnalyseW(
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/closeanalyseinfo.html">CloseAnalyseInfo</a>, переданная Far Manager'ом плагину информация.<br>
     В начале функции проверьте, что поле <code>CloseAnalyseInfo.StructSize >= sizeof(CloseAnalyseInfo)</code>.</div>
-    </div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -50,7 +49,8 @@ void WINAPI CloseAnalyseW(const struct CloseAnalyseInfo *info)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="analysew.html">AnalyseW</a>
 </div>
 
