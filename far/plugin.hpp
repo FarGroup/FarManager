@@ -1100,11 +1100,6 @@ enum FAR_MACRO_CONTROL_COMMANDS
 	MCTL_ADDMACRO          = 7,
 	MCTL_DELMACRO          = 8,
 	MCTL_GETLASTERROR      = 9,
-
-#ifdef FAR_LUA
-	MCTL_ISFARSPRING       = 100,
-	MCTL_CALLFAR           = 101,
-#endif
 };
 
 typedef unsigned __int64 FARKEYMACROFLAGS;
@@ -2352,6 +2347,16 @@ struct ArclitePrivateInfo
 	FARAPICREATEDIRECTORY CreateDirectory;
 };
 
+#ifdef FAR_LUA
+typedef intptr_t (WINAPI *FARAPICALLFAR)(intptr_t CheckCode, struct FarMacroCall* Data);
+
+struct MacroPrivateInfo
+{
+	size_t StructSize;
+	FARAPICALLFAR CallFar;
+};
+#endif
+
 typedef unsigned __int64 PLUGIN_FLAGS;
 static const PLUGIN_FLAGS
 	PF_PRELOAD        = 0x0000000000000001ULL,
@@ -2591,14 +2596,17 @@ enum OPENFROM
 	OPEN_ANALYSE            = 9,
 	OPEN_RIGHTDISKMENU      = 10,
 	OPEN_FROMMACRO          = 11,
+};
 
 #ifdef FAR_LUA
-	OPEN_MACROINIT          = 100,
-	OPEN_MACROSTEP          = 101,
-	OPEN_MACROFINAL         = 102,
-	OPEN_MACROPARSE         = 103,
-#endif
+enum MACROCALLTYPE
+{
+	MCT_MACROINIT          = 0,
+	MCT_MACROSTEP          = 1,
+	MCT_MACROFINAL         = 2,
+	MCT_MACROPARSE         = 3,
 };
+#endif
 
 #ifdef FAR_USE_INTERNALS
 enum FAR_PKF_FLAGS

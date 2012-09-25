@@ -132,4 +132,8 @@ namespace pluginapi
 	BOOL     WINAPI apiDeleteFile(const wchar_t *FileName);
 	BOOL     WINAPI apiRemoveDirectory(const wchar_t *DirName);
 	BOOL     WINAPI apiCreateDirectory(const wchar_t *PathName,LPSECURITY_ATTRIBUTES lpSecurityAttributes);
+#ifdef FAR_LUA
+	//luamacro
+	intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data);
+#endif
 };

@@ -331,6 +331,14 @@ ArclitePrivateInfo ArcliteInfo =
 	pluginapi::apiCreateDirectory
 };
 
+#ifdef FAR_LUA
+MacroPrivateInfo MacroInfo =
+{
+	sizeof(MacroPrivateInfo),
+	pluginapi::apiCallFar
+};
+#endif
+
 void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF)
 {
 	*PSI=NativeInfo;
@@ -344,6 +352,12 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 		{
 			PSI->Private = &ArcliteInfo;
 		}
+#ifdef FAR_LUA
+		else if(IsEqualGUID(pPlugin->GetGUID(),LuamacroGuid))
+		{
+			PSI->Private = &MacroInfo;
+		}
+#endif
 	}
 }
 

@@ -2151,16 +2151,6 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			}
 
 #ifdef FAR_LUA
-			case MCTL_ISFARSPRING:
-			{
-				return 1; // Дадим LuaFAR'у возможность узнать, что это "Spring-версия" Фара.
-			}
-
-			case MCTL_CALLFAR:
-			{
-				return Macro.CallFar(Param1, (FarMacroCall*)Param2);
-			}
-
 			default: //FIXME
 				break;
 #else
@@ -2750,4 +2740,17 @@ BOOL WINAPI apiCreateDirectory(const wchar_t *PathName,LPSECURITY_ATTRIBUTES lpS
 {
 	return ::apiCreateDirectory(PathName,lpSecurityAttributes);
 }
+
+#ifdef FAR_LUA
+intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data)
+{
+	if (CtrlObject)
+	{
+		KeyMacro& Macro=CtrlObject->Macro;
+		return Macro.CallFar(CheckCode, Data);
+	}
+	return 0;
+}
+#endif
+
 };

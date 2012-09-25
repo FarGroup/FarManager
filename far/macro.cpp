@@ -802,10 +802,11 @@ bool KeyMacro::InitMacroExecution()
 	MacroRecord* macro = GetCurMacro();
 	if (macro)
 	{
-		FarMacroValue values[1]={{FMVT_STRING,{0}}};
-		values[0].String=macro->Code();
+		FarMacroValue values[2]={{FMVT_INTEGER,{0}},{FMVT_STRING,{0}}};
+		values[0].Integer=MCT_MACROINIT;
+		values[1].String=macro->Code();
 		OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
-		macro->m_handle=CallMacroPlugin(OPEN_MACROINIT,&info);
+		macro->m_handle=CallMacroPlugin(OPEN_FILEPANEL,&info);
 		if (macro->m_handle)
 		{
 			m_LastKey = L"first_key";
@@ -987,15 +988,16 @@ int KeyMacro::GetKey()
 	}
 
 	MacroRecord* macro;
-	FarMacroValue mp_values[2]={{FMVT_DOUBLE,{0}},{FMVT_DOUBLE,{0}}};
-	OpenMacroInfo mp_info={sizeof(OpenMacroInfo), 1, mp_values};
+	FarMacroValue mp_values[3]={{FMVT_INTEGER,{0}},{FMVT_DOUBLE,{0}},{FMVT_DOUBLE,{0}}};
+	mp_values[0].Integer=MCT_MACROSTEP;
+	OpenMacroInfo mp_info={sizeof(OpenMacroInfo), 2, mp_values};
 
 	while ((macro=GetCurMacro()) != nullptr && (macro->m_handle || InitMacroExecution()))
 	{
-		mp_values[0].Double=(intptr_t)macro->m_handle;
+		mp_values[1].Double=(intptr_t)macro->m_handle;
 
-		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_MACROSTEP,&mp_info);
-		mp_info.Count=1;
+		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_FILEPANEL,&mp_info);
+		mp_info.Count=2;
 		if (mpr == nullptr)
 			break;
 
@@ -1087,8 +1089,8 @@ int KeyMacro::GetKey()
 						if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
 							Ret=(intptr_t)ResultCallPlugin;
 
-						mp_values[1].Double=Ret;
-						mp_info.Count=2;
+						mp_values[2].Double=Ret;
+						mp_info.Count=3;
 
 						//if (MR != Work.MacroWORK) // ??? Mantis#0002094 ???
 							//MR=Work.MacroWORK;
@@ -1741,14 +1743,15 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck)
 {
 	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
 	// не умеет сворачивать строки и обрезает сообщение.
-	FarMacroValue values[4]={{FMVT_STRING,{0}},{FMVT_INTEGER,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
-	values[0].String=Sequence;
-	values[1].Integer=onlyCheck?1:0;
-	values[2].String=MSG(MMacroPErrorTitle);
-	values[3].String=MSG(MOk);
+	FarMacroValue values[5]={{FMVT_INTEGER,{0}},{FMVT_STRING,{0}},{FMVT_INTEGER,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
+	values[0].Integer=MCT_MACROPARSE;
+	values[1].String=Sequence;
+	values[2].Integer=onlyCheck?1:0;
+	values[3].String=MSG(MMacroPErrorTitle);
+	values[4].String=MSG(MOk);
 	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
 
-	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_MACROPARSE,&info);
+	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_FILEPANEL,&info);
 	bool IsOK = mpr && mpr->ReturnType==MPRT_NORMALFINISH;
 	if (mpr && !IsOK && !onlyCheck)
 	{
@@ -1936,9 +1939,9 @@ static void __parseParams(int Count, TVar* Params, FarMacroCall* Data)
 }
 #define parseParams(c,v,d) TVar v[c]; __parseParams(c,v,d)
 
-int KeyMacro::CallFar(int CheckCode, FarMacroCall* Data)
+intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 {
-	int ret=0;
+	intptr_t ret=0;
 	string strFileName;
 	DWORD FileAttr=INVALID_FILE_ATTRIBUTES;
 
