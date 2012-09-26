@@ -5127,7 +5127,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 						case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
 						{
 							FarListDelete *ListItems=(FarListDelete *)Param2;
-							if(nullptr==ListItems || !CheckStructSize(ListItems))
+							if(nullptr==ListItems || CheckStructSize(ListItems))
 							{
 								int Count;
 								if (!ListItems || (Count=ListItems->Count) <= 0)
