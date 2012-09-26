@@ -6006,7 +6006,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 		case DM_GETDLGITEM:
 		{
 			FarGetDialogItem* Item = (FarGetDialogItem*)Param2;
-			return (Item&&CheckStructSize(Item))?(intptr_t)ConvertItemEx2(CurItem, Item):0;
+			return (!Item||CheckStructSize(Item))?(intptr_t)ConvertItemEx2(CurItem, Item):0;
 		}
 		/*****************************************************************/
 		case DM_GETDLGITEMSHORT:
