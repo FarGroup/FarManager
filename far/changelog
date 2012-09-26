@@ -1,3 +1,7 @@
+w17 26.09.2012 10:00:52 +0400 - build 2839
+
+1. -typos in dialog.cpp (thnx sonar)
+
 w17 25.09.2012 19:48:01 +0400 - build 2838
 
 1. x64 Editor fix
