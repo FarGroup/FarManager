@@ -2596,6 +2596,9 @@ enum OPENFROM
 	OPEN_ANALYSE            = 9,
 	OPEN_RIGHTDISKMENU      = 10,
 	OPEN_FROMMACRO          = 11,
+#ifdef FAR_LUA
+	OPEN_LUAMACRO           = 100,
+#endif
 };
 
 #ifdef FAR_LUA

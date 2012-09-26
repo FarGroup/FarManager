@@ -152,7 +152,7 @@ class MacroRecord
 		const string& Code(void) {return m_code;}
 		const string& Name(void) {return m_name;}
 		const string& Description(void) {return m_description;}
-		bool IsSave(void) {return m_flags&MFLAGS_NEEDSAVEMACRO;}
+		bool IsSave(void) {return (m_flags&MFLAGS_NEEDSAVEMACRO) != 0;}
 		void SetSave(void) {m_flags|=MFLAGS_NEEDSAVEMACRO;}
 		void ClearSave(void) {m_flags&=~MFLAGS_NEEDSAVEMACRO;}
 };
@@ -220,7 +220,7 @@ class KeyMacro
 		bool LoadMacros(bool InitedRAM=true,bool LoadAll=true);
 		void SaveMacros(void);
 		// получить данные о макросе (возвращает статус)
-		int GetCurRecord(struct MacroRecord* RBuf=nullptr,int *KeyPos=nullptr);
+		int GetCurRecord(MacroRecord* RBuf=nullptr,int *KeyPos=nullptr);
 		int ProcessEvent(const struct FAR_INPUT_RECORD *Rec);
 		int GetKey();
 		int PeekKey();

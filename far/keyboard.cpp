@@ -1747,7 +1747,7 @@ int KeyNameToKey(const wchar_t *Name)
 #ifdef FAR_LUA
 bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText)
 {
-	return KeyToText(InputRecordToKey(Rec),strKeyText);
+	return KeyToText(InputRecordToKey(Rec),strKeyText) != 0;
 }
 #endif
 

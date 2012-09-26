@@ -794,7 +794,7 @@ intptr_t WINAPI apiMenuFn(
 			FarMenu.AssignHighlights(TRUE);
 
 #ifdef FAR_LUA
-		MenuLock menuLock(CtrlObject->Macro.IsExecuting()); //FIXME: dirty hack.
+		MenuLock menuLock(CtrlObject->Macro.IsExecuting() != 0); //FIXME: dirty hack.
 #endif
 		FarMenu.SetTitle(Title);
 		FarMenu.Show();

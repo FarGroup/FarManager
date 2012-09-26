@@ -31,10 +31,10 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef FAR_LUA
 #include "headers.hpp"
 #pragma hdrstop
 
+#ifdef FAR_LUA
 #include "macro.hpp"
 #include "FarGuid.hpp"
 #include "cmdline.hpp"
@@ -771,7 +771,7 @@ void KeyMacro::SetMacroConst(int ConstIndex, __int64 Value)
 	msValues[ConstIndex] = Value;
 }
 
-int KeyMacro::GetCurRecord(struct MacroRecord* RBuf,int *KeyPos)
+int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 {
 	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
 }
@@ -786,7 +786,7 @@ void* KeyMacro::CallMacroPlugin(unsigned Type,void* Data)
 	if (macro)
 		ScrBuf.SetLockCount(0);
 
-	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,Type,Data,&ptr);
+	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,Type,Data,&ptr) != 0;
 
 	if (macro && macro->m_handle && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
 		ScrBuf.Lock();
@@ -806,7 +806,7 @@ bool KeyMacro::InitMacroExecution()
 		values[0].Integer=MCT_MACROINIT;
 		values[1].String=macro->Code();
 		OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
-		macro->m_handle=CallMacroPlugin(OPEN_FILEPANEL,&info);
+		macro->m_handle=CallMacroPlugin(OPEN_LUAMACRO,&info);
 		if (macro->m_handle)
 		{
 			m_LastKey = L"first_key";
@@ -996,7 +996,7 @@ int KeyMacro::GetKey()
 	{
 		mp_values[1].Double=(intptr_t)macro->m_handle;
 
-		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_FILEPANEL,&mp_info);
+		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_LUAMACRO,&mp_info);
 		mp_info.Count=2;
 		if (mpr == nullptr)
 			break;
@@ -1078,7 +1078,7 @@ int KeyMacro::GetKey()
 						FarMacroValue *vParams = count>1 ? mpr->Args+1:nullptr;
 						OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
 						MacroRecord* macro = GetCurMacro();
-						bool CallPluginRules = macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO;
+						bool CallPluginRules = (macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO) != 0;
 						if (CallPluginRules)
 							PushState();
 						else
@@ -1169,8 +1169,8 @@ int KeyMacro::GetMacroKeyInfo(bool FromDB, int Mode, int Pos, string &strKeyName
 		{
 			if (Mode >= MACRO_OTHER)
 			{
-				int Len=CtrlObject->Macro.m_Macros[Mode].getSize();
-				if (Len && Pos < Len)
+				size_t Len=CtrlObject->Macro.m_Macros[Mode].getSize();
+				if (Len && (size_t)Pos < Len)
 				{
 					MacroRecord *MPtr=CtrlObject->Macro.m_Macros[Mode].getItem(Pos);
 					strKeyName=MPtr->Name();
@@ -1743,7 +1743,7 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck)
 {
 	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
 	// не умеет сворачивать строки и обрезает сообщение.
-	FarMacroValue values[5]={{FMVT_INTEGER,{0}},{FMVT_STRING,{0}},{FMVT_INTEGER,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
+	FarMacroValue values[5]={{FMVT_INTEGER,{0}},{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
 	values[0].Integer=MCT_MACROPARSE;
 	values[1].String=Sequence;
 	values[2].Integer=onlyCheck?1:0;
@@ -1751,7 +1751,7 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck)
 	values[4].String=MSG(MOk);
 	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
 
-	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_FILEPANEL,&info);
+	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_LUAMACRO,&info);
 	bool IsOK = mpr && mpr->ReturnType==MPRT_NORMALFINISH;
 	if (mpr && !IsOK && !onlyCheck)
 	{
@@ -2225,7 +2225,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_PPANEL_SELCOUNT: // PPanel.SelCount
 		{
 			Panel *SelPanel = CheckCode == MCODE_V_APANEL_SELCOUNT ? ActivePanel : PassivePanel;
-			return SelPanel ? SelPanel->GetRealSelCount() : 0;
+			return static_cast<int>(SelPanel ? SelPanel->GetRealSelCount() : 0);
 		}
 
 		case MCODE_V_APANEL_COLUMNCOUNT:       // APanel.ColumnCount - активная панель:  количество колонок
@@ -4350,7 +4350,7 @@ static bool flockFunc(FarMacroCall* Data)
 	if (vkKey)
 		Ret=SetFLockState(vkKey,stateFLock);
 
-	return Ret;
+	return Ret != 0;
 }
 
 // N=Dlg.SetFocus([ID])
@@ -5880,9 +5880,6 @@ static bool ReadVarsConsts (FarMacroCall* Data)
 }
 
 #else
-#include "headers.hpp"
-#pragma hdrstop
-
 #include "macro.hpp"
 #include "macroopcode.hpp"
 #include "keys.hpp"

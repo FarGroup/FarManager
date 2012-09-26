@@ -32,8 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifdef FAR_LUA
-#else
 //---------------------------------------------------------------
 // If this code works, it was written by Alexander Nazarenko.
 // If not, I don't know who wrote it.
@@ -44,6 +42,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "headers.hpp"
 #pragma hdrstop
+
+#ifdef FAR_LUA
+#else
 
 #include "macroopcode.hpp"
 #include "macrocompiler.hpp"

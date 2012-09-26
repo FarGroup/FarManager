@@ -157,7 +157,7 @@ local function MacroParse (args)
   if string.sub(text,1,1) ~= "@" then
     local chunk, msg = loadstring(text)
     if not chunk then
-      if onlyCheck == 0 then
+      if not onlyCheck then
         far.Message(msg, title, buttons, "lw")
       end
       LastMessage[1] = msg -- keep alive from gc
@@ -169,10 +169,10 @@ local function MacroParse (args)
 end
 
 function export.Open (OpenFrom, Guid, Item)
-  if     OpenFrom == F.OPEN_MACROINIT  then return MacroInit(Item)
-  elseif OpenFrom == F.OPEN_MACROSTEP  then return MacroStep(Item)
-  elseif OpenFrom == F.OPEN_MACROFINAL then return MacroFinal(Item)
-  elseif OpenFrom == F.OPEN_MACROPARSE then return MacroParse(Item)
+  if     OpenFrom == F.MCT_MACROINIT  then return MacroInit(Item)
+  elseif OpenFrom == F.MCT_MACROSTEP  then return MacroStep(Item)
+  elseif OpenFrom == F.MCT_MACROFINAL then return MacroFinal(Item)
+  elseif OpenFrom == F.MCT_MACROPARSE then return MacroParse(Item)
   end
 end
 
