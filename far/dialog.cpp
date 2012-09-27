@@ -5118,7 +5118,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 						{
 							FarList *ListItems=(FarList *)Param2;
 
-							if (!ListItems||CheckStructSize(ListItems))
+							if (!CheckStructSize(ListItems))
 								return FALSE;
 
 							Ret=ListBox->AddItem(ListItems);
@@ -5127,7 +5127,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 						case DM_LISTDELETE: // Param1=ID Param2=FarListDelete: StartIndex=BeginIndex, Count=количество (<=0 - все!)
 						{
 							FarListDelete *ListItems=(FarListDelete *)Param2;
-							if(nullptr==ListItems || CheckStructSize(ListItems))
+							if(CheckNullOrStructSize(ListItems))
 							{
 								int Count;
 								if (!ListItems || (Count=ListItems->Count) <= 0)
@@ -5217,7 +5217,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 						{
 							FarList *ListItems=(FarList *)Param2;
 
-							if (!ListItems||CheckStructSize(ListItems))
+							if (!CheckStructSize(ListItems))
 								return FALSE;
 
 							ListBox->DeleteItems();
@@ -6006,7 +6006,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 		case DM_GETDLGITEM:
 		{
 			FarGetDialogItem* Item = (FarGetDialogItem*)Param2;
-			return (!Item||CheckStructSize(Item))?(intptr_t)ConvertItemEx2(CurItem, Item):0;
+			return (CheckNullOrStructSize(Item))?(intptr_t)ConvertItemEx2(CurItem, Item):0;
 		}
 		/*****************************************************************/
 		case DM_GETDLGITEMSHORT:

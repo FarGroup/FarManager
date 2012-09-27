@@ -142,7 +142,7 @@ class FileEditor : public Frame
 		void SetDeleteOnClose(int NewMode);
 		int ReProcessKey(int Key,int CalledFromControl=TRUE);
 		bool AskOverwrite(const string& FileName);
-		void Init(const string& Name, UINT codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, int OpenModeExstFile);
+		void Init(const string& Name, uintptr_t codepage, const string* Title, DWORD InitFlags, int StartLine, int StartChar, const string* PluginData, int DeleteOnClose, int OpenModeExstFile);
 		virtual void InitKeyBar();
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
