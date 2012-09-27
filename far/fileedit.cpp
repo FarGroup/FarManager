@@ -102,7 +102,8 @@ intptr_t WINAPI hndOpenEditor(HANDLE hDlg, intptr_t msg, intptr_t param1, void* 
 			uintptr_t* param = (uintptr_t*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 			FarListPos pos={sizeof(FarListPos)};
 			SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
-			*param = *(UINT*)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
+			UINT codepage = *(UINT*)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
+			*param = static_cast<uintptr_t>(static_cast<intptr_t>(static_cast<INT>(codepage))); // really ugly
 			return TRUE;
 		}
 	}
