@@ -5753,7 +5753,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 					case DI_CHECKBOX:
 					case DI_RADIOBUTTON:
 					case DI_BUTTON:
-						Len=StrLength(Ptr)+1;
+						Len=StrLength(Ptr);
 
 						if (Type == DI_BUTTON)
 						{
@@ -5771,12 +5771,12 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 						if (!did->PtrLength)
 							did->PtrLength=Len;
 						else if (Len > did->PtrLength)
-							Len=did->PtrLength+1; // Прибавим 1, чтобы учесть нулевой байт.
+							Len=did->PtrLength;
 
-						if (Len > 0 && did->PtrData)
+						if (did->PtrData)
 						{
 							wmemmove(did->PtrData,Ptr,Len);
-							did->PtrData[Len-1]=0;
+							did->PtrData[Len]=L'\0';
 						}
 
 						break;
@@ -5796,7 +5796,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 						break;
 				}
 
-				return Len-(!Len?0:1);
+				return Len;
 			}
 
 			//получаем размер
