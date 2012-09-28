@@ -2423,14 +2423,14 @@ public:
 		return nid;
 	}
 
-	unsigned __int64 SetEditorPos(const wchar_t *Name, int Line, int LinePos, int ScreenLine, int LeftPos, UINT CodePage)
+	unsigned __int64 SetEditorPos(const wchar_t *Name, int Line, int LinePos, int ScreenLine, int LeftPos, uintptr_t CodePage)
 	{
 		if (stmtSetEditorPos.Bind(Name).Bind(GetCurrentUTCTimeInUI64()).Bind(Line).Bind(LinePos).Bind(ScreenLine).Bind(LeftPos).Bind((int)CodePage).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
-	unsigned __int64 GetEditorPos(const wchar_t *Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, UINT *CodePage)
+	unsigned __int64 GetEditorPos(const wchar_t *Name, int *Line, int *LinePos, int *ScreenLine, int *LeftPos, uintptr_t *CodePage)
 	{
 		unsigned __int64 id=0;
 		if (stmtGetEditorPos.Bind(Name).Step())
@@ -2465,14 +2465,14 @@ public:
 		return b;
 	}
 
-	unsigned __int64 SetViewerPos(const wchar_t *Name, __int64 FilePos, __int64 LeftPos, int Hex_Wrap, UINT CodePage)
+	unsigned __int64 SetViewerPos(const wchar_t *Name, __int64 FilePos, __int64 LeftPos, int Hex_Wrap, uintptr_t CodePage)
 	{
 		if (stmtSetViewerPos.Bind(Name).Bind(GetCurrentUTCTimeInUI64()).Bind(FilePos).Bind(LeftPos).Bind(Hex_Wrap).Bind((int)CodePage).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
-	unsigned __int64 GetViewerPos(const wchar_t *Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, UINT *CodePage)
+	unsigned __int64 GetViewerPos(const wchar_t *Name, __int64 *FilePos, __int64 *LeftPos, int *Hex, uintptr_t *CodePage)
 	{
 		unsigned __int64 id=0;
 		if (stmtGetViewerPos.Bind(Name).Step())

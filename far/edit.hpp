@@ -158,8 +158,8 @@ class Edit:public ScreenObject
 
 	public:
 
-		DWORD SetCodePage(UINT codepage, bool check_only, char * &buff, int &bsize); //BUGBUG
-		UINT GetCodePage();  //BUGBUG
+		DWORD SetCodePage(uintptr_t codepage, bool check_only, char * &buff, int &bsize); //BUGBUG
+		uintptr_t GetCodePage();  //BUGBUG
 
 		virtual void  FastShow();
 		virtual int   ProcessKey(int Key);

@@ -138,7 +138,7 @@ typedef class UnicodeString
 		UnicodeString(const UnicodeString &strCopy) { SetEUS(); Copy(strCopy); }
 		UnicodeString(const wchar_t *lpwszData) { SetEUS(); Copy(lpwszData); }
 		UnicodeString(const wchar_t *lpwszData, size_t nLength) { SetEUS(); Copy(lpwszData, nLength); }
-		UnicodeString(const char *lpszData, UINT CodePage=CP_OEMCP) { SetEUS(); Copy(lpszData, CodePage); }
+		UnicodeString(const char *lpszData, uintptr_t CodePage=CP_OEMCP) { SetEUS(); Copy(lpszData, CodePage); }
 		explicit UnicodeString(size_t nSize, size_t nDelta=0) { m_pData = new UnicodeStringData(nSize, nDelta); }
 
 		~UnicodeString() { /*if (m_pData) он не должен быть nullptr*/ m_pData->DecRef(); }
@@ -158,7 +158,7 @@ typedef class UnicodeString
 
 		bool IsEmpty() const { return !(m_pData->GetLength() && *m_pData->GetData()); }
 
-		size_t GetCharString(char *lpszStr, size_t nSize, UINT CodePage=CP_OEMCP) const;
+		size_t GetCharString(char *lpszStr, size_t nSize, uintptr_t CodePage=CP_OEMCP) const;
 
 		int CDECL Format(const wchar_t * format, ...);
 
@@ -172,7 +172,7 @@ typedef class UnicodeString
 		UnicodeString& Append(const UnicodeString& Str) { return Append(Str.CPtr(), Str.GetLength()); }
 		UnicodeString& Append(const wchar_t* Str) { return Append(Str, StrLength(NullToEmpty(Str))); }
 		UnicodeString& Append(wchar_t Ch) { return Append(&Ch, 1); }
-		UnicodeString& Append(const char *lpszAdd, UINT CodePage=CP_OEMCP);
+		UnicodeString& Append(const char *lpszAdd, uintptr_t CodePage=CP_OEMCP);
 
 		UnicodeString& Insert(size_t Pos, const wchar_t* Str, size_t StrLen) { return Replace(Pos, 0, Str, StrLen); }
 		UnicodeString& Insert(size_t Pos, const UnicodeString& Str) { return Insert(Pos, Str.CPtr(), Str.GetLength()); }
@@ -183,7 +183,7 @@ typedef class UnicodeString
 		UnicodeString& Copy(const wchar_t *Str) { return Copy(Str, StrLength(NullToEmpty(Str))); }
 		UnicodeString& Copy(wchar_t Ch) { return Copy(&Ch, 1); }
 		UnicodeString& Copy(const UnicodeString &Str);
-		UnicodeString& Copy(const char *lpszData, UINT CodePage=CP_OEMCP);
+		UnicodeString& Copy(const char *lpszData, uintptr_t CodePage=CP_OEMCP);
 
 		UnicodeString& Remove(size_t Pos, size_t Len = 1) { return Replace(Pos, Len, nullptr, 0); }
 		UnicodeString& LShift(size_t nShiftCount, size_t nStartPos=0) { return Remove(nStartPos, nShiftCount); }

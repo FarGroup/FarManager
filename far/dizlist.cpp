@@ -486,7 +486,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
 	if(DizCount && DizFile.Open(strDizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
 	{
-		UINT CodePage = Opt.Diz.SaveInUTF ? CP_UTF8 : (Opt.Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
+		uintptr_t CodePage = Opt.Diz.SaveInUTF ? CP_UTF8 : (Opt.Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
 
 		CachedWrite Cache(DizFile);
 

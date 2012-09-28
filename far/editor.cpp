@@ -7399,7 +7399,7 @@ void Editor::GetCacheParams(EditorPosCache &pc)
 }
 
 
-bool Editor::TryCodePage(UINT codepage, int &X, int &Y)
+bool Editor::TryCodePage(uintptr_t codepage, int &X, int &Y)
 {
 	if ( m_codepage == codepage )
 		return true;
@@ -7436,7 +7436,7 @@ bool Editor::TryCodePage(UINT codepage, int &X, int &Y)
 	return true;
 }
 
-bool Editor::SetCodePage( UINT codepage )
+bool Editor::SetCodePage(uintptr_t codepage)
 {
 	if ( m_codepage == codepage )
 		return true;
@@ -7455,7 +7455,7 @@ bool Editor::SetCodePage( UINT codepage )
 	return (Result == 0); // BUGBUG, more details
 }
 
-UINT Editor::GetCodePage()
+uintptr_t Editor::GetCodePage()
 {
 	return m_codepage;
 }

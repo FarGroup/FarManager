@@ -54,7 +54,7 @@ struct EditorPosCache
 	int LinePos;
 	int ScreenLine;
 	int LeftPos;
-	UINT CodePage;
+	uintptr_t CodePage;
 
 	EditorBookmark bm;
 
@@ -74,7 +74,7 @@ struct ViewerPosCache
 	__int64 FilePos;
 	__int64 LeftPos;
 	int Hex_Wrap;
-	UINT CodePage;
+	uintptr_t CodePage;
 
 	ViewerBookmark bm;
 

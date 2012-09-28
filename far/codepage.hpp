@@ -48,16 +48,16 @@ extern const wchar_t *FavoriteCodePagesKey;
 
 const int StandardCPCount = 2 /* OEM, ANSI */ + 2 /* UTF-16 LE, UTF-16 BE */ + 2 /* UTF-7, UTF-8 */;
 
-inline bool IsStandardCodePage(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM)||(CP==GetOEMCP()||CP==GetACP()); }
+inline bool IsStandardCodePage(uintptr_t CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM)||(CP==GetOEMCP()||CP==GetACP()); }
 
-inline bool IsUnicodeCodePage(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_REVERSEBOM); }
+inline bool IsUnicodeCodePage(uintptr_t CP) { return(CP==CP_UNICODE)||(CP==CP_REVERSEBOM); }
 
-inline bool IsUnicodeOrUtfCodePage(UINT CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM); }
+inline bool IsUnicodeOrUtfCodePage(uintptr_t CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM); }
 
-bool IsCodePageSupported(UINT CodePage);
+bool IsCodePageSupported(uintptr_t CodePage);
 
-UINT SelectCodePage(uintptr_t nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowUTF7=false, bool bShowAutoDetect=false);
+uintptr_t SelectCodePage(uintptr_t nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowUTF7=false, bool bShowAutoDetect=false);
 
-UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, UINT codePage, bool allowAuto, bool allowAll, bool allowDefault=false, bool allowM2=false);
+UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault=false, bool allowM2=false);
 
-wchar_t *FormatCodePageName(UINT CodePage, wchar_t *CodePageName, size_t Length);
+wchar_t *FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length);

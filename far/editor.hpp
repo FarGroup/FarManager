@@ -306,9 +306,9 @@ class Editor:public ScreenObject
 		void SetCacheParams(EditorPosCache &pc, bool count_bom=false);
 		void GetCacheParams(EditorPosCache &pc);
 
-      bool TryCodePage(UINT codepage, int &X, int &Y);
-		bool SetCodePage(UINT codepage);  //BUGBUG
-		UINT GetCodePage();  //BUGBUG
+		bool TryCodePage(uintptr_t codepage, int &X, int &Y);
+		bool SetCodePage(uintptr_t codepage);  //BUGBUG
+		uintptr_t GetCodePage();  //BUGBUG
 
 		int SetRawData(const wchar_t *SrcBuf,int SizeSrcBuf,int TextFormat); // преобразование из буфера в список
 		int GetRawData(wchar_t **DestBuf,int& SizeDestBuf,int TextFormat=0);   // преобразование из списка в буфер

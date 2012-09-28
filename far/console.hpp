@@ -60,11 +60,11 @@ public:
 
 	bool GetKeyboardLayoutName(string &strName) const;
 
-	UINT GetInputCodepage() const;
-	bool SetInputCodepage(UINT Codepage) const;
+	uintptr_t GetInputCodepage() const;
+	bool SetInputCodepage(uintptr_t Codepage) const;
 
-	UINT GetOutputCodepage() const;
-	bool SetOutputCodepage(UINT Codepage) const;
+	uintptr_t GetOutputCodepage() const;
+	bool SetOutputCodepage(uintptr_t Codepage) const;
 
 	bool SetControlHandler(PHANDLER_ROUTINE HandlerRoutine, bool Add) const;
 

@@ -125,7 +125,7 @@ Edit::~Edit()
 }
 
 
-DWORD Edit::SetCodePage( UINT codepage, bool check_only, char * &decoded, int &bsize )
+DWORD Edit::SetCodePage(uintptr_t codepage, bool check_only, char * &decoded, int &bsize)
 {
 	DWORD Ret = SETCP_NOERROR;
 	if (codepage == m_codepage)
@@ -194,7 +194,7 @@ DWORD Edit::SetCodePage( UINT codepage, bool check_only, char * &decoded, int &b
 }
 
 
-UINT Edit::GetCodePage()
+uintptr_t Edit::GetCodePage()
 {
 	return m_codepage;
 }

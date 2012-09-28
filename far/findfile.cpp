@@ -362,7 +362,7 @@ int codePagesCount;
 
 struct CodePageInfo
 {
-	UINT CodePage;
+	uintptr_t CodePage;
 	UINT MaxCharSize;
 	wchar_t LastSymbol;
 	bool WordFound;
@@ -542,7 +542,7 @@ void InitInFileSearch()
 				{
 					if (data & (hasSelected?CPST_FIND:CPST_FAVORITE))
 					{
-						UINT codePage = _wtoi(codePageName);
+						uintptr_t codePage = _wtoi(codePageName);
 
 						// Проверяем дубли
 						if (!hasSelected)
@@ -866,8 +866,7 @@ intptr_t WINAPI MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Pa
 			SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
 			FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
 			SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
-			UINT cp = *(UINT*)SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Position.SelectPos));
-			CodePage = static_cast<uintptr_t>(static_cast<intptr_t>(static_cast<INT>(cp))); // UGLY
+			CodePage = *(uintptr_t*)SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Position.SelectPos));
 			return TRUE;
 		}
 		case DN_CLOSE:
