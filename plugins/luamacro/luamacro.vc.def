@@ -1,0 +1,7 @@
+EXPORTS 
+    GetGlobalInfoW
+    GetMinFarVersionW
+    GetPluginInfoW
+    OpenW
+    ProcessSynchroEventW
+    SetStartupInfoW
