@@ -101,7 +101,7 @@ wstring expand_macros(const wstring& text) {
 wstring load_file(const wstring& file_path, unsigned* code_page) {
   File file(file_path, FILE_READ_DATA, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
   Buffer<char> buffer(static_cast<size_t>(file.size()));
-  unsigned size = file.read(buffer.data(), static_cast<unsigned>(buffer.size()));
+  unsigned size = static_cast<unsigned>(file.read(buffer.data(), buffer.size()));
   if (size >= 2 && buffer.data()[0] == '\xFF' && buffer.data()[1] == '\xFE') {
     if (code_page)
       *code_page = CP_UTF16;

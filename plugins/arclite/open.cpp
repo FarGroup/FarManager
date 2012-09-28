@@ -68,7 +68,7 @@ public:
       ptrdiff_t buffer_addr = buffer.data() - static_cast<unsigned char*>(0);
       unsigned char* alligned_buffer = reinterpret_cast<unsigned char*>(buffer_addr % device_sector_size ? (buffer_addr / device_sector_size + 1) * device_sector_size : buffer_addr);
       set_pos(aligned_pos, FILE_BEGIN);
-      size_read = read(alligned_buffer, aligned_size);
+      size_read = static_cast<unsigned>(read(alligned_buffer, aligned_size));
       if (size_read < aligned_offset)
         size_read = 0;
       else
@@ -79,7 +79,7 @@ public:
       memcpy(data, alligned_buffer + aligned_offset, size_read);
     }
     else {
-      size_read = read(data, size);
+      size_read = static_cast<unsigned>(read(data, size));
     }
     if (processedSize)
       *processedSize = size_read;

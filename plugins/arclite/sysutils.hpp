@@ -75,10 +75,10 @@ public:
   }
   unsigned __int64 size();
   bool size_nt(unsigned __int64& file_size) throw();
-  unsigned read(void* data, unsigned size);
-  bool read_nt(void* data, unsigned size, unsigned& size_read) throw();
-  unsigned write(const void* data, unsigned size);
-  bool write_nt(const void* data, unsigned size, unsigned& size_written) throw();
+  size_t read(void* data, size_t size);
+  bool read_nt(void* data, size_t size, size_t& size_read) throw();
+  size_t write(const void* data, size_t size);
+  bool write_nt(const void* data, size_t size, size_t& size_written) throw();
   void set_time(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime);
   bool set_time_nt(const FILETIME& ctime, const FILETIME& atime, const FILETIME& mtime) throw();
   unsigned __int64 set_pos(__int64 offset, DWORD method = FILE_BEGIN);

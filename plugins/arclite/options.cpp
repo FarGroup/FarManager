@@ -41,7 +41,7 @@ public:
       return def_value;
   }
 
-  void set_int(const wchar_t* name, unsigned value, unsigned def_value) {
+  void set_int(const wchar_t* name, uintptr_t value, uintptr_t def_value) {
     if (value == def_value)
       del(name);
     else

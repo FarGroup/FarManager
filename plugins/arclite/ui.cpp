@@ -178,7 +178,7 @@ private:
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
-  INT_PTR dialog_proc(int msg, int param1, void* param2) {
+  intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
       password = get_text(password_ctrl_id);
     }
@@ -202,7 +202,7 @@ public:
     cancel_ctrl_id = button(Far::get_msg(MSG_BUTTON_CANCEL), DIF_CENTERGROUP);
     new_line();
 
-    int item = Far::Dialog::show();
+    intptr_t item = Far::Dialog::show();
 
     return (item != -1) && (item != cancel_ctrl_id);
   }
@@ -232,7 +232,7 @@ private:
   int append_ctrl_id;
   int cancel_ctrl_id;
 
-  INT_PTR dialog_proc(int msg, int param1, void* param2) {
+  intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
       options.all = get_check(all_ctrl_id);
       if (param1 == overwrite_ctrl_id)
@@ -269,10 +269,10 @@ public:
 
     wstring src_label = Far::get_msg(MSG_OVERWRITE_DLG_SOURCE);
     wstring dst_label = Far::get_msg(MSG_OVERWRITE_DLG_DESTINATION);
-    unsigned label_pad = max(src_label.size(), dst_label.size()) + 1;
+    uintptr_t label_pad = max(src_label.size(), dst_label.size()) + 1;
     wstring src_size = uint_to_str(src_file_info.size);
     wstring dst_size = uint_to_str(dst_file_info.size);
-    unsigned size_pad = label_pad + max(src_size.size(), dst_size.size()) + 1;
+    uintptr_t size_pad = label_pad + max(src_size.size(), dst_size.size()) + 1;
 
     label(src_label);
     pad(label_pad);
@@ -319,7 +319,7 @@ public:
     cancel_ctrl_id = button(Far::get_msg(MSG_BUTTON_CANCEL), DIF_CENTERGROUP);
     new_line();
 
-    int item = Far::Dialog::show();
+    intptr_t item = Far::Dialog::show();
 
     return item >= 0 && item != cancel_ctrl_id;
   }
@@ -372,7 +372,7 @@ private:
       options.open_dir = get_check3(open_dir_ctrl_id);
   }
 
-  INT_PTR dialog_proc(int msg, int param1, void* param2) {
+  intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
       read_controls(options);
     }
@@ -444,7 +444,7 @@ public:
     save_params_ctrl_id = button(Far::get_msg(MSG_EXTRACT_DLG_SAVE_PARAMS), DIF_CENTERGROUP | DIF_BTNNOCLOSE);
     new_line();
 
-    int item = Far::Dialog::show();
+    intptr_t item = Far::Dialog::show();
 
     return (item != -1) && (item != cancel_ctrl_id);
   }
@@ -489,7 +489,7 @@ void retry_or_ignore_error(const Error& error, bool& ignore, bool& ignore_errors
     cancel_id = button_cnt;
     button_cnt++;
     ProgressSuspend ps(progress);
-    unsigned id = Far::message(c_retry_ignore_dialog_guid, st.str(), button_cnt, FMSG_WARNING);
+    intptr_t id = Far::message(c_retry_ignore_dialog_guid, st.str(), button_cnt, FMSG_WARNING);
     if (can_retry && id == retry_id) {
     }
     else if (can_ignore && id == ignore_id) {
@@ -910,7 +910,7 @@ private:
       options.create_sfx = is_7z && get_check(create_sfx_ctrl_id);
       if (options.create_sfx) {
         options.sfx_options = this->options.sfx_options;
-        unsigned sfx_id = ArcAPI::sfx().find_by_name(options.sfx_options.name);
+        uintptr_t sfx_id = ArcAPI::sfx().find_by_name(options.sfx_options.name);
         if (sfx_id >= ArcAPI::sfx().size())
           FAIL_MSG(Far::get_msg(MSG_SFX_OPTIONS_DLG_WRONG_MODULE));
         if (options.method == c_method_ppmd && !ArcAPI::sfx()[sfx_id].all_codecs())
@@ -1019,7 +1019,7 @@ private:
     send_message(DM_LISTSET, profile_ctrl_id, &fl);
   }
 
-  INT_PTR dialog_proc(int msg, int param1, void* param2) {
+  intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
       read_controls(options);
       if (new_arc)
@@ -1365,7 +1365,7 @@ public:
     save_params_ctrl_id = button(Far::get_msg(MSG_UPDATE_DLG_SAVE_PARAMS), DIF_CENTERGROUP | DIF_BTNNOCLOSE);
     new_line();
 
-    int item = Far::Dialog::show();
+    intptr_t item = Far::Dialog::show();
 
     return (item != -1) && (item != cancel_ctrl_id);
   }
@@ -1388,7 +1388,7 @@ private:
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
-  vector<unsigned> estimate_column_widths(const vector<wstring>& items) {
+  vector<size_t> estimate_column_widths(const vector<wstring>& items) {
     SMALL_RECT console_rect;
     double window_ratio;
     if (Far::adv_control(ACTL_GETFARRECT, 0, &console_rect)) {
@@ -1398,17 +1398,17 @@ private:
       window_ratio = 80 / 25;
     }
     double window_ratio_diff = numeric_limits<double>::max();
-    vector<unsigned> prev_col_widths;
+    vector<size_t> prev_col_widths;
     for (unsigned num_cols = 1; num_cols <= items.size(); ++num_cols) {
-      vector<unsigned> col_widths(num_cols, 0);
-      for (unsigned i = 0; i < items.size(); ++i) {
-        unsigned col_index = i % num_cols;
+      vector<size_t> col_widths(num_cols, 0);
+      for (size_t i = 0; i < items.size(); ++i) {
+        size_t col_index = i % num_cols;
         if (col_widths[col_index] < items[i].size())
           col_widths[col_index] = items[i].size();
       }
-      unsigned width = accumulate(col_widths.cbegin(), col_widths.cend(), 0);
+      size_t width = accumulate(col_widths.cbegin(), col_widths.cend(), 0);
       width += num_cols * 4 + (num_cols - 1);
-      unsigned height = items.size() / num_cols + (items.size() % num_cols ? 1 : 0);
+      size_t height = items.size() / num_cols + (items.size() % num_cols ? 1 : 0);
       double ratio = static_cast<double>(width) / height;
       double diff = fabs(ratio - window_ratio);
       if (diff > window_ratio_diff)
@@ -1419,7 +1419,7 @@ private:
     return prev_col_widths;
   }
 
-  INT_PTR dialog_proc(int msg, int param1, void* param2) {
+  intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
     if (!read_only && (msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
       selected_str.clear();
       for (unsigned i = 0; i < items.size(); ++i) {
@@ -1469,7 +1469,7 @@ public:
     sort(items.begin(), items.end(), ItemCompare());
     if (items.empty())
       return false;
-    vector<unsigned> col_widths = estimate_column_widths(items);
+    vector<size_t> col_widths = estimate_column_widths(items);
     first_item_ctrl_id = -1;
     for (unsigned i = 0; i < items.size(); ++i) {
       unsigned col_index = i % col_widths.size();
@@ -1497,7 +1497,7 @@ public:
       cancel_ctrl_id = button(Far::get_msg(MSG_BUTTON_CANCEL), DIF_CENTERGROUP);
       new_line();
 
-      int item = Far::Dialog::show();
+      intptr_t item = Far::Dialog::show();
       return (item != -1) && (item != cancel_ctrl_id);
     }
 
@@ -1508,10 +1508,10 @@ public:
 class FormatLibraryInfoDialog: public Far::Dialog {
 private:
 
-  map<unsigned, unsigned> format_btn_map;
-  map<unsigned, unsigned> mask_btn_map;
+  map<intptr_t, size_t> format_btn_map;
+  map<intptr_t, size_t> mask_btn_map;
 
-  wstring get_masks(unsigned lib_index) {
+  wstring get_masks(size_t lib_index) {
     const ArcFormats& arc_formats = ArcAPI::formats();
     wstring masks;
     for (auto format_iter = ArcAPI::formats().cbegin(); format_iter != ArcAPI::formats().cend(); ++format_iter) {
@@ -1527,7 +1527,7 @@ private:
     return masks;
   }
 
-  wstring get_formats(unsigned lib_index) {
+  wstring get_formats(size_t lib_index) {
     const ArcFormats& arc_formats = ArcAPI::formats();
     wstring formats;
     for (auto format_iter = ArcAPI::formats().cbegin(); format_iter != ArcAPI::formats().cend(); ++format_iter) {
@@ -1541,7 +1541,7 @@ private:
     return formats;
   }
 
-  INT_PTR dialog_proc(int msg, int param1, void* param2) {
+  intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
     if (msg == DN_INITDIALOG) {
       FarDialogItem dlg_item;
       for (unsigned ctrl_id = 0; send_message(DM_GETDLGITEMSHORT, ctrl_id, &dlg_item); ctrl_id++) {
@@ -1589,15 +1589,15 @@ public:
       new_line();
     }
     else {
-      unsigned width = 0;
-      for (unsigned lib_index = 0; lib_index < libs.size(); ++lib_index) {
+      size_t width = 0;
+      for (size_t lib_index = 0; lib_index < libs.size(); ++lib_index) {
         if (width < libs[lib_index].module_path.size())
           width = libs[lib_index].module_path.size();
       }
       width += 1;
       if (width > Far::get_optimal_msg_width())
         width = Far::get_optimal_msg_width();
-      for (unsigned lib_index = 0; lib_index < libs.size(); ++lib_index) {
+      for (size_t lib_index = 0; lib_index < libs.size(); ++lib_index) {
         edit_box(libs[lib_index].module_path, width, DIF_READONLY);
         new_line();
         label(Far::get_msg(MSG_SETTINGS_DLG_LIB_VERSION) + L' ' +
@@ -1647,7 +1647,7 @@ private:
   int ok_ctrl_id;
   int cancel_ctrl_id;
 
-  INT_PTR dialog_proc(int msg, int param1, void* param2) {
+  intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
     if ((msg == DN_CLOSE) && (param1 >= 0) && (param1 != cancel_ctrl_id)) {
       settings.handle_create = get_check(handle_create_ctrl_id);
       settings.handle_commands = get_check(handle_commands_ctrl_id);
@@ -1840,7 +1840,7 @@ public:
     cancel_ctrl_id = button(Far::get_msg(MSG_BUTTON_CANCEL), DIF_CENTERGROUP);
     new_line();
 
-    int item = Far::Dialog::show();
+    intptr_t item = Far::Dialog::show();
 
     return (item != -1) && (item != cancel_ctrl_id);
   }
@@ -1855,7 +1855,7 @@ class AttrDialog: public Far::Dialog {
 private:
   const AttrList& attr_list;
 
-  INT_PTR dialog_proc(int msg, int param1, void* param2) {
+  intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
     if (msg == DN_INITDIALOG) {
       FarDialogItem dlg_item;
       for (unsigned ctrl_id = 0; send_message(DM_GETDLGITEMSHORT, ctrl_id, &dlg_item); ctrl_id++) {

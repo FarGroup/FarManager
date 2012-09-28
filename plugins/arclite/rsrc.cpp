@@ -303,7 +303,7 @@ void replace_icon(const wstring& pe_path, const wstring& ico_path) {
     IconGroupHeader* header = reinterpret_cast<IconGroupHeader*>(buf.data());
     header->reserved = 0;
     header->type = 1;
-    header->count = icon.images.size();
+    header->count = static_cast<WORD>(icon.images.size());
     unsigned offset = sizeof(IconGroupHeader);
     for_each (icon.images.cbegin(), icon.images.cend(), [&] (const IconImageRsrc& image) {
       IconGroupEntry* entry = reinterpret_cast<IconGroupEntry*>(buf.data() + offset);
@@ -313,12 +313,12 @@ void replace_icon(const wstring& pe_path, const wstring& ico_path) {
       entry->reserved = 0;
       entry->plane_cnt = image.image.plane_cnt;
       entry->bit_cnt = image.image.bit_cnt;
-      entry->size = image.image.bitmap.size();
+      entry->size = static_cast<DWORD>(image.image.bitmap.size());
       entry->id = image.id;
-      rupdate.update(RT_ICON, MAKEINTRESOURCE(image.id), image.lang_id, image.image.bitmap.data(), image.image.bitmap.size());
+      rupdate.update(RT_ICON, MAKEINTRESOURCE(image.id), image.lang_id, image.image.bitmap.data(), static_cast<DWORD>(image.image.bitmap.size()));
       offset += sizeof(IconGroupEntry);
     });
-    rupdate.update(RT_GROUP_ICON, icon.id, icon.lang_id, buf.data(), buf.size());
+    rupdate.update(RT_GROUP_ICON, icon.id, icon.lang_id, buf.data(), static_cast<DWORD>(buf.size()));
   });
   rupdate.finalize();
 }
@@ -354,7 +354,7 @@ public:
   }
   void update_length(size_t p) {
     assert(p + sizeof(WORD) <= size());
-    *reinterpret_cast<WORD*>(data() + p) = size() - p;
+    *reinterpret_cast<WORD*>(data() + p) = static_cast<WORD>(size() - p);
   }
 };
 
@@ -465,7 +465,7 @@ void replace_ver_info(const wstring& pe_path, const SfxVersionInfo& ver_info) {
   for_each(strings.cbegin(), strings.cend(), [&] (const pair<wstring, wstring>& str) {
     size_t string_pos = e.size();
     e.encode_WORD(0); // String
-    e.encode_WORD(str.second.size() + 1);
+    e.encode_WORD(static_cast<WORD>(str.second.size() + 1));
     e.encode_WORD(1);
     e.encode_string(str.first);
     e.pad();
@@ -504,6 +504,6 @@ void replace_ver_info(const wstring& pe_path, const SfxVersionInfo& ver_info) {
   for_each(vi_list.cbegin(), vi_list.cend(), [&] (const IdLang& id_lang) {
     rupdate.update(RT_VERSION, id_lang.id, id_lang.lang_id, nullptr, 0);
   });
-  rupdate.update(RT_VERSION, ver_id, lang_id, e.data(), e.size());
+  rupdate.update(RT_VERSION, ver_id, lang_id, e.data(), static_cast<DWORD>(e.size()));
   rupdate.finalize();
 }

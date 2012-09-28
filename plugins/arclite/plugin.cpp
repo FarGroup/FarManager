@@ -35,7 +35,7 @@ public:
     if (archives.size() == 0)
       FAIL(E_ABORT);
 
-    int format_idx;
+    intptr_t format_idx;
     if (archives.size() == 1) {
       format_idx = 0;
     }
@@ -227,7 +227,7 @@ public:
     }
   }
 
-  void get_files(const PluginPanelItem* panel_items, int items_number, int move, const wchar_t** dest_path, OPERATION_MODES op_mode) {
+  void get_files(const PluginPanelItem* panel_items, intptr_t items_number, int move, const wchar_t** dest_path, OPERATION_MODES op_mode) {
     class PluginPanelItems: public PluginPanelItemAccessor {
     private:
       const PluginPanelItem* panel_items;
@@ -302,7 +302,7 @@ public:
 
       FileIndexRange dir_list = archive->get_dir_list(c_root_index);
 
-      unsigned num_items = dir_list.second - dir_list.first;
+      uintptr_t num_items = dir_list.second - dir_list.first;
       if (arc_list.size() == 1 && num_items == 1) {
         dst_file_name = archive->file_list[*dir_list.first].name;
       }
@@ -378,7 +378,7 @@ public:
     extract(arc_list, options);
   }
 
-  void test_files(struct PluginPanelItem* panel_items, int items_number, OPERATION_MODES op_mode) {
+  void test_files(struct PluginPanelItem* panel_items, intptr_t items_number, OPERATION_MODES op_mode) {
     UInt32 src_dir_index = archive->find_dir(current_dir);
     vector<UInt32> indices;
     indices.reserve(items_number);
@@ -447,7 +447,7 @@ public:
     Plugin::bulk_test(arc_list);
   }
 
-  void put_files(const PluginPanelItem* panel_items, int items_number, int move, const wchar_t* src_path, OPERATION_MODES op_mode) {
+  void put_files(const PluginPanelItem* panel_items, intptr_t items_number, int move, const wchar_t* src_path, OPERATION_MODES op_mode) {
     if (items_number == 1 && wcscmp(panel_items[0].FileName, L"..") == 0)
       return;
     UpdateOptions options;
@@ -699,7 +699,7 @@ public:
     }
   }
 
-  void delete_files(const PluginPanelItem* panel_items, int items_number, OPERATION_MODES op_mode) {
+  void delete_files(const PluginPanelItem* panel_items, intptr_t items_number, OPERATION_MODES op_mode) {
     if (items_number == 1 && wcscmp(panel_items[0].FileName, L"..") == 0) return;
 
     if (!archive->updatable()) {
@@ -757,7 +757,7 @@ public:
   void close() {
     PanelInfo panel_info;
     if (Far::get_panel_info(this, panel_info)) {
-      unsigned panel_view_mode = panel_info.ViewMode;
+      uintptr_t panel_view_mode = panel_info.ViewMode;
       OPENPANELINFO_SORTMODES panel_sort_mode = panel_info.SortMode;
       bool panel_reverse_sort = (panel_info.Flags & PFLAGS_REVERSESORTORDER) != 0;
       if (g_options.panel_view_mode != panel_view_mode || g_options.panel_sort_mode != panel_sort_mode || g_options.panel_reverse_sort != panel_reverse_sort) {
@@ -893,7 +893,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
     unsigned extract_menu_id = menu_items.add(Far::get_msg(MSG_MENU_EXTRACT));
     unsigned test_menu_id = menu_items.add(Far::get_msg(MSG_MENU_TEST));
     unsigned sfx_convert_menu_id = menu_items.add(Far::get_msg(MSG_MENU_SFX_CONVERT));
-    unsigned item = Far::menu(c_main_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items, L"Contents");
+    intptr_t item = Far::menu(c_main_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items, L"Contents");
     if (item == open_menu_id || item == detect_menu_id) {
       OpenOptions options;
       options.detect = item == detect_menu_id;
@@ -1060,7 +1060,7 @@ intptr_t WINAPI ProcessHostFileW(const ProcessHostFileInfo* info) {
   FAR_ERROR_HANDLER_BEGIN;
   Far::MenuItems menu_items;
   menu_items.add(Far::get_msg(MSG_TEST_MENU));
-  int item = Far::menu(c_arccmd_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items);
+  intptr_t item = Far::menu(c_arccmd_menu_guid, Far::get_msg(MSG_PLUGIN_NAME), menu_items);
   if (item == 0)
     reinterpret_cast<Plugin*>(info->hPanel)->test_files(info->PanelItem, info->ItemsNumber, info->OpMode);
   return TRUE;

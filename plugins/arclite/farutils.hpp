@@ -37,13 +37,13 @@ const wchar_t* msg_ptr(int id);
 wstring get_msg(int id);
 
 unsigned get_optimal_msg_width();
-int message(const GUID& id, const wstring& msg, int button_cnt = 0, FARMESSAGEFLAGS flags = 0);
+intptr_t message(const GUID& id, const wstring& msg, int button_cnt = 0, FARMESSAGEFLAGS flags = 0);
 
 class MenuItems: public vector<wstring> {
 public:
   unsigned add(const wstring& item);
 };
-int menu(const GUID& id, const wstring& title, const MenuItems& items, const wchar_t* help = NULL);
+intptr_t menu(const GUID& id, const wstring& title, const MenuItems& items, const wchar_t* help = NULL);
 
 wstring get_progress_bar_str(unsigned width, unsigned __int64 completed, unsigned __int64 total);
 void set_progress_state(TBPFLAG state);
@@ -58,8 +58,8 @@ HANDLE save_screen();
 void restore_screen(HANDLE h_scr);
 void flush_screen();
 
-int viewer(const wstring& file_name, const wstring& title, VIEWER_FLAGS flags = 0);
-int editor(const wstring& file_name, const wstring& title, EDITOR_FLAGS flags = 0);
+intptr_t viewer(const wstring& file_name, const wstring& title, VIEWER_FLAGS flags = 0);
+intptr_t editor(const wstring& file_name, const wstring& title, EDITOR_FLAGS flags = 0);
 
 void update_panel(HANDLE h_panel, bool keep_selection);
 void set_view_mode(HANDLE h_panel, unsigned view_mode);
@@ -74,7 +74,7 @@ wstring get_panel_dir(HANDLE h_panel);
 
 void get_panel_item(HANDLE h_panel, FILE_CONTROL_COMMANDS command, size_t index, Buffer<unsigned char>& buf);
 struct PanelItem {
-  DWORD file_attributes;
+  uintptr_t file_attributes;
   FILETIME creation_time;
   FILETIME last_access_time;
   FILETIME last_write_time;
@@ -98,18 +98,18 @@ const unsigned c_y_frame = 2;
 
 struct DialogItem {
   FARDIALOGITEMTYPES type;
-  unsigned x1;
-  unsigned y1;
-  unsigned x2;
-  unsigned y2;
+  size_t x1;
+  size_t y1;
+  size_t x2;
+  size_t y2;
   FARDIALOGITEMFLAGS flags;
   int selected;
   unsigned history_idx;
   unsigned mask_idx;
   unsigned text_idx;
   unsigned list_idx;
-  unsigned list_size;
-  unsigned list_pos;
+  size_t list_size;
+  size_t list_pos;
   DialogItem() {
     memzero(*this);
   }
@@ -117,10 +117,10 @@ struct DialogItem {
 
 class Dialog {
 private:
-  unsigned client_xs;
-  unsigned client_ys;
-  unsigned x;
-  unsigned y;
+  size_t client_xs;
+  size_t client_ys;
+  size_t x;
+  size_t y;
   const wchar_t* help;
   vector<wstring> values;
   vector<DialogItem> items;
@@ -148,26 +148,26 @@ protected:
       dlg.events_enabled = events_enabled;
     }
   };
-  unsigned get_label_len(const wstring& str, FARDIALOGITEMFLAGS flags);
-  INT_PTR default_dialog_proc(int msg, int param1, void* param2);
-  virtual INT_PTR dialog_proc(int msg, int param1, void* param2) {
+  size_t get_label_len(const wstring& str, FARDIALOGITEMFLAGS flags);
+  intptr_t default_dialog_proc(intptr_t msg, intptr_t param1, void* param2);
+  virtual intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
     return default_dialog_proc(msg, param1, param2);
   }
   void set_width(unsigned width) {
     client_xs = width;
   }
-  INT_PTR send_message(int msg, int param1, void* param2 = nullptr);
+  intptr_t send_message(intptr_t msg, intptr_t param1, void* param2 = nullptr);
 public:
   Dialog(const wstring& title, const GUID* guid, unsigned width = 60, const wchar_t* help = nullptr);
   // create different controls
   void new_line();
   void reset_line();
-  void spacer(unsigned size);
-  void pad(unsigned pos);
+  void spacer(size_t size);
+  void pad(size_t pos);
   unsigned separator();
   unsigned separator(const wstring& text);
   unsigned label(const wstring& text, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
-  unsigned edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned edit_box(const wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
   unsigned mask_edit_box(const wstring& text, const wstring& mask, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
   unsigned history_edit_box(const wstring& text, const wstring& history_name, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
   unsigned fix_edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
@@ -187,9 +187,9 @@ public:
     return check_box(text, value == triUndef ? BSTATE_3STATE : value == triTrue ? BSTATE_CHECKED : BSTATE_UNCHECKED, flags | DIF_3STATE);
   }
   unsigned radio_button(const wstring& text, bool value, FARDIALOGITEMFLAGS flags = 0);
-  unsigned combo_box(const vector<wstring>& items, unsigned sel_idx, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned combo_box(const vector<wstring>& items, size_t sel_idx, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
   // display dialog
-  int show();
+  intptr_t show();
   // utilities to set/get control values
   wstring get_text(unsigned ctrl_id) const;
   void set_text(unsigned ctrl_id, const wstring& text);
@@ -198,7 +198,7 @@ public:
   TriState get_check3(unsigned ctrl_id) const;
   void set_check3(unsigned ctrl_id, TriState check);
   unsigned get_list_pos(unsigned ctrl_id) const;
-  void set_list_pos(unsigned ctrl_id, unsigned pos);
+  void set_list_pos(unsigned ctrl_id, uintptr_t pos);
   void set_focus(unsigned ctrl_id);
   void enable(unsigned ctrl_id, bool enable);
   void set_visible(unsigned ctrl_id, bool visible);

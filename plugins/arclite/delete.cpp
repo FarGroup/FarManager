@@ -69,7 +69,7 @@ public:
       *processedSize = 0;
     unsigned size_written;
     RETRY_OR_IGNORE_BEGIN
-    size_written = write(data, size);
+    size_written = static_cast<unsigned>(write(data, size));
     RETRY_END(*progress)
     if (processedSize)
       *processedSize = size_written;

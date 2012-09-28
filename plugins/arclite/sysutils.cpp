@@ -162,15 +162,15 @@ bool File::size_nt(unsigned __int64& file_size) {
     return false;
 }
 
-unsigned File::read(void* data, unsigned size) {
-  unsigned size_read;
+size_t File::read(void* data, size_t size) {
+  size_t size_read;
   CHECK_FILE(read_nt(data, size, size_read));
   return size_read;
 }
 
-bool File::read_nt(void* data, unsigned size, unsigned& size_read) {
+bool File::read_nt(void* data, size_t size, size_t& size_read) {
   DWORD sz;
-  if (ReadFile(h_file, data, size, &sz, nullptr)) {
+  if (ReadFile(h_file, data, static_cast<DWORD>(size), &sz, nullptr)) {
     size_read = sz;
     return true;
   }
@@ -178,15 +178,15 @@ bool File::read_nt(void* data, unsigned size, unsigned& size_read) {
     return false;
 }
 
-unsigned File::write(const void* data, unsigned size) {
-  unsigned size_written;
+size_t File::write(const void* data, size_t size) {
+  size_t size_written;
   CHECK_FILE(write_nt(data, size, size_written));
   return size_written;
 }
 
-bool File::write_nt(const void* data, unsigned size, unsigned& size_written) {
+bool File::write_nt(const void* data, size_t size, size_t& size_written) {
   DWORD sz;
-  if (WriteFile(h_file, data, size, &sz, nullptr)) {
+  if (WriteFile(h_file, data, static_cast<DWORD>(size), &sz, nullptr)) {
     size_written = sz;
     return true;
   }
@@ -654,10 +654,10 @@ void enable_lfh() {
 wstring search_path(const wstring& file_name) {
   Buffer<wchar_t> path(MAX_PATH);
   wchar_t* name_ptr;
-  DWORD size = SearchPathW(nullptr, file_name.c_str(), nullptr, path.size(), path.data(), &name_ptr);
+  DWORD size = SearchPathW(nullptr, file_name.c_str(), nullptr, static_cast<DWORD>(path.size()), path.data(), &name_ptr);
   if (size > path.size()) {
     path.resize(size);
-    size = SearchPathW(nullptr, file_name.c_str(), nullptr, path.size(), path.data(), &name_ptr);
+    size = SearchPathW(nullptr, file_name.c_str(), nullptr, static_cast<DWORD>(path.size()), path.data(), &name_ptr);
   }
   CHECK_SYS(size);
   CHECK(size < path.size());

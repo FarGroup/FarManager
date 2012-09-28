@@ -36,7 +36,7 @@ unsigned get_optimal_msg_width() {
   return 60;
 }
 
-int message(const GUID& id, const wstring& msg, int button_cnt, FARMESSAGEFLAGS flags) {
+intptr_t message(const GUID& id, const wstring& msg, int button_cnt, FARMESSAGEFLAGS flags) {
   return g_far.Message(&c_plugin_guid, &id, flags | FMSG_ALLINONE, NULL, reinterpret_cast<const wchar_t* const*>(msg.c_str()), 0, button_cnt);
 }
 
@@ -45,7 +45,7 @@ unsigned MenuItems::add(const wstring& item) {
   return static_cast<unsigned>(size() - 1);
 }
 
-int menu(const GUID& id, const wstring& title, const MenuItems& items, const wchar_t* help) {
+intptr_t menu(const GUID& id, const wstring& title, const MenuItems& items, const wchar_t* help) {
   vector<FarMenuItem> menu_items;
   menu_items.reserve(items.size());
   FarMenuItem mi;
@@ -117,11 +117,11 @@ void flush_screen() {
   g_far.AdvControl(&c_plugin_guid, ACTL_REDRAWALL, 0, nullptr);
 }
 
-int viewer(const wstring& file_name, const wstring& title, VIEWER_FLAGS flags) {
+intptr_t viewer(const wstring& file_name, const wstring& title, VIEWER_FLAGS flags) {
   return g_far.Viewer(file_name.c_str(), title.c_str(), 0, 0, -1, -1, flags, CP_DEFAULT);
 }
 
-int editor(const wstring& file_name, const wstring& title, EDITOR_FLAGS flags) {
+intptr_t editor(const wstring& file_name, const wstring& title, EDITOR_FLAGS flags) {
   return g_far.Editor(file_name.c_str(), title.c_str(), 0, 0, -1, -1, flags, 1, 1, CP_DEFAULT);
 }
 
@@ -160,10 +160,10 @@ bool is_real_file_panel(const PanelInfo& panel_info) {
 }
 
 wstring get_panel_dir(HANDLE h_panel) {
-  unsigned buf_size = 512;
+  size_t buf_size = 512;
   std::unique_ptr<unsigned char[]> buf(new unsigned char[buf_size]);
   reinterpret_cast<FarPanelDirectory*>(buf.get())->StructSize = sizeof(FarPanelDirectory);
-  unsigned size = g_far.PanelControl(h_panel, FCTL_GETPANELDIRECTORY, buf_size, buf.get());
+  size_t size = g_far.PanelControl(h_panel, FCTL_GETPANELDIRECTORY, buf_size, buf.get());
   if (size > buf_size) {
     buf_size = size;
     buf.reset(new unsigned char[buf_size]);
@@ -246,7 +246,7 @@ bool input_dlg(const GUID& id, const wstring& title, const wstring& msg, wstring
   return false;
 }
 
-unsigned Dialog::get_label_len(const wstring& str, FARDIALOGITEMFLAGS flags) {
+size_t Dialog::get_label_len(const wstring& str, FARDIALOGITEMFLAGS flags) {
   if (flags & DIF_SHOWAMPERSAND)
     return str.size();
   else {
@@ -303,11 +303,11 @@ intptr_t WINAPI Dialog::internal_dialog_proc(HANDLE h_dlg, intptr_t msg, intptr_
   FAR_ERROR_HANDLER_END(return 0, return 0, false)
 }
 
-INT_PTR Dialog::default_dialog_proc(int msg, int param1, void* param2) {
+intptr_t Dialog::default_dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
   return g_far.DefDlgProc(h_dlg, msg, param1, param2);
 }
 
-INT_PTR Dialog::send_message(int msg, int param1, void* param2) {
+intptr_t Dialog::send_message(intptr_t msg, intptr_t param1, void* param2) {
   return g_far.SendDlgMessage(h_dlg, msg, param1, param2);
 }
 
@@ -324,13 +324,13 @@ void Dialog::reset_line() {
   x = c_x_frame;
 }
 
-void Dialog::spacer(unsigned size) {
+void Dialog::spacer(size_t size) {
   x += size;
   if (x - c_x_frame > client_xs)
     client_xs = x - c_x_frame;
 }
 
-void Dialog::pad(unsigned pos) {
+void Dialog::pad(size_t pos) {
   if (pos > x - c_x_frame) spacer(pos - (x - c_x_frame));
 }
 
@@ -369,7 +369,7 @@ unsigned Dialog::label(const wstring& text, unsigned boxsize, FARDIALOGITEMFLAGS
   return new_item(di);
 }
 
-unsigned Dialog::edit_box(const wstring& text, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
+unsigned Dialog::edit_box(const wstring& text, size_t boxsize, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_EDIT;
   di.x1 = x;
@@ -479,7 +479,7 @@ unsigned Dialog::radio_button(const wstring& text, bool value, FARDIALOGITEMFLAG
   return new_item(di);
 }
 
-unsigned Dialog::combo_box(const vector<wstring>& list_items, unsigned sel_idx, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
+unsigned Dialog::combo_box(const vector<wstring>& list_items, size_t sel_idx, size_t boxsize, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_COMBOBOX;
   di.x1 = x;
@@ -509,17 +509,17 @@ unsigned Dialog::combo_box(const vector<wstring>& list_items, unsigned sel_idx, 
     else
       di.list_idx = new_value(list_items[i]);
   }
-  di.list_size = static_cast<unsigned>(list_items.size());
+  di.list_size = list_items.size();
   di.list_pos = sel_idx;
   return new_item(di);
 }
 
-int Dialog::show() {
+intptr_t Dialog::show() {
   calc_frame_size();
 
   unsigned list_cnt = 0;
-  unsigned list_item_cnt = 0;
-  for (unsigned i = 0; i < items.size(); i++) {
+  size_t list_item_cnt = 0;
+  for (size_t i = 0; i < items.size(); i++) {
     if (items[i].list_idx) {
       list_cnt++;
       list_item_cnt += items[i].list_size;
@@ -566,7 +566,7 @@ int Dialog::show() {
     }
   }
 
-  int res = -1;
+  intptr_t res = -1;
   HANDLE h_dlg = g_far.DialogInit(&c_plugin_guid, guid, -1, -1, client_xs + 2 * c_x_frame, client_ys + 2 * c_y_frame, help, dlg_items.data(), static_cast<unsigned>(dlg_items.size()), 0, 0, internal_dialog_proc, this);
   if (h_dlg != INVALID_HANDLE_VALUE) {
     res = g_far.DialogRun(h_dlg);
@@ -609,7 +609,7 @@ unsigned Dialog::get_list_pos(unsigned ctrl_id) const {
   return static_cast<unsigned>(g_far.SendDlgMessage(h_dlg, DM_LISTGETCURPOS, ctrl_id, 0));
 }
 
-void Dialog::set_list_pos(unsigned ctrl_id, unsigned pos) {
+void Dialog::set_list_pos(unsigned ctrl_id, uintptr_t pos) {
   FarListPos list_pos;
   list_pos.StructSize = sizeof(FarListPos);
   list_pos.SelectPos = pos;
@@ -715,7 +715,7 @@ bool FileFilter::match(const PluginPanelItem& panel_item) {
 
 wstring get_absolute_path(const wstring& rel_path) {
   Buffer<wchar_t> buf(MAX_PATH);
-  unsigned len = g_fsf.ConvertPath(CPM_FULL, rel_path.c_str(), buf.data(), static_cast<int>(buf.size()));
+  size_t len = g_fsf.ConvertPath(CPM_FULL, rel_path.c_str(), buf.data(), static_cast<int>(buf.size()));
   if (len > buf.size()) {
     buf.resize(len);
     len = g_fsf.ConvertPath(CPM_FULL, rel_path.c_str(), buf.data(), static_cast<int>(buf.size()));

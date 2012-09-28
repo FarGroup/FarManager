@@ -157,7 +157,7 @@ public:
       *processedSize = 0;
     unsigned size_written;
     RETRY_OR_IGNORE_BEGIN
-    size_written = write(data, size);
+    size_written = static_cast<unsigned>(write(data, size));
     RETRY_END(*progress)
     progress->on_write_archive(size_written);
     if (processedSize)
@@ -223,9 +223,9 @@ public:
     COM_ERROR_HANDLER_BEGIN
     if (processedSize)
       *processedSize = 0;
-    DWORD size_written;
+    unsigned size_written;
     RETRY_OR_IGNORE_BEGIN
-    size_written = write(data, size);
+    size_written = static_cast<unsigned>(write(data, size));
     RETRY_END(*progress)
     progress->on_write_archive(size_written);
     if (processedSize)
@@ -368,7 +368,7 @@ public:
       else
         write_size = size - data_off;
       RETRY_OR_IGNORE_BEGIN
-      write_size = volume.write(reinterpret_cast<const unsigned char*>(data) + data_off, write_size);
+      write_size = static_cast<unsigned>(volume.write(reinterpret_cast<const unsigned char*>(data) + data_off, write_size));
       RETRY_END(*progress)
       CHECK(write_size != 0);
       data_off += write_size;
@@ -476,7 +476,7 @@ public:
     COM_ERROR_HANDLER_BEGIN
     if (processedSize)
       *processedSize = 0;
-    unsigned size_read = read(data, size);
+    unsigned size_read = static_cast<unsigned>(read(data, size));
     progress->on_read_file(size_read);
     if (processedSize)
       *processedSize = size_read;

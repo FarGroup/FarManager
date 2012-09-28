@@ -201,7 +201,7 @@ private:
         size = static_cast<DWORD>(current_rec.buffer_size - pos);
       else
         size = c_block_size;
-      unsigned size_written;
+      size_t size_written;
       RETRY_OR_IGNORE_BEGIN
       size_written = file.write(buffer + current_rec.buffer_pos + pos, size);
       RETRY_OR_IGNORE_END(*ignore_errors, *error_log, *progress)

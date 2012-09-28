@@ -127,7 +127,7 @@ ArcTypes ArcFormats::find_by_ext(const wstring& ext) const {
 }
 
 
-unsigned SfxModules::find_by_name(const wstring& name) const {
+uintptr_t SfxModules::find_by_name(const wstring& name) const {
   for (const_iterator sfx_module = begin(); sfx_module != end(); sfx_module++) {
     if (upcase(extract_file_name(sfx_module->path)) == upcase(name))
       return distance(begin(), sfx_module);
@@ -241,8 +241,8 @@ void ArcAPI::find_sfx_modules(const wstring& path) {
     if (!file.open_nt(sfx_module.path, FILE_READ_DATA, FILE_SHARE_READ, OPEN_EXISTING, 0))
       continue;
     Buffer<char> buffer(2);
-    unsigned sz;
-    if (!file.read_nt(buffer.data(), static_cast<unsigned>(buffer.size()), sz))
+    size_t sz;
+    if (!file.read_nt(buffer.data(), buffer.size(), sz))
       continue;
     string sig(buffer.data(), sz);
     if (sig != "MZ")

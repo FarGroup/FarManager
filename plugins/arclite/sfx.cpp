@@ -63,10 +63,10 @@ ByteVector generate_install_config(const SfxInstallConfig& config) {
 }
 
 void create_sfx_module(const wstring& file_path, const SfxOptions& sfx_options) {
-  unsigned sfx_id = ArcAPI::sfx().find_by_name(sfx_options.name);
+  uintptr_t sfx_id = ArcAPI::sfx().find_by_name(sfx_options.name);
   CHECK(sfx_id < ArcAPI::sfx().size());
   wstring sfx_path = ArcAPI::sfx()[sfx_id].path;
-  
+
   File file;
   file.open(file_path, FILE_WRITE_DATA, FILE_SHARE_READ, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL);
 
@@ -119,7 +119,7 @@ void attach_sfx_module(const wstring& file_path, const SfxOptions& sfx_options) 
     File src_file(file_path, FILE_READ_DATA, FILE_SHARE_READ, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
     Buffer<char> buf(1024 * 1024);
     while (true) {
-      unsigned size_read = src_file.read(buf.data(), static_cast<unsigned>(buf.size()));
+      size_t size_read = src_file.read(buf.data(), static_cast<unsigned>(buf.size()));
       if (size_read == 0)
         break;
       CHECK(dst_file.write(buf.data(), size_read) == size_read);
@@ -289,7 +289,7 @@ private:
     set_text(install_config_execute_parameters_ctrl_id, options.install_config.execute_parameters);
   }
 
-  INT_PTR dialog_proc(int msg, int param1, void* param2) {
+  intptr_t dialog_proc(intptr_t msg, intptr_t param1, void* param2) {
     if (msg == DN_CLOSE && param1 >= 0 && param1 != cancel_ctrl_id) {
       options = read_controls();
     }
@@ -367,7 +367,7 @@ public:
     vector<wstring> module_names;
     const SfxModules& sfx_modules = ArcAPI::sfx();
     module_names.reserve(sfx_modules.size() + 1);
-    unsigned name_width = 0;
+    size_t name_width = 0;
     for_each(sfx_modules.begin(), sfx_modules.end(), [&] (const SfxModule& sfx_module) {
       wstring name = sfx_module.description();
       module_names.push_back(name);
@@ -385,7 +385,7 @@ public:
     icon_path_ctrl_id = history_edit_box(options.icon_path, L"arclite.icon_path", AUTO_SIZE, DIF_EDITPATH | DIF_SELECTONENTRY);
     new_line();
 
-    unsigned label_len = 0;
+    size_t label_len = 0;
     vector<wstring> labels;
     labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_PRODUCT_NAME));
     labels.push_back(Far::get_msg(MSG_SFX_OPTIONS_DLG_VER_INFO_VERSION));
@@ -496,7 +496,7 @@ public:
     cancel_ctrl_id = button(Far::get_msg(MSG_BUTTON_CANCEL), DIF_CENTERGROUP);
     new_line();
 
-    int item = Far::Dialog::show();
+    intptr_t item = Far::Dialog::show();
 
     return (item != -1) && (item != cancel_ctrl_id);
   }

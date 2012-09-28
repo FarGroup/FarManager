@@ -76,7 +76,7 @@ struct SfxModule {
 
 class SfxModules: public vector<SfxModule> {
 public:
-  unsigned find_by_name(const wstring& name) const;
+  uintptr_t find_by_name(const wstring& name) const;
 };
 
 class ArcAPI {
