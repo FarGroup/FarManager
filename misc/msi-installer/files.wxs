@@ -824,8 +824,8 @@
           <Component Id="luafar3.map" Guid="$(var.Guid.luafar3.map)" Win64="$(var.Win64)">
             <File Id="luafar3.map" KeyPath="yes" Source="$(var.SourceDir)\luafar3.map" />
           </Component>
-        </Directory>
 <?endif?>
+        </Directory>
         <Directory Id="Network" Name="Network">
           <Component Id="changelog_15" Guid="$(var.Guid.changelog_15)" Win64="$(var.Win64)">
             <File Id="changelog_15" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\changelog" />
