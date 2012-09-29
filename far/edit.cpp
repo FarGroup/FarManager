@@ -378,7 +378,7 @@ void Edit::FastShow()
 		wchar_t *e=OutStrTmp+OutStrLength;
 
 		wchar_t *TrailingSpaces = e - 1;
-		if (Flags.Check(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) && (e > p))
+		if (Flags.Check(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) && !Mask && (e > p))
 		{
 			while(IsSpace(*TrailingSpaces))
 				TrailingSpaces--;
