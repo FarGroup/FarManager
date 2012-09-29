@@ -1,0 +1,44 @@
+!if exists(../make_vc_defs)
+!include ../make_vc_defs
+!endif
+
+NAME=luamacro
+USERCPP=/Iluasdk/include /DEXPORT_OPEN
+LUALIB=$(OUTDIR)\luafar3.lib
+
+DOCS=_globalinfo.lua api.lua luamacro.lua macrotest.lua luasdk\$(DIRBIT)\lua5.1.dll
+
+NEEDENTRY = 1
+NEEDDEFLIB = 1
+EXCLUDECRT=1
+
+!include ..\makefile_vc_def_inc
+
+LINK_OBJS = $(OBJDIR)\luaplug.obj
+
+!if "$(PLATFORM)" =="x86"
+
+!ifndef ULINK
+LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
+!else
+LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrp_u.obj
+!endif
+!endif
+
+LIBS=$(LIBS) luasdk\$(DIRBIT)\lua5.1.lib $(LUALIB)
+
+!include ..\makefile_vc_target_inc
+
+{luafar}.c{$(OBJDIR)}.obj::
+	$(CC) @<<
+	$(CPPFLAGS) $<
+<<
+
+$(LINK_OBJS): $(LUALIB)
+
+$(LUALIB):
+!ifndef INSTALL
+	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc
+!else
+	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(INSTALL)
+!endif

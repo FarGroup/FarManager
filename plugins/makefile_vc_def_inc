@@ -132,17 +132,19 @@ EXT = dll
 !endif
 DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(OUTDIR)$(ADDOUTDIR)\$(DLLNAME)
+!if "$(DEF_NAME)" != ""
 !ifdef ANSI
-DEF = $(DEF_NAME).vc$(ULN_DEF).def
+DEFOPT = /def:$(DEF_NAME).vc$(ULN_DEF).def
 !else
-DEF = $(DEF_NAME)W.vc$(ULN_DEF).def
+DEFOPT = /def:$(DEF_NAME)W.vc$(ULN_DEF).def
+!endif
 !endif
 MAP = $(OUTDIR)$(ADDOUTDIR)\$(NAME).map
 RES = $(OBJDIR)\$(NAME).res
 
 
 AFLAGS = /nologo /c /Fo"$(OBJDIR)\\"
-CPPFLAGS = /nologo /MP /c /W3 /Gy /GF /J /GS- /Gr /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_CRT_NON_CONFORMING_SWPRINTFS /D_WIN32_WINNT=0x0502 $(USERCPP) /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\"
+CPPFLAGS = /nologo /MP /c /W3 /Gy /GF /J /GS- /GR- /EHs-c- /LD /I"$(COMMON)" /I"$(COMINC)" $(ENV_INC_OPT) $(CPP_WIDE) /D_CRT_SECURE_NO_WARNINGS /D_CRT_NONSTDC_NO_WARNINGS /D_CRT_NON_CONFORMING_SWPRINTFS /D_WIN32_WINNT=0x0502 $(USERCPP) /Fo"$(OBJDIR)\\" /Fd"$(OBJDIR)\\"
 
 !ifndef DEBUG
 CPPFLAGS=$(CPPFLAGS) /DNDEBUG /O2
@@ -203,7 +205,7 @@ NODEFLIB = /nodefaultlib
 !if !defined(CPU)
 SUBSYSTEM=/subsystem:windows,5.0
 !endif
-LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) /def:"$(DEF)" /map:"$(MAP)" /out:"$(DLLFULLNAME)"
+LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) $(DEFOPT) /map:"$(MAP)" /out:"$(DLLFULLNAME)"
 !ifndef NO_RELEASE_PDB
 LINK_FLAGS=$(LINK_FLAGS) /debug
 !endif

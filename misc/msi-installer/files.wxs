@@ -792,6 +792,40 @@
             <File Id="HlfViewerSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\HlfViewer\HlfViewerSky.lng" />
           </Component>
         </Directory>
+        <Directory Id="LuaMacro" Name="LuaMacro">
+          <Component Id="changelog_18" Guid="$(var.Guid.changelog_18)" Win64="$(var.Win64)">
+            <File Id="changelog_18" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\changelog" />
+          </Component>
+          <Component Id="luamacro.dll" Guid="$(var.Guid.luamacro.dll)" Win64="$(var.Win64)">
+            <File Id="LuaMacro.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\LuaMacro.dll" />
+          </Component>
+          <Component Id="_globalinfo.lua" Guid="$(var.Guid._globalinfo.lua)" Win64="$(var.Win64)">
+            <File Id="_globalinfo.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\_globalinfo.lua" />
+          </Component>
+          <Component Id="api.lua" Guid="$(var.Guid.api.lua)" Win64="$(var.Win64)">
+            <File Id="api.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\api.lua" />
+          </Component>
+          <Component Id="luamacro.lua" Guid="$(var.Guid.luamacro.lua)" Win64="$(var.Win64)">
+            <File Id="luamacro.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\luamacro.lua" />
+          </Component>
+          <Component Id="macrotest.lua" Guid="$(var.Guid.macrotest.lua)" Win64="$(var.Win64)">
+            <File Id="macrotest.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\macrotest.lua" />
+          </Component>
+          <Component Id="lua5.1.dll" Guid="$(var.Guid.lua5.1.dll)" Win64="$(var.Win64)">
+            <File Id="lua5.1.dll" KeyPath="yes" Source="$(var.SourceDir)\lua5.1.dll" />
+          </Component>
+          <Component Id="luafar3.dll" Guid="$(var.Guid.luafar3.dll)" Win64="$(var.Win64)">
+            <File Id="luafar3.dll" KeyPath="yes" Source="$(var.SourceDir)\luafar3.dll" />
+          </Component>
+<?if $(var.Platform) = x86 ?>
+          <Component Id="LuaMacro.map" Guid="$(var.Guid.LuaMacro.map)" Win64="$(var.Win64)">
+            <File Id="LuaMacro.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\.map" />
+          </Component>
+          <Component Id="luafar3.map" Guid="$(var.Guid.luafar3.map)" Win64="$(var.Win64)">
+            <File Id="luafar3.map" KeyPath="yes" Source="$(var.SourceDir)\luafar3.map" />
+          </Component>
+        </Directory>
+<?endif?>
         <Directory Id="Network" Name="Network">
           <Component Id="changelog_15" Guid="$(var.Guid.changelog_15)" Win64="$(var.Win64)">
             <File Id="changelog_15" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Network\changelog" />

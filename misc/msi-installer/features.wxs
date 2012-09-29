@@ -461,6 +461,24 @@
             <ComponentRef Id="changelog_12" />
           </Feature>
         </Feature>
+        <Feature Id="LuaMacro" Level="1" Title="!(loc.Feature.Title.LuaMacro)" AllowAdvertise="no" Description="!(loc.Feature.Description.LuaMacro)">
+          <ComponentRef Id="LuaMacro.dll" />
+          <ComponentRef Id="luafar3.dll" />
+          <ComponentRef Id="lua5.1.dll" />
+          <ComponentRef Id="_globalinfo.lua" />
+          <ComponentRef Id="api.lua" />
+          <ComponentRef Id="luamacro.lua" />
+          <ComponentRef Id="macrotest.lua" />
+<?if $(var.Platform) = x86 ?>
+          <Feature Id="LuaMacro.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="LuaMacro.map" />
+            <ComponentRef Id="luafar3.map" />
+          </Feature>
+<?endif?>
+          <Feature Id="Network.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="changelog_18" />
+          </Feature>
+        </Feature>
         <Feature Id="Network" Level="1" Title="!(loc.Feature.Title.Network)" AllowAdvertise="no" Description="!(loc.Feature.Description.Network)">
           <ComponentRef Id="NetEng.hlf" />
           <ComponentRef Id="NetEng.lng" />

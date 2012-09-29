@@ -44,6 +44,9 @@ cp $2/Include/*.pas $BINDIR/PluginSDK/Headers.pas/
 cp -f $2/changelog $BINDIR/
 cp -f $2/changelog_eng $BINDIR/
 cp -f $2/Far.exe.example.ini $BINDIR/
+
+cp -f ../plugins/luamacro/final.${DIRBIT}W.vc/luafar3.dll $BINDIR/
+cp -f ../plugins/luamacro/final.${DIRBIT}W.vc/lua5.1.dll $BINDIR/
 }
 
 function buildfar {

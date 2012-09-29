@@ -114,4 +114,6 @@
 <String Id="Feature.Description.Proclist">Управление процессами Windows.</String>
 <String Id="Feature.Title.TmpPanel">TmpPanel</String>
 <String Id="Feature.Description.TmpPanel">Временная панель.</String>
+<String Id="Feature.Title.LuaMacro">LuaMacro</String>
+<String Id="Feature.Description.LuaMacro">Макросы на языке Lua.</String>
 </WixLocalization>

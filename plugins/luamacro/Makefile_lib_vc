@@ -1,0 +1,64 @@
+!if exists(../make_vc_defs)
+!include ../make_vc_defs
+!endif
+
+NAME=luafar3
+USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua5.1.dll\" /DFAR_LUA
+LUA=luasdk\32\lua.exe
+
+
+NEEDENTRY = 1
+NEEDDEFLIB = 1
+EXCLUDECRT=1
+
+RC_NAME=luafar\$(NAME)
+DEF_NAME=
+
+!include ..\makefile_vc_def_inc
+
+#TODO: remove this line after merge with spring project
+COMINC=luafar/spring_include
+
+LINK_OBJS = \
+$(OBJDIR)\bit64.obj \
+$(OBJDIR)\exported.obj \
+$(OBJDIR)\flags.obj \
+$(OBJDIR)\keysandcolors.obj \
+$(OBJDIR)\lflua.obj \
+$(OBJDIR)\lregex.obj \
+$(OBJDIR)\reg.obj \
+$(OBJDIR)\service.obj \
+$(OBJDIR)\slnudata.obj \
+$(OBJDIR)\slnunico.obj \
+$(OBJDIR)\uliolib51.obj \
+$(OBJDIR)\uloadlib51.obj \
+$(OBJDIR)\ustring.obj \
+$(OBJDIR)\util.obj \
+$(OBJDIR)\win.obj \
+
+!if "$(PLATFORM)" =="x86"
+!ifndef ULINK
+LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
+!else
+LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrp_u.obj
+!endif
+!endif
+
+LIBS=$(LIBS) luasdk\$(DIRBIT)\lua5.1.lib rpcrt4.lib
+
+!include ..\makefile_vc_target_inc
+
+$(LINK_OBJS): luafar\flags.c luafar\keysandcolors.c
+
+{luafar}.c{$(OBJDIR)}.obj::
+	$(CC) @<<
+	$(CPPFLAGS) $<
+<<
+
+luafar\flags.c: luafar\makeflags.lua
+	@echo generating flags.c
+	@$(LUA) luafar\makeflags.lua $(COMINC)\plugin.hpp > luafar\flags.c
+
+luafar\keysandcolors.c: luafar\makefarkeys.lua
+	@echo generating keysandcolors.c
+	@$(LUA) luafar\makefarkeys.lua $(COMINC) luafar\keysandcolors.c

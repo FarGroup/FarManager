@@ -278,6 +278,16 @@
 <?define Guid.TmpPanel.map = "6D85B2D5-32B4-476A-A92D-A460008E4EFA" ?>
 <?define Guid.TmpRus.hlf = "570528CD-1A49-46E4-AD34-D9DEA41E46BD" ?>
 <?define Guid.TmpRus.lng = "E04434AE-974D-4A2D-AA91-E9335707DFCB" ?>
+<?define Guid.LuaMacro.dll = "20F4BF54-B420-4244-80E2-A9EC3BD93219" ?>
+<?define Guid.LuaMacro.map = "9A2FEF00-8B32-4F23-9EE8-EED8F7B23C52" ?>
+<?define Guid.changelog_18 = "EECDF9EE-A340-4364-9836-01C40BECA02F" ?>
+<?define Guid._globalinfo.lua = "DE8790D3-A911-411F-BF2F-B834172FDC6F" ?>
+<?define Guid.api.lua = "56E324B9-84A0-4177-9B53-2E0251154C05" ?>
+<?define Guid.luamacro.lua = "76D8C653-D9EC-4728-8566-DA40017AE811" ?>
+<?define Guid.macrotest.lua = "76D8C653-D9EC-4728-8566-DA40017AE811" ?>
+<?define Guid.lua5.1.dll = "26D2B351-46E7-48F7-9193-69A277D47643" ?>
+<?define Guid.luafar3.dll = "84A3F626-E485-400E-A50B-8A5F5B0568DE" ?>
+<?define Guid.luafar3.map = "837F1FF5-6638-4D79-83EE-DF5FB160DB0C" ?>
 <?define Guid.DlgBuilder.hpp = "9C10E352-F1FF-4B24-9F54-F2EA68737F22" ?>
 <?define Guid.farcolor.hpp = "7030C0CD-25D3-43BF-8591-43786F604DFD" ?>
 <?define Guid.plugin.hpp = "4C2F0C58-B243-4CF5-8F69-7BECCD41630D" ?>
