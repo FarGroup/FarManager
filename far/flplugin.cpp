@@ -768,7 +768,7 @@ void FileList::PluginHostGetFiles()
 				}
 
 				_ALGO(SysLog(L"call Plugins.FreeFindData()"));
-				CtrlObject->Plugins->FreeFindData(hCurPlugin,ItemList,ItemNumber);
+				CtrlObject->Plugins->FreeFindData(hCurPlugin,ItemList,ItemNumber,true);
 				tree.insert(new Plugin*(ph->pPlugin));
 			}
 
@@ -1019,7 +1019,7 @@ int FileList::ProcessOneHostFile(int Idx)
 			_ALGO(SysLog(L"call Plugins.ProcessHostFile"));
 			Done=CtrlObject->Plugins->ProcessHostFile(hNewPlugin,ItemList,ItemNumber,OPM_TOPLEVEL);
 			_ALGO(SysLog(L"call Plugins.FreeFindData"));
-			CtrlObject->Plugins->FreeFindData(hNewPlugin,ItemList,ItemNumber);
+			CtrlObject->Plugins->FreeFindData(hNewPlugin,ItemList,ItemNumber,true);
 		}
 
 		_ALGO(SysLog(L"call Plugins.ClosePanel"));

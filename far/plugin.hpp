@@ -2769,7 +2769,6 @@ struct ProcessConsoleInputInfo
 	size_t StructSize;
 	PROCESSCONSOLEINPUT_FLAGS Flags;
 	INPUT_RECORD Rec;
-	HANDLE hPanel;
 };
 
 struct ExitInfo

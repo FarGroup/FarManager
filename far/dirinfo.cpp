@@ -410,7 +410,7 @@ static void ScanPluginDir()
 		}
 	}
 
-	CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount);
+	CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
 }
 
 int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
@@ -476,7 +476,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 
 					if (CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_SILENT))
 					{
-						CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount);
+						CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
 					}
 
 					CtrlObject->Plugins->SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT);

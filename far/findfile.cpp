@@ -92,6 +92,8 @@ struct FINDLIST
 	FAR_FIND_DATA_EX FindData;
 	size_t ArcIndex;
 	DWORD Used;
+	void* Data;
+	FARPANELITEMFREECALLBACK FreeData;
 };
 
 // Список архивов. Если файл найден в архиве, то FindList->ArcIndex указывает сюда.
@@ -211,6 +213,17 @@ public:
 		{
 			for (size_t i = 0; i < FindListCount; i++)
 			{
+				if (FindList[i]->FreeData)
+				{
+					FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),nullptr};
+					if(FindList[i]->ArcIndex!=LIST_INDEX_NONE)
+					{
+						ARCLIST ArcItem;
+						GetArcListItem(FindList[i]->ArcIndex, ArcItem);
+						info.hPlugin=ArcItem.hPlugin;
+					}
+					FindList[i]->FreeData(FindList[i]->Data,&info);
+				}
 				delete FindList[i];
 			}
 			xf_free(FindList);
@@ -276,7 +289,7 @@ public:
 		return ArcListCount++;
 	}
 
-	size_t AddFindListItem(const FAR_FIND_DATA_EX& FindData)
+	size_t AddFindListItem(const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 	{
 		CriticalSectionLock Lock(DataCS);
 		if ((FindListCount == FindListCapacity)&&(!FindListGrow()))
@@ -285,6 +298,8 @@ public:
 		FindList[FindListCount] = new FINDLIST;
 		FindList[FindListCount]->FindData = FindData;
 		FindList[FindListCount]->ArcIndex = LIST_INDEX_NONE;
+		FindList[FindListCount]->Data = Data;
+		FindList[FindListCount]->FreeData = FreeData;
 		return FindListCount++;
 	}
 }
@@ -362,7 +377,7 @@ int codePagesCount;
 
 struct CodePageInfo
 {
-	UINT CodePage;
+	uintptr_t CodePage;
 	UINT MaxCharSize;
 	wchar_t LastSymbol;
 	bool WordFound;
@@ -542,7 +557,7 @@ void InitInFileSearch()
 				{
 					if (data & (hasSelected?CPST_FIND:CPST_FAVORITE))
 					{
-						UINT codePage = _wtoi(codePageName);
+						uintptr_t codePage = _wtoi(codePageName);
 
 						// Проверяем дубли
 						if (!hasSelected)
@@ -733,7 +748,7 @@ void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=f
 
 				if (CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
 				{
-					CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,FileCount);
+					CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,FileCount,true);
 				}
 			}
 
@@ -866,7 +881,7 @@ intptr_t WINAPI MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Pa
 			SendDlgMessage(hDlg, DM_LISTGETCURPOS, FAD_COMBOBOX_CP, &Position);
 			FarListGetItem Item = { sizeof(FarListGetItem), Position.SelectPos };
 			SendDlgMessage(hDlg, DM_LISTGETITEM, FAD_COMBOBOX_CP, &Item);
-			CodePage = *(UINT*)SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Position.SelectPos));
+			CodePage = *(uintptr_t*)SendDlgMessage(hDlg, DM_LISTGETDATA, FAD_COMBOBOX_CP, ToPtr(Position.SelectPos));
 			return TRUE;
 		}
 		case DN_CLOSE:
@@ -1150,7 +1165,7 @@ bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wcha
 			}
 		}
 
-		CtrlObject->Plugins->FreeFindData(ArcItem.hPlugin,pItems,nItemsNumber);
+		CtrlObject->Plugins->FreeFindData(ArcItem.hPlugin,pItems,nItemsNumber,true);
 	}
 
 	CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,L"\\",OPM_SILENT);
@@ -2190,7 +2205,7 @@ intptr_t WINAPI FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Pa
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& FindData)
+void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData)
 {
 	if (!hDlg)
 		return;
@@ -2361,7 +2376,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 			}
 		}
 		ListItem.strName = strPathName;
-		size_t ItemIndex = itd.AddFindListItem(FindData);
+		size_t ItemIndex = itd.AddFindListItem(FindData,Data,nullptr);
 
 		if (ItemIndex != LIST_INDEX_NONE)
 		{
@@ -2386,7 +2401,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 		}
 	}
 
-	size_t ItemIndex = itd.AddFindListItem(FindData);
+	size_t ItemIndex = itd.AddFindListItem(FindData,Data,FreeData);
 
 	if (ItemIndex != LIST_INDEX_NONE)
 	{
@@ -2431,7 +2446,7 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const PluginPanelItem& F
 {
 	FAR_FIND_DATA_EX fdata;
 	PluginPanelItemToFindDataEx(&FindData, &fdata);
-	AddMenuRecord(hDlg,FullName, fdata);
+	AddMenuRecord(hDlg,FullName, fdata, FindData.UserData.Data, FindData.UserData.FreeData);
 }
 
 void DoPreparePluginList(HANDLE hDlg, bool Internal);
@@ -2632,7 +2647,7 @@ void DoScanTree(HANDLE hDlg, string& strRoot)
 
 				if (IsFileIncluded(nullptr,strFullStreamName,FindData.dwFileAttributes))
 				{
-					AddMenuRecord(hDlg,strFullStreamName, FindData);
+					AddMenuRecord(hDlg,strFullStreamName, FindData, nullptr, nullptr);
 				}
 
 				if (!Opt.FindOpt.FindAlternateStreams || hFindStream == INVALID_HANDLE_VALUE)
@@ -2756,7 +2771,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 		}
 	}
 
-	CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,ItemCount);
+	CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,ItemCount,false);
 	RecurseLevel--;
 }
 

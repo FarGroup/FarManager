@@ -724,7 +724,7 @@ bool Panel::MakeListFile(string &strListFileName,bool ShortNames,const wchar_t *
 		File ListFile;
 		if (ListFile.Open(strListFileName,GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE,nullptr,CREATE_ALWAYS))
 		{
-			UINT CodePage=CP_OEMCP;
+			uintptr_t CodePage=CP_OEMCP;
 			LPCVOID Eol="\r\n";
 			DWORD EolSize=2;
 

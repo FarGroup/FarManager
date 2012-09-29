@@ -504,7 +504,7 @@ bool LastSlashA(const char *String,size_t &pos)
 	return Ret;
 }
 
-void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength, UINT CodePage=CP_OEMCP)
+void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, int nLength, uintptr_t CodePage=CP_OEMCP)
 {
 	if (lpszAnsiString && lpwszUnicodeString && nLength)
 	{
@@ -513,14 +513,14 @@ void AnsiToUnicodeBin(const char *lpszAnsiString, wchar_t *lpwszUnicodeString, i
 	}
 }
 
-wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength, UINT CodePage=CP_OEMCP)
+wchar_t *AnsiToUnicodeBin(const char *lpszAnsiString, int nLength, uintptr_t CodePage=CP_OEMCP)
 {
 	wchar_t *lpResult = (wchar_t*)xf_malloc(nLength*sizeof(wchar_t));
 	AnsiToUnicodeBin(lpszAnsiString,lpResult,nLength,CodePage);
 	return lpResult;
 }
 
-wchar_t *AnsiToUnicode(const char *lpszAnsiString, UINT CodePage=CP_OEMCP)
+wchar_t *AnsiToUnicode(const char *lpszAnsiString, uintptr_t CodePage=CP_OEMCP)
 {
 	if (!lpszAnsiString)
 		return nullptr;
@@ -528,7 +528,7 @@ wchar_t *AnsiToUnicode(const char *lpszAnsiString, UINT CodePage=CP_OEMCP)
 	return AnsiToUnicodeBin(lpszAnsiString,(int)strlen(lpszAnsiString)+1,CodePage);
 }
 
-char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, UINT CodePage=CP_OEMCP)
+char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, uintptr_t CodePage=CP_OEMCP)
 {
 	/* $ 06.01.2008 TS
 		! Увеличил размер выделяемой под строку памяти на 1 байт для нормальной
@@ -558,7 +558,7 @@ char *UnicodeToAnsiBin(const wchar_t *lpwszUnicodeString, int nLength, UINT Code
 	return lpResult;
 }
 
-char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString, UINT CodePage=CP_OEMCP)
+char *UnicodeToAnsi(const wchar_t *lpwszUnicodeString, uintptr_t CodePage=CP_OEMCP)
 {
 	if (!lpwszUnicodeString)
 		return nullptr;
@@ -4256,14 +4256,14 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 	return FALSE;
 }
 
-UINT GetEditorCodePageA()
+uintptr_t GetEditorCodePageA()
 {
 	EditorInfo info={sizeof(EditorInfo)};
 	NativeInfo.EditorControl(-1,ECTL_GETINFO,0,&info);
-	UINT CodePage=info.CodePage;
+	uintptr_t CodePage=info.CodePage;
 	CPINFO cpi;
 
-	if (!GetCPInfo(CodePage, &cpi) || cpi.MaxCharSize>1)
+	if (!GetCPInfo(static_cast<UINT>(CodePage), &cpi) || cpi.MaxCharSize>1)
 		CodePage=GetACP();
 
 	return CodePage;
@@ -4271,7 +4271,7 @@ UINT GetEditorCodePageA()
 
 int GetEditorCodePageFavA()
 {
-	UINT CodePage=GetEditorCodePageA();
+	uintptr_t CodePage=GetEditorCodePageA();
 	int result=-((int)CodePage+2);
 
 	if (GetOEMCP()==CodePage)
@@ -4427,7 +4427,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 
 				if (geol) xf_free(geol);
 
-				UINT CodePage=GetEditorCodePageA();
+				uintptr_t CodePage=GetEditorCodePageA();
 				gt = UnicodeToAnsiBin(egs.StringText,egs.StringLength,CodePage);
 				geol = UnicodeToAnsi(egs.StringEOL,CodePage);
 				oegs->StringText=gt;
@@ -4503,7 +4503,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				return FALSE;
 
 			oldfar::EditorConvertText *ect=(oldfar::EditorConvertText*) Param;
-			UINT CodePage=GetEditorCodePageA();
+			uintptr_t CodePage=GetEditorCodePageA();
 			MultiByteRecode(OldCommand==oldfar::ECTL_OEMTOEDITOR ? CP_OEMCP : CodePage, OldCommand==oldfar::ECTL_OEMTOEDITOR ?  CodePage : CP_OEMCP, ect->Text, ect->TextLength);
 			return TRUE;
 		}
@@ -4733,7 +4733,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 			{
 				oldfar::EditorSetString *oldss = (oldfar::EditorSetString*) Param;
 				newss.StringNumber=oldss->StringNumber;
-				UINT CodePage=GetEditorCodePageA();
+				uintptr_t CodePage=GetEditorCodePageA();
 				newss.StringText=(oldss->StringText)?AnsiToUnicodeBin(oldss->StringText, oldss->StringLength,CodePage):nullptr;
 				newss.StringEOL=(oldss->StringEOL && *oldss->StringEOL)?AnsiToUnicode(oldss->StringEOL,CodePage):nullptr;
 				newss.StringLength=oldss->StringLength;
@@ -5736,9 +5736,11 @@ int PluginA::GetFindData(
 void PluginA::FreeFindData(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    size_t ItemsNumber
+    size_t ItemsNumber,
+    bool FreeUserData
 )
 {
+	if (FreeUserData) FreePluginPanelItemsUserData(hPlugin,PanelItem,ItemsNumber);
 	FreeUnicodePanelItem(PanelItem, ItemsNumber);
 
 	if (Exports[iFreeFindData] && !ProcessException && pFDPanelItemA)

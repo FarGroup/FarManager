@@ -52,6 +52,8 @@ void FreePluginPanelItem(
     PluginPanelItem *pData
 );
 
+void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
+
 WINDOWINFO_TYPE ModalType2WType(const int fType);
 
 class SetAutocomplete:NonCopyable

@@ -160,7 +160,7 @@ public:
 	virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData);
 	virtual void FreeCustomData(wchar_t *CustomData);
 	virtual void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
-	virtual void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber);
+	virtual void FreeFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, bool FreeUserData);
 	virtual void FreeVirtualFindData(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber);
 	virtual void ClosePanel(HANDLE hPlugin);
 	virtual int ProcessEditorInput(const INPUT_RECORD *D);

@@ -64,7 +64,7 @@ void UnicodeString::Inflate(size_t nSize)
 	}
 }
 
-size_t UnicodeString::GetCharString(char *lpszStr, size_t nSize, UINT CodePage) const
+size_t UnicodeString::GetCharString(char *lpszStr, size_t nSize, uintptr_t CodePage) const
 {
 	if (!lpszStr)
 		return 0;
@@ -135,7 +135,7 @@ UnicodeString& UnicodeString::Replace(size_t Pos, size_t Len, const wchar_t* Dat
 	return *this;
 }
 
-UnicodeString& UnicodeString::Append(const char *lpszAdd, UINT CodePage)
+UnicodeString& UnicodeString::Append(const char *lpszAdd, uintptr_t CodePage)
 {
 	if (lpszAdd && *lpszAdd)
 	{
@@ -161,7 +161,7 @@ UnicodeString& UnicodeString::Copy(const UnicodeString &Str)
 	return *this;
 }
 
-UnicodeString& UnicodeString::Copy(const char *lpszData, UINT CodePage)
+UnicodeString& UnicodeString::Copy(const char *lpszData, uintptr_t CodePage)
 {
 	m_pData->DecRef();
 

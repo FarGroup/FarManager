@@ -46,6 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "message.hpp"
 #include "dirmix.hpp"
 #include "strmix.hpp"
+#include "mix.hpp"
 #include "FarGuid.hpp"
 
 typedef void   (WINAPI *iClosePanelPrototype)          (const ClosePanelInfo *Info);
@@ -1404,7 +1405,8 @@ int Plugin::GetFindData(
 void Plugin::FreeFindData(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    size_t ItemsNumber
+    size_t ItemsNumber,
+    bool FreeUserData
 )
 {
 	if (Exports[iFreeFindData] && !ProcessException)
@@ -1415,6 +1417,7 @@ void Plugin::FreeFindData(
 		Info.hPanel = hPlugin;
 		Info.PanelItem = PanelItem;
 		Info.ItemsNumber = ItemsNumber;
+		if (FreeUserData) FreePluginPanelItemsUserData(hPlugin,PanelItem,ItemsNumber);
 		EXECUTE_FUNCTION(FUNCTION(iFreeFindData)(&Info), es);
 	}
 }

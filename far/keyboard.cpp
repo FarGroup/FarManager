@@ -641,7 +641,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		if (CtrlObject)
 		{
 			ProcessConsoleInputInfo Info={sizeof(Info),PCIF_NONE,*rec};
-			//Info.hPanel
+
 			if (WaitInMainLoop)
 				Info.Flags|=PCIF_FROMMAIN;
 			switch (CtrlObject->Plugins->ProcessConsoleInput(&Info))

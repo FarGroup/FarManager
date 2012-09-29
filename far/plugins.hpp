@@ -274,7 +274,7 @@ class PluginManager
 		void ClosePanel(HANDLE hPlugin);
 		void GetOpenPanelInfo(HANDLE hPlugin, OpenPanelInfo *Info);
 		int GetFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,int Silent);
-		void FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
+		void FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
 		int GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const wchar_t *Path);
 		void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
 		int SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode);

@@ -97,7 +97,7 @@ class FileEditor : public Frame
 		virtual BOOL IsFileModified() const { return m_editor->IsFileModified(); };
 		virtual int GetTypeAndName(string &strType, string &strName);
 		intptr_t EditorControl(int Command, intptr_t Param1, void *Param2);
-		bool SetCodePage(UINT codepage);  //BUGBUG
+		bool SetCodePage(uintptr_t codepage);  //BUGBUG
 		BOOL IsFileChanged() const { return m_editor->IsFileChanged(); };
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 		void GetEditorOptions(EditorOptions& EdOpt);
@@ -160,7 +160,7 @@ class FileEditor : public Frame
 		virtual void ResizeConsole();
 		int LoadFile(const string& Name, int &UserBreak);
 		//TextFormat, Codepage и AddSignature используются ТОЛЬКО, если bSaveAs = true!
-		int SaveFile(const string& Name, int Ask, bool bSaveAs, int TextFormat = 0, UINT Codepage = CP_UNICODE, bool AddSignature=false);
+		int SaveFile(const string& Name, int Ask, bool bSaveAs, int TextFormat = 0, uintptr_t Codepage = CP_UNICODE, bool AddSignature=false);
 		void SetTitle(const string* Title);
 		virtual string &GetTitle(string &Title,int SubLen=-1,int TruncSize=0);
 		BOOL SetFileName(const string& NewFileName);

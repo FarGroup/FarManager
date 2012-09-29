@@ -125,7 +125,7 @@ Edit::~Edit()
 }
 
 
-DWORD Edit::SetCodePage( UINT codepage, bool check_only, char * &decoded, int &bsize )
+DWORD Edit::SetCodePage(uintptr_t codepage, bool check_only, char * &decoded, int &bsize)
 {
 	DWORD Ret = SETCP_NOERROR;
 	if (codepage == m_codepage)
@@ -194,7 +194,7 @@ DWORD Edit::SetCodePage( UINT codepage, bool check_only, char * &decoded, int &b
 }
 
 
-UINT Edit::GetCodePage()
+uintptr_t Edit::GetCodePage()
 {
 	return m_codepage;
 }
@@ -377,9 +377,20 @@ void Edit::FastShow()
 		wchar_t *p=OutStrTmp;
 		wchar_t *e=OutStrTmp+OutStrLength;
 
+		wchar_t *TrailingSpaces = e - 1;
+		if (Flags.Check(FEDITLINE_PARENT_SINGLELINE|FEDITLINE_PARENT_MULTILINE) && (e > p))
+		{
+			while(IsSpace(*TrailingSpaces))
+				TrailingSpaces--;
+		}
+		else
+		{
+			TrailingSpaces = nullptr;
+		}
+
 		for (OutStrLength=0; OutStrLength<EditLength && p<e; p++)
 		{
-			if (Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE))
+			if ((Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE)) || (TrailingSpaces && p > TrailingSpaces))
 			{
 				if (*p==L' ') // *p==L'\xA0' ==> NO-BREAK SPACE
 				{
@@ -390,7 +401,7 @@ void Edit::FastShow()
 			if (*p == L'\t')
 			{
 				int S=TabSize-((UnfixedLeftPos+OutStrLength) % TabSize);
-				OutStr[OutStrLength]=(Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE) && (OutStrLength || S==TabSize))?L'\x2192':L' ';
+				OutStr[OutStrLength]=(((Flags.Check(FEDITLINE_SHOWWHITESPACE) && Flags.Check(FEDITLINE_EDITORMODE)) || (TrailingSpaces && p > TrailingSpaces)) && (OutStrLength || S==TabSize))?L'\x2192':L' ';
 				OutStrLength++;
 				for (int i=1; i<S && OutStrLength<EditLength; i++,OutStrLength++)
 				{

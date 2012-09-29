@@ -91,7 +91,7 @@ intptr_t WINAPI hndOpenEditor(HANDLE hDlg, intptr_t msg, intptr_t param1, void* 
 {
 	if (msg == DN_INITDIALOG)
 	{
-		int codepage = *(uintptr_t*)param2;
+		uintptr_t codepage = *(uintptr_t*)param2;
 		FillCodePagesList(hDlg, ID_OE_CODEPAGE, codepage, true, false, true, true);
 	}
 
@@ -102,8 +102,7 @@ intptr_t WINAPI hndOpenEditor(HANDLE hDlg, intptr_t msg, intptr_t param1, void* 
 			uintptr_t* param = (uintptr_t*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
 			FarListPos pos={sizeof(FarListPos)};
 			SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
-			UINT codepage = *(UINT*)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
-			*param = static_cast<uintptr_t>(static_cast<intptr_t>(static_cast<INT>(codepage))); // really ugly
+			*param = *(uintptr_t*)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
 			return TRUE;
 		}
 	}
@@ -167,7 +166,7 @@ enum enumSaveFileAs
 
 intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, intptr_t msg, intptr_t param1, void* param2)
 {
-	static UINT codepage=0;
+	static uintptr_t codepage=0;
 
 	switch (msg)
 	{
@@ -239,7 +238,7 @@ intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, intptr_t msg, intptr_t param1, void* 
 
 
 
-bool dlgSaveFileAs(string &strFileName, int &TextFormat, UINT &codepage,bool &AddSignature)
+bool dlgSaveFileAs(string &strFileName, int &TextFormat, uintptr_t &codepage,bool &AddSignature)
 {
 	const wchar_t *HistoryName=L"NewEdit";
 	FarDialogItem EditDlgData[]=
@@ -1053,7 +1052,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					}
 
 					static int TextFormat=0;
-					UINT codepage = m_codepage;
+					uintptr_t codepage = m_codepage;
 					bool SaveAs = Key==KEY_SHIFTF2 || Flags.Check(FFILEEDIT_SAVETOSAVEAS);
 					int NameChanged=FALSE;
 					string strFullSaveAsName = strFullFileName;
@@ -1670,7 +1669,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 //TextFormat и Codepage используются ТОЛЬКО, если bSaveAs = true!
 
-int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextFormat, UINT codepage, bool AddSignature)
+int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextFormat, uintptr_t codepage, bool AddSignature)
 {
 	if (!bSaveAs)
 	{
@@ -2605,7 +2604,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			string strName = strFullFileName;
 			int EOL=0;
-			UINT codepage=m_codepage;
+			uintptr_t codepage=m_codepage;
 
 			EditorSaveFile *esf=(EditorSaveFile *)Param2;
 			if (CheckStructSize(esf))
@@ -2800,7 +2799,7 @@ void FileEditor::SaveToCache()
 	}
 }
 
-bool FileEditor::SetCodePage(UINT codepage)
+bool FileEditor::SetCodePage(uintptr_t codepage)
 {
 	if (codepage == m_codepage || !m_editor)
 		return false;

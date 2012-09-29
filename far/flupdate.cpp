@@ -824,7 +824,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		ReadDiz(PanelData,static_cast<int>(PluginFileCount),RDF_NO_UPDATE);
 
 	CorrectPosition();
-	CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,PluginFileCount);
+	CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,PluginFileCount,false);
 
 	string strLastSel, strGetSel;
 
@@ -931,7 +931,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 			/* $ 25.02.2001 VVM
 			    + Обработка флага RDF_NO_UPDATE */
 			if (!ItemList && !(dwFlags & RDF_NO_UPDATE))
-				CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,PluginFileCount);
+				CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,PluginFileCount,true);
 		}
 	}
 
