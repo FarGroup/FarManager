@@ -2,7 +2,7 @@
 !include ../make_vc_defs
 !endif
 
-NAME=luamacro
+NAME=LuaMacro
 USERCPP=/Iluasdk/include /DEXPORT_OPEN
 LUALIB=$(OUTDIR)\luafar3.lib
 
