@@ -2442,11 +2442,12 @@ void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& 
 	itd.SetLastFoundNumber(LF);
 }
 
-void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const PluginPanelItem& FindData)
+void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, PluginPanelItem& FindData)
 {
 	FAR_FIND_DATA_EX fdata;
 	PluginPanelItemToFindDataEx(&FindData, &fdata);
 	AddMenuRecord(hDlg,FullName, fdata, FindData.UserData.Data, FindData.UserData.FreeData);
+	FindData.UserData.FreeData = nullptr; //передано в FINDLIST
 }
 
 void DoPreparePluginList(HANDLE hDlg, bool Internal);
@@ -2771,7 +2772,7 @@ void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel
 		}
 	}
 
-	CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,ItemCount,false);
+	CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,ItemCount,true);
 	RecurseLevel--;
 }
 
