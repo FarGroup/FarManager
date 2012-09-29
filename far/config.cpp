@@ -1513,7 +1513,7 @@ inline const wchar_t* TypeToText(GeneralConfig::OptionType Type)
 void FillListItem(FarListItem& Item, FormatString& fs, FARConfig& cfg)
 {
 	Item.Flags = 0;
-	Item.Reserved[0] = Item.Reserved[1] = Item.Reserved[2] = 0;
+	Item.Reserved[0] = Item.Reserved[1] = 0;
 	fs.Clear();
 	fs << fmt::ExactWidth(42) << fmt::LeftAlign() << (string(cfg.KeyName) + "." + cfg.ValName) << BoxSymbols[BS_V1]
 	<< fmt::ExactWidth(7) << fmt::LeftAlign() << TypeToText(cfg.ValueType) << BoxSymbols[BS_V1];
