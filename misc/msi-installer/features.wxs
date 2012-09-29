@@ -475,8 +475,8 @@
             <ComponentRef Id="luafar3.map" />
           </Feature>
 <?endif?>
-          <Feature Id="Network.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
-            <ComponentRef Id="changelog_18" />
+          <Feature Id="LuaMacro.Changelogs" Level="1" Display="hidden" AllowAdvertise="no">
+            <ComponentRef Id="changelog_19" />
           </Feature>
         </Feature>
         <Feature Id="Network" Level="1" Title="!(loc.Feature.Title.Network)" AllowAdvertise="no" Description="!(loc.Feature.Description.Network)">

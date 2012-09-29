@@ -793,8 +793,8 @@
           </Component>
         </Directory>
         <Directory Id="LuaMacro" Name="LuaMacro">
-          <Component Id="changelog_18" Guid="$(var.Guid.changelog_18)" Win64="$(var.Win64)">
-            <File Id="changelog_18" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\changelog" />
+          <Component Id="changelog_19" Guid="$(var.Guid.changelog_19)" Win64="$(var.Win64)">
+            <File Id="changelog_19" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\changelog" />
           </Component>
           <Component Id="luamacro.dll" Guid="$(var.Guid.luamacro.dll)" Win64="$(var.Win64)">
             <File Id="LuaMacro.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\LuaMacro.dll" />

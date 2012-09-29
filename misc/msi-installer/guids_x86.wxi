@@ -280,7 +280,7 @@
 <?define Guid.TmpRus.lng = "E04434AE-974D-4A2D-AA91-E9335707DFCB" ?>
 <?define Guid.LuaMacro.dll = "20F4BF54-B420-4244-80E2-A9EC3BD93219" ?>
 <?define Guid.LuaMacro.map = "9A2FEF00-8B32-4F23-9EE8-EED8F7B23C52" ?>
-<?define Guid.changelog_18 = "EECDF9EE-A340-4364-9836-01C40BECA02F" ?>
+<?define Guid.changelog_19 = "EECDF9EE-A340-4364-9836-01C40BECA02F" ?>
 <?define Guid._globalinfo.lua = "DE8790D3-A911-411F-BF2F-B834172FDC6F" ?>
 <?define Guid.api.lua = "56E324B9-84A0-4177-9B53-2E0251154C05" ?>
 <?define Guid.luamacro.lua = "76D8C653-D9EC-4728-8566-DA40017AE811" ?>
