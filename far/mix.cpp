@@ -161,6 +161,18 @@ void FreePluginPanelItem(PluginPanelItem *pData)
 	xf_free(pData->AlternateFileName);
 }
 
+void FreePluginPanelItemsUserData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber)
+{
+	for(size_t ii=0;ii<ItemsNumber;++ii)
+	{
+		if (PanelItem[ii].UserData.FreeData)
+		{
+			FarPanelItemFreeInfo info={sizeof(FarPanelItemFreeInfo),hPlugin};
+			PanelItem[ii].UserData.FreeData(PanelItem[ii].UserData.Data,&info);
+		}
+	}
+}
+
 WINDOWINFO_TYPE ModalType2WType(const int fType)
 {
 	static int WiTypes[]={

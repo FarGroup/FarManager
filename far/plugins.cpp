@@ -1147,11 +1147,12 @@ int PluginManager::GetFindData(
 void PluginManager::FreeFindData(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    size_t ItemsNumber
+    size_t ItemsNumber,
+    bool FreeUserData
 )
 {
 	PluginHandle *ph = (PluginHandle *)hPlugin;
-	ph->pPlugin->FreeFindData(ph->hPlugin, PanelItem, ItemsNumber);
+	ph->pPlugin->FreeFindData(ph->hPlugin, PanelItem, ItemsNumber, FreeUserData);
 }
 
 

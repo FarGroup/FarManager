@@ -5694,9 +5694,11 @@ int PluginA::GetFindData(
 void PluginA::FreeFindData(
     HANDLE hPlugin,
     PluginPanelItem *PanelItem,
-    size_t ItemsNumber
+    size_t ItemsNumber,
+    bool FreeUserData
 )
 {
+	if (FreeUserData) FreePluginPanelItemsUserData(hPlugin,PanelItem,ItemsNumber);
 	FreeUnicodePanelItem(PanelItem, ItemsNumber);
 
 	if (Exports[iFreeFindData] && !ProcessException && pFDPanelItemA)
