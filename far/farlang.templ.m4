@@ -3887,7 +3887,7 @@ MCopySkipOvr
 "Pres&kočiť"
 
 MCopyAppend
-"&Дописать"
+"&Добавить"
 "A&ppend"
 "Př&ipojit"
 "&Anhängen"

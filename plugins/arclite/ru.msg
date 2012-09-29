@@ -105,10 +105,10 @@ overwrite.dlg.source = Источник:
 overwrite.dlg.destination = Цель:
 overwrite.dlg.newer = (более новый)
 overwrite.dlg.all = &Запомнить выбор
-overwrite.dlg.overwrite = П&ерезаписать
-overwrite.dlg.skip = П&ропустить
-overwrite.dlg.rename = Переи&меновать
-overwrite.dlg.append = До&бавить
+overwrite.dlg.overwrite = За&менить
+overwrite.dlg.skip = &Пропустить
+overwrite.dlg.rename = Пере&именовать
+overwrite.dlg.append = &Добавить
 
 # Error retry dialog
 button.retry = &Повтор

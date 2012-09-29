@@ -104,11 +104,11 @@ overwrite.dlg.question = Destination file already exists. Overwrite?
 overwrite.dlg.source = Source:
 overwrite.dlg.destination = Destination:
 overwrite.dlg.newer = (newer)
-overwrite.dlg.all = R&emember choice
+overwrite.dlg.all = &Remember choice
 overwrite.dlg.overwrite = &Overwrite
 overwrite.dlg.skip = &Skip
-overwrite.dlg.rename = &Rename
-overwrite.dlg.append = &Append
+overwrite.dlg.rename = R&ename
+overwrite.dlg.append = A&ppend
 
 # Error retry dialog
 button.retry = &Retry
