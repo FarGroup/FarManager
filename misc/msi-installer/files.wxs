@@ -796,7 +796,7 @@
           <Component Id="changelog_19" Guid="$(var.Guid.changelog_19)" Win64="$(var.Win64)">
             <File Id="changelog_19" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\changelog" />
           </Component>
-          <Component Id="luamacro.dll" Guid="$(var.Guid.luamacro.dll)" Win64="$(var.Win64)">
+          <Component Id="LuaMacro.dll" Guid="$(var.Guid.LuaMacro.dll)" Win64="$(var.Win64)">
             <File Id="LuaMacro.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\LuaMacro.dll" />
           </Component>
           <Component Id="_globalinfo.lua" Guid="$(var.Guid._globalinfo.lua)" Win64="$(var.Win64)">
@@ -819,7 +819,7 @@
           </Component>
 <?if $(var.Platform) = x86 ?>
           <Component Id="LuaMacro.map" Guid="$(var.Guid.LuaMacro.map)" Win64="$(var.Win64)">
-            <File Id="LuaMacro.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\.map" />
+            <File Id="LuaMacro.map" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\LuaMacro.map" />
           </Component>
           <Component Id="luafar3.map" Guid="$(var.Guid.luafar3.map)" Win64="$(var.Win64)">
             <File Id="luafar3.map" KeyPath="yes" Source="$(var.SourceDir)\luafar3.map" />
