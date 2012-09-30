@@ -1,6 +1,4 @@
-!if exists(../make_vc_defs)
-!include ../make_vc_defs
-!endif
+!include ../makefile_vc_base
 
 NAME = EMenu
 LINK_OBJS = $(OBJDIR)\EMenu.obj \
@@ -11,7 +9,7 @@ $(OBJDIR)\OleThread.obj \
 $(OBJDIR)\Pidl.obj \
 $(OBJDIR)\Plugin.obj
 
-!if !defined(AMD64) && "$(CPU)" != "AMD64"
+!if "$(BUILD_PLATFORM)" =="X86"
 !ifndef ULINK
 LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
 !else

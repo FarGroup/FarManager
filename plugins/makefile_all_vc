@@ -21,18 +21,6 @@
 ALLDIRS = align arclite autowrap brackets compare drawline editcase emenu farcmds \
           filecase hlfviewer luamacro network proclist tmppanel ftp multiarc
 
-!if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "x64"
-!undef AMD64
-!undef CPU
-AMD64=1
-CPU=AMD64
-!elseif defined(IA64) || "$(CPU)" == "IA64" || "$(PLATFORM)" == "Itanium"
-!undef IA64
-!undef CPU
-IA64=1
-CPU=IA64
-!endif
-
 #############################################################################
 !if exists(make_vc_defs)
 !include make_vc_defs
@@ -83,9 +71,9 @@ _ODN_=final
 !else
 _ODN_=debug
 !endif
-!ifdef AMD64
+!if "$(BUILD_PLATFORM)" == "AMD64"
 _ODB_=64
-!elseif defined(IA64)
+!elseif "$(BUILD_PLATFORM)" == "IA64"
 _ODB_=IA64
 !else
 _ODB_=32

@@ -1,3 +1,5 @@
+!include ../../makefile_vc_base
+
 build:
   $(CPP) -nologo -EHsc -O2 -I.. -DUNICODE -Fotool user32.lib advapi32.lib ole32.lib main.cpp
   del /q *.obj

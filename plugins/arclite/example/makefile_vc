@@ -1,3 +1,5 @@
+!include ../../makefile_vc_base
+
 !include project.ini
 
 TOOLSDIR = ..\tools
@@ -8,12 +10,12 @@ LINKFLAGS = -nologo -incremental:no -map -manifest:no -dynamicbase -nxcompat -la
 RCFLAGS = -nologo
 ASFLAGS = -nologo -c
 
-!if "$(CPU)" == "AMD64" || "$(PLATFORM)" == "x64"
+!if "$(BUILD_PLATFORM)" == "AMD64"
 BITS = 64
 RCFLAGS = $(RCFLAGS) -Dx64
 !else
 BITS = 32
-LINKFLAGS = $(LINKFLAGS) -safeseh -subsystem:windows,5.00 -osversion:5.00
+LINKFLAGS = $(LINKFLAGS) -safeseh $(SUBSYSTEM)
 ASFLAGS = $(ASFLAGS) -safeseh
 !endif
 

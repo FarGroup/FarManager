@@ -1,6 +1,4 @@
-!if exists(../make_vc_defs)
-!include ../make_vc_defs
-!endif
+!include ../makefile_vc_base
 
 ANSI = 1
 USERCPP = /D WIN32 /D PCRE_STATIC /D _WIN32

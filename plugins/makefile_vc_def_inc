@@ -58,32 +58,6 @@
 #NO_RELEASE_PDB - set to disable pdb generation for release
 #
 
-!if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "x64"
-!undef AMD64
-!undef CPU
-AMD64=1
-CPU=AMD64
-!elseif defined(IA64) || "$(CPU)" == "IA64" || "$(PLATFORM)" == "Itanium"
-!undef IA64
-!undef CPU
-IA64=1
-CPU=IA64
-!endif
-
-!if !defined(VC) && defined(_NMAKE_VER)
-
-!if "$(_NMAKE_VER)">"9"
-VC=9
-!elseif "$(_NMAKE_VER)">"8"
-VC=8
-!elseif "$(_NMAKE_VER)">"10"
-VC=10
-!else
-#default
-VC=9
-!endif
-!endif
-
 !ifndef RC_NAME
 RC_NAME=$(NAME)
 !endif
@@ -102,13 +76,6 @@ DIRNAME=debug
 DIRSUFF = W
 !endif
 
-!ifdef AMD64
-DIRBIT = 64
-!elseif defined(IA64)
-DIRBIT = IA64
-!else
-DIRBIT = 32
-!endif
 WORKDIR = $(DIRNAME).$(DIRBIT)$(DIRSUFF).vc
 !ifdef INSTALL
 OUTDIR=$(INSTALL)
@@ -202,7 +169,7 @@ NOENTRY = /noentry
 NODEFLIB = /nodefaultlib
 !endif
 
-!if !defined(CPU)
+!if "$(PLATFORM)" == "X86" && $(VC) < 11
 SUBSYSTEM=/subsystem:windows,5.0
 !endif
 LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) $(DEFOPT) /map:"$(MAP)" /out:"$(DLLFULLNAME)"

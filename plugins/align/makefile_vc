@@ -1,6 +1,4 @@
-!if exists(../make_vc_defs)
-!include ../make_vc_defs
-!endif
+!include ../makefile_vc_base
 
 NAME = Align
 LINK_OBJS = $(OBJDIR)\Align.obj
