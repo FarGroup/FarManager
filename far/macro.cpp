@@ -2999,7 +2999,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
 				Ret=CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
-				PassNumber(Ret,Data);
+				PassBoolean(Ret!=0,Data);
 
 				if (Ret)
 				{
@@ -3014,7 +3014,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			}
 			else
 			{
-				PassNumber(Ret,Data);
+				PassBoolean(0,Data);
 			}
 
 			// По аналогии с KEY_F11
@@ -3025,6 +3025,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				goto return_func;
 
 			goto begin;
+#else
+			return 0;
 #endif
 		}
 
