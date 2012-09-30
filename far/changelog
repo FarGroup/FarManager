@@ -1,3 +1,7 @@
+zg 30.09.2012 03:41:42 +0200 - build 2852
+
+1. убраны FAR_LUA из plugin.hpp.
+
 zg 30.09.2012 03:26:20 +0200 - build 2851
 
 1. слияние с проектом Spring (https://github.com/shmuz/Spring).

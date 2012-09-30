@@ -1211,9 +1211,7 @@ enum FARMACROVARTYPE
 	FMVT_INTEGER                = 1,
 	FMVT_STRING                 = 2,
 	FMVT_DOUBLE                 = 3,
-#ifdef FAR_LUA
 	FMVT_BOOLEAN                = 4,
-#endif
 };
 
 struct FarMacroValue
@@ -1231,7 +1229,6 @@ struct FarMacroValue
 	;
 };
 
-#ifdef FAR_LUA
 enum MACROPLUGINRETURNTYPE
 {
 	MPRT_NORMALFINISH = 0,
@@ -1255,7 +1252,6 @@ struct FarMacroCall
 	void (_cdecl *Callback)(void *CallbackData, struct FarMacroValue *Value);
 	void *CallbackData;
 };
-#endif
 
 #ifdef FAR_USE_INTERNALS
 #if defined(MANTIS_0000466)
@@ -2347,7 +2343,6 @@ struct ArclitePrivateInfo
 	FARAPICREATEDIRECTORY CreateDirectory;
 };
 
-#ifdef FAR_LUA
 typedef intptr_t (WINAPI *FARAPICALLFAR)(intptr_t CheckCode, struct FarMacroCall* Data);
 
 struct MacroPrivateInfo
@@ -2355,7 +2350,6 @@ struct MacroPrivateInfo
 	size_t StructSize;
 	FARAPICALLFAR CallFar;
 };
-#endif
 
 typedef unsigned __int64 PLUGIN_FLAGS;
 static const PLUGIN_FLAGS
@@ -2596,12 +2590,9 @@ enum OPENFROM
 	OPEN_ANALYSE            = 9,
 	OPEN_RIGHTDISKMENU      = 10,
 	OPEN_FROMMACRO          = 11,
-#ifdef FAR_LUA
 	OPEN_LUAMACRO           = 100,
-#endif
 };
 
-#ifdef FAR_LUA
 enum MACROCALLTYPE
 {
 	MCT_MACROINIT          = 0,
@@ -2609,7 +2600,6 @@ enum MACROCALLTYPE
 	MCT_MACROFINAL         = 2,
 	MCT_MACROPARSE         = 3,
 };
-#endif
 
 #ifdef FAR_USE_INTERNALS
 enum FAR_PKF_FLAGS
