@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <ctype.h>
 #include <math.h>
-#include <farversion.hpp>
+#include "version.h"
 #include "luafar.h"
 #include "util.h"
 #include "ustring.h"
@@ -302,9 +302,9 @@ static int far_GetNumberOfLinks (lua_State *L)
 static int far_LuafarVersion (lua_State *L)
 {
   if (lua_toboolean(L, 1)) {
-    lua_pushinteger(L, FAR_MAJOR_VER);
-    lua_pushinteger(L, FAR_MINOR_VER);
-    lua_pushinteger(L, FAR_BUILD);
+    lua_pushinteger(L, PLUGIN_MAJOR_VER);
+    lua_pushinteger(L, PLUGIN_MINOR_VER);
+    lua_pushinteger(L, PLUGIN_BUILD);
     return 3;
   }
   lua_pushliteral(L, FARPRODUCTVERSION);
