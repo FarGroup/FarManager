@@ -3,6 +3,86 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 30.09.2012 13:50:00 +0200 - build 2853
+
+1. Issue#13: Plugin.Menu waits for menu close instead of returning immediately after menu show.
+
+zg 30.09.2012 03:41:42 +0200 - build 2852
+
+1. FAR_LUA is removed from plugin.hpp.
+
+zg 30.09.2012 03:26:20 +0200 - build 2851
+
+1. Spring project merged (https://github.com/shmuz/Spring).
+   thereby Lua 5.1 is used instead of macro language (http://www.lua.org).
+   all macros are broken.
+
+drkns 29.09.2012 15:20:18 +0200 - build 2850
+
+1. Correction of 2844 for fields with input mask.
+
+2. far:config crash after changes in api.
+
+3. Projects for vs 2012.
+
+zg 29.09.2012 13:35:44 +0200 - build 2849
+
+1. correction of 2848: UserData.Data was not freed for elements which did not match search criterions.
+
+zg 29.09.2012 03:30:26 +0200 - build 2848
+
+1. correction of 2807.1: freeing UserData.Data in search and some other places.
+
+drkns 29.09.2012 00:47:40 +0200 - build 2847
+
+1. Finishing (I hope) this codepage related stuff. For the future, I'd appreciate proper fixes instead of monkey patching.
+
+w17 28.09.2012 08:45:42 +0400 - build 2846
+
+1. M#2157: Alt-F7: file content search gives no result on fresh 64-bit versions (aka 2838 continue)
+
+w17 28.09.2012 08:09:25 +0400 - build 2845
+
+1. GETTEXT returned L"\0"; instead of empty string
+
+drkns 27.09.2012 22:45:22 +0200 - build 2844
+
+1. Highlight text in dialog text field ending with spaces or tabulations.
+
+drkns 27.09.2012 19:13:43 +0200 - build 2843
+
+1. HANDLE hPanel removed from ProcessConsoleInputInfo.
+
+w17 27.09.2012 11:58:13 +0400 - build 2842
+
+1. M#2156: Shift-F4: file contents lost on save (aka 2838 continue)
+
+w17 26.09.2012 10:49:55 +0400 - build 2841
+
+1. another excessive one
+
+w17 26.09.2012 10:14:11 +0400 - build 2840
+
+1. wrong fix for a 'typo', rolling back
+
+w17 26.09.2012 10:00:52 +0400 - build 2839
+
+1. -typos in dialog.cpp (thnx sonar)
+
+w17 25.09.2012 19:48:01 +0400 - build 2838
+
+1. x64 Editor fix
+
+svs 24.09.2012 11:32:50 +0400 - build 2837
+
+1. Mantis#0001687: ProcessConsoleInput
+   Open.
+   Bugs go to new tickets.
+
+w17 24.09.2012 10:52:12 +0400 - build 2836
+
+1. Debug build fix
+
 zg 23.09.2012 21:22:44 +0200 - build 2835
 
 1. ACTL_EJECTMEDIA is removed.
@@ -1696,8 +1776,8 @@ svs 17.03.2012 15:17:38 +0400 - build 2553
 
 1. Since Mantis#1840, global variables and constants are written to DB.
    Global variables must get to the "storage" in 2 ways only:
-    à) via farconfig file
-    á) via msave() macrofunction.
+    a) via farconfig file
+    b) via msave() macrofunction.
 
    http://forum.farmanager.com/viewtopic.php?p=89561#p89561 ï.1
 
