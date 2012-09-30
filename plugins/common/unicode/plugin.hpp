@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2842
+  Plugin API for Far Manager 3.0 build 2852
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2842
+#define FARMANAGERVERSION_BUILD 2852
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1089,6 +1089,7 @@ enum FARMACROVARTYPE
 	FMVT_INTEGER                = 1,
 	FMVT_STRING                 = 2,
 	FMVT_DOUBLE                 = 3,
+	FMVT_BOOLEAN                = 4,
 };
 
 struct FarMacroValue
@@ -1104,6 +1105,30 @@ struct FarMacroValue
 	Value
 #endif
 	;
+};
+
+enum MACROPLUGINRETURNTYPE
+{
+	MPRT_NORMALFINISH = 0,
+	MPRT_ERRORFINISH  = 1,
+	MPRT_KEYS         = 2,
+	MPRT_PRINT        = 3,
+	MPRT_PLUGINCALL   = 4,
+};
+
+struct MacroPluginReturn
+{
+	struct FarMacroValue *Args;
+	int ArgNum;
+	enum MACROPLUGINRETURNTYPE ReturnType;
+};
+
+struct FarMacroCall
+{
+	struct FarMacroValue *Args;
+	int ArgNum;
+	void (_cdecl *Callback)(void *CallbackData, struct FarMacroValue *Value);
+	void *CallbackData;
 };
 
 
@@ -2114,6 +2139,14 @@ struct ArclitePrivateInfo
 	FARAPICREATEDIRECTORY CreateDirectory;
 };
 
+typedef intptr_t (WINAPI *FARAPICALLFAR)(intptr_t CheckCode, struct FarMacroCall* Data);
+
+struct MacroPrivateInfo
+{
+	size_t StructSize;
+	FARAPICALLFAR CallFar;
+};
+
 typedef unsigned __int64 PLUGIN_FLAGS;
 static const PLUGIN_FLAGS
 	PF_PRELOAD        = 0x0000000000000001ULL,
@@ -2348,6 +2381,15 @@ enum OPENFROM
 	OPEN_ANALYSE            = 9,
 	OPEN_RIGHTDISKMENU      = 10,
 	OPEN_FROMMACRO          = 11,
+	OPEN_LUAMACRO           = 100,
+};
+
+enum MACROCALLTYPE
+{
+	MCT_MACROINIT          = 0,
+	MCT_MACROSTEP          = 1,
+	MCT_MACROFINAL         = 2,
+	MCT_MACROPARSE         = 3,
 };
 
 
