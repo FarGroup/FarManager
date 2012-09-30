@@ -1,6 +1,4 @@
-!if exists(..\..\..\plugins\make_vc_defs)
-!include ..\..\..\plugins\make_vc_defs
-!endif
+!include ../../../plugins/makefile_vc_base
 
 ANSI = 1
 

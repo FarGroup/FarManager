@@ -1,15 +1,11 @@
-!if exists(..\..\plugins\make_vc_defs)
-!include ..\..\plugins\make_vc_defs
-!endif
+!include ../../plugins/makefile_vc_base
 
 NAME = FExcept
-DOCS = SetFarExceptionHandler.farconfig
-!if defined(AMD64) || "$(CPU)" == "AMD64"
-DOCS = $(DOCS) demangle64.dll
+DOCS = SetFarExceptionHandler.farconfig demangle$(DIRBIT).dll
 LINK_OBJS = $(OBJDIR)\FExcept.obj
-!else
-LINK_OBJS = $(OBJDIR)\FExcept.obj $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
-DOCS = $(DOCS) demangle32.dll
+
+!if "$(BUILD_PLATFORM)" == "X86"
+LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
 !endif
 
 NEEDENTRY = 1
