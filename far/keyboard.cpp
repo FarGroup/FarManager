@@ -1744,6 +1744,13 @@ int KeyNameToKey(const wchar_t *Name)
 	return (!Key || Pos < Len)? -1: (int)Key;
 }
 
+#ifdef FAR_LUA
+bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText)
+{
+	return KeyToText(InputRecordToKey(Rec),strKeyText) != 0;
+}
+#endif
+
 BOOL KeyToText(int Key0, string &strKeyText0)
 {
 	string strKeyText;

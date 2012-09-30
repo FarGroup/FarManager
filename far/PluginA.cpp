@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "colormix.hpp"
 #include "FarGuid.hpp"
+#include "keys.hpp"
 
 namespace wrapper
 {
@@ -3840,9 +3841,11 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 
 intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_COMMANDS Command, void *Param)
 {
+#ifndef FAR_LUA
 	static char *ErrMsg1 = nullptr;
 	static char *ErrMsg2 = nullptr;
 	static char *ErrMsg3 = nullptr;
+#endif
 
 	switch (Command)
 	{
@@ -3985,6 +3988,11 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 					{
 						case MSSC_CHECK:
 						{
+#ifdef FAR_LUA
+							kmA->MacroResult.ErrMsg1 = "";
+							kmA->MacroResult.ErrMsg2 = "";
+							kmA->MacroResult.ErrMsg3 = "";
+#else
 							if (ErrMsg1) xf_free(ErrMsg1);
 
 							if (ErrMsg2) xf_free(ErrMsg2);
@@ -4003,6 +4011,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 								xf_free((void*)mtW.SequenceText);
 
 							break;
+#endif
 						}
 
 						case MSSC_POST:
@@ -4019,6 +4028,38 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 		}
 		case oldfar::ACTL_POSTKEYSEQUENCE:
 		{
+#ifdef FAR_LUA
+			if (!Param)
+				return FALSE;
+
+			oldfar::KeySequence *ksA = (oldfar::KeySequence*)Param;
+
+			if (!ksA->Count || !ksA->Sequence)
+				return FALSE;
+
+			MACROFLAGS_MFLAGS Flags=0;
+
+			if (ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT)
+			  Flags|=MFLAGS_DISABLEOUTPUT;
+
+			if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS)
+			  Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
+
+			string strSequence=L"Keys(\"";
+			string strKeyText;
+			for (int i=0; i<ksA->Count; i++)
+			{
+				if (KeyToText(OldKeyToKey(ksA->Sequence[i]), strKeyText))
+				{
+					strSequence += L" " + strKeyText;
+				}
+			}
+			strSequence += L"\")";
+
+			intptr_t ret = CtrlObject->Macro.PostNewMacro(strSequence, Flags);
+
+			return ret;
+#else
 			if (!Param)
 				return FALSE;
 
@@ -4052,6 +4093,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			xf_free(Sequence);
 
 			return ret;
+#endif
 		}
 		case oldfar::ACTL_GETSHORTWINDOWINFO:
 		case oldfar::ACTL_GETWINDOWINFO:

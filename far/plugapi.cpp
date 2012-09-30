@@ -679,6 +679,20 @@ static DWORD NormalizeControlKeys(DWORD Value)
 	return result;
 }
 
+#ifdef FAR_LUA
+class MenuLock
+{
+	private:
+		Frame* frame;
+	public:
+		MenuLock(bool enable) {
+			frame = enable ? FrameManager->GetBottomFrame():nullptr;
+			if (frame) frame->Lock();
+		}
+		~MenuLock() { if (frame) frame->Unlock(); }
+};
+#endif
+
 intptr_t WINAPI apiMenuFn(
     const GUID* PluginId,
     const GUID* Id,
@@ -779,6 +793,9 @@ intptr_t WINAPI apiMenuFn(
 		if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
 			FarMenu.AssignHighlights(TRUE);
 
+#ifdef FAR_LUA
+		MenuLock menuLock(CtrlObject->Macro.IsExecuting() != 0); //FIXME: dirty hack.
+#endif
 		FarMenu.SetTitle(Title);
 		FarMenu.Show();
 
@@ -2043,6 +2060,19 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				switch (Param1)
 				{
+#ifdef FAR_LUA
+					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
+					case MSSC_POST:
+					{
+						return Macro.PostNewMacro(PlainText->SequenceText,PlainText->Flags|MFLAGS_POSTFROMPLUGIN,InputRecordToKey(&PlainText->AKey));
+					}
+
+					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
+					case MSSC_CHECK:
+					{
+						return Macro.ParseMacroString(PlainText->SequenceText,(PlainText->Flags&KMFLAGS_SILENTCHECK)!=0);
+					}
+#else
 					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 					case MSSC_POST:
 					{
@@ -2069,6 +2099,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 						return Ret;
 					}
+#endif
 				}
 
 				break;
@@ -2119,6 +2150,10 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 				return Macro.DelMacro(*PluginId,Param2);
 			}
 
+#ifdef FAR_LUA
+			default: //FIXME
+				break;
+#else
 			//Param1=size of buffer, Param2 - MacroParseResult*
 			case MCTL_GETLASTERROR:
 			{
@@ -2145,6 +2180,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				return Size;
 			}
+#endif
 		}
 	}
 
@@ -2704,4 +2740,17 @@ BOOL WINAPI apiCreateDirectory(const wchar_t *PathName,LPSECURITY_ATTRIBUTES lpS
 {
 	return ::apiCreateDirectory(PathName,lpSecurityAttributes);
 }
+
+#ifdef FAR_LUA
+intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data)
+{
+	if (CtrlObject)
+	{
+		KeyMacro& Macro=CtrlObject->Macro;
+		return Macro.CallFar(CheckCode, Data);
+	}
+	return 0;
+}
+#endif
+
 };

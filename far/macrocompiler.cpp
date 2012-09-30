@@ -43,6 +43,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#ifdef FAR_LUA
+#else
+
 #include "macroopcode.hpp"
 #include "macrocompiler.hpp"
 #include "tvar.hpp"
@@ -2101,3 +2104,4 @@ void  __setMacroErrorCode(int ErrCode)
 {
 	_macro_ErrCode=ErrCode;
 }
+#endif

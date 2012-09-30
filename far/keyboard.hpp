@@ -77,6 +77,7 @@ int KeyToKeyLayout(int Key);
 DWORD IsMouseButtonPressed();
 int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *rec=nullptr);
 int KeyNameToKey(const wchar_t *Name);
+bool InputRecordToText(const INPUT_RECORD *Rec, string &strKeyText);
 BOOL KeyToText(int Key, string &strKeyText);
 int InputRecordToKey(const INPUT_RECORD *Rec);
 int KeyToInputRecord(int Key, INPUT_RECORD *Rec);

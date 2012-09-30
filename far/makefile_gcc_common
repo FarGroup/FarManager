@@ -56,7 +56,7 @@ M4 = $(strip $(call os_name, $(TOOLS_PREFIX)m4)) -P -DFARBIT=$(DIRBIT) -DHOSTTYP
 GAWK = $(strip $(call os_name, $(TOOLS_PREFIX)gawk))
 LGEN = $(WINE_CMD)$(strip $(call os_name, $(TOOLSDIR)lng.generator.exe))
 
-DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE
+DEFINES = -D FAR_ALPHA_VERSION -D UNICODE -D _UNICODE -D FAR_LUA
 CFLAGS = -m$(DIRBIT) $(DEBUGFLAGS) -fdiagnostics-show-option -pipe -funsigned-char $(DEFINES)
 CFLAGS += -fomit-frame-pointer -fno-exceptions -Wall -Wno-missing-braces -Wno-unknown-pragmas
 CCFLAGS = $(CFLAGS) -fno-rtti -std=gnu++0x -fpermissive

@@ -53,6 +53,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 #include "stddlg.hpp"
 
+#ifdef FAR_LUA
+#include "macroopcode.hpp"
+#endif
+
 FileViewer::FileViewer(
 	const wchar_t *Name,int EnableSwitch,int DisableHistory,
 	int DisableEdit,__int64 ViewStartPos,const wchar_t *PluginData,
