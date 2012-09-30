@@ -19,7 +19,7 @@
 #############################################################################
 
 ALLDIRS = align arclite autowrap brackets compare drawline editcase emenu farcmds \
-          filecase hlfviewer network proclist tmppanel ftp multiarc macroview
+          filecase hlfviewer luamacro network proclist tmppanel ftp multiarc
 
 !if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "x64"
 !undef AMD64
