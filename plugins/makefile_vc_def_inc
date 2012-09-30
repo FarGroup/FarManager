@@ -169,7 +169,7 @@ NOENTRY = /noentry
 NODEFLIB = /nodefaultlib
 !endif
 
-!if "$(PLATFORM)" == "X86" && $(VC) < 11
+!if "$(BUILD_PLATFORM)" == "X86" && $(VC) < 11
 SUBSYSTEM=/subsystem:windows,5.0
 !endif
 LINK_FLAGS=$(SUBSYSTEM) /nologo /dll /release /dynamicbase /merge:.rdata=.text $(NOENTRY) $(NODEFLIB) $(ENV_LIB_OPT) $(DEFOPT) /map:"$(MAP)" /out:"$(DLLFULLNAME)"
