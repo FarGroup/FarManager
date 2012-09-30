@@ -16,9 +16,6 @@ DEF_NAME=
 
 !include ..\makefile_vc_def_inc
 
-#TODO: remove this line after merge with spring project
-COMINC=luafar/spring_include
-
 LINK_OBJS = \
 $(OBJDIR)\bit64.obj \
 $(OBJDIR)\exported.obj \

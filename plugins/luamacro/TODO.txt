@@ -1,3 +1,1 @@
-1. после слияния со spring удалить luafar\spring_include и убрать переопределение COMINC из Makefile_lib_vc
-
-2. gcc makefiles.
+1. gcc makefiles.
