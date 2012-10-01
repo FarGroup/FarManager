@@ -387,9 +387,7 @@ class FileList:public Panel
 		virtual void GetOpenPanelInfo(OpenPanelInfo *Info);
 		virtual void SetPluginMode(HANDLE hPlugin,const wchar_t *PluginFile,bool SendOnFocus=false);
 
-#ifdef FAR_LUA
 		bool GetPluginInfo(PluginInfo *PInfo);
-#endif
 		void PluginGetPanelInfo(PanelInfo &Info);
 		size_t PluginGetPanelItem(int ItemNumber,FarGetPluginPanelItem *Item);
 		size_t PluginGetSelectedPanelItem(int ItemNumber,FarGetPluginPanelItem *Item);

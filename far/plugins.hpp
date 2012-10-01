@@ -253,11 +253,7 @@ class PluginManager
 		size_t GetPluginInformation(Plugin *pPlugin, FarGetPluginInformation *pInfo, size_t BufferSize);
 
 		// $ .09.2000 SVS - Функция CallPlugin - найти плагин по ID и запустить OpenFrom = OPEN_*
-#ifdef FAR_LUA
 		int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, void **Ret=nullptr);
-#else
-		int CallPlugin(const GUID& SysID,int OpenFrom, void *Data, int *Ret=nullptr);
-#endif
 		int CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *Ret=nullptr);
 		Plugin *FindPlugin(const GUID& SysID);
 		static const GUID& GetGUID(HANDLE hPlugin);

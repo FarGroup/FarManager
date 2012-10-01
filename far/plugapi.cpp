@@ -679,7 +679,6 @@ static DWORD NormalizeControlKeys(DWORD Value)
 	return result;
 }
 
-#ifdef FAR_LUA
 class MenuLock
 {
 	private:
@@ -691,7 +690,6 @@ class MenuLock
 		}
 		~MenuLock() { if (frame) frame->Unlock(); }
 };
-#endif
 
 intptr_t WINAPI apiMenuFn(
     const GUID* PluginId,
@@ -793,9 +791,7 @@ intptr_t WINAPI apiMenuFn(
 		if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
 			FarMenu.AssignHighlights(TRUE);
 
-#ifdef FAR_LUA
 		MenuLock menuLock(CtrlObject->Macro.IsExecuting() != 0); //FIXME: dirty hack.
-#endif
 		FarMenu.SetTitle(Title);
 		FarMenu.Show();
 
@@ -2060,7 +2056,6 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 
 				switch (Param1)
 				{
-#ifdef FAR_LUA
 					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
 					case MSSC_POST:
 					{
@@ -2072,34 +2067,6 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 					{
 						return Macro.ParseMacroString(PlainText->SequenceText,(PlainText->Flags&KMFLAGS_SILENTCHECK)!=0);
 					}
-#else
-					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
-					case MSSC_POST:
-					{
-						return Macro.PostNewMacro(PlainText->SequenceText,(PlainText->Flags<<8)|MFLAGS_POSTFROMPLUGIN,InputRecordToKey(&PlainText->AKey));
-					}
-
-					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
-					case MSSC_EXEC:
-					{
-						break;
-					}
-
-					// Param1=FARMACROSENDSTRINGCOMMAND, Param2 - MacroSendMacroText*
-					case MSSC_CHECK:
-					{
-						MacroRecord CurMacro={};
-						int Ret=Macro.ParseMacroString(&CurMacro,PlainText->SequenceText,(PlainText->Flags&KMFLAGS_SILENTCHECK)?TRUE:FALSE);
-
-						if (Ret)
-						{
-							if (CurMacro.BufferSize > 1)
-								xf_free(CurMacro.Buffer);
-						}
-
-						return Ret;
-					}
-#endif
 				}
 
 				break;
@@ -2149,38 +2116,8 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			{
 				return Macro.DelMacro(*PluginId,Param2);
 			}
-
-#ifdef FAR_LUA
 			default: //FIXME
 				break;
-#else
-			//Param1=size of buffer, Param2 - MacroParseResult*
-			case MCTL_GETLASTERROR:
-			{
-				DWORD ErrCode=MPEC_SUCCESS;
-				COORD ErrPos={};
-				string ErrSrc;
-
-				Macro.GetMacroParseError(&ErrCode,&ErrPos,&ErrSrc);
-
-				int Size = ALIGN(sizeof(MacroParseResult));
-				size_t stringOffset = Size;
-				Size += static_cast<int>((ErrSrc.GetLength() + 1)*sizeof(wchar_t));
-
-				MacroParseResult *Result = (MacroParseResult *)Param2;
-
-				if (Param1 >= Size && CheckStructSize(Result))
-				{
-					Result->StructSize = sizeof(MacroParseResult);
-					Result->ErrCode = ErrCode;
-					Result->ErrPos = ErrPos;
-					Result->ErrSrc = (const wchar_t *)((char*)Param2+stringOffset);
-					wmemcpy((wchar_t*)Result->ErrSrc,ErrSrc,ErrSrc.GetLength()+1);
-				}
-
-				return Size;
-			}
-#endif
 		}
 	}
 
@@ -2741,7 +2678,6 @@ BOOL WINAPI apiCreateDirectory(const wchar_t *PathName,LPSECURITY_ATTRIBUTES lpS
 	return ::apiCreateDirectory(PathName,lpSecurityAttributes);
 }
 
-#ifdef FAR_LUA
 intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data)
 {
 	if (CtrlObject)
@@ -2751,6 +2687,5 @@ intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data)
 	}
 	return 0;
 }
-#endif
 
 };

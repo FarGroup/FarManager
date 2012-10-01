@@ -2262,13 +2262,8 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 			{
 				PluginInfo PInfo = {sizeof(PInfo)};
 				FileList *DestPanel = ((FileList*)this);
-#ifdef FAR_LUA
 				if (DestPanel->GetPluginInfo(&PInfo))
 					strTemp = PInfo.CommandPrefix;
-#else
-				if (DestPanel->VMProcess(MCODE_V_APANEL_PREFIX,&PInfo))
-					strTemp = PInfo.CommandPrefix;
-#endif
 			}
 
 			if (Param1&&Param2)

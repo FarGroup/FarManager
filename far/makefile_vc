@@ -255,7 +255,6 @@ TEST_OBJS = "$(INTDIR)\api_test_c.testobj" "$(INTDIR)\api_test_c++.testobj"
 DEFINES=\
 	/D "UNICODE"\
 	/D "_UNICODE"\
-	/D "FAR_LUA"\
 	/D "$(USEDEBUG)"\
 !if defined(DEBUG) || defined(EXCEPTION_TEST)
 	/D "FAR_ALPHA_VERSION"\

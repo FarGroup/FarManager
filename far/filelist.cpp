@@ -626,7 +626,6 @@ int FileList::SendKeyToPlugin(DWORD Key,bool Pred)
 	return FALSE;
 }
 
-#ifdef FAR_LUA
 bool FileList::GetPluginInfo(PluginInfo *PInfo)
 {
 	if (GetMode() == PLUGIN_PANEL && hPlugin && ((PluginHandle*)hPlugin)->pPlugin)
@@ -636,7 +635,6 @@ bool FileList::GetPluginInfo(PluginInfo *PInfo)
 	}
 	return false;
 }
-#endif
 
 __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {

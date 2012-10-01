@@ -3841,12 +3841,6 @@ static __int64 GetSetting(FARSETTINGS_SUBFOLDERS Root,const wchar_t* Name)
 
 intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_COMMANDS Command, void *Param)
 {
-#ifndef FAR_LUA
-	static char *ErrMsg1 = nullptr;
-	static char *ErrMsg2 = nullptr;
-	static char *ErrMsg3 = nullptr;
-#endif
-
 	switch (Command)
 	{
 		case oldfar::ACTL_GETFARVERSION:
@@ -3988,30 +3982,9 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 					{
 						case MSSC_CHECK:
 						{
-#ifdef FAR_LUA
 							kmA->MacroResult.ErrMsg1 = "";
 							kmA->MacroResult.ErrMsg2 = "";
 							kmA->MacroResult.ErrMsg3 = "";
-#else
-							if (ErrMsg1) xf_free(ErrMsg1);
-
-							if (ErrMsg2) xf_free(ErrMsg2);
-
-							if (ErrMsg3) xf_free(ErrMsg3);
-
-							string ErrMessage[3];
-
-							CtrlObject->Macro.GetMacroParseError(&ErrMessage[0],&ErrMessage[1],&ErrMessage[2],nullptr);
-
-							kmA->MacroResult.ErrMsg1 = ErrMsg1 = UnicodeToAnsi(ErrMessage[0]);
-							kmA->MacroResult.ErrMsg2 = ErrMsg2 = UnicodeToAnsi(ErrMessage[1]);
-							kmA->MacroResult.ErrMsg3 = ErrMsg3 = UnicodeToAnsi(ErrMessage[2]);
-
-							if (mtW.SequenceText)
-								xf_free((void*)mtW.SequenceText);
-
-							break;
-#endif
 						}
 
 						case MSSC_POST:
@@ -4028,7 +4001,6 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 		}
 		case oldfar::ACTL_POSTKEYSEQUENCE:
 		{
-#ifdef FAR_LUA
 			if (!Param)
 				return FALSE;
 
@@ -4059,41 +4031,6 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			intptr_t ret = CtrlObject->Macro.PostNewMacro(strSequence, Flags);
 
 			return ret;
-#else
-			if (!Param)
-				return FALSE;
-
-			oldfar::KeySequence *ksA = (oldfar::KeySequence*)Param;
-
-			if (!ksA->Count || !ksA->Sequence)
-				return FALSE;
-
-			MacroRecord MRec={};
-
-			if (ksA->Flags&oldfar::KSFLAGS_DISABLEOUTPUT)
-				MRec.Flags|=MFLAGS_DISABLEOUTPUT;
-
-			if (ksA->Flags&oldfar::KSFLAGS_NOSENDKEYSTOPLUGINS)
-				MRec.Flags|=MFLAGS_NOSENDKEYSTOPLUGINS;
-
-			MRec.BufferSize=ksA->Count;
-
-			DWORD* Sequence = (DWORD*)xf_malloc(MRec.BufferSize*sizeof(DWORD));
-			for (int i=0; i<MRec.BufferSize; i++)
-			{
-				Sequence[i]=OldKeyToKey(ksA->Sequence[i]);
-			}
-
-			if (MRec.BufferSize == 1)
-				MRec.Buffer=(DWORD *)(intptr_t)Sequence[0];
-			else
-				MRec.Buffer=Sequence;
-
-			intptr_t ret = CtrlObject->Macro.PostNewMacro(&MRec,TRUE,TRUE);
-			xf_free(Sequence);
-
-			return ret;
-#endif
 		}
 		case oldfar::ACTL_GETSHORTWINDOWINFO:
 		case oldfar::ACTL_GETWINDOWINFO:
