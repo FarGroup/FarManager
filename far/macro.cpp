@@ -1902,6 +1902,7 @@ int PassValue (TVar* Var, FarMacroCall* Data)
 	if (Data->Callback)
 	{
 		FarMacroValue val;
+		double dd;
 
 		if (Var->isDouble())
 		{
@@ -1912,6 +1913,11 @@ int PassValue (TVar* Var, FarMacroCall* Data)
 		{
 			val.Type = FMVT_STRING;
 			val.String = Var->s();
+		}
+		else if (ToDouble(Var->i(), &dd))
+		{
+			val.Type = FMVT_DOUBLE;
+			val.Double = dd;
 		}
 		else
 		{
@@ -4583,11 +4589,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 		}
 	}
 
-	double dd;
-	if (Ret.isInteger() && ToDouble(Ret.i(),&dd))
-		PassNumber(dd,Data);
-	else	
-		PassValue(&Ret, Data);		
+	PassValue(&Ret, Data);
 	return Ret.i()!=-1;
 }
 
@@ -5347,11 +5349,11 @@ static bool panelitemFunc(FarMacroCall* Data)
 				Ret=TVar(strDate.CPtr());
 				break;
 			case 6:  // FileSize
-				Ret=TVar((__int64)filelistItem.FileSize);
-				break;
+				PassInteger(filelistItem.FileSize, Data);
+				return false;
 			case 7:  // AllocationSize
-				Ret=TVar((__int64)filelistItem.AllocationSize);
-				break;
+				PassInteger(filelistItem.AllocationSize, Data);
+				return false;
 			case 8:  // Selected
 				PassNumber((DWORD)filelistItem.Selected, Data);
 				return false;
@@ -5374,20 +5376,20 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassNumber(filelistItem.Position, Data);
 				return false;
 			case 15:  // CreationTime (FILETIME)
-				Ret=TVar((__int64)FileTimeToUI64(&filelistItem.CreationTime));
-				break;
+				PassInteger(FileTimeToUI64(&filelistItem.CreationTime), Data);
+				return false;
 			case 16:  // AccessTime (FILETIME)
-				Ret=TVar((__int64)FileTimeToUI64(&filelistItem.AccessTime));
-				break;
+				PassInteger(FileTimeToUI64(&filelistItem.AccessTime), Data);
+				return false;
 			case 17:  // WriteTime (FILETIME)
-				Ret=TVar((__int64)FileTimeToUI64(&filelistItem.WriteTime));
-				break;
+				PassInteger(FileTimeToUI64(&filelistItem.WriteTime), Data);
+				return false;
 			case 18: // NumberOfStreams
 				PassNumber(filelistItem.NumberOfStreams, Data);
 				return false;
 			case 19: // StreamsSize
-				Ret=TVar((__int64)filelistItem.StreamsSize);
-				break;
+				PassInteger(filelistItem.StreamsSize, Data);
+				return false;
 			case 20:  // ChangeTime
 				ConvertDate(filelistItem.ChangeTime,strDate,strTime,8,FALSE,FALSE,TRUE,TRUE);
 				strDate += L" ";
@@ -5395,8 +5397,8 @@ static bool panelitemFunc(FarMacroCall* Data)
 				Ret=TVar(strDate.CPtr());
 				break;
 			case 21:  // ChangeTime (FILETIME)
-				Ret=TVar((__int64)FileTimeToUI64(&filelistItem.ChangeTime));
-				break;
+				PassInteger(FileTimeToUI64(&filelistItem.ChangeTime), Data);
+				return false;
 			case 22:  // CustomData
 				Ret=TVar(filelistItem.strCustomData);
 				break;
@@ -5543,7 +5545,7 @@ static bool intFunc(FarMacroCall* Data)
 	parseParams(1,Params,Data);
 	TVar& Val(Params[0]);
 	Val.toInteger();
-	PassValue(&Val, Data);
+	PassInteger(Val.i(), Data);
 	return true;
 }
 
