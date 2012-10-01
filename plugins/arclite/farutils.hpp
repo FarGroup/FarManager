@@ -92,7 +92,7 @@ void error_dlg(const wstring& title, const Error& e);
 void info_dlg(const GUID& id, const wstring& title, const wstring& msg);
 bool input_dlg(const GUID& id, const wstring& title, const wstring& msg, wstring& text, INPUTBOXFLAGS flags = 0);
 
-#define AUTO_SIZE (-1)
+#define AUTO_SIZE ((intptr_t)-1)
 const unsigned c_x_frame = 5;
 const unsigned c_y_frame = 2;
 
@@ -166,12 +166,12 @@ public:
   void pad(size_t pos);
   unsigned separator();
   unsigned separator(const wstring& text);
-  unsigned label(const wstring& text, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned label(const wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
   unsigned edit_box(const wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
-  unsigned mask_edit_box(const wstring& text, const wstring& mask, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
-  unsigned history_edit_box(const wstring& text, const wstring& history_name, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
-  unsigned fix_edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
-  unsigned pwd_edit_box(const wstring& text, unsigned boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned mask_edit_box(const wstring& text, const wstring& mask, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned history_edit_box(const wstring& text, const wstring& history_name, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned fix_edit_box(const wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
+  unsigned pwd_edit_box(const wstring& text, size_t boxsize = AUTO_SIZE, FARDIALOGITEMFLAGS flags = 0);
   unsigned button(const wstring& text, FARDIALOGITEMFLAGS flags = 0);
   unsigned def_button(const wstring& text, FARDIALOGITEMFLAGS flags = 0) {
     return button(text, flags | DIF_DEFAULTBUTTON);

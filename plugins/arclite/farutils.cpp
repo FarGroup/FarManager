@@ -351,7 +351,7 @@ unsigned Dialog::separator(const wstring& text) {
   return new_item(di);
 }
 
-unsigned Dialog::label(const wstring& text, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
+unsigned Dialog::label(const wstring& text, size_t boxsize, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_TEXT;
   di.x1 = x;
@@ -387,19 +387,19 @@ unsigned Dialog::edit_box(const wstring& text, size_t boxsize, FARDIALOGITEMFLAG
   return new_item(di);
 }
 
-unsigned Dialog::history_edit_box(const wstring& text, const wstring& history_name, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
+unsigned Dialog::history_edit_box(const wstring& text, const wstring& history_name, size_t boxsize, FARDIALOGITEMFLAGS flags) {
   unsigned idx = edit_box(text, boxsize, flags | DIF_HISTORY);
   items[idx].history_idx = new_value(history_name);
   return idx;
 }
 
-unsigned Dialog::mask_edit_box(const wstring& text, const wstring& mask, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
+unsigned Dialog::mask_edit_box(const wstring& text, const wstring& mask, size_t boxsize, FARDIALOGITEMFLAGS flags) {
   unsigned idx = fix_edit_box(text, boxsize, flags | DIF_MASKEDIT);
   items[idx].mask_idx = new_value(mask);
   return idx;
 }
 
-unsigned Dialog::fix_edit_box(const wstring& text, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
+unsigned Dialog::fix_edit_box(const wstring& text, size_t boxsize, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_FIXEDIT;
   di.x1 = x;
@@ -417,7 +417,7 @@ unsigned Dialog::fix_edit_box(const wstring& text, unsigned boxsize, FARDIALOGIT
   return new_item(di);
 }
 
-unsigned Dialog::pwd_edit_box(const wstring& text, unsigned boxsize, FARDIALOGITEMFLAGS flags) {
+unsigned Dialog::pwd_edit_box(const wstring& text, size_t boxsize, FARDIALOGITEMFLAGS flags) {
   DialogItem di;
   di.type = DI_PSWEDIT;
   di.x1 = x;
