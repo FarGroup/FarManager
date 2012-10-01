@@ -5802,7 +5802,7 @@ static bool editorsetstrFunc(FarMacroCall* Data)
 static bool pluginexistFunc(FarMacroCall* Data)
 {
 	parseParams(1,Params,Data);
-	TVar Ret(0ll);
+	int Ret=0;
 	TVar& pGuid(Params[0]);
 
 	if (pGuid.s())
@@ -5811,8 +5811,8 @@ static bool pluginexistFunc(FarMacroCall* Data)
 		Ret=(StrToGuid(pGuid.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))?1:0;
 	}
 
-	PassValue(&Ret, Data);
-	return Ret.i()!=0;
+	PassBoolean(Ret, Data);
+	return Ret != 0;
 }
 
 // N=Plugin.Load(DllPath[,ForceLoad])

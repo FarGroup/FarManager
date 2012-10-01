@@ -1,3 +1,11 @@
+svs 01.10.2012 16:05:34 +0400 - build 2856
+
+1. Macro: Plugin.Exist(GUID) теперь возвращает true/false.
+   Вместо 
+     if Plugin.Exist(GUID) > 0 then
+   пишем 
+     if Plugin.Exist(GUID) then
+
 shmuel 01.10.2012 03:25:00 +0200 - build 2855
 
 1. Уточнение 2854 для более общего случая.
