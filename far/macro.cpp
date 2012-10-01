@@ -521,6 +521,16 @@ FARKEYMACROFLAGS StringToFlags(const string& strFlags)
 	return StringToFlags(strFlags, MKeywordsFlags);
 }
 
+static bool ToDouble(__int64 v, double *d)
+{
+	if ((v >= 0 && v <= 0x1FFFFFFFFFFFFFLL) || (v < 0 && -v <= 0x1FFFFFFFFFFFFFLL))
+	{
+		*d = (double)v;
+		return true;
+	}
+	return false;
+}
+
 MacroRecord::MacroRecord():
 	m_area(MACRO_COMMON),
 	m_flags(0),
@@ -4573,7 +4583,11 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassValue(&Ret, Data);
+	double dd;
+	if (Ret.isInteger() && ToDouble(Ret.i(),&dd))
+		PassNumber(dd,Data);
+	else	
+		PassValue(&Ret, Data);		
 	return Ret.i()!=-1;
 }
 
