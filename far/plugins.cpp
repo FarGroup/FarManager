@@ -2437,7 +2437,7 @@ void PluginManager::ReadUserBackgound(SaveScreen *SaveScr)
 */
 int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **Ret)
 {
-	if (FrameManager->GetCurrentFrame()->GetType() == MODALTYPE_DIALOG)
+	if (FrameManager->GetCurrentFrame() && FrameManager->GetCurrentFrame()->GetType() == MODALTYPE_DIALOG)
 	{
 		if (static_cast<Dialog*>(FrameManager->GetCurrentFrame())->CheckDialogMode(DMODE_NOPLUGINS))
 		{
