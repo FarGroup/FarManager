@@ -1,3 +1,7 @@
+shmuel 02.10.2012 18:40:00 +0200 - build 2861
+
+1. По ошибке были стёрты изменения билда 2859.
+
 shmuel 02.10.2012 17:40:00 +0200 - build 2860
 
 1. M#2160: Macro with Menu.Select works in Shell but not in Dialog and Editor.
