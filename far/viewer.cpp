@@ -1641,10 +1641,10 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_SHIFTF8:
 		{
-			uintptr_t nCodePage = SelectCodePage(VM.CodePage, true, true, false, true);
-			if (nCodePage != static_cast<UINT>(-1))
+			uintptr_t nCodePage = VM.CodePage;
+			if (SelectCodePage(nCodePage, true, true, false, true))
 			{
-				if (nCodePage == (CP_DEFAULT & 0xffff))
+				if (nCodePage == CP_DEFAULT)
 				{
 					__int64 fpos = vtell();
 					bool detect = GetFileFormat(ViewFile,nCodePage,&Signature,true) && IsCodePageSupported(nCodePage);

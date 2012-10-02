@@ -701,10 +701,11 @@ void EditCodePageName()
 	Dlg.Process();
 }
 
-uintptr_t SelectCodePage(uintptr_t nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool bShowAutoDetect)
+bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool bShowAutoDetect)
 {
+	bool Result = false;
 	CallbackCallSource = CodePageSelect;
-	currentCodePage = nCurrent;
+	currentCodePage = CodePage;
 	// Создаём меню
 	CodePages = new VMenu(L"", nullptr, 0, ScrY-4);
 	CodePages->SetBottomTitle(MSG(!Opt.CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
@@ -748,10 +749,14 @@ uintptr_t SelectCodePage(uintptr_t nCurrent, bool bShowUnicode, bool bShowUTF, b
 	}
 
 	// Получаем выбранную таблицу символов
-	uintptr_t codePage = CodePages->Modal::GetExitCode() >= 0 ? static_cast<WORD>(GetMenuItemCodePage()) : (uintptr_t)-1;
+	if (CodePages->Modal::GetExitCode() >= 0)
+	{
+		CodePage = GetMenuItemCodePage();
+		Result = true;
+	}
 	delete CodePages;
 	CodePages = nullptr;
-	return codePage;
+	return Result;
 }
 
 // Заполняем список таблицами символов

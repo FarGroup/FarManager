@@ -56,7 +56,7 @@ inline bool IsUnicodeOrUtfCodePage(uintptr_t CP) { return(CP==CP_UNICODE)||(CP==
 
 bool IsCodePageSupported(uintptr_t CodePage);
 
-uintptr_t SelectCodePage(uintptr_t nCurrent, bool bShowUnicode, bool bShowUTF, bool bShowUTF7=false, bool bShowAutoDetect=false);
+bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool bShowUTF7=false, bool bShowAutoDetect=false);
 
 UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault=false, bool allowM2=false);
 

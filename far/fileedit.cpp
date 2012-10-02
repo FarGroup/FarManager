@@ -1306,40 +1306,39 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			{
 				if (!IsUnicodeCodePage(m_codepage))
 				{
-					uintptr_t codepage = SelectCodePage(m_codepage, false, true, false, true);
-					if ( codepage == (CP_DEFAULT & 0xffff) )
+					uintptr_t codepage = m_codepage;
+					if (SelectCodePage(codepage, false, true, false, true))
 					{
-						File edit_file;
-						bool detect = false, sig_found = false;
-						wchar_t ss[256];
+						if (codepage == CP_DEFAULT)
+						{
+							File edit_file;
+							bool detect = false, sig_found = false;
+							wchar_t ss[256];
 
-						if (edit_file.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
-						{
-							detect = GetFileFormat(edit_file,codepage,&sig_found,true);
-							edit_file.Close();
+							if (edit_file.Open(strFileName, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING))
+							{
+								detect = GetFileFormat(edit_file,codepage,&sig_found,true);
+								edit_file.Close();
+							}
+							if ( !detect )
+							{
+								Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditorCPNotDetected),MSG(MOk));
+							}
+							else if ( IsUnicodeCodePage(codepage) )
+							{
+								detect = false;
+								_snwprintf(ss, ARRAYSIZE(ss), MSG(MEditorSwitchToUnicodeCPDisabled), static_cast<int>(codepage));
+								Message(MSG_WARNING,1,MSG(MEditTitle),ss,MSG(MEditorTryReloadFile),MSG(MOk));
+							}
+							else if ( !IsCodePageSupported(codepage) )
+							{
+								detect = false;
+								_snwprintf(ss, ARRAYSIZE(ss), MSG(MEditorCPNotSupported), static_cast<int>(codepage));
+								Message(MSG_WARNING,1,MSG(MEditTitle),ss,MSG(MOk));
+							}
+							if ( !detect )
+								codepage = static_cast<UINT>(-1);
 						}
-						if ( !detect )
-						{
-							Message(MSG_WARNING,1,MSG(MEditTitle),MSG(MEditorCPNotDetected),MSG(MOk));
-						}
-						else if ( IsUnicodeCodePage(codepage) )
-						{
-							detect = false;
-							_snwprintf(ss, ARRAYSIZE(ss), MSG(MEditorSwitchToUnicodeCPDisabled), static_cast<int>(codepage));
-							Message(MSG_WARNING,1,MSG(MEditTitle),ss,MSG(MEditorTryReloadFile),MSG(MOk));
-						}
-						else if ( !IsCodePageSupported(codepage) )
-						{
-							detect = false;
-							_snwprintf(ss, ARRAYSIZE(ss), MSG(MEditorCPNotSupported), static_cast<int>(codepage));
-							Message(MSG_WARNING,1,MSG(MEditTitle),ss,MSG(MOk));
-						}
-						if ( !detect )
-							codepage = static_cast<UINT>(-1);
-					}
-
-					if (codepage != static_cast<UINT>(-1))
-					{
 						SetCodePage(codepage);
 						InitKeyBar();
 						Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
@@ -2804,12 +2803,12 @@ bool FileEditor::SetCodePage(uintptr_t codepage)
 	if (codepage == m_codepage || !m_editor)
 		return false;
 
-   int x, y;
+	int x, y;
 	if (!m_editor->TryCodePage(codepage, x, y))
 	{
 		int ret = Message(MSG_WARNING, 3, MSG(MWarning),
 			MSG(MEditorSwitchCPWarn1), MSG(MEditorSwitchCPWarn2), MSG(MEditorSwitchCPConfirm),
-			MSG(MCancel), MSG(MEditorSaveCPWarnShow), MSG(MOk) );
+			MSG(MCancel), MSG(MEditorSaveCPWarnShow), MSG(MOk));
 
 		if (ret < 2) // not confirmed
 		{
