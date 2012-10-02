@@ -1,3 +1,10 @@
+svs 02.10.2012 17:43:33 +0400 - build 2859
+
+1. Macro: Panel.Item(typePanel,Index,TypeInfo) возвращает true/false для
+    TypeInfo = 8 (Selected) и 10 (SortGroup)
+
+2. Macro: panel.setpath(), fexist(), beep(), Window.Scroll() возвращает true/false
+
 shmuel 02.10.2012 14:30:00 +0200 - build 2858
 
 1. M#2162: Фар, используемый как редактор в Git падает при старте (возможно из-за нового макродвижка).

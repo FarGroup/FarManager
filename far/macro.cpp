@@ -3408,7 +3408,7 @@ static bool windowscrollFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassNumber(L, Data);
+	PassBoolean(L, Data);
 	return Ret;
 }
 
@@ -3675,7 +3675,7 @@ static bool beepFunc(FarMacroCall* Data)
 		);
 	*/
 
-	PassNumber(Ret?1:0, Data);
+	PassBoolean(Ret?1:0, Data);
 	return Ret;
 }
 
@@ -5145,7 +5145,7 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassNumber(Ret, Data);
+	PassBoolean(Ret, Data);
 	return Ret?true:false;
 }
 
@@ -5354,13 +5354,13 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassInteger(filelistItem.AllocationSize, Data);
 				return false;
 			case 8:  // Selected
-				PassNumber((DWORD)filelistItem.Selected, Data);
+				PassBoolean(filelistItem.Selected, Data);
 				return false;
 			case 9:  // NumberOfLinks
 				PassNumber(filelistItem.NumberOfLinks, Data);
 				return false;
 			case 10:  // SortGroup
-				PassNumber(filelistItem.SortGroup, Data);
+				PassBoolean(filelistItem.SortGroup, Data);
 				return false;
 			case 11:  // DizText
 				Ret=TVar((const wchar_t *)filelistItem.DizText);
