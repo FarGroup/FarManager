@@ -123,10 +123,10 @@ CPPFLAGS=$(CPPFLAGS) /DDEBUG /Od
 CPPFLAGS=$(CPPFLAGS) /Zi
 !endif
 
-!ifdef AMD64
+!if "$(BUILD_PLATFORM)" == "AMD64"
 COMMONLIB = $(COMMON)\libCRT64.lib
 ULOUT=-Tpd+
-!elseif defined(IA64)
+!elseif "$(BUILD_PLATFORM)" == "IA64"
 COMMONLIB = $(COMMON)\libCRTIA64.lib
 ULOUT=-Tpd+
 !else
