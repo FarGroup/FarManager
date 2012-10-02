@@ -1405,13 +1405,9 @@ static BOOL CheckEditSelected(MACROMODEAREA Mode, UINT64 CurFlags)
 			int CurSelected;
 
 			if (Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-			{
-				intptr_t SelStart,SelEnd;
-				CtrlObject->CmdLine->GetSelection(SelStart,SelEnd);
-				CurSelected = (SelStart != -1 && SelStart < SelEnd);
-			}
+				CurSelected=(int)CtrlObject->CmdLine->VMProcess(MCODE_C_SELECTED);
 			else
-				CurSelected = FALSE;
+				CurSelected=(int)CurFrame->VMProcess(MCODE_C_SELECTED);
 
 			if (((CurFlags&MFLAGS_EDITSELECTION) && !CurSelected) ||	((CurFlags&MFLAGS_EDITNOSELECTION) && CurSelected))
 				return FALSE;
@@ -3408,7 +3404,7 @@ static bool windowscrollFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassBoolean(L, Data);
+	PassNumber(L, Data);
 	return Ret;
 }
 
@@ -3675,7 +3671,7 @@ static bool beepFunc(FarMacroCall* Data)
 		);
 	*/
 
-	PassBoolean(Ret?1:0, Data);
+	PassNumber(Ret?1:0, Data);
 	return Ret;
 }
 
@@ -5145,7 +5141,7 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 		}
 	}
 
-	PassBoolean(Ret, Data);
+	PassNumber(Ret, Data);
 	return Ret?true:false;
 }
 
@@ -5354,13 +5350,13 @@ static bool panelitemFunc(FarMacroCall* Data)
 				PassInteger(filelistItem.AllocationSize, Data);
 				return false;
 			case 8:  // Selected
-				PassBoolean(filelistItem.Selected, Data);
+				PassNumber((DWORD)filelistItem.Selected, Data);
 				return false;
 			case 9:  // NumberOfLinks
 				PassNumber(filelistItem.NumberOfLinks, Data);
 				return false;
 			case 10:  // SortGroup
-				PassBoolean(filelistItem.SortGroup, Data);
+				PassNumber(filelistItem.SortGroup, Data);
 				return false;
 			case 11:  // DizText
 				Ret=TVar((const wchar_t *)filelistItem.DizText);

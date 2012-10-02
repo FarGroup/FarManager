@@ -1,3 +1,7 @@
+shmuel 02.10.2012 17:40:00 +0200 - build 2860
+
+1. M#2160: Macro with Menu.Select works in Shell but not in Dialog and Editor.
+
 svs 02.10.2012 17:43:33 +0400 - build 2859
 
 1. Macro: Panel.Item(typePanel,Index,TypeInfo) возвращает true/false для
