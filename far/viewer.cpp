@@ -1729,7 +1729,7 @@ int Viewer::ProcessKey(int Key)
 		{
 			if (FilePos>0 && ViewFile.Opened())
 			{
-				Up(1); // LastPage = 0
+				Up(1, false); // LastPage = 0
 
 				if (VM.Hex)
 				{
@@ -1765,7 +1765,7 @@ int Viewer::ProcessKey(int Key)
 		{
 			if (ViewFile.Opened())
 			{
-				Up(Y2-Y1);
+				Up(Y2-Y1, false);
 				Show();
 			}
 
@@ -1970,7 +1970,7 @@ int Viewer::ProcessKey(int Key)
 						++max_counter;
 
 					FilePos=vtell();
-					Up(max_counter);
+					Up(max_counter, false);
 				}
 
 				Show();
@@ -2224,7 +2224,7 @@ int Viewer::CacheFindUp( __int64 start )
 	}
 }
 
-void Viewer::Up( int nlines )
+void Viewer::Up( int nlines, bool adjust )
 {
 	assert( nlines > 0 );
 
@@ -2365,7 +2365,10 @@ void Viewer::Up( int nlines )
 			llengths[i] = (vString.have_eol ? -1 : +1) * vString.linesize;
 			if ((vString.nFilePos += vString.linesize) >= fpos1)
 			{
-				fpos1 = vString.nFilePos;
+				if (adjust)
+					fpos1 = vString.nFilePos;
+				else
+					llengths[i] = vString.linesize - static_cast<int>(vString.nFilePos - fpos1);
 				break;
 			}
 		}
@@ -3099,7 +3102,7 @@ int Viewer::read_line(wchar_t *buf, wchar_t *tbuf, INT64 cpos, int adjust, INT64
 		if ( adjust > 0 )
 			AdjustFilePos();
 		else
-			Up(1);
+			Up(1, true);
 	}
 
 	vseek(lpos = vString.nFilePos = FilePos, SEEK_SET);
@@ -3514,7 +3517,7 @@ void Viewer::Search(int Next,int FirstChar)
 		if (FromTop<0 || FromTop>ScrY)
 			FromTop=0;
 
-		Up(FromTop);
+		Up(FromTop, false);
 
 		AdjustSelPosition = TRUE;
 		Show();
@@ -4098,7 +4101,7 @@ void Viewer::AdjustFilePos()
 		}
 
 		FilePos = vtell();
-		Up(1);
+		Up(1, true);
 	}
 }
 
@@ -4144,7 +4147,7 @@ void Viewer::SelectText(const __int64 &match_pos,const __int64 &search_len, cons
 	else
 	{
 		FilePos = SelectPos;
-		Up(1);
+		Up(1, true);
 		LeftPos = 0;
 
 		if ( !VM.Wrap )

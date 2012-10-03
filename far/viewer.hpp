@@ -190,7 +190,7 @@ class Viewer:public ScreenObject
 
 		void ShowPage(int nMode);
 
-		void Up(int n);
+		void Up(int n, bool adjust);
 		void CacheLine(__int64 start, int length, bool have_eol);
 		int CacheFindUp(__int64 start);
 
