@@ -329,7 +329,7 @@ class Editor:public ScreenObject
 		FileEditor *GetHostFileEditor() {return HostFileEditor;};
 		void PrepareResizedConsole() {Flags.Set(FEDITOR_ISRESIZEDCONSOLE);}
 
-		void SetOptions(const EditorOptions& Options) {EdOpt = Options;}
+		void SetOptions(const EditorOptions& Options);
 		void SetTabSize(int NewSize);
 		int  GetTabSize() const {return EdOpt.TabSize; }
 

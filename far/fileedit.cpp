@@ -2461,7 +2461,7 @@ void FileEditor::GetEditorOptions(EditorOptions& EdOpt)
 	EdOpt = m_editor->EdOpt;
 }
 
-void FileEditor::SetEditorOptions(EditorOptions& EdOpt)
+void FileEditor::SetEditorOptions(const EditorOptions& EdOpt)
 {
 	m_editor->SetOptions(EdOpt);
 }

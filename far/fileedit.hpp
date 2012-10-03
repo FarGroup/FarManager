@@ -101,7 +101,7 @@ class FileEditor : public Frame
 		BOOL IsFileChanged() const { return m_editor->IsFileChanged(); };
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 		void GetEditorOptions(EditorOptions& EdOpt);
-		void SetEditorOptions(EditorOptions& EdOpt);
+		void SetEditorOptions(const EditorOptions& EdOpt);
 		void CodepageChangedByUser() {Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);};
 		virtual void Show();
 		void SetPluginTitle(const string* PluginTitle);

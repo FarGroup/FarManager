@@ -7027,6 +7027,20 @@ void Editor::Xlat()
      ничего не поделать.
 */
 //ќбновим размер табул€ции
+
+void Editor::SetOptions(const EditorOptions& Options)
+{
+	//? optimize
+	SetTabSize(Options.TabSize);
+	SetConvertTabs(Options.ExpandTabs);
+	SetDelRemovesBlocks(Options.DelRemovesBlocks);
+	SetShowWhiteSpace(Options.ShowWhiteSpace);
+   SetPersistentBlocks(Options.PersistentBlocks);
+	SetCursorBeyondEOL(Options.CursorBeyondEOL);
+
+	EdOpt = Options;
+}
+
 void Editor::SetTabSize(int NewSize)
 {
 	if (NewSize<1 || NewSize>512)
