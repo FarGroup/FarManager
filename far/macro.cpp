@@ -844,7 +844,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			if (ctrldot||ctrlshiftdot)
 			{
 				// Полиция 18
-				if (Opt.Policies.DisabledOptions&FFPOL_CREATEMACRO)
+				if (Opt.Policies.DisabledOptions&FFPOL_CREATEMACRO || !CtrlObject->Plugins->FindPlugin(LuamacroGuid))
 					return false;
 
 				UpdateLockScreen(false);
