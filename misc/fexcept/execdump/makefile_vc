@@ -1,3 +1,4 @@
+ROOT_PATH=../../../
 !include ../../../plugins/makefile_vc_base
 
 ANSI = 1
