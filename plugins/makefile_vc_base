@@ -1,4 +1,6 @@
+!ifndef SHOW
 .SILENT:
+!endif
 
 !if defined(AMD64) || "$(CPU)" == "AMD64" || "$(PLATFORM)" == "X64" || "$(PLATFORM)" == "x64"
 BUILD_PLATFORM=AMD64
@@ -27,6 +29,9 @@ VC=10
 !endif
 
 
-!if exists(make_vc_defs)
-!include make_vc_defs
+!ifndef ROOT_PATH
+ROOT_PATH=../
+!endif
+!if exists($(ROOT_PATH)make_vc_defs)
+!include $(ROOT_PATH)make_vc_defs
 !endif

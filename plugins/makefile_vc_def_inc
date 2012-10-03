@@ -101,10 +101,11 @@ DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(OUTDIR)$(ADDOUTDIR)\$(DLLNAME)
 !if "$(DEF_NAME)" != ""
 !ifdef ANSI
-DEFOPT = /def:$(DEF_NAME).vc$(ULN_DEF).def
+DEFFILE = $(DEF_NAME).vc$(ULN_DEF).def
 !else
-DEFOPT = /def:$(DEF_NAME)W.vc$(ULN_DEF).def
+DEFFILE = $(DEF_NAME)W.vc$(ULN_DEF).def
 !endif
+DEFOPT = /def:$(DEFFILE)
 !endif
 MAP = $(OUTDIR)$(ADDOUTDIR)\$(NAME).map
 RES = $(OBJDIR)\$(NAME).res
@@ -187,7 +188,7 @@ NOENTRY = -e-
 !ifndef NEEDDEFLIB
 NODEFLIB = -n
 !endif
-LINK_FLAGS=-q $(ULOUT) $(ULN_DELAY) -Gz -m- -v -Gh -Gh- $(NOENTRY) $(NODEFLIB) /ZD:"$(DEF)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(ENV_LIB_OPT)
+LINK_FLAGS=-q $(ULOUT) $(ULN_DELAY) -Gz -m- -v -Gh -Gh- $(NOENTRY) $(NODEFLIB) /ZD:"$(DEFFILE)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(ENV_LIB_OPT)
 !endif
 
 !ifndef AS

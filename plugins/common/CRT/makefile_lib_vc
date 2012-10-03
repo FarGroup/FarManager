@@ -1,3 +1,4 @@
+ROOT_PATH=../../
 !include ../../makefile_vc_base
 
 CC=$(_BIN_PATH_)cl.exe

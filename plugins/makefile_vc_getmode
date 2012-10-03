@@ -30,3 +30,7 @@ _MDEFS=$(_MDEFS) $(_MKDO_)IA64=1
 !ifdef VC
 _MDEFS=$(_MDEFS) $(_MKDO_)VC=$(VC)
 !endif
+
+!ifdef SHOW
+_MDEFS=$(_MDEFS) $(_MKDO_)SHOW=1
+!endif
