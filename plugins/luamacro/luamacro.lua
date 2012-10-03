@@ -30,7 +30,7 @@ function coroutine.resume(co, ...)
   return unpack(t, 1, t.n)
 end
 
-local ErrMsg = function(msg) far.Message(msg, "LuaMacro", nil, "w") end
+local ErrMsg = function(msg) far.Message(msg, "LuaMacro", nil, "wl") end
 
 local MacroTable = {}
 local LastMessage = {}
