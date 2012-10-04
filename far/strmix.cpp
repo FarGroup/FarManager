@@ -177,6 +177,15 @@ string& QuoteSpaceOnly(string &strStr)
 }
 
 
+string &QuoteLeadingSpace(string &strStr)
+{
+	size_t len = strStr.GetLength();
+	if (len > 0 && (L' ' == strStr[0] || L' ' == strStr[len-1]))
+		InsertQuote(strStr);
+
+	return strStr;
+}
+
 string& TruncStrFromEnd(string &strStr, int MaxLength)
 {
 	wchar_t *lpwszBuffer = strStr.GetBuffer();

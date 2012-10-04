@@ -72,9 +72,10 @@ string& InsertRegexpQuote(string& strStr);
 void UnquoteExternal(string &strStr);
 string& RemoveLeadingSpaces(string &strStr);
 string& RemoveTrailingSpaces(string &strStr);
-string & RemoveExternalSpaces(string &strStr);
-string & RemoveUnprintableCharacters(string &strStr);
+string& RemoveExternalSpaces(string &strStr);
+string& RemoveUnprintableCharacters(string &strStr);
 string& QuoteSpaceOnly(string &strStr);
+string& QuoteLeadingSpace(string &strStr);
 
 string &RemoveChar(string &strStr,wchar_t Target,bool Dup=true);
 wchar_t *InsertString(wchar_t *Str,int Pos,const wchar_t *InsStr,int InsSize=0);

@@ -147,6 +147,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 		}
 
 		strDeleteFilesMsg = strSelName;
+		QuoteLeadingSpace(strDeleteFilesMsg);
 	}
 	else
 	{

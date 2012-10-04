@@ -548,7 +548,9 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 	size_t LineCount = 1 + 1 + (Msg.Count()? Msg.Count() + 1 : 0) + ButtonCount;
 	const wchar_t** Msgs = new const wchar_t*[LineCount];
 	Msgs[0] = Description;
-	Msgs[1] = Object;
+	string qObj(Object);
+	QuoteLeadingSpace(qObj);
+	Msgs[1] = qObj;
 	LangString strReason(MObjectLockedReason);
 	strReason << MSG(Reason);
 	if(Msg.Count())

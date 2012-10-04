@@ -1,6 +1,10 @@
+w17 04.10.2012 16:37:06 +0400 - build 2868
+
+1. Visible leading space(s) in dialog static text
+
 w17 04.10.2012 15:26:15 +0400 - build 2867
 
-1. 002167: Crash on Copy File/Folter Interrupt
+1. 0002167: Crash on Copy File/Folder Interrupt
 
 zg 04.10.2012 05:41:56 +0200 - build 2866
 

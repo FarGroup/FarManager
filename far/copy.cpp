@@ -1024,7 +1024,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			}
 		}
 
-		string strSelNameShort = strSelName;
+		string strSelNameShort(strSelName);
+		QuoteLeadingSpace(strSelNameShort);
 		strCopyStr=MSG(Move?MMoveFile:(Link?MLinkFile:MCopyFile));
 		TruncPathStr(strSelNameShort,static_cast<int>(CopyDlg[ID_SC_TITLE].X2-CopyDlg[ID_SC_TITLE].X1-strCopyStr.GetLength()-7));
 		strCopyStr+=L" "+strSelNameShort;
@@ -2541,8 +2542,9 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 
 					if (CmpCode==1 && !Rename)
 					{
+						string qSrc(Src);
 						Message(MSG_WARNING,1,MSG(MError),MSG(MCannotCopyFileToItself1),
-							    Src,MSG(MCannotCopyFileToItself2),MSG(MOk));
+							    QuoteLeadingSpace(qSrc),MSG(MCannotCopyFileToItself2),MSG(MOk));
 						return(COPY_CANCEL);
 					}
 				}
@@ -3574,11 +3576,13 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 		WARN_DLG_HEIGHT=13,
 		WARN_DLG_WIDTH=72,
 	};
+	string qDst(DestName);
+	QuoteLeadingSpace(qDst);
 	FarDialogItem WarnCopyDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,WARN_DLG_WIDTH-4,WARN_DLG_HEIGHT-2,0,nullptr,nullptr,0,MSG(MWarning)},
 		{DI_TEXT,5,2,WARN_DLG_WIDTH-6,2,0,nullptr,nullptr,DIF_CENTERTEXT,MSG(MCopyFileExist)},
-		{DI_EDIT,5,3,WARN_DLG_WIDTH-6,3,0,nullptr,nullptr,DIF_READONLY,DestName},
+		{DI_EDIT,5,3,WARN_DLG_WIDTH-6,3,0,nullptr,nullptr,DIF_READONLY,qDst},
 		{DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,5,5,WARN_DLG_WIDTH-6,5,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,L""},
 		{DI_BUTTON,5,6,WARN_DLG_WIDTH-6,6,0,nullptr,nullptr,DIF_BTNNOCLOSE|DIF_NOBRACKETS,L""},
