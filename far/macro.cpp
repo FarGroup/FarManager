@@ -997,9 +997,9 @@ int KeyMacro::GetKey()
 	}
 
 	MacroRecord* macro;
-	FarMacroValue mp_values[3]={{FMVT_INTEGER,{0}},{FMVT_DOUBLE,{0}},{FMVT_DOUBLE,{0}}};
+	static FarMacroValue mp_values[3]={{FMVT_INTEGER,{0}},{FMVT_DOUBLE,{0}},{FMVT_DOUBLE,{0}}};
 	mp_values[0].Integer=MCT_MACROSTEP;
-	OpenMacroInfo mp_info={sizeof(OpenMacroInfo), 2, mp_values};
+	static OpenMacroInfo mp_info={sizeof(OpenMacroInfo), 2, mp_values};
 
 	while ((macro=GetCurMacro()) != nullptr && (macro->m_handle || InitMacroExecution()))
 	{
@@ -1098,6 +1098,7 @@ int KeyMacro::GetKey()
 						if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
 							Ret=(intptr_t)ResultCallPlugin;
 
+						mp_values[2].Type=FMVT_DOUBLE;
 						mp_values[2].Double=Ret;
 						mp_info.Count=3;
 
@@ -1119,6 +1120,91 @@ int KeyMacro::GetKey()
 						//goto return_func;
 				}
 				//return Ret;
+				break;
+			}
+
+			case MPRT_PLUGINMENU:   // N=Plugin.Menu(Guid[,MenuGuid])
+			case MPRT_PLUGINCONFIG: // N=Plugin.Config(Guid[,MenuGuid])
+			case MPRT_PLUGINCOMMAND: // N=Plugin.Command(Guid[,Command])
+			{
+				int Ret=0;
+				const wchar_t *Arg = nullptr;
+				const wchar_t *Guid = nullptr;
+				GUID guid, menuGuid;
+				CallPluginInfo cpInfo={CPT_CHECKONLY};
+				bool ItemFailed=false;
+
+				mp_values[2].Type=FMVT_BOOLEAN;
+				mp_values[2].Integer=Ret;
+				mp_info.Count=3;
+
+				if (mpr->ArgNum>0 && mpr->Args[0].Type==FMVT_STRING)
+					Guid = mpr->Args[0].String;
+				else
+					break;
+
+				if (mpr->ArgNum>1 && mpr->Args[1].Type==FMVT_STRING)
+					Arg=mpr->Args[1].String;
+
+				switch (mpr->ReturnType)
+				{
+					default:
+					case MPRT_PLUGINMENU:
+						cpInfo.CallFlags |= CPT_MENU;
+						if (Arg)
+						{
+							if (StrToGuid(Arg,menuGuid))
+								cpInfo.ItemGuid=&menuGuid;
+							else
+								ItemFailed=true;
+						}
+						break;
+					case MPRT_PLUGINCONFIG:
+						cpInfo.CallFlags |= CPT_CONFIGURE;
+						if (Arg)
+						{
+							if (StrToGuid(Arg,menuGuid))
+								cpInfo.ItemGuid=&menuGuid;
+							else
+								ItemFailed=true;
+						}
+						break;
+					case MPRT_PLUGINCOMMAND:
+						cpInfo.CallFlags |= CPT_CMDLINE;
+						if (Arg)
+							cpInfo.Command=Arg;
+						else
+							cpInfo.Command=L"";
+						break;
+				}
+
+				if (!ItemFailed && StrToGuid(Guid,guid) && CtrlObject->Plugins->FindPlugin(guid))
+				{
+					// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
+					Ret=CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
+					if (Ret)
+					{
+						// Если нашли успешно - то теперь выполнение
+						mp_values[2].Integer=1;
+						cpInfo.CallFlags&=~CPT_CHECKONLY;
+						CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
+#if 0 //FIXME
+						if (MR != Work.MacroWORK)
+							MR=Work.MacroWORK;
+#endif
+					}
+				}
+
+				// По аналогии с KEY_F11
+				FrameManager->RefreshFrame();
+
+#if 0 //FIXME
+				if (Work.Executing == MACROMODE_NOMACRO)
+					goto return_func;
+
+				goto begin;
+#endif
+				break;
 			}
 		}
 	}
@@ -2961,86 +3047,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			PassValue(&tmpVar,Data);
 			return success;
-		}
-
-		case MCODE_F_PLUGIN_MENU:   // N=Plugin.Menu(Guid[,MenuGuid])
-		case MCODE_F_PLUGIN_CONFIG: // N=Plugin.Config(Guid[,MenuGuid])
-		case MCODE_F_PLUGIN_COMMAND: // N=Plugin.Command(Guid[,Command])
-		{
-			int Ret=0;
-			parseParams(2,Params,Data);
-			TVar& Arg = (Params[1]);
-			TVar& Guid = (Params[0]);
-			GUID guid, menuGuid;
-			CallPluginInfo cpInfo={CPT_CHECKONLY};
-			wchar_t EmptyStr[1]={};
-			bool ItemFailed=false;
-
-
-			switch (CheckCode)
-			{
-				case MCODE_F_PLUGIN_MENU:
-					cpInfo.CallFlags |= CPT_MENU;
-					if (!Arg.isUnknown())
-					{
-						if (StrToGuid(Arg.s(),menuGuid))
-							cpInfo.ItemGuid=&menuGuid;
-						else
-							ItemFailed=true;
-					}
-					break;
-				case MCODE_F_PLUGIN_CONFIG:
-					cpInfo.CallFlags |= CPT_CONFIGURE;
-					if (!Arg.isUnknown())
-					{
-						if (StrToGuid(Arg.s(),menuGuid))
-							cpInfo.ItemGuid=&menuGuid;
-						else
-							ItemFailed=true;
-					}
-					break;
-				case MCODE_F_PLUGIN_COMMAND:
-					cpInfo.CallFlags |= CPT_CMDLINE;
-					if (Arg.isString())
-						cpInfo.Command=Arg.s();
-					else
-						cpInfo.Command=EmptyStr;
-					break;
-			}
-
-			if (!ItemFailed && StrToGuid(Guid.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
-			{
-				// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
-				Ret=CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
-				PassBoolean(Ret!=0,Data);
-
-				if (Ret)
-				{
-					// Если нашли успешно - то теперь выполнение
-					cpInfo.CallFlags&=~CPT_CHECKONLY;
-					CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
-#if 0 //FIXME
-					if (MR != Work.MacroWORK)
-						MR=Work.MacroWORK;
-#endif
-				}
-			}
-			else
-			{
-				PassBoolean(0,Data);
-			}
-
-			// По аналогии с KEY_F11
-			FrameManager->RefreshFrame();
-
-#if 0 //FIXME
-			if (Work.Executing == MACROMODE_NOMACRO)
-				goto return_func;
-
-			goto begin;
-#else
-			return 0;
-#endif
 		}
 
 		case MCODE_F_AKEY:                // V=akey(Mode[,Type])

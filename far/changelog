@@ -1,3 +1,9 @@
+shmuel 05.10.2012 01:49:35 +0200 - build 2869
+
+1. M#2159: Plugin.Menu ожидает закрытия меню и НЕ дает работать Keys() для выбора хоткея в меню
+
+2. Макрофункции Plugin.Menu, Plugin.Config и Plugin.Command возвращают false/true.
+
 w17 04.10.2012 16:37:06 +0400 - build 2868
 
 1. Visible leading space(s) in dialog static text

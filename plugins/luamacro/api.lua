@@ -610,12 +610,11 @@ BM = {
 
 Plugin = {
 --Call     = function(...) return MacroCallFar(0x80C50, ...) end,
-  Call     = args.PluginCall,
-  Command  = function(...) return MacroCallFar(0x80C52, ...) end,
-  Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
+--Command  = function(...) return MacroCallFar(0x80C52, ...) end,
+--Config   = function(...) return MacroCallFar(0x80C4F, ...) end,
   Exist    = function(...) return MacroCallFar(0x80C54, ...) end,
   Load     = function(...) return MacroCallFar(0x80C51, ...) end,
-  Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
+--Menu     = function(...) return MacroCallFar(0x80C4E, ...) end,
   Unload   = function(...) return MacroCallFar(0x80C53, ...) end,
 }
 --------------------------------------------------------------------------------

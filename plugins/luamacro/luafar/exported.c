@@ -646,6 +646,9 @@ static HANDLE Open_Luamacro (lua_State* L, const struct OpenInfo *Info)
         }
 
         case MPRT_PLUGINCALL:
+        case MPRT_PLUGINMENU:
+        case MPRT_PLUGINCONFIG:
+        case MPRT_PLUGINCOMMAND:
         {
           int nargs, type, idx;
           INT64 val64;

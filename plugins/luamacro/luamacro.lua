@@ -66,9 +66,10 @@ function _G.printf (fmt, ...)
   return _G.print(fmt:format(...))
 end
 
-local function PluginCall (...)
-  return co_yield(PROPAGATE, F.MPRT_PLUGINCALL, pack(...))
-end
+local function PluginCall    (...) return co_yield(PROPAGATE, F.MPRT_PLUGINCALL,    pack(...)) end
+local function PluginMenu    (...) return co_yield(PROPAGATE, F.MPRT_PLUGINMENU,    pack(...)) end
+local function PluginConfig  (...) return co_yield(PROPAGATE, F.MPRT_PLUGINCONFIG,  pack(...)) end
+local function PluginCommand (...) return co_yield(PROPAGATE, F.MPRT_PLUGINCOMMAND, pack(...)) end
 
 function _G.exit ()
   co_yield(PROPAGATE, "exit")
@@ -119,7 +120,12 @@ local function MacroStep (args)
         status = co_status(macro.coro)
         if status == "suspended" and ret1 == PROPAGATE and ret2 ~= "exit" then
           macro.store[1] = ret3
-          return ret2, (ret2 ~= F.MPRT_PLUGINCALL) and macro.store or ret3
+          if ret2==F.MPRT_PLUGINCALL or ret2==F.MPRT_PLUGINMENU or
+             ret2==F.MPRT_PLUGINCONFIG or ret2==F.MPRT_PLUGINCOMMAND then
+            return ret2, ret3
+          else
+            return ret2, macro.store
+          end
         else
           MacroTable[handle] = false
           LastMessage[1] = "OK"
@@ -191,8 +197,14 @@ end
 
 do
   local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."api.lua")
-  if func then func { checkarg=checkarg, PluginCall=PluginCall }
-  else ErrMsg(msg)
+  if func then
+    func { checkarg=checkarg }
+    Plugin.Call=PluginCall
+    Plugin.Menu=PluginMenu
+    Plugin.Config=PluginConfig
+    Plugin.Command=PluginCommand
+  else
+    ErrMsg(msg)
   end
 
   ReadVarsConsts("consts")
