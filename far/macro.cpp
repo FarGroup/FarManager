@@ -702,6 +702,8 @@ bool KeyMacro::IsHistoryDisable(int TypeHistory)
 
 void KeyMacro::SetMode(int Mode) //FIXME: int->MACROMODEAREA
 {
+	if (Mode < 0 || Mode >= MACRO_LAST)
+		Mode = Mode;
 	m_Mode=(MACROMODEAREA)Mode;
 }
 
@@ -1211,6 +1213,8 @@ int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool U
 {
 	//SZLOG("GetIndex: %08x,%ls",Key,strKey.CPtr());
 	int loops = UseCommon && CheckMode!=-1 && CheckMode!=MACRO_COMMON ? 2:1;
+	if (CheckMode >= MACRO_LAST)
+		loops = 0;
 	for (int k=0; k<loops; k++)
 	{
 		int startArea = (CheckMode==-1) ? 0:CheckMode;
