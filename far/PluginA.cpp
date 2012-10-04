@@ -4710,7 +4710,12 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		case oldfar::ECTL_REALTOTAB:		Command = ECTL_REALTOTAB; break;
 		case oldfar::ECTL_REDRAW:				Command = ECTL_REDRAW; break;
 		case oldfar::ECTL_SELECT:				Command = ECTL_SELECT; break;
-		case oldfar::ECTL_SETPOSITION:	Command = ECTL_SETPOSITION; break;
+		case oldfar::ECTL_SETPOSITION:
+		{
+			oldfar::EditorSetPosition *oldsp = (oldfar::EditorSetPosition*) Param;
+			EditorSetPosition newsp={sizeof(EditorSetPosition),oldsp->CurLine,oldsp->CurPos,oldsp->CurTabPos,oldsp->TopScreenLine,oldsp->LeftPos,oldsp->Overtype};
+			return static_cast<int>(NativeInfo.EditorControl(-1, ECTL_SETPOSITION, 0, &newsp));
+		}
 		case oldfar::ECTL_TABTOREAL:		Command = ECTL_TABTOREAL; break;
 		case oldfar::ECTL_ADDSTACKBOOKMARK:			Command = ECTL_ADDSESSIONBOOKMARK; break;
 		case oldfar::ECTL_PREVSTACKBOOKMARK:		Command = ECTL_PREVSESSIONBOOKMARK; break;
