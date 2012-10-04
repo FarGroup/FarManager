@@ -702,8 +702,6 @@ bool KeyMacro::IsHistoryDisable(int TypeHistory)
 
 void KeyMacro::SetMode(int Mode) //FIXME: int->MACROMODEAREA
 {
-	if (Mode < 0 || Mode >= MACRO_LAST)
-		Mode = Mode;
 	m_Mode=(MACROMODEAREA)Mode;
 }
 
