@@ -186,7 +186,7 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
     Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
     bool TabPresent=wmemchr(egs.StringText,L'\t',egs.StringLength)!=nullptr;
-    int TabLength=egs.StringLength;
+    intptr_t TabLength=egs.StringLength;
     if (TabPresent)
     {
       struct EditorConvertPos ecp={sizeof(EditorConvertPos)};
@@ -199,13 +199,13 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
     if ((Pass!=1 || prevegs.StringLength!=egs.StringLength) &&
         TabLength>=Opt.RightMargin && ei.CurPos>=egs.StringLength)
     {
-      int SpacePos=-1;
-      for (int I=egs.StringLength-1;I>0;I--)
+      intptr_t SpacePos=-1;
+      for (intptr_t I=egs.StringLength-1;I>0;I--)
       {
         if (egs.StringText[I]==L' ' || egs.StringText[I]==L'\t')
         {
           SpacePos=I;
-          int TabPos=I;
+          intptr_t TabPos=I;
           if (TabPresent)
           {
             struct EditorConvertPos ecp={sizeof(EditorConvertPos)};

@@ -459,7 +459,7 @@ void NetBrowser::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
 }
 
 
-int NetBrowser::ProcessEvent(int Event, void* /*Param*/)
+int NetBrowser::ProcessEvent(intptr_t Event, void* /*Param*/)
 {
 	if (Event == FE_CLOSE)
 	{
@@ -605,7 +605,7 @@ BOOL NetBrowser::GetDriveToDisconnect(const wchar_t *RemoteName, wchar_t *LocalN
 			lstrcat(MsgText, L"\n");
 		}
 
-		int index = Info.Message(&MainGuid, nullptr, FMSG_ALLINONE, NULL,
+		int index = (int)Info.Message(&MainGuid, nullptr, FMSG_ALLINONE, NULL,
 		                         (const wchar_t **) MsgText, 3+LocalNameCount, LocalNameCount);
 
 		if (index < 0)
@@ -1653,7 +1653,7 @@ BOOL NetBrowser::AskMapDrive(wchar_t *NewLocalName, BOOL &Permanent)
 
 		FarKey BreakKeys[]={{VK_F6,0}, {0,0}};
 		intptr_t BreakCode;
-		ExitCode=Info.Menu(&MainGuid, nullptr,-1,-1,0,0,
+		ExitCode=(int)Info.Menu(&MainGuid, nullptr,-1,-1,0,0,
 		                   MenuTitle,MenuBottom,StrHelpNetBrowse,
 		                   BreakKeys,&BreakCode,MenuItems,MenuItemsNumber);
 

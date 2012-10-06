@@ -122,7 +122,7 @@ class NetBrowser
 		int SetDirectory(const wchar_t *Dir,OPERATION_MODES OpMode);
 		int DeleteFiles(struct PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODES OpMode);
 		int ProcessKey(const INPUT_RECORD *Rec);
-		int ProcessEvent(int Event, void *Param);
+		int ProcessEvent(intptr_t Event, void *Param);
 		void SetOpenFromCommandLine(wchar_t *ShareName);
 		BOOL SetOpenFromFilePanel(wchar_t *ShareName);
 		void GotoLocalNetwork();

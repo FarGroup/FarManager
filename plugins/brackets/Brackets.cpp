@@ -127,7 +127,7 @@ int ShowMenu(int Type)
 
 	while(1)
 	{
-		Ret=Info.Menu(&MainGuid, nullptr,-1,-1,0,FMENU_WRAPMODE,GetMsg(MTitle),NULL,HelpTopic[Type&1],NULL,NULL,shMenu,ARRAYSIZE(shMenu));
+		Ret=(int)Info.Menu(&MainGuid, nullptr,-1,-1,0,FMENU_WRAPMODE,GetMsg(MTitle),NULL,HelpTopic[Type&1],NULL,NULL,shMenu,ARRAYSIZE(shMenu));
 
 		if(Ret == 3)
 			Config();
@@ -150,7 +150,8 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 	int nQuotes=0;
 	int isSelect=-1;
-	int CurPos,i=3,j,k;
+	intptr_t CurPos;
+	int i=3,j,k;
 	int Direction=0,DirectQuotes=-1;
 	int types=BrZERO;
 	BOOL found=FALSE;

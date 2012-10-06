@@ -74,7 +74,7 @@ void CaseConvertion()
 					FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 					Info.PanelControl(PANEL_ACTIVE,FCTL_GETSELECTEDPANELITEM,I,&gpi);
 					GetFullName(FullName,dirInfo->Name,PPI->FileName);
-					ProcessName(FullName,PPI->FileAttributes);
+					ProcessName(FullName,(DWORD)PPI->FileAttributes);
 					free(PPI);
 				}
 			}

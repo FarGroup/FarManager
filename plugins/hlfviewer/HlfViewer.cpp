@@ -321,7 +321,7 @@ void ShowHelpFromTempFile()
 			for (egs.StringNumber=0; egs.StringNumber<ei.TotalLines; egs.StringNumber++)
 			{
 				Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
-				WriteFile(Handle, egs.StringText, egs.StringLength*sizeof(wchar_t), &Count, NULL);
+				WriteFile(Handle, egs.StringText, (DWORD)(egs.StringLength*sizeof(wchar_t)), &Count, NULL);
 				WriteFile(Handle, L"\r\n", 2*sizeof(wchar_t), &Count, NULL);
 			}
 
@@ -394,19 +394,17 @@ BOOL IsHlf(void)
 	Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 	memset(&esp,-1,sizeof(esp));
 	egs.StringNumber=-1;
-	int total=(ei.TotalLines<3)?ei.TotalLines:3;
+	intptr_t total=(ei.TotalLines<3)?ei.TotalLines:3;
 
 	if (total>2) for (esp.CurLine=0; esp.CurLine<total; esp.CurLine++)
 	{
-		{
-			Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
-			Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
+		Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
+		Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
-			if (!FSF.LStrnicmp(_T(".Language="),egs.StringText,10))
-			{
-				ret=TRUE;
-				break;
-			}
+		if (!FSF.LStrnicmp(_T(".Language="),egs.StringText,10))
+		{
+			ret=TRUE;
+			break;
 		}
 	}
 

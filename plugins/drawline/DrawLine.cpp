@@ -28,7 +28,7 @@ BOOL WINAPI DllMainCRTStartup(HANDLE hDll,DWORD dwReason,LPVOID lpReserved)
 #endif
 
 void ProcessShiftKey(int KeyCode,int LineWidth);
-void GetEnvType(wchar_t *NewString,int StringLength,struct EditorInfo *ei, int &LeftLine,int &UpLine,int &RightLine,int &DownLine);
+void GetEnvType(wchar_t *NewString,intptr_t StringLength,struct EditorInfo *ei, int &LeftLine,int &UpLine,int &RightLine,int &DownLine);
 bool SetTitle(int LineWidth,int IDTitle);
 const wchar_t *GetMsg(int MsgId);
 
@@ -305,7 +305,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 
 	if (ei.CurLine>0)
 	{
-		int StringNumber=ei.CurLine-1;
+		int StringNumber=(int)(ei.CurLine-1);
 		Info.EditorControl(-1,ECTL_EXPANDTABS,0,&StringNumber);
 	}
 
@@ -334,7 +334,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 
 	if (ei.CurLine<ei.TotalLines-1)
 	{
-		int StringNumber=ei.CurLine+1;
+		int StringNumber=(int)(ei.CurLine+1);
 		Info.EditorControl(-1,ECTL_EXPANDTABS,0,&StringNumber);
 	}
 
@@ -392,7 +392,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 	egs.StringNumber=ei.CurLine;
 	Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 
-	int StringLength=egs.StringLength>ei.CurPos ? egs.StringLength:ei.CurPos+1;
+	intptr_t StringLength=egs.StringLength>ei.CurPos ? egs.StringLength:ei.CurPos+1;
 	wchar_t *NewString=(wchar_t *)malloc(StringLength*sizeof(wchar_t));
 
 	if (!NewString)
@@ -484,7 +484,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 }
 
 
-void GetEnvType(wchar_t *NewString,int StringLength,struct EditorInfo *ei,
+void GetEnvType(wchar_t *NewString,intptr_t StringLength,struct EditorInfo *ei,
                 int &LeftLine,int &UpLine,int &RightLine,int &DownLine)
 {
 	wchar_t OldChar[3];

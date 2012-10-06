@@ -91,7 +91,7 @@ Plist::Plist()
 
 	int Plist::Menu(unsigned int Flags, const wchar_t *Title, const wchar_t *Bottom, wchar_t *HelpTopic, const struct FarKey *BreakKeys, FarMenuItem *Item, int ItemsNumber)
 	{
-		return (*Info.Menu)(&MainGuid, nullptr, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys, 0, Item, ItemsNumber);
+		return (int)(*Info.Menu)(&MainGuid, nullptr, -1, -1, 0, Flags, Title, Bottom, HelpTopic, BreakKeys, 0, Item, ItemsNumber);
 	}
 
 void Plist::InitializePanelModes()
@@ -557,7 +557,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 		ProcessPerfData* pd = 0;
 
 		if (pPerfThread)
-			pd = pPerfThread->GetProcessData(pdata.dwPID, CurItem.NumberOfLinks);
+			pd = pPerfThread->GetProcessData(pdata.dwPID, (DWORD)CurItem.NumberOfLinks);
 
 		const int DataOffset = sizeof(wchar_t*) * MAX_CUSTOM_COLS;
 		int Widths[MAX_CUSTOM_COLS];
@@ -612,7 +612,7 @@ int Plist::GetFindData(PluginPanelItem*& pPanelItem,size_t &ItemsNumber,OPERATIO
 
 							break;
 					//	case L'W': case L'w': dwData = hwnd; nBase = 16; break;
-						case L'T': case L't': dwData = CurItem.NumberOfLinks; break;
+						case L'T': case L't': dwData = (DWORD)CurItem.NumberOfLinks; break;
 						case L'B': case L'b': dwData = pdata.uAppType; break;
 
 						case L'G': case L'g': if (pd) dwData = pd->dwGDIObjects; break;
@@ -708,7 +708,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 		if (!pdata)
 		{
 			PData.dwPID = FSF.atoi(CurItem.AlternateFileName);
-			ProcessPerfData* ppd = pPerfThread->GetProcessData(PData.dwPID, CurItem.NumberOfLinks);
+			ProcessPerfData* ppd = pPerfThread->GetProcessData(PData.dwPID, (DWORD)CurItem.NumberOfLinks);
 
 			if (ppd && GetPDataNT(PData, *ppd))
 				pdata = &PData;
@@ -827,7 +827,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 			if (hProcess)
 			{
 				Lock l(pPerfThread);
-				ProcessPerfData* pd = pPerfThread->GetProcessData(pdata->dwPID, CurItem.NumberOfLinks);
+				ProcessPerfData* pd = pPerfThread->GetProcessData(pdata->dwPID, (DWORD)CurItem.NumberOfLinks);
 
 				if (pd)
 				{
@@ -845,7 +845,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 		}// NT && !*HostName
 
 		if (Opt.ExportPerformance && pPerfThread)
-			DumpNTCounters(InfoFile, *pPerfThread, pdata->dwPID, CurItem.NumberOfLinks);
+			DumpNTCounters(InfoFile, *pPerfThread, pdata->dwPID, (DWORD)CurItem.NumberOfLinks);
 
 		if (!*HostName && pdata->hwnd)
 		{
@@ -1040,7 +1040,7 @@ int Plist::DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODE
 }
 
 
-int Plist::ProcessEvent(int Event,void *Param)
+int Plist::ProcessEvent(intptr_t Event,void *Param)
 {
 	if (Event==FE_IDLE && (pPerfThread && pPerfThread->Updated() /*|| !pPerfThread&&GetTickCount()-LastUpdateTime>1000*/))
 		Reread();
@@ -1891,9 +1891,9 @@ int Plist::Compare(const PluginPanelItem *Item1, const PluginPanelItem *Item2,
 		{
 			Lock l(pPerfThread);
 			ProcessPerfData* data1 = pPerfThread->GetProcessData(
-			                             ((ProcessData*)Item1->UserData.Data)->dwPID,Item1->NumberOfLinks);
+			                             ((ProcessData*)Item1->UserData.Data)->dwPID,(DWORD)Item1->NumberOfLinks);
 			ProcessPerfData* data2 = pPerfThread->GetProcessData(
-			                             ((ProcessData*)Item2->UserData.Data)->dwPID,Item2->NumberOfLinks);
+			                             ((ProcessData*)Item2->UserData.Data)->dwPID,(DWORD)Item2->NumberOfLinks);
 
 			if (data1==0) return data2 ? 1 : 0;
 
@@ -1918,7 +1918,7 @@ int Plist::Compare(const PluginPanelItem *Item1, const PluginPanelItem *Item2,
 	}
 
 	if (diff==0)
-		diff = (uintptr_t)Item1->UserData.Data - (uintptr_t)Item2->UserData.Data; // unsorted
+		diff = (int)((uintptr_t)Item1->UserData.Data - (uintptr_t)Item2->UserData.Data); // unsorted
 
 	return diff<0 ? -1 : diff==0 ? 0 : 1;
 }

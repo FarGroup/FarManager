@@ -102,7 +102,7 @@ class Plist
 		int GetFiles(PluginPanelItem *PanelItem,int ItemsNumber,
 		             int Move,WCONST WTYPE DestPath,OPERATION_MODES OpMode, _Opt& opt=::Opt);
 		int DeleteFiles(PluginPanelItem *PanelItem,int ItemsNumber,OPERATION_MODES OpMode);
-		int ProcessEvent(int Event,void *Param);
+		int ProcessEvent(intptr_t Event,void *Param);
 		int Compare(const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned int Mode);
 		int ProcessKey(const INPUT_RECORD *Rec);
 		PanelMode *PanelModes(size_t& nModes);

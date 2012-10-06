@@ -394,7 +394,7 @@ static bool ShowDialog(bool bPluginPanels, bool bSelectionPresent)
 	if (hDlg == INVALID_HANDLE_VALUE)
 		return false;
 
-	int ExitCode = Info.DialogRun(hDlg);
+	intptr_t ExitCode = Info.DialogRun(hDlg);
 
 	if (ExitCode == (ARRAYSIZE(InitItems) - 2))
 	{
@@ -1094,7 +1094,7 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	Info->PluginMenu.Count=ARRAYSIZE(PluginMenuStrings);
 }
 
-void GetPanelItem(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int Param1,PluginPanelItem* Param2)
+void GetPanelItem(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,intptr_t Param1,PluginPanelItem* Param2)
 {
 	size_t Size = Info.PanelControl(hPlugin,Command,Param1,0);
 	PluginPanelItem* item=(PluginPanelItem*)malloc(Size);

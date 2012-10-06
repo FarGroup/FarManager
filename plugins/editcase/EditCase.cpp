@@ -56,8 +56,8 @@ static int WordDivLen;
 
 const wchar_t *GetMsg(int MsgId);
 bool FindBounds(wchar_t *Str, intptr_t Len, intptr_t Pos, intptr_t &Start, intptr_t &End);
-int FindEnd(wchar_t *Str, intptr_t Len, intptr_t Pos);
-int FindStart(wchar_t *Str, intptr_t Len, intptr_t Pos);
+intptr_t FindEnd(wchar_t *Str, intptr_t Len, intptr_t Pos);
+intptr_t FindStart(wchar_t *Str, intptr_t Len, intptr_t Pos);
 bool MyIsAlpha(int c);
 int GetNextCCType(wchar_t *Str, intptr_t StrLen, intptr_t Start, intptr_t End);
 int ChangeCase(wchar_t *NewString, intptr_t Start, intptr_t End, int CCType);
@@ -136,7 +136,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		// First item is selected
 		MenuItems[0].Flags=MIF_SELECTED;
 		// Show menu
-		MenuCode=Info.Menu(&MainGuid, nullptr,-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
+		MenuCode=(int)Info.Menu(&MainGuid, nullptr,-1,-1,0,FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
 		                       GetMsg(MCaseConversion),NULL,L"Contents",NULL,NULL,
 		                       MenuItems,ARRAYSIZE(MenuItems));
 	}
@@ -150,7 +150,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			EditorInfo ei={sizeof(EditorInfo)};
 			Info.EditorControl(-1,ECTL_GETINFO,0,&ei);
 			// Current line number
-			int CurLine=ei.CurLine;
+			intptr_t CurLine=ei.CurLine;
 			// Is anything selected
 			bool IsBlock=false;
 
@@ -377,10 +377,10 @@ bool FindBounds(wchar_t *Str, intptr_t Len, intptr_t Pos, intptr_t &Start, intpt
 	return ret;
 }
 
-int FindStart(wchar_t *Str, intptr_t Start, intptr_t End)
+intptr_t FindStart(wchar_t *Str, intptr_t Start, intptr_t End)
 {
 	// Current pos in Str
-	int CurPos=End-1;
+	intptr_t CurPos=End-1;
 
 	// While current character is letter
 	while (CurPos>=Start && MyIsAlpha(Str[CurPos]))
@@ -389,10 +389,10 @@ int FindStart(wchar_t *Str, intptr_t Start, intptr_t End)
 	return CurPos+1;
 }
 
-int FindEnd(wchar_t *Str, intptr_t Start, intptr_t End)
+intptr_t FindEnd(wchar_t *Str, intptr_t Start, intptr_t End)
 {
 	// Current pos in Str
-	int CurPos=Start;
+	intptr_t CurPos=Start;
 
 	// While current character is letter
 	while (CurPos<End && MyIsAlpha(Str[CurPos]))
@@ -411,7 +411,7 @@ int ChangeCase(wchar_t *NewString, intptr_t Start, intptr_t End, int CCType)
 	int ChangeCount=0;
 
 	// Main loop (position inside line)
-	for (int i=Start; i<End; i++)
+	for (intptr_t i=Start; i<End; i++)
 	{
 		if (MyIsAlpha(NewString[i]))// && ReverseOem==NewString[i])
 		{
@@ -482,7 +482,7 @@ int GetNextCCType(wchar_t *Str, intptr_t StrLen, intptr_t Start, intptr_t End)
 
 		if (WrappedWord != NULL)
 		{
-			lstrcpyn(SignalWord, &Str[SignalWordStart], SignalWordLen+1);
+			lstrcpyn(SignalWord, &Str[SignalWordStart], (int)(SignalWordLen+1) /* BUGBUG because of intptr_t */);
 			lstrcpy(WrappedWord, SignalWord);
 			// if UPPER then Title
 			FSF.LUpperBuf(WrappedWord, SignalWordLen);
@@ -526,7 +526,7 @@ int GetNextCCType(wchar_t *Str, intptr_t StrLen, intptr_t Start, intptr_t End)
 								// if upper case letters amount more than lower case letters
 								// then tOGGLE
 								FSF.LUpperBuf(WrappedWord, SignalWordLen);
-								int Counter=SignalWordLen/2+1;
+								intptr_t Counter=SignalWordLen/2+1;
 
 								for (int i=0; i<SignalWordLen && Counter; i++)
 									if (SignalWord[i]==WrappedWord[i])

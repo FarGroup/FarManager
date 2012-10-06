@@ -68,7 +68,7 @@ void ProcessName(const wchar_t *OldFullName, DWORD FileAttributes)
 		{
 			for (size_t I=0; I < ItemsNumber; I++)
 			{
-				ProcessName(Items[I].FileName,Items[I].FileAttributes);
+				ProcessName(Items[I].FileName,(DWORD)Items[I].FileAttributes);
 			}
 		}
 
