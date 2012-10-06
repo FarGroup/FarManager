@@ -22833,6 +22833,26 @@ upd:"&Reset"
 "&Reiniciar"
 "&Reset"
 
+MPluginLuamacroNotLoaded
+"Плагин LuaMacro не загружен"
+"Plugin LuaMacro is not loaded"
+upd:"Plugin LuaMacro is not loaded"
+upd:"Plugin LuaMacro is not loaded"
+upd:"Plugin LuaMacro is not loaded"
+upd:"Plugin LuaMacro is not loaded"
+upd:"Plugin LuaMacro is not loaded"
+upd:"Plugin LuaMacro is not loaded"
+
+MMacroRecordingIsDisabled
+"Запись макросов запрещена"
+"Macro recording is disabled"
+upd:"Macro recording is disabled"
+upd:"Macro recording is disabled"
+upd:"Macro recording is disabled"
+upd:"Macro recording is disabled"
+upd:"Macro recording is disabled"
+upd:"Macro recording is disabled"
+
 
 #Must be the last
 MNewFileName
