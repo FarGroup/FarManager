@@ -127,7 +127,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
       break;
     if (egs.SelStart==-1 || egs.SelStart==egs.SelEnd)
       break;
-    int ExpandNum=-1;
+    intptr_t ExpandNum=-1;
     Info.EditorControl(-1,ECTL_EXPANDTABS,0,&ExpandNum);
     Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
 

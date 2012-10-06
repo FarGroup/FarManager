@@ -305,7 +305,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 
 	if (ei.CurLine>0)
 	{
-		int StringNumber=(int)(ei.CurLine-1);
+		intptr_t StringNumber=ei.CurLine-1;
 		Info.EditorControl(-1,ECTL_EXPANDTABS,0,&StringNumber);
 	}
 
@@ -334,7 +334,7 @@ void ProcessShiftKey(int KeyCode,int LineWidth)
 
 	if (ei.CurLine<ei.TotalLines-1)
 	{
-		int StringNumber=(int)(ei.CurLine+1);
+		intptr_t StringNumber=ei.CurLine+1;
 		Info.EditorControl(-1,ECTL_EXPANDTABS,0,&StringNumber);
 	}
 
