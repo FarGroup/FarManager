@@ -3519,7 +3519,7 @@ static int far_TruncStr (lua_State *L)
   return truncstring(L, 's');
 }
 
-static intptr_t WINAPI FrsUserFunc (const struct PluginPanelItem *FData, const wchar_t *FullName,
+static int WINAPI FrsUserFunc (const struct PluginPanelItem *FData, const wchar_t *FullName,
   void *Param)
 {
   int err, proceed;

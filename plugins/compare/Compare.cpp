@@ -503,7 +503,7 @@ struct FileIndex
  * Функция сравнения имён файлов в двух структурах PluginPanelItem
  * для нужд qsort()
  ****************************************************************************/
-static intptr_t WINAPI PICompare(const void *el1, const void *el2, void*)
+static int WINAPI PICompare(const void *el1, const void *el2, void*)
 {
 	const PluginPanelItem *ppi1 = *(const PluginPanelItem **)el1, *ppi2 = *(const PluginPanelItem **)el2;
 

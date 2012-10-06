@@ -354,7 +354,7 @@ void TmpPanel::FindSearchResultsPanel()
 	}
 }
 
-intptr_t WINAPI SortListCmp(const void *el1, const void *el2, void *userparam)
+int WINAPI SortListCmp(const void *el1, const void *el2, void *userparam)
 {
 	PluginPanelItem* TmpPanelItem = reinterpret_cast<PluginPanelItem*>(userparam);
 	int idx1 = *reinterpret_cast<const int*>(el1);

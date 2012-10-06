@@ -31,9 +31,9 @@ static struct FarStandardFunctions FSF;
 
 static void ReformatBlock(int RightMargin,int SmartMode,int Justify);
 static void JustifyBlock(int RightMargin);
-static int JustifyString(int RightMargin,struct EditorSetString &ess);
+static bool JustifyString(int RightMargin,struct EditorSetString &ess);
 
-const wchar_t *GetMsg(int MsgId)
+const wchar_t *GetMsg(intptr_t MsgId)
 {
   return Info.GetMsg(&MainGuid,MsgId);
 }
@@ -116,7 +116,8 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
   Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
 
   wchar_t *TotalString=NULL;
-  int TotalLength=0,IndentSize=0x7fffffff;
+  intptr_t TotalLength=0;
+  int IndentSize=0x7fffffff;
 
   while (1)
   {
@@ -304,7 +305,7 @@ void JustifyBlock(int RightMargin)
       break;
     if (egs.SelStart==-1 || egs.SelStart==egs.SelEnd)
       break;
-    int ExpNum=egs.StringNumber;
+    int ExpNum=(int)egs.StringNumber;
     if (!Info.EditorControl(-1,ECTL_EXPANDTABS,0,&ExpNum))
       break;
     Info.EditorControl(-1,ECTL_GETSTRING,0,&egs);
@@ -324,7 +325,7 @@ void JustifyBlock(int RightMargin)
 }
 
 
-int JustifyString(int RightMargin,struct EditorSetString &ess)
+bool JustifyString(int RightMargin,struct EditorSetString &ess)
 {
   int WordCount=0;
   int I;
@@ -334,11 +335,11 @@ int JustifyString(int RightMargin,struct EditorSetString &ess)
   if (ess.StringLength>0 && ess.StringText[ess.StringLength-1]==L' ')
     WordCount--;
   if (WordCount<=0)
-    return(FALSE);
+    return false;
   while (ess.StringLength>0 && ess.StringText[ess.StringLength-1]==L' ')
     ess.StringLength--;
-  int TotalAddSize=RightMargin-ess.StringLength;
-  int AddSize=TotalAddSize/WordCount;
+  intptr_t TotalAddSize=RightMargin-ess.StringLength;
+  intptr_t AddSize=TotalAddSize/WordCount;
   int Reminder=TotalAddSize%WordCount;
 
   wchar_t *NewString=(wchar_t *)malloc(RightMargin*sizeof(wchar_t));
@@ -349,7 +350,7 @@ int JustifyString(int RightMargin,struct EditorSetString &ess)
   {
     if (NewString[I]!=L' ' && NewString[I+1]==L' ')
     {
-      int MoveSize=AddSize;
+      intptr_t MoveSize=AddSize;
       if (Reminder)
       {
         MoveSize++;
@@ -367,5 +368,5 @@ int JustifyString(int RightMargin,struct EditorSetString &ess)
   ess.StringLength=RightMargin;
   Info.EditorControl(-1,ECTL_SETSTRING,0,&ess);
   free(NewString);
-  return(TRUE);
+  return true;
 }
