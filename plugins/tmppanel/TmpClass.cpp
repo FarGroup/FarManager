@@ -357,8 +357,8 @@ void TmpPanel::FindSearchResultsPanel()
 int WINAPI SortListCmp(const void *el1, const void *el2, void *userparam)
 {
 	PluginPanelItem* TmpPanelItem = reinterpret_cast<PluginPanelItem*>(userparam);
-	int idx1 = *reinterpret_cast<const int*>(el1);
-	int idx2 = *reinterpret_cast<const int*>(el2);
+	size_t idx1 = *reinterpret_cast<const size_t*>(el1);
+	size_t idx2 = *reinterpret_cast<const size_t*>(el2);
 	int res = lstrcmp(TmpPanelItem[idx1].FileName, TmpPanelItem[idx2].FileName);
 
 	if (res == 0)
@@ -373,7 +373,7 @@ int WINAPI SortListCmp(const void *el1, const void *el2, void *userparam)
 
 void TmpPanel::RemoveDups()
 {
-	int* indices = reinterpret_cast<int*>(malloc(TmpItemsNumber*sizeof(int)));
+	size_t* indices = reinterpret_cast<size_t*>(malloc(TmpItemsNumber*sizeof(size_t)));
 
 	if (indices == NULL)
 		return;
@@ -381,7 +381,7 @@ void TmpPanel::RemoveDups()
 	for (size_t i = 0; i < TmpItemsNumber; i++)
 		indices[i] = i;
 
-	FSF.qsort(indices, TmpItemsNumber, sizeof(int), SortListCmp, TmpPanelItem);
+	FSF.qsort(indices, TmpItemsNumber, sizeof(*indices), SortListCmp, TmpPanelItem);
 
 	for (size_t i = 0; i + 1 < TmpItemsNumber; i++)
 		if (lstrcmp(TmpPanelItem[indices[i]].FileName, TmpPanelItem[indices[i + 1]].FileName) == 0)
@@ -554,7 +554,7 @@ void TmpPanel::UpdateItems(int ShowOwners,int ShowLinks)
 }
 
 
-int TmpPanel::ProcessEvent(int Event,void *)
+int TmpPanel::ProcessEvent(intptr_t Event,void *)
 {
 	if (Event==FE_CHANGEVIEWMODE)
 	{
@@ -650,7 +650,7 @@ int TmpPanel::ProcessKey(const INPUT_RECORD *Rec)
 				{
 					FarGetPluginPanelItem gpi={sizeof(FarGetPluginPanelItem), Size, PPI};
 					Info.PanelControl(this,FCTL_GETPANELITEM,PInfo.CurrentItem,&gpi);
-					attributes=PPI->FileAttributes;
+					attributes=(DWORD)PPI->FileAttributes;
 					free(PPI);
 				}
 
@@ -918,7 +918,7 @@ void TmpPanel::ProcessPanelSwitchMenu()
 	}
 
 	fmi[PanelIndex].Flags|=MIF_SELECTED;
-	int ExitCode=Info.Menu(&MainGuid, nullptr,-1,-1,0,
+	int ExitCode=(int)Info.Menu(&MainGuid, nullptr,-1,-1,0,
 	                       FMENU_AUTOHIGHLIGHT|FMENU_WRAPMODE,
 	                       GetMsg(MSwitchMenuTitle),NULL,NULL,
 	                       NULL,NULL,fmi,COMMONPANELSNUMBER);

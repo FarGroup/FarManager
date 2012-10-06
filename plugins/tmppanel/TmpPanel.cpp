@@ -180,7 +180,7 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar
 
 			Len = Pos - Off;
 			Len = MultiByteToWideChar(CP_OEMCP, MB_PRECOMPOSED|MB_ERR_INVALID_CHARS,
-			                          &FileData[Off], Len, TMP, TMP.Size()-1);
+			                          &FileData[Off], Len, TMP, (DWORD)(TMP.Size()-1));
 		}
 		else
 		{
@@ -201,7 +201,7 @@ void ReadFileLines(HANDLE hFileMapping, DWORD FileSizeLow, wchar_t **argv, wchar
 			Len = (Pos-Off)/sizeof(wchar_t);
 
 			if (Len >= (DWORD)TMP.Size())
-				Len = TMP.Size()-1;
+				Len = (DWORD)(TMP.Size()-1);
 
 			memcpy(TMP.Ptr(), &FileData[Off], Len*sizeof(wchar_t));
 		}
@@ -316,7 +316,7 @@ static void ShowMenuFromList(wchar_t *Name)
 		FSF.TruncPathStr(Title,64);
 		FarKey BreakKeys[]={{VK_RETURN,SHIFT_PRESSED}, {0,0}};
 		intptr_t BreakCode;
-		int ExitCode=Info.Menu(&MainGuid, nullptr, -1, -1, 0,
+		int ExitCode=(int)Info.Menu(&MainGuid, nullptr, -1, -1, 0,
 		                       FMENU_WRAPMODE, Title, NULL, L"Contents",
 		                       &BreakKeys[0], &BreakCode, fmi, argc);
 

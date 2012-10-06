@@ -158,12 +158,12 @@ wchar_t* FormNtPath(const wchar_t* path, StrBuf& buf)
 wchar_t* ExpandEnvStrs(const wchar_t* input, StrBuf& output)
 {
 	output.Grow(NT_MAX_PATH);
-	size_t size = ExpandEnvironmentStrings(input, output, output.Size());
+	size_t size = ExpandEnvironmentStrings(input, output, (DWORD)output.Size());
 
 	if (size > output.Size())
 	{
 		output.Grow(size);
-		size = ExpandEnvironmentStrings(input, output, output.Size());
+		size = ExpandEnvironmentStrings(input, output, (DWORD)output.Size());
 	}
 
 	if ((size == 0) || (size > output.Size()))

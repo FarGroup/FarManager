@@ -54,7 +54,7 @@ class TmpPanel
 		int PutOneFile(const wchar_t* FilePath);
 
 		int SetFindList(const struct PluginPanelItem *PanelItem,size_t ItemsNumber);
-		int ProcessEvent(int Event,void *Param);
+		int ProcessEvent(intptr_t Event,void *Param);
 		int ProcessKey(const INPUT_RECORD *Rec);
 		void IfOptCommonPanel(void);
 
