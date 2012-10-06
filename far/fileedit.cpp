@@ -2588,14 +2588,18 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 			if (!Kbt)   //восстановить изначальное
 				InitKeyBar();
-			else if(CheckStructSize(Kbt))
+			else
 			{
 				if ((intptr_t)Param2 != (intptr_t)-1) // не только перерисовать?
-					EditKeyBar.Change(Kbt->Titles);
+				{
+				    if(CheckStructSize(Kbt))
+						EditKeyBar.Change(Kbt->Titles);
+					else
+						return FALSE;
+				}
 
 				EditKeyBar.Show();
 			}
-			else return FALSE;
 
 			return TRUE;
 		}

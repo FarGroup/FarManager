@@ -6129,7 +6129,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 			}
 			else
 			{
-				int StringNumber=*(int *)Param2;
+				intptr_t StringNumber=*(intptr_t*)Param2;
 				Edit *CurPtr=GetStringByNumber(StringNumber);
 
 				if (!CurPtr)

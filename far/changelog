@@ -1,3 +1,10 @@
+zg 07.10.2012 00:17:08 +0200 - build 2873
+
+1. ECTL_EXPANDTABS - Param2 ожидается как поинтер на intptr_t.
+   x64 плагины надо подправить, если используется ECTL_EXPANDTABS.
+
+2. ошибка в ECTL_SETKEYBAR, когда Param2==-1.
+
 t-rex 06.10.2012 20:40:23 +0200 - build 2872
 
 1. x64 warnings in DialogBuilder.
