@@ -3830,7 +3830,7 @@ static bool msgBoxFunc(FarMacroCall* Data)
 }
 
 
-static intptr_t WINAPI CompareItems(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
+static int WINAPI CompareItems(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
 {
 	if (((*el1)->Flags & LIF_SEPARATOR) || ((*el2)->Flags & LIF_SEPARATOR))
 		return 0;

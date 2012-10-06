@@ -41,17 +41,17 @@ class Plugin;
 
 namespace pluginapi
 {
-	intptr_t WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...);
-	intptr_t WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...);
+	int      WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...);
+	int      WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...);
 #ifndef _MSC_VER
-	intptr_t WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...);
+	int      WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...);
 #endif
-	wchar_t* WINAPI apiItoa(intptr_t value, wchar_t *string, intptr_t radix);
+	wchar_t* WINAPI apiItoa(int value, wchar_t *string, int radix);
 	__int64  WINAPI apiAtoi64(const wchar_t *s);
-	wchar_t* WINAPI apiItoa64(__int64 value, wchar_t *string, intptr_t radix);
-	intptr_t WINAPI apiAtoi(const wchar_t *s);
-	void     WINAPI apiQsort(void *base, size_t nelem, size_t width, intptr_t (WINAPI *fcmp)(const void *, const void *,void *),void *user);
-	void*    WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, intptr_t (WINAPI *fcmp)(const void *, const void *, void *),void *user);
+	wchar_t* WINAPI apiItoa64(__int64 value, wchar_t *string, int radix);
+	int      WINAPI apiAtoi(const wchar_t *s);
+	void     WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *,void *),void *user);
+	void*    WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *),void *user);
 	wchar_t* WINAPI apiQuoteSpace(wchar_t *Str);
 	wchar_t* WINAPI apiInsertQuote(wchar_t *Str);
 	void     WINAPI apiUnquote(wchar_t *Str);
@@ -66,12 +66,12 @@ namespace pluginapi
 	void     WINAPI apiStrLower(wchar_t *s1);
 	wchar_t  WINAPI apiUpper(wchar_t Ch);
 	wchar_t  WINAPI apiLower(wchar_t Ch);
-	intptr_t WINAPI apiStrCmpNI(const wchar_t *s1, const wchar_t *s2, intptr_t n);
-	intptr_t WINAPI apiStrCmpI(const wchar_t *s1, const wchar_t *s2);
-	intptr_t WINAPI apiIsLower(wchar_t Ch);
-	intptr_t WINAPI apiIsUpper(wchar_t Ch);
-	intptr_t WINAPI apiIsAlpha(wchar_t Ch);
-	intptr_t WINAPI apiIsAlphaNum(wchar_t Ch);
+	int      WINAPI apiStrCmpNI(const wchar_t *s1, const wchar_t *s2, intptr_t n);
+	int      WINAPI apiStrCmpI(const wchar_t *s1, const wchar_t *s2);
+	int      WINAPI apiIsLower(wchar_t Ch);
+	int      WINAPI apiIsUpper(wchar_t Ch);
+	int      WINAPI apiIsAlpha(wchar_t Ch);
+	int      WINAPI apiIsAlphaNum(wchar_t Ch);
 	wchar_t* WINAPI apiTruncStr(wchar_t *Str,intptr_t MaxLength);
 	wchar_t* WINAPI apiTruncStrFromCenter(wchar_t *Str, intptr_t MaxLength);
 	wchar_t* WINAPI apiTruncStrFromEnd(wchar_t *Str,intptr_t MaxLength);
@@ -114,7 +114,7 @@ namespace pluginapi
 	intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2);
 	size_t   WINAPI apiGetCurrentDirectory(size_t Size,wchar_t* Buffer);
 	size_t   WINAPI apiFormatFileSize(unsigned __int64 Size, intptr_t Width, FARFORMATFILESIZEFLAGS ViewFlags, wchar_t *Dest, size_t DestSize);
-	typedef intptr_t (WINAPI *FRSUSERFUNC)(const PluginPanelItem *FData,const wchar_t *FullName,void *param);
+	typedef int (WINAPI *FRSUSERFUNC)(const PluginPanelItem *FData,const wchar_t *FullName,void *param);
 	void     WINAPI apiRecursiveSearch(const wchar_t *initdir,const wchar_t *mask,FRSUSERFUNC func,unsigned __int64 flags,void *param);
 	size_t   WINAPI apiMkTemp(wchar_t *Dest, size_t size, const wchar_t *Prefix);
 	size_t   WINAPI apiProcessName(const wchar_t *param1, wchar_t *param2, size_t size, PROCESSNAME_FLAGS flags);

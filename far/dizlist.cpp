@@ -50,7 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 static DizRecord **SearchDizData;
 static int _cdecl SortDizIndex(const void *el1,const void *el2);
-static intptr_t WINAPI SortDizSearch(const void *key,const void *elem,void*);
+static int WINAPI SortDizSearch(const void *key,const void *elem,void*);
 
 DizList::DizList():
 	DizData(nullptr),
@@ -377,7 +377,7 @@ int _cdecl SortDizIndex(const void *el1,const void *el2)
 }
 
 
-intptr_t WINAPI SortDizSearch(const void *key,const void *elem,void*)
+int WINAPI SortDizSearch(const void *key,const void *elem,void*)
 {
 	const string* strKey = reinterpret_cast<const string*>(key);
 	const wchar_t *SearchName = strKey->CPtr();

@@ -250,12 +250,12 @@ struct QsortexHelper
 	void* user;
 };
 
-intptr_t WINAPI qsortCmp(const void *one, const void *two,void *user)
+int WINAPI qsortCmp(const void *one, const void *two,void *user)
 {
 	return reinterpret_cast<int(__cdecl*)(const void*,const void*)>(user)(one,two);
 }
 
-intptr_t WINAPI qsortexCmp(const void *one, const void *two,void *user)
+int WINAPI qsortexCmp(const void *one, const void *two,void *user)
 {
 	QsortexHelper* helper=static_cast<QsortexHelper*>(user);
 	return helper->fcmp(one,two,helper->user);
@@ -1457,7 +1457,7 @@ struct FAR_SEARCH_A_CALLBACK_PARAM
 	void *Param;
 };
 
-static intptr_t WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData,const wchar_t *FullName,void *param)
+static int WINAPI FarRecursiveSearchA_Callback(const PluginPanelItem *FData,const wchar_t *FullName,void *param)
 {
 	FAR_SEARCH_A_CALLBACK_PARAM* pCallbackParam = static_cast<FAR_SEARCH_A_CALLBACK_PARAM*>(param);
 	WIN32_FIND_DATAA FindData={};

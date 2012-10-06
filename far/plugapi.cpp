@@ -88,7 +88,7 @@ namespace pluginapi
 {
 inline Plugin* GuidToPlugin(const GUID* Id) {return (Id && CtrlObject)? CtrlObject->Plugins->FindPlugin(*Id) : nullptr;}
 
-intptr_t WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) //?deprecated
+int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) //?deprecated
 {
 	va_list argptr;
 	va_start(argptr, Format);
@@ -97,7 +97,7 @@ intptr_t WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) //?deprec
 	return Result;
 }
 
-intptr_t WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...)
+int WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format, ...)
 {
 	va_list argptr;
 	va_start(argptr, Format);
@@ -107,7 +107,7 @@ intptr_t WINAPIV apiSnprintf(wchar_t* Dest, size_t Count, const wchar_t* Format,
 }
 
 #ifndef _MSC_VER
-intptr_t WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...)
+int WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...)
 {
 	va_list argptr;
 	va_start(argptr, Format);
@@ -117,7 +117,7 @@ intptr_t WINAPIV apiSscanf(const wchar_t* Src, const wchar_t* Format, ...)
 }
 #endif
 
-wchar_t *WINAPI apiItoa(intptr_t value, wchar_t *string, intptr_t radix)
+wchar_t *WINAPI apiItoa(int value, wchar_t *string, int radix)
 {
 	if (string)
 		return _itow(value,string,radix);
@@ -125,7 +125,7 @@ wchar_t *WINAPI apiItoa(intptr_t value, wchar_t *string, intptr_t radix)
 	return nullptr;
 }
 
-wchar_t *WINAPI apiItoa64(__int64 value, wchar_t *string, intptr_t radix)
+wchar_t *WINAPI apiItoa64(__int64 value, wchar_t *string, int radix)
 {
 	if (string)
 		return _i64tow(value, string, radix);
@@ -133,7 +133,7 @@ wchar_t *WINAPI apiItoa64(__int64 value, wchar_t *string, intptr_t radix)
 	return nullptr;
 }
 
-intptr_t WINAPI apiAtoi(const wchar_t *s)
+int WINAPI apiAtoi(const wchar_t *s)
 {
 	if (s)
 		return _wtoi(s);
@@ -145,7 +145,7 @@ __int64 WINAPI apiAtoi64(const wchar_t *s)
 	return s?_wtoi64(s):0;
 }
 
-void WINAPI apiQsort(void *base, size_t nelem, size_t width, intptr_t (WINAPI *fcmp)(const void *, const void *,void *),void *user)
+void WINAPI apiQsort(void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *,void *),void *user)
 {
 	if (base && fcmp)
 	{
@@ -153,7 +153,7 @@ void WINAPI apiQsort(void *base, size_t nelem, size_t width, intptr_t (WINAPI *f
 	}
 }
 
-void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, intptr_t (WINAPI *fcmp)(const void *, const void *, void *),void *user)
+void *WINAPI apiBsearch(const void *key, const void *base, size_t nelem, size_t width, int (WINAPI *fcmp)(const void *, const void *, void *),void *user)
 {
 	if (key && fcmp && base)
 		return bsearchex(key,base,nelem,width,fcmp,user);
@@ -1812,32 +1812,32 @@ wchar_t WINAPI apiLower(wchar_t Ch)
 	return Lower(Ch);
 }
 
-intptr_t WINAPI apiStrCmpNI(const wchar_t *s1, const wchar_t *s2, intptr_t n)
+int WINAPI apiStrCmpNI(const wchar_t *s1, const wchar_t *s2, intptr_t n)
 {
 	return StrCmpNI(s1, s2, n);
 }
 
-intptr_t WINAPI apiStrCmpI(const wchar_t *s1, const wchar_t *s2)
+int WINAPI apiStrCmpI(const wchar_t *s1, const wchar_t *s2)
 {
 	return StrCmpI(s1, s2);
 }
 
-intptr_t WINAPI apiIsLower(wchar_t Ch)
+int WINAPI apiIsLower(wchar_t Ch)
 {
 	return IsLower(Ch);
 }
 
-intptr_t WINAPI apiIsUpper(wchar_t Ch)
+int WINAPI apiIsUpper(wchar_t Ch)
 {
 	return IsUpper(Ch);
 }
 
-intptr_t WINAPI apiIsAlpha(wchar_t Ch)
+int WINAPI apiIsAlpha(wchar_t Ch)
 {
 	return IsAlpha(Ch);
 }
 
-intptr_t WINAPI apiIsAlphaNum(wchar_t Ch)
+int WINAPI apiIsAlphaNum(wchar_t Ch)
 {
 	return IsAlphaNum(Ch);
 }

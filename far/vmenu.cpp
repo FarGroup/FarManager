@@ -3094,7 +3094,7 @@ static int WINAPI SortItem(const MenuItemEx **el1, const MenuItemEx **el2, const
 	return (Param->Direction?(Res<0?1:(Res>0?-1:0)):Res);
 }
 
-static intptr_t WINAPI SortItemDataDWORD(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
+static int WINAPI SortItemDataDWORD(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
 {
 	int Res;
 	DWORD Dw1=(DWORD)(intptr_t)((*el1)->UserData);
@@ -3116,7 +3116,7 @@ void VMenu::SortItems(int Direction, int Offset, BOOL SortForDataDWORD)
 {
 	CriticalSectionLock Lock(CS);
 
-	typedef intptr_t (WINAPI *qsortex_fn)(const void*,const void*,void*);
+	typedef int (WINAPI *qsortex_fn)(const void*,const void*,void*);
 
 	SortItemParam Param;
 	Param.Direction=Direction;
@@ -3149,7 +3149,7 @@ void VMenu::SortItems(TMENUITEMEXCMPFUNC user_cmp_func,int Direction,int Offset)
 {
 	CriticalSectionLock Lock(CS);
 
-	typedef intptr_t (WINAPI *qsortex_fn)(const void*,const void*,void*);
+	typedef int (WINAPI *qsortex_fn)(const void*,const void*,void*);
 
 	SortItemParam Param;
 	Param.Direction=Direction;
