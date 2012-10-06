@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 2871
+  Dynamic construction of dialogs for FAR Manager 3.0 build 2872
 */
 
 /*
@@ -178,7 +178,7 @@ class DialogBuilderBase
 		int ColumnBreakIndex;
 		int ColumnStartY;
 		int ColumnEndY;
-		int ColumnMinWidth;
+		intptr_t ColumnMinWidth;
 
 		static const int SECOND_COLUMN = -2;
 
@@ -300,7 +300,7 @@ class DialogBuilderBase
 				if (MaxWidth < Width)
 					MaxWidth = Width;
 			}
-			int ColumnsWidth = 2*ColumnMinWidth+1;
+			intptr_t ColumnsWidth = 2*ColumnMinWidth+1;
 			if (MaxWidth < ColumnsWidth)
 				return ColumnsWidth;
 			return MaxWidth;
@@ -475,7 +475,7 @@ class DialogBuilderBase
 			Item->X1 = 5 + Indent;
 			Item->X2 = Item->X1 + ItemWidth(*Item) - 1;
 
-			int RelativeToWidth = RelativeTo->X2 - RelativeTo->X1;
+			intptr_t RelativeToWidth = RelativeTo->X2 - RelativeTo->X1;
 			RelativeTo->X1 = Item->X2 + 2;
 			RelativeTo->X2 = RelativeTo->X1 + RelativeToWidth;
 
@@ -539,7 +539,7 @@ class DialogBuilderBase
 		{
 			for(int i=ColumnStartIndex; i<DialogItemsCount; i++)
 			{
-				int Width = ItemWidth(DialogItems [i]);
+				intptr_t Width = ItemWidth(DialogItems [i]);
 				if (Width > ColumnMinWidth)
 					ColumnMinWidth = Width;
 				if (i >= ColumnBreakIndex)
