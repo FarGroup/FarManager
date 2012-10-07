@@ -987,7 +987,8 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"key: %08x\n",Rec->IntKey); fclose(log);}}
 				if (!IsProcessAssignMacroKey)
 				{
-					if(!m_RecCode.IsEmpty()) m_RecCode+=L" ";
+					if (!m_RecCode.IsEmpty()) m_RecCode+=L" ";
+					if (textKey==L"\"") textKey=L"\\\"";
 					m_RecCode+=textKey;
 				}
 				return false;
