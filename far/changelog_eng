@@ -3,6 +3,45 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+t-rex 07.10.2012 15:56:20 +0200 - build 2876
+
+1. Warnings, MACROMODEAREA type is set where needed.
+
+shmuel 07.10.2012 09:13:46 +0200 - build 2875
+
+1. Forum: quotation marks (") no longer supported in macros.
+
+shmuel 07.10.2012 00:43:45 +0200 - build 2874
+
+1. Displaying a message at macro writing attempt if LuaMacro plugin is not loaded.
+   (M#2161: Macros malfunction if LUA dll's set is incomplete).
+
+zg 07.10.2012 00:17:08 +0200 - build 2873
+
+1. ECTL_EXPANDTABS - Param2 is expected as a pointer to intptr_t.
+   x64 have to be fixed if ECTL_EXPANDTABS is used.
+
+2. error in ECTL_SETKEYBAR when Param2==-1.
+
+t-rex 06.10.2012 20:40:23 +0200 - build 2872
+
+1. x64 warnings in DialogBuilder.
+
+t-rex 06.10.2012 18:48:30 +0200 - build 2871
+
+1. For FSF functions, intptr_t is removed where it has no sense at all,
+   x64 plugins have to be rebuilt and fixed if qsort/bsearch/FarRecursiveSearch are used.
+   
+svs 05.10.2012 13:55:08 +0400 - build 2870
+
+1. SQLite 3.7.14.1
+
+shmuel 05.10.2012 01:49:35 +0200 - build 2869
+
+1. M#2159: Plugin.Menu waits for menu closed and prevents use of Keys() for hotkey selection in menu
+
+2. Plugin.Menu, Plugin.Config and Plugin.Command macrofunctions return false/true.
+
 w17 04.10.2012 16:37:06 +0400 - build 2868
 
 1. Visible leading space(s) in dialog static text
