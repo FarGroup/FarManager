@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu.hpp"
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
+#include "macro.hpp"
 
 class History;
 
@@ -210,7 +211,7 @@ class Dialog: public Frame
 		unsigned ItemCount;         // количество элементов диалога
 
 		ConsoleTitle *OldTitle;     // предыдущий заголовок
-		int PrevMacroMode;          // предыдущий режим макро
+		MACROMODEAREA PrevMacroMode;          // предыдущий режим макро
 
 		FARWINDOWPROC RealDlgProc;      // функци€ обработки диалога
 
@@ -336,7 +337,7 @@ class Dialog: public Frame
 		virtual int GetType() { return MODALTYPE_DIALOG; }
 		virtual const wchar_t *GetTypeName() {return L"[Dialog]";};
 
-		virtual int GetMacroMode();
+		virtual MACROMODEAREA GetMacroMode();
 
 		/* $ ¬ведена дл€ нужд CtrlAltShift OT */
 		virtual int FastHide();

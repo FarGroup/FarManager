@@ -327,7 +327,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 			}
 		}
 
-		int PrevMacroMode=CtrlObject->Macro.GetMode();
+		MACROMODEAREA PrevMacroMode=CtrlObject->Macro.GetMode();
 		int _CurrentFrame=FrameManager->GetCurrentFrame()->GetType();
 		CtrlObject->Macro.SetMode(MACRO_USERMENU);
 		// вызываем меню

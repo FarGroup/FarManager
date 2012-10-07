@@ -33,12 +33,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "macro.hpp"
+
 class ChangeMacroMode
 {
 	private:
-		int PrevMacroMode;
+		MACROMODEAREA PrevMacroMode;
 
 	public:
-		ChangeMacroMode(int NewMode);
+		ChangeMacroMode(MACROMODEAREA NewMode);
 		~ChangeMacroMode();
 };

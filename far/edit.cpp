@@ -3431,7 +3431,7 @@ bool EnumModules(const wchar_t *Module, VMenu* DestMenu)
 	return Result;
 }
 
-int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Area)
+int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROMODEAREA Area)
 {
 	int Result=0;
 	static int Reenter=0;
@@ -3783,7 +3783,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Ar
 void EditControl::AutoComplete(bool Manual,bool DelBlock)
 {
 	int Key=0;
-	int PrevMacroMode=CtrlObject->Macro.GetMode();
+	MACROMODEAREA PrevMacroMode=CtrlObject->Macro.GetMode();
 	if(Opt.AutoComplete.ShowList)
 		CtrlObject->Macro.SetMode(MacroAreaAC);
 	if(AutoCompleteProc(Manual,DelBlock,Key,MacroAreaAC))

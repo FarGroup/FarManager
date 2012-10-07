@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp"
 #include "bitflags.hpp"
 #include "CriticalSections.hpp"
-
+#include "macro.hpp"
 
 // ÷ветовые атрибуты - индексы в массиве цветов
 enum
@@ -214,7 +214,7 @@ class VMenu: public Modal
 		int BoxType;
 		bool PrevCursorVisible;
 		DWORD PrevCursorSize;
-		int PrevMacroMode;
+		MACROMODEAREA PrevMacroMode;
 
 		// переменна€, отвечающа€ за отображение scrollbar в DI_LISTBOX & DI_COMBOBOX
 		BitFlags VMFlags;

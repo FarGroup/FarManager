@@ -450,7 +450,7 @@ struct DlgParam
 	UINT64 Flags;
 	KeyMacro *Handle;
 	DWORD Key;
-	int Mode;
+	MACROMODEAREA Mode;
 	int Recurse;
 	bool Changed;
 };
@@ -458,7 +458,7 @@ struct DlgParam
 struct TMacroKeywords
 {
 	const wchar_t *Name;   // Наименование
-	DWORD Value;           // Значение
+	MACROMODEAREA Value;   // Значение
 };
 
 TMacroKeywords MKeywordsArea[] =
@@ -482,7 +482,14 @@ TMacroKeywords MKeywordsArea[] =
 	{L"DialogAutoCompletion",     MACRO_DIALOGAUTOCOMPLETION},
 	{L"Common",                   MACRO_COMMON},
 };
-TMacroKeywords MKeywordsFlags[] =
+
+struct TMacroKeywords2
+{
+	const wchar_t *Name;       // Наименование
+	MACROFLAGS_MFLAGS Value;   // Значение
+};
+
+TMacroKeywords2 MKeywordsFlags[] =
 {
 	// ФЛАГИ
 	{L"DisableOutput",      MFLAGS_DISABLEOUTPUT},
@@ -508,7 +515,8 @@ TMacroKeywords MKeywordsFlags[] =
 
 	{L"NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS},
 };
-const wchar_t* GetAreaName(DWORD AreaValue) {return GetNameOfValue(AreaValue, MKeywordsArea);}
+
+const wchar_t* GetAreaName(MACROMODEAREA AreaValue) {return GetNameOfValue(AreaValue, MKeywordsArea);}
 
 const string FlagsToString(FARKEYMACROFLAGS Flags)
 {
@@ -700,9 +708,9 @@ bool KeyMacro::IsHistoryDisable(int TypeHistory)
 	return !m_CurState.m_MacroQueue.Empty() && (m_CurState.HistoryDisable & (1 << TypeHistory));
 }
 
-void KeyMacro::SetMode(int Mode) //FIXME: int->MACROMODEAREA
+void KeyMacro::SetMode(MACROMODEAREA Mode)
 {
-	m_Mode=(MACROMODEAREA)Mode;
+	m_Mode=Mode;
 }
 
 MACROMODEAREA KeyMacro::GetMode(void)
@@ -886,7 +894,8 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 							Key=Upper(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
 					}
 
-					int Area, Index;
+					MACROMODEAREA Area;
+					int Index;
 					Index = GetIndex(&Area,Key,textKey,m_Mode,true,true);
 					if (Index != -1)
 					{
@@ -938,7 +947,8 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				m_InternalInput=0;
 				if (AssignRet)
 				{
-					int Area, Pos;
+					MACROMODEAREA Area;
+					int Pos;
 					string strKey;
 					KeyToText(MacroKey, strKey);
 
@@ -1238,16 +1248,16 @@ int KeyMacro::PeekKey()
 }
 
 // получить код моды по имени
-int KeyMacro::GetAreaCode(const wchar_t *AreaName)
+MACROMODEAREA KeyMacro::GetAreaCode(const wchar_t *AreaName)
 {
-	for (int i=MACRO_OTHER; i < MACRO_LAST; i++)
+	for (size_t i=0; i < ARRAYSIZE(MKeywordsArea); i++)
 		if (!StrCmpI(MKeywordsArea[i].Name,AreaName))
-			return i;
+			return MKeywordsArea[i].Value;
 
-	return -4; //FIXME: MACRO_FUNCS-1;
+	return MACRO_INVALID;
 }
 
-int KeyMacro::GetMacroKeyInfo(bool FromDB, int Mode, int Pos, string &strKeyName, string &strDescription)
+int KeyMacro::GetMacroKeyInfo(bool FromDB, MACROMODEAREA Mode, int Pos, string &strKeyName, string &strDescription)
 {
 	const int MACRO_FUNCS = -3;
 	if (Mode >= MACRO_FUNCS && Mode < MACRO_LAST)
@@ -1300,19 +1310,19 @@ bool KeyMacro::CheckWaitKeyFunc()
 
 // Функция получения индекса нужного макроса в массиве
 // Ret=-1 - не найден таковой.
-// если CheckMode=-1 - значит пофигу в каком режиме, т.е. первый попавшийся
+// если CheckMode=MACRO_INVALID - значит пофигу в каком режиме, т.е. первый попавшийся
 // StrictKeys=true - не пытаться подменить Левый Ctrl/Alt Правым (если Левый не нашли)
 // FIXME: parameter StrictKeys.
-int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool UseCommon, bool StrictKeys)
+int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAREA CheckMode, bool UseCommon, bool StrictKeys)
 {
 	//SZLOG("GetIndex: %08x,%ls",Key,strKey.CPtr());
-	int loops = UseCommon && CheckMode!=-1 && CheckMode!=MACRO_COMMON ? 2:1;
+	int loops = UseCommon && CheckMode!=MACRO_INVALID && CheckMode!=MACRO_COMMON ? 2:1;
 	if (CheckMode >= MACRO_LAST)
 		loops = 0;
 	for (int k=0; k<loops; k++)
 	{
-		int startArea = (CheckMode==-1) ? 0:CheckMode;
-		int endArea = (CheckMode==-1) ? MACRO_LAST:CheckMode+1;
+		int startArea = (int)((CheckMode==MACRO_INVALID) ? MACRO_OTHER:CheckMode);
+		int endArea = (int)((CheckMode==MACRO_INVALID) ? MACRO_LAST:(int)CheckMode+1);
 		for (int i=startArea; i<endArea; i++)
 		{
 			for (unsigned j=0; j<m_Macros[i].getSize(); j++)
@@ -1326,13 +1336,13 @@ int KeyMacro::GetIndex(int* area, int Key, string& strKey, int CheckMode, bool U
 				if (found && !(MPtr->Flags()&MFLAGS_DISABLEMACRO))
 						//&& (!MPtr->m_callback || MPtr->m_callback(MPtr->m_id,AKMFLAGS_NONE)))
 				{
-					*area = i; return j;
+					*area = (MACROMODEAREA)i; return j;
 				}
 			}
 		}
 		CheckMode=MACRO_COMMON;
 	}
-	*area = -1;
+	*area = MACRO_INVALID;
 	return -1;
 }
 
@@ -1420,7 +1430,7 @@ bool KeyMacro::ReadKeyMacro(MACROMODEAREA Area)
 	string strGUID;
 	int ErrorCount=0;
 
-	strArea=GetAreaName(static_cast<MACROMODEAREA>(Area));
+	strArea=GetAreaName(Area);
 
 	while(MacroCfg->EnumKeyMacros(strArea, strKey, strMFlags, strSequence, strDescription))
 	{
@@ -1794,7 +1804,7 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 
 	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:(const wchar_t*)m_RecDescription;
 
-	DlgParam Param={0, this, 0, 0, 0, false};
+	DlgParam Param={0, this, 0, MACRO_OTHER, 0, false};
 	Dialog Dlg(MacroSettingsDlg,ARRAYSIZE(MacroSettingsDlg),ParamMacroDlgProc,&Param);
 	Dlg.SetPosition(-1,-1,73,21);
 	Dlg.SetHelp(L"KeyMacroSetting");
@@ -2806,7 +2816,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						 -2 - нет макроса, заданного кпопкосочетанием (или макрос заблокирован)
 							0 - Ok
 				*/
-				int _Mode;
+				MACROMODEAREA _Mode;
 				bool UseCommon=true;
 				string strVal=Val.toString();
 				strVal=RemoveExternalSpaces(strVal);
@@ -2833,7 +2843,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				}
 
 				string strKeyName=p;
-				int Area;
+				MACROMODEAREA Area;
 				int I=GetIndex(&Area,0,strKeyName,_Mode,UseCommon);
 				if (I != -1)
 				{
@@ -5663,7 +5673,7 @@ static bool editorselFunc(FarMacroCall* Data)
 	TVar& Opts(Params[1]);
 	TVar& Action(Params[0]);
 
-	int Mode=CtrlObject->Macro.GetMode();
+	MACROMODEAREA Mode=CtrlObject->Macro.GetMode();
 	int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS)); // MACRO_SHELL?
 	Frame* CurFrame=FrameManager->GetCurrentFrame();
 
@@ -6056,7 +6066,8 @@ M1:
 		string strKey;
 
 		// если УЖЕ есть такой макрос...
-		int Area,Index;
+		MACROMODEAREA Area;
+		int Index;
 		if ((Index=MacroDlg->GetIndex(&Area,(int)key,strKeyText,KMParam->Mode,true,true)) != -1)
 		{
 			MacroRecord *Mac = MacroDlg->m_Macros[Area].getItem(Index);

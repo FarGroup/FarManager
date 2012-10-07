@@ -1246,7 +1246,7 @@ void FilePanels::GoToFile(const wchar_t *FileName)
 }
 
 
-int  FilePanels::GetMacroMode()
+MACROMODEAREA FilePanels::GetMacroMode()
 {
 	switch (ActivePanel->GetType())
 	{

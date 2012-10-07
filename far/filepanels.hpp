@@ -103,5 +103,5 @@ class FilePanels:public Frame
 		virtual void Refresh();
 		void GoToFile(const wchar_t *FileName);
 
-		virtual int GetMacroMode();
+		virtual MACROMODEAREA GetMacroMode();
 };

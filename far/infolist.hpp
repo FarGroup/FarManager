@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "panel.hpp"
 #include "viewer.hpp"
+#include "macro.hpp"
 
 //class Viewer;
 
@@ -91,7 +92,7 @@ class InfoList:public Panel
 
 	private:
 		DizViewer *DizView;
-		int PrevMacroMode;
+		MACROMODEAREA PrevMacroMode;
 		bool OldWrapMode;
 		bool OldWrapType;
 		string strDizFileName;

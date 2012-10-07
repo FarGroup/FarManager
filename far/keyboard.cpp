@@ -1550,7 +1550,7 @@ int CheckForEscSilent()
 
 	if (Processed && PeekInputRecord(&rec))
 	{
-		int MMode=CtrlObject->Macro.GetMode();
+		MACROMODEAREA MMode=CtrlObject->Macro.GetMode();
 		CtrlObject->Macro.SetMode(MACRO_LAST); // чтобы не срабатывали макросы :-)
 		int Key=GetInputRecord(&rec,false,false,false);
 		CtrlObject->Macro.SetMode(MMode);
@@ -2933,7 +2933,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			string strKey;
 			if (WaitInFastFind > 0 &&
 			        CtrlObject->Macro.GetCurRecord(nullptr,nullptr) < MACROMODE_RECORDING &&
-			        CtrlObject->Macro.GetIndex(KEY_ALTSHIFT0+KeyCode-'0',strKey,-1) == -1)
+			        CtrlObject->Macro.GetIndex(KEY_ALTSHIFT0+KeyCode-'0',strKey,MACRO_INVALID) == -1)
 			{
 				return Modif|Char;
 			}

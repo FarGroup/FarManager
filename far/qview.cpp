@@ -60,7 +60,7 @@ static bool LastWrapType = false;
 QuickView::QuickView():
 	QView(nullptr),
 	Directory(0),
-	PrevMacroMode(-1),
+	PrevMacroMode(MACRO_INVALID),
 	OldWrapMode(0),
 	OldWrapType(0),
 	uncomplete_dirscan(false)
@@ -598,7 +598,7 @@ void QuickView::SetMacroMode(int Restore)
 	if (!CtrlObject)
 		return;
 
-	if (PrevMacroMode == -1)
+	if (PrevMacroMode == MACRO_INVALID)
 		PrevMacroMode = CtrlObject->Macro.GetMode();
 
 	CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_QVIEWPANEL);

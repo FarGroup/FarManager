@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panel.hpp"
+#include "macro.hpp"
 
 enum
 {
@@ -91,7 +92,7 @@ enum TREELIST_FLAGS
 class TreeList: public Panel
 {
 	private:
-		int PrevMacroMode;
+		MACROMODEAREA PrevMacroMode;
 		TreeItem **ListData;
 		string strRoot;
 		long TreeCount;

@@ -1430,7 +1430,7 @@ void PluginManager::Configure(int StartPos)
 	if (Opt.Policies.DisabledOptions&FFPOL_MAINMENUPLUGINS)
 		return;
 
-	int PrevMacroMode = CtrlObject->Macro.GetMode();
+	MACROMODEAREA PrevMacroMode = CtrlObject->Macro.GetMode();
 	CtrlObject->Macro.SetMode(MACRO_MENU);
 
 	{
@@ -1603,7 +1603,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 	}
 
-	int PrevMacroMode = CtrlObject->Macro.GetMode();
+	MACROMODEAREA PrevMacroMode = CtrlObject->Macro.GetMode();
 	CtrlObject->Macro.SetMode(MACRO_MENU);
 
 	bool Editor = ModalType==MODALTYPE_EDITOR;

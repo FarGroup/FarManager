@@ -110,7 +110,9 @@ enum MACROMODEAREA
 	MACRO_DIALOGAUTOCOMPLETION =  16, // Список автодополнения в диалоге
 
 	MACRO_COMMON,                     // ВЕЗДЕ! - должен быть предпоследним, т.к. приоритет самый низший !!!
-	MACRO_LAST                        // Должен быть всегда последним! Используется в циклах
+	MACRO_LAST,                       // Должен быть всегда последним! Используется в циклах
+
+	MACRO_INVALID = -4                // FIXME: Должен быть меньше чем MACRO_FUNCS
 };
 
 struct MacroPanelSelect {
@@ -214,7 +216,7 @@ class KeyMacro
 		bool IsHistoryDisable(int TypeHistory);
 		DWORD SetHistoryDisableMask(DWORD Mask);
 		DWORD GetHistoryDisableMask();
-		void SetMode(int Mode); //FIXME: int->MACROMODEAREA
+		void SetMode(MACROMODEAREA Mode);
 		MACROMODEAREA GetMode(void);
 		bool LoadMacros(bool InitedRAM=true,bool LoadAll=true);
 		void SaveMacros(void);
@@ -223,8 +225,8 @@ class KeyMacro
 		int ProcessEvent(const struct FAR_INPUT_RECORD *Rec);
 		int GetKey();
 		int PeekKey();
-		static int GetAreaCode(const wchar_t *AreaName);
-		static int GetMacroKeyInfo(bool FromDB,int Mode,int Pos,string &strKeyName,string &strDescription);
+		static MACROMODEAREA GetAreaCode(const wchar_t *AreaName);
+		static int GetMacroKeyInfo(bool FromDB,MACROMODEAREA Mode,int Pos,string &strKeyName,string &strDescription);
 		static void SetMacroConst(int ConstIndex, __int64 Value);
 		// послать сигнал на прерывание макроса
 		void SendDropProcess();
@@ -234,9 +236,9 @@ class KeyMacro
 		void PopState();
 
 		// Функция получения индекса нужного макроса в массиве
-		int GetIndex(int* area, int Key, string& strKey, int CheckMode, bool UseCommon=true, bool StrictKeys=false);
-		int GetIndex(int Key, string& strKey, int CheckMode, bool UseCommon=true, bool StrictKeys=false)
-			{ int dummy; return GetIndex(&dummy,Key,strKey,CheckMode,UseCommon,StrictKeys); }
+		int GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAREA CheckMode, bool UseCommon=true, bool StrictKeys=false);
+		int GetIndex(int Key, string& strKey, MACROMODEAREA CheckMode, bool UseCommon=true, bool StrictKeys=false)
+			{ MACROMODEAREA dummy; return GetIndex(&dummy,Key,strKey,CheckMode,UseCommon,StrictKeys); }
 		void RunStartMacro();
 		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);

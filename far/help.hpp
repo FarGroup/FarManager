@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "frame.hpp"
 #include "keybar.hpp"
 #include "array.hpp"
+#include "macro.hpp"
 
 class CallBackStack;
 
@@ -144,7 +145,7 @@ class Help:public Frame
 		int   CurColor;             // CurColor - текущий цвет отрисовки
 		int   CtrlTabSize;          // CtrlTabSize - опци€! размер табул€ции
 
-		int   PrevMacroMode;        // предыдущий режим макроса
+		MACROMODEAREA PrevMacroMode;        // предыдущий режим макроса
 
 		string strCurPluginContents; // помним PluginContents (дл€ отображени€ в заголовке)
 

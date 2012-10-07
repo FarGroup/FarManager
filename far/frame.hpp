@@ -34,7 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "scrobj.hpp"
-
+#include "macro.hpp"
 
 class KeyBar;
 
@@ -68,7 +68,7 @@ class Frame: public ScreenObject
 		int  KeyBarVisible;
 		int  TitleBarVisible;
 		KeyBar *FrameKeyBar;
-		int MacroMode;
+		MACROMODEAREA MacroMode;
 
 	public:
 		Frame();
@@ -102,7 +102,7 @@ class Frame: public ScreenObject
 
 		/* $ 12.05.2001 DJ */
 		int IsTopFrame();
-		virtual int GetMacroMode() { return MacroMode; }
+		virtual MACROMODEAREA GetMacroMode() { return MacroMode; }
 		/* DJ $ */
 		void Push(Frame* Modalized);
 		Frame *GetTopModal() {return NextModal;}

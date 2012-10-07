@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "CriticalSections.hpp"
 #include "dirinfo.hpp"
+#include "macro.hpp"
 
 class Viewer;
 
@@ -51,7 +52,7 @@ class QuickView:public Panel
 		CriticalSection CS;
 
 		int Directory;
-		int PrevMacroMode;
+		MACROMODEAREA PrevMacroMode;
 		DirInfoData Data;
 		bool OldWrapMode;
 		bool OldWrapType;

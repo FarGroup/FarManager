@@ -67,7 +67,7 @@ static bool LastDizShowScrollbar = false;
 
 InfoList::InfoList():
 	DizView(nullptr),
-	PrevMacroMode(-1),
+	PrevMacroMode(MACRO_INVALID),
 	OldWrapMode(nullptr),
 	OldWrapType(nullptr)
 {
@@ -1076,7 +1076,7 @@ void InfoList::SetMacroMode(int Restore)
 	if (!CtrlObject)
 		return;
 
-	if (PrevMacroMode == -1)
+	if (PrevMacroMode == MACRO_INVALID)
 		PrevMacroMode = CtrlObject->Macro.GetMode();
 
 	CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_INFOPANEL);

@@ -35,6 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "frame.hpp"
 #include "keybar.hpp"
+#include "macro.hpp"
 
 class TreeList;
 class Edit;
@@ -50,7 +51,7 @@ class FolderTree:public Frame
 		int ModalMode;
 		bool IsFullScreen;
 		int IsStandalone;
-		int  PrevMacroMode;        // предыдущий режим макроса
+		MACROMODEAREA PrevMacroMode;        // предыдущий режим макроса
 
 		string strNewFolder;
 		string strLastName;

@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "bitflags.hpp"
 #include "plugin.hpp"
+#include "macro.hpp"
 
 // ћладший байт (маска 0xFF) юзаетс€ классом ScreenObject!!!
 enum FLAGS_CLASS_EDITLINE
@@ -274,12 +275,12 @@ class EditControl:public Edit
 
 	bool Selection;
 	int SelectionStart;
-	int MacroAreaAC;
+	MACROMODEAREA MacroAreaAC;
 
 	History* pHistory;
 	FarList* pList;
 	void SetMenuPos(VMenu& menu);
-	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, int Area);
+	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROMODEAREA Area);
 
 	FarColor ColorUnChanged;   // 28.07.2000 SVS - дл€ диалога
 
@@ -326,7 +327,7 @@ public:
 	void AutoComplete(bool Manual,bool DelBlock);
 	void SetAutocomplete(bool State) {State? ECFlags.Set(EC_ENABLEAUTOCOMPLETE) : ECFlags.Clear(EC_ENABLEAUTOCOMPLETE);}
 	bool GetAutocomplete() {return ECFlags.Check(EC_ENABLEAUTOCOMPLETE) != 0;}
-	void SetMacroAreaAC(int Area){MacroAreaAC=Area;}
+	void SetMacroAreaAC(MACROMODEAREA Area){MacroAreaAC=Area;}
 	void SetCallbackState(bool Enable){m_Callback.Active=Enable;}
 
 	void  SetObjectColor(PaletteColors Color,PaletteColors SelColor = COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);

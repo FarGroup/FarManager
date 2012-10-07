@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "modal.hpp"
+#include "macro.hpp"
 
 struct GrabberArea
 {
@@ -48,7 +49,7 @@ class Grabber:Modal
 		GrabberArea PrevArea;
 		GrabberArea GArea;
 		int ResetArea;
-		int PrevMacroMode;
+		MACROMODEAREA PrevMacroMode;
 		int VerticalBlock;
 
 	private:

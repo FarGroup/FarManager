@@ -165,7 +165,7 @@ static struct TreeListCache
 
 
 TreeList::TreeList(int IsPanel):
-	PrevMacroMode(-1),
+	PrevMacroMode(MACRO_INVALID),
 	ListData(nullptr),
 	TreeCount(0),
 	WorkDir(0),
@@ -2114,7 +2114,7 @@ void TreeList::SetMacroMode(int Restore)
 	if (!CtrlObject)
 		return;
 
-	if (PrevMacroMode == -1)
+	if (PrevMacroMode == MACRO_INVALID)
 		PrevMacroMode = CtrlObject->Macro.GetMode();
 
 	CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_TREEPANEL);

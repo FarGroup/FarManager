@@ -4488,7 +4488,7 @@ int Dialog::GetTypeAndName(string &strType, string &strName)
 }
 
 
-int Dialog::GetMacroMode()
+MACROMODEAREA Dialog::GetMacroMode()
 {
 	return MACRO_DIALOG;
 }
