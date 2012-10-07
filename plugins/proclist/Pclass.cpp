@@ -861,7 +861,7 @@ int Plist::GetFiles(PluginPanelItem *PanelItem,int ItemsNumber, int Move,WCONST 
 				ExtStyle=GetWindowLong(pdata->hwnd,GWL_EXSTYLE);
 			}
 
-			static const int Styles[]=
+			static const unsigned int Styles[]=
 			{
 				WS_POPUP,WS_CHILD,WS_MINIMIZE,WS_VISIBLE,WS_DISABLED,
 				WS_CLIPSIBLINGS,WS_CLIPCHILDREN,WS_MAXIMIZE,WS_BORDER,WS_DLGFRAME,

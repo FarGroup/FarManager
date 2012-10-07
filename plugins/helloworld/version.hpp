@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 7
+#define PLUGIN_BUILD 8
 #define PLUGIN_DESC L"Hello World Plugin for Far Manager"
 #define PLUGIN_NAME L"HelloWorld"
 #define PLUGIN_FILENAME L"HelloWorld.dll"
