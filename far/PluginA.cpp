@@ -4302,6 +4302,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 	static char *gt=nullptr;
 	static char *geol=nullptr;
 	static char *fn=nullptr;
+	intptr_t et;
 	EDITOR_CONTROL_COMMANDS Command=ECTL_GETSTRING;
 	switch (OldCommand)
 	{
@@ -4426,7 +4427,7 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 				oei->TableNum=GetEditorCodePageFavA();
 				oei->Options=ei.Options;
 				oei->TabSize=ei.TabSize;
-				oei->BookMarkCount=ei.BookmarkCount;
+				oei->BookMarkCount=(int)ei.BookmarkCount;
 				oei->CurState=ei.CurState;
 				return TRUE;
 			}
@@ -4703,8 +4704,56 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		case oldfar::ECTL_DELETEBLOCK:	Command = ECTL_DELETEBLOCK; break;
 		case oldfar::ECTL_DELETECHAR:		Command = ECTL_DELETECHAR; break;
 		case oldfar::ECTL_DELETESTRING:	Command = ECTL_DELETESTRING; break;
-		case oldfar::ECTL_EXPANDTABS:		Command = ECTL_EXPANDTABS; break;
-		case oldfar::ECTL_GETBOOKMARKS:	Command = ECTL_GETBOOKMARKS; break;
+		case oldfar::ECTL_EXPANDTABS:
+		{
+			Command = ECTL_EXPANDTABS;
+			if (Param)
+			{
+				et = *((int *)Param);
+				Param = &et;
+			}
+			break;
+		}
+		case oldfar::ECTL_GETBOOKMARKS:
+		case oldfar::ECTL_GETSTACKBOOKMARKS:
+		{
+			bool bStack = OldCommand == oldfar::ECTL_GETSTACKBOOKMARKS;
+			if (!Param)
+			{
+				if (!bStack) return FALSE;
+				EditorInfo ei={sizeof(EditorInfo)};
+				if (!NativeInfo.EditorControl(-1,ECTL_GETINFO,0,&ei)) return FALSE;
+				return (int)ei.SessionBookmarkCount;
+			}
+			Command = bStack ? ECTL_GETSESSIONBOOKMARKS : ECTL_GETBOOKMARKS;
+			intptr_t size = NativeInfo.EditorControl(-1,Command,0,NULL);
+			if (!size) return FALSE;
+			EditorBookmarks *newbm = (EditorBookmarks *) xf_malloc(size);
+			if (!newbm) return FALSE;
+			newbm->StructSize = sizeof(*newbm);
+			newbm->Size = size;
+			if (!NativeInfo.EditorControl(-1,Command,0,newbm))
+			{
+				xf_free(newbm);
+				return FALSE;
+			}
+			oldfar::EditorBookMarks *oldbm = (oldfar::EditorBookMarks *)Param;
+			for (size_t i=0; i<newbm->Count; i++)
+			{
+				if (oldbm->Line)
+					oldbm->Line[i] = newbm->Line[i];
+				if (oldbm->Cursor)
+					oldbm->Cursor[i] = newbm->Cursor[i];
+				if (oldbm->ScreenLine)
+					oldbm->ScreenLine[i] = newbm->ScreenLine[i];
+				if (oldbm->LeftPos)
+					oldbm->LeftPos[i] = newbm->LeftPos[i];
+			}
+			int count = (int)newbm->Count;
+			xf_free(newbm);
+			if (bStack) return count;
+			else return TRUE;
+		}
 		case oldfar::ECTL_INSERTSTRING:	Command = ECTL_INSERTSTRING; break;
 		case oldfar::ECTL_QUIT:					Command = ECTL_QUIT; break;
 		case oldfar::ECTL_REALTOTAB:		Command = ECTL_REALTOTAB; break;
@@ -4722,7 +4771,6 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		case oldfar::ECTL_NEXTSTACKBOOKMARK:		Command = ECTL_NEXTSESSIONBOOKMARK; break;
 		case oldfar::ECTL_CLEARSTACKBOOKMARKS:	Command = ECTL_CLEARSESSIONBOOKMARKS; break;
 		case oldfar::ECTL_DELETESTACKBOOKMARK:	Command = ECTL_DELETESESSIONBOOKMARK; break;
-		case oldfar::ECTL_GETSTACKBOOKMARKS:		Command = ECTL_GETSESSIONBOOKMARKS; break;
 		default:
 			return FALSE;
 	}
