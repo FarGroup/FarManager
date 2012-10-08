@@ -10,6 +10,7 @@ local checkarg = args.checkarg
 local function SetProperties (namespace, proptable)
   local meta = { __metatable="access denied", __newindex=function() end }
   meta.__index = function(tb,nm)
+    if nm == "properties" then return proptable end -- to allow introspection
     local f = proptable[nm]
     if f then return f() end
     error("property not supported: "..tostring(nm), 2)
