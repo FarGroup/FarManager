@@ -1,3 +1,7 @@
+shmuel 09.10.2012 11:34:47 +0200 - build 2879
+
+1. Функция MacroControl(MCTL_SENDSTRING,MSSC_CHECK) проверяет также и файлы, если Sequence[0]=='@'.
+
 t-rex 08.10.2012 21:26:43 +0200 - build 2878
 
 1. Исправления во враппере для ECTL_EXPANDTABS, ECTL_GETBOOKMARKS и ECTL_GETSTACKBOOKMARKS.

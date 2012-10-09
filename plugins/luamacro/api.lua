@@ -1,11 +1,11 @@
 -- api.lua
 
-local args = (...) or {}
+local args = select(1, ...)
+local checkarg, loadmacro = args.checkarg, args.loadmacro
+
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
 local MacroCallFar = far.MacroCallFar
-
-local checkarg = args.checkarg
 
 local function SetProperties (namespace, proptable)
   local meta = { __metatable="access denied", __newindex=function() end }
@@ -337,14 +337,7 @@ mf.eval = function (str, mode)
     if not str then return -2 end
   end
 
-  local chunk, msg
-  if string.sub(str,1,1) == "@" then
-    str = string.sub(str,2):gsub("%%(.-)%%", win.GetEnv)
-    chunk, msg = loadfile(str)
-  else
-    chunk, msg = loadstring(str)
-  end
-
+  local chunk, msg = loadmacro(str)
   if chunk then
     if mode==1 then return 0 end
     if mode==3 then return "" end

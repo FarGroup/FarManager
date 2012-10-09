@@ -81,21 +81,25 @@ end
 
 local PluginInfo = {
   Flags = F.PF_PRELOAD,
+  CommandPrefix = "lm",
 }
 function export.GetPluginInfo()
   return PluginInfo
 end
 
+local function loadmacro (Text)
+  if string.sub(Text,1,1) == "@" then
+    Text = string.sub(Text,2):gsub("%%(.-)%%", win.GetEnv)
+    return loadfile(Text)
+  else
+    return loadstring(Text)
+  end
+end
+
 local function MacroInit (args)
   local Text = args[1]
   if Text and type(Text)=="string" then
-    local chunk, msg
-    if string.sub(Text,1,1) == "@" then
-      Text = string.sub(Text,2):gsub("%%(.-)%%", win.GetEnv)
-      chunk, msg = loadfile(Text)
-    else
-      chunk, msg = loadstring(Text)
-    end
+    local chunk, msg = loadmacro(Text)
     if chunk then
       local env = setmetatable({}, gmeta)
       setfenv(chunk, env)
@@ -159,9 +163,10 @@ local function MacroFinal (args)
 end
 
 local function MacroParse (args)
-  local text, onlyCheck, title, buttons = args[1], args[2], args[3], args[4]
-  if string.sub(text,1,1) ~= "@" then
-    local chunk, msg = loadstring(text)
+  local text, onlyCheck, skipFile, title, buttons = unpack(args)
+  local isFile = string.sub(text,1,1) == "@"
+  if not (isFile and skipFile) then
+    local chunk, msg = loadmacro(text)
     if not chunk then
       if not onlyCheck then
         far.Message(msg, title, buttons, "lw")
@@ -174,11 +179,41 @@ local function MacroParse (args)
   return F.MPRT_NORMALFINISH, LastMessage
 end
 
+-- Split command line into separate arguments.
+-- * An argument is either of:
+--     a) a sequence of 0 or more characters enclosed within a pair of non-escaped
+--        double quotes; can contain spaces; enclosing double quotes are stripped
+--        from the argument.
+--     b) a sequence of 1 or more non-space characters.
+-- * Backslashes only escape double quotes.
+-- * The function does not raise errors.
+local function SplitCommandLine (str)
+  local pat = [["((?:\\"|[^"])*)"|((?:\\"|\S)+)]]
+  local out = {}
+  for c1, c2 in regex.gmatch(str, pat) do
+    out[#out+1] = regex.gsub(c1 or c2, [[\\(")|(.)]], "%1%2")
+  end
+  return out
+end
+
+local function ProcessCommandLine (CmdLine)
+  local args = SplitCommandLine(CmdLine)
+  if args[1] then
+    local op = args[1]:lower()
+    if     op=="post"  and args[2] then far.MacroPost(args[2], F.KMFLAGS_DISABLEOUTPUT)
+    elseif op=="check" and args[2] then far.MacroCheck(args[2])
+    elseif op=="load" then far.MacroLoadAll()
+    elseif op=="save" then far.MacroSaveAll()
+    end
+  end
+end
+
 function export.Open (OpenFrom, Guid, Item)
-  if     OpenFrom == F.MCT_MACROINIT  then return MacroInit(Item)
-  elseif OpenFrom == F.MCT_MACROSTEP  then return MacroStep(Item)
-  elseif OpenFrom == F.MCT_MACROFINAL then return MacroFinal(Item)
-  elseif OpenFrom == F.MCT_MACROPARSE then return MacroParse(Item)
+  if     OpenFrom == F.MCT_MACROINIT    then return MacroInit(Item)
+  elseif OpenFrom == F.MCT_MACROSTEP    then return MacroStep(Item)
+  elseif OpenFrom == F.MCT_MACROFINAL   then return MacroFinal(Item)
+  elseif OpenFrom == F.MCT_MACROPARSE   then return MacroParse(Item)
+  elseif OpenFrom == F.OPEN_COMMANDLINE then return ProcessCommandLine(Item)
   end
 end
 
@@ -198,7 +233,7 @@ end
 do
   local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."api.lua")
   if func then
-    func { checkarg=checkarg }
+    func { checkarg=checkarg, loadmacro=loadmacro }
     Plugin.Call=PluginCall
     Plugin.Menu=PluginMenu
     Plugin.Config=PluginConfig

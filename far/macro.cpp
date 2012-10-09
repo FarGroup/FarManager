@@ -1869,16 +1869,17 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 	return TRUE;
 }
 
-bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck)
+bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck, bool skipFile)
 {
 	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
 	// не умеет сворачивать строки и обрезает сообщение.
-	FarMacroValue values[5]={{FMVT_INTEGER,{0}},{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
+	FarMacroValue values[6]={{FMVT_INTEGER,{0}},{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
 	values[0].Integer=MCT_MACROPARSE;
 	values[1].String=Sequence;
 	values[2].Integer=onlyCheck?1:0;
-	values[3].String=MSG(MMacroPErrorTitle);
-	values[4].String=MSG(MOk);
+	values[3].Integer=skipFile?1:0;
+	values[4].String=MSG(MMacroPErrorTitle);
+	values[5].String=MSG(MOk);
 	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
 
 	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_LUAMACRO,&info);
