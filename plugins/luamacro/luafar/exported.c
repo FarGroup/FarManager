@@ -193,7 +193,7 @@ const wchar_t** CreateStringsArray(lua_State* L, int cpos, const char* field,
   return buf;
 }
 
-static void WINAPI FarPanelItemFreeCallback (void* UserData, const struct FarPanelItemFreeInfo* Info)
+void WINAPI FarPanelItemFreeCallback (void* UserData, const struct FarPanelItemFreeInfo* Info)
 {
   FarPanelItemUserData* ud;
   (void) Info;

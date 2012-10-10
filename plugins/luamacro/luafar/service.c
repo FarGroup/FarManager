@@ -34,6 +34,7 @@ extern int  luaB_loadfileW (lua_State *L);
 extern int  pcall_msg (lua_State* L, int narg, int nret);
 extern void push_flags_table (lua_State *L);
 extern void SetFarColors (lua_State *L);
+extern void WINAPI FarPanelItemFreeCallback (void* UserData, const struct FarPanelItemFreeInfo* Info);
 
 #define CAST(tp,expr) (tp)(expr)
 #define DIM(buff) (sizeof(buff)/sizeof(buff[0]))
@@ -416,13 +417,14 @@ void PushPanelItem(lua_State *L, const struct PluginPanelItem *PanelItem)
     lua_setfield(L, -2, "CustomColumnData");
   }
   //-----------------------------------------------------------------------
-#if 0 // FIXME
-  if (PanelItem->UserData.Data) {
+  if (PanelItem->UserData.Data && PanelItem->UserData.FreeData==FarPanelItemFreeCallback) {
+    // This is the panel of a LuaFAR plugin
     FarPanelItemUserData* ud = (FarPanelItemUserData*)PanelItem->UserData.Data;
-    lua_rawgeti(L, LUA_REGISTRYINDEX, ud->ref);
-    lua_setfield(L, -2, "UserData");
+    if (ud->L == L) {
+      lua_rawgeti(L, LUA_REGISTRYINDEX, ud->ref);
+      lua_setfield(L, -2, "UserData");
+    }
   }
-#endif
 }
 //---------------------------------------------------------------------------
 
