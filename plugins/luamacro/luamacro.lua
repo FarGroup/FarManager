@@ -179,29 +179,12 @@ local function MacroParse (args)
   return F.MPRT_NORMALFINISH, LastMessage
 end
 
--- Split command line into separate arguments.
--- * An argument is either of:
---     a) a sequence of 0 or more characters enclosed within a pair of non-escaped
---        double quotes; can contain spaces; enclosing double quotes are stripped
---        from the argument.
---     b) a sequence of 1 or more non-space characters.
--- * Backslashes only escape double quotes.
--- * The function does not raise errors.
-local function SplitCommandLine (str)
-  local pat = [["((?:\\"|[^"])*)"|((?:\\"|\S)+)]]
-  local out = {}
-  for c1, c2 in regex.gmatch(str, pat) do
-    out[#out+1] = regex.gsub(c1 or c2, [[\\(")|(.)]], "%1%2")
-  end
-  return out
-end
-
 local function ProcessCommandLine (CmdLine)
-  local args = SplitCommandLine(CmdLine)
-  if args[1] then
-    local op = args[1]:lower()
-    if     op=="post"  and args[2] then far.MacroPost(args[2], F.KMFLAGS_DISABLEOUTPUT)
-    elseif op=="check" and args[2] then far.MacroCheck(args[2])
+  local op, text = CmdLine:match("(%S+)%s*(.*)")
+  if op then
+    local op = op:lower()
+    if     op=="post"  and text~="" then far.MacroPost(text, F.KMFLAGS_DISABLEOUTPUT)
+    elseif op=="check" and text~="" then far.MacroCheck(text)
     elseif op=="load" then far.MacroLoadAll()
     elseif op=="save" then far.MacroSaveAll()
     end

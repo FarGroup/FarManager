@@ -416,11 +416,13 @@ void PushPanelItem(lua_State *L, const struct PluginPanelItem *PanelItem)
     lua_setfield(L, -2, "CustomColumnData");
   }
   //-----------------------------------------------------------------------
+#if 0 // FIXME
   if (PanelItem->UserData.Data) {
     FarPanelItemUserData* ud = (FarPanelItemUserData*)PanelItem->UserData.Data;
     lua_rawgeti(L, LUA_REGISTRYINDEX, ud->ref);
     lua_setfield(L, -2, "UserData");
   }
+#endif
 }
 //---------------------------------------------------------------------------
 
