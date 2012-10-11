@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2878
+  Plugin API for Far Manager 3.0 build 2880
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2878
+#define FARMANAGERVERSION_BUILD 2880
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1030,22 +1030,8 @@ enum FARMACROSTATE
 
 enum FARMACROPARSEERRORCODE
 {
-	MPEC_SUCCESS                = 0,
-	MPEC_UNRECOGNIZED_KEYWORD   = 1,
-	MPEC_UNRECOGNIZED_FUNCTION  = 2,
-	MPEC_FUNC_PARAM             = 3,
-	MPEC_NOT_EXPECTED_ELSE      = 4,
-	MPEC_NOT_EXPECTED_END       = 5,
-	MPEC_UNEXPECTED_EOS         = 6,
-	MPEC_EXPECTED_TOKEN         = 7,
-	MPEC_BAD_HEX_CONTROL_CHAR   = 8,
-	MPEC_BAD_CONTROL_CHAR       = 9,
-	MPEC_VAR_EXPECTED           =10,
-	MPEC_EXPR_EXPECTED          =11,
-	MPEC_ZEROLENGTHMACRO        =12,
-	MPEC_INTPARSERERROR         =13,
-	MPEC_CONTINUE_OTL           =14,
-	MPEC_BREAK_OTL              =15,
+	MPEC_SUCCESS = 0,
+	MPEC_ERROR   = 1,
 };
 
 struct MacroParseResult
@@ -1111,12 +1097,13 @@ enum MACROPLUGINRETURNTYPE
 {
 	MPRT_NORMALFINISH  = 0,
 	MPRT_ERRORFINISH   = 1,
-	MPRT_KEYS          = 2,
-	MPRT_PRINT         = 3,
-	MPRT_PLUGINCALL    = 4,
-	MPRT_PLUGINMENU    = 5,
-	MPRT_PLUGINCONFIG  = 6,
-	MPRT_PLUGINCOMMAND = 7,
+	MPRT_ERRORPARSE    = 2,
+	MPRT_KEYS          = 3,
+	MPRT_PRINT         = 4,
+	MPRT_PLUGINCALL    = 5,
+	MPRT_PLUGINMENU    = 6,
+	MPRT_PLUGINCONFIG  = 7,
+	MPRT_PLUGINCOMMAND = 8,
 };
 
 struct MacroPluginReturn
