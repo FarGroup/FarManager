@@ -204,6 +204,7 @@ class KeyMacro
 		bool InitMacroExecution(void);
 		bool UpdateLockScreen(bool recreate=false);
 		MacroRecord* GetCurMacro() { return m_CurState.GetCurMacro(); }
+		MacroRecord* GetTopMacro() { return m_StateStack.empty()?nullptr:m_StateStack.Peek()->GetCurMacro(); }
 		void RemoveCurMacro() { m_CurState.RemoveCurMacro(); }
 
 	public:
