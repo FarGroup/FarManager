@@ -1,3 +1,9 @@
+shmuel 11.10.2012 17:14:46 +0200 - build 2880
+
+1. Восстановлена работа функции MacroControl(MCTL_GETLASTERROR), со следующими изменениями:
+   - ErrCode может иметь только 2 значения: MPEC_SUCCESS и MPEC_ERROR.
+   - ErrPos.X не несёт никакой информации; должен игнорироваться.
+
 shmuel 09.10.2012 11:34:47 +0200 - build 2879
 
 1. Функция MacroControl(MCTL_SENDSTRING,MSSC_CHECK) проверяет также и файлы, если Sequence[0]=='@'.

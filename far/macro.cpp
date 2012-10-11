@@ -631,6 +631,7 @@ KeyMacro::KeyMacro():
 	m_Recording(MACROMODE_NOMACRO),
 	m_RecMode(MACRO_OTHER),
 	m_LockScr(nullptr),
+	m_LastErrorLine(0),
 	m_PluginIsRunning(0),
 	m_InternalInput(0)
 {
@@ -1031,6 +1032,7 @@ int KeyMacro::GetKey()
 
 		switch (mpr->ReturnType)
 		{
+			default:
 			case MPRT_NORMALFINISH:
 			case MPRT_ERRORFINISH:
 			{
@@ -1884,11 +1886,21 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck, bool sk
 
 	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_LUAMACRO,&info);
 	bool IsOK = mpr && mpr->ReturnType==MPRT_NORMALFINISH;
+	m_LastErrorStr = IsOK ? L"" : mpr->Args[0].String;
+	m_LastErrorLine = IsOK ? 0 : (int)mpr->Args[1].Double;
 	if (mpr && !IsOK && !onlyCheck)
 	{
 		FrameManager->RefreshFrame(); // Нужно после вывода сообщения плагином. Иначе панели не перерисовываются.
 	}
 	return IsOK;
+}
+
+void KeyMacro::GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc)
+{
+	*ErrCode = m_LastErrorStr == L"" ? MPEC_SUCCESS : MPEC_ERROR;
+	ErrPos->X = 0;
+	ErrPos->Y = static_cast<SHORT>(m_LastErrorLine);
+	*ErrSrc = m_LastErrorStr;
 }
 
 bool KeyMacro::UpdateLockScreen(bool recreate)

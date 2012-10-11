@@ -189,6 +189,8 @@ class KeyMacro
 		MACROMODEAREA StartMode; //FIXME
 		class LockScreen* m_LockScr;
 		string m_LastKey;
+		string m_LastErrorStr;
+		int m_LastErrorLine;
 		int m_PluginIsRunning;
 		int m_InternalInput;
 	private:
@@ -245,6 +247,7 @@ class KeyMacro
 		// Поместить временное строковое представление макроса
 		bool PostNewMacro(const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
 		bool ParseMacroString(const wchar_t *Sequence,bool onlyCheck=false,bool skipFile=true);
+		void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 		intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
 };
 

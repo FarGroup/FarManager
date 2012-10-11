@@ -171,11 +171,13 @@ local function MacroParse (args)
       if not onlyCheck then
         far.Message(msg, title, buttons, "lw")
       end
-      LastMessage[1] = msg -- keep alive from gc
-      return F.MPRT_ERRORFINISH, LastMessage
+      LastMessage = pack(
+        msg, -- keep alive from gc
+        tonumber(msg:match(":(%d+): ")) or 0)
+      return F.MPRT_ERRORPARSE, LastMessage
     end
   end
-  LastMessage[1] = "OK"
+  LastMessage[1] = ""
   return F.MPRT_NORMALFINISH, LastMessage
 end
 

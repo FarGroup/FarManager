@@ -2116,6 +2116,34 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			{
 				return Macro.DelMacro(*PluginId,Param2);
 			}
+
+			//Param1=size of buffer, Param2 - MacroParseResult*
+			case MCTL_GETLASTERROR:
+			{
+				DWORD ErrCode=MPEC_SUCCESS;
+				COORD ErrPos={};
+				string ErrSrc;
+
+				Macro.GetMacroParseError(&ErrCode,&ErrPos,&ErrSrc);
+
+				int Size = ALIGN(sizeof(MacroParseResult));
+				size_t stringOffset = Size;
+				Size += static_cast<int>((ErrSrc.GetLength() + 1)*sizeof(wchar_t));
+
+				MacroParseResult *Result = (MacroParseResult *)Param2;
+
+				if (Param1 >= Size && CheckStructSize(Result))
+				{
+					Result->StructSize = sizeof(MacroParseResult);
+					Result->ErrCode = ErrCode;
+					Result->ErrPos = ErrPos;
+					Result->ErrSrc = (const wchar_t *)((char*)Param2+stringOffset);
+					wmemcpy((wchar_t*)Result->ErrSrc,ErrSrc,ErrSrc.GetLength()+1);
+				}
+
+				return Size;
+			}
+
 			default: //FIXME
 				break;
 		}
