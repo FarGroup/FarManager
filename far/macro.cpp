@@ -632,7 +632,6 @@ KeyMacro::KeyMacro():
 	m_RecMode(MACRO_OTHER),
 	m_LockScr(nullptr),
 	m_LastErrorLine(0),
-	m_PluginIsRunning(0),
 	m_InternalInput(0)
 {
 	//print_opcodes();
@@ -678,7 +677,7 @@ int KeyMacro::IsExecuting()
 {
 	MacroRecord* m = GetCurMacro();
 	return m ? (m->Flags()&MFLAGS_NOSENDKEYSTOPLUGINS) ?
-		MACROMODE_EXECUTING : MACROMODE_EXECUTING_COMMON : MACROMODE_NOMACRO;
+		MACROMODE_EXECUTING : MACROMODE_EXECUTING_COMMON : (m_StateStack.empty()?MACROMODE_NOMACRO:MACROMODE_EXECUTING_COMMON);
 }
 
 int KeyMacro::IsExecutingLastKey()
@@ -798,18 +797,16 @@ void* KeyMacro::CallMacroPlugin(unsigned Type,void* Data)
 {
 	//SZLOG("+KeyMacro::CallMacroPlugin, Type=%s", Type==OPEN_MACROINIT?"OPEN_MACROINIT":	Type==OPEN_MACROSTEP?"OPEN_MACROSTEP": Type==OPEN_MACROPARSE ? "OPEN_MACROPARSE": "UNKNOWN");
 	void* ptr;
-	m_PluginIsRunning++;
-
 	MacroRecord* macro = GetCurMacro();
 	if (macro)
 		ScrBuf.SetLockCount(0);
 
+	PushState();
 	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,Type,Data,&ptr) != 0;
+	PopState();
 
 	if (macro && macro->m_handle && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
 		ScrBuf.Lock();
-
-	m_PluginIsRunning--;
 	//SZLOG("-KeyMacro::CallMacroPlugin, return=%p", result?ptr:nullptr);
 	return result?ptr:nullptr;
 }
@@ -1010,8 +1007,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 
 int KeyMacro::GetKey()
 {
-	//SZLOG("+KeyMacro::GetKey, m_PluginIsRunning=%d", m_PluginIsRunning);
-	if (m_PluginIsRunning || m_InternalInput || !FrameManager->GetCurrentFrame())
+	if (m_InternalInput || !FrameManager->GetCurrentFrame())
 	{
 		return 0;
 	}

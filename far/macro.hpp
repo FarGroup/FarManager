@@ -191,7 +191,6 @@ class KeyMacro
 		string m_LastKey;
 		string m_LastErrorStr;
 		int m_LastErrorLine;
-		int m_PluginIsRunning;
 		int m_InternalInput;
 	private:
 		bool ReadKeyMacro(MACROMODEAREA Area);
