@@ -1886,8 +1886,8 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck, bool sk
 
 	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_LUAMACRO,&info);
 	bool IsOK = mpr && mpr->ReturnType==MPRT_NORMALFINISH;
-	m_LastErrorStr = IsOK ? L"" : mpr->Args[0].String;
-	m_LastErrorLine = IsOK ? 0 : (int)mpr->Args[1].Double;
+	m_LastErrorStr = IsOK||!mpr ? L"" : mpr->Args[0].String;
+	m_LastErrorLine = IsOK||!mpr ? 0 : (int)mpr->Args[1].Double;
 	if (mpr && !IsOK && !onlyCheck)
 	{
 		FrameManager->RefreshFrame(); // Нужно после вывода сообщения плагином. Иначе панели не перерисовываются.
