@@ -2,12 +2,12 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Editor" key="ShiftMsWheelUp" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>F12 Up Enter</text></macro>
-      <macro area="Shell" key="ShiftMsWheelUp" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>F12 Up Enter</text></macro>
-      <macro area="Viewer" key="ShiftMsWheelUp" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>F12 Up Enter</text></macro>
-      <macro area="Editor" key="ShiftMsWheelDown" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>F12 Down Enter</text></macro>
-      <macro area="Shell" key="ShiftMsWheelDown" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>F12 Down Enter</text></macro>
-      <macro area="Viewer" key="ShiftMsWheelDown" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>F12 Down Enter</text></macro>
+      <macro area="Editor" key="ShiftMsWheelUp" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>Keys('F12 Up Enter')</text></macro>
+      <macro area="Shell" key="ShiftMsWheelUp" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>Keys('F12 Up Enter')</text></macro>
+      <macro area="Viewer" key="ShiftMsWheelUp" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>Keys('F12 Up Enter')</text></macro>
+      <macro area="Editor" key="ShiftMsWheelDown" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>Keys('F12 Down Enter')</text></macro>
+      <macro area="Shell" key="ShiftMsWheelDown" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>Keys('F12 Down Enter')</text></macro>
+      <macro area="Viewer" key="ShiftMsWheelDown" flags="DisableOutput" description="Use Shift-MsWheel to switch between screens"><text>Keys('F12 Down Enter')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

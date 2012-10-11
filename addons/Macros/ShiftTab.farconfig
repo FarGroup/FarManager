@@ -2,9 +2,9 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Editor" key="ShiftTab" flags="DisableOutput" description="^Ctrl-Tab"><text>CtrlShiftTab</text></macro>
-      <macro area="Shell" key="ShiftTab" flags="DisableOutput" description="^Ctrl-Tab"><text>CtrlShiftTab</text></macro>
-      <macro area="Viewer" key="ShiftTab" flags="DisableOutput" description="^Ctrl-Tab"><text>CtrlShiftTab</text></macro>
+      <macro area="Editor" key="ShiftTab" flags="DisableOutput" description="^Ctrl-Tab"><text>Keys('CtrlShiftTab')</text></macro>
+      <macro area="Shell" key="ShiftTab" flags="DisableOutput" description="^Ctrl-Tab"><text>Keys('CtrlShiftTab')</text></macro>
+      <macro area="Viewer" key="ShiftTab" flags="DisableOutput" description="^Ctrl-Tab"><text>Keys('CtrlShiftTab')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

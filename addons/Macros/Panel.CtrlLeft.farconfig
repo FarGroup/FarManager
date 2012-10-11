@@ -2,7 +2,7 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Shell" key="CtrlLeft" flags="DisableOutput|EmptyCommandLine" description="Use Ctrl-Left to change current drive to the previous"><text>F9 Enter Up Enter Up Enter Esc</text></macro>
+      <macro area="Shell" key="CtrlLeft" flags="DisableOutput|EmptyCommandLine" description="Use Ctrl-Left to change current drive to the previous"><text>Keys('F9 Enter Up Enter Up Enter Esc')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

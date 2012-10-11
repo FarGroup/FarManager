@@ -7,14 +7,14 @@
   </generalconfig>
   <macros>
     <keymacros>
-      <macro area="Editor" key="CtrlF" flags="DisableOutput" description="Editor: Find..."><text>F7</text></macro>
-      <macro area="Editor" key="F3" flags="DisableOutput" description="Editor: Find Next"><text>ShiftF7</text></macro>
-      <macro area="Editor" key="CtrlH" flags="DisableOutput" description="Editor: Replace..."><text>CtrlF7</text></macro>
-      <macro area="Editor" key="CtrlG" flags="DisableOutput" description="Editor: Go To..."><text>AltF8</text></macro>
-      <macro area="Editor" key="F5" flags="DisableOutput" description="Editor: Paste Time/Date"><text>print(date("%R %x"))</text></macro>
-      <macro area="Editor" key="CtrlN" flags="DisableOutput" description="Editor: New File"><text>ShiftF4 Enter</text></macro>
-      <macro area="Editor" key="CtrlO" flags="DisableOutput" description="Editor: Open..."><text>ShiftF4</text></macro>
-      <macro area="Editor" key="CtrlS" flags="DisableOutput" description="Editor: Save File"><text>F2</text></macro>
+      <macro area="Editor" key="CtrlF" flags="DisableOutput" description="Editor: Find..."><text>Keys('F7')</text></macro>
+      <macro area="Editor" key="F3" flags="DisableOutput" description="Editor: Find Next"><text>Keys('ShiftF7')</text></macro>
+      <macro area="Editor" key="CtrlH" flags="DisableOutput" description="Editor: Replace..."><text>Keys('CtrlF7')</text></macro>
+      <macro area="Editor" key="CtrlG" flags="DisableOutput" description="Editor: Go To..."><text>Keys('AltF8')</text></macro>
+      <macro area="Editor" key="F5" flags="DisableOutput" description="Editor: Paste Time/Date"><text>mf.print(mf.date('%R %x'))</text></macro>
+      <macro area="Editor" key="CtrlN" flags="DisableOutput" description="Editor: New File"><text>Keys('ShiftF4 Enter')</text></macro>
+      <macro area="Editor" key="CtrlO" flags="DisableOutput" description="Editor: Open..."><text>Keys('ShiftF4')</text></macro>
+      <macro area="Editor" key="CtrlS" flags="DisableOutput" description="Editor: Save File"><text>Keys('F2')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

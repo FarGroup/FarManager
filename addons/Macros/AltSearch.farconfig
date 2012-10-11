@@ -5,19 +5,19 @@
       <macro area="Shell" key="Alt" flags="DisableOutput" description="Use Alt for search by name (activate)">
       <text>
 <![CDATA[
-Alt<
+Keys('Alt<')
 ]]>
       </text>
       </macro>
       <macro area="Shell" key="RAlt" flags="DisableOutput" description="Use Right Alt for search by name (activate)">
       <text>
 <![CDATA[
-Alt<
+Keys('Alt<')
 ]]>
       </text>
       </macro>
-      <macro area="Search" key="Alt" flags="" description="Use Alt for search by name (deactivate)"><text>Esc</text></macro>
-      <macro area="Search" key="RAlt" flags="" description="Use Right Alt for search by name (deactivate)"><text>Esc</text></macro>
+      <macro area="Search" key="Alt" flags="" description="Use Alt for search by name (deactivate)"><text>Keys('Esc')</text></macro>
+      <macro area="Search" key="RAlt" flags="" description="Use Right Alt for search by name (deactivate)"><text>Keys('Esc')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

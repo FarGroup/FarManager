@@ -2,7 +2,7 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Shell" key="ShiftF1" flags="DisableOutput" description="Select archive format"><text>ShiftF1 $If (Dialog) ShiftF1 $End</text></macro>
+      <macro area="Shell" key="ShiftF1" flags="DisableOutput" description="Select archive format"><text>Keys('ShiftF1') if Area.Dialog then Keys('ShiftF1') end</text></macro>
     </keymacros>
   </macros>
 </farconfig>

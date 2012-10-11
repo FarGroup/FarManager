@@ -2,12 +2,12 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Shell" key="Del" flags="DisableOutput|EmptyCommandLine" description="Use Del to remove files"><text>F8</text></macro>
-      <macro area="Search" key="Del" flags="DisableOutput" description="Use Del to remove files"><text>F8</text></macro>
-      <macro area="Tree" key="Del" flags="DisableOutput|EmptyCommandLine" description="Use Del to remove files"><text>F8</text></macro>
-      <macro area="Shell" key="NumDel" flags="DisableOutput|EmptyCommandLine" description="Use Del to remove files"><text>F8</text></macro>
-      <macro area="Search" key="NumDel" flags="DisableOutput" description="Use Del to remove files"><text>F8</text></macro>
-      <macro area="Tree" key="NumDel" flags="DisableOutput|EmptyCommandLine" description="Use Del to remove files"><text>F8</text></macro>
+      <macro area="Shell" key="Del" flags="DisableOutput|EmptyCommandLine" description="Use Del to remove files"><text>Keys('F8')</text></macro>
+      <macro area="Search" key="Del" flags="DisableOutput" description="Use Del to remove files"><text>Keys('F8')</text></macro>
+      <macro area="Tree" key="Del" flags="DisableOutput|EmptyCommandLine" description="Use Del to remove files"><text>Keys('F8')</text></macro>
+      <macro area="Shell" key="NumDel" flags="DisableOutput|EmptyCommandLine" description="Use Del to remove files"><text>Keys('F8')</text></macro>
+      <macro area="Search" key="NumDel" flags="DisableOutput" description="Use Del to remove files"><text>Keys('F8')</text></macro>
+      <macro area="Tree" key="NumDel" flags="DisableOutput|EmptyCommandLine" description="Use Del to remove files"><text>Keys('F8')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

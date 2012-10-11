@@ -2,9 +2,9 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Dialog" key="ShiftBS" flags="DisableOutput" description="Converts the word before cursor using XLat function"><text>CtrlShiftLeft $XLat CtrlRight</text></macro>
-      <macro area="Editor" key="ShiftBS" flags="DisableOutput" description="Converts the word before cursor using XLat function"><text>CtrlShiftLeft $XLat CtrlRight</text></macro>
-      <macro area="Shell" key="ShiftBS" flags="DisableOutput|NotEmptyCommandLine" description="Converts the word before cursor using XLat function"><text>CtrlShiftLeft $XLat CtrlRight</text></macro>
+      <macro area="Dialog" key="ShiftBS" flags="DisableOutput" description="Converts the word before cursor using XLat function"><text>Keys('CtrlShiftLeft XLat CtrlRight')</text></macro>
+      <macro area="Editor" key="ShiftBS" flags="DisableOutput" description="Converts the word before cursor using XLat function"><text>Keys('CtrlShiftLeft XLat CtrlRight')</text></macro>
+      <macro area="Shell" key="ShiftBS" flags="DisableOutput|NotEmptyCommandLine" description="Converts the word before cursor using XLat function"><text>Keys('CtrlShiftLeft XLat CtrlRight')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

@@ -2,8 +2,8 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Shell" key="Left" flags="DisableOutput|EmptyCommandLine" description="LYNX-style motion"><text>CtrlPgUp</text></macro>
-      <macro area="Shell" key="Right" flags="DisableOutput|EmptyCommandLine" description="LYNX-style motion"><text>CtrlPgDn</text></macro>
+      <macro area="Shell" key="Left" flags="DisableOutput|EmptyCommandLine" description="LYNX-style motion"><text>Keys('CtrlPgUp')</text></macro>
+      <macro area="Shell" key="Right" flags="DisableOutput|EmptyCommandLine" description="LYNX-style motion"><text>Keys('CtrlPgDn')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

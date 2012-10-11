@@ -2,7 +2,7 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Editor" key="CtrlS" flags="DisableOutput" description="Editor: Save File"><text>F2</text></macro>
+      <macro area="Editor" key="CtrlS" flags="DisableOutput" description="Editor: Save File"><text>Keys('F2')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

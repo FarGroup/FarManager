@@ -2,10 +2,10 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Editor" key="AltX" flags="DisableOutput" description="Close editor"><text>F10</text></macro>
-      <macro area="Search" key="AltX" flags="DisableOutput" description="Exit FAR"><text>F10</text></macro>
-      <macro area="Shell" key="AltX" flags="DisableOutput" description="Exit FAR"><text>F10</text></macro>
-      <macro area="Viewer" key="AltX" flags="DisableOutput" description="Close viewer"><text>F10</text></macro>
+      <macro area="Editor" key="AltX" flags="DisableOutput" description="Close editor"><text>Keys('F10')</text></macro>
+      <macro area="Search" key="AltX" flags="DisableOutput" description="Exit FAR"><text>Keys('F10')</text></macro>
+      <macro area="Shell" key="AltX" flags="DisableOutput" description="Exit FAR"><text>Keys('F10')</text></macro>
+      <macro area="Viewer" key="AltX" flags="DisableOutput" description="Close viewer"><text>Keys('F10')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

@@ -2,7 +2,7 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Viewer" key="PgDn" flags="DisableOutput" description="PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier"><text>$If (Eof) End $Else PgDn $End</text></macro>
+      <macro area="Viewer" key="PgDn" flags="DisableOutput" description="PgDn at the end of file works as in Far Manager 1.70 beta 4 and earlier"><text>if Object.Eof then Keys('End') else Keys('PgDn') end</text></macro>
     </keymacros>
   </macros>
 </farconfig>

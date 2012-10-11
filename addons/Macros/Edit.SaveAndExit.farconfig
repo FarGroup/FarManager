@@ -2,7 +2,7 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Editor" key="CtrlW" flags="DisableOutput" description="Editor: Save File and Exit"><text>ShiftF10</text></macro>
+      <macro area="Editor" key="CtrlW" flags="DisableOutput" description="Editor: Save File and Exit"><text>Keys('ShiftF10')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

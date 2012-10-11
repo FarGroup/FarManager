@@ -2,7 +2,7 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Shell" key="CtrlQ" flags="DisableOutput" description="Toggle quick view panel"><text>Tab $If (QView) Tab Ctrl2 Tab CtrlClear $Else Tab Ctrl6 Tab $If (APanel.Left) $Rep (APanel.width) CtrlRight $End $Else $Rep (APanel.width) CtrlLeft $End $End $End Tab CtrlQ</text></macro>
+      <macro area="Shell" key="CtrlQ" flags="DisableOutput" description="Toggle quick view panel"><text>Keys('Tab') if Area.QView then Keys('Tab Ctrl2 Tab CtrlClear') else Keys('Tab Ctrl6 Tab') if APanel.Left then for ii=1,APanel.Width do Keys('CtrlRight') end else for ii=1,APanel.Width do Keys('CtrlLeft') end end end Keys('Tab CtrlQ')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

@@ -2,7 +2,7 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Shell" key="Space" flags="DisableOutput|EmptyCommandLine" description="Panel: Use Space to select files"><text>Ins</text></macro>
+      <macro area="Shell" key="Space" flags="DisableOutput|EmptyCommandLine" description="Panel: Use Space to select files"><text>Keys('Ins')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

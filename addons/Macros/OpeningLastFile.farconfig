@@ -2,9 +2,9 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Shell" key="Ctrl&quot;" flags="DisableOutput" description="Opening last view/edit of a file"><text>AltF11 Up Enter</text></macro>
-      <macro area="Viewer" key="Ctrl&quot;" flags="DisableOutput" description="Opening last view/edit of a file"><text>AltF11 Up Enter</text></macro>
-      <macro area="Editor" key="Ctrl&quot;" flags="DisableOutput" description="Opening last view/edit of a file"><text>AltF11 Up Enter</text></macro>
+      <macro area="Shell" key="Ctrl&quot;" flags="DisableOutput" description="Opening last view/edit of a file"><text>Keys('AltF11 Up Enter')</text></macro>
+      <macro area="Viewer" key="Ctrl&quot;" flags="DisableOutput" description="Opening last view/edit of a file"><text>Keys('AltF11 Up Enter')</text></macro>
+      <macro area="Editor" key="Ctrl&quot;" flags="DisableOutput" description="Opening last view/edit of a file"><text>Keys('AltF11 Up Enter')</text></macro>
     </keymacros>
   </macros>
 </farconfig>

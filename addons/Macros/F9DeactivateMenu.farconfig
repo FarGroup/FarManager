@@ -2,7 +2,7 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="MainMenu" key="F9" flags="DisableOutput" description="Use F9 to deactivate main menu"><text>Esc</text></macro>
+      <macro area="MainMenu" key="F9" flags="DisableOutput" description="Use F9 to deactivate main menu"><text>Keys('Esc')</text></macro>
     </keymacros>
   </macros>
 </farconfig>
