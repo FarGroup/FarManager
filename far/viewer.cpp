@@ -2262,7 +2262,7 @@ void Viewer::Up( int nlines, bool adjust )
 		}
 	}
 
-	const int portion_size = 256;
+	const int portion_size = 250;
 
 	union {
 		char c1[portion_size];
@@ -2332,7 +2332,7 @@ void Viewer::Up( int nlines, bool adjust )
 				}
 				if ( 0 == j )
 				{
-					if ( nr > 0 && L'\n' == buff.c2[nr-1] )	         // LF
+					if ( nr > 0 && L'\n' == buff.c2[nr-1] )         // LF
 					{
 						if ( --nr > 0 && L'\r' == buff.c2[nr-1] )    // CRLF
 							if ( --nr > 0 && L'\r' == buff.c2[nr-1] )	// CRCRLF

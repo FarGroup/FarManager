@@ -1,7 +1,6 @@
 //---------------------------------------------------------------------------
 #include <windows.h>
 #include <signal.h>
-#include "lua.h"
 #include "luafar.h"
 
 #ifdef _MSC_VER
