@@ -1,6 +1,6 @@
 EXPORTS 
    GetGlobalInfoW=GetGlobalInfoW@4
-   GetMinFarVersion=GetMinFarVersionW@0
+   GetMinFarVersionW=GetMinFarVersionW@0
    GetPluginInfoW=GetPluginInfoW@4
    OpenW=OpenW@4
    ProcessSynchroEventW=ProcessSynchroEventW@4
