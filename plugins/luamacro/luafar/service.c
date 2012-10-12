@@ -3026,21 +3026,6 @@ static int dialog_tostring (lua_State *L)
   return 1;
 }
 
-static int far_DefDlgProc(lua_State *L)
-{
-  intptr_t Msg, Param1, Param2;
-  HANDLE hDlg;
-
-  luaL_checktype(L, 1, LUA_TLIGHTUSERDATA);
-  hDlg = lua_touserdata(L, 1);
-  Msg = CAST(intptr_t, get_env_flag(L, 2, NULL));
-  Param1 = luaL_checkinteger(L, 3);
-  Param2 = luaL_checkinteger(L, 4);
-
-  lua_pushinteger(L, GetPluginData(L)->Info->DefDlgProc(hDlg, Msg, Param1, (void*)Param2));
-  return 1;
-}
-
 static int far_GetDlgItem(lua_State *L)
 {
   PSInfo *Info = GetPluginData(L)->Info;
@@ -4914,7 +4899,6 @@ const luaL_Reg far_funcs[] = {
   {"MacroAdd",            far_MacroAdd},
   {"MacroDelete",         far_MacroDelete},
   {"MacroGetLastError",   far_MacroGetLastError},
-  {"DefDlgProc",          far_DefDlgProc},
   {"CreateFileFilter",    far_CreateFileFilter},
   {"LoadPlugin",          far_LoadPlugin},
   {"UnloadPlugin",        far_UnloadPlugin},

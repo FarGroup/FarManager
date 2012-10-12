@@ -1,3 +1,7 @@
+shmuel 12.10.2012 20:55:00 +0200 - build 10
+
+1. LuaFAR: удалена неиспользуемая функция far.DefDlgProc.
+
 shmuel 11.10.2012 17:35:57 +0200 - build 9
 
 1. Восстановлена работа функции MacroControl(MCTL_GETLASTERROR).
