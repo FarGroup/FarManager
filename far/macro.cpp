@@ -589,40 +589,20 @@ MacroState::MacroState() :
 {
 }
 
-MacroState& MacroState::operator= (const MacroState& src)
-{
-	cRec=src.cRec;
-	Executing=src.Executing;
-
-	//m_MacroQueue=src.m_MacroQueue; // так нельзя (нет копи-конструктора)
-	m_MacroQueue.Clear();
-	MacroState* ms = const_cast<MacroState*>(&src); // убираем варнинги
-	MacroRecord* curr = ms->m_MacroQueue.First();
-	while (curr)
-	{
-		m_MacroQueue.Push(curr);
-		curr = ms->m_MacroQueue.Next(curr);
-	}
-
-	KeyProcess=src.KeyProcess;
-	HistoryDisable=src.HistoryDisable;
-	UseInternalClipboard=src.UseInternalClipboard;
-	return *this;
-}
-
 void KeyMacro::PushState()
 {
-	m_CurState.UseInternalClipboard=Clipboard::GetUseInternalClipboardState();
+	m_CurState->UseInternalClipboard=Clipboard::GetUseInternalClipboardState();
 	m_StateStack.Push(m_CurState);
-	m_CurState = MacroState();
+	m_CurState = new MacroState();
 }
 
 void KeyMacro::PopState()
 {
 	if (!m_StateStack.empty())
 	{
+		delete m_CurState;
 		m_StateStack.Pop(m_CurState);
-		Clipboard::SetUseInternalClipboardState(m_CurState.UseInternalClipboard);
+		Clipboard::SetUseInternalClipboardState(m_CurState->UseInternalClipboard);
 	}
 }
 
@@ -635,10 +615,13 @@ KeyMacro::KeyMacro():
 	m_InternalInput(0)
 {
 	//print_opcodes();
+	m_CurState = new MacroState();
 }
 
 KeyMacro::~KeyMacro()
 {
+	while (!m_StateStack.empty()) PopState();
+	delete m_CurState;
 }
 
 // инициализация всех переменных
@@ -654,11 +637,11 @@ void KeyMacro::InitInternalVars(bool InitedRAM)
 
 	if (InitedRAM)
 	{
-		m_CurState.m_MacroQueue.Clear();
-		m_CurState.Executing=MACROMODE_NOMACRO;
+		m_CurState->m_MacroQueue.Clear();
+		m_CurState->Executing=MACROMODE_NOMACRO;
 	}
 
-	m_CurState.HistoryDisable=0;
+	m_CurState->HistoryDisable=0;
 	m_RecCode.Clear();
 	m_RecDescription.Clear();
 
@@ -693,19 +676,19 @@ int KeyMacro::IsDsableOutput()
 
 DWORD KeyMacro::SetHistoryDisableMask(DWORD Mask)
 {
-	DWORD OldHistoryDisable=m_CurState.HistoryDisable;
-	m_CurState.HistoryDisable=Mask;
+	DWORD OldHistoryDisable=m_CurState->HistoryDisable;
+	m_CurState->HistoryDisable=Mask;
 	return OldHistoryDisable;
 }
 
 DWORD KeyMacro::GetHistoryDisableMask()
 {
-	return m_CurState.HistoryDisable;
+	return m_CurState->HistoryDisable;
 }
 
 bool KeyMacro::IsHistoryDisable(int TypeHistory)
 {
-	return !m_CurState.m_MacroQueue.Empty() && (m_CurState.HistoryDisable & (1 << TypeHistory));
+	return !m_CurState->m_MacroQueue.Empty() && (m_CurState->HistoryDisable & (1 << TypeHistory));
 }
 
 void KeyMacro::SetMode(MACROMODEAREA Mode)
@@ -880,7 +863,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			}
 			else
 			{
-				if (m_CurState.m_MacroQueue.Empty())
+				if (m_CurState->m_MacroQueue.Empty())
 				{
 					int Key = Rec->IntKey;
 					if ((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
@@ -903,8 +886,8 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 							int ret = PostNewMacro(macro->Code(),macro->Flags(),Rec->IntKey,false);
 							if (ret)
 							{
-								m_CurState.HistoryDisable=0;
-								m_CurState.cRec=Rec->Rec;
+								m_CurState->HistoryDisable=0;
+								m_CurState->cRec=Rec->Rec;
 							}
 							return ret;
 						}
@@ -1036,7 +1019,7 @@ int KeyMacro::GetKey()
 					ScrBuf.Unlock();
 
 				RemoveCurMacro();
-				if (m_CurState.m_MacroQueue.Empty())
+				if (m_CurState->m_MacroQueue.Empty())
 				{
 					/*$ 10.08.2000 skv
 						If we are in editor mode, and CurEditor defined,
@@ -1076,7 +1059,7 @@ int KeyMacro::GetKey()
 					DWORD aKey=KEY_NONE;
 					if (!(macro->Flags()&MFLAGS_POSTFROMPLUGIN))
 					{
-						INPUT_RECORD *inRec=&m_CurState.cRec;
+						INPUT_RECORD *inRec=&m_CurState->cRec;
 						if (!inRec->EventType)
 							inRec->EventType = KEY_EVENT;
 						if(inRec->EventType == MOUSE_EVENT || inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
@@ -1431,7 +1414,7 @@ bool KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,boo
 		string strKeyText;
 		KeyToText(AKey,strKeyText);
 		MacroRecord macro(MACRO_COMMON, Flags, AKey, strKeyText, PlainText, L"");
-		m_CurState.m_MacroQueue.Push(&macro);
+		m_CurState->m_MacroQueue.Push(&macro);
 		return true;
 	}
 	return false;
@@ -3108,7 +3091,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				if (!(MR->Flags()&MFLAGS_POSTFROMPLUGIN))
 				{
-					INPUT_RECORD *inRec=&m_CurState.cRec;
+					INPUT_RECORD *inRec=&m_CurState->cRec;
 					if (!inRec->EventType)
 						inRec->EventType = KEY_EVENT;
 					if(inRec->EventType == MOUSE_EVENT || inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
@@ -3134,10 +3117,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			parseParams(1,Params,Data);
 			TVar State(Params[0]);
 
-			DWORD oldHistoryDisable=m_CurState.HistoryDisable;
+			DWORD oldHistoryDisable=m_CurState->HistoryDisable;
 
 			if (!State.isUnknown())
-				m_CurState.HistoryDisable=(DWORD)State.getInteger();
+				m_CurState->HistoryDisable=(DWORD)State.getInteger();
 
 			return (__int64)oldHistoryDisable;
 		}

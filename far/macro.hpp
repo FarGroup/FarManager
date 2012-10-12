@@ -160,8 +160,9 @@ class MacroRecord
 
 class MacroState
 {
-	friend class KeyMacro;
 	private:
+		MacroState& operator= (const MacroState&);
+	public:
 		INPUT_RECORD cRec; // "описание реально нажатой клавиши"
 		int Executing;
 		DList<MacroRecord> m_MacroQueue;
@@ -170,7 +171,6 @@ class MacroState
 		bool UseInternalClipboard;
 	public:
 		MacroState();
-		MacroState& operator= (const MacroState&);
 		MacroRecord* GetCurMacro() { return m_MacroQueue.Empty() ? nullptr : m_MacroQueue.First(); }
 		void RemoveCurMacro() { if (!m_MacroQueue.Empty()) m_MacroQueue.Delete(m_MacroQueue.First()); }
 };
@@ -180,8 +180,8 @@ class KeyMacro
 	private:
 		TArray<MacroRecord> m_Macros[MACRO_LAST];
 		MACROMODEAREA m_Mode;
-		MacroState m_CurState;
-		TStack<MacroState> m_StateStack;
+		MacroState* m_CurState;
+		TStack<MacroState*> m_StateStack;
 		MACRORECORDANDEXECUTETYPE m_Recording;
 		string m_RecCode;
 		string m_RecDescription;
@@ -203,9 +203,9 @@ class KeyMacro
 		void InitInternalVars(bool InitedRAM=true);
 		bool InitMacroExecution(void);
 		bool UpdateLockScreen(bool recreate=false);
-		MacroRecord* GetCurMacro() { return m_CurState.GetCurMacro(); }
-		MacroRecord* GetTopMacro() { return m_StateStack.empty()?nullptr:m_StateStack.Peek()->GetCurMacro(); }
-		void RemoveCurMacro() { m_CurState.RemoveCurMacro(); }
+		MacroRecord* GetCurMacro() { return m_CurState->GetCurMacro(); }
+		MacroRecord* GetTopMacro() { return m_StateStack.empty()?nullptr:(*m_StateStack.Peek())->GetCurMacro(); }
+		void RemoveCurMacro() { m_CurState->RemoveCurMacro(); }
 
 	public:
 		KeyMacro();
