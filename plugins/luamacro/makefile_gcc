@@ -17,6 +17,7 @@ NEEDENTRY  = 1
 NEEDDEFLIB = 1
 EXCLUDECRT = 1
 
+DEF_NAME = -
 include ../makefile_gcc_def_inc
 
 SKIPCLEAN = 1
