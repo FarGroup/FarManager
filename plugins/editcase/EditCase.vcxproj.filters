@@ -26,18 +26,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="EditCase.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="EditCaseW.vc.def">
       <Filter>Source Files</Filter>
     </None>
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EditCase.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="EditLng.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -24,8 +24,8 @@ USERRC = -I .
 
 include ../makefile_gcc_def_inc
 
-RC_NAME = $(SRCDIR)/res.rc
-DEF = ./lib/def.gcc.def
+RC_NAME = $(SRCDIR)/res
+DEF_NAME = ./lib/def.gcc
 
 include ../makefile_gcc_target_inc
 

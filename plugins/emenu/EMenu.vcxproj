@@ -386,7 +386,6 @@
     <ClCompile Include="Plugin.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="EMenu.vc.def" />
     <None Include="EMenuW.vc.def" />
     <CustomBuild Include="EMenuEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>

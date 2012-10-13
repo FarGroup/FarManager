@@ -41,9 +41,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TmpPanel.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="TmpPanelW.vc.def">
       <Filter>Source Files</Filter>
     </None>

@@ -408,7 +408,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FARCmds.vc.def" />
     <None Include="FARCmdsW.vc.def" />
     <CustomBuild Include="FARCmdsEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>

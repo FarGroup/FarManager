@@ -392,7 +392,6 @@
     <ClCompile Include="DrawLine.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DrawLine.vc.def" />
     <CustomBuild Include="DrawEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
@@ -494,9 +493,9 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
     <None Include="changelog" />
+    <None Include="DrawLineW.vc.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DrawLine.hpp" />
     <ClInclude Include="DrawLng.hpp" />
     <ClInclude Include="guid.hpp" />
     <ClInclude Include="version.hpp" />

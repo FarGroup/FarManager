@@ -19,7 +19,10 @@
 #############################################################################
 
 ALLDIRS = align arclite autowrap brackets compare drawline editcase emenu farcmds \
-          filecase hlfviewer luamacro network proclist tmppanel ftp multiarc
+          filecase hlfviewer network proclist tmppanel ftp multiarc \
+!if "$(BUILD_PLATFORM)" != "IA64"
+          luamacro \
+!endif
 
 #############################################################################
 !if exists(make_vc_defs)
@@ -49,7 +52,7 @@ VC=10
 all:    libcrt $(OUTPATH) $(ALLDIRS)
 
 !ifdef __MAKE__
-.PHONY: libcrt $(OUTPATH) $(ALLDIRS)
+.PHONY: libcrt $(OUTPATH) $(ALLDIRS) clean
 !else
 FICTIVE=_fictive_
 $(FICTIVE):
@@ -59,16 +62,16 @@ $(FICTIVE):
 ##########################
 libcrt: $(FICTIVE)
 	@echo ===========CRT library
-        @cd common\CRT
-        @$(MAKE) /nologo -s -f makefile_lib_vc $(_MDEFS)
-        @cd ..\..
+	@cd common\CRT
+	@$(MAKE) /nologo -s -f makefile_lib_vc $(_MDEFS)
+	@cd ..\..
 
 #######
-!ifdef INSTALL
-
 !ifndef DEBUG
+_ODF_=Release
 _ODN_=final
 !else
+_ODF_=Debug
 _ODN_=debug
 !endif
 !if "$(BUILD_PLATFORM)" == "AMD64"
@@ -78,6 +81,9 @@ _ODB_=IA64
 !else
 _ODB_=32
 !endif
+
+!ifdef INSTALL
+
 OUTPATH=$(INSTALL)\$(_ODN_).$(_ODB_)W
 
 $(OUTPATH): $(INSTALL)
@@ -90,11 +96,29 @@ $(INSTALL):
 
 $(ALLDIRS): $(FICTIVE) $(OUTPATH)
 	@echo ===========$@
-        @cd $@
+	@cd $@
 !ifndef INSTALL
-        @$(MAKE) /nologo -s -f makefile_vc $(_MDEFS)
+	@$(MAKE) /nologo -s -f makefile_vc $(_MDEFS)
 !else
-        @$(MAKE) /nologo -s -f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(OUTPATH)\$@
+	@$(MAKE) /nologo -s -f makefile_vc $(_MDEFS) $(_MKDO_)INSTALL=..\$(OUTPATH)\$@
 !endif
-        @cd ..
+	@cd ..
 
+fdir=..\unicode_far\$(_ODF_).$(DIRBIT).vc
+adir=%d\$(_ODN_).$(DIRBIT).vc
+wdir=%d\$(_ODN_).$(DIRBIT)W.vc
+cdir=Common\CRT\obj.$(DIRBIT).vc
+pdir=multiarc\libpcre\obj.$(DIRBIT).vc
+!if "$(DIRBIT)" == "32"
+clib=Common\libCRT.lib
+!else
+clib=Common\libCRT$(DIRBIT).lib
+!endif
+
+clean:
+	@if exist $(fdir)\lua*.* echo del $(fdir)\lua*.*& del /q $(fdir)\lua*.* 1>nul
+	@if exist $(clib) echo del $(clib)& del /q /s $(clib) 1>nul
+	@if exist $(cdir)\ echo del $(cdir)\& rd /q /s $(cdir) 1>nul
+	@for %d in (ftp multiarc multiarc\libpcre) do @if exist $(adir)\ echo del $(adir)\& rd /q /s $(adir) 1>nul
+	@if exist $(pdir)\ echo del $(pdir)\& rd /q /s $(pdir) 1>nul
+	@for %d in ($(ALLDIRS)) do @if not "%d" == "ftp" if not "%d" == "multiarc" @if exist $(wdir)\ echo del $(wdir)\& rd /q /s $(wdir) 1>nul

@@ -1,9 +1,8 @@
-LIBRARY
 EXPORTS
 	IsArchive
 	OpenArchive
-    GetArcItem
-    CloseArchive
-    GetFormatName
-    GetDefaultCommands
-    GetSFXPos
+   GetArcItem
+   CloseArchive
+   GetFormatName
+   GetDefaultCommands
+   GetSFXPos

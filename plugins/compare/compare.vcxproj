@@ -392,7 +392,6 @@
     <ClCompile Include="Compare.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Compare.vc.def" />
     <None Include="CompareW.vc.def" />
     <CustomBuild Include="CompEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
@@ -494,7 +493,6 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
-    <None Include="ToDo.18.Rus.txt" />
     <None Include="ToDo.Rus.txt" />
     <None Include="changelog" />
   </ItemGroup>

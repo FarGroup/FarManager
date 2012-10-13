@@ -392,7 +392,6 @@
     <ClCompile Include="EditCase.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="EditCase.vc.def" />
     <None Include="EditCaseW.vc.def" />
     <CustomBuild Include="ECaseEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
@@ -497,7 +496,6 @@
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="EditCase.hpp" />
     <ClInclude Include="EditLng.hpp" />
     <ClInclude Include="guid.hpp" />
     <ClInclude Include="version.hpp" />

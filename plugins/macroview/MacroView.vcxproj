@@ -432,7 +432,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="MacroView.vc.def" />
     <None Include="MacroViewW.vc.def" />
     <CustomBuild Include="MacroEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>

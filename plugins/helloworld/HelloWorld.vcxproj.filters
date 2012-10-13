@@ -26,11 +26,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="HelloWorld.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="changelog" />
     <None Include="README.TXT" />
+    <None Include="HelloWorldW.vc.def">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="HelloWorld.rc">

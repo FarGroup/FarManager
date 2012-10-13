@@ -395,7 +395,6 @@
     <ClCompile Include="TmpPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="TmpPanel.vc.def" />
     <None Include="TmpPanelW.vc.def" />
     <CustomBuild Include="TmpEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>

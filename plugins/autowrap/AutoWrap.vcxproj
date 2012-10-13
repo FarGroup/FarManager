@@ -392,7 +392,6 @@
     <ClCompile Include="AutoWrap.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="AutoWrap.vc.def" />
     <None Include="AutoWrapW.vc.def" />
     <CustomBuild Include="WrapEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
@@ -457,7 +456,6 @@
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AutoWrap.hpp" />
     <ClInclude Include="guid.hpp" />
     <ClInclude Include="version.hpp" />
     <ClInclude Include="WrapLng.hpp" />

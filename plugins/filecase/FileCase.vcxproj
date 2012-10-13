@@ -416,7 +416,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FileCase.vc.def" />
     <None Include="FileCaseW.vc.def" />
     <CustomBuild Include="CaseEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>

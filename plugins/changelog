@@ -1,3 +1,7 @@
+w17 13.10.2012 23:05:52 +0400 - build 401
+
+1. luamacro added to gcc build + vstudio build + many small build corrections.
+
 yjh 04.10.2012 03:45:21 +0400
 
 1. Устранение последствий "рефакторинга" vc-makes.

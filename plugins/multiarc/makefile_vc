@@ -22,7 +22,7 @@ CPP_UNALIGN=1
 !include ..\makefile_vc_target_inc
 
 ALL: dirs libpcre fmtdir fmts 
-	@copy /Y Custom.ini $(OUTDIR)\Formats\*.*
+	@copy /Y Custom.ini $(OUTDIR)\Formats\*.* 1>nul
 
 FMTLIST=Custom Ace Arc Arj Cab Ha Lzh Rar TarGz Zip
 

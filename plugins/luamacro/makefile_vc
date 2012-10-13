@@ -2,9 +2,19 @@
 
 NAME=LuaMacro
 USERCPP=/Iluasdk/include /DEXPORT_OPEN
-LUALIB=$(OUTDIR)\luafar3.lib
+LUA_VER=5.1
 
-DOCS=_globalinfo.lua api.lua luamacro.lua macrotest.lua luasdk\$(DIRBIT)\lua5.1.dll
+!ifndef FAR_WORKDIR
+!ifndef DEBUG
+FAR_DIRNAME=Release
+!else
+FAR_DIRNAME=Debug
+!endif
+FAR_WORKDIR=..\..\unicode_far\$(FAR_DIRNAME).$(DIRBIT).vc
+!endif
+LUALIB=$(FAR_WORKDIR)\luafar3.lib
+
+DOCS=_globalinfo.lua api.lua luamacro.lua macrotest.lua
 
 NEEDENTRY = 1
 NEEDDEFLIB = 1
@@ -23,7 +33,7 @@ LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrp_u.obj
 !endif
 !endif
 
-LIBS=$(LIBS) luasdk\$(DIRBIT)\lua5.1.lib $(LUALIB)
+LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 
 !include ..\makefile_vc_target_inc
 
@@ -35,8 +45,4 @@ LIBS=$(LIBS) luasdk\$(DIRBIT)\lua5.1.lib $(LUALIB)
 $(LINK_OBJS): $(LUALIB)
 
 $(LUALIB):
-!ifndef INSTALL
-	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc
-!else
-	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(INSTALL)
-!endif
+	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(FAR_WORKDIR)

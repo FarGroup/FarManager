@@ -396,7 +396,6 @@
     <ClCompile Include="Network.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Network.vc.def" />
     <None Include="NetworkW.vc.def" />
     <CustomBuild Include="NetEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
@@ -507,8 +506,6 @@
     <ClInclude Include="NetCommon.hpp" />
     <ClInclude Include="NetFavorites.hpp" />
     <ClInclude Include="NetLng.hpp" />
-    <ClInclude Include="NetMacros.hpp" />
-    <ClInclude Include="NetReg.hpp" />
     <ClInclude Include="Network.hpp" />
     <ClInclude Include="version.hpp" />
   </ItemGroup>

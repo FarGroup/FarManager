@@ -26,18 +26,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Align.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="AlignW.vc.def">
       <Filter>Source Files</Filter>
     </None>
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Align.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AlignLng.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -29,9 +29,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Brackets.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="BracketsW.vc.def">
       <Filter>Source Files</Filter>
     </None>

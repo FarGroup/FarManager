@@ -6,6 +6,11 @@ $(OBJDIR)/%.d: %.cpp
 	@echo making depends for $<
 	@$(MKDIR) $(@D)
 	@$(CXX) -c -MM $(CXXFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
+
+$(OBJDIR)/%.d: %.c
+	@echo making depends for $<
+	@$(MKDIR) $(@D)
+	@$(CC) -c -MM $(CCFLAGS) $< | $(GAWK) -f $(DEP_FILTER) -v n=$(notdir $(basename $@)) -v r=$(OBJDIR) > $(call os_name,$@)
 endif
 endif
 
@@ -14,26 +19,30 @@ $(OBJDIR)/%.o: %.cpp
 	@$(MKDIR) -p $(@D)
 	@$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(RES): $(RC_NAME) $(COMINC)/farversion.hpp $(COMINC)/plugin.hpp
+$(OBJDIR)/%.o: %.c
+	@echo compiling $<
+	@$(MKDIR) -p $(@D)
+	@$(CC) $(CCFLAGS) -c -o $@ $<
+
+$(RES): $(RC_NAME).rc $(COMINC)/farversion.hpp $(COMINC)/plugin.hpp
 	@echo compiling $<
 	@$(MKDIR) -p $(@D)
 	@$(WINDRES) $(RCFLAGS) -i $< -o $@
 
+X_OPT = $(if $(MAP),-Xlinker -Map -Xlinker $(MAP),)
+
 $(DLLFULLNAME): $(OBJS) $(DEF)
 	@echo linking $@
 	@$(MKDIR) -p $(@D)
-	@$(CXX) -mdll -o $(DLLNAME) -Xlinker --base-file -Xlinker $(DLLNAME).base $(OBJS) $(LNKFLAGS)
-	@$(DLLTOOL) -f --$(DIRBIT) -m $(DLLTOOL_M) --dllname $(DLLNAME) --base-file $(DLLNAME).base --output-exp $(DLLNAME).exp --def $(DEF)
-	@$(CXX) -mdll -o $(DLLNAME) $(OBJS) $(DLLNAME).exp $(LNKFLAGS) -Xlinker -Map -Xlinker $(MAP)
-	@$(MV) $(DLLNAME) $(DLLDIR)
-	@$(RM) $(DLLNAME).base
-	@$(RM) $(DLLNAME).exp
+	@$(CXX) -o $@ $(OBJS) $(LNKFLAGS) -Wl,--kill-at -shared $(X_OPT)
 ifdef DOCS
 	@$(CP) $(DOCS) $(DLLDIR)
 endif
 
+ifndef SKIPCLEAN
 clean:
 	@$(RM) -r $(BASEDIR)/obj $(BASEDIR)/lib $(BASEDIR)/Formats $(BASEDIR)/*
+endif
 
 ifndef DISABLEAUTODEPS
 -include $(DEPS)

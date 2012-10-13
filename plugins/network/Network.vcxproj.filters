@@ -41,9 +41,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Network.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="NetworkW.vc.def">
       <Filter>Source Files</Filter>
     </None>
@@ -63,12 +60,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NetLng.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NetMacros.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="NetReg.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Network.hpp">

@@ -1,9 +1,11 @@
 !include ../makefile_vc_base
 
 NAME=luafar3
-USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua5.1.dll\" /DFAR_LUA
+LUA_VER=5.1
+USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua$(LUA_VER).dll\" /DFAR_LUA
 LUA=luasdk\32\lua.exe
 
+DOCS=luasdk\$(DIRBIT)\lua$(LUA_VER).dll
 
 NEEDENTRY = 1
 NEEDDEFLIB = 1
@@ -39,7 +41,7 @@ LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrp_u.obj
 !endif
 !endif
 
-LIBS=$(LIBS) luasdk\$(DIRBIT)\lua5.1.lib rpcrt4.lib
+LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib rpcrt4.lib
 
 !include ..\makefile_vc_target_inc
 

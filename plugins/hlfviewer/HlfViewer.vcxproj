@@ -392,7 +392,6 @@
     <ClCompile Include="HlfViewer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="HlfViewer.vc.def" />
     <None Include="HlfViewerW.vc.def" />
     <CustomBuild Include="HlfViewerEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
@@ -498,7 +497,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="guid.hpp" />
-    <ClInclude Include="HlfViewer.hpp" />
     <ClInclude Include="Lang.hpp" />
     <ClInclude Include="version.hpp" />
   </ItemGroup>

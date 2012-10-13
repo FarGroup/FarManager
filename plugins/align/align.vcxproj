@@ -392,7 +392,6 @@
     <ClCompile Include="Align.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Align.vc.def" />
     <None Include="AlignW.vc.def" />
     <CustomBuild Include="AlignEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
@@ -457,7 +456,6 @@
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Align.hpp" />
     <ClInclude Include="AlignLng.hpp" />
     <ClInclude Include="guid.hpp" />
     <ClInclude Include="version.hpp" />

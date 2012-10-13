@@ -26,15 +26,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DrawLine.vc.def">
+    <None Include="changelog" />
+    <None Include="DrawLineW.vc.def">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="DrawLine.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DrawLng.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

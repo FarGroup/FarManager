@@ -35,9 +35,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FileCase.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="FileCaseW.vc.def">
       <Filter>Source Files</Filter>
     </None>

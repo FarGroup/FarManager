@@ -392,7 +392,6 @@
     <ClCompile Include="Brackets.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Brackets.vc.def" />
     <None Include="BracketsW.vc.def" />
     <CustomBuild Include="BrackEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>

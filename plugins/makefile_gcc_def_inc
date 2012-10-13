@@ -41,61 +41,74 @@ CXXWIDE = -D UNICODE -D _UNICODE
 CCWIDE = -D UNICODE -D _UNICODE
 endif
 
-BASEDIR = ./final.$(DIRBIT)$(DIRSURF).gcc
-OBJDIR = $(BASEDIR)/obj
-REOBJDIR = \.\/final\.$(DIRBIT)$(DIRSURF)\.gcc\/obj\/
-DLLDIR = $(BASEDIR)$(ADDOUTDIR)
-ifndef COMMON
-COMMON = ../common
-endif
-ifndef ANSI
-COMINC = $(COMMON)/unicode
+ifndef DEBUG
+DIRNAME := final
+C_DEBUG := -Os -fomit-frame-pointer -DNDEBUG
+L_DEBUG := -s
 else
-COMINC = $(COMMON)/ascii
+DIRNAME := debug
+C_DEBUG := -g -D_DEBUG
+L_DEBUG :=
 endif
-ifndef EXT
-EXT = dll
-endif
+
+BASEDIR = ./$(DIRNAME).$(DIRBIT)$(DIRSURF).gcc
+OBJDIR := $(BASEDIR)/obj
+REOBJDIR = \.\/$(DIRNAME)\.$(DIRBIT)$(DIRSURF)\.gcc\/obj\/
+DLLDIR ?= $(BASEDIR)$(ADDOUTDIR)
+COMMON ?= ../common
+COMINC = $(COMMON)/$(if $(ANSI),ascii,unicode)
+EXT ?= dll
 DLLNAME = $(NAME).$(EXT)
 DLLFULLNAME = $(DLLDIR)/$(DLLNAME)
+
 ifeq ($(DIRBIT),32)
-DEF = $(NAME)$(DIRSURF).gcc.def
+DEF_DEF = $(NAME)$(DIRSURF).gcc
 DLLTOOL_M = i386
 else
 #for x64 vc.def is good enough
-DEF = $(NAME)$(DIRSURF).vc.def
+DEF_DEF = $(NAME)$(DIRSURF).vc
 DLLTOOL_M = i386:x86-64
 endif
-RC_NAME = $(NAME).rc
+
+ifndef DEF_NAME
+DEF_NAME = $(DEF_DEF)
+endif
+ifeq ($(DEF_NAME),-)
+DEF =
+DEF_OPT =
+else
+DEF = $(DEF_NAME).def
+DEF_OPT = -d $(DEF)
+endif
+
+RC_NAME ?= $(NAME)
 RES = $(OBJDIR)/$(NAME).res.o
 
-NOSTART = -nostartfiles
-ifdef NEEDENTRY
-NOSTART = 
-endif
+NOSTART = $(if $(NEEDENTRY),,-nostartfiles)
+NODEFLIBS = $(if $(NEEDDEFLIB),,-nodefaultlibs)
 
-NODEFLIBS = -nodefaultlibs
-ifdef NEEDDEFLIB
-NODEFLIBS = 
-endif
-
+ifdef EXCLUDECRT
+COMMONLIB = 
+else
 ifeq ($(DIRBIT),32)
 COMMONLIB = -L $(COMMON) -lCRT
 else
 COMMONLIB = -L $(COMMON) -lCRT64
 endif
-ifdef EXCLUDECRT
-COMMONLIB = 
 endif
 
-C_FLAGS  = -m$(DIRBIT) -Wall -Os -funsigned-char -fomit-frame-pointer -fstrict-aliasing -fno-exceptions
-CXXFLAGS = $(C_FLAGS) -std=gnu++0x -fno-rtti -I $(COMMON) -I $(COMINC) $(CXXWIDE) $(USERCPP)
-CCFLAGS  = $(C_FLAGS) -I $(COMMON) -I $(COMINC) $(CCWIDE) $(USERCPP)
-LNKFLAGS = -m$(DIRBIT) -mdll -s $(NOSTART) $(NODEFLIBS) -static-libgcc -static $(USERLIBSFIRST) $(COMMONLIB) -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
-RCFLAGS  = -I $(COMINC) $(RCWIDE) $(USERRC)
+C_FLAGS  := -m$(DIRBIT) -Wall -funsigned-char $(C_DEBUG) -fstrict-aliasing -fno-exceptions
+CXXFLAGS := $(C_FLAGS) -std=gnu++0x -fno-rtti -I $(COMMON) -I $(COMINC) $(CXXWIDE) $(USERCPP)
+CCFLAGS  := $(C_FLAGS) -I $(COMMON) -I $(COMINC) $(CCWIDE) $(USERCPP)
+LNKFLAGS := -m$(DIRBIT) $(L_DEBUG) $(NOSTART) $(NODEFLIBS) -static-libgcc -static $(USERLIBSFIRST) $(COMMONLIB) -luser32 -lkernel32 -ladvapi32 -lshell32 $(USERLIBS)
+RCFLAGS  := -I $(COMINC) $(RCWIDE) $(USERRC)
 
-OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS))) $(RES)
+C_OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(filter %.c,$(SRCS)))
+CPP_OBJS = $(patsubst %.cpp,$(OBJDIR)/%.o,$(filter %.cpp,$(SRCS)))
+OBJS = $(strip $(C_OBJS) $(CPP_OBJS) $(RES))
 ifndef DISABLEAUTODEPS
-DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
+C_DEPS = $(patsubst %.c,$(OBJDIR)/%.d,$(filter %.c,$(SRCS)))
+CPP_DEPS = $(patsubst %.cpp,$(OBJDIR)/%.d,$(filter %.cpp,$(SRCS)))
+DEPS = $(strip $(C_DEPS) $(CPP_DEPS))
 endif
 MAP = $(patsubst %.$(EXT),%.map,$(DLLFULLNAME))

@@ -1,6 +1,5 @@
-LIBRARY
 EXPORTS
-        GetMinFarVersion
+   GetMinFarVersion
 	SetStartupInfo
 	OpenFilePlugin
 	OpenPlugin

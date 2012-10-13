@@ -50,9 +50,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="EMenu.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="EMenuW.vc.def">
       <Filter>Source Files</Filter>
     </None>

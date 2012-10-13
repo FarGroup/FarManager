@@ -400,7 +400,6 @@
     <ClCompile Include="wmi.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Proclist.vc.def" />
     <None Include="ProclistW.vc.def" />
     <CustomBuild Include="ProcEng.lng">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>

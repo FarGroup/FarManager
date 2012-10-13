@@ -29,14 +29,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Compare.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="CompareW.vc.def">
       <Filter>Source Files</Filter>
-    </None>
-    <None Include="ToDo.18.Rus.txt">
-      <Filter>Text Files</Filter>
     </None>
     <None Include="ToDo.Rus.txt">
       <Filter>Text Files</Filter>

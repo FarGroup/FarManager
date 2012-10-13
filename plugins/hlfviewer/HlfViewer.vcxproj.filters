@@ -26,18 +26,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="HlfViewer.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="HlfViewerW.vc.def">
       <Filter>Source Files</Filter>
     </None>
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HlfViewer.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Lang.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

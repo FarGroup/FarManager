@@ -26,18 +26,12 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="AutoWrap.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="AutoWrapW.vc.def">
       <Filter>Source Files</Filter>
     </None>
     <None Include="changelog" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AutoWrap.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="WrapLng.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>

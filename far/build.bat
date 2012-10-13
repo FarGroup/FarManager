@@ -13,7 +13,7 @@
   set ccomp=vc gcc
   set nbits=32 64
   set deb_b=N
-  set clean=N
+  set clean=N& set cleanonly=N
   set vcsln=N& rem -- vc  only
   set dwarf=N& rem -- gcc only
   rem if auto-detection doesn't work - change/uncomment line(s) below
@@ -65,6 +65,7 @@ goto :EOF
   for %%p in (32/64 32-64 32x64) do if /i "%%p" == "%~1" set nbits=32/64
   for %%p in (64/32 64-32 64x32) do if /i "%%p" == "%~1" set nbits=64/32
   for %%p in (rebuild clean) do if /i "%%p" == "%~1" set clean=Y
+  for %%p in (cleanonly) do if /i "%%p" == "%~1" set clean=Y& set cleanonly=Y
   for %%p in (debug dbg) do if /i "%%p" == "%~1" set deb_b=Y
   for %%p in (sln solution) do if /i "%%p" == "%~1" set vcsln=Y
   for %%p in (dwarf dw2) do if /i "%%p" == "%~1" set dwarf=Y
@@ -88,7 +89,7 @@ goto :EOF
 :do_make
   if /i "Y" == "%deb_b%" set m=%m% DEBUG=1
   if /i "Y" == "%clean%" %m% clean
-  %m%
+  if /i not "Y" == "%cleanonly%" %m%
 goto :EOF
 
 :build_vc
@@ -98,6 +99,7 @@ goto :EOF
 goto :do_make
 :devenv
   if /i "Y"  == "%clean%"  (set b=Rebuild) else (set b=Build)
+  if /i "Y"  == "%cleanonly%"                    set b=Clean
   if /i "64" == "%dirbit%" (set p=x64)    else  (set p=Win32)
   if /i "Y"  == "%deb_b%"  (set c=Debug) else (set c=Release)
   devenv far.sln /%b% "%c%^|%p%"

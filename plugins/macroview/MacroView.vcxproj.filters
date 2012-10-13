@@ -41,9 +41,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="MacroView.vc.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="MacroViewW.vc.def">
       <Filter>Source Files</Filter>
     </None>
