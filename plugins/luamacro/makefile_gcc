@@ -1,0 +1,34 @@
+include ../../unicode_far/makefile_gcc_common
+
+NAME = LuaMacro
+LUA_VER = 5.1
+
+ifndef FAR_WORKDIR
+FAR_WORKDIR := $(FARDIR)$(DIRNAME).$(DIRBIT).gcc
+endif
+LUALIB = $(FAR_WORKDIR)/luafar3.dll
+
+DOCS = _globalinfo.lua api.lua luamacro.lua macrotest.lua
+SRCS = luafar/luaplug.c
+USERCPP = -Iluasdk/include -DEXPORT_OPEN
+USERLIBS = $(LUALIB) luasdk/$(DIRBIT)/lua$(LUA_VER).dll
+
+NEEDENTRY  = 1
+NEEDDEFLIB = 1
+EXCLUDECRT = 1
+
+include ../makefile_gcc_def_inc
+
+SKIPCLEAN = 1
+include ../makefile_gcc_target_inc
+
+$(DLLFULLNAME): lualib
+
+.PHONY: lualib clean
+
+lualib:
+	@$(MAKE) -f makefile_lib_gcc $(MK_FLAGS) DLLDIR=$(FAR_WORKDIR)
+
+clean:
+	@$(RM) $(OBJS) $(DEPS) $(DLLDIR)/*
+	@$(MAKE) -f makefile_lib_gcc $(MK_FLAGS) DLLDIR=$(FAR_WORKDIR) clean

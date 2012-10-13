@@ -1,0 +1,49 @@
+include ../../unicode_far/makefile_gcc_common
+
+NAME=luafar3
+LUA_VER=5.1
+LUA=$(WINE_CMD)$(strip $(call os_name, luasdk/32/lua.exe))
+
+DOCS = luasdk/$(DIRBIT)/lua$(LUA_VER).dll
+SRCS = \
+luafar/bit64.c \
+luafar/exported.c \
+luafar/flags.c \
+luafar/keysandcolors.c \
+luafar/lflua.c \
+luafar/lregex.c \
+luafar/reg.c \
+luafar/service.c \
+luafar/slnudata.c \
+luafar/slnunico.c \
+luafar/uliolib51.c \
+luafar/uloadlib51.c \
+luafar/ustring.c \
+luafar/util.c \
+luafar/win.c \
+
+USERLIBS = luasdk/$(DIRBIT)/lua$(LUA_VER).dll -lrpcrt4
+USERCPP  = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUA_VER).dll\" -DFAR_LUA
+
+NEEDENTRY  = 1
+NEEDDEFLIB = 1
+EXCLUDECRT = 1
+
+RC_NAME = luafar/$(NAME)
+DEF_NAME = -
+
+include ../makefile_gcc_def_inc
+
+SKIPCLEAN = 1
+include ../makefile_gcc_target_inc
+
+luafar/flags.c: $(COMINC)/plugin.hpp luafar/makeflags.lua
+	@echo generating $@
+	@$(LUA) luafar/makeflags.lua $(COMINC)/plugin.hpp > $@
+
+luafar/keysandcolors.c: $(COMINC)/farcolor.hpp luafar/makefarkeys.lua
+	@echo generating $@
+	@$(LUA) luafar/makefarkeys.lua $(COMINC) $@
+
+clean:
+	@$(RM) $(DLLDIR)/lua*.* $(OBJS) $(DEPS)
