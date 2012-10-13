@@ -1021,6 +1021,8 @@ int KeyMacro::GetKey()
 				RemoveCurMacro();
 				if (m_CurState->m_MacroQueue.Empty())
 				{
+					ScrBuf.RestoreMacroChar();
+
 					/*$ 10.08.2000 skv
 						If we are in editor mode, and CurEditor defined,
 						we need to call this events.
@@ -1038,8 +1040,13 @@ int KeyMacro::GetKey()
 						CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins->CurEditor->GetId());
 						CtrlObject->Plugins->CurEditor->Show();
 					}
+					else if (m_Mode==MACRO_VIEWER &&
+									CtrlObject->Plugins->CurViewer &&
+									CtrlObject->Plugins->CurViewer->IsVisible())
+					{
+						CtrlObject->Plugins->CurViewer->Show(); // иначе может быть неправильный верхний левый символ экрана
+					}
 
-					ScrBuf.RestoreMacroChar();
 					return 0;
 				}
 
@@ -1864,14 +1871,24 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck, bool sk
 	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
 
 	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_LUAMACRO,&info);
-	bool IsOK = mpr && mpr->ReturnType==MPRT_NORMALFINISH;
-	m_LastErrorStr = IsOK||!mpr ? L"" : mpr->Args[0].String;
-	m_LastErrorLine = IsOK||!mpr ? 0 : (int)mpr->Args[1].Double;
-	if (mpr && !IsOK && !onlyCheck)
+	if (mpr)
 	{
-		FrameManager->RefreshFrame(); // Нужно после вывода сообщения плагином. Иначе панели не перерисовываются.
+		if (mpr->ReturnType == MPRT_NORMALFINISH)
+		{
+			m_LastErrorStr = L"";
+			m_LastErrorLine = 0;
+			return true;
+		}
+		else if (mpr->ReturnType == MPRT_ERRORPARSE)
+		{
+			m_LastErrorStr = mpr->Args[0].String;
+			m_LastErrorLine = (int)mpr->Args[1].Double;
+			if (!onlyCheck)
+				FrameManager->RefreshFrame(); // Нужно после вывода сообщения плагином. Иначе панели не перерисовываются.
+			return false;
+		}
 	}
-	return IsOK;
+	return false;
 }
 
 void KeyMacro::GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc)
