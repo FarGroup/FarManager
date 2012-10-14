@@ -566,7 +566,7 @@ static void PushParamsTable (lua_State* L, const struct OpenMacroInfo* om_info)
 #ifdef FAR_LUA
 static void FL_PushParamsTable (lua_State* L, const struct OpenMacroInfo* om_info)
 {
-  int i;
+  size_t i;
   lua_createtable(L, om_info->Count, 0);
   for (i=0; i < om_info->Count; i++) {
     struct FarMacroValue* v = om_info->Values + i;

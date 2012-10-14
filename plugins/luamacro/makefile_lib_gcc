@@ -14,7 +14,6 @@ luafar/lflua.c \
 luafar/lregex.c \
 luafar/reg.c \
 luafar/service.c \
-luafar/slnudata.c \
 luafar/slnunico.c \
 luafar/uliolib51.c \
 luafar/uloadlib51.c \
