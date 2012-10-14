@@ -1,5 +1,3 @@
-call c:\VC10\vcvarsall.bat x86_amd64
-SET CPU=AMD64
-SET APPVER=6.0
+call base_64.bat
 
 nmake /f makefile_lib_vc

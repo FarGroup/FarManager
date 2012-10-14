@@ -157,13 +157,6 @@ bplugin "tmppanel" "TmpPanel" "TmpPanel.dll TmpEng.hlf TmpRus.hlf TmpEng.lng Tmp
 bplugin "arclite" "ArcLite" "7z.dll 7z.sfx 7zCon.sfx 7zS2.sfx 7zS2con.sfx 7zSD.sfx arclite.dll arclite.map arclite_eng.hlf arclite_eng.lng arclite_rus.hlf arclite_rus.lng"
 bplugin "luamacro" "LuaMacro" "LuaMacro.dll _globalinfo.lua api.lua luamacro.lua macrotest.lua LuaMacro.map"
 
-cp -f luamacro/final.32W.vc/luafar3.dll ../outfinalnew32/
-cp -f luamacro/final.32W.vc/luafar3.map ../outfinalnew32/
-cp -f luamacro/final.32W.vc/lua5.1.dll ../outfinalnew32/
-cp -f luamacro/final.64W.vc/luafar3.dll ../outfinalnew64/
-cp -f luamacro/final.64W.vc/luafar3.map ../outfinalnew64/
-cp -f luamacro/final.64W.vc/lua5.1.dll ../outfinalnew64/
-
 bpluginftp
 #bpluginma
 

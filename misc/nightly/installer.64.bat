@@ -1,13 +1,10 @@
-call c:\VC10\vcvarsall.bat x86
-SET CPU=i386
-SET APPVER=6.0
+call base_32.bat
+
 SET Path=%Path%;C:\Program Files\Windows Installer XML v3.5\bin
 
 cl -nologo -EHsc -DNIGHTLY genparams.cpp
 
-call c:\VC10\vcvarsall.bat x86_amd64
-SET CPU=AMD64
-SET APPVER=6.0
+call base_64.bat
 
 genparams c:\src\outfinalnew64 x64
 
