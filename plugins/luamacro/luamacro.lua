@@ -96,9 +96,9 @@ local function loadmacro (Text)
   end
 end
 
-local function MacroInit (args)
-  local Text = args[1]
-  if Text and type(Text)=="string" then
+local function MacroInit (...)
+  local Text = ...
+  if type(Text)=="string" then
     local chunk, msg = loadmacro(Text)
     if chunk then
       local env = setmetatable({}, gmeta)
@@ -113,13 +113,13 @@ local function MacroInit (args)
   end
 end
 
-local function MacroStep (args)
-  local handle = args[1]
+local function MacroStep (...)
+  local handle = ...
   local macro = MacroTable[handle]
   if macro then
     local status = co_status(macro.coro)
     if status == "suspended" then
-      local ok, ret1, ret2, ret3 = co_resume(macro.coro, unpack(args, 2))
+      local ok, ret1, ret2, ret3 = co_resume(macro.coro, select(2,...))
       if ok then
         status = co_status(macro.coro)
         if status == "suspended" and ret1 == PROPAGATE and ret2 ~= "exit" then
@@ -150,8 +150,8 @@ local function MacroStep (args)
   end
 end
 
-local function MacroFinal (args)
-  local handle = args[1]
+local function MacroFinal (...)
+  local handle = ...
   if MacroTable[handle] then
     MacroTable[handle] = false -- false, not nil!
     --far.Message("Final: closed handle "..handle)
@@ -162,8 +162,8 @@ local function MacroFinal (args)
   end
 end
 
-local function MacroParse (args)
-  local text, onlyCheck, skipFile, title, buttons = unpack(args)
+local function MacroParse (...)
+  local text, onlyCheck, skipFile, title, buttons = ...
   local isFile = string.sub(text,1,1) == "@"
   if not (isFile and skipFile) then
     local chunk, msg = loadmacro(text)
@@ -194,11 +194,14 @@ local function ProcessCommandLine (CmdLine)
 end
 
 function export.Open (OpenFrom, Guid, Item)
-  if     OpenFrom == F.MCT_MACROINIT    then return MacroInit(Item)
-  elseif OpenFrom == F.MCT_MACROSTEP    then return MacroStep(Item)
-  elseif OpenFrom == F.MCT_MACROFINAL   then return MacroFinal(Item)
-  elseif OpenFrom == F.MCT_MACROPARSE   then return MacroParse(Item)
-  elseif OpenFrom == F.OPEN_COMMANDLINE then return ProcessCommandLine(Item)
+  if OpenFrom == F.OPEN_LUAMACRO then
+    if     Item[1]==F.MCT_MACROINIT  then return MacroInit (unpack(Item,2))
+    elseif Item[1]==F.MCT_MACROSTEP  then return MacroStep (unpack(Item,2))
+    elseif Item[1]==F.MCT_MACROFINAL then return MacroFinal(unpack(Item,2))
+    elseif Item[1]==F.MCT_MACROPARSE then return MacroParse(unpack(Item,2))
+    end
+  elseif OpenFrom == F.OPEN_COMMANDLINE then
+    return ProcessCommandLine(Item)
   end
 end
 

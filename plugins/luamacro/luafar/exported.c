@@ -564,12 +564,12 @@ static void PushParamsTable (lua_State* L, const struct OpenMacroInfo* om_info)
 }
 
 #ifdef FAR_LUA
-static void FL_PushParamsTable (lua_State* L, const struct OpenMacroInfo* om_info, int Offset)
+static void FL_PushParamsTable (lua_State* L, const struct OpenMacroInfo* om_info)
 {
-  int i, Count = (int)om_info->Count - Offset;
-  lua_createtable(L, Count, 0);
-  for (i=0; i < Count; i++) {
-    struct FarMacroValue* v = om_info->Values + Offset + i;
+  int i;
+  lua_createtable(L, om_info->Count, 0);
+  for (i=0; i < om_info->Count; i++) {
+    struct FarMacroValue* v = om_info->Values + i;
     if (v->Type == FMVT_INTEGER)      bit64_pushuserdata(L, v->Value.Integer);
     else if (v->Type == FMVT_DOUBLE)  lua_pushnumber(L, v->Value.Double);
     else if (v->Type == FMVT_STRING)  push_utf8_string(L, v->Value.String, -1);
@@ -596,11 +596,9 @@ static struct MacroPluginReturn* CreateMPR (lua_State* L, int nargs, int ReturnT
 static HANDLE Open_Luamacro (lua_State* L, const struct OpenInfo *Info)
 {
   const struct OpenMacroInfo* om_info = (const struct OpenMacroInfo*)Info->Data;
-  int calltype = (int) om_info->Values[0].Value.Integer;
+  int calltype = (int) om_info->Values[0].Value.Double;
 
-  lua_pushinteger(L, calltype);
-  lua_pushlstring(L, (const char*)Info->Guid, sizeof(GUID));
-  FL_PushParamsTable(L, om_info, 1);
+  FL_PushParamsTable(L, om_info);
 
   if (pcall_msg(L, 3, 2) == 0) {
     if (calltype == MCT_MACROINIT || calltype == MCT_MACROFINAL) {
@@ -704,13 +702,13 @@ HANDLE LF_Open (lua_State* L, const struct OpenInfo *Info)
   if (!CheckReloadDefaultScript(L) || !GetExportFunction(L, "Open"))
     return NULL;
 
+  lua_pushinteger(L, Info->OpenFrom);
+  lua_pushlstring(L, (const char*)Info->Guid, sizeof(GUID));
+
 #ifdef FAR_LUA
   if (Info->OpenFrom==OPEN_LUAMACRO && IsEqualGUID(GetPluginData(L)->PluginId, LuamacroGuid))
     return Open_Luamacro(L, Info);
 #endif
-
-  lua_pushinteger(L, Info->OpenFrom);
-  lua_pushlstring(L, (const char*)Info->Guid, sizeof(GUID));
 
   if (Info->OpenFrom == OPEN_FROMMACRO)
     PushParamsTable(L, (struct OpenMacroInfo*)Info->Data);

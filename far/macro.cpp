@@ -659,8 +659,10 @@ int KeyMacro::IsRecording()
 int KeyMacro::IsExecuting()
 {
 	MacroRecord* m = GetCurMacro();
-	return m ? (m->Flags()&MFLAGS_NOSENDKEYSTOPLUGINS) ?
-		MACROMODE_EXECUTING : MACROMODE_EXECUTING_COMMON : (m_StateStack.empty()?MACROMODE_NOMACRO:MACROMODE_EXECUTING_COMMON);
+	if (m)
+		return m->Flags()&MFLAGS_NOSENDKEYSTOPLUGINS ? MACROMODE_EXECUTING : MACROMODE_EXECUTING_COMMON;
+	else
+		return m_StateStack.empty() ? MACROMODE_NOMACRO : MACROMODE_EXECUTING_COMMON;
 }
 
 int KeyMacro::IsExecutingLastKey()
@@ -800,8 +802,8 @@ bool KeyMacro::InitMacroExecution()
 	MacroRecord* macro = GetCurMacro();
 	if (macro)
 	{
-		FarMacroValue values[2]={{FMVT_INTEGER,{0}},{FMVT_STRING,{0}}};
-		values[0].Integer=MCT_MACROINIT;
+		FarMacroValue values[2]={{FMVT_DOUBLE,{0}},{FMVT_STRING,{0}}};
+		values[0].Double=MCT_MACROINIT;
 		values[1].String=macro->Code();
 		OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
 		macro->m_handle=CallMacroPlugin(OPEN_LUAMACRO,&info);
@@ -1026,8 +1028,8 @@ int KeyMacro::GetKey()
 	}
 
 	MacroRecord* macro;
-	static FarMacroValue mp_values[3]={{FMVT_INTEGER,{0}},{FMVT_DOUBLE,{0}},{FMVT_DOUBLE,{0}}};
-	mp_values[0].Integer=MCT_MACROSTEP;
+	static FarMacroValue mp_values[3]={{FMVT_DOUBLE,{0}},{FMVT_DOUBLE,{0}},{FMVT_DOUBLE,{0}}};
+	mp_values[0].Double=MCT_MACROSTEP;
 	static OpenMacroInfo mp_info={sizeof(OpenMacroInfo), 2, mp_values};
 
 	while ((macro=GetCurMacro()) != nullptr && (macro->m_handle || InitMacroExecution()))
@@ -1866,8 +1868,8 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck, bool sk
 {
 	// Перекладываем вывод сообщения об ошибке на плагин, т.к. штатный Message()
 	// не умеет сворачивать строки и обрезает сообщение.
-	FarMacroValue values[6]={{FMVT_INTEGER,{0}},{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
-	values[0].Integer=MCT_MACROPARSE;
+	FarMacroValue values[6]={{FMVT_DOUBLE,{0}},{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
+	values[0].Double=MCT_MACROPARSE;
 	values[1].String=Sequence;
 	values[2].Integer=onlyCheck?1:0;
 	values[3].Integer=skipFile?1:0;
