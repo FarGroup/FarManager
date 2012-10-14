@@ -778,21 +778,20 @@ int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
 }
 
-void* KeyMacro::CallMacroPlugin(unsigned Type,void* Data)
+void* KeyMacro::CallMacroPlugin(OpenMacroInfo* Info)
 {
-	//SZLOG("+KeyMacro::CallMacroPlugin, Type=%s", Type==OPEN_MACROINIT?"OPEN_MACROINIT":	Type==OPEN_MACROSTEP?"OPEN_MACROSTEP": Type==OPEN_MACROPARSE ? "OPEN_MACROPARSE": "UNKNOWN");
 	void* ptr;
 	MacroRecord* macro = GetCurMacro();
 	if (macro)
 		ScrBuf.SetLockCount(0);
 
 	PushState();
-	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,Type,Data,&ptr) != 0;
+	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,Info,&ptr) != 0;
 	PopState();
 
 	if (macro && macro->m_handle && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
 		ScrBuf.Lock();
-	//SZLOG("-KeyMacro::CallMacroPlugin, return=%p", result?ptr:nullptr);
+
 	return result?ptr:nullptr;
 }
 
@@ -806,7 +805,7 @@ bool KeyMacro::InitMacroExecution()
 		values[0].Double=MCT_MACROINIT;
 		values[1].String=macro->Code();
 		OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
-		macro->m_handle=CallMacroPlugin(OPEN_LUAMACRO,&info);
+		macro->m_handle=CallMacroPlugin(&info);
 		if (macro->m_handle)
 		{
 			m_LastKey = L"first_key";
@@ -1036,7 +1035,7 @@ int KeyMacro::GetKey()
 	{
 		mp_values[1].Double=(intptr_t)macro->m_handle;
 
-		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_LUAMACRO,&mp_info);
+		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&mp_info);
 		mp_info.Count=2;
 		if (mpr == nullptr)
 			break;
@@ -1877,7 +1876,7 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck, bool sk
 	values[5].String=MSG(MOk);
 	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
 
-	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(OPEN_LUAMACRO,&info);
+	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&info);
 	if (mpr)
 	{
 		if (mpr->ReturnType == MPRT_NORMALFINISH)

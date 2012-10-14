@@ -195,7 +195,7 @@ class KeyMacro
 	private:
 		bool ReadKeyMacro(MACROMODEAREA Area);
 		void WriteMacro(void);
-		void* CallMacroPlugin(unsigned Type,void* Data);
+		void* CallMacroPlugin(OpenMacroInfo* Info);
 		int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
 		static intptr_t WINAPI AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 		static intptr_t WINAPI ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
