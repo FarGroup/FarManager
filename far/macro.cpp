@@ -811,8 +811,38 @@ bool KeyMacro::InitMacroExecution()
 			return true;
 		}
 		RemoveCurMacro();
+		RestoreMacroChar();
 	}
 	return false;
+}
+
+void KeyMacro::RestoreMacroChar(void)
+{
+	ScrBuf.RestoreMacroChar();
+
+	/*$ 10.08.2000 skv
+		If we are in editor mode, and CurEditor defined,
+		we need to call this events.
+		EE_REDRAW EEREDRAW_ALL    - to notify that whole screen updated
+		->Show() to actually update screen.
+
+		This duplication take place since ShowEditor method
+		will NOT send this event while screen is locked.
+	*/
+	if (m_Mode==MACRO_EDITOR &&
+					CtrlObject->Plugins->CurEditor &&
+					CtrlObject->Plugins->CurEditor->IsVisible()
+					/* && LockScr*/) // Mantis#0001595
+	{
+		CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins->CurEditor->GetId());
+		CtrlObject->Plugins->CurEditor->Show();
+	}
+	else if (m_Mode==MACRO_VIEWER &&
+					CtrlObject->Plugins->CurViewer &&
+					CtrlObject->Plugins->CurViewer->IsVisible())
+	{
+		CtrlObject->Plugins->CurViewer->Show(); // иначе может быть неправильный верхний левый символ экрана
+	}
 }
 
 int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
@@ -1021,32 +1051,7 @@ int KeyMacro::GetKey()
 				RemoveCurMacro();
 				if (m_CurState->m_MacroQueue.Empty())
 				{
-					ScrBuf.RestoreMacroChar();
-
-					/*$ 10.08.2000 skv
-						If we are in editor mode, and CurEditor defined,
-						we need to call this events.
-						EE_REDRAW EEREDRAW_ALL    - to notify that whole screen updated
-						->Show() to actually update screen.
-
-						This duplication take place since ShowEditor method
-						will NOT send this event while screen is locked.
-					*/
-					if (m_Mode==MACRO_EDITOR &&
-									CtrlObject->Plugins->CurEditor &&
-									CtrlObject->Plugins->CurEditor->IsVisible()
-									/* && LockScr*/) // Mantis#0001595
-					{
-						CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins->CurEditor->GetId());
-						CtrlObject->Plugins->CurEditor->Show();
-					}
-					else if (m_Mode==MACRO_VIEWER &&
-									CtrlObject->Plugins->CurViewer &&
-									CtrlObject->Plugins->CurViewer->IsVisible())
-					{
-						CtrlObject->Plugins->CurViewer->Show(); // иначе может быть неправильный верхний левый символ экрана
-					}
-
+					RestoreMacroChar();
 					return 0;
 				}
 
