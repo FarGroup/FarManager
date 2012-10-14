@@ -218,6 +218,20 @@ local function ReadVarsConsts (region)
   end
 end
 
+-- Add function unicode.utf8.cfind:
+-- same as find, but offsets are in characters rather than bytes
+local function AddCfindFunction()
+  local usub, ssub = unicode.utf8.sub, string.sub
+  local ulen, slen = unicode.utf8.len, string.len
+  local ufind = unicode.utf8.find
+  unicode.utf8.cfind = function(s, patt, init, plain)
+    init = init and slen(usub(s, 1, init-1)) + 1
+    local t = { ufind(s, patt, init, plain) }
+    if t[1] == nil then return nil end
+    return ulen(ssub(s, 1, t[1]-1)) + 1, ulen(ssub(s, 1, t[2])), unpack(t, 3)
+  end
+end
+
 do
   local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."api.lua")
   if func then
@@ -230,6 +244,7 @@ do
     ErrMsg(msg)
   end
 
+  AddCfindFunction()
   ReadVarsConsts("consts")
   ReadVarsConsts("vars")
 end
