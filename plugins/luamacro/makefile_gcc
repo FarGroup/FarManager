@@ -1,6 +1,6 @@
 include ../../unicode_far/makefile_gcc_common
 
-NAME = LuaMacro
+NAME = luamacro
 LUA_VER = 5.1
 
 ifndef FAR_WORKDIR
