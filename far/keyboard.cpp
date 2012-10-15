@@ -1544,7 +1544,7 @@ int CheckForEscSilent()
 	// если в "макросе"...
 	if (CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO && FrameManager->GetCurrentFrame())
 	{
-		if (CtrlObject->Macro.IsDsableOutput())
+		if (CtrlObject->Macro.IsDisableOutput())
 			Processed=FALSE;
 	}
 

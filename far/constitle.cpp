@@ -141,7 +141,7 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 		TitleModified=true;
 
 		if (StrCmp(strOldFarTitle, strFarTitle) &&
-		        /*((CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDsableOutput()) ||
+		        /*((CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDisableOutput()) ||
 		         !CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey())*/ ScrBuf.GetLockCount()==0)
 		{
 			DWORD CurTime=GetTickCount();

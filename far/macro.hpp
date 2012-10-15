@@ -212,7 +212,7 @@ class KeyMacro
 		int  IsRecording();
 		int  IsExecuting();
 		int  IsExecutingLastKey();
-		int  IsDsableOutput();
+		int  IsDisableOutput();
 		bool IsHistoryDisable(int TypeHistory);
 		DWORD SetHistoryDisableMask(DWORD Mask);
 		DWORD GetHistoryDisableMask();

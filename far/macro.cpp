@@ -558,7 +558,7 @@ int KeyMacro::IsExecutingLastKey()
 	return false;
 }
 
-int KeyMacro::IsDsableOutput()
+int KeyMacro::IsDisableOutput()
 {
 	MacroRecord* m = GetCurMacro();
 	return m && (m->Flags()&MFLAGS_DISABLEOUTPUT);
@@ -593,7 +593,7 @@ MACROMODEAREA KeyMacro::GetMode(void)
 
 bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 {
-	//_SHMUEL(L"+KeyMacro::LoadMacros, InitedRAM=%s, LoadALL=%s", InitedRAM?L"true":L"false", LoadAll?L"true":L"false");
+	//_SHMUEL(SysLog(L"+KeyMacro::LoadMacros, InitedRAM=%s, LoadALL=%s", InitedRAM?L"true":L"false", LoadAll?L"true":L"false"));
 	int ErrCount=0;
 	InitInternalVars(InitedRAM);
 
@@ -639,9 +639,9 @@ bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 /*
 	_SHMUEL(for(size_t ii=0;ii<MACRO_LAST;++ii))
 	{
-		_SHMUEL(L"count: %d,%d\n",m_Macros[ii].getSize(),ii);
+		_SHMUEL(SysLog(L"count: %d,%d\n",m_Macros[ii].getSize(),ii));
 		_SHMUEL(for(size_t jj=0;jj<m_Macros[ii].getSize();++jj))
-			_SHMUEL(L"%ls\n",m_Macros[ii].getItem(jj)->Code().CPtr());
+			_SHMUEL(SysLog(L"%s\n",m_Macros[ii].getItem(jj)->Code().CPtr()));
 	}
 */
 	return ErrCount?false:true;
@@ -668,6 +668,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroInfo* Info)
 {
 	void* ptr;
 	MacroRecord* macro = GetCurMacro();
+
 	if (macro)
 		ScrBuf.SetLockCount(0);
 
@@ -683,7 +684,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroInfo* Info)
 
 bool KeyMacro::InitMacroExecution()
 {
-	//_SHMUEL(L"+InitMacroExecution");
+	//_SHMUEL(SysLog(L"+InitMacroExecution"));
 	MacroRecord* macro = GetCurMacro();
 	if (macro)
 	{
@@ -734,7 +735,7 @@ void KeyMacro::RestoreMacroChar(void)
 
 int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 {
-	//_SHMUEL(L"+KeyMacro::ProcessEvent");
+	//_SHMUEL(SysLog(L"+KeyMacro::ProcessEvent"));
 	if (m_InternalInput || Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !FrameManager->GetCurrentFrame()) //FIXME: избавиться от Rec->IntKey
 		return false;
 	//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"ProcessEvent: %08x\n",Rec->IntKey); fclose(log);}}
@@ -966,7 +967,7 @@ int KeyMacro::GetKey()
 					}
 					else
 						aKey=macro->Key();
-					//_SHMUEL(L"-KeyMacro::GetKey, returned 0x%X", aKey);
+					//_SHMUEL(SysLog(L"-KeyMacro::GetKey, returned 0x%X", aKey));
 					return aKey;
 				}
 
@@ -977,7 +978,7 @@ int KeyMacro::GetKey()
 					return KEY_OP_XLAT;
 
 				int iKey = KeyNameToKey(key);
-				//_SHMUEL(L"-KeyMacro::GetKey, returned 0x%X", iKey==-1 ? KEY_NONE:iKey);
+				//_SHMUEL(SysLog(L"-KeyMacro::GetKey, returned 0x%X", iKey==-1 ? KEY_NONE:iKey));
 				return iKey==-1 ? KEY_NONE:iKey;
 			}
 
@@ -1126,13 +1127,13 @@ int KeyMacro::GetKey()
 		}
 	}
 
-	//_SHMUEL(L"-KeyMacro::GetKey, returned 0");
+	//_SHMUEL(SysLog(L"-KeyMacro::GetKey, returned 0"));
 	return 0;
 }
 
 int KeyMacro::PeekKey()
 {
-	//_SHMUEL(L"+PeekKey");
+	//_SHMUEL(SysLog(L"+PeekKey"));
 	int key=0;
 	if (!m_InternalInput && IsExecuting())
 	{
@@ -1212,7 +1213,7 @@ bool KeyMacro::CheckWaitKeyFunc()
 // FIXME: parameter StrictKeys.
 int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAREA CheckMode, bool UseCommon, bool StrictKeys)
 {
-	//_SHMUEL(L"GetIndex: %08x,%ls",Key,strKey.CPtr());
+	//_SHMUEL(SysLog(L"GetIndex: %08x,%ls",Key,strKey.CPtr()));
 	int loops = UseCommon && CheckMode!=MACRO_INVALID && CheckMode!=MACRO_COMMON ? 2:1;
 	if (CheckMode >= MACRO_LAST)
 		loops = 0;
