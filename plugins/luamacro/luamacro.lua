@@ -207,7 +207,7 @@ end
 
 local function ReadVarsConsts (region)
   while true do
-    local sName,sValue,sType = far.MacroCallFar(0x80007,region)
+    local sName,sValue,sType = far.MacroCallFar(0x80C65,region)
     if not sName then break end
     if _G[sName] == nil then -- protect existing globals
       if     sType=="text"    then _G[sName]=sValue

@@ -194,11 +194,11 @@ local prop_Help = {
 }
 
 local prop_Mouse = {
-  X          = function() return MacroCallFar(0x80001) end,
-  Y          = function() return MacroCallFar(0x80002) end,
-  Button     = function() return MacroCallFar(0x80003) end,
-  CtrlState  = function() return MacroCallFar(0x80004) end,
-  EventFlags = function() return MacroCallFar(0x80005) end,
+  X          = function() return MacroCallFar(0x80434) end,
+  Y          = function() return MacroCallFar(0x80435) end,
+  Button     = function() return MacroCallFar(0x80436) end,
+  CtrlState  = function() return MacroCallFar(0x80437) end,
+  EventFlags = function() return MacroCallFar(0x80438) end,
 }
 
 local prop_Viewer = {
@@ -333,7 +333,7 @@ mf.eval = function (str, mode)
   if not (mode==0 or mode==1 or mode==2 or mode==3) then return -1 end
 
   if mode == 2 then
-    str = MacroCallFar(0x80006, str)
+    str = MacroCallFar(0x80C64, str)
     if not str then return -2 end
   end
 
