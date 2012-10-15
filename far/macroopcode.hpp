@@ -47,103 +47,6 @@ enum MACRO_OP_CODE
 	/* ************************************************************************* */
 	MCODE_OP_EXIT=KEY_MACRO_OP_BASE,  // принудительно закончить выполнение макропоследовательности
 
-	MCODE_OP_JMP,                     // Jumps..
-	MCODE_OP_JZ,
-	MCODE_OP_JNZ,
-	MCODE_OP_JLT,
-	MCODE_OP_JLE,
-	MCODE_OP_JGT,
-	MCODE_OP_JGE,
-
-	MCODE_OP_NOP,                     // нет операции
-
-	MCODE_OP_SAVE,                    // ѕрисваивание переменной. »м€ переменной следующие DWORD (как в $Text).
-	MCODE_OP_SAVEREPCOUNT,
-	MCODE_OP_PUSHUNKNOWN,             // неиницализированное значение (опускаемые параметры функций)
-	MCODE_OP_PUSHINT,                 // ѕоложить значение на стек. —амо
-	MCODE_OP_PUSHFLOAT,               // ѕоложить значение на стек. double
-	MCODE_OP_PUSHSTR,                 // значение - следующий DWORD
-	MCODE_OP_PUSHVAR,                 // или несколько таковых (как в $Text)
-	MCODE_OP_PUSHCONST,               // в стек положить константу
-
-	MCODE_OP_REP,                     // $rep - признак начала цикла
-	MCODE_OP_END,                     // $end - признак конца цикла/услови€
-
-	// ќдноместные операции
-	MCODE_OP_PREINC,                  // ++a
-	MCODE_OP_PREDEC,                  // --a
-	MCODE_OP_POSTINC,                 // a++
-	MCODE_OP_POSTDEC,                 // a--
-
-	MCODE_OP_UPLUS,                   // +a
-	MCODE_OP_NEGATE,                  // -a
-	MCODE_OP_NOT,                     // !a
-	MCODE_OP_BITNOT,                  // ~a
-
-	// ƒвуместные операции
-	MCODE_OP_MUL,                     // a *  b
-	MCODE_OP_DIV,                     // a /  b
-
-	MCODE_OP_ADD,                     // a +  b
-	MCODE_OP_SUB,                     // a -  b
-
-	MCODE_OP_BITSHR,                  // a >> b
-	MCODE_OP_BITSHL,                  // a << b
-
-	MCODE_OP_LT,                      // a <  b
-	MCODE_OP_LE,                      // a <= b
-	MCODE_OP_GT,                      // a >  b
-	MCODE_OP_GE,                      // a >= b
-
-	MCODE_OP_EQ,                      // a == b
-	MCODE_OP_NE,                      // a != b
-
-	MCODE_OP_BITAND,                  // a &  b
-
-	MCODE_OP_BITXOR,                  // a ^  b
-
-	MCODE_OP_BITOR,                   // a |  b
-
-	MCODE_OP_AND,                     // a && b
-
-	MCODE_OP_XOR,                     // a ^^ b
-
-	MCODE_OP_OR,                      // a || b
-
-	MCODE_OP_ADDEQ,                   // a +=  b
-	MCODE_OP_SUBEQ,                   // a -=  b
-	MCODE_OP_MULEQ,                   // a *=  b
-	MCODE_OP_DIVEQ,                   // a /=  b
-	MCODE_OP_BITSHREQ,                // a >>= b
-	MCODE_OP_BITSHLEQ,                // a <<= b
-	MCODE_OP_BITANDEQ,                // a &=  b
-	MCODE_OP_BITXOREQ,                // a ^=  b
-	MCODE_OP_BITOREQ,                 // a |=  b
-
-	MCODE_OP_DISCARD,                 // убрать значение с вершины стека
-	MCODE_OP_DUP,                     // продублировать верхнее значение в стеке
-	MCODE_OP_SWAP,                    // обмен€ть местами два значени€ в вершине стека
-	MCODE_OP_POP,                     // присвоить значение переменной и убрать из вершины стека
-	MCODE_OP_COPY,                    // %a=%d, стек не используетс€
-
-	MCODE_OP_KEYS,                    // за этим кодом следуют ‘ј–овы коды клавиш
-	MCODE_OP_ENDKEYS,                 // ‘ј–овы коды закончились.
-
-	/* ************************************************************************* */
-	MCODE_OP_IF,                      // ¬ообще-то эта группа в байткод
-	MCODE_OP_ELSE,                    // не попадет никогда :)
-	MCODE_OP_WHILE,
-	MCODE_OP_CONTINUE,                // $continue
-	MCODE_OP_BREAK,                   // $break
-	/* ************************************************************************* */
-
-	MCODE_OP_XLAT,
-	MCODE_OP_PLAINTEXT,
-
-	MCODE_OP_AKEY,                    // $AKey - клавиша, которой вызвали макрос
-	MCODE_OP_SELWORD,                 // $SelWord - выделить "слово"
-
-
 	/* ************************************************************************* */
 	// функции
 	MCODE_F_NOFUNC=KEY_MACRO_F_BASE,
@@ -246,7 +149,11 @@ enum MACRO_OP_CODE
 	MCODE_F_EDITOR_GETSTR,            // S=Editor.GetStr([Line])
 	MCODE_F_EDITOR_INSSTR,            // N=Editor.InsStr([S[,Line]])
 	MCODE_F_EDITOR_SETSTR,            // N=Editor.SetStr([S[,Line]])
-	MCODE_F_LAST = MCODE_F_EDITOR_SETSTR, // marker
+	MCODE_F_GETMACROSRC,              //
+	MCODE_F_READVARSCONSTS,           //
+
+	MCODE_F_LAST,                     // marker
+
 	/* ************************************************************************* */
 	// булевые переменные - различные состо€ни€
 	MCODE_C_AREA_OTHER=KEY_MACRO_C_BASE,// –ежим копировани€ текста с экрана, вертикальные меню
@@ -304,6 +211,13 @@ enum MACRO_OP_CODE
 	MCODE_C_CMDLINE_EOF,              // курсор в конце cmd-строки редактировани€?
 	MCODE_C_CMDLINE_EMPTY,            // ком.строка пуста?
 	MCODE_C_CMDLINE_SELECTED,         // в ком.строке есть выделение блока?
+
+	MCODE_C_MSX,                      // "MsX"
+	MCODE_C_MSY,                      // "MsY"
+	MCODE_C_MSBUTTON,                 // "MsButton"
+	MCODE_C_MSCTRLSTATE,              // "MsCtrlState"
+	MCODE_C_MSEVENTFLAGS,             // "MsEventFlags"
+
 
 	/* ************************************************************************* */
 	// не булевые переменные

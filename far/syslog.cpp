@@ -1135,75 +1135,6 @@ string __MCODE_ToName(DWORD OpCode)
 	__XXX_Name MCODE[]=
 	{
 		DEF_MCODE_(OP_EXIT),  // принудительно закончить выполнение макропоследовательности
-		DEF_MCODE_(OP_JMP),                     // Jumps..
-		DEF_MCODE_(OP_JZ),
-		DEF_MCODE_(OP_JNZ),
-		DEF_MCODE_(OP_JLT),
-		DEF_MCODE_(OP_JLE),
-		DEF_MCODE_(OP_JGT),
-		DEF_MCODE_(OP_JGE),
-		DEF_MCODE_(OP_NOP),                     // нет операции
-		DEF_MCODE_(OP_SAVE),                    // ѕрисваивание переменной. »м€ переменной следующие DWORD (как в $Text).
-		DEF_MCODE_(OP_SAVEREPCOUNT),
-		DEF_MCODE_(OP_PUSHUNKNOWN),             // неиницализированное значение (опускаемые параметры функций)
-		DEF_MCODE_(OP_PUSHINT),                 // ѕоложить значение на стек. —амо
-		DEF_MCODE_(OP_PUSHFLOAT),               // ѕоложить значение на стек. double
-		DEF_MCODE_(OP_PUSHSTR),                 // значение - следующий DWORD
-		DEF_MCODE_(OP_PUSHVAR),                 // или несколько таковых (как в $Text)
-		DEF_MCODE_(OP_PUSHCONST),               // в стек положить константу
-		DEF_MCODE_(OP_REP),                     // $rep - признак начала цикла
-		DEF_MCODE_(OP_END),                     // $end - признак конца цикла/услови€
-		DEF_MCODE_(OP_NEGATE),                  // -a
-		DEF_MCODE_(OP_UPLUS),                   // +a
-		DEF_MCODE_(OP_NOT),                     // !a
-		DEF_MCODE_(OP_BITNOT),                  // ~a
-		DEF_MCODE_(OP_MUL),                     // a *  b
-		DEF_MCODE_(OP_DIV),                     // a /  b
-		DEF_MCODE_(OP_ADD),                     // a +  b
-		DEF_MCODE_(OP_SUB),                     // a -  b
-		DEF_MCODE_(OP_BITSHR),                  // a >> b
-		DEF_MCODE_(OP_BITSHL),                  // a << b
-		DEF_MCODE_(OP_LT),                      // a <  b
-		DEF_MCODE_(OP_LE),                      // a <= b
-		DEF_MCODE_(OP_GT),                      // a >  b
-		DEF_MCODE_(OP_GE),                      // a >= b
-		DEF_MCODE_(OP_EQ),                      // a == b
-		DEF_MCODE_(OP_NE),                      // a != b
-		DEF_MCODE_(OP_PREINC),                  // ++a
-		DEF_MCODE_(OP_PREDEC),                  // --a
-		DEF_MCODE_(OP_POSTINC),                 // a++
-		DEF_MCODE_(OP_POSTDEC),                 // a--
-		DEF_MCODE_(OP_BITAND),                  // a &  b
-		DEF_MCODE_(OP_BITXOR),                  // a ^  b
-		DEF_MCODE_(OP_BITOR),                   // a |  b
-		DEF_MCODE_(OP_AND),                     // a && b
-		DEF_MCODE_(OP_XOR),                     // a ^^ b
-		DEF_MCODE_(OP_OR),                      // a || b
-		DEF_MCODE_(OP_ADDEQ),                   // a +=  b
-		DEF_MCODE_(OP_SUBEQ),                   // a -=  b
-		DEF_MCODE_(OP_MULEQ),                   // a *=  b
-		DEF_MCODE_(OP_DIVEQ),                   // a /=  b
-		DEF_MCODE_(OP_BITSHREQ),                // a >>= b
-		DEF_MCODE_(OP_BITSHLEQ),                // a <<= b
-		DEF_MCODE_(OP_BITANDEQ),                // a &=  b
-		DEF_MCODE_(OP_BITXOREQ),                // a ^=  b
-		DEF_MCODE_(OP_BITOREQ),                 // a |=  b
-		DEF_MCODE_(OP_DISCARD),                 // убрать значение с вершины стека
-		DEF_MCODE_(OP_DUP),                     // продублировать верхнее значение в стеке
-		DEF_MCODE_(OP_SWAP),                    // обмен€ть местами два значени€ в вершине стека
-		DEF_MCODE_(OP_POP),                     // присвоить значение переменной и убрать из вершины стека
-		DEF_MCODE_(OP_COPY),                    // %a=%d, стек не используетс€
-		DEF_MCODE_(OP_KEYS),                    // за этим кодом следуют ‘ј–овы коды клавиш
-		DEF_MCODE_(OP_ENDKEYS),                 // ‘ј–овы коды закончились.
-		DEF_MCODE_(OP_IF),                      // ¬ообще-то эта группа в байткод
-		DEF_MCODE_(OP_ELSE),                    // не попадет никогда :)
-		DEF_MCODE_(OP_WHILE),
-		DEF_MCODE_(OP_CONTINUE),                // $continue
-		DEF_MCODE_(OP_BREAK),
-		DEF_MCODE_(OP_XLAT),
-		DEF_MCODE_(OP_PLAINTEXT),
-		DEF_MCODE_(OP_AKEY),                    // $AKey - клавиша, которой вызвали макрос
-		DEF_MCODE_(OP_SELWORD),                 // $SelWord - выделить "слово"
 		DEF_MCODE_(F_NOFUNC),
 		DEF_MCODE_(F_ABS),                      // N=abs(N)
 		DEF_MCODE_(F_AKEY),                     // V=akey(Mode[,Type])
@@ -1304,6 +1235,8 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_EDITOR_GETSTR),            // S=Editor.GetStr([Line])
 		DEF_MCODE_(F_EDITOR_INSSTR),            // N=Editor.InsStr([S[,Line]])
 		DEF_MCODE_(F_EDITOR_SETSTR),            // N=Editor.SetStr([S[,Line]])
+		DEF_MCODE_(F_GETMACROSRC),              //
+		DEF_MCODE_(F_READVARSCONSTS),           //
 		DEF_MCODE_(C_AREA_OTHER),               // –ежим копировани€ текста с экрана, вертикальные меню
 		DEF_MCODE_(C_AREA_SHELL),               // ‘айловые панели
 		DEF_MCODE_(C_AREA_VIEWER),              // ¬нутренн€€ программа просмотра
@@ -1356,6 +1289,11 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(C_CMDLINE_EOF),              // курсор в конце cmd-строки редактировани€?
 		DEF_MCODE_(C_CMDLINE_EMPTY),            // ком.строка пуста?
 		DEF_MCODE_(C_CMDLINE_SELECTED),         // в ком.строке есть выделение блока?
+		DEF_MCODE_(C_MSX),                      // "MsX"
+		DEF_MCODE_(C_MSY),                      // "MsY"
+		DEF_MCODE_(C_MSBUTTON),                 // "MsButton"
+		DEF_MCODE_(C_MSCTRLSTATE),              // "MsCtrlState"
+		DEF_MCODE_(C_MSEVENTFLAGS),             // "MsEventFlags"
 		DEF_MCODE_(V_FAR_WIDTH),                // Far.Width - ширина консольного окна
 		DEF_MCODE_(V_FAR_HEIGHT),               // Far.Height - высота консольного окна
 		DEF_MCODE_(V_FAR_TITLE),                // Far.Title - текущий заголовок консольного окна

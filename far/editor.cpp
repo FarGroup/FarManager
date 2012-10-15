@@ -2671,7 +2671,6 @@ int Editor::ProcessKey(int Key)
 					//SelFirst=TRUE;
 					SelStart=SStart;
 					SelEnd=SEnd;
-					//CurLine->ProcessKey(MCODE_OP_SELWORD);
 				}
 			}
 

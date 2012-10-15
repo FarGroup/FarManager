@@ -84,103 +84,6 @@ void print_opcodes()
 
 	fprintf(fp, "MCODE_OP_EXIT=0x%X // принудительно закончить выполнение макропоследовательности\n", MCODE_OP_EXIT);
 
-	fprintf(fp, "MCODE_OP_JMP=0x%X // Jumps..\n", MCODE_OP_JMP);
-	fprintf(fp, "MCODE_OP_JZ=0x%X\n", MCODE_OP_JZ);
-	fprintf(fp, "MCODE_OP_JNZ=0x%X\n", MCODE_OP_JNZ);
-	fprintf(fp, "MCODE_OP_JLT=0x%X\n", MCODE_OP_JLT);
-	fprintf(fp, "MCODE_OP_JLE=0x%X\n", MCODE_OP_JLE);
-	fprintf(fp, "MCODE_OP_JGT=0x%X\n", MCODE_OP_JGT);
-	fprintf(fp, "MCODE_OP_JGE=0x%X\n", MCODE_OP_JGE);
-
-	fprintf(fp, "MCODE_OP_NOP=0x%X // нет операции\n", MCODE_OP_NOP);
-
-	fprintf(fp, "MCODE_OP_SAVE=0x%X // Присваивание переменной. Имя переменной следующие DWORD (как в $Text).\n", MCODE_OP_SAVE);
-	fprintf(fp, "MCODE_OP_SAVEREPCOUNT=0x%X\n", MCODE_OP_SAVEREPCOUNT);
-	fprintf(fp, "MCODE_OP_PUSHUNKNOWN=0x%X // неиницализированное значение (опускаемые параметры функций)\n", MCODE_OP_PUSHUNKNOWN);
-	fprintf(fp, "MCODE_OP_PUSHINT=0x%X // Положить значение на стек. Само\n", MCODE_OP_PUSHINT);
-	fprintf(fp, "MCODE_OP_PUSHFLOAT=0x%X // Положить значение на стек. double\n", MCODE_OP_PUSHFLOAT);
-	fprintf(fp, "MCODE_OP_PUSHSTR=0x%X // значение - следующий DWORD\n", MCODE_OP_PUSHSTR);
-	fprintf(fp, "MCODE_OP_PUSHVAR=0x%X // или несколько таковых (как в $Text)\n", MCODE_OP_PUSHVAR);
-	fprintf(fp, "MCODE_OP_PUSHCONST=0x%X // в стек положить константу\n", MCODE_OP_PUSHCONST);
-
-	fprintf(fp, "MCODE_OP_REP=0x%X // $rep - признак начала цикла\n", MCODE_OP_REP);
-	fprintf(fp, "MCODE_OP_END=0x%X // $end - признак конца цикла/условия\n", MCODE_OP_END);
-
-	// Одноместные операции
-	fprintf(fp, "MCODE_OP_PREINC=0x%X // ++a\n", MCODE_OP_PREINC);
-	fprintf(fp, "MCODE_OP_PREDEC=0x%X // --a\n", MCODE_OP_PREDEC);
-	fprintf(fp, "MCODE_OP_POSTINC=0x%X // a++\n", MCODE_OP_POSTINC);
-	fprintf(fp, "MCODE_OP_POSTDEC=0x%X // a--\n", MCODE_OP_POSTDEC);
-
-	fprintf(fp, "MCODE_OP_UPLUS=0x%X // +a\n", MCODE_OP_UPLUS);
-	fprintf(fp, "MCODE_OP_NEGATE=0x%X // -a\n", MCODE_OP_NEGATE);
-	fprintf(fp, "MCODE_OP_NOT=0x%X // !a\n", MCODE_OP_NOT);
-	fprintf(fp, "MCODE_OP_BITNOT=0x%X // ~a\n", MCODE_OP_BITNOT);
-
-	// Двуместные операции
-	fprintf(fp, "MCODE_OP_MUL=0x%X // a *  b\n", MCODE_OP_MUL);
-	fprintf(fp, "MCODE_OP_DIV=0x%X // a /  b\n", MCODE_OP_DIV);
-
-	fprintf(fp, "MCODE_OP_ADD=0x%X // a +  b\n", MCODE_OP_ADD);
-	fprintf(fp, "MCODE_OP_SUB=0x%X // a -  b\n", MCODE_OP_SUB);
-
-	fprintf(fp, "MCODE_OP_BITSHR=0x%X // a >> b\n", MCODE_OP_BITSHR);
-	fprintf(fp, "MCODE_OP_BITSHL=0x%X // a << b\n", MCODE_OP_BITSHL);
-
-	fprintf(fp, "MCODE_OP_LT=0x%X // a <  b\n", MCODE_OP_LT);
-	fprintf(fp, "MCODE_OP_LE=0x%X // a <= b\n", MCODE_OP_LE);
-	fprintf(fp, "MCODE_OP_GT=0x%X // a >  b\n", MCODE_OP_GT);
-	fprintf(fp, "MCODE_OP_GE=0x%X // a >= b\n", MCODE_OP_GE);
-
-	fprintf(fp, "MCODE_OP_EQ=0x%X // a == b\n", MCODE_OP_EQ);
-	fprintf(fp, "MCODE_OP_NE=0x%X // a != b\n", MCODE_OP_NE);
-
-	fprintf(fp, "MCODE_OP_BITAND=0x%X // a &  b\n", MCODE_OP_BITAND);
-
-	fprintf(fp, "MCODE_OP_BITXOR=0x%X // a ^  b\n", MCODE_OP_BITXOR);
-
-	fprintf(fp, "MCODE_OP_BITOR=0x%X // a |  b\n", MCODE_OP_BITOR);
-
-	fprintf(fp, "MCODE_OP_AND=0x%X // a && b\n", MCODE_OP_AND);
-
-	fprintf(fp, "MCODE_OP_XOR=0x%X // a ^^ b\n", MCODE_OP_XOR);
-
-	fprintf(fp, "MCODE_OP_OR=0x%X // a || b\n", MCODE_OP_OR);
-
-	fprintf(fp, "MCODE_OP_ADDEQ=0x%X // a +=  b\n", MCODE_OP_ADDEQ);
-	fprintf(fp, "MCODE_OP_SUBEQ=0x%X // a -=  b\n", MCODE_OP_SUBEQ);
-	fprintf(fp, "MCODE_OP_MULEQ=0x%X // a *=  b\n", MCODE_OP_MULEQ);
-	fprintf(fp, "MCODE_OP_DIVEQ=0x%X // a /=  b\n", MCODE_OP_DIVEQ);
-	fprintf(fp, "MCODE_OP_BITSHREQ=0x%X // a >>= b\n", MCODE_OP_BITSHREQ);
-	fprintf(fp, "MCODE_OP_BITSHLEQ=0x%X // a <<= b\n", MCODE_OP_BITSHLEQ);
-	fprintf(fp, "MCODE_OP_BITANDEQ=0x%X // a &=  b\n", MCODE_OP_BITANDEQ);
-	fprintf(fp, "MCODE_OP_BITXOREQ=0x%X // a ^=  b\n", MCODE_OP_BITXOREQ);
-	fprintf(fp, "MCODE_OP_BITOREQ=0x%X // a |=  b\n", MCODE_OP_BITOREQ);
-
-	fprintf(fp, "MCODE_OP_DISCARD=0x%X // убрать значение с вершины стека\n", MCODE_OP_DISCARD);
-	fprintf(fp, "MCODE_OP_DUP=0x%X // продублировать верхнее значение в стеке\n", MCODE_OP_DUP);
-	fprintf(fp, "MCODE_OP_SWAP=0x%X // обменять местами два значения в вершине стека\n", MCODE_OP_SWAP);
-	fprintf(fp, "MCODE_OP_POP=0x%X // присвоить значение переменной и убрать из вершины стека\n", MCODE_OP_POP);
-	fprintf(fp, "MCODE_OP_COPY=0x%X // %%a=%%d, стек не используется\n", MCODE_OP_COPY);
-
-	fprintf(fp, "MCODE_OP_KEYS=0x%X // за этим кодом следуют ФАРовы коды клавиш\n", MCODE_OP_KEYS);
-	fprintf(fp, "MCODE_OP_ENDKEYS=0x%X // ФАРовы коды закончились.\n", MCODE_OP_ENDKEYS);
-
-	/* ************************************************************************* */
-	fprintf(fp, "MCODE_OP_IF=0x%X // Вообще-то эта группа в байткод\n", MCODE_OP_IF);
-	fprintf(fp, "MCODE_OP_ELSE=0x%X // не попадет никогда :)\n", MCODE_OP_ELSE);
-	fprintf(fp, "MCODE_OP_WHILE=0x%X\n", MCODE_OP_WHILE);
-	fprintf(fp, "MCODE_OP_CONTINUE=0x%X // $continue\n", MCODE_OP_CONTINUE);
-	fprintf(fp, "MCODE_OP_BREAK=0x%X // $break\n", MCODE_OP_BREAK);
-	/* ************************************************************************* */
-
-	fprintf(fp, "MCODE_OP_XLAT=0x%X\n", MCODE_OP_XLAT);
-	fprintf(fp, "MCODE_OP_PLAINTEXT=0x%X\n", MCODE_OP_PLAINTEXT);
-
-	fprintf(fp, "MCODE_OP_AKEY=0x%X // $AKey - клавиша, которой вызвали макрос\n", MCODE_OP_AKEY);
-	fprintf(fp, "MCODE_OP_SELWORD=0x%X // $SelWord - выделить \"слово\"\n", MCODE_OP_SELWORD);
-
-
 	/* ************************************************************************* */
 	// функции
 	fprintf(fp, "MCODE_F_NOFUNC=0x%X\n", MCODE_F_NOFUNC);
@@ -426,21 +329,6 @@ void print_opcodes()
 	fclose(fp);
 }
 #endif
-
-void SZLOG (const char *fmt, ...)
-{
-	FILE* log=_wfopen(L"c:\\lua.log",L"at");
-	if (log)
-	{
-		va_list argp;
-		fprintf(log, "FAR: ");
-		va_start(argp, fmt);
-		vfprintf(log, fmt, argp);
-		va_end(argp);
-		fprintf(log, "\n");
-		fclose(log);
-	}
-}
 
 static TVar __varTextDate;
 
@@ -705,7 +593,7 @@ MACROMODEAREA KeyMacro::GetMode(void)
 
 bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 {
-	//SZLOG("+KeyMacro::LoadMacros, InitedRAM=%s, LoadALL=%s", InitedRAM?"true":"false", LoadAll?"true":"false");
+	//_SHMUEL(L"+KeyMacro::LoadMacros, InitedRAM=%s, LoadALL=%s", InitedRAM?L"true":L"false", LoadAll?L"true":L"false");
 	int ErrCount=0;
 	InitInternalVars(InitedRAM);
 
@@ -749,13 +637,11 @@ bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 	}
 
 /*
-	for(size_t ii=0;ii<MACRO_LAST;++ii)
+	_SHMUEL(for(size_t ii=0;ii<MACRO_LAST;++ii))
 	{
-		{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"count: %d,%d\n",m_Macros[ii].getSize(),ii); fclose(log);}}
-		for(size_t jj=0;jj<m_Macros[ii].getSize();++jj)
-		{
-			{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"%ls\n",m_Macros[ii].getItem(jj)->Code().CPtr()); fclose(log);}}
-		}
+		_SHMUEL(L"count: %d,%d\n",m_Macros[ii].getSize(),ii);
+		_SHMUEL(for(size_t jj=0;jj<m_Macros[ii].getSize();++jj))
+			_SHMUEL(L"%ls\n",m_Macros[ii].getItem(jj)->Code().CPtr());
 	}
 */
 	return ErrCount?false:true;
@@ -797,7 +683,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroInfo* Info)
 
 bool KeyMacro::InitMacroExecution()
 {
-	//SZLOG("+InitMacroExecution");
+	//_SHMUEL(L"+InitMacroExecution");
 	MacroRecord* macro = GetCurMacro();
 	if (macro)
 	{
@@ -848,7 +734,7 @@ void KeyMacro::RestoreMacroChar(void)
 
 int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 {
-	//SZLOG("+KeyMacro::ProcessEvent");
+	//_SHMUEL(L"+KeyMacro::ProcessEvent");
 	if (m_InternalInput || Rec->IntKey==KEY_IDLE || Rec->IntKey==KEY_NONE || !FrameManager->GetCurrentFrame()) //FIXME: избавиться от Rec->IntKey
 		return false;
 	//{FILE* log=fopen("c:\\lua.log","at"); if(log) {fprintf(log,"ProcessEvent: %08x\n",Rec->IntKey); fclose(log);}}
@@ -1080,7 +966,7 @@ int KeyMacro::GetKey()
 					}
 					else
 						aKey=macro->Key();
-					//SZLOG("-KeyMacro::GetKey, returned 0x%X", aKey);
+					//_SHMUEL(L"-KeyMacro::GetKey, returned 0x%X", aKey);
 					return aKey;
 				}
 
@@ -1091,7 +977,7 @@ int KeyMacro::GetKey()
 					return KEY_OP_XLAT;
 
 				int iKey = KeyNameToKey(key);
-				//SZLOG("-KeyMacro::GetKey, returned 0x%X", iKey==-1 ? KEY_NONE:iKey);
+				//_SHMUEL(L"-KeyMacro::GetKey, returned 0x%X", iKey==-1 ? KEY_NONE:iKey);
 				return iKey==-1 ? KEY_NONE:iKey;
 			}
 
@@ -1240,13 +1126,13 @@ int KeyMacro::GetKey()
 		}
 	}
 
-	//SZLOG("-KeyMacro::GetKey, returned 0");
+	//_SHMUEL(L"-KeyMacro::GetKey, returned 0");
 	return 0;
 }
 
 int KeyMacro::PeekKey()
 {
-	//SZLOG("+PeekKey");
+	//_SHMUEL(L"+PeekKey");
 	int key=0;
 	if (!m_InternalInput && IsExecuting())
 	{
@@ -1326,7 +1212,7 @@ bool KeyMacro::CheckWaitKeyFunc()
 // FIXME: parameter StrictKeys.
 int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAREA CheckMode, bool UseCommon, bool StrictKeys)
 {
-	//SZLOG("GetIndex: %08x,%ls",Key,strKey.CPtr());
+	//_SHMUEL(L"GetIndex: %08x,%ls",Key,strKey.CPtr());
 	int loops = UseCommon && CheckMode!=MACRO_INVALID && CheckMode!=MACRO_COMMON ? 2:1;
 	if (CheckMode >= MACRO_LAST)
 		loops = 0;
@@ -2114,6 +2000,12 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 	switch (CheckCode)
 	{
+		case MCODE_C_MSX:             return PassNumber(msValues[constMsX], Data);
+		case MCODE_C_MSY:             return PassNumber(msValues[constMsY], Data);
+		case MCODE_C_MSBUTTON:        return PassNumber(msValues[constMsButton], Data);
+		case MCODE_C_MSCTRLSTATE:     return PassNumber(msValues[constMsCtrlState], Data);
+		case MCODE_C_MSEVENTFLAGS:    return PassNumber(msValues[constMsEventFlags], Data);
+
 		case MCODE_V_FAR_WIDTH:
 			return (ScrX+1);
 
@@ -2746,12 +2638,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return (CheckCode == MCODE_V_VIEWERFILENAME) ? PassString(L"", Data) : 0;
 		}
 
-		case MCODE_OP_JMP:  return PassNumber(msValues[constMsX], Data);
-		case MCODE_OP_JZ:   return PassNumber(msValues[constMsY], Data);
-		case MCODE_OP_JNZ:  return PassNumber(msValues[constMsButton], Data);
-		case MCODE_OP_JLT:  return PassNumber(msValues[constMsCtrlState], Data);
-		case MCODE_OP_JLE:  return PassNumber(msValues[constMsEventFlags], Data);
-
 		// =========================================================================
 		// Functions
 		// =========================================================================
@@ -2820,9 +2706,10 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(Data);
 		case MCODE_F_XLAT:            return xlatFunc(Data);
 		case MCODE_F_PROMPT:          return promptFunc(Data);
-		case MCODE_OP_JGE:            return ReadVarsConsts(Data);
 
-		case MCODE_OP_JGT: // Получение кода макроса для Eval(S,2).
+		case MCODE_F_READVARSCONSTS:  return ReadVarsConsts(Data);
+
+		case MCODE_F_GETMACROSRC: // Получение кода макроса для Eval(S,2).
 		{
 			parseParams(1,Params,Data);
 			TVar& Val(Params[0]);

@@ -264,6 +264,13 @@ extern "C"
 #define _YJH(x)
 #endif
 
+#if defined(_DEBUG) && defined(SYSLOG_SHMUEL)
+#define _SHMUEL(x)  x
+#else
+#define _SHMUEL(x)
+#endif
+
+
 void OpenSysLog();
 void CloseSysLog();
 
