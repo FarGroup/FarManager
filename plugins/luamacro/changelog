@@ -1,3 +1,9 @@
+svs 15.10.2012 12:40:38 +0400 - build 
+
+1. Форматирование кода
+   AStyle --style=ansi --indent=tab=4 --brackets=break --indent-classes --indent-switches --indent-namespaces --indent-preprocessor --break-blocks --delete-empty-lines --unpad-paren --keep-one-line-statements --keep-one-line-blocks "!\!.!"
+
+
 svs 15.10.2012 11:46:00 +0400 - build 14
 
 1. ФАРоконстанты в api.lua и luamacro.lua

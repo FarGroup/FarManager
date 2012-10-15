@@ -12,8 +12,8 @@
 #define lua_setfenv lua_setuservalue
 #define lua_getfenv lua_getuservalue
 
-void luaL_register (lua_State *L, const char *libname, const luaL_Reg *l);
-int luaL_typerror (lua_State *L, int narg, const char *tname);
+void luaL_register(lua_State *L, const char *libname, const luaL_Reg *l);
+int luaL_typerror(lua_State *L, int narg, const char *tname);
 
 #endif /* #if LUA_VERSION_NUM == 502 */
 
