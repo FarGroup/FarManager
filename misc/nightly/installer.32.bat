@@ -1,4 +1,4 @@
-call ../nightly/base_32.bat
+call %~dp0base_32.bat
 
 SET Path=%Path%;C:\Program Files\Windows Installer XML v3.5\bin
 

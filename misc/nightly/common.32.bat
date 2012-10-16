@@ -1,3 +1,3 @@
-call ../../../misc/nightly/base_32.bat
+call %~dp0base_32.bat
 
 nmake /f makefile_lib_vc
