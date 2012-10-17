@@ -38,12 +38,14 @@ wine cmd /c ../mysetnew.${DIRBIT}.bat
 
 cd ..
 
-cp $2/$OUTDIR/File_id.diz $2/$OUTDIR/Far.exe $2/$OUTDIR/*.hlf $2/$OUTDIR/Far.map $2/$OUTDIR/*.lng $BINDIR/
-cp $2/Include/*.hpp $BINDIR/PluginSDK/Headers.c/
-cp $2/Include/*.pas $BINDIR/PluginSDK/Headers.pas/
-cp -f $2/changelog $BINDIR/
-cp -f $2/changelog_eng $BINDIR/
+cp $2/$OUTDIR/File_id.diz $2/$OUTDIR/Far.exe $2/$OUTDIR/*.hlf $2/$OUTDIR/Far.map $2/$OUTDIR/*.lng $BINDIR/ && \
+cp $2/Include/*.hpp $BINDIR/PluginSDK/Headers.c/ && \
+cp $2/Include/*.pas $BINDIR/PluginSDK/Headers.pas/ && \
+cp -f $2/changelog $BINDIR/ && \
+cp -f $2/changelog_eng $BINDIR/ && \
 cp -f $2/Far.exe.example.ini $BINDIR/
+if [ "$?" != "0" ]; then exit 1
+fi
 }
 
 function buildfar {

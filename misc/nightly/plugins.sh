@@ -31,6 +31,8 @@ if [ "$PLUGIN" == "FExcept" ]; then
   cp -f changelog ../../outfinalnew${BIT}/FExcept/
   cd $FINAL
   cp -f $FILES ../../../outfinalnew${BIT}/FExcept/
+  if [ "$?" != "0" ]; then exit 1
+  fi
   cd ..
 elif [ $ADD -eq 1 ]; then
   mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
@@ -40,10 +42,14 @@ elif [ $ADD -eq 1 ]; then
 
   cd $FINAL
   cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/
+  if [ "$?" != "0" ]; then exit 1
+  fi
   cd ..
 
   cd $FINAL/$7
   cp -f $5 ../../../../outfinalnew${BIT}/Plugins/${PLUGIN}/$7/
+  if [ "$?" != "0" ]; then exit 1
+  fi
   cd ../..
 else
   mkdir -p ../../outfinalnew${BIT}/Plugins/$PLUGIN
@@ -52,6 +58,8 @@ else
 
   cd $FINAL
   cp -f $FILES ../../../outfinalnew${BIT}/Plugins/$PLUGIN/
+  if [ "$?" != "0" ]; then exit 1
+  fi
   cd ..
 fi
 }
