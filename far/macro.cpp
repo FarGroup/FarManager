@@ -1003,6 +1003,9 @@ int KeyMacro::GetKey()
 			{
 				int Ret=0;
 				size_t count = mpr->ArgNum;
+				mp_values[2].Type=FMVT_DOUBLE;
+				mp_values[2].Double=0;
+				mp_info.Count=3;
 				if(count>0 && mpr->Args[0].Type==FMVT_STRING)
 				{
 					TVar SysID = mpr->Args[0].String;
@@ -1024,9 +1027,7 @@ int KeyMacro::GetKey()
 						if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
 							Ret=(intptr_t)ResultCallPlugin;
 
-						mp_values[2].Type=FMVT_DOUBLE;
 						mp_values[2].Double=Ret;
-						mp_info.Count=3;
 
 						//if (MR != Work.MacroWORK) // ??? Mantis#0002094 ???
 							//MR=Work.MacroWORK;
