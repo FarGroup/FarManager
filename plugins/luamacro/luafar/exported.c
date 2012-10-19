@@ -670,7 +670,6 @@ static void PushParamsTable(lua_State* L, const struct OpenMacroInfo* om_info)
 	}
 }
 
-#ifdef FAR_LUA
 static void FL_PushParamsTable(lua_State* L, const struct OpenMacroInfo* om_info)
 {
 	size_t i;
@@ -824,8 +823,6 @@ static HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 
 	return NULL;
 }
-#endif
-
 
 HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 {
@@ -834,12 +831,9 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 
 	lua_pushinteger(L, Info->OpenFrom);
 	lua_pushlstring(L, (const char*)Info->Guid, sizeof(GUID));
-#ifdef FAR_LUA
 
 	if(Info->OpenFrom==OPEN_LUAMACRO && IsEqualGUID(GetPluginData(L)->PluginId, LuamacroGuid))
 		return Open_Luamacro(L, Info);
-
-#endif
 
 	if(Info->OpenFrom == OPEN_FROMMACRO)
 		PushParamsTable(L, (struct OpenMacroInfo*)Info->Data);

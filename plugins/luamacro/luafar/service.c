@@ -133,13 +133,11 @@ const char* VirtualKeyStrings[256] =
 	"NONAME", "PA1", "OEM_CLEAR", NULL,
 };
 
-#ifdef FAR_LUA
 static int IsFarSpring(lua_State *L)
 {
 	TPluginData *pd = GetPluginData(L);
 	return pd->Info->Private != NULL; // FIXME
 }
-#endif
 
 HANDLE OptHandle(lua_State *L)
 {
@@ -4351,7 +4349,6 @@ static int far_MacroDelete(lua_State* L)
 	return 1;
 }
 
-#ifdef FAR_LUA
 typedef struct
 {
 	lua_State *L;
@@ -4439,7 +4436,6 @@ static int far_MacroCallFar(lua_State *L)
 	pushed = MAXRET - cbdata.ret_avail;
 	return pushed ? pushed : (lua_pushnumber(L, ret), 1);
 }
-#endif
 
 static int far_CPluginStartupInfo(lua_State *L)
 {
@@ -5580,7 +5576,6 @@ static int luaopen_far(lua_State *L)
 	NewVirtualKeyTable(L, FALSE);
 	lua_setfield(L, LUA_REGISTRYINDEX, FAR_VIRTUALKEYS);
 	luaL_register(L, "far", far_funcs);
-#ifdef FAR_LUA
 
 	if(IsFarSpring(L))
 	{
@@ -5590,7 +5585,6 @@ static int luaopen_far(lua_State *L)
 		lua_setfield(L, -2, "MacroGetLastError");
 	}
 
-#endif
 	push_flags_table(L);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -3, "Flags");

@@ -2,7 +2,7 @@
 
 NAME=luafar3
 LUA_VER=5.1
-USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua$(LUA_VER).dll\" /DFAR_LUA
+USERCPP=/Iluasdk/include /DBUILD_DLL /DWINVER=0x500 /DLUADLL=\"lua$(LUA_VER).dll\"
 LUA=luasdk\32\lua.exe
 
 DOCS=luasdk\$(DIRBIT)\lua$(LUA_VER).dll

@@ -22,7 +22,7 @@ luafar/util.c \
 luafar/win.c \
 
 USERLIBS = luasdk/$(DIRBIT)/lua$(LUA_VER).dll -lrpcrt4
-USERCPP  = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUA_VER).dll\" -DFAR_LUA
+USERCPP  = -Iluasdk/include -DBUILD_DLL -DWINVER=0x500 -DLUADLL=\"lua$(LUA_VER).dll\"
 
 NEEDENTRY  = 1
 NEEDDEFLIB = 1
