@@ -683,7 +683,7 @@ static void FL_PushParamsTable(lua_State* L, const struct OpenMacroInfo* om_info
 		else if(v->Type == FMVT_DOUBLE)  lua_pushnumber(L, v->Value.Double);
 		else if(v->Type == FMVT_STRING)  push_utf8_string(L, v->Value.String, -1);
 		else if(v->Type == FMVT_BOOLEAN) lua_pushboolean(L, v->Value.Integer != 0);
-		else                              lua_pushboolean(L, 0);
+		else                             lua_pushboolean(L, 0);
 
 		lua_rawseti(L, -2, i+1);
 	}
@@ -691,13 +691,11 @@ static void FL_PushParamsTable(lua_State* L, const struct OpenMacroInfo* om_info
 
 static struct MacroPluginReturn* CreateMPR(lua_State* L, int nargs, int ReturnType)
 {
-	struct MacroPluginReturn* mpr;
 	size_t size = sizeof(struct MacroPluginReturn) + nargs*sizeof(struct FarMacroValue);
-	char* rawmem = (char*)lua_newuserdata(L, size);
+	struct MacroPluginReturn* mpr = (struct MacroPluginReturn*)lua_newuserdata(L, size);
 	lua_setfield(L, -2, "MacroPluginReturn");
-	memset(rawmem, 0, size);
-	mpr = (struct MacroPluginReturn*)rawmem;
-	mpr->Args = (struct FarMacroValue*)(rawmem + sizeof(struct MacroPluginReturn));
+	memset(mpr, 0, size);
+	mpr->Args = (struct FarMacroValue*)(mpr+1);
 	mpr->ArgNum = nargs;
 	mpr->ReturnType = ReturnType;
 	return mpr;
@@ -738,6 +736,7 @@ static HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 					lua_pop(L,2);
 					return CAST(HANDLE, mpr);
 				}
+
 				case MPRT_ERRORFINISH:
 				case MPRT_KEYS:
 				case MPRT_PRINT:
@@ -759,6 +758,7 @@ static HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 						lua_pop(L,3); return NULL;
 					}
 				}
+
 				case MPRT_ERRORPARSE:
 				case MPRT_PLUGINCALL:
 				case MPRT_PLUGINMENU:

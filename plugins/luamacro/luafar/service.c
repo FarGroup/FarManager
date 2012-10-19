@@ -4355,7 +4355,7 @@ typedef struct
 	int ret_avail;
 } mcfc_data;
 
-static void _cdecl MacroCallFarCallback(void *Data, struct FarMacroValue *Val)
+static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val)
 {
 	lua_State *L;
 	mcfc_data *cbdata = CAST(mcfc_data*, Data);

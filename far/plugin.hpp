@@ -1239,7 +1239,7 @@ struct FarMacroCall
 {
 	struct FarMacroValue *Args;
 	int ArgNum;
-	void (_cdecl *Callback)(void *CallbackData, struct FarMacroValue *Value);
+	void (WINAPI *Callback)(void *CallbackData, struct FarMacroValue *Value);
 	void *CallbackData;
 };
 
