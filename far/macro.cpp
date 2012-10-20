@@ -1029,7 +1029,8 @@ int KeyMacro::GetKey()
 						if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
 							Ret=reinterpret_cast<intptr_t>(ResultCallPlugin);
 
-						if (Ret < 0x100000) //FIXME
+						//в windows гарантируется, что не бывает указателей меньше 0x10000
+						if (Ret < 0x10000 && Ret >= -1) //FIXME
 						{
 							mp_values[0].Integer=(Ret!=0);
 						}
