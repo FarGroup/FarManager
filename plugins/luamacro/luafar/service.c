@@ -4389,13 +4389,13 @@ static int far_MacroCallFar(lua_State *L)
 	TPluginData *pd = GetPluginData(L);
 	struct MacroPrivateInfo *privateInfo = (struct MacroPrivateInfo*)pd->Info->Private;
 	int opcode = (int)luaL_checkinteger(L, 1);
-	fmc.Args = args;
-	fmc.ArgNum = lua_gettop(L) - 1;
+	fmc.Values = args;
+	fmc.Count = lua_gettop(L) - 1;
 	fmc.Callback = MacroCallFarCallback;
 	fmc.CallbackData = &cbdata;
-	luaL_argcheck(L, fmc.ArgNum<=MAXARG, MAXARG+2, "too many arguments");
+	luaL_argcheck(L, fmc.Count<=MAXARG, MAXARG+2, "too many arguments");
 
-	for(idx=0; idx<fmc.ArgNum; idx++)
+	for(idx=0; idx<(int)fmc.Count; idx++)
 	{
 		int type;
 		stackpos = idx + 2;

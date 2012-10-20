@@ -1230,16 +1230,17 @@ enum MACROPLUGINRETURNTYPE
 
 struct MacroPluginReturn
 {
-	struct FarMacroValue *Args;
-	int ArgNum;
+	size_t Count;
+	struct FarMacroValue *Values;
 	enum MACROPLUGINRETURNTYPE ReturnType;
 };
 
 struct FarMacroCall
 {
-	struct FarMacroValue *Args;
-	int ArgNum;
-	void (WINAPI *Callback)(void *CallbackData, struct FarMacroValue *Value);
+	size_t StructSize;
+	size_t Count;
+	struct FarMacroValue *Values;
+	void (WINAPI *Callback)(void *CallbackData, struct FarMacroValue *Values);
 	void *CallbackData;
 };
 
@@ -2589,6 +2590,14 @@ enum MACROCALLTYPE
 	MCT_MACROSTEP          = 1,
 	MCT_MACROFINAL         = 2,
 	MCT_MACROPARSE         = 3,
+};
+
+struct OpenMacroPluginInfo
+{
+	size_t StructSize;
+	enum MACROCALLTYPE CallType;
+	HANDLE Handle;
+	struct FarMacroCall *Data;
 };
 
 #ifdef FAR_USE_INTERNALS

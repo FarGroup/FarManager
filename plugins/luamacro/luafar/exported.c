@@ -670,16 +670,17 @@ static void PushParamsTable(lua_State* L, const struct OpenMacroInfo* om_info)
 	}
 }
 
-static void FL_PushParamsTable(lua_State* L, const struct OpenMacroInfo* om_info)
+static void FL_PushParamsTable(lua_State* L, const struct OpenMacroPluginInfo* info)
 {
 	size_t i;
-	lua_createtable(L, om_info->Count, 0);
+	struct FarMacroCall *Data = info->Data;
+	lua_createtable(L, Data->Count, 0);
 
-	for(i=0; i < om_info->Count; i++)
+	for(i=0; i < Data->Count; i++)
 	{
-		struct FarMacroValue* v = om_info->Values + i;
+		struct FarMacroValue* v = Data->Values + i;
 
-		if(v->Type == FMVT_INTEGER)      bit64_pushuserdata(L, v->Value.Integer);
+		if(v->Type == FMVT_INTEGER)      bit64_push(L, v->Value.Integer);
 		else if(v->Type == FMVT_DOUBLE)  lua_pushnumber(L, v->Value.Double);
 		else if(v->Type == FMVT_STRING)  push_utf8_string(L, v->Value.String, -1);
 		else if(v->Type == FMVT_BOOLEAN) lua_pushboolean(L, v->Value.Integer != 0);
@@ -687,6 +688,9 @@ static void FL_PushParamsTable(lua_State* L, const struct OpenMacroInfo* om_info
 
 		lua_rawseti(L, -2, i+1);
 	}
+
+	if (Data->Callback)
+		Data->Callback(Data->CallbackData, Data->Values);
 }
 
 static struct MacroPluginReturn* CreateMPR(lua_State* L, int nargs, int ReturnType)
@@ -695,19 +699,23 @@ static struct MacroPluginReturn* CreateMPR(lua_State* L, int nargs, int ReturnTy
 	struct MacroPluginReturn* mpr = (struct MacroPluginReturn*)lua_newuserdata(L, size);
 	lua_setfield(L, -2, "MacroPluginReturn");
 	memset(mpr, 0, size);
-	mpr->Args = (struct FarMacroValue*)(mpr+1);
-	mpr->ArgNum = nargs;
+	mpr->Values = (struct FarMacroValue*)(mpr+1);
+	mpr->Count = nargs;
 	mpr->ReturnType = ReturnType;
 	return mpr;
 }
 
 static HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 {
-	const struct OpenMacroInfo* om_info = (const struct OpenMacroInfo*)Info->Data;
-	int calltype = (int) om_info->Values[0].Value.Double;
+	const struct OpenMacroPluginInfo* om_info = (const struct OpenMacroPluginInfo*)Info->Data;
+	int calltype = om_info->CallType;
+
+	lua_pushinteger(L, Info->OpenFrom);
+	lua_pushinteger(L, calltype);
+	lua_pushinteger(L, (int)om_info->Handle);
 	FL_PushParamsTable(L, om_info);
 
-	if(pcall_msg(L, 3, 2) == 0)
+	if(pcall_msg(L, 4, 2) == 0)
 	{
 		if(calltype == MCT_MACROINIT || calltype == MCT_MACROFINAL)
 		{
@@ -748,8 +756,8 @@ static HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 						wchar_t *s = check_utf8_string(L,-1,NULL);
 						lua_rawseti(L,-2,1);
 						mpr = CreateMPR(L,1,ReturnType);
-						mpr->Args[0].Type = FMVT_STRING;
-						mpr->Args[0].Value.String = s;
+						mpr->Values[0].Type = FMVT_STRING;
+						mpr->Values[0].Value.String = s;
 						lua_pop(L,2);
 						return CAST(HANDLE, mpr);
 					}
@@ -782,32 +790,32 @@ static HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 
 						if(type == LUA_TNUMBER)
 						{
-							mpr->Args[idx].Type = FMVT_DOUBLE;
-							mpr->Args[idx].Value.Double = lua_tonumber(L, -1);
+							mpr->Values[idx].Type = FMVT_DOUBLE;
+							mpr->Values[idx].Value.Double = lua_tonumber(L, -1);
 							lua_pop(L,1);
 						}
 						else if(type == LUA_TSTRING)
 						{
-							mpr->Args[idx].Type = FMVT_STRING;
-							mpr->Args[idx].Value.String = check_utf8_string(L, -1, NULL);
+							mpr->Values[idx].Type = FMVT_STRING;
+							mpr->Values[idx].Value.String = check_utf8_string(L, -1, NULL);
 							lua_rawseti(L,-2,idx+1);
 						}
 						else if(type == LUA_TBOOLEAN || type == LUA_TNIL)
 						{
-							mpr->Args[idx].Type = FMVT_BOOLEAN;
-							mpr->Args[idx].Value.Integer = lua_toboolean(L, -1);
+							mpr->Values[idx].Type = FMVT_BOOLEAN;
+							mpr->Values[idx].Value.Integer = lua_toboolean(L, -1);
 							lua_pop(L,1);
 						}
 						else if(bit64_getvalue(L, -1, &val64))
 						{
-							mpr->Args[idx].Type = FMVT_INTEGER;
-							mpr->Args[idx].Value.Integer = val64;
+							mpr->Values[idx].Type = FMVT_INTEGER;
+							mpr->Values[idx].Value.Integer = val64;
 							lua_pop(L,1);
 						}
 						else
 						{
-							mpr->Args[idx].Type = FMVT_BOOLEAN;
-							mpr->Args[idx].Value.Integer = 0;
+							mpr->Values[idx].Type = FMVT_BOOLEAN;
+							mpr->Values[idx].Value.Integer = 0;
 							lua_pop(L,1);
 						}
 					}
@@ -829,11 +837,11 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 	if(!CheckReloadDefaultScript(L) || !GetExportFunction(L, "Open"))
 		return NULL;
 
-	lua_pushinteger(L, Info->OpenFrom);
-	lua_pushlstring(L, (const char*)Info->Guid, sizeof(GUID));
-
 	if(Info->OpenFrom==OPEN_LUAMACRO && IsEqualGUID(GetPluginData(L)->PluginId, LuamacroGuid))
 		return Open_Luamacro(L, Info);
+
+	lua_pushinteger(L, Info->OpenFrom);
+	lua_pushlstring(L, (const char*)Info->Guid, sizeof(GUID));
 
 	if(Info->OpenFrom == OPEN_FROMMACRO)
 		PushParamsTable(L, (struct OpenMacroInfo*)Info->Data);

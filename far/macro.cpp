@@ -672,7 +672,7 @@ int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
 	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
 }
 
-void* KeyMacro::CallMacroPlugin(OpenMacroInfo* Info)
+void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 {
 	void* ptr;
 	MacroRecord* macro = GetCurMacro();
@@ -696,10 +696,10 @@ bool KeyMacro::InitMacroExecution()
 	MacroRecord* macro = GetCurMacro();
 	if (macro)
 	{
-		FarMacroValue values[2]={{FMVT_DOUBLE,{0}},{FMVT_STRING,{0}}};
-		values[0].Double=MCT_MACROINIT;
-		values[1].String=macro->Code();
-		OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
+		FarMacroValue values[1]={{FMVT_STRING,{0}}};
+		values[0].String=macro->Code();
+		FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+		OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_MACROINIT,nullptr,&fmc};
 		macro->m_handle=CallMacroPlugin(&info);
 		if (macro->m_handle)
 		{
@@ -922,16 +922,18 @@ int KeyMacro::GetKey()
 	}
 
 	MacroRecord* macro;
-	static FarMacroValue mp_values[3]={{FMVT_DOUBLE,{0}},{FMVT_DOUBLE,{0}},{FMVT_DOUBLE,{0}}};
-	mp_values[0].Double=MCT_MACROSTEP;
-	static OpenMacroInfo mp_info={sizeof(OpenMacroInfo), 2, mp_values};
+	static FarMacroValue mp_values[1]={{FMVT_DOUBLE,{0}}};
+	static FarMacroCall mp_data={sizeof(FarMacroCall),0,mp_values,nullptr,nullptr};
+	static OpenMacroPluginInfo mp_info={sizeof(OpenMacroPluginInfo),MCT_MACROSTEP,nullptr,&mp_data};
 
 	while ((macro=GetCurMacro()) != nullptr && (macro->m_handle || InitMacroExecution()))
 	{
-		mp_values[1].Double=(intptr_t)macro->m_handle;
+		mp_info.Handle = macro->m_handle;
 
 		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&mp_info);
-		mp_info.Count=2;
+		mp_data.Count=0;
+		mp_info.Data=&mp_data;
+
 		if (mpr == nullptr)
 			break;
 
@@ -956,7 +958,7 @@ int KeyMacro::GetKey()
 
 			case MPRT_KEYS:
 			{
-				const wchar_t* key = mpr->Args[0].String;
+				const wchar_t* key = mpr->Values[0].String;
 				m_LastKey = key;
 
 				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && ScrBuf.GetLockCount()==0)
@@ -995,25 +997,25 @@ int KeyMacro::GetKey()
 				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && ScrBuf.GetLockCount()==0)
 					ScrBuf.Lock();
 
-				__varTextDate = mpr->Args[0].String;
+				__varTextDate = mpr->Values[0].String;
 				return KEY_OP_PLAINTEXT;
 			}
 
 			case MPRT_PLUGINCALL: // V=Plugin.Call(SysID[,param])
 			{
-				int Ret=0;
-				size_t count = mpr->ArgNum;
-				mp_values[2].Type=FMVT_DOUBLE;
-				mp_values[2].Double=0;
-				mp_info.Count=3;
-				if(count>0 && mpr->Args[0].Type==FMVT_STRING)
+				intptr_t Ret=0;
+				size_t count = mpr->Count;
+				mp_values[0].Type=FMVT_BOOLEAN;
+				mp_values[0].Integer=0;
+				mp_data.Count=1;
+				if(count>0 && mpr->Values[0].Type==FMVT_STRING)
 				{
-					TVar SysID = mpr->Args[0].String;
+					TVar SysID = mpr->Values[0].String;
 					GUID guid;
 
 					if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
 					{
-						FarMacroValue *vParams = count>1 ? mpr->Args+1:nullptr;
+						FarMacroValue *vParams = count>1 ? mpr->Values+1:nullptr;
 						OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
 						MacroRecord* macro = GetCurMacro();
 						bool CallPluginRules = (macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO) != 0;
@@ -1025,28 +1027,24 @@ int KeyMacro::GetKey()
 						void* ResultCallPlugin=nullptr;
 
 						if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
-							Ret=(intptr_t)ResultCallPlugin;
+							Ret=reinterpret_cast<intptr_t>(ResultCallPlugin);
 
-						mp_values[2].Double=Ret;
-
-						//if (MR != Work.MacroWORK) // ??? Mantis#0002094 ???
-							//MR=Work.MacroWORK;
+						if (Ret < 0x100000) //FIXME
+						{
+							mp_values[0].Integer=(Ret!=0);
+						}
+						else
+						{
+							mp_info.Data = reinterpret_cast<FarMacroCall*>(ResultCallPlugin);
+						}
 
 						if (CallPluginRules)
 							PopState();
 						else
-						{
-							//VMStack.Push(Ret);
 							m_InternalInput--;
-						}
 					}
-					//else
-						//VMStack.Push(Ret);
-
-					//if (Work.Executing == MACROMODE_NOMACRO)
-						//goto return_func;
 				}
-				//return Ret;
+
 				break;
 			}
 
@@ -1061,17 +1059,17 @@ int KeyMacro::GetKey()
 				CallPluginInfo cpInfo={CPT_CHECKONLY};
 				bool ItemFailed=false;
 
-				mp_values[2].Type=FMVT_BOOLEAN;
-				mp_values[2].Integer=Ret;
-				mp_info.Count=3;
+				mp_values[0].Type=FMVT_BOOLEAN;
+				mp_values[0].Integer=Ret;
+				mp_data.Count=1;
 
-				if (mpr->ArgNum>0 && mpr->Args[0].Type==FMVT_STRING)
-					Guid = mpr->Args[0].String;
+				if (mpr->Count>0 && mpr->Values[0].Type==FMVT_STRING)
+					Guid = mpr->Values[0].String;
 				else
 					break;
 
-				if (mpr->ArgNum>1 && mpr->Args[1].Type==FMVT_STRING)
-					Arg=mpr->Args[1].String;
+				if (mpr->Count>1 && mpr->Values[1].Type==FMVT_STRING)
+					Arg=mpr->Values[1].String;
 
 				switch (mpr->ReturnType)
 				{
@@ -1112,7 +1110,7 @@ int KeyMacro::GetKey()
 					if (Ret)
 					{
 						// ≈сли нашли успешно - то теперь выполнение
-						mp_values[2].Integer=1;
+						mp_values[0].Integer=1;
 						cpInfo.CallFlags&=~CPT_CHECKONLY;
 						CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
 #if 0 //FIXME
@@ -1763,14 +1761,14 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck, bool sk
 {
 	// ѕерекладываем вывод сообщени€ об ошибке на плагин, т.к. штатный Message()
 	// не умеет сворачивать строки и обрезает сообщение.
-	FarMacroValue values[6]={{FMVT_DOUBLE,{0}},{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
-	values[0].Double=MCT_MACROPARSE;
-	values[1].String=Sequence;
-	values[2].Integer=onlyCheck?1:0;
-	values[3].Integer=skipFile?1:0;
-	values[4].String=MSG(MMacroPErrorTitle);
-	values[5].String=MSG(MOk);
-	OpenMacroInfo info={sizeof(OpenMacroInfo),ARRAYSIZE(values),values};
+	FarMacroValue values[5]={{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
+	values[0].String=Sequence;
+	values[1].Integer=onlyCheck?1:0;
+	values[2].Integer=skipFile?1:0;
+	values[3].String=MSG(MMacroPErrorTitle);
+	values[4].String=MSG(MOk);
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_MACROPARSE,nullptr,&fmc};
 
 	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&info);
 	if (mpr)
@@ -1783,8 +1781,8 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck, bool sk
 		}
 		else if (mpr->ReturnType == MPRT_ERRORPARSE)
 		{
-			m_LastErrorStr = mpr->Args[0].String;
-			m_LastErrorLine = (int)mpr->Args[1].Double;
+			m_LastErrorStr = mpr->Values[0].String;
+			m_LastErrorLine = (int)mpr->Values[1].Double;
 			if (!onlyCheck)
 				FrameManager->RefreshFrame(); // Ќужно после вывода сообщени€ плагином. »наче панели не перерисовываютс€.
 			return false;
@@ -1961,24 +1959,24 @@ int PassValue (TVar* Var, FarMacroCall* Data)
 	return 1;
 }
 
-static void __parseParams(int Count, TVar* Params, FarMacroCall* Data)
+static void __parseParams(size_t Count, TVar* Params, FarMacroCall* Data)
 {
-	int argNum = (Data->ArgNum > Count) ? Count : Data->ArgNum;
+	size_t argNum = (Data->Count > Count) ? Count : Data->Count;
 
 	while (argNum < Count)
 		Params[--Count].SetType(vtUnknown);
 
-	for (int i=0; i<argNum; i++)
+	for (size_t i=0; i<argNum; i++)
 	{
-		switch (Data->Args[i].Type)
+		switch (Data->Values[i].Type)
 		{
 			case FMVT_INTEGER:
 			case FMVT_BOOLEAN:
-				Params[i] = Data->Args[i].Integer; break;
+				Params[i] = Data->Values[i].Integer; break;
 			case FMVT_DOUBLE:
-				Params[i] = Data->Args[i].Double; break;
+				Params[i] = Data->Values[i].Double; break;
 			case FMVT_STRING:
-				Params[i] = Data->Args[i].String; break;
+				Params[i] = Data->Values[i].String; break;
 			default:
 				Params[i].SetType(vtUnknown); break;
 		}
