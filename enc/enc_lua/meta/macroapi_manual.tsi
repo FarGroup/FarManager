@@ -1,0 +1,1124 @@
+<header>
+tag=SMZ1
+ver=2.7
+</header>
+<node>
+id=1
+lv=0
+dt=Text
+nm=Справка по изменениям в Macro API
+ctime=3551829092
+mtime=3559642252
+<article>
+#_<markdown>
+#_
+#_Начиная с 30.09.2012 (Far 3.0.2851), в Фаре вместо встроенного макроязыка
+#_используется скриптовый язык Lua 5.1.
+#_
+#_Под макросом понимается Lua-скрипт и его мета-данные, такие как:
+#_
+#_* Область начала исполнения скрипта.
+#_* Клавиша, инициирующая исполнение скрипта из данной области.
+#_* Предварительные условия для исполнения скрипта.
+#_* Флаги времени исполнения: `DisableOutput` и `NoSendKeysToPlugins`.
+#_
+#_Функциональность
+#_-----------------
+#_
+#_* Импорт и экспорт макросов.
+#_* Запись и воспроизведение макросов.
+#_* Библиотеки функций Lua.
+#_* Библиотеки функций LuaFAR (API плагинов).
+#_* [Библиотеки функций макроязыка][API] (API макросов).
+#_* API `MacroControl` для плагинов: все операции.
+#_
+#_[API]: 42.html
+#_
+</article>
+</node>
+<node>
+id=5
+lv=1
+dt=Text
+nm=Разное
+ctime=3551990771
+mtime=3551990771
+<article>
+</article>
+</node>
+<node>
+id=7
+lv=2
+dt=Text
+nm=Плагин Luamacro
+ctime=3551991405
+mtime=3558946803
+<article>
+#_<markdown>
+#_Данный плагин необходим для работы макросов, поэтому должен быть установлен.
+#_То же касается и рантайма (файлы *lua5.1.dll* и *luafar3.dll*), необходимого
+#_для работы плагина.
+#_
+#_### Работа с командной строки (префикс LM)
+#_        lm: load
+#_        lm: save
+#_        lm: post  <sequence>|@<filename>
+#_        lm: check <sequence>|@<filename>
+#_
+#_Эти операции аналогичны операциям `macro:` плагина FarCmds, со следующими отличиями:
+#_
+#_1. Имя файла должно указываться сразу после символа `@`; символ `<` не поддерживается.
+#_1. Файлы, начинающиеся с BOM (byte order mark), не поддерживаются.
+#_
+#_@@@
+#_<markdown>
+#_Описание работы плагина
+#_
+#_* Приспособить для плагина ф-цию OpenW, ввести особые значение для параметра
+#_  OpenFrom: OPEN_MACROINIT=100, OPEN_MACROSTEP=101, OPEN_MACROFINAL=102.
+#_
+#_* Ф-ция OpenW получает от Фара:
+#_    OPEN_MACROINIT:
+#_      Аргументы передаются как в OPEN_FROMMACRO.
+#_      1. Text  : FMVT_STRING; если начинается с L'@', то остаток - имя файла,
+#_                 иначе - собственно текст скрипта (альтернативно - можно было бы
+#_                 добавить бит во Flags ("код" или "имя файла")
+#_      2. AKey  : FMVT_STRING (optional)
+#_      3. Flags : FMVT_INTEGER (optional)
+#_    OPEN_MACROSTEP:
+#_      1. Handle
+#_    OPEN_MACROFINAL:
+#_      1. Handle
+#_    OPEN_MACROPARSE:
+#_      1. Text (те же правила, что для аргумента 1 в OPEN_MACROINIT).
+#_
+#_* Ф-ция OpenW возвращает Фару:
+#_    OPEN_MACROINIT:
+#_      скрипт успешно скомпилирован         : handle
+#_      ошибка открытия файла или компиляции : NULL
+#_
+#_    OPEN_MACROSTEP:
+#_      скрипт завершён без ошибок           : указатель на L""
+#_      передана клавиша                     : указатель на текст клавиши в UTF-16
+#_                                             (валидный до следующего вызова)
+#_      ошибка исполнения                    : NULL
+#_      нет такого хэндла или уже выгружен   : NULL
+#_
+#_    OPEN_MACROFINAL:
+#_      скрипт выгружен                      : не NULL
+#_      нет такого хэндла или уже выгружен   : NULL
+#_
+#_    OPEN_MACROPARSE:
+#_      успешная компиляция                  : указатель на стринг L"OK"
+#_      ошибка компиляции                    : указатель на текст ошибки в UTF-16
+#_                                             (валидный до следующего вызова)
+#_
+#_* Если текст макроса начинается с символа '@', то его последующая часть
+#_  рассматривается как имя файла, содержащего скрипт. В имени файла
+#_  поддерживаются переменные окружения, например '%FARHOME%'.
+#_    
+#_  TODO 1:
+#_    Не организовать ли здесь поиск файла по шаблону, как это сделано в LUA_PATH
+#_    & co.
+#_    -- с кэшированием ?
+#_    -- с шаблоном по умолчанию ?
+#_
+#_================================================================================
+#_
+</article>
+</node>
+<node>
+id=2
+lv=2
+dt=Text
+nm=Макросы, начинающиеся с @
+ctime=3551901528
+mtime=3552332009
+<article>
+#_<markdown>
+#_Если макропоследовательность начинается с символа `@`, то последующая её часть интерпретируется как имя файла, содержащего скрипт.
+#_
+#_Переменные окружения расширяются.
+#_
+#_Такие макросы легче отлаживать и модифицировать, так как не требуется их перезагрузка в базу данных.
+#_
+#_**Пример:** `@%FARHOME%\macros\editor\shift.lua`
+#_
+</article>
+</node>
+<node>
+id=14
+lv=2
+dt=Text
+nm=Переменные
+ctime=3552028510
+mtime=3555073184
+<article>
+#_<markdown>
+#_* Скрипт может устанавливать "временные" глобальные переменные, значения которых будут сохраняться только в течение времени исполнения скрипта.
+#_      Пример: var = 15
+#_
+#_* Для установки "постоянных" глобальных переменных, значения которых будут сохраняться в течение всей сессии Фара и будут доступны всем скриптам, нужно использовать таблицу `_G`.
+#_      Пример: _G.var = 15
+#_
+#_* При чтении несуществующей "временной" переменной, прочтётся одноимённая "постоянная" переменная (наследование в некотором смысле).
+#_      Пример:
+#_        var = 5
+#_        _G.var = 10
+#_        far.Message(var) --> 5
+#_        var = nil
+#_        far.Message(var) --> 10
+#_
+#_
+</article>
+</node>
+<node>
+id=3
+lv=2
+dt=Text
+nm=Макросы без действия
+ctime=3551902073
+mtime=3552332235
+<article>
+#_<markdown>
+#_Иногда нужно отменить действие какой-либо клавиши (например F2 в редакторе), не выполняя при этом никакого другого действия. Это можно сделать, назначив данной клавише макрос, состоящий только из комментария `--` (два минуса).
+</article>
+</node>
+<node>
+id=62
+lv=2
+dt=Text
+nm=Корутины
+ctime=3557323094
+mtime=3559415193
+<article>
+#_<markdown>
+#_Если пользовательский скрипт создаёт корутины с помощью `coroutine.wrap(f)`,
+#_то некоторые функции не будут правильно работать, будучи вызванными из тела функции `f`:
+#_
+#_* `exit`
+#_* `Keys`
+#_* `Plugin.Call`
+#_* `Plugin.Command`
+#_* `Plugin.Config`
+#_* `Plugin.Menu`
+#_* `print`
+#_* `printf`
+#_
+#_Если же корутины создаются с помощью `coroutine.create(f)`, то такого ограничения нет.
+</article>
+</node>
+<node>
+id=63
+lv=2
+dt=Text
+nm=Интроспекция
+ctime=3558901787
+mtime=3558902462
+<article>
+#_<markdown>
+#_Содержимое глобальных таблиц API макроязыка можно просмотреть с помощью
+#_функции `pairs`, отдельно для функций и "свойств" таблицы.
+#_
+#_На примере таблицы `Editor`:
+#_
+#_        for k,v in pairs(Editor) do .... end -- для функций
+#_
+#_        for k,v in pairs(Editor.properties) do .... end -- для свойств
+#_
+</article>
+</node>
+<node>
+id=64
+lv=2
+dt=Text
+nm=unicode.utf8.cfind
+ctime=3559410790
+mtime=3559414983
+<article>
+#_<markdown>
+#_
+#_Эта функция аналогична `unicode.utf8.find`, кроме того, что она принимает входное
+#_смещение и возвращает выходные смещения в **символах**, а не в **байтах**.
+#_(Исключением являются "position captures", которые всё же возвращаются в байтах).
+#_
+</article>
+</node>
+<node>
+id=42
+lv=1
+dt=Text
+nm=Библиотеки функций макроязыка
+ctime=3553243413
+mtime=3555071981
+<article>
+#_<markdown>
+#_Описание API в данном документе не является самодостаточным, оно является *дополняющим и уточняющим* к описанию свойств и функций объектов Фара в разделе **Макроязык** Энциклопедии Фара.
+#_
+#_В идеале, API должен совпадать с оригинальным API макроязыка, за исключением случаев, перечисленных в статье [Изменения API в сравнении с макроязыком][APIchanges].
+#_
+#_[APIchanges]: 38.html
+#_
+</article>
+</node>
+<node>
+id=38
+lv=2
+dt=Text
+nm=Изменения API в сравнении с макроязыком
+ctime=3553185939
+mtime=3555411576
+<article>
+#_<markdown>
+#_
+#_1. Все идентификаторы чувствительны к регистру символов.
+#_1. Вместо прямого указания клавиш используется функция [`Keys`][Keys].
+#_1. `$AKey -> Keys("AKey")`
+#_1. `$SelWord -> Keys("SelWord")`
+#_1. `$XLat -> Keys("XLat")`
+#_1. `$Exit ->` ` `[`exit()`][exit]
+#_1. Логические свойства имеют тип *boolean* (поэтому нет смысла сравнивать их с числом `0`).
+#_1. Функция `prompt` может возвращать либо стринг, либо `false` (но никогда не число `0`).
+#_1. Многие функции помещены в таблицу [`mf`] [mf] (сокращение от *macrofunctions*),
+#_   например: `mf.abs`, `mf.fsplit` и т.д.
+#_1. Функция `mf.fexist` возвращает булевое значение, а не число.
+#_1. Функции [`mload`] [mload] и [`msave`] [msave] изменились, см. их описание.
+#_1. Свойства, зависящие от контекста исполнения, находятся в таблице [`Object`][Object],
+#_   например: `Object.CurPos`, `Object.Empty`.
+#_1. `CheckHotkey -> Object.CheckHotkey`
+#_1. `GetHotkey -> Object.GetHotkey`
+#_1. Логические свойства проверки области исполнения находятся в таблице [`Area`][Area],
+#_   например: `Area.Editor`, `Area.Shell`.
+#_1. `Macro.Area -> Area.Current`.
+#_1. `Dialog.AutoCompletion -> Area.DialogAutoCompletion`
+#_1. `Shell.AutoCompletion  -> Area.ShellAutoCompletion`
+#_1. `CallPlugin -> Plugin.Call`
+#_1. `Dlg.Info.Id -> Dlg.Id`
+#_1. `Dlg.Info.Owner -> Dlg.Owner`
+#_1. `Far.Cfg.Get -> Far.Cfg_Get`. Эта функция возвращает стринг в случае успеха
+#_    или `false` в случае неудачи.
+#_1. `Far.Cfg.Err` больше не существует.
+#_1. `FullScreen -> Far.FullScreen`
+#_1. `IsUserAdmin -> Far.IsUserAdmin`
+#_1. `History.Disable -> Far.DisableHistory`
+#_1. `KbdLayout -> Far.KbdLayout`
+#_1. `KeyBar.Show -> Far.KeyBar_Show`
+#_1. `Window.Scroll -> Far.Window_Scroll`
+#_1. `Menu.Info.Id -> Menu.Id`
+#_1. `MsX`, `MsY`, `MsButton`, `MsCtrlState`, `MsEventFlags` -- см. таблицу [`Mouse`][Mouse]
+#_1. `RCounter` больше не существует.
+#_1. `Macro.Const`, `Macro.Func`, `Macro.Keyword` и `Macro.Var` больше не существуют.
+#_
+#_[exit]: 61.html
+#_[mload]: 13.html
+#_[msave]: 12.html
+#_[mf]: 44.html
+#_[Keys]: 4.html
+#_[Area]: 36.html
+#_[Object]: 45.html
+#_[Mouse]: 59.html
+#_
+#_
+</article>
+</node>
+<node>
+id=20
+lv=2
+dt=Text
+nm=Глобальные свойства и функции
+ctime=3552221109
+mtime=3558608451
+<article>
+#_**Свойства:** нет.
+#_
+#_**Функции:**
+#_
+#_  akey
+#_  band, bnot, bor, bxor, lshift, rshift
+#_  eval
+#_  exit
+#_  Keys
+#_  mmode
+#_  msgbox
+#_  print
+#_  printf
+#_  prompt
+#_
+#_**Примечания:**
+#_
+#_1. Функции *band*, *bnot*, *bor*, *bxor*, *lshift* и *rshift* (операции с битами)
+#_   - это глобальные ссылки на одноимённые функции из библиотеки *bit64*
+#_   (см. LuaFAR manual).
+#_
+#_2. Для единообразия, все данные функции продублированы в таблице mf,
+#_   например: *eval* и *mf.eval* - это одна и та же функция.
+#_
+#_@@@
+#_<lua> Links = {
+#_  exit="61.html",
+#_  Keys="4.html",
+#_  ["mf(?!\\.)"]="44.html",
+#_  printf="60.html",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=61
+lv=3
+dt=Text
+nm=exit
+ctime=3555411121
+mtime=3555411243
+<article>
+#_exit ()
+#_
+#_**Параметры:**
+#_  нет
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  Завершить работу макроса.
+#_
+</article>
+</node>
+<node>
+id=4
+lv=3
+dt=Text
+nm=Keys
+ctime=3551902602
+mtime=3557323020
+<article>
+#_Keys (...)
+#_
+#_**Параметры:**
+#_  Один или больше аргументов типа string. Каждый аргумент может
+#_  содержать несколько ключей, разделённых пробельными символами.
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  Послать один или более ключей Фару.
+#_
+#_**Примечания:**
+#_
+#_  1. Специальные ключи:
+#_     *"AKey"*    - послать Фару клавишу, вызвавшую данный макрос.
+#_     *"SelWord"* - выделить слово под курсором.
+#_     *"XLat"*    - преобразовать слово под курсором.
+#_
+#_**Пример:**
+#_  mykeys = "CtrlF5 Esc"
+#_  Keys("AKey A b CtrlC ShiftEnter", mykeys)
+#_
+#_
+</article>
+</node>
+<node>
+id=60
+lv=3
+dt=Text
+nm=printf
+ctime=3554233087
+mtime=3554233809
+<article>
+#_printf (fmt, ...)
+#_
+#_**Параметры:**
+#_  fmt :  string
+#_  ... :  0 или более параметров, в соответствии с форматом,
+#_         заданным аргументом *fmt*.
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  Работает аналогично функции макроязыка *print*, но с дополнительной
+#_  возможностью форматирования. Правила форматирования описаны в мануале Lua.
+#_
+#_@@@
+#_<lua> Links = {
+#_  ["мануале Lua"]="http://www.lua.org/manual/5.1/manual.html#pdf-string.format",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=44
+lv=2
+dt=Text
+nm=mf
+ctime=3553243522
+mtime=3558607757
+<article>
+#_**Свойства:** нет.
+#_
+#_**Функции:**
+#_
+#_  abs              len
+#_  akey             lshift
+#_  asc              max
+#_  atoi             mdelete
+#_  band             min
+#_  beep             mload
+#_  bnot             mmode
+#_  bor              mod
+#_  bxor             msave
+#_  chr              msgbox
+#_  clip             print
+#_  date             printf
+#_  env              prompt
+#_  eval             replace
+#_  exit             rindex
+#_  fattr            rshift
+#_  fexist           size2str
+#_  float            sleep
+#_  flock            string
+#_  fmatch           strpad
+#_  fsplit           strwrap
+#_  iif              substr
+#_  index            testfolder
+#_  int              trim
+#_  itoa             ucase
+#_  key              waitkey
+#_  Keys             xlat
+#_  lcase
+#_
+#_@@@
+#_<lua> Links = {
+#_  mload="13.html", msave="12.html", mdelete="15.html",
+#_} </lua>
+#_
+</article>
+</node>
+<node>
+id=15
+lv=3
+dt=Text
+nm=mdelete
+ctime=3552066075
+mtime=3553243618
+<article>
+#_mf.mdelete (key, name)
+#_
+#_**Параметры:**
+#_  key:  string
+#_  name: string
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  Функция *mdelete* удаляет значение или ключ из базы данных.
+#_  Для удаления ключа следует указать параметр *name* == `"*"` (звёздочку).
+#_
+</article>
+</node>
+<node>
+id=13
+lv=3
+dt=Text
+nm=mload
+ctime=3551993209
+mtime=3553243630
+<article>
+#_ret = mf.mload (key, name)
+#_
+#_**Параметры:**
+#_  key:   string
+#_  name:  string
+#_
+#_**Возвращает:**
+#_  ret:   number, string, boolean, table или nil.
+#_
+#_**Описание:**
+#_  Функция *mload* читает значение из базы данных.
+#_
+#_
+</article>
+</node>
+<node>
+id=12
+lv=3
+dt=Text
+nm=msave
+ctime=3551993205
+mtime=3553243637
+<article>
+#_mf.msave (key, name, value)
+#_
+#_**Параметры:**
+#_  key:         string
+#_  name:        string
+#_  value:       number, string, boolean или table
+#_
+#_**Возвращает:**
+#_  ничего
+#_
+#_**Описание:**
+#_  Функция *msave* сохраняет переданное значение в базу данных.
+#_  При сохранении таблиц будут сохраняться только ключи и значения
+#_  типов: number, string, boolean.
+#_
+#_
+</article>
+</node>
+<node>
+id=36
+lv=2
+dt=Text
+nm=Area
+ctime=3552736839
+mtime=3553252985
+<article>
+#_**Area** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Current:               string
+#_  Other:                 boolean
+#_  Shell:                 boolean
+#_  Viewer:                boolean
+#_  Editor:                boolean
+#_  Dialog:                boolean
+#_  Search:                boolean
+#_  Disks:                 boolean
+#_  MainMenu:              boolean
+#_  Menu:                  boolean
+#_  Help:                  boolean
+#_  Info:                  boolean
+#_  QView:                 boolean
+#_  Tree:                  boolean
+#_  FindFolder:            boolean
+#_  UserMenu:              boolean
+#_  ShellAutoCompletion:   boolean
+#_  DialogAutoCompletion:  boolean
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+</article>
+</node>
+<node>
+id=46
+lv=2
+dt=Text
+nm=APanel, PPanel
+ctime=3553252677
+mtime=3553260679
+<article>
+#_**APanel**, **PPanel** - таблицы со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Bof:          boolean
+#_  ColumnCount:  number
+#_  CurPos:       number
+#_  Current:      string
+#_  DriveType:    number
+#_  Empty:        boolean
+#_  Eof:          boolean
+#_  FilePanel:    boolean
+#_  Filter:       boolean
+#_  Folder:       boolean
+#_  Format:       string
+#_  Height:       number
+#_  HostFile:     string
+#_  ItemCount:    number
+#_  Left:         boolean
+#_  LFN:          boolean
+#_  OPIFlags:     number
+#_  Path:         string
+#_  Path0:        string
+#_  Plugin:       boolean
+#_  Prefix:       string
+#_  Root:         boolean
+#_  SelCount:     number
+#_  Selected:     boolean
+#_  Type:         number
+#_  UNCPath:      string
+#_  Visible:      boolean
+#_  Width:        number
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+</article>
+</node>
+<node>
+id=57
+lv=2
+dt=Text
+nm=Panel
+ctime=3553252776
+mtime=3553254750
+<article>
+#_**Panel** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Нет.
+#_
+#_**Функции:**
+#_
+#_  FAttr
+#_  FExist
+#_  Item
+#_  Select
+#_  SetPath
+#_  SetPos
+#_  SetPosIdx
+#_
+</article>
+</node>
+<node>
+id=58
+lv=2
+dt=Text
+nm=BM
+ctime=3553686730
+mtime=3553686801
+<article>
+#_**BM** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Нет.
+#_
+#_**Функции:**
+#_
+#_  Add
+#_  Back
+#_  Clear
+#_  Del
+#_  Get
+#_  Goto
+#_  Next
+#_  Pop
+#_  Prev
+#_  Push
+#_  Stat
+#_
+</article>
+</node>
+<node>
+id=47
+lv=2
+dt=Text
+nm=CmdLine
+ctime=3553252699
+mtime=3553260697
+<article>
+#_**CmdLine** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Bof:        boolean
+#_  Empty:      boolean
+#_  Eof:        boolean
+#_  Selected:   boolean
+#_  CurPos:     number
+#_  ItemCount:  number
+#_  Value:      string
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+</article>
+</node>
+<node>
+id=51
+lv=2
+dt=Text
+nm=Dlg
+ctime=3553252729
+mtime=3553260711
+<article>
+#_**Dlg** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  CurPos:     number
+#_  Id:         string (GUID)
+#_  Owner:      string (GUID)
+#_  ItemCount:  number
+#_  ItemType:   number
+#_  PrevPos:    number
+#_
+#_**Функции:**
+#_
+#_  GetValue
+#_  SetFocus
+#_
+#_
+</article>
+</node>
+<node>
+id=48
+lv=2
+dt=Text
+nm=Drv
+ctime=3553252704
+mtime=3553260726
+<article>
+#_**Drv** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  ShowMode:  number
+#_  ShowPos:   number
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+</article>
+</node>
+<node>
+id=52
+lv=2
+dt=Text
+nm=Editor
+ctime=3553252733
+mtime=3553260742
+<article>
+#_**Editor** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  CurLine:   number
+#_  CurPos:    number
+#_  FileName:  string
+#_  Lines:     number
+#_  RealPos:   number
+#_  SelValue:  string
+#_  State:     number
+#_  Value:     string
+#_
+#_**Функции:**
+#_
+#_  DelLine
+#_  GetStr
+#_  InsStr
+#_  Pos
+#_  Sel
+#_  Set
+#_  SetStr
+#_  SetTitle
+#_  Undo
+#_
+</article>
+</node>
+<node>
+id=54
+lv=2
+dt=Text
+nm=Far
+ctime=3553252749
+mtime=3555391522
+<article>
+#_**Far** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  FullScreen:      boolean
+#_  Height:          number
+#_  IsUserAdmin:     boolean
+#_  PID:             number
+#_  Title:           string
+#_  UpTime:          number
+#_  Width:           number
+#_
+#_**Функции:**
+#_
+#_  Cfg_Get
+#_  DisableHistory
+#_  KbdLayout
+#_  KeyBar_Show
+#_  Window_Scroll
+#_
+</article>
+</node>
+<node>
+id=49
+lv=2
+dt=Text
+nm=Help
+ctime=3553252714
+mtime=3553260782
+<article>
+#_**Help** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  FileName:  string
+#_  SelTopic:  string
+#_  Topic:     string
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+</article>
+</node>
+<node>
+id=53
+lv=2
+dt=Text
+nm=Menu
+ctime=3553252746
+mtime=3553678755
+<article>
+#_**Menu** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Id:     string (GUID)
+#_  Value:  string
+#_
+#_**Функции:**
+#_
+#_  Filter
+#_  FilterStr
+#_  GetValue
+#_  ItemStatus
+#_  Select
+#_  Show
+#_
+</article>
+</node>
+<node>
+id=59
+lv=2
+dt=Text
+nm=Mouse
+ctime=3553790262
+mtime=3553790356
+<article>
+#_**Mouse** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  X:           number
+#_  Y:           number 
+#_  Button:      number
+#_  CtrlState:   number
+#_  EventFlags:  number
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+#_
+</article>
+</node>
+<node>
+id=45
+lv=2
+dt=Text
+nm=Object
+ctime=3553245384
+mtime=3553795938
+<article>
+#_**Свойства, зависящие от контекста исполнения.**
+#_
+#_**Object**: таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Bof:         boolean
+#_  CurPos:      number
+#_  Empty:       boolean
+#_  Eof:         boolean
+#_  Height:      number
+#_  ItemCount:   number
+#_  RootFolder:  boolean
+#_  Selected:    boolean
+#_  Title:       string
+#_  Width:       number
+#_
+#_**Функции:**
+#_
+#_  CheckHotkey
+#_  GetHotkey
+#_
+#_
+</article>
+</node>
+<node>
+id=56
+lv=2
+dt=Text
+nm=Plugin
+ctime=3553252766
+mtime=3553679763
+<article>
+#_**Plugin** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  Нет.
+#_
+#_**Функции:**
+#_
+#_  Call
+#_  Command
+#_  Config
+#_  Exist
+#_  Load
+#_  Menu
+#_  Unload
+#_
+</article>
+</node>
+<node>
+id=50
+lv=2
+dt=Text
+nm=Viewer
+ctime=3553252718
+mtime=3553260812
+<article>
+#_**Viewer** - таблица со следующими полями:
+#_
+#_**Свойства:**
+#_
+#_  FileName:  string
+#_  State:     number
+#_
+#_**Функции:**
+#_
+#_  Нет.
+#_
+#_
+</article>
+</node>
+<node>
+id=29
+lv=1
+dt=Text
+nm=Примеры
+ctime=3552222267
+mtime=3552222267
+<article>
+</article>
+</node>
+<node>
+id=39
+lv=2
+dt=Text
+nm=Выделить слово под курсором
+ctime=3553195063
+mtime=3553206929
+<article>
+#_<markdown>
+#_(`area="Editor"`)
+#_
+#_```
+#_-- выделить/снять выделение слова под курсором
+#_
+#_Keys"RCtrl9 CtrlRight CtrlLeft"
+#_Keys(Object.Selected and "CtrlU" or "CtrlShiftRight")
+#_Keys"Ctrl9"
+#_```
+#_
+</article>
+</node>
+<node>
+id=40
+lv=2
+dt=Text
+nm=Переход в меню выбора дисков
+ctime=3553195940
+mtime=3553199764
+<article>
+#_<markdown>
+#_(`area="Disks"`)
+#_
+#_```
+#_-- Переход в меню выбора дисков на противоположной панели,
+#_-- включение видимости панели, в которой будет происходить
+#_-- смена диска, если её не было.
+#_
+#_Keys"Esc"
+#_if not PPanel.Visible then
+#_  Keys(APanel.Left and "CtrlF2" or "CtrlF1")
+#_end
+#_Keys"Tab F9 Enter End Enter"
+#_```
+#_
+</article>
+</node>
+<node>
+id=30
+lv=2
+dt=Text
+nm=Выделить файлы новее текущего
+ctime=3552222560
+mtime=3553206935
+<article>
+#_<markdown>
+#_(`area="Shell"`)
+#_
+#_```
+#_-- Выделить в активной панели все файлы/папки новее текущего,
+#_-- используя API плагинов (LuaFAR).
+#_
+#_local info = panel.GetPanelInfo(nil,1)
+#_local curItem = panel.GetCurrentPanelItem(nil,1)
+#_for i=1,info.ItemsNumber do
+#_  local item = panel.GetPanelItem(nil,1,i)
+#_  if item.LastWriteTime > curItem.LastWriteTime then
+#_    panel.SetSelection(nil,1,i,true)
+#_  end
+#_end
+#_panel.RedrawPanel(nil,1)
+#_```
+#_
+#_```
+#_-- Выделить в активной панели все файлы/папки новее текущего,
+#_-- используя API макросов (LuaFAR + LuaMacro).
+#_
+#_d = Panel.Item(0,0,17)
+#_for i=1,APanel.ItemCount do
+#_  if Panel.Item(0,i,17) > d then
+#_    Panel.Select(0,1,1,i)
+#_  end
+#_end
+#_```
+#_
+#_
+</article>
+</node>
+<node>
+id=41
+lv=2
+dt=Text
+nm=Cоздание папки с именем = текущей дате
+ctime=3553206604
+mtime=3553206942
+<article>
+#_<markdown>
+#_```
+#_-- area="Shell"
+#_-- key="CtrlShiftF7"
+#_-- flags="DisableOutput|NoPluginPanels"
+#_-- description="создание папки с именем = текущей дате"
+#_
+#_folder = mf.date("%d.%m0.%Y")
+#_if Panel.FExist(0,folder)==0 then
+#_  Keys"F7 CtrlY"
+#_  print(folder)
+#_  Keys"Enter"
+#_end
+#_```
+#_
+</article>
+</node>
