@@ -1198,6 +1198,7 @@ enum FARMACROVARTYPE
 	FMVT_STRING                 = 2,
 	FMVT_DOUBLE                 = 3,
 	FMVT_BOOLEAN                = 4,
+	FMVT_BINARY                 = 5,
 };
 
 struct FarMacroValue
@@ -1208,6 +1209,11 @@ struct FarMacroValue
 		__int64  Integer;
 		double   Double;
 		const wchar_t *String;
+		struct
+		{
+			void *Data;
+			size_t Length;
+		} Binary;
 	}
 #ifndef __cplusplus
 	Value

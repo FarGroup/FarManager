@@ -684,6 +684,7 @@ static void FL_PushParamsTable(lua_State* L, const struct OpenMacroPluginInfo* i
 		else if(v->Type == FMVT_DOUBLE)  lua_pushnumber(L, v->Value.Double);
 		else if(v->Type == FMVT_STRING)  push_utf8_string(L, v->Value.String, -1);
 		else if(v->Type == FMVT_BOOLEAN) lua_pushboolean(L, v->Value.Integer != 0);
+		else if(v->Type == FMVT_BINARY)  lua_pushlstring(L, (char*)v->Value.Binary.Data, v->Value.Binary.Length);
 		else                             lua_pushboolean(L, 0);
 
 		lua_rawseti(L, -2, i+1);

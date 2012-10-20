@@ -4373,6 +4373,8 @@ static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val)
 			lua_pushnumber(L, Val->Value.Double);
 		else if(Val->Type == FMVT_BOOLEAN)
 			lua_pushboolean(L, Val->Value.Integer != 0);
+		else if(Val->Type == FMVT_BINARY)
+			lua_pushlstring(L, (char*)Val->Value.Binary.Data, Val->Value.Binary.Length);
 		else
 			luaL_error(L, "Unknown value type.");
 	}

@@ -1879,7 +1879,7 @@ static bool pluginunloadFunc(FarMacroCall*);
 static bool pluginexistFunc(FarMacroCall*);
 static bool ReadVarsConsts(FarMacroCall*);
 
-int PassString (const wchar_t* str, FarMacroCall* Data)
+static int PassString (const wchar_t* str, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -1891,7 +1891,7 @@ int PassString (const wchar_t* str, FarMacroCall* Data)
 	return 1;
 }
 
-int PassNumber (double dbl, FarMacroCall* Data)
+static int PassNumber (double dbl, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -1903,7 +1903,7 @@ int PassNumber (double dbl, FarMacroCall* Data)
 	return 1;
 }
 
-int PassInteger (__int64 Int, FarMacroCall* Data)
+static int PassInteger (__int64 Int, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -1915,7 +1915,7 @@ int PassInteger (__int64 Int, FarMacroCall* Data)
 	return 1;
 }
 
-int PassBoolean (int b, FarMacroCall* Data)
+static int PassBoolean (int b, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
@@ -1927,7 +1927,20 @@ int PassBoolean (int b, FarMacroCall* Data)
 	return 1;
 }
 
-int PassValue (TVar* Var, FarMacroCall* Data)
+/*static*/ int PassBinary (void *Start, size_t Length, FarMacroCall* Data)
+{
+	if (Data->Callback)
+	{
+		FarMacroValue val;
+		val.Type = FMVT_BINARY;
+		val.Binary.Data = Start;
+		val.Binary.Length = Length;
+		Data->Callback(Data->CallbackData, &val);
+	}
+	return 1;
+}
+
+static int PassValue (TVar* Var, FarMacroCall* Data)
 {
 	if (Data->Callback)
 	{
