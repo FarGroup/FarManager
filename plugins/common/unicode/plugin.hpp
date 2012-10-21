@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2895
+  Plugin API for Far Manager 3.0 build 2896
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2895
+#define FARMANAGERVERSION_BUILD 2896
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1084,8 +1084,9 @@ struct FarMacroValue
 	enum FARMACROVARTYPE Type;
 	union
 	{
-		__int64  Integer;
-		double   Double;
+		__int64        Integer;
+		__int64        Boolean;
+		double         Double;
 		const wchar_t *String;
 		struct
 		{
