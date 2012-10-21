@@ -3181,6 +3181,8 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 
 		if(fgv->Value.Type == FMVT_INTEGER)
 			PutFlagsToTable(L, "Value", fgv->Value.Value.Integer);
+		else if(fgv->Value.Type == FMVT_BOOLEAN)
+			PutBoolToTable(L, "Value", (int)fgv->Value.Value.Boolean);
 		else if(fgv->Value.Type == FMVT_STRING)
 			PutWStrToTable(L, "Value", fgv->Value.Value.String, -1);
 		else if(fgv->Value.Type == FMVT_DOUBLE)
@@ -3248,6 +3250,8 @@ intptr_t LF_DlgProc(lua_State *L, HANDLE hDlg, intptr_t Msg, intptr_t Param1, vo
 
 			if(fgv->Value.Type == FMVT_INTEGER)
 				fgv->Value.Value.Integer = get_env_flag(L, -1, NULL);
+			else if(fgv->Value.Type == FMVT_BOOLEAN)
+				fgv->Value.Value.Boolean = lua_toboolean(L, -1);
 			else if(fgv->Value.Type == FMVT_STRING)
 			{
 				if((fgv->Value.Value.String = utf8_to_utf16(L, -1, NULL)) != 0)
@@ -4372,7 +4376,7 @@ static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val)
 		else if(Val->Type == FMVT_DOUBLE)
 			lua_pushnumber(L, Val->Value.Double);
 		else if(Val->Type == FMVT_BOOLEAN)
-			lua_pushboolean(L, Val->Value.Integer != 0);
+			lua_pushboolean(L, (int)Val->Value.Boolean);
 		else if(Val->Type == FMVT_BINARY)
 			lua_pushlstring(L, (char*)Val->Value.Binary.Data, Val->Value.Binary.Length);
 		else
@@ -4416,7 +4420,7 @@ static int far_MacroCallFar(lua_State *L)
 		else if(type == LUA_TBOOLEAN || type == LUA_TNIL)
 		{
 			args[idx].Type = FMVT_BOOLEAN;
-			args[idx].Value.Integer = lua_toboolean(L, stackpos);
+			args[idx].Value.Boolean = lua_toboolean(L, stackpos);
 		}
 		else if(bit64_getvalue(L, stackpos, &val64))
 		{

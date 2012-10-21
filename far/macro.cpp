@@ -1003,10 +1003,9 @@ int KeyMacro::GetKey()
 
 			case MPRT_PLUGINCALL: // V=Plugin.Call(SysID[,param])
 			{
-				intptr_t Ret=0;
 				size_t count = mpr->Count;
 				mp_values[0].Type=FMVT_BOOLEAN;
-				mp_values[0].Integer=0;
+				mp_values[0].Boolean=0;
 				mp_data.Count=1;
 				if(count>0 && mpr->Values[0].Type==FMVT_STRING)
 				{
@@ -1015,6 +1014,9 @@ int KeyMacro::GetKey()
 
 					if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
 					{
+						intptr_t Ret=0;
+						void* ResultCallPlugin=nullptr;
+
 						FarMacroValue *vParams = count>1 ? mpr->Values+1:nullptr;
 						OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
 						MacroRecord* macro = GetCurMacro();
@@ -1024,15 +1026,18 @@ int KeyMacro::GetKey()
 						else
 							m_InternalInput++;
 
-						void* ResultCallPlugin=nullptr;
+						int lockCount = ScrBuf.GetLockCount();
+						ScrBuf.SetLockCount(0);
 
 						if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
 							Ret=reinterpret_cast<intptr_t>(ResultCallPlugin);
 
+						ScrBuf.SetLockCount(lockCount);
+
 						//в windows гарантируется, что не бывает указателей меньше 0x10000
 						if (Ret < 0x10000 && Ret >= -1) //FIXME
 						{
-							mp_values[0].Integer=(Ret!=0);
+							mp_values[0].Boolean=(Ret!=0);
 						}
 						else
 						{
@@ -1061,7 +1066,7 @@ int KeyMacro::GetKey()
 				bool ItemFailed=false;
 
 				mp_values[0].Type=FMVT_BOOLEAN;
-				mp_values[0].Integer=Ret;
+				mp_values[0].Boolean=0;
 				mp_data.Count=1;
 
 				if (mpr->Count>0 && mpr->Values[0].Type==FMVT_STRING)
@@ -1111,7 +1116,7 @@ int KeyMacro::GetKey()
 					if (Ret)
 					{
 						// Если нашли успешно - то теперь выполнение
-						mp_values[0].Integer=1;
+						mp_values[0].Boolean=1;
 						cpInfo.CallFlags&=~CPT_CHECKONLY;
 						CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
 #if 0 //FIXME
@@ -1764,8 +1769,8 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck, bool sk
 	// не умеет сворачивать строки и обрезает сообщение.
 	FarMacroValue values[5]={{FMVT_STRING,{0}},{FMVT_BOOLEAN,{0}},{FMVT_BOOLEAN,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
 	values[0].String=Sequence;
-	values[1].Integer=onlyCheck?1:0;
-	values[2].Integer=skipFile?1:0;
+	values[1].Boolean=onlyCheck?1:0;
+	values[2].Boolean=skipFile?1:0;
 	values[3].String=MSG(MMacroPErrorTitle);
 	values[4].String=MSG(MOk);
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
@@ -1921,7 +1926,7 @@ static int PassBoolean (int b, FarMacroCall* Data)
 	{
 		FarMacroValue val;
 		val.Type = FMVT_BOOLEAN;
-		val.Integer = b;
+		val.Boolean = b;
 		Data->Callback(Data->CallbackData, &val);
 	}
 	return 1;
@@ -1985,8 +1990,9 @@ static void __parseParams(size_t Count, TVar* Params, FarMacroCall* Data)
 		switch (Data->Values[i].Type)
 		{
 			case FMVT_INTEGER:
-			case FMVT_BOOLEAN:
 				Params[i] = Data->Values[i].Integer; break;
+			case FMVT_BOOLEAN:
+				Params[i] = Data->Values[i].Boolean; break;
 			case FMVT_DOUBLE:
 				Params[i] = Data->Values[i].Double; break;
 			case FMVT_STRING:

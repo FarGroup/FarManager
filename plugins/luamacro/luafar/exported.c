@@ -662,9 +662,10 @@ static void PushParamsTable(lua_State* L, const struct OpenMacroInfo* om_info)
 		lua_createtable(L, 0, 2);
 		PutIntToTable(L, "Type", v->Type);
 
-		if(v->Type == FMVT_INTEGER)     PutFlagsToTable(L, "Value", v->Value.Integer);
-		else if(v->Type == FMVT_DOUBLE) PutNumToTable(L, "Value", v->Value.Double);
-		else if(v->Type == FMVT_STRING) PutWStrToTable(L, "Value", v->Value.String, -1);
+		if(v->Type == FMVT_INTEGER)      PutFlagsToTable(L, "Value", v->Value.Integer);
+		else if(v->Type == FMVT_BOOLEAN) PutBoolToTable (L, "Value", (int)v->Value.Boolean);
+		else if(v->Type == FMVT_DOUBLE)  PutNumToTable  (L, "Value", v->Value.Double);
+		else if(v->Type == FMVT_STRING)  PutWStrToTable (L, "Value", v->Value.String, -1);
 
 		lua_rawseti(L, -2, i+1);
 	}
@@ -683,7 +684,7 @@ static void FL_PushParamsTable(lua_State* L, const struct OpenMacroPluginInfo* i
 		if(v->Type == FMVT_INTEGER)      bit64_push(L, v->Value.Integer);
 		else if(v->Type == FMVT_DOUBLE)  lua_pushnumber(L, v->Value.Double);
 		else if(v->Type == FMVT_STRING)  push_utf8_string(L, v->Value.String, -1);
-		else if(v->Type == FMVT_BOOLEAN) lua_pushboolean(L, v->Value.Integer != 0);
+		else if(v->Type == FMVT_BOOLEAN) lua_pushboolean(L, (int)v->Value.Boolean);
 		else if(v->Type == FMVT_BINARY)  lua_pushlstring(L, (char*)v->Value.Binary.Data, v->Value.Binary.Length);
 		else                             lua_pushboolean(L, 0);
 
@@ -804,7 +805,7 @@ static HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 						else if(type == LUA_TBOOLEAN || type == LUA_TNIL)
 						{
 							mpr->Values[idx].Type = FMVT_BOOLEAN;
-							mpr->Values[idx].Value.Integer = lua_toboolean(L, -1);
+							mpr->Values[idx].Value.Boolean = lua_toboolean(L, -1);
 							lua_pop(L,1);
 						}
 						else if(bit64_getvalue(L, -1, &val64))
@@ -816,7 +817,7 @@ static HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 						else
 						{
 							mpr->Values[idx].Type = FMVT_BOOLEAN;
-							mpr->Values[idx].Value.Integer = 0;
+							mpr->Values[idx].Value.Boolean = 0;
 							lua_pop(L,1);
 						}
 					}

@@ -1206,8 +1206,9 @@ struct FarMacroValue
 	enum FARMACROVARTYPE Type;
 	union
 	{
-		__int64  Integer;
-		double   Double;
+		__int64        Integer;
+		__int64        Boolean;
+		double         Double;
 		const wchar_t *String;
 		struct
 		{
