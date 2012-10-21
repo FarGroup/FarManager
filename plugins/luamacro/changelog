@@ -1,3 +1,7 @@
+w17 21.10.2012 20:36:46 +0400 - build 20
+
+1. luafar3.vcxproj postbuild - copy lua5.1.dll added
+
 shmuel 21.10.2012 10:33:29 +0200 - build 19
 
 1. LuaFAR: рефакторинг.
