@@ -179,34 +179,33 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		OpenMacroInfo* mi=(OpenMacroInfo*)OInfo->Data;
 		if (mi->Count)
 		{
-			if (FMVT_INTEGER==mi->Values[0].Type||FMVT_UNKNOWN==mi->Values[0].Type)
+			int value=-1;
+			if (FMVT_INTEGER==mi->Values[0].Type) value=(int)mi->Values[0].Integer;
+			else if (FMVT_DOUBLE==mi->Values[0].Type) value=(int)mi->Values[0].Double;
+
+			switch (value)
 			{
-				switch (mi->Values[0].Integer)
-				{
-					case 0: // search fwd
-						isSelect=0;
-						DirectQuotes=1;
-						break;
-					case 1: // search back
-						isSelect=0;
-						DirectQuotes=0;
-						break;
-					case 2: // select fwd
-						DirectQuotes=1;
-						isSelect=1;
-						break;
-					case 3: // select back
-						DirectQuotes=0;
-						isSelect=1;
-						break;
-					case 4:
-						Config();
-					default:
-						return nullptr;
-				}
+				case 0: // search fwd
+					isSelect=0;
+					DirectQuotes=1;
+					break;
+				case 1: // search back
+					isSelect=0;
+					DirectQuotes=0;
+					break;
+				case 2: // select fwd
+					DirectQuotes=1;
+					isSelect=1;
+					break;
+				case 3: // select back
+					DirectQuotes=0;
+					isSelect=1;
+					break;
+				case 4:
+					Config();
+				default:
+					return nullptr;
 			}
-			else // other var type ==> $Recycle.Bin
-				return nullptr;
 		}
 	}
 

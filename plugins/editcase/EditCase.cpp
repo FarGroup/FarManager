@@ -110,14 +110,15 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		OpenMacroInfo* mi=(OpenMacroInfo*)OInfo->Data;
 		if (mi->Count)
  		{
- 			if (FMVT_INTEGER == mi->Values[0].Type || FMVT_UNKNOWN == mi->Values[0].Type)
+ 			if (FMVT_INTEGER == mi->Values[0].Type)
  			{
 				MenuCode=(int)mi->Values[0].Integer;
-
-				if (MenuCode < 0 || MenuCode > 4)
-					return nullptr;
 			}
-			else // other var type ==> $Recycle.Bin
+			else
+			{
+				MenuCode=(int)mi->Values[0].Double;
+			}
+			if (MenuCode < 0 || MenuCode > 4)
 				return nullptr;
 		}
 	}
