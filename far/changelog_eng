@@ -3,6 +3,106 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 21.10.2012 10:41:54 +0200 - build 2896
+
+1. If a macro had DisableOutput and Plugin.Call() displayed a dialog, it was not shown on screen.
+
+shmuel 20.10.2012 19:43:21 +0200 - build 2895
+
+1. Four data types able to return Plugin.Call are appended with another one:
+   "binary value" - this is a string that can contain any data and is not affected with
+   UTF-16LE -> UTF-8 transformation.
+
+zg 20.10.2012 11:21:39 +0200 - build 2894
+
+1. correction of 2893.
+
+shmuel 20.10.2012 08:21:04 +0200 - build 2893
+
+1. Plugin.Call can return one or more values, each of then can be:
+   64-bit integer, floating point number, string or boolean value.
+     - For that, the invoked plugin must fill in the FarMacroCall structure and return the pointer to it.
+     - This structure must be either static or allocated, i.e. do not place it in OpenW function's stack.
+     - If non-zero Callback is specified in the structure then the function will be called.
+       At the moment of Callback call the data is already copied and can be freed.
+   If the plugin wants just return true or false then it has to return 1 or 0 accordingly.
+   The change introduced in build 2891 is cancelled by this one.
+
+shmuel 19.10.2012 15:49:37 +0200 - build 2892
+
+1. Refactoring.
+
+shmuel 18.10.2012 23:55:32 +0200 - build 2891
+
+1. Plugin.Call returns 0 if the plugin is not found (i. e. as before transition to Lua).
+
+svs 15.10.2012 17:47:39 +0400 - build 2890
+
+1. "Typos"
+
+svs 15.10.2012 12:09:58 +0400 - build 2889
+
+1. FAR constants (for MsX etc the constants are reserved in "right places")
+
+2. SZLOG removed - use std, for example, _SHMUEL (details in SYSLOG-RU)
+
+3. MACRO_OP_* removed
+
+shmuel 15.10.2012 01:36:45 +0200 - build 2888
+
+1. Refactoring.
+
+shmuel 14.10.2012 15:29:04 +0200 - build 2887
+
+1. Far->LuaFAR->LuaMacro data exchange protocol is slightly simplified.
+
+zg 14.10.2012 04:05:26 +0200 - build 2886
+
+1. on error while macro initialization the upper left screen character "freezed".
+
+shmuel 13.10.2012 14:23:03 +0200 - build 2885
+
+1. If a macro launched by a plugin in panels ended with transition to editor or viewer,
+   then the upper left corner of the screen was displayed incorrectly.
+
+zg 12.10.2012 03:04:19 +0200 - build 2884
+
+1. correction of 2882.
+
+zg 12.10.2012 01:24:21 +0200 - build 2883
+
+1. correction of 2882.
+
+zg 11.10.2012 23:22:48 +0200 - build 2882
+
+1. experimental.
+   macros work in interactive objects, such as dialogs created from macros.
+
+zg 11.10.2012 21:24:04 +0200 - build 2881
+
+1. FAR crash if no luamacro plugin present while macros do exist.
+
+shmuel 11.10.2012 17:14:46 +0200 - build 2880
+
+1. MacroControl(MCTL_GETLASTERROR) function operating is restored with the following changes:
+   - ErrCode can take only 2 values: MPEC_SUCCESS and MPEC_ERROR.
+   - ErrPos.X has no meaning and must be ignored.
+
+shmuel 09.10.2012 11:34:47 +0200 - build 2879
+
+1. MacroControl(MCTL_SENDSTRING,MSSC_CHECK) function also checks files if Sequence[0]=='@'.
+
+t-rex 08.10.2012 21:26:43 +0200 - build 2878
+
+1. Fixes in wrapper for ECTL_EXPANDTABS, ECTL_GETBOOKMARKS and ECTL_GETSTACKBOOKMARKS.
+
+2. BookmarkCount and SessionBookmarkCount now are of size_t in EditorInfo, fr uniformity with EditorBookmarks.
+   (it does not affect plugins work).
+
+shmuel 08.10.2012 08:29:17 +0200 - build 2877
+
+1. Fix: (in editor) "after macro call, text is displayed on screen only after key press".
+
 t-rex 07.10.2012 15:56:20 +0200 - build 2876
 
 1. Warnings, MACROMODEAREA type is set where needed.
