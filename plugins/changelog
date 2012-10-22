@@ -1,3 +1,7 @@
+w17 22.10.2012 19:42:22 +0400 - build 402
+
+1. vc build fix
+
 w17 13.10.2012 23:05:52 +0400 - build 401
 
 1. luamacro added to gcc build + vstudio build + many small build corrections.
