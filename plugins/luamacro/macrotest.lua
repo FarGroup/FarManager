@@ -1,5 +1,9 @@
 -- Started: 2012-08-20.
 
+local function IsNumOrInt(v)
+  return type(v)=="number" or bit64.type(v)
+end
+
 assert(not (APanel.Plugin or PPanel.Plugin),
   "Run these tests when neither of panels is a plugin panel.")
 
@@ -83,10 +87,10 @@ assert(mf.abs(0)==0)
 assert(mf.asc("0")==48)
 assert(mf.asc("Я")==1071)
 
-assert(mf.atoi("0")==bit64.new(0))
-assert(mf.atoi("-10")==bit64.new(-10))
-assert(mf.atoi("0x11")==bit64.new(17))
-assert(mf.atoi("1011",2)==bit64.new(11))
+assert(mf.atoi("0")==0)
+assert(mf.atoi("-10")==-10)
+assert(mf.atoi("0x11")==17)
+assert(mf.atoi("1011",2)==11)
 assert(mf.atoi("123456789123456789")==bit64.new("123456789123456789"))
 assert(mf.atoi("-123456789123456789")==bit64.new("-123456789123456789"))
 assert(mf.atoi("0x1B69B4BACD05F15")==bit64.new("0x1B69B4BACD05F15"))
@@ -153,9 +157,9 @@ assert(mf.index("language","gua",1)==3)
 assert(mf.index("language","gUA",1)==-1)
 assert(mf.index("language","gUA",0)==3)
 
-assert(mf.int("2.99")==bit64.new(2))
-assert(mf.int("-2.99")==bit64.new(-2))
-assert(mf.int("0x10")==bit64.new(0))
+assert(mf.int("2.99")==2)
+assert(mf.int("-2.99")==-2)
+assert(mf.int("0x10")==0)
 assert(mf.int("123456789123456789")==bit64.new("123456789123456789"))
 assert(mf.int("-123456789123456789")==bit64.new("-123456789123456789"))
 
@@ -333,8 +337,8 @@ for pt=0,1 do
   assert(type(Panel.Item(pt,0,3))  =="string")
   assert(type(Panel.Item(pt,0,4))  =="string")
   assert(type(Panel.Item(pt,0,5))  =="string")
-  assert(bit64.type(Panel.Item(pt,0,6)))
-  assert(bit64.type(Panel.Item(pt,0,7)))
+  assert(IsNumOrInt(Panel.Item(pt,0,6)))
+  assert(IsNumOrInt(Panel.Item(pt,0,7)))
   assert(type(Panel.Item(pt,0,8))  =="boolean")
   assert(type(Panel.Item(pt,0,9))  =="number")
   assert(type(Panel.Item(pt,0,10)) =="boolean")
@@ -342,13 +346,13 @@ for pt=0,1 do
   assert(type(Panel.Item(pt,0,12)) =="string")
   assert(type(Panel.Item(pt,0,13)) =="number")
   assert(type(Panel.Item(pt,0,14)) =="number")
-  assert(bit64.type(Panel.Item(pt,0,15)))
-  assert(bit64.type(Panel.Item(pt,0,16)))
-  assert(bit64.type(Panel.Item(pt,0,17)))
+  assert(IsNumOrInt(Panel.Item(pt,0,15)))
+  assert(IsNumOrInt(Panel.Item(pt,0,16)))
+  assert(IsNumOrInt(Panel.Item(pt,0,17)))
   assert(type(Panel.Item(pt,0,18)) =="number")
-  assert(bit64.type(Panel.Item(pt,0,19)))
+  assert(IsNumOrInt(Panel.Item(pt,0,19)))
   assert(type(Panel.Item(pt,0,20)) =="string")
-  assert(bit64.type(Panel.Item(pt,0,21)))
+  assert(IsNumOrInt(Panel.Item(pt,0,21)))
   assert(type(Panel.Item(pt,0,22)) =="string")
   assert(type(Panel.Item(pt,0,23)) =="number")
 end

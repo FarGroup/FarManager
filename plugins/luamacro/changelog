@@ -1,3 +1,7 @@
+shmuel 22.10.2012 11:20:01 +0200 - build 21
+
+1. LuaFAR: поддержка последних изменений в Plugin.Call для LuaFAR-плагинов.
+
 w17 21.10.2012 20:36:46 +0400 - build 20
 
 1. luafar3.vcxproj postbuild - copy lua5.1.dll added

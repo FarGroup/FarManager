@@ -1603,7 +1603,7 @@ id=109
 lv=2
 dt=Text
 nm=export.Open
-mtime=3541868759
+mtime=3560065113
 <article>
 #_ret = export.Open (OpenFrom, Guid, Item)
 #_
@@ -1631,13 +1631,18 @@ mtime=3541868759
 #_      integer
 #_
 #_**Returns:**
-#_  ret: any Lua value; it is processed by LuaFAR as follows:
-#_    - Nil and false: NULL is returned to Far.
-#_    - Number -1: PANEL_STOP is returned to Far.
-#_    - Otherwise: *ret* is considered a panel object, stored in the Lua
-#_      registry, its registry reference is returned to Far.
-#_      The object is passed to other exported functions when they are
-#_      called by Far.
+#_  if OpenFrom == OPEN_FROMMACRO:
+#_    0 or more Lua values.
+#_    Currently, values of the following types are supported:
+#_      boolean, number, string in UTF-8 and "int64" userdata, produced by bit64 library.
+#_  if OpenFrom == something else:
+#_    ret: any Lua value; it is processed by LuaFAR as follows:
+#_      - Nil and false: NULL is returned to Far.
+#_      - Number -1: PANEL_STOP is returned to Far.
+#_      - Otherwise: *ret* is considered a panel object, stored in the Lua
+#_        registry, its registry reference is returned to Far.
+#_        The object is passed to other exported functions when they are
+#_        called by Far.
 #_
 #_**Note:**
 #_  Return value of -1 can be used with *OpenFrom* == OPEN_ANALYSE,
@@ -1645,7 +1650,12 @@ mtime=3541868759
 #_  Far that the file has already been processed.
 #_
 #_@@@
-#_<lua> Links = { AnalyseInfo="461.html" } </lua>
+#_<lua>
+#_Links = {
+#_  AnalyseInfo="461.html",
+#_  bit64="405.html",
+#_}
+#_</lua>
 #_
 </article>
 </node>

@@ -32,6 +32,7 @@ extern int luaopen_win(lua_State *L);
 
 extern int  luaB_loadfileW(lua_State *L);
 extern int  pcall_msg(lua_State* L, int narg, int nret);
+extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
 extern void push_flags_table(lua_State *L);
 extern void SetFarColors(lua_State *L);
 extern void WINAPI FarPanelItemFreeCallback(void* UserData, const struct FarPanelItemFreeInfo* Info);
@@ -4361,26 +4362,11 @@ typedef struct
 
 static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val)
 {
-	lua_State *L;
 	mcfc_data *cbdata = CAST(mcfc_data*, Data);
-
 	if(cbdata->ret_avail > 0)
 	{
 		--cbdata->ret_avail;
-		L = cbdata->L;
-
-		if(Val->Type == FMVT_STRING)
-			push_utf8_string(L, Val->Value.String, -1);
-		else if(Val->Type == FMVT_INTEGER)
-			bit64_pushuserdata(L, Val->Value.Integer);
-		else if(Val->Type == FMVT_DOUBLE)
-			lua_pushnumber(L, Val->Value.Double);
-		else if(Val->Type == FMVT_BOOLEAN)
-			lua_pushboolean(L, (int)Val->Value.Boolean);
-		else if(Val->Type == FMVT_BINARY)
-			lua_pushlstring(L, (char*)Val->Value.Binary.Data, Val->Value.Binary.Length);
-		else
-			luaL_error(L, "Unknown value type.");
+		PushFarMacroValue(cbdata->L, Val);
 	}
 }
 
