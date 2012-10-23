@@ -131,14 +131,14 @@ class MacroRecord
 	friend class KeyMacro;
 	private:
 		MACROMODEAREA m_area;
-		MACROFLAGS_MFLAGS m_flags;
-		int m_key;
-		string m_name;
-		string m_code;
-		string m_description;
-		GUID m_guid;
-		void* m_id;
-		FARMACROCALLBACK m_callback;
+		MACROFLAGS_MFLAGS m_flags;     // Флаги макропоследовательности
+		int m_key;                     // Назначенная клавиша
+		string m_name;                 // имя записи, может совпадать с именем клавиши
+		string m_code;                 // оригинальный "текст" макроса
+		string m_description;          // описание макроса
+		GUID m_guid;                   // Гуид владельца макроса
+		void* m_id;                    // параметр калбака
+		FARMACROCALLBACK m_callback;   // каллбак для плагинов
 		void* m_handle;
 	public:
 		MacroRecord();
@@ -190,6 +190,8 @@ class KeyMacro
 		string m_LastErrorStr;
 		int m_LastErrorLine;
 		int m_InternalInput;
+		bool m_IsRedrawEditor;
+		bool m_MacroPluginIsRunning;
 	private:
 		bool ReadKeyMacro(MACROMODEAREA Area);
 		void WriteMacro(void);

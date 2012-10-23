@@ -74,6 +74,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "stddlg.hpp"
 #include "vmenu2.hpp"
+#include "constitle.hpp"
 
 static BOOL CheckAll(MACROMODEAREA Mode, UINT64 CurFlags);
 
@@ -509,7 +510,9 @@ KeyMacro::KeyMacro():
 	m_RecMode(MACRO_OTHER),
 	m_LockScr(nullptr),
 	m_LastErrorLine(0),
-	m_InternalInput(0)
+	m_InternalInput(0),
+	m_IsRedrawEditor(true),
+	m_MacroPluginIsRunning(false)
 {
 	//print_opcodes();
 	m_CurState = new MacroState();
@@ -681,9 +684,11 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 	if (macro)
 		ScrBuf.SetLockCount(0);
 
+	m_MacroPluginIsRunning=true;
 	PushState();
 	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,Info,&ptr) != 0;
 	PopState();
+	m_MacroPluginIsRunning=false;
 
 	if (macro && macro->m_handle && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
 		ScrBuf.Lock();
@@ -727,6 +732,7 @@ void KeyMacro::RestoreMacroChar(void)
 		will NOT send this event while screen is locked.
 	*/
 	if (m_Mode==MACRO_EDITOR &&
+					m_IsRedrawEditor &&
 					CtrlObject->Plugins->CurEditor &&
 					CtrlObject->Plugins->CurEditor->IsVisible()
 					/* && LockScr*/) // Mantis#0001595
@@ -815,6 +821,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 							{
 								m_CurState->HistoryDisable=0;
 								m_CurState->cRec=Rec->Rec;
+								m_IsRedrawEditor=CtrlObject->Plugins->CheckFlags(PSIF_ENTERTOOPENPLUGIN)?false:true;
 							}
 							return ret;
 						}
@@ -922,6 +929,34 @@ int KeyMacro::GetKey()
 		return 0;
 	}
 
+	if (m_CurState->m_MacroQueue.Empty() && !m_MacroPluginIsRunning)
+	{
+		if (!m_StateStack.empty())
+		{
+			PopState();
+			return 0;
+		}
+
+		if (m_Mode==MACRO_EDITOR &&
+						m_IsRedrawEditor &&
+						CtrlObject->Plugins->CurEditor &&
+						CtrlObject->Plugins->CurEditor->IsVisible() &&
+						ScrBuf.GetLockCount())
+		{
+			CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins->CurEditor->GetId());
+			CtrlObject->Plugins->CurEditor->Show();
+		}
+
+		if (m_StateStack.empty())
+			ScrBuf.Unlock();
+
+		if (ConsoleTitle::WasTitleModified())
+			ConsoleTitle::SetFarTitle(nullptr);
+
+		Clipboard::SetUseInternalClipboardState(false);
+		return 0;
+	}
+
 	MacroRecord* macro;
 	static FarMacroValue mp_values[1]={{FMVT_DOUBLE,{0}}};
 	static FarMacroCall mp_data={sizeof(FarMacroCall),0,mp_values,nullptr,nullptr};
@@ -1022,6 +1057,8 @@ int KeyMacro::GetKey()
 						OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
 						MacroRecord* macro = GetCurMacro();
 						bool CallPluginRules = (macro->Flags()&MFLAGS_CALLPLUGINENABLEMACRO) != 0;
+						DWORD EntryStackSize = m_StateStack.size();
+
 						if (CallPluginRules)
 							PushState();
 						else
@@ -1046,7 +1083,10 @@ int KeyMacro::GetKey()
 						}
 
 						if (CallPluginRules)
-							PopState();
+						{
+							if (m_StateStack.size() > EntryStackSize) // эта проверка нужна, т.к. PopState() мог уже быть вызван.
+								PopState();
+						}
 						else
 							m_InternalInput--;
 					}
@@ -1120,22 +1160,11 @@ int KeyMacro::GetKey()
 						mp_values[0].Boolean=1;
 						cpInfo.CallFlags&=~CPT_CHECKONLY;
 						CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
-#if 0 //FIXME
-						if (MR != Work.MacroWORK)
-							MR=Work.MacroWORK;
-#endif
 					}
 				}
 
 				// По аналогии с KEY_F11
 				FrameManager->RefreshFrame();
-
-#if 0 //FIXME
-				if (Work.Executing == MACROMODE_NOMACRO)
-					goto return_func;
-
-				goto begin;
-#endif
 				break;
 			}
 		}
@@ -1439,8 +1468,7 @@ static BOOL CheckEditSelected(MACROMODEAREA Mode, UINT64 CurFlags)
 
 static BOOL CheckInsidePlugin(UINT64 CurFlags)
 {
-	if (CtrlObject && CtrlObject->Plugins->CurPluginItem && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS)) // ?????
-		//if(CtrlObject && CtrlObject->Plugins->CurEditor && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS))
+	if (CtrlObject && CtrlObject->Plugins->CurPluginItem && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS))
 		return FALSE;
 
 	return TRUE;
