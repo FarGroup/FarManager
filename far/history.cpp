@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "history.hpp"
 #include "language.hpp"
 #include "keys.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "message.hpp"
 #include "clipboard.hpp"
 #include "config.hpp"
@@ -175,7 +175,7 @@ const wchar_t *History::GetTitle(int Type)
 int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type, GUID* Guid, string *File, string *Data)
 {
 	int Height=ScrY-8;
-	VMenu HistoryMenu(Title,nullptr,0,Height);
+	VMenu2 HistoryMenu(Title,nullptr,0,Height);
 	HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
 
 	if (HelpTopic)
@@ -186,7 +186,7 @@ int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strS
 	return ProcessMenu(strStr, Guid, File, Data, Title, HistoryMenu, Height, Type, nullptr);
 }
 
-int History::Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
+int History::Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
 {
 	int Type=0;
 	return ProcessMenu(strStr,nullptr ,nullptr ,nullptr , nullptr, HistoryMenu, Height, Type, Dlg);
@@ -205,7 +205,7 @@ int History::Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
    7 - Ctrl-Alt-Enter
 */
 
-int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *pstrData, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg)
+int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *pstrData, const wchar_t *Title, VMenu2 &HistoryMenu, int Height, int &Type, Dialog *Dlg)
 {
 	MenuItemEx MenuItem;
 	unsigned __int64 SelectedRecord = 0;
@@ -224,8 +224,6 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 	{
 		bool IsUpdate=false;
 		HistoryMenu.DeleteItems();
-		HistoryMenu.Modal::ClearDone();
-
 		{
 			bool bSelected=false;
 			DWORD index=0;
@@ -316,7 +314,11 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 		//HistoryMenu.SetUserData(nullptr,sizeof(OneItem *),HistoryMenu.AddItem(&MenuItem));
 
 		if (TypeHistory == HISTORYTYPE_DIALOG)
-			Dlg->SetComboBoxPos();
+		{
+			int X1,Y1,X2,Y2;
+			Dlg->CalcComboBoxPos(nullptr, HistoryMenu.GetItemCount(), X1, Y1, X2, Y2);
+			HistoryMenu.SetPosition(X1, Y1, X2, Y2);
+		}
 		else
 			HistoryMenu.SetPosition(-1,-1,0,0);
 
@@ -341,22 +343,16 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 						HistoryMenu.SetColors(&ListColors);
 				}
 		*/
-		HistoryMenu.Show();
 
-		while (!HistoryMenu.Done())
+		if(TypeHistory == HISTORYTYPE_DIALOG && !HistoryMenu.GetItemCount())
+			return 0;
+
+		Code=HistoryMenu.Run([&](int Key)->int
 		{
-			if (TypeHistory == HISTORYTYPE_DIALOG && (!Dlg->GetDropDownOpened() || !HistoryMenu.GetItemCount()))
-			{
-				HistoryMenu.ProcessKey(KEY_ESC);
-				continue;
-			}
-
-			int Key=HistoryMenu.ReadInput();
-
 			if (TypeHistory == HISTORYTYPE_DIALOG && Key==KEY_TAB) // Tab в списке хистори диалогов - аналог Enter
 			{
-				HistoryMenu.ProcessKey(KEY_ENTER);
-				continue;
+				HistoryMenu.Close();
+				return 1;
 			}
 
 			HistoryMenu.GetSelectPos(&Pos);
@@ -407,9 +403,8 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 
 						if (ModifiedHistory) // избавляемся от лишних телодвижений
 						{
-							HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
-							HistoryMenu.SetUpdateRequired(TRUE);
 							IsUpdate=true;
+							HistoryMenu.Close(Pos.SelectPos);
 						}
 
 						ResetPosition();
@@ -439,7 +434,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					if (TypeHistory == HISTORYTYPE_DIALOG)
 						break;
 
-					HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
+					HistoryMenu.Close(Pos.SelectPos);
 					Done=true;
 					RetCode = (Key==KEY_CTRLALTENTER||Key==KEY_RCTRLRALTENTER||Key==KEY_CTRLRALTENTER||Key==KEY_RCTRLALTENTER||
 							Key==KEY_CTRLALTNUMENTER||Key==KEY_RCTRLRALTNUMENTER||Key==KEY_CTRLRALTNUMENTER||Key==KEY_RCTRLALTNUMENTER)?7
@@ -454,7 +449,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					if (TypeHistory == HISTORYTYPE_DIALOG)
 						break;
 
-					HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
+					HistoryMenu.Close(Pos.SelectPos);
 					Done=true;
 					RetCode=(Key==KEY_F4? 5 : 4);
 					break;
@@ -481,10 +476,8 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					if (CurrentRecord)
 					{
 						HistoryCfgRef()->FlipLock(CurrentRecord);
-						HistoryMenu.Hide();
 						ResetPosition();
-						HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
-						HistoryMenu.SetUpdateRequired(TRUE);
+						HistoryMenu.Close(Pos.SelectPos);
 						IsUpdate=true;
 						SetUpMenuPos=true;
 					}
@@ -496,11 +489,9 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 				{
 					if (CurrentRecord && !HistoryCfgRef()->IsLocked(CurrentRecord))
 					{
-						HistoryMenu.Hide();
 						HistoryCfgRef()->Delete(CurrentRecord);
 						ResetPosition();
-						HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
-						HistoryMenu.SetUpdateRequired(TRUE);
+						HistoryMenu.Close(Pos.SelectPos);
 						IsUpdate=true;
 						SetUpMenuPos=true;
 					}
@@ -522,25 +513,20 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 						HistoryCfgRef()->DeleteAllUnlocked(TypeHistory,strHistoryName);
 
 						ResetPosition();
-						HistoryMenu.Hide();
-						HistoryMenu.Modal::SetExitCode(Pos.SelectPos);
-						HistoryMenu.SetUpdateRequired(TRUE);
+						HistoryMenu.Close(Pos.SelectPos);
 						IsUpdate=true;
 					}
 
 					break;
 				}
-				default:
-					HistoryMenu.ProcessInput();
-					break;
 			}
-		}
+			return 0;
+		});
 
 		if (IsUpdate)
 			continue;
 
 		Done=true;
-		Code=HistoryMenu.Modal::GetExitCode();
 
 		if (Code >= 0)
 		{
@@ -571,7 +557,6 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 
 				Done=false;
 				SetUpMenuPos=true;
-				HistoryMenu.Modal::SetExitCode(Pos.SelectPos=Code);
 				continue;
 			}
 		}
@@ -664,7 +649,7 @@ bool History::GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend)
 	return false;
 }
 
-bool History::GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str)
+bool History::GetAllSimilar(VMenu2 &HistoryMenu,const wchar_t *Str)
 {
 	int Length=StrLength(Str);
 	DWORD index=0;

@@ -46,12 +46,12 @@ struct HMenuData
 	int Selected;
 };
 
-class VMenu;
+class VMenu2;
 
 class HMenu: public Modal
 {
 	private:
-		VMenu *SubMenu;
+		VMenu2 *SubMenu;
 		struct HMenuData *Item;
 		int SelectPos;
 		int ItemCount;
@@ -66,6 +66,7 @@ class HMenu: public Modal
 		                    int X,int Y,int &Position);
 		wchar_t GetHighlights(const struct HMenuData *_item);
 		int CheckHighlights(WORD CheckSymbol,int StartPos=0);
+		bool TestMouse(MOUSE_EVENT_RECORD *MouseEvent);
 
 	public:
 		HMenu(struct HMenuData *Item,int ItemCount);

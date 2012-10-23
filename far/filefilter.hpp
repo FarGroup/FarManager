@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugin.hpp"
 #include "filefilterparams.hpp"
 
-class VMenu;
+class VMenu2;
 class Panel;
 
 // почему FileInFilter вернул true или false
@@ -57,7 +57,7 @@ class FileFilter
 
 		Panel *GetHostPanel();
 		int  ParseAndAddMasks(wchar_t **ExtPtr,const wchar_t *FileName,DWORD FileAttr,int& ExtCount,int Check);
-		void ProcessSelection(VMenu *FilterList);
+		void ProcessSelection(VMenu2 *FilterList);
 		enumFileFilterFlagsType GetFFFT();
 		int  GetCheck(FileFilterParams *FFP);
 		static void SwapPanelFlags(FileFilterParams *CurFilterData);

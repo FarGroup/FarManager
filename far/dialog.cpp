@@ -41,6 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "chgprior.hpp"
 #include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "dlgedit.hpp"
 #include "help.hpp"
 #include "scrbuf.hpp"
@@ -359,6 +360,7 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 	IdExist=false;
 	ClearStruct(Id);
 	bInitOK = true;
+	InitDialogObjects();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -376,7 +378,7 @@ Dialog::~Dialog()
 	Hide();
 	if (Opt.Clock && FrameManager->IsPanelsActive(true))
 		ShowTime(0);
-	ScrBuf.Flush();
+//	ScrBuf.Flush();
 
 	if (HelpTopic)
 		delete [] HelpTopic;
@@ -385,8 +387,8 @@ Dialog::~Dialog()
 		delete Item[i];
 
 	xf_free(Item);
-	INPUT_RECORD rec;
-	PeekInputRecord(&rec);
+//	INPUT_RECORD rec;
+//	PeekInputRecord(&rec);
 	delete OldTitle;
 	_DIALOG(CleverSysLog CL(L"Destroy Dialog"));
 }
@@ -3111,6 +3113,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	INPUT_RECORD mouse = {};
 	mouse.EventType=MOUSE_EVENT;
 	mouse.Event.MouseEvent=*MouseEvent;
+	MOUSE_EVENT_RECORD &MouseRecord=mouse.Event.MouseEvent;
 
 	if (!DialogMode.Check(DMODE_SHOW))
 		return FALSE;
@@ -3124,8 +3127,8 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (!DialogMode.Check(DMODE_SHOW))
 		return FALSE;
 
-	MsX=mouse.Event.MouseEvent.dwMousePosition.X;
-	MsY=mouse.Event.MouseEvent.dwMousePosition.Y;
+	MsX=MouseRecord.dwMousePosition.X;
+	MsY=MouseRecord.dwMousePosition.Y;
 
 	//for (I=0;I<ItemCount;I++)
 	for (I=ItemCount-1; I!=(unsigned)-1; I--)
@@ -3143,7 +3146,18 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			int Pos=List->GetSelectPos();
 			int CheckedListItem=List->GetCheck(-1);
 
-			if ((mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
+			if (!MouseRecord.dwEventFlags && !(MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
+			{
+				if (PrevMouseRecord.dwMousePosition.X==MsX && PrevMouseRecord.dwMousePosition.Y==MsY)
+				{
+					ExitCode=I;
+					CloseDialog();
+					return TRUE;
+				}
+				PrevMouseRecord=MouseRecord;
+			}
+
+			if ((MouseRecord.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
 			{
 				if (FocusPos != I)
 				{
@@ -3151,9 +3165,9 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					ShowDialog();
 				}
 
-				if (mouse.Event.MouseEvent.dwEventFlags!=DOUBLE_CLICK && !(Item[I]->Flags&(DIF_LISTTRACKMOUSE|DIF_LISTTRACKMOUSEINFOCUS)))
+				if (MouseRecord.dwEventFlags!=DOUBLE_CLICK && !(Item[I]->Flags&(DIF_LISTTRACKMOUSE|DIF_LISTTRACKMOUSEINFOCUS)))
 				{
-					List->ProcessMouse(&mouse.Event.MouseEvent);
+					List->ProcessMouse(&MouseRecord);
 					int NewListPos=List->GetSelectPos();
 
 					if (NewListPos != Pos && !SendDlgMessage(this,DN_LISTCHANGE,I,ToPtr(NewListPos)))
@@ -3171,7 +3185,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				else if (!SendDlgMessage(this,DN_CONTROLINPUT,I,&mouse))
 				{
 #if 1
-					List->ProcessMouse(&mouse.Event.MouseEvent);
+					List->ProcessMouse(&MouseRecord);
 					int NewListPos=List->GetSelectPos();
 					int InScroolBar=(MsX==X1+Item[I]->X2 && MsY >= Y1+Item[I]->Y1 && MsY <= Y1+Item[I]->Y2) &&
 					                (List->CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar);
@@ -3189,12 +3203,20 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					{
 						Pos=NewListPos;
 
+						if (List->CheckFlags(VMENU_SHOWNOBOX) ||  (MsY > Y1+Item[I]->Y1 && MsY < Y1+Item[I]->Y2))
+						{
+							if (!MouseRecord.dwEventFlags && !InScroolBar && !(Item[I]->Flags&DIF_LISTNOCLOSE))
+								if ((MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !(PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
+									PrevMouseRecord=MouseRecord;
+						}
+/*
 						if (!InScroolBar && !(Item[I]->Flags&DIF_LISTNOCLOSE))
 						{
 							ExitCode=I;
 							CloseDialog();
 							return TRUE;
 						}
+*/
 					}
 
 #else
@@ -4122,16 +4144,16 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 	{
 		DlgHist->ResetPosition();
 		// создание пустого вертикального меню
-		VMenu HistoryMenu(L"",nullptr,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
+		VMenu2 HistoryMenu(L"",nullptr,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
 		HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
 		HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
-		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
+//		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 		// запомним (для прорисовки)
-		CurItem->ListPtr=&HistoryMenu;
+//		CurItem->ListPtr=&HistoryMenu;
 		ret = DlgHist->Select(HistoryMenu, Opt.Dialogs.CBoxMaxHeight, this, strStr);
 		// забудим (не нужен)
-		CurItem->ListPtr=nullptr;
-		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
+//		CurItem->ListPtr=nullptr;
+//		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
 	}
 
 	if (ret > 0)
@@ -4364,6 +4386,7 @@ void Dialog::Process()
 {
 //  if(DialogMode.Check(DMODE_SMALLDIALOG))
 	SetRestoreScreenMode(TRUE);
+	ClearStruct(PrevMouseRecord);
 	ClearDone();
 	InitDialog();
 	TaskBarError *TBE=DialogMode.Check(DMODE_WARNINGSTYLE)?new TaskBarError:nullptr;
@@ -6283,6 +6306,30 @@ BOOL Dialog::IsInited()
 	return DialogMode.Check(DMODE_INITOBJECTS);
 }
 
+void Dialog::CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2)
+{
+	if(!CurItem)
+	{
+		CurItem=Item[FocusPos];
+	}
+
+	((DlgEdit*)CurItem->ObjPtr)->GetPosition(X1,Y1,X2,Y2);
+
+	if (X2-X1<20)
+		X2=X1+20;
+
+	if (ScrY-Y1<Min(Opt.Dialogs.CBoxMaxHeight.Get(),ItemCount)+2 && Y1>ScrY/2)
+	{
+		Y2=Y1-1;
+		Y1=Max((intptr_t)0,Y1-1-Min(Opt.Dialogs.CBoxMaxHeight.Get(),ItemCount)-1);
+	}
+	else
+	{
+		++Y1;
+		Y2=0;
+	}
+}
+
 void Dialog::SetComboBoxPos(DialogItemEx* CurItem)
 {
 	if (GetDropDownOpened())
@@ -6291,16 +6338,9 @@ void Dialog::SetComboBoxPos(DialogItemEx* CurItem)
 		{
 			CurItem=Item[FocusPos];
 		}
-		int EditX1,EditY1,EditX2,EditY2;
-		((DlgEdit*)CurItem->ObjPtr)->GetPosition(EditX1,EditY1,EditX2,EditY2);
-
-		if (EditX2-EditX1<20)
-			EditX2=EditX1+20;
-
-		if (ScrY-EditY1<Min(Opt.Dialogs.CBoxMaxHeight.Get(),CurItem->ListPtr->GetItemCount())+2 && EditY1>ScrY/2)
-			CurItem->ListPtr->SetPosition(EditX1,Max((intptr_t)0,EditY1-1-Min(Opt.Dialogs.CBoxMaxHeight.Get(),CurItem->ListPtr->GetItemCount())-1),EditX2,EditY1-1);
-		else
-			CurItem->ListPtr->SetPosition(EditX1,EditY1+1,EditX2,0);
+		int X1,Y1,X2,Y2;
+		CalcComboBoxPos(CurItem, CurItem->ListPtr->GetItemCount(), X1, Y1, X2, Y2);
+		CurItem->ListPtr->SetPosition(X1, Y1, X2, Y2);
 	}
 }
 

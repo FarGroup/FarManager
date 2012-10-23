@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "keys.hpp"
 #include "dialog.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "macroopcode.hpp"
@@ -345,6 +345,14 @@ int HMenu::ProcessKey(int Key)
 }
 
 
+bool HMenu::TestMouse(MOUSE_EVENT_RECORD *MouseEvent)
+{
+	int MsX=MouseEvent->dwMousePosition.X;
+	int MsY=MouseEvent->dwMousePosition.Y;
+
+	return MsY!=Y1 || (MsX>=ItemX[SelectPos] && MsX<ItemX[SelectPos+1]);
+}
+
 int HMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
 	int MsX,MsY;
@@ -394,49 +402,43 @@ void HMenu::GetExitCode(int &ExitCode,int &VExitCode)
 void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
                            const wchar_t *SubMenuHelp,int X,int Y,int &Position)
 {
-	if (SubMenu)
-		delete SubMenu;
-
 	Position=-1;
-	SubMenu=new VMenu(L"",Data,DataCount);
-	SubMenu->SetFlags(VMENU_NOTCHANGE);
+	SubMenu=new VMenu2(L"",Data,DataCount);
 	SubMenu->SetBoxType(SHORT_DOUBLE_BOX);
 	SubMenu->SetFlags(VMENU_WRAPMODE);
 	SubMenu->SetHelp(SubMenuHelp);
 	SubMenu->SetPosition(X,Y,0,0);
-	SubMenu->Show();
+	SubMenu->SetMacroMode(MACRO_MAINMENU);
 
-	while (!SubMenu->Done() && !CloseFARMenu)
+	bool SendMouse=false;
+	MOUSE_EVENT_RECORD MouseEvent;
+	int SendKey=0;
+
+	Position=SubMenu->RunEx([&](int Msg, void *param)->int
 	{
-		INPUT_RECORD rec;
-		int Key;
-		Key=GetInputRecord(&rec);
+		if(Msg!=DN_INPUT)
+			return 0;
+
+		INPUT_RECORD &rec=*static_cast<INPUT_RECORD*>(param);
+		int Key=InputRecordToKey(&rec);
 
 		if (Key==KEY_CONSOLE_BUFFER_RESIZE)
 		{
 			LockScreen LckScr;
 			ResizeConsole();
 			Show();
-			SubMenu->Hide();
-			SubMenu->Show();
 		}
 		else if (rec.EventType==MOUSE_EVENT)
 		{
+			if (!TestMouse(&rec.Event.MouseEvent))
+			{
+				MouseEvent=rec.Event.MouseEvent;
+				SendMouse=true;
+				SubMenu->Close(-1);
+				return 1;
+			}
 			if (rec.Event.MouseEvent.dwMousePosition.Y==Y1)
-				if (ProcessMouse(&rec.Event.MouseEvent))
-				{
-					delete SubMenu;
-					SubMenu=nullptr;
-					return;
-				}
-			if(Key == KEY_MSWHEEL_UP || Key == KEY_MSWHEEL_DOWN || Key == KEY_MSWHEEL_RIGHT || Key == KEY_MSWHEEL_LEFT)
-			{
-				SubMenu->ProcessKey(Key);
-			}
-			else
-			{
-				SubMenu->ProcessMouse(&rec.Event.MouseEvent);
-			}
+				return 1;
 		}
 		else
 		{
@@ -444,20 +446,24 @@ void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
 			        Key == KEY_NUMPAD4 || Key == KEY_NUMPAD6 ||
 			        Key == KEY_MSWHEEL_LEFT || Key == KEY_MSWHEEL_RIGHT)
 			{
-				delete SubMenu;
-				SubMenu=nullptr;
-				ProcessKey(Key);
-				ProcessKey(KEY_ENTER);
-				return;
+				SendKey=Key;
+				SubMenu->Close(-1);
+				return 1;
 			}
-
-			SubMenu->ProcessKey(Key);
 		}
-	}
+		return 0;
+	});
 
-	Position=SubMenu->Modal::GetExitCode();
 	delete SubMenu;
 	SubMenu=nullptr;
+
+	if(SendMouse)
+		ProcessMouse(&MouseEvent);
+	if(SendKey)
+	{
+		ProcessKey(SendKey);
+		ProcessKey(KEY_ENTER);
+	}
 }
 
 void HMenu::ResizeConsole()

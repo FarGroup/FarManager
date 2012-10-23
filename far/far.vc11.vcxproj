@@ -496,6 +496,7 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </ClCompile>
     <ClCompile Include="viewer.cpp" />
     <ClCompile Include="vmenu.cpp" />
+    <ClCompile Include="vmenu2.cpp" />
     <ClCompile Include="window.cpp" />
     <ClCompile Include="xlat.cpp" />
     <ClCompile Include="ucd\CharDistribution.cpp">

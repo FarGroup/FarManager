@@ -43,7 +43,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "cmdline.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "rdrwdsk.hpp"
 #include "savescr.hpp"
@@ -805,7 +805,7 @@ HANDLE PluginManager::OpenFilePlugin(
 
 		if(!OnlyOne && ShowMenu)
 		{
-			VMenu menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
+			VMenu2 menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
 			menu.SetPosition(-1, -1, 0, 0);
 			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
@@ -829,15 +829,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				menu.AddItem(&mitem);
 			}
 
-			menu.Show();
-
-			while (!menu.Done())
-			{
-				menu.ReadInput();
-				menu.ProcessInput();
-			}
-
-			if (menu.GetExitCode() == -1)
+			if (menu.Run() == -1)
 				hResult = PANEL_STOP;
 			else
 			{
@@ -938,7 +930,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 	{
 		if (items.getCount()>1)
 		{
-			VMenu menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
+			VMenu2 menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
 			menu.SetPosition(-1, -1, 0, 0);
 			menu.SetHelp(L"ChoosePluginMenu");
 			menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
@@ -952,15 +944,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 				menu.AddItem(&mitem);
 			}
 
-			menu.Show();
-
-			while (!menu.Done())
-			{
-				menu.ReadInput();
-				menu.ProcessInput();
-			}
-
-			int ExitCode=menu.GetExitCode();
+			int ExitCode=menu.Run();
 
 			if (ExitCode>=0)
 			{
@@ -1434,7 +1418,7 @@ void PluginManager::Configure(int StartPos)
 	CtrlObject->Macro.SetMode(MACRO_MENU);
 
 	{
-		VMenu PluginList(MSG(MPluginConfigTitle),nullptr,0,ScrY-4);
+		VMenu2 PluginList(MSG(MPluginConfigTitle),nullptr,0,ScrY-4);
 		PluginList.SetFlags(VMENU_WRAPMODE);
 		PluginList.SetHelp(L"PluginsConfig");
 
@@ -1445,9 +1429,7 @@ void PluginManager::Configure(int StartPos)
 
 			if (NeedUpdateItems)
 			{
-				PluginList.ClearDone();
 				PluginList.DeleteItems();
-				PluginList.SetPosition(-1,-1,0,0);
 				LoadIfCacheAbsent();
 				string strHotKey, strName;
 				GUID guid;
@@ -1513,19 +1495,16 @@ void PluginManager::Configure(int StartPos)
 
 				PluginList.AssignHighlights(FALSE);
 				PluginList.SetBottomTitle(MSG(MPluginHotKeyBottom));
-				PluginList.ClearDone();
 				PluginList.SortItems(0,HotKeysPresent?3:0);
 				PluginList.SetSelectPos(StartPos,1);
 				NeedUpdateItems = false;
 			}
 
 			string strPluginModuleName;
-			PluginList.Show();
 
-			while (!PluginList.Done())
+			PluginList.Run([&](int Key)->int
 			{
 				CtrlObject->Macro.SetMode(MACRO_MENU);
-				DWORD Key=PluginList.ReadInput();
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
 
@@ -1560,26 +1539,20 @@ void PluginManager::Configure(int StartPos)
 
 							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::CONFIG_MENU, strTitle))
 							{
-								PluginList.Hide();
 								NeedUpdateItems = true;
 								StartPos = SelPos;
-								PluginList.SetExitCode(SelPos);
-								PluginList.Show();
+								PluginList.Close(SelPos);
 								break;
 							}
 						}
 						break;
-
-					default:
-						PluginList.ProcessInput();
-						break;
 				}
-			}
+				return 0;
+			});
 
 			if (!NeedUpdateItems)
 			{
-				StartPos=PluginList.Modal::GetExitCode();
-				PluginList.Hide();
+				StartPos=PluginList.GetExitCode();
 
 				if (StartPos<0)
 					break;
@@ -1613,21 +1586,18 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 	PluginMenuItemData item;
 
 	{
-		VMenu PluginList(MSG(MPluginCommandsMenuTitle),nullptr,0,ScrY-4);
+		VMenu2 PluginList(MSG(MPluginCommandsMenuTitle),nullptr,0,ScrY-4);
 		PluginList.SetFlags(VMENU_WRAPMODE);
 		PluginList.SetHelp(L"PluginCommands");
 		bool NeedUpdateItems = true;
-		bool Done = false;
 
-		while (!Done)
+		while (NeedUpdateItems)
 		{
 			bool HotKeysPresent = PlHotkeyCfg->HotkeysPresent(PluginsHotkeysConfig::PLUGINS_MENU);
 
 			if (NeedUpdateItems)
 			{
-				PluginList.ClearDone();
 				PluginList.DeleteItems();
-				PluginList.SetPosition(-1,-1,0,0);
 				LoadIfCacheAbsent();
 				string strHotKey, strName;
 				GUID guid;
@@ -1707,12 +1677,10 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				NeedUpdateItems = false;
 			}
 
-			PluginList.Show();
 
-			while (!PluginList.Done())
+			PluginList.Run([&](int Key)->int
 			{
 				CtrlObject->Macro.SetMode(MACRO_MENU);
-				DWORD Key=PluginList.ReadInput();
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
 
@@ -1747,11 +1715,9 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 							if (SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::PLUGINS_MENU, strTitle))
 							{
-								PluginList.Hide();
 								NeedUpdateItems = true;
 								StartPos = SelPos;
-								PluginList.SetExitCode(SelPos);
-								PluginList.Show();
+								PluginList.Close(SelPos);
 							}
 						}
 						break;
@@ -1761,12 +1727,10 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					{
 						if (item)
 						{
-							PluginList.Hide();
 							NeedUpdateItems = true;
 							StartPos = SelPos;
-							PluginList.SetExitCode(SelPos);
 							Configure();
-							PluginList.Show();
+							PluginList.Close(SelPos);
 						}
 						break;
 					}
@@ -1781,25 +1745,18 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 							if (item->pPlugin->HasConfigure())
 								ConfigureCurrent(item->pPlugin, item->Guid);
 
-							PluginList.SetExitCode(SelPos);
-							PluginList.Show();
+							PluginList.Close(SelPos);
 						}
 
 						break;
 					}
 
-					default:
-						PluginList.ProcessInput();
-						break;
 				}
-			}
-
-			if (!NeedUpdateItems && PluginList.Done())
-				break;
+				return 0;
+			});
 		}
 
-		int ExitCode=PluginList.Modal::GetExitCode();
-		PluginList.Hide();
+		int ExitCode=PluginList.GetExitCode();
 
 		if (ExitCode<0)
 		{
@@ -2358,7 +2315,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 	if (items.getCount()>1)
 	{
-		VMenu menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
+		VMenu2 menu(MSG(MPluginConfirmationTitle), nullptr, 0, ScrY-4);
 		menu.SetPosition(-1, -1, 0, 0);
 		menu.SetHelp(L"ChoosePluginMenu");
 		menu.SetFlags(VMENU_SHOWAMPERSAND|VMENU_WRAPMODE);
@@ -2371,15 +2328,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 			menu.AddItem(&mitem);
 		}
 
-		menu.Show();
-
-		while (!menu.Done())
-		{
-			menu.ReadInput();
-			menu.ProcessInput();
-		}
-
-		int ExitCode=menu.GetExitCode();
+		int ExitCode=menu.Run();
 
 		if (ExitCode>=0)
 		{

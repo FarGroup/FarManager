@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "options.hpp"
 #include "keys.hpp"
 #include "hmenu.hpp"
-#include "vmenu.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "chgmmode.hpp"
@@ -601,7 +600,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					break;
 				case MENU_OPTIONS_LANGUAGES:   // Languages
 				{
-					VMenu *LangMenu, *HelpMenu;
+					VMenu2 *LangMenu, *HelpMenu;
 
 					if (Select(FALSE, &LangMenu))
 					{
@@ -615,7 +614,6 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 						Select(TRUE,&HelpMenu);
 						delete HelpMenu;
-						LangMenu->Hide();
 						CtrlObject->Plugins->ReloadLanguage();
 						SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
 						PrepareStrFTime();

@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "scantree.hpp"
 #include "array.hpp"
 #include "filelist.hpp"
@@ -50,6 +50,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "mix.hpp"
 #include "configdb.hpp"
+#include "keyboard.hpp"
 
 static int _cdecl ExtSort(const void *el1,const void *el2);
 
@@ -95,7 +96,7 @@ bool FileFilter::FilterEdit()
 	MenuItemEx ListItem;
 	int ExitCode;
 	bool bNeedUpdate=false;
-	VMenu FilterList(MSG(MFilterTitle),nullptr,0,ScrY-6);
+	VMenu2 FilterList(MSG(MFilterTitle),nullptr,0,ScrY-6);
 	FilterList.SetHelp(L"FiltersMenu");
 	FilterList.SetPosition(-1,-1,0,0);
 	FilterList.SetBottomTitle(MSG(MFilterBottom));
@@ -197,11 +198,14 @@ bool FileFilter::FilterEdit()
 		xf_free(ExtPtr);
 	}
 
-	FilterList.Show();
-
-	while (!FilterList.Done())
+	ExitCode=FilterList.RunEx([&](int Msg, void *param)->int
 	{
-		int Key=FilterList.ReadInput();
+		if (Msg==DN_LISTHOTKEY)
+			return 1;
+		if (Msg!=DN_INPUT)
+			return 0;
+
+		int Key=InputRecordToKey(static_cast<INPUT_RECORD*>(param));
 
 		if (Key==KEY_ADD)
 			Key=L'+';
@@ -238,11 +242,9 @@ bool FileFilter::FilterEdit()
 
 				FilterList.SetCheck(NewCheck,SelPos);
 				FilterList.SetSelectPos(SelPos,1);
-				FilterList.SetUpdateRequired(TRUE);
-				FilterList.FastShow();
-				FilterList.ProcessKey(KEY_DOWN);
+				FilterList.Key(KEY_DOWN);
 				bNeedUpdate=true;
-				break;
+				return 1;
 			}
 			case KEY_SHIFTBS:
 			{
@@ -251,8 +253,6 @@ bool FileFilter::FilterEdit()
 					FilterList.SetCheck(FALSE, I);
 				}
 
-				FilterList.SetUpdateRequired(TRUE);
-				FilterList.FastShow();
 				break;
 			}
 			case KEY_F4:
@@ -275,8 +275,6 @@ bool FileFilter::FilterEdit()
 						FilterList.DeleteItem(SelPos);
 						FilterList.AddItem(&ListItem,SelPos);
 						FilterList.SetSelectPos(SelPos,1);
-						FilterList.SetUpdateRequired(TRUE);
-						FilterList.FastShow();
 						bNeedUpdate=true;
 					}
 				}
@@ -342,8 +340,6 @@ bool FileFilter::FilterEdit()
 					MenuString(ListItem.strName,NewFilter);
 					FilterList.AddItem(&ListItem,static_cast<int>(SelPos));
 					FilterList.SetSelectPos(static_cast<int>(SelPos),1);
-					FilterList.SetPosition(-1,-1,0,0);
-					FilterList.Show();
 					bNeedUpdate=true;
 				}
 				else
@@ -369,8 +365,6 @@ bool FileFilter::FilterEdit()
 						FilterData.deleteItem(SelPos);
 						FilterList.DeleteItem(SelPos);
 						FilterList.SetSelectPos(SelPos,1);
-						FilterList.SetPosition(-1,-1,0,0);
-						FilterList.Show();
 						bNeedUpdate=true;
 					}
 				}
@@ -412,26 +406,15 @@ bool FileFilter::FilterEdit()
 					}
 
 					FilterList.SetSelectPos(NewPos,1);
-					FilterList.SetUpdateRequired(TRUE);
-					FilterList.FastShow();
 					bNeedUpdate=true;
 				}
 
 				break;
 			}
-			default:
-			{
-				FilterList.ProcessInput();
-
-				//заставляем хоткеи позиционировать курсор на пункте но не закрывать меню
-				if (Key!=KEY_NUMENTER && Key!=KEY_ENTER && Key!=KEY_ESC && Key!=KEY_F10 && (IsAlphaNum(Key) || Key&(KEY_ALT|KEY_RALT)))
-					FilterList.ClearDone();
-			}
 		}
-	}
+		return 0;
+	});
 
-	FilterList.Hide();
-	ExitCode=FilterList.Modal::GetExitCode();
 
 	if (ExitCode!=-1)
 		ProcessSelection(&FilterList);
@@ -502,7 +485,7 @@ int FileFilter::GetCheck(FileFilterParams *FFP)
 	return 0;
 }
 
-void FileFilter::ProcessSelection(VMenu *FilterList)
+void FileFilter::ProcessSelection(VMenu2 *FilterList)
 {
 	enumFileFilterFlagsType FFFT = GetFFFT();
 	FileFilterParams *CurFilterData;

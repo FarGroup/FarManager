@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "panel.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "filelist.hpp"
 #include "savescr.hpp"
 #include "ctrlobj.hpp"
@@ -53,7 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define PRINTER_INFO_X(level) GENERATE_PRINTER_INFO(PRINTER_INFO_, level, W)
 #define PRINTER_INFO PRINTER_INFO_X(PRINTER_INFO_LEVEL)
 
-static void AddToPrintersMenu(VMenu *PrinterList, PRINTER_INFO *pi, int PrinterNumber)
+static void AddToPrintersMenu(VMenu2 *PrinterList, PRINTER_INFO *pi, int PrinterNumber)
 {
 	// Получаем принтер по умолчанию
 	string strDefaultPrinter;
@@ -164,12 +164,12 @@ void PrintFiles(Panel *SrcPanel)
 			strTitle << SelCount;
 		}
 
-		VMenu PrinterList(strTitle,nullptr,0,ScrY-4);
+		VMenu2 PrinterList(strTitle,nullptr,0,ScrY-4);
 		PrinterList.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 		PrinterList.SetPosition(-1,-1,0,0);
 		AddToPrintersMenu(&PrinterList,pi,Returned);
-		PrinterList.Process();
-		if (PrinterList.Modal::GetExitCode()<0)
+
+		if (PrinterList.Run()<0)
 		{
 			xf_free(pi);
 			_ALGO(SysLog(L"ESC"));

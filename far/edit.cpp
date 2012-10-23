@@ -55,7 +55,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "RegExp.hpp"
 #include "history.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "chgmmode.hpp"
 #include "colormix.hpp"
 #include "fileedit.hpp"
@@ -3157,7 +3157,7 @@ void EditControl::Changed(bool DelBlock)
 	}
 }
 
-void EditControl::SetMenuPos(VMenu& menu)
+void EditControl::SetMenuPos(VMenu2& menu)
 {
 	if(ScrY-Y1<Min(Opt.Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())+2 && Y1>ScrY/2)
 	{
@@ -3169,7 +3169,7 @@ void EditControl::SetMenuPos(VMenu& menu)
 	}
 }
 
-void EnumFiles(VMenu& Menu, const wchar_t* Str)
+void EnumFiles(VMenu2& Menu, const wchar_t* Str)
 {
 	if(Str && *Str)
 	{
@@ -3265,7 +3265,7 @@ void EnumFiles(VMenu& Menu, const wchar_t* Str)
 	}
 }
 
-bool EnumModules(const wchar_t *Module, VMenu* DestMenu)
+bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 {
 	bool Result=false;
 
@@ -3449,11 +3449,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 		}
 		Flags.Clear(FEDITLINE_CMP_CHANGED);
 
-		VMenu ComplMenu(nullptr,nullptr,0,0);
+		VMenu2 ComplMenu(nullptr,nullptr,0,0);
 		string strTemp=Str;
 
-		if(Opt.AutoComplete.ShowList)
-			CtrlObject->Macro.SetMode(Area);
+		ComplMenu.SetMacroMode(Area);
 
 #define CMP_ENABLED(c) ((Manual && (c)) || (!Manual && ((c) == 1)))
 
@@ -3484,7 +3483,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 		}
 		if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp,ComplMenu.GetItemPtr(0)->strName)))
 		{
-			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCENTER|VMENU_SHOWAMPERSAND);
+			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 			if(!DelBlock && Opt.AutoComplete.AppendCompletion && (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Opt.AutoComplete.ShowList))
 			{
 				int SelStart=GetLength();
@@ -3523,15 +3522,18 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 				SetMenuPos(ComplMenu);
 				ComplMenu.SetSelectPos(0,0);
 				ComplMenu.SetBoxType(SHORT_SINGLE_BOX);
-				ComplMenu.ClearDone();
-				ComplMenu.Show();
 				Show();
 				int PrevPos=0;
 
-				while (!ComplMenu.Done())
+				bool Visible;
+				DWORD Size;
+				::GetCursorType(Visible, Size);
+				ComplMenu.Key(KEY_NONE);
+
+				int ExitCode=ComplMenu.Run([&](int MenuKey)->int
 				{
-					INPUT_RECORD ir;
-					ComplMenu.ReadInput(&ir);
+					::SetCursorType(Visible, Size);
+
 					if(!Opt.AutoComplete.ModalList)
 					{
 						int CurPos=ComplMenu.GetSelectPos();
@@ -3542,15 +3544,10 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 							Show();
 						}
 					}
-					if(ir.EventType==WINDOW_BUFFER_SIZE_EVENT)
-					{
+					if(MenuKey==KEY_CONSOLE_BUFFER_RESIZE)
 						SetMenuPos(ComplMenu);
-						ComplMenu.Show();
-					}
-					else if(ir.EventType==KEY_EVENT || ir.EventType==FARMACRO_KEY_EVENT)
+					else if(MenuKey!=KEY_NONE)
 					{
-						unsigned MenuKey=InputRecordToKey(&ir);
-
 						// ввод
 						if((MenuKey>=L' ' && MenuKey<=static_cast<int>(WCHAR_MAX)) || MenuKey==KEY_BS || MenuKey==KEY_DEL || MenuKey==KEY_NUMDEL)
 						{
@@ -3610,20 +3607,20 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 										AppendString(ComplMenu.GetItemPtr(0)->strName+SelStart);
 										if(X2-X1>GetLength())
 											SetLeftPos(0);
-										Select(SelStart, GetLength());
+										this->Select(SelStart, GetLength());
 										RevertCallback();
 									}
 									ComplMenu.AddItem(&EmptyItem,0);
 									SetMenuPos(ComplMenu);
 									ComplMenu.SetSelectPos(0,0);
-									ComplMenu.Redraw();
 								}
 								else
 								{
-									ComplMenu.SetExitCode(-1);
+									ComplMenu.Close(-1);
 								}
 								Show();
 							}
+							return 1;
 						}
 						else
 						{
@@ -3636,8 +3633,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 							case KEY_CTRLSPACE:
 							case KEY_RCTRLSPACE:
 								{
-									ComplMenu.ProcessKey(KEY_DOWN);
-									break;
+									ComplMenu.Key(KEY_DOWN);
+									return 1;
 								}
 
 							case KEY_SHIFTDEL:
@@ -3652,12 +3649,11 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 											if(ComplMenu.GetItemCount()>1)
 											{
 												SetMenuPos(ComplMenu);
-												ComplMenu.Redraw();
 												Show();
 											}
 											else
 											{
-												ComplMenu.SetExitCode(-1);
+												ComplMenu.Close(-1);
 											}
 										}
 									}
@@ -3684,9 +3680,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 										MenuKey = KEY_CTRLD;
 									}
 									pOwner->ProcessKey(MenuKey);
-									ComplMenu.Show();
 									Show();
-									break;
+									return 1;
 								}
 
 							// навигация по списку
@@ -3726,7 +3721,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 							case KEY_MSWHEEL_LEFT:
 							case KEY_MSWHEEL_RIGHT:
 								{
-									ComplMenu.ProcessInput();
 									break;
 								}
 
@@ -3734,29 +3728,21 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 							case KEY_NUMENTER:
 							{
 								if(Opt.AutoComplete.ModalList)
-								{
-									ComplMenu.ProcessInput();
 									break;
 								}
-							}
 
 							// всё остальное закрывает список и идёт владельцу
 							default:
 								{
-									ComplMenu.Hide();
-									ComplMenu.SetExitCode(-1);
+									ComplMenu.Close(-1);
 									BackKey=MenuKey;
 									Result=1;
 								}
 							}
 						}
 					}
-					else
-					{
-						ComplMenu.ProcessInput();
-					}
-				}
-				int ExitCode=ComplMenu.GetExitCode();
+					return 0;
+				});
 
 				// mouse click
 				if(ExitCode>0)
@@ -3767,7 +3753,6 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 					}
 					else
 					{
-						ComplMenu.Hide();
 						BackKey = KEY_ENTER;
 						Result=1;
 					}

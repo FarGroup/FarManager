@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plugapi.hpp"
 #include "keys.hpp"
 #include "help.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
@@ -715,7 +715,7 @@ intptr_t WINAPI apiMenuFn(
 
 	int ExitCode;
 	{
-		VMenu FarMenu(Title,nullptr,0,MaxHeight);
+		VMenu2 FarMenu(Title,nullptr,0,MaxHeight);
 		CtrlObject->Macro.SetMode(MACRO_MENU);
 		FarMenu.SetPosition(X,Y,0,0);
 		if(Id)
@@ -793,55 +793,39 @@ intptr_t WINAPI apiMenuFn(
 
 		MenuLock menuLock(CtrlObject->Macro.IsExecuting() != 0); //FIXME: dirty hack.
 		FarMenu.SetTitle(Title);
-		FarMenu.Show();
 
-		while (!FarMenu.Done() && !CloseFARMenu)
+		ExitCode=FarMenu.RunEx([&](int Msg, void *param)->int
 		{
-			INPUT_RECORD ReadRec;
-			int ReadKey=GetInputRecord(&ReadRec);
+			if (Msg!=DN_INPUT || !BreakKeys)
+				return 0;
 
-			if (ReadKey==KEY_CONSOLE_BUFFER_RESIZE)
+			INPUT_RECORD *ReadRec=static_cast<INPUT_RECORD*>(param);
+			int ReadKey=InputRecordToKey(ReadRec);
+
+			if (ReadKey==KEY_NONE)
+				return 0;
+
+			for (int I=0; BreakKeys[I].VirtualKeyCode; I++)
 			{
-				LockScreen LckScr;
-				FarMenu.Hide();
-				FarMenu.Show();
-			}
-			else if (ReadRec.EventType==MOUSE_EVENT && !(ReadKey==KEY_MSWHEEL_UP || ReadKey==KEY_MSWHEEL_DOWN || ReadKey==KEY_MSWHEEL_RIGHT || ReadKey==KEY_MSWHEEL_LEFT))
-			{
-				FarMenu.ProcessMouse(&ReadRec.Event.MouseEvent);
-			}
-			else if (ReadKey!=KEY_NONE)
-			{
-				if (BreakKeys)
+				if (CtrlObject->Macro.IsExecuting())
 				{
-					for (int I=0; BreakKeys[I].VirtualKeyCode; I++)
-					{
-						if (CtrlObject->Macro.IsExecuting())
-						{
-							int VirtKey,ControlState;
-							TranslateKeyToVK(ReadKey,VirtKey,ControlState,&ReadRec);
-						}
-
-						if (ReadRec.Event.KeyEvent.wVirtualKeyCode==BreakKeys[I].VirtualKeyCode)
-						{
-							if (NormalizeControlKeys(ReadRec.Event.KeyEvent.dwControlKeyState) == NormalizeControlKeys(BreakKeys[I].ControlKeyState))
-							{
-								if (BreakCode)
-									*BreakCode=I;
-
-								FarMenu.Hide();
-//								CheckScreenLock();
-								return FarMenu.GetSelectPos();
-							}
-						}
-					}
+					int VirtKey,ControlState;
+					TranslateKeyToVK(ReadKey,VirtKey,ControlState,ReadRec);
 				}
 
-				FarMenu.ProcessKey(ReadKey);
-			}
-		}
+				if (ReadRec->Event.KeyEvent.wVirtualKeyCode==BreakKeys[I].VirtualKeyCode)
+				{
+					if (NormalizeControlKeys(ReadRec->Event.KeyEvent.dwControlKeyState) == NormalizeControlKeys(BreakKeys[I].ControlKeyState))
+					{
+						if (BreakCode)
+							*BreakCode=I;
 
-		ExitCode=FarMenu.Modal::GetExitCode();
+						FarMenu.Close();
+					}
+				}
+			}
+			return 0;
+		});
 	}
 //  CheckScreenLock();
 	return(ExitCode);

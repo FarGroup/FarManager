@@ -140,6 +140,7 @@ SRCS = \
 	usermenu.cpp \
 	viewer.cpp \
 	vmenu.cpp \
+	vmenu2.cpp \
 	window.cpp \
 	xlat.cpp \
 

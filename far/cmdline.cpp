@@ -59,7 +59,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "strmix.hpp"
 #include "keyboard.hpp"
-#include "vmenu.hpp"
 #include "mix.hpp"
 
 CommandLine::CommandLine():

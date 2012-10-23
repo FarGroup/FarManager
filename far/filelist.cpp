@@ -42,7 +42,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "filefilter.hpp"
 #include "dialog.hpp"
-#include "vmenu.hpp"
 #include "cmdline.hpp"
 #include "manager.hpp"
 #include "filepanels.hpp"
@@ -4603,26 +4602,14 @@ void FileList::SelectSortMode()
 	bool setSortMode0=false;
 
 	{
-		VMenu SortModeMenu(MSG(MMenuSortTitle),SortMenu,ARRAYSIZE(SortMenu),0);
+		VMenu2 SortModeMenu(MSG(MMenuSortTitle),SortMenu,ARRAYSIZE(SortMenu),0);
 		SortModeMenu.SetHelp(L"PanelCmdSort");
 		SortModeMenu.SetPosition(X1+4,-1,0,0);
 		SortModeMenu.SetFlags(VMENU_WRAPMODE);
 		//SortModeMenu.Process();
-		bool MenuNeedRefresh=true;
 
-		while (!SortModeMenu.Done())
+		SortCode=SortModeMenu.Run([&](int Key)->int
 		{
-			if (MenuNeedRefresh)
-			{
-				SortModeMenu.Hide(); // спр€чем
-				// заставим манагер менюхи корректно отрисовать ширину и
-				// высоту, а заодно и скорректировать вертикальные позиции
-				SortModeMenu.SetPosition(X1+4,-1,0,0);
-				SortModeMenu.Show();
-				MenuNeedRefresh=false;
-			}
-
-			int Key=SortModeMenu.ReadInput();
 			int MenuPos=SortModeMenu.GetSelectPos();
 
 			if (Key == KEY_SUBTRACT)
@@ -4643,7 +4630,7 @@ void FileList::SelectSortMode()
 			{
 				case L'*':
 					setSortMode0=false;
-					SortModeMenu.SetExitCode(MenuPos);
+					SortModeMenu.Close(MenuPos);
 					break;
 
 				case L'+':
@@ -4673,7 +4660,7 @@ void FileList::SelectSortMode()
 								break;
 						}
 					}
-					SortModeMenu.SetExitCode(MenuPos);
+					SortModeMenu.Close(MenuPos);
 					break;
 
 				case L'-':
@@ -4703,16 +4690,13 @@ void FileList::SelectSortMode()
 								break;
 						}
 					}
-					SortModeMenu.SetExitCode(MenuPos);
-					break;
-
-				default:
-					SortModeMenu.ProcessInput();
+					SortModeMenu.Close(MenuPos);
 					break;
 			}
-		}
+			return 0;
+		});
 
-		if ((SortCode=SortModeMenu.Modal::GetExitCode())<0)
+		if (SortCode<0)
 			return;
 	}
 

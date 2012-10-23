@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filelist.hpp"
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "interf.hpp"
 #include "strmix.hpp"
@@ -92,12 +92,11 @@ void FileList::SetFilePanelModes()
 		int ModeNumber;
 		ModeListMenu[CurMode].SetSelect(1);
 		{
-			VMenu ModeList(MSG(MEditPanelModes),ModeListMenu,ARRAYSIZE(ModeListMenu),ScrY-4);
+			VMenu2 ModeList(MSG(MEditPanelModes),ModeListMenu,ARRAYSIZE(ModeListMenu),ScrY-4);
 			ModeList.SetPosition(-1,-1,0,0);
 			ModeList.SetHelp(L"PanelViewModes");
 			ModeList.SetFlags(VMENU_WRAPMODE);
-			ModeList.Process();
-			ModeNumber=ModeList.Modal::GetExitCode();
+			ModeNumber=ModeList.Run();
 		}
 
 		if (ModeNumber<0)

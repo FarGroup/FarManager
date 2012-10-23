@@ -595,6 +595,7 @@ void ScreenBuf::SetCursorType(bool Visible, DWORD Size)
 	   По наводке ER - в SetCursorType не дергать раньше
 	   времени установку курсора
 	*/
+
 	if (CurVisible!=Visible || CurSize!=Size)
 	{
 		CurVisible=Visible;

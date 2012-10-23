@@ -67,6 +67,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "wakeful.hpp"
 #include "RegExp.hpp"
 #include "palette.hpp"
+#include "vmenu2.hpp"
 
 static void PR_ViewerSearchMsg();
 static void ViewerSearchMsg(const wchar_t *name, int percent, int search_hex);
@@ -1597,12 +1598,10 @@ int Viewer::ProcessKey(int Key)
 			};
 			int mode;
 			{
-				VMenu vModes(MSG(MViewMode),ModeListMenu,ARRAYSIZE(ModeListMenu),ScrY-4);
+				VMenu2 vModes(MSG(MViewMode),ModeListMenu,ARRAYSIZE(ModeListMenu),ScrY-4);
 				vModes.SetFlags(VMENU_WRAPMODE | VMENU_AUTOHIGHLIGHT);
-				vModes.SetPosition(-1,-1,0,0);
 				vModes.SetSelectPos(VM.Hex, +1);
-				vModes.Process();
-				mode = vModes.Modal::GetExitCode();
+				mode = vModes.Run();
 			}
 			if ( mode >= 0 && mode != VM.Hex )
 			{

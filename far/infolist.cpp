@@ -56,7 +56,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "mix.hpp"
 #include "palette.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "datetime.hpp"
 #include "window.hpp"
 
@@ -593,52 +593,37 @@ void InfoList::SelectShowMode(void)
 		//DEFINE_GUID(InfoListSelectShowModeId,0xbfc64a26, 0xf433, 0x4cf3, 0xa1, 0xde, 0x83, 0x61, 0xcf, 0x76, 0x2f, 0x68);
 		// ?????
 
-		VMenu ShowModeMenu(MSG(MMenuInfoShowModeTitle),ShowModeMenuItem,ARRAYSIZE(ShowModeMenuItem),0);
+		VMenu2 ShowModeMenu(MSG(MMenuInfoShowModeTitle),ShowModeMenuItem,ARRAYSIZE(ShowModeMenuItem),0);
 		ShowModeMenu.SetHelp(L"InfoPanelShowMode");
 		ShowModeMenu.SetPosition(X1+4,-1,0,0);
 		ShowModeMenu.SetFlags(VMENU_WRAPMODE);
-		bool MenuNeedRefresh=true;
 
-		while (!ShowModeMenu.Done())
+		ShowCode=ShowModeMenu.Run([&](int Key)->int
 		{
-			if (MenuNeedRefresh)
-			{
-				ShowModeMenu.Hide(); // спр€чем
-				ShowModeMenu.SetPosition(X1+4,-1,0,0);
-				ShowModeMenu.Show();
-				MenuNeedRefresh=false;
-			}
-
-			int Key=ShowModeMenu.ReadInput();
-			int MenuPos=ShowModeMenu.GetSelectPos();
-
 			switch (Key)
 			{
 				case KEY_MULTIPLY:
 				case L'*':
 					ShowMode=2;
-					ShowModeMenu.SetExitCode(MenuPos);
+					ShowModeMenu.Close();
 					break;
 
 				case KEY_ADD:
 				case L'+':
 					ShowMode=1;
-					ShowModeMenu.SetExitCode(MenuPos);
+					ShowModeMenu.Close();
 					break;
 
 				case KEY_SUBTRACT:
 				case L'-':
 					ShowMode=0;
-					ShowModeMenu.SetExitCode(MenuPos);
-					break;
-
-				default:
-					ShowModeMenu.ProcessInput();
+					ShowModeMenu.Close();
 					break;
 			}
-		}
+			return 0;
+		});
 
-		if ((ShowCode=ShowModeMenu.Modal::GetExitCode())<0)
+		if (ShowCode<0)
 			return;
 	}
 

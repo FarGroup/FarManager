@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "plist.hpp"
 #include "keys.hpp"
 #include "help.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "language.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -48,7 +48,7 @@ static BOOL KillProcess(DWORD dwPID);
 
 void ShowProcessList()
 {
-	VMenu ProcList(MSG(MProcessListTitle),nullptr,0,ScrY-4);
+	VMenu2 ProcList(MSG(MProcessListTitle),nullptr,0,ScrY-4);
 	ProcList.SetFlags(VMENU_WRAPMODE);
 	ProcList.SetPosition(-1,-1,0,0);
 
@@ -57,12 +57,9 @@ void ShowProcessList()
 
 	ProcList.AssignHighlights(FALSE);
 	ProcList.SetBottomTitle(MSG(MProcessListBottom));
-	ProcList.Show();
 
-	while (!ProcList.Done())
+	ProcList.Run([&](int Key)->int
 	{
-		int Key=ProcList.ReadInput();
-
 		switch (Key)
 		{
 			case KEY_F1:
@@ -70,22 +67,7 @@ void ShowProcessList()
 				Help Hlp(L"TaskList");
 				break;
 			}
-			case KEY_CTRLR:
-			case KEY_RCTRLR:
-			{
-				ProcList.Hide();
-				ProcList.DeleteItems();
-				ProcList.SetPosition(-1,-1,0,0);
 
-				if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
-				{
-					ProcList.Modal::SetExitCode(-1);
-					break;
-				}
-
-				ProcList.Show();
-				break;
-			}
 			case KEY_NUMDEL:
 			case KEY_DEL:
 			{
@@ -118,15 +100,7 @@ void ShowProcessList()
 					            lpwszTitle?lpwszTitle:L"",MSG(MKillProcessWarning),MSG(MKillProcessKill),MSG(MCancel)))
 					{
 						if (KillProcess(ProcID))
-						{
 							Sleep(500);
-							ProcList.Hide();
-							ShowProcessList();
-
-							if (lpwszTitle) xf_free(lpwszTitle);
-
-							return;
-						}
 						else
 							Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MKillProcessTitle),MSG(MCannotKillProcess),MSG(MOk));
 					}
@@ -134,14 +108,21 @@ void ShowProcessList()
 					if (lpwszTitle) xf_free(lpwszTitle);
 				}
 			}
-			break;
-			default:
-				ProcList.ProcessInput();
-				break;
-		}
-	}
+			case KEY_CTRLR:
+			case KEY_RCTRLR:
+			{
+				ProcList.DeleteItems();
 
-	if (ProcList.Modal::GetExitCode()>=0)
+				if (!EnumWindows(EnumWindowsProc,(LPARAM)&ProcList))
+					ProcList.Close(-1);
+
+				break;
+			}
+		}
+		return 0;
+	});
+
+	if (ProcList.GetExitCode()>=0)
 	{
 		HWND ProcWnd=*static_cast<HWND*>(ProcList.GetUserData(nullptr,0));
 
@@ -199,7 +180,7 @@ BOOL KillProcess(DWORD dwPID)
 
 BOOL CALLBACK EnumWindowsProc(HWND hwnd,LPARAM lParam)
 {
-	VMenu *ProcList=(VMenu *)lParam;
+	VMenu2 *ProcList=(VMenu2 *)lParam;
 
 	if (IsWindowVisible(hwnd) ||
 	        (IsIconic(hwnd) && !(GetWindowLongPtr(hwnd,GWL_STYLE) & WS_DISABLED)))

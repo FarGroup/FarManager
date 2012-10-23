@@ -232,6 +232,7 @@ LINK_OBJS = \
 	"$(INTDIR)\usermenu.obj" \
 	"$(INTDIR)\viewer.obj" \
 	"$(INTDIR)\vmenu.obj" \
+	"$(INTDIR)\vmenu2.obj" \
 	"$(INTDIR)\window.obj" \
 	"$(INTDIR)\xlat.obj" \
 !if defined(X86)

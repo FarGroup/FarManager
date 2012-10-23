@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "keys.hpp"
 #include "frame.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "savescr.hpp"
@@ -386,7 +386,7 @@ Frame *Manager::FrameMenu()
 	int ExitCode, CheckCanLoseFocus=CurrentFrame->GetCanLoseFocus();
 	{
 		MenuItemEx ModalMenuItem;
-		VMenu ModalMenu(MSG(MScreensTitle),nullptr,0,ScrY-4);
+		VMenu2 ModalMenu(MSG(MScreensTitle),nullptr,0,ScrY-4);
 		ModalMenu.SetHelp(L"ScrSwitch");
 		ModalMenu.SetFlags(VMENU_WRAPMODE);
 		ModalMenu.SetPosition(-1,-1,0,0);
@@ -416,9 +416,8 @@ Frame *Manager::FrameMenu()
 		}
 
 		AlreadyShown=TRUE;
-		ModalMenu.Process();
+		ExitCode=ModalMenu.Run();
 		AlreadyShown=FALSE;
-		ExitCode=ModalMenu.Modal::GetExitCode();
 	}
 
 	if (CheckCanLoseFocus)
@@ -880,7 +879,7 @@ int Manager::ProcessKey(DWORD Key)
 			zero_const.i=0L;
 			MenuItemEx ModalMenuItem;
 			ModalMenuItem.Clear();
-			VMenu ModalMenu(L"Test Exceptions",nullptr,0,ScrY-4);
+			VMenu2 ModalMenu(L"Test Exceptions",nullptr,0,ScrY-4);
 			ModalMenu.SetFlags(VMENU_WRAPMODE);
 			ModalMenu.SetPosition(-1,-1,0,0);
 
@@ -890,8 +889,7 @@ int Manager::ProcessKey(DWORD Key)
 				ModalMenu.AddItem(&ModalMenuItem);
 			}
 
-			ModalMenu.Process();
-			int ExitCode=ModalMenu.Modal::GetExitCode();
+			int ExitCode=ModalMenu.Run();
 
 			switch (ExitCode)
 			{

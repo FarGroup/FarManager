@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CFileMask.hpp"
 #include "array.hpp"
 
-class VMenu;
+class VMenu2;
 class FileFilterParams;
 struct FileListItem;
 
@@ -70,7 +70,7 @@ class HighlightFiles
 		void ClearData();
 
 		int  MenuPosToRealPos(int MenuPos, int **Count, bool Insert=false);
-		void FillMenu(VMenu *HiMenu,int MenuPos);
+		void FillMenu(VMenu2 *HiMenu,int MenuPos);
 		void ProcessGroups();
 
 	public:

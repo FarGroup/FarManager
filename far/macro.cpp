@@ -73,6 +73,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "dirmix.hpp"
 #include "elevation.hpp"
 #include "stddlg.hpp"
+#include "vmenu2.hpp"
 
 static BOOL CheckAll(MACROMODEAREA Mode, UINT64 CurFlags);
 
@@ -2537,6 +2538,11 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			int CurMMode=GetMode();
 			const wchar_t* ptr = L"";
 
+			if (CheckCode==MCODE_V_MENUINFOID && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
+			{
+				return PassString(reinterpret_cast<LPCWSTR>(static_cast<intptr_t>(CurFrame->VMProcess(MCODE_V_DLGINFOID))), Data);
+			}
+
 			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
 			{
 				Frame *f=FrameManager->GetCurrentFrame(), *fo=nullptr;
@@ -2995,7 +3001,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 						string NewStr;
 						if (tmpVar.isString())
 							NewStr = tmpVar.toString();
-						if (f->VMProcess(CheckCode,(void*)&NewStr,tmpAction.toInteger()))
+						if (f->VMProcess(MCODE_F_MENU_FILTERSTR, (void*)&NewStr, 1))
 						{
 							tmpVar=NewStr.CPtr();
 							success=true;
@@ -3882,7 +3888,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		strBottom=strTitle.SubStr(PosLF+1);
 		strTitle=strTitle.SubStr(0,PosLF);
 	}
-	VMenu Menu(strTitle.CPtr(),nullptr,0,ScrY-4);
+	VMenu2 Menu(strTitle.CPtr(),nullptr,0,ScrY-4);
 	Menu.SetBottomTitle(strBottom.CPtr());
 	Menu.SetFlags(MenuFlags);
 	Menu.SetPosition(X,Y,0,0);
@@ -3968,28 +3974,18 @@ static bool menushowFunc(FarMacroCall* Data)
 		}
 	}
 
-	if (!VFindOrFilter.isUnknown())
+	if (!VFindOrFilter.isUnknown() && !bSetMenuFilter)
 	{
-		if (bSetMenuFilter)
+		if (VFindOrFilter.isInteger())
 		{
-			Menu.SetFilterEnabled(true);
-			Menu.SetFilterString(VFindOrFilter.toString());
-			Menu.FilterStringUpdated(true);
-			Menu.Show();
+			if (VFindOrFilter.toInteger()-1>=0)
+				Menu.SetSelectPos(VFindOrFilter.toInteger()-1,1);
+			else
+				Menu.SetSelectPos(Menu.GetItemCount()+VFindOrFilter.toInteger(),1);
 		}
 		else
-		{
-			if (VFindOrFilter.isInteger())
-			{
-				if (VFindOrFilter.toInteger()-1>=0)
-					Menu.SetSelectPos(VFindOrFilter.toInteger()-1,1);
-				else
-					Menu.SetSelectPos(Menu.GetItemCount()+VFindOrFilter.toInteger(),1);
-			}
-			else
-				if (VFindOrFilter.isString())
-					Menu.SetSelectPos(Max(0,Menu.FindItem(0, VFindOrFilter.toString())),1);
-		}
+			if (VFindOrFilter.isString())
+				Menu.SetSelectPos(Max(0,Menu.FindItem(0, VFindOrFilter.toString())),1);
 	}
 
 	Frame *frame;
@@ -3997,25 +3993,29 @@ static bool menushowFunc(FarMacroCall* Data)
 	if ((frame=FrameManager->GetBottomFrame()) )
 		frame->Lock();
 
-	Menu.Show();
 	int PrevSelectedPos=Menu.GetSelectPos();
-	DWORD Key=0;
-	int RealPos;
+	DWORD LastKey=0;
 	bool CheckFlag;
 	int X1, Y1, X2, Y2, NewY2;
-	while (!Menu.Done() && !CloseFARMenu)
+
+	Menu.Key(KEY_NONE);
+	Menu.Run([&](int Key)->int
 	{
+		if (bSetMenuFilter && !VFindOrFilter.isUnknown())
+		{
+			string NewStr=VFindOrFilter.toString();
+			Menu.VMProcess(MCODE_F_MENU_FILTERSTR, (void*)&NewStr, 1);
+			bSetMenuFilter=0;
+		}
+
 		SelectedPos=Menu.GetSelectPos();
-		Key=Menu.ReadInput();
+		LastKey=Key;
 		switch (Key)
 		{
 			case KEY_NUMPAD0:
 			case KEY_INS:
 				if (bMultiSelect)
-				{
 					Menu.SetCheck(!Menu.GetCheck(SelectedPos));
-					Menu.Show();
-				}
 				break;
 
 			case KEY_CTRLADD:
@@ -4026,20 +4026,21 @@ static bool menushowFunc(FarMacroCall* Data)
 			case KEY_RCTRLMULTIPLY:
 				if (bMultiSelect)
 				{
-					for(int i=0; i<Menu.GetShowItemCount(); i++)
+					for(int i=0; i<Menu.GetItemCount(); i++)
 					{
-						RealPos=Menu.VisualPosToReal(i);
+						if (Menu.GetItemPtr(i)->Flags&MIF_HIDDEN)
+							continue;
+
 						if (Key==KEY_CTRLMULTIPLY || Key==KEY_RCTRLMULTIPLY)
 						{
-							CheckFlag=Menu.GetCheck(RealPos)?false:true;
+							CheckFlag=Menu.GetCheck(i)?false:true;
 						}
 						else
 						{
 							CheckFlag=(Key==KEY_CTRLADD || Key==KEY_RCTRLADD);
 						}
-						Menu.SetCheck(CheckFlag, RealPos);
+						Menu.SetCheck(CheckFlag, i);
 					}
-					Menu.Show();
 				}
 				break;
 
@@ -4053,32 +4054,29 @@ static bool menushowFunc(FarMacroCall* Data)
 					NewY2=ScrY-2;
 
 				Menu.SetPosition(X1,Y1,X2,NewY2);
-				Menu.Show();
 				break;
 			}
 
 			case KEY_BREAK:
 				CtrlObject->Macro.SendDropProcess();
-				Menu.SetExitCode(-1);
-				break;
-
-			default:
-				Menu.ProcessInput();
+				Menu.Close(-1);
 				break;
 		}
 
 		if (bExitAfterNavigate && (PrevSelectedPos!=SelectedPos))
 		{
 			SelectedPos=Menu.GetSelectPos();
-			break;
+			Menu.Close();
+			return 0;
 		}
 
 		PrevSelectedPos=SelectedPos;
-	}
+		return 0;
+	});
 
 	wchar_t temp[65];
 
-	if (Menu.Modal::GetExitCode() >= 0)
+	if (Menu.GetExitCode() >= 0)
 	{
 		SelectedPos=Menu.GetExitCode();
 		if (bMultiSelect)
@@ -4114,15 +4112,13 @@ static bool menushowFunc(FarMacroCall* Data)
 				Result=(*Menu.GetItemPtr(SelectedPos)).strName.CPtr()+nLeftShift;
 			else
 				Result=SelectedPos+1;
-		Menu.Hide();
 	}
 	else
 	{
-		Menu.Hide();
 		if (bExitAfterNavigate)
 		{
 			Result=SelectedPos+1;
-			if ((Key == KEY_ESC) || (Key == KEY_F10) || (Key == KEY_BREAK))
+			if ((LastKey == KEY_ESC) || (LastKey == KEY_F10) || (LastKey == KEY_BREAK))
 				Result=-Result;
 		}
 		else

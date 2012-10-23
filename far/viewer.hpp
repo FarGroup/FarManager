@@ -40,6 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "cache.hpp"
 
+
 #define MAXSCRY       512                    // 300   // 120
 
 #define MAX_VIEWLINE  (ViOpt.MaxLineSize+ 0) // 0x800 // 0x400

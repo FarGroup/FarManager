@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filetype.hpp"
 #include "keys.hpp"
 #include "dialog.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "plognmn.hpp"
 #include "ctrlobj.hpp"
 #include "cmdline.hpp"
@@ -131,78 +131,80 @@ int GetDescriptionWidth()
 */
 bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode, bool AlwaysWaitFinish)
 {
-	MenuItemEx TypesMenuItem;
-	VMenu TypesMenu(MSG(MSelectAssocTitle),nullptr,0,ScrY-4);
-	TypesMenu.SetHelp(L"FileAssoc");
-	TypesMenu.SetFlags(VMENU_WRAPMODE);
-	TypesMenu.SetPosition(-1,-1,0,0);
-	int ActualCmdCount=0; // отображаемых ассоциаций в меню
-	CFileMask FMask; // для работы с масками файлов
 	string strCommand, strDescription, strMask;
-	int CommandCount=0;
-	DWORD Index=0;
-	unsigned __int64 id;
-	string FileName = PointToName(Name);
-
-	while (AssocConfig->EnumMasksForType(Mode,Index++,&id,strMask))
 	{
-		strCommand.Clear();
+		MenuItemEx TypesMenuItem;
+		VMenu2 TypesMenu(MSG(MSelectAssocTitle),nullptr,0,ScrY-4);
+		TypesMenu.SetHelp(L"FileAssoc");
+		TypesMenu.SetFlags(VMENU_WRAPMODE);
+		int ActualCmdCount=0; // отображаемых ассоциаций в меню
+		CFileMask FMask; // для работы с масками файлов
 
-		if (FMask.Set(strMask,FMF_SILENT))
+		int CommandCount=0;
+		DWORD Index=0;
+		unsigned __int64 id;
+		string FileName = PointToName(Name);
+
+		while (AssocConfig->EnumMasksForType(Mode,Index++,&id,strMask))
 		{
-			if (FMask.Compare(FileName))
-			{
-				AssocConfig->GetCommand(id,Mode,strCommand);
+			strCommand.Clear();
 
-				if (!strCommand.IsEmpty())
+			if (FMask.Set(strMask,FMF_SILENT))
+			{
+				if (FMask.Compare(FileName))
 				{
-					AssocConfig->GetDescription(id,strDescription);
-					CommandCount++;
+					AssocConfig->GetCommand(id,Mode,strCommand);
+
+					if (!strCommand.IsEmpty())
+					{
+						AssocConfig->GetDescription(id,strDescription);
+						CommandCount++;
+					}
 				}
+
+				if (strCommand.IsEmpty())
+					continue;
 			}
 
-			if (strCommand.IsEmpty())
+			TypesMenuItem.Clear();
+			string strCommandText = strCommand;
+			SubstFileName(strCommandText,Name, ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
+
+			// все "подставлено", теперь проверим условия "if exist"
+			if (!ExtractIfExistCommand(strCommandText))
 				continue;
+
+			ActualCmdCount++;
+
+			if (!strDescription.IsEmpty())
+				SubstFileName(strDescription, Name, ShortName, nullptr, nullptr, nullptr, nullptr, TRUE);
+			else
+				strDescription = strCommandText;
+
+			TypesMenuItem.strName = strDescription;
+			TypesMenuItem.SetSelect(Index==1);
+			TypesMenu.SetUserData(strCommand.CPtr(), (strCommand.GetLength()+1)*sizeof(wchar_t), TypesMenu.AddItem(&TypesMenuItem));
 		}
 
-		TypesMenuItem.Clear();
-		string strCommandText = strCommand;
-		SubstFileName(strCommandText,Name, ShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
+		if (!CommandCount)
+			return false;
 
-		// все "подставлено", теперь проверим условия "if exist"
-		if (!ExtractIfExistCommand(strCommandText))
-			continue;
-
-		ActualCmdCount++;
-
-		if (!strDescription.IsEmpty())
-			SubstFileName(strDescription, Name, ShortName, nullptr, nullptr, nullptr, nullptr, TRUE);
-		else
-			strDescription = strCommandText;
-
-		TypesMenuItem.strName = strDescription;
-		TypesMenuItem.SetSelect(Index==1);
-		TypesMenu.SetUserData(strCommand.CPtr(), (strCommand.GetLength()+1)*sizeof(wchar_t), TypesMenu.AddItem(&TypesMenuItem));
-	}
-
-	if (!CommandCount)
-		return false;
-
-	if (!ActualCmdCount)
-		return true;
-
-	int ExitCode=0;
-
-	if (ActualCmdCount>1)
-	{
-		TypesMenu.Process();
-		ExitCode=TypesMenu.Modal::GetExitCode();
-
-		if (ExitCode<0)
+		if (!ActualCmdCount)
 			return true;
+
+		int ExitCode=0;
+
+		if (ActualCmdCount>1)
+		{
+			ExitCode=TypesMenu.Run();
+
+			if (ExitCode<0)
+				return true;
+		}
+
+		strCommand = static_cast<const wchar_t*>(TypesMenu.GetUserData(nullptr, 0, ExitCode));
 	}
 
-	strCommand = static_cast<const wchar_t*>(TypesMenu.GetUserData(nullptr, 0, ExitCode));
 	string strListName, strAnotherListName;
 	string strShortListName, strAnotherShortListName;
 	int PreserveLFN=SubstFileName(strCommand, Name, ShortName, &strListName, &strAnotherListName, &strShortListName, &strAnotherShortListName);
@@ -253,10 +255,6 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode
 				CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
 				CtrlObject->Cp()->Redraw();
 #endif
-			}
-			if (FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_VIEWER)
-			{
-				TypesMenu.ResetCursor();
 			}
 		}
 	}
@@ -343,7 +341,7 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		apiDeleteFile(strAnotherShortListName);
 }
 
-static int FillFileTypesMenu(VMenu *TypesMenu,int MenuPos)
+static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 {
 	int DizWidth=GetDescriptionWidth();
 	MenuItemEx TypesMenuItem;
@@ -548,27 +546,16 @@ void EditFileTypes()
 	int NumLine=0;
 	int MenuPos=0;
 	unsigned __int64 id;
-	VMenu TypesMenu(MSG(MAssocTitle),nullptr,0,ScrY-4);
+	VMenu2 TypesMenu(MSG(MAssocTitle),nullptr,0,ScrY-4);
 	TypesMenu.SetHelp(L"FileAssoc");
 	TypesMenu.SetFlags(VMENU_WRAPMODE);
-	TypesMenu.SetPosition(-1,-1,0,0);
 	TypesMenu.SetBottomTitle(MSG(MAssocBottom));
+
 	while (1)
 	{
-		bool MenuModified=true;
-
-		while (!TypesMenu.Done())
+		NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
+		int ExitCode=TypesMenu.Run([&](int Key)->int
 		{
-			if (MenuModified)
-			{
-				TypesMenu.Hide();
-				NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
-				TypesMenu.SetPosition(-1,-1,-1,-1);
-				TypesMenu.Show();
-				MenuModified=false;
-			}
-
-			DWORD Key=TypesMenu.ReadInput();
 			MenuPos=TypesMenu.GetSelectPos();
 
 			switch (Key)
@@ -580,7 +567,7 @@ void EditFileTypes()
 					{
 						if (TypesMenu.GetUserData(&id,sizeof(id),MenuPos))
 							DeleteTypeRecord(id);
-						MenuModified=true;
+						NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
 					}
 
 					break;
@@ -590,7 +577,7 @@ void EditFileTypes()
 						EditTypeRecord(id,true);
 					else
 						EditTypeRecord(0,true);
-					MenuModified=true;
+					NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
 					break;
 				case KEY_NUMENTER:
 				case KEY_ENTER:
@@ -600,10 +587,10 @@ void EditFileTypes()
 					{
 						if (TypesMenu.GetUserData(&id,sizeof(id),MenuPos))
 							EditTypeRecord(id,false);
-						MenuModified=true;
+						NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
 					}
+					return 1;
 
-					break;
 				case KEY_CTRLUP:
 				case KEY_RCTRLUP:
 				case KEY_CTRLDOWN:
@@ -620,24 +607,19 @@ void EditFileTypes()
 								if (TypesMenu.GetUserData(&id2,sizeof(id2),NewMenuPos))
 									if (AssocConfig->SwapPositions(id,id2))
 										MenuPos=NewMenuPos;
-							MenuModified=true;
+							NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
 						}
 					}
 				}
 				break;
-				default:
-					TypesMenu.ProcessInput();
-					break;
 			}
-		}
-
-		int ExitCode=TypesMenu.Modal::GetExitCode();
+			return 0;
+		});
 
 		if (ExitCode!=-1)
 		{
 			MenuPos=ExitCode;
-			TypesMenu.ClearDone();
-			TypesMenu.WriteInput(KEY_F4);
+			TypesMenu.Key(KEY_F4);
 			continue;
 		}
 

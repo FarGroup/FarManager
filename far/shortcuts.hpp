@@ -45,7 +45,7 @@ struct ShortcutItem
 	ShortcutItem();
 };
 
-class VMenu;
+class VMenu2;
 struct MenuItemEx;
 
 class Shortcuts
@@ -64,6 +64,6 @@ private:
 	DList<ShortcutItem> Items[KeyCount];
 	bool Changed;
 	void MakeItemName(size_t Pos, MenuItemEx* str);
-	void EditItem(VMenu* Menu, ShortcutItem* Item, bool Root);
+	void EditItem(VMenu2* Menu, ShortcutItem* Item, bool Root);
 	bool Accept(void);
 };

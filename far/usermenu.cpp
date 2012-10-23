@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "filepanels.hpp"
 #include "panel.hpp"
 #include "cmdline.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "fileedit.hpp"
 #include "plognmn.hpp"
@@ -258,7 +258,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 	CtrlObject->CmdLine->GetCurDir(strMenuFilePath);
 	// по умолчанию меню - это FarMenu.ini
 	MenuMode = MM_LOCAL;
-	MenuModified = MenuNeedRefresh = false;
+	MenuModified = false;
 
 	if (ChoiceMenuType)
 	{
@@ -399,7 +399,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 }
 
 // заполнение меню
-int FillUserMenu(VMenu& FarUserMenu,DList<UserMenuItem> *Menu,int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
+int FillUserMenu(VMenu2& FarUserMenu,DList<UserMenuItem> *Menu,int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
 {
 	FarUserMenu.DeleteItems();
 	MenuItemEx FarUserMenuItem;
@@ -501,30 +501,19 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 		}
 
 		{
-			VMenu UserMenu(strMenuTitle,nullptr,0,ScrY-4);
+			VMenu2 UserMenu(strMenuTitle,nullptr,0,ScrY-4);
 			UserMenu.SetFlags(VMENU_WRAPMODE);
 			UserMenu.SetHelp(L"UserMenu");
 			UserMenu.SetPosition(-1,-1,0,0);
 			UserMenu.SetBottomTitle(MSG(MMainMenuBottomTitle));
-			MenuNeedRefresh=true;
+			UserMenu.SetMacroMode(MACRO_USERMENU);
 
-			while (!UserMenu.Done())
+			int ReturnCode=1;
+
+			NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+			ExitCode=UserMenu.Run([&](int Key)->int
 			{
-				if (MenuNeedRefresh)
-				{
-					UserMenu.Hide(); // спр€чем
-					// "изнасилуем" (перезаполним :-)
-					NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
-					// заставим манагер менюхи корректно отрисовать ширину и
-					// высоту, а заодно и скорректировать вертикальные позиции
-					UserMenu.SetPosition(-1,-1,-1,-1);
-					UserMenu.Show();
-					MenuNeedRefresh=false;
-				}
-
-				int Key=UserMenu.ReadInput();
 				MenuPos=UserMenu.GetSelectPos();
-
 				void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
 				CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
 
@@ -534,12 +523,12 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 
 					if ((FuncItemPos=FuncPos[Key-KEY_F1])!=-1)
 					{
-						UserMenu.Modal::SetExitCode(FuncItemPos);
-						continue;
+						UserMenu.Close(FuncItemPos);
+						return 0;
 					}
 				}
 				else if (Key == L' ') // исключаем пробел из "хоткеев"!
-					continue;
+					return 0;
 
 				switch (Key)
 				{
@@ -548,20 +537,23 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 					case KEY_NUMPAD6:
 					case KEY_MSWHEEL_RIGHT:
 						if (CurrentMenuItem && CurrentMenuItem->Submenu)
-							UserMenu.SetExitCode(MenuPos);
+							UserMenu.Close(MenuPos);
 						break;
 
 					case KEY_LEFT:
 					case KEY_NUMPAD4:
 					case KEY_MSWHEEL_LEFT:
 						if (Title && *Title)
-							UserMenu.SetExitCode(-1);
+							UserMenu.Close(-1);
 						break;
 
 					case KEY_NUMDEL:
 					case KEY_DEL:
 						if (CurrentMenuItem)
+						{
 							DeleteMenuRecord(Menu,CurrentMenuItem);
+							NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+						}
 						break;
 
 					case KEY_INS:
@@ -574,6 +566,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 							break;
 
 						EditMenu(Menu,CurrentMenuItem,bNew);
+						FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 						break;
 					}
 
@@ -588,7 +581,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 						{
 							if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !Pos) && !((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && Pos==UserMenu.GetItemCount()-2))
 							{
-								MenuModified = MenuNeedRefresh = true;
+								MenuModified = true;
 								if (Key==KEY_CTRLUP || Key==KEY_RCTRLUP)
 								{
 									Menu->MoveBefore(Menu->Prev(CurrentMenuItem),CurrentMenuItem);
@@ -599,6 +592,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 									Menu->MoveAfter(Menu->Next(CurrentMenuItem),CurrentMenuItem);
 									MenuPos++;
 								}
+								FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 							}
 						}
 					}
@@ -620,6 +614,8 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 							FrameManager->ExitModalEV();
 							if (!ShellEditor.IsFileChanged() || (!MenuFile.Open(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
 							{
+								ReturnCode=0;
+								UserMenu.Close(-1);
 								return 0;
 							}
 						}
@@ -628,7 +624,8 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 						MenuFileToList(MenuRoot, MenuFile, GetStr);
 						MenuFile.Close();
 						MenuModified=true;
-						UserMenu.Hide();
+						ReturnCode=0;
+						UserMenu.Close(-1);
 
 						return 0; // «акрыть меню
 					}
@@ -639,18 +636,25 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 					по FALSE оно и выйдет откуда угодно */
 					case KEY_SHIFTF10:
 						//UserMenu.SetExitCode(-1);
-						return EC_CLOSE_MENU;
+						ReturnCode=EC_CLOSE_MENU;
+						UserMenu.Close(-1);
+						return 1;
 
 					case KEY_SHIFTF2: // ѕоказать главное меню
-						return(EC_MAIN_MENU);
+						ReturnCode=EC_MAIN_MENU;
+						UserMenu.Close(-1);
+						return 1;
 
 					case KEY_BS: // ѕоказать меню из родительского каталога только в MM_LOCAL режиме
 
 						if (MenuMode == MM_LOCAL)
-							return EC_PARENT_MENU;
+						{
+							ReturnCode=EC_PARENT_MENU;
+							UserMenu.Close(-1);
+							return 1;
+						}
 
 					default:
-						UserMenu.ProcessInput();
 
 						if (MenuPos!=UserMenu.GetSelectPos())
 						{
@@ -659,14 +663,13 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 							CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
 						}
 
-						if (Key == KEY_F1)
-							MenuNeedRefresh=true;
-
 						break;
 				} // switch(Key)
-			} // while (!UserMenu.Done())
+				return 0;
+			});
 
-			ExitCode=UserMenu.Modal::GetExitCode();
+			if (ReturnCode!=1)
+				return ReturnCode;
 
 			if (ExitCode<0 || ExitCode>=NumLine || !CurrentMenuItem)
 				return EC_CLOSE_LEVEL; //  вверх на один уровень
@@ -938,7 +941,6 @@ bool UserMenu::EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool 
 	bool Result = false;
 	bool SubMenu = false;
 	bool Continue = true;
-	MenuNeedRefresh = true;
 
 	if (Create)
 	{
@@ -1086,7 +1088,7 @@ bool UserMenu::DeleteMenuRecord(DList<UserMenuItem> *Menu, UserMenuItem *MenuIte
 	if (Message(MSG_WARNING,2,MSG(MUserMenuTitle),MSG(!MenuItem->Submenu?MAskDeleteMenuItem:MAskDeleteSubMenuItem),strItemName,MSG(MDelete),MSG(MCancel)))
 		return false;
 
-	MenuModified=MenuNeedRefresh=true;
+	MenuModified=true;
 	Menu->Delete(MenuItem);
 	return true;
 }

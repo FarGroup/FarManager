@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colors.hpp"
 #include "hilight.hpp"
 #include "keys.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
 #include "panel.hpp"
@@ -518,7 +518,7 @@ int HighlightFiles::GetGroup(const FileListItem *fli)
 	return DEFAULT_SORT_GROUP;
 }
 
-void HighlightFiles::FillMenu(VMenu *HiMenu,int MenuPos)
+void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 {
 	MenuItemEx HiMenuItem;
 	const int Count[4][2] =
@@ -606,7 +606,7 @@ int HighlightFiles::MenuPosToRealPos(int MenuPos, int **Count, bool Insert)
 
 void HighlightFiles::HiEdit(int MenuPos)
 {
-	VMenu HiMenu(MSG(MHighlightTitle),nullptr,0,ScrY-4);
+	VMenu2 HiMenu(MSG(MHighlightTitle),nullptr,0,ScrY-4);
 	HiMenu.SetHelp(HLS.HighlightList);
 	HiMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 	HiMenu.SetPosition(-1,-1,0,0);
@@ -615,13 +615,11 @@ void HighlightFiles::HiEdit(int MenuPos)
 	int NeedUpdate;
 	Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;
 	Panel *RightPanel=CtrlObject->Cp()->RightPanel;
-	HiMenu.Show();
 
 	while (1)
 	{
-		while (!HiMenu.Done())
+		HiMenu.Run([&](int Key)->int
 		{
-			int Key=HiMenu.ReadInput();
 			int SelectPos=HiMenu.GetSelectPos();
 			NeedUpdate=FALSE;
 
@@ -641,7 +639,6 @@ void HighlightFiles::HiEdit(int MenuPos)
 
 					HierarchicalConfig *cfg = CreateHighlightConfig();
 					SetHighlighting(true, cfg); //delete old settings
-					HiMenu.Hide();
 					ClearData();
 					InitHighlightFiles(cfg);
 					delete cfg;
@@ -684,7 +681,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 						if (FileFilterConfig(HiData.getItem(RealSelectPos),true))
 							NeedUpdate=TRUE;
 
-					break;
+					return 1;
 				}
 
 				case KEY_INS: case KEY_NUMPAD0:
@@ -772,7 +769,6 @@ void HighlightFiles::HiEdit(int MenuPos)
 						break;
 					}
 
-					HiMenu.ProcessInput();
 					break;
 				}
 
@@ -809,13 +805,8 @@ void HighlightFiles::HiEdit(int MenuPos)
 						NeedUpdate=TRUE;
 					}
 
-					HiMenu.ProcessInput();
 					break;
 				}
-
-				default:
-					HiMenu.ProcessInput();
-					break;
 			}
 
 			// повторяющийся кусок!
@@ -824,7 +815,6 @@ void HighlightFiles::HiEdit(int MenuPos)
 				Changed = true;
 
 				ScrBuf.Lock(); // отменяем всякую прорисовку
-				HiMenu.Hide();
 				ProcessGroups();
 				if (Opt.AutoSaveSetup)
 					SaveHiData();
@@ -835,16 +825,14 @@ void HighlightFiles::HiEdit(int MenuPos)
 				RightPanel->Update(UPDATE_KEEP_SELECTION);
 				RightPanel->Redraw();
 				FillMenu(&HiMenu,MenuPos=SelectPos);
-				HiMenu.SetPosition(-1,-1,0,0);
-				HiMenu.Show();
 				ScrBuf.Unlock(); // разрешаем прорисовку
 			}
-		}
+			return 0;
+		});
 
-		if (HiMenu.Modal::GetExitCode()!=-1)
+		if (HiMenu.GetExitCode()!=-1)
 		{
-			HiMenu.ClearDone();
-			HiMenu.WriteInput(KEY_F4);
+			HiMenu.Key(KEY_F4);
 			continue;
 		}
 

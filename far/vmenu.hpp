@@ -45,6 +45,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "CriticalSections.hpp"
 #include "macro.hpp"
 
+
 // Цветовые атрибуты - индексы в массиве цветов
 enum
 {
@@ -79,8 +80,8 @@ enum VMENU_FLAGS
 	VMENU_WRAPMODE             =0x00008000, // зацикленный список (при перемещении)
 	VMENU_SHOWAMPERSAND        =0x00010000, // символ '&' показывать AS IS
 	VMENU_WARNDIALOG           =0x00020000, //
-	VMENU_NOTCENTER            =0x00040000, // не цитровать
-	VMENU_LEFTMOST             =0x00080000, // "крайний слева" - нарисовать на 5 позиций вправо от центра (X1 => (ScrX+1)/2+5)
+//	VMENU_NOTCENTER            =0x00040000, // не цитровать
+//	VMENU_LEFTMOST             =0x00080000, // "крайний слева" - нарисовать на 5 позиций вправо от центра (X1 => (ScrX+1)/2+5)
 	VMENU_NOTCHANGE            =0x00100000, //
 	VMENU_LISTHASFOCUS         =0x00200000, // меню является списком в диалоге и имеет фокус
 	VMENU_COMBOBOX             =0x00400000, // меню является комбобоксом и обрабатывается менеджером по-особому.
@@ -90,6 +91,7 @@ enum VMENU_FLAGS
 	VMENU_DISABLED             =0x04000000, //
 	VMENU_NOMERGEBORDER        =0x08000000, //
 	VMENU_REFILTERREQUIRED     =0x10000000, // перед отрисовкой необходимо обновить фильтр
+	VMENU_LISTSINGLEBOX        =0x20000000, // список, всегда с одинарной рамкой
 };
 
 class Dialog;

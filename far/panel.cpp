@@ -39,7 +39,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keyboard.hpp"
 #include "flink.hpp"
 #include "keys.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "filepanels.hpp"
 #include "cmdline.hpp"
 #include "chgmmode.hpp"
@@ -233,7 +233,7 @@ const TypeMessage DrTMsg[]=
 	{DRIVE_USBDRIVE,MChangeDriveRemovable},
 };
 
-static size_t AddPluginItems(VMenu &ChDisk, int Pos, int DiskCount, bool SetSelected)
+static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelected)
 {
 	TArray<ChDiskPluginItem> MPItems;
 	ChDiskPluginItem OneItem;
@@ -432,12 +432,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 	PanelMenuItem Item, *mitem=0;
 	{ // эта скобка надо, см. M#605
-		VMenu ChDisk(MSG(MChangeDriveTitle),nullptr,0,ScrY-Y1-3);
+		VMenu2 ChDisk(MSG(MChangeDriveTitle),nullptr,0,ScrY-Y1-3);
 		ChDisk.SetBottomTitle(MSG(MChangeDriveMenuFooter));
-		ChDisk.SetFlags(VMENU_NOTCENTER);
-
-		if (this == CtrlObject->Cp()->LeftPanel)
-			ChDisk.SetFlags(VMENU_LEFTMOST);
 
 		ChDisk.SetHelp(L"DriveDlg");
 		ChDisk.SetFlags(VMENU_WRAPMODE);
@@ -635,32 +631,19 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if ((this == CtrlObject->Cp()->RightPanel) && IsFullScreen() && (X2-X1 > 40))
 			X = (X2-X1+1)/2+5;
 
+		ChDisk.SetPosition(X,-1,0,0);
+
 		int Y = (ScrY+1-(DiskCount+static_cast<int>(PluginMenuItemsCount)+5))/2;
-
-		if (Y < 1)
-			Y=1;
-
-		ChDisk.SetPosition(X,Y,0,0);
-
 		if (Y < 3)
 			ChDisk.SetBoxType(SHORT_DOUBLE_BOX);
 
-		ChDisk.Show();
-
-		while (!ChDisk.Done())
+		ChDisk.SetMacroMode(MACRO_DISKS);
+		int RetCode=-1;
+		ChDisk.Run([&](int Key)->int
 		{
-			int Key;
-			if(Events.DeviceArivalEvent.Signaled() || Events.DeviceRemoveEvent.Signaled() || Events.MediaArivalEvent.Signaled() || Events.MediaRemoveEvent.Signaled())
-			{
+			if(Key==KEY_NONE && (Events.DeviceArivalEvent.Signaled() || Events.DeviceRemoveEvent.Signaled() || Events.MediaArivalEvent.Signaled() || Events.MediaRemoveEvent.Signaled()))
 				Key=KEY_CTRLR;
-			}
-			else
-			{
-				{ //очередная фигня
-					ChangeMacroMode MacroMode(MACRO_DISKS);
-					Key=ChDisk.ReadInput();
-				}
-			}
+
 			int SelPos=ChDisk.GetSelectPos();
 			PanelMenuItem *item = (PanelMenuItem*)ChDisk.GetUserData(nullptr,0);
 
@@ -684,7 +667,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_RCTRLNUMPAD9:
 				{
 					if (Opt.PgUpChangeDisk)
-						return -1;
+						ChDisk.Close(-1);
 				}
 				break;
 				// Т.к. нет способа получить состояние "открытости" устройства,
@@ -698,7 +681,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						{
 							SaveScreen SvScrn;
 							EjectVolume(item->cDrive, EJECT_LOAD_MEDIA);
-							return SelPos;
+							RetCode=SelPos;
 						}
 					}
 				}
@@ -715,7 +698,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 							FrameManager->ResizeAllFrame();
 							FrameManager->PluginCommit(); // коммитим.
 							ScrBuf.Unlock(); // разрешаем прорисовку
-							return (((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
+							RetCode=(((DiskCount-SelPos)==1) && (SelPos > 0) && (Code != DRIVE_DEL_EJECT))?SelPos-1:SelPos;
 						}
 					}
 				}
@@ -737,16 +720,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 							string DeviceName("?:\\");
 							DeviceName.Replace(0, item->cDrive);
 							ShellSetFileAttributes(nullptr, &DeviceName);
-							ChDisk.Redraw();
 						}
 						else
 						{
 							string strName = ChDisk.GetItemPtr(SelPos)->strName + 3;
 							RemoveExternalSpaces(strName);
 							if(CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::DRIVE_MENU, strName))
-							{
-								return SelPos;
-							}
+							RetCode=SelPos;
 						}
 					}
 					break;
@@ -773,26 +753,30 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					if (item && !item->bIsPlugin)
 					{
 						RemoveHotplugDevice(item, ChDisk);
-						return SelPos;
+						RetCode=SelPos;
 					}
 				}
 				break;
 				case KEY_CTRL1:
 				case KEY_RCTRL1:
 					Opt.ChangeDriveMode ^= DRIVE_SHOW_TYPE;
-					return SelPos ;
+					RetCode=SelPos;
+					break;
 				case KEY_CTRL2:
 				case KEY_RCTRL2:
 					Opt.ChangeDriveMode ^= DRIVE_SHOW_NETNAME;
-					return SelPos;
+					RetCode=SelPos;
+					break;
 				case KEY_CTRL3:
 				case KEY_RCTRL3:
 					Opt.ChangeDriveMode ^= DRIVE_SHOW_LABEL;
-					return SelPos;
+					RetCode=SelPos;
+					break;
 				case KEY_CTRL4:
 				case KEY_RCTRL4:
 					Opt.ChangeDriveMode ^= DRIVE_SHOW_FILESYSTEM;
-					return SelPos;
+					RetCode=SelPos;
+					break;
 				case KEY_CTRL5:
 				case KEY_RCTRL5:
 				{
@@ -809,27 +793,33 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 							Opt.ChangeDriveMode ^= DRIVE_SHOW_SIZE;
 					}
 
-					return SelPos;
+					RetCode=SelPos;
+					break;
 				}
 				case KEY_CTRL6:
 				case KEY_RCTRL6:
 					Opt.ChangeDriveMode ^= DRIVE_SHOW_REMOVABLE;
-					return SelPos;
+					RetCode=SelPos;
+					break;
 				case KEY_CTRL7:
 				case KEY_RCTRL7:
 					Opt.ChangeDriveMode ^= DRIVE_SHOW_PLUGINS;
-					return SelPos;
+					RetCode=SelPos;
+					break;
 				case KEY_CTRL8:
 				case KEY_RCTRL8:
 					Opt.ChangeDriveMode ^= DRIVE_SHOW_CDROM;
-					return SelPos;
+					RetCode=SelPos;
+					break;
 				case KEY_CTRL9:
 				case KEY_RCTRL9:
 					Opt.ChangeDriveMode ^= DRIVE_SHOW_REMOTE;
-					return SelPos;
+					RetCode=SelPos;
+					break;
 				case KEY_F9:
 					ConfigureChangeDriveMode();
-					return SelPos;
+					RetCode=SelPos;
+					break;
 				case KEY_SHIFTF1:
 				{
 					if (item && item->bIsPlugin)
@@ -848,39 +838,45 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_RALTSHIFTF9:
 
 					if (Opt.ChangeDriveMode&DRIVE_SHOW_PLUGINS)
-					{
-						ChDisk.Hide();
 						CtrlObject->Plugins->Configure();
-					}
 
-					return SelPos;
+					RetCode=SelPos;
+					break;
 				case KEY_SHIFTF9:
 
 					if (item && item->bIsPlugin && item->pPlugin->HasConfigure())
 						CtrlObject->Plugins->ConfigureCurrent(item->pPlugin, item->Guid);
 
-					return SelPos;
+					RetCode=SelPos;
+					break;
 				case KEY_CTRLR:
 				case KEY_RCTRLR:
-					return SelPos;
-				default:
-					ChDisk.ProcessInput();
+					RetCode=SelPos;
 					break;
 			}
 
-			if (ChDisk.Done() &&
-			        (ChDisk.Modal::GetExitCode() < 0) &&
+			if(RetCode>=0)
+			{
+				ChDisk.Close(-1);
+				return 1;
+			}
+			return 0;
+		});
+
+		if (RetCode>=0)
+			return RetCode;
+
+		if (ChDisk.GetExitCode()<0 &&
 			        !strCurDir.IsEmpty() &&
 			        (StrCmpN(strCurDir,L"\\\\",2) ))
 			{
 				const wchar_t RootDir[4] = {strCurDir.At(0),L':',L'\\',L'\0'};
 
 				if (FAR_GetDriveType(RootDir) == DRIVE_NO_ROOT_DIR)
-					ChDisk.ClearDone();
+				return ChDisk.GetSelectPos();
 			}
-		} // while (!Done)
 
-		if (ChDisk.Modal::GetExitCode()<0)
+		if (ChDisk.GetExitCode()<0)
 			return -1;
 
 		mitem=(PanelMenuItem*)ChDisk.GetUserData(nullptr,0);
@@ -1037,7 +1033,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	return -1;
 }
 
-int Panel::DisconnectDrive(PanelMenuItem *item, VMenu &ChDisk)
+int Panel::DisconnectDrive(PanelMenuItem *item, VMenu2 &ChDisk)
 {
 	if ((item->nDriveType == DRIVE_REMOVABLE) || IsDriveTypeCDROM(item->nDriveType))
 	{
@@ -1054,10 +1050,7 @@ int Panel::DisconnectDrive(PanelMenuItem *item, VMenu &ChDisk)
 			string strTmpCDir, strTmpADir;
 			GetCurDir(strTmpCDir);
 			CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strTmpADir);
-			// отключим меню, иначе бага с прорисовкой этой самой меню
-			// (если меню поболее высоты экрана)
-			ChDisk.Hide();
-			ChDisk.Lock(); // ... и запретим ее перерисовку.
+
 			// "цикл до умопомрачения"
 			int DoneEject=FALSE;
 
@@ -1086,10 +1079,6 @@ int Panel::DisconnectDrive(PanelMenuItem *item, VMenu &ChDisk)
 				else
 					DoneEject=TRUE;
 			}
-
-			// "отпустим" менюху выбора дисков
-			ChDisk.Unlock();
-			ChDisk.Show();
 		}
 		return DRIVE_DEL_NONE;
 	}
@@ -1099,7 +1088,7 @@ int Panel::DisconnectDrive(PanelMenuItem *item, VMenu &ChDisk)
 	}
 }
 
-void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk)
+void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu2 &ChDisk)
 {
 	int Code = ProcessRemoveHotplugDevice(item->cDrive, EJECT_NOTIFY_AFTERREMOVE);
 
@@ -1111,10 +1100,7 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk)
 		string strTmpCDir, strTmpADir;
 		GetCurDir(strTmpCDir);
 		CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strTmpADir);
-		// отключим меню, иначе бага с прорисовкой этой самой меню
-		// (если меню поболее высоты экрана)
-		ChDisk.Hide();
-		ChDisk.Lock(); // ... и запретим ее перерисовку.
+
 		// "цикл до умопомрачения"
 		int DoneEject=FALSE;
 
@@ -1145,10 +1131,6 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk)
 			else
 				DoneEject=TRUE;
 		}
-
-		// "отпустим" менюху выбора дисков
-		ChDisk.Unlock();
-		ChDisk.Show();
 	}
 }
 
@@ -1156,7 +1138,7 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu &ChDisk)
    обработка Del в меню дисков
 */
 
-int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
+int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu2 *ChDiskMenu)
 {
 	string DiskLetter(L"?:");
 	DiskLetter.Replace(0, Drive);
@@ -1223,7 +1205,6 @@ int Panel::ProcessDelDisk(wchar_t Drive, int DriveType,VMenu *ChDiskMenu)
 				IfGoHome(Drive);
 				FrameManager->ResizeAllFrame();
 				FrameManager->GetCurrentFrame()->Show();
-				ChDiskMenu->Show();
 				// </КОСТЫЛЬ>
 
 				if (WNetCancelConnection2(DiskLetter,UpdateProfile,FALSE)==NO_ERROR)

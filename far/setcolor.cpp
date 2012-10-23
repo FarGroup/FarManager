@@ -37,7 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "setcolor.hpp"
 #include "keys.hpp"
 #include "colors.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "dialog.hpp"
 #include "filepanels.hpp"
 #include "ctrlobj.hpp"
@@ -51,9 +51,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "console.hpp"
 #include "colormix.hpp"
 
-static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2=nullptr);
+#include "keyboard.hpp"
 
-void GetColor(int PaletteIndex, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2, VMenu* MenuToRedraw3)
+static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub);
+
+void GetColor(int PaletteIndex)
 {
 	ChangeMacroMode chgMacroMode(MACRO_MENU);
 	FarColor NewColor = Opt.Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR];
@@ -68,29 +70,9 @@ void GetColor(int PaletteIndex, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2, VMen
 		CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
 		CtrlObject->Cp()->RightPanel->Redraw();
 
-		if (MenuToRedraw3)
-			MenuToRedraw3->Hide();
 
-		if(MenuToRedraw2)
-			MenuToRedraw2->Hide(); // דאסטל
-
-		MenuToRedraw1->Hide();
-		FrameManager->RefreshFrame(); // נופנורטל
+		FrameManager->ResizeAllFrame(); // נופנורטל
 		FrameManager->PluginCommit(); // ךמללטעטל.
-		MenuToRedraw1->SetColors();
-		MenuToRedraw1->Show(); // ךאזול
-
-		if(MenuToRedraw2)
-		{
-			MenuToRedraw2->SetColors();
-			MenuToRedraw2->Show();
-		}
-
-		if (MenuToRedraw3)
-		{
-			MenuToRedraw3->SetColors();
-			MenuToRedraw3->Show();
-		}
 
 		if (Opt.Clock)
 			ShowTime(1);
@@ -347,17 +329,59 @@ void SetColors()
 		COL_HELPBOX,COL_HELPBOXTITLE,COL_HELPSCROLLBAR
 	};
 	{
-		int GroupsCode;
-		VMenu GroupsMenu(MSG(MSetColorGroupsTitle),Groups,ARRAYSIZE(Groups),0);
-		VMenu *MenuToRedraw1=&GroupsMenu;
+		VMenu2 GroupsMenu(MSG(MSetColorGroupsTitle),Groups,ARRAYSIZE(Groups),0);
 		for (;;)
 		{
 			GroupsMenu.SetPosition(2,1,0,0);
-			GroupsMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCHANGE);
-			GroupsMenu.ClearDone();
-			GroupsMenu.Process();
+			GroupsMenu.SetFlags(VMENU_WRAPMODE);
+			int GroupsCode=GroupsMenu.RunEx([&](int Msg, void *param)->int
+			{
+			  intptr_t ItemsCode=(intptr_t)param;
+				if (Msg!=DN_CLOSE || ItemsCode<0)
+					return 0;
+				SendDlgMessage(&GroupsMenu, DM_ENABLEREDRAW, 1, nullptr);
+				switch (ItemsCode)
+				{
+					case 0:
+						SetItemColors(PanelItems,PanelPaletteItems,ARRAYSIZE(PanelItems),0);
+						break;
+					case 1:
+						SetItemColors(DialogItems,DialogPaletteItems,ARRAYSIZE(DialogItems),1);
+						break;
+					case 2:
+						SetItemColors(WarnDialogItems,WarnDialogPaletteItems,ARRAYSIZE(WarnDialogItems),1);
+						break;
+					case 3:
+						SetItemColors(MenuItems,MenuPaletteItems,ARRAYSIZE(MenuItems),0);
+						break;
+					case 4:
+						SetItemColors(HMenuItems,HMenuPaletteItems,ARRAYSIZE(HMenuItems),0);
+						break;
+					case 5:
+						SetItemColors(KeyBarItems,KeyBarPaletteItems,ARRAYSIZE(KeyBarItems),0);
+						break;
+					case 6:
+						SetItemColors(CommandLineItems,CommandLinePaletteItems,ARRAYSIZE(CommandLineItems),0);
+						break;
+					case 7:
+						SetItemColors(ClockItems,ClockPaletteItems,ARRAYSIZE(ClockItems),0);
+						break;
+					case 8:
+						SetItemColors(ViewerItems,ViewerPaletteItems,ARRAYSIZE(ViewerItems),0);
+						break;
+					case 9:
+						SetItemColors(EditorItems,EditorPaletteItems,ARRAYSIZE(EditorItems),0);
+						break;
+					case 10:
+						SetItemColors(HelpItems,HelpPaletteItems,ARRAYSIZE(HelpItems),0);
+						break;
+					default:
+						return 0;
+				}
+				return 1;
+			});
 
-			if ((GroupsCode=GroupsMenu.Modal::GetExitCode())<0)
+			if (GroupsCode<0)
 				break;
 
 			if (GroupsCode==12)
@@ -372,42 +396,6 @@ void SetColors()
 				break;
 			}
 
-			switch (GroupsCode)
-			{
-				case 0:
-					SetItemColors(PanelItems,PanelPaletteItems,ARRAYSIZE(PanelItems),0,MenuToRedraw1);
-					break;
-				case 1:
-					SetItemColors(DialogItems,DialogPaletteItems,ARRAYSIZE(DialogItems),1,MenuToRedraw1);
-					break;
-				case 2:
-					SetItemColors(WarnDialogItems,WarnDialogPaletteItems,ARRAYSIZE(WarnDialogItems),1,MenuToRedraw1);
-					break;
-				case 3:
-					SetItemColors(MenuItems,MenuPaletteItems,ARRAYSIZE(MenuItems),0,MenuToRedraw1);
-					break;
-				case 4:
-					SetItemColors(HMenuItems,HMenuPaletteItems,ARRAYSIZE(HMenuItems),0,MenuToRedraw1);
-					break;
-				case 5:
-					SetItemColors(KeyBarItems,KeyBarPaletteItems,ARRAYSIZE(KeyBarItems),0,MenuToRedraw1);
-					break;
-				case 6:
-					SetItemColors(CommandLineItems,CommandLinePaletteItems,ARRAYSIZE(CommandLineItems),0,MenuToRedraw1);
-					break;
-				case 7:
-					SetItemColors(ClockItems,ClockPaletteItems,ARRAYSIZE(ClockItems),0,MenuToRedraw1);
-					break;
-				case 8:
-					SetItemColors(ViewerItems,ViewerPaletteItems,ARRAYSIZE(ViewerItems),0,MenuToRedraw1);
-					break;
-				case 9:
-					SetItemColors(EditorItems,EditorPaletteItems,ARRAYSIZE(EditorItems),0,MenuToRedraw1);
-					break;
-				case 10:
-					SetItemColors(HelpItems,HelpPaletteItems,ARRAYSIZE(HelpItems),0,MenuToRedraw1);
-					break;
-			}
 		}
 	}
 	CtrlObject->Cp()->SetScreenPosition();
@@ -418,28 +406,21 @@ void SetColors()
 }
 
 
-static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub, VMenu* MenuToRedraw1, VMenu* MenuToRedraw2)
+static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeSub)
 {
-	int ItemsCode;
-	VMenu ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
-	VMenu* MenuToRedraw3 = nullptr;
-	if (TypeSub == 2)
-		MenuToRedraw3=&ItemsMenu;
-	else
-		MenuToRedraw2=&ItemsMenu;
+	VMenu2 ItemsMenu(MSG(MSetColorItemsTitle),Items,Size,0);
 
-	for (;;)
+	ItemsMenu.SetPosition(17-(TypeSub == 2?7:0),5+(TypeSub == 2?2:0),0,0);
+	ItemsMenu.SetFlags(VMENU_WRAPMODE);
+	ItemsMenu.RunEx([&](int Msg, void *param)->int
 	{
-		ItemsMenu.SetPosition(17-(TypeSub == 2?7:0),5+(TypeSub == 2?2:0),0,0);
-		ItemsMenu.SetFlags(VMENU_WRAPMODE|VMENU_NOTCHANGE);
-		ItemsMenu.ClearDone();
-		ItemsMenu.Process();
-
-		if ((ItemsCode=ItemsMenu.Modal::GetExitCode())<0)
-			break;
+	  intptr_t ItemsCode=(intptr_t)param;
+		if (Msg!=DN_CLOSE || ItemsCode<0)
+			return 0;
 
 // 0,1 - dialog,warn List
 // 2,3 - dialog,warn Combobox
+		SendDlgMessage(&ItemsMenu, DM_ENABLEREDRAW, 1, nullptr);
 		if (TypeSub == 1 && PaletteItems[ItemsCode] < 4)
 		{
 			MenuDataEx ListItems[]=
@@ -531,12 +512,12 @@ static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeS
 				},
 			};
 
-			SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],ARRAYSIZE(ListItems),2,MenuToRedraw1, MenuToRedraw2);
-			MenuToRedraw3=nullptr;
+			SetItemColors(ListItems,ListPaletteItems[PaletteItems[ItemsCode]],ARRAYSIZE(ListItems),2);
 		}
 		else
-			GetColor(PaletteItems[ItemsCode], MenuToRedraw1, MenuToRedraw2, MenuToRedraw3);
-	}
+			GetColor(PaletteItems[ItemsCode]);
+		return 1;
+	});
 }
 
 int ColorIndex[]=

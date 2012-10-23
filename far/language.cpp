@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "language.hpp"
 #include "scantree.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "manager.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -163,7 +163,7 @@ int GetLangParam(FILE *SrcFile,const wchar_t *ParamName,string *strParam1, strin
 	return(Found);
 }
 
-bool Select(int HelpLanguage,VMenu **MenuPtr)
+bool Select(int HelpLanguage,VMenu2 **MenuPtr)
 {
 	const wchar_t *Title,*Mask;
 	StringOption *strDest;
@@ -183,7 +183,7 @@ bool Select(int HelpLanguage,VMenu **MenuPtr)
 
 	MenuItemEx LangMenuItem;
 	LangMenuItem.Clear();
-	VMenu *LangMenu=new VMenu(Title,nullptr,0,ScrY-4);
+	VMenu2 *LangMenu=new VMenu2(Title,nullptr,0,ScrY-4);
 	*MenuPtr=LangMenu;
 	LangMenu->SetFlags(VMENU_WRAPMODE);
 	LangMenu->SetPosition(ScrX/2-8+5*HelpLanguage,ScrY/2-4+2*HelpLanguage,0,0);
@@ -229,9 +229,9 @@ bool Select(int HelpLanguage,VMenu **MenuPtr)
 	}
 
 	LangMenu->AssignHighlights(FALSE);
-	LangMenu->Process();
+	LangMenu->Run();
 
-	if (LangMenu->Modal::GetExitCode()<0)
+	if (LangMenu->GetExitCode()<0)
 		return false;
 
 	*strDest = static_cast<const wchar_t*>(LangMenu->GetUserData(nullptr, 0));

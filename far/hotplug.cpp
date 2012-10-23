@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "keys.hpp"
 #include "help.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "imports.hpp"
 #include "message.hpp"
 #include "config.hpp"
@@ -63,7 +63,7 @@ static DeviceInfo *EnumHotPlugDevice(LPARAM lParam);
 
 DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 {
-	VMenu *HotPlugList=(VMenu *)lParam;
+	VMenu2 *HotPlugList=(VMenu2 *)lParam;
 	DeviceInfo *pInfo=nullptr;
 	int nCount = GetHotplugDevicesInfo(&pInfo);
 
@@ -112,16 +112,13 @@ DeviceInfo *EnumHotPlugDevice(LPARAM lParam)
 	return pInfo;
 }
 
-static void RefreshHotplugMenu(DeviceInfo*& pInfo,VMenu& HotPlugList)
+static void RefreshHotplugMenu(DeviceInfo*& pInfo,VMenu2& HotPlugList)
 {
 	if (pInfo) FreeHotplugDevicesInfo(pInfo);
 
 	pInfo=nullptr;
-	HotPlugList.Hide();
 	HotPlugList.DeleteItems();
-	HotPlugList.SetPosition(-1,-1,0,0);
 	pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
-	HotPlugList.Show();
 }
 
 void ShowHotplugDevice()
@@ -130,18 +127,18 @@ void ShowHotplugDevice()
 	Events.DeviceRemoveEvent.Reset();
 
 	DeviceInfo *pInfo=nullptr;
-	VMenu HotPlugList(MSG(MHotPlugListTitle),nullptr,0,ScrY-4);
+	VMenu2 HotPlugList(MSG(MHotPlugListTitle),nullptr,0,ScrY-4);
 	HotPlugList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 	HotPlugList.SetPosition(-1,-1,0,0);
 	pInfo=EnumHotPlugDevice((LPARAM)&HotPlugList);
 	HotPlugList.AssignHighlights(TRUE);
 	HotPlugList.SetBottomTitle(MSG(MHotPlugListBottom));
 
-	HotPlugList.Show();
-
-	while (!HotPlugList.Done())
+	HotPlugList.Run([&](int Key)->int
 	{
-		int Key=Events.DeviceArivalEvent.Signaled() || Events.DeviceRemoveEvent.Signaled()?KEY_CTRLR:HotPlugList.ReadInput();
+		if(Key==KEY_NONE && (Events.DeviceArivalEvent.Signaled() || Events.DeviceRemoveEvent.Signaled()))
+			Key=KEY_CTRLR;
+
 		switch (Key)
 		{
 			case KEY_F1:
@@ -164,8 +161,6 @@ void ShowHotplugDevice()
 
 					if ((bResult=RemoveHotplugDevice(pInfo[I].hDevInst,pInfo[I].dwDriveMask,EJECT_NOTIFY_AFTERREMOVE)) == 1)
 					{
-						HotPlugList.Hide();
-
 						if (pInfo)
 							FreeHotplugDevicesInfo(pInfo);
 
@@ -182,11 +177,9 @@ void ShowHotplugDevice()
 
 				break;
 			}
-			default:
-				HotPlugList.ProcessInput();
-				break;
 		}
-	}
+		return 0;
+	});
 
 	if (pInfo)
 		FreeHotplugDevicesInfo(pInfo);

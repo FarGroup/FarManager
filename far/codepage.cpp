@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #pragma hdrstop
 
 #include "codepage.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "keys.hpp"
 #include "language.hpp"
 #include "dialog.hpp"
@@ -88,7 +88,7 @@ static HANDLE dialog;
 // Идентифкатор диалога
 static UINT control;
 // Меню
-static VMenu *CodePages = nullptr;
+static VMenu2 *CodePages = nullptr;
 // Текущая таблица символов
 static uintptr_t currentCodePage;
 // Количество выбранных и обыкновенных таблиц символов
@@ -530,8 +530,6 @@ void ProcessSelected(bool select)
 		// Показываем меню
 		if (Opt.CPMenuMode)
 			CodePages->SetPosition(-1, -1, 0, 0);
-
-		CodePages->Show();
 	}
 }
 
@@ -565,7 +563,6 @@ void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool b
 	// Позиционируем меню
 	CodePages->SetPosition(-1, -1, 0, 0);
 	// Показываем меню
-	CodePages->Show();
 }
 
 // Форматируем имя таблицы символов
@@ -707,19 +704,18 @@ bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool 
 	CallbackCallSource = CodePageSelect;
 	currentCodePage = CodePage;
 	// Создаём меню
-	CodePages = new VMenu(L"", nullptr, 0, ScrY-4);
+	CodePages = new VMenu2(L"", nullptr, 0, ScrY-4);
 	CodePages->SetBottomTitle(MSG(!Opt.CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
 	CodePages->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 	CodePages->SetHelp(L"CodePagesMenu");
 	// Добавляем таблицы символов
 	FillCodePagesVMenu(bShowUnicode, bShowUTF, bShowUTF7, bShowAutoDetect);
 	// Показываем меню
-	CodePages->Show();
 
 	// Цикл обработки сообщений меню
-	while (!CodePages->Done())
+	intptr_t r=CodePages->Run([&](int ReadKey)->int
 	{
-		switch (CodePages->ReadInput())
+		switch (ReadKey)
 		{
 			// Обработка скрытия/показа системных таблиц символов
 			case KEY_CTRLH:
@@ -742,14 +738,12 @@ bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool 
 			case KEY_F4:
 				EditCodePageName();
 				break;
-			default:
-				CodePages->ProcessInput();
-				break;
 		}
-	}
+		return 0;
+	});
 
 	// Получаем выбранную таблицу символов
-	if (CodePages->Modal::GetExitCode() >= 0)
+	if (r >= 0)
 	{
 		CodePage = GetMenuItemCodePage();
 		Result = true;

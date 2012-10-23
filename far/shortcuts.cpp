@@ -36,7 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "shortcuts.hpp"
 #include "keys.hpp"
-#include "vmenu.hpp"
+#include "vmenu2.hpp"
 #include "cmdline.hpp"
 #include "ctrlobj.hpp"
 #include "filepanels.hpp"
@@ -216,10 +216,9 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 		ShortcutItem* RetItem = nullptr;
 		if(Items[Pos].Count()>1)
 		{
-			VMenu FolderList(MSG(MFolderShortcutsTitle),nullptr,0,ScrY-4);
+			VMenu2 FolderList(MSG(MFolderShortcutsTitle),nullptr,0,ScrY-4);
 			FolderList.SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 			FolderList.SetHelp(HelpFolderShortcuts);
-			FolderList.SetPosition(-1,-1,0,0);
 			FolderList.SetBottomTitle(MSG(MFolderShortcutBottomSub));
 			for(ShortcutItem* i = Items[Pos].First(); i; i = Items[Pos].Next(i))
 			{
@@ -242,10 +241,9 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 				ListItem.UserDataSize = sizeof(i);
 				FolderList.AddItem(&ListItem);
 			}
-			FolderList.Show();
-			while (!FolderList.Done())
+
+			int ExitCode=FolderList.Run([&](int Key)->int
 			{
-				DWORD Key=FolderList.ReadInput();
 				int ItemPos = FolderList.GetSelectPos();
 				void* Data = FolderList.GetUserData(nullptr, 0, ItemPos);
 				ShortcutItem* Item = Data?*static_cast<ShortcutItem**>(Data):nullptr;
@@ -294,9 +292,6 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 								FolderList.DeleteItem(FolderList.GetSelectPos());
 							}
 						}
-						FolderList.SetPosition(-1, -1, -1, -1);
-						FolderList.SetUpdateRequired(TRUE);
-						FolderList.Show();
 					}
 					break;
 
@@ -305,13 +300,9 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 						EditItem(&FolderList, Item, false);
 					}
 					break;
-
-				default:
-					FolderList.ProcessInput();
-					break;
 				}
-			}
-			int ExitCode = FolderList.GetExitCode();
+				return 0;
+			});
 			if (ExitCode>=0)
 			{
 				void* Data = FolderList.GetUserData(nullptr, 0, ExitCode);
@@ -391,7 +382,7 @@ void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 	}
 }
 
-void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
+void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem* Item, bool Root)
 {
 	string strNewName = Item->strName;
 	string strNewDir = Item->strFolder;
@@ -438,9 +429,6 @@ void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 			{
 				MakeItemName(Menu->GetSelectPos(), MenuItem);
 			}
-			Menu->SetPosition(-1, -1, -1, -1);
-			Menu->SetUpdateRequired(TRUE);
-			Menu->Show();
 		}
 	}
 }
@@ -448,10 +436,9 @@ void Shortcuts::EditItem(VMenu* Menu, ShortcutItem* Item, bool Root)
 void Shortcuts::Configure()
 {
 	Changed = true;
-	VMenu FolderList(MSG(MFolderShortcutsTitle),nullptr,0,ScrY-4);
+	VMenu2 FolderList(MSG(MFolderShortcutsTitle),nullptr,0,ScrY-4);
 	FolderList.SetFlags(VMENU_WRAPMODE);
 	FolderList.SetHelp(HelpFolderShortcuts);
-	FolderList.SetPosition(-1,-1,0,0);
 	FolderList.SetBottomTitle(MSG(MFolderShortcutBottom));
 
 	for (int I=0; I < 10; I++)
@@ -461,11 +448,8 @@ void Shortcuts::Configure()
 		FolderList.AddItem(&ListItem);
 	}
 
-	FolderList.Show();
-
-	while (!FolderList.Done())
+	int ExitCode=FolderList.Run([&](int Key)->int
 	{
-		DWORD Key=FolderList.ReadInput();
 		int Pos = FolderList.GetSelectPos();
 		ShortcutItem* Item = Items[Pos].First();
 
@@ -517,9 +501,6 @@ void Shortcuts::Configure()
 				INT64 Flags = MenuItem->Flags;
 				MenuItem->Flags = 0;
 				FolderList.UpdateItemFlags(FolderList.GetSelectPos(), Flags);
-				FolderList.SetPosition(-1, -1, -1, -1);
-				FolderList.SetUpdateRequired(TRUE);
-				FolderList.Show();
 			}
 			break;
 
@@ -531,7 +512,7 @@ void Shortcuts::Configure()
 				}
 				if(Items[Pos].Count()>1)
 				{
-					FolderList.ProcessKey(KEY_ENTER);
+					FolderList.Close();
 				}
 				else
 				{
@@ -539,16 +520,9 @@ void Shortcuts::Configure()
 				}
 			}
 			break;
-
-		default:
-			FolderList.ProcessInput();
-			break;
 		}
-	}
-
-	FolderList.Hide();
-
-	int ExitCode = FolderList.Modal::GetExitCode();
+		return 0;
+	});
 
 	if(ExitCode>=0)
 	{

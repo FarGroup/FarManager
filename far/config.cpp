@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "elevation.hpp"
 #include "configdb.hpp"
 #include "FarGuid.hpp"
+#include "vmenu2.hpp"
 
 Options Opt={};
 
@@ -418,7 +419,7 @@ void ApplyDefaultMaskGroups()
 	}
 }
 
-void FillMasksMenu(VMenu& MasksMenu, int SelPos = 0)
+void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 {
 	MasksMenu.DeleteItems();
 	string Name, Value;
@@ -438,17 +439,32 @@ void FillMasksMenu(VMenu& MasksMenu, int SelPos = 0)
 
 void MaskGroupsSettings()
 {
-	VMenu MasksMenu(MSG(MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
+	VMenu2 MasksMenu(MSG(MMenuMaskGroups), nullptr, 0, 0, VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
 	MasksMenu.SetBottomTitle(MSG(MMaskGroupBottom));
 	MasksMenu.SetHelp(L"MaskGroupsSettings");
 	FillMasksMenu(MasksMenu);
 	MasksMenu.SetPosition(-1, -1, -1, -1);
-	MasksMenu.Show();
 
 	bool Changed = false;
-	while (!MasksMenu.Done())
+	bool Filter = false;
+
+	MasksMenu.Run([&](int Key)->int
 	{
-		DWORD Key=MasksMenu.ReadInput();
+		if(Filter)
+		{
+			if(Key == KEY_ESC || Key == KEY_F10 || Key == KEY_ENTER || Key == KEY_NUMENTER)
+			{
+				Filter = false;
+				for (int i = 0; i < MasksMenu.GetItemCount(); ++i)
+				{
+					MasksMenu.UpdateItemFlags(i, MasksMenu.GetItemPtr(i)->Flags&~MIF_HIDDEN);
+				}
+				MasksMenu.SetPosition(-1, -1, -1, -1);
+				MasksMenu.SetTitle(MSG(MMenuMaskGroups));
+				MasksMenu.SetBottomTitle(MSG(MMaskGroupBottom));
+			}
+			return true;
+		}
 		int ItemPos = MasksMenu.GetSelectPos();
 		void* Data = MasksMenu.GetUserData(nullptr, 0, ItemPos);
 		const wchar_t* Item = static_cast<const wchar_t*>(Data);
@@ -530,30 +546,9 @@ void MaskGroupsSettings()
 					MasksMenu.SetPosition(-1, -1, -1, -1);
 					MasksMenu.SetTitle(Value);
 					MasksMenu.SetBottomTitle(LangString(MMaskGroupTotal) << MasksMenu.GetShowItemCount());
-					MasksMenu.Show();
-					while (!MasksMenu.Done())
-					{
-						DWORD Key=MasksMenu.ReadInput();
-						if(Key == KEY_ESC || Key == KEY_F10 || Key == KEY_ENTER || Key == KEY_NUMENTER)
-							break;
-						else
-							MasksMenu.ProcessKey(Key);
-					}
-					for (int i = 0; i < MasksMenu.GetItemCount(); ++i)
-					{
-						MasksMenu.UpdateItemFlags(i, MasksMenu.GetItemPtr(i)->Flags&~MIF_HIDDEN);
-					}
-					MasksMenu.SetPosition(-1, -1, -1, -1);
-					MasksMenu.SetTitle(MSG(MMenuMaskGroups));
-					MasksMenu.SetBottomTitle(MSG(MMaskGroupBottom));
-					MasksMenu.Show();
+					Filter = true;
 				}
 			}
-			break;
-
-
-		default:
-			MasksMenu.ProcessInput();
 			break;
 		}
 
@@ -563,10 +558,9 @@ void MaskGroupsSettings()
 
 			FillMasksMenu(MasksMenu, MasksMenu.GetSelectPos());
 			MasksMenu.SetPosition(-1, -1, -1, -1);
-			MasksMenu.SetUpdateRequired(true);
-			MasksMenu.Show();
 		}
-	}
+		return 0;
+	});
 }
 
 void DialogSettings()

@@ -34,9 +34,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "config.hpp"
+#include "vmenu2.hpp"
 
 class Dialog;
-class VMenu;
+class VMenu2;
 
 enum enumHISTORYTYPE
 {
@@ -58,7 +59,7 @@ class History
 	private:
 		bool EqualType(int Type1, int Type2);
 		const wchar_t *GetTitle(int Type);
-		int ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu &HistoryMenu, int Height, int &Type, Dialog *Dlg);
+		int ProcessMenu(string &strStr, GUID* Guid, string *File, string *Data, const wchar_t *Title, VMenu2 &HistoryMenu, int Height, int &Type, Dialog *Dlg);
 		HistoryConfig* HistoryCfgRef(void);
 	public:
 		History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, const BoolOption& EnableSave, bool SaveType);
@@ -66,11 +67,11 @@ class History
 
 		void AddToHistory(const wchar_t *Str, int Type=0, const GUID* Guid=nullptr, const wchar_t *File=nullptr, const wchar_t *Data=nullptr, bool SaveForbid=false);
 		int  Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strStr, int &Type, GUID* Guid=nullptr, string *File=nullptr, string *Data=nullptr);
-		int  Select(VMenu &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
+		int  Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg, string &strStr);
 		void GetPrev(string &strStr);
 		void GetNext(string &strStr);
 		bool GetSimilar(string &strStr, int LastCmdPartLength, bool bAppend=false);
-		bool GetAllSimilar(VMenu &HistoryMenu,const wchar_t *Str);
+		bool GetAllSimilar(VMenu2 &HistoryMenu,const wchar_t *Str);
 		void SetAddMode(bool EnableAdd, int RemoveDups, bool KeepSelectedPos);
 		void ResetPosition() { CurrentItem = 0; }
 		bool DeleteIfUnlocked(unsigned __int64 id);

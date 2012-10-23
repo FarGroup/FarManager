@@ -264,7 +264,7 @@ class Edit:public ScreenObject
 
 
 class History;
-class VMenu;
+class VMenu2;
 
 // Надстройка над Edit.
 // Одиночная строка ввода для диалогов и комстроки (не для редактора)
@@ -279,7 +279,7 @@ class EditControl:public Edit
 
 	History* pHistory;
 	FarList* pList;
-	void SetMenuPos(VMenu& menu);
+	void SetMenuPos(VMenu2& menu);
 	int AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROMODEAREA Area);
 
 	FarColor ColorUnChanged;   // 28.07.2000 SVS - для диалога

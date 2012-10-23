@@ -229,6 +229,8 @@ class Dialog: public Frame
 		GUID Id;
 		bool IdExist;
 
+		MOUSE_EVENT_RECORD PrevMouseRecord;
+
 	private:
 		void Init(FARWINDOWPROC DlgProc,void* InitParam);
 		virtual void DisplayObject();
@@ -285,6 +287,7 @@ class Dialog: public Frame
 		int Do_ProcessFirstCtrl();
 		int Do_ProcessSpace();
 		void SetComboBoxPos(DialogItemEx* Item=nullptr);
+		void CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2);
 
 		intptr_t CallDlgProc(int nMsg, int nParam1, void* Param2);
 

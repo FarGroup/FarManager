@@ -61,6 +61,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "wakeful.hpp"
 #include "colormix.hpp"
+#include "vmenu2.hpp"
 
 static bool ReplaceMode, ReplaceAll;
 
@@ -3670,6 +3671,12 @@ void Editor::ScrollUp()
    (פאיכ stddlg.cpp)
 */
 
+	struct FindCoord
+	{
+		UINT Line;
+		UINT Pos;
+		UINT SearchLen;
+	};
 BOOL Editor::Search(int Next)
 {
 	Edit *CurPtr,*TmpPtr;
@@ -3734,15 +3741,15 @@ BOOL Editor::Search(int Next)
 
 	if (!EdOpt.PersistentBlocks || (EdOpt.SearchSelFound && !ReplaceMode))
 		UnmarkBlock();
-
+/*
 	struct FindCoord
 	{
 		UINT Line;
 		UINT Pos;
 		UINT SearchLen;
 	};
-
-	VMenu FindAllList(L"", nullptr, 0);
+*/
+	VMenu2 FindAllList(L"", nullptr, 0);
 	UINT AllRefLines = 0;
 
 	{
@@ -4101,25 +4108,19 @@ BOOL Editor::Search(int Next)
 		FindAllList.SetTitle(LangString(MEditSearchStatistics) << FindAllList.GetItemCount() << AllRefLines);
 		FindAllList.SetBottomTitle(LangString(MEditFindAllMenuFooter));
 		FindAllList.SetHelp(L"FindAllMenu");
-		FindAllList.Show();
-		int SelectedPos;
-		DWORD Key=0;
 		FindCoord* coord;
 		bool MenuZoomed=true;
 
-		while (!FindAllList.Done())
+		int ExitCode=FindAllList.Run([&](int Key)->int
 		{
 			CtrlObject->Macro.SetMode(MACRO_MENU);
-			SelectedPos=FindAllList.GetSelectPos();
-			Key=FindAllList.ReadInput();
+			int SelectedPos=FindAllList.GetSelectPos();
 
 			switch (Key)
 			{
 				case KEY_CONSOLE_BUFFER_RESIZE:
 				{
-					FindAllList.Hide();
 					FindAllList.SetPosition(-1,-1,0,0);
-					FindAllList.Show();
 					break;
 				}
 				case KEY_ADD:
@@ -4148,12 +4149,10 @@ BOOL Editor::Search(int Next)
 					{
 						CurPtr->SetCurPos(coord->Pos+coord->Pos+coord->SearchLen);
 					}
-					FindAllList.Show();
 					break;
 				case KEY_CTRLUP: case KEY_RCTRLUP:
 				case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
 					ProcessKey(Key);
-					FindAllList.Show();
 					break;
 				case KEY_F5:
 					MenuZoomed=!MenuZoomed;
@@ -4166,21 +4165,18 @@ BOOL Editor::Search(int Next)
 						FindAllList.SetPosition(-1, ScrY-20, 0, ScrY-10);
 					}
 					Show();
-					FindAllList.Show();
+					return 1;
 					break;
 				default:
 					if ((Key>=KEY_CTRL0 && Key<=KEY_CTRL9) || (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) ||
 					   (Key>=KEY_CTRLSHIFT0 && Key<=KEY_CTRLSHIFT9) || (Key>=KEY_RCTRLSHIFT0 && Key<=KEY_RCTRLSHIFT9))
 					{
 						ProcessKey(Key);
-						FindAllList.Show();
 					}
-					FindAllList.ProcessInput();
 					break;
 			}
-		}
-
-		int ExitCode = FindAllList.GetExitCode();
+			return 0;
+		});
 
 		if(ExitCode >= 0)
 		{

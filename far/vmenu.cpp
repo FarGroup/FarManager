@@ -1504,6 +1504,7 @@ int VMenu::ProcessKey(int Key)
 
 			int OldSelectPos=SelectPos;
 
+			bool IsHotkey=true;
 			if (!CheckKeyHiOrAcc(Key,0,0))
 			{
 				if (Key == KEY_SHIFTF1 || Key == KEY_F1)
@@ -1518,11 +1519,12 @@ int VMenu::ProcessKey(int Key)
 				else
 				{
 					if (!CheckKeyHiOrAcc(Key,1,FALSE))
-						CheckKeyHiOrAcc(Key,1,TRUE);
+						if (!CheckKeyHiOrAcc(Key,1,TRUE))
+							IsHotkey=false;
 				}
 			}
 
-			if (ParentDialog && SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,DialogItemID,ToPtr(SelectPos)))
+			if (IsHotkey && ParentDialog && SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,DialogItemID,ToPtr(SelectPos)))
 			{
 				UpdateItemFlags(OldSelectPos,Item[OldSelectPos]->Flags|LIF_SELECTED);
 				ShowMenu(true);
@@ -1835,7 +1837,9 @@ void VMenu::Show()
 
 	if (CheckFlags(VMENU_LISTBOX))
 	{
-		if (CheckFlags(VMENU_SHOWNOBOX))
+		if (CheckFlags(VMENU_LISTSINGLEBOX))
+			BoxType = SHORT_SINGLE_BOX;
+		else if (CheckFlags(VMENU_SHOWNOBOX))
 			BoxType = NO_BOX;
 		else if (CheckFlags(VMENU_LISTHASFOCUS))
 			BoxType = SHORT_DOUBLE_BOX;
@@ -2091,7 +2095,7 @@ void VMenu::ShowMenu(bool IsParent)
 
 	MaxLineWidth -= 2; // check mark + left horz. scroll
 
-	if (!CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && HasSubMenus)
+	if (/*!CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && */HasSubMenus)
 		MaxLineWidth -= 2; // sub menu arrow
 
 	if ((CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && BoxType==NO_BOX && ScrollBarRequired(Y2-Y1+1, GetShowItemCount()))
@@ -2111,7 +2115,9 @@ void VMenu::ShowMenu(bool IsParent)
 
 	if (CheckFlags(VMENU_LISTBOX))
 	{
-		if (CheckFlags(VMENU_SHOWNOBOX))
+		if (CheckFlags(VMENU_LISTSINGLEBOX))
+			BoxType = SHORT_SINGLE_BOX;
+		else if (CheckFlags(VMENU_SHOWNOBOX))
 			BoxType = NO_BOX;
 		else if (CheckFlags(VMENU_LISTHASFOCUS))
 			BoxType = SHORT_DOUBLE_BOX;
@@ -2590,7 +2596,7 @@ bool VMenu::CheckKeyHiOrAcc(DWORD Key, int Type, int Translate)
 				EndLoop = TRUE;
 			}
 
-			break;
+			return true;
 		}
 	}
 
@@ -2696,12 +2702,14 @@ void VMenu::ResizeConsole()
 		SaveScr = nullptr;
 	}
 
+/*
 	if (CheckFlags(VMENU_NOTCHANGE))
 	{
 		return;
 	}
 
 	ObjWidth = ObjHeight = 0;
+
 
 	if (!CheckFlags(VMENU_NOTCENTER))
 	{
@@ -2723,6 +2731,7 @@ void VMenu::ResizeConsole()
 
 		X2 = Y2 = 0;
 	}
+*/
 }
 
 void VMenu::SetBoxType(int BoxType)
@@ -2898,7 +2907,7 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 		Info->SelectPos = SelectPos;
 		Info->TopPos = TopPos;
 		Info->MaxHeight = MaxHeight;
-		Info->MaxLength = MaxLength;
+		Info->MaxLength = MaxLength + (ItemSubMenusCount > 0 ? 2 : 0);
 		return TRUE;
 	}
 
