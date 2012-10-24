@@ -372,6 +372,7 @@
     <ClCompile Include="luafar\keysandcolors.c" />
     <ClCompile Include="luafar\lflua.c" />
     <ClCompile Include="luafar\lregex.c" />
+    <ClCompile Include="luafar\luamacro.c" />
     <ClCompile Include="luafar\reg.c" />
     <ClCompile Include="luafar\service.c" />
     <ClCompile Include="luafar\slnudata.c" />

@@ -36,6 +36,7 @@ extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
 extern void push_flags_table(lua_State *L);
 extern void SetFarColors(lua_State *L);
 extern void WINAPI FarPanelItemFreeCallback(void* UserData, const struct FarPanelItemFreeInfo* Info);
+extern int far_MacroCallFar(lua_State *L);
 
 #define CAST(tp,expr) (tp)(expr)
 #define DIM(buff) (sizeof(buff)/sizeof(buff[0]))
@@ -4354,81 +4355,6 @@ static int far_MacroDelete(lua_State* L)
 	return 1;
 }
 
-typedef struct
-{
-	lua_State *L;
-	int ret_avail;
-} mcfc_data;
-
-static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val)
-{
-	mcfc_data *cbdata = CAST(mcfc_data*, Data);
-	if(cbdata->ret_avail > 0)
-	{
-		--cbdata->ret_avail;
-		PushFarMacroValue(cbdata->L, Val);
-	}
-}
-
-static int far_MacroCallFar(lua_State *L)
-{
-	enum { MAXARG=32, MAXRET=32 };
-	struct FarMacroValue args[MAXARG];
-	struct FarMacroCall fmc;
-	int idx, ret, pushed, stackpos=0, success=1;
-	INT64 val64;
-	mcfc_data cbdata = { L, MAXRET };
-	TPluginData *pd = GetPluginData(L);
-	struct MacroPrivateInfo *privateInfo = (struct MacroPrivateInfo*)pd->Info->Private;
-	int opcode = (int)luaL_checkinteger(L, 1);
-	fmc.Values = args;
-	fmc.Count = lua_gettop(L) - 1;
-	fmc.Callback = MacroCallFarCallback;
-	fmc.CallbackData = &cbdata;
-	luaL_argcheck(L, fmc.Count<=MAXARG, MAXARG+2, "too many arguments");
-
-	for(idx=0; idx<(int)fmc.Count; idx++)
-	{
-		int type;
-		stackpos = idx + 2;
-		type = lua_type(L, stackpos);
-
-		if(type == LUA_TNUMBER)
-		{
-			args[idx].Type = FMVT_DOUBLE;
-			args[idx].Value.Double = lua_tonumber(L, stackpos);
-		}
-		else if(type == LUA_TSTRING)
-		{
-			args[idx].Type = FMVT_STRING;
-			args[idx].Value.String = check_utf8_string(L, stackpos, NULL);
-		}
-		else if(type == LUA_TBOOLEAN || type == LUA_TNIL)
-		{
-			args[idx].Type = FMVT_BOOLEAN;
-			args[idx].Value.Boolean = lua_toboolean(L, stackpos);
-		}
-		else if(bit64_getvalue(L, stackpos, &val64))
-		{
-			args[idx].Type = FMVT_INTEGER;
-			args[idx].Value.Integer = val64;
-		}
-		else
-		{
-			success = 0;
-			break;
-		}
-	}
-
-	if(!success)
-		luaL_argerror(L, stackpos, "invalid argument");
-
-	lua_checkstack(L, MAXRET);
-	ret = (int) privateInfo->CallFar(opcode, &fmc);
-	pushed = MAXRET - cbdata.ret_avail;
-	return pushed ? pushed : (lua_pushnumber(L, ret), 1);
-}
-
 static int far_CPluginStartupInfo(lua_State *L)
 {
 	return lua_pushlightuserdata(L, (void*)GetPluginData(L)->Info), 1;
@@ -5573,8 +5499,6 @@ static int luaopen_far(lua_State *L)
 	{
 		lua_pushcfunction(L, far_MacroCallFar);
 		lua_setfield(L, -2, "MacroCallFar");
-		lua_pushnil(L);
-		lua_setfield(L, -2, "MacroGetLastError");
 	}
 
 	push_flags_table(L);

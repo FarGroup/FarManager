@@ -22,8 +22,7 @@ extern void LF_Error(lua_State *L, const wchar_t* aMsg);
 extern int pushInputRecord(lua_State *L, const INPUT_RECORD* ir);
 extern void FillInputRecord(lua_State *L, int pos, INPUT_RECORD *ir);
 extern int far_FreeSettings(lua_State *L);
-
-char LuamacroGuid[16]= {200,239,187,78,132,32,127,75,148,192,105,44,225,54,137,77};
+extern HANDLE Open_Luamacro(lua_State *L, const struct OpenInfo *Info);
 
 // "Collector" is a Lua table referenced from the Plugin Object table by name.
 // Collector contains an array of lightuserdata which are pointers to malloc'ed
@@ -676,162 +675,10 @@ static void PushParamsTable(lua_State* L, const struct OpenMacroInfo* Data)
 	}
 }
 
-static void FL_PushParamsTable(lua_State* L, const struct FarMacroCall* Data)
-{
-	size_t i;
-	lua_createtable(L, Data->Count, 0);
-	for(i=0; i < Data->Count; i++)
-	{
-		PushFarMacroValue(L, Data->Values + i);
-		lua_rawseti(L, -2, i+1);
-	}
-	if (Data->Callback)
-		Data->Callback(Data->CallbackData, Data->Values);
-}
-
-static struct MacroPluginReturn* CreateMPR(lua_State* L, int nargs, int ReturnType)
-{
-	size_t size = sizeof(struct MacroPluginReturn) + nargs*sizeof(struct FarMacroValue);
-	struct MacroPluginReturn* mpr = (struct MacroPluginReturn*)lua_newuserdata(L, size);
-	lua_setfield(L, -2, "MacroPluginReturn");
-	memset(mpr, 0, size);
-	mpr->Values = (struct FarMacroValue*)(mpr+1);
-	mpr->Count = nargs;
-	mpr->ReturnType = ReturnType;
-	return mpr;
-}
-
-static HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
-{
-	const struct OpenMacroPluginInfo* om_info = (const struct OpenMacroPluginInfo*)Info->Data;
-	int calltype = om_info->CallType;
-
-	lua_pushinteger(L, Info->OpenFrom);
-	lua_pushinteger(L, calltype);
-	lua_pushinteger(L, (int)om_info->Handle);
-	FL_PushParamsTable(L, om_info->Data);
-
-	if(pcall_msg(L, 4, 2) == 0)
-	{
-		if(calltype == MCT_MACROINIT || calltype == MCT_MACROFINAL)
-		{
-			if(lua_type(L,-2) == LUA_TNUMBER)
-			{
-				intptr_t ret = lua_tointeger(L,-2);
-				lua_pop(L,2);
-				return CAST(HANDLE, ret);
-			}
-		}
-		else if(calltype == MCT_MACROSTEP || calltype == MCT_MACROPARSE)
-		{
-			struct MacroPluginReturn* mpr;
-			int ReturnType;
-
-			if(lua_type(L,-2) != LUA_TNUMBER || lua_type(L,-1) != LUA_TTABLE)
-			{
-				lua_pop(L,2); return NULL;
-			}
-
-			switch((ReturnType=(int)lua_tointeger(L,-2)))
-			{
-				case MPRT_NORMALFINISH:
-				{
-					mpr = CreateMPR(L,0,ReturnType);
-					lua_pop(L,2);
-					return CAST(HANDLE, mpr);
-				}
-
-				case MPRT_ERRORFINISH:
-				case MPRT_KEYS:
-				case MPRT_PRINT:
-				{
-					lua_rawgeti(L,-1,1);
-
-					if(lua_type(L,-1) == LUA_TSTRING)
-					{
-						wchar_t *s = check_utf8_string(L,-1,NULL);
-						lua_rawseti(L,-2,1);
-						mpr = CreateMPR(L,1,ReturnType);
-						mpr->Values[0].Type = FMVT_STRING;
-						mpr->Values[0].Value.String = s;
-						lua_pop(L,2);
-						return CAST(HANDLE, mpr);
-					}
-					else
-					{
-						lua_pop(L,3); return NULL;
-					}
-				}
-
-				case MPRT_ERRORPARSE:
-				case MPRT_PLUGINCALL:
-				case MPRT_PLUGINMENU:
-				case MPRT_PLUGINCONFIG:
-				case MPRT_PLUGINCOMMAND:
-				{
-					int nargs, type, idx;
-					INT64 val64;
-					lua_getfield(L,-1,"n");
-					nargs=(int)lua_tointeger(L,-1);
-
-					if(nargs>64) nargs=64;
-
-					lua_pop(L,1);
-					mpr = CreateMPR(L,nargs,ReturnType);
-
-					for(idx=0; idx<nargs; idx++)
-					{
-						lua_rawgeti(L,-1,idx+1);
-						type = lua_type(L, -1);
-
-						if(type == LUA_TNUMBER)
-						{
-							mpr->Values[idx].Type = FMVT_DOUBLE;
-							mpr->Values[idx].Value.Double = lua_tonumber(L, -1);
-							lua_pop(L,1);
-						}
-						else if(type == LUA_TSTRING)
-						{
-							mpr->Values[idx].Type = FMVT_STRING;
-							mpr->Values[idx].Value.String = check_utf8_string(L, -1, NULL);
-							lua_rawseti(L,-2,idx+1);
-						}
-						else if(type == LUA_TBOOLEAN || type == LUA_TNIL)
-						{
-							mpr->Values[idx].Type = FMVT_BOOLEAN;
-							mpr->Values[idx].Value.Boolean = lua_toboolean(L, -1);
-							lua_pop(L,1);
-						}
-						else if(bit64_getvalue(L, -1, &val64))
-						{
-							mpr->Values[idx].Type = FMVT_INTEGER;
-							mpr->Values[idx].Value.Integer = val64;
-							lua_pop(L,1);
-						}
-						else
-						{
-							mpr->Values[idx].Type = FMVT_BOOLEAN;
-							mpr->Values[idx].Value.Boolean = 0;
-							lua_pop(L,1);
-						}
-					}
-
-					lua_pop(L,2);
-					return CAST(HANDLE, mpr);
-				}
-			}
-		}
-
-		lua_pop(L,2);
-	}
-
-	return NULL;
-}
-
 static void WINAPI FillFarMacroCall_Callback (void *CallbackData, struct FarMacroValue *Values)
 {
 	size_t i;
-	struct FarMacroCall *fmc = CAST(struct FarMacroCall*, CallbackData);
+	struct FarMacroCall *fmc = (struct FarMacroCall*)CallbackData;
 	(void)Values; // not used
 	for(i=0; i<fmc->Count; i++)
 	{
@@ -896,7 +743,7 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 	if(!CheckReloadDefaultScript(L) || !GetExportFunction(L, "Open"))
 		return NULL;
 
-	if(Info->OpenFrom==OPEN_LUAMACRO && IsEqualGUID(GetPluginData(L)->PluginId, LuamacroGuid))
+	if(Info->OpenFrom == OPEN_LUAMACRO)
 		return Open_Luamacro(L, Info);
 
 	lua_pushinteger(L, Info->OpenFrom); // 1-st argument
