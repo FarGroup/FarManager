@@ -4145,6 +4145,8 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 		DlgHist->ResetPosition();
 		// создание пустого вертикального меню
 		VMenu2 HistoryMenu(L"",nullptr,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
+		HistoryMenu.SetDialogMode(DMODE_NODRAWSHADOW);
+		HistoryMenu.SetModeMoving(false);
 		HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
 		HistoryMenu.SetBoxType(SHORT_SINGLE_BOX);
 //		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.

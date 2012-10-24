@@ -3450,6 +3450,8 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 		Flags.Clear(FEDITLINE_CMP_CHANGED);
 
 		VMenu2 ComplMenu(nullptr,nullptr,0,0);
+		ComplMenu.SetDialogMode(DMODE_NODRAWSHADOW);
+		ComplMenu.SetModeMoving(false);
 		string strTemp=Str;
 
 		ComplMenu.SetMacroMode(Area);

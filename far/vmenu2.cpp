@@ -94,8 +94,7 @@ intptr_t WINAPI VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param
 
 	if((Msg==DN_CONTROLINPUT || Msg==DN_INPUT) && !vm->cancel)
 	{
-		INPUT_RECORD *ReadRec=(INPUT_RECORD*)Param2;
-		if(vm->Call(DN_INPUT, ReadRec))
+		if(vm->Call(DN_INPUT, Param2))
 			return true;
 	}
 	if((Msg==DN_LISTCHANGE || Msg==DN_ENTERIDLE) && !vm->cancel)
@@ -255,7 +254,6 @@ VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, int ItemCount, int MaxHei
 	this->MaxHeight=MaxHeight;
 	ShortBox=false;
 	ClearStruct(DefRec);
-//ClearStruct(PrevMouseRecord);
 
 	X1=-1;
 	Y1=-1;
@@ -492,7 +490,7 @@ intptr_t VMenu2::Run(function<int(int Key)> fn)
 
 intptr_t VMenu2::GetExitCode()
 {
-	if(/*!init || */cancel || Dialog::GetExitCode()<0)
+	if(cancel || Dialog::GetExitCode()<0)
 		return -1;
 	return GetSelectPos();
 }

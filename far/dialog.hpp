@@ -366,6 +366,7 @@ class Dialog: public Frame
 		bool ProcessEvents();
 
 		void SetId(const GUID& Id);
+		const GUID& GetId(){return Id;}
 
 		friend class History;
 };

@@ -64,6 +64,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "configdb.hpp"
 #include "FarDlgBuilder.hpp"
+#include "DlgGuid.hpp"
 
 static const wchar_t *PluginsFolderName=L"Plugins";
 
@@ -1570,7 +1571,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 {
 	if (ModalType == MODALTYPE_DIALOG)
 	{
-		if (static_cast<Dialog*>(FrameManager->GetCurrentFrame())->CheckDialogMode(DMODE_NOPLUGINS))
+		Dialog *dlg=static_cast<Dialog*>(FrameManager->GetCurrentFrame());
+		if (dlg->CheckDialogMode(DMODE_NOPLUGINS) || dlg->GetId()==PluginsMenuId)
 		{
 			return 0;
 		}
@@ -1589,6 +1591,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		VMenu2 PluginList(MSG(MPluginCommandsMenuTitle),nullptr,0,ScrY-4);
 		PluginList.SetFlags(VMENU_WRAPMODE);
 		PluginList.SetHelp(L"PluginCommands");
+		PluginList.SetId(PluginsMenuId);
 		bool NeedUpdateItems = true;
 
 		while (NeedUpdateItems)
@@ -1676,7 +1679,6 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				PluginList.SetSelectPos(StartPos,1);
 				NeedUpdateItems = false;
 			}
-
 
 			PluginList.Run([&](int Key)->int
 			{
