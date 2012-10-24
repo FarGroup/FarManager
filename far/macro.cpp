@@ -1060,7 +1060,10 @@ int KeyMacro::GetKey()
 						DWORD EntryStackSize = m_StateStack.size();
 
 						if (CallPluginRules)
+						{
 							PushState();
+							mp_values[0].Boolean=1;
+						}
 						else
 							m_InternalInput++;
 
