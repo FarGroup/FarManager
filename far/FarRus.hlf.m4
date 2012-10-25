@@ -9,6 +9,8 @@
 @DescriptionsSettings=FileDiz
 @CodepagesSettings=CodepagesMenu
 @Interface.CompletionSettings=AutoCompleteSettings
+@Panel.Left=PanelCmdSort
+@Panel.Right=PanelCmdSort
 
 @Contents
 $^#Программа управления файлами и архивами#
