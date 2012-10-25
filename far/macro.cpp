@@ -1050,8 +1050,7 @@ int KeyMacro::GetKey()
 
 					if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
 					{
-						intptr_t Ret=0;
-						void* ResultCallPlugin=nullptr;
+						FarMacroCall* ResultCallPlugin=nullptr;
 
 						FarMacroValue *vParams = count>1 ? mpr->Values+1:nullptr;
 						OpenMacroInfo info={sizeof(OpenMacroInfo),count-1,vParams};
@@ -1070,25 +1069,29 @@ int KeyMacro::GetKey()
 						int lockCount = ScrBuf.GetLockCount();
 						ScrBuf.SetLockCount(0);
 
-						if (CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,&ResultCallPlugin))
-							Ret=reinterpret_cast<intptr_t>(ResultCallPlugin);
+						if (!CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,(void**)&ResultCallPlugin))
+							ResultCallPlugin = nullptr;
 
 						ScrBuf.SetLockCount(lockCount);
 
 						//в windows гарантируется, что не бывает указателей меньше 0x10000
-						if (Ret < 0x10000 && Ret >= -1) //FIXME
-						{
-							mp_values[0].Boolean=(Ret!=0);
-						}
+						bool IsValidPointer = (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000); //FIXME
+						if (IsValidPointer)
+							mp_info.Data = ResultCallPlugin;
 						else
-						{
-							mp_info.Data = reinterpret_cast<FarMacroCall*>(ResultCallPlugin);
-						}
+							mp_values[0].Boolean = (ResultCallPlugin != nullptr);
 
 						if (CallPluginRules)
 						{
 							if (m_StateStack.size() > EntryStackSize) // эта проверка нужна, т.к. PopState() мог уже быть вызван.
+							{
 								PopState();
+							}
+							else // имел место "асинхронный вызов": данные не были востребованы, но должны быть освобождены.
+							{
+								if (IsValidPointer && ResultCallPlugin->Callback && CtrlObject->Plugins->FindPlugin(guid))
+									ResultCallPlugin->Callback(ResultCallPlugin->CallbackData, ResultCallPlugin->Values);
+							}
 						}
 						else
 							m_InternalInput--;
