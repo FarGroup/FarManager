@@ -796,7 +796,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			}
 			else
 			{
-				if (m_CurState->m_MacroQueue.Empty())
+				if (!IsExecuting())
 				{
 					int Key = Rec->IntKey;
 					if ((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
@@ -1084,14 +1084,7 @@ int KeyMacro::GetKey()
 						if (CallPluginRules)
 						{
 							if (m_StateStack.size() > EntryStackSize) // эта проверка нужна, т.к. PopState() мог уже быть вызван.
-							{
 								PopState();
-							}
-							else // имел место "асинхронный вызов": данные не были востребованы, но должны быть освобождены.
-							{
-								if (IsValidPointer && ResultCallPlugin->Callback && CtrlObject->Plugins->FindPlugin(guid))
-									ResultCallPlugin->Callback(ResultCallPlugin->CallbackData, ResultCallPlugin->Values);
-							}
 						}
 						else
 							m_InternalInput--;
