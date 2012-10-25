@@ -666,7 +666,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_CTRLNUMPAD9:
 				case KEY_RCTRLNUMPAD9:
 				{
-					if (Opt.PgUpChangeDisk)
+					if (Opt.PgUpChangeDisk != 0)
 						ChDisk.Close(-1);
 				}
 				break;
@@ -1473,7 +1473,7 @@ void Panel::FastFind(int FirstKey)
 					if ((Key<32 || Key>=65536) && Key!=KEY_BS && Key!=KEY_CTRLY && Key!=KEY_RCTRLY &&
 					        Key!=KEY_CTRLBS && Key!=KEY_RCTRLBS && Key!=KEY_ALT && Key!=KEY_SHIFT &&
 					        Key!=KEY_CTRL && Key!=KEY_RALT && Key!=KEY_RCTRL &&
-					        !(Key==KEY_CTRLINS||Key==KEY_RCTRLINS||Key==KEY_CTRLNUMPAD0||Key==KEY_RCTRLNUMPAD0) &&
+					        !(Key==KEY_CTRLINS||Key==KEY_CTRLNUMPAD0) && // KEY_RCTRLINS/NUMPAD0 passed to panels
 							!(Key==KEY_SHIFTINS||Key==KEY_SHIFTNUMPAD0))
 					{
 						KeyToProcess=Key;
