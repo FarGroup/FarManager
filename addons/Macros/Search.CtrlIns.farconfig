@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?> 
 <farconfig> 
   <macros> 
-    <!-- ïî Ctrl+Ins çàêðûâàåì áûñòðûé ïîèñê (Alt+Char) è îòïðàâëÿåì Ctrl+Ins â àêòèâíóþ ïàíåëü -->
+    <!-- Ð¿Ð¾ Ctrl+Ins Ð·Ð°ÐºÑ€Ñ‹Ð²Ð°ÐµÐ¼ Ð±Ñ‹ÑÑ‚Ñ€Ñ‹Ð¹ Ð¿Ð¾Ð¸ÑÐº (Alt+Char) Ð¸ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð»ÑÐµÐ¼ Ctrl+Ins Ð² Ð°ÐºÑ‚Ð¸Ð²Ð½ÑƒÑŽ Ð¿Ð°Ð½ÐµÐ»ÑŒ -->
     <keymacros>
-      <macro area="Search" key="CtrlIns" flags="DisableOutput" description="CtrlIns â áûñòðîì ïîèñêå">
+      <macro area="Search" key="CtrlIns" flags="DisableOutput" description="CtrlIns Ð² Ð±Ñ‹ÑÑ‚Ñ€Ð¾Ð¼ Ð¿Ð¾Ð¸ÑÐºÐµ">
         <text>Keys('Esc CtrlIns')</text>
       </macro> 
-      <macro area="Search" key="CtrlNum0" flags="DisableOutput" description="CtrlIns â áûñòðîì ïîèñêå">
+      <macro area="Search" key="CtrlNum0" flags="DisableOutput" description="CtrlIns Ð² Ð±Ñ‹ÑÑ‚Ñ€Ð¾Ð¼ Ð¿Ð¾Ð¸ÑÐºÐµ">
         <text>Keys('Esc CtrlIns')</text>
       </macro>
     </keymacros> 
