@@ -512,7 +512,8 @@ KeyMacro::KeyMacro():
 	m_LastErrorLine(0),
 	m_InternalInput(0),
 	m_IsRedrawEditor(true),
-	m_MacroPluginIsRunning(false)
+	m_MacroPluginIsRunning(0),
+	m_DisableNested(0)
 {
 	//print_opcodes();
 	m_CurState = new MacroState();
@@ -684,11 +685,11 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 	if (macro)
 		ScrBuf.SetLockCount(0);
 
-	m_MacroPluginIsRunning=true;
+	++m_MacroPluginIsRunning;
 	PushState();
 	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,Info,&ptr) != 0;
 	PopState();
-	m_MacroPluginIsRunning=false;
+	--m_MacroPluginIsRunning;
 
 	if (macro && macro->m_handle && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
 		ScrBuf.Lock();
@@ -796,7 +797,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			}
 			else
 			{
-				if (!IsExecuting())
+				if (!IsExecuting()||(m_CurState->m_MacroQueue.Empty()&&!m_DisableNested))
 				{
 					int Key = Rec->IntKey;
 					if ((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
@@ -2762,7 +2763,13 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_TESTFOLDER:      return testfolderFunc(Data);
 		case MCODE_F_TRIM:            return trimFunc(Data);
 		case MCODE_F_UCASE:           return ucaseFunc(Data);
-		case MCODE_F_WAITKEY:         return waitkeyFunc(Data);
+		case MCODE_F_WAITKEY:
+		{
+			++m_DisableNested;
+			bool result=waitkeyFunc(Data);
+			--m_DisableNested;
+			return result;
+		}
 		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(Data);
 		case MCODE_F_XLAT:            return xlatFunc(Data);
 		case MCODE_F_PROMPT:          return promptFunc(Data);

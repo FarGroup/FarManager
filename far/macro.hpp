@@ -191,7 +191,8 @@ class KeyMacro
 		int m_LastErrorLine;
 		int m_InternalInput;
 		bool m_IsRedrawEditor;
-		bool m_MacroPluginIsRunning;
+		int m_MacroPluginIsRunning;
+		int m_DisableNested;
 	private:
 		bool ReadKeyMacro(MACROMODEAREA Area);
 		void WriteMacro(void);
