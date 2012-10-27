@@ -513,7 +513,8 @@ KeyMacro::KeyMacro():
 	m_InternalInput(0),
 	m_IsRedrawEditor(true),
 	m_MacroPluginIsRunning(0),
-	m_DisableNested(0)
+	m_DisableNested(0),
+	m_WaitKey(0)
 {
 	//print_opcodes();
 	m_CurState = new MacroState();
@@ -1244,8 +1245,8 @@ void KeyMacro::SendDropProcess()
 }
 
 bool KeyMacro::CheckWaitKeyFunc()
-{//FIXME
-	return false;
+{
+	return m_WaitKey;
 }
 
 // Функция получения индекса нужного макроса в массиве
@@ -2765,9 +2766,9 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_UCASE:           return ucaseFunc(Data);
 		case MCODE_F_WAITKEY:
 		{
-			++m_DisableNested;
+			++m_DisableNested; ++m_WaitKey;
 			bool result=waitkeyFunc(Data);
-			--m_DisableNested;
+			--m_DisableNested; --m_WaitKey;
 			return result;
 		}
 		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(Data);

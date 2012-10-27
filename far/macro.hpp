@@ -193,6 +193,7 @@ class KeyMacro
 		bool m_IsRedrawEditor;
 		int m_MacroPluginIsRunning;
 		int m_DisableNested;
+		int m_WaitKey;
 	private:
 		bool ReadKeyMacro(MACROMODEAREA Area);
 		void WriteMacro(void);
