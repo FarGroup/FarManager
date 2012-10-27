@@ -1075,8 +1075,7 @@ int KeyMacro::GetKey()
 						ScrBuf.SetLockCount(lockCount);
 
 						//в windows гарантируется, что не бывает указателей меньше 0x10000
-						bool IsValidPointer = (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000); //FIXME
-						if (IsValidPointer)
+						if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
 							mp_info.Data = ResultCallPlugin;
 						else
 							mp_values[0].Boolean = (ResultCallPlugin != nullptr);

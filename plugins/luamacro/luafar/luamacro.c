@@ -43,7 +43,7 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 
 	lua_pushinteger(L, Info->OpenFrom);
 	lua_pushinteger(L, calltype);
-	lua_pushinteger(L, (int)om_info->Handle);
+	lua_pushinteger(L, (intptr_t)om_info->Handle);
 	FL_PushParamsTable(L, om_info->Data);
 
 	if(pcall_msg(L, 4, 2) == 0)

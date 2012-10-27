@@ -793,7 +793,7 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 			if ((narg = lua_gettop(L) - top + 4) == 0)
 				return NULL;
 			else if (narg == 1 && ((type=lua_type(L,-1)) == LUA_TBOOLEAN || type == LUA_TNIL))
-				ret = (HANDLE)(lua_toboolean(L,-1) ? 1:0);
+				ret = (HANDLE)(intptr_t)(lua_toboolean(L,-1) ? 1:0);
 			else
 				ret = FillFarMacroCall(L,narg);
 
