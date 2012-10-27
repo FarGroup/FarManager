@@ -525,6 +525,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 					case WTYPE_EDITOR:
 						wi->Id=static_cast<FileEditor*>(f)->GetId();
 						break;
+					case WTYPE_VMENU:
 					case WTYPE_DIALOG:
 						wi->Id=(intptr_t)f;
 						break;

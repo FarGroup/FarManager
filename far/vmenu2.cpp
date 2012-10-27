@@ -232,15 +232,22 @@ LISTITEMFLAGS VMenu2::GetItemFlags(int Position)
 
 string VMenu2::GetTitles(int bottom)
 {
-	string title;
+	string title; size_t size=1;
 	FarListTitles titles={sizeof(FarListTitles)};
 	if(!SendDlgMessage(this, DM_LISTGETTITLES, 0, &titles))
 		return title;
 	if(bottom)
-		titles.Bottom=title.GetBuffer(titles.BottomSize);
+	{
+		size=titles.BottomSize;
+		titles.Bottom=title.GetBuffer(size);
+	}
 	else
-		titles.Title=title.GetBuffer(titles.TitleSize);
+	{
+		size=titles.TitleSize;
+		titles.Title=title.GetBuffer(size);
+	}
 	SendDlgMessage(this, DM_LISTGETTITLES, 0, &titles);
+	title.ReleaseBuffer(size-1);
 	return title;
 }
 
@@ -533,4 +540,11 @@ void VMenu2::Key(int key)
 		SendDlgMessage(this, DM_KEY, 1, &rec);
 	else
 		DefRec=rec;
+}
+
+int VMenu2::GetTypeAndName(string &strType, string &strName)
+{
+	strType = MSG(MVMenuType);
+	strName = GetTitles();
+	return MODALTYPE_VMENU;
 }

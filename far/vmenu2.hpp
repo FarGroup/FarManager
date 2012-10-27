@@ -169,4 +169,8 @@ class VMenu2 : public Dialog
 		{
 			return ListBox().GetShowItemCount();
 		}
+
+		virtual const wchar_t *GetTypeName() {return L"[VMenu]";};
+		virtual int GetTypeAndName(string &strType, string &strName);
+		virtual int GetType() { return MODALTYPE_VMENU; }
 };
