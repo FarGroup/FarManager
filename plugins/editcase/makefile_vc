@@ -7,6 +7,7 @@ DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng
 !if "$(BUILD_PLATFORM)" == "X86"
 NEEDENTRY = 1
 NEEDDEFLIB = 1
+EXCLUDECRT = 1
 !endif
 
 !include ..\makefile_vc_def_inc
