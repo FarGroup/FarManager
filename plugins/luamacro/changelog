@@ -1,3 +1,7 @@
+zg 28.10.2012 02:04:17 +0200 - build 24
+
+1. LuaFAR: ACTL_GETWINDOWINFO возвращает userdata для Id также и для WTYPE_VMENU.
+
 shmuel 27.10.2012 20:55:55 +0200 - build 23
 
 1. LuaFAR: warnings.
