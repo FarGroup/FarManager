@@ -117,20 +117,20 @@ local function MacroStep (handle, ...)
   if macro then
     local status = co_status(macro.coro)
     if status == "suspended" then
-      local ok, ret1, ret2, ret3 = co_resume(macro.coro, ...)
+      local ok, ret1, ret_type, ret_values = co_resume(macro.coro, ...)
       if ok then
         status = co_status(macro.coro)
-        if status == "suspended" and ret1 == PROPAGATE and ret2 ~= "exit" then
-          macro.store[1] = ret3
-          if ret2==F.MPRT_PLUGINCALL or ret2==F.MPRT_PLUGINMENU or
-             ret2==F.MPRT_PLUGINCONFIG or ret2==F.MPRT_PLUGINCOMMAND then
-            return ret2, ret3
+        if status == "suspended" and ret1 == PROPAGATE and ret_type ~= "exit" then
+          macro.store[1] = ret_values
+          if ret_type==F.MPRT_PLUGINCALL or ret_type==F.MPRT_PLUGINMENU or
+             ret_type==F.MPRT_PLUGINCONFIG or ret_type==F.MPRT_PLUGINCOMMAND then
+            return ret_type, ret_values
           else
-            return ret2, macro.store
+            return ret_type, macro.store
           end
         else
           MacroTable[handle] = false
-          LastMessage[1] = "OK"
+          LastMessage[1] = ""
           return F.MPRT_NORMALFINISH, LastMessage
         end
       else

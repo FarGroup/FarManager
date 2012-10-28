@@ -1979,7 +1979,7 @@ id=153
 lv=2
 dt=Text
 nm=far.AdvControl
-mtime=3557601368
+mtime=3560582720
 <article>
 #_Result = far.AdvControl (Command, Param1, Param2)
 #_
@@ -2028,7 +2028,7 @@ mtime=3557601368
 #_    Param1:  window number; 0-based integer (optional; default=-1)
 #_    Result:  table (see its fields below)
 #_        Type:      integer
-#_        Id:        userdata (if Type==WTYPE_DIALOG), or integer
+#_        Id:        userdata (if Type is WTYPE_DIALOG or WTYPE_VMENU), or integer
 #_        Pos:       integer
 #_        Flags:     flags
 #_        TypeName:  string
