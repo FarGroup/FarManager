@@ -78,6 +78,7 @@
           <ComponentRef Id="Panel.Numpad.farconfig" />
           <ComponentRef Id="Panel.SelectFromClipboard.farconfig" />
           <ComponentRef Id="Panel.SpaceToSelect.farconfig" />
+          <ComponentRef Id="Search.CtrlIns.farconfig" />
           <ComponentRef Id="ShiftBS.farconfig" />
           <ComponentRef Id="ShiftF1.farconfig" />
           <ComponentRef Id="ShiftTab.farconfig" />

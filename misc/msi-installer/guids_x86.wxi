@@ -97,6 +97,7 @@
 <?define Guid.Panel.Numpad.farconfig = "4FFB447C-4CD6-41EE-BC82-7CBCDBCCBE96" ?>
 <?define Guid.Panel.SelectFromClipboard.farconfig = "4E7286FC-C746-4C08-AB7F-17D148991941" ?>
 <?define Guid.Panel.SpaceToSelect.farconfig = "B3CFDE81-029F-466A-9DB8-08ECF642C58A" ?>
+<?define Guid.Panel.Search.CtrlIns.farconfig = "663DE83C-A84A-4CDC-B0BE-5EF7BD3A0DB9" ?>
 <?define Guid.ShiftBS.farconfig = "0C71E897-E4A2-455A-9A5E-8619CD98B57A" ?>
 <?define Guid.ShiftF1.farconfig = "1A1A6A81-A50E-44EE-8ACF-11E2BBAB80FD" ?>
 <?define Guid.ShiftTab.farconfig = "58AB29BE-FF73-4240-B76F-56F6AC6E733B" ?>

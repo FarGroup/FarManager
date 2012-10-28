@@ -269,6 +269,9 @@
           <Component Id="Panel.SpaceToSelect.farconfig" Guid="$(var.Guid.Panel.SpaceToSelect.farconfig)" Win64="$(var.Win64)">
             <File Id="Panel.SpaceToSelect.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SpaceToSelect.farconfig" />
           </Component>
+          <Component Id="Search.CtrlIns.farconfig" Guid="$(var.Guid.Panel.Search.CtrlIns.farconfig)" Win64="$(var.Win64)">
+            <File Id="Search.CtrlIns.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Search.CtrlIns.farconfig" />
+          </Component>
           <Component Id="ShiftBS.farconfig" Guid="$(var.Guid.ShiftBS.farconfig)" Win64="$(var.Win64)">
             <File Id="ShiftBS.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftBS.farconfig" />
           </Component>
