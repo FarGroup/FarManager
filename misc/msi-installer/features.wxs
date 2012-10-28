@@ -120,6 +120,8 @@
         <ComponentRef Id="Plugins.Install.txt" />
         <ComponentRef Id="Plugins.Review.txt" />
         <ComponentRef Id="TechInfo.txt" />
+	<ComponentRef Id="luafar_manual.chm" />
+	<ComponentRef Id="macroapi_manual.chm" />
       </Feature>
       <Feature Id="Docs.Russian" Level="1" Display="hidden" AllowAdvertise="no">
         <ComponentRef Id="Bug.Report.txt_1" />

@@ -6,6 +6,7 @@ mkdir -p $1/Documentation
 
 svn export http://localhost/svn/trunk/docs/ENG $1/Documentation/eng
 svn export http://localhost/svn/trunk/docs/RUS $1/Documentation/rus
+svn export http://localhost/svn/trunk/docs/misc $1/Documentation/misc
 
 svn export http://localhost/svn/trunk/addons $1/Addons
 

@@ -293,4 +293,6 @@
 <?define Guid.plugin.hpp = "E736C600-248A-445F-8EC5-2646A8D586E7" ?>
 <?define Guid.FarColorW.pas = "51A36B89-725B-4F3A-8025-27AA78E715F0" ?>
 <?define Guid.PluginW.pas = "18301AD6-CCC7-4536-8F3C-71853A559AE9" ?>
+<?define Guid.luafar_manual.chm = "28E06E43-EA51-4113-A54D-60475B25DB4A" ?>
+<?define Guid.macroapi_manual.chm = "5417E235-32DB-4BA4-ADDE-55141AFA420E" ?>
 </Include>
