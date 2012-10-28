@@ -256,7 +256,7 @@ FarDialogItem VMenu2DialogItems[]=
 	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
 };
 
-VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, int ItemCount, int MaxHeight, DWORD Flags) : Dialog(VMenu2DialogItems, 1, VMenu2DlgProc, nullptr)
+VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags) : Dialog(VMenu2DialogItems, 1, VMenu2DlgProc, nullptr)
 {
 	this->MaxHeight=MaxHeight;
 	ShortBox=false;
@@ -276,7 +276,7 @@ VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, int ItemCount, int MaxHei
 	SendDlgMessage(this, DM_SETMOUSEEVENTNOTIFY, 1, nullptr);
 
 	FarListItem *fli=new FarListItem[ItemCount];
-	for(int i=0; i<ItemCount; ++i)
+	for(size_t i=0; i<ItemCount; ++i)
 	{
 		fli[i].Flags=Data[i].Flags;
 		fli[i].Text=Data[i].Name;
@@ -286,7 +286,7 @@ VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, int ItemCount, int MaxHei
 	SendDlgMessage(this, DM_LISTSET, 0, &fl);
 	delete[] fli;
 
-	for(int i=0; i<ItemCount; ++i)
+	for(size_t i=0; i<ItemCount; ++i)
 		GetItemPtr(i)->AccelKey=Data[i].AccelKey;
 
 	Dialog::SetPosition(-1, -1, 20, 20);
@@ -510,7 +510,7 @@ void VMenu2::Close(int ExitCode)
 	closing=true;
 }
 
-void *VMenu2::GetUserData(void *Data, size_t Size, int Position)
+void *VMenu2::GetUserData(void *Data, size_t Size, intptr_t Position)
 {
 	if(Position<0)
 		Position=GetSelectPos();
@@ -523,7 +523,7 @@ void *VMenu2::GetUserData(void *Data, size_t Size, int Position)
 	return d;
 }
 
-size_t VMenu2::SetUserData(LPCVOID Data, size_t Size, int Position)
+size_t VMenu2::SetUserData(LPCVOID Data, size_t Size, intptr_t Position)
 {
 	if(Position<0)
 		Position=GetSelectPos();

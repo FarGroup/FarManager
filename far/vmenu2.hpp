@@ -71,7 +71,7 @@ class VMenu2 : public Dialog
 		}
 
 	public:
-		VMenu2(const wchar_t *Title, MenuDataEx *Data, int ItemCount, int MaxHeight=0, DWORD Flags=0);
+		VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight=0, DWORD Flags=0);
 
 		void SetTitle(const wchar_t *Title);
 		void SetBottomTitle(const wchar_t *Title);
@@ -121,8 +121,8 @@ class VMenu2 : public Dialog
 		void Close(int ExitCode=-2);
 
 
-		void *GetUserData(void *Data, size_t Size, int Position=-1);
-		size_t SetUserData(LPCVOID Data, size_t Size=0, int Position=-1);
+		void *GetUserData(void *Data, size_t Size, intptr_t Position=-1);
+		size_t SetUserData(LPCVOID Data, size_t Size=0, intptr_t Position=-1);
 		void Key(int key);
 
 		virtual MACROMODEAREA GetMacroMode()

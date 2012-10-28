@@ -1,3 +1,7 @@
+zg 28.10.2012 17:11:29 +0200 - build 2908
+
+1. gcc warnings.
+
 zg 28.10.2012 01:57:25 +0200 - build 2907
 
 1. ACTL_GETWINDOWINFO неверно возвращал Type и TypeName для меню.
