@@ -1246,7 +1246,7 @@ void KeyMacro::SendDropProcess()
 
 bool KeyMacro::CheckWaitKeyFunc()
 {
-	return m_WaitKey;
+	return m_WaitKey != 0;
 }
 
 // Функция получения индекса нужного макроса в массиве

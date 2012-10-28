@@ -287,7 +287,7 @@ VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int Max
 	delete[] fli;
 
 	for(size_t i=0; i<ItemCount; ++i)
-		GetItemPtr(i)->AccelKey=Data[i].AccelKey;
+		GetItemPtr(static_cast<int>(i))->AccelKey=Data[i].AccelKey;
 
 	Dialog::SetPosition(-1, -1, 20, 20);
 	SetFlags(Flags|VMENU_MOUSEREACTION);
