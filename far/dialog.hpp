@@ -62,7 +62,7 @@ enum DIALOG_MODES
 	DMODE_RESIZED               =0x00010000, //
 	DMODE_ENDLOOP               =0x00020000, // Конец цикла обработки диалога?
 	DMODE_BEGINLOOP             =0x00040000, // Начало цикла обработки диалога?
-	//DMODE_OWNSITEMS           =0x00080000, // если TRUE, Dialog освобождает список Item в деструкторе
+	DMODE_ISMENU                =0x00080000, // диалог является экземпляром VMenu2
 	DMODE_NODRAWSHADOW          =0x00100000, // не рисовать тень?
 	DMODE_NODRAWPANEL           =0x00200000, // не рисовать подложку?
 	DMODE_FULLSHADOW            =0x00400000,

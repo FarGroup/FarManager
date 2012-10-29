@@ -378,7 +378,9 @@ Dialog::~Dialog()
 	Hide();
 	if (Opt.Clock && FrameManager->IsPanelsActive(true))
 		ShowTime(0);
-//	ScrBuf.Flush();
+
+	if(!CheckDialogMode(DMODE_ISMENU))
+		ScrBuf.Flush();
 
 	if (HelpTopic)
 		delete [] HelpTopic;

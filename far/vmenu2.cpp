@@ -269,7 +269,7 @@ VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int Max
 
 	MacroMode=MACRO_MENU;
 
-	SetDialogMode(DMODE_KEEPCONSOLETITLE);
+	SetDialogMode(DMODE_KEEPCONSOLETITLE|DMODE_ISMENU);
 
 
 	SetTitle(Title);

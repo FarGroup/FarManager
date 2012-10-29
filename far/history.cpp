@@ -48,6 +48,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "datetime.hpp"
 #include "FarGuid.hpp"
+#include "scrbuf.hpp"
 
 History::History(enumHISTORYTYPE TypeHistory, const wchar_t *HistoryName, const BoolOption& EnableSave, bool SaveType):
 	strHistoryName(HistoryName),
@@ -183,7 +184,10 @@ int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strS
 
 	HistoryMenu.SetPosition(-1,-1,0,0);
 	HistoryMenu.AssignHighlights(TRUE);
-	return ProcessMenu(strStr, Guid, File, Data, Title, HistoryMenu, Height, Type, nullptr);
+
+	int ret=ProcessMenu(strStr, Guid, File, Data, Title, HistoryMenu, Height, Type, nullptr);
+	ScrBuf.Flush();
+	return ret;
 }
 
 int History::Select(VMenu2 &HistoryMenu, int Height, Dialog *Dlg, string &strStr)
