@@ -137,6 +137,24 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 							mpr->Values[idx].Value.Boolean = lua_toboolean(L, -1);
 							lua_pop(L,1);
 						}
+						else if(type == LUA_TTABLE)
+						{
+							mpr->Values[idx].Type = FMVT_BINARY;
+							lua_rawgeti(L,-1,1);
+							if (lua_type(L,-1) == LUA_TSTRING)
+							{
+								mpr->Values[idx].Value.Binary.Data = (char*)lua_tostring(L,-1);
+								mpr->Values[idx].Value.Binary.Length = lua_objlen(L,-1);
+								lua_rawseti(L,-3,idx+1);
+							}
+							else
+							{
+								mpr->Values[idx].Value.Binary.Data = (char*)"";
+								mpr->Values[idx].Value.Binary.Length = 0;
+								lua_pop(L,1);
+							}
+							lua_pop(L,1);
+						}
 						else if(bit64_getvalue(L, -1, &val64))
 						{
 							mpr->Values[idx].Type = FMVT_INTEGER;

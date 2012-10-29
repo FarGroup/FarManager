@@ -1603,7 +1603,7 @@ id=109
 lv=2
 dt=Text
 nm=export.Open
-mtime=3560065113
+mtime=3560712722
 <article>
 #_ret = export.Open (OpenFrom, Guid, Item)
 #_
@@ -1635,6 +1635,8 @@ mtime=3560065113
 #_    0 or more Lua values.
 #_    Currently, values of the following types are supported:
 #_      boolean, number, string in UTF-8 and "int64" userdata, produced by bit64 library.
+#_      In order to pass an arbitrary string without conversion UTF-8 -> UTF-16LE,
+#_      the string should be passed enclosed in a table as its first element.
 #_  if OpenFrom == something else:
 #_    ret: any Lua value; it is processed by LuaFAR as follows:
 #_      - Nil and false: NULL is returned to Far.

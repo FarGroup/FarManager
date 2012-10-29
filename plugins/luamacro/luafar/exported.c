@@ -685,7 +685,7 @@ static void WINAPI FillFarMacroCall_Callback (void *CallbackData, struct FarMacr
 		struct FarMacroValue *v = fmc->Values + i;
 		if (v->Type == FMVT_STRING)
 			free((void*)v->Value.String);
-		else if (v->Type == FMVT_BINARY)
+		else if (v->Type == FMVT_BINARY && v->Value.Binary.Length)
 			free(v->Value.Binary.Data);
 	}
 	free(CallbackData);
@@ -722,6 +722,22 @@ static HANDLE FillFarMacroCall (lua_State* L, int narg)
 		{
 			fmc->Values[i].Type = FMVT_STRING;
 			fmc->Values[i].Value.String = wcsdup(check_utf8_string(L, i-narg, NULL));
+		}
+		else if (type == LUA_TTABLE)
+		{
+			size_t len;
+			fmc->Values[i].Type = FMVT_BINARY;
+			fmc->Values[i].Value.Binary.Data = (char*)"";
+			fmc->Values[i].Value.Binary.Length = 0;
+			lua_rawgeti(L, i-narg, 1);
+			if (lua_type(L,-1) == LUA_TSTRING && (len=lua_objlen(L,-1) != 0))
+			{
+				void* arr = malloc(len);
+				memcpy(arr, lua_tostring(L,-1), len);
+				fmc->Values[i].Value.Binary.Data = arr;
+				fmc->Values[i].Value.Binary.Length = len;
+			}
+			lua_pop(L,1);
 		}
 		else if (bit64_getvalue(L, i-narg, &val64))
 		{
