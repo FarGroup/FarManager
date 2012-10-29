@@ -561,7 +561,7 @@ int KeyMacro::IsRecording()
 int KeyMacro::IsExecuting()
 {
 	MacroRecord* m = GetCurMacro();
-	if (m)
+	if (m && m->m_handle)
 		return m->Flags()&MFLAGS_NOSENDKEYSTOPLUGINS ? MACROMODE_EXECUTING : MACROMODE_EXECUTING_COMMON;
 	else
 		return m_StateStack.empty() ? MACROMODE_NOMACRO : MACROMODE_EXECUTING_COMMON;
