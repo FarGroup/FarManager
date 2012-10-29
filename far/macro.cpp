@@ -1968,7 +1968,7 @@ static int PassBoolean (int b, FarMacroCall* Data)
 		FarMacroValue val;
 		val.Type = FMVT_BINARY;
 		val.Binary.Data = Start;
-		val.Binary.Length = Length;
+		val.Binary.Size = Length;
 		Data->Callback(Data->CallbackData, &val);
 	}
 	return 1;

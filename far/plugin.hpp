@@ -1213,7 +1213,7 @@ struct FarMacroValue
 		struct
 		{
 			void *Data;
-			size_t Length;
+			size_t Size;
 		} Binary;
 	}
 #ifndef __cplusplus
@@ -2559,11 +2559,17 @@ struct OpenMacroInfo
 	struct FarMacroValue *Values;
 };
 
+typedef unsigned __int64 FAROPENSHORTCUTFLAGS;
+static const FAROPENSHORTCUTFLAGS
+	FOSF_ACTIVE = 0x0000000000000001ULL,
+	FOSF_NONE   = 0;
+
 struct OpenShortcutInfo
 {
 	size_t StructSize;
 	const wchar_t *HostFile;
 	const wchar_t *ShortcutData;
+	FAROPENSHORTCUTFLAGS Flags;
 };
 
 struct OpenCommandLineInfo

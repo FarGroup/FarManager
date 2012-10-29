@@ -2724,7 +2724,13 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 					}
 				}
 
-				OpenShortcutInfo info={sizeof(OpenShortcutInfo),strPluginFile.IsEmpty()?nullptr:strPluginFile.CPtr(),strPluginData.IsEmpty()?nullptr:strPluginData.CPtr()};
+				OpenShortcutInfo info=
+				{
+					sizeof(OpenShortcutInfo),
+					strPluginFile.IsEmpty()?nullptr:strPluginFile.CPtr(),
+					strPluginData.IsEmpty()?nullptr:strPluginData.CPtr(),
+					(SrcPanel==CtrlObject->Cp()->ActivePanel)?FOSF_ACTIVE:FOSF_NONE
+				};
 				HANDLE hNewPlugin=CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(intptr_t)&info);
 
 				if (hNewPlugin)

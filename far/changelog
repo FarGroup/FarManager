@@ -1,3 +1,11 @@
+zg 30.10.2012 00:20:23 +0200 - build 2912
+
+1. в OpenShortcutInfo добавлено поле Flags. FOSF_ACTIVE устанавливается,
+   если OPEN_SHORTCUT вызывается для активной панели
+   и не устанавливается для пассивной панели.
+
+2. от Alexey Samlyukov: FarMacroValue.Length -> FarMacroValue.Size
+
 lort 29.10.2012 18:35:55 +0400 - build 2911
 
 1. Вернем перерисовку экрана в деструкторе диалога.
