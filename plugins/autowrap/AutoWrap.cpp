@@ -235,7 +235,7 @@ intptr_t WINAPI ProcessEditorInputW(const ProcessEditorInputInfo *InputInfo)
       if (SpaceOnly)
         break;
 
-      struct EditorSetPosition esp={sizeof(EditorSetPosition)};
+      struct EditorSetPosition esp={sizeof(EditorSetPosition),-1,-1,-1,-1,-1,-1};
       esp.CurPos=SpacePos+1;
       Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
       int Indent=TRUE;
