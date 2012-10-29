@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2896
+  Plugin API for Far Manager 3.0 build 2912
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2896
+#define FARMANAGERVERSION_BUILD 2912
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1091,7 +1091,7 @@ struct FarMacroValue
 		struct
 		{
 			void *Data;
-			size_t Length;
+			size_t Size;
 		} Binary;
 	}
 #ifndef __cplusplus
@@ -2350,11 +2350,17 @@ struct OpenMacroInfo
 	struct FarMacroValue *Values;
 };
 
+typedef unsigned __int64 FAROPENSHORTCUTFLAGS;
+static const FAROPENSHORTCUTFLAGS
+	FOSF_ACTIVE = 0x0000000000000001ULL,
+	FOSF_NONE   = 0;
+
 struct OpenShortcutInfo
 {
 	size_t StructSize;
 	const wchar_t *HostFile;
 	const wchar_t *ShortcutData;
+	FAROPENSHORTCUTFLAGS Flags;
 };
 
 struct OpenCommandLineInfo
