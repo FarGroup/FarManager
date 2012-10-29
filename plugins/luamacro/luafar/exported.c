@@ -656,7 +656,7 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 	else if (val->Type == FMVT_DOUBLE)  lua_pushnumber(L, val->Value.Double);
 	else if (val->Type == FMVT_STRING)  push_utf8_string(L, val->Value.String, -1);
 	else if (val->Type == FMVT_BOOLEAN) lua_pushboolean(L, (int)val->Value.Boolean);
-	else if (val->Type == FMVT_BINARY)  lua_pushlstring(L, (char*)val->Value.Binary.Data, val->Value.Binary.Length);
+	else if (val->Type == FMVT_BINARY)  lua_pushlstring(L, (char*)val->Value.Binary.Data, val->Value.Binary.Size);
 	else                                lua_pushboolean(L, 0);
 }
 
@@ -685,7 +685,7 @@ static void WINAPI FillFarMacroCall_Callback (void *CallbackData, struct FarMacr
 		struct FarMacroValue *v = fmc->Values + i;
 		if (v->Type == FMVT_STRING)
 			free((void*)v->Value.String);
-		else if (v->Type == FMVT_BINARY && v->Value.Binary.Length)
+		else if (v->Type == FMVT_BINARY && v->Value.Binary.Size)
 			free(v->Value.Binary.Data);
 	}
 	free(CallbackData);
@@ -728,14 +728,14 @@ static HANDLE FillFarMacroCall (lua_State* L, int narg)
 			size_t len;
 			fmc->Values[i].Type = FMVT_BINARY;
 			fmc->Values[i].Value.Binary.Data = (char*)"";
-			fmc->Values[i].Value.Binary.Length = 0;
+			fmc->Values[i].Value.Binary.Size = 0;
 			lua_rawgeti(L, i-narg, 1);
 			if (lua_type(L,-1) == LUA_TSTRING && (len=lua_objlen(L,-1) != 0))
 			{
 				void* arr = malloc(len);
 				memcpy(arr, lua_tostring(L,-1), len);
 				fmc->Values[i].Value.Binary.Data = arr;
-				fmc->Values[i].Value.Binary.Length = len;
+				fmc->Values[i].Value.Binary.Size = len;
 			}
 			lua_pop(L,1);
 		}

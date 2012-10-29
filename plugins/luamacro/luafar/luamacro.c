@@ -144,13 +144,13 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 							if (lua_type(L,-1) == LUA_TSTRING)
 							{
 								mpr->Values[idx].Value.Binary.Data = (char*)lua_tostring(L,-1);
-								mpr->Values[idx].Value.Binary.Length = lua_objlen(L,-1);
+								mpr->Values[idx].Value.Binary.Size = lua_objlen(L,-1);
 								lua_rawseti(L,-3,idx+1);
 							}
 							else
 							{
 								mpr->Values[idx].Value.Binary.Data = (char*)"";
-								mpr->Values[idx].Value.Binary.Length = 0;
+								mpr->Values[idx].Value.Binary.Size = 0;
 								lua_pop(L,1);
 							}
 							lua_pop(L,1);
