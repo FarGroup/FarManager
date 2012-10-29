@@ -16,12 +16,13 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarGetPluginPanelItem</dfn> используется для запроса информации о файловом объекте в функции <a href="../service_functions/panelcontrol.html">PanelControl</a>.
+Структура <code>FarGetPluginPanelItem</code> используется для запроса информации о файловом объекте в функции <a href="../service_functions/panelcontrol.html">PanelControl</a>.
 </div>
 
 <pre class=syntax>
 struct FarGetPluginPanelItem
 {
+  size_t StructSize;
   size_t Size;
   struct PluginPanelItem *Item;
 };
@@ -29,8 +30,10 @@ struct FarGetPluginPanelItem
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarGetPluginPanelItem</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Size</div>
-    <div class=dfndescr>Размер поля <i>Item</i>.</div>
+    <div class=dfndescr>Размер поля <code>Item</code> в байтах.</div>
   <div class=dfn>Items</div>
     <div class=dfndescr>Буфер, выделенный плагином для размещения запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.</div>
 </div>
@@ -40,7 +43,8 @@ struct FarGetPluginPanelItem
 Выделенный буфер должен быть освобожден плагином. Смотрите пример в функции <a href="../service_functions/panelcontrol.html#FCTL_GETPANELITEM">PanelControl</a>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

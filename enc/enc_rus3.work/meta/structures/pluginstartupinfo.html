@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>PluginStartupInfo</dfn> используется в функции <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a> для передачи Far Manager'ом плагину различной важной информации.
+Структура <code>PluginStartupInfo</code> используется в функции <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a> для передачи Far Manager'ом плагину различной важной информации.
 </div>
 
 <pre class=syntax>
@@ -49,20 +49,20 @@ struct PluginStartupInfo
   FARAPIDIALOGFREE       DialogFree;
   FARAPISENDDLGMESSAGE   SendDlgMessage;
   FARAPIDEFDLGPROC       DefDlgProc;
-  DWORD_PTR              Reserved;
   FARAPIVIEWERCONTROL    ViewerControl;
   FARAPIPLUGINSCONTROL   PluginsControl;
   FARAPIFILEFILTERCONTROL FileFilterControl;
   FARAPIREGEXPCONTROL    RegExpControl;
   FARAPIMACROCONTROL     MacroControl;
   FARAPISETTINGSCONTROL  SettingsControl;
+  void                  *Private;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры <dfn>PluginStartupInfo</dfn>. Если в будущем будут добавлены новые поля, это поле позволит определить это.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>PluginStartupInfo</code>. Если в будущем будут добавлены новые поля, это поле позволит определить это.</div>
   <div class=dfn>ModuleName</div>
     <div class=dfndescr>Полное имя плагина с путём.</div>
   <div class=dfn>Menu</div>
@@ -125,11 +125,14 @@ struct PluginStartupInfo
     <div class=dfndescr>Адрес функции <a href="../service_functions/macrocontrol.html">MacroControl</a>.</div>
   <div class=dfn>SettingsControl</div>
     <div class=dfndescr>Адрес функции <a href="../service_functions/settingscontrol.html">SettingsControl</a>.</div>
+  <div class=dfn>Private</div>
+    <div class=dfndescr>Поле используется Far Manager'ом для взаимодействия с отдельными стандартными плагинами.</div>
 </div>
 
 <h3>Замечания</h3>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a> 
 </div>
 

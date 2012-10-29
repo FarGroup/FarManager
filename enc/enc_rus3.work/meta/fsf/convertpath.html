@@ -15,13 +15,13 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.ConvertPath</dfn> преобразует относительное имя файлового объекта в полное.
+Функция <code>FSF.ConvertPath</code> преобразует относительное имя файлового объекта в полное.
 </div>
 
 <p class=note>
   <img src="../../images/note.gif" alt="Замечание для ConvertPath" width="10" height="10"> Внимание!
   <ul class=note>
-    <li>Не используйте для этих целей функцию <dfn>GetFullPathName</dfn> из Windows API.</li>
+    <li>Не используйте для этих целей функцию <code>GetFullPathName</code> из Windows API.</li>
     <li>Не передавайте относительные имена файлов в любые функции Windows API, все относительные пути должны быть преобразованы в полные.</li>
     <li>При передаче имён в функции Windows API используйте префикс "\\?\", чтобы избежать проблемы с длинными и нестандартными именами файлов.</li>
   </ul>
@@ -45,34 +45,34 @@ size_t WINAPI ConvertPath(
     <tr class="cont"><td class="cont" width="40%"><a name="CPM_FULL">CPM_FULL</a></td>
     <td class="cont" width="60%"> преобразует относительное имя файлового объекта в полное</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="CPM_REAL">CPM_REAL</a></td>
-    <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное, с учётом символических ссылок. </td></tr>
+    <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное, с учётом символических ссылок.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="CPM_NATIVE">CPM_NATIVE</a></td>
     <td class="cont" width="60%">преобразует относительное имя файлового объекта в полное, предваряя путь префиксами "\\?\" (для локальных объектов) или "\\?\UNC\" (для сетевых объектов);<br>
     это преобразование имеет смысл применять для избежания проблем с длинными и нестандартными именами файлов (<a href="http://msdn.microsoft.com/en-us/library/aa365247.aspx">подробности</a>)</td></tr>
     </table>
     </div>
   <div class=dfn>Src</div>
-    <div class=dfndescr>Источник данных - полное или относительное имя файла/каталога.</div>
+    <div class=dfndescr>Указатель на источник данных - полное или относительное имя файла/каталога.</div>
   <div class=dfn>Dest</div>
-    <div class=dfndescr>Строка назначения, сюда будет помещён полный путь. Может быть равна <code>NULL</code>.</div>
+    <div class=dfndescr>Укзатель на строку назначения, сюда будет помещён полный путь. Установите <code>Dest = NULL</code> для того, чтобы узнать необходимый размер буфера.</div>
   <div class=dfn>DestSize</div>
-    <div class=dfndescr>Размер буфера <i>Dest</i> в символах. Если <i>Dest</i>=<code>NULL</code>, то параметр <i>DestSize</i> игнорируется.</div>
+    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <code>Dest</code>, с заключительным нулём.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Необходимый размер буфера <i>Dest</i> в символах.
-<p>Особенности <i>Mode</i>=<code>CPM_REAL</code>:</p>
+Необходимый размер буфера <code>Dest</code> в символах.
+<p>Особенности <code>Mode = CPM_REAL</code>:</p>
 <ul>
-<li>Для монтированных дисков, которые не имеют буквы диска, функция поместит в <var>Dest</var> строку, подобную этой: <code>"\\?\Volume{273872e0-5e49-11d5-b614-0080ad70bb9b}\Foo.bar"</code>
-<li>Если, например, каталог <code>"D:\Foo\Bar"</code> является симлинком для реально существующего <code>"C:\work\Doc"</code>, то функция для файла <code>"D:\Foo\Bar\1092\readme.txt"</code> вернёт <code>"C:\work\Doc\1092\readme.txt"<code>
+<li>Для монтированных дисков, которые не имеют буквы диска, функция поместит в <code>Dest</code> строку, подобную этой: <code>"\\?\Volume{273872e0-5e49-11d5-b614-0080ad70bb9b}\Foo.bar"</code>
+<li>Если, например, каталог <code>"D:\Foo\Bar"</code> является симлинком для реально существующего <code>"C:\work\Doc"</code>, то функция для файла <code>"D:\Foo\Bar\1092\readme.txt"</code> вернёт <code>"C:\work\Doc\1092\readme.txt"</code>
 </ul>
 </div>
 
-<h3>Примечание</h3>
+<h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Параметры <i>Src</i> и <i>Dest</i> могут ссылаться на одну и ту же строку.
+<li>Параметры <code>Src</code> и <code>Dest</code> могут ссылаться на одну и ту же строку.
 </ol>
 </div>
 
@@ -96,6 +96,10 @@ size_t WINAPI ConvertPath(
    GetFileAttributes(FullName);
    delete[] FullName;
 </pre>
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 </div>
 
 </body>

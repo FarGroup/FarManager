@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-—труктура <dfn>FarListTitles</dfn> описывает заголовки (верхний и нижний) дл€ элемента диалога <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a>.
+—труктура <code>FarListTitles</code> описывает заголовки (верхний и нижний) дл€ элемента диалога <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <pre class=syntax>
@@ -33,7 +33,7 @@ struct FarListTitles
 <h3>Ёлементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>–азмер структуры.</div>
+    <div class=dfndescr>Ёто поле должно содержать размер структуры <code>FarListTitles</code>. ѕеред использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>TitleSize</div>
     <div class=dfndescr>ƒлина строки верхнего заголовка с завершающим нулем.</div>
   <div class=dfn>Title</div>
@@ -46,7 +46,7 @@ struct FarListTitles
 
 <h3>«амечани€</h3>
 <div class=descr>
-„лены структуры <i>TitleSize</i> и <i>BottomSize</i> об€зательны только при получении заголовков списка (см. <a href="../dialogapi/dmsg/dm_listgettitles.html">DM_LISTGETTITLES</a>).</div>
+„лены структуры <code>TitleSize</code> и <code>BottomSize</code> об€зательны только при получении заголовков списка (см. <a href="../dialogapi/dmsg/dm_listgettitles.html">DM_LISTGETTITLES</a>).</div>
 
 <div class=see>—мотрите также:</div><div class=seecont>
 <a href="../dialogapi/dmsg/dm_listgettitles.html">DM_LISTGETTITLES</a>,

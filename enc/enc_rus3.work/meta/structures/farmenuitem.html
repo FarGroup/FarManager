@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarMenuItem</dfn> описывает один пункт меню. Массив этих структур передаётся в функцию <a href="../service_functions/menu.html">Menu</a>.
+Структура <code>FarMenuItem</code> описывает один пункт меню. Массив этих структур передаётся в функцию <a href="../service_functions/menu.html">Menu</a>.
 </div>
 
 <pre class=syntax>
@@ -24,8 +24,8 @@ struct FarMenuItem
   MENUITEMFLAGS Flags;
   const wchar_t *Text;
   struct FarKey AccelKey;
-  DWORD_PTR Reserved;
-  DWORD_PTR UserData;
+  intptr_t UserData;
+  intptr_t Reserved[2];
 };
 </pre>
 
@@ -48,32 +48,34 @@ struct FarMenuItem
     <tr class="cont"><td class="cont" width="40%"><a name="MIF_HIDDEN">MIF_HIDDEN</a></td>
     <td class="cont" width="60%">Если флаг установлен, то пункт меню не выводится на экран.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="MIF_NONE">MIF_NONE</a></td>
-    <td class="cont" width="60%">...</td></tr>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
     </table>
     </div>
   <div class=dfn>Text</div>
     <div class=dfndescr>Указатель на текст пункта меню.</div>
   <div class=dfn>AccelKey</div>
     <div class=dfndescr>Код клавиши, структура типа <a href="farkey.html">FarKey</a>, для активизации пункта меню (HotKey). Пример работы - в меню Far Manager "Commands" нажатие клавиши <kbd>Ctrl</kbd>+<kbd>O</kbd> аналогично выбору пункта "Panels On/Off".</div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано и должно быть рано 0.</div>
   <div class=dfn>UserData</div>
     <div class=dfndescr>Пользовательские данные, ассоциированные с пунктом меню. Far Manager не использует это поле.</div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Зарезервированные поля, должны быть раны <code>0</code>.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>В младшем слове <i>Flags</i> можно указывать код символа, который будет использоваться для отображения метки выбора. В этом случае система самостоятельно выставит флаг MIF_CHECKED для данного пункта меню.</li>
-<li>Если младшее слово <i>Flags</i> равно 0 и выставлен флаг MIF_CHECKED, или если младшее слово <i>Flags</i> равно 1, то будет отображаться стандартная метка выбора - символ с кодом 0FBh (<code>&#8730;</code>)</li>
-<li>При использовании флага MIF_SEPARATOR без текста, компонента <i>Text</i> должна быть проинициализирована в 0, например так:
-<pre class=code>struct FarMenuItem Item;
+<li>В младшем слове <code>Flags</code> можно указывать код символа, который будет использоваться для отображения метки выбора. В этом случае система самостоятельно выставит флаг <code>MIF_CHECKED</code> для данного пункта меню.</li>
+<li>Если младшее слово <code>Flags</code> равно <code>0</code> и выставлен флаг <code>MIF_CHECKED</code>, или если младшее слово <code>Flags</code> равно <code>1</code>, то будет отображаться стандартная метка выбора - символ с кодом 0FBh (<code>&#8730;</code>)</li>
+<li>При использовании флага <code>MIF_SEPARATOR</code> без текста, компонента <code>Text</code> должна быть проинициализирована в <code>0</code>, например так:
+<pre class=code>
+struct FarMenuItem Item;
 Item.Flags=MIF_SEPARATOR;
 Item.Text=NULL;</pre></li>
 </ol>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

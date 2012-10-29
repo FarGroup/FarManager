@@ -15,11 +15,11 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.atoi</dfn> преобразует символьную строку в целое число типа <b>int</b> (32-битное целое).
+Функция <code>FSF.atoi</code> преобразует символьную строку в целое число типа <code>intptr_t</code>.
 </div>
 
 <pre class=syntax>
-int WINAPI atoi(
+intptr_t WINAPI atoi(
   const wchar_t *Str
 );
 </pre>
@@ -32,12 +32,12 @@ int WINAPI atoi(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-<dfn>atoi</dfn> возвращает преобразованное значение входной строки <i>Str</i>. Если строка не может быть преобразована, то функция возвращает 0.
+<code>atoi</code> возвращает преобразованное значение входной строки <code>Str</code>. Если строка не может быть преобразована, то функция возвращает <code>0</code>.
 </div>
 
-<h3>Примечание</h3>
+<h3>Замечания</h3>
 <div class=descr>
-Символы в строке <i>Str</i> должны совпадать со следующим форматом:<br>
+Символы в строке <code>Str</code> должны совпадать со следующим форматом:<br>
 <code>[ws][sn][ddd]</code>
 где<br>
 &nbsp;&nbsp;ws - табуляция и пробел<br>
@@ -45,7 +45,7 @@ int WINAPI atoi(
 &nbsp;&nbsp;ddd - строка цифр - от '0' до '9'<br>
 
 Преобразование заканчивается, когда функция встречает первый "неправильный" символ.
-Проверка на переполнение не ведётся (результат неопределённый).<br><br></p>
+Проверка на переполнение не ведётся (результат неопределённый).
 </div>
 
 <h3>Пример</h3>
@@ -64,9 +64,10 @@ I=Info.FSF-&gt;atoi(Str);
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="atoi64.html">FSF.atoi64</a> |
-<a href="itoa.html">FSF.itoa</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="atoi64.html">FSF.atoi64</a>,
+<a href="itoa.html">FSF.itoa</a>,
 <a href="itoa64.html">FSF.itoa64</a>
 </div>
 

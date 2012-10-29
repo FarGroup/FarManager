@@ -15,26 +15,29 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarGetValue</dfn> описывает макропеременную для события <a href="../dialogapi/dmsg/dn_getvalue.html">DN_GETVALUE</a>.
+Структура <code>FarGetValue</code> описывает макропеременную для события <a href="../dialogapi/dmsg/dn_getvalue.html">DN_GETVALUE</a>.
 </div>
 
 <pre class=syntax>
 struct FarGetValue
 {
-	int Type;
-	struct FarMacroValue Value;
+  size_t StructSize;
+  intptr_t Type;
+  struct FarMacroValue Value;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarGetValue</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Type</div>
-    <div class=dfndescr>Тип события. Как должен поступить макродвижок с <em>Value</em> после передачи управления плагином в Far Manager.
+    <div class=dfndescr>Тип события. Как должен поступить макродвижок с <code>Value</code> после передачи управления плагином в Far Manager.
       Плагин должен выставить это поле в одно из следующих значений:
       <table class="cont">
       <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
       <tr class="cont"><td class="cont" width="40%">0</td>
-      <td class="cont" width="60%">Far игнориует изменения, произведенные плагином. Макродвижок отдает в макрос то, чтобы было до вызова плагина.</td></tr>
+      <td class="cont" width="60%">Far Manager игнориует изменения, произведенные плагином. Макродвижок отдает в макрос то, что было до вызова плагина.</td></tr>
       <tr class="cont"><td class="cont" width="40%">1</td>
       <td class="cont" width="60%">Плагин изменил данные, макродвижок вернет эти данные в макропоследовательность.</td></tr>
       </table>
@@ -49,7 +52,8 @@ struct FarGetValue
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

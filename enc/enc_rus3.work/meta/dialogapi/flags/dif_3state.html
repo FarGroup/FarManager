@@ -16,17 +16,17 @@
 </div>
 
 <div class=shortdescr>
-Флаг <dfn>DIF_3STATE</dfn> указывает на то, что элемент <a href="../controls/di_checkbox.html">DI_CHECKBOX</a> будет иметь 3 состояния:
+Флаг <code>DIF_3STATE</code> указывает на то, что элемент <a href="../controls/di_checkbox.html">DI_CHECKBOX</a> будет иметь 3 состояния:
 <pre>
-[ ] - выключено     (FarDialogItem.Selected = 0)
-[x] - включено      (FarDialogItem.Selected = 1)
-[?] - неопределённо (FarDialogItem.Selected = 2)
+[ ] - выключено     (<code>FarDialogItem.Selected = 0</code>)
+[x] - включено      (<code>FarDialogItem.Selected = 1</code>)
+[?] - неопределённо (<code>FarDialogItem.Selected = 2</code>)
 </pre>
 </div>
 
 <h3>Элементы</h3>
 <div class=descr>
-Флаг <dfn>DIF_3STATE</dfn> имеет смысл для следующих элементов диалога:
+Флаг <code>DIF_3STATE</code> имеет смысл для следующих элементов диалога:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_checkbox.html">DI_CHECKBOX</a></td>
@@ -37,7 +37,7 @@
 
 <h3>Замечания</h3>
 <div class=descr>
-Применяя флаг <dfn>DIF_3STATE</dfn>, необходимо помнить о том, что ожидает пользователь, работая с таким CheckBox`ом. Т.е. если пользователь выбрал
+Применяя флаг <code>DIF_3STATE</code>, необходимо помнить о том, что ожидает пользователь, работая с таким CheckBox`ом. Т.е. если пользователь выбрал
 неопределённое состояние чекбокса, то опция, которой управляет этот чекбокс, должна вообще игнорироваться при дальнейшей работе. Ярким примером является
 диалог работы с файловыми атрибутами:
 <pre>[ ] - сбросить атрибут

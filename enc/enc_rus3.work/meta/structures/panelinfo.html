@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>PanelInfo</dfn> содержит информацию о панели плагина или Far Manager. Используйте функцию <a href="../service_functions/panelcontrol.html">PanelControl</a> для её заполнения.
+Структура <code>PanelInfo</code> содержит информацию о панели плагина или Far Manager. Используйте функцию <a href="../service_functions/panelcontrol.html">PanelControl</a> для её заполнения.
 </div>
 
 <pre class=syntax>
@@ -31,21 +31,20 @@ struct PanelInfo
   RECT PanelRect;
   size_t CurrentItem;
   size_t TopPanelItem;
-  int ViewMode;
+  intptr_t ViewMode;
   enum PANELINFOTYPE PanelType;
   enum OPENPANELINFO_SORTMODES SortMode;
-  DWORD_PTR Reserved;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>PanelInfo</dfn>.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>PanelInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>PanelHandle</div>
-    <div class=dfndescr>Текущий описатель панели плагина, тот что возвращается функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
+    <div class=dfndescr>Текущий описатель панели плагина, тот, что возвращается функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
   <div class=dfn>OwnerGuid</div>
-    <div class=dfndescr>GUID плагина создавшего панель. <i>OwnerGuid</i> = <code>FarGuid</code> - если панель принадлежит Far Manager. Для панели Far Manager - <code>INVALID_HANDLE_VALUE</code>.</div>
+    <div class=dfndescr>GUID плагина, создавшего панель. <code>OwnerGuid</code> = <code>FarGuid</code> - если панель принадлежит Far Manager.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Дополнительные флаги. Могут быть комбинацией следующих значений (тип <a name="PANELINFOFLAGS">PANELINFOFLAGS</a>):
     <table class="cont">
@@ -71,7 +70,7 @@ struct PanelInfo
     <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_DIRECTORIESFIRST">PFLAGS_DIRECTORIESFIRST</a></td>
     <td class="cont" width="60%">каталоги отображаются в начале списка</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_USECRC32">PFLAGS_USECRC32</a></td>
-    <td class="cont" width="60%">палигин заполнил в элементах панели <a href="pluginpanelitem.html">PluginPanelItem</a> поле <i>CRC32</i></td></tr>
+    <td class="cont" width="60%">палигин заполнил в элементах панели <a href="pluginpanelitem.html">PluginPanelItem</a> поле <code>CRC32</code></td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_PLUGIN">PFLAGS_PLUGIN</a></td>
     <td class="cont" width="60%">панель поддерживается модулем плагина</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_VISIBLE">PFLAGS_VISIBLE</a></td>
@@ -81,19 +80,19 @@ struct PanelInfo
     <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_ALTERNATIVENAMES">PFLAGS_ALTERNATIVENAMES</a></td>
     <td class="cont" width="60%">панель в режиме показа коротких имён файлов</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_SHORTCUT">PFLAGS_SHORTCUT</a></td>
-    <td class="cont" width="60%">...</td></tr>
+    <td class="cont" width="60%">разрешено помещение смены каталогов в историю Far Manager, а также назначение "быстрых каталогов".</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PFLAGS_NONE">PFLAGS_NONE</a></td>
-    <td class="cont" width="60%">...</td></tr>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
     </table>
     </div>
   <div class=dfn>ItemsNumber</div>
     <div class=dfndescr>Число элементов на панели.</div>
   <div class=dfn>SelectedItemsNumber</div>
-    <div class=dfndescr>Число выделенных элементов на панели. Равно 1, даже если нет выделения. Исключение составляет случай, когда нет выделения и курсор стоит на ".." - тогда <i>SelectedItemsNumber</i> равно 0.</div>
+    <div class=dfndescr>Число выделенных элементов на панели. Равно <code>1</code>, даже если нет выделения. Исключение составляет случай, когда нет выделения и курсор стоит на ".." - тогда <code>SelectedItemsNumber = 0</code>.</div>
   <div class=dfn>PanelRect</div>
     <div class=dfndescr>Геометрия панели - структура типа <a href="../winapi/rect.html">RECT</a>.</div>
   <div class=dfn>CurrentItem</div>
-    <div class=dfndescr>Индекс текущего элемента на панели. Перед использованием убедитесь, что <i>ItemsNumber</i> больше 0.</div>
+    <div class=dfndescr>Индекс текущего элемента на панели. Перед использованием убедитесь, что <code>ItemsNumber</code> больше <code>0</code>.</div>
   <div class=dfn>TopPanelItem</div>
     <div class=dfndescr>Элемент, находящийся в первой видимой позиции панели.</div>
   <div class=dfn>ViewMode</div>
@@ -114,18 +113,14 @@ struct PanelInfo
     </div>
   <div class=dfn>SortMode</div>
     <div class=dfndescr><a href="../defs/sortmetods.html">Режим сортировки</a> панели.</div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано для будущего использования.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-Дополнительную информацию о панели также можно получить, вызвав функцию
-<a href="../service_functions/advcontrol.html">AdvControl</a> (команда
-<a href="../service_functions/advcontrol.html#ACTL_GETPANELSETTINGS">ACTL_GETPANELSETTINGS</a>)
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

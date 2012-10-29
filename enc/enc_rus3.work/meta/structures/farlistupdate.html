@@ -16,14 +16,14 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListUpdate</dfn> задаёт параметры операции обновления элемента в списке <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> или <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>: индекс обновляемого элемента и новые данные элемента.
+Структура <code>FarListUpdate</code> задаёт параметры операции обновления элемента в списке <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> или <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>: индекс обновляемого элемента и новые данные элемента.
 </div>
 
 <pre class=syntax>
 struct FarListUpdate
 {
   size_t StructSize;
-  int Index;
+  intptr_t Index;
   struct FarListItem Item;
 };
 </pre>
@@ -31,7 +31,7 @@ struct FarListUpdate
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListUpdate</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Index</div>
     <div class=dfndescr>Индекс элемента в списке.</div>
   <div class=dfn>Items</div>
@@ -43,7 +43,8 @@ struct FarListUpdate
 Данные ассоциированные с пунктом списка при обновлении не уничтожаются. Для автоматического уничтожения копии данных используйте флаг <a href="farlistitem.html#LIF_DELETEUSERDATA">LIF_DELETEUSERDATA</a>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../dialogapi/dmsg/dm_listupdate.html">DM_LISTUPDATE</a>,
 <a href="farlistitem.html">FarListItem</a>
 </div>

@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>InfoPanelLine</dfn> описывает одну строку информационной панели. Массив этих структур передаётся в Far Manager функцией <a href="../exported_functions/getopenpanelinfow.html">GetOpenPluginInfoW</a>.
+Структура <code>InfoPanelLine</code> описывает одну строку информационной панели. Массив этих структур передаётся в Far Manager функцией <a href="../exported_functions/getopenpanelinfow.html">GetOpenPluginInfoW</a>.
 </div>
 
 <pre class=syntax>
@@ -24,7 +24,7 @@ struct InfoPanelLine
 {
   const wchar_t *Text;
   const wchar_t *Data;
-  int Separator;
+  INFOPANELLINE_FLAGS Flags;
 };
 </pre>
 
@@ -34,11 +34,17 @@ struct InfoPanelLine
     <div class=dfndescr>Заголовок параметра - текст, выровненный по левому краю панели и отображаемый цветом обычного текста (<a href="../defs/farcolors.html#COL_PANELTEXT">COL_PANELTEXT</a>).</div>
   <div class=dfn>Data</div>
     <div class=dfndescr>Данные параметра - текст, выровненный по правому краю панели и отображаемый цветом выделенной информации (<a href="../defs/farcolors.html#COL_PANELINFOTEXT">COL_PANELINFOTEXT</a>)</div>
-  <div class=dfn>Separator</div>
-    <div class=dfndescr>Если не равно нулю, показывается разделитель. <i>Text</i> используется как заголовок разделителя, <i>Data</i> игнорируется.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Комбинация флагов (тип <a name="INFOPANELLINE_FLAGS">INFOPANELLINE_FLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="IPLFLAGS_SEPARATOR">IPLFLAGS_SEPARATOR</a></td>
+    <td class="cont" width="60%">Параметр показывается как разделитель. <code>Text</code> используется как заголовок разделителя, <code>Data</code> игнорируется.</td></tr>
+    </table></div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

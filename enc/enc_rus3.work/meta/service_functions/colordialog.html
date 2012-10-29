@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>ColorDialog</dfn> выводит на экран стандартный Far Manager диалог изменения цвета.
+Функция <code>ColorDialog</code> выводит на экран стандартный Far Manager диалог изменения цвета.
 </div>
 
 <pre class=syntax>
@@ -29,13 +29,13 @@ BOOL WINAPI ColorDialog(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле GlobalInfo.Guid функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (перечисление <a name="COLORDIALOGFLAGS">COLORDIALOGFLAGS</a>), сейчас не используется:
+    <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="COLORDIALOGFLAGS">COLORDIALOGFLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name=""></a>""</td>
-    <td class="cont" width="60%">""</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CDF_NONE">CDF_NONE</a></td>
+    <td class="cont" width="60%">нулевой флаг</td></tr>
     </table>
     </div>
   <div class=dfn>Color</div>
@@ -44,7 +44,11 @@ BOOL WINAPI ColorDialog(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Функция возвращает TRUE в случае выбора нового цвета и FALSE, если пользователь прервал ввод.
+Функция возвращает <code>TRUE</code>, в случае выбора нового цвета, и <code>FALSE</code>, если пользователь прервал ввод.
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 </div>
 
 </body>

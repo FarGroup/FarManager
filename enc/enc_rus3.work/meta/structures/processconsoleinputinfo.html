@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>ProcessConsoleInputInfo</dfn> содержит информацию о консольном событии, поступающем в функцию <a href="../exported_functions/processconsoleinputw.html">ProcessConsoleInputW</a>.
+Структура <code>ProcessConsoleInputInfo</code> содержит информацию о консольном событии, поступающем в функцию <a href="../exported_functions/processconsoleinputw.html">ProcessConsoleInputW</a>.
 </div>
 
 <pre class=syntax>
@@ -25,14 +25,13 @@ struct ProcessConsoleInputInfo
   size_t StructSize;
   PROCESSCONSOLEINPUT_FLAGS Flags;
   INPUT_RECORD Rec;
-  HANDLE hPanel;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <dfn>ProcessConsoleInputInfo</dfn>.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>ProcessConsoleInputInfo</code>.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Комбинация следующих значений (тип <a name="PROCESSCONSOLEINPUT_FLAGS">PROCESSCONSOLEINPUT_FLAGS</a>):
     <table class="cont">
@@ -40,21 +39,19 @@ struct ProcessConsoleInputInfo
     <tr class="cont"><td class="cont" width="40%"><a name="PCIF_FROMMAIN">PCIF_FROMMAIN</a></td>
     <td class="cont" width="60%">Функция <a href="../exported_functions/processconsoleinputw.html">ProcessConsoleInputW</a> вызвана из основного цикла сбора консольных событий.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PCIF_NONE">PCIF_NONE</a></td>
-    <td class="cont" width="60%">...</td></tr>
-    </table>
-    </div>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    </table></div>
   <div class=dfn>Rec</div>
     <div class=dfndescr>Структура <a href="../winapi/input_record.html">INPUT_RECORD</a>. Эта структура определена в Windows API и содержит информацию о консольном событии.</div>
-  <div class=dfn>hPanel</div>
-    <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">Структуры</a>|
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">Структуры</a>,
 <a href="../exported_functions/processconsoleinputw.html">ProcessConsoleInputW</a>
 </div>
 

@@ -16,20 +16,20 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarDialogItem</dfn> описывает один элемент диалога. Массив этих структур передаётся в функции <a href="../service_functions/dialoginit.html">DialogInit</a>.
+Структура <code>FarDialogItem</code> описывает один элемент диалога. Массив этих структур передаётся в функции <a href="../service_functions/dialoginit.html">DialogInit</a>.
 </div>
 
 <pre class=syntax>
 struct FarDialogItem
 {
   enum FARDIALOGITEMTYPES Type;
-  int X1,Y1,X2,Y2;
+  intptr_t X1,Y1,X2,Y2;
   union
   {
-    int Selected;
+    intptr_t Selected;
     struct FarList *ListItems;
     struct FAR_CHAR_INFO *VBuf;
-    DWORD_PTR Reserved;
+    intptr_t Reserved0;
   }
 <b>#ifndef __cplusplus</b>
   Param
@@ -40,7 +40,8 @@ struct FarDialogItem
   FARDIALOGITEMFLAGS Flags;
   const wchar_t *Data;
   size_t MaxLength;
-  DWORD_PTR UserData;
+  intptr_t UserData;
+  intptr_t Reserved[2];
 };
 </pre>
 
@@ -55,29 +56,32 @@ struct FarDialogItem
   <div class=dfn>ListItems</div>
     <div class=dfndescr>Указатель на структуру <a href="farlist.html">FarList</a>, описывающую список для элементов <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a> и <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a>.</div>
   <div class=dfn>VBuf</div>
-    <div class=dfndescr>Указатель на структуру <a href="far_char_info.html">FAR_CHAR_INFO</a>, описывающую виртуальный буфер для элемента <a href="../dialogapi/controls/di_usercontrol.html">DI_USERCONTROL</a>.</div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Размер этого параметра всегда равен размеру объединения Param, что позволяет использовать этот параметр для платформенно-независимой инициализации.</div>
+    <div class=dfndescr>Массив структур <a href="far_char_info.html">FAR_CHAR_INFO</a>, описывающую виртуальный буфер для элемента <a href="../dialogapi/controls/di_usercontrol.html">DI_USERCONTROL</a>.</div>
+  <div class=dfn>Reserved0</div>
+    <div class=dfndescr>Размер этого параметра всегда равен размеру объединения <code>Param</code>, что позволяет использовать этот параметр для платформенно-независимой инициализации.</div>
   <div class=dfn>History</div>
     <div class=dfndescr>Адрес текстовой строки, которая будет использоваться как внутреннее название истории редактирования (см. также флаг <a href="../dialogapi/flags/dif_history.html">DIF_HISTORY</a>).</div>
   <div class=dfn>Mask</div>
     <div class=dfndescr>Адрес текстовой строки с маской ввода. Используется только с элементом <a href="../dialogapi/controls/di_fixedit.html">DI_FIXEDIT</a>.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация значений (перечисление <a name="FARDIALOGITEMFLAGS">FARDIALOGITEMFLAGS</a>), перечисленных в разделе "<a href="../dialogapi/flags/index.html">Флаги элементов диалога</a>".</div>
+    <div class=dfndescr>Комбинация значений (тип <a name="FARDIALOGITEMFLAGS">FARDIALOGITEMFLAGS</a>), перечисленных в разделе "<a href="../dialogapi/flags/index.html">Флаги элементов диалога</a>".</div>
   <div class=dfn>Data</div>
     <div class=dfndescr>Строка, используемая для инициализации элемента диалога. Подробности использования в описаниях типов <a href="../dialogapi/controls/index.html">элементов диалога</a>.</div>
-  <div class=dfn>MaxLen</div>
-    <div class=dfndescr>Устанавливает максимальный размер строки <var>Data</var>, без завершающего '\0'. Плагин не сможет работать с данными в строке <i>Data</i> за пределами <i>MaxLen</i>.<br>
-    Если <i>MaxLen</i> равен 0, то такого ограничения нет.</div>
-  <div class=dfn>UserParam</div>
-    <div class=dfndescr>Указатель на значение связанное с элементом диалога, данные можно получить с помощью <a href="../dialogapi/dmsg/dm_getdlgdata.html">DM_GETITEMDATA</a>.</div>
+  <div class=dfn>MaxLength</div>
+    <div class=dfndescr>Устанавливает максимальный размер строки <code>Data</code>, без завершающего '\0'. Плагин не сможет работать с данными в строке <code>Data</code> за пределами <code>MaxLength</code>.<br>
+    Если <code>MaxLength = 0</code>, то такого ограничения нет.</div>
+  <div class=dfn>UserData</div>
+    <div class=dfndescr>Значение, связанное с элементом диалога. Данные можно получить с помощью <a href="../dialogapi/dmsg/dm_getdlgdata.html">DM_GETITEMDATA</a>.</div>
+  <div class=dfn>Reserved</div>
+    <div class=dfndescr>Два поля зарезервированны для будущего использования, должны быть установлены в <code>0</code>.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../dialogapi/flags/index.html">Флаги элементов диалога</a>,
 <a href="../dialogapi/controls/index.html">Элементы диалога</a>
 </div>

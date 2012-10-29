@@ -16,39 +16,43 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorGetString</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для получения строки из редактора Far Manager.
+Структура <code>EditorGetString</code> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для получения строки из редактора Far Manager.
 </div>
 
 <pre class=syntax>
 struct EditorGetString
 {
-  int StringNumber;
-  int StringLength;
+  size_t StructSize;
+  intptr_t StringNumber;
+  intptr_t StringLength;
   const wchar_t *StringText;
   const wchar_t *StringEOL;
-  int SelStart;
-  int SelEnd;
+  intptr_t SelStart;
+  intptr_t SelEnd;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>EditorGetString</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>StringNumber</div>
-    <div class=dfndescr>Номер получаемой строки (первая строка имеет индекс 0). Можно установить это поле в -1 для получения текущей строки.</div>
+    <div class=dfndescr>Номер получаемой строки (первая строка имеет индекс <code>0</code>). Можно установить это поле в <code>-1</code> для получения текущей строки.</div>
   <div class=dfn>StringLength</div>
-    <div class=dfndescr>Размер данных, на которые указывает <i>StringText</i>.</div>
+    <div class=dfndescr>Размер данных, на которые указывает <code>StringText</code>.</div>
   <div class=dfn>StringText</div>
     <div class=dfndescr>Указывает на данные строки. Вы не должны их изменять. Помните, что среди этих данных могут быть нулевые символы.</div>
   <div class=dfn>StringEOL</div>
     <div class=dfndescr>Последовательность, обозначающая конец строки. Может быть пустой строкой, <code>\r\n</code> или <code>\n</code>.</div>
   <div class=dfn>SelStart</div>
-    <div class=dfndescr>Стартовая позиция выделения в строке. Если строка не содержит выделения, то это поле равно -1.</div>
+    <div class=dfndescr>Стартовая позиция выделения в строке. Если строка не содержит выделения, то это поле равно <code>-1</code>.</div>
   <div class=dfn>SelEnd</div>
-    <div class=dfndescr>Конечная позиция выделения в строке. Если область выделения включает в себя последовательность, равную <i>StringEOL</i>, то это поле равно -1.</div>
+    <div class=dfndescr>Конечная позиция выделения в строке. Если область выделения включает в себя последовательность, равную <code>StringEOL</code>, то это поле равно <code>-1</code>.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>
 </div>
 
 </body>

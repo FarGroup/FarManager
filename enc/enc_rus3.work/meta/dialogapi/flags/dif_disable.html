@@ -16,13 +16,13 @@
 </div>
 
 <div class=shortdescr>
-Флаг <dfn>DIF_DISABLE</dfn> указывает Менеджеру Диалогов, что данный элемент недоступен (Disabled). Это значит, что такой элемент диалога не получит фокуса
+Флаг <code>DIF_DISABLE</code> указывает Менеджеру Диалогов, что данный элемент "недоступен" (Disabled). Это значит, что такой элемент диалога не получит фокуса
 ввода и не будет реагировать на мышь, но в тоже время элемент с этим флагом можно изменить программно.
 </div>
 
 <h3>Элементы</h3>
 <div class=descr>
-Флаг <dfn>DIF_DISABLE</dfn> имеет смысл для следующих элементов диалога:
+Флаг <code>DIF_DISABLE</code> имеет смысл для следующих элементов диалога:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%">Все</td>
@@ -34,9 +34,10 @@
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Для изменения состояния Enable/Disable элемента пошлите сообщение <a href="../dmsg/dm_enable.html">DM_ENABLE</a>
+<li>Для изменения состояния "доступен/недоступен" (Enable/Disable) элемента пошлите сообщение <a href="../dmsg/dm_enable.html">DM_ENABLE</a>
 Менеджеру Диалогов (функцией <a href="../../service_functions/senddlgmessage.html">SendDlgMessage</a>).
-<li>Дизабленные редактируемые элементы диалога отображаются цветом <a href="../../defs/farcolors.html#COL_DIALOGEDITDISABLED">COL_DIALOGEDITDISABLED</a>.
+<li>"Недоступные" редактируемые элементы диалога отображаются цветом <a href="../../defs/farcolors.html#COL_DIALOGEDITDISABLED">COL_DIALOGEDITDISABLED</a>.
+<!--
 Если вы хотите изменить цвет элемента, то в обработчике диалога необходимо добавить, например, следующий код:
 <pre class=code>
 ...
@@ -52,10 +53,12 @@ if(msg == DN_CTLCOLORDLGITEM)
 ...
 </pre>
 В данном примере меняются предопределённые цвета для дизабленных элементов на цвета, соответствующие нормальному состоянию элемента редактирования.
+-->
 </ol>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 </div>
 
 </body>

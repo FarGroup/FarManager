@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FreeFindDataInfo</dfn> передает информацию об освобождаемой памяти в функцию <a href="../exported_functions/freefinddataw.html">FreeFindDataW</a> или <a href="../exported_functions/freevirtualfinddataw.html">FreeVirtualFindDataW</a>.
+Структура <code>FreeFindDataInfo</code> передает информацию об освобождаемой памяти в функцию <a href="../exported_functions/freefinddataw.html">FreeFindDataW</a>.
 </div>
 
 <pre class=syntax>
@@ -32,16 +32,17 @@ struct FreeFindDataInfo
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <dfn>FreeFindDataInfo</dfn>.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>FreeFindDataInfo</code>.</div>
   <div class=dfn>hPanel</div>
     <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
   <div class=dfn>PanelItem</div>
-    <div class=dfndescr>Указатель на массив структур типа <a href="pluginpanelitem.html">PluginPanelItem</a>, запрошенных функциями <a href="../exported_functions/getfinddataw.html">GetFindDataW</a> или <a href="../exported_functions/getvirtualfinddataw.html">GetVirtualFindDataW</a>.</div>
+    <div class=dfndescr>Указатель на массив структур типа <a href="pluginpanelitem.html">PluginPanelItem</a>, запрошенных функцией <a href="../exported_functions/getfinddataw.html">GetFindDataW</a>.</div>
   <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Количество элементов в массиве <i>PanelItem</i>.</div>
+    <div class=dfndescr>Количество элементов в массиве <code>PanelItem</code>.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

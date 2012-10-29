@@ -16,19 +16,22 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>CmdLineSelect</dfn> используется в функции <a href="../service_functions/panelcontrol.html">PanelControl</a> для выделения или снятия выделения с текста в командной строке Far Manager, или для получения информации о выделении.
+Структура <code>CmdLineSelect</code> используется в функции <a href="../service_functions/panelcontrol.html">PanelControl</a> для выделения или снятия выделения с текста в командной строке Far Manager, или для получения информации о выделении.
 </div>
 
 <pre class=syntax>
 struct CmdLineSelect
 {
-  int SelStart;
-  int SelEnd;
+  size_t StructSize;
+  intptr_t SelStart;
+  intptr_t SelEnd;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>CmdLineSelect</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>SelStart</div>
     <div class=dfndescr>Начальная позиция выделения текста.</div>
   <div class=dfn>SelEnd</div>
@@ -37,10 +40,11 @@ struct CmdLineSelect
 
 <h3>Замечания</h3>
 <div class=descr>
-Для снятия выделения установите <i>SelStart</i> и <i>SelEnd</i> в значение -1.
+Для снятия выделения установите <code>SelStart</code> и <code>SelEnd</code> в значение <code>-1</code>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a> |
 <a href="../service_functions/panelcontrol.html#FCTL_GETCMDLINESELECTION">FCTL_GETCMDLINESELECTION</a> |
 <a href="../service_functions/panelcontrol.html#FCTL_SETCMDLINESELECTION">FCTL_SETCMDLINESELECTION</a>.

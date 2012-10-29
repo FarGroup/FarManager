@@ -16,24 +16,23 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListFind</dfn> задаёт параметры для поиска элемента в <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
+Структура <code>FarListFind</code> задаёт параметры для поиска элемента в <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <pre class=syntax>
 struct FarListFind
 {
   size_t StructSize;
-  int StartIndex;
+  intptr_t StartIndex;
   const wchar_t *Pattern;
   FARLISTFINDFLAGS Flags;
-  DWORD_PTR Reserved;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListFind</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>StartIndex</div>
     <div class=dfndescr>Индекс элемента, с которого начинается поиск.</div>
   <div class=dfn>Pattern</div>
@@ -43,20 +42,18 @@ struct FarListFind
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LIFIND_EXACTMATCH">LIFIND_EXACTMATCH</a></td>
-    <td class="cont" width="60%">Поле <i>Pattern</i> не является шаблоном - рассматривать как обычную подстроку поиска.</td></tr>
+    <td class="cont" width="60%">Поле <code>Pattern</code> не является шаблоном - рассматривать как обычную подстроку поиска.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LIFIND_NONE">LIFIND_NONE</a></td>
-    <td class="cont" width="60%">...</td></tr>
-    </table>
-    </div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано для будущего использования.</div>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    </table></div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../dialogapi/dmsg/dm_listfindstring.html">DM_LISTFINDSTRING</a>
 </div>
 

@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>MacroSendMacroText</dfn> используется в функции <a href="../service_functions/macrocontrol.html">MacroControl</a> для передачи макропоследовательности в Far Manager.
+Структура <code>MacroSendMacroText</code> используется в функции <a href="../service_functions/macrocontrol.html">MacroControl</a> для передачи макропоследовательности в Far Manager.
 </div>
 
 <pre class=syntax>
@@ -31,7 +31,7 @@ struct MacroSendMacroText
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>MacroSendMacroText</dfn>.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>MacroSendMacroText</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Комбинация флагов (тип <code><a name="FARKEYMACROFLAGS">FARKEYMACROFLAGS</a></code>):
     <table class="cont">
@@ -43,9 +43,8 @@ struct MacroSendMacroText
     <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_SILENTCHECK">KMFLAGS_SILENTCHECK</a></td>
     <td class="cont" width="60%">Не отображать на экране результат проверки макропоследовательности.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="KMFLAGS_NONE">KMFLAGS_NONE</a></td>
-    <td class="cont" width="60%">...</td></tr>
-    </table>
-    </div>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    </table></div>
   <div class=dfn>AKey</div>
     <div class=dfndescr>Клавиша вызова макроса, структура <a href="../winapi/input_record.html">INPUT_RECORD</a>.</div>
   <div class=dfn>SequenceText</div>
@@ -56,8 +55,9 @@ struct MacroSendMacroText
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>
 </div>
 
 </body>

@@ -16,12 +16,12 @@
 </div>
 
 <div class=shortdescr>
-Последовательно определённые поля ввода (<a href="../controls/di_edit.html">DI_EDIT</a>), имеющие флаг <dfn>DIF_EDITOR</dfn> группируются в редактор с возможностью вставки и удаления строк.
+Последовательно определённые поля ввода (<a href="../controls/di_edit.html">DI_EDIT</a>), имеющие флаг <code>DIF_EDITOR</code> группируются в редактор с возможностью вставки и удаления строк.
 </div>
 
 <h3>Элементы</h3>
 <div class=descr>
-Флаг <dfn>DIF_EDITOR</dfn> имеет смысл для следующих элементов диалога:
+Флаг <code>DIF_EDITOR</code> имеет смысл для следующих элементов диалога:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_edit.html">DI_EDIT</a></td>
@@ -31,17 +31,19 @@
 
 <h3>Замечания</h3>
 <div class=descr>
-Для того, чтобы в диалоге создать область редактирования размером в 5 строк, необходимо разместить 5 элементов редактирования типа <dfn>DI_EDIT</dfn>
-с установленным флагом <dfn>DIF_EDITOR</dfn>, как показано в пример:
-<pre class=code>DI_EDIT,5,3,29,3,1,1,DIF_EDITOR,0,L&quot;&quot;,
-DI_EDIT,5,4,29,4,0,1,DIF_EDITOR,0,L&quot;&quot;,
-DI_EDIT,5,5,29,5,0,1,DIF_EDITOR,0,L&quot;&quot;,
-DI_EDIT,5,6,29,6,0,1,DIF_EDITOR,0,L&quot;&quot;,
-DI_EDIT,5,7,29,7,0,1,DIF_EDITOR,0,L&quot;&quot;,</pre>
+Для того, чтобы в диалоге создать область редактирования размером в 5 строк, необходимо разместить 5 элементов редактирования типа <code>DI_EDIT</code>
+с установленным флагом <code>DIF_EDITOR</code>, как показано в пример:
+<pre class=code>
+DI_EDIT,5,3,29,3,1,1,0,0,DIF_EDITOR,0,L&quot;&quot;,0,0,
+DI_EDIT,5,4,29,4,0,1,0,0,DIF_EDITOR,0,L&quot;&quot;,0,0,
+DI_EDIT,5,5,29,5,0,1,0,0,DIF_EDITOR,0,L&quot;&quot;,0,0,
+DI_EDIT,5,6,29,6,0,1,0,0,DIF_EDITOR,0,L&quot;&quot;,0,0,
+DI_EDIT,5,7,29,7,0,1,0,0,DIF_EDITOR,0,L&quot;&quot;,0,0
+</pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 </div>
 
 </body>

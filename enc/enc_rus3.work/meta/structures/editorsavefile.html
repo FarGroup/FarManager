@@ -16,21 +16,24 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorSaveFile</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a>
+Структура <code>EditorSaveFile</code> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a>
 для сохранения редактируемого файла (команда <a href="../service_functions/editorcontrol.html#ECTL_SAVEFILE">ECTL_SAVEFILE</a>).
 </div>
 
 <pre class=syntax>
 struct EditorSaveFile
 {
+  size_t StructSize;
   const wchar_t *FileName;
   const wchar_t *FileEOL;
-  UINT CodePage;
+  uintptr_t CodePage;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>EditorSaveFile</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>FileName</div>
     <div class=dfndescr>Здесь вы можете определить новое имя для сохраняемого файла. Имейте в виду, что имя файла должно быть полным, включая директорию. Если вы не желаете изменять имя редактируемого файла, то установите значение в <code>NULL</code>.</div>
   <div class=dfn>FileEOL</div>
@@ -39,8 +42,9 @@ struct EditorSaveFile
     <div class=dfndescr>Кодовая страница в которой будет сохранён файл.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>
 </div>
 
 </body>

@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>OpenInfo</dfn> используется для возвращения Far Manager'ом информации о плагине в функцию <a href="../exported_functions/openw.html">OpenW</a>.
+Структура <code>OpenInfo</code> используется для возвращения Far Manager'ом информации о плагине в функцию <a href="../exported_functions/openw.html">OpenW</a>.
 </div>
 
 <pre class=syntax>
@@ -24,27 +24,25 @@ struct OpenInfo
   size_t StructSize;
   enum OPENFROM OpenFrom;
   const GUID *Guid;
-  INT_PTR Data;
+  intptr_t Data;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <dfn>OpenInfo</dfn>.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>OpenInfo</code>.</div>
   <div class=dfn>OpenFrom</div>
     <div class=dfndescr>Идентификатор, определяющий, откуда был вызван плагин. Может принимать одно из следующих значений (перечисление <a name="OPENFROM">OPENFROM</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROM_MASK">OPEN_FROM_MASK</a></td>
-    <td class="cont" width="60%">...</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_LEFTDISKMENU">OPEN_LEFTDISKMENU</a></td>
     <td class="cont" width="60%">Открыт из левого меню "Сменить диск" (<kbd>Alt</kbd>+<kbd>F1</kbd>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_PLUGINSMENU">OPEN_PLUGINSMENU</a></td>
     <td class="cont" width="60%">Открыт из меню "Команды внешних модулей" (<kbd>F11</kbd>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FINDLIST">OPEN_FINDLIST</a></td>
     <td class="cont" width="60%">Открыт из диалога "Поиск файла". Этот идентификатор плагин получит только в том случае, если он экспортирует функцию <a href="../exported_functions/setfindlistw.html">SetFindListW</a>.
-    Последующий вызов функции <a href="../exported_functions/setfindlistw.html">SetFindListW</a> произойдёт только в том случае, если функция <dfn>OpenW</dfn> вернёт значение отличное от <code>INVALID_HANDLE_VALUE</code>.</td></tr>
+    Последующий вызов функции <a href="../exported_functions/setfindlistw.html">SetFindListW</a> произойдёт только в том случае, если функция <code>OpenW</code> вернёт значение отличное от <code>NULL</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
     <td class="cont" width="60%">Открыт через ссылку на папку в меню "Команды" - "Ссылки на папки".</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_COMMANDLINE">OPEN_COMMANDLINE</a></td>
@@ -63,13 +61,14 @@ struct OpenInfo
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_RIGHTDISKMENU">OPEN_RIGHTDISKMENU</a></td>
     <td class="cont" width="60%">Открыт из правого меню "Сменить диск" (<kbd>Alt</kbd>+<kbd>F2</kbd>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROMMACRO">OPEN_FROMMACRO</a></td>
-    <td class="cont" width="60%">Открыт из макрокоманды функцией <a href="../macro/macrocmd/prop_func/general.html#callplugin">callplugin</a>; <i>Data</i> является указателем на структуру <a href="openmacroinfo.html">OpenMacroInfo</a>.</td></tr>
-    </table>
-    </div>
+    <td class="cont" width="60%">Открыт из макрокоманды функцией <a href="../macro/macrocmd/prop_func/general.html#callplugin">callplugin</a>; <code>Data</code> является указателем на структуру <a href="openmacroinfo.html">OpenMacroInfo</a>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_LUAMACRO">OPEN_LUAMACRO</a></td>
+    <td class="cont" width="60%">Открыт из ....</td></tr>
+    </table></div>
   <div class=dfn>Guid</div>
     <div class=dfndescr>GUID выбранного элемента в списке пунктов, экспортированном данным плагином в меню "Диск", "Команды внешних модулей".</div>
   <div class=dfn>Data</div>
-    <div class=dfndescr>Интерпретация параметра зависит от <i>OpenFrom</i>:
+    <div class=dfndescr>Интерпретация параметра зависит от <code>OpenFrom</code>:
     <ul>
     <li>Если в параметре OpenFrom выставлен флаг OPEN_FROMMACRO, то значения в младшем слове содержат не идентификатор из перечисления OPENPLUGIN_OPENFROM,
     а номер текущей макрообласти, определенной в перечислении <a href="../service_functions/macrocontrol.html#FARMACROAREA">FARMACROAREA</a>.
@@ -89,7 +88,8 @@ struct OpenInfo
     </div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

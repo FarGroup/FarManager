@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_ADDHISTORY</dfn> посылается Менеджеру диалогов для добавления строки в историю.
+Сообщение <code>DM_ADDHISTORY</code> посылается Менеджеру диалогов для добавления строки в историю.
 </div>
 
 <h3>Param1</h3>
@@ -32,7 +32,7 @@ ID элемента диалога.
 <h3>Return</h3>
 <div class=descr>
 <code>TRUE</code> - данные добавлены в историю.<br>
-<code>FALSE</code> - указанный элемент диалога <var>Param1</var> не поддерживает работу с историей.
+<code>FALSE</code> - указанный элемент диалога <code>Param1</code> не поддерживает работу с историей.
 </div>
 
 <h3>Элементы</h3>
@@ -55,33 +55,10 @@ ID элемента диалога.
 
 <h3>Пример</h3>
 <div class=descr>
-<!--
-Например, в калькуляторе нажатие клавиши Enter должно приводить к вычислению
-выражения (Esc - стандартный выход из калькулятора). Для того, чтобы запомнить
-введённую строку в истории, необходимо после получения сообщения о нажатии
-клавиши Enter получить эту строку и занести её в историю:
-<pre class=code>
-FarDialogItem dialog[] = {
-...
-  { DI_EDIT, 10, 3, 49, 0, 1, (INT_PTR)L"foo_history", DIF_HISTORY|DIF_MANUALADDHISTORY, 0, L"" },
-...
-};
-
-LONG_PTR WINAPI FooDlgProc(HANDLE hDlg, int Msg, int Param1, LONG_PTR Param2)
-{
-...
-    if (Msg == DM_KEY &amp;&amp; Param2 == KEY_ENTER){
-      Info.SendDlgMessage(hDlg, DM_GETTEXTPTR, 2, (LONG_PTR)Text);
-      Info.SendDlgMessage(hDlg, DM_ADDHISTORY, 2, (LONG_PTR)Text);
-      Res = AData.Parse(Text);
-...
-}
-</pre>
- -->
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="../flags/dif_history.html">DIF_HISTORY</a>,
 <a href="../flags/dif_manualaddhistory.html">DIF_MANUALADDHISTORY</a>

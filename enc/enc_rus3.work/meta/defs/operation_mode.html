@@ -15,8 +15,8 @@
 </div>
 
 <div class=shortdescr>
-Параметр <dfn>OpMode</dfn> передаёт плагину дополнительную информацию о режиме функции и месте, откуда она была вызвана. <dfn>OpMode</dfn> может быть
-комбинацией следующих констант (типа <a name="OPERATION_MODES">OPERATION_MODES</a>):
+Параметр <code>OpMode</code> передаёт плагину дополнительную информацию о режиме функции и месте, откуда она была вызвана. <code>OpMode</code> может быть
+комбинацией следующих констант (тип <a name="OPERATION_MODES">OPERATION_MODES</a>):
 </div>
 
 <table class="cont">
@@ -26,7 +26,7 @@
 <tr class="cont"><td class="cont" width="40%"><a name="OPM_FIND">OPM_FIND</a></td>
 <td class="cont" width="60%">Функция плагина была вызвана из Диалога поиска файлов, или другой команды, сканирующей каталоги. Экранный вывод должен быть минимизирован.</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a name="OPM_VIEW">OPM_VIEW</a></td>
-<td class="cont" width="60%">Функция плагина вызвана как часть операции просмотра файла. Если файл просматривается на панели быстрого просмотра, то OPM_VIEW используется совместно с OPM_QUICKVIEW.</td></tr>
+<td class="cont" width="60%">Функция плагина вызвана как часть операции просмотра файла. Если файл просматривается на панели быстрого просмотра, то <code>OPM_VIEW</code> используется совместно с <code>OPM_QUICKVIEW</code>.</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a name="OPM_QUICKVIEW">OPM_QUICKVIEW</a></td>
 <td class="cont" width="60%">Функция плагина вызвана как часть операции просмотра файла на панели быстрого просмотра (пользователь нажал <kbd>Ctrl</kbd>+<kbd>Q</kbd> в панелях).</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a name="OPM_EDIT">OPM_EDIT</a></td>
@@ -41,7 +41,7 @@
 <tr class="cont"><td class="cont" width="40%"><a name="OPM_COMMANDS">OPM_COMMANDS</a></td>
 <td class="cont" width="60%">Функция плагина вызвана из меню архивных команд <kbd>Shift</kbd>+<kbd>F3</kbd>.</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a name="OPM_NONE">OPM_NONE</a></td>
-<td class="cont" width="60%">0 (нулевая константа).</td></tr>
+<td class="cont" width="60%">Нулевая константа.</td></tr>
 </table>
 
 <div class=see>Смотрите также:</div><div class=seecont>

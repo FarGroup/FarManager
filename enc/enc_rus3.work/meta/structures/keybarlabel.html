@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>KeyBarLabel</dfn> содержит новые заголовки функциональных клавиш, передается в Far Manager через структуру <a href="keybartitles.html">KeyBarTitles</a>.
+Структура <code>KeyBarLabel</code> содержит новые заголовки функциональных клавиш, передается в Far Manager через структуру <a href="farsetkeybartitles.html">FarSetKeyBarTitles</a>.
 </div>
 
 <pre class=syntax>
@@ -33,15 +33,17 @@ struct KeyBarLabel
   <div class=dfn>Key</div>
     <div class=dfndescr>Клавиша, структура типа <a href="farkey.html">FarKey</a>.</div>
   <div class=dfn>Text</div>
-    <div class=dfndescr>Новый заголовок функциональной клавиши. Для сохранения стандартного заголовка Far Manager установите значение в NULL.</div>
+    <div class=dfndescr>Новый заголовок функциональной клавиши. Для сохранения стандартного заголовка Far Manager установите значение в <code>NULL</code>.</div>
   <div class=dfn>LongText</div>
-    <div class=dfndescr>Новый длинный заголовок функциональной клавиши. Для сохранения стандартного заголовка Far Manager установите значение в NULL.</div>
+    <div class=dfndescr>Новый длинный заголовок функциональной клавиши. Для сохранения стандартного заголовка Far Manager установите значение в <code>NULL</code>.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../service_functions/editorcontrol.html#ECTL_SETKEYBAR">ECTL_SETKEYBAR</a> |
-<a href="index.html">структуры</a> |
-<a href="keybartitles.html">KeyBarTitles</a>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../service_functions/editorcontrol.html#ECTL_SETKEYBAR">ECTL_SETKEYBAR</a>,
+<a href="index.html">структуры</a>,
+<a href="keybartitles.html">KeyBarTitles</a>,
+<a href="farsetkeybartitles.html">FarSetKeyBarTitles</a>
 </div>
 
 </body>

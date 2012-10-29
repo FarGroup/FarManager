@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListInfo</dfn> описывает состояние элементов <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
+Структура <code>FarListInfo</code> описывает состояние элементов <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <pre class=syntax>
@@ -25,34 +25,33 @@ struct FarListInfo
   size_t StructSize;
   FARLISTINFOFLAGS Flags;
   size_t ItemsNumber;
-  int SelectPos;
-  int TopPos;
-  int MaxHeight;
-  int MaxLength;
-  DWORD_PTR Reserved[6];
+  intptr_t SelectPos;
+  intptr_t TopPos;
+  intptr_t MaxHeight;
+  intptr_t MaxLength;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Набор битовых флагов (тип <a name="FARLISTINFOFLAGS">FARLISTINFOFLAGS</a>):
+    <div class=dfndescr>Набор флагов (тип <a name="FARLISTINFOFLAGS">FARLISTINFOFLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LINFO_SHOWNOBOX">LINFO_SHOWNOBOX</a></td>
-    <td class="cont" width="60%">управляющий элемент <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> с выставленным флагом <a href="../dialogapi/flags/dif_listnobox.html">DIF_LISTNOBOX</a> рисуется без рамки</td></tr>
+    <td class="cont" width="60%">Управляющий элемент <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> с выставленным флагом <a href="../dialogapi/flags/dif_listnobox.html">DIF_LISTNOBOX</a> рисуется без рамки.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LINFO_AUTOHIGHLIGHT">LINFO_AUTOHIGHLIGHT</a></td>
-    <td class="cont" width="60%">горячие клавиши будут назначены автоматически, начиная с первого пункта</td></tr>
+    <td class="cont" width="60%">Горячие клавиши будут назначены автоматически, начиная с первого пункта.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LINFO_REVERSEHIGHLIGHT">LINFO_REVERSEHIGHLIGHT</a></td>
-    <td class="cont" width="60%">горячие клавиши будут назначены автоматически, начиная с последнего пункта</td></tr>
+    <td class="cont" width="60%">Горячие клавиши будут назначены автоматически, начиная с последнего пункта.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LINFO_WRAPMODE">LINFO_WRAPMODE</a></td>
-    <td class="cont" width="60%">попытка перемещения курсора выше первого пункта или ниже последнего будет приводить к перемещению соответственно к последнему или к первому пункту списка</td></tr>
+    <td class="cont" width="60%">Попытка перемещения курсора выше первого пункта или ниже последнего будет приводить к перемещению соответственно к последнему или к первому пункту списка.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LINFO_SHOWAMPERSAND">LINFO_SHOWAMPERSAND</a></td>
-    <td class="cont" width="60%">показать амперсанды (&amp;), без этого флага амперсанды используются для определения горячей клавиши пункта</td></tr>
+    <td class="cont" width="60%">Показать амперсанды (&amp;), без этого флага амперсанды используются для определения горячей клавиши пункта.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LINFO_NONE">LINFO_NONE</a></td>
-    <td class="cont" width="60%">...</td></tr>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
     </table>
     </div>
   <div class=dfn>ItemsNumber</div>
@@ -65,15 +64,14 @@ struct FarListInfo
     <div class=dfndescr>Максимальная видимая высота списка.</div>
   <div class=dfn>MaxLength</div>
     <div class=dfndescr>Максимальный видимый размер строки.</div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Резерв.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../dialogapi/dmsg/dm_listinfo.html">DM_LISTINFO</a>
 </div>
 

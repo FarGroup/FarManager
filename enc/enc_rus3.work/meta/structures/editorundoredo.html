@@ -16,19 +16,21 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorUndoRedo</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для управления поведением операции Отмена-Возврат действия, т.н. Undo-Redo в редакторе Far Manager.
+Структура <code>EditorUndoRedo</code> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для управления поведением операции Отмена-Возврат действия, т.н. Undo-Redo в редакторе Far Manager.
 </div>
 
 <pre class=syntax>
 struct EditorUndoRedo
 {
+  size_t StructSize;
   enum EDITOR_UNDOREDO_COMMANDS Command;
-  DWORD_PTR Reserved[3];
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>EditorUndoRedo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Command</div>
     <div class=dfndescr>Одно из следующих значений (перечисление <a name="EDITOR_UNDOREDO_COMMANDS">EDITOR_UNDOREDO_COMMANDS</a>):
     <table class="cont">
@@ -43,21 +45,18 @@ struct EditorUndoRedo
     <td class="cont" width="60%">вернуть действие назад (Redo) от EUR_BEGIN до EUR_END</td></tr>
     </table>
     </div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Не используется, зарезервировано для будущих нужд.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-<ol>
-</ol>
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

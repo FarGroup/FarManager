@@ -16,18 +16,18 @@
 </div>
 
 <div class=shortdescr>
-Ёлемент диалога <dfn>DI_BUTTON</dfn> описывает кнопку (Push Button).
+Ёлемент диалога <code>DI_BUTTON</code> описывает кнопку (Push Button).
 </div>
 
 <pre class=syntax>
 struct FarDialogItem
 {
   enum FARDIALOGITEMTYPES Type = <b>DI_BUTTON</b>
-  int X1                       = <b>X</b>
-  int Y1                       = <b>Y</b>
-  int X2                       = <b>0</b>
-  int Y2                       = <b>Y</b> (равен значению Y1)
-  int Selected                 = <b>Selected</b>
+  intptr_t X1                  = <b>X</b>
+  intptr_t Y1                  = <b>Y</b>
+  intptr_t X2                  = <b>0</b>
+  intptr_t Y2                  = <b>Y</b> (равен значению Y1)
+  intptr_t Selected            = <b>Selected</b>
   FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
   const wchar_t *Data          = <b>надпись на кнопке</b>
 };
@@ -41,7 +41,7 @@ struct FarDialogItem
 
 <h3>‘лаги</h3>
 <div class=descr>
-ƒл€ элемента <dfn>DI_BUTTON</dfn> имеют значени€ следующие флаги:
+ƒл€ элемента <code>DI_BUTTON</code> имеют значени€ следующие флаги:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">‘лаг</th><th class="cont" width="60%">ќписание</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
@@ -54,7 +54,7 @@ struct FarDialogItem
 <td class="cont" width="60%">не завершать работу диалога при нажатии на кнопку
 </td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
-<td class="cont" width="60%">центрирование идущих подр€д кнопок с одинаковой вертикальной позицией (параметр <dfn>X</dfn> игнорируетс€)
+<td class="cont" width="60%">центрирование идущих подр€д кнопок с одинаковой вертикальной позицией (параметр <code>X</code> игнорируетс€)
 </td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nobrackets.html">DIF_NOBRACKETS</a></td>
 <td class="cont" width="60%">показывает заголовок кнопки без скобок
@@ -76,15 +76,12 @@ struct FarDialogItem
 
 <h3>—обыти€</h3>
 <div class=descr>
-
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">—обытие</th><th class="cont" width="60%">ќписание</th></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
- <td class="cont" width="60%">начало отрисовки текстовой строки</td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
- <td class="cont" width="60%">запрос цветовых атрибутов дл€ отрисовки; Param2:
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+<td class="cont" width="60%">начало отрисовки текстовой строки</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+<td class="cont" width="60%">запрос цветовых атрибутов дл€ отрисовки; Param2:
 <pre>LoWord LoByte - текст кнопки
                 (<a href="../../defs/farcolors.html#COL_WARNDIALOGBUTTON">COL_WARNDIALOGBUTTON</a> или
                  <a href="../../defs/farcolors.html#COL_DIALOGBUTTON">COL_DIALOGBUTTON</a>)

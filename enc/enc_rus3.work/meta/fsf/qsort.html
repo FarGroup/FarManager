@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.qsort</dfn> осуществляет сортировку данных с использованием алгоритма QuickSort.
+Функция <code>FSF.qsort</code> осуществляет сортировку данных с использованием алгоритма QuickSort.
 </div>
 
 <pre class=syntax>
@@ -23,7 +23,8 @@ void WINAPI qsort(
   void *Base,
   size_t NElem,
   size_t Width,
-  int (<b>__cdecl</b> *fcmp)(const void *, const void *)
+  intptr_t (<b>WINAPI</b> *fcmp)(const void *, const void *, void *),
+  void *UserParam
 );
 </pre>
 
@@ -37,14 +38,17 @@ void WINAPI qsort(
     <div class=dfndescr>Размер одного элемента сортируемых данных.</div>
   <div class=dfn>fcmp</div>
     <div class=dfndescr>Функция сравнения двух элементов. В процессе сортировки вызывается каждый раз, когда необходимо сравнить пару элементов данных.
-    Функция сравнения <i>fcmp</i> должна иметь C-декларацию (_USERENTRY или _cdecl).<br>
-    <i>fcmp</i> получает два аргумента - <em>elem1</em> и <em>elem2</em>, которые являются указателями на данные, и возвращает результат:
+    Функция сравнения <code>fcmp</code> должна иметь декларацию <code>WINAPI</code>.<br>
+    <code>fcmp</code> получает три аргумента - <code>elem1</code>, <code>elem2</code> (которые являются указателями на данные) и <code>userparam</code> (то, что было передано в функцию в качестве параметра <code>UserParam</code>),
+    и возвращает результат:
     <table border=0>
     <tr><td>*elem1 &lt; *elem2</td><td>- fcmp возвращает целое меньше 0</td></tr>
     <tr><td>*elem1 == *elem2</td><td>- fcmp возвращает 0</td></tr>
     <tr><td>*elem1  &gt; *elem2</td><td>- fcmp возвращает целое больше 0</td></tr>
     </table>
     </div>
+  <div class=dfn>UserParam</div>
+    <div class=dfndescr>Указатель на пользовательские данные, которые функция <code>qsort</code> будет передавать в функцию сравнения <code>fcmp</code> в качестве третьего параметра.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -52,22 +56,14 @@ void WINAPI qsort(
 Нет.
 </div>
 
-<h3>Замечания</h3>
+<h3>Примечание</h3>
 <div class=descr>
-<ol>
-<li>Более подробно о функции см. справочное руководство по языку C/C++.
-<li>Функция qsort() реализует нестабильную сортировку. Иными словами, порядок элементов, равных с точки зрения функции сравнения, не определён и может меняться при повторных сортировках уже отсортированного массива.
-</ol>
-</div>
-
-<h3>Пример</h3>
-<div class=descr>
+Функция реализует нестабильную сортировку. Иными словами, порядок элементов, равных с точки зрения функции сравнения, не определён и может меняться при повторных сортировках уже отсортированного массива.
 </div>
 
 
 <div class=see>Смотрите также:</div><div class=seecont>
-<a href="bsearch.html">FSF.bsearch</a>,
-<a href="qsortex.html">FSF.qsortex</a>
+<a href="bsearch.html">FSF.bsearch</a>
 </div>
 
 </body>

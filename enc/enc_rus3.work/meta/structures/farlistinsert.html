@@ -16,14 +16,14 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListInsert</dfn> задаёт параметры для вставки требуемого элемента в списки <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
+Структура <code>FarListInsert</code> задаёт параметры для вставки требуемого элемента в списки <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <pre class=syntax>
 struct FarListInsert
 {
   size_t StructSize;
-  int Index;
+  intptr_t Index;
   struct FarListItem Item;
 };
 </pre>
@@ -31,18 +31,19 @@ struct FarListInsert
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListInsert</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Index</div>
-    <div class=dfndescr>Требуемая позиция элемента в списке. Если <i>Index</i> больше текущего количества элементов списка, то вставляемый пункт будет добавлен в конец списка. Если <i>Index</i> меньше нуля, то вставляемый пункт будет добавлен в начало списка.</div>
+    <div class=dfndescr>Требуемая позиция элемента в списке. Если <code>Index</code> больше текущего количества элементов списка, то вставляемый пункт будет добавлен в конец списка. Если <code>Index</code> меньше нуля, то вставляемый пункт будет добавлен в начало списка.</div>
   <div class=dfn>Item</div>
-    <div class=dfndescr>Элемент <a href="farlistitem.html">FarListItem</a>.</div>
+    <div class=dfndescr>Элемент <a href="farlistitem.html">FarListItem</a>, вставляемый в список.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a  href="farlistitem.html">FarListItem</a>,
 <a href="../dialogapi/dmsg/dm_listinsert.html">DM_LISTINSERT</a>
 </div>

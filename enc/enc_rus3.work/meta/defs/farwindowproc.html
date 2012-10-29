@@ -16,15 +16,15 @@
 </div>
 
 <div class=shortdescr>
-Тип функции <dfn>FARWINDOWPROC</dfn> описывает <a href="../dialogapi/dlgproc.html">функцию-обработчик диалогового окна</a>.
+Тип функции <code>FARWINDOWPROC</code> описывает <a href="../dialogapi/dlgproc.html">функцию-обработчик диалогового окна</a>.
 </div>
 
 <pre class=syntax>
-typedef INT_PTR (WINAPI *FARWINDOWPROC)(
-  HANDLE hDlg,
-  int    Msg,
-  int    Param1,
-  void  *Param2
+typedef intptr_t (WINAPI *FARWINDOWPROC)(
+  HANDLE      hDlg,
+  intptr_t    Msg,
+  intptr_t    Param1,
+  void       *Param2
 );
 </pre>
 
@@ -35,7 +35,8 @@ typedef INT_PTR (WINAPI *FARWINDOWPROC)(
 <a href="../dialogapi/dmsg/index_dn.html">"События Dialog API"</a>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../dialogapi/dlgproc.html">DlgProc</a>
 </div>
 

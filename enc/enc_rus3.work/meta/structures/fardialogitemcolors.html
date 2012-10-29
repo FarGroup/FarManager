@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarDialogItemColors</dfn> используется в Диалог АПИ для изменения цветовых атрибутов элементов.
+Структура <code>FarDialogItemColors</code> используется в Диалог АПИ для изменения цветовых атрибутов элементов.
 </div>
 
 <pre class=syntax>
@@ -25,23 +25,20 @@ struct FarDialogItemColors
   size_t StructSize;
   unsigned __int64 Flags;
   size_t ColorsCount;
-  struct FarColor* Colors;
-  void* Reserved;
+  struct FarColor *Colors;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>FarDialogItemColors</code>.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Флаги, поле используется плагином.</div>
   <div class=dfn>ColorsCount</div>
-    <div class=dfndescr>Количество элементов в массиве <var>Colors</var>.</div>
+    <div class=dfndescr>Количество элементов в массиве <code>Colors</code>.</div>
   <div class=dfn>Colors</div>
-    <div class=dfndescr>Установленный или устанавливаемый цвет, структура типа <a href="farcolor.html">FarColor</a>.</div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Поле используется плагином.</div>
+    <div class=dfndescr>Установленный или устанавливаемый цвет, массив структур типа <a href="farcolor.html">FarColor</a>.</div>
 </div>
 
 
@@ -49,8 +46,30 @@ struct FarDialogItemColors
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../dialogapi/dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a> |
+<h3>Пример</h3>
+<div class=descr>
+Пример из плагина "PicViewAdv".
+<pre class=code>
+case DN_CTLCOLORDLGITEM:
+  if(Param1==0)
+  {
+    FarColor Color;
+    struct FarDialogItemColors *Colors=(FarDialogItemColors*)Param2;
+    if(DlgParams->ShowingIn==VIEWER)
+    {
+      Info.AdvControl(&MainGuid,ACTL_GETCOLOR,COL_VIEWERSTATUS,&Color);
+      Colors->Colors[0] = Colors->Colors[2] = Colors->Colors[3] = Color;
+      Info.AdvControl(&MainGuid,ACTL_GETCOLOR,COL_VIEWERTEXT,&Color);
+      Colors->Colors[1] = Color;
+    }
+  }
+  break;
+</pre>
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../dialogapi/dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a>,
 <a href="../dialogapi/dmsg/dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a>
 </div>
 

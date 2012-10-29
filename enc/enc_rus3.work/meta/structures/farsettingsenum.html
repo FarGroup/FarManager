@@ -15,34 +15,48 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarSettingsEnum</dfn> используется в функции <a href="../service_functions/settingscontrol.html">SettingsControl</a> для управления настройками.
+Структура <code>FarSettingsEnum</code> используется в функции <a href="../service_functions/settingscontrol.html">SettingsControl</a> для управления настройками.
 </div>
 
 <pre class=syntax>
-struct FarSettingsCreate
+struct FarSettingsEnum
 {
+  size_t StructSize;
   size_t Root;
   size_t Count;
-  const struct FarSettingsName *Items;
+  union
+  {
+    const struct FarSettingsName *Items;
+    const struct FarSettingsHistory *Histories;
+  }
+<b>#ifndef __cplusplus</b>
+  Value
+<b>#endif</b>
+  ;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarSettingsEnum</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Root</div>
     <div class=dfndescr>Описатель ключа, откуда брать информацию.</div>
   <div class=dfn>Count</div>
-    <div class=dfndescr>Количество элементов.</div>
+    <div class=dfndescr>Количество элементов <code>Value</code>.</div>
   <div class=dfn>Items</div>
     <div class=dfndescr>Массив элементов типа <a href="farsettingsname.html">FarSettingsName</a>.</div>
+  <div class=dfn>Histories</div>
+    <div class=dfndescr>Массив элементов типа <a href="farsettingshistory.html">FarSettingsHistory</a>.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a>|
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>,
 <a href="../service_functions/settingscontrol.html">SettingsControl</a>
 </div>
 

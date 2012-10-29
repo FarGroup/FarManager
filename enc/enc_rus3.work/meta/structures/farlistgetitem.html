@@ -16,14 +16,14 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListGetItem</dfn> описывает один элемент типа <a href="farlistitem.html">FarListItem</a> для  элементов диалога <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
+Структура <code>FarListGetItem</code> описывает запрашиваемый элемент из списков диалога (<a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> или <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>).
 </div>
 
 <pre class=syntax>
 struct FarListGetItem
 {
   size_t StructSize;
-  int ItemIndex;
+  intptr_t ItemIndex;
   struct FarListItem Item;
 };
 </pre>
@@ -31,7 +31,7 @@ struct FarListGetItem
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListGetItem</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>ItemIndex</div>
     <div class=dfndescr>Индекс элемента из списка.</div>
   <div class=dfn>Item</div>
@@ -42,7 +42,8 @@ struct FarListGetItem
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="farlistitem.html">FarListItem</a>,
 <a href="../dialogapi/dmsg/dm_listgetitem.html">DM_LISTGETITEM</a>
 </div>

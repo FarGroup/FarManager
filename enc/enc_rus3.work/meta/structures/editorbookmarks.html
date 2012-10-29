@@ -8,7 +8,7 @@
 </head>
 <body>
 
-<h1>EditorBookMarks</h1>
+<h1>EditorBookmarks</h1>
 <div class=navbar>
 <a href="../index.html">главная</a> |
 <a href="index.html">структуры</a> |
@@ -16,33 +16,39 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorBookMarks</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для получения информации о закладках текущего редактируемого файла
+Структура <code>EditorBookmarks</code> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для получения информации о закладках текущего редактируемого файла
 (команда <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a>).
 </div>
 
 <pre class=syntax>
-struct EditorBookMarks
+struct EditorBookmarks
 {
-  int *Line;
-  int *Cursor;
-  int *ScreenLine;
-  int *LeftPos;
-  DWORD_PTR Reserved[4];
+  size_t StructSize;
+  size_t Size;
+  size_t Count;
+  intptr_t *Line;
+  intptr_t *Cursor;
+  intptr_t *ScreenLine;
+  intptr_t *LeftPos;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>EditorBookmarks</code>. Перед использованием структуры плагин должен заполнить поле.</div>
+  <div class=dfn>Size</div>
+    <div class=dfndescr></div>
+  <div class=dfn>Count</div>
+    <div class=dfndescr>Количество закладок.</div>
   <div class=dfn>Line</div>
     <div class=dfndescr>Указатель на массив номеров строк для каждой закладки.</div>
   <div class=dfn>Cursor</div>
-    <div class=dfndescr>Указатель на массив позиций курсоров в строках <i>Line</i>.</div>
+    <div class=dfndescr>Указатель на массив позиций курсоров в строках <code>Line</code>.</div>
   <div class=dfn>ScreenLine</div>
     <div class=dfndescr>Указатель на массив номеров строк, соответствующих первой видимой строке текста на экране.</div>
   <div class=dfn>LeftPos</div>
     <div class=dfndescr>Указатель на массив позиций, соответствующих первому видимому символу текста на экране слева.</div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано, не используется.</div>
 </div>
 
 <h3>Замечания</h3>
@@ -54,8 +60,9 @@ struct EditorBookMarks
 </ol>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> 
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>
 </div>
 
 </body>

@@ -16,22 +16,25 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarDialogEvent</dfn> содержит информацию о событии, поступающем в функцию <a href="../exported_functions/processdialogeventw.html">ProcessDialogEventW</a>.
+Структура <code>FarDialogEvent</code> содержит информацию о событии, поступающем в функцию <a href="../exported_functions/processdialogeventw.html">ProcessDialogEventW</a>.
 </div>
 
 <pre class=syntax>
 struct FarDialogEvent
 {
+  size_t StructSize;
   HANDLE hDlg;
-  int Msg;
-  int Param1;
+  intptr_t Msg;
+  intptr_t Param1;
   void *Param2;
-  INT_PTR Result;
+  intptr_t Result;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>FarDialogEvent</code>.</div>
   <div class=dfn>hDlg</div>
     <div class=dfndescr>Указатель на диалог.</div>
   <div class=dfn>Msg</div>

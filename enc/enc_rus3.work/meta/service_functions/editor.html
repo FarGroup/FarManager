@@ -81,8 +81,20 @@ int WINAPI Editor(
   <div class=dfn>StartChar</div>
     <div class=dfndescr>ѕозици€ курсора в строке. Ќумераци€ позиции начинаетс€ с 1.</div>
   <div class=dfn>CodePage</div>
-    <div class=dfndescr> одировка в которой будет открыт редактор. ћожете установить значение в <var>CP_DEFAULT</var>.</div>
-  </div>
+    <div class=dfndescr>Ќомер кодовой страницы, в которой будет открыт редактор. ћожете установить значение в <code>CP_DEFAULT</code>.
+    ѕомимо этого можно использовать следующие определени€.
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">ќпределение</th><th class="cont" width="60%">ќписание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_UNICODE">CP_UNICODE</a></td>
+    <td class="cont" width="60%">кодова€ страница 1200</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_REVERSEBOM">CP_REVERSEBOM</a></td>
+    <td class="cont" width="60%">кодова€ страница 1201</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_DEFAULT">CP_DEFAULT</a></td>
+    <td class="cont" width="60%">автоматически определить номер кодовой страницы</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="CP_REDETECT">CP_REDETECT</a></td>
+    <td class="cont" width="60%">переопределить номер кодовой страницы</td></tr>
+    </table>
+    </div>
 </div>
 
 <h3>¬озвращаемое значение</h3>

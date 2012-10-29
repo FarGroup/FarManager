@@ -124,12 +124,31 @@ HiWord HiByte - цвет символа для History
 </table>
 </div>
 
+<h3>Замечания</h3>
+<div class=descr>
+Для определения, является ли текущий элемент диалога строкой ввода, в АПИ есть функция <code>IsEdit()</code>:
+<pre class=code>
+static __inline BOOL IsEdit(enum FARDIALOGITEMTYPES Type)
+{
+  switch (Type)
+  {
+    case DI_EDIT:
+    case DI_FIXEDIT:
+    case DI_PSWEDIT:
+    case DI_COMBOBOX:
+      return TRUE;
+    default:
+      return FALSE;
+  }
+}
+</pre>
+</div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="di_pswedit.html">DI_PSWEDIT</a>,
 <a href="di_fixedit.html">DI_FIXEDIT</a>,
 <a href="../../structures/fardialogitem.html">FarDialogItem</a>
-
 </div>
 
 </body>

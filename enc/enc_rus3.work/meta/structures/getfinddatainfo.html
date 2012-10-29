@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>GetFindDataInfo</dfn> передает информацию Far Manager'у о списке файлов из эмулируемой файловой системы в функции <a href="../exported_functions/getfinddataw.html">GetFindDataW</a>.
+Структура <code>GetFindDataInfo</code> передает информацию Far Manager'у о списке файлов из эмулируемой файловой системы в функции <a href="../exported_functions/getfinddataw.html">GetFindDataW</a>.
 </div>
 
 <pre class=syntax>
@@ -33,7 +33,7 @@ struct GetFindDataInfo
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>GetFindDataInfo</dfn>.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>GetFindDataInfo</code>.</div>
   <div class=dfn>hPanel</div>
     <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>. Поле заполнено Far Manager'ом.</div>
   <div class=dfn>PanelItem</div>
@@ -44,7 +44,8 @@ struct GetFindDataInfo
     <div class=dfndescr>Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>. Функция <a href="../exported_functions/getfinddataw.html">GetFindDataW</a> должна быть готова обработать флаг <a href="../defs/operation_mode.html#OPM_FIND">OPM_FIND</a>.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

@@ -15,28 +15,39 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.CopyToClipboard</dfn> копирует текстовую строку в буфер обмена Windows.
+Функция <code>FSF.CopyToClipboard</code> копирует текстовую строку в буфер обмена Windows.
 </div>
 
 <pre class=syntax>
-int WINAPI CopyToClipboard(
+BOOL WINAPI CopyToClipboard(
+  enum FARCLIPBOARD_TYPE Type,
   const wchar_t *Data
 );
 </pre>
 
 <h3>Параметры</h3>
 <div class=descr>
+  <div class=dfn>Type</div>
+    <div class=dfndescr>Тип блока помещаемый в буфер обмена. Может быть следующим (перечисление <a name="FARCLIPBOARD_TYPE">FARCLIPBOARD_TYPE</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCT_STREAM">FCT_STREAM</a></td>
+    <td class="cont" width="60%">потоковый</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FCT_COLUMN">FCT_COLUMN</a></td>
+    <td class="cont" width="60%">вертикальный</td></tr>
+    </table>
+    </div>
   <div class=dfn>Data</div>
     <div class=dfndescr>Указатель на строку, которую нужно поместить в буфер обмена.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-В случае успеха возвращается TRUE, иначе - FALSE.
+В случае успеха возвращается <code>TRUE</code>, иначе - <code>FALSE</code>.
 </div>
 
-<h3>Примечание</h3>
-<div class=descr>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 </div>
 
 </body>

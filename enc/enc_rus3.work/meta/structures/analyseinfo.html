@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>AnalyseInfo</dfn> используется для возвращения Far Manager'ом данных из начала файла в функции <a href="../exported_functions/analysew.html">AnalyseW</a>.
+Структура <code>AnalyseInfo</code> используется для возвращения Far Manager'ом данных из начала файла в функции <a href="../exported_functions/analysew.html">AnalyseW</a>.
 </div>
 
 <pre class=syntax>
@@ -33,7 +33,7 @@ struct AnalyseInfo
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <dfn>AnalyseInfo</dfn>.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>AnalyseInfo</code>.</div>
   <div class=dfn>FileName</div>
     <div class=dfndescr>Полное имя обрабатываемого файла.</div>
   <div class=dfn>Buffer</div>
@@ -46,15 +46,15 @@ struct AnalyseInfo
 
 <h3>Замечания</h3>
 <div class=descr>
-<li>Количество читаемых байт можно изменить - TechInfo #63:
-<pre class=code>[HKEY_CURRENT_USER\Software\Far Manager\System]
-"PluginMaxReadData":REG_DWORD
-Параметр "System/PluginMaxReadData" с типом DWORD позволяет задавать максимальный размер читаемых данных из файла в который попытались
-войти из панелей (Enter или Ctrl-PgDn). Считанные данные будут переданы плагинам для определения плагина поддерживающего файл этого типа.
+<li>Количество читаемых байт можно изменить, команда - "far:config":
+<pre class=code>
+Параметр "System.PluginMaxReadData" с типом DWORD позволяет задавать максимальный размер читаемых данных из файла в который попытались
+войти из панелей (<kbd>Enter</kbd> или <kbd>Ctrl</kbd>+<kbd>PgDn</kbd>). Считанные данные будут переданы плагинам для определения плагина поддерживающего файл этого типа.
 Диапазон от 0x1000 до 0x80000. По умолчанию 0x20000.</pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

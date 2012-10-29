@@ -16,31 +16,31 @@
 </div>
 
 <div class=shortdescr>
-Команда <dfn>DM_GETDIALOGINFO</dfn> посылается обработчику диалога, для запроса информации о диалоге Far Manager'а или другого плагина.
-
+Команда <code>DM_GETDIALOGINFO</code> посылается обработчику диалога, для запроса информации о диалоге Far Manager'а или другого плагина.
 
 <h3>Param1</h3>
 <div class=descr>
-0
+<code>0</code>
 </div>
 
 <h3>Param2</h3>
 <div class=descr>
 Указатель на структуру <a href="../../structures/dialoginfo.html">DialogInfo</a>, получающую данные.
-Плагин должен корректно заполнить поле <var>StructSize</var> структуры <a href="../../structures/dialoginfo.html">DialogInfo</a> перед вызовом.
+Плагин должен корректно заполнить поле <a href="../../structures/dialoginfo.html">DialogInfo.StructSize</a> перед вызовом.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - если структура заполнена, FALSE - соощение проигнорировано.
+<code>TRUE</code> - если структура заполнена.<br>
+<code>FALSE</code> - соощение проигнорировано.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

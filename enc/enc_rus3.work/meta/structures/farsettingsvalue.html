@@ -15,12 +15,13 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarSettingsValue</dfn> используется в функции <a href="../service_functions/settingscontrol.html">SettingsControl</a> для управления настройками.
+Структура <code>FarSettingsValue</code> используется в функции <a href="../service_functions/settingscontrol.html">SettingsControl</a> для управления настройками.
 </div>
 
 <pre class=syntax>
 struct FarSettingsValue
 {
+  size_t StructSize;
   size_t Root;
   const wchar_t *Value;
 };
@@ -28,6 +29,8 @@ struct FarSettingsValue
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarSettingsValue</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Root</div>
     <div class=dfndescr>Описатель ключа, откуда брать информацию.</div>
   <div class=dfn>Value</div>
@@ -38,8 +41,9 @@ struct FarSettingsValue
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a>|
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>,
 <a href="../service_functions/settingscontrol.html">SettingsControl</a>
 </div>
 

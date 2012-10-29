@@ -1,11 +1,27 @@
 Проверить все:
 везде где используются названия структур, переменных, ф-ций .... юзать тег <code></code>
 
-
-
 требуется уточнения:
 
 deletefilesw.html
 <li>Хорошим тоном считается вариант, когда плагин перед удалением "попросит" подтвердить пользователя о своих намерениях (см. так же <a href="../service_functions/advcontrol.html#ACTL_GETCONFIRMATIONS">ACTL_GETCONFIRMATIONS</a>,
 флаги <a href="../service_functions/advcontrol.html#FCS_DELETE">FCS_DELETE</a> и <a href="../service_functions/advcontrol.html#FCS_DELETENONEMPTYFOLDERS">FCS_DELETENONEMPTYFOLDERS</a>)
+
+editorbookmarks.html
+мне непонятна, требуется полностью расписать автору
+
+куда-то это запихать, требуется полностью расписать автору:
+#define INDEXMASK 0x0000000f
+#define COLORMASK 0x00ffffff
+#define ALPHAMASK 0xff000000
+
+#define INDEXVALUE(x) ((x)&INDEXMASK)
+#define COLORVALUE(x) ((x)&COLORMASK)
+#define ALPHAVALUE(x) ((x)&ALPHAMASK)
+
+#define IS_OPAQUE(x) (ALPHAVALUE(x)==ALPHAMASK)
+#define IS_TRANSPARENT(x) (!ALPHAVALUE(x))
+#define MAKE_OPAQUE(x) (x|=ALPHAMASK)
+#define MAKE_TRANSPARENT(x) (x&=COLORMASK)
+
 

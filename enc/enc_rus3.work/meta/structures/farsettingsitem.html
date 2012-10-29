@@ -15,12 +15,13 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarSettingsItem</dfn> используется в функции <a href="../service_functions/settingscontrol.html">SettingsControl</a> для управления настройками.
+Структура <code>FarSettingsItem</code> используется в функции <a href="../service_functions/settingscontrol.html">SettingsControl</a> для управления настройками.
 </div>
 
 <pre class=syntax>
 struct FarSettingsItem
 {
+  size_t StructSize;
   size_t Root;
   const wchar_t *Name;
   enum FARSETTINGSTYPES Type;
@@ -43,8 +44,10 @@ struct FarSettingsItem
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarSettingsItem</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Root</div>
-    <div class=dfndescr>Место хранения настроек. 0 - корень для плагина. Подключи получаются при помощи команды SCTL_SUBKEY.</div>
+    <div class=dfndescr>Место хранения настроек. 0 - корень для плагина. Подключи получаются при помощи команды <code>SCTL_OPENSUBKEY</code>.</div>
   <div class=dfn>Name</div>
     <div class=dfndescr>Имя сохраняемого или запрашиваемого значения.</div>
   <div class=dfn>Type</div>
@@ -75,8 +78,9 @@ struct FarSettingsItem
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a>|
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>,
 <a href="../service_functions/settingscontrol.html">SettingsControl</a>
 </div>
 

@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarSettingsCreate</dfn> используется в функции <a href="../service_functions/settingscontrol.html">SettingsControl</a> для управления настройками.
+Структура <code>FarSettingsCreate</code> используется в функции <a href="../service_functions/settingscontrol.html">SettingsControl</a> для управления настройками.
 </div>
 
 <pre class=syntax>
@@ -30,19 +30,20 @@ struct FarSettingsCreate
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>FarSettingsCreate</dfn>.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarSettingsCreate</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Guid</div>
-    <div class=dfndescr>Поле должно содержать GUID плагина для которого создаётся объект "настройки".</div>
+    <div class=dfndescr>Поле должно содержать GUID плагина, для которого создаётся объект "настройки".</div>
   <div class=dfn>Handle</div>
-    <div class=dfndescr>Far Manager в это поле поместит описатель созданных настроек для указанного в <i>Guid</i> плагина.</div>
+    <div class=dfndescr>Far Manager в это поле поместит описатель созданных настроек для указанного в <code>Guid</code> плагина.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a>|
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>,
 <a href="../service_functions/settingscontrol.html">SettingsControl</a>
 </div>
 

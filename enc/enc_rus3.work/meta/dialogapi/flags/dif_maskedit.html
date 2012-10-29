@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Флаг <dfn>DIF_MASKEDIT</dfn> позволяет для элемента диалога <a href="../controls/di_fixedit.html">DI_FIXEDIT</a> указать маску ввода. Если этот флаг установлен, то поле <dfn>Mask</dfn> должно содержать
+Флаг <code>DIF_MASKEDIT</code> позволяет для элемента диалога <a href="../controls/di_fixedit.html">DI_FIXEDIT</a> указать маску ввода. Если этот флаг установлен, то поле <code>Mask</code> должно содержать
 адрес текстовой строки со значением маски ввода.
 
 <p>На данный момент поддерживаются следующие символы маски:
@@ -31,14 +31,14 @@
 Можно создавать разнообразнейшие маски ввода, например: <code>L"(###) #99-99-99"</code>.
 В этой маске скобки и дефисы между девятками будут статическими (не удаляемыми) элементами строки, внутри скобок можно ввести либо
 цифры либо пробелы (к примеру телефонный код города), в позициях, где стоят девятки в строке ввода, можно ввести только цифры.<br>
-Есть некоторый нюанс по использованию <dfn>DIF_MASKEDIT</dfn>.
+Есть некоторый нюанс по использованию <code>DIF_MASKEDIT</code>.
 Когда вы задаёте строку маски (к примеру, L"99.99.9999") учтите, что работа реализована таким образом, что длина строки ввода
 принудительно устанавливается равной длине строки маски.
 </div>
 
 <h3>Элементы</h3>
 <div class=descr>
-Флаг <dfn>DIF_MASKEDIT</dfn> имеет смысл для следующих элементов диалога:
+Флаг <code>DIF_MASKEDIT</code> имеет смысл для следующих элементов диалога:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_fixedit.html">DI_FIXEDIT</a></td>
@@ -46,14 +46,13 @@
 </table>
 </div>
 
-
 <h3>Замечания</h3>
 <div class=descr>
-Флаг <a href="dif_history.html">DIF_HISTORY</a> имеет более высокий приоритет, чем <dfn>DIF_MASKEDIT</dfn>.
+Флаг <a href="dif_history.html">DIF_HISTORY</a> имеет более высокий приоритет, чем <code>DIF_MASKEDIT</code>.
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 </div>
 
 </body>

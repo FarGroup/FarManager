@@ -51,36 +51,12 @@
 <td class="cont" width="60%">дополнительная информация о режиме функции и месте, откуда она была вызвана</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="farpanelsettings.html">FPS__*</a></td>
-<td class="cont" width="60%">информация о настройках панелей</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="farsystemsettings.html">FSS__*</a></td>
-<td class="cont" width="60%">информация о системных настройках</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="fardescriptionsettings.html">FDS__*</a></td>
-<td class="cont" width="60%">информация о настройках описаний файлов</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="farconfirmationssettings.html">FCS__*</a></td>
-<td class="cont" width="60%">информация о настройках подтверждений</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="farinterfacesettings.html">FIS__*</a></td>
-<td class="cont" width="60%">информация о настройках интерфейса</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="fardialogsettings.html">FDIS__*</a></td>
-<td class="cont" width="60%">информация о настройках диалогов</td>
-</tr>
-<tr>
 <td class="cont" width="40%"><a href="sortmetods.html">SM_*</a></td>
 <td class="cont" width="60%">метод сортировки</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="winerror.html">ERROR_*</a></td>
-<td class="cont" width="60%">типы ошибок, возвращаемые функцией <dfn>GetLastError</dfn>, известные Far Manager</td>
+<td class="cont" width="60%">типы ошибок, возвращаемые функцией <code>GetLastError</code>, известные Far Manager</td>
 </tr>
 </table>
 
@@ -102,11 +78,11 @@
 </tr>
 <tr>
 <td class="cont" width="40%"><a name="Dlg_GetDlgData">Dlg_GetDlgData(Info,hDlg)</a></td>
-<td class="cont" width="60%">получить 32-битное значение, связанное с диалогом (<a href="../dialogapi/dmsg/dm_getdlgdata.html">DM_GETDLGDATA</a>)</td>
+<td class="cont" width="60%">получить значение, связанное с диалогом (<a href="../dialogapi/dmsg/dm_getdlgdata.html">DM_GETDLGDATA</a>)</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a name="Dlg_GetDlgItemData">Dlg_GetDlgItemData(Info,hDlg,ID)</a></td>
-<td class="cont" width="60%">получить 32-битное значение, связанное с элементом диалога (<a href="../dialogapi/dmsg/dm_getitemdata.html">DM_GETITEMDATA</a>)</td>
+<td class="cont" width="60%">получить значение, связанное с элементом диалога (<a href="../dialogapi/dmsg/dm_getitemdata.html">DM_GETITEMDATA</a>)</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a name="Dlg_RedrawDialog">Dlg_RedrawDialog(Info,hDlg)</a></td>
@@ -114,11 +90,11 @@
 </tr>
 <tr>
 <td class="cont" width="40%"><a name="Dlg_SetDlgData">Dlg_SetDlgData(Info,hDlg,Data)</a></td>
-<td class="cont" width="60%">установить 32-битное значение связанное с диалогом (<a href="../dialogapi/dmsg/dm_setdlgdata.html">DM_SETDLGDATA</a>)</td>
+<td class="cont" width="60%">установить значение связанное с диалогом (<a href="../dialogapi/dmsg/dm_setdlgdata.html">DM_SETDLGDATA</a>)</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a name="Dlg_SetDlgItemData">Dlg_SetDlgItemData(Info,hDlg,ID,Data)</a></td>
-<td class="cont" width="60%">установить 32-битное значение связанное с элементом диалога (<a href="../dialogapi/dmsg/dm_setitemdata.html">DM_SETITEMDATA</a>)</td>
+<td class="cont" width="60%">установить значение связанное с элементом диалога (<a href="../dialogapi/dmsg/dm_setitemdata.html">DM_SETITEMDATA</a>)</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a name="DlgEdit_AddHistory">DlgEdit_AddHistory(Info,hDlg,ID,Str)</a></td>
@@ -201,18 +177,19 @@
   <div class=dfn>ID</div>
   <div class=dfndescr>Индекс элемента в массиве структур <a href="../dialogapi/structures/fardialogitem.html">FarDialogItem</a>.</div>
   <div class=dfn>Data</div>
-  <div class=dfndescr>32-битное значение (число типа DWORD или указатель).</div>
+  <div class=dfndescr>32-битное (64-битное) значение, число типа <code>intptr_t</code>.</div>
   <div class=dfn>Str</div>
   <div class=dfndescr>Строка.</div>
   <div class=dfn>State</div>
-  <div class=dfndescr>Состояние элемента (одна из констант BSTATE_*, описанная в <a href="../dialogapi/dmsg/dm_setcheck.html">DM_SETCHECK</a>).</div>
+  <div class=dfndescr>Состояние элемента (одна из констант <code>BSTATE_*</code>, описанная в <a href="../dialogapi/dmsg/dm_setcheck.html">DM_SETCHECK</a>).</div>
   <div class=dfn>Index</div>
   <div class=dfndescr>Позиция в списке.</div>
   <div class=dfn>NewPos</div>
   <div class=dfndescr>Новая позиция в списке.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../exported_functions/index.html">Экспортируемые функции</a>,
 <a href="../service_functions/index.html">Сервисные функции</a>,
 <a href="../structures/index.html">Структуры</a>

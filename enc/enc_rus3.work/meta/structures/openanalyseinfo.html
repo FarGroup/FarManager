@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>OpenAnalyseInfo</dfn> используется Far Manager'ом в функции ...
+Указатель на структуру <code>OpenAnalyseInfo</code> передается в функцию <a href="../exported_functions/openw.html">OpenW</a>, когда плагин открывает панель на базе како-либо контейнера (например, архива).
 </div>
 
 <pre class=syntax>
@@ -24,22 +24,23 @@ struct OpenAnalyseInfo
 {
   size_t StructSize;
   struct AnalyseInfo* Info;
-  HANDLE hPanel;
+  HANDLE Handle;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <dfn>OpenAnalyseInfo</dfn>.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>OpenAnalyseInfo</code>.</div>
   <div class=dfn>Info</div>
     <div class=dfndescr>Указатель на структуру типа <a href="analyseinfo.html">AnalyseInfo</a>.</div>
-  <div class=dfn>hPanel</div>
-    <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
+  <div class=dfn>Handle</div>
+    <div class=dfndescr>Описатель, возвращаемый функцией <a href="../exported_functions/analysew.html">AnalyseW</a>.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../exported_functions/openw.html">OpenW</a>
 </div>
 
 </body>

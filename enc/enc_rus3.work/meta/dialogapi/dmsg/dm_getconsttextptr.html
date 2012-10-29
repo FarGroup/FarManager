@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETCONSTTEXTPTR</dfn> посылается Менеджеру диалогов для получения указателя на внутренний буфер Far Manager, содержащий строку ввода.
+Сообщение <code>DM_GETCONSTTEXTPTR</code> посылается Менеджеру диалогов для получения указателя на внутренний буфер Far Manager, содержащий строку ввода.
 </div>
 
 <h3>Param1</h3>
@@ -26,12 +26,12 @@ ID требуемого элемента.
 
 <h3>Param2</h3>
 <div class=descr>
-0
+<code>0</code>
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Возвращает указатель на внутренний буфер Far Manager, содержащий строку ввода, переменная типа <dfn>const wchar_t*</dfn>.
+Возвращает указатель на внутренний буфер Far Manager, содержащий строку ввода, переменная типа <code>const wchar_t*</code>.
 </div>
 
 <h3>Элементы</h3>
@@ -47,13 +47,12 @@ ID требуемого элемента.
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_pswedit.html">DI_PSWEDIT</a></td>
 <td class="cont" width="60%">поле ввода пароля</td></tr>
 </table>
-
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 <p class=note><img src="../../../images/note.gif" alt="Внимание!" width="10" height="10"> Внимание!</p> <br>
-<div class=alert2> Полученную сообщением <dfn>DM_GETCONSTTEXTPTR</dfn> строку ни в коем случае нельзя изменять! <br>
+<div class=alert2> Полученную сообщением <code>DM_GETCONSTTEXTPTR</code> строку ни в коем случае нельзя изменять! <br>
 А также нельзя сохранять сам указатель, так как он меняется при изменениях в строке ввода. <br> </div>
 
 <p>Добавлен для удобства работы после закрытия диалога (функция <a href="../../service_functions/dialogrun.html">DialogRun</a>) и до функции <a href="../../service_functions/dialogfree.html">DialogFree</a>.</div>
@@ -62,8 +61,8 @@ ID требуемого элемента.
 <div class=descr>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

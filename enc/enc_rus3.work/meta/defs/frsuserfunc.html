@@ -17,7 +17,7 @@
 
 
 <div class=shortdescr>
-Тип <dfn>FRSUSERFUNC</dfn> описывает CALLBACK-функцию, вызываемую из функции <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a> для каждого найденного файла.</div>
+Тип <code>FRSUSERFUNC</code> описывает CALLBACK-функцию, вызываемую из функции <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a> для каждого найденного файла.</div>
 
 <pre class=syntax>
 typedef int  (WINAPI *FRSUSERFUNC)(
@@ -34,7 +34,7 @@ typedef int  (WINAPI *FRSUSERFUNC)(
   <div class=dfn>FullName</div>
     <div class=dfndescr>Полный путь к найденному файловому объекту.</div>
   <div class=dfn>Param</div>
-    <div class=dfndescr>Указатель на данные пользователя (параметр <i>Param</i> фунции <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a>).</div>
+    <div class=dfndescr>Указатель на данные пользователя (параметр <code>Param</code> фунции <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a>).</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -44,11 +44,12 @@ typedef int  (WINAPI *FRSUSERFUNC)(
 
 <h3>Замечания</h3>
 <div class=descr>
-<i>FData</i> и <i>FullName</i> определены только в контексте данной функции, плагин не должен сохранять эти указатели. Для сохранения данных,
-плагин должен скопировать эти значения в свои стуктуры. <i>Param</i> - те данные, которые плагин передал функции <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a>.
+<code>FData</code> и <code>FullName</code> определены только в контексте данной функции, плагин не должен сохранять эти указатели. Для сохранения данных,
+плагин должен скопировать эти значения в свои стуктуры. <code>Param</code> - те данные, которые плагин передал функции <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../fsf/farrecursivesearch.html">FSF.FarRecursiveSearch</a>
 </div>
 

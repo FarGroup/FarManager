@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETDLGITEM</dfn> посылается Менеджеру диалогов для получения полной информации о заданном элементе.
+Сообщение <code>DM_GETDLGITEM</code> посылается Менеджеру диалогов для получения полной информации о заданном элементе.
 </div>
 
 <h3>Param1</h3>
@@ -26,12 +26,13 @@ ID элемента диалога.
 
 <h3>Param2</h3>
 <div class=descr>
-Указатель на буфер, структуру <a href="../../structures/fargetdialogitem.html">FarGetDialogItem</a>, память плагин выделят самостоятельно.
+Указатель на структуру <a href="../../structures/fargetdialogitem.html">FarGetDialogItem</a>, память под запрашиваемый элемент плагин выделяет самостоятельно.
+Плагин должен корректно заполнить поле <a href="../../structures/fargetdialogitem.html">FarGetDialogItem.StructSize</a> перед вызовом.
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-Необходимый размер буфера, при <var>Param2</var> = NULL.
+Необходимый размер буфера, при <code>Param2 = NULL</code>.
 </div>
 
 <h3>Элементы</h3>
@@ -39,20 +40,19 @@ ID элемента диалога.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%">Все</td>
-<td class="cont" width="60%">Все элементы диалога</td></tr>
+<td class="cont" width="60%">все элементы диалога</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 <pre class=code>
 // получить 12-й элемент
-struct FarGetDialogItem DialogItem;
+struct FarGetDialogItem DialogItem={sizeof(FarGetDialogItem)};
 // выделяем память
 DialogItem.Item = (FarDialogItem *)malloc(DialogItem.Size=Info.SendDlgMessage(hDlg,DM_GETDLGITEM,12,NULL));
 if (DialogItem.Item)
@@ -68,7 +68,8 @@ if (DialogItem.Item)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_getitemposition.html">DM_GETITEMPOSITION</a>,
 <a href="dm_getdlgrect.html">DM_GETDLGRECT</a>

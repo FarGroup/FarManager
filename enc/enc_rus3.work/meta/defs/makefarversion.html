@@ -16,15 +16,26 @@
 
 
 <div class=shortdescr>
-Макрос <dfn>MAKEFARVERSION</dfn> предназначен для возврата минимально требуемой для плагина версии Far Manager в функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>.
+Макрос <code>MAKEFARVERSION</code> предназначен для возврата минимально требуемой для плагина версии Far Manager в функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>.
 </div>
 
 <pre class=syntax>
 struct VersionInfo MAKEFARVERSION(DWORD Major, DWORD Minor, DWORD Revision, DWORD Build, enum VERSION_STAGE Stage);
 </pre>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>
+<h3>Замечания</h3>
+<div class=descr>
+В АПИ дополнительно определена функция <code>CheckVersion</code>, которая предназначена для проверки соответсвия версий</a>:
+</div>
+
+<pre class=syntax>
+BOOL CheckVersion(const struct VersionInfo *Current, const struct VersionInfo *Required);
+</pre>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>,
+<a href="../structures/versioninfo.html">VersionInfo</a>
 </div>
 
 </body>

@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorColor</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для того, чтобы
+Структура <code>EditorColor</code> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для того, чтобы
 установить или получить информацию о цветовых областях строк во внутреннем редакторе.
 </div>
 
@@ -24,11 +24,11 @@
 struct EditorColor
 {
   size_t StructSize;
-  int StringNumber;
-  int ColorItem;
-  int StartPos;
-  int EndPos;
-  unsigned Priority;
+  intptr_t StringNumber;
+  intptr_t ColorItem;
+  intptr_t StartPos;
+  intptr_t EndPos;
+  uintptr_t Priority;
   EDITORCOLORFLAGS Flags;
   struct FarColor Color;
   GUID Owner;
@@ -38,28 +38,28 @@ struct EditorColor
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>EditorColor</dfn>.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>EditorColor</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>StringNumber</div>
-    <div class=dfndescr>Номер строки для обработки или <strong>-1</strong> для текущей строки.</div>
+    <div class=dfndescr>Номер строки для обработки или <code>-1</code> для текущей строки.</div>
   <div class=dfn>ColorItem</div>
     <div class=dfndescr>Номер цветовой области, о которой вы хотите получить информацию. Строка может содержать несколько цветовых областей. Установите
-      <i>ColorItem</i> равным <strong>0</strong> для получения информации о первой цветовой области, <strong>1</strong> - о второй и т.д.<br>
+      <code>ColorItem = 0</code> для получения информации о первой цветовой области, <code>1</code> - о второй и т.д.<br>
       Это поле не используется в <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a>.
-      Новый цвет всегда применяется ко всей области от <i>StartPos</i> до <i>EndPos</i>, независимо от существовавших там ранее различных цветовых областей.</div>
+      Новый цвет всегда применяется ко всей области от <code>StartPos</code> до <code>EndPos</code>, независимо от существовавших там ранее различных цветовых областей.</div>
   <div class=dfn>StartPos, EndPos</div>
     <div class=dfndescr>Область строки для установки цвета.<br>
       Входной параметр для <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a>
       и выходной для <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a>.</div>
   <div class=dfn>Priority</div>
     <div class=dfndescr>Приоритет наложения цветовых областей.<br>
-      Параметр указывает FarManager'у, в какой последовательности накладывать цвета от разных плагинов. Например, для плагина Colorer значение должно быть установлено в <strong>0</strong>, 
-      т.к. он обеспечивает "базовую" раскраску. Для ANSI плагинов значение установлено в <strong>EDITOR_COLOR_NORMAL_PRIORITY</strong>.</div>
+      Параметр указывает Far Manager'у, в какой последовательности накладывать цвета от разных плагинов. Например, для плагина Colorer значение должно быть установлено в <code>0</code>, 
+      т.к. он обеспечивает "базовую" раскраску. Для ANSI-плагинов значение установлено в <code>EDITOR_COLOR_NORMAL_PRIORITY</code>.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Флаги (перечисление <a name="EDITORCOLORFLAGS">EDITORCOLORFLAGS</a>):
+    <div class=dfndescr>Флаги (тип <a name="EDITORCOLORFLAGS">EDITORCOLORFLAGS</a>):
       <table class="cont">
       <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="ECF_TABMARKFIRST">ECF_TABMARKFIRST</a></td>
-      <td class="cont" width="60%">если в диапазоне цветовой области встречается символ табуляции, то раскрасить его как 1 символ</td></tr>
+      <td class="cont" width="60%">если в диапазоне цветовой области встречается символ табуляции, то раскрасить его как один символ</td></tr>
       <tr class="cont"><td class="cont" width="40%"><a name="ECF_TABMARKCURRENT">ECF_TABMARKCURRENT</a></td>
       <td class="cont" width="60%">если в диапазоне цветовой области встречается символ табуляции, то раскрасить не первый символ табуляции, а тот, который совпадает с текущей горизонтальной позицией курсора</td></tr>
       </table>
@@ -69,22 +69,22 @@ struct EditorColor
       Входной параметр для <a href="../service_functions/editorcontrol.html#ECTL_ADDCOLOR">ECTL_ADDCOLOR</a> и
       выходной для <a href="../service_functions/editorcontrol.html#ECTL_GETCOLOR">ECTL_GETCOLOR</a>.
       <p>Far Manager раскрашивает символ табуляции на всю длину, на которую расширяется табуляция. Если необходимо, чтобы символ табуляции для 
-      цветовой области занимал 1 знакоместо, то в дополнении к цвету, необходимо выставить флаг <dfn>ECF_TABMARKFIRST</dfn> или <dfn>ECF_TABMARKCURRENT</dfn>.
+      цветовой области занимал одно знакоместо, то в дополнении к цвету, необходимо выставить флаг <code>ECF_TABMARKFIRST</code> или <code>ECF_TABMARKCURRENT</code>.
     </div>
   <div class=dfn>Owner</div>
     <div class=dfndescr>GUID плагина-владельца цветовой области.</div>
 </div>
 
-
 <h3>Замечания</h3>
 <div class=descr>
-<p>Через параметр <i>Color</i> вы можете задать и цвет фона. Более того, вне зависимости от длины строки вы можете установить область начиная с
+<p>Через параметр <code>Color</code> вы можете задать и цвет фона. Более того, вне зависимости от длины строки вы можете установить область начиная с
 первой видимой позиции и кончая самой правой - при этом вы как бы замените цвет фона в редакторе. Хотя этот метод не сработает на файлах, у которых
 число строк меньше размера экрана :(
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a>|
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>,
 <a href="editordeletecolor.html">EditorDeleteColor</a>
 </div>
 

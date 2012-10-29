@@ -16,22 +16,22 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListDelete</dfn> задаёт параметры для удаления элементов из <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
+Структура <code>FarListDelete</code> задаёт параметры для удаления элементов из <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <pre class=syntax>
 struct FarListDelete
 {
   size_t StructSize;
-  int StartIndex;
-  int Count;
+  intptr_t StartIndex;
+  intptr_t Count;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListDelete</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>StartIndex</div>
     <div class=dfndescr>Индекс первого удаляемого элемента списка.</div>
   <div class=dfn>Count</div>
@@ -40,10 +40,11 @@ struct FarListDelete
 
 <h3>Замечания</h3>
 <div class=descr>
-Если значение <i>Count</i> меньше или равно 0, то будет удалён весь список.
+Если значение <code>Count</code> меньше или равно 0, то будет удалён весь список.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../dialogapi/dmsg/dm_listdelete.html">DM_LISTDELETE</a>
 </div>
 

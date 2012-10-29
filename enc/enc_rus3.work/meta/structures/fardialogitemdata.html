@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarDialogItemData</dfn> описывает данные, передаваемые (получаемые) элементу(ом) диалога сообщением <a href="../dialogapi/dmsg/dm_settext.html">DM_SETTEXT</a> (<a href="../dialogapi/dmsg/dm_gettext.html">DM_GETTEXT</a>) в качестве параметра Param2.
+Структура <code>FarDialogItemData</code> описывает данные, передаваемые (получаемые) элементу(ом) диалога сообщением <a href="../dialogapi/dmsg/dm_settext.html">DM_SETTEXT</a> (<a href="../dialogapi/dmsg/dm_gettext.html">DM_GETTEXT</a>) в качестве параметра <code>Param2</code>.
 </div>
 
 <pre class=syntax>
@@ -31,9 +31,9 @@ struct FarDialogItemData
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarDialogItemData</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>PtrLength</div>
-    <div class=dfndescr>Размер данных в <i>PtrData</i> без завершающего символа конца строки <code>'\0'</code>.</div>
+    <div class=dfndescr>Размер данных в символах <code>PtrData</code>, без завершающего символа конца строки - <code>'\0'</code>.</div>
   <div class=dfn>PtrData</div>
     <div class=dfndescr>Указатель на передаваемые данные.</div>
 </div>
@@ -42,7 +42,8 @@ struct FarDialogItemData
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../dialogapi/dmsg/dm_gettext.html">DM_GETTEXT</a>,
 <a href="../dialogapi/dmsg/dm_settext.html">DM_SETTEXT</a>
 </div>

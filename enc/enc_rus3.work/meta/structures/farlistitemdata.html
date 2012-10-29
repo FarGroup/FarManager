@@ -16,32 +16,29 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListItemData</dfn> описывает данные, которые будут ассоциированы с элементом списка <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> или <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
+Структура <code>FarListItemData</code> описывает данные, которые будут ассоциированы с элементом списка <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> или <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <pre class=syntax>
 struct FarListItemData
 {
   size_t StructSize;
-  int Index;
+  intptr_t Index;
   size_t DataSize;
   void *Data;
-  DWORD_PTR Reserved;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarListItemData</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Index</div>
     <div class=dfndescr>Индекс элемента списка.</div>
   <div class=dfn>DataSize</div>
-    <div class=dfndescr>Размер данных <i>Data</i> или 0, если предполагается ассоциировать с пунктом списка Unicide-строку.</div>
+    <div class=dfndescr>Размер данных <code>Data</code> или <code>0</code>, если предполагается ассоциировать с пунктом списка Unicide-строку.</div>
   <div class=dfn>Data</div>
     <div class=dfndescr>Указатель на данные.</div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано.</div>
 </div>
 
 <h3>Замечания</h3>
@@ -52,12 +49,13 @@ struct FarListItemData
 <tr class="cont"><td class="cont" width="40%"><code>0</code></td>
 <td class="cont" width="60%">Указатель на Unicode строку. Выделяется память размером <code>wcslen(Data)+1</code> байт. Передаваемые данные копируются в выделенную область памяти.</td></tr>
 <tr class="cont"><td class="cont" width="40%"><code>!=0</code></td>
-<td class="cont" width="60%">Произвольные данные. Выделяется память размером <var>DataSize</var>. Передаваемые данные копируются в выделенную область памяти.</td></tr>
+<td class="cont" width="60%">Произвольные данные. Выделяется память размером <code>DataSize</code>. Передаваемые данные копируются в выделенную область памяти.</td></tr>
 </table>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a  href="farlist.html">FarList</a>,
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="farlist.html">FarList</a>,
 <a href="../dialogapi/dmsg/dm_listgetdata.html">DM_LISTGETDATA</a>,
 <a href="../dialogapi/dmsg/dm_listsetdata.html">DM_LISTSETDATA</a>
 </div>

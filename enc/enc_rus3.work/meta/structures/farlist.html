@@ -16,12 +16,13 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarList</dfn> описывает список элементов <a href="farlistitem.html">FarListItem</a> для элементов диалога <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
+Структура <code>FarList</code> описывает список для элементов диалога <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> и <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <pre class=syntax>
 struct FarList
 {
+  size_t StructSize;
   size_t ItemsNumber;
   struct FarListItem *Items;
 };
@@ -29,8 +30,10 @@ struct FarList
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarList</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Количество элементов списка.</div>
+    <div class=dfndescr>Количество элементов списка <code>Items</code>.</div>
   <div class=dfn>Items</div>
     <div class=dfndescr>Указатель на массив элементов списка <a href="farlistitem.html">FarListItem</a>.</div>
 </div>
@@ -39,8 +42,9 @@ struct FarList
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a  href="farlistitem.html">FarListItem</a>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="farlistitem.html">FarListItem</a>
 </div>
 
 </body>

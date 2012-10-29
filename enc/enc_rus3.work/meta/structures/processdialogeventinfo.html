@@ -16,14 +16,14 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>ProcessDialogEventInfo</dfn> содержит информацию о событии, поступающем в функцию <a href="../exported_functions/processdialogeventw.html">ProcessDialogEventW</a>.
+Структура <code>ProcessDialogEventInfo</code> содержит информацию о событии, поступающем в функцию <a href="../exported_functions/processdialogeventw.html">ProcessDialogEventW</a>.
 </div>
 
 <pre class=syntax>
 struct ProcessDialogEventInfo
 {
   size_t StructSize;
-  int Event;
+  intptr_t Event;
   struct FarDialogEvent *Param;
 };
 </pre>
@@ -31,21 +31,20 @@ struct ProcessDialogEventInfo
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <dfn>ProcessDialogEventInfo</dfn>.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>ProcessDialogEventInfo</code>.</div>
   <div class=dfn>Event</div>
     <div class=dfndescr>Тип события. Может быть одной из следующих величин (перечисление <a name="DIALOG_EVENTS">DIALOG_EVENTS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="DE_DLGPROCINIT">DE_DLGPROCINIT</a></td>
-    <td class="cont" width="60%"><i>Param</i> - указатель на структуру <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br> Событие FarDialogEvent.Msg поступает в функцию обработки диалога.</td></tr>
+    <td class="cont" width="60%"><code>Param</code> - указатель на структуру <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br> Событие <code>FarDialogEvent.Msg</code> поступает в функцию обработки диалога.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="DE_DEFDLGPROCINIT">DE_DEFDLGPROCINIT</a></td>
-    <td class="cont" width="60%"><i>Param</i> - указатель на структуру <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br>
-    Событие FarDialogEvent.Msg поступает в <a href="../dialogapi/defdlgproc.html">стандартную</a> (внутреннюю) функцию обработки диалога.</td></tr>
+    <td class="cont" width="60%"><code>Param</code> - указатель на структуру <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br>
+    Событие <code>FarDialogEvent.Msg</code> поступает в <a href="../dialogapi/defdlgproc.html">стандартную</a> (внутреннюю) функцию обработки диалога.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="DE_DLGPROCEND">DE_DLGPROCEND</a></td>
-    <td class="cont" width="60%"><i>Param</i> - указатель на структуру <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br>
-    Событие FarDialogEvent.Msg обработано функцией обработки диалога. FarDialogEvent.Result содержит возвращённое обработчиком значение.</td></tr>
-    </table>
-    </div>
+    <td class="cont" width="60%"><code>Param</code> - указатель на структуру <a href="../structures/fardialogevent.html">FarDialogEvent</a>.<br>
+    Событие <code>FarDialogEvent.Msg</code> обработано функцией обработки диалога. <code>FarDialogEvent.Result</code> содержит возвращённое обработчиком значение.</td></tr>
+    </table></div>
   <div class=dfn>Param</div>
     <div class=dfndescr>Указатель на структуру <a href="../structures/fardialogevent.html">FarDialogEvent</a>.</div>
 </div>
@@ -54,8 +53,9 @@ struct ProcessDialogEventInfo
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">Структуры</a>|
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">Структуры</a>,
 <a href="../exported_functions/processdialogeventw.html">ProcessDialogEventW</a>
 </div>
 

@@ -16,15 +16,12 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>PanelMode</dfn> описывает один режим панели
-(view mode). Массив таких структур может быть передан
-Far Manager`у в функции <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.
+Структура <code>PanelMode</code> описывает один режим панели (view mode). Массив таких структур может быть передан Far Manager`у в функции <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.
 </div>
 
 <pre class=syntax>
 struct PanelMode
 {
-  size_t StructSize;
   const wchar_t *ColumnTypes;
   const wchar_t *ColumnWidths;
   const wchar_t * const *ColumnTitles;
@@ -36,19 +33,17 @@ struct PanelMode
 
 <h3>Элементы</h3>
 <div class=descr>
-  <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>PanelMode</dfn>.</div>
   <div class=dfn>ColumnTypes</div>
     <div class=dfndescr>Текстовая строка, описывающая <a href="../other/dict.html#panelcolumntype">типы колонок</a>. Кодируются с помощью одной или нескольких букв, разделённых запятыми, например,
-    так L&quot;<b><code>N,SC,D,T&quot;</code></b>. Если вы используете стандартные режимы, настроенные в Far MAnager`е, то установите <i>ColumnTypes</i> в NULL.</div>
+    так <code>L&quot;N,SC,D,T&quot;</code>. Если вы используете стандартные режимы, настроенные в Far Manager`е, то установите значение в <code>NULL</code>.</div>
   <div class=dfn>ColumnWidths</div>
     <div class=dfndescr>Текстовая строка, описывающая <a href="../other/dict.html#columnwidths">ширину колонок</a>.</div>
   <div class=dfn>ColumnTitles</div>
-    <div class=dfndescr>Указатель на массив строк, описывающих заголовки (название) колонок. Если вы будете использовать стандартные названия для колонок, то установите это значение в NULL.</div>
+    <div class=dfndescr>Указатель на массив строк, описывающих заголовки (название) колонок. Если вы будете использовать стандартные названия для колонок, то установите это значение в <code>NULL</code>.</div>
   <div class=dfn>StatusColumnTypes</div>
-    <div class=dfndescr>Подобно <i>ColumnTypes</i>, но применительно для строки статуса. Если вы хотите использовать стандартную строку статуса, установите <i>StatusColumnTypes</i> в NULL.</div>
+    <div class=dfndescr>Подобно <code>ColumnTypes</code>, но применительно для строки статуса. Если вы хотите использовать стандартную строку статуса, установите значение в <code>NULL</code>.</div>
   <div class=dfn>StatusColumnWidths</div>
-    <div class=dfndescr>Подобно <i>ColumnWidths</i>, но применительно для строки статуса.</div>
+    <div class=dfndescr>Подобно <code>ColumnWidths</code>, но применительно для строки статуса.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Комбинация следующих значений (тип <a name="PANELMODE_FLAGS">PANELMODE_FLAGS</a>):
     <table class="cont">
@@ -56,7 +51,7 @@ struct PanelMode
     <tr class="cont"><td class="cont" width="40%"><a name="PMFLAGS_FULLSCREEN">PMFLAGS_FULLSCREEN</a></td>
     <td class="cont" width="60%">показывать панель во весь экран вместо половины экрана</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PMFLAGS_DETAILEDSTATUS">PMFLAGS_DETAILEDSTATUS</a></td>
-    <td class="cont" width="60%">в статусной строке будут отображены <em>Имя</em>, <em>Размер</em>, <em>Дата</em> и <em>Время</em> файла, для случая <i>StatusColumnTypes</i>=NULL и <i>StatusColumnWidths</i>=NULL.
+    <td class="cont" width="60%">в статусной строке будут отображены <em>Имя</em>, <em>Размер</em>, <em>Дата</em> и <em>Время</em> файла, для случая <code>StatusColumnTypes = NULL</code> и <code>StatusColumnWidths = NULL</code>.
     В противном случае в строке статуса будет отображаться только имя файла.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PMFLAGS_ALIGNEXTENSIONS">PMFLAGS_ALIGNEXTENSIONS</a></td>
     <td class="cont" width="60%">выравнивать расширения файлов</td></tr>
@@ -66,10 +61,10 @@ struct PanelMode
     </div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>
 </div>
-
 
 </body>
 </html>

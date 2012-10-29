@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>CompareInfo</dfn> передает информацию об элементах в функцию <a href="../exported_functions/comparew.html">CompareW</a>.
+Структура <code>CompareInfo</code> передает информацию об элементах в функцию <a href="../exported_functions/comparew.html">CompareW</a>.
 </div>
 
 <pre class=syntax>
@@ -33,7 +33,7 @@ struct CompareInfo
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <dfn>CompareInfo</dfn>.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>CompareInfo</code>.</div>
   <div class=dfn>hPanel</div>
     <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
   <div class=dfn>Item1, Item2</div>
@@ -44,11 +44,12 @@ struct CompareInfo
 
 <h3>Замечания</h3>
 <div class=descr>
-Для сортировки элементов Far Manager использует стандартную RTL-функцию <dfn>qsort</dfn>, которая реализует нестабильную сортировку. Иными словами, если элементы массива
+Для сортировки элементов Far Manager использует стандартную RTL-функцию <code>qsort</code>, которая реализует нестабильную сортировку. Иными словами, если элементы массива
 равны с точки зрения функции сравнения, на панели они будут отображаться в произвольном порядке, меняющемся при каждом перечитывании панели.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

@@ -16,40 +16,44 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorSetPosition</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для установки позиции и состояния курсора в редакторе Far Manager.
+Структура <code>EditorSetPosition</code> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для установки позиции и состояния курсора в редакторе Far Manager.
 </div>
 
 <pre class=syntax>
 struct EditorSetPosition
 {
-  int CurLine;
-  int CurPos;
-  int CurTabPos;
-  int TopScreenLine;
-  int LeftPos;
-  int Overtype;
+  size_t StructSize;
+  intptr_t CurLine;
+  intptr_t CurPos;
+  intptr_t CurTabPos;
+  intptr_t TopScreenLine;
+  intptr_t LeftPos;
+  intptr_t Overtype;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>EditorSetPosition</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>CurLine</div>
-    <div class=dfndescr>Новая текущая строка или -1 для сохранения прежнего значения.</div>
+    <div class=dfndescr>Новая текущая строка или <code>-1</code> для сохранения прежнего значения.</div>
   <div class=dfn>CurPos</div>
-    <div class=dfndescr>Новая позиция курсора в текущей строке или -1 для сохранения прежнего значения.</div>
+    <div class=dfndescr>Новая позиция курсора в текущей строке или <code>-1</code> для сохранения прежнего значения.</div>
   <div class=dfn>CurTabPos</div>
-    <div class=dfndescr>Новая экранная позиция курсора или -1 для сохранения прежнего значения. Если текущая строка не содержит символы табуляции, <i>CurTabPos</i> даёт такой же эффект, как и <i>CurPos</i>.
-    Вы не должны одновременно использовать <i>CurPos</i> и <i>CurTabPos</i>, установите хотя бы одно из этих полей в -1.</div>
+    <div class=dfndescr>Новая экранная позиция курсора или <code>-1</code> для сохранения прежнего значения. Если текущая строка не содержит символы табуляции, <code>CurTabPos</code> даёт такой же эффект, как и <code>CurPos</code>.
+    Вы не должны одновременно использовать <code>CurPos</code> и <code>CurTabPos</code>, установите хотя бы одно из этих полей в <code>-1</code>.</div>
   <div class=dfn>TopScreenLine</div>
-    <div class=dfndescr>Новая строка вверху экрана или -1 для сохранения прежнего значения.</div>
+    <div class=dfndescr>Новая строка вверху экрана или <code>-1</code> для сохранения прежнего значения.</div>
   <div class=dfn>LeftPos</div>
-    <div class=dfndescr>Новая позиция левой границы окна редактора в редактируемом тексте или -1 для сохранения прежнего значения.</div>
+    <div class=dfndescr>Новая позиция левой границы окна редактора в редактируемом тексте или <code>-1</code> для сохранения прежнего значения.</div>
   <div class=dfn>Overtype</div>
-    <div class=dfndescr>Поместите сюда 0 для установления режима вставки, 1 для установления режима замены или -1 для сохранения прежнего состояния.</div>
+    <div class=dfndescr>Поместите сюда <code>0</code> для установления режима вставки, <code>1</code> для установления режима замены или <code>-1</code> для сохранения прежнего состояния.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>
 </div>
 
 </body>

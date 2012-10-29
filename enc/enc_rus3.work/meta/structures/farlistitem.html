@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarListItem</dfn> описывает один элемент списка <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> или <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
+Структура <code>FarListItem</code> описывает один элемент списка <a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a> или <a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a>.
 </div>
 
 <pre class=syntax>
@@ -24,7 +24,7 @@ struct FarListItem
 {
   LISTITEMFLAGS Flags;
   const wchar_t *Text;
-  DWORD_PTR Reserved[3];
+  intptr_t Reserved[2];
 };
 </pre>
 
@@ -49,24 +49,25 @@ struct FarListItem
     <tr class="cont"><td class="cont" width="40%"><a name="LIF_DELETEUSERDATA">LIF_DELETEUSERDATA</a></td>
     <td class="cont" width="60%">Этот флаг устанавливается в параметре Item соoбщения <a href="../dialogapi/dmsg/dm_listupdate.html">DM_LISTUPDATE</a>, если при обновлении элемента списка необходимо удалить связанные с этим элементом данные.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="LIF_NONE">LIF_NONE</a></td>
-    <td class="cont" width="60%">...</td></tr>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
     </table>
     </div>
   <div class=dfn>Text</div>
     <div class=dfndescr>Текст элемента списка.</div>
   <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано, должно быть равно 0.</div>
+    <div class=dfndescr>Зарезервировано, должно быть равно <code>0</code>.</div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a  href="farlist.html">FarList</a>,
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="farlist.html">FarList</a>,
 <a href="../dialogapi/dmsg/dm_listgetitem.html">DM_LISTGETITEM</a>,
-<a  href="farlistinsert.html">FarListInsert</a>,
-<a  href="farlistupdate.html">FarListUpdate</a>
+<a href="farlistinsert.html">FarListInsert</a>,
+<a href="farlistupdate.html">FarListUpdate</a>
 </div>
 
 </body>

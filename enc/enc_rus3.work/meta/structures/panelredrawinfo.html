@@ -16,12 +16,13 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>PanelRedrawInfo</dfn> может быть использована для определения новой позиции при перерисовке панели с помощи функции <a href="../service_functions/panelcontrol.html">PanelControl</a>.
+Структура <code>PanelRedrawInfo</code> может быть использована для определения новой позиции при перерисовке панели с помощи функции <a href="../service_functions/panelcontrol.html">PanelControl</a>.
 </div>
 
 <pre class=syntax>
 struct PanelRedrawInfo
 {
+  size_t StructSize;
   size_t CurrentItem;
   size_t TopPanelItem;
 };
@@ -29,6 +30,8 @@ struct PanelRedrawInfo
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>PanelRedrawInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>CurrentItem</div>
     <div class=dfndescr>Текущая позиция на панели (начиная с 0).</div>
   <div class=dfn>TopPanelItem</div>
@@ -36,7 +39,8 @@ struct PanelRedrawInfo
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

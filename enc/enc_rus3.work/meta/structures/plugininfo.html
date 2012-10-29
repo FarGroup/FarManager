@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>PluginInfo</dfn> используется для возвращения Far Manager'у информации о плагине в функции <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a>.
+Структура <code>PluginInfo</code> используется для возвращения Far Manager'у информации о плагине в функции <a href="../exported_functions/getplugininfow.html">GetPluginInfoW</a>.
 </div>
 
 <pre class=syntax>
@@ -33,9 +33,9 @@ struct PluginInfo
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>PluginInfo</dfn>.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>PluginInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Комбинация следующих значений (перечисление <a name="PLUGIN_FLAGS">PLUGIN_FLAGS</a>).
+    <div class=dfndescr>Комбинация следующих значений (тип <a name="PLUGIN_FLAGS">PLUGIN_FLAGS</a>).
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PF_PRELOAD">PF_PRELOAD</a></td>
@@ -50,12 +50,11 @@ struct PluginInfo
     <tr class="cont"><td class="cont" width="40%"><a name="PF_DIALOG">PF_DIALOG</a></td>
     <td class="cont" width="60%">Показывать плагин в меню "Команды внешних модулей", вызываемом из диалога Far Manager.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PF_FULLCMDLINE">PF_FULLCMDLINE</a></td>
-    <td class="cont" width="60%">Заставляет Far Manager передавать плагину всю командную строку вместе с префиксом <i>CommandPrefix</i>.
-    Обязательно использовать этот флаг, если плагин умеет обрабатывать несколько префиксов <i>CommandPrefix</i>.</td></tr>
+    <td class="cont" width="60%">Заставляет Far Manager передавать плагину всю командную строку вместе с префиксом <code>CommandPrefix</code>.
+    Обязательно использовать этот флаг, если плагин умеет обрабатывать несколько префиксов <code>CommandPrefix</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PF_NONE">PF_NONE</a></td>
-    <td class="cont" width="60%">...</td></tr>
-    </table>
-    </div>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    </table></div>
   <div class=dfn>DiskMenu</div>
     <div class=dfndescr>Если плагин добавляет строки в меню "Диск", это поле должно быть равным заполненной структуре <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>
   <div class=dfn>PluginMenu</div>
@@ -64,11 +63,11 @@ struct PluginInfo
     <div class=dfndescr>Если плагин добавляет строки в меню "Конфигурация модулей", это поле должно быть равным заполненной структуре <a href="pluginmenuitem.html">PluginMenuItem</a>.</div>
   <div class=dfn>CommandPrefix</div>
     <div class=dfndescr>Плагин может указать в этом поле строку префиксов командной строки, которые будут использоваться для перехвата команд Far Manager.
-    Например, если плагин передал здесь адрес строки <b><code>ftp</code></b> и пользователь ввёл в командной строке что-то, начинающееся с <b><code>ftp:</code></b>,
+    Например, если плагин передал здесь адрес строки <code>ftp</code> и пользователь ввёл в командной строке что-то, начинающееся с <code>ftp:</code>,
     то функция <a href="../exported_functions/openw.html">OpenW</a> будет вызвана с параметром <a href="../exported_functions/openw.html#OPEN_COMMANDLINE">OPEN_COMMANDLINE</a>.<br>
     Если предполагается, что плагин будет обрабатывать несколько командных префиксов, то необходимо указать префиксы, разделённые двоеточием. Например,
     плагин если обрабатывает префиксы <code>edit:</code>, <code>goto:</code> и <code>view:</code>, то строка должна быть такой:<pre class=code>CommandPrefix=L"edit:view:goto";</pre>
-    Если вы не хотите добавлять команды к Far Manager'у, установите этот параметр в NULL.</div>
+    Если вы не хотите добавлять команды к Far Manager'у, установите этот параметр в <code>NULL</code>.</div>
 </div>
 
 <h3>Замечания</h3>
@@ -80,8 +79,9 @@ struct PluginInfo
 </ol>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a>|
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>,
 <a href="pluginmenuitem.html">PluginMenuItem</a>
 </div>
 

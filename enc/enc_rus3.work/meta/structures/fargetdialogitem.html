@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>FarGetDialogItem</dfn> используется для запроса информации об элементе диалога в сообщении <a href="../dialogapi/dmsg/dm_getdlgitem.html">DM_GETDLGITEM</a>.
+Структура <code>FarGetDialogItem</code> используется для запроса информации об элементе диалога в сообщении <a href="../dialogapi/dmsg/dm_getdlgitem.html">DM_GETDLGITEM</a>.
 </div>
 
 <pre class=syntax>
@@ -31,9 +31,9 @@ struct FarGetDialogItem
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>FarGetDialogItem</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Size</div>
-    <div class=dfndescr>Размер поля <i>Item</i>.</div>
+    <div class=dfndescr>Размер поля <code>Item</code> в байтах.</div>
   <div class=dfn>Items</div>
     <div class=dfndescr>Буфер, выделенный плагином для размещения запрашиваемого элемента диалога <a href="fardialogitem.html">FarDialogItem</a>.</div>
 </div>
@@ -43,7 +43,8 @@ struct FarGetDialogItem
 Выделенный буфер должен быть освобожден плагином.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 </div>
 
 </body>

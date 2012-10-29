@@ -16,35 +16,38 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorInfo</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для получения информации о текущем состоянии редактора Far Manager.
+Структура <code>EditorInfo</code> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для получения информации о текущем состоянии редактора Far Manager.
 </div>
 
 <pre class=syntax>
 struct EditorInfo
 {
-  int EditorID;
-  int WindowSizeX;
-  int WindowSizeY;
-  int TotalLines;
-  int CurLine;
-  int CurPos;
-  int CurTabPos;
-  int TopScreenLine;
-  int LeftPos;
-  int Overtype;
-  int BlockType;
-  int BlockStartLine;
-  DWORD Options;
-  int TabSize;
-  int BookMarkCount;
-  DWORD CurState;
-  UINT CodePage;
-  DWORD_PTR Reserved[5];
+  size_t StructSize;
+  intptr_t EditorID;
+  intptr_t WindowSizeX;
+  intptr_t WindowSizeY;
+  intptr_t TotalLines;
+  intptr_t CurLine;
+  intptr_t CurPos;
+  intptr_t CurTabPos;
+  intptr_t TopScreenLine;
+  intptr_t LeftPos;
+  intptr_t Overtype;
+  intptr_t BlockType;
+  intptr_t BlockStartLine;
+  uintptr_t Options;
+  intptr_t TabSize;
+  size_t BookmarkCount;
+  size_t SessionBookmarkCount;
+  uintptr_t CurState;
+  uintptr_t CodePage;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>EditorInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>EditorID</div>
     <div class=dfndescr>Идентификатор экземпляра редактора. Каждый экземпляр редактора имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
   <div class=dfn>WindowSizeX, WindowSizeY</div>
@@ -56,13 +59,13 @@ struct EditorInfo
   <div class=dfn>CurPos</div>
     <div class=dfndescr>Позиция курсора в текущей строке. Нумерация начинается с 0.</div>
   <div class=dfn>CurTabPos</div>
-    <div class=dfndescr>Экранная позиция курсора в текущей строке. Нумерация начинается с 0. Если строка не содержит символов табуляции, <i>CurTabPos</i> эквивалентна <i>CurPos</i>.</div>
+    <div class=dfndescr>Экранная позиция курсора в текущей строке. Нумерация начинается с 0. Если строка не содержит символов табуляции, <code>CurTabPos</code> эквивалентна <code>CurPos</code>.</div>
   <div class=dfn>TopScreenLine</div>
     <div class=dfndescr>Номер строки вверху экрана. Нумерация начинается с 0.</div>
   <div class=dfn>LeftPos</div>
     <div class=dfndescr>Позиция левой границы окна редактора в редактируемом тексте. Нумерация начинается с 0.</div>
   <div class=dfn>Overtype</div>
-    <div class=dfndescr>0 - режим вставки, 1 - замены.</div>
+    <div class=dfndescr><code>0</code> - режим вставки, <code>1</code> - замены.</div>
   <div class=dfn>BlockType</div>
     <div class=dfndescr>Тип выбранного блока. Одно из следующих значений (перечисление <a name="EDITOR_BLOCK_TYPES">EDITOR_BLOCK_TYPES</a>):
     <table class="cont">
@@ -110,12 +113,17 @@ struct EditorInfo
     <tr class="cont"><td class="cont" width="40%"><a name="EOPT_BOM">EOPT_BOM</a></td>
     <td class="cont" width="60%">Установлена опция &quot;Добавить сигнатуру (BOM)&quot; для файлов в кодировке Unicode/UTF8.<br>
     Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a> (<a href="editorsetparameter.html#ESPT_SETBOM">ESPT_SETBOM</a>).</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="EOPT_SHOWLINEBREAK">EOPT_SHOWLINEBREAK</a></td>
+    <td class="cont" width="60%">Включена опция &quot;Пробельные символы&quot; в третьем режиме [?].<br>
+    Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a> (<a href="editorsetparameter.html#ESPT_SHOWWHITESPACE">ESPT_SHOWWHITESPACE</a>).</td></tr>
     </table>
     </div>
   <div class=dfn>TabSize</div>
     <div class=dfndescr>Размер табуляции. Этот параметр можно изменить используя команду <a href="../service_functions/editorcontrol.html#ECTL_SETPARAM">ECTL_SETPARAM</a>.</div>
-  <div class=dfn>BookMarkCount</div>
+  <div class=dfn>BookmarkCount</div>
     <div class=dfndescr>Количество закладок в редакторе. Для получения информации о закладках используйте команду <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a>.</div>
+  <div class=dfn>SessionBookmarkCount</div>
+    <div class=dfndescr>Количество временных (в рамках текущей сессии редактора) закладок в редакторе. Для получения информации о закладках используйте команду <a href="../service_functions/editorcontrol.html#ECTL_GETSESSIONBOOKMARKS">ECTL_GETSESSIONBOOKMARKS</a>.</div>
   <div class=dfn>CurState</div>
     <div class=dfndescr>Текущее состояние редактируемого текста. 
     Может быть набором из следующих значений (перечисление <a name="EDITOR_CURRENTSTATE">EDITOR_CURRENTSTATE</a>):
@@ -126,18 +134,17 @@ struct EditorInfo
     <tr class="cont"><td class="cont" width="40%"><a name="ECSTATE_SAVED">ECSTATE_SAVED</a></td>
     <td class="cont" width="60%">сохранён</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="ECSTATE_LOCKED">ECSTATE_LOCKED</a></td>
-    <td class="cont" width="60%">заблокирован (Ctrl-L)</td></tr>
+    <td class="cont" width="60%">заблокирован (<kbd>Ctrl</kbd>+<kbd>L</kbd>)</td></tr>
     </table>
     </div>
   <div class=dfn>CodePage</div>
     <div class=dfndescr>Номер текущей используемой кодовой страницы символов в редакторе. </div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано для будущего использования.</div>
 </div>
 
 <h3>Замечания</h3>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

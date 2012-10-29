@@ -15,45 +15,46 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>Message</dfn> показывает сообщение.
+Функция <code>Message</code> показывает сообщение.
 </div>
 
 <pre class=syntax>
-int WINAPI Message(
+intptr_t WINAPI Message(
   const GUID *PluginId,
   const GUID *Id,
   FARMESSAGEFLAGS Flags,
   const wchar_t *HelpTopic,
   const wchar_t * const *Items,
   size_t ItemsNumber,
-  int ButtonsNumber
+  intptr_t ButtonsNumber
 );
 </pre>
+
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле GlobalInfo.Guid функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
   <div class=dfn>Id</div>
     <div class=dfndescr>Указатель на GUID текущего сообщения. GUID должен быть уникальным.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (перечисление <a name="FARMESSAGEFLAGS">FARMESSAGEFLAGS</a>):
+    <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="FARMESSAGEFLAGS">FARMESSAGEFLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMSG_WARNING">FMSG_WARNING</a></td>
     <td class="cont" width="60%">Используются цвета &quot;Предупреждения&quot; (обычно белые буквы на красном фоне).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMSG_ERRORTYPE">FMSG_ERRORTYPE</a></td>
-    <td class="cont" width="60%">Если тип ошибки, возвращаемый функцией <dfn>GetLastError</dfn>, <a href="../defs/winerror.html">известен Far Manager'у</a> или Windows,
+    <td class="cont" width="60%">Если тип ошибки, возвращаемый функцией <code>GetLastError</code>, <a href="../defs/winerror.html">известен Far Manager'у</a> или Windows,
     то описание ошибки будет показано в первых строках сообщения. При этом строки, переданные плагином в функцию, сдвинутся вниз.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMSG_KEEPBACKGROUND">FMSG_KEEPBACKGROUND</a></td>
     <td class="cont" width="60%">Не перерисовывать фон сообщения.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMSG_LEFTALIGN">FMSG_LEFTALIGN</a></td>
     <td class="cont" width="60%">Использовать для строк сообщения выравнивание влево (по умолчанию строки выводятся по центру).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMSG_ALLINONE">FMSG_ALLINONE</a></td>
-    <td class="cont" width="60%">В этом случае параметра <var>Items</var> не является массивом указателей на строки - <dfn class=alert3>это УКАЗАТЕЛЬ на одну
+    <td class="cont" width="60%">В этом случае аргумент <code>Items</code> не является массивом указателей на строки - <dfn class=alert3>это УКАЗАТЕЛЬ на одну
     строку</dfn>, в которой разделителем выводимых строк является символ <code>'\n'</code>.
     <p>Минимальное количество строк - 2 - заголовок и одна строка сообщения.
-    <p>При указании флага <dfn>FMSG_ALLINONE</dfn> параметр <var>ItemsNumber</var> игнорируется и количество выводимых строк вычисляется автоматически (с учётом флагов-кнопок FMSG_MB_*).
-    <p>Для подавления вывода заголовка при использовании флага <dfn>FMSG_ALLINONE</dfn> начните строку с символа <code>'\n'</code>.</td></tr>
+    <p>При указании флага <code>FMSG_ALLINONE</code> аргумент <code>ItemsNumber</code> игнорируется и количество выводимых строк вычисляется автоматически (с учётом флагов-кнопок <code>FMSG_MB_*</code>).
+    <p>Для подавления вывода заголовка при использовании флага <code>FMSG_ALLINONE</code> начните строку с символа <code>'\n'</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_OK">FMSG_MB_OK</a></td>
     <td class="cont" width="60%">Дополнительно выводится кнопка &lt;Ok&gt;</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_OKCANCEL">FMSG_MB_OKCANCEL</a></td>
@@ -66,40 +67,43 @@ int WINAPI Message(
     <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Yes&gt;, &lt;No&gt; и &lt;Cancel&gt;</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMSG_MB_RETRYCANCEL">FMSG_MB_RETRYCANCEL</a></td>
     <td class="cont" width="60%">Дополнительно выводятся кнопки &lt;Retry&gt; и &lt;Cancel&gt;</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMSG_NONE">FMSG_NONE</a></td>
+    <td class="cont" width="60%">Нулевой флаг</td></tr>
     </table>
     </div>
   <div class=dfn>HelpTopic</div>
     <div class=dfndescr><a href="../language/helptopic.html">Тема подсказки</a> в файле помощи связанная с сообщением. Установите это значение в <code>NULL</code> если подсказка не требуется.</div>
   <div class=dfn>Items</div>
-    <div class=dfndescr>Адрес массива с указателями на Unicode строки. Первая строка - заголовок сообщения, последние <var>ButtonsNumber</var> строк - кнопки, все остальные строки принадлежат телу сообщения.<br>
+    <div class=dfndescr>Адрес массива с указателями на Unicode строки. Первая строка - заголовок сообщения, последние <code>ButtonsNumber</code> строк - кнопки, все остальные строки принадлежат телу сообщения.<br>
     Для отрисовки одинарной разделительной линии начните строку с символа с кодом 1 (L"\1").<br>
     Для отрисовки двойной разделительной линии начните строку с символа с кодом 2 (L"\2").<br>
     Смотрите также описание флага <a href="#FMSG_ALLINONE">FMSG_ALLINONE</a>.</div>
   <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Количество указателей в массиве <var>Items</var>. Минимальное значение - 2 строки.</div>
+    <div class=dfndescr>Количество указателей в массиве <code>Items</code>. Минимальное значение - 2 строки.</div>
   <div class=dfn>ButtonsNumber</div>
-    <div class=dfndescr>Количество заключительных строк, которые будут использоваться в качестве кнопок. При указании флагов FMSG_MB_*  параметр <var>ButtonsNumber</var> игнорируется.</div>
+    <div class=dfndescr>Количество заключительных строк, которые будут использоваться в качестве кнопок. При указании флагов <code>FMSG_MB_*</code>  параметр <code>ButtonsNumber</code> игнорируется.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Функция возвращает -1, если пользователь отменил сообщение (или системе не удалось выделить достаточно памяти для внутренних буферов),
-или выбранный номер кнопки (для первой кнопки - 0, для второй - 1 и так далее).
+Функция возвращает <code>-1</code>, если пользователь отменил сообщение (или системе не удалось выделить достаточно памяти для внутренних буферов),
+или выбранный номер кнопки (для первой кнопки - <code>0</code>, для второй - <code>1</code> и так далее).
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Если <var>ButtonsNumber</var> равен 0 (флаги FMSG_MB_* не используются) и выведенное сообщение больше не нужно, то плагин <u>должен</u>
+<li>Если <code>ButtonsNumber</code> равен <code>0</code> (флаги <code>FMSG_MB_*</code> не используются) и выведенное сообщение больше не нужно, то плагин <u>должен</u>
 восстановить экран, используя функцию <a href="restorescreen.html">RestoreScreen</a> или любым другим путём.
-<li>Если <var>ButtonsNumber</var> не равен 0, то экран восстанавливает сам Far Manager.
-<li>Диалог не выводится, если в качестве <var>Items</var> указан <code>NULL</code> или количество элементов меньше двух.
-<li>При указании флагов-кнопок FMSG_MB_* параметр <var>ButtonsNumber</var> игнорируется.
+<li>Если <code>ButtonsNumber</code> не равен <code>0</code>, то экран восстанавливает сам Far Manager.
+<li>Диалог не выводится, если в качестве <code>Items</code> указан <code>NULL</code> или количество элементов меньше двух.
+<li>При указании флагов-кнопок <code>FMSG_MB_*</code> параметр <code>ButtonsNumber</code> игнорируется.
 <li>Кнопки могут иметь горячие клавиши.
-<li>При использовании флага FMSG_ALLINONE для корректной компиляции кода необходимо произвести явное преобразование типов:
+<li>При использовании флага <code>FMSG_ALLINONE</code> для корректной компиляции кода необходимо произвести явное преобразование типов:
 <table border=0><tr>
 <td>
-<pre class=code>Info.Message(&MainGUID,&MsgGUID,
+<pre class=code>
+  Info.Message(&MainGUID,&MsgGUID,
   FMSG_ALLINONE|FMSG_MB_OKCANCEL,
   L"HelpTopic",
   <b>(const wchar_t * const *)</b>L"Title\nItem1\nItem2\nItem3",
@@ -115,7 +119,6 @@ Info.Message(&MainGUID,&MsgGUID,
 </td>
 <td><img src="../../images/msg1.gif" width="110" height="96"></td>
 </tr></table>
-
 </ol>
 </div>
 
@@ -123,7 +126,8 @@ Info.Message(&MainGUID,&MsgGUID,
 <div class=descr>
 Следующая функция выводит на экран диалог-подтверждение на удаление файла:<br>
 <img src="../../images/message.gif" width="234" height="63" alt="диалог-подтверждение на удаление файла">
-<pre class=code>BOOL IsDeleted(wchar_t *filename)
+<pre class=code>
+BOOL IsDeleted(wchar_t *filename)
 {
   const wchar_t *Msg[5];
 
@@ -156,7 +160,8 @@ Info.Message(&MainGUID,&MsgGUID,
 
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../dialogapi/dialoginit.html">DialogInit</a>
 </div>
 

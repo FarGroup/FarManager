@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.FarInputRecordToName</dfn> конвертирует код клавиш из <a href="../winapi/input_record.html">INPUT_RECORD</a> в строку с кодами клавиш во внутреннем представлении Far Manager'а.
+Функция <code>FSF.FarInputRecordToName</code> конвертирует код клавиш из <a href="../winapi/input_record.html">INPUT_RECORD</a> в строку с кодами клавиш во внутреннем представлении Far Manager'а.
 </div>
 
 <pre class=syntax>
@@ -31,14 +31,14 @@ size_t WINAPI FarInputRecordToName(
   <div class=dfn>Key</div>
     <div class=dfndescr>Указатель на обрабатываемую структуру <a href="../winapi/input_record.html">INPUT_RECORD</a>.</div>
   <div class=dfn>KeyText</div>
-    <div class=dfndescr>Указатель на строку, куда будет помещён результат преобразования. Установите <i>KeyText</i> = NULL для того, чтобы узнать необходимый размер буфера в символах.</div>
+    <div class=dfndescr>Указатель на строку, куда будет помещён результат преобразования. Установите <code>KeyText = NULL</code> для того, чтобы узнать необходимый размер буфера в символах.</div>
   <div class=dfn>Size</div>
-    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <i>KeyText</i>, с заключительным нулём.</div>
+    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <code>KeyText</code>, с заключительным нулём.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Функция возвращает необходимый размер буфера <i>KeyText</i> в символах.
+Функция возвращает необходимый размер буфера <code>KeyText</code> в символах.
 </div>
 
 <h3>Примечание</h3>
@@ -47,6 +47,10 @@ size_t WINAPI FarInputRecordToName(
 
 <h3>Пример</h3>
 <div class=descr>
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 </div>
 
 </body>

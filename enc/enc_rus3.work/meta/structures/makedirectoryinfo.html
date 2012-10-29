@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>MakeDirectoryInfo</dfn> передает информацию об создаваемом каталоге в функции <a href="../exported_functions/makedirectoryw.html">MakeDirectoryW</a>.
+Структура <code>MakeDirectoryInfo</code> передает информацию о создаваемом каталоге в функции <a href="../exported_functions/makedirectoryw.html">MakeDirectoryW</a>.
 </div>
 
 <pre class=syntax>
@@ -32,18 +32,19 @@ struct MakeDirectoryInfo
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>MakeDirectoryInfo</dfn>.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>MakeDirectoryInfo</code>.</div>
   <div class=dfn>hPanel</div>
     <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>. Поле заполнено Far Manager'ом.</div>
   <div class=dfn>Name</div>
-    <div class=dfndescr>Указатель на буфер, содержащий имя каталога, передаётся плагином Far Manager'у. Если флаг OPM_SILENT параметра <a href="../defs/operation_mode.html"><i>OpMode</i></a>
-    не установлен, вы можете позволить пользователю изменить его, но в этом случае <i>Name</i> должен указывать на буфер плагина, содержащий новый каталог. Буфер должны быть валиден после возвращения из функции <a href="../exported_functions/makedirectoryw.html">MakeDirectoryW</a>. </div>
+    <div class=dfndescr>Указатель на буфер, содержащий имя каталога, передаётся плагином Far Manager'у. Если флаг <code>OPM_SILENT</code> параметра <a href="../defs/operation_mode.html"><i>OpMode</i></a>
+    не установлен, вы можете позволить пользователю изменить его, но в этом случае <code>Name</code> должен указывать на буфер плагина, содержащий новый каталог. Буфер должны быть валиден после возвращения из функции <a href="../exported_functions/makedirectoryw.html">MakeDirectoryW</a>. </div>
   <div class=dfn>OpMode</div>
-    <div class=dfndescr>Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>. Функция <a href="../exported_functions/makedirectoryw.html">MakeDirectoryW</a> должна быть готова обработать флаг OPM_SILENT.</div>
+    <div class=dfndescr>Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>. Функция <a href="../exported_functions/makedirectoryw.html">MakeDirectoryW</a> должна быть готова обработать флаг <code>OPM_SILENT</code>.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../exported_functions/openw.html">OpenW</a>
 </div>
 
 </body>

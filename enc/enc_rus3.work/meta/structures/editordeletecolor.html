@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>EditorDeleteColor</dfn> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для того, чтобы
+Структура <code>EditorDeleteColor</code> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для того, чтобы
 удалить цветовую область строки во внутреннем редакторе.
 </div>
 
@@ -25,21 +25,21 @@ struct EditorDeleteColor
 {
   size_t StructSize;
   GUID Owner;
-  int StringNumber;
-  int StartPos;
+  intptr_t StringNumber;
+  intptr_t StartPos;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>EditorDeleteColor</dfn>.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>EditorDeleteColor</code>.  Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Owner</div>
     <div class=dfndescr>GUID плагина-владельца удаляемой цветовой области.</div>
   <div class=dfn>StringNumber</div>
-    <div class=dfndescr>Номер строки для обработки или <strong>-1</strong> для текущей строки.</div>
+    <div class=dfndescr>Номер строки для обработки или <code>-1</code> для текущей строки.</div>
   <div class=dfn>StartPos</div>
-    <div class=dfndescr>Начало области цвета в строке для удаления. Если значение равно <strong>-1</strong>, то все цветовые области данной строки будут удалены.</div>
+    <div class=dfndescr>Начало области цвета в строке для удаления. Если значение равно <code>-1</code>, то все цветовые области данной строки будут удалены.</div>
 </div>
 
 
@@ -49,7 +49,8 @@ struct EditorDeleteColor
 так как иначе цветовые области будут всё накапливаться, а память всё увеличиваться.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

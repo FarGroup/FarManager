@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Команда <dfn>DM_ENABLEREDRAW</dfn> посылается Менеджеру диалогов для отключения/включения перерисовки всего диалога.
+Команда <code>DM_ENABLEREDRAW</code> посылается Менеджеру диалогов для отключения/включения перерисовки всего диалога.
 </div>
 
 <h3>Param1</h3>
@@ -28,7 +28,7 @@
 
 <h3>Param2</h3>
 <div class=descr>
-0
+<code>0</code>
 </div>
 
 <h3>Return</h3>
@@ -38,15 +38,17 @@
 
 <h3>Замечания</h3>
 <div class=descr>
-Эта команда предназначена в основном для того, чтобы исключить
-перерисовку диалога при изменении нескольких элементов одновременно.
-Когда посылается это сообщение - счётчик блокировки при <dfn>Param1</dfn> = <code>TRUE</code>
-увеличивается, при <dfn>Param1</dfn> = <code>FALSE</code> - уменьшается.
-Диалог отрисовывается, когда значение счётчика равно 0.
+Эта команда предназначена в основном для того, чтобы исключить перерисовку диалога при изменении нескольких элементов одновременно.
+Когда посылается это сообщение - счётчик блокировки при <code>Param1 = TRUE</code> увеличивается, при <code>Param1 = FALSE</code> - уменьшается.
+Диалог отрисовывается, когда значение счётчика равно <code>0</code>.
 Это нормальное поведение для вложенных манипуляций.
+</div>
+
+<h3>Пример</h3>
+<div class=descr>
 Типичное использование:
 <pre class=code>
-Info.SendDlgMessage(hDlg,<dfn>DM_ENABLEREDRAW</dfn>,FALSE,0);
+Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,FALSE,0);
 
 // изменяем кучу заголовков
 
@@ -54,8 +56,8 @@ Info.SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
 </pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

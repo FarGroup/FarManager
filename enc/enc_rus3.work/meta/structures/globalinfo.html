@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>GlobalInfo</dfn> возвращает в Far Manager основную информацию об экземпляре плагина.
+Структура <code>GlobalInfo</code> возвращает в Far Manager основную информацию об экземпляре плагина.
 </div>
 
 <pre class=syntax>
@@ -34,7 +34,7 @@ struct GlobalInfo
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле должно содержать размер структуры <dfn>GlobalInfo</dfn>.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>GlobalInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>MinFarVersion</div>
     <div class=dfndescr>Минимально необходимая версия Far Manager, структура типа <a href="versioninfo.html">VersionInfo</a>.</div>
   <div class=dfn>Version</div>
@@ -52,7 +52,7 @@ struct GlobalInfo
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Все поля структуры <dfn>GlobalInfo</dfn> должны быть заполнены, если это не так, то плагин не будет загружен Far Manager'ом.</li>
+<li>Все поля структуры <code>GlobalInfo</code> должны быть заполнены, если это не так, то плагин не будет загружен Far Manager'ом.</li>
 <li>Все передаваемые в этой структуре данные должны быть правильными после возвращения из <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>,
 таким образом вы не должны использовать автоматически создаваемые переменные. Используйте статические или глобальные переменные.</li>
 </ol>
@@ -63,8 +63,9 @@ struct GlobalInfo
 См. пример в функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>
 </div>
 
 </body>
