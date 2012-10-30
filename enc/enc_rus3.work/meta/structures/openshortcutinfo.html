@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Указатель на структуру <code>OpenShortcutInfo</code> передаётся в функцию ...
+Структура <code>OpenShortcutInfo</code> используется в функции <a href="../exported_functions/openw.html">OpenW</a> для передачи плагину данных об шорт-кате, которым он был открыт.
 </div>
 
 <pre class=syntax>
@@ -24,6 +24,7 @@ struct OpenShortcutInfo
   size_t StructSize;
   const wchar_t *HostFile;
   const wchar_t *ShortcutData;
+  FAROPENSHORTCUTFLAGS Flags;
 };
 </pre>
 
@@ -35,6 +36,15 @@ struct OpenShortcutInfo
     <div class=dfndescr>...</div>
   <div class=dfn>ShortcutData</div>
     <div class=dfndescr>Содержит адрес строки, которая была передана в момент сохранения горячей клавиши (шорт-ката).</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Дополнительные флаги. Могут быть комбинацией следующих значений (тип <a name="FAROPENSHORTCUTFLAGS">FAROPENSHORTCUTFLAGS</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FOSF_ACTIVE">FOSF_ACTIVE</a></td>
+    <td class="cont" width="60%">Флаг выставляется, если шорт-кат устанавливается для активной панели.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FOSF_NONE">FOSF_NONE</a></td>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
+    </table></div>
 </div>
 
 <h3>Замечания</h3>

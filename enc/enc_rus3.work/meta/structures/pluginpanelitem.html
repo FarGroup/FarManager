@@ -97,7 +97,7 @@ struct PluginPanelItem
     </table></div>
   <div class=dfn>UserData</div>
     <div class=dfndescr>Ёто поле может быть использовано плагином дл€ хранени€ целого значени€ или указател€ на структуру данных.<br>
-    ¬ последнем случае, когда <code>UserData.Data</code> указывает на структуру данных и требуетс€ еЄ освобождение, то плагин должен определить функцию <code>UserData.FreeData</code>, используемую Far Manager'ом дл€ освобождени€ зан€тых ресурсов.</div>
+    ¬ последнем случае, когда <code>UserData.Data</code> указывает на структуру данных и требуетс€ еЄ освобождение, то плагин должен определить функцию <a href="../defs/farpanelitemfreecallback.html">UserData.FreeData</a>, используемую Far Manager'ом дл€ освобождени€ зан€тых ресурсов.</div>
   <div class=dfn>FileAttributes</div>
     <div class=dfndescr>”казывает атрибуты найденного файла. Ётот элемент может быть комбинацией следующих значений:
     <table class="cont">

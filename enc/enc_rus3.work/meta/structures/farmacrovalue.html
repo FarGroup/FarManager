@@ -31,7 +31,7 @@ struct FarMacroValue
     struct
     {
       void *Data;
-      size_t Length;
+      size_t Size;
     } Binary;
   }
 <b>#ifndef __cplusplus</b>
@@ -58,7 +58,7 @@ struct FarMacroValue
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_BOOLEAN">FMVT_BOOLEAN</a></td>
     <td class="cont" width="60%">Логическое значение. Компонента <code>Value.Boolean</code></td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMVT_BINARY">FMVT_BINARY</a></td>
-    <td class="cont" width="60%">Структура <code>Value.Binary</code>, где поле <code>Length</code> определяет размер <code>Data</code></td></tr>
+    <td class="cont" width="60%">Структура <code>Value.Binary</code>, где поле <code>Size</code> определяет размер <code>Data</code></td></tr>
     </table>
     </div>
   <div class=dfn>Value</div>
