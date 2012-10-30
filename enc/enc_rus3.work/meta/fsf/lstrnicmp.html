@@ -15,14 +15,14 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.LStrnicmp</dfn> сравнивает части двух строк без учёта регистра.
+Функция <code>FSF.LStrnicmp</code> сравнивает части двух строк без учёта регистра.
 </div>
 
 <pre class=syntax>
 int WINAPI LStrnicmp(
   const wchar_t *Str1,
   const wchar_t *Str2,
-  int Num
+  intptr_t Num
 );
 </pre>
 
@@ -37,9 +37,9 @@ int WINAPI LStrnicmp(
 <h3>Возвращаемое значение</h3>
 <div class=descr>
 Функция возвращает:<br>
-<code>-1 - если s1 &lt; s2</code><br>
-<code> 1 - если s1 &gt; s2</code><br>
-<code> 0 - если s1 == s2</code><br>
+<code>-1</code> - если <code>s1 &lt; s2</code><br>
+<code> 1</code> - если <code>s1 &gt; s2</code><br>
+<code> 0</code> - если <code>s1 == s2</code><br>
 </div>
 
 <h3>Примечание</h3>

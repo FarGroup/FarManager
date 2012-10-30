@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.MkTemp</dfn> создаёт имя временного файла на основе шаблона.
+Функция <code>FSF.MkTemp</code> создаёт имя временного файла на основе шаблона.
 </div>
 
 <pre class=syntax>
@@ -29,18 +29,18 @@ size_t WINAPI MkTemp(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Dest</div>
-    <div class=dfndescr>Указатель на буфер, который получит полное имя временного файла в верхнем регистре. Установите <i>Dest</i> = NULL для того, чтобы узнать необходмый размер буфера.</div>
+    <div class=dfndescr>Указатель на буфер, который получит полное имя временного файла в верхнем регистре. Установите <code>Dest = NULL</code> для того, чтобы узнать необходмый размер буфера.</div>
   <div class=dfn>DestSize</div>
-    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <i>Dest</i>, с заключительным нулём.</div>
+    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <code>Dest</code>, с заключительным нулём.</div>
   <div class=dfn>Prefix</div>
     <div class=dfndescr>Указывает на оканчивающуюся нулём строку-префикс. Максимум первые четыре символа из этой строки будут использованы в качестве
-    префикса имени файла. Far Manager дополнит символами <code>'0'</code> префикс, если размер <i>Prefix</i> меньше 4.<br>
-    Если <i>Prefix</i> равен <code>NULL</code> или пустой строке, то будет применён стандартный префикс <code>"FTMP"</code></div>
+    префикса имени файла. Far Manager дополнит символами <code>'0'</code> префикс, если размер <code>Prefix</code> меньше <code>4</code>.<br>
+    Если <code>Prefix = NULL</code> или пустой строке, то будет применён стандартный префикс <code>"FTMP"</code></div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Функция возвращает необходимый размер буфера <em>Dest</em> в символах.
+Функция возвращает необходимый размер буфера <code>Dest</code> в символах.
 </div>
 
 <h3>Примечание</h3>
@@ -71,6 +71,10 @@ FSF.MkTemp(TempName,MAX_PATH,L"MY");        -&gt; "MY00000D.P50"
 FSF.MkTemp(TempName,MAX_PATH,L"BaR");       -&gt; "BAR0000D.P50"
 FSF.MkTemp(TempName,MAX_PATH,L"TstPlugin"); -&gt; "TSTP000D.P50"
 </pre>
+</div>
+
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 </div>
 
 </body>

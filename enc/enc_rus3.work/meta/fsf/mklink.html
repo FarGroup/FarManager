@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.MkLink</dfn> создаёт жёсткие и символические ссылки, связи каталогов, а также монтирует локальные диски на файловую систему.
+Функция <code>FSF.MkLink</code> создаёт жёсткие и символические ссылки, связи каталогов, а также монтирует локальные диски на файловую систему.
 </div>
 
 <pre class=syntax>
@@ -61,15 +61,15 @@ BOOL WINAPI MkLink(
     <tr><td class="cont" width="40%"><a name="MLF_DONOTUPDATEPANEL">MLF_DONOTUPDATEPANEL</a></td>
     <td class="cont" width="60%">после создания ссылки не обновлять панели</td></tr>
     <tr><td class="cont" width="40%"><a name="MLF_NONE">MLF_NONE</a></td>
-    <td class="cont" width="60%">...</td></tr>
+    <td class="cont" width="60%">нулевой флаг</td></tr>
     </table>
     </div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-<p>1 - ссылка создана.
-<p>0 - ошибка при создании ссылки:
+<p><code>1</code> - ссылка создана.
+<p><code>0</code> - ошибка при создании ссылки:
 <ul>
 <li>Для жёстких ссылок:
   <ul>
@@ -116,7 +116,8 @@ BOOL WINAPI MkLink(
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="getnumberoflinks.html">GetNumberOfLinks</a>
 </div>
 

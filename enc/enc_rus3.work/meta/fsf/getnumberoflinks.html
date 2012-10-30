@@ -15,11 +15,11 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.GetNumberOfLinks</dfn> возвращает количество жёстких ссылок (<a href="../other/dict.html#hardlinks">hard links</a>) для заданного файла.
+Функция <code>FSF.GetNumberOfLinks</code> возвращает количество жёстких ссылок (<a href="../other/dict.html#hardlinks">hard links</a>) для заданного файла.
 </div>
 
 <pre class=syntax>
-int WINAPI GetNumberOfLinks(
+size_t WINAPI GetNumberOfLinks(
   const wchar_t *Name
 );
 </pre>
@@ -32,13 +32,13 @@ int WINAPI GetNumberOfLinks(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-В случае успеха функция возвращает количество жёстких ссылок или 0. Для файловых систем, отличных от NTFS это значение всегда равно 1.
+В случае успеха функция возвращает количество жёстких ссылок или <code>0</code>. Для файловых систем, отличных от NTFS это значение всегда равно <code>1</code>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="mklink.html">MkLink</a>
 </div>
-
 
 </body>
 </html>

@@ -15,13 +15,13 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.TruncStr</dfn> усекает указанную строку до требуемой длины и вставляет в начало строки многоточие вместо отрезанной части.
+Функция <code>FSF.TruncStr</code> усекает указанную строку до требуемой длины и вставляет в начало строки многоточие вместо отрезанной части.
 </div>
 
 <pre class=syntax>
 wchar_t* WINAPI TruncStr(
   wchar_t *Str,
-  int MaxLength
+  intptr_t MaxLength
 );
 </pre>
 
@@ -46,7 +46,8 @@ wchar_t* WINAPI TruncStr(
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="truncpathstr.html">FSF.TruncPathStr</a>
 </div>
 

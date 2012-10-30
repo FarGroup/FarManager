@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.itoa</dfn> конвертирует целое число типа <b>int</b> (32-битное целое) в строку.
+Функция <code>FSF.itoa</code> конвертирует целое число типа <b>int</b> (32-битное целое) в строку.
 </div>
 
 <pre class=syntax>
@@ -23,26 +23,27 @@ wchar_t * WINAPI itoa(
   int Value,
   wchar_t *Str,
   int Radix
-);</pre>
+);
+</pre>
 
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Value</div>
     <div class=dfndescr>Значение для конвертирования.</div>
   <div class=dfn>Str</div>
-    <div class=dfndescr>Указатель на строку-приёмник. Размер строки <i>Str</i> должен быть достаточно большим чтобы включать преобразованную строку (максимальное значение = 32 символа + символ конца строки '\0').</div>
+    <div class=dfndescr>Указатель на строку-приёмник. Размер строки <code>Str</code> должен быть достаточно большим чтобы включать преобразованную строку (максимальное значение = 32 символа + символ конца строки '\0').</div>
   <div class=dfn>Radix</div>
-    <div class=dfndescr>Определяет базу, которая должна использоваться при преобразовании числа <i>Value</i>. Допустимые значения от 2 до 36.</div>
+    <div class=dfndescr>Определяет базу, которая должна использоваться при преобразовании числа <code>Value</code>. Допустимые значения от 2 до 36.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-<dfn>itoa</dfn> указатель на строку-приёмник.
+Указатель на строку-приёмник.
 </div>
 
 <h3>Примечание</h3>
 <div class=descr>
-Если <i>Value</i> отрицательное число и <em>Radix</em> = 10, то первым символом строки будет знак минус '<code>-</code>'.
+Если <code>Value</code> отрицательное число и <code>Radix = 10</code>, то первым символом строки будет знак минус '<code>-</code>'.
 </div>
 
 <h3>Пример</h3>
@@ -61,9 +62,10 @@ Info.FSF-&gt;itoa(Value,Str,10);
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="atoi.html">FSF.atoi</a> |
-<a href="atoi64.html">FSF.atoi64</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="atoi.html">FSF.atoi</a>,
+<a href="atoi64.html">FSF.atoi64</a>,
 <a href="itoa64.html">FSF.itoa64</a>
 </div>
 

@@ -15,13 +15,13 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.TruncPathStr</dfn> усекает указанный путь до требуемого размера и вставляет при надобности многоточие вместо отрезанной части.
+Функция <code>FSF.TruncPathStr</code> усекает указанный путь до требуемого размера и вставляет при надобности многоточие вместо отрезанной части.
 </div>
 
 <pre class=syntax>
 wchar_t* WINAPI TruncPathStr(
   wchar_t *Str,
-  int MaxLength
+  intptr_t MaxLength
 );
 </pre>
 
@@ -38,7 +38,8 @@ wchar_t* WINAPI TruncPathStr(
 Указатель на результирующую строку.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="truncstr.html">FSF.TruncStr</a>
 </div>
 

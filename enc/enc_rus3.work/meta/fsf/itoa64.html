@@ -15,7 +15,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.itoa64</dfn> конвертирует целое число типа <b>__int64</b> (64-битное целое) в строку. Функция является аналогом стандартной RTL-функции <em>_i64toa</em>.
+Функция <code>FSF.itoa64</code> конвертирует целое число типа <code>__int64</code> (64-битное целое) в строку. Функция является аналогом стандартной RTL-функции <code>_i64toa</code>.
 </div>
 
 <pre class=syntax>
@@ -23,26 +23,27 @@ wchar_t * WINAPI itoa64(
   __int64 Value,
   wchar_t *Str,
   int Radix
-);</pre>
+);
+</pre>
 
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Value</div>
     <div class=dfndescr>Значение для конвертирования.</div>
   <div class=dfn>Str</div>
-    <div class=dfndescr>Указатель на строку-приёмник. Размер строки <i>Str</i> должен быть достаточно большим чтобы включать преобразованную строку (максимальное значение = 64 символа + символ конца строки '\0').</div>
+    <div class=dfndescr>Указатель на строку-приёмник. Размер строки <code>Str</code> должен быть достаточно большим чтобы включать преобразованную строку (максимальное значение = 64 символа + символ конца строки '\0').</div>
   <div class=dfn>Radix</div>
-    <div class=dfndescr>Определяет базу, которая должна использоваться при преобразовании числа <em>Value</em>. Допустимые значения от 2 до 36.</div>
+    <div class=dfndescr>Определяет базу, которая должна использоваться при преобразовании числа <code>Value</code>. Допустимые значения от 2 до 36.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-<dfn>itoa64</dfn> указатель на строку-приёмник.
+Указатель на строку-приёмник.
 </div>
 
 <h3>Примечание</h3>
 <div class=descr>
-Если <i>Value</i> отрицательное число и <i>Radix</i> = 10, то первым символом строки будет знак минус '<code>-</code>'.
+Если <code>Value</code> отрицательное число и <code>Radix = 10</code>, то первым символом строки будет знак минус '<code>-</code>'.
 </div>
 
 <h3>Пример</h3>
@@ -61,9 +62,10 @@ Info.FSF-&gt;itoa64(Value64,Str,10);
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="atoi.html">FSF.atoi</a> |
-<a href="atoi64.html">FSF.atoi64</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="atoi.html">FSF.atoi</a>,
+<a href="atoi64.html">FSF.atoi64</a>,
 <a href="itoa.html">FSF.itoa</a>
 </div>
 

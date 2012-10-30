@@ -23,7 +23,7 @@ void WINAPI qsort(
   void *Base,
   size_t NElem,
   size_t Width,
-  intptr_t (<b>WINAPI</b> *fcmp)(const void *, const void *, void *),
+  int (<b>WINAPI</b> *fcmp)(const void *, const void *, void *),
   void *UserParam
 );
 </pre>
@@ -61,8 +61,8 @@ void WINAPI qsort(
 Функция реализует нестабильную сортировку. Иными словами, порядок элементов, равных с точки зрения функции сравнения, не определён и может меняться при повторных сортировках уже отсортированного массива.
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="bsearch.html">FSF.bsearch</a>
 </div>
 

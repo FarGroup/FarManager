@@ -15,33 +15,33 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FSF.GetFileOwner</dfn> используется для определения владельца указанного файла.
+Функция <code>FSF.GetFileOwner</code> используется для определения владельца указанного файла.
 </div>
 
 <pre class=syntax>
-int WINAPI GetFileOwner(
+size_t WINAPI GetFileOwner(
   const wchar_t *Computer,
   const wchar_t *Name,
   wchar_t *Owner,
-  int Size
+  size_t Size
 );
 </pre>
 
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Computer</div>
-    <div class=dfndescr>Имя компьютера, содержащего обрабатываемый файл. Если этот параметр равен NULL, то используется текущий компьютер.</div>
+    <div class=dfndescr>Имя компьютера, содержащего обрабатываемый файл. Если этот параметр равен <code>NULL</code>, то используется текущий компьютер.</div>
   <div class=dfn>Name</div>
     <div class=dfndescr>Имя файла, для которого нужно определить владельца.</div>
   <div class=dfn>Owner</div>
-    <div class=dfndescr>Указатель на буфер, который получит имя владельца файла. Установите <i>Owner</i> = NULL для того, чтобы узнать необходмый размер буфера.</div>
+    <div class=dfndescr>Указатель на буфер, который получит имя владельца файла. Установите <code>Owner = NULL</code> для того, чтобы узнать необходмый размер буфера в символах.</div>
   <div class=dfn>Size</div>
-    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <i>Owner</i>, с заключительным нулём.</div>
+    <div class=dfndescr>Максимальное количество символов, которое можно поместить в <code>Owner</code>, с заключительным нулём.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Функция возвращает необходимый размер буфера <i>Owner</i>.
+Функция возвращает необходимый размер буфера <code>Owner</code>.
 </div>
 
 <h3>Примечание</h3>

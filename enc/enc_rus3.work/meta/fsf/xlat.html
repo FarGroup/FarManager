@@ -15,14 +15,14 @@
 </div>
 
 <div class=shortdescr>
-‘ункци€ <dfn>FSF.XLat</dfn> используетс€ дл€ конвертировани€ части строки из одного набора символов (например, –усский) в другой (например, Ћатиница).
+‘ункци€ <code>FSF.XLat</code> используетс€ дл€ конвертировани€ части строки из одного набора символов (например, –усский) в другой (например, Ћатиница).
 </div>
 
 <pre class=syntax>
 wchar_t* WINAPI XLat(
   wchar_t *Line,
-  int StartPos,
-  int EndPos,
+  intptr_t StartPos,
+  intptr_t EndPos,
   XLAT_FLAGS Flags
 );
 </pre>
@@ -32,9 +32,9 @@ wchar_t* WINAPI XLat(
   <div class=dfn>Line</div>
     <div class=dfndescr>”казатель на строку, часть которой будет перекодирована.</div>
   <div class=dfn>StartPos</div>
-    <div class=dfndescr>Ќачальна€ позици€ в строке <i>Line</i>.</div>
+    <div class=dfndescr>Ќачальна€ позици€ в строке <code>Line</code>.</div>
   <div class=dfn>EndPos</div>
-    <div class=dfndescr> онечна€ позици€ в строке <i>Line</i>.</div>
+    <div class=dfndescr> онечна€ позици€ в строке <code>Line</code>.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>ћожет быть комбинацией следующих значений (тип <a name="XLAT_FLAGS">XLAT_FLAGS</a>):
     <table class="cont">
@@ -44,14 +44,16 @@ wchar_t* WINAPI XLat(
     <tr class="cont"><td class="cont" width="40%"><a name="XLAT_SWITCHKEYBBEEP">XLAT_SWITCHKEYBBEEP</a></td>
     <td class="cont" width="60%">¬ыдать звуковой сигнал после переключени€ раскладки (работает если установлен флаг <code>XLAT_SWITCHKEYBLAYOUT</code>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="XLAT_USEKEYBLAYOUTNAME">XLAT_USEKEYBLAYOUTNAME</a></td>
-    <td class="cont" width="60%">»спользовать предопределенные именованные правила дл€ "двойных" клавиш. ѕараметр в реестре c именем раскладки, например:<br>
-    "HKEY_CURRENT_USER\Software\Far2\XLat/00000409:reg_sz" обозначает "набирали по-русски в английской раскладке"<br>
-    "HKEY_CURRENT_USER\Software\Far2\XLat/00000419:reg_sz" обозначает "набирали по-английски в русской раскладке"<br>
+    <td class="cont" width="60%">»спользовать предопределенные именованные правила дл€ "двойных" клавиш. ѕараметр в базе настроек c именем раскладки, например:<br>
+    "XLat/00000409:reg_sz" обозначает "набирали по-русски в английской раскладке"<br>
+    "XLat/00000419:reg_sz" обозначает "набирали по-английски в русской раскладке"<br>
     и т.п.<br>
     “ак же, если установлен флаг <code>XLAT_SWITCHKEYBLAYOUT</code>, то переключение раскладок происходит только по списку значений, перечисленных в
-    "HKEY_CURRENT_USER\Software\Far2\XLat/Layouts:reg_sz" (перечисление через ';'), независимо от количества установленных в системе раскладок (больше 2).</td></tr>
+    "XLat/Layouts:reg_sz" (перечисление через ';'), независимо от количества установленных в системе раскладок (больше 2).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="XLAT_CONVERTALLCMDLINE">XLAT_CONVERTALLCMDLINE</a></td>
     <td class="cont" width="60%"> онвертировать всю командную строку при отсутствии выделенного блока.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="XLAT_NONE">XLAT_NONE</a></td>
+    <td class="cont" width="60%">Ќулевой флаг.</td></tr>
     </table>
     </div>
 </div>
