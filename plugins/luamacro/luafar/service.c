@@ -2847,12 +2847,11 @@ static int far_SendDlgMessage(lua_State *L)
 			luaL_checktype(L, 4, LUA_TTABLE);
 
 			if(FillEditorSelect(L, 4, &es))
-			{
-				Param2 = &es;
-				break;
-			}
+				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &es));
+			else
+				lua_pushinteger(L,0);
 
-			return lua_pushinteger(L,0), 1;
+			return 1;
 		}
 		case DM_GETTEXT:
 		{
@@ -2873,8 +2872,8 @@ static int far_SendDlgMessage(lua_State *L)
 			fdid.StructSize = sizeof(fdid);
 			fdid.PtrData = (wchar_t*)check_utf8_string(L, 4, NULL);
 			fdid.PtrLength = 0; // wcslen(fdid.PtrData);
-			Param2 = &fdid;
-			break;
+			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fdid));
+			return 1;
 		}
 		case DM_KEY:   //TODO
 		{
@@ -2912,8 +2911,8 @@ static int far_SendDlgMessage(lua_State *L)
 			luaL_checktype(L, 4, LUA_TTABLE);
 			fld.StartIndex = GetOptIntFromTable(L, "StartIndex", 1) - 1;
 			fld.Count = GetOptIntFromTable(L, "Count", 1);
-			Param2 = &fld;
-			break;
+			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &fld));
+			return 1;
 		}
 		case DM_LISTFINDSTRING:
 		{
@@ -2985,8 +2984,8 @@ static int far_SendDlgMessage(lua_State *L)
 			flt.Title = lua_isstring(L,-1) ? check_utf8_string(L,-1,NULL) : NULL;
 			lua_getfield(L, 4, "Bottom");
 			flt.Bottom = lua_isstring(L,-1) ? check_utf8_string(L,-1,NULL) : NULL;
-			Param2 = &flt;
-			break;
+			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flt));
+			return 1;
 		}
 		case DM_LISTINFO:
 		{
@@ -3040,8 +3039,8 @@ static int far_SendDlgMessage(lua_State *L)
 			luaL_checktype(L, 4, LUA_TTABLE);
 			flp.SelectPos = GetOptIntFromTable(L, "SelectPos", 1) - 1;
 			flp.TopPos = GetOptIntFromTable(L, "TopPos", 1) - 1;
-			Param2 = &flp;
-			break;
+			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flp));
+			return 1;
 		}
 		case DM_LISTSETDATA:
 		{
@@ -3056,8 +3055,8 @@ static int far_SendDlgMessage(lua_State *L)
 			ref = luaL_ref(L, -2);
 			flid.Data = &ref;
 			flid.DataSize = sizeof(int);
-			Param2 = &flid;
-			break;
+			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &flid));
+			return 1;
 		}
 		case DM_LISTGETDATA:
 			res = Info->SendDlgMessage(hDlg, Msg, Param1, (void*)(luaL_checkinteger(L, 4)-1));
@@ -3082,12 +3081,14 @@ static int far_SendDlgMessage(lua_State *L)
 			luaL_checktype(L, 4, LUA_TTABLE);
 			coord.X = GetOptIntFromTable(L, "X", 0);
 			coord.Y = GetOptIntFromTable(L, "Y", 0);
-			Param2 = &coord;
 
 			if(Msg == DM_SETCURSORPOS)
-				break;
+			{
+				lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &coord));
+				return 1;
+			}
 
-			c = (COORD*) Info->SendDlgMessage(hDlg, Msg, Param1, Param2);
+			c = (COORD*) Info->SendDlgMessage(hDlg, Msg, Param1, &coord);
 			lua_createtable(L, 0, 2);
 			PutIntToTable(L, "X", c->X);
 			PutIntToTable(L, "Y", c->Y);
@@ -3111,8 +3112,8 @@ static int far_SendDlgMessage(lua_State *L)
 			luaL_checktype(L, 4, LUA_TTABLE);
 			lua_settop(L, 4);
 			FillEditorSetPosition(L, &esp);
-			Param2 = &esp;
-			break;
+			lua_pushinteger(L, Info->SendDlgMessage(hDlg, Msg, Param1, &esp));
+			return 1;
 		}
 	}
 
