@@ -831,6 +831,7 @@ struct Options
 
 	string ProfilePath;
 	string LocalProfilePath;
+	string TemplateProfilePath;
 	string GlobalUserMenuDir;
 	KnownModulesIDs KnownIDs;
 

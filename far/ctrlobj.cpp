@@ -72,13 +72,14 @@ ControlObject::ControlObject():
 	ViewHistory=new History(HISTORYTYPE_VIEW, nullptr, Opt.SaveViewHistory, true);
 	FolderHistory->SetAddMode(true,2,true);
 	ViewHistory->SetAddMode(true,Opt.FlagPosixSemantics?1:2,true);
+
+	FileFilter::InitFilter();
 }
 
 
 void ControlObject::Init(int DirCount)
 {
 	TreeList::ClearCache(0);
-	FileFilter::InitFilter();
 	SetColor(COL_COMMANDLINEUSERSCREEN);
 	GotoXY(0,ScrY-3);
 	ShowCopyright();

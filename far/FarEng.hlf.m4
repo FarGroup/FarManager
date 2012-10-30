@@ -220,6 +220,12 @@ in the input stream until you press Ctrl-Break.
   Disable exception handling. This option has been designed for plugin developers,
 and it is not recommended to specify it during normal operation.
 
+  #/t templateprofilepath
+  #Задаёт каталог в котором располагаются умолчательные настройки, которые применяются,
+если какой-либо из конфигурационных файлов не существует. Параметр templateprofilepath
+перекрывает значение TemplateProfileDir из far.exe.ini. В этом каталоге может находится
+файл настроек 'Default.farconfig'.
+
   #/clearcache [profilepath [localprofilepath]]#
   Очистить кэш плагинов и завершить работу.
   Необязательный параметр profilepath задает полный путь к конфигурационным файлам.

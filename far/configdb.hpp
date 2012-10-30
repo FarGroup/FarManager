@@ -271,17 +271,17 @@ extern HistoryConfig *HistoryCfg;
 extern HistoryConfig *HistoryCfgMem;
 extern MacroConfig *MacroCfg;
 
-void InitDb(bool err_report=false);
+void InitDb(bool imp_exp=false);
 int ShowProblemDb();
 void ReleaseDb();
 bool ExportImportConfig(bool Export, const wchar_t *XML);
 void ClearPluginsCache();
 
-HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local);
-HierarchicalConfig *CreateFiltersConfig();
-HierarchicalConfig *CreateHighlightConfig();
-HierarchicalConfig *CreateShortcutsConfig();
-HierarchicalConfig *CreatePanelModeConfig();
+HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local, bool imp_exp=false);
+HierarchicalConfig *CreateFiltersConfig(bool imp_exp=false);
+HierarchicalConfig *CreateHighlightConfig(bool imp_exp=false);
+HierarchicalConfig *CreateShortcutsConfig(bool imp_exp=false);
+HierarchicalConfig *CreatePanelModeConfig(bool imp_exp=false);
 
 
 template<class T, class Y>

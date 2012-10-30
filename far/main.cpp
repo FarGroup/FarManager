@@ -91,6 +91,8 @@ static void show_help()
 		L"      Search for \"common\" plugins in the directory, specified by <path>.\n"
 		L" /s <path> [<localpath>]\n"
 		L"      Custom location for Far configuration files - overrides Far.exe.ini.\n"
+		L" /t <path>\n"
+		L"      Location for Far template configuration - overrides Far.exe.ini.\n"
 #ifndef NO_WRAPPER
 		L" /u <username>\n"
 		L"      Allows to have separate registry settings for different users.\n"
@@ -336,7 +338,22 @@ int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,str
 	return Result;
 }
 
-void InitProfile(string &strProfilePath, string strLocalProfilePath)
+void InitTemplateProfile(string &strTemplatePath)
+{
+	if (strTemplatePath.IsEmpty())
+		strTemplatePath.ReleaseBuffer(GetPrivateProfileString(L"General", L"TemplateProfileDir", L"%FARHOME%\\Default", strTemplatePath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI));
+
+	if (!strTemplatePath.IsEmpty())
+	{
+		apiExpandEnvironmentStrings(strTemplatePath, strTemplatePath);
+		Unquote(strTemplatePath);
+		ConvertNameToFull(strTemplatePath, strTemplatePath);
+		DeleteEndSlash(strTemplatePath);
+		Opt.TemplateProfilePath = strTemplatePath;
+	}
+}
+
+void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
 	if (!strProfilePath.IsEmpty())
 	{
@@ -420,10 +437,11 @@ void InitProfile(string &strProfilePath, string strLocalProfilePath)
 		Opt.ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, g_strFarINI);
 }
 
-int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath, const wchar_t *LocalProfilePath)
+int ExportImportMain(bool Export, const wchar_t *XML, const wchar_t *ProfilePath, const wchar_t *LocalProfilePath, const wchar_t *TemplatePath)
 {
-	string strProfilePath = ProfilePath, strLocalProfilePath = LocalProfilePath;
+	string strProfilePath = ProfilePath, strLocalProfilePath = LocalProfilePath, strTemplatePath = TemplatePath;
 
+	InitTemplateProfile(strTemplatePath);
 	InitProfile(strProfilePath, strLocalProfilePath);
 	InitDb(true);
 
@@ -487,15 +505,17 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	{
 		return ElevationMain(Argv[2], _wtoi(Argv[3]), *Argv[4]==L'1');
 	}
-	else if (Argc==5 || Argc==4 || Argc==3)
+	else if (Argc >= 6 && Argc >= 3)
 	{
+		const wchar_t *p = Argc>3 ? Argv[3] : L"", *lp = Argc>4 ? Argv[4] : L"", *tp = Argc>5 ? Argv[5] : L"";
+
 		if (!StrCmpI(Argv[1], L"/export"))
 		{
-			return ExportImportMain(true, Argv[2], Argc>3 ? Argv[3] : L"", Argc>4 ? Argv[4] : L"");
+			return ExportImportMain(true, Argv[2], p, lp, tp);
 		}
 		else if (!StrCmpI(Argv[1], L"/import"))
 		{
-			return ExportImportMain(false, Argv[2], Argc>3 ? Argv[3] : L"", Argc>4 ? Argv[4] : L"");
+			return ExportImportMain(false, Argv[2], p, lp, tp);
 		}
 	}
 	else if ((Argc==2 || Argc==3 || Argc==4) && !StrCmpI(Argv[1], L"/clearcache"))
@@ -547,7 +567,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	Opt.ReadOnlyConfig = -1; // not initialized
 
-	string strProfilePath, strLocalProfilePath;
+	string strProfilePath, strLocalProfilePath, strTemplatePath;
 
 	for (int I=1; I<Argc; I++)
 	{
@@ -652,6 +672,13 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					}
 					break;
 
+				case L'T':
+					if (I+1<Argc)
+					{
+						strTemplatePath = Argv[++I];
+					}
+					break;
+
 				case L'P':
 				{
 					// Полиция 19 - BUGBUG ни кто эту опцию вообще не читал
@@ -740,6 +767,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		}
 	}
 
+	InitTemplateProfile(strTemplatePath);
 	InitProfile(strProfilePath, strLocalProfilePath);
 
 	InitDb();

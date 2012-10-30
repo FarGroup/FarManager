@@ -61,6 +61,10 @@ HistoryConfig *HistoryCfg;
 HistoryConfig *HistoryCfgMem;
 MacroConfig *MacroCfg;
 
+static TiXmlDocument  TemplateDoc;
+static int TemplateLoadState = -1;
+static TiXmlElement *TemplateRoot = nullptr;
+
 int IntToHex(int h)
 {
 	if (h >= 10)
@@ -2996,34 +3000,6 @@ public:
 	}
 };
 
-HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local)
-{
-	string strDbName = L"PluginsData\\";
-	strDbName += guid;
-	strDbName += L".db";
-	return new HierarchicalConfigDb(strDbName, Local);
-}
-
-HierarchicalConfig *CreateFiltersConfig()
-{
-	return new HierarchicalConfigDb(L"filters.db");
-}
-
-HierarchicalConfig *CreateHighlightConfig()
-{
-	return new HighlightHierarchicalConfigDb(L"highlight.db");
-}
-
-HierarchicalConfig *CreateShortcutsConfig()
-{
-	return new HierarchicalConfigDb(L"shortcuts.db", true);
-}
-
-HierarchicalConfig *CreatePanelModeConfig()
-{
-	return new HierarchicalConfigDb(L"panelmodes.db");
-}
-
 static int nProblem = 0;
 static const wchar_t* sProblem[10];
 
@@ -3069,18 +3045,117 @@ T* new_db(bool err_report)
 	return p;
 }
 
-void InitDb( bool err_report )
+template<class T>
+T* try_db_load(T *p, const char *son = nullptr, bool plugin=false)
+{
+	if (TemplateLoadState != 0 && p->IsNew())
+	{
+		if (TemplateLoadState < 0 && !Opt.TemplateProfilePath.IsEmpty())
+		{
+			TemplateLoadState = 0;
+			string def_config = Opt.TemplateProfilePath;
+			AddEndSlash(def_config);
+			def_config += L"Default.farconfig";
+			FILE* XmlFile = _wfopen(NTPath(def_config), L"rb");
+			if (XmlFile)
+			{
+				if (TemplateDoc.LoadFile(XmlFile))	{
+					if (nullptr != (TemplateRoot = TemplateDoc.FirstChildElement("farconfig")))
+						TemplateLoadState = +1;
+				}
+				fclose(XmlFile);
+			}
+		}
+
+		if (TemplateLoadState > 0)
+		{
+			const TiXmlHandle root(TemplateRoot);
+			if (!son)
+				p->Import(root);
+			else if (!plugin)
+				p->Import(root.FirstChildElement(son));
+			else {
+				for (TiXmlElement *plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
+				{
+					const char *guid = plugin->Attribute("guid");
+					if (guid && 0 == strcmp(guid, son))
+					{
+						const TiXmlHandle h(plugin);
+						p->Import(h);
+						break;
+					}
+				}
+			}
+		}
+	}
+	return p;
+}
+
+template<class T>
+T* new_db_load(bool err_report, const char *son = nullptr)
+{
+	T* p = new_db<T>(err_report);
+	if (!err_report)
+		try_db_load(p, son);
+	return p;
+}
+
+void InitDb( bool imp_exp )
 {
 	nProblem = 0;
-	GeneralCfg = new_db<GeneralConfigDb>(err_report);
-	ColorsCfg = new_db<ColorsConfigDb>(err_report);
-	AssocConfig = new_db<AssociationsConfigDb>(err_report);
-	PlCacheCfg = new_db<PluginsCacheConfigDb>(err_report);
-	PlHotkeyCfg = new_db<PluginsHotkeysConfigDb>(err_report);
-	HistoryCfg = new_db<HistoryConfigDb>(err_report);
-	HistoryCfgMem = new_db<HistoryConfigMemory>(err_report);
-	MacroCfg = new_db<MacroConfigDb>(err_report);
+	GeneralCfg = new_db_load<GeneralConfigDb>(imp_exp);
+	ColorsCfg = new_db_load<ColorsConfigDb>(imp_exp);
+	AssocConfig = new_db_load<AssociationsConfigDb>(imp_exp);
+	PlCacheCfg = new_db<PluginsCacheConfigDb>(imp_exp);
+	PlHotkeyCfg = new_db_load<PluginsHotkeysConfigDb>(imp_exp);
+	HistoryCfg = new_db<HistoryConfigDb>(imp_exp);
+	HistoryCfgMem = new_db<HistoryConfigMemory>(imp_exp);
+	MacroCfg = new_db_load<MacroConfigDb>(imp_exp);
 }
+
+HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local, bool imp_exp)
+{
+	string strDbName = L"PluginsData\\";
+	strDbName += guid;
+	strDbName += L".db";
+	HierarchicalConfigDb *cfg = new HierarchicalConfigDb(strDbName, Local);
+	if (!imp_exp && cfg->IsNew())
+	{
+		char guid_a[64];
+		WideCharToMultiByte(CP_UTF8, 0, guid,-1, guid_a,(int)sizeof(guid_a), nullptr,nullptr);
+		try_db_load<HierarchicalConfigDb>(cfg, guid_a, true);
+	}
+	return cfg;
+}
+
+static int s_init_mask = 0x00;
+template<class T>
+HierarchicalConfig *CreateHierahchicalConfig(int msk, const wchar_t *dbn, const char *xmln, bool imp_exp, bool Local=false)
+{
+	T *cfg = new T(dbn, Local);
+	bool first = (0 == (s_init_mask & msk));
+
+	if (first)
+		check_db(cfg, imp_exp);
+
+	if (!imp_exp && cfg->IsNew() && first)
+		try_db_load<T>(cfg, xmln);
+
+	s_init_mask |= msk;
+	return cfg;
+}
+
+HierarchicalConfig *CreateFiltersConfig(bool impex)
+{ return CreateHierahchicalConfig<HierarchicalConfigDb>(0x1, L"filters.db","filters", impex); }
+
+HierarchicalConfig *CreateHighlightConfig(bool impex)
+{ return CreateHierahchicalConfig<HighlightHierarchicalConfigDb>(0x2, L"highlight.db","highlight", impex); }
+
+HierarchicalConfig *CreateShortcutsConfig(bool impex)
+{ return CreateHierahchicalConfig<HierarchicalConfigDb>(0x4, L"shortcuts.db","shortcuts", impex, true); }
+
+HierarchicalConfig *CreatePanelModeConfig(bool impex)
+{ return CreateHierahchicalConfig<HierarchicalConfigDb>(0x8, L"panelmodes.db","panelmode", impex); }
 
 void ReleaseDb()
 {
@@ -3128,25 +3203,25 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 
 		root->LinkEndChild(PlHotkeyCfg->Export());
 
-		HierarchicalConfig *cfg = CreateFiltersConfig();
+		HierarchicalConfig *cfg = CreateFiltersConfig(true);
 		TiXmlElement *e = new TiXmlElement("filters");
 		e->LinkEndChild(cfg->Export());
 		root->LinkEndChild(e);
 		delete cfg;
 
-		cfg = CreateHighlightConfig();
+		cfg = CreateHighlightConfig(true);
 		e = new TiXmlElement("highlight");
 		e->LinkEndChild(cfg->Export());
 		root->LinkEndChild(e);
 		delete cfg;
 
-		cfg = CreatePanelModeConfig();
+		cfg = CreatePanelModeConfig(true);
 		e = new TiXmlElement("panelmodes");
 		e->LinkEndChild(cfg->Export());
 		root->LinkEndChild(e);
 		delete cfg;
 
-		cfg = CreateShortcutsConfig();
+		cfg = CreateShortcutsConfig(true);
 		e = new TiXmlElement("shortcuts");
 		e->LinkEndChild(cfg->Export());
 		root->LinkEndChild(e);
@@ -3171,7 +3246,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 
 					TiXmlElement *plugin = new TiXmlElement("plugin");
 					plugin->SetAttribute("guid", guid);
-					cfg = CreatePluginsConfig(fd.strFileName, false);
+					cfg = CreatePluginsConfig(fd.strFileName, false, true);
 					plugin->LinkEndChild(cfg->Export());
 					e->LinkEndChild(plugin);
 					delete cfg;
@@ -3204,19 +3279,19 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 
 				PlHotkeyCfg->Import(root);
 
-				HierarchicalConfig *cfg = CreateFiltersConfig();
+				HierarchicalConfig *cfg = CreateFiltersConfig(true);
 				cfg->Import(root.FirstChildElement("filters"));
 				delete cfg;
 
-				cfg = CreateHighlightConfig();
+				cfg = CreateHighlightConfig(true);
 				cfg->Import(root.FirstChildElement("highlight"));
 				delete cfg;
 
-				cfg = CreatePanelModeConfig();
+				cfg = CreatePanelModeConfig(true);
 				cfg->Import(root.FirstChildElement("panelmodes"));
 				delete cfg;
 
-				cfg = CreateShortcutsConfig();
+				cfg = CreateShortcutsConfig(true);
 				cfg->Import(root.FirstChildElement("shortcuts"));
 				delete cfg;
 
@@ -3232,7 +3307,7 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 					mc=2;
 					if (re.Match(Guid, Guid.CPtr() + Guid.GetLength(), m, mc))
 					{
-						cfg = CreatePluginsConfig(Guid, false);
+						cfg = CreatePluginsConfig(Guid, false, true);
 						const TiXmlHandle h(plugin);
 						cfg->Import(h);
 						delete cfg;

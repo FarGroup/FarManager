@@ -155,7 +155,7 @@ int SQLiteStmt::GetColType(int Col)
 
 
 SQLiteDb::SQLiteDb():
-	pDb(nullptr), init_status(-1)
+	pDb(nullptr), init_status(-1), db_exists(-1)
 {
 }
 
@@ -180,9 +180,16 @@ static bool can_create_file(const string& fname)
 bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 {
 	GetDatabasePath(DbFile, strPath, Local);
+	bool mem_db = (0 == wcscmp(DbFile, L":memory:"));
 
-	if (!Opt.ReadOnlyConfig || 0 == wcscmp(DbFile, L":memory:"))
-		return SQLITE_OK == sqlite3_open16(strPath.CPtr(), &pDb);
+	if (!Opt.ReadOnlyConfig || mem_db)
+	{
+		if (!mem_db && db_exists < 0) {
+			DWORD attrs = apiGetFileAttributes(strPath);
+			db_exists = (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) ? +1 : 0;
+		}
+		return (SQLITE_OK == sqlite3_open16(strPath.CPtr(), &pDb));
+	}
 
 	// copy db to memory
 	//
@@ -195,6 +202,9 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 	DWORD attrs = apiGetFileAttributes(strPath);
 	if (0 == (attrs & FILE_ATTRIBUTE_DIRECTORY)) // source exists and not directory
 	{
+		if (db_exists < 0)
+			db_exists = +1;
+
 		if (WAL && !can_create_file(strPath+L"-$test$")) // can't open db -- copy to %TEMP%
 		{
 			string strTmp;
