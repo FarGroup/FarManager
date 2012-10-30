@@ -1603,7 +1603,7 @@ id=109
 lv=2
 dt=Text
 nm=export.Open
-mtime=3560712722
+mtime=3560782064
 <article>
 #_ret = export.Open (OpenFrom, Guid, Item)
 #_
@@ -1622,6 +1622,7 @@ mtime=3560712722
 #_      table:
 #_        HostFile: string
 #_        ShortcutData: string
+#_        Flags: flags
 #_    if OpenFrom == OPEN_DIALOG:
 #_      table:
 #_        hDlg : userdata

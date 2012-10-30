@@ -730,7 +730,7 @@ static HANDLE FillFarMacroCall (lua_State* L, int narg)
 			fmc->Values[i].Value.Binary.Data = (char*)"";
 			fmc->Values[i].Value.Binary.Size = 0;
 			lua_rawgeti(L, i-narg, 1);
-			if (lua_type(L,-1) == LUA_TSTRING && (len=lua_objlen(L,-1) != 0))
+			if (lua_type(L,-1) == LUA_TSTRING && (len=lua_objlen(L,-1)) != 0)
 			{
 				void* arr = malloc(len);
 				memcpy(arr, lua_tostring(L,-1), len);
@@ -772,9 +772,10 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 	else if(Info->OpenFrom == OPEN_SHORTCUT)
 	{
 		struct OpenShortcutInfo *osi = CAST(struct OpenShortcutInfo*, Info->Data);
-		lua_createtable(L, 0, 2);
+		lua_createtable(L, 0, 3);
 		PutWStrToTable(L, "HostFile", osi->HostFile, -1);
 		PutWStrToTable(L, "ShortcutData", osi->ShortcutData, -1);
+		PutFlagsToTable(L, "Flags", osi->Flags);
 	}
 	else if(Info->OpenFrom == OPEN_COMMANDLINE)
 		push_utf8_string(L, CAST(struct OpenCommandLineInfo*, Info->Data)->CommandLine, -1);
