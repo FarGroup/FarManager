@@ -46,11 +46,11 @@ struct ViewerSetMode
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Режим</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VSMT_HEX">VSMT_HEX</a></td>
-    <td class="cont" width="60%">Текстовый/16-ричный режим: <i>iParam</i>=1 - включить 16-ричный режим, <i>iParam</i>=0 - текстовый.</td></tr>
+    <td class="cont" width="60%">Текстовый/16-ричный режим: <code>iParam</code>=1 - включить 16-ричный режим, <code>iParam</code>=0 - текстовый.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VSMT_WRAP">VSMT_WRAP</a></td>
-    <td class="cont" width="60%">Перенос строк: <i>iParam</i>=1 - перенос включён, <i>iParam</i>=0 - выключен)</td></tr>
+    <td class="cont" width="60%">Перенос строк: <code>iParam</code>=1 - перенос включён, <code>iParam</code>=0 - выключен)</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VSMT_WORDWRAP">VSMT_WORDWRAP</a></td>
-    <td class="cont" width="60%">Тип свёртки: <i>iParam</i>=1 - используется перенос строк по словам, <i>iParam</i>=0 - по буквам.</td></tr>
+    <td class="cont" width="60%">Тип свёртки: <code>iParam</code>=1 - используется перенос строк по словам, <code>iParam</code>=0 - по буквам.</td></tr>
     </table>
     </div>
   <div class=dfn>iParam</div>
@@ -58,7 +58,7 @@ struct ViewerSetMode
   <div class=dfn>wszParam</div>
     <div class=dfndescr>Указатель на строку, оканчивающуюся нулём, см. описание по конкретному типу режима.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Дополнительные флаги (перечисление <a name="VIEWER_SETMODEFLAGS_TYPES">VIEWER_SETMODEFLAGS_TYPES</a>):
+    <div class=dfndescr>Дополнительные флаги (тип <a name="VIEWER_SETMODEFLAGS_TYPES">VIEWER_SETMODEFLAGS_TYPES</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Режим</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VSMFL_REDRAW">VSMFL_REDRAW</a></td>
@@ -66,7 +66,7 @@ struct ViewerSetMode
     </table>
     </div>
   <div class=dfn>Reserved</div>
-    <div class=dfndescr>Не используется, зарезервировано для будущего использования. Должно быть установлено в 0.</div>
+    <div class=dfndescr>Не используется, зарезервировано для будущего использования. Должно быть установлено в <code>0</code>.</div>
 </div>
 
 <h3>Замечания</h3>
