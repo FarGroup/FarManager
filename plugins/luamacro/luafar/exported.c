@@ -666,11 +666,7 @@ static void PushParamsTable(lua_State* L, const struct OpenMacroInfo* Data)
 	lua_createtable(L, (int)Data->Count, 0);
 	for(i=0; i < Data->Count; i++)
 	{
-		struct FarMacroValue* v = Data->Values + i;
-		lua_createtable(L, 0, 2);
-		PutIntToTable(L, "Type", v->Type);
-		PushFarMacroValue(L, v);
-		lua_setfield(L, -2, "Value");
+		PushFarMacroValue(L, Data->Values + i);
 		lua_rawseti(L, -2, i+1);
 	}
 }

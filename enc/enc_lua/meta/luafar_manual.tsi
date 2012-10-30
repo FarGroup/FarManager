@@ -1603,7 +1603,7 @@ id=109
 lv=2
 dt=Text
 nm=export.Open
-mtime=3560782064
+mtime=3560798347
 <article>
 #_ret = export.Open (OpenFrom, Guid, Item)
 #_
@@ -1613,9 +1613,8 @@ mtime=3560782064
 #_  Item:
 #_    if OpenFrom == OPEN_FROMMACRO:
 #_      table (array of arguments):
-#_        each argument is a table with the following fields:
-#_          Type  : integer
-#_          Value : nil, flag, string, or number (depending on *Type*)
+#_        each argument can be either of: string, boolean, number, or int64
+#_        (the type created by bit64 library)
 #_    if OpenFrom == OPEN_COMMANDLINE:
 #_      string
 #_    if OpenFrom == OPEN_SHORTCUT:
