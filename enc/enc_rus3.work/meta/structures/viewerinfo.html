@@ -16,36 +16,33 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>ViewerInfo</dfn> используется для получения информации о текущем состоянии программы просмотра Far Manager.
+Структура <code>ViewerInfo</code> используется для получения информации о текущем состоянии программы просмотра Far Manager.
 </div>
 
 <pre class=syntax>
 struct ViewerInfo
 {
   size_t StructSize;
-  int ViewerID;
-  int TabSize;
-  const wchar_t *FileName;
+  intptr_t ViewerID;
+  intptr_t TabSize;
   struct ViewerMode CurMode;
   __int64 FileSize;
   __int64 FilePos;
   __int64 LeftPos;
   VIEWER_OPTIONS Options;
-  int WindowSizeX;
-  int WindowSizeY;
+  intptr_t WindowSizeX;
+  intptr_t WindowSizeY;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Размер структуры ViewerInfo. Вы обязательно должны заполнить это поле.</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>ViewerInfo</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>ViewerID</div>
     <div class=dfndescr>Идентификатор экземпляра программы просмотра. Каждый экземпляр программы просмотра имеет уникальный идентификатор, который не повторяется в текущей сессии Far Manager.</div>
   <div class=dfn>TabSize</div>
     <div class=dfndescr>Размер табуляции.</div>
-  <div class=dfn>FileName</div>
-    <div class=dfndescr>Указатель на строку с полным именем просматриваемого файла.</div>
   <div class=dfn>CurMode</div>
     <div class=dfndescr>Переменная типа <a href="viewermode.html">ViewerMode</a> - дополнительная информация о режиме программы просмотра.</div>
   <div class=dfn>FileSize</div>
@@ -62,13 +59,16 @@ struct ViewerInfo
     <td class="cont" width="60%">"Сохранять позицию файла" ("Save file position")</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VOPT_AUTODETECTCODEPAGE">VOPT_AUTODETECTCODEPAGE</a></td>
     <td class="cont" width="60%">"Автоопределение кодовой страницы" ("Autodetect code page")</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VOPT_NONE">VOPT_NONE</a></td>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
     </table>
     </div>
   <div class=dfn>WindowSizeX, WindowSizeY</div>
     <div class=dfndescr>Ширина и высота окна программы просмотра.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">Структуры</a>,
 <a href="../service_functions/viewercontrol.html">ViewerControl</a>,
 <a href="viewermode.html">ViewerMode</a>

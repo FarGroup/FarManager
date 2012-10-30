@@ -16,16 +16,17 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>ViewerSetMode</dfn> используется для изменения режимов работы программы просмотра Far Manager.
+Структура <code>ViewerSetMode</code> используется для изменения режимов работы программы просмотра Far Manager.
 </div>
 
 <pre class=syntax>
 struct ViewerSetMode
 {
+  size_t StructSize;
   enum VIEWER_SETMODE_TYPES Type;
   union
   {
-    int iParam;
+    intptr_t iParam;
     wchar_t *wszParam;
   }
 <b>#ifndef __cplusplus</b>
@@ -33,12 +34,13 @@ struct ViewerSetMode
 <b>#endif</b>
   ;
   VIEWER_SETMODEFLAGS_TYPES Flags;
-  DWORD_PTR Reserved;
 };
 </pre>
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>ViewerSetMode</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Type</div>
     <div class=dfndescr>Тип режима. Может быть одним из следующих (перечисление <a name="VIEWER_SETMODE_TYPES">VIEWER_SETMODE_TYPES</a>):
     <table class="cont">
@@ -71,8 +73,9 @@ struct ViewerSetMode
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>
 </div>
 
 </body>

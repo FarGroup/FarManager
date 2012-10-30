@@ -15,17 +15,17 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>RegExpSearch</dfn> используется в функции <a href="../service_functions/regexpcontrol.html">RegExpControl</a> Регулярных выражений Far Manager.
+Структура <code>RegExpSearch</code> используется в функции <a href="../service_functions/regexpcontrol.html">RegExpControl</a> Регулярных выражений Far Manager.
 </div>
 
 <pre class=syntax>
 struct RegExpSearch
 {
   const wchar_t *Text;
-  int Position;
-  int Length;
+  intptr_t Position;
+  intptr_t Length;
   struct RegExpMatch *Match;
-  int Count;
+  intptr_t Count;
   void *Reserved;
 };
 </pre>
@@ -43,21 +43,20 @@ struct RegExpSearch
   <div class=dfn>Count</div>
     <div class=dfndescr>Количество скобок.</div>
   <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано для будущих нужд, обязательно должено быть NULL.</div>
+    <div class=dfndescr>Зарезервировано для будущих нужд, обязательно должено быть <code>NULL.</code></div>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-<ol>
-</ol>
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>,
 <a href="regexpmatch.html">RegExpMatch</a>
 </div>
 

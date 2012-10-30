@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>PutFilesInfo</dfn> передает информацию об обрабатываемых элементах в функции <a href="../exported_functions/putfilesw.html">PutFilesW</a>.
+Структура <code>PutFilesInfo</code> передает информацию об обрабатываемых элементах в функции <a href="../exported_functions/putfilesw.html">PutFilesW</a>.
 </div>
 
 <pre class=syntax>
@@ -35,23 +35,24 @@ struct PutFilesInfo
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <dfn>PutFilesInfo</dfn>.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>PutFilesInfo</code>.</div>
   <div class=dfn>hPanel</div>
     <div class=dfndescr>Описатель панели, возвращаемый функцией <a href="../exported_functions/openw.html">OpenW</a>.</div>
   <div class=dfn>PanelItem</div>
     <div class=dfndescr>Указатель на массив из структур <a href="pluginpanelitem.html">PluginPanelItem</a>. Каждая структура описывает файл для передачи.</div>
   <div class=dfn>ItemsNumber</div>
-    <div class=dfndescr>Число элементов в массиве <i>PanelItem</i>.</div>
+    <div class=dfndescr>Число элементов в массиве <code>PanelItem</code>.</div>
   <div class=dfn>Move</div>
     <div class=dfndescr>Ноль, если файл должен быть скопирован, иначе перемещён.</div>
   <div class=dfn>SrcPath</div>
     <div class=dfndescr>Путь источника (откуда получим файлы для передачи).</div>
   <div class=dfn>OpMode</div>
-    <div class=dfndescr>Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>. Функция <a href="../exported_functions/putfilesw.html">PutFilesW</a> должна воспринимать флаг OPM_SILENT. Также она может использовать флаг OPM_DESCR.
-    <p>Если флаг OPM_SILENT не установлен, то возможна выдача диалога подтверждения и редактирование пути назначения.</div>
+    <div class=dfndescr>Комбинация флагов <a href="../defs/operation_mode.html">OPERATION_MODES</a>. Функция <a href="../exported_functions/putfilesw.html">PutFilesW</a> должна воспринимать флаг <code>OPM_SILENT</code>. Также она может использовать флаг <code>OPM_DESCR</code>.
+    <p>Если флаг <code>OPM_SILENT</code> не установлен, то возможна выдача диалога подтверждения и редактирование пути назначения.</div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

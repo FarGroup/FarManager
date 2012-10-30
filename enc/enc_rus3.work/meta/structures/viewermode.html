@@ -16,17 +16,15 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>ViewerMode</dfn> используется для получения дополнительной информации о текущем состоянии программы просмотра Far Manager.
+Структура <code>ViewerMode</code> используется для получения дополнительной информации о текущем состоянии программы просмотра Far Manager.
 </div>
 
 <pre class=syntax>
 struct ViewerMode
 {
-  UINT CodePage;
-  int Wrap;
-  int WordWrap;
-  int Hex;
-  DWORD_PTR Reserved[4];
+  uintptr_t CodePage;
+  VIEWER_MODE_FLAGS Flags;
+  enum VIEWER_MODE_TYPE Type;
 };
 </pre>
 
@@ -34,17 +32,30 @@ struct ViewerMode
 <div class=descr>
   <div class=dfn>CodePage</div>
     <div class=dfndescr>Кодовая страница символов.</div>
-  <div class=dfn>Wrap</div>
-    <div class=dfndescr>Включена (1)/выключена (0) свёртка.</div>
-  <div class=dfn>WordWrap</div>
-    <div class=dfndescr>Тип свёртки: 1 - используется перенос строк по словам, 0 - по буквам.</div>
-  <div class=dfn>Hex</div>
-    <div class=dfndescr>Если 1, то программа просмотра в hex-режиме.</div>
-  <div class=dfn>Reserved</div>
-    <div class=dfndescr>Зарезервировано для будущего использования.</div>
+  <div class=dfn>Flags</div>
+    <div class=dfndescr>Комбинация следующих значений (тип <a name="VIEWER_MODE_FLAGS">VIEWER_MODE_FLAGS</a>).
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VMF_WRAP">VMF_WRAP</a></td>
+    <td class="cont" width="60%">Включена свёртка строк.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VMF_WORDWRAP">VMF_WORDWRAP</a></td>
+    <td class="cont" width="60%">При свертке используется перенос строк по словам, а не буквам.</td></tr>
+    </table></div>
+  <div class=dfn>Type</div>
+    <div class=dfndescr>Режим программы просмотра, комбинация следующих значений (перечисление <a name="VIEWER_MODE_TYPE">VIEWER_MODE_TYPE</a>).
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VMT_TEXT">VMT_TEXT</a></td>
+    <td class="cont" width="60%">Текстовый.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VMT_HEX">VMT_HEX</a></td>
+    <td class="cont" width="60%">Hex-режим.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VMT_DUMP">VMT_DUMP</a></td>
+    <td class="cont" width="60%">Dump-режим.</td></tr>
+    </table></div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">Структуры</a>,
 <a href="../service_functions/viewercontrol.html">ViewerControl</a>,
 <a href="viewerinfo.html">ViewerInfo</a>

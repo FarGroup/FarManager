@@ -15,14 +15,14 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>ProcessSynchroEventInfo</dfn> содержит информацию о событии, поступающем в функцию <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a>.
+Структура <code>ProcessSynchroEventInfo</code> содержит информацию о событии, поступающем в функцию <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a>.
 </div>
 
 <pre class=syntax>
 struct ProcessSynchroEventInfo
 {
   size_t StructSize;
-  int Event;
+  intptr_t Event;
   void *Param;
 };
 </pre>
@@ -30,15 +30,15 @@ struct ProcessSynchroEventInfo
 <h3>Элементы</h3>
 <div class=descr>
   <div class=dfn>StructSize</div>
-    <div class=dfndescr>Это поле содержит размер структуры <dfn>ProcessSynchroEventInfo</dfn>.</div>
+    <div class=dfndescr>Это поле содержит размер структуры <code>ProcessSynchroEventInfo</code>.</div>
   <div class=dfn>Event</div>
     <div class=dfndescr>Тип события. Одно из следующих значений (перечисление <a name="SYNCHRO_EVENTS">SYNCHRO_EVENTS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="SE_COMMONSYNCHRO" title="0">SE_COMMONSYNCHRO</a></td>
     <td class="cont" width="60%">Событие приходит, если плагином вызывается функция <a href="../service_functions/advcontrol.html#ACTL_SYNCHRO">Info.AdvControl(...,ACTL_SYNCHRO,Param1,Param2)</a>.<br>
-    <i>Param</i> указывает на переданные данные в параметре Info.AdvControl(...,Param2).<br>
-    Функция <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a> должна вернуть 0.</td></tr>
+    <code>Param</code> указывает на переданные данные в параметре <code>Info.AdvControl(...,Param2)</code>.<br>
+    Функция <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a> должна вернуть <code>0</code>.</td></tr>
     </table>
     </div>
   <div class=dfn>Param</div>
@@ -49,8 +49,9 @@ struct ProcessSynchroEventInfo
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">Структуры</a>|
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">Структуры</a>,
 <a href="../exported_functions/processsynchroeventw.html">ProcessSynchroEventW</a>
 </div>
 

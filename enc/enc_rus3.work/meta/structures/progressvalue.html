@@ -15,12 +15,13 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>ProgressValue</dfn> используется в функции <a href="../service_functions/advcontrol.html#ACTL_SETPROGRESSVALUE">AdvControl</a> для корректировки прогресса операции на кнопке Far Manager'а в тескбаре.
+Структура <code>ProgressValue</code> используется в функции <a href="../service_functions/advcontrol.html#ACTL_SETPROGRESSVALUE">AdvControl</a> для корректировки прогресса операции на кнопке Far Manager'а в тескбаре.
 </div>
 
 <pre class=syntax>
 struct ProgressValue
 {
+  size_t StructSize;
   unsigned __int64 Completed;
   unsigned __int64 Total;
 };
@@ -28,6 +29,8 @@ struct ProgressValue
 
 <h3>Элементы</h3>
 <div class=descr>
+  <div class=dfn>StructSize</div>
+    <div class=dfndescr>Это поле должно содержать размер структуры <code>ProgressValue</code>. Перед использованием структуры плагин должен заполнить поле.</div>
   <div class=dfn>Completed</div>
     <div class=dfndescr>Завершено.</div>
   <div class=dfn>Total</div>
@@ -38,7 +41,8 @@ struct ProgressValue
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">структуры</a>
 </div>
 

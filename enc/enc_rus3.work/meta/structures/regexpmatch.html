@@ -15,14 +15,14 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>RegExpMatch</dfn> используется в структуре <a href="regexpsearch.html">RegExpSearch</a> Регулярных выражений Far Manager.
+Структура <code>RegExpMatch</code> используется в структуре <a href="regexpsearch.html">RegExpSearch</a> Регулярных выражений Far Manager.
 </div>
 
 <pre class=syntax>
 struct RegExpMatch
 {
-  int Start;
-  int End;
+  intptr_t Start;
+  intptr_t End;
 };
 </pre>
 
@@ -42,8 +42,9 @@ struct RegExpMatch
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="index.html">структуры</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="index.html">структуры</a>,
 <a href="regexpsearch.html">RegExpSearch</a>
 </div>
 
