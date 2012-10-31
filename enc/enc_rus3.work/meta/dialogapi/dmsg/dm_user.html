@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_USER</dfn> предназначено для пользовательских сообщений.
+Сообщение <code>DM_USER</code> предназначено для пользовательских сообщений.
 </div>
 
 <h3>Param1</h3>
@@ -51,7 +51,7 @@
 <div class=descr>
 <pre class=code>#define <b>DMREV_RESULT</b> DM_USER+1
 
-INT_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1, void *Param2)
+intptr_t WINAPI ReversiDialogProc(HANDLE hDlg, intptr_t Msg,intptr_t Param1, void *Param2)
 {
 ...
     Info.SendDlgMessage(hDlg,<b>DMREV_RESULT</b>,0,0);
@@ -63,8 +63,8 @@ INT_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1, void *Param2)
 }</pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

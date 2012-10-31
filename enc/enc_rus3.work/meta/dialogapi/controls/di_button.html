@@ -37,7 +37,7 @@ struct FarDialogItem
 <UL class=note><LI>Приведено схематичное изображение структуры; полное описание структуры <a href="../../structures/fardialogitem.html">см. здесь</a>.</LI></UL>
 
 <h3>Selected</h3>
-  <div class=descr>Если кнопка имеет фокус ввода, то при нажатии <kbd>Enter</kbd> это поле примет значение 1.</div>
+  <div class=descr>Если кнопка имеет фокус ввода, то при нажатии <kbd>Enter</kbd> это поле примет значение <code>1</code>.</div>
 
 <h3>Флаги</h3>
 <div class=descr>
@@ -45,32 +45,23 @@ struct FarDialogItem
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
-<td class="cont" width="60%">флаг, означающий, что данный элемент диалога является "элементом по умолчанию"
-</td></tr>
+<td class="cont" width="60%">флаг, означающий, что данный элемент диалога является "элементом по умолчанию"</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_focus.html">DIF_FOCUS</a></td>
-<td class="cont" width="60%">определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент
-</td></tr>
+<td class="cont" width="60%">определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_btnnoclose.html">DIF_BTNNOCLOSE</a></td>
-<td class="cont" width="60%">не завершать работу диалога при нажатии на кнопку
-</td></tr>
+<td class="cont" width="60%">не завершать работу диалога при нажатии на кнопку</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
-<td class="cont" width="60%">центрирование идущих подряд кнопок с одинаковой вертикальной позицией (параметр <code>X</code> игнорируется)
-</td></tr>
+<td class="cont" width="60%">центрирование идущих подряд кнопок с одинаковой вертикальной позицией (параметр <code>X</code> игнорируется)</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nobrackets.html">DIF_NOBRACKETS</a></td>
-<td class="cont" width="60%">показывает заголовок кнопки без скобок
-</td></tr>
+<td class="cont" width="60%">показывает заголовок кнопки без скобок</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
-<td class="cont" width="60%">элемент является недоступным
-</td></tr>
+<td class="cont" width="60%">элемент является недоступным</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a></td>
-<td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода
-</td></tr>
+<td class="cont" width="60%">управляющий элемент не получает клавиатурный фокус ввода</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_setshield.html">DIF_SETSHIELD</a></td>
-<td class="cont" width="60%">размещает на кнопке аналог "иконки со щитом" Microsoft UAC
-</td></tr>
+<td class="cont" width="60%">размещает на кнопке аналог "иконки со щитом" Microsoft UAC</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
-<td class="cont" width="60%">показывать в заголовке рамки амперсанд не используя его для определения горячей клавиши
-</td></tr>
+<td class="cont" width="60%">показывать в заголовке рамки амперсанд не используя его для определения горячей клавиши</td></tr>
 </table>
 </div>
 
@@ -81,48 +72,34 @@ struct FarDialogItem
 <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
 <td class="cont" width="60%">начало отрисовки текстовой строки</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
-<td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; Param2:
-<pre>LoWord LoByte - текст кнопки
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBUTTON">COL_WARNDIALOGBUTTON</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGBUTTON">COL_DIALOGBUTTON</a>)
-LoWord HiByte - выделенный текст (highlighting text)
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTBUTTON">COL_WARNDIALOGHIGHLIGHTBUTTON</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTBUTTON">COL_DIALOGHIGHLIGHTBUTTON</a>)
+<td class="cont" width="60%">запрос цветовых атрибутов для отрисовки;
+<code>Param2</code>:
+<pre>
+<code>Colors[0]</code> - текст кнопки
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBUTTON">COL_WARNDIALOGBUTTON</a> или <a href="../../defs/farcolors.html#COL_DIALOGBUTTON">COL_DIALOGBUTTON</a>)
+<code>Colors[1]</code> - выделенный текст (highlighting text)
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTBUTTON">COL_WARNDIALOGHIGHLIGHTBUTTON</a> или <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTBUTTON">COL_DIALOGHIGHLIGHTBUTTON</a>)
 
-Param2, когда кнопка в фокусе:
+<code>Param2</code>, когда кнопка в фокусе:
 
-LoWord LoByte - текст кнопки
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGSELECTEDBUTTON">COL_WARNDIALOGSELECTEDBUTTON</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGSELECTEDBUTTON">COL_DIALOGSELECTEDBUTTON</a>)
-LoWord HiByte - выделенный текст
-                (highlighting text)
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON">COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON</a>
-                или
-                 <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTSELECTEDBUTTON">COL_DIALOGHIGHLIGHTSELECTEDBUTTON</a>)</pre>
-<pre>HiWord LoByte - 0
-HiWord HiByte - 0</pre>
-Если используется заказной атрибут (флаг <a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a>),
-то текст кнопки (LoWord LoByte) будет тем, что указали.
- </td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
- <td class="cont" width="60%">нажали клавишу</td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
- <td class="cont" width="60%">горячая клавиша (Alt-Символ)</td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
- <td class="cont" width="60%">"кликнули" клавишей мыши</td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_btnclick.html">DN_BTNCLICK</a></td>
- <td class="cont" width="60%">нажата кнопка</td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
- <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
-
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
- <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
-
+<code>Colors[0]</code> - текст кнопки
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGSELECTEDBUTTON">COL_WARNDIALOGSELECTEDBUTTON</a> или <a href="../../defs/farcolors.html#COL_DIALOGSELECTEDBUTTON">COL_DIALOGSELECTEDBUTTON</a>)
+<code>Colors[1]</code> - выделенный текст (highlighting text)
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON">COL_WARNDIALOGHIGHLIGHTSELECTEDBUTTON</a> или <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTSELECTEDBUTTON">COL_DIALOGHIGHLIGHTSELECTEDBUTTON</a>)
+</pre>
+<pre><code>Colors[2]</code> - 0 (не используется)
+<code>Colors[3]</code> - 0 (не используется)</pre>
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
+<td class="cont" width="60%">нажали клавиатурную клавишу или кликнули клавишей мыши</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
+<td class="cont" width="60%">горячая клавиша (<kbd>Alt</kbd>+<kbd>Символ</kbd>)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_btnclick.html">DN_BTNCLICK</a></td>
+<td class="cont" width="60%">нажата кнопка</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
+<td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
+<td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
 </table>
 </div>
 
@@ -130,8 +107,8 @@ HiWord HiByte - 0</pre>
 <div class=descr>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="di_checkbox.html">DI_CHECKBOX</a>,
 <a href="di_radiobutton.html">DI_RADIOBUTTON</a>,
 <a href="../../structures/fardialogitem.html">FarDialogItem</a>

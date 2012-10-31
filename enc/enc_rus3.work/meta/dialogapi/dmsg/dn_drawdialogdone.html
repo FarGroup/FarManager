@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_DRAWDIALOGDONE</dfn> посылается после прорисовкой всего диалога.
+Сообщение <code>DN_DRAWDIALOGDONE</code> посылается после прорисовкой всего диалога.
 </div>
 
 <h3>Param1</h3>
@@ -39,7 +39,7 @@
 Хотя это сообщение и посылается последним, но на момент его посылки виртуальный буфер экрана Far Manager ещё не "сброшен".
 Т.е. если плагин хочет что-то нарисовать поверх диалога, то его изменения могут быть стёрты с экрана при возвращении из обработчика этого сообщения.
 
-<p>Чтобы этого не происходило нужно принудительно сбросить виртуальный буфер используя вызов функции <nobr><code>Text(0,0,NULL,NULL)</code></nobr>, а затем
+<p>Чтобы этого не происходило нужно принудительно сбросить виртуальный буфер используя вызов функции <code>Text(0,0,NULL,NULL)</code>, а затем
 "нарисовать" своё изображение, например:
 <pre class=code>
   case  DN_DRAWDIALOGDONE:
@@ -53,9 +53,9 @@
 <div class=descr>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../../service_functions/dialoginit.html">DialogInit</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dn_drawdialog.html">DN_DRAWDIALOG</a>
 </div>
 

@@ -16,18 +16,18 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETCHECK</dfn> посылается Менеджеру диалогов для изменения состояния элементов <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>
+Сообщение <code>DM_SETCHECK</code> посылается Менеджеру диалогов для изменения состояния элементов <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>
 и <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a>.
 </div>
 
 <h3>Param1</h3>
-<div class=dfndescr>
+<div class=descr>
 ID элемента диалога.
 </div>
 
 <h3>Param2</h3>
-<div class=dfndescr>
-<dfn>Param2</dfn> имеет эффект только для элемента <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>
+<div class=descr>
+<code>Param2</code> имеет эффект только для элемента <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>
 и может принимать одно из следующих значений (перечисление <a name="FARCHECKEDSTATE">FARCHECKEDSTATE</a>):
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
@@ -43,7 +43,7 @@ ID элемента диалога.
 </div>
 
 <h3>Return</h3>
-<div class=dfndescr>
+<div class=descr>
 Предыдущее состояние элемента.
 Для <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> - ID предыдущего элемента в группе кнопок с зависимой фиксацией (см. описание <a href="../flags/dif_group.html">DIF_GROUP</a>).
 </div>
@@ -67,8 +67,8 @@ ID элемента диалога.
 <div class=descr>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_getcheck.html">DM_GETCHECK</a>,
 <a href="dm_set3state.html">DM_SET3STATE</a>

@@ -16,15 +16,15 @@
 </div>
 
 <div class=shortdescr>
-Событие <dfn>DN_CLOSE</dfn> приходит в обработчик диалога как сигнал, сообщающий, что диалог будет закрыт - пользователь пытается завершить работу с диалогом.
+Событие <code>DN_CLOSE</code> приходит в обработчик диалога как сигнал, сообщающий, что диалог будет закрыт - пользователь пытается завершить работу с диалогом.
 </div>
 
 <h3>Param1</h3>
 <div class=descr>
 <ul>
-<li>ID элемента, который имел фокус ввода в момент нажатия Ctrl-Enter или ID элемента, у которого поле DefaultButton = 1.
-<li>-2  - нажали комбинацию клавиш Ctrl-Pause или Ctrl-ScrollLock.
-<li>-1  - Esc или F10.
+<li>ID элемента, который имел фокус ввода в момент нажатия <kbd>Ctrl</kbd>+<kbd>Enter</kbd> или ID элемента, у которого выставлен флаг <code><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></code>.
+<li><code>-2</code>  - нажали комбинацию клавиш <kbd>Ctrl</kbd>+<kbd>Pause</kbd> или <kbd>Ctrl</kbd>+<kbd>ScrollLock</kbd>.
+<li><code>-1</code>  - <kbd>Esc</kbd> или <kbd>F10</kbd>.
 </ul>
 </div>
 
@@ -35,25 +35,24 @@
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - да, согласен с выходом из диалога<br>
-FALSE - продолжить работу диалога.
+<code>TRUE</code> - да, согласен с выходом из диалога<br>
+<code>FALSE</code> - продолжить работу диалога.
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Событие <dfn>DN_CLOSE</dfn> приходит сразу после посылки сообщения
+<li>Событие <code>DN_CLOSE</code> приходит сразу после посылки сообщения
 <a href="dm_close.html">DM_CLOSE</a> обработчиком диалога.
 </ol>
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_close.html">DM_CLOSE</a>
 </div>

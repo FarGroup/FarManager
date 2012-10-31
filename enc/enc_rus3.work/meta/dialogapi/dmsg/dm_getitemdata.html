@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETITEMDATA</dfn> возвращает указатель на связанные с элементом диалогом данные.
+Сообщение <code>DM_GETITEMDATA</code> возвращает указатель на связанные с элементом диалогом данные.
 Каждый элемент диалога может иметь свои данные, предназначенные для использования плагином, который создавал диалог.
 </div>
 
@@ -32,7 +32,16 @@ ID элемента диалога.
 
 <h3>Return</h3>
 <div class=descr>
-Менеджер Диалогов возвращает указатель на ранее переданные данные плагином (или 0, если плагин не ассоциировал данные с этим элементом диалога).
+Менеджер Диалогов возвращает указатель на ранее переданные данные плагином (или <code>0</code>, если плагин не ассоциировал данные с этим элементом диалога).
+</div>
+
+<h3>Элементы</h3>
+<div class=descr>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%">Все</td>
+<td class="cont" width="60%">все элементы диалога</td></tr>
+</table>
 </div>
 
 <h3>Замечания</h3>
@@ -43,8 +52,8 @@ ID элемента диалога.
 <div class=descr>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_setitemdata.html">DM_SETITEMDATA</a>,
 <a href="dm_getdlgdata.html">DM_GETDLGDATA</a>,

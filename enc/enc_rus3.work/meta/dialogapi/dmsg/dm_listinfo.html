@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTINFO</dfn> позволяет получить информацию о списке <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
+Сообщение <code>DM_LISTINFO</code> позволяет получить информацию о списке <a href="../controls/di_combobox.html">DI_COMBOBOX</a> или
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
@@ -32,8 +32,8 @@ ID элемента диалога.
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - структура <a href="../../structures/farlistinfo.html">FarListInfo</a> заполнена.<br>
-FALSE - ошибка, в качестве Param2 передали значение NULL.
+<code>TRUE</code> - структура <a href="../../structures/farlistinfo.html">FarListInfo</a> заполнена.<br>
+<code>FALSE</code> - ошибка, в качестве <code>Param2</code> передали значение <code>NULL</code>.
 </div>
 
 <h3>Элементы</h3>
@@ -55,13 +55,13 @@ FALSE - ошибка, в качестве Param2 передали значение NULL.
 <div class=descr>
 <pre class=code>
 // Получить информацию о списке
-struct FarListInfo ListInfo;
+struct FarListInfo ListInfo={sizeof(FarListInfo)};
 Info.SendDlgMessage(hDlg,DM_LISTINFO,ID,&ListInfo);
 </pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../structures/farlistinfo.html">FarListInfo</a>,
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>

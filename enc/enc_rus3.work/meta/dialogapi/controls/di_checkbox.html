@@ -16,19 +16,19 @@
 </div>
 
 <div class=shortdescr>
-Элемент диалога <dfn>DI_CHECKBOX</dfn> описывает контрольный переключатель (Check Box). также он называется кнопкой с независимой фиксацией
-(переключатель вкл./выкл., который может переключаться пользователем). Переключатель "включён", если у элемента поле Selected отлично от нуля.
+Элемент диалога <code>DI_CHECKBOX</code> описывает контрольный переключатель (Check Box). также он называется кнопкой с независимой фиксацией
+(переключатель вкл./выкл., который может переключаться пользователем). Переключатель "включён", если у элемента поле <code>Selected</code> отлично от нуля.
 </div>
 
 <pre class=syntax>
 struct FarDialogItem
 {
   enum FARDIALOGITEMTYPES Type = <b>DI_CHECKBOX</b>
-  int X1                       = <b>X</b>
-  int Y1                       = <b>Y</b>
-  int X2                       = <b>0</b>
-  int Y2                       = <b>Y</b> (равен значению Y1)
-  int Selected                 = <b>Selected</b>
+  intptr_t X1                  = <b>X</b>
+  intptr_t Y1                  = <b>Y</b>
+  intptr_t X2                  = <b>0</b>
+  intptr_t Y2                  = <b>Y</b> (равен значению Y1)
+  intptr_t Selected            = <b>Selected</b>
   FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
   const wchar_t *Data          = <b>надпись переключателя</b>
 };
@@ -42,7 +42,7 @@ struct FarDialogItem
 
 <h3>Флаги</h3>
 <div class=descr>
-Для элемента <dfn>DI_CHECKBOX</dfn> имеют значения следующие флаги:
+Для элемента <code>DI_CHECKBOX</code> имеют значения следующие флаги:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_defaultbutton.html">DIF_DEFAULTBUTTON</a></td>
@@ -52,7 +52,7 @@ struct FarDialogItem
 <td class="cont" width="60%">определяет, что при показе диалога установить клавиатурный фокус ввода на данный элемент
 </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
- <td class="cont" width="60%">центрирование идущих подряд переключателей с одинаковой вертикальной позицией (параметр <dfn>X</dfn> игнорируется)
+ <td class="cont" width="60%">центрирование идущих подряд переключателей с одинаковой вертикальной позицией (параметр <code>X</code> игнорируется)
  </td></tr>
  <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_disable.html">DIF_DISABLE</a></td>
  <td class="cont" width="60%">элемент является недоступным
@@ -74,57 +74,41 @@ struct FarDialogItem
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
 
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
- <td class="cont" width="60%">начало отрисовки текстовой строки
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
- <td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; Param2:
-<pre>LoWord LoByte - текст кнопки
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGTEXT">COL_WARNDIALOGBUTTON</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>)
-LoWord HiByte - выделенный текст (highlighting text)
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTTEXT">COL_WARNDIALOGHIGHLIGHTTEXT</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTTEXT">COL_DIALOGHIGHLIGHTTEXT</a>)
-HiWord LoByte - 0
-HiWord HiByte - 0</pre>
-Если используется заказной атрибут (флаг <a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a>),
-то текст кнопки (LoWord LoByte) будет тем, что указали.
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
- <td class="cont" width="60%">горячая клавиша (Alt-Символ)
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_btnclick.html">DN_BTNCLICK</a></td>
- <td class="cont" width="60%">изменение состояния переключателя
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_key.html">DN_KEY</a></td>
- <td class="cont" width="60%">нажали клавишу.
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
- <td class="cont" width="60%">"кликнули" клавишей мыши
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
- <td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
- <td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)
- </td></tr>
-
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+<td class="cont" width="60%">начало отрисовки текстовой строки</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+<td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; <code>Param2</code>:
+<pre>
+<code>Colors[0]</code> - текст кнопки
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGTEXT">COL_WARNDIALOGBUTTON</a> или <a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>)
+<code>Colors[1]</code> - выделенный текст (highlighting text)
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTTEXT">COL_WARNDIALOGHIGHLIGHTTEXT</a> или <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTTEXT">COL_DIALOGHIGHLIGHTTEXT</a>)
+<code>Colors[2]</code> - 0 (не используется)
+<code>Colors[3]</code> - 0 (не используется)</pre>
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
+<td class="cont" width="60%">нажали клавиатурную клавишу или кликнули клавишей мыши</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
+<td class="cont" width="60%">горячая клавиша (<kbd>Alt</kbd>+<kbd>Символ</kbd>)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_btnclick.html">DN_BTNCLICK</a></td>
+<td class="cont" width="60%">изменение состояния переключателя</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
+<td class="cont" width="60%">элемент потерял фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_GOTFOCUS</a></td>
+<td class="cont" width="60%">элемент получил фокус (при условии, что не используется флаг <a href="../flags/dif_nofocus.html">DIF_NOFOCUS</a>)</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-Хотя координаты <var>X2</var> и <var>Y2</var> в Dialog API не используется,
-но для нормальной работы в будущих версиях FAR желательно корректно заполнить
-значения этих полей.
+Хотя координаты <code>X2</code> и <code>Y2</code> в Dialog API не используется, но для нормальной работы в будущих версиях Far Manager желательно корректно заполнить значения этих полей.
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="di_radiobutton.html">DI_RADIOBUTTON</a>,
 <a href="di_button.html">DI_BUTTON</a>,
 <a href="../../structures/fardialogitem.html">FarDialogItem</a>
-
 </div>
 
 </body>

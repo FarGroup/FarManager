@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Событие <dfn>DN_ENTERIDLE</dfn> посылается в процедуру обработки диалога, который входит в холостое состояние.
+Событие <code>DN_ENTERIDLE</code> посылается в процедуру обработки диалога, который входит в холостое состояние.
 
 <p class=note><img src="../../../images/caution.gif" alt="Внимание!" width="10" height="10"> Внимание!</p>
 <UL class=note><LI>Это событие ни как не связано с таймером.
@@ -42,13 +42,14 @@
 <div class=descr>
 <pre class=code>
 // во время простоя дадим компьютеру подумать над следующим ходом.
-case <dfn>DN_ENTERIDLE</dfn>:
+case DN_ENTERIDLE:
   Timer(hDlg);
-  return 0;</pre>
+  return 0;
+</pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

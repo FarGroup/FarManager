@@ -16,8 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_DRAWDLGITEM</dfn> посылается
-обработчику диалога <u>перед отрисовкой элемента</u> диалога.
+Сообщение <code>DN_DRAWDLGITEM</code> посылается обработчику диалога <b>перед отрисовкой элемента</b> диалога.
 </div>
 
 <h3>Param1</h3>
@@ -32,7 +31,7 @@ ID элемента диалога, который будет отрисован.
 
 <h3>Return</h3>
 <div class=descr>
-Если обработчик диалога вернёт FALSE, то указанный элемент не будет выводится на экран.
+Если обработчик диалога вернёт <code>FALSE</code>, то указанный элемент не будет выводится на экран.
 </div>
 
 <h3>Элементы</h3>
@@ -48,7 +47,7 @@ ID элемента диалога, который будет отрисован.
 <div class=descr>
 Внешний вид <a href="../controls/di_usercontrol.html">DI_USERCONTROL</a>, в отличие от прочих элементов диалога, можно предварительно подготавливать
 в <a href="../controls/di_usercontrol.html#virtbuf">виртуальном буфере</a>.
-Far Manager не копирует во внутренние переменные содержимое этого буфера, поэтому в ответ на событие <dfn>DN_DRAWDLGITEM</dfn> достаточно изменить состояние
+Far Manager не копирует во внутренние переменные содержимое этого буфера, поэтому в ответ на событие <code>DN_DRAWDLGITEM</code> достаточно изменить состояние
 <a href="../controls/di_usercontrol.html#virtbuf">виртуального буфера</a>:
 <pre class=code>
 case DN_DRAWDLGITEM:
@@ -66,8 +65,8 @@ case DN_DRAWDLGITEM:
 <div class=descr>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

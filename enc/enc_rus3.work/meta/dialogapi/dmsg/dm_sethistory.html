@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETHISTORY</dfn> позволяет управлять наличием истории в строках ввода.
+Сообщение <code>DM_SETHISTORY</code> позволяет управлять наличием истории в строках ввода.
 </div>
 
 <h3>Param1</h3>
@@ -31,8 +31,8 @@ ID элемента диалога.
 
 <h3>Return</h3>
 <div class=descr>
-<code>FALSE</code> - указанный элемент диалога <var>Param1</var> не поддерживает работу с историей.<br>
-<code>TRUE</code> - история успешно назначена элементу диалога <var>Param1</var>.
+<code>FALSE</code> - указанный элемент диалога <code>Param1</code> не поддерживает работу с историей.<br>
+<code>TRUE</code> - история успешно назначена элементу диалога <code>Param1</code>.
 </div>
 
 <h3>Элементы</h3>
@@ -51,7 +51,6 @@ ID элемента диалога.
 Если строка ввода пуста и у элемента <a href="../controls/di_edit.html">DI_EDIT</a> выставлен флаг <a href="../flags/dif_uselasthistory.html">DIF_USELASTHISTORY</a>,
 то Far Manager сам подставит первое значение из истории в строку ввода.
 </div>
-
 
 <h3>Пример</h3>
 <div class=descr>
@@ -85,8 +84,8 @@ ID элемента диалога.
 <p>Т.е. сначала строка ввода очищается, потом происходит назначение истории для элемента.
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_addhistory.html">DM_ADDHISTORY</a>,
 <a href="../flags/dif_history.html">DIF_HISTORY</a>

@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_EDITCHANGE</dfn> оповещает обработчик об изменении состояния редактируемого элемента диалога - например, ввели символ.
+Сообщение <code>DN_EDITCHANGE</code> оповещает обработчик об изменении состояния редактируемого элемента диалога - например, ввели символ.
 </div>
 
 <h3>Param1</h3>
@@ -33,8 +33,8 @@ ID элемента диалога.
 <div class=descr>
 В текущем Dialog API результат игнорируется, но для обеспечения работоспособности плагина с будущими версиями Dialog API рекомендуется возвращать:
 <ul>
-<li>TRUE  - "подтверждаю изменения"
-<li>FALSE - "изменения в окне редактирования не принимаются"
+<li><code>TRUE</code>  - "подтверждаю изменения"
+<li><code>FALSE</code> - "изменения в окне редактирования не принимаются"
 </ul>
 </div>
 
@@ -80,7 +80,8 @@ if (Msg == DN_EDITCHANGE &amp;&amp; Param1 == 2)
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Используя сообщение <dfn>DM_KEY</dfn> плагин передаёт массив клавиш Менеджеру диалогов.
+Используя сообщение <code>DM_KEY</code> плагин передаёт массив клавиш Менеджеру диалогов.
 </div>
 
 <h3>Param1</h3>
@@ -36,24 +36,15 @@
 
 <h3>Замечания</h3>
 <div class=descr>
-Обработчик диалога не получит события <a href="dn_controlinput.html">DN_CONTROLINPUT</a> в ответ на посылку Менеджеру диалогов сообщения <dfn>DM_KEY</dfn>.
+Обработчик диалога не получит события <a href="dn_controlinput.html">DN_CONTROLINPUT</a> в ответ на посылку Менеджеру диалогов сообщения <code>DM_KEY</code>.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-<!--
-<p>Пример передачи набора клавиш диалогу (фокусному элементу):
-<pre class=code>
-// в конец строки редактирования добавить точку с запятой.
-DWORD Keys[2]={KEY_END,';'};
-
-Info.SendDlgMessage(hDlg,DM_KEY,sizeof(Keys)/sizeof(Keys[0]),(LONG_PTR)Keys);
-</pre>
--->
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dn_controlinput.html">DN_CONTROLINPUT</a>
 </div>

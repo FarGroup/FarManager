@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Событие <dfn>DN_INITDIALOG</dfn> посылается процедуре обработки диалога после того, как были проинициализированы все управляющие элементы диалога, но до того, как они стали видимы.
+Событие <code>DN_INITDIALOG</code> посылается процедуре обработки диалога после того, как были проинициализированы все управляющие элементы диалога, но до того, как они стали видимы.
 </div>
 
 <h3>Param1</h3>
@@ -31,24 +31,24 @@ ID элемента, который получит фокус ввода по умолчанию.
 
 <h3>Return</h3>
 <div class=descr>
-TRUE -  если процедура обработки диалога изменила данные.<br>
-FALSE - изменений не было.
+<code>TRUE</code> -  если процедура обработки диалога изменила данные.<br>
+<code>FALSE</code> - изменений не было.
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 В ответ на данное событие процедура обработки диалога инициализирует каждый элемент в некоторое корректное начальное состояние. Например,
 она может заполнить блок списка элементами, которые потом просмотрит пользователь...<br>
-
-Если изменения были и обработчик диалога вернул системе значение FALSE, то изменённые данные не будут восприняты.
+Если изменения были и обработчик диалога вернул системе значение <code>FALSE</code>, то изменённые данные не будут восприняты.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-<pre class=code>case <dfn>DN_INITDIALOG</dfn>:
+<pre class=code>
+case DN_INITDIALOG:
   struct FarDialogItem DialogItem;
 
-  Info.SendDlgMessage(hDlg,DM_GETDLGITEM,75,&amp;DialogItem);
+  Info.SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,75,&amp;DialogItem);
   if(DialogItem.ListItems-&gt;Items[0].Flags&amp;LIF_SELECTED)
     Computer=Pl2;
   else
@@ -57,7 +57,8 @@ FALSE - изменений не было.
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

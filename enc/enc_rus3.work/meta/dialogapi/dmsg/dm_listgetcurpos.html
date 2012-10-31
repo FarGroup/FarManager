@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTGETCURPOS</dfn> посылается Менеджеру диалогов для получения текущей позиции курсора в списке <a href="../controls/di_combobox.html">DI_COMBOBOX</a>
+Сообщение <code>DM_LISTGETCURPOS</code> посылается Менеджеру диалогов для получения текущей позиции курсора в списке <a href="../controls/di_combobox.html">DI_COMBOBOX</a>
 или <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
@@ -28,7 +28,7 @@ ID элемента диалога.
 <h3>Param2</h3>
 <div class=descr>
 Указатель на структуру <a href="../../structures/farlistpos.html">FarListPos</a>, в которую будет записана дополнительная информация о позиции в списке,
-или NULL, если дополнительная информация не требуется.
+или <code>NULL</code>, если дополнительная информация не требуется.
 </div>
 
 <h3>Return</h3>
@@ -56,12 +56,12 @@ ID элемента диалога.
 <pre class=code>
 // получить текущую позицию
 
-CurPos=Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID,0);
+CurPos=Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID,NULL);
 </pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_listsetcurpos.html">DM_LISTSETCURPOS</a>
 </div>

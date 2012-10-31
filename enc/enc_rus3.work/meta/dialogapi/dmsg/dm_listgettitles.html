@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTGETTITLES</dfn> посылается Менеджеру диалогов для получения заголовков (верхнего и нижнего) у элемента
+Сообщение <code>DM_LISTGETTITLES</code> посылается Менеджеру диалогов для получения заголовков (верхнего и нижнего) у элемента
 <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
@@ -32,8 +32,8 @@ ID элемента диалога.
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - заголовки получены<br>
-FALSE -элемент не является списком<br>
+<code>TRUE</code> - заголовки получены<br>
+<code>FALSE</code> -элемент не является списком<br>
 </div>
 
 <h3>Элементы</h3>
@@ -52,7 +52,7 @@ FALSE -элемент не является списком<br>
 <pre class=code>
 wchar_t Title[100];
 wchar_t Bottom[100];
-FarListTitles ListTitle;
+FarListTitles ListTitle={sizeof(FarListTitles)};
 ListTitle.Title=Title;
 ListTitle.TitleSize=100;
 ListTitle.Bottom=Bottom;
@@ -61,7 +61,8 @@ Info.SendDlgMessage(hDlg,DM_LISTGETTITLES,ID,&amp;ListTitle);
 </code>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="../../structures/farlisttitles.html">FarListTitles</a>,
 <a href="dm_listsettitles.html">DM_LISTSETTITLES</a>

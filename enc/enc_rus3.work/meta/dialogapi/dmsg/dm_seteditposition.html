@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_SETEDITPOSITION</dfn> посылается обработчику диалога для установки позиции и состояния курсора в строках редактирования диалога.
+Сообщение <code>DM_SETEDITPOSITION</code> посылается обработчику диалога для установки позиции и состояния курсора в строках редактирования диалога.
 </div>
 
 <h3>Param1</h3>
@@ -31,8 +31,8 @@ ID элемента диалога.
 
 <h3>Return</h3>
 <div class=descr>
-FALSE - указанный ID элемента не является строковым редактором.<br>
-TRUE - позиция курсора установлена.
+<code>FALSE</code> - указанный ID элемента не является строковым редактором.<br>
+<code>TRUE</code> - позиция курсора установлена.
 </div>
 
 <h3>Элементы</h3>
@@ -64,10 +64,10 @@ static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
   Info.SendDlgMessage(hDlg, DM_GETDLGRECT, 0, &amp;dlgRect);
   Info.SendDlgMessage(hDlg, DM_GETITEMPOSITION, idStr, &amp;itemRect);
 
-  EditorSetPosition esp;
+  EditorSetPosition esp={sizeof(EditorSetPosition)};
   Info.SendDlgMessage(hDlg, DM_GETEDITPOSITION, idStr, &amp;esp);
 
-  int length=Info.SendDlgMessage(hDlg, DM_GETTEXTLENGTH, idStr, 0);
+  int length=Info.SendDlgMessage(hDlg, DM_GETTEXT, idStr, 0);
   int CurPos=dwMousePosX - ( dlgRect.Left + itemRect.Left );
 
   if ( dwMousePosX &lt;= ( dlgRect.Left + itemRect.Left ) &amp;&amp; esp.LeftPos &gt; 0 )
@@ -90,7 +90,7 @@ static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
     bStartSelect=false;
   }
 
-  EditorSelect es;
+  EditorSelect es={sizeof(EditorSelect)};
   es.BlockType=BTYPE_COLUMN;
   es.BlockStartLine=es.BlockHeight=0;
 
@@ -111,8 +111,8 @@ static void MouseSelect(HANDLE hDlg, DWORD idStr, DWORD dwMousePosX)
 </pre>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_getcursorpos.html">DM_GETCURSORPOS</a>,
 <a href="dm_setcursorpos.html">DM_SETCURSORPOS</a>,

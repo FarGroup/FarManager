@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_GETVALUE</dfn> посылается обработчику диалога всякий раз, когда в макросах встречаются
+Сообщение <code>DN_GETVALUE</code> посылается обработчику диалога всякий раз, когда в макросах встречаются
 <a href="../../macro/macrocmd/prop_func/dialog.html#Dlg.GetValue">Dlg.GetValue()</a>,
 <a href="../../macro/macrocmd/prop_func/context_dep.html#ItemCount">ItemCount</a> и
 <a href="../../macro/macrocmd/prop_func/context_dep.html#CurPos">CurPos</a>.
@@ -35,7 +35,7 @@ ID элемента диалога.
 
 <h3>Return</h3>
 <div class=descr>
-Обработчик диалога должен вернуть TRUE, если плагин модифицировал данные. Иначе - FALSE.
+Обработчик диалога должен вернуть <code>TRUE</code>, если плагин модифицировал данные. Иначе - <code>FALSE</code>.
 </div>
 
 <h3>Элементы</h3>
@@ -43,23 +43,25 @@ ID элемента диалога.
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%">Все</td><td class="cont" width="60%">для Dlg.GetValue()</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td><td class="cont" width="60%">для ItemCount и CurPos</td></tr>
-<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td><td class="cont" width="60%">для ItemCount и CurPos, если список открыт.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_listbox.html">DI_LISTBOX</a></td>
+<td class="cont" width="60%">для ItemCount и CurPos</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../controls/di_combobox.html">DI_COMBOBOX</a></td>
+<td class="cont" width="60%">для ItemCount и CurPos, если список открыт.</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-Макродвижок "вычисляет" требуемые данные, затем посылает обработчику диалога событие DN_GETVALUE с заполненной структурой.
-Если плагин модифицирует данные (и возвращает TRUE), то макродвижок отдает макропоследовательности измененное значение.
+Макродвижок "вычисляет" требуемые данные, затем посылает обработчику диалога событие <code>DN_GETVALUE</code> с заполненной структурой.
+Если плагин модифицирует данные (и возвращает <code>TRUE</code>), то макродвижок отдает макропоследовательности измененное значение.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 </div>
 
 </body>

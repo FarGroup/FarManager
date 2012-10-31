@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_LISTSETTITLES</dfn> посылается Менеджеру диалогов для установки заголовков (верхнего и нижнего) у элемента <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
+Сообщение <code>DM_LISTSETTITLES</code> посылается Менеджеру диалогов для установки заголовков (верхнего и нижнего) у элемента <a href="../controls/di_listbox.html">DI_LISTBOX</a>.
 </div>
 
 <h3>Param1</h3>
@@ -31,8 +31,8 @@ ID элемента диалога.
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - заголовки установлены<br>
-FALSE -элемент не является списком
+<code>TRUE</code> - заголовки установлены<br>
+<coed>FALSE</code> -элемент не является списком
 </div>
 
 <h3>Элементы</h3>
@@ -49,14 +49,15 @@ FALSE -элемент не является списком
 Для установки заголовков необходимо предварительно заполнить структуру
 <a href="../../structures/farlisttitles.html">FarListTitles</a>:
 <pre class=code>
-FarListTitles ListTitle;
+FarListTitles ListTitle={sizeof(FarListTitles)};
 ListTitle.Title=L"Some title";
 ListTitle.Bottom=NULL; // сбросить нижний заголовок
 Info.SendDlgMessage(hDlg,DM_LISTSETTITLES,ID,&amp;ListTitle);
 </code>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="../../structures/farlisttitles.html">FarListTitles</a>,
 <a href="dm_listgettitles.html">DM_LISTGETTITLES</a>

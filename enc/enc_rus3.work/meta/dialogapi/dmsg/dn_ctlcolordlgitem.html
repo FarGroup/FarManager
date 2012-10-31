@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Событие <dfn>DN_CTLCOLORDLGITEM</dfn> посылается процедуре обработки диалога перед отрисовкой конкретного элемента диалога.
+Событие <code>DN_CTLCOLORDLGITEM</code> посылается процедуре обработки диалога перед отрисовкой конкретного элемента диалога.
 </div>
 
 <h3>Param1</h3>
@@ -27,7 +27,7 @@ ID элемента, который будет отрисован.
 <h3>Param2</h3>
 <div class=descr>
 Указатель на структуру типа <a href="../../structures/fardialogitemcolors.html">FarDialogItemColors</a>, атрибуты (цвет_фона+цвет_текста) с использованием
-которых обработчик диалога хочет отрисовать элемент. Указатели FarDialogItemColors.Colors для конкретного элемента означают:
+которых обработчик диалога хочет отрисовать элемент. Указатели <code>FarDialogItemColors.Colors</code> для конкретного элемента означают:
 
 <div class=dfn><a href="../controls/di_singlebox.html">DI_SINGLEBOX</a><br><a href="../controls/di_doublebox.html">DI_DOUBLEBOX</a></div>
 <div class=dfndescr>Colors[0]=Title, Colors[1]=HiText, Colors[2]=Box, Colors[3]=0
@@ -64,13 +64,12 @@ ID элемента, который будет отрисован.
 <div class=dfndescr>Для элемента <a href="../controls/di_listbox.html">DI_LISTBOX</a>
 приходит только событие <a href="dn_ctlcolordlglist.html">DN_CTLCOLORDLGLIST</a>.
 </div>
-
 </div>
 
 <h3>Return</h3>
 <div class=descr>
-TRUE - если атрибуты изменены.<br>
-FALSE - оставить всё как есть.
+<code>TRUE</code> - если атрибуты изменены.<br>
+<code>FALSE</code> - оставить всё как есть.
 </div>
 
 <h3>Элементы</h3>
@@ -90,25 +89,11 @@ FALSE - оставить всё как есть.
 
 <h3>Пример</h3>
 <div class=descr>
-<!--
-Пример того, как диалог назначения макроса на клавишу в Far Manager меняет цвет поля редактирования:
-
-<pre class=code>
-/* 02 */ DI_EDIT,5,3,28,3,1,0,0,1,"",
-
-case DN_CTLCOLORDLGITEM:
-  // Unchanged у нас сидит в младшем байте старшего слова
-  Param2&amp;=0xFF00FFFFU;
-  Param2|=(Param2&amp;0xFF)&lt;&lt;16;
-  return Param2;
-</pre>
--->
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a><br>
-
 </div>
 
 </body>

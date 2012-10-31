@@ -16,17 +16,17 @@
 </div>
 
 <div class=shortdescr>
-Элемент диалога <dfn>DI_VTEXT</dfn> описывает статическую вертикальную текстовую строку.
+Элемент диалога <code>DI_VTEXT</code> описывает статическую вертикальную текстовую строку.
 </div>
 
 <pre class=syntax>
 struct FarDialogItem
 {
   enum FARDIALOGITEMTYPES Type = <b>DI_VTEXT</b>
-  int X1                       = <b>X</b>
-  int Y1                       = <b>Y1</b>
-  int X2                       = <b>X</b> (равен значению X1)
-  int Y2                       = <b>Y2</b>
+  intptr_t X1                  = <b>X</b>
+  intptr_t Y1                  = <b>Y1</b>
+  intptr_t X2                  = <b>X</b> (равен значению X1)
+  intptr_t Y2                  = <b>Y2</b>
   FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
   const wchar_t *Data          = <b>выводимый текст</b>
 };
@@ -38,29 +38,23 @@ struct FarDialogItem
 
 <h3>Флаги</h3>
 <div class=descr>
-Для элемента <dfn>DI_VTEXT</dfn> имеют значения следующие флаги:
+Для элемента <code>DI_VTEXT</code> имеют значения следующие флаги:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_boxcolor.html">DIF_BOXCOLOR</a></td>
- <td class="cont" width="60%">текст будет иметь цвет рамок (<a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a> или <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a>)
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
- <td class="cont" width="60%">центрирование двух текстовых строк с одинаковой горизонтальной позицией (параметр <dfn>Y1</dfn> игнорируется)
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator.html">DIF_SEPARATOR</a></td>
- <td class="cont" width="60%">вертикальный разделитель диалога (одинарная линия); координата <dfn>Y1</dfn> не используется для случая, когда <dfn>Data</dfn> пустая строка;<br>
- если <dfn>Data</dfn> не пустая строка, то она также будет отрисована (для вывода строки будет использована координата <dfn>Y1</dfn>);
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator2.html">DIF_SEPARATOR2</a></td>
- <td class="cont" width="60%">вертикальный разделитель диалога (двойная линия); координата <dfn>Y1</dfn> не используется для случая, когда <dfn>Data</dfn> пустая строка;<br>
- если <dfn>Data</dfn> не пустая строка, то она также будет отрисована (для вывода строки будет использована координата <dfn>Y1</dfn>);
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
- <td class="cont" width="60%">показывать в текстовой строке амперсанд не используя его для определения горячей клавиши
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a></td>
- <td class="cont" width="60%">выравнивать текст по центру (учитываются координаты <dfn>Y1</dfn> и <dfn>Y2</dfn>).
-</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_boxcolor.html">DIF_BOXCOLOR</a></td>
+<td class="cont" width="60%">текст будет иметь цвет рамок (<a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a> или <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a>)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centergroup.html">DIF_CENTERGROUP</a></td>
+<td class="cont" width="60%">центрирование двух текстовых строк с одинаковой горизонтальной позицией (параметр <code>Y1</code> игнорируется)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator.html">DIF_SEPARATOR</a></td>
+<td class="cont" width="60%">вертикальный разделитель диалога (одинарная линия); координата <code>Y1</code> не используется для случая, когда <code>Data</code> пустая строка;<br>
+если <code>Data</code> не пустая строка, то она также будет отрисована (для вывода строки будет использована координата <code>Y1</code>);</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator2.html">DIF_SEPARATOR2</a></td>
+<td class="cont" width="60%">вертикальный разделитель диалога (двойная линия); координата <code>Y1</code> не используется для случая, когда <code>Data</code> пустая строка;<br>
+если <code>Data</code> не пустая строка, то она также будет отрисована (для вывода строки будет использована координата <code>Y1</code>);</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
+<td class="cont" width="60%">показывать в текстовой строке амперсанд не используя его для определения горячей клавиши</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a></td>
+<td class="cont" width="60%">выравнивать текст по центру (учитываются координаты <code>Y1</code> и <code>Y2</code>)</td></tr>
 </table>
 </div>
 
@@ -68,50 +62,39 @@ struct FarDialogItem
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Событие</th><th class="cont" width="60%">Описание</th></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
- <td class="cont" width="60%">начало отрисовки текстовой строки
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
- <td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; Param2:
-<pre>LoWord LoByte - текст
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGTEXT">COL_WARNDIALOGTEXT</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>
-                при выставленном флаге <a href="../flags/dif_boxcolor.html">DIF_BOXCOLOR</a>:
-                 <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a>)
-LoWord HiByte - выделенный текст
-                (highlighting text)
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTTEXT">COL_WARNDIALOGHIGHLIGHTTEXT</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTTEXT">COL_DIALOGHIGHLIGHTTEXT</a>)
-HiWord LoByte - 0 (не используется)
-HiWord HiByte - 0 (не используется)</pre>
-Если используется заказной атрибут (флаг <a href="../flags/dif_setcolor.html">DIF_SETCOLOR</a>),
-то текст (LoWord LoByte) будет тем, что указали.
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
- <td class="cont" width="60%">"кликнули" клавишей мыши
- </td></tr>
-
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+<td class="cont" width="60%">начало отрисовки текстовой строки</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+<td class="cont" width="60%">запрос цветовых атрибутов для отрисовки; <code>Param2</code>:
+<pre>
+<code>Colors[0]</code> - текст
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGTEXT">COL_WARNDIALOGTEXT</a> или <a href="../../defs/farcolors.html#COL_DIALOGTEXT">COL_DIALOGTEXT</a>
+             при выставленном флаге <a href="../flags/dif_boxcolor.html">DIF_BOXCOLOR</a>:
+                 <a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a> или <a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a>)
+<code>Colors[1]</code> - выделенный текст (highlighting text)
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTTEXT">COL_WARNDIALOGHIGHLIGHTTEXT</a> или <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTTEXT">COL_DIALOGHIGHLIGHTTEXT</a>)
+<code>Colors[2]</code> - 0 (не используется)
+<code>Colors[3]</code> - 0 (не используется)</pre>
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
+<td class="cont" width="60%">"кликнули" клавишей мыши</td></tr>
 </table>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-<li>Хотя координата <var>X2</var> в Dialog API не используется, но для нормальной работы в будущих версиях Far Manager желательно корректно заполнить
-значение этого поля. Укажите то же значение координаты, что и <var>X1</var>.
-
-<li>Если указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, то координата <var>Y2</var> должна быть обязательно указаны, в противном случае
+<li>Хотя координата <code>X2</code> в Dialog API не используется, но для нормальной работы в будущих версиях Far Manager желательно корректно заполнить
+значение этого поля. Укажите то же значение координаты, что и <code>X1</code>.
+<li>Если указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, то координата <code>Y2</code> должна быть обязательно указаны, в противном случае
 действие флага не будет иметь действия.
-
-<li>Если не указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, то Far Manager самостоятельно перерасчитает координаты <var>X2</var> и <var>Y2</var>, исходя
+<li>Если не указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, то Far Manager самостоятельно перерасчитает координаты <code>X2</code> и <code>Y2</code>, исходя
 из размера строки и размера диалога.
-
-<li>Если в тексте элемента <dfn>DI_TEXT</dfn> имеется "горячая клавиша" (HotKey) и не выставлен флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a>,
-то при нажатии в диалоге <b>Alt-Символ</b> клавиатурный фокус ввода перейдёт на следующий элемент, который может иметь <a href="../keybfocus.html">фокус ввода</a>
+<li>Если в тексте элемента <code>DI_TEXT</code> имеется "горячая клавиша" (HotKey) и не выставлен флаг <a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a>,
+то при нажатии в диалоге <kbd>Alt</kbd>+<kbd>Символ</kbd> клавиатурный фокус ввода перейдёт на следующий элемент, который может иметь <a href="../keybfocus.html">фокус ввода</a>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="di_text.html">DI_TEXT</a>,
 <a href="../../structures/fardialogitem.html">FarDialogItem</a>
 </div>

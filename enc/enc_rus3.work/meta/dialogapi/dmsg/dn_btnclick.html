@@ -16,11 +16,11 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DN_BTNCLICK</dfn> приходит для элементов
+Сообщение <code>DN_BTNCLICK</code> приходит для элементов
 <a href="../controls/di_button.html">DI_BUTTON</a>,
 <a href="../controls/di_checkbox.html">DI_CHECKBOX</a>,
 <a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> после того,
-как пользователь нажал клавиши пробел и Enter (для кнопок), '+', '-' и '*'.
+как пользователь нажал клавиши <kbd>Space</kbd> и <kbd>Enter</kbd> (для кнопок), <kbd>+</kbd>, <kbd>-</kbd> и <kbd>*</kbd>.
 </div>
 
 <h3>Param1</h3>
@@ -31,24 +31,22 @@ ID элемента диалога.
 <h3>Param2</h3>
 <div class=descr>
 Состояние после нажатия:<br>
-<a href="../controls/di_button.html">DI_BUTTON</a> = 0<br>
-<a href="../controls/di_checkbox.html">DI_CHECKBOX</a> =0 (снята пометка),
-1 (установлена пометка) и 2 (третье состояние, если установлен флаг
+<code><a href="../controls/di_button.html">DI_BUTTON</a> = 0</code><br>
+<code><a href="../controls/di_checkbox.html">DI_CHECKBOX</a> = 0</code> (снята пометка),
+<code>1</code> (установлена пометка) и <code>2</code> (третье состояние, если установлен флаг
 <a href="../flags/dif_3state.html">DIF_3STATE</a>)<br>
-<!--a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> = ID предыдущего элемента
-(элемента, который был выделен ранее) -->
-<a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> = 0 - для предыдущего элемента в группе, 1 - для активного элемента в группе.
+<code><a href="../controls/di_radiobutton.html">DI_RADIOBUTTON</a> = 0</code> - для предыдущего элемента в группе, <code> 1</code> - для активного элемента в группе.
 </div>
 
 
 <h3>Return</h3>
 <div class=descr>
 <p>Для <a href="../controls/di_button.html">DI_BUTTON</a>:
-TRUE - сообщение обработано, дальше не продолжать обработку этого сообщения ядром.<br>
-FALSE - продолжить обработку ядром.
+<code>TRUE</code> - сообщение обработано, дальше не продолжать обработку этого сообщения ядром.<br>
+<code>FALSE</code> - продолжить обработку ядром.
 <p>Для остальных элементов:
-TRUE - разрешить изменение (и соответственно отрисовку того, что пользователь ввёл)<br>
-FALSE - запретить изменение.
+<code>TRUE</code> - разрешить изменение (и соответственно отрисовку того, что пользователь ввёл)<br>
+<code>FALSE</code> - запретить изменение.
 </div>
 
 <h3>Элементы</h3>
@@ -72,8 +70,8 @@ FALSE - запретить изменение.
 <div class=descr>
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>
 </div>
 

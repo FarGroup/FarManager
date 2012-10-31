@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Сообщение <dfn>DM_GETTEXT</dfn> посылается Менеджеру диалогов для получения содержимого строк ввода или заголовков элементов диалога.
+Сообщение <code>DM_GETTEXT</code> посылается Менеджеру диалогов для получения содержимого строк ввода или заголовков элементов диалога.
 </div>
 
 <h3>Param1</h3>
@@ -31,7 +31,7 @@ ID требуемого элемента.
 
 <h3>Return</h3>
 <div class=descr>
-Размер данных в символах, без завершающего символа конца строки '\0'.
+Размер данных в символах, без завершающего символа конца строки <code>'\0'</code>.
 </div>
 
 <h3>Элементы</h3>
@@ -40,32 +40,25 @@ ID требуемого элемента.
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%">Все</td>
 <td class="cont" width="60%">Для строк ввода - содержимое строки, для прочих элементов - заголовки.
-Всё то, что содержится в FarDialogItem.Data.</td></tr>
+Всё то, что содержится в <code>FarDialogItem.Data</code>.</td></tr>
 </table>
 
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-Если <dfn>Param2</dfn> = NULL - это ещё один способ получить требуемый размер данных (см. <a href="dm_gettextlength.html">DM_GETTEXTLENGTH</a>):
+Если <code>Param2 = NULL</code> - это способ получить длину строки:
 <pre class=code>
 LenData=SendDlgMessage(hDlg,DM_GETTEXT,ID,NULL);
-</pre>
-
-эквивалентно
-
-<pre class=code>
-LenData=SendDlgMessage(hDlg,DM_GETTEXTLENGTH,ID,0);
 </pre>
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
-
 </div>
 
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../../service_functions/dialoginit.html">DialogInit</a>,
 <a href="dm_settextptr.html">DM_SETTEXTPTR</a>
 </div>

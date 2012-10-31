@@ -16,17 +16,17 @@
 </div>
 
 <div class=shortdescr>
-Ёлемент диалога <dfn>DI_SINGLEBOX</dfn> описывает одинарную рамку.
+Ёлемент диалога <code>DI_SINGLEBOX</code> описывает одинарную рамку.
 </div>
 
 <pre class=syntax>
 struct FarDialogItem
 {
   enum FARDIALOGITEMTYPES Type = <b>DI_SINGLEBOX</b>
-  int X1                       = <b>X1</b>
-  int Y1                       = <b>Y1</b>
-  int X2                       = <b>X2</b>
-  int Y2                       = <b>Y2</b>
+  intptr_t X1                  = <b>X1</b>
+  intptr_t Y1                  = <b>Y1</b>
+  intptr_t X2                  = <b>X2</b>
+  intptr_t Y2                  = <b>Y2</b>
   FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
   const wchar_t *Data          = <b>заголовок рамки</b>
 };
@@ -37,15 +37,13 @@ struct FarDialogItem
 
 <h3>‘лаги</h3>
 <div class=descr>
-ƒл€ элемента <dfn>DI_SINGLEBOX</dfn> имеют значени€ следующие флаги:
+ƒл€ элемента <code>DI_SINGLEBOX</code> имеют значени€ следующие флаги:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">‘лаг</th><th class="cont" width="60%">ќписание</th></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_lefttext.html">DIF_LEFTTEXT</a></td>
- <td class="cont" width="60%">выравнивать заголовок рамки по левому краю
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
- <td class="cont" width="60%">показывать в заголовке рамки амперсанд не использу€ его дл€ определени€ гор€чей клавиши
- </td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_lefttext.html">DIF_LEFTTEXT</a></td>
+<td class="cont" width="60%">выравнивать заголовок рамки по левому краю</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
+<td class="cont" width="60%">показывать в заголовке рамки амперсанд не использу€ его дл€ определени€ гор€чей клавиши</td></tr>
 </table>
 </div>
 
@@ -54,51 +52,38 @@ struct FarDialogItem
 <div class=descr>
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">—обытие</th><th class="cont" width="60%">ќписание</th></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
- <td class="cont" width="60%">начало отрисовки рамки
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
- <td class="cont" width="60%">запрос цветовых атрибутов дл€ отрисовки; Param2:
-<pre>LoWord LoByte - текст заголовка рамки
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBOXTITLE">COL_WARNDIALOGBOXTITLE</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGBOXTITLE">COL_DIALOGBOXTITLE</a>)
-LoWord HiByte - выделенный текст заголовка рамки
-                (highlighting text)
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTBOXTITLE">COL_WARNDIALOGHIGHLIGHTBOXTITLE</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTBOXTITLE">COL_DIALOGHIGHLIGHTBOXTITLE</a>)
-HiWord LoByte - рамка
-                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a> или
-                 <a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a>)
-HiWord HiByte - 0 (не используетс€)</pre>
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
- <td class="cont" width="60%">гор€ча€ клавиша (Alt-—имвол)
- </td></tr>
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_mouseclick.html">DN_MOUSECLICK</a></td>
- <td class="cont" width="60%">"кликнули" клавишей мыши
- </td></tr>
- <!--
- <tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_killfocus.html">DN_KILLFOCUS</a></td>
- <td class="cont" width="60%">потер€ фокуса (обычно после DN_HOTKEY или DN_MOUSECLICK)
- </td></tr>
- -->
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_drawdlgitem.html">DN_DRAWDLGITEM</a></td>
+<td class="cont" width="60%">начало отрисовки рамки</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_ctlcolordlgitem.html">DN_CTLCOLORDLGITEM</a></td>
+<td class="cont" width="60%">запрос цветовых атрибутов дл€ отрисовки; <code>Param2</code>:
+<pre>
+<code>Colors[0]</code> - текст заголовка рамки
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBOXTITLE">COL_WARNDIALOGBOXTITLE</a> или <a href="../../defs/farcolors.html#COL_DIALOGBOXTITLE">COL_DIALOGBOXTITLE</a>)
+<code>Colors[1]</code> - выделенный текст заголовка рамки (highlighting text)
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGHIGHLIGHTBOXTITLE">COL_WARNDIALOGHIGHLIGHTBOXTITLE</a> или <a href="../../defs/farcolors.html#COL_DIALOGHIGHLIGHTBOXTITLE">COL_DIALOGHIGHLIGHTBOXTITLE</a>)
+<code>Colors[2]</code> - рамка
+                (<a href="../../defs/farcolors.html#COL_WARNDIALOGBOX">COL_WARNDIALOGBOX</a> или  <a href="../../defs/farcolors.html#COL_DIALOGBOX">COL_DIALOGBOX</a>)
+<code>Colors[3]</code> - 0 (не используетс€)</pre>
+</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_hotkey.html">DN_HOTKEY</a></td>
+<td class="cont" width="60%">гор€ча€ клавиша (<kbd>Alt</kbd>+<kbd>—имвол</kbd>)</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dmsg/dn_controlinput.html">DN_CONTROLINPUT</a></td>
+<td class="cont" width="60%">"кликнули" клавишей мыши</td></tr>
 </table>
-
 </div>
 
 <h3>«амечани€</h3>
 <div class=descr>
 <ol>
 <li>≈сли элемент в массиве управл€ющих элементов стоит первым, то консольное окно Far Manager будет содержать заголовок "<em>заголовок рамки</em>".</li>
-<li>≈сли координаты X1==X2 или Y1==Y2, то рисуетс€ соответствующа€ лини€ (вертикальна€ или горизонтальна€)</li>
+<li>≈сли координаты <code>X1==X2</code> или <code>Y1==Y2</code>, то рисуетс€ соответствующа€ лини€ (вертикальна€ или горизонтальна€)</li>
 </ol>
 </div>
 
-
-<div class=see>—мотрите также:</div><div class=seecont>
+<div class=see>—мотрите также:</div>
+<div class=seecont>
 <a href="di_vtext.html">DI_DOUBLEBOX</a>,
 <a href="../../structures/fardialogitem.html">FarDialogItem</a>
-
 </div>
 
 </body>
