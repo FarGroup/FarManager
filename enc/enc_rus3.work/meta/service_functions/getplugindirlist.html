@@ -17,13 +17,13 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>GetPluginDirList</dfn> возвращает список файлов в указанной директории (с поддиректориями) эмулируемой файловой системы.
+Функция <code>GetPluginDirList</code> возвращает список файлов в указанной директории (с поддиректориями) эмулируемой файловой системы.
 </div>
 
 <pre class=syntax>
-int WINAPI GetPluginDirList(
+intptr_t WINAPI GetPluginDirList(
   const GUID *PluginId,
-  HANDLE hPlugin,
+  HANDLE hPanel,
   const wchar_t *Dir,
   struct PluginPanelItem **pPanelItem,
   size_t *pItemsNumber
@@ -32,13 +32,13 @@ int WINAPI GetPluginDirList(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле GlobalInfo.Guid функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
-  <div class=dfn>hPlugin</div>
-    <div class=dfndescr>Текущий описатель плагина. Если описатель плагина равен PANEL_ACTIVE (или PANEL_PASSIVE), то значение параметра PluginId игнорируется и используется GUID плагина, которому принадлежит активная (или пассивная) панель.</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+  <div class=dfn>hPanel</div>
+    <div class=dfndescr>Текущий описатель панели. Если описатель панели равен <code>PANEL_ACTIVE</code> (или <code>PANEL_PASSIVE</code>), то значение параметра <code>PluginId</code> игнорируется и используется GUID плагина, которому принадлежит активная (или пассивная) панель.</div>
   <div class=dfn>Dir</div>
     <div class=dfndescr>Имя обрабатываемой директории. Должно быть в форме, приемлемой для функции плагина <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>.
-    Плагинам обычно не требуется обработка полного пути функцией <dfn>SetDirectoryW</dfn>, поэтому чаще всего (нужно в этом убедиться), это просто имя обрабатываемого подкаталога текущего каталога.
-    <p>Для сохранения текущей директории плагина неизменной после вызова <dfn>GetPluginDirList</dfn>, либо <i>Dir</i> должен быть подкаталогом текущего каталога плагина, либо функция <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>
+    Плагинам обычно не требуется обработка полного пути функцией <code>SetDirectoryW</code>, поэтому чаще всего (нужно в этом убедиться), это просто имя обрабатываемого подкаталога текущего каталога.
+    <p>Для сохранения текущей директории плагина неизменной после вызова <code>GetPluginDirList</code>, либо <code>Dir</code> должен быть подкаталогом текущего каталога плагина, либо функция <a href="../exported_functions/setdirectoryw.html">SetDirectoryW</a>
     плагина должна уметь обрабатывать имя каталога, возвращаемое <a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a>.
     Иначе текущая директория будет изменена, и вы должны быть готовы восстановить её.</div>
   <div class=dfn>pPanelItem</div>
@@ -50,18 +50,19 @@ int WINAPI GetPluginDirList(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Если функция завершилась успешно, она вернёт TRUE. Если функция закончилась неудачно или обработка директории была прервана пользователем, то она вернёт FALSE.
+Если функция завершилась успешно, она вернёт <code>TRUE</code>. Если функция закончилась неудачно или обработка директории была прервана пользователем, то она вернёт <code>FALSE</code>.
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Возвращаемые имена файлов включают исходный каталог <i>Dir</i>. Например, если <dfn>Dir</dfn> есть <code>DIR1\DIR2</code>, то имена файлов будут в виде <code>DIR1\DIR2\file.ext</code>, <code>DIR1\DIR2\subdir\file.ext</code> и т.п.
-<li>Пользователь может прервать выполнение функции, нажав клавишу Esc,  при этом функция вернёт значение FALSE.
+<li>Возвращаемые имена файлов включают исходный каталог <code>Dir</code>. Например, если <code>Dir</code> есть <code>DIR1\DIR2</code>, то имена файлов будут в виде <code>DIR1\DIR2\file.ext</code>, <code>DIR1\DIR2\subdir\file.ext</code> и т.п.
+<li>Пользователь может прервать выполнение функции, нажав клавишу <kbd>Esc</kbd>,  при этом функция вернёт значение <code>FALSE</code>.
 </ol>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="getdirlist.html">GetDirList</a>
 </div>
 

@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>RestoreScreen</dfn> восстанавливает область экрана предварительно сохранённую функцией <a href="savescreen.html">SaveScreen</a>.
+Функция <code>RestoreScreen</code> восстанавливает область экрана предварительно сохранённую функцией <a href="savescreen.html">SaveScreen</a>.
 </div>
 
 <pre class=syntax>
@@ -28,7 +28,7 @@ void WINAPI RestoreScreen(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>hScreen</div>
-    <div class=dfndescr>Описатель, полученный после вызова <a href="savescreen.html">SaveScreen</a>. После вызова <dfn>RestoreScreen</dfn> он больше не может использоваться.</div>
+    <div class=dfndescr>Описатель, полученный после вызова <a href="savescreen.html">SaveScreen</a>. После вызова <code>RestoreScreen</code> он больше не может использоваться.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -38,14 +38,15 @@ void WINAPI RestoreScreen(
 
 <h3>Замечания</h3>
 <div class=descr>
-Для увеличения скорости <dfn>RestoreScreen</dfn> перерисовывает только изменённую область экрана. <dfn>RestoreScreen</dfn> не может корректно определить эту область, если область экрана была изменена не функцией
+Для увеличения скорости <code>RestoreScreen</code> перерисовывает только изменённую область экрана. <code>RestoreScreen</code> не может корректно определить эту область, если область экрана была изменена не функцией
 Far Manager (например, запущенной из плагина внешней  программой).
 
-В этом случае сначала вы должны вызвать <dfn>RestoreScreen</dfn> с параметром <code>NULL</code>, чтобы показать Far Manager'у, что экран изменён, а затем вызвать <dfn>RestoreScreen</dfn>
+В этом случае сначала вы должны вызвать <code>RestoreScreen</code> с параметром <code>NULL</code>, чтобы показать Far Manager'у, что экран изменён, а затем вызвать <code>RestoreScreen</code>
 как обычно - с описателем от <a href="savescreen.html">SaveScreen</a>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="savescreen.html">SaveScreen</a>
 </div>
 

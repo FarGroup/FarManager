@@ -15,21 +15,21 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>GetMsg</dfn> возвращает строку сообщения из <a href="../language/language_files.html">языкового файла</a>.
+Функция <code>GetMsg</code> возвращает строку сообщения из <a href="../language/language_files.html">языкового файла</a>.
 Настоятельно рекомендуется использовать эту функцию вместо предопределённого текста в ваших программах, поскольку это позволит локализовать ваш плагин и переключать языки в Far Manager и плагине одновременно.
 </div>
 
 <pre class=syntax>
 const wchar_t* WINAPI GetMsg(
   const GUID *PluginId,
-  int MsgId
+  intptr_t MsgId
 );
 </pre>
 
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле GlobalInfo.Guid функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
   <div class=dfn>MsgId</div>
     <div class=dfndescr>Номер строки сообщения в файле сообщений.</div>
 </div>
@@ -42,7 +42,7 @@ const wchar_t* WINAPI GetMsg(
 <h3>Примечание</h3>
 <div class=descr>
 Все <code>*.lng</code> файлы в каталоге с плагином являются языковыми файлами. Far Manager выбирает необходимый <code>*.lng</code> файл в соответствии с установленным языком.
-При первом использования функции <dfn>GetMsg</dfn> все сообщения загружаются в память, поэтому при последующих вызовах этой функции доступ к сообщениям производится быстрее и вам 
+При первом использования функции <code>GetMsg</code> все сообщения загружаются в память, поэтому при последующих вызовах этой функции доступ к сообщениям производится быстрее и вам 
 не надо сохранять полученные строки сообщений в промежуточные буферы.
 </div>
 
@@ -53,15 +53,15 @@ const wchar_t* WINAPI GetMsg(
 // {B076F0B0-90AE-408c-AD09-491606F09435}
 DEFINE_GUID(MainGuid, 0xb076f0b0, 0x90ae, 0x408c, 0xad, 0x9, 0x49, 0x16, 0x6, 0xf0, 0x94, 0x35);
 
-const wchar_t *GetMsg(int MsgId)
+const wchar_t *GetMsg(intptr_t MsgId)
 {
   return(Info.GetMsg(&MainGuid,MsgId));
 }
 </pre>
 
-  Причём, <dfn>Info</dfn> определяется как глобальная переменная:
+  Причём, <code>Info</code> определяется как глобальная переменная:
 
-<pre class=code>struct PluginStartupInfo <dfn>Info</dfn>;
+<pre class=code>struct PluginStartupInfo <code>Info</code>;
 </pre>
 
   ...а инициализируется она в функции <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>:
@@ -75,8 +75,9 @@ const wchar_t *GetMsg(int MsgId)
 </pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="../language/index.html">Языки и файлы помощи</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="../language/index.html">Языки и файлы помощи</a>
 </div>
 
 </body>

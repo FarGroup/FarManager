@@ -16,11 +16,11 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>DialogRun</dfn> выводит на экран диалог созданный функцией <a href="dialoginit.html">DialogInit</a>.
+Функция <code>DialogRun</code> выводит на экран диалог созданный функцией <a href="dialoginit.html">DialogInit</a>.
 </div>
 
 <pre class=syntax>
-int WINAPI DialogRun(
+intptr_t WINAPI DialogRun(
   HANDLE hDlg
 );
 </pre>
@@ -33,7 +33,7 @@ int WINAPI DialogRun(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Эта функция возвращает -1, если пользователь прервал диалог, или номер выбранного диалогового пункта (номер элемента массива <i>Item</i>).
+Эта функция возвращает <code>-1</code>, если пользователь прервал диалог, или номер выбранного диалогового пункта (номер элемента массива <code>Item</code>).
 </div>
 
 
@@ -48,10 +48,11 @@ int WINAPI DialogRun(
   См. пример в функции <a href="dialoginit.html">DialogInit</a>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="dialoginit.html">DialogInit</a> |
-<a href="defdlgproc.html">DefDlgProc</a> |
-<a href="senddlgmessage.html">SendDlgMessage</a> |
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="dialoginit.html">DialogInit</a>,
+<a href="defdlgproc.html">DefDlgProc</a>,
+<a href="senddlgmessage.html">SendDlgMessage</a>,
 <a href="message.html">Message</a>
 </div>
 

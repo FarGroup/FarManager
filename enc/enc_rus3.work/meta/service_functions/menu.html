@@ -16,22 +16,22 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>Menu</dfn> показывает меню.
+Функция <code>Menu</code> показывает меню.
 </div>
 
 <pre class=syntax>
-int WINAPI Menu(
+intptr_t WINAPI Menu(
   const GUID *PluginId,
   const GUID *Id,
-  int X,
-  int Y,
-  int MaxHeight,
+  intptr_t X,
+  intptr_t Y,
+  intptr_t MaxHeight,
   FARMENUFLAGS Flags,
   const wchar_t *Title,
   const wchar_t *Bottom,
   const wchar_t *HelpTopic,
   const struct FarKey *BreakKeys,
-  int *BreakCode,
+  intptr_t *BreakCode,
   const struct FarMenuItem *Item,
   size_t ItemsNumber
 );
@@ -40,7 +40,7 @@ int WINAPI Menu(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле GlobalInfo.Guid функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
   <div class=dfn>Id</div>
     <div class=dfndescr>Указатель на GUID текущего меню. GUID должен быть уникальным.</div>
   <div class=dfn>X,Y</div>
@@ -55,11 +55,13 @@ int WINAPI Menu(
     <tr class="cont"><td class="cont" width="40%"><a name="FMENU_AUTOHIGHLIGHT">FMENU_AUTOHIGHLIGHT</a></td>
     <td class="cont" width="60%">Если указан, то горячие клавиши будут назначены автоматически, начиная с первого пункта.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMENU_CHANGECONSOLETITLE">FMENU_CHANGECONSOLETITLE</a></td>
-    <td class="cont" width="60%">Если указан, то Far Manager изменит заголовок консоли в значение, указанное в параметре <dfn>Title</dfn> (если Title не пуст).</td></tr>
+    <td class="cont" width="60%">Если указан, то Far Manager изменит заголовок консоли в значение, указанное в параметре <code>Title</code> (если <code>Title</code> не пуст).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMENU_SHOWAMPERSAND">FMENU_SHOWAMPERSAND</a></td>
     <td class="cont" width="60%">При показе меню не использовать амперсанды (<code>&amp;</code>) для определения горячих клавиш.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMENU_REVERSEAUTOHIGHLIGHT">FMENU_REVERSEAUTOHIGHLIGHT</a></td>
     <td class="cont" width="60%">Если указан, то горячие клавиши будут назначены автоматически, начиная с последнего пункта.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FMENU_NONE">FMENU_NONE</a></td>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FMENU_WRAPMODE">FMENU_WRAPMODE</a></td>
     <td class="cont" width="60%">Если указан, то попытка перемещения курсора выше первого пункта или ниже последнего будет приводить к перемещению соответственно к последнему или к первому пункту.
     <p>Этот флаг рекомендуется ставить всегда, когда нет специальных причин его не ставить.</td></tr>
@@ -92,7 +94,7 @@ else
   return FALSE;
     </pre></div>
   <div class=dfn>BreakCode</div>
-    <div class=dfndescr>Адрес переменной, в которую будет записан номер элемента массива <i>BreakKeys</i>, использованного для закрытия меню, или -1, если меню было закрыто одной из стандартных клавиш. Этот параметр может быть равным <code>NULL</code>.</div>
+    <div class=dfndescr>Адрес переменной, в которую будет записан номер элемента массива <code>BreakKeys</code>, использованного для закрытия меню, или <code>-1</code>, если меню было закрыто одной из стандартных клавиш. Этот параметр может быть равным <code>NULL</code>.</div>
   <div class=dfn>Item</div>
     <div class=dfndescr>Адрес массива структур <a href="../structures/farmenuitem.html">FarMenuItem</a>. Каждая структура описывает элемент меню.</div>
   <div class=dfn>ItemsNumber</div>
@@ -101,14 +103,15 @@ else
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Функция возвращает или -1, если пользователь отменил меню, или номер выбранного элемента меню.
+Функция возвращает или <code>-1</code>, если пользователь отменил меню, или номер выбранного элемента меню.
 </div>
 
 <h3>Пример</h3>
 <div class=descr>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../structures/farmenuitem.html">FarMenuItem</a>
 </div>
 

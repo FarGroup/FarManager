@@ -15,32 +15,33 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>SaveScreen</dfn> сохраняет область экрана. Для восстановления сохранённой области используйте функцию <a href="restorescreen.html">RestoreScreen</a>.
+Функция <code>SaveScreen</code> сохраняет область экрана. Для восстановления сохранённой области используйте функцию <a href="restorescreen.html">RestoreScreen</a>.
 </div>
 
 <pre class=syntax>
 HANDLE WINAPI SaveScreen(
-  int X1,
-  int Y1,
-  int X2,
-  int Y2
+  intptr_t X1,
+  intptr_t Y1,
+  intptr_t X2,
+  intptr_t Y2
 );
 </pre>
 
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>X1,Y1,X2,Y2</div>
-    <div class=dfndescr>Координаты области экрана. Если <var>X2</var> или <var>Y2</var>  равны <code>-1</code>, то они заменяются соответственно правой
-    или нижней координатой экрана. Таким образом, <b><code>SaveScreen(0,0,-1,-1)</code></b> сохранит весь экран.</div>
+    <div class=dfndescr>Координаты области экрана. Если <code>X2</code> или <code>Y2</code>  равны <code>-1</code>, то они заменяются соответственно правой
+    или нижней координатой экрана. Таким образом, <code>SaveScreen(0,0,-1,-1)</code> сохранит весь экран.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-<p>Возвращаемое значение используется функцией <a href="restorescreen.html">RestoreScreen</a>. Все указатели, возвращённые <dfn>SaveScreen</dfn> ,
+<p>Возвращаемое значение используется функцией <a href="restorescreen.html">RestoreScreen</a>. Все указатели, возвращённые <code>SaveScreen</code> ,
 должны быть переданы <a href="restorescreen.html">RestoreScreen</a>, чтобы предотвратить утечку памяти.</p>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="restorescreen.html">RestoreScreen</a>
 </div>
 

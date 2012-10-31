@@ -15,14 +15,14 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>Text</dfn> выводит текстовую строку на экран. Far Manager использует внутреннюю буферизацию экрана для увеличения производительности, поэтому
-для совместимости плагин не должен выводить текст на экран напрямую, а только используя функцию <dfn>Text</dfn>.
+Функция <code>Text</code> выводит текстовую строку на экран. Far Manager использует внутреннюю буферизацию экрана для увеличения производительности, поэтому
+для совместимости плагин не должен выводить текст на экран напрямую, а только используя функцию <code>Text</code>.
 </div>
 
 <pre class=syntax>
 void WINAPI Text(
-  int X,
-  int Y,
+  intptr_t X,
+  intptr_t Y,
   const struct FarColor *Color,
   const wchar_t *Str
 );
@@ -35,7 +35,7 @@ void WINAPI Text(
   <div class=dfn>Color</div>
     <div class=dfndescr>Цветовые атрибуты текста, массив структур <a href="../structures/farcolor.html">FarColor</a>.</div>
   <div class=dfn>Str</div>
-    <div class=dfndescr>Текстовая строка, завершающаяся нулём. После вывода строки, вы можете также вызвать <dfn>Text</dfn> с параметром <var>Str</var>
+    <div class=dfndescr>Текстовая строка, завершающаяся нулём. После вывода строки, вы можете также вызвать <code>Text</code> с параметром <code>Str</code>
     равным <code>NULL</code> - эта операция сбросит экранный буфер Far Manager и ваши изменения вступят в силу немедленно. Но не используйте это слишком часто,
     чтобы не снизить общую производительность.</div>
 </div>

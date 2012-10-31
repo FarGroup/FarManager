@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>ShowHelp</dfn> показывает заданный топик из hlf-файла.
+Функция <code>ShowHelp</code> показывает заданный топик из hlf-файла.
 </div>
 
 <pre class=syntax>
@@ -32,23 +32,25 @@ BOOL WINAPI ShowHelp(
   <div class=dfn>ModuleName</div>
     <div class=dfndescr>Полное имя плагина. Его вы получаете в функции <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>.</div>
   <div class=dfn>HelpTopic</div>
-    <div class=dfndescr><a href="../language/helptopic.html">Тема помощи</a>. Если параметр <var>HelpTopic</var> = <code>NULL</code>, то будет показана тема со стандартным именем "<a href="../language/help_files.html">Contents</a>".</div>
+    <div class=dfndescr><a href="../language/helptopic.html">Тема помощи</a>. Если параметр <code>HelpTopic = NULL</code>, то будет показана тема со стандартным именем "<a href="../language/help_files.html">Contents</a>".</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть одним из следующий значений (перечисление <a name="FarHelpFlags">FarHelpFlags</a>):
+    <div class=dfndescr>Может быть одним из следующий значений (перечисление <a name="FARHELPFLAGS">FARHELPFLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_SELFHELP">FHELP_SELFHELP</a></td>
-    <td class="cont" width="60%">Трактовать параметр <var>ModuleName</var> как <var>Info.ModuleName</var> и показать тему из файла помощи вызвавшего плагина. Если <var>HelpTopic</var> начинается с символа <code>':'</code>, то будет показана тема из основного файла помощи Far Manager (в этом случае параметр <var>ModuleName</var> игнорируется).</td></tr>
+    <td class="cont" width="60%">Трактовать параметр <code>ModuleName</code> как <code>Info.ModuleName</code> и показать тему из файла помощи вызвавшего плагина. Если <code>HelpTopic</code> начинается с символа <code>':'</code>, то будет показана тема из основного файла помощи Far Manager (в этом случае параметр <code>ModuleName</code> игнорируется).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_FARHELP">FHELP_FARHELP</a></td>
-    <td class="cont" width="60%">Параметр <var>ModuleName</var> игнорируется и будет показана тема из основного файла помощи Far Manager. При этом в параметре <var>HelpTopic</var> не надо указывать первым символом <code>':'</code>.</td></tr>
+    <td class="cont" width="60%">Параметр <code>ModuleName</code> игнорируется и будет показана тема из основного файла помощи Far Manager. При этом в параметре <code>HelpTopic</code> не надо указывать первым символом <code>':'</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_CUSTOMFILE">FHELP_CUSTOMFILE</a></td>
-    <td class="cont" width="60%">Трактовать параметр <var>ModuleName</var> как указатель на имя HLF-файла (<code>c:\path\filename</code>).</td></tr>
+    <td class="cont" width="60%">Трактовать параметр <code>ModuleName</code> как указатель на имя HLF-файла (<code>c:\path\filename</code>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_CUSTOMPATH">FHELP_CUSTOMPATH</a></td>
-    <td class="cont" width="60%">Трактовать параметр <var>ModuleName</var> как указатель на путь (<code>c:\path</code>), а файл выберется автоматически, исходя из текущих настроек языка.</td></tr>
+    <td class="cont" width="60%">Трактовать параметр <code>ModuleName</code> как указатель на путь (<code>c:\path</code>), а файл выберется автоматически, исходя из текущих настроек языка.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_USECONTENTS">FHELP_USECONTENTS</a></td>
-    <td class="cont" width="60%">Если требуемая тема <var>HelpTopic</var> не найдена, то попытаться отобразить тему <code>"Contents"</code>. Флаг может комбинироваться с другими флагами.</td></tr>
+    <td class="cont" width="60%">Если требуемая тема <code>HelpTopic</code> не найдена, то попытаться отобразить тему <code>"Contents"</code>. Флаг может комбинироваться с другими флагами.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="FHELP_NOSHOWERROR">FHELP_NOSHOWERROR</a></td>
     <td class="cont" width="60%">Не выводить сообщения об ошибках в случае, если требуемая тема или файл помощи не найдены. Флаг может комбинироваться с другими флагами.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="FHELP_NONE">FHELP_NONE</a></td>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
     </table>
     </div>
 </div>
@@ -58,8 +60,8 @@ BOOL WINAPI ShowHelp(
 <code>TRUE</code> - удалось передать параметры в Менеджер Помощи.<br>
 <code>FALSE</code> - ошибка:
 <ul>
-<li><var>Flags</var> содержит неверное значение,
-<li><var>ModuleName</var> = <code>NULL</code> для случаев, отличных от <dfn>FHELP_FARHELP</dfn>
+<li><code>Flags</code> содержит неверное значение,
+<li><code>ModuleName = NULL</code> для случаев, отличных от <code>FHELP_FARHELP</code>
 <li>Менеджер Помощи не нашёл заданный файл/тему помощи
 <li>Менеджер Помощи не нашёл файл/тему помощи в процессе навигации по системе помощи.
 </ul>
@@ -74,9 +76,9 @@ BOOL WINAPI ShowHelp(
 }
 </pre>
 
-Причём, <dfn>Info</dfn> определяется как глобальная переменная...
+Причём, <code>Info</code> определяется как глобальная переменная...
 
-<pre class=code>struct PluginStartupInfo <dfn>Info</dfn>;</pre>
+<pre class=code>struct PluginStartupInfo <code>Info</code>;</pre>
 
   ...а инициализируется она в функции
   <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a>:
@@ -84,13 +86,14 @@ BOOL WINAPI ShowHelp(
 <pre class=code>void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
 . . .
-  ::<dfn>Info</dfn>=*Info;
+  ::<code>Info</code>=*Info;
 . . .
 }</pre>
 
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../language/help_files.html">Файлы помощи</a>
 </div>
 

@@ -16,19 +16,19 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>Viewer</dfn> позволяет открыть внутреннюю программу просмотра Far Manager.
+Функция <code>Viewer</code> позволяет открыть внутреннюю программу просмотра Far Manager.
 </div>
 
 <pre class=syntax>
-int WINAPI Viewer (
+intptr_t WINAPI Viewer (
   const wchar_t *FileName,
   const wchar_t *Title,
-  int X1,
-  int Y1,
-  int X2,
-  int Y2,
+  intptr_t X1,
+  intptr_t Y1,
+  intptr_t X2,
+  intptr_t Y2,
   VIEWER_FLAGS Flags,
-  UINT CodePage
+  uintptr_t CodePage
 );
 </pre>
 
@@ -39,29 +39,31 @@ int WINAPI Viewer (
   <div class=dfn>Title</div>
     <div class=dfndescr>Текстовая строка, которая будет показана вверху окна вьюера. Если этот параметр равен <code>NULL</code>, то используется имя файла.</div>
   <div class=dfn>X1, Y1, X2, Y2</div>
-    <div class=dfndescr>Координаты окна вьюера. Если координата <var>X2</var> или <var>Y2</var> равна -1, то она будет замещена соответственно шириной или высотой экрана.
-    Если координата <var>X1</var> или <code>Y1</code> меньше нуля, то считается, что она равна нулю.</div>
+    <div class=dfndescr>Координаты окна вьюера. Если координата <code>X2</code> или <code>Y2</code> равна <code>-1</code>, то она будет замещена соответственно шириной или высотой экрана.
+    Если координата <code>X1</code> или <code>Y1</code> меньше нуля, то считается, что она равна нулю.</div>
   <div class=dfn>Flags</div>
-    <div class=dfndescr>Может быть комбинацией следующих значений (перечисление <a name="VIEWER_FLAGS">VIEWER_FLAGS</a>):
+    <div class=dfndescr>Может быть комбинацией следующих значений (тип <a name="VIEWER_FLAGS">VIEWER_FLAGS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Флаг</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VF_DELETEONCLOSE">VF_DELETEONCLOSE</a></td>
-    <td class="cont" width="60%">Far MAnager удалит просматриваемый файл после закрытия вьюера. Если в директории, содержащей просматриваемый файл, нет других файлов, она также будет удалена.
-    Если требуется удаление только файла, то используйте <dfn>VF_DELETEONLYFILEONCLOSE</dfn>. Файл не удаляется, если было произведено переключение по <kbd>F6</kbd> и  если  существуют
+    <td class="cont" width="60%">Far Manager удалит просматриваемый файл после закрытия вьюера. Если в директории, содержащей просматриваемый файл, нет других файлов, она также будет удалена.
+    Если требуется удаление только файла, то используйте <code>VF_DELETEONLYFILEONCLOSE</code>. Файл не удаляется, если было произведено переключение по <kbd>F6</kbd> и  если  существуют
     другие открытые вьюеры/редакторы с этим же файлом.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VF_DELETEONLYFILEONCLOSE">VF_DELETEONLYFILEONCLOSE</a></td>
-    <td class="cont" width="60%">Аналог <dfn>VF_DELETEONCLOSE</dfn>, но удаляется только файл. Этот флаг имеет более низкий приоритет при обработке, чем <dfn>VF_DELETEONCLOSE</dfn>.</td></tr>
+    <td class="cont" width="60%">Аналог <code>VF_DELETEONCLOSE</code>, но удаляется только файл. Этот флаг имеет более низкий приоритет при обработке, чем <code>VF_DELETEONCLOSE</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VF_DISABLEHISTORY">VF_DISABLEHISTORY</a></td>
     <td class="cont" width="60%">Запретить добавление имени файла в историю просмотра (<kbd>Alt</kbd>+<kbd>F11</kbd>). По умолчанию имя в историю добавляется.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VF_ENABLE_F6">VF_ENABLE_F6</a></td>
     <td class="cont" width="60%">Разрешает переключение по <kbd>F6</kbd> из вьюера в редактор.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VF_IMMEDIATERETURN">VF_IMMEDIATERETURN</a></td>
     <td class="cont" width="60%">Позволяет плагину получать управление сразу же после открытия программы просмотра. Открываемая программа просмотра становится активной.
-    Выставлять этот флаг имеет смысл <u>только</u> в паре с флагом <dfn>VF_NONMODAL</dfn>.</td></tr>
+    Выставлять этот флаг имеет смысл <u>только</u> в паре с флагом <code>VF_NONMODAL</code>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VF_NONMODAL">VF_NONMODAL</a></td>
     <td class="cont" width="60%">Создать немодальное окно вьюера. Если этот флаг присутствует, пользователь сможет переключаться между программой просмотра и другими окнами Far Manager.
     <p>Плагин получит управление только после закрытия или ухода из открытой программы просмотра (например, пользователь нажал <kbd>Ctrl</kbd>+<kbd>Tab</kbd>).
-    Если вам нужно, чтобы плагин получал управление сразу же после открытия программы просмотра, то используйте флаг <dfn>VF_IMMEDIATERETURN</dfn>.</td></tr>
+    Если вам нужно, чтобы плагин получал управление сразу же после открытия программы просмотра, то используйте флаг <code>VF_IMMEDIATERETURN</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VF_NONE">VF_NONE</a></td>
+    <td class="cont" width="60%">Нулевой флаг.</td></tr>
     </table>
     </div>
   <div class=dfn>CodePage</div>
@@ -83,10 +85,11 @@ int WINAPI Viewer (
 
 <h3>Возвращаемое значение</h3>
 <div class=dfndescr>
-Если флаг <dfn>VF_NONMODAL</dfn> отсутствует, эта функция возвращает <code>TRUE</code> в случае успеха или <code>FALSE</code>, если файл не удалось открыть. Если этот флаг присутствует, то всегда возвращается <code>TRUE</code>.
+Если флаг <code>VF_NONMODAL</code> отсутствует, эта функция возвращает <code>TRUE</code> в случае успеха или <code>FALSE</code>, если файл не удалось открыть. Если этот флаг присутствует, то всегда возвращается <code>TRUE</code>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="editor.html">Editor</a>
 </div>
 

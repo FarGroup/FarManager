@@ -16,33 +16,33 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>SendDlgMessage</dfn> позволяет послать сообщение функции-обработчику диалога.
+Функция <code>SendDlgMessage</code> позволяет послать сообщение функции-обработчику диалога.
 </div>
 
 <pre class=syntax>
-INT_PTR WINAPI SendDlgMessage(
+intptr_t WINAPI SendDlgMessage(
   HANDLE hDlg,
-  int    Msg,
-  int    Param1,
-  void  *Param2
+  intptr_t Msg,
+  intptr_t Param1,
+  void *Param2
 );
 </pre>
 
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>hDlg</div>
-    <div class=dfndescr>Указатель на диалог</div>
+    <div class=dfndescr>Указатель на диалог.</div>
   <div class=dfn>Msg</div>
-    <div class=dfndescr>Одно из сообщений <a href="../dialogapi/dmsg/index.html#DialogMessages">DM_*</a></div>
+    <div class=dfndescr>Одно из сообщений <a href="../dialogapi/dmsg/index_dm.html#DialogMessages">DM_*</a>.</div>
   <div class=dfn>Param1</div>
-    <div class=dfndescr>Параметр 1</div>
+    <div class=dfndescr>Параметр 1.</div>
   <div class=dfn>Param2</div>
-    <div class=dfndescr>Параметр 2</div>
+    <div class=dfndescr>Параметр 2.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Значение, возвращаемое функцией <dfn>SendDlgMessage</dfn> зависит от параметра <em>Msg</em>.
+Значение, возвращаемое функцией <code>SendDlgMessage</code> зависит от параметра <code>Msg</code>.
 </div>
 
 <h3>Замечания</h3>
@@ -52,7 +52,7 @@ INT_PTR WINAPI SendDlgMessage(
 <h3>Пример</h3>
 <div class=descr>
 Фрагмент обработчика диалога игры Reversi:
-<pre class=code>INT_PTR WINAPI ReversiDialogProc(HANDLE hDlg, int Msg,int Param1,void *Param2)
+<pre class=code>intptr_t WINAPI ReversiDialogProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void *Param2)
 {
 ...
     case DN_INITDIALOG:
@@ -66,7 +66,8 @@ INT_PTR WINAPI SendDlgMessage(
 }</pre>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="dialoginit.html">DialogInit</a>,
 <a href="defdlgproc.html">DefDlgProc</a>
 </div>

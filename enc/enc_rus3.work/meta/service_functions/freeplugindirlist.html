@@ -17,11 +17,12 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>FreePluginDirList</dfn> освобождает память, выделенную для списка файлов эмулируемой файловой системы функцией <a href="getplugindirlist.html">GetPluginDirList</a>.
+Функция <code>FreePluginDirList</code> освобождает память, выделенную для списка файлов эмулируемой файловой системы функцией <a href="getplugindirlist.html">GetPluginDirList</a>.
 </div>
 
 <pre class=syntax>
 void WINAPI FreePluginDirList(
+  HANDLE hPanel,
   struct PluginPanelItem *PanelItem,
   size_t nItemsNumber
 );
@@ -29,6 +30,8 @@ void WINAPI FreePluginDirList(
 
 <h3>Параметры</h3>
 <div class=descr>
+  <div class=dfn>hPanel</div>
+    <div class=dfndescr>Текущий описатель панели.</div>
   <div class=dfn>PanelItem</div>
     <div class=dfndescr>Адрес массива структур <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>.</div>
   <div class=dfn>nItemsNumber</div>
