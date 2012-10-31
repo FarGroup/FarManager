@@ -1603,9 +1603,16 @@ id=109
 lv=2
 dt=Text
 nm=export.Open
-mtime=3560798347
+mtime=3560877080
 <article>
 #_ret = export.Open (OpenFrom, Guid, Item)
+#_
+#_**Definitions:**
+#_  **"int64"**
+#_    Type of userdata, produced by bit64 library.
+#_  **"binary"**
+#_    By convention, it is a string enclosed in a table as its first element.
+#_    The string is intended to be passed to and from without conversions UTF-8 <-> UTF-16LE.
 #_
 #_**Parameters:**
 #_  OpenFrom: integer
@@ -1613,8 +1620,7 @@ mtime=3560798347
 #_  Item:
 #_    if OpenFrom == OPEN_FROMMACRO:
 #_      table (array of arguments):
-#_        each argument can be either of: string, boolean, number, or int64
-#_        (the type created by bit64 library)
+#_        each argument can be either of: string, boolean, number, "int64", or "binary".
 #_    if OpenFrom == OPEN_COMMANDLINE:
 #_      string
 #_    if OpenFrom == OPEN_SHORTCUT:
@@ -1634,9 +1640,7 @@ mtime=3560798347
 #_  if OpenFrom == OPEN_FROMMACRO:
 #_    0 or more Lua values.
 #_    Currently, values of the following types are supported:
-#_      boolean, number, string in UTF-8 and "int64" userdata, produced by bit64 library.
-#_      In order to pass an arbitrary string without conversion UTF-8 -> UTF-16LE,
-#_      the string should be passed enclosed in a table as its first element.
+#_      string, boolean, number, "int64", or "binary".
 #_  if OpenFrom == something else:
 #_    ret: any Lua value; it is processed by LuaFAR as follows:
 #_      - Nil and false: NULL is returned to Far.
