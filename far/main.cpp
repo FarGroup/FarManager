@@ -505,7 +505,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	{
 		return ElevationMain(Argv[2], _wtoi(Argv[3]), *Argv[4]==L'1');
 	}
-	else if (Argc >= 6 && Argc >= 3)
+	else if (Argc <= 6 && Argc >= 3)
 	{
 		const wchar_t *p = Argc>3 ? Argv[3] : L"", *lp = Argc>4 ? Argv[4] : L"", *tp = Argc>5 ? Argv[5] : L"";
 
