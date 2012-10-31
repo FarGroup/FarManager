@@ -2,8 +2,24 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Shell" key="CtrlShiftPgUp" flags="DisableOutput" description="Jump to the previous folder on the same level"><text>$If (!APanel.Root) CtrlPgUp $End $If (!APanel.Bof) Up $If (APanel.Folder) CtrlPgDn $End $End</text></macro>
-      <macro area="Shell" key="CtrlShiftPgDn" flags="DisableOutput" description="Jump to the next folder on the same level"><text>$If (!APanel.Root) CtrlPgUp $End $If (!APanel.Eof) Down $If (APanel.Folder) CtrlPgDn $End $End</text></macro>
+      <macro area="Shell" key="CtrlShiftPgUp" flags="DisableOutput" description="Jump to the previous folder on the same level">
+<text>
+  if not APanel.Root then Keys('CtrlPgUp') end
+  if not APanel.Bof then
+    Keys('Up')
+    if APanel.Folder then Keys('CtrlPgDn') end
+  end
+</text>
+      </macro>
+      <macro area="Shell" key="CtrlShiftPgDn" flags="DisableOutput" description="Jump to the next folder on the same level">
+<text>
+  if not APanel.Root then Keys('CtrlPgUp') end
+  if not APanel.Eof then
+    Keys('Down')
+    if APanel.Folder then Keys('CtrlPgDn') end
+  end
+</text>
+      </macro>
     </keymacros>
   </macros>
 </farconfig>

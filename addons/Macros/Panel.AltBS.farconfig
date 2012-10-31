@@ -2,7 +2,14 @@
 <farconfig>
   <macros>
     <keymacros>
-      <macro area="Shell" key="AltBS" flags="DisableOutput" description="Use Alt-BS to undo folder changes"><text>AltF12 $if(CurPos == ItemCount) $if(%%AltBS == 0) %%AltBS=1; $else %%AltBS=0; Up $end $else %%AltBS=0; Up $end ShiftEnter</text></macro>
+      <macro area="Shell" key="AltBS" flags="DisableOutput" description="Use Alt-BS to undo folder changes">
+<text>
+  Keys('AltF12')
+  _G.StdM_AltBS = Object.CurPos == Object.ItemCount and not _G.StdM_AltBS
+  if not _G.StdM_AltBS then Keys('Up') end
+  Keys('ShiftEnter')
+</text>
+      </macro>
     </keymacros>
   </macros>
 </farconfig>
