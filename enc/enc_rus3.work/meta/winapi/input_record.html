@@ -17,7 +17,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <strong>INPUT_RECORD</strong> используется
+Структура <code>INPUT_RECORD</code> используется
 для возвращения информации о входных сообщениях в консольном входном буфере.
 Эти записи могут быть считаны из входного буфера используя
 функции <a href="readconsoleinput.html">ReadConsoleInput</a> или
@@ -79,13 +79,14 @@ typedef struct _INPUT_RECORD {
     </div>
 
     <div class=dfn>Event</div>
-    <div class=dfndescr>Содержит структуры KEY_EVENT_RECORD, MOUSE_EVENT_RECORD, WINDOW_BUFFER_SIZE_RECORD,
-      MENU_EVENT_RECORD, FOCUS_EVENT_RECORD или FARMACRO_KEY_EVENT, в зависимости от значения,
-      указанного в EventType.
+    <div class=dfndescr>Содержит структуры <code>KEY_EVENT_RECORD</code>, <code>MOUSE_EVENT_RECORD</code>, <code>WINDOW_BUFFER_SIZE_RECORD</code>,
+      <code>MENU_EVENT_RECORD</code>, <code>FOCUS_EVENT_RECORD</code> или <code>FARMACRO_KEY_EVENT</code>, в зависимости от значения,
+      указанного в <code>EventType</code>.
     </div>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="key_event_record.html">KEY_EVENT_RECORD</a>,
 <a href="mouse_event_record.html">MOUSE_EVENT_RECORD</a>,
 <a href="window_buffer_size_record.html">WINDOW_BUFFER_SIZE_RECORD</a>,

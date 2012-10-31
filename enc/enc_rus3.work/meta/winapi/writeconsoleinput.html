@@ -17,7 +17,7 @@
 </div>
 
 <div class=shortdescr>
-Функция <strong>WriteConsoleInput</strong> записывает данные непосредственно в консольный входной буфер.
+Функция <code>WriteConsoleInput</code> записывает данные непосредственно в консольный входной буфер.
 </div>
 
 <pre class=syntax>
@@ -33,7 +33,7 @@ BOOL WriteConsoleInput(
 <div class=descr>
 
     <div class=dfn>hConsoleInput</div>
-    <div class=dfndescr>Дескриптор консольного буфера ввода. Дескриптор должен иметь права GENERIC_WRITE.</div>
+    <div class=dfndescr>Дескриптор консольного буфера ввода. Дескриптор должен иметь права <code>GENERIC_WRITE</code>.</div>
     <div class=dfn>lpBuffer</div>
     <div class=dfndescr>Указатель на массив  структур <a href="input_record.html">INPUT_RECORD</a>, содержащий данные для записи во входной буфер.</div>
     <div class=dfn>nLength</div>
@@ -47,12 +47,12 @@ BOOL WriteConsoleInput(
 <div class=descr>
   <p>В случае успеха возвращается ненулевое значение.<br>
   Если функция завершается неудачно, возвращается ноль.
-  Для получения дополнительной информации вызывайте функцию <dfn>GetLastError</dfn>.</p>
+  Для получения дополнительной информации вызывайте функцию <code>GetLastError</code>.</p>
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-  <p>Функция <dfn>WriteConsoleInput</dfn> помещает записи <a href="input_record.html">INPUT_RECORD</a>
+  <p>Функция <code>WriteConsoleInput</code> помещает записи <a href="input_record.html">INPUT_RECORD</a>
   в конец входного буфера. Входной буфер при необходимости растёт динамически для хранения необходимого количества записей.
 
   <UL class=note><LI>
@@ -66,7 +66,8 @@ BOOL WriteConsoleInput(
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="input_record.html">INPUT_RECORD</a>,
 <a href="readconsoleinput.html">ReadConsoleInput</a>,
 <a href="win32/SetConsoleCP">SetConsoleCP</a>,

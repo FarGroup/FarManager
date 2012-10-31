@@ -18,9 +18,9 @@
 </div>
 
 <div class=shortdescr>
-Структура <dfn>KEY_EVENT_RECORD</dfn>
+Структура <code>KEY_EVENT_RECORD</code>
 используется для получения входных событий в консольной структуре
-<dfn>INPUT_RECORD</dfn>.
+<code>INPUT_RECORD</code>.
 </div>
 
 <pre class=syntax>
@@ -40,7 +40,7 @@ typedef struct _KEY_EVENT_RECORD {
 <h3>Элементы</h3>
 <div class=descr>
     <div class=dfn>bKeyDown</div>
-    <div class=dfndescr>Равно TRUE если клавиша нажата, иначе FALSE. </div>
+    <div class=dfndescr>Равно <code>TRUE</code> если клавиша нажата, иначе <code>FALSE</code>. </div>
     <div class=dfn>wRepeatCount</div>
     <div class=dfndescr>Число повторов нажатия клавиши.
     Например, когда клавиша нажата, вы можете получить пять сообщений с
@@ -61,8 +61,7 @@ typedef struct _KEY_EVENT_RECORD {
       <table class="cont">
      <tr class="cont"><th class="cont" width="20%">Клавиша</th><th class="cont" width="20%">Значение</th><th class="cont" width="60%">Описание</th></tr>
         <tr class="cont"><td class="cont" width="20%">CAPSLOCK_ON</td><td class="cont" width="20%">0x0080</td>
-        <td class="cont" width="60%">CAPS LOCK включён.</td>
-        </tr>
+        <td class="cont" width="60%">CAPS LOCK включён.</td></tr>
         <tr class="cont"><td class="cont" width="20%">ENHANCED_KEY</td><td class="cont" width="20%">0x0100</td>
         <td class="cont" width="60%">Клавиша расширенная.</td></tr>
         <tr class="cont"><td class="cont" width="20%">LEFT_ALT_PRESSED </td><td class="cont" width="20%">0x0002</td>
@@ -86,17 +85,18 @@ typedef struct _KEY_EVENT_RECORD {
 <h3>Замечания</h3>
 <div class=descr>
   Расширенные клавиши для IBM<sup>&#174;</sup> 101- и 102-х клавишных
-  клавиатур - это INS, DEL, HOME, END, PAGE UP, PAGE DOWN, клавиши курсора,
-  клавиша divide (<code>/</code>) и ENTER на цифровой части.
+  клавиатур - это <kbd>INS</kbd>, <kbd>DEL</kbd>, <kbd>HOME</kbd>, <kbd>END</kbd>, <kbd>PAGE UP</kbd>, <kbd>PAGE DOWN</kbd>, клавиши курсора,
+  клавиша divide (<kbd>/</kbd>) и <kbd>ENTER</kbd> на цифровой части.
   <br>
   Сообщения клавиатурного ввода генерируются, когда любая клавиша,
   включая управляющую, нажата или отпущена.
-  Однако, когда клавиша ALT нажимается и отпускается, это имеет специальное значение в Windows
-  и такое событие не передаётся приложению. Также сочетание <code>CTRL+C</code>
-  не передаётся, если хендл входной консоли имеет флаг ENABLE_PROCESSED_INPUT.
+  Однако, когда клавиша <kbd>ALT</kbd> нажимается и отпускается, это имеет специальное значение в Windows
+  и такое событие не передаётся приложению. Также сочетание <kbd>CTRL</kbd>+<kbd>C</kbd>
+  не передаётся, если хендл входной консоли имеет флаг <code>ENABLE_PROCESSED_INPUT</code>.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="peekconsoleinput.html">PeekConsoleInput</a>,
 <a href="readconsoleinput.html">ReadConsoleInput</a>,
 <a href="writeconsoleinput.html">WriteConsoleInput</a>,

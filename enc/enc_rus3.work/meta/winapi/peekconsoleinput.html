@@ -18,7 +18,7 @@
 
 
 <div class=shortdescr>
-Функция <strong>PeekConsoleInput</strong> считывает данные из указанного
+Функция <code>PeekConsoleInput</code> считывает данные из указанного
 консольного входного буфера без удаления считанных записей из буфера.
 </div>
 
@@ -35,11 +35,11 @@ BOOL PeekConsoleInput(
 <div class=descr>
 
     <div class=dfn>hConsoleInput</div>
-    <div class=dfndescr>Дескриптор консольного буфера ввода. Дескриптор должен иметь права GENERIC_READ.</div>
+    <div class=dfndescr>Дескриптор консольного буфера ввода. Дескриптор должен иметь права <code>GENERIC_READ</code>.</div>
     <div class=dfn>lpBuffer</div>
     <div class=dfndescr>Указатель на массив структур <a href="input_record.html">INPUT_RECORD</a>, который получит данные из входного буфера. Общий размер требуемого массива должен быть меньше чем 64КБ.</div>
     <div class=dfn>nLength</div>
-    <div class=dfndescr>Число элементов в буфере <em>lpBuffer</em>, которое необходимо получить.</div>
+    <div class=dfndescr>Число элементов в буфере <code>lpBuffer</code>, которое необходимо получить.</div>
     <div class=dfn>lpNumberOfEventsRead</div>
     <div class=dfndescr>Указатель на 32-х разрядную переменную, которая получит число реально прочитанных элементов.</div>
 
@@ -49,7 +49,7 @@ BOOL PeekConsoleInput(
 <div class=descr>
   <p>В случае успеха возвращается ненулевое значение.<br>
   Если функция завершается неудачно, возвращается ноль.
-  Для получения дополнительной информации вызывайте функцию <dfn>GetLastError</dfn>.</p>
+  Для получения дополнительной информации вызывайте функцию <code>GetLastError</code>.</p>
 </div>
 
 <h3>Замечания</h3>
@@ -70,7 +70,8 @@ BOOL PeekConsoleInput(
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="input_record.html">INPUT_RECORD</a>,
 <a href="readconsoleinput.html">ReadConsoleInput</a>,
 <a href="win32/SetConsoleCP">SetConsoleCP</a>,

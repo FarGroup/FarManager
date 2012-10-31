@@ -18,7 +18,7 @@
 
 
 <div class=shortdescr>
-Структура <strong>SYSTEMTIME</strong> хранит дату и время, используя отдельные
+Структура <code>SYSTEMTIME</code> хранит дату и время, используя отдельные
 поля для месяца, дня, года, дня недели, часа, минут, секунд и миллисекунд.
 </div>
 
@@ -60,12 +60,12 @@ typedef struct _SYSTEMTIME {
 
 <h3>Замечания</h3>
 <div class=descr>
-  <p>Не рекомендуется добавлять или вычитать значения из структуры SYSTEMTIME
+  <p>Не рекомендуется добавлять или вычитать значения из структуры <code>SYSTEMTIME</code>
   для получения относительного времени. Вместо этого вы должны<ul>
     <li>Конвертировать структуру в <a href="filetime.html">FILETIME</a>, используя функцию <a href="win32/SystemTimeToFileTime">SystemTimeToFileTime</a>.</li>
     <li>Скопировать результирующую структуру <a href="filetime.html">FILETIME</a> в структуру <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a>.</li>
     <li>Использовать обычную 64-х битную арифметику со значениями <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a> или
-    привести переменную типа <strong>FILETIME</strong> к типу <strong>__int64</strong>:
+    привести переменную типа <code>FILETIME</code> к типу <code>__int64</code>:
 <pre class=code>
 FILETIME WriteTime1, WriteTime2;
 
@@ -75,17 +75,10 @@ if(*(__int64*) &amp; WriteTime1 == *(__int64*) &amp; WriteTime2)
     </li>
   </ul>
 
-<!--
-
-   The system can periodically refresh the time by synchronizing with
-a time source. Because the system time can be adjusted either forward
-or backward, do not compare system time readings to determine elapsed
-time. Instead, use one of the methods described in Windows Time.
-
--->
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="filetime.html">FILETIME</a>,
 <a href="win32/LARGE_INTEGER">LARGE_INTEGER</a>,
 <a href="win32/GetSystemTime">GetSystemTime</a>,

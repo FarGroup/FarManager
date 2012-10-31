@@ -6,11 +6,6 @@
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src='../links.js' type="text/javascript"></script>
 </head>
-<!--history
-  Fri 10 Dec 00:34:06 1999
-    Igor Ruskih <ruiv@uic.nnov.ru>
-    перевёл...
--->
 <body>
 
 <h1>WINDOW_BUFFER_SIZE_RECORD</h1>
@@ -21,8 +16,8 @@
 </div>
 
 <div class=shortdescr>
-Структура <strong>WINDOW_BUFFER_SIZE_RECORD</strong>
-используется консольной структурой <strong>INPUT_RECORD</strong>
+Структура <code>WINDOW_BUFFER_SIZE_RECORD</code>
+используется консольной структурой <code>INPUT_RECORD</code>
 для информирования о смене в размере экранного буфера консоли.
 </div>
 
@@ -43,11 +38,12 @@ typedef struct _WINDOW_BUFFER_SIZE_RECORD {
 <h3>Замечания</h3>
 <div class=descr>
   <p>Эти сообщения добавляются во входной буфер, когда консоль находится
-  в режиме window-aware (<strong>ENABLE_WINDOW_INPUT</strong>).</p>
+  в режиме window-aware (<code>ENABLE_WINDOW_INPUT</code>).</p>
 </div>
 
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="input_record.html">INPUT_RECORD</a>,
 <a href="coord.html">COORD</a>,
 <a href="readconsoleinput.html">ReadConsoleInput</a>

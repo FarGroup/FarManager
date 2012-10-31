@@ -6,14 +6,6 @@
 <link rel="stylesheet" type="text/css" href="../../styles/styles.css">
 <script language="javascript" src="../links.js" type="text/javascript"></script>
 </head>
-<!--history
-  Tue 14 Dec 21:34:12 1999
-    Igor Ruskih <ruiv@uic.nnov.ru>
-    перевёл
-  Thu 19 Apr 13:40:00 2001
-    VVM <vmoshninov@newmail.ru>
-    дополнение про MOUSE_WHEELED
--->
 <body>
 
 <h1>MOUSE_EVENT_RECORD</h1>
@@ -25,8 +17,8 @@
 </div>
 
 <div class=shortdescr>
-Структура <strong>MOUSE_EVENT_RECORD</strong> используется
-консольной структурой <strong>INPUT_RECORD</strong>
+Структура <code>MOUSE_EVENT_RECORD</code> используется
+консольной структурой <code>INPUT_RECORD</code>
 для получения сообщений мыши.
 </div>
 
@@ -93,14 +85,14 @@ typedef struct _MOUSE_EVENT_RECORD {
        <td class="cont" width="60%">Позиция мыши изменилась.</td></tr>
        <tr class="cont"><td class="cont" width="40%">MOUSE_WHEELED</td>
        <td class="cont" width="60%">Устанавливается при вертикальной прокрутке колёсика
-           на мышке. Если установлен этот флаг, то в старшем слове <b>dwButtonState</b> содержтся
-           значение, кратное WHEEL_DELTA. По умолчанию это значение равно 120, но может
+           на мышке. Если установлен этот флаг, то в старшем слове <code>dwButtonState</code> содержтся
+           значение, кратное <code>WHEEL_DELTA</code>. По умолчанию это значение равно 120, но может
            изменяться в зависимости от драйвера мыши.</td>
        </tr>
        <tr class="cont"><td class="cont" width="40%">MOUSE_HWHEELED</td>
-       <td class="cont" width="60%"><strong>Windows Vista/2008/7:</strong> Устанавливается при горизонтальной прокрутке колёсика
-           на мышке. Если установлен этот флаг, то в старшем слове <b>dwButtonState</b> содержтся
-           значение, кратное WHEEL_DELTA. По умолчанию это значение равно 120, но может
+       <td class="cont" width="60%"><code>Windows Vista/2008/7:</code> Устанавливается при горизонтальной прокрутке колёсика
+           на мышке. Если установлен этот флаг, то в старшем слове <code>dwButtonState</code> содержтся
+           значение, кратное <code>WHEEL_DELTA</code>. По умолчанию это значение равно 120, но может
            изменяться в зависимости от драйвера мыши.</td>
        </tr>
        </table>
@@ -111,12 +103,13 @@ typedef struct _MOUSE_EVENT_RECORD {
 <h3>Замечания</h3>
 <div class=descr>
   Сообщения мыши помещаются во входной буфер, когда консоль имеет установленный
-  флаг <strong>ENABLE_MOUSE_INPUT</strong>.<br>
+  флаг <code>ENABLE_MOUSE_INPUT</code>.<br>
   Сообщения мыши посылаются в буфер, только если консоль имеет активный
   клавиатурный фокус и курсор находится в границах консольного окна.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
   <a href="coord.html">COORD</a>,
   <a href="peekconsoleinput.html">PeekConsoleInput</a>,
   <a href="readconsoleinput.html">ReadConsoleInput</a>,

@@ -17,9 +17,9 @@
 
 
 <div class=shortdescr>
-Структура <strong>WIN32_FIND_DATA</strong> описывает
-файл, найденный функциями <strong><a href="win32/FindFirstFile">FindFirstFile</a></strong>, <strong><a href="win32/FindFirstFileEx">FindFirstFileEx</a></strong>
-или <strong><a href="win32/FindNextFile">FindNextFile</a></strong>.
+Структура <code>WIN32_FIND_DATA</code> описывает
+файл, найденный функциями <code><a href="win32/FindFirstFile">FindFirstFile</a></code>, <code><a href="win32/FindFirstFileEx">FindFirstFileEx</a></code>
+или <code><a href="win32/FindNextFile">FindNextFile</a></code>.
 </div>
 
 <pre class=syntax>
@@ -105,7 +105,7 @@ typedef struct _WIN32_FIND_DATA {
     содержащая время создания файла. <a href="win32/FindFirstFile">FindFirstFile</a> и
     <a href="win32/FindNextFile">FindNextFile</a>
     возвращают время файла в UTC-формате.
-    Эти функции устанавливают элементы FILETIME в ноль, если файловая
+    Эти функции устанавливают элементы <code>FILETIME</code> в ноль, если файловая
     система, содержащая файл, не поддерживает этот временной атрибут.<br>
     Вы можете использовать функцию <a href="win32/FileTimeToLocalFileTime">FileTimeToLocalFileTime</a>
     для преобразования из UTC в локальное время и тогда использовать
@@ -139,8 +139,8 @@ typedef struct _WIN32_FIND_DATA {
     <div class=dfndescr>Младшее двойное слово размера файла в байтах.</div>
 
     <div class=dfn>dwReserved0</div>
-    <div class=dfndescr>Если поле <var>dwFileAttributes</var> содержит атрибут
-       <dfn>FILE_ATTRIBUTE_REPARSE_POINT</dfn>, это поле содержит тип
+    <div class=dfndescr>Если поле <code>dwFileAttributes</code> содержит атрибут
+       <code>FILE_ATTRIBUTE_REPARSE_POINT</code>, это поле содержит тип
        <a href="../other/dict.html#symboliclinks">точки повторной обработки</a>.
        В противном случае значение этого поля не определено и не должно
        использоваться.</div>
@@ -159,9 +159,9 @@ typedef struct _WIN32_FIND_DATA {
 <h3>Замечания</h3>
 <div class=descr>
 <ul>
-<li>Если файл имеет длинное имя, полное имя возвращается в элементе <var>cFileName</var>
-  а усечённая версия формата 8.3 сохраняется в <var>cAlternateFileName</var>.
-  Иначе <var>cAlternateFileName</var> пусто.
+<li>Если файл имеет длинное имя, полное имя возвращается в элементе <code>cFileName</code>
+  а усечённая версия формата 8.3 сохраняется в <code>cAlternateFileName</code>.
+  Иначе <code>cAlternateFileName</code> пусто.
   Как альтернативу вы можете использовать функцию <a href="win32/GetShortPathName">GetShortPathName</a>
   для возвращения 8.3-вида имени файла.
 </li>
@@ -175,8 +175,9 @@ typedef struct _WIN32_FIND_DATA {
 </ul>
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
-<a href="filetime.html">FILETIME</a>,
+<div class=see>Смотрите также:</div>
+<div class=seecont>
+<a href="filetime.html">FILETIME</a>
 </div>
 
 </body>

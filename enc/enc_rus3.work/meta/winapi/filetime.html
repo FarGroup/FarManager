@@ -17,7 +17,7 @@
 </div>
 
 <div class=shortdescr>
-Структура <strong>FILETIME</strong> - это 64-х разрядное значение,
+Структура <code>FILETIME</code> - это 64-х разрядное значение,
 представляющее число сто-наносекундных интервалов, прошедших с первого
 января 1601 года (UTC).
 </div>
@@ -45,7 +45,7 @@ typedef struct _FILETIME {
   <ul>
     <li>Скопировать результирующую структуру в структуру <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a></li>
     <li>Использовать обычную 64-х битную арифметику для значения <a href="win32/ULARGE_INTEGER">ULARGE_INTEGER</a> или
-    привести переменную типа <strong>FILETIME</strong> к типу <strong>__int64</strong>:
+    привести переменную типа <code>FILETIME</code> к типу <code>__int64</code>:
 <pre class=code>
 FILETIME WriteTime1, WriteTime2;
 
@@ -65,7 +65,8 @@ if(*(__int64*) &amp; WriteTime1 == *(__int64*) &amp; WriteTime2)
 универсальном синхронизированном времени (UTC).
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="win32/CompareFileTime">CompareFileTime</a>,
 <a href="getfiletime.html">GetFileTime</a>,
 <a href="setfiletime.html">SetFileTime</a>,
