@@ -109,8 +109,6 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 					lua_getfield(L,-1,"n");
 					nargs=(int)lua_tointeger(L,-1);
 
-					if(nargs>64) nargs=64;
-
 					lua_pop(L,1);
 					mpr = CreateMPR(L,nargs,ReturnType);
 

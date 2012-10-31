@@ -656,8 +656,13 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 	else if (val->Type == FMVT_DOUBLE)  lua_pushnumber(L, val->Value.Double);
 	else if (val->Type == FMVT_STRING)  push_utf8_string(L, val->Value.String, -1);
 	else if (val->Type == FMVT_BOOLEAN) lua_pushboolean(L, (int)val->Value.Boolean);
-	else if (val->Type == FMVT_BINARY)  lua_pushlstring(L, (char*)val->Value.Binary.Data, val->Value.Binary.Size);
-	else                                lua_pushboolean(L, 0);
+	else if (val->Type == FMVT_BINARY)
+	{
+		lua_createtable(L,1,0);
+		lua_pushlstring(L, (char*)val->Value.Binary.Data, val->Value.Binary.Size);
+		lua_rawseti(L,-2,1);
+	}
+	else lua_pushboolean(L, 0);
 }
 
 static void PushParamsTable(lua_State* L, const struct OpenMacroInfo* Data)
@@ -798,6 +803,7 @@ HANDLE LF_Open(lua_State* L, const struct OpenInfo *Info)
 	if(Info->OpenFrom == OPEN_FROMMACRO)
 	{
 		int top = lua_gettop(L);
+		lua_checkstack(L, 4096);
 		if (pcall_msg(L, 3, LUA_MULTRET) == 0)
 		{
 			HANDLE ret;

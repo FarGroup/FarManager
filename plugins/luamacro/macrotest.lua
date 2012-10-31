@@ -1,5 +1,7 @@
 -- Started: 2012-08-20.
 
+local luamacroId="4ebbefc8-2084-4b7f-94c0-692ce136894d" -- LuaMacro plugin GUID
+
 local function IsNumOrInt(v)
   return type(v)=="number" or bit64.type(v)
 end
@@ -39,7 +41,7 @@ assert(Area.UserMenu             ==false)
 assert(Area.ShellAutoCompletion  ==false)
 assert(Area.DialogAutoCompletion ==false)
 
-assert(akey(0)==83951739)
+assert(akey(0)==0x501007B)
 assert(akey(1)=="CtrlShiftF12")
 --todo: test 2nd parameter
 
@@ -371,4 +373,15 @@ assert(type(Far.KeyBar_Show(0))=="number")
 
 assert(type(Far.Window_Scroll)=="function")
 
-msgbox("LuaMacro", "All tests OK")
+do -- Plugin.Call: test arguments and returns
+  local i1 = bit64.new("0x8765876587658765")
+  local r1,r2,r3,r4,r5 = Plugin.Call(luamacroId, "argtest", "foo", i1, -2.34, false, {"foo\0bar"})
+  assert(r1=="foo" and r2==i1 and r3==-2.34 and r4==false and type(r5)=="table" and r5[1]=="foo\0bar")
+
+  local N,src = 4096,{}
+  for k=1,N do src[k]=k end
+  local trg = { Plugin.Call(luamacroId, "argtest", unpack(src)) }
+  assert(#trg==N and trg[1]==1 and trg[N]==N)
+end
+
+far.Message("All tests OK", "LuaMacro")

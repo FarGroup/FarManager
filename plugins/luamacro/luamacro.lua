@@ -197,9 +197,14 @@ function export.Open (OpenFrom, ...)
     elseif calltype==F.MCT_MACROFINAL then return MacroFinal(handle)
     elseif calltype==F.MCT_MACROPARSE then return MacroParse(unpack(args))
     end
+
   elseif OpenFrom == F.OPEN_COMMANDLINE then
     local guid, cmdline = ...
     return ProcessCommandLine(cmdline)
+
+  elseif OpenFrom == F.OPEN_FROMMACRO then
+    local guid, args = ...
+    if args[1]=="argtest" then return unpack(args,2) end -- argtest: return received arguments
   end
 end
 
