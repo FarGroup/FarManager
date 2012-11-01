@@ -78,7 +78,7 @@ lv=1
 dt=Text
 nm=Unicode support
 ctime=3480525243
-mtime=3542481865
+mtime=3560953458
 <article>
 #_<markdown>
 #_
@@ -114,10 +114,16 @@ mtime=3542481865
 #_* [`win.CreateDir`](372.html)
 #_* [`win.DeleteFile`](361.html)
 #_* [`win.GetEnv`](152.html)
+#_* [`win.GetFileAttr`](433.html)
+#_* [`win.GetFileInfo`](213.html)
 #_* [`win.MoveFile`](362.html)
 #_* [`win.RemoveDir`](373.html)
 #_* [`win.RenameFile`](363.html)
-#_
+#_* [`win.SearchPath`](429.html)
+#_* [`win.SetEnv`](192.html)
+#_* [`win.SetFileAttr`](434.html)
+#_* [`win.ShellExecute`](428.html)
+#_* [`win.SHGetFolderPath`](440.html)
 #_
 </article>
 </node>
