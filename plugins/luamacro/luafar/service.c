@@ -3499,7 +3499,7 @@ static int viewer_GetInfo(lua_State *L)
 	lua_createtable(L, 0, 3);
 	PutNumToTable(L, "CodePage", (double) vi.CurMode.CodePage);
 	PutFlagsToTable(L, "Flags",    vi.CurMode.Flags);
-	PutNumToTable(L, "Type", (double) vi.CurMode.Type);
+	PutNumToTable(L, "ViewMode", (double) vi.CurMode.ViewMode);
 	lua_setfield(L, -2, "CurMode");
 	return 1;
 }
