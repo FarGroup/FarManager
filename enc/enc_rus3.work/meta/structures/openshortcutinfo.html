@@ -33,9 +33,9 @@ struct OpenShortcutInfo
   <div class=dfn>StructSize</div>
     <div class=dfndescr>Это поле содержит размер структуры <code>OpenShortcutInfo</code>.</div>
   <div class=dfn>HostFile</div>
-    <div class=dfndescr>...</div>
+    <div class=dfndescr>Если шорт-кат сохранён внутри файла, эмулирующего фаловую систему, то это поле содержит адрес имени этого файла.</div>
   <div class=dfn>ShortcutData</div>
-    <div class=dfndescr>Содержит адрес строки, которая была передана в момент сохранения горячей клавиши (шорт-ката).</div>
+    <div class=dfndescr>Содержит то, что вернул плагин в OpenPanelInfo.OpenPanelInfo в момент сохранения шорт-ката.</div>
   <div class=dfn>Flags</div>
     <div class=dfndescr>Дополнительные флаги. Могут быть комбинацией следующих значений (тип <a name="FAROPENSHORTCUTFLAGS">FAROPENSHORTCUTFLAGS</a>):
     <table class="cont">
