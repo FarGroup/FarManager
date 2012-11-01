@@ -5940,7 +5940,7 @@ lv=2
 dt=Text
 nm=far.GetPlugins
 ctime=3536863842
-mtime=3536864316
+mtime=3560954741
 <article>
 #_plugin_handles = far.GetPlugins ()
 #_
@@ -5948,7 +5948,7 @@ mtime=3536864316
 #_  none
 #_
 #_**Returns:**
-#_  plugin_handle: table (array of plugin handles)
+#_  plugin_handles: table (array of plugin handles)
 #_
 #_**Far API used:**
 #_  PluginsControl
@@ -7999,14 +7999,14 @@ id=133
 lv=2
 dt=Text
 nm=ViewerInfo.CurMode
-mtime=3557544876
+mtime=3560971933
 <article>
 #_<markdown>
 #_**`ViewerInfo.CurMode`** is a table with the following predefined fields:
 #_
 #_      CodePage:       integer
 #_      Flags:          flags
-#_      Type:           flag
+#_      ViewMode:       flag
 #_
 #_
 </article>
