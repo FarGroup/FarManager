@@ -341,7 +341,7 @@ void FilePanels::DeletePanel(Panel *Deleted)
 	if (Deleted==LastRightFilePanel)
 		LastRightFilePanel=nullptr;
 
-	delete Deleted;
+	Deleted->Destroy();
 }
 
 int FilePanels::SetAnhoterPanelFocus()

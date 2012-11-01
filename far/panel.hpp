@@ -118,7 +118,55 @@ class VMenu2;
 class Edit;
 struct PanelMenuItem;
 
-class Panel:public ScreenObject
+class DelayedDestroy
+{
+	bool           destroyed;
+	int prevent_delete_count;
+
+public:
+	DelayedDestroy() : destroyed(false), prevent_delete_count(0) {}
+
+	virtual ~DelayedDestroy() {
+		assert(destroyed);
+	}
+
+public:
+	bool Destroy()	{
+		assert(!destroyed);
+		destroyed = true;
+		if (prevent_delete_count > 0) {
+			return false;
+		}
+		else {
+			delete this;
+			return true;
+		}
+	}
+
+	bool Destroyed() { return destroyed; }
+
+	int AddRef() { return ++prevent_delete_count; }
+
+   int Release() {
+		assert(prevent_delete_count > 0);
+		if (--prevent_delete_count > 0 || !destroyed)
+			return prevent_delete_count;
+		else {
+			delete this;
+			return 0;
+		}
+	}
+};
+
+class DelayDestroy
+{
+	DelayedDestroy *host;
+public:
+	DelayDestroy(DelayedDestroy *_host) { (host = _host)->AddRef(); }
+   ~DelayDestroy() { host->Release(); }
+};
+
+class Panel:public ScreenObject, public DelayedDestroy
 {
 	protected:
 		string strCurDir;

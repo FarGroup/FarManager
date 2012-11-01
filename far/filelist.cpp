@@ -4033,6 +4033,9 @@ void FileList::UpdateViewPanel()
 		else
 			ViewPanel->ShowFile(nullptr,FALSE,nullptr);
 
+		if (ViewPanel->Destroyed())
+			return;
+
 		SetTitle();
 	}
 }

@@ -102,6 +102,9 @@ void QuickView::DisplayObject()
 	if (!QView && !ProcessingPluginCommand)
 		CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
 
+	if (this->Destroyed())
+		return;
+
 	if (QView)
 		QView->SetPosition(X1+1,Y1+1,X2-1,Y2-3);
 
@@ -480,6 +483,8 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 			QView->OpenFile(strCurFileName,FALSE);
 		}
 	}
+	if (this->Destroyed())
+		return;
 
 	if (TempFile)
 		ConvertNameToFull(strCurFileName, strTempName);

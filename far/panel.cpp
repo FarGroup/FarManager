@@ -1934,6 +1934,8 @@ void Panel::Show()
 	if (Locked())
 		return;
 
+	DelayDestroy dd(this);
+
 	/* $ 03.10.2001 IS перерисуем строчку меню */
 	if (Opt.ShowMenuBar)
 		CtrlObject->TopMenuBar->Show();
@@ -1967,7 +1969,8 @@ void Panel::Show()
 	}
 
 	ScreenObject::Show();
-	ShowScreensCount();
+	if (!this->Destroyed())
+		ShowScreensCount();
 }
 
 
