@@ -3054,8 +3054,6 @@ T* try_db_load(T *p, const char *son = nullptr, bool plugin=false)
 		{
 			TemplateLoadState = 0;
 			string def_config = Opt.TemplateProfilePath;
-			AddEndSlash(def_config);
-			def_config += L"Default.farconfig";
 			FILE* XmlFile = _wfopen(NTPath(def_config), L"rb");
 			if (XmlFile)
 			{

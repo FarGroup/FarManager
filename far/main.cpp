@@ -341,7 +341,10 @@ int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,str
 void InitTemplateProfile(string &strTemplatePath)
 {
 	if (strTemplatePath.IsEmpty())
-		strTemplatePath.ReleaseBuffer(GetPrivateProfileString(L"General", L"TemplateProfileDir", L"%FARHOME%\\Default", strTemplatePath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI));
+		strTemplatePath.ReleaseBuffer(GetPrivateProfileString(
+			L"General", L"TemplateProfile", L"%FARHOME%\\Default.farconfig",
+			strTemplatePath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI)
+		);
 
 	if (!strTemplatePath.IsEmpty())
 	{
@@ -349,6 +352,11 @@ void InitTemplateProfile(string &strTemplatePath)
 		Unquote(strTemplatePath);
 		ConvertNameToFull(strTemplatePath, strTemplatePath);
 		DeleteEndSlash(strTemplatePath);
+
+		DWORD attr = apiGetFileAttributes(strTemplatePath);
+		if (0 != (attr & FILE_ATTRIBUTE_DIRECTORY))
+			strTemplatePath += L"\\Default.farconfig";
+
 		Opt.TemplateProfilePath = strTemplatePath;
 	}
 }
