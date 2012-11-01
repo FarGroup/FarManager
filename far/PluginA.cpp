@@ -4826,7 +4826,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 			viA->CurMode.Unicode        = IsUnicodeCodePage(viW.CurMode.CodePage);
 			viA->CurMode.Wrap           = (viW.CurMode.Flags&VMF_WRAP)?1:0;
 			viA->CurMode.WordWrap       = (viW.CurMode.Flags&VMF_WORDWRAP)?1:0;
-			viA->CurMode.Hex            = viW.CurMode.Type;
+			viA->CurMode.Hex            = viW.CurMode.ViewMode;
 			viA->LeftPos = (int)viW.LeftPos;
 			viA->Reserved3 = 0;
 			break;
@@ -4891,7 +4891,7 @@ int WINAPI FarViewerControlA(int Command,void* Param)
 
 			switch (vsmA->Type)
 			{
-				case oldfar::VSMT_HEX:      vsm.Type = VSMT_HEX;      break;
+				case oldfar::VSMT_HEX:      vsm.Type = VSMT_VIEWMODE; break;
 				case oldfar::VSMT_WRAP:     vsm.Type = VSMT_WRAP;     break;
 				case oldfar::VSMT_WORDWRAP: vsm.Type = VSMT_WORDWRAP; break;
 			}

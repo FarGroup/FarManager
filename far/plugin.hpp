@@ -1401,7 +1401,7 @@ static const VIEWER_OPTIONS
 
 enum VIEWER_SETMODE_TYPES
 {
-	VSMT_HEX                        = 0,
+	VSMT_VIEWMODE                   = 0,
 	VSMT_WRAP                       = 1,
 	VSMT_WORDWRAP                   = 2,
 };
@@ -1464,7 +1464,7 @@ struct ViewerMode
 {
 	uintptr_t CodePage;
 	VIEWER_MODE_FLAGS Flags;
-	enum VIEWER_MODE_TYPE Type;
+	enum VIEWER_MODE_TYPE ViewMode;
 };
 
 struct ViewerInfo

@@ -4192,9 +4192,9 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				Info->CurMode.Flags=0;
 				if (VM.Wrap) Info->CurMode.Flags|=VMF_WRAP;
 				if (VM.WordWrap) Info->CurMode.Flags|=VMF_WORDWRAP;
-				Info->CurMode.Type=VMT_TEXT;
-				if (1==VM.Hex) Info->CurMode.Type=VMT_HEX;
-				if (2==VM.Hex) Info->CurMode.Type=VMT_DUMP;
+				Info->CurMode.ViewMode=VMT_TEXT;
+				if (1==VM.Hex) Info->CurMode.ViewMode=VMT_HEX;
+				if (2==VM.Hex) Info->CurMode.ViewMode=VMT_DUMP;
 				Info->Options=0;
 
 				if (Opt.ViOpt.SavePos)   Info->Options|=VOPT_SAVEFILEPOSITION;
@@ -4336,7 +4336,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 
 				switch (vsmode->Type)
 				{
-					case VSMT_HEX:
+					case VSMT_VIEWMODE:
 						ProcessHexMode(vsmode->iParam,isRedraw);
 						return TRUE;
 					case VSMT_WRAP:

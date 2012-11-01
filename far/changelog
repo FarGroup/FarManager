@@ -1,3 +1,9 @@
+zg 01.11.2012 22:16:49 +0200 - build 2918
+
+1. ViewerMode.Type -> ViewerMode.ViewMode.
+
+2. VSMT_HEX -> VSMT_VIEWMODE.
+
 w17 01.11.2012 18:06:23 +0400 - build 2917
 
 1. уточнение 2913, 2914, 2916 - не загружались 'panelmodes'
