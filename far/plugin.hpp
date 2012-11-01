@@ -2580,8 +2580,6 @@ struct OpenCommandLineInfo
 
 enum OPENFROM
 {
-	OPEN_FROM_MASK          = 0x000000FF,
-
 	OPEN_LEFTDISKMENU       = 0,
 	OPEN_PLUGINSMENU        = 1,
 	OPEN_FINDLIST           = 2,
