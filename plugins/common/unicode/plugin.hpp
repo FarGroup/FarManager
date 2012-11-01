@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2912
+  Plugin API for Far Manager 3.0 build 2918
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2912
+#define FARMANAGERVERSION_BUILD 2918
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1222,7 +1222,7 @@ static const VIEWER_OPTIONS
 
 enum VIEWER_SETMODE_TYPES
 {
-	VSMT_HEX                        = 0,
+	VSMT_VIEWMODE                   = 0,
 	VSMT_WRAP                       = 1,
 	VSMT_WORDWRAP                   = 2,
 };
@@ -1285,7 +1285,7 @@ struct ViewerMode
 {
 	uintptr_t CodePage;
 	VIEWER_MODE_FLAGS Flags;
-	enum VIEWER_MODE_TYPE Type;
+	enum VIEWER_MODE_TYPE ViewMode;
 };
 
 struct ViewerInfo
