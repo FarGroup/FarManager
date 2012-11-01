@@ -3153,7 +3153,7 @@ HierarchicalConfig *CreateShortcutsConfig(bool impex)
 { return CreateHierahchicalConfig<HierarchicalConfigDb>(0x4, L"shortcuts.db","shortcuts", impex, true); }
 
 HierarchicalConfig *CreatePanelModeConfig(bool impex)
-{ return CreateHierahchicalConfig<HierarchicalConfigDb>(0x8, L"panelmodes.db","panelmode", impex); }
+{ return CreateHierahchicalConfig<HierarchicalConfigDb>(0x8, L"panelmodes.db","panelmodes", impex); }
 
 void ReleaseDb()
 {

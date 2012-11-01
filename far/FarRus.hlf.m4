@@ -226,7 +226,7 @@ $ # Far: параметры командной строки#
   #/t templateprofile
   #Задаёт файл в котором располагаются умолчательные настройки, которые применяются,
 если какой-либо из конфигурационных файлов не существует. Параметр templateprofile
-перекрывает значение TemplateProfile из far.exe.ini.
+перекрывает значение TemplateProfile из Far.exe.ini.
 
   #/clearcache [profilepath [localprofilepath]]#
   Очистить кэш плагинов и завершить работу.
