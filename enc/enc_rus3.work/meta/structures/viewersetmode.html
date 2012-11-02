@@ -44,13 +44,23 @@ struct ViewerSetMode
   <div class=dfn>Type</div>
     <div class=dfndescr>Тип режима. Может быть одним из следующих (перечисление <a name="VIEWER_SETMODE_TYPES">VIEWER_SETMODE_TYPES</a>):
     <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VSMT_HEX">VSMT_VIEWMODE</a></td>
+    <td class="cont" width="60%">Режим представления текста: <code>iParam</code> равен значению перечисления <a name="VIEWER_MODE_TYPE">VIEWER_MODE_TYPE</a>:
+    <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Режим</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="VSMT_HEX">VSMT_HEX</a></td>
-    <td class="cont" width="60%">Текстовый/16-ричный режим: <code>iParam</code>=1 - включить 16-ричный режим, <code>iParam</code>=0 - текстовый.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VMT_TEXT">VMT_TEXT</a></td>
+    <td class="cont" width="60%">установить текстовый режим</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VMT_HEX">VMT_HEX</a></td>
+    <td class="cont" width="60%">установить hex-режим</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="VMT_DUMP">VMT_DUMP</a></td>
+    <td class="cont" width="60%">установить dump-режим</td></tr>
+    </table>
+    </td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VSMT_WRAP">VSMT_WRAP</a></td>
-    <td class="cont" width="60%">Перенос строк: <code>iParam</code>=1 - перенос включён, <code>iParam</code>=0 - выключен)</td></tr>
+    <td class="cont" width="60%">Перенос строк: <code>iParam = 1</code> - включить перенос, <code>iParam = 0</code> - выключить.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="VSMT_WORDWRAP">VSMT_WORDWRAP</a></td>
-    <td class="cont" width="60%">Тип свёртки: <code>iParam</code>=1 - используется перенос строк по словам, <code>iParam</code>=0 - по буквам.</td></tr>
+    <td class="cont" width="60%">Тип свёртки: <code>iParam = 1</code> - использовать перенос строк по словам, <code>iParam = 0</code> - по буквам.</td></tr>
     </table>
     </div>
   <div class=dfn>iParam</div>

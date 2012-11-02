@@ -24,7 +24,7 @@ struct ViewerMode
 {
   uintptr_t CodePage;
   VIEWER_MODE_FLAGS Flags;
-  enum VIEWER_MODE_TYPE Type;
+  enum VIEWER_MODE_TYPE ViewMode;
 };
 </pre>
 
@@ -41,7 +41,7 @@ struct ViewerMode
     <tr class="cont"><td class="cont" width="40%"><a name="VMF_WORDWRAP">VMF_WORDWRAP</a></td>
     <td class="cont" width="60%">При свертке используется перенос строк по словам, а не буквам.</td></tr>
     </table></div>
-  <div class=dfn>Type</div>
+  <div class=dfn>ViewMode</div>
     <div class=dfndescr>Режим программы просмотра, комбинация следующих значений (перечисление <a name="VIEWER_MODE_TYPE">VIEWER_MODE_TYPE</a>).
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
