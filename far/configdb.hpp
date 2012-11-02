@@ -292,20 +292,20 @@ class Database
 public:
 	Database(bool imp_exp=false);
 	~Database();
+	bool Import(const wchar_t *File) const;
+	bool Export(const wchar_t *File) const;
+	void ClearPluginsCache() const;
 	void AddProblem(const string& Problem);
 	int ShowProblems();
-	bool Import(const wchar_t *File);
-	bool Export(const wchar_t *File);
-	void ClearPluginsCache();
 
-	GeneralConfig *GeneralCfg() { return m_GeneralCfg; }
-	ColorsConfig *ColorsCfg() { return m_ColorsCfg; }
-	AssociationsConfig *AssocConfig() { return m_AssocConfig; }
-	PluginsCacheConfig *PlCacheCfg() { return m_PlCacheCfg; }
-	PluginsHotkeysConfig *PlHotkeyCfg() { return m_PlHotkeyCfg; }
-	HistoryConfig *HistoryCfg() { return m_HistoryCfg; }
-	HistoryConfig *HistoryCfgMem() { return m_HistoryCfgMem; }
-	MacroConfig *MacroCfg() { return m_MacroCfg; }
+	GeneralConfig *GeneralCfg() const { return m_GeneralCfg; }
+	ColorsConfig *ColorsCfg() const { return m_ColorsCfg; }
+	AssociationsConfig *AssocConfig() const { return m_AssocConfig; }
+	PluginsCacheConfig *PlCacheCfg() const { return m_PlCacheCfg; }
+	PluginsHotkeysConfig *PlHotkeyCfg() const { return m_PlHotkeyCfg; }
+	HistoryConfig *HistoryCfg() const { return m_HistoryCfg; }
+	HistoryConfig *HistoryCfgMem() const { return m_HistoryCfgMem; }
+	MacroConfig *MacroCfg() const { return m_MacroCfg; }
 
 private:
 	GeneralConfig *m_GeneralCfg;

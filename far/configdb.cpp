@@ -3143,7 +3143,7 @@ Database::~Database()
 	delete m_GeneralCfg;
 }
 
-bool Database::Export(const wchar_t *File)
+bool Database::Export(const wchar_t *File) const
 {
 	FILE* XmlFile = _wfopen(NTPath(File), L"w");
 	if(!XmlFile)
@@ -3235,7 +3235,7 @@ bool Database::Export(const wchar_t *File)
 	return ret;
 }
 
-bool Database::Import(const wchar_t *File)
+bool Database::Import(const wchar_t *File) const
 {
 	FILE* XmlFile = _wfopen(NTPath(File), L"rb");
 	if(!XmlFile)
@@ -3313,7 +3313,7 @@ bool Database::Import(const wchar_t *File)
 	return ret;
 }
 
-void Database::ClearPluginsCache()
+void Database::ClearPluginsCache() const
 {
 	PluginsCacheConfigDb *p = new PluginsCacheConfigDb();
 	p->DiscardCache();
