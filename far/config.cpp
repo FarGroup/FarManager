@@ -415,7 +415,7 @@ void ApplyDefaultMaskGroups()
 
 	for (size_t i = 0; i < ARRAYSIZE(Sets); ++i)
 	{
-		GeneralCfg->SetValue(L"Masks", Sets[i].Group, Sets[i].Mask);
+		Db->GeneralCfg()->SetValue(L"Masks", Sets[i].Group, Sets[i].Mask);
 	}
 }
 
@@ -423,7 +423,7 @@ void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 {
 	MasksMenu.DeleteItems();
 	string Name, Value;
-	for(DWORD i = 0; GeneralCfg->EnumValues(L"Masks", i, Name, Value); ++i)
+	for(DWORD i = 0; Db->GeneralCfg()->EnumValues(L"Masks", i, Name, Value); ++i)
 	{
 		MenuItemEx Item = {};
 		string DisplayName(Name);
@@ -474,7 +474,7 @@ void MaskGroupsSettings()
 		case KEY_DEL:
 			if(Item && !Message(0,2,MSG(MMenuMaskGroups),MSG(MMaskGroupAskDelete), Item, MSG(MDelete), MSG(MCancel)))
 			{
-				GeneralCfg->DeleteValue(L"Masks", Item);
+				Db->GeneralCfg()->DeleteValue(L"Masks", Item);
 				Changed = true;
 			}
 			break;
@@ -489,7 +489,7 @@ void MaskGroupsSettings()
 				string Name(Item), Value;
 				if(Item)
 				{
-					GeneralCfg->GetValue(L"Masks", Name, Value, L"");
+					Db->GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
 				}
 				DialogBuilder Builder(MMenuMaskGroups, nullptr);
 				Builder.AddText(MMaskGroupName);
@@ -501,9 +501,9 @@ void MaskGroupsSettings()
 				{
 					if(Item)
 					{
-						GeneralCfg->DeleteValue(L"Masks", Item);
+						Db->GeneralCfg()->DeleteValue(L"Masks", Item);
 					}
-					GeneralCfg->SetValue(L"Masks", Name, Value);
+					Db->GeneralCfg()->SetValue(L"Masks", Name, Value);
 					Changed = true;
 				}
 			}
@@ -535,7 +535,7 @@ void MaskGroupsSettings()
 					for (int i=0; i < MasksMenu.GetItemCount(); ++i)
 					{
 						string CurrentMasks;
-						GeneralCfg->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu.GetUserData(nullptr, 0, i)), CurrentMasks, L"");
+						Db->GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu.GetUserData(nullptr, 0, i)), CurrentMasks, L"");
 						CFileMask Masks;
 						Masks.Set(CurrentMasks, 0);
 						if(!Masks.Compare(Value))
@@ -1396,7 +1396,7 @@ void ReadConfig()
 	}
 
 	string tmp[2];
-	if (!GeneralCfg->EnumValues(L"Masks", 0, tmp[0], tmp[1]))
+	if (!Db->GeneralCfg()->EnumValues(L"Masks", 0, tmp[0], tmp[1]))
 	{
 		ApplyDefaultMaskGroups();
 	}
@@ -1472,14 +1472,14 @@ void SaveConfig(int Ask)
 
 	Opt.Palette.Save();
 
-	GeneralCfg->BeginTransaction();
+	Db->GeneralCfg()->BeginTransaction();
 
 	for (size_t I=0; I < ARRAYSIZE(CFG); ++I)
 	{
 		CFG[I].Value->StoreValue(CFG[I].KeyName, CFG[I].ValName);
 	}
 
-	GeneralCfg->EndTransaction();
+	Db->GeneralCfg()->EndTransaction();
 
 	/* <оняропнжеяяш> *************************************************** */
 	FileFilter::SaveFilters();
@@ -1754,51 +1754,51 @@ bool AdvancedConfig()
 bool BoolOption::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, bool Default)
 {
 	int CfgValue = Default;
-	bool Result = GeneralCfg->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
 	Set(CfgValue != 0);
 	return Result;
 }
 
 bool BoolOption::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || GeneralCfg->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
 }
 
 bool Bool3Option::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, int Default)
 {
 	int CfgValue = Default;
-	bool Result = GeneralCfg->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
 	Set(CfgValue);
 	return Result;
 }
 
 bool Bool3Option::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || GeneralCfg->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
 }
 
 bool IntOption::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, intptr_t Default)
 {
 	int CfgValue = Default;
-	bool Result = GeneralCfg->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
 	Set(CfgValue);
 	return Result;
 }
 
 bool IntOption::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || GeneralCfg->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
 }
 
 bool StringOption::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const wchar_t* Default)
 {
 	string CfgValue = Default;
-	bool Result = GeneralCfg->GetValue(KeyName, ValueName, CfgValue, CfgValue);
+	bool Result = Db->GeneralCfg()->GetValue(KeyName, ValueName, CfgValue, CfgValue);
 	Set(CfgValue);
 	return Result;
 }
 
 bool StringOption::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || GeneralCfg->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
 }

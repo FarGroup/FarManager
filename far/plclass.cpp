@@ -391,19 +391,19 @@ bool Plugin::SaveToCache()
 		PluginInfo Info = {sizeof(Info)};
 		GetPluginInfo(&Info);
 
-		PlCacheCfg->BeginTransaction();
+		Db->PlCacheCfg()->BeginTransaction();
 
-		PlCacheCfg->DeleteCache(m_strCacheName);
-		unsigned __int64 id = PlCacheCfg->CreateCache(m_strCacheName);
+		Db->PlCacheCfg()->DeleteCache(m_strCacheName);
+		unsigned __int64 id = Db->PlCacheCfg()->CreateCache(m_strCacheName);
 
 		{
 			bool bPreload = (Info.Flags & PF_PRELOAD);
-			PlCacheCfg->SetPreload(id, bPreload);
+			Db->PlCacheCfg()->SetPreload(id, bPreload);
 			WorkFlags.Change(PIWF_PRELOADED, bPreload);
 
 			if (bPreload)
 			{
-				PlCacheCfg->EndTransaction();
+				Db->PlCacheCfg()->EndTransaction();
 				return true;
 			}
 		}
@@ -418,38 +418,38 @@ bool Plugin::SaveToCache()
 				fdata.ftCreationTime.dwLowDateTime,
 				fdata.ftLastWriteTime.dwLowDateTime
 				);
-			PlCacheCfg->SetSignature(id, strCurPluginID);
+			Db->PlCacheCfg()->SetSignature(id, strCurPluginID);
 		}
 
 		for (size_t i = 0; i < Info.DiskMenu.Count; i++)
 		{
-			PlCacheCfg->SetDiskMenuItem(id, i, Info.DiskMenu.Strings[i], GuidToStr(Info.DiskMenu.Guids[i]));
+			Db->PlCacheCfg()->SetDiskMenuItem(id, i, Info.DiskMenu.Strings[i], GuidToStr(Info.DiskMenu.Guids[i]));
 		}
 
 		for (size_t i = 0; i < Info.PluginMenu.Count; i++)
 		{
-			PlCacheCfg->SetPluginsMenuItem(id, i, Info.PluginMenu.Strings[i], GuidToStr(Info.PluginMenu.Guids[i]));
+			Db->PlCacheCfg()->SetPluginsMenuItem(id, i, Info.PluginMenu.Strings[i], GuidToStr(Info.PluginMenu.Guids[i]));
 		}
 
 		for (size_t i = 0; i < Info.PluginConfig.Count; i++)
 		{
-			PlCacheCfg->SetPluginsConfigMenuItem(id, i, Info.PluginConfig.Strings[i], GuidToStr(Info.PluginConfig.Guids[i]));
+			Db->PlCacheCfg()->SetPluginsConfigMenuItem(id, i, Info.PluginConfig.Strings[i], GuidToStr(Info.PluginConfig.Guids[i]));
 		}
 
-		PlCacheCfg->SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
+		Db->PlCacheCfg()->SetCommandPrefix(id, NullToEmpty(Info.CommandPrefix));
 #if defined(MANTIS_0000466)
-		PlCacheCfg->SetMacroFunctions(id, NullToEmpty(Info.MacroFunctions));
+		Db->PlCacheCfg()->SetMacroFunctions(id, NullToEmpty(Info.MacroFunctions));
 #endif
-		PlCacheCfg->SetFlags(id, Info.Flags);
+		Db->PlCacheCfg()->SetFlags(id, Info.Flags);
 
-		PlCacheCfg->SetMinFarVersion(id, &MinFarVersion);
-		PlCacheCfg->SetGuid(id, m_strGuid);
-		PlCacheCfg->SetVersion(id, &PluginVersion);
-		PlCacheCfg->SetTitle(id, strTitle);
-		PlCacheCfg->SetDescription(id, strDescription);
-		PlCacheCfg->SetAuthor(id, strAuthor);
+		Db->PlCacheCfg()->SetMinFarVersion(id, &MinFarVersion);
+		Db->PlCacheCfg()->SetGuid(id, m_strGuid);
+		Db->PlCacheCfg()->SetVersion(id, &PluginVersion);
+		Db->PlCacheCfg()->SetTitle(id, strTitle);
+		Db->PlCacheCfg()->SetDescription(id, strDescription);
+		Db->PlCacheCfg()->SetAuthor(id, strAuthor);
 
-#define OPT_SETEXPORT(i) if (*ExportsNamesW[i]) PlCacheCfg->SetExport(id, ExportsNamesW[i], Exports[i]!=nullptr)
+#define OPT_SETEXPORT(i) if (*ExportsNamesW[i]) Db->PlCacheCfg()->SetExport(id, ExportsNamesW[i], Exports[i]!=nullptr)
 
 		OPT_SETEXPORT(iOpen);
 		OPT_SETEXPORT(iOpenFilePlugin);
@@ -467,7 +467,7 @@ bool Plugin::SaveToCache()
 		OPT_SETEXPORT(iAnalyse);
 		OPT_SETEXPORT(iGetCustomData);
 
-		PlCacheCfg->EndTransaction();
+		Db->PlCacheCfg()->EndTransaction();
 
 		return true;
 	}
@@ -694,11 +694,11 @@ bool Plugin::Load()
 
 bool Plugin::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 {
-	unsigned __int64 id = PlCacheCfg->GetCacheID(m_strCacheName);
+	unsigned __int64 id = Db->PlCacheCfg()->GetCacheID(m_strCacheName);
 
 	if (id)
 	{
-		if (PlCacheCfg->IsPreload(id))   //PF_PRELOAD plugin, skip cache
+		if (Db->PlCacheCfg()->IsPreload(id))   //PF_PRELOAD plugin, skip cache
 		{
 			WorkFlags.Set(PIWF_PRELOADED);
 			return false;
@@ -713,30 +713,30 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 				FindData.ftLastWriteTime.dwLowDateTime
 				);
 
-			string strPluginID = PlCacheCfg->GetSignature(id);
+			string strPluginID = Db->PlCacheCfg()->GetSignature(id);
 
 			if (StrCmp(strPluginID, strCurPluginID))   //одинаковые ли бинарники?
 				return false;
 		}
 
-		if (!PlCacheCfg->GetMinFarVersion(id, &MinFarVersion))
+		if (!Db->PlCacheCfg()->GetMinFarVersion(id, &MinFarVersion))
 		{
 			MinFarVersion = FAR_VERSION;
 		}
 
-		if (!PlCacheCfg->GetVersion(id, &PluginVersion))
+		if (!Db->PlCacheCfg()->GetVersion(id, &PluginVersion))
 		{
 			ClearStruct(PluginVersion);
 		}
 		InitVersionString(PluginVersion, VersionString);
 
-		m_strGuid = PlCacheCfg->GetGuid(id);
+		m_strGuid = Db->PlCacheCfg()->GetGuid(id);
 		SetGuid(StrToGuid(m_strGuid,m_Guid)?m_Guid:FarGuid);
-		strTitle = PlCacheCfg->GetTitle(id);
-		strDescription = PlCacheCfg->GetDescription(id);
-		strAuthor = PlCacheCfg->GetAuthor(id);
+		strTitle = Db->PlCacheCfg()->GetTitle(id);
+		strDescription = Db->PlCacheCfg()->GetDescription(id);
+		strAuthor = Db->PlCacheCfg()->GetAuthor(id);
 
-#define OPT_GETEXPORT(i) Exports[i] = *ExportsNamesW[i]? PlCacheCfg->GetExport(id, ExportsNamesW[i]) : nullptr
+#define OPT_GETEXPORT(i) Exports[i] = *ExportsNamesW[i]? Db->PlCacheCfg()->GetExport(id, ExportsNamesW[i]) : nullptr
 
 		OPT_GETEXPORT(iOpen);
 		OPT_GETEXPORT(iOpenFilePlugin);

@@ -457,7 +457,7 @@ static HistoryConfig* HistoryRef(int Type)
 			Save=Opt.Dialogs.EditHistory;
 			break;
 	}
-	return Save?HistoryCfg:HistoryCfgMem;
+	return Save? Db->HistoryCfg() : Db->HistoryCfgMem();
 }
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)

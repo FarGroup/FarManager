@@ -33,6 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "udlist.hpp"
+#include "dlist.hpp"
 
 struct VersionInfo;
 class TiXmlElement;
@@ -82,6 +83,9 @@ public:
 	virtual bool DeleteValue(const wchar_t *Key, const wchar_t *Name) = 0;
 	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, string &strValue) = 0;
 	virtual bool EnumValues(const wchar_t *Key, DWORD Index, string &strName, DWORD *Value) = 0;
+
+protected:
+	GeneralConfig() {}
 };
 
 class HierarchicalConfig: public XmlConfig, public Transactional {
@@ -110,6 +114,9 @@ public:
 	virtual bool EnumKeys(unsigned __int64 Root, DWORD Index, string &strName) = 0;
 	virtual bool EnumValues(unsigned __int64 Root, DWORD Index, string &strName, DWORD *Type) = 0;
 	virtual bool Flush() = 0;
+
+protected:
+	HierarchicalConfig() {}
 };
 
 class ColorsConfig: public XmlConfig, public Transactional {
@@ -119,6 +126,9 @@ public:
 	virtual ~ColorsConfig() {}
 	virtual bool SetValue(const wchar_t *Name, const FarColor& Value) = 0;
 	virtual bool GetValue(const wchar_t *Name, FarColor& Value) = 0;
+
+protected:
+	ColorsConfig() {}
 };
 
 class AssociationsConfig: public XmlConfig, public Transactional {
@@ -136,6 +146,9 @@ public:
 	virtual unsigned __int64 AddType(unsigned __int64 after_id, const wchar_t *Mask, const wchar_t *Description) = 0;
 	virtual bool UpdateType(unsigned __int64 id, const wchar_t *Mask, const wchar_t *Description) = 0;
 	virtual bool DelType(unsigned __int64 id) = 0;
+
+protected:
+	AssociationsConfig() {}
 };
 
 class PluginsCacheConfig: public Transactional {
@@ -183,6 +196,9 @@ public:
 	virtual bool EnumPlugins(DWORD index, string &CacheName) = 0;
 	virtual bool DiscardCache() = 0;
 	virtual bool IsCacheEmpty() = 0;
+
+protected:
+	PluginsCacheConfig() {}
 };
 
 class PluginsHotkeysConfig: public XmlConfig, public Transactional {
@@ -200,6 +216,9 @@ public:
 	virtual string GetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
 	virtual bool SetHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType, const wchar_t *HotKey) = 0;
 	virtual bool DelHotkey(const wchar_t *PluginKey, const wchar_t *MenuGuid, HotKeyTypeEnum HotKeyType) = 0;
+
+protected:
+	PluginsHotkeysConfig() {}
 };
 
 class HistoryConfig: public Transactional {
@@ -235,6 +254,9 @@ public:
 	virtual bool SetViewerBookmark(unsigned __int64 id, int i, __int64 FilePos, __int64 LeftPos) = 0;
 	virtual bool GetViewerBookmark(unsigned __int64 id, int i, __int64 *FilePos, __int64 *LeftPos) = 0;
 	virtual void DeleteOldPositions(int DaysToKeep, int MinimumEntries) = 0;
+
+protected:
+	HistoryConfig() {}
 };
 
 class MacroConfig: public XmlConfig, public Transactional {
@@ -260,22 +282,45 @@ public:
 	virtual bool EnumKeyMacros(string &strArea, string &strKey, string &strFlags, string &strSequence, string &strDescription) = 0;
 	virtual unsigned __int64 SetKeyMacro(const wchar_t *Area, const wchar_t *Key, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Description) = 0;
 	virtual bool DeleteKeyMacro(const wchar_t *Area, const wchar_t *Key) = 0;
+
+protected:
+	MacroConfig() {}
 };
 
-extern GeneralConfig *GeneralCfg;
-extern ColorsConfig *ColorsCfg;
-extern AssociationsConfig *AssocConfig;
-extern PluginsCacheConfig *PlCacheCfg;
-extern PluginsHotkeysConfig *PlHotkeyCfg;
-extern HistoryConfig *HistoryCfg;
-extern HistoryConfig *HistoryCfgMem;
-extern MacroConfig *MacroCfg;
+class Database
+{
+public:
+	Database(bool imp_exp=false);
+	~Database();
+	void AddProblem(const string& Problem);
+	int ShowProblems();
+	bool Import(const wchar_t *File);
+	bool Export(const wchar_t *File);
+	void ClearPluginsCache();
 
-void InitDb(bool imp_exp=false);
-int ShowProblemDb();
-void ReleaseDb();
-bool ExportImportConfig(bool Export, const wchar_t *XML);
-void ClearPluginsCache();
+	GeneralConfig *GeneralCfg() { return m_GeneralCfg; }
+	ColorsConfig *ColorsCfg() { return m_ColorsCfg; }
+	AssociationsConfig *AssocConfig() { return m_AssocConfig; }
+	PluginsCacheConfig *PlCacheCfg() { return m_PlCacheCfg; }
+	PluginsHotkeysConfig *PlHotkeyCfg() { return m_PlHotkeyCfg; }
+	HistoryConfig *HistoryCfg() { return m_HistoryCfg; }
+	HistoryConfig *HistoryCfgMem() { return m_HistoryCfgMem; }
+	MacroConfig *MacroCfg() { return m_MacroCfg; }
+
+private:
+	GeneralConfig *m_GeneralCfg;
+	ColorsConfig *m_ColorsCfg;
+	AssociationsConfig *m_AssocConfig;
+	PluginsCacheConfig *m_PlCacheCfg;
+	PluginsHotkeysConfig *m_PlHotkeyCfg;
+	HistoryConfig *m_HistoryCfg;
+	HistoryConfig *m_HistoryCfgMem;
+	MacroConfig *m_MacroCfg;
+
+	DList<string> Problems;
+};
+
+extern Database *Db;
 
 HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local, bool imp_exp=false);
 HierarchicalConfig *CreateFiltersConfig(bool imp_exp=false);

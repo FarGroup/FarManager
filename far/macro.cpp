@@ -1373,7 +1373,7 @@ bool KeyMacro::ReadKeyMacro(MACROMODEAREA Area)
 
 	strArea=GetAreaName(Area);
 
-	while(MacroCfg->EnumKeyMacros(strArea, strKey, strMFlags, strSequence, strDescription))
+	while(Db->MacroCfg()->EnumKeyMacros(strArea, strKey, strMFlags, strSequence, strDescription))
 	{
 		RemoveExternalSpaces(strKey);
 		RemoveExternalSpaces(strSequence);
@@ -1415,7 +1415,7 @@ bool KeyMacro::ReadKeyMacro(MACROMODEAREA Area)
 
 void KeyMacro::WriteMacro(void)
 {
-	MacroCfg->BeginTransaction();
+	Db->MacroCfg()->BeginTransaction();
 	for(size_t ii=MACRO_OTHER;ii<MACRO_LAST;++ii)
 	{
 		for(size_t jj=0;jj<m_Macros[ii].getSize();++jj)
@@ -1427,13 +1427,13 @@ void KeyMacro::WriteMacro(void)
 				string Code = rec.Code();
 				RemoveExternalSpaces(Code);
 				if (Code.IsEmpty())
-					MacroCfg->DeleteKeyMacro(GetAreaName(rec.Area()), rec.Name());
+					Db->MacroCfg()->DeleteKeyMacro(GetAreaName(rec.Area()), rec.Name());
 				else
-					MacroCfg->SetKeyMacro(GetAreaName(rec.Area()),rec.Name(),FlagsToString(rec.Flags()),Code,rec.Description());
+					Db->MacroCfg()->SetKeyMacro(GetAreaName(rec.Area()),rec.Name(),FlagsToString(rec.Flags()),Code,rec.Description());
 			}
 		}
 	}
-	MacroCfg->EndTransaction();
+	Db->MacroCfg()->EndTransaction();
 }
 
 const wchar_t *eStackAsString(int)
@@ -5881,9 +5881,9 @@ static bool ReadVarsConsts (FarMacroCall* Data)
 	bool received = false;
 
 	if (!StrCmp(Params[0].s(), L"consts"))
-		received = MacroCfg->EnumConsts(strName, Value, strType);
+		received = Db->MacroCfg()->EnumConsts(strName, Value, strType);
 	else if (!StrCmp(Params[0].s(), L"vars"))
-		received = MacroCfg->EnumVars(strName, Value, strType);
+		received = Db->MacroCfg()->EnumVars(strName, Value, strType);
 
 	if (received)
 	{
@@ -6093,10 +6093,10 @@ M1:
 						// удаляем из DB только если включен автосейв
 						if (Opt.AutoSaveSetup)
 						{
-							MacroCfg->BeginTransaction();
+							Db->MacroCfg()->BeginTransaction();
 							// удалим старую запись из DB
-							MacroCfg->DeleteKeyMacro(GetAreaName(Area), Mac->Name());
-							MacroCfg->EndTransaction();
+							Db->MacroCfg()->DeleteKeyMacro(GetAreaName(Area), Mac->Name());
+							Db->MacroCfg()->EndTransaction();
 						}
 						// раздисаблим
 						Mac->m_flags&=~(MFLAGS_DISABLEMACRO|MFLAGS_NEEDSAVEMACRO);

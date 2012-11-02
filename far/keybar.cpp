@@ -214,7 +214,7 @@ void KeyBar::ReadRegGroup(const wchar_t *RegGroup, const wchar_t *Language)
 
 		ClearKeyTitles(true);
 
-		while (GeneralCfg->EnumValues(strRegName,Index++,strValueName,strValue))
+		while (Db->GeneralCfg()->EnumValues(strRegName,Index++,strValueName,strValue))
 		{
 			DWORD Key=KeyNameToKey(strValueName);
 			DWORD Key0=Key&(~KEY_CTRLMASK);

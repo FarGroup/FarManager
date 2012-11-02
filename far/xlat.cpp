@@ -110,7 +110,7 @@ wchar_t* Xlat(wchar_t *Line,
 		*/
 		// BUGBUG!!! Затирается 3-е правило.
 		string XlatRules;
-		GeneralCfg->GetValue(L"XLat", strLayoutName, XlatRules, L"");
+		Db->GeneralCfg()->GetValue(L"XLat", strLayoutName, XlatRules, L"");
 		Opt.XLat.Rules[2] = XlatRules;
 		if (!Opt.XLat.Rules[2].IsEmpty())
 			ProcessLayoutName=TRUE;

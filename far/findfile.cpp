@@ -526,7 +526,7 @@ void InitInFileSearch()
 				bool hasSelected = false;
 
 				// Проверяем наличие выбранных страниц символов
-				for (DWORD i=0; GeneralCfg->EnumValues(FavoriteCodePagesKey, i, codePageName, &data); i++)
+				for (DWORD i=0; Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey, i, codePageName, &data); i++)
 				{
 					if (data & CPST_FIND)
 					{
@@ -553,7 +553,7 @@ void InitInFileSearch()
 				}
 
 				// Добавляем любимые таблицы символов
-				for (DWORD i=0; GeneralCfg->EnumValues(FavoriteCodePagesKey, i, codePageName, &data); i++)
+				for (DWORD i=0; Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey, i, codePageName, &data); i++)
 				{
 					if (data & (hasSelected?CPST_FIND:CPST_FAVORITE))
 					{
@@ -1020,7 +1020,7 @@ intptr_t WINAPI MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Pa
 								strCodePageName = FormatString() << SelectedCodePage;
 								// Получаем текущее состояние флага в реестре
 								int SelectType = 0;
-								GeneralCfg->GetValue(FavoriteCodePagesKey, strCodePageName, &SelectType, 0);
+								Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, strCodePageName, &SelectType, 0);
 
 								// Отмечаем/разотмечаем таблицу символов
 								if (Item.Item.Flags & LIF_CHECKED)
@@ -1028,15 +1028,15 @@ intptr_t WINAPI MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Pa
 									// Для стандартных таблиц символов просто удаляем значение из рееста, для
 									// любимых же оставляем в реестре флаг, что таблица символов любимая
 									if (SelectType & CPST_FAVORITE)
-										GeneralCfg->SetValue(FavoriteCodePagesKey, strCodePageName, CPST_FAVORITE);
+										Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, strCodePageName, CPST_FAVORITE);
 									else
-										GeneralCfg->DeleteValue(FavoriteCodePagesKey, strCodePageName);
+										Db->GeneralCfg()->DeleteValue(FavoriteCodePagesKey, strCodePageName);
 
 									Item.Item.Flags &= ~LIF_CHECKED;
 								}
 								else
 								{
-									GeneralCfg->SetValue(FavoriteCodePagesKey, strCodePageName, CPST_FIND | (SelectType & CPST_FAVORITE ?  CPST_FAVORITE : 0));
+									Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, strCodePageName, CPST_FIND | (SelectType & CPST_FAVORITE ?  CPST_FAVORITE : 0));
 									Item.Item.Flags |= LIF_CHECKED;
 								}
 

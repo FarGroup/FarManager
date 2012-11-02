@@ -4223,7 +4223,7 @@ int GetEditorCodePageFavA()
 	{
 		DWORD selectType, Index = 0, FavIndex = 2;
 		string sTableName;
-		while (GeneralCfg->EnumValues(FavoriteCodePagesKey,Index++,sTableName,&selectType))
+		while (Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey,Index++,sTableName,&selectType))
 		{
 			if (!(selectType&CPST_FAVORITE))
 				continue;
@@ -4278,7 +4278,7 @@ uintptr_t ConvertCharTableToCodePage(int Command)
 
 				for (;;)
 				{
-					if (!GeneralCfg->EnumValues(FavoriteCodePagesKey,Index++,strTableName,&selectType)) return CP_DEFAULT;
+					if (!Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey,Index++,strTableName,&selectType)) return CP_DEFAULT;
 
 					if (!(selectType&CPST_FAVORITE)) continue;
 

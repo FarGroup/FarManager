@@ -52,14 +52,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "message.hpp"
 
-GeneralConfig *GeneralCfg;
-ColorsConfig *ColorsCfg;
-AssociationsConfig *AssocConfig;
-PluginsCacheConfig *PlCacheCfg;
-PluginsHotkeysConfig *PlHotkeyCfg;
-HistoryConfig *HistoryCfg;
-HistoryConfig *HistoryCfgMem;
-MacroConfig *MacroCfg;
+Database *Db;
 
 static TiXmlDocument  TemplateDoc;
 static int TemplateLoadState = -1;
@@ -3000,23 +2993,6 @@ public:
 	}
 };
 
-static int nProblem = 0;
-static const wchar_t* sProblem[10];
-
-int ShowProblemDb()
-{
-   int rc = 0;
-	if (nProblem > 0)
-	{
-		const wchar_t* msgs[ARRAYSIZE(sProblem)+2];
-      memcpy(msgs, sProblem, nProblem*sizeof(sProblem[0]));
-		msgs[nProblem] = MSG(MShowConfigFolders);
-		msgs[nProblem+1] = MSG(MIgnore);
-		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs, nProblem+2) == 0 ? +1 : -1;
-	}
-	return rc;
-}
-
 static void check_db( SQLiteDb *pDb, bool err_report )
 {
 	const wchar_t* pname = nullptr;
@@ -3031,9 +3007,7 @@ static void check_db( SQLiteDb *pDb, bool err_report )
 			Console.Write(pname);
 			Console.Commit();
 		}
-		else if ( nProblem < (int)ARRAYSIZE(sProblem) ) {
-			sProblem[nProblem++] = pname;
-		}
+		Db->AddProblem(pname);
 	}
 }
 
@@ -3098,19 +3072,6 @@ T* new_db_load(bool err_report, const char *son = nullptr)
 	return p;
 }
 
-void InitDb( bool imp_exp )
-{
-	nProblem = 0;
-	GeneralCfg = new_db_load<GeneralConfigDb>(imp_exp);
-	ColorsCfg = new_db_load<ColorsConfigDb>(imp_exp);
-	AssocConfig = new_db_load<AssociationsConfigDb>(imp_exp);
-	PlCacheCfg = new_db<PluginsCacheConfigDb>(imp_exp);
-	PlHotkeyCfg = new_db_load<PluginsHotkeysConfigDb>(imp_exp);
-	HistoryCfg = new_db<HistoryConfigDb>(imp_exp);
-	HistoryCfgMem = new_db<HistoryConfigMemory>(imp_exp);
-	MacroCfg = new_db_load<MacroConfigDb>(imp_exp);
-}
-
 HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local, bool imp_exp)
 {
 	string strDbName = L"PluginsData\\";
@@ -3119,9 +3080,7 @@ HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local, bool im
 	HierarchicalConfigDb *cfg = new HierarchicalConfigDb(strDbName, Local);
 	if (!imp_exp && cfg->IsNew())
 	{
-		char guid_a[64];
-		WideCharToMultiByte(CP_UTF8, 0, guid,-1, guid_a,(int)sizeof(guid_a), nullptr,nullptr);
-		try_db_load<HierarchicalConfigDb>(cfg, guid_a, true);
+		try_db_load<HierarchicalConfigDb>(cfg, Utf8String(guid), true);
 	}
 	return cfg;
 }
@@ -3155,22 +3114,38 @@ HierarchicalConfig *CreateShortcutsConfig(bool impex)
 HierarchicalConfig *CreatePanelModeConfig(bool impex)
 { return CreateHierahchicalConfig<HierarchicalConfigDb>(0x8, L"panelmodes.db","panelmodes", impex); }
 
-void ReleaseDb()
+
+Database::Database(bool imp_exp)
 {
-	nProblem = 0;
-	delete MacroCfg;
-	delete HistoryCfgMem;
-	delete HistoryCfg;
-	delete PlHotkeyCfg;
-	delete PlCacheCfg;
-	delete AssocConfig;
-	delete ColorsCfg;
-	delete GeneralCfg;
+	// must be inited first
+	Db = this;
+
+	m_GeneralCfg = new_db_load<GeneralConfigDb>(imp_exp);
+	m_ColorsCfg = new_db_load<ColorsConfigDb>(imp_exp);
+	m_AssocConfig = new_db_load<AssociationsConfigDb>(imp_exp);
+	m_PlCacheCfg = new_db<PluginsCacheConfigDb>(imp_exp);
+	m_PlHotkeyCfg = new_db_load<PluginsHotkeysConfigDb>(imp_exp);
+	m_HistoryCfg = new_db<HistoryConfigDb>(imp_exp);
+	m_HistoryCfgMem = new_db<HistoryConfigMemory>(imp_exp);
+	m_MacroCfg = new_db_load<MacroConfigDb>(imp_exp);
 }
 
-bool ExportImportConfig(bool Export, const wchar_t *XML)
+Database::~Database()
 {
-	FILE* XmlFile = _wfopen(NTPath(XML), Export?L"w":L"rb");
+	Problems.Clear();
+	delete m_MacroCfg;
+	delete m_HistoryCfgMem;
+	delete m_HistoryCfg;
+	delete m_PlHotkeyCfg;
+	delete m_PlCacheCfg;
+	delete m_AssocConfig;
+	delete m_ColorsCfg;
+	delete m_GeneralCfg;
+}
+
+bool Database::Export(const wchar_t *File)
+{
+	FILE* XmlFile = _wfopen(NTPath(File), L"w");
 	if(!XmlFile)
 		return false;
 
@@ -3181,154 +3156,190 @@ bool ExportImportConfig(bool Export, const wchar_t *XML)
 	RegExp re;
 	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
 
-	if (Export)
-	{
-		TiXmlDocument doc;
-		doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
+	TiXmlDocument doc;
+	doc.LinkEndChild(new TiXmlDeclaration("1.0", "UTF-8", ""));
 
-		FormatString strVer;
-		strVer << FAR_VERSION.Major << L"." << FAR_VERSION.Minor << L"." << FAR_VERSION.Build;
-		char ver[50];
-		strVer.GetCharString(ver, ARRAYSIZE(ver));
-		TiXmlElement *root = new TiXmlElement("farconfig");
-		root->SetAttribute("version", ver);
+	FormatString strVer;
+	strVer << FAR_VERSION.Major << L"." << FAR_VERSION.Minor << L"." << FAR_VERSION.Build;
+	char ver[50];
+	strVer.GetCharString(ver, ARRAYSIZE(ver));
+	TiXmlElement *root = new TiXmlElement("farconfig");
+	root->SetAttribute("version", ver);
 
-		root->LinkEndChild(GeneralCfg->Export());
+	root->LinkEndChild(GeneralCfg()->Export());
 
-		root->LinkEndChild(ColorsCfg->Export());
+	root->LinkEndChild(ColorsCfg()->Export());
 
-		root->LinkEndChild(AssocConfig->Export());
+	root->LinkEndChild(AssocConfig()->Export());
 
-		root->LinkEndChild(PlHotkeyCfg->Export());
+	root->LinkEndChild(PlHotkeyCfg()->Export());
 
-		HierarchicalConfig *cfg = CreateFiltersConfig(true);
-		TiXmlElement *e = new TiXmlElement("filters");
-		e->LinkEndChild(cfg->Export());
-		root->LinkEndChild(e);
-		delete cfg;
+	HierarchicalConfig *cfg = CreateFiltersConfig(true);
+	TiXmlElement *e = new TiXmlElement("filters");
+	e->LinkEndChild(cfg->Export());
+	root->LinkEndChild(e);
+	delete cfg;
 
-		cfg = CreateHighlightConfig(true);
-		e = new TiXmlElement("highlight");
-		e->LinkEndChild(cfg->Export());
-		root->LinkEndChild(e);
-		delete cfg;
+	cfg = CreateHighlightConfig(true);
+	e = new TiXmlElement("highlight");
+	e->LinkEndChild(cfg->Export());
+	root->LinkEndChild(e);
+	delete cfg;
 
-		cfg = CreatePanelModeConfig(true);
-		e = new TiXmlElement("panelmodes");
-		e->LinkEndChild(cfg->Export());
-		root->LinkEndChild(e);
-		delete cfg;
+	cfg = CreatePanelModeConfig(true);
+	e = new TiXmlElement("panelmodes");
+	e->LinkEndChild(cfg->Export());
+	root->LinkEndChild(e);
+	delete cfg;
 
-		cfg = CreateShortcutsConfig(true);
-		e = new TiXmlElement("shortcuts");
-		e->LinkEndChild(cfg->Export());
-		root->LinkEndChild(e);
-		delete cfg;
+	cfg = CreateShortcutsConfig(true);
+	e = new TiXmlElement("shortcuts");
+	e->LinkEndChild(cfg->Export());
+	root->LinkEndChild(e);
+	delete cfg;
 
-		{ //TODO: export for local plugin settings
-			string strPlugins = Opt.ProfilePath;
-			strPlugins += L"\\PluginsData\\*.db";
-			FAR_FIND_DATA_EX fd;
-			FindFile ff(strPlugins);
-			e = new TiXmlElement("pluginsconfig");
-			while (ff.Get(fd))
-			{
-				fd.strFileName.SetLength(fd.strFileName.GetLength()-3);
-				fd.strFileName.Upper();
-				mc=2;
-				if (re.Match(fd.strFileName, fd.strFileName.CPtr() + fd.strFileName.GetLength(), m, mc))
-				{
-					char guid[37];
-					for (size_t i=0; i<ARRAYSIZE(guid); i++)
-						guid[i] = fd.strFileName[i]&0xFF;
-
-					TiXmlElement *plugin = new TiXmlElement("plugin");
-					plugin->SetAttribute("guid", guid);
-					cfg = CreatePluginsConfig(fd.strFileName, false, true);
-					plugin->LinkEndChild(cfg->Export());
-					e->LinkEndChild(plugin);
-					delete cfg;
-				}
-			}
-			root->LinkEndChild(e);
-		}
-
-		root->LinkEndChild(MacroCfg->Export());
-
-		doc.LinkEndChild(root);
-		ret = doc.SaveFile(XmlFile);
-	}
-	else // Import
-	{
-		TiXmlDocument doc;
-
-		if (doc.LoadFile(XmlFile))
+	{ //TODO: export for local plugin settings
+		string strPlugins = Opt.ProfilePath;
+		strPlugins += L"\\PluginsData\\*.db";
+		FAR_FIND_DATA_EX fd;
+		FindFile ff(strPlugins);
+		e = new TiXmlElement("pluginsconfig");
+		while (ff.Get(fd))
 		{
-			TiXmlElement *farconfig = doc.FirstChildElement("farconfig");
-			if (farconfig)
+			fd.strFileName.SetLength(fd.strFileName.GetLength()-3);
+			fd.strFileName.Upper();
+			mc=2;
+			if (re.Match(fd.strFileName, fd.strFileName.CPtr() + fd.strFileName.GetLength(), m, mc))
 			{
-				const TiXmlHandle root(farconfig);
+				char guid[37];
+				for (size_t i=0; i<ARRAYSIZE(guid); i++)
+					guid[i] = fd.strFileName[i]&0xFF;
 
-				GeneralCfg->Import(root);
-
-				ColorsCfg->Import(root);
-
-				AssocConfig->Import(root);
-
-				PlHotkeyCfg->Import(root);
-
-				HierarchicalConfig *cfg = CreateFiltersConfig(true);
-				cfg->Import(root.FirstChildElement("filters"));
+				TiXmlElement *plugin = new TiXmlElement("plugin");
+				plugin->SetAttribute("guid", guid);
+				cfg = CreatePluginsConfig(fd.strFileName, false, true);
+				plugin->LinkEndChild(cfg->Export());
+				e->LinkEndChild(plugin);
 				delete cfg;
-
-				cfg = CreateHighlightConfig(true);
-				cfg->Import(root.FirstChildElement("highlight"));
-				delete cfg;
-
-				cfg = CreatePanelModeConfig(true);
-				cfg->Import(root.FirstChildElement("panelmodes"));
-				delete cfg;
-
-				cfg = CreateShortcutsConfig(true);
-				cfg->Import(root.FirstChildElement("shortcuts"));
-				delete cfg;
-
-				//TODO: import for local plugin settings
-				for (TiXmlElement *plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
-				{
-					const char *guid = plugin->Attribute("guid");
-					if (!guid)
-						continue;
-					string Guid(guid, CP_UTF8);
-					Guid.Upper();
-
-					mc=2;
-					if (re.Match(Guid, Guid.CPtr() + Guid.GetLength(), m, mc))
-					{
-						cfg = CreatePluginsConfig(Guid, false, true);
-						const TiXmlHandle h(plugin);
-						cfg->Import(h);
-						delete cfg;
-					}
-				}
-
-				MacroCfg->Import(root);
-
-				ret = true;
 			}
 		}
-
-		if (doc.Error())
-			PrintError(L"XML Error", doc);
+		root->LinkEndChild(e);
 	}
+
+	root->LinkEndChild(MacroCfg()->Export());
+
+	doc.LinkEndChild(root);
+	ret = doc.SaveFile(XmlFile);
 
 	fclose(XmlFile);
 	return ret;
 }
 
-void ClearPluginsCache()
+bool Database::Import(const wchar_t *File)
+{
+	FILE* XmlFile = _wfopen(NTPath(File), L"rb");
+	if(!XmlFile)
+		return false;
+
+	bool ret = false;
+
+	intptr_t mc;
+	SMatch m[2];
+	RegExp re;
+	re.Compile(L"/^[0-9A-F]{8}-([0-9A-F]{4}-){3}[0-9A-F]{12}$/", OP_PERLSTYLE|OP_OPTIMIZE);
+
+	TiXmlDocument doc;
+
+	if (doc.LoadFile(XmlFile))
+	{
+		TiXmlElement *farconfig = doc.FirstChildElement("farconfig");
+		if (farconfig)
+		{
+			const TiXmlHandle root(farconfig);
+
+			GeneralCfg()->Import(root);
+
+			ColorsCfg()->Import(root);
+
+			AssocConfig()->Import(root);
+
+			PlHotkeyCfg()->Import(root);
+
+			HierarchicalConfig *cfg = CreateFiltersConfig(true);
+			cfg->Import(root.FirstChildElement("filters"));
+			delete cfg;
+
+			cfg = CreateHighlightConfig(true);
+			cfg->Import(root.FirstChildElement("highlight"));
+			delete cfg;
+
+			cfg = CreatePanelModeConfig(true);
+			cfg->Import(root.FirstChildElement("panelmodes"));
+			delete cfg;
+
+			cfg = CreateShortcutsConfig(true);
+			cfg->Import(root.FirstChildElement("shortcuts"));
+			delete cfg;
+
+			//TODO: import for local plugin settings
+			for (TiXmlElement *plugin=root.FirstChild("pluginsconfig").FirstChildElement("plugin").Element(); plugin; plugin=plugin->NextSiblingElement("plugin"))
+			{
+				const char *guid = plugin->Attribute("guid");
+				if (!guid)
+					continue;
+				string Guid(guid, CP_UTF8);
+				Guid.Upper();
+
+				mc=2;
+				if (re.Match(Guid, Guid.CPtr() + Guid.GetLength(), m, mc))
+				{
+					cfg = CreatePluginsConfig(Guid, false, true);
+					const TiXmlHandle h(plugin);
+					cfg->Import(h);
+					delete cfg;
+				}
+			}
+
+			MacroCfg()->Import(root);
+
+			ret = true;
+		}
+	}
+
+	if (doc.Error())
+		PrintError(L"XML Error", doc);
+
+	fclose(XmlFile);
+	return ret;
+}
+
+void Database::ClearPluginsCache()
 {
 	PluginsCacheConfigDb *p = new PluginsCacheConfigDb();
 	p->DiscardCache();
 	delete p;
+}
+
+int Database::ShowProblems()
+{
+	int rc = 0;
+	if (Problems.Count())
+	{
+		const wchar_t* *msgs = new const wchar_t*[Problems.Count()+2];
+		int i = 0;
+		for(auto Problem = Problems.First(); Problem; Problem = Problems.Next(Problem), ++i)
+		{
+			msgs[i] = *Problem;
+		}
+		msgs[i] = MSG(MShowConfigFolders);
+		msgs[i+1] = MSG(MIgnore);
+		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs, Problems.Count()+2) == 0 ? +1 : -1;
+		delete[] msgs;
+	}
+	return rc;
+}
+
+void Database::AddProblem(const string& Problem)
+{
+	Problems.Push(&Problem);
 }

@@ -68,20 +68,20 @@ History::~History()
 
 void History::CompactHistory()
 {
-	HistoryCfg->BeginTransaction();
+	Db->HistoryCfg()->BeginTransaction();
 
-	HistoryCfg->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Opt.HistoryLifetime, Opt.HistoryCount);
-	HistoryCfg->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Opt.FoldersHistoryLifetime, Opt.FoldersHistoryCount);
-	HistoryCfg->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Opt.ViewHistoryLifetime, Opt.ViewHistoryCount);
+	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Opt.HistoryLifetime, Opt.HistoryCount);
+	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Opt.FoldersHistoryLifetime, Opt.FoldersHistoryCount);
+	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Opt.ViewHistoryLifetime, Opt.ViewHistoryCount);
 
 	DWORD index=0;
 	string strName;
-	while (HistoryCfg->EnumLargeHistories(index++, Opt.DialogsHistoryCount, HISTORYTYPE_DIALOG, strName))
+	while (Db->HistoryCfg()->EnumLargeHistories(index++, Opt.DialogsHistoryCount, HISTORYTYPE_DIALOG, strName))
 	{
-		HistoryCfg->DeleteOldUnlocked(HISTORYTYPE_DIALOG, strName, Opt.DialogsHistoryLifetime, Opt.DialogsHistoryCount);
+		Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_DIALOG, strName, Opt.DialogsHistoryLifetime, Opt.DialogsHistoryCount);
 	}
 
-	HistoryCfg->EndTransaction();
+	Db->HistoryCfg()->EndTransaction();
 }
 
 /*
@@ -712,5 +712,5 @@ bool History::EqualType(int Type1, int Type2)
 
 HistoryConfig* History::HistoryCfgRef(void)
 {
-	return EnableSave? HistoryCfg : HistoryCfgMem;
+	return EnableSave? Db->HistoryCfg() : Db->HistoryCfgMem();
 }
