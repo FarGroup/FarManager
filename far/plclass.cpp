@@ -615,6 +615,8 @@ bool Plugin::LoadData()
 		return false;
 	}
 
+	_control87(_PC_64|_MCW_EM,_MCW_PC|_MCW_EM); //предотвратим падения при делении на 0 из-за плагинов, включающих FPU exceptions
+
 	WorkFlags.Clear(PIWF_CACHED);
 
 	if(bPendingRemove)
