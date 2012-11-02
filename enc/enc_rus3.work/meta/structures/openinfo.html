@@ -61,31 +61,42 @@ struct OpenInfo
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_RIGHTDISKMENU">OPEN_RIGHTDISKMENU</a></td>
     <td class="cont" width="60%">Открыт из правого меню "Сменить диск" (<kbd>Alt</kbd>+<kbd>F2</kbd>).</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROMMACRO">OPEN_FROMMACRO</a></td>
-    <td class="cont" width="60%">Открыт из макрокоманды функцией <a href="../macro/macrocmd/prop_func/general.html#callplugin">callplugin</a>; <code>Data</code> является указателем на структуру <a href="openmacroinfo.html">OpenMacroInfo</a>.</td></tr>
+    <td class="cont" width="60%">Открыт из макрокоманды функцией <a href="../macro/macrocmd/prop_func/general.html#callplugin">callplugin</a>.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="OPEN_LUAMACRO">OPEN_LUAMACRO</a></td>
-    <td class="cont" width="60%">Открыт из ....</td></tr>
+    <td class="cont" width="60%">Открыт из плагина LuaMacro.</td></tr>
     </table></div>
   <div class=dfn>Guid</div>
     <div class=dfndescr>GUID выбранного элемента в списке пунктов, экспортированном данным плагином в меню "Диск", "Команды внешних модулей".</div>
   <div class=dfn>Data</div>
     <div class=dfndescr>Интерпретация параметра зависит от <code>OpenFrom</code>:
-    <ul>
-    <li>Если в параметре OpenFrom выставлен флаг OPEN_FROMMACRO, то значения в младшем слове содержат не идентификатор из перечисления OPENPLUGIN_OPENFROM,
-    а номер текущей макрообласти, определенной в перечислении <a href="../service_functions/macrocontrol.html#FARMACROAREA">FARMACROAREA</a>.
-    <li>Для параметров OPEN_DISKMENU, OPEN_PLUGINSMENU, OPEN_EDITOR и OPEN_VIEWER <i>Data</i> - это номер выбранного пункта в меню из зарегистрированных
-    плагином пунктов. Если плагин экспортирует только один элемент, этот параметр всегда равен нулю.
-    <li>Для OPEN_FINDLIST <i>Data</i> всегда 0.
-    <li>Для OPEN_SHORTCUT <i>Data</i> содержит адрес строки, которая была передана в элемент ShortcutData структуры <a href="../structures/openpanelinfo.html">OpenPlanelInfo</a>
-    в момент сохранения горячей клавиши. Плагин может использовать это поле для сохранения дополнительной информации о текущем состоянии.
-    Не обязательно сохранять в нём информацию о текущей директории, так как этим занимается сам Far Manager.
-    <li>Для OPEN_DIALOG <i>Data</i> содержит адрес структуры <a href="../structures/opendlgplugindata.html">OpenDlgPluginData</a>.
-    <li>Для OPEN_COMMANDLINE <i>Data</i> содержит адрес введённого пользователем в командной строке выражения. Если плагин не установил флаг <a href="../structures/plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>,
-    то командный префикс плагина в командную строку не включается. При установленном флаге <a href="../structures/plugininfo.html#PF_FULLCMDLINE">PF_FULLCMDLINE</a>
-    плагину передаётся полная строка (с командным префиксом).<br>
-    К примеру, если плагин устанавливает префикс <em>ftp</em> и пользователь вводит <code>ftp://ftp.abc.com</code>, <i>Data</i> будет указывать на
-    строку: "<code>//ftp.abc.com</code>" при НЕустановленном флаге PF_FULLCMDLINE и "<code>ftp://ftp.abc.com</code>" если флаг PF_FULLCMDLINE установили.<br>
-    </ul>
-    </div>
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_LEFTDISKMENU">OPEN_LEFTDISKMENU</a></td>
+    <td class="cont" width="60%">Это номер выбранного пункта в меню из зарегистрированных плагином пунктов. Если плагин экспортирует только один элемент, этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_PLUGINSMENU">OPEN_PLUGINSMENU</a></td>
+    <td class="cont" width="60%">Это номер выбранного пункта в меню из зарегистрированных плагином пунктов. Если плагин экспортирует только один элемент, этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FINDLIST">OPEN_FINDLIST</a></td>
+    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_SHORTCUT">OPEN_SHORTCUT</a></td>
+    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/openshortcutinfo.html">OpenShortcutInfo</a>, данные в момент сохранения горячей клавиши.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_COMMANDLINE">OPEN_COMMANDLINE</a></td>
+    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/opencommandlineinfo.html">OpenCommandLineInfo</a>, данные о командной строке.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_EDITOR">OPEN_EDITOR</a></td>
+    <td class="cont" width="60%">Это номер выбранного пункта в меню из зарегистрированных плагином пунктов. Если плагин экспортирует только один элемент, этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_VIEWER">OPEN_VIEWER</a></td>
+    <td class="cont" width="60%">Это номер выбранного пункта в меню из зарегистрированных плагином пунктов. Если плагин экспортирует только один элемент, этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FILEPANEL">OPEN_FILEPANEL</a></td>
+    <td class="cont" width="60%">Этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_DIALOG">OPEN_DIALOG</a></td>
+    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/opendlgplugindata.html">OpenDlgPluginData</a>, данные о диалоге.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_ANALYSE">OPEN_ANALYSE</a></td>
+    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="../structures/openanalyseinfo.html">OpenAnalyseInfo</a>, данные о файле-контейнере.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_RIGHTDISKMENU">OPEN_RIGHTDISKMENU</a></td>
+    <td class="cont" width="60%">Это номер выбранного пункта в меню из зарегистрированных плагином пунктов. Если плагин экспортирует только один элемент, этот параметр всегда равен <code>0</code>.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="OPEN_FROMMACRO">OPEN_FROMMACRO</a></td>
+    <td class="cont" width="60%">Этот параметр равен адресу структуры <a href="openmacroinfo.html">OpenMacroInfo</a>.<br>
+    При этом в параметре <code>OpenFrom</code>, помимо флага <code>OPEN_FROMMACRO</code>, в младшем слове содержится номер текущей макрообласти, определенной в перечислении <a href="../service_functions/macrocontrol.html#FARMACROAREA">FARMACROAREA</a>.</td></tr>
+    </table></div>
 </div>
 
 <div class=see>Смотрите также:</div>
