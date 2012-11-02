@@ -3007,7 +3007,10 @@ static void check_db( SQLiteDb *pDb, bool err_report )
 			Console.Write(pname);
 			Console.Commit();
 		}
-		Db->AddProblem(pname);
+		else
+		{
+			Db->AddProblem(pname);
+		}
 	}
 }
 
