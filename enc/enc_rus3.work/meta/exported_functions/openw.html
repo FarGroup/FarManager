@@ -39,6 +39,14 @@ HANDLE WINAPI OpenW(
 ¬ случае неудачного завершени€ функции, возвращаемое значение должно равн€тьс€ <code>NULL</code>.
 </div>
 
+<h3>¬озвращаемое значение при <a href="../structures/openinfo.html">OpenFrom</a> равном OPEN_FROMMACRO</h3>
+<div class=descr>
+≈сли плагин вернул 0, макросу возвращаетс€ <code>false</code>.<br>
+≈сли плагин вернул 1 или <code>INVALID_HANDLE_VALUE</code>, макросу возвращаетс€ <code>true</code>.<br>
+ƒл€ того, чтобы вернуть макросу более одной величины (или одну величину не-булевого типа), плагин должен заполнить структуру
+<a href="../structures/farmacrocall.html">FarMacroCall</a> и вернуть Far Manager'у указатель на неЄ.
+</div>
+
 <h3>«амечани€</h3>
 <div class=descr>
 <ol>
