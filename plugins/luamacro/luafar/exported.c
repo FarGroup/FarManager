@@ -676,11 +676,12 @@ static void PushParamsTable(lua_State* L, const struct OpenMacroInfo* Data)
 	}
 }
 
-static void WINAPI FillFarMacroCall_Callback (void *CallbackData, struct FarMacroValue *Values)
+static void WINAPI FillFarMacroCall_Callback (void *CallbackData, struct FarMacroValue *Values, size_t Count)
 {
 	size_t i;
 	struct FarMacroCall *fmc = (struct FarMacroCall*)CallbackData;
 	(void)Values; // not used
+	(void)Count;  // not used
 	for(i=0; i<fmc->Count; i++)
 	{
 		struct FarMacroValue *v = fmc->Values + i;

@@ -18,7 +18,7 @@ static void FL_PushParamsTable(lua_State* L, const struct FarMacroCall* Data)
 		lua_rawseti(L, -2, i+1);
 	}
 	if (Data->Callback)
-		Data->Callback(Data->CallbackData, Data->Values);
+		Data->Callback(Data->CallbackData, Data->Values, Data->Count);
 }
 
 static struct MacroPluginReturn* CreateMPR(lua_State* L, int nargs, int ReturnType)
@@ -185,9 +185,10 @@ typedef struct
 	int ret_avail;
 } mcfc_data;
 
-static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val)
+static void WINAPI MacroCallFarCallback(void *Data, struct FarMacroValue *Val, size_t Count)
 {
 	mcfc_data *cbdata = (mcfc_data*)Data;
+	(void) Count;
 	if(cbdata->ret_avail > 0)
 	{
 		--cbdata->ret_avail;

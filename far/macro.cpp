@@ -1920,7 +1920,7 @@ static int PassString (const wchar_t* str, FarMacroCall* Data)
 		FarMacroValue val;
 		val.Type = FMVT_STRING;
 		val.String = str;
-		Data->Callback(Data->CallbackData, &val);
+		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;
 }
@@ -1932,7 +1932,7 @@ static int PassNumber (double dbl, FarMacroCall* Data)
 		FarMacroValue val;
 		val.Type = FMVT_DOUBLE;
 		val.Double = dbl;
-		Data->Callback(Data->CallbackData, &val);
+		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;
 }
@@ -1944,7 +1944,7 @@ static int PassInteger (__int64 Int, FarMacroCall* Data)
 		FarMacroValue val;
 		val.Type = FMVT_INTEGER;
 		val.Integer = Int;
-		Data->Callback(Data->CallbackData, &val);
+		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;
 }
@@ -1956,7 +1956,7 @@ static int PassBoolean (int b, FarMacroCall* Data)
 		FarMacroValue val;
 		val.Type = FMVT_BOOLEAN;
 		val.Boolean = b;
-		Data->Callback(Data->CallbackData, &val);
+		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;
 }
@@ -1969,7 +1969,7 @@ static int PassBoolean (int b, FarMacroCall* Data)
 		val.Type = FMVT_BINARY;
 		val.Binary.Data = Start;
 		val.Binary.Size = Length;
-		Data->Callback(Data->CallbackData, &val);
+		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;
 }
@@ -2002,7 +2002,7 @@ static int PassValue (TVar* Var, FarMacroCall* Data)
 			val.Integer = Var->i();
 		}
 
-		Data->Callback(Data->CallbackData, &val);
+		Data->Callback(Data->CallbackData, &val, 1);
 	}
 	return 1;
 }

@@ -1247,7 +1247,7 @@ struct FarMacroCall
 	size_t StructSize;
 	size_t Count;
 	struct FarMacroValue *Values;
-	void (WINAPI *Callback)(void *CallbackData, struct FarMacroValue *Values);
+	void (WINAPI *Callback)(void *CallbackData, struct FarMacroValue *Values, size_t Count);
 	void *CallbackData;
 };
 
