@@ -16,14 +16,14 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>PluginsControl</dfn> позволяет управлять плагинами.
+Функция <code>PluginsControl</code> позволяет управлять плагинами.
 </div>
 
 <pre class=syntax>
-INT_PTR WINAPI PluginsControl(
+intptr_t_PTR WINAPI PluginsControl(
   HANDLE hHandle,
   enum FAR_PLUGINS_CONTROL_COMMANDS Command,
-  int Param1,
+  intptr_t_PTR Param1,
   void *Param2
 );
 </pre>
@@ -31,66 +31,95 @@ INT_PTR WINAPI PluginsControl(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>hHandle</div>
-    <div class=dfndescr>Смотрите описание <var>Command</var>. (в настоящее время значение игнорируется).</div>
+    <div class=dfndescr>Смотрите описание <code>Command</code>.</div>
   <div class=dfn>Command</div>
     <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_PLUGINS_CONTROL_COMMANDS">FAR_PLUGINS_CONTROL_COMMANDS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
-    <tr class="cont"><td class="cont" width="40%"><a name="PCTL_LOADPLUGIN">PCTL_LOADPLUGIN</a></td>
-    <td class="cont" width="60%"> Загрузить плагин.<br>
-    <var>Param1</var> должен быть установлен в значение <code>PLT_PATH</code> (перечисление <a href="#FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>). <br>
-    <var>Param2</var> указывает на строку, содержащую полный путь dll-файл плагина.<br>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="PCTL_LOADPLUGIN">PCTL_LOADPLUGIN</a>,<br><a name="PCTL_FORCEDLOADPLUGIN">PCTL_FORCEDLOADPLUGIN</a></td>
+    <td class="cont" width="60%">Загрузить плагин обычным способом, либо форсировано сразу в память.<br>
+    <code>hHandle</code> установите в значение <code>INVALID_HANDLE_VALUE</code>.<br>
+    <code>Param1</code> должен быть установлен в одно из значений (перечисление <a href="FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PLT_PATH">PLT_PATH</a></td>
+    <td class="cont" width="60%">Полное имя dll-файла плагина, включая папку.</td></tr>
+    </table>
+    <code>Param2</code> указывает на строку, содержащую полный путь dll-файла плагина.<br>
     Функция возвращает <code>TRUE</code>, если плагин удалось загрузить.</td></tr>
 
-    <tr class="cont"><td class="cont" width="40%"><a name="PCTL_FORCEDLOADPLUGIN">PCTL_FORCEDLOADPLUGIN</a></td>
-    <td class="cont" width="60%"> Загрузить плагин сразу в память (для межплагинового взаимодействия).<br>
-    <var>Param1</var> должен быть установлен в значение <code>PLT_PATH</code> (перечисление <a href="#FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>). <br>
-    <var>Param2</var> указывает на строку, содержащую полный путь dll-файл плагина.<br>
-    Функция возвращает <code>TRUE</code>, если плагин удалось загрузить.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a></td>
+    <td class="cont" width="60%">Найти необходимый плагин среди установленных.<br>
+    <code>hHandle</code> установите в значение <code>INVALID_HANDLE_VALUE</code>.<br>
+    <code>Param1</code> должен быть установлен в одно из значений (перечисление <a href="FAR_PLUGIN_FIND_TYPE">FAR_PLUGIN_FIND_TYPE</a>):
+    <table class="cont">
+    <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PFM_GUID">PFM_GUID</a></td>
+    <td class="cont" width="60%">Искать по значению GUIDа плагина.</td></tr>
+    <tr class="cont"><td class="cont" width="40%"><a name="PFM_MODULENAME">PFM_MODULENAME</a></td>
+    <td class="cont" width="60%">Искать по имени dll-файла плагина.</td></tr>
+    </table>
+    <code>Param2</code> указывает либо на значение GUID, либо на строку, содержащую имя dll-файла плагина.<br>
+    Функция возвращает описатель найденного плагина, либо <code>NULL</code>, если плагин не удалось найти.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_UNLOADPLUGIN">PCTL_UNLOADPLUGIN</a></td>
-    <td class="cont" width="60%"> Выгрузить плагин. <br>
-    <var>Param1</var> должен быть установлен в значение <code>PLT_PATH</code> (перечисление <a href="#FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>). <br>
-    <var>Param2</var> указывает на строку, содержащую полный путь dll-файл плагина.<br>
+    <td class="cont" width="60%">Выгрузить плагин.<br>
+    <code>hHandle</code> описатель установленного плагина, его можно узнать по команде <a href="#PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a>.<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> не используется.<br>
     Функция возвращает <code>TRUE</code>, если плагин удалось выгрузить.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="PCTL_GETPLUGININFORMATION">PCTL_GETPLUGININFORMATION</a></td>
+    <td class="cont" width="60%">Узнать суммарную информацию об установленном плагине.<br>
+    <code>hHandle</code> описатель установленного плагина, его можно узнать по команде <a href="#PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a>.<br>
+    <code>Param1</code> размер буфера под запрошенные данные.<br>
+    <code>Param2</code> указатель на структуру <a href="../structures/fargetplugininformation.html">FarGetPluginInformation</a>, может быть <code>NULL</code>.<br>
+    Функция возвращает необходимый размер буфера.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="PCTL_GETPLUGINS">PCTL_GETPLUGINS</a></td>
+    <td class="cont" width="60%">Узнать описатели всех установленных плагинов.<br>
+    <code>hHandle</code> установите в значение <code>INVALID_HANDLE_VALUE</code>.<br>
+    <code>Param1</code> количество элементов в массиве <code>Param2</code>.<br>
+    <code>Param2</code> массив описателей <code>HANDLE</code>, буфер под данные выделяет плагин, может быть <code>NULL</code> для запроса количества элементов.<br>
+    Функция возвращает количество установленных плагинов.</td></tr>
+
     </table>
     </div>
   <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на <var>Параметр1</var> команды. Смотрите описание <var>Command</var>.</div>
+    <div class=dfndescr>Указывает на <code>Параметр1</code> команды. Смотрите описание <code>Command</code>.</div>
   <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на <var>Параметр2</var> команды. Смотрите описание <var>Command</var>.</div>
+    <div class=dfndescr>Указывает на <code>Параметр2</code> команды. Смотрите описание <code>Command</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Смотрите описание <var>Command</var>
+Смотрите описание <code>Command</code>.
 </div>
 
 <h3>Замечания</h3>
-<div class=descr>Перечисление <a name="FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE: </a>
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
-<tr class="cont"><td class="cont" width="40%"><a name="PLT_PATH">PLT_PATH</a></td>
-<td class="cont" width="60%"> Полное имя dll-файла плагина, включая папку.</td></tr>
-</table>
 </div>
 
 <h3>Пример</h3>
-
 <pre class=code>
-const wchar_t *PlugPath = L"C:\\FAR2\\Plugins\\AutoWrap\\AutoWrap.dll";
+const wchar_t *PlugPath = L"C:\\FAR\\Plugins\\AutoWrap\\AutoWrap.dll";
 
 //загрузим либо выгрузим плагин
-if (bLoad || bUnload)
+if (Load || Unload)
 {
-  if (bLoad)
+  if (Load)
     Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_LOADPLUGIN,PLT_PATH,PlugPath);
   else
-    Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_UNLOADPLUGIN,PLT_PATH,PlugPath);
+  {
+    HANDLE hPlugin = reinterpret_cast<HANDLE>(Info.PluginsControl(INVALID_HANDLE_VALUE,PCTL_FINDPLUGIN,PFM_MODULENAME,PlugPath));
+    if(hPlugin)
+      Info.PluginsControl(hPlugin,PCTL_UNLOADPLUGIN,0,nullptr);
+  }
 }
 </pre>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="panelcontrol.html">PanelControl</a></div>
 </body>
 </html>
