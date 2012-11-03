@@ -42,10 +42,9 @@ struct FarMacroCall
     <div class=dfndescr>Указатель на массив структур типа <a href="farmacrovalue.html">FarMacroValue</a>. Этот массив также должен быть статическим или аллоцированным.</div>
   <div class=dfn>Callback</div>
     <div class=dfndescr>Указатель на функцию плагина, которая будет вызвана после того, как Far Manager скопирует переданные данные.
-    В этой функции данные можно освободить. Первым аргументом данная функция получает <code>CallbackData</code>, вторым - <code><a href="farmacrovalue.html">Values</a></code>, третьим - <code>Count</code>.
-    Если освобождать данные не требуется, установите <code>Callback = NULL</code>.</div>
+    В этой функции данные можно освободить. Если освобождать данные не требуется, установите <code>Callback = NULL</code>.</div>
   <div class=dfn>CallbackData</div>
-    <div class=dfndescr>Указатель на произвольные данные плагина. Обычно указывает на саму структуру <code>FarMacroCall</code>.</div>
+    <div class=dfndescr>Указатель на произвольные данные плагина.</div>
 </div>
 
 <h3>Замечания</h3>
