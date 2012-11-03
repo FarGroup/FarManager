@@ -23,7 +23,7 @@
 intptr_t WINAPI PluginsControl(
   HANDLE hHandle,
   enum FAR_PLUGINS_CONTROL_COMMANDS Command,
-  intptr_t_PTR Param1,
+  intptr_t Param1,
   void *Param2
 );
 </pre>
@@ -38,15 +38,15 @@ intptr_t WINAPI PluginsControl(
     <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_LOADPLUGIN">PCTL_LOADPLUGIN</a>,<br><a name="PCTL_FORCEDLOADPLUGIN">PCTL_FORCEDLOADPLUGIN</a></td>
-    <td class="cont" width="60%">Загрузить плагин обычным способом, либо форсировано сразу в память.<br>
+    <td class="cont" width="60%">Загрузить плагин обычным способом (плагин не всегда грузится в память, данные могут браться из кеша), либо форсировано сразу в память (может понадобиться для межплагинового взаимодействия).<br>
     <code>hHandle</code> установите в значение <code>INVALID_HANDLE_VALUE</code>.<br>
     <code>Param1</code> должен быть установлен в одно из значений (перечисление <a href="FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PLT_PATH">PLT_PATH</a></td>
-    <td class="cont" width="60%">Полное имя dll-файла плагина, включая папку.</td></tr>
+    <td class="cont" width="60%">Полный путь с именем dll-файла плагина.</td></tr>
     </table>
-    <code>Param2</code> указывает на строку, содержащую полный путь dll-файла плагина.<br>
+    <code>Param2</code> указывает на строку, содержащую полный путь с именем dll-файла плагина.<br>
     Функция возвращает <code>TRUE</code>, если плагин удалось загрузить.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a></td>
@@ -60,25 +60,25 @@ intptr_t WINAPI PluginsControl(
     <tr class="cont"><td class="cont" width="40%"><a name="PFM_MODULENAME">PFM_MODULENAME</a></td>
     <td class="cont" width="60%">Искать по имени dll-файла плагина.</td></tr>
     </table>
-    <code>Param2</code> указывает либо на значение GUID, либо на строку, содержащую имя dll-файла плагина.<br>
+    <code>Param2</code> указывает либо на структуру с значением GUID, либо на строку, содержащую имя dll-файла плагина.<br>
     Функция возвращает описатель найденного плагина, либо <code>NULL</code>, если плагин не удалось найти.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_UNLOADPLUGIN">PCTL_UNLOADPLUGIN</a></td>
     <td class="cont" width="60%">Выгрузить плагин.<br>
-    <code>hHandle</code> описатель установленного плагина, его можно узнать по команде <a href="#PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a>.<br>
+    <code>hHandle</code> описатель установленного плагина, его можно получить по команде <a href="#PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a>.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>TRUE</code>, если плагин удалось выгрузить.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_GETPLUGININFORMATION">PCTL_GETPLUGININFORMATION</a></td>
-    <td class="cont" width="60%">Узнать суммарную информацию об установленном плагине.<br>
-    <code>hHandle</code> описатель установленного плагина, его можно узнать по команде <a href="#PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a>.<br>
+    <td class="cont" width="60%">Получить суммарную информацию об установленном плагине.<br>
+    <code>hHandle</code> описатель установленного плагина, его можно получить по команде <a href="#PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a>.<br>
     <code>Param1</code> размер буфера под запрошенные данные. Начало буфера - структура типа <a href="../structures/fargetplugininformation.html">FarGetPluginInformation</a>, затем следуют компоненты структуры.<br>
     <code>Param2</code> указатель на структуру <a href="../structures/fargetplugininformation.html">FarGetPluginInformation</a>, может быть <code>NULL</code> для запроса размера буфера.<br>
     Функция возвращает необходимый размер буфера.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_GETPLUGINS">PCTL_GETPLUGINS</a></td>
-    <td class="cont" width="60%">Узнать описатели всех установленных плагинов.<br>
+    <td class="cont" width="60%">Получить описатели всех установленных плагинов.<br>
     <code>hHandle</code> установите в значение <code>INVALID_HANDLE_VALUE</code>.<br>
     <code>Param1</code> количество элементов в массиве <code>Param2</code>.<br>
     <code>Param2</code> массив описателей <code>HANDLE</code>, буфер под данные выделяет плагин, может быть <code>NULL</code> для запроса количества элементов.<br>
