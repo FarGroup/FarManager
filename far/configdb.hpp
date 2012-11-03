@@ -295,7 +295,6 @@ public:
 	bool Import(const wchar_t *File);
 	bool Export(const wchar_t *File);
 	void ClearPluginsCache() const;
-	void AddProblem(const string& Problem);
 	int ShowProblems();
 
 	GeneralConfig *GeneralCfg() const { return m_GeneralCfg; }
