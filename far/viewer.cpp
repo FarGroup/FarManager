@@ -4282,15 +4282,18 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				if (HostFileViewer)
 					HostFileViewer->InitKeyBar();
 			}
-			else if(CheckStructSize(Kbt))
+			else
 			{
 				if ((intptr_t)Param2 != (intptr_t)-1) // не только перерисовать?
-					ViewKeyBar->Change(Kbt->Titles);
-
+				{
+					if(CheckStructSize(Kbt))
+						ViewKeyBar->Change(Kbt->Titles);
+					else
+						return FALSE;
+				}
 				ViewKeyBar->Show();
 				ScrBuf.Flush(); //?????
 			}
-			else return FALSE;
 
 			return TRUE;
 		}
