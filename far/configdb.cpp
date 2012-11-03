@@ -1178,7 +1178,7 @@ public:
 		) return true;
 
 		stmtSetWeight.Finalize();
-      stmtGetWeight.Finalize();
+		stmtGetWeight.Finalize();
 		stmtDelType.Finalize();
 		stmtEnumMasksForType.Finalize();
 		stmtEnumMasks.Finalize();
@@ -1923,7 +1923,7 @@ public:
 			InitStmt(stmtCheckForHotkeys, L"SELECT count(hotkey) FROM pluginhotkeys WHERE type=?1")
 		) return true;
 
-      stmtCheckForHotkeys.Finalize();
+		stmtCheckForHotkeys.Finalize();
 		stmtDelHotkey.Finalize();
 		stmtSetHotkey.Finalize();
 		stmtGetHotkey.Finalize();
