@@ -175,10 +175,10 @@ class Edit:public ScreenObject
 		void SetTabSize(int NewSize) { TabSize=NewSize; }
 		int  GetTabSize() {return TabSize; }
 
-		void SetDelRemovesBlocks(int Mode) {Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
+		void SetDelRemovesBlocks(bool Mode) {Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Mode);}
 		int  GetDelRemovesBlocks() {return Flags.Check(FEDITLINE_DELREMOVESBLOCKS); }
 
-		void SetPersistentBlocks(int Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
+		void SetPersistentBlocks(bool Mode) {Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Mode);}
 		int  GetPersistentBlocks() {return Flags.Check(FEDITLINE_PERSISTENTBLOCKS); }
 
 		void SetShowWhiteSpace(int Mode) {Flags.Change(FEDITLINE_SHOWWHITESPACE, Mode!=0); Flags.Change(FEDITLINE_SHOWLINEBREAK, Mode == 1);}
@@ -209,7 +209,7 @@ class Edit:public ScreenObject
 
 		int   Search(const string& Str,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength);
 
-		void  SetClearFlag(int Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
+		void  SetClearFlag(bool Flag) {Flags.Change(FEDITLINE_CLEARFLAG,Flag);}
 		int   GetClearFlag() {return Flags.Check(FEDITLINE_CLEARFLAG);}
 		void  SetCurPos(int NewPos) {CurPos=NewPos; PrevCurPos=NewPos;}
 		int   GetCurPos() {return(CurPos);}
@@ -217,7 +217,7 @@ class Edit:public ScreenObject
 		void  SetTabCurPos(int NewPos);
 		int   GetLeftPos() {return(LeftPos);}
 		void  SetLeftPos(int NewPos) {LeftPos=NewPos;}
-		void  SetPasswordMode(int Mode) {Flags.Change(FEDITLINE_PASSWORDMODE,Mode);};
+		void  SetPasswordMode(bool Mode) {Flags.Change(FEDITLINE_PASSWORDMODE,Mode);};
 		void  SetMaxLength(int Length) {MaxLength=Length;};
 
 		// Получение максимального значения строки для потребностей Dialod API
@@ -226,8 +226,8 @@ class Edit:public ScreenObject
 		void  SetInputMask(const wchar_t *InputMask);
 		const wchar_t* GetInputMask() {return Mask;}
 
-		void  SetOvertypeMode(int Mode) {Flags.Change(FEDITLINE_OVERTYPE,Mode);};
-		int   GetOvertypeMode() {return Flags.Check(FEDITLINE_OVERTYPE);};
+		void  SetOvertypeMode(bool Mode) {Flags.Change(FEDITLINE_OVERTYPE, Mode);}
+		bool   GetOvertypeMode() {return Flags.Check(FEDITLINE_OVERTYPE);};
 
 		void  SetConvertTabs(int Mode) { TabExpandMode = Mode;};
 		int   GetConvertTabs() {return TabExpandMode;};
@@ -239,8 +239,8 @@ class Edit:public ScreenObject
 		void  GetSelection(intptr_t &Start,intptr_t &End);
 		BOOL  IsSelection() {return  SelStart==-1 && !SelEnd?FALSE:TRUE; };
 		void  GetRealSelection(intptr_t &Start,intptr_t &End);
-		void  SetEditBeyondEnd(int Mode) {Flags.Change(FEDITLINE_EDITBEYONDEND,Mode);};
-		void  SetEditorMode(int Mode) {Flags.Change(FEDITLINE_EDITORMODE,Mode);};
+		void  SetEditBeyondEnd(bool Mode) {Flags.Change(FEDITLINE_EDITBEYONDEND, Mode);}
+		void  SetEditorMode(bool Mode) {Flags.Change(FEDITLINE_EDITORMODE, Mode);}
 		bool  ReplaceTabs();
 
 		void  InsertTab();
@@ -255,8 +255,8 @@ class Edit:public ScreenObject
 		void SetDialogParent(DWORD Sets);
 		void SetCursorType(bool Visible, DWORD Size);
 		void GetCursorType(bool& Visible, DWORD& Size);
-		int  GetReadOnly() {return Flags.Check(FEDITLINE_READONLY);}
-		void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
+		bool GetReadOnly() {return Flags.Check(FEDITLINE_READONLY);}
+		void SetReadOnly(bool NewReadOnly) {Flags.Change(FEDITLINE_READONLY,NewReadOnly);}
 		void SetWordDiv(const StringOption& WordDiv) {strWordDiv=&WordDiv;}
 		virtual void Changed(bool DelBlock=false){};
 };
@@ -334,5 +334,5 @@ public:
 	void  SetObjectColor(const FarColor& Color,const FarColor& SelColor, const FarColor& ColorUnChanged);
 	void  GetObjectColor(FarColor& Color, FarColor& SelColor, FarColor& ColorUnChanged);
 	int  GetDropDownBox() {return Flags.Check(FEDITLINE_DROPDOWNBOX);}
-	void SetDropDownBox(int NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
+	void SetDropDownBox(bool NewDropDownBox) {Flags.Change(FEDITLINE_DROPDOWNBOX,NewDropDownBox);}
 };

@@ -318,7 +318,7 @@ class Dialog: public Frame
 		void AdjustEditPos(int dx,int dy);
 
 		int IsMoving() {return DialogMode.Check(DMODE_DRAGGED);}
-		void SetModeMoving(int IsMoving) { DialogMode.Change(DMODE_ISCANMOVE,IsMoving);}
+		void SetModeMoving(bool IsMoving) { DialogMode.Change(DMODE_ISCANMOVE,IsMoving);}
 		int  GetModeMoving() {return DialogMode.Check(DMODE_ISCANMOVE);}
 		void SetDialogData(void* NewDataDialog);
 		void* GetDialogData() {return DataDialog;};

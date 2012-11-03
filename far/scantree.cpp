@@ -40,7 +40,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 
-ScanTree::ScanTree(int RetUpDir,int Recurse, int ScanJunction)
+ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 {
 	Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
 	Flags.Change(FSCANTREE_RECUR,Recurse);
@@ -58,7 +58,7 @@ void ScanTree::SetFindPath(const wchar_t *Path,const wchar_t *Mask, const DWORD 
 	ConvertNameToReal(strFindPath, ScanItems.lastItem()->RealPath);
 	AddEndSlash(strFindPath);
 	strFindPath += strFindMask;
-	Flags.Flags=(Flags.Flags&0x0000FFFF)|(NewScanFlags&0xFFFF0000);
+	Flags.Set((Flags.Flags()&0x0000FFFF)|(NewScanFlags&0xFFFF0000));
 }
 
 bool ScanTree::GetNextName(FAR_FIND_DATA_EX *fdata,string &strFullName)

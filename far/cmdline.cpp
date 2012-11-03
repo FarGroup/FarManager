@@ -78,12 +78,12 @@ CommandLine::~CommandLine()
 		delete BackgroundScreen;
 }
 
-void CommandLine::SetPersistentBlocks(int Mode)
+void CommandLine::SetPersistentBlocks(bool Mode)
 {
 	CmdStr.SetPersistentBlocks(Mode);
 }
 
-void CommandLine::SetDelRemovesBlocks(int Mode)
+void CommandLine::SetDelRemovesBlocks(bool Mode)
 {
 	CmdStr.SetDelRemovesBlocks(Mode);
 }

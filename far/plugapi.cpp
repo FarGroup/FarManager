@@ -1615,7 +1615,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 				return editorExitCode;
 			}
 
-			Editor->SetEnableF6((Flags & EF_ENABLE_F6) );
+			Editor->SetEnableF6((Flags & EF_ENABLE_F6)!=0);
 			Editor->SetPluginTitle(&strTitle);
 
 			/* $ 21.05.2002 SKV - Запускаем свой цикл, только если не был указан флаг. */
@@ -1653,7 +1653,7 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 		else
 		{
 			Editor.SetDynamicallyBorn(false);
-			Editor.SetEnableF6((Flags & EF_ENABLE_F6) );
+			Editor.SetEnableF6((Flags & EF_ENABLE_F6)!=0);
 			Editor.SetPluginTitle(&strTitle);
 			/* $ 15.05.2002 SKV
 			  Зафиксируем вход и выход в/из модального редактора.
@@ -2467,7 +2467,7 @@ void WINAPI apiRecursiveSearch(const wchar_t *InitDir,const wchar_t *Mask,FRSUSE
 		if (!FMask.Set(Mask, FMF_SILENT)) return;
 
 		Flags=Flags&0x000000FF; // только младший байт!
-		ScanTree ScTree(Flags & FRS_RETUPDIR,Flags & FRS_RECUR, Flags & FRS_SCANSYMLINK);
+		ScanTree ScTree((Flags & FRS_RETUPDIR)!=0, (Flags & FRS_RECUR)!=0, (Flags & FRS_SCANSYMLINK)!=0);
 		FAR_FIND_DATA_EX FindData;
 		string strFullName;
 		ScTree.SetFindPath(InitDir,L"*");

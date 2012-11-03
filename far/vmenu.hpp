@@ -293,15 +293,15 @@ class VMenu: public Modal
 
 		void SetBottomTitle(const wchar_t *BottomTitle);
 		string &GetBottomTitle(string &strDest);
-		void SetDialogStyle(int Style) {ChangeFlags(VMENU_WARNDIALOG,Style); SetColors(nullptr);}
-		void SetUpdateRequired(int SetUpdate) {ChangeFlags(VMENU_UPDATEREQUIRED,SetUpdate);}
+		void SetDialogStyle(bool Style) {ChangeFlags(VMENU_WARNDIALOG,Style); SetColors(nullptr);}
+		void SetUpdateRequired(bool SetUpdate) {ChangeFlags(VMENU_UPDATEREQUIRED,SetUpdate);}
 		void SetBoxType(int BoxType);
 
 		void SetFlags(DWORD Flags) { VMFlags.Set(Flags); }
 		void ClearFlags(DWORD Flags) { VMFlags.Clear(Flags); }
-		BOOL CheckFlags(DWORD Flags) const { return VMFlags.Check(Flags); }
-		DWORD GetFlags() const { return VMFlags.Flags; }
-		DWORD ChangeFlags(DWORD Flags,BOOL Status) {return VMFlags.Change(Flags,Status);}
+		bool CheckFlags(DWORD Flags) const { return VMFlags.Check(Flags); }
+		DWORD GetFlags() const { return VMFlags.Flags(); }
+		DWORD ChangeFlags(DWORD Flags,bool Status) {return VMFlags.Change(Flags,Status);}
 
 		void AssignHighlights(int Reverse);
 

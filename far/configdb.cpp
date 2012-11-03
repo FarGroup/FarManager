@@ -2993,37 +2993,28 @@ public:
 	}
 };
 
-static void check_db( SQLiteDb *pDb, bool err_report )
+void Database::CheckDatabase( SQLiteDb *pDb)
 {
-	const wchar_t* pname = nullptr;
-	int rc = pDb->InitStatus(pname, err_report);
+	string pname;
+	int rc = pDb->InitStatus(pname, m_ImportExportMode);
 	if ( rc > 0 )
 	{
-		if ( err_report )
+		if (m_ImportExportMode)
 		{
 			Console.Write(L"problem\r\n  ");
 			Console.Write(pname);
-			pname = rc <= 1 ? L"\r\n  renamed/reopened\r\n" : L"\r\n  opened in memory\r\n";
-			Console.Write(pname);
+			Console.Write(rc <= 1 ? L"\r\n  renamed/reopened\r\n" : L"\r\n  opened in memory\r\n");
 			Console.Commit();
 		}
 		else
 		{
-			Db->AddProblem(pname);
+			m_Problems.Push(&pname);
 		}
 	}
 }
 
 template<class T>
-T* new_db(bool err_report)
-{
-	T* p = new T();
-	check_db(p, err_report);
-	return p;
-}
-
-template<class T>
-T* try_db_load(T *p, const char *son = nullptr, bool plugin=false)
+T* Database::TryImportDatabase(T *p, const char *son, bool plugin)
 {
 	if (TemplateLoadState != 0 && p->IsNew())
 	{
@@ -3067,75 +3058,83 @@ T* try_db_load(T *p, const char *son = nullptr, bool plugin=false)
 }
 
 template<class T>
-T* new_db_load(bool err_report, const char *son = nullptr)
+T* Database::CreateDatabase(const char *son)
 {
-	T* p = new_db<T>(err_report);
-	if (!err_report)
-		try_db_load(p, son);
+	T* p = new T();
+	CheckDatabase(p);
+	if (!m_ImportExportMode)
+	{
+		TryImportDatabase(p, son);
+	}
 	return p;
 }
 
-HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local, bool imp_exp)
+template<class T>
+HierarchicalConfig* Database::CreateHierahchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local)
+{
+	T *cfg = new T(dbn, Local);
+	bool first = !CheckedDb.Check(DbId);
+
+	if (first)
+		CheckDatabase(cfg);
+
+	if (!m_ImportExportMode && cfg->IsNew() && first)
+		TryImportDatabase<T>(cfg, xmln);
+
+	CheckedDb.Set(DbId);
+	return cfg;
+}
+
+HierarchicalConfig* Database::CreatePluginsConfig(const wchar_t *guid, bool Local)
 {
 	string strDbName = L"PluginsData\\";
 	strDbName += guid;
 	strDbName += L".db";
 	HierarchicalConfigDb *cfg = new HierarchicalConfigDb(strDbName, Local);
-	if (!imp_exp && cfg->IsNew())
+	if (!m_ImportExportMode && cfg->IsNew())
 	{
-		try_db_load<HierarchicalConfigDb>(cfg, Utf8String(guid), true);
+		Db->TryImportDatabase<HierarchicalConfigDb>(cfg, Utf8String(guid), true);
 	}
 	return cfg;
 }
 
-static int s_init_mask = 0x00;
-template<class T>
-HierarchicalConfig *CreateHierahchicalConfig(int msk, const wchar_t *dbn, const char *xmln, bool imp_exp, bool Local=false)
+HierarchicalConfig* Database::CreateFiltersConfig()
 {
-	T *cfg = new T(dbn, Local);
-	bool first = (0 == (s_init_mask & msk));
-
-	if (first)
-		check_db(cfg, imp_exp);
-
-	if (!imp_exp && cfg->IsNew() && first)
-		try_db_load<T>(cfg, xmln);
-
-	s_init_mask |= msk;
-	return cfg;
+	return CreateHierahchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters.db","filters");
 }
 
-HierarchicalConfig *CreateFiltersConfig(bool impex)
-{ return CreateHierahchicalConfig<HierarchicalConfigDb>(0x1, L"filters.db","filters", impex); }
-
-HierarchicalConfig *CreateHighlightConfig(bool impex)
-{ return CreateHierahchicalConfig<HighlightHierarchicalConfigDb>(0x2, L"highlight.db","highlight", impex); }
-
-HierarchicalConfig *CreateShortcutsConfig(bool impex)
-{ return CreateHierahchicalConfig<HierarchicalConfigDb>(0x4, L"shortcuts.db","shortcuts", impex, true); }
-
-HierarchicalConfig *CreatePanelModeConfig(bool impex)
-{ return CreateHierahchicalConfig<HierarchicalConfigDb>(0x8, L"panelmodes.db","panelmodes", impex); }
-
-
-Database::Database(bool imp_exp)
+HierarchicalConfig* Database::CreateHighlightConfig()
 {
-	// must be inited first
-	Db = this;
+	return CreateHierahchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight.db","highlight");
+}
 
-	m_GeneralCfg = new_db_load<GeneralConfigDb>(imp_exp);
-	m_ColorsCfg = new_db_load<ColorsConfigDb>(imp_exp);
-	m_AssocConfig = new_db_load<AssociationsConfigDb>(imp_exp);
-	m_PlCacheCfg = new_db<PluginsCacheConfigDb>(imp_exp);
-	m_PlHotkeyCfg = new_db_load<PluginsHotkeysConfigDb>(imp_exp);
-	m_HistoryCfg = new_db<HistoryConfigDb>(imp_exp);
-	m_HistoryCfgMem = new_db<HistoryConfigMemory>(imp_exp);
-	m_MacroCfg = new_db_load<MacroConfigDb>(imp_exp);
+HierarchicalConfig* Database::CreateShortcutsConfig()
+{
+	return CreateHierahchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db","shortcuts", true);
+}
+
+HierarchicalConfig* Database::CreatePanelModeConfig()
+{
+	return CreateHierahchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db","panelmodes");
+}
+
+Database::Database(bool ImportExportMode):
+	m_ImportExportMode(ImportExportMode),
+	m_GeneralCfg(CreateDatabase<GeneralConfigDb>()),
+	m_ColorsCfg(CreateDatabase<ColorsConfigDb>()),
+	m_AssocConfig(CreateDatabase<AssociationsConfigDb>()),
+	m_PlCacheCfg(CreateDatabase<PluginsCacheConfigDb>()),
+	m_PlHotkeyCfg(CreateDatabase<PluginsHotkeysConfigDb>()),
+	m_HistoryCfg(CreateDatabase<HistoryConfigDb>()),
+	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>()),
+	m_MacroCfg(CreateDatabase<MacroConfigDb>())
+{
+	Db = this;
 }
 
 Database::~Database()
 {
-	Problems.Clear();
+	m_Problems.Clear();
 	delete m_MacroCfg;
 	delete m_HistoryCfgMem;
 	delete m_HistoryCfg;
@@ -3146,7 +3145,7 @@ Database::~Database()
 	delete m_GeneralCfg;
 }
 
-bool Database::Export(const wchar_t *File) const
+bool Database::Export(const wchar_t *File)
 {
 	FILE* XmlFile = _wfopen(NTPath(File), L"w");
 	if(!XmlFile)
@@ -3177,25 +3176,25 @@ bool Database::Export(const wchar_t *File) const
 
 	root->LinkEndChild(PlHotkeyCfg()->Export());
 
-	HierarchicalConfig *cfg = CreateFiltersConfig(true);
+	HierarchicalConfig *cfg = CreateFiltersConfig();
 	TiXmlElement *e = new TiXmlElement("filters");
 	e->LinkEndChild(cfg->Export());
 	root->LinkEndChild(e);
 	delete cfg;
 
-	cfg = CreateHighlightConfig(true);
+	cfg = CreateHighlightConfig();
 	e = new TiXmlElement("highlight");
 	e->LinkEndChild(cfg->Export());
 	root->LinkEndChild(e);
 	delete cfg;
 
-	cfg = CreatePanelModeConfig(true);
+	cfg = CreatePanelModeConfig();
 	e = new TiXmlElement("panelmodes");
 	e->LinkEndChild(cfg->Export());
 	root->LinkEndChild(e);
 	delete cfg;
 
-	cfg = CreateShortcutsConfig(true);
+	cfg = CreateShortcutsConfig();
 	e = new TiXmlElement("shortcuts");
 	e->LinkEndChild(cfg->Export());
 	root->LinkEndChild(e);
@@ -3220,7 +3219,7 @@ bool Database::Export(const wchar_t *File) const
 
 				TiXmlElement *plugin = new TiXmlElement("plugin");
 				plugin->SetAttribute("guid", guid);
-				cfg = CreatePluginsConfig(fd.strFileName, false, true);
+				cfg = CreatePluginsConfig(fd.strFileName);
 				plugin->LinkEndChild(cfg->Export());
 				e->LinkEndChild(plugin);
 				delete cfg;
@@ -3238,7 +3237,7 @@ bool Database::Export(const wchar_t *File) const
 	return ret;
 }
 
-bool Database::Import(const wchar_t *File) const
+bool Database::Import(const wchar_t *File)
 {
 	FILE* XmlFile = _wfopen(NTPath(File), L"rb");
 	if(!XmlFile)
@@ -3268,19 +3267,19 @@ bool Database::Import(const wchar_t *File) const
 
 			PlHotkeyCfg()->Import(root);
 
-			HierarchicalConfig *cfg = CreateFiltersConfig(true);
+			HierarchicalConfig *cfg = CreateFiltersConfig();
 			cfg->Import(root.FirstChildElement("filters"));
 			delete cfg;
 
-			cfg = CreateHighlightConfig(true);
+			cfg = CreateHighlightConfig();
 			cfg->Import(root.FirstChildElement("highlight"));
 			delete cfg;
 
-			cfg = CreatePanelModeConfig(true);
+			cfg = CreatePanelModeConfig();
 			cfg->Import(root.FirstChildElement("panelmodes"));
 			delete cfg;
 
-			cfg = CreateShortcutsConfig(true);
+			cfg = CreateShortcutsConfig();
 			cfg->Import(root.FirstChildElement("shortcuts"));
 			delete cfg;
 
@@ -3296,7 +3295,7 @@ bool Database::Import(const wchar_t *File) const
 				mc=2;
 				if (re.Match(Guid, Guid.CPtr() + Guid.GetLength(), m, mc))
 				{
-					cfg = CreatePluginsConfig(Guid, false, true);
+					cfg = CreatePluginsConfig(Guid);
 					const TiXmlHandle h(plugin);
 					cfg->Import(h);
 					delete cfg;
@@ -3326,23 +3325,18 @@ void Database::ClearPluginsCache() const
 int Database::ShowProblems()
 {
 	int rc = 0;
-	if (Problems.Count())
+	if (m_Problems.Count())
 	{
-		const wchar_t* *msgs = new const wchar_t*[Problems.Count()+2];
+		const wchar_t* *msgs = new const wchar_t*[m_Problems.Count()+2];
 		int i = 0;
-		for(auto Problem = Problems.First(); Problem; Problem = Problems.Next(Problem), ++i)
+		for(auto Problem = m_Problems.First(); Problem; Problem = m_Problems.Next(Problem), ++i)
 		{
 			msgs[i] = *Problem;
 		}
 		msgs[i] = MSG(MShowConfigFolders);
 		msgs[i+1] = MSG(MIgnore);
-		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs, Problems.Count()+2) == 0 ? +1 : -1;
+		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs, m_Problems.Count()+2) == 0 ? +1 : -1;
 		delete[] msgs;
 	}
 	return rc;
-}
-
-void Database::AddProblem(const string& Problem)
-{
-	Problems.Push(&Problem);
 }

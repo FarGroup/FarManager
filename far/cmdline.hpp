@@ -97,8 +97,8 @@ class CommandLine:public ScreenObject
 		int GetCurPos() { return CmdStr.GetCurPos(); };
 		int GetLeftPos() { return CmdStr.GetLeftPos(); };
 
-		void SetPersistentBlocks(int Mode);
-		void SetDelRemovesBlocks(int Mode);
+		void SetPersistentBlocks(bool Mode);
+		void SetDelRemovesBlocks(bool Mode);
 		void SetAutoComplete(int Mode);
 
 		void GetSelString(string &strStr) { CmdStr.GetSelString(strStr); };
@@ -109,5 +109,5 @@ class CommandLine:public ScreenObject
 		void SaveBackground();
 		void ShowBackground();
 		void CorrectRealScreenCoord();
-		void LockUpdatePanel(int Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
+		void LockUpdatePanel(bool Mode) {Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);};
 };

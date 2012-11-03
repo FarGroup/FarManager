@@ -81,7 +81,7 @@ class ScanTree
 		string strFindMask;
 
 	public:
-		ScanTree(int RetUpDir,int Recurse=1,int ScanJunction=-1);
+		ScanTree(bool RetUpDir, bool Recurse=1, int ScanJunction=-1);
 
 	public:
 		// 3-й параметр - флаги из старшего слова

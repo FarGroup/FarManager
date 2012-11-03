@@ -241,7 +241,7 @@ class Editor:public ScreenObject
 		void GoToLine(int Line);
 		void GoToPosition();
 
-		void TextChanged(int State);
+		void TextChanged(bool State);
 
 		int  CalcDistance(Edit *From, Edit *To,int MaxDist);
 		void Paste(const wchar_t *Src=nullptr);
@@ -405,10 +405,10 @@ class Editor:public ScreenObject
 		Edit *InsertString(const wchar_t *lpwszStr, int nLength, Edit *pAfter = nullptr, int AfterLineNumber=-1);
 
 		void SetDialogParent(DWORD Sets);
-		void SetReadOnly(int NewReadOnly) {Flags.Change(FEDITOR_LOCKMODE,NewReadOnly);};
-		int  GetReadOnly() {return Flags.Check(FEDITOR_LOCKMODE);};
+		void SetReadOnly(bool NewReadOnly) {Flags.Change(FEDITOR_LOCKMODE,NewReadOnly);};
+		bool  GetReadOnly() {return Flags.Check(FEDITOR_LOCKMODE);};
 		void SetOvertypeMode(int Mode);
-		int  GetOvertypeMode();
+		bool  GetOvertypeMode();
 		void SetEditBeyondEnd(int Mode);
 		void SetClearFlag(int Flag);
 		int  GetClearFlag();

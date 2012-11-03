@@ -360,7 +360,6 @@ FileEditor::~FileEditor()
 	if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && m_editor->EdOpt.SavePos && CtrlObject)
 		SaveToCache();
 
-	BitFlags FEditFlags=m_editor->Flags;
 	int FEditEditorID=m_editor->EditorID;
 
 	if (bEE_READ_Sent && CtrlObject)
@@ -761,16 +760,16 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 	if (OpCode == MCODE_V_EDITORSTATE)
 	{
 		DWORD MacroEditState=0;
-		MacroEditState|=Flags.Flags&FFILEEDIT_NEW?0x00000001:0;
-		MacroEditState|=Flags.Flags&FFILEEDIT_ENABLEF6?0x00000002:0;
-		MacroEditState|=Flags.Flags&FFILEEDIT_DELETEONCLOSE?0x00000004:0;
-		MacroEditState|=m_editor->Flags.Flags&FEDITOR_MODIFIED?0x00000008:0;
+		MacroEditState|=Flags.Check(FFILEEDIT_NEW)?0x00000001:0;
+		MacroEditState|=Flags.Check(FFILEEDIT_ENABLEF6)?0x00000002:0;
+		MacroEditState|=Flags.Check(FFILEEDIT_DELETEONCLOSE)?0x00000004:0;
+		MacroEditState|=m_editor->Flags.Check(FEDITOR_MODIFIED)?0x00000008:0;
 		MacroEditState|=m_editor->BlockStart?0x00000010:0;
 		MacroEditState|=m_editor->VBlockStart?0x00000020:0;
-		MacroEditState|=m_editor->Flags.Flags&FEDITOR_WASCHANGED?0x00000040:0;
-		MacroEditState|=m_editor->Flags.Flags&FEDITOR_OVERTYPE?0x00000080:0;
-		MacroEditState|=m_editor->Flags.Flags&FEDITOR_CURPOSCHANGEDBYPLUGIN?0x00000100:0;
-		MacroEditState|=m_editor->Flags.Flags&FEDITOR_LOCKMODE?0x00000200:0;
+		MacroEditState|=m_editor->Flags.Check(FEDITOR_WASCHANGED)?0x00000040:0;
+		MacroEditState|=m_editor->Flags.Check(FEDITOR_OVERTYPE)?0x00000080:0;
+		MacroEditState|=m_editor->Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN)?0x00000100:0;
+		MacroEditState|=m_editor->Flags.Check(FEDITOR_LOCKMODE)?0x00000200:0;
 		MacroEditState|=m_editor->EdOpt.PersistentBlocks?0x00000400:0;
 		MacroEditState|=Opt.OnlyEditorViewerUsed?0x08000000|0x00000800:0;
 		MacroEditState|=!GetCanLoseFocus()?0x00000800:0;

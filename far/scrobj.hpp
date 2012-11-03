@@ -93,8 +93,8 @@ class ScreenObject
 		void SavePrevScreen();
 		void Redraw();
 		int  IsVisible() { return Flags.Check(FSCROBJ_VISIBLE); };
-		void SetVisible(int Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);};
-		void SetRestoreScreenMode(int Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);};
+		void SetVisible(bool Visible) {Flags.Change(FSCROBJ_VISIBLE,Visible);};
+		void SetRestoreScreenMode(bool Mode) {Flags.Change(FSCROBJ_ENABLERESTORESCREEN,Mode);};
 		void Shadow(bool Full=false);
 
 		static void SetCapture(ScreenObject *Obj);

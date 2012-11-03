@@ -83,7 +83,7 @@ Shortcuts::Shortcuts()
 {
 	Changed = false;
 
-	HierarchicalConfig *cfg = CreateShortcutsConfig();
+	HierarchicalConfig *cfg = Db->CreateShortcutsConfig();
 	unsigned __int64 root = cfg->GetKeyID(0,FolderShortcutsKey);
 
 	if (root)
@@ -133,7 +133,7 @@ Shortcuts::~Shortcuts()
 	if (!Changed)
 		return;
 
-	HierarchicalConfig *cfg = CreateShortcutsConfig();
+	HierarchicalConfig *cfg = Db->CreateShortcutsConfig();
 	unsigned __int64 root = cfg->GetKeyID(0,FolderShortcutsKey);
 	if (root)
 		cfg->DeleteKeyTree(root);

@@ -164,7 +164,7 @@ static struct TreeListCache
 } TreeCache, tempTreeCache;
 
 
-TreeList::TreeList(int IsPanel):
+TreeList::TreeList(bool IsPanel):
 	PrevMacroMode(MACRO_INVALID),
 	ListData(nullptr),
 	TreeCount(0),

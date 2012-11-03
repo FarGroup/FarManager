@@ -94,7 +94,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local) : PluginsCfg(nullpt
 	if (pPlugin)
 	{
 		string strGuid = GuidToStr(Guid);
-		PluginsCfg = CreatePluginsConfig(strGuid, Local);
+		PluginsCfg = Db->CreatePluginsConfig(strGuid, Local);
 		unsigned __int64& root(*m_Keys.insertItem(0));
 		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
 

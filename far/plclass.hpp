@@ -234,8 +234,8 @@ public:
 	const wchar_t *GetMsg(LNGID nID) const { return PluginLang.GetMsg(nID); }
 
 	bool CheckWorkFlags(DWORD flags) const { return WorkFlags.Check(flags)==TRUE; }
-	DWORD GetWorkFlags() const { return WorkFlags.Flags; }
-	DWORD GetFuncFlags() const { return FuncFlags.Flags; }
+	DWORD GetWorkFlags() const { return WorkFlags.Flags(); }
+	DWORD GetFuncFlags() const { return FuncFlags.Flags(); }
 
 	bool Load();
 	int Unload(bool bExitFAR = false);

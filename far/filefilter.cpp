@@ -782,7 +782,7 @@ void FileFilter::InitFilter()
 	string strKeyName;
 	string strTitle, strMask, strSizeBelow, strSizeAbove;
 
-	HierarchicalConfig *cfg = CreateFiltersConfig();
+	HierarchicalConfig *cfg = Db->CreateFiltersConfig();
 
 	unsigned __int64 root = cfg->GetKeyID(0, L"Filters");
 
@@ -917,7 +917,7 @@ void FileFilter::SaveFilters()
 
 	string strKeyName;
 	FileFilterParams *CurFilterData;
-	HierarchicalConfig *cfg = CreateFiltersConfig();
+	HierarchicalConfig *cfg = Db->CreateFiltersConfig();
 
 	unsigned __int64 root = cfg->GetKeyID(0, L"Filters");
 	if (root)

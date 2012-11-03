@@ -81,8 +81,8 @@ class DlgEdit: public ScreenObject
 		virtual __int64  VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
 
 		void  SetDialogParent(DWORD Sets);
-		void  SetDropDownBox(int NewDropDownBox);
-		void  SetPasswordMode(int Mode);
+		void  SetDropDownBox(bool NewDropDownBox);
+		void  SetPasswordMode(bool Mode);
 
 		int   GetMaxLength();
 		void  SetMaxLength(int Length);
@@ -92,12 +92,12 @@ class DlgEdit: public ScreenObject
 		void  SetInputMask(const wchar_t *InputMask);
 		const wchar_t* GetInputMask();
 
-		void  SetOvertypeMode(int Mode);
-		int   GetOvertypeMode();
+		void  SetOvertypeMode(bool Mode);
+		bool  GetOvertypeMode();
 
-		void  SetEditBeyondEnd(int Mode);
+		void  SetEditBeyondEnd(bool Mode);
 
-		void  SetClearFlag(int Flag);
+		void  SetClearFlag(bool Flag);
 		int   GetClearFlag();
 
 		void  SetString(const wchar_t *Str);
@@ -114,9 +114,9 @@ class DlgEdit: public ScreenObject
 		int   GetTabCurPos();
 		void  SetTabCurPos(int NewPos);
 
-		void  SetPersistentBlocks(int Mode);
+		void  SetPersistentBlocks(bool Mode);
 		int   GetPersistentBlocks();
-		void  SetDelRemovesBlocks(int NewMode);
+		void  SetDelRemovesBlocks(bool NewMode);
 		int   GetDelRemovesBlocks();
 
 		void  SetObjectColor(PaletteColors Color,PaletteColors SelColor=COL_COMMANDLINESELECTED,PaletteColors ColorUnChanged=COL_DIALOGEDITUNCHANGED);
@@ -137,8 +137,8 @@ class DlgEdit: public ScreenObject
 		void SetCursorType(bool Visible, DWORD Size);
 		void GetCursorType(bool& Visible, DWORD& Size);
 
-		int  GetReadOnly();
-		void SetReadOnly(int NewReadOnly);
+		bool  GetReadOnly();
+		void SetReadOnly(bool NewReadOnly);
 
 		void SetCallbackState(bool Enable){lineEdit->SetCallbackState(Enable);}
 		void AutoComplete(bool Manual,bool DelBlock){return lineEdit->AutoComplete(Manual,DelBlock);}

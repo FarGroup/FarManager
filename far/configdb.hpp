@@ -44,8 +44,8 @@ class XmlConfig {
 public:
 
 	virtual ~XmlConfig() {}
-	virtual TiXmlElement *Export() = 0;
-	virtual bool Import(const TiXmlHandle &root) = 0;
+	virtual TiXmlElement *Export() { return nullptr; }
+	virtual bool Import(const TiXmlHandle &root) { return true; }
 };
 
 class Transactional {
@@ -151,7 +151,7 @@ protected:
 	AssociationsConfig() {}
 };
 
-class PluginsCacheConfig: public Transactional {
+class PluginsCacheConfig: public XmlConfig, public Transactional {
 
 public:
 
@@ -221,7 +221,7 @@ protected:
 	PluginsHotkeysConfig() {}
 };
 
-class HistoryConfig: public Transactional {
+class HistoryConfig: public XmlConfig, public Transactional {
 
 public:
 
@@ -290,10 +290,10 @@ protected:
 class Database
 {
 public:
-	Database(bool imp_exp=false);
+	Database(bool ImportExportMode=false);
 	~Database();
-	bool Import(const wchar_t *File) const;
-	bool Export(const wchar_t *File) const;
+	bool Import(const wchar_t *File);
+	bool Export(const wchar_t *File);
 	void ClearPluginsCache() const;
 	void AddProblem(const string& Problem);
 	int ShowProblems();
@@ -307,7 +307,29 @@ public:
 	HistoryConfig *HistoryCfgMem() const { return m_HistoryCfgMem; }
 	MacroConfig *MacroCfg() const { return m_MacroCfg; }
 
+
+	HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local=false);
+	HierarchicalConfig *CreateFiltersConfig();
+	HierarchicalConfig *CreateHighlightConfig();
+	HierarchicalConfig *CreateShortcutsConfig();
+	HierarchicalConfig *CreatePanelModeConfig();
+
 private:
+	enum DBCHECK
+	{
+		CHECK_NONE = 0,
+		CHECK_FILTERS = 0x1,
+		CHECK_HIGHLIGHT = 0x2,
+		CHECK_SHORTCUTS = 0x4,
+		CHECK_PANELMODES = 0x8,
+	};
+	template<class T> HierarchicalConfig *CreateHierahchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local=false);
+	template<class T> T* CreateDatabase(const char *son = nullptr);
+	template<class T> T* TryImportDatabase(T *p, const char *son = nullptr, bool plugin=false);
+	void CheckDatabase(class SQLiteDb *pDb);
+
+	bool m_ImportExportMode;
+
 	GeneralConfig *m_GeneralCfg;
 	ColorsConfig *m_ColorsCfg;
 	AssociationsConfig *m_AssocConfig;
@@ -317,17 +339,11 @@ private:
 	HistoryConfig *m_HistoryCfgMem;
 	MacroConfig *m_MacroCfg;
 
-	DList<string> Problems;
+	BitFlags CheckedDb;
+	DList<string> m_Problems;
 };
 
 extern Database *Db;
-
-HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local, bool imp_exp=false);
-HierarchicalConfig *CreateFiltersConfig(bool imp_exp=false);
-HierarchicalConfig *CreateHighlightConfig(bool imp_exp=false);
-HierarchicalConfig *CreateShortcutsConfig(bool imp_exp=false);
-HierarchicalConfig *CreatePanelModeConfig(bool imp_exp=false);
-
 
 template<class T, class Y>
 const wchar_t* GetNameOfValue(T Value, const Y& From)

@@ -86,6 +86,6 @@ public:
 	bool SetWALJournalingMode();
 	bool EnableForeignKeysConstraints();
 	virtual bool InitializeImpl(const wchar_t* DbName, bool Local) = 0;
-	int InitStatus(const wchar_t* &name, bool full_name);
+	int InitStatus(string& name, bool full_name);
 	bool IsNew() { return db_exists <= 0; }
 };

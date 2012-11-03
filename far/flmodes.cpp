@@ -214,7 +214,7 @@ void FileList::SetFilePanelModes()
 
 void FileList::ReadPanelModes()
 {
-	HierarchicalConfig *PanelModeCfg = CreatePanelModeConfig();
+	HierarchicalConfig *PanelModeCfg = Db->CreatePanelModeConfig();
 
 	for (int I=0; I<10; I++)
 	{
@@ -262,7 +262,7 @@ void FileList::SavePanelModes()
 
 	ViewSettingsChanged = false;
 
-	HierarchicalConfig *PanelModeCfg = CreatePanelModeConfig();
+	HierarchicalConfig *PanelModeCfg = Db->CreatePanelModeConfig();
 
 	for (int I=0; I<10; I++)
 	{

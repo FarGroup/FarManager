@@ -139,7 +139,7 @@ class TreeList: public Panel
 		static int GetCacheTreeName(const string& Root, string& strName,int CreateDir);
 
 	public:
-		TreeList(int IsPanel=TRUE);
+		TreeList(bool IsPanel=true);
 		virtual ~TreeList();
 
 	public:

@@ -2122,7 +2122,7 @@ void Help::OnChangeFocus(int Focus)
 void Help::ResizeConsole()
 {
 	int OldIsNewTopic=IsNewTopic;
-	BOOL ErrCannotOpenHelp=ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP);
+	bool ErrCannotOpenHelp=ScreenObject::Flags.Check(FHELPOBJ_ERRCANNOTOPENHELP);
 	ScreenObject::Flags.Set(FHELPOBJ_ERRCANNOTOPENHELP);
 	IsNewTopic=FALSE;
 	delete TopScreen;

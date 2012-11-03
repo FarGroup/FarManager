@@ -732,11 +732,11 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 				     DI_COMBOBOX выставляется флаг MENU_SHOWAMPERSAND. Этот флаг
 				     подавляет такое поведение
 				*/
-				ListPtr->ChangeFlags(VMENU_DISABLED, ItemFlags&DIF_DISABLE);
-				ListPtr->ChangeFlags(VMENU_SHOWAMPERSAND, !(ItemFlags&DIF_LISTNOAMPERSAND));
-				ListPtr->ChangeFlags(VMENU_SHOWNOBOX, ItemFlags&DIF_LISTNOBOX);
-				ListPtr->ChangeFlags(VMENU_WRAPMODE, ItemFlags&DIF_LISTWRAPMODE);
-				ListPtr->ChangeFlags(VMENU_AUTOHIGHLIGHT, ItemFlags&DIF_LISTAUTOHIGHLIGHT);
+				ListPtr->ChangeFlags(VMENU_DISABLED, (ItemFlags&DIF_DISABLE)!=0);
+				ListPtr->ChangeFlags(VMENU_SHOWAMPERSAND, (ItemFlags&DIF_LISTNOAMPERSAND)==0);
+				ListPtr->ChangeFlags(VMENU_SHOWNOBOX, (ItemFlags&DIF_LISTNOBOX)!=0);
+				ListPtr->ChangeFlags(VMENU_WRAPMODE, (ItemFlags&DIF_LISTWRAPMODE)!=0);
+				ListPtr->ChangeFlags(VMENU_AUTOHIGHLIGHT, (ItemFlags&DIF_LISTAUTOHIGHLIGHT)!=0);
 
 				if (ItemFlags&DIF_LISTAUTOHIGHLIGHT)
 					ListPtr->AssignHighlights(FALSE);
@@ -797,11 +797,11 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 				{
 					VMenu *ListPtr=CurItem->ListPtr;
 					ListPtr->SetBoxType(SHORT_SINGLE_BOX);
-					DialogEdit->SetDropDownBox(ItemFlags & DIF_DROPDOWNLIST);
-					ListPtr->ChangeFlags(VMENU_WRAPMODE, ItemFlags&DIF_LISTWRAPMODE);
-					ListPtr->ChangeFlags(VMENU_DISABLED, ItemFlags&DIF_DISABLE);
-					ListPtr->ChangeFlags(VMENU_SHOWAMPERSAND, !(ItemFlags&DIF_LISTNOAMPERSAND));
-					ListPtr->ChangeFlags(VMENU_AUTOHIGHLIGHT, ItemFlags&DIF_LISTAUTOHIGHLIGHT);
+					DialogEdit->SetDropDownBox((ItemFlags & DIF_DROPDOWNLIST)!=0);
+					ListPtr->ChangeFlags(VMENU_WRAPMODE, (ItemFlags&DIF_LISTWRAPMODE)!=0);
+					ListPtr->ChangeFlags(VMENU_DISABLED, (ItemFlags&DIF_DISABLE)!=0);
+					ListPtr->ChangeFlags(VMENU_SHOWAMPERSAND, (ItemFlags&DIF_LISTNOAMPERSAND)==0);
+					ListPtr->ChangeFlags(VMENU_AUTOHIGHLIGHT, (ItemFlags&DIF_LISTAUTOHIGHLIGHT)!=0);
 
 					if (ItemFlags&DIF_LISTAUTOHIGHLIGHT)
 						ListPtr->AssignHighlights(FALSE);
@@ -832,7 +832,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 //         FarColorToReal((ItemFlags&DIF_DISABLE)?COL_DIALOGEDITDISABLED:COL_DIALOGEDITSELECTED));
 			if (CurItem->Type==DI_PSWEDIT)
 			{
-				DialogEdit->SetPasswordMode(TRUE);
+				DialogEdit->SetPasswordMode(true);
 				// ...Что бы небыло повадно... и для повыщения защиты, т.с.
 				ItemFlags&=~DIF_HISTORY;
 			}
@@ -5313,7 +5313,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 						}
 						case DM_SETCOMBOBOXEVENT: // Param1=ID Param2=FARCOMBOBOXEVENTTYPE Ret=OldSets
 						{
-							int OldSets=CurItem->IFlags.Flags;
+							int OldSets=CurItem->IFlags.Flags();
 							CurItem->IFlags.Clear(DLGIIF_COMBOBOXEVENTKEY|DLGIIF_COMBOBOXEVENTMOUSE);
 
 							if (reinterpret_cast<intptr_t>(Param2)&CBET_KEY)
@@ -5512,7 +5512,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 						EditPtr->SetCurPos(esp->CurPos);
 						EditPtr->SetTabCurPos(esp->CurTabPos);
 						EditPtr->SetLeftPos(esp->LeftPos);
-						EditPtr->SetOvertypeMode(esp->Overtype);
+						EditPtr->SetOvertypeMode(esp->Overtype!=0);
 						Dlg->ShowDialog(Param1);
 						ScrBuf.Flush();
 						return TRUE;
@@ -5594,7 +5594,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 					if (I)
 					{
 						if (Type == DI_COMBOBOX && CurItem->ListPtr)
-							CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
+							CurItem->ListPtr->ChangeFlags(VMENU_DISABLED, (CurItem->Flags&DIF_DISABLE)!=0);
 					}
 					static_cast<DlgEdit*>(CurItem->ObjPtr)->SetCallbackState(true);
 				}
@@ -5718,7 +5718,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 				I=Dlg->CallDlgProc(Msg,Param1,Item.Item);
 
 				if ((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
-					CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
+					CurItem->ListPtr->ChangeFlags(VMENU_DISABLED, (CurItem->Flags&DIF_DISABLE)!=0);
 			}
 			xf_free(Item.Item);
 			return I;
@@ -5953,7 +5953,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 						if (CurItem->ObjPtr)
 						{
 							DlgEdit *EditLine=(DlgEdit *)(CurItem->ObjPtr);
-							int ReadOnly=EditLine->GetReadOnly();
+							bool ReadOnly=EditLine->GetReadOnly();
 							EditLine->SetReadOnly(0);
 							{
 								SetAutocomplete da(EditLine);
@@ -6059,7 +6059,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 			CurItem->Type=Type;
 
 			if ((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
-				CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
+				CurItem->ListPtr->ChangeFlags(VMENU_DISABLED, (CurItem->Flags&DIF_DISABLE)!=0);
 
 			// еще разок, т.к. данные могли быть изменены
 			Dlg->InitDialogObjects(Param1);
@@ -6168,7 +6168,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 					CurItem->Flags|=DIF_DISABLE;
 
 				if ((Type == DI_LISTBOX || Type == DI_COMBOBOX) && CurItem->ListPtr)
-					CurItem->ListPtr->ChangeFlags(VMENU_DISABLED,CurItem->Flags&DIF_DISABLE);
+					CurItem->ListPtr->ChangeFlags(VMENU_DISABLED, (CurItem->Flags&DIF_DISABLE)!=0);
 			}
 
 			if (Dlg->DialogMode.Check(DMODE_SHOW)) //???
@@ -6216,7 +6216,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 
 				if (reinterpret_cast<intptr_t>(Param2) >= 0)
 				{
-					EditLine->SetClearFlag(static_cast<int>(reinterpret_cast<intptr_t>(Param2)));
+					EditLine->SetClearFlag(Param2!=0);
 					EditLine->Select(-1,0); // снимаем выделение
 
 					if (Dlg->DialogMode.Check(DMODE_SHOW)) //???

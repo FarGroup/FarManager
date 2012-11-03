@@ -90,10 +90,10 @@ class FileEditor : public Frame
 		void SetLockEditor(BOOL LockMode);
 		bool IsFullScreen() {return Flags.Check(FFILEEDIT_FULLSCREEN)!=FALSE;}
 		void SetNamesList(NamesList *Names);
-		void SetEnableF6(int AEnableF6) { Flags.Change(FFILEEDIT_ENABLEF6,AEnableF6); InitKeyBar(); }
+		void SetEnableF6(bool AEnableF6) { Flags.Change(FFILEEDIT_ENABLEF6,AEnableF6); InitKeyBar(); }
 		// Добавлено для поиска по AltF7. При редактировании найденного файла из
 		// архива для клавиши F2 сделать вызов ShiftF2.
-		void SetSaveToSaveAs(int ToSaveAs) { Flags.Change(FFILEEDIT_SAVETOSAVEAS,ToSaveAs); InitKeyBar(); }
+		void SetSaveToSaveAs(bool ToSaveAs) { Flags.Change(FFILEEDIT_SAVETOSAVEAS,ToSaveAs); InitKeyBar(); }
 		virtual BOOL IsFileModified() const { return m_editor->IsFileModified(); };
 		virtual int GetTypeAndName(string &strType, string &strName);
 		intptr_t EditorControl(int Command, intptr_t Param1, void *Param2);

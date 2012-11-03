@@ -1150,7 +1150,7 @@ int FileList::ProcessKey(int Key)
 				NewKey|=KEY_ALT;
 
 			Panel *SrcPanel = CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
-			int OldState = SrcPanel->IsVisible();
+			bool OldState = SrcPanel->IsVisible()!=0;
 			SrcPanel->SetVisible(1);
 			SrcPanel->ProcessKey(NewKey);
 			SrcPanel->SetVisible(OldState);

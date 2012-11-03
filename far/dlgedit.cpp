@@ -199,7 +199,7 @@ void DlgEdit::SetDialogParent(DWORD Sets)
 }
 
 
-void DlgEdit::SetDropDownBox(int NewDropDownBox)
+void DlgEdit::SetDropDownBox(bool NewDropDownBox)
 {
 	if (Type == DLGEDIT_SINGLELINE)
 		lineEdit->SetDropDownBox(NewDropDownBox);
@@ -219,13 +219,13 @@ void DlgEdit::SetMaxLength(int Length)
 		lineEdit->SetMaxLength(Length);
 }
 
-void DlgEdit::SetPasswordMode(int Mode)
+void DlgEdit::SetPasswordMode(bool Mode)
 {
 	if (Type == DLGEDIT_SINGLELINE)
 		lineEdit->SetPasswordMode(Mode);
 }
 
-void DlgEdit::SetOvertypeMode(int Mode)
+void DlgEdit::SetOvertypeMode(bool Mode)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -236,7 +236,7 @@ void DlgEdit::SetOvertypeMode(int Mode)
 		lineEdit->SetOvertypeMode(Mode);
 }
 
-int DlgEdit::GetOvertypeMode()
+bool DlgEdit::GetOvertypeMode()
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -261,7 +261,7 @@ const wchar_t* DlgEdit::GetInputMask()
 	return L""; //???
 }
 
-void DlgEdit::SetEditBeyondEnd(int Mode)
+void DlgEdit::SetEditBeyondEnd(bool Mode)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -272,7 +272,7 @@ void DlgEdit::SetEditBeyondEnd(int Mode)
 		lineEdit->SetEditBeyondEnd(Mode);
 }
 
-void DlgEdit::SetClearFlag(int Flag)
+void DlgEdit::SetClearFlag(bool Flag)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -427,7 +427,7 @@ void DlgEdit::SetTabCurPos(int NewPos)
 }
 
 
-void DlgEdit::SetPersistentBlocks(int Mode)
+void DlgEdit::SetPersistentBlocks(bool Mode)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -449,7 +449,7 @@ int  DlgEdit::GetPersistentBlocks()
 		return lineEdit->GetPersistentBlocks();
 }
 
-void DlgEdit::SetDelRemovesBlocks(int Mode)
+void DlgEdit::SetDelRemovesBlocks(bool Mode)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -624,7 +624,7 @@ void DlgEdit::GetCursorType(bool& Visible, DWORD& Size)
 		lineEdit->GetCursorType(Visible,Size);
 }
 
-int DlgEdit::GetReadOnly()
+bool DlgEdit::GetReadOnly()
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 
@@ -635,7 +635,7 @@ int DlgEdit::GetReadOnly()
 		return lineEdit->GetReadOnly();
 }
 
-void DlgEdit::SetReadOnly(int NewReadOnly)
+void DlgEdit::SetReadOnly(bool NewReadOnly)
 {
 #if defined(PROJECT_DI_MEMOEDIT)
 

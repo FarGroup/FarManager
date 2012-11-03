@@ -106,7 +106,7 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	TabExpandMode = EXPAND_NOTABS;
 	Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Opt.EdOpt.DelRemovesBlocks);
 	Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Opt.EdOpt.PersistentBlocks);
-	Flags.Change(FEDITLINE_SHOWWHITESPACE,Opt.EdOpt.ShowWhiteSpace);
+	Flags.Change(FEDITLINE_SHOWWHITESPACE,Opt.EdOpt.ShowWhiteSpace!=0);
 	Flags.Change(FEDITLINE_SHOWLINEBREAK,Opt.EdOpt.ShowWhiteSpace==1);
 	m_codepage = 0; //BUGBUG
 }

@@ -32,29 +32,27 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-
-class BitFlags
+template<class T>
+class TBitFlags
 {
-	public:
-		DWORD Flags;
+public:
+		TBitFlags():m_Flags(0) {}
+		TBitFlags(const T& Flags):m_Flags(Flags) {}
 
-	public:
-		BitFlags() {Flags=0;}
-		BitFlags(DWORD Fl) {Flags=Fl;}
-
-		~BitFlags() {}
-
-	public:
+		const T& Flags() const { return m_Flags; }
 		// установить набор флагов
-		DWORD Set(DWORD NewFlags) { Flags|=NewFlags; return Flags;}
+		const T& Set(const T& FlagsToSet) { m_Flags |= FlagsToSet; return m_Flags;}
 		// сбросить набор флагов
-		DWORD Clear(DWORD NewFlags) { Flags&=~NewFlags; return Flags; }
+		const T& Clear(const T& FlagsToClear) { m_Flags &=~ FlagsToClear; return m_Flags; }
 		// проверить набор флагов
-		BOOL Check(DWORD NewFlags) const { return Flags&NewFlags?TRUE:FALSE; }
+		bool Check(const T& FlagsToCheck) const { return m_Flags & FlagsToCheck? true : false; }
 		// изменить состояние набора флагов в заивисмости от Status
-		DWORD Change(DWORD NewFlags,BOOL Status) { if (Status) Flags|=NewFlags; else Flags&=~NewFlags; return Flags;}
+		const T& Change(const T& FlagsToChange, bool set) { return set? Set(FlagsToChange) : Clear(FlagsToChange); }
 		// инвертировать состояние флагов
-		DWORD Swap(DWORD SwapedFlags) { if (Flags&SwapedFlags) Flags&=~SwapedFlags; else Flags|=SwapedFlags; return Flags;}
+		const T& Swap(const T& FlagsToSwap) { return Check(FlagsToSwap)? Clear(FlagsToSwap) : Set(FlagsToSwap); }
 		//сбросить все флаги
-		void ClearAll() {Flags=0;}
-};
+		void ClearAll() { m_Flags = 0; }
+private:
+		T m_Flags;};
+
+typedef TBitFlags<DWORD> BitFlags;

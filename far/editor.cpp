@@ -429,7 +429,7 @@ void Editor::ShowEditor(void)
 /*$ 10.08.2000 skv
   Wrapper for Modified.
 */
-void Editor::TextChanged(int State)
+void Editor::TextChanged(bool State)
 {
 	Flags.Change(FEDITOR_MODIFIED,State);
 }
@@ -3539,7 +3539,7 @@ void Editor::InsertString()
 				while (CurLine->GetTabCurPos()>IndentPos)
 					CurLine->ProcessKey(KEY_BS);
 
-				CurLine->SetOvertypeMode(SaveOvertypeMode);
+				CurLine->SetOvertypeMode(SaveOvertypeMode!=0);
 				Change(ECTYPE_CHANGED,NumLine);
 			}
 
@@ -4016,7 +4016,7 @@ BOOL Editor::Search(int Next)
 									NewNumLine+=Cnt;
 								}
 
-								Flags.Change(FEDITOR_OVERTYPE,SaveOvertypeMode);
+								Flags.Change(FEDITOR_OVERTYPE,SaveOvertypeMode!=0);
 							}
 							else
 							{
@@ -5962,7 +5962,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 				*/
 				if (Pos->Overtype >= 0)
 				{
-					Flags.Change(FEDITOR_OVERTYPE,Pos->Overtype);
+					Flags.Change(FEDITOR_OVERTYPE,Pos->Overtype!=0);
 					CurLine->SetOvertypeMode(Flags.Check(FEDITOR_OVERTYPE));
 				}
 
@@ -6312,7 +6312,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						/* $ 23.03.2002 IS запретить/отменить изменение файла */
 					case ESPT_LOCKMODE:
 						_ECTLLOG(SysLog(L"  iParam      =%s",espar->iParam?L"On":L"Off"));
-						Flags.Change(FEDITOR_LOCKMODE, espar->iParam);
+						Flags.Change(FEDITOR_LOCKMODE, espar->iParam!=0);
 						break;
 					case ESPT_SHOWWHITESPACE:
 						SetShowWhiteSpace(espar->iParam);
@@ -7478,9 +7478,9 @@ void Editor::SetOvertypeMode(int Mode)
 {
 }
 
-int Editor::GetOvertypeMode()
+bool Editor::GetOvertypeMode()
 {
-	return 0;
+	return false;
 }
 
 void Editor::SetEditBeyondEnd(int Mode)
