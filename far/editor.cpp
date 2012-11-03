@@ -2686,21 +2686,8 @@ int Editor::ProcessKey(int Key)
 			if (!Flags.Check(FEDITOR_LOCKMODE))
 			{
 				const wchar_t *Fmt = eStackAsString();
-				string strTStr;
+				string strTStr = Fmt;
 
-				strTStr = Fmt;
-
-				wchar_t *Ptr=strTStr.GetBuffer();
-
-				while (*Ptr) // заменим L'\n' на L'\r' по правилам Paset ;-)
-				{
-					if (*Ptr == L'\n')
-						*Ptr=L'\r';
-
-					++Ptr;
-				}
-
-				strTStr.ReleaseBuffer();
 				Pasting++;
 				//_SVS(SysLogDump(Fmt,0,TStr,strlen(TStr),nullptr));
 				TextChanged(1);
