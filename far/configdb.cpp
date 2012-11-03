@@ -93,14 +93,6 @@ char *BlobToHexString(const char *Blob, int Size)
 
 }
 
-string BlobToHexString(const void *Blob, int Size)
-{
-	char* Hex = BlobToHexString(static_cast<const char*>(Blob),Size);
-	string Str = Hex;
-	xf_free(Hex);
-	return Str;
-}
-
 char *HexStringToBlob(const char *Hex, int *Size)
 {
 	*Size=0;
@@ -3001,9 +2993,7 @@ void Database::CheckDatabase( SQLiteDb *pDb)
 	{
 		if (m_ImportExportMode)
 		{
-			Console.Write(L"problem\r\n  ");
-			Console.Write(pname);
-			Console.Write(rc <= 1 ? L"\r\n  renamed/reopened\r\n" : L"\r\n  opened in memory\r\n");
+			Console.Write(string(L"problem with ") + pname + (rc <= 1 ? L":\r\n  database file is renamed to *.bad and new one is created\r\n" : L":\r\n  database is opened in memory\r\n"));
 			Console.Commit();
 		}
 		else
@@ -3014,7 +3004,7 @@ void Database::CheckDatabase( SQLiteDb *pDb)
 }
 
 template<class T>
-T* Database::TryImportDatabase(T *p, const char *son, bool plugin)
+void Database::TryImportDatabase(T *p, const char *son, bool plugin)
 {
 	if (TemplateLoadState != 0 && p->IsNew())
 	{
@@ -3054,7 +3044,6 @@ T* Database::TryImportDatabase(T *p, const char *son, bool plugin)
 			}
 		}
 	}
-	return p;
 }
 
 template<class T>
@@ -3087,15 +3076,7 @@ HierarchicalConfig* Database::CreateHierahchicalConfig(DBCHECK DbId, const wchar
 
 HierarchicalConfig* Database::CreatePluginsConfig(const wchar_t *guid, bool Local)
 {
-	string strDbName = L"PluginsData\\";
-	strDbName += guid;
-	strDbName += L".db";
-	HierarchicalConfigDb *cfg = new HierarchicalConfigDb(strDbName, Local);
-	if (!m_ImportExportMode && cfg->IsNew())
-	{
-		Db->TryImportDatabase<HierarchicalConfigDb>(cfg, Utf8String(guid), true);
-	}
-	return cfg;
+	return CreateHierahchicalConfig<HierarchicalConfigDb>(CHECK_NONE, string(L"PluginsData\\") + guid + L".db", Utf8String(guid), Local);
 }
 
 HierarchicalConfig* Database::CreateFiltersConfig()
@@ -3213,12 +3194,8 @@ bool Database::Export(const wchar_t *File)
 			mc=2;
 			if (re.Match(fd.strFileName, fd.strFileName.CPtr() + fd.strFileName.GetLength(), m, mc))
 			{
-				char guid[37];
-				for (size_t i=0; i<ARRAYSIZE(guid); i++)
-					guid[i] = fd.strFileName[i]&0xFF;
-
 				TiXmlElement *plugin = new TiXmlElement("plugin");
-				plugin->SetAttribute("guid", guid);
+				plugin->SetAttribute("guid", Utf8String(fd.strFileName));
 				cfg = CreatePluginsConfig(fd.strFileName);
 				plugin->LinkEndChild(cfg->Export());
 				e->LinkEndChild(plugin);

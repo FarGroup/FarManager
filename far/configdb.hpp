@@ -325,7 +325,7 @@ private:
 	};
 	template<class T> HierarchicalConfig *CreateHierahchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local=false);
 	template<class T> T* CreateDatabase(const char *son = nullptr);
-	template<class T> T* TryImportDatabase(T *p, const char *son = nullptr, bool plugin=false);
+	template<class T> void TryImportDatabase(T *p, const char *son = nullptr, bool plugin=false);
 	void CheckDatabase(class SQLiteDb *pDb);
 
 	bool m_ImportExportMode;
@@ -404,5 +404,3 @@ auto StringToFlags(const string& strFlags, const T& From) -> decltype(From->Valu
 	}
 	return Flags;
 }
-
-string BlobToHexString(const void *Blob, int Size);
