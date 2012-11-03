@@ -16,14 +16,14 @@
 </div>
 
 <div class=shortdescr>
-Функция <a name="ViewerControl">ViewerControl</a> позволяет запрашивать различную информацию о встроенной программе просмотра Far Manager и управлять её состоянием.
+Функция <code>ViewerControl</code> позволяет запрашивать различную информацию о встроенной программе просмотра Far Manager и управлять её состоянием.
 </div>
 
 <pre class=syntax>
-INT_PTR WINAPI ViewerControl(
-  int ViewerID,
+intptr_t WINAPI ViewerControl(
+  intptr_t ViewerID,
   enum VIEWER_CONTROL_COMMANDS Command,
-  int Param1,
+  intptr_t Param1,
   void *Param2
 );
 </pre>
@@ -39,51 +39,59 @@ INT_PTR WINAPI ViewerControl(
 
     <tr class="cont"><td class="cont" width="40%"><a name="VCTL_GETINFO">VCTL_GETINFO</a></td>
     <td class="cont" width="60%">Получить информацию о программе просмотра.<br>
-    <var>Param1</var> не используется.<br>
-    <var>Param2</var> указывает на структуру <a href="../structures/viewerinfo.html">ViewerInfo</a>.<br>
-    Всегда возвращается TRUE.</td></tr>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> указывает на структуру <a href="../structures/viewerinfo.html">ViewerInfo</a>.<br>
+    Всегда возвращается <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="VCTL_QUIT">VCTL_QUIT</a></td>
-    <td class="cont" width="60%">Закрыть программу просмотра.
-    <var>Param1</var> и <var>Param2</var> должны быть <code>NULL</code>.<br>
+    <td class="cont" width="60%">Закрыть программу просмотра.<br>
+    <code>Param1</code> и <code>Param2</code> должны быть <code>NULL</code>.<br>
     Всегда возвращается <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="VCTL_REDRAW">VCTL_REDRAW</a></td>
-    <td class="cont" width="60%">Перерисовать окно программы просмотра.
-    <var>Param1</var> и <var>Param2</var> должны быть <code>NULL</code>.<br>
+    <td class="cont" width="60%">Перерисовать окно программы просмотра.<br>
+    <code>Param1</code> и <code>Param2</code> должны быть <code>NULL</code>.<br>
     Всегда возвращается <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETKEYBAR">VCTL_SETKEYBAR</a></td>
-    <td class="cont" width="60%">Функция, позволяющая управлять поведением строки функциональных клавиш в программе просмотра:<br>
-    <var>Param1</var> не используется.<br>
-    <var>Param2</var> = NULL - восстановить предыдущее значение<br>
-    <var>Param2</var> = -1 - обновить полосу (перерисовать)<br>
-    <var>Param2</var> = указатель на структуру <a href="../structures/keybartitles.html">KeyBarTitles</a>.<br>
-    Всегда возвращается <code>TRUE</code>.</td></tr>
+    <td class="cont" width="60%">Функция, позволяющая управлять поведением строки функциональных клавиш в программе просмотра.<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2 = NULL</code> - восстановить предыдущее значение<br>
+    <code>Param2 = -1</code> - обновить полосу (перерисовать)<br>
+    <code>Param2</code> равен указателю на структуру <a href="../structures/farsetkeybartitles.html">FarSetKeyBarTitles</a>, новое значение.<br>
+    В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SELECT">VCTL_SELECT</a></td>
     <td class="cont" width="60%">Управление выделением.<br>
-    <var>Param1</var> не используется.<br>
-    <var>Param2</var> указывает на структуру <a href="../structures/viewerselect.html">ViewerSelect</a>. Если <var>Param2</var> = NULL, произойдёт сброс выделения.<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> указывает на структуру <a href="../structures/viewerselect.html">ViewerSelect</a>. Если <code>Param2 = NULL</code>, произойдёт сброс выделения.<br>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETMODE">VCTL_SETMODE</a></td>
     <td class="cont" width="60%">Изменить режим работы программы просмотра.<br>
-    <var>Param1</var> не используется.<br>
-    <var>Param2</var> указывает на структуру <a href="../structures/viewersetmode.html">ViewerSetMode</a>.<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> указывает на структуру <a href="../structures/viewersetmode.html">ViewerSetMode</a>.<br>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="VCTL_SETPOSITION">VCTL_SETPOSITION</a></td>
     <td class="cont" width="60%">Установить позицию в файле.<br>
-    <var>Param1</var> не используется.<br>
-    <var>Param</var> указывает на структуру <a href="../structures/viewersetposition.html">ViewerSetPosition</a>.<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> указывает на структуру <a href="../structures/viewersetposition.html">ViewerSetPosition</a>.<br>
     В случае успеха возвращается <code>TRUE</code>.</td></tr>
+
+    <tr class="cont"><td class="cont" width="40%"><a name="VCTL_GETFILENAME">VCTL_GETFILENAME</a></td>
+    <td class="cont" width="60%">Получить имя открытого во вьювере файла.<br>
+    <code>Param1</code> - размер буфера в символах, который выделил плагин для данных.<br>
+    <code>Param2</code> указывает на буфер, выделенный плагином, куда будет помещено имя файла.<br>
+    Функция возвращает требуемый размер буфера в символах, с учетом завершающего нуля.<br>
+    Если <code>Param2 = NULL</code> или <code>Param1</code> меньше требуемого размера, функция просто вернет необходимый размер буфера.</td></tr>
+
     </table>
     </div>
   <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на параметры1 команды. Смотрите описание <dfn>Command</dfn>.</div>
+    <div class=dfndescr>Указывает на параметры1 команды. Смотрите описание <code>Command</code>.</div>
   <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на параметры2 команды. Смотрите описание <dfn>Command</dfn>.</div>
+    <div class=dfndescr>Указывает на параметры2 команды. Смотрите описание <code>Command</code>.</div>
 </div>
 
 <h3>Возвращаемое значение</h3>
@@ -91,10 +99,11 @@ INT_PTR WINAPI ViewerControl(
 </div>
 
 <h3>Примечание</h3>
-<div class=descr> VCTL_QUIT в информационной панели и панели быстрого просмотра не приводит к закрытию программы просмотра.
+<div class=descr><code>VCTL_QUIT</code> в информационной панели и панели быстрого просмотра не приводит к закрытию программы просмотра.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="index.html">Сервисные функции</a>,
 <a href="../structures/viewerinfo.html">ViewerInfo</a>,
 <a href="../structures/viewersetposition.html">ViewerSetPosition</a>,

@@ -42,8 +42,8 @@ HANDLE WINAPI AnalyseW(
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Возвращенный плагином описатель будет равен значению поля <code>OpenAnalyseInfo.Handle</code> в функции <a href="openw.html">OpenW(OPEN_ANALYSE,...)</a>.
-<li>Плагин должен освободить память выделенную под описатель в функции <a href="closeanalysew.html">CloseAnalyseW</a> (значение поля <code>CloseAnalyseInfo.Handle</code>).
+<li>Возвращенный плагином описатель будет равен значению поля <a href="../structures/openanalyseinfo.html">OpenAnalyseInfo.Handle</a> в функции <a href="openw.html">OpenW(OPEN_ANALYSE,...)</a>.
+<li>Плагин должен освободить память выделенную под описатель в функции <a href="closeanalysew.html">CloseAnalyseW</a> (значение поля <a href="../structures/closeanalyseinfo.html">CloseAnalyseInfo.Handle</a>).
 <li>Если плагин будет эмулировать файловую систему, то необходимо сохранить значение поля <code>AnalyseInfo.FileName</code> во внутренних переменных, т.к. позже оно может понадобиться плагину.
 <li>Far Manager при нажатии <kbd>Enter</kbd> на выбранном файле опрашивает все плагины, экспортирующих эту функцию. Плагины просматриваются в алфавитном порядке (по имени DLL-модуля) и
 кто первый вернул значение, отличное от <code>NULL</code> - тому и отдаётся управление. Данное поведение по умолчанию дополнительно регулируется опцией Far Manager "Параметры менеджера плагинов" - "Обработка файла",
