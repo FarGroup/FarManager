@@ -20,7 +20,7 @@
 </div>
 
 <pre class=syntax>
-intptr_t_PTR WINAPI PluginsControl(
+intptr_t WINAPI PluginsControl(
   HANDLE hHandle,
   enum FAR_PLUGINS_CONTROL_COMMANDS Command,
   intptr_t_PTR Param1,
@@ -73,8 +73,8 @@ intptr_t_PTR WINAPI PluginsControl(
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_GETPLUGININFORMATION">PCTL_GETPLUGININFORMATION</a></td>
     <td class="cont" width="60%">Узнать суммарную информацию об установленном плагине.<br>
     <code>hHandle</code> описатель установленного плагина, его можно узнать по команде <a href="#PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a>.<br>
-    <code>Param1</code> размер буфера под запрошенные данные.<br>
-    <code>Param2</code> указатель на структуру <a href="../structures/fargetplugininformation.html">FarGetPluginInformation</a>, может быть <code>NULL</code>.<br>
+    <code>Param1</code> размер буфера под запрошенные данные. Начало буфера - структура типа <a href="../structures/fargetplugininformation.html">FarGetPluginInformation</a>, затем следуют компоненты структуры.<br>
+    <code>Param2</code> указатель на структуру <a href="../structures/fargetplugininformation.html">FarGetPluginInformation</a>, может быть <code>NULL</code> для запроса размера буфера.<br>
     Функция возвращает необходимый размер буфера.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_GETPLUGINS">PCTL_GETPLUGINS</a></td>
