@@ -3059,7 +3059,7 @@ T* Database::CreateDatabase(const char *son)
 }
 
 template<class T>
-HierarchicalConfig* Database::CreateHierahchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local)
+HierarchicalConfig* Database::CreateHierarchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local)
 {
 	T *cfg = new T(dbn, Local);
 	bool first = !CheckedDb.Check(DbId);
@@ -3076,27 +3076,27 @@ HierarchicalConfig* Database::CreateHierahchicalConfig(DBCHECK DbId, const wchar
 
 HierarchicalConfig* Database::CreatePluginsConfig(const wchar_t *guid, bool Local)
 {
-	return CreateHierahchicalConfig<HierarchicalConfigDb>(CHECK_NONE, string(L"PluginsData\\") + guid + L".db", Utf8String(guid), Local);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, string(L"PluginsData\\") + guid + L".db", Utf8String(guid), Local);
 }
 
 HierarchicalConfig* Database::CreateFiltersConfig()
 {
-	return CreateHierahchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters.db","filters");
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_FILTERS, L"filters.db","filters");
 }
 
 HierarchicalConfig* Database::CreateHighlightConfig()
 {
-	return CreateHierahchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight.db","highlight");
+	return CreateHierarchicalConfig<HighlightHierarchicalConfigDb>(CHECK_HIGHLIGHT, L"highlight.db","highlight");
 }
 
 HierarchicalConfig* Database::CreateShortcutsConfig()
 {
-	return CreateHierahchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db","shortcuts", true);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_SHORTCUTS, L"shortcuts.db","shortcuts", true);
 }
 
 HierarchicalConfig* Database::CreatePanelModeConfig()
 {
-	return CreateHierahchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db","panelmodes");
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_PANELMODES, L"panelmodes.db","panelmodes");
 }
 
 Database::Database(bool ImportExportMode):

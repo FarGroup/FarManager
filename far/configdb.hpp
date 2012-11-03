@@ -323,7 +323,7 @@ private:
 		CHECK_SHORTCUTS = 0x4,
 		CHECK_PANELMODES = 0x8,
 	};
-	template<class T> HierarchicalConfig *CreateHierahchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local=false);
+	template<class T> HierarchicalConfig *CreateHierarchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local=false);
 	template<class T> T* CreateDatabase(const char *son = nullptr);
 	template<class T> void TryImportDatabase(T *p, const char *son = nullptr, bool plugin=false);
 	void CheckDatabase(class SQLiteDb *pDb);
