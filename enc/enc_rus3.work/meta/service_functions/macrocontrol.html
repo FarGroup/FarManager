@@ -16,14 +16,14 @@
 </div>
 
 <div class=shortdescr>
-Функция <dfn>MacroControl</dfn> позволяет управлять макрокомандами Far Manager.
+Функция <code>MacroControl</code> позволяет управлять макрокомандами Far Manager.
 </div>
 
 <pre class=syntax>
-INT_PTR WINAPI MacroControl(
+intptr_t WINAPI MacroControl(
   const GUID *PluginId,
   enum FAR_MACRO_CONTROL_COMMANDS Command,
-  int Param1,
+  intptr_t Param1,
   void *Param2
 );
 </pre>
@@ -31,47 +31,50 @@ INT_PTR WINAPI MacroControl(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>PluginId</div>
-    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле GlobalInfo.Guid функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
+    <div class=dfndescr>Указатель на GUID плагина (для вашего плагина, GUID должен быть таким же, что и в поле <code>GlobalInfo.Guid</code> функции <a href="../exported_functions/getglobalinfow.html">GetGlobalInfoW</a>).</div>
   <div class=dfn>Command</div>
     <div class=dfndescr>Может быть одним из следующих значений (перечисление <a name="FAR_MACRO_CONTROL_COMMANDS">FAR_MACRO_CONTROL_COMMANDS</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_LOADALL">MCTL_LOADALL</a></td>
-    <td class="cont" width="60%">Считать из реестра в память Far Manager все макросы с затиранием предыдущих значений.<br>
-    <var>Param1</var> и <var>Param2</var> игнорируются. <br>
+    <td class="cont" width="60%">Считать из базы в память Far Manager все макросы, с затиранием предыдущих значений.<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> не используется.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_SAVEALL">MCTL_SAVEALL</a></td>
-    <td class="cont" width="60%">Принудительное сохранение макросов из памяти Far Manager в реестр.<br>
-    <var>Param1</var> и <var>Param2</var> игнорируются. <br>
+    <td class="cont" width="60%">Принудительное сохранение макросов из памяти Far Manager в базу.<br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> не используется.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_SENDSTRING">MCTL_SENDSTRING</a></td>
     <td class="cont" width="60%">Выполнить или проверить макрос.<br>
-    <var>Param1</var> значение типа <code><a name="FARMACROSENDSTRINGCOMMAND">FARMACROSENDSTRINGCOMMAND</a></code>:
+    <code>Param1</code> значение типа <a name="FARMACROSENDSTRINGCOMMAND">FARMACROSENDSTRINGCOMMAND</a>:
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Команда</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="MSSC_POST">MSSC_POST</a></td>
     <td class="cont" width="60%">Выполнить макрос.<br>
-    <var>Param2</var> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>.
+    <code>Param2</code> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>.
     Функция возвращает <code>TRUE</code> - макрос проанализирован и помещен в очередь, и <code>FALSE</code> - ошибка (макропоследовательность содержит ошибки). Макропоследовательность начнёт исполняться тогда, когда Far Manager получит управление.</td></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="MSSC_CHECK">MSSC_CHECK</a></td>
     <td class="cont" width="60%">Проверить макрос.<br>
-    <var>Param2</var> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>. Функция при неудаче вернёт <code>FALSE</code>.
-    В случае неудачи, можно получить расширеную диагностику об ошибке с помощью команды <a href="#MCTL_GETLASTERROR">MCTL_GETLASTERROR</a></td></tr>
+    <code>Param2</code> указывает на структуру <a href="../structures/macrosendmacrotext.html">MacroSendMacroText</a>. Функция при неудаче вернёт <code>FALSE</code>.
+    В случае неудачи, можно получить расширенную диагностику об ошибке с помощью команды <a href="#MCTL_GETLASTERROR">MCTL_GETLASTERROR</a></td></tr>
     </table>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETLASTERROR">MCTL_GETLASTERROR</a></td>
-    <td class="cont" width="60%">Получить расширеную диагностику об ошибке проверки макроса (<dfn>MSSC_CHECK</dfn>).<br>
-    <var>Param1</var> размер буфера. Указывает максимальное количество байт, которые могут быть записаны в <var>Param2</var>.<br>
-    <var>Param2</var> указатель на буфер, структуру <a href="../structures/macroparseresult.html">MacroParseResult</a>, память плагин выделят самостоятельно.<br>
-    Функция возвращает размер требуемого буфера, при <var>Param2</var> = NULL.</td></tr>
+    <td class="cont" width="60%">Получить расширенную диагностику об ошибке проверки макроса (<code>MSSC_CHECK</code>).<br>
+    <code>Param1</code> размер буфера. Указывает максимальное количество байт, которые могут быть записаны в <code>Param2</code>.<br>
+    <code>Param2</code> указатель на буфер, структуру <a href="../structures/macroparseresult.html">MacroParseResult</a>, память плагин выделят самостоятельно.<br>
+    Функция возвращает размер требуемого буфера, при <code>Param2 = NULL</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETSTATE">MCTL_GETSTATE</a></td>
     <td class="cont" width="60%">Получить статус работы макродвижка.<br>
-    <var>Param1</var> и <var>Param2</var> игнорируются. <br>
-    Функция возвращает одно из значений (перечисление <code><a name="FARMACROSTATE">FARMACROSTATE</a></code>):
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> не используется.<br>
+    Функция возвращает одно из значений (перечисление <a name="FARMACROSTATE">FARMACROSTATE</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Значение</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="MACROSTATE_NOMACRO">MACROSTATE_NOMACRO</a></td>
@@ -88,7 +91,8 @@ INT_PTR WINAPI MacroControl(
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_GETAREA">MCTL_GETAREA</a></td>
     <td class="cont" width="60%">Получить текущую макрообласть.<br>
-    <var>Param1</var> и <var>Param2</var> игнорируются. <br>
+    <code>Param1</code> не используется.<br>
+    <code>Param2</code> не используется.<br>
     Функция возвращает значение типа <code><a name="FARMACROAREA">FARMACROAREA</a></code>:
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Значение</th><th class="cont" width="60%">Описание</th></tr>
@@ -133,35 +137,37 @@ INT_PTR WINAPI MacroControl(
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_ADDMACRO">MCTL_ADDMACRO</a></td>
     <td class="cont" width="60%">Добавить в память Far Manager макрос. Макросы добавляются в область "Common".<br>
-    <var>Param1</var> игнорируется. <br>
-    <var>Param2</var> указывает на структуру <a href="../structures/macroaddmacro.html">MacroAddMacro</a>.
+    <code>Param1</code> игнорируется. <br>
+    <code>Param2</code> указывает на структуру <a href="../structures/macroaddmacro.html">MacroAddMacro</a>.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="MCTL_DELMACRO">MCTL_DELMACRO</a></td>
     <td class="cont" width="60%">Удалить из памяти Far Manager определенный макрос.<br>
-    <var>Param1</var> игнорируется. <br>
-    <var>Param2</var> указывает на идентификатор удаляемого макроса, поле <a href="../structures/macroaddmacro.html">MacroAddMacro.Id</a>.
+    <code>Param1</code> игнорируется. <br>
+    <code>Param2</code> указывает на идентификатор удаляемого макроса, поле <a href="../structures/macroaddmacro.html">MacroAddMacro.Id</a>.<br>
     Функция при неудаче вернёт <code>FALSE</code>.</td></tr>
 
    </table>
    </div>
   <div class=dfn>Param1</div>
-    <div class=dfndescr>Указывает на <var>Параметр1</var> команды. Смотрите описание <var>Command</var>.</div>
+    <div class=dfndescr>Указывает на <code>Параметр1</code> команды. Смотрите описание <code>Command</code>.</div>
   <div class=dfn>Param2</div>
-    <div class=dfndescr>Указывает на <var>Параметр2</var> команды. Смотрите описание <var>Command</var>.</div>
+    <div class=dfndescr>Указывает на <code>Параметр2</code> команды. Смотрите описание <code>Command</code>.</div>
 </div>
 
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Смотрите описание <var>Command</var>.
+Смотрите описание <code>Command</code>.
 </div>
 
 <h3>Пример</h3>
 <pre class=code>
 </pre>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="panelcontrol.html">PanelControl</a></div>
+
 </body>
 </html>
