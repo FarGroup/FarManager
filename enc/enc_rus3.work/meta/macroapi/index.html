@@ -17,10 +17,41 @@
   <p>Краткое описание <a href="about.html">Macro API</a>
 </div>
 
+<h3>Экспортируемые функции, т.е. те которые плагины экспортируют для Far Manager</h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+</tr>
+</table>
+
+<h3>Сервисные функции, указатели на эти функции плагины получают от Far Manager в функции
+  <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a></h3>
+
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../service_functions/macrocontrol.html">MacroControl</a></td>
+<td class="cont" width="60%">управляет макрокомандами</td>
+</tr>
+</table>
+
 <h3>Структуры</h3>
 
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Структура</th><th class="cont" width="60%">Описание</th>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/fargetvalue.html">FarGetValue</a></td>
+<td class="cont" width="60%">запрошенная макропеременная</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/farmacrocall.html">FarMacroCall</a></td>
+<td class="cont" width="60%">возврат данных в макрос</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/farmacrovalue.html">FarMacroValue</a></td>
+<td class="cont" width="60%">макропеременная</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../structures/macroaddmacro.html">MacroAddMacro</a></td>
@@ -35,35 +66,24 @@
 <td class="cont" width="60%">описание последовательности кодов клавиш</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="../structures/farmacrovalue.html">FarMacroValue</a></td>
-<td class="cont" width="60%">макропеременная</td>
+<td class="cont" width="40%"><a href="../structures/openmacroinfo.html">OpenMacroInfo</a></td>
+<td class="cont" width="60%">значения, передаваемые плагину из макропоследовательности</td>
 </tr>
 </table>
 
-<h3>Экспортируемые функции</h3>
+<h3>Коды операций</h3>
 
 <table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
+<tr class="cont"><th class="cont" width="40%">Константа</th><th class="cont" width="60%">Описание</th>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="../exported_functions/"></a></td>
-<td class="cont" width="60%"></td>
+<td class="cont" width="40%"><a href="../macroapi/opcode.html">Op-коды</a></td>
+<td class="cont" width="60%">коды операций</td>
 </tr>
 </table>
 
-<h3>Сервисные функции, указатели на эти функции плагины получают от FAR Manager в функции
-  <a href="../exported_functions/setstartupinfow.html">SetStartupInfoW</a></h3>
-
-<table class="cont">
-<tr class="cont"><th class="cont" width="40%">Функция</th><th class="cont" width="60%">Описание</th>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="../service_functions/macrocontrol.html">MacroControl</a></td>
-<td class="cont" width="60%">позволяет управлять макрокомандами</td>
-</tr>
-</table>
-
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../defs/index.html">Типы и определения</a>
 </div>
 

@@ -27,6 +27,10 @@
 <td class="cont" width="60%">проанализировать содержимое файла</td>
 </tr>
 <tr>
+<td class="cont" width="40%"><a href="../exported_functions/closeanalysew.html">CloseAnalyseW</a></td>
+<td class="cont" width="60%">освобождение ресурсов</td>
+</tr>
+<tr>
 <td class="cont" width="40%"><a href="../exported_functions/closepanelw.html">ClosePanelW</a></td>
 <td class="cont" width="60%">перед закрытием открытой панели плагина</td>
 </tr>
@@ -43,32 +47,20 @@
 <td class="cont" width="60%">освобождает память, запрошенную функцией GetFindDataW</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="../exported_functions/freevirtualfinddataw.html">FreeVirtualFindDataW</a></td>
-<td class="cont" width="60%">освобождает память, выделенную функцией GetVirtualFindDataW</td>
-</tr>
-<tr>
 <td class="cont" width="40%"><a href="../exported_functions/getfilesw.html">GetFilesW</a></td>
-<td class="cont" width="60%">получить файлы</td>
+<td class="cont" width="60%">получить файлы для обработки (копирование/перемещение/просмотр...) </td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../exported_functions/getfinddataw.html">GetFindDataW</a></td>
-<td class="cont" width="60%">получить файлы из текущего каталога</td>
+<td class="cont" width="60%">получить список элементов для панели</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../exported_functions/getopenpanelinfow.html">GetOpenPanelInfoW</a></td>
 <td class="cont" width="60%">информация об открываемой панели плагина</td>
 </tr>
 <tr>
-<td class="cont" width="40%"><a href="../exported_functions/getvirtualfinddataw.html">GetVirtualFindDataW</a></td>
-<td class="cont" width="60%">получить файлы</td>
-</tr>
-<tr>
 <td class="cont" width="40%"><a href="../exported_functions/makedirectoryw.html">MakeDirectoryW</a></td>
 <td class="cont" width="60%">создать каталог</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="../exported_functions/openw.html">OpenW</a></td>
-<td class="cont" width="60%">создаёт новую копию панели плагина в памяти</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../exported_functions/processpaneleventw.html">ProcessPanelEventW</a></td>
@@ -108,7 +100,7 @@
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../service_functions/filefiltercontrol.html">FileFilterControl</a></td>
-<td class="cont" width="60%">управляет созданием и примененим файловых фильтров</td>
+<td class="cont" width="60%">управляет созданием и применением файловых фильтров</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../service_functions/freedirlist.html">FreeDirList</a></td>
@@ -138,6 +130,10 @@
 <td class="cont" width="60%">информация для анализа файла</td>
 </tr>
 <tr>
+<td class="cont" width="40%"><a href="../structures/closeanalyseinfo.html">CloseAnalyseInfo</a></td>
+<td class="cont" width="60%">информация для освобождения ресурсов</td>
+</tr>
+<tr>
 <td class="cont" width="40%"><a href="../structures/closepanelinfo.html">ClosePanelInfo</a></td>
 <td class="cont" width="60%">информация о закрываемой панели</td>
 </tr>
@@ -158,6 +154,18 @@
 <td class="cont" width="60%">элемент с панели</td>
 </tr>
 <tr>
+<td class="cont" width="40%"><a href="../structures/farpaneldirectory.html">FarPanelDirectory</a></td>
+<td class="cont" width="60%">задание каталога панели</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/farpanelitemfreeinfo.html">FarPanelItemFreeInfo</a></td>
+<td class="cont" width="60%">освобождение ресурсов у элемента панели</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/farsetkeybartitles.html">FarSetKeyBarTitles</a></td>
+<td class="cont" width="60%">переопределяет названия функциональных клавиш</td>
+</tr>
+<tr>
 <td class="cont" width="40%"><a href="../structures/freefinddatainfo.html">FreeFindDataInfo</a></td>
 <td class="cont" width="60%">информация об удаляемой памяти</td>
 </tr>
@@ -167,10 +175,6 @@
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../structures/getfinddatainfo.html">GetFindDataInfo</a></td>
-<td class="cont" width="60%">информация о запрашиваемых файлах</td>
-</tr>
-<tr>
-<td class="cont" width="40%"><a href="../structures/getvirtualfinddatainfo.html">GetVirtualFindDataInfo</a></td>
 <td class="cont" width="60%">информация о запрашиваемых файлах</td>
 </tr>
 <tr>
@@ -190,8 +194,20 @@
 <td class="cont" width="60%">информация о создаваемом каталоге</td>
 </tr>
 <tr>
+<td class="cont" width="40%"><a href="../structures/openanalyseinfo.html">OpenAnalyseInfo</a></td>
+<td class="cont" width="60%">данные после анализа файла</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/opencommandlineinfo.html">OpenCommandLineInfo</a></td>
+<td class="cont" width="60%">данные о командной строке</td>
+</tr>
+<tr>
 <td class="cont" width="40%"><a href="../structures/openpanelinfo.html">OpenPanelInfo</a></td>
-<td class="cont" width="60%">информация об открываемой панели плагина</td>
+<td class="cont" width="60%">данные о создаваемой панели</td>
+</tr>
+<tr>
+<td class="cont" width="40%"><a href="../structures/openshortcutinfo.html">OpenShortcutInfo</a></td>
+<td class="cont" width="60%">данные о шорт-кате</td>
 </tr>
 <tr>
 <td class="cont" width="40%"><a href="../structures/panelinfo.html">PanelInfo</a></td>
@@ -235,7 +251,8 @@
 </tr>
 </table>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../defs/index.html">Типы и определения</a>
 </div>
 
