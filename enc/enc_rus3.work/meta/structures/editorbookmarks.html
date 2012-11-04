@@ -17,7 +17,7 @@
 
 <div class=shortdescr>
 Структура <code>EditorBookmarks</code> используется в функции <a href="../service_functions/editorcontrol.html">EditorControl</a> для получения информации о закладках текущего редактируемого файла
-(команда <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a> или <a href="../service_functions/editorcontrol.html#ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a>).
+(команда <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a> или <a href="../service_functions/editorcontrol.html#ECTL_GETSESSIONBOOKMARKS">ECTL_GETSESSIONBOOKMARKS</a>).
 </div>
 
 <pre class=syntax>
@@ -54,7 +54,7 @@ struct EditorBookmarks
 <h3>Замечания</h3>
 <div class=descr>
 Перед получением информации о закладках, плагину необходимо выяснить размер запрашиваемых данных, для этого передайте <code>NULL</code> вместо ссылки на
-структуру <code>EditorBookmarks</code> в команде <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a> или <a href="../service_functions/editorcontrol.html#ECTL_GETSTACKBOOKMARKS">ECTL_GETSTACKBOOKMARKS</a>, например:
+структуру <code>EditorBookmarks</code> в команде <a href="../service_functions/editorcontrol.html#ECTL_GETBOOKMARKS">ECTL_GETBOOKMARKS</a> или <a href="../service_functions/editorcontrol.html#ECTL_GETSESSIONBOOKMARKS">ECTL_GETSESSIONBOOKMARKS</a>, например:
 <pre class=code>
 // узнаем размер
 intptr_t size = Info.EditorControl(-1,ECTL_GETBOOKMARKS,0,NULL);

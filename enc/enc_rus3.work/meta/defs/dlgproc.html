@@ -22,11 +22,11 @@
 </div>
 
 <pre class=syntax>
-INT_PTR WINAPI DlgProc(
+intptr_t WINAPI DlgProc(
   HANDLE hDlg,
-  int    Msg,
-  int    Param1,
-  void  *Param2
+  intptr_t Msg,
+  intptr_t Param1,
+  void *Param2
 );
 </pre>
 
@@ -35,7 +35,7 @@ INT_PTR WINAPI DlgProc(
   <div class=dfn>hDlg</div>
     <div class=dfndescr>Дескриптор диалога</div>
   <div class=dfn>Msg</div>
-    <div class=dfndescr>Одно из <a href="../dialogapi/dmsg/index.html">сообщений или событий</a>.</div>
+    <div class=dfndescr>Одно из <a href="../dialogapi/dmsg/index_dm.html">сообщений или событий</a>.</div>
   <div class=dfn>Param1</div>
     <div class=dfndescr>Параметр 1</div>
   <div class=dfn>Param2</div>
@@ -44,26 +44,20 @@ INT_PTR WINAPI DlgProc(
 
 <h3>Возвращаемое значение</h3>
 <div class=descr>
-Значение, возвращаемое функцией <dfn>DlgProc</dfn> зависит от параметра <dfn>Msg</dfn>.
+Значение, возвращаемое функцией <code>DlgProc</code> зависит от параметра <code>Msg</code>.
 </div>
 
 <h3>Замечания</h3>
 <div class=descr>
-<p>Иногда информация, содержащаяся в <dfn>Param1</dfn> и <dfn>Param2</dfn>,
-может состоять из двух частей, которые размещаются в двух 16-разрядных словах,
-составляющих каждый из этих параметров. Для обеспечения доступа к каждой
-части <dfn>Param1</dfn> и <dfn>Param2</dfn> в Windows определены два макроса -
-<dfn>LOWORD</dfn>  и <dfn>HIWORD</dfn>.
-Они возвращают соответственно старшее и младшее слова длинного целого.
 </div>
 
-<div class=see>Смотрите также:</div><div class=seecont>
+<div class=see>Смотрите также:</div>
+<div class=seecont>
 <a href="../service_functions/defdlgproc.html">DefDlgProc</a>,
 <a href="../service_functions/dialoginit.html">DialogInit</a>,
 <a href="../service_functions/senddlgmessage.html">SendDlgMessage</a>,
-<a href="../dialogapi/dmsg/index_dm.html">"Сообщения Dialog API"</a> и
-<a href="../dialogapi/dmsg/index_dn.html">"События Dialog API"</a>.
-
+<a href="../dialogapi/dmsg/index_dm.html">Сообщения Dialog API</a>,
+<a href="../dialogapi/dmsg/index_dn.html">События Dialog API</a>
 </div>
 
 </body>

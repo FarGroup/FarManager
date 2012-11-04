@@ -373,6 +373,59 @@ NTFS5 поддерживает разрежённые файлы, которые состоят из больших
 
 <p>Для показа года в 4-хсимвольном формате нужно
 увеличить ширину колонки даты на 2. </p>
+<br>
+</div>
+
+<div class=dfn><h3><a name="keybfocus">Фокус ввода элементов диалога</a></h3></div>
+<div class=dfndescr>Для распределения сообщений от клавиатуры используется концепция так
+называемого клавиатурного фокуса ввода. Фокус ввода - это атрибут, который
+присваивается элементу диалога. Если элемент имеет фокус ввода, то он
+получает все клавиатурные сообщения (в основном :-) из системной очереди
+Far Manager.
+
+<p>Менеджер диалогов Far Manager может передавать фокус ввода от одного элемента другому.
+Когда вы нажимаете клавиши <kbd>Tab</kbd>, <kbd>Shift</kbd>+<kbd>Tab</kbd> или <kbd>Alt</kbd>+Символ, фокус ввода
+передаётся следующему/предыдущему элементу диалога (или элементу диалога,
+имеющему соответствующую горячую клавишу).
+
+<p>Функция обработки диалога может проследить за получением и потерей фокуса
+ввода. Когда элемент получает фокус ввода, функции-обработчику передаётся
+сообщение <a href="../dialogapi/dmsg/dn_gotfocus.html">DN_GOTFOCUS</a>. Когда элемент теряет
+фокус ввода, функции-обработчику передаётся сообщение <a href="../dialogapi/dmsg/dn_killfocus.html">DN_KILLFOCUS</a>.
+В ответ на сообщение <a href="../dialogapi/dmsg/dn_killfocus.html">DN_KILLFOCUS</a> функция
+обработки диалога может запретить потерю фокуса ввода, вернув значение -1.
+Сообщение <a href="../dialogapi/dmsg/dn_gotfocus.html">DN_GOTFOCUS</a> носит чисто
+информативный характер, т.е. вы не можете отменить данное событие, как таковое.</p>
+
+<p>Программный интерфейс Dialog API Far Manager содержит два сообщения,
+позволяющие узнать или изменить элемент, владеющий фокусом ввода. Эти сообщения
+имеют соответственно имена <a href="../dialogapi/dmsg/dm_getfocus.html">DM_GETFOCUS</a> и
+<a href="../dialogapi/dmsg/dm_setfocus.html">DM_SETFOCUS</a>.
+
+<p>Ниже перечислены элементы диалога, которые могут иметь клавиатурный
+фокус ввода (при условии, что для этих элементов не выставлены флаги
+<a href="../dialogapi/flags/dif_nofocus.html">DIF_NOFOCUS</a> и/или <a href="../dialogapi/flags/dif_disable.html">DIF_DISABLE</a>):</p>
+<table class="cont">
+<tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dialogapi/controls/di_button.html">DI_BUTTON</a></td>
+<td class="cont" width="60%">Кнопка (Push Button).</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dialogapi/controls/di_checkbox.html">DI_CHECKBOX</a></td>
+<td class="cont" width="60%">Контрольный переключатель (Check Box).</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dialogapi/controls/di_combobox.html">DI_COMBOBOX</a></td>
+<td class="cont" width="60%">Комбинированный список.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dialogapi/controls/di_edit.html">DI_EDIT</a></td>
+<td class="cont" width="60%">Поле ввода.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dialogapi/controls/di_fixedit.html">DI_FIXEDIT</a></td>
+<td class="cont" width="60%">Поле ввода фиксированного размера.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dialogapi/controls/di_listbox.html">DI_LISTBOX</a></td>
+<td class="cont" width="60%">Окно списка.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dialogapi/controls/di_pswedit.html">DI_PSWEDIT</a></td>
+<td class="cont" width="60%">Поле ввода пароля.</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dialogapi/controls/di_radiobutton.html">DI_RADIOBUTTON</a></td>
+<td class="cont" width="60%">Селекторная кнопка (Radio Button).</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../dialogapi/controls/di_usercontrol.html">DI_USERCONTROL</a></td>
+<td class="cont" width="60%">Элемент управления, определяемый программистом.</td></tr>
+</table>
 </div>
 
 

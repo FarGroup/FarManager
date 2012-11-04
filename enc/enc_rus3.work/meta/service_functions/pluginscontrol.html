@@ -16,7 +16,7 @@
 </div>
 
 <div class=shortdescr>
-‘ункци€ <code>PluginsControl</code> позвол€ет управл€ть плагинами.
+‘ункци€ <code>PluginsControl</code> позвол€ет управл€ть сторонними плагинами.
 </div>
 
 <pre class=syntax>
@@ -38,7 +38,7 @@ intptr_t WINAPI PluginsControl(
     <tr class="cont"><th class="cont" width="40%"> оманда</th><th class="cont" width="60%">ќписание</th></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_LOADPLUGIN">PCTL_LOADPLUGIN</a>,<br><a name="PCTL_FORCEDLOADPLUGIN">PCTL_FORCEDLOADPLUGIN</a></td>
-    <td class="cont" width="60%">«агрузить плагин обычным способом (плагин не всегда грузитс€ в пам€ть, данные могут братьс€ из кеша), либо форсировано сразу в пам€ть (может понадобитьс€ дл€ межплагинового взаимодействи€).<br>
+    <td class="cont" width="60%">«агрузить необходимый плагин обычным способом (плагин не всегда грузитс€ в пам€ть, данные могут братьс€ из кеша), либо форсировано сразу в пам€ть (может понадобитьс€ дл€ межплагинового взаимодействи€).<br>
     <code>hHandle</code> установите в значение <code>INVALID_HANDLE_VALUE</code>.<br>
     <code>Param1</code> должен быть установлен в одно из значений (перечисление <a href="FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>):
     <table class="cont">

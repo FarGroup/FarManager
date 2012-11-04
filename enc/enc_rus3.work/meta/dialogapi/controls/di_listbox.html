@@ -84,6 +84,46 @@ struct FarDialogItem
 </table>
 </div>
 
+<h3>Замечания</h3>
+<div class=descr>
+Работа со списками <code>DI_COMBOBOX</code> и <code>DI_LISTBOX</code> организована по следующей схеме:
+<ul>
+<li>Запуск DialogInit<br>
+    FarDialogItem.Param.ListItems - только для начальной инициализации.
+    <br><br>
+<li>DM_LISTADD<br>
+    Добавляет только пункт списка, без ассоциированных данных
+    <br><br>
+<li>DM_LISTINSERT<br>
+    Вставляет только пункт списка, без ассоциированных данных
+    <br><br>
+<li>DM_LISTUPDATE<br>
+    Удаляет UserData для обновляемого пункта списка.<br>
+    Только обновление данных пункта списка без ассоциированных данных
+    <br><br>
+<li>DM_LISTSETDATA<br>
+    Перед установкой новых ассоциированных данных предыдущие
+    уничтожаются (если было выделение по памяти)
+    <br><br>
+<li>DM_LISTGETDATA<br>
+    Возвращается значение, предварительно установленное DM_LISTSETDATA.
+    <br><br>
+<li>DM_LISTGETDATASIZE<br>
+    Возвращается размер ассоциированных данных.
+    <br><br>
+<li>DM_LISTGETITEM<br>
+    Возвращает только пункт списка, без ассоциированных данных.
+    <br><br>
+<li>Завершение DialogFree<br>
+    Ассоциированные данные уничтожаются (если было выделение по памяти)
+    <br><br>
+</ul>
+</div>
+
+<div class=descr>
+<p>Текстовый курсор после инициализации элемента - в режиме замены.</p>
+</div>
+
 <div class=see>Смотрите также:</div>
 <div class=seecont>
 <a href="di_combobox.html">DI_COMBOBOX</a>,
