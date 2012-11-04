@@ -303,7 +303,7 @@ end;
 </pre>
     По идее должен выдаваться сигнал при любом нажатии клавиши - этого не происходит. То же самое, если делаю это для какой-то конкретной клавиши.
   <br>
-  <span class=faqa>A:</span> FAR вызывает функцию <a href="../exported_functions/processkeyw.html">ProcessKeyW</a> для активной плагиновой панели.
+  <span class=faqa>A:</span> FAR вызывает функцию <a href="../exported_functions/processpanelinputw.html">ProcessPanelInputW</a> для активной плагиновой панели.
   <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="panel2"><span class=faqqb>Можно ли из плагина перейти на определённый файл в директории?</span></a>
@@ -378,7 +378,7 @@ Info.Control(INVALID_HANDLE_VALUE,FCTL_SETUSERSCREEN,NULL);
    <li><span class=faqq>Q:</span> <a name="dialog1"><span class=faqqb>Если я не использую функцию DialogRun работы с диалогом, то каким образом обрабатывать ввод данных? Самому писать?</span></a>
   <br><span class=faqa>A:</span> Можно и самому :-) А можно использовать <a href="../dialogapi/index.html">DialogAPI</a>...<br><br>
    <li><span class=faqq>Q:</span> <a name="dialog3"><span class=faqqb>Можно ли динамически в Dialog менять элементы типа Static (их заголовки)?</span></a>
-  <br><span class=faqa>A:</span> Если воспользоваться функцией-обработчиком диалога <a href="../dialogapi/dialoginit.html">DialogInit</a> -
+  <br><span class=faqa>A:</span> Если воспользоваться функцией-обработчиком диалога <a href="../service_functions/dialoginit.html">DialogInit</a> -
       то можно - в функции-обработчике диалога послать ядру DialogAPI сообщение <a href="../dialogapi/dmsg/dm_settext.html">DM_SETTEXT</a>.<br><br>
   <li><span class=faqq>Q:</span> <a name="dialog4"><span class=faqqb>Ну ладно, воспользовался этим самым DialogAPI, но мне не хватает того набора управляющих элементов, которые обрабатывает FAR. Ась?</span></a>
   <br><span class=faqa>A:</span> Воспользуйся элементом <a href="../dialogapi/controls/di_usercontrol.html">DI_USERCONTROL</a> - отрисовка элемента и управление им - всё во власти плагина!<br><br>
@@ -391,14 +391,11 @@ Info.Control(INVALID_HANDLE_VALUE,FCTL_SETUSERSCREEN,NULL);
   <li><span class=faqq>Q:</span> <a name="dialog8"><span class=faqqb>А если я мышкой - оно придёт или ещё ловить DN_MOUSECLICK?</span></a>
   <br><span class=faqa>A:</span> На твоё усмотрение :-) Сначала мышиное сообщение придёт (проигнорируй его), а за ним и DN_BTNCLICK не задержится...<br><br>
   <li><span class=faqq>Q:</span> <a name="dialog9"><span class=faqqb>И DefaultButton самому обрабатывать?</span></a>
-  <br><span class=faqa>A:</span> Нет. Для DefaultButton получится следующая цепочка событий: [<a href="../dialogapi/dmsg/dn_mouseclick.html">DN_MOUSECLICK</a> -> ] <a href="../dialogapi/dmsg/dn_btnclick.html">DN_BTNCLICK</a> -> <a href="../dialogapi/dmsg/dm_close.html">DM_CLOSE</a>.<br><br>
+  <br><span class=faqa>A:</span> Нет. Для DefaultButton получится следующая цепочка событий: [<a href="../dialogapi/dmsg/dn_controlinput.html">DN_CONTROLINPUT</a> -> ] <a href="../dialogapi/dmsg/dn_btnclick.html">DN_BTNCLICK</a> -> <a href="../dialogapi/dmsg/dm_close.html">DM_CLOSE</a>.<br><br>
   <li><span class=faqq>Q:</span> <a name="dialog10"><span class=faqqb>Каким-то образом у меня получилось, что SEPARATOR, что бы я не делал не желал доходить до правого конца рамки, когда сделал с нуля - исправилось.</span></a>
   <br><span class=faqa>A:</span> См. замечания для флага <a href="../dialogapi/flags/dif_separator.html">DIF_SEPARATOR</a><br><br>
 
-  <li><span class=faqq>Q:</span> <a name="dialog11"><span class=faqqb>А можно как-нибудь выключить этот автовыбор элемента мышью в листе (когда мышь над листом выбирает элемент, особенно если лист не текущий).</span></a>
-  <br><span class=faqa>A:</span> Частично. См. <a href="../dialogapi/dmsg/dm_listsetmousereaction.html">DM_LISTSETMOUSEREACTION</a><br><br>
-
-
+ 
 </ol>
 
 <div class=seecont><a href="#top">наверх</a></div>
