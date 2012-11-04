@@ -318,7 +318,7 @@ mkdir $dest_dr."/styles", 0775;
 
 #mk_inet_lng("ru","rus");
 #mk_inet_lng("en","eng");
-mk_inet_lng("ru2","rus2");
+mk_inet_lng("ru3","rus3.work");
 #mk_inet_lng("en2","eng2");
 
 system $svn." export -q --force http://localhost/svn/trunk/enc/tools/inet/ ".$dest_dr_inet."/inet";

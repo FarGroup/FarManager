@@ -40,7 +40,7 @@ intptr_t WINAPI PluginsControl(
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_LOADPLUGIN">PCTL_LOADPLUGIN</a>,<br><a name="PCTL_FORCEDLOADPLUGIN">PCTL_FORCEDLOADPLUGIN</a></td>
     <td class="cont" width="60%">Загрузить необходимый плагин обычным способом (плагин не всегда грузится в память, данные могут браться из кеша), либо форсировано сразу в память (может понадобиться для межплагинового взаимодействия).<br>
     <code>hHandle</code> установите в значение <code>INVALID_HANDLE_VALUE</code>.<br>
-    <code>Param1</code> должен быть установлен в одно из значений (перечисление <a href="FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>):
+    <code>Param1</code> должен быть установлен в одно из значений (перечисление <a name="FAR_PLUGIN_LOAD_TYPE">FAR_PLUGIN_LOAD_TYPE</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PLT_PATH">PLT_PATH</a></td>
@@ -52,7 +52,7 @@ intptr_t WINAPI PluginsControl(
     <tr class="cont"><td class="cont" width="40%"><a name="PCTL_FINDPLUGIN">PCTL_FINDPLUGIN</a></td>
     <td class="cont" width="60%">Найти необходимый плагин среди установленных.<br>
     <code>hHandle</code> установите в значение <code>INVALID_HANDLE_VALUE</code>.<br>
-    <code>Param1</code> должен быть установлен в одно из значений (перечисление <a href="FAR_PLUGIN_FIND_TYPE">FAR_PLUGIN_FIND_TYPE</a>):
+    <code>Param1</code> должен быть установлен в одно из значений (перечисление <a name="FAR_PLUGIN_FIND_TYPE">FAR_PLUGIN_FIND_TYPE</a>):
     <table class="cont">
     <tr class="cont"><th class="cont" width="40%">Тип</th><th class="cont" width="60%">Описание</th></tr>
     <tr class="cont"><td class="cont" width="40%"><a name="PFM_GUID">PFM_GUID</a></td>

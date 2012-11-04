@@ -10,7 +10,7 @@ if($^O eq "MSWin32"){
 }
 
 #my @dirs=("../enc_rus/meta","../enc_eng/meta","../enc_rus2/meta");
-my @dirs=("../enc_rus2/meta");
+my @dirs=("../enc_rus3.work/meta");
 foreach my $dir (@dirs) {
   srch($dir);
 }
