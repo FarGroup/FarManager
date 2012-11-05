@@ -621,6 +621,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 		HiMenu.Run([&](int Key)->int
 		{
 			int SelectPos=HiMenu.GetSelectPos();
+			int ret = 0;
 			NeedUpdate=FALSE;
 
 			switch (Key)
@@ -681,7 +682,8 @@ void HighlightFiles::HiEdit(int MenuPos)
 						if (FileFilterConfig(HiData.getItem(RealSelectPos),true))
 							NeedUpdate=TRUE;
 
-					return 1;
+					ret = 1;
+					break;
 				}
 
 				case KEY_INS: case KEY_NUMPAD0:
@@ -827,7 +829,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				FillMenu(&HiMenu,MenuPos=SelectPos);
 				ScrBuf.Unlock(); // разрешаем прорисовку
 			}
-			return 0;
+			return ret;
 		});
 
 		if (HiMenu.GetExitCode()!=-1)
