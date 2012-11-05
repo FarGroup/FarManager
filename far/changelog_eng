@@ -3,6 +3,110 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 05.11.2012 18:00:53 +0200 - build 2931
+
+1. Correction of 2923 ("debug asserion failed" for x64).
+
+w17 05.11.2012 18:18:43 +0400 - build 2930
+
+1. M#2187: malfunctional "@" and SilentExternal for external Viewer/Editor call
+
+w17 05.11.2012 06:29:56 +0400 - build 2929
+
+1. M#2185: Error while setting colors of sorting groups files
+
+shmuel 04.11.2012 01:06:54 +0200 - build 2928
+
+1. M#2183: A macro cannot insert the end of line.
+
+drkns 03.11.2012 19:26:52 +0200 - build 2927
+
+1. Another couple of issues.
+
+drkns 03.11.2012 17:42:08 +0200 - build 2926
+
+1. Continuing refactoring of configdb.
+
+2. Refactoring of BitFlags.
+
+zg 03.11.2012 17:01:30 +0200 - build 2925
+
+1. correction of VCTL_SETKEYBAR and Param2=-1.
+
+drkns 02.11.2012 23:59:11 +0200 - build 2924
+
+1. Correction of 2920.
+
+shmuel 02.11.2012 23:03:34 +0200 - build 2923
+
+1. Experimental: preventing crashes from division by zero for plugins setting FPU exceptions on.
+
+shmuel 02.11.2012 17:59:31 +0200 - build 2922
+
+1. FarMacroCall structure is streamlined.
+
+drkns 02.11.2012 02:18:10 +0200 - build 2921
+
+1. Continuation of 2920.
+
+drkns 02.11.2012 02:05:17 +0200 - build 2920
+
+1. Slightly refactoring of configdb.
+
+zg 01.11.2012 23:05:49 +0200 - build 2919
+
+1. OPEN_FROM_MASK is removed for uselessness.
+
+zg 01.11.2012 22:16:49 +0200 - build 2918
+
+1. ViewerMode.Type -> ViewerMode.ViewMode.
+
+2. VSMT_HEX -> VSMT_VIEWMODE.
+
+w17 01.11.2012 18:06:23 +0400 - build 2917
+
+1. correction of 2913, 2914, 2916 - 'panelmodes' were not loaded
+
+w17 01.11.2012 16:05:57 +0400 - build 2916
+
+1. correction of 2913, 2914
+   The parameter name in Far.exe.ini changed to TemplateProfile.
+   By default this is a path to FILE (%FARHOME%\Default.farconfig).
+
+w17 01.11.2012 12:52:48 +0400 - build 2915
+
+1. M#2181: crash after VE_READ.
+
+w17 31.10.2012 11:54:41 +0400 - build 2914
+
+1. correction of 2913 - fixing broken export
+
+w17 30.10.2012 20:12:55 +0400 - build 2913
+
+1. M#2177: Implement possibility of default settings/profile creation
+   Settings are imported from Default.farconfig file, its location is given by
+   TemplateProfileDir  parameter in Far.exe.ini (%FARHOME%\Default is default),
+   or via command line '/t "TemplateDir"'.  Settings are imported at the moment of
+   settings DB file open and only if the file is missing.
+
+zg 30.10.2012 00:20:23 +0200 - build 2912
+
+1. Flags field added to OpenShortcutInfo. FOSF_ACTIVE is set
+   if OPEN_SHORTCUT is called in the active panel
+   and not set for the passive one.
+
+2. from Alexey Samlyukov: FarMacroValue.Length -> FarMacroValue.Size
+
+lort 29.10.2012 18:35:55 +0400 - build 2911
+
+1. Return scren redraw in dialog destructor.
+
+2. History menu remained on screen after launch a command displaying nothing.
+
+shmuel 29.10.2012 16:02:33 +0200 - build 2910
+
+1. No 'P' symbol in upper left corner of the screen while running editor/viewer macro starting from mf.waitkey(0)
+
 drkns 28.10.2012 21:40:06 +0200 - build 2909
 
 1. Warnings.
