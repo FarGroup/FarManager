@@ -901,13 +901,13 @@ int Execute(const string& CmdStr,  //  ом.строка дл€ исполнени€
 
 		if (dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI)
 		{
-			if(DirectRun && Opt.Exec.ExecuteSilentExternal)
-			{
-				Silent = true;
-			}
 			if ( !DirectRun )
 			{
 				DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
+			}
+			if(DirectRun && Opt.Exec.ExecuteSilentExternal)
+			{
+				Silent = true;
 			}
 			SeparateWindow = true;
 		}
