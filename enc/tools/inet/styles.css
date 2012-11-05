@@ -185,11 +185,11 @@ H6
     MARGIN-LEFT: -18px;
     FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
 }
-DFN
+CODE
 {
     FONT-WEIGHT: bold;
     FONT-STYLE: normal;
-    FONT-FAMILY: verdana, tahoma, Lucida console,  Courier, arial, helvetica
+    FONT-FAMILY: verdana, tahoma, arial, Lucida console, Courier, helvetica
 }
 DIV.shortdescr
 {
@@ -308,13 +308,23 @@ PRE.syntax
     PADDING-TOP: 2pt;
     FONT-FAMILY: Courier New,Lucida Console, Courier New, Courier, monospace
 }
-CODE
-{
-    FONT-FAMILY: Courier New,Lucida Console, Courier, monospace
-}
 KBD
 {
-    FONT-FAMILY: Courier New, Lucida Console, Courier, monospace;
+	padding:0.1em 0.6em;
+	border:1px solid #ccc;
+	font-family:Arial,Helvetica,sans-serif;
+	background-color:#f7f7f7;
+	color:#333;
+	-moz-box-shadow:0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
+	-webkit-box-shadow:0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
+	box-shadow:0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+	display:inline-block;
+	margin:0 0.1em;
+	text-shadow:0 1px 0 #fff;
+	line-height:1.4
 }
 P.note
 {
@@ -400,7 +410,7 @@ table.cont2 th, table.cont2 td
 {
     border: 2px solid #999999;
     padding: 0.364em 0.727em;
-    font-size: 100%; /* обходим старые правила TD и TH */
+    font-size: 80%; /* обходим старые правила TD и TH */
 }
 
 table.cont2 th
@@ -454,6 +464,7 @@ table.tiny {width: auto}
 /* ширина колонок в таблицах */
 table.funcs   col.descr {width: 80%}
 table.params  col.value {width: 5%}
+table.params  col.widevalue {width: 25%}
 
 /*
 http://riddle.pl/emcalc/
