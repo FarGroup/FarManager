@@ -33,7 +33,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "udlist.hpp"
-#include "dlist.hpp"
+#include "DList.hpp"
 
 struct VersionInfo;
 class TiXmlElement;
