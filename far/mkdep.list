@@ -278,6 +278,8 @@ viewer.cpp
 viewer.hpp
 vmenu.cpp
 vmenu.hpp
+vmenu2.cpp
+vmenu2.hpp
 wakeful.hpp
 window.cpp
 window.hpp
