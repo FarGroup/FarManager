@@ -3206,19 +3206,17 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 						Pos=NewListPos;
 
 						if (List->CheckFlags(VMENU_SHOWNOBOX) ||  (MsY > Y1+Item[I]->Y1 && MsY < Y1+Item[I]->Y2))
-						{
-							if (!MouseRecord.dwEventFlags && !InScroolBar && !(Item[I]->Flags&DIF_LISTNOCLOSE))
-								if ((MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !(PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
+							if (!InScroolBar && !(Item[I]->Flags&DIF_LISTNOCLOSE))
+							{
+								if (MouseRecord.dwEventFlags==DOUBLE_CLICK)
+								{
+									ExitCode=I;
+									CloseDialog();
+									return TRUE;
+								}
+								if (!MouseRecord.dwEventFlags && (MouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !(PrevMouseRecord.dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED))
 									PrevMouseRecord=MouseRecord;
-						}
-/*
-						if (!InScroolBar && !(Item[I]->Flags&DIF_LISTNOCLOSE))
-						{
-							ExitCode=I;
-							CloseDialog();
-							return TRUE;
-						}
-*/
+							}
 					}
 
 #else

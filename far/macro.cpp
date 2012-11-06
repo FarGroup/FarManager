@@ -2047,7 +2047,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		  CheckCode == CtrlObject->Macro.GetMode(), Data);
 	}
 
-	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel=CtrlObject->Cp() ? CtrlObject->Cp()->ActivePanel : nullptr;
 	Panel *PassivePanel=nullptr;
 
 	if (ActivePanel)
@@ -2215,20 +2215,22 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_DLGCURPOS:    // Dlg.CurPos
 		case MCODE_V_DLGITEMTYPE:  // Dlg.ItemType
 		case MCODE_V_DLGPREVPOS:   // Dlg.PrevPos
-		{
-			if (CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG) // ?? m_Mode == MACRO_DIALOG ??
-				return CurFrame->VMProcess(CheckCode);
-			return 0;
-		}
-
 		case MCODE_V_DLGINFOID:        // Dlg.Info.Id
 		case MCODE_V_DLGINFOOWNER:     // Dlg.Info.Owner
 		{
-			if (CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
+			if (CurFrame && CurFrame->GetType()==MODALTYPE_VMENU)
 			{
-				return PassString(reinterpret_cast<LPCWSTR>(static_cast<intptr_t>(CurFrame->VMProcess(CheckCode))), Data);
+				int idx=FrameManager->IndexOfStack(CurFrame);
+				if(idx>0)
+					CurFrame=FrameManager->GetModalFrame(idx-1);
 			}
-			return PassString(L"", Data);
+			if (!CurFrame || CurFrame->GetType()!=MODALTYPE_DIALOG)
+				return (CheckCode==MCODE_V_DLGINFOID || CheckCode==MCODE_V_DLGINFOOWNER) ? PassString(L"", Data) : 0;
+
+			if (CheckCode==MCODE_V_DLGINFOID || CheckCode==MCODE_V_DLGINFOOWNER)
+				return PassString(reinterpret_cast<LPCWSTR>(static_cast<intptr_t>(CurFrame->VMProcess(CheckCode))), Data);
+			else
+				return CurFrame->VMProcess(CheckCode);
 		}
 
 		case MCODE_C_APANEL_VISIBLE:  // APanel.Visible
@@ -2566,7 +2568,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			int CurMMode=GetMode();
 			const wchar_t* ptr = L"";
 
-			if (CheckCode==MCODE_V_MENUINFOID && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
+			if (CheckCode==MCODE_V_MENUINFOID && CurFrame && CurFrame->GetType()==MODALTYPE_VMENU)
 			{
 				return PassString(reinterpret_cast<LPCWSTR>(static_cast<intptr_t>(CurFrame->VMProcess(MCODE_V_DLGINFOID))), Data);
 			}
