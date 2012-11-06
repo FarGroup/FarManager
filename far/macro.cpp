@@ -487,20 +487,24 @@ MacroState::MacroState() :
 {
 }
 
-void KeyMacro::PushState()
+void KeyMacro::PushState(bool withClip)
 {
-	m_CurState->UseInternalClipboard=Clipboard::GetUseInternalClipboardState();
+	if (withClip)
+		m_CurState->UseInternalClipboard=Clipboard::GetUseInternalClipboardState();
+
 	m_StateStack.Push(m_CurState);
 	m_CurState = new MacroState();
 }
 
-void KeyMacro::PopState()
+void KeyMacro::PopState(bool withClip)
 {
 	if (!m_StateStack.empty())
 	{
 		delete m_CurState;
 		m_StateStack.Pop(m_CurState);
-		Clipboard::SetUseInternalClipboardState(m_CurState->UseInternalClipboard);
+
+		if (withClip)
+			Clipboard::SetUseInternalClipboardState(m_CurState->UseInternalClipboard);
 	}
 }
 
@@ -522,7 +526,7 @@ KeyMacro::KeyMacro():
 
 KeyMacro::~KeyMacro()
 {
-	while (!m_StateStack.empty()) PopState();
+	while (!m_StateStack.empty()) PopState(false);
 	delete m_CurState;
 }
 
@@ -687,9 +691,9 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 		ScrBuf.SetLockCount(0);
 
 	++m_MacroPluginIsRunning;
-	PushState();
+	PushState(false);
 	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,Info,&ptr) != 0;
-	PopState();
+	PopState(false);
 	--m_MacroPluginIsRunning;
 
 	if (macro && macro->m_handle && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
@@ -935,7 +939,7 @@ int KeyMacro::GetKey()
 	{
 		if (!m_StateStack.empty())
 		{
-			PopState();
+			PopState(true);
 			return 0;
 		}
 
@@ -1062,7 +1066,7 @@ int KeyMacro::GetKey()
 
 						if (CallPluginRules)
 						{
-							PushState();
+							PushState(true);
 							mp_values[0].Boolean=1;
 						}
 						else
@@ -1085,7 +1089,7 @@ int KeyMacro::GetKey()
 						if (CallPluginRules)
 						{
 							if (m_StateStack.size() > EntryStackSize) // эта проверка нужна, т.к. PopState() мог уже быть вызван.
-								PopState();
+								PopState(true);
 						}
 						else
 							m_InternalInput--;

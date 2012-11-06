@@ -236,8 +236,8 @@ class KeyMacro
 		void SendDropProcess();
 		bool CheckWaitKeyFunc();
 
-		void PushState();
-		void PopState();
+		void PushState(bool withClip);
+		void PopState(bool withClip);
 
 		// Функция получения индекса нужного макроса в массиве
 		int GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAREA CheckMode, bool UseCommon=true, bool StrictKeys=false);
