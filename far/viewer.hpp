@@ -235,7 +235,7 @@ class Viewer:public ScreenObject
 
 		void SetFileSize();
 		int GetStrBytesNum(const wchar_t *Str, int Length);
-		bool isBinaryFile();
+		bool isBinaryFile(uintptr_t cp);
 
 		void SavePosition();
 

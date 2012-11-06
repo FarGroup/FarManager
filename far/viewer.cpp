@@ -397,7 +397,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	SetFileSize();
 
 	if ( -1 == dump_text_mode )
-		dump_text_mode = isBinaryFile() ? 2 : 0;
+		dump_text_mode = isBinaryFile(VM.CodePage) ? 2 : 0;
 	if ( -1 == VM.Hex )
 		VM.Hex = dump_text_mode;
 
@@ -432,7 +432,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	return TRUE;
 }
 
-bool Viewer::isBinaryFile() // very approximate: looks for 0x00,0x00 in first 2048 bytes
+bool Viewer::isBinaryFile(uintptr_t cp) // very approximate: looks for 0x00,0x00 in first 2048 bytes
 {
 	unsigned char bf[2048+1]; // not fit to any device sector size
 	DWORD nb = static_cast<DWORD>(sizeof(bf)), nr = 0;
@@ -448,13 +448,14 @@ bool Viewer::isBinaryFile() // very approximate: looks for 0x00,0x00 in first 20
 	if ( nr < 2 )
 		return (nr > 0 && !bf[0]);
 
-   bool bom =
-		( bf[0] == (unsigned char)0xFE && bf[1] == (unsigned char)0xFF ) ||
-		( bf[0] == (unsigned char)0xFF && bf[1] == (unsigned char)0xFE );
+	bool ucs2 = IsUnicodeCodePage(cp)
+	 || ( bf[0] == (unsigned char)0xFE && bf[1] == (unsigned char)0xFF )
+	 || ( bf[0] == (unsigned char)0xFF && bf[1] == (unsigned char)0xFE )
+	;
 
 	for (nb = 0; nb+1 < nr; ++nb)
 		if ( !bf[nb] && !bf[nb+1] )
-			if ( !bom || 0 == (nb & 1) )
+			if ( !ucs2 || 0 == (nb & 1) )
 				return true;
 
 	return false;
