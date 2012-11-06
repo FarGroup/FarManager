@@ -47,7 +47,6 @@ def make_chm_lang(lang):
 
   chm_lang_dir = join(DEST_CHM, lang_code)
   makedirs(join(chm_lang_dir, "html"))
-  makedirs(join(DEST_CHM, lang_code, "distr_chm_plugins"+lang[0]))
 
   # build empty directory tree
   chm_meta_dir = join(chm_lang_dir, "meta")
