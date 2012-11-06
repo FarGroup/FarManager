@@ -1,8 +1,11 @@
-To build the the CHM files run
-perl tool.make_chm.pl
+Makes projects files for building Far Manager Encyclopaedia in .CHM format
+Files are created in "build" subdirectory in the root of Enc. source tree.
 
-All the needed html and HCW project files will be created under "..\enc".
+Usage:
 
+python tool.make_chm.py
 
+Then change dir to /build/chm and build .hhp project file with HCW or hhc.exe
+Use clean.py to remove created files.
 
 see also .\contrib\*
