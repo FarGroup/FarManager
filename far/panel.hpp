@@ -126,6 +126,7 @@ class DelayedDestroy
 public:
 	DelayedDestroy() : destroyed(false), prevent_delete_count(0) {}
 
+protected:
 	virtual ~DelayedDestroy() {
 		assert(destroyed);
 	}
@@ -220,6 +221,7 @@ class Panel:public ScreenObject, public DelayedDestroy
 
 	public:
 		Panel();
+	protected:
 		virtual ~Panel();
 
 	public:

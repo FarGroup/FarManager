@@ -116,6 +116,7 @@ class InfoList:public Panel
 
 	public:
 		InfoList();
+	private:
 		virtual ~InfoList();
 
 	public:

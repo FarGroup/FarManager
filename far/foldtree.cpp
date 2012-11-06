@@ -106,9 +106,11 @@ FolderTree::~FolderTree()
 	CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	//if ( TopScreen )    delete TopScreen;
-	if (FindEdit)     delete FindEdit;
+	if (FindEdit)
+		delete FindEdit;
 
-	if (Tree)         delete Tree;
+	if (Tree)
+		Tree->Destroy();
 }
 
 

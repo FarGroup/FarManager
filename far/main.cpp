@@ -179,7 +179,7 @@ static int MainProcess(
 
 			FrameManager->EnterMainLoop();
 			CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=nullptr;
-			delete DummyPanel;
+			DummyPanel->Destroy();
 			_tran(SysLog(L"editor/viewer closed, delete dummy panels"));
 		}
 		else

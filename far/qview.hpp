@@ -69,6 +69,7 @@ class QuickView:public Panel
 
 	public:
 		QuickView();
+	private:
 		virtual ~QuickView();
 
 	public:

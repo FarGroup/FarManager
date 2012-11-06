@@ -140,6 +140,7 @@ class TreeList: public Panel
 
 	public:
 		TreeList(bool IsPanel=true);
+	private:
 		virtual ~TreeList();
 
 	public:

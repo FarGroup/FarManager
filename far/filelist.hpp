@@ -307,6 +307,7 @@ class FileList:public Panel
 
 	public:
 		FileList();
+	private:
 		virtual ~FileList();
 
 	public:
