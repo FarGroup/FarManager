@@ -4,7 +4,7 @@ function benc2 {
 LNG=$1
 L=$2
 
-cd ${LNG}2
+cd ${LNG}
 wine "C:/Program Files/HTML Help Workshop/hhc.exe" plugins${L}.hhp
 cp -f FarEncyclopedia.${LNG}.chm ../../../../outfinalnew32/Encyclopedia/ && \
 cp -f FarEncyclopedia.${LNG}.chm ../../../../outfinalnew64/Encyclopedia/
