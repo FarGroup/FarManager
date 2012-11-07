@@ -2012,7 +2012,8 @@ int TranslateKeyToVK(int Key,int &VirtKey,int &ControlState,INPUT_RECORD *Rec)
 					    (FShift&KEY_ALT?LEFT_ALT_PRESSED:0)|
 					    (FShift&KEY_CTRL?LEFT_CTRL_PRESSED:0)|
 					    (FShift&KEY_RALT?RIGHT_ALT_PRESSED:0)|
-					    (FShift&KEY_RCTRL?RIGHT_CTRL_PRESSED:0);
+					    (FShift&KEY_RCTRL?RIGHT_CTRL_PRESSED:0)|
+					    (FKey==KEY_DECIMAL?NUMLOCK_ON:0);
 
 					DWORD ExtKey[]={KEY_PGUP,KEY_PGDN,KEY_END,KEY_HOME,KEY_LEFT,KEY_UP,KEY_RIGHT,KEY_DOWN,KEY_INS,KEY_DEL,KEY_NUMENTER};
 					for (i=0; i < ARRAYSIZE(ExtKey); i++)
