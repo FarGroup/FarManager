@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
 Make projects files for building Far Manager Encyclopedia in .CHM format
 """
@@ -44,7 +43,7 @@ def make_chm_lang(lang):
 
   log("exporting from svn")
   command = "svn export -q --force %s/enc_%s %s/%s" % (ROOT_DIR, lang, DEST_CHM, lang_code)
-  subprocess.call(command)
+  subprocess.call(command, shell=True)
 
   chm_lang_dir = join(DEST_CHM, lang_code)
   makedirs(join(chm_lang_dir, "html"))
@@ -159,7 +158,7 @@ def make_chm_lang(lang):
 """ % (rh[0]))
           log("    Open section: %s" % rh[0])
 
-        match_link = match_link_after_h3 if in_h3 == 1 else match_link_no_h3
+        match_link = (match_link_no_h3, match_link_after_h3)[in_h3 == 1]
         for rl in match_link.findall(l2):
           if (in_h3 == 0 and in_link == 0):
             log("  Open section")

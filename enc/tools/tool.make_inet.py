@@ -1,4 +1,3 @@
-#!/usr/bin/python
 """
 Make web suitable Encyclopedia
 """
@@ -38,9 +37,9 @@ def make_inet_lang(lang):
 
   log("exporting from svn")
   command = "svn export -q --force %s/enc_%s/images %s/images" % (ROOT_DIR, lang, DEST_INET)
-  subprocess.call(command)
+  subprocess.call(command, shell=True)
   command = "svn export -q --force %s/enc_%s/meta %s/%s/meta" % (ROOT_DIR, lang, DEST_INET, lang_code)
-  subprocess.call(command)
+  subprocess.call(command, shell=True)
 
   # build empty directory tree
   inet_html_dir = join(DEST_INET, lang_code)
