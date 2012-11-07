@@ -3,7 +3,7 @@ Make web suitable Encyclopedia
 """
 
 # based on tool.make_chm.py pythonized by techtonik // gmail.com
-# modificatios by Far Group
+# modifications by Far Group
 
 #
 # IMPORTANT: must be albe to run under python 2.4
@@ -18,7 +18,6 @@ import shutil
 import logging
 import subprocess
 import re
-import operator
 
 logging.basicConfig(level=logging.DEBUG, format="%(asctime)s %(levelname)-6s %(message)s")
 logging.addLevelName("WARN", 30)
