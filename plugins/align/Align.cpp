@@ -110,7 +110,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
   if (ei.BlockType!=BTYPE_STREAM || RightMargin<1)
     return;
 
-  struct EditorSetPosition esp={sizeof(EditorSetPosition)};
+  struct EditorSetPosition esp={sizeof(EditorSetPosition),-1,-1,-1,-1,-1,-1};
   esp.CurLine=ei.BlockStartLine;
   esp.CurPos=0;
   Info.EditorControl(-1,ECTL_SETPOSITION,0,&esp);
@@ -242,7 +242,7 @@ void ReformatBlock(int RightMargin,int SmartMode,int Justify)
       while (I<TotalLength && TotalString[I]==L' ')
         PrevSpacePos=I++;
 
-      struct EditorSetPosition esp={sizeof(EditorSetPosition)};
+      struct EditorSetPosition esp={sizeof(EditorSetPosition),-1,-1,-1,-1,-1,-1};
       esp.CurLine=-1;
 
       if (IndentSize>0)
