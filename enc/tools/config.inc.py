@@ -9,3 +9,4 @@ DEST_CHM        = join(DEST, "chm")
 BUILD_CHM_LOG   = join(DEST, "tool.make_chm.log")
 
 DEST_INET       = join(DEST, "inet")
+BUILD_INET_LOG  = join(DEST, "tool.make_inet.log")

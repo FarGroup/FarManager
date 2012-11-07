@@ -36,14 +36,14 @@ warn = logging.warn
 
 
 def make_chm_lang(lang):
-  """@param lang : either 'rus' or 'eng'"""
-  #if lang not in ['rus', 'eng']: raise Exception("Invalid parameter")
+  """@param lang : either 'rus*' or 'eng*'"""
   lang_code = lang[0:2]
 
   log("------------------------------------")
   log("preparing %s " % lang_code)
 
-  command = "svn export %s/enc_%s %s/%s" % (ROOT_DIR, lang, DEST_CHM, lang_code)
+  log("exporting from svn")
+  command = "svn export -q --force %s/enc_%s %s/%s" % (ROOT_DIR, lang, DEST_CHM, lang_code)
   subprocess.call(command)
 
   chm_lang_dir = join(DEST_CHM, lang_code)
