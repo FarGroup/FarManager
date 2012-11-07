@@ -4015,14 +4015,14 @@ static int far_AdvControl(lua_State *L)
 			break;
 		case ACTL_WAITKEY:
 		{
+			INPUT_RECORD ir;
 			if(!lua_isnoneornil(L, 3))
 			{
-				INPUT_RECORD ir;
 				OptInputRecord(L, pd, 3, &ir);
 				Param2 = &ir;
 			}
-
-			break;
+			lua_pushinteger(L, Info->AdvControl(PluginId, Command, Param1, Param2));
+			return 1;
 		}
 		case ACTL_GETCOLOR:
 		{
@@ -4053,8 +4053,8 @@ static int far_AdvControl(lua_State *L)
 			pv.StructSize = sizeof(pv);
 			pv.Completed = (UINT64)GetOptNumFromTable(L, "Completed", 0.0);
 			pv.Total = (UINT64)GetOptNumFromTable(L, "Total", 100.0);
-			Param2 = &pv;
-			break;
+			lua_pushinteger(L, Info->AdvControl(PluginId, Command, Param1, &pv));
+			return 1;
 		}
 		case ACTL_GETARRAYCOLOR:
 		{
@@ -4156,8 +4156,8 @@ static int far_AdvControl(lua_State *L)
 				lua_pop(L,1);
 			}
 
-			Param2 = &fsc;
-			break;
+			lua_pushinteger(L, Info->AdvControl(PluginId, Command, Param1, &fsc));
+			return 1;
 		}
 		case ACTL_GETFARRECT:
 		{
@@ -4193,8 +4193,8 @@ static int far_AdvControl(lua_State *L)
 			coord.X = (SHORT) lua_tointeger(L, -1);
 			lua_getfield(L, 3, "Y");
 			coord.Y = (SHORT) lua_tointeger(L, -1);
-			Param2 = &coord;
-			break;
+			lua_pushinteger(L, Info->AdvControl(PluginId, Command, Param1, &coord));
+			return 1;
 		}
 		case ACTL_GETWINDOWTYPE:
 		{
