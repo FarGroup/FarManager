@@ -11,7 +11,8 @@ Make projects files for building Far Manager Encyclopedia in .CHM format
 
 # contents tree for HHC is generated from /html/index.html following links one level down.
 # links in each file are followed only between <!-- HHC --> comments, for each "<h3>" a new "folder" is created,
-# for each "<a href=>" a new topic with some additional logic tha prevents following unwanted links (only width=40% links are followed under h3 sections)
+# for each "<a href=>" a new topic with some additional logic that prevents following unwanted links (only width=40% links are followed under h3 sections)
+# also,  for "<h3>",  text for the title is taken upto to the first comma
 
 
 execfile("config.inc.py")
@@ -52,26 +53,23 @@ def make_chm_lang(lang):
   chm_meta_dir = join(chm_lang_dir, "meta")
   chm_html_dir = join(chm_lang_dir, "html")
   for root, dirs, files in walk(chm_meta_dir):
-    for d in dirs: 
+    for d in dirs:
       makedirs(join(root.replace(chm_meta_dir, chm_html_dir), d))
 
   log("-- translating meta into html")
   # filter files and replace "win32/.." links with calls to MSDN
   link_match = re.compile(r'href[\s"\'=\/\.]*?win32\/(?P<funcname>[^"\']*?)(\.html)?[\'"].*?>(?P<linkend>.*?<\/a>)', re.I)
   link_replace = Template(
-'''
-href=JavaScript:link$id.Click()>\g<linkend>
-<object id=link$id type="application/x-oleobject" classid="clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11">
+'''href="JavaScript:link$id.Click()">\g<linkend>
+<object id="link$id" type="application/x-oleobject" classid="clsid:adb880a6-d8ff-11cf-9377-00aa003b7a11">
 <param name="Command" value="KLink">
 <param name="DefaultTopic" value="">
 <param name="Item1" value="">
 <param name="Item2" value="\g<funcname>">
-</object>
-''')
+</object>''')
   id = 0
   for root, dirs, files in walk(chm_meta_dir):
     for f in files:
-      # todo : add a link - "report bug on this page" with a simple 2+2 captcha
       infile  = open(join(root, f))
       outfile = open(join(root.replace(chm_meta_dir, chm_html_dir), f), "w")
       for line in infile:
@@ -221,7 +219,7 @@ href=JavaScript:link$id.Click()>\g<linkend>
           target_list.append([relflink+"#"+ra[1], strip_re.sub("", ra[2])])
       f.close()
   print
-  
+
   titles = [t[1] for t in title_list]
   for ix, iv in enumerate(macro_list):
     if iv[1] in titles:
