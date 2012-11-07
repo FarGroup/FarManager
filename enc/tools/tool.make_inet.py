@@ -5,6 +5,10 @@ Make web suitable Encyclopedia
 # based on tool.make_chm.py pythonized by techtonik // gmail.com
 # modificatios by Far Group
 
+#
+# IMPORTANT: must be albe to run under python 2.4
+#
+
 execfile("config.inc.py")
 
 from os import makedirs, walk

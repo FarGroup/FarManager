@@ -5,6 +5,9 @@ Make projects files for building Far Manager Encyclopedia in .CHM format
 # pythonized by techtonik // gmail.com
 # modificatios by Far Group
 
+#
+# IMPORTANT: must be albe to run under python 2.4
+#
 
 # keywords for HHK are generated from "<a name=>" and "<h1>"
 
