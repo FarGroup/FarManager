@@ -8,7 +8,7 @@ Make web suitable Encyclopedia
 execfile("config.inc.py")
 
 from os import makedirs, walk
-from os.path import isdir, join, relpath
+from os.path import isdir, join, commonprefix,  normpath
 from string import Template
 import shutil
 import logging
@@ -54,7 +54,10 @@ def make_inet_lang(lang):
   id = 0
   for root, dirs, files in walk(inet_meta_dir):
     for f in files:
-      notfound = relpath(join(inet_html_dir, "notfound.html"), join(root, "..")).replace('\\','/')
+      relpath = normpath(join(root, "..", "xxx")) # ".." because we need to get rid of 1 level because of "meta""
+      plen = len(commonprefix([ join(inet_html_dir, "notfound.html"), relpath ]))
+      relpath = relpath[plen:].replace('\\','/')
+      notfound = "../" * relpath.count('/') + "notfound.html"
       infile  = open(join(root, f))
       outfile = open(join(root.replace(inet_meta_dir, inet_html_dir), f), "w")
       for line in infile:
