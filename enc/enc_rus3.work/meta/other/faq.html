@@ -67,11 +67,11 @@
 <h3>Общие вопросы</h3>
 <ol>
   <li><span class=faqq>Q:</span> <a name="cursor1"><span class=faqqb>Как мне спрятать курсор?</span></a>
-  <br><span class=faqa>A:</span> Windows API console API: <a href="win32/setconsolecursorinfo.html">SetConsoleCursorInfo</a>, только не забудь его потом вернуть на место.
+  <br><span class=faqa>A:</span> Windows API console API: <a href="win32/SetConsoleCursorInfo">SetConsoleCursorInfo</a>, только не забудь его потом вернуть на место.
   <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="cursor2"><span class=faqqb>А как перевести в нужную позицию?</span></a>
-  <br><span class=faqa>A:</span> Там же: <a href="win32/setconsolecursorposition.html">SetConsoleCursorPosition</a>
+  <br><span class=faqa>A:</span> Там же: <a href="win32/SetConsoleCursorPosition">SetConsoleCursorPosition</a>
   <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="editor1"><span class=faqqb>Чтобы плагин работал и в редакторе и в shell (и на панели) что нужно ставить во флагах: Info->Flags=?????;</span></a>
@@ -126,15 +126,15 @@ Control(<a href="../service_functions/panelcontrol.html#FCTL_GETPANELINFO">FCTL_
 
   <li><span class=faqq>Q:</span> <a name="funcCM"><span class=faqqb>Откуда FAR берёт процедуры для копирования/удаления/... файлов?</span></a>
   <br><span class=faqa>A:</span> Из Windows API.<br>
-  <u>Копирование:</u> <a href="win32/CreateFile.html">CreateFile</a>+<a href="win32/ReadFile.html">ReadFile</a>+<a href="win32/writefile.html">WriteFile</a>+<a href="win32/closehandle.html">CloseHandle</a> или <a href="win32/copyfile.html">CopyFile</a>(Ex), в зависимости от ОС и опции "Use system copy routine".<br>
-  <u>Удаление:</u> <a href="win32/DeleteFile.html">DeleteFile</a> или <a href="win32/shfileoperation.html">SHFileOperation</a> в зависимости от опции "Delete to Recycle Bin"
+  <u>Копирование:</u> <a href="win32/CreateFile">CreateFile</a>+<a href="win32/ReadFile">ReadFile</a>+<a href="win32/WriteFile">WriteFile</a>+<a href="win32/CloseHandle">CloseHandle</a> или <a href="win32/CopyFile">CopyFile</a>(Ex), в зависимости от ОС и опции "Use system copy routine".<br>
+  <u>Удаление:</u> <a href="win32/DeleteFile">DeleteFile</a> или <a href="win32/SHFileOperation">SHFileOperation</a> в зависимости от опции "Delete to Recycle Bin"
   <br><br></li>
 
   <li><span class=faqq>Q:</span> <a name="FARDir"><span class=faqqb>Как можно получить имя каталога, из которого запущен FAR?</span></a>
   <br><span class=faqa>A:</span> <pre class=code>char lpName[_MAX_PATH], lpFullPath[_MAX_PATH];
 LPTSTR lpFile;
-<a href="win32/GetModuleFileName.html">GetModuleFileName</a>(NULL,lpName,sizeof(lpName));
-<a href="win32/GetFullPathName.html">GetFullPathName</a>(lpName,sizeof(lpFullPath),lpFullPath,&amp;lpFile);
+<a href="win32/GetModuleFileName">GetModuleFileName</a>(NULL,lpName,sizeof(lpName));
+<a href="win32/GetFullPathName">GetFullPathName</a>(lpName,sizeof(lpFullPath),lpFullPath,&amp;lpFile);
 *lpFile='\0';</pre>
   <br><br></li>
 
