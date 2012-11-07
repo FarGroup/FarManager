@@ -856,7 +856,6 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	}
 
 	DWORD dwSubSystem = IMAGE_SUBSYSTEM_UNKNOWN;
-	DWORD dwError = 0;
 	HANDLE hProcess = nullptr;
 	LPCWSTR lpVerb = nullptr;
 
@@ -996,6 +995,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		}
 		//Maximus: рушилась dwSubSystem
 		DWORD dwSubSystem2 = IMAGE_SUBSYSTEM_UNKNOWN;
+		DWORD dwError = 0;
 		seInfo.lpVerb = dwAttr != INVALID_FILE_ATTRIBUTES && (dwAttr&FILE_ATTRIBUTE_DIRECTORY)?nullptr:lpVerb?lpVerb:GetShellAction(strNewCmdStr, dwSubSystem2, dwError);
 		if (dwSubSystem2!=IMAGE_SUBSYSTEM_UNKNOWN && dwSubSystem==IMAGE_SUBSYSTEM_UNKNOWN)
 			dwSubSystem=dwSubSystem2;
@@ -1039,6 +1039,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		Console.ScrollScreenBuffer(((DirectRun && dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI) || SeparateWindow)?2:1);
 	}
 
+	DWORD dwError = 0;
 	if (ShellExecuteEx(&seInfo))
 	{
 		hProcess = seInfo.hProcess;
