@@ -21,8 +21,8 @@ svn co http://localhost/svn/trunk/enc enc
 mkdir -p outfinalnew32/Encyclopedia
 mkdir -p outfinalnew64/Encyclopedia
 
-svn export http://localhost/svn/trunk/docs/misc outfinalnew32/Encyclopedia
-svn export http://localhost/svn/trunk/docs/misc outfinalnew64/Encyclopedia
+svn export --force http://localhost/svn/trunk/docs/misc outfinalnew32/Encyclopedia
+svn export --force http://localhost/svn/trunk/docs/misc outfinalnew64/Encyclopedia
 
 pushd enc/tools
 python tool.make_chm.py
