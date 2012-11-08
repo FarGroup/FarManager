@@ -1823,7 +1823,10 @@ bool KeyMacro::ParseMacroString(const wchar_t *Sequence, bool onlyCheck, bool sk
 			m_LastErrorStr = mpr->Values[0].String;
 			m_LastErrorLine = (int)mpr->Values[1].Double;
 			if (!onlyCheck)
+			{
+				RestoreMacroChar();
 				FrameManager->RefreshFrame(); // Нужно после вывода сообщения плагином. Иначе панели не перерисовываются.
+			}
 			return false;
 		}
 	}
