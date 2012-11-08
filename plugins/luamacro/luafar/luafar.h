@@ -11,6 +11,14 @@ extern "C" {
 #include <lauxlib.h>
 #include <lualib.h>
 
+#ifdef __GNUC__ //FIXME: #include <float.h> работает с MinGW64, но не с MinGW.
+/* Control word masks for unMask */
+#define	_MCW_EM		0x0008001F	/* Error masks */
+_CRTIMP unsigned int __cdecl __MINGW_NOTHROW _control87 (unsigned int unNew, unsigned int unMask);
+#else
+#include <float.h>
+#endif //__GNUC__
+
 #if defined BUILD_DLL
 #  define DLLFUNC __declspec(dllexport)
 #elif defined BUILD_STATIC

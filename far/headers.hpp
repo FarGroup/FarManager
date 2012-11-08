@@ -49,18 +49,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <malloc.h>
 #endif //__GNUC__
 
-#ifdef __GNUC__ //FIXME: #include <float.h> работает с MinGW64, но не с MinGW.
-/* Control word masks for unMask */
-#define	_MCW_EM		0x0008001F	/* Error masks */
-#define	_MCW_IC		0x00040000	/* Infinity */
-#define	_MCW_RC		0x00000300	/* Rounding */
-#define	_MCW_PC		0x00030000	/* Precision */
-#define	_PC_64		0x00000000
-extern "C" _CRTIMP unsigned int __cdecl __MINGW_NOTHROW _control87 (unsigned int unNew, unsigned int unMask);
-#else
-#include <float.h>
-#endif //__GNUC__
-
 #include <process.h>
 #include <search.h>
 #include <share.h>
