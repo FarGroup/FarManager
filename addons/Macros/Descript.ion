@@ -40,3 +40,4 @@ View.ShiftInsSearch.farconfig Viewer: Use Shift-Ins to search text from clipboar
 View.Space.farconfig Viewer: Use Space for listing in the viewer (like in Outlook Express or The Bat!)
 WheelScreenSwitch.farconfig Use Shift-MsWheel to switch between screens
 Descript.ion File descriptions
+Panel.EscKeyBar.farconfig Use Esc to toggle panels on/off (with keybar)
