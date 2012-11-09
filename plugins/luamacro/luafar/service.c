@@ -477,31 +477,6 @@ void PushPanelItems(lua_State *L, const struct PluginPanelItem *PanelItems, size
 }
 //---------------------------------------------------------------------------
 
-static BOOL PushFarUserSubkey(lua_State* L, BOOL addOneLevel, wchar_t* trg)
-{
-	wchar_t user[256];
-	wchar_t src[DIM(user)+64] = L"Software\\Far Manager";
-	DWORD res = GetEnvironmentVariableW(L"FARUSER", user, DIM(user));
-
-	if(res)
-	{
-		if(res >= DIM(user))
-			return FALSE;
-
-		wcscat(src, L"\\Users\\");
-		wcscat(src, user);
-	}
-
-	if(addOneLevel)
-		wcscat(src, L"\\Plugins");
-
-	if(trg)
-		wcscpy(trg, src);
-
-	push_utf8_string(L, src, -1);
-	return TRUE;
-}
-
 static int far_PluginStartupInfo(lua_State *L)
 {
 	const wchar_t *p;
@@ -517,9 +492,6 @@ static int far_PluginStartupInfo(lua_State *L)
 
 	PutWStrToTable(L, "ModuleDir", pd->Info->ModuleName, len+1);
 	PutLStrToTable(L, "PluginGuid", pd->PluginId, sizeof(GUID));
-
-	if(PushFarUserSubkey(L, TRUE, NULL))
-		lua_setfield(L, -2, "RootKey");
 
 	return 1;
 }

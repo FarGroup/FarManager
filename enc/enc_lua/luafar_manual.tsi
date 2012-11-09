@@ -7308,7 +7308,7 @@ id=68
 lv=2
 dt=Text
 nm=far.PluginStartupInfo
-mtime=3551981080
+mtime=3561666722
 <article>
 #_Info = far.PluginStartupInfo ()
 #_
@@ -7321,7 +7321,6 @@ mtime=3551981080
 #_      ModuleName:   string
 #_      ModuleDir:    string (has a backslash at the end)
 #_      PluginGuid:   string
-#_      RootKey:      string
 #_
 #_**Description:**
 #_  Returns a table containing the data elements of the
