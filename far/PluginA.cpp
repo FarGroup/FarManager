@@ -4756,16 +4756,27 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		}
 		case oldfar::ECTL_INSERTSTRING:	Command = ECTL_INSERTSTRING; break;
 		case oldfar::ECTL_QUIT:					Command = ECTL_QUIT; break;
-		case oldfar::ECTL_REALTOTAB:		Command = ECTL_REALTOTAB; break;
+
+		case oldfar::ECTL_REALTOTAB:
+		case oldfar::ECTL_TABTOREAL:
+		{
+			oldfar::EditorConvertPos *oldecp = (oldfar::EditorConvertPos*) Param;
+			EditorConvertPos newecp={sizeof(EditorConvertPos),oldecp->StringNumber,oldecp->SrcPos,oldecp->DestPos};
+			return static_cast<int>(NativeInfo.EditorControl(-1, OldCommand == oldfar::ECTL_REALTOTAB ? ECTL_REALTOTAB : ECTL_REALTOTAB, 0, &newecp));
+		}
+		case oldfar::ECTL_SELECT:
+		{
+			oldfar::EditorSelect *oldes = (oldfar::EditorSelect*) Param;
+			EditorSelect newes={sizeof(EditorSelect),oldes->BlockType,oldes->BlockStartLine,oldes->BlockStartPos,oldes->BlockWidth,oldes->BlockHeight};
+			return static_cast<int>(NativeInfo.EditorControl(-1, ECTL_SELECT, 0, &newes));
+		}
 		case oldfar::ECTL_REDRAW:				Command = ECTL_REDRAW; break;
-		case oldfar::ECTL_SELECT:				Command = ECTL_SELECT; break;
 		case oldfar::ECTL_SETPOSITION:
 		{
 			oldfar::EditorSetPosition *oldsp = (oldfar::EditorSetPosition*) Param;
 			EditorSetPosition newsp={sizeof(EditorSetPosition),oldsp->CurLine,oldsp->CurPos,oldsp->CurTabPos,oldsp->TopScreenLine,oldsp->LeftPos,oldsp->Overtype};
 			return static_cast<int>(NativeInfo.EditorControl(-1, ECTL_SETPOSITION, 0, &newsp));
 		}
-		case oldfar::ECTL_TABTOREAL:		Command = ECTL_TABTOREAL; break;
 		case oldfar::ECTL_ADDSTACKBOOKMARK:			Command = ECTL_ADDSESSIONBOOKMARK; break;
 		case oldfar::ECTL_PREVSTACKBOOKMARK:		Command = ECTL_PREVSESSIONBOOKMARK; break;
 		case oldfar::ECTL_NEXTSTACKBOOKMARK:		Command = ECTL_NEXTSESSIONBOOKMARK; break;

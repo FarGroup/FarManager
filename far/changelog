@@ -1,3 +1,11 @@
+lort 09.11.2012 23:06:48 +0400 - build 2941
+
+1. Не убиралось с экрана окно печати (M#2193.1)
+
+2. Неправильно расчитывались координаты меню.
+
+3. Во врапере не работали ECTL_REALTOTAB, ECTL_TABTOREAL и ECTL_SELECT
+
 t-rex 09.11.2012 17:29:21 +0200 - build 2940
 
 1. Настройка в "Right click selects files" в "Panel Settings".

@@ -164,6 +164,18 @@ void VMenu2::Resize(bool force)
 	FarListInfo info={sizeof(FarListInfo)};
 	SendDlgMessage(this, DM_LISTINFO, 0, &info);
 
+
+	int X1=this->X1;
+	int Y1=this->Y1;
+	if(!ShortBox)
+	{
+		if(X1>1)
+			X1-=2;
+		if(Y1>0)
+			Y1-=1;
+	}
+
+
 	int width=info.MaxLength+(ShortBox?2:6) + 3;
 	if(X2>0)
 		width=X2-X1+1;
@@ -181,11 +193,13 @@ void VMenu2::Resize(bool force)
 		height=Y2-Y1+1;
 
 	int mh=Y1<0 ? ScrY : ScrY-Y1;
+
+	mh+=ShortBox ? 1 : 2;
+
 	if(mh<0)
 		mh=0;
 	if(height>mh)
 		height=mh;
-
 
 	int X=X1;
 	if(X>0 && (X+width>ScrX))

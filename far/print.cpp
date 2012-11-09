@@ -192,7 +192,7 @@ void PrintFiles(Panel *SrcPanel)
 
 	{
 		_ALGO(CleverSysLog clv3(L"Print selected Files"));
-		//SaveScreen SaveScr;
+		SaveScreen SaveScr;
 		TPreRedrawFuncGuard preRedrawFuncGuard(PR_PrintMsg);
 		SetCursorType(FALSE,0);
 		PR_PrintMsg();
