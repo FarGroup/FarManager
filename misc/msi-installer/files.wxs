@@ -251,6 +251,9 @@
           <Component Id="Panel.Esc.farconfig" Guid="$(var.Guid.Panel.Esc.farconfig)" Win64="$(var.Win64)">
             <File Id="Panel.Esc.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Esc.farconfig" />
           </Component>
+          <Component Id="Panel.EscKeyBar.farconfig" Guid="$(var.Guid.Panel.EscKeyBar.farconfig)" Win64="$(var.Win64)">
+            <File Id="Panel.EscKeyBar.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.EscKeyBar.farconfig" />
+          </Component>
           <Component Id="Panel.JumpToSelectedFile.farconfig" Guid="$(var.Guid.Panel.JumpToSelectedFile.farconfig)" Win64="$(var.Win64)">
             <File Id="Panel.JumpToSelectedFile.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.JumpToSelectedFile.farconfig" />
           </Component>
@@ -389,14 +392,17 @@
             <File Id="TechInfo.txt_1" KeyPath="yes" Source="$(var.SourceDir)\Documentation\rus\TechInfo.txt" />
           </Component>
         </Directory>
-        <Directory Id="misc" Name="misc">
-          <Component Id="luafar_manual.chm" Guid="$(var.Guid.luafar_manual.chm)" Win64="$(var.Win64)">
-            <File Id="luafar_manual.chm" KeyPath="yes" Source="$(var.SourceDir)\Documentation\misc\luafar_manual.chm" />
-          </Component>
-          <Component Id="macroapi_manual.chm" Guid="$(var.Guid.macroapi_manual.chm)" Win64="$(var.Win64)">
-            <File Id="macroapi_manual.chm" KeyPath="yes" Source="$(var.SourceDir)\Documentation\misc\macroapi_manual.chm" />
-          </Component>
-        </Directory>
+      </Directory>
+      <Directory Id="Encyclopedia" Name="Encyclopedia">
+        <Component Id="FarEncyclopedia.ru.chm" Guid="$(var.Guid.FarEncyclopedia.ru.chm)" Win64="$(var.Win64)">
+          <File Id="FarEncyclopedia.ru.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\FarEncyclopedia.ru.chm" />
+        </Component>
+        <Component Id="luafar_manual.chm" Guid="$(var.Guid.luafar_manual.chm)" Win64="$(var.Win64)">
+          <File Id="luafar_manual.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\luafar_manual.chm" />
+        </Component>
+        <Component Id="macroapi_manual.chm" Guid="$(var.Guid.macroapi_manual.chm)" Win64="$(var.Win64)">
+          <File Id="macroapi_manual.chm" KeyPath="yes" Source="$(var.SourceDir)\Encyclopedia\macroapi_manual.chm" />
+        </Component>
       </Directory>
 <?if $(var.Platform) = x86 ?>
       <Directory Id="FExcept" Name="FExcept">

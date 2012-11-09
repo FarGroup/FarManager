@@ -72,6 +72,7 @@
           <ComponentRef Id="Panel.CtrlShiftPgUpDn.farconfig" />
           <ComponentRef Id="Panel.Del.farconfig" />
           <ComponentRef Id="Panel.Esc.farconfig" />
+          <ComponentRef Id="Panel.EscKeyBar.farconfig" />
           <ComponentRef Id="Panel.JumpToSelectedFile.farconfig" />
           <ComponentRef Id="Panel.Lynx_mot.farconfig" />
           <ComponentRef Id="Panel.MouseWheelTilt.farconfig" />
@@ -121,8 +122,7 @@
         <ComponentRef Id="Plugins.Install.txt" />
         <ComponentRef Id="Plugins.Review.txt" />
         <ComponentRef Id="TechInfo.txt" />
-	<ComponentRef Id="luafar_manual.chm" />
-	<ComponentRef Id="macroapi_manual.chm" />
+        <ComponentRef Id="luafar_manual.chm" />
       </Feature>
       <Feature Id="Docs.Russian" Level="1" Display="hidden" AllowAdvertise="no">
         <ComponentRef Id="Bug.Report.txt_1" />
@@ -130,6 +130,8 @@
         <ComponentRef Id="Plugins.Install.txt_1" />
         <ComponentRef Id="Plugins.Review.txt_1" />
         <ComponentRef Id="TechInfo.txt_1" />
+        <ComponentRef Id="FarEncyclopedia.ru.chm" />
+        <ComponentRef Id="macroapi_manual.chm" />
       </Feature>
 <?if $(var.Platform) = x86 ?>
       <Feature Id="FExcept" Level="1" Title="!(loc.Feature.Title.FExcept)" AllowAdvertise="no" Description="!(loc.Feature.Description.FExcept)">

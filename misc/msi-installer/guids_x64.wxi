@@ -91,6 +91,7 @@
 <?define Guid.Panel.CtrlShiftPgUpDn.farconfig = "94DC214D-BDB1-4767-96EF-8A3A8E965E27" ?>
 <?define Guid.Panel.Del.farconfig = "23BB0A1A-BD1A-49A0-9EDD-2956D5A4EC3F" ?>
 <?define Guid.Panel.Esc.farconfig = "0C37C13E-A1F1-49D5-88FB-9AF304883AAA" ?>
+<?define Guid.Panel.EscKeyBar.farconfig = "B50CFD9C-C94A-4EAB-AFD9-7EC31A9AA5F9" ?>
 <?define Guid.Panel.JumpToSelectedFile.farconfig = "1B635808-4DD7-42F1-B141-8BFB656C11DF" ?>
 <?define Guid.Panel.Lynx_mot.farconfig = "21F1F6DB-FD94-4083-9195-0FE86379E15F" ?>
 <?define Guid.Panel.MouseWheelTilt.farconfig = "2469FD94-D6DA-4B7B-AC5B-8D9DA83D6473" ?>
@@ -294,6 +295,7 @@
 <?define Guid.plugin.hpp = "E736C600-248A-445F-8EC5-2646A8D586E7" ?>
 <?define Guid.FarColorW.pas = "51A36B89-725B-4F3A-8025-27AA78E715F0" ?>
 <?define Guid.PluginW.pas = "18301AD6-CCC7-4536-8F3C-71853A559AE9" ?>
-<?define Guid.luafar_manual.chm = "28E06E43-EA51-4113-A54D-60475B25DB4A" ?>
-<?define Guid.macroapi_manual.chm = "5417E235-32DB-4BA4-ADDE-55141AFA420E" ?>
+<?define Guid.luafar_manual.chm = "9E0DBDE0-F13A-487E-8378-FB9508909A81" ?>
+<?define Guid.macroapi_manual.chm = "8DC9669E-9A90-4115-96C3-00B61990220B" ?>
+<?define Guid.FarEncyclopedia.ru.chm = "45E1F734-6A8B-4CA8-BB3A-1310028BEB7A" ?>
 </Include>
