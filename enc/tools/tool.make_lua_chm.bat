@@ -4,6 +4,8 @@ mkdir ..\build
 mkdir ..\build\lua
 cd ..\build\lua
 
+if not '%1'=='' goto :make
+
 call :make luafar_manual
 call :make macroapi_manual
 
