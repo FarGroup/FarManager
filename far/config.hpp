@@ -590,6 +590,7 @@ struct Options
 	BoolOption UseVk_oem_x;
 	BoolOption ShowHidden;
 	BoolOption Highlight;
+	BoolOption RightClickSelect;
 
 	StringOption strLeftFolder;
 	StringOption strRightFolder;

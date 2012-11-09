@@ -185,6 +185,7 @@ void PanelSettings()
 	Builder.AddCheckbox(MConfigHidden, Opt.ShowHidden);
 	Builder.AddCheckbox(MConfigHighlight, Opt.Highlight);
 	Builder.AddCheckbox(MConfigSelectFolders, Opt.SelectFolders);
+	Builder.AddCheckbox(MConfigRightClickSelect, Opt.RightClickSelect);
 	Builder.AddCheckbox(MConfigSortFolderExt, Opt.SortFolderExt);
 	Builder.AddCheckbox(MConfigReverseSort, Opt.ReverseSort);
 
@@ -996,6 +997,7 @@ static struct FARConfig
 	{FSSF_PRIVATE,       NKeyPanel,L"ShellRightLeftArrowsRule", AddressAndType(Opt.ShellRightLeftArrowsRule), Default(0)},
 	{FSSF_PANEL,         NKeyPanel,L"ShowHidden", AddressAndType(Opt.ShowHidden), Default(1)},
 	{FSSF_PRIVATE,       NKeyPanel,L"SortFolderExt", AddressAndType(Opt.SortFolderExt), Default(0)},
+	{FSSF_PRIVATE,       NKeyPanel,L"RightClickSelect", AddressAndType(Opt.RightClickSelect), Default(0)},
 
 	{FSSF_PRIVATE,       NKeyPanelInfo,L"InfoComputerNameFormat", AddressAndType(Opt.InfoPanel.ComputerNameFormat), Default(ComputerNamePhysicalNetBIOS)},
 	{FSSF_PRIVATE,       NKeyPanelInfo,L"InfoUserNameFormat", AddressAndType(Opt.InfoPanel.UserNameFormat), Default(NameUserPrincipal)},

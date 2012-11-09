@@ -1747,6 +1747,16 @@ MConfigSelectFolders
 "Seleccionar &directorios"
 "&Zvýrazňovať priečinky"
 
+MConfigRightClickSelect
+"Правый клик помечает файлы"
+"Right click selects files"
+upd:"Right click selects files"
+upd:"Right click selects files"
+upd:"Right click selects files"
+upd:"Right click selects files"
+upd:"Right click selects files"
+upd:"Right click selects files"
+
 MConfigSortFolderExt
 "Сортировать имена папок по рас&ширению"
 "Sort folder names by e&xtension"
