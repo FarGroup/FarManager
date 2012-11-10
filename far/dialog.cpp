@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "chgprior.hpp"
 #include "vmenu.hpp"
-#include "vmenu2.hpp"
 #include "dlgedit.hpp"
 #include "help.hpp"
 #include "scrbuf.hpp"
@@ -360,7 +359,6 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 	IdExist=false;
 	ClearStruct(Id);
 	bInitOK = true;
-	InitDialogObjects();
 }
 
 //////////////////////////////////////////////////////////////////////////

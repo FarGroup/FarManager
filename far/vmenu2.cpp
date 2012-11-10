@@ -272,10 +272,11 @@ FarDialogItem VMenu2DialogItems[]=
 
 VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags) : Dialog(VMenu2DialogItems, 1, VMenu2DlgProc, nullptr)
 {
+	InitDialogObjects();
+
 	this->MaxHeight=MaxHeight;
 	ShortBox=false;
 	ClearStruct(DefRec);
-
 	X1=-1;
 	Y1=-1;
 	X2=0;

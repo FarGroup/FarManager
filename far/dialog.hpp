@@ -231,6 +231,9 @@ class Dialog: public Frame
 
 		MOUSE_EVENT_RECORD PrevMouseRecord;
 
+	protected:
+		unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
+
 	private:
 		void Init(FARWINDOWPROC DlgProc,void* InitParam);
 		virtual void DisplayObject();
@@ -276,8 +279,6 @@ class Dialog: public Frame
 
 		void ProcessCenterGroup();
 		unsigned ProcessRadioButton(unsigned);
-
-		unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
 
 		int ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,unsigned CurFocusPos);
 		int ProcessMoveDialog(DWORD Key);
