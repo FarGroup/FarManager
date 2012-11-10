@@ -903,20 +903,20 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
     }
     if (lstrcmpA(szVerb, "rename")==0)
     {
-      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, {0}, L"F6"};
+      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, {0}, L"Keys'F6'"};
       MacroControl(NULL, MCTL_SENDSTRING, MSSC_POST, &mcmd);
       return DOMENU_CANCELLED;
     }
     if (m_DelUsingFar && lstrcmpA(szVerb, "delete")==0)
     {
-      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, {0}, L"F8"};
+      MacroSendMacroText mcmd = {sizeof(MacroSendMacroText), 0, {0}, L"Keys'F8'"};
       if (GetKeyState(VK_LSHIFT)&0x8000 || GetKeyState(VK_RSHIFT)&0x8000)
       {
-        mcmd.SequenceText=L"ShiftDel";
+        mcmd.SequenceText=L"Keys'ShiftDel'";
       }
       else if (GetKeyState(VK_LMENU)&0x8000 || GetKeyState(VK_RMENU)&0x8000)
       {
-        mcmd.SequenceText=L"AltDel";
+        mcmd.SequenceText=L"Keys'AltDel'";
       }
       MacroControl(NULL, MCTL_SENDSTRING, MSSC_POST, &mcmd);
       return DOMENU_CANCELLED;
