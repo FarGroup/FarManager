@@ -51,10 +51,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 {
   thePlug = new CPlugin(Info);
 
-  OleThread::hNeedInvoke = new CHandle;
-  OleThread::hInvokeDone = new CHandle;
-  OleThread::hStop = new CHandle;
-  OleThread::hTerminator = new OleThread::CThreadTerminator;
+  OleThread::Startup();
 }
 
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)
@@ -76,10 +73,7 @@ void WINAPI ExitFARW(const ExitInfo* Info)
 {
   thePlug->ExitFAR();
 
-  delete OleThread::hTerminator;
-  delete OleThread::hStop;
-  delete OleThread::hInvokeDone;
-  delete OleThread::hNeedInvoke;
+  OleThread::Cleanup();
 
   delete thePlug;
 }

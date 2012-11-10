@@ -356,7 +356,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPWSTR szCmdLine, CallMode Mode)
   while (1)
   {
     EDoMenu enDoMenu;
-    nSelItem=oMainMenu.Show(GetMsg(LNG_TITLE), nSelItem, m_GuiPos==0);
+    nSelItem=OleThread::ShowMenu(oMainMenu,GetMsg(LNG_TITLE), nSelItem, m_GuiPos==0);
     switch (nSelItem)
     {
     case 0:
@@ -427,7 +427,7 @@ CPlugin::EDoMenu CPlugin::SelectDrive()
       oPiids.Add(piid);
     }
   }
-  int nItem=oDrivesMenu.Show(szMenuTitle, 0, m_GuiPos==0);
+  int nItem=OleThread::ShowMenu(oDrivesMenu,szMenuTitle, 0, m_GuiPos==0);
   switch (nItem)
   {
   case CFarMenu::SHOW_CANCEL:
@@ -853,7 +853,7 @@ CPlugin::EDoMenu CPlugin::DoMenu(LPSHELLFOLDER pCurFolder, LPCITEMIDLIST* pPiids
       }
       else
       {
-        nSelItem=oTypeMenu.Show(strMnuTitle, nSelItem, m_GuiPos==0);
+        nSelItem=OleThread::ShowMenu(oTypeMenu,strMnuTitle, nSelItem, m_GuiPos==0);
         switch (nSelItem)
         {
         case CFarMenu::SHOW_CANCEL:
@@ -1165,7 +1165,7 @@ bool CPlugin::ShowTextMenu(HMENU hMenu, LPCONTEXTMENU pPreferredMenu, LPCONTEXTM
   }
   for(int nItem=0;;)
   {
-    nItem=oFarMenu.Show(szTitle, nItem, m_GuiPos==0);
+    nItem=OleThread::ShowMenu(oFarMenu,szTitle, nItem, m_GuiPos==0);
     switch (nItem)
     {
     case CFarMenu::SHOW_CANCEL:
@@ -1291,7 +1291,7 @@ bool CPlugin::ShowFolder(LPSHELLFOLDER pParentFolder, LPCITEMIDLIST piid, int* p
   }
   for(int nItem=0;;)
   {
-    nItem=oFarMenu.Show(szTitle, nItem, m_GuiPos==0);
+    nItem=OleThread::ShowMenu(oFarMenu,szTitle, nItem, m_GuiPos==0);
     switch (nItem)
     {
     case CFarMenu::SHOW_CANCEL:

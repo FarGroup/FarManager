@@ -3,12 +3,15 @@
 #include <comdef.h>
 #include <cassert>
 #include "Handle.h"
+#include "FarMenu.h"
 
 namespace OleThread
 {
   CHandle *hNeedInvoke=NULL;
   CHandle *hInvokeDone=NULL;
   CHandle *hStop=NULL;
+  CHandle *hShowMenu=NULL;
+  CHandle *hMenuDone=NULL;
   CThreadTerminator *hTerminator;
 
   namespace OpenPluginArgs
@@ -16,6 +19,15 @@ namespace OleThread
     int nOpenFrom;
     INT_PTR nItem;
     CPlugin::EDoMenu enRes;
+  }
+
+  namespace ShowMenuArgs
+  {
+    CFarMenu *Menu;
+    LPCWSTR szTitle;
+    int nSelItem;
+    bool bAtCursorPos;
+    int Res;
   }
 
   DWORD WINAPI ThreadProc(LPVOID)
@@ -91,7 +103,9 @@ namespace OleThread
     if (!*hNeedInvoke) *hNeedInvoke=CreateEvent(NULL, FALSE, FALSE, NULL);
     if (!*hInvokeDone) *hInvokeDone=CreateEvent(NULL, FALSE, FALSE, NULL);
     if (!*hStop) *hStop=CreateEvent(NULL, FALSE, FALSE, NULL);
-    if (!*hNeedInvoke || !*hInvokeDone || !*hStop)
+    if (!*hShowMenu) *hShowMenu=CreateEvent(NULL, FALSE, FALSE, NULL);
+    if (!*hMenuDone) *hMenuDone=CreateEvent(NULL, FALSE, FALSE, NULL);
+    if (!*hNeedInvoke || !*hInvokeDone || !*hStop || !*hShowMenu || !*hMenuDone)
     {
       assert(0);
       return false;
@@ -120,11 +134,40 @@ namespace OleThread
       assert(0);
       return CPlugin::DOMNU_ERR_SHOW;
     }
-    if (WAIT_OBJECT_0!=WaitForSingleObject(*hInvokeDone, INFINITE))
+    HANDLE phEvents[2]={*hInvokeDone, *hShowMenu};
+    DWORD nRes;
+    do
+    {
+      nRes=WaitForMultipleObjects(2, phEvents, FALSE, INFINITE);
+      if (WAIT_OBJECT_0+1==nRes)
+      {
+        ShowMenuArgs::Res = ShowMenuArgs::Menu->Show(ShowMenuArgs::szTitle, ShowMenuArgs::nSelItem, ShowMenuArgs::bAtCursorPos);
+        if (!SetEvent(*hMenuDone))
+        {
+          assert(0);
+        }
+      }
+    } while (nRes != WAIT_OBJECT_0);
+    return OpenPluginArgs::enRes;
+  }
+
+  int ShowMenu(CFarMenu &Menu, LPCWSTR szTitle, int nSelItem, bool bAtCursorPos)
+  {
+    ShowMenuArgs::Menu = &Menu;
+    ShowMenuArgs::szTitle = szTitle;
+    ShowMenuArgs::nSelItem = nSelItem;
+    ShowMenuArgs::bAtCursorPos = bAtCursorPos;
+
+    if (!SetEvent(*hShowMenu))
+    {
+      assert(0);
+      return -1;
+    }
+    if (WAIT_OBJECT_0!=WaitForSingleObject(*hMenuDone, INFINITE))
     {
       assert(0);
     }
-    return OpenPluginArgs::enRes;
+    return ShowMenuArgs::Res;
   }
 
   void Stop()
@@ -135,6 +178,27 @@ namespace OleThread
       assert(0);
     }
   }
+
+  void Startup()
+  {
+    hNeedInvoke = new CHandle;
+    hInvokeDone = new CHandle;
+    hStop = new CHandle;
+    hShowMenu = new CHandle;
+    hMenuDone = new CHandle;
+    hTerminator = new OleThread::CThreadTerminator;
+  }
+
+  void Cleanup()
+  {
+    delete hTerminator;
+    delete hMenuDone;
+    delete hShowMenu;
+    delete hStop;
+    delete hInvokeDone;
+    delete hNeedInvoke;
+  }
+
 
   CThreadTerminator::~CThreadTerminator()
   {

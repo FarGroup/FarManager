@@ -3,6 +3,7 @@
 
 #include "Plugin.h"
 #include "Handle.h"
+class CFarMenu;
 
 namespace OleThread
 {
@@ -12,13 +13,12 @@ namespace OleThread
     ~CThreadTerminator();
   };
 
-  extern CHandle *hNeedInvoke;
-  extern CHandle *hInvokeDone;
-  extern CHandle *hStop;
-  extern CThreadTerminator *hTerminator;
-
   CPlugin::EDoMenu OpenPlugin(int nOpenFrom, INT_PTR nItem);
+  int ShowMenu(CFarMenu &Menu, LPCWSTR szTitle, int nSelItem=0, bool bAtCursorPos=false);
+
   void Stop();
+  void Startup();
+  void Cleanup();
 };
 
 #endif
