@@ -1,7 +1,10 @@
 {
-  Plugin3.pas
+  PluginW.pas
 
   Plugin API for FAR Manager <%VERSION%>
+
+  Статус готовности: ~95%
+  Недоделанные структуры (~15 шт) помечены !!!
 }
 
 {
@@ -45,7 +48,7 @@ other possible license with no implications from the above license on them.
  {$PACKRECORDS C}
 {$endif FPC}
 
-Unit Plugin3;
+Unit PluginW;
 
 interface
 
