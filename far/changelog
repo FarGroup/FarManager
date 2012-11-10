@@ -1,3 +1,7 @@
+w17 10.11.2012 22:33:19 +0400 - build 2943
+
+1. Fix for viewer search with persistent selection off.
+
 drkns 10.11.2012 20:17:07 +0200 - build 2942
 
 1. Очередной глюк новых меню - у обычных диалогов InitDialogObjects() вызывалась дважды, иногда с интересными последствиями.

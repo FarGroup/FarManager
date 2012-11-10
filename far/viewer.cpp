@@ -3412,7 +3412,7 @@ void Viewer::Search(int Next,int FirstChar)
 			StartSearchPos = LastSelectPos = (ReverseSearch ? FileSize : 0);
 		break;
 		case +1: case -1:
-			if ( SelectPos >= 0 && LastSelectSize >= 0 )
+			if ( SelectPos >= 0 && SelectSize >= 0 )
 			{
 				if (sd.ch_size >= 1)
 					LastSelectPos = SelectPos + (ReverseSearch ? LastSelectSize-sd.ch_size : sd.ch_size);
@@ -3438,12 +3438,13 @@ void Viewer::Search(int Next,int FirstChar)
 				if (search_direction != LastSearchDirection)
 					StartSearchPos = LastSelectPos;
 				else if ( LastSelectPos == StartSearchPos ) // боремся с
-					found = -1;									  // зацикливанием
+					found = -1;                          // зацикливанием
 
 				break;
 			} // else pass to case 0 (below)
 		case 0:
-			LastSelectSize = SelectSize = -1;
+			if (!Next || LastSelectSize < 0)
+				LastSelectSize = SelectSize = -1;
 			StartSearchPos = LastSelectPos = (ReverseSearch ? EndOfScreen(0) : BegOfScreen());
 		break;
 	}
