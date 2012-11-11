@@ -164,7 +164,7 @@ class Viewer:public ScreenObject
 		int      lcache_size;
 		int      lcache_count;
 		int      lcache_base;
-	   bool     lcache_ready;
+		bool     lcache_ready;
 		int      lcache_wrap;
 		int      lcache_wwrap;
 		int      lcache_width;
