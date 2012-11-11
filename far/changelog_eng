@@ -3,6 +3,88 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+lort 11.11.2012 16:47:46 +0400 - build 2948
+
+1. If a menu does not fit the screen height, draw it upwards.
+
+w17 11.11.2012 16:31:30 +0400 - build 2947
+
+1. Another correction of 2943
+
+lort 11.11.2012 15:27:16 +0400 - build 2946
+
+1. Correction of 2944
+
+w17 11.11.2012 09:54:32 +0400 - build 2945
+
+1. Correction of 2943
+
+t-rex 11.11.2012 03:34:35 +0200 - build 2944
+
+1. Fix for numerous bugs in new menus, for example:
+   - right click in drive menu called emenu twice
+   - for filter (CtrlAltF) in filter menu, BS didn't edit the filter
+   The meaning of the fix: VMenu2:Call() (i.e. menu processing function)
+   must return true if it has processed the event ant there is nothing more to do
+   (regardless of what encyclopedia says about the return codes of DN_*).
+   There had been a mess before.
+
+w17 10.11.2012 22:33:19 +0400 - build 2943
+
+1. Fix for viewer search with persistent selection off.
+
+drkns 10.11.2012 20:17:07 +0200 - build 2942
+
+1. Another bug with new menus - for regular dialogs InitDialogObjects() was called twice, sometimes with interesting consequences.
+
+lort 09.11.2012 23:06:48 +0400 - build 2941
+
+1. couldn't close the print window (M#2193.1)
+
+2. Incorrect calculation of menu position.
+
+3. ECTL_REALTOTAB, ECTL_TABTOREAL and ECTL_SELECT malfunctional in wrapper
+
+t-rex 09.11.2012 17:29:21 +0200 - build 2940
+
+1. "Right click selects files" option in "Panel Settings".
+
+shmuel 08.11.2012 18:25:29 +0200 - build 2939
+
+1. M#2192: artifacts after macro loading errors.
+
+shmuel 08.11.2012 10:38:50 +0200 - build 2938
+
+1. Correction of 2923 (_control87 call moved from FAR to LuaMacro plugin).
+
+t-rex 07.11.2012 20:33:12 +0200 - build 2937
+
+1. On file association start, if associated app couldn't be detected by FAR
+   buf the start was successful, then starting error was displayed.
+   It is especially actual for Windows 8 metro app associations.
+
+lort 07.11.2012 21:56:16 +0400 - build 2936
+
+1. When autocompletion menu was open, "." could not be entered from numeric keyboard.
+
+shmuel 06.11.2012 21:41:14 +0200 - build 2935
+
+1. M#2189: In editor, Keys('CtrlX') always uses Windows clipboard.
+
+lort 06.11.2012 20:21:06 +0400 - build 2934
+
+1. Ќе работали Dlg.Id и Dlg.Owner при открытом меню автодополнени€.
+
+2. Correction of 2897.3
+
+w17 06.11.2012 14:08:45 +0400 - build 2933
+
+1. viewer dump mode autodetect fixed
+
+w17 06.11.2012 09:49:47 +0400 - build 2932
+
+1. correction of 2915
+
 shmuel 05.11.2012 18:00:53 +0200 - build 2931
 
 1. Correction of 2923 ("debug asserion failed" for x64).
