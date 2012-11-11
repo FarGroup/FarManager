@@ -1,0 +1,41 @@
+1. получить исходный код
+
+svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/far3colorer farcolorer
+svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/colorer/src/shared colorer/src/shared
+svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/colorer/src/zlib colorer/src/zlib
+svn co https://colorer.svn.sourceforge.net/svnroot/colorer/trunk/schemes schemes
+
+2. сборка плагина
+
+находясь в farcolorer\src выполнить
+nmake /f makefile.vc
+либо для x64
+nmake /f makefile.vc WIN64=1
+
+результат работы будет сложен в папку farcolorer\bin
+
+3. сборка схем
+
+3.1. дополнительные настройки
+
+для сборки схем требуется ant, jdk (java development kit), perl
+в PATH нужно добавить пути для них, например
+set PATH=%PATH%;d:\old\develop\progs\ant\bin;c:\Program Files (x86)\Java\jdk1.6.0_33\bin
+так же нужно установить переменную окружения
+set JAVA_HOME=c:\Program Files (x86)\Java\jdk1.6.0_33
+
+3.2. сама сборка
+текущая дериктория schemes
+build farbase.clean
+build farbase
+
+результат работы - папка schemes\base
+
+4. дистрибутив плагина
+папка с плагином содержит папки
+farcolorer\bin
+schemes\base
+и файлы
+farcolorer\history.ru.txt
+farcolorer\LICENSE
+farcolorer\README
