@@ -1360,7 +1360,8 @@ int Viewer::ProcessKey(int Key)
 	*/
 	if ( !ViOpt.PersistentBlocks &&
 			Key!=KEY_IDLE && Key!=KEY_NONE && !(Key==KEY_CTRLINS||Key==KEY_RCTRLINS||Key==KEY_CTRLNUMPAD0||Key==KEY_RCTRLNUMPAD0) &&
-			Key!=KEY_CTRLC && Key!=KEY_RCTRLC && Key != KEY_SHIFTF7 && Key != KEY_ALTF7 )
+			Key!=KEY_CTRLC && Key!=KEY_RCTRLC &&
+			Key != KEY_SHIFTF7 && Key != KEY_SPACE && Key != KEY_ALTF7 && Key != KEY_RALTF7 )
 		SelectSize = -1;
 
 	if (!InternalKey && !LastKeyUndo && (FilePos!=UndoData[0].UndoAddr || LeftPos!=UndoData[0].UndoLeft))
