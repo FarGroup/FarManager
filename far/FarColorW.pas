@@ -2,7 +2,6 @@
   FarColorW.pas
 
   Colors Index for Far Manager <%VERSION%>
-  HKCU\Software\Far Manager\Colors\CurrentPalette
 }
 
 {
