@@ -558,6 +558,8 @@ void EditFileTypes()
 		{
 			MenuPos=TypesMenu.GetSelectPos();
 
+			int KeyProcessed = 1;
+
 			switch (Key)
 			{
 				case KEY_NUMDEL:
@@ -612,8 +614,11 @@ void EditFileTypes()
 					}
 				}
 				break;
+
+				default:
+					KeyProcessed = 0;
 			}
-			return 0;
+			return KeyProcessed;
 		});
 
 		if (ExitCode!=-1)

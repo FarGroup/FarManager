@@ -469,6 +469,7 @@ void MaskGroupsSettings()
 		int ItemPos = MasksMenu.GetSelectPos();
 		void* Data = MasksMenu.GetUserData(nullptr, 0, ItemPos);
 		const wchar_t* Item = static_cast<const wchar_t*>(Data);
+		int KeyProcessed = 1;
 		switch (Key)
 		{
 		case KEY_NUMDEL:
@@ -551,6 +552,9 @@ void MaskGroupsSettings()
 				}
 			}
 			break;
+
+		default:
+			KeyProcessed = 0;
 		}
 
 		if(Changed)
@@ -560,7 +564,7 @@ void MaskGroupsSettings()
 			FillMasksMenu(MasksMenu, MasksMenu.GetSelectPos());
 			MasksMenu.SetPosition(-1, -1, -1, -1);
 		}
-		return 0;
+		return KeyProcessed;
 	});
 }
 

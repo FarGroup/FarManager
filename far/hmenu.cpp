@@ -427,6 +427,7 @@ void HMenu::ProcessSubMenu(MenuDataEx *Data,int DataCount,
 			LockScreen LckScr;
 			ResizeConsole();
 			Show();
+			return 1;
 		}
 		else if (rec.EventType==MOUSE_EVENT)
 		{

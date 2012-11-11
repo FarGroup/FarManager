@@ -600,6 +600,7 @@ void InfoList::SelectShowMode(void)
 
 		ShowCode=ShowModeMenu.Run([&](int Key)->int
 		{
+			int KeyProcessed = 1;
 			switch (Key)
 			{
 				case KEY_MULTIPLY:
@@ -619,8 +620,11 @@ void InfoList::SelectShowMode(void)
 					ShowMode=0;
 					ShowModeMenu.Close();
 					break;
+
+				default:
+					KeyProcessed = 0;
 			}
-			return 0;
+			return KeyProcessed;
 		});
 
 		if (ShowCode<0)

@@ -362,6 +362,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 			HistoryMenu.GetSelectPos(&Pos);
 			void* Data = HistoryMenu.GetUserData(nullptr, 0,Pos.SelectPos);
 			unsigned __int64 CurrentRecord = Data? *static_cast<unsigned __int64*>(Data) : 0;
+			int KeyProcessed = 1;
 
 			switch (Key)
 			{
@@ -523,8 +524,11 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 
 					break;
 				}
+
+				default:
+					KeyProcessed = 0;
 			}
-			return 0;
+			return KeyProcessed;
 		});
 
 		if (IsUpdate)

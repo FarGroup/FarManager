@@ -524,12 +524,13 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 					if ((FuncItemPos=FuncPos[Key-KEY_F1])!=-1)
 					{
 						UserMenu.Close(FuncItemPos);
-						return 0;
+						return 1;
 					}
 				}
 				else if (Key == L' ') // исключаем пробел из "хоткеев"!
-					return 0;
+					return 1;
 
+				int KeyProcessed = 1;
 				switch (Key)
 				{
 						/* $ 24.08.2001 VVM + Стрелки вправо/влево открывают/закрывают подменю соответственно */
@@ -616,7 +617,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 							{
 								ReturnCode=0;
 								UserMenu.Close(-1);
-								return 0;
+								return 1;
 							}
 						}
 						MenuRoot->Clear();
@@ -627,7 +628,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 						ReturnCode=0;
 						UserMenu.Close(-1);
 
-						return 0; // Закрыть меню
+						return 1; // Закрыть меню
 					}
 
 					/* $ 28.06.2000 tran
@@ -656,16 +657,16 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 
 					default:
 
+						KeyProcessed = 0;
+
 						if (MenuPos!=UserMenu.GetSelectPos())
 						{
 							MenuPos=UserMenu.GetSelectPos();
 							userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
 							CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
 						}
-
-						break;
 				} // switch(Key)
-				return 0;
+				return KeyProcessed;
 			});
 
 			if (ReturnCode!=1)

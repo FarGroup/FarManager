@@ -216,6 +216,8 @@ bool FileFilter::FilterEdit()
 		else if (Key==L'x')
 			Key=L'X';
 
+		int KeyProcessed = 1;
+
 		switch (Key)
 		{
 			case L'+':
@@ -411,8 +413,11 @@ bool FileFilter::FilterEdit()
 
 				break;
 			}
+
+			default:
+				KeyProcessed = 0;
 		}
-		return 0;
+		return KeyProcessed;
 	});
 
 

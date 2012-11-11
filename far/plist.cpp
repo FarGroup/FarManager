@@ -60,6 +60,7 @@ void ShowProcessList()
 
 	ProcList.Run([&](int Key)->int
 	{
+		int KeyProcessed = 1;
 		switch (Key)
 		{
 			case KEY_F1:
@@ -118,8 +119,11 @@ void ShowProcessList()
 
 				break;
 			}
+
+			default:
+				KeyProcessed = 0;
 		}
-		return 0;
+		return KeyProcessed;
 	});
 
 	if (ProcList.GetExitCode()>=0)

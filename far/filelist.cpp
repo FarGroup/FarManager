@@ -4629,6 +4629,8 @@ void FileList::SelectSortMode()
 					SortModeMenu.SetCheck(0,static_cast<int>(i));
 			}
 
+			int KeyProcessed = 1;
+
 			switch (Key)
 			{
 				case L'*':
@@ -4695,8 +4697,11 @@ void FileList::SelectSortMode()
 					}
 					SortModeMenu.Close(MenuPos);
 					break;
+
+				default:
+					KeyProcessed = 0;
 			}
-			return 0;
+			return KeyProcessed;
 		});
 
 		if (SortCode<0)

@@ -4102,6 +4102,7 @@ BOOL Editor::Search(int Next)
 		{
 			CtrlObject->Macro.SetMode(MACRO_MENU);
 			int SelectedPos=FindAllList.GetSelectPos();
+			int KeyProcessed = 1;
 
 			switch (Key)
 			{
@@ -4152,7 +4153,6 @@ BOOL Editor::Search(int Next)
 						FindAllList.SetPosition(-1, ScrY-20, 0, ScrY-10);
 					}
 					Show();
-					return 1;
 					break;
 				default:
 					if ((Key>=KEY_CTRL0 && Key<=KEY_CTRL9) || (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) ||
@@ -4160,9 +4160,13 @@ BOOL Editor::Search(int Next)
 					{
 						ProcessKey(Key);
 					}
+					else
+					{
+						KeyProcessed = 0;
+					}
 					break;
 			}
-			return 0;
+			return KeyProcessed;
 		});
 
 		if(ExitCode >= 0)

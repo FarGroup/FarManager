@@ -247,6 +247,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 				int ItemPos = FolderList.GetSelectPos();
 				void* Data = FolderList.GetUserData(nullptr, 0, ItemPos);
 				ShortcutItem* Item = Data?*static_cast<ShortcutItem**>(Data):nullptr;
+				int KeyProcessed = 1;
 				switch (Key)
 				{
 				case KEY_NUMPAD0:
@@ -300,8 +301,11 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 						EditItem(&FolderList, Item, false);
 					}
 					break;
+
+				default:
+					KeyProcessed = 0;
 				}
-				return 0;
+				return KeyProcessed;
 			});
 			if (ExitCode>=0)
 			{
@@ -452,6 +456,7 @@ void Shortcuts::Configure()
 	{
 		int Pos = FolderList.GetSelectPos();
 		ShortcutItem* Item = Items[Pos].First();
+		int KeyProcessed = 1;
 
 		switch (Key)
 		{
@@ -520,8 +525,11 @@ void Shortcuts::Configure()
 				}
 			}
 			break;
+
+		default:
+			KeyProcessed = 0;
 		}
-		return 0;
+		return KeyProcessed;
 	});
 
 	if(ExitCode>=0)

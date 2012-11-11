@@ -647,6 +647,8 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			int SelPos=ChDisk.GetSelectPos();
 			PanelMenuItem *item = (PanelMenuItem*)ChDisk.GetUserData(nullptr,0);
 
+			int KeyProcessed = 1;
+
 			switch (Key)
 			{
 				// Shift-Enter в меню выбора дисков вызывает проводник для данного диска
@@ -853,14 +855,15 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_RCTRLR:
 					RetCode=SelPos;
 					break;
+
+				 default:
+				 	KeyProcessed = 0;
 			}
 
-			if(RetCode>=0)
-			{
+			if (RetCode>=0)
 				ChDisk.Close(-1);
-				return 1;
-			}
-			return 0;
+
+			return KeyProcessed;
 		});
 
 		if (RetCode>=0)

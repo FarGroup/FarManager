@@ -139,6 +139,8 @@ void ShowHotplugDevice()
 		if(Key==KEY_NONE && (Events.DeviceArivalEvent.Signaled() || Events.DeviceRemoveEvent.Signaled()))
 			Key=KEY_CTRLR;
 
+		int KeyProcessed = 1;
+
 		switch (Key)
 		{
 			case KEY_F1:
@@ -177,8 +179,11 @@ void ShowHotplugDevice()
 
 				break;
 			}
+
+			default:
+				KeyProcessed = 0;
 		}
-		return 0;
+		return KeyProcessed;
 	});
 
 	if (pInfo)

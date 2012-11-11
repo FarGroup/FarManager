@@ -115,6 +115,10 @@ class VMenu2 : public Dialog
 		void SetPosition(int X1,int Y1,int X2,int Y2);
 		void SetMaxHeight(int NewMaxHeight){MaxHeight=NewMaxHeight;}
 
+		/*
+			функция обработки меню должна возвращать true если она обработала событие и дальше ничего делать не надо
+			(вне зависимости что говорит енц. о кодах возврата различных DN_*).
+		*/
 		intptr_t Run(function<int(int Key)> fn=nullptr);
 		intptr_t RunEx(function<int(int Msg, void *param)> fn);
 		intptr_t GetExitCode();

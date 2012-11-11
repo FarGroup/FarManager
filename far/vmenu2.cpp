@@ -95,7 +95,7 @@ intptr_t WINAPI VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param
 	if((Msg==DN_CONTROLINPUT || Msg==DN_INPUT) && !vm->cancel)
 	{
 		if(vm->Call(DN_INPUT, Param2))
-			return true;
+			return false;
 	}
 	if((Msg==DN_LISTCHANGE || Msg==DN_ENTERIDLE) && !vm->cancel)
 	{
@@ -108,7 +108,7 @@ intptr_t WINAPI VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param
 		INPUT_RECORD ReadRec={WINDOW_BUFFER_SIZE_EVENT};
 		ReadRec.Event.WindowBufferSizeEvent.dwSize=*(COORD*)Param2;
 		if(vm->Call(DN_INPUT, &ReadRec))
-			return true;
+			return false;
 		else
 			vm->Resize();
 	}
@@ -116,6 +116,11 @@ intptr_t WINAPI VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param
 	return DefDlgProc(hDlg, Msg, Param1, Param2);
 }
 
+/*
+   VMenu2:Call() (т.е. функция обработки меню)
+   должна возвращать true если она обработала событие и дальше ничего делать не надо
+   (вне зависимости что говорит енц. о кодах возврата различных DN_*).
+*/
 int VMenu2::Call(int Msg, void *param)
 {
 	if(!mfn)

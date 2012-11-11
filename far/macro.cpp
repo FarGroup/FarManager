@@ -4053,6 +4053,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 		SelectedPos=Menu.GetSelectPos();
 		LastKey=Key;
+		int KeyProcessed = 1;
 		switch (Key)
 		{
 			case KEY_NUMPAD0:
@@ -4104,17 +4105,20 @@ static bool menushowFunc(FarMacroCall* Data)
 				CtrlObject->Macro.SendDropProcess();
 				Menu.Close(-1);
 				break;
+
+			default:
+				KeyProcessed = 0;
 		}
 
 		if (bExitAfterNavigate && (PrevSelectedPos!=SelectedPos))
 		{
 			SelectedPos=Menu.GetSelectPos();
 			Menu.Close();
-			return 0;
+			return KeyProcessed;
 		}
 
 		PrevSelectedPos=SelectedPos;
-		return 0;
+		return KeyProcessed;
 	});
 
 	wchar_t temp[65];

@@ -715,6 +715,7 @@ bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool 
 	// Цикл обработки сообщений меню
 	intptr_t r=CodePages->Run([&](int ReadKey)->int
 	{
+		int KeyProcessed = 1;
 		switch (ReadKey)
 		{
 			// Обработка скрытия/показа системных таблиц символов
@@ -738,8 +739,10 @@ bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool 
 			case KEY_F4:
 				EditCodePageName();
 				break;
+			default:
+				KeyProcessed = 0;
 		}
-		return 0;
+		return KeyProcessed;
 	});
 
 	// Получаем выбранную таблицу символов

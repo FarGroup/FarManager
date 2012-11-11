@@ -3728,9 +3728,9 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 
 							case KEY_ENTER:
 							case KEY_NUMENTER:
-							{
-								if(Opt.AutoComplete.ModalList)
-									break;
+								{
+									if(Opt.AutoComplete.ModalList)
+										break;
 								}
 
 							// всё остальное закрывает список и идёт владельцу

@@ -621,8 +621,9 @@ void HighlightFiles::HiEdit(int MenuPos)
 		HiMenu.Run([&](int Key)->int
 		{
 			int SelectPos=HiMenu.GetSelectPos();
-			int ret = 0;
 			NeedUpdate=FALSE;
+
+			int KeyProcessed = 1;
 
 			switch (Key)
 			{
@@ -682,7 +683,6 @@ void HighlightFiles::HiEdit(int MenuPos)
 						if (FileFilterConfig(HiData.getItem(RealSelectPos),true))
 							NeedUpdate=TRUE;
 
-					ret = 1;
 					break;
 				}
 
@@ -809,6 +809,9 @@ void HighlightFiles::HiEdit(int MenuPos)
 
 					break;
 				}
+
+				default:
+					KeyProcessed = 0;
 			}
 
 			// повторяющийся кусок!
@@ -829,7 +832,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				FillMenu(&HiMenu,MenuPos=SelectPos);
 				ScrBuf.Unlock(); // разрешаем прорисовку
 			}
-			return ret;
+			return KeyProcessed;
 		});
 
 		if (HiMenu.GetExitCode()!=-1)

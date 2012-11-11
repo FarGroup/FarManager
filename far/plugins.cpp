@@ -1508,6 +1508,7 @@ void PluginManager::Configure(int StartPos)
 				CtrlObject->Macro.SetMode(MACRO_MENU);
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
+				int KeyProcessed = 1;
 
 				switch (Key)
 				{
@@ -1547,8 +1548,11 @@ void PluginManager::Configure(int StartPos)
 							}
 						}
 						break;
+
+					default:
+						KeyProcessed = 0;
 				}
-				return 0;
+				return KeyProcessed;
 			});
 
 			if (!NeedUpdateItems)
@@ -1685,6 +1689,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 				CtrlObject->Macro.SetMode(MACRO_MENU);
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
+				int KeyProcessed = 1;
 
 				switch (Key)
 				{
@@ -1753,8 +1758,10 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						break;
 					}
 
+					default:
+						KeyProcessed = 0;
 				}
-				return 0;
+				return KeyProcessed;
 			});
 		}
 

@@ -336,7 +336,7 @@ void SetColors()
 			GroupsMenu.SetFlags(VMENU_WRAPMODE);
 			int GroupsCode=GroupsMenu.RunEx([&](int Msg, void *param)->int
 			{
-			  intptr_t ItemsCode=(intptr_t)param;
+				intptr_t ItemsCode=(intptr_t)param;
 				if (Msg!=DN_CLOSE || ItemsCode<0)
 					return 0;
 				SendDlgMessage(&GroupsMenu, DM_ENABLEREDRAW, 1, nullptr);
@@ -414,7 +414,7 @@ static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeS
 	ItemsMenu.SetFlags(VMENU_WRAPMODE);
 	ItemsMenu.RunEx([&](int Msg, void *param)->int
 	{
-	  intptr_t ItemsCode=(intptr_t)param;
+		intptr_t ItemsCode=(intptr_t)param;
 		if (Msg!=DN_CLOSE || ItemsCode<0)
 			return 0;
 
