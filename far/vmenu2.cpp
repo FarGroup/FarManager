@@ -206,6 +206,7 @@ void VMenu2::Resize(bool force)
 	if(Y2>0)
 		height=Y2-Y1+1;
 
+
 	int mh=Y1<0 ? ScrY : ScrY-Y1;
 
 	mh+=ShortBox ? 1 : 2;
@@ -213,7 +214,17 @@ void VMenu2::Resize(bool force)
 	if(mh<0)
 		mh=0;
 	if(height>mh)
-		height=mh;
+	{
+	  if(Y2<=0 && Y1>=ScrY/2)
+	  {
+      Y1+=ShortBox?1:3;
+	    if(height>Y1)
+	      height=Y1;
+	    Y1-=height;
+	  }
+	  else
+		  height=mh;
+	}
 
 	int X=X1;
 	if(X>0 && (X+width>ScrX))
