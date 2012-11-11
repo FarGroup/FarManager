@@ -56,7 +56,7 @@ DEFINE_GUID(MainGuid, 0xb076f0b0, 0x90ae, 0x408c, 0xad, 0x9, 0x49, 0x16, 0x6, 0x
 void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
   Info->StructSize=sizeof(struct GlobalInfo);
-  Info->MinFarVersion=FARMANAGERVERSION;          //минимально необходимая версия Far Manager, определена в файле plugin.hpp
+  Info->MinFarVersion=MAKEFARVERSION(3,0,0,2927,VS_RELEASE);   //минимально необходимая версия Far Manager, смотрите <a href="../whatsnew.html">изменения в API</a>
   Info->Version=MAKEFARVERSION(3,0,0,21,VS_RC);   //текущая версия плагина 3.0.0.21, релиз-кандидат
   Info->Guid=MainGuid;
   Info->Title=L"Align";
