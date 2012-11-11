@@ -94,8 +94,17 @@ intptr_t WINAPI VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param
 
 	if((Msg==DN_CONTROLINPUT || Msg==DN_INPUT) && !vm->cancel)
 	{
+		if (Msg==DN_CONTROLINPUT)
+		{
+			INPUT_RECORD *ir=static_cast<INPUT_RECORD*>(Param2);
+			int key=InputRecordToKey(ir);
+
+			if(vm->ListBox().ProcessFilterKey(key))
+				return true;
+		}
+
 		if(vm->Call(DN_INPUT, Param2))
-			return false;
+			return Msg==DN_CONTROLINPUT ? true : false;
 	}
 	if((Msg==DN_LISTCHANGE || Msg==DN_ENTERIDLE) && !vm->cancel)
 	{

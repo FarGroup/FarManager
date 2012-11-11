@@ -1184,6 +1184,43 @@ void VMenu::SetFilterString(const wchar_t *str)
 	strFilter=str;
 }
 
+int VMenu::ProcessFilterKey(int Key)
+{
+	if (!bFilterEnabled || bFilterLocked || !IsFilterEditKey(Key))
+		return FALSE;
+
+	if (Key==KEY_BS)
+	{
+		if (!strFilter.IsEmpty())
+		{
+			strFilter.SetLength(strFilter.GetLength()-1);
+
+			if (strFilter.IsEmpty())
+			{
+				RestoreFilteredItems();
+				DisplayObject();
+				return TRUE;
+			}
+		}
+		else
+		{
+			return TRUE;
+		}
+	}
+	else
+	{
+		if (!GetShowItemCount())
+			return TRUE;
+
+		strFilter += (wchar_t)Key;
+	}
+
+	FilterStringUpdated(Key!=KEY_BS);
+	DisplayObject();
+
+	return TRUE;
+}
+
 int VMenu::ProcessKey(int Key)
 {
 	CriticalSectionLock Lock(CS);
@@ -1468,39 +1505,8 @@ int VMenu::ProcessKey(int Key)
 		case KEY_SHIFTTAB:
 		default:
 		{
-			if (bFilterEnabled && !bFilterLocked && IsFilterEditKey(Key))
-			{
-				if (Key==KEY_BS)
-				{
-					if (!strFilter.IsEmpty())
-					{
-						strFilter.SetLength(strFilter.GetLength()-1);
-
-						if (strFilter.IsEmpty())
-						{
-							RestoreFilteredItems();
-							DisplayObject();
-							return TRUE;
-						}
-					}
-					else
-					{
-						return TRUE;
-					}
-				}
-				else
-				{
-					if (!GetShowItemCount())
-						return TRUE;
-
-					strFilter += (wchar_t)Key;
-				}
-
-				FilterStringUpdated(Key!=KEY_BS);
-				DisplayObject();
-
+			if (ProcessFilterKey(Key))
 				return TRUE;
-			}
 
 			int OldSelectPos=SelectPos;
 

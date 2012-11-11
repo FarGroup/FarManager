@@ -309,6 +309,7 @@ class VMenu: public Modal
 		void GetColors(struct FarDialogItemColors *ColorsOut);
 		void SetOneColor(int Index, PaletteColors Color);
 
+		int ProcessFilterKey(int Key);
 		virtual int ProcessKey(int Key);
 		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
 		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
