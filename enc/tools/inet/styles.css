@@ -410,7 +410,7 @@ table.cont2 th, table.cont2 td
 {
     border: 2px solid #999999;
     padding: 0.364em 0.727em;
-    font-size: 80%; /* обходим старые правила TD и TH */
+    font-size: 90%; /* обходим старые правила TD и TH */
 }
 
 table.cont2 th
