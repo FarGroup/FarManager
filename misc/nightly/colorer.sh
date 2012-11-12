@@ -7,13 +7,12 @@ function bcolorer {
   cd farcolorer/
   rm -fR bin
   cd src
-  cp -f ../../../pcolorer3.rc ./pcolorer3.rc
   wine cmd /c ../../../colorer.${BIT}.bat &> ../../../logs/colorer${BIT}
   cd ..
 
   mkdir -p ../../outfinalnew${BIT}/Plugins/${PLUGIN}
 
-  cp -f history.ru.txt LICENSE README ../../outfinalnew${BIT}/Plugins/$PLUGIN/
+  cp -f changelog history.ru.txt LICENSE README ../../outfinalnew${BIT}/Plugins/$PLUGIN/
 
   if [ ! -e bin ]; then
     return
