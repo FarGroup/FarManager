@@ -3104,11 +3104,15 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			parseParams(1,Params,Data);
 			TVar State(Params[0]);
 
-			DWORD oldHistoryDisable=m_CurState->HistoryDisable;
+			DWORD oldHistoryDisable=0;
+			if (!m_StateStack.empty())
+			{
+				MacroState* ms=*m_StateStack.Peek();
+				oldHistoryDisable=ms->HistoryDisable;
 
-			if (!State.isUnknown())
-				m_CurState->HistoryDisable=(DWORD)State.getInteger();
-
+				if (!State.isUnknown())
+					ms->HistoryDisable=(DWORD)State.getInteger();
+			}
 			return (__int64)oldHistoryDisable;
 		}
 
