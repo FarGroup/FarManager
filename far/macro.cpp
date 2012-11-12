@@ -164,7 +164,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_KBDLAYOUT=0x%X // N=kbdLayout([N])\n", MCODE_F_KBDLAYOUT);
 	fprintf(fp, "MCODE_F_WINDOW_SCROLL=0x%X // N=Window.Scroll(Lines[,Axis])\n", MCODE_F_WINDOW_SCROLL);
 	fprintf(fp, "MCODE_F_KEYBAR_SHOW=0x%X // N=KeyBar.Show([N])\n", MCODE_F_KEYBAR_SHOW);
-	fprintf(fp, "MCODE_F_HISTIORY_DISABLE=0x%X // N=History.Disable([State])\n", MCODE_F_HISTIORY_DISABLE);
+	fprintf(fp, "MCODE_F_HISTORY_DISABLE=0x%X // N=History.Disable([State])\n", MCODE_F_HISTORY_DISABLE);
 	fprintf(fp, "MCODE_F_FMATCH=0x%X // N=FMatch(S,Mask)\n", MCODE_F_FMATCH);
 	fprintf(fp, "MCODE_F_PLUGIN_MENU=0x%X // N=Plugin.Menu(Guid[,MenuGuid])\n", MCODE_F_PLUGIN_MENU);
 	fprintf(fp, "MCODE_F_PLUGIN_CONFIG=0x%X // N=Plugin.Config(Guid[,MenuGuid])\n", MCODE_F_PLUGIN_CONFIG);
@@ -3099,7 +3099,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			}
 		}
 
-		case MCODE_F_HISTIORY_DISABLE: // N=History.Disable([State])
+		case MCODE_F_HISTORY_DISABLE: // N=History.Disable([State])
 		{
 			parseParams(1,Params,Data);
 			TVar State(Params[0]);

@@ -125,7 +125,7 @@ enum MACRO_OP_CODE
 	MCODE_F_KBDLAYOUT,                // N=kbdLayout([N])
 	MCODE_F_WINDOW_SCROLL,            // N=Window.Scroll(Lines[,Axis])
 	MCODE_F_KEYBAR_SHOW,              // N=KeyBar.Show([N])
-	MCODE_F_HISTIORY_DISABLE,         // N=History.Disable([State])
+	MCODE_F_HISTORY_DISABLE,          // N=History.Disable([State])
 	MCODE_F_FMATCH,                   // N=FMatch(S,Mask)
 	MCODE_F_PLUGIN_MENU,              // N=Plugin.Menu(Guid[,MenuGuid])
 	MCODE_F_PLUGIN_CONFIG,            // N=Plugin.Config(Guid[,MenuGuid])
