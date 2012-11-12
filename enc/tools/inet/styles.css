@@ -164,7 +164,6 @@ H4
     FONT-SIZE: 110%;
     MARGIN-BOTTOM: 2pt;
     MARGIN-LEFT: -18px;
-    TEXT-INDENT: 10pt;
     FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
 }
 H5
@@ -410,7 +409,7 @@ table.cont2 th, table.cont2 td
 {
     border: 2px solid #999999;
     padding: 0.364em 0.727em;
-    font-size: 90%; /* обходим старые правила TD и TH */
+    font-size: 70%; /* обходим старые правила TD и TH */
 }
 
 table.cont2 th
