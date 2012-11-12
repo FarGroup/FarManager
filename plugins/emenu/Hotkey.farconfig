@@ -19,16 +19,16 @@
 
     <macros>
         <keymacros>
-            <macro area="Shell" key="Apps" flags="DisableOutput"><text>F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 2 $end</text></macro>
-            <macro area="Shell" key="ShiftApps" flags="DisableOutput"><text>F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 2 $end</text></macro>
-            <macro area="Shell" key="AltApps" flags="DisableOutput"><text>F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 1 $end</text></macro>
-            <macro area="Shell" key="AltShiftApps" flags="DisableOutput"><text>F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 1 $end</text></macro>
-            <macro area="Shell" key="CtrlApps" flags="DisableOutput"><text>F11 x Enter</text></macro>
-            <macro area="Tree" key="Apps" flags="DisableOutput"><text>F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 2 $end</text></macro>
-            <macro area="Tree" key="ShiftApps" flags="DisableOutput"><text>F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 2 $end</text></macro>
-            <macro area="Tree" key="AltApps" flags="DisableOutput"><text>F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 1 $end</text></macro>
-            <macro area="Tree" key="AltShiftApps" flags="DisableOutput"><text>F11 x Enter $if(Menu.Info.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6") 1 $end</text></macro>
-            <macro area="Tree" key="CtrlApps" flags="DisableOutput"><text>F11 x Enter</text></macro>
+            <macro area="Shell" key="Apps" flags="DisableOutput"><text><![CDATA[ Keys("F11 x Enter") if Menu.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6" then  Keys("2") end ]]></text></macro>
+            <macro area="Shell" key="ShiftApps" flags="DisableOutput"><text><![CDATA[ Keys("F11 x Enter") if Menu.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6" then  Keys("2") end ]]></text></macro>
+            <macro area="Shell" key="AltApps" flags="DisableOutput"><text><![CDATA[ Keys("F11 x Enter") if Menu.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6" then  Keys("1") end ]]></text></macro>
+            <macro area="Shell" key="AltShiftApps" flags="DisableOutput"><text><![CDATA[ Keys("F11 x Enter") if Menu.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6" then  Keys("1") end ]]></text></macro>
+            <macro area="Shell" key="CtrlApps" flags="DisableOutput"><text><![CDATA[ Keys("F11 x Enter") ]]></text></macro>
+            <macro area="Tree" key="Apps" flags="DisableOutput"><text><![CDATA[ Keys("F11 x Enter") if Menu.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6" then  Keys("2") end ]]></text></macro>
+            <macro area="Tree" key="ShiftApps" flags="DisableOutput"><text><![CDATA[ Keys("F11 x Enter") if Menu.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6" then  Keys("2") end ]]></text></macro>
+            <macro area="Tree" key="AltApps" flags="DisableOutput"><text><![CDATA[ Keys("F11 x Enter") if Menu.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6" then  Keys("1") end ]]></text></macro>
+            <macro area="Tree" key="AltShiftApps" flags="DisableOutput"><text><![CDATA[ Keys("F11 x Enter") if Menu.Id == "5099B83C-4222-4325-95A6-F6FC4635DED6" then  Keys("1") end ]]></text></macro>
+            <macro area="Tree" key="CtrlApps" flags="DisableOutput"><text><![CDATA[ Keys("F11 x Enter") ]]></text></macro>
         </keymacros>
     </macros>
 </farconfig>

@@ -2,8 +2,8 @@
 <farconfig>
     <macros>
         <keymacros>
-            <macro area="Shell" key="CtrlAltEnter" flags="DisableOutput" description="Hotkey to execute properties command: Ctrl-Alt-Enter"><text><![CDATA[Esc history.disable(0) print("rclk_cmd:properties") Enter]]></text></macro>
-            <macro area="Tree" key="CtrlAltEnter" flags="DisableOutput" description="Hotkey to execute properties command: Ctrl-Alt-Enter"><text><![CDATA[Esc history.disable(0) print("rclk_cmd:properties") Enter]]></text></macro>
+            <macro area="Shell" key="CtrlAltEnter" flags="DisableOutput" description="Hotkey to execute properties command: Ctrl-Alt-Enter"><text><![CDATA[Keys("Esc") Far.DisableHistory(0) print("rclk_cmd:properties") Keys("Enter")]]></text></macro>
+            <macro area="Tree" key="CtrlAltEnter" flags="DisableOutput" description="Hotkey to execute properties command: Ctrl-Alt-Enter"><text><![CDATA[Keys("Esc") Far.DisableHistory(0) print("rclk_cmd:properties") Keys("Enter")]]></text></macro>
         </keymacros>
     </macros>
 </farconfig>
