@@ -2,7 +2,7 @@
 <farconfig>
 	<macros>
 		<keymacros>
-			<macro area="Common" key="Apps" description="Use hotkey &lt;Apps&gt; to perform XLat function." flags="DisableOutput"><text>$XLat</text></macro>
+			<macro area="Common" key="Apps" description="Use hotkey &lt;Apps&gt; to perform XLat function." flags="DisableOutput"><text>Keys('xlat')</text></macro>
 		</keymacros>
 	</macros>
 </farconfig>
