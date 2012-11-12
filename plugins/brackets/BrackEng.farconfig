@@ -7,8 +7,8 @@
     </pluginhotkeys>
     <macros>
         <keymacros>
-            <macro area="Editor" key="CtrlM" flags="DisableOutput" description="Brackets matching - Find"><text>F11 m e</text></macro>
-            <macro area="Editor" key="CtrlShiftM" flags="DisableOutput" description="Brackets matching - Find &amp; Select"><text>F11 m s</text></macro>
+            <macro area="Editor" key="CtrlM" flags="DisableOutput" description="Brackets matching - Find"><text><![CDATA[ Keys("F11 m e") ]]></text></macro>
+            <macro area="Editor" key="CtrlShiftM" flags="DisableOutput" description="Brackets matching - Find &amp; Select"><text><![CDATA[ Keys("F11 m s") ]]></text></macro>
         </keymacros>
     </macros>
 </farconfig>
