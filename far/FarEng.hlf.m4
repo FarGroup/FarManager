@@ -98,6 +98,9 @@ displayed. In such case #cursor keys# can be used to scroll text.
 
     Press #Shift-F2# for ~plugins~@Plugins@ help.
 
+    Нажмите #F7#, чтобы найти подстроку в текущем файле помощи. Результаты
+поиска будут выведены в виде ссылок на темы.
+
     #Help# is shown by default in a reduced windows, you can maximize it by
 pressing #F5# "#Zoom#", pressing #F5# again will restore the window to the
 previous size.

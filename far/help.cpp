@@ -53,6 +53,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "exitcode.hpp"
 #include "filestr.hpp"
 #include "palette.hpp"
+#include "stddlg.hpp"
 
 // —тек возврата
 class CallBackStack
@@ -106,6 +107,7 @@ class CallBackStack
 };
 
 
+static const wchar_t *FoundContents=L"__FoundContents__";
 static const wchar_t *PluginContents=L"__PluginContents__";
 static const wchar_t *HelpOnHelpTopic=L":Help";
 static const wchar_t *HelpContents=L"Contents";
@@ -132,6 +134,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 	StackData.strHelpMask = Mask; // сохраним маску файла
 	TopScreen=new SaveScreen;
 	StackData.strHelpTopic = Topic;
+	strLastSearchStr=L"";
 
 	if (Opt.FullScreenHelp)
 		SetPosition(0,0,ScrX,ScrY);
@@ -280,6 +283,13 @@ int Help::ReadHelp(const wchar_t *Mask)
 		strCurPluginContents.Clear();
 
 	HelpList.Free();
+
+	if (!StrCmp(StackData.strHelpTopic,FoundContents))
+	{
+		FindThisHelp(HelpFile,nCodePage);
+		fclose(HelpFile);
+		return TRUE;
+	}
 
 	StrCount=0;
 	FixCount=0;
@@ -1305,6 +1315,27 @@ int Help::ProcessKey(int Key)
 
 			return TRUE;
 		}
+		case KEY_F7:
+		{
+			// не поганим SelTopic, если и так в FoundContents
+			if (StrCmpI(StackData.strHelpTopic,FoundContents))
+			{
+				string strLastSearchStr0=strLastSearchStr;
+				int RetCode=GetString(MSG(MHelpSearchTitle),MSG(MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
+				if (RetCode <= 0)
+					return TRUE;
+				strLastSearchStr=strLastSearchStr0;
+
+				Stack->Push(&StackData);
+				IsNewTopic=TRUE;
+				JumpTopic(FoundContents);
+				ErrorHelp=FALSE;
+				IsNewTopic=FALSE;
+			}
+
+			return TRUE;
+
+		}
 		case KEY_SHIFTF2:
 		{
 			//   не поганим SelTopic, если и так в PluginContents
@@ -1483,7 +1514,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
 	//_SVS(SysLog(L"HelpMask=%s NewTopic=%s",StackData.HelpMask,NewTopic));
 	if (StackData.strSelTopic.At(0) != L':' &&
-	        StrCmpI(StackData.strSelTopic,PluginContents)
+	        (StrCmpI(StackData.strSelTopic,PluginContents) || StrCmpI(StackData.strSelTopic,FoundContents))
 	   )
 	{
 		if (!(StackData.Flags&FHELP_CUSTOMFILE) && wcsrchr(strNewTopic,HelpEndLink))
@@ -1534,7 +1565,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
 	// ResizeConsole();
 	if (IsNewTopic
-	        || !StrCmpI(StackData.strSelTopic,PluginContents) // Ёто непри€тный костыль :-((
+	        || !(StrCmpI(StackData.strSelTopic,PluginContents)||StrCmpI(StackData.strSelTopic,FoundContents)) // Ёто непри€тный костыль :-((
 	   )
 		MoveToReference(1,1);
 
@@ -1813,6 +1844,77 @@ static int __cdecl CmpItems(const HelpRecord **el1, const HelpRecord **el2)
 		return 1;
 }
 
+void Help::FindThisHelp(FILE *HelpFile,uintptr_t nCodePage)
+{
+	StrCount=0;
+	FixCount=1;
+	FixSize=2;
+	StackData.TopStr=0;
+	TopicFound=TRUE;
+	StackData.CurX=StackData.CurY=0;
+	strCtrlColorChar.Clear();
+
+	string strTitleLine=strLastSearchStr;
+	AddTitle(strTitleLine);
+
+	bool TopicFound=false;
+	OldGetFileString GetStr(HelpFile);
+	int nStrLength;
+	wchar_t *ReadStr;
+	string strCurTopic, strEntryName, strReadStr, strLastSearchStrU=strLastSearchStr;
+
+	strLastSearchStrU.Upper();
+
+	for (;;)
+	{
+		if (GetStr.GetString(&ReadStr, nCodePage, nStrLength) <= 0)
+		{
+			break;
+		}
+
+		strReadStr=ReadStr;
+		RemoveTrailingSpaces(strReadStr);
+
+		if (strReadStr.At(0)==L'@' && !(strReadStr.At(1)==L'+' || strReadStr.At(1)==L'-') && !strReadStr.Contains(L'='))// && !TopicFound)
+		{
+			strEntryName=L"";
+			strCurTopic=L"";
+			RemoveExternalSpaces(strReadStr);
+			if (StrCmpI(strReadStr.CPtr()+1,HelpContents))
+			{
+				strCurTopic=strReadStr;
+				TopicFound=true;
+			}
+		}
+		else if (TopicFound && strReadStr.At(0)==L'$' && strReadStr.At(1) && !strCurTopic.IsEmpty())
+		{
+			strEntryName=strReadStr.CPtr()+1;
+			RemoveExternalSpaces(strEntryName);
+			RemoveChar(strEntryName,L'#',false);
+		}
+
+		if (TopicFound && !strEntryName.IsEmpty())
+		{
+			strReadStr.Upper();
+			if (strReadStr.Contains(strLastSearchStrU))
+			{
+				string strHelpLine;
+				strHelpLine.Format(L"   ~%s~%s@",strEntryName.CPtr(), strCurTopic.CPtr());
+				AddLine(strHelpLine);
+				strCurTopic=L"";
+				strEntryName=L"";
+				TopicFound=false;
+			}
+		}
+	}
+
+	if (!StrCount)
+		AddLine(MSG(MHelpSearchCannotFind));
+
+	AddLine(L"");
+	MoveToReference(1,1);
+}
+
 void Help::ReadDocumentsHelp(int TypeIndex)
 {
 	HelpList.Free();
@@ -1980,7 +2082,6 @@ void Help::InitKeyBar()
 	HelpKeyBar.SetAllGroup(KBL_CTRLALTSHIFT, MHelpCtrlAltShiftF1, 12);
 	// ”берем лишнее с глаз долой
 	HelpKeyBar.Change(KBL_SHIFT,L"",3-1);
-	HelpKeyBar.Change(KBL_MAIN,L"",7-1);
 	HelpKeyBar.Change(KBL_SHIFT,L"",7-1);
 	HelpKeyBar.ReadRegGroup(L"Help",Opt.strLanguage);
 	HelpKeyBar.SetAllRegGroup();
