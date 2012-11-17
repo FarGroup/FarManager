@@ -436,6 +436,29 @@ static bool ToDouble(__int64 v, double *d)
 	return false;
 }
 
+void MacroRecord::InitOpenMacroPluginInfo()
+{
+	mp_data.StructSize = sizeof(mp_data);
+	mp_data.Count = 0;
+	mp_data.Values = mp_values;
+	mp_data.Callback = nullptr;
+	mp_data.CallbackData = nullptr;
+
+	mp_info.StructSize = sizeof(mp_info);
+	mp_info.CallType = MCT_MACROSTEP;
+	mp_info.Handle = nullptr;
+	mp_info.Data = &mp_data;
+}
+
+void MacroRecord::CopyOpenMacroPluginInfo(const MacroRecord& src)
+{
+	memcpy(mp_values, src.mp_values, sizeof(mp_values));
+	mp_data = src.mp_data;
+	mp_data.Values = mp_values;
+	mp_info = src.mp_info;
+	mp_info.Data = &mp_data;
+}
+
 MacroRecord::MacroRecord():
 	m_area(MACRO_COMMON),
 	m_flags(0),
@@ -445,6 +468,7 @@ MacroRecord::MacroRecord():
 	m_callback(nullptr),
 	m_handle(nullptr)
 {
+	InitOpenMacroPluginInfo();
 }
 
 MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int Key,string Name,string Code,string Description):
@@ -459,6 +483,7 @@ MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int Key,stri
 	m_callback(nullptr),
 	m_handle(nullptr)
 {
+	InitOpenMacroPluginInfo();
 }
 
 MacroRecord& MacroRecord::operator= (const MacroRecord& src)
@@ -475,6 +500,7 @@ MacroRecord& MacroRecord::operator= (const MacroRecord& src)
 		m_id = src.m_id;
 		m_callback = src.m_callback;
 		m_handle = src.m_handle;
+		CopyOpenMacroPluginInfo(src);
 	}
 	return *this;
 }
@@ -715,6 +741,7 @@ bool KeyMacro::InitMacroExecution()
 		macro->m_handle=CallMacroPlugin(&info);
 		if (macro->m_handle)
 		{
+			macro->mp_info.Handle = macro->m_handle;
 			m_LastKey = L"first_key";
 			return true;
 		}
@@ -964,17 +991,11 @@ int KeyMacro::GetKey()
 	}
 
 	MacroRecord* macro;
-	static FarMacroValue mp_values[1]={{FMVT_DOUBLE,{0}}};
-	static FarMacroCall mp_data={sizeof(FarMacroCall),0,mp_values,nullptr,nullptr};
-	static OpenMacroPluginInfo mp_info={sizeof(OpenMacroPluginInfo),MCT_MACROSTEP,nullptr,&mp_data};
-
 	while ((macro=GetCurMacro()) != nullptr && (macro->m_handle || InitMacroExecution()))
 	{
-		mp_info.Handle = macro->m_handle;
-
-		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&mp_info);
-		mp_data.Count=0;
-		mp_info.Data=&mp_data;
+		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&macro->mp_info);
+		macro->mp_data.Count=0;
+		macro->mp_info.Data=&macro->mp_data;
 
 		if (mpr == nullptr)
 			break;
@@ -1046,9 +1067,9 @@ int KeyMacro::GetKey()
 			case MPRT_PLUGINCALL: // V=Plugin.Call(SysID[,param])
 			{
 				size_t count = mpr->Count;
-				mp_values[0].Type=FMVT_BOOLEAN;
-				mp_values[0].Boolean=0;
-				mp_data.Count=1;
+				macro->mp_values[0].Type=FMVT_BOOLEAN;
+				macro->mp_values[0].Boolean=0;
+				macro->mp_data.Count=1;
 				if(count>0 && mpr->Values[0].Type==FMVT_STRING)
 				{
 					TVar SysID = mpr->Values[0].String;
@@ -1067,7 +1088,7 @@ int KeyMacro::GetKey()
 						if (CallPluginRules)
 						{
 							PushState(true);
-							mp_values[0].Boolean=1;
+							macro->mp_values[0].Boolean=1;
 						}
 						else
 							m_InternalInput++;
@@ -1082,9 +1103,9 @@ int KeyMacro::GetKey()
 
 						//в windows гарантируется, что не бывает указателей меньше 0x10000
 						if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
-							mp_info.Data = ResultCallPlugin;
+							macro->mp_info.Data = ResultCallPlugin;
 						else
-							mp_values[0].Boolean = (ResultCallPlugin != nullptr);
+							macro->mp_values[0].Boolean = (ResultCallPlugin != nullptr);
 
 						if (CallPluginRules)
 						{
@@ -1110,9 +1131,9 @@ int KeyMacro::GetKey()
 				CallPluginInfo cpInfo={CPT_CHECKONLY};
 				bool ItemFailed=false;
 
-				mp_values[0].Type=FMVT_BOOLEAN;
-				mp_values[0].Boolean=0;
-				mp_data.Count=1;
+				macro->mp_values[0].Type=FMVT_BOOLEAN;
+				macro->mp_values[0].Boolean=0;
+				macro->mp_data.Count=1;
 
 				if (mpr->Count>0 && mpr->Values[0].Type==FMVT_STRING)
 					Guid = mpr->Values[0].String;
@@ -1161,7 +1182,7 @@ int KeyMacro::GetKey()
 					if (Ret)
 					{
 						// Если нашли успешно - то теперь выполнение
-						mp_values[0].Boolean=1;
+						macro->mp_values[0].Boolean=1;
 						cpInfo.CallFlags&=~CPT_CHECKONLY;
 						CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
 					}

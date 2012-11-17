@@ -140,6 +140,13 @@ class MacroRecord
 		void* m_id;                    // параметр калбака
 		FARMACROCALLBACK m_callback;   // каллбак для плагинов
 		void* m_handle;
+
+		FarMacroValue mp_values[1];
+		FarMacroCall mp_data;
+		OpenMacroPluginInfo mp_info;
+	private:
+		void InitOpenMacroPluginInfo();
+		void CopyOpenMacroPluginInfo(const MacroRecord& src);
 	public:
 		MacroRecord();
 		MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int Key,string Name,string Code,string Description);
