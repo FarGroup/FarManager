@@ -67,7 +67,7 @@ DlgEdit::DlgEdit(Dialog* pOwner,unsigned Index,DLGEDITTYPE Type):
 			if(pOwner)
 			{
 				DialogItemEx* CurItem=pOwner->Item[Index];
-				if(Opt.Dialogs.AutoComplete && CurItem->Flags&(DIF_HISTORY|DIF_EDITPATH|DIF_EDITPATHEXEC) && !(CurItem->Flags&DIF_DROPDOWNLIST) && !(CurItem->Flags&DIF_NOAUTOCOMPLETE))
+				if(Global->Opt->Dialogs.AutoComplete && CurItem->Flags&(DIF_HISTORY|DIF_EDITPATH|DIF_EDITPATHEXEC) && !(CurItem->Flags&DIF_DROPDOWNLIST) && !(CurItem->Flags&DIF_NOAUTOCOMPLETE))
 				{
 					iFlags=EditControl::EC_ENABLEAUTOCOMPLETE;
 				}
@@ -118,7 +118,7 @@ DlgEdit::~DlgEdit()
 void DlgEdit::SetHistory(const wchar_t* Name)
 {
 	delete iHistory;
-	iHistory=new History(HISTORYTYPE_DIALOG, Name, Opt.Dialogs.EditHistory, false);
+	iHistory=new History(HISTORYTYPE_DIALOG, Name, Global->Opt->Dialogs.EditHistory, false);
 }
 
 int DlgEdit::ProcessKey(int Key)

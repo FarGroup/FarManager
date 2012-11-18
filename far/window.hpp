@@ -1,3 +1,4 @@
+#pragma once
 /*
 window.hpp
 
@@ -32,17 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "event.hpp"
 
-extern struct events
-{
-	Event DeviceArivalEvent;
-	Event DeviceRemoveEvent;
-	Event MediaArivalEvent;
-	Event MediaRemoveEvent;
-	Event EnvironmentChangeEvent;
-	Event PowerChangeEvent;
-}
-Events;
-
 class WindowHandler
 {
 public:
@@ -50,9 +40,21 @@ public:
 	~WindowHandler();
 	void Check();
 
-private:
-	HANDLE Thread;
-	HWND Hwnd;
-};
+	Event& DeviceArivalEvent() { return m_DeviceArivalEvent; }
+	Event& DeviceRemoveEvent() { return m_DeviceRemoveEvent; }
+	Event& MediaArivalEvent() { return m_MediaArivalEvent; }
+	Event& MediaRemoveEvent() { return m_MediaRemoveEvent; }
+	Event& EnvironmentChangeEvent() { return m_EnvironmentChangeEvent; }
+	Event& PowerChangeEvent() { return m_PowerChangeEvent; }
 
-extern WindowHandler Window;
+private:
+	HANDLE m_Thread;
+	HWND m_Hwnd;
+
+	Event m_DeviceArivalEvent;
+	Event m_DeviceRemoveEvent;
+	Event m_MediaArivalEvent;
+	Event m_MediaRemoveEvent;
+	Event m_EnvironmentChangeEvent;
+	Event m_PowerChangeEvent;
+};

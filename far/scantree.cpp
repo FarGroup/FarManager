@@ -44,7 +44,7 @@ ScanTree::ScanTree(bool RetUpDir, bool Recurse, int ScanJunction)
 {
 	Flags.Change(FSCANTREE_RETUPDIR,RetUpDir);
 	Flags.Change(FSCANTREE_RECUR,Recurse);
-	Flags.Change(FSCANTREE_SCANSYMLINK,(ScanJunction==-1?(bool)Opt.ScanJunction:ScanJunction!=0));
+	Flags.Change(FSCANTREE_SCANSYMLINK,(ScanJunction==-1?(bool)Global->Opt->ScanJunction:ScanJunction!=0));
 	ScanItems.setDelta(10);
 }
 

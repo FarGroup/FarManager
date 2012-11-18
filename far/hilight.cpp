@@ -358,7 +358,7 @@ static void ApplyBlackOnBlackColors(HighlightDataColor *Colors)
 		//Для пометки возьмем цвета файла включая прозрачность.
 		if (!COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor) && !COLORVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor))
 		{
-			FarColor NewColor = Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR];
+			FarColor NewColor = Global->Opt->Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR];
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].BackgroundColor)|COLORVALUE(NewColor.BackgroundColor);
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor=ALPHAVALUE(Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].ForegroundColor)|COLORVALUE(NewColor.ForegroundColor);
 			Colors->Color[HIGHLIGHTCOLORTYPE_FILE][i].Flags&=FCF_EXTENDEDFLAGS;
@@ -420,8 +420,8 @@ static void ApplyFinalColors(HighlightDataColor *Colors)
 			//то унаследуем соответствующий цвет с панелей.
 			if(IS_TRANSPARENT(Colors->Color[j][i].BackgroundColor))
 			{
-				Colors->Color[j][i].BackgroundColor=Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].BackgroundColor;
-				if(Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_BG_4BIT)
+				Colors->Color[j][i].BackgroundColor=Global->Opt->Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].BackgroundColor;
+				if(Global->Opt->Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_BG_4BIT)
 				{
 					Colors->Color[j][i].Flags|=FCF_BG_4BIT;
 				}
@@ -432,8 +432,8 @@ static void ApplyFinalColors(HighlightDataColor *Colors)
 			}
 			if(IS_TRANSPARENT(Colors->Color[j][i].ForegroundColor))
 			{
-				Colors->Color[j][i].ForegroundColor=Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].ForegroundColor;
-				if(Opt.Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_FG_4BIT)
+				Colors->Color[j][i].ForegroundColor=Global->Opt->Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].ForegroundColor;
+				if(Global->Opt->Palette.CurrentPalette[PalColor[i]-COL_FIRSTPALETTECOLOR].Flags&FCF_FG_4BIT)
 				{
 					Colors->Color[j][i].Flags|=FCF_FG_4BIT;
 				}
@@ -819,9 +819,9 @@ void HighlightFiles::HiEdit(int MenuPos)
 			{
 				Changed = true;
 
-				ScrBuf.Lock(); // отменяем всякую прорисовку
+				Global->ScrBuf->Lock(); // отменяем всякую прорисовку
 				ProcessGroups();
-				if (Opt.AutoSaveSetup)
+				if (Global->Opt->AutoSaveSetup)
 					SaveHiData();
 
 				//FrameManager->RefreshFrame(); // рефрешим
@@ -830,7 +830,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 				RightPanel->Update(UPDATE_KEEP_SELECTION);
 				RightPanel->Redraw();
 				FillMenu(&HiMenu,MenuPos=SelectPos);
-				ScrBuf.Unlock(); // разрешаем прорисовку
+				Global->ScrBuf->Unlock(); // разрешаем прорисовку
 			}
 			return KeyProcessed;
 		});

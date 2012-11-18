@@ -60,12 +60,6 @@ enum
 // #define DIRECT_SCREEN_OUT
 //#endif
 
-#ifdef DIRECT_RT
-extern int DirectRT;
-#endif
-
-ScreenBuf ScrBuf;
-
 ScreenBuf::ScreenBuf():
 	Buf(nullptr),
 	Shadow(nullptr),
@@ -116,11 +110,11 @@ void ScreenBuf::FillBuf()
 	CriticalSectionLock Lock(CS);
 	COORD BufferSize={BufX, BufY}, BufferCoord={};
 	SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(BufX-1), static_cast<SHORT>(BufY-1)};
-	Console.ReadOutput(Buf, BufferSize, BufferCoord, ReadRegion);
+	Global->Console->ReadOutput(Buf, BufferSize, BufferCoord, ReadRegion);
 	memcpy(Shadow,Buf,BufX*BufY*sizeof(FAR_CHAR_INFO));
 	SBFlags.Set(SBFLAGS_USESHADOW);
 	COORD CursorPosition;
-	Console.GetCursorPosition(CursorPosition);
+	Global->Console->GetCursorPosition(CursorPosition);
 	CurX=CursorPosition.X;
 	CurY=CursorPosition.Y;
 }
@@ -157,7 +151,7 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text,int TextLength)
 	Flush();
 #elif defined(DIRECT_RT)
 
-	if (DirectRT)
+	if (Global->DirectRT)
 		Flush();
 
 #endif
@@ -217,7 +211,7 @@ void ScreenBuf::ApplyShadow(int X1,int Y1,int X2,int Y2)
 	Flush();
 #elif defined(DIRECT_RT)
 
-	if (DirectRT)
+	if (Global->DirectRT)
 		Flush();
 
 #endif
@@ -270,7 +264,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 		Flush();
 #elif defined(DIRECT_RT)
 
-		if (DirectRT)
+		if (Global->DirectRT)
 			Flush();
 
 #endif
@@ -311,7 +305,7 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 		Flush();
 #elif defined(DIRECT_RT)
 
-		if (DirectRT)
+		if (Global->DirectRT)
 			Flush();
 
 #endif
@@ -341,7 +335,7 @@ void ScreenBuf::FillRect(int X1,int Y1,int X2,int Y2,WCHAR Ch,const FarColor& Co
 	Flush();
 #elif defined(DIRECT_RT)
 
-	if (DirectRT)
+	if (Global->DirectRT)
 		Flush();
 
 #endif
@@ -372,7 +366,7 @@ void ScreenBuf::Flush()
 			}
 		}
 
-		if(Elevation.Elevated())
+		if(Global->Elevation->Elevated())
 		{
 			ElevationChar=Buf[BufX*BufY-1];
 			ElevationCharUsed=true;
@@ -384,7 +378,7 @@ void ScreenBuf::Flush()
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && !CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
-			Console.SetCursorInfo(cci);
+			Global->Console->SetCursorInfo(cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
@@ -392,7 +386,7 @@ void ScreenBuf::Flush()
 		{
 			SBFlags.Set(SBFLAGS_FLUSHED);
 
-			if (WaitInMainLoop && Opt.Clock && !ProcessShowClock)
+			if (Global->WaitInMainLoop && Global->Opt->Clock && !Global->ProcessShowClock)
 			{
 				ShowTime(FALSE);
 			}
@@ -404,7 +398,7 @@ void ScreenBuf::Flush()
 			{
 				FAR_CHAR_INFO* PtrBuf=Buf,*PtrShadow=Shadow;
 
-				if (Opt.ClearType)
+				if (Global->Opt->ClearType)
 				{
 					//Для полного избавления от артефактов ClearType будем перерисовывать на всю ширину.
 					//Чревато тормозами/миганием в зависимости от конфигурации системы.
@@ -503,9 +497,9 @@ void ScreenBuf::Flush()
 				{
 					COORD BufferSize={BufX, BufY}, BufferCoord={PtrRect->Left,PtrRect->Top};
 					SMALL_RECT WriteRegion=*PtrRect;
-					Console.WriteOutput(Buf, BufferSize, BufferCoord, WriteRegion);
+					Global->Console->WriteOutput(Buf, BufferSize, BufferCoord, WriteRegion);
 				}
-				Console.Commit();
+				Global->Console->Commit();
 				memcpy(Shadow,Buf,BufX*BufY*sizeof(FAR_CHAR_INFO));
 			}
 		}
@@ -523,14 +517,14 @@ void ScreenBuf::Flush()
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURPOS))
 		{
 			COORD C={CurX,CurY};
-			Console.SetCursorPosition(C);
+			Global->Console->SetCursorPosition(C);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURPOS);
 		}
 
 		if (!SBFlags.Check(SBFLAGS_FLUSHEDCURTYPE) && CurVisible)
 		{
 			CONSOLE_CURSOR_INFO cci={CurSize,CurVisible};
-			Console.SetCursorInfo(cci);
+			Global->Console->SetCursorInfo(cci);
 			SBFlags.Set(SBFLAGS_FLUSHEDCURTYPE);
 		}
 
@@ -641,7 +635,7 @@ void ScreenBuf::Scroll(int Num)
 	Flush();
 #elif defined(DIRECT_RT)
 
-	if (DirectRT)
+	if (Global->DirectRT)
 		Flush();
 
 #endif

@@ -270,7 +270,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 		if (!EditChoice)
 		{
 			MenuMode = MM_GLOBAL;
-			strMenuFilePath = Opt.GlobalUserMenuDir;
+			strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 		}
 	}
 
@@ -301,7 +301,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 			if (MenuMode == MM_GLOBAL) // был в %FARHOME%?
 			{
 				MenuMode = MM_USER;
-				strMenuFilePath = Opt.ProfilePath;
+				strMenuFilePath = Global->Opt->ProfilePath;
 				continue;
 			}
 			else if (!ChoiceMenuType)
@@ -322,7 +322,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 
 				FirstRun = false;
 				MenuMode = MM_GLOBAL;
-				strMenuFilePath = Opt.GlobalUserMenuDir;
+				strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 				continue;
 			}
 		}
@@ -358,12 +358,12 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 					}
 
 					MenuMode = MM_GLOBAL;
-					strMenuFilePath = Opt.GlobalUserMenuDir;
+					strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 				}
 				else
 				{
 					MenuMode = MM_USER;
-					strMenuFilePath = Opt.ProfilePath;
+					strMenuFilePath = Global->Opt->ProfilePath;
 				}
 
 				break;
@@ -376,12 +376,12 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 				{
 					case MM_LOCAL:
 						MenuMode = MM_GLOBAL;
-						strMenuFilePath = Opt.GlobalUserMenuDir;
+						strMenuFilePath = Global->Opt->GlobalUserMenuDir;
 						break;
 
 					case MM_GLOBAL:
 						MenuMode = MM_USER;
-						strMenuFilePath = Opt.ProfilePath;
+						strMenuFilePath = Global->Opt->ProfilePath;
 						break;
 
 					default: // MM_USER

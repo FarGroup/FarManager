@@ -46,7 +46,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 RedrawDesktop::RedrawDesktop(BOOL IsHidden):
 	LeftVisible(CtrlObject->Cp()->LeftPanel->IsVisible()),
 	RightVisible(CtrlObject->Cp()->RightPanel->IsVisible()),
-	ClockVisible(Opt.Clock!=0)
+	ClockVisible(Global->Opt->Clock!=0)
 {
 	CtrlObject->CmdLine->ShowBackground();
 	CtrlObject->CmdLine->Show();
@@ -68,7 +68,7 @@ RedrawDesktop::RedrawDesktop(BOOL IsHidden):
 			CtrlObject->Cp()->RightPanel->Hide();
 			CtrlObject->Cp()->LeftPanel->Hide();
 		}
-		Opt.Clock=FALSE;
+		Global->Opt->Clock=FALSE;
 		CtrlObject->MainKeyBar->Hide();
 		CtrlObject->TopMenuBar->Hide();
 	}
@@ -80,12 +80,12 @@ RedrawDesktop::~RedrawDesktop()
 	CtrlObject->CmdLine->SaveBackground();
 	CtrlObject->CmdLine->Show();
 
-	if (Opt.ShowKeyBar)
+	if (Global->Opt->ShowKeyBar)
 		CtrlObject->MainKeyBar->Show();
 
-	Opt.Clock=ClockVisible;
+	Global->Opt->Clock=ClockVisible;
 
-	if (Opt.ShowMenuBar)
+	if (Global->Opt->ShowMenuBar)
 		CtrlObject->TopMenuBar->Show();
 
 	int RightType=CtrlObject->Cp()->RightPanel->GetType();

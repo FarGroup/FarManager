@@ -72,14 +72,14 @@ wchar_t* Xlat(wchar_t *Line,
 	if (StartPos > EndPos || StartPos >= Length)
 		return Line;
 
-	if (!Opt.XLat.Table[0].GetLength() || !Opt.XLat.Table[1].GetLength())
+	if (!Global->Opt->XLat.Table[0].GetLength() || !Global->Opt->XLat.Table[1].GetLength())
 		return Line;
 
-	size_t MinLenTable=Min(Opt.XLat.Table[0].GetLength(),Opt.XLat.Table[1].GetLength());
+	size_t MinLenTable=Min(Global->Opt->XLat.Table[0].GetLength(),Global->Opt->XLat.Table[1].GetLength());
 	string strLayoutName;
 	int ProcessLayoutName=FALSE;
 
-	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && Console.GetKeyboardLayoutName(strLayoutName))
+	if ((Flags & XLAT_USEKEYBLAYOUTNAME) && Global->Console->GetKeyboardLayoutName(strLayoutName))
 	{
 		/*
 			”точнение по поводу этого куска, чтобы потом не вспоминать ;-)
@@ -111,8 +111,8 @@ wchar_t* Xlat(wchar_t *Line,
 		// BUGBUG!!! «атираетс€ 3-е правило.
 		string XlatRules;
 		Db->GeneralCfg()->GetValue(L"XLat", strLayoutName, XlatRules, L"");
-		Opt.XLat.Rules[2] = XlatRules;
-		if (!Opt.XLat.Rules[2].IsEmpty())
+		Global->Opt->XLat.Rules[2] = XlatRules;
+		if (!Global->Opt->XLat.Rules[2].IsEmpty())
 			ProcessLayoutName=TRUE;
 	}
 
@@ -128,18 +128,18 @@ wchar_t* Xlat(wchar_t *Line,
 		for (size_t i=0; i <= MinLenTable; i++)
 		{
 			// символ из латиницы?
-			if (Chr == Opt.XLat.Table[1].At(i))
+			if (Chr == Global->Opt->XLat.Table[1].At(i))
 			{
-				Chr=Opt.XLat.Table[0].At(i);
+				Chr=Global->Opt->XLat.Table[0].At(i);
 				IsChange=1;
 				CurLang=1; // pred - english
 				LangCount[1]++;
 				break;
 			}
 			// символ из русской?
-			else if (Chr == Opt.XLat.Table[0].At(i))
+			else if (Chr == Global->Opt->XLat.Table[0].At(i))
 			{
-				Chr=Opt.XLat.Table[1].At(i);
+				Chr=Global->Opt->XLat.Table[1].At(i);
 				CurLang=0; // pred - russian
 				LangCount[0]++;
 				IsChange=1;
@@ -151,11 +151,11 @@ wchar_t* Xlat(wchar_t *Line,
 		{
 			if (ProcessLayoutName)
 			{
-				for (size_t i=0; i < Opt.XLat.Rules[2].GetLength(); i+=2)
+				for (size_t i=0; i < Global->Opt->XLat.Rules[2].GetLength(); i+=2)
 				{
-					if (Chr == Opt.XLat.Rules[2].At(i))
+					if (Chr == Global->Opt->XLat.Rules[2].At(i))
 					{
-						Chr=Opt.XLat.Rules[2].At(i+1);
+						Chr=Global->Opt->XLat.Rules[2].At(i+1);
 						break;
 					}
 				}
@@ -174,11 +174,11 @@ wchar_t* Xlat(wchar_t *Line,
 				if (PreLang != CurLang)
 					CurLang=PreLang;
 
-				for (size_t i=0; i < Opt.XLat.Rules[CurLang].GetLength(); i+=2)
+				for (size_t i=0; i < Global->Opt->XLat.Rules[CurLang].GetLength(); i+=2)
 				{
-					if (ChrOld == Opt.XLat.Rules[CurLang].At(i))
+					if (ChrOld == Global->Opt->XLat.Rules[CurLang].At(i))
 					{
-						Chr=Opt.XLat.Rules[CurLang].At(i+1);
+						Chr=Global->Opt->XLat.Rules[CurLang].At(i+1);
 						break;
 					}
 				}
@@ -186,26 +186,26 @@ wchar_t* Xlat(wchar_t *Line,
 #if 0
 
 				// ≈сли в таблице не найдено и таблица была Unknown...
-				if (I >= Opt.XLat.Rules[CurLang][0] && CurLang == 2)
+				if (I >= Global->Opt->XLat.Rules[CurLang][0] && CurLang == 2)
 				{
 					// ...смотрим сначала в первой таблице...
-					for (I=1; I < Opt.XLat.Rules[0][0]; I+=2)
-						if (ChrOld == (BYTE)Opt.XLat.Rules[0][I])
+					for (I=1; I < Global->Opt->XLat.Rules[0][0]; I+=2)
+						if (ChrOld == (BYTE)Global->Opt->XLat.Rules[0][I])
 							break;
 
-					for (J=1; J < Opt.XLat.Rules[1][0]; J+=2)
-						if (ChrOld == (BYTE)Opt.XLat.Rules[1][J])
+					for (J=1; J < Global->Opt->XLat.Rules[1][0]; J+=2)
+						if (ChrOld == (BYTE)Global->Opt->XLat.Rules[1][J])
 							break;
 
-					if (I >= Opt.XLat.Rules[0][0])
+					if (I >= Global->Opt->XLat.Rules[0][0])
 						CurLang=1;
 
-					if (J >= Opt.XLat.Rules[1][0])
+					if (J >= Global->Opt->XLat.Rules[1][0])
 						CurLang=0;
 
 					if ()//???
 					{
-						Chr=(BYTE)Opt.XLat.Rules[CurLang][J+1];
+						Chr=(BYTE)Global->Opt->XLat.Rules[CurLang][J+1];
 					}
 				}
 
@@ -219,19 +219,19 @@ wchar_t* Xlat(wchar_t *Line,
 	// переключаем раскладку клавиатуры?
 	if (Flags & XLAT_SWITCHKEYBLAYOUT)
 	{
-		HWND hWnd = Console.GetWindow();
+		HWND hWnd = Global->Console->GetWindow();
 
 		if (hWnd)
 		{
 			HKL Next=(HKL)0;
 
-			if (Opt.XLat.Layouts[0])
+			if (Global->Opt->XLat.Layouts[0])
 			{
-				if (++Opt.XLat.CurrentLayout >= (int)ARRAYSIZE(Opt.XLat.Layouts) || !Opt.XLat.Layouts[Opt.XLat.CurrentLayout])
-					Opt.XLat.CurrentLayout=0;
+				if (++Global->Opt->XLat.CurrentLayout >= (int)ARRAYSIZE(Global->Opt->XLat.Layouts) || !Global->Opt->XLat.Layouts[Global->Opt->XLat.CurrentLayout])
+					Global->Opt->XLat.CurrentLayout=0;
 
-				if (Opt.XLat.Layouts[Opt.XLat.CurrentLayout])
-					Next=Opt.XLat.Layouts[Opt.XLat.CurrentLayout];
+				if (Global->Opt->XLat.Layouts[Global->Opt->XLat.CurrentLayout])
+					Next=Global->Opt->XLat.Layouts[Global->Opt->XLat.CurrentLayout];
 			}
 
 			PostMessage(hWnd,WM_INPUTLANGCHANGEREQUEST, Next?0:INPUTLANGCHANGE_FORWARD, (LPARAM)Next);

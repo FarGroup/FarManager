@@ -73,7 +73,7 @@ void ShowProcessList()
 			case KEY_DEL:
 			{
 				// Полиция 21
-				if (Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
+				if (Global->Opt->Policies.DisabledOptions&FFPOL_KILLTASK)
 				{
 					Message(MSG_WARNING,1,MSG(MKillProcessTitle),MSG(MCannotKillProcessPerm),MSG(MOk));
 					break;
@@ -159,7 +159,7 @@ void ShowProcessList()
 BOOL KillProcess(DWORD dwPID)
 {
 	// Полиция 21
-	if (Opt.Policies.DisabledOptions&FFPOL_KILLTASK)
+	if (Global->Opt->Policies.DisabledOptions&FFPOL_KILLTASK)
 		return FALSE;
 
 	HANDLE hProcess;

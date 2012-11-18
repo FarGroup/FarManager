@@ -40,14 +40,14 @@ class GuardLastError
 public:
 	GuardLastError():
 		LastError(GetLastError()),
-		LastStatus(ifn.RtlGetLastNtStatus())
+		LastStatus(Global->ifn->RtlGetLastNtStatus())
 	{
 	}
 
 	~GuardLastError()
 	{
 		SetLastError(LastError);
-		ifn.RtlNtStatusToDosError(LastStatus);
+		Global->ifn->RtlNtStatusToDosError(LastStatus);
 	}
 
 private:

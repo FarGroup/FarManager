@@ -34,89 +34,114 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-extern clock_t StartIdleTime;
+class global
+{
+public:
+	global();
+	~global();
 
-extern OSVERSIONINFO WinVer;
+	clock_t StartIdleTime;
 
-extern int WaitInMainLoop;
-extern int WaitInFastFind;
+	OSVERSIONINFO WinVer;
 
-extern string g_strFarModuleName;
-extern string g_strFarINI;
-extern string g_strFarPath;
+	int WaitInMainLoop;
+	int WaitInFastFind;
 
-extern string strGlobalSearchString;
-extern bool GlobalSearchCase;
-extern bool GlobalSearchWholeWords; // значение "Whole words" для поиска
-extern bool GlobalSearchHex; // значение "Search for hex" для поиска
+	string g_strFarModuleName;
+	string g_strFarINI;
+	string g_strFarPath;
 
-extern bool GlobalSearchReverse;
+	string strGlobalSearchString;
+	string strInitTitle;
 
-extern int ScreenSaverActive;
+	// BUGBUG
+	string strMsgHelpTopic;
 
-extern int CloseFAR, CloseFARMenu, AllowCancelExit;
+	bool GlobalSearchCase;
+	bool GlobalSearchWholeWords; // значение "Whole words" для поиска
+	bool GlobalSearchHex; // значение "Search for hex" для поиска
 
-extern int DisablePluginsOutput;
+	bool GlobalSearchReverse;
 
-extern BOOL IsProcessAssignMacroKey;
-extern BOOL IsRedrawFramesInProcess;
+	int ScreenSaverActive;
 
-extern size_t PluginPanelsCount;
+	int CloseFAR, CloseFARMenu, AllowCancelExit;
 
-extern const wchar_t* Version;
-extern const wchar_t* Copyright;
+	int DisablePluginsOutput;
 
-extern int WidthNameForMessage;
+	BOOL IsProcessAssignMacroKey;
+	BOOL IsRedrawFramesInProcess;
 
-extern BOOL ProcessException;
+	size_t PluginPanelsCount;
 
-extern BOOL ProcessShowClock;
+	const wchar_t* Version;
+	const wchar_t* Copyright;
 
-extern const wchar_t *HelpFileMask;
-extern const wchar_t *HelpFormatLinkModule;
+	int WidthNameForMessage;
+
+	BOOL ProcessException;
+
+	BOOL ProcessShowClock;
+
+	const wchar_t *HelpFileMask;
+	const wchar_t *HelpFormatLinkModule;
 
 #if defined(SYSLOG)
-extern BOOL StartSysLog;
-extern long CallNewDelete;
-extern long CallMallocFree;
+	BOOL StartSysLog;
+	long CallNewDelete;
+	long CallMallocFree;
 #endif
 
-class SaveScreen;
-extern SaveScreen *GlobalSaveScrPtr;
+#ifdef DIRECT_RT
+	bool DirectRT;
+#endif
 
-extern int CriticalInternalError;
+	class SaveScreen *GlobalSaveScrPtr;
 
-extern int KeepUserScreen;
-extern string g_strDirToSet; //RAVE!!!
+	int CriticalInternalError;
 
-extern int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
+	int KeepUserScreen;
+	string g_strDirToSet; //RAVE!!!
 
-// Macro Const
-enum {
-	constMsX          = 0,
-	constMsY          = 1,
-	constMsButton     = 2,
-	constMsCtrlState  = 3,
-	constMsEventFlags = 4,
-	constMsLAST       = 5,
+	int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
+
+	SYSTEM_INFO SystemInfo;
+
+	DWORD ErrorMode;
+
+	LARGE_INTEGER FarUpTime;
+
+	HANDLE MainThreadHandle;
+	DWORD MainThreadId;
+
+	class ImportedFunctions* ifn;
+	class console* Console;
+	class ScreenBuf* ScrBuf;
+	class TaskBarCore* TBC;
+	class consoleicons* ConsoleIcons;
+	class FormatScreen FS;
+	class TPreRedrawFunc* PreRedraw;
+	class WindowHandler *Window;
+	class Options *Opt;
+	class Language *Lang;
+	class Language *OldLang;
+	class elevation *Elevation;
+	class TreeListCache* TreeCache;
+	class TreeListCache* tempTreeCache;
+	class PluginSynchro* PluginSynchroManager;
 };
 
-extern SYSTEM_INFO SystemInfo;
+extern global* Global;
+
+#define MSG(ID) Global->Lang->GetMsg(ID)
+
 inline bool IsPtr(const void* Address)
 {
-	return reinterpret_cast<uintptr_t>(Address)>=reinterpret_cast<uintptr_t>(SystemInfo.lpMinimumApplicationAddress) && reinterpret_cast<uintptr_t>(Address)<=reinterpret_cast<uintptr_t>(SystemInfo.lpMaximumApplicationAddress);
+	return reinterpret_cast<uintptr_t>(Address)>=reinterpret_cast<uintptr_t>(Global->SystemInfo.lpMinimumApplicationAddress) && reinterpret_cast<uintptr_t>(Address)<=reinterpret_cast<uintptr_t>(Global->SystemInfo.lpMaximumApplicationAddress);
 }
 
-extern FormatScreen FS;
 
-extern DWORD ErrorMode;
-
-extern LARGE_INTEGER FarUpTime;
-
-extern HANDLE MainThreadHandle;
-extern DWORD MainThreadId;
-
-inline bool MainThread() {return GetCurrentThreadId() == MainThreadId;}
+inline bool MainThread() {return GetCurrentThreadId() == Global->MainThreadId;}
 
 // VersionConstant: LOWBYTE - minor, HIBYTE - major
 inline bool operator< (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) < VersionConstant;}

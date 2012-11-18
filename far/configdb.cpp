@@ -174,8 +174,8 @@ static inline void PrintError(const wchar_t *Title, const wchar_t *Error, int Ro
 {
 	FormatString strResult;
 	strResult<<Title<<" ("<<Row<<L","<<Col<<L"): "<<Error<<L"\n";
-	Console.Write(strResult);
-	Console.Commit();
+	Global->Console->Write(strResult);
+	Global->Console->Commit();
 }
 
 static void PrintError(const wchar_t *Title, const wchar_t *Error, const TiXmlElement *e)
@@ -2993,8 +2993,8 @@ void Database::CheckDatabase( SQLiteDb *pDb)
 	{
 		if (m_ImportExportMode)
 		{
-			Console.Write(string(L"problem with ") + pname + (rc <= 1 ? L":\r\n  database file is renamed to *.bad and new one is created\r\n" : L":\r\n  database is opened in memory\r\n"));
-			Console.Commit();
+			Global->Console->Write(string(L"problem with ") + pname + (rc <= 1 ? L":\r\n  database file is renamed to *.bad and new one is created\r\n" : L":\r\n  database is opened in memory\r\n"));
+			Global->Console->Commit();
 		}
 		else
 		{
@@ -3008,10 +3008,10 @@ void Database::TryImportDatabase(T *p, const char *son, bool plugin)
 {
 	if (TemplateLoadState != 0 && p->IsNew())
 	{
-		if (TemplateLoadState < 0 && !Opt.TemplateProfilePath.IsEmpty())
+		if (TemplateLoadState < 0 && !Global->Opt->TemplateProfilePath.IsEmpty())
 		{
 			TemplateLoadState = 0;
-			string def_config = Opt.TemplateProfilePath;
+			string def_config = Global->Opt->TemplateProfilePath;
 			FILE* XmlFile = _wfopen(NTPath(def_config), L"rb");
 			if (XmlFile)
 			{
@@ -3182,7 +3182,7 @@ bool Database::Export(const wchar_t *File)
 	delete cfg;
 
 	{ //TODO: export for local plugin settings
-		string strPlugins = Opt.ProfilePath;
+		string strPlugins = Global->Opt->ProfilePath;
 		strPlugins += L"\\PluginsData\\*.db";
 		FAR_FIND_DATA_EX fd;
 		FindFile ff(strPlugins);

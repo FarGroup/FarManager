@@ -120,7 +120,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 			WORD Chr2 = PtrCharBuf->Char;
 			Chr=PtrCharBuf->Char;
 
-			if (Opt.CleanAscii)
+			if (Global->Opt->CleanAscii)
 			{
 				switch (Chr2)
 				{
@@ -144,7 +144,7 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 				}
 			}
 
-			if (Opt.NoGraphics && Chr2 >=0xB3 && Chr2 <= 0xDA)
+			if (Global->Opt->NoGraphics && Chr2 >=0xB3 && Chr2 <= 0xDA)
 			{
 				switch (Chr2)
 				{
@@ -259,7 +259,7 @@ void Grabber::DisplayObject()
 
 int Grabber::ProcessKey(int Key)
 {
-	if(CloseFAR)
+	if(Global->CloseFAR)
 	{
 		Key = KEY_ESC;
 	}
@@ -609,7 +609,7 @@ bool RunGraber()
 	if (!InGrabber)
 	{
 		InGrabber=true;
-		WaitInMainLoop=FALSE;
+		Global->WaitInMainLoop=FALSE;
 		FlushInputBuffer();
 		Grabber Grabber;
 		InGrabber=false;

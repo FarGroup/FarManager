@@ -995,11 +995,11 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 				int cp = ns->getCodePage();
 				if ( cp >= 0 )
 				{
-					const wchar_t *deprecated = Opt.strNoAutoDetectCP;
+					const wchar_t *deprecated = Global->Opt->strNoAutoDetectCP;
 
 					if ( 0 == wcscmp(deprecated, L"-1") )
 					{
-						if ( Opt.CPMenuMode )
+						if ( Global->Opt->CPMenuMode )
 						{
 							if ( static_cast<UINT>(cp) != GetACP() && static_cast<UINT>(cp) != GetOEMCP() )
 							{

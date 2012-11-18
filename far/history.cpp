@@ -70,15 +70,15 @@ void History::CompactHistory()
 {
 	Db->HistoryCfg()->BeginTransaction();
 
-	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Opt.HistoryLifetime, Opt.HistoryCount);
-	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Opt.FoldersHistoryLifetime, Opt.FoldersHistoryCount);
-	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Opt.ViewHistoryLifetime, Opt.ViewHistoryCount);
+	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
+	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
+	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
 
 	DWORD index=0;
 	string strName;
-	while (Db->HistoryCfg()->EnumLargeHistories(index++, Opt.DialogsHistoryCount, HISTORYTYPE_DIALOG, strName))
+	while (Db->HistoryCfg()->EnumLargeHistories(index++, Global->Opt->DialogsHistoryCount, HISTORYTYPE_DIALOG, strName))
 	{
-		Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_DIALOG, strName, Opt.DialogsHistoryLifetime, Opt.DialogsHistoryCount);
+		Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_DIALOG, strName, Global->Opt->DialogsHistoryLifetime, Global->Opt->DialogsHistoryCount);
 	}
 
 	Db->HistoryCfg()->EndTransaction();
@@ -186,7 +186,7 @@ int History::Select(const wchar_t *Title, const wchar_t *HelpTopic, string &strS
 	HistoryMenu.AssignHighlights(TRUE);
 
 	int ret=ProcessMenu(strStr, Guid, File, Data, Title, HistoryMenu, Height, Type, nullptr);
-	ScrBuf.Flush();
+	Global->ScrBuf->Flush();
 	return ret;
 }
 
@@ -507,8 +507,8 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 				case KEY_DEL:
 				{
 					if (HistoryMenu.GetItemCount()/* > 1*/ &&
-					        (!Opt.Confirm.HistoryClear ||
-					         (Opt.Confirm.HistoryClear &&
+					        (!Global->Opt->Confirm.HistoryClear ||
+					         (Global->Opt->Confirm.HistoryClear &&
 					          !Message(MSG_WARNING,2,
 					                  MSG((TypeHistory==HISTORYTYPE_CMD || TypeHistory==HISTORYTYPE_DIALOG?MHistoryTitle:
 					                       (TypeHistory==HISTORYTYPE_FOLDER?MFolderHistoryTitle:MViewHistoryTitle))),

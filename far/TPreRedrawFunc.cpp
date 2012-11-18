@@ -37,8 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "TPreRedrawFunc.hpp"
 
-TPreRedrawFunc PreRedraw;
-
 PreRedrawItem TPreRedrawFunc::errorStack={};
 
 PreRedrawItem TPreRedrawFunc::Pop()
@@ -117,10 +115,10 @@ void TPreRedrawFunc::Free()
 
 TPreRedrawFuncGuard::TPreRedrawFuncGuard(PREREDRAWFUNC Func)
 {
-	PreRedraw.Push(Func);
+	Global->PreRedraw->Push(Func);
 }
 
 TPreRedrawFuncGuard::~TPreRedrawFuncGuard()
 {
-	PreRedraw.Pop();
+	Global->PreRedraw->Pop();
 }

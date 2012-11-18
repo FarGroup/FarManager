@@ -143,16 +143,16 @@ void OpenSysLog()
 	if (LogStream)
 		fclose(LogStream);
 
-	string strLogFileName=g_strFarPath+L"$Log";
+	string strLogFileName=Global->g_strFarPath+L"$Log";
 	DWORD Attr=apiGetFileAttributes(strLogFileName);
 
 	if (Attr == INVALID_FILE_ATTRIBUTES)
 	{
 		if (!apiCreateDirectory(strLogFileName,nullptr))
-			strLogFileName.SetLength(g_strFarPath.GetLength());
+			strLogFileName.SetLength(Global->g_strFarPath.GetLength());
 	}
 	else if (!(Attr&FILE_ATTRIBUTE_DIRECTORY))
-		strLogFileName.SetLength(g_strFarPath.GetLength());
+		strLogFileName.SetLength(Global->g_strFarPath.GetLength());
 
 	LogStream=OpenLogStream(strLogFileName);
 	//if ( !LogStream )
@@ -1769,7 +1769,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 	int InternalLog=fp?FALSE:TRUE;
 	size_t ReadCount2;
 	// берем количество оставшейся порции эвентов
-	Console.GetNumberOfInputEvents(ReadCount2);
+	Global->Console->GetNumberOfInputEvents(ReadCount2);
 
 	if (ReadCount2 <= 1)
 		return;
@@ -1795,7 +1795,7 @@ void INPUT_RECORD_DumpBuffer(FILE *fp)
 			if (TmpRec)
 			{
 				size_t ReadCount3;
-				Console.PeekInput(TmpRec, ReadCount2, ReadCount3);
+				Global->Console->PeekInput(TmpRec, ReadCount2, ReadCount3);
 
 				for (DWORD I=0; I < ReadCount2; ++I)
 				{

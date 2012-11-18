@@ -53,4 +53,3 @@ class PluginSynchro
 		bool Process(void);
 };
 
-extern PluginSynchro PluginSynchroManager;

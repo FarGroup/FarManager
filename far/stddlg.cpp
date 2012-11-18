@@ -498,17 +498,17 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 		{
 			DWORD dwSession;
 			WCHAR szSessionKey[CCH_RM_SESSION_KEY+1] = {};
-			if (ifn.RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
+			if (Global->ifn->RmStartSession(&dwSession, 0, szSessionKey) == ERROR_SUCCESS)
 			{
 				PCWSTR pszFile = FullName;
-				if (ifn.RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
+				if (Global->ifn->RmRegisterResources(dwSession, 1, &pszFile, 0, nullptr, 0, nullptr) == ERROR_SUCCESS)
 				{
 					DWORD dwReason;
 					DWORD RmGetListResult;
 					UINT nProcInfoNeeded;
 					UINT nProcInfo = 1;
 					RM_PROCESS_INFO* rgpi = new RM_PROCESS_INFO[nProcInfo];
-					while((RmGetListResult=ifn.RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi, &dwReason)) == ERROR_MORE_DATA)
+					while((RmGetListResult=Global->ifn->RmGetList(dwSession, &nProcInfoNeeded, &nProcInfo, rgpi, &dwReason)) == ERROR_MORE_DATA)
 					{
 						nProcInfo = nProcInfoNeeded;
 						delete[] rgpi;
@@ -540,7 +540,7 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 					}
 					delete[] rgpi;
 				}
-				ifn.RmEndSession(dwSession);
+				Global->ifn->RmEndSession(dwSession);
 			}
 		}
 	}

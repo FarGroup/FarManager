@@ -41,7 +41,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #define range(low,item,hi) Max(low,Min(item,hi))
 
-string AMonth[2][12],AWeekday[2][7],Month[2][12],Weekday[2][7];
+//string **AMonth, **AWeekday, **Month, **Weekday;
+string  *AMonth[2][12], *AWeekday[2][7], *Month[2][12], *Weekday[2][7];
 
 int CurLang=-1,WeekFirst=0;
 
@@ -78,6 +79,8 @@ wchar_t GetTimeSeparator()
 
 void PrepareStrFTime()
 {
+	static string _AMonth[2][12],_AWeekday[2][7],_Month[2][12],_Weekday[2][7];
+
 	DWORD Loc[]={LANG_ENGLISH,LANG_NEUTRAL},ID;
 
 	GetLocaleInfo(LOCALE_USER_DEFAULT,LOCALE_IFIRSTDAYOFWEEK|LOCALE_RETURN_NUMBER,reinterpret_cast<LPWSTR>(&WeekFirst),sizeof(WeekFirst)/sizeof(WCHAR));
@@ -89,37 +92,41 @@ void PrepareStrFTime()
 		for (ID=LOCALE_SMONTHNAME1; ID<=LOCALE_SMONTHNAME12; ID++)
 		{
 			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp=Month[i][ID-LOCALE_SMONTHNAME1].GetBuffer(size);
+			LPWSTR lpwszTemp=_Month[i][ID-LOCALE_SMONTHNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
-			Month[i][ID-LOCALE_SMONTHNAME1].ReleaseBuffer();
+			_Month[i][ID-LOCALE_SMONTHNAME1].ReleaseBuffer();
+			Month[i][ID-LOCALE_SMONTHNAME1] = &_Month[i][ID-LOCALE_SMONTHNAME1];
 		}
 
 		for (ID=LOCALE_SABBREVMONTHNAME1; ID<=LOCALE_SABBREVMONTHNAME12; ID++)
 		{
 			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp=AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].GetBuffer(size);
+			LPWSTR lpwszTemp=_AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
-			AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].ReleaseBuffer();
+			_AMonth[i][ID-LOCALE_SABBREVMONTHNAME1].ReleaseBuffer();
+			AMonth[i][ID-LOCALE_SABBREVMONTHNAME1] = &_AMonth[i][ID-LOCALE_SABBREVMONTHNAME1];
 		}
 
 		for (ID=LOCALE_SDAYNAME1; ID<=LOCALE_SDAYNAME7; ID++)
 		{
 			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp=Weekday[i][ID-LOCALE_SDAYNAME1].GetBuffer(size);
+			LPWSTR lpwszTemp=_Weekday[i][ID-LOCALE_SDAYNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
-			Weekday[i][ID-LOCALE_SDAYNAME1].ReleaseBuffer();
+			_Weekday[i][ID-LOCALE_SDAYNAME1].ReleaseBuffer();
+			Weekday[i][ID-LOCALE_SDAYNAME1] = &_Weekday[i][ID-LOCALE_SDAYNAME1];
 		}
 
 		for (ID=LOCALE_SABBREVDAYNAME1; ID<=LOCALE_SABBREVDAYNAME7; ID++)
 		{
 			int size=GetLocaleInfo(CurLCID,ID,nullptr,0);
-			LPWSTR lpwszTemp=AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].GetBuffer(size);
+			LPWSTR lpwszTemp=_AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].GetBuffer(size);
 			GetLocaleInfo(CurLCID,ID,lpwszTemp,size);
 			*lpwszTemp=Upper(*lpwszTemp);
-			AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].ReleaseBuffer();
+			_AWeekday[i][ID-LOCALE_SABBREVDAYNAME1].ReleaseBuffer();
+			AWeekday[i][ID-LOCALE_SABBREVDAYNAME1] = &_AWeekday[i][ID-LOCALE_SABBREVDAYNAME1];
 		}
 	}
 
@@ -130,8 +137,8 @@ static int atime(string &strDest,const tm *tmPtr)
 {
 	// Thu Oct 07 12:37:32 1999
 	return strDest.Format(L"%s %s %02d %02d:%02d:%02d %4d",
-	                      AWeekday[CurLang][!WeekFirst?((tmPtr->tm_wday+6)%7):(!(tmPtr->tm_wday)?6:tmPtr->tm_wday-1)].CPtr(),
-	                      AMonth[CurLang][tmPtr->tm_mon].CPtr(),
+	                      AWeekday[CurLang][!WeekFirst?((tmPtr->tm_wday+6)%7):(!(tmPtr->tm_wday)?6:tmPtr->tm_wday-1)]->CPtr(),
+	                      AMonth[CurLang][tmPtr->tm_mon]->CPtr(),
 	                      tmPtr->tm_mday,
 	                      tmPtr->tm_hour,
 	                      tmPtr->tm_min,
@@ -146,7 +153,7 @@ static int st_time(string &strDest,const tm *tmPtr,const wchar_t chr)
 
 	if (chr==L'v')
 	{
-		res=strDest.Format(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),AMonth[CurLang][range(0, tmPtr->tm_mon,11)].CPtr(),tmPtr->tm_year+1900);
+		res=strDest.Format(L"%2d-%3.3s-%4d",range(1,tmPtr->tm_mday,31),AMonth[CurLang][range(0, tmPtr->tm_mon,11)]->CPtr(),tmPtr->tm_year+1900);
 		strDest.Upper(3,3);
 	}
 	else
@@ -314,7 +321,7 @@ static int iso8601wknum(const tm *timeptr)
 
 size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 {
-	if (CurLang==-1 && Lang.IsLanguageLoaded())
+	if (CurLang==-1 && Global->Lang->IsLanguageLoaded())
 		PrepareStrFTime();
 
 	// меняем язык.
@@ -342,23 +349,23 @@ size_t StrFTime(string &strDest, const wchar_t *Format,const tm *t)
 					// Краткое имя дня недели (Sun,Mon,Tue,Wed,Thu,Fri,Sat)
 					// abbreviated weekday name
 				case L'a':
-					strBuf=AWeekday[CurLang][!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
+					strBuf=*AWeekday[CurLang][!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
 					break;
 					// Полное имя дня недели
 					// full weekday name
 				case L'A':
-					strBuf=Weekday[CurLang][!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
+					strBuf=*Weekday[CurLang][!WeekFirst?((t->tm_wday+6)%7):(!t->tm_wday?6:t->tm_wday-1)];
 					break;
 					// Краткое имя месяца (Jan,Feb,...)
 					// abbreviated month name
 				case L'h':
 				case L'b':
-					strBuf=AMonth[CurLang][t->tm_mon];
+					strBuf=*AMonth[CurLang][t->tm_mon];
 					break;
 					// Полное имя месяца
 					// full month name
 				case L'B':
-					strBuf=Month[CurLang][t->tm_mon];
+					strBuf=*Month[CurLang][t->tm_mon];
 					break;
 					//Дата и время в формате WDay Mnt  Day HH:MM:SS yyyy
 					//appropriate date and time representation
@@ -532,7 +539,7 @@ size_t MkStrFTime(string &strDest, const wchar_t *Fmt)
 	time_now=localtime(&secs_now);
 
 	if (!Fmt||!*Fmt)
-		Fmt=Opt.Macro.strDateFormat;
+		Fmt=Global->Opt->Macro.strDateFormat;
 
 	return StrFTime(strDest,Fmt,time_now);
 }

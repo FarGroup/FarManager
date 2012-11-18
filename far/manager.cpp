@@ -661,7 +661,7 @@ int Manager::HaveAnyFrame()
 
 void Manager::EnterMainLoop()
 {
-	WaitInFastFind=0;
+	Global->WaitInFastFind=0;
 	StartManager=TRUE;
 
 	for (;;)
@@ -696,11 +696,11 @@ void Manager::ProcessMainLoop()
 	else
 	{
 		// Mantis#0000073: Ќе работает автоскролинг в QView
-		WaitInMainLoop=IsPanelsActive(true);
+		Global->WaitInMainLoop=IsPanelsActive(true);
 		//WaitInFastFind++;
 		int Key=GetInputRecord(&LastInputRecord);
 		//WaitInFastFind--;
-		WaitInMainLoop=FALSE;
+		Global->WaitInMainLoop=FALSE;
 
 		if (EndLoop)
 			return;
@@ -717,7 +717,7 @@ void Manager::ProcessMainLoop()
 
 	if(IsPanelsActive())
 	{
-		if(!PluginPanelsCount)
+		if(!Global->PluginPanelsCount)
 		{
 			CtrlObject->Plugins->RefreshPluginsList();
 		}
@@ -726,18 +726,18 @@ void Manager::ProcessMainLoop()
 
 void Manager::ExitMainLoop(int Ask)
 {
-	if (CloseFAR)
+	if (Global->CloseFAR)
 	{
-		CloseFARMenu=TRUE;
+		Global->CloseFARMenu=TRUE;
 	};
 
-	if (!Ask || !Opt.Confirm.Exit || !Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo)))
+	if (!Ask || !Global->Opt->Confirm.Exit || !Message(0,2,MSG(MQuit),MSG(MAskQuit),MSG(MYes),MSG(MNo)))
 	{
 		/* $ 29.12.2000 IS
 		   + ѕровер€ем, сохранены ли все измененные файлы. ≈сли нет, то не выходим
 		     из фара.
 		*/
-		if (ExitAll() || CloseFAR)
+		if (ExitAll() || Global->CloseFAR)
 		{
 			FilePanels *cp;
 
@@ -747,7 +747,7 @@ void Manager::ExitMainLoop(int Ask)
 		}
 		else
 		{
-			CloseFARMenu=FALSE;
+			Global->CloseFARMenu=FALSE;
 		}
 	}
 }
@@ -963,11 +963,11 @@ int Manager::ProcessKey(DWORD Key)
 		}
 
 		/*** ј вот здесь - все остальное! ***/
-		if (!IsProcessAssignMacroKey)
+		if (!Global->IsProcessAssignMacroKey)
 			// в любом случае если кому-то не нужны все клавиши или
 		{
 			bool scrollable = false;
-			if ( Opt.WindowMode )
+			if ( Global->Opt->WindowMode )
 			{
 				int frame_type = CurrentFrame->GetType();
 				scrollable = frame_type != MODALTYPE_EDITOR && frame_type != MODALTYPE_VIEWER;
@@ -982,7 +982,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTUP:
 					if(scrollable)
 					{
-						Console.ScrollWindow(-1);
+						Global->Console->ScrollWindow(-1);
 						return TRUE;
 					}
 					break;
@@ -993,7 +993,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTDOWN:
 					if(scrollable)
 					{
-						Console.ScrollWindow(1);
+						Global->Console->ScrollWindow(1);
 						return TRUE;
 					}
 					break;
@@ -1004,7 +1004,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTPGUP:
 					if(scrollable)
 					{
-						Console.ScrollWindow(-ScrY);
+						Global->Console->ScrollWindow(-ScrY);
 						return TRUE;
 					}
 					break;
@@ -1015,7 +1015,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTHOME:
 					if(scrollable)
 					{
-						while(Console.ScrollWindow(-ScrY));
+						while(Global->Console->ScrollWindow(-ScrY));
 						return TRUE;
 					}
 					break;
@@ -1026,7 +1026,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTPGDN:
 					if(scrollable)
 					{
-						Console.ScrollWindow(ScrY);
+						Global->Console->ScrollWindow(ScrY);
 						return TRUE;
 					}
 					break;
@@ -1037,7 +1037,7 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_RCTRLALTEND:
 					if(scrollable)
 					{
-						while(Console.ScrollWindow(ScrY));
+						while(Global->Console->ScrollWindow(ScrY));
 						return TRUE;
 					}
 					break;
@@ -1108,13 +1108,13 @@ int Manager::ProcessKey(DWORD Key)
 				case KEY_CTRLALTSHIFTPRESS:
 				case KEY_RCTRLALTSHIFTPRESS:
 				{
-					if (!(Opt.CASRule&1) && Key == KEY_CTRLALTSHIFTPRESS)
+					if (!(Global->Opt->CASRule&1) && Key == KEY_CTRLALTSHIFTPRESS)
 						break;
 
-					if (!(Opt.CASRule&2) && Key == KEY_RCTRLALTSHIFTPRESS)
+					if (!(Global->Opt->CASRule&2) && Key == KEY_RCTRLALTSHIFTPRESS)
 						break;
 
-					if (!Opt.OnlyEditorViewerUsed)
+					if (!Global->Opt->OnlyEditorViewerUsed)
 					{
 						if (CurrentFrame->FastHide())
 						{
@@ -1130,7 +1130,7 @@ int Manager::ProcessKey(DWORD Key)
 								CtrlObject->Cp()->LeftPanel->Hide0();
 								CtrlObject->Cp()->RightPanel->Hide0();
 
-								switch (Opt.PanelCtrlAltShiftRule)
+								switch (Global->Opt->PanelCtrlAltShiftRule)
 								{
 									case 0:
 										CtrlObject->CmdLine->Show();
@@ -1659,7 +1659,7 @@ void Manager::RefreshCommit()
 
 	if (!RefreshedFrame->Locked())
 	{
-		if (!IsRedrawFramesInProcess)
+		if (!Global->IsRedrawFramesInProcess)
 			RefreshedFrame->ShowConsoleTitle();
 
 		if (RefreshedFrame)
@@ -1671,10 +1671,10 @@ void Manager::RefreshCommit()
 		CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
 	}
 
-	if ((Opt.ViewerEditorClock &&
+	if ((Global->Opt->ViewerEditorClock &&
 	        (RefreshedFrame->GetType() == MODALTYPE_EDITOR ||
 	         RefreshedFrame->GetType() == MODALTYPE_VIEWER))
-	        || (WaitInMainLoop && Opt.Clock))
+	        || (Global->WaitInMainLoop && Global->Opt->Clock))
 		ShowTime(1);
 }
 
@@ -1735,7 +1735,7 @@ void Manager::ImmediateHide()
 		else
 		{
 			int UnlockCount=0;
-			IsRedrawFramesInProcess++;
+			Global->IsRedrawFramesInProcess++;
 
 			while ((*this)[FramePos]->Locked())
 			{
@@ -1772,7 +1772,7 @@ void Manager::ImmediateHide()
 			   Ётим мы предотвращаем мелькание заголовка консоли
 			   при перерисовке всех фреймов.
 			*/
-			IsRedrawFramesInProcess--;
+			Global->IsRedrawFramesInProcess--;
 			CurrentFrame->ShowConsoleTitle();
 		}
 	}
@@ -1850,7 +1850,7 @@ void Manager::ResizeAllModal(Frame *ModalFrame)
 
 void Manager::ResizeAllFrame()
 {
-	ScrBuf.Lock();
+	Global->ScrBuf->Lock();
 	for (int i=0; i < FrameCount; i++)
 	{
 		FrameList[i]->ResizeConsole();
@@ -1868,7 +1868,7 @@ void Manager::ResizeAllFrame()
 	ImmediateHide();
 	FrameManager->RefreshFrame();
 	//RefreshFrame();
-	ScrBuf.Unlock();
+	Global->ScrBuf->Unlock();
 }
 
 void Manager::InitKeyBar()

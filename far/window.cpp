@@ -37,8 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "imports.hpp"
 
-events Events;
-
 LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	switch(Msg)
@@ -67,11 +65,11 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 						PDEV_BROADCAST_VOLUME Pdv=reinterpret_cast<PDEV_BROADCAST_VOLUME>(Pbh);
 						if(Pdv->dbcv_flags&DBTF_MEDIA)
 						{
-							Arrival?Events.MediaArivalEvent.Set():Events.MediaRemoveEvent.Set();
+							Arrival? Global->Window->MediaArivalEvent().Set() : Global->Window->MediaRemoveEvent().Set();
 						}
 						else
 						{
-							Arrival?Events.DeviceArivalEvent.Set():Events.DeviceRemoveEvent.Set();
+							Arrival? Global->Window->DeviceArivalEvent().Set() : Global->Window->DeviceRemoveEvent().Set();
 						}
 					}
 				}
@@ -82,9 +80,9 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_SETTINGCHANGE:
-		if(Opt.UpdateEnvironment && lParam && !StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
+		if(Global->Opt->UpdateEnvironment && lParam && !StrCmp(reinterpret_cast<LPCWSTR>(lParam),L"Environment"))
 		{
-			Events.EnvironmentChangeEvent.Set();
+			Global->Window->EnvironmentChangeEvent().Set();
 			break;
 		}
 
@@ -94,7 +92,7 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 		case PBT_APMPOWERSTATUSCHANGE: // change status
 
 		case PBT_POWERSETTINGCHANGE:   // change percent
-			Events.PowerChangeEvent.Set();
+			Global->Window->PowerChangeEvent().Set();
 			break;
 		// TODO:
 		// PBT_APMSUSPEND & PBT_APMRESUMEAUTOMATIC handlers
@@ -120,7 +118,7 @@ unsigned int WINAPI WindowThreadRoutine(LPVOID Param)
 		if(*pHwnd)
 		{
 			// for PBT_POWERSETTINGCHANGE
-			HPOWERNOTIFY hpn=ifn.RegisterPowerSettingNotification(*pHwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
+			HPOWERNOTIFY hpn=Global->ifn->RegisterPowerSettingNotification(*pHwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
 
 			MSG Msg;
 			while(GetMessage(&Msg, nullptr, 0, 0)>0)
@@ -130,7 +128,7 @@ unsigned int WINAPI WindowThreadRoutine(LPVOID Param)
 			}
 
 			if (hpn) // for PBT_POWERSETTINGCHANGE
-				ifn.UnregisterPowerSettingNotification(hpn);
+				Global->ifn->UnregisterPowerSettingNotification(hpn);
 
 		}
 		UnregisterClass(wc.lpszClassName, 0);
@@ -138,29 +136,29 @@ unsigned int WINAPI WindowThreadRoutine(LPVOID Param)
 	return 0;
 }
 
-WindowHandler::WindowHandler()
+WindowHandler::WindowHandler():
+	m_Thread(nullptr),
+	m_Hwnd(nullptr)
 {
 	Check();
 }
 
 WindowHandler::~WindowHandler()
 {
-	if(Hwnd)
+	if(m_Hwnd)
 	{
-		SendMessage(Hwnd,WM_CLOSE, 0, 0);
+		SendMessage(m_Hwnd,WM_CLOSE, 0, 0);
 	}
-	if(Thread)
+	if(m_Thread)
 	{
-		CloseHandle(Thread);
+		CloseHandle(m_Thread);
 	}
 }
 
 void WindowHandler::Check()
 {
-	if(!Thread || WaitForSingleObject(Thread, 0)!=WAIT_TIMEOUT)
+	if(!m_Thread || WaitForSingleObject(m_Thread, 0)!=WAIT_TIMEOUT)
 	{
-		Thread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, WindowThreadRoutine, &Hwnd, 0, nullptr));
+		m_Thread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, WindowThreadRoutine, &m_Hwnd, 0, nullptr));
 	}
 }
-
-WindowHandler Window;

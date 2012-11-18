@@ -82,8 +82,8 @@ static int utf8_to_WideChar(const char *s, int nc, wchar_t *w1,wchar_t *w2, int 
 #define ZERO_CHAR     (ViOpt.Visible0x00 && ViOpt.ZeroChar > 0 ? (wchar_t)(ViOpt.ZeroChar) : L' ')
 
 Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
-	ViOpt(Opt.ViOpt),
-	Reader(ViewFile, (Opt.ViOpt.MaxLineSize*2*64 > 64*1024 ? Opt.ViOpt.MaxLineSize*2*64 : 64*1024)),
+	ViOpt(Global->Opt->ViOpt),
+	Reader(ViewFile, (Global->Opt->ViOpt.MaxLineSize*2*64 > 64*1024 ? Global->Opt->ViOpt.MaxLineSize*2*64 : 64*1024)),
 	m_bQuickView(bQuickView)
 {
 	_OT(SysLog(L"[%p] Viewer::Viewer()", this));
@@ -94,18 +94,18 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 		Strings[i] = new ViewerString();
 	}
 
-	strLastSearchStr = strGlobalSearchString;
-	LastSearchCase=GlobalSearchCase;
-	LastSearchRegexp=Opt.ViOpt.SearchRegexp;
-	LastSearchWholeWords=GlobalSearchWholeWords;
-	LastSearchReverse=GlobalSearchReverse;
-	LastSearchHex=GlobalSearchHex;
-	LastSearchDirection = GlobalSearchReverse ? -1 : +1;
+	strLastSearchStr = Global->strGlobalSearchString;
+	LastSearchCase=Global->GlobalSearchCase;
+	LastSearchRegexp=Global->Opt->ViOpt.SearchRegexp;
+	LastSearchWholeWords=Global->GlobalSearchWholeWords;
+	LastSearchReverse=Global->GlobalSearchReverse;
+	LastSearchHex=Global->GlobalSearchHex;
+	LastSearchDirection =Global->GlobalSearchReverse ? -1 : +1;
 	StartSearchPos = 0;
 	VM.CodePage=DefCodePage=aCodePage;
 	// Вспомним тип врапа
-	VM.Wrap=Opt.ViOpt.ViewerIsWrap;
-	VM.WordWrap=Opt.ViOpt.ViewerWrap;
+	VM.Wrap=Global->Opt->ViOpt.ViewerIsWrap;
+	VM.WordWrap=Global->Opt->ViOpt.ViewerWrap;
 	VM.Hex = dump_text_mode = -1;
 	ViewKeyBar=nullptr;
 	FilePos=0;
@@ -145,7 +145,7 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	lcache_ready = false;
 	lcache_wrap = lcache_wwrap = lcache_width = -1;
 
-	int cached_buffer_size = 64*Max(Opt.ViOpt.MaxLineSize*2, (intptr_t)1024);
+	int cached_buffer_size = 64*Max(Global->Opt->ViOpt.MaxLineSize*2, (intptr_t)1024);
 	max_backward_size = ViewerOptions::eMaxLineSize*3;
 	if ( max_backward_size > cached_buffer_size/2 )
 		max_backward_size = cached_buffer_size / 2;
@@ -217,7 +217,7 @@ Viewer::~Viewer()
 
 void Viewer::SavePosition()
 {
-	if (Opt.ViOpt.SavePos || Opt.ViOpt.SaveCodepage || Opt.ViOpt.SaveWrapMode)
+	if (Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode)
 	{
 		ViewerPosCache poscache;
 
@@ -235,14 +235,14 @@ void Viewer::SavePosition()
 
 void Viewer::KeepInitParameters()
 {
-	strGlobalSearchString = strLastSearchStr;
-	GlobalSearchCase=LastSearchCase;
-	GlobalSearchWholeWords=LastSearchWholeWords;
-	GlobalSearchReverse=LastSearchReverse;
-	GlobalSearchHex=LastSearchHex;
-	Opt.ViOpt.ViewerIsWrap=VM.Wrap != 0;
-	Opt.ViOpt.ViewerWrap=VM.WordWrap != 0;
-	Opt.ViOpt.SearchRegexp=LastSearchRegexp;
+	Global->strGlobalSearchString = strLastSearchStr;
+	Global->GlobalSearchCase=LastSearchCase;
+	Global->GlobalSearchWholeWords=LastSearchWholeWords;
+	Global->GlobalSearchReverse=LastSearchReverse;
+	Global->GlobalSearchHex=LastSearchHex;
+	Global->Opt->ViOpt.ViewerIsWrap=VM.Wrap != 0;
+	Global->Opt->ViOpt.ViewerWrap=VM.WordWrap != 0;
+	Global->Opt->ViOpt.SearchRegexp=LastSearchRegexp;
 }
 
 
@@ -259,7 +259,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	SelectSize = -1; // Сбросим выделение
 	strFileName = Name;
 
-	if (Opt.OnlyEditorViewerUsed && !StrCmp(strFileName, L"-"))
+	if (Global->Opt->OnlyEditorViewerUsed && !StrCmp(strFileName, L"-"))
 	{
 		string strTempName;
 
@@ -277,7 +277,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 		DWORD ReadSize = 0, WrittenSize;
 
-		while (ReadFile(Console.GetInputHandle(),vread_buffer,(DWORD)vread_buffer_size,&ReadSize,nullptr) && ReadSize)
+		while (ReadFile(Global->Console->GetInputHandle(),vread_buffer,(DWORD)vread_buffer_size,&ReadSize,nullptr) && ReadSize)
 		{
 			ViewFile.Write(vread_buffer,ReadSize,WrittenSize);
 		}
@@ -313,14 +313,14 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	apiGetFindDataEx(strFileName, ViewFindData);
 	UINT CachedCodePage=0;
 
-	if ((Opt.ViOpt.SavePos || Opt.ViOpt.SaveCodepage || Opt.ViOpt.SaveWrapMode) && !ReadStdin)
+	if ((Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode) && !ReadStdin)
 	{
 		__int64 NewLeftPos,NewFilePos;
 		string strCacheName=strPluginData.IsEmpty()?strFileName:strPluginData+PointToName(strFileName);
 		ViewerPosCache poscache;
 
 		bool found = FilePositionCache::GetPosition(strCacheName,poscache);
-		if (Opt.ViOpt.SavePos)
+		if (Global->Opt->ViOpt.SavePos)
 		{
 			NewFilePos=poscache.FilePos;
 			NewLeftPos=poscache.LeftPos;
@@ -334,13 +334,13 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 			LastSelectPos=FilePos=NewFilePos;
 			LeftPos=NewLeftPos;
 		}
-		if (Opt.ViOpt.SaveCodepage || Opt.ViOpt.SavePos)
+		if (Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SavePos)
 		{
 			CachedCodePage=poscache.CodePage;
 			if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
 				CachedCodePage = 0;
 		}
-		if (Opt.ViOpt.SaveWrapMode && 0 != (poscache.Hex_Wrap & 0x10))
+		if (Global->Opt->ViOpt.SaveWrapMode && 0 != (poscache.Hex_Wrap & 0x10))
 		{
 			VM.Wrap     = (poscache.Hex_Wrap & 0x20 ? 1 : 0);
 			VM.WordWrap = (poscache.Hex_Wrap & 0x40 ? 1 : 0);
@@ -363,7 +363,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 		if (VM.CodePage == CP_DEFAULT || IsUnicodeOrUtfCodePage(VM.CodePage))
 		{
-			Detect=GetFileFormat(ViewFile,CodePage,&Signature,Opt.ViOpt.AutoDetectCodePage!=0);
+			Detect=GetFileFormat(ViewFile,CodePage,&Signature,Global->Opt->ViOpt.AutoDetectCodePage!=0);
 
 			// Проверяем поддерживается или нет задетектированная кодовая страница
 			if (Detect)
@@ -385,7 +385,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 			}
 
 			if (VM.CodePage==CP_DEFAULT)
-				VM.CodePage=Opt.ViOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
+				VM.CodePage=Global->Opt->ViOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
 		}
 		else
 		{
@@ -488,7 +488,7 @@ void Viewer::ShowPage(int nMode)
 			SetScreen(X1,Y1,X2,Y2,L' ',ColorIndexToColor(COL_VIEWERTEXT));
 			GotoXY(X1,Y1);
 			SetColor(COL_WARNDIALOGTEXT);
-			FS<<fmt::MaxWidth(XX2-X1+1)<<MSG(MViewerCannotOpenFile);
+			Global->FS << fmt::MaxWidth(XX2-X1+1)<<MSG(MViewerCannotOpenFile);
 			ShowStatus();
 		}
 
@@ -577,11 +577,11 @@ void Viewer::ShowPage(int nMode)
 
 			if (StrLen > LeftPos)
 			{
-				FS<<fmt::LeftAlign()<<fmt::ExactWidth(Width)<<&Strings[I]->lpData[static_cast<size_t>(LeftPos)];
+				Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(Width)<<&Strings[I]->lpData[static_cast<size_t>(LeftPos)];
 			}
 			else
 			{
-				FS<<fmt::MinWidth(Width)<<L"";
+				Global->FS << fmt::MinWidth(Width)<<L"";
 			}
 
 			if ( SelectSize >= 0 && Strings[I]->bSelection)
@@ -615,7 +615,7 @@ void Viewer::ShowPage(int nMode)
 					if (LeftPos > Strings[I]->nSelEnd)
 						Length = 0;
 
-					FS<<fmt::MaxWidth(static_cast<size_t>(Length))<<&Strings[I]->lpData[static_cast<size_t>(SelX1+LeftPos)];
+					Global->FS << fmt::MaxWidth(static_cast<size_t>(Length))<<&Strings[I]->lpData[static_cast<size_t>(SelX1+LeftPos)];
 				}
 			}
 
@@ -746,7 +746,7 @@ void Viewer::ShowDump()
 
 		if (EndFile)
 		{
-			FS<<fmt::MinWidth(ObjWidth)<<L"";
+			Global->FS << fmt::MinWidth(ObjWidth)<<L"";
 			continue;
 		}
 		bpos = vtell();
@@ -762,13 +762,13 @@ void Viewer::ShowDump()
 
 		txt_dump(VM.CodePage, line, nr, Width, OutStr, ZERO_CHAR);
 
-		FS<<fmt::LeftAlign()<<fmt::MinWidth(ObjWidth)<<OutStr;
+		Global->FS << fmt::LeftAlign()<<fmt::MinWidth(ObjWidth)<<OutStr;
 		if ( SelectSize > 0 && bpos < SelectPos+SelectSize && bpos+mb > SelectPos ) {
 			int bsel = SelectPos > bpos ? (int)(SelectPos-bpos) / ch_size : 0;
 			int esel = SelectPos+SelectSize < bpos+mb ? ((int)(SelectPos+SelectSize-bpos)+ch_size-1)/ch_size: Width;
 			SetColor(COL_VIEWERSELECTEDTEXT);
 			GotoXY(bsel, Y);
-			FS<<fmt::MaxWidth(esel-bsel)<<OutStr+bsel;
+			Global->FS << fmt::MaxWidth(esel-bsel)<<OutStr+bsel;
 		}
 	}
 }
@@ -795,7 +795,7 @@ void Viewer::ShowHex()
 
 		if (EndFile)
 		{
-			FS<<fmt::MinWidth(ObjWidth)<<L"";
+			Global->FS << fmt::MinWidth(ObjWidth)<<L"";
 			continue;
 		}
 
@@ -943,18 +943,18 @@ void Viewer::ShowHex()
 
 		if (StrLength(OutStr)>HexLeftPos)
 		{
-			FS<<fmt::LeftAlign()<<fmt::ExactWidth(ObjWidth)<<OutStr+static_cast<size_t>(HexLeftPos);
+			Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(ObjWidth)<<OutStr+static_cast<size_t>(HexLeftPos);
 		}
 		else
 		{
-			FS<<fmt::MinWidth(ObjWidth)<<L"";
+			Global->FS << fmt::MinWidth(ObjWidth)<<L"";
 		}
 
 		if (bSelStartFound && bSelEndFound)
 		{
 			SetColor(COL_VIEWERSELECTEDTEXT);
 			GotoXY((int)((__int64)X1+SelStart-HexLeftPos),Y);
-			FS<<fmt::MaxWidth(SelEnd-SelStart+1)<<OutStr+static_cast<size_t>(SelStart);
+			Global->FS << fmt::MaxWidth(SelEnd-SelStart+1)<<OutStr+static_cast<size_t>(SelStart);
 			SelSize = 0;
 		}
 	}
@@ -1044,7 +1044,7 @@ static bool is_word_div ( const wchar_t ch )
 	static const wchar_t spaces[] = { L' ', L'\t', L'\n', L'\r', BOM_CHAR, REPLACE_CHAR, L'\0' };
 	return ( !ch
 		|| nullptr != wcschr(spaces, ch)
-		|| nullptr != wcschr(Opt.strWordDiv, ch)
+		|| nullptr != wcschr(Global->Opt->strWordDiv, ch)
 	);
 }
 
@@ -1337,7 +1337,7 @@ __int64 Viewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			MacroViewerState |= VM.WordWrap                  ? 0x00000010 : 0; //word wrap
 			MacroViewerState |= VM.Hex == 1                  ? 0x00000020 : 0; //hex mode
 			MacroViewerState |= VM.Hex  > 1                  ? 0x00000040 : 0; //dump mode -- !!!update help
-			MacroViewerState |= Opt.OnlyEditorViewerUsed?0x08000000|0x00000800:0;
+			MacroViewerState |= Global->Opt->OnlyEditorViewerUsed?0x08000000|0x00000800:0;
 			MacroViewerState |= HostFileViewer && !HostFileViewer->GetCanLoseFocus()?0x00000800:0;
 			return (__int64)MacroViewerState;
 		}
@@ -1446,7 +1446,7 @@ int Viewer::ProcessKey(int Key)
 		case KEY_RCTRLS:
 		{
 			ViOpt.ShowScrollbar=!ViOpt.ShowScrollbar;
-			Opt.ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
+			Global->Opt->ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
 
 			if (m_bQuickView)
 				CtrlObject->Cp()->ActivePanel->Redraw();
@@ -1456,7 +1456,7 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_IDLE:
 		{
-			if (Opt.ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() && Opt.ViOpt.ShowTitleBar)
+			if (Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() && Global->Opt->ViOpt.ShowTitleBar)
 				ShowTime(FALSE);
 
 			if (ViewFile.Opened() && update_check_period >= 0)
@@ -1651,7 +1651,7 @@ int Viewer::ProcessKey(int Key)
 					bool detect = GetFileFormat(ViewFile,nCodePage,&Signature,true) && IsCodePageSupported(nCodePage);
 					vseek(fpos, SEEK_SET);
 					if (!detect)
-						nCodePage = Opt.ViOpt.AnsiCodePageAsDefault ? GetACP() : GetOEMCP();
+						nCodePage = Global->Opt->ViOpt.AnsiCodePageAsDefault ? GetACP() : GetOEMCP();
 				}
 				CodePageChangedByUser=TRUE;
 				VM.CodePage=nCodePage;
@@ -1686,7 +1686,7 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_UP);
@@ -1697,7 +1697,7 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_DOWN);
@@ -1708,7 +1708,7 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsHWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_LEFT);
@@ -1719,7 +1719,7 @@ int Viewer::ProcessKey(int Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsHWheelDeltaView;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaView;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_RIGHT);
@@ -2082,7 +2082,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (IntKeyState.MouseY != Y1-1)
 			return TRUE;
 
-		int NameLen = Max(20, ObjWidth-40-(Opt.ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() ? 3+5 : 0));
+		int NameLen = Max(20, ObjWidth-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() ? 3+5 : 0));
 		wchar_t tt[10];
 		int cp_len = wsprintf(tt, L"%u", VM.CodePage);
 		//                           ViewMode     CopdePage             Goto
@@ -2628,7 +2628,7 @@ intptr_t WINAPI ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,voi
 
 static void PR_ViewerSearchMsg()
 {
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	const wchar_t *name = (const wchar_t*)preRedrawItem.Param.Param1;
 	int percent = (int)(intptr_t)preRedrawItem.Param.Param2;
 	int search_hex = (int)(intptr_t)preRedrawItem.Param.Param3;
@@ -2658,15 +2658,15 @@ void ViewerSearchMsg(const wchar_t *MsgStr, int Percent, int SearchHex)
 			strProgress+=FormatString()<<L" "<<fmt::MinWidth(PercentLength)<<strPercent<<L"%";;
 		}
 
-		TBC.SetProgressValue(Percent,100);
+		Global->TBC->SetProgressValue(Percent,100);
 	}
 
 	Message(MSG_LEFTALIGN,0,MSG(MViewSearchTitle),strMsg,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	preRedrawItem.Param.Param1=(void*)MsgStr;
 	preRedrawItem.Param.Param2=(LPVOID)(intptr_t)Percent;
 	preRedrawItem.Param.Param3=(LPVOID)(intptr_t)SearchHex;
-	PreRedraw.SetParam(preRedrawItem.Param);
+	Global->PreRedraw->SetParam(preRedrawItem.Param);
 }
 
 static void ss2hex(string& to, const char *c1, int len, wchar_t sep = L' ')
@@ -3469,7 +3469,7 @@ void Viewer::Search(int Next,int FirstChar)
 				break;
 
 			DWORD cur_time = GetTickCount();
-			if ( cur_time - start_time > (DWORD)Opt.RedrawTimeout )
+			if ( cur_time - start_time > (DWORD)Global->Opt->RedrawTimeout )
 			{
 				start_time = cur_time;
 
@@ -3514,7 +3514,7 @@ void Viewer::Search(int Next,int FirstChar)
 		LastSelectSize = SelectSize;
 
 		// Покажем найденное на расстоянии четверти экрана от верха.
-		int FromTop=(ScrY-(Opt.ViOpt.ShowKeyBar?2:1))/4;
+		int FromTop=(ScrY-(Global->Opt->ViOpt.ShowKeyBar?2:1))/4;
 
 		if (FromTop<0 || FromTop>ScrY)
 			FromTop=0;
@@ -3570,7 +3570,7 @@ void Viewer::GetFileName(string &strName)
 
 void Viewer::ShowConsoleTitle()
 {
-	string strViewerTitleFormat=Opt.strViewerTitleFormat.Get();
+	string strViewerTitleFormat=Global->Opt->strViewerTitleFormat.Get();
 	ReplaceStrings(strViewerTitleFormat,L"%Lng",MSG(MInViewer),-1,true);
 	ReplaceStrings(strViewerTitleFormat,L"%File",PointToName(strFileName),-1,true);
 	ConsoleTitle::SetFarTitle(strViewerTitleFormat);
@@ -4200,7 +4200,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				if (2==VM.Hex) Info->CurMode.ViewMode=VMT_DUMP;
 				Info->Options=0;
 
-				if (Opt.ViOpt.SavePos)   Info->Options|=VOPT_SAVEFILEPOSITION;
+				if (Global->Opt->ViOpt.SavePos)   Info->Options|=VOPT_SAVEFILEPOSITION;
 
 				if (ViOpt.AutoDetectCodePage)     Info->Options|=VOPT_AUTODETECTCODEPAGE;
 
@@ -4229,7 +4229,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 				GoTo(FALSE, vsp->StartPos, vsp->Flags);
 
 				if (isReShow && !(vsp->Flags&VSP_NOREDRAW))
-					ScrBuf.Flush();
+					Global->ScrBuf->Flush();
 
 				if (!(vsp->Flags&VSP_NORETNEWPOS))
 				{
@@ -4259,7 +4259,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 					}
 
 					SelectText(SPos,SSize,0x1);
-					ScrBuf.Flush();
+					Global->ScrBuf->Flush();
 					return TRUE;
 				}
 			}
@@ -4295,7 +4295,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 						return FALSE;
 				}
 				ViewKeyBar->Show();
-				ScrBuf.Flush(); //?????
+				Global->ScrBuf->Flush(); //?????
 			}
 
 			return TRUE;
@@ -4305,7 +4305,7 @@ int Viewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
 		{
 			ChangeViewKeyBar();
 			Show();
-			ScrBuf.Flush();
+			Global->ScrBuf->Flush();
 			return TRUE;
 		}
 		// Param2=0
@@ -4409,7 +4409,7 @@ int Viewer::ProcessWrapMode(int newMode, bool isRedraw)
 		Show();
 	}
 
-	Opt.ViOpt.ViewerIsWrap = VM.Wrap != 0;
+	Global->Opt->ViOpt.ViewerIsWrap = VM.Wrap != 0;
 	return oldWrap;
 }
 
@@ -4433,6 +4433,6 @@ int Viewer::ProcessTypeWrapMode(int newMode, bool isRedraw)
 		Show();
 	}
 
-	Opt.ViOpt.ViewerWrap = VM.WordWrap != 0;
+	Global->Opt->ViOpt.ViewerWrap = VM.WordWrap != 0;
 	return oldTypeWrap;
 }

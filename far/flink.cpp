@@ -174,7 +174,7 @@ bool CreateReparsePoint(const string& Target, const string& Object,ReparsePointT
 						DWORD Attr = apiGetFileAttributes(Target);
 						Type = ((Attr != INVALID_FILE_ATTRIBUTES) && (Attr&FILE_ATTRIBUTE_DIRECTORY)? RP_SYMLINKDIR : RP_SYMLINKFILE);
 					}
-					if (ifn.CreateSymbolicLinkWPresent() && !ObjectExist)
+					if (Global->ifn->CreateSymbolicLinkWPresent() && !ObjectExist)
 					{
 						Result=apiCreateSymbolicLink(Object,Target,Type==RP_SYMLINKDIR?SYMBOLIC_LINK_FLAG_DIRECTORY:0);
 					}
@@ -425,14 +425,14 @@ bool GetSubstName(int DriveType,const string& DeviceName, string &strTargetPath)
 {
 	bool Ret=false;
 	/*
-	+ Обработка в зависимости от Opt.SubstNameRule
+	+ Обработка в зависимости от Global->Opt->SubstNameRule
 	битовая маска:
 	0 - если установлен, то опрашивать сменные диски
 	1 - если установлен, то опрашивать все остальные
 	*/
 	bool DriveRemovable = (DriveType==DRIVE_REMOVABLE || DriveType==DRIVE_CDROM);
 
-	if (DriveType==DRIVE_NOT_INIT || (((Opt.SubstNameRule & 1) || !DriveRemovable) && ((Opt.SubstNameRule & 2) || DriveRemovable)))
+	if (DriveType==DRIVE_NOT_INIT || (((Global->Opt->SubstNameRule & 1) || !DriveRemovable) && ((Global->Opt->SubstNameRule & 2) || DriveRemovable)))
 	{
 		PATH_TYPE Type = ParsePath(DeviceName);
 		if (Type == PATH_DRIVELETTER)

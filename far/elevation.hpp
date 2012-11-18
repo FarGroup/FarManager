@@ -119,8 +119,6 @@ private:
 	bool ElevationApproveDlg(LNGID Why, const string& Object);
 };
 
-extern elevation Elevation;
-
 void ElevationApproveDlgSync(LPVOID Param);
 
 bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus = true);

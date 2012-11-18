@@ -253,7 +253,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 					AddEndSlash(strPathName);
 				}
 
-				if (Opt.QuotedName&QUOTEDNAME_INSERT)
+				if (Global->Opt->QuotedName&QUOTEDNAME_INSERT)
 					QuoteSpace(strPathName);
 
 				if (Param2)
@@ -657,7 +657,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 				case IO_REPARSE_TAG_MOUNT_POINT:
 					{
 						LNGID ID_Msg = MListJunction;
-						if (Opt.PanelDetailedJunction)
+						if (Global->Opt->PanelDetailedJunction)
 						{
 							string strLinkName=CurDir?CurDir:L"";
 							AddEndSlash(strLinkName);
@@ -710,7 +710,7 @@ const string FormatStr_Size(__int64 FileSize, __int64 AllocationSize, __int64 St
 					break;
 				// 0x????????L = anything else
 				default:
-					if (Opt.ShowUnknownReparsePoint)
+					if (Global->Opt->ShowUnknownReparsePoint)
 					{
 						strMsg = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
 						PtrName = strMsg;

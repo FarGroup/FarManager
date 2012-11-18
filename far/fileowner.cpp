@@ -237,7 +237,7 @@ bool SetOwner(LPCWSTR Object, LPCWSTR Owner)
 	bool Result = SetOwnerInternal(strNtObject, Owner);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Elevation.fSetOwner(strNtObject, Owner);
+		Result = Global->Elevation->fSetOwner(strNtObject, Owner);
 	}
 	return Result;
 }

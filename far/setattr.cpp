@@ -535,15 +535,15 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
 	else
 		Width=WidthTemp=54;
 
-	WidthTemp=Min(WidthTemp,WidthNameForMessage);
+	WidthTemp=Min(WidthTemp,Global->WidthNameForMessage);
 	Width=Max(Width,WidthTemp);
 	string strOutFileName=Name;
 	TruncPathStr(strOutFileName,Width);
 	CenterStr(strOutFileName,strOutFileName,Width+4);
 	Message(0,0,MSG(MSetAttrTitle),MSG(MSetAttrSetting),strOutFileName);
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	preRedrawItem.Param.Param1=Name;
-	PreRedraw.SetParam(preRedrawItem.Param);
+	Global->PreRedraw->SetParam(preRedrawItem.Param);
 }
 
 bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const wchar_t *OSrcDate,const wchar_t *OSrcTime)
@@ -612,7 +612,7 @@ bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const wchar_t *
 
 void PR_ShellSetFileAttributesMsg()
 {
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	ShellSetFileAttributesMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1));
 }
 
@@ -819,7 +819,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				//_SVS(SysLog(L"SelName=%s  FileAttr=0x%08X",SelName,FileAttr));
 				AttrDlg[SA_SEPARATOR4].Flags&=~DIF_HIDDEN;
 				AttrDlg[SA_CHECKBOX_SUBFOLDERS].Flags&=~(DIF_DISABLE|DIF_HIDDEN);
-				AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected=Opt.SetAttrFolderRules?BSTATE_UNCHECKED:BSTATE_CHECKED;
+				AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected=Global->Opt->SetAttrFolderRules?BSTATE_UNCHECKED:BSTATE_CHECKED;
 				AttrDlg[SA_DOUBLEBOX].Y2+=2;
 				for(int i=SA_SEPARATOR5;i<=SA_BUTTON_CANCEL;i++)
 				{
@@ -828,7 +828,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				}
 				DlgY+=2;
 
-				if (Opt.SetAttrFolderRules)
+				if (Global->Opt->SetAttrFolderRules)
 				{
 					if (DlgParam.Plugin || apiGetFindDataEx(strSelName, FindData))
 					{
@@ -1129,7 +1129,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		string strInitOwner=AttrDlg[SA_EDIT_OWNER].strData;
 
 		// поведение для каталогов как у 1.65?
-		if (FolderPresent && !Opt.SetAttrFolderRules)
+		if (FolderPresent && !Global->Opt->SetAttrFolderRules)
 		{
 			AttrDlg[SA_CHECKBOX_SUBFOLDERS].Selected=BSTATE_CHECKED;
 			AttrDlg[SA_EDIT_WDATE].strData.Clear();
@@ -1348,7 +1348,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		//    SelName,FileAttr,SetAttr,ClearAttr,((FileAttr|SetAttr)&(~ClearAttr))));
 						DWORD CurTime=GetTickCount();
 
-						if (CurTime-LastTime>(DWORD)Opt.RedrawTimeout)
+						if (CurTime-LastTime>(DWORD)Global->Opt->RedrawTimeout)
 						{
 							LastTime=CurTime;
 							ShellSetFileAttributesMsg(strSelName);
@@ -1467,7 +1467,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 								{
 									CurTime=GetTickCount();
 
-									if (CurTime-LastTime2>(DWORD)Opt.RedrawTimeout)
+									if (CurTime-LastTime2>(DWORD)Global->Opt->RedrawTimeout)
 									{
 										LastTime2=CurTime;
 										ShellSetFileAttributesMsg(strFullName);

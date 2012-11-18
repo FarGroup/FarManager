@@ -39,6 +39,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "tvar.hpp"
 class Panel;
 
+// Macro Const
+enum {
+	constMsX          = 0,
+	constMsY          = 1,
+	constMsButton     = 2,
+	constMsCtrlState  = 3,
+	constMsEventFlags = 4,
+	constMsLAST       = 5,
+};
+
 enum MACRODISABLEONLOAD
 {
 	MDOL_ALL            = 0x80000000, // дисаблим все макросы при загрузке

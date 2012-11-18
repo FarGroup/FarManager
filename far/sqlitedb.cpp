@@ -42,7 +42,7 @@ static void GetDatabasePath(const wchar_t *FileName, string &strOut, bool Local)
 {
 	if(StrCmp(FileName, L":memory:"))
 	{
-		strOut = Local ? Opt.LocalProfilePath : Opt.ProfilePath;
+		strOut = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
 		AddEndSlash(strOut);
 		strOut += FileName;
 	}
@@ -182,7 +182,7 @@ bool SQLiteDb::Open(const wchar_t *DbFile, bool Local, bool WAL)
 	GetDatabasePath(DbFile, strPath, Local);
 	bool mem_db = (0 == wcscmp(DbFile, L":memory:"));
 
-	if (!Opt.ReadOnlyConfig || mem_db)
+	if (!Global->Opt->ReadOnlyConfig || mem_db)
 	{
 		if (!mem_db && db_exists < 0) {
 			DWORD attrs = apiGetFileAttributes(strPath);
@@ -262,7 +262,7 @@ void SQLiteDb::Initialize(const wchar_t* DbName, bool Local)
 		Close();
 		++init_status;
 
-		bool in_memory = (Opt.ReadOnlyConfig != 0)
+		bool in_memory = (Global->Opt->ReadOnlyConfig != 0)
 		 || !apiMoveFileEx(strPath, strPath+L".bad",MOVEFILE_REPLACE_EXISTING) || !InitializeImpl(DbName,Local);
 
 		if (in_memory)

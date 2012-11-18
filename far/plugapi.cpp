@@ -290,7 +290,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 {
 	if (ACTL_SYNCHRO==Command) //must be first
 	{
-		PluginSynchroManager.Synchro(true, *PluginId, Param2);
+		Global->PluginSynchroManager->Synchro(true, *PluginId, Param2);
 		return 0;
 	}
 	if (ACTL_GETWINDOWTYPE==Command)
@@ -362,9 +362,9 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_GETCOLOR:
 		{
-			if (static_cast<UINT>(Param1) < Opt.Palette.SizeArrayPalette)
+			if (static_cast<UINT>(Param1) < Global->Opt->Palette.SizeArrayPalette)
 			{
-				*static_cast<FarColor*>(Param2) = Opt.Palette.CurrentPalette[static_cast<size_t>(Param1)];
+				*static_cast<FarColor*>(Param2) = Global->Opt->Palette.CurrentPalette[static_cast<size_t>(Param1)];
 				return TRUE;
 			}
 			return FALSE;
@@ -377,11 +377,11 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		*/
 		case ACTL_GETARRAYCOLOR:
 		{
-			if (Param2 && static_cast<size_t>(Param1) >= Opt.Palette.SizeArrayPalette)
+			if (Param2 && static_cast<size_t>(Param1) >= Global->Opt->Palette.SizeArrayPalette)
 			{
-				memcpy(Param2, Opt.Palette.CurrentPalette, Opt.Palette.SizeArrayPalette*sizeof(FarColor));
+				memcpy(Param2, Global->Opt->Palette.CurrentPalette, Global->Opt->Palette.SizeArrayPalette*sizeof(FarColor));
 			}
-			return Opt.Palette.SizeArrayPalette;
+			return Global->Opt->Palette.SizeArrayPalette;
 		}
 		/*
 		  Param=FARColor{
@@ -397,16 +397,16 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			if (CheckStructSize(Pal))
 			{
 
-				if (Pal->Colors && Pal->StartIndex+Pal->ColorsCount <= Opt.Palette.SizeArrayPalette)
+				if (Pal->Colors && Pal->StartIndex+Pal->ColorsCount <= Global->Opt->Palette.SizeArrayPalette)
 				{
-					memmove(Opt.Palette.CurrentPalette+Pal->StartIndex,Pal->Colors,Pal->ColorsCount*sizeof(FarColor));
-					Opt.Palette.SetChanged();
+					memmove(Global->Opt->Palette.CurrentPalette+Pal->StartIndex,Pal->Colors,Pal->ColorsCount*sizeof(FarColor));
+					Global->Opt->Palette.SetChanged();
 					if (Pal->Flags&FSETCLR_REDRAW)
 					{
-						ScrBuf.Lock(); // отменяем всякую прорисовку
+						Global->ScrBuf->Lock(); // отменяем всякую прорисовку
 						FrameManager->ResizeAllFrame();
 						FrameManager->PluginCommit(); // коммитим.
-						ScrBuf.Unlock(); // разрешаем прорисовку
+						Global->ScrBuf->Unlock(); // разрешаем прорисовку
 					}
 
 					return TRUE;
@@ -573,7 +573,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 		   пригодится плагинам */
 		case ACTL_GETFARHWND:
 		{
-			return (intptr_t)Console.GetWindow();
+			return (intptr_t)Global->Console->GetWindow();
 		}
 		case ACTL_REDRAWALL:
 		{
@@ -584,7 +584,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_SETPROGRESSSTATE:
 		{
-			TBC.SetProgressState(static_cast<TBPFLAG>(Param1));
+			Global->TBC->SetProgressState(static_cast<TBPFLAG>(Param1));
 			return TRUE;
 		}
 
@@ -594,7 +594,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 			ProgressValue* PV=static_cast<ProgressValue*>(Param2);
 			if(CheckStructSize(PV))
 			{
-				TBC.SetProgressValue(PV->Completed,PV->Total);
+				Global->TBC->SetProgressValue(PV->Completed,PV->Total);
 				Result=TRUE;
 			}
 			return Result;
@@ -602,7 +602,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_QUIT:
 		{
-			CloseFARMenu=TRUE;
+			Global->CloseFARMenu=TRUE;
 			FrameManager->ExitMainLoop(FALSE);
 			return TRUE;
 		}
@@ -613,14 +613,14 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				if(Param2)
 				{
 					SMALL_RECT& Rect=*static_cast<PSMALL_RECT>(Param2);
-					if(Opt.WindowMode)
+					if(Global->Opt->WindowMode)
 					{
-						Result=Console.GetWorkingRect(Rect);
+						Result=Global->Console->GetWorkingRect(Rect);
 					}
 					else
 					{
 						COORD Size;
-						if(Console.GetSize(Size))
+						if(Global->Console->GetSize(Size))
 						{
 							Rect.Left=0;
 							Rect.Top=0;
@@ -640,7 +640,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				if(Param2)
 				{
 					COORD& Pos=*static_cast<PCOORD>(Param2);
-					Result=Console.GetCursorPosition(Pos);
+					Result=Global->Console->GetCursorPosition(Pos);
 				}
 				return Result;
 			}
@@ -652,7 +652,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 				if(Param2)
 				{
 					COORD& Pos=*static_cast<PCOORD>(Param2);
-					Result=Console.SetCursorPosition(Pos);
+					Result=Global->Console->SetCursorPosition(Pos);
 				}
 				return Result;
 			}
@@ -660,7 +660,7 @@ intptr_t WINAPI apiAdvControl(const GUID* PluginId, ADVANCED_CONTROL_COMMANDS Co
 
 		case ACTL_PROGRESSNOTIFY:
 		{
-			TBC.Flash();
+			Global->TBC->Flash();
 			return TRUE;
 		}
 
@@ -711,7 +711,7 @@ intptr_t WINAPI apiMenuFn(
 	if (FrameManager->ManagerIsDown())
 		return -1;
 
-	if (DisablePluginsOutput)
+	if (Global->DisablePluginsOutput)
 		return -1;
 
 	int ExitCode;
@@ -861,7 +861,7 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 	if (FrameManager->ManagerIsDown())
 		return hDlg;
 
-	if (DisablePluginsOutput || ItemsNumber <= 0 || !Item)
+	if (Global->DisablePluginsOutput || ItemsNumber <= 0 || !Item)
 		return hDlg;
 
 	// ФИЧА! нельзя указывать отрицательные X2 и Y2
@@ -961,7 +961,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	if (FrameManager->ManagerIsDown())
 		return -1;
 
-	if (DisablePluginsOutput)
+	if (Global->DisablePluginsOutput)
 		return -1;
 
 	if ((!(Flags&(FMSG_ALLINONE|FMSG_ERRORTYPE)) && ItemsNumber<2) || !Items)
@@ -1120,9 +1120,9 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 	_ALGO(SysLog(L"(hPlugin=0x%08X, Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",hPlugin,_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
 
 	if (Command == FCTL_CHECKPANELSEXIST)
-		return Opt.OnlyEditorViewerUsed? FALSE:TRUE;
+		return Global->Opt->OnlyEditorViewerUsed? FALSE:TRUE;
 
-	if (Opt.OnlyEditorViewerUsed || !CtrlObject || FrameManager->ManagerIsDown())
+	if (Global->Opt->OnlyEditorViewerUsed || !CtrlObject || FrameManager->ManagerIsDown())
 		return 0;
 
 	FilePanels *FPanels=CtrlObject->Cp();
@@ -1131,7 +1131,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 	switch (Command)
 	{
 		case FCTL_CLOSEPANEL:
-			g_strDirToSet = (wchar_t *)Param2;
+			Global->g_strDirToSet = (wchar_t *)Param2;
 		case FCTL_GETPANELINFO:
 		case FCTL_GETPANELITEM:
 		case FCTL_GETSELECTEDPANELITEM:
@@ -1214,10 +1214,10 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 			if (!FPanels || !FPanels->LeftPanel || !FPanels->RightPanel)
 				return FALSE;
 
-			KeepUserScreen++;
+			Global->KeepUserScreen++;
 			FPanels->LeftPanel->ProcessingPluginCommand++;
 			FPanels->RightPanel->ProcessingPluginCommand++;
-			ScrBuf.FillBuf();
+			Global->ScrBuf->FillBuf();
 			ScrollScreen(1);
 			SaveScreen SaveScr;
 			{
@@ -1225,7 +1225,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 				CmdLine->Hide();
 				SaveScr.RestoreArea(FALSE);
 			}
-			KeepUserScreen--;
+			Global->KeepUserScreen--;
 			FPanels->LeftPanel->ProcessingPluginCommand--;
 			FPanels->RightPanel->ProcessingPluginCommand--;
 			return TRUE;
@@ -1233,12 +1233,12 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 		case FCTL_GETUSERSCREEN:
 		{
 			FrameManager->ShowBackground();
-			int Lock=ScrBuf.GetLockCount();
-			ScrBuf.SetLockCount(0);
+			int Lock=Global->ScrBuf->GetLockCount();
+			Global->ScrBuf->SetLockCount(0);
 			MoveCursor(0,ScrY-1);
 			SetInitialCursorType();
-			ScrBuf.Flush();
-			ScrBuf.SetLockCount(Lock);
+			Global->ScrBuf->Flush();
+			Global->ScrBuf->SetLockCount(Lock);
 			return TRUE;
 		}
 		case FCTL_GETCMDLINE:
@@ -1335,7 +1335,7 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 
 HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2)
 {
-	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
+	if (Global->DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return nullptr;
 
 	if (X2==-1)
@@ -1350,11 +1350,11 @@ HANDLE WINAPI apiSaveScreen(intptr_t X1,intptr_t Y1,intptr_t X2,intptr_t Y2)
 
 void WINAPI apiRestoreScreen(HANDLE hScreen)
 {
-	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
+	if (Global->DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return;
 
 	if (!hScreen)
-		ScrBuf.FillBuf();
+		Global->ScrBuf->FillBuf();
 
 	if (hScreen)
 		delete(SaveScreen *)hScreen;
@@ -1514,8 +1514,8 @@ intptr_t WINAPI apiViewer(const wchar_t *FileName,const wchar_t *Title,
 		}
 		else
 		{
-			if (GlobalSaveScrPtr)
-				GlobalSaveScrPtr->Discard();
+			if (Global->GlobalSaveScrPtr)
+				Global->GlobalSaveScrPtr->Discard();
 
 			FrameManager->PluginCommit();
 		}
@@ -1626,8 +1626,8 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 			}
 			else
 			{
-				if (GlobalSaveScrPtr)
-					GlobalSaveScrPtr->Discard();
+				if (Global->GlobalSaveScrPtr)
+					Global->GlobalSaveScrPtr->Discard();
 
 				FrameManager->PluginCommit();
 			}
@@ -1682,15 +1682,15 @@ intptr_t WINAPI apiEditor(const wchar_t* FileName, const wchar_t* Title, intptr_
 
 void WINAPI apiText(intptr_t X,intptr_t Y,const FarColor* Color,const wchar_t *Str)
 {
-	if (DisablePluginsOutput || FrameManager->ManagerIsDown())
+	if (Global->DisablePluginsOutput || FrameManager->ManagerIsDown())
 		return;
 
 	if (!Str)
 	{
-		int PrevLockCount=ScrBuf.GetLockCount();
-		ScrBuf.SetLockCount(0);
-		ScrBuf.Flush();
-		ScrBuf.SetLockCount(PrevLockCount);
+		int PrevLockCount=Global->ScrBuf->GetLockCount();
+		Global->ScrBuf->SetLockCount(0);
+		Global->ScrBuf->Flush();
+		Global->ScrBuf->SetLockCount(PrevLockCount);
 	}
 	else
 	{
@@ -2567,7 +2567,7 @@ BOOL WINAPI apiColorDialog(const GUID* PluginId, COLORDIALOGFLAGS Flags, struct 
 	BOOL Result = FALSE;
 	if (!FrameManager->ManagerIsDown())
 	{
-		Result = Console.GetColorDialog(*Color, true, false);
+		Result = Global->Console->GetColorDialog(*Color, true, false);
 	}
 	return Result;
 }

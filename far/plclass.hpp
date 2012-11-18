@@ -63,7 +63,7 @@ struct ExecuteStruct
 	es.nResult = 0; \
 	es.nDefaultResult = 0; \
 	++Activity; \
-	if ( Opt.ExceptRules ) \
+	if ( Global->Opt->ExceptRules ) \
 	{ \
 		__try \
 		{ \
@@ -73,7 +73,7 @@ struct ExecuteStruct
 		{ \
 			m_owner->UnloadPlugin(this, es.id); \
 			es.nResult = es.nDefaultResult; \
-			ProcessException=FALSE; \
+			Global->ProcessException=FALSE; \
 		} \
 	} \
 	else \

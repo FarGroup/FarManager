@@ -59,7 +59,7 @@ static const string& GetFarTitleAddons()
 	static string strTitleAddons;
 
 	strTitleAddons.Copy(L" - Far ",7);
-	strTitleAddons += Opt.strTitleAddons.Get();
+	strTitleAddons += Global->Opt->strTitleAddons.Get();
 
 	if (bFirstRun)
 	{
@@ -83,7 +83,7 @@ static const string& GetFarTitleAddons()
 	L"x86",
 #endif
 	-1,true);
-	ReplaceStrings(strTitleAddons,L"%Admin",Opt.IsUserAdmin?MSG(MFarTitleAddonsAdmin):L"",-1,true);
+	ReplaceStrings(strTitleAddons,L"%Admin",Global->Opt->IsUserAdmin?MSG(MFarTitleAddonsAdmin):L"",-1,true);
 	RemoveTrailingSpaces(strTitleAddons);
 
 	return strTitleAddons;
@@ -97,7 +97,7 @@ CriticalSection TitleCS;
 ConsoleTitle::ConsoleTitle(const wchar_t *title)
 {
 	CriticalSectionLock Lock(TitleCS);
-	Console.GetTitle(strOldTitle);
+	Global->Console->GetTitle(strOldTitle);
 
 	if (title)
 		SetFarTitle(title, true);
@@ -134,7 +134,7 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 
 	if (Title)
 	{
-		Console.GetTitle(strOldFarTitle);
+		Global->Console->GetTitle(strOldFarTitle);
 		strFarTitle=Title;
 		strFarTitle.SetLength(0x100);
 		strFarTitle+=GetFarTitleAddons();
@@ -142,25 +142,25 @@ void ConsoleTitle::SetFarTitle(const wchar_t *Title, bool Force)
 
 		if (StrCmp(strOldFarTitle, strFarTitle) &&
 		        /*((CtrlObject->Macro.IsExecuting() && !CtrlObject->Macro.IsDisableOutput()) ||
-		         !CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey())*/ ScrBuf.GetLockCount()==0)
+		         !CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsExecutingLastKey())*/ Global->ScrBuf->GetLockCount()==0)
 		{
 			DWORD CurTime=GetTickCount();
-			if(CurTime-ShowTime>(DWORD)Opt.RedrawTimeout || Force)
+			if(CurTime-ShowTime>(DWORD)Global->Opt->RedrawTimeout || Force)
 			{
 				ShowTime=CurTime;
-				Console.SetTitle(strFarTitle);
+				Global->Console->SetTitle(strFarTitle);
 				TitleModified=true;
 			}
 		}
 	}
-	else if(ScrBuf.GetLockCount()==0)
+	else if(Global->ScrBuf->GetLockCount()==0)
 	{
 		/*
 			Title=nullptr для случая, когда нужно выставить пред.заголовок
 			SetFarTitle(nullptr) - это не для всех!
 			Этот вызов имеет право делать только макро-движок!
 		*/
-		Console.SetTitle(strFarTitle);
+		Global->Console->SetTitle(strFarTitle);
 		TitleModified=false;
 		//_SVS(SysLog(L"  (nullptr)FarTitle='%s'",FarTitle));
 	}

@@ -36,8 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "imports.hpp"
 
-ImportedFunctions ifn;
-
 template<typename T>
 inline void InitImport(HMODULE Module, T& Address, const char * ProcName)
 {

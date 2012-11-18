@@ -17,21 +17,23 @@ farrtl.cpp
 
 bool InsufficientMemoryHandler()
 {
+	if (!Global)
+		return false;
 	static FarColor ErrColor;
 	Colors::ConsoleColorToFarColor(FOREGROUND_RED|FOREGROUND_INTENSITY, ErrColor);
-	Console.SetTextAttributes(ErrColor);
+	Global->Console->SetTextAttributes(ErrColor);
 	COORD OldPos,Pos={};
-	Console.GetCursorPosition(OldPos);
-	Console.SetCursorPosition(Pos);
+	Global->Console->GetCursorPosition(OldPos);
+	Global->Console->SetCursorPosition(Pos);
 	static WCHAR ErrorMessage[] = L"Not enough memory is available to complete this operation.\nPress Enter to retry or Esc to continue...";
-	Console.Write(ErrorMessage, ARRAYSIZE(ErrorMessage)-1);
-	Console.Commit();
-	Console.SetCursorPosition(OldPos);
+	Global->Console->Write(ErrorMessage, ARRAYSIZE(ErrorMessage)-1);
+	Global->Console->Commit();
+	Global->Console->SetCursorPosition(OldPos);
 	INPUT_RECORD ir={};
 	size_t Read;
 	do
 	{
-		Console.ReadInput(&ir, 1, Read);
+		Global->Console->ReadInput(&ir, 1, Read);
 	}
 	while(!(ir.EventType == KEY_EVENT && !ir.Event.KeyEvent.bKeyDown && (ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN || ir.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE)));
 	return ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN;
@@ -81,7 +83,8 @@ void *__cdecl xf_malloc(size_t size)
 #endif
 
 #if defined(SYSLOG)
-	CallMallocFree++;
+	if (Global)
+		Global->CallMallocFree++;
 #endif
 
 	return Ptr;
@@ -96,10 +99,10 @@ void *__cdecl xf_expand(void * block, size_t size)
 	size+=sizeof(MEMINFO);
 #endif
 	// _expand() calls HeapReAlloc which can change the status code, it's bad for us
-	NTSTATUS status = ifn.RtlGetLastNtStatus();
+	NTSTATUS status = Global->ifn->RtlGetLastNtStatus();
 	void* newblock = _expand(block, size);
 	//RtlNtStatusToDosError also remembers the status code value in the TEB:
-	ifn.RtlNtStatusToDosError(status);
+	Global->ifn->RtlNtStatusToDosError(status);
 	return newblock;
 }
 
@@ -157,7 +160,8 @@ void *__cdecl xf_realloc(void * block, size_t size)
 #if defined(SYSLOG)
 	if (!block)
 	{
-		CallMallocFree++;
+		if (Global)
+			Global->CallMallocFree++;
 	}
 #endif
 
@@ -177,7 +181,8 @@ void __cdecl xf_free(void * block)
 #endif
 
 #if defined(SYSLOG)
-	CallMallocFree--;
+	if (Global)
+		Global->CallMallocFree--;
 #endif
 
 	free(block);
@@ -193,7 +198,8 @@ void * __cdecl operator new(size_t size) throw()
 #endif
 
 #if defined(SYSLOG)
-	CallNewDelete++;
+	if (Global)
+		Global->CallNewDelete++;
 #endif
 
 	return res;
@@ -226,7 +232,8 @@ void operator delete(void *ptr) throw()
 	xf_free(ptr);
 
 #if defined(SYSLOG)
-	CallNewDelete--;
+	if (Global)
+		Global->CallNewDelete--;
 #endif
 }
 

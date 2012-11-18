@@ -376,7 +376,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 	}
 
 	// НЕ СОРТИРУЕМ КАТАЛОГИ В РЕЖИМЕ "ПО РАСШИРЕНИЮ" (Опционально!)
-	if (!(ListSortMode == BY_EXT && !Opt.SortFolderExt && ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))))
+	if (!(ListSortMode == BY_EXT && !Global->Opt->SortFolderExt && ((SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY) && (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))))
 	{
 		__int64 RetCode64;
 		switch (ListSortMode)
@@ -546,7 +546,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 
 	int NameCmp=0;
 
-	if (!Opt.SortFolderExt && (SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+	if (!Global->Opt->SortFolderExt && (SPtr1->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 	{
 		Ext1=SPtr1->strName.CPtr()+SPtr1->strName.GetLength();
 	}
@@ -555,7 +555,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 		if (!Ext1) Ext1=PointToExt(SPtr1->strName);
 	}
 
-	if (!Opt.SortFolderExt && (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
+	if (!Global->Opt->SortFolderExt && (SPtr2->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 	{
 		Ext2=SPtr2->strName.CPtr()+SPtr2->strName.GetLength();
 	}
@@ -598,7 +598,7 @@ void FileList::SetFocus()
 	    случае над панелями висит диалог и незачем выводить
 	    панельный заголовок.
 	*/
-	if (!IsRedrawFramesInProcess)
+	if (!Global->IsRedrawFramesInProcess)
 		SetTitle();
 }
 
@@ -865,7 +865,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 int FileList::ProcessKey(int Key)
 {
-	Elevation.ResetApprove();
+	Global->Elevation->ResetApprove();
 
 	FileListItem *CurPtr=nullptr;
 	int N;
@@ -998,7 +998,7 @@ int FileList::ProcessKey(int Key)
 	switch (Key)
 	{
 		case KEY_GOTFOCUS:
-			if (Opt.SmartFolderMonitor)
+			if (Global->Opt->SmartFolderMonitor)
 			{
 				StartFSWatcher(true);
 				CtrlObject->Cp()->GetAnotherPanel(this)->StartFSWatcher(true);
@@ -1006,7 +1006,7 @@ int FileList::ProcessKey(int Key)
 			break;
 
 		case KEY_KILLFOCUS:
-			if (Opt.SmartFolderMonitor)
+			if (Global->Opt->SmartFolderMonitor)
 			{
 				StopFSWatcher();
 				CtrlObject->Cp()->GetAnotherPanel(this)->StopFSWatcher();
@@ -1050,7 +1050,7 @@ int FileList::ProcessKey(int Key)
 				{
 					CurPtr = ListData[I];
 
-					if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Opt.SelectFolders)
+					if (!(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders)
 						Select(CurPtr,1);
 				}
 			}
@@ -1221,13 +1221,13 @@ int FileList::ProcessKey(int Key)
 						{
 							string strFullName = Info.CurDir;
 
-							if (Opt.PanelCtrlFRule && (ViewSettings.Flags&PVS_FOLDERUPPERCASE))
+							if (Global->Opt->PanelCtrlFRule && (ViewSettings.Flags&PVS_FOLDERUPPERCASE))
 								strFullName.Upper();
 
 							if (!strFullName.IsEmpty())
 								AddEndSlash(strFullName,0);
 
-							if (Opt.PanelCtrlFRule)
+							if (Global->Opt->PanelCtrlFRule)
 							{
 								/* $ 13.10.2000 tran
 								  по Ctrl-f имя должно отвечать условиям на панели */
@@ -1248,7 +1248,7 @@ int FileList::ProcessKey(int Key)
 						AddEndSlash(strFileName);
 
 					// добавим первый префикс!
-					if (PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix && !(Key == KEY_CTRLENTER || Key == KEY_RCTRLENTER || Key == KEY_CTRLNUMENTER || Key == KEY_RCTRLNUMENTER || Key == KEY_CTRLJ || Key == KEY_RCTRLJ))
+					if (PanelMode==PLUGIN_PANEL && Global->Opt->SubstPluginPrefix && !(Key == KEY_CTRLENTER || Key == KEY_RCTRLENTER || Key == KEY_CTRLNUMENTER || Key == KEY_RCTRLNUMENTER || Key == KEY_CTRLJ || Key == KEY_RCTRLJ))
 					{
 						string strPrefix;
 
@@ -1260,7 +1260,7 @@ int FileList::ProcessKey(int Key)
 						}
 					}
 
-					if (Opt.QuotedName&QUOTEDNAME_INSERT)
+					if (Global->Opt->QuotedName&QUOTEDNAME_INSERT)
 						QuoteSpace(strFileName);
 
 					strFileName += L" ";
@@ -1344,7 +1344,7 @@ int FileList::ProcessKey(int Key)
 		case KEY_CTRLH:
 		case KEY_RCTRLH:
 		{
-			Opt.ShowHidden=!Opt.ShowHidden;
+			Global->Opt->ShowHidden=!Global->Opt->ShowHidden;
 			Update(UPDATE_KEEP_SELECTION);
 			Redraw();
 			Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -1669,8 +1669,8 @@ int FileList::ProcessKey(int Key)
 				{
 					if (Edit)
 					{
-						int EnableExternal=(((Key==KEY_F4 || Key==KEY_SHIFTF4) && Opt.EdOpt.UseExternalEditor) ||
-						                    ((Key==KEY_ALTF4 || Key==KEY_RALTF4) && !Opt.EdOpt.UseExternalEditor)) && !Opt.strExternalEditor.IsEmpty();
+						int EnableExternal=(((Key==KEY_F4 || Key==KEY_SHIFTF4) && Global->Opt->EdOpt.UseExternalEditor) ||
+						                    ((Key==KEY_ALTF4 || Key==KEY_RALTF4) && !Global->Opt->EdOpt.UseExternalEditor)) && !Global->Opt->strExternalEditor.IsEmpty();
 						/* $ 02.08.2001 IS обработаем ассоциации для alt-f4 */
 						BOOL Processed=FALSE;
 
@@ -1686,7 +1686,7 @@ int FileList::ProcessKey(int Key)
 						if (!Processed || Key==KEY_CTRLSHIFTF4 || Key==KEY_RCTRLSHIFTF4)
 						{
 							if (EnableExternal)
-								ProcessExternal(Opt.strExternalEditor,strFileName,strShortFileName,PluginMode);
+								ProcessExternal(Global->Opt->strExternalEditor,strFileName,strShortFileName,PluginMode);
 							else if (PluginMode)
 							{
 								RefreshedPanel=FrameManager->GetCurrentFrame()->GetType()==MODALTYPE_EDITOR?FALSE:TRUE;
@@ -1775,9 +1775,9 @@ int FileList::ProcessKey(int Key)
 					}
 					else
 					{
-						int EnableExternal=((Key==KEY_F3 && Opt.ViOpt.UseExternalViewer) ||
-						                    ((Key==KEY_ALTF3 || Key==KEY_RALTF3) && !Opt.ViOpt.UseExternalViewer)) &&
-						                   !Opt.strExternalViewer.IsEmpty();
+						int EnableExternal=((Key==KEY_F3 && Global->Opt->ViOpt.UseExternalViewer) ||
+						                    ((Key==KEY_ALTF3 || Key==KEY_RALTF3) && !Global->Opt->ViOpt.UseExternalViewer)) &&
+						                   !Global->Opt->strExternalViewer.IsEmpty();
 						/* $ 02.08.2001 IS обработаем ассоциации для alt-f3 */
 						BOOL Processed=FALSE;
 
@@ -1791,7 +1791,7 @@ int FileList::ProcessKey(int Key)
 						if (!Processed || Key==KEY_CTRLSHIFTF3 || Key==KEY_RCTRLSHIFTF3)
 						{
 							if (EnableExternal)
-								ProcessExternal(Opt.strExternalViewer,strFileName,strShortFileName,PluginMode);
+								ProcessExternal(Global->Opt->strExternalViewer,strFileName,strShortFileName,PluginMode);
 							else
 							{
 								NamesList ViewList;
@@ -2010,13 +2010,13 @@ int FileList::ProcessKey(int Key)
 					PluginDelete();
 				else
 				{
-					bool SaveOpt=Opt.DeleteToRecycleBin;
+					bool SaveOpt=Global->Opt->DeleteToRecycleBin;
 
 					if (Key==KEY_SHIFTDEL || Key==KEY_SHIFTNUMDEL || Key==KEY_SHIFTDECIMAL)
-						Opt.DeleteToRecycleBin=0;
+						Global->Opt->DeleteToRecycleBin=0;
 
 					ShellDelete(this,Key==KEY_ALTDEL||Key==KEY_RALTDEL||Key==KEY_ALTNUMDEL||Key==KEY_RALTNUMDEL||Key==KEY_ALTDECIMAL||Key==KEY_RALTDECIMAL);
-					Opt.DeleteToRecycleBin=SaveOpt;
+					Global->Opt->DeleteToRecycleBin=SaveOpt;
 				}
 
 				if (Key==KEY_SHIFTF8)
@@ -2029,18 +2029,18 @@ int FileList::ProcessKey(int Key)
 		case KEY_MSWHEEL_UP:
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
-			Scroll(Key & (KEY_ALT|KEY_RALT)?-1:(int)-Opt.MsWheelDelta);
+			Scroll(Key & (KEY_ALT|KEY_RALT)?-1:(int)-Global->Opt->MsWheelDelta);
 			return TRUE;
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
-			Scroll(Key & (KEY_ALT|KEY_RALT)?1:(int)Opt.MsWheelDelta);
+			Scroll(Key & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsWheelDelta);
 			return TRUE;
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Opt.MsHWheelDelta;
+			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_LEFT);
@@ -2051,7 +2051,7 @@ int FileList::ProcessKey(int Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Opt.MsHWheelDelta;
+			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_RIGHT);
@@ -2082,7 +2082,7 @@ int FileList::ProcessKey(int Key)
 			return TRUE;
 		case KEY_LEFT:         case KEY_NUMPAD4:
 
-			if ((Columns==1 && Opt.ShellRightLeftArrowsRule == 1) || Columns>1 || !CmdLength)
+			if ((Columns==1 && Global->Opt->ShellRightLeftArrowsRule == 1) || Columns>1 || !CmdLength)
 			{
 				if (CurTopFile>=Height && CurFile-CurTopFile<Height)
 					CurTopFile-=Height;
@@ -2094,7 +2094,7 @@ int FileList::ProcessKey(int Key)
 			return FALSE;
 		case KEY_RIGHT:        case KEY_NUMPAD6:
 
-			if ((Columns==1 && Opt.ShellRightLeftArrowsRule == 1) || Columns>1 || !CmdLength)
+			if ((Columns==1 && Global->Opt->ShellRightLeftArrowsRule == 1) || Columns>1 || !CmdLength)
 			{
 				if (CurFile+Height<FileCount && CurFile-CurTopFile>=(Columns-1)*(Height))
 					CurTopFile+=Height;
@@ -2305,7 +2305,7 @@ int FileList::ProcessKey(int Key)
 		case KEY_CTRLPGUP:     case KEY_CTRLNUMPAD9:
 		case KEY_RCTRLPGUP:    case KEY_RCTRLNUMPAD9:
 		{
-			if (Opt.PgUpChangeDisk || PanelMode==PLUGIN_PANEL || !IsRootPath(strCurDir))
+			if (Global->Opt->PgUpChangeDisk || PanelMode==PLUGIN_PANEL || !IsRootPath(strCurDir))
 			{
 				//"this" может быть удалён в ChangeDir
 				bool CheckFullScreen=IsFullScreen();
@@ -2335,9 +2335,9 @@ int FileList::ProcessKey(int Key)
 		case KEY_SHIFTAPPS:
 		{
 			//вызовем EMenu если он есть
-			if (CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Emenu))
+			if (CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
+				CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}
@@ -2524,7 +2524,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		{
 			QuoteSpace(strFileName);
 
-			if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTPANEL) && !PluginMode) //AN
+			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTPANEL) && !PluginMode) //AN
 				CtrlObject->CmdHistory->AddToHistory(strFileName);
 
 			CtrlObject->CmdLine->ExecString(strFileName, PluginMode, SeparateWindow, true, false, false, RunAs);
@@ -2555,7 +2555,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			        hOpen==PANEL_STOP)
 			{
 				if (EnableExec && hOpen!=PANEL_STOP)
-					if (SeparateWindow || Opt.UseRegisteredTypes)
+					if (SeparateWindow || Global->Opt->UseRegisteredTypes)
 						ProcessGlobalFileTypes(strFileName, PluginMode, RunAs);
 
 				if (PluginMode)
@@ -2736,17 +2736,17 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 				if (NetPath)
 				{
 					string tmp = strCurDir;	// strCurDir can be altered during next call
-					if (CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Network,OPEN_FILEPANEL,(void*)tmp.CPtr())) // NetWork Plugin :-)
+					if (CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)tmp.CPtr())) // NetWork Plugin :-)
 					{
 						return FALSE;
 					}
 				}
-				if(DrivePath && Opt.PgUpChangeDisk == 2)
+				if(DrivePath && Global->Opt->PgUpChangeDisk == 2)
 				{
 					string RemoteName;
 					if(DriveLocalToRemoteName(DRIVE_REMOTE, strCurDir.At(0), RemoteName))
 					{
-						if (CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Network,OPEN_FILEPANEL,(void*)RemoteName.CPtr())) // NetWork Plugin :-)
+						if (CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)RemoteName.CPtr())) // NetWork Plugin :-)
 						{
 							return FALSE;
 						}
@@ -2843,12 +2843,12 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
 int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 {
-	Elevation.ResetApprove();
+	Global->Elevation->ResetApprove();
 
 	FileListItem *CurPtr;
 	int RetCode;
 
-	if (IsVisible() && Opt.ShowColumnTitles && !MouseEvent->dwEventFlags &&
+	if (IsVisible() && Global->Opt->ShowColumnTitles && !MouseEvent->dwEventFlags &&
 	        MouseEvent->dwMousePosition.Y==Y1+1 &&
 	        MouseEvent->dwMousePosition.X>X1 && MouseEvent->dwMousePosition.X<X1+3)
 	{
@@ -2863,10 +2863,10 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return TRUE;
 	}
 
-	if (IsVisible() && Opt.ShowPanelScrollbar && IntKeyState.MouseX==X2 &&
+	if (IsVisible() && Global->Opt->ShowPanelScrollbar && IntKeyState.MouseX==X2 &&
 	        (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED) && !IsDragging())
 	{
-		int ScrollY=Y1+1+Opt.ShowColumnTitles;
+		int ScrollY=Y1+1+Global->Opt->ShowColumnTitles;
 
 		if (IntKeyState.MouseY==ScrollY)
 		{
@@ -2921,8 +2921,8 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (Panel::PanelProcessMouse(MouseEvent,RetCode))
 		return(RetCode);
 
-	if (MouseEvent->dwMousePosition.Y>Y1+Opt.ShowColumnTitles &&
-	        MouseEvent->dwMousePosition.Y<Y2-2*Opt.ShowPanelStatus)
+	if (MouseEvent->dwMousePosition.Y>Y1+Global->Opt->ShowColumnTitles &&
+	        MouseEvent->dwMousePosition.Y<Y2-2*Global->Opt->ShowPanelStatus)
 	{
 		SetFocus();
 
@@ -2972,10 +2972,10 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
 
 				//вызовем EMenu если он есть
-				if (!Opt.RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Emenu))
+				if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
 				{
 					ShowFileList(TRUE);
-					CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
+					CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
 					return TRUE;
 				}
 
@@ -3076,7 +3076,7 @@ void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
 //  if (!CurColumn)
 //    CurColumn=1;
 	int OldCurFile=CurFile;
-	CurFile=CurTopFile+MouseEvent->dwMousePosition.Y-Y1-1-Opt.ShowColumnTitles;
+	CurFile=CurTopFile+MouseEvent->dwMousePosition.Y-Y1-1-Global->Opt->ShowColumnTitles;
 
 	if (CurColumn>1)
 		CurFile+=(CurColumn-1)*Height;
@@ -3086,9 +3086,9 @@ void FileList::MoveToMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	/* $ 11.09.2000 SVS
 	   Bug #17: Проверим на ПОЛНОСТЬЮ пустую колонку.
 	*/
-	if (Opt.PanelRightClickRule == 1)
+	if (Global->Opt->PanelRightClickRule == 1)
 		IsEmpty=((CurColumn-1)*Height > FileCount);
-	else if (Opt.PanelRightClickRule == 2 &&
+	else if (Global->Opt->PanelRightClickRule == 2 &&
 	         (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) &&
 	         ((CurColumn-1)*Height > FileCount))
 	{
@@ -3153,9 +3153,9 @@ void FileList::SetViewMode(int ViewMode)
 			if (Y2>0)
 			{
 				if (this==CtrlObject->Cp()->LeftPanel)
-					SetPosition(0,Y1,ScrX/2-Opt.WidthDecrement,Y2);
+					SetPosition(0,Y1,ScrX/2-Global->Opt->WidthDecrement,Y2);
 				else
-					SetPosition(ScrX/2+1-Opt.WidthDecrement,Y1,ScrX,Y2);
+					SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,Y1,ScrX,Y2);
 			}
 
 			FileList::ViewMode=ViewMode;
@@ -3190,7 +3190,7 @@ void FileList::SetViewMode(int ViewMode)
 
 void FileList::SetSortMode(int SortMode)
 {
-	if (SortMode==FileList::SortMode && Opt.ReverseSort)
+	if (SortMode==FileList::SortMode && Global->Opt->ReverseSort)
 		SortOrder=-SortOrder;
 	else
 		SortOrder=1;
@@ -3968,7 +3968,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 						break;
 				}
 
-				if (bUseFilter || !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Opt.SelectFolders ||
+				if (bUseFilter || !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY) || Global->Opt->SelectFolders ||
 				        !Selection || RawSelection || Mode==SELECT_INVERTALL || Mode==SELECT_INVERTMASK)
 				{
 					Select(CurPtr,Selection);
@@ -4052,7 +4052,7 @@ void FileList::CompareDir()
 		return;
 	}
 
-	ScrBuf.Flush();
+	Global->ScrBuf->Flush();
 	// полностью снимаем выделение с обоих панелей
 	ClearSelection();
 	Another->ClearSelection();
@@ -4290,13 +4290,13 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 			{
 				string strFullName = Info.CurDir;
 
-				if (Opt.PanelCtrlFRule && (ViewSettings.Flags&PVS_FOLDERUPPERCASE))
+				if (Global->Opt->PanelCtrlFRule && (ViewSettings.Flags&PVS_FOLDERUPPERCASE))
 					strFullName.Upper();
 
 				if (!strFullName.IsEmpty())
 					AddEndSlash(strFullName);
 
-				if (Opt.PanelCtrlFRule)
+				if (Global->Opt->PanelCtrlFRule)
 				{
 					// имя должно отвечать условиям на панели
 					if ((ViewSettings.Flags&PVS_FILELOWERCASE) && !(FileAttr & FILE_ATTRIBUTE_DIRECTORY))
@@ -4311,7 +4311,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 				strQuotedName = strFullName;
 
 				// добавим первый префикс!
-				if (PanelMode==PLUGIN_PANEL && Opt.SubstPluginPrefix)
+				if (PanelMode==PLUGIN_PANEL && Global->Opt->SubstPluginPrefix)
 				{
 					string strPrefix;
 
@@ -4341,7 +4341,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 			}
 		}
 
-		if (Opt.QuotedName&QUOTEDNAME_CLIPBOARD)
+		if (Global->Opt->QuotedName&QUOTEDNAME_CLIPBOARD)
 			QuoteSpace(strQuotedName);
 
 		int Length=(int)strQuotedName.GetLength();
@@ -4408,7 +4408,7 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 		ConvertNameToUNC(strFileName);
 
 	// $ 20.10.2000 SVS Сделаем фичу Ctrl-F опциональной!
-	if (Opt.PanelCtrlFRule)
+	if (Global->Opt->PanelCtrlFRule)
 	{
 		/* $ 13.10.2000 tran
 		  по Ctrl-f имя должно отвечать условиям на панели */
@@ -4887,7 +4887,7 @@ bool FileList::ApplyCommand()
 				if (!isSilent)   // TODO: Здесь не isSilent!
 				{
 					CtrlObject->CmdLine->ExecString(strConvertedCommand,FALSE, 0, 0, ListFileUsed); // Param2 == TRUE?
-					//if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
+					//if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
 					//	CtrlObject->CmdHistory->AddToHistory(strConvertedCommand);
 				}
 				else
@@ -4921,7 +4921,7 @@ bool FileList::ApplyCommand()
 
 	CtrlObject->CmdLine->LockUpdatePanel(false);
 	CtrlObject->CmdLine->Show();
-	if (Opt.ShowKeyBar)
+	if (Global->Opt->ShowKeyBar)
 	{
 		CtrlObject->MainKeyBar->Show();
 	}
@@ -5120,7 +5120,7 @@ void FileList::ProcessCopyKeys(int Key)
 	if (FileCount>0)
 	{
 		int Drag=Key==KEY_DRAGCOPY || Key==KEY_DRAGMOVE;
-		int Ask=!Drag || Opt.Confirm.Drag;
+		int Ask=!Drag || Global->Opt->Confirm.Drag;
 		int Move=(Key==KEY_F6 || Key==KEY_DRAGMOVE);
 		int AnotherDir=FALSE;
 		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
@@ -5227,7 +5227,7 @@ BOOL FileList::UpdateKeyBar()
 	KB->SetAllGroup(KBL_CTRLALT, MCtrlAltF1, 12);
 	KB->SetAllGroup(KBL_ALTSHIFT, MAltShiftF1, 12);
 	KB->SetAllGroup(KBL_CTRLALTSHIFT, MCtrlAltShiftF1, 12);
-	KB->ReadRegGroup(L"Shell",Opt.strLanguage);
+	KB->ReadRegGroup(L"Shell",Global->Opt->strLanguage);
 	KB->SetAllRegGroup();
 
 	if (GetMode() == PLUGIN_PANEL)
@@ -5249,7 +5249,7 @@ int FileList::PluginPanelHelp(HANDLE hPlugin)
 	strPath = ph->pPlugin->GetModuleName();
 	CutToSlash(strPath);
 	uintptr_t nCodePage = CP_OEMCP;
-	FILE *HelpFile=OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFileName, nCodePage);
+	FILE *HelpFile=OpenLangFile(strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFileName, nCodePage);
 
 	if (!HelpFile)
 		return FALSE;
@@ -5267,7 +5267,7 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
 {
 	strPrefix.Clear();
 
-	if (Opt.SubstPluginPrefix && SrcPanel->GetMode()==PLUGIN_PANEL)
+	if (Global->Opt->SubstPluginPrefix && SrcPanel->GetMode()==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
 		PluginHandle *ph = (PluginHandle*)SrcPanel->hPlugin;
@@ -5298,7 +5298,7 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
 void FileList::IfGoHome(wchar_t Drive)
 {
 	string strTmpCurDir;
-	string strFName=g_strFarModuleName;
+	string strFName=Global->g_strFarModuleName;
 
 	{
 		strFName.SetLength(3); //BUGBUG!

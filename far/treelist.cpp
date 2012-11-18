@@ -85,85 +85,6 @@ static clock_t TreeStartTime;
 static int LastScrX = -1;
 static int LastScrY = -1;
 
-static struct TreeListCache
-{
-	string strTreeName;
-	wchar_t **ListName;
-	int TreeCount;
-	int TreeSize;
-
-	TreeListCache()
-	{
-		ListName=nullptr;
-		TreeCount=0;
-		TreeSize=0;
-	}
-
-	void Resize()
-	{
-		if (TreeCount==TreeSize)
-		{
-			TreeSize+=TreeSize?TreeSize>>2:32;
-			wchar_t **NewPtr=(wchar_t**)xf_realloc(ListName,sizeof(wchar_t*)*TreeSize);
-
-			if (!NewPtr)
-				return;
-
-			ListName=NewPtr;
-		}
-	}
-
-	void Add(const wchar_t* name)
-	{
-		Resize();
-		ListName[TreeCount++]=xf_wcsdup(name);
-	}
-
-	void Insert(int idx,const wchar_t* name)
-	{
-		Resize();
-		memmove(ListName+idx+1,ListName+idx,sizeof(wchar_t*)*(TreeCount-idx));
-		ListName[idx]=xf_wcsdup(name);
-		TreeCount++;
-	}
-
-	void Delete(int idx)
-	{
-		if (ListName[idx]) xf_free(ListName[idx]);
-
-		memmove(ListName+idx,ListName+idx+1,sizeof(wchar_t*)*(TreeCount-idx-1));
-		TreeCount--;
-	}
-
-	void Clean()
-	{
-		if (!TreeSize)return;
-
-		for (int i=0; i<TreeCount; i++)
-		{
-			if (ListName[i]) xf_free(ListName[i]);
-		}
-
-		if (ListName) xf_free(ListName);
-
-		ListName=nullptr;
-		TreeCount=0;
-		TreeSize=0;
-		strTreeName.Clear();
-	}
-
-	//TODO: необходимо оптимизировать!
-	void Copy(TreeListCache *Dest)
-	{
-		Dest->Clean();
-
-		for (int I=0; I < TreeCount; I++)
-			Dest->Add(ListName[I]);
-	}
-
-} TreeCache, tempTreeCache;
-
-
 TreeList::TreeList(bool IsPanel):
 	PrevMacroMode(MACRO_INVALID),
 	ListData(nullptr),
@@ -197,7 +118,7 @@ TreeList::~TreeList()
 
 	if (SaveListData) delete [] SaveListData;
 
-	tempTreeCache.Clean();
+	Global->tempTreeCache->Clean();
 	FlushCache();
 	SetMacroMode(TRUE);
 }
@@ -328,11 +249,11 @@ void TreeList::DisplayTree(int Fast)
 
 		if (WhereX()<X2)
 		{
-			FS<<fmt::MinWidth(X2-WhereX())<<L"";
+			Global->FS << fmt::MinWidth(X2-WhereX())<<L"";
 		}
 	}
 
-	if (Opt.ShowPanelScrollbar)
+	if (Global->Opt->ShowPanelScrollbar)
 	{
 		SetColor(COL_PANELSCROLLBAR);
 		ScrollBarEx(X2,Y1+1,Y2-Y1-3,CurTopFile,TreeCount);
@@ -344,7 +265,7 @@ void TreeList::DisplayTree(int Fast)
 	if (TreeCount>0)
 	{
 		GotoXY(X1+1,Y2-1);
-		FS<<fmt::LeftAlign()<<fmt::ExactWidth(X2-X1-1)<<ListData[CurFile]->strName;
+		Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(X2-X1-1)<<ListData[CurFile]->strName;
 	}
 
 	UpdateViewPanel();
@@ -367,18 +288,18 @@ void TreeList::DisplayTreeName(const wchar_t *Name,int Pos)
 		if (Focus || ModalMode)
 		{
 			SetColor((Pos==WorkDir) ? COL_PANELSELECTEDCURSOR:COL_PANELCURSOR);
-			FS<<L" "<<fmt::MaxWidth(X2-WhereX()-3)<<Name<<L" ";
+			Global->FS << L" "<<fmt::MaxWidth(X2-WhereX()-3)<<Name<<L" ";
 		}
 		else
 		{
 			SetColor((Pos==WorkDir) ? COL_PANELSELECTEDTEXT:COL_PANELTEXT);
-			FS<<L"["<<fmt::MaxWidth(X2-WhereX()-3)<<Name<<L"]";
+			Global->FS << L"["<<fmt::MaxWidth(X2-WhereX()-3)<<Name<<L"]";
 		}
 	}
 	else
 	{
 		SetColor((Pos==WorkDir) ? COL_PANELSELECTEDTEXT:COL_PANELTEXT);
-		FS<<fmt::MaxWidth(X2-WhereX()-1)<<Name;
+		Global->FS << fmt::MaxWidth(X2-WhereX()-1)<<Name;
 	}
 }
 
@@ -556,7 +477,7 @@ int TreeList::ReadTree()
 
 void TreeList::SaveTreeFile()
 {
-	if (TreeCount < Opt.Tree.MinTreeCount)
+	if (TreeCount < Global->Opt->Tree.MinTreeCount)
 		return;
 
 	string strName;
@@ -629,12 +550,12 @@ int TreeList::GetCacheTreeName(const string& Root, string& strName,int CreateDir
 
 	string strFolderName;
 	string strFarPath;
-	MkTreeCacheFolderName(Opt.LocalProfilePath, strFolderName);
+	MkTreeCacheFolderName(Global->Opt->LocalProfilePath, strFolderName);
 
 	if (CreateDir)
 	{
 		apiCreateDirectory(strFolderName, nullptr);
-		apiSetFileAttributes(strFolderName,Opt.Tree.TreeFileAttr);
+		apiSetFileAttributes(strFolderName,Global->Opt->Tree.TreeFileAttr);
 	}
 
 	string strRemoteName;
@@ -726,7 +647,7 @@ void TreeList::SyncDir()
 void TreeList::PR_MsgReadTree()
 {
 	int FirstCall=1;
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	TreeList::MsgReadTree(preRedrawItem.Param.Flags,FirstCall);
 }
 
@@ -748,9 +669,9 @@ int TreeList::MsgReadTree(int TreeCount,int &FirstCall)
 		_itow(TreeCount,NumStr,10); //BUGBUG
 		Message((FirstCall ? 0:MSG_KEEPBACKGROUND),0,MSG(MTreeTitle),
 		        MSG(MReadingTree),NumStr);
-		PreRedrawItem preRedrawItem=PreRedraw.Peek();
+		PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 		preRedrawItem.Param.Flags=TreeCount;
-		PreRedraw.SetParam(preRedrawItem.Param);
+		Global->PreRedraw->SetParam(preRedrawItem.Param);
 		TreeStartTime = clock();
 	}
 
@@ -968,7 +889,7 @@ int TreeList::ProcessKey(int Key)
 			if (SetCurPath() && TreeCount>0)
 			{
 				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
-				int Ask=((Key!=KEY_DRAGCOPY && Key!=KEY_DRAGMOVE) || Opt.Confirm.Drag);
+				int Ask=((Key!=KEY_DRAGCOPY && Key!=KEY_DRAGMOVE) || Global->Opt->Confirm.Drag);
 				int Move=(Key==KEY_F6 || Key==KEY_DRAGMOVE);
 				int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
 				             AnotherPanel->IsVisible() &&
@@ -1037,19 +958,19 @@ int TreeList::ProcessKey(int Key)
 		{
 			if (SetCurPath())
 			{
-				bool SaveOpt=Opt.DeleteToRecycleBin;
+				bool SaveOpt=Global->Opt->DeleteToRecycleBin;
 
 				if (Key==KEY_SHIFTDEL||Key==KEY_SHIFTNUMDEL||Key==KEY_SHIFTDECIMAL)
-					Opt.DeleteToRecycleBin=0;
+					Global->Opt->DeleteToRecycleBin=0;
 
 				ShellDelete(this,Key==KEY_ALTDEL||Key==KEY_RALTDEL||Key==KEY_ALTNUMDEL||Key==KEY_RALTNUMDEL||Key==KEY_ALTDECIMAL||Key==KEY_RALTDECIMAL);
 				// Надобно не забыть обновить противоположную панель...
 				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
 				AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 				AnotherPanel->Redraw();
-				Opt.DeleteToRecycleBin=SaveOpt;
+				Global->Opt->DeleteToRecycleBin=SaveOpt;
 
-				if (Opt.Tree.AutoChangeFolder && !ModalMode)
+				if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 					ProcessKey(KEY_ENTER);
 			}
 
@@ -1059,21 +980,21 @@ int TreeList::ProcessKey(int Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			Scroll(Key & (KEY_ALT|KEY_RALT)?-1:(int)-Opt.MsWheelDelta);
+			Scroll(Key & (KEY_ALT|KEY_RALT)?-1:(int)-Global->Opt->MsWheelDelta);
 			return TRUE;
 		}
 		case KEY_MSWHEEL_DOWN:
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			Scroll(Key & (KEY_ALT|KEY_RALT)?1:(int)Opt.MsWheelDelta);
+			Scroll(Key & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsWheelDelta);
 			return TRUE;
 		}
 		case KEY_MSWHEEL_LEFT:
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Opt.MsHWheelDelta;
+			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_LEFT);
@@ -1084,7 +1005,7 @@ int TreeList::ProcessKey(int Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Opt.MsHWheelDelta;
+			int Roll = Key & (KEY_ALT|KEY_RALT)?1:(int)Global->Opt->MsHWheelDelta;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_RIGHT);
@@ -1095,7 +1016,7 @@ int TreeList::ProcessKey(int Key)
 		{
 			Up(0x7fffff);
 
-			if (Opt.Tree.AutoChangeFolder && !ModalMode)
+			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 				ProcessKey(KEY_ENTER);
 
 			return TRUE;
@@ -1104,7 +1025,7 @@ int TreeList::ProcessKey(int Key)
 		{
 			CurFile=GetNextNavPos();
 
-			if (Opt.Tree.AutoChangeFolder && !ModalMode)
+			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 				ProcessKey(KEY_ENTER);
 			else
 				DisplayTree(TRUE);
@@ -1115,7 +1036,7 @@ int TreeList::ProcessKey(int Key)
 		{
 			CurFile=GetPrevNavPos();
 
-			if (Opt.Tree.AutoChangeFolder && !ModalMode)
+			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 				ProcessKey(KEY_ENTER);
 			else
 				DisplayTree(TRUE);
@@ -1126,7 +1047,7 @@ int TreeList::ProcessKey(int Key)
 		{
 			Down(0x7fffff);
 
-			if (Opt.Tree.AutoChangeFolder && !ModalMode)
+			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 				ProcessKey(KEY_ENTER);
 
 			return TRUE;
@@ -1135,7 +1056,7 @@ int TreeList::ProcessKey(int Key)
 		{
 			Up(1);
 
-			if (Opt.Tree.AutoChangeFolder && !ModalMode)
+			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 				ProcessKey(KEY_ENTER);
 
 			return TRUE;
@@ -1144,7 +1065,7 @@ int TreeList::ProcessKey(int Key)
 		{
 			Down(1);
 
-			if (Opt.Tree.AutoChangeFolder && !ModalMode)
+			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 				ProcessKey(KEY_ENTER);
 
 			return TRUE;
@@ -1155,7 +1076,7 @@ int TreeList::ProcessKey(int Key)
 			CurFile-=Y2-Y1-3-ModalMode;
 			DisplayTree(TRUE);
 
-			if (Opt.Tree.AutoChangeFolder && !ModalMode)
+			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 				ProcessKey(KEY_ENTER);
 
 			return TRUE;
@@ -1166,7 +1087,7 @@ int TreeList::ProcessKey(int Key)
 			CurFile+=Y2-Y1-3-ModalMode;
 			DisplayTree(TRUE);
 
-			if (Opt.Tree.AutoChangeFolder && !ModalMode)
+			if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 				ProcessKey(KEY_ENTER);
 
 			return TRUE;
@@ -1176,9 +1097,9 @@ int TreeList::ProcessKey(int Key)
 		case KEY_SHIFTAPPS:
 		{
 			//вызовем EMenu если он есть
-			if (CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Emenu))
+			if (CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
+				CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}
@@ -1189,7 +1110,7 @@ int TreeList::ProcessKey(int Key)
 			{
 				FastFind(Key);
 
-				if (Opt.Tree.AutoChangeFolder && !ModalMode)
+				if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 					ProcessKey(KEY_ENTER);
 			}
 			else
@@ -1353,7 +1274,7 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	int OldFile=CurFile;
 	int RetCode;
 
-	if (Opt.ShowPanelScrollbar && IntKeyState.MouseX==X2 &&
+	if (Global->Opt->ShowPanelScrollbar && IntKeyState.MouseX==X2 &&
 	        (MouseEvent->dwButtonState & 1) && !IsDragging())
 	{
 		int ScrollY=Y1+1;
@@ -1411,14 +1332,14 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		        MouseEvent->dwEventFlags==DOUBLE_CLICK) ||
 		        ((MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) &&
 		         !MouseEvent->dwEventFlags) ||
-		        (OldFile!=CurFile && Opt.Tree.AutoChangeFolder && !ModalMode))
+		        (OldFile!=CurFile && Global->Opt->Tree.AutoChangeFolder && !ModalMode))
 		{
 			DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
 
 			//вызовем EMenu если он есть
-			if (!Opt.RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Emenu))
+			if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins->CallPlugin(Opt.KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
+				CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
 				return TRUE;
 			}
 
@@ -1440,7 +1361,7 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		while (IsMouseButtonPressed() && IntKeyState.MouseY<=Y1+1)
 			Up(1);
 
-		if (Opt.Tree.AutoChangeFolder && !ModalMode)
+		if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 			ProcessKey(KEY_ENTER);
 
 		return TRUE;
@@ -1457,7 +1378,7 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		while (IsMouseButtonPressed() && IntKeyState.MouseY>=Y2-2)
 			Down(1);
 
-		if (Opt.Tree.AutoChangeFolder && !ModalMode)
+		if (Global->Opt->Tree.AutoChangeFolder && !ModalMode)
 			ProcessKey(KEY_ENTER);
 
 		return TRUE;
@@ -1592,7 +1513,7 @@ int TreeList::ReadTreeFile()
 
 	NumericSort=FALSE;
 	CaseSensitiveSort=FALSE;
-	far_qsort(TreeCache.ListName,TreeCache.TreeCount,sizeof(wchar_t*),SortCacheList);
+	far_qsort(Global->TreeCache->ListName,Global->TreeCache->TreeCount,sizeof(wchar_t*),SortCacheList);
 	return FillLastData();
 }
 
@@ -1711,16 +1632,16 @@ void TreeList::AddTreeName(const wchar_t *Name)
 
 	ReadCache(strRoot);
 
-	for (long CachePos = 0; CachePos < TreeCache.TreeCount; CachePos++)
+	for (long CachePos = 0; CachePos < Global->TreeCache->TreeCount; CachePos++)
 	{
-		int Result = StrCmpI(TreeCache.ListName[CachePos], Name);
+		int Result = StrCmpI(Global->TreeCache->ListName[CachePos], Name);
 
 		if (!Result)
 			break;
 
 		if (Result > 0)
 		{
-			TreeCache.Insert(CachePos, Name);
+			Global->TreeCache->Insert(CachePos, Name);
 			break;
 		}
 	}
@@ -1739,9 +1660,9 @@ void TreeList::DelTreeName(const wchar_t *Name)
 	Name += strRoot.GetLength() - 1;
 	ReadCache(strRoot);
 
-	for (long CachePos = 0; CachePos < TreeCache.TreeCount; CachePos++)
+	for (long CachePos = 0; CachePos < Global->TreeCache->TreeCount; CachePos++)
 	{
-		const wchar_t* wszDirName = TreeCache.ListName[CachePos];
+		const wchar_t* wszDirName = Global->TreeCache->ListName[CachePos];
 		int Length = StrLength(Name);
 		int DirLength = StrLength(wszDirName);
 
@@ -1749,7 +1670,7 @@ void TreeList::DelTreeName(const wchar_t *Name)
 
 		if (!StrCmpNI(Name, wszDirName, Length) && (!wszDirName[Length] || IsSlash(wszDirName[Length])))
 		{
-			TreeCache.Delete(CachePos);
+			Global->TreeCache->Delete(CachePos);
 			CachePos--;
 		}
 	}
@@ -1777,19 +1698,19 @@ void TreeList::RenTreeName(const string& strSrcName,const string& strDestName)
 	ReadCache(strSrcRoot);
 	int SrcLength = StrLength(SrcName);
 
-	for (int CachePos = 0; CachePos < TreeCache.TreeCount; CachePos++)
+	for (int CachePos = 0; CachePos < Global->TreeCache->TreeCount; CachePos++)
 	{
-		const wchar_t* DirName = TreeCache.ListName[CachePos];
+		const wchar_t* DirName = Global->TreeCache->ListName[CachePos];
 
 		if (!StrCmpNI(SrcName,DirName,SrcLength) && (!DirName[SrcLength] || IsSlash(DirName[SrcLength])))
 		{
 			string strNewName = DestName;
 			strNewName += DirName + SrcLength;
 
-			if (TreeCache.ListName[CachePos])
-				xf_free(TreeCache.ListName[CachePos]);
+			if (Global->TreeCache->ListName[CachePos])
+				xf_free(Global->TreeCache->ListName[CachePos]);
 
-			TreeCache.ListName[CachePos] = xf_wcsdup(strNewName);
+			Global->TreeCache->ListName[CachePos] = xf_wcsdup(strNewName);
 		}
 	}
 }
@@ -1841,7 +1762,7 @@ void TreeList::ReadSubTree(const string& Path)
 
 void TreeList::ClearCache(int EnableFreeMem)
 {
-	TreeCache.Clean();
+	Global->TreeCache->Clean();
 }
 
 
@@ -1850,10 +1771,10 @@ void TreeList::ReadCache(const string& TreeRoot)
 	string strTreeName;
 	FILE *TreeFile=nullptr;
 
-	if (!StrCmp(MkTreeFileName(TreeRoot,strTreeName),TreeCache.strTreeName))
+	if (!StrCmp(MkTreeFileName(TreeRoot,strTreeName),Global->TreeCache->strTreeName))
 		return;
 
-	if (TreeCache.TreeCount)
+	if (Global->TreeCache->TreeCount)
 		FlushCache();
 
 	if (MustBeCached(TreeRoot) || !(TreeFile=_wfopen(strTreeName,L"rb")))
@@ -1863,7 +1784,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 			return;
 		}
 
-	TreeCache.strTreeName = strTreeName;
+	Global->TreeCache->strTreeName = strTreeName;
 	wchar_t *DirName=new wchar_t[NT_MAX_PATH];
 
 	if (DirName)
@@ -1878,7 +1799,7 @@ void TreeList::ReadCache(const string& TreeRoot)
 			if (ChPtr)
 				*ChPtr=0;
 
-			TreeCache.Add(DirName);
+			Global->TreeCache->Add(DirName);
 		}
 
 		delete[] DirName;
@@ -1892,34 +1813,34 @@ void TreeList::FlushCache()
 {
 	FILE *TreeFile;
 
-	if (!TreeCache.strTreeName.IsEmpty())
+	if (!Global->TreeCache->strTreeName.IsEmpty())
 	{
-		DWORD FileAttributes=apiGetFileAttributes(TreeCache.strTreeName);
+		DWORD FileAttributes=apiGetFileAttributes(Global->TreeCache->strTreeName);
 
 		if (FileAttributes != INVALID_FILE_ATTRIBUTES)
-			apiSetFileAttributes(TreeCache.strTreeName,FILE_ATTRIBUTE_NORMAL);
+			apiSetFileAttributes(Global->TreeCache->strTreeName,FILE_ATTRIBUTE_NORMAL);
 
-		if (!(TreeFile=_wfopen(TreeCache.strTreeName,L"wb")))
+		if (!(TreeFile=_wfopen(Global->TreeCache->strTreeName,L"wb")))
 		{
 			ClearCache(1);
 			return;
 		}
 
-		far_qsort(TreeCache.ListName,TreeCache.TreeCount,sizeof(wchar_t*),SortCacheList);
+		far_qsort(Global->TreeCache->ListName,Global->TreeCache->TreeCount,sizeof(wchar_t*),SortCacheList);
 
-		for (int i=0; i<TreeCache.TreeCount; i++)
-			fwprintf(TreeFile,L"%s\n",TreeCache.ListName[i]);
+		for (int i=0; i<Global->TreeCache->TreeCount; i++)
+			fwprintf(TreeFile,L"%s\n",Global->TreeCache->ListName[i]);
 
 		if (fclose(TreeFile)==EOF)
 		{
 			clearerr(TreeFile);
 			fclose(TreeFile);
-			apiDeleteFile(TreeCache.strTreeName);
+			apiDeleteFile(Global->TreeCache->strTreeName);
 			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MCannotSaveTree),
-			        TreeCache.strTreeName,MSG(MOk));
+			        Global->TreeCache->strTreeName,MSG(MOk));
 		}
 		else if (FileAttributes != INVALID_FILE_ATTRIBUTES) // вернем атрибуты (если получится :-)
-			apiSetFileAttributes(TreeCache.strTreeName,FileAttributes);
+			apiSetFileAttributes(Global->TreeCache->strTreeName,FileAttributes);
 	}
 
 	ClearCache(1);
@@ -2138,7 +2059,7 @@ BOOL TreeList::UpdateKeyBar()
 void TreeList::DynamicUpdateKeyBar()
 {
 	KeyBar *KB = CtrlObject->MainKeyBar;
-	KB->ReadRegGroup(L"Tree",Opt.strLanguage);
+	KB->ReadRegGroup(L"Tree",Global->Opt->strLanguage);
 	KB->SetAllRegGroup();
 }
 
@@ -2185,21 +2106,21 @@ string &TreeList::MkTreeCacheFolderName(const wchar_t *RootDir,string &strDest)
 
 
 /*
-  Opt.Tree.LocalDisk          Хранить файл структуры папок для локальных дисков
-  Opt.Tree.NetDisk            Хранить файл структуры папок для сетевых дисков
-  Opt.Tree.NetPath            Хранить файл структуры папок для сетевых путей
-  Opt.Tree.RemovableDisk      Хранить файл структуры папок для сменных дисков
-  Opt.Tree.CDDisk             Хранить файл структуры папок для CD/DVD/BD/etc дисков
+  Global->Opt->Tree.LocalDisk          Хранить файл структуры папок для локальных дисков
+  Global->Opt->Tree.NetDisk            Хранить файл структуры папок для сетевых дисков
+  Global->Opt->Tree.NetPath            Хранить файл структуры папок для сетевых путей
+  Global->Opt->Tree.RemovableDisk      Хранить файл структуры папок для сменных дисков
+  Global->Opt->Tree.CDDisk             Хранить файл структуры папок для CD/DVD/BD/etc дисков
 
-  Opt.Tree.strLocalDisk;      шаблон имени файла-деревяхи для локальных дисков
+  Global->Opt->Tree.strLocalDisk;      шаблон имени файла-деревяхи для локальных дисков
      constLocalDiskTemplate=L"%D.%SN.tree"
-  Opt.Tree.strNetDisk;        шаблон имени файла-деревяхи для сетевых дисков
+  Global->Opt->Tree.strNetDisk;        шаблон имени файла-деревяхи для сетевых дисков
      constNetDiskTemplate=L"%D.%SN.tree";
-  Opt.Tree.strNetPath;        шаблон имени файла-деревяхи для сетевых путей
+  Global->Opt->Tree.strNetPath;        шаблон имени файла-деревяхи для сетевых путей
      constNetPathTemplate=L"%SR.%SH.tree";
-  Opt.Tree.strRemovableDisk;  шаблон имени файла-деревяхи для сменных дисков
+  Global->Opt->Tree.strRemovableDisk;  шаблон имени файла-деревяхи для сменных дисков
      constRemovableDiskTemplate=L"%SN.tree";
-  Opt.Tree.strCDDisk;         шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
+  Global->Opt->Tree.strCDDisk;         шаблон имени файла-деревяхи для CD/DVD/BD/etc дисков
      constCDDiskTemplate=L"CD.%L.%SN.tree";
 
      %D    - буква диска
@@ -2208,10 +2129,10 @@ string &TreeList::MkTreeCacheFolderName(const wchar_t *RootDir,string &strDest)
      %SR   - server name
      %SH   - share name
 
-  Opt.Tree.strExceptPath;     // для перечисленных здесь не хранить
+  Global->Opt->Tree.strExceptPath;     // для перечисленных здесь не хранить
 
-  Opt.Tree.strSaveLocalPath;  // сюда сохраняем локальные диски
-  Opt.Tree.strSaveNetPath;    // сюда сохраняем сетевые диски
+  Global->Opt->Tree.strSaveLocalPath;  // сюда сохраняем локальные диски
+  Global->Opt->Tree.strSaveNetPath;    // сюда сохраняем сетевые диски
 */
 string &TreeList::CreateTreeFileName(const wchar_t *Path,string &strDest)
 {
@@ -2226,7 +2147,7 @@ string &TreeList::CreateTreeFileName(const wchar_t *Path,string &strDest)
 	if (!GetVolumeInformation(RootDir,VolumeName,sizeof(VolumeName),&VolumeNumber,
 	                          &MaxNameLength,&FileSystemFlags,
 	                          FileSystemName,sizeof(FileSystemName)))
-		Opt.Tree.SavedTreePath
+		Global->Opt->Tree.SavedTreePath
 #endif
 		return strDest;
 }
@@ -2266,7 +2187,7 @@ bool TreeList::SaveState()
 
 			SaveTreeCount=TreeCount;
 			SaveWorkDir=WorkDir;
-			TreeCache.Copy(&tempTreeCache);
+			Global->TreeCache->Copy(Global->tempTreeCache);
 			return true;
 		}
 	}
@@ -2297,8 +2218,8 @@ bool TreeList::RestoreState()
 
 		TreeCount=SaveTreeCount;
 		WorkDir=SaveWorkDir;
-		tempTreeCache.Copy(&TreeCache);
-		tempTreeCache.Clean();
+		Global->tempTreeCache->Copy(Global->TreeCache);
+		Global->tempTreeCache->Clean();
 		return true;
 	}
 

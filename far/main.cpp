@@ -62,10 +62,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "palette.hpp"
 
-#ifdef DIRECT_RT
-int DirectRT=0;
-#endif
-
 static void show_help()
 {
 	WCHAR HelpMsg[]=
@@ -114,8 +110,8 @@ static void show_help()
 		L" /ro  Read-Only config mode.\n"
 		L" /rw  Normal config mode.\n"
 		;
-	Console.Write(HelpMsg, ARRAYSIZE(HelpMsg)-1);
-	Console.Commit();
+	Global->Console->Write(HelpMsg, ARRAYSIZE(HelpMsg)-1);
+	Global->Console->Commit();
 }
 
 static int MainProcess(
@@ -131,22 +127,22 @@ static int MainProcess(
 		ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 		ControlObject CtrlObj;
 		FarColor InitAttributes={};
-		Console.GetTextAttributes(InitAttributes);
+		Global->Console->GetTextAttributes(InitAttributes);
 		SetRealColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
-		GetSystemInfo(&SystemInfo);
+		GetSystemInfo(&Global->SystemInfo);
 
 		string ename(lpwszEditName),vname(lpwszViewName), apanel(lpwszDestName1),ppanel(lpwszDestName2);
 		if (Db->ShowProblems() > 0)
 		{
 			ename = vname = "";
 			StartLine = StartChar = -1;
-			apanel = Opt.ProfilePath;
-			ppanel = Opt.LocalProfilePath;
+			apanel = Global->Opt->ProfilePath;
+			ppanel = Global->Opt->LocalProfilePath;
 		}
 
 		if (*ename || *vname)
 		{
-			Opt.OnlyEditorViewerUsed=1;
+			Global->Opt->OnlyEditorViewerUsed=1;
 			Panel *DummyPanel=new Panel;
 			_tran(SysLog(L"create dummy panels"));
 			CtrlObj.CreateFilePanels();
@@ -184,12 +180,12 @@ static int MainProcess(
 		}
 		else
 		{
-			Opt.OnlyEditorViewerUsed=0;
+			Global->Opt->OnlyEditorViewerUsed=0;
 			int DirCount=0;
 			string strPath;
 
 			// воспользуемся тем, что ControlObject::Init() создает панели
-			// юзая Opt.*
+			// юзая Global->Opt->*
 			if (*apanel)  // актиная панель
 			{
 				++DirCount;
@@ -205,17 +201,17 @@ static int MainProcess(
 				}
 
 				// Та панель, которая имеет фокус - активна (начнем по традиции с Левой Панели ;-)
-				if (Opt.LeftPanel.Focus)
+				if (Global->Opt->LeftPanel.Focus)
 				{
-					Opt.LeftPanel.Type=FILE_PANEL;  // сменим моду панели
-					Opt.LeftPanel.Visible=TRUE;     // и включим ее
-					Opt.strLeftFolder = strPath;
+					Global->Opt->LeftPanel.Type=FILE_PANEL;  // сменим моду панели
+					Global->Opt->LeftPanel.Visible=TRUE;     // и включим ее
+					Global->Opt->strLeftFolder = strPath;
 				}
 				else
 				{
-					Opt.RightPanel.Type=FILE_PANEL;
-					Opt.RightPanel.Visible=TRUE;
-					Opt.strRightFolder = strPath;
+					Global->Opt->RightPanel.Type=FILE_PANEL;
+					Global->Opt->RightPanel.Visible=TRUE;
+					Global->Opt->strRightFolder = strPath;
 				}
 
 				if (*ppanel)  // пассивная панель
@@ -233,17 +229,17 @@ static int MainProcess(
 					}
 
 					// а здесь наоборот - обрабатываем пассивную панель
-					if (Opt.LeftPanel.Focus)
+					if (Global->Opt->LeftPanel.Focus)
 					{
-						Opt.RightPanel.Type=FILE_PANEL; // сменим моду панели
-						Opt.RightPanel.Visible=TRUE;    // и включим ее
-						Opt.strRightFolder = strPath;
+						Global->Opt->RightPanel.Type=FILE_PANEL; // сменим моду панели
+						Global->Opt->RightPanel.Visible=TRUE;    // и включим ее
+						Global->Opt->strRightFolder = strPath;
 					}
 					else
 					{
-						Opt.LeftPanel.Type=FILE_PANEL;
-						Opt.LeftPanel.Visible=TRUE;
-						Opt.strLeftFolder = strPath;
+						Global->Opt->LeftPanel.Type=FILE_PANEL;
+						Global->Opt->LeftPanel.Visible=TRUE;
+						Global->Opt->strLeftFolder = strPath;
 					}
 				}
 			}
@@ -310,9 +306,9 @@ static int MainProcess(
 
 		// очистим за собой!
 		SetScreen(0,0,ScrX,ScrY,L' ',ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
-		Console.SetTextAttributes(InitAttributes);
-		ScrBuf.ResetShadow();
-		ScrBuf.Flush();
+		Global->Console->SetTextAttributes(InitAttributes);
+		Global->ScrBuf->ResetShadow();
+		Global->ScrBuf->Flush();
 		MoveRealCursor(0,0);
 	}
 	CloseConsole();
@@ -343,7 +339,7 @@ void InitTemplateProfile(string &strTemplatePath)
 	if (strTemplatePath.IsEmpty())
 		strTemplatePath.ReleaseBuffer(GetPrivateProfileString(
 			L"General", L"TemplateProfile", L"%FARHOME%\\Default.farconfig",
-			strTemplatePath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI)
+			strTemplatePath.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI)
 		);
 
 	if (!strTemplatePath.IsEmpty())
@@ -357,7 +353,7 @@ void InitTemplateProfile(string &strTemplatePath)
 		if (0 != (attr & FILE_ATTRIBUTE_DIRECTORY))
 			strTemplatePath += L"\\Default.farconfig";
 
-		Opt.TemplateProfilePath = strTemplatePath;
+		Global->Opt->TemplateProfilePath = strTemplatePath;
 	}
 }
 
@@ -378,113 +374,117 @@ void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 	if (strProfilePath.IsEmpty())
 	{
-		int UseSystemProfiles = GetPrivateProfileInt(L"General", L"UseSystemProfiles", 1, g_strFarINI);
+		int UseSystemProfiles = GetPrivateProfileInt(L"General", L"UseSystemProfiles", 1, Global->g_strFarINI);
 		if (UseSystemProfiles)
 		{
 			// roaming data default path: %APPDATA%\Far Manager\Profile
 			wchar_t Buffer[MAX_PATH];
 			SHGetFolderPath(nullptr, CSIDL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Buffer);
 			AddEndSlash(Buffer);
-			Opt.ProfilePath = Buffer;
-			Opt.ProfilePath += L"Far Manager";
+			Global->Opt->ProfilePath = Buffer;
+			Global->Opt->ProfilePath += L"Far Manager";
 
 			if (UseSystemProfiles == 2)
 			{
-				Opt.LocalProfilePath = Opt.ProfilePath;
+				Global->Opt->LocalProfilePath = Global->Opt->ProfilePath;
 			}
 			else
 			{
 				// local data default path: %LOCALAPPDATA%\Far Manager\Profile
 				SHGetFolderPath(nullptr, CSIDL_LOCAL_APPDATA|CSIDL_FLAG_CREATE, nullptr, 0, Buffer);
 				AddEndSlash(Buffer);
-				Opt.LocalProfilePath = Buffer;
-				Opt.LocalProfilePath += L"Far Manager";
+				Global->Opt->LocalProfilePath = Buffer;
+				Global->Opt->LocalProfilePath += L"Far Manager";
 			}
 
-			string Paths[]={Opt.ProfilePath, Opt.LocalProfilePath};
+			string Paths[]={Global->Opt->ProfilePath, Global->Opt->LocalProfilePath};
 			for (size_t i = 0; i< ARRAYSIZE(Paths); ++i)
 			{
 				AddEndSlash(Paths[i]);
 				Paths[i] += L"Profile";
 				CreatePath(Paths[i], true);
 			}
-			Opt.ProfilePath = Paths[0];
-			Opt.LocalProfilePath = Paths[1];
+			Global->Opt->ProfilePath = Paths[0];
+			Global->Opt->LocalProfilePath = Paths[1];
 		}
 		else
 		{
 			string strUserProfileDir, strUserLocalProfileDir;
-			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI));
-			strUserLocalProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserLocalProfileDir", strUserProfileDir.CPtr(), strUserLocalProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, g_strFarINI));
+			strUserProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserProfileDir", L"%FARHOME%\\Profile", strUserProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI));
+			strUserLocalProfileDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"UserLocalProfileDir", strUserProfileDir.CPtr(), strUserLocalProfileDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI));
 			apiExpandEnvironmentStrings(strUserProfileDir, strUserProfileDir);
 			apiExpandEnvironmentStrings(strUserLocalProfileDir, strUserLocalProfileDir);
 			Unquote(strUserProfileDir);
 			Unquote(strUserLocalProfileDir);
 			ConvertNameToFull(strUserProfileDir, strUserProfileDir);
 			ConvertNameToFull(strUserLocalProfileDir, strUserLocalProfileDir);
-			Opt.ProfilePath = strUserProfileDir;
-			Opt.LocalProfilePath = strUserLocalProfileDir;
+			Global->Opt->ProfilePath = strUserProfileDir;
+			Global->Opt->LocalProfilePath = strUserLocalProfileDir;
 		}
 	}
 	else
 	{
-		Opt.ProfilePath = strProfilePath;
-		Opt.LocalProfilePath = strLocalProfilePath.IsEmpty() ? strProfilePath : strLocalProfilePath;
+		Global->Opt->ProfilePath = strProfilePath;
+		Global->Opt->LocalProfilePath = strLocalProfilePath.IsEmpty() ? strProfilePath : strLocalProfilePath;
 	}
 
-	CreatePath(Opt.ProfilePath + L"\\PluginsData", true);
-	if (Opt.ProfilePath != Opt.LocalProfilePath)
-		CreatePath(Opt.LocalProfilePath, true);
+	CreatePath(Global->Opt->ProfilePath + L"\\PluginsData", true);
+	if (Global->Opt->ProfilePath != Global->Opt->LocalProfilePath)
+		CreatePath(Global->Opt->LocalProfilePath, true);
 
-	Opt.LoadPlug.strPersonalPluginsPath = Opt.ProfilePath + L"\\Plugins";
+	Global->Opt->LoadPlug.strPersonalPluginsPath = Global->Opt->ProfilePath + L"\\Plugins";
 
-	SetEnvironmentVariable(L"FARPROFILE", Opt.ProfilePath);
-	SetEnvironmentVariable(L"FARLOCALPROFILE", Opt.LocalProfilePath);
+	SetEnvironmentVariable(L"FARPROFILE", Global->Opt->ProfilePath);
+	SetEnvironmentVariable(L"FARLOCALPROFILE", Global->Opt->LocalProfilePath);
 
-	if (Opt.ReadOnlyConfig < 0) // do not override 'far /ro', 'far /rw'
-		Opt.ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, g_strFarINI);
+	if (Global->Opt->ReadOnlyConfig < 0) // do not override 'far /ro', 'far /rw'
+		Global->Opt->ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, Global->g_strFarINI);
 }
+
+global *Global;
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
-	ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX;
-	SetErrorMode(ErrorMode);
+	Global = new global();
+
+	SetErrorMode(Global->ErrorMode);
+
+	TestPathParser();
 
 	std::set_new_handler(nullptr);
-	QueryPerformanceCounter(&FarUpTime);
+	QueryPerformanceCounter(&Global->FarUpTime);
 
-	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &MainThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
-	MainThreadId = GetCurrentThreadId();
-	GetVersionEx(&WinVer);
+	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &Global->MainThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
+	GetVersionEx(&Global->WinVer);
 
 	// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
 	// Applications do not need to enable the LFH for their heaps.
-	if(WinVer < _WIN32_WINNT_VISTA)
+	if(Global->WinVer < _WIN32_WINNT_VISTA)
 	{
 		apiEnableLowFragmentationHeap();
 	}
 
-	if(!Console.IsFullscreenSupported())
+	if(!Global->Console->IsFullscreenSupported())
 	{
 		// 0x8 - AltEnter
-		ifn.SetConsoleKeyShortcuts(TRUE, 0x8, nullptr, 0);
+		Global->ifn->SetConsoleKeyShortcuts(TRUE, 0x8, nullptr, 0);
 	}
 
 	InitCurrentDirectory();
 
-	if (apiGetModuleFileName(nullptr, g_strFarModuleName))
+	if (apiGetModuleFileName(nullptr, Global->g_strFarModuleName))
 	{
-		ConvertNameToLong(g_strFarModuleName, g_strFarModuleName);
-		PrepareDiskPath(g_strFarModuleName);
+		ConvertNameToLong(Global->g_strFarModuleName, Global->g_strFarModuleName);
+		PrepareDiskPath(Global->g_strFarModuleName);
 	}
 
-	g_strFarINI = g_strFarModuleName+L".ini";
-	g_strFarPath = g_strFarModuleName;
-	CutToSlash(g_strFarPath,true);
-	SetEnvironmentVariable(L"FARHOME", g_strFarPath);
-	AddEndSlash(g_strFarPath);
+	Global->g_strFarINI = Global->g_strFarModuleName+L".ini";
+	Global->g_strFarPath = Global->g_strFarModuleName;
+	CutToSlash(Global->g_strFarPath,true);
+	SetEnvironmentVariable(L"FARHOME", Global->g_strFarPath);
+	AddEndSlash(Global->g_strFarPath);
 
-	Opt.IsUserAdmin=IsUserAdmin();
+	Global->Opt->IsUserAdmin=IsUserAdmin();
 
 #ifndef NO_WRAPPER
 	// don't inherit from parent process in any case
@@ -492,7 +492,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	SetEnvironmentVariable(L"FARUSER", nullptr);
 #endif // NO_WRAPPER
 
-	SetEnvironmentVariable(L"FARADMINMODE", Opt.IsUserAdmin?L"1":nullptr);
+	SetEnvironmentVariable(L"FARADMINMODE", Global->Opt->IsUserAdmin?L"1":nullptr);
 
 	if (Argc==5 && !StrCmp(Argv[1], L"/elevation")) // /elevation {GUID} PID UsePrivileges
 	{
@@ -537,26 +537,26 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 #endif
 	// если под дебагером, то отключаем исключения однозначно,
 	//  иначе - смотря что указал юзвер.
-	Opt.ExceptRules = -1;
-	Opt.WindowMode = -1;
+	Global->Opt->ExceptRules = -1;
+	Global->Opt->WindowMode = -1;
 #ifndef _DEBUGEXC
 	if(IsDebuggerPresent())
 	{
-		Opt.ExceptRules = 0;
+		Global->Opt->ExceptRules = 0;
 	}
 #endif
 #ifndef NO_WRAPPER
-	Opt.strRegRoot = L"Software\\Far Manager";
+	Global->Opt->strRegRoot = L"Software\\Far Manager";
 #endif // NO_WRAPPER
 	// По умолчанию - брать плагины из основного каталога
-	Opt.LoadPlug.MainPluginDir=TRUE;
-	Opt.LoadPlug.PluginsPersonal=TRUE;
-	Opt.LoadPlug.PluginsCacheOnly=FALSE;
+	Global->Opt->LoadPlug.MainPluginDir=TRUE;
+	Global->Opt->LoadPlug.PluginsPersonal=TRUE;
+	Global->Opt->LoadPlug.PluginsCacheOnly=FALSE;
 
 	// макросы не дисаблим
-	Opt.Macro.DisableMacro=0;
+	Global->Opt->Macro.DisableMacro=0;
 
-	Opt.ReadOnlyConfig = -1; // not initialized
+	Global->Opt->ReadOnlyConfig = -1; // not initialized
 
 	string strProfilePath, strLocalProfilePath, strTemplatePath;
 
@@ -571,12 +571,12 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					switch (Upper(Argv[I][2]))
 					{
 						case 0:
-							Opt.CleanAscii=TRUE;
+							Global->Opt->CleanAscii=TRUE;
 							break;
 						case L'G':
 
 							if (!Argv[I][3])
-								Opt.NoGraphics=TRUE;
+								Global->Opt->NoGraphics=TRUE;
 
 							break;
 					}
@@ -614,23 +614,23 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					switch (Upper(Argv[I][2]))
 					{
 						case 0:
-							Opt.Macro.DisableMacro|=MDOL_ALL;
+							Global->Opt->Macro.DisableMacro|=MDOL_ALL;
 							break;
 						case L'A':
 
 							if (!Argv[I][3])
-								Opt.Macro.DisableMacro|=MDOL_AUTOSTART;
+								Global->Opt->Macro.DisableMacro|=MDOL_AUTOSTART;
 
 							break;
 					}
 
 					break;
 				case L'X':
-					Opt.ExceptRules = 0;
+					Global->Opt->ExceptRules = 0;
 #if defined(_DEBUGEXC)
 
 					if (Upper(Argv[I][2])==L'D' && !Argv[I][3])
-						Opt.ExceptRules = 1;
+						Global->Opt->ExceptRules = 1;
 
 #endif
 					break;
@@ -641,8 +641,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					if (I+1<Argc)
 					{
 						//Affects OEM plugins only!
-						Opt.strRegRoot += L"\\Users\\";
-						Opt.strRegRoot += Argv[I+1];
+						Global->Opt->strRegRoot += L"\\Users\\";
+						Global->Opt->strRegRoot += Argv[I+1];
 						SetEnvironmentVariable(L"FARUSER", Argv[I+1]);
 						I++;
 					}
@@ -673,23 +673,23 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 				case L'P':
 				{
 					// Полиция 19 - BUGBUG ни кто эту опцию вообще не читал
-					//if (Opt.Policies.DisabledOptions&FFPOL_USEPSWITCH)
+					//if (Global->Opt->Policies.DisabledOptions&FFPOL_USEPSWITCH)
 						//break;
 
-					Opt.LoadPlug.PluginsPersonal=FALSE;
-					Opt.LoadPlug.MainPluginDir=FALSE;
+					Global->Opt->LoadPlug.PluginsPersonal=FALSE;
+					Global->Opt->LoadPlug.MainPluginDir=FALSE;
 
 					if (Argv[I][2])
 					{
-						apiExpandEnvironmentStrings(&Argv[I][2], Opt.LoadPlug.strCustomPluginsPath);
-						Unquote(Opt.LoadPlug.strCustomPluginsPath);
-						ConvertNameToFull(Opt.LoadPlug.strCustomPluginsPath, Opt.LoadPlug.strCustomPluginsPath);
+						apiExpandEnvironmentStrings(&Argv[I][2], Global->Opt->LoadPlug.strCustomPluginsPath);
+						Unquote(Global->Opt->LoadPlug.strCustomPluginsPath);
+						ConvertNameToFull(Global->Opt->LoadPlug.strCustomPluginsPath, Global->Opt->LoadPlug.strCustomPluginsPath);
 					}
 					else
 					{
 						// если указан -P без <путь>, то, считаем, что основные
 						//  плагины не загружать вооообще!!!
-						Opt.LoadPlug.strCustomPluginsPath.Clear();
+						Global->Opt->LoadPlug.strCustomPluginsPath.Clear();
 					}
 
 					break;
@@ -698,8 +698,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 					if (Upper(Argv[I][2])==L'O' && !Argv[I][3])
 					{
-						Opt.LoadPlug.PluginsCacheOnly=TRUE;
-						Opt.LoadPlug.PluginsPersonal=FALSE;
+						Global->Opt->LoadPlug.PluginsCacheOnly=TRUE;
+						Global->Opt->LoadPlug.PluginsPersonal=FALSE;
 					}
 
 					break;
@@ -712,7 +712,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 				case L'D':
 
 					if (Upper(Argv[I][2])==L'O' && !Argv[I][3])
-						DirectRT=1;
+						Global->DirectRT=true;
 
 					break;
 #endif
@@ -720,19 +720,19 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					{
 						if(Argv[I][2] == L'-')
 						{
-							Opt.WindowMode= false;
+							Global->Opt->WindowMode= false;
 						}
 						else if(!Argv[I][2])
 						{
-							Opt.WindowMode= true;
+							Global->Opt->WindowMode= true;
 						}
 					}
 					break;
 				case L'R':
 					if (Upper(Argv[I][2]) == L'O') // -ro
-						Opt.ReadOnlyConfig = TRUE;
+						Global->Opt->ReadOnlyConfig = TRUE;
 					if (Upper(Argv[I][2]) == L'W') // -rw
-						Opt.ReadOnlyConfig = FALSE;
+						Global->Opt->ReadOnlyConfig = FALSE;
 					break;
 			}
 		}
@@ -774,23 +774,23 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	InitKeysArray();
 	WaitForInputIdle(GetCurrentProcess(),0);
 
-	if (!Opt.LoadPlug.MainPluginDir) //если есть ключ /p то он отменяет /co
-		Opt.LoadPlug.PluginsCacheOnly=false;
+	if (!Global->Opt->LoadPlug.MainPluginDir) //если есть ключ /p то он отменяет /co
+		Global->Opt->LoadPlug.PluginsCacheOnly=false;
 
-	if (Opt.LoadPlug.PluginsCacheOnly)
+	if (Global->Opt->LoadPlug.PluginsCacheOnly)
 	{
-		Opt.LoadPlug.strCustomPluginsPath.Clear();
-		Opt.LoadPlug.MainPluginDir=false;
-		Opt.LoadPlug.PluginsPersonal=false;
+		Global->Opt->LoadPlug.strCustomPluginsPath.Clear();
+		Global->Opt->LoadPlug.MainPluginDir=false;
+		Global->Opt->LoadPlug.PluginsPersonal=false;
 	}
 
 	InitConsole();
 
-	if (!Lang.Init(g_strFarPath, MNewFileName))
+	if (!Global->Lang->Init(Global->g_strFarPath, MNewFileName))
 	{
 		ControlObject::ShowCopyright(1);
 		LPCWSTR LngMsg;
-		switch(Lang.GetLastError())
+		switch(Global->Lang->GetLastError())
 		{
 		case LERROR_BAD_FILE:
 			LngMsg = L"\nError: language data is incorrect or damaged.\n\nPress any key to exit...";
@@ -802,17 +802,17 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 			LngMsg = L"\nError: cannot load language data.\n\nPress any key to exit...";
 			break;
 		}
-		Console.Write(LngMsg);
-		Console.Commit();
-		Console.FlushInputBuffer();
+		Global->Console->Write(LngMsg);
+		Global->Console->Commit();
+		Global->Console->FlushInputBuffer();
 		WaitKey(); // А стоит ли ожидать клавишу??? Стоит
 		return 1;
 	}
 
-	SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
+	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage);
 
-	ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Opt.ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
-	SetErrorMode(ErrorMode);
+	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Global->Opt->ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
+	SetErrorMode(Global->ErrorMode);
 	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 
 	int InitDriveMenuHotkeys = TRUE;
@@ -831,7 +831,9 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	EmptyInternalClipboard();
 
 	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
-	CloseHandle(MainThreadHandle);
+	CloseHandle(Global->MainThreadHandle);
+	delete Global;
+	Global = nullptr;
 	return Result;
 }
 

@@ -82,10 +82,6 @@ private:
 	bool LanguageLoaded;
 };
 
-extern Language Lang;
-
-#define MSG(ID) ::Lang.GetMsg(ID)
-
 class VMenu2;
 
 FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, uintptr_t &nCodePage, BOOL StrongLang=FALSE,string *pstrLangName=nullptr);

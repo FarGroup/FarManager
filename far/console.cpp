@@ -1,5 +1,5 @@
 /*
-console.cpp
+Global->Console->cpp
 
 Console functions
 */
@@ -41,8 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "colormix.hpp"
 #include "interf.hpp"
 #include "setcolor.hpp"
-
-console Console;
 
 // пишем/читаем порциями по 32 K, иначе проблемы.
 const unsigned int MAXSIZE=0x8000;
@@ -89,7 +87,7 @@ virtual bool GetSize(COORD& Size) const
 	CONSOLE_SCREEN_BUFFER_INFO ConsoleScreenBufferInfo;
 	if(GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
 	{
-		if(Opt.WindowMode)
+		if(Global->Opt->WindowMode)
 		{
 			Size.X=ConsoleScreenBufferInfo.srWindow.Right-ConsoleScreenBufferInfo.srWindow.Left+1;
 			Size.Y=ConsoleScreenBufferInfo.srWindow.Bottom-ConsoleScreenBufferInfo.srWindow.Top+1;
@@ -106,7 +104,7 @@ virtual bool GetSize(COORD& Size) const
 virtual bool SetSize(COORD Size) const
 {
 	bool Result=false;
-	if(Opt.WindowMode)
+	if(Global->Opt->WindowMode)
 	{
 		CONSOLE_SCREEN_BUFFER_INFO csbi;
 		GetConsoleScreenBufferInfo(GetOutputHandle(), &csbi);
@@ -193,7 +191,7 @@ virtual bool GetKeyboardLayoutName(string &strName) const
 	bool Result=false;
 	strName.Clear();
 	wchar_t *p = strName.GetBuffer(KL_NAMELENGTH+1);
-	if (p && ifn.GetConsoleKeyboardLayoutNameW(p))
+	if (p && Global->ifn->GetConsoleKeyboardLayoutNameW(p))
 	{
 		Result=true;
 	}
@@ -241,7 +239,7 @@ virtual bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEven
 	DWORD dwNumberOfEventsRead = 0;
 	bool Result=PeekConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead)!=FALSE;
 	NumberOfEventsRead = dwNumberOfEventsRead;
-	if(Opt.WindowMode && Buffer->EventType==MOUSE_EVENT)
+	if(Global->Opt->WindowMode && Buffer->EventType==MOUSE_EVENT)
 	{
 		Buffer->Event.MouseEvent.dwMousePosition.Y=Max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
 		COORD Size={};
@@ -256,7 +254,7 @@ virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEven
 	DWORD dwNumberOfEventsRead = 0;
 	bool Result=ReadConsoleInput(GetInputHandle(), Buffer, static_cast<DWORD>(Length), &dwNumberOfEventsRead)!=FALSE;
 	NumberOfEventsRead = dwNumberOfEventsRead;
-	if(Opt.WindowMode && Buffer->EventType==MOUSE_EVENT)
+	if(Global->Opt->WindowMode && Buffer->EventType==MOUSE_EVENT)
 	{
 		Buffer->Event.MouseEvent.dwMousePosition.Y=Max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
 		COORD Size={};
@@ -268,7 +266,7 @@ virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEven
 
 virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEventsWritten) const
 {
-	if(Opt.WindowMode && Buffer->EventType==MOUSE_EVENT)
+	if(Global->Opt->WindowMode && Buffer->EventType==MOUSE_EVENT)
 	{
 		Buffer->Event.MouseEvent.dwMousePosition.Y+=GetDelta();
 	}
@@ -281,7 +279,7 @@ virtual bool WriteInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEve
 virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& ReadRegion) const
 {
 	bool Result=false;
-	int Delta=Opt.WindowMode?GetDelta():0;
+	int Delta=Global->Opt->WindowMode?GetDelta():0;
 	ReadRegion.Top+=Delta;
 	ReadRegion.Bottom+=Delta;
 
@@ -320,7 +318,7 @@ virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoo
 
 	delete[] ConsoleBuffer;
 
-	if(Opt.WindowMode)
+	if(Global->Opt->WindowMode)
 	{
 		ReadRegion.Top-=Delta;
 		ReadRegion.Bottom-=Delta;
@@ -332,7 +330,7 @@ virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoo
 virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoord, SMALL_RECT& WriteRegion) const
 {
 	bool Result=false;
-	int Delta=Opt.WindowMode?GetDelta():0;
+	int Delta=Global->Opt->WindowMode?GetDelta():0;
 	WriteRegion.Top+=Delta;
 	WriteRegion.Bottom+=Delta;
 
@@ -371,7 +369,7 @@ virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD Bu
 
 	delete[] ConsoleBuffer;
 
-	if(Opt.WindowMode)
+	if(Global->Opt->WindowMode)
 	{
 		WriteRegion.Top-=Delta;
 		WriteRegion.Bottom-=Delta;
@@ -442,7 +440,7 @@ virtual bool GetCursorPosition(COORD& Position) const
 	if(GetConsoleScreenBufferInfo(GetOutputHandle(), &ConsoleScreenBufferInfo))
 	{
 		Position=ConsoleScreenBufferInfo.dwCursorPosition;
-		if(Opt.WindowMode)
+		if(Global->Opt->WindowMode)
 		{
 			Position.Y-=GetDelta();
 		}
@@ -454,7 +452,7 @@ virtual bool GetCursorPosition(COORD& Position) const
 virtual bool SetCursorPosition(COORD Position) const
 {
 
-	if(Opt.WindowMode)
+	if(Global->Opt->WindowMode)
 	{
 		ResetPosition();
 		COORD Size={};
@@ -590,7 +588,7 @@ virtual bool IsFullscreenSupported() const
 #else
 	bool Result = true;
 	CONSOLE_SCREEN_BUFFER_INFOEX csbiex = {sizeof(csbiex)};
-	if(ifn.GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
+	if(Global->ifn->GetConsoleScreenBufferInfoEx(GetOutputHandle(), &csbiex))
 	{
 		Result = csbiex.bFullscreenSupported != FALSE;
 	}
@@ -632,7 +630,7 @@ class ExtendedConsoleCore:public ConsoleCore
 {
 public:
 	ExtendedConsoleCore():
-		Module(LoadLibrary(L"extendedconsole.dll")),
+		Module(LoadLibrary(L"extendedGlobal->Console->dll")),
 		ImportsPresent(false)
 	{
 		ClearStruct(Imports);

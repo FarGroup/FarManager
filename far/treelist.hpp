@@ -89,6 +89,86 @@ enum TREELIST_FLAGS
 	FTREELIST_ISPANEL                 = 0x00040000,
 };
 
+class TreeListCache
+{
+public:
+	TreeListCache()
+	{
+		ListName=nullptr;
+		TreeCount=0;
+		TreeSize=0;
+	}
+
+	void Resize()
+	{
+		if (TreeCount==TreeSize)
+		{
+			TreeSize+=TreeSize?TreeSize>>2:32;
+			wchar_t **NewPtr=(wchar_t**)xf_realloc(ListName,sizeof(wchar_t*)*TreeSize);
+
+			if (!NewPtr)
+				return;
+
+			ListName=NewPtr;
+		}
+	}
+
+	void Add(const wchar_t* name)
+	{
+		Resize();
+		ListName[TreeCount++]=xf_wcsdup(name);
+	}
+
+	void Insert(int idx,const wchar_t* name)
+	{
+		Resize();
+		memmove(ListName+idx+1,ListName+idx,sizeof(wchar_t*)*(TreeCount-idx));
+		ListName[idx]=xf_wcsdup(name);
+		TreeCount++;
+	}
+
+	void Delete(int idx)
+	{
+		if (ListName[idx]) xf_free(ListName[idx]);
+
+		memmove(ListName+idx,ListName+idx+1,sizeof(wchar_t*)*(TreeCount-idx-1));
+		TreeCount--;
+	}
+
+	void Clean()
+	{
+		if (!TreeSize)return;
+
+		for (int i=0; i<TreeCount; i++)
+		{
+			if (ListName[i]) xf_free(ListName[i]);
+		}
+
+		if (ListName) xf_free(ListName);
+
+		ListName=nullptr;
+		TreeCount=0;
+		TreeSize=0;
+		strTreeName.Clear();
+	}
+
+	//TODO: необходимо оптимизировать!
+	void Copy(TreeListCache *Dest)
+	{
+		Dest->Clean();
+
+		for (int I=0; I < TreeCount; I++)
+			Dest->Add(ListName[I]);
+	}
+
+	//BUGBUG
+//private:
+	string strTreeName;
+	wchar_t **ListName;
+	int TreeCount;
+	int TreeSize;
+};
+
 class TreeList: public Panel
 {
 	private:

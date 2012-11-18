@@ -450,8 +450,8 @@ void FileEditor::Init(
 	FileAttributesModified=false;
 	SetTitle(Title);
 	EditNamesList = nullptr;
-	KeyBarVisible = Opt.EdOpt.ShowKeyBar;
-	TitleBarVisible = Opt.EdOpt.ShowTitleBar;
+	KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
+	TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
 	// $ 17.08.2001 KM - Добавлено для поиска по AltF7. При редактировании найденного файла из архива для клавиши F2 сделать вызов ShiftF2.
 	Flags.Change(FFILEEDIT_SAVETOSAVEAS,(BlankFileName?TRUE:FALSE));
 
@@ -484,7 +484,7 @@ void FileEditor::Init(
 			int SwitchTo=FALSE;
 
 			if (!(*FrameManager)[FramePos]->GetCanLoseFocus(TRUE) ||
-			        Opt.Confirm.AllowReedit)
+			        Global->Opt->Confirm.AllowReedit)
 			{
 				int MsgCode=0;
 				if (OpenModeExstFile == FEOPMODE_QUERY)
@@ -589,7 +589,7 @@ void FileEditor::Init(
 		}
 	}
 
-	m_editor->SetPosition(X1,Y1+(Opt.EdOpt.ShowTitleBar?1:0),X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
+	m_editor->SetPosition(X1,Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),X2,Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 	m_editor->SetStartPos(StartLine,StartChar);
 	SetDeleteOnClose(DeleteOnClose);
 	int UserBreak;
@@ -638,14 +638,14 @@ void FileEditor::Init(
 			//CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с проресовкой если в редакторе из истории попытаться выбрать несуществующий файл
 
 			// если прервали загрузку, то фремы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
-			if (!Opt.Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED && FrameManager)
+			if (!Global->Opt->Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED && FrameManager)
 				FrameManager->RefreshFrame();
 
 			return;
 		}
 
 		if (m_codepage==CP_DEFAULT || m_codepage == CP_REDETECT)
-			m_codepage=Opt.EdOpt.AnsiCodePageForNewFile?GetACP():GetOEMCP();
+			m_codepage=Global->Opt->EdOpt.AnsiCodePageForNewFile?GetACP():GetOEMCP();
 
 		m_editor->SetCodePage(m_codepage);
 		Flags.Set(FFILEEDIT_CODEPAGECHANGEDBYUSER);
@@ -660,7 +660,7 @@ void FileEditor::Init(
 	EditKeyBar.SetPosition(X1,Y2,X2,Y2);
 	InitKeyBar();
 
-	if (!Opt.EdOpt.ShowKeyBar)
+	if (!Global->Opt->EdOpt.ShowKeyBar)
 		EditKeyBar.Hide0();
 
 	MacroMode=MACRO_EDITOR;
@@ -676,14 +676,14 @@ void FileEditor::Init(
 
 void FileEditor::InitKeyBar()
 {
-	EditKeyBar.SetAllGroup(KBL_MAIN,         Opt.OnlyEditorViewerUsed?MSingleEditF1:MEditF1, 12);
-	EditKeyBar.SetAllGroup(KBL_SHIFT,        Opt.OnlyEditorViewerUsed?MSingleEditShiftF1:MEditShiftF1, 12);
-	EditKeyBar.SetAllGroup(KBL_ALT,          Opt.OnlyEditorViewerUsed?MSingleEditAltF1:MEditAltF1, 12);
-	EditKeyBar.SetAllGroup(KBL_CTRL,         Opt.OnlyEditorViewerUsed?MSingleEditCtrlF1:MEditCtrlF1, 12);
-	EditKeyBar.SetAllGroup(KBL_CTRLSHIFT,    Opt.OnlyEditorViewerUsed?MSingleEditCtrlShiftF1:MEditCtrlShiftF1, 12);
-	EditKeyBar.SetAllGroup(KBL_CTRLALT,      Opt.OnlyEditorViewerUsed?MSingleEditCtrlAltF1:MEditCtrlAltF1, 12);
-	EditKeyBar.SetAllGroup(KBL_ALTSHIFT,     Opt.OnlyEditorViewerUsed?MSingleEditAltShiftF1:MEditAltShiftF1, 12);
-	EditKeyBar.SetAllGroup(KBL_CTRLALTSHIFT, Opt.OnlyEditorViewerUsed?MSingleEditCtrlAltShiftF1:MEditCtrlAltShiftF1, 12);
+	EditKeyBar.SetAllGroup(KBL_MAIN,         Global->Opt->OnlyEditorViewerUsed?MSingleEditF1:MEditF1, 12);
+	EditKeyBar.SetAllGroup(KBL_SHIFT,        Global->Opt->OnlyEditorViewerUsed?MSingleEditShiftF1:MEditShiftF1, 12);
+	EditKeyBar.SetAllGroup(KBL_ALT,          Global->Opt->OnlyEditorViewerUsed?MSingleEditAltF1:MEditAltF1, 12);
+	EditKeyBar.SetAllGroup(KBL_CTRL,         Global->Opt->OnlyEditorViewerUsed?MSingleEditCtrlF1:MEditCtrlF1, 12);
+	EditKeyBar.SetAllGroup(KBL_CTRLSHIFT,    Global->Opt->OnlyEditorViewerUsed?MSingleEditCtrlShiftF1:MEditCtrlShiftF1, 12);
+	EditKeyBar.SetAllGroup(KBL_CTRLALT,      Global->Opt->OnlyEditorViewerUsed?MSingleEditCtrlAltF1:MEditCtrlAltF1, 12);
+	EditKeyBar.SetAllGroup(KBL_ALTSHIFT,     Global->Opt->OnlyEditorViewerUsed?MSingleEditAltShiftF1:MEditAltShiftF1, 12);
+	EditKeyBar.SetAllGroup(KBL_CTRLALTSHIFT, Global->Opt->OnlyEditorViewerUsed?MSingleEditCtrlAltShiftF1:MEditCtrlAltShiftF1, 12);
 
 	if (!GetCanLoseFocus())
 		EditKeyBar.Change(KBL_SHIFT,L"",4-1);
@@ -701,16 +701,16 @@ void FileEditor::InitKeyBar()
 		EditKeyBar.Change(KBL_ALT,L"",11-1);
 
 	if (m_codepage!=GetACP())
-		EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+		EditKeyBar.Change(KBL_MAIN,MSG(Global->Opt->OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 	else
-		EditKeyBar.Change(KBL_MAIN,MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
+		EditKeyBar.Change(KBL_MAIN,MSG(Global->Opt->OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
 
-	EditKeyBar.ReadRegGroup(L"Editor",Opt.strLanguage);
+	EditKeyBar.ReadRegGroup(L"Editor",Global->Opt->strLanguage);
 	EditKeyBar.SetAllRegGroup();
 	EditKeyBar.Show();
-	if (!Opt.EdOpt.ShowKeyBar)
+	if (!Global->Opt->EdOpt.ShowKeyBar)
 		EditKeyBar.Hide0();
-	m_editor->SetPosition(X1,Y1+(Opt.EdOpt.ShowTitleBar?1:0),X2,Y2-(Opt.EdOpt.ShowKeyBar?1:0));
+	m_editor->SetPosition(X1,Y1+(Global->Opt->EdOpt.ShowTitleBar?1:0),X2,Y2-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 	SetKeyBar(&EditKeyBar);
 }
 
@@ -726,14 +726,14 @@ void FileEditor::Show()
 {
 	if (Flags.Check(FFILEEDIT_FULLSCREEN))
 	{
-		if (Opt.EdOpt.ShowKeyBar)
+		if (Global->Opt->EdOpt.ShowKeyBar)
 		{
 			EditKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
 			EditKeyBar.Redraw();
 		}
 
-		ScreenObject::SetPosition(0,0,ScrX,ScrY-(Opt.EdOpt.ShowKeyBar?1:0));
-		m_editor->SetPosition(0,(Opt.EdOpt.ShowTitleBar?1:0),ScrX,ScrY-(Opt.EdOpt.ShowKeyBar?1:0));
+		ScreenObject::SetPosition(0,0,ScrX,ScrY-(Global->Opt->EdOpt.ShowKeyBar?1:0));
+		m_editor->SetPosition(0,(Global->Opt->EdOpt.ShowTitleBar?1:0),ScrX,ScrY-(Global->Opt->EdOpt.ShowKeyBar?1:0));
 	}
 
 	ScreenObject::Show();
@@ -771,7 +771,7 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		MacroEditState|=m_editor->Flags.Check(FEDITOR_CURPOSCHANGEDBYPLUGIN)?0x00000100:0;
 		MacroEditState|=m_editor->Flags.Check(FEDITOR_LOCKMODE)?0x00000200:0;
 		MacroEditState|=m_editor->EdOpt.PersistentBlocks?0x00000400:0;
-		MacroEditState|=Opt.OnlyEditorViewerUsed?0x08000000|0x00000800:0;
+		MacroEditState|=Global->Opt->OnlyEditorViewerUsed?0x08000000|0x00000800:0;
 		MacroEditState|=!GetCanLoseFocus()?0x00000800:0;
 		return (__int64)MacroEditState;
 	}
@@ -787,22 +787,22 @@ __int64 FileEditor::VMProcess(int OpCode,void *vParam,__int64 iParam)
 
 	if (OpCode == MCODE_F_KEYBAR_SHOW)
 	{
-		int PrevMode=Opt.EdOpt.ShowKeyBar?2:1;
+		int PrevMode=Global->Opt->EdOpt.ShowKeyBar?2:1;
 		switch (iParam)
 		{
 			case 0:
 				break;
 			case 1:
-				Opt.EdOpt.ShowKeyBar=1;
+				Global->Opt->EdOpt.ShowKeyBar=1;
 				EditKeyBar.Show();
 				Show();
-				KeyBarVisible = Opt.EdOpt.ShowKeyBar;
+				KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				break;
 			case 2:
-				Opt.EdOpt.ShowKeyBar=0;
+				Global->Opt->EdOpt.ShowKeyBar=0;
 				EditKeyBar.Hide();
 				Show();
-				KeyBarVisible = Opt.EdOpt.ShowKeyBar;
+				KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				break;
 			case 3:
 				ProcessKey(KEY_CTRLB);
@@ -995,7 +995,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			case KEY_CTRLO:
 			case KEY_RCTRLO:
 			{
-				if (!Opt.OnlyEditorViewerUsed)
+				if (!Global->Opt->OnlyEditorViewerUsed)
 				{
 					m_editor->Hide();  // $ 27.09.2000 skv - To prevent redraw in macro with Ctrl-O
 
@@ -1132,7 +1132,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 								int UserBreak;
 								LoadFile(strFullSaveAsName, UserBreak);
 								// TODO: возможно подобный ниже код здесь нужен (copy/paste из FileEditor::Init()). оформить его нужно по иному
-								//if(!Opt.Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED && FrameManager)
+								//if(!Global->Opt->Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED && FrameManager)
 								//  FrameManager->RefreshFrame();
 							}
 
@@ -1154,7 +1154,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			// $ 30.05.2003 SVS - Shift-F4 в редакторе/вьювере позволяет открывать другой редактор/вьювер (пока только редактор)
 			case KEY_SHIFTF4:
 			{
-				if (!Opt.OnlyEditorViewerUsed && GetCanLoseFocus())
+				if (!Global->Opt->OnlyEditorViewerUsed && GetCanLoseFocus())
 				{
 					if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && m_editor->EdOpt.SavePos) // save position/codepage before reload
 						SaveToCache();
@@ -1200,22 +1200,22 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			case KEY_CTRLB:
 			case KEY_RCTRLB:
 			{
-				Opt.EdOpt.ShowKeyBar=!Opt.EdOpt.ShowKeyBar;
+				Global->Opt->EdOpt.ShowKeyBar=!Global->Opt->EdOpt.ShowKeyBar;
 
-				if (Opt.EdOpt.ShowKeyBar)
+				if (Global->Opt->EdOpt.ShowKeyBar)
 					EditKeyBar.Show();
 				else
 					EditKeyBar.Hide0(); // 0 mean - Don't purge saved screen
 
 				Show();
-				KeyBarVisible = Opt.EdOpt.ShowKeyBar;
+				KeyBarVisible = Global->Opt->EdOpt.ShowKeyBar;
 				return (TRUE);
 			}
 			case KEY_CTRLSHIFTB:
 			case KEY_RCTRLSHIFTB:
 			{
-				Opt.EdOpt.ShowTitleBar=!Opt.EdOpt.ShowTitleBar;
-				TitleBarVisible = Opt.EdOpt.ShowTitleBar;
+				Global->Opt->EdOpt.ShowTitleBar=!Global->Opt->EdOpt.ShowTitleBar;
+				TitleBarVisible = Global->Opt->EdOpt.ShowTitleBar;
 				Show();
 				return (TRUE);
 			}
@@ -1360,7 +1360,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				EditKeyBar.Show(); //???? Нужно ли????
 				SetEditorOptions(EdOpt);
 
-				if (Opt.EdOpt.ShowKeyBar)
+				if (Global->Opt->EdOpt.ShowKeyBar)
 					EditKeyBar.Show();
 
 				m_editor->Show();
@@ -1369,7 +1369,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			default:
 			{
 				if (Flags.Check(FFILEEDIT_FULLSCREEN) && CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
-					if (Opt.EdOpt.ShowKeyBar)
+					if (Global->Opt->EdOpt.ShowKeyBar)
 						EditKeyBar.Show();
 
 				if (!EditKeyBar.ProcessKey(Key))
@@ -1451,7 +1451,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	EditorPosCache pc;
 	UserBreak = 0;
 	File EditFile;
-	if(!EditFile.Open(Name, GENERIC_READ, FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
+	if(!EditFile.Open(Name, GENERIC_READ, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 	{
 		SysErrorCode=GetLastError();
 
@@ -1473,12 +1473,12 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		return FALSE;
 	}*/
 
-	if (Opt.EdOpt.FileSizeLimitLo || Opt.EdOpt.FileSizeLimitHi)
+	if (Global->Opt->EdOpt.FileSizeLimitLo || Global->Opt->EdOpt.FileSizeLimitHi)
 	{
 		UINT64 FileSize=0;
 		if (EditFile.GetSize(FileSize))
 		{
-			UINT64 MaxSize = static_cast<DWORD>(Opt.EdOpt.FileSizeLimitHi) * 0x100000000ull + static_cast<DWORD>(Opt.EdOpt.FileSizeLimitLo);
+			UINT64 MaxSize = static_cast<DWORD>(Global->Opt->EdOpt.FileSizeLimitHi) * 0x100000000ull + static_cast<DWORD>(Global->Opt->EdOpt.FileSizeLimitLo);
 
 			if (FileSize > MaxSize)
 			{
@@ -1540,7 +1540,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 	if (m_codepage == CP_DEFAULT || IsUnicodeOrUtfCodePage(m_codepage))
 	{
-		Detect=GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Opt.EdOpt.AutoDetectCodePage!=0);
+		Detect=GetFileFormat(EditFile,dwCP,&m_bAddSignature,redetect || Global->Opt->EdOpt.AutoDetectCodePage!=0);
 
 		// Проверяем поддерживается или нет задетектировання кодовая страница
 		if (Detect)
@@ -1564,7 +1564,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		}
 
 		if (m_codepage==CP_DEFAULT)
-			m_codepage=Opt.EdOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
+			m_codepage=Global->Opt->EdOpt.AnsiCodePageAsDefault?GetACP():GetOEMCP();
 	}
 	else
 	{
@@ -1593,7 +1593,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 		LastLineCR=0;
 		DWORD CurTime=GetTickCount();
 
-		if (CurTime-StartTime>(DWORD)Opt.RedrawTimeout)
+		if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
 		{
 			StartTime=CurTime;
 
@@ -1688,8 +1688,8 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 		if (Ask)
 		{
-			int Code = AllowCancelExit?Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSave),MSG(MHYes),MSG(MHNo),MSG(MHCancel)):Message(MSG_WARNING,2,MSG(MEditTitle),MSG(MEditAskSave),MSG(MHYes),MSG(MHNo));
-			if(Code < 0 && !AllowCancelExit)
+			int Code = Global->AllowCancelExit?Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSave),MSG(MHYes),MSG(MHNo),MSG(MHCancel)):Message(MSG_WARNING,2,MSG(MEditTitle),MSG(MEditAskSave),MSG(MHYes),MSG(MHNo));
+			if(Code < 0 && !Global->AllowCancelExit)
 			{
 				Code = 1; // close == not save
 			}
@@ -1964,7 +1964,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		{
 			DWORD CurTime=GetTickCount();
 
-			if (CurTime-StartTime>(DWORD)Opt.RedrawTimeout)
+			if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
 			{
 				StartTime=CurTime;
 				Editor::EditorShowMsg(MSG(MEditTitle),MSG(MEditSaving),Name,(int)(LineNumber*100/m_editor->NumLastLine));
@@ -2132,7 +2132,7 @@ int FileEditor::GetTypeAndName(string &strType, string &strName)
 
 void FileEditor::ShowConsoleTitle()
 {
-	string strEditorTitleFormat=Opt.strEditorTitleFormat.Get();
+	string strEditorTitleFormat=Global->Opt->strEditorTitleFormat.Get();
 	ReplaceStrings(strEditorTitleFormat,L"%Lng",MSG(MInEditor),-1,true);
 	ReplaceStrings(strEditorTitleFormat,L"%File",PointToName(strFileName),-1,true);
 	ConsoleTitle::SetFarTitle(strEditorTitleFormat);
@@ -2187,7 +2187,7 @@ void FileEditor::SetLockEditor(BOOL LockMode)
 
 int FileEditor::FastHide()
 {
-	return Opt.AllCtrlAltShiftRule & CASR_EDITOR;
+	return Global->Opt->AllCtrlAltShiftRule & CASR_EDITOR;
 }
 
 BOOL FileEditor::isTemporary()
@@ -2259,9 +2259,9 @@ void FileEditor::SetTitle(const string* Title)
 void FileEditor::ChangeEditKeyBar()
 {
 	if (m_codepage!=GetACP())
-		EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
+		EditKeyBar.Change(MSG(Global->Opt->OnlyEditorViewerUsed?MSingleEditF8:MEditF8),7);
 	else
-		EditKeyBar.Change(MSG(Opt.OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
+		EditKeyBar.Change(MSG(Global->Opt->OnlyEditorViewerUsed?MSingleEditF8DOS:MEditF8DOS),7);
 
 	EditKeyBar.Redraw();
 }
@@ -2283,7 +2283,7 @@ string &FileEditor::GetTitle(string &strLocalTitle,int SubLen,int TruncSize)
 
 void FileEditor::ShowStatus()
 {
-	if (m_editor->Locked() || !Opt.EdOpt.ShowTitleBar)
+	if (m_editor->Locked() || !Global->Opt->EdOpt.ShowTitleBar)
 		return;
 
 	SetColor(COL_EDITORSTATUS);
@@ -2291,7 +2291,7 @@ void FileEditor::ShowStatus()
 	string strLineStr;
 	string strLocalTitle;
 	GetTitle(strLocalTitle);
-	int NameLength = (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)) ? 15:21;
+	int NameLength = (Global->Opt->ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)) ? 15:21;
 	if (X2 > 80)
 		NameLength += (X2-80);
 
@@ -2327,12 +2327,12 @@ void FileEditor::ShowStatus()
 
 
 	fmt::MinWidth(3)<<strAttr;
-	int StatusWidth=ObjWidth - ((Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))?5:0);
+	int StatusWidth=ObjWidth - ((Global->Opt->ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))?5:0);
 
 	if (StatusWidth<0)
 		StatusWidth=0;
 
-	FS<<fmt::LeftAlign()<<fmt::ExactWidth(StatusWidth)<<FString;
+	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(StatusWidth)<<FString;
 	{
 		const wchar_t *Str;
 		intptr_t Length;
@@ -2341,21 +2341,21 @@ void FileEditor::ShowStatus()
 
 		if (CurPos<Length)
 		{
-			GotoXY(X2-((Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)) ? 14:8)-(!m_editor->EdOpt.CharCodeBase?3:0),Y1);
+			GotoXY(X2-((Global->Opt->ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN)) ? 14:8)-(!m_editor->EdOpt.CharCodeBase?3:0),Y1);
 			SetColor(COL_EDITORSTATUS);
 			/* $ 27.02.2001 SVS
 			Показываем в зависимости от базы */
 			switch(m_editor->EdOpt.CharCodeBase)
 			{
 			case 0:
-				FS << fmt::MinWidth(7) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(Str[CurPos]);
+				Global->FS << fmt::MinWidth(7) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(Str[CurPos]);
 				break;
 			case 2:
-				FS << fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(Str[CurPos]) << L'h';
+				Global->FS << fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(Str[CurPos]) << L'h';
 				break;
 			case 1:
 			default:
-				FS << fmt::MinWidth(5) << static_cast<UINT>(Str[CurPos]);
+				Global->FS << fmt::MinWidth(5) << static_cast<UINT>(Str[CurPos]);
 				break;
 			}
 
@@ -2367,18 +2367,18 @@ void FileEditor::ShowStatus()
 
 				if (C && !UsedDefaultChar && static_cast<wchar_t>(C)!=Str[CurPos])
 				{
-					FS << L"/";
+					Global->FS << L"/";
 					switch(m_editor->EdOpt.CharCodeBase)
 					{
 					case 0:
-						FS << fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(C);
+						Global->FS << fmt::MinWidth(4) << fmt::FillChar(L'0') << fmt::Radix(8) << static_cast<UINT>(C);
 						break;
 					case 2:
-						FS << fmt::MinWidth(2) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(C) << L'h';
+						Global->FS << fmt::MinWidth(2) << fmt::FillChar(L'0') << fmt::Radix(16) << static_cast<UINT>(C) << L'h';
 						break;
 					case 1:
 					default:
-						FS << fmt::MinWidth(3) << static_cast<UINT>(C);
+						Global->FS << fmt::MinWidth(3) << static_cast<UINT>(C);
 						break;
 					}
 				}
@@ -2386,7 +2386,7 @@ void FileEditor::ShowStatus()
 		}
 	}
 
-	if (Opt.ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))
+	if (Global->Opt->ViewerEditorClock && Flags.Check(FFILEEDIT_FULLSCREEN))
 		ShowTime(FALSE);
 }
 
@@ -2566,13 +2566,13 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		{
 			strPluginTitle = (const wchar_t*)Param2;
 			ShowStatus();
-			ScrBuf.Flush(); //???
+			Global->ScrBuf->Flush(); //???
 			return TRUE;
 		}
 		case ECTL_REDRAW:
 		{
 			FileEditor::DisplayObject();
-			ScrBuf.Flush();
+			Global->ScrBuf->Flush();
 			return TRUE;
 		}
 		/*

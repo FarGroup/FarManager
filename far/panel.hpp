@@ -202,6 +202,8 @@ class Panel:public ScreenObject, public DelayedDestroy
 		void FastFindProcessName(Edit *FindEdit,const wchar_t *Src,string &strLastName, string &strName);
 		void DragMessage(int X,int Y,int Move);
 
+		string strDragName;
+
 	private:
 		struct ShortcutInfo
 		{

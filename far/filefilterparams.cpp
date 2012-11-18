@@ -763,7 +763,7 @@ intptr_t WINAPI FileFilterConfigDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1
 
 				//Color[0=file, 1=mark][0=normal,1=selected,2=undercursor,3=selectedundercursor]
 				FarColor Color=EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2];
-				Console.GetColorDialog(Color,true,true);
+				Global->Console->GetColorDialog(Color,true,true);
 				EditData->Color[(Param1-ID_HER_NORMALFILE)&1][(Param1-ID_HER_NORMALFILE)/2]=Color;
 
 				size_t Size = SendDlgMessage(hDlg,DM_GETDLGITEM,ID_HER_COLOREXAMPLE,0);

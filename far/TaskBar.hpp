@@ -48,8 +48,6 @@ private:
 	ITaskbarList3* pTaskbarList;
 };
 
-extern TaskBarCore TBC;
-
 class TaskBar
 {
 public:
@@ -64,22 +62,22 @@ template<TBPFLAG T>
 class TaskBarState:NonCopyable
 {
 public:
-	TaskBarState():PrevState(TBC.GetProgressState())
+	TaskBarState():PrevState(Global->TBC->GetProgressState())
 	{
 		if (PrevState!=TBPF_ERROR && PrevState!=TBPF_PAUSED)
 		{
 			if (PrevState==TBPF_INDETERMINATE||PrevState==TBPF_NOPROGRESS)
 			{
-				TBC.SetProgressValue(1,1);
+				Global->TBC->SetProgressValue(1,1);
 			}
-			TBC.SetProgressState(T);
-			TBC.Flash();
+			Global->TBC->SetProgressState(T);
+			Global->TBC->Flash();
 		}
 	}
 
 	~TaskBarState()
 	{
-		TBC.SetProgressState(PrevState);
+		Global->TBC->SetProgressState(PrevState);
 	}
 
 private:

@@ -122,7 +122,6 @@ static size_t   CountTarget;                    // всего целей.
 static int CopySecurityCopy=-1;
 static int CopySecurityMove=-1;
 static bool ShowTotalCopySize;
-static string strTotalCopySizeText;
 
 static FileFilter *Filter;
 static int UseFilter=FALSE;
@@ -211,6 +210,9 @@ class CopyProgress
 		void SetNames(const wchar_t *Src,const wchar_t *Dst);
 		void SetProgressValue(UINT64 CompletedSize,UINT64 TotalSize) {return SetProgress(false,CompletedSize,TotalSize);}
 		void SetTotalProgressValue(UINT64 CompletedSize,UINT64 TotalSize) {return SetProgress(true,CompletedSize,TotalSize);}
+
+		// BUGBUG
+		string strTotalCopySizeText;
 };
 
 static void GetTimeText(DWORD Time,string &strTimeText)
@@ -228,7 +230,7 @@ bool CopyProgress::Timer()
 	bool Result=false;
 	DWORD Time=GetTickCount();
 
-	if (!LastWriteTime||(Time-LastWriteTime>=(DWORD)Opt.RedrawTimeout))
+	if (!LastWriteTime||(Time-LastWriteTime>=(DWORD)Global->Opt->RedrawTimeout))
 	{
 		LastWriteTime=Time;
 		Result=true;
@@ -280,7 +282,7 @@ void CopyProgress::SetScanName(const wchar_t *Name)
 	}
 
 	GotoXY(Rect.Left+5,Rect.Top+3);
-	FS<<fmt::LeftAlign()<<fmt::ExactWidth(Rect.Right-Rect.Left-9)<<Name;
+	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(Rect.Right-Rect.Left-9)<<Name;
 	Flush();
 }
 
@@ -407,7 +409,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 
 	if (Total==TotalProgress)
 	{
-		TBC.SetProgressValue(CompletedSize,TotalSize);
+		Global->TBC->SetProgressValue(CompletedSize,TotalSize);
 	}
 
 	UINT64 OldCompletedSize = CompletedSize;
@@ -580,7 +582,7 @@ static void GenerateName(string &strName,const wchar_t *Path=nullptr)
 
 void PR_ShellCopyMsg()
 {
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 
 	if (preRedrawItem.Param.Param1)
 	{
@@ -590,7 +592,7 @@ void PR_ShellCopyMsg()
 
 BOOL CheckAndUpdateConsole(BOOL IsChangeConsole)
 {
-	HWND hWnd = Console.GetWindow();
+	HWND hWnd = Global->Console->GetWindow();
 	BOOL curZoomedState=IsZoomed(hWnd);
 	BOOL curIconicState=IsIconic(hWnd);
 
@@ -868,22 +870,21 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			return;
 	}
 
-	ZoomedState=IsZoomed(Console.GetWindow());
-	IconicState=IsIconic(Console.GetWindow());
+	ZoomedState=IsZoomed(Global->Console->GetWindow());
+	IconicState=IsIconic(Global->Console->GetWindow());
 	// Создадим объект фильтра
 	Filter=new FileFilter(SrcPanel, FFT_COPY);
 	// $ 26.05.2001 OT Запретить перерисовку панелей во время копирования
 	_tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
 	(*FrameManager)[0]->Lock();
-	CopyBufferSize=Opt.CMOpt.BufferSize;
+	CopyBufferSize=Global->Opt->CMOpt.BufferSize;
 	CopyBufferSize=Max(CopyBufferSize,(size_t)COPY_BUFFER_SIZE);
 	CDP.thisClass=this;
 	CDP.AltF10=0;
 	CDP.FolderPresent=false;
 	CDP.FilesPresent=false;
 	Flags=(Move?FCOPY_MOVE:0)|(Link?FCOPY_LINK:0)|(CurrentOnly?FCOPY_CURRENTONLY:0);
-	ShowTotalCopySize=Opt.CMOpt.CopyShowTotal!=0;
-	strTotalCopySizeText.Clear();
+	ShowTotalCopySize=Global->Opt->CMOpt.CopyShowTotal!=0;
 	SelectedFolderNameLength=0;
 	int DestPlugin=ToPlugin;
 	ToPlugin=FALSE;
@@ -923,7 +924,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		{DI_TEXT,        5, 2, 0, 2,0,nullptr,nullptr,DIF_SHOWAMPERSAND,L""},
 	};
 	MakeDialogItemsEx(CopyDlgData,CopyDlg);
-	CopyDlg[ID_SC_MULTITARGET].Selected=Opt.CMOpt.MultiCopy;
+	CopyDlg[ID_SC_MULTITARGET].Selected=Global->Opt->CMOpt.MultiCopy;
 	{
 		const wchar_t *Str = MSG(MCopySecurity);
 		CopyDlg[ID_SC_ACLEAVE].X1 = CopyDlg[ID_SC_ACTITLE].X1 + StrLength(Str) - (wcschr(Str, L'&')?1:0) + 1;
@@ -952,13 +953,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 		// ставить опцию "Inherit access rights"?
 		// CSO_MOVE_SETINHERITSECURITY - двухбитный флаг
-		if ((Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETINHERITSECURITY) == CSO_MOVE_SETINHERITSECURITY)
+		if ((Global->Opt->CMOpt.CopySecurityOptions&CSO_MOVE_SETINHERITSECURITY) == CSO_MOVE_SETINHERITSECURITY)
 			CDP.CopySecurity=0;
-		else if (Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SETCOPYSECURITY)
+		else if (Global->Opt->CMOpt.CopySecurityOptions&CSO_MOVE_SETCOPYSECURITY)
 			CDP.CopySecurity=1;
 
 		// хотели сессионное запоминание?
-		if (CopySecurityMove != -1 && (Opt.CMOpt.CopySecurityOptions&CSO_MOVE_SESSIONSECURITY))
+		if (CopySecurityMove != -1 && (Global->Opt->CMOpt.CopySecurityOptions&CSO_MOVE_SESSIONSECURITY))
 			CDP.CopySecurity=CopySecurityMove;
 		else
 			CopySecurityMove=CDP.CopySecurity;
@@ -972,13 +973,13 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 
 		// ставить опцию "Inherit access rights"?
 		// CSO_COPY_SETINHERITSECURITY - двухбитный флаг
-		if ((Opt.CMOpt.CopySecurityOptions&CSO_COPY_SETINHERITSECURITY) == CSO_COPY_SETINHERITSECURITY)
+		if ((Global->Opt->CMOpt.CopySecurityOptions&CSO_COPY_SETINHERITSECURITY) == CSO_COPY_SETINHERITSECURITY)
 			CDP.CopySecurity=0;
-		else if (Opt.CMOpt.CopySecurityOptions&CSO_COPY_SETCOPYSECURITY)
+		else if (Global->Opt->CMOpt.CopySecurityOptions&CSO_COPY_SETCOPYSECURITY)
 			CDP.CopySecurity=1;
 
 		// хотели сессионное запоминание?
-		if (CopySecurityCopy != -1 && Opt.CMOpt.CopySecurityOptions&CSO_COPY_SESSIONSECURITY)
+		if (CopySecurityCopy != -1 && Global->Opt->CMOpt.CopySecurityOptions&CSO_COPY_SESSIONSECURITY)
 			CDP.CopySecurity=CopySecurityCopy;
 		else
 			CopySecurityCopy=CDP.CopySecurity;
@@ -1249,7 +1250,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 			ComboList.Items[CM_ASK].Flags=LIF_SELECTED;
 			ComboList.Items[CM_SEPARATOR].Flags=LIF_SEPARATOR;
 
-			if (Opt.Confirm.RO)
+			if (Global->Opt->Confirm.RO)
 			{
 				ComboList.Items[CM_ASKRO].Flags=LIF_CHECKED;
 			}
@@ -1282,7 +1283,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 				strCopyDlgValue = CopyDlg[ID_SC_TARGETEDIT].strData;
 				if(!Move)
 				{
-					Opt.CMOpt.MultiCopy=CopyDlg[ID_SC_MULTITARGET].Selected == BSTATE_CHECKED;
+					Global->Opt->CMOpt.MultiCopy=CopyDlg[ID_SC_MULTITARGET].Selected == BSTATE_CHECKED;
 				}
 
 				if (!CopyDlg[ID_SC_MULTITARGET].Selected || !wcspbrk(strCopyDlgValue,L",;")) // отключено multi*
@@ -1336,7 +1337,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		Flags|=FCOPY_LEAVESECURITY;
 	}
 
-	if (Opt.CMOpt.UseSystemCopy)
+	if (Global->Opt->CMOpt.UseSystemCopy)
 		Flags|=FCOPY_USESYSTEMCOPY;
 	else
 		Flags&=~FCOPY_USESYSTEMCOPY;
@@ -1422,8 +1423,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 		return;
 	}
 
-	if ((Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && SrcPanel->IsDizDisplayed()) ||
-	        Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
+	if ((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && SrcPanel->IsDizDisplayed()) ||
+	        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
 	{
 		CtrlObject->Cp()->LeftPanel->ReadDiz();
 		CtrlObject->Cp()->RightPanel->ReadDiz();
@@ -1492,7 +1493,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 					Flags&=~FCOPY_MOVE;
 					Move=0;
 				}
-				bool ShowCopyTime=(Opt.CMOpt.CopyTimeRule&((Flags&FCOPY_COPYTONUL)?COPY_RULE_NUL:COPY_RULE_FILES))!=0;
+				bool ShowCopyTime=(Global->Opt->CMOpt.CopyTimeRule&((Flags&FCOPY_COPYTONUL)?COPY_RULE_NUL:COPY_RULE_FILES))!=0;
 
 				if (CDP.SelCount==1 || (Flags&FCOPY_COPYTONUL))
 					AddSlash=false; //???
@@ -1545,12 +1546,12 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 						if (!(FileSystemFlags&FILE_SUPPORTS_REPARSE_POINTS))
 							Flags|=FCOPY_COPYSYMLINKCONTENTS;
 				}
-				PreRedraw.Push(PR_ShellCopyMsg);
-				PreRedrawItem preRedrawItem=PreRedraw.Peek();
+				Global->PreRedraw->Push(PR_ShellCopyMsg);
+				PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 				preRedrawItem.Param.Param1=CP;
-				PreRedraw.SetParam(preRedrawItem.Param);
+				Global->PreRedraw->SetParam(preRedrawItem.Param);
 				int I=CopyFileTree(strNameTmp);
-				PreRedraw.Pop();
+				Global->PreRedraw->Pop();
 
 				if (OldCopySymlinkContents)
 					Flags|=FCOPY_COPYSYMLINKCONTENTS;
@@ -1730,7 +1731,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 			{
 				strNewPath.SetLength(pos+1);
 
-				if (Opt.CreateUppercaseFolders && !IsCaseMixed(strNewPath))
+				if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strNewPath))
 					strNewPath.Upper();
 
 				DWORD Attr=apiGetFileAttributes(strNewPath);
@@ -1813,7 +1814,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 	if (!TotalCopySize)
 	{
-		strTotalCopySizeText.Clear();
+		CP->strTotalCopySizeText.Clear();
 
 		//  ! Не сканируем каталоги при создании линков
 		if (ShowTotalCopySize && !(Flags&FCOPY_LINK) && !CalcTotalSize())
@@ -2579,7 +2580,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 		}
 	}
 
-	int NWFS_Attr=(Opt.Nowell.MoveRO && !StrCmp(strDestFSName,L"NWFS"))?TRUE:FALSE;
+	int NWFS_Attr=(Global->Opt->Nowell.MoveRO && !StrCmp(strDestFSName,L"NWFS"))?TRUE:FALSE;
 	{
 		for (;;)
 		{
@@ -2863,7 +2864,7 @@ int ShellCopy::DeleteAfterMove(const string& Name,DWORD Attr)
 	{
 		int MsgCode;
 
-		if (!Opt.Confirm.RO)
+		if (!Global->Opt->Confirm.RO)
 			ReadOnlyDelMode=1;
 
 		if (ReadOnlyDelMode!=-1)
@@ -2989,11 +2990,11 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 	{
 		if (!(SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) ||
 		        ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_ENCRYPTED) &&
-		         ((WinVer > _WIN32_WINNT_WIN2K) ||
+		         ((Global->WinVer > _WIN32_WINNT_WIN2K) ||
 		          !(Flags&(FCOPY_DECRYPTED_DESTINATION))))
 		   )
 		{
-			if (!Opt.CMOpt.CopyOpened)
+			if (!Global->Opt->CMOpt.CopyOpened)
 			{
 				File SrcFile;
 				if (!SrcFile.Open(SrcName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
@@ -3016,13 +3017,13 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 
 	int OpenMode=FILE_SHARE_READ;
 
-	if (Opt.CMOpt.CopyOpened)
+	if (Global->Opt->CMOpt.CopyOpened)
 		OpenMode|=FILE_SHARE_WRITE;
 
 	FileWalker SrcFile;
 	bool Opened = SrcFile.Open(SrcName, GENERIC_READ, OpenMode, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN);
 
-	if (!Opened && Opt.CMOpt.CopyOpened)
+	if (!Opened && Global->Opt->CMOpt.CopyOpened)
 	{
 		if (GetLastError() == ERROR_SHARING_VIOLATION)
 		{
@@ -3396,7 +3397,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 		// TODO: ЗДЕСЯ СТАВИТЬ Compressed???
 		Flags&=~FCOPY_DECRYPTED_DESTINATION;
 
-		if (MAKEWORD(WinVer.dwMinorVersion, WinVer.dwMajorVersion) == _WIN32_WINNT_WS03)	// WS2003-Share SetFileTime BUG
+		if (MAKEWORD(Global->WinVer.dwMinorVersion, Global->WinVer.dwMajorVersion) == _WIN32_WINNT_WS03)	// WS2003-Share SetFileTime BUG
 		{
 			string strRoot;
 			GetPathRoot(strDestName, strRoot);
@@ -3425,8 +3426,8 @@ void ShellCopy::SetDestDizPath(const string& DestPath)
 		if (strDestDizPath.IsEmpty())
 			strDestDizPath = L".";
 
-		if ((Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && !SrcPanel->IsDizDisplayed()) ||
-		        Opt.Diz.UpdateMode==DIZ_NOT_UPDATE)
+		if ((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && !SrcPanel->IsDizDisplayed()) ||
+		        Global->Opt->Diz.UpdateMode==DIZ_NOT_UPDATE)
 			strDestDizPath.Clear();
 
 		if (!strDestDizPath.IsEmpty())
@@ -3621,7 +3622,7 @@ int ShellCopy::AskOverwrite(const FAR_FIND_DATA_EX &SrcData,
 	{
 		int Type;
 
-		if ((!Opt.Confirm.Copy && !Rename) || (!Opt.Confirm.Move && Rename) ||
+		if ((!Global->Opt->Confirm.Copy && !Rename) || (!Global->Opt->Confirm.Move && Rename) ||
 		        SameName || (Type=apiGetFileTypeByName(DestName))==FILE_TYPE_CHAR ||
 		        Type==FILE_TYPE_PIPE || (Flags&FCOPY_OVERWRITENEXT))
 			MsgCode=1;
@@ -3866,7 +3867,7 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
 	static DWORD PrepareSecuryStartTime=0;
 
 	DWORD CurTime=GetTickCount();
-	if (!Name || !*Name || ((CurTime - PrepareSecuryStartTime) > (DWORD)Opt.RedrawTimeout))
+	if (!Name || !*Name || ((CurTime - PrepareSecuryStartTime) > (DWORD)Global->Opt->RedrawTimeout))
 	{
 		static int Width=30;
 		int WidthTemp;
@@ -3879,7 +3880,7 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
 			Width=WidthTemp=30;
 
 		// ширина месага - 38%
-		WidthTemp=Min(WidthTemp,WidthNameForMessage);
+		WidthTemp=Min(WidthTemp,Global->WidthNameForMessage);
 		Width=Max(Width,WidthTemp);
 
 		string strOutFileName = Name; //??? nullptr ???
@@ -3893,9 +3894,9 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
 		}
 	}
 
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	preRedrawItem.Param.Param1=Name;
-	PreRedraw.SetParam(preRedrawItem.Param);
+	Global->PreRedraw->SetParam(preRedrawItem.Param);
 	return TRUE;
 }
 
@@ -4003,10 +4004,10 @@ bool ShellCopy::CalcTotalSize()
 	unsigned __int64 FileSize;
 	// Для фильтра
 	FAR_FIND_DATA_EX fd;
-	PreRedraw.Push(PR_ShellCopyMsg);
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	Global->PreRedraw->Push(PR_ShellCopyMsg);
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	preRedrawItem.Param.Param1=CP;
-	PreRedraw.SetParam(preRedrawItem.Param);
+	Global->PreRedraw->SetParam(preRedrawItem.Param);
 	TotalCopySize=CurCopiedSize=0;
 	TotalFilesToProcess = 0;
 	SrcPanel->GetSelName(nullptr,FileAttr);
@@ -4026,7 +4027,7 @@ bool ShellCopy::CalcTotalSize()
 				if (__Ret <= 0)
 				{
 					ShowTotalCopySize=false;
-					PreRedraw.Pop();
+					Global->PreRedraw->Pop();
 					return FALSE;
 				}
 
@@ -4059,8 +4060,8 @@ bool ShellCopy::CalcTotalSize()
 	// INFO: Это для варианта, когда "ВСЕГО = общий размер * количество целей"
 	TotalCopySize *= CountTarget;
 	TotalFilesToProcess *= CountTarget;
-	InsertCommas(TotalCopySize,strTotalCopySizeText);
-	PreRedraw.Pop();
+	InsertCommas(TotalCopySize,CP->strTotalCopySizeText);
+	Global->PreRedraw->Pop();
 	return true;
 }
 

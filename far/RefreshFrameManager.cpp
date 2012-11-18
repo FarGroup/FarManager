@@ -43,12 +43,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 UndoGlobalSaveScrPtr::UndoGlobalSaveScrPtr(SaveScreen *SaveScr)
 {
-	GlobalSaveScrPtr=SaveScr;
+	Global->GlobalSaveScrPtr=SaveScr;
 }
 
 UndoGlobalSaveScrPtr::~UndoGlobalSaveScrPtr()
 {
-	GlobalSaveScrPtr=nullptr;
+	Global->GlobalSaveScrPtr=nullptr;
 }
 
 

@@ -50,7 +50,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "clipboard.hpp"
 
 static int MessageX1,MessageY1,MessageX2,MessageY2;
-static string strMsgHelpTopic;
 static int FirstButtonIndex,LastButtonIndex;
 static bool IsWarningStyle;
 static bool IsErrorType;
@@ -125,7 +124,7 @@ bool GetNtErrorString(NTSTATUS LastNtStatus, string& Str)
 bool GetErrorString(string &strErrStr)
 {
 #ifdef USE_NT_MESSAGES
-	return GetNtErrorString(ifn.RtlGetLastNtStatus(), strErrStr);
+	return GetNtErrorString(Global->ifn->RtlGetLastNtStatus(), strErrStr);
 #else
 	return GetWin32ErrorString(GetLastError(), strErrStr);
 #endif
@@ -254,7 +253,7 @@ int Message(
 	if(IsErrorType)
 	{
 		LastError = GetLastError();
-		NtStatus = ifn.RtlGetLastNtStatus();
+		NtStatus = Global->ifn->RtlGetLastNtStatus();
 		ErrorSets = GetErrorString(strErrStr);
 	}
 
@@ -453,8 +452,8 @@ int Message(
 
 	MessageY1=Y1;
 	MessageY2=Y2=Y1+StrCount+3;
-	string strHelpTopic(strMsgHelpTopic);
-	strMsgHelpTopic.Clear();
+	string strHelpTopic(Global->strMsgHelpTopic);
+	Global->strMsgHelpTopic.Clear();
 	// *** Вариант с Диалогом ***
 
 	if (Buttons>0)
@@ -622,7 +621,7 @@ int Message(
 			strTempTitle.SetLength(MaxLength);
 
 		GotoXY(X1+(X2-X1-1-(int)strTempTitle.GetLength())/2,Y1+1);
-		FS<<L" "<<strTempTitle<<L" ";
+		Global->FS << L" "<<strTempTitle<<L" ";
 	}
 
 	for (I=0; I<StrCount; I++)
@@ -688,10 +687,10 @@ int Message(
 
 	if (!Buttons)
 	{
-		if (ScrBuf.GetLockCount()>0 && !CtrlObject->Macro.PeekKey())
-			ScrBuf.SetLockCount(0);
+		if (Global->ScrBuf->GetLockCount()>0 && !CtrlObject->Macro.PeekKey())
+			Global->ScrBuf->SetLockCount(0);
 
-		ScrBuf.Flush();
+		Global->ScrBuf->Flush();
 	}
 
 	return 0;
@@ -708,7 +707,7 @@ void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
 
 void SetMessageHelp(const wchar_t *Topic)
 {
-	strMsgHelpTopic = Topic;
+	Global->strMsgHelpTopic = Topic;
 }
 
 /* $ 12.03.2002 VVM
@@ -720,21 +719,21 @@ void SetMessageHelp(const wchar_t *Topic)
 */
 int AbortMessage()
 {
-	if(CloseFAR)
+	if(Global->CloseFAR)
 	{
 		return TRUE;
 	}
 
 	TaskBarPause TBP;
 	int Res = Message(MSG_WARNING|MSG_KILLSAVESCREEN,2,MSG(MKeyESCWasPressed),
-	                  MSG((Opt.Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
+	                  MSG((Global->Opt->Confirm.EscTwiceToInterrupt)?MDoYouWantToStopWork2:MDoYouWantToStopWork),
 	                  MSG(MYes),MSG(MNo));
 
 	if (Res == -1) // Set "ESC" equal to "NO" button
 		Res = 1;
 
-	if ((Opt.Confirm.EscTwiceToInterrupt && Res) ||
-	        (!Opt.Confirm.EscTwiceToInterrupt && !Res))
+	if ((Global->Opt->Confirm.EscTwiceToInterrupt && Res) ||
+	        (!Global->Opt->Confirm.EscTwiceToInterrupt && !Res))
 		return (TRUE);
 	else
 		return (FALSE);

@@ -49,4 +49,57 @@ class FindFiles
 public:
 	FindFiles();
 	~FindFiles();
+
+private:
+	void InitInFileSearch();
+	void ReleaseInFileSearch();
+	string &PrepareDriveNameStr(string &strSearchFromRoot);
+	bool IsWordDiv(const wchar_t symbol);
+	void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=false);
+	intptr_t AdvancedDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	void AdvancedDialog();
+	intptr_t MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wchar_t *DestPath, string &strResultName);
+	const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount);
+	const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount);
+	int LookForString(const string& Name);
+	bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD FileAttr);
+	intptr_t FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);
+	void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, PluginPanelItem& FindData);
+	void DoPreparePluginList(HANDLE hDlg, bool Internal);
+	void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName);
+	void DoScanTree(HANDLE hDlg, string& strRoot);
+	void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel);
+	void DoPrepareFileList(HANDLE hDlg);
+	unsigned int ThreadRoutine(LPVOID Param);
+	bool FindFilesProcess(class Vars* v);
+
+private:
+	// BUGBUG
+	bool AnySetFindList;
+	string strFindMask;
+	string strFindStr;
+	bool CmpCase;
+	bool WholeWords;
+	bool SearchInArchives;
+	bool SearchHex;
+	int SearchMode;
+	string strLastDirName;
+	string strPluginSearchPath;
+	bool UseFilter;
+	uintptr_t CodePage;
+	UINT64 SearchInFirst;
+	char *readBufferA;
+	wchar_t *readBuffer;
+	int codePagesCount;
+	unsigned char *hexFindString;
+	size_t hexFindStringSize;
+	wchar_t *findString;
+	wchar_t *findStringBuffer;
+	size_t *skipCharsTable;
+	int favoriteCodePages;
+	bool InFileSearchInited;
+	class CFileMask* FileMaskForFindFile;
+	class FileFilter *Filter;
 };

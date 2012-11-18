@@ -646,7 +646,7 @@ bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 		m_Macros[k].Free();
 	}
 
-	if (Opt.Macro.DisableMacro&MDOL_ALL)
+	if (Global->Opt->Macro.DisableMacro&MDOL_ALL)
 		return false;
 
 	int Areas[MACRO_LAST];
@@ -714,7 +714,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 	MacroRecord* macro = GetCurMacro();
 
 	if (macro)
-		ScrBuf.SetLockCount(0);
+		Global->ScrBuf->SetLockCount(0);
 
 	++m_MacroPluginIsRunning;
 	PushState(false);
@@ -723,7 +723,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 	--m_MacroPluginIsRunning;
 
 	if (macro && macro->m_handle && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
-		ScrBuf.Lock();
+		Global->ScrBuf->Lock();
 
 	return result?ptr:nullptr;
 }
@@ -753,7 +753,7 @@ bool KeyMacro::InitMacroExecution()
 
 void KeyMacro::RestoreMacroChar(void)
 {
-	ScrBuf.RestoreMacroChar();
+	Global->ScrBuf->RestoreMacroChar();
 
 	/*$ 10.08.2000 skv
 		If we are in editor mode, and CurEditor defined,
@@ -799,7 +799,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			if (ctrldot||ctrlshiftdot)
 			{
 				// Полиция 18
-				if (Opt.Policies.DisabledOptions&FFPOL_CREATEMACRO)
+				if (Global->Opt->Policies.DisabledOptions&FFPOL_CREATEMACRO)
 					return false;
 
 				if (!CtrlObject->Plugins->FindPlugin(LuamacroGuid))
@@ -814,7 +814,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				UpdateLockScreen(false);
 
 				// Где мы?
-				m_RecMode=(m_Mode==MACRO_SHELL&&!WaitInMainLoop)?MACRO_OTHER:m_Mode;
+				m_RecMode=(m_Mode==MACRO_SHELL&&!Global->WaitInMainLoop)?MACRO_OTHER:m_Mode;
 				StartMode=m_RecMode;
 				// В зависимости от того, КАК НАЧАЛИ писать макрос, различаем общий режим (Ctrl-.
 				// с передачей плагину кеев) или специальный (Ctrl-Shift-. - без передачи клавиш плагину)
@@ -822,9 +822,9 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 
 				m_RecCode.Clear();
 				m_RecDescription.Clear();
-				ScrBuf.ResetShadow();
-				ScrBuf.Flush();
-				WaitInFastFind--;
+				Global->ScrBuf->ResetShadow();
+				Global->ScrBuf->Flush();
+				Global->WaitInFastFind--;
 				return true;
 			}
 			else
@@ -866,9 +866,9 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 		{
 			if (ctrldot||ctrlshiftdot) // признак конца записи?
 			{
-				int WaitInMainLoop0=WaitInMainLoop;
+				int WaitInMainLoop0=Global->WaitInMainLoop;
 				m_InternalInput=1;
-				WaitInMainLoop=FALSE;
+				Global->WaitInMainLoop=FALSE;
 				// Залочить _текущий_ фрейм, а не _последний немодальный_
 				FrameManager->GetCurrentFrame()->Lock(); // отменим прорисовку фрейма
 				DWORD MacroKey;
@@ -890,7 +890,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 					}
 				}
 
-				WaitInMainLoop=WaitInMainLoop0;
+				Global->WaitInMainLoop=WaitInMainLoop0;
 				m_InternalInput=0;
 				if (AssignRet)
 				{
@@ -931,10 +931,10 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				m_Recording=MACROMODE_NOMACRO;
 				m_RecCode.Clear();
 				m_RecDescription.Clear();
-				ScrBuf.RestoreMacroChar();
-				WaitInFastFind++;
+				Global->ScrBuf->RestoreMacroChar();
+				Global->WaitInFastFind++;
 
-				if (Opt.AutoSaveSetup)
+				if (Global->Opt->AutoSaveSetup)
 					WriteMacro(); // записать только изменения!
 
 				return true;
@@ -942,7 +942,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			else
 			{
 				//{FILE* log=fopen("c:\\plugins.log","at"); if(log) {fprintf(log,"key: %08x\n",Rec->IntKey); fclose(log);}}
-				if (!IsProcessAssignMacroKey)
+				if (!Global->IsProcessAssignMacroKey)
 				{
 					if (!m_RecCode.IsEmpty()) m_RecCode+=L" ";
 					if (textKey==L"\"") textKey=L"\\\"";
@@ -974,14 +974,14 @@ int KeyMacro::GetKey()
 						m_IsRedrawEditor &&
 						CtrlObject->Plugins->CurEditor &&
 						CtrlObject->Plugins->CurEditor->IsVisible() &&
-						ScrBuf.GetLockCount())
+						Global->ScrBuf->GetLockCount())
 		{
 			CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins->CurEditor->GetId());
 			CtrlObject->Plugins->CurEditor->Show();
 		}
 
 		if (m_StateStack.empty())
-			ScrBuf.Unlock();
+			Global->ScrBuf->Unlock();
 
 		if (ConsoleTitle::WasTitleModified())
 			ConsoleTitle::SetFarTitle(nullptr);
@@ -1007,7 +1007,7 @@ int KeyMacro::GetKey()
 			case MPRT_ERRORFINISH:
 			{
 				if (macro->Flags() & MFLAGS_DISABLEOUTPUT)
-					ScrBuf.Unlock();
+					Global->ScrBuf->Unlock();
 
 				RemoveCurMacro();
 				if (m_CurState->m_MacroQueue.Empty())
@@ -1024,8 +1024,8 @@ int KeyMacro::GetKey()
 				const wchar_t* key = mpr->Values[0].String;
 				m_LastKey = key;
 
-				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && ScrBuf.GetLockCount()==0)
-					ScrBuf.Lock();
+				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
+					Global->ScrBuf->Lock();
 
 				if (!StrCmpI(key, L"AKey"))
 				{
@@ -1057,8 +1057,8 @@ int KeyMacro::GetKey()
 
 			case MPRT_PRINT:
 			{
-				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && ScrBuf.GetLockCount()==0)
-					ScrBuf.Lock();
+				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
+					Global->ScrBuf->Lock();
 
 				__varTextDate = mpr->Values[0].String;
 				return KEY_OP_PLAINTEXT;
@@ -1093,13 +1093,13 @@ int KeyMacro::GetKey()
 						else
 							m_InternalInput++;
 
-						int lockCount = ScrBuf.GetLockCount();
-						ScrBuf.SetLockCount(0);
+						int lockCount = Global->ScrBuf->GetLockCount();
+						Global->ScrBuf->SetLockCount(0);
 
 						if (!CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,(void**)&ResultCallPlugin))
 							ResultCallPlugin = nullptr;
 
-						ScrBuf.SetLockCount(lockCount);
+						Global->ScrBuf->SetLockCount(lockCount);
 
 						//в windows гарантируется, что не бывает указателей меньше 0x10000
 						if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
@@ -1315,7 +1315,7 @@ int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAR
 // Функция, запускающая макросы при старте ФАРа
 void KeyMacro::RunStartMacro()
 {
-	if ((Opt.Macro.DisableMacro&MDOL_ALL) || (Opt.Macro.DisableMacro&MDOL_AUTOSTART) || Opt.OnlyEditorViewerUsed)
+	if ((Global->Opt->Macro.DisableMacro&MDOL_ALL) || (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART) || Global->Opt->OnlyEditorViewerUsed)
 		return;
 
 	if (!CtrlObject || !CtrlObject->Cp() || !CtrlObject->Cp()->ActivePanel || !CtrlObject->Plugins->IsPluginsLoaded())
@@ -2070,7 +2070,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	// проверка на область
 	if (CheckCode >= MACRO_OTHER && CheckCode < MACRO_LAST) //FIXME: CheckCode range
 	{
-		return PassBoolean (WaitInMainLoop ?
+		return PassBoolean (Global->WaitInMainLoop ?
 			CheckCode == FrameManager->GetCurrentFrame()->GetMacroMode() :
 		  CheckCode == CtrlObject->Macro.GetMode(), Data);
 	}
@@ -2098,7 +2098,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return (ScrY+1);
 
 		case MCODE_V_FAR_TITLE:
-			Console.GetTitle(strFileName);
+			Global->Console->GetTitle(strFileName);
 			return PassString(strFileName, Data);
 
 		case MCODE_V_FAR_PID:
@@ -2109,7 +2109,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			LARGE_INTEGER Frequency, Counter;
 			QueryPerformanceFrequency(&Frequency);
 			QueryPerformanceCounter(&Counter);
-			return PassNumber(((Counter.QuadPart-FarUpTime.QuadPart)*1000)/Frequency.QuadPart, Data);
+			return PassNumber(((Counter.QuadPart-Global->FarUpTime.QuadPart)*1000)/Frequency.QuadPart, Data);
 		}
 
 		case MCODE_V_MACRO_AREA:
@@ -2119,13 +2119,13 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return PassBoolean(IsConsoleFullscreen(), Data);
 
 		case MCODE_C_ISUSERADMIN: // IsUserAdmin?
-			return PassBoolean(Opt.IsUserAdmin, Data);
+			return PassBoolean(Global->Opt->IsUserAdmin, Data);
 
 		case MCODE_V_DRVSHOWPOS: // Drv.ShowPos
-			return Macro_DskShowPosType;
+			return Global->Macro_DskShowPosType;
 
 		case MCODE_V_DRVSHOWMODE: // Drv.ShowMode
-			return Opt.ChangeDriveMode;
+			return Global->Opt->ChangeDriveMode;
 
 		case MCODE_C_CMDLINE_BOF:              // CmdLine.Bof - курсор в начале cmd-строки редактирования?
 		case MCODE_C_CMDLINE_EOF:              // CmdLine.Eof - курсор в конеце cmd-строки редактирования?
@@ -3154,13 +3154,13 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 					if (Result && (nValue==0 || nValue==2))
 					{
-						ScrBuf.Unlock();
-						ScrBuf.Flush();
+						Global->ScrBuf->Unlock();
+						Global->ScrBuf->Flush();
 						MR->m_flags&=~MFLAGS_DISABLEOUTPUT;
 					}
 					else if (!Result && (nValue==1 || nValue==2))
 					{
-						ScrBuf.Lock();
+						Global->ScrBuf->Lock();
 						MR->m_flags|=MFLAGS_DISABLEOUTPUT;
 					}
 
@@ -3437,7 +3437,7 @@ static bool windowscrollFunc(FarMacroCall* Data)
 	bool Ret=false;
 	int L=0;
 
-	if (Opt.WindowMode)
+	if (Global->Opt->WindowMode)
 	{
 		int Lines=(int)Params[0].i(), Columns=0;
 		if (Params[1].i())
@@ -3446,7 +3446,7 @@ static bool windowscrollFunc(FarMacroCall* Data)
 			Lines=0;
 		}
 
-		if (Console.ScrollWindow(Lines, Columns))
+		if (Global->Console->ScrollWindow(Lines, Columns))
 		{
 			Ret=true;
 			L=1;
@@ -3745,14 +3745,14 @@ static bool kbdLayoutFunc(FarMacroCall* Data)
 	HKL  Layout=0, RetLayout=0;
 
 	wchar_t LayoutName[1024]={}; // BUGBUG!!!
-	if (ifn.GetConsoleKeyboardLayoutNameW(LayoutName))
+	if (Global->ifn->GetConsoleKeyboardLayoutNameW(LayoutName))
 	{
 		wchar_t *endptr;
 		DWORD res=wcstoul(LayoutName, &endptr, 16);
 		RetLayout=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 	}
 
-	HWND hWnd = Console.GetWindow();
+	HWND hWnd = Global->Console->GetWindow();
 
 	if (hWnd && dwLayout)
 	{
@@ -6129,7 +6129,7 @@ M1:
 					if (DisFlags)
 					{
 						// удаляем из DB только если включен автосейв
-						if (Opt.AutoSaveSetup)
+						if (Global->Opt->AutoSaveSetup)
 						{
 							Db->MacroCfg()->BeginTransaction();
 							// удалим старую запись из DB
@@ -6199,12 +6199,12 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, UINT64 &Flags)
 	MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
 	DlgParam Param={Flags, this, 0, StartMode, 0, false};
 	//_SVS(SysLog(L"StartMode=%d",StartMode));
-	IsProcessAssignMacroKey++;
+	Global->IsProcessAssignMacroKey++;
 	Dialog Dlg(MacroAssignDlg,ARRAYSIZE(MacroAssignDlg),AssignMacroDlgProc,&Param);
 	Dlg.SetPosition(-1,-1,34,6);
 	Dlg.SetHelp(L"KeyMacro");
 	Dlg.Process();
-	IsProcessAssignMacroKey--;
+	Global->IsProcessAssignMacroKey--;
 
 	if (Dlg.GetExitCode() == -1)
 		return 0;

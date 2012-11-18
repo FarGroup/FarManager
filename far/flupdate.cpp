@@ -108,14 +108,14 @@ void FileList::UpdateIfRequired()
 void ReadFileNamesMsg(const wchar_t *Msg)
 {
 	Message(0,0,MSG(MReadingTitleFiles),Msg);
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	preRedrawItem.Param.Param1=(void*)Msg;
-	PreRedraw.SetParam(preRedrawItem.Param);
+	Global->PreRedraw->SetParam(preRedrawItem.Param);
 }
 
 static void PR_ReadFileNamesMsg()
 {
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	ReadFileNamesMsg((wchar_t *)preRedrawItem.Param.Param1);
 }
 
@@ -187,7 +187,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	CacheSelIndex=-1;
 	CacheSelClearIndex=-1;
 	FreeDiskSize = -1;
-	if (Opt.ShowPanelFree)
+	if (Global->Opt->ShowPanelFree)
 	{
 		apiGetDiskSize(strCurDir, nullptr, nullptr, &FreeDiskSize);
 	}
@@ -243,7 +243,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	//Title[TitleLength]=0;
 	MakeSeparator(TitleLength, Title, 9, nullptr);
 	BOOL IsShowTitle=FALSE;
-	BOOL NeedHighlight=Opt.Highlight && PanelMode != PLUGIN_PANEL;
+	BOOL NeedHighlight=Global->Opt->Highlight && PanelMode != PLUGIN_PANEL;
 
 	if (!Filter)
 		Filter=new FileFilter(this,FFT_PANEL);
@@ -271,7 +271,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	{
 		FindErrorCode = GetLastError();
 
-		if ((Opt.ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
+		if ((Global->Opt->ShowHidden || !(fdata.dwFileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM))) && (!UseFilter || Filter->FileInFilter(fdata, nullptr, &fdata.strFileName)))
 		{
 			if (FileCount>=AllocatedCount)
 			{
@@ -342,7 +342,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 //      FileCount++;
 
 			DWORD CurTime = GetTickCount();
-			if (CurTime - StartTime > (DWORD)Opt.RedrawTimeout)
+			if (CurTime - StartTime > (DWORD)Global->Opt->RedrawTimeout)
 			{
 				StartTime = CurTime;
 				if (IsVisible())
@@ -369,7 +369,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 						TruncStr(strReadMsg,TitleLength-2);
 						int MsgLength=(int)strReadMsg.GetLength();
 						GotoXY(X1+1+(TitleLength-MsgLength-1)/2,Y1);
-						FS<<L" "<<strReadMsg<<L" ";
+						Global->FS << L" "<<strReadMsg<<L" ";
 					}
 				}
 
@@ -384,7 +384,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	if (!(FindErrorCode==ERROR_SUCCESS || FindErrorCode==ERROR_NO_MORE_FILES || FindErrorCode==ERROR_FILE_NOT_FOUND))
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
 
-	if ((Opt.ShowDotsInRoot || !bCurDirRoot) || (NetRoot && CtrlObject->Plugins->FindPlugin(Opt.KnownIDs.Network))) // NetWork Plugin
+	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network))) // NetWork Plugin
 	{
 		if (FileCount>=AllocatedCount)
 		{
@@ -518,8 +518,8 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 */
 int FileList::UpdateIfChanged(int UpdateMode)
 {
-	//_SVS(SysLog(L"CurDir='%s' Opt.AutoUpdateLimit=%d <= FileCount=%d",CurDir,Opt.AutoUpdateLimit,FileCount));
-	if (!Opt.AutoUpdateLimit || static_cast<unsigned>(FileCount) <= static_cast<unsigned>(Opt.AutoUpdateLimit))
+	//_SVS(SysLog(L"CurDir='%s' Global->Opt->AutoUpdateLimit=%d <= FileCount=%d",CurDir,Global->Opt->AutoUpdateLimit,FileCount));
+	if (!Global->Opt->AutoUpdateLimit || static_cast<unsigned>(FileCount) <= static_cast<unsigned>(Global->Opt->AutoUpdateLimit))
 	{
 		/* $ 19.12.2001 VVM
 		  ! Сменим приоритеты. При Force обновление всегда! */
@@ -574,7 +574,7 @@ void FileList::InitFSWatcher(bool CheckTree)
 		DriveType=FAR_GetDriveType(RootDir);
 	}
 
-	if (Opt.AutoUpdateRemoteDrive || (!Opt.AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == PATH_VOLUMEGUID)
+	if (Global->Opt->AutoUpdateRemoteDrive || (!Global->Opt->AutoUpdateRemoteDrive && DriveType != DRIVE_REMOTE) || Type == PATH_VOLUMEGUID)
 	{
 		FSWatcher.Set(strCurDir, CheckTree);
 		StartFSWatcher();
@@ -651,7 +651,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 
 	FreeDiskSize=-1;
-	if (Opt.ShowPanelFree)
+	if (Global->Opt->ShowPanelFree)
 	{
 		if (Info.Flags & OPIF_REALNAMES)
 		{
@@ -752,7 +752,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 				continue;
 		}
 
-		if (!Opt.ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
+		if (!Global->Opt->ShowHidden && (PanelData[i].FileAttributes & (FILE_ATTRIBUTE_HIDDEN|FILE_ATTRIBUTE_SYSTEM)))
 			continue;
 
 		//ClearStruct(*CurListData);

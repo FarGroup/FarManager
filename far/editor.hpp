@@ -176,7 +176,7 @@ class Editor:public ScreenObject
 		int NumLine;
 		/* $ 26.02.2001 IS
 		     —юда запомним размер табул€ции и в дальнейшем будем использовать его,
-		     а не Opt.TabSize
+		     а не Global->Opt->TabSize
 		*/
 		EditorOptions EdOpt;
 

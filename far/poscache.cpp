@@ -57,7 +57,7 @@ void FilePositionCache::CompactHistory()
 
 bool FilePositionCache::AddPosition(const wchar_t *Name, const EditorPosCache& poscache)
 {
-	if (!Opt.EdOpt.SavePos)
+	if (!Global->Opt->EdOpt.SavePos)
 		return false;
 
 	string strFullName;
@@ -70,7 +70,7 @@ bool FilePositionCache::AddPosition(const wchar_t *Name, const EditorPosCache& p
 
 	if (id)
 	{
-		if (Opt.EdOpt.SaveShortPos)
+		if (Global->Opt->EdOpt.SaveShortPos)
 		{
 			for (int i=0; i<BOOKMARK_COUNT; i++)
 			{
@@ -90,7 +90,7 @@ bool FilePositionCache::GetPosition(const wchar_t *Name, EditorPosCache& poscach
 {
 	poscache.Clear();
 
-	if (!Opt.EdOpt.SavePos)
+	if (!Global->Opt->EdOpt.SavePos)
 		return false;
 
 	string strFullName;
@@ -100,7 +100,7 @@ bool FilePositionCache::GetPosition(const wchar_t *Name, EditorPosCache& poscach
 
 	if (id)
 	{
-		if (!Opt.EdOpt.SaveShortPos)
+		if (!Global->Opt->EdOpt.SaveShortPos)
 			return true;
 
 		for (int i=0; i<BOOKMARK_COUNT; i++)
@@ -116,7 +116,7 @@ bool FilePositionCache::GetPosition(const wchar_t *Name, EditorPosCache& poscach
 
 bool FilePositionCache::AddPosition(const wchar_t *Name, const ViewerPosCache& poscache)
 {
-	if (!Opt.ViOpt.SavePos && !Opt.ViOpt.SaveCodepage && !Opt.ViOpt.SaveWrapMode)
+	if (!Global->Opt->ViOpt.SavePos && !Global->Opt->ViOpt.SaveCodepage && !Global->Opt->ViOpt.SaveWrapMode)
 		return false;
 
 	string strFullName;
@@ -129,7 +129,7 @@ bool FilePositionCache::AddPosition(const wchar_t *Name, const ViewerPosCache& p
 
 	if (id)
 	{
-		if (Opt.ViOpt.SavePos && Opt.ViOpt.SaveShortPos)
+		if (Global->Opt->ViOpt.SavePos && Global->Opt->ViOpt.SaveShortPos)
 		{
 			for (int i=0; i<BOOKMARK_COUNT; i++)
 			{
@@ -149,7 +149,7 @@ bool FilePositionCache::GetPosition(const wchar_t *Name, ViewerPosCache& poscach
 {
 	poscache.Clear();
 
-	if (!Opt.ViOpt.SavePos && !Opt.ViOpt.SaveCodepage && !Opt.ViOpt.SaveWrapMode)
+	if (!Global->Opt->ViOpt.SavePos && !Global->Opt->ViOpt.SaveCodepage && !Global->Opt->ViOpt.SaveWrapMode)
 		return false;
 
 	string strFullName;
@@ -159,7 +159,7 @@ bool FilePositionCache::GetPosition(const wchar_t *Name, ViewerPosCache& poscach
 
 	if (id)
 	{
-		if (!Opt.ViOpt.SavePos || !Opt.ViOpt.SaveShortPos)
+		if (!Global->Opt->ViOpt.SavePos || !Global->Opt->ViOpt.SaveShortPos)
 			return true;
 
 		for (int i=0; i<BOOKMARK_COUNT; i++)

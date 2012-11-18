@@ -47,9 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 const wchar_t LangFileMask[] = L"*.lng";
 
-Language Lang;
-Language OldLang;
-
 FILE* OpenLangFile(const wchar_t *Path,const wchar_t *Mask,const wchar_t *Language, string &strFileName, uintptr_t &nCodePage, BOOL StrongLang,string *pstrLangName)
 {
 	strFileName.Clear();
@@ -171,14 +168,14 @@ bool Select(int HelpLanguage,VMenu2 **MenuPtr)
 	if (HelpLanguage)
 	{
 		Title=MSG(MHelpLangTitle);
-		Mask=HelpFileMask;
-		strDest=&Opt.strHelpLanguage;
+		Mask=Global->HelpFileMask;
+		strDest=&Global->Opt->strHelpLanguage;
 	}
 	else
 	{
 		Title=MSG(MLangTitle);
 		Mask=LangFileMask;
-		strDest=&Opt.strLanguage;
+		strDest=&Global->Opt->strLanguage;
 	}
 
 	MenuItemEx LangMenuItem;
@@ -190,7 +187,7 @@ bool Select(int HelpLanguage,VMenu2 **MenuPtr)
 	string strFullName;
 	FAR_FIND_DATA_EX FindData;
 	ScanTree ScTree(FALSE,FALSE);
-	ScTree.SetFindPath(g_strFarPath, Mask);
+	ScTree.SetFindPath(Global->g_strFarPath, Mask);
 
 	while (ScTree.GetNextName(&FindData,strFullName))
 	{
@@ -358,16 +355,16 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 	GuardLastError gle;
 	LastError = LERROR_SUCCESS;
 	uintptr_t nCodePage = CP_OEMCP;
-	string strLangName=Opt.strLanguage.Get();
-	FILE *LangFile=OpenLangFile(Path,LangFileMask,Opt.strLanguage,strMessageFile, nCodePage,FALSE, &strLangName);
+	string strLangName=Global->Opt->strLanguage.Get();
+	FILE *LangFile=OpenLangFile(Path,LangFileMask,Global->Opt->strLanguage,strMessageFile, nCodePage,FALSE, &strLangName);
 
 	if (!LangFile)
 	{
 		LastError = LERROR_FILE_NOT_FOUND;
 		return false;
 	}
-	if (this == &Lang && StrCmpI(Opt.strLanguage,strLangName))
-		Opt.strLanguage=strLangName;
+	if (this == Global->Lang && StrCmpI(Global->Opt->strLanguage,strLangName))
+		Global->Opt->strLanguage=strLangName;
 
 	long Pos = ftell(LangFile);
 	fseek(LangFile, 0, SEEK_END);
@@ -480,8 +477,8 @@ bool Language::Init(const wchar_t *Path, int CountNeed)
 #endif // NO_WRAPPER
 	fclose(LangFile);
 
-	if (this == &Lang)
-		OldLang.Free();
+	if (this == Global->Lang)
+		Global->OldLang->Free();
 
 	LanguageLoaded=true;
 	return true;
@@ -531,19 +528,19 @@ void Language::Free()
 
 void Language::Close()
 {
-	if (this == &Lang)
+	if (this == Global->Lang)
 	{
-		if (OldLang.MsgCount)
-			OldLang.Free();
+		if (Global->OldLang->MsgCount)
+			Global->OldLang->Free();
 
-		OldLang.MsgList=MsgList;
-		OldLang.MsgAddr=MsgAddr;
+		Global->OldLang->MsgList=MsgList;
+		Global->OldLang->MsgAddr=MsgAddr;
 #ifndef NO_WRAPPER
-		OldLang.MsgListA=MsgListA;
-		OldLang.MsgAddrA=MsgAddrA;
-		OldLang.m_bUnicode=m_bUnicode;
+		Global->OldLang->MsgListA=MsgListA;
+		Global->OldLang->MsgAddrA=MsgAddrA;
+		Global->OldLang->m_bUnicode=m_bUnicode;
 #endif // NO_WRAPPER
-		OldLang.MsgCount=MsgCount;
+		Global->OldLang->MsgCount=MsgCount;
 	}
 
 	MsgList=nullptr;
@@ -565,7 +562,7 @@ bool Language::CheckMsgId(LNGID MsgId) const
 	*/
 	if (MsgId>=MsgCount || MsgId < 0)
 	{
-		if (this == &Lang && !LanguageLoaded && this != &OldLang && OldLang.CheckMsgId(MsgId))
+		if (this == Global->Lang && !LanguageLoaded && this != Global->OldLang && Global->OldLang->CheckMsgId(MsgId))
 			return true;
 
 		/* $ 26.03.2002 DJ
@@ -604,8 +601,8 @@ const wchar_t* Language::GetMsg(LNGID nID) const
 	!CheckMsgId(nID))
 		return L"";
 
-	if (this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
-		return OldLang.MsgAddr[nID];
+	if (this == Global->Lang && this != Global->OldLang && !LanguageLoaded && Global->OldLang->MsgCount > 0)
+		return Global->OldLang->MsgAddr[nID];
 
 	return MsgAddr[nID];
 }
@@ -616,8 +613,8 @@ const char* Language::GetMsgA(LNGID nID) const
 	if (m_bUnicode || !CheckMsgId(nID))
 		return "";
 
-	if (this == &Lang && this != &OldLang && !LanguageLoaded && OldLang.MsgCount > 0)
-		return OldLang.MsgAddrA[nID];
+	if (this == Global->Lang && this != Global->OldLang && !LanguageLoaded && Global->OldLang->MsgCount > 0)
+		return Global->OldLang->MsgAddrA[nID];
 
 	return MsgAddrA[nID];
 }

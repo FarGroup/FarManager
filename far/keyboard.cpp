@@ -642,7 +642,7 @@ DWORD GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMouse,bool 
 		{
 			ProcessConsoleInputInfo Info={sizeof(Info),PCIF_NONE,*rec};
 
-			if (WaitInMainLoop)
+			if (Global->WaitInMainLoop)
 				Info.Flags|=PCIF_FROMMAIN;
 			switch (CtrlObject->Plugins->ProcessConsoleInput(&Info))
 			{
@@ -672,7 +672,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	struct FAR_INPUT_RECORD irec={};
 
 	if (AllowSynchro)
-		PluginSynchroManager.Process();
+		Global->PluginSynchroManager->Process();
 
 	if (!ExcludeMacro && CtrlObject && CtrlObject->Cp())
 	{
@@ -703,7 +703,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 					Panel::EndDrag();
 				}
 
-				ScrBuf.Flush();
+				Global->ScrBuf->Flush();
 				int VirtKey,ControlState;
 				TranslateKeyToVK(MacroKey,VirtKey,ControlState,rec);
 				rec->EventType=((((unsigned int)MacroKey >= KEY_MACRO_BASE && (unsigned int)MacroKey <= KEY_MACRO_ENDBASE) || ((unsigned int)MacroKey>=KEY_OP_BASE && (unsigned int)MacroKey <=KEY_OP_ENDBASE)) || (MacroKey&(~0xFF000000)) >= KEY_END_FKEY)?0:FARMACRO_KEY_EVENT;
@@ -758,28 +758,28 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		return(CalcKey);
 	}
 
-	int EnableShowTime=Opt.Clock && (WaitInMainLoop || (CtrlObject &&
+	int EnableShowTime=Global->Opt->Clock && (Global->WaitInMainLoop || (CtrlObject &&
 	                                 CtrlObject->Macro.GetMode()==MACRO_SEARCH));
 
 	if (EnableShowTime)
 		ShowTime(1);
 
-	ScrBuf.Flush();
+	Global->ScrBuf->Flush();
 
 	if (!LastEventIdle)
-		StartIdleTime=clock();
+		Global->StartIdleTime=clock();
 
 	LastEventIdle=FALSE;
 
-	BOOL ZoomedState=IsZoomed(Console.GetWindow());
-	BOOL IconicState=IsIconic(Console.GetWindow());
+	BOOL ZoomedState=IsZoomed(Global->Console->GetWindow());
+	BOOL IconicState=IsIconic(Global->Console->GetWindow());
 
 	bool FullscreenState=IsConsoleFullscreen();
 
 	for (;;)
 	{
 		// "Реакция" на максимизацию/восстановление окна консоли
-		if (ZoomedState!=IsZoomed(Console.GetWindow()) && IconicState==IsIconic(Console.GetWindow()))
+		if (ZoomedState!=IsZoomed(Global->Console->GetWindow()) && IconicState==IsIconic(Global->Console->GetWindow()))
 		{
 			ZoomedState=!ZoomedState;
 			ChangeVideoMode(ZoomedState);
@@ -799,15 +799,15 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			}
 			FullscreenState=CurrentFullscreenState;
 
-			Window.Check();
+			Global->Window->Check();
 
-			if(Events.EnvironmentChangeEvent.Signaled())
+			if(Global->Window->EnvironmentChangeEvent().Signaled())
 			{
 				ReloadEnvironment();
 			}
 		}
 
-		Console.PeekInput(rec, 1, ReadCount);
+		Global->Console->PeekInput(rec, 1, ReadCount);
 
 		/* $ 26.04.2001 VVM
 		   ! Убрал подмену колесика */
@@ -818,7 +818,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			{
 				INPUT_RECORD pinp;
 				size_t nread;
-				Console.ReadInput(&pinp, 1, nread);
+				Global->Console->ReadInput(&pinp, 1, nread);
 				was_repeat = false;
 				last_pressed_keycode = (WORD)-1;
 				continue;
@@ -826,11 +826,11 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			break;
 		}
 
-		ScrBuf.Flush();
+		Global->ScrBuf->Flush();
 		Sleep(10);
 
 		static bool ExitInProcess = false;
-		if (CloseFAR && !ExitInProcess)
+		if (Global->CloseFAR && !ExitInProcess)
 		{
 			ExitInProcess = true;
 			FrameManager->ExitMainLoop(FALSE);
@@ -844,7 +844,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			if (EnableShowTime)
 				ShowTime(0);
 
-			if (WaitInMainLoop)
+			if (Global->WaitInMainLoop)
 			{
 				if (!(LoopCount & 63))
 				{
@@ -860,12 +860,12 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 				}
 			}
 
-			if (Opt.ScreenSaver && Opt.ScreenSaverTime>0 &&
-			        CurTime-StartIdleTime>Opt.ScreenSaverTime*60000)
-				if (!ScreenSaver(WaitInMainLoop))
+			if (Global->Opt->ScreenSaver && Global->Opt->ScreenSaverTime>0 &&
+			        CurTime-Global->StartIdleTime>Global->Opt->ScreenSaverTime*60000)
+				if (!ScreenSaver(Global->WaitInMainLoop))
 					return(KEY_NONE);
 
-			if (!WaitInMainLoop && LoopCount==64)
+			if (!Global->WaitInMainLoop && LoopCount==64)
 			{
 				LastEventIdle=TRUE;
 				ClearStruct(*rec);
@@ -876,7 +876,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 		if (!(LoopCount & 3))
 		{
-			if (PluginSynchroManager.Process())
+			if (Global->PluginSynchroManager->Process())
 			{
 				ClearStruct(*rec);
 				return KEY_NONE;
@@ -940,7 +940,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 					INPUT_RECORD pinp;
 					size_t nread;
 					// Удалим из очереди...
-					Console.ReadInput(&pinp, 1, nread);
+					Global->Console->ReadInput(&pinp, 1, nread);
 					return KEY_NONE;
 				}
 			}
@@ -957,13 +957,13 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		/* $ 24.08.2000 SVS
 		   + Добавление на реакцию KEY_CTRLALTSHIFTRELEASE
 		*/
-		if (IsKeyCASPressed && (Opt.CASRule&1) && (!IntKeyState.CtrlPressed || !IntKeyState.AltPressed || !IntKeyState.ShiftPressed))
+		if (IsKeyCASPressed && (Global->Opt->CASRule&1) && (!IntKeyState.CtrlPressed || !IntKeyState.AltPressed || !IntKeyState.ShiftPressed))
 		{
 			IsKeyCASPressed=FALSE;
 			return KEY_CTRLALTSHIFTRELEASE;
 		}
 
-		if (IsKeyRCASPressed && (Opt.CASRule&2) && (!IntKeyState.RightCtrlPressed || !IntKeyState.RightAltPressed || !IntKeyState.ShiftPressed))
+		if (IsKeyRCASPressed && (Global->Opt->CASRule&2) && (!IntKeyState.RightCtrlPressed || !IntKeyState.RightAltPressed || !IntKeyState.ShiftPressed))
 		{
 			IsKeyRCASPressed=FALSE;
 			return KEY_RCTRLALTSHIFTRELEASE;
@@ -985,7 +985,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		IntKeyState.MouseButtonState=0;
 		ShiftState=FALSE;
 		PressedLastTime=0;
-		Console.ReadInput(rec, 1, ReadCount);
+		Global->Console->ReadInput(rec, 1, ReadCount);
 		CalcKey=rec->Event.FocusEvent.bSetFocus?KEY_GOTFOCUS:KEY_KILLFOCUS;
 		//ClearStruct(*rec);
 		//rec->EventType=KEY_EVENT;
@@ -1018,16 +1018,16 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		return(CalcKey);
 	}
 
-	Console.ReadInput(rec, 1, ReadCount);
+	Global->Console->ReadInput(rec, 1, ReadCount);
 
 	if (EnableShowTime)
 		ShowTime(1);
 
 	bool SizeChanged=false;
-	if(Opt.WindowMode)
+	if(Global->Opt->WindowMode)
 	{
 		SMALL_RECT CurConRect;
-		Console.GetWindowRect(CurConRect);
+		Global->Console->GetWindowRect(CurConRect);
 		if(CurConRect.Bottom-CurConRect.Top!=ScrY || CurConRect.Right-CurConRect.Left!=ScrX)
 		{
 			SizeChanged=true;
@@ -1042,7 +1042,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		// _SVS(SysLog(1,"GetInputRecord(WINDOW_BUFFER_SIZE_EVENT)"));
 		Sleep(1);
 		GetVideoMode(CurSize);
-		bool NotIgnore=Opt.WindowMode && (rec->Event.WindowBufferSizeEvent.dwSize.X!=CurSize.X || rec->Event.WindowBufferSizeEvent.dwSize.Y!=CurSize.Y);
+		bool NotIgnore=Global->Opt->WindowMode && (rec->Event.WindowBufferSizeEvent.dwSize.X!=CurSize.X || rec->Event.WindowBufferSizeEvent.dwSize.Y!=CurSize.Y);
 		if (PScrX+1 == CurSize.X && PScrY+1 == CurSize.Y && !NotIgnore)
 		{
 			return KEY_NONE;
@@ -1056,17 +1056,17 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 			if (FrameManager)
 			{
-				ScrBuf.ResetShadow();
+				Global->ScrBuf->ResetShadow();
 				// апдейтим панели (именно они сейчас!)
 				LockScreen LckScr;
 
-				if (GlobalSaveScrPtr)
-					GlobalSaveScrPtr->Discard();
+				if (Global->GlobalSaveScrPtr)
+					Global->GlobalSaveScrPtr->Discard();
 
 				FrameManager->ResizeAllFrame();
 				FrameManager->GetCurrentFrame()->Show();
 				// _SVS(SysLog(L"PreRedrawFunc = %p",PreRedrawFunc));
-				PreRedrawItem preRedrawItem=PreRedraw.Peek();
+				PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 
 				if (preRedrawItem.PreRedrawFunc)
 				{
@@ -1228,13 +1228,13 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 						{
 							if (!IsKeyRCASPressed && IntKeyState.RightCtrlPressed && IntKeyState.RightAltPressed && IntKeyState.RightShiftPressed)
 							{
-								if (Opt.CASRule&2)
+								if (Global->Opt->CASRule&2)
 								{
 									IsKeyRCASPressed=TRUE;
 									return (KEY_RCTRLALTSHIFTPRESS);
 								}
 							}
-							else if (Opt.CASRule&1 && !(IntKeyState.RightCtrlPressed || IntKeyState.RightAltPressed))
+							else if (Global->Opt->CASRule&1 && !(IntKeyState.RightCtrlPressed || IntKeyState.RightAltPressed))
 							{
 								IsKeyCASPressed=TRUE;
 								return (KEY_CTRLALTSHIFTPRESS);
@@ -1248,7 +1248,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 
 						if (!IsKeyRCASPressed && IntKeyState.RightCtrlPressed && IntKeyState.RightAltPressed && IntKeyState.RightShiftPressed)
 						{
-							if ((Opt.CASRule&2))
+							if ((Global->Opt->CASRule&2))
 							{
 								IsKeyRCASPressed=TRUE;
 								return (KEY_RCTRLALTSHIFTPRESS);
@@ -1415,7 +1415,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 {
 	size_t ReadCount;
 	DWORD Key;
-	ScrBuf.Flush();
+	Global->ScrBuf->Flush();
 
 	if (KeyQueue && (Key=KeyQueue->Peek()) )
 	{
@@ -1429,7 +1429,7 @@ DWORD PeekInputRecord(INPUT_RECORD *rec,bool ExcludeMacro)
 	}
 	else
 	{
-		Console.PeekInput(rec, 1, ReadCount);
+		Global->Console->PeekInput(rec, 1, ReadCount);
 	}
 
 	if (!ReadCount)
@@ -1516,7 +1516,7 @@ int WriteInput(int Key,DWORD Flags)
 			Rec.Event.KeyEvent.dwControlKeyState=0;
 		}
 
-		return Console.WriteInput(&Rec, 1, WriteCount);
+		return Global->Console->WriteInput(&Rec, 1, WriteCount);
 	}
 	else if (KeyQueue)
 	{
@@ -1529,7 +1529,7 @@ int WriteInput(int Key,DWORD Flags)
 
 int CheckForEscSilent()
 {
-	if(CloseFAR)
+	if(Global->CloseFAR)
 	{
 		return TRUE;
 	}
@@ -1568,14 +1568,14 @@ int CheckForEscSilent()
 	}
 
 	if (!Processed && CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)
-		ScrBuf.Flush();
+		Global->ScrBuf->Flush();
 
 	return FALSE;
 }
 
 int ConfirmAbortOp()
 {
-	return (Opt.Confirm.Esc && !CloseFAR)?AbortMessage():TRUE;
+	return (Global->Opt->Confirm.Esc && !Global->CloseFAR)?AbortMessage():TRUE;
 }
 
 /* $ 09.02.2001 IS
@@ -2337,7 +2337,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			//FlushInputBuffer();//???
 			INPUT_RECORD TempRec;
 			size_t ReadCount;
-			Console.ReadInput(&TempRec, 1, ReadCount);
+			Global->Console->ReadInput(&TempRec, 1, ReadCount);
 			IntKeyState.ReturnAltValue=TRUE;
 			//_SVS(SysLog(L"0 AltNumPad -> AltValue=0x%0X CtrlState=%X",AltValue,CtrlState));
 			AltValue&=0xFFFF;
@@ -2427,10 +2427,10 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 
 	if (Char && !IntKeyState.CtrlPressed && !IntKeyState.AltPressed)
 	{
-		if (KeyCode==VK_OEM_3 && !Opt.UseVk_oem_x)
+		if (KeyCode==VK_OEM_3 && !Global->Opt->UseVk_oem_x)
 			return(IntKeyState.ShiftPressed ? '~':'`');
 
-		if (KeyCode==VK_OEM_7 && !Opt.UseVk_oem_x)
+		if (KeyCode==VK_OEM_7 && !Global->Opt->UseVk_oem_x)
 			return(IntKeyState.ShiftPressed ? '"':'\'');
 	}
 
@@ -2446,26 +2446,26 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 				break;
 			case VK_OEM_4:
 
-				if (!Opt.UseVk_oem_x)
+				if (!Global->Opt->UseVk_oem_x)
 					Char=L'[';
 
 				break;
 			case VK_OEM_5:
 
 				//Char.AsciiChar=ScanCode==0x29?0x15:'\\'; //???
-				if (!Opt.UseVk_oem_x)
+				if (!Global->Opt->UseVk_oem_x)
 					Char=L'\\';
 
 				break;
 			case VK_OEM_6:
 
-				if (!Opt.UseVk_oem_x)
+				if (!Global->Opt->UseVk_oem_x)
 					Char=L']';
 
 				break;
 			case VK_OEM_7:
 
-				if (!Opt.UseVk_oem_x)
+				if (!Global->Opt->UseVk_oem_x)
 					Char=L'\"';
 
 				break;
@@ -2485,10 +2485,10 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			{
 				if (IntKeyState.RightCtrlPressed && IntKeyState.RightAltPressed && IntKeyState.RightShiftPressed)
 				{
-					if ((Opt.CASRule&2))
+					if ((Global->Opt->CASRule&2))
 						return (IsKeyRCASPressed?KEY_RCTRLALTSHIFTPRESS:KEY_RCTRLALTSHIFTRELEASE);
 				}
-				else if (Opt.CASRule&1)
+				else if (Global->Opt->CASRule&1)
 					return (IsKeyCASPressed?KEY_CTRLALTSHIFTPRESS:KEY_CTRLALTSHIFTRELEASE);
 			}
 		}
@@ -2502,7 +2502,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			case VK_RMENU:
 			case VK_RCONTROL:
 
-				if (Opt.CASRule&2)
+				if (Global->Opt->CASRule&2)
 					return (IsKeyRCASPressed?KEY_RCTRLALTSHIFTPRESS:KEY_RCTRLALTSHIFTRELEASE);
 
 				break;
@@ -2805,7 +2805,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 		if (KeyCode>='A' && KeyCode<='Z')
 			return Modif|KeyCode;
 
-		if (Opt.ShiftsKeyRules) //???
+		if (Global->Opt->ShiftsKeyRules) //???
 			switch (KeyCode)
 			{
 				case VK_OEM_3:
@@ -2867,7 +2867,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 		if (KeyCode>='A' && KeyCode<='Z')
 			return Modif|KeyCode;
 
-		if (Opt.ShiftsKeyRules) //???
+		if (Global->Opt->ShiftsKeyRules) //???
 			switch (KeyCode)
 			{
 				case VK_OEM_3:
@@ -2932,7 +2932,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 		if (KeyCode>='0' && KeyCode<='9')
 		{
 			string strKey;
-			if (WaitInFastFind > 0 &&
+			if (Global->WaitInFastFind > 0 &&
 			        CtrlObject->Macro.GetCurRecord(nullptr,nullptr) < MACROMODE_RECORDING &&
 			        CtrlObject->Macro.GetIndex(KEY_ALTSHIFT0+KeyCode-'0',strKey,MACRO_INVALID) == -1)
 			{
@@ -2944,10 +2944,10 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 			}
 		}
 
-		if (!WaitInMainLoop && KeyCode>='A' && KeyCode<='Z')
+		if (!Global->WaitInMainLoop && KeyCode>='A' && KeyCode<='Z')
 			return Modif|KeyCode;
 
-		if (Opt.ShiftsKeyRules) //???
+		if (Global->Opt->ShiftsKeyRules) //???
 			switch (KeyCode)
 			{
 				case VK_OEM_3:
@@ -3034,7 +3034,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 				return(Modif|KEY_PRNTSCRN);
 		}
 
-		if (Opt.ShiftsKeyRules) //???
+		if (Global->Opt->ShiftsKeyRules) //???
 			switch (KeyCode)
 			{
 				case VK_OEM_3:
@@ -3141,7 +3141,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
  				return ModifCtrl|KEY_BACKSLASH;
 		}
 
-		if (Opt.ShiftsKeyRules) //???
+		if (Global->Opt->ShiftsKeyRules) //???
 			switch (KeyCode)
 			{
 				case VK_OEM_3:
@@ -3180,7 +3180,7 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 
 		_SVS(if (KeyCode!=VK_MENU) SysLog(L"Alt -> |%s|%s|",_VK_KEY_ToName(KeyCode),_INPUT_RECORD_Dump(rec)));
 
-		if (Opt.ShiftsKeyRules) //???
+		if (Global->Opt->ShiftsKeyRules) //???
 			switch (KeyCode)
 			{
 				case VK_OEM_3:
@@ -3225,9 +3225,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 
 		if (Char)
 		{
-			if (!Opt.ShiftsKeyRules || WaitInFastFind > 0)
+			if (!Global->Opt->ShiftsKeyRules || Global->WaitInFastFind > 0)
 				return ModifAlt|Upper(Char);
-			else if (WaitInMainLoop)
+			else if (Global->WaitInMainLoop)
 				return ModifAlt|Char;
 		}
 

@@ -83,10 +83,10 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	BlockStartLine(0),
 	VBlockStart(nullptr),
 	MaxRightPos(0),
-	LastSearchCase(GlobalSearchCase),
-	LastSearchWholeWords(GlobalSearchWholeWords),
-	LastSearchReverse(GlobalSearchReverse),
-	LastSearchRegexp(Opt.EdOpt.SearchRegexp),
+	LastSearchCase(Global->GlobalSearchCase),
+	LastSearchWholeWords(Global->GlobalSearchWholeWords),
+	LastSearchReverse(Global->GlobalSearchReverse),
+	LastSearchRegexp(Global->Opt->EdOpt.SearchRegexp),
 	m_codepage(CP_DEFAULT),
 	StartLine(-1),
 	StartChar(-1),
@@ -102,7 +102,7 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 {
 	_KEYMACRO(SysLog(L"Editor::Editor()"));
 	_KEYMACRO(SysLog(1));
-	EdOpt = Opt.EdOpt;
+	EdOpt = Global->Opt->EdOpt;
 	SetOwner(pOwner);
 
 	if (DialogUsed)
@@ -113,10 +113,10 @@ Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	   сконвертируем GlobalSearchString в строку, ибо она содержит строку в
 	   16-ричном представлении.
 	*/
-	if (GlobalSearchHex)
-		Transform(strLastSearchStr,strGlobalSearchString,L'S');
+	if (Global->GlobalSearchHex)
+		Transform(strLastSearchStr,Global->strGlobalSearchString,L'S');
 	else
-		strLastSearchStr = strGlobalSearchString;
+		strLastSearchStr = Global->strGlobalSearchString;
 
 	UnmarkMacroBlock();
 	/* $ 12.01.2002 IS
@@ -160,15 +160,15 @@ void Editor::FreeAllocatedData(bool FreeUndo)
 void Editor::KeepInitParameters()
 {
 	// Установлен глобальный режим поиска 16-ричных данных?
-	if (GlobalSearchHex)
-		Transform(strGlobalSearchString,strLastSearchStr,L'X');
+	if (Global->GlobalSearchHex)
+		Transform(Global->strGlobalSearchString,strLastSearchStr,L'X');
 	else
-		strGlobalSearchString = strLastSearchStr;
+		Global->strGlobalSearchString = strLastSearchStr;
 
-	GlobalSearchCase=LastSearchCase;
-	GlobalSearchWholeWords=LastSearchWholeWords;
-	GlobalSearchReverse=LastSearchReverse;
-	Opt.EdOpt.SearchRegexp=LastSearchRegexp;
+	Global->GlobalSearchCase=LastSearchCase;
+	Global->GlobalSearchWholeWords=LastSearchWholeWords;
+	Global->GlobalSearchReverse=LastSearchReverse;
+	Global->Opt->EdOpt.SearchRegexp=LastSearchRegexp;
 }
 
 /*
@@ -340,7 +340,7 @@ void Editor::ShowEditor(void)
 		*/
 		_SYS_EE_REDRAW(CleverSysLog Clev(L"Editor::ShowEditor()"));
 
-		if (!ScrBuf.GetLockCount())
+		if (!Global->ScrBuf->GetLockCount())
 		{
 			if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 			{
@@ -853,7 +853,7 @@ int Editor::ProcessKey(int Key)
 {
 	if (Key==KEY_IDLE)
 	{
-		if (Opt.ViewerEditorClock && HostFileEditor && HostFileEditor->IsFullScreen() && Opt.EdOpt.ShowTitleBar)
+		if (Global->Opt->ViewerEditorClock && HostFileEditor && HostFileEditor->IsFullScreen() && Global->Opt->EdOpt.ShowTitleBar)
 			ShowTime(FALSE);
 
 		return TRUE;
@@ -1875,7 +1875,7 @@ int Editor::ProcessKey(int Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_CTRLUP);
@@ -1886,7 +1886,7 @@ int Editor::ProcessKey(int Key)
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_CTRLDOWN);
@@ -1897,7 +1897,7 @@ int Editor::ProcessKey(int Key)
 		case(KEY_MSWHEEL_LEFT | KEY_ALT):
 		case(KEY_MSWHEEL_LEFT | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsHWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_LEFT);
@@ -1908,7 +1908,7 @@ int Editor::ProcessKey(int Key)
 		case(KEY_MSWHEEL_RIGHT | KEY_ALT):
 		case(KEY_MSWHEEL_RIGHT | KEY_RALT):
 		{
-			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Opt.MsHWheelDeltaEdit;
+			int Roll = (Key & (KEY_ALT|KEY_RALT))?1:(int)Global->Opt->MsHWheelDeltaEdit;
 
 			for (int i=0; i<Roll; i++)
 				ProcessKey(KEY_RIGHT);
@@ -3793,7 +3793,7 @@ BOOL Editor::Search(int Next)
 		{
 			DWORD CurTime=GetTickCount();
 
-			if (CurTime-StartTime>(DWORD)Opt.RedrawTimeout)
+			if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
 			{
 				StartTime=CurTime;
 
@@ -3812,7 +3812,7 @@ BOOL Editor::Search(int Next)
 				int Total=ReverseSearch?StartLine:NumLastLine-StartLine;
 				int Current=abs(NewNumLine-StartLine);
 				EditorShowMsg(MSG(MEditSearchTitle),MSG(MEditSearchingFor),strMsgStr,Total > 0 ? Current*100/Total : 100);
-				TBC.SetProgressValue(Current,Total);
+				Global->TBC->SetProgressValue(Current,Total);
 			}
 
 			int SearchLength=0;
@@ -3905,11 +3905,11 @@ BOOL Editor::Search(int Next)
 							string strQSearchStr(CurPtr->GetStringAddr()+CurPtr->GetCurPos(),SearchLength), strQReplaceStr=strReplaceStrCurrent;
 							InsertQuote(strQSearchStr);
 							InsertQuote(strQReplaceStr);
-							PreRedrawItem pitem=PreRedraw.Pop();
+							PreRedrawItem pitem=Global->PreRedraw->Pop();
 							MsgCode=Message(0,4,MSG(MEditReplaceTitle),MSG(MEditAskReplace),
 											strQSearchStr,MSG(MEditAskReplaceWith),strQReplaceStr,
 											MSG(MEditReplace),MSG(MEditReplaceAll),MSG(MEditSkip),MSG(MEditCancel));
-							PreRedraw.Push(pitem);
+							Global->PreRedraw->Push(pitem);
 
 							if (MsgCode==1)
 								ReplaceAll=TRUE;
@@ -6055,7 +6055,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		case ECTL_REDRAW:
 		{
 			Show();
-			ScrBuf.Flush();
+			Global->ScrBuf->Flush();
 			return TRUE;
 		}
 		case ECTL_TABTOREAL:
@@ -6249,7 +6249,7 @@ int Editor::EditorControl(int Command, intptr_t Param1, void *Param2)
 						break;
 					case ESPT_SETWORDDIV:
 						_ECTLLOG(SysLog(L"  wszParam    =[%s]",espar->wszParam));
-						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Opt.strWordDiv:static_cast<const wchar_t*>(espar->wszParam));
+						SetWordDiv((!espar->wszParam || !*espar->wszParam)?Global->Opt->strWordDiv:static_cast<const wchar_t*>(espar->wszParam));
 						break;
 					case ESPT_TABSIZE:
 						_ECTLLOG(SysLog(L"  iParam      =%d",espar->iParam));
@@ -6930,7 +6930,7 @@ void Editor::Xlat()
 				CopySize=TBlockSizeX;
 
 			AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),CurPtr->GetLength());
-			::Xlat(CurPtr->Str,TBlockX,TBlockX+CopySize,Opt.XLat.Flags);
+			::Xlat(CurPtr->Str,TBlockX,TBlockX+CopySize,Global->Opt->XLat.Flags);
 			Change(ECTYPE_CHANGED,BlockStartLine+Line);
 		}
 
@@ -6958,7 +6958,7 @@ void Editor::Xlat()
 					EndSel=CurPtr->GetLength();//StrLength(CurPtr->Str);
 
 				AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurLine->GetCurPos(),CurPtr->GetLength());
-				::Xlat(CurPtr->Str,StartSel,EndSel,Opt.XLat.Flags);
+				::Xlat(CurPtr->Str,StartSel,EndSel,Global->Opt->XLat.Flags);
 				Change(ECTYPE_CHANGED,BlockStartLine+Line);
 				Line++;
 				CurPtr=CurPtr->m_next;
@@ -6975,26 +6975,26 @@ void Editor::Xlat()
 			//   что находится левее позиции курсора на 1 символ
 			DoXlat=TRUE;
 
-			if (IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]))
+			if (IsWordDiv(Global->Opt->XLat.strWordDivForXlat,Str[start]))
 			{
 				if (start) start--;
 
-				DoXlat=(!IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]));
+				DoXlat=(!IsWordDiv(Global->Opt->XLat.strWordDivForXlat,Str[start]));
 			}
 
 			if (DoXlat)
 			{
-				while (start>=0 && !IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]))
+				while (start>=0 && !IsWordDiv(Global->Opt->XLat.strWordDivForXlat,Str[start]))
 					start--;
 
 				start++;
 				int end=start+1;
 
-				while (end<StrSize && !IsWordDiv(Opt.XLat.strWordDivForXlat,Str[end]))
+				while (end<StrSize && !IsWordDiv(Global->Opt->XLat.strWordDivForXlat,Str[end]))
 					end++;
 
 				AddUndoData(UNDO_EDIT,CurLine->GetStringAddr(),CurLine->GetEOL(),NumLine,start,CurLine->GetLength());
-				::Xlat(Str,start,end,Opt.XLat.Flags);
+				::Xlat(Str,start,end,Global->Opt->XLat.Flags);
 				Change(ECTYPE_CHANGED,NumLine);
 			}
 		}
@@ -7185,21 +7185,21 @@ void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_
 			strProgress+=FormatString()<<L" "<<fmt::MinWidth(PercentLength)<<strPercent<<L"%";
 		}
 
-		TBC.SetProgressValue(Percent,100);
+		Global->TBC->SetProgressValue(Percent,100);
 	}
 
 	Message(MSG_LEFTALIGN,0,Title,strMsg,strProgress.IsEmpty()?nullptr:strProgress.CPtr());
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	preRedrawItem.Param.Param1=(void *)Title;
 	preRedrawItem.Param.Param2=(void *)Msg;
 	preRedrawItem.Param.Param3=(void *)Name;
 	preRedrawItem.Param.Param4=(void *)(intptr_t)(Percent);
-	PreRedraw.SetParam(preRedrawItem.Param);
+	Global->PreRedraw->SetParam(preRedrawItem.Param);
 }
 
 void Editor::PR_EditorShowMsg()
 {
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	Editor::EditorShowMsg((wchar_t*)preRedrawItem.Param.Param1,(wchar_t*)preRedrawItem.Param.Param2,(wchar_t*)preRedrawItem.Param.Param3,(int)(intptr_t)preRedrawItem.Param.Param4);
 }
 

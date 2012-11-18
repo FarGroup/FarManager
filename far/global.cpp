@@ -34,78 +34,117 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
-/* $ 29.06.2000 tran
-  берем char *CopyRight из inc файла */
-#include "bootstrap/copyright.inc"
+#include "imports.hpp"
+#include "console.hpp"
+#include "scrbuf.hpp"
+#include "TaskBar.hpp"
+#include "format.hpp"
+#include "TPreRedrawFunc.hpp"
+#include "window.hpp"
+#include "config.hpp"
+#include "language.hpp"
+#include "elevation.hpp"
+#include "treelist.hpp"
+#include "interf.hpp"
+#include "synchro.hpp"
 
-OSVERSIONINFO WinVer={sizeof(WinVer)};
+global::global()
+{
+	#include "bootstrap/copyright.inc"
 
-// идет процесс назначения клавиши в макросе?
-BOOL IsProcessAssignMacroKey=FALSE;
+	WinVer.dwOSVersionInfoSize = sizeof(WinVer);
 
-// идет процесс "вьювер/редактор" во время поиска файлов?
-BOOL IsProcessVE_FindFile=FALSE;
+	// идет процесс назначения клавиши в макросе?
+	IsProcessAssignMacroKey=FALSE;
 
-// Идёт процесс перерисовки всех фреймов
-BOOL IsRedrawFramesInProcess=FALSE;
+	// Идёт процесс перерисовки всех фреймов
+	IsRedrawFramesInProcess=FALSE;
 
-size_t PluginPanelsCount = 0;
+	PluginPanelsCount = 0;
 
-// идет процесс быстрого поиска в панелях?
-int WaitInFastFind=FALSE;
+	// идет процесс быстрого поиска в панелях?
+	WaitInFastFind=FALSE;
 
-// мы крутимся в основном цикле?
-int WaitInMainLoop=FALSE;
+	// мы крутимся в основном цикле?
+	WaitInMainLoop=FALSE;
 
-clock_t StartIdleTime=0;
+	StartIdleTime=0;
 
-string g_strFarModuleName;
-string g_strFarINI;
-string g_strFarPath;
+	GlobalSearchCase=false;
+	GlobalSearchWholeWords=false; // значение "Whole words" для поиска
+	GlobalSearchHex=false;     // значение "Search for hex" для поиска
+	GlobalSearchReverse=false;
 
-string strGlobalSearchString;
-bool GlobalSearchCase=false;
-bool GlobalSearchWholeWords=false; // значение "Whole words" для поиска
-bool GlobalSearchHex=false;     // значение "Search for hex" для поиска
-bool GlobalSearchReverse=false;
+	ScreenSaverActive=FALSE;
 
-int ScreenSaverActive=FALSE;
+	CloseFAR=FALSE;
+	CloseFARMenu=FALSE;
+	AllowCancelExit=TRUE;
 
-int CloseFAR=FALSE,CloseFARMenu=FALSE, AllowCancelExit=TRUE;
+	DisablePluginsOutput=FALSE;
 
-int DisablePluginsOutput=FALSE;
+	WidthNameForMessage=0;
 
-int WidthNameForMessage=0;
+	ProcessException=FALSE;
+	ProcessShowClock=FALSE;
 
-BOOL ProcessException=FALSE;
-BOOL ProcessShowClock=FALSE;
-
-const wchar_t *HelpFileMask=L"*.hlf";
-const wchar_t *HelpFormatLinkModule=L"<%s>%s";
+	HelpFileMask=L"*.hlf";
+	HelpFormatLinkModule=L"<%s>%s";
 
 #if defined(SYSLOG)
-BOOL StartSysLog=0;
-long CallNewDelete=0;
-long CallMallocFree=0;
+	StartSysLog=0;
+	CallNewDelete=0;
+	CallMallocFree=0;
 #endif
 
-class SaveScreen;
-SaveScreen *GlobalSaveScrPtr=nullptr;
+#ifdef DIRECT_RT
+	DirectRT = false;
+#endif
 
-int CriticalInternalError=FALSE;
+	GlobalSaveScrPtr=nullptr;
 
-int KeepUserScreen;
-string g_strDirToSet;
+	CriticalInternalError=FALSE;
 
-int Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
+	KeepUserScreen = 0;
 
-SYSTEM_INFO SystemInfo;
+	Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
 
-FormatScreen FS;
+	MainThreadId = GetCurrentThreadId();
+	ErrorMode = SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX;
 
-DWORD ErrorMode;
 
-LARGE_INTEGER FarUpTime;
+	ifn = new ImportedFunctions;
+	Console = new console;
+	ScrBuf = new ScreenBuf;
+	TBC = new TaskBarCore;
+	ConsoleIcons = new consoleicons;
+	//FS = new FormatScreen;
+	PreRedraw = new TPreRedrawFunc;
+	Window = new WindowHandler;
+	Opt = new Options;
+	Lang = new Language;
+	OldLang = new Language;
+	Elevation = new elevation;
+	TreeCache = new TreeListCache;
+	tempTreeCache = new TreeListCache;
+	PluginSynchroManager = new PluginSynchro;
+}
 
-HANDLE MainThreadHandle;
-DWORD MainThreadId;
+global::~global()
+{
+	delete PluginSynchroManager;
+	delete tempTreeCache;
+	delete TreeCache;
+	delete Elevation;
+	delete OldLang;
+	delete Lang;
+	delete Opt;
+	delete Window;
+	delete PreRedraw;
+	//delete FS;
+	delete ConsoleIcons; 
+	delete TBC;
+	delete ScrBuf;
+	delete Console;
+	delete ifn;
+}

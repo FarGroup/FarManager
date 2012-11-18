@@ -201,7 +201,6 @@ bool CheckStructSize(const T* s) {return s && (s->StructSize >= sizeof(T));}
 #include "farrtl.hpp"
 #include "UnicodeString.hpp"
 #include "format.hpp"
-#include "global.hpp"
 #include "local.hpp"
 #include "farwinapi.hpp"
 #include "cvtname.hpp"
@@ -221,3 +220,5 @@ bool CheckStructSize(const T* s) {return s && (s->StructSize >= sizeof(T));}
 #else
 #define SELF_TEST(code)
 #endif
+
+#include "global.hpp"

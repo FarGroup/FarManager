@@ -693,7 +693,7 @@ int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 		OBJECT_ATTRIBUTES ObjAttrs;
 		InitializeObjectAttributes(&ObjAttrs, &ObjName, 0, nullptr, nullptr);
 		HANDLE hSymLink;
-		NTSTATUS Res = ifn.NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
+		NTSTATUS Res = Global->ifn->NtOpenSymbolicLinkObject(&hSymLink, GENERIC_READ, &ObjAttrs);
 
 		if (Res == STATUS_SUCCESS)
 		{
@@ -702,14 +702,14 @@ int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 			UNICODE_STRING LinkTarget;
 			LinkTarget.MaximumLength = static_cast<USHORT>(BufSize * sizeof(wchar_t));
 			LinkTarget.Buffer = Buffer.GetBuffer(BufSize);
-			Res = ifn.NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr);
+			Res = Global->ifn->NtQuerySymbolicLinkObject(hSymLink, &LinkTarget, nullptr);
 
 			if (Res == STATUS_SUCCESS)
 			{
 				TargetPath.Copy(LinkTarget.Buffer, LinkTarget.Length / sizeof(wchar_t));
 			}
 
-			ifn.NtClose(hSymLink);
+			Global->ifn->NtClose(hSymLink);
 
 			if (PathStartsWith(NtPath, TargetPath))
 				return static_cast<int>(TargetPath.GetLength());
@@ -719,7 +719,9 @@ int MatchNtPathRoot(const string &NtPath, const string& DeviceName)
 	return 0;
 }
 
-SELF_TEST(
+void TestPathParser()
+{
+#ifdef _DEBUG
     assert(ExtractPathRoot(L"") == L"");
     assert(ExtractPathRoot(L"\\") == L"");
     assert(ExtractPathRoot(L"file") == L"");
@@ -793,4 +795,5 @@ SELF_TEST(
     assert(!PathStartsWith(L"C:\\path\\file", L"C:\\pat"));
     assert(PathStartsWith(L"\\", L""));
     assert(!PathStartsWith(L"C:\\path\\file", L""));
-)
+#endif
+}

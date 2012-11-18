@@ -94,7 +94,7 @@ BOOL Clipboard::Open()
 		return FALSE;
 	}
 
-	return OpenClipboard(Console.GetWindow());
+	return OpenClipboard(Global->Console->GetWindow());
 }
 
 BOOL Clipboard::Close()

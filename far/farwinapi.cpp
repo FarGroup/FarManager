@@ -512,7 +512,7 @@ bool File::IoControl(DWORD IoControlCode, LPVOID InBuffer, DWORD InBufferSize, L
 
 bool File::GetStorageDependencyInformation(GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
 {
-	DWORD Result = ifn.GetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
+	DWORD Result = Global->ifn->GetStorageDependencyInformation(Handle, Flags, StorageDependencyInfoSize, StorageDependencyInfo, SizeUsed);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
@@ -529,8 +529,8 @@ bool File::NtQueryDirectoryFile(PVOID FileInformation, ULONG Length, FILE_INFORM
 		NameString.MaximumLength = NameString.Length;
 		pNameString = &NameString;
 	}
-	NTSTATUS Result = ifn.NtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
-	SetLastError(ifn.RtlNtStatusToDosError(Result));
+	NTSTATUS Result = Global->ifn->NtQueryDirectoryFile(Handle, nullptr, nullptr, nullptr, &IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, pNameString, RestartScan);
+	SetLastError(Global->ifn->RtlNtStatusToDosError(Result));
 	if(Status)
 	{
 		*Status = Result;
@@ -669,7 +669,7 @@ int FileWalker::GetPercent() const
 
 NTSTATUS GetLastNtStatus()
 {
-	return ifn.RtlGetLastNtStatusPresent()?ifn.RtlGetLastNtStatus():STATUS_SUCCESS;
+	return Global->ifn->RtlGetLastNtStatusPresent()?Global->ifn->RtlGetLastNtStatus():STATUS_SUCCESS;
 }
 
 BOOL apiDeleteFile(const string& FileName)
@@ -678,7 +678,7 @@ BOOL apiDeleteFile(const string& FileName)
 	BOOL Result = DeleteFile(strNtName);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Elevation.fDeleteFile(strNtName);
+		Result = Global->Elevation->fDeleteFile(strNtName);
 	}
 	return Result;
 }
@@ -689,7 +689,7 @@ BOOL apiRemoveDirectory(const string& DirName)
 	BOOL Result = RemoveDirectory(strNtName);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Elevation.fRemoveDirectory(strNtName);
+		Result = Global->Elevation->fRemoveDirectory(strNtName);
 	}
 	return Result;
 }
@@ -716,7 +716,7 @@ HANDLE apiCreateFile(const string& Object, DWORD DesiredAccess, DWORD ShareMode,
 		{
 			CloseHandle(Handle);
 		}
-		Handle = Elevation.fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
+		Handle = Global->Elevation->fCreateFile(strObject, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
 	}
 	return Handle;
 }
@@ -742,7 +742,7 @@ BOOL apiCopyFileEx(
 			SetLastError(ERROR_FILE_EXISTS);
 
 		else if (ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
-			Result = Elevation.fCopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
+			Result = Global->Elevation->fCopyFileEx(strFrom, strTo, lpProgressRoutine, lpData, pbCancel, dwCopyFlags);
 	}
 	return Result;
 }
@@ -760,7 +760,7 @@ BOOL apiMoveFile(
 	BOOL Result = MoveFile(strFrom, strTo);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST)) //BUGBUG, really unknown
 	{
-		Result = Elevation.fMoveFileEx(strFrom, strTo, 0);
+		Result = Global->Elevation->fMoveFileEx(strFrom, strTo, 0);
 	}
 	return Result;
 }
@@ -788,7 +788,7 @@ BOOL apiMoveFileEx(
 			if (f!=INVALID_FILE_ATTRIBUTES && t!=INVALID_FILE_ATTRIBUTES && 0==(f & FILE_ATTRIBUTE_DIRECTORY) && 0!=(t & FILE_ATTRIBUTE_DIRECTORY))
 				SetLastError(ERROR_FILE_EXISTS); // existing directory name == moved file name
 			else
-				Result = Elevation.fMoveFileEx(strFrom, strTo, dwFlags);
+				Result = Global->Elevation->fMoveFileEx(strFrom, strTo, dwFlags);
 		}
 	}
 	return Result;
@@ -936,11 +936,11 @@ DWORD apiGetModuleFileNameEx(HANDLE hProcess, HMODULE hModule, string &strFileNa
 		lpwszFileName = (wchar_t*)xf_realloc_nomove(lpwszFileName, dwBufferSize*sizeof(wchar_t));
 		if (hProcess)
 		{
-			if (ifn.QueryFullProcessImageNameWPresent() && !hModule)
+			if (Global->ifn->QueryFullProcessImageNameWPresent() && !hModule)
 			{
 				DWORD sz = dwBufferSize;
 				dwSize = 0;
-				if (ifn.QueryFullProcessImageNameW(hProcess, 0, lpwszFileName, &sz))
+				if (Global->ifn->QueryFullProcessImageNameW(hProcess, 0, lpwszFileName, &sz))
 				{
 					dwSize = sz;
 				}
@@ -1178,9 +1178,9 @@ HANDLE apiFindFirstFileName(const string& FileName, DWORD dwFlags, string& LinkN
 	HANDLE hRet=INVALID_HANDLE_VALUE;
 	DWORD StringLength=0;
 	NTPath NtFileName(FileName);
-	if (ifn.FindFirstFileNameW(NtFileName, 0, &StringLength, nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
+	if (Global->ifn->FindFirstFileNameW(NtFileName, 0, &StringLength, nullptr)==INVALID_HANDLE_VALUE && GetLastError()==ERROR_MORE_DATA)
 	{
-		hRet=ifn.FindFirstFileNameW(NtFileName, 0, &StringLength, LinkName.GetBuffer(StringLength));
+		hRet=Global->ifn->FindFirstFileNameW(NtFileName, 0, &StringLength, LinkName.GetBuffer(StringLength));
 		LinkName.ReleaseBuffer();
 	}
 	return hRet;
@@ -1190,9 +1190,9 @@ BOOL apiFindNextFileName(HANDLE hFindStream, string& LinkName)
 {
 	BOOL Ret=FALSE;
 	DWORD StringLength=0;
-	if (!ifn.FindNextFileNameW(hFindStream, &StringLength, nullptr) && GetLastError()==ERROR_MORE_DATA)
+	if (!Global->ifn->FindNextFileNameW(hFindStream, &StringLength, nullptr) && GetLastError()==ERROR_MORE_DATA)
 	{
-		Ret=ifn.FindNextFileNameW(hFindStream, &StringLength, LinkName.GetBuffer(StringLength));
+		Ret=Global->ifn->FindNextFileNameW(hFindStream, &StringLength, LinkName.GetBuffer(StringLength));
 		LinkName.ReleaseBuffer();
 	}
 	return Ret;
@@ -1213,7 +1213,7 @@ BOOL apiCreateDirectoryEx(const string& TemplateDirectory, const string& NewDire
 		Result = NtTemplateDirectory.IsEmpty()?CreateDirectory(NtNewDirectory, SecurityAttributes):CreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
 		if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 		{
-			Result = Elevation.fCreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
+			Result = Global->Elevation->fCreateDirectoryEx(NtTemplateDirectory, NtNewDirectory, SecurityAttributes);
 		}
 		if(!Result)
 		{
@@ -1230,7 +1230,7 @@ DWORD apiGetFileAttributes(const string& FileName)
 	DWORD Result = GetFileAttributes(NtName);
 	if(Result == INVALID_FILE_ATTRIBUTES && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
-		Result = Elevation.fGetFileAttributes(NtName);
+		Result = Global->Elevation->fGetFileAttributes(NtName);
 	}
 	return Result;
 }
@@ -1241,7 +1241,7 @@ BOOL apiSetFileAttributes(const string& FileName,DWORD dwFileAttributes)
 	BOOL Result = SetFileAttributes(NtName, dwFileAttributes);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Elevation.fSetFileAttributes(NtName, dwFileAttributes);
+		Result = Global->Elevation->fSetFileAttributes(NtName, dwFileAttributes);
 	}
 	return Result;
 
@@ -1249,8 +1249,8 @@ BOOL apiSetFileAttributes(const string& FileName,DWORD dwFileAttributes)
 
 bool CreateSymbolicLinkInternal(const string& Object, const string& Target, DWORD dwFlags)
 {
-	return ifn.CreateSymbolicLinkWPresent()?
-		(ifn.CreateSymbolicLink(Object, Target, dwFlags) != FALSE) :
+	return Global->ifn->CreateSymbolicLinkWPresent()?
+		(Global->ifn->CreateSymbolicLink(Object, Target, dwFlags) != FALSE) :
 		CreateReparsePoint(Target, Object, dwFlags&SYMBOLIC_LINK_FLAG_DIRECTORY?RP_SYMLINKDIR:RP_SYMLINKFILE);
 }
 
@@ -1261,7 +1261,7 @@ bool apiCreateSymbolicLink(const string& SymlinkFileName, const string& TargetFi
 	Result=CreateSymbolicLinkInternal(NtSymlinkFileName, TargetFileName, dwFlags);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result=Elevation.fCreateSymbolicLink(NtSymlinkFileName, TargetFileName, dwFlags);
+		Result=Global->Elevation->fCreateSymbolicLink(NtSymlinkFileName, TargetFileName, dwFlags);
 	}
 	return Result;
 }
@@ -1278,7 +1278,7 @@ bool apiSetFileEncryption(const string& Name, bool Encrypt)
 	Result = apiSetFileEncryptionInternal(NtName, Encrypt);
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST, false)) // Encryption implemented in advapi32, NtStatus not affected
 	{
-		Result=Elevation.fSetFileEncryption(NtName, Encrypt);
+		Result=Global->Elevation->fSetFileEncryption(NtName, Encrypt);
 	}
 	return Result;
 }
@@ -1288,7 +1288,7 @@ bool CreateHardLinkInternal(const string& Object, const string& Target,LPSECURIT
 	bool Result = CreateHardLink(Object, Target, SecurityAttributes) != FALSE;
 	if(!Result && ElevationRequired(ELEVATION_MODIFY_REQUEST))
 	{
-		Result = Elevation.fCreateHardLink(Object, Target, SecurityAttributes);
+		Result = Global->Elevation->fCreateHardLink(Object, Target, SecurityAttributes);
 	}
 	return Result;
 }
@@ -1303,9 +1303,9 @@ BOOL apiCreateHardLink(const string& FileName, const string& ExistingFileName, L
 HANDLE apiFindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LPVOID lpFindStreamData,DWORD dwFlags)
 {
 	HANDLE Ret=INVALID_HANDLE_VALUE;
-	if(ifn.FindFirstStreamWPresent())
+	if(Global->ifn->FindFirstStreamWPresent())
 	{
-		Ret=ifn.FindFirstStreamW(NTPath(FileName),InfoLevel,lpFindStreamData,dwFlags);
+		Ret=Global->ifn->FindFirstStreamW(NTPath(FileName),InfoLevel,lpFindStreamData,dwFlags);
 	}
 	else
 	{
@@ -1335,7 +1335,7 @@ HANDLE apiFindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LP
 							StreamInfo->StreamNameLength = 0;
 
 							IO_STATUS_BLOCK IoStatusBlock;
-							Result = ifn.NtQueryInformationFile(Handle->ObjectHandle, &IoStatusBlock, Handle->BufferBase, Handle->BufferSize, FileStreamInformation);
+							Result = Global->ifn->NtQueryInformationFile(Handle->ObjectHandle, &IoStatusBlock, Handle->BufferBase, Handle->BufferSize, FileStreamInformation);
 						}
 					}
 					while(Result == STATUS_BUFFER_OVERFLOW || Result == STATUS_BUFFER_TOO_SMALL);
@@ -1375,9 +1375,9 @@ HANDLE apiFindFirstStream(const string& FileName,STREAM_INFO_LEVELS InfoLevel,LP
 BOOL apiFindNextStream(HANDLE hFindStream,LPVOID lpFindStreamData)
 {
 	BOOL Ret=FALSE;
-	if(ifn.FindFirstStreamWPresent())
+	if(Global->ifn->FindFirstStreamWPresent())
 	{
-		Ret=ifn.FindNextStreamW(hFindStream,lpFindStreamData);
+		Ret=Global->ifn->FindNextStreamW(hFindStream,lpFindStreamData);
 	}
 	else
 	{
@@ -1405,7 +1405,7 @@ BOOL apiFindStreamClose(HANDLE hFindStream)
 {
 	BOOL Ret=FALSE;
 
-	if(ifn.FindFirstStreamWPresent())
+	if(Global->ifn->FindFirstStreamWPresent())
 	{
 		Ret=FindClose(hFindStream);
 	}
@@ -1445,13 +1445,13 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 	ULONG RetLen;
 	ULONG BufSize = NT_MAX_PATH;
 	OBJECT_NAME_INFORMATION* oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_malloc(BufSize));
-	NTSTATUS Res = ifn.NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+	NTSTATUS Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
 
 	if (Res == STATUS_BUFFER_OVERFLOW || Res == STATUS_BUFFER_TOO_SMALL)
 	{
 		BufSize = RetLen;
 		oni = static_cast<OBJECT_NAME_INFORMATION*>(xf_realloc_nomove(oni, BufSize));
-		Res = ifn.NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
+		Res = Global->ifn->NtQueryObject(hFile, ObjectNameInformation, oni, BufSize, &RetLen);
 	}
 
 	string NtPath;
@@ -1534,15 +1534,15 @@ bool internalNtQueryGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath
 
 bool apiGetFinalPathNameByHandle(HANDLE hFile, string& FinalFilePath)
 {
-	if (ifn.GetFinalPathNameByHandleWPresent())
+	if (Global->ifn->GetFinalPathNameByHandleWPresent())
 	{
 		DWORD BufLen = NT_MAX_PATH;
-		DWORD Len = ifn.GetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
+		DWORD Len = Global->ifn->GetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
 
 		if (Len > BufLen)
 		{
 			BufLen = Len;
-			Len = ifn.GetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
+			Len = Global->ifn->GetFinalPathNameByHandle(hFile, FinalFilePath.GetBuffer(BufLen+1), BufLen, VOLUME_NAME_GUID);
 		}
 
 		if (Len <= BufLen)
@@ -1601,7 +1601,7 @@ bool apiGetVolumeNameForVolumeMountPoint(const string& VolumeMountPoint,string& 
 
 void apiEnableLowFragmentationHeap()
 {
-	if (ifn.HeapSetInformationPresent())
+	if (Global->ifn->HeapSetInformationPresent())
 	{
 		DWORD NumHeaps = 10;
 		HANDLE* Heaps = new HANDLE[NumHeaps];
@@ -1615,7 +1615,7 @@ void apiEnableLowFragmentationHeap()
 		for (DWORD i = 0; i < ActualNumHeaps; i++)
 		{
 			ULONG HeapFragValue = 2;
-			ifn.HeapSetInformation(Heaps[i], HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
+			Global->ifn->HeapSetInformation(Heaps[i], HeapCompatibilityInformation, &HeapFragValue, sizeof(HeapFragValue));
 		}
 		delete[] Heaps;
 	}
@@ -1628,8 +1628,8 @@ bool GetFileTimeEx(HANDLE Object, LPFILETIME CreationTime, LPFILETIME LastAccess
 	BYTE Buffer[Length] = {};
 	PFILE_BASIC_INFORMATION fbi = reinterpret_cast<PFILE_BASIC_INFORMATION>(Buffer);
 	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Status = ifn.NtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-	SetLastError(ifn.RtlNtStatusToDosError(Status));
+	NTSTATUS Status = Global->ifn->NtQueryInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
+	SetLastError(Global->ifn->RtlNtStatusToDosError(Status));
 	if (Status == STATUS_SUCCESS)
 	{
 		if(CreationTime)
@@ -1684,8 +1684,8 @@ bool SetFileTimeEx(HANDLE Object, const FILETIME* CreationTime, const FILETIME* 
 		fbi->ChangeTime.LowPart = ChangeTime->dwLowDateTime;
 	}
 	IO_STATUS_BLOCK IoStatusBlock;
-	NTSTATUS Status = ifn.NtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
-	SetLastError(ifn.RtlNtStatusToDosError(Status));
+	NTSTATUS Status = Global->ifn->NtSetInformationFile(Object, &IoStatusBlock, fbi, Length, FileBasicInformation);
+	SetLastError(Global->ifn->RtlNtStatusToDosError(Status));
 	Result = Status == STATUS_SUCCESS;
 	return Result;
 }
@@ -1822,7 +1822,7 @@ bool apiSetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInfo
 
 bool apiOpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle)
 {
-	DWORD Result = ifn.OpenVirtualDisk(&VirtualStorageType, Object, VirtualDiskAccessMask, Flags, &Parameters, &Handle);
+	DWORD Result = Global->ifn->OpenVirtualDisk(&VirtualStorageType, Object, VirtualDiskAccessMask, Flags, &Parameters, &Handle);
 	SetLastError(Result);
 	return Result == ERROR_SUCCESS;
 }
@@ -1832,7 +1832,38 @@ bool apiOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& 
 	bool Result = apiOpenVirtualDiskInternal(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
 	if(!Result && ElevationRequired(ELEVATION_READ_REQUEST))
 	{
-		Result = Elevation.fOpenVirtualDisk(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
+		Result = Global->Elevation->fOpenVirtualDisk(VirtualStorageType, NtObject, VirtualDiskAccessMask, Flags, Parameters, Handle);
 	}
 	return Result;
+}
+
+class ThreadParam
+{
+public:
+	ThreadParam(ThreadOwner* Owner, ThreadHandlerFunction HandlerFunction, void* Parameter):
+		m_Owner(Owner),
+		m_HandlerFunction(HandlerFunction),
+		m_Parameter(Parameter)
+	{}
+	ThreadOwner* Owner() {return m_Owner;}
+	ThreadHandlerFunction HandlerFunction() {return m_HandlerFunction;}
+	void* Parameter() {return m_Parameter;}
+private:
+	ThreadOwner* m_Owner;
+	ThreadHandlerFunction m_HandlerFunction;
+	void* m_Parameter;
+};
+
+unsigned int WINAPI ThreadHandler(void* Parameter)
+{
+	ThreadParam* Param = reinterpret_cast<ThreadParam*>(Parameter);
+	DWORD Result = (Param->Owner()->*Param->HandlerFunction())(Param->Parameter());
+	delete Param;
+	return Result;
+}
+
+HANDLE apiCreateThreadImpl(LPSECURITY_ATTRIBUTES ThreadAttributes, unsigned int StackSize, ThreadOwner* Owner, ThreadHandlerFunction HandlerFunction, void* Parameter, DWORD CreationFlags, unsigned int* ThreadId)
+{
+	ThreadParam* p = new ThreadParam(Owner, HandlerFunction, Parameter);
+	return reinterpret_cast<HANDLE>(_beginthreadex(ThreadAttributes, StackSize, ThreadHandler, p, CreationFlags, ThreadId));
 }

@@ -1589,7 +1589,7 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	int SbY1 = ((BoxType!=NO_BOX)?Y1+1:Y1), SbY2=((BoxType!=NO_BOX)?Y2-1:Y2);
 	bool bShowScrollBar = false;
 
-	if (CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar)
+	if (CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar)
 		bShowScrollBar = true;
 
 	if (bShowScrollBar && MsX==X2 && ((BoxType!=NO_BOX)?Y2-Y1-1:Y2-Y1+1)<ItemCount && (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED))
@@ -1723,25 +1723,25 @@ int VMenu::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	}
 	else if (BoxType!=NO_BOX && (MouseEvent->dwButtonState & 3) && !MouseEvent->dwEventFlags)
 	{
-		int ClickOpt = (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) ? Opt.VMenu.LBtnClick : Opt.VMenu.RBtnClick;
+		int ClickOpt = (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) ? Global->Opt->VMenu.LBtnClick : Global->Opt->VMenu.RBtnClick;
 		if (ClickOpt==VMENUCLICK_CANCEL)
 			ProcessKey(KEY_ESC);
 
 		return TRUE;
 	}
-	else if (BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.LBtnClick==VMENUCLICK_APPLY))
+	else if (BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Global->Opt->VMenu.LBtnClick==VMENUCLICK_APPLY))
 	{
 		ProcessKey(KEY_ENTER);
 
 		return TRUE;
 	}
-	else if (BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.MBtnClick==VMENUCLICK_APPLY))
+	else if (BoxType!=NO_BOX && !(MouseEvent->dwButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_2ND_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Global->Opt->VMenu.MBtnClick==VMENUCLICK_APPLY))
 	{
 		ProcessKey(KEY_ENTER);
 
 		return TRUE;
 	}
-	else if (BoxType!=NO_BOX && bRightBtnPressed && !(MouseEvent->dwButtonState&RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Opt.VMenu.RBtnClick==VMENUCLICK_APPLY))
+	else if (BoxType!=NO_BOX && bRightBtnPressed && !(MouseEvent->dwButtonState&RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && !MouseEvent->dwEventFlags && (Global->Opt->VMenu.RBtnClick==VMENUCLICK_APPLY))
 	{
 		ProcessKey(KEY_ENTER);
 
@@ -2054,7 +2054,7 @@ void VMenu::DrawTitles()
 		GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y1);
 		SetColor(Colors[VMenuColorTitle]);
 
-		FS << L" " << fmt::ExactWidth(WidthTitle) << strDisplayTitle << L" ";
+		Global->FS << L" " << fmt::ExactWidth(WidthTitle) << strDisplayTitle << L" ";
 	}
 
 	if (!strBottomTitle.IsEmpty())
@@ -2067,7 +2067,7 @@ void VMenu::DrawTitles()
 		GotoXY(X1+(X2-X1-1-WidthTitle)/2,Y2);
 		SetColor(Colors[VMenuColorTitle]);
 
-		FS << L" " << fmt::ExactWidth(WidthTitle) << strBottomTitle << L" ";
+		Global->FS << L" " << fmt::ExactWidth(WidthTitle) << strBottomTitle << L" ";
 	}
 }
 
@@ -2104,7 +2104,7 @@ void VMenu::ShowMenu(bool IsParent)
 	if (/*!CheckFlags(VMENU_COMBOBOX|VMENU_LISTBOX) && */HasSubMenus)
 		MaxLineWidth -= 2; // sub menu arrow
 
-	if ((CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar) && BoxType==NO_BOX && ScrollBarRequired(Y2-Y1+1, GetShowItemCount()))
+	if ((CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar) && BoxType==NO_BOX && ScrollBarRequired(Y2-Y1+1, GetShowItemCount()))
 		MaxLineWidth -= 1; // scrollbar
 
 	if (MaxItemLength > MaxLineWidth)
@@ -2271,7 +2271,7 @@ void VMenu::ShowMenu(bool IsParent)
 						ItemWidth = X2-X1-3;
 
 					GotoXY(X1+(X2-X1-1-ItemWidth)/2,Y);
-					FS << L" " << fmt::LeftAlign() << fmt::ExactWidth(ItemWidth) << Item[I]->strName << L" ";
+					Global->FS << L" " << fmt::LeftAlign() << fmt::ExactWidth(ItemWidth) << Item[I]->strName << L" ";
 				}
 
 				strTmpStr.ReleaseBuffer();
@@ -2372,7 +2372,7 @@ void VMenu::ShowMenu(bool IsParent)
 				{
 					int Width = X2-WhereX()+(BoxType==NO_BOX?1:0);
 					if (Width > 0)
-						FS << fmt::MinWidth(Width) << L"";
+						Global->FS << fmt::MinWidth(Width) << L"";
 				}
 
 				if (Item[I]->Flags & MIF_SUBMENU)
@@ -2413,11 +2413,11 @@ void VMenu::ShowMenu(bool IsParent)
 
 			SetColor(Colors[VMenuColorText]);
 			// сделаем добавочку для NO_BOX
-			FS << fmt::MinWidth(((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+((BoxType==NO_BOX)?1:0)) << L"";
+			Global->FS << fmt::MinWidth(((BoxType!=NO_BOX)?X2-X1-1:X2-X1)+((BoxType==NO_BOX)?1:0)) << L"";
 		}
 	}
 
-	if (CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar)
+	if (CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar)
 	{
 		SetColor(Colors[VMenuColorScrollBar]);
 

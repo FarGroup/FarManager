@@ -101,7 +101,7 @@ void DizList::Read(const string& Path, const string* DizName)
 {
 	Reset();
 	TPreRedrawFuncGuard preRedrawFuncGuard(DizList::PR_ReadingMsg);
-	const wchar_t *NamePtr=Opt.Diz.strListNames;
+	const wchar_t *NamePtr=Global->Opt->Diz.strListNames;
 
 	for (;;)
 	{
@@ -136,7 +136,7 @@ void DizList::Read(const string& Path, const string* DizName)
 			bool bSigFound=false;
 
 			if (!GetFileFormat(DizFile,CodePage,&bSigFound,false) || !bSigFound)
-				CodePage = Opt.Diz.AnsiByDefault ? CP_ACP : CP_OEMCP;
+				CodePage = Global->Opt->Diz.AnsiByDefault ? CP_ACP : CP_OEMCP;
 
 			while (GetStr.GetString(&DizText, CodePage, DizLength) > 0)
 			{
@@ -448,7 +448,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 		strDizFileName = Path;
 		AddEndSlash(strDizFileName);
 		string strArgName;
-		GetCommaWord(Opt.Diz.strListNames,strArgName);
+		GetCommaWord(Global->Opt->Diz.strListNames,strArgName);
 		strDizFileName += strArgName;
 	}
 
@@ -458,7 +458,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	{
 		if (FileAttr&FILE_ATTRIBUTE_READONLY)
 		{
-			if(Opt.Diz.ROUpdate)
+			if(Global->Opt->Diz.ROUpdate)
 			{
 				if(apiSetFileAttributes(strDizFileName,FileAttr))
 				{
@@ -486,7 +486,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
 	if(DizCount && DizFile.Open(strDizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
 	{
-		uintptr_t CodePage = Opt.Diz.SaveInUTF ? CP_UTF8 : (Opt.Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
+		uintptr_t CodePage = Global->Opt->Diz.SaveInUTF ? CP_UTF8 : (Global->Opt->Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
 
 		CachedWrite Cache(DizFile);
 
@@ -548,7 +548,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	{
 		if (FileAttr==INVALID_FILE_ATTRIBUTES)
 		{
-			FileAttr=FILE_ATTRIBUTE_ARCHIVE|(Opt.Diz.SetHidden?FILE_ATTRIBUTE_HIDDEN:0);
+			FileAttr=FILE_ATTRIBUTE_ARCHIVE|(Global->Opt->Diz.SetHidden?FILE_ATTRIBUTE_HIDDEN:0);
 		}
 		apiSetFileAttributes(strDizFileName,FileAttr);
 	}
@@ -572,7 +572,7 @@ bool DizList::AddDizText(const string& Name,const string& ShortName,const string
 	DeleteDiz(Name,ShortName);
 	string strQuotedName = Name;
 	QuoteSpaceOnly(strQuotedName);
-	return AddRecord(FormatString()<<fmt::LeftAlign()<<fmt::MinWidth(Opt.Diz.StartPos>1?Opt.Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText);
+	return AddRecord(FormatString()<<fmt::LeftAlign()<<fmt::MinWidth(Global->Opt->Diz.StartPos>1?Global->Opt->Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText);
 }
 
 

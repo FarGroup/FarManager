@@ -344,14 +344,14 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 	static int LastHItem=-1,LastVItem=0;
 	int HItem,VItem;
 
-	if (Opt.Policies.DisabledOptions)
+	if (Global->Opt->Policies.DisabledOptions)
 	{
 		for (size_t I = 0; I < ARRAYSIZE(OptionsMenu); ++I)
 		{
 			if (I >= MENU_OPTIONS_CONFIRMATIONS)
-				OptionsMenu[I].SetGrayed((Opt.Policies.DisabledOptions >> (I-1)) & 1);
+				OptionsMenu[I].SetGrayed((Global->Opt->Policies.DisabledOptions >> (I-1)) & 1);
 			else
-				OptionsMenu[I].SetGrayed((Opt.Policies.DisabledOptions >> I) & 1);
+				OptionsMenu[I].SetGrayed((Global->Opt->Policies.DisabledOptions >> I) & 1);
 		}
 	}
 
@@ -604,9 +604,9 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 					if (Select(FALSE, &LangMenu))
 					{
-						Lang.Close();
+						Global->Lang->Close();
 
-						if (!Lang.Init(g_strFarPath, MNewFileName))
+						if (!Global->Lang->Init(Global->g_strFarPath, MNewFileName))
 						{
 							Message(MSG_WARNING, 1, L"Error", L"Cannot load language data", L"Ok");
 							exit(0);
@@ -615,7 +615,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 						Select(TRUE,&HelpMenu);
 						delete HelpMenu;
 						CtrlObject->Plugins->ReloadLanguage();
-						SetEnvironmentVariable(L"FARLANG",Opt.strLanguage);
+						SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage);
 						PrepareStrFTime();
 						PrepareUnitStr();
 						FrameManager->InitKeyBar();
@@ -663,10 +663,10 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					SetFolderInfoFiles();
 					break;
 				case MENU_OPTIONS_VIEWERSETTINGS:  // Viewer settings
-					ViewerConfig(Opt.ViOpt);
+					ViewerConfig(Global->Opt->ViOpt);
 					break;
 				case MENU_OPTIONS_EDITORSETTINGS:  // Editor settings
-					EditorConfig(Opt.EdOpt);
+					EditorConfig(Global->Opt->EdOpt);
 					break;
 				case MENU_OPTIONS_CODEPAGESSETTINGS: // Code pages
 					{

@@ -69,8 +69,8 @@ QuickView::QuickView():
 	if (!LastMode)
 	{
 		LastMode = true;
-		LastWrapMode = Opt.ViOpt.ViewerIsWrap;
-		LastWrapType = Opt.ViOpt.ViewerWrap;
+		LastWrapMode = Global->Opt->ViOpt.ViewerIsWrap;
+		LastWrapType = Global->Opt->ViOpt.ViewerWrap;
 	}
 }
 
@@ -122,7 +122,7 @@ void QuickView::DisplayObject()
 	DrawSeparator(Y2-2);
 	SetColor(COL_PANELTEXT);
 	GotoXY(X1+1,Y2-1);
-	FS<<fmt::LeftAlign()<<fmt::ExactWidth(X2-X1-1)<<PointToName(strCurFileName);
+	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(X2-X1-1)<<PointToName(strCurFileName);
 
 	if (!strCurFileType.IsEmpty())
 	{
@@ -202,7 +202,7 @@ void QuickView::DisplayObject()
 					break;
 				// 0x????????L = anything else
 				default:
-					if (Opt.ShowUnknownReparsePoint)
+					if (Global->Opt->ShowUnknownReparsePoint)
 					{
 						Tmp = FormatString() << L":" << fmt::Radix(16) << fmt::ExactWidth(8) << fmt::FillChar(L'0') << ReparseTag;
 						PtrName = Tmp;
@@ -545,7 +545,7 @@ void QuickView::PrintText(const wchar_t *Str)
 	if (WhereY()>Y2-3 || WhereX()>X2-2)
 		return;
 
-	FS<<fmt::MaxWidth(X2-2-WhereX()+1)<<Str;
+	Global->FS << fmt::MaxWidth(X2-2-WhereX()+1)<<Str;
 }
 
 
@@ -677,6 +677,6 @@ void QuickView::DynamicUpdateKeyBar()
 			KB->Change(KBL_SHIFT, MSG(MViewShiftF2), 2-1);
 	}
 
-	KB->ReadRegGroup(L"QView",Opt.strLanguage);
+	KB->ReadRegGroup(L"QView",Global->Opt->strLanguage);
 	KB->SetAllRegGroup();
 }

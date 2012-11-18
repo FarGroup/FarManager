@@ -62,14 +62,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "mix.hpp"
 
 CommandLine::CommandLine():
-	CmdStr(CtrlObject->Cp(),0,true,CtrlObject->CmdHistory,0,(Opt.CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_COMPLETE_HISTORY|EditControl::EC_COMPLETE_FILESYSTEM|EditControl::EC_COMPLETE_PATH),
+	CmdStr(CtrlObject->Cp(),0,true,CtrlObject->CmdHistory,0,(Global->Opt->CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_COMPLETE_HISTORY|EditControl::EC_COMPLETE_FILESYSTEM|EditControl::EC_COMPLETE_PATH),
 	BackgroundScreen(nullptr),
 	LastCmdPartLength(-1)
 {
 	CmdStr.SetEditBeyondEnd(FALSE);
 	CmdStr.SetMacroAreaAC(MACRO_SHELLAUTOCOMPLETION);
-	SetPersistentBlocks(Opt.CmdLine.EditBlock);
-	SetDelRemovesBlocks(Opt.CmdLine.DelRemovesBlocks);
+	SetPersistentBlocks(Global->Opt->CmdLine.EditBlock);
+	SetDelRemovesBlocks(Global->Opt->CmdLine.DelRemovesBlocks);
 }
 
 CommandLine::~CommandLine()
@@ -227,7 +227,7 @@ int CommandLine::ProcessKey(int Key)
 			if (Key == KEY_ESC)
 			{
 				// $ 24.09.2000 SVS - ≈сли задано поведение по "Ќесохранению при Esc", то позицию в хистори не мен€ем и ставим в первое положение.
-				if (Opt.CmdHistoryRule)
+				if (Global->Opt->CmdHistoryRule)
 					CtrlObject->CmdHistory->ResetPosition();
 
 				PStr=L"";
@@ -382,7 +382,7 @@ int CommandLine::ProcessKey(int Key)
 
 			ActivePanel->SetCurPath();
 
-			if (!(Opt.ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
+			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
 				CtrlObject->CmdHistory->AddToHistory(strStr);
 
 			ProcessOSAliases(strStr);
@@ -401,7 +401,7 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_OP_XLAT:
 		{
 			// 13.12.2000 SVS - ! ƒл€ CmdLine - если нет выделени€, преобразуем всю строку (XLat)
-			CmdStr.Xlat(Opt.XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
+			CmdStr.Xlat(Global->Opt->XLat.Flags&XLAT_CONVERTALLCMDLINE?TRUE:FALSE);
 
 			// иначе неправильно работает ctrl-end
 			strLastCmdStr = CmdStr.GetStringAddr();
@@ -425,7 +425,7 @@ int CommandLine::ProcessKey(int Key)
 		default:
 
 			//   —брасываем выделение на некоторых клавишах
-			if (!Opt.CmdLine.EditBlock)
+			if (!Global->Opt->CmdLine.EditBlock)
 			{
 				static int UnmarkKeys[]=
 				{
@@ -523,10 +523,10 @@ int CommandLine::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 void CommandLine::GetPrompt(string &strDestStr)
 {
-	if (Opt.CmdLine.UsePromptFormat)
+	if (Global->Opt->CmdLine.UsePromptFormat)
 	{
 		string strFormatStr, strExpandedFormatStr;
-		strFormatStr = Opt.CmdLine.strPromptFormat.Get();
+		strFormatStr = Global->Opt->CmdLine.strPromptFormat.Get();
 		apiExpandEnvironmentStrings(strFormatStr, strExpandedFormatStr);
 		const wchar_t *Format=strExpandedFormatStr;
 		wchar_t ChrFmt[][2]=
@@ -592,7 +592,7 @@ void CommandLine::GetPrompt(string &strDestStr)
 						{
 							wchar_t lb=*++Format;
 							wchar_t rb=*++Format;
-							if ( Opt.IsUserAdmin )
+							if ( Global->Opt->IsUserAdmin )
 							{
 								strDestStr += lb;
 								strDestStr += MSG(MConfigCmdlinePromptFormatAdmin);
@@ -660,7 +660,7 @@ void CommandLine::ShowViewEditHistory()
 		if (SelectType!=2)
 			CtrlObject->ViewHistory->AddToHistory(strStr,Type);
 
-		CtrlObject->ViewHistory->SetAddMode(false,Opt.FlagPosixSemantics?1:2,true);
+		CtrlObject->ViewHistory->SetAddMode(false,Global->Opt->FlagPosixSemantics?1:2,true);
 
 		switch (Type)
 		{
@@ -700,7 +700,7 @@ void CommandLine::ShowViewEditHistory()
 			}
 		}
 
-		CtrlObject->ViewHistory->SetAddMode(true,Opt.FlagPosixSemantics?1:2,true);
+		CtrlObject->ViewHistory->SetAddMode(true,Global->Opt->FlagPosixSemantics?1:2,true);
 	}
 	else if (SelectType==3) // скинуть из истории в ком.строку?
 		SetString(strStr);
@@ -742,6 +742,6 @@ void CommandLine::CorrectRealScreenCoord()
 
 void CommandLine::ResizeConsole()
 {
-	BackgroundScreen->Resize(ScrX+1,ScrY+1,2,Opt.WindowMode!=FALSE);
+	BackgroundScreen->Resize(ScrX+1,ScrY+1,2,Global->Opt->WindowMode!=FALSE);
 //  this->DisplayObject();
 }

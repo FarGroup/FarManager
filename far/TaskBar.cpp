@@ -36,8 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TaskBar.hpp"
 #include "console.hpp"
 
-TaskBarCore TBC;
-
 TaskBarCore::TaskBarCore():
 	State(TBPF_NOPROGRESS),
 	pTaskbarList(nullptr)
@@ -82,7 +80,7 @@ void TaskBarCore::SetProgressState(TBPFLAG tbpFlags)
 	if (pTaskbarList)
 	{
 		State=tbpFlags;
-		pTaskbarList->SetProgressState(Console.GetWindow(),tbpFlags);
+		pTaskbarList->SetProgressState(Global->Console->GetWindow(),tbpFlags);
 	}
 }
 
@@ -91,7 +89,7 @@ void TaskBarCore::SetProgressValue(UINT64 Completed, UINT64 Total)
 	if (pTaskbarList)
 	{
 		State=TBPF_NORMAL;
-		pTaskbarList->SetProgressValue(Console.GetWindow(),Completed,Total);
+		pTaskbarList->SetProgressValue(Global->Console->GetWindow(),Completed,Total);
 	}
 }
 
@@ -104,11 +102,11 @@ void TaskBarCore::Flash()
 {
 	WINDOWINFO WI={sizeof(WI)};
 
-	if (GetWindowInfo(Console.GetWindow(),&WI))
+	if (GetWindowInfo(Global->Console->GetWindow(),&WI))
 	{
 		if (WI.dwWindowStatus!=WS_ACTIVECAPTION)
 		{
-			FLASHWINFO FWI={sizeof(FWI),Console.GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,5,0};
+			FLASHWINFO FWI={sizeof(FWI),Global->Console->GetWindow(),FLASHW_ALL|FLASHW_TIMERNOFG,5,0};
 			FlashWindowEx(&FWI);
 		}
 	}
@@ -119,20 +117,20 @@ void TaskBarCore::Flash()
 TaskBar::TaskBar(bool EndFlash):
 	EndFlash(EndFlash)
 {
-	if (TBC.GetProgressState()!=TBPF_INDETERMINATE)
+	if (Global->TBC->GetProgressState()!=TBPF_INDETERMINATE)
 	{
-		TBC.SetProgressState(TBPF_INDETERMINATE);
+		Global->TBC->SetProgressState(TBPF_INDETERMINATE);
 	}
 }
 
 TaskBar::~TaskBar()
 {
-	if (TBC.GetProgressState()!=TBPF_NOPROGRESS)
+	if (Global->TBC->GetProgressState()!=TBPF_NOPROGRESS)
 	{
-		TBC.SetProgressState(TBPF_NOPROGRESS);
+		Global->TBC->SetProgressState(TBPF_NOPROGRESS);
 	}
 	if(EndFlash)
 	{
-		TBC.Flash();
+		Global->TBC->Flash();
 	}
 }

@@ -102,5 +102,3 @@ private:
 	HMODULE hVirtDisk;
 	HMODULE hRstrtMgr;
 };
-
-extern ImportedFunctions ifn;

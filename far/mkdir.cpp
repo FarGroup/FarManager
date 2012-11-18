@@ -83,18 +83,18 @@ intptr_t WINAPI MkDirDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Para
 			if (Param1==MKDIR_OK)
 			{
 				string strDirName=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MKDIR_EDIT,0));
-				Opt.MultiMakeDir=(SendDlgMessage(hDlg,DM_GETCHECK,MKDIR_CHECKBOX,0)==BSTATE_CHECKED);
+				Global->Opt->MultiMakeDir=(SendDlgMessage(hDlg,DM_GETCHECK,MKDIR_CHECKBOX,0)==BSTATE_CHECKED);
 
 				// это по поводу создания одиночного каталога, который
 				// начинается с пробела! Чтобы ручками не заключать
 				// такой каталог в кавычки
-				if (Opt.MultiMakeDir && !wcspbrk(strDirName,L";,\""))
+				if (Global->Opt->MultiMakeDir && !wcspbrk(strDirName,L";,\""))
 				{
 					QuoteSpaceOnly(strDirName);
 				}
 
 				// нужно создать только ОДИН каталог
-				if (!Opt.MultiMakeDir)
+				if (!Global->Opt->MultiMakeDir)
 				{
 					// уберем все лишние кавычки
 					Unquote(strDirName);
@@ -140,7 +140,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		{DI_COMBOBOX,20,5,70,5,0,nullptr,nullptr,DIF_DROPDOWNLIST|DIF_LISTNOAMPERSAND|DIF_LISTWRAPMODE,L""},
 		{DI_TEXT,     5,6, 0,6,0,nullptr,nullptr,0,MSG(MMakeFolderLinkTarget)},
 		{DI_EDIT,    20,6,70,6,0,L"NewFolderLinkTarget",nullptr,DIF_DISABLE|DIF_EDITEXPAND|DIF_HISTORY|DIF_USELASTHISTORY|DIF_EDITPATH,L""},
-		{DI_CHECKBOX, 5,7, 0,7,Opt.MultiMakeDir,nullptr,nullptr,0,MSG(MMultiMakeDir)},
+		{DI_CHECKBOX, 5,7, 0,7,Global->Opt->MultiMakeDir,nullptr,nullptr,0,MSG(MMultiMakeDir)},
 		{DI_TEXT,     0,8, 0,8,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,   0,9, 0,9,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MCancel)},
@@ -167,7 +167,7 @@ void ShellMakeDir(Panel *SrcPanel)
 			strOriginalDirName = strDirName;
 
 			//Unquote(DirName);
-			if (Opt.CreateUppercaseFolders && !IsCaseMixed(strDirName))
+			if (Global->Opt->CreateUppercaseFolders && !IsCaseMixed(strDirName))
 				strDirName.Upper();
 
 			DeleteEndSlash(strDirName,true);

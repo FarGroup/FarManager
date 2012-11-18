@@ -117,5 +117,3 @@ public:
 private:
 	class ConsoleCore* Core;
 };
-
-extern console Console;

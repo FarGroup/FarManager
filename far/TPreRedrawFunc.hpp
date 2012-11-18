@@ -104,9 +104,6 @@ class TPreRedrawFunc
 
 };
 
-extern TPreRedrawFunc PreRedraw;
-
-
 class TPreRedrawFuncGuard
 {
 	public:

@@ -123,8 +123,8 @@ static void RefreshHotplugMenu(DeviceInfo*& pInfo,VMenu2& HotPlugList)
 
 void ShowHotplugDevice()
 {
-	Events.DeviceArivalEvent.Reset();
-	Events.DeviceRemoveEvent.Reset();
+	Global->Window->DeviceArivalEvent().Reset();
+	Global->Window->DeviceRemoveEvent().Reset();
 
 	DeviceInfo *pInfo=nullptr;
 	VMenu2 HotPlugList(MSG(MHotPlugListTitle),nullptr,0,ScrY-4);
@@ -136,7 +136,7 @@ void ShowHotplugDevice()
 
 	HotPlugList.Run([&](int Key)->int
 	{
-		if(Key==KEY_NONE && (Events.DeviceArivalEvent.Signaled() || Events.DeviceRemoveEvent.Signaled()))
+		if(Key==KEY_NONE && (Global->Window->DeviceArivalEvent().Signaled() || Global->Window->DeviceRemoveEvent().Signaled()))
 			Key=KEY_CTRLR;
 
 		int KeyProcessed = 1;
@@ -553,7 +553,7 @@ int RemoveHotplugDevice(DEVINST hDevInst,DWORD dwDriveMask,DWORD Flags)
 	RemoveExternalSpaces(strDescription);
 	int DoneEject=0;
 
-	if (!(Flags&EJECT_NO_MESSAGE) && Opt.Confirm.RemoveHotPlug)
+	if (!(Flags&EJECT_NO_MESSAGE) && Global->Opt->Confirm.RemoveHotPlug)
 	{
 		wchar_t Disks[256], *pDisk=Disks;
 		*pDisk=0;

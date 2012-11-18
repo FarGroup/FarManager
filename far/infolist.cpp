@@ -73,7 +73,7 @@ InfoList::InfoList():
 {
 	Type=INFO_PANEL;
 
-	if (Opt.InfoPanel.strShowStatusInfo.GetLength() == 0)
+	if (Global->Opt->InfoPanel.strShowStatusInfo.GetLength() == 0)
 	{
 		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
 			SectionState[i].Show=true;
@@ -81,15 +81,15 @@ InfoList::InfoList():
 	else
 	{
 		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
-			SectionState[i].Show=Opt.InfoPanel.strShowStatusInfo.At(i) == '0'?false:true;
+			SectionState[i].Show=Global->Opt->InfoPanel.strShowStatusInfo.At(i) == '0'?false:true;
 	}
 
 	if (!LastMode)
 	{
 		LastMode = true;
-		LastDizWrapMode = Opt.ViOpt.ViewerIsWrap;
-		LastDizWrapType = Opt.ViOpt.ViewerWrap;
-		LastDizShowScrollbar = Opt.ViOpt.ShowScrollbar;
+		LastDizWrapMode = Global->Opt->ViOpt.ViewerIsWrap;
+		LastDizWrapType = Global->Opt->ViOpt.ViewerWrap;
+		LastDizShowScrollbar = Global->Opt->ViOpt.ShowScrollbar;
 	}
 }
 
@@ -167,7 +167,7 @@ void InfoList::DisplayObject()
 		string strComputerName, strUserName;
 		DWORD dwSize = 256; //MAX_COMPUTERNAME_LENGTH+1;
 		wchar_t *ComputerName = strComputerName.GetBuffer(dwSize);
-		if (Opt.InfoPanel.ComputerNameFormat == ComputerNamePhysicalNetBIOS || !GetComputerNameEx(static_cast<COMPUTER_NAME_FORMAT>(Opt.InfoPanel.ComputerNameFormat.Get()), ComputerName, &dwSize))
+		if (Global->Opt->InfoPanel.ComputerNameFormat == ComputerNamePhysicalNetBIOS || !GetComputerNameEx(static_cast<COMPUTER_NAME_FORMAT>(Global->Opt->InfoPanel.ComputerNameFormat.Get()), ComputerName, &dwSize))
 		{
 			dwSize = MAX_COMPUTERNAME_LENGTH+1;
 			GetComputerName(ComputerName, &dwSize);  // retrieves only the NetBIOS name of the local computer
@@ -193,7 +193,7 @@ void InfoList::DisplayObject()
 
 		dwSize = UNLEN+1;
 		wchar_t *UserName = strUserName.GetBuffer(dwSize);
-		if (Opt.InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(static_cast<EXTENDED_NAME_FORMAT>(Opt.InfoPanel.UserNameFormat.Get()), UserName, &dwSize))
+		if (Global->Opt->InfoPanel.UserNameFormat == NameUnknown || !GetUserNameEx(static_cast<EXTENDED_NAME_FORMAT>(Global->Opt->InfoPanel.UserNameFormat.Get()), UserName, &dwSize))
 		{
 			dwSize = UNLEN+1;
 			GetUserName(UserName, &dwSize);
@@ -270,7 +270,7 @@ void InfoList::DisplayObject()
 		                            &strFileSystemName))
 		{
 			LNGID IdxMsgID=MInfoUnknown;
-			int DriveType=FAR_GetDriveType(strDriveRoot,nullptr,Opt.InfoPanel.ShowCDInfo);
+			int DriveType=FAR_GetDriveType(strDriveRoot,nullptr,Global->Opt->InfoPanel.ShowCDInfo);
 
 			switch (DriveType)
 			{
@@ -388,7 +388,7 @@ void InfoList::DisplayObject()
 			PrintInfo(strOutStr);
 
 			ULONGLONG TotalMemoryInKilobytes=0;
-			if(ifn.GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
+			if(Global->ifn->GetPhysicallyInstalledSystemMemory(&TotalMemoryInKilobytes))
 			{
 				GotoXY(X1+2,CurY++);
 				PrintText(MInfoMemoryInstalled);
@@ -429,7 +429,7 @@ void InfoList::DisplayObject()
 	}
 
 	/* #4 - power status */
-	if (Opt.InfoPanel.ShowPowerStatus)
+	if (Global->Opt->InfoPanel.ShowPowerStatus)
 	{
 		strTitle = MSG(MInfoPowerStatus);
 		DrawTitle(strTitle,ILSS_POWERSTATUS,CurY);
@@ -578,7 +578,7 @@ void InfoList::SelectShowMode(void)
 	for (size_t i=0; i<ARRAYSIZE(SectionState); i++)
 		ShowModeMenuItem[i].SetCheck( SectionState[i].Show ? L'+':L'-');
 
-	if (!Opt.InfoPanel.ShowPowerStatus)
+	if (!Global->Opt->InfoPanel.ShowPowerStatus)
 	{
 		ShowModeMenuItem[ILSS_POWERSTATUS].SetDisable(TRUE);
 		ShowModeMenuItem[ILSS_POWERSTATUS].SetCheck(L' ');
@@ -645,9 +645,9 @@ void InfoList::SelectShowMode(void)
 				SectionState[ShowCode].Show=!SectionState[ShowCode].Show;
 				break;
 		}
-		Opt.InfoPanel.strShowStatusInfo=L"";
+		Global->Opt->InfoPanel.strShowStatusInfo=L"";
 		for (size_t i=0; i < ARRAYSIZE(SectionState); ++i)
-			Opt.InfoPanel.strShowStatusInfo += SectionState[i].Show?L'1':L'0';
+			Global->Opt->InfoPanel.strShowStatusInfo += SectionState[i].Show?L'1':L'0';
 
 		Redraw();
 	}
@@ -702,10 +702,10 @@ int InfoList::ProcessKey(int Key)
 			{
 				new FileEditor(strDizFileName,CP_DEFAULT,FFILEEDIT_ENABLEF6);
 			}
-			else if (!Opt.InfoPanel.strFolderInfoFiles.IsEmpty())
+			else if (!Global->Opt->InfoPanel.strFolderInfoFiles.IsEmpty())
 			{
 				string strArgName;
-				const wchar_t *p = Opt.InfoPanel.strFolderInfoFiles;
+				const wchar_t *p = Global->Opt->InfoPanel.strFolderInfoFiles;
 
 				while ((p = GetCommaWord(p,strArgName)) )
 				{
@@ -854,7 +854,7 @@ void InfoList::PrintText(const wchar_t *Str)
 {
 	if (WhereY()<=Y2-1)
 	{
-		FS<<fmt::MaxWidth(X2-WhereX())<<Str;
+		Global->FS << fmt::MaxWidth(X2-WhereX())<<Str;
 	}
 }
 
@@ -885,7 +885,7 @@ void InfoList::PrintInfo(const wchar_t *str)
 	{
 		GotoXY(NewX,WhereY());
 		SetColor(COL_PANELINFOTEXT);
-		FS<<strStr<<L" ";
+		Global->FS << strStr<<L" ";
 		SetColor(SaveColor);
 	}
 }
@@ -908,7 +908,7 @@ bool InfoList::ShowDirDescription(int YPos)
 		AddEndSlash(strDizDir);
 
 	string strArgName;
-	const wchar_t *NamePtr = Opt.InfoPanel.strFolderInfoFiles;
+	const wchar_t *NamePtr = Global->Opt->InfoPanel.strFolderInfoFiles;
 
 	while ((NamePtr=GetCommaWord(NamePtr,strArgName)))
 	{
@@ -950,7 +950,7 @@ bool InfoList::ShowPluginDescription(int YPos)
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
 		SetColor(COL_PANELTEXT);
-		FS<<fmt::MinWidth(X2-X1-1)<<L"";
+		Global->FS << fmt::MinWidth(X2-X1-1)<<L"";
 		SetColor(COL_PANELBOX);
 		Text(VertcalLine);
 		GotoXY(X1+2,Y);
@@ -1132,15 +1132,15 @@ void InfoList::DynamicUpdateKeyBar()
 		KB->Change(KBL_ALT, MSG(MAltF8), 8-1);  // стандартный для панели - "хистори"
 	}
 
-	KB->ReadRegGroup(L"Info",Opt.strLanguage);
+	KB->ReadRegGroup(L"Info",Global->Opt->strLanguage);
 	KB->SetAllRegGroup();
 }
 
 int InfoList::UpdateIfChanged(int UpdateMode)
 {
-	if (Opt.InfoPanel.ShowPowerStatus && SectionState[ILSS_POWERSTATUS].Show)
+	if (Global->Opt->InfoPanel.ShowPowerStatus && SectionState[ILSS_POWERSTATUS].Show)
 	{
-		if (IsVisible() && Events.PowerChangeEvent.Signaled())
+		if (IsVisible() && Global->Window->PowerChangeEvent().Signaled())
 		{
 			Redraw();
 			return TRUE;

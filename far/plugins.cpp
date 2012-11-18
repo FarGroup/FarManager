@@ -211,7 +211,7 @@ PluginType IsModulePlugin2(
 							return UNICODE_PLUGIN;
 
 #ifndef NO_WRAPPER
-					if (!bOemExports && Opt.LoadPlug.OEMPluginsSupport)
+					if (!bOemExports && Global->Opt->LoadPlug.OEMPluginsSupport)
 						for (size_t j = 0; j < ARRAYSIZE(ExportCRC32); j++)
 							if (dwCRC32 == ExportCRC32[j])
 								bOemExports=true;
@@ -441,7 +441,7 @@ Plugin* PluginManager::LoadPlugin(
 	if (!LoadToMem)
 		bResult = pPlugin->LoadFromCache(FindData);
 
-	if (!bResult && (pPlugin->CheckWorkFlags(PIWF_PRELOADED) || !Opt.LoadPlug.PluginsCacheOnly))
+	if (!bResult && (pPlugin->CheckWorkFlags(PIWF_PRELOADED) || !Global->Opt->LoadPlug.PluginsCacheOnly))
 	{
 		bResult = bDataLoaded = pPlugin->LoadData();
 	}
@@ -598,31 +598,31 @@ void PluginManager::LoadPlugins()
 	TaskBar TB(false);
 	Flags.Clear(PSIF_PLUGINSLOADDED);
 
-	if (Opt.LoadPlug.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch
+	if (Global->Opt->LoadPlug.PluginsCacheOnly)  // $ 01.09.2000 tran  '/co' switch
 	{
 		LoadPluginsFromCache();
 	}
-	else if (Opt.LoadPlug.MainPluginDir || !Opt.LoadPlug.strCustomPluginsPath.IsEmpty() || (Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty()))
+	else if (Global->Opt->LoadPlug.MainPluginDir || !Global->Opt->LoadPlug.strCustomPluginsPath.IsEmpty() || (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.IsEmpty()))
 	{
-		ScanTree ScTree(FALSE,TRUE,Opt.LoadPlug.ScanSymlinks);
+		ScanTree ScTree(FALSE,TRUE,Global->Opt->LoadPlug.ScanSymlinks);
 		UserDefinedList PluginPathList(ULF_UNIQUE);  // хранение списка каталогов
 		string strPluginsDir;
 		string strFullName;
 		FAR_FIND_DATA_EX FindData;
 
 		// сначала подготовим список
-		if (Opt.LoadPlug.MainPluginDir) // только основные и персональные?
+		if (Global->Opt->LoadPlug.MainPluginDir) // только основные и персональные?
 		{
-			strPluginsDir=g_strFarPath+PluginsFolderName;
+			strPluginsDir=Global->g_strFarPath+PluginsFolderName;
 			PluginPathList.AddItem(strPluginsDir);
 
 			// ...а персональные есть?
-			if (Opt.LoadPlug.PluginsPersonal && !Opt.LoadPlug.strPersonalPluginsPath.IsEmpty() && !(Opt.Policies.DisabledOptions&FFPOL_PERSONALPATH))
-				PluginPathList.AddItem(Opt.LoadPlug.strPersonalPluginsPath);
+			if (Global->Opt->LoadPlug.PluginsPersonal && !Global->Opt->LoadPlug.strPersonalPluginsPath.IsEmpty() && !(Global->Opt->Policies.DisabledOptions&FFPOL_PERSONALPATH))
+				PluginPathList.AddItem(Global->Opt->LoadPlug.strPersonalPluginsPath);
 		}
-		else if (!Opt.LoadPlug.strCustomPluginsPath.IsEmpty())  // только "заказные" пути?
+		else if (!Global->Opt->LoadPlug.strCustomPluginsPath.IsEmpty())  // только "заказные" пути?
 		{
-			PluginPathList.AddItem(Opt.LoadPlug.strCustomPluginsPath);
+			PluginPathList.AddItem(Global->Opt->LoadPlug.strCustomPluginsPath);
 		}
 
 		const wchar_t *NamePtr;
@@ -637,7 +637,7 @@ void PluginManager::LoadPlugins()
 
 			if (!IsAbsolutePath(strFullName))
 			{
-				strPluginsDir = g_strFarPath;
+				strPluginsDir = Global->g_strFarPath;
 				strPluginsDir += strFullName;
 				strFullName = strPluginsDir;
 			}
@@ -704,7 +704,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		HANDLE Analyse;
 	};
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-	ConsoleTitle ct(Opt.ShowCheckingFile?MSG(MCheckingFileInPlugin):nullptr);
+	ConsoleTitle ct(Global->Opt->ShowCheckingFile?MSG(MCheckingFileInPlugin):nullptr);
 	HANDLE hResult = nullptr;
 	PluginInfo *pResult = nullptr;
 	PluginInfo *pAnalyse = nullptr;
@@ -717,7 +717,7 @@ HANDLE PluginManager::OpenFilePlugin(
 		Name = &strFullName;
 	}
 
-	bool ShowMenu = Opt.PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Opt.PluginConfirm.OpenFilePlugin != 0;
+	bool ShowMenu = Global->Opt->PluginConfirm.OpenFilePlugin==BSTATE_3STATE? !(Type == OFP_NORMAL || Type == OFP_SEARCH) : Global->Opt->PluginConfirm.OpenFilePlugin != 0;
 	bool ShowWarning = (OpMode==0);
 	 //у анси плагинов OpMode нет.
 	if(Type==OFP_ALTERNATIVE) OpMode|=OPM_PGDN;
@@ -739,11 +739,11 @@ HANDLE PluginManager::OpenFilePlugin(
 		{
 			if (file.Open(*Name, FILE_READ_DATA, FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE, nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 			{
-				Info.Buffer = new BYTE[Opt.PluginMaxReadData];
+				Info.Buffer = new BYTE[Global->Opt->PluginMaxReadData];
 				if (Info.Buffer)
 				{
 					DWORD DataSize = 0;
-					if (file.Read(Info.Buffer, Opt.PluginMaxReadData, DataSize))
+					if (file.Read(Info.Buffer, Global->Opt->PluginMaxReadData, DataSize))
 					{
 						Info.BufferSize = DataSize;
 						DataRead = true;
@@ -765,7 +765,7 @@ HANDLE PluginManager::OpenFilePlugin(
 
 		if (pPlugin->HasOpenFilePlugin())
 		{
-			if (Opt.ShowCheckingFile)
+			if (Global->Opt->ShowCheckingFile)
 				ct << MSG(MCheckingFileInPlugin) << L" - [" << PointToName(pPlugin->GetModuleName()) << L"]..." << fmt::Flush();
 
 			hPlugin = pPlugin->OpenFilePlugin(Name? Name->CPtr() : nullptr, (BYTE*)Info.Buffer, Info.BufferSize, OpMode);
@@ -802,7 +802,7 @@ HANDLE PluginManager::OpenFilePlugin(
 
 	if (items.getCount() && (hResult != PANEL_STOP))
 	{
-		bool OnlyOne = (items.getCount() == 1) && !(Name && Opt.PluginConfirm.OpenFilePlugin && Opt.PluginConfirm.StandardAssociation && Opt.PluginConfirm.EvenIfOnlyOnePlugin);
+		bool OnlyOne = (items.getCount() == 1) && !(Name && Global->Opt->PluginConfirm.OpenFilePlugin && Global->Opt->PluginConfirm.StandardAssociation && Global->Opt->PluginConfirm.EvenIfOnlyOnePlugin);
 
 		if(!OnlyOne && ShowMenu)
 		{
@@ -820,7 +820,7 @@ HANDLE PluginManager::OpenFilePlugin(
 				menu.SetUserData(&handle, sizeof(handle), menu.AddItem(&mitem));
 			}
 
-			if (Opt.PluginConfirm.StandardAssociation && Type == OFP_NORMAL)
+			if (Global->Opt->PluginConfirm.StandardAssociation && Type == OFP_NORMAL)
 			{
 				mitem.Clear();
 				mitem.Flags |= MIF_SEPARATOR;
@@ -923,7 +923,7 @@ HANDLE PluginManager::OpenFindListPlugin(const PluginPanelItem *PanelItem, size_
 			handle->pPlugin = pPlugin;
 		}
 
-		if (items.getCount() && !Opt.PluginConfirm.SetFindList)
+		if (items.getCount() && !Global->Opt->PluginConfirm.SetFindList)
 			break;
 	}
 
@@ -1190,7 +1190,7 @@ int PluginManager::GetFile(
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	SaveScreen *SaveScr=nullptr;
 	int Found=FALSE;
-	KeepUserScreen=FALSE;
+	Global->KeepUserScreen=FALSE;
 
 	if (!(OpMode & OPM_FIND))
 		SaveScr = new SaveScreen; //???
@@ -1244,7 +1244,7 @@ int PluginManager::DeleteFiles(
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	SaveScreen SaveScr;
-	KeepUserScreen=FALSE;
+	Global->KeepUserScreen=FALSE;
 	int Code = ph->pPlugin->DeleteFiles(ph->hPlugin, PanelItem, ItemsNumber, OpMode);
 
 	if (Code)
@@ -1263,7 +1263,7 @@ int PluginManager::MakeDirectory(
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	SaveScreen SaveScr;
-	KeepUserScreen=FALSE;
+	Global->KeepUserScreen=FALSE;
 	int Code = ph->pPlugin->MakeDirectory(ph->hPlugin, Name, OpMode);
 
 	if (Code != -1)   //???BUGBUG
@@ -1283,7 +1283,7 @@ int PluginManager::ProcessHostFile(
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
-	KeepUserScreen=FALSE;
+	Global->KeepUserScreen=FALSE;
 	int Code = ph->pPlugin->ProcessHostFile(ph->hPlugin, PanelItem, ItemsNumber, OpMode);
 
 	if (Code)   //BUGBUG
@@ -1319,7 +1319,7 @@ int PluginManager::PutFiles(
 	PluginHandle *ph = (PluginHandle*)hPlugin;
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	SaveScreen SaveScr;
-	KeepUserScreen=FALSE;
+	Global->KeepUserScreen=FALSE;
 	int Code = ph->pPlugin->PutFiles(ph->hPlugin, PanelItem, ItemsNumber, Move, OpMode);
 
 	if (Code)   //BUGBUG
@@ -1412,7 +1412,7 @@ struct PluginMenuItemData
 void PluginManager::Configure(int StartPos)
 {
 	// Полиция 4 - Параметры внешних модулей
-	if (Opt.Policies.DisabledOptions&FFPOL_MAINMENUPLUGINS)
+	if (Global->Opt->Policies.DisabledOptions&FFPOL_MAINMENUPLUGINS)
 		return;
 
 	MACROMODEAREA PrevMacroMode = CtrlObject->Macro.GetMode();
@@ -1773,7 +1773,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 			return FALSE;
 		}
 
-		ScrBuf.Flush();
+		Global->ScrBuf->Flush();
 		item = *(PluginMenuItemData*)PluginList.GetUserData(nullptr,0,ExitCode);
 	}
 
@@ -1838,8 +1838,8 @@ void PluginManager::GetHotKeyPluginKey(Plugin *pPlugin, string &strPluginKey)
 	*/
 	strPluginKey = pPlugin->GetHotkeyName();
 #ifndef NO_WRAPPER
-	size_t FarPathLength=g_strFarPath.GetLength();
-	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName(), g_strFarPath, (int)FarPathLength))
+	size_t FarPathLength=Global->g_strFarPath.GetLength();
+	if (pPlugin->IsOemPlugin() && FarPathLength < pPlugin->GetModuleName().GetLength() && !StrCmpNI(pPlugin->GetModuleName(), Global->g_strFarPath, (int)FarPathLength))
 		strPluginKey.LShift(FarPathLength);
 #endif // NO_WRAPPER
 }
@@ -2307,7 +2307,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 			PrStart = ++PrEnd;
 		}
 
-		if (items.getCount() && !Opt.PluginConfirm.Prefix)
+		if (items.getCount() && !Global->Opt->PluginConfirm.Prefix)
 			break;
 	}
 
@@ -2376,7 +2376,7 @@ void PluginManager::ReadUserBackgound(SaveScreen *SaveScr)
 	FPanel->LeftPanel->ProcessingPluginCommand++;
 	FPanel->RightPanel->ProcessingPluginCommand++;
 
-	if (KeepUserScreen)
+	if (Global->KeepUserScreen)
 	{
 		if (SaveScr)
 			SaveScr->Discard();
@@ -2407,7 +2407,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 
 	if (pPlugin)
 	{
-		if (pPlugin->HasOpenPanel() && !ProcessException)
+		if (pPlugin->HasOpenPanel() && !Global->ProcessException)
 		{
 			HANDLE hNewPlugin=Open(pPlugin,OpenFrom,FarGuid,(intptr_t)Data);
 			bool process=false;
@@ -2458,7 +2458,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 {
 	BOOL Result=FALSE;
 
-	if (!ProcessException)
+	if (!Global->ProcessException)
 	{
 		int curType = FrameManager->GetCurrentFrame()->GetType();
 

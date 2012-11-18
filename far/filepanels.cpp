@@ -58,8 +58,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 FilePanels::FilePanels():
 	LastLeftFilePanel(0),
 	LastRightFilePanel(0),
-	LeftPanel(CreatePanel(Opt.LeftPanel.Type)),
-	RightPanel(CreatePanel(Opt.RightPanel.Type)),
+	LeftPanel(CreatePanel(Global->Opt->LeftPanel.Type)),
+	RightPanel(CreatePanel(Global->Opt->RightPanel.Type)),
 	ActivePanel(0),
 	LastLeftType(0),
 	LastRightType(0),
@@ -68,7 +68,7 @@ FilePanels::FilePanels():
 {
 	_OT(SysLog(L"[%p] FilePanels::FilePanels()", this));
 	MacroMode = MACRO_SHELL;
-	KeyBarVisible = Opt.ShowKeyBar;
+	KeyBarVisible = Global->Opt->ShowKeyBar;
 //  SetKeyBar(&MainKeyBar);
 //  _D(SysLog(L"MainKeyBar=0x%p",&MainKeyBar));
 }
@@ -77,7 +77,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 {
 	if (strSrc.IsEmpty())
 	{
-		strSrc = g_strFarPath;
+		strSrc = Global->g_strFarPath;
 		DeleteEndSlash(strSrc);
 	}
 	else
@@ -87,7 +87,7 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 
 	if (!StrCmp(strSrc,L"/"))
 	{
-		strSrc = g_strFarPath;
+		strSrc = Global->g_strFarPath;
 
 		if (IsLocalPath_FarPath)
 		{
@@ -105,31 +105,31 @@ static void PrepareOptFolder(string &strSrc, int IsLocalPath_FarPath)
 
 void FilePanels::Init(int DirCount)
 {
-	SetPanelPositions(FileList::IsModeFullScreen(Opt.LeftPanel.ViewMode),
-	                  FileList::IsModeFullScreen(Opt.RightPanel.ViewMode));
-	LeftPanel->SetViewMode(Opt.LeftPanel.ViewMode);
-	RightPanel->SetViewMode(Opt.RightPanel.ViewMode);
-	LeftPanel->SetSortMode(Opt.LeftPanel.SortMode);
-	RightPanel->SetSortMode(Opt.RightPanel.SortMode);
-	LeftPanel->SetNumericSort(Opt.LeftPanel.NumericSort);
-	RightPanel->SetNumericSort(Opt.RightPanel.NumericSort);
-	LeftPanel->SetCaseSensitiveSort(Opt.LeftPanel.CaseSensitiveSort);
-	RightPanel->SetCaseSensitiveSort(Opt.RightPanel.CaseSensitiveSort);
-	LeftPanel->SetSortOrder(Opt.LeftPanel.SortOrder);
-	RightPanel->SetSortOrder(Opt.RightPanel.SortOrder);
-	LeftPanel->SetSortGroups(Opt.LeftPanel.SortGroups);
-	RightPanel->SetSortGroups(Opt.RightPanel.SortGroups);
-	LeftPanel->SetShowShortNamesMode(Opt.LeftPanel.ShowShortNames);
-	RightPanel->SetShowShortNamesMode(Opt.RightPanel.ShowShortNames);
-	LeftPanel->SetSelectedFirstMode(Opt.LeftSelectedFirst);
-	RightPanel->SetSelectedFirstMode(Opt.RightSelectedFirst);
-	LeftPanel->SetDirectoriesFirst(Opt.LeftPanel.DirectoriesFirst);
-	RightPanel->SetDirectoriesFirst(Opt.RightPanel.DirectoriesFirst);
+	SetPanelPositions(FileList::IsModeFullScreen(Global->Opt->LeftPanel.ViewMode),
+	                  FileList::IsModeFullScreen(Global->Opt->RightPanel.ViewMode));
+	LeftPanel->SetViewMode(Global->Opt->LeftPanel.ViewMode);
+	RightPanel->SetViewMode(Global->Opt->RightPanel.ViewMode);
+	LeftPanel->SetSortMode(Global->Opt->LeftPanel.SortMode);
+	RightPanel->SetSortMode(Global->Opt->RightPanel.SortMode);
+	LeftPanel->SetNumericSort(Global->Opt->LeftPanel.NumericSort);
+	RightPanel->SetNumericSort(Global->Opt->RightPanel.NumericSort);
+	LeftPanel->SetCaseSensitiveSort(Global->Opt->LeftPanel.CaseSensitiveSort);
+	RightPanel->SetCaseSensitiveSort(Global->Opt->RightPanel.CaseSensitiveSort);
+	LeftPanel->SetSortOrder(Global->Opt->LeftPanel.SortOrder);
+	RightPanel->SetSortOrder(Global->Opt->RightPanel.SortOrder);
+	LeftPanel->SetSortGroups(Global->Opt->LeftPanel.SortGroups);
+	RightPanel->SetSortGroups(Global->Opt->RightPanel.SortGroups);
+	LeftPanel->SetShowShortNamesMode(Global->Opt->LeftPanel.ShowShortNames);
+	RightPanel->SetShowShortNamesMode(Global->Opt->RightPanel.ShowShortNames);
+	LeftPanel->SetSelectedFirstMode(Global->Opt->LeftSelectedFirst);
+	RightPanel->SetSelectedFirstMode(Global->Opt->RightSelectedFirst);
+	LeftPanel->SetDirectoriesFirst(Global->Opt->LeftPanel.DirectoriesFirst);
+	RightPanel->SetDirectoriesFirst(Global->Opt->RightPanel.DirectoriesFirst);
 	SetCanLoseFocus(TRUE);
 	Panel *PassivePanel=nullptr;
 	int PassiveIsLeftFlag=TRUE;
 
-	if (Opt.LeftPanel.Focus)
+	if (Global->Opt->LeftPanel.Focus)
 	{
 		ActivePanel=LeftPanel;
 		PassivePanel=RightPanel;
@@ -144,53 +144,53 @@ void FilePanels::Init(int DirCount)
 
 	ActivePanel->SetFocus();
 	// пытаемся избавится от зависания при запуске
-	int IsLocalPath_FarPath = ParsePath(g_strFarPath)==PATH_DRIVELETTER;
-	string strLeft = Opt.strLeftFolder.Get(), strRight = Opt.strRightFolder.Get();
+	int IsLocalPath_FarPath = ParsePath(Global->g_strFarPath)==PATH_DRIVELETTER;
+	string strLeft = Global->Opt->strLeftFolder.Get(), strRight = Global->Opt->strRightFolder.Get();
 	PrepareOptFolder(strLeft, IsLocalPath_FarPath);
 	PrepareOptFolder(strRight, IsLocalPath_FarPath);
-	Opt.strLeftFolder = strLeft;
-	Opt.strRightFolder = strRight;
+	Global->Opt->strLeftFolder = strLeft;
+	Global->Opt->strRightFolder = strRight;
 
-	if (Opt.AutoSaveSetup || !DirCount)
+	if (Global->Opt->AutoSaveSetup || !DirCount)
 	{
-		if (apiGetFileAttributes(Opt.strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
-			LeftPanel->InitCurDir(Opt.strLeftFolder);
+		if (apiGetFileAttributes(Global->Opt->strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
+			LeftPanel->InitCurDir(Global->Opt->strLeftFolder);
 
-		if (apiGetFileAttributes(Opt.strRightFolder)!=INVALID_FILE_ATTRIBUTES)
-			RightPanel->InitCurDir(Opt.strRightFolder);
+		if (apiGetFileAttributes(Global->Opt->strRightFolder)!=INVALID_FILE_ATTRIBUTES)
+			RightPanel->InitCurDir(Global->Opt->strRightFolder);
 	}
 
-	if (!Opt.AutoSaveSetup)
+	if (!Global->Opt->AutoSaveSetup)
 	{
 		if (DirCount >= 1)
 		{
 			if (ActivePanel==RightPanel)
 			{
-				if (apiGetFileAttributes(Opt.strRightFolder)!=INVALID_FILE_ATTRIBUTES)
-					RightPanel->InitCurDir(Opt.strRightFolder);
+				if (apiGetFileAttributes(Global->Opt->strRightFolder)!=INVALID_FILE_ATTRIBUTES)
+					RightPanel->InitCurDir(Global->Opt->strRightFolder);
 			}
 			else
 			{
-				if (apiGetFileAttributes(Opt.strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
-					LeftPanel->InitCurDir(Opt.strLeftFolder);
+				if (apiGetFileAttributes(Global->Opt->strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
+					LeftPanel->InitCurDir(Global->Opt->strLeftFolder);
 			}
 
 			if (DirCount == 2)
 			{
 				if (ActivePanel==LeftPanel)
 				{
-					if (apiGetFileAttributes(Opt.strRightFolder)!=INVALID_FILE_ATTRIBUTES)
-						RightPanel->InitCurDir(Opt.strRightFolder);
+					if (apiGetFileAttributes(Global->Opt->strRightFolder)!=INVALID_FILE_ATTRIBUTES)
+						RightPanel->InitCurDir(Global->Opt->strRightFolder);
 				}
 				else
 				{
-					if (apiGetFileAttributes(Opt.strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
-						LeftPanel->InitCurDir(Opt.strLeftFolder);
+					if (apiGetFileAttributes(Global->Opt->strLeftFolder)!=INVALID_FILE_ATTRIBUTES)
+						LeftPanel->InitCurDir(Global->Opt->strLeftFolder);
 				}
 			}
 		}
 
-		const string& PassiveFolder=PassiveIsLeftFlag?Opt.strLeftFolder:Opt.strRightFolder;
+		const string& PassiveFolder=PassiveIsLeftFlag?Global->Opt->strLeftFolder:Global->Opt->strRightFolder;
 
 		if (DirCount < 2 && *PassiveFolder && (apiGetFileAttributes(PassiveFolder)!=INVALID_FILE_ATTRIBUTES))
 		{
@@ -203,24 +203,24 @@ void FilePanels::Init(int DirCount)
 	//! Вначале "показываем" пассивную панель
 	if (PassiveIsLeftFlag)
 	{
-		if (Opt.LeftPanel.Visible)
+		if (Global->Opt->LeftPanel.Visible)
 		{
 			LeftPanel->Show();
 		}
 
-		if (Opt.RightPanel.Visible)
+		if (Global->Opt->RightPanel.Visible)
 		{
 			RightPanel->Show();
 		}
 	}
 	else
 	{
-		if (Opt.RightPanel.Visible)
+		if (Global->Opt->RightPanel.Visible)
 		{
 			RightPanel->Show();
 		}
 
-		if (Opt.LeftPanel.Visible)
+		if (Global->Opt->LeftPanel.Visible)
 		{
 			LeftPanel->Show();
 		}
@@ -229,9 +229,9 @@ void FilePanels::Init(int DirCount)
 #endif
 
 	// при понашенных панелях не забыть бы выставить корректно каталог в CmdLine
-	if (!Opt.RightPanel.Visible && !Opt.LeftPanel.Visible)
+	if (!Global->Opt->RightPanel.Visible && !Global->Opt->LeftPanel.Visible)
 	{
-		CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Opt.strRightFolder:Opt.strLeftFolder);
+		CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Global->Opt->strRightFolder:Global->Opt->strLeftFolder);
 	}
 
 	SetKeyBar(&MainKeyBar);
@@ -256,40 +256,40 @@ FilePanels::~FilePanels()
 
 void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
 {
-	if (Opt.WidthDecrement < -(ScrX/2-10))
-		Opt.WidthDecrement=-(ScrX/2-10);
+	if (Global->Opt->WidthDecrement < -(ScrX/2-10))
+		Global->Opt->WidthDecrement=-(ScrX/2-10);
 
-	if (Opt.WidthDecrement > (ScrX/2-10))
-		Opt.WidthDecrement=(ScrX/2-10);
+	if (Global->Opt->WidthDecrement > (ScrX/2-10))
+		Global->Opt->WidthDecrement=(ScrX/2-10);
 
-	Opt.LeftHeightDecrement=Max((intptr_t)0,Min(Opt.LeftHeightDecrement.Get(),static_cast<intptr_t>(ScrY-7)));
-	Opt.RightHeightDecrement=Max((intptr_t)0,Min(Opt.RightHeightDecrement.Get(),static_cast<intptr_t>(ScrY-7)));
+	Global->Opt->LeftHeightDecrement=Max((intptr_t)0,Min(Global->Opt->LeftHeightDecrement.Get(),static_cast<intptr_t>(ScrY-7)));
+	Global->Opt->RightHeightDecrement=Max((intptr_t)0,Min(Global->Opt->RightHeightDecrement.Get(),static_cast<intptr_t>(ScrY-7)));
 
 	if (LeftFullScreen)
 	{
-		LeftPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar)-Opt.LeftHeightDecrement);
+		LeftPanel->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->LeftHeightDecrement);
 		LeftPanel->ViewSettings.Flags|=PVS_FULLSCREEN;
 	}
 	else
 	{
-		LeftPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX/2-Opt.WidthDecrement,ScrY-1-(Opt.ShowKeyBar)-Opt.LeftHeightDecrement);
+		LeftPanel->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX/2-Global->Opt->WidthDecrement,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->LeftHeightDecrement);
 	}
 
 	if (RightFullScreen)
 	{
-		RightPanel->SetPosition(0,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar)-Opt.RightHeightDecrement);
+		RightPanel->SetPosition(0,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->RightHeightDecrement);
 		RightPanel->ViewSettings.Flags|=PVS_FULLSCREEN;
 	}
 	else
 	{
-		RightPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Opt.ShowMenuBar?1:0,ScrX,ScrY-1-(Opt.ShowKeyBar)-Opt.RightHeightDecrement);
+		RightPanel->SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,Global->Opt->ShowMenuBar?1:0,ScrX,ScrY-1-(Global->Opt->ShowKeyBar)-Global->Opt->RightHeightDecrement);
 	}
 }
 
 void FilePanels::SetScreenPosition()
 {
 	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
-	CtrlObject->CmdLine->SetPosition(0,ScrY-(Opt.ShowKeyBar),ScrX-1,ScrY-(Opt.ShowKeyBar));
+	CtrlObject->CmdLine->SetPosition(0,ScrY-(Global->Opt->ShowKeyBar),ScrX-1,ScrY-(Global->Opt->ShowKeyBar));
 	TopMenuBar.SetPosition(0,0,ScrX,0);
 	MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
 	SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
@@ -382,11 +382,11 @@ int FilePanels::SwapPanels()
 
 		if (!LeftPanel->IsFullScreen() || !RightPanel->IsFullScreen())
 		{
-			Opt.WidthDecrement=-Opt.WidthDecrement;
+			Global->Opt->WidthDecrement=-Global->Opt->WidthDecrement;
 
-			Opt.LeftHeightDecrement^=Opt.RightHeightDecrement;
-			Opt.RightHeightDecrement=Opt.LeftHeightDecrement^Opt.RightHeightDecrement;
-			Opt.LeftHeightDecrement^=Opt.RightHeightDecrement;
+			Global->Opt->LeftHeightDecrement^=Global->Opt->RightHeightDecrement;
+			Global->Opt->RightHeightDecrement=Global->Opt->LeftHeightDecrement^Global->Opt->RightHeightDecrement;
+			Global->Opt->LeftHeightDecrement^=Global->Opt->RightHeightDecrement;
 
 		}
 
@@ -413,22 +413,22 @@ __int64 FilePanels::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	if (OpCode == MCODE_F_KEYBAR_SHOW)
 	{
-		int PrevMode=Opt.ShowKeyBar?2:1;
+		int PrevMode=Global->Opt->ShowKeyBar?2:1;
 		switch (iParam)
 		{
 			case 0:
 				break;
 			case 1:
-				Opt.ShowKeyBar=1;
+				Global->Opt->ShowKeyBar=1;
 				MainKeyBar.Show();
-				KeyBarVisible = Opt.ShowKeyBar;
+				KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
 				FrameManager->RefreshFrame();
 				break;
 			case 2:
-				Opt.ShowKeyBar=0;
+				Global->Opt->ShowKeyBar=0;
 				MainKeyBar.Hide();
-				KeyBarVisible = Opt.ShowKeyBar;
+				KeyBarVisible = Global->Opt->ShowKeyBar;
 				SetScreenPosition();
 				FrameManager->RefreshFrame();
 				break;
@@ -520,8 +520,8 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_CTRLB:
 		case KEY_RCTRLB:
 		{
-			Opt.ShowKeyBar=!Opt.ShowKeyBar;
-			KeyBarVisible = Opt.ShowKeyBar;
+			Global->Opt->ShowKeyBar=!Global->Opt->ShowKeyBar;
+			KeyBarVisible = Global->Opt->ShowKeyBar;
 
 			if (!KeyBarVisible)
 				MainKeyBar.Hide();
@@ -689,14 +689,14 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_RCTRLUP: case KEY_RCTRLNUMPAD8:
 		{
 			bool Set=false;
-			if (Opt.LeftHeightDecrement<ScrY-7)
+			if (Global->Opt->LeftHeightDecrement<ScrY-7)
 			{
-				Opt.LeftHeightDecrement++;
+				Global->Opt->LeftHeightDecrement++;
 				Set=true;
 			}
-			if (Opt.RightHeightDecrement<ScrY-7)
+			if (Global->Opt->RightHeightDecrement<ScrY-7)
 			{
-				Opt.RightHeightDecrement++;
+				Global->Opt->RightHeightDecrement++;
 				Set=true;
 			}
 			if(Set)
@@ -711,14 +711,14 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_RCTRLDOWN: case KEY_RCTRLNUMPAD2:
 		{
 			bool Set=false;
-			if (Opt.LeftHeightDecrement>0)
+			if (Global->Opt->LeftHeightDecrement>0)
 			{
-				Opt.LeftHeightDecrement--;
+				Global->Opt->LeftHeightDecrement--;
 				Set=true;
 			}
-			if (Opt.RightHeightDecrement>0)
+			if (Global->Opt->RightHeightDecrement>0)
 			{
-				Opt.RightHeightDecrement--;
+				Global->Opt->RightHeightDecrement--;
 				Set=true;
 			}
 			if(Set)
@@ -733,7 +733,7 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_CTRLSHIFTUP:  case KEY_CTRLSHIFTNUMPAD8:
 		case KEY_RCTRLSHIFTUP: case KEY_RCTRLSHIFTNUMPAD8:
 		{
-			IntOption& HeightDecrement=(ActivePanel==LeftPanel)?Opt.LeftHeightDecrement:Opt.RightHeightDecrement;
+			IntOption& HeightDecrement=(ActivePanel==LeftPanel)?Global->Opt->LeftHeightDecrement:Global->Opt->RightHeightDecrement;
 			if (HeightDecrement<ScrY-7)
 			{
 				HeightDecrement++;
@@ -746,7 +746,7 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_CTRLSHIFTDOWN:  case KEY_CTRLSHIFTNUMPAD2:
 		case KEY_RCTRLSHIFTDOWN: case KEY_RCTRLSHIFTNUMPAD2:
 		{
-			IntOption& HeightDecrement=(ActivePanel==LeftPanel)?Opt.LeftHeightDecrement:Opt.RightHeightDecrement;
+			IntOption& HeightDecrement=(ActivePanel==LeftPanel)?Global->Opt->LeftHeightDecrement:Global->Opt->RightHeightDecrement;
 			if (HeightDecrement>0)
 			{
 				HeightDecrement--;
@@ -759,9 +759,9 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_CTRLLEFT:  case KEY_CTRLNUMPAD4:
 		case KEY_RCTRLLEFT: case KEY_RCTRLNUMPAD4:
 		{
-			if (Opt.WidthDecrement<ScrX/2-10)
+			if (Global->Opt->WidthDecrement<ScrX/2-10)
 			{
-				Opt.WidthDecrement++;
+				Global->Opt->WidthDecrement++;
 				SetScreenPosition();
 				FrameManager->RefreshFrame();
 			}
@@ -771,9 +771,9 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_CTRLRIGHT:  case KEY_CTRLNUMPAD6:
 		case KEY_RCTRLRIGHT: case KEY_RCTRLNUMPAD6:
 		{
-			if (Opt.WidthDecrement>-(ScrX/2-10))
+			if (Global->Opt->WidthDecrement>-(ScrX/2-10))
 			{
-				Opt.WidthDecrement--;
+				Global->Opt->WidthDecrement--;
 				SetScreenPosition();
 				FrameManager->RefreshFrame();
 			}
@@ -783,9 +783,9 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_CTRLCLEAR:
 		case KEY_RCTRLCLEAR:
 		{
-			if (Opt.WidthDecrement)
+			if (Global->Opt->WidthDecrement)
 			{
-				Opt.WidthDecrement=0;
+				Global->Opt->WidthDecrement=0;
 				SetScreenPosition();
 				FrameManager->RefreshFrame();
 			}
@@ -798,14 +798,14 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_RCTRLALTCLEAR:
 		{
 			bool Set=false;
-			if (Opt.LeftHeightDecrement)
+			if (Global->Opt->LeftHeightDecrement)
 			{
-				Opt.LeftHeightDecrement=0;
+				Global->Opt->LeftHeightDecrement=0;
 				Set=true;
 			}
-			if (Opt.RightHeightDecrement)
+			if (Global->Opt->RightHeightDecrement)
 			{
-				Opt.RightHeightDecrement=0;
+				Global->Opt->RightHeightDecrement=0;
 				Set=true;
 			}
 			if(Set)
@@ -1011,12 +1011,12 @@ Panel* FilePanels::ChangePanel(Panel *Current,int NewType,int CreateNew,int Forc
 		{
 			if (LeftPosition)
 			{
-				NewPanel->SetPosition(0,Y1,ScrX/2-Opt.WidthDecrement,Y2);
+				NewPanel->SetPosition(0,Y1,ScrX/2-Global->Opt->WidthDecrement,Y2);
 				RightPanel->Redraw();
 			}
 			else
 			{
-				NewPanel->SetPosition(ScrX/2+1-Opt.WidthDecrement,Y1,ScrX,Y2);
+				NewPanel->SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,Y1,ScrX,Y2);
 				LeftPanel->Redraw();
 			}
 		}
@@ -1092,17 +1092,17 @@ void FilePanels::DisplayObject()
 	_OT(SysLog(L"[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
 	CtrlObject->CmdLine->ShowBackground();
 
-	if (Opt.ShowMenuBar)
+	if (Global->Opt->ShowMenuBar)
 		CtrlObject->TopMenuBar->Show();
 
 	CtrlObject->CmdLine->Show();
 
-	if (Opt.ShowKeyBar)
+	if (Global->Opt->ShowKeyBar)
 		MainKeyBar.Show();
 	else if (MainKeyBar.IsVisible())
 		MainKeyBar.Hide();
 
-	KeyBarVisible=Opt.ShowKeyBar;
+	KeyBarVisible=Global->Opt->ShowKeyBar;
 #if 1
 
 	if (LeftPanel->IsVisible())
@@ -1115,7 +1115,7 @@ void FilePanels::DisplayObject()
 	Panel *PassivePanel=nullptr;
 	int PassiveIsLeftFlag=TRUE;
 
-	if (Opt.LeftPanel.Focus)
+	if (Global->Opt->LeftPanel.Focus)
 	{
 		ActivePanel=LeftPanel;
 		PassivePanel=RightPanel;
@@ -1131,24 +1131,24 @@ void FilePanels::DisplayObject()
 	//! Вначале "показываем" пассивную панель
 	if (PassiveIsLeftFlag)
 	{
-		if (Opt.LeftPanel.Visible)
+		if (Global->Opt->LeftPanel.Visible)
 		{
 			LeftPanel->Show();
 		}
 
-		if (Opt.RightPanel.Visible)
+		if (Global->Opt->RightPanel.Visible)
 		{
 			RightPanel->Show();
 		}
 	}
 	else
 	{
-		if (Opt.RightPanel.Visible)
+		if (Global->Opt->RightPanel.Visible)
 		{
 			RightPanel->Show();
 		}
 
-		if (Opt.LeftPanel.Visible)
+		if (Global->Opt->LeftPanel.Visible)
 		{
 			LeftPanel->Show();
 		}
@@ -1185,7 +1185,7 @@ void FilePanels::ResizeConsole()
 
 int FilePanels::FastHide()
 {
-	return Opt.AllCtrlAltShiftRule & CASR_PANEL;
+	return Global->Opt->AllCtrlAltShiftRule & CASR_PANEL;
 }
 
 void FilePanels::Refresh()

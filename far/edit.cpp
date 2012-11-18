@@ -91,7 +91,7 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	CursorPos(0)
 {
 	SetOwner(pOwner);
-	SetWordDiv(Opt.strWordDiv);
+	SetWordDiv(Global->Opt->strWordDiv);
 
 	if (bAllocateData)
 		*Str=0;
@@ -102,12 +102,12 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	ColorList=nullptr;
 	ColorCount=MaxColorCount=0;
 	ColorListNeedSort=ColorListNeedFree=false;
-	TabSize=Opt.EdOpt.TabSize;
+	TabSize=Global->Opt->EdOpt.TabSize;
 	TabExpandMode = EXPAND_NOTABS;
-	Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Opt.EdOpt.DelRemovesBlocks);
-	Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Opt.EdOpt.PersistentBlocks);
-	Flags.Change(FEDITLINE_SHOWWHITESPACE,Opt.EdOpt.ShowWhiteSpace!=0);
-	Flags.Change(FEDITLINE_SHOWLINEBREAK,Opt.EdOpt.ShowWhiteSpace==1);
+	Flags.Change(FEDITLINE_DELREMOVESBLOCKS,Global->Opt->EdOpt.DelRemovesBlocks);
+	Flags.Change(FEDITLINE_PERSISTENTBLOCKS,Global->Opt->EdOpt.PersistentBlocks);
+	Flags.Change(FEDITLINE_SHOWWHITESPACE,Global->Opt->EdOpt.ShowWhiteSpace!=0);
+	Flags.Change(FEDITLINE_SHOWLINEBREAK,Global->Opt->EdOpt.ShowWhiteSpace==1);
 	m_codepage = 0; //BUGBUG
 }
 
@@ -225,15 +225,15 @@ void Edit::DisplayObject()
 		if (Flags.Check(FEDITLINE_OVERTYPE))
 		{
 			int NewCursorSize=IsConsoleFullscreen()?
-			                  (Opt.CursorSize[3]?(int)Opt.CursorSize[3]:99):
-					                  (Opt.CursorSize[2]?(int)Opt.CursorSize[2]:99);
+			                  (Global->Opt->CursorSize[3]?(int)Global->Opt->CursorSize[3]:99):
+					                  (Global->Opt->CursorSize[2]?(int)Global->Opt->CursorSize[2]:99);
 			::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
 		}
 		else
 {
 			int NewCursorSize=IsConsoleFullscreen()?
-			                  (Opt.CursorSize[1]?(int)Opt.CursorSize[1]:10):
-					                  (Opt.CursorSize[0]?(int)Opt.CursorSize[0]:10);
+			                  (Global->Opt->CursorSize[1]?(int)Global->Opt->CursorSize[1]:10):
+					                  (Global->Opt->CursorSize[0]?(int)Global->Opt->CursorSize[0]:10);
 			::SetCursorType(1,CursorSize==-1?NewCursorSize:CursorSize);
 		}
 	}
@@ -471,18 +471,18 @@ void Edit::FastShow()
 			if (Mask && *Mask)
 				OutStrLength=StrLength(RemoveTrailingSpaces(OutStr));
 
-			FS<<fmt::LeftAlign()<<fmt::ExactWidth(OutStrLength)<<OutStr;
+			Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(OutStrLength)<<OutStr;
 			SetColor(Color);
 			int BlankLength=EditLength-OutStrLength;
 
 			if (BlankLength > 0)
 			{
-				FS<<fmt::MinWidth(BlankLength)<<L"";
+				Global->FS << fmt::MinWidth(BlankLength)<<L"";
 			}
 		}
 		else
 		{
-			FS<<fmt::LeftAlign()<<fmt::ExactWidth(EditLength)<<OutStr;
+			Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(EditLength)<<OutStr;
 		}
 	}
 	else
@@ -510,19 +510,19 @@ void Edit::FastShow()
 			if (Flags.Check(FEDITLINE_DROPDOWNBOX))
 			{
 				SetColor(SelColor);
-				FS<<fmt::MinWidth(X2-X1+1)<<OutStr;
+				Global->FS << fmt::MinWidth(X2-X1+1)<<OutStr;
 			}
 			else
 				Text(OutStr);
 		}
 		else
 		{
-			FS<<fmt::MaxWidth(TabSelStart)<<OutStr;
+			Global->FS << fmt::MaxWidth(TabSelStart)<<OutStr;
 			SetColor(SelColor);
 
 			if (!Flags.Check(FEDITLINE_DROPDOWNBOX))
 			{
-				FS<<fmt::MaxWidth(TabSelEnd-TabSelStart)<<OutStr+TabSelStart;
+				Global->FS << fmt::MaxWidth(TabSelEnd-TabSelStart)<<OutStr+TabSelStart;
 
 				if (TabSelEnd<EditLength)
 				{
@@ -533,7 +533,7 @@ void Edit::FastShow()
 			}
 			else
 			{
-				FS<<fmt::MinWidth(X2-X1+1)<<OutStr;
+				Global->FS << fmt::MinWidth(X2-X1+1)<<OutStr;
 			}
 		}
 	}
@@ -790,10 +790,10 @@ int Edit::ProcessKey(int Key)
 	}
 
 	/* $ 11.09.2000 SVS
-	   если Opt.DlgEULBsClear = 1, то BS в диалогах для UnChanged строки
+	   если Global->Opt->DlgEULBsClear = 1, то BS в диалогах для UnChanged строки
 	   удаляет такую строку также, как и Del
 	*/
-	if (((Opt.Dialogs.EULBsClear && Key==KEY_BS) || Key==KEY_DEL || Key==KEY_NUMDEL) &&
+	if (((Global->Opt->Dialogs.EULBsClear && Key==KEY_BS) || Key==KEY_DEL || Key==KEY_NUMDEL) &&
 	        Flags.Check(FEDITLINE_CLEARFLAG) && CurPos>=StrSize)
 		Key=KEY_CTRLY;
 
@@ -2976,7 +2976,7 @@ void Edit::ApplyColor()
 		// Раскрашиваем элемент, если есть что раскрашивать
 		if (Length > 0)
 		{
-			ScrBuf.ApplyColor(
+			Global->ScrBuf->ApplyColor(
 			    Start,
 			    Y1,
 			    Start+Length-1,
@@ -2998,7 +2998,7 @@ void Edit::Xlat(bool All)
 	//   Для CmdLine - если нет выделения, преобразуем всю строку
 	if (All && SelStart == -1 && !SelEnd)
 	{
-		::Xlat(Str,0,StrLength(Str),Opt.XLat.Flags);
+		::Xlat(Str,0,StrLength(Str),Global->Opt->XLat.Flags);
 		Changed();
 		Show();
 		return;
@@ -3009,7 +3009,7 @@ void Edit::Xlat(bool All)
 		if (SelEnd == -1)
 			SelEnd=StrLength(Str);
 
-		::Xlat(Str,SelStart,SelEnd,Opt.XLat.Flags);
+		::Xlat(Str,SelStart,SelEnd,Global->Opt->XLat.Flags);
 		Changed();
 		Show();
 	}
@@ -3026,25 +3026,25 @@ void Edit::Xlat(bool All)
 		int start=CurPos, StrSize=StrLength(Str);
 		bool DoXlat=true;
 
-		if (IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]))
+		if (IsWordDiv(Global->Opt->XLat.strWordDivForXlat,Str[start]))
 		{
 			if (start) start--;
 
-			DoXlat=(!IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]));
+			DoXlat=(!IsWordDiv(Global->Opt->XLat.strWordDivForXlat,Str[start]));
 		}
 
 		if (DoXlat)
 		{
-			while (start>=0 && !IsWordDiv(Opt.XLat.strWordDivForXlat,Str[start]))
+			while (start>=0 && !IsWordDiv(Global->Opt->XLat.strWordDivForXlat,Str[start]))
 				start--;
 
 			start++;
 			int end=start+1;
 
-			while (end<StrSize && !IsWordDiv(Opt.XLat.strWordDivForXlat,Str[end]))
+			while (end<StrSize && !IsWordDiv(Global->Opt->XLat.strWordDivForXlat,Str[end]))
 				end++;
 
-			::Xlat(Str,start,end,Opt.XLat.Flags);
+			::Xlat(Str,start,end,Global->Opt->XLat.Flags);
 			Changed();
 			Show();
 		}
@@ -3159,9 +3159,9 @@ void EditControl::Changed(bool DelBlock)
 
 void EditControl::SetMenuPos(VMenu2& menu)
 {
-	if(ScrY-Y1<Min(Opt.Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())+2 && Y1>ScrY/2)
+	if(ScrY-Y1<Min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())+2 && Y1>ScrY/2)
 	{
-		menu.SetPosition(X1,Max((intptr_t)0,Y1-1-Min(Opt.Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())-1),Min(ScrX-2,X2),Y1-1);
+		menu.SetPosition(X1,Max((intptr_t)0,Y1-1-Min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())-1),Min(ScrX-2,X2),Y1-1);
 	}
 	else
 	{
@@ -3275,7 +3275,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 		string str;
 		int ModuleLength = StrLength(Module);
 		UserDefinedList ExcludeCmdsList;
-		ExcludeCmdsList.Set(Opt.Exec.strExcludeCmds);
+		ExcludeCmdsList.Set(Global->Opt->Exec.strExcludeCmds);
 		while (!ExcludeCmdsList.IsEmpty())
 		{
 			const wchar_t* Item = ExcludeCmdsList.GetNext();
@@ -3341,13 +3341,13 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 		DWORD samDesired = KEY_ENUMERATE_SUB_KEYS|KEY_QUERY_VALUE;
 		DWORD RedirectionFlag = 0;
 		// App Paths key is shared in Windows 7 and above
-		if (WinVer < _WIN32_WINNT_WIN7)
+		if (Global->WinVer < _WIN32_WINNT_WIN7)
 		{
 #ifdef _WIN64
 			RedirectionFlag = KEY_WOW64_32KEY;
 #else
 			BOOL Wow64Process = FALSE;
-			if (ifn.IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
+			if (Global->ifn->IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
 			{
 				RedirectionFlag = KEY_WOW64_64KEY;
 			}
@@ -3437,12 +3437,12 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 	static int Reenter=0;
 	string CurrentLine;
 	size_t EventsCount = 0;
-	Console.GetNumberOfInputEvents(EventsCount);
+	Global->Console->GetNumberOfInputEvents(EventsCount);
 	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual))
 	{
 		Reenter++;
 
-		if(Opt.AutoComplete.AppendCompletion && !Flags.Check(FEDITLINE_CMP_CHANGED))
+		if(Global->Opt->AutoComplete.AppendCompletion && !Flags.Check(FEDITLINE_CMP_CHANGED))
 		{
 			CurrentLine = Str;
 			DeleteBlock();
@@ -3458,7 +3458,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 
 #define CMP_ENABLED(c) ((Manual && (c)) || (!Manual && ((c) == 1)))
 
-		if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CMP_ENABLED(Opt.AutoComplete.UseHistory))
+		if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CMP_ENABLED(Global->Opt->AutoComplete.UseHistory))
 		{
 			if(pHistory->GetAllSimilar(ComplMenu,strTemp))
 			{
@@ -3475,18 +3475,18 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 				}
 			}
 		}
-		if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CMP_ENABLED(Opt.AutoComplete.UseFilesystem))
+		if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CMP_ENABLED(Global->Opt->AutoComplete.UseFilesystem))
 		{
 			EnumFiles(ComplMenu,strTemp);
 		}
-		if(ECFlags.Check(EC_COMPLETE_PATH) && CMP_ENABLED(Opt.AutoComplete.UsePath))
+		if(ECFlags.Check(EC_COMPLETE_PATH) && CMP_ENABLED(Global->Opt->AutoComplete.UsePath))
 		{
 			EnumModules(strTemp, &ComplMenu);
 		}
 		if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp,ComplMenu.GetItemPtr(0)->strName)))
 		{
 			ComplMenu.SetFlags(VMENU_WRAPMODE|VMENU_SHOWAMPERSAND);
-			if(!DelBlock && Opt.AutoComplete.AppendCompletion && (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Opt.AutoComplete.ShowList))
+			if(!DelBlock && Global->Opt->AutoComplete.AppendCompletion && (!Flags.Check(FEDITLINE_PERSISTENTBLOCKS) || Global->Opt->AutoComplete.ShowList))
 			{
 				int SelStart=GetLength();
 
@@ -3517,7 +3517,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 				CurPos = GetLength();
 				Show();
 			}
-			if(Opt.AutoComplete.ShowList)
+			if(Global->Opt->AutoComplete.ShowList)
 			{
 				MenuItemEx EmptyItem={};
 				ComplMenu.AddItem(&EmptyItem,0);
@@ -3536,7 +3536,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 				{
 					::SetCursorType(Visible, Size);
 
-					if(!Opt.AutoComplete.ModalList)
+					if(!Global->Opt->AutoComplete.ModalList)
 					{
 						int CurPos=ComplMenu.GetSelectPos();
 						if(CurPos>=0 && PrevPos!=CurPos)
@@ -3564,7 +3564,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 								PrevPos=0;
 								if(!strTemp.IsEmpty())
 								{
-									if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CMP_ENABLED(Opt.AutoComplete.UseHistory))
+									if(pHistory && ECFlags.Check(EC_COMPLETE_HISTORY) && CMP_ENABLED(Global->Opt->AutoComplete.UseHistory))
 									{
 										if(pHistory->GetAllSimilar(ComplMenu,strTemp))
 										{
@@ -3582,17 +3582,17 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 										}
 									}
 								}
-								if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CMP_ENABLED(Opt.AutoComplete.UseFilesystem))
+								if(ECFlags.Check(EC_COMPLETE_FILESYSTEM) && CMP_ENABLED(Global->Opt->AutoComplete.UseFilesystem))
 								{
 									EnumFiles(ComplMenu,strTemp);
 								}
-								if(ECFlags.Check(EC_COMPLETE_PATH) && CMP_ENABLED(Opt.AutoComplete.UsePath))
+								if(ECFlags.Check(EC_COMPLETE_PATH) && CMP_ENABLED(Global->Opt->AutoComplete.UsePath))
 								{
 									EnumModules(strTemp, &ComplMenu);
 								}
 								if(ComplMenu.GetItemCount()>1 || (ComplMenu.GetItemCount()==1 && StrCmpI(strTemp,ComplMenu.GetItemPtr(0)->strName)))
 								{
-									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Opt.AutoComplete.AppendCompletion)
+									if(MenuKey!=KEY_BS && MenuKey!=KEY_DEL && MenuKey!=KEY_NUMDEL && Global->Opt->AutoComplete.AppendCompletion)
 									{
 										int SelStart=GetLength();
 
@@ -3729,7 +3729,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 							case KEY_ENTER:
 							case KEY_NUMENTER:
 								{
-									if(Opt.AutoComplete.ModalList)
+									if(Global->Opt->AutoComplete.ModalList)
 										break;
 								}
 
@@ -3749,7 +3749,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 				// mouse click
 				if(ExitCode>0)
 				{
-					if(Opt.AutoComplete.ModalList)
+					if(Global->Opt->AutoComplete.ModalList)
 					{
 						SetString(ComplMenu.GetItemPtr(ExitCode)->strName);
 					}
@@ -3771,17 +3771,17 @@ void EditControl::AutoComplete(bool Manual,bool DelBlock)
 {
 	int Key=0;
 	MACROMODEAREA PrevMacroMode=CtrlObject->Macro.GetMode();
-	if(Opt.AutoComplete.ShowList)
+	if(Global->Opt->AutoComplete.ShowList)
 		CtrlObject->Macro.SetMode(MacroAreaAC);
 	if(AutoCompleteProc(Manual,DelBlock,Key,MacroAreaAC))
 	{
 		// BUGBUG, hack
-		int Wait=WaitInMainLoop;
-		WaitInMainLoop=1;
+		int Wait=Global->WaitInMainLoop;
+		Global->WaitInMainLoop=1;
 		struct FAR_INPUT_RECORD irec={(DWORD)Key,*FrameManager->GetLastInputRecord()};
 		if(!CtrlObject->Macro.ProcessEvent(&irec))
 			pOwner->ProcessKey(Key);
-		WaitInMainLoop=Wait;
+		Global->WaitInMainLoop=Wait;
 		Show();
 	}
 	CtrlObject->Macro.SetMode(PrevMacroMode);

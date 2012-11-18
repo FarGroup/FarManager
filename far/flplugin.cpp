@@ -68,7 +68,7 @@ void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
 	stItem->PrevViewSettings=ViewSettings;
 	stItem->PrevDirectoriesFirst=DirectoriesFirst;
 	PluginsList.Push(&stItem);
-	++PluginPanelsCount;
+	++Global->PluginPanelsCount;
 }
 
 
@@ -88,7 +88,7 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 	// закрываем текущий плагин.
 	PluginsList.Delete(PluginsList.Last());
 
-	--PluginPanelsCount;
+	--Global->PluginPanelsCount;
 
 	CtrlObject->Plugins->ClosePanel(hPlugin);
 
@@ -504,8 +504,8 @@ void FileList::PutDizToPlugin(FileList *DestPanel,PluginPanelItem *ItemList,
 	if (DestPanel->strPluginDizName.IsEmpty() && Info.DescrFilesNumber>0)
 		DestPanel->strPluginDizName = Info.DescrFiles[0];
 
-	if (((Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
-	        Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS) && !DestPanel->strPluginDizName.IsEmpty() &&
+	if (((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
+	        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS) && !DestPanel->strPluginDizName.IsEmpty() &&
 	        (!Info.HostFile || !*Info.HostFile || DestPanel->GetModalMode() ||
 	         apiGetFileAttributes(Info.HostFile)!=INVALID_FILE_ATTRIBUTES))
 	{
@@ -584,8 +584,8 @@ void FileList::PluginGetFiles(const wchar_t **DestPath,int Move)
 	{
 		int GetCode=CtrlObject->Plugins->GetFiles(hPlugin,ItemList,ItemNumber,Move!=0,DestPath,0);
 
-		if ((Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
-		        Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
+		if ((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && IsDizDisplayed()) ||
+		        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
 		{
 			DizList DestDiz;
 			int DizFound=FALSE;

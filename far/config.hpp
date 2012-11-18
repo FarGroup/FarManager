@@ -55,23 +55,23 @@ enum ExcludeCmdHistoryType
 	//EXCLUDECMDHISTORY_NOTAPPLYCMD   = 0x00000010,  // не помещать в историю команды выполнения из "Apply Commang"
 };
 
-// для Opt.QuotedName
+// для Global->Opt->QuotedName
 enum QUOTEDNAMETYPE
 {
 	QUOTEDNAME_INSERT         = 0x00000001,            // кавычить при сбросе в командную строку, в диалогах и редакторе
 	QUOTEDNAME_CLIPBOARD      = 0x00000002,            // кавычить при помещении в буфер обмена
 };
 
-//Для Opt.Dialogs.MouseButton
+//Для Global->Opt->Dialogs.MouseButton
 #define DMOUSEBUTTON_LEFT   0x00000001
 #define DMOUSEBUTTON_RIGHT  0x00000002
 
-//Для Opt.VMenu.xBtnClick
+//Для Global->Opt->VMenu.xBtnClick
 #define VMENUCLICK_IGNORE 0
 #define VMENUCLICK_CANCEL 1
 #define VMENUCLICK_APPLY  2
 
-//Для Opt.Diz.UpdateMode
+//Для Global->Opt->Diz.UpdateMode
 enum DIZUPDATETYPE
 {
 	DIZ_NOT_UPDATE,
@@ -260,14 +260,14 @@ struct Confirmation
 	BoolOption Exit;
 	BoolOption Esc;  // Для CheckForEsc
 	/* $ 12.03.2002 VVM
-	  + Opt.EscTwiceToInterrupt
+	  + Global->Opt->EscTwiceToInterrupt
 	    Определяет поведение при прерывании длительной операции
 	    0 - второй ESC продолжает операцию
 	    1 - второй ESC прерывает операцию */
 	BoolOption EscTwiceToInterrupt;
 	BoolOption RemoveConnection;
 	/* $ 23.05.2001
-	  +  Opt.Confirmation.AllowReedit - Флаг, который изменяет поведение открытия
+	  +  Global->Opt->Confirmation.AllowReedit - Флаг, который изменяет поведение открытия
 	    файла на редактирование если, данный файл уже редактируется. По умолчанию - 1
 	    0 - Если уже открытый файл не был изменен, то происходит переход к открытому редактору
 	        без дополнительных вопросов. Если файл был изменен, то задается вопрос, и в случае
@@ -579,8 +579,10 @@ struct ExecuteOptions
 	StringOption strHomeDir; // cd ~
 };
 
-struct Options
+class Options
 {
+public:
+	Options() {};
 	palette Palette;
 	BoolOption Clock;
 	BoolOption Mouse;
@@ -724,7 +726,7 @@ struct Options
 	BoolOption ExceptUsed;
 	StringOption strExceptEventSvc;
 	/*
-	 + Opt.ShiftsKeyRules - Правило на счет выбора механизма трансляции
+	 + Global->Opt->ShiftsKeyRules - Правило на счет выбора механизма трансляции
 	   Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
 	   модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
 	*/
@@ -760,13 +762,13 @@ struct Options
 	IntOption MsHWheelDeltaEdit;
 
 	/* $ 28.04.2001 VVM
-	  + Opt.SubstNameRule битовая маска:
+	  + Global->Opt->SubstNameRule битовая маска:
 	    0 - если установлен, то опрашивать сменные диски при GetSubstName()
 	    1 - если установлен, то опрашивать все остальные при GetSubstName() */
 	IntOption SubstNameRule;
 
 	/* $ 23.05.2001 AltF9
-	  + Opt.AltF9 Флаг позволяет выбрать механизм  работы комбинации Alt-F9
+	  + Global->Opt->AltF9 Флаг позволяет выбрать механизм  работы комбинации Alt-F9
 	       (Изменение размера экрана) в оконном режиме. По умолчанию - 1.
 	    0 - использовать механизм, совместимый с FAR версии 1.70 beta 3 и
 	       ниже, т.е. переключение 25/50 линий.
@@ -840,8 +842,6 @@ struct Options
 
 	BoolOption SmartFolderMonitor; // def: 0=always monitor panel folder(s), 1=only when FAR has input focus
 };
-
-extern Options Opt;
 
 void SystemSettings();
 void PanelSettings();

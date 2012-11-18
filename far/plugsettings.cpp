@@ -98,10 +98,10 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local) : PluginsCfg(nullpt
 		unsigned __int64& root(*m_Keys.insertItem(0));
 		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
 
-		if (!Opt.ReadOnlyConfig)
+		if (!Global->Opt->ReadOnlyConfig)
 		{
 			DizList Diz;
-			string strDbPath = Local ? Opt.LocalProfilePath : Opt.ProfilePath;
+			string strDbPath = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
 			AddEndSlash(strDbPath);
 			strDbPath += L"PluginsData\\";
 			Diz.Read(strDbPath);
@@ -445,16 +445,16 @@ static HistoryConfig* HistoryRef(int Type)
 	switch(Type)
 	{
 		case HISTORYTYPE_CMD:
-			Save=Opt.SaveHistory;
+			Save=Global->Opt->SaveHistory;
 			break;
 		case HISTORYTYPE_FOLDER:
-			Save=Opt.SaveFoldersHistory;
+			Save=Global->Opt->SaveFoldersHistory;
 			break;
 		case HISTORYTYPE_VIEW:
-			Save=Opt.SaveViewHistory;
+			Save=Global->Opt->SaveViewHistory;
 			break;
 		case HISTORYTYPE_DIALOG:
-			Save=Opt.Dialogs.EditHistory;
+			Save=Global->Opt->Dialogs.EditHistory;
 			break;
 	}
 	return Save? Db->HistoryCfg() : Db->HistoryCfgMem();

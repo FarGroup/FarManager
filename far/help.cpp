@@ -136,7 +136,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 	StackData.strHelpTopic = Topic;
 	strLastSearchStr=L"";
 
-	if (Opt.FullScreenHelp)
+	if (Global->Opt->FullScreenHelp)
 		SetPosition(0,0,ScrX,ScrY);
 	else
 		SetPosition(4,2,ScrX-4,ScrY-2);
@@ -226,7 +226,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	}
 	else
 	{
-		strPath = !StackData.strHelpPath.IsEmpty() ? StackData.strHelpPath:g_strFarPath;
+		strPath = !StackData.strHelpPath.IsEmpty() ? StackData.strHelpPath:Global->g_strFarPath;
 	}
 
 	if (!StrCmp(StackData.strHelpTopic,PluginContents))
@@ -237,7 +237,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	}
 
 	uintptr_t nCodePage = CP_OEMCP;
-	FILE *HelpFile=OpenLangFile(strPath,(!*Mask?HelpFileMask:Mask),Opt.strHelpLanguage,strFullHelpPathName, nCodePage);
+	FILE *HelpFile=OpenLangFile(strPath,(!*Mask?Global->HelpFileMask:Mask),Global->Opt->strHelpLanguage,strFullHelpPathName, nCodePage);
 
 	if (!HelpFile)
 	{
@@ -264,7 +264,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	}
 
 	if (CtrlTabSize < 0 || CtrlTabSize > 16)
-		CtrlTabSize=Opt.HelpTabSize;
+		CtrlTabSize=Global->Opt->HelpTabSize;
 
 	if (GetOptionsParam(HelpFile,L"CtrlColorChar",strReadStr, nCodePage))
 		strCtrlColorChar = strReadStr;
@@ -744,11 +744,11 @@ void Help::DisplayObject()
 
 	FastShow();
 
-	if (!Opt.FullScreenHelp)
+	if (!Global->Opt->FullScreenHelp)
 	{
 		HelpKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
 
-		if (Opt.ShowKeyBar)
+		if (Global->Opt->ShowKeyBar)
 			HelpKeyBar.Show();
 	}
 	else
@@ -843,7 +843,7 @@ void Help::DrawWindowFrame()
 
 	TruncStrFromEnd(strHelpTitleBuf,X2-X1-3);
 	GotoXY(X1+(X2-X1+1-(int)strHelpTitleBuf.GetLength()-2)/2,Y1);
-	FS<<L" "<<strHelpTitleBuf<<L" ";
+	Global->FS << L" "<<strHelpTitleBuf<<L" ";
 }
 
 static const wchar_t *SkipLink( const wchar_t *Str, string *Name )
@@ -1067,7 +1067,7 @@ void Help::OutString(const wchar_t *Str)
 	if (!Locked() && WhereX()<X2)
 	{
 		SetColor(CurColor);
-		FS<<fmt::MinWidth(X2-WhereX())<<L"";
+		Global->FS << fmt::MinWidth(X2-WhereX())<<L"";
 	}
 }
 
@@ -1133,7 +1133,7 @@ int Help::ProcessKey(int Key)
 		}
 		case KEY_F5:
 		{
-			Opt.FullScreenHelp=!Opt.FullScreenHelp;
+			Global->Opt->FullScreenHelp=!Global->Opt->FullScreenHelp;
 			ResizeConsole();
 			return TRUE;
 		}
@@ -1226,7 +1226,7 @@ int Help::ProcessKey(int Key)
 		case(KEY_MSWHEEL_UP | KEY_ALT):
 		case(KEY_MSWHEEL_UP | KEY_RALT):
 		{
-			int n = (Key == KEY_MSWHEEL_UP ? (int)Opt.MsWheelDeltaHelp : 1);
+			int n = (Key == KEY_MSWHEEL_UP ? (int)Global->Opt->MsWheelDeltaHelp : 1);
 			while (n-- > 0)
 				ProcessKey(KEY_UP);
 
@@ -1236,7 +1236,7 @@ int Help::ProcessKey(int Key)
 		case(KEY_MSWHEEL_DOWN | KEY_ALT):
 		case(KEY_MSWHEEL_DOWN | KEY_RALT):
 		{
-			int n = (Key == KEY_MSWHEEL_DOWN ? (int)Opt.MsWheelDeltaHelp : 1);
+			int n = (Key == KEY_MSWHEEL_DOWN ? (int)Global->Opt->MsWheelDeltaHelp : 1);
 			while (n-- > 0)
 				ProcessKey(KEY_DOWN);
 
@@ -1422,7 +1422,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 		strFullPath += strNewTopic.CPtr()+(IsSlash(strNewTopic.At(0))?1:0);
 		BOOL addSlash=DeleteEndSlash(strFullPath);
 		ConvertNameToFull(strFullPath,strNewTopic);
-		strFullPath.Format(addSlash?HelpFormatLink:HelpFormatLinkModule, strNewTopic.CPtr(), wcschr(StackData.strSelTopic.CPtr()+2, HelpEndLink)+1);
+		strFullPath.Format(addSlash?HelpFormatLink:Global->HelpFormatLinkModule, strNewTopic.CPtr(), wcschr(StackData.strSelTopic.CPtr()+2, HelpEndLink)+1);
 		StackData.strSelTopic = strFullPath;
 	}
 
@@ -1954,7 +1954,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 				strPath = CtrlObject->Plugins->GetPlugin(I)->GetModuleName();
 				CutToSlash(strPath);
 				uintptr_t nCodePage = CP_OEMCP;
-				FILE *HelpFile=OpenLangFile(strPath,HelpFileMask,Opt.strHelpLanguage,strFullFileName, nCodePage);
+				FILE *HelpFile=OpenLangFile(strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFullFileName, nCodePage);
 
 				if (HelpFile)
 				{
@@ -2000,7 +2000,7 @@ string &Help::MkTopic(Plugin* pPlugin,const wchar_t *HelpTopic,string &strTopic)
 		{
 			if (pPlugin && *HelpTopic!=HelpBeginLink)
 			{
-				strTopic.Format(HelpFormatLinkModule, pPlugin->GetModuleName().CPtr(), HelpTopic);
+				strTopic.Format(Global->HelpFormatLinkModule, pPlugin->GetModuleName().CPtr(), HelpTopic);
 			}
 			else
 			{
@@ -2057,7 +2057,7 @@ string &Help::MkTopic(Plugin* pPlugin,const wchar_t *HelpTopic,string &strTopic)
 
 void Help::SetScreenPosition()
 {
-	if (Opt.FullScreenHelp)
+	if (Global->Opt->FullScreenHelp)
 	{
 		HelpKeyBar.Hide();
 		SetPosition(0,0,ScrX,ScrY);
@@ -2083,7 +2083,7 @@ void Help::InitKeyBar()
 	// Уберем лишнее с глаз долой
 	HelpKeyBar.Change(KBL_SHIFT,L"",3-1);
 	HelpKeyBar.Change(KBL_SHIFT,L"",7-1);
-	HelpKeyBar.ReadRegGroup(L"Help",Opt.strLanguage);
+	HelpKeyBar.ReadRegGroup(L"Help",Global->Opt->strLanguage);
 	HelpKeyBar.SetAllRegGroup();
 	SetKeyBar(&HelpKeyBar);
 }
@@ -2104,7 +2104,7 @@ static int RunURL(const string& Protocol, wchar_t *URLPath)
 {
 	int EditCode=0;
 
-	if (URLPath && *URLPath && (Opt.HelpURLRules&0xFF))
+	if (URLPath && *URLPath && (Global->Opt->HelpURLRules&0xFF))
 	{
 		string strType;
 
@@ -2142,7 +2142,7 @@ static int RunURL(const string& Protocol, wchar_t *URLPath)
 
 					Disposition=0;
 
-					if (Opt.HelpURLRules == 2 || Opt.HelpURLRules == 2+256)
+					if (Global->Opt->HelpURLRules == 2 || Global->Opt->HelpURLRules == 2+256)
 					{
 						Disposition=Message(MSG_WARNING,2,MSG(MHelpTitle),
 						                    MSG(MHelpActivatorURL),
@@ -2165,7 +2165,7 @@ static int RunURL(const string& Protocol, wchar_t *URLPath)
 						string strCurDir;
 						apiGetCurrentDirectory(strCurDir);
 
-						if (Opt.HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
+						if (Global->Opt->HelpURLRules < 256) // SHELLEXECUTEEX_METHOD
 						{
 #if 0
 							SHELLEXECUTEINFO sei={sizeof(sei)};
@@ -2230,7 +2230,7 @@ void Help::ResizeConsole()
 	TopScreen=nullptr;
 	Hide();
 
-	if (Opt.FullScreenHelp)
+	if (Global->Opt->FullScreenHelp)
 	{
 		HelpKeyBar.Hide();
 		SetPosition(0,0,ScrX,ScrY);
@@ -2251,7 +2251,7 @@ void Help::ResizeConsole()
 
 int Help::FastHide()
 {
-	return Opt.AllCtrlAltShiftRule & CASR_HELP;
+	return Global->Opt->AllCtrlAltShiftRule & CASR_HELP;
 }
 
 

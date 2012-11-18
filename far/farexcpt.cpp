@@ -204,17 +204,17 @@ bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 
 static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 {
-	ProcessException=TRUE;
+	Global->ProcessException=TRUE;
 	DWORD Result = EXCEPTION_EXECUTE_HANDLER;
 	BOOL Res=FALSE;
 //   if(From == EXCEPT_KERNEL)
 //     CriticalInternalError=TRUE;
 
-	if (!Is_STACK_OVERFLOW && Opt.ExceptUsed)
+	if (!Is_STACK_OVERFLOW && Global->Opt->ExceptUsed)
 	{
-		if (!Opt.strExceptEventSvc.IsEmpty())
+		if (!Global->Opt->strExceptEventSvc.IsEmpty())
 		{
-			HMODULE m = LoadLibrary(Opt.strExceptEventSvc);
+			HMODULE m = LoadLibrary(Global->Opt->strExceptEventSvc);
 
 			if (m)
 			{
@@ -231,7 +231,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 					static FarStandardFunctions LocalStandardFunctions;
 					ClearStruct(LocalStandardFunctions);
 					CreatePluginStartupInfo(nullptr, &LocalStartupInfo, &LocalStandardFunctions);
-					LocalStartupInfo.ModuleName = Opt.strExceptEventSvc;
+					LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc;
 					static PLUGINRECORD PlugRec;
 
 					if (Module)
@@ -290,7 +290,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	{
 		if (From == EXCEPT_KERNEL)
 		{
-			CriticalInternalError=TRUE;
+			Global->CriticalInternalError=TRUE;
 		}
 
 		return Result;
@@ -339,7 +339,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	*/
 
 	if (From == EXCEPT_KERNEL || !Module)
-		strFileName=g_strFarModuleName;
+		strFileName=Global->g_strFarModuleName;
 	else
 		strFileName = Module->GetModuleName();
 
@@ -397,12 +397,12 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 
 	if (ShowMessages && (Is_STACK_OVERFLOW || From == EXCEPT_KERNEL))
 	{
-		CriticalInternalError=TRUE;
+		Global->CriticalInternalError=TRUE;
 	}
 
 	if(MsgCode==1)
 	{
-		SetErrorMode(ErrorMode&~SEM_NOGPFAULTERRORBOX);
+		SetErrorMode(Global->ErrorMode&~SEM_NOGPFAULTERRORBOX);
 		rc=EXCEPTION_CONTINUE_SEARCH;
 		UseExternalHandler=true;
 	}
@@ -417,7 +417,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags)
 {
 	DWORD Result=EXCEPTION_CONTINUE_SEARCH;
-	if(Opt.ExceptRules && !UseExternalHandler)
+	if(Global->Opt->ExceptRules && !UseExternalHandler)
 	{
 		// dummy parametrs setting
 		::From=From;

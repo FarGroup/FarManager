@@ -88,7 +88,7 @@ void KeyBar::DisplayObject()
 			break;
 
 		SetColor(COL_KEYBARNUM);
-		FS<<i+1;
+		Global->FS << i+1;
 		SetColor(COL_KEYBARTEXT);
 		const wchar_t *Label=L"";
 
@@ -105,7 +105,7 @@ void KeyBar::DisplayObject()
 					if (i<KeyCounts [KBL_CTRLSHIFT])
 						Label=KeyTitles [KBL_CTRLSHIFT][i];
 				}
-				else if (!(Opt.CASRule&1) || !(Opt.CASRule&2))
+				else if (!(Global->Opt->CASRule&1) || !(Global->Opt->CASRule&2))
 				{
 					if (i<KeyCounts [KBL_CTRLALTSHIFT])
 						Label=KeyTitles [KBL_CTRLALTSHIFT][i];
@@ -178,7 +178,7 @@ void KeyBar::DisplayObject()
 			}
 		}
 
-		FS<<fmt::LeftAlign()<<fmt::ExactWidth(LabelWidth)<<strLabel;
+		Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(LabelWidth)<<strLabel;
 
 		if (i<KEY_COUNT-1)
 		{
@@ -192,7 +192,7 @@ void KeyBar::DisplayObject()
 	if (Width>0)
 	{
 		SetColor(COL_KEYBARTEXT);
-		FS<<fmt::MinWidth(Width)<<L"";
+		Global->FS << fmt::MinWidth(Width)<<L"";
 	}
 }
 

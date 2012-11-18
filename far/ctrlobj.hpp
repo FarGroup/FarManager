@@ -44,6 +44,7 @@ class HighlightFiles;
 class FilePositionCache;
 class FilePanels;
 class Shortcuts;
+class WindowHandler;
 
 class ControlObject
 {
@@ -71,7 +72,7 @@ class ControlObject
 		KeyMacro Macro;
 		PluginManager* Plugins;
 		Shortcuts* FolderShortcuts;
-
+		WindowHandler* Window;
 		static void ShowCopyright(DWORD Flags=0);
 };
 

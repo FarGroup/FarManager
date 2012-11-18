@@ -221,10 +221,10 @@ static BOOL PrepareModulePath(const wchar_t *ModuleName)
 
 static void CheckScreenLock()
 {
-	if (ScrBuf.GetLockCount() > 0 && !CtrlObject->Macro.PeekKey())
+	if (Global->ScrBuf->GetLockCount() > 0 && !CtrlObject->Macro.PeekKey())
 	{
-//		ScrBuf.SetLockCount(0);
-		ScrBuf.Flush();
+//		Global->ScrBuf->SetLockCount(0);
+		Global->ScrBuf->Flush();
 	}
 }
 
@@ -606,7 +606,7 @@ bool Plugin::LoadData()
 		//чтоб не пытаться загрузить опять а то ошибка будет постоянно показываться.
 		WorkFlags.Set(PIWF_DONTLOADAGAIN);
 
-		if (!Opt.LoadPlug.SilentLoadPlugin) //убрать в PluginSet
+		if (!Global->Opt->LoadPlug.SilentLoadPlugin) //убрать в PluginSet
 		{
 			SetMessageHelp(L"ErrLoadPlugin");
 			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_NOPLUGINS,1,MSG(MError),MSG(MPlgLoadPluginError),m_strModuleName,MSG(MOk));
@@ -812,7 +812,7 @@ bool Plugin::IsPanelPlugin()
 
 bool Plugin::SetStartupInfo()
 {
-	if (Exports[iSetStartupInfo] && !ProcessException)
+	if (Exports[iSetStartupInfo] && !Global->ProcessException)
 	{
 		PluginStartupInfo _info;
 		FarStandardFunctions _fsf;
@@ -866,7 +866,7 @@ HANDLE Plugin::OpenFilePlugin(
 
 HANDLE Plugin::Analyse(const AnalyseInfo *Info)
 {
-	if (Load() && Exports[iAnalyse] && !ProcessException)
+	if (Load() && Exports[iAnalyse] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_ANALYSE;
@@ -881,7 +881,7 @@ HANDLE Plugin::Analyse(const AnalyseInfo *Info)
 
 void Plugin::CloseAnalyse(HANDLE hHandle)
 {
-	if (Exports[iCloseAnalyse] && !ProcessException)
+	if (Exports[iCloseAnalyse] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_CLOSEANALYSE;
@@ -901,12 +901,12 @@ HANDLE Plugin::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 //		string strCurDir;
 //		CtrlObject->CmdLine->GetCurDir(strCurDir);
 //		FarChDir(strCurDir);
-		g_strDirToSet.Clear();
+		Global->g_strDirToSet.Clear();
 	}
 
 	HANDLE hResult = nullptr;
 
-	if (Load() && Exports[iOpen] && !ProcessException)
+	if (Load() && Exports[iOpen] && !Global->ProcessException)
 	{
 		//CurPluginItem=this; //BUGBUG
 		ExecuteStruct es;
@@ -963,7 +963,7 @@ int Plugin::SetFindList(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iSetFindList] && !ProcessException)
+	if (Exports[iSetFindList] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_SETFINDLIST;
@@ -985,7 +985,7 @@ int Plugin::ProcessEditorInput(
 {
 	BOOL bResult = FALSE;
 
-	if (Load() && Exports[iProcessEditorInput] && !ProcessException)
+	if (Load() && Exports[iProcessEditorInput] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSEDITORINPUT;
@@ -1005,7 +1005,7 @@ int Plugin::ProcessEditorEvent(
     int EditorID
 )
 {
-	if (Load() && Exports[iProcessEditorEvent] && !ProcessException)
+	if (Load() && Exports[iProcessEditorEvent] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSEDITOREVENT;
@@ -1026,7 +1026,7 @@ int Plugin::ProcessViewerEvent(
     int ViewerID
 )
 {
-	if (Load() && Exports[iProcessViewerEvent] && !ProcessException)
+	if (Load() && Exports[iProcessViewerEvent] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSVIEWEREVENT;
@@ -1048,7 +1048,7 @@ int Plugin::ProcessDialogEvent(
 {
 	BOOL bResult = FALSE;
 
-	if (Load() && Exports[iProcessDialogEvent] && !ProcessException)
+	if (Load() && Exports[iProcessDialogEvent] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSDIALOGEVENT;
@@ -1068,7 +1068,7 @@ int Plugin::ProcessSynchroEvent(
     void *Param
 )
 {
-	if (Load() && Exports[iProcessSynchroEvent] && !ProcessException)
+	if (Load() && Exports[iProcessSynchroEvent] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSSYNCHROEVENT;
@@ -1089,7 +1089,7 @@ int Plugin::ProcessMacro(
 {
 	int nResult = 0;
 
-	if (Load() && Exports[iProcessMacro] && !ProcessException)
+	if (Load() && Exports[iProcessMacro] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSMACRO;
@@ -1110,7 +1110,7 @@ int Plugin::ProcessConsoleInput(
 {
 	int nResult = 0;
 
-	if (Load() && Exports[iProcessConsoleInput] && !ProcessException)
+	if (Load() && Exports[iProcessConsoleInput] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSCONSOLEINPUT;
@@ -1134,7 +1134,7 @@ int Plugin::GetVirtualFindData(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iGetVirtualFindData] && !ProcessException)
+	if (Exports[iGetVirtualFindData] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETVIRTUALFINDDATA;
@@ -1160,7 +1160,7 @@ void Plugin::FreeVirtualFindData(
     size_t ItemsNumber
 )
 {
-	if (Exports[iFreeVirtualFindData] && !ProcessException)
+	if (Exports[iFreeVirtualFindData] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEVIRTUALFINDDATA;
@@ -1185,7 +1185,7 @@ int Plugin::GetFiles(
 {
 	int nResult = -1;
 
-	if (Exports[iGetFiles] && !ProcessException)
+	if (Exports[iGetFiles] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETFILES;
@@ -1216,7 +1216,7 @@ int Plugin::PutFiles(
 {
 	int nResult = -1;
 
-	if (Exports[iPutFiles] && !ProcessException)
+	if (Exports[iPutFiles] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PUTFILES;
@@ -1246,7 +1246,7 @@ int Plugin::DeleteFiles(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iDeleteFiles] && !ProcessException)
+	if (Exports[iDeleteFiles] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_DELETEFILES;
@@ -1272,7 +1272,7 @@ int Plugin::MakeDirectory(
 {
 	int nResult = -1;
 
-	if (Exports[iMakeDirectory] && !ProcessException)
+	if (Exports[iMakeDirectory] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_MAKEDIRECTORY;
@@ -1299,7 +1299,7 @@ int Plugin::ProcessHostFile(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iProcessHostFile] && !ProcessException)
+	if (Exports[iProcessHostFile] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSHOSTFILE;
@@ -1325,7 +1325,7 @@ int Plugin::ProcessPanelEvent(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iProcessPanelEvent] && !ProcessException)
+	if (Exports[iProcessPanelEvent] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSPANELEVENT;
@@ -1351,7 +1351,7 @@ int Plugin::Compare(
 {
 	int nResult = -2;
 
-	if (Exports[iCompare] && !ProcessException)
+	if (Exports[iCompare] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_COMPARE;
@@ -1378,7 +1378,7 @@ int Plugin::GetFindData(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iGetFindData] && !ProcessException)
+	if (Exports[iGetFindData] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETFINDDATA;
@@ -1405,7 +1405,7 @@ void Plugin::FreeFindData(
     bool FreeUserData
 )
 {
-	if (Exports[iFreeFindData] && !ProcessException)
+	if (Exports[iFreeFindData] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEFINDDATA;
@@ -1423,7 +1423,7 @@ int Plugin::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 	(void)Pred;
 	BOOL bResult = FALSE;
 
-	if (Exports[iProcessPanelInput] && !ProcessException)
+	if (Exports[iProcessPanelInput] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSPANELINPUT;
@@ -1443,7 +1443,7 @@ void Plugin::ClosePanel(
     HANDLE hPlugin
 )
 {
-	if (Exports[iClosePanel] && !ProcessException)
+	if (Exports[iClosePanel] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_CLOSEPANEL;
@@ -1464,7 +1464,7 @@ int Plugin::SetDirectory(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iSetDirectory] && !ProcessException)
+	if (Exports[iSetDirectory] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_SETDIRECTORY;
@@ -1490,7 +1490,7 @@ void Plugin::GetOpenPanelInfo(
 //	m_pManager->m_pCurrentPlugin = this;
 	pInfo->StructSize = sizeof(OpenPanelInfo);
 
-	if (Exports[iGetOpenPanelInfo] && !ProcessException)
+	if (Exports[iGetOpenPanelInfo] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETOPENPANELINFO;
@@ -1504,7 +1504,7 @@ int Plugin::Configure(const GUID& Guid)
 {
 	BOOL bResult = FALSE;
 
-	if (Load() && Exports[iConfigure] && !ProcessException)
+	if (Load() && Exports[iConfigure] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_CONFIGURE;
@@ -1521,7 +1521,7 @@ int Plugin::Configure(const GUID& Guid)
 
 bool Plugin::GetPluginInfo(PluginInfo *pi)
 {
-	if (Exports[iGetPluginInfo] && !ProcessException)
+	if (Exports[iGetPluginInfo] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETPLUGININFO;
@@ -1536,7 +1536,7 @@ bool Plugin::GetPluginInfo(PluginInfo *pi)
 
 int Plugin::GetCustomData(const wchar_t *FilePath, wchar_t **CustomData)
 {
-	if (Load() && Exports[iGetCustomData] && !ProcessException)
+	if (Load() && Exports[iGetCustomData] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETCUSTOMDATA;
@@ -1551,7 +1551,7 @@ int Plugin::GetCustomData(const wchar_t *FilePath, wchar_t **CustomData)
 
 void Plugin::FreeCustomData(wchar_t *CustomData)
 {
-	if (Load() && Exports[iFreeCustomData] && !ProcessException)
+	if (Load() && Exports[iFreeCustomData] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREECUSTOMDATA;
@@ -1561,7 +1561,7 @@ void Plugin::FreeCustomData(wchar_t *CustomData)
 
 void Plugin::ExitFAR(const ExitInfo *Info)
 {
-	if (Exports[iExitFAR] && !ProcessException)
+	if (Exports[iExitFAR] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_EXITFAR;

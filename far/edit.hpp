@@ -49,8 +49,8 @@ enum FLAGS_CLASS_EDITLINE
 	FEDITLINE_EDITBEYONDEND        = 0x00001000,
 	FEDITLINE_EDITORMODE           = 0x00002000,
 	FEDITLINE_OVERTYPE             = 0x00004000,
-	FEDITLINE_DELREMOVESBLOCKS     = 0x00008000,  // Del удаляет блоки (Opt.EditorDelRemovesBlocks)
-	FEDITLINE_PERSISTENTBLOCKS     = 0x00010000,  // Постоянные блоки (Opt.EditorPersistentBlocks)
+	FEDITLINE_DELREMOVESBLOCKS     = 0x00008000,  // Del удаляет блоки (Global->Opt->EditorDelRemovesBlocks)
+	FEDITLINE_PERSISTENTBLOCKS     = 0x00010000,  // Постоянные блоки (Global->Opt->EditorPersistentBlocks)
 	FEDITLINE_SHOWWHITESPACE       = 0x00020000,
 	FEDITLINE_SHOWLINEBREAK        = 0x00040000,
 	FEDITLINE_READONLY             = 0x00080000,
@@ -113,7 +113,7 @@ class Edit:public ScreenObject
 
 		int    PrevCurPos;       // 12.08.2000 KM - предыдущее положение курсора
 
-		int    TabSize;          // 14.02.2001 IS - Размер табуляции - по умолчанию равен Opt.TabSize;
+		int    TabSize;          // 14.02.2001 IS - Размер табуляции - по умолчанию равен Global->Opt->TabSize;
 
 		int    TabExpandMode;
 

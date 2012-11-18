@@ -225,7 +225,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 	// achtung, experimental
 	if((Corner&2) && SyncWithConsole)
 	{
-		Console.ResetPosition();
+		Global->Console->ResetPosition();
 		if(NewY!=OHe)
 		{
 			COORD Size={static_cast<SHORT>(Max(NewX,OWi)), static_cast<SHORT>(abs(OHe-NewY))};
@@ -234,7 +234,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 			if(NewY>OHe)
 			{
 				SMALL_RECT ReadRegion={0, 0, static_cast<SHORT>(NewX-1), static_cast<SHORT>(NewY-OHe-1)};
-				Console.ReadOutput(Tmp, Size, Coord, ReadRegion);
+				Global->Console->ReadOutput(Tmp, Size, Coord, ReadRegion);
 				for(int i=0; i<Size.Y;i++)
 				{
 					CharCopy(&NewBuf[i*Size.X],&Tmp[i*Size.X], Size.X);
@@ -247,8 +247,8 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 				{
 					CharCopy(&Tmp[i*Size.X],&ScreenBuf[i*OWi], Size.X);
 				}
-				Console.WriteOutput(Tmp, Size, Coord, WriteRegion);
-				Console.Commit();
+				Global->Console->WriteOutput(Tmp, Size, Coord, WriteRegion);
+				Global->Console->Commit();
 			}
 			delete[] Tmp;
 		}
@@ -261,7 +261,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 			if(NewX>OWi)
 			{
 				SMALL_RECT ReadRegion={static_cast<SHORT>(OWi), 0, static_cast<SHORT>(NewX-1), static_cast<SHORT>(NewY-1)};
-				Console.ReadOutput(Tmp, Size, Coord, ReadRegion);
+				Global->Console->ReadOutput(Tmp, Size, Coord, ReadRegion);
 				for(int i=0; i<NewY;i++)
 				{
 					CharCopy(&NewBuf[i*NewX+OWi],&Tmp[i*Size.X], Size.X);
@@ -277,8 +277,8 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 					else
 						CleanupBuffer(&Tmp[i*Size.X], Size.X);
 				}
-				Console.WriteOutput(Tmp, Size, Coord, WriteRegion);
-				Console.Commit();
+				Global->Console->WriteOutput(Tmp, Size, Coord, WriteRegion);
+				Global->Console->Commit();
 			}
 			delete[] Tmp;
 		}

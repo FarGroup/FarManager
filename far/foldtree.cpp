@@ -88,7 +88,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 			}
 
 			FindEdit->SetEditBeyondEnd(FALSE);
-			FindEdit->SetPersistentBlocks(Opt.Dialogs.EditBlock);
+			FindEdit->SetPersistentBlocks(Global->Opt->Dialogs.EditBlock);
 			InitKeyBar();
 			FrameManager->ExecuteModal(this); //OT
 		}
@@ -185,7 +185,7 @@ void FolderTree::SetScreenPosition()
 
 int FolderTree::FastHide()
 {
-	return Opt.AllCtrlAltShiftRule & CASR_DIALOG;
+	return Global->Opt->AllCtrlAltShiftRule & CASR_DIALOG;
 }
 
 
@@ -331,9 +331,9 @@ int FolderTree::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 
 	if ((MsX<X1 || MsY<Y1 || MsX>X2 || MsY>Y2) && IntKeyState.MouseEventFlags != MOUSE_MOVED)
 	{
-		if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
+		if (!(MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
 			ProcessKey(KEY_ESC);
-		else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
+		else if (!(MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
 			ProcessKey(KEY_ENTER);
 
 		return TRUE;
@@ -359,7 +359,7 @@ void FolderTree::DrawEdit()
 	const wchar_t *SearchTxt=MSG(MFoldTreeSearch);
 	GotoXY(X1+1,FindY);
 	SetColor(COL_PANELTEXT);
-	FS<<SearchTxt<<L"  ";
+	Global->FS << SearchTxt<<L"  ";
 	FindEdit->SetPosition(X1+StrLength(SearchTxt)+2,FindY,Min(X2-1,X1+25),FindY);
 	FindEdit->SetObjectColor(COL_DIALOGEDIT);
 	FindEdit->Show();
@@ -367,7 +367,7 @@ void FolderTree::DrawEdit()
 	if (WhereX()<X2)
 	{
 		SetColor(COL_PANELTEXT);
-		FS<<fmt::MinWidth(X2-WhereX())<<L"";
+		Global->FS << fmt::MinWidth(X2-WhereX())<<L"";
 	}
 }
 

@@ -198,5 +198,3 @@ private:
 	bool LargeChanged;
 	bool SmallChanged;
 };
-
-extern consoleicons ConsoleIcons;

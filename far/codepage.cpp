@@ -375,7 +375,7 @@ BOOL WINAPI EnumCodePagesProc(const wchar_t *lpwszCodePage)
 		// Увеличиваем счётчик выбранных таблиц символов
 		favoriteCodePages++;
 	}
-	else if (CallbackCallSource == CodePagesFill || !Opt.CPMenuMode)
+	else if (CallbackCallSource == CodePagesFill || !Global->Opt->CPMenuMode)
 	{
 		// добавляем разделитель между стандартными и системными таблицами символов
 		if (!favoriteCodePages && !normalCodePages)
@@ -429,7 +429,7 @@ void AddCodePages(DWORD codePages)
 // Обработка добавления/удаления в/из список выбранных таблиц символов
 void ProcessSelected(bool select)
 {
-	if (Opt.CPMenuMode && select)
+	if (Global->Opt->CPMenuMode && select)
 		return;
 
 	UINT itemPosition = CodePages->GetSelectPos();
@@ -497,7 +497,7 @@ void ProcessSelected(bool select)
 				CodePages->DeleteItem(CodePages->GetItemCount()-normalCodePages-2);
 
 			// Переносим элемент в нормальные таблицы, только если они показываются
-			if (!Opt.CPMenuMode)
+			if (!Global->Opt->CPMenuMode)
 			{
 				// Добавляем разделитель, если не было ни одной нормальной кодовой страницы
 				if (!normalCodePages)
@@ -528,7 +528,7 @@ void ProcessSelected(bool select)
 		CodePages->SetSelectPos(position>=CodePages->GetItemCount() ? CodePages->GetItemCount()-1 : position, 1);
 
 		// Показываем меню
-		if (Opt.CPMenuMode)
+		if (Global->Opt->CPMenuMode)
 			CodePages->SetPosition(-1, -1, 0, 0);
 	}
 }
@@ -546,7 +546,7 @@ void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool b
 	CodePages->DeleteItems();
 
 	UnicodeString title = MSG(MGetCodePageTitle);
-	if (Opt.CPMenuMode)
+	if (Global->Opt->CPMenuMode)
 		title += L" *";
 	CodePages->SetTitle(title);
 
@@ -705,7 +705,7 @@ bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool 
 	currentCodePage = CodePage;
 	// Создаём меню
 	CodePages = new VMenu2(L"", nullptr, 0, ScrY-4);
-	CodePages->SetBottomTitle(MSG(!Opt.CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
+	CodePages->SetBottomTitle(MSG(!Global->Opt->CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
 	CodePages->SetFlags(VMENU_WRAPMODE|VMENU_AUTOHIGHLIGHT);
 	CodePages->SetHelp(L"CodePagesMenu");
 	// Добавляем таблицы символов
@@ -721,8 +721,8 @@ bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool 
 			// Обработка скрытия/показа системных таблиц символов
 			case KEY_CTRLH:
 			case KEY_RCTRLH:
-				Opt.CPMenuMode = !Opt.CPMenuMode;
-				CodePages->SetBottomTitle(MSG(!Opt.CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
+				Global->Opt->CPMenuMode = !Global->Opt->CPMenuMode;
+				CodePages->SetBottomTitle(MSG(!Global->Opt->CPMenuMode?MGetCodePageBottomTitle:MGetCodePageBottomShortTitle));
 				FillCodePagesVMenu(bShowUnicode, bShowUTF, bShowUTF7, bShowAutoDetect);
 				break;
 			// Обработка удаления таблицы символов из списка выбранных

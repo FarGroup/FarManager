@@ -5016,10 +5016,10 @@ int WINAPI GetFileOwnerA(const char *Computer,const char *Name, char *Owner)
 
 static void CheckScreenLock()
 {
-	if (ScrBuf.GetLockCount() > 0 && !CtrlObject->Macro.PeekKey())
+	if (Global->ScrBuf->GetLockCount() > 0 && !CtrlObject->Macro.PeekKey())
 	{
-//		ScrBuf.SetLockCount(0);
-		ScrBuf.Flush();
+//		Global->ScrBuf->SetLockCount(0);
+		Global->ScrBuf->Flush();
 	}
 }
 
@@ -5163,13 +5163,13 @@ bool PluginA::GetGlobalInfo(GlobalInfo* Info)
 
 bool PluginA::SetStartupInfo()
 {
-	if (Exports[iSetStartupInfo] && !ProcessException)
+	if (Exports[iSetStartupInfo] && !Global->ProcessException)
 	{
 		oldfar::PluginStartupInfo _info;
 		oldfar::FarStandardFunctions _fsf;
 		CreatePluginStartupInfoA(this, &_info, &_fsf);
 		// скорректирем адреса и плагино-зависимые пол€
-		strRootKey = Opt.strRegRoot + L"\\Plugins";
+		strRootKey = Global->Opt->strRegRoot + L"\\Plugins";
 		RootKey = UnicodeToAnsi(strRootKey);
 		_info.RootKey = RootKey;
 		ExecuteStruct es;
@@ -5187,7 +5187,7 @@ bool PluginA::SetStartupInfo()
 
 bool PluginA::CheckMinFarVersion()
 {
-	if (Exports[iGetMinFarVersion] && !ProcessException)
+	if (Exports[iGetMinFarVersion] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_MINFARVERSION;
@@ -5220,12 +5220,12 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 //		string strCurDir;
 //		CtrlObject->CmdLine->GetCurDir(strCurDir);
 //		FarChDir(strCurDir);
-		g_strDirToSet.Clear();
+		Global->g_strDirToSet.Clear();
 	}
 
 	HANDLE hResult = nullptr;
 
-	if (Load() && Exports[iOpen] && !ProcessException)
+	if (Load() && Exports[iOpen] && !Global->ProcessException)
 	{
 		//CurPluginItem=this; //BUGBUG
 		ExecuteStruct es;
@@ -5315,7 +5315,7 @@ HANDLE PluginA::OpenFilePlugin(
 {
 	HANDLE hResult = nullptr;
 
-	if (Load() && Exports[iOpenFilePlugin] && !ProcessException)
+	if (Load() && Exports[iOpenFilePlugin] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_OPENFILEPLUGIN;
@@ -5344,7 +5344,7 @@ int PluginA::SetFindList(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iSetFindList] && !ProcessException)
+	if (Exports[iSetFindList] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_SETFINDLIST;
@@ -5365,7 +5365,7 @@ int PluginA::ProcessEditorInput(
 {
 	BOOL bResult = FALSE;
 
-	if (Load() && Exports[iProcessEditorInput] && !ProcessException)
+	if (Load() && Exports[iProcessEditorInput] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSEDITORINPUT;
@@ -5393,7 +5393,7 @@ int PluginA::ProcessEditorEvent(
     int EditorID
 )
 {
-	if (Load() && Exports[iProcessEditorEvent] && !ProcessException)
+	if (Load() && Exports[iProcessEditorEvent] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSEDITOREVENT;
@@ -5421,7 +5421,7 @@ int PluginA::ProcessViewerEvent(
     int ViewerID
 )
 {
-	if (Load() && Exports[iProcessViewerEvent] && !ProcessException)
+	if (Load() && Exports[iProcessViewerEvent] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSVIEWEREVENT;
@@ -5448,7 +5448,7 @@ int PluginA::ProcessDialogEvent(
 {
 	BOOL bResult = FALSE;
 
-	if (Load() && Exports[iProcessDialogEvent] && !ProcessException)
+	if (Load() && Exports[iProcessDialogEvent] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSDIALOGEVENT;
@@ -5469,7 +5469,7 @@ int PluginA::GetVirtualFindData(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iGetVirtualFindData] && !ProcessException)
+	if (Exports[iGetVirtualFindData] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETVIRTUALFINDDATA;
@@ -5502,7 +5502,7 @@ void PluginA::FreeVirtualFindData(
 {
 	FreeUnicodePanelItem(PanelItem, ItemsNumber);
 
-	if (Exports[iFreeVirtualFindData] && !ProcessException && pVFDPanelItemA)
+	if (Exports[iFreeVirtualFindData] && !Global->ProcessException && pVFDPanelItemA)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEVIRTUALFINDDATA;
@@ -5524,7 +5524,7 @@ int PluginA::GetFiles(
 {
 	int nResult = -1;
 
-	if (Exports[iGetFiles] && !ProcessException)
+	if (Exports[iGetFiles] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETFILES;
@@ -5555,7 +5555,7 @@ int PluginA::PutFiles(
 {
 	int nResult = -1;
 
-	if (Exports[iPutFiles] && !ProcessException)
+	if (Exports[iPutFiles] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PUTFILES;
@@ -5579,7 +5579,7 @@ int PluginA::DeleteFiles(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iDeleteFiles] && !ProcessException)
+	if (Exports[iDeleteFiles] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_DELETEFILES;
@@ -5603,7 +5603,7 @@ int PluginA::MakeDirectory(
 {
 	int nResult = -1;
 
-	if (Exports[iMakeDirectory] && !ProcessException)
+	if (Exports[iMakeDirectory] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_MAKEDIRECTORY;
@@ -5630,7 +5630,7 @@ int PluginA::ProcessHostFile(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iProcessHostFile] && !ProcessException)
+	if (Exports[iProcessHostFile] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSHOSTFILE;
@@ -5654,7 +5654,7 @@ int PluginA::ProcessPanelEvent(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iProcessPanelEvent] && !ProcessException)
+	if (Exports[iProcessPanelEvent] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_PROCESSPANELEVENT;
@@ -5685,7 +5685,7 @@ int PluginA::Compare(
 {
 	int nResult = -2;
 
-	if (Exports[iCompare] && !ProcessException)
+	if (Exports[iCompare] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_COMPARE;
@@ -5713,7 +5713,7 @@ int PluginA::GetFindData(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iGetFindData] && !ProcessException)
+	if (Exports[iGetFindData] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETFINDDATA;
@@ -5744,7 +5744,7 @@ void PluginA::FreeFindData(
 	if (FreeUserData) FreePluginPanelItemsUserData(hPlugin,PanelItem,ItemsNumber);
 	FreeUnicodePanelItem(PanelItem, ItemsNumber);
 
-	if (Exports[iFreeFindData] && !ProcessException && pFDPanelItemA)
+	if (Exports[iFreeFindData] && !Global->ProcessException && pFDPanelItemA)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_FREEFINDDATA;
@@ -5757,7 +5757,7 @@ int PluginA::ProcessKey(HANDLE hPlugin,const INPUT_RECORD *Rec, bool Pred)
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iProcessPanelInput] && !ProcessException)
+	if (Exports[iProcessPanelInput] && !Global->ProcessException)
 	{
 		int VirtKey;
 		int dwControlState;
@@ -5784,7 +5784,7 @@ void PluginA::ClosePanel(
     HANDLE hPlugin
 )
 {
-	if (Exports[iClosePanel] && !ProcessException)
+	if (Exports[iClosePanel] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_CLOSEPANEL;
@@ -5804,7 +5804,7 @@ int PluginA::SetDirectory(
 {
 	BOOL bResult = FALSE;
 
-	if (Exports[iSetDirectory] && !ProcessException)
+	if (Exports[iSetDirectory] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_SETDIRECTORY;
@@ -5975,7 +5975,7 @@ void PluginA::GetOpenPanelInfo(
 //	m_pManager->m_pCurrentPlugin = this;
 	pInfo->StructSize = sizeof(OpenPanelInfo);
 
-	if (Exports[iGetOpenPanelInfo] && !ProcessException)
+	if (Exports[iGetOpenPanelInfo] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETOPENPANELINFO;
@@ -5990,7 +5990,7 @@ int PluginA::Configure(const GUID& Guid)
 {
 	BOOL bResult = FALSE;
 
-	if (Load() && Exports[iConfigure] && !ProcessException)
+	if (Load() && Exports[iConfigure] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_CONFIGURE;
@@ -6116,7 +6116,7 @@ bool PluginA::GetPluginInfo(PluginInfo *pi)
 {
 	ClearStruct(*pi);
 
-	if (Exports[iGetPluginInfo] && !ProcessException)
+	if (Exports[iGetPluginInfo] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_GETPLUGININFO;
@@ -6135,7 +6135,7 @@ bool PluginA::GetPluginInfo(PluginInfo *pi)
 
 void PluginA::ExitFAR(const ExitInfo *Info)
 {
-	if (Exports[iExitFAR] && !ProcessException)
+	if (Exports[iExitFAR] && !Global->ProcessException)
 	{
 		ExecuteStruct es;
 		es.id = EXCEPT_EXITFAR;

@@ -39,8 +39,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "ctrlobj.hpp"
 
-PluginSynchro PluginSynchroManager;
-
 PluginSynchro::PluginSynchro()
 {
 }

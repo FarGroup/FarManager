@@ -58,13 +58,13 @@ static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeS
 void GetColor(int PaletteIndex)
 {
 	ChangeMacroMode chgMacroMode(MACRO_MENU);
-	FarColor NewColor = Opt.Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR];
+	FarColor NewColor = Global->Opt->Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR];
 
-	if (Console.GetColorDialog(NewColor))
+	if (Global->Console->GetColorDialog(NewColor))
 	{
-		Opt.Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR] = NewColor;
-		Opt.Palette.SetChanged();
-		ScrBuf.Lock(); // отменяем всякую прорисовку
+		Global->Opt->Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR] = NewColor;
+		Global->Opt->Palette.SetChanged();
+		Global->ScrBuf->Lock(); // отменяем всякую прорисовку
 		CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 		CtrlObject->Cp()->LeftPanel->Redraw();
 		CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
@@ -74,10 +74,10 @@ void GetColor(int PaletteIndex)
 		FrameManager->ResizeAllFrame(); // рефрешим
 		FrameManager->PluginCommit(); // коммитим.
 
-		if (Opt.Clock)
+		if (Global->Opt->Clock)
 			ShowTime(1);
 
-		ScrBuf.Unlock(); // разрешаем прорисовку
+		Global->ScrBuf->Unlock(); // разрешаем прорисовку
 		FrameManager->PluginCommit(); // коммитим.
 	}
 }
@@ -386,13 +386,13 @@ void SetColors()
 
 			if (GroupsCode==12)
 			{
-				Opt.Palette.ResetToDefault();
+				Global->Opt->Palette.ResetToDefault();
 				break;
 			}
 
 			if (GroupsCode==13)
 			{
-				Opt.Palette.ResetToBlack();
+				Global->Opt->Palette.ResetToBlack();
 				break;
 			}
 

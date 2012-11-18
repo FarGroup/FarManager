@@ -75,7 +75,7 @@ intptr_t WINAPI VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param
 		return true;
 	}
 
-	if(CloseFARMenu && Msg!=DN_CLOSE)
+	if(Global->CloseFARMenu && Msg!=DN_CLOSE)
 		SendDlgMessage(hDlg, DM_CLOSE, -1, nullptr);
 
 	if(Msg==DN_CLOSE && vm->Call(Msg, (void*)(Param1<0 ? Param1 : vm->GetSelectPos())))

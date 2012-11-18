@@ -153,7 +153,7 @@ int ScreenSaver(int EnableExit)
 	INPUT_RECORD rec;
 	clock_t WaitTime;
 
-	if (ScreenSaverActive)
+	if (Global->ScreenSaverActive)
 		return 1;
 
 	ChangePriority ChPriority(THREAD_PRIORITY_IDLE);
@@ -166,9 +166,9 @@ int ScreenSaver(int EnableExit)
 		Sleep(100);
 	}
 
-	ScreenSaverActive=TRUE;
+	Global->ScreenSaverActive=TRUE;
 	CONSOLE_CURSOR_INFO CursorInfo;
-	Console.GetCursorInfo(CursorInfo);
+	Global->Console->GetCursorInfo(CursorInfo);
 	{
 		SaveScreen SaveScr;
 		SetCursorType(0,10);
@@ -192,9 +192,9 @@ int ScreenSaver(int EnableExit)
 		}
 	}
 	SetCursorType(CursorInfo.bVisible!=FALSE, CursorInfo.dwSize);
-	ScreenSaverActive=FALSE;
+	Global->ScreenSaverActive=FALSE;
 	FlushInputBuffer();
-	StartIdleTime=clock();
+	Global->StartIdleTime=clock();
 	return 1;
 }
 

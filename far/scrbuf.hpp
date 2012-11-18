@@ -85,5 +85,3 @@ class ScreenBuf
 		void Scroll(int);
 		void Flush();
 };
-
-extern ScreenBuf ScrBuf;

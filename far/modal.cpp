@@ -91,7 +91,7 @@ int Modal::ReadInput(INPUT_RECORD *GetReadRec)
 		Show();
 	}
 
-	if (CloseFARMenu)
+	if (Global->CloseFARMenu)
 	{
 		SetExitCode(-1);
 	}

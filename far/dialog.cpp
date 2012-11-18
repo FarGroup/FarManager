@@ -280,7 +280,20 @@ void ItemToItemEx(const FarDialogItem *Item, DialogItemEx *ItemEx, size_t Count,
 	}
 }
 
+void Dialog::Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, void* InitParam)
+{
+	bInitOK = false;
+	Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
 
+	for (unsigned i = 0; i < SrcItemCount; i++)
+	{
+		Item[i] = new DialogItemEx(SrcItem[i]);
+	}
+
+	ItemCount = static_cast<int>(SrcItemCount);
+	pSaveItemEx = SrcItem;
+	Init(OwnerClass, HandlerFunction, nullptr, InitParam);
+}
 
 Dialog::Dialog(DialogItemEx *SrcItem,    // Набор элементов диалога
                size_t SrcItemCount,              // Количество элементов
@@ -297,7 +310,7 @@ Dialog::Dialog(DialogItemEx *SrcItem,    // Набор элементов диалога
 
 	ItemCount = static_cast<int>(SrcItemCount);
 	pSaveItemEx = SrcItem;
-	Init(DlgProc, InitParam);
+	Init(nullptr, nullptr, DlgProc, InitParam);
 }
 
 Dialog::Dialog(const FarDialogItem *SrcItem,    // Набор элементов диалога
@@ -318,11 +331,10 @@ Dialog::Dialog(const FarDialogItem *SrcItem,    // Набор элементов диалога
 
 	ItemCount = static_cast<unsigned>(SrcItemCount);
 	pSaveItemEx = nullptr;
-	Init(DlgProc, InitParam);
+	Init(nullptr, nullptr, DlgProc, InitParam);
 }
 
-void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
-                  void* InitParam)         // Ассоцированные с диалогом данные
+void Dialog::Init(DialogOwner* Owner, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc, void* InitParam)
 {
 	SetDynamicallyBorn(FALSE); // $OT: По умолчанию все диалоги создаются статически
 	CanLoseFocus = FALSE;
@@ -336,15 +348,18 @@ void Dialog::Init(FARWINDOWPROC DlgProc,      // Диалоговая процедура
 	FocusPos=(unsigned)-1;
 	PrevFocusPos=(unsigned)-1;
 
-	if (!DlgProc) // функция должна быть всегда!!!
+	OwnerClass = Owner;
+	DialogHandler = OwnerClass? HandlerFunction : nullptr;
+	if (!DialogHandler)
 	{
-		DlgProc=DefDlgProc;
-		// знать диалог в старом стиле - учтем этот факт!
-		DialogMode.Set(DMODE_OLDSTYLE);
+		if (!DlgProc) // функция должна быть всегда!!!
+		{
+			DlgProc=DefDlgProc;
+			// знать диалог в старом стиле - учтем этот факт!
+			DialogMode.Set(DMODE_OLDSTYLE);
+		}
+		RealDlgProc=DlgProc;
 	}
-
-	RealDlgProc=DlgProc;
-
 	if (CtrlObject)
 	{
 		// запомним пред. режим макро.
@@ -374,11 +389,11 @@ Dialog::~Dialog()
 		CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	Hide();
-	if (Opt.Clock && FrameManager->IsPanelsActive(true))
+	if (Global->Opt->Clock && FrameManager->IsPanelsActive(true))
 		ShowTime(0);
 
 	if(!CheckDialogMode(DMODE_ISMENU))
-		ScrBuf.Flush();
+		Global->ScrBuf->Flush();
 
 	if (HelpTopic)
 		delete [] HelpTopic;
@@ -419,7 +434,7 @@ void Dialog::InitDialog()
 {
 	CriticalSectionLock Lock(CS);
 
-	if(CloseFAR)
+	if(Global->CloseFAR)
 	{
 		SetDialogMode(DMODE_NOPLUGINS);
 	}
@@ -464,7 +479,7 @@ void Dialog::Show()
 
 	if (!Locked() && DialogMode.Check(DMODE_RESIZED))
 	{
-		PreRedrawItem preRedrawItem=PreRedraw.Peek();
+		PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 
 		if (preRedrawItem.PreRedrawFunc)
 			preRedrawItem.PreRedrawFunc();
@@ -775,7 +790,7 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 
 				if (Type == DI_COMBOBOX)
 				{
-					CurItem->ListPtr=new VMenu(L"",nullptr,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_NOTCHANGE,nullptr,this);
+					CurItem->ListPtr=new VMenu(L"",nullptr,0,Global->Opt->Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_NOTCHANGE,nullptr,this);
 					CurItem->ListPtr->SetVDialogItemID(I);
 				}
 
@@ -929,9 +944,9 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 
 			// Для обычных строк отрубим постоянные блоки
 			if (!(ItemFlags&DIF_EDITOR))
-				DialogEdit->SetPersistentBlocks(Opt.Dialogs.EditBlock);
+				DialogEdit->SetPersistentBlocks(Global->Opt->Dialogs.EditBlock);
 
-			DialogEdit->SetDelRemovesBlocks(Opt.Dialogs.DelRemovesBlocks);
+			DialogEdit->SetDelRemovesBlocks(Global->Opt->Dialogs.DelRemovesBlocks);
 
 			if (ItemFlags&DIF_READONLY)
 				DialogEdit->SetReadOnly(1);
@@ -1068,7 +1083,7 @@ BOOL Dialog::SetItemRect(unsigned ID,SMALL_RECT *Rect)
 	if (DialogMode.Check(DMODE_SHOW))
 	{
 		ShowDialog((unsigned)-1);
-		ScrBuf.Flush();
+		Global->ScrBuf->Flush();
 	}
 
 	return TRUE;
@@ -1189,7 +1204,7 @@ BOOL Dialog::GetItemRect(unsigned I,SMALL_RECT& Rect)
 
 bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item)
 {
-	return ((!Item->strHistory.IsEmpty() && (Item->Flags & DIF_HISTORY) && Opt.Dialogs.EditHistory) ||
+	return ((!Item->strHistory.IsEmpty() && (Item->Flags & DIF_HISTORY) && Global->Opt->Dialogs.EditHistory) ||
 		(Item->Type == DI_COMBOBOX && Item->ListPtr && Item->ListPtr->GetItemCount() > 0));
 }
 
@@ -1280,7 +1295,7 @@ void Dialog::GetDialogObjectsData()
 					        (IFlags & DIF_HISTORY) &&
 					        !(IFlags & DIF_MANUALADDHISTORY) && // при мануале не добавляем
 							!CurItem->strHistory.IsEmpty() &&
-					        Opt.Dialogs.EditHistory)
+					        Global->Opt->Dialogs.EditHistory)
 					{
 						AddToEditHistory(CurItem, strData);
 					}
@@ -1732,7 +1747,7 @@ void Dialog::ShowDialog(unsigned ID)
 					if (X1+X+CntChr-1 > X2)
 						CntChr=X2-(X1+X)+1;
 
-					FS<<fmt::MinWidth(CntChr)<<L"";
+					Global->FS << fmt::MinWidth(CntChr)<<L"";
 
 					if (CntChr < LenText)
 						strStr.SetLength(CntChr);
@@ -1903,7 +1918,7 @@ void Dialog::ShowDialog(unsigned ID)
 					int startx=X1+CX1+(CurItem->Flags&DIF_NOBRACKETS?0:2);
 					FarColor Color;
 					Colors::ConsoleColorToFarColor(0xE9, Color);
-					ScrBuf.ApplyColor(startx,Y1+CY1,startx+1,Y1+CY1,Color);
+					Global->ScrBuf->ApplyColor(startx,Y1+CY1,startx+1,Y1+CY1,Color);
 				}
 				break;
 			}
@@ -2809,7 +2824,7 @@ int Dialog::ProcessKey(int Key)
 			break;
 
 		case KEY_F11:
-			if (!IsProcessAssignMacroKey)
+			if (!Global->IsProcessAssignMacroKey)
 			{
 				if(!CheckDialogMode(DMODE_NOPLUGINS))
 				{
@@ -3024,7 +3039,7 @@ int Dialog::ProcessKey(int Key)
 				        ((Item[FocusPos]->Flags & DIF_READONLY) && IsNavKey(Key)))
 				{
 					// "только что ломанулись и начинать выделение с нуля"?
-					if ((Opt.Dialogs.EditLine&DLGEDITLINE_NEWSELONGOTFOCUS) && Item[FocusPos]->SelStart != -1 && PrevFocusPos != FocusPos)// && Item[FocusPos].SelEnd)
+					if ((Global->Opt->Dialogs.EditLine&DLGEDITLINE_NEWSELONGOTFOCUS) && Item[FocusPos]->SelStart != -1 && PrevFocusPos != FocusPos)// && Item[FocusPos].SelEnd)
 					{
 						edt->Flags().Clear(FEDITLINE_MARKINGBLOCK);
 						PrevFocusPos=FocusPos;
@@ -3188,7 +3203,7 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					List->ProcessMouse(&MouseRecord);
 					int NewListPos=List->GetSelectPos();
 					int InScroolBar=(MsX==X1+Item[I]->X2 && MsY >= Y1+Item[I]->Y1 && MsY <= Y1+Item[I]->Y2) &&
-					                (List->CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Opt.ShowMenuScrollbar);
+					                (List->CheckFlags(VMENU_LISTBOX|VMENU_ALWAYSSCROLLBAR) || Global->Opt->ShowMenuScrollbar);
 
 					if (!InScroolBar       &&                                                                // вне скроллбара и
 					        NewListPos != Pos &&                                                                 // позиция изменилась и
@@ -3266,10 +3281,10 @@ int Dialog::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				return FALSE;
 
 //      if (!(mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && PrevLButtonPressed && ScreenObject::CaptureMouseObject)
-			if (!(mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
+			if (!(mouse.Event.MouseEvent.dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&FROM_LEFT_1ST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_LEFT))
 				ProcessKey(KEY_ESC);
 //      else if (!(mouse.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) && PrevRButtonPressed && ScreenObject::CaptureMouseObject)
-			else if (!(mouse.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Opt.Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
+			else if (!(mouse.Event.MouseEvent.dwButtonState & RIGHTMOST_BUTTON_PRESSED) && (IntKeyState.PrevMouseButtonState&RIGHTMOST_BUTTON_PRESSED) && (Global->Opt->Dialogs.MouseButton&DMOUSEBUTTON_RIGHT))
 				ProcessKey(KEY_ENTER);
 		}
 
@@ -3579,7 +3594,7 @@ int Dialog::ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem, u
 
 	if (IsEdit(Type) &&
 	        (CurItem->Flags & DIF_HISTORY) &&
-	        Opt.Dialogs.EditHistory &&
+	        Global->Opt->Dialogs.EditHistory &&
 	        !CurItem->strHistory.IsEmpty() &&
 	        !(CurItem->Flags & DIF_READONLY))
 	{
@@ -3878,7 +3893,7 @@ void Dialog::ChangeFocus2(unsigned SetFocusPos)
 			DlgEdit *EditPtr=(DlgEdit*)Item[FocusPos]->ObjPtr;
 			EditPtr->GetSelection(Item[FocusPos]->SelStart,Item[FocusPos]->SelEnd);
 
-			if ((Opt.Dialogs.EditLine&DLGEDITLINE_CLEARSELONKILLFOCUS))
+			if ((Global->Opt->Dialogs.EditLine&DLGEDITLINE_CLEARSELONKILLFOCUS))
 			{
 				EditPtr->Select(-1,0);
 			}
@@ -3892,9 +3907,9 @@ void Dialog::ChangeFocus2(unsigned SetFocusPos)
 		{
 			DlgEdit *EditPtr=(DlgEdit*)Item[SetFocusPos]->ObjPtr;
 
-			if (!(Opt.Dialogs.EditLine&DLGEDITLINE_NOTSELONGOTFOCUS))
+			if (!(Global->Opt->Dialogs.EditLine&DLGEDITLINE_NOTSELONGOTFOCUS))
 			{
-				if (Opt.Dialogs.EditLine&DLGEDITLINE_SELALLGOTFOCUS)
+				if (Global->Opt->Dialogs.EditLine&DLGEDITLINE_SELALLGOTFOCUS)
 					EditPtr->Select(0,EditPtr->GetStrSize());
 				else
 					EditPtr->Select(Item[SetFocusPos]->SelStart,Item[SetFocusPos]->SelEnd);
@@ -3905,7 +3920,7 @@ void Dialog::ChangeFocus2(unsigned SetFocusPos)
 			}
 
 			// при получении фокуса ввода переместить курсор в конец строки?
-			if (Opt.Dialogs.EditLine&DLGEDITLINE_GOTOEOLGOTFOCUS)
+			if (Global->Opt->Dialogs.EditLine&DLGEDITLINE_GOTOEOLGOTFOCUS)
 			{
 				EditPtr->SetCurPos(EditPtr->GetStrSize());
 			}
@@ -4142,7 +4157,7 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 	{
 		DlgHist->ResetPosition();
 		// создание пустого вертикального меню
-		VMenu2 HistoryMenu(L"",nullptr,0,Opt.Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
+		VMenu2 HistoryMenu(L"",nullptr,0,Global->Opt->Dialogs.CBoxMaxHeight,VMENU_ALWAYSSCROLLBAR|VMENU_COMBOBOX|VMENU_NOTCHANGE);
 		HistoryMenu.SetDialogMode(DMODE_NODRAWSHADOW);
 		HistoryMenu.SetModeMoving(false);
 		HistoryMenu.SetFlags(VMENU_SHOWAMPERSAND);
@@ -4150,7 +4165,7 @@ BOOL Dialog::SelectFromEditHistory(DialogItemEx *CurItem,
 //		SetDropDownOpened(TRUE); // Установим флаг "открытия" комбобокса.
 		// запомним (для прорисовки)
 //		CurItem->ListPtr=&HistoryMenu;
-		ret = DlgHist->Select(HistoryMenu, Opt.Dialogs.CBoxMaxHeight, this, strStr);
+		ret = DlgHist->Select(HistoryMenu, Global->Opt->Dialogs.CBoxMaxHeight, this, strStr);
 		// забудим (не нужен)
 //		CurItem->ListPtr=nullptr;
 //		SetDropDownOpened(FALSE); // Установим флаг "закрытия" комбобокса.
@@ -4518,7 +4533,7 @@ MACROMODEAREA Dialog::GetMacroMode()
 
 int Dialog::FastHide()
 {
-	return Opt.AllCtrlAltShiftRule & CASR_DIALOG;
+	return Global->Opt->AllCtrlAltShiftRule & CASR_DIALOG;
 }
 
 void Dialog::ResizeConsole()
@@ -4580,7 +4595,10 @@ intptr_t WINAPI Dialog::DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* P
 		if (CtrlObject->Plugins->ProcessDialogEvent(DE_DLGPROCINIT,&de))
 			return de.Result;
 	}
-	Result=RealDlgProc(hDlg,Msg,Param1,Param2);
+	if (OwnerClass)
+		Result=(OwnerClass->*DialogHandler)(hDlg,Msg,Param1,Param2);
+	else
+		Result = RealDlgProc(hDlg,Msg,Param1,Param2);
 	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
 		de.Result=Result;
@@ -4897,7 +4915,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 				{
 					Dlg->ShowDialog();
 //          Dlg->Show();
-					ScrBuf.Flush();
+					Global->ScrBuf->Flush();
 				}
 
 			return Prev;
@@ -4914,7 +4932,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 		        if(Dlg->DialogMode.Check(DMODE_INITOBJECTS))
 		        {
 		          Dlg->ShowDialog();
-		          ScrBuf.Flush();
+		          Global->ScrBuf->Flush();
 		//          Dlg->Show();
 		        }
 		      return 0;
@@ -5024,10 +5042,10 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 		case DM_ALLKEYMODE:
 		{
 			if (Param1 == -1)
-				return IsProcessAssignMacroKey;
+				return Global->IsProcessAssignMacroKey;
 
-			BOOL OldIsProcessAssignMacroKey=IsProcessAssignMacroKey;
-			IsProcessAssignMacroKey=Param1;
+			BOOL OldIsProcessAssignMacroKey=Global->IsProcessAssignMacroKey;
+			Global->IsProcessAssignMacroKey=Param1;
 			return OldIsProcessAssignMacroKey;
 		}
 		/*****************************************************************/
@@ -5343,7 +5361,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 					if (Dlg->DialogMode.Check(DMODE_SHOW) && ListBox->UpdateRequired())
 					{
 						Dlg->ShowDialog(Param1);
-						ScrBuf.Flush();
+						Global->ScrBuf->Flush();
 					}
 
 					return Ret;
@@ -5376,7 +5394,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 				if (Dlg->DialogMode.Check(DMODE_SHOW))
 				{
 					Dlg->ShowDialog(Param1);
-					ScrBuf.Flush();
+					Global->ScrBuf->Flush();
 				}
 
 				return TRUE;
@@ -5510,7 +5528,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 						EditPtr->SetLeftPos(esp->LeftPos);
 						EditPtr->SetOvertypeMode(esp->Overtype!=0);
 						Dlg->ShowDialog(Param1);
-						ScrBuf.Flush();
+						Global->ScrBuf->Flush();
 						return TRUE;
 					}
 				}
@@ -5682,7 +5700,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 					}
 
 					Dlg->ShowDialog(Param1);
-					ScrBuf.Flush();
+					Global->ScrBuf->Flush();
 				}
 
 				return Selected;
@@ -5694,7 +5712,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 				if (Dlg->DialogMode.Check(DMODE_SHOW))
 				{
 					Dlg->ShowDialog();
-					ScrBuf.Flush();
+					Global->ScrBuf->Flush();
 				}
 
 				return Param1;
@@ -5930,7 +5948,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 							if (!Dlg->DialogMode.Check(DMODE_KEEPCONSOLETITLE))
 								ConsoleTitle::SetFarTitle(Dlg->GetDialogTitle());
 							Dlg->ShowDialog(Param1);
-							ScrBuf.Flush();
+							Global->ScrBuf->Flush();
 						}
 
 						return Len-(!Len?0:1);
@@ -5997,7 +6015,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 				if (Dlg->DialogMode.Check(DMODE_SHOW)) // достаточно ли этого????!!!!
 				{
 					Dlg->ShowDialog(Param1);
-					ScrBuf.Flush();
+					Global->ScrBuf->Flush();
 				}
 
 				//CurItem->strData = did->PtrData;
@@ -6065,7 +6083,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 			if (Dlg->DialogMode.Check(DMODE_SHOW))
 			{
 				Dlg->ShowDialog(Param1);
-				ScrBuf.Flush();
+				Global->ScrBuf->Flush();
 			}
 
 			return TRUE;
@@ -6098,7 +6116,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 
 					// Либо все,  либо... только 1
 					Dlg->ShowDialog(Dlg->GetDropDownOpened()||(CurItem->Flags&DIF_HIDDEN)?-1:Param1);
-					ScrBuf.Flush();
+					Global->ScrBuf->Flush();
 				}
 			}
 
@@ -6170,7 +6188,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 			if (Dlg->DialogMode.Check(DMODE_SHOW)) //???
 			{
 				Dlg->ShowDialog(Param1);
-				ScrBuf.Flush();
+				Global->ScrBuf->Flush();
 			}
 
 			return (PrevFlags&DIF_DISABLE)?FALSE:TRUE;
@@ -6218,7 +6236,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 					if (Dlg->DialogMode.Check(DMODE_SHOW)) //???
 					{
 						Dlg->ShowDialog(Param1);
-						ScrBuf.Flush();
+						Global->ScrBuf->Flush();
 					}
 				}
 
@@ -6266,7 +6284,7 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 					if (Dlg->DialogMode.Check(DMODE_SHOW)) //???
 					{
 						Dlg->ShowDialog(Param1);
-						ScrBuf.Flush();
+						Global->ScrBuf->Flush();
 					}
 
 					return TRUE;
@@ -6318,10 +6336,10 @@ void Dialog::CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1,
 	if (X2-X1<20)
 		X2=X1+20;
 
-	if (ScrY-Y1<Min(Opt.Dialogs.CBoxMaxHeight.Get(),ItemCount)+2 && Y1>ScrY/2)
+	if (ScrY-Y1<Min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),ItemCount)+2 && Y1>ScrY/2)
 	{
 		Y2=Y1-1;
-		Y1=Max((intptr_t)0,Y1-1-Min(Opt.Dialogs.CBoxMaxHeight.Get(),ItemCount)-1);
+		Y1=Max((intptr_t)0,Y1-1-Min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),ItemCount)-1);
 	}
 	else
 	{

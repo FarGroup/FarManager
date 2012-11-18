@@ -245,10 +245,10 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 	bool bVistaType = false;
 	strType.Clear();
 
-	if (WinVer >= _WIN32_WINNT_VISTA)
+	if (Global->WinVer >= _WIN32_WINNT_VISTA)
 	{
 		IApplicationAssociationRegistration* pAAR;
-		HRESULT hr = ifn.SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
+		HRESULT hr = Global->ifn->SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
 
 		if (SUCCEEDED(hr))
 		{
@@ -514,7 +514,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 		// Берем "исключения" из реестра, которые должны исполняться директом,
 		// например, некоторые внутренние команды ком. процессора.
 		UserDefinedList ExcludeCmdsList(ULF_UNIQUE);
-		ExcludeCmdsList.Set(Opt.Exec.strExcludeCmds);
+		ExcludeCmdsList.Set(Global->Opt->Exec.strExcludeCmds);
 
 		while (!ExcludeCmdsList.IsEmpty())
 		{
@@ -620,7 +620,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 				}
 
 				// третий проход - лезем в реестр в "App Paths"
-				if (!Result && Opt.Exec.ExecuteUseAppPath && !strFullName.Contains(L'\\'))
+				if (!Result && Global->Opt->Exec.ExecuteUseAppPath && !strFullName.Contains(L'\\'))
 				{
 					static const WCHAR RegPath[] = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\";
 					// В строке Module заменить исполняемый модуль на полный путь, который
@@ -633,13 +633,13 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					DWORD samDesired = KEY_QUERY_VALUE;
 					DWORD RedirectionFlag = 0;
 					// App Paths key is shared in Windows 7 and above
-					if (WinVer < _WIN32_WINNT_WIN7)
+					if (Global->WinVer < _WIN32_WINNT_WIN7)
 					{
 #ifdef _WIN64
 						RedirectionFlag = KEY_WOW64_32KEY;
 #else
 						BOOL Wow64Process = FALSE;
-						if (ifn.IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
+						if (Global->ifn->IsWow64Process(GetCurrentProcess(), &Wow64Process) && Wow64Process)
 						{
 							RedirectionFlag = KEY_WOW64_64KEY;
 						}
@@ -835,7 +835,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	if (SeparateWindow)
 	{
-		if(Opt.Exec.ExecuteSilentExternal)
+		if(Global->Opt->Exec.ExecuteSilentExternal)
 		{
 			Silent = true;
 		}
@@ -904,7 +904,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 			{
 				DirectRun = (PipeOrEscaped < 1); //??? <= 1 если бы '^' были удалены
 			}
-			if(DirectRun && Opt.Exec.ExecuteSilentExternal)
+			if(DirectRun && Global->Opt->Exec.ExecuteSilentExternal)
 			{
 				Silent = true;
 			}
@@ -928,7 +928,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	{
 		int X1, X2, Y1, Y2;
 		CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
-		ProcessShowClock += (add_show_clock = 1);
+		Global->ProcessShowClock += (add_show_clock = 1);
 		CtrlObject->CmdLine->ShowBackground();
 		CtrlObject->CmdLine->Redraw();
 		GotoXY(X2+1,Y1);
@@ -944,20 +944,20 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	{
 		// BUGBUG: если команда начинается с "@", то эта строка херит все начинания
 		// TODO: здесь необходимо подставить виртуальный буфер, а потом его корректно подсунуть в ScrBuf
-		ScrBuf.SetLockCount(0);
-		ScrBuf.Flush();
+		Global->ScrBuf->SetLockCount(0);
+		Global->ScrBuf->Flush();
 	}
 
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
 	if(!Silent)
 	{
-		ConsoleCP = Console.GetInputCodepage();
-		ConsoleOutputCP = Console.GetOutputCodepage();
+		ConsoleCP = Global->Console->GetInputCodepage();
+		ConsoleOutputCP = Global->Console->GetOutputCodepage();
 		FlushInputBuffer();
 		ChangeConsoleMode(InitialConsoleMode);
-		Console.GetWindowRect(ConsoleWindowRect);
-		Console.GetSize(ConsoleSize);
+		Global->Console->GetWindowRect(ConsoleWindowRect);
+		Global->Console->GetSize(ConsoleSize);
 	}
 	ConsoleTitle OldTitle;
 
@@ -970,7 +970,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	string strFarTitle;
 	if(!Silent)
 	{
-		if (Opt.Exec.ExecuteFullTitle)
+		if (Global->Opt->Exec.ExecuteFullTitle)
 		{
 			strFarTitle += strNewCmdStr;
 			if (!strNewCmdPar.IsEmpty())
@@ -1031,12 +1031,12 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
 	if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)  // для .exe НЕ включать - бывают проблемы с запуском
-		if (WinVer >= _WIN32_WINNT_VISTA)         // ShexxExecuteEx error, see
+		if (Global->WinVer >= _WIN32_WINNT_VISTA)         // ShexxExecuteEx error, see
 			seInfo.fMask |= SEE_MASK_INVOKEIDLIST; // http://us.generation-nt.com/answer/shellexecuteex-does-not-allow-openas-verb-windows-7-help-31497352.html
 
 	if(!Silent)
 	{
-		Console.ScrollScreenBuffer(((DirectRun && dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI) || SeparateWindow)?2:1);
+		Global->Console->ScrollScreenBuffer(((DirectRun && dwSubSystem == IMAGE_SUBSYSTEM_WINDOWS_GUI) || SeparateWindow)?2:1);
 	}
 
 	DWORD dwError = 0;
@@ -1053,11 +1053,11 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	{
 		if (hProcess)
 		{
-			ScrBuf.Flush();
+			Global->ScrBuf->Flush();
 
 			if (AlwaysWaitFinish || !SeparateWindow)
 			{
-				if (Opt.ConsoleDetachKey.IsEmpty())
+				if (Global->Opt->ConsoleDetachKey.IsEmpty())
 				{
 					WaitForSingleObject(hProcess,INFINITE);
 				}
@@ -1068,12 +1068,12 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					  Отделение фаровской консоли от неинтерактивного процесса.
 					  Задаётся кнопкой в System/ConsoleDetachKey
 					*/
-					HANDLE hOutput = Console.GetOutputHandle();
-					HANDLE hInput = Console.GetInputHandle();
+					HANDLE hOutput = Global->Console->GetOutputHandle();
+					HANDLE hInput = Global->Console->GetInputHandle();
 					INPUT_RECORD ir[256];
 					size_t rd;
 					int vkey=0,ctrl=0;
-					TranslateKeyToVK(KeyNameToKey(Opt.ConsoleDetachKey),vkey,ctrl,nullptr);
+					TranslateKeyToVK(KeyNameToKey(Global->Opt->ConsoleDetachKey),vkey,ctrl,nullptr);
 					int alt=ctrl&(PKF_ALT|PKF_RALT);
 					int shift=ctrl&PKF_SHIFT;
 					ctrl=ctrl&(PKF_CONTROL|PKF_RCONTROL);
@@ -1083,7 +1083,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					//Тут нельзя делать WaitForMultipleObjects из за бага в Win7 при работе в телнет
 					while (WaitForSingleObject(hProcess, 100) != WAIT_OBJECT_0)
 					{
-						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && Console.PeekInput(ir, 256, rd) && rd)
+						if (WaitForSingleObject(hInput, 100)==WAIT_OBJECT_0 && Global->Console->PeekInput(ir, 256, rd) && rd)
 						{
 							int stop=0;
 
@@ -1103,9 +1103,9 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 									        (ctrl ?bCtrl:!bCtrl) &&
 									        (shift ?bShift:!bShift))
 									{
-										ConsoleIcons.restorePreviousIcons();
+										Global->ConsoleIcons->restorePreviousIcons();
 
-										Console.ReadInput(ir, 256, rd);
+										Global->Console->ReadInput(ir, 256, rd);
 										/*
 										  Не будем вызывать CloseConsole, потому, что она поменяет
 										  ConsoleMode на тот, что был до запуска Far'а,
@@ -1115,20 +1115,20 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 										CloseHandle(hOutput);
 										delete KeyQueue;
 										KeyQueue=nullptr;
-										Console.Free();
-										Console.Allocate();
+										Global->Console->Free();
+										Global->Console->Allocate();
 
-										HWND hWnd = Console.GetWindow();
+										HWND hWnd = Global->Console->GetWindow();
 										if (hWnd)   // если окно имело HOTKEY, то старое должно его забыть.
 											SendMessage(hWnd,WM_SETHOTKEY,0,(LPARAM)0);
 
-										Console.SetSize(ConsoleSize);
-										Console.SetWindowRect(ConsoleWindowRect);
-										Console.SetSize(ConsoleSize);
+										Global->Console->SetSize(ConsoleSize);
+										Global->Console->SetWindowRect(ConsoleWindowRect);
+										Global->Console->SetSize(ConsoleSize);
 										Sleep(100);
 										InitConsole(0);
 
-										ConsoleIcons.setFarIcons();
+										Global->ConsoleIcons->setFarIcons();
 
 										stop=1;
 										break;
@@ -1146,13 +1146,13 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 				{
 					bool SkipScroll = false;
 					COORD Size;
-					if(Console.GetSize(Size))
+					if(Global->Console->GetSize(Size))
 					{
-						COORD BufferSize = {Size.X, static_cast<SHORT>(Opt.ShowKeyBar?3:2)};
+						COORD BufferSize = {Size.X, static_cast<SHORT>(Global->Opt->ShowKeyBar?3:2)};
 						FAR_CHAR_INFO* Buffer = new FAR_CHAR_INFO[BufferSize.X * BufferSize.Y];
 						COORD BufferCoord = {};
 						SMALL_RECT ReadRegion = {0, static_cast<SHORT>(Size.Y - BufferSize.Y), static_cast<SHORT>(Size.X-1), static_cast<SHORT>(Size.Y-1)};
-						if(Console.ReadOutput(Buffer, BufferSize, BufferCoord, ReadRegion))
+						if(Global->Console->ReadOutput(Buffer, BufferSize, BufferCoord, ReadRegion))
 						{
 							FarColor Attributes = Buffer[BufferSize.X*BufferSize.Y-1].Attributes;
 							SkipScroll = true;
@@ -1169,7 +1169,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 					}
 					if(!SkipScroll)
 					{
-						Console.ScrollScreenBuffer(Opt.ShowKeyBar?2:1);
+						Global->Console->ScrollScreenBuffer(Global->Opt->ShowKeyBar?2:1);
 					}
 				}
 
@@ -1185,11 +1185,11 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 		if(!Silent)
 		{
-			ScrBuf.FillBuf();
+			Global->ScrBuf->FillBuf();
 			CtrlObject->CmdLine->SaveBackground();
 		}
 	}
-	ProcessShowClock -= add_show_clock;
+	Global->ProcessShowClock -= add_show_clock;
 
 	SetFarConsoleMode(TRUE);
 	/* Принудительная установка курсора, т.к. SetCursorType иногда не спасает
@@ -1197,34 +1197,34 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	*/
 	SetCursorType(Visible,Size);
 	CONSOLE_CURSOR_INFO cci={Size, Visible};
-	Console.SetCursorInfo(cci);
+	Global->Console->SetCursorInfo(cci);
 
 	COORD ConSize;
-	Console.GetSize(ConSize);
+	Global->Console->GetSize(ConSize);
 	if(ConSize.X!=ScrX+1 || ConSize.Y!=ScrY+1)
 	{
 		ChangeVideoMode(ConSize.Y, ConSize.X);
 	}
 
-	if (Opt.Exec.RestoreCPAfterExecute)
+	if (Global->Opt->Exec.RestoreCPAfterExecute)
 	{
 		// восстановим CP-консоли после исполнения проги
-		Console.SetInputCodepage(ConsoleCP);
-		Console.SetOutputCodepage(ConsoleOutputCP);
+		Global->Console->SetInputCodepage(ConsoleCP);
+		Global->Console->SetOutputCodepage(ConsoleOutputCP);
 	}
 
-	Console.SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+	Global->Console->SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 
 	if(dwError)
 	{
 		if (!Silent)
 		{
 			CtrlObject->Cp()->Redraw();
-			if (Opt.ShowKeyBar)
+			if (Global->Opt->ShowKeyBar)
 			{
 				CtrlObject->MainKeyBar->Show();
 			}
-			if (Opt.Clock)
+			if (Global->Opt->Clock)
 				ShowTime(1);
 		}
 
@@ -1266,9 +1266,9 @@ int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool S
 		{
 			//CmdStr.SetString(L"");
 			GotoXY(X1,Y1);
-			FS<<fmt::MinWidth(X2-X1+1)<<L"";
+			Global->FS << fmt::MinWidth(X2-X1+1)<<L"";
 			Show();
-			ScrBuf.Flush();
+			Global->ScrBuf->Flush();
 		}
 
 		return -1;
@@ -1276,7 +1276,7 @@ int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool S
 
 	int Code;
 	COORD Size0;
-	Console.GetSize(Size0);
+	Global->Console->GetSize(Size0);
 
 	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
 		FarChDir(strCurDir);
@@ -1314,7 +1314,7 @@ int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool S
 	}
 
 	COORD Size1;
-	Console.GetSize(Size1);
+	Global->Console->GetSize(Size1);
 
 	if (Size0.X != Size1.X || Size0.Y != Size1.Y)
 	{
@@ -1326,14 +1326,14 @@ int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool S
 	if (!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
 	{
 		ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
-		if (Opt.ShowKeyBar)
+		if (Global->Opt->ShowKeyBar)
 		{
 			CtrlObject->MainKeyBar->Show();
 		}
 	}
-	if (Opt.Clock)
+	if (Global->Opt->Clock)
 		ShowTime(0);
-	ScrBuf.Flush();
+	Global->ScrBuf->Flush();
 	return Code;
 }
 
@@ -1586,8 +1586,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			Redraw();
 			GotoXY(X2+1,Y1);
 			Text(L" ");
-			ScrBuf.Flush();
-			Console.SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+			Global->ScrBuf->Flush();
+			Global->Console->SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
 			string strOut("\n");
 			int CmdLength = static_cast<int>(strCmdLine.GetLength());
 			LPWCH Environment = GetEnvironmentStrings();
@@ -1601,10 +1601,10 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 				Ptr+=PtrLength+1;
 			}
 			FreeEnvironmentStrings(Environment);
-			strOut.Append(L"\n\n", Opt.ShowKeyBar?2:1);
-			Console.Write(strOut);
-			Console.Commit();
-			ScrBuf.FillBuf();
+			strOut.Append(L"\n\n", Global->Opt->ShowKeyBar?2:1);
+			Global->Console->Write(strOut);
+			Global->Console->Commit();
+			Global->ScrBuf->FillBuf();
 			SaveBackground();
 			PrintCommand = false;
 			return TRUE;
@@ -1729,8 +1729,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 
 		wchar_t *Ptr2;
 		UINT cp=(UINT)wcstol(strCmdLine,&Ptr2,10); //BUGBUG
-		BOOL r1=Console.SetInputCodepage(cp);
-		BOOL r2=Console.SetOutputCodepage(cp);
+		BOOL r1=Global->Console->SetInputCodepage(cp);
+		BOOL r2=Global->Console->SetOutputCodepage(cp);
 
 		if (r1 && r2) // Если все ОБИ, то так  и...
 		{
@@ -1739,8 +1739,8 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 			wrapper::LocalUpperInit();
 #endif // NO_WRAPPER
 			InitKeysArray();
-			ScrBuf.ResetShadow();
-			ScrBuf.Flush();
+			Global->ScrBuf->ResetShadow();
+			Global->ScrBuf->Flush();
 			return TRUE;
 		}
 		else  // про траблы внешняя chcp сама скажет ;-)
@@ -1760,7 +1760,7 @@ int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, b
 		{
 			//CmdStr.SetString(L"");
 			GotoXY(X1,Y1);
-			FS<<fmt::MinWidth(X2-X1+1)<<L"";
+			Global->FS << fmt::MinWidth(X2-X1+1)<<L"";
 			Show();
 			return TRUE;
 		}
@@ -1841,9 +1841,9 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 
 	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && ((!strExpandedDir.At(1) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir.At(1))))
 	{
-		if (Opt.Exec.UseHomeDir && !Opt.Exec.strHomeDir.IsEmpty())
+		if (Global->Opt->Exec.UseHomeDir && !Global->Opt->Exec.strHomeDir.IsEmpty())
 		{
-			string strTemp=Opt.Exec.strHomeDir.Get();
+			string strTemp=Global->Opt->Exec.strHomeDir.Get();
 
 			if (strExpandedDir.At(1))
 			{
@@ -1901,7 +1901,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	{
 	  //CmdStr.SetString(L"");
 	  GotoXY(X1,Y1);
-	  FS<<fmt::Width(X2-X1+1)<<L"";
+	  Global->FS << fmt::Width(X2-X1+1)<<L"";
 	  Show();
 	  return true;
 	}
@@ -1936,7 +1936,7 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 bool IsBatchExtType(const string& ExtPtr)
 {
 	UserDefinedList BatchExtList(ULF_UNIQUE);
-	BatchExtList.Set(Opt.Exec.strExecuteBatchType);
+	BatchExtList.Set(Global->Opt->Exec.strExecuteBatchType);
 
 	while (!BatchExtList.IsEmpty())
 	{
@@ -1954,10 +1954,10 @@ bool ProcessOSAliases(string &strStr)
 
 	PartCmdLine(strStr,strNewCmdStr,strNewCmdPar);
 
-	const wchar_t *lpwszExeName=PointToName(g_strFarModuleName);
+	const wchar_t *lpwszExeName=PointToName(Global->g_strFarModuleName);
 	int nSize=(int)strNewCmdStr.GetLength()+4096;
 	wchar_t* lpwszNewCmdStr=strNewCmdStr.GetBuffer(nSize);
-	int ret=Console.GetAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),lpwszExeName);
+	int ret=Global->Console->GetAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),lpwszExeName);
 
 	if (!ret)
 	{
@@ -1965,7 +1965,7 @@ bool ProcessOSAliases(string &strStr)
 		if (apiGetEnvironmentVariable(L"COMSPEC",strComspec))
 		{
 			lpwszExeName=PointToName(strComspec);
-			ret=Console.GetAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),lpwszExeName);
+			ret=Global->Console->GetAlias(lpwszNewCmdStr,lpwszNewCmdStr,nSize*sizeof(wchar_t),lpwszExeName);
 		}
 	}
 

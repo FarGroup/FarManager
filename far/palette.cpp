@@ -238,7 +238,7 @@ const FarColor ColorIndexToColor(PaletteColors ColorIndex)
 	}
 	else
 	{
-		Result = Opt.Palette.CurrentPalette[(ColorIndex-COL_FIRSTPALETTECOLOR)%Opt.Palette.SizeArrayPalette];
+		Result = Global->Opt->Palette.CurrentPalette[(ColorIndex-COL_FIRSTPALETTECOLOR)%Global->Opt->Palette.SizeArrayPalette];
 	}
 	return Result;
 }

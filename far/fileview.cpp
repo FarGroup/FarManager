@@ -125,8 +125,8 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory,
 	RedrawTitle = FALSE;
 	ViewKeyBar.SetOwner(this);
 	ViewKeyBar.SetPosition(X1,Y2,X2,Y2);
-	KeyBarVisible = Opt.ViOpt.ShowKeyBar;
-	TitleBarVisible = Opt.ViOpt.ShowTitleBar;
+	KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
+	TitleBarVisible = Global->Opt->ViOpt.ShowTitleBar;
 	MACROMODEAREA OldMacroMode=CtrlObject->Macro.GetMode();
 	MacroMode = MACRO_VIEWER;
 	CtrlObject->Macro.SetMode(MACRO_VIEWER);
@@ -156,7 +156,7 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory,
 	ExitCode=TRUE;
 	ViewKeyBar.Show();
 
-	if (!Opt.ViOpt.ShowKeyBar)
+	if (!Global->Opt->ViOpt.ShowKeyBar)
 		ViewKeyBar.Hide0();
 
 	ShowConsoleTitle();
@@ -175,14 +175,14 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory,
 
 void FileViewer::InitKeyBar()
 {
-	ViewKeyBar.SetAllGroup(KBL_MAIN,         Opt.OnlyEditorViewerUsed?MSingleViewF1:MViewF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_SHIFT,        Opt.OnlyEditorViewerUsed?MSingleViewShiftF1:MViewShiftF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_ALT,          Opt.OnlyEditorViewerUsed?MSingleViewAltF1:MViewAltF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_CTRL,         Opt.OnlyEditorViewerUsed?MSingleViewCtrlF1:MViewCtrlF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_CTRLSHIFT,    Opt.OnlyEditorViewerUsed?MSingleViewCtrlShiftF1:MViewCtrlShiftF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_CTRLALT,      Opt.OnlyEditorViewerUsed?MSingleViewCtrlAltF1:MViewCtrlAltF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_ALTSHIFT,     Opt.OnlyEditorViewerUsed?MSingleViewAltShiftF1:MViewAltShiftF1, 12);
-	ViewKeyBar.SetAllGroup(KBL_CTRLALTSHIFT, Opt.OnlyEditorViewerUsed?MSingleViewCtrlAltShiftF1:MViewCtrlAltShiftF1, 12);
+	ViewKeyBar.SetAllGroup(KBL_MAIN,         Global->Opt->OnlyEditorViewerUsed?MSingleViewF1:MViewF1, 12);
+	ViewKeyBar.SetAllGroup(KBL_SHIFT,        Global->Opt->OnlyEditorViewerUsed?MSingleViewShiftF1:MViewShiftF1, 12);
+	ViewKeyBar.SetAllGroup(KBL_ALT,          Global->Opt->OnlyEditorViewerUsed?MSingleViewAltF1:MViewAltF1, 12);
+	ViewKeyBar.SetAllGroup(KBL_CTRL,         Global->Opt->OnlyEditorViewerUsed?MSingleViewCtrlF1:MViewCtrlF1, 12);
+	ViewKeyBar.SetAllGroup(KBL_CTRLSHIFT,    Global->Opt->OnlyEditorViewerUsed?MSingleViewCtrlShiftF1:MViewCtrlShiftF1, 12);
+	ViewKeyBar.SetAllGroup(KBL_CTRLALT,      Global->Opt->OnlyEditorViewerUsed?MSingleViewCtrlAltF1:MViewCtrlAltF1, 12);
+	ViewKeyBar.SetAllGroup(KBL_ALTSHIFT,     Global->Opt->OnlyEditorViewerUsed?MSingleViewAltShiftF1:MViewAltShiftF1, 12);
+	ViewKeyBar.SetAllGroup(KBL_CTRLALTSHIFT, Global->Opt->OnlyEditorViewerUsed?MSingleViewCtrlAltShiftF1:MViewCtrlAltShiftF1, 12);
 
 	if (DisableEdit)
 		ViewKeyBar.Change(KBL_MAIN,L"",6-1);
@@ -193,10 +193,10 @@ void FileViewer::InitKeyBar()
 	if (!GetCanLoseFocus())
 		ViewKeyBar.Change(KBL_ALT,L"",11-1);
 
-	ViewKeyBar.ReadRegGroup(L"Viewer",Opt.strLanguage);
+	ViewKeyBar.ReadRegGroup(L"Viewer",Global->Opt->strLanguage);
 	ViewKeyBar.SetAllRegGroup();
 	SetKeyBar(&ViewKeyBar);
-	View.SetPosition(X1,Y1+(Opt.ViOpt.ShowTitleBar?1:0),X2,Y2-(Opt.ViOpt.ShowKeyBar?1:0));
+	View.SetPosition(X1,Y1+(Global->Opt->ViOpt.ShowTitleBar?1:0),X2,Y2-(Global->Opt->ViOpt.ShowKeyBar?1:0));
 	View.SetViewKeyBar(&ViewKeyBar);
 }
 
@@ -204,14 +204,14 @@ void FileViewer::Show()
 {
 	if (FullScreen)
 	{
-		if (Opt.ViOpt.ShowKeyBar)
+		if (Global->Opt->ViOpt.ShowKeyBar)
 		{
 			ViewKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
 			ViewKeyBar.Redraw();
 		}
 
-		SetPosition(0,0,ScrX,ScrY-(Opt.ViOpt.ShowKeyBar?1:0));
-		View.SetPosition(0,(Opt.ViOpt.ShowTitleBar?1:0),ScrX,ScrY-(Opt.ViOpt.ShowKeyBar?1:0));
+		SetPosition(0,0,ScrX,ScrY-(Global->Opt->ViOpt.ShowKeyBar?1:0));
+		View.SetPosition(0,(Global->Opt->ViOpt.ShowTitleBar?1:0),ScrX,ScrY-(Global->Opt->ViOpt.ShowKeyBar?1:0));
 	}
 
 	ScreenObject::Show();
@@ -228,22 +228,22 @@ __int64 FileViewer::VMProcess(int OpCode,void *vParam,__int64 iParam)
 {
 	if (OpCode == MCODE_F_KEYBAR_SHOW)
 	{
-		int PrevMode=Opt.ViOpt.ShowKeyBar?2:1;
+		int PrevMode=Global->Opt->ViOpt.ShowKeyBar?2:1;
 		switch (iParam)
 		{
 			case 0:
 				break;
 			case 1:
-				Opt.ViOpt.ShowKeyBar=1;
+				Global->Opt->ViOpt.ShowKeyBar=1;
 				ViewKeyBar.Show();
 				Show();
-				KeyBarVisible = Opt.ViOpt.ShowKeyBar;
+				KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 				break;
 			case 2:
-				Opt.ViOpt.ShowKeyBar=0;
+				Global->Opt->ViOpt.ShowKeyBar=0;
 				ViewKeyBar.Hide();
 				Show();
-				KeyBarVisible = Opt.ViOpt.ShowKeyBar;
+				KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 				break;
 			case 3:
 				ProcessKey(KEY_CTRLB);
@@ -274,7 +274,7 @@ int FileViewer::ProcessKey(int Key)
 			*/
 		case KEY_SHIFTF4:
 		{
-			if (!Opt.OnlyEditorViewerUsed)
+			if (!Global->Opt->OnlyEditorViewerUsed)
 				CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
 
 			return TRUE;
@@ -300,28 +300,28 @@ int FileViewer::ProcessKey(int Key)
 		// $ 15.07.2000 tran + CtrlB switch KeyBar
 		case KEY_CTRLB:
 		case KEY_RCTRLB:
-			Opt.ViOpt.ShowKeyBar=!Opt.ViOpt.ShowKeyBar;
+			Global->Opt->ViOpt.ShowKeyBar=!Global->Opt->ViOpt.ShowKeyBar;
 
-			if (Opt.ViOpt.ShowKeyBar)
+			if (Global->Opt->ViOpt.ShowKeyBar)
 				ViewKeyBar.Show();
 			else
 				ViewKeyBar.Hide0(); // 0 mean - Don't purge saved screen
 
 			Show();
-			KeyBarVisible = Opt.ViOpt.ShowKeyBar;
+			KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 			return (TRUE);
 		case KEY_CTRLSHIFTB:
 		case KEY_RCTRLSHIFTB:
 		{
-			Opt.ViOpt.ShowTitleBar=!Opt.ViOpt.ShowTitleBar;
-			TitleBarVisible = Opt.ViOpt.ShowTitleBar;
+			Global->Opt->ViOpt.ShowTitleBar=!Global->Opt->ViOpt.ShowTitleBar;
+			TitleBarVisible = Global->Opt->ViOpt.ShowTitleBar;
 			Show();
 			return (TRUE);
 		}
 		case KEY_CTRLO:
 		case KEY_RCTRLO:
 
-			if (!Opt.OnlyEditorViewerUsed)
+			if (!Global->Opt->OnlyEditorViewerUsed)
 			{
 				if (FrameManager->ShowBackground())
 				{
@@ -350,7 +350,7 @@ int FileViewer::ProcessKey(int Key)
 				string strViewFileName;
 				View.GetFileName(strViewFileName);
 				File Edit;
-				while(!Edit.Open(strViewFileName, FILE_READ_DATA, FILE_SHARE_READ|(Opt.EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
+				while(!Edit.Open(strViewFileName, FILE_READ_DATA, FILE_SHARE_READ|(Global->Opt->EdOpt.EditOpenedForWrite?FILE_SHARE_WRITE:0), nullptr, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN))
 				{
 					if(!OperationFailed(strViewFileName, MEditTitle, MSG(MEditCannotOpen), false))
 						continue;
@@ -384,7 +384,7 @@ int FileViewer::ProcessKey(int Key)
 			// –абота с локальной копией ViewerOptions
 			ViewerConfig(View.ViOpt, true);
 
-			if (Opt.ViOpt.ShowKeyBar)
+			if (Global->Opt->ViOpt.ShowKeyBar)
 				ViewKeyBar.Show();
 
 			View.Show();
@@ -403,7 +403,7 @@ int FileViewer::ProcessKey(int Key)
 			   Ёто помогло от залипани€ :-)
 			*/
 			if (!CtrlObject->Macro.IsExecuting())
-				if (Opt.ViOpt.ShowKeyBar)
+				if (Global->Opt->ViOpt.ShowKeyBar)
 					ViewKeyBar.Show();
 
 			if (!ViewKeyBar.ProcessKey(Key))
@@ -466,7 +466,7 @@ void FileViewer::OnDestroy()
 
 int FileViewer::FastHide()
 {
-	return Opt.AllCtrlAltShiftRule & CASR_VIEWER;
+	return Global->Opt->AllCtrlAltShiftRule & CASR_VIEWER;
 }
 
 int FileViewer::ViewerControl(int Command, intptr_t Param1, void *Param2)
@@ -502,7 +502,7 @@ void FileViewer::ShowStatus()
 	GetTitle(strName);
 	int NameLength = ScrX+1 - 40;
 
-	if (Opt.ViewerEditorClock && IsFullScreen())
+	if (Global->Opt->ViewerEditorClock && IsFullScreen())
 		NameLength -= 3+5;
 
 	NameLength = Max(NameLength, 20);
@@ -522,9 +522,9 @@ void FileViewer::ShowStatus()
 	);
 	SetColor(COL_VIEWERSTATUS);
 	GotoXY(X1,Y1);
-	FS<<fmt::LeftAlign()<<fmt::ExactWidth(View.Width+(View.ViOpt.ShowScrollbar?1:0))<<strStatus;
+	Global->FS << fmt::LeftAlign()<<fmt::ExactWidth(View.Width+(View.ViOpt.ShowScrollbar?1:0))<<strStatus;
 
-	if (Opt.ViewerEditorClock && IsFullScreen())
+	if (Global->Opt->ViewerEditorClock && IsFullScreen())
 		ShowTime(FALSE);
 }
 

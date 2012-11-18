@@ -62,16 +62,16 @@ static void DrawGetDirInfoMsg(const wchar_t *Title,const wchar_t *Name,const UIN
 	FileSizeToStr(strSize,*Size,8,COLUMN_FLOATSIZE|COLUMN_COMMAS);
 	RemoveLeadingSpaces(strSize);
 	Message(0,0,Title,MSG(MScanningFolder),Name,strSize);
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	preRedrawItem.Param.Param1=Title;
 	preRedrawItem.Param.Param2=Name;
 	preRedrawItem.Param.Param3=Size;
-	PreRedraw.SetParam(preRedrawItem.Param);
+	Global->PreRedraw->SetParam(preRedrawItem.Param);
 }
 
 static void PR_DrawGetDirInfoMsg()
 {
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	DrawGetDirInfoMsg(
 		static_cast<const wchar_t*>(preRedrawItem.Param.Param1),
 		static_cast<const wchar_t*>(preRedrawItem.Param.Param2),
@@ -138,7 +138,7 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 	GetPathRoot(DirName, Root);
 	if(apiGetVolumeInformation(Root, nullptr, nullptr, nullptr, &FileSystemFlags, &FileSystemName))
 	{
-		if(WinVer < _WIN32_WINNT_WIN7)
+		if(Global->WinVer < _WIN32_WINNT_WIN7)
 		{
 			CheckHardlinks = FileSystemName == L"NTFS";
 		}
@@ -274,7 +274,6 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 
 static PluginPanelItem *PluginDirList;
 static int DirListItemsNumber;
-static string strPluginSearchPath;
 static int StopSearch;
 static HANDLE hDirListPlugin;
 static int PluginSearchMsgOut;
@@ -282,19 +281,19 @@ static int PluginSearchMsgOut;
 static void FarGetPluginDirListMsg(const wchar_t *Name,DWORD Flags)
 {
 	Message(Flags,0,L"",MSG(MPreparingList),Name);
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	preRedrawItem.Param.Flags=Flags;
 	preRedrawItem.Param.Param1=(void*)Name;
-	PreRedraw.SetParam(preRedrawItem.Param);
+	Global->PreRedraw->SetParam(preRedrawItem.Param);
 }
 
 static void PR_FarGetPluginDirListMsg()
 {
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	FarGetPluginDirListMsg((const wchar_t *)preRedrawItem.Param.Param1,preRedrawItem.Param.Flags&(~MSG_KEEPBACKGROUND));
 }
 
-static void CopyPluginDirItem(PluginPanelItem *CurPanelItem)
+static void CopyPluginDirItem(PluginPanelItem *CurPanelItem, string& strPluginSearchPath)
 {
 	string strFullName;
 	strFullName = strPluginSearchPath;
@@ -314,7 +313,7 @@ static void CopyPluginDirItem(PluginPanelItem *CurPanelItem)
 	DirListItemsNumber++;
 }
 
-static void ScanPluginDir()
+static void ScanPluginDir(string& strPluginSearchPath)
 {
 	PluginPanelItem *PanelData=nullptr;
 	size_t ItemCount=0;
@@ -333,7 +332,7 @@ static void ScanPluginDir()
 
 	if (CheckForEscSilent())
 	{
-		if (Opt.Confirm.Esc) // Будет выдаваться диалог?
+		if (Global->Opt->Confirm.Esc) // Будет выдаваться диалог?
 			AbortOp=TRUE;
 
 		if (ConfirmAbortOp())
@@ -360,7 +359,7 @@ static void ScanPluginDir()
 		PluginPanelItem *CurPanelItem=PanelData+i;
 
 		if (!(CurPanelItem->FileAttributes & FILE_ATTRIBUTE_DIRECTORY))
-			CopyPluginDirItem(CurPanelItem);
+			CopyPluginDirItem(CurPanelItem, strPluginSearchPath);
 	}
 
 	for (size_t i=0; i<ItemCount && !StopSearch; i++)
@@ -384,14 +383,14 @@ static void ScanPluginDir()
 					используем общую функцию для копирования FindData (не забываем
 					обработать PPIF_USERDATA)
 			*/
-			CopyPluginDirItem(CurPanelItem);
+			CopyPluginDirItem(CurPanelItem, strPluginSearchPath);
 			string strFileName = CurPanelItem->FileName;
 
 			if (CtrlObject->Plugins->SetDirectory(hDirListPlugin,strFileName,OPM_FIND))
 			{
 				strPluginSearchPath += CurPanelItem->FileName;
 				strPluginSearchPath += L"\x1";
-				ScanPluginDir();
+				ScanPluginDir(strPluginSearchPath);
 				size_t pos = (size_t)-1;
 				strPluginSearchPath.RPos(pos,L'\x1');
 				strPluginSearchPath.SetLength(pos);
@@ -460,9 +459,9 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 
 			if (CtrlObject->Plugins->SetDirectory(hDirListPlugin,Dir,OPM_SILENT))
 			{
-				strPluginSearchPath = Dir;
+				string strPluginSearchPath = Dir;
 				strPluginSearchPath += L"\x1";
-				ScanPluginDir();
+				ScanPluginDir(strPluginSearchPath);
 				*pPanelItem=PluginDirList;
 				*pItemsNumber=DirListItemsNumber;
 				CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_SILENT);

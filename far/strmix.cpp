@@ -53,11 +53,11 @@ string &FormatNumber(const wchar_t *Src, string &strDest, int NumDigits)
 		DecimalSep[1]=0;  //В винде сепараторы цифр могут быть больше одного символа
 		ThousandSep[1]=0; //но для нас это будет не очень хорошо
 
-		if (LOWORD(Opt.FormatNumberSeparators))
-			*DecimalSep=LOWORD(Opt.FormatNumberSeparators);
+		if (LOWORD(Global->Opt->FormatNumberSeparators))
+			*DecimalSep=LOWORD(Global->Opt->FormatNumberSeparators);
 
-		if (HIWORD(Opt.FormatNumberSeparators))
-			*ThousandSep=HIWORD(Opt.FormatNumberSeparators);
+		if (HIWORD(Global->Opt->FormatNumberSeparators))
+			*ThousandSep=HIWORD(Global->Opt->FormatNumberSeparators);
 
 		fmt.LeadingZero = 1;
 		fmt.Grouping = 3;
@@ -126,7 +126,7 @@ wchar_t * InsertQuote(wchar_t *Str)
 
 wchar_t* QuoteSpace(wchar_t *Str)
 {
-	if (wcspbrk(Str, Opt.strQuotedSymbols) )
+	if (wcspbrk(Str, Global->Opt->strQuotedSymbols) )
 		InsertQuote(Str);
 
 	return Str;
@@ -152,7 +152,7 @@ string& InsertRegexpQuote(string &strStr)
 
 string &QuoteSpace(string &strStr)
 {
-	if (wcspbrk(strStr, Opt.strQuotedSymbols) )
+	if (wcspbrk(strStr, Global->Opt->strQuotedSymbols) )
 		InsertQuote(strStr);
 
 	return strStr;

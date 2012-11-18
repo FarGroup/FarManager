@@ -189,6 +189,13 @@ struct DialogItemEx: public FarDialogItem
 class DlgEdit;
 class ConsoleTitle;
 
+class DialogOwner
+{
+public:
+	intptr_t Handler(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+};
+typedef int (DialogOwner::*DialogHandlerFunction)(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+
 class Dialog: public Frame
 {
 		friend class DlgEdit;
@@ -213,8 +220,12 @@ class Dialog: public Frame
 		ConsoleTitle *OldTitle;     // предыдущий заголовок
 		MACROMODEAREA PrevMacroMode;          // предыдущий режим макро
 
-		FARWINDOWPROC RealDlgProc;      // функция обработки диалога
-
+		DialogOwner *OwnerClass;
+		union
+		{
+			DialogHandlerFunction DialogHandler;
+			FARWINDOWPROC RealDlgProc;      // функция обработки диалога
+		};
 		// переменные для перемещения диалога
 		int OldX1,OldX2,OldY1,OldY2;
 
@@ -235,7 +246,8 @@ class Dialog: public Frame
 		unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
 
 	private:
-		void Init(FARWINDOWPROC DlgProc,void* InitParam);
+		void Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, void* InitParam=nullptr);
+		void Init(DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc, void* InitParam);
 		virtual void DisplayObject();
 		void DeleteDialogObjects();
 		int  LenStrItem(int ID, const wchar_t *lpwszStr = nullptr);
@@ -295,6 +307,11 @@ class Dialog: public Frame
 		void ProcessKey(int Key, unsigned ItemPos);
 
 	public:
+		template<class T, typename Y>
+		Dialog(T* OwnerClass, Y HandlerFunction, void* InitParam, DialogItemEx* SrcItem, size_t SrcItemCount)
+		{
+			Construct(SrcItem, SrcItemCount, reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<DialogHandlerFunction>(HandlerFunction), InitParam);
+		}
 		Dialog(DialogItemEx *SrcItem, size_t SrcItemCount,
 		       FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
 		Dialog(const FarDialogItem *SrcItem, size_t SrcItemCount,

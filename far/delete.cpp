@@ -95,7 +95,7 @@ enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
 
 void ShellDelete(Panel *SrcPanel,bool Wipe)
 {
-	ChangePriority ChPriority(Opt.DelThreadPriority);
+	ChangePriority ChPriority(Global->Opt->DelThreadPriority);
 	TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellDeleteMsg);
 	FAR_FIND_DATA_EX FindData;
 	string strDeleteFilesMsg;
@@ -109,14 +109,14 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 	int DizPresent;
 	int Ret;
 	BOOL NeedUpdate=TRUE, NeedSetUpADir=FALSE;
-	bool Opt_DeleteToRecycleBin=Opt.DeleteToRecycleBin;
+	bool Opt_DeleteToRecycleBin=Global->Opt->DeleteToRecycleBin;
 	/*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
 	Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
 	FrameFromLaunched->Lock();
-	DeleteAllFolders=!Opt.Confirm.DeleteFolder;
-	UpdateDiz=(Opt.Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
+	DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
+	UpdateDiz=(Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
 	           (SrcPanel->IsDizDisplayed() &&
-	            Opt.Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED));
+	            Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED));
 
 	if (!(SelCount=SrcPanel->GetSelCount()))
 		goto done;
@@ -131,8 +131,8 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 		GetPathRoot(strRoot,strRoot);
 
 //_SVS(SysLog(L"Del: SelName='%s' Root='%s'",SelName,Root));
-		if (Opt.DeleteToRecycleBin && FAR_GetDriveType(strRoot) != DRIVE_FIXED)
-			Opt.DeleteToRecycleBin=0;
+		if (Global->Opt->DeleteToRecycleBin && FAR_GetDriveType(strRoot) != DRIVE_FIXED)
+			Global->Opt->DeleteToRecycleBin=0;
 	}
 
 	if (SelCount==1)
@@ -201,7 +201,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 			{
 				ConvertNameToFull(strSelName, strJuncName);
 
-				if (Opt.Confirm.Delete)
+				if (Global->Opt->Confirm.Delete)
 				{
 					; //  ;-%
 				}
@@ -220,7 +220,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 		}
 	}
 
-	if (Ret && (Opt.Confirm.Delete || SelCount>1 || (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
+	if (Ret && (Global->Opt->Confirm.Delete || SelCount>1 || (FileAttr & FILE_ATTRIBUTE_DIRECTORY)))
 	{
 		const wchar_t *DelMsg;
 		const wchar_t *TitleMsg=MSG(Wipe?MDeleteWipeTitle:MDeleteTitle);
@@ -236,7 +236,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 				DelMsg=MSG(folder?MAskWipeFolder:MAskWipeFile);
 			else
 			{
-				if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+				if (Global->Opt->DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
 					DelMsg=MSG(folder?MAskDeleteRecycleFolder:MAskDeleteRecycleFile);
 				else
 					DelMsg=MSG(folder?MAskDeleteFolder:MAskDeleteFile);
@@ -249,7 +249,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 				DelMsg=MSG(MAskWipe);
 				TitleMsg=MSG(MDeleteWipeTitle);
 			}
-			else if (Opt.DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
+			else if (Global->Opt->DeleteToRecycleBin && !(FileAttr & FILE_ATTRIBUTE_REPARSE_POINT))
 				DelMsg=MSG(MAskDeleteRecycle);
 			else
 				DelMsg=MSG(MAskDelete);
@@ -257,14 +257,14 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 
 		SetMessageHelp(L"DeleteFile");
 
-		if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,MSG(Wipe?MDeleteWipe:Opt.DeleteToRecycleBin?MDeleteRecycle:MDelete),MSG(MCancel)))
+		if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,MSG(Wipe?MDeleteWipe:Global->Opt->DeleteToRecycleBin?MDeleteRecycle:MDelete),MSG(MCancel)))
 		{
 			NeedUpdate=FALSE;
 			goto done;
 		}
 	}
 
-	if (Opt.Confirm.Delete && SelCount>1)
+	if (Global->Opt->Confirm.Delete && SelCount>1)
 	{
 		//SaveScreen SaveScr;
 		SetCursorType(FALSE,0);
@@ -304,7 +304,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 		ULONG ItemsCount=0;
 		ProcessedItems=0;
 
-		if (Opt.DelOpt.DelShowTotal)
+		if (Global->Opt->DelOpt.DelShowTotal)
 		{
 			SrcPanel->GetSelName(nullptr,FileAttr);
 			DWORD StartTime=GetTickCount();
@@ -318,7 +318,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 					{
 						DWORD CurTime=GetTickCount();
 
-						if (ItemsCount > 1 && (CurTime-StartTime>(DWORD)Opt.RedrawTimeout || FirstTime))
+						if (ItemsCount > 1 && (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout || FirstTime))
 						{
 							StartTime=CurTime;
 							FirstTime=false;
@@ -363,8 +363,8 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 				continue;
 
 			DWORD CurTime=GetTickCount();
-			int TotalPercent = (Opt.DelOpt.DelShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
-			if (CurTime-StartTime>(DWORD)Opt.RedrawTimeout || FirstTime)
+			int TotalPercent = (Global->Opt->DelOpt.DelShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
+			if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout || FirstTime)
 			{
 				StartTime=CurTime;
 				FirstTime=false;
@@ -411,7 +411,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 
 				bool DirSymLink=(FileAttr&FILE_ATTRIBUTE_DIRECTORY && FileAttr&FILE_ATTRIBUTE_REPARSE_POINT);
 
-				if (!DirSymLink && (!Opt.DeleteToRecycleBin || Wipe))
+				if (!DirSymLink && (!Global->Opt->DeleteToRecycleBin || Wipe))
 				{
 					string strFullName;
 					ScanTree ScTree(TRUE,TRUE,FALSE);
@@ -434,8 +434,8 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 					while (ScTree.GetNextName(&FindData,strFullName))
 					{
 						DWORD CurTime=GetTickCount();
-						int TotalPercent = (Opt.DelOpt.DelShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
-						if (CurTime-StartTime>(DWORD)Opt.RedrawTimeout)
+						int TotalPercent = (Global->Opt->DelOpt.DelShowTotal && ItemsCount >1)?(ProcessedItems*100/ItemsCount):-1;
+						if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
 						{
 							StartTime=CurTime;
 
@@ -555,7 +555,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 					// нефига здесь выделываться, а надо учесть, что удаление
 					// симлинка в корзину чревато потерей оригинала.
 					DIRDELTYPE Type = Wipe? D_WIPE : D_DEL;
-					if (Opt.DeleteToRecycleBin && !(DirSymLink && WinVer < _WIN32_WINNT_VISTA))
+					if (Global->Opt->DeleteToRecycleBin && !(DirSymLink && Global->WinVer < _WIN32_WINNT_VISTA))
 						Type = D_RECYCLE;
 					DeleteCode=ERemoveDirectory(strSelName, Type);
 
@@ -599,7 +599,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 
 	delete DeleteTitle;
 done:
-	Opt.DeleteToRecycleBin=Opt_DeleteToRecycleBin;
+	Global->Opt->DeleteToRecycleBin=Opt_DeleteToRecycleBin;
 	// Разрешить перерисовку фрейма
 	FrameFromLaunched->Unlock();
 
@@ -611,7 +611,7 @@ done:
 
 static void PR_ShellDeleteMsg()
 {
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	LARGE_INTEGER i;
 	i.QuadPart = preRedrawItem.Param.Param5;
 	ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<DEL_MODE>(reinterpret_cast<intptr_t>(preRedrawItem.Param.Param4)), i.LowPart, i.HighPart);
@@ -635,7 +635,7 @@ void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePer
 		}
 		if(Percent==-1)
 		{
-			TBC.SetProgressValue(WipePercent, 100);
+			Global->TBC->SetProgressValue(WipePercent, 100);
 		}
 	}
 
@@ -651,7 +651,7 @@ void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePer
 			strProgress<<L" "<<fmt::MinWidth(3)<<Percent<<L"%";
 			*DeleteTitle << L"{" << Percent << L"%} " << MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle) << fmt::Flush();
 		}
-		TBC.SetProgressValue(Percent,100);
+		Global->TBC->SetProgressValue(Percent,100);
 	}
 
 	string strOutFileName(Name);
@@ -673,12 +673,12 @@ void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePer
 		Mode==DEL_SCAN? MSG(MScanningFolder) : MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeletingWiping:MDeleting),
 		strOutFileName, Progress1, Progress2);
 
-	PreRedrawItem preRedrawItem=PreRedraw.Peek();
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
 	preRedrawItem.Param.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
 	preRedrawItem.Param.Param4=ToPtr(Mode);
 	LARGE_INTEGER i = {(DWORD)Percent, (LONG)WipePercent};
 	preRedrawItem.Param.Param5=i.QuadPart;
-	PreRedraw.SetParam(preRedrawItem.Param);
+	Global->PreRedraw->SetParam(preRedrawItem.Param);
 }
 
 int AskDeleteReadOnly(const string& Name,DWORD Attr,int Wipe)
@@ -688,7 +688,7 @@ int AskDeleteReadOnly(const string& Name,DWORD Attr,int Wipe)
 	if (!(Attr & FILE_ATTRIBUTE_READONLY))
 		return(DELETE_YES);
 
-	if (!Opt.Confirm.RO)
+	if (!Global->Opt->Confirm.RO)
 		ReadOnlyDeleteMode=1;
 
 	if (ReadOnlyDeleteMode!=-1)
@@ -774,7 +774,7 @@ int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent)
 					}
 			}
 		}
-		else if (!Opt.DeleteToRecycleBin)
+		else if (!Global->Opt->DeleteToRecycleBin)
 		{
 			/*
 			        HANDLE hDelete=FAR_CreateFile(Name,GENERIC_WRITE,0,nullptr,OPEN_EXISTING,
@@ -912,9 +912,9 @@ bool MoveToRecycleBinInternal(LPCWSTR Object)
 	DWORD Result=SHFileOperation(&fop);
 
 	if (Result == 0x78 // DE_ACCESSDENIEDSRC == ERROR_ACCESS_DENIED
-		&& Opt.ElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
+		&& Global->Opt->ElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
 	{
-		Result = Elevation.fMoveToRecycleBin(fop);
+		Result = Global->Elevation->fMoveToRecycleBin(fop);
 	}
 
 	if (Result)
@@ -931,7 +931,7 @@ int RemoveToRecycleBin(const string& Name)
 	ConvertNameToFull(Name, strFullName);
 
 	// При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
-	if (WinVer < _WIN32_WINNT_VISTA && Opt.DeleteToRecycleBinKillLink && apiGetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
+	if (Global->WinVer < _WIN32_WINNT_VISTA && Global->Opt->DeleteToRecycleBinKillLink && apiGetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
 	{
 		string strFullName2;
 		FAR_FIND_DATA_EX FindData;
@@ -968,7 +968,7 @@ bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 			static bool BufInit = false;
 			if(!BufInit)
 			{
-				memset(Buf, Opt.WipeSymbol, BufSize); // используем символ заполнитель
+				memset(Buf, Global->Opt->WipeSymbol, BufSize); // используем символ заполнитель
 				BufInit = true;
 			}
 
@@ -978,7 +978,7 @@ bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
 				DWORD Written;
 				WipeFile.Write(Buf, WipeFile.GetChunkSize(), Written);
 				DWORD CurTime=GetTickCount();
-				if (CurTime-StartTime>(DWORD)Opt.RedrawTimeout)
+				if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
 				{
 					StartTime=CurTime;
 

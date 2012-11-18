@@ -411,3 +411,19 @@ bool apiSetFileSecurity(const string& Object, SECURITY_INFORMATION RequestedInfo
 bool apiOpenVirtualDiskInternal(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
 
 bool apiOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const string& Object, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, OPEN_VIRTUAL_DISK_PARAMETERS& Parameters, HANDLE& Handle);
+
+class ThreadOwner
+{
+public:
+	int Handler(void* Param);
+};
+typedef int (ThreadOwner::*ThreadHandlerFunction)(void* Param2);
+
+// don't call this directly, use apiCreateThread template
+HANDLE apiCreateThreadImpl(LPSECURITY_ATTRIBUTES ThreadAttributes, unsigned int StackSize, ThreadOwner* Owner, ThreadHandlerFunction HandlerFunction, void* Parameter, DWORD CreationFlags, unsigned int* ThreadId);
+
+template<class T, typename Y>
+HANDLE apiCreateThread(LPSECURITY_ATTRIBUTES ThreadAttributes, unsigned int StackSize, T* OwnerClass, Y HandlerFunction, void* Parameter, DWORD CreationFlags, unsigned int* ThreadId)
+{
+	return apiCreateThreadImpl(ThreadAttributes, StackSize, reinterpret_cast<ThreadOwner*>(OwnerClass), reinterpret_cast<ThreadHandlerFunction>(HandlerFunction), Parameter, CreationFlags, ThreadId);
+}

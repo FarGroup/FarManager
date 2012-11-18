@@ -280,7 +280,7 @@ void CreatePath(const string &Path, bool Simple)
 			*ChPtr = 0;
 
 			bool Exist = apiGetFileAttributes(strPath) != INVALID_FILE_ATTRIBUTES;
-			if (!Simple && Opt.CreateUppercaseFolders && !IsCaseMixed(DirPart) && !Exist)  //BUGBUG
+			if (!Simple && Global->Opt->CreateUppercaseFolders && !IsCaseMixed(DirPart) && !Exist)  //BUGBUG
 				CharUpper(DirPart);
 
 			if(!Exist && apiCreateDirectory(strPath, nullptr) && !Simple)

@@ -67,11 +67,11 @@ ControlObject::ControlObject():
 	FrameManager = new Manager;
 	Plugins = new PluginManager;
 
-	CmdHistory=new History(HISTORYTYPE_CMD,nullptr, Opt.SaveHistory, false);
-	FolderHistory=new History(HISTORYTYPE_FOLDER, nullptr, Opt.SaveFoldersHistory, true);
-	ViewHistory=new History(HISTORYTYPE_VIEW, nullptr, Opt.SaveViewHistory, true);
+	CmdHistory=new History(HISTORYTYPE_CMD,nullptr, Global->Opt->SaveHistory, false);
+	FolderHistory=new History(HISTORYTYPE_FOLDER, nullptr, Global->Opt->SaveFoldersHistory, true);
+	ViewHistory=new History(HISTORYTYPE_VIEW, nullptr, Global->Opt->SaveViewHistory, true);
 	FolderHistory->SetAddMode(true,2,true);
-	ViewHistory->SetAddMode(true,Opt.FlagPosixSemantics?1:2,true);
+	ViewHistory->SetAddMode(true,Global->Opt->FlagPosixSemantics?1:2,true);
 
 	FileFilter::InitFilter();
 }
@@ -93,13 +93,13 @@ void ControlObject::Init(int DirCount)
 	FPanels->Init(DirCount);
 	FPanels->SetScreenPosition();
 
-	if (Opt.ShowMenuBar)
+	if (Global->Opt->ShowMenuBar)
 		this->TopMenuBar->Show();
 
 //  FPanels->Redraw();
 	CmdLine->Show();
 
-	if (Opt.ShowKeyBar)
+	if (Global->Opt->ShowKeyBar)
 		this->MainKeyBar->Show();
 
 	// LoadPlugins() before panel updates
@@ -107,19 +107,19 @@ void ControlObject::Init(int DirCount)
 	FrameManager->InsertFrame(FPanels); // before PluginCommit()
 	{
 		string strOldTitle;
-		Console.GetTitle(strOldTitle);
+		Global->Console->GetTitle(strOldTitle);
 		FrameManager->PluginCommit();
 		Plugins->LoadPlugins();
-		Console.SetTitle(strOldTitle);
+		Global->Console->SetTitle(strOldTitle);
 	}
 
 	Cp()->LeftPanel->Update(0);
 	Cp()->RightPanel->Update(0);
 
-	if (Opt.AutoSaveSetup)
+	if (Global->Opt->AutoSaveSetup)
 	{
-		Cp()->LeftPanel->GoToFile(Opt.strLeftCurFile);
-		Cp()->RightPanel->GoToFile(Opt.strRightCurFile);
+		Cp()->LeftPanel->GoToFile(Global->Opt->strLeftCurFile);
+		Cp()->RightPanel->GoToFile(Global->Opt->strRightCurFile);
 	}
 
 	FrameManager->SwitchToPanels();  // otherwise panels are empty
@@ -143,14 +143,14 @@ void ControlObject::CreateFilePanels()
 
 ControlObject::~ControlObject()
 {
-	if (CriticalInternalError)
+	if (Global->CriticalInternalError)
 		return;
 
 	_OT(SysLog(L"[%p] ControlObject::~ControlObject()", this));
 
 	if (Cp()&&Cp()->ActivePanel)
 	{
-		if (Opt.AutoSaveSetup)
+		if (Global->Opt->AutoSaveSetup)
 			SaveConfig(0);
 
 		if (Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
@@ -163,7 +163,7 @@ ControlObject::~ControlObject()
 
 	TreeList::FlushCache();
 	SIDCacheFlush();
-	Lang.Close();
+	Global->Lang->Close();
 	FrameManager->CloseAll();
 	FPanels=nullptr;
 	FileFilter::CloseFilter();
@@ -187,25 +187,25 @@ void ControlObject::ShowCopyright(DWORD Flags)
 {
 	if (Flags&1)
 	{
-		string strOut(Version);
-		strOut.Append(L"\n").Append(Copyright).Append(L"\n");
-		Console.Write(strOut);
-		Console.Commit();
+		string strOut(Global->Version);
+		strOut.Append(L"\n").Append(Global->Copyright).Append(L"\n");
+		Global->Console->Write(strOut);
+		Global->Console->Commit();
 	}
 	else
 	{
 		COORD Size, CursorPosition;
-		Console.GetSize(Size);
-		Console.GetCursorPosition(CursorPosition);
+		Global->Console->GetSize(Size);
+		Global->Console->GetCursorPosition(CursorPosition);
 		int FreeSpace=Size.Y-CursorPosition.Y-1;
 
 		if (FreeSpace<5)
 			ScrollScreen(5-FreeSpace);
 
 		GotoXY(0,ScrY-4);
-		Text(Version);
+		Text(Global->Version);
 		GotoXY(0,ScrY-3);
-		Text(Copyright);
+		Text(Global->Copyright);
 	}
 }
 
