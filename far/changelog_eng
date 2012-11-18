@@ -3,7 +3,7 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
-drkns 18.11.2012 20:44:29 +0200 - build 2955
+drkns 18.11.2012 20:44:29 +0200 - build 2953
 
 1. Say "No!" to dr^W global variables and especially to global objects initialized in random order.
    Part #1: Now there is one global object Global, please put everything in it, not in hpp files.
@@ -11,7 +11,7 @@ drkns 18.11.2012 20:44:29 +0200 - build 2955
 
 2. A bonus to #1: dialog handling function and thread function can be class members now.
 
-drkns 18.11.2012 09:55:22 +0200 - build 2953
+drkns 18.11.2012 09:55:22 +0200 - build 2952
 
 1. Correction of alignment for debug builds.
 
@@ -420,7 +420,7 @@ t-rex 06.10.2012 18:48:30 +0200 - build 2871
 
 1. For FSF functions, intptr_t is removed where it has no sense at all,
    x64 plugins have to be rebuilt and fixed if qsort/bsearch/FarRecursiveSearch are used.
-   
+
 svs 05.10.2012 13:55:08 +0400 - build 2870
 
 1. SQLite 3.7.14.1
@@ -591,7 +591,7 @@ zg 23.09.2012 20:56:39 +0200 - build 2834
 
 drkns 23.09.2012 20:31:24 +0200 - build 2833
 
-1. intptr_t & DlgBuilder 
+1. intptr_t & DlgBuilder
 
 2. Leave vswscanf for gcc.
 
@@ -659,7 +659,7 @@ zg 22.09.2012 01:17:59 +0200 - build 2821
 
 zg 21.09.2012 17:01:33 +0200 - build 2820
 
-1. ViewerInfo got rid of FileName field, like in editor. 
+1. ViewerInfo got rid of FileName field, like in editor.
 
 2. in order to obtain file name, VCTL_GETFILENAME is added, similar to ECTL_GETFILENAME.
 
@@ -721,7 +721,7 @@ zg 20.09.2012 13:28:23 +0200 - build 2811
 
 lort 19.09.2012 19:52:41 +0400 - build 2810
 
-1. A new command ACTL_ENABLEREDRAW, Param1=1 - enable FAR window redraw, Param1=0 - disable it. 
+1. A new command ACTL_ENABLEREDRAW, Param1=1 - enable FAR window redraw, Param1=0 - disable it.
    Returned value is the previous state, to obtain the current state set Param1=-1
 
 w17 19.09.2012 13:40:39 +0400 - build 2809
@@ -1219,7 +1219,7 @@ drkns 01.06.2012 14:56:00 +0200 - build 2718
 
 drkns 01.06.2012 14:15:50 +0200 - build 2717
 
-1. F4 and CtrlH processing is added to far:config. 
+1. F4 and CtrlH processing is added to far:config.
 
 drkns 01.06.2012 13:05:50 +0200 - build 2716
 
@@ -1508,9 +1508,9 @@ svs 10.05.2012 12:06:11 +0400 - build 2663
    (from DAtaMan)
 
    1. Editor::GetStringByNumber minor optimization
-   
+
    2. Added macro commands:
-   
+
      N=Editor.DelLine([Line])
      S=Editor.GetStr([Line])
      N=Editor.InsStr([S[,Line]])
@@ -1538,7 +1538,7 @@ svs 10.05.2012 12:06:11 +0400 - build 2663
          %i=%i+1;
        $End
      $End
-     Editor.Undo(1); 
+     Editor.Undo(1);
 
 svs 05.05.2012 16:18:15 +0400 - build 2662
 
@@ -1594,9 +1594,9 @@ drkns 02.05.2012 18:01:04 +0200 - build 2654
 svs 02.05.2012 10:25:17 +0400 - build 2653
 
 1. Mantis#0002089: Crash on plugins menu call attempt in the macro editing dialog.
-   
+
    endless loop in dialog.cpp#2782 at:
-   return FrameManager->ProcessKey(Key); 
+   return FrameManager->ProcessKey(Key);
 
    0. FrameManager->ProcessKey(KEY_F11); ==>
    1. Dialog::ProcessKey(KEY_F11) ==>
@@ -1756,7 +1756,7 @@ svs 24.04.2012 17:16:28 +0400 - build 2632
     IO_REPARSE_TAG_SIS          0x80000007L = Single Instance Storage
     IO_REPARSE_TAG_WIM          0x80000008L = Windows Imaging Format
     IO_REPARSE_TAG_CSV          0x80000009L = Cluster Shared Volumes
-    
+
    {
      Other tags are shown as ":XXXXXXXX" (X is a hex digit).
      As the info is too specific, it is not displayed by default.
@@ -1929,7 +1929,7 @@ drkns 11.04.2012 20:37:03 +0200 - build 2604
 
 1. 0002067: Unexpected reaction to mouse wheel in vertical menus
 
-2. Some more of 2597.1. 
+2. Some more of 2597.1.
 
 zg 11.04.2012 17:38:32 +0200 - build 2603
 
@@ -2016,7 +2016,7 @@ zg 04.04.2012 18:11:47 +0200 - build 2586
 
 w17 04.04.2012 18:22:17 +0400 - build 2585
 
-1. gcc 4.7.0 warnings, +build x64 far / x86 gcc 
+1. gcc 4.7.0 warnings, +build x64 far / x86 gcc
 
 zg 04.04.2012 15:06:12 +0200 - build 2584
 
@@ -2115,7 +2115,7 @@ svs 28.03.2012 17:39:50 +0400 - build 2576
      1) Plugin.Cmdline -> Plugin.Command
      2) MacroArea -> to Macro.Area
      3) "$Text" is removed, use "print"
-   
+
    </ACHTUNG>
 
 
@@ -2129,7 +2129,7 @@ drkns 26.03.2012 13:20:06 +0200 - build 2574
 
 zg 25.03.2012 20:59:15 +0200 - build 2573
 
-1. when processing shift-f2, OPM_TOPLEVEL was returned earlier for the first file, and OPM_TOPLEVEL|OPM_SILENT for the next ones. 
+1. when processing shift-f2, OPM_TOPLEVEL was returned earlier for the first file, and OPM_TOPLEVEL|OPM_SILENT for the next ones.
    now there is plugin-wise separation. OPM_SILENT is added starting from the second file being processed by a particular plugin.
 
 zg 25.03.2012 19:11:55 +0200 - build 2572
@@ -2221,14 +2221,14 @@ svs 20.03.2012 13:31:49 +0400 - build 2561
 
 2. Mantis#0001483: Make Dlg.GetValue() parameters optional
 
-   Dlg.GetValue()==Dlg.GetValue(-1) 
+   Dlg.GetValue()==Dlg.GetValue(-1)
 
 3. Mantis#0001903: Plugin.Menu(guid,menuGuid)
 
    <ACHTUNG>
 
    Plugin.Prefix is renamed to Plugin.Cmdline
-   
+
    </ACHTUNG>
 
 svs 20.03.2012 11:17:53 +0400 - build 2560
@@ -2334,7 +2334,7 @@ svs 13.03.2012 11:16:01 +0400 - build 2543
 
 1. DMODE_NOPLUGINS is added to PluginManager::CallPlugin and PluginManager::CallPluginItem
 
-2. Macro: renamed: Plugin.Call -> Plugin.Menu, Plugin.Int -> Plugin.Call 
+2. Macro: renamed: Plugin.Call -> Plugin.Menu, Plugin.Int -> Plugin.Call
 
 3. Macro: N=Plugin.Exist(Guid) macrofunction is added
    Returns: 0 - there's no plugin with Guid identifier, 1 - there is such a plugin.
@@ -2345,7 +2345,7 @@ zg 13.03.2012 01:52:57 +0200 - build 2542
 
 zg 13.03.2012 01:09:42 +0200 - build 2541
 
-1. As it had been promised, ACTL_GETSYSWORDDIV, ACTL_GETSYSTEMSETTINGS, ACTL_GETPANELSETTINGS, ACTL_GETINTERFACESETTINGS, 
+1. As it had been promised, ACTL_GETSYSWORDDIV, ACTL_GETSYSTEMSETTINGS, ACTL_GETPANELSETTINGS, ACTL_GETINTERFACESETTINGS,
    ACTL_GETCONFIRMATIONS, ACTL_GETDESCSETTINGS, ACTL_GETPLUGINMAXREADDATA ACTL_GETDIALOGSETTINGS are removed.
    plugins not prepared to this in time may be broken.
 
@@ -2369,7 +2369,7 @@ svs 12.03.2012 21:30:41 +0400 - build 2540
    <ACHTUNG>
 
    Debugging in process...
-   
+
    </ACHTUNG>
 
 2. mmode(3) is on by default!
@@ -2460,10 +2460,10 @@ svs 05.03.2012 12:30:56 +0400 - build 2521
 svs 05.03.2012 11:48:02 +0400 - build 2520
 
 1. Mantis#0002041: DN_LISTHOTKEY - incorrect functioning in combo boxes
-    Incorrect positioning is observed in dialogs when an item is chosen with a hotkey in a combo. 
+    Incorrect positioning is observed in dialogs when an item is chosen with a hotkey in a combo.
     The main problem is caused with the following one:
     "Modal::ExitCode = -1;" in "VMenu::DisplayObject()"
-    
+
     Being chosen with a hotkey, ExitCode is set to a needed value in VMenu::CheckKeyHiOrAcc() function, then EndLoop loop finish flag is set.
     The plugin gets DN_LISTHOTKEY notification from VMenu::ProcessKey(). As the plugin has normally returned 'false', the code setting the position back into
     its previous value does not execute.
@@ -2471,7 +2471,7 @@ svs 05.03.2012 11:48:02 +0400 - build 2520
     Then, combo processing loop in Dialog::SelectFromComboBox() is finished, "Dest=ComboBox->Modal::GetExitCode();" position is acquired,
     which is already -1 ==> "ComboBox->SetSelectPos(OriginalPos,0);" is invoked (the plugin is not notified of that).
 
-    The second problem: the plugin responded 'true' to DN_LISTHOTKEY. 
+    The second problem: the plugin responded 'true' to DN_LISTHOTKEY.
     Here, the docs have to be updated, because the phrase "TRUE - plugin has processed the event." does not really clear things :-)
 
 drkns 04.03.2012 21:22:30 +0200 - build 2519
@@ -2496,7 +2496,7 @@ drkns 02.03.2012 13:58:31 +0200 - build 2515
 
 2. Microsoft has played a dirty trick by adding PS_PAUSED to shobjidl.h, so constants form PROGRESSTATE have TBPS_ prefix now.
 
-3. MSVC 11 compatibility. 
+3. MSVC 11 compatibility.
 
 4. Rudiments of ARM build.
 
@@ -2597,7 +2597,7 @@ svs 29.02.2012 10:53:34 +0400 - build 2498
    By default it is disabled.
 
    For example, let's draw in editor a small rectangle with DrawLine
-   mmode(3,1) callplugin("C941E865-9C29-485C-99B3-0C710940F2D8","ShiftRight ShiftRight ShiftDown ShiftDown ShiftLeft ShiftLeft ShiftUp ShiftUp ShiftRight Esc") 
+   mmode(3,1) callplugin("C941E865-9C29-485C-99B3-0C710940F2D8","ShiftRight ShiftRight ShiftDown ShiftDown ShiftLeft ShiftLeft ShiftUp ShiftUp ShiftRight Esc")
 
 drkns 28.02.2012 16:57:48 +0200 - build 2497
 
@@ -2650,7 +2650,7 @@ svs 23.02.2012 14:18:24 +0400 - build 2487
 svs 23.02.2012 09:44:26 +0400 - build 2486
 
 1. Mantis#0000466: Extension of macro language with plugins
-   Next step. 
+   Next step.
    Quite a bit is left to completion :-)
    It is supposed that plugincache.will contain a cache for macro function names
    provided by plugin (the format is the same as for prefixes): in order to skip loading plugins having
@@ -2852,7 +2852,7 @@ zg 12.02.2012 15:26:20 +0200 - build 2451
 
 drkns 11.02.2012 20:13:59 +0200 - build 2450
 
-1. A couple of typos in 2449. 
+1. A couple of typos in 2449.
 
 zg 11.02.2012 15:12:15 +0200 - build 2449
 
@@ -3013,7 +3013,7 @@ svs 27.01.2012 18:17:51 +0400 - build 2421
 2. Mantis#0001999: Delegate FileSizeToStr() function to plugins
    FSF is appended with FormatFileSize() function
    (analogous to Size2Str in macros)
-   
+
    size_t WINAPI FormatFileSize(unsigned __int64 Size, int Width, FARFORMATFILESIZEFLAGS Flags, wchar_t *Dest, size_t DestSize);
 
    Here:
@@ -3026,7 +3026,7 @@ svs 27.01.2012 18:17:51 +0400 - build 2421
          FFFS_ECONOMIC          Economy mode, a space before file size suffix is not shown (i.e. 0.97K)
          FFFS_THOUSAND          Use 1000 divisor instead of 1024
          FFFS_MINSIZEINDEX      Minimal index allowed at formatting
-                                The index is specified in the least significant byte and can take values 0, 1, 2 or 3 (K,M,G,T), 
+                                The index is specified in the least significant byte and can take values 0, 1, 2 or 3 (K,M,G,T),
                                 For example, 1 - "size is at least in megabytes"
      Dest       - destination buffer
      DestSize   - how many characters "fits" in Dest
@@ -3066,7 +3066,7 @@ svs 27.01.2012 09:15:50 +0400 - build 2418
                                  "Interface/FormatNumberSeparators" configuration value is used
                                  or Windows LOCALE_STHOUSAND & LOCALE_SDECIMAL if FormatNumberSeparators is unspecified.
             0x0080000000000000 - S2S_FLOATSIZE
-                                 Show file size in Windows Explorer style 
+                                 Show file size in Windows Explorer style
                                  (i.e. 999 bytes are shown as 999, while 1000 bytes are shown as 0.97 K)
             0x0040000000000000 - S2S_ECONOMIC
                                  Economy mode, a space before file size suffix is not shown (i.e. 0.97K)
@@ -3092,7 +3092,7 @@ svs 27.01.2012 09:15:50 +0400 - build 2418
      Width - width
      Break - separator ('\n' if empty or omitted)
      Flags - additional "formatting options
-             0x1 - the line is always wrapped to given width even if there is a longer word 
+             0x1 - the line is always wrapped to given width even if there is a longer word
                   (in this cases, it is split into pieces).
 
    If flag 0x1 is unspecified and there is a long word then the word takes space longer than given Width.
@@ -3112,7 +3112,7 @@ svs 27.01.2012 09:15:50 +0400 - build 2418
       |lines.
       +------+
 
-   adding a flag of 1 
+   adding a flag of 1
       StrWrap("The example of a text split into several lines.", 6,,1)
    returns:
        123456
@@ -3262,7 +3262,7 @@ zg 16.01.2012 23:44:52 +0200 - build 2395
 
 1. 0001991: Parameters of AnalyzeW. OpenInfo->Data for OPEN_ANALYSE contains a pointer for AnalyseInfo.
 
-2. In gcc build, sqlite.c moved to the beginning so that C files are compiled before C++ ones. 
+2. In gcc build, sqlite.c moved to the beginning so that C files are compiled before C++ ones.
    It gives compile speedup when 'make -j' is used.
 
 drkns 16.01.2012 19:08:55 +0200 - build 2394
@@ -3357,7 +3357,7 @@ t-rex 13.01.2012 19:20:54 +0200 - build 2376
 
 svs 13.01.2012 17:47:47 +0400 - build 2375
 
-1. Get InfoList safe from the case when a plugin calls Info.PanelControl(FCTL_REDRAWPANEL) from 
+1. Get InfoList safe from the case when a plugin calls Info.PanelControl(FCTL_REDRAWPANEL) from
    ProcessViewerEventW in response to VE_READ which causes stack overflow :-(
    The scheme is following.
    VE_READ is fairly passed to the plugin once, but because InfoPanel is constantly recreating the viewer (if diz file exists),
@@ -3584,10 +3584,10 @@ zg 30.12.2011 03:46:41 +0200 - build 2343
 
 All native plugins that use FCTL_SETPANELDIR/FCTL_GETPANELDIR do not work.
 
-1. FCTL_GETPANELDIR->FCTL_GETPANELDIRECTORY. Param1 is the size of Param2. Param2 is a pointer to FarPanelDirectory. 
+1. FCTL_GETPANELDIR->FCTL_GETPANELDIRECTORY. Param1 is the size of Param2. Param2 is a pointer to FarPanelDirectory.
    the result is the required size.
 
-2. FCTL_SETPANELDIR->FCTL_SETPANELDIRECTORY. Param1 is 0. Param2 is a pointer to FarPanelDirectory. 
+2. FCTL_SETPANELDIR->FCTL_SETPANELDIRECTORY. Param1 is 0. Param2 is a pointer to FarPanelDirectory.
    non-zero value is returned if successful.
 
 drkns 30.12.2011 00:54:46 +0200 - build 2342
@@ -3665,7 +3665,7 @@ drkns 25.12.2011 14:17:13 +0200 - build 2327
 
 zg 25.12.2011 13:43:10 +0200 - build 2326
 
-1. experimental obtaining of dialogs history via SettingsControl. it is similar to other types of history, 
+1. experimental obtaining of dialogs history via SettingsControl. it is similar to other types of history,
    except that the root is requested in this way:
      FarSettingsValue value={0,L"NewFolder"};
      root=Info.SettingsControl(Settings,SCTL_OPENSUBKEY,0,&value);
@@ -3752,7 +3752,7 @@ w17 22.12.2011 16:50:49 +0400 build - 2309
 
 svs 22.12.2011 16:29:40 +0400 - build 2308
 
-1. InfoPanel: Ctrl-digit combinations are removed. 
+1. InfoPanel: Ctrl-digit combinations are removed.
    Define them with macros using Ctrl-F12 menu
 
 drkns 22.12.2011 13:37:44 +0200 - build 2307
@@ -3806,10 +3806,10 @@ svs 13.12.2011 21:39:00 +0400 - build 2297
 1. Mantis#0001943: Correction of some flaws in Message function
    (from shmuel)
 
-2. InfoPanel: 
+2. InfoPanel:
    - sections can be hidden (Ctrl0..Ctrl9 or via Ctrl-F12 menu)
    - (experimental) "Power Info" section is added - the power state (shown via settings)
-   - changes in help 
+   - changes in help
 
 zg 13.12.2011 17:39:38 +0200 - build 2296
 
@@ -3895,7 +3895,7 @@ w17 07.12.2011 12:59:31 +0400 build - 2286
    b) Ctrl-Shift/Alt-Up/Down == Shift/Alt-Up/Down
    c) Copying to clipboard does not reset selection
    d) Per-line wrapping for [Ctrl-]Shift-Left/Right
-   e) Cursor moving with Ctrl-Shift/Alt-Left/Right is same as with Ctrl-Left/Right except special cases -- 'anchor' crossing resets the selection at first; 
+   e) Cursor moving with Ctrl-Shift/Alt-Left/Right is same as with Ctrl-Left/Right except special cases -- 'anchor' crossing resets the selection at first;
       moving beyond the line to the left through the end of the line
    f) Beyond the line, Ctrl-Alt-Right == Alt-Right == move 1 position to the right
 
@@ -4067,7 +4067,7 @@ w17 04.11.2011 14:10:35 +0400 build - 2253
 
 w17 04.11.2011 11:14:20 +0400 build - 2252
 
-MinGW gcc build 
+MinGW gcc build
    The following ones are supposed to be functional:
     Windows builds with tdm-gcc 32/64, including far32 build with tdm64;
     Cygwin/Linux builds with MinGW 32/64 cross compiler, 32-32 and 64-64 only;
@@ -4147,7 +4147,7 @@ zg 21.10.2011 23:56:07 +0200 - build 2239
 2. plugins are always added to history and if a plugin behaves correctly then jump from history is available.
    old history.db must be deleted.
 
-3. fix for a crash when jumping from inside a file with a folder shortcut into another file processed with the same plugin. 
+3. fix for a crash when jumping from inside a file with a folder shortcut into another file processed with the same plugin.
 
 zg 21.10.2011 09:36:48 +0200 - build 2238
 
@@ -4245,7 +4245,7 @@ svs 13.10.2011 17:44:03 +0400 - build 2220
           Here the plugin can return FMVT_INTEGER/FMVT_UNKNOWN or FMVT_DOUBLE or FMVT_STRING.
         */
      }
-     
+
      If (Index > DlgItemCount)
      {
         1) the plugin receives (DN_GETVALUE,Index-1,{FMVT_INTEGER,TypeInf}) in its dialog procedure.
@@ -4268,7 +4268,7 @@ svs 13.10.2011 17:44:03 +0400 - build 2220
              Here the plugin can return FMVT_INTEGER/FMVT_UNKNOWN or FMVT_DOUBLE or FMVT_STRING.
            */
         }
-        Else 
+        Else
         {
            the dialog procedure receives the value {FMVT_UNKNOWN, 0} (the plugin gets Index-1, i.e. -1)
         }
@@ -4276,7 +4276,7 @@ svs 13.10.2011 17:44:03 +0400 - build 2220
 
      If (the current domain is not a dialog) or (Index < DlgItemCount and an inner error has taken place)
      {
-        the plugin does not get DN_GETVALUE. 
+        the plugin does not get DN_GETVALUE.
      }
 
 
@@ -4389,7 +4389,7 @@ svs 19.09.2011 09:48:39 +0400 - build 2199
 1. Mantis#0001882: Enable "interception" of Dlg.GetValue and ItemCount/CurPos macrofunctions in dialogs.
 
    A new notification message for dialog procedures is added: DN_GETVALUE (=4118)
-   DN_GETVALUE is sent to the dialog procedure each time when Dlg.GetValue(), ItemCount and CurPos occur in macros. 
+   DN_GETVALUE is sent to the dialog procedure each time when Dlg.GetValue(), ItemCount and CurPos occur in macros.
 
      Param1 = dialog item number
      Param2 = pointer to TFarGetValue structure (filled in)
@@ -4427,7 +4427,7 @@ svs 19.09.2011 09:48:39 +0400 - build 2199
    for confirmation "is it right? if it isn't then correct it". In case of positive answer (!= 0)
    it places data returned by the dialog procedure into the stack.
 
-2. Macro: For Dlg.GetValue(), Type = 11 is added for ListBox and opened Combobox: 
+2. Macro: For Dlg.GetValue(), Type = 11 is added for ListBox and opened Combobox:
     Number, "return list items number".
 
 svs 13.09.2011 15:28:38 +0400 - build 2198
@@ -4452,10 +4452,10 @@ svs 12.09.2011 09:46:52 +0400 - build 2195
    (from 2useven10)
 
    "...started noticing the last viewer version incorrectly display
-   first lines when '[x] Save view and edit history' is on. 
+   first lines when '[x] Save view and edit history' is on.
    i'm watching it in changelog, i.e. watch the current revision, then
-   do "svn up" in a few days, open changelog in viewer - 
-   first lines float all over the screen in some incomprehensible manner. 
+   do "svn up" in a few days, open changelog in viewer -
+   first lines float all over the screen in some incomprehensible manner.
    After Home and reopen it settles down..."
 
 svs 09.09.2011 17:32:26 +0400 - build 2194
@@ -4477,7 +4477,7 @@ svs 05.09.2011 19:46:49 +0400 - build 2193
 svs 05.09.2011 19:05:38 +0400 - build 2192
 
 1. Mantis#0001871: Drawing bug in editor
-   
+
 drkns 05.09.2011 09:11:02 +0200 - build 2191
 
 1. A new flag in EDITORCOLORFLAGS: ECF_TABMARKCURRENT. It is similar to ECF_TAB1, but instead of first TAB character, the one matching to editor's cursor horizontal coordinate is colored.
@@ -4540,7 +4540,7 @@ svs 30.08.2011 10:16:23 +0300 - build 2182
      prompt("Title","Text",0x08,"","History")
 
 2. Mantis#0001866: Make all prompt() parameters optional
-   
+
 
 svs 29.08.2011 14:39:57 +0300 - build 2181
 
@@ -4625,7 +4625,7 @@ svs 25.08.2011 11:32:30 +0300 - build 2168
 
 1. Mantis#0001861: "File selection" chapter
    (from Maximus)
-   "File selection" is updated. 
+   "File selection" is updated.
 
 2. Mantis#0001832: FarNameToInputRecord / FarInputRecordToName problem
    (from Maximus)
@@ -4687,7 +4687,7 @@ based on Mantis#0001486
      Callback - a function called before the macro is run. the first parameter is the macro ID. it may check something and return TRUE, meaning whether to run the macro, or FALSE - not to run.
    all macros are added into the Common area.
 
-3. MCTL_DELMACRO delete a macro. 
+3. MCTL_DELMACRO delete a macro.
    Param1 - 0
    Param2 - Id of the macro.
 
@@ -4726,7 +4726,7 @@ drkns 22.08.2011 14:04:40 +0200 - build 2155
 svs 22.08.2011 11:33:37 +0300 - build 2154
 
 1. Mantis#0001792: Add FAR Process ID to info panel and window header
-   
+
    "%PID" variable is added to the header template (Options -> Interface settings -> Far window title addons) containing
    the process ID of Far Manager current instance.
 
@@ -4810,7 +4810,7 @@ svs 09.08.2011 23:18:26 +0300 - build 2140
 
 1. Mantis#0001832: FarNameToInputRecord / FarInputRecordToName problem
    (from Maximus)
-   "Left-side" macro was run in Common area instead of "right-side" one 
+   "Left-side" macro was run in Common area instead of "right-side" one
 
 drkns 08.08.2011 11:37:13 +0200 - build 2139
 
@@ -4846,7 +4846,7 @@ svs 05.08.2011 12:08:57 +0300 - build 2132
    (from Maximus)
    1. now it can also be bound to the right button
    2. some formatting
-   3. unused KeyMacro::GetRecordSize is commented out with "#if 0" 
+   3. unused KeyMacro::GetRecordSize is commented out with "#if 0"
 
 drkns 05.08.2011 10:11:19 +0200 - build 2131
 
@@ -5243,7 +5243,7 @@ svs 03.06.2011 09:15:08 +0300 - build 2061
 
 1. Mantis#0001766: New viewer version
    (from 2useven10)
-   long lines fix (fixed errors + MaxLineSize: Min=100, Def=10000, Max=100000) 
+   long lines fix (fixed errors + MaxLineSize: Min=100, Def=10000, Max=100000)
 
 2. Mantis#0001790: Switch XLat on by default if Russian keyboard layout is installed in the system
    (from Maximus)
@@ -5276,12 +5276,12 @@ drkns 27.05.2011 09:15:37 +0200 - build 2055
 svs 26.05.2011 16:17:09 +0300 - build 2054
 
 1. In explanation of comments to Mantis#0001782.
-   Macro: Prohibit block selection (Editor.Sel()) beyond the line if "[ ] Cursor beyond end of line" 
+   Macro: Prohibit block selection (Editor.Sel()) beyond the line if "[ ] Cursor beyond end of line"
    (attempt No.1)
 
 2. Mantis#0001766: Viewer new version
    (from 2useven10)
-   About 30% of code is rewritten... 
+   About 30% of code is rewritten...
 
    Guts:
     - search is completely redone
@@ -5374,17 +5374,17 @@ drkns 21.05.2011 13:00:29 +0200 - build 2042
 
 zg 20.05.2011 21:25:11 +0200 - build 2041
 
-1. Two fields are appended to EditorColor: Owner and Priority. 
+1. Two fields are appended to EditorColor: Owner and Priority.
    Owner is the GUID of the color region owner.
    Priority is the color region's priority. the more is the value, the higher is the color region.
-2. deletion magic with ECTL_ADDCOLOR is removed. Now there are ECTL_DELCOLOR and EditorDeleteColor for that. 
+2. deletion magic with ECTL_ADDCOLOR is removed. Now there are ECTL_DELCOLOR and EditorDeleteColor for that.
    only areas which owner equals to EditorDeleteColor.Owner are deleted.
 
 svs 20.05.2011 17:44:06 +0300 - build 2040
 
 1. Mantis#0001774: Possibility of creation of codepages 'black list' for codepages autodetection
    (from 2useven10)
-   A strNoAutoDetectCP text parameter is added to configuration, it can contain codepages to be excluded 
+   A strNoAutoDetectCP text parameter is added to configuration, it can contain codepages to be excluded
    from UCD autodetection, separated with commas.
 
    the listed codepages are excluded from automatic detection with nsUniversalDetectorEx.
@@ -5396,7 +5396,7 @@ svs 20.05.2011 17:44:06 +0300 - build 2040
      "" -- no UCD autodetection filtration (this is by default like now)
        "-1" -- only ACP, OEMCP and favorites are passed if Ctrl-H is on (otherwise there is no filtering)
      "cp1,cp2,..." -- the listed ones are rejected
-  
+
    an example: "1250,1252,1253,1255,855,10005,28592,28595,28597,28598,38598,65001" - these
            codepages will be excluded from detection
 
@@ -5436,10 +5436,10 @@ svs 20.05.2011 11:13:13 +0300 - build 2038
          The macro on MsWheelDown:
          msgbox(Akey(0),MsWheelDown)
          +- 196609 -+
-         |  131076  | 
+         |  131076  |
 
     Here, we create artificial environment for MsWheelXXX - let's use 4 positions after VK_F24 (they seem to be unused anyway)
-     
+
      VK_F24+1 == KEY_MSWHEEL_DOWN
      VK_F24+2 == KEY_MSWHEEL_UP
      VK_F24+3 == KEY_MSWHEEL_LEFT
@@ -5530,7 +5530,7 @@ drkns 11.05.2011 20:49:34 +0200 - build 2028
 
 svs 11.05.2011 17:44:58 +0300 - build 2027
 
-1. ProcessEditorInputW - the parameter is changed: 
+1. ProcessEditorInputW - the parameter is changed:
     now this is a pointer to the structure
       struct ProcessEditorInputInfo
       {
@@ -5611,7 +5611,7 @@ drkns 03.05.2011 12:41:45 +0200 - build 2019
 
    The returned value: required buffer size.
 
-2. For DM_GETDLGITEM, the FarGetDialogItem structure must be passed as Param2. The principle is the same as for FCTL_GET*PANELITEM 
+2. For DM_GETDLGITEM, the FarGetDialogItem structure must be passed as Param2. The principle is the same as for FCTL_GET*PANELITEM
 
 drkns 30.04.2011 16:28:33 +0200 - build 2018
 
@@ -5697,7 +5697,7 @@ t-rex 27.04.2011 20:35:54 +0200 - build 2004
 
 drkns 27.04.2011 15:48:21 +0200 - build 2003
 
-1. ucd, sqlite and tinyxml build is redone. 
+1. ucd, sqlite and tinyxml build is redone.
 
 t-rex 27.04.2011 14:35:14 +0200 - build 2002
 
@@ -6004,7 +6004,7 @@ t-rex 11.04.2011 05:02:11 +0200 - build 1952
 
 svs 10.04.2011 00:19:01 +0300 - build 1951
 
-1. Mantis#0001742. 
+1. Mantis#0001742.
    From DAtaMan
      One more correction.
      Now FMatch function returns:
@@ -6065,7 +6065,7 @@ svs 06.04.2011 13:43:53 +0300 - build 1946
 
 4. Macro: CmpName (from Mantis#0001742) renamed to FMatch
    From: DAtaMan
-     
+
      N=FMatch(S, Mask)
 
 
@@ -6124,9 +6124,9 @@ svs 31.03.2011 13:43:54 +0300 - build 1938
 
 1. Mantis#0001736: akey(1,0)==akey(1,1)
 
-   "...akey(?,Type): 
+   "...akey(?,Type):
      Type=0 - before it had always returned the key I pressed = which called the binding macro,
-     Type=1 - the key assigned to the macro called by macro sequence, 
+     Type=1 - the key assigned to the macro called by macro sequence,
      now Type always returns the key which the last macro is assigned to..."
 
    It was broken in build 1805 (although it was written clearly - "testing is needed" :-))
@@ -6234,7 +6234,7 @@ drkns 21.03.2011 11:11:11 +0200 - build 1921
    Default path to profiles: "%APPDATA%\Far Manager\Profiles"
    Default profile: "Default"
    Thus, settings are here by default: "%APPDATA%\Far Manager\Profiles\Default"
-   
+
    Path to profiles can be redefined in file "%FARHOME%\Far.exe.ini":
    Section: Profiles
    Parameter: BasePath
@@ -6320,8 +6320,8 @@ svs 18.03.2011 16:51:39 +0300 - build 1913
    "KeyBar found" in panels, editor and viewer. And only if the area is current.
    In other areas (including the help area) -1 is returned.
 
-   For example, Esc in panels 
-      CtrlO $if (APanel.Visible && PPanel.Visible) KeyBar.Show(1) $else KeyBar.Show(2) $end 
+   For example, Esc in panels
+      CtrlO $if (APanel.Visible && PPanel.Visible) KeyBar.Show(1) $else KeyBar.Show(2) $end
    if panels are hidden, hide the keybar too.
 
 2. Combo box selection was broken in macro keys assignment dialog.
@@ -6745,7 +6745,7 @@ svs 10.02.2011 12:01:19 +0300 - build 1849
 
    * removed: ACTL_KEYMACRO, FARMACROCOMMAND, struct ActlKeyMacro
    * added: MacroControl, MACRO_CONTROL_COMMANDS, FARMACROSENDSTRINGCOMMAND, struct MacroSendMacroText, struct MacroCheckMacroText
-   
+
    New API look:
    int Info.MacroControl(HANDLE hHandle,int Command,int Param1,INT_PTR Param2)
     hHandle = 0
@@ -6805,8 +6805,8 @@ svs 09.02.2011 18:51:58 +0300 - build 1844
 
 1. ActlKeyMacro: StructSize is added.
 
-2. ACTL_POSTKEYSEQUENCE is removed (the analog is ACTL_KEYMACRO). 
-   FARKEYSEQUENCEFLAGS is renamed to FARKEYMACROFLAGS (also, KSFLAGS_* -> KMFLAGS_* ). 
+2. ACTL_POSTKEYSEQUENCE is removed (the analog is ACTL_KEYMACRO).
+   FARKEYSEQUENCEFLAGS is renamed to FARKEYMACROFLAGS (also, KSFLAGS_* -> KMFLAGS_* ).
    struct KeySequence is removed.
 
 3. Rearrangement of struct KeyBarTitles (part 1)
@@ -6829,7 +6829,7 @@ zg 09.02.2011 15:19:00 +0200 - build 1843
 
 zg 09.02.2011 03:42:44 +0200 - build 1842
 
-1. in GetPluginDirList, Menu, Message, InputBox, AdvControl, DialogInit, GetMsg, one must pass a pointer to plugin's GUID instead of ModuleNumber. 
+1. in GetPluginDirList, Menu, Message, InputBox, AdvControl, DialogInit, GetMsg, one must pass a pointer to plugin's GUID instead of ModuleNumber.
    Thereafter, ModuleNumber is also removed from PluginStartupInfo.
 
 2. in ConfigureW, OpenPluginW and DialogInit, GUID is replaced to a pointer to GUID.
@@ -6876,7 +6876,7 @@ svs 08.02.2011 11:41:03 +0300 - build 1835
    OpenPluginInfo::FreeSize is added (unsigned __int64)
 
 2. OPIF_USEFREESIZE flag is added - "OpenPluginInfo::FreeSize component contains data"
-   (or "when the flag is absent then FreeSize field is not relevant") 
+   (or "when the flag is absent then FreeSize field is not relevant")
    That is, not any plugin provides "free space" notion (for example, Network or ImpEx)
 
 t-rex 08.02.2011 01:29:17 +0200 - build 1834
@@ -6981,9 +6981,9 @@ drkns 04.02.2011 16:50:21 +0200 - build 1821
 
 1. FAR_FIND_DATA is removed, the content is moved to PluginPanelItem. Also, ChangeTime is added there.
 
-svs 04.02.2011 17:43:54 +0300 - build 
+svs 04.02.2011 17:43:54 +0300 - build
 
-1. Pay attention to the phrase "#ifdef FAR_USE_INTERNALS"! 
+1. Pay attention to the phrase "#ifdef FAR_USE_INTERNALS"!
    Is has got a pair: "#endif // END FAR_USE_INTERNALS"
    It is processed with a script!
 
@@ -7031,7 +7031,7 @@ drkns 03.02.2011 14:25:22 +0200 - build 1813
 
 zg 03.02.2011 13:05:54 +0200 - build 1812
 
-1. PanelInfo is appended with StructSize, OwnerGuid, PluginHandle. 
+1. PanelInfo is appended with StructSize, OwnerGuid, PluginHandle.
    For plugin panels, OwnerGuid equals to plugin's GUID, PluginHandle equals to value returned by the plugin from Open[File]Plugin.
    For real panels, OwnerGuid equals to FarGuid, PluginHandle equals to INVALID_HANDLE_VALUE.
 
@@ -7053,7 +7053,7 @@ svs 03.02.2011 13:34:09 +0300 - build 1811
 4. Macro: "substr got rid of 3rd parameter default value of -1"
    TVar is appended with vtUnknown type (analogous to vtInteger, contains 0)
 
-5. ActlKeyMacro structure has grown, according to #5 
+5. ActlKeyMacro structure has grown, according to #5
    (http://forum.farmanager.com/viewtopic.php?p=58432#p58432).
 
 drkns 03.02.2011 10:07:07 +0200 - build 1810
@@ -7096,7 +7096,7 @@ svs 01.02.2011 16:07:38 +0300 - build 1805
 
 1. Mantis#0001690: FDLG_NODTITLE - do not change console caption to dialog caption
    (from samlyukov)
-   Instead of suggested FDLG_NODTITLE, a FDLG_KEEPCONSOLETITLE dialog flag is added, 
+   Instead of suggested FDLG_NODTITLE, a FDLG_KEEPCONSOLETITLE dialog flag is added,
    which lets switch off the console header change to 0-th dialog element.
 
 2. Macro: correction of build #1791
@@ -7124,7 +7124,7 @@ svs 01.02.2011 16:07:38 +0300 - build 1805
 
 drkns 01.02.2011 14:02:14 +0200 - build 1804
 
-1. "In all non-removable drives"/"In all local drives" search mode also counts unmounted drives. 
+1. "In all non-removable drives"/"In all local drives" search mode also counts unmounted drives.
 
 2. Mantis#0001693: Incorrect settings in File descriptions dialog
 
@@ -7135,7 +7135,7 @@ drkns 29.01.2011 12:31:15 +0200 - build 1803
 svs 27.01.2011 13:30:39 +0300 - build 1802
 
 1. Macro: Correction of return code for callplugin
-   callplugin function returns 0 if the called plugin does not exist or it has returned 0. 
+   callplugin function returns 0 if the called plugin does not exist or it has returned 0.
    In other cases, the function returns a non-zero value.
 
 svs 25.01.2011 18:35:03 +0300 - build 1801
@@ -7150,16 +7150,16 @@ svs 25.01.2011 16:53:18 +0300 - build 1800
    <ACHTUNG>
 
      Note for OpenPluginW:
-       If OPEN_FROMMACRO flag is set in OpenFrom parameter, then values in least significant word 
-       contain the ID of the current macro area defined in FARMACROAREA, not an identifier from 
+       If OPEN_FROMMACRO flag is set in OpenFrom parameter, then values in least significant word
+       contain the ID of the current macro area defined in FARMACROAREA, not an identifier from
        OPENPLUGIN_OPENFROM enumeration.
-       
+
    </ACHTUNG>
 
 
 2. Mantis#0001677: Provide "launching" key code when running a macro with MCMD_POSTMACROSTRING
    ActlKeyMacro::Param::PlainText structure is appended with "AKey" field.
-   
+
 drkns 23.01.2011 13:02:35 +0200 - build 1799
 
 1. Error in FCTL_SETSORTMODE.
@@ -7216,7 +7216,7 @@ svs 14.01.2011 17:39:03 +0300 - build 1789
 
 1. Mantis#0001631: addition in PluginsControl() - PCTL_FORCEDLOADPLUGIN
    (from: samlyukov)
-   Addition to API: PCTL_FORCEDLOADPLUGIN loads plugin directly into memory instead of cache, which allows 
+   Addition to API: PCTL_FORCEDLOADPLUGIN loads plugin directly into memory instead of cache, which allows
                   custom plugins use at inter-plugin interaction.
 
 svs 14.01.2011 17:11:42 +0300 - build 1788
@@ -7238,11 +7238,11 @@ svs 13.01.2011 11:43:12 +0300 - build 1786
 
 3. Macro: changes in conditions checking behavior for $if/$while
    String in condition is checked for emptiness.
-     
+
      %a="";
      $if (%a) is not executed $else is executed $end
      $if ("") is not executed $else is executed $end
-     
+
      %a="anything, including 0";
      $if (%a) is executed $else is not executed $end
      $if ("anything") is executed $else is not executed $end
@@ -7373,8 +7373,8 @@ drkns 24.12.2010 10:37:23 +0200 - build 1768
 zg 20.12.2010 13:46:31 +0200 - build 1767
 
 1. Forum:
-   type `macro:post panel.setpath(1, "C:/")' in command line (to change passive panel path) 
-   and press F5 Enter on any file or folder in active panel. 
+   type `macro:post panel.setpath(1, "C:/")' in command line (to change passive panel path)
+   and press F5 Enter on any file or folder in active panel.
    This results in "Can not find the file" error.
 
 drkns 19.12.2010 23:49:18 +0200 - build 1766
@@ -7573,7 +7573,7 @@ yjh 25.11.2010 04:42:51 +0300 - build 1727
    situation when they have not imported.
      The difference in behavior has 3 causes: this variant is more correct,
    ulink forbids "direct usage" of names' __imp_ prefixes (this is a rare
-   exotics, although such mistakes do happen), and finally, ms-link doesn't 
+   exotics, although such mistakes do happen), and finally, ms-link doesn't
    support partial delay load.
 
 drkns 23.11.2010 20:39:55 +0200 - build 1726
@@ -7614,7 +7614,7 @@ drkns 15.11.2010 13:47:00 +0200 - build 1721
 
 t-rex 12.11.2010 21:32:19 +0200 - build 1720
 
-1. Mantis#1527: Selected items in input history do not stay at the top of drop-down list 
+1. Mantis#1527: Selected items in input history do not stay at the top of drop-down list
    and can get removed when outdated.
 
 drkns 12.11.2010 19:39:44 +0200 - build 1719
@@ -7653,9 +7653,9 @@ svs 08.11.2010 18:07:58 +0300 - build 1713
 
    <ACHTUNG>
 
-     BM.first must be replaced with BM.goto(1) 
+     BM.first must be replaced with BM.goto(1)
      BM.last  must be replaced with BM.goto(BM.stat(0))
-   
+
    </ACHTUNG>
 
 2. Macro: fix of Menu.XXX malfunction in dialogs with lists.
@@ -7685,9 +7685,9 @@ svs 05.11.2010 16:50:49 +0300 - build 1710
 
   If the sequence of BM.add() and BM.prev() has been called, the following actions take part:
 
-  a) If editor's current position matches the position saved with BM.add(), 
+  a) If editor's current position matches the position saved with BM.add(),
   then go to bookmark previously created with BM.add().
-  b) If editor's current position does not match the position saved with BM.add(), 
+  b) If editor's current position does not match the position saved with BM.add(),
   then save the current position and go to bookmark created with BM.add().
 
 drkns 03.11.2010 10:15:20 +0200 - build 1709
@@ -7830,7 +7830,7 @@ svs 27.09.2010 16:59:30 +0300 - build 1682
 
 1. Mantis#0001512: auto-starting macros did not work
 
-2. Macro: mmode(2) - returns information (macro area and flags) on starting conditions 
+2. Macro: mmode(2) - returns information (macro area and flags) on starting conditions
    for "this" macro sequence (being executed).
    The lower byte of the return code is the macro area index from which the macro has started:
 
@@ -7873,7 +7873,7 @@ svs 27.09.2010 16:59:30 +0300 - build 1682
          0x02000000 - passive: run if current object is "file"
          0x04000000 - active:  run if current object is "directory"
          0x08000000 - passive: run if current object is "directory"
-                                                                                              
+
        Additional information:
          0x00000100 - suppress screen redraw while running the macro
          0x10000000 - multi-line text of the macro (REG_MULTI_SZ)
@@ -7889,7 +7889,7 @@ svs 23.09.2010 00:26:57 +0300 - build 1681
 1. Mantis#0001508: Far crash when executing a macro on a slowly refreshing panel
    During the call of macro function Panel.SetPos(), panel.SetPath() and Panel.SetPosIdx() the macros
    are frozen until the functions are done: on "big" directories (like network ones, with large amount
-   of file objects and/or slow channels) these functions can display messages about file/folder data 
+   of file objects and/or slow channels) these functions can display messages about file/folder data
    collecting process, with the possibility of cancellation on Esc.
 
    TODO: Now the code is appended with snippets which remove screen lock before work (and set it back
@@ -7898,7 +7898,7 @@ svs 23.09.2010 00:26:57 +0300 - build 1681
          Here is an "obscurity" - are the snippets really needed?
          * if they are, then a situation takes place for the case when the message has appeared and
            user has cancelled the scanning... an unfinished transaction
-         * if they are not, then we have a contrary situation - for the macro, user sees 
+         * if they are not, then we have a contrary situation - for the macro, user sees
            non-responding Far (until directory scanning is done)
 
 drkns 21.09.2010 20:38:32 +0200
@@ -7974,7 +7974,7 @@ svs 16.09.2010 17:50:23 +0300 - build 1673
 		b) 1 - the next system one (round-robin)
 		c) -1 - the previous system one (round-robin)
 		d) 0 or unspecified - return the current layout.
- 
+
 	  Returned value is 0 in case of an error or the previous layout (the current one if N=0)
 	  Errors: cannot define current layout name for the console or failed to get console window handle.
 
@@ -7994,7 +7994,7 @@ svs 16.09.2010 17:50:23 +0300 - build 1673
    <ACHTUNG>
 
      Replace $KbdSwitch with kbdLayout(1) in your macros
-   
+
    </ACHTUNG>
 
 3. Mantis#0001423 - Get menu item state
@@ -8073,7 +8073,7 @@ drkns 27.08.2010 09:50:32 +0200
 
 1. Spanish translation (lng file) from Mauro72.
 
-svs 26.08.2010 07:50:23 +0300 - build 
+svs 26.08.2010 07:50:23 +0300 - build
 
 1. Mantis#0000986: Far 2 API - pascal
    PluginW.pas is updated.
@@ -8097,7 +8097,7 @@ svs 25.08.2010 11:17:55 +0300 - build 1656
 
 2. The first stage of FolderShortcuts reconstruction
     - Functions GetShortcutFolder() and SaveFolderShortcut() don't know what a "key" is.
-    - RCtrl[Shift]-0..9 processing algorithm is moved out of FileList::ProcessKey() 
+    - RCtrl[Shift]-0..9 processing algorithm is moved out of FileList::ProcessKey()
       into Panel class as ExecShortcutFolder() and SaveShortcutFolder() functions.
     - GetShortcutFolderSize() function is removed.
 
@@ -8122,7 +8122,7 @@ svs 21.08.2010 23:18:55 +0300 - build 1652
 1. Macro: an "exact string" term is added (like "verbatim string" in C#).
    Exact string has @ symbol at the beginning and surrounded with double quotes.
    Escape-sequences are not processed in it, which allows usage of such a string where
-   the sequence is formed with the use of metacharacters, for example, in UserMenu. 
+   the sequence is formed with the use of metacharacters, for example, in UserMenu.
    Example: replace all '\' to '/' in a path:
     print(replace(@"!\!.!", @"\", ""))
    In order to include double quote character into an "exact string", use the character twice:
@@ -8158,7 +8158,7 @@ drkns 19.08.2010 19:36:20 +0200 - build 1646
 
 svs 19.08.2010 14:56:31 +0300 - build 1645
 
-1. Macro: a function is added N=mload(S) 
+1. Macro: a function is added N=mload(S)
      it reads variable S from the registry (Vars area).
      return: 1 - the variable exists and is read successfully.
              0 - the variable does not exist; a new variable is not created;
@@ -8176,7 +8176,7 @@ svs 18.08.2010 22:31:22 +0300 - build 1644
      1. Get the list prepare the output line (now the list is given a previously prepared line)
      2. after this, add 9 more view modes and remove the limitation on file name column ("always last")
      4. as a result, we can get dynamic switching of view modes with Ctrl-digit (as in panels)
-   
+
 2. Meanwhile, a bug was found - garbage was shown in "G" column for "..".
 
 3. ViewSettingsToText() and TextToViewSettings() are not FileList class members anymore.
@@ -8199,7 +8199,7 @@ drkns 09.08.2010 13:47:00 +0200 - build 1641
 2. Correction in NTPath. Situations similar to M#0001458 must have been eliminated now.
    Also, paths like "C:\\\\\Dir1////Dir2" are ok.
 
-3. Console redraw and querying at catalog scanning is done like anywhere else - each 200 ms, not after each 64 files. 
+3. Console redraw and querying at catalog scanning is done like anywhere else - each 200 ms, not after each 64 files.
    Ibid.: removed useless message at scanning cancel.
 
 drkns 09.08.2010 12:27:32 +0200 - build 1640
@@ -8243,7 +8243,7 @@ drkns 30.07.2010 23:47:23 +0200 - build 1633
 
 1. When copying directories, their alternative data streams are preserved now.
 
-2. Eliminated the logic "if we are copying a directory and a filter is on 
+2. Eliminated the logic "if we are copying a directory and a filter is on
   and no files match the filter, then we don't need that empty directory".
 
 t-rex 30.07.2010 21:27:16 +0200 - build 1632
@@ -8300,7 +8300,7 @@ drkns 20.07.2010 22:08:47 +0200 - build 1624
 
 drkns 20.07.2010 01:21:33 +0200 - build 1623
 
-1. A Stunning Generosity Show: ECTL_GETSTRING cyclic call is sped up dramatically, 
+1. A Stunning Generosity Show: ECTL_GETSTRING cyclic call is sped up dramatically,
    so ECTL_SETPOSITION + ECTL_GETSTRING(-1) trick is no longer needed.
 
 t-rex 16.07.2010 20:13:36 +0200 - build 1622.
@@ -8313,13 +8313,13 @@ svs 16.07.2010 10:03:22 +0300 - build 1621
 
    * $Date command is removed
        replace it with print(Date(blablabla_or_nothing))
-   
+
    * $MMode command is removed
        replace it with mmode(1,2)
-   
+
    * IClip state is removed
        replace it with clip(5,-1) (notice that clip() returns 1 or 2)
-   
+
    * $IClip command is removed
        replace it with clip(5,0) or just clip(5)
 
@@ -8329,7 +8329,7 @@ svs 16.07.2010 10:03:22 +0300 - build 1621
 drkns 15.07.2010 13:47:00 +0200 - build 1620
 
 1. Settings shake-up:
-   "Plugin selection" dialog has grown into "Plugins manager", "Path for 
+   "Plugin selection" dialog has grown into "Plugins manager", "Path for
    personal plugins" has also moved there and a couple of new options is added:
    "OEM plugins support" - old plugins on/off global switching;
    "Scan symbolic links" - load or don't load plugins at symbolic links.
@@ -8410,10 +8410,10 @@ drkns 05.07.2010 11:00:00 +0200 - build 1604
 
 1. Another "type" of symbolic links is available at link creation dialog,
    with no explicit notation whether it is a file or a directory.
-   The necessary option is chosen automatically according to the attributes of 
+   The necessary option is chosen automatically according to the attributes of
    referred object.
 
-2  FLINK_SYMLINK flag is available in FSF.MkLink, it enables automatic 
+2  FLINK_SYMLINK flag is available in FSF.MkLink, it enables automatic
    selection of symbolic link type.
 
 drkns 02.07.2010 16:17:18 +0200 - build 1603
@@ -8449,7 +8449,7 @@ svs 02.07.2010 11:22:10 +0300 - build 1601
   TODO (after Mantis#0001422 implementation):
   0x00000040 - Hotkey is present
   0x00000080 - Hotkey is manually specified by user
-      
+
 drkns 01.07.2010 22:20:00 +0200 - build 1600
 
 1. Mantis#0001420: Far Manager does not disable windows hibernate during copy(move).
@@ -8457,7 +8457,7 @@ drkns 01.07.2010 22:20:00 +0200 - build 1600
 t-rex 30.06.2010 21:21:26 +0200 - build 1599
 
 1. Another CacheRead shake-up (hope it's the last one),
-  this fixed a lot of different mystic viewer large files search bugs in last builds. 
+  this fixed a lot of different mystic viewer large files search bugs in last builds.
 
 svs 29.06.2010 15:01:56 +0300 - build 1598
 
@@ -8465,7 +8465,7 @@ svs 29.06.2010 15:01:56 +0300 - build 1598
 
 2. Macro: parsing error at functions with optional elements.
   "...spotted a msgbox(menu.value,gethotkey()) macro malfunction, menu.value returns nothing in such a combination..."
-  (perhaps a specification is needed) 
+  (perhaps a specification is needed)
 
 t-rex 27.06.2010 13:43:59 +0200 - build 1597
 
@@ -11847,10 +11847,10 @@ svs 19.08.2009 11:42:58 +0300 - build 1086
    eval("",1) variant returns error 12 ("Zero-length macro")
    Considering empty macro sequences illegal.
 
-svs 17.08.2009 12:26:34 +0300 - build 
+svs 17.08.2009 12:26:34 +0300 - build
 
-1. Mantis#0000986: Far 2 API - pascal 
-    from: max rusov 
+1. Mantis#0000986: Far 2 API - pascal
+    from: max rusov
       PluginW.pas: FAR_USE_INTERNALS are removed
 
 drkns 16.08.2009 09:05:05 +0200 - build 1085
@@ -11868,10 +11868,10 @@ drkns 14.08.2009 23:38:43 +0200 - build 1083
    Localization of settings dialog.
    All plugin selection menus are off by default.
 
-svs 14.08.2009 11:51:50 +0300 - build 
+svs 14.08.2009 11:51:50 +0300 - build
 
-1. Mantis#0000986: Far 2 API - pascal 
-    from: max rusov 
+1. Mantis#0000986: Far 2 API - pascal
+    from: max rusov
       PluginW.pas: x64 support is added. Tested under FreePascal 2.3.1
 
 t-rex 12.08.2009 12:01:41 +0200 - build 1082
