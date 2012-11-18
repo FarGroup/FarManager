@@ -37,7 +37,7 @@ bool InsufficientMemoryHandler()
 	return ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN;
 }
 
-#ifdef SYSLOG
+#ifdef _DEBUG
 #define MEMORY_CHECK
 #endif
 
@@ -54,9 +54,11 @@ struct MEMINFO
 	union
 	{
 		ALLOCATION_TYPE AllocationType;
-		LPVOID Dummy; // alignment
+		char c[MEMORY_ALLOCATION_ALIGNMENT];
 	};
 };
+
+static_assert(sizeof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT, "MEMINFO not aligned");
 #endif
 
 void *__cdecl xf_malloc(size_t size)
