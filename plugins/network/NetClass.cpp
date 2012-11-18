@@ -427,7 +427,8 @@ int NetBrowser::GetFindData(PluginPanelItem **pPanelItem,size_t *pItemsNumber,OP
 		CustomColumnData[1] = wcsdup(Comment);
 		NewPanelItem[CurItemPos].CustomColumnData=CustomColumnData;
 		NewPanelItem[CurItemPos].CustomColumnNumber=2;
-		NewPanelItem[CurItemPos].FileName = _wcsdup(RemoteName);
+		NewPanelItem[CurItemPos].FileName = wcsdup(RemoteName);
+		NewPanelItem[CurItemPos].Description = wcsdup(Comment);
 		DWORD attr = FILE_ATTRIBUTE_DIRECTORY;
 
 		if (NetList[I].dwType==RESOURCETYPE_PRINT)
@@ -453,6 +454,7 @@ void NetBrowser::FreeFindData(PluginPanelItem *PanelItem,int ItemsNumber)
 		free((void*)PanelItem[I].CustomColumnData[1]);
 		free((void*)PanelItem[I].CustomColumnData);
 		free((void*)PanelItem[I].FileName);
+		free((void*)PanelItem[I].Description);
 	}
 
 	free(PanelItem);
