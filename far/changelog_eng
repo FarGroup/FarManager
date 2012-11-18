@@ -3,6 +3,40 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 18.11.2012 20:44:29 +0200 - build 2955
+
+1. Say "No!" to dr^W global variables and especially to global objects initialized in random order.
+   Part #1: Now there is one global object Global, please put everything in it, not in hpp files.
+   To be continued.
+
+2. A bonus to #1: dialog handling function and thread function can be class members now.
+
+drkns 18.11.2012 09:55:22 +0200 - build 2953
+
+1. Correction of alignment for debug builds.
+
+shmuel 18.11.2012 01:29:46 +0200 - build 2951
+
+1. FAR crash if msgbox() was called in a plugin, right after Plugin.Call(), and then Esc was pressed,
+   given that a macro is bound to Esc in dialogs.
+
+svs 13.11.2012 20:32:42 +0400 - build 2950
+
+1. First approximation for search in help.
+   F7 key as usual.
+   The results are presented as links to found topics.
+
+   The search is dumb so far, the occurrence of entered substring is searched in lines read from current help file.
+
+   Next:
+   1. Debug
+   2. Replace GetString(...) with GetSearchReplaceString(false,...) with all bells and whistles (Case, WholeWords and Regexp fields)
+   3. something more
+
+zg 12.11.2012 15:08:38 +0200 - build 2949
+
+1. forum: Far.DisableHistory is broken for everyone or just me ?
+
 lort 11.11.2012 16:47:46 +0400 - build 2948
 
 1. If a menu does not fit the screen height, draw it upwards.
