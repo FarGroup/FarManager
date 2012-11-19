@@ -1765,7 +1765,7 @@ bool AdvancedConfig()
 
 	AdvancedConfigDlg[0].ListItems = &Items;
 
-	Dialog Dlg(AdvancedConfigDlg,ARRAYSIZE(AdvancedConfigDlg), AdvancedConfigDlgProc, &fs);
+	Dialog Dlg(AdvancedConfigDlg,ARRAYSIZE(AdvancedConfigDlg), AdvancedConfigDlgProc, fs);
 	Dlg.SetHelp(L"FarConfig");
 	Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
 	Dlg.Process();
