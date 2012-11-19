@@ -337,7 +337,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 		if (Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SavePos)
 		{
 			CachedCodePage=poscache.CodePage;
-			if (CachedCodePage && !IsCodePageSupported(CachedCodePage))
+			if (CachedCodePage && !Global->CodePages->IsCodePageSupported(CachedCodePage))
 				CachedCodePage = 0;
 		}
 		if (Global->Opt->ViOpt.SaveWrapMode && 0 != (poscache.Hex_Wrap & 0x10))
@@ -367,7 +367,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 			// ѕровер€ем поддерживаетс€ или нет задетектированна€ кодова€ страница
 			if (Detect)
-				Detect = IsCodePageSupported(CodePage);
+				Detect = Global->CodePages->IsCodePageSupported(CodePage);
 		}
 
 		if (VM.CodePage==CP_DEFAULT)
@@ -1643,12 +1643,12 @@ int Viewer::ProcessKey(int Key)
 		case KEY_SHIFTF8:
 		{
 			uintptr_t nCodePage = VM.CodePage;
-			if (SelectCodePage(nCodePage, true, true, false, true))
+			if (Global->CodePages->SelectCodePage(nCodePage, true, true, false, true))
 			{
 				if (nCodePage == CP_DEFAULT)
 				{
 					__int64 fpos = vtell();
-					bool detect = GetFileFormat(ViewFile,nCodePage,&Signature,true) && IsCodePageSupported(nCodePage);
+					bool detect = GetFileFormat(ViewFile,nCodePage,&Signature,true) && Global->CodePages->IsCodePageSupported(nCodePage);
 					vseek(fpos, SEEK_SET);
 					if (!detect)
 						nCodePage = Global->Opt->ViOpt.AnsiCodePageAsDefault ? GetACP() : GetOEMCP();
@@ -2472,7 +2472,7 @@ struct MyDialogData
 	bool      recursive;
 };
 
-intptr_t WINAPI ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t Viewer::ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -3316,7 +3316,7 @@ void Viewer::Search(int Next,int FirstChar)
 		//
 		SearchDlg[SD_EDIT_TEXT].UserData = (intptr_t)&my;
 
-		Dialog Dlg(SearchDlg,ARRAYSIZE(SearchDlg),ViewerSearchDlgProc);
+		Dialog Dlg(this, &Viewer::ViewerSearchDlgProc, nullptr, SearchDlg, ARRAYSIZE(SearchDlg));
 		Dlg.SetPosition(-1,-1,76,13);
 		Dlg.SetHelp(L"ViewerSearch");
 

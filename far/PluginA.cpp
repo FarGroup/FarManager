@@ -4956,7 +4956,7 @@ int WINAPI FarCharTableA(int Command, char *Buffer, int BufferSize)
 		if (cpiex.MaxCharSize != 1)
 			return -1;
 
-		wchar_t *codePageName = FormatCodePageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
+		wchar_t *codePageName = Global->CodePages->FormatCodePageName(nCP, cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t));
 		FormatString sTableName;
 		sTableName<<fmt::MinWidth(5)<<nCP<<BoxSymbols[BS_V1]<<L" "<<codePageName;
 		sTableName.GetCharString(TableSet->TableName, sizeof(TableSet->TableName) - 1, CP_OEMCP);

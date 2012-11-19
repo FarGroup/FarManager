@@ -314,48 +314,6 @@ enum
 	FIND_EXIT_PANEL
 };
 
-class Vars
-{
-public:
-	Vars():TB(nullptr)
-	{
-	}
-
-	~Vars()
-	{
-		if(TB)
-		{
-			delete TB;
-		}
-	}
-
-	// Используются для отправки файлов на временную панель.
-	// индекс текущего элемента в списке и флаг для отправки.
-	DWORD FindExitIndex;
-	bool FindFoldersChanged;
-	bool SearchFromChanged;
-	bool FindPositionChanged;
-	bool Finalized;
-	bool PluginMode;
-	TaskBar *TB;
-
-	void Clear()
-	{
-		FindExitIndex=LIST_INDEX_NONE;
-		FindFoldersChanged=false;
-		SearchFromChanged=false;
-		FindPositionChanged=false;
-		Finalized=false;
-		PluginMode=false;
-		if(TB)
-		{
-			delete TB;
-			TB=nullptr;
-		}
-	}
-
-};
-
 CriticalSection PluginCS;
 Event PauseEvent(true, true);
 Event StopEvent(true, false);
@@ -824,7 +782,6 @@ void FindFiles::AdvancedDialog()
 
 intptr_t FindFiles::MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	Vars* v = reinterpret_cast<Vars*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
 	switch (Msg)
 	{
 		case DN_INITDIALOG:
@@ -846,7 +803,7 @@ intptr_t FindFiles::MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 			SendDlgMessage(hDlg,DM_LISTSETTITLES,FAD_COMBOBOX_CP,&Titles);
 			// Установка запомненных ранее параметров
 			CodePage = Global->Opt->FindCodePage;
-			favoriteCodePages = FillCodePagesList(hDlg, FAD_COMBOBOX_CP, CodePage, false, true);
+			favoriteCodePages = Global->CodePages->FillCodePagesList(hDlg, FAD_COMBOBOX_CP, CodePage, false, true);
 			// Текущее значение в в списке выбора кодовых страниц в общем случае модет не совпадать с CodePage,
 			// так что получаем CodePage из списка выбора
 			FarListPos Position={sizeof(FarListPos)};
@@ -884,12 +841,12 @@ intptr_t FindFiles::MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 					SendDlgMessage(hDlg,DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
 					item.Item.Text=strSearchFromRoot;
 					SendDlgMessage(hDlg,DM_LISTUPDATE,FAD_COMBOBOX_WHERE,&item);
-					v->PluginMode=CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
-					SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(v->PluginMode?FALSE:TRUE));
+					PluginMode=CtrlObject->Cp()->ActivePanel->GetMode()==PLUGIN_PANEL;
+					SendDlgMessage(hDlg,DM_ENABLE,FAD_CHECKBOX_DIRS,ToPtr(PluginMode?FALSE:TRUE));
 					item.ItemIndex=FADC_ALLDISKS;
 					SendDlgMessage(hDlg,DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
 
-					if (v->PluginMode)
+					if (PluginMode)
 						item.Item.Flags|=LIF_GRAYED;
 					else
 						item.Item.Flags&=~LIF_GRAYED;
@@ -898,7 +855,7 @@ intptr_t FindFiles::MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 					item.ItemIndex=FADC_ALLBUTNET;
 					SendDlgMessage(hDlg,DM_LISTGETITEM,FAD_COMBOBOX_WHERE,&item);
 
-					if (v->PluginMode)
+					if (PluginMode)
 						item.Item.Flags|=LIF_GRAYED;
 					else
 						item.Item.Flags&=~LIF_GRAYED;
@@ -926,7 +883,7 @@ intptr_t FindFiles::MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 			{
 				case FAD_CHECKBOX_DIRS:
 					{
-						v->FindFoldersChanged = true;
+						FindFoldersChanged = true;
 					}
 					break;
 
@@ -1065,7 +1022,7 @@ intptr_t FindFiles::MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 				case FAD_EDIT_TEXT:
 					{
 						// Строка "Содержащих текст"
-						if (!v->FindFoldersChanged)
+						if (!FindFoldersChanged)
 						{
 							BOOL Checked = (Item.Data && *Item.Data)?FALSE:(int)Global->Opt->FindOpt.FindFolders;
 							SendDlgMessage(hDlg, DM_SETCHECK, FAD_CHECKBOX_DIRS, ToPtr(Checked?BSTATE_CHECKED:BSTATE_UNCHECKED));
@@ -1083,7 +1040,7 @@ intptr_t FindFiles::MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 				return TRUE;
 				case FAD_COMBOBOX_WHERE:
 					{
-						v->SearchFromChanged=true;
+						SearchFromChanged=true;
 					}
 					return TRUE;
 			}
@@ -1523,14 +1480,13 @@ bool FindFiles::IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullNam
 intptr_t FindFiles::FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	CriticalSectionLock Lock(PluginCS);
-	Vars* v = reinterpret_cast<Vars*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
 	Dialog* Dlg=static_cast<Dialog*>(hDlg);
 	VMenu *ListBox=Dlg->GetAllItem()[FD_LISTBOX]->ListPtr;
 
 	static bool Recurse=false;
 	static DWORD ShowTime=0;
 
-	if(!v->Finalized && !Recurse)
+	if(!Finalized && !Recurse)
 	{
 		Recurse=true;
 		DWORD Time=GetTickCount();
@@ -1580,7 +1536,7 @@ intptr_t FindFiles::FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 		Recurse=false;
 	}
 
-	if(!v->Finalized && StopEvent.Signaled())
+	if(!Finalized && StopEvent.Signaled())
 	{
 		LangString strMessage(MFindDone);
 		strMessage << itd->GetFileCount() << itd->GetDirCount();
@@ -1591,12 +1547,12 @@ intptr_t FindFiles::FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 		SendDlgMessage(hDlg, DM_SETTEXTPTR, FD_BUTTON_STOP, const_cast<wchar_t*>(MSG(MFindCancel)));
 		SendDlgMessage(hDlg, DM_ENABLEREDRAW, TRUE, 0);
 		ConsoleTitle::SetFarTitle(strMessage);
-		if(v->TB)
+		if(TB)
 		{
-			delete v->TB;
-			v->TB=nullptr;
+			delete TB;
+			TB=nullptr;
 		}
-		v->Finalized=true;
+		Finalized=true;
 	}
 
 	switch (Msg)
@@ -1612,9 +1568,9 @@ intptr_t FindFiles::FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 			DefDlgProc(hDlg,Msg,Param1,Param2);
 
 			// Переместим фокус на кнопку [Go To]
-			if ((itd->GetDirCount() || itd->GetFileCount()) && !v->FindPositionChanged)
+			if ((itd->GetDirCount() || itd->GetFileCount()) && !FindPositionChanged)
 			{
-				v->FindPositionChanged=true;
+				FindPositionChanged=true;
 				SendDlgMessage(hDlg,DM_SETFOCUS,FD_BUTTON_GOTO,0);
 			}
 			return TRUE;
@@ -1666,7 +1622,7 @@ intptr_t FindFiles::FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 				{
 					if (Param1==FD_BUTTON_STOP)
 					{
-						v->FindPositionChanged=true;
+						FindPositionChanged=true;
 						SendDlgMessage(hDlg,DM_SETFOCUS,FD_BUTTON_NEW,0);
 						return TRUE;
 					}
@@ -1679,7 +1635,7 @@ intptr_t FindFiles::FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 				{
 					if (Param1==FD_BUTTON_NEW)
 					{
-						v->FindPositionChanged=true;
+						FindPositionChanged=true;
 						SendDlgMessage(hDlg,DM_SETFOCUS,FD_BUTTON_STOP,0);
 						return TRUE;
 					}
@@ -2020,7 +1976,7 @@ intptr_t FindFiles::FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 
 	case DN_BTNCLICK:
 		{
-			v->FindPositionChanged = true;
+			FindPositionChanged = true;
 			switch (Param1)
 			{
 			case FD_BUTTON_NEW:
@@ -2063,11 +2019,11 @@ intptr_t FindFiles::FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 					{
 						return TRUE;
 					}
-					v->FindExitIndex = static_cast<DWORD>(*reinterpret_cast<size_t*>(ListBox->GetUserData(nullptr, 0)));
-					if (v->TB)
+					FindExitIndex = static_cast<DWORD>(*reinterpret_cast<size_t*>(ListBox->GetUserData(nullptr, 0)));
+					if (TB)
 					{
-						delete v->TB;
-						v->TB=nullptr;
+						delete TB;
+						TB=nullptr;
 					}
 					return FALSE;
 				}
@@ -2897,9 +2853,8 @@ unsigned int FindFiles::ThreadRoutine(LPVOID Param)
 	return 0;
 }
 
-bool FindFiles::FindFilesProcess(Vars* _v)
+bool FindFiles::FindFilesProcess()
 {
-	Vars& v = *_v;
 	_ALGO(CleverSysLog clv(L"FindFiles::FindFilesProcess()"));
 	// Если используется фильтр операций, то во время поиска сообщаем об этом
 	string strTitle=MSG(MFindFileTitle);
@@ -2963,7 +2918,7 @@ bool FindFiles::FindFilesProcess(Vars* _v)
 	MakeDialogItemsEx(FindDlgData,FindDlg);
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 
-	if (v.PluginMode)
+	if (PluginMode)
 	{
 		Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
 		HANDLE hPlugin=ActivePanel->GetPluginHandle();
@@ -2996,7 +2951,7 @@ bool FindFiles::FindFilesProcess(Vars* _v)
 		FindDlg[FD_BUTTON_PANEL].Flags|=DIF_DISABLE;
 	}
 
-	Dialog Dlg(this, &FindFiles::FindDlgProc, &v, FindDlg,ARRAYSIZE(FindDlg));
+	Dialog Dlg(this, &FindFiles::FindDlgProc, nullptr, FindDlg,ARRAYSIZE(FindDlg));
 //  pDlg->SetDynamicallyBorn();
 	Dlg.SetHelp(L"FindFileResult");
 	Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
@@ -3007,11 +2962,11 @@ bool FindFiles::FindFilesProcess(Vars* _v)
 
 	strLastDirName.Clear();
 
-	THREADPARAM Param={v.PluginMode,static_cast<HANDLE>(&Dlg)};
+	THREADPARAM Param={PluginMode,static_cast<HANDLE>(&Dlg)};
 	HANDLE Thread = apiCreateThread(nullptr, 0, this, &FindFiles::ThreadRoutine, &Param, 0, nullptr);
 	if (Thread)
 	{
-		v.TB=new TaskBar;
+		TB=new TaskBar;
 		wakeful W;
 		Dlg.Process();
 		WaitForSingleObject(Thread,INFINITE);
@@ -3107,7 +3062,7 @@ bool FindFiles::FindFilesProcess(Vars* _v)
 			case FD_LISTBOX:
 			{
 				FINDLIST FindItem;
-				itd->GetFindListItem(v.FindExitIndex, FindItem);
+				itd->GetFindListItem(FindExitIndex, FindItem);
 				string strFileName=FindItem.FindData.strFileName;
 				Panel *FindPanel=CtrlObject->Cp()->ActivePanel;
 
@@ -3219,7 +3174,8 @@ bool FindFiles::FindFilesProcess(Vars* _v)
 	return false;
 }
 
-FindFiles::FindFiles()
+FindFiles::FindFiles():
+	TB(nullptr)
 {
 	// BUGBUG
 	FileMaskForFindFile = new CFileMask;
@@ -3260,16 +3216,23 @@ FindFiles::FindFiles()
 	strFindStr = strLastFindStr;
 	strSearchFromRoot = MSG(MSearchFromRootFolder);
 
-	Vars v;
-
 	itd = new InterThreadData;
 
 	do
 	{
-		v.Clear();
+		FindExitIndex=LIST_INDEX_NONE;
+		FindFoldersChanged=false;
+		SearchFromChanged=false;
+		FindPositionChanged=false;
+		Finalized=false;
+		if(TB)
+		{
+			delete TB;
+			TB=nullptr;
+		}
 		itd->ClearAllLists();
 		Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-		v.PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
+		PluginMode=ActivePanel->GetMode()==PLUGIN_PANEL && ActivePanel->IsVisible();
 		PrepareDriveNameStr(strSearchFromRoot);
 		const wchar_t *MasksHistoryName=L"Masks",*TextHistoryName=L"SearchText";
 		const wchar_t *HexMask=L"HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH HH";
@@ -3323,7 +3286,7 @@ FindFiles::FindFiles()
 		FarList l={sizeof(FarList),ARRAYSIZE(li),li};
 		FindAskDlg[FAD_COMBOBOX_WHERE].ListItems=&l;
 
-		if (v.PluginMode)
+		if (PluginMode)
 		{
 			OpenPanelInfo Info;
 			CtrlObject->Plugins->GetOpenPanelInfo(ActivePanel->GetPluginHandle(),&Info);
@@ -3360,7 +3323,7 @@ FindFiles::FindFiles()
 		FindAskDlg[FAD_CHECKBOX_WHOLEWORDS].Selected=WholeWords;
 		FindAskDlg[FAD_CHECKBOX_HEX].Selected=SearchHex;
 		int ExitCode;
-		Dialog Dlg(this, &FindFiles::MainDlgProc, &v, FindAskDlg,ARRAYSIZE(FindAskDlg));
+		Dialog Dlg(this, &FindFiles::MainDlgProc, nullptr, FindAskDlg,ARRAYSIZE(FindAskDlg));
 		Dlg.SetAutomation(FAD_CHECKBOX_FILTER,FAD_BUTTON_FILTER,DIF_DISABLE,DIF_NONE,DIF_NONE,DIF_DISABLE);
 		Dlg.SetHelp(L"FindFile");
 		Dlg.SetId(FindFileId);
@@ -3381,12 +3344,12 @@ FindFiles::FindFiles()
 		SearchHex=FindAskDlg[FAD_CHECKBOX_HEX].Selected == BSTATE_CHECKED;
 		SearchInArchives=FindAskDlg[FAD_CHECKBOX_ARC].Selected == BSTATE_CHECKED;
 
-		if (v.FindFoldersChanged)
+		if (FindFoldersChanged)
 		{
 			Global->Opt->FindOpt.FindFolders=(FindAskDlg[FAD_CHECKBOX_DIRS].Selected==BSTATE_CHECKED);
 		}
 
-		if (!v.PluginMode)
+		if (!PluginMode)
 		{
 			Global->Opt->FindOpt.FindSymLinks=(FindAskDlg[FAD_CHECKBOX_LINKS].Selected==BSTATE_CHECKED);
 		}
@@ -3436,7 +3399,7 @@ FindFiles::FindFiles()
 				break;
 		}
 
-		if (v.SearchFromChanged)
+		if (SearchFromChanged)
 		{
 			Global->Opt->FindOpt.FileSearchMode=SearchMode;
 		}
@@ -3451,7 +3414,7 @@ FindFiles::FindFiles()
 		if (!strFindStr.IsEmpty())
 			Editor::SetReplaceMode(false);
 	}
-	while (FindFilesProcess(&v));
+	while (FindFilesProcess());
 
 	CtrlObject->Cp()->ActivePanel->SetTitle();
 }
@@ -3469,4 +3432,9 @@ FindFiles::~FindFiles()
 		delete Filter;
 	}
 	delete FileMaskForFindFile;
+
+	if(TB)
+	{
+		delete TB;
+	}
 }

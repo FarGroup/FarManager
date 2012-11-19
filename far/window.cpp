@@ -105,37 +105,6 @@ LRESULT CALLBACK WndProc(HWND Hwnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(Hwnd, Msg, wParam, lParam);
 }
 
-unsigned int WINAPI WindowThreadRoutine(LPVOID Param)
-{
-	WNDCLASSEX wc={sizeof(wc)};
-	wc.lpfnWndProc = WndProc;
-	wc.lpszClassName = L"FarHiddenWindowClass";
-	UnregisterClass(wc.lpszClassName, 0);
-	if(RegisterClassEx(&wc))
-	{
-		HWND* pHwnd=static_cast<HWND*>(Param);
-		*pHwnd=CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
-		if(*pHwnd)
-		{
-			// for PBT_POWERSETTINGCHANGE
-			HPOWERNOTIFY hpn=Global->ifn->RegisterPowerSettingNotification(*pHwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
-
-			MSG Msg;
-			while(GetMessage(&Msg, nullptr, 0, 0)>0)
-			{
-				TranslateMessage(&Msg);
-				DispatchMessage(&Msg);
-			}
-
-			if (hpn) // for PBT_POWERSETTINGCHANGE
-				Global->ifn->UnregisterPowerSettingNotification(hpn);
-
-		}
-		UnregisterClass(wc.lpszClassName, 0);
-	}
-	return 0;
-}
-
 WindowHandler::WindowHandler():
 	m_Thread(nullptr),
 	m_Hwnd(nullptr)
@@ -159,6 +128,36 @@ void WindowHandler::Check()
 {
 	if(!m_Thread || WaitForSingleObject(m_Thread, 0)!=WAIT_TIMEOUT)
 	{
-		m_Thread = reinterpret_cast<HANDLE>(_beginthreadex(nullptr, 0, WindowThreadRoutine, &m_Hwnd, 0, nullptr));
+		m_Thread = apiCreateThread(nullptr, 0, this, &WindowHandler::WindowThreadRoutine, nullptr, 0, nullptr);
 	}
+}
+
+unsigned int WindowHandler::WindowThreadRoutine(void* Param)
+{
+	WNDCLASSEX wc={sizeof(wc)};
+	wc.lpfnWndProc = WndProc;
+	wc.lpszClassName = L"FarHiddenWindowClass";
+	UnregisterClass(wc.lpszClassName, 0);
+	if(RegisterClassEx(&wc))
+	{
+		m_Hwnd = CreateWindowEx(0, wc.lpszClassName, nullptr, 0, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, nullptr, nullptr, nullptr, nullptr);
+		if(m_Hwnd)
+		{
+			// for PBT_POWERSETTINGCHANGE
+			HPOWERNOTIFY hpn=Global->ifn->RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
+
+			MSG Msg;
+			while(GetMessage(&Msg, nullptr, 0, 0)>0)
+			{
+				TranslateMessage(&Msg);
+				DispatchMessage(&Msg);
+			}
+
+			if (hpn) // for PBT_POWERSETTINGCHANGE
+				Global->ifn->UnregisterPowerSettingNotification(hpn);
+
+		}
+		UnregisterClass(wc.lpszClassName, 0);
+	}
+	return 0;
 }

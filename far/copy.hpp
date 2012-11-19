@@ -104,6 +104,15 @@ class ShellCopy
 		// в остальных случа€х - RP_EXACTCOPY - как у источника
 		ReparsePointTypes RPT;
 
+		string strPluginFormat;
+		int AltF10;
+		int CopySecurity;
+		size_t SelCount;
+		DWORD FileAttr;
+		bool FolderPresent;
+		bool FilesPresent;
+		bool AskRO;
+
 		COPY_CODES CopyFileTree(const string&  Dest);
 		COPY_CODES ShellCopyOneFile(const string&  Src,
 		                            const FAR_FIND_DATA_EX &SrcData,
@@ -124,6 +133,8 @@ class ShellCopy
 		bool CalcTotalSize();
 		bool ShellSetAttr(const string& Dest,DWORD Attr);
 		void CheckUpdatePanel(); // выставл€ет флаг FCOPY_UPDATEPPANEL
+		intptr_t WarnDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+		intptr_t CopyDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 	public:
 		ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
 		          int &ToPlugin, const wchar_t* PluginDestPath, bool ToSubdir=false);

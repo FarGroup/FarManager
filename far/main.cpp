@@ -445,13 +445,14 @@ global *Global;
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
+	std::set_new_handler(nullptr);
+
 	Global = new global();
 
 	SetErrorMode(Global->ErrorMode);
 
 	TestPathParser();
 
-	std::set_new_handler(nullptr);
 	QueryPerformanceCounter(&Global->FarUpTime);
 
 	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &Global->MainThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);

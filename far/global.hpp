@@ -129,6 +129,7 @@ public:
 	class TreeListCache* TreeCache;
 	class TreeListCache* tempTreeCache;
 	class PluginSynchro* PluginSynchroManager;
+	class codepages* CodePages;
 };
 
 extern global* Global;

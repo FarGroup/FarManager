@@ -92,7 +92,7 @@ intptr_t WINAPI hndOpenEditor(HANDLE hDlg, intptr_t msg, intptr_t param1, void* 
 	if (msg == DN_INITDIALOG)
 	{
 		uintptr_t codepage = *(uintptr_t*)param2;
-		FillCodePagesList(hDlg, ID_OE_CODEPAGE, codepage, true, false, true, true);
+		Global->CodePages->FillCodePagesList(hDlg, ID_OE_CODEPAGE, codepage, true, false, true, true);
 	}
 
 	if (msg == DN_CLOSE)
@@ -173,7 +173,7 @@ intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, intptr_t msg, intptr_t param1, void* 
 		case DN_INITDIALOG:
 		{
 			codepage=*(UINT*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
-			FillCodePagesList(hDlg, ID_SF_CODEPAGE, codepage, false, false, false, true);
+			Global->CodePages->FillCodePagesList(hDlg, ID_SF_CODEPAGE, codepage, false, false, false, true);
 
 			if (IsUnicodeOrUtfCodePage(codepage))
 			{
@@ -1306,7 +1306,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				if (!IsUnicodeCodePage(m_codepage))
 				{
 					uintptr_t codepage = m_codepage;
-					if (SelectCodePage(codepage, false, true, false, true))
+					if (Global->CodePages->SelectCodePage(codepage, false, true, false, true))
 					{
 						if (codepage == CP_DEFAULT)
 						{
@@ -1329,7 +1329,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 								_snwprintf(ss, ARRAYSIZE(ss), MSG(MEditorSwitchToUnicodeCPDisabled), static_cast<int>(codepage));
 								Message(MSG_WARNING,1,MSG(MEditTitle),ss,MSG(MEditorTryReloadFile),MSG(MOk));
 							}
-							else if ( !IsCodePageSupported(codepage) )
+							else if ( !Global->CodePages->IsCodePageSupported(codepage) )
 							{
 								detect = false;
 								_snwprintf(ss, ARRAYSIZE(ss), MSG(MEditorCPNotSupported), static_cast<int>(codepage));
@@ -1524,7 +1524,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 	}
 
 	// Проверяем поддерживается или нет загруженная кодовая страница
-	if (bCached && pc.CodePage && !IsCodePageSupported(pc.CodePage))
+	if (bCached && pc.CodePage && !Global->CodePages->IsCodePageSupported(pc.CodePage))
 		pc.CodePage = 0;
 
 	GetFileString GetStr(EditFile);
@@ -1544,7 +1544,7 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 		// Проверяем поддерживается или нет задетектировання кодовая страница
 		if (Detect)
-			Detect = IsCodePageSupported(dwCP);
+			Detect = Global->CodePages->IsCodePageSupported(dwCP);
 	}
 
 	if (m_codepage == CP_DEFAULT)

@@ -48,6 +48,8 @@ public:
 	Event& PowerChangeEvent() { return m_PowerChangeEvent; }
 
 private:
+	unsigned int WindowThreadRoutine(void* Param);
+
 	HANDLE m_Thread;
 	HWND m_Hwnd;
 

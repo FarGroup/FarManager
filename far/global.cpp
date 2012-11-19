@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "treelist.hpp"
 #include "interf.hpp"
 #include "synchro.hpp"
+#include "codepage.hpp"
 
 global::global()
 {
@@ -130,10 +131,12 @@ global::global()
 	TreeCache = new TreeListCache;
 	tempTreeCache = new TreeListCache;
 	PluginSynchroManager = new PluginSynchro;
+	CodePages = new codepages;
 }
 
 global::~global()
 {
+	delete CodePages;
 	delete PluginSynchroManager;
 	delete tempTreeCache;
 	delete TreeCache;

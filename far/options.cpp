@@ -671,7 +671,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 				case MENU_OPTIONS_CODEPAGESSETTINGS: // Code pages
 					{
 						uintptr_t CodePage = CP_DEFAULT;
-						SelectCodePage(CodePage, true, true, true);
+						Global->CodePages->SelectCodePage(CodePage, true, true, true);
 					}
 					break;
 				case MENU_OPTIONS_COLORS:  // Colors

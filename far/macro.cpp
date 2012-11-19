@@ -346,7 +346,6 @@ static TVar __varTextDate;
 struct DlgParam
 {
 	UINT64 Flags;
-	KeyMacro *Handle;
 	DWORD Key;
 	MACROMODEAREA Mode;
 	int Recurse;
@@ -1645,14 +1644,10 @@ enum MACROSETTINGSDLG
 	MS_BUTTON_CANCEL,
 };
 
-intptr_t WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t KeyMacro::ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
-	static DlgParam *KMParam=nullptr;
-
 	switch (Msg)
 	{
-		case DN_INITDIALOG:
-			KMParam=(DlgParam *)Param2;
 			break;
 		case DN_BTNCLICK:
 
@@ -1668,11 +1663,10 @@ intptr_t WINAPI KeyMacro::ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Pa
 				LPCWSTR Sequence=(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MS_EDIT_SEQUENCE,0);
 				if (*Sequence)
 				{
-					KeyMacro *Macro=KMParam->Handle;
-					if (Macro->ParseMacroString(Sequence))
+					if (ParseMacroString(Sequence))
 					{
-						Macro->m_RecCode=Sequence;
-						Macro->m_RecDescription=(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MS_EDIT_DESCR,0);
+						m_RecCode=Sequence;
+						m_RecDescription=(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MS_EDIT_DESCR,0);
 						return TRUE;
 					}
 				}
@@ -1769,8 +1763,8 @@ int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wc
 
 	MacroSettingsDlg[MS_EDIT_DESCR].strData=(Descr && *Descr)?Descr:(const wchar_t*)m_RecDescription;
 
-	DlgParam Param={0, this, 0, MACRO_OTHER, 0, false};
-	Dialog Dlg(MacroSettingsDlg,ARRAYSIZE(MacroSettingsDlg),ParamMacroDlgProc,&Param);
+	DlgParam Param={0, 0, MACRO_OTHER, 0, false};
+	Dialog Dlg(this, &KeyMacro::ParamMacroDlgProc, &Param, MacroSettingsDlg, ARRAYSIZE(MacroSettingsDlg));
 	Dlg.SetPosition(-1,-1,73,21);
 	Dlg.SetHelp(L"KeyMacroSetting");
 	Frame* BottomFrame = FrameManager->GetBottomFrame();
@@ -5936,7 +5930,7 @@ static bool ReadVarsConsts (FarMacroCall* Data)
 }
 
 // обработчик диалогового окна назначения клавиши
-intptr_t WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t KeyMacro::AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	string strKeyText;
 	static int LastKey=0;
@@ -6065,7 +6059,6 @@ intptr_t WINAPI KeyMacro::AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t P
 		// </Обработка особых клавиш: F1 & Enter>
 M1:
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
-		KeyMacro *MacroDlg=KMParam->Handle;
 
 		if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
 			key=KeyToKeyLayout((int)(key&0x0000FFFF))|(DWORD)(key&(~0x0000FFFF));
@@ -6083,18 +6076,18 @@ M1:
 		// если УЖЕ есть такой макрос...
 		MACROMODEAREA Area;
 		int Index;
-		if ((Index=MacroDlg->GetIndex(&Area,(int)key,strKeyText,KMParam->Mode,true,true)) != -1)
+		if ((Index=GetIndex(&Area,(int)key,strKeyText,KMParam->Mode,true,true)) != -1)
 		{
-			MacroRecord *Mac = MacroDlg->m_Macros[Area].getItem(Index);
+			MacroRecord *Mac = m_Macros[Area].getItem(Index);
 
 			// общие макросы учитываем только при удалении.
-			if (MacroDlg->m_RecCode.IsEmpty() || Area!=MACRO_COMMON)
+			if (m_RecCode.IsEmpty() || Area!=MACRO_COMMON)
 			{
 				string strBufKey=Mac->Code();
 				InsertQuote(strBufKey);
 
 				bool DisFlags = (Mac->Flags()&MFLAGS_DISABLEMACRO) != 0;
-				bool SetChange = MacroDlg->m_RecCode.IsEmpty();
+				bool SetChange = m_RecCode.IsEmpty();
 				LangString strBuf;
 				if (Area==MACRO_COMMON)
 				{
@@ -6110,7 +6103,7 @@ M1:
 
 				// проверим "а не совпадает ли всё?"
 				int Result=0;
-				if (DisFlags || MacroDlg->m_RecCode != Mac->Code())
+				if (DisFlags || m_RecCode != Mac->Code())
 				{
 					const wchar_t* NoKey=MSG(DisFlags && !SetChange?MMacroDisAnotherKey:MNo);
 					Result=Message(MSG_WARNING,SetChange?3:2,MSG(MWarning),
@@ -6154,7 +6147,7 @@ M1:
 					if ( !Mac->Description().IsEmpty() )
 						strDescription=Mac->Description();
 
-					if (MacroDlg->GetMacroSettings(key,Mac->m_flags,strBufKey,strDescription))
+					if (GetMacroSettings(key,Mac->m_flags,strBufKey,strDescription))
 					{
 						KMParam->Flags = Mac->m_flags;
 						KMParam->Changed = true;
@@ -6197,10 +6190,10 @@ int KeyMacro::AssignMacroKey(DWORD &MacroKey, UINT64 &Flags)
 		{DI_COMBOBOX,5,3,28,3,0,nullptr,nullptr,DIF_FOCUS|DIF_DEFAULTBUTTON,L""},
 	};
 	MakeDialogItemsEx(MacroAssignDlgData,MacroAssignDlg);
-	DlgParam Param={Flags, this, 0, StartMode, 0, false};
+	DlgParam Param={Flags, 0, StartMode, 0, false};
 	//_SVS(SysLog(L"StartMode=%d",StartMode));
 	Global->IsProcessAssignMacroKey++;
-	Dialog Dlg(MacroAssignDlg,ARRAYSIZE(MacroAssignDlg),AssignMacroDlgProc,&Param);
+	Dialog Dlg(this, &KeyMacro::AssignMacroDlgProc, &Param, MacroAssignDlg, ARRAYSIZE(MacroAssignDlg));
 	Dlg.SetPosition(-1,-1,34,6);
 	Dlg.SetHelp(L"KeyMacro");
 	Dlg.Process();

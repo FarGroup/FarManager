@@ -54,10 +54,51 @@ inline bool IsUnicodeCodePage(uintptr_t CP) { return(CP==CP_UNICODE)||(CP==CP_RE
 
 inline bool IsUnicodeOrUtfCodePage(uintptr_t CP) { return(CP==CP_UNICODE)||(CP==CP_UTF8)||(CP==CP_UTF7)||(CP==CP_REVERSEBOM); }
 
-bool IsCodePageSupported(uintptr_t CodePage);
+// Источник вызова каллбака прохода по кодовым страницам
+enum CodePagesCallbackCallSource
+{
+	CodePageSelect,
+	CodePagesFill,
+	CodePageCheck
+};
 
-bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool bShowUTF7=false, bool bShowAutoDetect=false);
+class codepages
+{
+public:
+	codepages();
+	bool IsCodePageSupported(uintptr_t CodePage);
+	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool bShowUTF7=false, bool bShowAutoDetect=false);
+	UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault=false, bool allowM2=false);
+	wchar_t *FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length);
 
-UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault=false, bool allowM2=false);
+private:
+	wchar_t *FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length, bool &IsCodePageNameCustom);
+	inline uintptr_t GetMenuItemCodePage(int Position = -1);
+	inline uintptr_t GetListItemCodePage(int Position = -1);
+	inline bool IsPositionStandard(UINT position);
+	inline bool IsPositionFavorite(UINT position);
+	inline bool IsPositionNormal(UINT position);
+	void FormatCodePageString(uintptr_t CodePage, const wchar_t *CodePageName, FormatString &CodePageNameString, bool IsCodePageNameCustom);
+	void AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int position, bool enabled, bool checked, bool IsCodePageNameCustom);
+	void AddStandardCodePage(const wchar_t *codePageName, uintptr_t codePage, int position = -1, bool enabled = true);
+	void AddSeparator(LPCWSTR Label=nullptr,int position = -1);
+	int GetItemsCount();
+	int GetCodePageInsertPosition(uintptr_t codePage, int start, int length);
+	bool GetCodePageInfo(uintptr_t CodePage, CPINFOEX &CodePageInfoEx);
+	void AddCodePages(DWORD codePages);
+	void ProcessSelected(bool select);
+	void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool bShowAutoDetect=false, bool bShowM2=false);
+	intptr_t EditDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	void EditCodePageName();
 
-wchar_t *FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length);
+	friend BOOL WINAPI EnumCodePagesProc(const wchar_t *lpwszCodePage);
+
+	HANDLE dialog;
+	UINT control;
+	class VMenu2 *CodePagesMenu;
+	uintptr_t currentCodePage;
+	int favoriteCodePages, normalCodePages;
+	bool selectedCodePages;
+	CodePagesCallbackCallSource CallbackCallSource;
+	bool CodePageSupported;
+};

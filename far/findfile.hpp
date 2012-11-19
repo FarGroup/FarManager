@@ -73,7 +73,7 @@ private:
 	void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel);
 	void DoPrepareFileList(HANDLE hDlg);
 	unsigned int ThreadRoutine(LPVOID Param);
-	bool FindFilesProcess(class Vars* v);
+	bool FindFilesProcess();
 
 private:
 	// BUGBUG
@@ -102,4 +102,14 @@ private:
 	bool InFileSearchInited;
 	class CFileMask* FileMaskForFindFile;
 	class FileFilter *Filter;
+
+	// Используются для отправки файлов на временную панель.
+	// индекс текущего элемента в списке и флаг для отправки.
+	DWORD FindExitIndex;
+	bool FindFoldersChanged;
+	bool SearchFromChanged;
+	bool FindPositionChanged;
+	bool Finalized;
+	bool PluginMode;
+	class TaskBar *TB;
 };
