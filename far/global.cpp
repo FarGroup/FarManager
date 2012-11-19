@@ -50,6 +50,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 global::global()
 {
+	Global = this;
+
 	#include "bootstrap/copyright.inc"
 
 	WinVer.dwOSVersionInfoSize = sizeof(WinVer);
