@@ -3059,7 +3059,7 @@ T* Database::CreateDatabase(const char *son)
 }
 
 template<class T>
-HierarchicalConfig* Database::CreateHierarchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local)
+HierarchicalConfig* Database::CreateHierarchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local, bool plugin)
 {
 	T *cfg = new T(dbn, Local);
 	bool first = !CheckedDb.Check(DbId);
@@ -3068,7 +3068,7 @@ HierarchicalConfig* Database::CreateHierarchicalConfig(DBCHECK DbId, const wchar
 		CheckDatabase(cfg);
 
 	if (!m_ImportExportMode && cfg->IsNew() && first)
-		TryImportDatabase<T>(cfg, xmln);
+		TryImportDatabase<T>(cfg, xmln, plugin);
 
 	CheckedDb.Set(DbId);
 	return cfg;
@@ -3076,7 +3076,7 @@ HierarchicalConfig* Database::CreateHierarchicalConfig(DBCHECK DbId, const wchar
 
 HierarchicalConfig* Database::CreatePluginsConfig(const wchar_t *guid, bool Local)
 {
-	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, string(L"PluginsData\\") + guid + L".db", Utf8String(guid), Local);
+	return CreateHierarchicalConfig<HierarchicalConfigDb>(CHECK_NONE, string(L"PluginsData\\") + guid + L".db", Utf8String(guid), Local, true);
 }
 
 HierarchicalConfig* Database::CreateFiltersConfig()
