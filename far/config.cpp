@@ -1224,7 +1224,6 @@ bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
 	{
 		if (!StrCmpI(FARConfig.Items[I].KeyName,Key) && !StrCmpI(FARConfig.Items[I].ValName,Name))
 		{
-			if(FSSF_PRIVATE==FARConfig.Items[I].ApiRoot) break;
 			strValue = FARConfig.Items[I].Value->toString();
 			return true;
 		}
