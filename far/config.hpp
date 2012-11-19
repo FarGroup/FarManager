@@ -384,12 +384,12 @@ struct ViewerOptions
 {
 	enum EViewerLineSize
 	{
-		eMinLineSize = 100,
+		eMinLineSize = 1*1000,
 		eDefLineSize = 10*1000,
 		eMaxLineSize = 100*1000
 	};
 
-	IntOption TabSize;
+	IntOption  TabSize;
 	BoolOption AutoDetectCodePage;
 	BoolOption ShowScrollbar;     // $ 18.07.2000 tran пара настроек для viewer
 	BoolOption ShowArrows;
@@ -405,10 +405,10 @@ struct ViewerOptions
 	BoolOption AnsiCodePageAsDefault;
 	BoolOption ShowTitleBar;
 	BoolOption SearchRegexp;
-	IntOption MaxLineSize; // 100..100000, default=10000
+	IntOption  MaxLineSize; // 1000..100000, default=10000
 	BoolOption SearchEditFocus; // auto-focus on edit text/hex window
 	BoolOption Visible0x00;
-	IntOption ZeroChar;
+	IntOption  ZeroChar;
 };
 
 // "Полиция"

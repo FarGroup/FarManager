@@ -350,7 +350,7 @@ void InitTemplateProfile(string &strTemplatePath)
 		DeleteEndSlash(strTemplatePath);
 
 		DWORD attr = apiGetFileAttributes(strTemplatePath);
-		if (0 != (attr & FILE_ATTRIBUTE_DIRECTORY))
+		if (INVALID_FILE_ATTRIBUTES != attr && 0 != (attr & FILE_ATTRIBUTE_DIRECTORY))
 			strTemplatePath += L"\\Default.farconfig";
 
 		Global->Opt->TemplateProfilePath = strTemplatePath;

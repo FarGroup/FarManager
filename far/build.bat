@@ -44,17 +44,33 @@ goto :EOF
   if "" == "%mssdk%" call :try_msdk Windows       CurrentInstallFolder
   if "" == "%mssdk%" call :try_msdk Windows\v7.1  InstallationFolder
   if "" == "%mssdk%" call :try_msdk Windows\v7.0A InstallationFolder
+  if "" == "%fwdir%" call :try_framework %~1 HKLM ""
+  if "" == "%fwdir%" call :try_framework %~1 HKLM "\Wow6432Node"
+  if "" == "%fwdir%" call :try_framework %~1 HKCU ""
+  if "" == "%fwdir%" call :try_framework %~1 HKCU "\Wow6432Node"
   set INCLUDE=%vsdir%VC\Include;%mssdk%Include
   if "32" == "%~1" set LIB=%vsdir%VC\Lib;%mssdk%Lib
   if "32" == "%~1" set pth=& rem
   if "64" == "%~1" set LIB=%vsdir%VC\Lib\amd64;%mssdk%Lib\x64
   if "64" == "%~1" set pth=%vsdir%VC\Bin\x86_amd64;
-  PATH=%pth%%vsdir%VC\Bin;%vsdir%VC\VCPackages;%vsdir%Common7\Tools;%vsdir%Common7\IDE;%mssdk%Bin;%opath%
+  PATH=%pth%%vsdir%VC\Bin;%vsdir%VC\VCPackages;%vsdir%Common7\Tools;%vsdir%Common7\IDE;%mssdk%Bin;%fwdir%;%opath%
 goto :EOF
 :try_msdk
   for /F "tokens=1,2*" %%i in ('reg query "HKLM\SOFTWARE\Microsoft\Microsoft SDKs\%1" /v "%2" 2^>NUL') do (
     if "%%i" == "%2" if exist "%%kInclude\*" if exist "%%kLib\*" if exist "%%kBin\*" set mssdk=%%k
   )
+goto :EOF
+:try_framework
+  set "fwd="& set "fwv="
+  for /F "tokens=1,2*" %%i in ('reg query "%2\Software%~3\Microsoft\VisualStudio\SxS\VC7" 2^>NUL') do (
+    if /i "%%i" == "FrameworkDir%1" set "fwd=%%k"
+    if /i "%%i" == "FrameworkVer%1" set "fwv=%%k"
+  )
+  if not ""=="%fwd%" if not ""=="%fwv%" (
+    if exist "%fwd%\%fwv%\*" set "fwdir=%fwd%\%fwv%\"
+    if exist "%fwd%%fwv%\*" set "fwdir=%fwd%%fwv%\"
+  )
+  set "fwd="& set "fwv="
 goto :EOF
 
 :proc_param
@@ -67,7 +83,8 @@ goto :EOF
   for %%p in (rebuild clean) do if /i "%%p" == "%~1" set clean=Y
   for %%p in (cleanonly) do if /i "%%p" == "%~1" set clean=Y& set cleanonly=Y
   for %%p in (debug dbg) do if /i "%%p" == "%~1" set deb_b=Y
-  for %%p in (sln solution) do if /i "%%p" == "%~1" set vcsln=Y
+  for %%p in (dev devenv) do if /i "%%p" == "%~1" set vcsln=Devenv
+  for %%p in (mb msb msbuild sln solution) do if /i "%%p" == "%~1" set vcsln=Msbuild
   for %%p in (dwarf dw2) do if /i "%%p" == "%~1" set dwarf=Y
 goto :EOF
 
@@ -93,14 +110,16 @@ goto :EOF
 goto :EOF
 
 :build_vc
-  if /i "Y" == "%vcsln%" goto :devenv
+  if /i "Devenv"  == "%vcsln%" goto :solution
+  if /i "Msbuild" == "%vcsln%" goto :solution
   set m=nmake -f makefile_vc
   if /i "64" == "%dirbit%" (set m=%m% CPU=AMD64) else (set m=%m% CPU=X86)
 goto :do_make
-:devenv
+:solution
   if /i "Y"  == "%clean%"  (set b=Rebuild) else (set b=Build)
   if /i "Y"  == "%cleanonly%"                    set b=Clean
   if /i "64" == "%dirbit%" (set p=x64)    else  (set p=Win32)
   if /i "Y"  == "%deb_b%"  (set c=Debug) else (set c=Release)
-  devenv far.sln /%b% "%c%^|%p%"
+  if /i "Devenv" == "%vcsln%" devenv far.sln /%b% "%c%^|%p%"
+  if /i "Msbuild" == "%vcsln%" msbuild far.sln /nologo /t:%b% /p:Configuration=%c%;Platform=%p%
 goto :EOF
