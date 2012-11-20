@@ -424,7 +424,6 @@ struct DialogsOptions
 	BoolOption EditHistory;          // Добавлять в историю?
 	BoolOption AutoComplete;         // Разрешено автодополнение?
 	BoolOption EULBsClear;           // = 1 - BS в диалогах для UnChanged строки удаляет такую строку также, как и Del
-	BoolOption SelectFromHistory;    // = 0 then (ctrl-down в строке с историей курсор устанавливался на самую верхнюю строку)
 	IntOption EditLine;             // общая информация о строке ввода (сейчас это пока... позволяет управлять выделением)
 	IntOption MouseButton;          // Отключение восприятие правой/левой кнопки мышы как команд закрытия окна диалога
 	BoolOption DelRemovesBlocks;
@@ -716,7 +715,6 @@ public:
 
 	IntOption ExcludeCmdHistory;
 	BoolOption SubstPluginPrefix; // 1 = подстанавливать префикс плагина (для Ctrl-[ и ему подобные)
-	IntOption MaxPositionCache; // количество позиций в кэше сохранения
 	BoolOption SetAttrFolderRules; // Правило на счет установки атрибутов на каталоги
 
 	int UseExceptionHandler;

@@ -2729,7 +2729,7 @@ MViewConfigScrollbar
 "Zobraziť posu&vník"
 
 MViewConfigArrows
-"Показывать стрелки с&двига"
+"Показывать стре&лки сдвига"
 "Show scrolling arro&ws"
 "Zobrazovat šipky &posuvníku"
 "P&feile bei Scrollbalken zeigen"
@@ -15738,8 +15738,8 @@ upd:"Plugins manager settings"
 "Nastavenia správcu modulov"
 
 MPluginsManagerOEMPluginsSupport
-"Поддержка OEM-плагинов"
-"OEM plugins support"
+"&Поддержка OEM-плагинов"
+"&OEM plugins support"
 "Podpora OEM modulů"
 upd:"OEM plugins support"
 upd:"OEM plugins support"
@@ -15748,7 +15748,7 @@ upd:"OEM plugins support"
 "Podpora modulov OEM"
 
 MPluginsManagerScanSymlinks
-"Ск&анировать символические ссылки"
+"&Сканировать символические ссылки"
 "Scan s&ymbolic links"
 "Prohledávat s&ymbolické linky"
 "S&ymbolische Links scannen"
@@ -15779,7 +15779,7 @@ upd:"Show standard &association item"
 
 MPluginsManagerEvenOne
 "Даже если найден всего &один плагин"
-"Even if only &one plugin found"
+"&Even if only one plugin found"
 "I pokud se naj&de jen jeden modul"
 upd:"Even if only &one plugin found"
 "Akkor is, ha csak egy plugin van"
@@ -15798,7 +15798,7 @@ upd:"Search &results (SetFindList)"
 "Výs&ledky hľadania (SetFindList)"
 
 MPluginsManagerPF
-"Обработка &префикса"
+"Обрабо&тка префикса"
 "&Prefix processing"
 "Z&pracování předpony"
 upd:"&Prefix processing"

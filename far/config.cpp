@@ -907,7 +907,6 @@ void InitCFG()
 		{FSSF_DIALOG,        NKeyDialog,L"DelRemovesBlocks", AddressAndType(Global->Opt->Dialogs.DelRemovesBlocks), Default(1)},
 		{FSSF_DIALOG,        NKeyDialog,L"EULBsClear", AddressAndType(Global->Opt->Dialogs.EULBsClear), Default(0)},
 		{FSSF_PRIVATE,       NKeyDialog,L"MouseButton", AddressAndType(Global->Opt->Dialogs.MouseButton), Default(0xFFFF)},
-		{FSSF_PRIVATE,       NKeyDialog,L"SelectFromHistory", AddressAndType(Global->Opt->Dialogs.SelectFromHistory), Default(0)},
 
 		{FSSF_PRIVATE,       NKeyEditor,L"AllowEmptySpaceAfterEof", AddressAndType(Global->Opt->EdOpt.AllowEmptySpaceAfterEof),Default(0)},
 		{FSSF_PRIVATE,       NKeyEditor,L"AnsiCodePageAsDefault", AddressAndType(Global->Opt->EdOpt.AnsiCodePageAsDefault), Default(1)},
@@ -1125,7 +1124,6 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeySystem,L"FindSymLinks", AddressAndType(Global->Opt->FindOpt.FindSymLinks), Default(1)},
 		{FSSF_PRIVATE,       NKeySystem,L"FlagPosixSemantics", AddressAndType(Global->Opt->FlagPosixSemantics), Default(1)},
 		{FSSF_PRIVATE,       NKeySystem,L"FolderInfo", AddressAndType(Global->Opt->InfoPanel.strFolderInfoFiles), Default(L"DirInfo,File_Id.diz,Descript.ion,ReadMe.*,Read.Me")},
-		{FSSF_PRIVATE,       NKeySystem,L"MaxPositionCache", AddressAndType(Global->Opt->MaxPositionCache), Default(512)/*MAX_POSITIONS*/}, //BUGBUG
 		{FSSF_PRIVATE,       NKeySystem,L"MsWheelDelta", AddressAndType(Global->Opt->MsWheelDelta), Default(1)},
 		{FSSF_PRIVATE,       NKeySystem,L"MsWheelDeltaEdit", AddressAndType(Global->Opt->MsWheelDeltaEdit), Default(1)},
 		{FSSF_PRIVATE,       NKeySystem,L"MsWheelDeltaHelp", AddressAndType(Global->Opt->MsWheelDeltaHelp), Default(1)},
