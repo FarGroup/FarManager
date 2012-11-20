@@ -1933,7 +1933,6 @@ void Help::Search(FILE *HelpFile,uintptr_t nCodePage)
 				strCurTopic=L"";
 				strEntryName=L"";
 				TopicFound=false;
-				GlobalFound=true;
 			}
 		}
 	}

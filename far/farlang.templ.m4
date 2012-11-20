@@ -2982,8 +2982,8 @@ MEditConfigTabSize
 "Veľkosť &tabulátora"
 
 MEditConfigScrollbar
-"Показывать &полосу прокрутки"
-"Show scro&llbar"
+"Показ&ывать полосу прокрутки"
+"S&how scrollbar"
 "Zobr&azovat posuvník"
 "Scro&llbalken anzeigen"
 "&Gördítősáv mutatva"
@@ -2992,7 +2992,7 @@ MEditConfigScrollbar
 "Zobr&azovať posuvník"
 
 MEditShowWhiteSpace
-"Пробельные символы"
+"Пробел&ьные символы"
 "Sh&ow white space"
 "&Zobrazovat neviditelné znaky"
 upd:"Show white space"
