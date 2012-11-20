@@ -128,7 +128,7 @@ private:
 	};
 	bool ValueChanged;
 	bool IsString;
-	friend void ReadConfig();
+	friend class Options;
 };
 
 class BoolOption:public Option
@@ -549,6 +549,9 @@ class Options
 {
 public:
 	Options();
+	void Load();
+	void Save(bool Ask);
+
 	palette Palette;
 	BoolOption Clock;
 	BoolOption Mouse;
@@ -653,9 +656,6 @@ public:
 	StringOption strLanguage;
 	BoolOption SetIcon;
 	BoolOption SetAdminIcon;
-#ifndef NO_WRAPPER
-	string strRegRoot;
-#endif // NO_WRAPPER
 	IntOption PanelRightClickRule; // задает поведение правой клавиши мыши
 	IntOption PanelCtrlAltShiftRule; // задает поведение Ctrl-Alt-Shift дл€ панелей.
 	// Panel/CtrlFRule в реестре - задает поведение Ctrl-F. ≈сли = 0, то штампуетс€ файл как есть, иначе - с учетом отображени€ на панели
@@ -785,7 +785,6 @@ public:
 	// ≈сли "-1", то в зависимости CPMenuMode (Ctrl-H в меню кодовых страниц фильтраци€ UCD либо будет
 	// отключена, либо будут разрешенны только 'любимые' и системные (OEM ANSI) кодовые страницы.
 
-	bool IsUserAdmin;
 	StringOption strTitleAddons;
 	StringOption strEditorTitleFormat;
 	StringOption strViewerTitleFormat;
@@ -820,8 +819,6 @@ void PluginsManagerSettings();
 void SetDizConfig();
 void ViewerConfig(ViewerOptions &ViOpt,bool Local=false);
 void EditorConfig(EditorOptions &EdOpt,bool Local=false);
-void ReadConfig();
-void SaveConfig(int Ask);
 void SetFolderInfoFiles();
 void InfoPanelSettings();
 void MaskGroupsSettings();

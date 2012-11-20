@@ -681,7 +681,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					CtrlObject->HiFiles->HiEdit(0);
 					break;
 				case MENU_OPTIONS_SAVESETUP:  // Save setup
-					SaveConfig(1);
+					Global->Opt->Save(true);
 					break;
 			}
 

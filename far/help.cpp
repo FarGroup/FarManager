@@ -120,10 +120,10 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 	MouseDown(FALSE),
 	CurColor(COL_HELPTEXT),
 	CtrlTabSize(8),
+	PrevMacroMode(CtrlObject->Macro.GetMode()),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
-	LastSearchRegexp(Global->Opt->HelpSearchRegexp),
-	PrevMacroMode(CtrlObject->Macro.GetMode())
+	LastSearchRegexp(Global->Opt->HelpSearchRegexp)
 {
 	MsX = MsY = -1;
 	CanLoseFocus=FALSE;

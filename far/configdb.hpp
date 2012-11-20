@@ -294,8 +294,9 @@ public:
 	~Database();
 	bool Import(const wchar_t *File);
 	bool Export(const wchar_t *File);
-	void ClearPluginsCache() const;
 	int ShowProblems();
+
+	static void ClearPluginsCache();
 
 	GeneralConfig *GeneralCfg() const { return m_GeneralCfg; }
 	ColorsConfig *ColorsCfg() const { return m_ColorsCfg; }
@@ -341,8 +342,6 @@ private:
 	BitFlags CheckedDb;
 	DList<string> m_Problems;
 };
-
-extern Database *Db;
 
 template<class T, class Y>
 const wchar_t* GetNameOfValue(T Value, const Y& From)

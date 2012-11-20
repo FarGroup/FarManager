@@ -1004,7 +1004,7 @@ bool GetFileFormat(File& file, uintptr_t& nCodePage, bool* pSignatureFound, bool
 							if ( static_cast<UINT>(cp) != GetACP() && static_cast<UINT>(cp) != GetOEMCP() )
 							{
 								int selectType = 0;
-								Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, FormatString() << cp, &selectType, 0);
+								Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, FormatString() << cp, &selectType, 0);
 								if (0 == (selectType & CPST_FAVORITE))
 									cp = -1;
 							}

@@ -3345,7 +3345,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 		DWORD samDesired = KEY_ENUMERATE_SUB_KEYS|KEY_QUERY_VALUE;
 		DWORD RedirectionFlag = 0;
 		// App Paths key is shared in Windows 7 and above
-		if (Global->WinVer < _WIN32_WINNT_WIN7)
+		if (Global->WinVer() < _WIN32_WINNT_WIN7)
 		{
 #ifdef _WIN64
 			RedirectionFlag = KEY_WOW64_32KEY;

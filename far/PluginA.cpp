@@ -2116,7 +2116,7 @@ void AnsiDialogItemToUnicode(oldfar::FarDialogItem &diA, FarDialogItem &di,FarLi
 		case DI_LISTBOX:
 		case DI_COMBOBOX:
 		{
-			if (diA.ListItems && IsPtr(diA.ListItems))
+			if (diA.ListItems && Global->IsPtr(diA.ListItems))
 			{
 				l.Items = (FarListItem *)xf_malloc(diA.ListItems->ItemsNumber*sizeof(FarListItem));
 				l.ItemsNumber = diA.ListItems->ItemsNumber;
@@ -4223,7 +4223,7 @@ int GetEditorCodePageFavA()
 	{
 		DWORD selectType, Index = 0, FavIndex = 2;
 		string sTableName;
-		while (Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey,Index++,sTableName,&selectType))
+		while (Global->Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey,Index++,sTableName,&selectType))
 		{
 			if (!(selectType&CPST_FAVORITE))
 				continue;
@@ -4278,7 +4278,7 @@ uintptr_t ConvertCharTableToCodePage(int Command)
 
 				for (;;)
 				{
-					if (!Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey,Index++,strTableName,&selectType)) return CP_DEFAULT;
+					if (!Global->Db->GeneralCfg()->EnumValues(FavoriteCodePagesKey,Index++,strTableName,&selectType)) return CP_DEFAULT;
 
 					if (!(selectType&CPST_FAVORITE)) continue;
 
@@ -5169,7 +5169,7 @@ bool PluginA::SetStartupInfo()
 		oldfar::FarStandardFunctions _fsf;
 		CreatePluginStartupInfoA(this, &_info, &_fsf);
 		// скорректирем адреса и плагино-зависимые пол€
-		strRootKey = Global->Opt->strRegRoot + L"\\Plugins";
+		strRootKey = Global->strRegRoot + L"\\Plugins";
 		RootKey = UnicodeToAnsi(strRootKey);
 		_info.RootKey = RootKey;
 		ExecuteStruct es;

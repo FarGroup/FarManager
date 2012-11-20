@@ -419,7 +419,7 @@ void ApplyDefaultMaskGroups()
 
 	for (size_t i = 0; i < ARRAYSIZE(Sets); ++i)
 	{
-		Db->GeneralCfg()->SetValue(L"Masks", Sets[i].Group, Sets[i].Mask);
+		Global->Db->GeneralCfg()->SetValue(L"Masks", Sets[i].Group, Sets[i].Mask);
 	}
 }
 
@@ -427,7 +427,7 @@ void FillMasksMenu(VMenu2& MasksMenu, int SelPos = 0)
 {
 	MasksMenu.DeleteItems();
 	string Name, Value;
-	for(DWORD i = 0; Db->GeneralCfg()->EnumValues(L"Masks", i, Name, Value); ++i)
+	for(DWORD i = 0; Global->Db->GeneralCfg()->EnumValues(L"Masks", i, Name, Value); ++i)
 	{
 		MenuItemEx Item = {};
 		string DisplayName(Name);
@@ -479,7 +479,7 @@ void MaskGroupsSettings()
 		case KEY_DEL:
 			if(Item && !Message(0,2,MSG(MMenuMaskGroups),MSG(MMaskGroupAskDelete), Item, MSG(MDelete), MSG(MCancel)))
 			{
-				Db->GeneralCfg()->DeleteValue(L"Masks", Item);
+				Global->Db->GeneralCfg()->DeleteValue(L"Masks", Item);
 				Changed = true;
 			}
 			break;
@@ -494,7 +494,7 @@ void MaskGroupsSettings()
 				string Name(Item), Value;
 				if(Item)
 				{
-					Db->GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
+					Global->Db->GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
 				}
 				DialogBuilder Builder(MMenuMaskGroups, nullptr);
 				Builder.AddText(MMaskGroupName);
@@ -506,9 +506,9 @@ void MaskGroupsSettings()
 				{
 					if(Item)
 					{
-						Db->GeneralCfg()->DeleteValue(L"Masks", Item);
+						Global->Db->GeneralCfg()->DeleteValue(L"Masks", Item);
 					}
-					Db->GeneralCfg()->SetValue(L"Masks", Name, Value);
+					Global->Db->GeneralCfg()->SetValue(L"Masks", Name, Value);
 					Changed = true;
 				}
 			}
@@ -540,7 +540,7 @@ void MaskGroupsSettings()
 					for (int i=0; i < MasksMenu.GetItemCount(); ++i)
 					{
 						string CurrentMasks;
-						Db->GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu.GetUserData(nullptr, 0, i)), CurrentMasks, L"");
+						Global->Db->GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu.GetUserData(nullptr, 0, i)), CurrentMasks, L"");
 						CFileMask Masks;
 						Masks.Set(CurrentMasks, 0);
 						if(!Masks.Compare(Value))
@@ -1253,7 +1253,7 @@ bool GetConfigValue(size_t Root, const wchar_t* Name, GeneralConfig::OptionType&
 	return false;
 }
 
-void ReadConfig()
+void Options::Load()
 {
 	if (!FARConfig.Size)
 		InitCFG();
@@ -1277,82 +1277,82 @@ void ReadConfig()
 
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 
-	Global->Opt->Palette.Load();
-	Global->Opt->GlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath, Global->Opt->GlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI));
-	apiExpandEnvironmentStrings(Global->Opt->GlobalUserMenuDir, Global->Opt->GlobalUserMenuDir);
-	ConvertNameToFull(Global->Opt->GlobalUserMenuDir,Global->Opt->GlobalUserMenuDir);
-	AddEndSlash(Global->Opt->GlobalUserMenuDir);
+	Palette.Load();
+	GlobalUserMenuDir.ReleaseBuffer(GetPrivateProfileString(L"General", L"GlobalUserMenuDir", Global->g_strFarPath, GlobalUserMenuDir.GetBuffer(NT_MAX_PATH), NT_MAX_PATH, Global->g_strFarINI));
+	apiExpandEnvironmentStrings(GlobalUserMenuDir, GlobalUserMenuDir);
+	ConvertNameToFull(GlobalUserMenuDir,GlobalUserMenuDir);
+	AddEndSlash(GlobalUserMenuDir);
 
-	if (Global->Opt->ExceptRules == -1)
+	if (ExceptRules == -1)
 	{
-		Global->Opt->ExceptRules = Global->Opt->StoredExceptRules;
+		ExceptRules = StoredExceptRules;
 	}
 
-	if(Global->Opt->WindowMode == -1)
+	if(WindowMode == -1)
 	{
-		Global->Opt->WindowMode = Global->Opt->StoredWindowMode;
+		WindowMode = StoredWindowMode;
 	}
 
-	Global->Opt->ElevationMode = Global->Opt->StoredElevationMode;
+	ElevationMode = StoredElevationMode;
 
-	if (Global->Opt->PluginMaxReadData < 0x1000)
-		Global->Opt->PluginMaxReadData=0x20000;
+	if (PluginMaxReadData < 0x1000)
+		PluginMaxReadData=0x20000;
 
-	if (!Global->Opt->ViOpt.MaxLineSize)
-		Global->Opt->ViOpt.MaxLineSize = ViewerOptions::eDefLineSize;
-	else if (Global->Opt->ViOpt.MaxLineSize < ViewerOptions::eMinLineSize)
-		Global->Opt->ViOpt.MaxLineSize = ViewerOptions::eMinLineSize;
-	else if (Global->Opt->ViOpt.MaxLineSize > ViewerOptions::eMaxLineSize)
-		Global->Opt->ViOpt.MaxLineSize = ViewerOptions::eMaxLineSize;
+	if (!ViOpt.MaxLineSize)
+		ViOpt.MaxLineSize = ViewerOptions::eDefLineSize;
+	else if (ViOpt.MaxLineSize < ViewerOptions::eMinLineSize)
+		ViOpt.MaxLineSize = ViewerOptions::eMinLineSize;
+	else if (ViOpt.MaxLineSize > ViewerOptions::eMaxLineSize)
+		ViOpt.MaxLineSize = ViewerOptions::eMaxLineSize;
 
 	// Исключаем случайное стирание разделителей ;-)
-	if (Global->Opt->strWordDiv.IsEmpty())
-		Global->Opt->strWordDiv = WordDiv0;
+	if (strWordDiv.IsEmpty())
+		strWordDiv = WordDiv0;
 
 	// Исключаем случайное стирание разделителей
-	if (Global->Opt->XLat.strWordDivForXlat.IsEmpty())
-		Global->Opt->XLat.strWordDivForXlat = WordDivForXlat0;
+	if (XLat.strWordDivForXlat.IsEmpty())
+		XLat.strWordDivForXlat = WordDivForXlat0;
 
-	Global->Opt->PanelRightClickRule%=3;
-	Global->Opt->PanelCtrlAltShiftRule%=3;
+	PanelRightClickRule%=3;
+	PanelCtrlAltShiftRule%=3;
 
-	if (Global->Opt->EdOpt.TabSize<1 || Global->Opt->EdOpt.TabSize>512)
-		Global->Opt->EdOpt.TabSize = DefaultTabSize;
+	if (EdOpt.TabSize<1 || EdOpt.TabSize>512)
+		EdOpt.TabSize = DefaultTabSize;
 
-	if (Global->Opt->ViOpt.TabSize<1 || Global->Opt->ViOpt.TabSize>512)
-		Global->Opt->ViOpt.TabSize = DefaultTabSize;
+	if (ViOpt.TabSize<1 || ViOpt.TabSize>512)
+		ViOpt.TabSize = DefaultTabSize;
 
-	Global->Opt->HelpTabSize = DefaultTabSize; // пока жестко пропишем...
+	HelpTabSize = DefaultTabSize; // пока жестко пропишем...
 
 
-	if ((Global->Opt->Macro.KeyMacroCtrlDot=KeyNameToKey(Global->Opt->Macro.strKeyMacroCtrlDot)) == -1)
-		Global->Opt->Macro.KeyMacroCtrlDot=KEY_CTRLDOT;
+	if ((Macro.KeyMacroCtrlDot=KeyNameToKey(Macro.strKeyMacroCtrlDot)) == -1)
+		Macro.KeyMacroCtrlDot=KEY_CTRLDOT;
 
-	if ((Global->Opt->Macro.KeyMacroRCtrlDot=KeyNameToKey(Global->Opt->Macro.strKeyMacroRCtrlDot)) == -1)
-		Global->Opt->Macro.KeyMacroRCtrlDot=KEY_RCTRLDOT;
+	if ((Macro.KeyMacroRCtrlDot=KeyNameToKey(Macro.strKeyMacroRCtrlDot)) == -1)
+		Macro.KeyMacroRCtrlDot=KEY_RCTRLDOT;
 
-	if ((Global->Opt->Macro.KeyMacroCtrlShiftDot=KeyNameToKey(Global->Opt->Macro.strKeyMacroCtrlShiftDot)) == -1)
-		Global->Opt->Macro.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
+	if ((Macro.KeyMacroCtrlShiftDot=KeyNameToKey(Macro.strKeyMacroCtrlShiftDot)) == -1)
+		Macro.KeyMacroCtrlShiftDot=KEY_CTRLSHIFTDOT;
 
-	if ((Global->Opt->Macro.KeyMacroRCtrlShiftDot=KeyNameToKey(Global->Opt->Macro.strKeyMacroRCtrlShiftDot)) == -1)
-		Global->Opt->Macro.KeyMacroRCtrlShiftDot=KEY_RCTRL|KEY_SHIFT|KEY_DOT;
+	if ((Macro.KeyMacroRCtrlShiftDot=KeyNameToKey(Macro.strKeyMacroRCtrlShiftDot)) == -1)
+		Macro.KeyMacroRCtrlShiftDot=KEY_RCTRL|KEY_SHIFT|KEY_DOT;
 
-	Global->Opt->EdOpt.strWordDiv = Global->Opt->strWordDiv;
+	EdOpt.strWordDiv = strWordDiv;
 	FileList::ReadPanelModes();
 
 	/* BUGBUG??
 	// уточняем системную политику
 	// для дисков юзер может только отменять показ
-	Global->Opt->Policies.ShowHiddenDrives&=OptPolicies_ShowHiddenDrives;
+	Policies.ShowHiddenDrives&=OptPolicies_ShowHiddenDrives;
 	// для опций юзер может только добавлять блокироку пунктов
-	Global->Opt->Policies.DisabledOptions|=OptPolicies_DisabledOptions;
+	Policies.DisabledOptions|=OptPolicies_DisabledOptions;
 	*/
 
-	if (Global->Opt->Exec.strExecuteBatchType.IsEmpty()) // предохраняемся
-		Global->Opt->Exec.strExecuteBatchType=constBatchExt;
+	if (Exec.strExecuteBatchType.IsEmpty()) // предохраняемся
+		Exec.strExecuteBatchType=constBatchExt;
 
 	// Инициализация XLat для русской раскладки qwerty<->йцукен
-	if (Global->Opt->XLat.Table[0].IsEmpty())
+	if (XLat.Table[0].IsEmpty())
 	{
 		bool RussianExists=false;
 		HKL Layouts[32];
@@ -1369,64 +1369,64 @@ void ReadConfig()
 
 		if (RussianExists)
 		{
-			Global->Opt->XLat.Table[0] = L"\x2116\x0410\x0412\x0413\x0414\x0415\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426\x0427\x0428\x0429\x042a\x042b\x042c\x042f\x0430\x0432\x0433\x0434\x0435\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044f\x0451\x0401\x0411\x042e";
-			Global->Opt->XLat.Table[1] = L"#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>";
-			Global->Opt->XLat.Rules[0] = L",??&./\x0431,\x044e.:^\x0416:\x0436;;$\"@\x042d\"";
-			Global->Opt->XLat.Rules[1] = L"?,&?/.,\x0431.\x044e^::\x0416;\x0436$;@\"\"\x042d";
-			Global->Opt->XLat.Rules[2] = L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/";
+			XLat.Table[0] = L"\x2116\x0410\x0412\x0413\x0414\x0415\x0417\x0418\x0419\x041a\x041b\x041c\x041d\x041e\x041f\x0420\x0421\x0422\x0423\x0424\x0425\x0426\x0427\x0428\x0429\x042a\x042b\x042c\x042f\x0430\x0432\x0433\x0434\x0435\x0437\x0438\x0439\x043a\x043b\x043c\x043d\x043e\x043f\x0440\x0441\x0442\x0443\x0444\x0445\x0446\x0447\x0448\x0449\x044a\x044b\x044c\x044d\x044f\x0451\x0401\x0411\x042e";
+			XLat.Table[1] = L"#FDULTPBQRKVYJGHCNEA{WXIO}SMZfdultpbqrkvyjghcnea[wxio]sm'z`~<>";
+			XLat.Rules[0] = L",??&./\x0431,\x044e.:^\x0416:\x0436;;$\"@\x042d\"";
+			XLat.Rules[1] = L"?,&?/.,\x0431.\x044e^::\x0416;\x0436$;@\"\"\x042d";
+			XLat.Rules[2] = L"^::\x0416\x0416^$;;\x0436\x0436$@\"\"\x042d\x042d@&??,,\x0431\x0431&/..\x044e\x044e/";
 		}
 	}
 
 	{
-		Global->Opt->XLat.CurrentLayout=0;
-		ClearArray(Global->Opt->XLat.Layouts);
+		XLat.CurrentLayout=0;
+		ClearArray(XLat.Layouts);
 
-		if (!Global->Opt->XLat.strLayouts.IsEmpty())
+		if (!XLat.strLayouts.IsEmpty())
 		{
 			wchar_t *endptr;
 			const wchar_t *ValPtr;
 			UserDefinedList DestList(ULF_UNIQUE);
-			DestList.Set(Global->Opt->XLat.strLayouts);
+			DestList.Set(XLat.strLayouts);
 			size_t I=0;
 
 			while (nullptr!=(ValPtr=DestList.GetNext()))
 			{
 				DWORD res=(DWORD)wcstoul(ValPtr, &endptr, 16);
-				Global->Opt->XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
+				XLat.Layouts[I]=(HKL)(intptr_t)(HIWORD(res)? res : MAKELONG(res,res));
 				++I;
 
-				if (I >= ARRAYSIZE(Global->Opt->XLat.Layouts))
+				if (I >= ARRAYSIZE(XLat.Layouts))
 					break;
 			}
 
 			if (I <= 1) // если указано меньше двух - "откключаем" эту
-				Global->Opt->XLat.Layouts[0]=0;
+				XLat.Layouts[0]=0;
 		}
 	}
 
-	ClearArray(Global->Opt->FindOpt.OutColumnTypes);
-	ClearArray(Global->Opt->FindOpt.OutColumnWidths);
-	ClearArray(Global->Opt->FindOpt.OutColumnWidthType);
-	Global->Opt->FindOpt.OutColumnCount=0;
+	ClearArray(FindOpt.OutColumnTypes);
+	ClearArray(FindOpt.OutColumnWidths);
+	ClearArray(FindOpt.OutColumnWidthType);
+	FindOpt.OutColumnCount=0;
 
 
-	if (!Global->Opt->FindOpt.strSearchOutFormat.IsEmpty())
+	if (!FindOpt.strSearchOutFormat.IsEmpty())
 	{
-		if (Global->Opt->FindOpt.strSearchOutFormatWidth.IsEmpty())
-			Global->Opt->FindOpt.strSearchOutFormatWidth=L"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
-		TextToViewSettings(Global->Opt->FindOpt.strSearchOutFormat,Global->Opt->FindOpt.strSearchOutFormatWidth,
-                                  Global->Opt->FindOpt.OutColumnTypes,Global->Opt->FindOpt.OutColumnWidths,Global->Opt->FindOpt.OutColumnWidthType,
-                                  Global->Opt->FindOpt.OutColumnCount);
+		if (FindOpt.strSearchOutFormatWidth.IsEmpty())
+			FindOpt.strSearchOutFormatWidth=L"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0";
+		TextToViewSettings(FindOpt.strSearchOutFormat,FindOpt.strSearchOutFormatWidth,
+                                  FindOpt.OutColumnTypes,FindOpt.OutColumnWidths,FindOpt.OutColumnWidthType,
+                                  FindOpt.OutColumnCount);
 	}
 
 	string tmp[2];
-	if (!Db->GeneralCfg()->EnumValues(L"Masks", 0, tmp[0], tmp[1]))
+	if (!Global->Db->GeneralCfg()->EnumValues(L"Masks", 0, tmp[0], tmp[1]))
 	{
 		ApplyDefaultMaskGroups();
 	}
 
-	StrToGuid(Global->Opt->KnownIDs.EmenuGuidStr, Global->Opt->KnownIDs.Emenu);
-	StrToGuid(Global->Opt->KnownIDs.NetworkGuidStr, Global->Opt->KnownIDs.Network);
+	StrToGuid(KnownIDs.EmenuGuidStr, KnownIDs.Emenu);
+	StrToGuid(KnownIDs.NetworkGuidStr, KnownIDs.Network);
 
 /* *************************************************** </ПОСТПРОЦЕССЫ> */
 
@@ -1438,75 +1438,75 @@ void ReadConfig()
 }
 
 
-void SaveConfig(int Ask)
+void Options::Save(bool Ask)
 {
 	if (!FARConfig.Size)
 		InitCFG();
 
-	if (Global->Opt->Policies.DisabledOptions&0x20000) // Bit 17 - Сохранить параметры
+	if (Policies.DisabledOptions&0x20000) // Bit 17 - Сохранить параметры
 		return;
 
 	if (Ask && Message(0,2,MSG(MSaveSetupTitle),MSG(MSaveSetupAsk1),MSG(MSaveSetupAsk2),MSG(MSaveSetup),MSG(MCancel)))
 		return;
 
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
-	Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;
-	Panel *RightPanel=CtrlObject->Cp()->RightPanel;
-	Global->Opt->LeftPanel.Focus=LeftPanel->GetFocus() != 0;
-	Global->Opt->LeftPanel.Visible=LeftPanel->IsVisible() != 0;
-	Global->Opt->RightPanel.Focus=RightPanel->GetFocus() != 0;
-	Global->Opt->RightPanel.Visible=RightPanel->IsVisible() != 0;
+	Panel *LeftPanelPtr=CtrlObject->Cp()->LeftPanel;
+	Panel *RightPanelPtr=CtrlObject->Cp()->RightPanel;
+	LeftPanel.Focus=LeftPanelPtr->GetFocus() != 0;
+	LeftPanel.Visible=LeftPanelPtr->IsVisible() != 0;
+	RightPanel.Focus=RightPanelPtr->GetFocus() != 0;
+	RightPanel.Visible=RightPanelPtr->IsVisible() != 0;
 
-	if (LeftPanel->GetMode()==NORMAL_PANEL)
+	if (LeftPanelPtr->GetMode()==NORMAL_PANEL)
 	{
-		Global->Opt->LeftPanel.Type=LeftPanel->GetType();
-		Global->Opt->LeftPanel.ViewMode=LeftPanel->GetViewMode();
-		Global->Opt->LeftPanel.SortMode=LeftPanel->GetSortMode();
-		Global->Opt->LeftPanel.SortOrder=LeftPanel->GetSortOrder();
-		Global->Opt->LeftPanel.SortGroups=LeftPanel->GetSortGroups() != 0;
-		Global->Opt->LeftPanel.ShowShortNames=LeftPanel->GetShowShortNamesMode() != 0;
-		Global->Opt->LeftPanel.NumericSort=LeftPanel->GetNumericSort() != 0;
-		Global->Opt->LeftPanel.CaseSensitiveSort=LeftPanel->GetCaseSensitiveSort() != 0;
-		Global->Opt->LeftSelectedFirst=LeftPanel->GetSelectedFirstMode() != 0;
-		Global->Opt->LeftPanel.DirectoriesFirst=LeftPanel->GetDirectoriesFirst() != 0;
+		LeftPanel.Type=LeftPanelPtr->GetType();
+		LeftPanel.ViewMode=LeftPanelPtr->GetViewMode();
+		LeftPanel.SortMode=LeftPanelPtr->GetSortMode();
+		LeftPanel.SortOrder=LeftPanelPtr->GetSortOrder();
+		LeftPanel.SortGroups=LeftPanelPtr->GetSortGroups() != 0;
+		LeftPanel.ShowShortNames=LeftPanelPtr->GetShowShortNamesMode() != 0;
+		LeftPanel.NumericSort=LeftPanelPtr->GetNumericSort() != 0;
+		LeftPanel.CaseSensitiveSort=LeftPanelPtr->GetCaseSensitiveSort() != 0;
+		LeftSelectedFirst=LeftPanelPtr->GetSelectedFirstMode() != 0;
+		LeftPanel.DirectoriesFirst=LeftPanelPtr->GetDirectoriesFirst() != 0;
 	}
 
 	string strTemp1, strTemp2;
-	LeftPanel->GetCurDir(strTemp1);
-	Global->Opt->strLeftFolder = strTemp1;
-	LeftPanel->GetCurBaseName(strTemp1, strTemp2);
-	Global->Opt->strLeftCurFile = strTemp1;
-	if (RightPanel->GetMode()==NORMAL_PANEL)
+	LeftPanelPtr->GetCurDir(strTemp1);
+	strLeftFolder = strTemp1;
+	LeftPanelPtr->GetCurBaseName(strTemp1, strTemp2);
+	strLeftCurFile = strTemp1;
+	if (RightPanelPtr->GetMode()==NORMAL_PANEL)
 	{
-		Global->Opt->RightPanel.Type=RightPanel->GetType();
-		Global->Opt->RightPanel.ViewMode=RightPanel->GetViewMode();
-		Global->Opt->RightPanel.SortMode=RightPanel->GetSortMode();
-		Global->Opt->RightPanel.SortOrder=RightPanel->GetSortOrder();
-		Global->Opt->RightPanel.SortGroups=RightPanel->GetSortGroups() != 0;
-		Global->Opt->RightPanel.ShowShortNames=RightPanel->GetShowShortNamesMode() != 0;
-		Global->Opt->RightPanel.NumericSort=RightPanel->GetNumericSort() != 0;
-		Global->Opt->RightPanel.CaseSensitiveSort=RightPanel->GetCaseSensitiveSort() != 0;
-		Global->Opt->RightSelectedFirst=RightPanel->GetSelectedFirstMode() != 0;
-		Global->Opt->RightPanel.DirectoriesFirst=RightPanel->GetDirectoriesFirst() != 0;
+		RightPanel.Type=RightPanelPtr->GetType();
+		RightPanel.ViewMode=RightPanelPtr->GetViewMode();
+		RightPanel.SortMode=RightPanelPtr->GetSortMode();
+		RightPanel.SortOrder=RightPanelPtr->GetSortOrder();
+		RightPanel.SortGroups=RightPanelPtr->GetSortGroups() != 0;
+		RightPanel.ShowShortNames=RightPanelPtr->GetShowShortNamesMode() != 0;
+		RightPanel.NumericSort=RightPanelPtr->GetNumericSort() != 0;
+		RightPanel.CaseSensitiveSort=RightPanelPtr->GetCaseSensitiveSort() != 0;
+		RightSelectedFirst=RightPanelPtr->GetSelectedFirstMode() != 0;
+		RightPanel.DirectoriesFirst=RightPanelPtr->GetDirectoriesFirst() != 0;
 	}
 
-	RightPanel->GetCurDir(strTemp1);
-	Global->Opt->strRightFolder = strTemp1;
-	RightPanel->GetCurBaseName(strTemp1, strTemp2);
-	Global->Opt->strRightCurFile = strTemp1;
+	RightPanelPtr->GetCurDir(strTemp1);
+	strRightFolder = strTemp1;
+	RightPanelPtr->GetCurBaseName(strTemp1, strTemp2);
+	strRightCurFile = strTemp1;
 	CtrlObject->HiFiles->SaveHiData();
 	/* *************************************************** </ПРЕПРОЦЕССЫ> */
 
-	Global->Opt->Palette.Save();
+	Palette.Save();
 
-	Db->GeneralCfg()->BeginTransaction();
+	Global->Db->GeneralCfg()->BeginTransaction();
 
 	for (size_t I=0; I < FARConfig.Size; ++I)
 	{
 		FARConfig.Items[I].Value->StoreValue(FARConfig.Items[I].KeyName, FARConfig.Items[I].ValName);
 	}
 
-	Db->GeneralCfg()->EndTransaction();
+	Global->Db->GeneralCfg()->EndTransaction();
 
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 	FileFilter::SaveFilters();
@@ -1782,51 +1782,51 @@ bool AdvancedConfig()
 bool BoolOption::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, bool Default)
 {
 	int CfgValue = Default;
-	bool Result = Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Global->Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
 	Set(CfgValue != 0);
 	return Result;
 }
 
 bool BoolOption::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Global->Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
 }
 
 bool Bool3Option::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, int Default)
 {
 	int CfgValue = Default;
-	bool Result = Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Global->Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
 	Set(CfgValue);
 	return Result;
 }
 
 bool Bool3Option::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Global->Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
 }
 
 bool IntOption::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, intptr_t Default)
 {
 	int CfgValue = Default;
-	bool Result = Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Global->Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
 	Set(CfgValue);
 	return Result;
 }
 
 bool IntOption::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Global->Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
 }
 
 bool StringOption::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const wchar_t* Default)
 {
 	string CfgValue = Default;
-	bool Result = Db->GeneralCfg()->GetValue(KeyName, ValueName, CfgValue, CfgValue);
+	bool Result = Global->Db->GeneralCfg()->GetValue(KeyName, ValueName, CfgValue, CfgValue);
 	Set(CfgValue);
 	return Result;
 }
 
 bool StringOption::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Global->Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
 }

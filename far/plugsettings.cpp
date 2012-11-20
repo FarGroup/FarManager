@@ -94,7 +94,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local) : PluginsCfg(nullpt
 	if (pPlugin)
 	{
 		string strGuid = GuidToStr(Guid);
-		PluginsCfg = Db->CreatePluginsConfig(strGuid, Local);
+		PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
 		unsigned __int64& root(*m_Keys.insertItem(0));
 		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
 
@@ -457,7 +457,7 @@ static HistoryConfig* HistoryRef(int Type)
 			Save=Global->Opt->Dialogs.EditHistory;
 			break;
 	}
-	return Save? Db->HistoryCfg() : Db->HistoryCfgMem();
+	return Save? Global->Db->HistoryCfg() : Global->Db->HistoryCfgMem();
 }
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)

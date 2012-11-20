@@ -71,7 +71,7 @@ void consoleicons::setFarIcons()
 	{
 		if(!Loaded)
 		{
-			int IconId = (Global->Opt->SetAdminIcon && Global->Opt->IsUserAdmin)? FAR_ICON_A : FAR_ICON;
+			int IconId = (Global->Opt->SetAdminIcon && Global->IsUserAdmin())? FAR_ICON_A : FAR_ICON;
 			LargeIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(SM_CXICON), GetSystemMetrics(SM_CYICON), 0));
 			SmallIcon = reinterpret_cast<HICON>(LoadImage(GetModuleHandle(nullptr), MAKEINTRESOURCE(IconId), IMAGE_ICON, GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), 0));
 			Loaded = true;
@@ -155,7 +155,7 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		if(!CancelIoInProgress.Signaled())
 		{
 			CancelIoInProgress.Set();
-			HANDLE Thread = CreateThread(nullptr, 0, CancelSynchronousIoWrapper, Global->MainThreadHandle, 0, nullptr);
+			HANDLE Thread = CreateThread(nullptr, 0, CancelSynchronousIoWrapper, Global->MainThreadHandle(), 0, nullptr);
 			if (Thread)
 			{
 				CloseHandle(Thread);

@@ -104,7 +104,7 @@ BOOL WINAPI EnumCodePagesProc(const wchar_t *lpwszCodePage)
 	wchar_t *codePageName = cp.FormatCodePageName(_wtoi(lpwszCodePage), cpiex.CodePageName, sizeof(cpiex.CodePageName)/sizeof(wchar_t), IsCodePageNameCustom);
 	// Получаем признак выбранности таблицы символов
 	int selectType = 0;
-	Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, lpwszCodePage, &selectType, 0);
+	Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, lpwszCodePage, &selectType, 0);
 
 	// Добавляем таблицу символов либо в нормальные, либо в выбранные таблицы симовлов
 	if (selectType & CPST_FAVORITE)
@@ -289,7 +289,7 @@ void codepages::AddStandardCodePage(const wchar_t *codePageName, uintptr_t codeP
 	if (selectedCodePages && codePage!=CP_DEFAULT)
 	{
 		int selectType = 0;
-		Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, FormatString() << codePage, &selectType, 0);
+		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, FormatString() << codePage, &selectType, 0);
 
 		if (selectType & CPST_FIND)
 			checked = true;
@@ -430,15 +430,15 @@ void codepages::ProcessSelected(bool select)
 		strCPName<<codePage;
 		// Получаем текущее состояние флага в реестре
 		int selectType = 0;
-		Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, strCPName, &selectType, 0);
+		Global->Db->GeneralCfg()->GetValue(FavoriteCodePagesKey, strCPName, &selectType, 0);
 
 		// Удаляем/добавляем в ресестре информацию о выбранной кодовой странице
 		if (select)
-			Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, strCPName, CPST_FAVORITE | (selectType & CPST_FIND ? CPST_FIND : 0));
+			Global->Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, strCPName, CPST_FAVORITE | (selectType & CPST_FIND ? CPST_FIND : 0));
 		else if (selectType & CPST_FIND)
-			Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, strCPName, CPST_FIND);
+			Global->Db->GeneralCfg()->SetValue(FavoriteCodePagesKey, strCPName, CPST_FIND);
 		else
-			Db->GeneralCfg()->DeleteValue(FavoriteCodePagesKey, strCPName);
+			Global->Db->GeneralCfg()->DeleteValue(FavoriteCodePagesKey, strCPName);
 
 		// Создаём новый элемент меню
 		MenuItemEx newItem;
@@ -570,7 +570,7 @@ wchar_t *codepages::FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName
 	FormatString strCodePage;
 	strCodePage<<CodePage;
 	string strCodePageName;
-	if (Db->GeneralCfg()->GetValue(NamesOfCodePagesKey, strCodePage, strCodePageName, L""))
+	if (Global->Db->GeneralCfg()->GetValue(NamesOfCodePagesKey, strCodePage, strCodePageName, L""))
 	{
 		Length = Min(Length-1, strCodePageName.GetLength());
 		IsCodePageNameCustom = true;
@@ -593,7 +593,7 @@ wchar_t *codepages::FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName
 		{
 			if (strCodePageName==Name)
 			{
-				Db->GeneralCfg()->DeleteValue(NamesOfCodePagesKey, strCodePage);
+				Global->Db->GeneralCfg()->DeleteValue(NamesOfCodePagesKey, strCodePage);
 				IsCodePageNameCustom = false;
 				return Name;
 			}
@@ -630,9 +630,9 @@ intptr_t codepages::EditDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, v
 			}
 			// Если имя кодовой страницы пустое, то считаем, что имя не задано
 			if (!strCodePageName.GetLength())
-				Db->GeneralCfg()->DeleteValue(NamesOfCodePagesKey, strCodePage);
+				Global->Db->GeneralCfg()->DeleteValue(NamesOfCodePagesKey, strCodePage);
 			else
-				Db->GeneralCfg()->SetValue(NamesOfCodePagesKey, strCodePage, strCodePageName);
+				Global->Db->GeneralCfg()->SetValue(NamesOfCodePagesKey, strCodePage, strCodePageName);
 			// Получаем информацию о кодовой странице
 			CPINFOEX cpiex;
 			if (GetCodePageInfo(CodePage, cpiex))

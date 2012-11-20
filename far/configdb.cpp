@@ -3110,7 +3110,6 @@ Database::Database(bool ImportExportMode):
 	m_HistoryCfgMem(CreateDatabase<HistoryConfigMemory>()),
 	m_MacroCfg(CreateDatabase<MacroConfigDb>())
 {
-	Db = this;
 }
 
 Database::~Database()
@@ -3292,7 +3291,7 @@ bool Database::Import(const wchar_t *File)
 	return ret;
 }
 
-void Database::ClearPluginsCache() const
+void Database::ClearPluginsCache()
 {
 	PluginsCacheConfigDb *p = new PluginsCacheConfigDb();
 	p->DiscardCache();

@@ -90,7 +90,7 @@ bool FileMasksProcessor::Set(const string& masks, DWORD Flags)
 			string MaskGroupValue;
 			if(!UsedGroups.Contains(MaskGroupName))
 			{
-				Db->GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
+				Global->Db->GeneralCfg()->GetValue(L"Masks", MaskGroupName, MaskGroupValue, L"");
 				ReplaceStrings(expmasks, MaskGroupNameWB, MaskGroupValue);
 				UsedGroups.Push(&MaskGroupName);
 			}

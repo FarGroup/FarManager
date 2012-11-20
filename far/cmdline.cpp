@@ -267,7 +267,7 @@ int CommandLine::ProcessKey(int Key)
 		}
 		return TRUE;
 		case KEY_SHIFTF9:
-			SaveConfig(1);
+			Global->Opt->Save(true);
 			return TRUE;
 		case KEY_F10:
 			FrameManager->ExitMainLoop(TRUE);
@@ -592,7 +592,7 @@ void CommandLine::GetPrompt(string &strDestStr)
 						{
 							wchar_t lb=*++Format;
 							wchar_t rb=*++Format;
-							if ( Global->Opt->IsUserAdmin )
+							if ( Global->IsUserAdmin() )
 							{
 								strDestStr += lb;
 								strDestStr += MSG(MConfigCmdlinePromptFormatAdmin);

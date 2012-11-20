@@ -190,7 +190,7 @@ static void SetHighlighting(bool DeleteOld, HierarchicalConfig *cfg)
 HighlightFiles::HighlightFiles()
 {
 	Changed = false;
-	HierarchicalConfig *cfg = Db->CreateHighlightConfig();
+	HierarchicalConfig *cfg = Global->Db->CreateHighlightConfig();
 	SetHighlighting(false, cfg);
 	InitHighlightFiles(cfg);
 	UpdateCurrentTime();
@@ -639,7 +639,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 					            MSG(MYes),MSG(MCancel)))
 						break;
 
-					HierarchicalConfig *cfg = Db->CreateHighlightConfig();
+					HierarchicalConfig *cfg = Global->Db->CreateHighlightConfig();
 					SetHighlighting(true, cfg); //delete old settings
 					ClearData();
 					InitHighlightFiles(cfg);
@@ -912,7 +912,7 @@ void HighlightFiles::SaveHiData()
 		{FirstCount+UpperCount+LowerCount,FirstCount+UpperCount+LowerCount+LastCount}
 	};
 
-	HierarchicalConfig *cfg = Db->CreateHighlightConfig();
+	HierarchicalConfig *cfg = Global->Db->CreateHighlightConfig();
 
 	unsigned __int64 root = cfg->GetKeyID(0, HighlightKeyName);
 	if (root)

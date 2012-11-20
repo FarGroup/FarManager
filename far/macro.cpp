@@ -1397,7 +1397,7 @@ bool KeyMacro::ReadKeyMacro(MACROMODEAREA Area)
 
 	strArea=GetAreaName(Area);
 
-	while(Db->MacroCfg()->EnumKeyMacros(strArea, strKey, strMFlags, strSequence, strDescription))
+	while(Global->Db->MacroCfg()->EnumKeyMacros(strArea, strKey, strMFlags, strSequence, strDescription))
 	{
 		RemoveExternalSpaces(strKey);
 		RemoveExternalSpaces(strSequence);
@@ -1439,7 +1439,7 @@ bool KeyMacro::ReadKeyMacro(MACROMODEAREA Area)
 
 void KeyMacro::WriteMacro(void)
 {
-	Db->MacroCfg()->BeginTransaction();
+	Global->Db->MacroCfg()->BeginTransaction();
 	for(size_t ii=MACRO_OTHER;ii<MACRO_LAST;++ii)
 	{
 		for(size_t jj=0;jj<m_Macros[ii].getSize();++jj)
@@ -1451,13 +1451,13 @@ void KeyMacro::WriteMacro(void)
 				string Code = rec.Code();
 				RemoveExternalSpaces(Code);
 				if (Code.IsEmpty())
-					Db->MacroCfg()->DeleteKeyMacro(GetAreaName(rec.Area()), rec.Name());
+					Global->Db->MacroCfg()->DeleteKeyMacro(GetAreaName(rec.Area()), rec.Name());
 				else
-					Db->MacroCfg()->SetKeyMacro(GetAreaName(rec.Area()),rec.Name(),FlagsToString(rec.Flags()),Code,rec.Description());
+					Global->Db->MacroCfg()->SetKeyMacro(GetAreaName(rec.Area()),rec.Name(),FlagsToString(rec.Flags()),Code,rec.Description());
 			}
 		}
 	}
-	Db->MacroCfg()->EndTransaction();
+	Global->Db->MacroCfg()->EndTransaction();
 }
 
 const wchar_t *eStackAsString(int)
@@ -2103,7 +2103,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			LARGE_INTEGER Frequency, Counter;
 			QueryPerformanceFrequency(&Frequency);
 			QueryPerformanceCounter(&Counter);
-			return PassNumber(((Counter.QuadPart-Global->FarUpTime.QuadPart)*1000)/Frequency.QuadPart, Data);
+			return PassNumber(((Counter.QuadPart-Global->FarUpTime().QuadPart)*1000)/Frequency.QuadPart, Data);
 		}
 
 		case MCODE_V_MACRO_AREA:
@@ -2113,7 +2113,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return PassBoolean(IsConsoleFullscreen(), Data);
 
 		case MCODE_C_ISUSERADMIN: // IsUserAdmin?
-			return PassBoolean(Global->Opt->IsUserAdmin, Data);
+			return PassBoolean(Global->IsUserAdmin(), Data);
 
 		case MCODE_V_DRVSHOWPOS: // Drv.ShowPos
 			return Global->Macro_DskShowPosType;
@@ -5913,9 +5913,9 @@ static bool ReadVarsConsts (FarMacroCall* Data)
 	bool received = false;
 
 	if (!StrCmp(Params[0].s(), L"consts"))
-		received = Db->MacroCfg()->EnumConsts(strName, Value, strType);
+		received = Global->Db->MacroCfg()->EnumConsts(strName, Value, strType);
 	else if (!StrCmp(Params[0].s(), L"vars"))
-		received = Db->MacroCfg()->EnumVars(strName, Value, strType);
+		received = Global->Db->MacroCfg()->EnumVars(strName, Value, strType);
 
 	if (received)
 	{
@@ -6124,10 +6124,10 @@ M1:
 						// удаляем из DB только если включен автосейв
 						if (Global->Opt->AutoSaveSetup)
 						{
-							Db->MacroCfg()->BeginTransaction();
+							Global->Db->MacroCfg()->BeginTransaction();
 							// удалим старую запись из DB
-							Db->MacroCfg()->DeleteKeyMacro(GetAreaName(Area), Mac->Name());
-							Db->MacroCfg()->EndTransaction();
+							Global->Db->MacroCfg()->DeleteKeyMacro(GetAreaName(Area), Mac->Name());
+							Global->Db->MacroCfg()->EndTransaction();
 						}
 						// раздисаблим
 						Mac->m_flags&=~(MFLAGS_DISABLEMACRO|MFLAGS_NEEDSAVEMACRO);

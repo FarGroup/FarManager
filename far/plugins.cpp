@@ -677,7 +677,7 @@ void PluginManager::LoadPluginsFromCache()
 {
 	string strModuleName;
 
-	for (DWORD i=0; Db->PlCacheCfg()->EnumPlugins(i, strModuleName); i++)
+	for (DWORD i=0; Global->Db->PlCacheCfg()->EnumPlugins(i, strModuleName); i++)
 	{
 		ReplaceSlashToBSlash(strModuleName);
 
@@ -1429,7 +1429,7 @@ void PluginManager::Configure(int StartPos)
 		for (;;)
 		{
 			bool NeedUpdateItems = true;
-			bool HotKeysPresent = Db->PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::CONFIG_MENU);
+			bool HotKeysPresent = Global->Db->PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::CONFIG_MENU);
 
 			if (NeedUpdateItems)
 			{
@@ -1447,7 +1447,7 @@ void PluginManager::Configure(int StartPos)
 					PluginInfo Info = {sizeof(Info)};
 					if (bCached)
 					{
-						id = Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
+						id = Global->Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
 					}
 					else
 					{
@@ -1461,7 +1461,7 @@ void PluginManager::Configure(int StartPos)
 						{
 							string strGuid;
 
-							if (!Db->PlCacheCfg()->GetPluginsConfigMenuItem(id, J, strName, strGuid))
+							if (!Global->Db->PlCacheCfg()->GetPluginsConfigMenuItem(id, J, strName, strGuid))
 								break;
 							if (!StrToGuid(strGuid,guid))
 								break;
@@ -1603,7 +1603,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 		while (NeedUpdateItems)
 		{
-			bool HotKeysPresent = Db->PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::PLUGINS_MENU);
+			bool HotKeysPresent = Global->Db->PlHotkeyCfg()->HotkeysPresent(PluginsHotkeysConfig::PLUGINS_MENU);
 
 			if (NeedUpdateItems)
 			{
@@ -1622,8 +1622,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 					PluginInfo Info = {sizeof(Info)};
 					if (bCached)
 					{
-						id = Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
-						IFlags = Db->PlCacheCfg()->GetFlags(id);
+						id = Global->Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
+						IFlags = Global->Db->PlCacheCfg()->GetFlags(id);
 					}
 					else
 					{
@@ -1645,7 +1645,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 						{
 							string strGuid;
 
-							if (!Db->PlCacheCfg()->GetPluginsMenuItem(id, J, strName, strGuid))
+							if (!Global->Db->PlCacheCfg()->GetPluginsMenuItem(id, J, strName, strGuid))
 								break;
 							if (!StrToGuid(strGuid,guid))
 								break;
@@ -1852,7 +1852,7 @@ void PluginManager::GetPluginHotKey(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	string strPluginKey;
 	strHotKey.Clear();
 	GetHotKeyPluginKey(pPlugin, strPluginKey);
-	strHotKey = Db->PlHotkeyCfg()->GetHotkey(strPluginKey, GuidToStr(Guid), HotKeyType);
+	strHotKey = Global->Db->PlHotkeyCfg()->GetHotkey(strPluginKey, GuidToStr(Guid), HotKeyType);
 }
 
 bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHotkeysConfig::HotKeyTypeEnum HotKeyType, const wchar_t *DlgPluginTitle)
@@ -1860,7 +1860,7 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	string strPluginKey;
 	GetHotKeyPluginKey(pPlugin, strPluginKey);
 	string strGuid = GuidToStr(Guid);
-	string strHotKey = Db->PlHotkeyCfg()->GetHotkey(strPluginKey, strGuid, HotKeyType);
+	string strHotKey = Global->Db->PlHotkeyCfg()->GetHotkey(strPluginKey, strGuid, HotKeyType);
 
 	DialogBuilder Builder(MPluginHotKeyTitle, L"SetHotKeyDialog");
 	Builder.AddText(MPluginHotKey);
@@ -1869,9 +1869,9 @@ bool PluginManager::SetHotKeyDialog(Plugin *pPlugin, const GUID& Guid, PluginsHo
 	if(Builder.ShowDialog())
 	{
 		if (!strHotKey.IsEmpty() && strHotKey.At(0) != L' ')
-			Db->PlHotkeyCfg()->SetHotkey(strPluginKey, strGuid, HotKeyType, strHotKey);
+			Global->Db->PlHotkeyCfg()->SetHotkey(strPluginKey, strGuid, HotKeyType, strHotKey);
 		else
-			Db->PlHotkeyCfg()->DelHotkey(strPluginKey, strGuid, HotKeyType);
+			Global->Db->PlHotkeyCfg()->DelHotkey(strPluginKey, strGuid, HotKeyType);
 		return true;
 	}
 	return false;
@@ -1884,8 +1884,8 @@ void PluginManager::ShowPluginInfo(Plugin *pPlugin, const GUID& Guid)
 	string strPluginPrefix;
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
-		unsigned __int64 id = Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
-		strPluginPrefix = Db->PlCacheCfg()->GetCommandPrefix(id);
+		unsigned __int64 id = Global->Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
+		strPluginPrefix = Global->Db->PlCacheCfg()->GetCommandPrefix(id);
 	}
 	else
 	{
@@ -1998,28 +1998,28 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
-		unsigned __int64 id = Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
-		Flags = Db->PlCacheCfg()->GetFlags(id);
-		Prefix = Db->PlCacheCfg()->GetCommandPrefix(id);
+		unsigned __int64 id = Global->Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName());
+		Flags = Global->Db->PlCacheCfg()->GetFlags(id);
+		Prefix = Global->Db->PlCacheCfg()->GetCommandPrefix(id);
 #if defined(MANTIS_0000466)
-		MacroFunc = Db->PlCacheCfg()->GetMacroFunctions(id);
+		MacroFunc = Global->Db->PlCacheCfg()->GetMacroFunctions(id);
 #endif
 
 		string Name, Guid;
 
-		for(int i = 0; Db->PlCacheCfg()->GetPluginsMenuItem(id, i, Name, Guid); ++i)
+		for(int i = 0; Global->Db->PlCacheCfg()->GetPluginsMenuItem(id, i, Name, Guid); ++i)
 		{
 			MenuNames.addItem(Name);
 			MenuGuids.addItem(Guid);
 		}
 
-		for(int i = 0; Db->PlCacheCfg()->GetPluginsMenuItem(id, i, Name, Guid); ++i)
+		for(int i = 0; Global->Db->PlCacheCfg()->GetPluginsMenuItem(id, i, Name, Guid); ++i)
 		{
 			DiskNames.addItem(Name);
 			DiskGuids.addItem(Guid);
 		}
 
-		for(int i = 0; Db->PlCacheCfg()->GetPluginsMenuItem(id, i, Name, Guid); ++i)
+		for(int i = 0; Global->Db->PlCacheCfg()->GetPluginsMenuItem(id, i, Name, Guid); ++i)
 		{
 			ConfNames.addItem(Name);
 			ConfGuids.addItem(Guid);
@@ -2130,7 +2130,7 @@ bool PluginManager::GetDiskMenuItem(
 	if (pPlugin->CheckWorkFlags(PIWF_CACHED))
 	{
 		string strGuid;
-		if (Db->PlCacheCfg()->GetDiskMenuItem(Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName()), PluginItem, strPluginText, strGuid))
+		if (Global->Db->PlCacheCfg()->GetDiskMenuItem(Global->Db->PlCacheCfg()->GetCacheID(pPlugin->GetCacheName()), PluginItem, strPluginText, strGuid))
 			if (StrToGuid(strGuid,Guid))
 				ItemPresent = true;
 		ItemPresent = ItemPresent && !strPluginText.IsEmpty();
@@ -2209,13 +2209,13 @@ void PluginManager::DiscardCache()
 		pPlugin->Load();
 	}
 
-	Db->PlCacheCfg()->DiscardCache();
+	Global->Db->PlCacheCfg()->DiscardCache();
 }
 
 
 void PluginManager::LoadIfCacheAbsent()
 {
-	if (Db->PlCacheCfg()->IsCacheEmpty())
+	if (Global->Db->PlCacheCfg()->IsCacheEmpty())
 	{
 		for (size_t I=0; I<PluginsCount; I++)
 		{
@@ -2263,9 +2263,9 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 		if (PluginsData[I]->CheckWorkFlags(PIWF_CACHED))
 		{
-			unsigned __int64 id = Db->PlCacheCfg()->GetCacheID(PluginsData[I]->GetCacheName());
-			strPluginPrefix = Db->PlCacheCfg()->GetCommandPrefix(id);
-			PluginFlags = Db->PlCacheCfg()->GetFlags(id);
+			unsigned __int64 id = Global->Db->PlCacheCfg()->GetCacheID(PluginsData[I]->GetCacheName());
+			strPluginPrefix = Global->Db->PlCacheCfg()->GetCommandPrefix(id);
+			PluginFlags = Global->Db->PlCacheCfg()->GetFlags(id);
 		}
 		else
 		{

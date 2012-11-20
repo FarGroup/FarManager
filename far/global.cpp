@@ -48,73 +48,62 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "synchro.hpp"
 #include "codepage.hpp"
+#include "configdb.hpp"
 
-global::global()
+global::global():
+	m_MainThreadId(GetCurrentThreadId()),
+	Db(nullptr)
 {
 	Global = this;
 
-	#include "bootstrap/copyright.inc"
+	QueryPerformanceCounter(&m_FarUpTime);
 
-	WinVer.dwOSVersionInfoSize = sizeof(WinVer);
+	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &m_MainThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
+
+	// BUGBUG
 
 	// идет процесс назначения клавиши в макросе?
 	IsProcessAssignMacroKey=FALSE;
-
 	// Идёт процесс перерисовки всех фреймов
 	IsRedrawFramesInProcess=FALSE;
-
 	PluginPanelsCount = 0;
-
 	// идет процесс быстрого поиска в панелях?
 	WaitInFastFind=FALSE;
-
 	// мы крутимся в основном цикле?
 	WaitInMainLoop=FALSE;
-
 	StartIdleTime=0;
-
 	GlobalSearchCase=false;
 	GlobalSearchWholeWords=false; // значение "Whole words" для поиска
 	GlobalSearchHex=false;     // значение "Search for hex" для поиска
 	GlobalSearchReverse=false;
-
 	ScreenSaverActive=FALSE;
-
 	CloseFAR=FALSE;
 	CloseFARMenu=FALSE;
 	AllowCancelExit=TRUE;
-
 	DisablePluginsOutput=FALSE;
-
 	WidthNameForMessage=0;
-
 	ProcessException=FALSE;
 	ProcessShowClock=FALSE;
-
 	HelpFileMask=L"*.hlf";
 	HelpFormatLinkModule=L"<%s>%s";
-
 #if defined(SYSLOG)
 	StartSysLog=0;
 	CallNewDelete=0;
 	CallMallocFree=0;
 #endif
-
 #ifdef DIRECT_RT
 	DirectRT = false;
 #endif
-
 	GlobalSaveScrPtr=nullptr;
-
 	CriticalInternalError=FALSE;
-
 	KeepUserScreen = 0;
-
 	Macro_DskShowPosType=0; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
-
-	MainThreadId = GetCurrentThreadId();
 	ErrorMode = SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX;
+#ifndef NO_WRAPPER
+	strRegRoot = L"Software\\Far Manager";
+#endif // NO_WRAPPER
 
+	// BUGBUG end
 
 	ifn = new ImportedFunctions;
 	Console = new console;
@@ -136,6 +125,7 @@ global::global()
 
 global::~global()
 {
+	delete Db;
 	delete CodePages;
 	delete PluginSynchroManager;
 	delete tempTreeCache;
@@ -152,4 +142,59 @@ global::~global()
 	delete ScrBuf;
 	delete Console;
 	delete ifn;
+
+	CloseHandle(m_MainThreadHandle);
+
+	Global = nullptr;
 }
+
+bool global::IsUserAdmin() const
+{
+	static bool Checked = false;
+	static bool Result = false;
+
+	if(!Checked)
+	{
+		SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
+		PSID AdministratorsGroup;
+		if(AllocateAndInitializeSid(&NtAuthority, 2, SECURITY_BUILTIN_DOMAIN_RID, DOMAIN_ALIAS_RID_ADMINS, 0, 0, 0, 0, 0, 0, &AdministratorsGroup))
+		{
+			BOOL IsMember = FALSE;
+			if(CheckTokenMembership(nullptr, AdministratorsGroup, &IsMember) && IsMember)
+			{
+				Result = true;
+			}
+			FreeSid(AdministratorsGroup);
+		}
+		Checked = true;
+	}
+	return Result;
+}
+
+const OSVERSIONINFO& global::WinVer() const
+{
+	static OSVERSIONINFO Info;
+	static bool Checked = false;
+	if(!Checked)
+	{
+		Info.dwOSVersionInfoSize = sizeof(Info);
+		GetVersionEx(&Info);
+		Checked = true;
+	}
+	return Info;
+}
+
+bool global::IsPtr(const void* Address) const
+{
+	static SYSTEM_INFO info;
+	static bool Checked = false;
+	if(!Checked)
+	{
+		GetSystemInfo(&info);
+		Checked = true;
+	}
+	return reinterpret_cast<uintptr_t>(Address) >= reinterpret_cast<uintptr_t>(info.lpMinimumApplicationAddress) &&
+		reinterpret_cast<uintptr_t>(Address) <= reinterpret_cast<uintptr_t>(info.lpMaximumApplicationAddress);
+}
+
+#include "bootstrap/copyright.inc"

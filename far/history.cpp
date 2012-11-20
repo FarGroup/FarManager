@@ -68,20 +68,20 @@ History::~History()
 
 void History::CompactHistory()
 {
-	Db->HistoryCfg()->BeginTransaction();
+	Global->Db->HistoryCfg()->BeginTransaction();
 
-	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
-	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
-	Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
+	Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_CMD, L"", Global->Opt->HistoryLifetime, Global->Opt->HistoryCount);
+	Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_FOLDER, L"", Global->Opt->FoldersHistoryLifetime, Global->Opt->FoldersHistoryCount);
+	Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_VIEW, L"", Global->Opt->ViewHistoryLifetime, Global->Opt->ViewHistoryCount);
 
 	DWORD index=0;
 	string strName;
-	while (Db->HistoryCfg()->EnumLargeHistories(index++, Global->Opt->DialogsHistoryCount, HISTORYTYPE_DIALOG, strName))
+	while (Global->Db->HistoryCfg()->EnumLargeHistories(index++, Global->Opt->DialogsHistoryCount, HISTORYTYPE_DIALOG, strName))
 	{
-		Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_DIALOG, strName, Global->Opt->DialogsHistoryLifetime, Global->Opt->DialogsHistoryCount);
+		Global->Db->HistoryCfg()->DeleteOldUnlocked(HISTORYTYPE_DIALOG, strName, Global->Opt->DialogsHistoryLifetime, Global->Opt->DialogsHistoryCount);
 	}
 
-	Db->HistoryCfg()->EndTransaction();
+	Global->Db->HistoryCfg()->EndTransaction();
 }
 
 /*
@@ -716,5 +716,5 @@ bool History::EqualType(int Type1, int Type2)
 
 HistoryConfig* History::HistoryCfgRef(void)
 {
-	return EnableSave? Db->HistoryCfg() : Db->HistoryCfgMem();
+	return EnableSave? Global->Db->HistoryCfg() : Global->Db->HistoryCfgMem();
 }

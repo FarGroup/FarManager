@@ -40,80 +40,68 @@ public:
 	global();
 	~global();
 
+	HANDLE MainThreadHandle() const {return m_MainThreadHandle;}
+	inline bool IsMainThread() const {return GetCurrentThreadId() == m_MainThreadId;}
+	const LARGE_INTEGER& FarUpTime() const {return m_FarUpTime;}
+
+	bool IsPtr(const void* Address) const;
+	bool IsUserAdmin() const;
+	const OSVERSIONINFO& WinVer() const;
+	const wchar_t* Version() const;
+	const wchar_t* Copyright() const;
+
+	// BUGBUG
+
 	clock_t StartIdleTime;
-
-	OSVERSIONINFO WinVer;
-
 	int WaitInMainLoop;
 	int WaitInFastFind;
-
 	string g_strFarModuleName;
 	string g_strFarINI;
 	string g_strFarPath;
-
 	string strGlobalSearchString;
 	string strInitTitle;
-
-	// BUGBUG
 	string strMsgHelpTopic;
-
 	bool GlobalSearchCase;
 	bool GlobalSearchWholeWords; // значение "Whole words" для поиска
 	bool GlobalSearchHex; // значение "Search for hex" для поиска
-
 	bool GlobalSearchReverse;
-
 	int ScreenSaverActive;
-
 	int CloseFAR, CloseFARMenu, AllowCancelExit;
-
 	int DisablePluginsOutput;
-
 	BOOL IsProcessAssignMacroKey;
 	BOOL IsRedrawFramesInProcess;
-
 	size_t PluginPanelsCount;
-
-	const wchar_t* Version;
-	const wchar_t* Copyright;
-
 	int WidthNameForMessage;
-
 	BOOL ProcessException;
-
 	BOOL ProcessShowClock;
-
 	const wchar_t *HelpFileMask;
 	const wchar_t *HelpFormatLinkModule;
-
 #if defined(SYSLOG)
 	BOOL StartSysLog;
 	long CallNewDelete;
 	long CallMallocFree;
 #endif
-
 #ifdef DIRECT_RT
 	bool DirectRT;
 #endif
-
 	class SaveScreen *GlobalSaveScrPtr;
-
 	int CriticalInternalError;
-
 	int KeepUserScreen;
 	string g_strDirToSet; //RAVE!!!
-
 	int Macro_DskShowPosType; // для какой панели вызывали меню выбора дисков (0 - ничерта не вызывали, 1 - левая (AltF1), 2 - правая (AltF2))
-
-	SYSTEM_INFO SystemInfo;
-
 	DWORD ErrorMode;
+#ifndef NO_WRAPPER
+	string strRegRoot;
+#endif // NO_WRAPPER
 
-	LARGE_INTEGER FarUpTime;
+	// BUGBUG end
 
-	HANDLE MainThreadHandle;
-	DWORD MainThreadId;
+private:
+	DWORD m_MainThreadId;
+	LARGE_INTEGER m_FarUpTime;
+	HANDLE m_MainThreadHandle;
 
+public:
 	class ImportedFunctions* ifn;
 	class console* Console;
 	class ScreenBuf* ScrBuf;
@@ -130,22 +118,15 @@ public:
 	class TreeListCache* tempTreeCache;
 	class PluginSynchro* PluginSynchroManager;
 	class codepages* CodePages;
+	class Database* Db;
 };
 
-extern global* Global;
-
 #define MSG(ID) Global->Lang->GetMsg(ID)
-
-inline bool IsPtr(const void* Address)
-{
-	return reinterpret_cast<uintptr_t>(Address)>=reinterpret_cast<uintptr_t>(Global->SystemInfo.lpMinimumApplicationAddress) && reinterpret_cast<uintptr_t>(Address)<=reinterpret_cast<uintptr_t>(Global->SystemInfo.lpMaximumApplicationAddress);
-}
-
-
-inline bool MainThread() {return GetCurrentThreadId() == Global->MainThreadId;}
 
 // VersionConstant: LOWBYTE - minor, HIBYTE - major
 inline bool operator< (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) < VersionConstant;}
 inline bool operator> (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) > VersionConstant;}
 inline bool operator<= (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) <= VersionConstant;}
 inline bool operator>= (const OSVERSIONINFO& OsVersionInfo, WORD VersionConstant) {return MAKEWORD(OsVersionInfo.dwMinorVersion, OsVersionInfo.dwMajorVersion) >= VersionConstant;}
+
+extern global* Global;

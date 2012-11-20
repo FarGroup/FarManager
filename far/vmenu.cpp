@@ -101,7 +101,7 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	{
 		NewItem.Clear();
 
-		if (!IsPtr(Data[I].Name))
+		if (!Global->IsPtr(Data[I].Name))
 			NewItem.strName = MSG(static_cast<LNGID>(reinterpret_cast<intptr_t>(Data[I].Name)));
 		else
 			NewItem.strName = Data[I].Name;

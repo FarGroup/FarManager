@@ -245,7 +245,7 @@ bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
 	bool bVistaType = false;
 	strType.Clear();
 
-	if (Global->WinVer >= _WIN32_WINNT_VISTA)
+	if (Global->WinVer() >= _WIN32_WINNT_VISTA)
 	{
 		IApplicationAssociationRegistration* pAAR;
 		HRESULT hr = Global->ifn->SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
@@ -633,7 +633,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 					DWORD samDesired = KEY_QUERY_VALUE;
 					DWORD RedirectionFlag = 0;
 					// App Paths key is shared in Windows 7 and above
-					if (Global->WinVer < _WIN32_WINNT_WIN7)
+					if (Global->WinVer() < _WIN32_WINNT_WIN7)
 					{
 #ifdef _WIN64
 						RedirectionFlag = KEY_WOW64_32KEY;
@@ -1031,7 +1031,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	seInfo.fMask = SEE_MASK_FLAG_NO_UI|SEE_MASK_NOASYNC|SEE_MASK_NOCLOSEPROCESS|(SeparateWindow?0:SEE_MASK_NO_CONSOLE);
 	if (dwSubSystem == IMAGE_SUBSYSTEM_UNKNOWN)  // для .exe НЕ включать - бывают проблемы с запуском
-		if (Global->WinVer >= _WIN32_WINNT_VISTA)         // ShexxExecuteEx error, see
+		if (Global->WinVer() >= _WIN32_WINNT_VISTA)         // ShexxExecuteEx error, see
 			seInfo.fMask |= SEE_MASK_INVOKEIDLIST; // http://us.generation-nt.com/answer/shellexecuteex-does-not-allow-openas-verb-windows-7-help-31497352.html
 
 	if(!Silent)

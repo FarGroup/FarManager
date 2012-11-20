@@ -151,7 +151,7 @@ ControlObject::~ControlObject()
 	if (Cp()&&Cp()->ActivePanel)
 	{
 		if (Global->Opt->AutoSaveSetup)
-			SaveConfig(0);
+			Global->Opt->Save(false);
 
 		if (Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
 		{
@@ -187,8 +187,8 @@ void ControlObject::ShowCopyright(DWORD Flags)
 {
 	if (Flags&1)
 	{
-		string strOut(Global->Version);
-		strOut.Append(L"\n").Append(Global->Copyright).Append(L"\n");
+		string strOut(Global->Version());
+		strOut.Append(L"\n").Append(Global->Copyright()).Append(L"\n");
 		Global->Console->Write(strOut);
 		Global->Console->Commit();
 	}
@@ -203,9 +203,9 @@ void ControlObject::ShowCopyright(DWORD Flags)
 			ScrollScreen(5-FreeSpace);
 
 		GotoXY(0,ScrY-4);
-		Text(Global->Version);
+		Text(Global->Version());
 		GotoXY(0,ScrY-3);
-		Text(Global->Copyright);
+		Text(Global->Copyright());
 	}
 }
 

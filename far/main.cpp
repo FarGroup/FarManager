@@ -129,10 +129,9 @@ static int MainProcess(
 		FarColor InitAttributes={};
 		Global->Console->GetTextAttributes(InitAttributes);
 		SetRealColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
-		GetSystemInfo(&Global->SystemInfo);
 
 		string ename(lpwszEditName),vname(lpwszViewName), apanel(lpwszDestName1),ppanel(lpwszDestName2);
-		if (Db->ShowProblems() > 0)
+		if (Global->Db->ShowProblems() > 0)
 		{
 			ename = vname = "";
 			StartLine = StartChar = -1;
@@ -447,20 +446,15 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	std::set_new_handler(nullptr);
 
-	Global = new global();
+	global _g;
 
 	SetErrorMode(Global->ErrorMode);
 
 	TestPathParser();
 
-	QueryPerformanceCounter(&Global->FarUpTime);
-
-	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &Global->MainThreadHandle, 0, FALSE, DUPLICATE_SAME_ACCESS);
-	GetVersionEx(&Global->WinVer);
-
 	// Starting with Windows Vista, the system uses the low-fragmentation heap (LFH) as needed to service memory allocation requests.
 	// Applications do not need to enable the LFH for their heaps.
-	if(Global->WinVer < _WIN32_WINNT_VISTA)
+	if(Global->WinVer() < _WIN32_WINNT_VISTA)
 	{
 		apiEnableLowFragmentationHeap();
 	}
@@ -485,15 +479,13 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	SetEnvironmentVariable(L"FARHOME", Global->g_strFarPath);
 	AddEndSlash(Global->g_strFarPath);
 
-	Global->Opt->IsUserAdmin=IsUserAdmin();
-
 #ifndef NO_WRAPPER
 	// don't inherit from parent process in any case
 	// for OEM plugins only!
 	SetEnvironmentVariable(L"FARUSER", nullptr);
 #endif // NO_WRAPPER
 
-	SetEnvironmentVariable(L"FARADMINMODE", Global->Opt->IsUserAdmin?L"1":nullptr);
+	SetEnvironmentVariable(L"FARADMINMODE", Global->IsUserAdmin()?L"1":nullptr);
 
 	if (Argc==5 && !StrCmp(Argv[1], L"/elevation")) // /elevation {GUID} PID UsePrivileges
 	{
@@ -507,7 +499,8 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 			string strProfilePath(Argc>3 ? Argv[3] : L""), strLocalProfilePath(Argc>4 ? Argv[4] : L""), strTemplatePath(Argc>5 ? Argv[5] : L"");
 			InitTemplateProfile(strTemplatePath);
 			InitProfile(strProfilePath, strLocalProfilePath);
-			return !(Export? Database(true).Export(Argv[2]) : Database(true).Import(Argv[2]));
+			Global->Db = new Database(true);
+			return !(Export? Global->Db->Export(Argv[2]) : Global->Db->Import(Argv[2]));
 		}
 	}
 	else if ((Argc==2 || Argc==3 || Argc==4) && !StrCmpI(Argv[1], L"/clearcache"))
@@ -515,7 +508,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		string strProfilePath(Argc>2 ? Argv[2] : L"");
 		string strLocalProfilePath(Argc>3 ? Argv[3] : L"");
 		InitProfile(strProfilePath, strLocalProfilePath);
-		Database().ClearPluginsCache();
+		Database::ClearPluginsCache();
 		return 0;
 	}
 
@@ -546,9 +539,6 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		Global->Opt->ExceptRules = 0;
 	}
 #endif
-#ifndef NO_WRAPPER
-	Global->Opt->strRegRoot = L"Software\\Far Manager";
-#endif // NO_WRAPPER
 	// По умолчанию - брать плагины из основного каталога
 	Global->Opt->LoadPlug.MainPluginDir=TRUE;
 	Global->Opt->LoadPlug.PluginsPersonal=TRUE;
@@ -640,8 +630,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 					if (I+1<Argc)
 					{
 						//Affects OEM plugins only!
-						Global->Opt->strRegRoot += L"\\Users\\";
-						Global->Opt->strRegRoot += Argv[I+1];
+						Global->strRegRoot.Append(L"\\Users\\").Append(Argv[I+1]);
 						SetEnvironmentVariable(L"FARUSER", Argv[I+1]);
 						I++;
 					}
@@ -759,10 +748,9 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	InitTemplateProfile(strTemplatePath);
 	InitProfile(strProfilePath, strLocalProfilePath);
+	Global->Db = new Database;
 
-	Database _Db;
-
-	ReadConfig();
+	Global->Opt->Load();
 
 	//Настройка OEM сортировки
 #ifndef NO_WRAPPER
@@ -810,19 +798,19 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 
 	SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage);
 
-	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Global->Opt->ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
+	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Global->Opt->ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
 	SetErrorMode(Global->ErrorMode);
 	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 
 	int InitDriveMenuHotkeys = TRUE;
-	Db->GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", &InitDriveMenuHotkeys, InitDriveMenuHotkeys);
+	Global->Db->GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", &InitDriveMenuHotkeys, InitDriveMenuHotkeys);
 	if(InitDriveMenuHotkeys)
 	{
-		Db->PlHotkeyCfg()->SetHotkey(L"1E26A927-5135-48C6-88B2-845FB8945484", L"61026851-2643-4C67-BF80-D3C77A3AE830", PluginsHotkeysConfig::DRIVE_MENU, L"0"); // ProcList
-		Db->PlHotkeyCfg()->SetHotkey(L"B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C", L"F98C70B3-A1AE-4896-9388-C5C8E05013B7", PluginsHotkeysConfig::DRIVE_MENU, L"1"); // TmpPanel
-		Db->PlHotkeyCfg()->SetHotkey(L"Plugins/FTP/FarFtp.dll"              , L"00000000-0000-0000-0000-000000000000", PluginsHotkeysConfig::DRIVE_MENU, L"2"); // FTP
-		Db->PlHotkeyCfg()->SetHotkey(L"773B5051-7C5F-4920-A201-68051C4176A4", L"24B6DD41-DF12-470A-A47C-8675ED8D2ED4", PluginsHotkeysConfig::DRIVE_MENU, L"3"); // Network
-		Db->GeneralCfg()->SetValue(L"Interface",L"InitDriveMenuHotkeys", 0ull);
+		Global->Db->PlHotkeyCfg()->SetHotkey(L"1E26A927-5135-48C6-88B2-845FB8945484", L"61026851-2643-4C67-BF80-D3C77A3AE830", PluginsHotkeysConfig::DRIVE_MENU, L"0"); // ProcList
+		Global->Db->PlHotkeyCfg()->SetHotkey(L"B77C964B-E31E-4D4C-8FE5-D6B0C6853E7C", L"F98C70B3-A1AE-4896-9388-C5C8E05013B7", PluginsHotkeysConfig::DRIVE_MENU, L"1"); // TmpPanel
+		Global->Db->PlHotkeyCfg()->SetHotkey(L"Plugins/FTP/FarFtp.dll"              , L"00000000-0000-0000-0000-000000000000", PluginsHotkeysConfig::DRIVE_MENU, L"2"); // FTP
+		Global->Db->PlHotkeyCfg()->SetHotkey(L"773B5051-7C5F-4920-A201-68051C4176A4", L"24B6DD41-DF12-470A-A47C-8675ED8D2ED4", PluginsHotkeysConfig::DRIVE_MENU, L"3"); // Network
+		Global->Db->GeneralCfg()->SetValue(L"Interface",L"InitDriveMenuHotkeys", 0ull);
 	}
 
 	int Result=MainProcessSEH(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
@@ -830,9 +818,7 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 	EmptyInternalClipboard();
 
 	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
-	CloseHandle(Global->MainThreadHandle);
-	delete Global;
-	Global = nullptr;
+
 	return Result;
 }
 

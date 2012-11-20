@@ -496,7 +496,7 @@ void ElevationApproveDlgSync(LPVOID Param)
 	FarDialogItem ElevationApproveDlgData[]=
 	{
 		{DI_DOUBLEBOX,3,1,DlgX-4,DlgY-2,0,nullptr,nullptr,0,MSG(MAccessDenied)},
-		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(Global->Opt->IsUserAdmin?MElevationRequiredPrivileges:MElevationRequired)},
+		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(Global->IsUserAdmin()?MElevationRequiredPrivileges:MElevationRequired)},
 		{DI_TEXT,5,3,0,3,0,nullptr,nullptr,0,MSG(Data->Why)},
 		{DI_EDIT,5,4,DlgX-6,4,0,nullptr,nullptr,DIF_READONLY,Data->Object},
 		{DI_CHECKBOX,5,6,0,6,1,nullptr,nullptr,0,MSG(MElevationDoForAll)},
@@ -535,14 +535,14 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 	// request for backup&restore privilege is useless if the user already has them
 	{
 		GuardLastError Error;
-		if(AskApprove &&  IsUserAdmin() && CheckPrivilege(SE_BACKUP_NAME) && CheckPrivilege(SE_RESTORE_NAME))
+		if(AskApprove &&  Global->IsUserAdmin() && CheckPrivilege(SE_BACKUP_NAME) && CheckPrivilege(SE_RESTORE_NAME))
 		{
 			Approve = true;
 			AskApprove = false;
 		}
 	}
 
-	if(!(Global->Opt->IsUserAdmin && !(Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
+	if(!(Global->IsUserAdmin() && !(Global->Opt->ElevationMode&ELEVATION_USE_PRIVILEGES)) &&
 		AskApprove && !DontAskAgain && !Recurse &&
 		FrameManager && !FrameManager->ManagerIsDown())
 	{
@@ -550,7 +550,7 @@ bool elevation::ElevationApproveDlg(LNGID Why, const string& Object)
 		GuardLastError error;
 		TaskBarPause TBP;
 		EAData Data(nullptr, Object, Why, AskApprove, Approve, DontAskAgain);
-		if(!MainThread())
+		if(!Global->IsMainThread())
 		{
 			Data.pEvent=new Event();
 			if(Data.pEvent)
@@ -575,7 +575,7 @@ bool elevation::fCreateDirectoryEx(const string& TemplateObject, const string& O
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredCreate, Object))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = (TemplateObject.IsEmpty()?CreateDirectory(Object, Attributes) : CreateDirectoryEx(TemplateObject, Object, Attributes)) != FALSE;
@@ -599,7 +599,7 @@ bool elevation::fRemoveDirectory(const string& Object)
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredDelete, Object))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = RemoveDirectory(Object) != FALSE;
@@ -622,7 +622,7 @@ bool elevation::fDeleteFile(const string& Object)
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredDelete, Object))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = DeleteFile(Object) != FALSE;
@@ -664,7 +664,7 @@ bool elevation::fCopyFileEx(const string& From, const string& To, LPPROGRESS_ROU
 	bool Result = false;
 	if(ElevationApproveDlg(MElevationRequiredCopy, From))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = CopyFileEx(From, To, ProgressRoutine, Data, Cancel, Flags) != FALSE;
@@ -700,7 +700,7 @@ bool elevation::fMoveFileEx(const string& From, const string& To, DWORD Flags)
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredMove, From))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = MoveFileEx(From, To, Flags) != FALSE;
@@ -723,7 +723,7 @@ DWORD elevation::fGetFileAttributes(const string& Object)
 	DWORD Result = INVALID_FILE_ATTRIBUTES;
 	if(ElevationApproveDlg(MElevationRequiredGetAttributes, Object))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = GetFileAttributes(Object);
@@ -746,7 +746,7 @@ bool elevation::fSetFileAttributes(const string& Object, DWORD FileAttributes)
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredSetAttributes, Object))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = SetFileAttributes(Object, FileAttributes) != FALSE;
@@ -769,7 +769,7 @@ bool elevation::fCreateHardLink(const string& Object, const string& Target, LPSE
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredHardLink, Object))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = CreateHardLink(Object, Target, SecurityAttributes) != FALSE;
@@ -793,7 +793,7 @@ bool elevation::fCreateSymbolicLink(const string& Object, const string& Target, 
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredSymLink, Object))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = CreateSymbolicLinkInternal(Object, Target, Flags);
@@ -816,7 +816,7 @@ int elevation::fMoveToRecycleBin(SHFILEOPSTRUCT& FileOpStruct)
 	int Result = 0x78; //DE_ACCESSDENIEDSRC
 	if(ElevationApproveDlg(MElevationRequiredRecycle, FileOpStruct.pFrom))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = SHFileOperation(&FileOpStruct);
@@ -852,7 +852,7 @@ bool elevation::fSetOwner(const string& Object, const string& Owner)
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredSetOwner, Object))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = SetOwnerInternal(Object, Owner);
@@ -875,7 +875,7 @@ HANDLE elevation::fCreateFile(const string& Object, DWORD DesiredAccess, DWORD S
 	HANDLE Result=INVALID_HANDLE_VALUE;
 	if(ElevationApproveDlg(MElevationRequiredOpen, Object))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = CreateFile(Object, DesiredAccess, ShareMode, SecurityAttributes, CreationDistribution, FlagsAndAttributes, TemplateFile);
@@ -900,7 +900,7 @@ bool elevation::fSetFileEncryption(const string& Object, bool Encrypt)
 	bool Result=false;
 	if(ElevationApproveDlg(Encrypt? MElevationRequiredEncryptFile : MElevationRequiredDecryptFile, Object))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = apiSetFileEncryptionInternal(Object, Encrypt);
@@ -923,7 +923,7 @@ bool elevation::fOpenVirtualDisk(VIRTUAL_STORAGE_TYPE& VirtualStorageType, const
 	bool Result=false;
 	if(ElevationApproveDlg(MElevationRequiredCreate, Object))
 	{
-		if(Global->Opt->IsUserAdmin)
+		if(Global->IsUserAdmin())
 		{
 			Privilege BackupPrivilege(SE_BACKUP_NAME), RestorePrivilege(SE_RESTORE_NAME);
 			Result = apiOpenVirtualDiskInternal(VirtualStorageType, Object, VirtualDiskAccessMask, Flags, Parameters, Handle);
@@ -963,23 +963,6 @@ bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus)
 			DWORD LastWin32Error = GetLastError();
 			Result = LastWin32Error == ERROR_ACCESS_DENIED || LastWin32Error == ERROR_PRIVILEGE_NOT_HELD;
 		}
-	}
-	return Result;
-}
-
-bool IsUserAdmin()
-{
-	bool Result=false;
-	SID_IDENTIFIER_AUTHORITY NtAuthority=SECURITY_NT_AUTHORITY;
-	PSID AdministratorsGroup;
-	if(AllocateAndInitializeSid(&NtAuthority,2,SECURITY_BUILTIN_DOMAIN_RID,DOMAIN_ALIAS_RID_ADMINS,0,0,0,0,0,0,&AdministratorsGroup))
-	{
-		BOOL IsMember=FALSE;
-		if(CheckTokenMembership(nullptr,AdministratorsGroup,&IsMember)&&IsMember)
-		{
-			Result=true;
-		}
-		FreeSid(AdministratorsGroup);
 	}
 	return Result;
 }

@@ -122,5 +122,4 @@ private:
 void ElevationApproveDlgSync(LPVOID Param);
 
 bool ElevationRequired(ELEVATION_MODE Mode, bool UseNtStatus = true);
-bool IsUserAdmin();
 int ElevationMain(LPCWSTR guid, DWORD PID, bool UsePrivileges);

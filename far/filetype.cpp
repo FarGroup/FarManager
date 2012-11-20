@@ -99,12 +99,12 @@ int GetDescriptionWidth()
 	string strDescription;
 	CFileMask FMask;
 
-	while (Db->AssocConfig()->EnumMasks(Index++,&id,strMask))
+	while (Global->Db->AssocConfig()->EnumMasks(Index++,&id,strMask))
 	{
 		if (!FMask.Set(strMask, FMF_SILENT))
 			continue;
 
-		Db->AssocConfig()->GetDescription(id,strDescription);
+		Global->Db->AssocConfig()->GetDescription(id,strDescription);
 
 		int CurWidth = HiStrlen(strDescription);
 
@@ -145,7 +145,7 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode
 		unsigned __int64 id;
 		string FileName = PointToName(Name);
 
-		while (Db->AssocConfig()->EnumMasksForType(Mode,Index++,&id,strMask))
+		while (Global->Db->AssocConfig()->EnumMasksForType(Mode,Index++,&id,strMask))
 		{
 			strCommand.Clear();
 
@@ -153,11 +153,11 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode
 			{
 				if (FMask.Compare(FileName))
 				{
-					Db->AssocConfig()->GetCommand(id,Mode,strCommand);
+					Global->Db->AssocConfig()->GetCommand(id,Mode,strCommand);
 
 					if (!strCommand.IsEmpty())
 					{
-						Db->AssocConfig()->GetDescription(id,strDescription);
+						Global->Db->AssocConfig()->GetDescription(id,strDescription);
 						CommandCount++;
 					}
 				}
@@ -351,7 +351,7 @@ static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 	string strTitle;
 	unsigned __int64 id;
 
-	while (Db->AssocConfig()->EnumMasks(Index++,&id,strMask))
+	while (Global->Db->AssocConfig()->EnumMasks(Index++,&id,strMask))
 	{
 		TypesMenuItem.Clear();
 
@@ -359,7 +359,7 @@ static int FillFileTypesMenu(VMenu2 *TypesMenu,int MenuPos)
 
 		if (DizWidth)
 		{
-			Db->AssocConfig()->GetDescription(id,strTitle);
+			Global->Db->AssocConfig()->GetDescription(id,strTitle);
 
 			size_t AddLen=strTitle.GetLength() - HiStrlen(strTitle);
 
@@ -480,12 +480,12 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 
 	if (!NewRec)
 	{
-		Db->AssocConfig()->GetMask(EditPos,EditDlg[ETR_EDIT_MASKS].strData);
-		Db->AssocConfig()->GetDescription(EditPos,EditDlg[ETR_EDIT_DESCR].strData);
+		Global->Db->AssocConfig()->GetMask(EditPos,EditDlg[ETR_EDIT_MASKS].strData);
+		Global->Db->AssocConfig()->GetDescription(EditPos,EditDlg[ETR_EDIT_DESCR].strData);
 		for (int i=FILETYPE_EXEC,Item=ETR_EDIT_EXEC; i<=FILETYPE_ALTEDIT; i++,Item+=2)
 		{
 			bool on=false;
-			if (!Db->AssocConfig()->GetCommand(EditPos,i,EditDlg[Item].strData,&on) || !on)
+			if (!Global->Db->AssocConfig()->GetCommand(EditPos,i,EditDlg[Item].strData,&on) || !on)
 			{
 				EditDlg[Item-1].Selected = BSTATE_UNCHECKED;
 				EditDlg[Item].Flags |= DIF_DISABLE;
@@ -506,16 +506,16 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 	{
 		if (NewRec)
 		{
-			EditPos = Db->AssocConfig()->AddType(EditPos,EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
+			EditPos = Global->Db->AssocConfig()->AddType(EditPos,EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
 		}
 		else
 		{
-			Db->AssocConfig()->UpdateType(EditPos,EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
+			Global->Db->AssocConfig()->UpdateType(EditPos,EditDlg[ETR_EDIT_MASKS].strData,EditDlg[ETR_EDIT_DESCR].strData);
 		}
 
 		for (int i=FILETYPE_EXEC,Item=ETR_EDIT_EXEC; i<=FILETYPE_ALTEDIT; i++,Item+=2)
 		{
-			Db->AssocConfig()->SetCommand(EditPos,i,EditDlg[Item].strData,EditDlg[Item-1].Selected==BSTATE_CHECKED);
+			Global->Db->AssocConfig()->SetCommand(EditPos,i,EditDlg[Item].strData,EditDlg[Item-1].Selected==BSTATE_CHECKED);
 		}
 
 		return true;
@@ -527,12 +527,12 @@ bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)
 bool DeleteTypeRecord(unsigned __int64 DeletePos)
 {
 	string strMask;
-	Db->AssocConfig()->GetMask(DeletePos,strMask);
+	Global->Db->AssocConfig()->GetMask(DeletePos,strMask);
 	InsertQuote(strMask);
 
 	if (!Message(MSG_WARNING,2,MSG(MAssocTitle),MSG(MAskDelAssoc),strMask,MSG(MDelete),MSG(MCancel)))
 	{
-		Db->AssocConfig()->DelType(DeletePos);
+		Global->Db->AssocConfig()->DelType(DeletePos);
 		return true;
 	}
 
@@ -541,7 +541,7 @@ bool DeleteTypeRecord(unsigned __int64 DeletePos)
 
 void EditFileTypes()
 {
-	Db->AssocConfig()->BeginTransaction();
+	Global->Db->AssocConfig()->BeginTransaction();
 
 	int NumLine=0;
 	int MenuPos=0;
@@ -607,7 +607,7 @@ void EditFileTypes()
 							unsigned __int64 id2=0;
 							if (TypesMenu.GetUserData(&id,sizeof(id),MenuPos))
 								if (TypesMenu.GetUserData(&id2,sizeof(id2),NewMenuPos))
-									if (Db->AssocConfig()->SwapPositions(id,id2))
+									if (Global->Db->AssocConfig()->SwapPositions(id,id2))
 										MenuPos=NewMenuPos;
 							NumLine=FillFileTypesMenu(&TypesMenu,MenuPos);
 						}
@@ -631,5 +631,5 @@ void EditFileTypes()
 		break;
 	}
 
-	Db->AssocConfig()->EndTransaction();
+	Global->Db->AssocConfig()->EndTransaction();
 }

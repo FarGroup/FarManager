@@ -247,7 +247,7 @@ void palette::Load()
 {
 	for (size_t i = 0; i < SizeArrayPalette; ++i)
 	{
-		Db->ColorsCfg()->GetValue(Init[i].Name, CurrentPalette[i]);
+		Global->Db->ColorsCfg()->GetValue(Init[i].Name, CurrentPalette[i]);
 	}
 	PaletteChanged = false;
 }
@@ -257,12 +257,12 @@ void palette::Save()
 {
 	if (PaletteChanged)
 	{
-		Db->ColorsCfg()->BeginTransaction();
+		Global->Db->ColorsCfg()->BeginTransaction();
 		for (size_t i = 0; i < SizeArrayPalette; ++i)
 		{
-			Db->ColorsCfg()->SetValue(Init[i].Name, CurrentPalette[i]);
+			Global->Db->ColorsCfg()->SetValue(Init[i].Name, CurrentPalette[i]);
 		}
-		Db->ColorsCfg()->EndTransaction();
+		Global->Db->ColorsCfg()->EndTransaction();
 	}
 	PaletteChanged = false;
 }

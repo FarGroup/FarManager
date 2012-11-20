@@ -555,7 +555,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 					// нефига здесь выделываться, а надо учесть, что удаление
 					// симлинка в корзину чревато потерей оригинала.
 					DIRDELTYPE Type = Wipe? D_WIPE : D_DEL;
-					if (Global->Opt->DeleteToRecycleBin && !(DirSymLink && Global->WinVer < _WIN32_WINNT_VISTA))
+					if (Global->Opt->DeleteToRecycleBin && !(DirSymLink && Global->WinVer() < _WIN32_WINNT_VISTA))
 						Type = D_RECYCLE;
 					DeleteCode=ERemoveDirectory(strSelName, Type);
 
@@ -931,7 +931,7 @@ int RemoveToRecycleBin(const string& Name)
 	ConvertNameToFull(Name, strFullName);
 
 	// При удалении в корзину папки с симлинками получим траблу, если предварительно линки не убрать.
-	if (Global->WinVer < _WIN32_WINNT_VISTA && Global->Opt->DeleteToRecycleBinKillLink && apiGetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
+	if (Global->WinVer() < _WIN32_WINNT_VISTA && Global->Opt->DeleteToRecycleBinKillLink && apiGetFileAttributes(Name) == FILE_ATTRIBUTE_DIRECTORY)
 	{
 		string strFullName2;
 		FAR_FIND_DATA_EX FindData;
