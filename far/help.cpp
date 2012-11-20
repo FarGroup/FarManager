@@ -120,6 +120,9 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 	MouseDown(FALSE),
 	CurColor(COL_HELPTEXT),
 	CtrlTabSize(8),
+	LastSearchCase(Global->GlobalSearchCase),
+	LastSearchWholeWords(Global->GlobalSearchWholeWords),
+	LastSearchRegexp(Global->Opt->HelpSearchRegexp),
 	PrevMacroMode(CtrlObject->Macro.GetMode())
 {
 	MsX = MsY = -1;
@@ -282,11 +285,18 @@ int Help::ReadHelp(const wchar_t *Mask)
 	if (!GetLangParam(HelpFile,L"PluginContents",&strCurPluginContents, nullptr, nCodePage))
 		strCurPluginContents.Clear();
 
+	LPWSTR TabSpace=strTabSpace.GetBuffer(CtrlTabSize+1);
+	for (int i=0; i < CtrlTabSize; i++)
+	{
+		TabSpace[i]=L' ';
+	}
+	strTabSpace.ReleaseBuffer(CtrlTabSize);
+
 	HelpList.Free();
 
 	if (!StrCmp(StackData.strHelpTopic,FoundContents))
 	{
-		FindThisHelp(HelpFile,nCodePage);
+		Search(HelpFile,nCodePage);
 		fclose(HelpFile);
 		return TRUE;
 	}
@@ -298,13 +308,6 @@ int Help::ReadHelp(const wchar_t *Mask)
 	BreakProcess=FALSE;
 	int NearTopicFound=0;
 	wchar_t PrevSymbol=0;
-
-	LPWSTR TabSpace=strTabSpace.GetBuffer(CtrlTabSize+1);
-	for (int i=0; i < CtrlTabSize; i++)
-	{
-		TabSpace[i]=L' ';
-	}
-	strTabSpace.ReleaseBuffer(CtrlTabSize);
 
 	StartPos = (DWORD)-1;
 	LastStartPos = (DWORD)-1;
@@ -872,7 +875,7 @@ static bool GetHelpColor(const wchar_t* &Str, wchar_t cColor, int &color)
 	if (!cColor || Str[0] != cColor)
 		return false;
 
-   wchar_t wc1 = Str[1];
+	wchar_t wc1 = Str[1];
 	if (wc1 == L'-')     // '\-' set default color
 	{
 		color = COL_HELPTEXT;
@@ -886,18 +889,21 @@ static bool GetHelpColor(const wchar_t* &Str, wchar_t cColor, int &color)
 	if (!iswxdigit(wc2))
 		return false;
 
-	if (wc1 > L'9') wc1 -= L'A' - 10;
-	if (wc2 > L'9') wc2 -= L'A' - 10;
+	if (wc1 > L'9')
+		wc1 -= L'A' - 10;
+	if (wc2 > L'9')
+		wc2 -= L'A' - 10;
+
 	color = ((wc1 & 0x0f) << 4) | (wc2 & 0x0f);
 	Str += 3;
 	return true;
 }
 
-static bool FastParseLine(
-	const wchar_t *Str, int *pLen, int x0, int realX, string *pTopic, wchar_t cColor)
+static bool FastParseLine(const wchar_t *Str, int *pLen, int x0, int realX, string *pTopic, wchar_t cColor)
 {
 	int x = x0, start_topic = -1;
 	bool found = false;
+
 	while (*Str)
 	{
 		wchar_t wc = *Str++;
@@ -908,9 +914,15 @@ static bool FastParseLine(
 		else if (cColor && wc == cColor)
 		{
 			if (*Str == L'-')	// '\-' default color
-			{ Str += 2-1; continue; }
+			{
+				Str += 2-1;
+				continue;
+			}
 			else if (iswxdigit(*Str) && iswxdigit(Str[1])) // '\hh' custom color
-			{ Str += 3-1; continue; }
+			{
+				Str += 3-1;
+				continue;
+			}
 		}
 		else if (wc == L'@')	// skip topic link //??? is it valid without ~topic~
 		{
@@ -933,7 +945,7 @@ static bool FastParseLine(
 			continue;
 		}
 
-      ++x;
+		++x;
 		if (realX >= 0 && x > realX && start_topic < 0)
 			break;
 	}
@@ -1223,8 +1235,8 @@ int Help::ProcessKey(int Key)
 		/* $ 26.07.2001 VVM
 		  + С альтом скролим по 1 */
 		case KEY_MSWHEEL_UP:
-		case(KEY_MSWHEEL_UP | KEY_ALT):
-		case(KEY_MSWHEEL_UP | KEY_RALT):
+		case KEY_MSWHEEL_UP | KEY_ALT:
+		case KEY_MSWHEEL_UP | KEY_RALT:
 		{
 			int n = (Key == KEY_MSWHEEL_UP ? (int)Global->Opt->MsWheelDeltaHelp : 1);
 			while (n-- > 0)
@@ -1233,8 +1245,8 @@ int Help::ProcessKey(int Key)
 			return TRUE;
 		}
 		case KEY_MSWHEEL_DOWN:
-		case(KEY_MSWHEEL_DOWN | KEY_ALT):
-		case(KEY_MSWHEEL_DOWN | KEY_RALT):
+		case KEY_MSWHEEL_DOWN | KEY_ALT:
+		case KEY_MSWHEEL_DOWN | KEY_RALT:
 		{
 			int n = (Key == KEY_MSWHEEL_DOWN ? (int)Global->Opt->MsWheelDeltaHelp : 1);
 			while (n-- > 0)
@@ -1321,10 +1333,21 @@ int Help::ProcessKey(int Key)
 			if (StrCmpI(StackData.strHelpTopic,FoundContents))
 			{
 				string strLastSearchStr0=strLastSearchStr;
-				int RetCode=GetString(MSG(MHelpSearchTitle),MSG(MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
+				bool Case=LastSearchCase;
+				bool WholeWords=LastSearchWholeWords;
+				bool Regexp=LastSearchRegexp;
+
+				string strTempStr;
+				//int RetCode = GetString(MSG(MHelpSearchTitle),MSG(MHelpSearchingFor),L"HelpSearch",strLastSearchStr,strLastSearchStr0);
+				int RetCode = GetSearchReplaceString(false, MSG(MHelpSearchTitle), MSG(MHelpSearchingFor), strLastSearchStr0, strTempStr, L"HelpSearch", L"", &Case, &WholeWords, nullptr, &Regexp);
+
 				if (RetCode <= 0)
 					return TRUE;
+
 				strLastSearchStr=strLastSearchStr0;
+				LastSearchCase=Case;
+				LastSearchWholeWords=WholeWords;
+				LastSearchRegexp=Regexp;
 
 				Stack->Push(&StackData);
 				IsNewTopic=TRUE;
@@ -1844,7 +1867,7 @@ static int __cdecl CmpItems(const HelpRecord **el1, const HelpRecord **el2)
 		return 1;
 }
 
-void Help::FindThisHelp(FILE *HelpFile,uintptr_t nCodePage)
+void Help::Search(FILE *HelpFile,uintptr_t nCodePage)
 {
 	StrCount=0;
 	FixCount=1;
@@ -1895,8 +1918,14 @@ void Help::FindThisHelp(FILE *HelpFile,uintptr_t nCodePage)
 
 		if (TopicFound && !strEntryName.IsEmpty())
 		{
-			strReadStr.Upper();
-			if (strReadStr.Contains(strLastSearchStrU))
+			// !!!BUGBUG: необходимо "очистить" строку strReadStr от элементов разметки !!!
+
+			string ReplaceStr;
+			int CurPos=0;
+			int SearchLength;
+			bool Result=SearchString(strReadStr,strLastSearchStr,ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,LastSearchRegexp,&SearchLength);
+
+			if (Result)
 			{
 				string strHelpLine;
 				strHelpLine.Format(L"   ~%s~%s@",strEntryName.CPtr(), strCurTopic.CPtr());
@@ -1904,12 +1933,10 @@ void Help::FindThisHelp(FILE *HelpFile,uintptr_t nCodePage)
 				strCurTopic=L"";
 				strEntryName=L"";
 				TopicFound=false;
+				GlobalFound=true;
 			}
 		}
 	}
-
-	if (!StrCount)
-		AddLine(MSG(MHelpSearchCannotFind));
 
 	AddLine(L"");
 	MoveToReference(1,1);

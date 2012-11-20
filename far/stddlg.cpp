@@ -48,16 +48,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "TaskBar.hpp"
 
 int GetSearchReplaceString(
-    bool IsReplaceMode,
-    string& SearchStr,
-    string& ReplaceStr,
-    const wchar_t *TextHistoryName,
-    const wchar_t *ReplaceHistoryName,
-    bool& Case,
-    bool& WholeWords,
-    bool& Reverse,
-    bool& Regexp,
-    const wchar_t *HelpTopic)
+	bool IsReplaceMode,
+	const wchar_t *Title,
+	const wchar_t *SubTitle,
+	string& SearchStr,
+	string& ReplaceStr,
+	const wchar_t *TextHistoryName,
+	const wchar_t *ReplaceHistoryName,
+	bool* pCase,
+	bool* pWholeWords,
+	bool* pReverse,
+	bool* pRegexp,
+	const wchar_t *HelpTopic)
 {
 	int Result = 0;
 
@@ -67,6 +69,19 @@ int GetSearchReplaceString(
 	if (!ReplaceHistoryName)
 		ReplaceHistoryName = L"ReplaceText";
 
+	if (!Title)
+		Title=MSG(IsReplaceMode?MEditReplaceTitle:MEditSearchTitle);
+
+	if (!SubTitle)
+		SubTitle=MSG(MEditSearchFor);
+
+
+	bool Case=pCase?*pCase:false;
+	bool WholeWords=pWholeWords?*pWholeWords:false;
+	bool Reverse=pReverse?*pReverse:false;
+	bool Regexp=pRegexp?*pRegexp:false;
+
+
 	if (IsReplaceMode)
 	{
 		/*
@@ -75,9 +90,9 @@ int GetSearchReplaceString(
 		00
 		01   +----------------------------- Replace ------------------------------+
 		02   | Search for                                                         |
-		03   |                                                                    |
+		03   |                                                                   |
 		04   | Replace with                                                       |
-		05   |                                                                    |
+		05   |                                                                   |
 		06   +--------------------------------------------------------------------+
 		07   | [ ] Case sensitive                 [ ] Regular expressions         |
 		08   | [ ] Whole words                                                    |
@@ -89,8 +104,8 @@ int GetSearchReplaceString(
 		*/
 		FarDialogItem ReplaceDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,72,12,0,nullptr,nullptr,0,MSG(MEditReplaceTitle)},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MEditSearchFor)},
+			{DI_DOUBLEBOX,3,1,72,12,0,nullptr,nullptr,0,Title},
+			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,SubTitle},
 			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr},
 			{DI_TEXT,5,4,0,4,0,nullptr,nullptr,0,MSG(MEditReplaceWith)},
 			{DI_EDIT,5,5,70,5,0,ReplaceHistoryName,nullptr,(*ReplaceHistoryName?DIF_HISTORY:0)/*|DIF_USELASTHISTORY*/,ReplaceStr},
@@ -104,6 +119,15 @@ int GetSearchReplaceString(
 			{DI_BUTTON,0,11,0,11,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchCancel)},
 		};
 		MakeDialogItemsEx(ReplaceDlgData,ReplaceDlg);
+
+		if (!pCase)
+			ReplaceDlg[6].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!pWholeWords)
+			ReplaceDlg[7].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!pReverse)
+			ReplaceDlg[8].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!pRegexp)
+			ReplaceDlg[9].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 
 		Dialog Dlg(ReplaceDlg,ARRAYSIZE(ReplaceDlgData));
 		Dlg.SetPosition(-1,-1,76,14);
@@ -132,18 +156,18 @@ int GetSearchReplaceString(
 		00
 		01   +------------------------------ Search ------------------------------+
 		02   | Search for                                                         |
-		03   |                                                                    |
+		03   |                                                                   |
 		04   +--------------------------------------------------------------------+
 		05   | [ ] Case sensitive                 [ ] Regular expressions         |
 		06   | [ ] Whole words                    [ ] Reverse search              |
 		07   +--------------------------------------------------------------------+
-		08   |                       [ Search ]  [ Cancel ]                       |
+		08   |                   { Search } [ All ] [ Cancel ]                    |
 		09   +--------------------------------------------------------------------+
 		*/
 		FarDialogItem SearchDlgData[]=
 		{
-			{DI_DOUBLEBOX,3,1,72,9,0,nullptr,nullptr,0,MSG(MEditSearchTitle)},
-			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,MSG(MEditSearchFor)},
+			{DI_DOUBLEBOX,3,1,72,9,0,nullptr,nullptr,0,Title},
+			{DI_TEXT,5,2,0,2,0,nullptr,nullptr,0,SubTitle},
 			{DI_EDIT,5,3,70,3,0,TextHistoryName,nullptr,DIF_FOCUS|DIF_USELASTHISTORY|(*TextHistoryName?DIF_HISTORY:0),SearchStr},
 			{DI_TEXT,3,4,0,4,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 			{DI_CHECKBOX,5,5,0,5,Case,nullptr,nullptr,0,MSG(MEditSearchCase)},
@@ -156,6 +180,15 @@ int GetSearchReplaceString(
 			{DI_BUTTON,0,8,0,8,0,nullptr,nullptr,DIF_CENTERGROUP,MSG(MEditSearchCancel)},
 		};
 		MakeDialogItemsEx(SearchDlgData,SearchDlg);
+
+		if (!pCase)
+			SearchDlg[4].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!pWholeWords)
+			SearchDlg[5].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!pRegexp)
+			SearchDlg[6].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+		if (!pReverse)
+			SearchDlg[7].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 
 		Dialog Dlg(SearchDlg,ARRAYSIZE(SearchDlg));
 		Dlg.SetPosition(-1,-1,76,11);
@@ -177,6 +210,15 @@ int GetSearchReplaceString(
 			Reverse=SearchDlg[7].Selected == BSTATE_CHECKED;
 		}
 	}
+
+	if (pCase)
+		*pCase=Case;
+	if (pWholeWords)
+		*pWholeWords=WholeWords;
+	if (pReverse)
+		*pReverse=Reverse;
+	if (pRegexp)
+		*pRegexp=Regexp;
 
 	return Result;
 }
@@ -205,17 +247,17 @@ static intptr_t WINAPI GetStringDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1
 
 
 int GetString(
-    const wchar_t *Title,
-    const wchar_t *Prompt,
-    const wchar_t *HistoryName,
-    const wchar_t *SrcText,
-    string &strDestText,
-    const wchar_t *HelpTopic,
-    DWORD Flags,
-    int *CheckBoxValue,
-    const wchar_t *CheckBoxText,
-    Plugin* PluginNumber,
-    const GUID* Id
+	const wchar_t *Title,
+	const wchar_t *Prompt,
+	const wchar_t *HistoryName,
+	const wchar_t *SrcText,
+	string &strDestText,
+	const wchar_t *HelpTopic,
+	DWORD Flags,
+	int *CheckBoxValue,
+	const wchar_t *CheckBoxText,
+	Plugin* PluginNumber,
+	const GUID* Id
 )
 {
 	int Substract=5; // дополнительная величина :-)

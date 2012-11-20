@@ -1,3 +1,23 @@
+svs 20.11.2012 11:01:50 +0400 - build 2959
+
+1. Содержимое Edit::Search() перенесено в SearchString()
+
+2. Переделан GetSearchReplaceString()
+   Добавлены парамтры Title и SubTitle
+   Параметры Case, WholeWords, Reverse и Regexp теперь поинтеры.
+   Если один из этих параметров равен nullptr, то соответствующая опция в диалоге переводится в Disable (или надо прятать?)
+
+2. Help: продолжаем мучать поиск.
+   Теперь доступны опции Case, WholeWords и Regexp
+   Первоначальные опции берутся из глобальных значений:
+
+      Case             Global->GlobalSearchCase         (как у редактора)
+      WholeWords       Global->GlobalSearchWholeWords   (как у редактора)
+      Regexp           Global->Opt->HelpSearchRegexp    (самостоятельная, "Help.HelpSearchRegexp" типа Bool)
+
+   Дальше:
+     Необходимо очередную строку файла "очищать" от элементов разметки перед подачей в SearchString()
+
 drkns 19.11.2012 23:08:59 +0200 - build 2958
 
 1. С форума: если в диалоге far:config нажать Enter на булевой величине, то падаем.

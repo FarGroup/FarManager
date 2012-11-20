@@ -42,6 +42,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       true  - если хотим замен€ть
       false - если хотим искать
 
+    Title
+      «аголовок диалога.
+      nullptr -> примен€етс€ MEditReplaceTitle или MEditSearchTitle в зависимости от параметра IsReplaceMode
+
     SearchStr
       —трока поиска.
       –езультат отработки диалога заноситс€ в нее же.
@@ -90,15 +94,18 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 int GetSearchReplaceString(
     bool IsReplaceMode,
+    const wchar_t *Title,
+    const wchar_t *SubTitle,
     string& SearchStr,
     string& ReplaceStr,
     const wchar_t *TextHistoryName,
     const wchar_t *ReplaceHistoryName,
-    bool& Case,
-    bool& WholeWords,
-    bool& Reverse,
-    bool& Regexp,
-    const wchar_t *HelpTopic=nullptr);
+    bool* Case,
+    bool* WholeWords,
+    bool* Reverse,
+    bool* Regexp,
+    const wchar_t *HelpTopic=nullptr
+);
 
 int GetString(
     const wchar_t *Title,

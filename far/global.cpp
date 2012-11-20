@@ -147,7 +147,7 @@ global::~global()
 	delete Window;
 	delete PreRedraw;
 	//delete FS;
-	delete ConsoleIcons; 
+	delete ConsoleIcons;
 	delete TBC;
 	delete ScrBuf;
 	delete Console;

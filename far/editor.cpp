@@ -3700,7 +3700,7 @@ BOOL Editor::Search(int Next)
 			}
 		}
 
-		int DlgResult = GetSearchReplaceString(ReplaceMode, strSearchStr, strReplaceStr, TextHistoryName, ReplaceHistoryName, Case, WholeWords, ReverseSearch,Regexp, L"EditorSearch");
+		int DlgResult = GetSearchReplaceString(ReplaceMode, nullptr, nullptr, strSearchStr, strReplaceStr, TextHistoryName, ReplaceHistoryName, &Case, &WholeWords, &ReverseSearch, &Regexp, L"EditorSearch");
 		if (!DlgResult)
 		{
 			return FALSE;

@@ -2211,6 +2211,7 @@ int Edit::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 */
 int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength)
 {
+#if 0
 	*SearchLength = 0;
 
 	if (Reverse)
@@ -2336,6 +2337,9 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 	}
 
 	return FALSE;
+#else
+	return SearchString(this->Str,Str,ReplaceStr,CurPos,Position,Case,WholeWords,Reverse,Regexp,SearchLength,WordDiv());
+#endif
 }
 
 void Edit::InsertTab()

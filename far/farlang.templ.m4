@@ -18110,14 +18110,14 @@ l:
 "Hľadanie"
 
 MHelpSearchingFor
-"Поиск для"
-"Searching for"
-"Hledání"
-"Suche nach"
-"Keresés:"
-"Znajdź"
-"Buscando por"
-"Hľadám"
+"&Искать"
+"&Search for"
+"&Hledat"
+"&Suchen nach"
+"&Keresés:"
+"&Znajdź"
+"&Buscar por"
+"&Hľadať"
 
 MHelpSearchCannotFind
 "Строка не найдена"

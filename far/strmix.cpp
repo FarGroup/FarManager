@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "RegExp.hpp"
 #include "strmix.hpp"
 #include "language.hpp"
 #include "config.hpp"
@@ -1358,4 +1359,138 @@ string GuidToStr(const GUID& Guid)
 bool StrToGuid(const string& Value,GUID& Guid)
 {
 	return (UuidFromString((unsigned short*)Value.CPtr(),&Guid)==RPC_S_OK)?true:false;
+}
+
+bool SearchString(const string& Source, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength,const wchar_t* WordDiv)
+{
+	int StrSize=StrLength(Source);
+	*SearchLength = 0;
+
+	if (!WordDiv)
+		WordDiv=Global->Opt->strWordDiv;
+
+	if (Reverse)
+	{
+		Position--;
+
+		if (Position>=StrSize)
+			Position=StrSize-1;
+
+		if (Position<0)
+			return false;
+	}
+
+	if ((Position<StrSize || (!Position && !StrSize)) && !Str.IsEmpty())
+	{
+		if (Regexp)
+		{
+			string strSlash(Str);
+			InsertRegexpQuote(strSlash);
+			RegExp re;
+			// Q: что важнее: опция диалога или опция RegExp`а?
+			if (!re.Compile(strSlash, OP_PERLSTYLE|OP_OPTIMIZE|(!Case?OP_IGNORECASE:0)))
+				return false;
+
+			SMatch m[10*2], *pm = m;
+			intptr_t n = re.GetBracketsCount();
+			if (n > static_cast<int>(ARRAYSIZE(m)/2))
+			{
+				pm = (SMatch *)xf_malloc(2*n*sizeof(SMatch));
+				if (!pm)
+					return false;
+			}
+
+			bool found = false;
+			int half = 0;
+			if (!Reverse)
+			{
+				if (re.SearchEx(Source,Source+Position,Source+StrSize,pm,n))
+					found = true;
+			}
+			else
+			{
+				int pos = 0;
+				for (;;)
+				{
+					if (!re.SearchEx(Source,Source+pos,Source+StrSize,pm+half,n))
+						break;
+					pos = static_cast<int>(pm[half].start);
+					if (pos > Position)
+						break;
+
+					found = true;
+					++pos;
+					half = n - half;
+				}
+				half = n - half;
+			}
+			if (found)
+			{
+				*SearchLength = pm[half].end - pm[half].start;
+				CurPos = pm[half].start;
+				ReplaceStr=ReplaceBrackets(Source,ReplaceStr,pm+half,n);
+			}
+			if (pm != m)
+				xf_free(pm);
+
+			return found;
+		}
+
+		if (Position==StrSize)
+			return false;
+
+		int Length = *SearchLength = (int)Str.GetLength();
+
+		for (int I=Position; (Reverse && I>=0) || (!Reverse && I<StrSize); Reverse ? I--:I++)
+		{
+			for (int J=0;; J++)
+			{
+				if (!Str[J])
+				{
+					CurPos=I;
+					return true;
+				}
+
+				if (WholeWords)
+				{
+					int locResultLeft=FALSE;
+					int locResultRight=FALSE;
+					wchar_t ChLeft=Source[I-1];
+
+					if (I>0)
+						locResultLeft=(IsSpace(ChLeft) || wcschr(WordDiv,ChLeft));
+					else
+						locResultLeft=TRUE;
+
+					if (I+Length<StrSize)
+					{
+						wchar_t ChRight=Source[I+Length];
+						locResultRight=(IsSpace(ChRight) || wcschr(WordDiv,ChRight));
+					}
+					else
+					{
+						locResultRight=TRUE;
+					}
+
+					if (!locResultLeft || !locResultRight)
+						break;
+				}
+
+				wchar_t Ch=Source[I+J];
+
+				if (Case)
+				{
+					if (Ch!=Str[J])
+						break;
+				}
+				else
+				{
+					if (Upper(Ch)!=Upper(Str[J]))
+						break;
+				}
+			}
+		}
+	}
+
+	return false;
 }

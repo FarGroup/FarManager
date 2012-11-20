@@ -942,6 +942,7 @@ void InitCFG()
 		{FSSF_EDITOR,        NKeyEditor,L"WordDiv", AddressAndType(Global->Opt->strWordDiv), Default(WordDiv0)},
 
 		{FSSF_PRIVATE,       NKeyHelp,L"ActivateURL", AddressAndType(Global->Opt->HelpURLRules), Default(1)},
+		{FSSF_PRIVATE,       NKeyHelp,L"HelpSearchRegexp", AddressAndType(Global->Opt->HelpSearchRegexp), Default(0)},
 
 		{FSSF_PRIVATE,       NKeyCommandHistory, NParamHistoryCount, AddressAndType(Global->Opt->HistoryCount), Default(1000)},
 		{FSSF_PRIVATE,       NKeyCommandHistory, NParamHistoryLifetime, AddressAndType(Global->Opt->HistoryLifetime), Default(90)},
