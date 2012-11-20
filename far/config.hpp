@@ -342,39 +342,6 @@ struct EditorOptions
 
 	StringOption strWordDiv;
 
-	void Clear()
-	{
-		TabSize = 0;
-		ExpandTabs = 0;
-		PersistentBlocks = 0;
-		DelRemovesBlocks = 0;
-		AutoIndent = 0;
-		AutoDetectCodePage = 0;
-		AnsiCodePageForNewFile = 0;
-		AnsiCodePageAsDefault = 0;
-		CursorBeyondEOL = 0;
-		BSLikeDel = 0;
-		CharCodeBase = 0;
-		SavePos = 0;
-		SaveShortPos = 0;
-		F7Rules = 0;
-		AllowEmptySpaceAfterEof = 0;
-		ReadOnlyLock = 0;
-		UndoSize = 0;
-		UseExternalEditor = 0;
-		ShowKeyBar = 0;
-		ShowTitleBar = 0;
-		ShowScrollBar=0;
-		EditOpenedForWrite=0;
-		SearchSelFound=0;
-		SearchCursorAtEnd=0;
-		SearchRegexp=0;
-		SearchPickUpWord=0;
-		ShowWhiteSpace=0;
-		FileSizeLimitLo = 0;
-		FileSizeLimitHi = 0;
-		strWordDiv.Clear();
-	}
 };
 
 /* $ 29.03.2001 IS
@@ -581,7 +548,7 @@ struct ExecuteOptions
 class Options
 {
 public:
-	Options() {};
+	Options();
 	palette Palette;
 	BoolOption Clock;
 	BoolOption Mouse;

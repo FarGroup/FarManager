@@ -139,6 +139,11 @@ static const WCHAR _BoxSymbols[48+1] =
 	0x0000
 };
 
+Options::Options():
+	ReadOnlyConfig(-1)
+{
+}
+
 
 void SystemSettings()
 {
