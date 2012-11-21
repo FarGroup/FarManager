@@ -1455,14 +1455,14 @@ MConfigCreateUppercaseFolders
 "Vytvárať priečinky s &veľkými písmenami"
 
 MConfigSmartFolderMonitor
-"Обновление панелей только если фар активен"
-upd:"Smart folder panel monitor"
-upd:"Smart folder panel monitor"
-upd:"Smart folder panel monitor"
-upd:"Smart folder panel monitor"
-upd:"Smart folder panel monitor"
-upd:"Smart folder panel monitor"
-upd:"Smart folder panel monitor"
+"Обновление панелей только если Far активен"
+upd:"Update panels only when Far is active"
+upd:"Update panels only when Far is active"
+upd:"Update panels only when Far is active"
+upd:"Update panels only when Far is active"
+upd:"Update panels only when Far is active"
+upd:"Update panels only when Far is active"
+upd:"Update panels only when Far is active"
 
 MConfigSaveHistory
 "Сохранять &историю команд"
@@ -2659,7 +2659,7 @@ MViewConfigSaveShortPos
 "Ukladať &záložky"
 
 MViewConfigSaveCodepage
-"Сохранять ко&дировку файла"
+"Сохранять ко&довую страницу файла"
 "Save file &codepage"
 "Uložit &kódovou stránku u souboru"
 upd:"Save file &codepage"
@@ -2942,7 +2942,7 @@ MEditLockROFileModification
 "&Zamknúť úpravy súborov určených len na čítanie"
 
 MEditWarningBeforeOpenROFile
-"Пре&дупреждать при открытии файла с атрибутом R/O"
+"Пре&дупреждать при открытии файлов с атрибутом R/O"
 "&Warn when opening read-only files"
 "&Varovat při otevření souborů určených jen pro čtení"
 "Beim Öffnen von Dateien mit Schreibschutz &warnen"
