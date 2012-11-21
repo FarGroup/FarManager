@@ -630,7 +630,7 @@ class ExtendedConsoleCore:public ConsoleCore
 {
 public:
 	ExtendedConsoleCore():
-		Module(LoadLibrary(L"extendedGlobal->Console->dll")),
+		Module(LoadLibrary(L"extendedconsole.dll")),
 		ImportsPresent(false)
 	{
 		ClearStruct(Imports);
