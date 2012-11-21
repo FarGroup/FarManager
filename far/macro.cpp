@@ -5085,9 +5085,9 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 					{
 						//SelPanel->Show();
 						// <Mantis#0000289> - грозно, но со вкусом :-)
-						//ShellUpdatePanels(SelPanel);
-						SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
-						FrameManager->RefreshFrame(FrameManager->GetTopModal());
+						ShellUpdatePanels(SelPanel);
+						//SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
+						//FrameManager->RefreshFrame(FrameManager->GetTopModal());
 						// </Mantis#0000289>
 
 						if ( !InSelection )
