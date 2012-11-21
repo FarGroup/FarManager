@@ -184,16 +184,6 @@ MSplit
 "Dividir"
 "Rozdeliť"
 
-MRemove
-"Удалить"
-"Remove"
-"Odstranit"
-"Entfernen"
-"Eltávolít"
-"Usuń"
-"Remover"
-"Odstrániť"
-
 MHCancel
 l:
 "&Отмена"
