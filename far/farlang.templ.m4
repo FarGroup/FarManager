@@ -1394,16 +1394,6 @@ l:
 "Configuración de sistema"
 "Systémové nastavenia"
 
-MConfigRO
-"&Снимать атрибут R/O c CD файлов"
-"&Clear R/O attribute from CD files"
-"Z&rušit atribut R/O u souborů z CD"
-"Schreibschutz von CD-Dateien ent&fernen"
-"&Csak olvasható attr. törlése CD fájlokról"
-"Wyczyść atrybut &R/O przy kopiowaniu z CD"
-"&Borrar atributos R/O de archivos de CD\DVD\BD"
-"Z&rušiť atribút R/O pri súboroch z CD"
-
 MConfigRecycleBin
 "Удалять в &Корзину"
 "&Delete to Recycle Bin"
