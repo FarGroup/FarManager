@@ -5083,9 +5083,9 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 
 					if (idxItem != -1 && SelPanel->GoToFile(idxItem))
 					{
-						//SelPanel->Show();
+						SelPanel->Show();
 						// <Mantis#0000289> - грозно, но со вкусом :-)
-						ShellUpdatePanels(SelPanel);
+						//ShellUpdatePanels(SelPanel);
 						//SelPanel->UpdateIfChanged(UIC_UPDATE_NORMAL);
 						//FrameManager->RefreshFrame(FrameManager->GetTopModal());
 						// </Mantis#0000289>
