@@ -4038,7 +4038,7 @@ static bool menushowFunc(FarMacroCall* Data)
 
 	if (!VFindOrFilter.isUnknown() && !bSetMenuFilter)
 	{
-		if (VFindOrFilter.isInteger())
+		if (VFindOrFilter.isInteger() || VFindOrFilter.isDouble())
 		{
 			if (VFindOrFilter.toInteger()-1>=0)
 				Menu.SetSelectPos(VFindOrFilter.toInteger()-1,1);
