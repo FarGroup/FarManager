@@ -1025,7 +1025,6 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 
 	if(RunAs && RunAsSupported(seInfo.lpFile))
 	{
-		SetCurrentDirectory(seInfo.lpDirectory);
 		seInfo.lpVerb = L"runas";
 	}
 
