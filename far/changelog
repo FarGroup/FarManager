@@ -1,3 +1,8 @@
+shmuel 23.11.2012 11:51:43 +0200 - build 2971
+
+1. Plugins API: в функциях GetDirList и FSF.FarRecursiveSearch некоторые поля структуры PluginPanelItem
+   содержали мусор.
+
 shmuel 22.11.2012 19:58:34 +0200 - build 2970
 
 1. Из форума: Menu.Show(Items,"",0x8+0x80,Idx) не происходит позиционирование на пункт с номером Idx.
