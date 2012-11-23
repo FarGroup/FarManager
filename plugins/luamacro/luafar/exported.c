@@ -230,6 +230,8 @@ void WINAPI FarPanelItemFreeCallback(void* UserData, const struct FarPanelItemFr
 // input table is on stack top (-1)
 void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int CollectorPos)
 {
+	memset(pi, 0, sizeof(*pi));
+
 	pi->CreationTime      = GetFileTimeFromTable(L, "CreationTime");
 	pi->LastAccessTime    = GetFileTimeFromTable(L, "LastAccessTime");
 	pi->LastWriteTime     = GetFileTimeFromTable(L, "LastWriteTime");
@@ -285,7 +287,6 @@ void FillFindData(lua_State* L, struct PluginPanelItem **pPanelItems,
 	lua_pushvalue(L,-1);                       //+4: Tbl,FindData,Coll,Coll
 	lua_setfield(L, -4, Collector);            //+3: Tbl,FindData,Coll
 	ppi = (struct PluginPanelItem *)malloc(sizeof(struct PluginPanelItem) * numLines);
-	memset(ppi, 0, numLines*sizeof(struct PluginPanelItem));
 
 	for(i=1; i<=numLines; i++)
 	{
