@@ -228,23 +228,39 @@ void WINAPI FarPanelItemFreeCallback(void* UserData, const struct FarPanelItemFr
 }
 
 // input table is on stack top (-1)
-// collector table is one under the top (-2)
-void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi)
+void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int CollectorPos)
 {
-	pi->FileAttributes = GetAttrFromTable(L);
-	pi->CreationTime   = GetFileTimeFromTable(L, "CreationTime");
-	pi->LastAccessTime = GetFileTimeFromTable(L, "LastAccessTime");
-	pi->LastWriteTime  = GetFileTimeFromTable(L, "LastWriteTime");
-	pi->FileSize = GetFileSizeFromTable(L, "FileSize");
-	pi->AllocationSize = GetFileSizeFromTable(L, "AllocationSize");
-	pi->FileName = (wchar_t*)AddStringToCollectorField(L,-2,"FileName");
-	pi->AlternateFileName = (wchar_t*)AddStringToCollectorField(L,-2,"AlternateFileName");
-	pi->Flags = GetFlagsFromTable(L, -1, "Flags");
-	pi->NumberOfLinks = GetOptIntFromTable(L, "NumberOfLinks", 0);
-	pi->Description = (wchar_t*)AddStringToCollectorField(L, -2, "Description");
-	pi->Owner = (wchar_t*)AddStringToCollectorField(L, -2, "Owner");
-	lua_getfield(L, -1, "UserData");
+	pi->CreationTime      = GetFileTimeFromTable(L, "CreationTime");
+	pi->LastAccessTime    = GetFileTimeFromTable(L, "LastAccessTime");
+	pi->LastWriteTime     = GetFileTimeFromTable(L, "LastWriteTime");
+	pi->ChangeTime        = GetFileTimeFromTable(L, "ChangeTime");
+	pi->FileSize          = GetFileSizeFromTable(L, "FileSize");
+	pi->AllocationSize    = GetFileSizeFromTable(L, "AllocationSize");
+	pi->Flags             = GetFlagsFromTable(L, -1, "Flags");
+	pi->NumberOfLinks     = GetOptIntFromTable(L, "NumberOfLinks", 0);
+	pi->CRC32             = GetOptIntFromTable(L, "CRC32", 0);
+	pi->FileAttributes    = GetAttrFromTable(L);
 
+  if (CollectorPos != 0)
+  {
+    pi->FileName          = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "FileName");
+    pi->AlternateFileName = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "AlternateFileName");
+    pi->Description       = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "Description");
+    pi->Owner             = (wchar_t*)AddStringToCollectorField(L, CollectorPos, "Owner");
+  }
+  else
+  {
+    lua_getfield(L, -1, "FileName");                     // +1
+    pi->FileName = opt_utf8_string(L, -1, L"");
+    lua_getfield(L, -2, "AlternateFileName");            // +2
+    pi->AlternateFileName = opt_utf8_string(L, -1, L"");
+    lua_getfield(L, -2, "Description");                  // +3
+    pi->Description = opt_utf8_string(L, -1, L"");
+    lua_getfield(L, -2, "Owner");                        // +4
+    pi->Owner = opt_utf8_string(L, -1, L"");
+  }
+
+  lua_getfield(L, -1, "UserData");
 	if(!lua_isnil(L, -1))
 	{
 		FarPanelItemUserData* ud = (FarPanelItemUserData*)malloc(sizeof(FarPanelItemUserData));
@@ -278,7 +294,7 @@ void FillFindData(lua_State* L, struct PluginPanelItem **pPanelItems,
 
 		if(lua_istable(L,-1))
 		{
-			FillPluginPanelItem(L, ppi+num);
+			FillPluginPanelItem(L, ppi+num, -2);
 			++num;
 		}
 

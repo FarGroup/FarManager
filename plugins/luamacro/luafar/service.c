@@ -35,6 +35,7 @@ extern int  pcall_msg(lua_State* L, int narg, int nret);
 extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
 extern void push_flags_table(lua_State *L);
 extern void SetFarColors(lua_State *L);
+extern void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int CollectorPos);
 extern void WINAPI FarPanelItemFreeCallback(void* UserData, const struct FarPanelItemFreeInfo* Info);
 extern int far_MacroCallFar(lua_State *L);
 
@@ -390,52 +391,29 @@ static void FillEditorSetPosition(lua_State *L, struct EditorSetPosition *esp)
 	esp->Overtype  = GetOptIntFromTable(L, "Overtype", -1);
 }
 
-// table is on stack top
-static void PutFarFindData(lua_State *L, const struct PluginPanelItem *PanelItem)
-{
-	PutAttrToTable(L, (int)PanelItem->FileAttributes);
-	PutNumToTable(L, "FileSize", (double)PanelItem->FileSize);
-	PutFileTimeToTable(L, "LastWriteTime",      PanelItem->LastWriteTime);
-	PutFileTimeToTable(L, "LastAccessTime",     PanelItem->LastAccessTime);
-	PutFileTimeToTable(L, "CreationTime",       PanelItem->CreationTime);
-	PutWStrToTable(L, "FileName",           PanelItem->FileName, -1);
-	PutWStrToTable(L, "AlternateFileName",  PanelItem->AlternateFileName, -1);
-	PutNumToTable(L, "AllocationSize", (double)PanelItem->AllocationSize);
-}
-
-// on entry : the table's on the stack top
-// on exit  : 2 strings added to the stack top (don't pop them!)
-static void GetFarFindData(lua_State *L, struct PluginPanelItem *PanelItem)
-{
-	//memset(PanelItem, 0, sizeof(*PanelItem)); //TODO
-	PanelItem->FileAttributes = GetAttrFromTable(L);
-	PanelItem->FileSize = GetFileSizeFromTable(L, "FileSize");
-	PanelItem->AllocationSize = GetFileSizeFromTable(L, "AllocationSize");
-	PanelItem->LastWriteTime  = GetFileTimeFromTable(L, "LastWriteTime");
-	PanelItem->LastAccessTime = GetFileTimeFromTable(L, "LastAccessTime");
-	PanelItem->CreationTime   = GetFileTimeFromTable(L, "CreationTime");
-	lua_getfield(L, -1, "FileName"); // +1
-	PanelItem->FileName = opt_utf8_string(L, -1, L""); // +1
-	lua_getfield(L, -2, "AlternateFileName"); // +2
-	PanelItem->AlternateFileName = opt_utf8_string(L, -1, L""); // +2
-}
-//---------------------------------------------------------------------------
-
 void PushPanelItem(lua_State *L, const struct PluginPanelItem *PanelItem)
 {
-	lua_createtable(L, 0, 11); // "PanelItem"
+	lua_createtable(L, 0, 16); // "PanelItem"
 	//-----------------------------------------------------------------------
-	PutFarFindData(L, PanelItem);
-	PutFlagsToTable(L, "Flags", PanelItem->Flags);
-	PutNumToTable(L, "NumberOfLinks", (double)PanelItem->NumberOfLinks);
+	PutFileTimeToTable (L, "CreationTime",      PanelItem->CreationTime);
+	PutFileTimeToTable (L, "LastAccessTime",    PanelItem->LastAccessTime);
+	PutFileTimeToTable (L, "LastWriteTime",     PanelItem->LastWriteTime);
+	PutFileTimeToTable (L, "ChangeTime",        PanelItem->ChangeTime);
+	PutNumToTable      (L, "FileSize",          (double)PanelItem->FileSize);
+	PutNumToTable      (L, "AllocationSize",    (double)PanelItem->AllocationSize);
+	PutWStrToTable     (L, "FileName",          PanelItem->FileName, -1);
+	PutWStrToTable     (L, "AlternateFileName", PanelItem->AlternateFileName, -1);
+	PutFlagsToTable    (L, "Flags",             PanelItem->Flags);
+	PutNumToTable      (L, "NumberOfLinks",     (double)PanelItem->NumberOfLinks);
+	PutNumToTable      (L, "CRC32",             (double)PanelItem->CRC32);
+
+  PutAttrToTable(L, (int)PanelItem->FileAttributes);
 
 	if(PanelItem->Description)
-		PutWStrToTable(L, "Description",  PanelItem->Description, -1);
+		PutWStrToTable(L, "Description", PanelItem->Description, -1);
 
 	if(PanelItem->Owner)
-		PutWStrToTable(L, "Owner",  PanelItem->Owner, -1);
-
-	//-----------------------------------------------------------------------
+		PutWStrToTable(L, "Owner", PanelItem->Owner, -1);
 
 	/* not clear why custom columns are defined on per-file basis */
 	if(PanelItem->CustomColumnNumber > 0)
@@ -449,10 +427,9 @@ void PushPanelItem(lua_State *L, const struct PluginPanelItem *PanelItem)
 		lua_setfield(L, -2, "CustomColumnData");
 	}
 
-	//-----------------------------------------------------------------------
 	if(PanelItem->UserData.Data && PanelItem->UserData.FreeData==FarPanelItemFreeCallback)
 	{
-		// This is the panel of a LuaFAR plugin
+		// This is a panel of a LuaFAR plugin
 		FarPanelItemUserData* ud = (FarPanelItemUserData*)PanelItem->UserData.Data;
 
 		if(ud->L == L)
@@ -2341,8 +2318,7 @@ static int far_GetDirList(lua_State *L)
 
 		for(i=0; i < (int)ItemsNumber; i++)
 		{
-			lua_createtable(L, 0, 8);
-			PutFarFindData(L, PanelItems + i);
+			PushPanelItem(L, PanelItems + i);
 			lua_rawseti(L, -2, i+1);
 		}
 
@@ -3922,8 +3898,7 @@ static int WINAPI FrsUserFunc(const struct PluginPanelItem *FData, const wchar_t
 	int err, proceed;
 	lua_State *L = (lua_State*) Param;
 	lua_pushvalue(L, 3); // push the Lua function
-	lua_createtable(L, 0, 8);
-	PutFarFindData(L, FData);
+	PushPanelItem(L, FData);
 	push_utf8_string(L, FullName, -1);
 	err = lua_pcall(L, 2, 1, 0);
 	proceed = !(err || lua_toboolean(L, -1));
@@ -4526,13 +4501,13 @@ static int filefilter_Starting(lua_State *L)
 
 static int filefilter_IsFileInFilter(lua_State *L)
 {
-	struct PluginPanelItem ffd;
+	struct PluginPanelItem ppi;
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE h = CheckValidFileFilter(L, 1);
 	luaL_checktype(L, 2, LUA_TTABLE);
-	lua_settop(L, 2);         // +2
-	GetFarFindData(L, &ffd);  // +4
-	lua_pushboolean(L, Info->FileFilterControl(h, FFCTL_ISFILEINFILTER, 0, &ffd) != 0);
+	lua_settop(L, 2);                // +2
+  FillPluginPanelItem(L, &ppi, 0); // +6
+  lua_pushboolean(L, Info->FileFilterControl(h, FFCTL_ISFILEINFILTER, 0, &ppi) != 0);
 	return 1;
 }
 
