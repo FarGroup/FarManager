@@ -1,3 +1,8 @@
+w17 23.11.2012 18:15:56 +0400 - build 2972
+
+1. Продолжение 2791
+   Не работали [System Properties] в диалоге атрибутов файла на старых версиях Windows
+
 shmuel 23.11.2012 11:51:43 +0200 - build 2971
 
 1. Plugins API: в функциях GetDirList и FSF.FarRecursiveSearch некоторые поля структуры PluginPanelItem

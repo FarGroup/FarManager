@@ -1604,14 +1604,16 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				SHELLEXECUTEINFOW seInfo={sizeof(seInfo)};
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
-				// "\\?\c:\" fails on old windows
-				bool Root;
-				string strFullName((ParsePath(strSelName, nullptr, &Root) == PATH_DRIVELETTER && Root)?strSelName:NTPath(strSelName));
+				string strFullName = NTPath(strSelName);
 				if(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 				{
 					AddEndSlash(strFullName);
 				}
 				seInfo.lpFile = strFullName;
+				if (Global->WinVer() < _WIN32_WINNT_VISTA && HasPathPrefix(seInfo.lpFile))
+				{	// "\\?\c:\..." fails on old windows
+					seInfo.lpFile += 4;
+				}
 				seInfo.lpVerb = L"properties";
 				string strCurDir;
 				apiGetCurrentDirectory(strCurDir);
