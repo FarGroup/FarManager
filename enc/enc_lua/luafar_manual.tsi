@@ -2092,7 +2092,7 @@ id=53
 lv=2
 dt=Text
 nm=far.GetDirList
-mtime=3478185727
+mtime=3562834626
 <article>
 #_list = far.GetDirList (dir)
 #_
@@ -2100,14 +2100,14 @@ mtime=3478185727
 #_  dir:  string
 #_
 #_**Returns:**
-#_  list: array of FindData tables, or nil
+#_  list: array of PluginPanelItem tables, or nil
 #_
 #_**Far API used:**
 #_  GetDirList, FreeDirList
 #_
 #_
 #_@@@
-#_<lua> Links = { FindData="90.html" } </lua>
+#_<lua> Links = { PluginPanelItem="85.html" } </lua>
 #_
 </article>
 </node>
@@ -5562,13 +5562,13 @@ lv=2
 dt=Text
 nm=f:IsFileInFilter
 ctime=3480243336
-mtime=3480252400
+mtime=3562834694
 <article>
 #_result = f:IsFileInFilter (fileData)
 #_
 #_**Parameters:**
 #_  f:        file filter object
-#_  fileData: table FindData
+#_  fileData: table PluginPanelItem
 #_
 #_**Returns:**
 #_  result:  boolean
@@ -5577,7 +5577,7 @@ mtime=3480252400
 #_  FileFilterControl, FFCTL_ISFILEINFILTER
 #_
 #_@@@
-#_<lua> Links = { ["\\bFindData\\b"]="90.html", } </lua>
+#_<lua> Links = { PluginPanelItem="85.html", } </lua>
 #_
 </article>
 </node>
@@ -6812,7 +6812,7 @@ id=211
 lv=2
 dt=Text
 nm=far.RecursiveSearch
-mtime=3532787219
+mtime=3562834734
 <article>
 #_far.RecursiveSearch (InitDir, Mask, UserFunc [, Flags])
 #_
@@ -6828,7 +6828,7 @@ mtime=3532787219
 #_**Description:**
 #_  On every file found, *UserFunc* is called with 2 arguments
 #_  passed to it:
-#_      (1) a FindData table, and
+#_      (1) a PluginPanelItem table, and
 #_      (2) the full pathname of the found file.
 #_  If *UserFunc* returns *true* then the search is stopped.
 #_
@@ -6836,7 +6836,7 @@ mtime=3532787219
 #_  FSF.FarRecursiveSearch
 #_
 #_@@@
-#_<lua> Links = { FindData="90.html" } </lua>
+#_<lua> Links = { PluginPanelItem="85.html" } </lua>
 #_
 </article>
 </node>
@@ -7766,50 +7766,6 @@ mtime=3534535770
 </article>
 </node>
 <node>
-id=90
-lv=2
-dt=Text
-nm=FindData
-mtime=3532170865
-<article>
-#_<markdown>
-#_**`FindData`** is a table with the following predefined fields:
-#_
-#_      FileAttributes:     string
-#_      LastWriteTime:      number
-#_      LastAccessTime:     number
-#_      CreationTime:       number
-#_      FileSize:           number
-#_      PackSize:           number
-#_      FileName:           string
-#_      AlternateFileName:  string
-#_
-#_###Notes
-#_
-#_1. **`FileAttributes`** is a string of concatenated attribute
-#_letters (see below). If a letter representing some attribute
-#_is present in the string, that means the corresponding attribute
-#_is set, otherwise it is not.
-#_
-#_          a - archive
-#_          c - compressed
-#_          d - directory
-#_          e - reparse point
-#_          h - hidden
-#_          o - offline
-#_          p - sparse file
-#_          r - read only
-#_          s - system file
-#_          t - temporary
-#_
-#_1. **`LastWriteTime`**, **`LastAccessTime`** and **`CreationTime`**
-#_are values measured in number of milliseconds elapsed since
-#_January 1, 1601.
-#_
-#_
-</article>
-</node>
-<node>
 id=120
 lv=2
 dt=Text
@@ -7949,25 +7905,52 @@ id=85
 lv=2
 dt=Text
 nm=PluginPanelItem
-mtime=3557232725
+mtime=3562835590
 <article>
 #_<markdown>
 #_**`PluginPanelItem`** is a table with the following predefined fields:
 #_
-#_      FileAttributes:     string
 #_      LastWriteTime:      number
 #_      LastAccessTime:     number
 #_      CreationTime:       number
+#_      ChangeTime:         number
+#_
 #_      FileSize:           number
 #_      AllocationSize:     number
+#_
 #_      FileName:           string
 #_      AlternateFileName:  string
+#_
+#_      FileAttributes:     string
 #_      Flags:              flags
 #_      NumberOfLinks:      integer
-#_      Description:        string
-#_      Owner:              string
+#_      CRC32:              integer
+#_      Description:        string, or nil
+#_      Owner:              string, or nil
 #_      CustomColumnData:   table, or nil
 #_      UserData:           any type
+#_
+#_###Notes
+#_
+#_1. **`FileAttributes`** is a string of concatenated attribute
+#_letters (see below). If a letter representing some attribute
+#_is present in the string, that means the corresponding attribute
+#_is set, otherwise it is not.
+#_
+#_          a - archive
+#_          c - compressed
+#_          d - directory
+#_          e - reparse point
+#_          h - hidden
+#_          o - offline
+#_          p - sparse file
+#_          r - read only
+#_          s - system file
+#_          t - temporary
+#_
+#_1. **`LastWriteTime`**, **`LastAccessTime`**, **`CreationTime`**
+#_and **`ChangeTime`** are values measured in number of milliseconds
+#_elapsed since January 1, 1601.
 #_
 #_@@@
 #_
@@ -8534,7 +8517,7 @@ lv=2
 dt=Text
 nm=win.GetFileAttr
 ctime=3511264574
-mtime=3511269317
+mtime=3562834802
 <article>
 #_attr = win.GetFileAttr (FileName)
 #_
@@ -8542,13 +8525,13 @@ mtime=3511269317
 #_  FileName: string
 #_
 #_**Returns:**
-#_  attr:     string (see FindData page), or nil
+#_  attr:     string (see PluginPanelItem page), or nil
 #_
 #_**Windows API used:**
 #_  GetFileAttributesW
 #_
 #_@@@
-#_<lua>Links = { FindData="90.html", }</lua>
+#_<lua>Links = { PluginPanelItem="85.html", }</lua>
 #_
 </article>
 </node>
@@ -8557,7 +8540,7 @@ id=213
 lv=2
 dt=Text
 nm=win.GetFileInfo
-mtime=3536353869
+mtime=3562834993
 <article>
 #_<markdown>
 #_    Info = win.GetFileInfo (FileName)
@@ -8568,7 +8551,7 @@ mtime=3536353869
 #_   wildcard characters (`*` and `?`)
 #_
 #_###Returns
-#_  **`Info`**: `FindData` table, or nil
+#_  **`Info`**: `PluginPanelItem` table, or nil
 #_
 #_###Description
 #_  This function provides information about the specified file.
@@ -8582,7 +8565,7 @@ mtime=3536353869
 #_@@@
 #_<lua>
 #_Links = {
-#_  FindData="90.html",
+#_  PluginPanelItem="85.html",
 #_  ["far.RecursiveSearch"]="211.html"
 #_}
 #_</lua>
@@ -8954,13 +8937,13 @@ lv=2
 dt=Text
 nm=win.SetFileAttr
 ctime=3511264583
-mtime=3511265301
+mtime=3562835062
 <article>
 #_result = win.SetFileAttr (FileName, Attr)
 #_
 #_**Parameters:**
 #_  FileName: string
-#_  Attr:     string (see FindData page)
+#_  Attr:     string (see PluginPanelItem page)
 #_
 #_**Returns:**
 #_  result:   boolean
@@ -8969,7 +8952,7 @@ mtime=3511265301
 #_  SetFileAttributesW
 #_
 #_@@@
-#_<lua>Links = { FindData="90.html", }</lua>
+#_<lua>Links = { PluginPanelItem="85.html", }</lua>
 #_
 </article>
 </node>
