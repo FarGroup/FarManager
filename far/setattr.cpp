@@ -1604,7 +1604,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 				SHELLEXECUTEINFOW seInfo={sizeof(seInfo)};
 				seInfo.nShow = SW_SHOW;
 				seInfo.fMask = SEE_MASK_INVOKEIDLIST;
-				string strFullName = NTPath(strSelName);
+				NTPath strFullName(strSelName);
 				if(FindData.dwFileAttributes&FILE_ATTRIBUTE_DIRECTORY)
 				{
 					AddEndSlash(strFullName);
