@@ -1610,7 +1610,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					AddEndSlash(strFullName);
 				}
 				seInfo.lpFile = strFullName;
-				if (Global->WinVer() < _WIN32_WINNT_VISTA && HasPathPrefix(seInfo.lpFile))
+				if (Global->WinVer() < _WIN32_WINNT_VISTA && ParsePath(seInfo.lpFile) == PATH_DRIVELETTERUNC)
 				{	// "\\?\c:\..." fails on old windows
 					seInfo.lpFile += 4;
 				}
