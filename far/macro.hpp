@@ -46,7 +46,8 @@ enum {
 	constMsButton     = 2,
 	constMsCtrlState  = 3,
 	constMsEventFlags = 4,
-	constMsLAST       = 5,
+	constMsLastCtrlState = 5,
+	constMsLAST       = 6,
 };
 
 enum MACRODISABLEONLOAD

@@ -577,8 +577,7 @@ void PushAttrString(lua_State *L, int attr)
 
 	if(attr & FILE_ATTRIBUTE_REPARSE_POINT) *p++ = 'e';
 
-	*p = '\0';
-	lua_pushstring(L, buf);
+	lua_pushlstring(L, buf, p-buf);
 }
 
 void PutAttrToTable(lua_State *L, int attr)

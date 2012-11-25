@@ -199,6 +199,7 @@ local prop_Mouse = {
   Button     = function() return MacroCallFar(0x80436) end,
   CtrlState  = function() return MacroCallFar(0x80437) end,
   EventFlags = function() return MacroCallFar(0x80438) end,
+  LastCtrlState = function() return MacroCallFar(0x80439) end,
 }
 
 local prop_Viewer = {

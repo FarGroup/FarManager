@@ -217,6 +217,7 @@ enum MACRO_OP_CODE
 	MCODE_C_MSBUTTON,                 // "MsButton"
 	MCODE_C_MSCTRLSTATE,              // "MsCtrlState"
 	MCODE_C_MSEVENTFLAGS,             // "MsEventFlags"
+	MCODE_C_MSLASTCTRLSTATE,          // "MsLastCtrlState"
 
 
 	/* ************************************************************************* */

@@ -1294,6 +1294,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(C_MSBUTTON),                 // "MsButton"
 		DEF_MCODE_(C_MSCTRLSTATE),              // "MsCtrlState"
 		DEF_MCODE_(C_MSEVENTFLAGS),             // "MsEventFlags"
+		DEF_MCODE_(C_MSLASTCTRLSTATE),          // "MsLastCtrlState"
 		DEF_MCODE_(V_FAR_WIDTH),                // Far.Width - ширина консольного окна
 		DEF_MCODE_(V_FAR_HEIGHT),               // Far.Height - высота консольного окна
 		DEF_MCODE_(V_FAR_TITLE),                // Far.Title - текущий заголовок консольного окна

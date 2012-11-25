@@ -1086,6 +1086,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		IntKeyState.AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));
 		IntKeyState.RightCtrlPressed=(CtrlState & RIGHT_CTRL_PRESSED);
 		IntKeyState.RightAltPressed=(CtrlState & RIGHT_ALT_PRESSED);
+		KeyMacro::SetMacroConst(constMsLastCtrlState,(__int64)CtrlState);
 
 		// Äëÿ NumPad!
 		if ((CalcKey&(KEY_CTRL|KEY_SHIFT|KEY_ALT|KEY_RCTRL|KEY_RALT)) == KEY_SHIFT &&
@@ -1273,6 +1274,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		DWORD CtrlState=rec->Event.MouseEvent.dwControlKeyState;
 		KeyMacro::SetMacroConst(constMsCtrlState,(__int64)CtrlState);
 		KeyMacro::SetMacroConst(constMsEventFlags,(__int64)IntKeyState.MouseEventFlags);
+		KeyMacro::SetMacroConst(constMsLastCtrlState,(__int64)CtrlState);
 
 		IntKeyState.CtrlPressed=(CtrlState & (LEFT_CTRL_PRESSED|RIGHT_CTRL_PRESSED));
 		IntKeyState.AltPressed=(CtrlState & (LEFT_ALT_PRESSED|RIGHT_ALT_PRESSED));

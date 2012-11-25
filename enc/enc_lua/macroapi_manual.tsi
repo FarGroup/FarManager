@@ -848,22 +848,26 @@ lv=2
 dt=Text
 nm=Mouse
 ctime=3553790262
-mtime=3553790356
+mtime=3563003357
 <article>
 #_**Mouse** - таблица со следующими полями:
 #_
 #_**Свойства:**
 #_
-#_  X:           number
-#_  Y:           number 
-#_  Button:      number
-#_  CtrlState:   number
-#_  EventFlags:  number
+#_  X:              number
+#_  Y:              number 
+#_  Button:         number
+#_  CtrlState:      number
+#_  EventFlags:     number
+#_  LastCtrlState:  number
 #_
 #_**Функции:**
 #_
 #_  Нет.
 #_
+#_**Примечание:**
+#_
+#_  Mouse.LastCtrlState обновляется как по событиям от мыши, так и по клавиатурным событиям.
 #_
 </article>
 </node>
