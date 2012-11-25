@@ -59,7 +59,8 @@ int GetSearchReplaceString(
 	bool* pWholeWords,
 	bool* pReverse,
 	bool* pRegexp,
-	const wchar_t *HelpTopic)
+	const wchar_t *HelpTopic,
+	bool HideAll)
 {
 	int Result = 0;
 
@@ -189,6 +190,9 @@ int GetSearchReplaceString(
 			SearchDlg[6].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
 		if (!pReverse)
 			SearchDlg[7].Flags |= DIF_DISABLE; // DIF_HIDDEN ??
+
+		if (HideAll)
+			SearchDlg[10].Flags |= DIF_HIDDEN;
 
 		Dialog Dlg(SearchDlg,ARRAYSIZE(SearchDlg));
 		Dlg.SetPosition(-1,-1,76,11);

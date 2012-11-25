@@ -104,7 +104,8 @@ int GetSearchReplaceString(
     bool* WholeWords,
     bool* Reverse,
     bool* Regexp,
-    const wchar_t *HelpTopic=nullptr
+    const wchar_t *HelpTopic=nullptr,
+    bool HideAll=false
 );
 
 int GetString(

@@ -1,3 +1,7 @@
+svs 25.11.2012 20:06:39 +0400 - build 2975
+
+1. Уточнение GetSearchReplaceString - скрываем кнопку All.
+
 shmuel 25.11.2012 10:44:34 +0200 - build 2974
 
 1. Macro API: добавлено свойство Mouse.LastCtrlState, которое (в отличие от Mouse.CtrlState)
