@@ -1427,7 +1427,7 @@ int Viewer::ProcessKey(int Key)
 		{
 			if (SelectSize >= 0 && ViewFile.Opened())
 			{
-				wchar_t *SelData = (wchar_t*)xf_malloc(((size_t)SelectSize+1)*2);
+				wchar_t *SelData = (wchar_t*)xf_malloc(((size_t)SelectSize+1)*sizeof(wchar_t));
 				if ( SelData )
 				{
 					__int64 CurFilePos=vtell();
