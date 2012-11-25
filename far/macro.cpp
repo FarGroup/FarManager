@@ -189,7 +189,8 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_EDITOR_INSSTR=0x%X // N=Editor.InsStr([S[,Line]])\n", MCODE_F_EDITOR_INSSTR);
 	fprintf(fp, "MCODE_F_EDITOR_SETSTR=0x%X // N=Editor.SetStr([S[,Line]])\n", MCODE_F_EDITOR_SETSTR);
 	fprintf(fp, "MCODE_F_GETMACROSRC=0x%X // Получение кода макроса для Eval(S,2)\n", MCODE_F_GETMACROSRC);
-	fprintf(fp, "MCODE_F_READVARSCONSTS=0x%X // Загрузка переменных и констант\n", MCODE_F_READVARSCONSTS);
+	fprintf(fp, "MCODE_F_READCONSTS=0x%X // Загрузка констант\n", MCODE_F_READCONSTS);
+	fprintf(fp, "MCODE_F_GETVARVALUE=0x%X // Получение значения переменной\n", MCODE_F_GETVARVALUE);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
@@ -1934,7 +1935,7 @@ static bool xlatFunc(FarMacroCall*);
 static bool pluginloadFunc(FarMacroCall*);
 static bool pluginunloadFunc(FarMacroCall*);
 static bool pluginexistFunc(FarMacroCall*);
-static bool ReadVarsConsts(FarMacroCall*);
+static bool ReadConsts(FarMacroCall*);
 
 static int PassString (const wchar_t* str, FarMacroCall* Data)
 {
@@ -2801,7 +2802,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_XLAT:            return xlatFunc(Data);
 		case MCODE_F_PROMPT:          return promptFunc(Data);
 
-		case MCODE_F_READVARSCONSTS:  return ReadVarsConsts(Data);
+		case MCODE_F_READCONSTS:      return ReadConsts(Data);
 
 		case MCODE_F_GETMACROSRC: // Получение кода макроса для Eval(S,2).
 		{
@@ -2869,6 +2870,18 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				}
 			}
 			PassBoolean(0, Data);
+			return 0;
+		}
+
+		case MCODE_F_GETVARVALUE: // Получить из базы данных значение текстовой переменной по её имени
+		{
+			string strValue,strType;
+			if (Data->Count>=1 && Data->Values[0].Type==FMVT_STRING &&
+					Global->Db->MacroCfg()->GetVarValue(Data->Values[0].String,strValue,strType) && strType==L"text")
+				PassString(strValue,Data);
+			else
+				PassBoolean(0,Data);
+
 			return 0;
 		}
 
@@ -5907,19 +5920,12 @@ static bool testfolderFunc(FarMacroCall* Data)
 	return Ret?true:false;
 }
 
-static bool ReadVarsConsts (FarMacroCall* Data)
+static bool ReadConsts (FarMacroCall* Data)
 {
-	parseParams(1,Params,Data);
 	string strName;
 	string Value, strType;
-	bool received = false;
 
-	if (!StrCmp(Params[0].s(), L"consts"))
-		received = Global->Db->MacroCfg()->EnumConsts(strName, Value, strType);
-	else if (!StrCmp(Params[0].s(), L"vars"))
-		received = Global->Db->MacroCfg()->EnumVars(strName, Value, strType);
-
-	if (received)
+	if (Global->Db->MacroCfg()->EnumConsts(strName, Value, strType))
 	{
 		PassString(strName,Data);
 		PassString(Value,Data);

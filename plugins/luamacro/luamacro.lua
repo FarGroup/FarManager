@@ -208,9 +208,9 @@ function export.Open (OpenFrom, ...)
   end
 end
 
-local function ReadVarsConsts (region)
+local function ReadConsts()
   while true do
-    local sName,sValue,sType = far.MacroCallFar(0x80C65,region)
+    local sName,sValue,sType = far.MacroCallFar(0x80C65)
     if not sName then break end
     if _G[sName] == nil then -- protect existing globals
       if     sType=="text"    then _G[sName]=sValue
@@ -235,6 +235,15 @@ local function AddCfindFunction()
   end
 end
 
+local function DBLoader (name)
+  local str = far.MacroCallFar(0x80C66,name)
+  if str then
+    local f, msg = loadstring(str, name)
+    return f or msg
+  end
+  return ("\n\tRecord '%s' not found in database"):format(name)
+end
+
 do
   local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."api.lua")
   if func then
@@ -248,6 +257,6 @@ do
   end
 
   AddCfindFunction()
-  ReadVarsConsts("consts")
-  ReadVarsConsts("vars")
+  ReadConsts()
+  table.insert(package.loaders, 2, DBLoader)
 end

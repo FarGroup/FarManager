@@ -1,3 +1,11 @@
+shmuel 25.11.2012 19:39:47 +0200 - build 40
+
+1. Экспериментально: использование секции "farconfig/macros/variables" базы данных для Lua-модулей (библиотек).
+   Каждая переменная - модуль. Имена модулей регистрозависимы.
+   Например: <variable name="shmuel.utils" type="text"> ...... </variable>
+   Пример использования в макросе: utils=require "shmuel.utils"
+   ВНИМАНИЕ: "variables" больше не грузятся при старте Фара. Используйте для этого "constants".
+
 shmuel 25.11.2012 11:05:58 +0200 - build 39
 
 1. Добавлено свойство Mouse.LastCtrlState, которое (в отличие от Mouse.CtrlState)
