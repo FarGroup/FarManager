@@ -36,8 +36,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DList.hpp"
 
 struct VersionInfo;
+class SQLiteDb;
 class TiXmlElement;
 class TiXmlHandle;
+class TiXmlDocument;
 
 class XmlConfig {
 
@@ -325,9 +327,12 @@ private:
 	};
 	template<class T> HierarchicalConfig *CreateHierarchicalConfig(DBCHECK DbId, const wchar_t *dbn, const char *xmln, bool Local=false, bool plugin=false);
 	template<class T> T* CreateDatabase(const char *son = nullptr);
-	template<class T> void TryImportDatabase(T *p, const char *son = nullptr, bool plugin=false);
-	void CheckDatabase(class SQLiteDb *pDb);
+	void TryImportDatabase(XmlConfig *p, const char *son = nullptr, bool plugin=false);
+	void CheckDatabase(SQLiteDb *pDb);
 
+        TiXmlDocument *m_TemplateDoc;
+	TiXmlElement *m_TemplateRoot;
+	int m_TemplateLoadState;
 	bool m_ImportExportMode;
 
 	GeneralConfig *m_GeneralCfg;

@@ -60,7 +60,6 @@ public:
 	string g_strFarPath;
 	string strGlobalSearchString;
 	string strInitTitle;
-	string strMsgHelpTopic;
 	bool GlobalSearchCase;
 	bool GlobalSearchWholeWords; // значение "Whole words" для поиска
 	bool GlobalSearchHex; // значение "Search for hex" для поиска

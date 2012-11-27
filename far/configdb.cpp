@@ -52,20 +52,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "message.hpp"
 
-Database *Db;
-
-static TiXmlDocument  TemplateDoc;
-static int TemplateLoadState = -1;
-static TiXmlElement *TemplateRoot = nullptr;
-
-int IntToHex(int h)
+static int IntToHex(int h)
 {
 	if (h >= 10)
 		return 'A' + h - 10;
 	return '0' + h;
 }
 
-int HexToInt(int h)
+static int HexToInt(int h)
 {
 	if (h >= 'a' && h <= 'f')
 		return h - 'a' + 10;
@@ -79,7 +73,7 @@ int HexToInt(int h)
 	return 0;
 }
 
-char *BlobToHexString(const char *Blob, int Size)
+static char *BlobToHexString(const char *Blob, int Size)
 {
 	char *Hex = (char *)xf_malloc(Size*2+Size+1);
 	for (int i=0, j=0; i<Size; i++, j+=3)
@@ -93,7 +87,7 @@ char *BlobToHexString(const char *Blob, int Size)
 
 }
 
-char *HexStringToBlob(const char *Hex, int *Size)
+static char *HexStringToBlob(const char *Hex, int *Size)
 {
 	*Size=0;
 	char *Blob = (char *)xf_malloc(strlen(Hex)/2+1);
@@ -112,7 +106,7 @@ char *HexStringToBlob(const char *Hex, int *Size)
 	return Blob;
 }
 
-const char *Int64ToHexString(unsigned __int64 X)
+static const char *Int64ToHexString(unsigned __int64 X)
 {
 	static char Bin[16+1];
 	for (int i=15; i>=0; i--, X>>=4)
@@ -120,7 +114,7 @@ const char *Int64ToHexString(unsigned __int64 X)
 	return Bin;
 }
 
-const char *IntToHexString(unsigned int X)
+static const char *IntToHexString(unsigned int X)
 {
 	static char Bin[8+1];
 	for (int i=7; i>=0; i--, X>>=4)
@@ -128,7 +122,7 @@ const char *IntToHexString(unsigned int X)
 	return Bin;
 }
 
-unsigned __int64 HexStringToInt64(const char *Hex)
+static unsigned __int64 HexStringToInt64(const char *Hex)
 {
 	unsigned __int64 x = 0;
 	while (*Hex)
@@ -140,7 +134,7 @@ unsigned __int64 HexStringToInt64(const char *Hex)
 	return x;
 }
 
-unsigned int HexStringToInt(const char *Hex)
+static unsigned int HexStringToInt(const char *Hex)
 {
 	unsigned int x = 0;
 	while (*Hex)
@@ -152,19 +146,7 @@ unsigned int HexStringToInt(const char *Hex)
 	return x;
 }
 
-const char *KeyToNameChar(unsigned __int64 Key)
-{
-	static char KeyName[256];
-	string strKeyName;
-	if(KeyToText(Key, strKeyName))
-	{
-		strKeyName.GetCharString(KeyName, 256);
-		return KeyName;
-	}
-	return nullptr;
-}
-
-void SetCDataIfNeeded(TiXmlText *text, const char *value)
+static void SetCDataIfNeeded(TiXmlText *text, const char *value)
 {
 	if (strpbrk(value, "\"<>&\r\n"))
 		text->SetCDATA(true);
@@ -3003,29 +2985,29 @@ void Database::CheckDatabase( SQLiteDb *pDb)
 	}
 }
 
-template<class T>
-void Database::TryImportDatabase(T *p, const char *son, bool plugin)
+void Database::TryImportDatabase(XmlConfig *p, const char *son, bool plugin)
 {
-	if (TemplateLoadState != 0 && p->IsNew())
+	if (m_TemplateLoadState != 0)
 	{
-		if (TemplateLoadState < 0 && !Global->Opt->TemplateProfilePath.IsEmpty())
+		if (m_TemplateLoadState < 0 && !Global->Opt->TemplateProfilePath.IsEmpty())
 		{
-			TemplateLoadState = 0;
+			m_TemplateLoadState = 0;
 			string def_config = Global->Opt->TemplateProfilePath;
 			FILE* XmlFile = _wfopen(NTPath(def_config), L"rb");
 			if (XmlFile)
 			{
-				if (TemplateDoc.LoadFile(XmlFile))	{
-					if (nullptr != (TemplateRoot = TemplateDoc.FirstChildElement("farconfig")))
-						TemplateLoadState = +1;
+				m_TemplateDoc = new TiXmlDocument;
+				if (m_TemplateDoc->LoadFile(XmlFile))	{
+					if (nullptr != (m_TemplateRoot = m_TemplateDoc->FirstChildElement("farconfig")))
+						m_TemplateLoadState = +1;
 				}
 				fclose(XmlFile);
 			}
 		}
 
-		if (TemplateLoadState > 0)
+		if (m_TemplateLoadState > 0)
 		{
-			const TiXmlHandle root(TemplateRoot);
+			const TiXmlHandle root(m_TemplateRoot);
 			if (!son)
 				p->Import(root);
 			else if (!plugin)
@@ -3051,7 +3033,7 @@ T* Database::CreateDatabase(const char *son)
 {
 	T* p = new T();
 	CheckDatabase(p);
-	if (!m_ImportExportMode)
+	if (!m_ImportExportMode && p->IsNew())
 	{
 		TryImportDatabase(p, son);
 	}
@@ -3068,7 +3050,7 @@ HierarchicalConfig* Database::CreateHierarchicalConfig(DBCHECK DbId, const wchar
 		CheckDatabase(cfg);
 
 	if (!m_ImportExportMode && cfg->IsNew() && first)
-		TryImportDatabase<T>(cfg, xmln, plugin);
+		TryImportDatabase(cfg, xmln, plugin);
 
 	CheckedDb.Set(DbId);
 	return cfg;
@@ -3100,6 +3082,9 @@ HierarchicalConfig* Database::CreatePanelModeConfig()
 }
 
 Database::Database(bool ImportExportMode):
+        m_TemplateDoc(nullptr),
+	m_TemplateRoot(nullptr),
+	m_TemplateLoadState(-1),
 	m_ImportExportMode(ImportExportMode),
 	m_GeneralCfg(CreateDatabase<GeneralConfigDb>()),
 	m_ColorsCfg(CreateDatabase<ColorsConfigDb>()),
@@ -3123,6 +3108,7 @@ Database::~Database()
 	delete m_AssocConfig;
 	delete m_ColorsCfg;
 	delete m_GeneralCfg;
+	delete m_TemplateDoc;
 }
 
 bool Database::Export(const wchar_t *File)

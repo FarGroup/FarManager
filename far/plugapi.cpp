@@ -1080,12 +1080,10 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 
 	Plugin* PluginNumber = GuidToPlugin(PluginId);
 	// запоминаем топик
+	string strTopic;
 	if (PluginNumber)
 	{
-		string strTopic;
-
-		if (Help::MkTopic(reinterpret_cast<Plugin*>(PluginNumber),HelpTopic,strTopic))
-			SetMessageHelp(strTopic);
+		Help::MkTopic(reinterpret_cast<Plugin*>(PluginNumber),HelpTopic,strTopic);
 	}
 
 	// непосредственно... вывод
@@ -1094,7 +1092,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	if ((frame=FrameManager->GetBottomFrame()))
 		frame->Lock(); // отменим прорисовку фрейма
 
-	int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN),ButtonsNumber,MsgItems[0],MsgItems+1,ItemsNumber-1,PluginNumber,Id);
+	int MsgCode=MessageObject(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN), ButtonsNumber, MsgItems[0], MsgItems+1, ItemsNumber-1, strTopic.IsEmpty()? nullptr : strTopic.CPtr(), PluginNumber, Id).GetExitCode();
 
 	/* $ 15.05.2002 SKV
 	  Однако разлочивать надо ровно то, что залочили.

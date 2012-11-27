@@ -1227,15 +1227,25 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 				ShowTime(1);
 		}
 
-		SetMessageHelp(L"ErrCannotExecute");
+		const wchar_t* Items[4];
+		size_t ItemsSize;
+
 		if(DirectRun)
 		{
-			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1,MSG(MError), MSG(MCannotExecute), strNewCmdStr, MSG(MOk));
+			Items[0] = MSG(MCannotExecute);
+			Items[1] = strNewCmdStr;
+			Items[2] = MSG(MOk);
+			ItemsSize = 3;
 		}
 		else
 		{
-			Message(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1, MSG(MError), MSG(MCannotInvokeComspec), strComspec, MSG(MCheckComspecVar), MSG(MOk));
+			Items[0] = MSG(MCannotInvokeComspec);
+			Items[1] = strComspec;
+			Items[2] = MSG(MCheckComspecVar);
+			Items[3] = MSG(MOk);
+			ItemsSize = 4;
 		}
+		MessageObject(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1, MSG(MError), Items, ItemsSize, L"ErrCannotExecute");
 	}
 
 	return nResult;

@@ -255,9 +255,8 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 				DelMsg=MSG(MAskDelete);
 		}
 
-		SetMessageHelp(L"DeleteFile");
-
-		if (Message(0,2,TitleMsg,DelMsg,strDeleteFilesMsg,MSG(Wipe?MDeleteWipe:Global->Opt->DeleteToRecycleBin?MDeleteRecycle:MDelete),MSG(MCancel)))
+		const wchar_t* const Items[] = {DelMsg, strDeleteFilesMsg, MSG(Wipe? MDeleteWipe : Global->Opt->DeleteToRecycleBin? MDeleteRecycle : MDelete), MSG(MCancel)};
+		if (MessageObject(0, 2, TitleMsg, Items, ARRAYSIZE(Items), L"DeleteFile").GetExitCode())
 		{
 			NeedUpdate=FALSE;
 			goto done;
@@ -268,10 +267,8 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 	{
 		//SaveScreen SaveScr;
 		SetCursorType(FALSE,0);
-		SetMessageHelp(L"DeleteFile");
-
-		if (Message(MSG_WARNING,2,MSG(Wipe?MWipeFilesTitle:MDeleteFilesTitle),MSG(Wipe?MAskWipe:MAskDelete),
-		            strDeleteFilesMsg,MSG(MDeleteFileAll),MSG(MDeleteFileCancel)))
+		const wchar_t* const Items[] = {MSG(Wipe? MAskWipe : MAskDelete), strDeleteFilesMsg, MSG(MDeleteFileAll), MSG(MDeleteFileCancel)};
+		if (MessageObject(MSG_WARNING,2,MSG(Wipe? MWipeFilesTitle : MDeleteFilesTitle), Items, ARRAYSIZE(Items), L"DeleteFile").GetExitCode())
 		{
 			NeedUpdate=FALSE;
 			goto done;

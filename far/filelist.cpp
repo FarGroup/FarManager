@@ -1564,13 +1564,8 @@ int FileList::ProcessKey(int Key)
 
 									if (CheckFAttr == INVALID_FILE_ATTRIBUTES)
 									{
-										SetMessageHelp(L"WarnEditorPath");
-
-										if (Message(MSG_WARNING,2,MSG(MWarning),
-													MSG(MEditNewPath1),
-													MSG(MEditNewPath2),
-													MSG(MEditNewPath3),
-													MSG(MHYes),MSG(MHNo)))
+										const wchar_t* const Items[] = {MSG(MEditNewPath1), MSG(MEditNewPath2), MSG(MEditNewPath3), MSG(MHYes), MSG(MHNo)};
+										if (MessageObject(MSG_WARNING, 2, MSG(MWarning), Items, ARRAYSIZE(Items), L"WarnEditorPath").GetExitCode())
 											return FALSE;
 									}
 
@@ -1581,11 +1576,8 @@ int FileList::ProcessKey(int Key)
 						}
 						else if (PluginMode) // пустое им€ файла в панели плагина не разрешаетс€!
 						{
-							SetMessageHelp(L"WarnEditorPluginName");
-
-							if (Message(MSG_WARNING,2,MSG(MWarning),
-							            MSG(MEditNewPlugin1),
-							            MSG(MEditNewPath3),MSG(MCancel)))
+							const wchar_t* const Items[] = {MSG(MEditNewPlugin1), MSG(MEditNewPath3), MSG(MCancel)};
+							if (MessageObject(MSG_WARNING, 2, MSG(MWarning), Items, ARRAYSIZE(Items), L"WarnEditorPluginName").GetExitCode())
 								return FALSE;
 						}
 						else

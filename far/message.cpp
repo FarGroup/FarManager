@@ -49,55 +49,22 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "clipboard.hpp"
 
-static int MessageX1,MessageY1,MessageX2,MessageY2;
-static int FirstButtonIndex,LastButtonIndex;
-static bool IsWarningStyle;
-static bool IsErrorType;
 
-static DWORD LastError, NtStatus;
-
-int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
-            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
-            Plugin* PluginNumber)
+int Message(DWORD Flags,size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, Plugin* PluginNumber, const GUID* Id)
 {
-	return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,nullptr,nullptr,nullptr,
-	               nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,PluginNumber));
+	return MessageObject(Flags, Buttons, Title, Items, ItemsNumber, nullptr, PluginNumber, Id).GetExitCode();
 }
 
-int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
-            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
-            const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
-            Plugin* PluginNumber)
+int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1, const wchar_t *Str2, const wchar_t *Str3, const wchar_t *Str4, const wchar_t *Str5,
+                 const wchar_t *Str6, const wchar_t *Str7, const wchar_t *Str8, const wchar_t *Str9, const wchar_t *Str10, const wchar_t *Str11,const wchar_t *Str12)
 {
-	return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,
-	               nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,PluginNumber));
-}
-
-
-int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
-            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
-            const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
-            const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
-            Plugin* PluginNumber)
-{
-	return(Message(Flags,Buttons,Title,Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,
-	               Str9,Str10,nullptr,nullptr,nullptr,nullptr,PluginNumber));
-}
-
-int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
-            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
-            const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
-            const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
-            const wchar_t *Str11,const wchar_t *Str12,const wchar_t *Str13,
-            const wchar_t *Str14,Plugin* PluginNumber)
-{
-	const wchar_t *Str[]={Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,Str9,Str10,Str11,Str12,Str13,Str14};
+	const wchar_t *Str[]={Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,Str9,Str10,Str11,Str12};
 	int StrCount=0;
 
 	while (StrCount<(int)ARRAYSIZE(Str) && Str[StrCount])
 		StrCount++;
 
-	return Message(Flags,Buttons,Title,Str,StrCount,PluginNumber);
+	return MessageObject(Flags, Buttons, Title, Str, StrCount, nullptr, nullptr).GetExitCode();
 }
 
 bool FormatErrorString(bool Nt, DWORD Code, string& Str)
@@ -130,7 +97,7 @@ bool GetErrorString(string &strErrStr)
 #endif
 }
 
-intptr_t WINAPI MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t MessageObject::MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -226,15 +193,8 @@ intptr_t WINAPI MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-int Message(
-    DWORD Flags,
-    size_t Buttons,
-    const wchar_t *Title,
-    const wchar_t * const *Items,
-    size_t ItemsNumber,
-    Plugin* PluginNumber,
-    const GUID* Id
-)
+MessageObject::MessageObject(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id):
+	m_ExitCode(0)
 {
 	string strTempStr;
 	string strClipText;
@@ -310,9 +270,6 @@ int Message(
 
 	// выделим память под рабочий массив указателей на строки (+запас 16)
 	Str=(const wchar_t **)xf_malloc((ItemsNumber+ADDSPACEFORPSTRFORMESSAGE) * sizeof(wchar_t*));
-
-	if (!Str)
-		return -1;
 
 	StrCount=static_cast<DWORD>(ItemsNumber-Buttons);
 
@@ -452,8 +409,6 @@ int Message(
 
 	MessageY1=Y1;
 	MessageY2=Y2=Y1+StrCount+3;
-	string strHelpTopic(Global->strMsgHelpTopic);
-	Global->strMsgHelpTopic.Clear();
 	// *** Вариант с Диалогом ***
 
 	if (Buttons>0)
@@ -461,12 +416,6 @@ int Message(
 		size_t ItemCount=StrCount+Buttons+1;
 		DialogItemEx *PtrMsgDlg;
 		DialogItemEx *MsgDlg = new DialogItemEx[ItemCount+1];
-
-		if (!MsgDlg)
-		{
-			xf_free(Str);
-			return -1;
-		}
 
 		for (DWORD i=0; i<ItemCount+1; i++)
 			MsgDlg[i].Clear();
@@ -567,14 +516,14 @@ int Message(
 				MsgDlg[0].Y2++;
 				ItemCount++;
 			}
-			Dialog Dlg(MsgDlg,ItemCount,MsgDlgProc, &strClipText);
+			Dialog Dlg(this, &MessageObject::MsgDlgProc, &strClipText, MsgDlg, ItemCount);
 			if (X1 == -1) X1 = 0;
 			if (Y1 == -1) Y1 = 0;
 			Dlg.SetPosition(X1,Y1,X2,Y2);
 			if(Id) Dlg.SetId(*Id);
 
-			if (!strHelpTopic.IsEmpty())
-				Dlg.SetHelp(strHelpTopic);
+			if (HelpTopic)
+				Dlg.SetHelp(HelpTopic);
 
 			Dlg.SetPluginOwner(reinterpret_cast<Plugin*>(PluginNumber)); // Запомним номер плагина
 
@@ -597,9 +546,10 @@ int Message(
 
 		delete [] MsgDlg;
 		xf_free(Str);
-		return(RetCode<0?RetCode:RetCode-StrCount-1-(Separator?1:0));
+		m_ExitCode = RetCode<0?RetCode:RetCode-StrCount-1-(Separator?1:0);
 	}
-
+	else
+	{
 	// *** Без Диалога! ***
 	SetCursorType(0,0);
 
@@ -692,22 +642,16 @@ int Message(
 
 		Global->ScrBuf->Flush();
 	}
-
-	return 0;
+	}
 }
 
 
-void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
+void MessageObject::GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
 {
 	X1=MessageX1;
 	Y1=MessageY1;
 	X2=MessageX2;
 	Y2=MessageY2;
-}
-
-void SetMessageHelp(const wchar_t *Topic)
-{
-	Global->strMsgHelpTopic = Topic;
 }
 
 /* $ 12.03.2002 VVM

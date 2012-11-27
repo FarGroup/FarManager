@@ -42,13 +42,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "setcolor.hpp"
 
-// пишем/читаем порциями по 32 K, иначе проблемы.
-const unsigned int MAXSIZE=0x8000;
-
 class ConsoleCore {
 public:
 
-ConsoleCore() {}
+ConsoleCore():
+	// пишем/читаем порциями по 32 K, иначе проблемы.
+	MAXSIZE(0x8000)
+{}
+
 virtual ~ConsoleCore() {}
 
 virtual bool Allocate() const
@@ -624,6 +625,8 @@ virtual short GetDelta() const
 	return csbi.dwSize.Y-(csbi.srWindow.Bottom-csbi.srWindow.Top+1);
 }
 
+private:
+	const unsigned int MAXSIZE;
 };
 
 class ExtendedConsoleCore:public ConsoleCore

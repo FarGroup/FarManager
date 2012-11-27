@@ -489,11 +489,8 @@ void FileEditor::Init(
 				int MsgCode=0;
 				if (OpenModeExstFile == FEOPMODE_QUERY)
 				{
-					SetMessageHelp(L"EditorReload");
-					MsgCode=Message(0,3,MSG(MEditTitle),
-					                strFullFileName,
-					                MSG(MAskReload),
-					                MSG(MCurrent),MSG(MNewOpen),MSG(MReload));
+					const wchar_t* const Items[] = {strFullFileName, MSG(MAskReload), MSG(MCurrent), MSG(MNewOpen), MSG(MReload)};
+					MsgCode=MessageObject(0, 3, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload").GetExitCode();
 				}
 				else
 				{
@@ -1724,10 +1721,9 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 
 				if (RetCompare || !(FInfo.nFileSize == FileInfo.nFileSize))
 				{
-					SetMessageHelp(L"WarnEditorSavedEx");
+					const wchar_t* const Items[] = {MSG(MEditAskSaveExt), MSG(MHYes), MSG(MEditBtnSaveAs), MSG(MHCancel)};
 
-					switch (Message(MSG_WARNING,3,MSG(MEditTitle),MSG(MEditAskSaveExt),
-					                MSG(MHYes),MSG(MEditBtnSaveAs),MSG(MHCancel)))
+					switch (MessageObject(MSG_WARNING, 3, MSG(MEditTitle), Items, ARRAYSIZE(Items), L"WarnEditorSavedEx").GetExitCode())
 					{
 						case -1:
 						case -2:

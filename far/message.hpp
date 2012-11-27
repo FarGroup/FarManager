@@ -63,30 +63,30 @@ enum
 
 class Plugin;
 
-int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
-            const wchar_t *Str2=nullptr,const wchar_t *Str3=nullptr,const wchar_t *Str4=nullptr,
-            Plugin* PluginNumber=nullptr);
-int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
-            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
-            const wchar_t *Str5,const wchar_t *Str6=nullptr,const wchar_t *Str7=nullptr,
-            Plugin* PluginNumber=nullptr);
-int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
-            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
-            const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
-            const wchar_t *Str8,const wchar_t *Str9=nullptr,const wchar_t *Str10=nullptr,
-            Plugin* PluginNumber=nullptr);
-int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1,
-            const wchar_t *Str2,const wchar_t *Str3,const wchar_t *Str4,
-            const wchar_t *Str5,const wchar_t *Str6,const wchar_t *Str7,
-            const wchar_t *Str8,const wchar_t *Str9,const wchar_t *Str10,
-            const wchar_t *Str11,const wchar_t *Str12=nullptr,const wchar_t *Str13=nullptr,
-            const wchar_t *Str14=nullptr, Plugin* PluginNumber=nullptr);
+class MessageObject
+{
+public:
+	MessageObject(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic = nullptr, Plugin* PluginNumber = nullptr, const GUID* Id = nullptr);
+	int GetExitCode() {return m_ExitCode;}
+	void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
 
-int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t * const *Items,
-            size_t ItemsNumber, Plugin* PluginNumber=nullptr,const GUID* Id=nullptr);
+private:
+	intptr_t MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
-void SetMessageHelp(const wchar_t *Topic);
-void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
+	int m_ExitCode;
+	int MessageX1,MessageY1,MessageX2,MessageY2;
+	int FirstButtonIndex,LastButtonIndex;
+	bool IsWarningStyle;
+	bool IsErrorType;
+	DWORD LastError, NtStatus;
+};
+
+int Message(DWORD Flags,size_t Buttons,const wchar_t *Title, const wchar_t *Str1,
+	const wchar_t *Str2=nullptr, const wchar_t *Str3=nullptr, const wchar_t *Str4=nullptr, const wchar_t *Str5=nullptr,
+	const wchar_t *Str6=nullptr, const wchar_t *Str7=nullptr, const wchar_t *Str8=nullptr, const wchar_t *Str9=nullptr,
+	const wchar_t *Str10=nullptr, const wchar_t *Str11=nullptr, const wchar_t *Str12=nullptr);
+
+int Message(DWORD Flags,size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, Plugin* PluginNumber=nullptr, const GUID* Id=nullptr);
 
 /* $ 12.03.2002 VVM
   Новая функция - пользователь попытался прервать операцию.
