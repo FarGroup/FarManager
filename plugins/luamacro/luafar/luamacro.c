@@ -250,7 +250,13 @@ int far_MacroCallFar(lua_State *L)
 	}
 
 	if(!success)
-		luaL_argerror(L, stackpos, "invalid argument");
+	{
+		lua_Debug ar;
+		if (lua_getstack(L,1,&ar) && lua_getinfo(L,"n",&ar) && ar.name)
+			luaL_error(L, "invalid argument #%d to '%s'", stackpos-1, ar.name);
+		else
+			luaL_argerror(L, stackpos, "invalid argument");
+	}
 
 	lua_checkstack(L, MAXRET);
 	ret = (int) privateInfo->CallFar(opcode, &fmc);

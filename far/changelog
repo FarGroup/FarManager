@@ -1,3 +1,10 @@
+shmuel 27.11.2012 15:58:53 +0200 - build 2977
+
+1. Продолжение 2976: переименования секций в базе.
+   "farconfig/macros/variables" --> "farconfig/macros/modules".
+   "farconfig/macros/variables/variable" --> "farconfig/macros/modules/module".
+   Если кто-то уже успел создать модули, нужно сделать экспорт из 2976, переименовать секции, импорт в 2977.
+
 shmuel 25.11.2012 19:08:41 +0200 - build 2976
 
 1. Экспериментально: использование секции "farconfig/macros/variables" базы данных для Lua-модулей (библиотек).

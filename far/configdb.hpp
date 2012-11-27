@@ -270,10 +270,10 @@ public:
 	virtual unsigned __int64 SetConstValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *type) = 0;
 	virtual bool DeleteConst(const wchar_t *Name) = 0;
 
-	virtual bool EnumVars(string &strName, string &Value, string &Type) = 0;
-	virtual bool GetVarValue(const wchar_t *Name, string &Value, string &Type) = 0;
-	virtual unsigned __int64 SetVarValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *Type) = 0;
-	virtual bool DeleteVar(const wchar_t *Name) = 0;
+	virtual bool EnumModules(string &strName, string &Value, string &Type) = 0;
+	virtual bool GetModuleValue(const wchar_t *Name, string &Value, string &Type) = 0;
+	virtual unsigned __int64 SetModuleValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *Type) = 0;
+	virtual bool DeleteModule(const wchar_t *Name) = 0;
 
 	virtual bool EnumFunctions(string &strGuid, string &strFunctionName, string &Flags, string &strSequence, string &strSyntax, string &strDescription) = 0;
 	virtual unsigned __int64 SetFunction(const wchar_t *Guid, const wchar_t *FunctionName, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Syntax, const wchar_t *Description) = 0;

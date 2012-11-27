@@ -2525,10 +2525,10 @@ class MacroConfigDb: public MacroConfig, public SQLiteDb {
 	SQLiteStmt stmtSetConstValue;
 	SQLiteStmt stmtDelConst;
 
-	SQLiteStmt stmtVarsEnum;
-	SQLiteStmt stmtGetVarValue;
-	SQLiteStmt stmtSetVarValue;
-	SQLiteStmt stmtDelVar;
+	SQLiteStmt stmtModulesEnum;
+	SQLiteStmt stmtGetModuleValue;
+	SQLiteStmt stmtSetModuleValue;
+	SQLiteStmt stmtDelModule;
 
 	SQLiteStmt stmtFunctionsEnum;
 	SQLiteStmt stmtSetFunction;
@@ -2556,7 +2556,7 @@ public:
 			//schema
 			!Exec(
 				"CREATE TABLE IF NOT EXISTS constants(name TEXT NOT NULL, value TEXT, type TEXT NOT NULL, PRIMARY KEY (name));"
-				"CREATE TABLE IF NOT EXISTS variables(name TEXT NOT NULL, value TEXT, type TEXT NOT NULL, PRIMARY KEY (name));"
+				"CREATE TABLE IF NOT EXISTS modules(name TEXT NOT NULL, value TEXT, type TEXT NOT NULL, PRIMARY KEY (name));"
 				"CREATE TABLE IF NOT EXISTS functions(guid TEXT NOT NULL, name TEXT NOT NULL, flags TEXT, sequence TEXT, syntax TEXT NOT NULL, description TEXT, PRIMARY KEY (guid, name));"
 				"CREATE TABLE IF NOT EXISTS key_macros(area TEXT NOT NULL, key TEXT NOT NULL, flags TEXT, sequence TEXT, description TEXT, PRIMARY KEY (area, key));"
 			)
@@ -2568,10 +2568,10 @@ public:
 			InitStmt(stmtSetConstValue, L"INSERT OR REPLACE INTO constants VALUES (?1,?2,?3);") &&
 			InitStmt(stmtDelConst, L"DELETE FROM constants WHERE name=?1;") &&
 
-			InitStmt(stmtVarsEnum, L"SELECT name, value, type FROM variables ORDER BY name;") &&
-			InitStmt(stmtGetVarValue, L"SELECT value,type FROM variables WHERE name=?1;") &&
-			InitStmt(stmtSetVarValue, L"INSERT OR REPLACE INTO variables VALUES (?1,?2,?3);") &&
-			InitStmt(stmtDelVar, L"DELETE FROM variables WHERE name=?1;") &&
+			InitStmt(stmtModulesEnum, L"SELECT name, value, type FROM modules ORDER BY name;") &&
+			InitStmt(stmtGetModuleValue, L"SELECT value,type FROM modules WHERE name=?1;") &&
+			InitStmt(stmtSetModuleValue, L"INSERT OR REPLACE INTO modules VALUES (?1,?2,?3);") &&
+			InitStmt(stmtDelModule, L"DELETE FROM modules WHERE name=?1;") &&
 
 			InitStmt(stmtFunctionsEnum, L"SELECT guid, name, flags, sequence, syntax, description FROM functions ORDER BY guid, name;") &&
 			InitStmt(stmtSetFunction, L"INSERT OR REPLACE INTO functions VALUES (?1,?2,?3,?4,?5,?6);") &&
@@ -2590,10 +2590,10 @@ public:
 		stmtSetFunction.Finalize();
 		stmtFunctionsEnum.Finalize();
 
-		stmtDelVar.Finalize();
-		stmtSetVarValue.Finalize();
-		stmtGetVarValue.Finalize();
-		stmtVarsEnum.Finalize();
+		stmtDelModule.Finalize();
+		stmtSetModuleValue.Finalize();
+		stmtGetModuleValue.Finalize();
+		stmtModulesEnum.Finalize();
 
 		stmtDelConst.Finalize();
 		stmtSetConstValue.Finalize();
@@ -2645,42 +2645,42 @@ public:
 	}
 
 	/* *************** */
-	bool EnumVars(string &strName, string &Value, string &Type)
+	bool EnumModules(string &strName, string &Value, string &Type)
 	{
-		if (stmtVarsEnum.Step())
+		if (stmtModulesEnum.Step())
 		{
-			strName = stmtVarsEnum.GetColText(0);
-			Value = stmtVarsEnum.GetColText(1);
-			Type = stmtVarsEnum.GetColText(2);
+			strName = stmtModulesEnum.GetColText(0);
+			Value = stmtModulesEnum.GetColText(1);
+			Type = stmtModulesEnum.GetColText(2);
 			return true;
 		}
 
-		stmtVarsEnum.Reset();
+		stmtModulesEnum.Reset();
 		return false;
 	}
 
-	bool GetVarValue(const wchar_t *Name, string &Value, string &Type)
+	bool GetModuleValue(const wchar_t *Name, string &Value, string &Type)
 	{
-		bool b = stmtGetVarValue.Bind(Name).Step();
+		bool b = stmtGetModuleValue.Bind(Name).Step();
 		if (b)
 		{
-			Value = stmtGetVarValue.GetColText(0);
-			Type  = stmtGetVarValue.GetColText(1);
+			Value = stmtGetModuleValue.GetColText(0);
+			Type  = stmtGetModuleValue.GetColText(1);
 		}
-		stmtGetVarValue.Reset();
+		stmtGetModuleValue.Reset();
 		return b;
 	}
 
-	unsigned __int64 SetVarValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *Type)
+	unsigned __int64 SetModuleValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *Type)
 	{
-		if (stmtSetVarValue.Bind(Name).Bind(Value).Bind(Type).StepAndReset())
+		if (stmtSetModuleValue.Bind(Name).Bind(Value).Bind(Type).StepAndReset())
 			return LastInsertRowID();
 		return 0;
 	}
 
-	bool DeleteVar(const wchar_t *Name)
+	bool DeleteModule(const wchar_t *Name)
 	{
-		return stmtDelVar.Bind(Name).StepAndReset();
+		return stmtDelModule.Bind(Name).StepAndReset();
 	}
 
 	/* *************** */
@@ -2756,7 +2756,7 @@ public:
 		InitStmt(stmtEnumAllConsts, L"SELECT name, value, type FROM constants ORDER BY name;");
 
 		SQLiteStmt stmtEnumAllVars;
-		InitStmt(stmtEnumAllVars, L"SELECT name, value, type FROM variables ORDER BY name;");
+		InitStmt(stmtEnumAllVars, L"SELECT name, value, type FROM modules ORDER BY name;");
 
 		SQLiteStmt stmtEnumAllFunctions;
 		InitStmt(stmtEnumAllFunctions, L"SELECT guid, name, flags, sequence, syntax, description FROM functions ORDER BY guid, name;");
@@ -2790,13 +2790,13 @@ public:
 		root->LinkEndChild(e);
 
 		// --------------------------------------------------
-		e = new TiXmlElement("variables");
+		e = new TiXmlElement("modules");
 		if (!e)
 			return root;
 
 		while (stmtEnumAllVars.Step())
 		{
-			se = new TiXmlElement("variable");
+			se = new TiXmlElement("module");
 			if (!se)
 				break;
 
@@ -2906,7 +2906,7 @@ public:
 			}
 		}
 
-		for (const TiXmlElement *e = root.FirstChild("macros").FirstChild("variables").FirstChildElement("variable").Element(); e; e=e->NextSiblingElement("variable"))
+		for (const TiXmlElement *e = root.FirstChild("macros").FirstChild("modules").FirstChildElement("module").Element(); e; e=e->NextSiblingElement("module"))
 		{
 			const char* name = e->Attribute("name");
 			const char* type = e->Attribute("type"); // optional
@@ -2917,16 +2917,16 @@ public:
 				if (text)
 				{
 					const char* value = text->GetText();
-					SetVarValue(string(name, CP_UTF8), string(value, CP_UTF8), string(type, CP_UTF8));
+					SetModuleValue(string(name, CP_UTF8), string(value, CP_UTF8), string(type, CP_UTF8));
 				}
 				else
 				{
-					DeleteVar(string(name, CP_UTF8));
+					DeleteModule(string(name, CP_UTF8));
 				}
 			}
 			else
 			{
-				PrintError(L"Variable", L"<name> is empty or not found", e);
+				PrintError(L"Module", L"<name> is empty or not found", e);
 				ErrCount++;
 			}
 		}

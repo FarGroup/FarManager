@@ -241,7 +241,7 @@ local function DBLoader (name)
     local f, msg = loadstring(str, name)
     return f or msg
   end
-  return ("\n\tRecord '%s' not found in database"):format(name)
+  return ("\n\tModule '%s' not found in database"):format(name)
 end
 
 do

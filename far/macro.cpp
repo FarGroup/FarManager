@@ -190,7 +190,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_EDITOR_SETSTR=0x%X // N=Editor.SetStr([S[,Line]])\n", MCODE_F_EDITOR_SETSTR);
 	fprintf(fp, "MCODE_F_GETMACROSRC=0x%X // ѕолучение кода макроса дл€ Eval(S,2)\n", MCODE_F_GETMACROSRC);
 	fprintf(fp, "MCODE_F_READCONSTS=0x%X // «агрузка констант\n", MCODE_F_READCONSTS);
-	fprintf(fp, "MCODE_F_GETVARVALUE=0x%X // ѕолучение значени€ переменной\n", MCODE_F_GETVARVALUE);
+	fprintf(fp, "MCODE_F_GETMODULEVALUE=0x%X // ѕолучение значени€ переменной\n", MCODE_F_GETMODULEVALUE);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состо€ни€
@@ -2873,11 +2873,11 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			return 0;
 		}
 
-		case MCODE_F_GETVARVALUE: // ѕолучить из базы данных значение текстовой переменной по еЄ имени
+		case MCODE_F_GETMODULEVALUE: // ѕолучить из базы данных текст модул€ по его имени
 		{
 			string strValue,strType;
 			if (Data->Count>=1 && Data->Values[0].Type==FMVT_STRING &&
-					Global->Db->MacroCfg()->GetVarValue(Data->Values[0].String,strValue,strType) && strType==L"text")
+					Global->Db->MacroCfg()->GetModuleValue(Data->Values[0].String,strValue,strType) && strType==L"text")
 				PassString(strValue,Data);
 			else
 				PassBoolean(0,Data);
