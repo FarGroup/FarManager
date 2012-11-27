@@ -197,20 +197,20 @@ lv=2
 dt=Text
 nm=Использование базы данных для Lua-модулей
 ctime=3563036685
-mtime=3563037168
+mtime=3563194956
 <article>
 #_<markdown>
-#_Использование секции `"farconfig/macros/variables"` базы данных для Lua-модулей (библиотек).
+#_Использование секции `farconfig/macros/modules` базы данных для Lua-модулей (библиотек).
 #_
-#_Каждая переменная - модуль. Имена модулей регистрозависимы.
+#_Имена модулей регистрозависимы.
 #_
-#_Например:<br>
-#_      <variable name="shmuel.utils" type="text"> ...... </variable>
+#_Пример:<br>
+#_      <module name="john.utils" type="text"> ...... </module>
 #_
 #_Пример использования в макросе:
-#_      utils = require "shmuel.utils"
+#_      utils = require "john.utils"
 #_
-#_ВНИМАНИЕ: `"variables"` больше не грузятся при старте Фара. Используйте для этого `"constants"`.
+#_ВНИМАНИЕ: секции `farconfig/macros/variables` больше не существует. Используйте секцию `farconfig/macros/constants`.
 #_
 #_
 </article>
