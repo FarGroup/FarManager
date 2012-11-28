@@ -652,6 +652,9 @@ void FileEditor::Init(
 	CtrlObject->Plugins->CurEditor=this;//&FEdit;
 	CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
 	bEE_READ_Sent = true;
+	if (ExitCode == XC_LOADING_INTERRUPTED || ExitCode == XC_OPEN_ERROR)
+		return;
+
 	ShowConsoleTitle();
 	EditKeyBar.SetOwner(this);
 	EditKeyBar.SetPosition(X1,Y2,X2,Y2);
@@ -2649,8 +2652,15 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_QUIT:
 		{
-			FrameManager->DeleteFrame(this);
-			SetExitCode(SAVEFILE_ERROR); // что-то меня терзают смутные сомнения ...???
+			if (!this->bEE_READ_Sent) // do not delete not created frame
+			{
+				SetExitCode(XC_LOADING_INTERRUPTED);
+			}
+			else
+			{
+				FrameManager->DeleteFrame(this);
+				SetExitCode(SAVEFILE_ERROR); // что-то меня терзают смутные сомнения ...???
+			}
 			return TRUE;
 		}
 		case ECTL_READINPUT:
