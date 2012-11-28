@@ -1361,9 +1361,8 @@ bool StrToGuid(const string& Value,GUID& Guid)
 	return (UuidFromString((unsigned short*)Value.CPtr(),&Guid)==RPC_S_OK)?true:false;
 }
 
-bool SearchString(const string& Source, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength,const wchar_t* WordDiv)
+bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength,const wchar_t* WordDiv)
 {
-	int StrSize=StrLength(Source);
 	*SearchLength = 0;
 
 	if (!WordDiv)

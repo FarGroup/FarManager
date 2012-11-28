@@ -1923,7 +1923,7 @@ void Help::Search(FILE *HelpFile,uintptr_t nCodePage)
 			string ReplaceStr;
 			int CurPos=0;
 			int SearchLength;
-			bool Result=SearchString(strReadStr,strLastSearchStr,ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,LastSearchRegexp,&SearchLength);
+			bool Result=SearchString(strReadStr,(int)strReadStr.GetLength(),strLastSearchStr,ReplaceStr,CurPos,0,LastSearchCase,LastSearchWholeWords,false,LastSearchRegexp,&SearchLength);
 
 			if (Result)
 			{

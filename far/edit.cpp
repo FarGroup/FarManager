@@ -2338,7 +2338,7 @@ int Edit::Search(const string& Str,string& ReplaceStr,int Position,int Case,int 
 
 	return FALSE;
 #else
-	return SearchString(this->Str,Str,ReplaceStr,CurPos,Position,Case,WholeWords,Reverse,Regexp,SearchLength,WordDiv());
+	return SearchString(this->Str,this->StrSize,Str,ReplaceStr,CurPos,Position,Case,WholeWords,Reverse,Regexp,SearchLength,WordDiv());
 #endif
 }
 

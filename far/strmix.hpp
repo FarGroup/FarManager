@@ -122,4 +122,4 @@ string ReplaceBrackets(const string& SearchStr,const string& ReplaceStr,RegExpMa
 string GuidToStr(const GUID& Guid);
 bool StrToGuid(const string& Value,GUID& Guid);
 
-bool SearchString(const string& Source, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength,const wchar_t* WordDiv=nullptr);
+bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength,const wchar_t* WordDiv=nullptr);
