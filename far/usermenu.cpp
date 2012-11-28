@@ -255,7 +255,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 {
 	// Путь к текущему каталогу с файлом LocalMenuFileName
 	string strMenuFilePath;
-	CtrlObject->CmdLine->GetCurDir(strMenuFilePath);
+	Global->CtrlObject->CmdLine->GetCurDir(strMenuFilePath);
 	// по умолчанию меню - это FarMenu.ini
 	MenuMode = MM_LOCAL;
 	MenuModified = false;
@@ -327,14 +327,14 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 			}
 		}
 
-		MACROMODEAREA PrevMacroMode=CtrlObject->Macro.GetMode();
+		MACROMODEAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
 		int _CurrentFrame=FrameManager->GetCurrentFrame()->GetType();
-		CtrlObject->Macro.SetMode(MACRO_USERMENU);
+		Global->CtrlObject->Macro.SetMode(MACRO_USERMENU);
 		// вызываем меню
 		ExitCode=ProcessSingleMenu(&Menu, 0, &Menu, strMenuFileFullPath);
 
 		if (_CurrentFrame == FrameManager->GetCurrentFrame()->GetType()) //???
-			CtrlObject->Macro.SetMode(PrevMacroMode);
+			Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
 		// ...запишем изменения обратно в файл
 		SaveMenu(strMenuFileFullPath);
@@ -385,7 +385,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 						break;
 
 					default: // MM_USER
-						CtrlObject->CmdLine->GetCurDir(strMenuFilePath);
+						Global->CtrlObject->CmdLine->GetCurDir(strMenuFilePath);
 						MenuMode=MM_LOCAL;
 				}
 
@@ -395,7 +395,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 	}
 
 	if (FrameManager->IsPanelsActive() && (ExitCode == EC_COMMAND_SELECTED || MenuModified))
-		ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
+		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel,FALSE);
 }
 
 // заполнение меню
@@ -469,7 +469,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 			FuncPos[I]=-1;
 
 		string strName,strShortName;
-		CtrlObject->Cp()->ActivePanel->GetCurName(strName,strShortName);
+		Global->CtrlObject->Cp()->ActivePanel->GetCurName(strName,strShortName);
 		/* $ 24.07.2000 VVM + При показе главного меню в заголовок добавляет тип - FAR/Registry */
 		string strMenuTitle;
 
@@ -718,14 +718,14 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 		/* $ 01.05.2001 IS Отключим до лучших времен */
 		//int LeftVisible,RightVisible,PanelsHidden=0;
 		string strCmdLineDir;
-		CtrlObject->CmdLine->GetCurDir(strCmdLineDir);
+		Global->CtrlObject->CmdLine->GetCurDir(strCmdLineDir);
 		string strOldCmdLine;
-		CtrlObject->CmdLine->GetString(strOldCmdLine);
-		int OldCmdLineCurPos = CtrlObject->CmdLine->GetCurPos();
-		int OldCmdLineLeftPos = CtrlObject->CmdLine->GetLeftPos();
+		Global->CtrlObject->CmdLine->GetString(strOldCmdLine);
+		int OldCmdLineCurPos = Global->CtrlObject->CmdLine->GetCurPos();
+		int OldCmdLineLeftPos = Global->CtrlObject->CmdLine->GetLeftPos();
 		intptr_t OldCmdLineSelStart, OldCmdLineSelEnd;
-		CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
-		CtrlObject->CmdLine->LockUpdatePanel(TRUE);
+		Global->CtrlObject->CmdLine->GetSelection(OldCmdLineSelStart,OldCmdLineSelEnd);
+		Global->CtrlObject->CmdLine->LockUpdatePanel(TRUE);
 
 		// Цикл исполнения команд меню (CommandX)
 		for (string *str=CurrentMenuItem->Commands.First(); str; str=CurrentMenuItem->Commands.Next(str))
@@ -753,12 +753,12 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 					/*
 					if (!PanelsHidden)
 					{
-						LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
-						RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
-						CtrlObject->Cp()->LeftPanel->Hide();
-						CtrlObject->Cp()->RightPanel->Hide();
-						CtrlObject->Cp()->LeftPanel->SetUpdateMode(FALSE);
-						CtrlObject->Cp()->RightPanel->SetUpdateMode(FALSE);
+						LeftVisible=Global->CtrlObject->Cp()->LeftPanel->IsVisible();
+						RightVisible=Global->CtrlObject->Cp()->RightPanel->IsVisible();
+						Global->CtrlObject->Cp()->LeftPanel->Hide();
+						Global->CtrlObject->Cp()->RightPanel->Hide();
+						Global->CtrlObject->Cp()->LeftPanel->SetUpdateMode(FALSE);
+						Global->CtrlObject->Cp()->RightPanel->SetUpdateMode(FALSE);
 						PanelsHidden=TRUE;
 					}
 					*/
@@ -787,13 +787,13 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 
 							if (!isSilent)
 							{
-								CtrlObject->CmdLine->ExecString(strCommand,FALSE, 0, 0, ListFileUsed);
+								Global->CtrlObject->CmdLine->ExecString(strCommand,FALSE, 0, 0, ListFileUsed);
 							}
 							else
 							{
 								SaveScreen SaveScr;
-								CtrlObject->Cp()->LeftPanel->CloseFile();
-								CtrlObject->Cp()->RightPanel->CloseFile();
+								Global->CtrlObject->Cp()->LeftPanel->CloseFile();
+								Global->CtrlObject->Cp()->RightPanel->CloseFile();
 								Execute(strCommand,TRUE, 0, 0, 0, ListFileUsed, true);
 							}
 						}
@@ -815,27 +815,27 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 
 		} // while (1)
 
-		CtrlObject->CmdLine->LockUpdatePanel(FALSE);
+		Global->CtrlObject->CmdLine->LockUpdatePanel(FALSE);
 
 		if (!strOldCmdLine.IsEmpty())  // восстановим сохраненную командную строку
 		{
-			CtrlObject->CmdLine->SetString(strOldCmdLine, FrameManager->IsPanelsActive());
-			CtrlObject->CmdLine->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos);
-			CtrlObject->CmdLine->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
+			Global->CtrlObject->CmdLine->SetString(strOldCmdLine, FrameManager->IsPanelsActive());
+			Global->CtrlObject->CmdLine->SetCurPos(OldCmdLineCurPos, OldCmdLineLeftPos);
+			Global->CtrlObject->CmdLine->Select(OldCmdLineSelStart, OldCmdLineSelEnd);
 		}
 
 		/* $ 01.05.2001 IS Отключим до лучших времен */
 		/*
 		if (PanelsHidden)
 		{
-			CtrlObject->Cp()->LeftPanel->SetUpdateMode(TRUE);
-			CtrlObject->Cp()->RightPanel->SetUpdateMode(TRUE);
-			CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-			CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+			Global->CtrlObject->Cp()->LeftPanel->SetUpdateMode(TRUE);
+			Global->CtrlObject->Cp()->RightPanel->SetUpdateMode(TRUE);
+			Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+			Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
 			if (RightVisible)
-				CtrlObject->Cp()->RightPanel->Show();
+				Global->CtrlObject->Cp()->RightPanel->Show();
 			if (LeftVisible)
-				CtrlObject->Cp()->LeftPanel->Show();
+				Global->CtrlObject->Cp()->LeftPanel->Show();
 		}
 		*/
 		/* $ 14.07.2000 VVM ! Закрыть меню */

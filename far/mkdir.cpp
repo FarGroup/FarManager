@@ -277,7 +277,7 @@ void ShellMakeDir(Panel *SrcPanel)
 		}
 
 		SrcPanel->Redraw();
-		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
 		int AnotherType=AnotherPanel->GetType();
 
 		if (AnotherPanel->NeedUpdatePanel(SrcPanel) || AnotherType==QVIEW_PANEL)

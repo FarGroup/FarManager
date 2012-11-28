@@ -637,7 +637,7 @@ MessageObject::MessageObject(DWORD Flags, size_t Buttons, const wchar_t *Title, 
 
 	if (!Buttons)
 	{
-		if (Global->ScrBuf->GetLockCount()>0 && !CtrlObject->Macro.PeekKey())
+		if (Global->ScrBuf->GetLockCount()>0 && !Global->CtrlObject->Macro.PeekKey())
 			Global->ScrBuf->SetLockCount(0);
 
 		Global->ScrBuf->Flush();

@@ -125,7 +125,7 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	LastKeyUndo=FALSE;
 	InternalKey=FALSE;
 	this->ViewerID=::ViewerID++;
-	CtrlObject->Plugins->CurViewer=this;
+	Global->CtrlObject->Plugins->CurViewer=this;
 	OpenFailed=false;
 	HostFileViewer=nullptr;
 	bVE_READ_Sent = false;
@@ -206,12 +206,12 @@ Viewer::~Viewer()
 
 	if (!OpenFailed && bVE_READ_Sent)
 	{
-		CtrlObject->Plugins->CurViewer=this; //HostFileViewer;
-		CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);
+		Global->CtrlObject->Plugins->CurViewer=this; //HostFileViewer;
+		Global->CtrlObject->Plugins->ProcessViewerEvent(VE_CLOSE,nullptr,ViewerID);
 	}
 
-	if (this == CtrlObject->Plugins->CurViewer)
-		CtrlObject->Plugins->CurViewer = nullptr;
+	if (this == Global->CtrlObject->Plugins->CurViewer)
+		Global->CtrlObject->Plugins->CurViewer = nullptr;
 }
 
 
@@ -408,10 +408,10 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 	ChangeViewKeyBar();
 	AdjustWidth();
-	CtrlObject->Plugins->CurViewer=this; // HostFileViewer;
+	Global->CtrlObject->Plugins->CurViewer=this; // HostFileViewer;
 	/* $ 15.09.2001 tran
 	   пора легализироваться */
-	CtrlObject->Plugins->ProcessViewerEvent(VE_READ,nullptr,ViewerID);
+	Global->CtrlObject->Plugins->ProcessViewerEvent(VE_READ,nullptr,ViewerID);
 	bVE_READ_Sent = true;
 
 	last_update_check = GetTickCount();
@@ -507,15 +507,15 @@ void Viewer::ShowPage(int nMode)
 	switch (nMode)
 	{
 		case SHOW_HEX:
-			CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
+			Global->CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
 			ShowHex();
 			break;
 		case SHOW_DUMP:
-			CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
+			Global->CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
 			ShowDump();
 			break;
 		case SHOW_RELOAD:
-			CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
+			Global->CtrlObject->Plugins->CurViewer = this; //HostFileViewer;
 
 			for (I=0,Y=Y1; Y<=Y2; Y++,I++)
 			{
@@ -1449,7 +1449,7 @@ int Viewer::ProcessKey(int Key)
 			Global->Opt->ViOpt.ShowScrollbar=ViOpt.ShowScrollbar;
 
 			if (m_bQuickView)
-				CtrlObject->Cp()->ActivePanel->Redraw();
+				Global->CtrlObject->Cp()->ActivePanel->Redraw();
 
 			Show();
 			return (TRUE);
@@ -1676,7 +1676,7 @@ int Viewer::ProcessKey(int Key)
 		}
 		case KEY_F11:
 		{
-			CtrlObject->Plugins->CommandsMenu(MODALTYPE_VIEWER,0,L"Viewer");
+			Global->CtrlObject->Plugins->CommandsMenu(MODALTYPE_VIEWER,0,L"Viewer");
 			Show();
 			return TRUE;
 		}
@@ -2436,7 +2436,7 @@ void Viewer::ChangeViewKeyBar()
 		ViewKeyBar->Redraw();
 	}
 
-	CtrlObject->Plugins->CurViewer=this; //HostFileViewer;
+	Global->CtrlObject->Plugins->CurViewer=this; //HostFileViewer;
 }
 
 

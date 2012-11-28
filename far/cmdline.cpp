@@ -60,9 +60,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "keyboard.hpp"
 #include "mix.hpp"
+#include "console.hpp"
+#include "panelmix.hpp"
+#include "message.hpp"
 
 CommandLine::CommandLine():
-	CmdStr(CtrlObject->Cp(),0,true,CtrlObject->CmdHistory,0,(Global->Opt->CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_COMPLETE_HISTORY|EditControl::EC_COMPLETE_FILESYSTEM|EditControl::EC_COMPLETE_PATH),
+	CmdStr(Global->CtrlObject->Cp(),0,true,Global->CtrlObject->CmdHistory,0,(Global->Opt->CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_COMPLETE_HISTORY|EditControl::EC_COMPLETE_FILESYSTEM|EditControl::EC_COMPLETE_PATH),
 	BackgroundScreen(nullptr),
 	LastCmdPartLength(-1)
 {
@@ -153,7 +156,7 @@ int CommandLine::ProcessKey(int Key)
 
 		strStr = strLastCmdStr;
 		int CurCmdPartLength=(int)strStr.GetLength();
-		CtrlObject->CmdHistory->GetSimilar(strStr,LastCmdPartLength);
+		Global->CtrlObject->CmdHistory->GetSimilar(strStr,LastCmdPartLength);
 
 		if (LastCmdPartLength==-1)
 		{
@@ -173,21 +176,21 @@ int CommandLine::ProcessKey(int Key)
 
 	if (Key == KEY_UP || Key == KEY_NUMPAD8)
 	{
-		if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
+		if (Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible())
 			return FALSE;
 
 		Key=KEY_CTRLE;
 	}
 	else if (Key == KEY_DOWN || Key == KEY_NUMPAD2)
 	{
-		if (CtrlObject->Cp()->LeftPanel->IsVisible() || CtrlObject->Cp()->RightPanel->IsVisible())
+		if (Global->CtrlObject->Cp()->LeftPanel->IsVisible() || Global->CtrlObject->Cp()->RightPanel->IsVisible())
 			return FALSE;
 
 		Key=KEY_CTRLX;
 	}
 
 	// $ 25.03.2002 VVM + При погашенных панелях колесом крутим историю
-	if (!CtrlObject->Cp()->LeftPanel->IsVisible() && !CtrlObject->Cp()->RightPanel->IsVisible())
+	if (!Global->CtrlObject->Cp()->LeftPanel->IsVisible() && !Global->CtrlObject->Cp()->RightPanel->IsVisible())
 	{
 		switch (Key)
 		{
@@ -207,11 +210,11 @@ int CommandLine::ProcessKey(int Key)
 			{
 				if (Key == KEY_CTRLE || Key == KEY_RCTRLE)
 				{
-					CtrlObject->CmdHistory->GetPrev(strStr);
+					Global->CtrlObject->CmdHistory->GetPrev(strStr);
 				}
 				else
 				{
-					CtrlObject->CmdHistory->GetNext(strStr);
+					Global->CtrlObject->CmdHistory->GetNext(strStr);
 				}
 
 				{
@@ -228,7 +231,7 @@ int CommandLine::ProcessKey(int Key)
 			{
 				// $ 24.09.2000 SVS - Если задано поведение по "Несохранению при Esc", то позицию в хистори не меняем и ставим в первое положение.
 				if (Global->Opt->CmdHistoryRule)
-					CtrlObject->CmdHistory->ResetPosition();
+					Global->CtrlObject->CmdHistory->ResetPosition();
 
 				PStr=L"";
 			}
@@ -247,7 +250,7 @@ int CommandLine::ProcessKey(int Key)
 		{
 			int Type;
 			// $ 19.09.2000 SVS - При выборе из History (по Alt-F8) плагин не получал управление!
-			int SelectType=CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),L"History",strStr,Type);
+			int SelectType=Global->CtrlObject->CmdHistory->Select(MSG(MHistoryTitle),L"History",strStr,Type);
 			// BUGBUG, magic numbers
 			if ((SelectType > 0 && SelectType <= 3) || SelectType == 7)
 			{
@@ -275,12 +278,12 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_ALTF10:
 		case KEY_RALTF10:
 		{
-			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+			Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 			{
 				// TODO: здесь можно добавить проверку, что мы в корне диска и отсутствие файла Tree.Far...
 				FolderTree Tree(strStr,MODALTREE_ACTIVE,TRUE,FALSE);
 			}
-			CtrlObject->Cp()->RedrawKeyBar();
+			Global->CtrlObject->Cp()->RedrawKeyBar();
 
 			if (!strStr.IsEmpty())
 			{
@@ -295,7 +298,7 @@ int CommandLine::ProcessKey(int Key)
 				// TODO: ... а здесь проверить факт изменения/появления файла Tree.Far и мы опять же в корне (чтобы лишний раз не апдейтить панель)
 				ActivePanel->Update(UPDATE_KEEP_SELECTION);
 				ActivePanel->Redraw();
-				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
 				if (AnotherPanel->NeedUpdatePanel(ActivePanel))
 				{
@@ -306,19 +309,19 @@ int CommandLine::ProcessKey(int Key)
 		}
 		return TRUE;
 		case KEY_F11:
-			CtrlObject->Plugins->CommandsMenu(FALSE,FALSE,0);
+			Global->CtrlObject->Plugins->CommandsMenu(FALSE,FALSE,0);
 			return TRUE;
 		case KEY_ALTF11:
 		case KEY_RALTF11:
 			ShowViewEditHistory();
-			CtrlObject->Cp()->Redraw();
+			Global->CtrlObject->Cp()->Redraw();
 			return TRUE;
 		case KEY_ALTF12:
 		case KEY_RALTF12:
 		{
 			int Type;
 			GUID Guid; string strFile, strData;
-			int SelectType=CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),L"HistoryFolders",strStr,Type,&Guid,&strFile,&strData);
+			int SelectType=Global->CtrlObject->FolderHistory->Select(MSG(MFolderHistoryTitle),L"HistoryFolders",strStr,Type,&Guid,&strFile,&strData);
 
 			/*
 			   SelectType = 0 - Esc
@@ -330,13 +333,13 @@ int CommandLine::ProcessKey(int Key)
 			if (SelectType == 1 || SelectType == 2 || SelectType == 6)
 			{
 				if (SelectType==2)
-					CtrlObject->FolderHistory->SetAddMode(false,2,true);
+					Global->CtrlObject->FolderHistory->SetAddMode(false,2,true);
 
 				// пусть плагин сам прыгает... ;-)
-				Panel *Panel=CtrlObject->Cp()->ActivePanel;
+				Panel *Panel=Global->CtrlObject->Cp()->ActivePanel;
 
 				if (SelectType == 6)
-					Panel=CtrlObject->Cp()->GetAnotherPanel(Panel);
+					Panel=Global->CtrlObject->Cp()->GetAnotherPanel(Panel);
 
 				//Type==1 - плагиновый путь
 				//Type==0 - обычный путь
@@ -344,16 +347,16 @@ int CommandLine::ProcessKey(int Key)
 				// Panel may be changed
 				if(SelectType == 6)
 				{
-					Panel=CtrlObject->Cp()->ActivePanel;
+					Panel=Global->CtrlObject->Cp()->ActivePanel;
 					Panel->SetCurPath();
-					Panel=CtrlObject->Cp()->GetAnotherPanel(Panel);
+					Panel=Global->CtrlObject->Cp()->GetAnotherPanel(Panel);
 				}
 				else
 				{
-					Panel=CtrlObject->Cp()->ActivePanel;
+					Panel=Global->CtrlObject->Cp()->ActivePanel;
 				}
 				Panel->Redraw();
-				CtrlObject->FolderHistory->SetAddMode(true,2,true);
+				Global->CtrlObject->FolderHistory->SetAddMode(true,2,true);
 			}
 			else if (SelectType==3)
 				SetString(strStr);
@@ -372,7 +375,7 @@ int CommandLine::ProcessKey(int Key)
 		case KEY_CTRLRALTNUMENTER:
 		case KEY_RCTRLALTNUMENTER:
 		{
-			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+			Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 			CmdStr.Select(-1,0);
 			CmdStr.Show();
 			CmdStr.GetString(strStr);
@@ -383,7 +386,7 @@ int CommandLine::ProcessKey(int Key)
 			ActivePanel->SetCurPath();
 
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTCMDLINE))
-				CtrlObject->CmdHistory->AddToHistory(strStr);
+				Global->CtrlObject->CmdHistory->AddToHistory(strStr);
 
 			ProcessOSAliases(strStr);
 
@@ -481,7 +484,7 @@ void CommandLine::SetCurDir(const string& CurDir)
 	{
 		strCurDir = CurDir;
 
-		if (CtrlObject->Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
+		if (Global->CtrlObject->Cp()->ActivePanel->GetMode()!=PLUGIN_PANEL)
 			PrepareDiskPath(strCurDir);
 	}
 }
@@ -647,7 +650,7 @@ void CommandLine::ShowViewEditHistory()
 {
 	string strStr;
 	int Type;
-	int SelectType=CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),L"HistoryViews",strStr,Type);
+	int SelectType=Global->CtrlObject->ViewHistory->Select(MSG(MViewHistoryTitle),L"HistoryViews",strStr,Type);
 	/*
 	   SelectType = 0 - Esc
 	                1 - Enter
@@ -658,9 +661,9 @@ void CommandLine::ShowViewEditHistory()
 	if (SelectType == 1 || SelectType == 2)
 	{
 		if (SelectType!=2)
-			CtrlObject->ViewHistory->AddToHistory(strStr,Type);
+			Global->CtrlObject->ViewHistory->AddToHistory(strStr,Type);
 
-		CtrlObject->ViewHistory->SetAddMode(false,Global->Opt->FlagPosixSemantics?1:2,true);
+		Global->CtrlObject->ViewHistory->SetAddMode(false,Global->Opt->FlagPosixSemantics?1:2,true);
 
 		switch (Type)
 		{
@@ -691,8 +694,8 @@ void CommandLine::ShowViewEditHistory()
 				else
 				{
 					SaveScreen SaveScr;
-					CtrlObject->Cp()->LeftPanel->CloseFile();
-					CtrlObject->Cp()->RightPanel->CloseFile();
+					Global->CtrlObject->Cp()->LeftPanel->CloseFile();
+					Global->CtrlObject->Cp()->RightPanel->CloseFile();
 					Execute(strStr.CPtr()+1,Type>2);
 				}
 
@@ -700,7 +703,7 @@ void CommandLine::ShowViewEditHistory()
 			}
 		}
 
-		CtrlObject->ViewHistory->SetAddMode(true,Global->Opt->FlagPosixSemantics?1:2,true);
+		Global->CtrlObject->ViewHistory->SetAddMode(true,Global->Opt->FlagPosixSemantics?1:2,true);
 	}
 	else if (SelectType==3) // скинуть из истории в ком.строку?
 		SetString(strStr);
@@ -744,4 +747,497 @@ void CommandLine::ResizeConsole()
 {
 	BackgroundScreen->Resize(ScrX+1,ScrY+1,2,Global->Opt->WindowMode!=FALSE);
 //  this->DisplayObject();
+}
+
+int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)
+{
+	{
+		SetAutocomplete disable(&CmdStr);
+		SetString(CmdLine);
+	}
+
+	LastCmdPartLength=-1;
+
+	if(!StrCmpI(CmdLine,L"far:config"))
+	{
+		SetString(L"", false);
+		Show();
+		return AdvancedConfig();
+	}
+
+	if (!SeparateWindow && Global->CtrlObject->Plugins->ProcessCommandLine(CmdLine))
+	{
+		/* $ 12.05.2001 DJ - рисуемся только если остались верхним фреймом */
+		if (Global->CtrlObject->Cp()->IsTopFrame())
+		{
+			//CmdStr.SetString(L"");
+			GotoXY(X1,Y1);
+			Global->FS << fmt::MinWidth(X2-X1+1)<<L"";
+			Show();
+			Global->ScrBuf->Flush();
+		}
+
+		return -1;
+	}
+
+	int Code;
+	COORD Size0;
+	Global->Console->GetSize(Size0);
+
+	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
+		FarChDir(strCurDir);
+
+	string strPrevDir=strCurDir;
+	bool PrintCommand=true;
+	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow,PrintCommand)) == TRUE)
+	{
+		if (PrintCommand)
+		{
+			ShowBackground();
+			string strNewDir=strCurDir;
+			strCurDir=strPrevDir;
+			Redraw();
+			strCurDir=strNewDir;
+			GotoXY(X2+1,Y1);
+			Text(L" ");
+			ScrollScreen(2);
+			SaveBackground();
+		}
+
+		SetString(L"", false);
+
+		Code=-1;
+	}
+	else
+	{
+		string strTempStr;
+		strTempStr = CmdLine;
+
+		if (Code == -1)
+			ReplaceStrings(strTempStr,L"/",L"\\",-1);
+
+		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent, RunAs);
+	}
+
+	COORD Size1;
+	Global->Console->GetSize(Size1);
+
+	if (Size0.X != Size1.X || Size0.Y != Size1.Y)
+	{
+		GotoXY(X2+1,Y1);
+		Text(L" ");
+		Global->CtrlObject->CmdLine->CorrectRealScreenCoord();
+	}
+
+	if (!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
+	{
+		ShellUpdatePanels(Global->CtrlObject->Cp()->ActivePanel,FALSE);
+		if (Global->Opt->ShowKeyBar)
+		{
+			Global->CtrlObject->MainKeyBar->Show();
+		}
+	}
+	if (Global->Opt->Clock)
+		ShowTime(0);
+	Global->ScrBuf->Flush();
+	return Code;
+}
+
+int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, bool &PrintCommand)
+{
+	int Length;
+	string strCmdLine = CmdLine;
+	Panel *SetPanel=Global->CtrlObject->Cp()->ActivePanel;
+	PrintCommand=true;
+
+	if (SetPanel->GetType()!=FILE_PANEL && Global->CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
+		SetPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SetPanel);
+
+	RemoveTrailingSpaces(strCmdLine);
+	bool SilentInt=false;
+
+	if (*CmdLine == L'@')
+	{
+		SilentInt=true;
+		strCmdLine.LShift(1);
+	}
+
+	if (!SeparateWindow && strCmdLine.At(0) && strCmdLine.At(1)==L':' && !strCmdLine.At(2))
+	{
+		if(!FarChDir(strCmdLine))
+		{
+			wchar_t NewDir[]={Upper(strCmdLine.At(0)),L':',L'\\',0};
+			{
+				FarChDir(NewDir);
+			}
+		}
+		SetPanel->ChangeDirToCurrent();
+		return TRUE;
+	}
+	// SET [переменная=[строка]]
+	else if (!StrCmpNI(strCmdLine,L"SET",3) && (IsSpaceOrEos(strCmdLine.At(3)) || strCmdLine.At(3) == L'/'))
+	{
+		size_t pos;
+		strCmdLine.LShift(3);
+		RemoveLeadingSpaces(strCmdLine);
+
+		if (CheckCmdLineForHelp(strCmdLine))
+			return FALSE; // отдадимся COMSPEC`у
+
+		// "set" (display all) or "set var" (display all that begin with "var")
+		if (strCmdLine.IsEmpty() || !strCmdLine.Pos(pos,L'=') || !pos)
+		{
+			//forward "set [prefix]| command" and "set [prefix]> file" to COMSPEC
+			if (strCmdLine.ContainsAny(L"|>"))
+				return FALSE;
+
+			ShowBackground();  //??? почему не отдаём COMSPEC'у
+			// display command //???
+			Redraw();
+			GotoXY(X2+1,Y1);
+			Text(L" ");
+			Global->ScrBuf->Flush();
+			Global->Console->SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+			string strOut("\n");
+			int CmdLength = static_cast<int>(strCmdLine.GetLength());
+			LPWCH Environment = GetEnvironmentStrings();
+			for (LPCWSTR Ptr = Environment; *Ptr;)
+			{
+				int PtrLength = StrLength(Ptr);
+				if (!StrCmpNI(Ptr, strCmdLine, CmdLength))
+				{
+					strOut.Append(Ptr, PtrLength).Append(L"\n");
+				}
+				Ptr+=PtrLength+1;
+			}
+			FreeEnvironmentStrings(Environment);
+			strOut.Append(L"\n\n", Global->Opt->ShowKeyBar?2:1);
+			Global->Console->Write(strOut);
+			Global->Console->Commit();
+			Global->ScrBuf->FillBuf();
+			SaveBackground();
+			PrintCommand = false;
+			return TRUE;
+		}
+
+		if (CheckCmdLineForSet(strCmdLine)) // вариант для /A и /P
+			return FALSE; //todo: /p - dialog, /a - calculation; then set variable ...
+
+		if (strCmdLine.GetLength() == pos+1) //set var=
+		{
+			strCmdLine.SetLength(pos);
+			SetEnvironmentVariable(strCmdLine,nullptr);
+		}
+		else
+		{
+			string strExpandedStr;
+
+			if (apiExpandEnvironmentStrings(strCmdLine.CPtr()+pos+1,strExpandedStr))
+			{
+				strCmdLine.SetLength(pos);
+				SetEnvironmentVariable(strCmdLine,strExpandedStr);
+			}
+		}
+
+		return TRUE;
+	}
+	// REM все остальное
+	else if ((!StrCmpNI(strCmdLine,L"REM",Length=3) && IsSpaceOrEos(strCmdLine.At(3))) || !StrCmpNI(strCmdLine,L"::",Length=2))
+	{
+		if (Length == 3 && CheckCmdLineForHelp(strCmdLine.CPtr()+Length))
+			return FALSE; // отдадимся COMSPEC`у
+
+		return TRUE;
+	}
+	else if (!StrCmpNI(strCmdLine,L"CLS",3) && IsSpaceOrEos(strCmdLine.At(3)))
+	{
+		if (CheckCmdLineForHelp(strCmdLine.CPtr()+3))
+			return FALSE; // отдадимся COMSPEC`у
+
+		ClearScreen(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
+		SaveBackground();
+		PrintCommand=false;
+		return TRUE;
+	}
+	// PUSHD путь | ..
+	else if (!StrCmpNI(strCmdLine,L"PUSHD",5) && IsSpaceOrEos(strCmdLine.At(5)))
+	{
+		strCmdLine.LShift(5);
+		RemoveLeadingSpaces(strCmdLine);
+
+		if (CheckCmdLineForHelp(strCmdLine))
+			return FALSE; // отдадимся COMSPEC`у
+
+		PushPopRecord prec;
+		prec.strName = strCurDir;
+
+		if (IntChDir(strCmdLine,true,SilentInt))
+		{
+			ppstack.Push(prec);
+			SetEnvironmentVariable(L"FARDIRSTACK",prec.strName);
+		}
+		else
+		{
+			;
+		}
+
+		return TRUE;
+	}
+	// POPD
+	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
+	else if (!StrCmpNI(CmdLine,L"POPD",4) && IsSpaceOrEos(strCmdLine.At(4)))
+	{
+		if (CheckCmdLineForHelp(strCmdLine.CPtr()+4))
+			return FALSE; // отдадимся COMSPEC`у
+
+		PushPopRecord prec;
+
+		if (ppstack.Pop(prec))
+		{
+			int Ret=IntChDir(prec.strName,true,SilentInt)?TRUE:FALSE;
+			PushPopRecord *ptrprec=ppstack.Peek();
+			SetEnvironmentVariable(L"FARDIRSTACK",(ptrprec?ptrprec->strName.CPtr():nullptr));
+			return Ret;
+		}
+
+		return TRUE;
+	}
+	// CLRD
+	else if (!StrCmpI(CmdLine,L"CLRD"))
+	{
+		ppstack.Free();
+		SetEnvironmentVariable(L"FARDIRSTACK",nullptr);
+		return TRUE;
+	}
+	/*
+		Displays or sets the active code page number.
+		CHCP [nnn]
+			nnn   Specifies a code page number (Dec or Hex).
+		Type CHCP without a parameter to display the active code page number.
+	*/
+	else if (!StrCmpNI(strCmdLine,L"CHCP",4) && IsSpaceOrEos(strCmdLine.At(4)))
+	{
+		strCmdLine.LShift(4);
+
+		const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine);
+
+		if (CheckCmdLineForHelp(Ptr))
+			return FALSE; // отдадимся COMSPEC`у
+
+		if (!iswdigit(*Ptr))
+			return FALSE;
+
+		wchar_t Chr;
+
+		while ((Chr=*Ptr) )
+		{
+			if (!iswdigit(Chr))
+				break;
+
+			++Ptr;
+		}
+
+		wchar_t *Ptr2;
+		UINT cp=(UINT)wcstol(strCmdLine,&Ptr2,10); //BUGBUG
+		BOOL r1=Global->Console->SetInputCodepage(cp);
+		BOOL r2=Global->Console->SetOutputCodepage(cp);
+
+		if (r1 && r2) // Если все ОБИ, то так  и...
+		{
+			InitRecodeOutTable();
+#ifndef NO_WRAPPER
+			wrapper::LocalUpperInit();
+#endif // NO_WRAPPER
+			InitKeysArray();
+			Global->ScrBuf->ResetShadow();
+			Global->ScrBuf->Flush();
+			return TRUE;
+		}
+		else  // про траблы внешняя chcp сама скажет ;-)
+		{
+			return FALSE;
+		}
+	}
+	else if (!StrCmpNI(strCmdLine,L"IF",2) && IsSpaceOrEos(strCmdLine.At(2)))
+	{
+		if (CheckCmdLineForHelp(strCmdLine.CPtr()+2))
+			return FALSE; // отдадимся COMSPEC`у
+
+		const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
+		// здесь PtrCmd - уже готовая команда, без IF
+
+		if (PtrCmd && *PtrCmd && Global->CtrlObject->Plugins->ProcessCommandLine(PtrCmd))
+		{
+			//CmdStr.SetString(L"");
+			GotoXY(X1,Y1);
+			Global->FS << fmt::MinWidth(X2-X1+1)<<L"";
+			Show();
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+	// пропускаем обработку, если нажат Shift-Enter
+	else if (!SeparateWindow && (!StrCmpNI(strCmdLine,L"CD",Length=2) || !StrCmpNI(strCmdLine,L"CHDIR",Length=5)))
+	{
+		if (!IsSpaceOrEos(strCmdLine.At(Length)))
+		{
+			if (!IsSlash(strCmdLine.At(Length)))
+				return FALSE;
+		}
+
+		strCmdLine.LShift(Length);
+		RemoveLeadingSpaces(strCmdLine);
+
+		//проигнорируем /D
+		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
+		if (!StrCmpNI(strCmdLine,L"/D",2) && IsSpaceOrEos(strCmdLine.At(2)))
+		{
+			strCmdLine.LShift(2);
+			RemoveLeadingSpaces(strCmdLine);
+		}
+
+		if (strCmdLine.IsEmpty() || CheckCmdLineForHelp(strCmdLine))
+			return FALSE; // отдадимся COMSPEC`у
+
+		IntChDir(strCmdLine,Length==5,SilentInt);
+		return TRUE;
+	}
+	else if (!StrCmpNI(strCmdLine,L"EXIT",4) && IsSpaceOrEos(strCmdLine.At(4)))
+	{
+		if (CheckCmdLineForHelp(strCmdLine.CPtr()+4))
+			return FALSE; // отдадимся COMSPEC`у
+
+		FrameManager->ExitMainLoop(FALSE);
+		return TRUE;
+	}
+
+	return FALSE;
+}
+
+bool CommandLine::CheckCmdLineForHelp(const wchar_t *CmdLine)
+{
+	if (CmdLine && *CmdLine)
+	{
+		while (IsSpace(*CmdLine))
+			CmdLine++;
+
+		if (*CmdLine && (CmdLine[0] == L'/' || CmdLine[0] == L'-') && CmdLine[1] == L'?')
+			return true;
+	}
+
+	return false;
+}
+
+bool CommandLine::CheckCmdLineForSet(const string& CmdLine)
+{
+	if (CmdLine.GetLength()>1 && CmdLine.At(0)==L'/' && IsSpaceOrEos(CmdLine.At(2)))
+		return true;
+
+	return false;
+}
+
+bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
+{
+	Panel *SetPanel;
+	SetPanel=Global->CtrlObject->Cp()->ActivePanel;
+
+	if (SetPanel->GetType()!=FILE_PANEL && Global->CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
+		SetPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SetPanel);
+
+	string strExpandedDir(CmdLine);
+	Unquote(strExpandedDir);
+	apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
+
+	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && ((!strExpandedDir.At(1) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir.At(1))))
+	{
+		if (Global->Opt->Exec.UseHomeDir && !Global->Opt->Exec.strHomeDir.IsEmpty())
+		{
+			string strTemp=Global->Opt->Exec.strHomeDir.Get();
+
+			if (strExpandedDir.At(1))
+			{
+				AddEndSlash(strTemp);
+				strTemp += strExpandedDir.CPtr()+2;
+			}
+
+			DeleteEndSlash(strTemp);
+			strExpandedDir=strTemp;
+			apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
+		}
+	}
+
+	const wchar_t* DirPtr = strExpandedDir;
+	ParsePath(strExpandedDir, &DirPtr);
+	if (wcspbrk(DirPtr, L"?*")) // это маска?
+	{
+		FAR_FIND_DATA_EX wfd;
+
+		if (apiGetFindDataEx(strExpandedDir, wfd))
+		{
+			size_t pos;
+
+			if (FindLastSlash(pos,strExpandedDir))
+				strExpandedDir.SetLength(pos+1);
+			else
+				strExpandedDir.Clear();
+
+			strExpandedDir += wfd.strFileName;
+		}
+	}
+
+	/* $ 15.11.2001 OT
+		Сначала проверяем есть ли такая "обычная" директория.
+		если уж нет, то тогда начинаем думать, что это директория плагинная
+	*/
+	DWORD DirAtt=apiGetFileAttributes(strExpandedDir);
+
+	if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && IsAbsolutePath(strExpandedDir))
+	{
+		ReplaceSlashToBSlash(strExpandedDir);
+		SetPanel->SetCurDir(strExpandedDir,TRUE);
+		return true;
+	}
+
+	/* $ 20.09.2002 SKV
+	  Это отключает возможность выполнять такие команды как:
+	  cd net:server и cd ftp://server/dir
+	  Так как под ту же гребёнку попадают и
+	  cd s&r:, cd make: и т.д., которые к смене
+	  каталога не имеют никакого отношения.
+	*/
+	/*
+	if (Global->CtrlObject->Plugins->ProcessCommandLine(ExpandedDir))
+	{
+	  //CmdStr.SetString(L"");
+	  GotoXY(X1,Y1);
+	  Global->FS << fmt::Width(X2-X1+1)<<L"";
+	  Show();
+	  return true;
+	}
+	*/
+	strExpandedDir.ReleaseBuffer();
+
+	if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
+	{
+		SetPanel->SetCurDir(strExpandedDir,ClosePanel);
+		return true;
+	}
+
+	if (FarChDir(strExpandedDir))
+	{
+		SetPanel->ChangeDirToCurrent();
+
+		if (!SetPanel->IsVisible())
+			SetPanel->SetTitle();
+	}
+	else
+	{
+		if (!Selent)
+			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strExpandedDir,MSG(MOk));
+
+		return false;
+	}
+
+	return true;
 }

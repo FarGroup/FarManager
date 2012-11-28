@@ -349,12 +349,12 @@ void ScreenBuf::Flush()
 
 	if (!LockCount)
 	{
-		if (CtrlObject && (CtrlObject->Macro.IsRecording() || CtrlObject->Macro.IsExecuting()))
+		if (Global->CtrlObject && (Global->CtrlObject->Macro.IsRecording() || Global->CtrlObject->Macro.IsExecuting()))
 		{
 			MacroChar=Buf[0];
 			MacroCharUsed=true;
 
-			if(CtrlObject->Macro.IsRecording())
+			if(Global->CtrlObject->Macro.IsRecording())
 			{
 				Buf[0].Char=L'R';
 				Colors::ConsoleColorToFarColor(0xCF, Buf[0].Attributes);

@@ -93,7 +93,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 	if (!EnableAdd || SaveForbid)
 		return;
 
-	if (CtrlObject->Macro.IsExecuting() && CtrlObject->Macro.IsHistoryDisable((int)TypeHistory))
+	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisable((int)TypeHistory))
 		return;
 
 	if (TypeHistory!=HISTORYTYPE_DIALOG && (TypeHistory!=HISTORYTYPE_FOLDER || !Guid || IsEqualGUID(FarGuid,*Guid)) && (!Str || !*Str))
@@ -254,7 +254,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 					GUID HGuid;
 					if(StrToGuid(strHGuid,HGuid)&&!IsEqualGUID(FarGuid,HGuid))
 					{
-						Plugin *pPlugin = CtrlObject->Plugins->FindPlugin(HGuid);
+						Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
 						if(pPlugin)
 						{
 							strRecord += pPlugin->GetTitle();
@@ -391,7 +391,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 							GUID HGuid;
 							if(StrToGuid(strHGuid,HGuid)&&!IsEqualGUID(FarGuid,HGuid))
 							{
-								Plugin *pPlugin = CtrlObject->Plugins->FindPlugin(HGuid);
+								Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
 								if(!pPlugin) kill=true;
 								else if (!strHFile.IsEmpty()&&apiGetFileAttributes(strHFile) == INVALID_FILE_ATTRIBUTES) kill=true;
 							}

@@ -508,12 +508,12 @@ intptr_t VMenu2::RunEx(function<int(int Msg, void *param)> fn)
 	Resize(true);
 
 
-	MACROMODEAREA PrevMacroMode=CtrlObject->Macro.GetMode();
-	CtrlObject->Macro.SetMode(MacroMode);
+	MACROMODEAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
+	Global->CtrlObject->Macro.SetMode(MacroMode);
 
 	Process();
 
-	CtrlObject->Macro.SetMode(PrevMacroMode);
+	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	return GetExitCode();
 }

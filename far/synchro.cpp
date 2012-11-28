@@ -78,7 +78,7 @@ bool PluginSynchro::Process(void)
 	{
 		if(plugin)
 		{
-			Plugin* pPlugin=CtrlObject?CtrlObject->Plugins->FindPlugin(PluginId):nullptr;
+			Plugin* pPlugin = Global->CtrlObject? Global->CtrlObject->Plugins->FindPlugin(PluginId) : nullptr;
 
 			if (pPlugin)
 			{

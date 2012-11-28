@@ -44,63 +44,63 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 
 RedrawDesktop::RedrawDesktop(BOOL IsHidden):
-	LeftVisible(CtrlObject->Cp()->LeftPanel->IsVisible()),
-	RightVisible(CtrlObject->Cp()->RightPanel->IsVisible()),
+	LeftVisible(Global->CtrlObject->Cp()->LeftPanel->IsVisible()),
+	RightVisible(Global->CtrlObject->Cp()->RightPanel->IsVisible()),
 	ClockVisible(Global->Opt->Clock!=0)
 {
-	CtrlObject->CmdLine->ShowBackground();
-	CtrlObject->CmdLine->Show();
+	Global->CtrlObject->CmdLine->ShowBackground();
+	Global->CtrlObject->CmdLine->Show();
 
 	if (IsHidden)
 	{
-		CtrlObject->Cp()->LeftPanel->CloseFile();
-		CtrlObject->Cp()->RightPanel->CloseFile();
+		Global->CtrlObject->Cp()->LeftPanel->CloseFile();
+		Global->CtrlObject->Cp()->RightPanel->CloseFile();
 
 		// ВНИМАНИЕ! КОСТЫЛЬ!
 		// соблюдем очередность, в зависимости от!
-		if (CtrlObject->Cp()->ActivePanel == CtrlObject->Cp()->LeftPanel)
+		if (Global->CtrlObject->Cp()->ActivePanel == Global->CtrlObject->Cp()->LeftPanel)
 		{
-			CtrlObject->Cp()->LeftPanel->Hide();
-			CtrlObject->Cp()->RightPanel->Hide();
+			Global->CtrlObject->Cp()->LeftPanel->Hide();
+			Global->CtrlObject->Cp()->RightPanel->Hide();
 		}
 		else
 		{
-			CtrlObject->Cp()->RightPanel->Hide();
-			CtrlObject->Cp()->LeftPanel->Hide();
+			Global->CtrlObject->Cp()->RightPanel->Hide();
+			Global->CtrlObject->Cp()->LeftPanel->Hide();
 		}
 		Global->Opt->Clock=FALSE;
-		CtrlObject->MainKeyBar->Hide();
-		CtrlObject->TopMenuBar->Hide();
+		Global->CtrlObject->MainKeyBar->Hide();
+		Global->CtrlObject->TopMenuBar->Hide();
 	}
 }
 
 
 RedrawDesktop::~RedrawDesktop()
 {
-	CtrlObject->CmdLine->SaveBackground();
-	CtrlObject->CmdLine->Show();
+	Global->CtrlObject->CmdLine->SaveBackground();
+	Global->CtrlObject->CmdLine->Show();
 
 	if (Global->Opt->ShowKeyBar)
-		CtrlObject->MainKeyBar->Show();
+		Global->CtrlObject->MainKeyBar->Show();
 
 	Global->Opt->Clock=ClockVisible;
 
 	if (Global->Opt->ShowMenuBar)
-		CtrlObject->TopMenuBar->Show();
+		Global->CtrlObject->TopMenuBar->Show();
 
-	int RightType=CtrlObject->Cp()->RightPanel->GetType();
+	int RightType=Global->CtrlObject->Cp()->RightPanel->GetType();
 
 	if (RightVisible && RightType!=QVIEW_PANEL)
-		//CtrlObject->Cp()->RightPanel->Show();
-		CtrlObject->Cp()->RightPanel->SetVisible(TRUE);
+		//Global->CtrlObject->Cp()->RightPanel->Show();
+		Global->CtrlObject->Cp()->RightPanel->SetVisible(TRUE);
 
 	if (LeftVisible)
-		// CtrlObject->Cp()->LeftPanel->Show();
-		CtrlObject->Cp()->LeftPanel->SetVisible(TRUE);
+		// Global->CtrlObject->Cp()->LeftPanel->Show();
+		Global->CtrlObject->Cp()->LeftPanel->SetVisible(TRUE);
 
 	if (RightVisible && RightType==QVIEW_PANEL)
-		// CtrlObject->Cp()->RightPanel->Show();
-		CtrlObject->Cp()->RightPanel->SetVisible(TRUE);
+		// Global->CtrlObject->Cp()->RightPanel->Show();
+		Global->CtrlObject->Cp()->RightPanel->SetVisible(TRUE);
 
 	// Временное решение!
 	// Иначе траблы при пересчете...

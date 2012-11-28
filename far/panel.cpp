@@ -247,17 +247,17 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 	{
 		for (PluginItem=0;; ++PluginItem)
 		{
-			if (PluginNumber >= CtrlObject->Plugins->GetPluginsCount())
+			if (PluginNumber >= Global->CtrlObject->Plugins->GetPluginsCount())
 			{
 				Done=true;
 				break;
 			}
 
-			Plugin *pPlugin = CtrlObject->Plugins->GetPlugin(PluginNumber);
+			Plugin *pPlugin = Global->CtrlObject->Plugins->GetPlugin(PluginNumber);
 
 			WCHAR HotKey = 0;
 			GUID guid;
-			if (!CtrlObject->Plugins->GetDiskMenuItem(
+			if (!Global->CtrlObject->Plugins->GetDiskMenuItem(
 			            pPlugin,
 			            PluginItem,
 			            ItemPresent,
@@ -412,7 +412,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 	class Guard_Macro_DskShowPosType  //фигня какая-то
 	{
 		public:
-			Guard_Macro_DskShowPosType(Panel *curPanel) {Global->Macro_DskShowPosType=(curPanel==CtrlObject->Cp()->LeftPanel)?1:2;};
+			Guard_Macro_DskShowPosType(Panel *curPanel) {Global->Macro_DskShowPosType=(curPanel==Global->CtrlObject->Cp()->LeftPanel)?1:2;};
 			~Guard_Macro_DskShowPosType() {Global->Macro_DskShowPosType=0;};
 	};
 	Guard_Macro_DskShowPosType _guard_Macro_DskShowPosType(this);
@@ -627,7 +627,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 		int X=X1+5;
 
-		if ((this == CtrlObject->Cp()->RightPanel) && IsFullScreen() && (X2-X1 > 40))
+		if ((this == Global->CtrlObject->Cp()->RightPanel) && IsFullScreen() && (X2-X1 > 40))
 			X = (X2-X1+1)/2+5;
 
 		ChDisk.SetPosition(X,-1,0,0);
@@ -707,7 +707,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_F3:
 				if (item && item->bIsPlugin)
 				{
-					CtrlObject->Plugins->ShowPluginInfo(item->pPlugin, item->Guid);
+					Global->CtrlObject->Plugins->ShowPluginInfo(item->pPlugin, item->Guid);
 				}
 				break;
 				case KEY_CTRLA:
@@ -726,7 +726,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 						{
 							string strName = ChDisk.GetItemPtr(SelPos)->strName + 3;
 							RemoveExternalSpaces(strName);
-							if(CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::DRIVE_MENU, strName))
+							if(Global->CtrlObject->Plugins->SetHotKeyDialog(item->pPlugin, item->Guid, PluginsHotkeysConfig::DRIVE_MENU, strName))
 							RetCode=SelPos;
 						}
 					}
@@ -738,11 +738,11 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_MSRCLICK:
 				{
 					//вызовем EMenu если он есть
-					if (item && !item->bIsPlugin && CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
+					if (item && !item->bIsPlugin && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
 					{
 						const wchar_t DeviceName[] = {item->cDrive, L':', L'\\', 0};
 						struct DiskMenuParam {const wchar_t* CmdLine; BOOL Apps;} p = {DeviceName, Key!=KEY_MSRCLICK};
-						CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu, OPEN_LEFTDISKMENU, &p); // EMenu Plugin :-)
+						Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu, OPEN_LEFTDISKMENU, &p); // EMenu Plugin :-)
 					}
 					break;
 				}
@@ -839,14 +839,14 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				case KEY_RALTSHIFTF9:
 
 					if (Global->Opt->ChangeDriveMode&DRIVE_SHOW_PLUGINS)
-						CtrlObject->Plugins->Configure();
+						Global->CtrlObject->Plugins->Configure();
 
 					RetCode=SelPos;
 					break;
 				case KEY_SHIFTF9:
 
 					if (item && item->bIsPlugin && item->pPlugin->HasConfigure())
-						CtrlObject->Plugins->ConfigureCurrent(item->pPlugin, item->Guid);
+						Global->CtrlObject->Plugins->ConfigureCurrent(item->pPlugin, item->Guid);
 
 					RetCode=SelPos;
 					break;
@@ -999,22 +999,22 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		else
 		{
 			Focus=GetFocus();
-			Panel *NewPanel=CtrlObject->Cp()->ChangePanel(this, FILE_PANEL, TRUE, FALSE);
+			Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(this, FILE_PANEL, TRUE, FALSE);
 			NewPanel->SetCurDir(strNewCurDir,TRUE);
 			NewPanel->Show();
 
-			if (Focus || !CtrlObject->Cp()->GetAnotherPanel(this)->IsVisible())
+			if (Focus || !Global->CtrlObject->Cp()->GetAnotherPanel(this)->IsVisible())
 				NewPanel->SetFocus();
 
-			if (!Focus && CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL)
-				CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
+			if (!Focus && Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL)
+				Global->CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
 		}
 	}
 	else //эта плагин, да
 	{
-		HANDLE hPlugin = CtrlObject->Plugins->Open(
+		HANDLE hPlugin = Global->CtrlObject->Plugins->Open(
 		                     mitem->pPlugin,
-		                     (CtrlObject->Cp()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
+		                     (Global->CtrlObject->Cp()->LeftPanel == this)?OPEN_LEFTDISKMENU:OPEN_RIGHTDISKMENU,
 		                     mitem->Guid,
 		                     0
 		                 );
@@ -1022,13 +1022,13 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		if (hPlugin)
 		{
 			Focus=GetFocus();
-			Panel *NewPanel = CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
-			NewPanel->SetPluginMode(hPlugin,L"",Focus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
+			Panel *NewPanel = Global->CtrlObject->Cp()->ChangePanel(this,FILE_PANEL,TRUE,TRUE);
+			NewPanel->SetPluginMode(hPlugin,L"",Focus || !Global->CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
 			NewPanel->Update(0);
 			NewPanel->Show();
 
-			if (!Focus && CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL)
-				CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
+			if (!Focus && Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == INFO_PANEL)
+				Global->CtrlObject->Cp()->GetAnotherPanel(this)->UpdateKeyBar();
 		}
 	}
 
@@ -1048,10 +1048,10 @@ int Panel::DisconnectDrive(PanelMenuItem *item, VMenu2 &ChDisk)
 		{
 			// запоминаем состояние панелей
 			int CMode=GetMode();
-			int AMode=CtrlObject->Cp()->GetAnotherPanel(this)->GetMode();
+			int AMode=Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetMode();
 			string strTmpCDir, strTmpADir;
 			GetCurDir(strTmpCDir);
-			CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strTmpADir);
+			Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strTmpADir);
 
 			// "цикл до умопомрачения"
 			int DoneEject=FALSE;
@@ -1068,7 +1068,7 @@ int Panel::DisconnectDrive(PanelMenuItem *item, VMenu2 &ChDisk)
 				{
 					// восстановим пути - это избавит нас от левых данных в панели.
 					if (AMode != PLUGIN_PANEL)
-						CtrlObject->Cp()->GetAnotherPanel(this)->SetCurDir(strTmpADir, FALSE);
+						Global->CtrlObject->Cp()->GetAnotherPanel(this)->SetCurDir(strTmpADir, FALSE);
 
 					if (CMode != PLUGIN_PANEL)
 						SetCurDir(strTmpCDir, FALSE);
@@ -1098,10 +1098,10 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu2 &ChDisk)
 	{
 		// запоминаем состояние панелей
 		int CMode=GetMode();
-		int AMode=CtrlObject->Cp()->GetAnotherPanel(this)->GetMode();
+		int AMode=Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetMode();
 		string strTmpCDir, strTmpADir;
 		GetCurDir(strTmpCDir);
-		CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strTmpADir);
+		Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strTmpADir);
 
 		// "цикл до умопомрачения"
 		int DoneEject=FALSE;
@@ -1118,7 +1118,7 @@ void Panel::RemoveHotplugDevice(PanelMenuItem *item, VMenu2 &ChDisk)
 			{
 				// восстановим пути - это избавит нас от левых данных в панели.
 				if (AMode != PLUGIN_PANEL)
-					CtrlObject->Cp()->GetAnotherPanel(this)->SetCurDir(strTmpADir, FALSE);
+					Global->CtrlObject->Cp()->GetAnotherPanel(this)->SetCurDir(strTmpADir, FALSE);
 
 				if (CMode != PLUGIN_PANEL)
 					SetCurDir(strTmpCDir, FALSE);
@@ -1511,10 +1511,10 @@ void Panel::FastFind(int FirstKey)
 						}
 						else
 						{
-							if (CtrlObject->Macro.IsExecuting())// && CtrlObject->Macro.GetLevelState() > 0) // если вставка макросом...
+							if (Global->CtrlObject->Macro.IsExecuting())// && Global->CtrlObject->Macro.GetLevelState() > 0) // если вставка макросом...
 							{
-								//CtrlObject->Macro.DropProcess(); // ... то дропнем макропроцесс
-								//CtrlObject->Macro.PopState();
+								//Global->CtrlObject->Macro.DropProcess(); // ... то дропнем макропроцесс
+								//Global->CtrlObject->Macro.PopState();
 								;
 							}
 
@@ -1534,14 +1534,14 @@ void Panel::FastFind(int FirstKey)
 	}
 	Global->WaitInFastFind--;
 	Show();
-	CtrlObject->MainKeyBar->Redraw();
+	Global->CtrlObject->MainKeyBar->Redraw();
 	Global->ScrBuf->Flush();
-	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 
 	if ((KeyToProcess==KEY_ENTER||KeyToProcess==KEY_NUMENTER) && ActivePanel->GetType()==TREE_PANEL)
 		((TreeList *)ActivePanel)->ProcessEnter();
 	else
-		CtrlObject->Cp()->ProcessKey(KeyToProcess);
+		Global->CtrlObject->Cp()->ProcessKey(KeyToProcess);
 }
 
 
@@ -1561,17 +1561,17 @@ void Panel::FastFindShow(int FindX,int FindY)
 
 void Panel::SetFocus()
 {
-	if (CtrlObject->Cp()->ActivePanel!=this)
+	if (Global->CtrlObject->Cp()->ActivePanel!=this)
 	{
-		CtrlObject->Cp()->ActivePanel->KillFocus();
-		CtrlObject->Cp()->ActivePanel=this;
+		Global->CtrlObject->Cp()->ActivePanel->KillFocus();
+		Global->CtrlObject->Cp()->ActivePanel=this;
 	}
 
 	ProcessPluginEvent(FE_GOTFOCUS,nullptr);
 
 	if (!GetFocus())
 	{
-		CtrlObject->Cp()->RedrawKeyBar();
+		Global->CtrlObject->Cp()->RedrawKeyBar();
 		Focus=TRUE;
 		Redraw();
 		FarChDir(strCurDir);
@@ -1609,7 +1609,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 				EndDrag();
 
 				if (!MouseEvent->dwMousePosition.X)
-					CtrlObject->Cp()->ProcessKey(KEY_CTRLO);
+					Global->CtrlObject->Cp()->ProcessKey(KEY_CTRLO);
 				else
 					ShellOptions(0,MouseEvent);
 
@@ -1643,7 +1643,7 @@ int  Panel::PanelProcessMouse(MOUSE_EVENT_RECORD *MouseEvent,int &RetCode)
 		}
 
 		if (MouseEvent->dwMousePosition.Y<=Y1 || MouseEvent->dwMousePosition.Y>=Y2 ||
-		        !CtrlObject->Cp()->GetAnotherPanel(SrcDragPanel)->IsVisible())
+		        !Global->CtrlObject->Cp()->GetAnotherPanel(SrcDragPanel)->IsVisible())
 		{
 			EndDrag();
 			return TRUE;
@@ -1819,7 +1819,7 @@ int Panel::SetCurPath()
 	if (GetMode()==PLUGIN_PANEL)
 		return TRUE;
 
-	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 	if (AnotherPanel->GetType()!=PLUGIN_PANEL)
 	{
@@ -1919,7 +1919,7 @@ int Panel::SetCurPath()
 void Panel::Hide()
 {
 	ScreenObject::Hide();
-	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 	if (AnotherPanel->IsVisible())
 	{
@@ -1940,11 +1940,11 @@ void Panel::Show()
 
 	/* $ 03.10.2001 IS перерисуем строчку меню */
 	if (Global->Opt->ShowMenuBar)
-		CtrlObject->TopMenuBar->Show();
+		Global->CtrlObject->TopMenuBar->Show();
 
 	/* $ 09.05.2001 OT */
 //  SavePrevScreen();
-	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 	if (AnotherPanel->IsVisible() && !GetModalMode())
 	{
@@ -2030,7 +2030,7 @@ void Panel::SetTitle()
 		else
 		{
 			string strCmdText;
-			CtrlObject->CmdLine->GetCurDir(strCmdText);
+			Global->CtrlObject->CmdLine->GetCurDir(strCmdText);
 			strTitleDir += strCmdText;
 		}
 
@@ -2075,7 +2075,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 	_ALGO(SysLog(L"(Command=%s, Param1=[%d/0x%08X], Param2=[%d/0x%08X])",_FCTL_ToName(Command),(int)Param1,Param1,(int)Param2,Param2));
 	int Result=FALSE;
 	ProcessingPluginCommand++;
-	FilePanels *FPanels=CtrlObject->Cp();
+	FilePanels *FPanels=Global->CtrlObject->Cp();
 
 	switch (Command)
 	{
@@ -2193,7 +2193,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				Flags|=IsVisible()?PFLAGS_VISIBLE:0;
 				Flags|=GetFocus()?PFLAGS_FOCUS:0;
 
-				if (CtrlObject->Cp()->LeftPanel == this)
+				if (Global->CtrlObject->Cp()->LeftPanel == this)
 					Flags|=PFLAGS_PANELLEFT;
 
 				Info->Flags=Flags;
@@ -2449,7 +2449,7 @@ int Panel::SetPluginCommand(int Command,int Param1,void* Param2)
 				string strName(dirInfo->Name),strFile(dirInfo->File),strParam(dirInfo->Param);
 				Result = ExecShortcutFolder(strName,dirInfo->PluginId,strFile,strParam,false);
 				// restore current directory to active panel path
-				Panel* ActivePanel = CtrlObject->Cp()->ActivePanel;
+				Panel* ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
 				if (Result && this != ActivePanel)
 				{
 					ActivePanel->SetCurPath();
@@ -2589,7 +2589,7 @@ bool Panel::GetShortcutInfo(ShortcutInfo& ShortcutInfo)
 		PluginHandle *ph = (PluginHandle*)hPlugin;
 		ShortcutInfo.PluginGuid = ph->pPlugin->GetGUID();
 		OpenPanelInfo Info;
-		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		ShortcutInfo.PluginFile = Info.HostFile;
 		ShortcutInfo.ShortcutFolder = Info.CurDir;
 		ShortcutInfo.PluginData = Info.ShortcutData;
@@ -2612,11 +2612,11 @@ bool Panel::SaveShortcutFolder(int Pos, bool Add)
 	{
 		if(Add)
 		{
-			CtrlObject->FolderShortcuts->Add(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+			Global->CtrlObject->FolderShortcuts->Add(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 		}
 		else
 		{
-			CtrlObject->FolderShortcuts->Set(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+			Global->CtrlObject->FolderShortcuts->Set(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 		}
 		return true;
 	}
@@ -2630,7 +2630,7 @@ int Panel::ProcessShortcutFolder(int Key,BOOL ProcTreePanel)
 
 	if (GetShortcutFolder(Key-KEY_RCTRL0,&strShortcutFolder,&strPluginModule,&strPluginFile,&strPluginData))
 	{
-		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 		if (ProcTreePanel)
 		{
@@ -2666,7 +2666,7 @@ bool Panel::ExecShortcutFolder(int Pos)
 	string strShortcutFolder,strPluginFile,strPluginData;
 	GUID PluginGuid;
 
-	if (CtrlObject->FolderShortcuts->Get(Pos,&strShortcutFolder, &PluginGuid, &strPluginFile, &strPluginData))
+	if (Global->CtrlObject->FolderShortcuts->Get(Pos,&strShortcutFolder, &PluginGuid, &strPluginFile, &strPluginData))
 	{
 		return ExecShortcutFolder(strShortcutFolder,PluginGuid,strPluginFile,strPluginData,true);
 	}
@@ -2676,7 +2676,7 @@ bool Panel::ExecShortcutFolder(int Pos)
 bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,string& strPluginFile,const string& strPluginData,bool CheckType)
 {
 	Panel *SrcPanel=this;
-	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 	if(CheckType)
 	{
@@ -2709,7 +2709,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 				return true;
 		}
 
-		Plugin *pPlugin = CtrlObject->Plugins->FindPlugin(PluginGuid);
+		Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(PluginGuid);
 
 		if (pPlugin)
 		{
@@ -2734,19 +2734,19 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 					sizeof(OpenShortcutInfo),
 					strPluginFile.IsEmpty()?nullptr:strPluginFile.CPtr(),
 					strPluginData.IsEmpty()?nullptr:strPluginData.CPtr(),
-					(SrcPanel==CtrlObject->Cp()->ActivePanel)?FOSF_ACTIVE:FOSF_NONE
+					(SrcPanel==Global->CtrlObject->Cp()->ActivePanel)?FOSF_ACTIVE:FOSF_NONE
 				};
-				HANDLE hNewPlugin=CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(intptr_t)&info);
+				HANDLE hNewPlugin=Global->CtrlObject->Plugins->Open(pPlugin,OPEN_SHORTCUT,FarGuid,(intptr_t)&info);
 
 				if (hNewPlugin)
 				{
 					int CurFocus=SrcPanel->GetFocus();
 
-					Panel *NewPanel=CtrlObject->Cp()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
-					NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
+					Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
+					NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !Global->CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
 
 					if (!strShortcutFolder.IsEmpty())
-						CtrlObject->Plugins->SetDirectory(hNewPlugin,strShortcutFolder,0);
+						Global->CtrlObject->Plugins->SetDirectory(hNewPlugin,strShortcutFolder,0);
 
 					NewPanel->Update(0);
 					NewPanel->Show();
@@ -2755,7 +2755,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 		}
 
 		/*
-		if(I == CtrlObject->Plugins->PluginsCount)
+		if(I == Global->CtrlObject->Plugins->PluginsCount)
 		{
 		  char Target[NM*2];
 		  xstrncpy(Target, PluginModule, sizeof(Target));
@@ -2778,14 +2778,14 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
     /*
 	if (SrcPanel->GetType()!=FILE_PANEL)
 	{
-		SrcPanel=CtrlObject->Cp()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
+		SrcPanel=Global->CtrlObject->Cp()->ChangePanel(SrcPanel,FILE_PANEL,TRUE,TRUE);
 	}
     */
 
 	SrcPanel->SetCurDir(strShortcutFolder,TRUE);
 
 	if (CheckFullScreen!=SrcPanel->IsFullScreen())
-		CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->Show();
+		Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->Show();
 
 	SrcPanel->Redraw();
 	return true;

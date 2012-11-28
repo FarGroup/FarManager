@@ -719,7 +719,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 
 	++m_MacroPluginIsRunning;
 	PushState(false);
-	bool result=CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,Info,&ptr) != 0;
+	bool result=Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,Info,&ptr) != 0;
 	PopState(false);
 	--m_MacroPluginIsRunning;
 
@@ -767,18 +767,18 @@ void KeyMacro::RestoreMacroChar(void)
 	*/
 	if (m_Mode==MACRO_EDITOR &&
 					m_IsRedrawEditor &&
-					CtrlObject->Plugins->CurEditor &&
-					CtrlObject->Plugins->CurEditor->IsVisible()
+					Global->CtrlObject->Plugins->CurEditor &&
+					Global->CtrlObject->Plugins->CurEditor->IsVisible()
 					/* && LockScr*/) // Mantis#0001595
 	{
-		CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins->CurEditor->GetId());
-		CtrlObject->Plugins->CurEditor->Show();
+		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,Global->CtrlObject->Plugins->CurEditor->GetId());
+		Global->CtrlObject->Plugins->CurEditor->Show();
 	}
 	else if (m_Mode==MACRO_VIEWER &&
-					CtrlObject->Plugins->CurViewer &&
-					CtrlObject->Plugins->CurViewer->IsVisible())
+					Global->CtrlObject->Plugins->CurViewer &&
+					Global->CtrlObject->Plugins->CurViewer->IsVisible())
 	{
-		CtrlObject->Plugins->CurViewer->Show(); // иначе может быть неправильный верхний левый символ экрана
+		Global->CtrlObject->Plugins->CurViewer->Show(); // иначе может быть неправильный верхний левый символ экрана
 	}
 }
 
@@ -803,7 +803,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				if (Global->Opt->Policies.DisabledOptions&FFPOL_CREATEMACRO)
 					return false;
 
-				if (!CtrlObject->Plugins->FindPlugin(LuamacroGuid))
+				if (!Global->CtrlObject->Plugins->FindPlugin(LuamacroGuid))
 				{
 					Message(MSG_WARNING,1,MSG(MError),
 					   MSG(MPluginLuamacroNotLoaded),
@@ -855,7 +855,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 							{
 								m_CurState->HistoryDisable=0;
 								m_CurState->cRec=Rec->Rec;
-								m_IsRedrawEditor=CtrlObject->Plugins->CheckFlags(PSIF_ENTERTOOPENPLUGIN)?false:true;
+								m_IsRedrawEditor=Global->CtrlObject->Plugins->CheckFlags(PSIF_ENTERTOOPENPLUGIN)?false:true;
 							}
 							return ret;
 						}
@@ -973,12 +973,12 @@ int KeyMacro::GetKey()
 
 		if (m_Mode==MACRO_EDITOR &&
 						m_IsRedrawEditor &&
-						CtrlObject->Plugins->CurEditor &&
-						CtrlObject->Plugins->CurEditor->IsVisible() &&
+						Global->CtrlObject->Plugins->CurEditor &&
+						Global->CtrlObject->Plugins->CurEditor->IsVisible() &&
 						Global->ScrBuf->GetLockCount())
 		{
-			CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,CtrlObject->Plugins->CurEditor->GetId());
-			CtrlObject->Plugins->CurEditor->Show();
+			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,Global->CtrlObject->Plugins->CurEditor->GetId());
+			Global->CtrlObject->Plugins->CurEditor->Show();
 		}
 
 		if (m_StateStack.empty())
@@ -1076,7 +1076,7 @@ int KeyMacro::GetKey()
 					TVar SysID = mpr->Values[0].String;
 					GUID guid;
 
-					if (StrToGuid(SysID.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))
+					if (StrToGuid(SysID.s(),guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
 					{
 						FarMacroCall* ResultCallPlugin=nullptr;
 
@@ -1097,7 +1097,7 @@ int KeyMacro::GetKey()
 						int lockCount = Global->ScrBuf->GetLockCount();
 						Global->ScrBuf->SetLockCount(0);
 
-						if (!CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,(void**)&ResultCallPlugin))
+						if (!Global->CtrlObject->Plugins->CallPlugin(guid,OPEN_FROMMACRO,&info,(void**)&ResultCallPlugin))
 							ResultCallPlugin = nullptr;
 
 						Global->ScrBuf->SetLockCount(lockCount);
@@ -1176,16 +1176,16 @@ int KeyMacro::GetKey()
 						break;
 				}
 
-				if (!ItemFailed && StrToGuid(Guid,guid) && CtrlObject->Plugins->FindPlugin(guid))
+				if (!ItemFailed && StrToGuid(Guid,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
 				{
 					// Чтобы вернуть результат "выполнения" нужно проверить наличие плагина/пункта
-					Ret=CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
+					Ret=Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
 					if (Ret)
 					{
 						// Если нашли успешно - то теперь выполнение
 						macro->mp_values[0].Boolean=1;
 						cpInfo.CallFlags&=~CPT_CHECKONLY;
-						CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
+						Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
 					}
 				}
 
@@ -1251,10 +1251,10 @@ int KeyMacro::GetMacroKeyInfo(bool FromDB, MACROMODEAREA Mode, int Pos, string &
 		{
 			if (Mode >= MACRO_OTHER)
 			{
-				size_t Len=CtrlObject->Macro.m_Macros[Mode].getSize();
+				size_t Len=Global->CtrlObject->Macro.m_Macros[Mode].getSize();
 				if (Len && (size_t)Pos < Len)
 				{
-					MacroRecord *MPtr=CtrlObject->Macro.m_Macros[Mode].getItem(Pos);
+					MacroRecord *MPtr=Global->CtrlObject->Macro.m_Macros[Mode].getItem(Pos);
 					strKeyName=MPtr->Name();
 					strDescription=NullToEmpty(MPtr->Description());
 					return Pos+1;
@@ -1319,7 +1319,7 @@ void KeyMacro::RunStartMacro()
 	if ((Global->Opt->Macro.DisableMacro&MDOL_ALL) || (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART) || Global->Opt->OnlyEditorViewerUsed)
 		return;
 
-	if (!CtrlObject || !CtrlObject->Cp() || !CtrlObject->Cp()->ActivePanel || !CtrlObject->Plugins->IsPluginsLoaded())
+	if (!Global->CtrlObject || !Global->CtrlObject->Cp() || !Global->CtrlObject->Cp()->ActivePanel || !Global->CtrlObject->Plugins->IsPluginsLoaded())
 		return;
 
 	static int IsRunStartMacro=FALSE;
@@ -1470,7 +1470,7 @@ const wchar_t *eStackAsString(int)
 
 static BOOL CheckEditSelected(MACROMODEAREA Mode, UINT64 CurFlags)
 {
-	if (Mode==MACRO_EDITOR || Mode==MACRO_DIALOG || Mode==MACRO_VIEWER || (Mode==MACRO_SHELL&&CtrlObject->CmdLine->IsVisible()))
+	if (Mode==MACRO_EDITOR || Mode==MACRO_DIALOG || Mode==MACRO_VIEWER || (Mode==MACRO_SHELL&&Global->CtrlObject->CmdLine->IsVisible()))
 	{
 		int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS));
 		Frame* CurFrame=FrameManager->GetCurrentFrame();
@@ -1479,8 +1479,8 @@ static BOOL CheckEditSelected(MACROMODEAREA Mode, UINT64 CurFlags)
 		{
 			int CurSelected;
 
-			if (Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-				CurSelected=(int)CtrlObject->CmdLine->VMProcess(MCODE_C_SELECTED);
+			if (Mode==MACRO_SHELL && Global->CtrlObject->CmdLine->IsVisible())
+				CurSelected=(int)Global->CtrlObject->CmdLine->VMProcess(MCODE_C_SELECTED);
 			else
 				CurSelected=(int)CurFrame->VMProcess(MCODE_C_SELECTED);
 
@@ -1494,7 +1494,7 @@ static BOOL CheckEditSelected(MACROMODEAREA Mode, UINT64 CurFlags)
 
 static BOOL CheckInsidePlugin(UINT64 CurFlags)
 {
-	if (CtrlObject && CtrlObject->Plugins->CurPluginItem && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS))
+	if (Global->CtrlObject && Global->CtrlObject->Plugins->CurPluginItem && (CurFlags&MFLAGS_NOSENDKEYSTOPLUGINS))
 		return FALSE;
 
 	return TRUE;
@@ -1558,10 +1558,10 @@ static BOOL CheckAll (MACROMODEAREA Mode, UINT64 CurFlags)
 
 	// проверка на пусто/не пусто в ком.строке (а в редакторе? :-)
 	if (CurFlags&(MFLAGS_EMPTYCOMMANDLINE|MFLAGS_NOTEMPTYCOMMANDLINE))
-		if (CtrlObject->CmdLine && !CheckCmdLine(CtrlObject->CmdLine->GetLength(),CurFlags))
+		if (Global->CtrlObject->CmdLine && !CheckCmdLine(Global->CtrlObject->CmdLine->GetLength(),CurFlags))
 			return FALSE;
 
-	FilePanels *Cp=CtrlObject->Cp();
+	FilePanels *Cp=Global->CtrlObject->Cp();
 
 	if (!Cp)
 		return FALSE;
@@ -2068,14 +2068,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 	{
 		return PassBoolean (Global->WaitInMainLoop ?
 			CheckCode == FrameManager->GetCurrentFrame()->GetMacroMode() :
-		  CheckCode == CtrlObject->Macro.GetMode(), Data);
+		  CheckCode == Global->CtrlObject->Macro.GetMode(), Data);
 	}
 
-	Panel *ActivePanel=CtrlObject->Cp() ? CtrlObject->Cp()->ActivePanel : nullptr;
+	Panel *ActivePanel=Global->CtrlObject->Cp() ? Global->CtrlObject->Cp()->ActivePanel : nullptr;
 	Panel *PassivePanel=nullptr;
 
 	if (ActivePanel)
-		PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+		PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
 	Frame* CurFrame=FrameManager->GetCurrentFrame();
 
@@ -2110,7 +2110,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		}
 
 		case MCODE_V_MACRO_AREA:
-			return PassString(GetAreaName(CtrlObject->Macro.GetMode()), Data);
+			return PassString(GetAreaName(Global->CtrlObject->Macro.GetMode()), Data);
 
 		case MCODE_C_FULLSCREENMODE: // Fullscreen?
 			return PassBoolean(IsConsoleFullscreen(), Data);
@@ -2129,19 +2129,19 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_CMDLINE_EMPTY:            // CmdLine.Empty
 		case MCODE_C_CMDLINE_SELECTED:         // CmdLine.Selected
 		{
-			return PassBoolean(CtrlObject->CmdLine && CtrlObject->CmdLine->VMProcess(CheckCode), Data);
+			return PassBoolean(Global->CtrlObject->CmdLine && Global->CtrlObject->CmdLine->VMProcess(CheckCode), Data);
 		}
 
 		case MCODE_V_CMDLINE_ITEMCOUNT:        // CmdLine.ItemCount
 		case MCODE_V_CMDLINE_CURPOS:           // CmdLine.CurPos
 		{
-			return CtrlObject->CmdLine?CtrlObject->CmdLine->VMProcess(CheckCode):-1;
+			return Global->CtrlObject->CmdLine?Global->CtrlObject->CmdLine->VMProcess(CheckCode):-1;
 		}
 
 		case MCODE_V_CMDLINE_VALUE:            // CmdLine.Value
 		{
-			if (CtrlObject->CmdLine)
-				CtrlObject->CmdLine->GetString(strFileName);
+			if (Global->CtrlObject->CmdLine)
+				Global->CtrlObject->CmdLine->GetString(strFileName);
 			return PassString(strFileName, Data);
 		}
 
@@ -2171,8 +2171,8 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				int CurSelected;
 
-				if (m_Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-					CurSelected=(int)CtrlObject->CmdLine->VMProcess(CheckCode);
+				if (m_Mode==MACRO_SHELL && Global->CtrlObject->CmdLine->IsVisible())
+					CurSelected=(int)Global->CtrlObject->CmdLine->VMProcess(CheckCode);
 				else
 					CurSelected=(int)CurFrame->VMProcess(CheckCode);
 
@@ -2203,14 +2203,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_BOF:
 		case MCODE_C_EOF:
 		{
-			int CurMMode=CtrlObject->Macro.GetMode();
+			int CurMMode=Global->CtrlObject->Macro.GetMode();
 
 			if (!(m_Mode == MACRO_USERMENU || m_Mode == MACRO_MAINMENU || m_Mode == MACRO_MENU) && CurFrame && CurFrame->GetType() == MODALTYPE_PANELS && !(CurMMode == MACRO_INFOPANEL || CurMMode == MACRO_QVIEWPANEL || CurMMode == MACRO_TREEPANEL))
 			{
 				if (CheckCode == MCODE_C_EMPTY)
-					ret=CtrlObject->CmdLine->GetLength()?0:1;
+					ret=Global->CtrlObject->CmdLine->GetLength()?0:1;
 				else
-					ret=CtrlObject->CmdLine->VMProcess(CheckCode);
+					ret=Global->CtrlObject->CmdLine->VMProcess(CheckCode);
 			}
 			else
 			{
@@ -2296,7 +2296,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_C_PPANEL_LEFT: // PPanel.Left
 		{
 			Panel *SelPanel = CheckCode == MCODE_C_APANEL_LEFT ? ActivePanel : PassivePanel;
-			return PassBoolean(SelPanel && SelPanel==CtrlObject->Cp()->LeftPanel, Data);
+			return PassBoolean(SelPanel && SelPanel==Global->CtrlObject->Cp()->LeftPanel, Data);
 		}
 
 		case MCODE_C_APANEL_FILEPANEL: // APanel.FilePanel
@@ -2545,7 +2545,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			if (f)
 			{
-				if (CtrlObject->Cp() == f)
+				if (Global->CtrlObject->Cp() == f)
 				{
 					ActivePanel->GetTitle(strFileName);
 				}
@@ -2669,28 +2669,28 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (CheckCode == MCODE_V_EDITORVALUE || CheckCode == MCODE_V_EDITORSELVALUE)
 				ptr=L"";
 
-			if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+			if (Global->CtrlObject->Macro.GetMode()==MACRO_EDITOR && Global->CtrlObject->Plugins->CurEditor && Global->CtrlObject->Plugins->CurEditor->IsVisible())
 			{
 				if (CheckCode == MCODE_V_EDITORFILENAME)
 				{
 					string strType;
-					CtrlObject->Plugins->CurEditor->GetTypeAndName(strType, strFileName);
+					Global->CtrlObject->Plugins->CurEditor->GetTypeAndName(strType, strFileName);
 					ptr=strFileName.CPtr();
 				}
 				else if (CheckCode == MCODE_V_EDITORVALUE)
 				{
 					EditorGetString egs={sizeof(EditorGetString)};
 					egs.StringNumber=-1;
-					CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETSTRING,0,&egs);
+					Global->CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETSTRING,0,&egs);
 					ptr=egs.StringText;
 				}
 				else if (CheckCode == MCODE_V_EDITORSELVALUE)
 				{
-					CtrlObject->Plugins->CurEditor->VMProcess(CheckCode,&strFileName);
+					Global->CtrlObject->Plugins->CurEditor->VMProcess(CheckCode,&strFileName);
 					ptr=strFileName.CPtr();
 				}
 				else
-					return CtrlObject->Plugins->CurEditor->VMProcess(CheckCode);
+					return Global->CtrlObject->Plugins->CurEditor->VMProcess(CheckCode);
 			}
 
 			return ptr ? PassString(ptr, Data) : 0;
@@ -2701,7 +2701,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_HELPSELTOPIC:  // Help.SelTopic
 		{
 			const wchar_t* ptr=L"";
-			if (CtrlObject->Macro.GetMode() == MACRO_HELP)
+			if (Global->CtrlObject->Macro.GetMode() == MACRO_HELP)
 			{
 				CurFrame->VMProcess(CheckCode,&strFileName,0);
 				ptr=strFileName.CPtr();
@@ -2712,16 +2712,16 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_V_VIEWERFILENAME: // Viewer.FileName
 		case MCODE_V_VIEWERSTATE: // Viewer.State
 		{
-			if ((CtrlObject->Macro.GetMode()==MACRO_VIEWER || CtrlObject->Macro.GetMode()==MACRO_QVIEWPANEL) &&
-							CtrlObject->Plugins->CurViewer && CtrlObject->Plugins->CurViewer->IsVisible())
+			if ((Global->CtrlObject->Macro.GetMode()==MACRO_VIEWER || Global->CtrlObject->Macro.GetMode()==MACRO_QVIEWPANEL) &&
+							Global->CtrlObject->Plugins->CurViewer && Global->CtrlObject->Plugins->CurViewer->IsVisible())
 			{
 				if (CheckCode == MCODE_V_VIEWERFILENAME)
 				{
-					CtrlObject->Plugins->CurViewer->GetFileName(strFileName);//GetTypeAndName(nullptr,FileName);
+					Global->CtrlObject->Plugins->CurViewer->GetFileName(strFileName);//GetTypeAndName(nullptr,FileName);
 					return PassString(strFileName, Data);
 				}
 				else
-					return PassNumber(CtrlObject->Plugins->CurViewer->VMProcess(MCODE_V_VIEWERSTATE), Data);
+					return PassNumber(Global->CtrlObject->Plugins->CurViewer->VMProcess(MCODE_V_VIEWERSTATE), Data);
 			}
 
 			return (CheckCode == MCODE_V_VIEWERFILENAME) ? PassString(L"", Data) : 0;
@@ -2932,7 +2932,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 
 			tmpVar.toInteger();
 
-			int CurMMode=CtrlObject->Macro.GetMode();
+			int CurMMode=Global->CtrlObject->Macro.GetMode();
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
 			{
@@ -3011,7 +3011,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					tmpMode--;
 			}
 
-			int CurMMode=CtrlObject->Macro.GetMode();
+			int CurMMode=Global->CtrlObject->Macro.GetMode();
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
 			{
@@ -3045,7 +3045,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			if (tmpAction.isUnknown())
 				tmpAction=CheckCode == MCODE_F_MENU_FILTER ? 4 : 0;
 
-			int CurMMode=CtrlObject->Macro.GetMode();
+			int CurMMode=Global->CtrlObject->Macro.GetMode();
 
 			if (IsMenuArea(CurMMode) || CurMMode == MACRO_DIALOG)
 			{
@@ -3823,10 +3823,10 @@ static bool promptFunc(FarMacroCall* Data)
 
 	string strDest;
 
-	DWORD oldHistoryDisable=CtrlObject->Macro.GetHistoryDisableMask();
+	DWORD oldHistoryDisable=Global->CtrlObject->Macro.GetHistoryDisableMask();
 
 	if (!(history && *history)) // Mantis#0001743: Возможность отключения истории
-		CtrlObject->Macro.SetHistoryDisableMask(8); // если не указан history, то принудительно отключаем историю для ЭТОГО prompt()
+		Global->CtrlObject->Macro.SetHistoryDisableMask(8); // если не указан history, то принудительно отключаем историю для ЭТОГО prompt()
 
 	if (GetString(title,prompt,history,src,strDest,nullptr,(Flags&~FIB_CHECKBOX)|FIB_ENABLEEMPTY,nullptr,nullptr))
 	{
@@ -3836,7 +3836,7 @@ static bool promptFunc(FarMacroCall* Data)
 	else
 		PassBoolean(0,Data);
 
-	CtrlObject->Macro.SetHistoryDisableMask(oldHistoryDisable);
+	Global->CtrlObject->Macro.SetHistoryDisableMask(oldHistoryDisable);
 
 	return Ret;
 }
@@ -3873,7 +3873,7 @@ static bool msgBoxFunc(FarMacroCall* Data)
 	int Result=pluginapi::apiMessageFn(&FarGuid,&FarGuid,Flags,nullptr,(const wchar_t * const *)TempBuf.CPtr(),0,0)+1;
 	/*
 	if (Result <= -1) // Break?
-		CtrlObject->Macro.SendDropProcess();
+		Global->CtrlObject->Macro.SendDropProcess();
 	*/
 	PassNumber(Result, Data);
 	return true;
@@ -4136,7 +4136,7 @@ static bool menushowFunc(FarMacroCall* Data)
 			}
 
 			case KEY_BREAK:
-				CtrlObject->Macro.SendDropProcess();
+				Global->CtrlObject->Macro.SendDropProcess();
 				Menu.Close(-1);
 				break;
 
@@ -4253,11 +4253,11 @@ static bool panelselectFunc(FarMacroCall* Data)
 	int typePanel=(int)Params[0].getInteger();
 	__int64 Result=-1;
 
-	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 	Panel *PassivePanel=nullptr;
 
 	if (ActivePanel)
-		PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+		PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
 	Panel *SelPanel = !typePanel ? ActivePanel : (typePanel == 1?PassivePanel:nullptr);
 
@@ -4315,11 +4315,11 @@ static bool _fattrFunc(int Type, FarMacroCall* Data)
 		TVar& S(Params[1]);
 		int typePanel=(int)Params[0].getInteger();
 		const wchar_t *Str = S.toString();
-		Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+		Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 		Panel *PassivePanel=nullptr;
 
 		if (ActivePanel)
-			PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+			PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
 		//Frame* CurFrame=FrameManager->GetCurrentFrame();
 		Panel *SelPanel = !typePanel ? ActivePanel : (typePanel == 1?PassivePanel:nullptr);
@@ -4426,7 +4426,7 @@ static bool dlgsetfocusFunc(FarMacroCall* Data)
 	unsigned Index=(unsigned)Params[0].getInteger()-1;
 	Frame* CurFrame=FrameManager->GetCurrentFrame();
 
-	if (CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
+	if (Global->CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
 	{
 		Ret=(__int64)CurFrame->VMProcess(MCODE_V_DLGCURPOS);
 		if ((int)Index >= 0)
@@ -4460,7 +4460,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 	TVar Ret(-1);
 	Frame* CurFrame=FrameManager->GetCurrentFrame();
 
-	if (CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
+	if (Global->CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
 	{
 		TVarType typeIndex=Params[0].type();
 		unsigned Index=(unsigned)Params[0].getInteger()-1;
@@ -4650,10 +4650,10 @@ static bool editorposFunc(FarMacroCall* Data)
 	int What  = (int)Params[1].getInteger();
 	int Op    = (int)Params[0].getInteger();
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	if (Global->CtrlObject->Macro.GetMode()==MACRO_EDITOR && Global->CtrlObject->Plugins->CurEditor && Global->CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		EditorInfo ei={sizeof(EditorInfo)};
-		CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO,0,&ei);
+		Global->CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO,0,&ei);
 
 		switch (Op)
 		{
@@ -4739,10 +4739,10 @@ static bool editorposFunc(FarMacroCall* Data)
 						break;
 				}
 
-				int Result=CtrlObject->Plugins->CurEditor->EditorControl(ECTL_SETPOSITION,0,&esp);
+				int Result=Global->CtrlObject->Plugins->CurEditor->EditorControl(ECTL_SETPOSITION,0,&esp);
 
 				if (Result)
-					CtrlObject->Plugins->CurEditor->EditorControl(ECTL_REDRAW,0,nullptr);
+					Global->CtrlObject->Plugins->CurEditor->EditorControl(ECTL_REDRAW,0,nullptr);
 
 				Ret=Result;
 				break;
@@ -4762,7 +4762,7 @@ static bool editorsetFunc(FarMacroCall* Data)
 	TVar& Value(Params[1]);
 	int Index=(int)Params[0].getInteger();
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	if (Global->CtrlObject->Macro.GetMode()==MACRO_EDITOR && Global->CtrlObject->Plugins->CurEditor && Global->CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		long longState=-1L;
 
@@ -4775,7 +4775,7 @@ static bool editorsetFunc(FarMacroCall* Data)
 		}
 
 		EditorOptions EdOpt;
-		CtrlObject->Plugins->CurEditor->GetEditorOptions(EdOpt);
+		Global->CtrlObject->Plugins->CurEditor->GetEditorOptions(EdOpt);
 
 		switch (Index)
 		{
@@ -4876,10 +4876,10 @@ static bool editorsetFunc(FarMacroCall* Data)
 					break;
 			}
 
-			CtrlObject->Plugins->CurEditor->SetEditorOptions(EdOpt);
-			CtrlObject->Plugins->CurEditor->ShowStatus();
+			Global->CtrlObject->Plugins->CurEditor->SetEditorOptions(EdOpt);
+			Global->CtrlObject->Plugins->CurEditor->ShowStatus();
 			if (Index == 0 || Index == 12 || Index == 14 || Index == 15 || Index == 20)
-				CtrlObject->Plugins->CurEditor->Show();
+				Global->CtrlObject->Plugins->CurEditor->Show();
 		}
 	}
 
@@ -5024,11 +5024,11 @@ static bool panelsetposidxFunc(FarMacroCall* Data)
 	int InSelection=(int)Params[2].getInteger();
 	long idxItem=(long)Params[1].getInteger();
 	int typePanel=(int)Params[0].getInteger();
-	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 	Panel *PassivePanel=nullptr;
 
 	if (ActivePanel)
-		PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+		PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
 	//Frame* CurFrame=FrameManager->GetCurrentFrame();
 	Panel *SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
@@ -5157,11 +5157,11 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 		if (!ValFileName.isInteger())
 			fileName=ValFileName.s();
 
-		Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+		Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 		Panel *PassivePanel=nullptr;
 
 		if (ActivePanel)
-			PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+			PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
 		//Frame* CurFrame=FrameManager->GetCurrentFrame();
 		Panel *SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
@@ -5170,8 +5170,8 @@ static bool panelsetpathFunc(FarMacroCall* Data)
 		{
 			if (SelPanel->SetCurDir(pathName,SelPanel->GetMode()==PLUGIN_PANEL && IsAbsolutePath(pathName),FrameManager->GetCurrentFrame()->GetType() == MODALTYPE_PANELS))
 			{
-				ActivePanel=CtrlObject->Cp()->ActivePanel;
-				PassivePanel=ActivePanel?CtrlObject->Cp()->GetAnotherPanel(ActivePanel):nullptr;
+				ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
+				PassivePanel=ActivePanel?Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel):nullptr;
 				SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
 
 				//восстановим текущую папку из активной панели.
@@ -5208,11 +5208,11 @@ static bool panelsetposFunc(FarMacroCall* Data)
 	if (!fileName || !*fileName)
 		fileName=L"";
 
-	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 	Panel *PassivePanel=nullptr;
 
 	if (ActivePanel)
-		PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+		PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
 	//Frame* CurFrame=FrameManager->GetCurrentFrame();
 	Panel *SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
@@ -5319,11 +5319,11 @@ static bool panelitemFunc(FarMacroCall* Data)
 	TVar& P1(Params[1]);
 	int typePanel=(int)Params[0].getInteger();
 	TVar Ret(0ll);
-	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 	Panel *PassivePanel=nullptr;
 
 	if (ActivePanel)
-		PassivePanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+		PassivePanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
 	//Frame* CurFrame=FrameManager->GetCurrentFrame();
 	Panel *SelPanel = typePanel? (typePanel == 1?PassivePanel:nullptr):ActivePanel;
@@ -5697,14 +5697,14 @@ static bool editorselFunc(FarMacroCall* Data)
 	TVar& Opts(Params[1]);
 	TVar& Action(Params[0]);
 
-	MACROMODEAREA Mode=CtrlObject->Macro.GetMode();
+	MACROMODEAREA Mode=Global->CtrlObject->Macro.GetMode();
 	int NeedType = Mode == MACRO_EDITOR?MODALTYPE_EDITOR:(Mode == MACRO_VIEWER?MODALTYPE_VIEWER:(Mode == MACRO_DIALOG?MODALTYPE_DIALOG:MODALTYPE_PANELS)); // MACRO_SHELL?
 	Frame* CurFrame=FrameManager->GetCurrentFrame();
 
 	if (CurFrame && CurFrame->GetType()==NeedType)
 	{
-		if (Mode==MACRO_SHELL && CtrlObject->CmdLine->IsVisible())
-			Ret=CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.i());
+		if (Mode==MACRO_SHELL && Global->CtrlObject->CmdLine->IsVisible())
+			Ret=Global->CtrlObject->CmdLine->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.i());
 		else
 			Ret=CurFrame->VMProcess(MCODE_F_EDITOR_SEL,ToPtr(Action.toInteger()),Opts.i());
 	}
@@ -5720,11 +5720,11 @@ static bool editorundoFunc(FarMacroCall* Data)
 	TVar Ret(0ll);
 	TVar& Action(Params[0]);
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	if (Global->CtrlObject->Macro.GetMode()==MACRO_EDITOR && Global->CtrlObject->Plugins->CurEditor && Global->CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		EditorUndoRedo eur={sizeof(EditorUndoRedo)};
 		eur.Command=static_cast<EDITOR_UNDOREDO_COMMANDS>(Action.toInteger());
-		Ret=(__int64)CtrlObject->Plugins->CurEditor->EditorControl(ECTL_UNDOREDO,0,&eur);
+		Ret=(__int64)Global->CtrlObject->Plugins->CurEditor->EditorControl(ECTL_UNDOREDO,0,&eur);
 	}
 
 	PassValue(&Ret, Data);
@@ -5738,14 +5738,14 @@ static bool editorsettitleFunc(FarMacroCall* Data)
 	TVar Ret(0ll);
 	TVar& Title(Params[0]);
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	if (Global->CtrlObject->Macro.GetMode()==MACRO_EDITOR && Global->CtrlObject->Plugins->CurEditor && Global->CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		if (Title.isInteger() && !Title.i())
 		{
 			Title=L"";
 			Title.toString();
 		}
-		Ret=(__int64)CtrlObject->Plugins->CurEditor->EditorControl(ECTL_SETTITLE,0,(void*)Title.s());
+		Ret=(__int64)Global->CtrlObject->Plugins->CurEditor->EditorControl(ECTL_SETTITLE,0,(void*)Title.s());
 	}
 
 	PassValue(&Ret, Data);
@@ -5759,11 +5759,11 @@ static bool editordellineFunc(FarMacroCall* Data)
 	TVar Ret(0ll);
 	TVar& Line(Params[0]);
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	if (Global->CtrlObject->Macro.GetMode()==MACRO_EDITOR && Global->CtrlObject->Plugins->CurEditor && Global->CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		if (Line.isNumber())
 		{
-			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_DELLINE, nullptr, Line.getInteger()-1);
+			Ret=(__int64)Global->CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_DELLINE, nullptr, Line.getInteger()-1);
 		}
 	}
 
@@ -5779,12 +5779,12 @@ static bool editorgetstrFunc(FarMacroCall* Data)
 	TVar Res(L"");
 	TVar& Line(Params[0]);
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	if (Global->CtrlObject->Macro.GetMode()==MACRO_EDITOR && Global->CtrlObject->Plugins->CurEditor && Global->CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		if (Line.isNumber())
 		{
 			string strRes;
-			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_GETSTR, &strRes, Line.getInteger()-1);
+			Ret=(__int64)Global->CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_GETSTR, &strRes, Line.getInteger()-1);
 			Res=strRes.CPtr();
 		}
 	}
@@ -5801,7 +5801,7 @@ static bool editorinsstrFunc(FarMacroCall* Data)
 	TVar& S(Params[0]);
 	TVar& Line(Params[1]);
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	if (Global->CtrlObject->Macro.GetMode()==MACRO_EDITOR && Global->CtrlObject->Plugins->CurEditor && Global->CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		if (Line.isNumber())
 		{
@@ -5811,7 +5811,7 @@ static bool editorinsstrFunc(FarMacroCall* Data)
 				S.toString();
 			}
 
-			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_INSSTR, (wchar_t *)S.s(), Line.getInteger()-1);
+			Ret=(__int64)Global->CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_INSSTR, (wchar_t *)S.s(), Line.getInteger()-1);
 		}
 	}
 
@@ -5827,7 +5827,7 @@ static bool editorsetstrFunc(FarMacroCall* Data)
 	TVar& S(Params[0]);
 	TVar& Line(Params[1]);
 
-	if (CtrlObject->Macro.GetMode()==MACRO_EDITOR && CtrlObject->Plugins->CurEditor && CtrlObject->Plugins->CurEditor->IsVisible())
+	if (Global->CtrlObject->Macro.GetMode()==MACRO_EDITOR && Global->CtrlObject->Plugins->CurEditor && Global->CtrlObject->Plugins->CurEditor->IsVisible())
 	{
 		if (Line.isNumber())
 		{
@@ -5837,7 +5837,7 @@ static bool editorsetstrFunc(FarMacroCall* Data)
 				S.toString();
 			}
 
-			Ret=(__int64)CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_SETSTR, (wchar_t *)S.s(), Line.getInteger()-1);
+			Ret=(__int64)Global->CtrlObject->Plugins->CurEditor->VMProcess(MCODE_F_EDITOR_SETSTR, (wchar_t *)S.s(), Line.getInteger()-1);
 		}
 	}
 
@@ -5855,7 +5855,7 @@ static bool pluginexistFunc(FarMacroCall* Data)
 	if (pGuid.s())
 	{
 		GUID guid;
-		Ret=(StrToGuid(pGuid.s(),guid) && CtrlObject->Plugins->FindPlugin(guid))?1:0;
+		Ret=(StrToGuid(pGuid.s(),guid) && Global->CtrlObject->Plugins->FindPlugin(guid))?1:0;
 	}
 
 	PassBoolean(Ret, Data);
@@ -5883,7 +5883,7 @@ static bool pluginunloadFunc(FarMacroCall* Data)
 	TVar& DllPath(Params[0]);
 	if (DllPath.s())
 	{
-		Plugin* p = CtrlObject->Plugins->GetPlugin(DllPath.s());
+		Plugin* p = Global->CtrlObject->Plugins->GetPlugin(DllPath.s());
 		if(p)
 		{
 			Ret=(__int64)pluginapi::apiPluginsControl(p, PCTL_UNLOADPLUGIN, 0, nullptr);

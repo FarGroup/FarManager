@@ -429,7 +429,7 @@ int SubstFileName(string &strStr,            // результирующа€ строка
 	if (CmdLineDir)
 		PSubstData->strCmdDir = CmdLineDir;
 	else // ...спросим у ком.строки
-		CtrlObject->CmdLine->GetCurDir(PSubstData->strCmdDir);
+		Global->CtrlObject->CmdLine->GetCurDir(PSubstData->strCmdDir);
 
 	size_t pos;
 	// ѕредварительно получим некоторые "константы" :-)
@@ -443,8 +443,8 @@ int SubstFileName(string &strStr,            // результирующа€ строка
 	if (PSubstData->strShortNameOnly.RPos(pos,L'.'))
 		PSubstData->strShortNameOnly.SetLength(pos);
 
-	PSubstData->ActivePanel=CtrlObject->Cp()->ActivePanel;
-	PSubstData->AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(PSubstData->ActivePanel);
+	PSubstData->ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
+	PSubstData->AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(PSubstData->ActivePanel);
 	PSubstData->AnotherPanel->GetCurName(PSubstData->strAnotherName,PSubstData->strAnotherShortName);
 	PSubstData->strAnotherNameOnly = PSubstData->strAnotherName;
 

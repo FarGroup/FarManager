@@ -51,8 +51,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "shortcuts.hpp"
 #include "poscache.hpp"
 
-ControlObject *CtrlObject;
-
 ControlObject::ControlObject():
 	FPanels(0),
 	CmdLine(0),
@@ -60,7 +58,6 @@ ControlObject::ControlObject():
 	TopMenuBar(nullptr)
 {
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
-	CtrlObject=this;
 
 	HiFiles = new HighlightFiles;
 	FolderShortcuts = new Shortcuts();
@@ -178,8 +175,6 @@ ControlObject::~ControlObject()
 	delete Plugins;
 	delete FolderShortcuts;
 	delete HiFiles;
-
-	CtrlObject=nullptr;
 }
 
 

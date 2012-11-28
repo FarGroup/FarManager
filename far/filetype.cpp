@@ -229,17 +229,17 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode
 
 			if (!isSilent)
 			{
-				CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish, false, false, ListFileUsed);
+				Global->CtrlObject->CmdLine->ExecString(strCommand,AlwaysWaitFinish, false, false, ListFileUsed);
 
 				if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTFARASS) && !AlwaysWaitFinish) //AN
-					CtrlObject->CmdHistory->AddToHistory(strCommand);
+					Global->CtrlObject->CmdHistory->AddToHistory(strCommand);
 			}
 			else
 			{
 #if 1
 				SaveScreen SaveScr;
-				CtrlObject->Cp()->LeftPanel->CloseFile();
-				CtrlObject->Cp()->RightPanel->CloseFile();
+				Global->CtrlObject->Cp()->LeftPanel->CloseFile();
+				Global->CtrlObject->Cp()->RightPanel->CloseFile();
 				Execute(strCommand,AlwaysWaitFinish, 0, 0, 0, ListFileUsed, true);
 #else
 				// здесь была бага с прорисовкой (и... вывод данных
@@ -251,9 +251,9 @@ bool ProcessLocalFileTypes(const string& Name, const string& ShortName, int Mode
 					ScrollScreen(1); // обязательно, иначе деструктор RedrawDesktop
 					// проредравив экран забьет последнюю строку вывода.
 				}
-				CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-				CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
-				CtrlObject->Cp()->Redraw();
+				Global->CtrlObject->Cp()->LeftPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+				Global->CtrlObject->Cp()->RightPanel->UpdateIfChanged(UIC_UPDATE_FORCE);
+				Global->CtrlObject->Cp()->Redraw();
 #endif
 			}
 		}
@@ -279,11 +279,11 @@ void ProcessGlobalFileTypes(const wchar_t *Name, bool AlwaysWaitFinish, bool Run
 {
 	string strName(Name);
 	QuoteSpace(strName);
-	CtrlObject->CmdLine->ExecString(strName, AlwaysWaitFinish, true, true, false, false, RunAs);
+	Global->CtrlObject->CmdLine->ExecString(strName, AlwaysWaitFinish, true, true, false, false, RunAs);
 
 	if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTWINASS) && !AlwaysWaitFinish)
 	{
-		CtrlObject->CmdHistory->AddToHistory(strName);
+		Global->CtrlObject->CmdHistory->AddToHistory(strName);
 	}
 }
 
@@ -315,15 +315,15 @@ void ProcessExternal(const string& Command, const string& Name, const string& Sh
 		if (!ExtractIfExistCommand(strFullExecStr))
 			return;
 
-		CtrlObject->ViewHistory->AddToHistory(strFullExecStr,AlwaysWaitFinish?3:2);
+		Global->CtrlObject->ViewHistory->AddToHistory(strFullExecStr,AlwaysWaitFinish?3:2);
 
 		if (strExecStr.At(0) != L'@')
-			CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed);
+			Global->CtrlObject->CmdLine->ExecString(strExecStr,AlwaysWaitFinish, 0, 0, ListFileUsed);
 		else
 		{
 			SaveScreen SaveScr;
-			CtrlObject->Cp()->LeftPanel->CloseFile();
-			CtrlObject->Cp()->RightPanel->CloseFile();
+			Global->CtrlObject->Cp()->LeftPanel->CloseFile();
+			Global->CtrlObject->Cp()->RightPanel->CloseFile();
 			Execute(strExecStr.CPtr()+1,AlwaysWaitFinish, 0, 0, 0, ListFileUsed);
 		}
 	}

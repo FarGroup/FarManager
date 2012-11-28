@@ -115,12 +115,12 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	SetMaxHeight(MaxHeight);
 	SetColors(nullptr); //Установим цвет по умолчанию
 
-	if (!CheckFlags(VMENU_LISTBOX) && CtrlObject)
+	if (!CheckFlags(VMENU_LISTBOX) && Global->CtrlObject)
 	{
-		PrevMacroMode = CtrlObject->Macro.GetMode();
+		PrevMacroMode = Global->CtrlObject->Macro.GetMode();
 
 		if (!IsMenuArea(PrevMacroMode))
-			CtrlObject->Macro.SetMode(MACRO_MENU);
+			Global->CtrlObject->Macro.SetMode(MACRO_MENU);
 	}
 
 	if (!CheckFlags(VMENU_LISTBOX))
@@ -129,8 +129,8 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 
 VMenu::~VMenu()
 {
-	if (!CheckFlags(VMENU_LISTBOX) && CtrlObject)
-		CtrlObject->Macro.SetMode(PrevMacroMode);
+	if (!CheckFlags(VMENU_LISTBOX) && Global->CtrlObject)
+		Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	bool WasVisible=Flags.Check(FSCROBJ_VISIBLE)!=0;
 	Hide();

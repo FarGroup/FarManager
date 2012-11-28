@@ -56,15 +56,15 @@ static const wchar_t *ColumnSymbol[]={L"N",L"S",L"P",L"D",L"T",L"DM",L"DC",L"DA"
 void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 {
 	if (!SrcPanel)
-		SrcPanel=CtrlObject->Cp()->ActivePanel;
+		SrcPanel=Global->CtrlObject->Cp()->ActivePanel;
 
-	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
 
 	switch (SrcPanel->GetType())
 	{
 		case QVIEW_PANEL:
 		case INFO_PANEL:
-			SrcPanel=CtrlObject->Cp()->GetAnotherPanel(AnotherPanel=SrcPanel);
+			SrcPanel=Global->CtrlObject->Cp()->GetAnotherPanel(AnotherPanel=SrcPanel);
 	}
 
 	int AnotherType=AnotherPanel->GetType();
@@ -99,15 +99,15 @@ void ShellUpdatePanels(Panel *SrcPanel,BOOL NeedSetUpADir)
 	if (AnotherType==QVIEW_PANEL)
 		AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 
-	CtrlObject->Cp()->Redraw();
+	Global->CtrlObject->Cp()->Redraw();
 }
 
 int CheckUpdateAnotherPanel(Panel *SrcPanel,const wchar_t *SelName)
 {
 	if (!SrcPanel)
-		SrcPanel=CtrlObject->Cp()->ActivePanel;
+		SrcPanel=Global->CtrlObject->Cp()->ActivePanel;
 
-	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
 	AnotherPanel->CloseFile();
 
 	if (AnotherPanel->GetMode() == NORMAL_PANEL)
@@ -166,7 +166,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 		case KEY_SHIFTENTER:           // Текущий файл с актив.панели
 		{
 			Panel *SrcPanel=nullptr;
-			FilePanels *Cp=CtrlObject->Cp();
+			FilePanels *Cp=Global->CtrlObject->Cp();
 
 			switch (Key)
 			{
@@ -240,7 +240,7 @@ int _MakePath1(DWORD Key, string &strPathName, const wchar_t *Param2,int ShortNa
 					{
 						FileList *SrcFilePanel=(FileList *)SrcPanel;
 						OpenPanelInfo Info;
-						CtrlObject->Plugins->GetOpenPanelInfo(SrcFilePanel->GetPluginHandle(),&Info);
+						Global->CtrlObject->Plugins->GetOpenPanelInfo(SrcFilePanel->GetPluginHandle(),&Info);
 						FileList::AddPluginPrefix(SrcFilePanel,strPathName);
 						if (Info.HostFile && *Info.HostFile)
 						{

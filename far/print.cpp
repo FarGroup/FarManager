@@ -198,7 +198,7 @@ void PrintFiles(Panel *SrcPanel)
 		PR_PrintMsg();
 		HANDLE hPlugin=SrcPanel->GetPluginHandle();
 		int PluginMode=SrcPanel->GetMode()==PLUGIN_PANEL &&
-		               !CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
+		               !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 		SrcPanel->GetSelName(nullptr,FileAttr);
 
 		while (SrcPanel->GetSelName(&strSelName,FileAttr))
@@ -222,7 +222,7 @@ void PrintFiles(Panel *SrcPanel)
 						PluginPanelItem PanelItem;
 						FileList::FileListToPluginItem(&ListItem,&PanelItem);
 
-						if (CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
+						if (Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strTempName,OPM_SILENT))
 							FileName = strTempName;
 						else
 							apiRemoveDirectory(strTempDir);

@@ -79,13 +79,13 @@ void FileList::Update(int Mode)
 			case PLUGIN_PANEL:
 			{
 				OpenPanelInfo Info;
-				CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+				Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 				ProcessPluginCommand();
 
 				if (PanelMode!=PLUGIN_PANEL)
 					ReadFileNames(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE,Mode & UPDATE_DRAW_MESSAGE);
 				else if ((Info.Flags & OPIF_REALNAMES) ||
-				         CtrlObject->Cp()->GetAnotherPanel(this)->GetMode()==PLUGIN_PANEL ||
+				         Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetMode()==PLUGIN_PANEL ||
 				         !(Mode & UPDATE_SECONDARY))
 					UpdatePlugin(Mode & UPDATE_KEEP_SELECTION, Mode & UPDATE_IGNORE_VISIBLE);
 			}
@@ -146,7 +146,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	int OldFileCount=0;
 	StopFSWatcher();
 
-	if (this!=CtrlObject->Cp()->LeftPanel && this!=CtrlObject->Cp()->RightPanel)
+	if (this!=Global->CtrlObject->Cp()->LeftPanel && this!=Global->CtrlObject->Cp()->RightPanel)
 		return;
 
 	string strSaveDir;
@@ -174,10 +174,10 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	SortGroupsRead=FALSE;
 
 	if (GetFocus())
-		CtrlObject->CmdLine->SetCurDir(strCurDir);
+		Global->CtrlObject->CmdLine->SetCurDir(strCurDir);
 
 	LastCurFile=-1;
-	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 	AnotherPanel->QViewDelTempName();
 	size_t PrevSelFileCount=SelFileCount;
 	SelFileCount=0;
@@ -250,7 +250,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
-	CtrlObject->HiFiles->UpdateCurrentTime();
+	Global->CtrlObject->HiFiles->UpdateCurrentTime();
 	bool bCurDirRoot = false;
 	ParsePath(strCurDir, nullptr, &bCurDirRoot);
 	PATH_TYPE Type = ParsePath(strCurDir, nullptr, &bCurDirRoot);
@@ -333,7 +333,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 			}
 
 			if (ReadCustomData)
-				CtrlObject->Plugins->GetCustomData(NewPtr);
+				Global->CtrlObject->Plugins->GetCustomData(NewPtr);
 
 			if (!(fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				TotalFileCount++;
@@ -384,7 +384,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	if (!(FindErrorCode==ERROR_SUCCESS || FindErrorCode==ERROR_NO_MORE_FILES || FindErrorCode==ERROR_FILE_NOT_FOUND))
 		Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),MSG(MReadFolderError),MSG(MOk));
 
-	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network))) // NetWork Plugin
+	if ((Global->Opt->ShowDotsInRoot || !bCurDirRoot) || (NetRoot && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Network))) // NetWork Plugin
 	{
 		if (FileCount>=AllocatedCount)
 		{
@@ -424,7 +424,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 
 	if (NeedHighlight)
 	{
-		CtrlObject->HiFiles->GetHiColor(ListData, FileCount);
+		Global->CtrlObject->HiFiles->GetHiColor(ListData, FileCount);
 	}
 
 	if (AnotherPanel->GetMode()==PLUGIN_PANEL)
@@ -436,7 +436,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 		strPath = strCurDir;
 		AddEndSlash(strPath);
 
-		if (CtrlObject->Plugins->GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,strPath))
+		if (Global->CtrlObject->Plugins->GetVirtualFindData(hAnotherPlugin,&PanelData,&PanelCount,strPath))
 		{
 			FileListItem **pTemp;
 
@@ -453,18 +453,18 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 					TotalFileSize += pfdata.FileSize;
 					CurPtr->PrevSelected=CurPtr->Selected=0;
 					CurPtr->ShowFolderSize=0;
-					CurPtr->SortGroup=CtrlObject->HiFiles->GetGroup(CurPtr);
+					CurPtr->SortGroup=Global->CtrlObject->HiFiles->GetGroup(CurPtr);
 
 					if (!TestParentFolderName(pfdata.FileName) && !(CurPtr->FileAttr & FILE_ATTRIBUTE_DIRECTORY))
 						TotalFileCount++;
 				}
 
 				// цветовую боевую раскраску в самом конце, за один раз
-				CtrlObject->HiFiles->GetHiColor(&ListData[FileCount],PanelCount);
+				Global->CtrlObject->HiFiles->GetHiColor(&ListData[FileCount],PanelCount);
 				FileCount+=static_cast<int>(PanelCount);
 			}
 
-			CtrlObject->Plugins->FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
+			Global->CtrlObject->Plugins->FreeVirtualFindData(hAnotherPlugin,PanelData,PanelCount);
 		}
 	}
 
@@ -507,7 +507,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	/* $ 13.02.2002 DJ
 		SetTitle() - только если мы текущий фрейм!
 	*/
-	if (CtrlObject->Cp() == FrameManager->GetCurrentFrame())
+	if (Global->CtrlObject->Cp() == FrameManager->GetCurrentFrame())
 		SetTitle();
 
 	FarChDir(strSaveDir); //???
@@ -538,7 +538,7 @@ int FileList::UpdateIfChanged(int UpdateMode)
 			    (PanelMode!=NORMAL_PANEL && UpdateMode==UIC_UPDATE_FORCE)
 			)
 			{
-				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 				if (AnotherPanel->GetType()==INFO_PANEL)
 				{
@@ -648,7 +648,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	StopFSWatcher();
 	LastCurFile=-1;
 	OpenPanelInfo Info;
-	CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+	Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 
 	FreeDiskSize=-1;
 	if (Global->Opt->ShowPanelFree)
@@ -664,7 +664,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	PluginPanelItem *PanelData=nullptr;
 	size_t PluginFileCount;
 
-	if (!CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&PluginFileCount,0))
+	if (!Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&PluginFileCount,0))
 	{
 		DeleteListData(ListData,FileCount);
 		PopPlugin(TRUE);
@@ -734,7 +734,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 
 	//Рефреш текущему времени для фильтра перед началом операции
 	Filter->UpdateCurrentTime();
-	CtrlObject->HiFiles->UpdateCurrentTime();
+	Global->CtrlObject->HiFiles->UpdateCurrentTime();
 	int DotsPresent=FALSE;
 	int FileListCount=0;
 	bool UseFilter=Filter->IsEnabledOnPanel();
@@ -760,7 +760,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		CurListData->Position=i;
 
 		if (!(Info.Flags & OPIF_DISABLESORTGROUPS)/* && !(CurListData->FileAttr & FILE_ATTRIBUTE_DIRECTORY)*/)
-			CurListData->SortGroup=CtrlObject->HiFiles->GetGroup(CurListData);
+			CurListData->SortGroup=Global->CtrlObject->HiFiles->GetGroup(CurListData);
 		else
 			CurListData->SortGroup=DEFAULT_SORT_GROUP;
 
@@ -785,7 +785,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 	}
 
 	if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-		CtrlObject->HiFiles->GetHiColor(ListData,FileListCount,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+		Global->CtrlObject->HiFiles->GetHiColor(ListData,FileListCount,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 
 	FileCount=FileListCount;
 
@@ -797,7 +797,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		AddParentPoint(CurPtr,FileCount);
 
 		if (!(Info.Flags & OPIF_DISABLEHIGHLIGHTING) || (Info.Flags & OPIF_USEATTRHIGHLIGHTING))
-			CtrlObject->HiFiles->GetHiColor(&CurPtr,1,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
+			Global->CtrlObject->HiFiles->GetHiColor(&CurPtr,1,(Info.Flags&OPIF_USEATTRHIGHLIGHTING)!=0);
 
 		if (Info.HostFile && *Info.HostFile)
 		{
@@ -824,7 +824,7 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		ReadDiz(PanelData,static_cast<int>(PluginFileCount),RDF_NO_UPDATE);
 
 	CorrectPosition();
-	CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,PluginFileCount,false);
+	Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,PluginFileCount,false);
 
 	string strLastSel, strGetSel;
 
@@ -877,7 +877,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 		PluginPanelItem *PanelData=nullptr;
 		size_t PluginFileCount=0;
 		OpenPanelInfo Info;
-		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 
 		if (!Info.DescrFilesNumber)
 			return;
@@ -888,7 +888,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 		    + Обработка флага RDF_NO_UPDATE */
 		if (!ItemList && !(dwFlags & RDF_NO_UPDATE))
 		{
-			GetCode=CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&PluginFileCount,0);
+			GetCode=Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&PluginFileCount,0);
 		}
 		else
 		{
@@ -912,7 +912,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 
 						if (FarMkTempEx(strTempDir) && apiCreateDirectory(strTempDir,nullptr))
 						{
-							if (CtrlObject->Plugins->GetFile(hPlugin,CurPanelData,strTempDir,strDizName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW|OPM_DESCR))
+							if (Global->CtrlObject->Plugins->GetFile(hPlugin,CurPanelData,strTempDir,strDizName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW|OPM_DESCR))
 							{
 								strPluginDizName = Info.DescrFiles[I];
 								Diz.Read(L"", &strDizName);
@@ -931,7 +931,7 @@ void FileList::ReadDiz(PluginPanelItem *ItemList,int ItemLength,DWORD dwFlags)
 			/* $ 25.02.2001 VVM
 			    + Обработка флага RDF_NO_UPDATE */
 			if (!ItemList && !(dwFlags & RDF_NO_UPDATE))
-				CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,PluginFileCount,true);
+				Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,PluginFileCount,true);
 		}
 	}
 
@@ -952,14 +952,14 @@ void FileList::ReadSortGroups(bool UpdateFilterCurrentTime)
 	{
 		if (UpdateFilterCurrentTime)
 		{
-			CtrlObject->HiFiles->UpdateCurrentTime();
+			Global->CtrlObject->HiFiles->UpdateCurrentTime();
 		}
 
 		SortGroupsRead=TRUE;
 
 		for (int i=0; i<FileCount; i++)
 		{
-			ListData[i]->SortGroup=CtrlObject->HiFiles->GetGroup(ListData[i]);
+			ListData[i]->SortGroup=Global->CtrlObject->HiFiles->GetGroup(ListData[i]);
 		}
 	}
 }

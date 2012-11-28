@@ -177,7 +177,7 @@ enum enumOptionsMenu
 
 void SetLeftRightMenuChecks(MenuDataEx *pMenu, bool bLeft)
 {
-	Panel *pPanel = bLeft?CtrlObject->Cp()->LeftPanel:CtrlObject->Cp()->RightPanel;
+	Panel *pPanel = bLeft?Global->CtrlObject->Cp()->LeftPanel:Global->CtrlObject->Cp()->RightPanel;
 
 	switch (pPanel->GetType())
 	{
@@ -370,8 +370,8 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 			if (HItemToShow == -1)
 			{
-				if (CtrlObject->Cp()->ActivePanel == CtrlObject->Cp()->RightPanel &&
-				        CtrlObject->Cp()->ActivePanel->IsVisible())
+				if (Global->CtrlObject->Cp()->ActivePanel == Global->CtrlObject->Cp()->RightPanel &&
+				        Global->CtrlObject->Cp()->ActivePanel->IsVisible())
 					HItemToShow = 4;
 				else
 					HItemToShow = 0;
@@ -389,8 +389,8 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		}
 		else
 		{
-			if (CtrlObject->Cp()->ActivePanel==CtrlObject->Cp()->RightPanel &&
-			        CtrlObject->Cp()->ActivePanel->IsVisible())
+			if (Global->CtrlObject->Cp()->ActivePanel==Global->CtrlObject->Cp()->RightPanel &&
+			        Global->CtrlObject->Cp()->ActivePanel->IsVisible())
 			{
 				MainMenu[0].Selected = 0;
 				MainMenu[4].Selected = 1;
@@ -418,12 +418,12 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 		case MENU_LEFT:
 		case MENU_RIGHT:
 		{
-			Panel *pPanel = (HItem == MENU_LEFT)?CtrlObject->Cp()->LeftPanel:CtrlObject->Cp()->RightPanel;
+			Panel *pPanel = (HItem == MENU_LEFT)?Global->CtrlObject->Cp()->LeftPanel:Global->CtrlObject->Cp()->RightPanel;
 
 			if (VItem >= MENU_LEFT_BRIEFVIEW && VItem <= MENU_LEFT_ALTERNATIVEVIEW)
 			{
-				CtrlObject->Cp()->ChangePanelToFilled(pPanel, FILE_PANEL);
-				pPanel=(HItem == MENU_LEFT)?CtrlObject->Cp()->LeftPanel:CtrlObject->Cp()->RightPanel;
+				Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, FILE_PANEL);
+				pPanel=(HItem == MENU_LEFT)?Global->CtrlObject->Cp()->LeftPanel:Global->CtrlObject->Cp()->RightPanel;
 				pPanel->SetViewMode((VItem == MENU_LEFT_ALTERNATIVEVIEW)?VIEW_0:VIEW_1+VItem);
 			}
 			else
@@ -431,13 +431,13 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 				switch (VItem)
 				{
 					case MENU_LEFT_INFOPANEL: // Info panel
-						CtrlObject->Cp()->ChangePanelToFilled(pPanel, INFO_PANEL);
+						Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, INFO_PANEL);
 						break;
 					case MENU_LEFT_TREEPANEL: // Tree panel
-						CtrlObject->Cp()->ChangePanelToFilled(pPanel, TREE_PANEL);
+						Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, TREE_PANEL);
 						break;
 					case MENU_LEFT_QUICKVIEW: // Quick view
-						CtrlObject->Cp()->ChangePanelToFilled(pPanel, QVIEW_PANEL);
+						Global->CtrlObject->Cp()->ChangePanelToFilled(pPanel, QVIEW_PANEL);
 						break;
 					case MENU_LEFT_SORTMODES: // Sort modes
 						pPanel->ProcessKey(KEY_CTRLF12);
@@ -488,34 +488,34 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					FrameManager->ProcessKey(KEY_ALTDEL);
 					break;
 				case MENU_FILES_ADD:  // Add to archive
-					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF1);
+					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF1);
 					break;
 				case MENU_FILES_EXTRACT:  // Extract files
-					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF2);
+					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF2);
 					break;
 				case MENU_FILES_ARCHIVECOMMANDS:  // Archive commands
-					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF3);
+					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SHIFTF3);
 					break;
 				case MENU_FILES_ATTRIBUTES: // File attributes
-					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLA);
+					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLA);
 					break;
 				case MENU_FILES_APPLYCOMMAND: // Apply command
-					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLG);
+					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLG);
 					break;
 				case MENU_FILES_DESCRIBE: // Describe files
-					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLZ);
+					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_CTRLZ);
 					break;
 				case MENU_FILES_SELECTGROUP: // Select group
-					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_ADD);
+					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_ADD);
 					break;
 				case MENU_FILES_UNSELECTGROUP: // Unselect group
-					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SUBTRACT);
+					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_SUBTRACT);
 					break;
 				case MENU_FILES_INVERTSELECTION: // Invert selection
-					CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_MULTIPLY);
+					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(KEY_MULTIPLY);
 					break;
 				case MENU_FILES_RESTORESELECTION: // Restore selection
-					CtrlObject->Cp()->ActivePanel->RestoreSelection();
+					Global->CtrlObject->Cp()->ActivePanel->RestoreSelection();
 					break;
 			}
 
@@ -550,7 +550,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					FrameManager->ProcessKey(KEY_CTRLO);
 					break;
 				case MENU_COMMANDS_COMPAREFOLDERS: // Compare folders
-					CtrlObject->Cp()->ActivePanel->CompareDir();
+					Global->CtrlObject->Cp()->ActivePanel->CompareDir();
 					break;
 				case MENU_COMMANDS_EDITUSERMENU: // Edit user menu
 				{
@@ -561,10 +561,10 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					EditFileTypes();
 					break;
 				case MENU_COMMANDS_FOLDERSHORTCUTS: // Folder shortcuts
-					CtrlObject->FolderShortcuts->Configure();
+					Global->CtrlObject->FolderShortcuts->Configure();
 					break;
 				case MENU_COMMANDS_FILTER: // File panel filter
-					CtrlObject->Cp()->ActivePanel->EditFilter();
+					Global->CtrlObject->Cp()->ActivePanel->EditFilter();
 					break;
 				case MENU_COMMANDS_PLUGINCOMMANDS: // Plugin commands
 					FrameManager->ProcessKey(KEY_F11);
@@ -614,20 +614,20 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 
 						Select(TRUE,&HelpMenu);
 						delete HelpMenu;
-						CtrlObject->Plugins->ReloadLanguage();
+						Global->CtrlObject->Plugins->ReloadLanguage();
 						SetEnvironmentVariable(L"FARLANG",Global->Opt->strLanguage);
 						PrepareStrFTime();
 						PrepareUnitStr();
 						FrameManager->InitKeyBar();
-						CtrlObject->Cp()->RedrawKeyBar();
-						CtrlObject->Cp()->SetScreenPosition();
+						Global->CtrlObject->Cp()->RedrawKeyBar();
+						Global->CtrlObject->Cp()->SetScreenPosition();
 					}
 
 					delete LangMenu; //???? BUGBUG
 					break;
 				}
 				case MENU_OPTIONS_PLUGINSCONFIG:   // Plugins configuration
-					CtrlObject->Plugins->Configure();
+					Global->CtrlObject->Plugins->Configure();
 					break;
 				case MENU_OPTIONS_PLUGINSMANAGERSETTINGS: // Plugins manager settings
 					PluginsManagerSettings();
@@ -678,7 +678,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 					SetColors();
 					break;
 				case MENU_OPTIONS_FILESHIGHLIGHTING:  // Files highlighting
-					CtrlObject->HiFiles->HiEdit(0);
+					Global->CtrlObject->HiFiles->HiEdit(0);
 					break;
 				case MENU_OPTIONS_SAVESETUP:  // Save setup
 					Global->Opt->Save(true);
@@ -694,7 +694,7 @@ void ShellOptions(int LastCommand,MOUSE_EVENT_RECORD *MouseEvent)
 	//      или то, что, скажем редактор/вьювер может быть не полноэкранным
 
 	if (!(_CurrentFrame == MODALTYPE_VIEWER || _CurrentFrame == MODALTYPE_EDITOR))
-		CtrlObject->CmdLine->Show();
+		Global->CtrlObject->CmdLine->Show();
 
 	if (HItem != -1 && VItem != -1)
 	{

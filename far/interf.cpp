@@ -163,13 +163,13 @@ BOOL WINAPI CtrlHandler(DWORD CtrlType)
 		}
 		WriteInput(KEY_BREAK);
 
-		if (CtrlObject && CtrlObject->Cp())
+		if (Global->CtrlObject && Global->CtrlObject->Cp())
 		{
-			if (CtrlObject->Cp()->LeftPanel && CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
-				CtrlObject->Plugins->ProcessEvent(CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
+			if (Global->CtrlObject->Cp()->LeftPanel && Global->CtrlObject->Cp()->LeftPanel->GetMode()==PLUGIN_PANEL)
+				Global->CtrlObject->Plugins->ProcessEvent(Global->CtrlObject->Cp()->LeftPanel->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
 
-			if (CtrlObject->Cp()->RightPanel && CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
-				CtrlObject->Plugins->ProcessEvent(CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
+			if (Global->CtrlObject->Cp()->RightPanel && Global->CtrlObject->Cp()->RightPanel->GetMode()==PLUGIN_PANEL)
+				Global->CtrlObject->Plugins->ProcessEvent(Global->CtrlObject->Cp()->RightPanel->GetPluginHandle(),FE_BREAK, ToPtr(CtrlType));
 		}
 		return TRUE;
 

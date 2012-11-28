@@ -54,7 +54,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 	ModalMode(iModalMode),
 	IsFullScreen(IsFullScreen),
 	IsStandalone(IsStandalone),
-	PrevMacroMode(CtrlObject->Macro.GetMode())
+	PrevMacroMode(Global->CtrlObject->Macro.GetMode())
 {
 	SetDynamicallyBorn(FALSE);
 	SetRestoreScreenMode(TRUE);
@@ -66,7 +66,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 
 	if ((Tree=new TreeList(FALSE)))
 	{
-		CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
+		Global->CtrlObject->Macro.SetMode(MACRO_FINDFOLDER);
 		MacroMode = MACRO_FINDFOLDER;
 		strLastName.Clear();
 		Tree->SetModalMode(ModalMode);
@@ -103,7 +103,7 @@ FolderTree::FolderTree(string &strResultFolder,int iModalMode,int IsStandalone,b
 
 FolderTree::~FolderTree()
 {
-	CtrlObject->Macro.SetMode(PrevMacroMode);
+	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	//if ( TopScreen )    delete TopScreen;
 	if (FindEdit)

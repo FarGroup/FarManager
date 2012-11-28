@@ -90,7 +90,7 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local) : PluginsCfg(nullpt
 {
 	//хак чтоб SCTL_* могли работать при ExitFarW.
 	extern PluginManager *PluginManagerForExitFar;
-	Plugin* pPlugin=CtrlObject?CtrlObject->Plugins->FindPlugin(Guid):(PluginManagerForExitFar?PluginManagerForExitFar->FindPlugin(Guid):nullptr);
+	Plugin* pPlugin=Global->CtrlObject? Global->CtrlObject->Plugins->FindPlugin(Guid) : (PluginManagerForExitFar?PluginManagerForExitFar->FindPlugin(Guid):nullptr);
 	if (pPlugin)
 	{
 		string strGuid = GuidToStr(Guid);
@@ -404,7 +404,7 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 				FarSettingsHistory item={0};
 				string strName,strFile,strData;
 				GUID plugin; size_t index=0;
-				while(CtrlObject->FolderShortcuts->Get(Enum.Root-FSSF_FOLDERSHORTCUT_0,index++,&strName,&plugin,&strFile,&strData))
+				while(Global->CtrlObject->FolderShortcuts->Get(Enum.Root-FSSF_FOLDERSHORTCUT_0,index++,&strName,&plugin,&strFile,&strData))
 				{
 					AddItem(array,item,strName,strData,plugin,strFile);
 				}

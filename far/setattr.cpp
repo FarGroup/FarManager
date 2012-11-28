@@ -693,7 +693,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 			return false;
 		}
 
-		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 
 		if (!(Info.Flags & OPIF_REALNAMES))
 		{
@@ -1301,7 +1301,7 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 					ConsoleTitle SetAttrTitle(MSG(MSetAttrTitle));
 					if(SrcPanel)
 					{
-						CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
+						Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->CloseFile();
 					}
 					DWORD SetAttr=0,ClearAttr=0;
 
@@ -1631,8 +1631,8 @@ bool ShellSetFileAttributes(Panel *SrcPanel, const string* Object)
 		SrcPanel->SaveSelection();
 		SrcPanel->Update(UPDATE_KEEP_SELECTION);
 		SrcPanel->ClearSelection();
-		CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+		Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	}
-	CtrlObject->Cp()->Redraw();
+	Global->CtrlObject->Cp()->Redraw();
 	return true;
 }

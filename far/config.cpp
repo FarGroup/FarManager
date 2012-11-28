@@ -220,9 +220,9 @@ void PanelSettings()
 			Global->Opt->AutoUpdateLimit = 0;
 
 	//  FrameManager->RefreshFrame();
-		CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-		CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-		CtrlObject->Cp()->Redraw();
+		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->Redraw();
 	}
 }
 
@@ -281,9 +281,9 @@ void TreeSettings()
 
 	if (Builder.ShowDialog())
 	{
-		CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-		CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-		CtrlObject->Cp()->Redraw();
+		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->Redraw();
 	}
 }
 
@@ -327,11 +327,11 @@ void InterfaceSettings()
 			Global->Opt->CMOpt.CopyTimeRule = 3;
 
 		SetFarConsoleMode();
-		CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-		CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-		CtrlObject->Cp()->SetScreenPosition();
+		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->SetScreenPosition();
 		// $ 10.07.2001 SKV ! íàäî ýòî äåëàòü, èíà÷å åñëè êåéáàð ñïðÿòàëè, áóäåò ïîëíûé ðàìñ.
-		CtrlObject->Cp()->Redraw();
+		Global->CtrlObject->Cp()->Redraw();
 	}
 }
 
@@ -385,20 +385,20 @@ void InfoPanelSettings()
 	if (Builder.ShowDialog())
 	{
 		bool needRedraw=false;
-		if (CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
+		if (Global->CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
 		{
-			CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+			Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
 			needRedraw=true;
 		}
-		if (CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)
+		if (Global->CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)
 		{
-			CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+			Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
 			needRedraw=true;
 		}
 		if (needRedraw)
 		{
-			//CtrlObject->Cp()->SetScreenPosition();
-			CtrlObject->Cp()->Redraw();
+			//Global->CtrlObject->Cp()->SetScreenPosition();
+			Global->CtrlObject->Cp()->Redraw();
 		}
 	}
 }
@@ -632,9 +632,9 @@ void CmdlineSettings()
 
 	if (Builder.ShowDialog())
 	{
-		CtrlObject->CmdLine->SetPersistentBlocks(Global->Opt->CmdLine.EditBlock);
-		CtrlObject->CmdLine->SetDelRemovesBlocks(Global->Opt->CmdLine.DelRemovesBlocks);
-		CtrlObject->CmdLine->SetAutoComplete(Global->Opt->CmdLine.AutoComplete);
+		Global->CtrlObject->CmdLine->SetPersistentBlocks(Global->Opt->CmdLine.EditBlock);
+		Global->CtrlObject->CmdLine->SetDelRemovesBlocks(Global->Opt->CmdLine.DelRemovesBlocks);
+		Global->CtrlObject->CmdLine->SetAutoComplete(Global->Opt->CmdLine.AutoComplete);
 	}
 }
 
@@ -825,11 +825,11 @@ void SetFolderInfoFiles()
 	{
 		Global->Opt->InfoPanel.strFolderInfoFiles = strFolderInfoFiles;
 
-		if (CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
-			CtrlObject->Cp()->LeftPanel->Update(0);
+		if (Global->CtrlObject->Cp()->LeftPanel->GetType() == INFO_PANEL)
+			Global->CtrlObject->Cp()->LeftPanel->Update(0);
 
-		if (CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)
-			CtrlObject->Cp()->RightPanel->Update(0);
+		if (Global->CtrlObject->Cp()->RightPanel->GetType() == INFO_PANEL)
+			Global->CtrlObject->Cp()->RightPanel->Update(0);
 	}
 }
 
@@ -1450,8 +1450,8 @@ void Options::Save(bool Ask)
 		return;
 
 	/* <ÏÐÅÏÐÎÖÅÑÑÛ> *************************************************** */
-	Panel *LeftPanelPtr=CtrlObject->Cp()->LeftPanel;
-	Panel *RightPanelPtr=CtrlObject->Cp()->RightPanel;
+	Panel *LeftPanelPtr=Global->CtrlObject->Cp()->LeftPanel;
+	Panel *RightPanelPtr=Global->CtrlObject->Cp()->RightPanel;
 	LeftPanel.Focus=LeftPanelPtr->GetFocus() != 0;
 	LeftPanel.Visible=LeftPanelPtr->IsVisible() != 0;
 	RightPanel.Focus=RightPanelPtr->GetFocus() != 0;
@@ -1494,7 +1494,7 @@ void Options::Save(bool Ask)
 	strRightFolder = strTemp1;
 	RightPanelPtr->GetCurBaseName(strTemp1, strTemp2);
 	strRightCurFile = strTemp1;
-	CtrlObject->HiFiles->SaveHiData();
+	Global->CtrlObject->HiFiles->SaveHiData();
 	/* *************************************************** </ÏÐÅÏÐÎÖÅÑÑÛ> */
 
 	Palette.Save();
@@ -1513,7 +1513,7 @@ void Options::Save(bool Ask)
 	FileList::SavePanelModes();
 
 	if (Ask)
-		CtrlObject->Macro.SaveMacros();
+		Global->CtrlObject->Macro.SaveMacros();
 
 	/* *************************************************** </ÏÎÑÒÏÐÎÖÅÑÑÛ> */
 }

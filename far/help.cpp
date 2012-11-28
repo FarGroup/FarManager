@@ -120,7 +120,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 	MouseDown(FALSE),
 	CurColor(COL_HELPTEXT),
 	CtrlTabSize(8),
-	PrevMacroMode(CtrlObject->Macro.GetMode()),
+	PrevMacroMode(Global->CtrlObject->Macro.GetMode()),
 	LastSearchCase(Global->GlobalSearchCase),
 	LastSearchWholeWords(Global->GlobalSearchWholeWords),
 	LastSearchRegexp(Global->Opt->HelpSearchRegexp)
@@ -130,7 +130,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 	KeyBarVisible=TRUE;
 	/* $ OT По умолчанию все хелпы создаются статически*/
 	SetDynamicallyBorn(FALSE);
-	CtrlObject->Macro.SetMode(MACRO_HELP);
+	Global->CtrlObject->Macro.SetMode(MACRO_HELP);
 	Stack=new CallBackStack;
 	StackData.Clear();
 	StackData.Flags=Flags;
@@ -188,7 +188,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 
 Help::~Help()
 {
-	CtrlObject->Macro.SetMode(PrevMacroMode);
+	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 	SetRestoreScreenMode(FALSE);
 
 	if (Stack)        delete Stack;
@@ -358,7 +358,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 			string strKeyName;
 			string strOutTemp;
 
-			if (CtrlObject->Macro.GetMacroKeyInfo(false,CtrlObject->Macro.GetAreaCode(strMacroArea),MI,strKeyName,strDescription) == -1)
+			if (Global->CtrlObject->Macro.GetMacroKeyInfo(false,Global->CtrlObject->Macro.GetAreaCode(strMacroArea),MI,strKeyName,strDescription) == -1)
 			{
 				MacroProcess=false;
 				MI=0;
@@ -477,7 +477,7 @@ m1:
 
 			if (TopicFound)
 			{
-				if (!StrCmpNI(strReadStr.CPtr(),L"<!Macro:",8) && CtrlObject)
+				if (!StrCmpNI(strReadStr.CPtr(),L"<!Macro:",8) && Global->CtrlObject)
 				{
 					if (strReadStr.Pos(PosTab,L'>') && strReadStr.At(PosTab-1) != L'!')
 						continue;
@@ -486,7 +486,7 @@ m1:
 					MacroProcess=true;
 					MI=0;
 					string strDescription,strKeyName;
-					while (CtrlObject->Macro.GetMacroKeyInfo(false,CtrlObject->Macro.GetAreaCode(strMacroArea),MI,strKeyName,strDescription) != -1)
+					while (Global->CtrlObject->Macro.GetMacroKeyInfo(false,Global->CtrlObject->Macro.GetAreaCode(strMacroArea),MI,strKeyName,strDescription) != -1)
 					{
 						SizeKeyName=Max(SizeKeyName,strKeyName.GetLength());
 						MI++;
@@ -1975,9 +1975,9 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	{
 		case HIDX_PLUGINS:
 		{
-			for (size_t I=0; I<CtrlObject->Plugins->GetPluginsCount(); I++)
+			for (size_t I=0; I<Global->CtrlObject->Plugins->GetPluginsCount(); I++)
 			{
-				strPath = CtrlObject->Plugins->GetPlugin(I)->GetModuleName();
+				strPath = Global->CtrlObject->Plugins->GetPlugin(I)->GetModuleName();
 				CutToSlash(strPath);
 				uintptr_t nCodePage = CP_OEMCP;
 				FILE *HelpFile=OpenLangFile(strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFullFileName, nCodePage);

@@ -47,6 +47,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "keyboard.hpp"
 #include "configdb.hpp"
+#include "console.hpp"
 
 int WriteEvent(DWORD DumpType, // FLOG_*
                EXCEPTION_POINTERS *xp,
@@ -167,7 +168,12 @@ intptr_t WINAPI ExcDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
+static bool LanguageLoaded()
+{
+	return Global && Global->Lang && Global->Lang->IsLanguageLoaded();
+}
+
+static bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 {
 	string strAddr;
 	strAddr.Format(L"0x%p",Adress);
@@ -202,87 +208,131 @@ bool ExcDialog(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
 	return Dlg.GetExitCode()==11;
 }
 
+static bool ExcDump(LPCWSTR ModuleName,LPCWSTR Exception,LPVOID Adress)
+{
+	string strAddr;
+	strAddr.Format(L"0x%p",Adress);
+	string strFunction=GetFunctionName(From);
+#ifndef NO_WRAPPER
+	if(Module && !Module->IsOemPlugin())
+#endif // NO_WRAPPER
+	{
+		strFunction+=L"W";
+	}
+
+	string Msg[4];
+	if (LanguageLoaded())
+	{
+		Msg[0] = MSG(MExcException);
+		Msg[1] = MSG(MExcAddress);
+		Msg[2] = MSG(MExcFunction);
+		Msg[3] = MSG(MExcModule);
+	}
+	else
+	{
+		Msg[0] = L"Exception:";
+		Msg[1] = L"Address:";
+		Msg[2] = L"Function:";
+		Msg[3] = L"Module:";
+	}
+
+	string Dump =
+		Msg[0] + L" " + Exception + L"\n" +
+		Msg[1] + L" " + strAddr + L"\n" +
+		Msg[2] + L" " + strFunction + L"\n" +
+		Msg[3] + L" " + ModuleName + L"\n";
+
+	if (Global && Global->Console)
+	{
+		Global->Console->Write(Dump);
+	}
+	else
+	{
+		DWORD n;
+		WriteConsole(GetStdHandle(STD_ERROR_HANDLE), Dump, static_cast<DWORD>(Dump.GetLength()), &n, nullptr);
+	}
+	return false;
+}
+
 static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 {
-	Global->ProcessException=TRUE;
+	if (Global)
+		Global->ProcessException=TRUE;
 	DWORD Result = EXCEPTION_EXECUTE_HANDLER;
 	BOOL Res=FALSE;
 //   if(From == EXCEPT_KERNEL)
 //     CriticalInternalError=TRUE;
 
-	if (!Is_STACK_OVERFLOW && Global->Opt->ExceptUsed)
+	if (!Is_STACK_OVERFLOW &&Global && Global->Opt->ExceptUsed && !Global->Opt->strExceptEventSvc.IsEmpty())
 	{
-		if (!Global->Opt->strExceptEventSvc.IsEmpty())
+		HMODULE m = LoadLibrary(Global->Opt->strExceptEventSvc);
+
+		if (m)
 		{
-			HMODULE m = LoadLibrary(Global->Opt->strExceptEventSvc);
+			typedef BOOL (WINAPI *ExceptionProc_t)(EXCEPTION_POINTERS *xp,
+				                                    const PLUGINRECORD *Module,
+				                                    const PluginStartupInfo *LocalStartupInfo,
+				                                    LPDWORD Result);
+			ExceptionProc_t p = (ExceptionProc_t)GetProcAddress(m,"ExceptionProc");
 
-			if (m)
+			if (p)
 			{
-				typedef BOOL (WINAPI *ExceptionProc_t)(EXCEPTION_POINTERS *xp,
-				                                       const PLUGINRECORD *Module,
-				                                       const PluginStartupInfo *LocalStartupInfo,
-				                                       LPDWORD Result);
-				ExceptionProc_t p = (ExceptionProc_t)GetProcAddress(m,"ExceptionProc");
+				static PluginStartupInfo LocalStartupInfo;
+				ClearStruct(LocalStartupInfo);
+				static FarStandardFunctions LocalStandardFunctions;
+				ClearStruct(LocalStandardFunctions);
+				CreatePluginStartupInfo(nullptr, &LocalStartupInfo, &LocalStandardFunctions);
+				LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc;
+				static PLUGINRECORD PlugRec;
 
-				if (p)
+				if (Module)
 				{
-					static PluginStartupInfo LocalStartupInfo;
-					ClearStruct(LocalStartupInfo);
-					static FarStandardFunctions LocalStandardFunctions;
-					ClearStruct(LocalStandardFunctions);
-					CreatePluginStartupInfo(nullptr, &LocalStartupInfo, &LocalStandardFunctions);
-					LocalStartupInfo.ModuleName = Global->Opt->strExceptEventSvc;
-					static PLUGINRECORD PlugRec;
-
-					if (Module)
-					{
-						ClearStruct(PlugRec);
-						PlugRec.TypeRec=RTYPE_PLUGIN;
-						PlugRec.SizeRec=sizeof(PLUGINRECORD);
-						PlugRec.ModuleName=Module->GetModuleName();
-						PlugRec.WorkFlags=Module->GetWorkFlags();
-						PlugRec.CallFlags=Module->GetFuncFlags();
-						PlugRec.FuncFlags=0;
-						PlugRec.FuncFlags|=Module->HasGetGlobalInfo()?PICFF_GETGLOBALINFO:0;
-						PlugRec.FuncFlags|=Module->HasSetStartupInfo()?PICFF_SETSTARTUPINFO:0;
-						PlugRec.FuncFlags|=Module->HasOpenPanel()?PICFF_OPENPANEL:0;
-						PlugRec.FuncFlags|=Module->HasAnalyse()?PICFF_ANALYSE:0;
-						PlugRec.FuncFlags|=Module->HasClosePanel()?PICFF_CLOSEPANEL:0;
-						PlugRec.FuncFlags|=Module->HasGetPluginInfo()?PICFF_GETPLUGININFO:0;
-						PlugRec.FuncFlags|=Module->HasGetOpenPanelInfo()?PICFF_GETOPENPANELINFO:0;
-						PlugRec.FuncFlags|=Module->HasGetFindData()?PICFF_GETFINDDATA:0;
-						PlugRec.FuncFlags|=Module->HasFreeFindData()?PICFF_FREEFINDDATA:0;
-						PlugRec.FuncFlags|=Module->HasGetVirtualFindData()?PICFF_GETVIRTUALFINDDATA:0;
-						PlugRec.FuncFlags|=Module->HasFreeVirtualFindData()?PICFF_FREEVIRTUALFINDDATA:0;
-						PlugRec.FuncFlags|=Module->HasSetDirectory()?PICFF_SETDIRECTORY:0;
-						PlugRec.FuncFlags|=Module->HasGetFiles()?PICFF_GETFILES:0;
-						PlugRec.FuncFlags|=Module->HasPutFiles()?PICFF_PUTFILES:0;
-						PlugRec.FuncFlags|=Module->HasDeleteFiles()?PICFF_DELETEFILES:0;
-						PlugRec.FuncFlags|=Module->HasMakeDirectory()?PICFF_MAKEDIRECTORY:0;
-						PlugRec.FuncFlags|=Module->HasProcessHostFile()?PICFF_PROCESSHOSTFILE:0;
-						PlugRec.FuncFlags|=Module->HasSetFindList()?PICFF_SETFINDLIST:0;
-						PlugRec.FuncFlags|=Module->HasConfigure()?PICFF_CONFIGURE:0;
-						PlugRec.FuncFlags|=Module->HasExitFAR()?PICFF_EXITFAR:0;
-						PlugRec.FuncFlags|=Module->HasProcessPanelInput()?PICFF_PROCESSPANELINPUT:0;
-						PlugRec.FuncFlags|=Module->HasProcessPanelEvent()?PICFF_PROCESSPANELEVENT:0;
-						PlugRec.FuncFlags|=Module->HasProcessEditorEvent()?PICFF_PROCESSEDITOREVENT:0;
-						PlugRec.FuncFlags|=Module->HasCompare()?PICFF_COMPARE:0;
-						PlugRec.FuncFlags|=Module->HasProcessEditorInput()?PICFF_PROCESSEDITORINPUT:0;
-						PlugRec.FuncFlags|=Module->HasMinFarVersion()?PICFF_MINFARVERSION:0;
-						PlugRec.FuncFlags|=Module->HasProcessViewerEvent()?PICFF_PROCESSVIEWEREVENT:0;
-						PlugRec.FuncFlags|=Module->HasProcessDialogEvent()?PICFF_PROCESSDIALOGEVENT:0;
-						PlugRec.FuncFlags|=Module->HasProcessSynchroEvent()?PICFF_PROCESSSYNCHROEVENT:0;
+					ClearStruct(PlugRec);
+					PlugRec.TypeRec=RTYPE_PLUGIN;
+					PlugRec.SizeRec=sizeof(PLUGINRECORD);
+					PlugRec.ModuleName=Module->GetModuleName();
+					PlugRec.WorkFlags=Module->GetWorkFlags();
+					PlugRec.CallFlags=Module->GetFuncFlags();
+					PlugRec.FuncFlags=0;
+					PlugRec.FuncFlags|=Module->HasGetGlobalInfo()?PICFF_GETGLOBALINFO:0;
+					PlugRec.FuncFlags|=Module->HasSetStartupInfo()?PICFF_SETSTARTUPINFO:0;
+					PlugRec.FuncFlags|=Module->HasOpenPanel()?PICFF_OPENPANEL:0;
+					PlugRec.FuncFlags|=Module->HasAnalyse()?PICFF_ANALYSE:0;
+					PlugRec.FuncFlags|=Module->HasClosePanel()?PICFF_CLOSEPANEL:0;
+					PlugRec.FuncFlags|=Module->HasGetPluginInfo()?PICFF_GETPLUGININFO:0;
+					PlugRec.FuncFlags|=Module->HasGetOpenPanelInfo()?PICFF_GETOPENPANELINFO:0;
+					PlugRec.FuncFlags|=Module->HasGetFindData()?PICFF_GETFINDDATA:0;
+					PlugRec.FuncFlags|=Module->HasFreeFindData()?PICFF_FREEFINDDATA:0;
+					PlugRec.FuncFlags|=Module->HasGetVirtualFindData()?PICFF_GETVIRTUALFINDDATA:0;
+					PlugRec.FuncFlags|=Module->HasFreeVirtualFindData()?PICFF_FREEVIRTUALFINDDATA:0;
+					PlugRec.FuncFlags|=Module->HasSetDirectory()?PICFF_SETDIRECTORY:0;
+					PlugRec.FuncFlags|=Module->HasGetFiles()?PICFF_GETFILES:0;
+					PlugRec.FuncFlags|=Module->HasPutFiles()?PICFF_PUTFILES:0;
+					PlugRec.FuncFlags|=Module->HasDeleteFiles()?PICFF_DELETEFILES:0;
+					PlugRec.FuncFlags|=Module->HasMakeDirectory()?PICFF_MAKEDIRECTORY:0;
+					PlugRec.FuncFlags|=Module->HasProcessHostFile()?PICFF_PROCESSHOSTFILE:0;
+					PlugRec.FuncFlags|=Module->HasSetFindList()?PICFF_SETFINDLIST:0;
+					PlugRec.FuncFlags|=Module->HasConfigure()?PICFF_CONFIGURE:0;
+					PlugRec.FuncFlags|=Module->HasExitFAR()?PICFF_EXITFAR:0;
+					PlugRec.FuncFlags|=Module->HasProcessPanelInput()?PICFF_PROCESSPANELINPUT:0;
+					PlugRec.FuncFlags|=Module->HasProcessPanelEvent()?PICFF_PROCESSPANELEVENT:0;
+					PlugRec.FuncFlags|=Module->HasProcessEditorEvent()?PICFF_PROCESSEDITOREVENT:0;
+					PlugRec.FuncFlags|=Module->HasCompare()?PICFF_COMPARE:0;
+					PlugRec.FuncFlags|=Module->HasProcessEditorInput()?PICFF_PROCESSEDITORINPUT:0;
+					PlugRec.FuncFlags|=Module->HasMinFarVersion()?PICFF_MINFARVERSION:0;
+					PlugRec.FuncFlags|=Module->HasProcessViewerEvent()?PICFF_PROCESSVIEWEREVENT:0;
+					PlugRec.FuncFlags|=Module->HasProcessDialogEvent()?PICFF_PROCESSDIALOGEVENT:0;
+					PlugRec.FuncFlags|=Module->HasProcessSynchroEvent()?PICFF_PROCESSSYNCHROEVENT:0;
 #if defined(MANTIS_0000466)
-						PlugRec.FuncFlags|=Module->HasProcessMacro()?PICFF_PROCESSMACRO:0;
+					PlugRec.FuncFlags|=Module->HasProcessMacro()?PICFF_PROCESSMACRO:0;
 #endif
-						PlugRec.FuncFlags|=Module->HasProcessConsoleInput()?PICFF_PROCESSCONSOLEINPUT:0;
-					}
-
-					Res=p(xp,(Module?&PlugRec:nullptr),&LocalStartupInfo,&Result);
+					PlugRec.FuncFlags|=Module->HasProcessConsoleInput()?PICFF_PROCESSCONSOLEINPUT:0;
 				}
 
-				FreeLibrary(m);
+				Res=p(xp,(Module?&PlugRec:nullptr),&LocalStartupInfo,&Result);
 			}
+
+			FreeLibrary(m);
 		}
 	}
 
@@ -290,7 +340,8 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	{
 		if (From == EXCEPT_KERNEL)
 		{
-			Global->CriticalInternalError=TRUE;
+			if (Global)
+				Global->CriticalInternalError=TRUE;
 		}
 
 		return Result;
@@ -339,52 +390,59 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	*/
 
 	if (From == EXCEPT_KERNEL || !Module)
-		strFileName=Global->g_strFarModuleName;
+	{
+		if (Global)
+			strFileName=Global->g_strFarModuleName;
+	}
 	else
 		strFileName = Module->GetModuleName();
 
 	LPCWSTR Exception=nullptr;
 	// просмотрим "знакомые" FAR`у исключения и обработаем...
-	for (size_t I=0; I < ARRAYSIZE(ECode); ++I)
+	if (LanguageLoaded())
 	{
-		if (ECode[I].Code == static_cast<NTSTATUS>(xr->ExceptionCode))
+		for (size_t I=0; I < ARRAYSIZE(ECode); ++I)
 		{
-			Exception=MSG(ECode[I].IdMsg);
-			rc=ECode[I].RetCode;
-
-			if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
+			if (ECode[I].Code == static_cast<NTSTATUS>(xr->ExceptionCode))
 			{
-				int Offset = 0;
-				// вот только не надо здесь неочевидных оптимизаций вида
-				// if ( xr->ExceptionInformation[0] == 8 ) Offset = 2 else Offset = xr->ExceptionInformation[0],
-				// а то M$ порадует нас как-нибудь xr->ExceptionInformation[0] == 4 и все будет в полной жопе.
+				Exception=MSG(ECode[I].IdMsg);
+				rc=ECode[I].RetCode;
 
-				switch (xr->ExceptionInformation[0])
+				if (xr->ExceptionCode == static_cast<DWORD>(EXCEPTION_ACCESS_VIOLATION))
 				{
-					case 0:
-						Offset = 0;
-						break;
-					case 1:
-						Offset = 1;
-						break;
-					case 8:
-						Offset = 2;
-						break;
+					int Offset = 0;
+					// вот только не надо здесь неочевидных оптимизаций вида
+					// if ( xr->ExceptionInformation[0] == 8 ) Offset = 2 else Offset = xr->ExceptionInformation[0],
+					// а то M$ порадует нас как-нибудь xr->ExceptionInformation[0] == 4 и все будет в полной жопе.
+
+					switch (xr->ExceptionInformation[0])
+					{
+						case 0:
+							Offset = 0;
+							break;
+						case 1:
+							Offset = 1;
+							break;
+						case 8:
+							Offset = 2;
+							break;
+					}
+
+					strBuf2.Format(L"0x%p", xr->ExceptionInformation[1]+10);
+					strBuf = MExcRAccess+Offset;
+					strBuf << strBuf2;
+					Exception=strBuf;
 				}
 
-				strBuf2.Format(L"0x%p", xr->ExceptionInformation[1]+10);
-				strBuf = MExcRAccess+Offset;
-				strBuf << strBuf2;
-				Exception=strBuf;
+				break;
 			}
-
-			break;
 		}
 	}
 
 	if (!Exception)
 	{
-		strBuf2.Format(L"%s (0x%X)", MSG(MExcUnknown), xr->ExceptionCode);
+		const wchar_t* Template = LanguageLoaded()? MSG(MExcUnknown) : L"Unknown exception";
+		strBuf2.Format(L"%s (0x%X)", Template, xr->ExceptionCode);
 		Exception = strBuf2;
 	}
 
@@ -393,6 +451,10 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 	{
 		MsgCode=ExcDialog(strFileName,Exception,xr->ExceptionAddress);
 		ShowMessages=TRUE;
+	}
+	else
+	{
+		MsgCode = ExcDump(strFileName,Exception,xr->ExceptionAddress);
 	}
 
 	if (ShowMessages && (Is_STACK_OVERFLOW || From == EXCEPT_KERNEL))
@@ -417,7 +479,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags)
 {
 	DWORD Result=EXCEPTION_CONTINUE_SEARCH;
-	if(Global->Opt->ExceptRules && !UseExternalHandler)
+	if(!Global || Global->Opt->ExceptRules && !UseExternalHandler)
 	{
 		// dummy parametrs setting
 		::From=From;

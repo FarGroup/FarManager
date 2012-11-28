@@ -75,5 +75,3 @@ class ControlObject
 		WindowHandler* Window;
 		static void ShowCopyright(DWORD Flags=0);
 };
-
-extern ControlObject *CtrlObject;

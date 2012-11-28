@@ -54,24 +54,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "dirmix.hpp"
 #include "strmix.hpp"
-#include "panelmix.hpp"
 #include "syslog.hpp"
 #include "constitle.hpp"
 #include "console.hpp"
 #include "constitle.hpp"
 #include "configdb.hpp"
 #include "mix.hpp"
-
-static const wchar_t strSystemExecutor[]=L"System.Executor";
-
-// Выдранный кусок из будущего GetFileInfo, получаем достоверную информацию о ГУЯХ PE-модуля
-
-// Возвращаем константы IMAGE_SUBSYSTEM_* дабы консоль отличать
-// При выходе из процедуры IMAGE_SUBSYTEM_UNKNOWN означает
-// "файл не является исполняемым".
-// Для DOS-приложений определим еще одно значение флага.
-
-//#define IMAGE_SUBSYSTEM_DOS_EXECUTABLE  255
 
 struct IMAGE_HEADERS
 {
@@ -186,7 +174,7 @@ static bool GetImageSubsystem(const string& FileName,DWORD& ImageSubsystem)
 	return Result;
 }
 
-bool IsProperProgID(const wchar_t* ProgID)
+static bool IsProperProgID(const wchar_t* ProgID)
 {
 	if (ProgID && *ProgID)
 	{
@@ -202,10 +190,12 @@ bool IsProperProgID(const wchar_t* ProgID)
 	return false;
 }
 
-// Ищем валидный ProgID для файлового расширения по списку возможных
-// hExtKey - корневой ключ для поиска (ключ расширения)
-// strType - сюда запишется результат, если будет найден
-bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
+/*
+Ищем валидный ProgID для файлового расширения по списку возможных
+hExtKey - корневой ключ для поиска (ключ расширения)
+strType - сюда запишется результат, если будет найден
+*/
+static bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
 {
 	const DWORD dwNameBufSize = 64;
 	HKEY hExtIDListSubKey;
@@ -240,256 +230,6 @@ bool SearchExtHandlerFromList(HKEY hExtKey, string &strType)
 	return false;
 }
 
-bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
-{
-	bool bVistaType = false;
-	strType.Clear();
-
-	if (Global->WinVer() >= _WIN32_WINNT_VISTA)
-	{
-		IApplicationAssociationRegistration* pAAR;
-		HRESULT hr = Global->ifn->SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
-
-		if (SUCCEEDED(hr))
-		{
-			wchar_t *p;
-
-			if (pAAR->QueryCurrentDefault(Ext, aType, AL_EFFECTIVE, &p) == S_OK)
-			{
-				bVistaType = true;
-				strType = p;
-				CoTaskMemFree(p);
-			}
-
-			pAAR->Release();
-		}
-	}
-
-	if (!bVistaType)
-	{
-		if (aType == AT_URLPROTOCOL)
-		{
-			strType = Ext;
-			return true;
-		}
-
-		HKEY hCRKey = 0, hUserKey = 0;
-		string strFoundValue;
-
-		if (aType == AT_FILEEXTENSION)
-		{
-			string strExplorerTypeKey(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\");
-			strExplorerTypeKey.Append(Ext);
-
-			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
-			if (RegOpenKey(HKEY_CURRENT_USER, strExplorerTypeKey, &hUserKey) == ERROR_SUCCESS)
-			{
-				if ((RegQueryStringValue(hUserKey, L"ProgID", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
-				{
-					strType = strFoundValue;
-				}
-			}
-		}
-
-		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
-		if (strType.IsEmpty() && (RegOpenKey(HKEY_CLASSES_ROOT, Ext, &hCRKey) == ERROR_SUCCESS))
-		{
-			if ((RegQueryStringValue(hCRKey, L"", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
-			{
-				strType = strFoundValue;
-			}
-		}
-
-		if (strType.IsEmpty() && hUserKey)
-			SearchExtHandlerFromList(hUserKey, strType);
-
-		if (strType.IsEmpty() && hCRKey)
-			SearchExtHandlerFromList(hCRKey, strType);
-
-		if (hUserKey)
-			RegCloseKey(hUserKey);
-
-		if (hCRKey)
-			RegCloseKey(hCRKey);
-	}
-
-	return !strType.IsEmpty();
-}
-
-// по имени файла (по его расширению) получить команду активации
-// Дополнительно смотрится гуевость команды-активатора
-// (чтобы не ждать завершения)
-const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsystem,DWORD& Error)
-{
-	string strValue;
-	string strNewValue;
-	const wchar_t *ExtPtr;
-	const wchar_t *RetPtr;
-	const wchar_t command_action[]=L"\\command";
-	Error = ERROR_SUCCESS;
-	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
-
-	if (!(ExtPtr=wcsrchr(FileName,L'.')))
-		return nullptr;
-
-	if (!GetShellType(ExtPtr, strValue))
-		return nullptr;
-
-	HKEY hKey;
-
-	if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strValue,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
-	{
-		int nResult=RegQueryValueEx(hKey,L"IsShortcut",nullptr,nullptr,nullptr,nullptr);
-		RegCloseKey(hKey);
-
-		if (nResult==ERROR_SUCCESS)
-			return nullptr;
-	}
-
-	strValue += L"\\shell";
-
-	if (RegOpenKey(HKEY_CLASSES_ROOT,strValue,&hKey)!=ERROR_SUCCESS)
-		return nullptr;
-
-	static string strAction;
-	int RetQuery = RegQueryStringValue(hKey, L"", strAction, L"");
-	strValue += L"\\";
-
-	if (RetQuery == ERROR_SUCCESS)
-	{
-		UserDefinedList ActionList(ULF_UNIQUE);
-		RetPtr = (strAction.IsEmpty() ? nullptr : strAction.CPtr());
-		const wchar_t *ActionPtr;
-		LONG RetEnum = ERROR_SUCCESS;
-
-		if (RetPtr  && ActionList.Set(strAction))
-		{
-			HKEY hOpenKey;
-			ActionList.Reset();
-
-			while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) )
-			{
-				strNewValue = strValue;
-				strNewValue += ActionPtr;
-				strNewValue += command_action;
-
-				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
-				{
-					RegCloseKey(hOpenKey);
-					strValue += ActionPtr;
-					strAction = ActionPtr;
-					RetPtr = strAction;
-					RetEnum = ERROR_NO_MORE_ITEMS;
-				} /* if */
-			} /* while */
-		} /* if */
-		else
-		{
-			strValue += strAction;
-		}
-
-		if (RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
-			RetPtr=nullptr;
-	}
-	else
-	{
-		// This member defaults to "Open" if no verb is specified.
-		// Т.е. если мы вернули nullptr, то подразумевается команда "Open"
-		RetPtr=nullptr;
-	}
-
-	// Если RetPtr==nullptr - мы не нашли default action.
-	// Посмотрим - есть ли вообще что-нибудь у этого расширения
-	if (!RetPtr)
-	{
-		LONG RetEnum = ERROR_SUCCESS;
-		DWORD dwIndex = 0;
-		HKEY hOpenKey;
-		// Сначала проверим "open"...
-		strAction = L"open";
-		strNewValue = strValue;
-		strNewValue += strAction;
-		strNewValue += command_action;
-
-		if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
-		{
-			RegCloseKey(hOpenKey);
-			strValue += strAction;
-			RetPtr = strAction;
-			RetEnum = ERROR_NO_MORE_ITEMS;
-		} /* if */
-
-		// ... а теперь все остальное, если "open" нету
-		while (RetEnum == ERROR_SUCCESS)
-		{
-			RetEnum=apiRegEnumKeyEx(hKey, dwIndex++,strAction);
-
-			if (RetEnum == ERROR_SUCCESS)
-			{
-				// Проверим наличие "команды" у этого ключа
-				strNewValue = strValue;
-				strNewValue += strAction;
-				strNewValue += command_action;
-
-				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
-				{
-					RegCloseKey(hOpenKey);
-					strValue += strAction;
-					RetPtr = strAction;
-					RetEnum = ERROR_NO_MORE_ITEMS;
-				} /* if */
-			} /* if */
-		} /* while */
-	} /* if */
-
-	RegCloseKey(hKey);
-
-	if (RetPtr )
-	{
-		strValue += command_action;
-
-		// а теперь проверим ГУЕвость запускаемой проги
-		if (RegOpenKey(HKEY_CLASSES_ROOT,strValue,&hKey)==ERROR_SUCCESS)
-		{
-			RetQuery=RegQueryStringValue(hKey, L"", strNewValue, L"");
-			RegCloseKey(hKey);
-
-			if (RetQuery == ERROR_SUCCESS && !strNewValue.IsEmpty())
-			{
-				apiExpandEnvironmentStrings(strNewValue,strNewValue);
-				wchar_t *Ptr = strNewValue.GetBuffer();
-
-				// Выделяем имя модуля
-				if (*Ptr==L'\"')
-				{
-					wchar_t *QPtr = wcschr(Ptr + 1,L'\"');
-
-					if (QPtr)
-					{
-						*QPtr=0;
-						wmemmove(Ptr, Ptr + 1, QPtr-Ptr);
-					}
-				}
-				else
-				{
-					if ((Ptr=wcspbrk(Ptr,L" \t/")))
-						*Ptr=0;
-				}
-
-				strNewValue.ReleaseBuffer();
-				GetImageSubsystem(strNewValue,ImageSubsystem);
-			}
-			else
-			{
-				Error=ERROR_NO_ASSOCIATION;
-				RetPtr=nullptr;
-			}
-		}
-	}
-
-	return RetPtr;
-}
-
 /*
 Фунция FindModule пытается найти исполняемый модуль (в т.ч. и по
 %PATHEXT%). В случае успеха заменяет в Module порцию, ответственную за
@@ -501,7 +241,6 @@ Return: true/false - нашли/не нашли
 Команда в функцию передается уже разкавыченная. Ничего не меняем.
 И подменять ничего не надо, т.к. все параметры мы отсекли раньше
 */
-
 static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsystem,bool &Internal)
 {
 	bool Result=false;
@@ -722,7 +461,7 @@ static bool FindModule(const wchar_t *Module, string &strDest,DWORD &ImageSubsys
 /*
  возвращает 2*PipeFound + 1*Escaped
 */
-int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar)
+static int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar)
 {
 	int PipeFound = 0, Escaped = 0;
 	bool quoted = false;
@@ -781,7 +520,7 @@ int PartCmdLine(const string& CmdStr, string &strNewCmdStr, string &strNewCmdPar
 	return 2*PipeFound + 1*Escaped;
 }
 
-bool RunAsSupported(LPCWSTR Name)
+static bool RunAsSupported(LPCWSTR Name)
 {
 	bool Result = false;
 	string Extension(PointToExt(Name));
@@ -802,8 +541,261 @@ bool RunAsSupported(LPCWSTR Name)
 	return Result;
 }
 
-/* Функция-пускатель внешних процессов
-   Возвращает -1 в случае ошибки или...
+/*
+по имени файла (по его расширению) получить команду активации
+Дополнительно смотрится гуевость команды-активатора
+(чтобы не ждать завершения)
+*/
+static const wchar_t *GetShellAction(const string& FileName,DWORD& ImageSubsystem,DWORD& Error)
+{
+	string strValue;
+	string strNewValue;
+	const wchar_t *ExtPtr;
+	const wchar_t *RetPtr;
+	const wchar_t command_action[]=L"\\command";
+	Error = ERROR_SUCCESS;
+	ImageSubsystem = IMAGE_SUBSYSTEM_UNKNOWN;
+
+	if (!(ExtPtr=wcsrchr(FileName,L'.')))
+		return nullptr;
+
+	if (!GetShellType(ExtPtr, strValue))
+		return nullptr;
+
+	HKEY hKey;
+
+	if (RegOpenKeyEx(HKEY_CLASSES_ROOT,strValue,0,KEY_QUERY_VALUE,&hKey)==ERROR_SUCCESS)
+	{
+		int nResult=RegQueryValueEx(hKey,L"IsShortcut",nullptr,nullptr,nullptr,nullptr);
+		RegCloseKey(hKey);
+
+		if (nResult==ERROR_SUCCESS)
+			return nullptr;
+	}
+
+	strValue += L"\\shell";
+
+	if (RegOpenKey(HKEY_CLASSES_ROOT,strValue,&hKey)!=ERROR_SUCCESS)
+		return nullptr;
+
+	static string strAction;
+	int RetQuery = RegQueryStringValue(hKey, L"", strAction, L"");
+	strValue += L"\\";
+
+	if (RetQuery == ERROR_SUCCESS)
+	{
+		UserDefinedList ActionList(ULF_UNIQUE);
+		RetPtr = (strAction.IsEmpty() ? nullptr : strAction.CPtr());
+		const wchar_t *ActionPtr;
+		LONG RetEnum = ERROR_SUCCESS;
+
+		if (RetPtr  && ActionList.Set(strAction))
+		{
+			HKEY hOpenKey;
+			ActionList.Reset();
+
+			while (RetEnum == ERROR_SUCCESS && (ActionPtr = ActionList.GetNext()) )
+			{
+				strNewValue = strValue;
+				strNewValue += ActionPtr;
+				strNewValue += command_action;
+
+				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
+				{
+					RegCloseKey(hOpenKey);
+					strValue += ActionPtr;
+					strAction = ActionPtr;
+					RetPtr = strAction;
+					RetEnum = ERROR_NO_MORE_ITEMS;
+				} /* if */
+			} /* while */
+		} /* if */
+		else
+		{
+			strValue += strAction;
+		}
+
+		if (RetEnum != ERROR_NO_MORE_ITEMS) // Если ничего не нашли, то...
+			RetPtr=nullptr;
+	}
+	else
+	{
+		// This member defaults to "Open" if no verb is specified.
+		// Т.е. если мы вернули nullptr, то подразумевается команда "Open"
+		RetPtr=nullptr;
+	}
+
+	// Если RetPtr==nullptr - мы не нашли default action.
+	// Посмотрим - есть ли вообще что-нибудь у этого расширения
+	if (!RetPtr)
+	{
+		LONG RetEnum = ERROR_SUCCESS;
+		DWORD dwIndex = 0;
+		HKEY hOpenKey;
+		// Сначала проверим "open"...
+		strAction = L"open";
+		strNewValue = strValue;
+		strNewValue += strAction;
+		strNewValue += command_action;
+
+		if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
+		{
+			RegCloseKey(hOpenKey);
+			strValue += strAction;
+			RetPtr = strAction;
+			RetEnum = ERROR_NO_MORE_ITEMS;
+		} /* if */
+
+		// ... а теперь все остальное, если "open" нету
+		while (RetEnum == ERROR_SUCCESS)
+		{
+			RetEnum=apiRegEnumKeyEx(hKey, dwIndex++,strAction);
+
+			if (RetEnum == ERROR_SUCCESS)
+			{
+				// Проверим наличие "команды" у этого ключа
+				strNewValue = strValue;
+				strNewValue += strAction;
+				strNewValue += command_action;
+
+				if (RegOpenKey(HKEY_CLASSES_ROOT,strNewValue,&hOpenKey)==ERROR_SUCCESS)
+				{
+					RegCloseKey(hOpenKey);
+					strValue += strAction;
+					RetPtr = strAction;
+					RetEnum = ERROR_NO_MORE_ITEMS;
+				} /* if */
+			} /* if */
+		} /* while */
+	} /* if */
+
+	RegCloseKey(hKey);
+
+	if (RetPtr )
+	{
+		strValue += command_action;
+
+		// а теперь проверим ГУЕвость запускаемой проги
+		if (RegOpenKey(HKEY_CLASSES_ROOT,strValue,&hKey)==ERROR_SUCCESS)
+		{
+			RetQuery=RegQueryStringValue(hKey, L"", strNewValue, L"");
+			RegCloseKey(hKey);
+
+			if (RetQuery == ERROR_SUCCESS && !strNewValue.IsEmpty())
+			{
+				apiExpandEnvironmentStrings(strNewValue,strNewValue);
+				wchar_t *Ptr = strNewValue.GetBuffer();
+
+				// Выделяем имя модуля
+				if (*Ptr==L'\"')
+				{
+					wchar_t *QPtr = wcschr(Ptr + 1,L'\"');
+
+					if (QPtr)
+					{
+						*QPtr=0;
+						wmemmove(Ptr, Ptr + 1, QPtr-Ptr);
+					}
+				}
+				else
+				{
+					if ((Ptr=wcspbrk(Ptr,L" \t/")))
+						*Ptr=0;
+				}
+
+				strNewValue.ReleaseBuffer();
+				GetImageSubsystem(strNewValue,ImageSubsystem);
+			}
+			else
+			{
+				Error=ERROR_NO_ASSOCIATION;
+				RetPtr=nullptr;
+			}
+		}
+	}
+
+	return RetPtr;
+}
+
+bool GetShellType(const string& Ext, string &strType,ASSOCIATIONTYPE aType)
+{
+	bool bVistaType = false;
+	strType.Clear();
+
+	if (Global->WinVer() >= _WIN32_WINNT_VISTA)
+	{
+		IApplicationAssociationRegistration* pAAR;
+		HRESULT hr = Global->ifn->SHCreateAssociationRegistration(IID_IApplicationAssociationRegistration, (void**)&pAAR);
+
+		if (SUCCEEDED(hr))
+		{
+			wchar_t *p;
+
+			if (pAAR->QueryCurrentDefault(Ext, aType, AL_EFFECTIVE, &p) == S_OK)
+			{
+				bVistaType = true;
+				strType = p;
+				CoTaskMemFree(p);
+			}
+
+			pAAR->Release();
+		}
+	}
+
+	if (!bVistaType)
+	{
+		if (aType == AT_URLPROTOCOL)
+		{
+			strType = Ext;
+			return true;
+		}
+
+		HKEY hCRKey = 0, hUserKey = 0;
+		string strFoundValue;
+
+		if (aType == AT_FILEEXTENSION)
+		{
+			string strExplorerTypeKey(L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\FileExts\\");
+			strExplorerTypeKey.Append(Ext);
+
+			// Смотрим дефолтный обработчик расширения в HKEY_CURRENT_USER
+			if (RegOpenKey(HKEY_CURRENT_USER, strExplorerTypeKey, &hUserKey) == ERROR_SUCCESS)
+			{
+				if ((RegQueryStringValue(hUserKey, L"ProgID", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
+				{
+					strType = strFoundValue;
+				}
+			}
+		}
+
+		// Смотрим дефолтный обработчик расширения в HKEY_CLASSES_ROOT
+		if (strType.IsEmpty() && (RegOpenKey(HKEY_CLASSES_ROOT, Ext, &hCRKey) == ERROR_SUCCESS))
+		{
+			if ((RegQueryStringValue(hCRKey, L"", strFoundValue) == ERROR_SUCCESS) && IsProperProgID(strFoundValue))
+			{
+				strType = strFoundValue;
+			}
+		}
+
+		if (strType.IsEmpty() && hUserKey)
+			SearchExtHandlerFromList(hUserKey, strType);
+
+		if (strType.IsEmpty() && hCRKey)
+			SearchExtHandlerFromList(hCRKey, strType);
+
+		if (hUserKey)
+			RegCloseKey(hUserKey);
+
+		if (hCRKey)
+			RegCloseKey(hCRKey);
+	}
+
+	return !strType.IsEmpty();
+}
+
+/*
+Функция-пускатель внешних процессов
+Возвращает -1 в случае ошибки или...
 */
 int Execute(const string& CmdStr,  // Ком.строка для исполнения
             bool AlwaysWaitFinish, // Ждать завершение процесса?
@@ -927,10 +919,10 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	if(!Silent)
 	{
 		int X1, X2, Y1, Y2;
-		CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
+		Global->CtrlObject->CmdLine->GetPosition(X1, Y1, X2, Y2);
 		Global->ProcessShowClock += (add_show_clock = 1);
-		CtrlObject->CmdLine->ShowBackground();
-		CtrlObject->CmdLine->Redraw();
+		Global->CtrlObject->CmdLine->ShowBackground();
+		Global->CtrlObject->CmdLine->Redraw();
 		GotoXY(X2+1,Y1);
 		Text(L" ");
 		MoveCursor(X1,Y1);
@@ -938,7 +930,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		SetInitialCursorType();
 	}
 
-	CtrlObject->CmdLine->SetString(L"", Silent);
+	Global->CtrlObject->CmdLine->SetString(L"", Silent);
 
 	if(!Silent)
 	{
@@ -1185,7 +1177,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 		if(!Silent)
 		{
 			Global->ScrBuf->FillBuf();
-			CtrlObject->CmdLine->SaveBackground();
+			Global->CtrlObject->CmdLine->SaveBackground();
 		}
 	}
 	Global->ProcessShowClock -= add_show_clock;
@@ -1218,10 +1210,10 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	{
 		if (!Silent)
 		{
-			CtrlObject->Cp()->Redraw();
+			Global->CtrlObject->Cp()->Redraw();
 			if (Global->Opt->ShowKeyBar)
 			{
-				CtrlObject->MainKeyBar->Show();
+				Global->CtrlObject->MainKeyBar->Show();
 			}
 			if (Global->Opt->Clock)
 				ShowTime(1);
@@ -1251,100 +1243,6 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 	return nResult;
 }
 
-
-int CommandLine::ExecString(const string& CmdLine, bool AlwaysWaitFinish, bool SeparateWindow, bool DirectRun, bool WaitForIdle, bool Silent, bool RunAs)
-{
-	{
-		SetAutocomplete disable(&CmdStr);
-		SetString(CmdLine);
-	}
-
-	LastCmdPartLength=-1;
-
-	if(!StrCmpI(CmdLine,L"far:config"))
-	{
-		SetString(L"", false);
-		Show();
-		return AdvancedConfig();
-	}
-
-	if (!SeparateWindow && CtrlObject->Plugins->ProcessCommandLine(CmdLine))
-	{
-		/* $ 12.05.2001 DJ - рисуемся только если остались верхним фреймом */
-		if (CtrlObject->Cp()->IsTopFrame())
-		{
-			//CmdStr.SetString(L"");
-			GotoXY(X1,Y1);
-			Global->FS << fmt::MinWidth(X2-X1+1)<<L"";
-			Show();
-			Global->ScrBuf->Flush();
-		}
-
-		return -1;
-	}
-
-	int Code;
-	COORD Size0;
-	Global->Console->GetSize(Size0);
-
-	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
-		FarChDir(strCurDir);
-
-	string strPrevDir=strCurDir;
-	bool PrintCommand=true;
-	if ((Code=ProcessOSCommands(CmdLine,SeparateWindow,PrintCommand)) == TRUE)
-	{
-		if (PrintCommand)
-		{
-			ShowBackground();
-			string strNewDir=strCurDir;
-			strCurDir=strPrevDir;
-			Redraw();
-			strCurDir=strNewDir;
-			GotoXY(X2+1,Y1);
-			Text(L" ");
-			ScrollScreen(2);
-			SaveBackground();
-		}
-
-		SetString(L"", false);
-
-		Code=-1;
-	}
-	else
-	{
-		string strTempStr;
-		strTempStr = CmdLine;
-
-		if (Code == -1)
-			ReplaceStrings(strTempStr,L"/",L"\\",-1);
-
-		Code=Execute(strTempStr,AlwaysWaitFinish,SeparateWindow,DirectRun, 0, WaitForIdle, Silent, RunAs);
-	}
-
-	COORD Size1;
-	Global->Console->GetSize(Size1);
-
-	if (Size0.X != Size1.X || Size0.Y != Size1.Y)
-	{
-		GotoXY(X2+1,Y1);
-		Text(L" ");
-		CtrlObject->CmdLine->CorrectRealScreenCoord();
-	}
-
-	if (!Flags.Check(FCMDOBJ_LOCKUPDATEPANEL))
-	{
-		ShellUpdatePanels(CtrlObject->Cp()->ActivePanel,FALSE);
-		if (Global->Opt->ShowKeyBar)
-		{
-			CtrlObject->MainKeyBar->Show();
-		}
-	}
-	if (Global->Opt->Clock)
-		ShowTime(0);
-	Global->ScrBuf->Flush();
-	return Code;
-}
 
 /* $ 14.01.2001 SVS
    + В ProcessOSCommands добавлена обработка
@@ -1454,8 +1352,8 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 
 					if (!(strCmd.At(1) == L':' || (strCmd.At(0) == L'\\' && strCmd.At(1)==L'\\') || strExpandedStr.At(1) == L':' || (strExpandedStr.At(0) == L'\\' && strExpandedStr.At(1)==L'\\')))
 					{
-						if (CtrlObject)
-							CtrlObject->CmdLine->GetCurDir(strFullPath);
+						if (Global->CtrlObject)
+							Global->CtrlObject->CmdLine->GetCurDir(strFullPath);
 						else
 							apiGetCurrentDirectory(strFullPath);
 
@@ -1542,406 +1440,9 @@ const wchar_t *PrepareOSIfExist(const string& CmdLine)
 	return Exist?PtrCmd:nullptr;
 }
 
-int CommandLine::ProcessOSCommands(const string& CmdLine, bool SeparateWindow, bool &PrintCommand)
-{
-	int Length;
-	string strCmdLine = CmdLine;
-	Panel *SetPanel=CtrlObject->Cp()->ActivePanel;
-	PrintCommand=true;
-
-	if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
-		SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
-
-	RemoveTrailingSpaces(strCmdLine);
-	bool SilentInt=false;
-
-	if (*CmdLine == L'@')
-	{
-		SilentInt=true;
-		strCmdLine.LShift(1);
-	}
-
-	if (!SeparateWindow && strCmdLine.At(0) && strCmdLine.At(1)==L':' && !strCmdLine.At(2))
-	{
-		if(!FarChDir(strCmdLine))
-		{
-			wchar_t NewDir[]={Upper(strCmdLine.At(0)),L':',L'\\',0};
-			{
-				FarChDir(NewDir);
-			}
-		}
-		SetPanel->ChangeDirToCurrent();
-		return TRUE;
-	}
-	// SET [переменная=[строка]]
-	else if (!StrCmpNI(strCmdLine,L"SET",3) && (IsSpaceOrEos(strCmdLine.At(3)) || strCmdLine.At(3) == L'/'))
-	{
-		size_t pos;
-		strCmdLine.LShift(3);
-		RemoveLeadingSpaces(strCmdLine);
-
-		if (CheckCmdLineForHelp(strCmdLine))
-			return FALSE; // отдадимся COMSPEC`у
-
-		// "set" (display all) or "set var" (display all that begin with "var")
-		if (strCmdLine.IsEmpty() || !strCmdLine.Pos(pos,L'=') || !pos)
-		{
-			//forward "set [prefix]| command" and "set [prefix]> file" to COMSPEC
-			if (strCmdLine.ContainsAny(L"|>"))
-				return FALSE;
-
-			ShowBackground();  //??? почему не отдаём COMSPEC'у
-			// display command //???
-			Redraw();
-			GotoXY(X2+1,Y1);
-			Text(L" ");
-			Global->ScrBuf->Flush();
-			Global->Console->SetTextAttributes(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
-			string strOut("\n");
-			int CmdLength = static_cast<int>(strCmdLine.GetLength());
-			LPWCH Environment = GetEnvironmentStrings();
-			for (LPCWSTR Ptr = Environment; *Ptr;)
-			{
-				int PtrLength = StrLength(Ptr);
-				if (!StrCmpNI(Ptr, strCmdLine, CmdLength))
-				{
-					strOut.Append(Ptr, PtrLength).Append(L"\n");
-				}
-				Ptr+=PtrLength+1;
-			}
-			FreeEnvironmentStrings(Environment);
-			strOut.Append(L"\n\n", Global->Opt->ShowKeyBar?2:1);
-			Global->Console->Write(strOut);
-			Global->Console->Commit();
-			Global->ScrBuf->FillBuf();
-			SaveBackground();
-			PrintCommand = false;
-			return TRUE;
-		}
-
-		if (CheckCmdLineForSet(strCmdLine)) // вариант для /A и /P
-			return FALSE; //todo: /p - dialog, /a - calculation; then set variable ...
-
-		if (strCmdLine.GetLength() == pos+1) //set var=
-		{
-			strCmdLine.SetLength(pos);
-			SetEnvironmentVariable(strCmdLine,nullptr);
-		}
-		else
-		{
-			string strExpandedStr;
-
-			if (apiExpandEnvironmentStrings(strCmdLine.CPtr()+pos+1,strExpandedStr))
-			{
-				strCmdLine.SetLength(pos);
-				SetEnvironmentVariable(strCmdLine,strExpandedStr);
-			}
-		}
-
-		return TRUE;
-	}
-	// REM все остальное
-	else if ((!StrCmpNI(strCmdLine,L"REM",Length=3) && IsSpaceOrEos(strCmdLine.At(3))) || !StrCmpNI(strCmdLine,L"::",Length=2))
-	{
-		if (Length == 3 && CheckCmdLineForHelp(strCmdLine.CPtr()+Length))
-			return FALSE; // отдадимся COMSPEC`у
-
-		return TRUE;
-	}
-	else if (!StrCmpNI(strCmdLine,L"CLS",3) && IsSpaceOrEos(strCmdLine.At(3)))
-	{
-		if (CheckCmdLineForHelp(strCmdLine.CPtr()+3))
-			return FALSE; // отдадимся COMSPEC`у
-
-		ClearScreen(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
-		SaveBackground();
-		PrintCommand=false;
-		return TRUE;
-	}
-	// PUSHD путь | ..
-	else if (!StrCmpNI(strCmdLine,L"PUSHD",5) && IsSpaceOrEos(strCmdLine.At(5)))
-	{
-		strCmdLine.LShift(5);
-		RemoveLeadingSpaces(strCmdLine);
-
-		if (CheckCmdLineForHelp(strCmdLine))
-			return FALSE; // отдадимся COMSPEC`у
-
-		PushPopRecord prec;
-		prec.strName = strCurDir;
-
-		if (IntChDir(strCmdLine,true,SilentInt))
-		{
-			ppstack.Push(prec);
-			SetEnvironmentVariable(L"FARDIRSTACK",prec.strName);
-		}
-		else
-		{
-			;
-		}
-
-		return TRUE;
-	}
-	// POPD
-	// TODO: добавить необязательный параметр - число, сколько уровней пропустить, после чего прыгнуть.
-	else if (!StrCmpNI(CmdLine,L"POPD",4) && IsSpaceOrEos(strCmdLine.At(4)))
-	{
-		if (CheckCmdLineForHelp(strCmdLine.CPtr()+4))
-			return FALSE; // отдадимся COMSPEC`у
-
-		PushPopRecord prec;
-
-		if (ppstack.Pop(prec))
-		{
-			int Ret=IntChDir(prec.strName,true,SilentInt)?TRUE:FALSE;
-			PushPopRecord *ptrprec=ppstack.Peek();
-			SetEnvironmentVariable(L"FARDIRSTACK",(ptrprec?ptrprec->strName.CPtr():nullptr));
-			return Ret;
-		}
-
-		return TRUE;
-	}
-	// CLRD
-	else if (!StrCmpI(CmdLine,L"CLRD"))
-	{
-		ppstack.Free();
-		SetEnvironmentVariable(L"FARDIRSTACK",nullptr);
-		return TRUE;
-	}
-	/*
-		Displays or sets the active code page number.
-		CHCP [nnn]
-			nnn   Specifies a code page number (Dec or Hex).
-		Type CHCP without a parameter to display the active code page number.
-	*/
-	else if (!StrCmpNI(strCmdLine,L"CHCP",4) && IsSpaceOrEos(strCmdLine.At(4)))
-	{
-		strCmdLine.LShift(4);
-
-		const wchar_t *Ptr=RemoveExternalSpaces(strCmdLine);
-
-		if (CheckCmdLineForHelp(Ptr))
-			return FALSE; // отдадимся COMSPEC`у
-
-		if (!iswdigit(*Ptr))
-			return FALSE;
-
-		wchar_t Chr;
-
-		while ((Chr=*Ptr) )
-		{
-			if (!iswdigit(Chr))
-				break;
-
-			++Ptr;
-		}
-
-		wchar_t *Ptr2;
-		UINT cp=(UINT)wcstol(strCmdLine,&Ptr2,10); //BUGBUG
-		BOOL r1=Global->Console->SetInputCodepage(cp);
-		BOOL r2=Global->Console->SetOutputCodepage(cp);
-
-		if (r1 && r2) // Если все ОБИ, то так  и...
-		{
-			InitRecodeOutTable();
-#ifndef NO_WRAPPER
-			wrapper::LocalUpperInit();
-#endif // NO_WRAPPER
-			InitKeysArray();
-			Global->ScrBuf->ResetShadow();
-			Global->ScrBuf->Flush();
-			return TRUE;
-		}
-		else  // про траблы внешняя chcp сама скажет ;-)
-		{
-			return FALSE;
-		}
-	}
-	else if (!StrCmpNI(strCmdLine,L"IF",2) && IsSpaceOrEos(strCmdLine.At(2)))
-	{
-		if (CheckCmdLineForHelp(strCmdLine.CPtr()+2))
-			return FALSE; // отдадимся COMSPEC`у
-
-		const wchar_t *PtrCmd=PrepareOSIfExist(strCmdLine);
-		// здесь PtrCmd - уже готовая команда, без IF
-
-		if (PtrCmd && *PtrCmd && CtrlObject->Plugins->ProcessCommandLine(PtrCmd))
-		{
-			//CmdStr.SetString(L"");
-			GotoXY(X1,Y1);
-			Global->FS << fmt::MinWidth(X2-X1+1)<<L"";
-			Show();
-			return TRUE;
-		}
-
-		return FALSE;
-	}
-	// пропускаем обработку, если нажат Shift-Enter
-	else if (!SeparateWindow && (!StrCmpNI(strCmdLine,L"CD",Length=2) || !StrCmpNI(strCmdLine,L"CHDIR",Length=5)))
-	{
-		if (!IsSpaceOrEos(strCmdLine.At(Length)))
-		{
-			if (!IsSlash(strCmdLine.At(Length)))
-				return FALSE;
-		}
-
-		strCmdLine.LShift(Length);
-		RemoveLeadingSpaces(strCmdLine);
-
-		//проигнорируем /D
-		//мы и так всегда меняем диск а некоторые в алайсах или по привычке набирают этот ключ
-		if (!StrCmpNI(strCmdLine,L"/D",2) && IsSpaceOrEos(strCmdLine.At(2)))
-		{
-			strCmdLine.LShift(2);
-			RemoveLeadingSpaces(strCmdLine);
-		}
-
-		if (strCmdLine.IsEmpty() || CheckCmdLineForHelp(strCmdLine))
-			return FALSE; // отдадимся COMSPEC`у
-
-		IntChDir(strCmdLine,Length==5,SilentInt);
-		return TRUE;
-	}
-	else if (!StrCmpNI(strCmdLine,L"EXIT",4) && IsSpaceOrEos(strCmdLine.At(4)))
-	{
-		if (CheckCmdLineForHelp(strCmdLine.CPtr()+4))
-			return FALSE; // отдадимся COMSPEC`у
-
-		FrameManager->ExitMainLoop(FALSE);
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-bool CommandLine::CheckCmdLineForHelp(const wchar_t *CmdLine)
-{
-	if (CmdLine && *CmdLine)
-	{
-		while (IsSpace(*CmdLine))
-			CmdLine++;
-
-		if (*CmdLine && (CmdLine[0] == L'/' || CmdLine[0] == L'-') && CmdLine[1] == L'?')
-			return true;
-	}
-
-	return false;
-}
-
-bool CommandLine::CheckCmdLineForSet(const string& CmdLine)
-{
-	if (CmdLine.GetLength()>1 && CmdLine.At(0)==L'/' && IsSpaceOrEos(CmdLine.At(2)))
-		return true;
-
-	return false;
-}
-
-bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
-{
-	Panel *SetPanel;
-	SetPanel=CtrlObject->Cp()->ActivePanel;
-
-	if (SetPanel->GetType()!=FILE_PANEL && CtrlObject->Cp()->GetAnotherPanel(SetPanel)->GetType()==FILE_PANEL)
-		SetPanel=CtrlObject->Cp()->GetAnotherPanel(SetPanel);
-
-	string strExpandedDir(CmdLine);
-	Unquote(strExpandedDir);
-	apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
-
-	if (SetPanel->GetMode()!=PLUGIN_PANEL && strExpandedDir.At(0) == L'~' && ((!strExpandedDir.At(1) && apiGetFileAttributes(strExpandedDir) == INVALID_FILE_ATTRIBUTES) || IsSlash(strExpandedDir.At(1))))
-	{
-		if (Global->Opt->Exec.UseHomeDir && !Global->Opt->Exec.strHomeDir.IsEmpty())
-		{
-			string strTemp=Global->Opt->Exec.strHomeDir.Get();
-
-			if (strExpandedDir.At(1))
-			{
-				AddEndSlash(strTemp);
-				strTemp += strExpandedDir.CPtr()+2;
-			}
-
-			DeleteEndSlash(strTemp);
-			strExpandedDir=strTemp;
-			apiExpandEnvironmentStrings(strExpandedDir,strExpandedDir);
-		}
-	}
-
-	const wchar_t* DirPtr = strExpandedDir;
-	ParsePath(strExpandedDir, &DirPtr);
-	if (wcspbrk(DirPtr, L"?*")) // это маска?
-	{
-		FAR_FIND_DATA_EX wfd;
-
-		if (apiGetFindDataEx(strExpandedDir, wfd))
-		{
-			size_t pos;
-
-			if (FindLastSlash(pos,strExpandedDir))
-				strExpandedDir.SetLength(pos+1);
-			else
-				strExpandedDir.Clear();
-
-			strExpandedDir += wfd.strFileName;
-		}
-	}
-
-	/* $ 15.11.2001 OT
-		Сначала проверяем есть ли такая "обычная" директория.
-		если уж нет, то тогда начинаем думать, что это директория плагинная
-	*/
-	DWORD DirAtt=apiGetFileAttributes(strExpandedDir);
-
-	if (DirAtt!=INVALID_FILE_ATTRIBUTES && (DirAtt & FILE_ATTRIBUTE_DIRECTORY) && IsAbsolutePath(strExpandedDir))
-	{
-		ReplaceSlashToBSlash(strExpandedDir);
-		SetPanel->SetCurDir(strExpandedDir,TRUE);
-		return true;
-	}
-
-	/* $ 20.09.2002 SKV
-	  Это отключает возможность выполнять такие команды как:
-	  cd net:server и cd ftp://server/dir
-	  Так как под ту же гребёнку попадают и
-	  cd s&r:, cd make: и т.д., которые к смене
-	  каталога не имеют никакого отношения.
-	*/
-	/*
-	if (CtrlObject->Plugins->ProcessCommandLine(ExpandedDir))
-	{
-	  //CmdStr.SetString(L"");
-	  GotoXY(X1,Y1);
-	  Global->FS << fmt::Width(X2-X1+1)<<L"";
-	  Show();
-	  return true;
-	}
-	*/
-	strExpandedDir.ReleaseBuffer();
-
-	if (SetPanel->GetType()==FILE_PANEL && SetPanel->GetMode()==PLUGIN_PANEL)
-	{
-		SetPanel->SetCurDir(strExpandedDir,ClosePanel);
-		return true;
-	}
-
-	if (FarChDir(strExpandedDir))
-	{
-		SetPanel->ChangeDirToCurrent();
-
-		if (!SetPanel->IsVisible())
-			SetPanel->SetTitle();
-	}
-	else
-	{
-		if (!Selent)
-			Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),strExpandedDir,MSG(MOk));
-
-		return false;
-	}
-
-	return true;
-}
-
-// Проверить "Это батник?"
+/*
+Проверить "Это батник?"
+*/
 bool IsBatchExtType(const string& ExtPtr)
 {
 	UserDefinedList BatchExtList(ULF_UNIQUE);

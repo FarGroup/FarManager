@@ -65,10 +65,10 @@ void GetColor(int PaletteIndex)
 		Global->Opt->Palette.CurrentPalette[PaletteIndex-COL_FIRSTPALETTECOLOR] = NewColor;
 		Global->Opt->Palette.SetChanged();
 		Global->ScrBuf->Lock(); // отменяем всякую прорисовку
-		CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-		CtrlObject->Cp()->LeftPanel->Redraw();
-		CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-		CtrlObject->Cp()->RightPanel->Redraw();
+		Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->LeftPanel->Redraw();
+		Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+		Global->CtrlObject->Cp()->RightPanel->Redraw();
 
 
 		FrameManager->ResizeAllFrame(); // рефрешим
@@ -398,11 +398,11 @@ void SetColors()
 
 		}
 	}
-	CtrlObject->Cp()->SetScreenPosition();
-	CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
-	CtrlObject->Cp()->LeftPanel->Redraw();
-	CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
-	CtrlObject->Cp()->RightPanel->Redraw();
+	Global->CtrlObject->Cp()->SetScreenPosition();
+	Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+	Global->CtrlObject->Cp()->LeftPanel->Redraw();
+	Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+	Global->CtrlObject->Cp()->RightPanel->Redraw();
 }
 
 

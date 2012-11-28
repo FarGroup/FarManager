@@ -86,7 +86,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace pluginapi
 {
-inline Plugin* GuidToPlugin(const GUID* Id) {return (Id && CtrlObject)? CtrlObject->Plugins->FindPlugin(*Id) : nullptr;}
+inline Plugin* GuidToPlugin(const GUID* Id) {return (Id && Global->CtrlObject)? Global->CtrlObject->Plugins->FindPlugin(*Id) : nullptr;}
 
 int WINAPIV apiSprintf(wchar_t* Dest, const wchar_t* Format, ...) //?deprecated
 {
@@ -717,7 +717,7 @@ intptr_t WINAPI apiMenuFn(
 	int ExitCode;
 	{
 		VMenu2 FarMenu(Title,nullptr,0,MaxHeight);
-		CtrlObject->Macro.SetMode(MACRO_MENU);
+		Global->CtrlObject->Macro.SetMode(MACRO_MENU);
 		FarMenu.SetPosition(X,Y,0,0);
 		if(Id)
 		{
@@ -792,7 +792,7 @@ intptr_t WINAPI apiMenuFn(
 		if (Flags & FMENU_REVERSEAUTOHIGHLIGHT)
 			FarMenu.AssignHighlights(TRUE);
 
-		MenuLock menuLock(CtrlObject->Macro.IsExecuting() != 0); //FIXME: dirty hack.
+		MenuLock menuLock(Global->CtrlObject->Macro.IsExecuting() != 0); //FIXME: dirty hack.
 		FarMenu.SetTitle(Title);
 
 		ExitCode=FarMenu.RunEx([&](int Msg, void *param)->int
@@ -808,7 +808,7 @@ intptr_t WINAPI apiMenuFn(
 
 			for (int I=0; BreakKeys[I].VirtualKeyCode; I++)
 			{
-				if (CtrlObject->Macro.IsExecuting())
+				if (Global->CtrlObject->Macro.IsExecuting())
 				{
 					int VirtKey,ControlState;
 					TranslateKeyToVK(ReadKey,VirtKey,ControlState,ReadRec);
@@ -1120,11 +1120,11 @@ intptr_t WINAPI apiPanelControl(HANDLE hPlugin,FILE_CONTROL_COMMANDS Command,int
 	if (Command == FCTL_CHECKPANELSEXIST)
 		return Global->Opt->OnlyEditorViewerUsed? FALSE:TRUE;
 
-	if (Global->Opt->OnlyEditorViewerUsed || !CtrlObject || FrameManager->ManagerIsDown())
+	if (Global->Opt->OnlyEditorViewerUsed || !Global->CtrlObject || FrameManager->ManagerIsDown())
 		return 0;
 
-	FilePanels *FPanels=CtrlObject->Cp();
-	CommandLine *CmdLine=CtrlObject->CmdLine;
+	FilePanels *FPanels=Global->CtrlObject->Cp();
+	CommandLine *CmdLine=Global->CtrlObject->CmdLine;
 
 	switch (Command)
 	{
@@ -1704,8 +1704,8 @@ intptr_t WINAPI apiEditorControl(intptr_t EditorID, EDITOR_CONTROL_COMMANDS Comm
 
 	if (EditorID == -1)
 	{
-		if (CtrlObject->Plugins->CurEditor)
-			return CtrlObject->Plugins->CurEditor->EditorControl(Command,Param1,Param2);
+		if (Global->CtrlObject->Plugins->CurEditor)
+			return Global->CtrlObject->Plugins->CurEditor->EditorControl(Command,Param1,Param2);
 
 		return 0;
 	}
@@ -1743,8 +1743,8 @@ intptr_t WINAPI apiViewerControl(intptr_t ViewerID, VIEWER_CONTROL_COMMANDS Comm
 
 	if (ViewerID == -1)
 	{
-		if (CtrlObject->Plugins->CurViewer)
-			return CtrlObject->Plugins->CurViewer->ViewerControl(Command,Param1,Param2);
+		if (Global->CtrlObject->Plugins->CurViewer)
+			return Global->CtrlObject->Plugins->CurViewer->ViewerControl(Command,Param1,Param2);
 
 		return 0;
 	}
@@ -2004,9 +2004,9 @@ size_t WINAPI apiPasteFromClipboard(enum FARCLIPBOARD_TYPE Type, wchar_t *Data, 
 
 intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
-	if (CtrlObject) // все зависит от этой бад€ги.
+	if (Global->CtrlObject) // все зависит от этой бад€ги.
 	{
-		KeyMacro& Macro=CtrlObject->Macro; //??
+		KeyMacro& Macro=Global->CtrlObject->Macro; //??
 
 		switch (Command)
 		{
@@ -2150,7 +2150,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 				{
 					string strPath;
 					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
-					return reinterpret_cast<intptr_t>(CtrlObject->Plugins->LoadPluginExternal(strPath, Command == PCTL_FORCEDLOADPLUGIN));
+					return reinterpret_cast<intptr_t>(Global->CtrlObject->Plugins->LoadPluginExternal(strPath, Command == PCTL_FORCEDLOADPLUGIN));
 				}
 			}
 			break;
@@ -2161,16 +2161,16 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 			switch(Param1)
 			{
 				case PFM_GUID:
-					plugin = CtrlObject->Plugins->FindPlugin(*reinterpret_cast<GUID*>(Param2));
+					plugin = Global->CtrlObject->Plugins->FindPlugin(*reinterpret_cast<GUID*>(Param2));
 					break;
 
 				case PFM_MODULENAME:
 				{
 					string strPath;
 					ConvertNameToFull(reinterpret_cast<const wchar_t*>(Param2), strPath);
-					for (size_t i = 0; i < CtrlObject->Plugins->GetPluginsCount(); ++i)
+					for (size_t i = 0; i < Global->CtrlObject->Plugins->GetPluginsCount(); ++i)
 					{
-						Plugin* p = CtrlObject->Plugins->GetPlugin(i);
+						Plugin* p = Global->CtrlObject->Plugins->GetPlugin(i);
 						if (!StrCmpI(p->GetModuleName(), strPath))
 						{
 							plugin = p;
@@ -2180,13 +2180,13 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 					break;
 				}
 			}
-			if(plugin&&CtrlObject->Plugins->IsPluginUnloaded(plugin)) plugin=nullptr;
+			if(plugin&&Global->CtrlObject->Plugins->IsPluginUnloaded(plugin)) plugin=nullptr;
 			return reinterpret_cast<intptr_t>(plugin);
 		}
 
 		case PCTL_UNLOADPLUGIN:
 			{
-				return CtrlObject->Plugins->UnloadPluginExternal(Handle);
+				return Global->CtrlObject->Plugins->UnloadPluginExternal(Handle);
 			}
 			break;
 
@@ -2198,7 +2198,7 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 					Plugin* plugin = reinterpret_cast<Plugin*>(Handle);
 					if(plugin)
 					{
-						return CtrlObject->Plugins->GetPluginInformation(plugin, Info, Param1);
+						return Global->CtrlObject->Plugins->GetPluginInformation(plugin, Info, Param1);
 					}
 				}
 			}
@@ -2206,14 +2206,14 @@ intptr_t WINAPI apiPluginsControl(HANDLE Handle, FAR_PLUGINS_CONTROL_COMMANDS Co
 
 		case PCTL_GETPLUGINS:
 			{
-				size_t PluginsCount = CtrlObject->Plugins->GetPluginsCount();
+				size_t PluginsCount = Global->CtrlObject->Plugins->GetPluginsCount();
 				if(Param1 && Param2)
 				{
 					HANDLE* Plugins = static_cast<HANDLE*>(Param2);
 					size_t Count = Min(static_cast<size_t>(Param1), PluginsCount);
 					for(size_t i = 0; i < Count; ++i)
 					{
-						Plugins[i] = CtrlObject->Plugins->GetPlugin(i);
+						Plugins[i] = Global->CtrlObject->Plugins->GetPlugin(i);
 					}
 				}
 				return PluginsCount;
@@ -2694,9 +2694,9 @@ BOOL WINAPI apiCreateDirectory(const wchar_t *PathName,LPSECURITY_ATTRIBUTES lpS
 
 intptr_t WINAPI apiCallFar(intptr_t CheckCode, FarMacroCall* Data)
 {
-	if (CtrlObject)
+	if (Global->CtrlObject)
 	{
-		KeyMacro& Macro=CtrlObject->Macro;
+		KeyMacro& Macro=Global->CtrlObject->Macro;
 		return Macro.CallFar(CheckCode, Data);
 	}
 	return 0;

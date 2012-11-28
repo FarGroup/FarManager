@@ -367,7 +367,7 @@ int _cdecl SortList(const void *el1,const void *el2)
 		FileList::FileListToPluginItem(SPtr2,&pi2);
 		SPtr1->UserFlags=SaveFlags1;
 		SPtr2->UserFlags=SaveFlags2;
-		RetCode=CtrlObject->Plugins->Compare(hSortPlugin,&pi1,&pi2,ListSortMode+(SM_UNSORTED-UNSORTED));
+		RetCode=Global->CtrlObject->Plugins->Compare(hSortPlugin,&pi1,&pi2,ListSortMode+(SM_UNSORTED-UNSORTED));
 		FileList::FreePluginPanelItem(&pi1);
 		FileList::FreePluginPanelItem(&pi2);
 
@@ -608,13 +608,13 @@ int FileList::SendKeyToPlugin(DWORD Key,bool Pred)
 	_ALGO(SysLog(L"Key=%s Pred=%d",_FARKEY_ToName(Key),Pred));
 
 	if (PanelMode==PLUGIN_PANEL &&
-	        (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO)
+	        (Global->CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || Global->CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO)
 	   )
 	{
 		_ALGO(SysLog(L"call Plugins.ProcessKey() {"));
 		INPUT_RECORD rec;
 		KeyToInputRecord(Key,&rec);
-		int ProcessCode=CtrlObject->Plugins->ProcessKey(hPlugin,&rec,Pred);
+		int ProcessCode=Global->CtrlObject->Plugins->ProcessKey(hPlugin,&rec,Pred);
 		_ALGO(SysLog(L"} ProcessCode=%d",ProcessCode));
 		ProcessPluginCommand();
 
@@ -644,7 +644,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			if (PanelMode==PLUGIN_PANEL)
 			{
 				OpenPanelInfo Info;
-				CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+				Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 				return (__int64)(!*NullToEmpty(Info.CurDir));
 			}
 			else
@@ -687,7 +687,7 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 			OpenPanelInfo *PInfo=(OpenPanelInfo *)vParam;
 			if (GetMode() == PLUGIN_PANEL && hPlugin)
 			{
-				CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,PInfo);
+				Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,PInfo);
 				return 1;
 			}
 			return 0;
@@ -869,7 +869,7 @@ int FileList::ProcessKey(int Key)
 
 	FileListItem *CurPtr=nullptr;
 	int N;
-	int CmdLength=CtrlObject->CmdLine->GetLength();
+	int CmdLength=Global->CtrlObject->CmdLine->GetLength();
 
 	if (IsVisible())
 	{
@@ -1001,7 +1001,7 @@ int FileList::ProcessKey(int Key)
 			if (Global->Opt->SmartFolderMonitor)
 			{
 				StartFSWatcher(true);
-				CtrlObject->Cp()->GetAnotherPanel(this)->StartFSWatcher(true);
+				Global->CtrlObject->Cp()->GetAnotherPanel(this)->StartFSWatcher(true);
 			}
 			break;
 
@@ -1009,7 +1009,7 @@ int FileList::ProcessKey(int Key)
 			if (Global->Opt->SmartFolderMonitor)
 			{
 				StopFSWatcher();
-				CtrlObject->Cp()->GetAnotherPanel(this)->StopFSWatcher();
+				Global->CtrlObject->Cp()->GetAnotherPanel(this)->StopFSWatcher();
 			}
 			break;
 
@@ -1029,9 +1029,9 @@ int FileList::ProcessKey(int Key)
 			PluginHandle *ph = (PluginHandle*)hPlugin;
 
 			if (PanelMode==PLUGIN_PANEL)
-				CtrlObject->Plugins->ConfigureCurrent(ph->pPlugin, FarGuid);
+				Global->CtrlObject->Plugins->ConfigureCurrent(ph->pPlugin, FarGuid);
 			else
-				CtrlObject->Plugins->Configure();
+				Global->CtrlObject->Plugins->Configure();
 
 			return TRUE;
 		}
@@ -1149,7 +1149,7 @@ int FileList::ProcessKey(int Key)
 			if (Key & (KEY_ALT|KEY_RALT))
 				NewKey|=KEY_ALT;
 
-			Panel *SrcPanel = CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
+			Panel *SrcPanel = Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel);
 			bool OldState = SrcPanel->IsVisible()!=0;
 			SrcPanel->SetVisible(1);
 			SrcPanel->ProcessKey(NewKey);
@@ -1212,7 +1212,7 @@ int FileList::ProcessKey(int Key)
 
 						if (PanelMode==PLUGIN_PANEL)
 						{
-							CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+							Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 						}
 
 						if (PanelMode!=PLUGIN_PANEL)
@@ -1253,7 +1253,7 @@ int FileList::ProcessKey(int Key)
 						string strPrefix;
 
 						/* $ 19.11.2001 IS оптимизация по скорости :) */
-						if (*AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,strPrefix))
+						if (*AddPluginPrefix((FileList *)Global->CtrlObject->Cp()->ActivePanel,strPrefix))
 						{
 							strPrefix += strFileName;
 							strFileName = strPrefix;
@@ -1266,7 +1266,7 @@ int FileList::ProcessKey(int Key)
 					strFileName += L" ";
 				}
 
-				CtrlObject->CmdLine->InsertString(strFileName);
+				Global->CtrlObject->CmdLine->InsertString(strFileName);
 			}
 
 			return TRUE;
@@ -1295,7 +1295,7 @@ int FileList::ProcessKey(int Key)
 			string strPanelDir;
 
 			if (_MakePath1(Key,strPanelDir, L""))
-				CtrlObject->CmdLine->InsertString(strPanelDir);
+				Global->CtrlObject->CmdLine->InsertString(strPanelDir);
 
 			return TRUE;
 		}
@@ -1318,7 +1318,7 @@ int FileList::ProcessKey(int Key)
 			_ALGO(CleverSysLog clv(L"Ctrl-G"));
 
 			if (PanelMode!=PLUGIN_PANEL ||
-			        CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FAROTHER))
+			        Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FAROTHER))
 				if (FileCount>0 && ApplyCommand())
 				{
 					// позиционируемся в панели
@@ -1327,7 +1327,7 @@ int FileList::ProcessKey(int Key)
 
 					Update(UPDATE_KEEP_SELECTION);
 					Redraw();
-					Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+					Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 					AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 					AnotherPanel->Redraw();
 				}
@@ -1347,7 +1347,7 @@ int FileList::ProcessKey(int Key)
 			Global->Opt->ShowHidden=!Global->Opt->ShowHidden;
 			Update(UPDATE_KEEP_SELECTION);
 			Redraw();
-			Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION);//|UPDATE_SECONDARY);
 			AnotherPanel->Redraw();
 			return TRUE;
@@ -1364,7 +1364,7 @@ int FileList::ProcessKey(int Key)
 			Update(UPDATE_KEEP_SELECTION);
 			Redraw();
 			{
-				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 				if (AnotherPanel->GetType()!=FILE_PANEL)
 				{
@@ -1402,7 +1402,7 @@ int FileList::ProcessKey(int Key)
 
 			if (CmdLength)
 			{
-				CtrlObject->CmdLine->ProcessKey(Key);
+				Global->CtrlObject->CmdLine->ProcessKey(Key);
 				return TRUE;
 			}
 
@@ -1422,24 +1422,24 @@ int FileList::ProcessKey(int Key)
 			{
 				bool CheckFullScreen=IsFullScreen();
 				OpenPanelInfo Info;
-				CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+				Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 
 				if (!Info.CurDir || !*Info.CurDir)
 				{
 					ChangeDir(L"..");
 					NeedChangeDir=FALSE;
 					//"this" мог быть удалён в ChangeDir
-					Panel* ActivePanel = CtrlObject->Cp()->ActivePanel;
+					Panel* ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
 
 					if (CheckFullScreen!=ActivePanel->IsFullScreen())
-						CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->Show();
+						Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->Show();
 				}
 			}
 
 			if (NeedChangeDir)
 				ChangeDir(L"\\");
 
-			CtrlObject->Cp()->ActivePanel->Show();
+			Global->CtrlObject->Cp()->ActivePanel->Show();
 			return TRUE;
 		}
 		case KEY_SHIFTF1:
@@ -1462,7 +1462,7 @@ int FileList::ProcessKey(int Key)
 				if (PanelMode==PLUGIN_PANEL)
 				{
 					OpenPanelInfo Info;
-					CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+					Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 
 					if (Info.HostFile && *Info.HostFile)
 						ProcessKey(KEY_F5);
@@ -1503,7 +1503,7 @@ int FileList::ProcessKey(int Key)
 			BOOL RefreshedPanel=TRUE;
 
 			if (PanelMode==PLUGIN_PANEL)
-				CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+				Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 
 			if (Key == KEY_NUMPAD5 || Key == KEY_SHIFTNUMPAD5)
 				Key=KEY_F3;
@@ -1518,7 +1518,7 @@ int FileList::ProcessKey(int Key)
 				string strShortFileName;
 				string strHostFile=Info.HostFile;
 				string strInfoCurDir=Info.CurDir;
-				bool PluginMode=PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
+				bool PluginMode=PanelMode==PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 
 				if (PluginMode)
 				{
@@ -1637,7 +1637,7 @@ int FileList::ProcessKey(int Key)
 					{
 						PluginPanelItem PanelItem;
 						FileListToPluginItem(CurPtr,&PanelItem);
-						int Result=CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|(Edit ? OPM_EDIT:OPM_VIEW));
+						int Result=Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|(Edit ? OPM_EDIT:OPM_VIEW));
 						FreePluginPanelItem(&PanelItem);
 
 						if (!Result)
@@ -1753,7 +1753,7 @@ int FileList::ProcessKey(int Key)
 
 							if (FileNameToPluginItem(strTempName,&PanelItem))
 							{
-								int PutCode=CtrlObject->Plugins->PutFiles(hPlugin,&PanelItem,1,FALSE,OPM_EDIT);
+								int PutCode=Global->CtrlObject->Plugins->PutFiles(hPlugin,&PanelItem,1,FALSE,OPM_EDIT);
 
 								if (PutCode==1 || PutCode==2)
 									SetPluginModified();
@@ -1843,7 +1843,7 @@ int FileList::ProcessKey(int Key)
 					{
 						Update(UPDATE_KEEP_SELECTION);
 						Redraw();
-						Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+						Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 						if (AnotherPanel->GetMode()==NORMAL_PANEL)
 						{
@@ -1862,7 +1862,7 @@ int FileList::ProcessKey(int Key)
 			   а тут мы вызываем перерисовку панелей
 			   потому что этот viewer, editor могут нам неверно восстановить
 			   */
-//      CtrlObject->Cp()->Redraw();
+//      Global->CtrlObject->Cp()->Redraw();
 			return TRUE;
 		}
 		case KEY_F5:
@@ -1909,7 +1909,7 @@ int FileList::ProcessKey(int Key)
 				if (PanelMode==PLUGIN_PANEL)
 				{
 					OpenPanelInfo Info;
-					CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+					Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 					RealName=Info.Flags&OPIF_REALNAMES;
 				}
 
@@ -1943,11 +1943,11 @@ int FileList::ProcessKey(int Key)
 
 			if (SetCurPath())
 			{
-				if (PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARMAKEDIRECTORY))
+				if (PanelMode==PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARMAKEDIRECTORY))
 				{
 					string strDirName;
 					const wchar_t *lpwszDirName=strDirName;
-					int MakeCode=CtrlObject->Plugins->MakeDirectory(hPlugin,&lpwszDirName,0);
+					int MakeCode=Global->CtrlObject->Plugins->MakeDirectory(hPlugin,&lpwszDirName,0);
 					strDirName=lpwszDirName;
 
 					if (!MakeCode)
@@ -1959,7 +1959,7 @@ int FileList::ProcessKey(int Key)
 						GoToFile(PointToName(strDirName));
 
 					Redraw();
-					Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+					Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 					/* $ 07.09.2001 VVM
 					  ! Обновить соседнюю панель с установкой на новый каталог */
 //          AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
@@ -1998,7 +1998,7 @@ int FileList::ProcessKey(int Key)
 					ReturnCurrentFile=TRUE;
 
 				if (PanelMode==PLUGIN_PANEL &&
-				        !CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARDELETEFILES))
+				        !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARDELETEFILES))
 					PluginDelete();
 				else
 				{
@@ -2302,11 +2302,11 @@ int FileList::ProcessKey(int Key)
 				//"this" может быть удалён в ChangeDir
 				bool CheckFullScreen=IsFullScreen();
 				ChangeDir(L"..");
-				Panel *NewActivePanel = CtrlObject->Cp()->ActivePanel;
+				Panel *NewActivePanel = Global->CtrlObject->Cp()->ActivePanel;
 				NewActivePanel->SetViewMode(NewActivePanel->GetViewMode());
 
 				if (CheckFullScreen!=NewActivePanel->IsFullScreen())
-					CtrlObject->Cp()->GetAnotherPanel(NewActivePanel)->Show();
+					Global->CtrlObject->Cp()->GetAnotherPanel(NewActivePanel)->Show();
 
 				NewActivePanel->Show();
 			}
@@ -2327,9 +2327,9 @@ int FileList::ProcessKey(int Key)
 		case KEY_SHIFTAPPS:
 		{
 			//вызовем EMenu если он есть
-			if (CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
+			if (Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
+				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}
@@ -2417,7 +2417,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 		if (PanelMode==PLUGIN_PANEL)
 		{
 			OpenPanelInfo Info;
-			CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 			IsRealName=Info.Flags&OPIF_REALNAMES;
 		}
 
@@ -2458,11 +2458,11 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			}
 
 			//"this" может быть удалён в ChangeDir
-			Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
+			Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
 
 			if (CheckFullScreen!=ActivePanel->IsFullScreen())
 			{
-				CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->Show();
+				Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->Show();
 			}
 
 			ActivePanel->Show();
@@ -2470,7 +2470,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 	}
 	else
 	{
-		bool PluginMode=PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
+		bool PluginMode=PanelMode==PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE);
 
 		if (PluginMode)
 		{
@@ -2482,7 +2482,7 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			apiCreateDirectory(strTempDir,nullptr);
 			PluginPanelItem PanelItem;
 			FileListToPluginItem(CurPtr,&PanelItem);
-			int Result=CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW);
+			int Result=Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW);
 			FreePluginPanelItem(&PanelItem);
 
 			if (!Result)
@@ -2517,9 +2517,9 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 			QuoteSpace(strFileName);
 
 			if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTPANEL) && !PluginMode) //AN
-				CtrlObject->CmdHistory->AddToHistory(strFileName);
+				Global->CtrlObject->CmdHistory->AddToHistory(strFileName);
 
-			CtrlObject->CmdLine->ExecString(strFileName, PluginMode, SeparateWindow, true, false, false, RunAs);
+			Global->CtrlObject->CmdLine->ExecString(strFileName, PluginMode, SeparateWindow, true, false, false, RunAs);
 
 			if (PluginMode)
 				DeleteFileWithFolder(strFileName);
@@ -2570,7 +2570,7 @@ BOOL FileList::SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated)
 	{
 		CheckFullScreen=IsFullScreen();
 		OpenPanelInfo Info;
-		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		string strInfoHostFile=Info.HostFile;
 
 		for (;;)
@@ -2589,11 +2589,11 @@ BOOL FileList::SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated)
 			}
 		}
 
-		CtrlObject->Cp()->RedrawKeyBar();
+		Global->CtrlObject->Cp()->RedrawKeyBar();
 
 		if (CheckFullScreen!=IsFullScreen())
 		{
-			CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
+			Global->CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
 		}
 	}
 
@@ -2657,14 +2657,14 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
-		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		/* $ 16.01.2002 VVM
 		  + Если у плагина нет OPIF_REALNAMES, то история папок не пишется в реестр */
 		string strInfoCurDir=Info.CurDir;
 		//string strInfoFormat=Info.Format;
 		string strInfoHostFile=Info.HostFile;
 		string strInfoData=Info.ShortcutData;
-		if(Info.Flags&OPIF_SHORTCUT) CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,0,&PluginManager::GetGUID(hPlugin),strInfoHostFile,strInfoData);
+		if(Info.Flags&OPIF_SHORTCUT) Global->CtrlObject->FolderHistory->AddToHistory(strInfoCurDir,0,&PluginManager::GetGUID(hPlugin),strInfoHostFile,strInfoData);
 		/* $ 25.04.01 DJ
 		   при неудаче SetDirectory не сбрасываем выделение
 		*/
@@ -2685,7 +2685,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 			}
 
 			PopPlugin(TRUE);
-			Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 			if (AnotherPanel->GetType()==INFO_PANEL)
 				AnotherPanel->Redraw();
@@ -2693,7 +2693,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		else
 		{
 			strFindDir = strInfoCurDir;
-			SetDirectorySuccess=CtrlObject->Plugins->SetDirectory(hPlugin,strSetDir,0) != FALSE;
+			SetDirectorySuccess=Global->CtrlObject->Plugins->SetDirectory(hPlugin,strSetDir,0) != FALSE;
 		}
 
 		ProcessPluginCommand();
@@ -2718,7 +2718,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 			ConvertNameToFull(strSetDir, strFullNewDir);
 
 			if (StrCmpI(strFullNewDir, strCurDir))
-				CtrlObject->FolderHistory->AddToHistory(strCurDir);
+				Global->CtrlObject->FolderHistory->AddToHistory(strCurDir);
 		}
 
 		if (dot2Present)
@@ -2728,7 +2728,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 				if (NetPath)
 				{
 					string tmp = strCurDir;	// strCurDir can be altered during next call
-					if (CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)tmp.CPtr())) // NetWork Plugin :-)
+					if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)tmp.CPtr())) // NetWork Plugin :-)
 					{
 						return FALSE;
 					}
@@ -2738,13 +2738,13 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 					string RemoteName;
 					if(DriveLocalToRemoteName(DRIVE_REMOTE, strCurDir.At(0), RemoteName))
 					{
-						if (CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)RemoteName.CPtr())) // NetWork Plugin :-)
+						if (Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Network,OPEN_FILEPANEL,(void*)RemoteName.CPtr())) // NetWork Plugin :-)
 						{
 							return FALSE;
 						}
 					}
 				}
-				CtrlObject->Cp()->ActivePanel->ChangeDisk();
+				Global->CtrlObject->Cp()->ActivePanel->ChangeDisk();
 				return TRUE;
 			}
 		}
@@ -2814,11 +2814,11 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 
 	if (GetFocus())
 	{
-		CtrlObject->CmdLine->SetCurDir(strCurDir);
-		CtrlObject->CmdLine->Show();
+		Global->CtrlObject->CmdLine->SetCurDir(strCurDir);
+		Global->CtrlObject->CmdLine->Show();
 	}
 
-	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 	if (AnotherPanel->GetType()!=FILE_PANEL)
 	{
@@ -2827,7 +2827,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 	}
 
 	if (PanelMode==PLUGIN_PANEL)
-		CtrlObject->Cp()->RedrawKeyBar();
+		Global->CtrlObject->Cp()->RedrawKeyBar();
 
 	return SetDirectorySuccess;
 }
@@ -2933,7 +2933,7 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				FlushInputBuffer(); // !!!
 				INPUT_RECORD rec;
 				ProcessKeyToInputRecord(VK_RETURN,IntKeyState.ShiftPressed ? PKF_SHIFT:0,&rec);
-				int ProcessCode=CtrlObject->Plugins->ProcessKey(hPlugin,&rec,false);
+				int ProcessCode=Global->CtrlObject->Plugins->ProcessKey(hPlugin,&rec,false);
 				ProcessPluginCommand();
 
 				if (ProcessCode)
@@ -2964,10 +2964,10 @@ int FileList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 				DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
 
 				//вызовем EMenu если он есть
-				if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
+				if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
 				{
 					ShowFileList(TRUE);
-					CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
+					Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
 					return TRUE;
 				}
 
@@ -3144,7 +3144,7 @@ void FileList::SetViewMode(int ViewMode)
 		{
 			if (Y2>0)
 			{
-				if (this==CtrlObject->Cp()->LeftPanel)
+				if (this==Global->CtrlObject->Cp()->LeftPanel)
 					SetPosition(0,Y1,ScrX/2-Global->Opt->WidthDecrement,Y2);
 				else
 					SetPosition(ScrX/2+1-Global->Opt->WidthDecrement,Y1,ScrX,Y2);
@@ -3172,7 +3172,7 @@ void FileList::SetViewMode(int ViewMode)
 	{
 		SortFileList(TRUE);
 		ShowFileList(TRUE);
-		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==TREE_PANEL)
 			AnotherPanel->Redraw();
@@ -3805,7 +3805,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
-		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		RawSelection=(Info.Flags & OPIF_RAWSELECTION);
 	}
 
@@ -3980,7 +3980,7 @@ long FileList::SelectFiles(int Mode,const wchar_t *Mask)
 
 void FileList::UpdateViewPanel()
 {
-	Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 	if (FileCount>0 && AnotherPanel->IsVisible() &&
 	        AnotherPanel->GetType()==QVIEW_PANEL && SetCurPath())
@@ -3990,7 +3990,7 @@ void FileList::UpdateViewPanel()
 		FileListItem *CurPtr=ListData[CurFile];
 
 		if (PanelMode!=PLUGIN_PANEL ||
-		        CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE))
+		        Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILE))
 		{
 			if (TestParentFolderName(CurPtr->strName))
 				ViewPanel->ShowFile(strCurDir,FALSE,nullptr);
@@ -4008,7 +4008,7 @@ void FileList::UpdateViewPanel()
 			apiCreateDirectory(strTempDir,nullptr);
 			PluginPanelItem PanelItem;
 			FileListToPluginItem(CurPtr,&PanelItem);
-			int Result=CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW);
+			int Result=Global->CtrlObject->Plugins->GetFile(hPlugin,&PanelItem,strTempDir,strFileName,OPM_SILENT|OPM_VIEW|OPM_QUICKVIEW);
 			FreePluginPanelItem(&PanelItem);
 
 			if (!Result)
@@ -4035,7 +4035,7 @@ void FileList::UpdateViewPanel()
 
 void FileList::CompareDir()
 {
-	FileList *Another=(FileList *)CtrlObject->Cp()->GetAnotherPanel(this);
+	FileList *Another=(FileList *)Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 	if (Another->GetType()!=FILE_PANEL || !Another->IsVisible())
 	{
@@ -4070,7 +4070,7 @@ void FileList::CompareDir()
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
-		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 
 		if (Info.Flags & OPIF_COMPAREFATTIME)
 			CompareFatTime=TRUE;
@@ -4080,7 +4080,7 @@ void FileList::CompareDir()
 	if (Another->PanelMode==PLUGIN_PANEL && !CompareFatTime)
 	{
 		OpenPanelInfo Info;
-		CtrlObject->Plugins->GetOpenPanelInfo(Another->hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(Another->hPlugin,&Info);
 
 		if (Info.Flags & OPIF_COMPAREFATTIME)
 			CompareFatTime=TRUE;
@@ -4171,7 +4171,7 @@ void FileList::CopyFiles()
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;
-		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		RealNames = (Info.Flags&OPIF_REALNAMES) == OPIF_REALNAMES;
 	}
 
@@ -4239,7 +4239,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 
 	if (PanelMode==PLUGIN_PANEL)
 	{
-		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 	}
 
 	GetSelName(nullptr,FileAttr);
@@ -4308,7 +4308,7 @@ void FileList::CopyNames(bool FillPathName, bool UNC)
 					string strPrefix;
 
 					/* $ 19.11.2001 IS оптимизация по скорости :) */
-					if (*AddPluginPrefix((FileList *)CtrlObject->Cp()->ActivePanel,strPrefix))
+					if (*AddPluginPrefix((FileList *)Global->CtrlObject->Cp()->ActivePanel,strPrefix))
 					{
 						strPrefix += strQuotedName;
 						strQuotedName = strPrefix;
@@ -4445,14 +4445,14 @@ string &FileList::CreateFullPathName(const wchar_t *Name, const wchar_t *ShortNa
 
 void FileList::SetTitle()
 {
-	if (GetFocus() || CtrlObject->Cp()->GetAnotherPanel(this)->GetType()!=FILE_PANEL)
+	if (GetFocus() || Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetType()!=FILE_PANEL)
 	{
 		string strTitleDir(L"{");
 
 		if (PanelMode==PLUGIN_PANEL)
 		{
 			OpenPanelInfo Info;
-			CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 			string strPluginTitle = Info.PanelTitle;
 			RemoveExternalSpaces(strPluginTitle);
 			strTitleDir += strPluginTitle;
@@ -4765,7 +4765,7 @@ void FileList::DescribeFiles()
 	ReadDiz();
 	SaveSelection();
 	GetSelName(nullptr,FileAttr);
-	Panel* AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel* AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 	int AnotherType=AnotherPanel->GetType();
 
 	while (GetSelName(&strSelName,FileAttr,&strSelShortName))
@@ -4813,7 +4813,7 @@ void FileList::DescribeFiles()
 	  FlushDiz();
 	  Update(UPDATE_KEEP_SELECTION);
 	  Redraw();
-	  Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+	  Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 	  AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	  AnotherPanel->Redraw();
 	}*/
@@ -4850,15 +4850,15 @@ bool FileList::ApplyCommand()
 	SaveSelection();
 
 	string CommandLine;
-	CtrlObject->CmdLine->GetString(CommandLine);
+	Global->CtrlObject->CmdLine->GetString(CommandLine);
 	intptr_t SelStart, SelEnd;
-	CtrlObject->CmdLine->GetSelection(SelStart, SelEnd);
-	int CursorPosition = CtrlObject->CmdLine->GetCurPos();
-	int LeftPosition = CtrlObject->CmdLine->GetLeftPos();
+	Global->CtrlObject->CmdLine->GetSelection(SelStart, SelEnd);
+	int CursorPosition = Global->CtrlObject->CmdLine->GetCurPos();
+	int LeftPosition = Global->CtrlObject->CmdLine->GetLeftPos();
 
 	++UpdateDisabled;
 	GetSelName(nullptr,FileAttr);
-	CtrlObject->CmdLine->LockUpdatePanel(true);
+	Global->CtrlObject->CmdLine->LockUpdatePanel(true);
 	while (GetSelName(&strSelName,FileAttr,&strSelShortName) && !CheckForEsc())
 	{
 		string strListName, strAnotherListName;
@@ -4878,14 +4878,14 @@ bool FileList::ApplyCommand()
 
 				if (!isSilent)   // TODO: Здесь не isSilent!
 				{
-					CtrlObject->CmdLine->ExecString(strConvertedCommand,FALSE, 0, 0, ListFileUsed); // Param2 == TRUE?
+					Global->CtrlObject->CmdLine->ExecString(strConvertedCommand,FALSE, 0, 0, ListFileUsed); // Param2 == TRUE?
 					//if (!(Global->Opt->ExcludeCmdHistory&EXCLUDECMDHISTORY_NOTAPPLYCMD))
-					//	CtrlObject->CmdHistory->AddToHistory(strConvertedCommand);
+					//	Global->CtrlObject->CmdHistory->AddToHistory(strConvertedCommand);
 				}
 				else
 				{
-					CtrlObject->Cp()->LeftPanel->CloseFile();
-					CtrlObject->Cp()->RightPanel->CloseFile();
+					Global->CtrlObject->Cp()->LeftPanel->CloseFile();
+					Global->CtrlObject->Cp()->RightPanel->CloseFile();
 					Execute(strConvertedCommand,FALSE,FALSE, 0, 0, ListFileUsed, true);
 				}
 			}
@@ -4907,15 +4907,15 @@ bool FileList::ApplyCommand()
 	}
 
 
-	CtrlObject->CmdLine->SetString(CommandLine);
-	CtrlObject->CmdLine->Select(SelStart, SelEnd);
-	CtrlObject->CmdLine->SetCurPos(CursorPosition, LeftPosition);
+	Global->CtrlObject->CmdLine->SetString(CommandLine);
+	Global->CtrlObject->CmdLine->Select(SelStart, SelEnd);
+	Global->CtrlObject->CmdLine->SetCurPos(CursorPosition, LeftPosition);
 
-	CtrlObject->CmdLine->LockUpdatePanel(false);
-	CtrlObject->CmdLine->Show();
+	Global->CtrlObject->CmdLine->LockUpdatePanel(false);
+	Global->CtrlObject->CmdLine->Show();
 	if (Global->Opt->ShowKeyBar)
 	{
-		CtrlObject->MainKeyBar->Show();
+		Global->CtrlObject->MainKeyBar->Show();
 	}
 	if (GetSelPosition >= FileCount)
 		ClearSelection();
@@ -5023,7 +5023,7 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 
 	SortFileList(TRUE);
 	ShowFileList(TRUE);
-	CtrlObject->Cp()->Redraw();
+	Global->CtrlObject->Cp()->Redraw();
 	InitFSWatcher(true);
 }
 
@@ -5097,7 +5097,7 @@ HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPL
 		CurFile=0;
 		Update(0);
 		Redraw();
-		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 		if ((AnotherPanel->GetType()==INFO_PANEL) || WasFullscreen)
 			AnotherPanel->Redraw();
@@ -5115,7 +5115,7 @@ void FileList::ProcessCopyKeys(int Key)
 		int Ask=!Drag || Global->Opt->Confirm.Drag;
 		int Move=(Key==KEY_F6 || Key==KEY_DRAGMOVE);
 		int AnotherDir=FALSE;
-		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
 		{
@@ -5130,7 +5130,7 @@ void FileList::ProcessCopyKeys(int Key)
 			}
 		}
 
-		if (PanelMode==PLUGIN_PANEL && !CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILES))
+		if (PanelMode==PLUGIN_PANEL && !Global->CtrlObject->Plugins->UseFarCommand(hPlugin,PLUGIN_FARGETFILES))
 		{
 			if (Key!=KEY_ALTF6 && Key!=KEY_RALTF6)
 			{
@@ -5138,7 +5138,7 @@ void FileList::ProcessCopyKeys(int Key)
 				int ToPlugin=FALSE;
 
 				if (AnotherPanel->GetMode()==PLUGIN_PANEL && AnotherPanel->IsVisible() &&
-				        !CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES))
+				        !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES))
 				{
 					ToPlugin=2;
 					ShellCopy ShCopy(this,Move,FALSE,FALSE,Ask,ToPlugin,strPluginDestPath);
@@ -5161,7 +5161,7 @@ void FileList::ProcessCopyKeys(int Key)
 							if (!AnotherPanel->IsVisible())
 							{
 								OpenPanelInfo Info;
-								CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+								Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 
 								if (Info.HostFile && *Info.HostFile)
 								{
@@ -5186,7 +5186,7 @@ void FileList::ProcessCopyKeys(int Key)
 		{
 			int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
 			             AnotherPanel->IsVisible() && (Key!=KEY_ALTF6 && Key!=KEY_RALTF6) &&
-			             !CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
+			             !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
 			ShellCopy ShCopy(this,Move,(Key==KEY_ALTF6 || Key==KEY_RALTF6),FALSE,Ask,ToPlugin,nullptr, Drag && AnotherDir);
 
 			if (ToPlugin==1)
@@ -5210,7 +5210,7 @@ void FileList::ChangeSortOrder(int NewOrder)
 
 BOOL FileList::UpdateKeyBar()
 {
-	KeyBar *KB=CtrlObject->MainKeyBar;
+	KeyBar *KB=Global->CtrlObject->MainKeyBar;
 	KB->SetAllGroup(KBL_MAIN, MF1, 12);
 	KB->SetAllGroup(KBL_SHIFT, MShiftF1, 12);
 	KB->SetAllGroup(KBL_ALT, MAltF1, 12);
@@ -5263,7 +5263,7 @@ string &FileList::AddPluginPrefix(FileList *SrcPanel,string &strPrefix)
 	{
 		OpenPanelInfo Info;
 		PluginHandle *ph = (PluginHandle*)SrcPanel->hPlugin;
-		CtrlObject->Plugins->GetOpenPanelInfo(ph,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(ph,&Info);
 
 		if (!(Info.Flags & OPIF_REALNAMES))
 		{
@@ -5299,7 +5299,7 @@ void FileList::IfGoHome(wchar_t Drive)
 			Почему? - Просто - если активная широкая (или пассивная
 			широкая) - получаем багу с прорисовкой!
 		*/
-		Panel *Another=CtrlObject->Cp()->GetAnotherPanel(this);
+		Panel *Another=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 		if (Another->GetMode() != PLUGIN_PANEL)
 		{

@@ -49,10 +49,28 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "synchro.hpp"
 #include "codepage.hpp"
 #include "configdb.hpp"
+#include "ctrlobj.hpp"
 
 global::global():
 	m_MainThreadId(GetCurrentThreadId()),
-	Db(nullptr)
+	ifn(nullptr),
+	Console(nullptr),
+	ScrBuf(nullptr),
+	TBC(nullptr),
+	ConsoleIcons(nullptr),
+	//FS(nullptr),
+	PreRedraw(nullptr),
+	Window(nullptr),
+	Opt(nullptr),
+	Lang(nullptr),
+	OldLang(nullptr),
+	Elevation(nullptr),
+	TreeCache(nullptr),
+	tempTreeCache(nullptr),
+	PluginSynchroManager(nullptr),
+	CodePages(nullptr),
+	Db(nullptr),
+	CtrlObject(nullptr)
 {
 	Global = this;
 
@@ -125,23 +143,42 @@ global::global():
 
 global::~global()
 {
+	delete CtrlObject;
+	CtrlObject = nullptr;
 	delete Db;
+	Db = nullptr;
 	delete CodePages;
+	CodePages = nullptr;
 	delete PluginSynchroManager;
+	PluginSynchroManager = nullptr;
 	delete tempTreeCache;
+	tempTreeCache = nullptr;
 	delete TreeCache;
+	TreeCache = nullptr;
 	delete Elevation;
+	Elevation = nullptr;
 	delete OldLang;
+	OldLang = nullptr;
 	delete Lang;
+	Lang = nullptr;
 	delete Opt;
+	Opt = nullptr;
 	delete Window;
+	Window = nullptr;
 	delete PreRedraw;
+	PreRedraw = nullptr;
 	//delete FS;
+	//FS = nullptr;
 	delete ConsoleIcons;
+	ConsoleIcons = nullptr;
 	delete TBC;
+	TBC = nullptr;
 	delete ScrBuf;
+	ScrBuf = nullptr;
 	delete Console;
+	Console = nullptr;
 	delete ifn;
+	ifn = nullptr;
 
 	CloseHandle(m_MainThreadHandle);
 

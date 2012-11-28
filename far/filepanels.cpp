@@ -231,7 +231,7 @@ void FilePanels::Init(int DirCount)
 	// при понашенных панелях не забыть бы выставить корректно каталог в CmdLine
 	if (!Global->Opt->RightPanel.Visible && !Global->Opt->LeftPanel.Visible)
 	{
-		CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Global->Opt->strRightFolder:Global->Opt->strLeftFolder);
+		Global->CtrlObject->CmdLine->SetCurDir(PassiveIsLeftFlag?Global->Opt->strRightFolder:Global->Opt->strLeftFolder);
 	}
 
 	SetKeyBar(&MainKeyBar);
@@ -289,7 +289,7 @@ void FilePanels::SetPanelPositions(bool LeftFullScreen, bool RightFullScreen)
 void FilePanels::SetScreenPosition()
 {
 	_OT(SysLog(L"[%p] FilePanels::SetScreenPosition() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
-	CtrlObject->CmdLine->SetPosition(0,ScrY-(Global->Opt->ShowKeyBar),ScrX-1,ScrY-(Global->Opt->ShowKeyBar));
+	Global->CtrlObject->CmdLine->SetPosition(0,ScrY-(Global->Opt->ShowKeyBar),ScrX-1,ScrY-(Global->Opt->ShowKeyBar));
 	TopMenuBar.SetPosition(0,0,ScrX,0);
 	MainKeyBar.SetPosition(0,ScrY,ScrX,ScrY);
 	SetPanelPositions(LeftPanel->IsFullScreen(),RightPanel->IsFullScreen());
@@ -452,10 +452,10 @@ int FilePanels::ProcessKey(int Key)
 	if ((Key==KEY_CTRLLEFT || Key==KEY_CTRLRIGHT || Key==KEY_CTRLNUMPAD4 || Key==KEY_CTRLNUMPAD6
 		|| Key==KEY_RCTRLLEFT || Key==KEY_RCTRLRIGHT || Key==KEY_RCTRLNUMPAD4 || Key==KEY_RCTRLNUMPAD6
 	        /* || Key==KEY_CTRLUP   || Key==KEY_CTRLDOWN || Key==KEY_CTRLNUMPAD8 || Key==KEY_CTRLNUMPAD2 */) &&
-	        (CtrlObject->CmdLine->GetLength()>0 ||
+	        (Global->CtrlObject->CmdLine->GetLength()>0 ||
 	         (!LeftPanel->IsVisible() && !RightPanel->IsVisible())))
 	{
-		CtrlObject->CmdLine->ProcessKey(Key);
+		Global->CtrlObject->CmdLine->ProcessKey(Key);
 		return TRUE;
 	}
 
@@ -629,7 +629,7 @@ int FilePanels::ProcessKey(int Key)
 				else
 					AnotherPanel->Show();
 
-				CtrlObject->CmdLine->Redraw();
+				Global->CtrlObject->CmdLine->Redraw();
 			}
 
 			FrameManager->RefreshFrame();
@@ -645,7 +645,7 @@ int FilePanels::ProcessKey(int Key)
 		case KEY_RCTRLU:
 		{
 			if (!LeftPanel->IsVisible() && !RightPanel->IsVisible())
-				CtrlObject->CmdLine->ProcessKey(Key);
+				Global->CtrlObject->CmdLine->ProcessKey(Key);
 			else
 				SwapPanels();
 
@@ -831,7 +831,7 @@ int FilePanels::ProcessKey(int Key)
 			if (Key >= KEY_CTRL0 && Key <= KEY_CTRL9)
 				ChangePanelViewMode(ActivePanel,Key-KEY_CTRL0,TRUE);
 			if (!ActivePanel->ProcessKey(Key))
-				CtrlObject->CmdLine->ProcessKey(Key);
+				Global->CtrlObject->CmdLine->ProcessKey(Key);
 
 			break;
 		}
@@ -1073,7 +1073,7 @@ void FilePanels::OnChangeFocus(int f)
 		/*$ 22.06.2001 SKV
 		  + update панелей при получении фокуса
 		*/
-		CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
+		Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel)->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
 		ActivePanel->UpdateIfChanged(UIC_UPDATE_FORCE_NOTIFICATION);
 		/* $ 13.04.2002 KM
 		  ! ??? Я не понял зачем здесь Redraw, если
@@ -1090,12 +1090,12 @@ void FilePanels::DisplayObject()
 //  if ( !Focus )
 //      return;
 	_OT(SysLog(L"[%p] FilePanels::Redraw() {%d, %d - %d, %d}", this,X1,Y1,X2,Y2));
-	CtrlObject->CmdLine->ShowBackground();
+	Global->CtrlObject->CmdLine->ShowBackground();
 
 	if (Global->Opt->ShowMenuBar)
-		CtrlObject->TopMenuBar->Show();
+		Global->CtrlObject->TopMenuBar->Show();
 
-	CtrlObject->CmdLine->Show();
+	Global->CtrlObject->CmdLine->Show();
 
 	if (Global->Opt->ShowKeyBar)
 		MainKeyBar.Show();
@@ -1162,7 +1162,7 @@ int  FilePanels::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (!ActivePanel->ProcessMouse(MouseEvent))
 		if (!GetAnotherPanel(ActivePanel)->ProcessMouse(MouseEvent))
 			if (!MainKeyBar.ProcessMouse(MouseEvent))
-				CtrlObject->CmdLine->ProcessMouse(MouseEvent);
+				Global->CtrlObject->CmdLine->ProcessMouse(MouseEvent);
 
 	return TRUE;
 }
@@ -1176,7 +1176,7 @@ void FilePanels::ShowConsoleTitle()
 void FilePanels::ResizeConsole()
 {
 	Frame::ResizeConsole();
-	CtrlObject->CmdLine->ResizeConsole();
+	Global->CtrlObject->CmdLine->ResizeConsole();
 	MainKeyBar.ResizeConsole();
 	TopMenuBar.ResizeConsole();
 	SetScreenPosition();

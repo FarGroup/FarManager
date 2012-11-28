@@ -105,7 +105,7 @@ void InfoList::Update(int Mode)
 	if (!EnableUpdate)
 		return;
 
-	if (CtrlObject->Cp() == FrameManager->GetCurrentFrame())
+	if (Global->CtrlObject->Cp() == FrameManager->GetCurrentFrame())
 		Redraw();
 }
 
@@ -140,7 +140,7 @@ void InfoList::DisplayObject()
 
 	string strTitle;
 	string strOutStr;
-	Panel *AnotherPanel = CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(this);
 	string strDriveRoot;
 	string strVolumeName, strFileSystemName;
 	DWORD MaxNameLength,FileSystemFlags,VolumeNumber;
@@ -680,12 +680,12 @@ int InfoList::ProcessKey(int Key)
 
 			if (!strDizFileName.IsEmpty())
 			{
-				CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strCurDir);
+				Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetCurDir(strCurDir);
 				FarChDir(strCurDir);
 				new FileViewer(strDizFileName,TRUE);//OT
 			}
 
-			CtrlObject->Cp()->Redraw();
+			Global->CtrlObject->Cp()->Redraw();
 			return TRUE;
 		case KEY_F4:
 			/* $ 30.04.2001 DJ
@@ -694,7 +694,7 @@ int InfoList::ProcessKey(int Key)
 			убираем лишнюю перерисовку панелей
 			*/
 		{
-			Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 			AnotherPanel->GetCurDir(strCurDir);
 			FarChDir(strCurDir);
 
@@ -720,7 +720,7 @@ int InfoList::ProcessKey(int Key)
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 			//AnotherPanel->Redraw();
 			Update(0);
-			CtrlObject->Cp()->Redraw();
+			Global->CtrlObject->Cp()->Redraw();
 			return TRUE;
 		}
 		case KEY_CTRLR:
@@ -743,7 +743,7 @@ int InfoList::ProcessKey(int Key)
 			if (Key == KEY_F8 || Key == KEY_F2 || Key == KEY_SHIFTF2)
 			{
 				DynamicUpdateKeyBar();
-				CtrlObject->MainKeyBar->Redraw();
+				Global->CtrlObject->MainKeyBar->Redraw();
 			}
 
 			if (Key == KEY_F7 || Key == KEY_SHIFTF7)
@@ -754,7 +754,7 @@ int InfoList::ProcessKey(int Key)
 				//ShellUpdatePanels(nullptr,FALSE);
 				DizView->InRecursion++;
 				Redraw();
-				CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
+				Global->CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
 				DizView->SelectText(Pos,Length,Flags|1);
 				DizView->InRecursion--;
 			}
@@ -775,7 +775,7 @@ int InfoList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		return(RetCode);
 
 	bool NeedRedraw=false;
-	Panel *AnotherPanel = CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(this);
 	bool ProcessDescription = AnotherPanel->GetMode() == FILE_PANEL;
 	bool ProcessPluginDescription = AnotherPanel->GetMode() == PLUGIN_PANEL;
 	if ((MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED) && !(MouseEvent->dwEventFlags & MOUSE_MOVED))
@@ -899,7 +899,7 @@ void InfoList::PrintInfo(LNGID MsgID)
 
 bool InfoList::ShowDirDescription(int YPos)
 {
-	Panel *AnotherPanel = CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 	string strDizDir;
 	AnotherPanel->GetCurDir(strDizDir);
@@ -932,7 +932,7 @@ bool InfoList::ShowDirDescription(int YPos)
 
 bool InfoList::ShowPluginDescription(int YPos)
 {
-	Panel *AnotherPanel = CtrlObject->Cp()->GetAnotherPanel(this);
+	Panel *AnotherPanel = Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 	static wchar_t VertcalLine[2]={BoxSymbols[BS_V2],0};
 
@@ -1062,13 +1062,13 @@ void InfoList::KillFocus()
 
 void InfoList::SetMacroMode(int Restore)
 {
-	if (!CtrlObject)
+	if (!Global->CtrlObject)
 		return;
 
 	if (PrevMacroMode == MACRO_INVALID)
-		PrevMacroMode = CtrlObject->Macro.GetMode();
+		PrevMacroMode = Global->CtrlObject->Macro.GetMode();
 
-	CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_INFOPANEL);
+	Global->CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_INFOPANEL);
 }
 
 
@@ -1081,7 +1081,7 @@ int InfoList::GetCurName(string &strName, string &strShortName)
 
 BOOL InfoList::UpdateKeyBar()
 {
-	KeyBar *KB = CtrlObject->MainKeyBar;
+	KeyBar *KB = Global->CtrlObject->MainKeyBar;
 	KB->SetAllGroup(KBL_MAIN, MInfoF1, 12);
 	KB->SetAllGroup(KBL_SHIFT, MInfoShiftF1, 12);
 	KB->SetAllGroup(KBL_ALT, MInfoAltF1, 12);
@@ -1096,7 +1096,7 @@ BOOL InfoList::UpdateKeyBar()
 
 void InfoList::DynamicUpdateKeyBar()
 {
-	KeyBar *KB = CtrlObject->MainKeyBar;
+	KeyBar *KB = Global->CtrlObject->MainKeyBar;
 
 	if (DizView)
 	{

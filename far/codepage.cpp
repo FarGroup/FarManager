@@ -76,7 +76,7 @@ enum
 };
 
 // Callback-функция получения таблиц символов
-BOOL WINAPI EnumCodePagesProc(const wchar_t *lpwszCodePage)
+BOOL CALLBACK EnumCodePagesProc(wchar_t *lpwszCodePage)
 {
 	codepages& cp = *Global->CodePages;
 
@@ -411,7 +411,7 @@ void codepages::AddCodePages(DWORD codePages)
 	AddStandardCodePage(L"UTF-16 (Big endian)", CP_REVERSEBOM, -1, (codePages & ::UTF16BE) != 0);
 	// Получаем таблицы символов установленные в системе
 	allow_m2 = (codePages & ::AllowM2) != 0;
-	EnumSystemCodePages((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
+	EnumSystemCodePages(EnumCodePagesProc, CP_INSTALLED);
 }
 
 // Обработка добавления/удаления в/из список выбранных таблиц символов
@@ -792,6 +792,6 @@ bool codepages::IsCodePageSupported(uintptr_t CodePage)
 	CallbackCallSource = CodePageCheck;
 	currentCodePage = CodePage;
 	CodePageSupported = false;
-	EnumSystemCodePages((CODEPAGE_ENUMPROCW)EnumCodePagesProc, CP_INSTALLED);
+	EnumSystemCodePages(EnumCodePagesProc, CP_INSTALLED);
 	return CodePageSupported;
 }

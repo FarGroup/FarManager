@@ -237,7 +237,7 @@ static intptr_t WINAPI GetStringDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1
 	//    char KeyText[50];
 	//    KeyToText(Param2,KeyText);
 	//    _D(SysLog(L"%s (0x%08X) ShiftPressed=%d",KeyText,Param2,ShiftPressed));
-	    if(ShiftPressed && (Param2 == KEY_ENTER||Param2 == KEY_NUMENTER) && !CtrlObject->Macro.IsExecuting())
+	    if(ShiftPressed && (Param2 == KEY_ENTER||Param2 == KEY_NUMENTER) && !Global->CtrlObject->Macro.IsExecuting())
 	    {
 	      DWORD Arr[1];
 	      Arr[0]=Param2 == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
@@ -355,8 +355,8 @@ int GetString(
 
 		ExitCode=Dlg.GetExitCode();
 
-		if (ExitCode == -2 && CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)
-			CtrlObject->Macro.SendDropProcess();
+		if (ExitCode == -2 && Global->CtrlObject->Macro.IsExecuting() != MACROMODE_NOMACRO)
+			Global->CtrlObject->Macro.SendDropProcess();
 	}
 
 	if (ExitCode == 2 || ExitCode == 4 || (addCheckBox && ExitCode == 6))

@@ -77,11 +77,11 @@ Panel *FileFilter::GetHostPanel()
 {
 	if (!m_HostPanel || m_HostPanel == (Panel *)PANEL_ACTIVE)
 	{
-		return CtrlObject->Cp()->ActivePanel;
+		return Global->CtrlObject->Cp()->ActivePanel;
 	}
 	else if (m_HostPanel == (Panel *)PANEL_PASSIVE)
 	{
-		return CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
+		return Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel);
 	}
 
 	return m_HostPanel;
@@ -445,7 +445,7 @@ enumFileFilterFlagsType FileFilter::GetFFFT()
 {
 	if (m_FilterType == FFT_PANEL)
 	{
-		if (GetHostPanel() == CtrlObject->Cp()->RightPanel)
+		if (GetHostPanel() == Global->CtrlObject->Cp()->RightPanel)
 		{
 			return FFFT_RIGHTPANEL;
 		}

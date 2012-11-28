@@ -68,9 +68,9 @@ void FileList::SetFilePanelModes()
 
 	int CurMode=0;
 
-	if (CtrlObject->Cp()->ActivePanel->GetType()==FILE_PANEL)
+	if (Global->CtrlObject->Cp()->ActivePanel->GetType()==FILE_PANEL)
 	{
-		CurMode=CtrlObject->Cp()->ActivePanel->GetViewMode();
+		CurMode=Global->CtrlObject->Cp()->ActivePanel->GetViewMode();
 		CurMode=CurMode?CurMode-1:9;
 	}
 
@@ -197,17 +197,17 @@ void FileList::SetFilePanelModes()
 		TextToViewSettings(ModeDlg[MD_EDITSTATUSTYPES].strData,ModeDlg[MD_EDITSTATUSWIDTHS].strData,NewSettings.StatusColumnType,
 		                   NewSettings.StatusColumnWidth,NewSettings.StatusColumnWidthType,NewSettings.StatusColumnCount);
 		ViewSettingsArray[ModeNumber]=NewSettings;
-		CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
-		CtrlObject->Cp()->RightPanel->SortFileList(TRUE);
-		CtrlObject->Cp()->SetScreenPosition();
-		int LeftMode=CtrlObject->Cp()->LeftPanel->GetViewMode();
-		int RightMode=CtrlObject->Cp()->RightPanel->GetViewMode();
-//    CtrlObject->Cp()->LeftPanel->SetViewMode(ModeNumber);
-//    CtrlObject->Cp()->RightPanel->SetViewMode(ModeNumber);
-		CtrlObject->Cp()->LeftPanel->SetViewMode(LeftMode);
-		CtrlObject->Cp()->RightPanel->SetViewMode(RightMode);
-		CtrlObject->Cp()->LeftPanel->Redraw();
-		CtrlObject->Cp()->RightPanel->Redraw();
+		Global->CtrlObject->Cp()->LeftPanel->SortFileList(TRUE);
+		Global->CtrlObject->Cp()->RightPanel->SortFileList(TRUE);
+		Global->CtrlObject->Cp()->SetScreenPosition();
+		int LeftMode=Global->CtrlObject->Cp()->LeftPanel->GetViewMode();
+		int RightMode=Global->CtrlObject->Cp()->RightPanel->GetViewMode();
+//    Global->CtrlObject->Cp()->LeftPanel->SetViewMode(ModeNumber);
+//    Global->CtrlObject->Cp()->RightPanel->SetViewMode(ModeNumber);
+		Global->CtrlObject->Cp()->LeftPanel->SetViewMode(LeftMode);
+		Global->CtrlObject->Cp()->RightPanel->SetViewMode(RightMode);
+		Global->CtrlObject->Cp()->LeftPanel->Redraw();
+		Global->CtrlObject->Cp()->RightPanel->Redraw();
 	}
 }
 

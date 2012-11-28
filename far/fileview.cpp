@@ -127,9 +127,9 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory,
 	ViewKeyBar.SetPosition(X1,Y2,X2,Y2);
 	KeyBarVisible = Global->Opt->ViOpt.ShowKeyBar;
 	TitleBarVisible = Global->Opt->ViOpt.ShowTitleBar;
-	MACROMODEAREA OldMacroMode=CtrlObject->Macro.GetMode();
+	MACROMODEAREA OldMacroMode=Global->CtrlObject->Macro.GetMode();
 	MacroMode = MACRO_VIEWER;
-	CtrlObject->Macro.SetMode(MACRO_VIEWER);
+	Global->CtrlObject->Macro.SetMode(MACRO_VIEWER);
 	View.SetPluginData(PluginData);
 	View.SetHostFileViewer(this);
 	DisableHistory=disableHistory; ///
@@ -143,7 +143,7 @@ void FileViewer::Init(const wchar_t *name,int EnableSwitch,int disableHistory,
 		DisableHistory = TRUE;  // $ 26.03.2002 DJ - при неудаче открыти€ - не пишем мусор в историю
 		// FrameManager->DeleteFrame(this); // «ј„≈ћ? ¬ьювер то еще не помещен в очередь манагера!
 		ExitCode=FALSE;
-		CtrlObject->Macro.SetMode(OldMacroMode);
+		Global->CtrlObject->Macro.SetMode(OldMacroMode);
 		return;
 	}
 
@@ -275,7 +275,7 @@ int FileViewer::ProcessKey(int Key)
 		case KEY_SHIFTF4:
 		{
 			if (!Global->Opt->OnlyEditorViewerUsed)
-				CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
+				Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
 
 			return TRUE;
 		}
@@ -293,7 +293,7 @@ int FileViewer::ProcessKey(int Key)
 			SaveScreen Sc;
 			string strFileName;
 			View.GetFileName(strFileName);
-			CtrlObject->Cp()->GoToFile(strFileName);
+			Global->CtrlObject->Cp()->GoToFile(strFileName);
 			RedrawTitle = TRUE;
 			return (TRUE);
 		}
@@ -392,17 +392,17 @@ int FileViewer::ProcessKey(int Key)
 		case KEY_ALTF11:
 		case KEY_RALTF11:
 			if (GetCanLoseFocus())
-				CtrlObject->CmdLine->ShowViewEditHistory();
+				Global->CtrlObject->CmdLine->ShowViewEditHistory();
 
 			return TRUE;
 		default:
 //      Ётот кусок - на будущее (по аналогии с редактором :-)
-//      if (CtrlObject->Macro.IsExecuting() || !View.ProcessViewerInput(&ReadRec))
+//      if (Global->CtrlObject->Macro.IsExecuting() || !View.ProcessViewerInput(&ReadRec))
 		{
 			/* $ 22.03.2001 SVS
 			   Ёто помогло от залипани€ :-)
 			*/
-			if (!CtrlObject->Macro.IsExecuting())
+			if (!Global->CtrlObject->Macro.IsExecuting())
 				if (Global->Opt->ViOpt.ShowKeyBar)
 					ViewKeyBar.Show();
 
@@ -456,11 +456,11 @@ void FileViewer::OnDestroy()
 {
 	_OT(SysLog(L"[%p] FileViewer::OnDestroy()",this));
 
-	if (!DisableHistory && (CtrlObject->Cp()->ActivePanel || StrCmp(strName, L"-")))
+	if (!DisableHistory && (Global->CtrlObject->Cp()->ActivePanel || StrCmp(strName, L"-")))
 	{
 		string strFullFileName;
 		View.GetFileName(strFullFileName);
-		CtrlObject->ViewHistory->AddToHistory(strFullFileName,0);
+		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName,0);
 	}
 }
 
@@ -531,7 +531,7 @@ void FileViewer::ShowStatus()
 void FileViewer::OnChangeFocus(int focus)
 {
 	Frame::OnChangeFocus(focus);
-	CtrlObject->Plugins->CurViewer=&View;
+	Global->CtrlObject->Plugins->CurViewer=&View;
 	int FCurViewerID=View.ViewerID;
-	CtrlObject->Plugins->ProcessViewerEvent(focus?VE_GOTFOCUS:VE_KILLFOCUS,nullptr,FCurViewerID);
+	Global->CtrlObject->Plugins->ProcessViewerEvent(focus?VE_GOTFOCUS:VE_KILLFOCUS,nullptr,FCurViewerID);
 }

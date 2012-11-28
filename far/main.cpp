@@ -125,7 +125,6 @@ static int MainProcess(
 {
 	{
 		ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
-		ControlObject CtrlObj;
 		FarColor InitAttributes={};
 		Global->Console->GetTextAttributes(InitAttributes);
 		SetRealColor(ColorIndexToColor(COL_COMMANDLINEUSERSCREEN));
@@ -144,10 +143,10 @@ static int MainProcess(
 			Global->Opt->OnlyEditorViewerUsed=1;
 			Panel *DummyPanel=new Panel;
 			_tran(SysLog(L"create dummy panels"));
-			CtrlObj.CreateFilePanels();
-			CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=DummyPanel;
-			CtrlObj.Plugins->LoadPlugins();
-			CtrlObj.Macro.LoadMacros(true,false);
+			Global->CtrlObject->CreateFilePanels();
+			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=DummyPanel;
+			Global->CtrlObject->Plugins->LoadPlugins();
+			Global->CtrlObject->Macro.LoadMacros(true,false);
 
 			if (*ename)
 			{
@@ -173,7 +172,7 @@ static int MainProcess(
 			}
 
 			FrameManager->EnterMainLoop();
-			CtrlObj.Cp()->LeftPanel=CtrlObj.Cp()->RightPanel=CtrlObj.Cp()->ActivePanel=nullptr;
+			Global->CtrlObject->Cp()->LeftPanel=Global->CtrlObject->Cp()->RightPanel=Global->CtrlObject->Cp()->ActivePanel=nullptr;
 			DummyPanel->Destroy();
 			_tran(SysLog(L"editor/viewer closed, delete dummy panels"));
 		}
@@ -244,14 +243,14 @@ static int MainProcess(
 			}
 
 			// теперь все готово - создаем панели!
-			CtrlObj.Init(DirCount);
+			Global->CtrlObject->Init(DirCount);
 
 			// а теперь "провалимся" в каталог или хост-файл (если получится ;-)
 			if (*apanel)  // актиная панель
 			{
 				string strCurDir;
-				Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+				Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
+				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 
 				if (*ppanel)  // пассивная панель
 				{
@@ -261,7 +260,7 @@ static int MainProcess(
 					if (IsPluginPrefixPath(ppanel))
 					{
 						AnotherPanel->SetFocus();
-						CtrlObject->CmdLine->ExecString(ppanel,0);
+						Global->CtrlObject->CmdLine->ExecString(ppanel,0);
 						ActivePanel->SetFocus();
 					}
 					else
@@ -281,7 +280,7 @@ static int MainProcess(
 
 				if (IsPluginPrefixPath(apanel))
 				{
-					CtrlObject->CmdLine->ExecString(apanel,0);
+					Global->CtrlObject->CmdLine->ExecString(apanel,0);
 				}
 				else
 				{
@@ -314,26 +313,12 @@ static int MainProcess(
 	return 0;
 }
 
-LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
+static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
 {
 	return xfilter(EXCEPT_KERNEL, ExceptionInfo, nullptr, 1);
 }
 
-int MainProcessSEH(string& strEditName,string& strViewName,string& DestName1,string& DestName2,int StartLine,int StartChar)
-{
-	int Result=0;
-	__try
-	{
-		Result=MainProcess(strEditName,strViewName,DestName1,DestName2,StartLine,StartChar);
-	}
-	__except(xfilter(EXCEPT_KERNEL, GetExceptionInformation(), nullptr, 1))
-	{
-		TerminateProcess(GetCurrentProcess(), 1);
-	}
-	return Result;
-}
-
-void InitTemplateProfile(string &strTemplatePath)
+static void InitTemplateProfile(string &strTemplatePath)
 {
 	if (strTemplatePath.IsEmpty())
 		strTemplatePath.ReleaseBuffer(GetPrivateProfileString(
@@ -356,7 +341,7 @@ void InitTemplateProfile(string &strTemplatePath)
 	}
 }
 
-void InitProfile(string &strProfilePath, string &strLocalProfilePath)
+static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 {
 	if (!strProfilePath.IsEmpty())
 	{
@@ -442,7 +427,8 @@ void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 
 global *Global;
 
-int _cdecl wmain(int Argc, wchar_t *Argv[])
+
+static int mainImpl(int Argc, wchar_t *Argv[])
 {
 	std::set_new_handler(nullptr);
 
@@ -813,12 +799,28 @@ int _cdecl wmain(int Argc, wchar_t *Argv[])
 		Global->Db->GeneralCfg()->SetValue(L"Interface",L"InitDriveMenuHotkeys", 0ull);
 	}
 
-	int Result=MainProcessSEH(strEditName,strViewName,DestNames[0],DestNames[1],StartLine,StartChar);
+	Global->CtrlObject = new ControlObject;
+
+	int Result = MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
 
 	EmptyInternalClipboard();
 
 	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
 
+	return Result;
+}
+
+int _cdecl wmain(int Argc, wchar_t *Argv[])
+{
+	int Result=0;
+	__try
+	{
+		Result = mainImpl(Argc, Argv);
+	}
+	__except(xfilter(EXCEPT_KERNEL, GetExceptionInformation(), nullptr, 1))
+	{
+		TerminateProcess(GetCurrentProcess(), 1);
+	}
 	return Result;
 }
 

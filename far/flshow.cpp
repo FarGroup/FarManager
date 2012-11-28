@@ -108,7 +108,7 @@ void FileList::ShowFileList(int Fast)
 		if (ProcessPluginEvent(FE_REDRAW,nullptr))
 			return;
 
-		CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		strInfoCurDir=Info.CurDir;
 	}
 
@@ -118,8 +118,8 @@ void FileList::ShowFileList(int Fast)
 
 	if (CurFullScreen!=IsFullScreen())
 	{
-		CtrlObject->Cp()->SetScreenPosition();
-		CtrlObject->Cp()->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
+		Global->CtrlObject->Cp()->SetScreenPosition();
+		Global->CtrlObject->Cp()->GetAnotherPanel(this)->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 	}
 
 	SetScreen(X1+1,Y1+1,X2-1,Y2-1,L' ',ColorIndexToColor(COL_PANELTEXT));
@@ -328,11 +328,11 @@ void FileList::ShowFileList(int Fast)
 	if (!Fast && GetFocus())
 	{
 		if (PanelMode==PLUGIN_PANEL)
-			CtrlObject->CmdLine->SetCurDir(Info.CurDir);
+			Global->CtrlObject->CmdLine->SetCurDir(Info.CurDir);
 		else
-			CtrlObject->CmdLine->SetCurDir(strCurDir);
+			Global->CtrlObject->CmdLine->SetCurDir(strCurDir);
 
-		CtrlObject->CmdLine->Show();
+		Global->CtrlObject->CmdLine->Show();
 	}
 
 	int TitleX2=Global->Opt->Clock && !Global->Opt->ShowMenuBar ? Min(ScrX-4,X2):X2;
@@ -408,8 +408,8 @@ void FileList::ShowFileList(int Fast)
 
 		if (GetFocus())
 		{
-			CtrlObject->CmdLine->SetCurDir(strCurDir);
-			CtrlObject->CmdLine->Show();
+			Global->CtrlObject->CmdLine->SetCurDir(strCurDir);
+			Global->CtrlObject->CmdLine->Show();
 		}
 	}
 
@@ -437,7 +437,7 @@ void FileList::ShowFileList(int Fast)
 	}
 
 	if (PanelMode==PLUGIN_PANEL)
-		CtrlObject->Cp()->RedrawKeyBar();
+		Global->CtrlObject->Cp()->RedrawKeyBar();
 }
 
 
@@ -643,7 +643,7 @@ void FileList::PrepareViewSettings(int ViewMode,OpenPanelInfo *PlugInfo)
 	if (PanelMode==PLUGIN_PANEL)
 	{
 		if (!PlugInfo)
-			CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
 		else
 			Info=*PlugInfo;
 	}

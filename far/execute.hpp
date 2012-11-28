@@ -35,8 +35,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 bool GetShellType(const string&Ext, string &strType, ASSOCIATIONTYPE aType=AT_FILEEXTENSION);
 
-const wchar_t *GetShellAction(const string&FileName, DWORD& ImageSubsystem, DWORD& Error);
-
 int Execute(const string& CmdStr, bool AlwaysWaitFinish, bool SeparateWindow = false, bool DirectRun = false, bool FolderRun = false, bool WaitForIdle = false, bool Silent = false, bool RunAs = false);
 
 bool IsBatchExtType(const string&ExtPtr);

@@ -190,7 +190,7 @@ void TreeList::DisplayTree(int Fast)
 	string strTitle;
 	LockScreen *LckScreen=nullptr;
 
-	if (CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == QVIEW_PANEL)
+	if (Global->CtrlObject->Cp()->GetAnotherPanel(this)->GetType() == QVIEW_PANEL)
 		LckScreen=new LockScreen;
 
 	CorrectPosition();
@@ -351,7 +351,7 @@ void TreeList::Update(int Mode)
 
 		if (!Flags.Check(FTREELIST_ISPANEL))
 		{
-			Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 			AnotherPanel->Redraw();
 		}
@@ -467,7 +467,7 @@ int TreeList::ReadTree()
 
 	if (!FirstCall && !Flags.Check(FTREELIST_ISPANEL))
 	{ // ѕерерисуем другую панель - удалим следы сообщений :)
-		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 		AnotherPanel->Redraw();
 	}
 
@@ -603,19 +603,19 @@ Panel* TreeList::GetRootPanel()
 	if (ModalMode)
 	{
 		if (ModalMode==MODALTREE_ACTIVE)
-			RootPanel=CtrlObject->Cp()->ActivePanel;
+			RootPanel=Global->CtrlObject->Cp()->ActivePanel;
 		else if (ModalMode==MODALTREE_FREE)
 			RootPanel=this;
 		else
 		{
-			RootPanel=CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel);
+			RootPanel=Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel);
 
 			if (!RootPanel->IsVisible())
-				RootPanel=CtrlObject->Cp()->ActivePanel;
+				RootPanel=Global->CtrlObject->Cp()->ActivePanel;
 		}
 	}
 	else
-		RootPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+		RootPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 	return(RootPanel);
 }
@@ -826,7 +826,7 @@ int TreeList::ProcessKey(int Key)
 				else
 				{
 					strQuotedName+=L" ";
-					CtrlObject->CmdLine->InsertString(strQuotedName);
+					Global->CtrlObject->CmdLine->InsertString(strQuotedName);
 				}
 			}
 
@@ -842,7 +842,7 @@ int TreeList::ProcessKey(int Key)
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
-			if (!ModalMode && CtrlObject->CmdLine->GetLength()>0)
+			if (!ModalMode && Global->CtrlObject->CmdLine->GetLength()>0)
 				break;
 
 			ProcessEnter();
@@ -888,12 +888,12 @@ int TreeList::ProcessKey(int Key)
 		{
 			if (SetCurPath() && TreeCount>0)
 			{
-				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 				int Ask=((Key!=KEY_DRAGCOPY && Key!=KEY_DRAGMOVE) || Global->Opt->Confirm.Drag);
 				int Move=(Key==KEY_F6 || Key==KEY_DRAGMOVE);
 				int ToPlugin=AnotherPanel->GetMode()==PLUGIN_PANEL &&
 				             AnotherPanel->IsVisible() &&
-				             !CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
+				             !Global->CtrlObject->Plugins->UseFarCommand(AnotherPanel->GetPluginHandle(),PLUGIN_FARPUTFILES);
 				int Link=((Key==KEY_ALTF6||Key==KEY_RALTF6) && !ToPlugin);
 
 				if ((Key==KEY_ALTF6||Key==KEY_RALTF6) && !Link) // молча отвалим :-)
@@ -909,7 +909,7 @@ int TreeList::ProcessKey(int Key)
 					int ItemNumber=1;
 					HANDLE hAnotherPlugin=AnotherPanel->GetPluginHandle();
 					FileList::FileNameToPluginItem(ListData[CurFile]->strName,ItemList);
-					int PutCode=CtrlObject->Plugins->PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move!=0,0);
+					int PutCode=Global->CtrlObject->Plugins->PutFiles(hAnotherPlugin,ItemList,ItemNumber,Move!=0,0);
 
 					if (PutCode==1 || PutCode==2)
 						AnotherPanel->SetPluginModified();
@@ -965,7 +965,7 @@ int TreeList::ProcessKey(int Key)
 
 				ShellDelete(this,Key==KEY_ALTDEL||Key==KEY_RALTDEL||Key==KEY_ALTNUMDEL||Key==KEY_RALTNUMDEL||Key==KEY_ALTDECIMAL||Key==KEY_RALTDECIMAL);
 				// Ќадобно не забыть обновить противоположную панель...
-				Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+				Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 				AnotherPanel->Update(UPDATE_KEEP_SELECTION);
 				AnotherPanel->Redraw();
 				Global->Opt->DeleteToRecycleBin=SaveOpt;
@@ -1097,9 +1097,9 @@ int TreeList::ProcessKey(int Key)
 		case KEY_SHIFTAPPS:
 		{
 			//вызовем EMenu если он есть
-			if (CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
+			if (Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
+				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu, OPEN_FILEPANEL, reinterpret_cast<void*>(static_cast<intptr_t>(1))); // EMenu Plugin :-)
 			}
 			return TRUE;
 		}
@@ -1226,8 +1226,8 @@ BOOL TreeList::SetCurDir(const string& NewDir,int ClosePanel,BOOL /*IsUpdated*/)
 
 	if (GetFocus())
 	{
-		CtrlObject->CmdLine->SetCurDir(NewDir);
-		CtrlObject->CmdLine->Show();
+		Global->CtrlObject->CmdLine->SetCurDir(NewDir);
+		Global->CtrlObject->CmdLine->Show();
 	}
 
 	return TRUE; //???
@@ -1337,9 +1337,9 @@ int TreeList::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 			DWORD control=MouseEvent->dwControlKeyState&(SHIFT_PRESSED|LEFT_ALT_PRESSED|LEFT_CTRL_PRESSED|RIGHT_ALT_PRESSED|RIGHT_CTRL_PRESSED);
 
 			//вызовем EMenu если он есть
-			if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
+			if (!Global->Opt->RightClickSelect && MouseEvent->dwButtonState == RIGHTMOST_BUTTON_PRESSED && (control==0 || control==SHIFT_PRESSED) && Global->CtrlObject->Plugins->FindPlugin(Global->Opt->KnownIDs.Emenu))
 			{
-				CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
+				Global->CtrlObject->Plugins->CallPlugin(Global->Opt->KnownIDs.Emenu,OPEN_FILEPANEL,nullptr); // EMenu Plugin :-)
 				return TRUE;
 			}
 
@@ -2032,18 +2032,18 @@ void TreeList::KillFocus()
 
 void TreeList::SetMacroMode(int Restore)
 {
-	if (!CtrlObject)
+	if (!Global->CtrlObject)
 		return;
 
 	if (PrevMacroMode == MACRO_INVALID)
-		PrevMacroMode = CtrlObject->Macro.GetMode();
+		PrevMacroMode = Global->CtrlObject->Macro.GetMode();
 
-	CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_TREEPANEL);
+	Global->CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_TREEPANEL);
 }
 
 BOOL TreeList::UpdateKeyBar()
 {
-	KeyBar *KB = CtrlObject->MainKeyBar;
+	KeyBar *KB = Global->CtrlObject->MainKeyBar;
 	KB->SetAllGroup(KBL_MAIN, MKBTreeF1, 12);
 	KB->SetAllGroup(KBL_SHIFT, MKBTreeShiftF1, 12);
 	KB->SetAllGroup(KBL_ALT, MKBTreeAltF1, 12);
@@ -2058,7 +2058,7 @@ BOOL TreeList::UpdateKeyBar()
 
 void TreeList::DynamicUpdateKeyBar()
 {
-	KeyBar *KB = CtrlObject->MainKeyBar;
+	KeyBar *KB = Global->CtrlObject->MainKeyBar;
 	KB->ReadRegGroup(L"Tree",Global->Opt->strLanguage);
 	KB->SetAllRegGroup();
 }

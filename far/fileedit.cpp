@@ -357,17 +357,17 @@ FileEditor::~FileEditor()
 	//AY: флаг оповещающий закрытие редактора.
 	m_bClosing = true;
 
-	if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && m_editor->EdOpt.SavePos && CtrlObject)
+	if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && m_editor->EdOpt.SavePos && Global->CtrlObject)
 		SaveToCache();
 
 	int FEditEditorID=m_editor->EditorID;
 
-	if (bEE_READ_Sent && CtrlObject)
+	if (bEE_READ_Sent && Global->CtrlObject)
 	{
-		FileEditor *save = CtrlObject->Plugins->CurEditor;
-		CtrlObject->Plugins->CurEditor=this;
-		CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);
-		CtrlObject->Plugins->CurEditor = save;
+		FileEditor *save = Global->CtrlObject->Plugins->CurEditor;
+		Global->CtrlObject->Plugins->CurEditor=this;
+		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CLOSE,nullptr,FEditEditorID);
+		Global->CtrlObject->Plugins->CurEditor = save;
 	}
 
 	if (!Flags.Check(FFILEEDIT_OPENFAILED))
@@ -632,7 +632,7 @@ void FileEditor::Init(
 
 			// Ахтунг. Ниже комментарии оставлены в назидании потомкам (до тех пор, пока не измениться манагер)
 			//FrameManager->DeleteFrame(this); // BugZ#546 - Editor валит фар!
-			//CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с проресовкой если в редакторе из истории попытаться выбрать несуществующий файл
+			//Global->CtrlObject->Cp()->Redraw(); //AY: вроде как не надо, делает проблемы с проресовкой если в редакторе из истории попытаться выбрать несуществующий файл
 
 			// если прервали загрузку, то фремы нужно проапдейтить, чтобы предыдущие месаги не оставались на экране
 			if (!Global->Opt->Confirm.Esc && UserBreak && ExitCode==XC_LOADING_INTERRUPTED && FrameManager)
@@ -649,8 +649,8 @@ void FileEditor::Init(
 		break;
 	}
 
-	CtrlObject->Plugins->CurEditor=this;//&FEdit;
-	CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
+	Global->CtrlObject->Plugins->CurEditor=this;//&FEdit;
+	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_READ,nullptr,m_editor->EditorID);
 	bEE_READ_Sent = true;
 	if (ExitCode == XC_LOADING_INTERRUPTED || ExitCode == XC_OPEN_ERROR)
 		return;
@@ -664,7 +664,7 @@ void FileEditor::Init(
 		EditKeyBar.Hide0();
 
 	MacroMode=MACRO_EDITOR;
-	CtrlObject->Macro.SetMode(MACRO_EDITOR);
+	Global->CtrlObject->Macro.SetMode(MACRO_EDITOR);
 
 	F4KeyOnly=true;
 
@@ -747,8 +747,8 @@ void FileEditor::DisplayObject()
 		if (m_editor->Flags.Check(FEDITOR_ISRESIZEDCONSOLE))
 		{
 			m_editor->Flags.Clear(FEDITOR_ISRESIZEDCONSOLE);
-			CtrlObject->Plugins->CurEditor=this;
-			CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,m_editor->EditorID);
+			Global->CtrlObject->Plugins->CurEditor=this;
+			Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,m_editor->EditorID);
 		}
 
 		m_editor->Show();
@@ -832,7 +832,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		ShowConsoleTitle();
 
 	// BugZ#488 - Shift=enter
-	if (IntKeyState.ShiftPressed && (Key == KEY_ENTER || Key == KEY_NUMENTER) && CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
+	if (IntKeyState.ShiftPressed && (Key == KEY_ENTER || Key == KEY_NUMENTER) && Global->CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
 	{
 		Key=Key == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
 	}
@@ -923,7 +923,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 		{
 			if (GetCanLoseFocus())
 			{
-				CtrlObject->CmdLine->ShowViewEditHistory();
+				Global->CtrlObject->CmdLine->ShowViewEditHistory();
 				return TRUE;
 			}
 
@@ -937,18 +937,18 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 	_SVS(if (Key=='n' || Key=='m'))
 		_SVS(SysLog(L"%d Key='%c'",__LINE__,Key));
 
-	if (!CalledFromControl && (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO))
+	if (!CalledFromControl && (Global->CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON || Global->CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO))
 	{
 
-		_SVS(if (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON))
-			_SVS(SysLog(L"%d !!!! CtrlObject->Macro.GetCurRecord(nullptr,nullptr) != MACROMODE_NOMACRO !!!!",__LINE__));
+		_SVS(if (Global->CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING_COMMON || Global->CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING_COMMON))
+			_SVS(SysLog(L"%d !!!! Global->CtrlObject->Macro.GetCurRecord(nullptr,nullptr) != MACROMODE_NOMACRO !!!!",__LINE__));
 
 		ProcessedNext=!ProcessEditorInput(FrameManager->GetLastInputRecord());
 	}
 
 	if (ProcessedNext)
 #else
-	if (!CalledFromControl && //CtrlObject->Macro.IsExecuting() || CtrlObject->Macro.IsRecording() || // пусть доходят!
+	if (!CalledFromControl && //Global->CtrlObject->Macro.IsExecuting() || Global->CtrlObject->Macro.IsRecording() || // пусть доходят!
 	        !ProcessEditorInput(FrameManager->GetLastInputRecord()))
 #endif
 	{
@@ -1158,7 +1158,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 				{
 					if (!Flags.Check(FFILEEDIT_DISABLESAVEPOS) && m_editor->EdOpt.SavePos) // save position/codepage before reload
 						SaveToCache();
-					CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
+					Global->CtrlObject->Cp()->ActivePanel->ProcessKey(Key);
 				}
 				return TRUE;
 			}
@@ -1181,7 +1181,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 					strFullFileNameTemp += L"\\."; // для вваливания внутрь :-)
 				}
 
-				Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
+				Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
 
 				if (Flags.Check(FFILEEDIT_NEW) || (ActivePanel && ActivePanel->FindFile(strFileName) == -1)) // Mantis#279
 				{
@@ -1191,7 +1191,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 
 				{
 					SaveScreen Sc;
-					CtrlObject->Cp()->GoToFile(strFullFileNameTemp);
+					Global->CtrlObject->Cp()->GoToFile(strFullFileNameTemp);
 					Flags.Set(FFILEEDIT_REDRAWTITLE);
 				}
 
@@ -1368,7 +1368,7 @@ int FileEditor::ReProcessKey(int Key,int CalledFromControl)
 			}
 			default:
 			{
-				if (Flags.Check(FFILEEDIT_FULLSCREEN) && CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
+				if (Flags.Check(FFILEEDIT_FULLSCREEN) && Global->CtrlObject->Macro.IsExecuting() == MACROMODE_NOMACRO)
 					if (Global->Opt->EdOpt.ShowKeyBar)
 						EditKeyBar.Show();
 
@@ -1834,7 +1834,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 		   Если было произведено сохранение с любым результатом, то не удалять файл
 		*/
 		Flags.Clear(FFILEEDIT_DELETEONCLOSE|FFILEEDIT_DELETEONLYFILEONCLOSE);
-		CtrlObject->Plugins->CurEditor=this;
+		Global->CtrlObject->Plugins->CurEditor=this;
 //_D(SysLog(L"%08d EE_SAVE",__LINE__));
 
 		if (!IsUnicodeOrUtfCodePage(codepage))
@@ -1896,7 +1896,7 @@ int FileEditor::SaveFile(const string& Name,int Ask, bool bSaveAs, int TextForma
 			}
 		}
 
-		CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE,nullptr,m_editor->EditorID);
+		Global->CtrlObject->Plugins->ProcessEditorEvent(EE_SAVE,nullptr,m_editor->EditorID);
 		File EditFile;
 		DWORD dwWritten=0;
 		// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
@@ -2151,11 +2151,11 @@ void FileEditor::OnDestroy()
 	_OT(SysLog(L"[%p] FileEditor::OnDestroy()",this));
 
 	if (!Flags.Check(FFILEEDIT_DISABLEHISTORY) && StrCmpI(strFileName,MSG(MNewFileName)))
-		CtrlObject->ViewHistory->AddToHistory(strFullFileName,(m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
+		Global->CtrlObject->ViewHistory->AddToHistory(strFullFileName,(m_editor->Flags.Check(FEDITOR_LOCKMODE)?4:1));
 
-	if (CtrlObject->Plugins->CurEditor==this)//&this->FEdit)
+	if (Global->CtrlObject->Plugins->CurEditor==this)//&this->FEdit)
 	{
-		CtrlObject->Plugins->CurEditor=nullptr;
+		Global->CtrlObject->Plugins->CurEditor=nullptr;
 	}
 }
 
@@ -2202,8 +2202,8 @@ void FileEditor::ResizeConsole()
 int FileEditor::ProcessEditorInput(INPUT_RECORD *Rec)
 {
 	int RetCode;
-	CtrlObject->Plugins->CurEditor=this;
-	RetCode=CtrlObject->Plugins->ProcessEditorInput(Rec);
+	Global->CtrlObject->Plugins->CurEditor=this;
+	RetCode=Global->CtrlObject->Plugins->ProcessEditorInput(Rec);
 	return RetCode;
 }
 
@@ -2415,7 +2415,7 @@ DWORD FileEditor::EditorGetFileAttributes(const string& Name)
 */
 BOOL FileEditor::UpdateFileList()
 {
-	Panel *ActivePanel = CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel = Global->CtrlObject->Cp()->ActivePanel;
 	const wchar_t *FileName = PointToName(strFullFileName);
 	string strFilePath, strPanelPath;
 	strFilePath = strFullFileName;
@@ -2467,9 +2467,9 @@ void FileEditor::SetEditorOptions(const EditorOptions& EdOpt)
 void FileEditor::OnChangeFocus(int focus)
 {
 	Frame::OnChangeFocus(focus);
-	CtrlObject->Plugins->CurEditor=this;
+	Global->CtrlObject->Plugins->CurEditor=this;
 	int FEditEditorID=m_editor->EditorID;
-	CtrlObject->Plugins->ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS,nullptr,FEditEditorID);
+	Global->CtrlObject->Plugins->ProcessEditorEvent(focus?EE_GOTFOCUS:EE_KILLFOCUS,nullptr,FEditEditorID);
 }
 
 
@@ -2480,7 +2480,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 
 	if (Command == ECTL_READINPUT || Command == ECTL_PROCESSINPUT)
 	{
-		_KEYMACRO(SysLog(L"(Command=%s, Param2=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)((intptr_t)Param2),(int)((intptr_t)Param2),CtrlObject->Macro.IsExecuting()));
+		_KEYMACRO(SysLog(L"(Command=%s, Param2=[%d/0x%08X]) Macro.IsExecuting()=%d",_ECTL_ToName(Command),(int)((intptr_t)Param2),(int)((intptr_t)Param2),Global->CtrlObject->Macro.IsExecuting()));
 	}
 
 #else
@@ -2665,7 +2665,7 @@ intptr_t FileEditor::EditorControl(int Command, intptr_t Param1, void *Param2)
 		}
 		case ECTL_READINPUT:
 		{
-			if (CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING || CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING)
+			if (Global->CtrlObject->Macro.IsRecording() == MACROMODE_RECORDING || Global->CtrlObject->Macro.IsExecuting() == MACROMODE_EXECUTING)
 			{
 //        return FALSE;
 			}

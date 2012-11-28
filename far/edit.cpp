@@ -565,7 +565,7 @@ int Edit::ProcessInsPath(int Key,int PrevSelStart,int PrevSelEnd)
 
 	if (Key>=KEY_RCTRL0 && Key<=KEY_RCTRL9) // шорткаты?
 	{
-		if (CtrlObject->FolderShortcuts->Get(Key-KEY_RCTRL0,&strPathName,nullptr,nullptr,nullptr))
+		if (Global->CtrlObject->FolderShortcuts->Get(Key-KEY_RCTRL0,&strPathName,nullptr,nullptr,nullptr))
 			RetCode=TRUE;
 	}
 	else // Пути/имена?
@@ -757,7 +757,7 @@ int Edit::ProcessKey(int Key)
 		return TRUE;
 	}
 
-	int _Macro_IsExecuting=CtrlObject->Macro.IsExecuting();
+	int _Macro_IsExecuting=Global->CtrlObject->Macro.IsExecuting();
 
 	// $ 04.07.2000 IG - добавлена проврерка на запуск макроса (00025.edit.cpp.txt)
 	if (!IntKeyState.ShiftPressed && (!_Macro_IsExecuting || (IsNavKey(Key) && _Macro_IsExecuting)) &&
@@ -2840,7 +2840,7 @@ void Edit::ApplyColor()
 	if(Flags.Check(FEDITLINE_EDITORMODE))
 	{
 		EditorInfo ei={sizeof(EditorInfo)};
-		CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO, 0, &ei);
+		Global->CtrlObject->Plugins->CurEditor->EditorControl(ECTL_GETINFO, 0, &ei);
 		XPos = ei.CurTabPos - ei.LeftPos;
 	}
 
@@ -3442,7 +3442,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 	string CurrentLine;
 	size_t EventsCount = 0;
 	Global->Console->GetNumberOfInputEvents(EventsCount);
-	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual))
+	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual))
 	{
 		Reenter++;
 
@@ -3774,21 +3774,21 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 void EditControl::AutoComplete(bool Manual,bool DelBlock)
 {
 	int Key=0;
-	MACROMODEAREA PrevMacroMode=CtrlObject->Macro.GetMode();
+	MACROMODEAREA PrevMacroMode=Global->CtrlObject->Macro.GetMode();
 	if(Global->Opt->AutoComplete.ShowList)
-		CtrlObject->Macro.SetMode(MacroAreaAC);
+		Global->CtrlObject->Macro.SetMode(MacroAreaAC);
 	if(AutoCompleteProc(Manual,DelBlock,Key,MacroAreaAC))
 	{
 		// BUGBUG, hack
 		int Wait=Global->WaitInMainLoop;
 		Global->WaitInMainLoop=1;
 		struct FAR_INPUT_RECORD irec={(DWORD)Key,*FrameManager->GetLastInputRecord()};
-		if(!CtrlObject->Macro.ProcessEvent(&irec))
+		if(!Global->CtrlObject->Macro.ProcessEvent(&irec))
 			pOwner->ProcessKey(Key);
 		Global->WaitInMainLoop=Wait;
 		Show();
 	}
-	CtrlObject->Macro.SetMode(PrevMacroMode);
+	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 }
 
 int EditControl::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)

@@ -613,8 +613,8 @@ void HighlightFiles::HiEdit(int MenuPos)
 	HiMenu.SetBottomTitle(MSG(MHighlightBottom));
 	FillMenu(&HiMenu,MenuPos);
 	int NeedUpdate;
-	Panel *LeftPanel=CtrlObject->Cp()->LeftPanel;
-	Panel *RightPanel=CtrlObject->Cp()->RightPanel;
+	Panel *LeftPanel=Global->CtrlObject->Cp()->LeftPanel;
+	Panel *RightPanel=Global->CtrlObject->Cp()->RightPanel;
 
 	while (1)
 	{

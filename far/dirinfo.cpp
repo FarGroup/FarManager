@@ -149,7 +149,7 @@ int GetDirInfo(const wchar_t *Title, const wchar_t *DirName, DirInfoData& Data, 
 	}
 	while (ScTree.GetNextName(&FindData,strFullName))
 	{
-		if (!CtrlObject->Macro.IsExecuting())
+		if (!Global->CtrlObject->Macro.IsExecuting())
 		{
 			INPUT_RECORD rec;
 
@@ -341,7 +341,7 @@ static void ScanPluginDir(string& strPluginSearchPath)
 
 	FarGetPluginDirListMsg(strDirName,AbortOp?0:MSG_KEEPBACKGROUND);
 
-	if (StopSearch || !CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
+	if (StopSearch || !Global->CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
 		return;
 
 	PluginPanelItem *NewList=(PluginPanelItem *)xf_realloc(PluginDirList,1+sizeof(*PluginDirList)*(DirListItemsNumber+ItemCount));
@@ -386,7 +386,7 @@ static void ScanPluginDir(string& strPluginSearchPath)
 			CopyPluginDirItem(CurPanelItem, strPluginSearchPath);
 			string strFileName = CurPanelItem->FileName;
 
-			if (CtrlObject->Plugins->SetDirectory(hDirListPlugin,strFileName,OPM_FIND))
+			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strFileName,OPM_FIND))
 			{
 				strPluginSearchPath += CurPanelItem->FileName;
 				strPluginSearchPath += L"\x1";
@@ -400,7 +400,7 @@ static void ScanPluginDir(string& strPluginSearchPath)
 				else
 					strPluginSearchPath.Clear();
 
-				if (!CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_FIND))
+				if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_FIND))
 				{
 					StopSearch=TRUE;
 					break;
@@ -409,7 +409,7 @@ static void ScanPluginDir(string& strPluginSearchPath)
 		}
 	}
 
-	CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
+	Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
 }
 
 int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, PluginPanelItem **pPanelItem, size_t *pItemsNumber)
@@ -425,7 +425,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 		/* $ 30.11.2001 DJ
 			А плагиновая ли это панель?
 		*/
-		HANDLE Handle = ((!hPlugin || hPlugin==PANEL_ACTIVE)?CtrlObject->Cp()->ActivePanel:CtrlObject->Cp()->GetAnotherPanel(CtrlObject->Cp()->ActivePanel))->GetPluginHandle();
+		HANDLE Handle = ((!hPlugin || hPlugin==PANEL_ACTIVE)?Global->CtrlObject->Cp()->ActivePanel:Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel))->GetPluginHandle();
 
 		if (!Handle)
 			return FALSE;
@@ -454,31 +454,31 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 			*pItemsNumber=DirListItemsNumber=0;
 			*pPanelItem=PluginDirList=nullptr;
 			OpenPanelInfo Info;
-			CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
 			string strPrevDir = Info.CurDir;
 
-			if (CtrlObject->Plugins->SetDirectory(hDirListPlugin,Dir,OPM_SILENT))
+			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,Dir,OPM_SILENT))
 			{
 				string strPluginSearchPath = Dir;
 				strPluginSearchPath += L"\x1";
 				ScanPluginDir(strPluginSearchPath);
 				*pPanelItem=PluginDirList;
 				*pItemsNumber=DirListItemsNumber;
-				CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_SILENT);
+				Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_SILENT);
 				OpenPanelInfo NewInfo;
-				CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&NewInfo);
+				Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&NewInfo);
 
 				if (StrCmpI(strPrevDir, NewInfo.CurDir) )
 				{
 					PluginPanelItem *PanelData=nullptr;
 					size_t ItemCount=0;
 
-					if (CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_SILENT))
+					if (Global->CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_SILENT))
 					{
-						CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
+						Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
 					}
 
-					CtrlObject->Plugins->SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT);
+					Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT);
 				}
 			}
 		}

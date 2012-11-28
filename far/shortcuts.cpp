@@ -260,8 +260,8 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 						if (Key == KEY_INS || Key == KEY_NUMPAD0)
 						{
 							ShortcutItem* NewItem = Items[Pos].InsertBefore(Item);
-							Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-							CtrlObject->CmdLine->GetCurDir(NewItem->strFolder);
+							Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
+							Global->CtrlObject->CmdLine->GetCurDir(NewItem->strFolder);
 							if (ActivePanel->GetMode() == PLUGIN_PANEL)
 							{
 								OpenPanelInfo Info;
@@ -475,8 +475,8 @@ void Shortcuts::Configure()
 					{
 						Item = Items[Pos].Push();
 					}
-					Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
-					CtrlObject->CmdLine->GetCurDir(Item->strFolder);
+					Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
+					Global->CtrlObject->CmdLine->GetCurDir(Item->strFolder);
 					if (ActivePanel->GetMode() == PLUGIN_PANEL)
 					{
 						OpenPanelInfo Info;
@@ -534,13 +534,13 @@ void Shortcuts::Configure()
 
 	if(ExitCode>=0)
 	{
-		CtrlObject->Cp()->ActivePanel->ExecShortcutFolder(ExitCode);
+		Global->CtrlObject->Cp()->ActivePanel->ExecShortcutFolder(ExitCode);
 	}
 }
 
 bool Shortcuts::Accept(void)
 {
-	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 	if (ActivePanel->GetMode() == PLUGIN_PANEL)
 	{
 		OpenPanelInfo Info;

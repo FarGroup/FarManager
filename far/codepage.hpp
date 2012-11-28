@@ -91,7 +91,7 @@ private:
 	intptr_t EditDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void EditCodePageName();
 
-	friend BOOL WINAPI EnumCodePagesProc(const wchar_t *lpwszCodePage);
+	friend BOOL CALLBACK EnumCodePagesProc(wchar_t *lpwszCodePage);
 
 	HANDLE dialog;
 	UINT control;

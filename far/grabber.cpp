@@ -51,8 +51,8 @@ Grabber::Grabber()
 	Frame *pFrame = FrameManager->GetCurrentFrame();
 	pFrame->Lock();
 	SaveScr=new SaveScreen;
-	PrevMacroMode=CtrlObject->Macro.GetMode();
-	CtrlObject->Macro.SetMode(MACRO_OTHER);
+	PrevMacroMode=Global->CtrlObject->Macro.GetMode();
+	Global->CtrlObject->Macro.SetMode(MACRO_OTHER);
 	ClearStruct(GArea);
 	ClearStruct(PrevArea);
 	bool Visible=false;
@@ -82,7 +82,7 @@ Grabber::Grabber()
 
 Grabber::~Grabber()
 {
-	CtrlObject->Macro.SetMode(PrevMacroMode);
+	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 }
 
 
@@ -272,7 +272,7 @@ int Grabber::ProcessKey(int Key)
 	*/
 	SetCursorType(TRUE,60);
 
-	if (CtrlObject->Macro.IsExecuting())
+	if (Global->CtrlObject->Macro.IsExecuting())
 	{
 		if ((Key&KEY_SHIFT) && Key!=KEY_NONE && ResetArea)
 			Reset();

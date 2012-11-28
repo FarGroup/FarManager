@@ -494,9 +494,9 @@ int  Manager::FindFrameByFile(int ModalType,const wchar_t *FileName, const wchar
 
 BOOL Manager::ShowBackground()
 {
-	if (CtrlObject->CmdLine)
+	if (Global->CtrlObject->CmdLine)
 	{
-		CtrlObject->CmdLine->ShowBackground();
+		Global->CtrlObject->CmdLine->ShowBackground();
 		return TRUE;
 	}
 	return FALSE;
@@ -687,7 +687,7 @@ void Manager::SetLastInputRecord(INPUT_RECORD *Rec)
 void Manager::ProcessMainLoop()
 {
 	if ( CurrentFrame )
-		CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
+		Global->CtrlObject->Macro.SetMode(CurrentFrame->GetMacroMode());
 
 	if ( CurrentFrame && !CurrentFrame->ProcessEvents() )
 	{
@@ -719,7 +719,7 @@ void Manager::ProcessMainLoop()
 	{
 		if(!Global->PluginPanelsCount)
 		{
-			CtrlObject->Plugins->RefreshPluginsList();
+			Global->CtrlObject->Plugins->RefreshPluginsList();
 		}
 	}
 }
@@ -741,7 +741,7 @@ void Manager::ExitMainLoop(int Ask)
 		{
 			FilePanels *cp;
 
-			if (!(cp = CtrlObject->Cp())
+			if (!(cp = Global->CtrlObject->Cp())
 			        || (!cp->LeftPanel->ProcessPluginEvent(FE_CLOSE,nullptr) && !cp->RightPanel->ProcessPluginEvent(FE_CLOSE,nullptr)))
 				EndLoop=TRUE;
 		}
@@ -798,11 +798,11 @@ int Manager::ProcessKey(DWORD Key)
 					_ALGO(CleverSysLog clv(L"Manager::ProcessKey()"));
 					_ALGO(SysLog(L"Key=%s",_FARKEY_ToName(Key)));
 #ifndef NO_WRAPPER
-					if (CtrlObject->Cp()->ActivePanel->GetMode() == PLUGIN_PANEL)
+					if (Global->CtrlObject->Cp()->ActivePanel->GetMode() == PLUGIN_PANEL)
 					{
-						PluginHandle *ph=(PluginHandle*)CtrlObject->Cp()->ActivePanel->GetPluginHandle();
+						PluginHandle *ph=(PluginHandle*)Global->CtrlObject->Cp()->ActivePanel->GetPluginHandle();
 						if (ph && ph->pPlugin->IsOemPlugin())
-							if (CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key,TRUE))
+							if (Global->CtrlObject->Cp()->ActivePanel->SendKeyToPlugin(Key,TRUE))
 								return TRUE;
 					}
 #endif // NO_WRAPPER
@@ -1066,7 +1066,7 @@ int Manager::ProcessKey(DWORD Key)
 					   В режиме исполнения макросов ЭТО не происходит по вполне понятным
 					   причинам.
 					*/
-					if (CtrlObject->Macro.IsExecuting())
+					if (Global->CtrlObject->Macro.IsExecuting())
 					{
 						int PScrX=ScrX;
 						int PScrY=ScrY;
@@ -1122,34 +1122,34 @@ int Manager::ProcessKey(DWORD Key)
 
 							if (isPanelFocus)
 							{
-								int LeftVisible=CtrlObject->Cp()->LeftPanel->IsVisible();
-								int RightVisible=CtrlObject->Cp()->RightPanel->IsVisible();
-								int CmdLineVisible=CtrlObject->CmdLine->IsVisible();
-								int KeyBarVisible=CtrlObject->Cp()->MainKeyBar.IsVisible();
-								CtrlObject->CmdLine->ShowBackground();
-								CtrlObject->Cp()->LeftPanel->Hide0();
-								CtrlObject->Cp()->RightPanel->Hide0();
+								int LeftVisible=Global->CtrlObject->Cp()->LeftPanel->IsVisible();
+								int RightVisible=Global->CtrlObject->Cp()->RightPanel->IsVisible();
+								int CmdLineVisible=Global->CtrlObject->CmdLine->IsVisible();
+								int KeyBarVisible=Global->CtrlObject->Cp()->MainKeyBar.IsVisible();
+								Global->CtrlObject->CmdLine->ShowBackground();
+								Global->CtrlObject->Cp()->LeftPanel->Hide0();
+								Global->CtrlObject->Cp()->RightPanel->Hide0();
 
 								switch (Global->Opt->PanelCtrlAltShiftRule)
 								{
 									case 0:
-										CtrlObject->CmdLine->Show();
-										CtrlObject->Cp()->MainKeyBar.Show();
+										Global->CtrlObject->CmdLine->Show();
+										Global->CtrlObject->Cp()->MainKeyBar.Show();
 										break;
 									case 1:
-										CtrlObject->Cp()->MainKeyBar.Show();
+										Global->CtrlObject->Cp()->MainKeyBar.Show();
 										break;
 								}
 
 								WaitKey(Key==KEY_CTRLALTSHIFTPRESS?KEY_CTRLALTSHIFTRELEASE:KEY_RCTRLALTSHIFTRELEASE);
 
-								if (LeftVisible)      CtrlObject->Cp()->LeftPanel->Show();
+								if (LeftVisible)      Global->CtrlObject->Cp()->LeftPanel->Show();
 
-								if (RightVisible)     CtrlObject->Cp()->RightPanel->Show();
+								if (RightVisible)     Global->CtrlObject->Cp()->RightPanel->Show();
 
-								if (CmdLineVisible)   CtrlObject->CmdLine->Show();
+								if (CmdLineVisible)   Global->CtrlObject->CmdLine->Show();
 
-								if (KeyBarVisible)    CtrlObject->Cp()->MainKeyBar.Show();
+								if (KeyBarVisible)    Global->CtrlObject->Cp()->MainKeyBar.Show();
 							}
 							else
 							{
@@ -1218,12 +1218,12 @@ void Manager::PluginsMenu()
 		*/
 		if (curType==MODALTYPE_PANELS)
 		{
-			int pType=CtrlObject->Cp()->ActivePanel->GetType();
+			int pType=Global->CtrlObject->Cp()->ActivePanel->GetType();
 
 			if (pType==QVIEW_PANEL || pType==INFO_PANEL)
 			{
 				string strType, strCurFileName;
-				CtrlObject->Cp()->GetTypeAndName(strType, strCurFileName);
+				Global->CtrlObject->Cp()->GetTypeAndName(strType, strCurFileName);
 
 				if (!strCurFileName.IsEmpty())
 				{
@@ -1240,7 +1240,7 @@ void Manager::PluginsMenu()
 		const wchar_t *Topic=curType==MODALTYPE_EDITOR?L"Editor":
 		                     curType==MODALTYPE_VIEWER?L"Viewer":
 		                     curType==MODALTYPE_DIALOG?L"Dialog":nullptr;
-		CtrlObject->Plugins->CommandsMenu(curType,0,Topic);
+		Global->CtrlObject->Plugins->CommandsMenu(curType,0,Topic);
 	}
 
 	_MANAGER(SysLog(-1));
@@ -1532,7 +1532,7 @@ void Manager::DeleteCommit()
 	{
 		if (FrameList[i]->FrameToBack==DeletedFrame)
 		{
-			FrameList[i]->FrameToBack=CtrlObject->Cp();
+			FrameList[i]->FrameToBack=Global->CtrlObject->Cp();
 		}
 	}
 
@@ -1554,7 +1554,7 @@ void Manager::DeleteCommit()
 			FramePos=0;
 		}
 
-		if (DeletedFrame->FrameToBack==CtrlObject->Cp())
+		if (DeletedFrame->FrameToBack==Global->CtrlObject->Cp())
 		{
 			ActivateFrame(FrameList[FramePos]);
 		}
@@ -1668,7 +1668,7 @@ void Manager::RefreshCommit()
 		if (!RefreshedFrame)
 			return;
 
-		CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
+		Global->CtrlObject->Macro.SetMode(RefreshedFrame->GetMacroMode());
 	}
 
 	if ((Global->Opt->ViewerEditorClock &&
@@ -1729,8 +1729,8 @@ void Manager::ImmediateHide()
 		if (ModalStack[ModalStackCount-1]->GetType()==MODALTYPE_EDITOR ||
 		        ModalStack[ModalStackCount-1]->GetType()==MODALTYPE_VIEWER)
 		{
-			if (CtrlObject->CmdLine)
-				CtrlObject->CmdLine->ShowBackground();
+			if (Global->CtrlObject->CmdLine)
+				Global->CtrlObject->CmdLine->ShowBackground();
 		}
 		else
 		{
@@ -1778,8 +1778,8 @@ void Manager::ImmediateHide()
 	}
 	else
 	{
-		if (CtrlObject->CmdLine)
-			CtrlObject->CmdLine->ShowBackground();
+		if (Global->CtrlObject->CmdLine)
+			Global->CtrlObject->CmdLine->ShowBackground();
 	}
 }
 

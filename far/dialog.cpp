@@ -360,15 +360,15 @@ void Dialog::Init(DialogOwner* Owner, DialogHandlerFunction HandlerFunction, FAR
 		}
 		RealDlgProc=DlgProc;
 	}
-	if (CtrlObject)
+	if (Global->CtrlObject)
 	{
 		// запомним пред. режим макро.
-		PrevMacroMode=CtrlObject->Macro.GetMode();
+		PrevMacroMode=Global->CtrlObject->Macro.GetMode();
 		// макросить будет в диалогах :-)
-		CtrlObject->Macro.SetMode(MACRO_DIALOG);
+		Global->CtrlObject->Macro.SetMode(MACRO_DIALOG);
 	}
 
-	//_SVS(SysLog(L"Dialog =%d",CtrlObject->Macro.GetMode()));
+	//_SVS(SysLog(L"Dialog =%d",Global->CtrlObject->Macro.GetMode()));
 	// запоминаем предыдущий заголовок консоли
 	OldTitle=new ConsoleTitle;
 	IdExist=false;
@@ -385,8 +385,8 @@ Dialog::~Dialog()
 	_tran(SysLog(L"[%p] Dialog::~Dialog()",this));
 	DeleteDialogObjects();
 
-	if (CtrlObject)
-		CtrlObject->Macro.SetMode(PrevMacroMode);
+	if (Global->CtrlObject)
+		Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 
 	Hide();
 	if (Global->Opt->Clock && FrameManager->IsPanelsActive(true))
@@ -2432,7 +2432,7 @@ int Dialog::ProcessKey(int Key)
 		return TRUE;
 
 	// BugZ#488 - Shift=enter
-	if (IntKeyState.ShiftPressed && (Key == KEY_ENTER||Key==KEY_NUMENTER) && !CtrlObject->Macro.IsExecuting() && Item[FocusPos]->Type != DI_BUTTON)
+	if (IntKeyState.ShiftPressed && (Key == KEY_ENTER||Key==KEY_NUMENTER) && !Global->CtrlObject->Macro.IsExecuting() && Item[FocusPos]->Type != DI_BUTTON)
 	{
 		Key=Key == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
 	}
@@ -4592,7 +4592,7 @@ intptr_t WINAPI Dialog::DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* P
 
 	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
-		if (CtrlObject->Plugins->ProcessDialogEvent(DE_DLGPROCINIT,&de))
+		if (Global->CtrlObject->Plugins->ProcessDialogEvent(DE_DLGPROCINIT,&de))
 			return de.Result;
 	}
 	if (OwnerClass)
@@ -4602,7 +4602,7 @@ intptr_t WINAPI Dialog::DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* P
 	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
 		de.Result=Result;
-		if (CtrlObject->Plugins->ProcessDialogEvent(DE_DLGPROCEND,&de))
+		if (Global->CtrlObject->Plugins->ProcessDialogEvent(DE_DLGPROCEND,&de))
 			return de.Result;
 	}
 	return Result;
@@ -4626,7 +4626,7 @@ intptr_t WINAPI DefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2
 
 	if(!static_cast<Dialog*>(hDlg)->CheckDialogMode(DMODE_NOPLUGINS))
 	{
-		if (CtrlObject->Plugins->ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
+		if (Global->CtrlObject->Plugins->ProcessDialogEvent(DE_DEFDLGPROCINIT,&de))
 		{
 			return de.Result;
 		}

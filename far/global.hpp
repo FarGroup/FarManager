@@ -118,6 +118,7 @@ public:
 	class PluginSynchro* PluginSynchroManager;
 	class codepages* CodePages;
 	class Database* Db;
+	class ControlObject* CtrlObject;
 };
 
 #define MSG(ID) Global->Lang->GetMsg(ID)

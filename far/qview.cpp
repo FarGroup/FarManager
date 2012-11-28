@@ -100,7 +100,7 @@ void QuickView::DisplayObject()
 	string strTitle;
 
 	if (!QView && !ProcessingPluginCommand)
-		CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
+		Global->CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
 
 	if (this->Destroyed())
 		return;
@@ -332,7 +332,7 @@ int QuickView::ProcessKey(int Key)
 
 	if (Key==KEY_F3 || Key==KEY_NUMPAD5 || Key == KEY_SHIFTNUMPAD5)
 	{
-		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
 			AnotherPanel->ProcessKey(KEY_F3);
@@ -342,7 +342,7 @@ int QuickView::ProcessKey(int Key)
 
 	if (Key==KEY_ADD || Key==KEY_SUBTRACT)
 	{
-		Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(this);
+		Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(this);
 
 		if (AnotherPanel->GetType()==FILE_PANEL)
 			AnotherPanel->ProcessKey(Key==KEY_ADD?KEY_DOWN:KEY_UP);
@@ -357,7 +357,7 @@ int QuickView::ProcessKey(int Key)
 		if (Key == KEY_F4 || Key == KEY_F8 || Key == KEY_F2 || Key == KEY_SHIFTF2)
 		{
 			DynamicUpdateKeyBar();
-			CtrlObject->MainKeyBar->Redraw();
+			Global->CtrlObject->MainKeyBar->Redraw();
 		}
 
 		if (Key == KEY_F7 || Key == KEY_SHIFTF7)
@@ -367,7 +367,7 @@ int QuickView::ProcessKey(int Key)
 			//DWORD Flags;
 			//QView->GetSelectedParam(Pos,Length,Flags);
 			Redraw();
-			CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
+			Global->CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
 			//QView->SelectText(Pos,Length,Flags|1);
 		}
 
@@ -402,7 +402,7 @@ void QuickView::Update(int Mode)
 		return;
 
 	if (strCurFileName.IsEmpty())
-		CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
+		Global->CtrlObject->Cp()->GetAnotherPanel(this)->UpdateViewPanel();
 
 	Redraw();
 }
@@ -491,10 +491,10 @@ void QuickView::ShowFile(const wchar_t *FileName,int TempFile,HANDLE hDirPlugin)
 
 	Redraw();
 
-	if (CtrlObject->Cp()->ActivePanel == this)
+	if (Global->CtrlObject->Cp()->ActivePanel == this)
 	{
 		DynamicUpdateKeyBar();
-		CtrlObject->MainKeyBar->Redraw();
+		Global->CtrlObject->MainKeyBar->Redraw();
 	}
 }
 
@@ -575,7 +575,7 @@ void QuickView::SetTitle()
 		else
 		{
 			string strCmdText;
-			CtrlObject->CmdLine->GetString(strCmdText);
+			Global->CtrlObject->CmdLine->GetString(strCmdText);
 			strTitleDir += strCmdText;
 		}
 
@@ -600,13 +600,13 @@ void QuickView::KillFocus()
 
 void QuickView::SetMacroMode(int Restore)
 {
-	if (!CtrlObject)
+	if (!Global->CtrlObject)
 		return;
 
 	if (PrevMacroMode == MACRO_INVALID)
-		PrevMacroMode = CtrlObject->Macro.GetMode();
+		PrevMacroMode = Global->CtrlObject->Macro.GetMode();
 
-	CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_QVIEWPANEL);
+	Global->CtrlObject->Macro.SetMode(Restore ? PrevMacroMode:MACRO_QVIEWPANEL);
 }
 
 int QuickView::GetCurName(string &strName, string &strShortName)
@@ -623,7 +623,7 @@ int QuickView::GetCurName(string &strName, string &strShortName)
 
 BOOL QuickView::UpdateKeyBar()
 {
-	KeyBar *KB = CtrlObject->MainKeyBar;
+	KeyBar *KB = Global->CtrlObject->MainKeyBar;
 	KB->SetAllGroup(KBL_MAIN, MQViewF1, 12);
 	KB->SetAllGroup(KBL_SHIFT, MQViewShiftF1, 12);
 	KB->SetAllGroup(KBL_ALT, MQViewAltF1, 12);
@@ -638,7 +638,7 @@ BOOL QuickView::UpdateKeyBar()
 
 void QuickView::DynamicUpdateKeyBar()
 {
-	KeyBar *KB = CtrlObject->MainKeyBar;
+	KeyBar *KB = Global->CtrlObject->MainKeyBar;
 
 	if (Directory || !QView)
 	{

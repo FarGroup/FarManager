@@ -4028,7 +4028,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 			}
 			strSequence += L"\")";
 
-			intptr_t ret = CtrlObject->Macro.PostNewMacro(strSequence, Flags);
+			intptr_t ret = Global->CtrlObject->Macro.PostNewMacro(strSequence, Flags);
 
 			return ret;
 		}
@@ -5016,7 +5016,7 @@ int WINAPI GetFileOwnerA(const char *Computer,const char *Name, char *Owner)
 
 static void CheckScreenLock()
 {
-	if (Global->ScrBuf->GetLockCount() > 0 && !CtrlObject->Macro.PeekKey())
+	if (Global->ScrBuf->GetLockCount() > 0 && !Global->CtrlObject->Macro.PeekKey())
 	{
 //		Global->ScrBuf->SetLockCount(0);
 		Global->ScrBuf->Flush();
@@ -5218,7 +5218,7 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 
 	{
 //		string strCurDir;
-//		CtrlObject->CmdLine->GetCurDir(strCurDir);
+//		Global->CtrlObject->CmdLine->GetCurDir(strCurDir);
 //		FarChDir(strCurDir);
 		Global->g_strDirToSet.Clear();
 	}
@@ -5255,7 +5255,7 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 		}
 		if (OpenFrom == OPEN_FROMMACRO)
 		{
-			OpenFrom = oldfar::OPEN_FROMMACRO|CtrlObject->Macro.GetMode();
+			OpenFrom = oldfar::OPEN_FROMMACRO|Global->CtrlObject->Macro.GetMode();
 			Item=(intptr_t)UnicodeToAnsi(((OpenMacroInfo*)Item)->Count?((OpenMacroInfo*)Item)->Values[0].String:L"");
 		}
 		if (OpenFrom == OPEN_DIALOG)
@@ -5270,18 +5270,18 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 
 		hResult = TranslateResult(es.hResult);
 		//CurPluginItem=nullptr; //BUGBUG
-		/*    CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
+		/*    Global->CtrlObject->Macro.SetRedrawEditor(TRUE); //BUGBUG
 
 		    if ( !bUnloaded )
 		    {
 
 		      if(OpenFrom == OPEN_EDITOR &&
-		         !CtrlObject->Macro.IsExecuting() &&
-		         CtrlObject->Plugins->CurEditor &&
-		         CtrlObject->Plugins->CurEditor->IsVisible() )
+		         !Global->CtrlObject->Macro.IsExecuting() &&
+		         Global->CtrlObject->Plugins->CurEditor &&
+		         Global->CtrlObject->Plugins->CurEditor->IsVisible() )
 		      {
-		        CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
-		        CtrlObject->Plugins->CurEditor->Show();
+		        Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+		        Global->CtrlObject->Plugins->CurEditor->Show();
 		      }
 		      if (hInternal!=INVALID_HANDLE_VALUE)
 		      {
@@ -5293,8 +5293,8 @@ HANDLE PluginA::Open(int OpenFrom, const GUID& Guid, intptr_t Item)
 		      else
 		        if ( !g_strDirToSet.IsEmpty() )
 		        {
-							CtrlObject->Cp()->ActivePanel->SetCurDir(g_strDirToSet,TRUE);
-		          CtrlObject->Cp()->ActivePanel->Redraw();
+							Global->CtrlObject->Cp()->ActivePanel->SetCurDir(g_strDirToSet,TRUE);
+		          Global->CtrlObject->Cp()->ActivePanel->Redraw();
 		        }
 		    } */
 	}

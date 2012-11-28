@@ -282,7 +282,7 @@ void Editor::ShowEditor(void)
 	  To make sure that CurEditor is set to required value.
 	*/
 	if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
-		CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
+		Global->CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
 
 	XX2=X2-(EdOpt.ShowScrollBar?1:0);
 	/* 17.04.2002 skv
@@ -346,7 +346,7 @@ void Editor::ShowEditor(void)
 			{
 				_SYS_EE_REDRAW(SysLog(L"Call ProcessEditorEvent(EE_REDRAW)"));
 				SortColorLock();
-				CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);
+				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);
 				SortColorUnlock();
 			}
 		}
@@ -893,7 +893,7 @@ int Editor::ProcessKey(int Key)
 
 	_SVS(SysLog(L"[%d] isk=%d",__LINE__,isk));
 
-	//if ((!isk || CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
+	//if ((!isk || Global->CtrlObject->Macro.IsExecuting()) && !isk && !Pasting)
 	if (!isk && !Pasting && !ick && !imk && !ipk )
 	{
 		_SVS(SysLog(L"[%d] BlockStart=(%d,%d)",__LINE__,BlockStart,VBlockStart));
@@ -2008,7 +2008,7 @@ int Editor::ProcessKey(int Key)
 		case KEY_NUMENTER:
 		case KEY_ENTER:
 		{
-			if (Pasting || !IntKeyState.ShiftPressed || CtrlObject->Macro.IsExecuting())
+			if (Pasting || !IntKeyState.ShiftPressed || Global->CtrlObject->Macro.IsExecuting())
 			{
 				if (!Pasting && !EdOpt.PersistentBlocks && BlockStart)
 					DeleteBlock();
@@ -2174,8 +2174,8 @@ int Editor::ProcessKey(int Key)
 			/*
 			      if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 			      {
-			        CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
-			        if (CtrlObject->Plugins->CommandsMenu(MODALTYPE_EDITOR,0,"Editor"))
+			        Global->CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
+			        if (Global->CtrlObject->Plugins->CommandsMenu(MODALTYPE_EDITOR,0,"Editor"))
 			          *PluginTitle=0;
 			        Show();
 			      }
@@ -2764,9 +2764,9 @@ int Editor::ProcessKey(int Key)
 					*/
 					ShowEditor();
 					//if(!Flags.Check(FEDITOR_DIALOGMEMOEDIT)){
-					//CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
+					//Global->CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
 					//_D(SysLog(L"%08d EE_REDRAW",__LINE__));
-					//CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
+					//Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL);
 					//}
 					return TRUE;
 				}
@@ -2783,11 +2783,11 @@ int Editor::ProcessKey(int Key)
 
 					if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 					{
-						CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
+						Global->CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
 						//_D(SysLog(L"%08d EE_REDRAW",__LINE__));
 						_SYS_EE_REDRAW(SysLog(L"Editor::ProcessKey[%d](!EdOpt.CursorBeyondEOL): EE_REDRAW(EEREDRAW_ALL)",__LINE__));
 						SortColorLock();
-						CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);
+						Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);
 						SortColorUnlock();
 					}
 
@@ -3075,10 +3075,10 @@ int Editor::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		{
 			if (!Flags.Check(FEDITOR_DIALOGMEMOEDIT))
 			{
-				CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
+				Global->CtrlObject->Plugins->CurEditor=HostFileEditor; // this;
 				_SYS_EE_REDRAW(SysLog(L"Editor::ProcessMouse[%08d] ProcessEditorEvent(EE_REDRAW)",__LINE__));
 				SortColorLock();
-				CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);
+				Global->CtrlObject->Plugins->ProcessEditorEvent(EE_REDRAW,EEREDRAW_ALL,EditorID);
 				SortColorUnlock();
 			}
 			ShowEditor();
@@ -4100,7 +4100,7 @@ BOOL Editor::Search(int Next)
 
 		int ExitCode=FindAllList.Run([&](int Key)->int
 		{
-			CtrlObject->Macro.SetMode(MACRO_MENU);
+			Global->CtrlObject->Macro.SetMode(MACRO_MENU);
 			int SelectedPos=FindAllList.GetSelectPos();
 			int KeyProcessed = 1;
 
@@ -7557,7 +7557,7 @@ void Editor::Change(EDITOR_CHANGETYPE Type,int StrNum)
 		StrNum=NumLine;
 	EditorChange ec={sizeof(EditorChange),Type,StrNum};
 	++EditorControlLock;
-	CtrlObject->Plugins->ProcessEditorEvent(EE_CHANGE,&ec,EditorID);
+	Global->CtrlObject->Plugins->ProcessEditorEvent(EE_CHANGE,&ec,EditorID);
 	--EditorControlLock;
 }
 

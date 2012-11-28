@@ -526,11 +526,11 @@ int PluginManager::UnloadPlugin(Plugin *pPlugin, DWORD dwException)
 
 		if (bPanelPlugin /*&& bUpdatePanels*/)
 		{
-			CtrlObject->Cp()->ActivePanel->SetCurDir(L".",TRUE);
-			Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+			Global->CtrlObject->Cp()->ActivePanel->SetCurDir(L".",TRUE);
+			Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 			ActivePanel->Update(UPDATE_KEEP_SELECTION);
 			ActivePanel->Redraw();
-			Panel *AnotherPanel=CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
+			Panel *AnotherPanel=Global->CtrlObject->Cp()->GetAnotherPanel(ActivePanel);
 			AnotherPanel->Update(UPDATE_KEEP_SELECTION|UPDATE_SECONDARY);
 			AnotherPanel->Redraw();
 		}
@@ -1019,7 +1019,7 @@ int PluginManager::ProcessEditorEvent(int Event,void *Param,int EditorID)
 {
 	int nResult = 0;
 
-	if (CtrlObject->Plugins->CurEditor)
+	if (Global->CtrlObject->Plugins->CurEditor)
 	{
 		Plugin *pPlugin = nullptr;
 
@@ -1346,7 +1346,7 @@ void PluginManager::GetOpenPanelInfo(
 	if (!Info->CurDir)  //хмм...
 		Info->CurDir = L"";
 
-	if ((Info->Flags & OPIF_REALNAMES) && (CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && *Info->CurDir && ParsePath(Info->CurDir)!=PATH_UNKNOWN)
+	if ((Info->Flags & OPIF_REALNAMES) && (Global->CtrlObject->Cp()->ActivePanel->GetPluginHandle() == hPlugin) && *Info->CurDir && ParsePath(Info->CurDir)!=PATH_UNKNOWN)
 		apiSetCurrentDirectory(Info->CurDir, false);
 }
 
@@ -1385,14 +1385,14 @@ void PluginManager::ConfigureCurrent(Plugin *pPlugin, const GUID& Guid)
 	if (pPlugin->Configure(Guid))
 	{
 		int PMode[2];
-		PMode[0]=CtrlObject->Cp()->LeftPanel->GetMode();
-		PMode[1]=CtrlObject->Cp()->RightPanel->GetMode();
+		PMode[0]=Global->CtrlObject->Cp()->LeftPanel->GetMode();
+		PMode[1]=Global->CtrlObject->Cp()->RightPanel->GetMode();
 
 		for (size_t I=0; I < ARRAYSIZE(PMode); ++I)
 		{
 			if (PMode[I] == PLUGIN_PANEL)
 			{
-				Panel *pPanel=(I?CtrlObject->Cp()->RightPanel:CtrlObject->Cp()->LeftPanel);
+				Panel *pPanel=(I?Global->CtrlObject->Cp()->RightPanel:Global->CtrlObject->Cp()->LeftPanel);
 				pPanel->Update(UPDATE_KEEP_SELECTION);
 				pPanel->SetViewMode(pPanel->GetViewMode());
 				pPanel->Redraw();
@@ -1418,8 +1418,8 @@ void PluginManager::Configure(int StartPos)
 	if (Global->Opt->Policies.DisabledOptions&FFPOL_MAINMENUPLUGINS)
 		return;
 
-	MACROMODEAREA PrevMacroMode = CtrlObject->Macro.GetMode();
-	CtrlObject->Macro.SetMode(MACRO_MENU);
+	MACROMODEAREA PrevMacroMode = Global->CtrlObject->Macro.GetMode();
+	Global->CtrlObject->Macro.SetMode(MACRO_MENU);
 
 	{
 		VMenu2 PluginList(MSG(MPluginConfigTitle),nullptr,0,ScrY-4);
@@ -1508,7 +1508,7 @@ void PluginManager::Configure(int StartPos)
 
 			PluginList.Run([&](int Key)->int
 			{
-				CtrlObject->Macro.SetMode(MACRO_MENU);
+				Global->CtrlObject->Macro.SetMode(MACRO_MENU);
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
 				int KeyProcessed = 1;
@@ -1571,7 +1571,7 @@ void PluginManager::Configure(int StartPos)
 		}
 	}
 
-	CtrlObject->Macro.SetMode(PrevMacroMode);
+	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 }
 
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
@@ -1585,8 +1585,8 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		}
 	}
 
-	MACROMODEAREA PrevMacroMode = CtrlObject->Macro.GetMode();
-	CtrlObject->Macro.SetMode(MACRO_MENU);
+	MACROMODEAREA PrevMacroMode = Global->CtrlObject->Macro.GetMode();
+	Global->CtrlObject->Macro.SetMode(MACRO_MENU);
 
 	bool Editor = ModalType==MODALTYPE_EDITOR;
 	bool Viewer = ModalType==MODALTYPE_VIEWER;
@@ -1689,7 +1689,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 			PluginList.Run([&](int Key)->int
 			{
-				CtrlObject->Macro.SetMode(MACRO_MENU);
+				Global->CtrlObject->Macro.SetMode(MACRO_MENU);
 				int SelPos=PluginList.GetSelectPos();
 				PluginMenuItemData *item = (PluginMenuItemData*)PluginList.GetUserData(nullptr,0,SelPos);
 				int KeyProcessed = 1;
@@ -1772,7 +1772,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 		if (ExitCode<0)
 		{
-			CtrlObject->Macro.SetMode(PrevMacroMode);
+			Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 			return FALSE;
 		}
 
@@ -1780,7 +1780,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		item = *(PluginMenuItemData*)PluginList.GetUserData(nullptr,0,ExitCode);
 	}
 
-	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 	int OpenCode=OPEN_PLUGINSMENU;
 	intptr_t Item=0;
 	OpenDlgPluginData pd={sizeof(OpenDlgPluginData)};
@@ -1810,7 +1810,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 			return FALSE;
 		}
 
-		Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+		Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
 		NewPanel->SetPluginMode(hPlugin,L"",true);
 		NewPanel->Update(0);
 		NewPanel->Show();
@@ -1823,7 +1823,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 		CurEditor->SetPluginTitle(nullptr);
 	}
 #endif // NO_WRAPPER
-	CtrlObject->Macro.SetMode(PrevMacroMode);
+	Global->CtrlObject->Macro.SetMode(PrevMacroMode);
 	return TRUE;
 }
 
@@ -2317,7 +2317,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 	if (!items.getCount())
 		return FALSE;
 
-	Panel *ActivePanel=CtrlObject->Cp()->ActivePanel;
+	Panel *ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 	Panel *CurPanel=(Target)?Target:ActivePanel;
 
 	if (CurPanel->ProcessPluginEvent(FE_CLOSE,nullptr))
@@ -2354,7 +2354,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 	if (PData)
 	{
-		CtrlObject->CmdLine->SetString(L"");
+		Global->CtrlObject->CmdLine->SetString(L"");
 		string strPluginCommand=strCommand.CPtr()+(PData->PluginFlags & PF_FULLCMDLINE ? 0:PrefixLength+1);
 		RemoveTrailingSpaces(strPluginCommand);
 		OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),strPluginCommand.CPtr()}; //BUGBUG
@@ -2362,7 +2362,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 		if (hPlugin)
 		{
-			Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
+			Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(CurPanel,FILE_PANEL,TRUE,TRUE);
 			NewPanel->SetPluginMode(hPlugin,L"",!Target || Target == ActivePanel);
 			NewPanel->Update(0);
 			NewPanel->Show();
@@ -2375,7 +2375,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 void PluginManager::ReadUserBackgound(SaveScreen *SaveScr)
 {
-	FilePanels *FPanel=CtrlObject->Cp();
+	FilePanels *FPanel=Global->CtrlObject->Cp();
 	FPanel->LeftPanel->ProcessingPluginCommand++;
 	FPanel->RightPanel->ProcessingPluginCommand++;
 
@@ -2428,9 +2428,9 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 
 			if (hNewPlugin && process)
 			{
-				int CurFocus=CtrlObject->Cp()->ActivePanel->GetFocus();
-				Panel *NewPanel=CtrlObject->Cp()->ChangePanel(CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
-				NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
+				int CurFocus=Global->CtrlObject->Cp()->ActivePanel->GetFocus();
+				Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
+				NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !Global->CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
 
 				if (Data && *(const wchar_t *)Data)
 					SetDirectory(hNewPlugin,(const wchar_t *)Data,0);
@@ -2590,7 +2590,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 			{
 				case CPT_MENU:
 				{
-					ActivePanel=CtrlObject->Cp()->ActivePanel;
+					ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 					int OpenCode=OPEN_PLUGINSMENU;
 					intptr_t Item=0;
 					OpenDlgPluginData pd={sizeof(OpenDlgPluginData)};
@@ -2617,12 +2617,12 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 				}
 
 				case CPT_CONFIGURE:
-					CtrlObject->Plugins->ConfigureCurrent(Data->pPlugin,Data->FoundGuid);
+					Global->CtrlObject->Plugins->ConfigureCurrent(Data->pPlugin,Data->FoundGuid);
 					return TRUE;
 
 				case CPT_CMDLINE:
 				{
-					ActivePanel=CtrlObject->Cp()->ActivePanel;
+					ActivePanel=Global->CtrlObject->Cp()->ActivePanel;
 					string command=Data->Command; // Нужна копия строки
 					OpenCommandLineInfo info={sizeof(OpenCommandLineInfo),command.CPtr()};
 					hPlugin=Open(Data->pPlugin,OPEN_COMMANDLINE,FarGuid,(intptr_t)&info);
@@ -2646,7 +2646,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 					return FALSE;
 				}
 
-				Panel *NewPanel=CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
+				Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(ActivePanel,FILE_PANEL,TRUE,TRUE);
 				NewPanel->SetPluginMode(hPlugin,L"",true);
 				NewPanel->Update(0);
 				NewPanel->Show();

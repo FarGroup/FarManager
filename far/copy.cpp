@@ -922,7 +922,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	ToPlugin=FALSE;
 	SrcDriveType=0;
 	this->SrcPanel=SrcPanel;
-	DestPanel=CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
+	DestPanel=Global->CtrlObject->Cp()->GetAnotherPanel(SrcPanel);
 	DestPanelMode=DestPlugin ? DestPanel->GetMode():NORMAL_PANEL;
 	SrcPanelMode=SrcPanel->GetMode();
 
@@ -1458,8 +1458,8 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	if ((Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED && SrcPanel->IsDizDisplayed()) ||
 	        Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS)
 	{
-		CtrlObject->Cp()->LeftPanel->ReadDiz();
-		CtrlObject->Cp()->RightPanel->ReadDiz();
+		Global->CtrlObject->Cp()->LeftPanel->ReadDiz();
+		Global->CtrlObject->Cp()->RightPanel->ReadDiz();
 	}
 
 	CopyBuffer=new char[CopyBufferSize];
@@ -1680,7 +1680,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	if (SrcPanelMode == PLUGIN_PANEL)
 		SrcPanel->SetPluginModified();
 
-	CtrlObject->Cp()->Redraw();
+	Global->CtrlObject->Cp()->Redraw();
 #else
 	SrcPanel->Update(UPDATE_KEEP_SELECTION);
 
