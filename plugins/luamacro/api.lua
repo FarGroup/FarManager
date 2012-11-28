@@ -81,7 +81,6 @@ SetProperties(Object, {
   Eof        = function() return MacroCallFar(0x80414) end,
   Height     = function() return MacroCallFar(0x80829) end,
   ItemCount  = function() return MacroCallFar(0x80826) end,
-  RootFolder = function() return MacroCallFar(0x80417) end,
   Selected   = function() return MacroCallFar(0x80416) end,
   Title      = function() return MacroCallFar(0x80828) end,
   Width      = function() return MacroCallFar(0x8082A) end,

@@ -906,7 +906,7 @@ lv=2
 dt=Text
 nm=Object
 ctime=3553245384
-mtime=3553795938
+mtime=3563291684
 <article>
 #_**—войства, завис€щие от контекста исполнени€.**
 #_
@@ -920,7 +920,6 @@ mtime=3553795938
 #_  Eof:         boolean
 #_  Height:      number
 #_  ItemCount:   number
-#_  RootFolder:  boolean
 #_  Selected:    boolean
 #_  Title:       string
 #_  Width:       number
