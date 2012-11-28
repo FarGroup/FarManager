@@ -140,8 +140,8 @@ assert(type(mf.flock)=="function")
 
 assert(mf.fmatch("Readme.txt", "*.txt") == 1)
 assert(mf.fmatch("Readme.txt", "Readme.*|*.txt") == 0)
-assert(mf.fmatch("c:\Readme.txt", "/txt$/i") == 1)
-assert(mf.fmatch("c:\Readme.txt", "/txt$") == -1)
+assert(mf.fmatch("c:\\Readme.txt", "/txt$/i") == 1)
+assert(mf.fmatch("c:\\Readme.txt", "/txt$") == -1)
 
 local path="C:\\Program Files\\Far\\Far.exe"
 assert(mf.fsplit(path,1)=="C:\\")
