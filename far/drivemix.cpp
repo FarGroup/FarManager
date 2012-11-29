@@ -96,7 +96,7 @@ int CheckDisksProps(const string& SrcPath,const string& DestPath,int CheckedType
 	ConvertNameToUNC(strDestRoot);
 	GetPathRoot(strSrcRoot,strSrcRoot);
 	GetPathRoot(strDestRoot,strDestRoot);
-	int DestDriveType=FAR_GetDriveType(strDestRoot,nullptr,TRUE);
+	int DestDriveType=FAR_GetDriveType(strDestRoot, TRUE);
 
 	if (!apiGetVolumeInformation(strSrcRoot,&strSrcVolumeName,&SrcVolumeNumber,&SrcMaximumComponentLength,&SrcFileSystemFlags,&strSrcFileSystemName))
 		return FALSE;

@@ -479,7 +479,7 @@ static DWORD WINAPI _xfilter(LPVOID dummy=nullptr)
 DWORD WINAPI xfilter(int From,EXCEPTION_POINTERS *xp, Plugin *Module,DWORD Flags)
 {
 	DWORD Result=EXCEPTION_CONTINUE_SEARCH;
-	if(!Global || Global->Opt->ExceptRules && !UseExternalHandler)
+	if(!Global || (Global->Opt->ExceptRules && !UseExternalHandler))
 	{
 		// dummy parametrs setting
 		::From=From;

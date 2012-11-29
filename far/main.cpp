@@ -62,6 +62,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "palette.hpp"
 
+global *Global = nullptr;
+
 static void show_help()
 {
 	WCHAR HelpMsg[]=
@@ -425,9 +427,6 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		Global->Opt->ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, Global->g_strFarINI);
 }
 
-global *Global;
-
-
 static int mainImpl(int Argc, wchar_t *Argv[])
 {
 	std::set_new_handler(nullptr);
@@ -515,24 +514,6 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 		wsprintf(buf,L"%f",x);
 	}
 #endif
-	// если под дебагером, то отключаем исключени€ однозначно,
-	//  иначе - смотр€ что указал юзвер.
-	Global->Opt->ExceptRules = -1;
-	Global->Opt->WindowMode = -1;
-#ifndef _DEBUGEXC
-	if(IsDebuggerPresent())
-	{
-		Global->Opt->ExceptRules = 0;
-	}
-#endif
-	// ѕо умолчанию - брать плагины из основного каталога
-	Global->Opt->LoadPlug.MainPluginDir=TRUE;
-	Global->Opt->LoadPlug.PluginsPersonal=TRUE;
-	Global->Opt->LoadPlug.PluginsCacheOnly=FALSE;
-
-	// макросы не дисаблим
-	Global->Opt->Macro.DisableMacro=0;
-
 	string strProfilePath, strLocalProfilePath, strTemplatePath;
 
 	for (int I=1; I<Argc; I++)
@@ -650,8 +631,8 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 					//if (Global->Opt->Policies.DisabledOptions&FFPOL_USEPSWITCH)
 						//break;
 
-					Global->Opt->LoadPlug.PluginsPersonal=FALSE;
-					Global->Opt->LoadPlug.MainPluginDir=FALSE;
+					Global->Opt->LoadPlug.PluginsPersonal = false;
+					Global->Opt->LoadPlug.MainPluginDir = false;
 
 					if (Argv[I][2])
 					{
@@ -672,8 +653,8 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 					if (Upper(Argv[I][2])==L'O' && !Argv[I][3])
 					{
-						Global->Opt->LoadPlug.PluginsCacheOnly=TRUE;
-						Global->Opt->LoadPlug.PluginsPersonal=FALSE;
+						Global->Opt->LoadPlug.PluginsCacheOnly = true;
+						Global->Opt->LoadPlug.PluginsPersonal = false;
 					}
 
 					break;

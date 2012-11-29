@@ -140,8 +140,25 @@ static const WCHAR _BoxSymbols[48+1] =
 };
 
 Options::Options():
-	ReadOnlyConfig(-1)
+	ReadOnlyConfig(-1),
+	UseExceptionHandler(0),
+	ExceptRules(-1),
+	ElevationMode(0),
+	WindowMode(-1)
 {
+#ifndef _DEBUGEXC
+	if(IsDebuggerPresent())
+	{
+		ExceptRules = 0;
+	}
+#endif
+
+	// ѕо умолчанию - брать плагины из основного каталога
+	LoadPlug.MainPluginDir = true;
+	LoadPlug.PluginsPersonal = true;
+	LoadPlug.PluginsCacheOnly = false;
+
+	Macro.DisableMacro=0;
 }
 
 

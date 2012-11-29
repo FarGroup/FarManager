@@ -417,7 +417,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 	last_update_check = GetTickCount();
 	string strRoot;
 	GetPathRoot(strFullFileName, strRoot);
-	int DriveType = FAR_GetDriveType(strRoot, nullptr, 2); // media inserted here
+	int DriveType = FAR_GetDriveType(strRoot, 2); // media inserted here
 	switch (DriveType) //??? make it configurable
 	{
 		case DRIVE_REMOVABLE: update_check_period = -1;  break; // floppy: never

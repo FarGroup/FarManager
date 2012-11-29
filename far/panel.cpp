@@ -458,7 +458,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			strRootDir=Drv+1;
 			Drv[3]=L' ';
 			strMenuText=Drv;
-			DriveType = FAR_GetDriveType(strRootDir,nullptr,Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
+			DriveType = FAR_GetDriveType(strRootDir, Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
 
 			if ((1<<I)&NetworkMask)
 				DriveType = DRIVE_REMOTE_NOT_CONNECTED;

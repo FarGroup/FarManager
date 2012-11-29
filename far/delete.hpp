@@ -33,6 +33,26 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-void ShellDelete(Panel *SrcPanel,bool Wipe);
+enum DIRDELTYPE:int;
+enum DEL_RESULT:int;
+
+class ShellDelete
+{
+public:
+	ShellDelete(class Panel *SrcPanel, bool Wipe);
+
+private:
+	DEL_RESULT AskDeleteReadOnly(const string& Name, DWORD Attr, bool Wipe);
+	DEL_RESULT ShellRemoveFile(const string& Name, bool Wipe, int TotalPercent, class ConsoleTitle* DeleteTitle);
+	DEL_RESULT ERemoveDirectory(const string& Name, DIRDELTYPE Type);
+	bool RemoveToRecycleBin(const string& Name);
+
+	int ReadOnlyDeleteMode;
+	int SkipMode;
+	int SkipWipeMode;
+	int SkipFoldersMode;
+	unsigned ProcessedItems;
+};
+
 void DeleteDirTree(const string& Dir);
-int DeleteFileWithFolder(const string&FileName);
+bool DeleteFileWithFolder(const string& FileName);

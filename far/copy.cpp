@@ -3425,7 +3425,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 		{
 			string strRoot;
 			GetPathRoot(strDestName, strRoot);
-			int DriveType = FAR_GetDriveType(strRoot, nullptr, 0);
+			int DriveType = FAR_GetDriveType(strRoot, 0);
 			if (DriveType == DRIVE_REMOTE)
 			{
 				if (DestFile.Open(strDestName,GENERIC_WRITE,FILE_SHARE_READ,nullptr,OPEN_EXISTING,flags_attrs))

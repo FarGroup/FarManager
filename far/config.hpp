@@ -684,9 +684,7 @@ public:
 	BoolOption SubstPluginPrefix; // 1 = подстанавливать префикс плагина (для Ctrl-[ и ему подобные)
 	BoolOption SetAttrFolderRules; // Правило на счет установки атрибутов на каталоги
 
-	int UseExceptionHandler;
 	BoolOption StoredExceptRules; // Правило на счет вызова исключений
-	int ExceptRules;
 
 	BoolOption ExceptUsed;
 	StringOption strExceptEventSvc;
@@ -790,12 +788,8 @@ public:
 	StringOption strViewerTitleFormat;
 
 	IntOption StoredElevationMode;
-	int ElevationMode;
 
 	BoolOption StoredWindowMode;
-	int WindowMode;
-
-	int ReadOnlyConfig;
 
 	string ProfilePath;
 	string LocalProfilePath;
@@ -806,6 +800,12 @@ public:
 	StringOption strBoxSymbols;
 
 	BoolOption SmartFolderMonitor; // def: 0=always monitor panel folder(s), 1=only when FAR has input focus
+
+	int ReadOnlyConfig;
+	int UseExceptionHandler;
+	int ExceptRules;
+	int ElevationMode;
+	int WindowMode;
 };
 
 void SystemSettings();

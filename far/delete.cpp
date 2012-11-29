@@ -34,14 +34,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "headers.hpp"
 #pragma hdrstop
 
+#include "delete.hpp"
 #include "flink.hpp"
-#include "panel.hpp"
 #include "chgprior.hpp"
 #include "filepanels.hpp"
 #include "scantree.hpp"
 #include "treelist.hpp"
-#include "savescr.hpp"
-#include "ctrlobj.hpp"
 #include "filelist.hpp"
 #include "manager.hpp"
 #include "constitle.hpp"
@@ -54,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "config.hpp"
 #include "pathmix.hpp"
 #include "dirmix.hpp"
-#include "strmix.hpp"
 #include "panelmix.hpp"
 #include "mix.hpp"
 #include "dirinfo.hpp"
@@ -70,30 +67,231 @@ enum DEL_MODE
 	DEL_WIPEPROCESS
 };
 
-enum DIRDELTYPE
+enum DIRDELTYPE:int
 {
 	D_DEL,
 	D_RECYCLE,
 	D_WIPE,
 };
 
-static void ShellDeleteMsg(const wchar_t* Name, DEL_MODE Mode, int Percent, int WipePercent);
-static int AskDeleteReadOnly(const string& Name,DWORD Attr,int Wipe);
-static int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent);
-static int ERemoveDirectory(const string& Name,DIRDELTYPE Type);
-static int RemoveToRecycleBin(const string& Name);
-static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel);
-static int WipeDirectory(const string& Name);
-static void PR_ShellDeleteMsg();
+enum DEL_RESULT:int
+{
+	DELETE_SUCCESS,
+	DELETE_YES,
+	DELETE_SKIP,
+	DELETE_CANCEL
+};
 
-static int ReadOnlyDeleteMode,SkipMode,SkipWipeMode,SkipFoldersMode,DeleteAllFolders;
-ULONG ProcessedItems;
+static void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePercent, ConsoleTitle* DeleteTitle)
+{
+	FormatString strProgress, strWipeProgress;
+	size_t Width=52;
+	size_t Length=Width-5; // -5 под проценты
+	if(Mode==DEL_WIPEPROCESS || Mode==DEL_WIPE)
+	{
+		wchar_t *WipeProgress=strWipeProgress.GetBuffer(Length);
+		if (WipeProgress)
+		{
+			size_t CurPos=Min(WipePercent,100)*Length/100;
+			wmemset(WipeProgress,BoxSymbols[BS_X_DB],CurPos);
+			wmemset(WipeProgress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
+			strWipeProgress.ReleaseBuffer(Length);
+			strWipeProgress<<L" "<<fmt::MinWidth(3)<<WipePercent<<L"%";
+		}
+		if(Percent==-1)
+		{
+			Global->TBC->SetProgressValue(WipePercent, 100);
+		}
+	}
 
-ConsoleTitle *DeleteTitle=nullptr;
+	if (Mode!=DEL_SCAN && Percent!=-1)
+	{
+		wchar_t *Progress=strProgress.GetBuffer(Length);
+		if (Progress)
+		{
+			size_t CurPos=Min(Percent,100)*Length/100;
+			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
+			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
+			strProgress.ReleaseBuffer(Length);
+			strProgress<<L" "<<fmt::MinWidth(3)<<Percent<<L"%";
+			*DeleteTitle << L"{" << Percent << L"%} " << MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle) << fmt::Flush();
+		}
+		Global->TBC->SetProgressValue(Percent,100);
+	}
 
-enum {DELETE_SUCCESS,DELETE_YES,DELETE_SKIP,DELETE_CANCEL};
+	string strOutFileName(Name);
+	TruncPathStr(strOutFileName,static_cast<int>(Width));
+	CenterStr(strOutFileName,strOutFileName,static_cast<int>(Width));
+	const wchar_t* Progress1 = nullptr;
+	const wchar_t* Progress2 = nullptr;
+	if(!strWipeProgress.IsEmpty())
+	{
+		Progress1 = strWipeProgress.CPtr();
+		Progress2 = strProgress.IsEmpty()? nullptr : strProgress.CPtr();
+	}
+	else
+	{
+		Progress1 = strProgress.IsEmpty()? nullptr : strProgress.CPtr();
+	}
+	Message(0,0,
+		MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle),
+		Mode==DEL_SCAN? MSG(MScanningFolder) : MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeletingWiping:MDeleting),
+		strOutFileName, Progress1, Progress2);
 
-void ShellDelete(Panel *SrcPanel,bool Wipe)
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
+	preRedrawItem.Param.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
+	preRedrawItem.Param.Param2=DeleteTitle;
+	preRedrawItem.Param.Param4=ToPtr(Mode);
+	LARGE_INTEGER i = {(DWORD)Percent, (LONG)WipePercent};
+	preRedrawItem.Param.Param5=i.QuadPart;
+	Global->PreRedraw->SetParam(preRedrawItem.Param);
+}
+
+static void PR_ShellDeleteMsg()
+{
+	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
+	LARGE_INTEGER i;
+	i.QuadPart = preRedrawItem.Param.Param5;
+	ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<DEL_MODE>(reinterpret_cast<intptr_t>(preRedrawItem.Param.Param4)), i.LowPart, i.HighPart, reinterpret_cast<ConsoleTitle*>(const_cast<void*>(preRedrawItem.Param.Param2)));
+}
+
+static DWORD SHErrorToWinError(DWORD SHError)
+{
+	DWORD WinError=SHError;
+
+	switch (SHError)
+	{
+		case 0x71:    WinError=ERROR_ALREADY_EXISTS;    break; // DE_SAMEFILE         The source and destination files are the same file.
+		case 0x72:    WinError=ERROR_INVALID_PARAMETER; break; // DE_MANYSRC1DEST     Multiple file paths were specified in the source buffer, but only one destination file path.
+		case 0x73:    WinError=ERROR_NOT_SAME_DEVICE;   break; // DE_DIFFDIR          Rename operation was specified but the destination path is a different directory. Use the move operation instead.
+		case 0x74:    WinError=ERROR_INVALID_PARAMETER; break; // DE_ROOTDIR          The source is a root directory, which cannot be moved or renamed.
+		case 0x75:    WinError=ERROR_CANCELLED;         break; // DE_OPCANCELLED      The operation was cancelled by the user, or silently cancelled if the appropriate flags were supplied to SHFileOperation.
+		case 0x76:    WinError=ERROR_BAD_PATHNAME;      break; // DE_DESTSUBTREE      The destination is a subtree of the source.
+		case 0x78:    WinError=ERROR_ACCESS_DENIED;     break; // DE_ACCESSDENIEDSRC  Security settings denied access to the source.
+		case 0x79:    WinError=ERROR_BUFFER_OVERFLOW;   break; // DE_PATHTOODEEP      The source or destination path exceeded or would exceed MAX_PATH.
+		case 0x7A:    WinError=ERROR_INVALID_PARAMETER; break; // DE_MANYDEST         The operation involved multiple destination paths, which can fail in the case of a move operation.
+		case 0x7C:    WinError=ERROR_BAD_PATHNAME;      break; // DE_INVALIDFILES     The path in the source or destination or both was invalid.
+		case 0x7D:    WinError=ERROR_INVALID_PARAMETER; break; // DE_DESTSAMETREE     The source and destination have the same parent folder.
+		case 0x7E:    WinError=ERROR_ALREADY_EXISTS;    break; // DE_FLDDESTISFILE    The destination path is an existing file.
+		case 0x80:    WinError=ERROR_ALREADY_EXISTS;    break; // DE_FILEDESTISFLD    The destination path is an existing folder.
+		case 0x81:    WinError=ERROR_BUFFER_OVERFLOW;   break; // DE_FILENAMETOOLONG  The name of the file exceeds MAX_PATH.
+		case 0x82:    WinError=ERROR_WRITE_FAULT;       break; // DE_DEST_IS_CDROM    The destination is a read-only CD-ROM, possibly unformatted.
+		case 0x83:    WinError=ERROR_WRITE_FAULT;       break; // DE_DEST_IS_DVD      The destination is a read-only DVD, possibly unformatted.
+		case 0x84:    WinError=ERROR_WRITE_FAULT;       break; // DE_DEST_IS_CDRECORD The destination is a writable CD-ROM, possibly unformatted.
+		case 0x85:    WinError=ERROR_DISK_FULL;         break; // DE_FILE_TOO_LARGE   The file involved in the operation is too large for the destination media or file system.
+		case 0x86:    WinError=ERROR_READ_FAULT;        break; // DE_SRC_IS_CDROM     The source is a read-only CD-ROM, possibly unformatted.
+		case 0x87:    WinError=ERROR_READ_FAULT;        break; // DE_SRC_IS_DVD       The source is a read-only DVD, possibly unformatted.
+		case 0x88:    WinError=ERROR_READ_FAULT;        break; // DE_SRC_IS_CDRECORD  The source is a writable CD-ROM, possibly unformatted.
+		case 0xB7:    WinError=ERROR_BUFFER_OVERFLOW;   break; // DE_ERROR_MAX        MAX_PATH was exceeded during the operation.
+		case 0x402:   WinError=ERROR_PATH_NOT_FOUND;    break; //                     An unknown error occurred. This is typically due to an invalid path in the source or destination. This error does not occur on Windows Vista and later.
+		case 0x10000: WinError=ERROR_GEN_FAILURE;       break; // ERRORONDEST         An unspecified error occurred on the destination.
+	}
+
+	return WinError;
+}
+
+static bool MoveToRecycleBinInternal(LPCWSTR Object)
+{
+	SHFILEOPSTRUCT fop={};
+	fop.wFunc=FO_DELETE;
+	fop.pFrom=Object;
+	fop.pTo = L"\0\0";
+	fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT|FOF_ALLOWUNDO;
+	DWORD Result=SHFileOperation(&fop);
+
+	if (Result == 0x78 // DE_ACCESSDENIEDSRC == ERROR_ACCESS_DENIED
+		&& Global->Opt->ElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
+	{
+		Result = Global->Elevation->fMoveToRecycleBin(fop);
+	}
+
+	if (Result)
+	{
+		SetLastError(SHErrorToWinError(Result));
+	}
+
+	return !Result && !fop.fAnyOperationsAborted;
+}
+
+static bool WipeFile(const string& Name, int TotalPercent, bool& Cancel, ConsoleTitle* DeleteTitle)
+{
+	bool Result = false;
+
+	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
+
+	FileWalker WipeFile;
+
+	if(WipeFile.Open(Name, FILE_READ_DATA|FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT|FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
+	{
+		const DWORD BufSize=65536;
+		if(WipeFile.InitWalk(BufSize))
+		{
+			static BYTE Buf[BufSize];
+			static bool BufInit = false;
+			if(!BufInit)
+			{
+				memset(Buf, Global->Opt->WipeSymbol, BufSize); // используем символ заполнитель
+				BufInit = true;
+			}
+
+			DWORD StartTime=GetTickCount();
+			while(WipeFile.Step())
+			{
+				DWORD Written;
+				WipeFile.Write(Buf, WipeFile.GetChunkSize(), Written);
+				DWORD CurTime=GetTickCount();
+				if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
+				{
+					StartTime=CurTime;
+
+					if (CheckForEscSilent() && ConfirmAbortOp())
+					{
+						Cancel=true;
+						return false;
+					}
+
+					ShellDeleteMsg(Name, DEL_WIPEPROCESS, TotalPercent, WipeFile.GetPercent(), DeleteTitle);
+				}
+			}
+			WipeFile.SetPointer(0,nullptr,FILE_BEGIN);
+			WipeFile.SetEnd();
+		}
+		WipeFile.Close();
+		string strTempName;
+		FarMkTempEx(strTempName,nullptr,FALSE);
+		Result = apiMoveFile(Name,strTempName) && apiDeleteFile(strTempName);
+	}
+	return Result;
+}
+
+static int WipeDirectory(const string& Name)
+{
+	string strTempName, strPath;
+
+	if (FirstSlash(Name))
+	{
+		strPath = Name;
+		DeleteEndSlash(strPath);
+		CutToSlash(strPath);
+	}
+
+	FarMkTempEx(strTempName,nullptr, FALSE, strPath.IsEmpty()?nullptr:strPath.CPtr());
+
+	if (!apiMoveFile(Name, strTempName))
+	{
+		return FALSE;
+	}
+
+	return apiRemoveDirectory(strTempName);
+}
+
+
+ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
+	ReadOnlyDeleteMode(-1),
+	SkipMode(-1),
+	SkipWipeMode(-1),
+	SkipFoldersMode(-1),
+	ProcessedItems(0)
 {
 	ChangePriority ChPriority(Global->Opt->DelThreadPriority);
 	TPreRedrawFuncGuard preRedrawFuncGuard(PR_ShellDeleteMsg);
@@ -113,7 +311,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 	/*& 31.05.2001 OT Запретить перерисовку текущего фрейма*/
 	Frame *FrameFromLaunched=FrameManager->GetCurrentFrame();
 	FrameFromLaunched->Lock();
-	DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
+	bool DeleteAllFolders=!Global->Opt->Confirm.DeleteFolder;
 	UpdateDiz=(Global->Opt->Diz.UpdateMode==DIZ_UPDATE_ALWAYS ||
 	           (SrcPanel->IsDizDisplayed() &&
 	            Global->Opt->Diz.UpdateMode==DIZ_UPDATE_IF_DISPLAYED));
@@ -280,7 +478,6 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 
 	SrcPanel->GetDizName(strDizName);
 	DizPresent=(!strDizName.IsEmpty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES);
-	DeleteTitle = new ConsoleTitle(MSG(MDeletingTitle));
 
 	if ((NeedSetUpADir=CheckUpdateAnotherPanel(SrcPanel,strSelName)) == -1)
 		goto done;
@@ -289,6 +486,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 		FarChDir(L"\\");
 
 	{
+		ConsoleTitle DeleteTitle(MSG(MDeletingTitle));
 		TaskBar TB;
 		wakeful W;
 		bool Cancel=false;
@@ -326,7 +524,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 								break;
 							}
 
-							ShellDeleteMsg(strSelName, DEL_SCAN, 0, 0);
+							ShellDeleteMsg(strSelName, DEL_SCAN, 0, 0, &DeleteTitle);
 						}
 						DirInfoData Data = {};
 
@@ -372,7 +570,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 					break;
 				}
 
-				ShellDeleteMsg(strSelName, Wipe?DEL_WIPE:DEL_DEL, TotalPercent, 0);
+				ShellDeleteMsg(strSelName, Wipe?DEL_WIPE:DEL_DEL, TotalPercent, 0, &DeleteTitle);
 			}
 
 			if (FileAttr & FILE_ATTRIBUTE_DIRECTORY)
@@ -399,7 +597,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 						}
 
 						if (MsgCode==1)
-							DeleteAllFolders=1;
+							DeleteAllFolders = true;
 
 						if (MsgCode==2)
 							continue;
@@ -447,7 +645,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 								}
 							}
 
-							ShellDeleteMsg(strFullName,Wipe?DEL_WIPE:DEL_DEL, TotalPercent, 0);
+							ShellDeleteMsg(strFullName,Wipe?DEL_WIPE:DEL_DEL, TotalPercent, 0, &DeleteTitle);
 						}
 
 						if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
@@ -492,7 +690,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 								}
 
 								if (MsgCode==1)
-									DeleteAllFolders=1;
+									DeleteAllFolders = true;
 
 								if (MsgCode==2)
 								{
@@ -533,7 +731,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 							}
 
 							if (AskCode==DELETE_YES)
-								if (ShellRemoveFile(strFullName,Wipe,TotalPercent)==DELETE_CANCEL)
+								if (ShellRemoveFile(strFullName,Wipe,TotalPercent, &DeleteTitle)==DELETE_CANCEL)
 								{
 									Cancel=true;
 									break;
@@ -576,7 +774,7 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 
 				if (AskCode==DELETE_YES)
 				{
-					int DeleteCode=ShellRemoveFile(strSelName,Wipe,TotalPercent);
+					int DeleteCode=ShellRemoveFile(strSelName,Wipe,TotalPercent, &DeleteTitle);
 
 					if (DeleteCode==DELETE_SUCCESS && UpdateDiz)
 					{
@@ -594,7 +792,6 @@ void ShellDelete(Panel *SrcPanel,bool Wipe)
 		if (DizPresent==(!strDizName.IsEmpty() && apiGetFileAttributes(strDizName)!=INVALID_FILE_ATTRIBUTES))
 			SrcPanel->FlushDiz();
 
-	delete DeleteTitle;
 done:
 	Global->Opt->DeleteToRecycleBin=Opt_DeleteToRecycleBin;
 	// Разрешить перерисовку фрейма
@@ -606,79 +803,7 @@ done:
 	}
 }
 
-static void PR_ShellDeleteMsg()
-{
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	LARGE_INTEGER i;
-	i.QuadPart = preRedrawItem.Param.Param5;
-	ShellDeleteMsg(static_cast<const wchar_t*>(preRedrawItem.Param.Param1),static_cast<DEL_MODE>(reinterpret_cast<intptr_t>(preRedrawItem.Param.Param4)), i.LowPart, i.HighPart);
-}
-
-void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePercent)
-{
-	FormatString strProgress, strWipeProgress;
-	size_t Width=52;
-	size_t Length=Width-5; // -5 под проценты
-	if(Mode==DEL_WIPEPROCESS || Mode==DEL_WIPE)
-	{
-		wchar_t *WipeProgress=strWipeProgress.GetBuffer(Length);
-		if (WipeProgress)
-		{
-			size_t CurPos=Min(WipePercent,100)*Length/100;
-			wmemset(WipeProgress,BoxSymbols[BS_X_DB],CurPos);
-			wmemset(WipeProgress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
-			strWipeProgress.ReleaseBuffer(Length);
-			strWipeProgress<<L" "<<fmt::MinWidth(3)<<WipePercent<<L"%";
-		}
-		if(Percent==-1)
-		{
-			Global->TBC->SetProgressValue(WipePercent, 100);
-		}
-	}
-
-	if (Mode!=DEL_SCAN && Percent!=-1)
-	{
-		wchar_t *Progress=strProgress.GetBuffer(Length);
-		if (Progress)
-		{
-			size_t CurPos=Min(Percent,100)*Length/100;
-			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
-			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
-			strProgress.ReleaseBuffer(Length);
-			strProgress<<L" "<<fmt::MinWidth(3)<<Percent<<L"%";
-			*DeleteTitle << L"{" << Percent << L"%} " << MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle) << fmt::Flush();
-		}
-		Global->TBC->SetProgressValue(Percent,100);
-	}
-
-	string strOutFileName(Name);
-	TruncPathStr(strOutFileName,static_cast<int>(Width));
-	CenterStr(strOutFileName,strOutFileName,static_cast<int>(Width));
-	const wchar_t* Progress1 = nullptr;
-	const wchar_t* Progress2 = nullptr;
-	if(!strWipeProgress.IsEmpty())
-	{
-		Progress1 = strWipeProgress.CPtr();
-		Progress2 = strProgress.IsEmpty()? nullptr : strProgress.CPtr();
-	}
-	else
-	{
-		Progress1 = strProgress.IsEmpty()? nullptr : strProgress.CPtr();
-	}
-	Message(0,0,
-		MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeleteWipeTitle:MDeleteTitle),
-		Mode==DEL_SCAN? MSG(MScanningFolder) : MSG((Mode==DEL_WIPE || Mode==DEL_WIPEPROCESS)?MDeletingWiping:MDeleting),
-		strOutFileName, Progress1, Progress2);
-
-	PreRedrawItem preRedrawItem=Global->PreRedraw->Peek();
-	preRedrawItem.Param.Param1=static_cast<void*>(const_cast<wchar_t*>(Name));
-	preRedrawItem.Param.Param4=ToPtr(Mode);
-	LARGE_INTEGER i = {(DWORD)Percent, (LONG)WipePercent};
-	preRedrawItem.Param.Param5=i.QuadPart;
-	Global->PreRedraw->SetParam(preRedrawItem.Param);
-}
-
-int AskDeleteReadOnly(const string& Name,DWORD Attr,int Wipe)
+DEL_RESULT ShellDelete::AskDeleteReadOnly(const string& Name,DWORD Attr, bool Wipe)
 {
 	int MsgCode;
 
@@ -718,9 +843,7 @@ int AskDeleteReadOnly(const string& Name,DWORD Attr,int Wipe)
 	return(DELETE_YES);
 }
 
-
-
-int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent)
+DEL_RESULT ShellDelete::ShellRemoveFile(const string& Name, bool Wipe, int TotalPercent, ConsoleTitle* DeleteTitle)
 {
 	ProcessedItems++;
 	string strFullName;
@@ -764,7 +887,7 @@ int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent)
 				case 0:
 					{
 						bool Cancel = false;
-						if (WipeFile(strFullName, TotalPercent, Cancel))
+						if (WipeFile(strFullName, TotalPercent, Cancel, DeleteTitle))
 							return DELETE_SUCCESS;
 						else if(Cancel)
 							return DELETE_CANCEL;
@@ -808,8 +931,7 @@ int ShellRemoveFile(const string& Name,int Wipe, int TotalPercent)
 	return DELETE_SUCCESS;
 }
 
-
-int ERemoveDirectory(const string& Name,DIRDELTYPE Type)
+DEL_RESULT ShellDelete::ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 {
 	ProcessedItems++;
 	string strFullName;
@@ -864,65 +986,7 @@ int ERemoveDirectory(const string& Name,DIRDELTYPE Type)
 	return DELETE_SUCCESS;
 }
 
-DWORD SHErrorToWinError(DWORD SHError)
-{
-	DWORD WinError=SHError;
-
-	switch (SHError)
-	{
-		case 0x71:    WinError=ERROR_ALREADY_EXISTS;    break; // DE_SAMEFILE         The source and destination files are the same file.
-		case 0x72:    WinError=ERROR_INVALID_PARAMETER; break; // DE_MANYSRC1DEST     Multiple file paths were specified in the source buffer, but only one destination file path.
-		case 0x73:    WinError=ERROR_NOT_SAME_DEVICE;   break; // DE_DIFFDIR          Rename operation was specified but the destination path is a different directory. Use the move operation instead.
-		case 0x74:    WinError=ERROR_INVALID_PARAMETER; break; // DE_ROOTDIR          The source is a root directory, which cannot be moved or renamed.
-		case 0x75:    WinError=ERROR_CANCELLED;         break; // DE_OPCANCELLED      The operation was cancelled by the user, or silently cancelled if the appropriate flags were supplied to SHFileOperation.
-		case 0x76:    WinError=ERROR_BAD_PATHNAME;      break; // DE_DESTSUBTREE      The destination is a subtree of the source.
-		case 0x78:    WinError=ERROR_ACCESS_DENIED;     break; // DE_ACCESSDENIEDSRC  Security settings denied access to the source.
-		case 0x79:    WinError=ERROR_BUFFER_OVERFLOW;   break; // DE_PATHTOODEEP      The source or destination path exceeded or would exceed MAX_PATH.
-		case 0x7A:    WinError=ERROR_INVALID_PARAMETER; break; // DE_MANYDEST         The operation involved multiple destination paths, which can fail in the case of a move operation.
-		case 0x7C:    WinError=ERROR_BAD_PATHNAME;      break; // DE_INVALIDFILES     The path in the source or destination or both was invalid.
-		case 0x7D:    WinError=ERROR_INVALID_PARAMETER; break; // DE_DESTSAMETREE     The source and destination have the same parent folder.
-		case 0x7E:    WinError=ERROR_ALREADY_EXISTS;    break; // DE_FLDDESTISFILE    The destination path is an existing file.
-		case 0x80:    WinError=ERROR_ALREADY_EXISTS;    break; // DE_FILEDESTISFLD    The destination path is an existing folder.
-		case 0x81:    WinError=ERROR_BUFFER_OVERFLOW;   break; // DE_FILENAMETOOLONG  The name of the file exceeds MAX_PATH.
-		case 0x82:    WinError=ERROR_WRITE_FAULT;       break; // DE_DEST_IS_CDROM    The destination is a read-only CD-ROM, possibly unformatted.
-		case 0x83:    WinError=ERROR_WRITE_FAULT;       break; // DE_DEST_IS_DVD      The destination is a read-only DVD, possibly unformatted.
-		case 0x84:    WinError=ERROR_WRITE_FAULT;       break; // DE_DEST_IS_CDRECORD The destination is a writable CD-ROM, possibly unformatted.
-		case 0x85:    WinError=ERROR_DISK_FULL;         break; // DE_FILE_TOO_LARGE   The file involved in the operation is too large for the destination media or file system.
-		case 0x86:    WinError=ERROR_READ_FAULT;        break; // DE_SRC_IS_CDROM     The source is a read-only CD-ROM, possibly unformatted.
-		case 0x87:    WinError=ERROR_READ_FAULT;        break; // DE_SRC_IS_DVD       The source is a read-only DVD, possibly unformatted.
-		case 0x88:    WinError=ERROR_READ_FAULT;        break; // DE_SRC_IS_CDRECORD  The source is a writable CD-ROM, possibly unformatted.
-		case 0xB7:    WinError=ERROR_BUFFER_OVERFLOW;   break; // DE_ERROR_MAX        MAX_PATH was exceeded during the operation.
-		case 0x402:   WinError=ERROR_PATH_NOT_FOUND;    break; //                     An unknown error occurred. This is typically due to an invalid path in the source or destination. This error does not occur on Windows Vista and later.
-		case 0x10000: WinError=ERROR_GEN_FAILURE;       break; // ERRORONDEST         An unspecified error occurred on the destination.
-	}
-
-	return WinError;
-}
-
-bool MoveToRecycleBinInternal(LPCWSTR Object)
-{
-	SHFILEOPSTRUCT fop={};
-	fop.wFunc=FO_DELETE;
-	fop.pFrom=Object;
-	fop.pTo = L"\0\0";
-	fop.fFlags=FOF_NOCONFIRMATION|FOF_SILENT|FOF_ALLOWUNDO;
-	DWORD Result=SHFileOperation(&fop);
-
-	if (Result == 0x78 // DE_ACCESSDENIEDSRC == ERROR_ACCESS_DENIED
-		&& Global->Opt->ElevationMode&ELEVATION_MODIFY_REQUEST) // Achtung! ShellAPI doesn't set LastNtStatus, so don't use ElevationRequired() here.
-	{
-		Result = Global->Elevation->fMoveToRecycleBin(fop);
-	}
-
-	if (Result)
-	{
-		SetLastError(SHErrorToWinError(Result));
-	}
-
-	return !Result && !fop.fAnyOperationsAborted;
-}
-
-int RemoveToRecycleBin(const string& Name)
+bool ShellDelete::RemoveToRecycleBin(const string& Name)
 {
 	string strFullName;
 	ConvertNameToFull(Name, strFullName);
@@ -946,98 +1010,6 @@ int RemoveToRecycleBin(const string& Name)
 	lpwszName[strFullName.GetLength()+1] = 0; //dirty trick to make strFullName end with DOUBLE zero!!!
 
 	return MoveToRecycleBinInternal(lpwszName);
-}
-
-bool WipeFile(const string& Name, int TotalPercent, bool& Cancel)
-{
-	bool Result = false;
-
-	apiSetFileAttributes(Name,FILE_ATTRIBUTE_NORMAL);
-
-	FileWalker WipeFile;
-
-	if(WipeFile.Open(Name, FILE_READ_DATA|FILE_WRITE_DATA, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT|FILE_FLAG_WRITE_THROUGH|FILE_FLAG_SEQUENTIAL_SCAN))
-	{
-		const DWORD BufSize=65536;
-		if(WipeFile.InitWalk(BufSize))
-		{
-			static BYTE Buf[BufSize];
-			static bool BufInit = false;
-			if(!BufInit)
-			{
-				memset(Buf, Global->Opt->WipeSymbol, BufSize); // используем символ заполнитель
-				BufInit = true;
-			}
-
-			DWORD StartTime=GetTickCount();
-			while(WipeFile.Step())
-			{
-				DWORD Written;
-				WipeFile.Write(Buf, WipeFile.GetChunkSize(), Written);
-				DWORD CurTime=GetTickCount();
-				if (CurTime-StartTime>(DWORD)Global->Opt->RedrawTimeout)
-				{
-					StartTime=CurTime;
-
-					if (CheckForEscSilent() && ConfirmAbortOp())
-					{
-						Cancel=true;
-						return false;
-					}
-
-					ShellDeleteMsg(Name, DEL_WIPEPROCESS, TotalPercent, WipeFile.GetPercent());
-				}
-			}
-			WipeFile.SetPointer(0,nullptr,FILE_BEGIN);
-			WipeFile.SetEnd();
-		}
-		WipeFile.Close();
-		string strTempName;
-		FarMkTempEx(strTempName,nullptr,FALSE);
-		Result = apiMoveFile(Name,strTempName) && apiDeleteFile(strTempName);
-	}
-	return Result;
-}
-
-
-int WipeDirectory(const string& Name)
-{
-	string strTempName, strPath;
-
-	if (FirstSlash(Name))
-	{
-		strPath = Name;
-		DeleteEndSlash(strPath);
-		CutToSlash(strPath);
-	}
-
-	FarMkTempEx(strTempName,nullptr, FALSE, strPath.IsEmpty()?nullptr:strPath.CPtr());
-
-	if (!apiMoveFile(Name, strTempName))
-	{
-		return FALSE;
-	}
-
-	return apiRemoveDirectory(strTempName);
-}
-
-int DeleteFileWithFolder(const string& FileName)
-{
-	string strFileOrFolderName;
-	strFileOrFolderName = FileName;
-	Unquote(strFileOrFolderName);
-	BOOL Ret=apiSetFileAttributes(strFileOrFolderName,FILE_ATTRIBUTE_NORMAL);
-
-	if (Ret)
-	{
-		if (apiDeleteFile(strFileOrFolderName)) //BUGBUG
-		{
-			CutToSlash(strFileOrFolderName,true);
-			return apiRemoveDirectory(strFileOrFolderName);
-		}
-	}
-
-	return FALSE;
 }
 
 
@@ -1068,4 +1040,21 @@ void DeleteDirTree(const string& Dir)
 
 	apiSetFileAttributes(Dir,FILE_ATTRIBUTE_NORMAL);
 	apiRemoveDirectory(Dir);
+}
+
+bool DeleteFileWithFolder(const string& FileName)
+{
+	bool Result = false;
+	string strFileOrFolderName(FileName);
+	Unquote(strFileOrFolderName);
+
+	if (apiSetFileAttributes(strFileOrFolderName, FILE_ATTRIBUTE_NORMAL))
+	{
+		if (apiDeleteFile(strFileOrFolderName)) //BUGBUG
+		{
+			CutToSlash(strFileOrFolderName,true);
+			Result = apiRemoveDirectory(strFileOrFolderName) != FALSE;
+		}
+	}
+	return Result;
 }

@@ -2506,7 +2506,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				SelPanel->GetCurDir(strFileName);
 				GetPathRoot(strFileName, strFileName);
-				UINT DriveType=FAR_GetDriveType(strFileName,nullptr,0);
+				UINT DriveType=FAR_GetDriveType(strFileName, 0);
 
 				// BUGBUG: useless, GetPathRoot expands subst itself
 
