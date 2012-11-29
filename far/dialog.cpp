@@ -5523,10 +5523,14 @@ intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Pa
 					if (CheckStructSize(esp))
 					{
 						DlgEdit *EditPtr=(DlgEdit *)(CurItem->ObjPtr);
-						EditPtr->SetCurPos(esp->CurPos);
-						EditPtr->SetTabCurPos(esp->CurTabPos);
-						EditPtr->SetLeftPos(esp->LeftPos);
-						EditPtr->SetOvertypeMode(esp->Overtype!=0);
+						if(esp->CurPos>=0)
+							EditPtr->SetCurPos(esp->CurPos);
+						if(esp->CurTabPos>=0)
+							EditPtr->SetTabCurPos(esp->CurTabPos);
+						if(esp->LeftPos>=0)
+							EditPtr->SetLeftPos(esp->LeftPos);
+						if(esp->Overtype>=0)
+							EditPtr->SetOvertypeMode(esp->Overtype!=0);
 						Dlg->ShowDialog(Param1);
 						Global->ScrBuf->Flush();
 						return TRUE;
