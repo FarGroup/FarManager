@@ -52,6 +52,14 @@ static DizRecord **SearchDizData;
 static int _cdecl SortDizIndex(const void *el1,const void *el2);
 static int WINAPI SortDizSearch(const void *key,const void *elem,void*);
 
+struct DizRecord
+{
+	string DizText;
+	int NameStart;
+	int NameLength;
+	bool Deleted;
+};
+
 DizList::DizList():
 	DizData(nullptr),
 	DizCount(0),

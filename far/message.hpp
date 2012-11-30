@@ -59,18 +59,24 @@ enum
 	MSG_KILLSAVESCREEN =0x10000000,
 	MSG_NOPLUGINS      =0x20000000,
 };
-#define MSG_INSERT_STR(n) (((n) > 0 && (n) < 15) ? (MSG_INSERT_STR1 << ((n)-1)) : 0)
 
 class Plugin;
 
-class MessageObject
+class Message
 {
 public:
-	MessageObject(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic = nullptr, Plugin* PluginNumber = nullptr, const GUID* Id = nullptr);
-	int GetExitCode() {return m_ExitCode;}
-	void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2);
+	Message(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic = nullptr, Plugin* PluginNumber = nullptr, const GUID* Id = nullptr);
+	Message(DWORD Flags,size_t Buttons,const wchar_t *Title, const wchar_t *Str1,
+		const wchar_t *Str2=nullptr, const wchar_t *Str3=nullptr, const wchar_t *Str4=nullptr, const wchar_t *Str5=nullptr,
+		const wchar_t *Str6=nullptr, const wchar_t *Str7=nullptr, const wchar_t *Str8=nullptr, const wchar_t *Str9=nullptr,
+		const wchar_t *Str10=nullptr, const wchar_t *Str11=nullptr, const wchar_t *Str12=nullptr);
+
+	int GetExitCode() const {return m_ExitCode;}
+	void GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2) const;
+	operator int() const { return GetExitCode(); }
 
 private:
+	void Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic = nullptr, Plugin* PluginNumber = nullptr, const GUID* Id = nullptr);
 	intptr_t MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 	int m_ExitCode;
@@ -80,13 +86,6 @@ private:
 	bool IsErrorType;
 	DWORD LastError, NtStatus;
 };
-
-int Message(DWORD Flags,size_t Buttons,const wchar_t *Title, const wchar_t *Str1,
-	const wchar_t *Str2=nullptr, const wchar_t *Str3=nullptr, const wchar_t *Str4=nullptr, const wchar_t *Str5=nullptr,
-	const wchar_t *Str6=nullptr, const wchar_t *Str7=nullptr, const wchar_t *Str8=nullptr, const wchar_t *Str9=nullptr,
-	const wchar_t *Str10=nullptr, const wchar_t *Str11=nullptr, const wchar_t *Str12=nullptr);
-
-int Message(DWORD Flags,size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, Plugin* PluginNumber=nullptr, const GUID* Id=nullptr);
 
 /* $ 12.03.2002 VVM
   Новая функция - пользователь попытался прервать операцию.

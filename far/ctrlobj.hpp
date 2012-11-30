@@ -48,30 +48,26 @@ class WindowHandler;
 
 class ControlObject
 {
-	private:
-		FilePanels *FPanels;
+public:
+	ControlObject();
+	~ControlObject();
 
-	public:
-		ControlObject();
-		~ControlObject();
+	void Init(int DirCount);
+	FilePanels *Cp();
+	void CreateFilePanels();
+	static void ShowCopyright(DWORD Flags=0);
 
-	public:
-		void Init(int DirCount);
+	CommandLine *CmdLine;
+	History* CmdHistory;
+	History* FolderHistory;
+	History* ViewHistory;
+	KeyBar *MainKeyBar;
+	MenuBar *TopMenuBar;
+	HighlightFiles *HiFiles;
+	KeyMacro Macro;
+	PluginManager* Plugins;
+	Shortcuts* FolderShortcuts;
 
-	public:
-		FilePanels *Cp();
-
-		void CreateFilePanels();
-
-		CommandLine *CmdLine;
-		History *CmdHistory,*FolderHistory,*ViewHistory;
-
-		KeyBar *MainKeyBar;
-		MenuBar *TopMenuBar;
-		HighlightFiles *HiFiles;
-		KeyMacro Macro;
-		PluginManager* Plugins;
-		Shortcuts* FolderShortcuts;
-		WindowHandler* Window;
-		static void ShowCopyright(DWORD Flags=0);
+private:
+	FilePanels *FPanels;
 };

@@ -89,23 +89,6 @@ struct DialogItemAutomation
 	// [][0] - Set, [][1] - Skip
 };
 
-class DlgUserControl
-{
-	public:
-		COORD CursorPos;
-		bool CursorVisible;
-		DWORD CursorSize;
-
-	public:
-		DlgUserControl():
-			CursorVisible(false),
-			CursorSize(static_cast<DWORD>(-1))
-		{
-			CursorPos.X=CursorPos.Y=-1;
-		}
-		~DlgUserControl() {};
-};
-
 /*
 Описывает один элемент диалога - внутренне представление.
 Для плагинов это FarDialogItem
@@ -123,7 +106,7 @@ struct DialogItemEx: public FarDialogItem
 	size_t AutoCount;
 	void *ObjPtr;
 	VMenu *ListPtr;
-	DlgUserControl *UCData;
+	class DlgUserControl *UCData;
 	intptr_t SelStart;
 	intptr_t SelEnd;
 
@@ -188,6 +171,7 @@ struct DialogItemEx: public FarDialogItem
 
 class DlgEdit;
 class ConsoleTitle;
+class Plugin;
 
 class DialogOwner
 {
@@ -198,201 +182,142 @@ typedef int (DialogOwner::*DialogHandlerFunction)(HANDLE hDlg, intptr_t Msg, int
 
 class Dialog: public Frame
 {
-		friend class DlgEdit;
-		friend intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
-		friend intptr_t WINAPI DefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+public:
+	template<class T, typename Y>
+	Dialog(T* OwnerClass, Y HandlerFunction, void* InitParam, DialogItemEx* SrcItem, size_t SrcItemCount)
+	{
+		Construct(SrcItem, SrcItemCount, reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<DialogHandlerFunction>(HandlerFunction), InitParam);
+	}
+	Dialog(DialogItemEx *SrcItem, size_t SrcItemCount, FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
+	Dialog(const FarDialogItem *SrcItem, size_t SrcItemCount, FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
+	virtual ~Dialog();
 
-	private:
-		bool bInitOK;               // диалог был успешно инициализирован
-		class Plugin* PluginOwner;       // Плагин, для формирования HelpTopic
-		unsigned FocusPos;               // всегда известно какой элемент в фокусе
-		unsigned PrevFocusPos;           // всегда известно какой элемент был в фокусе
-		int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
-		BitFlags DialogMode;        // Флаги текущего режима диалога
+	virtual int ProcessKey(int Key);
+	virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
+	virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
+	virtual void Show();
+	virtual void Hide();
+	virtual void SetExitCode(int Code);
+	virtual int GetTypeAndName(string &strType, string &strName);
+	virtual int GetType() { return MODALTYPE_DIALOG; }
+	virtual const wchar_t *GetTypeName() {return L"[Dialog]";};
+	virtual MACROMODEAREA GetMacroMode();
+	virtual int FastHide();
+	virtual void ResizeConsole();
+	virtual void SetPosition(int X1,int Y1,int X2,int Y2);
+	void FastShow() {ShowDialog();}
+	bool InitOK() {return bInitOK;}
+	void GetDialogObjectsData();
+	void SetDialogMode(DWORD Flags) { DialogMode.Set(Flags); }
+	bool CheckDialogMode(DWORD Flags) { return DialogMode.Check(Flags)!=FALSE; }
+	// метод для перемещения диалога
+	void AdjustEditPos(int dx,int dy);
+	int IsMoving() {return DialogMode.Check(DMODE_DRAGGED);}
+	void SetModeMoving(bool IsMoving) { DialogMode.Change(DMODE_ISCANMOVE,IsMoving);}
+	int  GetModeMoving() {return DialogMode.Check(DMODE_ISCANMOVE);}
+	void SetDialogData(void* NewDataDialog);
+	void* GetDialogData() {return DataDialog;};
+	void InitDialog();
+	void Process();
+	void SetPluginOwner(Plugin* NewPluginAddress) {PluginOwner = ((NewPluginAddress == INVALID_HANDLE_VALUE)? nullptr : NewPluginAddress);}
+	Plugin* GetPluginOwner() const {return PluginOwner;}
+	void SetHelp(const wchar_t *Topic);
+	void ShowHelp();
+	int Done() { return DialogMode.Check(DMODE_ENDLOOP); }
+	void ClearDone();
+	intptr_t CloseDialog();
+	// For MACRO
+	const DialogItemEx **GetAllItem() {return (const DialogItemEx**)Item;};
+	unsigned GetAllItemCount() {return ItemCount;};             // количество элементов диалога
+	unsigned GetDlgFocusPos() {return FocusPos;};
+	int SetAutomation(WORD IDParent,WORD id, FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip, FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
+		FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
-		void* DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
+	intptr_t WINAPI DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+	BOOL IsInited();
+	bool ProcessEvents();
+	void SetId(const GUID& Id);
+	const GUID& GetId(){return Id;}
 
-		DialogItemEx **Item; // массив элементов диалога
-		DialogItemEx * pSaveItemEx; // пользовательский массив элементов диалога
+protected:
+	unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
+	
+private:
+	void Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, void* InitParam=nullptr);
+	void Init(DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc, void* InitParam);
+	virtual void DisplayObject();
+	void DeleteDialogObjects();
+	int  LenStrItem(int ID, const wchar_t *lpwszStr = nullptr);
+	void ShowDialog(unsigned ID=(unsigned)-1);  //    ID=-1 - отрисовать весь диалог
+	intptr_t CtlColorDlgItem(FarColor Color[4], int ItemPos,int Type,int Focus,int Default,FARDIALOGITEMFLAGS Flags);
+	/* $ 28.07.2000 SVS
+		+ Изменяет фокус ввода между двумя элементами.
+		    Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
+	*/
+	void ChangeFocus2(unsigned SetFocusPos);
+	unsigned ChangeFocus(unsigned FocusPos,int Step,int SkipGroup);
+	BOOL SelectFromEditHistory(DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr);
+	int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
+	int AddToEditHistory(DialogItemEx* CurItem, const wchar_t *AddStr);
+	void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
+	int ProcessHighlighting(int Key,unsigned FocusPos,int Translate);
+	int CheckHighlights(WORD Chr,int StartPos=0);
+	void SelectOnEntry(unsigned Pos,BOOL Selected);
+	void CheckDialogCoord();
+	BOOL GetItemRect(unsigned I,SMALL_RECT& Rect);
+	bool ItemHasDropDownArrow(const DialogItemEx *Item);
+	const wchar_t *GetDialogTitle();
+	BOOL SetItemRect(unsigned ID,SMALL_RECT *Rect);
+	void SetDropDownOpened(int Status) { DropDownOpened=Status; }
+	int GetDropDownOpened() { return DropDownOpened; }
+	void ProcessCenterGroup();
+	unsigned ProcessRadioButton(unsigned);
+	int ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,unsigned CurFocusPos);
+	int ProcessMoveDialog(DWORD Key);
+	int Do_ProcessTab(int Next);
+	int Do_ProcessNextCtrl(int Next,BOOL IsRedraw=TRUE);
+	int Do_ProcessFirstCtrl();
+	int Do_ProcessSpace();
+	void SetComboBoxPos(DialogItemEx* Item=nullptr);
+	void CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2);
+	intptr_t CallDlgProc(int nMsg, int nParam1, void* Param2);
+	void ProcessKey(int Key, unsigned ItemPos);
 
-		unsigned ItemCount;         // количество элементов диалога
+	bool bInitOK;               // диалог был успешно инициализирован
+	class Plugin* PluginOwner;       // Плагин, для формирования HelpTopic
+	unsigned FocusPos;               // всегда известно какой элемент в фокусе
+	unsigned PrevFocusPos;           // всегда известно какой элемент был в фокусе
+	int IsEnableRedraw;         // Разрешена перерисовка диалога? ( 0 - разрешена)
+	BitFlags DialogMode;        // Флаги текущего режима диалога
+	void* DataDialog;        // Данные, специфические для конкретного экземпляра диалога (первоначально здесь параметр, переданный в конструктор)
+	DialogItemEx **Item; // массив элементов диалога
+	DialogItemEx * pSaveItemEx; // пользовательский массив элементов диалога
+	unsigned ItemCount;         // количество элементов диалога
+	ConsoleTitle *OldTitle;     // предыдущий заголовок
+	MACROMODEAREA PrevMacroMode;          // предыдущий режим макро
+	DialogOwner *OwnerClass;
+	union
+	{
+		DialogHandlerFunction DialogHandler;
+		FARWINDOWPROC RealDlgProc;      // функция обработки диалога
+	};
+	// переменные для перемещения диалога
+	int OldX1,OldX2,OldY1,OldY2;
+	wchar_t *HelpTopic;
+	int DropDownOpened;// Содержит статус комбобокса и хистори: TRUE - открыт, FALSE - закрыт.
+	CriticalSection CS;
+	int RealWidth, RealHeight;
+	GUID Id;
+	bool IdExist;
+	MOUSE_EVENT_RECORD PrevMouseRecord;
 
-		ConsoleTitle *OldTitle;     // предыдущий заголовок
-		MACROMODEAREA PrevMacroMode;          // предыдущий режим макро
-
-		DialogOwner *OwnerClass;
-		union
-		{
-			DialogHandlerFunction DialogHandler;
-			FARWINDOWPROC RealDlgProc;      // функция обработки диалога
-		};
-		// переменные для перемещения диалога
-		int OldX1,OldX2,OldY1,OldY2;
-
-		wchar_t *HelpTopic;
-
-		volatile int DropDownOpened;// Содержит статус комбобокса и хистори: TRUE - открыт, FALSE - закрыт.
-
-		CriticalSection CS;
-
-		int RealWidth, RealHeight;
-
-		GUID Id;
-		bool IdExist;
-
-		MOUSE_EVENT_RECORD PrevMouseRecord;
-
-	protected:
-		unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
-
-	private:
-		void Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, void* InitParam=nullptr);
-		void Init(DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc, void* InitParam);
-		virtual void DisplayObject();
-		void DeleteDialogObjects();
-		int  LenStrItem(int ID, const wchar_t *lpwszStr = nullptr);
-
-		void ShowDialog(unsigned ID=(unsigned)-1);  //    ID=-1 - отрисовать весь диалог
-
-		intptr_t CtlColorDlgItem(FarColor Color[4], int ItemPos,int Type,int Focus,int Default,FARDIALOGITEMFLAGS Flags);
-		/* $ 28.07.2000 SVS
-		   + Изменяет фокус ввода между двумя элементами.
-		     Вынесен отдельно для того, чтобы обработать DMSG_KILLFOCUS & DMSG_SETFOCUS
-		*/
-		void ChangeFocus2(unsigned SetFocusPos);
-
-		unsigned ChangeFocus(unsigned FocusPos,int Step,int SkipGroup);
-		BOOL SelectFromEditHistory(DialogItemEx *CurItem,DlgEdit *EditLine,const wchar_t *HistoryName,string &strStr);
-		int SelectFromComboBox(DialogItemEx *CurItem,DlgEdit*EditLine,VMenu *List);
-		int AddToEditHistory(DialogItemEx* CurItem, const wchar_t *AddStr);
-
-		void ProcessLastHistory(DialogItemEx *CurItem, int MsgIndex);  // обработка DIF_USELASTHISTORY
-
-		int ProcessHighlighting(int Key,unsigned FocusPos,int Translate);
-		int CheckHighlights(WORD Chr,int StartPos=0);
-
-		void SelectOnEntry(unsigned Pos,BOOL Selected);
-
-		void CheckDialogCoord();
-		BOOL GetItemRect(unsigned I,SMALL_RECT& Rect);
-		bool ItemHasDropDownArrow(const DialogItemEx *Item);
-
-		// возвращает заголовок диалога (текст первого текста или фрейма)
-		const wchar_t *GetDialogTitle();
-
-		BOOL SetItemRect(unsigned ID,SMALL_RECT *Rect);
-
-		/* $ 23.06.2001 KM
-		   + Функции программного открытия/закрытия комбобокса и хистори
-		     и получения статуса открытости/закрытости комбобокса и хистори.
-		*/
-		volatile void SetDropDownOpened(int Status) { DropDownOpened=Status; }
-		volatile int GetDropDownOpened() { return DropDownOpened; }
-
-		void ProcessCenterGroup();
-		unsigned ProcessRadioButton(unsigned);
-
-		int ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,unsigned CurFocusPos);
-		int ProcessMoveDialog(DWORD Key);
-
-		int Do_ProcessTab(int Next);
-		int Do_ProcessNextCtrl(int Next,BOOL IsRedraw=TRUE);
-		int Do_ProcessFirstCtrl();
-		int Do_ProcessSpace();
-		void SetComboBoxPos(DialogItemEx* Item=nullptr);
-		void CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2);
-
-		intptr_t CallDlgProc(int nMsg, int nParam1, void* Param2);
-
-		void ProcessKey(int Key, unsigned ItemPos);
-
-	public:
-		template<class T, typename Y>
-		Dialog(T* OwnerClass, Y HandlerFunction, void* InitParam, DialogItemEx* SrcItem, size_t SrcItemCount)
-		{
-			Construct(SrcItem, SrcItemCount, reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<DialogHandlerFunction>(HandlerFunction), InitParam);
-		}
-		Dialog(DialogItemEx *SrcItem, size_t SrcItemCount,
-		       FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
-		Dialog(const FarDialogItem *SrcItem, size_t SrcItemCount,
-		       FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
-		bool InitOK() {return bInitOK;}
-		virtual ~Dialog();
-
-	public:
-		virtual int ProcessKey(int Key);
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent);
-		virtual __int64 VMProcess(int OpCode,void *vParam=nullptr,__int64 iParam=0);
-		virtual void Show();
-		virtual void Hide();
-		void FastShow() {ShowDialog();}
-
-		void GetDialogObjectsData();
-
-		void SetDialogMode(DWORD Flags) { DialogMode.Set(Flags); }
-		bool CheckDialogMode(DWORD Flags) { return DialogMode.Check(Flags)!=FALSE; }
-
-		// метод для перемещения диалога
-		void AdjustEditPos(int dx,int dy);
-
-		int IsMoving() {return DialogMode.Check(DMODE_DRAGGED);}
-		void SetModeMoving(bool IsMoving) { DialogMode.Change(DMODE_ISCANMOVE,IsMoving);}
-		int  GetModeMoving() {return DialogMode.Check(DMODE_ISCANMOVE);}
-		void SetDialogData(void* NewDataDialog);
-		void* GetDialogData() {return DataDialog;};
-
-		void InitDialog();
-		void Process();
-		void SetPluginOwner(Plugin* NewPluginAddress) {PluginOwner = ((NewPluginAddress == INVALID_HANDLE_VALUE)? nullptr : NewPluginAddress);}
-		Plugin* GetPluginOwner() const {return PluginOwner;}
-
-		void SetHelp(const wchar_t *Topic);
-		void ShowHelp();
-		int Done() { return DialogMode.Check(DMODE_ENDLOOP); }
-		void ClearDone();
-		virtual void SetExitCode(int Code);
-
-		intptr_t CloseDialog();
-
-		virtual int GetTypeAndName(string &strType, string &strName);
-		virtual int GetType() { return MODALTYPE_DIALOG; }
-		virtual const wchar_t *GetTypeName() {return L"[Dialog]";};
-
-		virtual MACROMODEAREA GetMacroMode();
-
-		/* $ Введена для нужд CtrlAltShift OT */
-		virtual int FastHide();
-		virtual void ResizeConsole();
-//    virtual void OnDestroy();
-
-		// For MACRO
-		const DialogItemEx **GetAllItem() {return (const DialogItemEx**)Item;};
-		unsigned GetAllItemCount() {return ItemCount;};             // количество элементов диалога
-		unsigned GetDlgFocusPos() {return FocusPos;};
-
-
-		int SetAutomation(WORD IDParent,WORD id,
-		                  FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip,
-		                  FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
-		                  FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
-
-		intptr_t WINAPI DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
-
-		virtual void SetPosition(int X1,int Y1,int X2,int Y2);
-
-		BOOL IsInited();
-		bool ProcessEvents();
-
-		void SetId(const GUID& Id);
-		const GUID& GetId(){return Id;}
-
-		friend class History;
+	friend class History;
+	friend class DlgEdit;
+	friend intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+	friend intptr_t WINAPI DefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 };
 
 intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
-
 intptr_t WINAPI DefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
-
 bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
-
 void ItemToItemEx(const FarDialogItem *Data, DialogItemEx *Item, size_t Count, bool Short = false);

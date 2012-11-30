@@ -35,6 +35,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "colormix.hpp"
 
+enum
+{
+	DefaultColor=0xf,
+	ConsoleMask=0xf,
+	ConsoleBgShift=4,
+	ConsoleFgShift=0
+};
+
 WORD Colors::FarColorToConsoleColor(const FarColor& Color)
 {
 	static FARCOLORFLAGS Flags[2] = {FCF_BG_4BIT, FCF_FG_4BIT};

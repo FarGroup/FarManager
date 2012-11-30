@@ -7223,7 +7223,7 @@ Edit *Editor::CreateString(const wchar_t *lpwszStr, int nLength)
 		pEdit->SetCurPos(0);
 		pEdit->SetObjectColor(COL_EDITORTEXT,COL_EDITORSELECTEDTEXT);
 		pEdit->SetEditorMode(TRUE);
-		pEdit->SetWordDiv(EdOpt.strWordDiv);
+		pEdit->SetWordDiv(&EdOpt.strWordDiv);
 		pEdit->SetShowWhiteSpace(EdOpt.ShowWhiteSpace);
 	}
 

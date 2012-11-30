@@ -67,14 +67,14 @@ enum DEL_MODE
 	DEL_WIPEPROCESS
 };
 
-enum DIRDELTYPE:int
+ENUM(DIRDELTYPE)
 {
 	D_DEL,
 	D_RECYCLE,
 	D_WIPE,
 };
 
-enum DEL_RESULT:int
+ENUM(DEL_RESULT)
 {
 	DELETE_SUCCESS,
 	DELETE_YES,
@@ -393,7 +393,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 			            strDeleteFilesMsg,
 			            strAskDeleteLink,
 			            strJuncName,
-			            MSG(MDeleteLinkDelete),MSG(MDeleteLinkUnlink),MSG(MCancel));
+						MSG(MDeleteLinkDelete),MSG(MDeleteLinkUnlink),MSG(MCancel));
 
 			if (Ret == 1)
 			{
@@ -454,7 +454,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		}
 
 		const wchar_t* const Items[] = {DelMsg, strDeleteFilesMsg, MSG(Wipe? MDeleteWipe : Global->Opt->DeleteToRecycleBin? MDeleteRecycle : MDelete), MSG(MCancel)};
-		if (MessageObject(0, 2, TitleMsg, Items, ARRAYSIZE(Items), L"DeleteFile").GetExitCode())
+		if (Message(0, 2, TitleMsg, Items, ARRAYSIZE(Items), L"DeleteFile") != 0)
 		{
 			NeedUpdate=FALSE;
 			goto done;
@@ -466,7 +466,7 @@ ShellDelete::ShellDelete(Panel *SrcPanel,bool Wipe):
 		//SaveScreen SaveScr;
 		SetCursorType(FALSE,0);
 		const wchar_t* const Items[] = {MSG(Wipe? MAskWipe : MAskDelete), strDeleteFilesMsg, MSG(MDeleteFileAll), MSG(MDeleteFileCancel)};
-		if (MessageObject(MSG_WARNING,2,MSG(Wipe? MWipeFilesTitle : MDeleteFilesTitle), Items, ARRAYSIZE(Items), L"DeleteFile").GetExitCode())
+		if (Message(MSG_WARNING,2,MSG(Wipe? MWipeFilesTitle : MDeleteFilesTitle), Items, ARRAYSIZE(Items), L"DeleteFile") != 0)
 		{
 			NeedUpdate=FALSE;
 			goto done;

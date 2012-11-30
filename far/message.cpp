@@ -49,25 +49,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarDlgBuilder.hpp"
 #include "clipboard.hpp"
 
-
-int Message(DWORD Flags,size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, Plugin* PluginNumber, const GUID* Id)
-{
-	return MessageObject(Flags, Buttons, Title, Items, ItemsNumber, nullptr, PluginNumber, Id).GetExitCode();
-}
-
-int Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1, const wchar_t *Str2, const wchar_t *Str3, const wchar_t *Str4, const wchar_t *Str5,
-                 const wchar_t *Str6, const wchar_t *Str7, const wchar_t *Str8, const wchar_t *Str9, const wchar_t *Str10, const wchar_t *Str11,const wchar_t *Str12)
-{
-	const wchar_t *Str[]={Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,Str9,Str10,Str11,Str12};
-	int StrCount=0;
-
-	while (StrCount<(int)ARRAYSIZE(Str) && Str[StrCount])
-		StrCount++;
-
-	return MessageObject(Flags, Buttons, Title, Str, StrCount, nullptr, nullptr).GetExitCode();
-}
-
-bool FormatErrorString(bool Nt, DWORD Code, string& Str)
+static bool FormatErrorString(bool Nt, DWORD Code, string& Str)
 {
 	bool Result=false;
 	LPWSTR lpBuffer=nullptr;
@@ -78,12 +60,12 @@ bool FormatErrorString(bool Nt, DWORD Code, string& Str)
 	return Result;
 }
 
-bool GetWin32ErrorString(DWORD LastWin32Error, string& Str)
+static bool GetWin32ErrorString(DWORD LastWin32Error, string& Str)
 {
 	return FormatErrorString(false, LastWin32Error, Str);
 }
 
-bool GetNtErrorString(NTSTATUS LastNtStatus, string& Str)
+static bool GetNtErrorString(NTSTATUS LastNtStatus, string& Str)
 {
 	return FormatErrorString(true, LastNtStatus, Str);
 }
@@ -97,7 +79,7 @@ bool GetErrorString(string &strErrStr)
 #endif
 }
 
-intptr_t MessageObject::MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t Message::MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -193,8 +175,25 @@ intptr_t MessageObject::MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-MessageObject::MessageObject(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id):
+Message::Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1, const wchar_t *Str2, const wchar_t *Str3, const wchar_t *Str4, const wchar_t *Str5,
+                 const wchar_t *Str6, const wchar_t *Str7, const wchar_t *Str8, const wchar_t *Str9, const wchar_t *Str10, const wchar_t *Str11,const wchar_t *Str12):
 	m_ExitCode(0)
+{
+	const wchar_t *Str[]={Str1,Str2,Str3,Str4,Str5,Str6,Str7,Str8,Str9,Str10,Str11,Str12};
+	int StrCount=0;
+
+	while (StrCount<(int)ARRAYSIZE(Str) && Str[StrCount])
+		StrCount++;
+
+	Init(Flags, Buttons, Title, Str, StrCount, nullptr, nullptr);
+}
+Message::Message(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id):
+	m_ExitCode(0)
+{
+	Init(Flags, Buttons, Title, Items, ItemsNumber, HelpTopic, PluginNumber, Id);
+}
+
+void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic, Plugin* PluginNumber, const GUID* Id)
 {
 	string strTempStr;
 	string strClipText;
@@ -218,6 +217,7 @@ MessageObject::MessageObject(DWORD Flags, size_t Buttons, const wchar_t *Title, 
 	}
 
 #if 1 // try to replace inserts
+#define MSG_INSERT_STR(n) (((n) > 0 && (n) < 15) ? (MSG_INSERT_STR1 << ((n)-1)) : 0)
 	if (Items && 0 != (Flags & MSG_INSERT_STRINGS))
 	{
 		string str_err(strErrStr);
@@ -266,6 +266,7 @@ MessageObject::MessageObject(DWORD Flags, size_t Buttons, const wchar_t *Title, 
 		if (insert_mask == (Flags & MSG_INSERT_STRINGS))
 			strErrStr = str_err;
 	}
+#undef MSG_INSERT_STR
 #endif
 
 	// выделим память под рабочий массив указателей на строки (+запас 16)
@@ -516,7 +517,7 @@ MessageObject::MessageObject(DWORD Flags, size_t Buttons, const wchar_t *Title, 
 				MsgDlg[0].Y2++;
 				ItemCount++;
 			}
-			Dialog Dlg(this, &MessageObject::MsgDlgProc, &strClipText, MsgDlg, ItemCount);
+			Dialog Dlg(this, &Message::MsgDlgProc, &strClipText, MsgDlg, ItemCount);
 			if (X1 == -1) X1 = 0;
 			if (Y1 == -1) Y1 = 0;
 			Dlg.SetPosition(X1,Y1,X2,Y2);
@@ -646,7 +647,7 @@ MessageObject::MessageObject(DWORD Flags, size_t Buttons, const wchar_t *Title, 
 }
 
 
-void MessageObject::GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2)
+void Message::GetMessagePosition(int &X1,int &Y1,int &X2,int &Y2) const
 {
 	X1=MessageX1;
 	Y1=MessageY1;

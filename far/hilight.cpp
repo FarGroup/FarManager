@@ -636,7 +636,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 
 					if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
 					            MSG(MHighlightWarning),MSG(MHighlightAskRestore),
-					            MSG(MYes),MSG(MCancel)))
+					            MSG(MYes),MSG(MCancel)) != 0)
 						break;
 
 					HierarchicalConfig *cfg = Global->Db->CreateHighlightConfig();
@@ -661,7 +661,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 
 						if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
 						            MSG(MHighlightAskDel),Mask,
-						            MSG(MDelete),MSG(MCancel)))
+						            MSG(MDelete),MSG(MCancel)) != 0)
 							break;
 
 						HiData.deleteItem(RealSelectPos);

@@ -97,7 +97,7 @@ enum MACRORECORDANDEXECUTETYPE
 	MACROMODE_RECORDING_COMMON =4,  // запись: с передачей плагину пимп
 };
 // области действия макросов (начало исполнения) -  НЕ БОЛЕЕ 0xFF областей!
-enum MACROMODEAREA
+ENUM(MACROMODEAREA)
 {
 	// see also plugin.hpp # FARMACROAREA
 	MACRO_OTHER                =   0, // Режим копирования текста с экрана, вертикальные меню

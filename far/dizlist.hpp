@@ -33,45 +33,35 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-struct DizRecord
-{
-	string DizText;
-	int NameStart;
-	int NameLength;
-	bool Deleted;
-};
-
 class DizList
 {
-	private:
-		string strDizFileName;
-		DizRecord **DizData;
-		size_t DizCount;
-		size_t *IndexData;
-		size_t IndexCount;
-		bool Modified;
-		bool NeedRebuild;
-		uintptr_t OrigCodePage;
-		char *AnsiBuf;
+public:
+	DizList();
+	~DizList();
 
-	private:
-		int GetDizPos(const string& Name, int *TextPos);
-		int GetDizPosEx(const string& Name, const string& ShortName, int *TextPos);
-		bool AddRecord(const string& DizText);
-		void BuildIndex();
+	void Read(const string& Path, const string* DizName=nullptr);
+	void Reset();
+	const wchar_t *GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize);
+	bool DeleteDiz(const string& Name, const string& ShortName);
+	bool Flush(const string& Path, const string *DizName=nullptr);
+	bool AddDizText(const string& Name, const string& ShortName, const string& DizText);
+	bool CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName,DizList *DestDiz);
+	void GetDizName(string &strDizName);
+	static void PR_ReadingMsg();
 
-	public:
-		DizList();
-		~DizList();
+private:
+	int GetDizPos(const string& Name, int *TextPos);
+	int GetDizPosEx(const string& Name, const string& ShortName, int *TextPos);
+	bool AddRecord(const string& DizText);
+	void BuildIndex();
 
-	public:
-		void Read(const string& Path, const string* DizName=nullptr);
-		void Reset();
-		const wchar_t *GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize);
-		bool DeleteDiz(const string& Name, const string& ShortName);
-		bool Flush(const string& Path, const string *DizName=nullptr);
-		bool AddDizText(const string& Name, const string& ShortName, const string& DizText);
-		bool CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName,DizList *DestDiz);
-		void GetDizName(string &strDizName);
-		static void PR_ReadingMsg();
+	string strDizFileName;
+	struct DizRecord **DizData;
+	size_t DizCount;
+	size_t *IndexData;
+	size_t IndexCount;
+	bool Modified;
+	bool NeedRebuild;
+	uintptr_t OrigCodePage;
+	char *AnsiBuf;
 };

@@ -33,14 +33,14 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "macro.hpp"
+ENUM(MACROMODEAREA);
 
 class ChangeMacroMode
 {
-	private:
-		MACROMODEAREA PrevMacroMode;
+public:
+	ChangeMacroMode(MACROMODEAREA NewMode);
+	~ChangeMacroMode();
 
-	public:
-		ChangeMacroMode(MACROMODEAREA NewMode);
-		~ChangeMacroMode();
+private:
+	MACROMODEAREA PrevMacroMode;
 };

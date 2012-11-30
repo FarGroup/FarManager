@@ -585,7 +585,7 @@ void NormalizeSymlinkName(string &strLinkName)
 }
 
 // Кусок для создания SymLink для каталогов.
-int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkType,DWORD Flags)
+int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkType, bool Silent)
 {
 	if (SelName && *SelName && Dest && *Dest)
 	{
@@ -642,7 +642,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 		{
 			if ((JSAttr&FILE_ATTRIBUTE_DIRECTORY)!=FILE_ATTRIBUTE_DIRECTORY)
 			{
-				if (!(Flags&FCOPY_NOSHOWMSGLINK))
+				if (!Silent)
 				{
 					Message(MSG_WARNING,1,MSG(MError),
 					        MSG(MCopyCannotCreateJunctionToFile),
@@ -673,7 +673,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 				{
 					if (TestFolder(strDestFullName) == TSTFLD_NOTEMPTY) // а пустой?
 					{
-						if (!(Flags&FCOPY_NOSHOWMSGLINK))
+						if (!Silent)
 						{
 							if (LinkType==RP_VOLMOUNT)
 							{
@@ -702,7 +702,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 
 				if (apiGetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так, все очень даже плохо.
 				{
-					if (!(Flags&FCOPY_NOSHOWMSGLINK))
+					if (!Silent)
 					{
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 						        MSG(MCopyCannotCreateFolder),
@@ -766,7 +766,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 
 				if (apiGetFileAttributes(strDestFullName) == INVALID_FILE_ATTRIBUTES) // так. все очень даже плохо.
 				{
-					if (!(Flags&FCOPY_NOSHOWMSGLINK))
+					if (!Silent)
 					{
 						Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 						        MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
@@ -785,7 +785,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 			}
 			else
 			{
-				if (!(Flags&FCOPY_NOSHOWMSGLINK))
+				if (!Silent)
 				{
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,MSG(MError),
 					        MSG(MCopyCannotCreateLink),strDestFullName,MSG(MOk));
@@ -802,7 +802,7 @@ int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkT
 			}
 			else
 			{
-				if (!(Flags&FCOPY_NOSHOWMSGLINK))
+				if (!Silent)
 				{
 					Message(MSG_WARNING|MSG_ERRORTYPE,1,
 						MSG(MError),

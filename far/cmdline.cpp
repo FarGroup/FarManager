@@ -64,6 +64,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelmix.hpp"
 #include "message.hpp"
 
+enum
+{
+	FCMDOBJ_LOCKUPDATEPANEL   = 0x00010000,
+};
+
 CommandLine::CommandLine():
 	CmdStr(Global->CtrlObject->Cp(),0,true,Global->CtrlObject->CmdHistory,0,(Global->Opt->CmdLine.AutoComplete?EditControl::EC_ENABLEAUTOCOMPLETE:0)|EditControl::EC_COMPLETE_HISTORY|EditControl::EC_COMPLETE_FILESYSTEM|EditControl::EC_COMPLETE_PATH),
 	BackgroundScreen(nullptr),
@@ -1240,4 +1245,9 @@ bool CommandLine::IntChDir(const string& CmdLine,int ClosePanel,bool Selent)
 	}
 
 	return true;
+}
+
+void CommandLine::LockUpdatePanel(bool Mode)
+{
+	Flags.Change(FCMDOBJ_LOCKUPDATEPANEL,Mode);
 }

@@ -91,6 +91,41 @@ enum
 	COPY_RULE_FILES  = 0x0002,
 };
 
+ENUM(COPY_CODES)
+{
+	COPY_CANCEL,
+	COPY_NEXT,
+	COPY_NOFILTER,                              // не считать размеры, т.к. файл не прошел по фильтру
+	COPY_FAILURE,
+	COPY_FAILUREREAD,
+	COPY_SUCCESS,
+	COPY_SUCCESS_MOVE,
+	COPY_RETRY,
+};
+
+enum COPY_FLAGS
+{
+	FCOPY_COPYTONUL               = 0x00000001, // Признак копирования в NUL
+	FCOPY_CURRENTONLY             = 0x00000002, // Только текщий?
+	FCOPY_ONLYNEWERFILES          = 0x00000004, // Copy only newer files
+	FCOPY_OVERWRITENEXT           = 0x00000008, // Overwrite all
+	FCOPY_LINK                    = 0x00000010, // создание линков
+	FCOPY_MOVE                    = 0x00000040, // перенос/переименование
+	FCOPY_DIZREAD                 = 0x00000080, //
+	FCOPY_COPYSECURITY            = 0x00000100, // [x] Copy access rights
+	FCOPY_VOLMOUNT                = 0x00000400, // операция монтированния тома
+	FCOPY_STREAMSKIP              = 0x00000800, // потоки
+	FCOPY_STREAMALL               = 0x00001000, // потоки
+	FCOPY_SKIPSETATTRFLD          = 0x00002000, // больше не пытаться ставить атрибуты для каталогов - когда нажали Skip All
+	FCOPY_COPYSYMLINKCONTENTS     = 0x00004000, // Копировать содержимое симолических связей?
+	FCOPY_COPYPARENTSECURITY      = 0x00008000, // Накладывать родительские права, в случае если мы не копируем права доступа
+	FCOPY_LEAVESECURITY           = 0x00010000, // Move: [?] Ничего не делать с правами доступа
+	FCOPY_DECRYPTED_DESTINATION   = 0x00020000, // для криптованных файлов - расшифровывать...
+	FCOPY_USESYSTEMCOPY           = 0x00040000, // использовать системную функцию копирования
+	FCOPY_COPYLASTTIME            = 0x10000000, // При копировании в несколько каталогов устанавливается для последнего.
+	FCOPY_UPDATEPPANEL            = 0x80000000, // необходимо обновить пассивную панель
+};
+
 enum COPYSECURITYOPTIONS
 {
 	CSO_MOVE_SETCOPYSECURITY       = 0x00000001,  // Move: по умолчанию выставлять опцию "Copy access rights"?
@@ -282,7 +317,7 @@ void CopyProgress::CreateScanBackground()
 
 	Bar[BarSize]=0;
 	const wchar_t* const Items[] = {MSG(MCopyScanning),Bar};
-	MessageObject m(MSG_LEFTALIGN,0,MSG(Move?MMoveDlgTitle:MCopyDlgTitle), Items, ARRAYSIZE(Items));
+	Message m(MSG_LEFTALIGN,0,MSG(Move?MMoveDlgTitle:MCopyDlgTitle), Items, ARRAYSIZE(Items));
 	int MX1,MY1,MX2,MY2;
 	m.GetMessagePosition(MX1,MY1,MX2,MY2);
 	Rect.Left=MX1;
@@ -373,7 +408,7 @@ void CopyProgress::CreateBackground()
 			ItemsNumber = 11;
 		}
 	}
-	MessageObject m(MSG_LEFTALIGN, 0, Title, Items, ItemsNumber);
+	Message m(MSG_LEFTALIGN, 0, Title, Items, ItemsNumber);
 
 	int MX1,MY1,MX2,MY2;
 	m.GetMessagePosition(MX1,MY1,MX2,MY2);
@@ -1886,7 +1921,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 
 		if (RPT==RP_JUNCTION || RPT==RP_SYMLINK || RPT==RP_SYMLINKFILE || RPT==RP_SYMLINKDIR)
 		{
-			switch (MkSymLink(strSelName,strDest,RPT,Flags))
+			switch (MkSymLink(strSelName, strDest, RPT))
 			{
 				case 2:
 					break;
@@ -2024,7 +2059,7 @@ COPY_CODES ShellCopy::CopyFileTree(const string& Dest)
 		if ((SrcData.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT) && !(Flags&FCOPY_COPYSYMLINKCONTENTS))
 		{
 			//создать симлинк
-			switch (MkSymLink(SelName,Dest,FCOPY_LINK/*|FCOPY_NOSHOWMSGLINK*/))
+			switch (MkSymLink(SelName, Dest))
 			{
 				case 2:
 					break;
@@ -2269,7 +2304,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 				if (CmpCode==1)
 				{
 					const wchar_t* const Items[] = {MSG(MCannotCopyFolderToItself1), Src, MSG(MCannotCopyFolderToItself2), MSG(MOk)};
-					MessageObject(MSG_WARNING, 1, MSG(MError), Items, ARRAYSIZE(Items), L"ErrCopyItSelf");
+					Message(MSG_WARNING, 1, MSG(MError), Items, ARRAYSIZE(Items), L"ErrCopyItSelf");
 					return(COPY_CANCEL);
 				}
 			}
@@ -2537,7 +2572,7 @@ COPY_CODES ShellCopy::ShellCopyOneFile(
 			// Directory symbolic links and junction points are handled by CreateDirectoryEx.
 			if (!(SrcData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && SrcData.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT && !(Flags&FCOPY_COPYSYMLINKCONTENTS) && RPT==RP_EXACTCOPY)
 			{
-				switch (MkSymLink(Src, strDestPath,RPT,0))
+				switch (MkSymLink(Src, strDestPath, RPT))
 				{
 					case 2:
 						return COPY_CANCEL;
@@ -2968,7 +3003,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 		}
 		else
 		{
-			return(MkSymLink(SrcName,strDestName,RPT,0) ? COPY_SUCCESS:COPY_FAILURE);
+			return(MkSymLink(SrcName, strDestName, RPT) ? COPY_SUCCESS:COPY_FAILURE);
 		}
 	}
 
@@ -2990,7 +3025,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 			string strSrcName(SrcName);
 			InsertQuote(strSrcName);
 			const wchar_t* const Items[] = {MSG(MCopyEncryptWarn1), strSrcName, MSG(MCopyEncryptWarn2), MSG(MCopyEncryptWarn3), MSG(MCopyIgnore), MSG(MCopyIgnoreAll), MSG(MCopyCancel)};
-			MsgCode = MessageObject(MSG_WARNING,3,MSG(MWarning), Items, ARRAYSIZE(Items), L"WarnCopyEncrypt").GetExitCode();
+			MsgCode = Message(MSG_WARNING,3,MSG(MWarning), Items, ARRAYSIZE(Items), L"WarnCopyEncrypt");
 		}
 
 		switch (MsgCode)
@@ -3249,7 +3284,7 @@ int ShellCopy::ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcDa
 							DestFile.Close();
 							SetLastError(LastError);
 							const wchar_t* const Items[] = {strDestName, MSG(MSplit), MSG(MSkip), MSG(MRetry), MSG(MCancel)};
-							int MsgCode=MessageObject(MSG_WARNING|MSG_ERRORTYPE, 4, MSG(MError), Items, ARRAYSIZE(Items), L"CopyFiles").GetExitCode();
+							int MsgCode=Message(MSG_WARNING|MSG_ERRORTYPE, 4, MSG(MError), Items, ARRAYSIZE(Items), L"CopyFiles");
 							PR_ShellCopyMsg();
 
 							if (MsgCode==2)

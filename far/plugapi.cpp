@@ -1092,7 +1092,7 @@ intptr_t WINAPI apiMessageFn(const GUID* PluginId,const GUID* Id,unsigned __int6
 	if ((frame=FrameManager->GetBottomFrame()))
 		frame->Lock(); // отменим прорисовку фрейма
 
-	int MsgCode=MessageObject(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN), ButtonsNumber, MsgItems[0], MsgItems+1, ItemsNumber-1, strTopic.IsEmpty()? nullptr : strTopic.CPtr(), PluginNumber, Id).GetExitCode();
+	int MsgCode=Message(Flags&(FMSG_WARNING|FMSG_ERRORTYPE|FMSG_KEEPBACKGROUND|FMSG_LEFTALIGN), ButtonsNumber, MsgItems[0], MsgItems+1, ItemsNumber-1, strTopic.IsEmpty()? nullptr : strTopic.CPtr(), PluginNumber, Id);
 
 	/* $ 15.05.2002 SKV
 	  Однако разлочивать надо ровно то, что залочили.
@@ -2633,7 +2633,7 @@ BOOL WINAPI apiMkLink(const wchar_t *Src,const wchar_t *Dest, LINK_TYPE Type, MK
 					break;
 				}
 
-				Result=MkSymLink(Src,Dest,LinkType,(Flags&MLF_SHOWERRMSG?0:FCOPY_NOSHOWMSGLINK));
+				Result=MkSymLink(Src,Dest, LinkType, (Flags&MLF_SHOWERRMSG) == 0);
 			}
 			break;
 		default:

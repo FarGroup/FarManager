@@ -1237,7 +1237,7 @@ int Execute(const string& CmdStr,  // Ком.строка для исполнения
 			Items[3] = MSG(MOk);
 			ItemsSize = 4;
 		}
-		MessageObject(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1, MSG(MError), Items, ItemsSize, L"ErrCannotExecute");
+		Message(MSG_WARNING|MSG_ERRORTYPE|MSG_INSERT_STR2, 1, MSG(MError), Items, ItemsSize, L"ErrCannotExecute");
 	}
 
 	return nResult;

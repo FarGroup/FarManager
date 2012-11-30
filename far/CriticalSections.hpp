@@ -35,26 +35,26 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class CriticalSection
 {
-	private:
-		CRITICAL_SECTION _object;
 
-	public:
-		CriticalSection() { ::InitializeCriticalSection(&_object); }
-		~CriticalSection() { ::DeleteCriticalSection(&_object); }
+public:
+	CriticalSection() { ::InitializeCriticalSection(&_object); }
+	~CriticalSection() { ::DeleteCriticalSection(&_object); }
 
-	public:
-		void Enter() { ::EnterCriticalSection(&_object); }
-		void Leave() { ::LeaveCriticalSection(&_object); }
+	void Enter() { ::EnterCriticalSection(&_object); }
+	void Leave() { ::LeaveCriticalSection(&_object); }
+
+private:
+	CRITICAL_SECTION _object;
 };
 
 class CriticalSectionLock:NonCopyable
 {
-	private:
-		CriticalSection &_object;
+public:
+	CriticalSectionLock(CriticalSection &object): _object(object) { _object.Enter(); }
+	~CriticalSectionLock() { Unlock(); }
 
-		void Unlock() { _object.Leave(); }
+private:
+	void Unlock() { _object.Leave(); }
 
-	public:
-		CriticalSectionLock(CriticalSection &object): _object(object) { _object.Enter(); }
-		~CriticalSectionLock() { Unlock(); }
+	CriticalSection &_object;
 };

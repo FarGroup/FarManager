@@ -32,19 +32,9 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "plugin.hpp"
-
 class Colors
 {
-	private:
-	    enum
-	    {
-	    	DefaultColor=0xf,
-			ConsoleMask=0xf,
-			ConsoleBgShift=4,
-			ConsoleFgShift=0
-		};
-	public:
-		static WORD FarColorToConsoleColor(const FarColor& Color);
-		static void ConsoleColorToFarColor(WORD Color,FarColor& NewColor);
+public:
+	static WORD FarColorToConsoleColor(const FarColor& Color);
+	static void ConsoleColorToFarColor(WORD Color,FarColor& NewColor);
 };

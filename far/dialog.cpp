@@ -86,6 +86,23 @@ enum DLGITEMINTERNALFLAGS
 	DLGIIF_COMBOBOXEVENTMOUSE       = 0x00000020, // посылать события мыши в диалоговую проц. для открытого комбобокса
 };
 
+class DlgUserControl
+{
+	public:
+		COORD CursorPos;
+		bool CursorVisible;
+		DWORD CursorSize;
+
+	public:
+		DlgUserControl():
+			CursorVisible(false),
+			CursorSize(static_cast<DWORD>(-1))
+		{
+			CursorPos.X=CursorPos.Y=-1;
+		}
+		~DlgUserControl() {};
+};
+
 //////////////////////////////////////////////////////////////////////////
 /*
    Функция, определяющая - "Может ли элемент диалога иметь фокус ввода"

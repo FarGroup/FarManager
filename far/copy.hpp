@@ -35,108 +35,69 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "dizlist.hpp"
 #include "udlist.hpp"
-#include "flink.hpp"
 
 class Panel;
 
-enum COPY_CODES
-{
-	COPY_CANCEL,
-	COPY_NEXT,
-	COPY_NOFILTER,                              // не считать размеры, т.к. файл не прошел по фильтру
-	COPY_FAILURE,
-	COPY_FAILUREREAD,
-	COPY_SUCCESS,
-	COPY_SUCCESS_MOVE,
-	COPY_RETRY,
-};
-
-enum COPY_FLAGS
-{
-	FCOPY_COPYTONUL               = 0x00000001, // ѕризнак копировани€ в NUL
-	FCOPY_CURRENTONLY             = 0x00000002, // “олько текщий?
-	FCOPY_ONLYNEWERFILES          = 0x00000004, // Copy only newer files
-	FCOPY_OVERWRITENEXT           = 0x00000008, // Overwrite all
-	FCOPY_LINK                    = 0x00000010, // создание линков
-	FCOPY_MOVE                    = 0x00000040, // перенос/переименование
-	FCOPY_DIZREAD                 = 0x00000080, //
-	FCOPY_COPYSECURITY            = 0x00000100, // [x] Copy access rights
-	FCOPY_NOSHOWMSGLINK           = 0x00000200, // не показывать месаги при ликовании
-	FCOPY_VOLMOUNT                = 0x00000400, // операци€ монтированни€ тома
-	FCOPY_STREAMSKIP              = 0x00000800, // потоки
-	FCOPY_STREAMALL               = 0x00001000, // потоки
-	FCOPY_SKIPSETATTRFLD          = 0x00002000, // больше не пытатьс€ ставить атрибуты дл€ каталогов - когда нажали Skip All
-	FCOPY_COPYSYMLINKCONTENTS     = 0x00004000, //  опировать содержимое симолических св€зей?
-	FCOPY_COPYPARENTSECURITY      = 0x00008000, // Ќакладывать родительские права, в случае если мы не копируем права доступа
-	FCOPY_LEAVESECURITY           = 0x00010000, // Move: [?] Ќичего не делать с правами доступа
-	FCOPY_DECRYPTED_DESTINATION   = 0x00020000, // дл€ криптованных файлов - расшифровывать...
-	FCOPY_USESYSTEMCOPY           = 0x00040000, // использовать системную функцию копировани€
-	FCOPY_COPYLASTTIME            = 0x10000000, // ѕри копировании в несколько каталогов устанавливаетс€ дл€ последнего.
-	FCOPY_UPDATEPPANEL            = 0x80000000, // необходимо обновить пассивную панель
-};
+ENUM(COPY_CODES);
+ENUM(ReparsePointTypes);
 
 class ShellCopy
 {
-		DWORD Flags;
-		Panel *SrcPanel,*DestPanel;
-		int SrcPanelMode,DestPanelMode;
-		int SrcDriveType,DestDriveType;
-		string strSrcDriveRoot;
-		string strDestDriveRoot;
-		string strDestFSName;
-		DizList DestDiz;
-		string strDestDizPath;
-		char *CopyBuffer;
-		size_t CopyBufferSize;
-		string strCopiedName;
-		string strRenamedName;
-		string strRenamedFilesPath;
-		int OvrMode;
-		int ReadOnlyOvrMode;
-		int ReadOnlyDelMode;
-		int SkipMode;          // ...дл€ пропуска при копировании залоченных файлов.
-		int SkipEncMode;
-		int SkipDeleteMode;
-		int SelectedFolderNameLength;
-		UserDefinedList DestList;
-		// тип создаваемого репарспоинта.
-		// при AltF6 будет то, что выбрал юзер в диалоге,
-		// в остальных случа€х - RP_EXACTCOPY - как у источника
-		ReparsePointTypes RPT;
+public:
+	ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask, int &ToPlugin, const wchar_t* PluginDestPath, bool ToSubdir=false);
+	~ShellCopy();
 
-		string strPluginFormat;
-		int AltF10;
-		int CopySecurity;
-		size_t SelCount;
-		DWORD FileAttr;
-		bool FolderPresent;
-		bool FilesPresent;
-		bool AskRO;
+private:
+	COPY_CODES CopyFileTree(const string&  Dest);
+	COPY_CODES ShellCopyOneFile(const string& Src, const FAR_FIND_DATA_EX &SrcData, string &strDest, int KeepPathPos, int Rename);
+	COPY_CODES CheckStreams(const string& Src,const string& DestPath);
+	int ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcData, string &strDestName,DWORD &DestAttr,int Append);
+	int ShellSystemCopy(const string& SrcName,const string& DestName,const FAR_FIND_DATA_EX &SrcData);
+	int DeleteAfterMove(const string& Name,DWORD Attr);
+	int AskOverwrite(const FAR_FIND_DATA_EX &SrcData,const string& SrcName,const string& DestName, DWORD DestAttr,int SameName,int Rename,int AskAppend, int &Append,string &strNewName,int &RetCode);
+	int GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR_EX& sd);
+	int SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd);
+	int SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd);
+	bool CalcTotalSize();
+	bool ShellSetAttr(const string& Dest,DWORD Attr);
+	void SetDestDizPath(const string& DestPath);
+	void CheckUpdatePanel(); // выставл€ет флаг FCOPY_UPDATEPPANEL
+	intptr_t WarnDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+	intptr_t CopyDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
-		COPY_CODES CopyFileTree(const string&  Dest);
-		COPY_CODES ShellCopyOneFile(const string&  Src,
-		                            const FAR_FIND_DATA_EX &SrcData,
-		                            string &strDest,
-		                            int KeepPathPos, int Rename);
-		COPY_CODES CheckStreams(const string& Src,const string& DestPath);
-		int  ShellCopyFile(const string& SrcName,const FAR_FIND_DATA_EX &SrcData,
-		                   string &strDestName,DWORD &DestAttr,int Append);
-		int  ShellSystemCopy(const string& SrcName,const string& DestName,const FAR_FIND_DATA_EX &SrcData);
-		int  DeleteAfterMove(const string& Name,DWORD Attr);
-		void SetDestDizPath(const string& DestPath);
-		int  AskOverwrite(const FAR_FIND_DATA_EX &SrcData,const string& SrcName,const string& DestName,
-		                  DWORD DestAttr,int SameName,int Rename,int AskAppend,
-		                  int &Append,string &strNewName,int &RetCode);
-		int  GetSecurity(const string& FileName, FAR_SECURITY_DESCRIPTOR_EX& sd);
-		int  SetSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd);
-		int  SetRecursiveSecurity(const string& FileName,const FAR_SECURITY_DESCRIPTOR_EX& sd);
-		bool CalcTotalSize();
-		bool ShellSetAttr(const string& Dest,DWORD Attr);
-		void CheckUpdatePanel(); // выставл€ет флаг FCOPY_UPDATEPPANEL
-		intptr_t WarnDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
-		intptr_t CopyDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
-	public:
-		ShellCopy(Panel *SrcPanel,int Move,int Link,int CurrentOnly,int Ask,
-		          int &ToPlugin, const wchar_t* PluginDestPath, bool ToSubdir=false);
-		~ShellCopy();
+
+	DWORD Flags;
+	Panel *SrcPanel,*DestPanel;
+	int SrcPanelMode,DestPanelMode;
+	int SrcDriveType,DestDriveType;
+	string strSrcDriveRoot;
+	string strDestDriveRoot;
+	string strDestFSName;
+	DizList DestDiz;
+	string strDestDizPath;
+	char *CopyBuffer;
+	size_t CopyBufferSize;
+	string strCopiedName;
+	string strRenamedName;
+	string strRenamedFilesPath;
+	int OvrMode;
+	int ReadOnlyOvrMode;
+	int ReadOnlyDelMode;
+	int SkipMode;          // ...дл€ пропуска при копировании залоченных файлов.
+	int SkipEncMode;
+	int SkipDeleteMode;
+	int SelectedFolderNameLength;
+	UserDefinedList DestList;
+	// тип создаваемого репарспоинта.
+	// при AltF6 будет то, что выбрал юзер в диалоге,
+	// в остальных случа€х - RP_EXACTCOPY - как у источника
+	ReparsePointTypes RPT;
+	string strPluginFormat;
+	int AltF10;
+	int CopySecurity;
+	size_t SelCount;
+	DWORD FileAttr;
+	bool FolderPresent;
+	bool FilesPresent;
+	bool AskRO;
 };

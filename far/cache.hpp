@@ -46,12 +46,12 @@ public:
 private:
 	LPBYTE Buffer;
 	File& file;
-	enum {DefaultBufferSize=0x10000};
+	const DWORD DefaultBufferSize;
 	DWORD ReadSize;
 	DWORD BytesLeft;
 	INT64 LastPtr;
 	DWORD BufferSize; // = 2*k*Alignment (k >= 2)
-	int   Alignment;  //
+	int Alignment;
 };
 
 
@@ -66,8 +66,7 @@ public:
 private:
 	LPBYTE Buffer;
 	File& file;
-	enum {BufferSize=0x10000};
+	const DWORD BufferSize;
 	DWORD FreeSize;
 	bool Flushed;
-
 };

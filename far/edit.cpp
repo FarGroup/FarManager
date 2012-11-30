@@ -91,7 +91,7 @@ Edit::Edit(ScreenObject *pOwner, bool bAllocateData):
 	CursorPos(0)
 {
 	SetOwner(pOwner);
-	SetWordDiv(Global->Opt->strWordDiv);
+	SetWordDiv(&Global->Opt->strWordDiv);
 
 	if (bAllocateData)
 		*Str=0;

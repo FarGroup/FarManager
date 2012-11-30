@@ -35,7 +35,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "plugin.hpp"
 
-enum ReparsePointTypes
+ENUM(ReparsePointTypes)
 {
 	RP_EXACTCOPY,   // для копирования/переноса ссылок, копия существующего
 	RP_HARDLINK,    // жёсткая ссылка
@@ -75,4 +75,4 @@ bool DuplicateReparsePoint(const string& Src,const string& Dst);
 
 void NormalizeSymlinkName(string &strLinkName);
 
-int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkType,DWORD Flags);
+int MkSymLink(const wchar_t *SelName,const wchar_t *Dest,ReparsePointTypes LinkType, bool Silent = false);

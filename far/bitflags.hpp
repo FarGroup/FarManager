@@ -32,27 +32,28 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 template<class T>
 class TBitFlags
 {
 public:
-		TBitFlags():m_Flags(0) {}
-		TBitFlags(const T& Flags):m_Flags(Flags) {}
+	TBitFlags():m_Flags(0) {}
+	TBitFlags(const T& Flags):m_Flags(Flags) {}
 
-		const T& Flags() const { return m_Flags; }
-		// установить набор флагов
-		const T& Set(const T& FlagsToSet) { m_Flags |= FlagsToSet; return m_Flags;}
-		// сбросить набор флагов
-		const T& Clear(const T& FlagsToClear) { m_Flags &=~ FlagsToClear; return m_Flags; }
-		// проверить набор флагов
-		bool Check(const T& FlagsToCheck) const { return m_Flags & FlagsToCheck? true : false; }
-		// изменить состояние набора флагов в заивисмости от Status
-		const T& Change(const T& FlagsToChange, bool set) { return set? Set(FlagsToChange) : Clear(FlagsToChange); }
-		// инвертировать состояние флагов
-		const T& Swap(const T& FlagsToSwap) { return Check(FlagsToSwap)? Clear(FlagsToSwap) : Set(FlagsToSwap); }
-		//сбросить все флаги
-		void ClearAll() { m_Flags = 0; }
+	const T& Flags() const { return m_Flags; }
+	// установить набор флагов
+	const T& Set(const T& FlagsToSet) { m_Flags |= FlagsToSet; return m_Flags;}
+	// сбросить набор флагов
+	const T& Clear(const T& FlagsToClear) { m_Flags &=~ FlagsToClear; return m_Flags; }
+	// проверить набор флагов
+	bool Check(const T& FlagsToCheck) const { return m_Flags & FlagsToCheck? true : false; }
+	// изменить состояние набора флагов в заивисмости от Status
+	const T& Change(const T& FlagsToChange, bool set) { return set? Set(FlagsToChange) : Clear(FlagsToChange); }
+	// инвертировать состояние флагов
+	const T& Swap(const T& FlagsToSwap) { return Check(FlagsToSwap)? Clear(FlagsToSwap) : Set(FlagsToSwap); }
+	//сбросить все флаги
+	void ClearAll() { m_Flags = 0; }
 private:
-		T m_Flags;};
+	T m_Flags;};
 
 typedef TBitFlags<DWORD> BitFlags;

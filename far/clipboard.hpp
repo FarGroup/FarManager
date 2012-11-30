@@ -47,17 +47,7 @@ BOOL EmptyInternalClipboard();
 
 class Clipboard
 {
-	static HGLOBAL hInternalClipboard[COUNT_INTERNAL_CLIPBOARD];
-	static UINT    uInternalClipboardFormat[COUNT_INTERNAL_CLIPBOARD];
-
-	static bool UseInternalClipboard;
-	static bool InternalClipboardOpen;
-
 public:
-
-	static bool SetUseInternalClipboardState(bool State); //Sets UseInternalClipboard to State, and returns previous state
-	static bool GetUseInternalClipboardState();
-
 	Clipboard() {}
 	~Clipboard() {}
 
@@ -70,14 +60,21 @@ public:
 	wchar_t *Paste();
 	wchar_t *PasteEx(int max);
 	wchar_t *PasteFormat(const wchar_t *Format);
-
 	bool InternalCopy(bool FromWin);
 
-private:
+	static bool SetUseInternalClipboardState(bool State); //Sets UseInternalClipboard to State, and returns previous state
+	static bool GetUseInternalClipboardState();
 
+private:
 	UINT RegisterFormat(LPCWSTR lpszFormat);
 	BOOL IsFormatAvailable(UINT Format);
 	//UINT EnumFormats(UINT uFormat);
 	HANDLE GetData(UINT uFormat);
 	HANDLE SetData(UINT uFormat, HANDLE hMem);
+
+	static HGLOBAL hInternalClipboard[COUNT_INTERNAL_CLIPBOARD];
+	static UINT    uInternalClipboardFormat[COUNT_INTERNAL_CLIPBOARD];
+
+	static bool UseInternalClipboard;
+	static bool InternalClipboardOpen;
 };

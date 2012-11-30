@@ -52,10 +52,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 
 ControlObject::ControlObject():
-	FPanels(0),
-	CmdLine(0),
+	CmdLine(nullptr),
 	MainKeyBar(nullptr),
-	TopMenuBar(nullptr)
+	TopMenuBar(nullptr),
+	FPanels(nullptr)
 {
 	_OT(SysLog(L"[%p] ControlObject::ControlObject()", this));
 

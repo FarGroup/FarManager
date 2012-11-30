@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panelctype.hpp"
 #include "configdb.hpp"
 
-//  +CASR_* Поведение Ctrl-Alt-Shift для AllCtrlAltShiftRule
 enum
 {
 	CASR_PANEL  = 0x0001,
@@ -52,26 +51,22 @@ enum ExcludeCmdHistoryType
 	EXCLUDECMDHISTORY_NOTFARASS    = 0x00000002,  // не помещать в историю команды выполнения ассоциаций файлов
 	EXCLUDECMDHISTORY_NOTPANEL     = 0x00000004,  // не помещать в историю команды выполнения с панели
 	EXCLUDECMDHISTORY_NOTCMDLINE   = 0x00000008,  // не помещать в историю команды выполнения с ком.строки
-	//EXCLUDECMDHISTORY_NOTAPPLYCMD   = 0x00000010,  // не помещать в историю команды выполнения из "Apply Commang"
+	//EXCLUDECMDHISTORY_NOTAPPLYCMD   = 0x00000010,  // не помещать в историю команды выполнения из "Apply Command"
 };
 
-// для Global->Opt->QuotedName
 enum QUOTEDNAMETYPE
 {
 	QUOTEDNAME_INSERT         = 0x00000001,            // кавычить при сбросе в командную строку, в диалогах и редакторе
 	QUOTEDNAME_CLIPBOARD      = 0x00000002,            // кавычить при помещении в буфер обмена
 };
 
-//Для Global->Opt->Dialogs.MouseButton
 #define DMOUSEBUTTON_LEFT   0x00000001
 #define DMOUSEBUTTON_RIGHT  0x00000002
 
-//Для Global->Opt->VMenu.xBtnClick
 #define VMENUCLICK_IGNORE 0
 #define VMENUCLICK_CANCEL 1
 #define VMENUCLICK_APPLY  2
 
-//Для Global->Opt->Diz.UpdateMode
 enum DIZUPDATETYPE
 {
 	DIZ_NOT_UPDATE,
@@ -258,24 +253,9 @@ struct Confirmation
 	BoolOption Delete;
 	BoolOption DeleteFolder;
 	BoolOption Exit;
-	BoolOption Esc;  // Для CheckForEsc
-	/* $ 12.03.2002 VVM
-	  + Global->Opt->EscTwiceToInterrupt
-	    Определяет поведение при прерывании длительной операции
-	    0 - второй ESC продолжает операцию
-	    1 - второй ESC прерывает операцию */
+	BoolOption Esc;
 	BoolOption EscTwiceToInterrupt;
 	BoolOption RemoveConnection;
-	/* $ 23.05.2001
-	  +  Global->Opt->Confirmation.AllowReedit - Флаг, который изменяет поведение открытия
-	    файла на редактирование если, данный файл уже редактируется. По умолчанию - 1
-	    0 - Если уже открытый файл не был изменен, то происходит переход к открытому редактору
-	        без дополнительных вопросов. Если файл был изменен, то задается вопрос, и в случае
-	        если выбрана вариант Reload, то загружается новая копия файла, при этом сделанные
-	        изменения теряются.
-	    1 - Так как было раньше. Задается вопрос и происходит переход либо уже к открытому файлу
-	        либо загружается новая версия редактора.
-	    */
 	BoolOption AllowReedit;
 	BoolOption HistoryClear;
 	BoolOption RemoveSUBST;
@@ -304,7 +284,7 @@ struct CodeXLAT
 	// [2] "если предыдущий символ не рус/lat"
 	StringOption Table[2]; // [0] non-english буквы, [1] english буквы
 	StringOption strWordDivForXlat;
-	IntOption Flags;       // дополнительные флаги
+	IntOption Flags;
 	int CurrentLayout;
 };
 
@@ -323,10 +303,10 @@ struct EditorOptions
 	IntOption CharCodeBase;
 	BoolOption SavePos;
 	BoolOption SaveShortPos;
-	BoolOption F7Rules; // $ 28.11.2000 SVS - Правило на счет поиска в редакторе
-	BoolOption AllowEmptySpaceAfterEof; // $ 21.06.2005 SKV - разрешить показывать пустое пространство после последней строки редактируемого файла.
-	IntOption ReadOnlyLock; // $ 29.11.2000 SVS - лочить файл при открытии в редакторе, если он имеет атрибуты R|S|H
-	IntOption UndoSize; // $ 03.12.2001 IS - размер буфера undo в редакторе
+	BoolOption F7Rules;
+	BoolOption AllowEmptySpaceAfterEof;
+	IntOption ReadOnlyLock; 
+	IntOption UndoSize;
 	BoolOption UseExternalEditor;
 	IntOption FileSizeLimitLo;
 	IntOption FileSizeLimitHi;
@@ -358,9 +338,9 @@ struct ViewerOptions
 
 	IntOption  TabSize;
 	BoolOption AutoDetectCodePage;
-	BoolOption ShowScrollbar;     // $ 18.07.2000 tran пара настроек для viewer
+	BoolOption ShowScrollbar;
 	BoolOption ShowArrows;
-	BoolOption PersistentBlocks; // $ 14.05.2002 VVM Постоянные блоки во вьюере
+	BoolOption PersistentBlocks;
 	BoolOption ViewerIsWrap; // (Wrap|WordWarp)=1 | UnWrap=0
 	BoolOption ViewerWrap; // Wrap=0|WordWarp=1
 	BoolOption SavePos;
@@ -368,7 +348,7 @@ struct ViewerOptions
 	BoolOption SaveWrapMode;
 	BoolOption SaveShortPos;
 	BoolOption UseExternalViewer;
-	BoolOption ShowKeyBar; // $ 15.07.2000 tran + ShowKeyBar
+	BoolOption ShowKeyBar;
 	BoolOption AnsiCodePageAsDefault;
 	BoolOption ShowTitleBar;
 	BoolOption SearchRegexp;
@@ -378,7 +358,6 @@ struct ViewerOptions
 	IntOption  ZeroChar;
 };
 
-// "Полиция"
 struct PoliciesOptions
 {
 	IntOption DisabledOptions;  // разрешенность меню конфигурации
@@ -415,7 +394,8 @@ struct CommandLineOptions
 
 struct NowellOptions
 {
-	BoolOption MoveRO;               // перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
+	// перед операцией Move снимать R/S/H атрибуты, после переноса - выставлять обратно
+	BoolOption MoveRO;
 };
 
 struct ScreenSizes
@@ -429,12 +409,11 @@ struct LoadPluginsOptions
 {
 	string strCustomPluginsPath;  // путь для поиска плагинов, указанный в /p
 	string strPersonalPluginsPath;
-//  IntOption TypeLoadPlugins;       // see TYPELOADPLUGINSOPTIONS
-	bool MainPluginDir; // TRUE - использовать стандартный путь к основным плагинам
-	bool PluginsCacheOnly; // seting by '/co' switch, not saved in registry
+	bool MainPluginDir; // true - использовать стандартный путь к основным плагинам
+	bool PluginsCacheOnly; // set by '/co' switch, not saved
 	bool PluginsPersonal;
 
-	BoolOption SilentLoadPlugin; // при загрузке плагина с кривым...
+	BoolOption SilentLoadPlugin;
 #ifndef NO_WRAPPER
 	BoolOption OEMPluginsSupport;
 #endif // NO_WRAPPER
@@ -574,7 +553,7 @@ public:
 	BoolOption SelectFolders;
 	BoolOption ReverseSort;
 	BoolOption SortFolderExt;
-	BoolOption DeleteToRecycleBin;         // удалять в корзину?
+	BoolOption DeleteToRecycleBin;
 	BoolOption DeleteToRecycleBinKillLink; // перед удалением папки в корзину кильнем вложенные симлинки.
 	IntOption WipeSymbol; // символ заполнитель для "ZAP-операции"
 
@@ -631,7 +610,7 @@ public:
 	BoolOption DoubleGlobalColumnSeparator;
 
 	BoolOption ShowPanelScrollbar;
-	BoolOption ShowMenuScrollbar; // $ 29.06.2000 SVS Добавлен атрибут показа Scroll Bar в меню.
+	BoolOption ShowMenuScrollbar;
 	BoolOption ShowScreensNumber;
 	BoolOption ShowSortMode;
 	BoolOption ShowMenuBar;
@@ -650,24 +629,25 @@ public:
 
 	AutoCompleteOptions AutoComplete;
 
-	IntOption  AutoUpdateLimit; // выше этого количество автоматически не обновлять панели.
+	// выше этого количество автоматически не обновлять панели.
+	IntOption  AutoUpdateLimit;
 	BoolOption AutoUpdateRemoteDrive;
 
 	StringOption strLanguage;
 	BoolOption SetIcon;
 	BoolOption SetAdminIcon;
-	IntOption PanelRightClickRule; // задает поведение правой клавиши мыши
-	IntOption PanelCtrlAltShiftRule; // задает поведение Ctrl-Alt-Shift для панелей.
-	// Panel/CtrlFRule в реестре - задает поведение Ctrl-F. Если = 0, то штампуется файл как есть, иначе - с учетом отображения на панели
+	IntOption PanelRightClickRule;
+	IntOption PanelCtrlAltShiftRule;
+	// поведение Ctrl-F. Если = 0, то штампуется файл как есть, иначе - с учетом отображения на панели
 	BoolOption PanelCtrlFRule;
 	/*
-	  битовые флаги, задают поведение Ctrl-Alt-Shift
-	   бит установлен - функция включена:
-	   0 - Panel
-	   1 - Edit
-	   2 - View
-	   3 - Help
-	   4 - Dialog
+	поведение Ctrl-Alt-Shift
+	бит установлен - функция включена:
+	0 - Panel
+	1 - Edit
+	2 - View
+	3 - Help
+	4 - Dialog
 	*/
 	IntOption AllCtrlAltShiftRule;
 
@@ -682,19 +662,19 @@ public:
 
 	IntOption ExcludeCmdHistory;
 	BoolOption SubstPluginPrefix; // 1 = подстанавливать префикс плагина (для Ctrl-[ и ему подобные)
-	BoolOption SetAttrFolderRules; // Правило на счет установки атрибутов на каталоги
+	BoolOption SetAttrFolderRules;
 
-	BoolOption StoredExceptRules; // Правило на счет вызова исключений
+	BoolOption StoredExceptRules;
 
 	BoolOption ExceptUsed;
 	StringOption strExceptEventSvc;
 	/*
-	 + Global->Opt->ShiftsKeyRules - Правило на счет выбора механизма трансляции
-	   Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
-	   модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
+	Правило на счет выбора механизма трансляции
+	Alt-Буква для нелатинским буковок и символов "`-=[]\;',./" с
+	модификаторами Alt-, Ctrl-, Alt-Shift-, Ctrl-Shift-, Ctrl-Alt-
 	*/
 	BoolOption ShiftsKeyRules;
-	IntOption CursorSize[4];   // Размер курсора ФАРа
+	IntOption CursorSize[4];
 
 	CodeXLAT XLat;
 
@@ -709,11 +689,6 @@ public:
 
 	// запоминать логические диски и не опрашивать каждый раз. Для предотвращения "просыпания" "зеленых" винтов.
 	BoolOption RememberLogicalDrives;
-	/*
-	  будет влиять на:
-	      добавление файлов в историю с разным регистром
-	      добавление LastPositions в редакторе и вьюере
-	*/
 	BoolOption FlagPosixSemantics;
 
 	IntOption MsWheelDelta; // задает смещение для прокрутки
@@ -725,10 +700,11 @@ public:
 	IntOption MsHWheelDeltaView;
 	IntOption MsHWheelDeltaEdit;
 
-	/* $ 28.04.2001 VVM
-	  + Global->Opt->SubstNameRule битовая маска:
+	/*
+	битовая маска:
 	    0 - если установлен, то опрашивать сменные диски при GetSubstName()
-	    1 - если установлен, то опрашивать все остальные при GetSubstName() */
+	    1 - если установлен, то опрашивать все остальные при GetSubstName()
+	*/
 	IntOption SubstNameRule;
 
 	/* $ 23.05.2001 AltF9

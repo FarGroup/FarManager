@@ -38,100 +38,102 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class CDList
 {
-		size_t count;
-	protected:
-		struct Node
-		{
-			Node *next;
-			Node *prev;
-		};
-		CDList();
-		virtual ~CDList(){};
-		void *CInsertBefore(void *b, void *item);
-		void *CInsertAfter(void *a, void *item);
-		void CMoveBefore(void *b, void *item);
-		void CMoveAfter(void *a, void *item);
-		void *CDelete(void *item);
-		void CSwap(CDList &l);
-		Node root;
+public:
+	void Clear();
+	size_t Count()const {return count;};
+	bool Empty()const {return !count;};
 
-		virtual Node *AllocNode(void *key)=0;
-		virtual void DeleteNode(Node *node)=0;
+protected:
+	struct Node
+	{
+		Node *next;
+		Node *prev;
+	};
+	CDList();
+	virtual ~CDList(){};
+	void *CInsertBefore(void *b, void *item);
+	void *CInsertAfter(void *a, void *item);
+	void CMoveBefore(void *b, void *item);
+	void CMoveAfter(void *a, void *item);
+	void *CDelete(void *item);
+	void CSwap(CDList &l);
+	Node root;
 
-	public:
-		void Clear();
-		size_t Count()const {return count;};
-		bool Empty()const {return !count;};
+	virtual Node *AllocNode(void *key)=0;
+	virtual void DeleteNode(Node *node)=0;
+
+private:
+	size_t count;
 };
 
 template <typename Type>
 class DList : public CDList
 {
-		struct TNode : Node
+public:
+	virtual ~DList() {Clear();};
+
+	//создать новый элемент и поместить его в конец сприска
+	//возвращает указатель на созданный элемент
+	Type *Push(const Type *item=nullptr) {return (Type*)CInsertBefore(nullptr, (void*)item);}
+
+	//создать новый элемент и поместить его в начало сприска
+	//возвращает указатель на созданный элемент
+	Type *Unshift(const Type *item=nullptr) {return (Type*)CInsertAfter(nullptr, (void*)item);}
+
+	//создать новый элемент и поместить его в списке перед before
+	//если before==nullptr элемент помещается в конец списка
+	//возвращает указатель на созданный элемент
+	Type *InsertBefore(const Type *before, const Type *item=nullptr) {return (Type*)CInsertBefore((void*)before, (void*)item);}
+
+	//создать новый элемент и поместить его в списке после after
+	//если after==nullptr элемент помещается в начало списка
+	//возвращает указатель на созданный элемент
+	Type *InsertAfter(const Type *after, const Type *item=nullptr) {return (Type*)CInsertAfter((void*)after, (void*)item);}
+
+	void MoveBefore(const Type *before, const Type *item) {CMoveBefore((void*)before, (void*)item);}
+	void MoveAfter(const Type *after, const Type *item) {CMoveAfter((void*)after, (void*)item);}
+
+	//удалить элемент item из списка, возвращается указатель на предыдущий элемент,
+	//если удалялся первый элемент возвращается nullptr
+	Type *Delete(Type *item) {return (Type*)CDelete(item);}
+
+	//возвращает первый элемент списка или nullptr если список пустой
+	Type *First() {return Node2Type(root.next);}
+
+	//возвращает последний элемент списка или nullptr если список пустой
+	Type *Last() {return Node2Type(root.prev);}
+
+	//возвращает элемент следующий за item или nullptr если item последний элемент.
+	//Next(nullptr) возвращает первый элемент
+	Type *Next(const Type *item) {return Node2Type(Type2Node(item)->next);}
+
+	//возвращает элемент идущий в списке перед item или nullptr если item первый элемент.
+	//Prev(nullptr) возвращает последний элемент
+	Type *Prev(const Type *item) {return Node2Type(Type2Node(item)->prev);}
+
+	//меняет местами содержимое списков
+	void Swap(DList<Type> &l) {CSwap(l);}
+
+	bool Contains(const Type& item)
+	{
+		for(const Type* i = First(); i; i = Next(i))
 		{
-			Type type;
-			TNode(Type *t) {if (t) type=*t;}
-		};
-		Node *AllocNode(void *key) {return new TNode((Type*)key);}
-		void DeleteNode(Node *node) {delete(TNode*)node;}
-
-		Type *Node2Type(Node *node) {return node!=&root ? (Type*)((BYTE*)node+sizeof(Node)) : nullptr;}
-		Node *Type2Node(const Type *item) {return item ? (Node*)((BYTE*)item-sizeof(Node)) : &root;}
-
-	public:
-		virtual ~DList() {Clear();};
-
-		//создать новый элемент и поместить его в конец сприска
-		//возвращает указатель на созданный элемент
-		Type *Push(const Type *item=nullptr) {return (Type*)CInsertBefore(nullptr, (void*)item);}
-
-		//создать новый элемент и поместить его в начало сприска
-		//возвращает указатель на созданный элемент
-		Type *Unshift(const Type *item=nullptr) {return (Type*)CInsertAfter(nullptr, (void*)item);}
-
-		//создать новый элемент и поместить его в списке перед before
-		//если before==nullptr элемент помещается в конец списка
-		//возвращает указатель на созданный элемент
-		Type *InsertBefore(const Type *before, const Type *item=nullptr) {return (Type*)CInsertBefore((void*)before, (void*)item);}
-
-		//создать новый элемент и поместить его в списке после after
-		//если after==nullptr элемент помещается в начало списка
-		//возвращает указатель на созданный элемент
-		Type *InsertAfter(const Type *after, const Type *item=nullptr) {return (Type*)CInsertAfter((void*)after, (void*)item);}
-
-		void MoveBefore(const Type *before, const Type *item) {CMoveBefore((void*)before, (void*)item);}
-		void MoveAfter(const Type *after, const Type *item) {CMoveAfter((void*)after, (void*)item);}
-
-		//удалить элемент item из списка, возвращается указатель на предыдущий элемент,
-		//если удалялся первый элемент возвращается nullptr
-		Type *Delete(Type *item) {return (Type*)CDelete(item);}
-
-		//возвращает первый элемент списка или nullptr если список пустой
-		Type *First() {return Node2Type(root.next);}
-
-		//возвращает последний элемент списка или nullptr если список пустой
-		Type *Last() {return Node2Type(root.prev);}
-
-		//возвращает элемент следующий за item или nullptr если item последний элемент.
-		//Next(nullptr) возвращает первый элемент
-		Type *Next(const Type *item) {return Node2Type(Type2Node(item)->next);}
-
-		//возвращает элемент идущий в списке перед item или nullptr если item первый элемент.
-		//Prev(nullptr) возвращает последний элемент
-		Type *Prev(const Type *item) {return Node2Type(Type2Node(item)->prev);}
-
-		//меняет местами содержимое списков
-		void Swap(DList<Type> &l) {CSwap(l);}
-
-		bool Contains(const Type& item)
-		{
-			for(const Type* i = First(); i; i = Next(i))
+			if(*i == item)
 			{
-				if(*i == item)
-				{
-					return true;
-				}
-			};
-			return false;
-		}
+				return true;
+			}
+		};
+		return false;
+	}
+private:
+	struct TNode : Node
+	{
+		Type type;
+		TNode(Type *t) {if (t) type=*t;}
+	};
+	Node *AllocNode(void *key) {return new TNode((Type*)key);}
+	void DeleteNode(Node *node) {delete(TNode*)node;}
+
+	Type *Node2Type(Node *node) {return node!=&root ? (Type*)((BYTE*)node+sizeof(Node)) : nullptr;}
+	Node *Type2Node(const Type *item) {return item ? (Node*)((BYTE*)item-sizeof(Node)) : &root;}
 };

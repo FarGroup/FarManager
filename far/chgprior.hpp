@@ -35,10 +35,10 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 class ChangePriority
 {
-	private:
-		int SavePriority;
+public:
+	ChangePriority(int NewPriority);
+	~ChangePriority();
 
-	public:
-		ChangePriority(int NewPriority);
-		~ChangePriority();
+private:
+	int SavePriority;
 };
