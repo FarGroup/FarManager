@@ -1,3 +1,7 @@
+w17 30.11.2012 05:44:35 +0400 - build 2984
+
+1. vs 2010 buildable. gcc < 4.6.1 is not supported anymore
+
 drkns 29.11.2012 23:30:26 +0200 - build 2983
 
 1. Продолжение 2953.

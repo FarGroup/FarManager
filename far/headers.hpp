@@ -176,20 +176,23 @@ inline void ClearArray(T (&a)[N]) { memset(a, 0, sizeof(a[0])*N); }
 
 #ifdef __GNUC__
 # if _GCC_VER < GCC_VER_(4,6,1)
-#  define nullptr NULL
-#  include "lang.hpp"
+#  error gcc 4.6.1 (or higher) required
+# endif
+# define FORWARD_ENUM(ENUM_NAME) enum ENUM_NAME:int
+#endif
+
+#ifdef _MSC_VER
+# if _MSC_VER>1600
+#  define FORWARD_ENUM(ENUM_NAME) enum ENUM_NAME:int
 # else
-   enum LNGID:int;
+#  define FORWARD_ENUM(ENUM_NAME) enum ENUM_NAME
+#  if _MSC_VER<1600
+#   define nullptr NULL
+#  endif
 # endif
 #endif
 
-#if defined(_MSC_VER) && _MSC_VER>1600
-enum LNGID:int;
-#endif
-
-#if defined(_MSC_VER) && _MSC_VER<1600
-#define nullptr NULL
-#endif
+FORWARD_ENUM(LNGID);
 
 template <typename T>
 bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T));}
