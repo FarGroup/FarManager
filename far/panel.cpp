@@ -444,20 +444,20 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			string Fs;
 			string TotalSize;
 			string FreeSize;
-			// should be the last
 			string Path;
+
+			int DriveType;
 		};
 		DList<DiskMenuItem> Items;
 
 		size_t TypeWidth = 0, LabelWidth = 0, FsWidth = 0, TotalSizeWidth = 0, FreeSizeWidth = 0;
 
-		int DriveType,MenuLine;
 
 		DisableElevation* DE = new DisableElevation;
 		/* $ 02.04.2001 VVM
 		! ѕопытка не будить сп€щие диски... */
 		WCHAR I;
-		for (DiskMask=Mask,MenuLine=I=0; DiskMask; DiskMask>>=1,I++)
+		for (DiskMask=Mask,I=0; DiskMask; DiskMask>>=1,I++)
 		{
 			if (!(DiskMask & 1))   //нету диска
 				continue;
@@ -468,28 +468,28 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			strRootDir=Drv+1;
 			Drv[3] = 0;
 			NewItem->Letter = Drv;
-			DriveType = FAR_GetDriveType(strRootDir, Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
+			NewItem->DriveType = FAR_GetDriveType(strRootDir, Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
 
 			if ((1<<I)&NetworkMask)
-				DriveType = DRIVE_REMOTE_NOT_CONNECTED;
+				NewItem->DriveType = DRIVE_REMOTE_NOT_CONNECTED;
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE|DRIVE_SHOW_NETNAME))
 			{
 				string LocalName("?:");
 				LocalName.Replace(0, strRootDir.At(0));
 
-				if (GetSubstName(DriveType, LocalName, NewItem->Path))
+				if (GetSubstName(NewItem->DriveType, LocalName, NewItem->Path))
 				{
-					DriveType=DRIVE_SUBSTITUTE;
+					NewItem->DriveType=DRIVE_SUBSTITUTE;
 				}
-				else if(DriveCanBeVirtual(DriveType) && GetVHDName(LocalName, NewItem->Path))
+				else if(DriveCanBeVirtual(NewItem->DriveType) && GetVHDName(LocalName, NewItem->Path))
 				{
-					DriveType=DRIVE_VIRTUAL;
+					NewItem->DriveType=DRIVE_VIRTUAL;
 				}
 
 				for (size_t J=0; J < ARRAYSIZE(DrTMsg); ++J)
 				{
-					if (DrTMsg[J].DrvType == DriveType)
+					if (DrTMsg[J].DrvType == NewItem->DriveType)
 					{
 						NewItem->Type = MSG(DrTMsg[J].FarMsg);
 						break;
@@ -497,9 +497,9 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				}
 			}
 
-			int ShowDisk = (DriveType!=DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
-			               (!IsDriveTypeCDROM(DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM)) &&
-			               (!IsDriveTypeRemote(DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOTE));
+			int ShowDisk = (NewItem->DriveType!=DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
+			               (!IsDriveTypeCDROM(NewItem->DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM)) &&
+			               (!IsDriveTypeRemote(NewItem->DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOTE));
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM))
 			{
@@ -542,10 +542,10 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_NETNAME)
 			{
-				switch(DriveType)
+				switch(NewItem->DriveType)
 				{
 				case DRIVE_REMOTE:
-					DriveLocalToRemoteName(DriveType,strRootDir.At(0),NewItem->Path);
+					DriveLocalToRemoteName(NewItem->DriveType,strRootDir.At(0),NewItem->Path);
 					break;
 				}
 			}
@@ -557,6 +557,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			FreeSizeWidth = Max(FreeSizeWidth, NewItem->FreeSize.GetLength());
 		}
 
+		int MenuLine = 0;
 		for (DiskMenuItem* i = Items.First(); i; i = Items.Next(i))
 		{
 			ChDiskItem.Clear();
@@ -621,7 +622,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			PanelMenuItem item;
 			item.bIsPlugin = false;
 			item.cDrive = L'A'+I;
-			item.nDriveType = DriveType;
+			item.nDriveType = i->DriveType;
 			ChDisk.SetUserData(&item, sizeof(item), ChDisk.AddItem(&ChDiskItem));
 			MenuLine++;
 		}
