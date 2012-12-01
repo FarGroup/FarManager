@@ -194,9 +194,9 @@ bool CachedRead::FillBuffer()
 }
 
 CachedWrite::CachedWrite(File& file):
-	Buffer(static_cast<LPBYTE>(xf_malloc(BufferSize))),
 	file(file),
 	BufferSize(0x10000),
+	Buffer(static_cast<LPBYTE>(xf_malloc(BufferSize))),
 	FreeSize(BufferSize),
 	Flushed(false)
 {

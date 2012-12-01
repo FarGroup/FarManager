@@ -64,9 +64,9 @@ public:
 	bool Flush();
 
 private:
-	LPBYTE Buffer;
 	File& file;
 	const DWORD BufferSize;
+	LPBYTE Buffer;
 	DWORD FreeSize;
 	bool Flushed;
 };
