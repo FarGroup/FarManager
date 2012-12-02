@@ -3,6 +3,202 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.12.2012 12:42:54 +0200 - build 2989
+
+1. Continuation of 2987.
+
+drkns 02.12.2012 01:20:47 +0200 - build 2988
+
+1. Continuation of 2987. 
+
+drkns 01.12.2012 23:53:07 +0200 - build 2987
+
+1. 0002212: Long volume labels are cropped
+   The widths of all volume menu columns are now calculated automatically.
+
+w17 01.12.2012 14:01:35 +0400 - build 2986
+
+1. fix(2985) - FAR crash on file saving from the editor
+
+drkns 30.11.2012 22:50:38 +0200 - build 2985
+
+1. Continuing the refactoring.
+
+w17 30.11.2012 05:44:35 +0400 - build 2984
+
+1. vs 2010 buildable fix(2983). gcc < 4.6.1 is not supported anymore
+
+drkns 29.11.2012 23:30:26 +0200 - build 2983
+
+1. Continuation of 2953.
+
+lort 29.11.2012 18:13:34 +0400 - build 2982
+
+1. Incorrect DM_SETEDITPOSITION functions if EditorSetPosition has any parameter set to -1.
+
+drkns 29.11.2012 01:00:22 +0200 - build 2981
+
+1. Continuation of 2953.
+
+w17 29.11.2012 02:57:41 +0400 - build 2980
+
+1. M#1494: Crash on sequential closing and opening the editor from a plugin.
+
+w17 28.11.2012 19:22:32 +0400 - build 2979
+
+1. search failure after '\0' in editor
+
+drkns 28.11.2012 00:23:56 +0200 - build 2978
+
+1. Continuation of 2953.
+
+shmuel 27.11.2012 15:58:53 +0200 - build 2977
+
+1. Continuation of 2976: DB sections renamed.
+   "farconfig/macros/variables" --> "farconfig/macros/modules".
+   "farconfig/macros/variables/variable" --> "farconfig/macros/modules/module".
+   If someone has already created modules, export them from 2976, rename the sections, import to 2977.
+
+shmuel 25.11.2012 19:08:41 +0200 - build 2976
+
+1. Experimental: the use of "farconfig/macros/variables" database section for Lua modules (libraries).
+   Each variable stands for a module. The module names are case dependent.
+   Example: <variable name="shmuel.utils" type="text"> ...... </variable>
+   Example of use in a macro: utils=require "shmuel.utils"
+   ATTENTION: "variables" are no longer loaded at FAR start. Use "constants" for this.
+
+svs 25.11.2012 20:06:39 +0400 - build 2975
+
+1. Correction of GetSearchReplaceString - hiding All button.
+
+shmuel 25.11.2012 10:44:34 +0200 - build 2974
+
+1. Macro API: Mouse.LastCtrlState property is added, unlike Mouse.CtrlState, it is
+   updated both on mouse and keyboard events.
+
+drkns 24.11.2012 15:48:39 +0200 - build 2973
+
+1. Continuation of 2972.
+
+w17 23.11.2012 18:15:56 +0400 - build 2972
+
+1. Continuation of 2791
+   [System Properties] malfunction in file attributes dialog on old Windows versions
+
+shmuel 23.11.2012 11:51:43 +0200 - build 2971
+
+1. Plugins API: in GetDirList and FSF.FarRecursiveSearch functions, some fields of PluginPanelItem structure
+   contained garbage.
+
+shmuel 22.11.2012 19:58:34 +0200 - build 2970
+
+1. Forum: Menu.Show(Items,"",0x8+0x80,Idx) does not position to item with number Idx.
+
+drkns 22.11.2012 19:41:01 +0200 - build 2969
+
+1. Excessive SetCurrentDirectory call in launcher.
+
+lort 22.11.2012 21:06:41 +0400 - build 2968
+
+1. Crash when copying selected block in viewer.
+
+shmuel 21.11.2012 23:59:49 +0200 - build 2967
+
+1. Correction of 2966.
+
+shmuel 21.11.2012 22:19:38 +0200 - build 2966
+
+1. M#2163: LUA: не работает флаг DisableOutput
+
+w17 21.11.2012 22:16:55 +0400 - build 2965
+
+1. truemod broken aka 'no' to regexps (from sonar)
+
+drkns 21.11.2012 00:02:24 +0200 - build 2964
+
+1. Continuation of 2953.1.
+
+drkns 20.11.2012 21:44:24 +0200 - build 2963
+
+1. 0002203: Import malfunction
+
+drkns 20.11.2012 21:31:35 +0200 - build 2962
+
+1. 0002202: Crash on plugin loading/unloading
+
+svs 20.11.2012 13:03:29 +0400 - build 2961
+
+1. Duplicate hotkeys in "Plugins manager settings" dialog and viewer settings
+
+2. Correction of help, including TI:
+   #15 System.SetAttrFolderRules
+   #29 System.WipeSymbol
+   #31 System.FlagPosixSemantics
+   #37 System.ShowCheckingFile
+   #63 System.PluginMaxReadData
+   #51 System.SilentLoadPlugin
+   #17 System.ExceptRules
+   #23 System.CopyBufferSize
+   #36 System.SubstNameRule
+   #42 System.SubstPluginPrefix
+   #69 System.CopySecurityOptions
+   #25 Interface.CursorSize1..Interface.CursorSize4
+   #1  Editor.WordDiv
+   #19 Editor.ReadOnlyLock
+   #20 Editor.FileSizeLimit
+   #16 XLat.WordDivForXlat
+
+3. Options::MaxPositionCache ("System.MaxPositionCache", TechInfo #11) is removed as deprecated.
+
+4. Options::Dialogs.SelectFromHistory ("Dialog.SelectFromHistory", TechInfo #41) is removed as deprecated.
+
+svs 20.11.2012 12:48:10 +0400 - build 2960
+
+1. Typos
+
+2. Conflicting hotkeys in editor settings dialog
+
+svs 20.11.2012 11:01:50 +0400 - build 2959
+
+1. Edit::Search() content moved to SearchString()
+
+2. GetSearchReplaceString() redone
+   Title and SubTitle parameters are added
+   Case, WholeWords, Reverse and Regexp parameters are now pointers.
+   If any of the parameters is nullptr then the corresponding option in dialog is set to Disable (or has to be hidden?)
+
+2. Help: proceeding with help.
+   Now Case, WholeWords and Regexp options are available
+   Initial options are taken from global values:
+
+      Case             Global->GlobalSearchCase         (as in editor)
+      WholeWords       Global->GlobalSearchWholeWords   (as in editor)
+      Regexp           Global->Opt->HelpSearchRegexp    (standalone, "Help.HelpSearchRegexp" of Bool type)
+
+   Next:
+     Next line in file must be "cleared" from markup before feeding it to SearchString()
+
+drkns 19.11.2012 23:08:59 +0200 - build 2958
+
+1. Forum: pressing Enter on a boolean value in far:config causes a crash.
+
+drkns 19.11.2012 23:04:39 +0200 - build 2957
+
+1. Continuing global variables elimination.
+
+drkns 19.11.2012 13:47:53 +0200 - build 2956
+
+1. Correction of 2953.1.
+
+w17 19.11.2012 14:53:38 +0400 - build 2955
+
+1. Correction of 2926
+   'plugin' flag lost in refactoring which lead to plugin settings loading failure from default configuration.
+
+shmuel 19.11.2012 12:11:54 +0200 - build 2954
+
+1. Far.Cfg_Get() macrofunction works for all settings displayed in far:config.
+
 drkns 18.11.2012 20:44:29 +0200 - build 2953
 
 1. Say "No!" to dr^W global variables and especially to global objects initialized in random order.
