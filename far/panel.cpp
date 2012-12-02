@@ -450,7 +450,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 		};
 		DList<DiskMenuItem> Items;
 
-		size_t TypeWidth = 0, LabelWidth = 0, FsWidth = 0, TotalSizeWidth = 0, FreeSizeWidth = 0;
+		size_t TypeWidth = 0, LabelWidth = 0, FsWidth = 0, TotalSizeWidth = 0, FreeSizeWidth = 0, PathWidth = 0;
 
 
 		DisableElevation* DE = new DisableElevation;
@@ -555,6 +555,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			FsWidth = Max(FsWidth, NewItem->Fs.GetLength());
 			TotalSizeWidth = Max(TotalSizeWidth, NewItem->TotalSize.GetLength());
 			FreeSizeWidth = Max(FreeSizeWidth, NewItem->FreeSize.GetLength());
+			PathWidth = Max(PathWidth, NewItem->Path.GetLength());
 		}
 
 		int MenuLine = 0;
@@ -613,7 +614,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				ItemName << Separator.Get() << fmt::ExactWidth(TotalSizeWidth) << i->TotalSize;
 				ItemName << Separator.Get() << fmt::ExactWidth(FreeSizeWidth) << i->FreeSize;
 			}
-			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_NETNAME)
+			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_NETNAME && PathWidth)
 			{
 				ItemName << Separator.Get() << i->Path;
 			}
