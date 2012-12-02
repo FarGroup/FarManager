@@ -13259,7 +13259,7 @@ MChangeDriveCannotDisconnect
 "Nemôžem sa odpojiť od %1"
 
 MChangeDriveCannotDelSubst
-"Не удаётся удалить виртуальный диск %1"
+"Не удаётся удалить SUBST-диск %1"
 "Cannot delete a substituted disk %1"
 "Nelze smazat substnutý disk %1"
 "Substlaufwerk %1 konnte nicht gelöscht werden."
@@ -13280,24 +13280,24 @@ MChangeDriveOpenFiles
 
 MChangeSUBSTDisconnectDriveTitle
 l:
-"Отключение виртуального устройства"
-"Virtual device disconnection"
-"Odpojování virtuálního zařízení"
-"Virtuelles Gerät trennen"
-"Virtuális meghajtó törlése"
-"Odłączanie napędu wirtualnego"
-"Desconexión de dispositivo virtual"
-"Odpojenie virtuálneho zariadenia"
+"Отключение SUBST-диска"
+"Substituted disk deletion"
+upd:"Odpojování virtuálního zařízení"
+upd:"Virtuelles Gerät trennen"
+upd:"Virtuális meghajtó törlése"
+upd:"Odłączanie napędu wirtualnego"
+upd:"Desconexión de dispositivo virtual"
+upd:"Odpojenie virtuálneho zariadenia"
 
 MChangeSUBSTDisconnectDriveQuestion
-"Отключить SUBST-диск %1?"
-"Disconnect SUBST-disk %1?"
-"Odpojit SUBST-disk %1?"
-"Substlaufwerk %1 trennen?"
-"Törli %1 virtuális meghajtót?"
-"Odłączyć dysk SUBST %1?"
-"Desconectarse de disco sustituido %1?"
-"Odpojiť SUBST-disk %1?"
+"Удалить SUBST-диск %1?"
+"Delete SUBST-disk %1?"
+upd:"Odpojit SUBST-disk %1?"
+upd:"Substlaufwerk %1 trennen?"
+upd:"Törli %1 virtuális meghajtót?"
+upd:"Odłączyć dysk SUBST %1?"
+upd:"Desconectarse de disco sustituido %1?"
+upd:"Odpojiť SUBST-disk %1?"
 
 MChangeVHDDisconnectDriveTitle
 "Отсоединение виртуального диска"
@@ -13412,7 +13412,7 @@ MHotPlugListBottom
 
 MChangeDriveDisconnectTitle
 l:
-"Отключение сетевого устройства"
+"Отсоединение сетевого диска"
 "Disconnect network drive"
 "Odpojit síťovou jednotku"
 "Netzwerklaufwerk trennen"
@@ -15637,7 +15637,7 @@ MSetConfirmEsc
 "Pre&rušenie operácie"
 
 MSetConfirmRemoveConnection
-"&Отключение сетевого устройства"
+"&Отсоединение сетевого диска"
 "Disconnect &network drive"
 "Odpojení &síťové jednotky"
 "Trennen von &Netzwerklaufwerken"
@@ -15647,14 +15647,14 @@ MSetConfirmRemoveConnection
 "Odpojenie &sieťovej jednotky"
 
 MSetConfirmRemoveSUBST
-"Отключение SUBST-диска"
-"Disconnect &SUBST-disk"
-"Odpojení SUBST-d&isku"
-"Trennen von &Substlaufwerken"
-"Virt&uális meghajtó törlése"
-"Odłączenie dysku &SUBST"
-"Desconectar disco s&ustituido"
-"Odpojenie d&isku SUBST"
+"Удаление SUBST-диска"
+"Delete &SUBST-disk"
+upd:"Odpojení SUBST-d&isku"
+upd:"Trennen von &Substlaufwerken"
+upd:"Virt&uális meghajtó törlése"
+upd:"Odłączenie dysku &SUBST"
+upd:"Desconectar disco s&ustituido"
+upd:"Odpojenie d&isku SUBST"
 
 MSetConfirmDetachVHD
 "Отсоедиение виртуального диска"

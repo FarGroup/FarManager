@@ -1531,7 +1531,9 @@ following operations:
 
     - ~disconnect network drives~@DisconnectDrive@ from the Disks menu;
 
-    - disconnect SUBST-disks from the Disks menu;
+    - delete SUBST-disks from the Disks menu;
+
+    - detach virtual disks from the Disks menu;
 
     - removal of USB storage devices from the Disks menu;
 
@@ -3144,8 +3146,7 @@ $ #Изменение имени кодовой страницы#
 
 @DriveDlg
 $ #Change drive#
-    This menu allows to change the current drive of a panel, disconnect from a
-network drive or open a new ~plugin~@Plugins@ panel.
+    This menu allows to change the current drive of a panel or open a new ~plugin~@Plugins@ panel.
 
     Select the item with the corresponding drive letter to change the drive or
 the item with the plugin name to create a new plugin panel. If the panel type
@@ -3159,9 +3160,11 @@ is not a ~file panel~@FilePanel@, it will be changed to the file panel.
 
     #Del# key can be used:
 
-     - to ~disconnect~@DisconnectDrive@ from network drives.
+     - to ~disconnect~@DisconnectDrive@ network drives;
 
-     - to delete a substituted (virtual) disk.
+     - to delete a substituted disk;
+
+     - to detach a virtual disk;
 
      - to eject disks from CD-ROM and removable drives.
        Ejecting a disk from a ZIP-drive requires administrative privileges.
