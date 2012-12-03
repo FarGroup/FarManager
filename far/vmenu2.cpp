@@ -36,6 +36,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "vmenu2.hpp"
 #include "keyboard.hpp"
 #include "keys.hpp"
+#include "config.hpp"
 
 intptr_t WINAPI VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
@@ -587,4 +588,36 @@ int VMenu2::GetTypeAndName(string &strType, string &strName)
 	strType = MSG(MVMenuType);
 	strName = GetTitles();
 	return MODALTYPE_VMENU;
+}
+
+static int ClickHandler(VMenu2* Menu, const IntOption& MenuClick)
+{
+	switch (MenuClick)
+	{
+	case  VMENUCLICK_APPLY:
+		Menu->ProcessKey(KEY_ENTER);
+		break;
+	case VMENUCLICK_CANCEL:
+		Menu->ProcessKey(KEY_ESC);
+		break;
+	case VMENUCLICK_IGNORE:
+		break;
+	}
+	return TRUE;
+}
+
+int VMenu2::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
+{
+	if (MouseEvent->dwMousePosition.X < Dialog::X1 || MouseEvent->dwMousePosition.Y < Dialog::Y1 ||
+		MouseEvent->dwMousePosition.X > Dialog::X2 || MouseEvent->dwMousePosition.Y > Dialog::Y2)
+	{
+		if (MouseEvent->dwButtonState & FROM_LEFT_1ST_BUTTON_PRESSED)
+			return ClickHandler(this, Global->Opt->VMenu.LBtnClick);
+		else if (MouseEvent->dwButtonState & FROM_LEFT_2ND_BUTTON_PRESSED)
+			return ClickHandler(this, Global->Opt->VMenu.MBtnClick);
+		else if (MouseEvent->dwButtonState & RIGHTMOST_BUTTON_PRESSED)
+			return ClickHandler(this, Global->Opt->VMenu.RBtnClick);
+	}
+
+	return Dialog::ProcessMouse(MouseEvent);
 }
