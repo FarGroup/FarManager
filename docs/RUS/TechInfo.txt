@@ -45,24 +45,6 @@ I. Far Manager: дополнительные настройки.
    профили пользователей. Изменения настроек для "<username>" следует
    проводить относительно ветки [HKCU\Software\Far Manager\Users\<username>]
 
-1.1.1.(TechInfo #3)
-~~~~~~~~~~~~~~~~~~~
-   Параметр командной строки - /co
-   (полное описание приведено в файле помощи)
-
-1.1.3.(TechInfo #22)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\KeyMacros]
-   Информация о макросах перенесена в "Encyclopedia for Developers".
-
-1.1.4.(TechInfo #28)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\Colors]
-   Ветка реестра, отвечающая за раскраску файлов
-   [HKEY_CURRENT_USER\Software\Far Manager\Highlight]
-   перенесена в
-   [HKEY_CURRENT_USER\Software\Far Manager\Colors\Highlight].
-
 1.1.5.(TechInfo #35)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far Manager\Plugins\Network]
@@ -94,12 +76,6 @@ I. Far Manager: дополнительные настройки.
    команд, просмотренных и отредактированных файлов.
    По умолчанию значение = 64 позиции.
 
-1.1.9.(TechInfo #66)
-~~~~~~~~~~~~~~~~~~~~
-   Значение     реестра     "Panel\AutoChangeFolder"      перемещено      в
-   "Panel\Tree\AutoChangeFolder".  Это  значит,  что  опцию  "Auto   change
-   folder" необходимо выставить заново.
-
 1.1.10.(TechInfo #70)
 ~~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far Manager\Plugins\AdvCompare]
@@ -126,17 +102,6 @@ I. Far Manager: дополнительные настройки.
    exe, затем как rar-sfx.  При  "upx.fmt"=dword:1  архив  будет  обработан
    сразу  как  rar-sfx.  Для  обработки  сжатого  исполняемого  файла,   не
    являющегося sfx-архивом, будет использован, как и прежде, upx.fmt.
-
-1.1.12.(TechInfo #72)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "SavePluginFoldersHistory":REG_DWORD
-   Параметр  "System/SavePluginFoldersHistory"  с  типом  DWORD   позволяет
-   сохранять в реестре в истории папок плагиновые пути.
-   Может принимать следующие значения:
-   0 - плагиновые пути в истории видны, но в реестр не сохраняются.
-   1 - плагиновые пути в истории видны, в реестр сохраняются.
-   По умолчанию значение = 0 (не сохранять плагиновые пути в реестр).
 
 1.1.13.(TechInfo #77)
 ~~~~~~~~~~~~~~~~~~~~~
@@ -171,17 +136,6 @@ I. Far Manager: дополнительные настройки.
   1.2. System.
 =====================
 
-
-1.2.0.(TechInfo #2)
-~~~~~~~~~~~~~~~~~~~
-   [HKEY_LOCAL_MACHINE\Software\Far Manager\System]
-   "TemplatePluginsPath":REG_SZ
-   Шаблон поиска персональных плагинов. Пример использования:
-   "%SystemRoot%\Profiles\%USERNAME%\Far Manager\Plugins"
-   Для  вновь  создаваемых  пользователей  (ключ  /u  в  командной  строке)
-   значение из этого параметра будет использоваться в качестве шаблона для:
-   "Параметры|Системные параметры|Путь к персональным плагинам"
-
 1.2.7.(TechInfo #26)
 ~~~~~~~~~~~~~~~~~~~~
    [HKEY_CURRENT_USER\Software\Far Manager\System]
@@ -203,33 +157,6 @@ I. Far Manager: дополнительные настройки.
      0x02 - показывать информацию при обычных операциях копирования.
      0x03 - всегда показывать информацию о времени и скорости.
    По умолчанию значение = 0 (режим отображения отключён)
-
-1.2.11.(TechInfo #33)
-~~~~~~~~~~~~~~~~~~~~~
-   [HKEY_CURRENT_USER\Software\Far Manager\System]
-   "MsWheelDelta":REG_DWORD
-   "MsWheelDeltaView":REG_DWORD
-   "MsWheelDeltaEdit":REG_DWORD
-   "MsWheelDeltaHelp":REG_DWORD
-   Параметры "System/MsWheelDelta*"  с  типом  DWORD  задают  смещение  для
-   прокрутки:
-     "System/MsWheelDelta"     - в панелях,
-     "System/MsWheelDeltaView" - в программе просмотра,
-     "System/MsWheelDeltaEdit" - в редакторе.
-     "System/MsWheelDeltaHelp" - в подсказке.
-   Эти параметры имеют значение для Windows 2000 и выше.
-   По умолчанию значения = 1
-
-   "MsHWheelDelta":REG_DWORD
-   "MsHWheelDeltaView":REG_DWORD
-   "MsHWheelDeltaEdit":REG_DWORD
-   Параметры "System/MsHWheelDelta*" с  типом  DWORD  задают  смещение  для
-   горизонтальной прокрутки:
-     "System/MsHWheelDelta"     - в панелях,
-     "System/MsHWheelDeltaView" - в программе просмотра,
-     "System/MsHWheelDeltaEdit" - в редакторе.
-   Эти параметры имеют значение для Windows Vista и выше.
-   По умолчанию значения = 1
 
 ======================
   1.4. Policies.
@@ -278,26 +205,6 @@ I. Far Manager: дополнительные настройки.
    значит, что на уровне текущего пользователя  (параметр  из  HKCU)  можно
    только добавлять блокировку отдельных опций.
    По умолчанию значение = 0 (доступно всё).
-
-1.4.1.(TechInfo #30)
-~~~~~~~~~~~~~~~~~~~~
-   [HKEY_LOCAL_MACHINE\Software\Far Manager\Policies]
-   [HKEY_CURRENT_USER\Software\Far Manager\Policies]
-   "ShowHiddenDrives":REG_DWORD
-   Параметр "Policies/ShowHiddenDrives" c типом DWORD позволяет наследовать
-   свойства Windows по сокрытию логических дисков из системы ("Hide  Drives
-   in My Computer")
-     0 - Far показывает только доступные диски (учитывается значение
-         параметра параметра "NoDrives" системной политики).
-     1 - функция отключена, Far показывает все диски, независимо от
-         значения параметра "NoDrives" в реестре
-       ([HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer])
-   Параметр  из  HKLM  позволяет  назначать  наследование  на  уровне  всех
-   пользователей. Параметр из HKCU - на уровне текущего пользователя.  Если
-   параметр из HKLM=0 (не показывать скрытые диски для всех пользователей),
-   то параметр из HKCU не имеет никакого эффекта.
-   По умолчанию значение = 1.
-
 
 =====================
   1.9. XLat.
