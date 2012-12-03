@@ -18,6 +18,12 @@
 @Interface.CursorSize3=Interface.CursorSize
 @Interface.CursorSize4=Interface.CursorSize
 @Editor.FileSizeLimitHi=Editor.FileSizeLimit
+@System.MsWheelDeltaView=System.MsWheelDelta
+@System.MsWheelDeltaEdit=System.MsWheelDelta
+@System.MsWheelDeltaHelp=System.MsWheelDelta
+@System.MsHWheelDelta=System.MsWheelDelta
+@System.MsHWheelDeltaView=System.MsWheelDelta
+@System.MsHWheelDeltaEdit=System.MsWheelDelta
 
 @Contents
 $^#Программа управления файлами и архивами#
@@ -5858,6 +5864,49 @@ $ #far:config Editor.FileSizeLimit & Editor.FileSizeLimitHi#
         Editor.FileSizeLimitHi = 0
 
     По умолчанию значение = 0 (отключает проверку и вывод сообщения)
+
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
+
+@System.MsWheelDelta
+$ #far:config System.MsWheelDelta* & System.MsHWheelDelta*#
+    Параметры "System.MsWheelDelta*" и "System.MsHWheelDelta*" позволяют менять смещения для
+прокрутки колесом мыши по вертикали и горизонтали.
+
+    Параметры для вертикальной прокрутки:
+
+    System.MsWheelDeltaView  - в программе просмотра
+    System.MsWheelDeltaEdit  - во встроенном редакторе
+    System.MsWheelDeltaHelp  - в системе помощи
+    System.MsWheelDelta      - в прочих областях
+
+    Параметры для горизонтальной прокрутки (Windows Vista и выше):
+
+    System.MsHWheelDeltaView - в программе просмотра
+    System.MsHWheelDeltaEdit - во встроенном редакторе
+    System.MsHWheelDeltaHelp - в системе помощи
+    System.MsHWheelDelta     - в прочих областях
+
+    По умолчанию значения = 1
+
+    Изменение этого параметра возможно через ~far:config~@FarConfig@
+
+@Policies.ShowHiddenDrives
+$ #far:config Policies.ShowHiddenDrives#
+    Параметр "Policies.ShowHiddenDrives" позволяет позволяет наследовать свойства Windows 
+по сокрытию логических дисков из системы ("Hide  Drives in My Computer").
+
+    Значение:
+
+     false - ^<wrap>Far показывает только доступные диски (учитывается значение параметра 
+"NoDrives" системной политики - [HKLM или HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer]).
+Если "NoDrives" из HKLM=0 (не показывать скрытые диски для всех пользователей), 
+то значение этого параметра из HKCU не имеет никакого эффекта.
+
+     true  - ^<wrap>функция отключена, Far показывает все диски, независимо от
+значения параметра "NoDrives" в реестре.
+
+
+    По умолчанию значения = true
 
     Изменение этого параметра возможно через ~far:config~@FarConfig@
 
