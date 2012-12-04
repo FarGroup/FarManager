@@ -844,7 +844,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 
 					MACROMODEAREA Area;
 					int Index;
-					Index = GetIndex(&Area,Key,textKey,m_Mode,true,true);
+					Index = GetIndex(&Area,Key,textKey,m_Mode,true,false);
 					if (Index != -1)
 					{
 						MacroRecord* macro = m_Macros[Area].getItem(Index);
@@ -1279,13 +1279,27 @@ bool KeyMacro::CheckWaitKeyFunc()
 // Ret=-1 - не найден таковой.
 // если CheckMode=MACRO_INVALID - значит пофигу в каком режиме, т.е. первый попавшийся
 // StrictKeys=true - не пытаться подменить Левый Ctrl/Alt Правым (если Левый не нашли)
-// FIXME: parameter StrictKeys.
 int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAREA CheckMode, bool UseCommon, bool StrictKeys)
 {
 	//_SHMUEL(SysLog(L"GetIndex: %08x,%ls",Key,strKey.CPtr()));
 	int loops = UseCommon && CheckMode!=MACRO_INVALID && CheckMode!=MACRO_COMMON ? 2:1;
 	if (CheckMode >= MACRO_LAST)
 		loops = 0;
+
+	MACROMODEAREA canon_area = MACRO_INVALID;
+	int canon_index = -1;
+	int canon_Key = Key;
+
+	if (!StrictKeys)
+	{
+		if ((Key & (KEY_CTRL | KEY_RCTRL)) == KEY_RCTRL)
+			canon_Key = (canon_Key & ~KEY_RCTRL) | KEY_CTRL;
+	//	if ((Key & (KEY_SHIFT | KEY_RSHIFT)) == KEY_RSHIFT)
+	//		canon_Key = (canon_Key & ~KEY_RSHIFT) | KEY_SHIFT;
+		if ((Key & (KEY_ALT | KEY_RALT)) == KEY_RALT)
+			canon_Key = (canon_Key & ~KEY_RALT) | KEY_ALT;
+	}
+
 	for (int k=0; k<loops; k++)
 	{
 		int startArea = (int)((CheckMode==MACRO_INVALID) ? MACRO_OTHER:CheckMode);
@@ -1305,12 +1319,22 @@ int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAR
 				{
 					*area = (MACROMODEAREA)i; return j;
 				}
+
+				if (Key != canon_Key
+				 && !((MPtr->Key() ^ canon_Key) & ~0xFFFF)
+				 && Upper(static_cast<WCHAR>(MPtr->Key())) == Upper(static_cast<WCHAR>(canon_Key))
+				 && !(MPtr->Flags()&MFLAGS_DISABLEMACRO))
+				{
+					canon_Key = Key;
+					canon_area = (MACROMODEAREA)i;
+					canon_index = j;
+				}
 			}
 		}
 		CheckMode=MACRO_COMMON;
 	}
-	*area = MACRO_INVALID;
-	return -1;
+	*area = canon_area;
+	return canon_index;
 }
 
 // Функция, запускающая макросы при старте ФАРа
