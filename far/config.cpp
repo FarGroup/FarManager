@@ -1159,7 +1159,7 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeySystem,L"OEMPluginsSupport",  AddressAndType(Global->Opt->LoadPlug.OEMPluginsSupport), Default(1)},
 	#endif // NO_WRAPPER
 		{FSSF_SYSTEM,        NKeySystem,L"PluginMaxReadData", AddressAndType(Global->Opt->PluginMaxReadData), Default(0x20000)},
-		{FSSF_PRIVATE,       NKeySystem,L"QuotedName", AddressAndType(Global->Opt->QuotedName), Default(0xFFFFFFFFU)},
+		{FSSF_PRIVATE,       NKeySystem,L"QuotedName", AddressAndType(Global->Opt->QuotedName), Default(QUOTEDNAME_INSERT)},
 		{FSSF_PRIVATE,       NKeySystem,L"QuotedSymbols", AddressAndType(Global->Opt->strQuotedSymbols), Default(L" &()[]{}^=;!'+,`\xA0")},
 		{FSSF_PRIVATE,       NKeySystem,L"SaveHistory", AddressAndType(Global->Opt->SaveHistory), Default(1)},
 		{FSSF_PRIVATE,       NKeySystem,L"SaveFoldersHistory", AddressAndType(Global->Opt->SaveFoldersHistory), Default(1)},
