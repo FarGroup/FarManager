@@ -1309,25 +1309,29 @@ int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAR
 			for (unsigned j=0; j<m_Macros[i].getSize(); j++)
 			{
 				MacroRecord* MPtr = m_Macros[i].getItem(j);
-				bool found = (Key != -1 && Key != 0) ?
-					!((MPtr->Key() ^ Key) & ~0xFFFF) &&
-							Upper(static_cast<WCHAR>(MPtr->Key()))==Upper(static_cast<WCHAR>(Key)) :
-					!strKey.IsEmpty() && !StrCmpI(strKey,MPtr->Name());
-
-				if (found && !(MPtr->Flags()&MFLAGS_DISABLEMACRO))
-						//&& (!MPtr->m_callback || MPtr->m_callback(MPtr->m_id,AKMFLAGS_NONE)))
+				if (!(MPtr->Flags()&MFLAGS_DISABLEMACRO))
 				{
-					*area = (MACROMODEAREA)i; return j;
-				}
+					if (Key != -1 && Key != 0)
+					{
+#define EQUIV_KEYS(a,b) (!(((a)^(b)) & ~0xFFFF) && Upper(static_cast<WCHAR>(a))==Upper(static_cast<WCHAR>(b)))
+						if (EQUIV_KEYS(MPtr->Key(),Key))
+								//&& (!MPtr->m_callback || MPtr->m_callback(MPtr->m_id,AKMFLAGS_NONE)))
+						{
+							*area = (MACROMODEAREA)i; return j;
+						}
 
-				if (Key != canon_Key
-				 && !((MPtr->Key() ^ canon_Key) & ~0xFFFF)
-				 && Upper(static_cast<WCHAR>(MPtr->Key())) == Upper(static_cast<WCHAR>(canon_Key))
-				 && !(MPtr->Flags()&MFLAGS_DISABLEMACRO))
-				{
-					canon_Key = Key;
-					canon_area = (MACROMODEAREA)i;
-					canon_index = j;
+						if (Key != canon_Key && EQUIV_KEYS(MPtr->Key(),canon_Key))
+						{
+							canon_Key = Key;
+							canon_area = (MACROMODEAREA)i;
+							canon_index = j;
+						}
+#undef EQUIV_KEYS
+					}
+					else if (!strKey.IsEmpty() && !StrCmpI(strKey,MPtr->Name()))
+					{
+						*area = (MACROMODEAREA)i; return j;
+					}
 				}
 			}
 		}
@@ -1418,7 +1422,6 @@ bool KeyMacro::ReadKeyMacro(MACROMODEAREA Area)
 	unsigned __int64 MFlags=0;
 	string strKey,strArea,strMFlags;
 	string strSequence, strDescription;
-	string strGUID;
 	int ErrorCount=0;
 
 	strArea=GetAreaName(Area);
