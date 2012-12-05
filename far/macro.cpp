@@ -1285,7 +1285,7 @@ int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAR
 #define UPPER_KEY(a) (((a) & ~0xffff) | Upper(static_cast<wchar_t>(a)))
 	MACROMODEAREA canon_area = MACRO_INVALID;
 	int canon_index = -1;
-	int canon_Key = Key = (Key > 0 ? UPPER_KEY(Key) : Key);
+	int canon_Key = Key = (Key && Key!=-1 ? UPPER_KEY(Key) : Key);
 	if (!StrictKeys)
 	{
 		if ((Key & (KEY_CTRL | KEY_RCTRL)) == KEY_RCTRL)
