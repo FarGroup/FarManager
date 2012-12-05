@@ -1282,60 +1282,55 @@ bool KeyMacro::CheckWaitKeyFunc()
 int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAREA CheckMode, bool UseCommon, bool StrictKeys)
 {
 	//_SHMUEL(SysLog(L"GetIndex: %08x,%ls",Key,strKey.CPtr()));
-	int loops = UseCommon && CheckMode!=MACRO_INVALID && CheckMode!=MACRO_COMMON ? 2:1;
-	if (CheckMode >= MACRO_LAST)
-		loops = 0;
-
 	MACROMODEAREA canon_area = MACRO_INVALID;
 	int canon_index = -1;
 	int canon_Key = Key;
-
 	if (!StrictKeys)
 	{
 		if ((Key & (KEY_CTRL | KEY_RCTRL)) == KEY_RCTRL)
 			canon_Key = (canon_Key & ~KEY_RCTRL) | KEY_CTRL;
-	//	if ((Key & (KEY_SHIFT | KEY_RSHIFT)) == KEY_RSHIFT)
-	//		canon_Key = (canon_Key & ~KEY_RSHIFT) | KEY_SHIFT;
 		if ((Key & (KEY_ALT | KEY_RALT)) == KEY_RALT)
 			canon_Key = (canon_Key & ~KEY_RALT) | KEY_ALT;
 	}
 
-	for (int k=0; k<loops; k++)
+	int startArea = MACRO_OTHER, endArea = MACRO_COMMON, step = 1;
+	if (CheckMode != MACRO_INVALID)
 	{
-		int startArea = (int)((CheckMode==MACRO_INVALID) ? MACRO_OTHER:CheckMode);
-		int endArea = (int)((CheckMode==MACRO_INVALID) ? MACRO_LAST:(int)CheckMode+1);
-		for (int i=startArea; i<endArea; i++)
-		{
-			for (unsigned j=0; j<m_Macros[i].getSize(); j++)
-			{
-				MacroRecord* MPtr = m_Macros[i].getItem(j);
-				if (!(MPtr->Flags()&MFLAGS_DISABLEMACRO))
-				{
-					if (Key != -1 && Key != 0)
-					{
-#define EQUIV_KEYS(a,b) (!(((a)^(b)) & ~0xFFFF) && Upper(static_cast<WCHAR>(a))==Upper(static_cast<WCHAR>(b)))
-						if (EQUIV_KEYS(MPtr->Key(),Key))
-								//&& (!MPtr->m_callback || MPtr->m_callback(MPtr->m_id,AKMFLAGS_NONE)))
-						{
-							*area = (MACROMODEAREA)i; return j;
-						}
+		startArea = endArea = CheckMode;
+		if (UseCommon && CheckMode != MACRO_COMMON)
+			step = (endArea = MACRO_COMMON) - startArea;
+	}
 
-						if (Key != canon_Key && EQUIV_KEYS(MPtr->Key(),canon_Key))
-						{
-							canon_Key = Key;
-							canon_area = (MACROMODEAREA)i;
-							canon_index = j;
-						}
-#undef EQUIV_KEYS
-					}
-					else if (!strKey.IsEmpty() && !StrCmpI(strKey,MPtr->Name()))
+	for (int i = startArea; i <= MACRO_COMMON && i <= endArea; i += step)
+	{
+		for (unsigned j = 0; j < m_Macros[i].getSize(); j++)
+		{
+			MacroRecord* MPtr = m_Macros[i].getItem(j);
+			if (!(MPtr->Flags()&MFLAGS_DISABLEMACRO))
+			{
+				if (Key != -1 && Key != 0)
+				{
+					#define UPPER_KEY(a) (((a) & ~0xffff) | Upper(static_cast<wchar_t>(a)))
+					if (UPPER_KEY(MPtr->Key()) == UPPER_KEY(Key))
+						//&& (!MPtr->m_callback || MPtr->m_callback(MPtr->m_id,AKMFLAGS_NONE)))
 					{
 						*area = (MACROMODEAREA)i; return j;
 					}
+
+					if (Key != canon_Key && UPPER_KEY(MPtr->Key()) == UPPER_KEY(canon_Key))
+					{
+						canon_Key = Key;
+						canon_area = (MACROMODEAREA)i;
+						canon_index = j;
+					}
+					#undef UPPER_KEY
+				}
+				else if (!strKey.IsEmpty() && !StrCmpI(strKey,MPtr->Name()))
+				{
+					*area = (MACROMODEAREA)i; return j;
 				}
 			}
 		}
-		CheckMode=MACRO_COMMON;
 	}
 	*area = canon_area;
 	return canon_index;
