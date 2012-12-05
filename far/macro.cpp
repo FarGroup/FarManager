@@ -1282,9 +1282,10 @@ bool KeyMacro::CheckWaitKeyFunc()
 int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAREA CheckMode, bool UseCommon, bool StrictKeys)
 {
 	//_SHMUEL(SysLog(L"GetIndex: %08x,%ls",Key,strKey.CPtr()));
+#define UPPER_KEY(a) (((a) & ~0xffff) | Upper(static_cast<wchar_t>(a)))
 	MACROMODEAREA canon_area = MACRO_INVALID;
 	int canon_index = -1;
-	int canon_Key = Key;
+	int canon_Key = Key = (Key > 0 ? UPPER_KEY(Key) : Key);
 	if (!StrictKeys)
 	{
 		if ((Key & (KEY_CTRL | KEY_RCTRL)) == KEY_RCTRL)
@@ -1310,20 +1311,19 @@ int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAR
 			{
 				if (Key != -1 && Key != 0)
 				{
-					#define UPPER_KEY(a) (((a) & ~0xffff) | Upper(static_cast<wchar_t>(a)))
-					if (UPPER_KEY(MPtr->Key()) == UPPER_KEY(Key))
+					int upper_Key = UPPER_KEY(MPtr->Key());
+					if (upper_Key == Key)
 						//&& (!MPtr->m_callback || MPtr->m_callback(MPtr->m_id,AKMFLAGS_NONE)))
 					{
 						*area = (MACROMODEAREA)i; return j;
 					}
 
-					if (Key != canon_Key && UPPER_KEY(MPtr->Key()) == UPPER_KEY(canon_Key))
+					if (Key != canon_Key && upper_Key == canon_Key)
 					{
 						canon_Key = Key;
 						canon_area = (MACROMODEAREA)i;
 						canon_index = j;
 					}
-					#undef UPPER_KEY
 				}
 				else if (!strKey.IsEmpty() && !StrCmpI(strKey,MPtr->Name()))
 				{
@@ -1334,6 +1334,7 @@ int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAR
 	}
 	*area = canon_area;
 	return canon_index;
+#undef UPPER_KEY
 }
 
 // Функция, запускающая макросы при старте ФАРа
