@@ -316,7 +316,7 @@ public:
       append_ctrl_id = button(Far::get_msg(MSG_OVERWRITE_DLG_APPEND), DIF_CENTERGROUP);
       spacer(1);
     }
-    cancel_ctrl_id = button(Far::get_msg(MSG_BUTTON_CANCEL), DIF_CENTERGROUP);
+    cancel_ctrl_id = button(Far::get_msg(MSG_OVERWRITE_DLG_CANCEL), DIF_CENTERGROUP);
     new_line();
 
     intptr_t item = Far::Dialog::show();

@@ -109,6 +109,7 @@ overwrite.dlg.overwrite = &Overwrite
 overwrite.dlg.skip = &Skip
 overwrite.dlg.rename = R&ename
 overwrite.dlg.append = A&ppend
+overwrite.dlg.cancel = &Cancel
 
 # Error retry dialog
 button.retry = &Retry
