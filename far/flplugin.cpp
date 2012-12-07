@@ -794,15 +794,15 @@ void FileList::PluginPutFilesToNew()
 	if (hNewPlugin && hNewPlugin!=PANEL_STOP)
 	{
 		_ALGO(SysLog(L"Create: FileList TmpPanel, FileCount=%d",FileCount));
-		FileList TmpPanel;
-		TmpPanel.SetPluginMode(hNewPlugin,L"");  // SendOnFocus??? true???
-		TmpPanel.SetModalMode(TRUE);
+		FileList *TmpPanel=new FileList;
+		TmpPanel->SetPluginMode(hNewPlugin,L"");  // SendOnFocus??? true???
+		TmpPanel->SetModalMode(TRUE);
 		int PrevFileCount=FileCount;
 		/* $ 12.04.2002 IS
 		   ≈сли PluginPutFilesToAnother вернула число, отличное от 2, то нужно
 		   попробовать установить курсор на созданный файл.
 		*/
-		int rc=PluginPutFilesToAnother(FALSE,&TmpPanel);
+		int rc=PluginPutFilesToAnother(FALSE,TmpPanel);
 
 		if (rc!=2 && FileCount==PrevFileCount+1)
 		{
@@ -842,6 +842,7 @@ void FileList::PluginPutFilesToNew()
 				Redraw();
 			}
 		}
+		TmpPanel->Destroy();
 	}
 }
 
