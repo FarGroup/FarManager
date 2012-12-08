@@ -38,6 +38,8 @@
 		<supportedOS Id="{e2011457-1546-43c5-a5fe-008deee3d3f0}"/>
 		<!--The ID below indicates application support for Windows 7 -->
 		<supportedOS Id="{35138b9a-5d96-4fbd-8e2d-a2440225f93a}"/>
+		<!--The ID below indicates application support for Windows 8 -->
+		<supportedOS Id="{4a2f28e3-53b9-4441-ba9c-d69d4a4a6e38}"/>
 	</application>
 </compatibility>
 <asmv3:application>
