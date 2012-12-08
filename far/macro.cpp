@@ -1407,7 +1407,7 @@ bool KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,boo
 		string strKeyText;
 		KeyToText(AKey,strKeyText);
 		MacroRecord macro(MACRO_COMMON, Flags, AKey, strKeyText, PlainText, L"");
-		m_CurState->m_MacroQueue.Push(&macro);
+		(m_StateStack.Peek() ? *m_StateStack.Peek() : m_CurState)->m_MacroQueue.Push(&macro);
 		return true;
 	}
 	return false;
