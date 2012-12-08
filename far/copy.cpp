@@ -3938,8 +3938,7 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
 		else
 			Width=WidthTemp=30;
 
-		// ширина месага - 38%
-		WidthTemp=Min(WidthTemp,Global->WidthNameForMessage);
+		WidthTemp=Min(WidthTemp, ScrX/2);
 		Width=Max(Width,WidthTemp);
 
 		string strOutFileName = Name; //??? nullptr ???

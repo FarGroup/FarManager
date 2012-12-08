@@ -68,6 +68,15 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #endif
 
+
+// Режимы показа меню (Menu mode)
+ENUM(MENUMODE)
+{
+	MM_LOCAL,  // Локальное меню
+	MM_USER,   // Пользовательское меню
+	MM_GLOBAL, // Глобальное меню
+};
+
 // Коды выхода из меню (Exit codes)
 enum
 {
@@ -78,7 +87,7 @@ enum
 	EC_COMMAND_SELECTED = -5, // Выбрана команда - закрыть меню и обновить папку
 };
 
-int PrepareHotKey(string &strHotKey)
+static int PrepareHotKey(string &strHotKey)
 {
 	int FuncNum=0;
 
@@ -105,7 +114,7 @@ int PrepareHotKey(string &strHotKey)
 
 const wchar_t *LocalMenuFileName=L"FarMenu.ini";
 
-void MenuListToFile(DList<UserMenuItem> *Menu, CachedWrite& CW)
+static void MenuListToFile(DList<UserMenuItem> *Menu, CachedWrite& CW)
 {
 	for (UserMenuItem *MenuItem=Menu->First(); MenuItem; MenuItem=Menu->Next(MenuItem))
 	{
@@ -133,7 +142,7 @@ void MenuListToFile(DList<UserMenuItem> *Menu, CachedWrite& CW)
 	}
 }
 
-void MenuFileToList(DList<UserMenuItem> *Menu, File& MenuFile, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
+static void MenuFileToList(DList<UserMenuItem> *Menu, File& MenuFile, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
 {
 	INT64 Pos = MenuFile.GetPointer();
 	if (!Pos)
@@ -872,21 +881,8 @@ enum EditMenuItems
 	EM_BUTTON_CANCEL,
 };
 
-intptr_t WINAPI EditMenuDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t UserMenu::EditMenuDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-#if defined(PROJECT_DI_MEMOEDIT)
-	Dialog* Dlg=(Dialog*)hDlg;
-
-	switch (Msg)
-	{
-		case DN_INITDIALOG:
-		{
-			break;
-		}
-	}
-
-#endif
-
 	switch (Msg)
 	{
 		case DN_CLOSE:
@@ -1025,7 +1021,7 @@ bool UserMenu::EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool 
 #endif
 		}
 
-		Dialog Dlg(EditDlg,ARRAYSIZE(EditDlg),EditMenuDlgProc);
+		Dialog Dlg(this, &UserMenu::EditMenuDlgProc, nullptr, EditDlg, ARRAYSIZE(EditDlg));
 		Dlg.SetHelp(L"UserMenu");
 		Dlg.SetPosition(-1,-1,DLG_X,DLG_Y);
 		Dlg.Process();

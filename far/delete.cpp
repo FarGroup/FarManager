@@ -85,7 +85,7 @@ ENUM(DEL_RESULT)
 static void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int WipePercent, ConsoleTitle* DeleteTitle)
 {
 	FormatString strProgress, strWipeProgress;
-	size_t Width=52;
+	size_t Width=ScrX/2;
 	size_t Length=Width-5; // -5 под проценты
 	if(Mode==DEL_WIPEPROCESS || Mode==DEL_WIPE)
 	{

@@ -440,7 +440,6 @@ void GetVideoMode(COORD& Size)
 	ScrY=Size.Y-1;
 	assert(ScrX>0);
 	assert(ScrY>0);
-	Global->WidthNameForMessage=(ScrX*38)/100+1;
 
 	if (PrevScrX == -1) PrevScrX=ScrX;
 

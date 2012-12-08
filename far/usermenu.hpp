@@ -46,28 +46,25 @@ struct UserMenuItem {
 	~UserMenuItem() { if (Menu) delete Menu; }
 };
 
+ENUM(MENUMODE);
+
 class UserMenu
 {
-		// Режимы показа меню (Menu mode)
-		enum MENUMODE
-		{
-			MM_LOCAL,  // Локальное меню
-			MM_USER,   // Пользовательское меню
-			MM_GLOBAL, // Глобальное меню
-		};
+public:
+	UserMenu(bool ChoiceMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
+	~UserMenu();
 
-		MENUMODE MenuMode;
-		bool MenuModified;
-		bool MenuNeedRefresh;
-		DList<UserMenuItem> Menu;
+private:
+	void ProcessUserMenu(bool ChoiceMenuType);
+	bool DeleteMenuRecord(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem);
+	bool EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool Create);
+	int ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<UserMenuItem> *MenuRoot, const string& MenuFileName, const wchar_t *Title=nullptr);
+	void SaveMenu(const string& MenuFileName);
+	intptr_t EditMenuDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
-		void ProcessUserMenu(bool ChoiceMenuType);
-		bool DeleteMenuRecord(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem);
-		bool EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool Create);
-		int ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<UserMenuItem> *MenuRoot, const string& MenuFileName, const wchar_t *Title=nullptr);
-		void SaveMenu(const string& MenuFileName);
+	MENUMODE MenuMode;
+	bool MenuModified;
+	bool MenuNeedRefresh;
+	DList<UserMenuItem> Menu;
 
-	public:
-		UserMenu(bool ChoiceMenuType); //	true - выбор типа меню (основное или локальное), false - зависит от наличия FarMenu.Ini в текущем каталоге
-		~UserMenu();
 };

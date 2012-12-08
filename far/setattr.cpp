@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "privilege.hpp"
 #include "wakeful.hpp"
 #include "DlgGuid.hpp"
+#include "interf.hpp"
 
 enum SETATTRDLG
 {
@@ -535,7 +536,7 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
 	else
 		Width=WidthTemp=54;
 
-	WidthTemp=Min(WidthTemp,Global->WidthNameForMessage);
+	WidthTemp=Min(WidthTemp, ScrX/2);
 	Width=Max(Width,WidthTemp);
 	string strOutFileName=Name;
 	TruncPathStr(strOutFileName,Width);

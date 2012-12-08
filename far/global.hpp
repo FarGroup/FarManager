@@ -70,7 +70,6 @@ public:
 	BOOL IsProcessAssignMacroKey;
 	BOOL IsRedrawFramesInProcess;
 	size_t PluginPanelsCount;
-	int WidthNameForMessage;
 	BOOL ProcessException;
 	BOOL ProcessShowClock;
 	const wchar_t *HelpFileMask;

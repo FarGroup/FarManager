@@ -99,7 +99,6 @@ global::global():
 	CloseFARMenu=FALSE;
 	AllowCancelExit=TRUE;
 	DisablePluginsOutput=FALSE;
-	WidthNameForMessage=0;
 	ProcessException=FALSE;
 	ProcessShowClock=FALSE;
 	HelpFileMask=L"*.hlf";

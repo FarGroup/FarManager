@@ -2013,13 +2013,13 @@ size_t PluginManager::GetPluginInformation(Plugin *pPlugin, FarGetPluginInformat
 			MenuGuids.addItem(Guid);
 		}
 
-		for(int i = 0; Global->Db->PlCacheCfg()->GetPluginsMenuItem(id, i, Name, Guid); ++i)
+		for(int i = 0; Global->Db->PlCacheCfg()->GetDiskMenuItem(id, i, Name, Guid); ++i)
 		{
 			DiskNames.addItem(Name);
 			DiskGuids.addItem(Guid);
 		}
 
-		for(int i = 0; Global->Db->PlCacheCfg()->GetPluginsMenuItem(id, i, Name, Guid); ++i)
+		for(int i = 0; Global->Db->PlCacheCfg()->GetPluginsConfigMenuItem(id, i, Name, Guid); ++i)
 		{
 			ConfNames.addItem(Name);
 			ConfGuids.addItem(Guid);
