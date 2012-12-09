@@ -119,13 +119,13 @@ void ControlObject::Init(int DirCount)
 		Cp()->RightPanel->GoToFile(Global->Opt->strRightCurFile);
 	}
 
-	FrameManager->SwitchToPanels();  // otherwise panels are empty
 	string strStartCurDir;
 	Cp()->ActivePanel->GetCurDir(strStartCurDir);
 	FarChDir(strStartCurDir);
 	Cp()->ActivePanel->SetFocus();
 
 	Macro.LoadMacros();
+	FrameManager->SwitchToPanels();  // otherwise panels are empty
 	/*
 		FarChDir(StartCurDir);
 	*/
