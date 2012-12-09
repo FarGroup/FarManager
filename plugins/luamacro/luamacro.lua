@@ -107,8 +107,12 @@ local function MacroInit (Id, Text)
     end
   end
   if chunk then
-    local env = setmetatable({}, gmeta)
-    setfenv(chunk, env)
+    if Id == 0 then
+      local env = setmetatable({}, gmeta)
+      setfenv(chunk, env)
+    else
+      setmetatable(getfenv(chunk), gmeta)
+    end
     local macro = { coro=co_create(chunk), store={} }
     table.insert(RunningMacros, macro)
     --far.Message("Init: created handle "..#RunningMacros)
@@ -362,7 +366,7 @@ function LoadMacros (LoadAll)
         AddMacro_filename = FullPath
         local ok, msg = pcall(f)
         if ok then
-          --env.Macro = nil
+          env.Macro = nil
           --setmetatable(env, meta)
         else
           ErrMsg(msg)
