@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2922
+  Plugin API for Far Manager 3.0 build 3001
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2922
+#define FARMANAGERVERSION_BUILD 3001
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1111,6 +1111,7 @@ enum MACROPLUGINRETURNTYPE
 	MPRT_PLUGINMENU    = 6,
 	MPRT_PLUGINCONFIG  = 7,
 	MPRT_PLUGINCOMMAND = 8,
+	MPRT_COMMONCASE    = 9,
 };
 
 struct MacroPluginReturn
@@ -2392,6 +2393,9 @@ enum MACROCALLTYPE
 	MCT_MACROSTEP          = 1,
 	MCT_MACROFINAL         = 2,
 	MCT_MACROPARSE         = 3,
+	MCT_LOADMACROS         = 4,
+	MCT_ENUMMACROS         = 5,
+	MCT_WRITEMACRO         = 6,
 };
 
 struct OpenMacroPluginInfo
