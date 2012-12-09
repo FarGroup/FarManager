@@ -110,8 +110,6 @@ local function MacroInit (Id, Text)
     if Id == 0 then
       local env = setmetatable({}, gmeta)
       setfenv(chunk, env)
-    else
-      setmetatable(getfenv(chunk), gmeta)
     end
     local macro = { coro=co_create(chunk), store={} }
     table.insert(RunningMacros, macro)
@@ -345,7 +343,6 @@ function LoadMacros (LoadAll)
   Enum_LastIndexes = {}
   LoadedMacros = {}
 
-  --local meta = {__index=_G, __metatable="access denied"}
   for k=1,2 do
     local root, mask, flags
 
@@ -367,7 +364,7 @@ function LoadMacros (LoadAll)
         local ok, msg = pcall(f)
         if ok then
           env.Macro = nil
-          --setmetatable(env, meta)
+          setmetatable(env, gmeta)
         else
           ErrMsg(msg)
         end
