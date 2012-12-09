@@ -148,9 +148,10 @@ class MacroRecord
 		string m_code;                 // оригинальный "текст" макроса
 		string m_description;          // описание макроса
 		GUID m_guid;                   // Гуид владельца макроса
-		void* m_id;                    // параметр калбака
+		void* m_callbackId;            // параметр калбака
 		FARMACROCALLBACK m_callback;   // каллбак для плагинов
-		void* m_handle;
+		void* m_handle;                //
+		int m_macroId;                 //
 
 		FarMacroValue mp_values[1];
 		FarMacroCall mp_data;
@@ -160,7 +161,7 @@ class MacroRecord
 		void CopyOpenMacroPluginInfo(const MacroRecord& src);
 	public:
 		MacroRecord();
-		MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int Key,string Name,string Code,string Description);
+		MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Name,string Code,string Description);
 		MacroRecord& operator= (const MacroRecord& src);
 	public:
 		MACROMODEAREA Area(void) {return m_area;}
@@ -214,7 +215,8 @@ class KeyMacro
 		int m_WaitKey;
 	private:
 		bool ReadKeyMacro(MACROMODEAREA Area);
-		void WriteMacro(void);
+		void WriteMacros(void);
+		void DeleteMacro(const wchar_t *Area, const wchar_t *Name);
 		void* CallMacroPlugin(OpenMacroPluginInfo* Info);
 		int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
 		intptr_t AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
@@ -227,6 +229,7 @@ class KeyMacro
 		MacroRecord* GetTopMacro() { return m_StateStack.empty()?nullptr:(*m_StateStack.Peek())->GetCurMacro(); }
 		void RemoveCurMacro() { m_CurState->RemoveCurMacro(); }
 		void RestoreMacroChar(void);
+		bool PostNewMacro(int macroId,const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
 	public:
 		KeyMacro();
 		~KeyMacro();
@@ -265,7 +268,7 @@ class KeyMacro
 		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);
 		// Поместить временное строковое представление макроса
-		bool PostNewMacro(const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
+		bool PostNewMacro(const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false) { return PostNewMacro(0,PlainText,Flags,AKey,onlyCheck); }
 		bool ParseMacroString(const wchar_t *Sequence,bool onlyCheck=false,bool skipFile=true);
 		void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 		intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);

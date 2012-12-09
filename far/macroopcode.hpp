@@ -150,8 +150,6 @@ enum MACRO_OP_CODE
 	MCODE_F_EDITOR_INSSTR,            // N=Editor.InsStr([S[,Line]])
 	MCODE_F_EDITOR_SETSTR,            // N=Editor.SetStr([S[,Line]])
 	MCODE_F_GETMACROSRC,              //
-	MCODE_F_READCONSTS,               //
-	MCODE_F_GETMODULEVALUE,           //
 
 	MCODE_F_LAST,                     // marker
 

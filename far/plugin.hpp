@@ -1233,6 +1233,7 @@ enum MACROPLUGINRETURNTYPE
 	MPRT_PLUGINMENU    = 6,
 	MPRT_PLUGINCONFIG  = 7,
 	MPRT_PLUGINCOMMAND = 8,
+	MPRT_COMMONCASE    = 9,
 };
 
 struct MacroPluginReturn
@@ -2601,6 +2602,9 @@ enum MACROCALLTYPE
 	MCT_MACROSTEP          = 1,
 	MCT_MACROFINAL         = 2,
 	MCT_MACROPARSE         = 3,
+	MCT_LOADMACROS         = 4,
+	MCT_ENUMMACROS         = 5,
+	MCT_WRITEMACRO         = 6,
 };
 
 struct OpenMacroPluginInfo

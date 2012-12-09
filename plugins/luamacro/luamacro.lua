@@ -32,7 +32,7 @@ end
 
 local ErrMsg = function(msg) far.Message(msg, "LuaMacro", nil, "wl") end
 
-local MacroTable = {}
+local RunningMacros = {}
 local LastMessage = {}
 local gmeta = { __index=_G }
 
@@ -96,24 +96,30 @@ local function loadmacro (Text)
   end
 end
 
-local function MacroInit (Text)
-  if type(Text)=="string" then
-    local chunk, msg = loadmacro(Text)
-    if chunk then
-      local env = setmetatable({}, gmeta)
-      setfenv(chunk, env)
-      local macro = { coro=co_create(chunk), store={} }
-      table.insert(MacroTable, macro)
-      --far.Message("Init: created handle "..#MacroTable)
-      return #MacroTable
-    else
-      ErrMsg(msg)
+local LoadedMacros
+local function MacroInit (Id, Text)
+  local chunk, msg
+  if Id == 0 then
+    chunk, msg = loadmacro(Text)
+  else
+    local mtable = LoadedMacros[Id]
+    if mtable then chunk = mtable.action
     end
+  end
+  if chunk then
+    local env = setmetatable({}, gmeta)
+    setfenv(chunk, env)
+    local macro = { coro=co_create(chunk), store={} }
+    table.insert(RunningMacros, macro)
+    --far.Message("Init: created handle "..#RunningMacros)
+    return #RunningMacros
+  else
+    ErrMsg(msg)
   end
 end
 
 local function MacroStep (handle, ...)
-  local macro = MacroTable[handle]
+  local macro = RunningMacros[handle]
   if macro then
     local status = co_status(macro.coro)
     if status == "suspended" then
@@ -129,13 +135,13 @@ local function MacroStep (handle, ...)
             return ret_type, macro.store
           end
         else
-          MacroTable[handle] = false
+          RunningMacros[handle] = false
           LastMessage[1] = ""
           return F.MPRT_NORMALFINISH, LastMessage
         end
       else
         ErrMsg(ret1)
-        MacroTable[handle] = false
+        RunningMacros[handle] = false
         LastMessage[1] = ret1
         return F.MPRT_ERRORFINISH, LastMessage
       end
@@ -149,8 +155,8 @@ local function MacroStep (handle, ...)
 end
 
 local function MacroFinal (handle)
-  if MacroTable[handle] then
-    MacroTable[handle] = false -- false, not nil!
+  if RunningMacros[handle] then
+    RunningMacros[handle] = false -- false, not nil!
     --far.Message("Final: closed handle "..handle)
     return 1
   else
@@ -189,13 +195,18 @@ local function ProcessCommandLine (CmdLine)
   end
 end
 
+local LoadMacros, EnumMacros, WriteMacro -- functions
+
 function export.Open (OpenFrom, ...)
   if OpenFrom == F.OPEN_LUAMACRO then
     local calltype, handle, args = ...
-    if     calltype==F.MCT_MACROINIT  then return MacroInit (args[1])
+    if     calltype==F.MCT_MACROINIT  then return MacroInit (unpack(args))
     elseif calltype==F.MCT_MACROSTEP  then return MacroStep (handle, unpack(args))
     elseif calltype==F.MCT_MACROFINAL then return MacroFinal(handle)
     elseif calltype==F.MCT_MACROPARSE then return MacroParse(unpack(args))
+    elseif calltype==F.MCT_LOADMACROS then return LoadMacros(unpack(args))
+    elseif calltype==F.MCT_ENUMMACROS then return EnumMacros(unpack(args))
+    elseif calltype==F.MCT_WRITEMACRO then return WriteMacro(unpack(args))
     end
 
   elseif OpenFrom == F.OPEN_COMMANDLINE then
@@ -205,19 +216,6 @@ function export.Open (OpenFrom, ...)
   elseif OpenFrom == F.OPEN_FROMMACRO then
     local guid, args = ...
     if args[1]=="argtest" then return unpack(args,2) end -- argtest: return received arguments
-  end
-end
-
-local function ReadConsts()
-  while true do
-    local sName,sValue,sType = far.MacroCallFar(0x80C65)
-    if not sName then break end
-    if _G[sName] == nil then -- protect existing globals
-      if     sType=="text"    then _G[sName]=sValue
-      elseif sType=="real"    then _G[sName]=tonumber(sValue)
-      elseif sType=="integer" then _G[sName]=bit64.new(sValue)
-      end
-    end
   end
 end
 
@@ -235,13 +233,37 @@ local function AddCfindFunction()
   end
 end
 
-local function DBLoader (name)
-  local str = far.MacroCallFar(0x80C66,name)
-  if str then
-    local f, msg = loadstring(str, name)
-    return f or msg
+function _G.eval (str, mode)
+  if type(str) ~= "string" then return -1 end
+  mode = mode or 0
+  if not (mode==0 or mode==1 or mode==2 or mode==3) then return -1 end
+
+  if mode == 2 then
+    local ret = MacroCallFar(0x80C64, str)
+    local tp = type(ret)
+    if tp == "string" then
+      str = ret
+    elseif tp == "number" then
+      local chunk = LoadedMacros[ret].action
+      setfenv(chunk, getfenv(2))
+      chunk()
+      return 0
+    else
+      return -2
+    end
   end
-  return ("\n\tModule '%s' not found in database"):format(name)
+
+  local chunk, msg = loadmacro(str)
+  if chunk then
+    if mode==1 then return 0 end
+    if mode==3 then return "" end
+    setfenv(chunk, getfenv(2))
+    chunk()
+    return 0
+  else
+    far.Message(msg, "LuaMacro", nil, "wl")
+    return mode==3 and msg or 11
+  end
 end
 
 do
@@ -252,11 +274,133 @@ do
     Plugin.Menu=PluginMenu
     Plugin.Config=PluginConfig
     Plugin.Command=PluginCommand
+    mf.eval = _G.eval
   else
     ErrMsg(msg)
   end
 
   AddCfindFunction()
-  ReadConsts()
-  table.insert(package.loaders, 2, DBLoader)
+  package.path = win.GetEnv("farprofile").."\\Macros\\modules\\?.lua;"..package.path
+end
+
+--------------------------------------------------------------------------------
+-- 2012-12-04 Переходим от базы к файлам.
+--------------------------------------------------------------------------------
+local function Encode16(name)
+  name = string.gsub(name, ".", function(c) return ("%02x"):format(c:byte()) end)
+  return name
+end
+
+-- Not used currently --
+-- local function Decode16(name)
+--   name = string.gsub(name, "%x%x", function(c) return string.char(tonumber(c,16)) end)
+--   return name
+-- end
+
+local Areas
+local AddMacro_filename
+local function AddMacro (macrotable)
+  local area = type(macrotable)=="table" and type(macrotable.area)=="string" and macrotable.area:lower()
+  if area and Areas[area] and type(macrotable.key)=="string" and type(macrotable.action)=="function" then
+    if type(macrotable.flags)~="string" then macrotable.flags="" end
+    if type(macrotable.description)~="string" then macrotable.description="" end
+    macrotable.FileName = AddMacro_filename
+    local key = macrotable.key:lower()
+    macrotable.id = Areas[area][key] and Areas[area][key].id or #LoadedMacros+1
+    LoadedMacros[macrotable.id] = macrotable
+    Areas[area][key] = macrotable
+  end
+end
+
+local Enum_LastIndexes = {}
+function EnumMacros (strArea)
+  local area = strArea:lower()
+  if Areas[area] then
+    local k,v = next(Areas[area], Enum_LastIndexes[area])
+    Enum_LastIndexes[area] = k
+    if k then
+      local sequence = ("@%s (Id=%d)"):format(v.FileName:match("[^\\]+\\[^\\]+$"), v.id)
+      LastMessage = pack(v.id, v.key, v.flags, sequence, v.description)
+      return F.MPRT_COMMONCASE, LastMessage
+    end
+  end
+end
+
+function LoadMacros (LoadAll)
+  local dir = win.GetEnv("farprofile").."\\Macros"
+
+  Areas = LoadAll and {
+    other={}, shell={}, viewer={}, editor={}, dialog={}, search={}, disks={},
+    mainmenu={}, menu={}, help={}, info={}, qview ={}, tree={}, findfolder={},
+    usermenu={}, shellautocompletion={}, dialogautocompletion={}, common={},
+  }
+  or {
+    other={}, viewer={}, editor={}, dialog={}, menu={}, help={},
+    dialogautocompletion={}, common={},
+  }
+  Enum_LastIndexes = {}
+  LoadedMacros = {}
+
+  --local meta = {__index=_G, __metatable="access denied"}
+  for k=1,2 do
+    local root, mask, flags
+
+    if k==1 then
+      root, mask, flags = dir.."\\scripts", "*.lua", F.FRS_RECUR
+    else
+      root, mask, flags = dir.."\\internal", "*", 0
+    end
+
+    far.RecursiveSearch (root, mask,
+      function (FindData, FullPath)
+        local f, msg = loadfile(FullPath)
+        if not f then
+          ErrMsg(msg) return
+        end
+        local env = {Macro=AddMacro}
+        setfenv(f, env)
+        AddMacro_filename = FullPath
+        local ok, msg = pcall(f)
+        if ok then
+          --env.Macro = nil
+          --setmetatable(env, meta)
+        else
+          ErrMsg(msg)
+        end
+      end, flags)
+  end
+
+  LastMessage = pack()
+  return F.MPRT_COMMONCASE, LastMessage
+end
+
+function WriteMacro (operation, area, keyname, flags, code, description)
+  local dir = win.GetEnv("farprofile").."\\Macros\\internal"
+  if not win.CreateDir(dir,true) then return end
+
+  local fname = ("%s\\%s_%s"):format(dir, area, Encode16(keyname:lower()))
+  local attr = win.GetFileAttr(fname)
+  if attr then
+    win.SetFileAttr(fname, "")
+    win.DeleteFile(fname)
+  end
+
+  if operation == 0 then -- operation "delete"
+    LastMessage[1] = ""
+    return F.MPRT_NORMALFINISH, LastMessage
+  end
+
+  if operation == 1 then -- operation "write"
+    local fp, msg = io.open(fname, "w")
+    if fp then
+      if code:sub(1,1)=="@" then
+        code = ("far.MacroPost(%q,%q,%q)"):format(code,"KMFLAGS_DISABLEOUTPUT",keyname)
+      end
+      fp:write(("Macro {\narea=%q; key=%q; flags=%q; description=%q;\naction=function()\n%s\nend;\n}\n"):
+        format(area, keyname, flags, description, code))
+      fp:close()
+      LastMessage[1] = ""
+      return F.MPRT_NORMALFINISH, LastMessage
+    end
+  end
 end

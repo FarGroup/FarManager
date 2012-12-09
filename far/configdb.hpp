@@ -261,34 +261,6 @@ protected:
 	HistoryConfig() {}
 };
 
-class MacroConfig: public XmlConfig, public Transactional {
-
-public:
-
-	virtual ~MacroConfig() {}
-
-	virtual bool EnumConsts(string &strName, string &Value, string &Type) = 0;
-	virtual bool GetConstValue(const wchar_t *Name, string &Value, string &Type) = 0;
-	virtual unsigned __int64 SetConstValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *type) = 0;
-	virtual bool DeleteConst(const wchar_t *Name) = 0;
-
-	virtual bool EnumModules(string &strName, string &Value, string &Type) = 0;
-	virtual bool GetModuleValue(const wchar_t *Name, string &Value, string &Type) = 0;
-	virtual unsigned __int64 SetModuleValue(const wchar_t *Name, const wchar_t *Value, const wchar_t *Type) = 0;
-	virtual bool DeleteModule(const wchar_t *Name) = 0;
-
-	virtual bool EnumFunctions(string &strGuid, string &strFunctionName, string &Flags, string &strSequence, string &strSyntax, string &strDescription) = 0;
-	virtual unsigned __int64 SetFunction(const wchar_t *Guid, const wchar_t *FunctionName, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Syntax, const wchar_t *Description) = 0;
-	virtual bool DeleteFunction(const wchar_t *Guid, const wchar_t *Name) = 0;
-
-	virtual bool EnumKeyMacros(string &strArea, string &strKey, string &strFlags, string &strSequence, string &strDescription) = 0;
-	virtual unsigned __int64 SetKeyMacro(const wchar_t *Area, const wchar_t *Key, const wchar_t *Flags, const wchar_t *Sequence, const wchar_t *Description) = 0;
-	virtual bool DeleteKeyMacro(const wchar_t *Area, const wchar_t *Key) = 0;
-
-protected:
-	MacroConfig() {}
-};
-
 class Database
 {
 public:
@@ -307,7 +279,6 @@ public:
 	PluginsHotkeysConfig *PlHotkeyCfg() const { return m_PlHotkeyCfg; }
 	HistoryConfig *HistoryCfg() const { return m_HistoryCfg; }
 	HistoryConfig *HistoryCfgMem() const { return m_HistoryCfgMem; }
-	MacroConfig *MacroCfg() const { return m_MacroCfg; }
 
 
 	HierarchicalConfig *CreatePluginsConfig(const wchar_t *guid, bool Local=false);
@@ -342,7 +313,6 @@ private:
 	PluginsHotkeysConfig *m_PlHotkeyCfg;
 	HistoryConfig *m_HistoryCfg;
 	HistoryConfig *m_HistoryCfgMem;
-	MacroConfig *m_MacroCfg;
 
 	BitFlags CheckedDb;
 	DList<string> m_Problems;

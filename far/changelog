@@ -1,3 +1,7 @@
+shmuel 09.12.2012 15:57:57 +0200 - build 3001
+
+1. Макросы переехали из macros.db в папку %FARPROFILE%\Macros и содержатся в Lua-файлах.
+
 drkns 08.12.2012 23:28:08 +0200 - build 3000
 
 1. 0002219: Ошибка PCTL_GETPLUGININFORMATION

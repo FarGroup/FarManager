@@ -60,7 +60,7 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 				return (HANDLE)ret;
 			}
 		}
-		else if(calltype == MCT_MACROSTEP || calltype == MCT_MACROPARSE)
+		else
 		{
 			struct MacroPluginReturn* mpr;
 			int ReturnType;
@@ -101,11 +101,7 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 					}
 				}
 
-				case MPRT_ERRORPARSE:
-				case MPRT_PLUGINCALL:
-				case MPRT_PLUGINMENU:
-				case MPRT_PLUGINCONFIG:
-				case MPRT_PLUGINCOMMAND:
+				default:
 				{
 					int nargs, type, idx;
 					INT64 val64;

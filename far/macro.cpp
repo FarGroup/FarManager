@@ -189,8 +189,6 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_EDITOR_INSSTR=0x%X // N=Editor.InsStr([S[,Line]])\n", MCODE_F_EDITOR_INSSTR);
 	fprintf(fp, "MCODE_F_EDITOR_SETSTR=0x%X // N=Editor.SetStr([S[,Line]])\n", MCODE_F_EDITOR_SETSTR);
 	fprintf(fp, "MCODE_F_GETMACROSRC=0x%X // ѕолучение кода макроса дл€ Eval(S,2)\n", MCODE_F_GETMACROSRC);
-	fprintf(fp, "MCODE_F_READCONSTS=0x%X // «агрузка констант\n", MCODE_F_READCONSTS);
-	fprintf(fp, "MCODE_F_GETMODULEVALUE=0x%X // ѕолучение значени€ переменной\n", MCODE_F_GETMODULEVALUE);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состо€ни€
@@ -465,14 +463,15 @@ MacroRecord::MacroRecord():
 	m_flags(0),
 	m_key(-1),
 	m_guid(FarGuid),
-	m_id(nullptr),
+	m_callbackId(nullptr),
 	m_callback(nullptr),
-	m_handle(nullptr)
+	m_handle(nullptr),
+	m_macroId(0)
 {
 	InitOpenMacroPluginInfo();
 }
 
-MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int Key,string Name,string Code,string Description):
+MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Name,string Code,string Description):
 	m_area(Area),
 	m_flags(Flags),
 	m_key(Key),
@@ -480,9 +479,10 @@ MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int Key,stri
 	m_code(Code),
 	m_description(Description),
 	m_guid(FarGuid),
-	m_id(nullptr),
+	m_callbackId(nullptr),
 	m_callback(nullptr),
-	m_handle(nullptr)
+	m_handle(nullptr),
+	m_macroId(MacroId)
 {
 	InitOpenMacroPluginInfo();
 }
@@ -498,9 +498,10 @@ MacroRecord& MacroRecord::operator= (const MacroRecord& src)
 		m_code = src.m_code;
 		m_description = src.m_description;
 		m_guid = src.m_guid;
-		m_id = src.m_id;
+		m_callbackId = src.m_callbackId;
 		m_callback = src.m_callback;
 		m_handle = src.m_handle;
+		m_macroId = src.m_macroId;
 		CopyOpenMacroPluginInfo(src);
 	}
 	return *this;
@@ -650,34 +651,18 @@ bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 	if (Global->Opt->Macro.DisableMacro&MDOL_ALL)
 		return false;
 
-	int Areas[MACRO_LAST];
-
-	for (int ii=MACRO_OTHER;ii<MACRO_LAST;++ii)
+	FarMacroValue values[1]={{FMVT_BOOLEAN,{0}}};
+	values[0].Boolean = LoadAll?1:0;
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_LOADMACROS,nullptr,&fmc};
+	if (CallMacroPlugin(&info))
 	{
-		Areas[ii]=ii;
-	}
-
-	if (!LoadAll)
-	{
-		// "выведем из стро€" ненужные области - будет загружатьс€ только то, что не равно значению MACRO_LAST
-		Areas[MACRO_SHELL]=
-			Areas[MACRO_SEARCH]=
-			Areas[MACRO_DISKS]=
-			Areas[MACRO_MAINMENU]=
-			Areas[MACRO_INFOPANEL]=
-			Areas[MACRO_QVIEWPANEL]=
-			Areas[MACRO_TREEPANEL]=
-			Areas[MACRO_USERMENU]= // <-- Mantis#0001594
-			Areas[MACRO_SHELLAUTOCOMPLETION]=
-			Areas[MACRO_FINDFOLDER]=MACRO_LAST;
-	}
-
-	for (int ii=MACRO_OTHER;ii<MACRO_LAST;++ii)
-	{
-		if (Areas[ii]==MACRO_LAST) continue;
-		if (!ReadKeyMacro((MACROMODEAREA)ii))
+		for (int ii=MACRO_OTHER;ii<MACRO_LAST;++ii)
 		{
-			ErrCount++;
+			if (!ReadKeyMacro((MACROMODEAREA)ii))
+			{
+				ErrCount++;
+			}
 		}
 	}
 
@@ -694,7 +679,7 @@ bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 
 void KeyMacro::SaveMacros()
 {
-	WriteMacro();
+	WriteMacros();
 }
 
 static __int64 msValues[constMsLAST];
@@ -735,11 +720,18 @@ bool KeyMacro::InitMacroExecution()
 	MacroRecord* macro = GetCurMacro();
 	if (macro)
 	{
-		FarMacroValue values[1]={{FMVT_STRING,{0}}};
-		values[0].String=macro->Code();
-		FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-		OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_MACROINIT,nullptr,&fmc};
-		macro->m_handle=CallMacroPlugin(&info);
+		FarMacroValue values[2] = {{FMVT_DOUBLE,{0}},{FMVT_STRING,{0}}};
+		FarMacroCall fmc = {sizeof(FarMacroCall),1,values,nullptr,nullptr};
+		OpenMacroPluginInfo info = {sizeof(OpenMacroPluginInfo),MCT_MACROINIT,nullptr,&fmc};
+
+		values[0].Double = macro->m_macroId;
+		if (macro->m_macroId == 0)
+		{
+			fmc.Count = 2;
+			values[1].String = macro->Code();
+		}
+
+		macro->m_handle = CallMacroPlugin(&info);
 		if (macro->m_handle)
 		{
 			macro->mp_info.Handle = macro->m_handle;
@@ -848,9 +840,9 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 					if (Index != -1)
 					{
 						MacroRecord* macro = m_Macros[Area].getItem(Index);
-						if (CheckAll(macro->Area(), macro->Flags()) && (!macro->m_callback||macro->m_callback(macro->m_id,AKMFLAGS_NONE)))
+						if (CheckAll(macro->Area(), macro->Flags()) && (!macro->m_callback||macro->m_callback(macro->m_callbackId,AKMFLAGS_NONE)))
 						{
-							int ret = PostNewMacro(macro->Code(),macro->Flags(),Rec->IntKey,false);
+							int ret = PostNewMacro(macro->m_macroId,macro->Code(),macro->Flags(),Rec->IntKey,false);
 							if (ret)
 							{
 								m_CurState->HistoryDisable=0;
@@ -908,7 +900,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 					{
 						if (!m_RecCode.IsEmpty())
 						{
-							m_Macros[StartMode].addItem(MacroRecord(StartMode,Flags,MacroKey,strKey,m_RecCode,m_RecDescription));
+							m_Macros[StartMode].addItem(MacroRecord(StartMode,Flags,0,MacroKey,strKey,m_RecCode,m_RecDescription));
 						}
 					}
 					else
@@ -936,7 +928,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				Global->WaitInFastFind++;
 
 				if (Global->Opt->AutoSaveSetup)
-					WriteMacro(); // записать только изменени€!
+					WriteMacros(); // записать только изменени€!
 
 				return true;
 			}
@@ -1313,7 +1305,7 @@ int KeyMacro::GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAR
 				{
 					int upper_Key = UPPER_KEY(MPtr->Key());
 					if (upper_Key == Key)
-						//&& (!MPtr->m_callback || MPtr->m_callback(MPtr->m_id,AKMFLAGS_NONE)))
+						//&& (!MPtr->m_callback || MPtr->m_callback(MPtr->m_callbackId,AKMFLAGS_NONE)))
 					{
 						*area = (MACROMODEAREA)i; return j;
 					}
@@ -1356,7 +1348,7 @@ void KeyMacro::RunStartMacro()
 		MACROFLAGS_MFLAGS flags = macro->Flags();
 		if (!(flags&MFLAGS_DISABLEMACRO) && (flags&MFLAGS_RUNAFTERFARSTART) && CheckAll(macro->Area(), flags))
 		{
-			PostNewMacro(macro->Code(), flags&~MFLAGS_DISABLEOUTPUT); //FIXME
+			PostNewMacro(macro->m_macroId, macro->Code(), flags&~MFLAGS_DISABLEOUTPUT); //FIXME: flags
 		}
 	}
 	IsRunStartMacro=TRUE;
@@ -1372,9 +1364,9 @@ int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum 
 		return FALSE;
 
 	int Key=InputRecordToKey(&AKey);
-	MacroRecord macro(Area,Flags,Key,strKeyText,PlainText,Description);
+	MacroRecord macro(Area,Flags,0,Key,strKeyText,PlainText,Description);
 	macro.m_guid = PluginId;
-	macro.m_id = Id;
+	macro.m_callbackId = Id;
 	macro.m_callback = Callback;
 	m_Macros[Area].addItem(macro);
 	return TRUE;
@@ -1387,7 +1379,7 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 		for (unsigned j=0; j<m_Macros[i].getSize(); j++)
 		{
 			MacroRecord* macro = m_Macros[i].getItem(j);
-			if (!(macro->m_flags&MFLAGS_DISABLEMACRO) && macro->m_id==Id && IsEqualGUID(macro->m_guid,PluginId))
+			if (!(macro->m_flags&MFLAGS_DISABLEMACRO) && macro->m_callbackId==Id && IsEqualGUID(macro->m_guid,PluginId))
 			{
 				macro->m_flags = MFLAGS_DISABLEMACRO;
 				macro->m_name.Clear();
@@ -1400,13 +1392,13 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 	return FALSE;
 }
 
-bool KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
+bool KeyMacro::PostNewMacro(int MacroId,const wchar_t *PlainText,UINT64 Flags,DWORD AKey,bool onlyCheck)
 {
-	if (!m_InternalInput && ParseMacroString(PlainText, onlyCheck))
+	if (!m_InternalInput && (MacroId != 0 || ParseMacroString(PlainText, onlyCheck)))
 	{
 		string strKeyText;
 		KeyToText(AKey,strKeyText);
-		MacroRecord macro(MACRO_COMMON, Flags, AKey, strKeyText, PlainText, L"");
+		MacroRecord macro(MACRO_COMMON, Flags, MacroId, AKey, strKeyText, PlainText, L"");
 		(m_StateStack.Peek() ? *m_StateStack.Peek() : m_CurState)->m_MacroQueue.Push(&macro);
 		return true;
 	}
@@ -1416,30 +1408,29 @@ bool KeyMacro::PostNewMacro(const wchar_t *PlainText,UINT64 Flags,DWORD AKey,boo
 bool KeyMacro::ReadKeyMacro(MACROMODEAREA Area)
 {
 	unsigned __int64 MFlags=0;
-	string strKey,strArea,strMFlags;
-	string strSequence, strDescription;
+	string strMFlags;
+	const wchar_t *strKey, *strSequence, *strDescription;
+	int macroId;
 	int ErrorCount=0;
 
-	strArea=GetAreaName(Area);
+	FarMacroValue values[1]={{FMVT_STRING,{0}}};
+	values[0].String=GetAreaName(Area);
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_ENUMMACROS,nullptr,&fmc};
 
-	while(Global->Db->MacroCfg()->EnumKeyMacros(strArea, strKey, strMFlags, strSequence, strDescription))
+	while (true)
 	{
-		RemoveExternalSpaces(strKey);
-		RemoveExternalSpaces(strSequence);
-		RemoveExternalSpaces(strDescription);
+		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&info);
+		if (!mpr || mpr->Count < 5)
+			break;
 
-		if (strSequence.IsEmpty())
-		{
-			//ErrorCount++; // –аскомментить, если не допускаетс€ пустой "Sequence"
-			continue;
-		}
-		if (!ParseMacroString(strSequence))
-		{
-			ErrorCount++;
-			continue;
-		}
+		macroId = (int)mpr->Values[0].Double;
+		strKey = mpr->Values[1].String;
+		strMFlags = mpr->Values[2].String;
+		strSequence = mpr->Values[3].String;
+		strDescription = mpr->Values[4].String;
 
-		MFlags=StringToFlags(strMFlags);
+		MFlags = StringToFlags(strMFlags);
 
 		if (Area == MACRO_EDITOR || Area == MACRO_DIALOG || Area == MACRO_VIEWER)
 		{
@@ -1456,15 +1447,31 @@ bool KeyMacro::ReadKeyMacro(MACROMODEAREA Area)
 			}
 		}
 		int Key=KeyNameToKey(strKey);
-		m_Macros[Area].addItem(MacroRecord(Area,MFlags,Key,strKey,strSequence,strDescription));
+		MacroRecord macro(Area,MFlags,macroId,Key,strKey,strSequence,strDescription);
+		m_Macros[Area].addItem(macro);
 	}
 
 	return ErrorCount?false:true;
 }
 
-void KeyMacro::WriteMacro(void)
+void KeyMacro::DeleteMacro(const wchar_t *Area, const wchar_t *Name)
 {
-	Global->Db->MacroCfg()->BeginTransaction();
+	FarMacroValue values[3]={{FMVT_DOUBLE,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_WRITEMACRO,nullptr,&fmc};
+	values[0].Double=0;
+	values[1].String = Area;
+	values[2].String = Name;
+	CallMacroPlugin(&info);
+}
+
+void KeyMacro::WriteMacros(void)
+{
+	FarMacroValue values[6]={{FMVT_DOUBLE,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}},{FMVT_STRING,{0}}};
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_WRITEMACRO,nullptr,&fmc};
+	values[0].Double=1;
+
 	for(size_t ii=MACRO_OTHER;ii<MACRO_LAST;++ii)
 	{
 		for(size_t jj=0;jj<m_Macros[ii].getSize();++jj)
@@ -1476,13 +1483,21 @@ void KeyMacro::WriteMacro(void)
 				string Code = rec.Code();
 				RemoveExternalSpaces(Code);
 				if (Code.IsEmpty())
-					Global->Db->MacroCfg()->DeleteKeyMacro(GetAreaName(rec.Area()), rec.Name());
+				{
+					DeleteMacro(GetAreaName(rec.Area()), rec.Name());
+				}
 				else
-					Global->Db->MacroCfg()->SetKeyMacro(GetAreaName(rec.Area()),rec.Name(),FlagsToString(rec.Flags()),Code,rec.Description());
+				{
+					values[1].String = GetAreaName(rec.Area());
+					values[2].String = rec.Name();
+					values[3].String = FlagsToString(rec.Flags());
+					values[4].String = rec.Code();
+					values[5].String = rec.Description();
+					CallMacroPlugin(&info);
+				}
 			}
 		}
 	}
-	Global->Db->MacroCfg()->EndTransaction();
 }
 
 const wchar_t *eStackAsString(int)
@@ -1958,7 +1973,6 @@ static bool xlatFunc(FarMacroCall*);
 static bool pluginloadFunc(FarMacroCall*);
 static bool pluginunloadFunc(FarMacroCall*);
 static bool pluginexistFunc(FarMacroCall*);
-static bool ReadConsts(FarMacroCall*);
 
 static int PassString (const wchar_t* str, FarMacroCall* Data)
 {
@@ -2825,8 +2839,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_XLAT:            return xlatFunc(Data);
 		case MCODE_F_PROMPT:          return promptFunc(Data);
 
-		case MCODE_F_READCONSTS:      return ReadConsts(Data);
-
 		case MCODE_F_GETMACROSRC: // ѕолучение кода макроса дл€ Eval(S,2).
 		{
 			parseParams(1,Params,Data);
@@ -2887,24 +2899,15 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 					MacroRecord* macro = m_Macros[Area].getItem(I);
 					if (!(macro->Flags() & MFLAGS_DISABLEMACRO))
 					{
-						PassString(macro->Code(), Data);
+						if (macro->m_macroId)
+							PassNumber(macro->m_macroId, Data);
+						else
+							PassString(macro->Code(), Data);
 						return 1;
 					}
 				}
 			}
 			PassBoolean(0, Data);
-			return 0;
-		}
-
-		case MCODE_F_GETMODULEVALUE: // ѕолучить из базы данных текст модул€ по его имени
-		{
-			string strValue,strType;
-			if (Data->Count>=1 && Data->Values[0].Type==FMVT_STRING &&
-					Global->Db->MacroCfg()->GetModuleValue(Data->Values[0].String,strValue,strType) && strType==L"text")
-				PassString(strValue,Data);
-			else
-				PassBoolean(0,Data);
-
 			return 0;
 		}
 
@@ -5943,23 +5946,6 @@ static bool testfolderFunc(FarMacroCall* Data)
 	return Ret?true:false;
 }
 
-static bool ReadConsts (FarMacroCall* Data)
-{
-	string strName;
-	string Value, strType;
-
-	if (Global->Db->MacroCfg()->EnumConsts(strName, Value, strType))
-	{
-		PassString(strName,Data);
-		PassString(Value,Data);
-		PassString(strType,Data);
-	}
-	else
-		PassBoolean(0, Data);
-
-	return true;
-}
-
 // обработчик диалогового окна назначени€ клавиши
 intptr_t KeyMacro::AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
@@ -6155,10 +6141,8 @@ M1:
 						// удал€ем из DB только если включен автосейв
 						if (Global->Opt->AutoSaveSetup)
 						{
-							Global->Db->MacroCfg()->BeginTransaction();
 							// удалим старую запись из DB
-							Global->Db->MacroCfg()->DeleteKeyMacro(GetAreaName(Area), Mac->Name());
-							Global->Db->MacroCfg()->EndTransaction();
+							DeleteMacro(GetAreaName(Area), Mac->Name());
 						}
 						// раздисаблим
 						Mac->m_flags&=~(MFLAGS_DISABLEMACRO|MFLAGS_NEEDSAVEMACRO);
