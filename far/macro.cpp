@@ -702,13 +702,13 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 	if (macro)
 		Global->ScrBuf->SetLockCount(0);
 
-	if (Info->CallType==MCT_MACROSTEP)
+	if (Info->CallType==MCT_MACROINIT || Info->CallType==MCT_MACROSTEP)
 	{
 		++m_MacroPluginIsRunning;
 		PushState(false);
 	}
 	bool result=Global->CtrlObject->Plugins->CallPlugin(LuamacroGuid,OPEN_LUAMACRO,Info,&ptr) != 0;
-	if (Info->CallType==MCT_MACROSTEP)
+	if (Info->CallType==MCT_MACROINIT || Info->CallType==MCT_MACROSTEP)
 	{
 		PopState(false);
 		--m_MacroPluginIsRunning;
