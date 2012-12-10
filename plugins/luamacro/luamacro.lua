@@ -349,7 +349,7 @@ function LoadMacros (LoadAll)
     if k==1 then
       root, mask, flags = dir.."\\scripts", "*.lua", F.FRS_RECUR
     else
-      root, mask, flags = dir.."\\internal", "*", 0
+      root, mask, flags = dir.."\\internal", "*.lua", 0
     end
 
     far.RecursiveSearch (root, mask,
@@ -379,9 +379,16 @@ function WriteMacro (operation, area, keyname, flags, code, description)
   local dir = win.GetEnv("farprofile").."\\Macros\\internal"
   if not win.CreateDir(dir,true) then return end
 
-  local fname = ("%s\\%s_%s"):format(dir, area, Encode16(keyname:lower()))
-  local attr = win.GetFileAttr(fname)
-  if attr then
+  -- Get or construct a valid file name ('keyname' may be not valid as file name).
+  local fname = ("%s\\%s_%s.lua"):format(dir, area, keyname)
+  if not win.GetFileAttr(fname) then
+    local fp = io.open(fname, "w")
+    if fp then fp:close()
+    else fname = ("%s\\%s_%s.lua"):format(dir, area, Encode16(keyname:lower()))
+    end
+  end
+
+  if win.GetFileAttr(fname) then
     win.SetFileAttr(fname, "")
     win.DeleteFile(fname)
   end
