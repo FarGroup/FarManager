@@ -371,7 +371,7 @@ function WriteMacro (operation, area, keyname, flags, code, description)
   local dir = win.GetEnv("farprofile").."\\Macros\\internal"
   if not win.CreateDir(dir,true) then return end
 
-  local fname = ("%s\\%s_%s"):format(dir, area, keyname:gsub(".", CharNames))
+  local fname = ("%s\\%s_%s"):format(dir, area, keyname:gsub(".", CharNames)..".lua")
   local attr = win.GetFileAttr(fname)
   if attr then
     win.SetFileAttr(fname, "")
