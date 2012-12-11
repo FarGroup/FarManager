@@ -178,7 +178,7 @@ class DialogOwner
 public:
 	intptr_t Handler(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
 };
-typedef int (DialogOwner::*DialogHandlerFunction)(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+typedef intptr_t (DialogOwner::*DialogHandlerFunction)(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
 class Dialog: public Frame
 {
