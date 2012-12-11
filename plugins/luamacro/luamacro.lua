@@ -364,7 +364,7 @@ function LoadMacros (LoadAll)
   return F.MPRT_COMMONCASE, LastMessage
 end
 
-local CharNames = { ["."]="Dot", ["<"]="Lt", [">"]="Gt", ["|"]="Pipe", ["/"]="Slash",
+local CharNames = { ["."]="Dot", ["<"]="Less", [">"]="More", ["|"]="Pipe", ["/"]="Slash",
                     [":"]="Colon", ["?"]="Question", ["*"]="Asterisk", ['"']="Quote" }
 
 function WriteMacro (operation, area, keyname, flags, code, description)
