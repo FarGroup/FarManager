@@ -58,16 +58,15 @@ enum MACRODISABLEONLOAD
 
 typedef unsigned __int64 MACROFLAGS_MFLAGS;
 static const MACROFLAGS_MFLAGS
+	// public flags, read from/saved to config
+	MFLAGS_PUBLIC_MASK             =0x00000000FFFFFFFF,
 	MFLAGS_DISABLEOUTPUT           =0x0000000000000001, // подавить обновление экрана во время выполнения макроса
 	MFLAGS_NOSENDKEYSTOPLUGINS     =0x0000000000000002, // НЕ передавать плагинам клавиши во время записи/воспроизведения макроса
-	MFLAGS_RUNAFTERFARSTARTED      =0x0000000000000004, //! этот макрос уже запускался при старте ФАРа
 	MFLAGS_RUNAFTERFARSTART        =0x0000000000000008, // этот макрос запускается при старте ФАРа
-
 	MFLAGS_EMPTYCOMMANDLINE        =0x0000000000000010, // запускать, если командная линия пуста
 	MFLAGS_NOTEMPTYCOMMANDLINE     =0x0000000000000020, // запускать, если командная линия не пуста
 	MFLAGS_EDITSELECTION           =0x0000000000000040, // запускать, если есть выделение в редакторе
 	MFLAGS_EDITNOSELECTION         =0x0000000000000080, // запускать, если есть нет выделения в редакторе
-
 	MFLAGS_SELECTION               =0x0000000000000100, // активная:  запускать, если есть выделение
 	MFLAGS_PSELECTION              =0x0000000000000200, // пассивная: запускать, если есть выделение
 	MFLAGS_NOSELECTION             =0x0000000000000400, // активная:  запускать, если есть нет выделения
@@ -81,10 +80,12 @@ static const MACROFLAGS_MFLAGS
 	MFLAGS_NOFILES                 =0x0000000000040000, // активная:  запускать, если текущий объект "папка"
 	MFLAGS_PNOFILES                =0x0000000000080000, // пассивная: запускать, если текущий объект "папка"
 
-	MFLAGS_POSTFROMPLUGIN          =0x0000000000200000, //! последовательность пришла от АПИ
-	MFLAGS_NEEDSAVEMACRO           =0x0000000000400000, //! необходимо этот макрос запомнить
-	MFLAGS_DISABLEMACRO            =0x0000000000800000, //! этот макрос отключен
-	MFLAGS_CALLPLUGINENABLEMACRO   =0x0000000001000000; // разрешить макросы при вызове плагина функцией CallPlugin
+	// private flags, for runtime purposes only
+	MFLAGS_PRIVATE_MASK            =0xFFFFFFFF00000000,
+	MFLAGS_POSTFROMPLUGIN          =0x0000000100000000, //! последовательность пришла от АПИ
+	MFLAGS_NEEDSAVEMACRO           =0x0000000200000000, //! необходимо этот макрос запомнить
+	MFLAGS_DISABLEMACRO            =0x0000000400000000, //! этот макрос отключен
+	MFLAGS_CALLPLUGINENABLEMACRO   =0x0000000800000000; // разрешить макросы при вызове плагина функцией CallPlugin
 
 
 // коды возврата для KeyMacro::GetCurRecord()

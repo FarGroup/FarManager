@@ -1494,9 +1494,10 @@ void KeyMacro::WriteMacros(void)
 				}
 				else
 				{
+					string flags = FlagsToString(rec.Flags()&MFLAGS_PUBLIC_MASK);
 					values[1].String = GetAreaName(rec.Area());
 					values[2].String = rec.Name();
-					values[3].String = FlagsToString(rec.Flags());
+					values[3].String = flags;
 					values[4].String = rec.Code();
 					values[5].String = rec.Description();
 					CallMacroPlugin(&info);
