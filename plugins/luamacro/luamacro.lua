@@ -288,17 +288,6 @@ end
 --------------------------------------------------------------------------------
 -- 2012-12-04 Переходим от базы к файлам.
 --------------------------------------------------------------------------------
-local function Encode16(name)
-  name = string.gsub(name, ".", function(c) return ("%02x"):format(c:byte()) end)
-  return name
-end
-
--- Not used currently --
--- local function Decode16(name)
---   name = string.gsub(name, "%x%x", function(c) return string.char(tonumber(c,16)) end)
---   return name
--- end
-
 local Areas
 local AddMacro_filename
 local function AddMacro (macrotable)
@@ -375,20 +364,16 @@ function LoadMacros (LoadAll)
   return F.MPRT_COMMONCASE, LastMessage
 end
 
+local CharNames = { ["<"]="Lt", [">"]="Gt", ["|"]="Pipe", ["/"]="Slash",
+                    [":"]="Colon", ["?"]="Question", ["*"]="Asterisk", ['"']="Quote" }
+
 function WriteMacro (operation, area, keyname, flags, code, description)
   local dir = win.GetEnv("farprofile").."\\Macros\\internal"
   if not win.CreateDir(dir,true) then return end
 
-  -- Get or construct a valid file name ('keyname' may be not valid as file name).
-  local fname = ("%s\\%s_%s.lua"):format(dir, area, keyname)
-  if not win.GetFileAttr(fname) then
-    local fp = io.open(fname, "w")
-    if fp then fp:close()
-    else fname = ("%s\\%s_%s.lua"):format(dir, area, Encode16(keyname:lower()))
-    end
-  end
-
-  if win.GetFileAttr(fname) then
+  local fname = ("%s\\%s_%s"):format(dir, area, keyname:gsub(".", CharNames))
+  local attr = win.GetFileAttr(fname)
+  if attr then
     win.SetFileAttr(fname, "")
     win.DeleteFile(fname)
   end
