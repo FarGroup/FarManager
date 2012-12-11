@@ -10,8 +10,7 @@ local function add_defines (src, trg_keys, trg_vals)
   for k,v in src:gmatch("#define%s+([A-Z][A-Z0-9_]*)%s([^\n]+)") do
     if k ~= "FARMANAGERVERSION" then
       table.insert(trg_keys, k)
-      if     v:find(cast1) then v = v:gsub(cast1, "(INT_PTR)"):gsub("^%s+", "")
-      elseif v:find(cast2) then v = v:gsub(cast2, "(INT_PTR)"):gsub("^%s+", "")
+      if   v:find(cast1) or v:find(cast2) then v = "(INT_PTR)" .. k
       else v = k
       end
       table.insert(trg_vals, v)
@@ -100,7 +99,7 @@ void push_flags_table (lua_State *L)
 
 local function write_common_flags_file (fname)
   assert (fname, "input file not specified")
-  local fp = assert (io.open (fname))
+  local fp = assert (io.open (fname, "rb"))
   local src = fp:read ("*all")
   fp:close()
 
