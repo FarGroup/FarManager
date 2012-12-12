@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<farconfig>
-  <macros>
-    <keymacros>
-      <macro area="Dialog" key="AltDown" flags="DisableOutput" description="Open combobox and history list (as Ctrl-Down pressed)"><text>Keys('CtrlDown')</text></macro>
-    </keymacros>
-  </macros>
-</farconfig>

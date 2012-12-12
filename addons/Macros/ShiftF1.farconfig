@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<farconfig>
-  <macros>
-    <keymacros>
-      <macro area="Shell" key="ShiftF1" flags="DisableOutput" description="Select archive format"><text>Keys('ShiftF1') if Area.Dialog then Keys('ShiftF1') end</text></macro>
-    </keymacros>
-  </macros>
-</farconfig>

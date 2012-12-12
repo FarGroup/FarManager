@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<farconfig>
-  <macros>
-    <keymacros>
-      <macro area="Shell" key="CtrlRight" flags="DisableOutput|EmptyCommandLine" description="Use Ctrl-Right to change current drive to the next"><text>Keys('F9 Enter Up Enter Down Enter Esc')</text></macro>
-    </keymacros>
-  </macros>
-</farconfig>

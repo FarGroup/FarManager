@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<farconfig>
-  <macros>
-    <keymacros>
-      <macro area="Editor" key="CtrlS" flags="DisableOutput" description="Editor: Save File"><text>Keys('F2')</text></macro>
-    </keymacros>
-  </macros>
-</farconfig>

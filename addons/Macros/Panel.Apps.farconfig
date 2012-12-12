@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<farconfig>
-  <macros>
-    <keymacros>
-      <macro area="Shell" key="Apps" flags="DisableOutput" description="Apps - Open Change drive in current panel"><text>Keys('F9 Enter Up Enter')</text></macro>
-    </keymacros>
-  </macros>
-</farconfig>
