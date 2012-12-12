@@ -389,7 +389,7 @@ function WriteMacro (operation, area, keyname, flags, code, description)
       if code:sub(1,1)=="@" then
         code = ("far.MacroPost(%q,%q,%q)"):format(code,"KMFLAGS_DISABLEOUTPUT",keyname)
       end
-      fp:write(("Macro {\narea=%q; key=%q; flags=%q; description=%q;\naction=function()\n%s\nend;\n}\n"):
+      fp:write(("Macro {\narea=%q; key=%q; flags=%q; description=%q; action=function()\n%s\nend;\n}\n"):
         format(area, keyname, flags, description, code))
       fp:close()
       LastMessage[1] = ""
