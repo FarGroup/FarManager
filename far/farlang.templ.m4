@@ -16136,6 +16136,16 @@ MEditSubmenuLabel
 "&Etiqueta:"
 "&Názov:"
 
+MEditMenuConfirmation
+"Сохранить изменения?"
+"Save changes?"
+upd:"Save changes?"
+upd:"Save changes?"
+upd:"Save changes?"
+upd:"Save changes?"
+upd:"Save changes?"
+upd:"Save changes?"
+
 MViewerTitle
 l:
 "Просмотр"

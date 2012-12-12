@@ -65,6 +65,7 @@ private:
 	MENUMODE MenuMode;
 	bool MenuModified;
 	bool MenuNeedRefresh;
+	bool ItemChanged;
 	DList<UserMenuItem> Menu;
 
 };

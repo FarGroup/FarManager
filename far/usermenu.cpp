@@ -885,6 +885,15 @@ intptr_t UserMenu::EditMenuDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, v
 {
 	switch (Msg)
 	{
+		case DN_EDITCHANGE:
+#ifdef PROJECT_DI_MEMOEDIT
+			if (Param1 == EM_MEMOEDIT)
+#else
+			if (Param1 >= EM_EDITLINE_0 && Param1 <= EM_EDITLINE_9)
+#endif
+				ItemChanged = true;
+			break;
+
 		case DN_CLOSE:
 
 			if (Param1==EM_BUTTON_OK)
@@ -923,6 +932,20 @@ intptr_t UserMenu::EditMenuDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, v
 
 				return Result;
 			}
+			else if (ItemChanged)
+			{
+				switch(Message(MSG_WARNING, 3, MSG(MUserMenuTitle), MSG(MEditMenuConfirmation), MSG(MHYes), MSG(MHNo), MSG(MHCancel)))
+				{
+				case 0:
+					SendDlgMessage(hDlg, DM_CLOSE, EM_BUTTON_OK, nullptr);
+					break;
+				case 1:
+					return TRUE;
+				case 2:
+				default:
+					return FALSE;
+				}
+			}
 
 			break;
 		default:
@@ -938,6 +961,7 @@ bool UserMenu::EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool 
 	bool Result = false;
 	bool SubMenu = false;
 	bool Continue = true;
+	ItemChanged = false;
 
 	if (Create)
 	{
