@@ -545,6 +545,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				switch(NewItem->DriveType)
 				{
 				case DRIVE_REMOTE:
+				case DRIVE_REMOTE_NOT_CONNECTED:
 					DriveLocalToRemoteName(NewItem->DriveType,strRootDir.At(0),NewItem->Path);
 					break;
 				}
