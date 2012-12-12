@@ -241,7 +241,7 @@ function _G.eval (str, mode)
   if not (mode==0 or mode==1 or mode==2 or mode==3) then return -1 end
 
   if mode == 2 then
-    local ret = MacroCallFar(0x80C64, str)
+    local ret = far.MacroCallFar(0x80C64, str)
     local tp = type(ret)
     if tp == "string" then
       str = ret
