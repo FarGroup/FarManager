@@ -273,7 +273,7 @@ class PluginManager
 		void FreeFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool FreeUserData);
 		int GetVirtualFindData(HANDLE hPlugin,PluginPanelItem **pPanelItem,size_t *pItemsNumber,const wchar_t *Path);
 		void FreeVirtualFindData(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber);
-		int SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode);
+		int SetDirectory(HANDLE hPlugin,const wchar_t *Dir,int OpMode,intptr_t UserData=0);
 		int GetFile(HANDLE hPlugin,PluginPanelItem *PanelItem,const wchar_t *DestPath,string &strResultName,int OpMode);
 		int GetFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,const wchar_t **DestPath,int OpMode);
 		int PutFiles(HANDLE hPlugin,PluginPanelItem *PanelItem,size_t ItemsNumber,bool Move,int OpMode);

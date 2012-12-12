@@ -1172,12 +1172,13 @@ void PluginManager::FreeVirtualFindData(
 int PluginManager::SetDirectory(
     HANDLE hPlugin,
     const wchar_t *Dir,
-    int OpMode
+    int OpMode,
+    intptr_t UserData
 )
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 	PluginHandle *ph = (PluginHandle*)hPlugin;
-	return ph->pPlugin->SetDirectory(ph->hPlugin, Dir, OpMode);
+	return ph->pPlugin->SetDirectory(ph->hPlugin, Dir, OpMode, UserData);
 }
 
 

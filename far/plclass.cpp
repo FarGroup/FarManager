@@ -1463,7 +1463,8 @@ void Plugin::ClosePanel(
 int Plugin::SetDirectory(
     HANDLE hPlugin,
     const wchar_t *Dir,
-    int OpMode
+    int OpMode,
+    intptr_t UserData
 )
 {
 	BOOL bResult = FALSE;
@@ -1477,7 +1478,7 @@ int Plugin::SetDirectory(
 		Info.hPanel = hPlugin;
 		Info.Dir = Dir;
 		Info.OpMode = OpMode;
-		Info.UserData = 0; //Reserved
+		Info.UserData = UserData;
 		EXECUTE_FUNCTION_EX(FUNCTION(iSetDirectory)(&Info), es);
 		bResult = es.bResult;
 	}

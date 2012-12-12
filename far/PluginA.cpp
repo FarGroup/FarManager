@@ -5799,7 +5799,8 @@ void PluginA::ClosePanel(
 int PluginA::SetDirectory(
     HANDLE hPlugin,
     const wchar_t *Dir,
-    int OpMode
+    int OpMode,
+    intptr_t /* UserData */
 )
 {
 	BOOL bResult = FALSE;
