@@ -1356,9 +1356,9 @@ string GuidToStr(const GUID& Guid)
 	return result;
 }
 
-bool StrToGuid(const string& Value,GUID& Guid)
+bool StrToGuid(const wchar_t* Value,GUID& Guid)
 {
-	return (UuidFromString((unsigned short*)Value.CPtr(),&Guid)==RPC_S_OK)?true:false;
+	return (UuidFromString((unsigned short*)Value,&Guid)==RPC_S_OK)?true:false;
 }
 
 bool SearchString(const wchar_t *Source, int StrSize, const string& Str, string& ReplaceStr,int& CurPos, int Position,int Case,int WholeWords,int Reverse,int Regexp, int *SearchLength,const wchar_t* WordDiv)

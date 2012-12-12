@@ -1071,10 +1071,10 @@ int KeyMacro::GetKey()
 				macro->mp_data.Count=1;
 				if(count>0 && mpr->Values[0].Type==FMVT_STRING)
 				{
-					TVar SysID = mpr->Values[0].String;
+					const wchar_t* SysID = mpr->Values[0].String;
 					GUID guid;
 
-					if (StrToGuid(SysID.s(),guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
+					if (StrToGuid(SysID,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))
 					{
 						FarMacroCall* ResultCallPlugin=nullptr;
 
@@ -5881,16 +5881,12 @@ static bool editorsetstrFunc(FarMacroCall* Data)
 // N=Plugin.Exist(Guid)
 static bool pluginexistFunc(FarMacroCall* Data)
 {
-	parseParams(1,Params,Data);
 	int Ret=0;
-	TVar& pGuid(Params[0]);
-
-	if (pGuid.s())
+	if (Data->Count>0 && Data->Values[0].Type==FMVT_STRING)
 	{
 		GUID guid;
-		Ret=(StrToGuid(pGuid.s(),guid) && Global->CtrlObject->Plugins->FindPlugin(guid))?1:0;
+		Ret=(StrToGuid(Data->Values[0].String,guid) && Global->CtrlObject->Plugins->FindPlugin(guid))?1:0;
 	}
-
 	PassBoolean(Ret, Data);
 	return Ret != 0;
 }
@@ -5911,20 +5907,17 @@ static bool pluginloadFunc(FarMacroCall* Data)
 // N=Plugin.UnLoad(DllPath)
 static bool pluginunloadFunc(FarMacroCall* Data)
 {
-	parseParams(1,Params,Data);
-	TVar Ret(0ll);
-	TVar& DllPath(Params[0]);
-	if (DllPath.s())
+	int Ret=0;
+	if (Data->Count>0 && Data->Values[0].Type==FMVT_STRING)
 	{
-		Plugin* p = Global->CtrlObject->Plugins->GetPlugin(DllPath.s());
+		Plugin* p = Global->CtrlObject->Plugins->GetPlugin(Data->Values[0].String);
 		if(p)
 		{
-			Ret=(__int64)pluginapi::apiPluginsControl(p, PCTL_UNLOADPLUGIN, 0, nullptr);
+			Ret=(int)pluginapi::apiPluginsControl(p, PCTL_UNLOADPLUGIN, 0, nullptr);
 		}
 	}
-
-	PassValue(&Ret, Data);
-	return Ret.i()!=0;
+	PassNumber(Ret, Data);
+	return Ret!=0;
 }
 
 // N=testfolder(S)
