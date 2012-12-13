@@ -659,6 +659,27 @@ bool FindFiles::IsWordDiv(const wchar_t symbol)
 	return !symbol||IsSpace(symbol)||IsEol(symbol)||::IsWordDiv(Global->Opt->strWordDiv,symbol);
 }
 
+#if defined(MANTIS_0002207)
+static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const struct PluginPanelItem * const* PanelData,size_t ItemCount)
+{
+	intptr_t UserData=0;
+
+	if (Name && *Name)
+	{
+		for (size_t Index=0; Index < ItemCount; ++Index)
+		{
+			if (!StrCmp(PanelData[Index]->FileName,Name))
+			{
+				UserData=(intptr_t)PanelData[Index]->UserData.Data;
+				break;
+			}
+		}
+	}
+
+	return UserData;
+}
+#endif
+
 void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel)
 {
 	if (DirName && *DirName)
@@ -669,6 +690,7 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool Up
 
 		if (NamePtr != DirPtr)
 		{
+			intptr_t UserData=0;
 			*(NamePtr-1) = 0;
 			// force plugin to update its file list (that can be empty at this time)
 			// if not done SetDirectory may fail
@@ -678,13 +700,17 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool Up
 
 				if (Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
 				{
+					#if defined(MANTIS_0002207)
+					if (*DirPtr) // BUGBUG???
+						UserData=GetUserDataFromPluginItem(DirPtr,&PanelData,FileCount);
+					#endif
 					Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,FileCount,true);
 				}
 			}
 
 			if (*DirPtr)
 			{
-				Global->CtrlObject->Plugins->SetDirectory(hPlugin,DirPtr,OPM_SILENT);
+				Global->CtrlObject->Plugins->SetDirectory(hPlugin,DirPtr,OPM_SILENT,UserData);
 			}
 			else
 			{
@@ -2667,7 +2693,7 @@ void FindFiles::ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& R
 				bool SetDirectoryResult=false;
 				{
 					CriticalSectionLock Lock(PluginCS);
-					SetDirectoryResult=Global->CtrlObject->Plugins->SetDirectory(hPlugin, CurPanelItem->FileName, OPM_FIND)!=FALSE;
+					SetDirectoryResult=Global->CtrlObject->Plugins->SetDirectory(hPlugin, CurPanelItem->FileName, OPM_FIND, (intptr_t)CurPanelItem->UserData.Data)!=FALSE;
 				}
 				if (SetDirectoryResult)
 				{

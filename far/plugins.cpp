@@ -2432,10 +2432,16 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 				int CurFocus=Global->CtrlObject->Cp()->ActivePanel->GetFocus();
 				Panel *NewPanel=Global->CtrlObject->Cp()->ChangePanel(Global->CtrlObject->Cp()->ActivePanel,FILE_PANEL,TRUE,TRUE);
 				NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !Global->CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
-
 				if (Data && *(const wchar_t *)Data)
-					SetDirectory(hNewPlugin,(const wchar_t *)Data,0);
+				{
+					#if defined(MANTIS_0002207)
+					intptr_t UserData=NewPanel->GetUserDataFromItem((const wchar_t *)Data);
+					#else
+					intptr_t UserData=0;
+					#endif
 
+					SetDirectory(hNewPlugin,(const wchar_t *)Data,0,UserData); // !!! NEED CHECK !!!
+				}
 				// $ 04.04.2001 SVS
 				//	Код закомментирован! Попытка исключить ненужные вызовы в CallPlugin()
 				//	Если что-то не так - раскомментировать!!!

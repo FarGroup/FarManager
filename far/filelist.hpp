@@ -349,6 +349,8 @@ class FileList:public Panel
 		virtual int GetPrevCaseSensitiveSort();
 		virtual int GetPrevDirectoriesFirst();
 
+		virtual intptr_t GetUserDataFromItem(const wchar_t *Name);
+
 		HANDLE OpenFilePlugin(const string* FileName,int PushPrev, OPENFILEPLUGINTYPE Type);
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr);
 		virtual int GetCurrentPos();

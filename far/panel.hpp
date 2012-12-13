@@ -241,6 +241,8 @@ class Panel:public ScreenObject, public DelayedDestroy
 		virtual unsigned __int64 GetLastSelectedSize() {return (unsigned __int64)(-1);}
 		virtual int GetLastSelectedItem(struct FileListItem *LastItem) {return 0;}
 
+		virtual intptr_t GetUserDataFromItem(const wchar_t *Name) {return 0;}
+
 		virtual int GetCurName(string &strName, string &strShortName);
 		virtual int GetCurBaseName(string &strName, string &strShortName);
 		virtual int GetFileName(string &strName,int Pos,DWORD &FileAttr) {return FALSE;}
