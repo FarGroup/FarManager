@@ -1,3 +1,7 @@
+shmuel 14.12.2012 00:32:18 +0200 - build 3010
+
+1. Восстановим работу фичи из 2882, поломанную в 2999.
+
 svs 13.12.2012 15:21:08 +0400 - build 3009
 
 1. Mantis#0002207: SetDirectoryW() всегда передает в поле SetDirectoryInfo->UserData NULL
@@ -28,7 +32,7 @@ shmuel 12.12.2012 16:28:12 +0200 - build 3006
 
 svs 12.12.2012 17:55:40 +0400 - build 3005
 
-1. SetDirectoryInfo::UserData. 
+1. SetDirectoryInfo::UserData.
    Добавка необязательного параметра intptr_t UserData (=0) во внутренние функции PluginManager::SetDirectory, PluginA::SetDirectory и Plugin::SetDirectory.
 
 drkns 12.12.2012 01:10:26 +0200 - build 3004

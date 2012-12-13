@@ -1405,7 +1405,12 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t *PlainText,UINT64 Flags,DW
 		string strKeyText;
 		KeyToText(AKey,strKeyText);
 		MacroRecord macro(MACRO_COMMON, Flags, MacroId, AKey, strKeyText, PlainText, L"");
-		(m_StateStack.Peek() ? *m_StateStack.Peek() : m_CurState)->m_MacroQueue.Push(&macro);
+
+		if (m_StateStack.Peek() && (Flags&MFLAGS_POSTFROMPLUGIN) && m_MacroPluginIsRunning)
+			(*m_StateStack.Peek())->m_MacroQueue.Push(&macro);
+		else
+			m_CurState->m_MacroQueue.Push(&macro);
+
 		return true;
 	}
 	return false;
