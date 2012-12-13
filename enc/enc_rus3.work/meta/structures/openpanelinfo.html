@@ -125,8 +125,7 @@ struct OpenPanelInfo
   <div class=dfn>KeyBar</div>
     <div class=dfndescr>Адрес структуры <a href="keybartitles.html">KeyBarTitles</a>. Используя его, вы можете переопределить метки функциональных клавиш в строке функциональных клавиш. Если Вам это не нужно, установите <code>KeyBar</code> в <code>NULL</code>.</div>
   <div class=dfn>ShortcutData</div>
-    <div class=dfndescr>Адрес текстовой строки, оканчивающейся нулём, описывающей текущее состояние панели плагина. Она должна быть не больше значения
-    <code><a name="MAXSIZE_SHORTCUTDATA">MAXSIZE_SHORTCUTDATA</a></code>. Эта строка передаётся в <a href="../exported_functions/openw.html">OpenW</a>, когда плагин активирован
+    <div class=dfndescr>Адрес текстовой строки, оканчивающейся нулём, описывающей текущее состояние панели плагина. Эта строка передаётся в <a href="../exported_functions/openw.html">OpenW</a>, когда плагин активирован
     командой ссылки на папку. Например, FTP клиент может поместить сюда текущий хост, логин и пароль. Нет необходимости сохранять здесь текущий каталог,
     потому что он будет восстановлен самим Far Manager'ом.<br> Если вы не нуждаетесь в такой дополнительной информации для обработки ссылки на папку, установите данную строку в <code>NULL</code>.</div>
   <div class=dfn>FreeSize</div>
