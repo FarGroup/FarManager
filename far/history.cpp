@@ -96,7 +96,7 @@ void History::AddToHistory(const wchar_t *Str, int Type, const GUID* Guid, const
 	if (Global->CtrlObject->Macro.IsExecuting() && Global->CtrlObject->Macro.IsHistoryDisable((int)TypeHistory))
 		return;
 
-	if (TypeHistory!=HISTORYTYPE_DIALOG && (TypeHistory!=HISTORYTYPE_FOLDER || !Guid || IsEqualGUID(FarGuid,*Guid)) && (!Str || !*Str))
+	if (TypeHistory!=HISTORYTYPE_DIALOG && (TypeHistory!=HISTORYTYPE_FOLDER || !Guid || *Guid == FarGuid) && (!Str || !*Str))
 		return;
 
 	bool Lock = false;
@@ -252,7 +252,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 				if (TypeHistory == HISTORYTYPE_FOLDER)
 				{
 					GUID HGuid;
-					if(StrToGuid(strHGuid,HGuid)&&!IsEqualGUID(FarGuid,HGuid))
+					if(StrToGuid(strHGuid,HGuid) &&  HGuid != FarGuid)
 					{
 						Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
 						if(pPlugin)
@@ -389,7 +389,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 							// убить запись из истории
 							bool kill=false;
 							GUID HGuid;
-							if(StrToGuid(strHGuid,HGuid)&&!IsEqualGUID(FarGuid,HGuid))
+							if(StrToGuid(strHGuid,HGuid) && HGuid != FarGuid)
 							{
 								Plugin *pPlugin = Global->CtrlObject->Plugins->FindPlugin(HGuid);
 								if(!pPlugin) kill=true;

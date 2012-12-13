@@ -79,6 +79,11 @@ ShortcutItem::ShortcutItem()
 	PluginGuid=FarGuid;
 }
 
+bool ShortcutItem::operator==(const ShortcutItem& Item)
+{
+	return strName == Item.strName && strFolder == Item.strFolder && PluginGuid == Item.PluginGuid && strPluginFile == Item.strPluginFile && strPluginData == Item.strPluginData;
+}
+
 Shortcuts::Shortcuts()
 {
 	Changed = false;
@@ -159,7 +164,7 @@ Shortcuts::~Shortcuts()
 				ValueName << RecTypeName[PSCR_RT_NAME] << index;
 				cfg->SetValue(key, ValueName, j->strName);
 
-				if(!IsEqualGUID(FarGuid,j->PluginGuid))
+				if(j->PluginGuid != FarGuid)
 				{
 					ValueName.Clear();
 					ValueName << RecTypeName[PSCR_RT_PLUGINGUID] << index;
@@ -208,6 +213,53 @@ static void Fill(ShortcutItem* RetItem, string* Folder, GUID* PluginGuid, string
 	}
 }
 
+static string MakeName(ShortcutItem* Item)
+{
+	Plugin* plugin = nullptr;
+	string result(MSG(MShortcutNone));
+
+	if (Item->PluginGuid == FarGuid)
+	{
+		if(!Item->strName.IsEmpty())
+		{
+			result = Item->strName;
+		}
+		else if(!Item->strFolder.IsEmpty())
+		{
+			result = Item->strFolder;
+		}
+	}
+	else
+	{
+		if ((plugin = Global->CtrlObject->Plugins->FindPlugin(Item->PluginGuid)))
+		{
+			if(!Item->strName.IsEmpty())
+			{
+				result = Item->strName;
+			}
+			else
+			{
+				result = plugin->GetTitle();
+				string TechInfo;
+
+				if (!Item->strPluginFile.IsEmpty())
+					TechInfo.Append(MSG(MFSShortcutPluginFile)).Append(L" ").Append(Item->strPluginFile + ", ");
+				if (!Item->strFolder.IsEmpty())
+					TechInfo.Append(MSG(MFSShortcutPath)).Append(L" ").Append(Item->strFolder + ", ");
+				if (!Item->strPluginData.IsEmpty())
+					TechInfo.Append(MSG(MFSShortcutPluginData)).Append(L" ").Append(Item->strPluginData + ", ");
+
+				if (!TechInfo.IsEmpty())
+				{
+					TechInfo.SetLength(TechInfo.GetLength() - 2);
+					result += L" (" + TechInfo + L")";
+				}
+			}
+		}
+	}
+	return result;
+}
+
 bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* PluginFile, string* PluginData)
 {
 	bool Result = false;
@@ -223,20 +275,7 @@ bool Shortcuts::Get(size_t Pos, string* Folder, GUID* PluginGuid, string* Plugin
 			for(ShortcutItem* i = Items[Pos].First(); i; i = Items[Pos].Next(i))
 			{
 				MenuItemEx ListItem={};
-				string strFolderName;
-				if(!i->strName.IsEmpty())
-				{
-					strFolderName = i->strName;
-				}
-				else if(!i->strFolder.IsEmpty())
-				{
-					strFolderName = i->strFolder;
-				}
-				else
-				{
-					strFolderName = MSG(IsEqualGUID(FarGuid,i->PluginGuid)?MShortcutNone:MShortcutPlugin);
-				}
-				ListItem.strName = strFolderName;
+				ListItem.strName = MakeName(i);
 				ListItem.UserData = &i;
 				ListItem.UserDataSize = sizeof(i);
 				FolderList.AddItem(&ListItem);
@@ -358,24 +397,14 @@ void Shortcuts::Add(size_t Pos, const wchar_t* Folder, const GUID& PluginGuid, c
 
 void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 {
-	const wchar_t* Ptr = L"";
+	string ItemName(MSG(MShortcutNone));
+
 	if(!Items[Pos].Empty())
 	{
-		if(!Items[Pos].First()->strName.IsEmpty())
-		{
-			Ptr = Items[Pos].First()->strName;
-		}
-		else if(!Items[Pos].First()->strFolder.IsEmpty())
-		{
-			Ptr = Items[Pos].First()->strFolder;
-		}
-		else
-		{
-			Ptr = MSG(IsEqualGUID(FarGuid,Items[Pos].First()->PluginGuid)?MShortcutNone:MShortcutPlugin);
-		}
+		ItemName = MakeName(Items[Pos].First());
 	}
 
-	MenuItem->strName = FormatString() << MSG(MRightCtrl) << L"+&" << Pos << L" \x2502 " << Ptr;
+	MenuItem->strName = FormatString() << MSG(MRightCtrl) << L"+&" << Pos << L" \x2502 " << ItemName;
 	if(Items[Pos].Count() > 1)
 	{
 		MenuItem->Flags|=MIF_SUBMENU;
@@ -388,51 +417,58 @@ void Shortcuts::MakeItemName(size_t Pos, MenuItemEx* MenuItem)
 
 void Shortcuts::EditItem(VMenu2* Menu, ShortcutItem* Item, bool Root)
 {
-	string strNewName = Item->strName;
-	string strNewDir = Item->strFolder;
+	ShortcutItem NewItem = *Item;
 
 	DialogBuilder Builder(MFolderShortcutsTitle, HelpFolderShortcuts);
 	Builder.AddText(MFSShortcutName);
-	Builder.AddEditField(&strNewName, 50, L"FS_Name", DIF_EDITPATH);
+	Builder.AddEditField(&NewItem.strName, 50, L"FS_Name", DIF_EDITPATH);
 	Builder.AddText(MFSShortcutPath);
-	Builder.AddEditField(&strNewDir, 50, L"FS_Path", DIF_EDITPATH);
+	Builder.AddEditField(&NewItem.strFolder, 50, L"FS_Path", DIF_EDITPATH);
+	if (Item->PluginGuid != FarGuid)
+	{
+		Builder.AddSeparator(Global->CtrlObject->Plugins->FindPlugin(Item->PluginGuid)->GetTitle());
+		Builder.AddText(MFSShortcutPluginFile);
+		Builder.AddEditField(&NewItem.strPluginFile, 50, L"FS_Path", DIF_EDITPATH);
+		Builder.AddText(MFSShortcutPluginData);
+		Builder.AddEditField(&NewItem.strPluginData, 50, L"FS_Path", DIF_EDITPATH);
+	}
 	Builder.AddOKCancel();
 
 	if (Builder.ShowDialog())
 	{
-		Unquote(strNewDir);
-
-		bool Root = false;
-		PATH_TYPE Type = ParsePath(strNewDir, nullptr, &Root);
-		if(!(Root && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID)))
-		{
-			DeleteEndSlash(strNewDir);
-		}
-
 		bool Save=true;
-		string strTemp(strNewDir);
-		apiExpandEnvironmentStrings(strNewDir,strTemp);
-
-		if (apiGetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
+		if (Item->PluginGuid == FarGuid)
 		{
-			Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), strNewDir, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
+			Unquote(NewItem.strFolder);
+
+			bool PathRoot = false;
+			PATH_TYPE Type = ParsePath(NewItem.strFolder, nullptr, &PathRoot);
+			if(!(PathRoot && (Type == PATH_DRIVELETTER || Type == PATH_DRIVELETTERUNC || Type == PATH_VOLUMEGUID)))
+			{
+				DeleteEndSlash(NewItem.strFolder);
+			}
+
+			string strTemp(NewItem.strFolder);
+			apiExpandEnvironmentStrings(NewItem.strFolder,strTemp);
+
+			if (apiGetFileAttributes(strTemp) == INVALID_FILE_ATTRIBUTES)
+			{
+				Save=!Message(MSG_WARNING | MSG_ERRORTYPE, 2, MSG(MError), NewItem.strFolder, MSG(MSaveThisShortcut), MSG(MYes), MSG(MNo));
+			}
 		}
 
-		if (Save && (Item->strFolder != strNewDir || Item->strName != strNewName))
+		if (Save && NewItem != *Item)
 		{
 			Changed = true;
-			Item->strPluginData.Clear();
-			Item->strPluginFile.Clear();
-			Item->PluginGuid=FarGuid;
-			Item->strName = strNewName;
-			Item->strFolder = strNewDir;
+			*Item = NewItem;
 
 			MenuItemEx* MenuItem = Menu->GetItemPtr();
-			MenuItem->strName = Item->strName.IsEmpty()? Item->strFolder : Item->strName;
 			if(Root)
 			{
 				MakeItemName(Menu->GetSelectPos(), MenuItem);
 			}
+			else
+				MenuItem->strName = MakeName(Item);
 		}
 	}
 }

@@ -2777,7 +2777,7 @@ int Edit::DeleteColor(int ColorPos,const GUID& Owner,bool skipfree)
 	{
 		for (Src=0; Src<ColorCount; Src++)
 		{
-			if ((ColorList[Src].StartPos!=ColorPos) || (!IsEqualGUID(Owner,ColorList[Src].Owner)))
+			if ((ColorList[Src].StartPos!=ColorPos) || (Owner != ColorList[Src].Owner))
 			{
 				if (Dest!=Src)
 					ColorList[Dest]=ColorList[Src];
@@ -2790,7 +2790,7 @@ int Edit::DeleteColor(int ColorPos,const GUID& Owner,bool skipfree)
 	{
 		for (Src=0; Src<ColorCount; Src++)
 		{
-			if (!IsEqualGUID(Owner,ColorList[Src].Owner))
+			if (Owner != ColorList[Src].Owner)
 			{
 				if (Dest!=Src)
 					ColorList[Dest]=ColorList[Src];

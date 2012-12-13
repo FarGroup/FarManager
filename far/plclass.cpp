@@ -347,11 +347,11 @@ void CreatePluginStartupInfo(const Plugin* pPlugin, PluginStartupInfo *PSI, FarS
 	if (pPlugin)
 	{
 		PSI->ModuleName = pPlugin->GetModuleName().CPtr();
-		if(IsEqualGUID(pPlugin->GetGUID(),ArcliteGuid))
+		if(pPlugin->GetGUID() == ArcliteGuid)
 		{
 			PSI->Private = &ArcliteInfo;
 		}
-		else if(IsEqualGUID(pPlugin->GetGUID(),LuamacroGuid))
+		else if(pPlugin->GetGUID() == LuamacroGuid)
 		{
 			PSI->Private = &MacroInfo;
 		}

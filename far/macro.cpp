@@ -1385,7 +1385,7 @@ int KeyMacro::DelMacro(const GUID& PluginId,void* Id)
 		for (unsigned j=0; j<m_Macros[i].getSize(); j++)
 		{
 			MacroRecord* macro = m_Macros[i].getItem(j);
-			if (!(macro->m_flags&MFLAGS_DISABLEMACRO) && macro->m_callbackId==Id && IsEqualGUID(macro->m_guid,PluginId))
+			if (!(macro->m_flags&MFLAGS_DISABLEMACRO) && macro->m_callbackId==Id && macro->m_guid == PluginId)
 			{
 				macro->m_flags = MFLAGS_DISABLEMACRO;
 				macro->m_name.Clear();

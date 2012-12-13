@@ -2379,8 +2379,10 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 				FarSettingsCreate* data = (FarSettingsCreate*)Param2;
 				if (CheckStructSize(data))
 				{
-					if(IsEqualGUID(FarGuid,data->Guid)) settings=new FarSettings();
-					else settings=new PluginSettings(data->Guid, Param1 == PSL_LOCAL);
+					if (data->Guid == FarGuid)
+						settings=new FarSettings();
+					else
+						settings=new PluginSettings(data->Guid, Param1 == PSL_LOCAL);
 					if (settings->IsValid())
 					{
 						data->Handle=settings;

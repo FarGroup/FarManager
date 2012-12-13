@@ -587,7 +587,12 @@ class DialogBuilderBase
 		// Добавляет сепаратор.
 		void AddSeparator(int MessageId=-1)
 		{
-			T *Separator = AddDialogItem(DI_TEXT, MessageId == -1 ? L"" : GetLangString(MessageId));
+			return AddSeparator(MessageId == -1 ? L"" : GetLangString(MessageId));
+		}
+
+		void AddSeparator(const wchar_t* Text)
+		{
+			T *Separator = AddDialogItem(DI_TEXT, Text);
 			Separator->Flags = DIF_SEPARATOR;
 			Separator->X1 = 3;
 			Separator->Y1 = Separator->Y2 = NextY++;

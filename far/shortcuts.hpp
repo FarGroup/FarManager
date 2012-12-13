@@ -43,6 +43,8 @@ struct ShortcutItem
 	string strPluginFile;
 	string strPluginData;
 	ShortcutItem();
+	bool operator==(const ShortcutItem& Item);
+	bool operator!=(const ShortcutItem& Item) { return !(*this == Item); }
 };
 
 class VMenu2;

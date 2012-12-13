@@ -2625,11 +2625,11 @@ bool Panel::SaveShortcutFolder(int Pos, bool Add)
 	{
 		if(Add)
 		{
-			Global->CtrlObject->FolderShortcuts->Add(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+			Global->CtrlObject->FolderShortcuts->Add(Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 		}
 		else
 		{
-			Global->CtrlObject->FolderShortcuts->Set(Pos,Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
+			Global->CtrlObject->FolderShortcuts->Set(Pos, Info.ShortcutFolder, Info.PluginGuid, Info.PluginFile, Info.PluginData);
 		}
 		return true;
 	}
@@ -2712,7 +2712,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 
 	bool CheckFullScreen=SrcPanel->IsFullScreen();
 
-	if (!IsEqualGUID(FarGuid,PluginGuid))
+	if (PluginGuid != FarGuid)
 	{
 		switch (CheckShortcutFolder(nullptr,TRUE))
 		{

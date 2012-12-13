@@ -5273,6 +5273,27 @@ upd:"Path:"
 "Ruta:"
 "Cesta:"
 
+MFSShortcutPluginFile
+"Файл:"
+"File:"
+"Soubor:"
+"Date:"
+"Fájl:"
+"Plik:"
+"Archivo:"
+"Súbor:"
+
+MFSShortcutPluginData
+"Данные:"
+"Data:"
+upd:"Data:"
+upd:"Data:"
+upd:"Data:"
+upd:"Data:"
+upd:"Data:"
+upd:"Data:"
+
+
 MNeedNearPath
 "Перейти в ближайшую доступную папку?"
 "Jump to the nearest existing folder?"
