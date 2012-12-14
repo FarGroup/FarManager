@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 3001
+  Dynamic construction of dialogs for FAR Manager 3.0 build 3013
 */
 
 /*
@@ -584,9 +584,14 @@ class DialogBuilderBase
 		// Добавляет сепаратор.
 		void AddSeparator(int MessageId=-1)
 		{
-			T *Separator = AddDialogItem(DI_TEXT, MessageId == -1 ? L"" : GetLangString(MessageId));
+			return AddSeparator(MessageId == -1 ? L"" : GetLangString(MessageId));
+		}
+
+		void AddSeparator(const wchar_t* Text)
+		{
+			T *Separator = AddDialogItem(DI_TEXT, Text);
 			Separator->Flags = DIF_SEPARATOR;
-			Separator->X1 = 3;
+			Separator->X1 = -1;
 			Separator->Y1 = Separator->Y2 = NextY++;
 		}
 
