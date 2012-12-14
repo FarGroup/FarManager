@@ -229,6 +229,7 @@ public:
 	const wchar_t* GetDescription() const { return strDescription.CPtr(); }
 	const wchar_t* GetAuthor() const { return strAuthor.CPtr(); }
 	const VersionInfo& GetVersion() { return PluginVersion; }
+	const VersionInfo& GetMinFarVersion() { return MinFarVersion; }
 	const wchar_t* GetVersionString() { return VersionString; }
 	const GUID& GetGUID() const { return m_Guid; }
 	const wchar_t *GetMsg(LNGID nID) const { return PluginLang.GetMsg(nID); }
