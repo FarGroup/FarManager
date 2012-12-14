@@ -189,6 +189,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_EDITOR_INSSTR=0x%X // N=Editor.InsStr([S[,Line]])\n", MCODE_F_EDITOR_INSSTR);
 	fprintf(fp, "MCODE_F_EDITOR_SETSTR=0x%X // N=Editor.SetStr([S[,Line]])\n", MCODE_F_EDITOR_SETSTR);
 	fprintf(fp, "MCODE_F_GETMACROSRC=0x%X // Получение кода макроса для Eval(S,2)\n", MCODE_F_GETMACROSRC);
+	fprintf(fp, "MCODE_F_UNLOADMACROS=0x%X // Выгрузить макросы\n", MCODE_F_UNLOADMACROS);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
@@ -2928,6 +2929,14 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			}
 			PassBoolean(0, Data);
 			return 0;
+		}
+
+		case MCODE_F_UNLOADMACROS: // Выгрузить макросы
+		{
+			for (int k=0; k<MACRO_LAST; k++)
+			{
+				m_Macros[k].Free();
+			}
 		}
 
 		case MCODE_F_BM_ADD:              // N=BM.Add()

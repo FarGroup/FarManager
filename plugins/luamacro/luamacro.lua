@@ -9,12 +9,16 @@ local function LOG (fmt, ...)
 end
 
 local F = far.Flags
-
 local co_create, co_yield, co_resume, co_status, co_wrap =
   coroutine.create, coroutine.yield, coroutine.resume, coroutine.status, coroutine.wrap
 
--- A unique value, inaccessible to scripts.
-local PROPAGATE={}
+local PROPAGATE={} -- a unique value, inaccessible to scripts.
+local gmeta = { __index=_G }
+local RunningMacros = {}
+local LastMessage = {}
+local Areas
+local LoadedMacros
+local Enum_LastIndexes = {}
 
 local function pack (...)
   return { n=select("#",...), ... }
@@ -31,10 +35,6 @@ function coroutine.resume(co, ...)
 end
 
 local ErrMsg = function(msg) far.Message(msg, "LuaMacro", nil, "wl") end
-
-local RunningMacros = {}
-local LastMessage = {}
-local gmeta = { __index=_G }
 
 local function checkarg (arg, argnum, reftype)
   if type(arg) ~= reftype then
@@ -96,7 +96,6 @@ local function loadmacro (Text)
   end
 end
 
-local LoadedMacros
 local function MacroInit (Id, Text)
   local chunk, msg
   if Id == 0 then
@@ -185,6 +184,13 @@ local function MacroParse (text, onlyCheck, skipFile, title, buttons)
   return F.MPRT_NORMALFINISH, LastMessage
 end
 
+local function UnloadAllMacros()
+  far.MacroCallFar(0x80C65)
+  Areas = nil
+  LoadedMacros = nil
+  Enum_LastIndexes = {}
+end
+
 local function ProcessCommandLine (CmdLine)
   local op, text = CmdLine:match("(%S+)%s*(.*)")
   if op then
@@ -193,6 +199,7 @@ local function ProcessCommandLine (CmdLine)
     elseif op=="check" and text~="" then far.MacroCheck(text)
     elseif op=="load" then far.MacroLoadAll()
     elseif op=="save" then far.MacroSaveAll()
+    elseif op=="unload" then UnloadAllMacros()
     end
   end
 end
@@ -268,6 +275,10 @@ function _G.eval (str, mode)
   end
 end
 
+function export.ExitFAR()
+  UnloadAllMacros()
+end
+
 do
   local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."api.lua")
   if func then
@@ -288,7 +299,6 @@ end
 --------------------------------------------------------------------------------
 -- 2012-12-04 Переходим от базы к файлам.
 --------------------------------------------------------------------------------
-local Areas
 local AddMacro_filename
 local function AddMacro (macrotable)
   local area = type(macrotable)=="table" and type(macrotable.area)=="string" and macrotable.area:lower()
@@ -303,7 +313,6 @@ local function AddMacro (macrotable)
   end
 end
 
-local Enum_LastIndexes = {}
 function EnumMacros (strArea)
   local area = strArea:lower()
   if Areas[area] then

@@ -1236,6 +1236,7 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_EDITOR_INSSTR),            // N=Editor.InsStr([S[,Line]])
 		DEF_MCODE_(F_EDITOR_SETSTR),            // N=Editor.SetStr([S[,Line]])
 		DEF_MCODE_(F_GETMACROSRC),              //
+		DEF_MCODE_(F_UNLOADMACROS),             //
 		DEF_MCODE_(C_AREA_OTHER),               // –ежим копировани€ текста с экрана, вертикальные меню
 		DEF_MCODE_(C_AREA_SHELL),               // ‘айловые панели
 		DEF_MCODE_(C_AREA_VIEWER),              // ¬нутренн€€ программа просмотра

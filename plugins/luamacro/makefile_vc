@@ -1,7 +1,7 @@
 !include ../makefile_vc_base
 
 NAME=LuaMacro
-USERCPP=/Iluasdk/include /DEXPORT_OPEN
+USERCPP=/Iluasdk/include /DEXPORT_OPEN /DEXPORT_EXITFAR
 LUA_VER=5.1
 
 !ifndef FAR_WORKDIR
