@@ -148,7 +148,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define __except(a) if(false)
 #endif // __GNUC__
 
-#define NullToEmpty(s) (s?s:L"")
+inline const wchar_t* NullToEmpty(const wchar_t* Str) { return Str? Str : L"";} 
+inline const wchar_t* EmptyToNull(const wchar_t* Str) { return (Str && !*Str)? nullptr : Str;} 
 
 template <class T>
 inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
