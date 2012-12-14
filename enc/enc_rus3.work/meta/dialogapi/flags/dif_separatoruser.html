@@ -16,13 +16,11 @@
 </div>
 
 <div class=shortdescr>
-Текстовая строка <a href="../controls/di_text.html">DI_TEXT</a> с флагом <code>DIF_SEPARATORUSER</code> отображается
-на разделительной линии, формат котороый определяется в компоненте Mask.
+Текстовая строка <a href="../controls/di_text.html">DI_TEXT</a> с флагом <code>DIF_SEPARATORUSER</code> отображается как разделительная линия, формат которой определяется в компоненте <a href="../../structures/fardialogitem.html">Mask</a>.
 </div>
 
 <h3>Элементы</h3>
-<div class=descr>
-Флаг <code>DIF_SEPARATORUSER</code> имеет смысл для следующих элементов диалога:
+<div class=descr>Флаг <code>DIF_SEPARATORUSER</code> имеет смысл для следующих элементов диалога:
 <table class="cont">
 <tr class="cont"><th class="cont" width="40%">Элемент</th><th class="cont" width="60%">Описание</th></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../controls/di_text.html">DI_TEXT</a></td>
@@ -35,16 +33,16 @@
 <h3>Замечания</h3>
 <div class=descr>
 <ol>
-<li>Должны быть указаны обе координаты X1 и X2 (Y1 и Y2 для DI_VTEXT)
-<li>В поле Mask Far Manager ожидает в 3 символа "Лево-Середина-Право" (или "Верх-Середина-Низ" для DI_VTEXT). Недостающие (до 3-х) символы для такого сепаратора будут содержать пробелы.
-<li>Если Mask равен nullptr, то отрисовывается стандартная разделительная линия (одинарная и двойные боковые),
-<li>Координаты отрисовки разделительной линии (левый край диалога = 0): <code>X1 = X1_Диалога + 3; X2 = X2_Диалога - 3</code>.
+<li>Должны быть указаны обе координаты <code>X1</code> и <code>X2</code> (<code>Y1</code> и <code>Y2</code> для <a href="../controls/di_vtext.html">DI_VTEXT</a>)
+<li>В поле <a href="../../structures/fardialogitem.html">Mask</a> Far Manager ожидает 3 символа "Лево-Середина-Право" (или "Верх-Середина-Низ" для <a href="../controls/di_vtext.html">DI_VTEXT</a>). Недостающие (до 3-х) символы для такой разделительной линии будут содержать пробелы.
+<li>Если <a href="../../structures/fardialogitem.html">Mask</a> равен <code>NULL</code>, то отрисовывается стандартная одинарная разделительная линия.
 <li>Если <code>Data</code> содержит пустую строку, элемент отображается просто как разделительная линия.
 </div>
 
 <div class=see>Смотрите также:</div>
 <div class=seecont>
-<a href="dif_separator.html">DIF_SEPARATOR</a>, <a href="dif_separator2.html">DIF_SEPARATOR2</a>
+<a href="dif_separator.html">DIF_SEPARATOR</a>,
+<a href="dif_separator2.html">DIF_SEPARATOR2</a>
 </div>
 
 </body>
