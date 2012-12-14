@@ -1063,7 +1063,9 @@ void DrawLine(int Length,int Type, const wchar_t* UserSep)
 		}
 		MakeSeparator(Length,BufPtr,Type,UserSep);
 
-		(Type >= 4 && Type <= 7) || (Type >= 10 && Type <= 11)? VText(BufPtr) : Text(BufPtr);
+		// 12 - UserSep horiz
+		// 13 - UserSep vert
+		(Type >= 4 && Type <= 7) || (Type >= 10 && Type <= 11) || Type == 13? VText(BufPtr) : Text(BufPtr);
 		if(HeapBuffer)
 		{
 			delete[] HeapBuffer;
@@ -1092,13 +1094,42 @@ WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 		/* 10 */{BoxSymbols[BS_V1],    BoxSymbols[BS_V1],    BoxSymbols[BS_V1]}, // |      v1
 		/* 11 */{BoxSymbols[BS_V2],    BoxSymbols[BS_V2],    BoxSymbols[BS_V2]}, // ||     v2
 	};
+	// 12 - UserSep horiz
+	// 13 - UserSep vert
 
 	if (Length>1 && DestStr)
 	{
-		Type%=ARRAYSIZE(BoxType);
-		wmemset(DestStr,BoxType[Type][2],Length);
-		DestStr[0]=BoxType[Type][0];
-		DestStr[Length-1]=BoxType[Type][1];
+		wchar_t c[3];
+		bool stdUse=true;
+		if (Type > ARRAYSIZE(BoxType))
+		{
+			if (UserSep)
+			{
+				stdUse=false;
+
+				int i;
+				for(i=0; i < 3 && UserSep[i]; ++i)
+					c[i]=UserSep[i];
+				for(; i < 3; ++i)
+					c[i]=L' ';
+			}
+			else
+			{
+				Type=Type==12?1:5;
+			}
+		}
+
+		if (stdUse)
+		{
+			Type%=ARRAYSIZE(BoxType);
+			c[0]=BoxType[Type][0];
+			c[1]=BoxType[Type][1];
+			c[2]=BoxType[Type][2];
+		}
+
+		wmemset(DestStr,c[2],Length);
+		DestStr[0]=c[0];
+		DestStr[Length-1]=c[1];
 		DestStr[Length]=0;
 	}
 

@@ -876,12 +876,12 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{DI_TEXT,5,2,0,2,0,nullptr,nullptr,DIF_FOCUS,MSG(MFileFilterName)},
 		{DI_EDIT,5,2,74,2,0,FilterNameHistoryName,nullptr,DIF_HISTORY,L""},
 
-		{DI_TEXT,0,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_TEXT,-1,3,0,3,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
 		{DI_CHECKBOX,5,4,0,4,0,nullptr,nullptr,DIF_AUTOMATION,MSG(MFileFilterMatchMask)},
 		{DI_EDIT,5,4,74,4,0,FilterMasksHistoryName,nullptr,DIF_HISTORY,L""},
 
-		{DI_TEXT,0,5,0,5,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_TEXT,-1,5,0,5,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
 		{DI_CHECKBOX,5,6,0,6,0,nullptr,nullptr,DIF_AUTOMATION,MSG(MFileFilterSize)},
 		{DI_TEXT,7,7,8,7,0,nullptr,nullptr,0,MSG(MFileFilterSizeFromSign)},
@@ -903,7 +903,7 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{DI_BUTTON,0,6,0,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,MSG(MFileFilterCurrent)},
 		{DI_BUTTON,0,6,74,6,0,nullptr,nullptr,DIF_BTNNOCLOSE,MSG(MFileFilterBlank)},
 
-		{DI_TEXT,0,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_TEXT,-1,9,0,9,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 		{DI_VTEXT,22,5,22,9,0,nullptr,nullptr,DIF_BOXCOLOR,VerticalLine},
 
 		{DI_CHECKBOX, 5,10,0,10,0,nullptr,nullptr,DIF_AUTOMATION,MSG(MFileFilterAttr)},
@@ -940,10 +940,10 @@ bool FileFilterConfig(FileFilterParams *FF, bool ColorConfig)
 		{DI_USERCONTROL,73-15-1,16,73-2,19,0,nullptr,nullptr,DIF_NOFOCUS,L""},
 		{DI_CHECKBOX,5,20,0,20,0,nullptr,nullptr,0,MSG(MHighlightContinueProcessing)},
 
-		{DI_TEXT,0,16,0,16,0,nullptr,nullptr,DIF_SEPARATOR,L""},
+		{DI_TEXT,-1,16,0,16,0,nullptr,nullptr,DIF_SEPARATOR,L""},
 
 		{DI_CHECKBOX,5,17,0,17,0,nullptr,nullptr,0,MSG(MFileHardLinksCount)},//добавл€ем новый чекбокс в панель
-		{DI_TEXT,0,18,0,18,0,nullptr,nullptr,DIF_SEPARATOR,L""},// и разделитель
+		{DI_TEXT,-1,18,0,18,0,nullptr,nullptr,DIF_SEPARATOR,L""},// и разделитель
 
 		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_DEFAULTBUTTON|DIF_CENTERGROUP,MSG(MOk)},
 		{DI_BUTTON,0,19,0,19,0,nullptr,nullptr,DIF_CENTERGROUP|DIF_BTNNOCLOSE,MSG(MFileFilterReset)},

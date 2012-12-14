@@ -4,21 +4,6 @@ PROJECT_DI_MEMOEDIT
 
    svs 23.01.2007 18:11:09 +0300
 
-
-DIF_SEPARATORUSER
-
-   0. DI_TEXT & DI_VTEXT с флагом DIF_SEPARATORUSER должны:
-      а) рисовать сеператор по указанным координатам
-      б) в DlgItem.Mask содержится набор байтов, описывающих сепаратор
-
-   1. Переделка.
-
-      void DrawLine(int Length,int Type);
-      #define ShowUserSeparator(Length,Type,BoxSymbols) DrawLine(Length,Type)
-      у DrawLine должен быть параметр - массив байтов
-
-   svs 26.01.2007 15:52:00 +0300
-
 SetConsoleTitle & Macro
 
    С этим надо что-то делать, т.к. реально макрос не выставляет заголовок консоли.

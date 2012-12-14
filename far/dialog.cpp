@@ -1082,7 +1082,7 @@ BOOL Dialog::SetItemRect(unsigned ID,SMALL_RECT *Rect)
 	{
 		case DI_TEXT:
 			CurItem->X2=Rect->Right;
-			CurItem->Y2=0;                    // ???
+			CurItem->Y2=(CurItem->Flags & DIF_WORDWRAP)?Rect->Bottom:0;
 			break;
 		case DI_VTEXT:
 			CurItem->X2=0;                    // ???
@@ -1152,7 +1152,8 @@ BOOL Dialog::GetItemRect(unsigned I,SMALL_RECT& Rect)
 			if (Rect.Top < 0)
 				Rect.Top=0;
 
-			Rect.Bottom=Rect.Top;
+			if (!(ItemFlags & DIF_WORDWRAP))
+				Rect.Bottom=Rect.Top;
 
 			if (!Rect.Right || Rect.Right == Rect.Left)
 				Rect.Right=Rect.Left+Len-(Len?1:0);
@@ -1423,7 +1424,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4],int ItemPos,int Type,int Focu
 
 #if !defined(VTEXT_ADN_SEPARATORS)
 		case DI_VTEXT:
-{
+		{
 			if (Flags & DIF_BOXCOLOR)
 				Attr=DialogMode.Check(DMODE_WARNINGSTYLE) ?
 				     (DisabledItem?COL_WARNDIALOGDISABLED:COL_WARNDIALOGBOX):
@@ -1712,6 +1713,8 @@ void Dialog::ShowDialog(unsigned ID)
 
 					if ((CurItem->Flags & DIF_LEFTTEXT) && X1+CX1+1 < X)
 						X=X1+CX1+1;
+					else if (CurItem->Flags & DIF_RIGHTTEXT)
+						X=X1+CX1+(CW-LenText)-1; //2
 
 					SetColor(ItemColor[0]);
 					GotoXY(X,Y1+CY1);
@@ -1728,70 +1731,123 @@ void Dialog::ShowDialog(unsigned ID)
 			case DI_TEXT:
 			{
 				strStr = CurItem->strData;
-				LenText=LenStrItem(I,strStr);
 
-				if (!(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CX1!=-1)
-					LenText=LenStrItem(I,CenterStr(strStr,strStr,CX2-CX1+1));
-
-				X=(CX1==-1 || (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)))?(X2-X1+1-LenText)/2:CX1;
-				Y=(CY1==-1)?(Y2-Y1+1)/2:CY1;
-
-				if (X < 0)
-					X=0;
-
-				if ((CX2 <= 0) || (CX2 < CX1))
-					CW = LenText;
-
-				if (X1+X+LenText > X2)
+				if (!(CurItem->Flags & DIF_WORDWRAP))
 				{
-					int tmpCW=ObjWidth;
+					LenText=LenStrItem(I,strStr);
 
-					if (CW < ObjWidth)
-						tmpCW=CW+1;
+					if (!(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CX1!=-1)
+						LenText=LenStrItem(I,CenterStr(strStr,strStr,CX2-CX1+1));
 
-					strStr.SetLength(tmpCW-1);
-				}
+					if ((CX2 <= 0) || (CX2 < CX1))
+						CW = LenText;
 
-				// нужно ЭТО
-				//SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
-				// вместо этого:
-				if (CX1 > -1 && CX2 > CX1 && !(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
-				{
-					int CntChr=CX2-CX1+1;
-					SetColor(ItemColor[0]);
+					X=(CX1==-1 || (CurItem->Flags & DIF_CENTERTEXT))?(X2-X1+1-LenText)/2:CX1;
+					Y=(CY1==-1)?(Y2-Y1+1)/2:CY1;
+
+					if( (CurItem->Flags & DIF_RIGHTTEXT) && CX2 > CX1 )
+						X=CX2-LenText+1;
+
+					if (X < 0)
+						X=0;
+
+					if (X1+X+LenText > X2)
+					{
+						int tmpCW=ObjWidth;
+
+						if (CW < ObjWidth)
+							tmpCW=CW+1;
+
+						strStr.SetLength(tmpCW-1);
+					}
+
+					if (CX1 > -1 && CX2 > CX1 && !(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
+					{
+						SetScreen(X1+CX1,Y1+Y,X1+CX2,Y1+Y,L' ',ItemColor[0]);
+						/*
+						int CntChr=CX2-CX1+1;
+						SetColor(ItemColor[0]);
+						GotoXY(X1+X,Y1+Y);
+
+						if (X1+X+CntChr-1 > X2)
+							CntChr=X2-(X1+X)+1;
+
+						Global->FS << fmt::MinWidth(CntChr)<<L"";
+
+						if (CntChr < LenText)
+							strStr.SetLength(CntChr);
+						*/
+					}
+
+					if (CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
+					{
+						SetColor(ItemColor[2]);
+						GotoXY(X1+((CurItem->Flags&DIF_SEPARATORUSER)?X:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),Y1+Y); //????
+						ShowUserSeparator((CurItem->Flags&DIF_SEPARATORUSER)?X2-X1+1:RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),
+						                  (CurItem->Flags&DIF_SEPARATORUSER)?12:(CurItem->Flags&DIF_SEPARATOR2?3:1),
+					    	              CurItem->strMask
+					        	         );
+					}
+
 					GotoXY(X1+X,Y1+Y);
+					SetColor(ItemColor[0]);
 
-					if (X1+X+CntChr-1 > X2)
-						CntChr=X2-(X1+X)+1;
-
-					Global->FS << fmt::MinWidth(CntChr)<<L"";
-
-					if (CntChr < LenText)
-						strStr.SetLength(CntChr);
-				}
-
-				if (CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))
-				{
-					SetColor(ItemColor[2]);
-					GotoXY(X1+((CurItem->Flags&DIF_SEPARATORUSER)?X:(!DialogMode.Check(DMODE_SMALLDIALOG)?3:0)),Y1+Y); //????
-					ShowUserSeparator((CurItem->Flags&DIF_SEPARATORUSER)?X2-X1+1:RealWidth-(!DialogMode.Check(DMODE_SMALLDIALOG)?6:0/* -1 */),
-					                  (CurItem->Flags&DIF_SEPARATORUSER)?12:(CurItem->Flags&DIF_SEPARATOR2?3:1),
-					                  CurItem->strMask
-					                 );
-				}
-
-				SetColor(ItemColor[0]);
-				GotoXY(X1+X,Y1+Y);
-
-				if (CurItem->Flags & DIF_SHOWAMPERSAND)
-				{
-					//MessageBox(0, strStr, strStr, MB_OK);
-					Text(strStr);
+					if (CurItem->Flags & DIF_SHOWAMPERSAND)
+						Text(strStr);
+					else
+						HiText(strStr,ItemColor[1]);
 				}
 				else
 				{
-					//MessageBox(0, strStr, strStr, MB_OK);
-					HiText(strStr,ItemColor[1]);
+					SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,L' ',ItemColor[0]);
+
+					string strWrap;
+					FarFormatText(strStr,CW,strWrap,L"\n",0);
+					DWORD CountLine=0;
+					bool done=false;
+
+					wchar_t *ptrStr = strWrap.GetBuffer(), *ptrStrPrev=ptrStr;
+					while (!done)
+					{
+						ptrStr=wcschr(ptrStr,L'\n');
+						if (!ptrStr)
+						{
+							ptrStr=ptrStrPrev;
+							done=true;
+						}
+						else
+						{
+							*ptrStr++=0;
+						}
+
+						if (*ptrStr)
+						{
+							string strResult=ptrStrPrev;
+							ptrStrPrev=ptrStr;
+
+							if (CurItem->Flags & DIF_CENTERTEXT)
+								CenterStr(strResult,strResult,CW);
+							else if (CurItem->Flags & DIF_RIGHTTEXT)
+								RightStr(strResult,strResult,CW);
+
+							LenText=LenStrItem(I,strResult);
+							X=(CX1==-1 || (CurItem->Flags & DIF_CENTERTEXT))?(CW-LenText)/2:CX1;
+							if (X < CX1)
+								X=CX1;
+							GotoXY(X1+X,Y1+CY1+CountLine);
+							SetColor(ItemColor[0]);
+
+							if (CurItem->Flags & DIF_SHOWAMPERSAND)
+								Text(strResult);
+							else
+								HiText(strResult,ItemColor[1]);
+
+
+							if (++CountLine >= (DWORD)CH)
+								break;
+						}
+					}
+					strWrap.ReleaseBuffer();
 				}
 
 				break;
@@ -1805,14 +1861,17 @@ void Dialog::ShowDialog(unsigned ID)
 				if (!(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2)) && (CurItem->Flags & DIF_CENTERTEXT) && CY1!=-1)
 					LenText = static_cast<int>(CenterStr(strStr,strStr,CY2-CY1+1).GetLength());
 
+				if ((CY2 <= 0) || (CY2 < CY1))
+					CH = LenStrItem(I,strStr);
+
 				X=(CX1==-1)?(X2-X1+1)/2:CX1;
-				Y=(CY1==-1 || (CurItem->Flags & (DIF_SEPARATOR|DIF_SEPARATOR2)))?(Y2-Y1+1-LenText)/2:CY1;
+				Y=(CY1==-1 || (CurItem->Flags & DIF_CENTERTEXT))?(Y2-Y1+1-LenText)/2:CY1;
+
+				if( (CurItem->Flags & DIF_RIGHTTEXT) && CY2 > CY1 )
+					Y=CY2-LenText+1;
 
 				if (Y < 0)
 					Y=0;
-
-				if ((CY2 <= 0) || (CY2 < CY1))
-					CH = LenStrItem(I,strStr);
 
 				if (Y1+Y+LenText > Y2)
 				{
@@ -1827,8 +1886,10 @@ void Dialog::ShowDialog(unsigned ID)
 				// нужно ЭТО
 				//SetScreen(X1+CX1,Y1+CY1,X1+CX2,Y1+CY2,' ',Attr&0xFF);
 				// вместо этого:
-				if (CY1 > -1 && CY2 > 0 && CY2 > CY1 && !(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
+				if (CY1 > -1 && CY2 > CY1 && !(CurItem->Flags & (DIF_SEPARATORUSER|DIF_SEPARATOR|DIF_SEPARATOR2))) //половинчатое решение
 				{
+					SetScreen(X1+X,Y1+CY1,X1+X,Y1+CY2,L' ',ItemColor[0]);
+					/*
 					int CntChr=CY2-CY1+1;
 					SetColor(ItemColor[0]);
 					GotoXY(X1+X,Y1+Y);
@@ -1837,6 +1898,7 @@ void Dialog::ShowDialog(unsigned ID)
 						CntChr=Y2-(Y1+Y)+1;
 
 					vmprintf(L"%*s",CntChr,L"");
+					*/
 				}
 
 #if defined(VTEXT_ADN_SEPARATORS)

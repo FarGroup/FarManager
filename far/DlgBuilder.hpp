@@ -594,7 +594,7 @@ class DialogBuilderBase
 		{
 			T *Separator = AddDialogItem(DI_TEXT, Text);
 			Separator->Flags = DIF_SEPARATOR;
-			Separator->X1 = 3;
+			Separator->X1 = -1;
 			Separator->Y1 = Separator->Y2 = NextY++;
 		}
 

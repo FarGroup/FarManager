@@ -494,6 +494,26 @@ string& CenterStr(const wchar_t *Src, string &strDest, int Length)
 	return strDest;
 }
 
+string& RightStr(const wchar_t *Src, string &strDest, int Length)
+{
+	int SrcLength=StrLength(Src);
+	string strTempStr = Src; //если Src == strDest, то надо копировать Src!
+
+	if (SrcLength >= Length)
+	{
+		/* Здесь не надо отнимать 1 от длины, т.к. strlen не учитывает \0
+		   и мы получали обрезанные строки */
+		strDest = strTempStr;
+		strDest.SetLength(Length);
+	}
+	else
+	{
+		int Space=Length-SrcLength;
+		strDest = FormatString()<<fmt::MinWidth(Space)<<L""<<strTempStr;
+	}
+
+	return strDest;
+}
 
 const wchar_t *GetCommaWord(const wchar_t *Src, string &strWord,wchar_t Separator)
 {
