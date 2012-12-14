@@ -319,7 +319,9 @@ function EnumMacros (strArea)
     local k,v = next(Areas[area], Enum_LastIndexes[area])
     Enum_LastIndexes[area] = k
     if k then
-      local sequence = ("@%s (Id=%d)"):format(v.FileName:match("[^\\]+\\[^\\]+$"), v.id)
+      local sequence = ("@%s (Id=%d)"):format(v.FileName, v.id)
+      local len = sequence:len()
+      if len > 62 then sequence = ("@...%s (Id=%d)"):format(v.FileName:sub(len-58), v.id) end
       LastMessage = pack(v.id, v.key, v.flags, sequence, v.description)
       return F.MPRT_COMMONCASE, LastMessage
     end
