@@ -27,6 +27,7 @@ struct FarDialogItem
   intptr_t Y1                  = <b>Y</b>
   intptr_t X2                  = <b>X2</b>
   intptr_t Y2                  = <b>Y</b> (равен значению Y1)
+  const wchar_t *Mask          = <b>nullptr или формат линии</b>
   FARDIALOGITEMFLAGS Flags     = <b>Flags</b>
   const wchar_t *Data          = <b>выводимый текст</b>
 };
@@ -50,10 +51,14 @@ struct FarDialogItem
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separator2.html">DIF_SEPARATOR2</a></td>
 <td class="cont" width="60%">горизонтальный разделитель диалога (двойная линия); координата <code>X1</code> не используется для случая, когда <code>Data</code> пустая строка;<br>
 если <code>Data</code> не пустая строка, то она также будет отрисована (для вывода строки будет использована координата <code>X1</code>);</td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_separatoruser.html">DIF_SEPARATORUSER</a></td>
+<td class="cont" width="60%">горизонтальный разделитель диалога (формат линии указан в Mask); должны быть указаны обе координаты <code>X1</code> и <code>X2</code></td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_showampersand.html">DIF_SHOWAMPERSAND</a></td>
 <td class="cont" width="60%">показывать в текстовой строке амперсанд не используя его для определения горячей клавиши</td></tr>
 <tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a></td>
 <td class="cont" width="60%">выравнивать текст по центру относительно координат <code>X1</code> и <code>X2</code></td></tr>
+<tr class="cont"><td class="cont" width="40%"><a href="../flags/dif_righttext.html">DIF_RIGHTTEXT</a></td>
+<td class="cont" width="60%">выравнивать текст по правому краю относительно координат <code>X1</code> и <code>X2</code></td></tr>
 </table>
 </div>
 
@@ -87,6 +92,10 @@ struct FarDialogItem
 <ol>
 <li>Хотя координата <code>Y2</code> в Dialog API не используется, но для нормальной работы в будущих версиях Far Manager желательно корректно заполнить
 значение этого поля. Укажите то же значение координаты, что и <code>Y1</code>.
+<li>Если указан флаг <a href="../flags/dif_separatoruser.html">DIF_SEPARATORUSER</a>, то координаты <code>X1</code> и <code>X2</code> должны быть обязательно указаны, в противном случае
+действие флага не будет иметь действия.
+<li>Если указан флаг <a href="../flags/dif_separatoruser.html">DIF_SEPARATORUSER</a>, то в поле Mask Far Manager ожидает в 3 символа
+"Лево-Середина-Право". Недостающие (до 3-х) символы для такого сепаратора будут содержать пробелы.
 <li>Если указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, то координата <code>X2</code> должна быть обязательно указана, в противном случае
 действие флага не будет иметь действия.
 <li>Если не указан флаг <a href="../flags/dif_centertext.html">DIF_CENTERTEXT</a>, то Far Manager самостоятельно перерасчитает координаты <code>X2</code> и <code>Y2</code>, исходя
