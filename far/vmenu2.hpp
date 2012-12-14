@@ -79,7 +79,7 @@ class VMenu2 : public Dialog
 
 		void SetBoxType(int BoxType)
 		{
-			ShortBox=(BoxType==SHORT_SINGLE_BOX || BoxType==SHORT_DOUBLE_BOX || NO_BOX);
+			ShortBox=(BoxType==SHORT_SINGLE_BOX || BoxType==SHORT_DOUBLE_BOX || BoxType==NO_BOX);
 			if(BoxType==NO_BOX)
 				SetFlags(VMENU_SHOWNOBOX);
 			if(BoxType==SINGLE_BOX || BoxType==SHORT_SINGLE_BOX)

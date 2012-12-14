@@ -1628,12 +1628,8 @@ int FileEditor::LoadFile(const string& Name,int &UserBreak)
 
 		int Offset = StrLength > 3 ? StrLength - 3 : 0;
 
-		if (!LastLineCR &&
-		        (
-		            (CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset))  ||
-		            (CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset))
-		        )
-		   )
+		if ((CurEOL = wmemchr(Str+Offset,L'\r',StrLength-Offset))  ||
+			(CurEOL = wmemchr(Str+Offset,L'\n',StrLength-Offset)))
 		{
 			xwcsncpy(m_editor->GlobalEOL,CurEOL,ARRAYSIZE(m_editor->GlobalEOL));
 			m_editor->GlobalEOL[ARRAYSIZE(m_editor->GlobalEOL)-1]=0;

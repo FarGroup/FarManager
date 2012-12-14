@@ -489,10 +489,6 @@ int ReplaceVariables(string &strStr,TSubstData *PSubstData)
 	const wchar_t *Str=strStr;
 	const wchar_t * const StartStr=Str;
 
-	if (*Str==L'\"')
-		while (*Str && *Str!=L'\"')
-			Str++;
-
 	DialogItemEx *DlgData = new DialogItemEx[MaxSize+2];
 	FormatString HistoryName[MaxSize];
 	int DlgSize=0;

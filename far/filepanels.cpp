@@ -736,7 +736,7 @@ int FilePanels::ProcessKey(int Key)
 			IntOption& HeightDecrement=(ActivePanel==LeftPanel)?Global->Opt->LeftHeightDecrement:Global->Opt->RightHeightDecrement;
 			if (HeightDecrement<ScrY-7)
 			{
-				HeightDecrement++;
+				++HeightDecrement;
 				SetScreenPosition();
 				FrameManager->RefreshFrame();
 			}
@@ -749,7 +749,7 @@ int FilePanels::ProcessKey(int Key)
 			IntOption& HeightDecrement=(ActivePanel==LeftPanel)?Global->Opt->LeftHeightDecrement:Global->Opt->RightHeightDecrement;
 			if (HeightDecrement>0)
 			{
-				HeightDecrement--;
+				--HeightDecrement;
 				SetScreenPosition();
 				FrameManager->RefreshFrame();
 			}

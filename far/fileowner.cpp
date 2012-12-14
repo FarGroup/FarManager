@@ -222,9 +222,6 @@ bool SetOwnerInternal(LPCWSTR Object, LPCWSTR Owner)
 		{
 			SetLastError(dwResult);
 		}
-	}
-	if(Sid)
-	{
 		LocalFree(Sid);
 	}
 	return Result;

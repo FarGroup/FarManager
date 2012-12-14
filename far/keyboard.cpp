@@ -666,7 +666,6 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 	static int LastEventIdle=FALSE;
 	size_t ReadCount;
 	DWORD LoopCount=0,CalcKey;
-	DWORD ReadKey=0;
 	int NotMacros=FALSE;
 	static int LastMsClickMacroKey=0;
 	struct FAR_INPUT_RECORD irec={};
@@ -1095,7 +1094,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		else
 			IntKeyState.ShiftPressed=(CtrlState & SHIFT_PRESSED);
 
-		if ((KeyCode==VK_F16 && ReadKey==VK_F16) || !KeyCode)
+		if ((KeyCode==VK_F16) || !KeyCode)
 			return(KEY_NONE);
 
 		if (!rec->Event.KeyEvent.bKeyDown &&
@@ -1104,7 +1103,7 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 		{
 			int Key=-1;
 
-			if (ShiftPressedLast && KeyCode==VK_SHIFT)
+			if ((ShiftPressedLast || RightShiftPressedLast) && KeyCode==VK_SHIFT)
 			{
 				if (ShiftPressedLast)
 				{
@@ -1389,11 +1388,6 @@ static DWORD __GetInputRecord(INPUT_RECORD *rec,bool ExcludeMacro,bool ProcessMo
 			}
 		}
 	}
-
-	int GrayKey=(CalcKey==KEY_ADD || CalcKey==KEY_SUBTRACT || CalcKey==KEY_MULTIPLY);
-
-	if (ReadKey && !GrayKey)
-		CalcKey=ReadKey;
 
 	{
 		_KEYMACRO(SysLog(L"[%d] CALL Global->CtrlObject->Macro.ProcessEvent(%s)",__LINE__,_FARKEY_ToName(CalcKey)));

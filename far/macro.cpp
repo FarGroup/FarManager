@@ -844,7 +844,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 					int Key = Rec->IntKey;
 					if ((Key&(~KEY_CTRLMASK)) > 0x01 && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN) // 0xFFFF ??
 					{
-						if ((Key&(~KEY_CTRLMASK)) > 0x7F && (Key&(~KEY_CTRLMASK)) < KEY_FKEY_BEGIN)
+						if ((Key&(~KEY_CTRLMASK)) > 0x7F)
 							Key=KeyToKeyLayout(Key&0x0000FFFF)|(Key&(~0x0000FFFF));
 
 						if ((DWORD)Key < KEY_FKEY_BEGIN)
@@ -1708,7 +1708,6 @@ intptr_t KeyMacro::ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 {
 	switch (Msg)
 	{
-			break;
 		case DN_BTNCLICK:
 
 			if (Param1==MS_CHECKBOX_A_PANEL || Param1==MS_CHECKBOX_P_PANEL)
