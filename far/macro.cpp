@@ -528,6 +528,16 @@ void KeyMacro::PopState(bool withClip)
 {
 	if (!m_StateStack.empty())
 	{
+		MacroRecord* src=m_CurState->m_MacroQueue.First();
+		if(src)
+		{
+			MacroState* dst=(*m_StateStack.Peek());
+			while(src)
+			{
+				dst->m_MacroQueue.Push(src);
+				src=m_CurState->m_MacroQueue.Next(src);
+			}
+		}
 		delete m_CurState;
 		m_StateStack.Pop(m_CurState);
 
@@ -1406,10 +1416,7 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t *PlainText,UINT64 Flags,DW
 		KeyToText(AKey,strKeyText);
 		MacroRecord macro(MACRO_COMMON, Flags, MacroId, AKey, strKeyText, PlainText, L"");
 
-		if (m_StateStack.Peek() && (Flags&MFLAGS_POSTFROMPLUGIN) && m_MacroPluginIsRunning)
-			(*m_StateStack.Peek())->m_MacroQueue.Push(&macro);
-		else
-			m_CurState->m_MacroQueue.Push(&macro);
+		m_CurState->m_MacroQueue.Push(&macro);
 
 		return true;
 	}
