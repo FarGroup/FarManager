@@ -267,12 +267,10 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 						}
 					}
 				}
-				SYSTEMTIME SavedTime;
 				FILETIME FTTime;
+				SYSTEMTIME SavedTime;
 				UI64ToFileTime(Time, &FTTime);
-				FILETIME LFTTime;
-				FileTimeToLocalFileTime(&FTTime, &LFTTime);
-				FileTimeToSystemTime(&LFTTime, &SavedTime);
+				Utc2Local(FTTime, SavedTime);
 				if(LastDay != SavedTime.wDay || LastMonth != SavedTime.wMonth || LastYear != SavedTime.wYear)
 				{
 					LastDay = SavedTime.wDay;

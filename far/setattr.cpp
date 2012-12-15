@@ -556,55 +556,47 @@ bool ReadFileTime(int Type,const string& Name,FILETIME& FileTime,const wchar_t *
 	{
 		LPFILETIME Times[]={&ffd.ftLastWriteTime, &ffd.ftCreationTime, &ffd.ftLastAccessTime, &ffd.ftChangeTime};
 		LPFILETIME OriginalFileTime=Times[Type];
-		FILETIME oft={};
-		if(FileTimeToLocalFileTime(OriginalFileTime,&oft))
+		SYSTEMTIME ost={};
+		if(Utc2Local(*OriginalFileTime,ost))
 		{
-			SYSTEMTIME ost={};
-			if(FileTimeToSystemTime(&oft,&ost))
+			WORD DateN[3]={};
+			GetFileDateAndTime(OSrcDate,DateN,ARRAYSIZE(DateN),GetDateSeparator());
+			WORD TimeN[4]={};
+			GetFileDateAndTime(OSrcTime,TimeN,ARRAYSIZE(TimeN),GetTimeSeparator());
+			SYSTEMTIME st={};
+
+			switch (GetDateFormat())
 			{
-				WORD DateN[3]={};
-				GetFileDateAndTime(OSrcDate,DateN,ARRAYSIZE(DateN),GetDateSeparator());
-				WORD TimeN[4]={};
-				GetFileDateAndTime(OSrcTime,TimeN,ARRAYSIZE(TimeN),GetTimeSeparator());
-				SYSTEMTIME st={};
+				case 0:
+					st.wMonth=DateN[0]!=(WORD)-1?DateN[0]:ost.wMonth;
+					st.wDay  =DateN[1]!=(WORD)-1?DateN[1]:ost.wDay;
+					st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
+					break;
+				case 1:
+					st.wDay  =DateN[0]!=(WORD)-1?DateN[0]:ost.wDay;
+					st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
+					st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
+					break;
+				default:
+					st.wYear =DateN[0]!=(WORD)-1?DateN[0]:ost.wYear;
+					st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
+					st.wDay  =DateN[2]!=(WORD)-1?DateN[2]:ost.wDay;
+					break;
+			}
 
-				switch (GetDateFormat())
-				{
-					case 0:
-						st.wMonth=DateN[0]!=(WORD)-1?DateN[0]:ost.wMonth;
-						st.wDay  =DateN[1]!=(WORD)-1?DateN[1]:ost.wDay;
-						st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
-						break;
-					case 1:
-						st.wDay  =DateN[0]!=(WORD)-1?DateN[0]:ost.wDay;
-						st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
-						st.wYear =DateN[2]!=(WORD)-1?DateN[2]:ost.wYear;
-						break;
-					default:
-						st.wYear =DateN[0]!=(WORD)-1?DateN[0]:ost.wYear;
-						st.wMonth=DateN[1]!=(WORD)-1?DateN[1]:ost.wMonth;
-						st.wDay  =DateN[2]!=(WORD)-1?DateN[2]:ost.wDay;
-						break;
-				}
+			st.wHour         = TimeN[0]!=(WORD)-1? (TimeN[0]):ost.wHour;
+			st.wMinute       = TimeN[1]!=(WORD)-1? (TimeN[1]):ost.wMinute;
+			st.wSecond       = TimeN[2]!=(WORD)-1? (TimeN[2]):ost.wSecond;
+			st.wMilliseconds = TimeN[3]!=(WORD)-1? (TimeN[3]):ost.wMilliseconds;
 
-				st.wHour         = TimeN[0]!=(WORD)-1? (TimeN[0]):ost.wHour;
-				st.wMinute       = TimeN[1]!=(WORD)-1? (TimeN[1]):ost.wMinute;
-				st.wSecond       = TimeN[2]!=(WORD)-1? (TimeN[2]):ost.wSecond;
-				st.wMilliseconds = TimeN[3]!=(WORD)-1? (TimeN[3]):ost.wMilliseconds;
+			if (st.wYear<100)
+			{
+				st.wYear = static_cast<WORD>(ConvertYearToFull(st.wYear));
+			}
 
-				if (st.wYear<100)
-				{
-					st.wYear = static_cast<WORD>(ConvertYearToFull(st.wYear));
-				}
-
-				FILETIME lft={};
-				if (SystemTimeToFileTime(&st,&lft))
-				{
-					if(LocalFileTimeToFileTime(&lft,&FileTime))
-					{
-						Result=CompareFileTime(&FileTime,OriginalFileTime)!=0;
-					}
-				}
+			if (Local2Utc(st, FileTime))
+			{
+				Result=CompareFileTime(&FileTime,OriginalFileTime)!=0;
 			}
 		}
 	}

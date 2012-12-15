@@ -311,7 +311,7 @@ int Viewer::OpenFile(const wchar_t *Name,int warning)
 
 	ConvertNameToFull(strFileName,strFullFileName);
 	apiGetFindDataEx(strFileName, ViewFindData);
-	UINT CachedCodePage=0;
+	uintptr_t CachedCodePage=0;
 
 	if ((Global->Opt->ViOpt.SavePos || Global->Opt->ViOpt.SaveCodepage || Global->Opt->ViOpt.SaveWrapMode) && !ReadStdin)
 	{

@@ -646,12 +646,7 @@ void StrToDateTime(const wchar_t *CDate, const wchar_t *CTime, FILETIME &ft, int
 	}
 	else
 	{
-		FILETIME lft={};
-
-		if (SystemTimeToFileTime(&st,&lft))
-		{
-			LocalFileTimeToFileTime(&lft,&ft);
-		}
+		Local2Utc(st, ft);
 	}
 }
 
@@ -685,7 +680,6 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 		CurDateFormat=0;
 
 	SYSTEMTIME st;
-	FILETIME ct;
 
 	if (!ft.dwHighDateTime)
 	{
@@ -694,8 +688,7 @@ void ConvertDate(const FILETIME &ft,string &strDateText, string &strTimeText,int
 		return;
 	}
 
-	FileTimeToLocalFileTime(&ft,&ct);
-	FileTimeToSystemTime(&ct,&st);
+	Utc2Local(ft, st);
 	//if ( !strTimeText.IsEmpty() )
 	{
 		const wchar_t *Letter=L"";
