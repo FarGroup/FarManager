@@ -84,12 +84,6 @@
     <CustomBuild Include="TmpRus.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="shortcuts.eng.farconfig">
-      <Filter>Configuration Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="shortcuts.rus.farconfig">
-      <Filter>Configuration Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="shortcuts.eng.lua">
       <Filter>Configuration Files</Filter>
     </CustomBuild>
