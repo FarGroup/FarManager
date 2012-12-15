@@ -1101,7 +1101,7 @@ WCHAR* MakeSeparator(int Length,WCHAR *DestStr,int Type, const wchar_t* UserSep)
 	{
 		wchar_t c[3];
 		bool stdUse=true;
-		if (Type > ARRAYSIZE(BoxType))
+		if (Type > static_cast<int>(ARRAYSIZE(BoxType)))
 		{
 			if (UserSep)
 			{

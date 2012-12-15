@@ -788,3 +788,147 @@ void ConvertRelativeDate(const FILETIME &ft,string &strDaysText,string &strTimeT
 	strDaysText = FormatString()<<d;
 	strTimeText = FormatString()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<h<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<m<<GetTimeSeparator()<<fmt::MinWidth(2)<<fmt::FillChar(L'0')<<s<<GetDecimalSeparator()<<fmt::MinWidth(3)<<fmt::FillChar(L'0')<<ms;
 }
+
+bool Utc2Local(const FILETIME &ft, SYSTEMTIME &lst)
+{
+	SYSTEMTIME st;
+	bool ok = false;
+	if (FileTimeToSystemTime(&ft, &st))
+	{
+		ok = FALSE != SystemTimeToTzSpecificLocalTime(nullptr, &st, &lst);
+	}
+	return ok;
+}
+
+bool Utc2Local(SYSTEMTIME &st, FILETIME &lft)
+{
+	SYSTEMTIME lst;
+	bool ok = false;
+
+	if (SystemTimeToTzSpecificLocalTime(nullptr, &st, &lst))
+	{
+		ok = FALSE != SystemTimeToFileTime(&lst, &lft);
+	}
+	return ok;
+}
+
+static inline bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
+{
+	typedef BOOL (WINAPI *PfnTzSpecificLocalTimeToSystemTime)(
+		const TIME_ZONE_INFORMATION *lpTimeZoneInformation,
+		const SYSTEMTIME *lpLocalTime,
+		LPSYSTEMTIME lpUniversalTime
+	);
+	static PfnTzSpecificLocalTimeToSystemTime pfnTzSpecificLocalTimeToSystemTime = nullptr;
+	static int tzspec_exists = -1;
+
+	if (tzspec_exists < 0)
+	{
+		pfnTzSpecificLocalTimeToSystemTime = (PfnTzSpecificLocalTimeToSystemTime)
+			GetProcAddress(GetModuleHandle(L"kernel32.dll"), "TzSpecificLocalTimeToSystemTime");
+		tzspec_exists = (pfnTzSpecificLocalTimeToSystemTime == nullptr ? 0 : +1);
+	}
+	if (tzspec_exists)
+	{
+		return FALSE != (*pfnTzSpecificLocalTimeToSystemTime)(nullptr, &lst, &ust);
+	}
+	else
+	{
+		bool ok = false;
+
+		struct tm ltm;
+		ltm.tm_year = lst.wYear - 1900;
+		ltm.tm_mon  = lst.wMonth - 1;
+		ltm.tm_mday = lst.wDay;
+		ltm.tm_hour = lst.wHour;
+		ltm.tm_min  = lst.wMinute;
+		ltm.tm_sec  = lst.wSecond;
+		ltm.tm_wday = lst.wDay;
+		ltm.tm_yday = ltm.tm_isdst = -1;
+		time_t gtim = mktime(&ltm);
+		if (gtim != (time_t)-1)
+		{
+			struct tm *ptm = gmtime(&gtim);
+			if (ptm)
+			{
+				ust.wYear   = ptm->tm_year + 1900;
+				ust.wMonth  = ptm->tm_mon + 1;
+				ust.wDay    = ptm->tm_mday;
+				ust.wHour   = ptm->tm_hour;
+				ust.wMinute = ptm->tm_min;
+				ust.wSecond = ptm->tm_sec;
+				ust.wDayOfWeek = ptm->tm_wday;
+				ust.wMilliseconds = lst.wMilliseconds;
+				ok = true;
+			}
+			else
+			{
+				FILETIME lft, uft;
+				ok = FALSE != SystemTimeToFileTime(&lst, &lft)
+				  && FALSE != LocalFileTimeToFileTime(&lft, &uft)
+				  && FALSE != FileTimeToSystemTime(&uft, &ust);
+			}
+		}
+
+		return ok;
+	}
+}
+
+bool Local2Utc(const FILETIME &lft, SYSTEMTIME &st)
+{
+	SYSTEMTIME lst;
+	bool ok = false;
+	if (FileTimeToSystemTime(&lft, &lst))
+	{
+		ok = local_to_utc(lst, st);
+	}
+	return ok;
+}
+
+bool Local2Utc(SYSTEMTIME &lst, FILETIME &ft)
+{
+	SYSTEMTIME st;
+	bool ok = false;
+
+	if (local_to_utc(lst, st))
+	{
+		ok = FALSE != SystemTimeToFileTime(&st, &ft);
+	}
+	return ok;
+}
+
+#if 0
+bool Utc2Local(FILETIME &ft, FILETIME &lft)
+{
+	SYSTEMTIME lst;
+	bool ok = Utc2Local(ft, lst);
+	if (ok)
+	{
+		ok = FALSE != SystemTimeToFileTime(&lst, &lft);
+		if (ok)
+		{
+			UINT64 t64 = FileTimeToUI64(&ft);
+			UINT64 lt64 = FileTimeToUI64(&lft);
+			UI64ToFileTime(lt64 + t64 % 10000, &lft);
+		}
+	}
+	return ok;
+}
+
+bool Local2Utc(FILETIME &lft, FILETIME &ft)
+{
+	SYSTEMTIME st;
+	bool ok = Utc2Local(lft, st);
+	if (ok)
+	{
+		ok = FALSE != SystemTimeToFileTime(&st, &ft);
+		if (ok)
+		{
+			UINT64 lt64 = FileTimeToUI64(&lft);
+			UINT64 t64 = FileTimeToUI64(&ft);
+			UI64ToFileTime(t64 + lt64 % 10000, &ft);
+		}
+	}
+	return ok;
+}
+#endif
