@@ -15,6 +15,9 @@ using namespace std;
 #include <process.h>
 #include <assert.h>
 
+#include "../../common/unicode/plugin.hpp"
+#include "../../common/unicode/farcolor.hpp"
+#include <shobjidl.h>
 #include "error.hpp"
 #include "utils.hpp"
 #include "sysutils.hpp"
@@ -24,6 +27,8 @@ using namespace std;
 #include "pathutils.cpp"
 #include "sysutils.cpp"
 #include "iniparse.cpp"
+
+namespace Far { ArclitePrivateInfo* get_system_functions() { return nullptr; } }
 
 #define BEGIN_ERROR_HANDLER try {
 #define END_ERROR_HANDLER \

@@ -67,17 +67,6 @@ $(OBJDIR)\Queque.obj \
 $(OBJDIR)\Url.obj
 
 ##########
-!if "$(BUILD_PLATFORM)" =="X86"
-!ifndef ULINK
-VC10_OBJ= \
-$(OBJDIR)\vc10.obj\
-$(OBJDIR)\vc10wrapper.obj
-!else
-VC10_OBJ=$(OBJDIR)\vc10wrp_u.obj
-ULN_DEF=_u
-ULN_DELAY=-d*kernel32
-!endif
-!endif
 
 LIB_OBJS = \
 $(OBJDIR)\fstd_Arg.obj \
@@ -113,7 +102,6 @@ $(OBJDIR)\fstd_FMsg.obj \
 $(OBJDIR)\fstd_OEM.obj \
 $(OBJDIR)\fstd_Utils.obj \
 $(OBJDIR)\fstd_FUtils.obj \
-$(VC10_OBJ)
 
 DEP_HDR=int.h FStdLib\fstdlib.h lib/Plugin.h Plugins.h Cfg.h \
 JM.h var.h Connect.h FtpAPI.h Ftp.h

@@ -60,13 +60,19 @@ $(OBJS): $(OUTDIR)\headers.pch
 $(OUTDIR)\headers.pch: headers.cpp headers.hpp
   $(CPP) $(CPPFLAGS) headers.cpp -Ycheaders.hpp -Fp$(OUTDIR)\headers.pch
 
+$(OUTDIR)\vc10.obj: ..\..\common\vc10.asm
+  $(AS) $(ASFLAGS) ..\..\common\vc10.asm
+
+$(OUTDIR)\vc10wrapper.obj: ..\..\common\vc10wrapper.cpp
+  $(CPP) $(CPPFLAGS) -Yuheaders.hpp -FIheaders.hpp -Fp$(OUTDIR)\headers.pch ..\..\common\vc10wrapper.cpp
+
 depfile: $(OUTDIR)
-  $(TOOLSDIR)\gendep $(INCLUDES) > $(OUTDIR)\dep.mak
+  $(TOOLSDIR)\tool gendep $(INCLUDES) > $(OUTDIR)\dep.mak
 
 $(OUTDIR)\version.res: $(OUTDIR)\version.rc
   $(RC) $(RCFLAGS) -fo$@ $**
 
-PREPROC = $(TOOLSDIR)\preproc $** $@
+PREPROC = $(TOOLSDIR)\tool preproc $** $@
 
 $(OUTDIR)\version.rc: project.ini version.rc
   $(PREPROC)

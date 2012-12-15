@@ -26,13 +26,6 @@ LINK_OBJS = $(OBJDIR)\luaplug.obj
 
 !if "$(PLATFORM)" =="x86"
 
-!ifndef ULINK
-LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
-!else
-LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrp_u.obj
-!endif
-!endif
-
 LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 
 !include ..\makefile_vc_target_inc

@@ -1,3 +1,13 @@
+!ifdef NEEDDEFLIB
+!if "$(BUILD_PLATFORM)" =="X86"
+!ifndef ULINK
+LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
+!else
+LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrp_u.obj
+!endif
+!endif
+!endif
+
 ALL: dirs $(INSTALL) $(DLLFULLNAME)
 
 $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
@@ -21,12 +31,23 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 	@$(CC) @<<
 	$(CPPFLAGS) $<
 <<
+
+{$(COMMON)}.cpp{$(OBJDIR)}.obj::
+	@$(CC) @<<
+	$(CPPFLAGS) $<
+<<
 !else
 .cpp{$(OBJDIR)}.obj:
+	@$(CC) $(CPPFLAGS) { $< } 
+
+{$(COMMON)}.cpp{$(OBJDIR)}.obj::
 	@$(CC) $(CPPFLAGS) { $< } 
 !endif
 
 .asm{$(OBJDIR)}.obj:
+	@$(AS) $(AFLAGS) $<
+
+{$(COMMON)}.asm{$(OBJDIR)}.obj:
 	@$(AS) $(AFLAGS) $<
 
 $(RES): $(RC_NAME).rc $(COMINC)\farversion.hpp $(COMINC)\plugin.hpp
@@ -40,3 +61,4 @@ dirs:
 	@if not exist "$(OBJDIR)\$(NULL)" mkdir "$(OBJDIR)"
 	@if not exist "$(OUTDIR)\$(NULL)" mkdir "$(OUTDIR)"
 	@if not exist "$(OUTDIR)$(ADDOUTDIR)\$(NULL)" mkdir "$(OUTDIR)$(ADDOUTDIR)"
+	@if not exist "$(COMMON)\$(OBJDIR)\$(NULL)" mkdir "$(COMMON)\$(OBJDIR)"

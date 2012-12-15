@@ -3,14 +3,6 @@
 NAME = EditCase
 LINK_OBJS = $(OBJDIR)\EditCase.obj
 
-!if "$(BUILD_PLATFORM)" =="X86"
-!ifndef ULINK
-LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
-!else
-LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrp_u.obj
-!endif
-!endif
-
 DOCS = ECaseEng.hlf ECaseRus.hlf ECaseEng.lng ECaseRus.lng ECaseSky.lng
 
 !if "$(BUILD_PLATFORM)" == "X86"
