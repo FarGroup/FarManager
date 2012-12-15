@@ -3444,7 +3444,7 @@ int EditControl::AutoCompleteProc(bool Manual,bool DelBlock,int& BackKey, MACROM
 	string CurrentLine;
 	size_t EventsCount = 0;
 	Global->Console->GetNumberOfInputEvents(EventsCount);
-	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetCurRecord(nullptr,nullptr) == MACROMODE_NOMACRO || Manual))
+	if(ECFlags.Check(EC_ENABLEAUTOCOMPLETE) && *Str && !Reenter && !EventsCount && (Global->CtrlObject->Macro.GetCurRecord() == MACROMODE_NOMACRO || Manual))
 	{
 		Reenter++;
 

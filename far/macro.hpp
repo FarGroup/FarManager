@@ -247,7 +247,7 @@ class KeyMacro
 		bool LoadMacros(bool InitedRAM=true,bool LoadAll=true);
 		void SaveMacros(void);
 		// получить данные о макросе (возвращает статус)
-		int GetCurRecord(MacroRecord* RBuf=nullptr,int *KeyPos=nullptr);
+		int GetCurRecord(void);
 		int ProcessEvent(const struct FAR_INPUT_RECORD *Rec);
 		int GetKey();
 		int PeekKey();

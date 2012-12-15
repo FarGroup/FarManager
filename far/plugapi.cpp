@@ -2060,7 +2060,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			// Param1=0, Param2 - 0
 			case MCTL_GETSTATE:
 			{
-				return Macro.GetCurRecord(nullptr,nullptr);
+				return Macro.GetCurRecord();
 			}
 
 			// Param1=0, Param2 - 0

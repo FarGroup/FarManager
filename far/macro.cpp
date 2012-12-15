@@ -700,7 +700,7 @@ void KeyMacro::SetMacroConst(int ConstIndex, __int64 Value)
 	msValues[ConstIndex] = Value;
 }
 
-int KeyMacro::GetCurRecord(MacroRecord* RBuf,int *KeyPos)
+int KeyMacro::GetCurRecord()
 {
 	return (m_Recording != MACROMODE_NOMACRO) ? m_Recording : IsExecuting();
 }
