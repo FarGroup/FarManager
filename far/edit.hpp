@@ -285,6 +285,7 @@ private:
 	bool ACState;
 	bool CallbackSaveState;
 	Callback m_Callback;
+	bool MenuUp;
 
 	friend class DlgEdit;
 };

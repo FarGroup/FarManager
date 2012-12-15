@@ -3112,7 +3112,7 @@ void Edit::FixLeftPos(int TabCurPos)
 		LeftPos=TabCurPos;
 }
 
-EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):Edit(pOwner,bAllocateData)
+EditControl::EditControl(ScreenObject *pOwner,Callback* aCallback,bool bAllocateData,History* iHistory,FarList* iList,DWORD iFlags):Edit(pOwner,bAllocateData), MenuUp(false)
 {
 	if (aCallback)
 	{
@@ -3163,13 +3163,15 @@ void EditControl::Changed(bool DelBlock)
 
 void EditControl::SetMenuPos(VMenu2& menu)
 {
-	if(ScrY-Y1<Min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())+2 && Y1>ScrY/2)
+	int MaxHeight = Min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())+2;
+	if((ScrY-Y1<MaxHeight && Y1>ScrY/2) || MenuUp)
 	{
-		menu.SetPosition(X1,Max((intptr_t)0,Y1-1-Min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())-1),Min(ScrX-2,X2),Y1-1);
+		MenuUp = true;
+		menu.SetPosition(X1, Max(0, Y1-1-MaxHeight), Min(ScrX-2,X2), Y1-1);
 	}
 	else
 	{
-		menu.SetPosition(X1,Y1+1,X2,0);
+		menu.SetPosition(X1,Y1+1,X2,Min(static_cast<int>(ScrY), Y1+1+MaxHeight));
 	}
 }
 
