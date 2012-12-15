@@ -24,8 +24,6 @@ EXCLUDECRT=1
 
 LINK_OBJS = $(OBJDIR)\luaplug.obj
 
-!if "$(PLATFORM)" =="x86"
-
 LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 
 !include ..\makefile_vc_target_inc
