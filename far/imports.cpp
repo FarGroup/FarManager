@@ -133,7 +133,7 @@ ImportedFunctions::~ImportedFunctions()
 }
 
 
-BOOL ImportedFunctions::GetConsoleKeyboardLayoutNameW(LPWSTR Buffer)
+BOOL ImportedFunctions::GetConsoleKeyboardLayoutNameW(LPWSTR Buffer) const
 {
 	if(pfnGetConsoleKeyboardLayoutNameW)
 	{
@@ -146,7 +146,7 @@ BOOL ImportedFunctions::GetConsoleKeyboardLayoutNameW(LPWSTR Buffer)
 	}
 }
 
-BOOLEAN ImportedFunctions::CreateSymbolicLinkW(LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags)
+BOOLEAN ImportedFunctions::CreateSymbolicLinkW(LPCWSTR SymlinkFileName, LPCWSTR TargetFileName, DWORD Flags) const
 {
 	if(pfnCreateSymbolicLinkW)
 	{
@@ -159,7 +159,7 @@ BOOLEAN ImportedFunctions::CreateSymbolicLinkW(LPCWSTR SymlinkFileName, LPCWSTR 
 	}
 }
 
-HANDLE ImportedFunctions::FindFirstFileNameW(LPCWSTR FileName, DWORD Flags, LPDWORD StringLength, LPWSTR LinkName)
+HANDLE ImportedFunctions::FindFirstFileNameW(LPCWSTR FileName, DWORD Flags, LPDWORD StringLength, LPWSTR LinkName) const
 {
 	if(pfnFindFirstFileNameW)
 	{
@@ -172,7 +172,7 @@ HANDLE ImportedFunctions::FindFirstFileNameW(LPCWSTR FileName, DWORD Flags, LPDW
 	}
 }
 
-BOOL ImportedFunctions::FindNextFileNameW(HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName)
+BOOL ImportedFunctions::FindNextFileNameW(HANDLE FindStream, LPDWORD StringLength, PWCHAR LinkName) const
 {
 	if(pfnFindNextFileNameW)
 	{
@@ -185,7 +185,7 @@ BOOL ImportedFunctions::FindNextFileNameW(HANDLE FindStream, LPDWORD StringLengt
 	}
 }
 
-HANDLE ImportedFunctions::FindFirstStreamW(LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags)
+HANDLE ImportedFunctions::FindFirstStreamW(LPCWSTR FileName, STREAM_INFO_LEVELS InfoLevel, LPVOID FindStreamData, DWORD Flags) const
 {
 	if(pfnFindFirstStreamW)
 	{
@@ -198,7 +198,7 @@ HANDLE ImportedFunctions::FindFirstStreamW(LPCWSTR FileName, STREAM_INFO_LEVELS 
 	}
 }
 
-BOOL ImportedFunctions::FindNextStreamW(HANDLE FindStream, LPVOID FindStreamData)
+BOOL ImportedFunctions::FindNextStreamW(HANDLE FindStream, LPVOID FindStreamData) const
 {
 	if(pfnFindNextStreamW)
 	{
@@ -211,7 +211,7 @@ BOOL ImportedFunctions::FindNextStreamW(HANDLE FindStream, LPVOID FindStreamData
 	}
 }
 
-DWORD ImportedFunctions::GetFinalPathNameByHandleW(HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags)
+DWORD ImportedFunctions::GetFinalPathNameByHandleW(HANDLE File, LPWSTR FilePath, DWORD FilePathSize, DWORD Flags) const
 {
 	if(pfnGetFinalPathNameByHandleW)
 	{
@@ -232,7 +232,7 @@ DWORD ImportedFunctions::GetFinalPathNameByHandleW(HANDLE File, LPWSTR FilePath,
 	}
 }
 
-BOOL ImportedFunctions::GetVolumePathNamesForVolumeNameW(LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength)
+BOOL ImportedFunctions::GetVolumePathNamesForVolumeNameW(LPCWSTR VolumeName, LPWSTR VolumePathNames, DWORD BufferLength, PDWORD ReturnLength) const
 {
 	if(pfnGetVolumePathNamesForVolumeNameW)
 	{
@@ -245,7 +245,7 @@ BOOL ImportedFunctions::GetVolumePathNamesForVolumeNameW(LPCWSTR VolumeName, LPW
 	}
 }
 
-BOOL ImportedFunctions::GetPhysicallyInstalledSystemMemory(PULONGLONG TotalMemoryInKilobytes)
+BOOL ImportedFunctions::GetPhysicallyInstalledSystemMemory(PULONGLONG TotalMemoryInKilobytes) const
 {
 	if(pfnGetPhysicallyInstalledSystemMemory)
 	{
@@ -258,7 +258,7 @@ BOOL ImportedFunctions::GetPhysicallyInstalledSystemMemory(PULONGLONG TotalMemor
 	}
 }
 
-BOOL ImportedFunctions::HeapSetInformation(HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength)
+BOOL ImportedFunctions::HeapSetInformation(HANDLE HeapHandle, HEAP_INFORMATION_CLASS HeapInformationClass, PVOID HeapInformation, SIZE_T HeapInformationLength) const
 {
 	if(pfnHeapSetInformation)
 	{
@@ -271,7 +271,7 @@ BOOL ImportedFunctions::HeapSetInformation(HANDLE HeapHandle, HEAP_INFORMATION_C
 	}
 }
 
-BOOL ImportedFunctions::IsWow64Process(HANDLE Process, PBOOL Wow64Process)
+BOOL ImportedFunctions::IsWow64Process(HANDLE Process, PBOOL Wow64Process) const
 {
 	if(pfnIsWow64Process)
 	{
@@ -284,7 +284,7 @@ BOOL ImportedFunctions::IsWow64Process(HANDLE Process, PBOOL Wow64Process)
 	}
 }
 
-BOOL ImportedFunctions::GetNamedPipeServerProcessId(HANDLE Pipe, PULONG ServerProcessId)
+BOOL ImportedFunctions::GetNamedPipeServerProcessId(HANDLE Pipe, PULONG ServerProcessId) const
 {
 	if(pfnGetNamedPipeServerProcessId)
 	{
@@ -297,7 +297,7 @@ BOOL ImportedFunctions::GetNamedPipeServerProcessId(HANDLE Pipe, PULONG ServerPr
 	}
 }
 
-BOOL ImportedFunctions::CancelSynchronousIo(HANDLE Thread)
+BOOL ImportedFunctions::CancelSynchronousIo(HANDLE Thread) const
 {
 	if(pfnCancelSynchronousIo)
 	{
@@ -310,7 +310,7 @@ BOOL ImportedFunctions::CancelSynchronousIo(HANDLE Thread)
 	}
 }
 
-BOOL ImportedFunctions::SetConsoleKeyShortcuts(BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys)
+BOOL ImportedFunctions::SetConsoleKeyShortcuts(BOOL Set, BYTE ReserveKeys, LPVOID AppKeys, DWORD NumAppKeys) const
 {
 	if(pfnSetConsoleKeyShortcuts)
 	{
@@ -323,7 +323,7 @@ BOOL ImportedFunctions::SetConsoleKeyShortcuts(BOOL Set, BYTE ReserveKeys, LPVOI
 	}
 }
 
-BOOL ImportedFunctions::GetConsoleScreenBufferInfoEx(HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx)
+BOOL ImportedFunctions::GetConsoleScreenBufferInfoEx(HANDLE ConsoleOutput, PCONSOLE_SCREEN_BUFFER_INFOEX ConsoleScreenBufferInfoEx) const
 {
 	if(pfnGetConsoleScreenBufferInfoEx)
 	{
@@ -336,7 +336,7 @@ BOOL ImportedFunctions::GetConsoleScreenBufferInfoEx(HANDLE ConsoleOutput, PCONS
 	}
 }
 
-BOOL ImportedFunctions::TzSpecificLocalTimeToSystemTime(const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime)
+BOOL ImportedFunctions::TzSpecificLocalTimeToSystemTime(const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime) const
 {
 	if(pfnTzSpecificLocalTimeToSystemTime)
 	{
@@ -349,7 +349,8 @@ BOOL ImportedFunctions::TzSpecificLocalTimeToSystemTime(const TIME_ZONE_INFORMAT
 	}
 }
 
-NTSTATUS ImportedFunctions::NtQueryDirectoryFile(HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan)
+
+NTSTATUS ImportedFunctions::NtQueryDirectoryFile(HANDLE FileHandle, HANDLE Event, PVOID ApcRoutine, PVOID ApcContext, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass, BOOLEAN ReturnSingleEntry, PUNICODE_STRING FileName, BOOLEAN RestartScan) const
 {
 	if(pfnNtQueryDirectoryFile)
 	{
@@ -361,7 +362,7 @@ NTSTATUS ImportedFunctions::NtQueryDirectoryFile(HANDLE FileHandle, HANDLE Event
 	}
 }
 
-NTSTATUS ImportedFunctions::NtQueryInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass)
+NTSTATUS ImportedFunctions::NtQueryInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass) const
 {
 	if(pfnNtQueryInformationFile)
 	{
@@ -373,7 +374,7 @@ NTSTATUS ImportedFunctions::NtQueryInformationFile(HANDLE FileHandle, PIO_STATUS
 	}
 }
 
-NTSTATUS ImportedFunctions::NtSetInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass)
+NTSTATUS ImportedFunctions::NtSetInformationFile(HANDLE FileHandle, PIO_STATUS_BLOCK IoStatusBlock, PVOID FileInformation, ULONG Length, FILE_INFORMATION_CLASS FileInformationClass) const
 {
 	if(pfnNtSetInformationFile)
 	{
@@ -385,7 +386,7 @@ NTSTATUS ImportedFunctions::NtSetInformationFile(HANDLE FileHandle, PIO_STATUS_B
 	}
 }
 
-NTSTATUS ImportedFunctions::NtQueryObject(HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength)
+NTSTATUS ImportedFunctions::NtQueryObject(HANDLE Handle, OBJECT_INFORMATION_CLASS ObjectInformationClass, PVOID ObjectInformation, ULONG ObjectInformationLength, PULONG ReturnLength) const
 {
 	if(pfnNtQueryObject)
 	{
@@ -397,7 +398,7 @@ NTSTATUS ImportedFunctions::NtQueryObject(HANDLE Handle, OBJECT_INFORMATION_CLAS
 	}
 }
 
-NTSTATUS ImportedFunctions::NtOpenSymbolicLinkObject(PHANDLE LinkHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes)
+NTSTATUS ImportedFunctions::NtOpenSymbolicLinkObject(PHANDLE LinkHandle, ACCESS_MASK DesiredAccess, POBJECT_ATTRIBUTES ObjectAttributes) const
 {
 	if(pfnNtOpenSymbolicLinkObject)
 	{
@@ -409,7 +410,7 @@ NTSTATUS ImportedFunctions::NtOpenSymbolicLinkObject(PHANDLE LinkHandle, ACCESS_
 	}
 }
 
-NTSTATUS ImportedFunctions::NtQuerySymbolicLinkObject(HANDLE LinkHandle, PUNICODE_STRING LinkTarget, PULONG ReturnedLength)
+NTSTATUS ImportedFunctions::NtQuerySymbolicLinkObject(HANDLE LinkHandle, PUNICODE_STRING LinkTarget, PULONG ReturnedLength) const
 {
 	if(pfnNtQuerySymbolicLinkObject)
 	{
@@ -421,7 +422,7 @@ NTSTATUS ImportedFunctions::NtQuerySymbolicLinkObject(HANDLE LinkHandle, PUNICOD
 	}
 }
 
-NTSTATUS ImportedFunctions::NtClose(HANDLE Handle)
+NTSTATUS ImportedFunctions::NtClose(HANDLE Handle) const
 {
 	if(pfnNtClose)
 	{
@@ -433,7 +434,7 @@ NTSTATUS ImportedFunctions::NtClose(HANDLE Handle)
 	}
 }
 
-NTSTATUS ImportedFunctions::RtlGetLastNtStatus()
+NTSTATUS ImportedFunctions::RtlGetLastNtStatus() const
 {
 	if(pfnRtlGetLastNtStatus)
 	{
@@ -445,7 +446,7 @@ NTSTATUS ImportedFunctions::RtlGetLastNtStatus()
 	}
 }
 
-NTSTATUS ImportedFunctions::RtlNtStatusToDosError(NTSTATUS Status)
+NTSTATUS ImportedFunctions::RtlNtStatusToDosError(NTSTATUS Status) const
 {
 	if(pfnRtlNtStatusToDosError)
 	{
@@ -458,7 +459,7 @@ NTSTATUS ImportedFunctions::RtlNtStatusToDosError(NTSTATUS Status)
 }
 
 
-HRESULT ImportedFunctions::SHCreateAssociationRegistration(REFIID riid, void ** ppv)
+HRESULT ImportedFunctions::SHCreateAssociationRegistration(REFIID riid, void ** ppv) const
 {
 	if(pfnSHCreateAssociationRegistration)
 	{
@@ -471,7 +472,7 @@ HRESULT ImportedFunctions::SHCreateAssociationRegistration(REFIID riid, void ** 
 }
 
 
-DWORD ImportedFunctions::GetStorageDependencyInformation(HANDLE ObjectHandle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed)
+DWORD ImportedFunctions::GetStorageDependencyInformation(HANDLE ObjectHandle, GET_STORAGE_DEPENDENCY_FLAG Flags, ULONG StorageDependencyInfoSize, PSTORAGE_DEPENDENCY_INFO StorageDependencyInfo, PULONG SizeUsed) const
 {
 	if(pfnGetStorageDependencyInformation)
 	{
@@ -483,7 +484,7 @@ DWORD ImportedFunctions::GetStorageDependencyInformation(HANDLE ObjectHandle, GE
 	}
 }
 
-DWORD ImportedFunctions::OpenVirtualDisk(PVIRTUAL_STORAGE_TYPE VirtualStorageType, PCWSTR Path, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, POPEN_VIRTUAL_DISK_PARAMETERS Parameters, PHANDLE Handle)
+DWORD ImportedFunctions::OpenVirtualDisk(PVIRTUAL_STORAGE_TYPE VirtualStorageType, PCWSTR Path, VIRTUAL_DISK_ACCESS_MASK VirtualDiskAccessMask, OPEN_VIRTUAL_DISK_FLAG Flags, POPEN_VIRTUAL_DISK_PARAMETERS Parameters, PHANDLE Handle) const
 {
 	if(pfnOpenVirtualDisk)
 	{
@@ -495,7 +496,7 @@ DWORD ImportedFunctions::OpenVirtualDisk(PVIRTUAL_STORAGE_TYPE VirtualStorageTyp
 	}
 }
 
-DWORD ImportedFunctions::DetachVirtualDisk(HANDLE VirtualDiskHandle, DETACH_VIRTUAL_DISK_FLAG Flags, ULONG ProviderSpecificFlags)
+DWORD ImportedFunctions::DetachVirtualDisk(HANDLE VirtualDiskHandle, DETACH_VIRTUAL_DISK_FLAG Flags, ULONG ProviderSpecificFlags) const
 {
 	if(pfnDetachVirtualDisk)
 	{
@@ -507,7 +508,7 @@ DWORD ImportedFunctions::DetachVirtualDisk(HANDLE VirtualDiskHandle, DETACH_VIRT
 	}
 }
 
-BOOL ImportedFunctions::UnregisterPowerSettingNotification(HPOWERNOTIFY Handle)
+BOOL ImportedFunctions::UnregisterPowerSettingNotification(HPOWERNOTIFY Handle) const
 {
 	if(pfnUnregisterPowerSettingNotification)
 	{
@@ -520,7 +521,7 @@ BOOL ImportedFunctions::UnregisterPowerSettingNotification(HPOWERNOTIFY Handle)
 	}
 }
 
-HPOWERNOTIFY ImportedFunctions::RegisterPowerSettingNotification(HANDLE hRecipient,LPCGUID PowerSettingGuid,DWORD Flags)
+HPOWERNOTIFY ImportedFunctions::RegisterPowerSettingNotification(HANDLE hRecipient,LPCGUID PowerSettingGuid,DWORD Flags) const
 {
 	if(pfnRegisterPowerSettingNotification)
 	{
@@ -533,7 +534,7 @@ HPOWERNOTIFY ImportedFunctions::RegisterPowerSettingNotification(HANDLE hRecipie
 	}
 }
 
-BOOL ImportedFunctions::QueryFullProcessImageNameW(HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size)
+BOOL ImportedFunctions::QueryFullProcessImageNameW(HANDLE Process, DWORD Flags, LPWSTR ExeName, PDWORD Size) const
 {
 	if(pfnQueryFullProcessImageNameW)
 	{
@@ -546,7 +547,7 @@ BOOL ImportedFunctions::QueryFullProcessImageNameW(HANDLE Process, DWORD Flags, 
 	}
 }
 
-DWORD ImportedFunctions::RmStartSession(DWORD *SessionHandle, DWORD SessionFlags, WCHAR strSessionKey[])
+DWORD ImportedFunctions::RmStartSession(DWORD *SessionHandle, DWORD SessionFlags, WCHAR strSessionKey[]) const
 {
 	if(pfnRmStartSession)
 	{
@@ -558,7 +559,7 @@ DWORD ImportedFunctions::RmStartSession(DWORD *SessionHandle, DWORD SessionFlags
 	}
 }
 
-DWORD ImportedFunctions::RmEndSession(DWORD dwSessionHandle)
+DWORD ImportedFunctions::RmEndSession(DWORD dwSessionHandle) const
 {
 	if(pfnRmEndSession)
 	{
@@ -570,7 +571,7 @@ DWORD ImportedFunctions::RmEndSession(DWORD dwSessionHandle)
 	}
 }
 
-DWORD ImportedFunctions::RmRegisterResources(DWORD dwSessionHandle, UINT nFiles, LPCWSTR rgsFilenames[], UINT nApplications, RM_UNIQUE_PROCESS rgApplications[], UINT nServices, LPCWSTR rgsServiceNames[])
+DWORD ImportedFunctions::RmRegisterResources(DWORD dwSessionHandle, UINT nFiles, LPCWSTR rgsFilenames[], UINT nApplications, RM_UNIQUE_PROCESS rgApplications[], UINT nServices, LPCWSTR rgsServiceNames[]) const
 {
 	if(pfnRmRegisterResources)
 	{
@@ -582,7 +583,7 @@ DWORD ImportedFunctions::RmRegisterResources(DWORD dwSessionHandle, UINT nFiles,
 	}
 }
 
-DWORD ImportedFunctions::RmGetList(DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps[], LPDWORD lpdwRebootReasons)
+DWORD ImportedFunctions::RmGetList(DWORD dwSessionHandle, UINT *pnProcInfoNeeded, UINT *pnProcInfo, RM_PROCESS_INFO rgAffectedApps[], LPDWORD lpdwRebootReasons) const
 {
 	if(pfnRmGetList)
 	{

@@ -179,6 +179,12 @@ static void MenuFileToList(DList<UserMenuItem> *Menu, File& MenuFile, GetFileStr
 			if (!(ChPtr=wcschr(MenuStr,L':')))
 				continue;
 
+			// special case: hotkey is ':'
+			if (ChPtr[1] == ':')
+			{
+				++ChPtr;
+			}
+
 			MenuItem = Menu->Push();
 
 			*ChPtr = 0;

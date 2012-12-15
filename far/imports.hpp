@@ -45,8 +45,8 @@ public:
 #define DECLARE_IMPORT_FUNCTION(RETTYPE, CALLTYPE, NAME, ARGS)\
 private: typedef RETTYPE (CALLTYPE *tfn##NAME)ARGS;\
 private: tfn##NAME pfn##NAME;\
-public: RETTYPE NAME ARGS;\
-public: bool NAME##Present(){return pfn##NAME != nullptr;}
+public: RETTYPE NAME ARGS const;\
+public: bool NAME##Present() const {return pfn##NAME != nullptr;}
 
 	// kernel32
 	DECLARE_IMPORT_FUNCTION(BOOL, WINAPI, GetConsoleKeyboardLayoutNameW, (LPWSTR Buffer))
