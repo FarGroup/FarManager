@@ -173,134 +173,134 @@
           </Directory>
         </Directory>
         <Directory Id="Macros" Name="Macros">
-          <Component Id="AltMenu.farconfig" Guid="$(var.Guid.AltMenu.farconfig)" Win64="$(var.Win64)">
-            <File Id="AltMenu.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltMenu.farconfig" />
+          <Component Id="AltMenu.lua" Guid="$(var.Guid.AltMenu.lua)" Win64="$(var.Win64)">
+            <File Id="AltMenu.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltMenu.lua" />
           </Component>
-          <Component Id="AltScreens.farconfig" Guid="$(var.Guid.AltScreens.farconfig)" Win64="$(var.Win64)">
-            <File Id="AltScreens.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltScreens.farconfig" />
+          <Component Id="AltScreens.lua" Guid="$(var.Guid.AltScreens.lua)" Win64="$(var.Win64)">
+            <File Id="AltScreens.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltScreens.lua" />
           </Component>
-          <Component Id="AltSearch.farconfig" Guid="$(var.Guid.AltSearch.farconfig)" Win64="$(var.Win64)">
-            <File Id="AltSearch.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltSearch.farconfig" />
+          <Component Id="AltSearch.lua" Guid="$(var.Guid.AltSearch.lua)" Win64="$(var.Win64)">
+            <File Id="AltSearch.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltSearch.lua" />
           </Component>
-          <Component Id="AltX.farconfig" Guid="$(var.Guid.AltX.farconfig)" Win64="$(var.Win64)">
-            <File Id="AltX.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltX.farconfig" />
+          <Component Id="AltX.lua" Guid="$(var.Guid.AltX.lua)" Win64="$(var.Win64)">
+            <File Id="AltX.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\AltX.lua" />
           </Component>
-          <Component Id="CtrlDel.farconfig" Guid="$(var.Guid.CtrlDel.farconfig)" Win64="$(var.Win64)">
-            <File Id="CtrlDel.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlDel.farconfig" />
+          <Component Id="CtrlDel.lua" Guid="$(var.Guid.CtrlDel.lua)" Win64="$(var.Win64)">
+            <File Id="CtrlDel.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlDel.lua" />
           </Component>
-          <Component Id="CtrlF10.farconfig" Guid="$(var.Guid.CtrlF10.farconfig)" Win64="$(var.Win64)">
-            <File Id="CtrlF10.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlF10.farconfig" />
+          <Component Id="CtrlF10.lua" Guid="$(var.Guid.CtrlF10.lua)" Win64="$(var.Win64)">
+            <File Id="CtrlF10.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\CtrlF10.lua" />
           </Component>
           <Component Id="Descript.ion_6" Guid="$(var.Guid.Descript.ion_6)" Win64="$(var.Win64)">
             <File Id="Descript.ion_6" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Descript.ion" />
           </Component>
-          <Component Id="Dialog.AltDown.farconfig" Guid="$(var.Guid.Dialog.AltDown.farconfig)" Win64="$(var.Win64)">
-            <File Id="Dialog.AltDown.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Dialog.AltDown.farconfig" />
+          <Component Id="Dialog.AltDown.lua" Guid="$(var.Guid.Dialog.AltDown.lua)" Win64="$(var.Win64)">
+            <File Id="Dialog.AltDown.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Dialog.AltDown.lua" />
           </Component>
-          <Component Id="Edit.Notepad.farconfig" Guid="$(var.Guid.Edit.Notepad.farconfig)" Win64="$(var.Win64)">
-            <File Id="Edit.Notepad.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.Notepad.farconfig" />
+          <Component Id="Edit.Notepad.lua" Guid="$(var.Guid.Edit.Notepad.lua)" Win64="$(var.Win64)">
+            <File Id="Edit.Notepad.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.Notepad.lua" />
           </Component>
-          <Component Id="Edit.SaveAndExit.farconfig" Guid="$(var.Guid.Edit.SaveAndExit.farconfig)" Win64="$(var.Win64)">
-            <File Id="Edit.SaveAndExit.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveAndExit.farconfig" />
+          <Component Id="Edit.SaveAndExit.lua" Guid="$(var.Guid.Edit.SaveAndExit.lua)" Win64="$(var.Win64)">
+            <File Id="Edit.SaveAndExit.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveAndExit.lua" />
           </Component>
-          <Component Id="Edit.SaveFile.farconfig" Guid="$(var.Guid.Edit.SaveFile.farconfig)" Win64="$(var.Win64)">
-            <File Id="Edit.SaveFile.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveFile.farconfig" />
+          <Component Id="Edit.SaveFile.lua" Guid="$(var.Guid.Edit.SaveFile.lua)" Win64="$(var.Win64)">
+            <File Id="Edit.SaveFile.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Edit.SaveFile.lua" />
           </Component>
-          <Component Id="F3.farconfig" Guid="$(var.Guid.F3.farconfig)" Win64="$(var.Win64)">
-            <File Id="F3.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F3.farconfig" />
+          <Component Id="F3.lua" Guid="$(var.Guid.F3.lua)" Win64="$(var.Win64)">
+            <File Id="F3.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F3.lua" />
           </Component>
-          <Component Id="F9DeactivateMenu.farconfig" Guid="$(var.Guid.F9DeactivateMenu.farconfig)" Win64="$(var.Win64)">
-            <File Id="F9DeactivateMenu.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9DeactivateMenu.farconfig" />
+          <Component Id="F9DeactivateMenu.lua" Guid="$(var.Guid.F9DeactivateMenu.lua)" Win64="$(var.Win64)">
+            <File Id="F9DeactivateMenu.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9DeactivateMenu.lua" />
           </Component>
-          <Component Id="F9Table.farconfig" Guid="$(var.Guid.F9Table.farconfig)" Win64="$(var.Win64)">
-            <File Id="F9Table.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9Table.farconfig" />
+          <Component Id="F9Table.lua" Guid="$(var.Guid.F9Table.lua)" Win64="$(var.Win64)">
+            <File Id="F9Table.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\F9Table.lua" />
           </Component>
-          <Component Id="OpeningLastFile.farconfig" Guid="$(var.Guid.OpeningLastFile.farconfig)" Win64="$(var.Win64)">
-            <File Id="OpeningLastFile.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\OpeningLastFile.farconfig" />
+          <Component Id="OpeningLastFile.lua" Guid="$(var.Guid.OpeningLastFile.lua)" Win64="$(var.Win64)">
+            <File Id="OpeningLastFile.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\OpeningLastFile.lua" />
           </Component>
-          <Component Id="Panel.AltBS.farconfig" Guid="$(var.Guid.Panel.AltBS.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.AltBS.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.AltBS.farconfig" />
+          <Component Id="Panel.AltBS.lua" Guid="$(var.Guid.Panel.AltBS.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.AltBS.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.AltBS.lua" />
           </Component>
-          <Component Id="Panel.Apps.farconfig" Guid="$(var.Guid.Panel.Apps.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.Apps.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Apps.farconfig" />
+          <Component Id="Panel.Apps.lua" Guid="$(var.Guid.Panel.Apps.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.Apps.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Apps.lua" />
           </Component>
-          <Component Id="Panel.BS.farconfig" Guid="$(var.Guid.Panel.BS.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.BS.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.BS.farconfig" />
+          <Component Id="Panel.BS.lua" Guid="$(var.Guid.Panel.BS.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.BS.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.BS.lua" />
           </Component>
-          <Component Id="Panel.CtrlIns_reg" Guid="$(var.Guid.Panel.CtrlIns_reg)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlIns_reg" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlIns...farconfig" />
+          <Component Id="Panel.CtrlIns...lua" Guid="$(var.Guid.Panel.CtrlIns_reg)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlIns...lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlIns...lua" />
           </Component>
-          <Component Id="Panel.CtrlLeft.farconfig" Guid="$(var.Guid.Panel.CtrlLeft.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlLeft.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlLeft.farconfig" />
+          <Component Id="Panel.CtrlLeft.lua" Guid="$(var.Guid.Panel.CtrlLeft.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlLeft.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlLeft.lua" />
           </Component>
-          <Component Id="Panel.CtrlQ.farconfig" Guid="$(var.Guid.Panel.CtrlQ.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlQ.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlQ.farconfig" />
+          <Component Id="Panel.CtrlQ.lua" Guid="$(var.Guid.Panel.CtrlQ.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlQ.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlQ.lua" />
           </Component>
-          <Component Id="Panel.CtrlRight.farconfig" Guid="$(var.Guid.Panel.CtrlRight.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlRight.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlRight.farconfig" />
+          <Component Id="Panel.CtrlRight.lua" Guid="$(var.Guid.Panel.CtrlRight.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlRight.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlRight.lua" />
           </Component>
-          <Component Id="Panel.CtrlShiftBackSlash.farconfig" Guid="$(var.Guid.Panel.CtrlShiftBackSlash.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlShiftBackSlash.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftBackSlash.farconfig" />
+          <Component Id="Panel.CtrlShiftBackSlash.lua" Guid="$(var.Guid.Panel.CtrlShiftBackSlash.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlShiftBackSlash.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftBackSlash.lua" />
           </Component>
-          <Component Id="Panel.CtrlShiftPgUpDn.farconfig" Guid="$(var.Guid.Panel.CtrlShiftPgUpDn.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.CtrlShiftPgUpDn.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftPgUpDn.farconfig" />
+          <Component Id="Panel.CtrlShiftPgUpDn.lua" Guid="$(var.Guid.Panel.CtrlShiftPgUpDn.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.CtrlShiftPgUpDn.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlShiftPgUpDn.lua" />
           </Component>
-          <Component Id="Panel.Del.farconfig" Guid="$(var.Guid.Panel.Del.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.Del.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Del.farconfig" />
+          <Component Id="Panel.Del.lua" Guid="$(var.Guid.Panel.Del.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.Del.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Del.lua" />
           </Component>
-          <Component Id="Panel.Esc.farconfig" Guid="$(var.Guid.Panel.Esc.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.Esc.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Esc.farconfig" />
+          <Component Id="Panel.Esc.lua" Guid="$(var.Guid.Panel.Esc.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.Esc.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Esc.lua" />
           </Component>
-          <Component Id="Panel.EscKeyBar.farconfig" Guid="$(var.Guid.Panel.EscKeyBar.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.EscKeyBar.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.EscKeyBar.farconfig" />
+          <Component Id="Panel.EscKeyBar.lua" Guid="$(var.Guid.Panel.EscKeyBar.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.EscKeyBar.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.EscKeyBar.lua" />
           </Component>
-          <Component Id="Panel.JumpToSelectedFile.farconfig" Guid="$(var.Guid.Panel.JumpToSelectedFile.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.JumpToSelectedFile.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.JumpToSelectedFile.farconfig" />
+          <Component Id="Panel.JumpToSelectedFile.lua" Guid="$(var.Guid.Panel.JumpToSelectedFile.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.JumpToSelectedFile.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.JumpToSelectedFile.lua" />
           </Component>
-          <Component Id="Panel.Lynx_mot.farconfig" Guid="$(var.Guid.Panel.Lynx_mot.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.Lynx_mot.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Lynx-mot.farconfig" />
+          <Component Id="Panel.Lynx_mot.lua" Guid="$(var.Guid.Panel.Lynx_mot.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.Lynx_mot.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Lynx-mot.lua" />
           </Component>
-          <Component Id="Panel.MouseWheelTilt.farconfig" Guid="$(var.Guid.Panel.MouseWheelTilt.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.MouseWheelTilt.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.MouseWheelTilt.farconfig" />
+          <Component Id="Panel.MouseWheelTilt.lua" Guid="$(var.Guid.Panel.MouseWheelTilt.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.MouseWheelTilt.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.MouseWheelTilt.lua" />
           </Component>
-          <Component Id="Panel.Numpad.farconfig" Guid="$(var.Guid.Panel.Numpad.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.Numpad.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Numpad.farconfig" />
+          <Component Id="Panel.Numpad.lua" Guid="$(var.Guid.Panel.Numpad.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.Numpad.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.Numpad.lua" />
           </Component>
-          <Component Id="Panel.SelectFromClipboard.farconfig" Guid="$(var.Guid.Panel.SelectFromClipboard.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.SelectFromClipboard.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SelectFromClipboard.farconfig" />
+          <Component Id="Panel.SelectFromClipboard.lua" Guid="$(var.Guid.Panel.SelectFromClipboard.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.SelectFromClipboard.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SelectFromClipboard.lua" />
           </Component>
-          <Component Id="Panel.SpaceToSelect.farconfig" Guid="$(var.Guid.Panel.SpaceToSelect.farconfig)" Win64="$(var.Win64)">
-            <File Id="Panel.SpaceToSelect.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SpaceToSelect.farconfig" />
+          <Component Id="Panel.SpaceToSelect.lua" Guid="$(var.Guid.Panel.SpaceToSelect.lua)" Win64="$(var.Win64)">
+            <File Id="Panel.SpaceToSelect.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.SpaceToSelect.lua" />
           </Component>
-          <Component Id="Search.CtrlIns.farconfig" Guid="$(var.Guid.Panel.Search.CtrlIns.farconfig)" Win64="$(var.Win64)">
-            <File Id="Search.CtrlIns.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Search.CtrlIns.farconfig" />
+          <Component Id="Search.CtrlIns.lua" Guid="$(var.Guid.Panel.Search.CtrlIns.lua)" Win64="$(var.Win64)">
+            <File Id="Search.CtrlIns.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Search.CtrlIns.lua" />
           </Component>
-          <Component Id="ShiftBS.farconfig" Guid="$(var.Guid.ShiftBS.farconfig)" Win64="$(var.Win64)">
-            <File Id="ShiftBS.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftBS.farconfig" />
+          <Component Id="ShiftBS.lua" Guid="$(var.Guid.ShiftBS.lua)" Win64="$(var.Win64)">
+            <File Id="ShiftBS.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftBS.lua" />
           </Component>
-          <Component Id="ShiftF1.farconfig" Guid="$(var.Guid.ShiftF1.farconfig)" Win64="$(var.Win64)">
-            <File Id="ShiftF1.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftF1.farconfig" />
+          <Component Id="ShiftF1.lua" Guid="$(var.Guid.ShiftF1.lua)" Win64="$(var.Win64)">
+            <File Id="ShiftF1.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftF1.lua" />
           </Component>
-          <Component Id="ShiftTab.farconfig" Guid="$(var.Guid.ShiftTab.farconfig)" Win64="$(var.Win64)">
-            <File Id="ShiftTab.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftTab.farconfig" />
+          <Component Id="ShiftTab.lua" Guid="$(var.Guid.ShiftTab.lua)" Win64="$(var.Win64)">
+            <File Id="ShiftTab.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\ShiftTab.lua" />
           </Component>
-          <Component Id="View.CtrlUpDown.farconfig" Guid="$(var.Guid.View.CtrlUpDown.farconfig)" Win64="$(var.Win64)">
-            <File Id="View.CtrlUpDown.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.CtrlUpDown.farconfig" />
+          <Component Id="View.CtrlUpDown.lua" Guid="$(var.Guid.View.CtrlUpDown.lua)" Win64="$(var.Win64)">
+            <File Id="View.CtrlUpDown.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.CtrlUpDown.lua" />
           </Component>
-          <Component Id="View.NextPrevFile.farconfig" Guid="$(var.Guid.View.NextPrevFile.farconfig)" Win64="$(var.Win64)">
-            <File Id="View.NextPrevFile.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.NextPrevFile.farconfig" />
+          <Component Id="View.NextPrevFile.lua" Guid="$(var.Guid.View.NextPrevFile.lua)" Win64="$(var.Win64)">
+            <File Id="View.NextPrevFile.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.NextPrevFile.lua" />
           </Component>
-          <Component Id="View.PgDn.farconfig" Guid="$(var.Guid.View.PgDn.farconfig)" Win64="$(var.Win64)">
-            <File Id="View.PgDn.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.PgDn.farconfig" />
+          <Component Id="View.PgDn.lua" Guid="$(var.Guid.View.PgDn.lua)" Win64="$(var.Win64)">
+            <File Id="View.PgDn.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.PgDn.lua" />
           </Component>
-          <Component Id="View.ShiftInsSearch.farconfig" Guid="$(var.Guid.View.ShiftInsSearch.farconfig)" Win64="$(var.Win64)">
-            <File Id="View.ShiftInsSearch.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.ShiftInsSearch.farconfig" />
+          <Component Id="View.ShiftInsSearch.lua" Guid="$(var.Guid.View.ShiftInsSearch.lua)" Win64="$(var.Win64)">
+            <File Id="View.ShiftInsSearch.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.ShiftInsSearch.lua" />
           </Component>
-          <Component Id="View.Space.farconfig" Guid="$(var.Guid.View.Space.farconfig)" Win64="$(var.Win64)">
-            <File Id="View.Space.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.Space.farconfig" />
+          <Component Id="View.Space.lua" Guid="$(var.Guid.View.Space.lua)" Win64="$(var.Win64)">
+            <File Id="View.Space.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\View.Space.lua" />
           </Component>
-          <Component Id="WheelScreenSwitch.farconfig" Guid="$(var.Guid.WheelScreenSwitch.farconfig)" Win64="$(var.Win64)">
-            <File Id="WheelScreenSwitch.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\WheelScreenSwitch.farconfig" />
+          <Component Id="WheelScreenSwitch.lua" Guid="$(var.Guid.WheelScreenSwitch.lua)" Win64="$(var.Win64)">
+            <File Id="WheelScreenSwitch.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\WheelScreenSwitch.lua" />
           </Component>
         </Directory>
         <Directory Id="SetUp" Name="SetUp">
@@ -336,17 +336,17 @@
             <File Id="Descript.ion_15" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Descript.ion" />
           </Component>
           <Directory Id="Russian" Name="Russian">
-            <Component Id="AltR.farconfig" Guid="$(var.Guid.AltR.farconfig)" Win64="$(var.Win64)">
-              <File Id="AltR.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\AltR.farconfig" />
+            <Component Id="AltR.lua" Guid="$(var.Guid.AltR.lua)" Win64="$(var.Win64)">
+              <File Id="AltR.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\AltR.lua" />
             </Component>
-            <Component Id="Apps.farconfig_1" Guid="$(var.Guid.Apps.farconfig_1)" Win64="$(var.Win64)">
-              <File Id="Apps.farconfig_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Apps.farconfig" />
+            <Component Id="Apps.lua_1" Guid="$(var.Guid.Apps.lua_1)" Win64="$(var.Win64)">
+              <File Id="Apps.lua_1" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Apps.lua" />
             </Component>
-            <Component Id="CtrlR.farconfig" Guid="$(var.Guid.CtrlR.farconfig)" Win64="$(var.Win64)">
-              <File Id="CtrlR.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlR.farconfig" />
+            <Component Id="CtrlR.lua" Guid="$(var.Guid.CtrlR.lua)" Win64="$(var.Win64)">
+              <File Id="CtrlR.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlR.lua" />
             </Component>
-            <Component Id="CtrlShiftX.farconfig" Guid="$(var.Guid.CtrlShiftX.farconfig)" Win64="$(var.Win64)">
-              <File Id="CtrlShiftX.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlShiftX.farconfig" />
+            <Component Id="CtrlShiftX.lua" Guid="$(var.Guid.CtrlShiftX.lua)" Win64="$(var.Win64)">
+              <File Id="CtrlShiftX.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\CtrlShiftX.lua" />
             </Component>
             <Component Id="Descript.ion_16" Guid="$(var.Guid.Descript.ion_16)" Win64="$(var.Win64)">
               <File Id="Descript.ion_16" KeyPath="yes" Source="$(var.SourceDir)\Addons\XLat\Russian\Descript.ion" />
