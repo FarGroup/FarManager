@@ -241,12 +241,12 @@
             <ComponentRef Id="BrackEng.hlf" />
             <ComponentRef Id="BrackEng.lng" />
             <ComponentRef Id="BrackSky.lng" />
-            <ComponentRef Id="BrackEng.farconfig" />
+            <ComponentRef Id="BrackEng.lua" />
             <ComponentRef Id="Brackets.dll" />
             <Feature Id="Brackets.Russian" Level="1" Display="hidden" AllowAdvertise="no">
               <ComponentRef Id="BrackRus.hlf" />
               <ComponentRef Id="BrackRus.lng" />
-              <ComponentRef Id="BrackRus.farconfig" />
+              <ComponentRef Id="BrackRus.lua" />
             </Feature>
 <?if $(var.Platform) = x86 ?>
             <Feature Id="Brackets.FExcept" Level="1" Display="hidden" AllowAdvertise="no">
@@ -354,9 +354,10 @@
           <ComponentRef Id="EMenuEng.hlf" />
           <ComponentRef Id="EMenuEng.lng" />
           <ComponentRef Id="EMenuSky.lng" />
+          <ComponentRef Id="Hotkey.lua" />
           <ComponentRef Id="Hotkey.farconfig" />
-          <ComponentRef Id="HotkeyClipboard.farconfig" />
-          <ComponentRef Id="HotkeyProperties.farconfig" />
+          <ComponentRef Id="HotkeyClipboard.lua" />
+          <ComponentRef Id="HotkeyProperties.lua" />
           <Feature Id="EMenu.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="EMenuRus.hlf" />
             <ComponentRef Id="EMenuRus.lng" />
@@ -521,14 +522,14 @@
         </Feature>
         <Feature Id="TmpPanel" Level="1" Title="!(loc.Feature.Title.TmpPanel)" AllowAdvertise="no" Description="!(loc.Feature.Description.TmpPanel)">
           <ComponentRef Id="disks.eng.temp" />
-          <ComponentRef Id="shortcuts.eng.farconfig" />
+          <ComponentRef Id="shortcuts.eng.lua" />
           <ComponentRef Id="shortcuts.eng.temp" />
           <ComponentRef Id="TmpEng.hlf" />
           <ComponentRef Id="TmpEng.lng" />
           <ComponentRef Id="TmpPanel.dll" />
           <Feature Id="TmpPanel.Russian" Level="1" Display="hidden" AllowAdvertise="no">
             <ComponentRef Id="disks.rus.temp" />
-            <ComponentRef Id="shortcuts.rus.farconfig" />
+            <ComponentRef Id="shortcuts.rus.lua" />
             <ComponentRef Id="shortcuts.rus.temp" />
             <ComponentRef Id="TmpRus.hlf" />
             <ComponentRef Id="TmpRus.lng" />

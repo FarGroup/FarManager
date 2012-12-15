@@ -518,8 +518,8 @@
           <Component Id="BrackEng.lng" Guid="$(var.Guid.BrackEng.lng)" Win64="$(var.Win64)">
             <File Id="BrackEng.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.lng" />
           </Component>
-          <Component Id="BrackEng.farconfig" Guid="$(var.Guid.BrackEng.farconfig)" Win64="$(var.Win64)">
-            <File Id="BrackEng.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.farconfig" />
+          <Component Id="BrackEng.lua" Guid="$(var.Guid.BrackEng.lua)" Win64="$(var.Win64)">
+            <File Id="BrackEng.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackEng.lua" />
           </Component>
           <Component Id="Brackets.dll" Guid="$(var.Guid.Brackets.dll)" Win64="$(var.Win64)">
             <File Id="Brackets.dll" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\Brackets.dll" />
@@ -538,8 +538,8 @@
           <Component Id="BrackSky.lng" Guid="$(var.Guid.BrackSky.lng)" Win64="$(var.Win64)">
             <File Id="BrackSky.lng" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackSky.lng" />
           </Component>
-          <Component Id="BrackRus.farconfig" Guid="$(var.Guid.BrackRus.farconfig)" Win64="$(var.Win64)">
-            <File Id="BrackRus.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.farconfig" />
+          <Component Id="BrackRus.lua" Guid="$(var.Guid.BrackRus.lua)" Win64="$(var.Win64)">
+            <File Id="BrackRus.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\BrackRus.lua" />
           </Component>
           <Component Id="changelog_4" Guid="$(var.Guid.changelog_4)" Win64="$(var.Win64)">
             <File Id="changelog_4" KeyPath="yes" Source="$(var.SourceDir)\Plugins\Brackets\changelog" />
@@ -659,11 +659,14 @@
           <Component Id="Hotkey.farconfig" Guid="$(var.Guid.Hotkey.farconfig)" Win64="$(var.Win64)">
             <File Id="Hotkey.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\Hotkey.farconfig" />
           </Component>
-          <Component Id="HotkeyClipboard.farconfig" Guid="$(var.Guid.HotkeyClipboard.farconfig)" Win64="$(var.Win64)">
-            <File Id="HotkeyClipboard.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyClipboard.farconfig" />
+          <Component Id="Hotkey.lua" Guid="$(var.Guid.Hotkey.lua)" Win64="$(var.Win64)">
+            <File Id="Hotkey.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\Hotkey.lua" />
           </Component>
-          <Component Id="HotkeyProperties.farconfig" Guid="$(var.Guid.HotkeyProperties.farconfig)" Win64="$(var.Win64)">
-            <File Id="HotkeyProperties.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyProperties.farconfig" />
+          <Component Id="HotkeyClipboard.lua" Guid="$(var.Guid.HotkeyClipboard.lua)" Win64="$(var.Win64)">
+            <File Id="HotkeyClipboard.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyClipboard.lua" />
+          </Component>
+          <Component Id="HotkeyProperties.lua" Guid="$(var.Guid.HotkeyProperties.lua)" Win64="$(var.Win64)">
+            <File Id="HotkeyProperties.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\EMenu\HotkeyProperties.lua" />
           </Component>
         </Directory>
         <Directory Id="FarCmds" Name="FarCmds">
@@ -906,14 +909,14 @@
           <Component Id="disks.rus.temp" Guid="$(var.Guid.disks.rus.temp)" Win64="$(var.Win64)">
             <File Id="disks.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\disks.rus.temp" />
           </Component>
-          <Component Id="shortcuts.eng.farconfig" Guid="$(var.Guid.shortcuts.eng.farconfig)" Win64="$(var.Win64)">
-            <File Id="shortcuts.eng.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.farconfig" />
+          <Component Id="shortcuts.eng.lua" Guid="$(var.Guid.shortcuts.eng.lua)" Win64="$(var.Win64)">
+            <File Id="shortcuts.eng.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.lua" />
           </Component>
           <Component Id="shortcuts.eng.temp" Guid="$(var.Guid.shortcuts.eng.temp)" Win64="$(var.Win64)">
             <File Id="shortcuts.eng.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.eng.temp" />
           </Component>
-          <Component Id="shortcuts.rus.farconfig" Guid="$(var.Guid.shortcuts.rus.farconfig)" Win64="$(var.Win64)">
-            <File Id="shortcuts.rus.farconfig" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.farconfig" />
+          <Component Id="shortcuts.rus.lua" Guid="$(var.Guid.shortcuts.rus.lua)" Win64="$(var.Win64)">
+            <File Id="shortcuts.rus.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.lua" />
           </Component>
           <Component Id="shortcuts.rus.temp" Guid="$(var.Guid.shortcuts.rus.temp)" Win64="$(var.Win64)">
             <File Id="shortcuts.rus.temp" KeyPath="yes" Source="$(var.SourceDir)\Plugins\TmpPanel\shortcuts.rus.temp" />
