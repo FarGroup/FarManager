@@ -90,6 +90,12 @@
     <CustomBuild Include="shortcuts.rus.farconfig">
       <Filter>Configuration Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="shortcuts.eng.lua">
+      <Filter>Configuration Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="shortcuts.rus.lua">
+      <Filter>Configuration Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="disks.eng.temp">
       <Filter>Temp Files</Filter>
     </CustomBuild>

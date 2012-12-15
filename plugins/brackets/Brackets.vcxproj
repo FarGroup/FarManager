@@ -503,7 +503,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="BrackEng.farconfig">
+    <CustomBuild Include="BrackEng.lua">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>
@@ -523,7 +523,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(OutDir)%(Identity);%(Outputs)</Outputs>
     </CustomBuild>
-    <CustomBuild Include="BrackRus.farconfig">
+    <CustomBuild Include="BrackRus.lua">
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">Copying %(Identity)</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">copy %(Identity) $(OutDir)</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Itanium'">$(OutDir)%(Identity);%(Outputs)</Outputs>

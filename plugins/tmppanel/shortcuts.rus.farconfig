@@ -10,9 +10,4 @@
             </hierarchicalconfig>
         </plugin>
     </pluginsconfig>
-    <macros>
-        <keymacros>
-            <macro area="Shell" key="CtrlApps" flags="DisableOutput"><text><![CDATA[ Keys("t m p : + m e n u Space s h o r t c u t s . r u s . t e m p Enter") ]]></text></macro>
-        </keymacros>
-    </macros>
 </farconfig>

@@ -114,13 +114,16 @@
     <CustomBuild Include="EMenuRus.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="HotkeyClipboard.farconfig">
+    <CustomBuild Include="HotkeyClipboard.lua">
       <Filter>Configuration Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="HotkeyProperties.farconfig">
+    <CustomBuild Include="HotkeyProperties.lua">
       <Filter>Configuration Files</Filter>
     </CustomBuild>
     <CustomBuild Include="Hotkey.farconfig">
+      <Filter>Configuration Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Hotkey.lua">
       <Filter>Configuration Files</Filter>
     </CustomBuild>
   </ItemGroup>

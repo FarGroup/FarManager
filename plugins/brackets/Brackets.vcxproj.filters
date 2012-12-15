@@ -69,10 +69,10 @@
     <CustomBuild Include="BrackRus.hlf">
       <Filter>Help Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="BrackEng.farconfig">
+    <CustomBuild Include="BrackEng.lua">
       <Filter>Configuration Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="BrackRus.farconfig">
+    <CustomBuild Include="BrackRus.lua">
       <Filter>Configuration Files</Filter>
     </CustomBuild>
   </ItemGroup>
