@@ -227,7 +227,7 @@
           <Component Id="Panel.BS.lua" Guid="$(var.Guid.Panel.BS.lua)" Win64="$(var.Win64)">
             <File Id="Panel.BS.lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.BS.lua" />
           </Component>
-          <Component Id="Panel.CtrlIns...lua" Guid="$(var.Guid.Panel.CtrlIns_reg)" Win64="$(var.Win64)">
+          <Component Id="Panel.CtrlIns...lua" Guid="$(var.Guid.Panel.CtrlIns...lua)" Win64="$(var.Win64)">
             <File Id="Panel.CtrlIns...lua" KeyPath="yes" Source="$(var.SourceDir)\Addons\Macros\Panel.CtrlIns...lua" />
           </Component>
           <Component Id="Panel.CtrlLeft.lua" Guid="$(var.Guid.Panel.CtrlLeft.lua)" Win64="$(var.Win64)">
