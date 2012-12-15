@@ -38,6 +38,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "language.hpp"
 #include "config.hpp"
 #include "strmix.hpp"
+#include "global.hpp"
+#include "imports.hpp"
 
 #define range(low,item,hi) Max(low,Min(item,hi))
 
@@ -814,23 +816,9 @@ bool Utc2Local(SYSTEMTIME &st, FILETIME &lft)
 
 static inline bool local_to_utc(const SYSTEMTIME &lst, SYSTEMTIME &ust)
 {
-	typedef BOOL (WINAPI *PfnTzSpecificLocalTimeToSystemTime)(
-		const TIME_ZONE_INFORMATION *lpTimeZoneInformation,
-		const SYSTEMTIME *lpLocalTime,
-		LPSYSTEMTIME lpUniversalTime
-	);
-	static PfnTzSpecificLocalTimeToSystemTime pfnTzSpecificLocalTimeToSystemTime = nullptr;
-	static int tzspec_exists = -1;
-
-	if (tzspec_exists < 0)
+	if (Global->ifn->TzSpecificLocalTimeToSystemTimePresent())
 	{
-		pfnTzSpecificLocalTimeToSystemTime = (PfnTzSpecificLocalTimeToSystemTime)
-			GetProcAddress(GetModuleHandle(L"kernel32.dll"), "TzSpecificLocalTimeToSystemTime");
-		tzspec_exists = (pfnTzSpecificLocalTimeToSystemTime == nullptr ? 0 : +1);
-	}
-	if (tzspec_exists)
-	{
-		return FALSE != (*pfnTzSpecificLocalTimeToSystemTime)(nullptr, &lst, &ust);
+		return Global->ifn->TzSpecificLocalTimeToSystemTime(nullptr, &lst, &ust) != FALSE;
 	}
 	else
 	{

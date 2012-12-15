@@ -72,6 +72,7 @@ ImportedFunctions::ImportedFunctions()
 		InitImport(hKernel, SetConsoleKeyShortcuts);
 		InitImport(hKernel, GetConsoleScreenBufferInfoEx);
 		InitImport(hKernel, QueryFullProcessImageNameW);
+		InitImport(hKernel, TzSpecificLocalTimeToSystemTime);
 	}
 
 	if (hNtdll)
@@ -327,6 +328,19 @@ BOOL ImportedFunctions::GetConsoleScreenBufferInfoEx(HANDLE ConsoleOutput, PCONS
 	if(pfnGetConsoleScreenBufferInfoEx)
 	{
 		return pfnGetConsoleScreenBufferInfoEx(ConsoleOutput, ConsoleScreenBufferInfoEx);
+	}
+	else
+	{
+		SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
+		return FALSE;
+	}
+}
+
+BOOL ImportedFunctions::TzSpecificLocalTimeToSystemTime(const TIME_ZONE_INFORMATION* TimeZoneInformation, const SYSTEMTIME* LocalTime, LPSYSTEMTIME UniversalTime)
+{
+	if(pfnTzSpecificLocalTimeToSystemTime)
+	{
+		return pfnTzSpecificLocalTimeToSystemTime(TimeZoneInformation, LocalTime, UniversalTime);
 	}
 	else
 	{
