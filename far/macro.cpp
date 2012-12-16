@@ -2936,6 +2936,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				m_Macros[k].Free();
 			}
+			return 0;
 		}
 
 		case MCODE_F_BM_ADD:              // N=BM.Add()
