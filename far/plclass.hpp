@@ -246,6 +246,9 @@ public:
 	bool IsPanelPlugin();
 	bool Active() {return Activity != 0;}
 
+	void CallSettingsCreate() { ++CallSettingsCreateFree; }
+	void CallSettingsFree() { --CallSettingsCreateFree; }
+
 protected:
 	virtual void __Prolog() {};
 	virtual void __Epilog() {};
@@ -257,6 +260,7 @@ protected:
 	PluginManager *m_owner; //BUGBUG
 	Language PluginLang;
 	size_t Activity;
+	int CallSettingsCreateFree;
 	bool bPendingRemove;
 
 private:

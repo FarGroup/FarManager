@@ -239,7 +239,7 @@ void InfoList::DisplayObject()
 		}
 
 	}
-
+#
 	/* #2 - disk info */
 	if (SectionState[ILSS_DISKINFO].Show)
 	{

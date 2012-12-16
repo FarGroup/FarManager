@@ -48,6 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "strmix.hpp"
 #include "mix.hpp"
 #include "FarGuid.hpp"
+#include "manager.hpp"
+#include "console.hpp"
 
 typedef void   (WINAPI *iClosePanelPrototype)          (const ClosePanelInfo *Info);
 typedef int    (WINAPI *iComparePrototype)             (const CompareInfo *Info);
@@ -528,6 +530,7 @@ Plugin::Plugin(PluginManager *owner, const wchar_t *lpwszModuleName):
 	ExportsNamesA(_ExportsNamesA),
 	m_owner(owner),
 	Activity(0),
+	CallSettingsCreateFree(0),
 	bPendingRemove(false)
 {
 	m_strModuleName = lpwszModuleName;
@@ -785,6 +788,14 @@ int Plugin::Unload(bool bExitFAR)
 		FuncFlags.Clear(PICFF_LOADED);
 		WorkFlags.Clear(PIWF_DATALOADED);
 		bPendingRemove = true;
+	}
+
+	if (CallSettingsCreateFree)
+	{
+		FormatString s;
+		s << L"Memory leaks detected in '" << this->strTitle << L"' plugin (" << this->strDescription + L")\n"
+			<< L"  SCTL_FREE:  " << CallSettingsCreateFree << L"\n\n";
+		Global->Console->Write(s);
 	}
 	return nResult;
 }

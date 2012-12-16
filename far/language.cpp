@@ -541,16 +541,20 @@ void Language::Close()
 		Global->OldLang->m_bUnicode=m_bUnicode;
 #endif // NO_WRAPPER
 		Global->OldLang->MsgCount=MsgCount;
-	}
 
-	MsgList=nullptr;
-	MsgAddr=nullptr;
-#ifndef NO_WRAPPER
-	MsgListA=nullptr;
-	MsgAddrA=nullptr;
-	m_bUnicode = true;
-#endif // NO_WRAPPER
-	MsgCount=0;
+		MsgList=nullptr;
+		MsgAddr=nullptr;
+	#ifndef NO_WRAPPER
+		MsgListA=nullptr;
+		MsgAddrA=nullptr;
+		m_bUnicode = true;
+	#endif // NO_WRAPPER
+		MsgCount=0;
+	}
+	else
+	{
+		Free();
+	}
 	LanguageLoaded=false;
 }
 

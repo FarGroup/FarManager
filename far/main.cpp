@@ -125,7 +125,6 @@ static int MainProcess(
     int StartChar
 )
 {
-	{
 		ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
 		FarColor InitAttributes={};
 		Global->Console->GetTextAttributes(InitAttributes);
@@ -310,9 +309,8 @@ static int MainProcess(
 		Global->ScrBuf->ResetShadow();
 		Global->ScrBuf->Flush();
 		MoveRealCursor(0,0);
-	}
-	CloseConsole();
-	return 0;
+
+		return 0;
 }
 
 static LONG WINAPI FarUnhandledExceptionFilter(EXCEPTION_POINTERS *ExceptionInfo)
@@ -784,6 +782,8 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	int Result = MainProcess(strEditName, strViewName, DestNames[0], DestNames[1], StartLine, StartChar);
 
+	CloseConsole();
+
 	EmptyInternalClipboard();
 
 	_OT(SysLog(L"[[[[[Exit of FAR]]]]]]]]]"));
@@ -791,9 +791,28 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	return Result;
 }
 
+
+void AtExit()
+{
+#ifdef SYSLOG
+	if (global::CallNewDeleteVector || global::CallNewDeleteScalar || global::CallMallocFree)
+	{
+		wprintf(L"Memory leaks detected:\n");
+		if (global::CallNewDeleteVector)
+			wprintf(L"  delete[]:   %d\n", global::CallNewDeleteVector);
+		if (global::CallNewDeleteScalar)
+			wprintf(L"  delete:     %d\n", global::CallNewDeleteScalar);
+		if (global::CallMallocFree)
+			wprintf(L"  free():     %d\n", global::CallMallocFree);
+		wprintf(L"Total: %d bytes\n\n", global::AllocatedMemorySize);
+	}
+#endif
+	}
+
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {
 	int Result=0;
+	atexit(AtExit);
 	__try
 	{
 		Result = mainImpl(Argc, Argv);

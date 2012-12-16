@@ -55,7 +55,11 @@ struct MEMINFO
 {
 	union
 	{
-		ALLOCATION_TYPE AllocationType;
+		struct
+		{
+			ALLOCATION_TYPE AllocationType;
+			size_t Size;
+		};
 		char c[MEMORY_ALLOCATION_ALIGNMENT];
 	};
 };
@@ -79,12 +83,13 @@ void *__cdecl xf_malloc(size_t size)
 #ifdef MEMORY_CHECK
 	MEMINFO* Info = static_cast<MEMINFO*>(Ptr);
 	Info->AllocationType = AT_RAW;
+	Info->Size = size;
 	Ptr=static_cast<LPBYTE>(Ptr)+sizeof(MEMINFO);
+	global::AllocatedMemorySize += size;
 #endif
 
 #if defined(SYSLOG)
-	if (Global)
-		Global->CallMallocFree++;
+	global::CallMallocFree++;
 #endif
 
 	return Ptr;
@@ -97,6 +102,9 @@ void *__cdecl xf_expand(void * block, size_t size)
 	MEMINFO* Info = static_cast<MEMINFO*>(block);
 	assert(Info->AllocationType == AT_RAW);
 	size+=sizeof(MEMINFO);
+	global::AllocatedMemorySize -= Info->Size;
+	Info->Size = size;
+	global::AllocatedMemorySize += Info->Size;
 #endif
 	// _expand() calls HeapReAlloc which can change the status code, it's bad for us
 	NTSTATUS status = Global->ifn->RtlGetLastNtStatus();
@@ -149,19 +157,23 @@ void *__cdecl xf_realloc(void * block, size_t size)
 	while (size && !Ptr && InsufficientMemoryHandler());
 
 #ifdef MEMORY_CHECK
+	MEMINFO* Info = static_cast<MEMINFO*>(Ptr);
 	if (!block)
 	{
-		MEMINFO* Info = static_cast<MEMINFO*>(Ptr);
 		Info->AllocationType = AT_RAW;
+		Info->Size = 0;
 	}
+	global::AllocatedMemorySize -= Info->Size;
+	Info->Size = size;
+	global::AllocatedMemorySize += Info->Size;
 	Ptr=static_cast<LPBYTE>(Ptr)+sizeof(MEMINFO);
+
 #endif
 
 #if defined(SYSLOG)
 	if (!block)
 	{
-		if (Global)
-			Global->CallMallocFree++;
+		global::CallMallocFree++;
 	}
 #endif
 
@@ -177,12 +189,13 @@ void __cdecl xf_free(void * block)
 		MEMINFO* Info = static_cast<MEMINFO*>(block);
 
 		assert(Info->AllocationType == AT_RAW);
+		global::AllocatedMemorySize -= Info->Size;
 	}
 #endif
 
 #if defined(SYSLOG)
-	if (Global)
-		Global->CallMallocFree--;
+	if (block)
+		global::CallMallocFree--;
 #endif
 
 	free(block);
@@ -198,8 +211,7 @@ void * __cdecl operator new(size_t size) throw()
 #endif
 
 #if defined(SYSLOG)
-	if (Global)
-		Global->CallNewDelete++;
+	global::CallNewDeleteScalar++;
 #endif
 
 	return res;
@@ -212,6 +224,10 @@ void * __cdecl operator new[] (size_t size) throw()
 #ifdef MEMORY_CHECK
 	MEMINFO* Info = static_cast<MEMINFO*>(res)-1;
 	Info->AllocationType = AT_VECTOR;
+#endif
+
+#if defined(SYSLOG)
+	global::CallNewDeleteVector++;
 #endif
 
 	return res;
@@ -232,8 +248,8 @@ void operator delete(void *ptr) throw()
 	xf_free(ptr);
 
 #if defined(SYSLOG)
-	if (Global)
-		Global->CallNewDelete--;
+	if (ptr)
+		global::CallNewDeleteScalar--;
 #endif
 }
 
@@ -246,6 +262,11 @@ void __cdecl operator delete[] (void *ptr) throw()
 		assert(Info->AllocationType == AT_VECTOR);
 		Info->AllocationType = AT_SCALAR;
 	}
+#endif
+
+#if defined(SYSLOG)
+	if(ptr)
+		global::CallNewDeleteVector--;
 #endif
 
 	operator delete(ptr);

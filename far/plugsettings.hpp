@@ -102,6 +102,7 @@ class PluginSettings: public AbstractSettings
 		TPointerArray<Vector<FarSettingsName> > m_Enum;
 		TPointerArray<unsigned __int64> m_Keys;
 		HierarchicalConfig *PluginsCfg;
+		GUID PluginGuid;
 		PluginSettings();
 	public:
 		PluginSettings(const GUID& Guid, bool Local);

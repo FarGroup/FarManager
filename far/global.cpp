@@ -51,6 +51,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
 
+#if defined(SYSLOG)
+long global::CallNewDeleteVector=0;
+long global::CallNewDeleteScalar=0;
+long global::CallMallocFree=0;
+size_t global::AllocatedMemorySize = 0;
+#endif
+
 global::global():
 	m_MainThreadId(GetCurrentThreadId()),
 	ifn(nullptr),
@@ -105,8 +112,6 @@ global::global():
 	HelpFormatLinkModule=L"<%s>%s";
 #if defined(SYSLOG)
 	StartSysLog=0;
-	CallNewDelete=0;
-	CallMallocFree=0;
 #endif
 #ifdef DIRECT_RT
 	DirectRT = false;

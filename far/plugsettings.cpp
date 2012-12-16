@@ -86,13 +86,14 @@ bool AbstractSettings::IsValid(void)
 	return true;
 }
 
-PluginSettings::PluginSettings(const GUID& Guid, bool Local) : PluginsCfg(nullptr)
+PluginSettings::PluginSettings(const GUID& Guid, bool Local) : PluginsCfg(nullptr), PluginGuid(Guid)
 {
 	//хак чтоб SCTL_* могли работать при ExitFarW.
 	extern PluginManager *PluginManagerForExitFar;
-	Plugin* pPlugin=Global->CtrlObject? Global->CtrlObject->Plugins->FindPlugin(Guid) : (PluginManagerForExitFar?PluginManagerForExitFar->FindPlugin(Guid):nullptr);
+	Plugin* pPlugin=Global->CtrlObject? Global->CtrlObject->Plugins->FindPlugin(PluginGuid) : (PluginManagerForExitFar?PluginManagerForExitFar->FindPlugin(PluginGuid):nullptr);
 	if (pPlugin)
 	{
+		pPlugin->CallSettingsCreate();
 		string strGuid = GuidToStr(Guid);
 		PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
 		unsigned __int64& root(*m_Keys.insertItem(0));
@@ -118,6 +119,13 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local) : PluginsCfg(nullpt
 
 PluginSettings::~PluginSettings()
 {
+	//хак чтоб SCTL_* могли работать при ExitFarW.
+	extern PluginManager *PluginManagerForExitFar;
+	Plugin* pPlugin=Global->CtrlObject? Global->CtrlObject->Plugins->FindPlugin(PluginGuid) : (PluginManagerForExitFar?PluginManagerForExitFar->FindPlugin(PluginGuid):nullptr);
+	if (pPlugin)
+	{
+		pPlugin->CallSettingsFree();
+	}
 	if (PluginsCfg)
 		delete PluginsCfg;
 }

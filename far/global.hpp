@@ -76,8 +76,10 @@ public:
 	const wchar_t *HelpFormatLinkModule;
 #if defined(SYSLOG)
 	BOOL StartSysLog;
-	long CallNewDelete;
-	long CallMallocFree;
+	static long CallNewDeleteVector;
+	static long CallNewDeleteScalar;
+	static long CallMallocFree;
+	static size_t AllocatedMemorySize;
 #endif
 #ifdef DIRECT_RT
 	bool DirectRT;

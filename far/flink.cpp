@@ -483,6 +483,7 @@ bool GetVHDName(const string& DeviceName, string &strVolumePath)
 					ConvertNameToReal(strVolumePath, strVolumePath);
 				}
 			}
+			xf_free(StorageDependencyInfo);
 		}
 	}
 	return Result;

@@ -114,12 +114,14 @@ WindowHandler::WindowHandler():
 
 WindowHandler::~WindowHandler()
 {
+	m_exitEvent.Set();
 	if(m_Hwnd)
 	{
 		SendMessage(m_Hwnd,WM_CLOSE, 0, 0);
 	}
 	if(m_Thread)
 	{
+		WaitForSingleObject(m_Thread, INFINITE);
 		CloseHandle(m_Thread);
 	}
 }
@@ -147,7 +149,7 @@ unsigned int WindowHandler::WindowThreadRoutine(void* Param)
 			HPOWERNOTIFY hpn=Global->ifn->RegisterPowerSettingNotification(m_Hwnd,&GUID_BATTERY_PERCENTAGE_REMAINING,DEVICE_NOTIFY_WINDOW_HANDLE);
 
 			MSG Msg;
-			while(GetMessage(&Msg, nullptr, 0, 0)>0)
+			while(!m_exitEvent.Signaled() && GetMessage(&Msg, nullptr, 0, 0) > 0)
 			{
 				TranslateMessage(&Msg);
 				DispatchMessage(&Msg);

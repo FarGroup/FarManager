@@ -53,6 +53,8 @@ private:
 	HANDLE m_Thread;
 	HWND m_Hwnd;
 
+	Event m_exitEvent;
+
 	Event m_DeviceArivalEvent;
 	Event m_DeviceRemoveEvent;
 	Event m_MediaArivalEvent;

@@ -37,8 +37,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 UnicodeStringData *eus()
 {
 	//для оптимизации создания пустых UnicodeString
-	static UnicodeStringData *EmptyUnicodeStringData = new UnicodeStringData(1,1);
-	return EmptyUnicodeStringData;
+	static UnicodeStringData EmptyUnicodeStringData(1, 1);
+	return &EmptyUnicodeStringData;
 }
 
 void UnicodeString::SetEUS()
