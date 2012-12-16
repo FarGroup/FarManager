@@ -138,6 +138,24 @@ enum INTMF_FLAGS{
 	IMFF_DISABLEINTINPUT            =0x00000002,
 };
 
+class RunningMacro
+{
+	private:
+		FarMacroValue mp_values[1];
+		FarMacroCall mp_data;
+		OpenMacroPluginInfo mp_info;
+	public:
+		RunningMacro();
+		RunningMacro& operator= (const RunningMacro& src);
+	public:
+		void* GetHandle() { return mp_info.Handle; }
+		void SetHandle(void* handle) { mp_info.Handle=handle; }
+		void SetData(FarMacroCall* data) { mp_info.Data=data; }
+		OpenMacroPluginInfo* GetMPInfo() { return &mp_info; }
+		void ResetMPInfo() { mp_data.Count=0; mp_info.Data=&mp_data; }
+		void SetBooleanValue(int val) { mp_values[0].Type=FMVT_BOOLEAN; mp_values[0].Boolean=val; mp_data.Count=1; }
+};
+
 class MacroRecord
 {
 	friend class KeyMacro;
@@ -151,15 +169,8 @@ class MacroRecord
 		GUID m_guid;                   // Гуид владельца макроса
 		void* m_callbackId;            // параметр калбака
 		FARMACROCALLBACK m_callback;   // каллбак для плагинов
-		void* m_handle;                //
-		int m_macroId;                 //
-
-		FarMacroValue mp_values[1];
-		FarMacroCall mp_data;
-		OpenMacroPluginInfo mp_info;
-	private:
-		void InitOpenMacroPluginInfo();
-		void CopyOpenMacroPluginInfo(const MacroRecord& src);
+		int m_macroId;                 // Идентификатор загруженного макроса в плагине LuaMacro; 0 для макроса, записанного с клавиатуры
+		RunningMacro m_running;        // Данные времени исполнения
 	public:
 		MacroRecord();
 		MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Name,string Code,string Description);
@@ -174,6 +185,13 @@ class MacroRecord
 		bool IsSave(void) {return (m_flags&MFLAGS_NEEDSAVEMACRO) != 0;}
 		void SetSave(void) {m_flags|=MFLAGS_NEEDSAVEMACRO;}
 		void ClearSave(void) {m_flags&=~MFLAGS_NEEDSAVEMACRO;}
+	public:
+		void* GetHandle() { return m_running.GetHandle(); }
+		void SetHandle(void* handle) { m_running.SetHandle(handle); }
+		void SetData(FarMacroCall* data) { m_running.SetData(data); }
+		OpenMacroPluginInfo* GetMPInfo() { return m_running.GetMPInfo(); }
+		void ResetMPInfo() { m_running.ResetMPInfo(); }
+		void SetBooleanValue(int val) { m_running.SetBooleanValue(val); }
 };
 
 class MacroState

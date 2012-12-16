@@ -436,7 +436,7 @@ static bool ToDouble(__int64 v, double *d)
 	return false;
 }
 
-void MacroRecord::InitOpenMacroPluginInfo()
+RunningMacro::RunningMacro()
 {
 	mp_data.StructSize = sizeof(mp_data);
 	mp_data.Count = 0;
@@ -450,13 +450,14 @@ void MacroRecord::InitOpenMacroPluginInfo()
 	mp_info.Data = &mp_data;
 }
 
-void MacroRecord::CopyOpenMacroPluginInfo(const MacroRecord& src)
+RunningMacro& RunningMacro::operator= (const RunningMacro& src)
 {
 	memcpy(mp_values, src.mp_values, sizeof(mp_values));
 	mp_data = src.mp_data;
 	mp_data.Values = mp_values;
 	mp_info = src.mp_info;
 	mp_info.Data = &mp_data;
+	return *this;
 }
 
 MacroRecord::MacroRecord():
@@ -466,10 +467,9 @@ MacroRecord::MacroRecord():
 	m_guid(FarGuid),
 	m_callbackId(nullptr),
 	m_callback(nullptr),
-	m_handle(nullptr),
-	m_macroId(0)
+	m_macroId(0),
+	m_running()
 {
-	InitOpenMacroPluginInfo();
 }
 
 MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Name,string Code,string Description):
@@ -482,10 +482,9 @@ MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int MacroId,
 	m_guid(FarGuid),
 	m_callbackId(nullptr),
 	m_callback(nullptr),
-	m_handle(nullptr),
-	m_macroId(MacroId)
+	m_macroId(MacroId),
+	m_running()
 {
-	InitOpenMacroPluginInfo();
 }
 
 MacroRecord& MacroRecord::operator= (const MacroRecord& src)
@@ -501,9 +500,8 @@ MacroRecord& MacroRecord::operator= (const MacroRecord& src)
 		m_guid = src.m_guid;
 		m_callbackId = src.m_callbackId;
 		m_callback = src.m_callback;
-		m_handle = src.m_handle;
 		m_macroId = src.m_macroId;
-		CopyOpenMacroPluginInfo(src);
+		m_running = src.m_running;
 	}
 	return *this;
 }
@@ -604,7 +602,7 @@ int KeyMacro::IsRecording()
 int KeyMacro::IsExecuting()
 {
 	MacroRecord* m = GetCurMacro();
-	if (m && m->m_handle)
+	if (m && m->GetHandle())
 		return m->Flags()&MFLAGS_NOSENDKEYSTOPLUGINS ? MACROMODE_EXECUTING : MACROMODE_EXECUTING_COMMON;
 	else
 		return m_StateStack.empty() ? MACROMODE_NOMACRO : MACROMODE_EXECUTING_COMMON;
@@ -725,7 +723,7 @@ void* KeyMacro::CallMacroPlugin(OpenMacroPluginInfo* Info)
 		--m_MacroPluginIsRunning;
 	}
 
-	if (macro && macro->m_handle && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
+	if (macro && macro->GetHandle() && (macro->Flags()&MFLAGS_DISABLEOUTPUT))
 		Global->ScrBuf->Lock();
 
 	return result?ptr:nullptr;
@@ -748,10 +746,10 @@ bool KeyMacro::InitMacroExecution()
 			values[1].String = macro->Code();
 		}
 
-		macro->m_handle = CallMacroPlugin(&info);
-		if (macro->m_handle)
+		void* handle = CallMacroPlugin(&info);
+		if (handle)
 		{
-			macro->mp_info.Handle = macro->m_handle;
+			macro->SetHandle(handle);
 			m_LastKey = L"first_key";
 			return true;
 		}
@@ -1001,11 +999,10 @@ int KeyMacro::GetKey()
 	}
 
 	MacroRecord* macro;
-	while ((macro=GetCurMacro()) != nullptr && (macro->m_handle || InitMacroExecution()))
+	while ((macro=GetCurMacro()) != nullptr && (macro->GetHandle() || InitMacroExecution()))
 	{
-		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&macro->mp_info);
-		macro->mp_data.Count=0;
-		macro->mp_info.Data=&macro->mp_data;
+		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(macro->GetMPInfo());
+		macro->ResetMPInfo();
 
 		if (mpr == nullptr)
 			break;
@@ -1077,9 +1074,7 @@ int KeyMacro::GetKey()
 			case MPRT_PLUGINCALL: // V=Plugin.Call(SysID[,param])
 			{
 				size_t count = mpr->Count;
-				macro->mp_values[0].Type=FMVT_BOOLEAN;
-				macro->mp_values[0].Boolean=0;
-				macro->mp_data.Count=1;
+				macro->SetBooleanValue(0);
 				if(count>0 && mpr->Values[0].Type==FMVT_STRING)
 				{
 					const wchar_t* SysID = mpr->Values[0].String;
@@ -1098,7 +1093,7 @@ int KeyMacro::GetKey()
 						if (CallPluginRules)
 						{
 							PushState(true);
-							macro->mp_values[0].Boolean=1;
+							macro->SetBooleanValue(1);
 						}
 						else
 							m_InternalInput++;
@@ -1113,9 +1108,9 @@ int KeyMacro::GetKey()
 
 						//в windows гарантируется, что не бывает указателей меньше 0x10000
 						if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
-							macro->mp_info.Data = ResultCallPlugin;
+							macro->SetData(ResultCallPlugin);
 						else
-							macro->mp_values[0].Boolean = (ResultCallPlugin != nullptr);
+							macro->SetBooleanValue(ResultCallPlugin != nullptr);
 
 						if (CallPluginRules)
 						{
@@ -1141,9 +1136,7 @@ int KeyMacro::GetKey()
 				CallPluginInfo cpInfo={CPT_CHECKONLY};
 				bool ItemFailed=false;
 
-				macro->mp_values[0].Type=FMVT_BOOLEAN;
-				macro->mp_values[0].Boolean=0;
-				macro->mp_data.Count=1;
+				macro->SetBooleanValue(0);
 
 				if (mpr->Count>0 && mpr->Values[0].Type==FMVT_STRING)
 					Guid = mpr->Values[0].String;
@@ -1192,7 +1185,7 @@ int KeyMacro::GetKey()
 					if (Ret)
 					{
 						// Если нашли успешно - то теперь выполнение
-						macro->mp_values[0].Boolean=1;
+						macro->SetBooleanValue(1);
 						cpInfo.CallFlags&=~CPT_CHECKONLY;
 						Global->CtrlObject->Plugins->CallPluginItem(guid,&cpInfo);
 					}
