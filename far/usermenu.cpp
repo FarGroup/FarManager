@@ -169,7 +169,8 @@ static void MenuFileToList(DList<UserMenuItem> *Menu, File& MenuFile, GetFileStr
 			continue;
 		}
 
-		if (*MenuStr==L'}')
+		// '}' can be a hotkey as well
+		if (*MenuStr==L'}' && MenuStr[1] != L':')
 			break;
 
 		if (!IsSpace(*MenuStr))
