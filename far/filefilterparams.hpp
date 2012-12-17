@@ -157,6 +157,8 @@ class FileFilterParams
 		int   GetSortGroup() const { return FHighlight.SortGroup; }
 		bool  GetContinueProcessing() const { return FHighlight.bContinueProcessing; }
 		DWORD GetFlags(enumFileFilterFlagsType FType) const { return FFlags[FType]; }
+		void RefreshMask() {if(FMask.Used) FMask.FilterMask.Set(FMask.strMask, FMF_SILENT);}
+
 
 		// Данный метод вызывается "снаружи" и служит для определения:
 		// попадает ли файл fd под условие установленного фильтра.

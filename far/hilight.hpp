@@ -59,29 +59,26 @@ struct HighlightDataColor
 
 class HighlightFiles
 {
-	private:
-		TPointerArray<FileFilterParams> HiData;
-		int FirstCount, UpperCount, LowerCount, LastCount;
-		unsigned __int64 CurrentTime;
-		bool Changed;
+public:
+	HighlightFiles();
+	~HighlightFiles();
 
-	private:
-		void InitHighlightFiles(class HierarchicalConfig* cfg);
-		void ClearData();
+	void UpdateCurrentTime();
+	void GetHiColor(FileListItem **FileItem,size_t FileCount,bool UseAttrHighlighting=false);
+	int GetGroup(const FileListItem *fli);
+	void HiEdit(int MenuPos);
+	void UpdateHighlighting(bool RefreshMasks = false);
+	void SaveHiData();
 
-		int  MenuPosToRealPos(int MenuPos, int **Count, bool Insert=false);
-		void FillMenu(VMenu2 *HiMenu,int MenuPos);
-		void ProcessGroups();
+private:
+	void InitHighlightFiles(class HierarchicalConfig* cfg);
+	void ClearData();
+	int  MenuPosToRealPos(int MenuPos, int **Count, bool Insert=false);
+	void FillMenu(VMenu2 *HiMenu,int MenuPos);
+	void ProcessGroups();
 
-	public:
-		HighlightFiles();
-		~HighlightFiles();
-
-	public:
-		void UpdateCurrentTime();
-		void GetHiColor(FileListItem **FileItem,size_t FileCount,bool UseAttrHighlighting=false);
-		int  GetGroup(const FileListItem *fli);
-		void HiEdit(int MenuPos);
-
-		void SaveHiData();
+	TPointerArray<FileFilterParams> HiData;
+	int FirstCount, UpperCount, LowerCount, LastCount;
+	unsigned __int64 CurrentTime;
+	bool Changed;
 };

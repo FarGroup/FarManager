@@ -468,124 +468,133 @@ void MaskGroupsSettings()
 
 	bool Changed = false;
 	bool Filter = false;
-
-	MasksMenu.Run([&](int Key)->int
+	for(;;)
 	{
-		if(Filter)
+		MasksMenu.Run([&](int Key)->int
 		{
-			if(Key == KEY_ESC || Key == KEY_F10 || Key == KEY_ENTER || Key == KEY_NUMENTER)
+			if(Filter)
 			{
-				Filter = false;
-				for (int i = 0; i < MasksMenu.GetItemCount(); ++i)
+				if(Key == KEY_ESC || Key == KEY_F10 || Key == KEY_ENTER || Key == KEY_NUMENTER)
 				{
-					MasksMenu.UpdateItemFlags(i, MasksMenu.GetItemPtr(i)->Flags&~MIF_HIDDEN);
-				}
-				MasksMenu.SetPosition(-1, -1, -1, -1);
-				MasksMenu.SetTitle(MSG(MMenuMaskGroups));
-				MasksMenu.SetBottomTitle(MSG(MMaskGroupBottom));
-			}
-			return true;
-		}
-		int ItemPos = MasksMenu.GetSelectPos();
-		void* Data = MasksMenu.GetUserData(nullptr, 0, ItemPos);
-		const wchar_t* Item = static_cast<const wchar_t*>(Data);
-		int KeyProcessed = 1;
-		switch (Key)
-		{
-		case KEY_NUMDEL:
-		case KEY_DEL:
-			if(Item && !Message(0,2,MSG(MMenuMaskGroups),MSG(MMaskGroupAskDelete), Item, MSG(MDelete), MSG(MCancel)))
-			{
-				Global->Db->GeneralCfg()->DeleteValue(L"Masks", Item);
-				Changed = true;
-			}
-			break;
-
-		case KEY_NUMPAD0:
-		case KEY_INS:
-			Item = nullptr;
-		case KEY_ENTER:
-		case KEY_NUMENTER:
-		case KEY_F4:
-			{
-				string Name(Item), Value;
-				if(Item)
-				{
-					Global->Db->GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
-				}
-				DialogBuilder Builder(MMenuMaskGroups, nullptr);
-				Builder.AddText(MMaskGroupName);
-				Builder.AddEditField(&Name, 60);
-				Builder.AddText(MMaskGroupMasks);
-				Builder.AddEditField(&Value, 60);
-				Builder.AddOKCancel();
-				if(Builder.ShowDialog())
-				{
-					if(Item)
+					Filter = false;
+					for (int i = 0; i < MasksMenu.GetItemCount(); ++i)
 					{
-						Global->Db->GeneralCfg()->DeleteValue(L"Masks", Item);
-					}
-					Global->Db->GeneralCfg()->SetValue(L"Masks", Name, Value);
-					Changed = true;
-				}
-			}
-			break;
-
-		case KEY_CTRLR:
-		case KEY_RCTRLR:
-			{
-				if (!Message(MSG_WARNING, 2,
-					MSG(MMenuMaskGroups),
-					MSG(MMaskGroupRestore),
-					MSG(MYes),MSG(MCancel)))
-				{
-					ApplyDefaultMaskGroups();
-					Changed = true;
-				}
-			}
-			break;
-
-		case KEY_F7:
-			{
-				string Value;
-				DialogBuilder Builder(MFileFilterTitle, nullptr);
-				Builder.AddText(MMaskGroupFindMask);
-				Builder.AddEditField(&Value, 60, L"MaskGroupsFindMask");
-				Builder.AddOKCancel();
-				if(Builder.ShowDialog())
-				{
-					for (int i=0; i < MasksMenu.GetItemCount(); ++i)
-					{
-						string CurrentMasks;
-						Global->Db->GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu.GetUserData(nullptr, 0, i)), CurrentMasks, L"");
-						CFileMask Masks;
-						Masks.Set(CurrentMasks, 0);
-						if(!Masks.Compare(Value))
-						{
-							MasksMenu.UpdateItemFlags(i, MasksMenu.GetItemPtr(i)->Flags|MIF_HIDDEN);
-						}
+						MasksMenu.UpdateItemFlags(i, MasksMenu.GetItemPtr(i)->Flags&~MIF_HIDDEN);
 					}
 					MasksMenu.SetPosition(-1, -1, -1, -1);
-					MasksMenu.SetTitle(Value);
-					MasksMenu.SetBottomTitle(LangString(MMaskGroupTotal) << MasksMenu.GetShowItemCount());
-					Filter = true;
+					MasksMenu.SetTitle(MSG(MMenuMaskGroups));
+					MasksMenu.SetBottomTitle(MSG(MMaskGroupBottom));
 				}
+				return true;
 			}
-			break;
+			int ItemPos = MasksMenu.GetSelectPos();
+			void* Data = MasksMenu.GetUserData(nullptr, 0, ItemPos);
+			const wchar_t* Item = static_cast<const wchar_t*>(Data);
+			int KeyProcessed = 1;
+			switch (Key)
+			{
+			case KEY_NUMDEL:
+			case KEY_DEL:
+				if(Item && !Message(0,2,MSG(MMenuMaskGroups),MSG(MMaskGroupAskDelete), Item, MSG(MDelete), MSG(MCancel)))
+				{
+					Global->Db->GeneralCfg()->DeleteValue(L"Masks", Item);
+					Changed = true;
+				}
+				break;
 
-		default:
-			KeyProcessed = 0;
-		}
+			case KEY_NUMPAD0:
+			case KEY_INS:
+				Item = nullptr;
+			case KEY_ENTER:
+			case KEY_NUMENTER:
+			case KEY_F4:
+				{
+					string Name(Item), Value;
+					if(Item)
+					{
+						Global->Db->GeneralCfg()->GetValue(L"Masks", Name, Value, L"");
+					}
+					DialogBuilder Builder(MMenuMaskGroups, nullptr);
+					Builder.AddText(MMaskGroupName);
+					Builder.AddEditField(&Name, 60);
+					Builder.AddText(MMaskGroupMasks);
+					Builder.AddEditField(&Value, 60);
+					Builder.AddOKCancel();
+					if(Builder.ShowDialog())
+					{
+						if(Item)
+						{
+							Global->Db->GeneralCfg()->DeleteValue(L"Masks", Item);
+						}
+						Global->Db->GeneralCfg()->SetValue(L"Masks", Name, Value);
+						Changed = true;
+					}
+				}
+				break;
 
-		if(Changed)
+			case KEY_CTRLR:
+			case KEY_RCTRLR:
+				{
+					if (!Message(MSG_WARNING, 2,
+						MSG(MMenuMaskGroups),
+						MSG(MMaskGroupRestore),
+						MSG(MYes),MSG(MCancel)))
+					{
+						ApplyDefaultMaskGroups();
+						Changed = true;
+					}
+				}
+				break;
+
+			case KEY_F7:
+				{
+					string Value;
+					DialogBuilder Builder(MFileFilterTitle, nullptr);
+					Builder.AddText(MMaskGroupFindMask);
+					Builder.AddEditField(&Value, 60, L"MaskGroupsFindMask");
+					Builder.AddOKCancel();
+					if(Builder.ShowDialog())
+					{
+						for (int i=0; i < MasksMenu.GetItemCount(); ++i)
+						{
+							string CurrentMasks;
+							Global->Db->GeneralCfg()->GetValue(L"Masks", static_cast<const wchar_t*>(MasksMenu.GetUserData(nullptr, 0, i)), CurrentMasks, L"");
+							CFileMask Masks;
+							Masks.Set(CurrentMasks, 0);
+							if(!Masks.Compare(Value))
+							{
+								MasksMenu.UpdateItemFlags(i, MasksMenu.GetItemPtr(i)->Flags|MIF_HIDDEN);
+							}
+						}
+						MasksMenu.SetPosition(-1, -1, -1, -1);
+						MasksMenu.SetTitle(Value);
+						MasksMenu.SetBottomTitle(LangString(MMaskGroupTotal) << MasksMenu.GetShowItemCount());
+						Filter = true;
+					}
+				}
+				break;
+
+			default:
+				KeyProcessed = 0;
+			}
+
+			if(Changed)
+			{
+				Changed = false;
+
+				FillMasksMenu(MasksMenu, MasksMenu.GetSelectPos());
+				MasksMenu.SetPosition(-1, -1, -1, -1);
+				Global->CtrlObject->HiFiles->UpdateHighlighting(true);
+			}
+			return KeyProcessed;
+		});
+		if (MasksMenu.GetExitCode()!=-1)
 		{
-			Changed = false;
-
-			FillMasksMenu(MasksMenu, MasksMenu.GetSelectPos());
-			MasksMenu.SetPosition(-1, -1, -1, -1);
+			MasksMenu.Key(KEY_F4);
+			continue;
 		}
-		return KeyProcessed;
-	});
+		break;
+	}
 }
 
 void DialogSettings()

@@ -604,6 +604,23 @@ int HighlightFiles::MenuPosToRealPos(int MenuPos, int **Count, bool Insert)
 	return Pos;
 }
 
+void HighlightFiles::UpdateHighlighting(bool RefreshMasks)
+{
+	Global->ScrBuf->Lock(); // отмен€ем вс€кую прорисовку
+	ProcessGroups();
+
+	if(RefreshMasks)
+		for (size_t i = 0; i < HiData.getCount(); ++i)
+			HiData.getItem(i)->RefreshMask();
+
+	//FrameManager->RefreshFrame(); // рефрешим
+	Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
+	Global->CtrlObject->Cp()->LeftPanel->Redraw();
+	Global->CtrlObject->Cp()->RightPanel->Update(UPDATE_KEEP_SELECTION);
+	Global->CtrlObject->Cp()->RightPanel->Redraw();
+	Global->ScrBuf->Unlock(); // разрешаем прорисовку
+}
+
 void HighlightFiles::HiEdit(int MenuPos)
 {
 	VMenu2 HiMenu(MSG(MHighlightTitle),nullptr,0,ScrY-4);
@@ -613,8 +630,6 @@ void HighlightFiles::HiEdit(int MenuPos)
 	HiMenu.SetBottomTitle(MSG(MHighlightBottom));
 	FillMenu(&HiMenu,MenuPos);
 	int NeedUpdate;
-	Panel *LeftPanel=Global->CtrlObject->Cp()->LeftPanel;
-	Panel *RightPanel=Global->CtrlObject->Cp()->RightPanel;
 
 	while (1)
 	{
@@ -817,19 +832,13 @@ void HighlightFiles::HiEdit(int MenuPos)
 			// повтор€ющийс€ кусок!
 			if (NeedUpdate)
 			{
-				Changed = true;
-
 				Global->ScrBuf->Lock(); // отмен€ем вс€кую прорисовку
-				ProcessGroups();
+				Changed = true;
+				UpdateHighlighting();
+				FillMenu(&HiMenu,MenuPos=SelectPos);
+
 				if (Global->Opt->AutoSaveSetup)
 					SaveHiData();
-
-				//FrameManager->RefreshFrame(); // рефрешим
-				LeftPanel->Update(UPDATE_KEEP_SELECTION);
-				LeftPanel->Redraw();
-				RightPanel->Update(UPDATE_KEEP_SELECTION);
-				RightPanel->Redraw();
-				FillMenu(&HiMenu,MenuPos=SelectPos);
 				Global->ScrBuf->Unlock(); // разрешаем прорисовку
 			}
 			return KeyProcessed;
