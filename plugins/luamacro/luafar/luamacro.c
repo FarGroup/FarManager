@@ -11,11 +11,11 @@ static const char LuamacroGuid[16]= {200,239,187,78,132,32,127,75,148,192,105,44
 static void FL_PushParamsTable(lua_State* L, const struct FarMacroCall* Data)
 {
 	size_t i;
-	lua_createtable(L, Data->Count, 0);
+	lua_createtable(L, (int)Data->Count, 0);
 	for(i=0; i < Data->Count; i++)
 	{
 		PushFarMacroValue(L, Data->Values + i);
-		lua_rawseti(L, -2, i+1);
+		lua_rawseti(L, -2, (int)i+1);
 	}
 	if (Data->Callback)
 		Data->Callback(Data->CallbackData, Data->Values, Data->Count);

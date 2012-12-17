@@ -689,7 +689,7 @@ static void PushParamsTable(lua_State* L, const struct OpenMacroInfo* Data)
 	for(i=0; i < Data->Count; i++)
 	{
 		PushFarMacroValue(L, Data->Values + i);
-		lua_rawseti(L, -2, i+1);
+		lua_rawseti(L, -2, (int)i+1);
 	}
 }
 
