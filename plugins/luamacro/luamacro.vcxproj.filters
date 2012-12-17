@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="vc10wrapper.cpp">
+    <ClCompile Include="luafar\luaplug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="luafar\luaplug.c">
+    <ClCompile Include="..\common\vc10wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -40,7 +40,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="vc10.asm">
+    <MASM Include="..\common\vc10.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>

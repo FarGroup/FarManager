@@ -114,7 +114,7 @@
     <ClCompile Include="FStdLib\FARStdlib\fstd_Utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FStdLib\FARStdlib\vc10wrapper.cpp">
+    <ClCompile Include="..\common\vc10wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -127,7 +127,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="FStdLib\FARStdlib\vc10.asm">
+    <MASM Include="..\common\vc10.asm">
       <Filter>Source Files</Filter>
     </MASM>
   </ItemGroup>

@@ -27,6 +27,9 @@
     <ClCompile Include="Brackets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\common\vc10wrapper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="BracketsW.vc.def">
@@ -75,5 +78,10 @@
     <CustomBuild Include="BrackRus.lua">
       <Filter>Configuration Files</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="..\common\vc10.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>
