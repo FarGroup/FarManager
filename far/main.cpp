@@ -807,7 +807,7 @@ void AtExit()
 		wprintf(L"Total: %d bytes\n\n", global::AllocatedMemorySize);
 	}
 #endif
-	}
+}
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])
 {

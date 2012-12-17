@@ -5612,14 +5612,14 @@ MEditAltF4
 ""
 
 MEditAltF5
-"Печать"
-"Print"
-"Tisk"
-"Druck"
-"Nyomt"
-"Drukuj"
-"Imprim"
-"Tlač"
+""
+""
+""
+""
+""
+""
+""
+""
 
 MEditAltF6
 ""
@@ -6600,14 +6600,14 @@ MSingleEditAltF4
 ""
 
 MSingleEditAltF5
-"Печать"
-"Print"
-"Tisk"
-"Druck"
-"Nyomt"
-"Drukuj"
-"Imprim"
-"Tlač"
+""
+""
+""
+""
+""
+""
+""
+""
 
 MSingleEditAltF6
 ""
@@ -8598,14 +8598,14 @@ MViewAltF4
 ""
 
 MViewAltF5
-"Печать"
-"Print"
-"Tisk"
-"Druck"
-"Nyomt"
-"Drukuj"
-"Imprim"
-"Tlač"
+""
+""
+""
+""
+""
+""
+""
+""
 
 MViewAltF6
 ""
@@ -9607,14 +9607,14 @@ MSingleViewAltF4
 ""
 
 MSingleViewAltF5
-"Печать"
-"Print"
-"Tisk"
-"Druck"
-"Nyomt"
-"Drukuj"
-"Imprim"
-"Tlač"
+""
+""
+""
+""
+""
+""
+""
+""
 
 MSingleViewAltF6
 ""
