@@ -1048,10 +1048,22 @@ int Manager::ProcessKey(DWORD Key)
 					ShowProcessList();
 					return TRUE;
 				case KEY_F11:
+				{
+					int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
+					static int reentry=0;
+					if(!reentry && (TypeFrame == MODALTYPE_DIALOG || TypeFrame == MODALTYPE_VMENU))
+					{
+						++reentry;
+						int r=CurrentFrame->ProcessKey(Key);
+						--reentry;
+						return r;
+					}
+
 					PluginsMenu();
 					FrameManager->RefreshFrame();
 					//_MANAGER(SysLog(-1));
 					return TRUE;
+				}
 				case KEY_ALTF9:
 				case KEY_RALTF9:
 				{
@@ -1095,7 +1107,7 @@ int Manager::ProcessKey(DWORD Key)
 				{
 					int TypeFrame=FrameManager->GetCurrentFrame()->GetType();
 
-					if (TypeFrame != MODALTYPE_HELP && TypeFrame != MODALTYPE_DIALOG)
+					if (TypeFrame != MODALTYPE_HELP && TypeFrame != MODALTYPE_DIALOG && TypeFrame != MODALTYPE_VMENU)
 					{
 						DeactivateFrame(FrameMenu(),0);
 						//_MANAGER(SysLog(-1));
@@ -1209,7 +1221,7 @@ void Manager::PluginsMenu()
 	_MANAGER(SysLog(1));
 	int curType = CurrentFrame->GetType();
 
-	if (curType == MODALTYPE_PANELS || curType == MODALTYPE_EDITOR || curType == MODALTYPE_VIEWER || curType == MODALTYPE_DIALOG)
+	if (curType == MODALTYPE_PANELS || curType == MODALTYPE_EDITOR || curType == MODALTYPE_VIEWER || curType == MODALTYPE_DIALOG || curType == MODALTYPE_VMENU)
 	{
 		/* 02.01.2002 IS
 		   ! Вывод правильной помощи по Shift-F1 в меню плагинов в редакторе/вьюере/диалоге

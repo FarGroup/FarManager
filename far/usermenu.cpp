@@ -533,6 +533,16 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 				void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
 				CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
 
+				if (Key==KEY_SHIFTF1)
+				{
+					UserMenu.Key(KEY_F1);
+					return 1;
+				}
+				if (Key==KEY_SHIFTF11)
+				{
+					UserMenu.Key(KEY_F11);
+					return 1;
+				}
 				if ((unsigned int)Key>=KEY_F1 && (unsigned int)Key<=KEY_F24)
 				{
 					int FuncItemPos;

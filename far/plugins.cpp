@@ -1577,7 +1577,7 @@ void PluginManager::Configure(int StartPos)
 
 int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *HistoryName)
 {
-	if (ModalType == MODALTYPE_DIALOG)
+	if (ModalType == MODALTYPE_DIALOG || ModalType == MODALTYPE_VMENU)
 	{
 		Dialog *dlg=static_cast<Dialog*>(FrameManager->GetCurrentFrame());
 		if (dlg->CheckDialogMode(DMODE_NOPLUGINS) || dlg->GetId()==PluginsMenuId)
@@ -1591,7 +1591,7 @@ int PluginManager::CommandsMenu(int ModalType,int StartPos,const wchar_t *Histor
 
 	bool Editor = ModalType==MODALTYPE_EDITOR;
 	bool Viewer = ModalType==MODALTYPE_VIEWER;
-	bool Dialog = ModalType==MODALTYPE_DIALOG;
+	bool Dialog = ModalType==MODALTYPE_DIALOG || ModalType==MODALTYPE_VMENU;
 
 	PluginMenuItemData item;
 
