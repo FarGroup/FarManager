@@ -58,6 +58,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "pathmix.hpp"
 #include "cmdline.hpp"
 #include "FarGuid.hpp"
+#include "xlat.hpp"
 
 VMenu::VMenu(const wchar_t *Title,       // заголовок меню
              MenuDataEx *Data, // пункты меню
@@ -663,11 +664,12 @@ void VMenu::RestoreFilteredItems()
 	SetSelectPos(&pos);
 }
 
-void VMenu::FilterStringUpdated(bool bLonger)
+void VMenu::FilterStringUpdated()
 {
 	int PrevSeparator = -1, PrevGroup = -1;
 	int UpperVisible = -1, LowerVisible = -2;
 	bool bBottomMode = false;
+	string strName;
 
 	if (SelectPos > 0)
 	{
@@ -679,115 +681,76 @@ void VMenu::FilterStringUpdated(bool bLonger)
 			bBottomMode = true;
 	}
 
-	if (bLonger)
+	MenuItemEx *CurItem=nullptr;
+	ItemHiddenCount=0;
+
+	for (int i=0; i < ItemCount; i++)
 	{
-		//строка фильтра увеличилась
-		for (int i=0; i < ItemCount; i++)
+		CurItem=Item[i];
+		CurItem->Flags &= ~LIF_HIDDEN;
+		strName=CurItem->strName;
+		if (CurItem->Flags & LIF_SEPARATOR)
 		{
-			// Нет смысла накладывать фильтр на разделители
-			if (ItemIsVisible(Item[i]->Flags))
+			// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
+			if (PrevSeparator != -1)
 			{
-				if (Item[i]->Flags & LIF_SEPARATOR)
-				{
-					// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
-					if (PrevSeparator != -1)
-					{
-						Item[PrevSeparator]->Flags |= LIF_HIDDEN;
-						ItemHiddenCount++;
-					}
-					if (Item[i]->strName.IsEmpty() && PrevGroup == -1)
-					{
-						Item[i]->Flags |= LIF_HIDDEN;
-						ItemHiddenCount++;
-						PrevSeparator = -1;
-					}
-					else
-					{
-						PrevSeparator = i;
-					}
-				}
-				else if (!StrStrI(Item[i]->strName, strFilter))
-				{
-					Item[i]->Flags |= LIF_HIDDEN;
-					ItemHiddenCount++;
-					if (SelectPos == i)
-					{
-						Item[i]->Flags &= ~LIF_SELECTED;
-						SelectPos = -1;
-						LowerVisible = -1;
-					}
-				}
-				else
-				{
-					PrevGroup = i;
-					if (LowerVisible == -2)
-					{
-						if (ItemCanHaveFocus(Item[i]->Flags))
-							UpperVisible = i;
-					}
-					else if (LowerVisible == -1)
-					{
-						if (ItemCanHaveFocus(Item[i]->Flags))
-							LowerVisible = i;
-					}
-					// Этот разделитель - оставить видимым
-					if (PrevSeparator != -1)
-						PrevSeparator = -1;
-				}
-			}
-		}
-		// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
-		if (PrevSeparator != -1)
-		{
-			Item[PrevSeparator]->Flags |= LIF_HIDDEN;
-			ItemHiddenCount++;
-		}
-	}
-	else
-	{
-		//строка фильтра сократилась
-		for (int i=0; i < ItemCount; i++)
-		{
-			if (!ItemIsVisible(Item[i]->Flags))
-			{
-				if (Item[i]->Flags & LIF_SEPARATOR)
-				{
-					PrevSeparator = i;
-				}
-				else if (StrStrI(Item[i]->strName, strFilter))
-				{
-					Item[i]->Flags &= ~LIF_HIDDEN;
-					ItemHiddenCount--;
-				}
+				Item[PrevSeparator]->Flags |= LIF_HIDDEN;
+				ItemHiddenCount++;
 			}
 
-			if (ItemIsVisible(Item[i]->Flags))
+			if (strName.IsEmpty() && PrevGroup == -1)
 			{
-				if (Item[i]->Flags & LIF_SEPARATOR)
-				{
-					PrevGroup = -1;
-					if ((PrevSeparator != -1))
-						PrevSeparator = -1;
-				}
-				else
-				{
-					if (PrevSeparator != -1)
-					{
-						if (!Item[PrevSeparator]->strName.IsEmpty() || PrevGroup != -1)
-						{
-							// Разделитель перед ранее скрытой группой был скрыт
-							Item[PrevSeparator]->Flags &= ~LIF_HIDDEN;
-							ItemHiddenCount--;
-						}
-						PrevSeparator = -1;
-					}
-					PrevGroup = i;
-				}
+				CurItem->Flags |= LIF_HIDDEN;
+				ItemHiddenCount++;
+				PrevSeparator = -1;
+			}
+			else
+			{
+				PrevSeparator = i;
 			}
 		}
-
-		FilterUpdateHeight();
+		else
+		{
+			RemoveExternalSpaces(strName);
+			RemoveChar(strName,L'&',TRUE);
+			if(!StrStrI(strName, strFilter))
+			{
+				CurItem->Flags |= LIF_HIDDEN;
+				ItemHiddenCount++;
+				if (SelectPos == i)
+				{
+					CurItem->Flags &= ~LIF_SELECTED;
+					SelectPos = -1;
+					LowerVisible = -1;
+				}
+			}
+			else
+			{
+				PrevGroup = i;
+				if (LowerVisible == -2)
+				{
+					if (ItemCanHaveFocus(CurItem->Flags))
+						UpperVisible = i;
+				}
+				else if (LowerVisible == -1)
+				{
+					if (ItemCanHaveFocus(CurItem->Flags))
+						LowerVisible = i;
+				}
+				// Этот разделитель - оставить видимым
+				if (PrevSeparator != -1)
+					PrevSeparator = -1;
+			}
+		}
 	}
+	// В предыдущей группе все элементы скрыты, разделитель перед группой - не нужен
+	if (PrevSeparator != -1)
+	{
+		Item[PrevSeparator]->Flags |= LIF_HIDDEN;
+		ItemHiddenCount++;
+	}
+
+	FilterUpdateHeight();
 
 	if (GetShowItemCount()>0)
 	{
@@ -1135,7 +1098,7 @@ __int64 VMenu::VMProcess(int OpCode,void *vParam,__int64 iParam)
 					strFilter.Clear();
 					if (vParam!=nullptr)
 						AddToFilter(((string *)vParam)->CPtr());
-					FilterStringUpdated(true);
+					FilterStringUpdated();
 					bFilterLocked = prevLocked;
 					DisplayObject();
 					*(string *)vParam = oldFilter;
@@ -1215,7 +1178,7 @@ int VMenu::ProcessFilterKey(int Key)
 		strFilter += (wchar_t)Key;
 	}
 
-	FilterStringUpdated(Key!=KEY_BS);
+	FilterStringUpdated();
 	DisplayObject();
 
 	return TRUE;
@@ -1240,7 +1203,7 @@ int VMenu::ProcessKey(int Key)
 			if (strFilter.IsEmpty())
 				RestoreFilteredItems();
 			else
-				FilterStringUpdated(true);
+				FilterStringUpdated();
 
 			DisplayObject();
 
@@ -1256,7 +1219,7 @@ int VMenu::ProcessKey(int Key)
 	{
 		if ((Key!=KEY_F1 && Key!=KEY_SHIFTF1 && Key!=KEY_F10 && Key!=KEY_ESC && Key!=KEY_ALTF9 && Key!=KEY_RALTF9))
 		{
-			if (!bFilterEnabled || (bFilterEnabled && Key!=KEY_BS && Key!=KEY_CTRLALTF && Key!=KEY_RCTRLRALTF && Key!=KEY_CTRLRALTF && Key!=KEY_RCTRLALTF))
+			if (!bFilterEnabled || (bFilterEnabled && Key!=KEY_BS && Key!=KEY_CTRLALTF && Key!=KEY_RCTRLRALTF && Key!=KEY_CTRLRALTF && Key!=KEY_RCTRLALTF && Key!=KEY_RALT && Key!=KEY_OP_XLAT))
 			{
 				Modal::ExitCode = -1;
 				return FALSE;
@@ -1449,6 +1412,7 @@ int VMenu::ProcessKey(int Key)
 			break;
 		}
 
+		case KEY_RALT:
 		case KEY_CTRLALTF:
 		case KEY_RCTRLRALTF:
 		case KEY_CTRLRALTF:
@@ -1480,7 +1444,7 @@ int VMenu::ProcessKey(int Key)
 					if (strFilter.IsEmpty())
 						RestoreFilteredItems();
 					else
-						FilterStringUpdated(true);
+						FilterStringUpdated();
 
 					DisplayObject();
 				}
@@ -1500,6 +1464,34 @@ int VMenu::ProcessKey(int Key)
 				DisplayObject();
 				break;
 			}
+		}
+		case KEY_OP_XLAT:
+		{
+			if (bFilterEnabled && !bFilterLocked)
+			{
+				const wchar_t *FilterString=strFilter;
+				int start=StrLength(FilterString);
+				bool DoXlat=TRUE;
+
+				if (IsWordDiv(Global->Opt->XLat.strWordDivForXlat,FilterString[start]))
+				{
+					if (start) start--;
+					DoXlat=(!IsWordDiv(Global->Opt->XLat.strWordDivForXlat,FilterString[start]));
+				}
+
+				if (DoXlat)
+				{
+					while (start>=0 && !IsWordDiv(Global->Opt->XLat.strWordDivForXlat,FilterString[start]))
+						start--;
+
+					start++;
+					::Xlat((wchar_t *) FilterString,start,StrLength(FilterString),Global->Opt->XLat.Flags);
+					SetFilterString(FilterString);
+					FilterStringUpdated();
+					DisplayObject();
+				}
+			}
+			break;
 		}
 		case KEY_TAB:
 		case KEY_SHIFTTAB:
@@ -1969,7 +1961,7 @@ void VMenu::DisplayObject()
 		{
 			RestoreFilteredItems();
 			if (!strFilter.IsEmpty())
-				FilterStringUpdated(true);
+				FilterStringUpdated();
 		}
 		ClearFlags(VMENU_REFILTERREQUIRED);
 	}

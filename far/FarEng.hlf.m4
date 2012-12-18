@@ -760,7 +760,7 @@ contents, #Esc# leaves the grabbing mode.
 
  #Menus and dropdown lists#
 
-  Enable/disable filtering mode                           #Ctrl-Alt-F#
+  Enable/disable filtering mode                     #RAlt, Ctrl-Alt-F#
   Lock/unlock filter                                      #Ctrl-Alt-L#
 
   When in filter mode, you can filter the displayed items by entering

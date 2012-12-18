@@ -327,7 +327,7 @@ class VMenu: public Modal
 		int  FindItem(const FarListFind *FindItem);
 		int  FindItem(int StartIndex,const wchar_t *Pattern,UINT64 Flags=0);
 		void RestoreFilteredItems();
-		void FilterStringUpdated(bool bLonger);
+		void FilterStringUpdated();
 		void FilterUpdateHeight(bool bShrink=false);
 		void SetFilterEnabled(bool bEnabled) { bFilterEnabled=bEnabled; };
 		void SetFilterLocked(bool bLocked) { bFilterEnabled=bLocked; };
