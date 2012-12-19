@@ -55,7 +55,7 @@ private:
 	void ReleaseInFileSearch();
 	string &PrepareDriveNameStr(string &strSearchFromRoot);
 	bool IsWordDiv(const wchar_t symbol);
-	void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=false);
+	void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=false,intptr_t UserData=0);
 	intptr_t AdvancedDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void AdvancedDialog();
 	intptr_t MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);

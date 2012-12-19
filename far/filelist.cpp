@@ -2395,14 +2395,13 @@ void FileList::Select(FileListItem *SelPtr,int Selection)
 
 void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc, bool RunAs, OPENFILEPLUGINTYPE Type)
 {
-	FileListItem *CurPtr;
 	string strFileName, strShortFileName;
 	const wchar_t *ExtPtr;
 
 	if (CurFile>=FileCount)
 		return;
 
-	CurPtr=ListData[CurFile];
+	FileListItem *CurPtr=ListData[CurFile];
 	strFileName = CurPtr->strName;
 
 	if (!CurPtr->strShortName.IsEmpty())
@@ -2450,11 +2449,11 @@ void FileList::ProcessEnter(bool EnableExec,bool SeparateWindow,bool EnableAssoc
 
 			if (PanelMode==PLUGIN_PANEL || !wcschr(CurPtr->strName,L'?') || CurPtr->strShortName.IsEmpty())
 			{
-				ChangeDir(CurPtr->strName);
+				ChangeDir(CurPtr->strName,TRUE,CurPtr);
 			}
 			else
 			{
-				ChangeDir(CurPtr->strShortName);
+				ChangeDir(CurPtr->strShortName,TRUE,CurPtr);
 			}
 
 			//"this" может быть удалён в ChangeDir
@@ -2566,46 +2565,53 @@ BOOL FileList::SetCurDir(const string& NewDir,int ClosePanel,BOOL IsUpdated)
 {
 	bool CheckFullScreen=false;
 
-	if (ClosePanel && PanelMode==PLUGIN_PANEL)
+	FileListItem *CurPtr=nullptr;
+
+	if (PanelMode==PLUGIN_PANEL)
 	{
-		CheckFullScreen=IsFullScreen();
-		OpenPanelInfo Info;
-		Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
-		string strInfoHostFile=Info.HostFile;
-
-		for (;;)
+		if (ClosePanel)
 		{
-			if (ProcessPluginEvent(FE_CLOSE,nullptr))
-				return FALSE;
+			CheckFullScreen=IsFullScreen();
+			OpenPanelInfo Info;
+			Global->CtrlObject->Plugins->GetOpenPanelInfo(hPlugin,&Info);
+			string strInfoHostFile=Info.HostFile;
 
-			if (!PopPlugin(TRUE))
-				break;
-
-			if (NewDir.IsEmpty())
+			for (;;)
 			{
-				Update(0);
-				PopPrevData(strInfoHostFile,true,true,true,true);
-				break;
+				if (ProcessPluginEvent(FE_CLOSE,nullptr))
+					return FALSE;
+
+				if (!PopPlugin(TRUE))
+					break;
+
+				if (NewDir.IsEmpty())
+				{
+					Update(0);
+					PopPrevData(strInfoHostFile,true,true,true,true);
+					break;
+				}
+			}
+
+			Global->CtrlObject->Cp()->RedrawKeyBar();
+
+			if (CheckFullScreen!=IsFullScreen())
+			{
+				Global->CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
 			}
 		}
-
-		Global->CtrlObject->Cp()->RedrawKeyBar();
-
-		if (CheckFullScreen!=IsFullScreen())
-		{
-			Global->CtrlObject->Cp()->GetAnotherPanel(this)->Redraw();
-		}
+		else if (CurFile<FileCount)
+			CurPtr=ListData[CurFile];
 	}
 
 	if (!NewDir.IsEmpty())
 	{
-		return ChangeDir(NewDir,IsUpdated);
+		return ChangeDir(NewDir,IsUpdated,CurPtr);
 	}
 
 	return FALSE;
 }
 
-BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
+BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem *CurPtr)
 {
 	string strFindDir, strSetDir;
 
@@ -2693,7 +2699,7 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated)
 		else
 		{
 			strFindDir = strInfoCurDir;
-			SetDirectorySuccess=Global->CtrlObject->Plugins->SetDirectory(hPlugin,strSetDir,0,GetUserDataFromItem(strSetDir)) != FALSE;
+			SetDirectorySuccess=Global->CtrlObject->Plugins->SetDirectory(hPlugin,strSetDir,0,(intptr_t)(CurPtr?CurPtr->UserData:0)) != FALSE;
 		}
 
 		ProcessPluginCommand();

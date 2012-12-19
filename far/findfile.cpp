@@ -680,7 +680,7 @@ static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const struct Plug
 }
 #endif
 
-void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel)
+void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel,intptr_t UserData)
 {
 	if (DirName && *DirName)
 	{
@@ -690,7 +690,6 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool Up
 
 		if (NamePtr != DirPtr)
 		{
-			intptr_t UserData=0;
 			*(NamePtr-1) = 0;
 			// force plugin to update its file list (that can be empty at this time)
 			// if not done SetDirectory may fail
@@ -699,13 +698,7 @@ void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool Up
 				PluginPanelItem *PanelData=nullptr;
 
 				if (Global->CtrlObject->Plugins->GetFindData(hPlugin,&PanelData,&FileCount,OPM_SILENT))
-				{
-					#if defined(MANTIS_0002207)
-					if (*DirPtr) // BUGBUG???
-						UserData=GetUserDataFromPluginItem(DirPtr,&PanelData,FileCount);
-					#endif
 					Global->CtrlObject->Plugins->FreeFindData(hPlugin,PanelData,FileCount,true);
-				}
 			}
 
 			if (*DirPtr)
@@ -3126,7 +3119,7 @@ bool FindFiles::FindFilesProcess()
 							    SearchMode==FINDAREA_INPATH)
 							Global->CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,L"\\",0);
 
-						SetPluginDirectory(strFileName,ArcItem.hPlugin,TRUE);
+						SetPluginDirectory(strFileName,ArcItem.hPlugin,true); // ??? ,FindItem.Data ???
 					}
 				}
 				else
