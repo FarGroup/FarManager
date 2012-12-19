@@ -43,7 +43,7 @@ class UnicodeStringData
 		size_t m_nLength;
 		size_t m_nSize;
 		size_t m_nDelta;
-		int m_nRefCount;
+		volatile long m_nRefCount;
 		wchar_t *m_pData;
 		wchar_t StackBuffer[__US_DELTA];
 
@@ -113,10 +113,13 @@ class UnicodeStringData
 		size_t GetSize() const { return m_nSize; }
 
 		int GetRef() const { return m_nRefCount; }
-		void AddRef() { m_nRefCount++; }
+		void AddRef()
+		{
+			InterlockedIncrement(&m_nRefCount);
+		}
 		void DecRef()
 		{
-			m_nRefCount--;
+			InterlockedDecrement(&m_nRefCount);
 
 			if (!m_nRefCount)
 				delete this;
@@ -131,6 +134,8 @@ typedef class UnicodeString
 		UnicodeStringData *m_pData;
 
 		void SetEUS();
+		static void ReleaseEUS();
+		friend void AtExit();
 
 	public:
 

@@ -10,12 +10,13 @@ farrtl.cpp
 #include "console.hpp"
 #include "colormix.hpp"
 #include "imports.hpp"
+#include "CriticalSections.hpp"
 
 #ifdef _MSC_VER
 #pragma intrinsic (memcpy)
 #endif
 
-bool InsufficientMemoryHandler()
+static bool InsufficientMemoryHandler()
 {
 	if (!Global)
 		return false;
@@ -39,17 +40,146 @@ bool InsufficientMemoryHandler()
 	return ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN;
 }
 
-#ifdef _DEBUG
-#define MEMORY_CHECK
-#endif
-
-#ifdef MEMORY_CHECK
 enum ALLOCATION_TYPE
 {
-	AT_RAW,
-	AT_SCALAR,
-	AT_VECTOR,
+	AT_RAW    = 0xa7000ea8,
+	AT_SCALAR = 0xa75ca1ae,
+	AT_VECTOR = 0xa77ec10e,
 };
+
+typedef void* (*pAllocator)(size_t size, ALLOCATION_TYPE type);
+typedef void (*pDeallocator)(void* block, ALLOCATION_TYPE type);
+typedef void* (*pReallocator)(void* block, size_t size);
+typedef void* (*pExpander)(void* block, size_t size);
+
+static void* ReleaseAllocator(size_t size, ALLOCATION_TYPE type);
+static void ReleaseDeallocator(void* block, ALLOCATION_TYPE type);
+static void* ReleaseReallocator(void* block, size_t size);
+static void* ReleaseExpander(void* block, size_t size);
+
+#ifdef _DEBUG
+static void* DebugAllocator(size_t size, ALLOCATION_TYPE type);
+static void DebugDeallocator(void* block, ALLOCATION_TYPE type);
+static void* DebugReallocator(void* block, size_t size);
+static void* DebugExpander(void* block, size_t size);
+#endif
+
+static const struct
+{
+	pAllocator Allocator;
+	pDeallocator Deallocator;
+	pReallocator Reallocator;
+	pExpander Expander;
+}
+Memory = 
+{
+#ifdef _DEBUG
+	DebugAllocator,
+	DebugDeallocator,
+	DebugReallocator,
+	DebugExpander,
+#else
+	ReleaseAllocator,
+	ReleaseDeallocator,
+	ReleaseReallocator,
+	ReleaseExpander,
+#endif
+};
+
+void* _cdecl operator new(size_t size) throw()
+{
+	return Memory.Allocator(size, AT_SCALAR);
+}
+
+void* _cdecl operator new[](size_t size) throw()
+{
+	return Memory.Allocator(size, AT_VECTOR);
+}
+
+void _cdecl operator delete(void* block)
+{
+	return Memory.Deallocator(block, AT_SCALAR);
+}
+
+void _cdecl operator delete[](void* block)
+{
+	return Memory.Deallocator(block, AT_VECTOR);
+}
+
+void* xf_malloc(size_t size)
+{
+	return Memory.Allocator(size, AT_RAW);
+}
+
+void xf_free(void* block)
+{
+	return Memory.Deallocator(block, AT_RAW);
+}
+
+void* xf_realloc(void* block, size_t size)
+{
+	return Memory.Reallocator(block, size);
+}
+
+void* _cdecl xf_realloc_nomove(void * block, size_t size)
+{
+	if (!block)
+	{
+		return xf_malloc(size);
+	}
+	else if (Memory.Expander(block, size))
+	{
+		return block;
+	}
+	else
+	{
+		xf_free(block);
+		return xf_malloc(size);
+	}
+}
+
+static void* ReleaseAllocator(size_t size, ALLOCATION_TYPE)
+{
+	void* newBlock;
+	do newBlock = malloc(size);
+	while (!newBlock && InsufficientMemoryHandler());
+	return newBlock;
+}
+
+static void ReleaseDeallocator(void* block, ALLOCATION_TYPE)
+{
+	return free(block);
+}
+
+static void* ReleaseReallocator(void* block, size_t size)
+{
+	void* newBlock;
+	do newBlock = realloc(block, size);
+	while (!newBlock && InsufficientMemoryHandler());
+	return newBlock;
+}
+
+static void* ReleaseExpander(void* block, size_t size)
+{
+#ifdef _MSC_VER
+	return _expand(block, size);
+#else
+	return nullptr;
+#endif
+}
+
+#ifdef _DEBUG
+
+struct memblock
+{
+	struct MEMINFO* block;
+	memblock* prev;
+	memblock* next;
+};
+
+memblock FirstMemBlock = {};
+memblock* LastMemBlock = &FirstMemBlock;
+CriticalSection CS;
 
 struct MEMINFO
 {
@@ -59,218 +189,148 @@ struct MEMINFO
 		{
 			ALLOCATION_TYPE AllocationType;
 			size_t Size;
+			memblock MemBlock;
 		};
-		char c[MEMORY_ALLOCATION_ALIGNMENT];
+		char c[MEMORY_ALLOCATION_ALIGNMENT*3];
 	};
 };
 
-static_assert(sizeof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT, "MEMINFO not aligned");
-#endif
+static_assert(sizeof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT*3, "MEMINFO not aligned");
 
-void *__cdecl xf_malloc(size_t size)
+static void CheckChain()
 {
-#ifdef MEMORY_CHECK
-	size+=sizeof(MEMINFO);
+#if 0
+	memblock* p = &FirstMemBlock;
+
+	while(p->next)
+		p = p->next;
+	assert(p==LastMemBlock);
+
+	while(p->prev)
+		p = p->prev;
+	assert(p==&FirstMemBlock);
 #endif
-
-	void *Ptr = nullptr;
-	do
-	{
-		Ptr = malloc(size);
-	}
-	while (!Ptr && InsufficientMemoryHandler());
-
-#ifdef MEMORY_CHECK
-	MEMINFO* Info = static_cast<MEMINFO*>(Ptr);
-	Info->AllocationType = AT_RAW;
-	Info->Size = size;
-	Ptr=static_cast<LPBYTE>(Ptr)+sizeof(MEMINFO);
-	global::AllocatedMemorySize += size;
-#endif
-
-#if defined(SYSLOG)
-	global::CallMallocFree++;
-#endif
-
-	return Ptr;
 }
 
-void *__cdecl xf_expand(void * block, size_t size)
+static inline void updateCallCount(ALLOCATION_TYPE type, bool increment)
 {
-#ifdef MEMORY_CHECK
-	block=static_cast<LPBYTE>(block)-sizeof(MEMINFO);
-	MEMINFO* Info = static_cast<MEMINFO*>(block);
+	int op = increment? 1 : -1;
+	switch(type)
+	{
+	case AT_RAW:    global::CallMallocFree += op;      break;
+	case AT_SCALAR: global::CallNewDeleteScalar += op; break;
+	case AT_VECTOR: global::CallNewDeleteVector += op; break;
+	}
+}
+
+static void RegisterBlock(memblock *block)
+{
+	CriticalSectionLock lock(CS);
+
+	block->prev = LastMemBlock;
+	block->next = nullptr;
+
+	LastMemBlock->next = block;
+	LastMemBlock = block;
+
+	CheckChain();
+
+	updateCallCount(block->block->AllocationType, true);
+	++global::AllocatedMemoryBlocks;
+	global::AllocatedMemorySize+=block->block->Size;
+}
+
+static void UnregisterBlock(memblock *block)
+{
+	CriticalSectionLock lock(CS);
+
+	if (block->prev)
+		block->prev->next = block->next;
+	if (block->next)
+		block->next->prev = block->prev;
+	if(block == LastMemBlock)
+		LastMemBlock = LastMemBlock->prev;
+
+	CheckChain();
+
+	updateCallCount(block->block->AllocationType, false);
+	--global::AllocatedMemoryBlocks;
+	global::AllocatedMemorySize-=block->block->Size;
+}
+
+inline void* ToReal(void* address) { return static_cast<MEMINFO*>(address)-1; }
+inline void* ToUser(void* address) { return static_cast<MEMINFO*>(address)+1; }
+
+static void* DebugAllocator(size_t size, ALLOCATION_TYPE type)
+{
+	size_t realSize = size + sizeof(MEMINFO);
+
+	void* realBlock = ReleaseAllocator(realSize, type);
+
+	MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
+	Info->AllocationType = type;
+	Info->Size = realSize;
+	Info->MemBlock.block = Info;
+	RegisterBlock(&Info->MemBlock);
+	return ToUser(realBlock);
+}
+
+static void DebugDeallocator(void* block, ALLOCATION_TYPE type)
+{
+	void* realBlock = block? ToReal(block) : nullptr;
+	if (realBlock)
+	{
+		MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
+		assert(Info->AllocationType == type);
+		UnregisterBlock(&Info->MemBlock);
+	}
+	ReleaseDeallocator(realBlock, type);
+}
+
+static void* DebugReallocator(void* block, size_t size)
+{
+	if(!block)
+		return DebugAllocator(size, AT_RAW);
+
+	void* realBlock = ToReal(block);
+	MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
 	assert(Info->AllocationType == AT_RAW);
-	size+=sizeof(MEMINFO);
-	global::AllocatedMemorySize -= Info->Size;
-	Info->Size = size;
-	global::AllocatedMemorySize += Info->Size;
-#endif
+	UnregisterBlock(&Info->MemBlock);
+	size_t realSize = size + sizeof(MEMINFO);
+
+	realBlock = ReleaseReallocator(realBlock, realSize);
+
+	Info = static_cast<MEMINFO*>(realBlock);
+	Info->AllocationType = AT_RAW;
+	Info->MemBlock.block = Info;
+	Info->Size = realSize;
+	RegisterBlock(&Info->MemBlock);
+	return ToUser(realBlock);
+}
+
+static void* _cdecl DebugExpander(void* block, size_t size)
+{
+	void* realBlock = ToReal(block);
+	MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
+	assert(Info->AllocationType == AT_RAW);
+	size_t realSize = size + sizeof(MEMINFO);
+
 	// _expand() calls HeapReAlloc which can change the status code, it's bad for us
 	NTSTATUS status = Global->ifn->RtlGetLastNtStatus();
-	void* newblock = _expand(block, size);
+	realBlock = ReleaseExpander(realBlock, realSize);
 	//RtlNtStatusToDosError also remembers the status code value in the TEB:
 	Global->ifn->RtlNtStatusToDosError(status);
-	return newblock;
+
+	if(realBlock)
+	{
+		global::AllocatedMemorySize-=Info->Size;
+		Info->Size = realSize;
+		global::AllocatedMemorySize+=Info->Size;
+	}
+
+	return realBlock? ToUser(realBlock) : nullptr;
 }
-
-void *__cdecl xf_realloc_nomove(void * block, size_t size)
-{
-	if (!block)
-	{
-		return xf_malloc(size);
-	}
-#if defined(_MSC_VER)
-	else if (xf_expand(block, size))
-	{
-		return block;
-	}
 #endif
-	else
-	{
-		void *Ptr=xf_malloc(size);
-
-		if (Ptr)
-			xf_free(block);
-
-		return Ptr;
-	}
-}
-
-void *__cdecl xf_realloc(void * block, size_t size)
-{
-#ifdef MEMORY_CHECK
-	if(block)
-	{
-		block=static_cast<LPBYTE>(block)-sizeof(MEMINFO);
-		MEMINFO* Info = static_cast<MEMINFO*>(block);
-		assert(Info->AllocationType == AT_RAW);
-	}
-	size+=sizeof(MEMINFO);
-#endif
-
-	void *Ptr = nullptr;
-	do
-	{
-		Ptr = realloc(block, size);
-	}
-	while (size && !Ptr && InsufficientMemoryHandler());
-
-#ifdef MEMORY_CHECK
-	MEMINFO* Info = static_cast<MEMINFO*>(Ptr);
-	if (!block)
-	{
-		Info->AllocationType = AT_RAW;
-		Info->Size = 0;
-	}
-	global::AllocatedMemorySize -= Info->Size;
-	Info->Size = size;
-	global::AllocatedMemorySize += Info->Size;
-	Ptr=static_cast<LPBYTE>(Ptr)+sizeof(MEMINFO);
-
-#endif
-
-#if defined(SYSLOG)
-	if (!block)
-	{
-		global::CallMallocFree++;
-	}
-#endif
-
-	return Ptr;
-}
-
-void __cdecl xf_free(void * block)
-{
-#ifdef MEMORY_CHECK
-	if(block)
-	{
-		block=static_cast<LPBYTE>(block)-sizeof(MEMINFO);
-		MEMINFO* Info = static_cast<MEMINFO*>(block);
-
-		assert(Info->AllocationType == AT_RAW);
-		global::AllocatedMemorySize -= Info->Size;
-	}
-#endif
-
-#if defined(SYSLOG)
-	if (block)
-		global::CallMallocFree--;
-#endif
-
-	free(block);
-}
-
-void * __cdecl operator new(size_t size) throw()
-{
-	void * res = xf_malloc(size);
-
-#ifdef MEMORY_CHECK
-	MEMINFO* Info = static_cast<MEMINFO*>(res)-1;
-	Info->AllocationType = AT_SCALAR;
-#endif
-
-#if defined(SYSLOG)
-	global::CallNewDeleteScalar++;
-#endif
-
-	return res;
-}
-
-void * __cdecl operator new[] (size_t size) throw()
-{
-	void * res = operator new(size);
-
-#ifdef MEMORY_CHECK
-	MEMINFO* Info = static_cast<MEMINFO*>(res)-1;
-	Info->AllocationType = AT_VECTOR;
-#endif
-
-#if defined(SYSLOG)
-	global::CallNewDeleteVector++;
-#endif
-
-	return res;
-}
-
-void operator delete(void *ptr) throw()
-{
-
-#ifdef MEMORY_CHECK
-	if(ptr)
-	{
-		MEMINFO* Info = static_cast<MEMINFO*>(ptr)-1;
-		assert(Info->AllocationType == AT_SCALAR);
-		Info->AllocationType = AT_RAW;
-	}
-#endif
-
-	xf_free(ptr);
-
-#if defined(SYSLOG)
-	if (ptr)
-		global::CallNewDeleteScalar--;
-#endif
-}
-
-void __cdecl operator delete[] (void *ptr) throw()
-{
-#ifdef MEMORY_CHECK
-	if(ptr)
-	{
-		MEMINFO* Info = static_cast<MEMINFO*>(ptr)-1;
-		assert(Info->AllocationType == AT_VECTOR);
-		Info->AllocationType = AT_SCALAR;
-	}
-#endif
-
-#if defined(SYSLOG)
-	if(ptr)
-		global::CallNewDeleteVector--;
-#endif
-
-	operator delete(ptr);
-}
 
 char * __cdecl xf_strdup(const char * string)
 {

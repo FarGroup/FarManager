@@ -794,8 +794,9 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 void AtExit()
 {
-#ifdef SYSLOG
-	if (global::CallNewDeleteVector || global::CallNewDeleteScalar || global::CallMallocFree)
+	string::ReleaseEUS();
+
+	if (global::CallNewDeleteVector || global::CallNewDeleteScalar || global::CallMallocFree || global::AllocatedMemoryBlocks || global::AllocatedMemorySize)
 	{
 		wprintf(L"Memory leaks detected:\n");
 		if (global::CallNewDeleteVector)
@@ -804,9 +805,12 @@ void AtExit()
 			wprintf(L"  delete:     %d\n", global::CallNewDeleteScalar);
 		if (global::CallMallocFree)
 			wprintf(L"  free():     %d\n", global::CallMallocFree);
-		wprintf(L"Total: %d bytes\n\n", global::AllocatedMemorySize);
+		if (global::AllocatedMemoryBlocks)
+			wprintf(L"Total blocks: %d\n", global::AllocatedMemoryBlocks);
+		if (global::AllocatedMemorySize)
+			wprintf(L"Total bytes: %d\n", global::AllocatedMemorySize);
+		wprintf(L"\n");
 	}
-#endif
 }
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])

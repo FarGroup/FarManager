@@ -51,12 +51,11 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
 
-#if defined(SYSLOG)
 long global::CallNewDeleteVector=0;
 long global::CallNewDeleteScalar=0;
 long global::CallMallocFree=0;
+size_t global::AllocatedMemoryBlocks = 0;
 size_t global::AllocatedMemorySize = 0;
-#endif
 
 global::global():
 	m_MainThreadId(GetCurrentThreadId()),
