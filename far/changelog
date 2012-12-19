@@ -1,3 +1,9 @@
+drkns 19.12.2012 22:50:44 +0200 - build 3034
+
+1. В menu2 "нажимались" grayed & disabled элементы.
+
+2. Продолжение 3028. 
+
 svs 19.12.2012 13:13:17 +0400 - build 3033
 
 1. Mantis#0002207: SetDirectoryW() всегда передает в поле SetDirectoryInfo->UserData NULL

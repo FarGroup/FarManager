@@ -237,6 +237,7 @@ static void RegisterBlock(memblock *block)
 
 	updateCallCount(block->block->AllocationType, true);
 	++global::AllocatedMemoryBlocks;
+	++global::TotalAllocationCalls;
 	global::AllocatedMemorySize+=block->block->Size;
 }
 

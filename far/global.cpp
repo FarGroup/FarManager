@@ -51,11 +51,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "configdb.hpp"
 #include "ctrlobj.hpp"
 
-long global::CallNewDeleteVector=0;
-long global::CallNewDeleteScalar=0;
-long global::CallMallocFree=0;
+intptr_t global::CallNewDeleteVector=0;
+intptr_t global::CallNewDeleteScalar=0;
+intptr_t global::CallMallocFree=0;
 size_t global::AllocatedMemoryBlocks = 0;
 size_t global::AllocatedMemorySize = 0;
+size_t global::TotalAllocationCalls = 0;
 
 global::global():
 	m_MainThreadId(GetCurrentThreadId()),

@@ -78,11 +78,12 @@ public:
 	BOOL StartSysLog;
 #endif
 
-	static long CallNewDeleteVector;
-	static long CallNewDeleteScalar;
-	static long CallMallocFree;
+	static intptr_t CallNewDeleteVector;
+	static intptr_t CallNewDeleteScalar;
+	static intptr_t CallMallocFree;
 	static size_t AllocatedMemoryBlocks;
 	static size_t AllocatedMemorySize;
+	static size_t TotalAllocationCalls;
 
 #ifdef DIRECT_RT
 	bool DirectRT;

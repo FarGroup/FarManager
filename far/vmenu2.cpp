@@ -42,87 +42,109 @@ intptr_t WINAPI VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param
 {
 	VMenu2 *vm=(VMenu2*)hDlg;
 
-	if(Msg==DN_CTLCOLORDIALOG)
+	switch(Msg)
 	{
-		FarColor *color=(FarColor*)Param2;
-		*color=ColorIndexToColor(COL_MENUBOX);
-		return true;
-	}
-	if(Msg==DN_CTLCOLORDLGLIST)
-	{
-		FarDialogItemColors *colors=(FarDialogItemColors*)Param2;
-
-		PaletteColors MenuColors[]=
+	case DN_CTLCOLORDIALOG:
 		{
-			COL_MENUBOX,                               // подложка
-			COL_MENUBOX,                               // рамка
-			COL_MENUTITLE,                             // заголовок - верхний и нижний
-			COL_MENUTEXT,                              // Текст пункта
-			COL_MENUHIGHLIGHT,                         // HotKey
-			COL_MENUBOX,                               // separator
-			COL_MENUSELECTEDTEXT,                      // Выбранный
-			COL_MENUSELECTEDHIGHLIGHT,                 // Выбранный - HotKey
-			COL_MENUSCROLLBAR,                         // ScrollBar
-			COL_MENUDISABLEDTEXT,                      // Disabled
-			COL_MENUARROWS,                            // Arrow
-			COL_MENUARROWSSELECTED,                    // Выбранный - Arrow
-			COL_MENUARROWSDISABLED,                    // Arrow Disabled
-			COL_MENUGRAYTEXT,                          // "серый"
-			COL_MENUSELECTEDGRAYTEXT,                  // выбранный "серый"
-		};
-		for(size_t i=0; i<colors->ColorsCount && i<ARRAYSIZE(MenuColors); ++i)
-			colors->Colors[i]=ColorIndexToColor(MenuColors[i]);
-
-		return true;
-	}
-
-	if(Global->CloseFARMenu && Msg!=DN_CLOSE)
-		SendDlgMessage(hDlg, DM_CLOSE, -1, nullptr);
-
-	if(Msg==DN_CLOSE && vm->Call(Msg, (void*)(Param1<0 ? Param1 : vm->GetSelectPos())))
-		return false;
-
-	if(Msg==DN_LISTHOTKEY && !vm->Call(Msg, Param2))
-		SendDlgMessage(hDlg, DM_CLOSE, -1, nullptr);
-
-	if(Msg==DN_DRAWDIALOGDONE && vm->DefRec.EventType)
-	{
-		INPUT_RECORD rec=vm->DefRec;
-		ClearStruct(vm->DefRec);
-		if(!vm->Call(DN_INPUT, &rec))
-			SendDlgMessage(hDlg, DM_KEY, 1, &rec);
-	}
-
-	if((Msg==DN_CONTROLINPUT || Msg==DN_INPUT) && !vm->cancel)
-	{
-		if (Msg==DN_CONTROLINPUT)
-		{
-			INPUT_RECORD *ir=static_cast<INPUT_RECORD*>(Param2);
-			int key=InputRecordToKey(ir);
-
-			if(vm->ListBox().ProcessFilterKey(key))
-				return true;
+			FarColor *color=(FarColor*)Param2;
+			*color=ColorIndexToColor(COL_MENUBOX);
+			return true;
 		}
 
-		if(vm->Call(DN_INPUT, Param2))
-			return Msg==DN_CONTROLINPUT ? true : false;
-	}
-	if((Msg==DN_LISTCHANGE || Msg==DN_ENTERIDLE) && !vm->cancel)
-	{
-		if(vm->Call(Msg, Param2))
-			return false;
-	}
+	case DN_CTLCOLORDLGLIST:
+		{
+			FarDialogItemColors *colors=(FarDialogItemColors*)Param2;
 
-	if(Msg==DN_RESIZECONSOLE && !vm->cancel)
-	{
-		INPUT_RECORD ReadRec={WINDOW_BUFFER_SIZE_EVENT};
-		ReadRec.Event.WindowBufferSizeEvent.dwSize=*(COORD*)Param2;
-		if(vm->Call(DN_INPUT, &ReadRec))
-			return false;
-		else
-			vm->Resize();
-	}
+			PaletteColors MenuColors[]=
+			{
+				COL_MENUBOX,                               // подложка
+				COL_MENUBOX,                               // рамка
+				COL_MENUTITLE,                             // заголовок - верхний и нижний
+				COL_MENUTEXT,                              // Текст пункта
+				COL_MENUHIGHLIGHT,                         // HotKey
+				COL_MENUBOX,                               // separator
+				COL_MENUSELECTEDTEXT,                      // Выбранный
+				COL_MENUSELECTEDHIGHLIGHT,                 // Выбранный - HotKey
+				COL_MENUSCROLLBAR,                         // ScrollBar
+				COL_MENUDISABLEDTEXT,                      // Disabled
+				COL_MENUARROWS,                            // Arrow
+				COL_MENUARROWSSELECTED,                    // Выбранный - Arrow
+				COL_MENUARROWSDISABLED,                    // Arrow Disabled
+				COL_MENUGRAYTEXT,                          // "серый"
+				COL_MENUSELECTEDGRAYTEXT,                  // выбранный "серый"
+			};
+			for(size_t i=0; i<colors->ColorsCount && i<ARRAYSIZE(MenuColors); ++i)
+				colors->Colors[i]=ColorIndexToColor(MenuColors[i]);
 
+			return true;
+		}
+
+	case DN_CLOSE:
+		if(vm->GetItemFlags() & (LIF_GRAYED|LIF_DISABLE))
+			return false;
+		if(vm->Call(Msg, (void*)(Param1<0 ? Param1 : vm->GetSelectPos())))
+			return false;
+		break;
+
+	case DN_LISTHOTKEY:
+		if (!vm->Call(Msg, Param2))
+			SendDlgMessage(hDlg, DM_CLOSE, -1, nullptr);
+		break;
+
+	case DN_DRAWDIALOGDONE:
+		if(vm->DefRec.EventType)
+		{
+			INPUT_RECORD rec=vm->DefRec;
+			ClearStruct(vm->DefRec);
+			if(!vm->Call(DN_INPUT, &rec))
+				SendDlgMessage(hDlg, DM_KEY, 1, &rec);
+		}
+		break;
+
+	case DN_CONTROLINPUT:
+	case DN_INPUT:
+		if(!vm->cancel)
+		{
+			if (Msg==DN_CONTROLINPUT)
+			{
+				INPUT_RECORD *ir=static_cast<INPUT_RECORD*>(Param2);
+				int key=InputRecordToKey(ir);
+
+				if(vm->ListBox().ProcessFilterKey(key))
+					return true;
+			}
+
+			if(vm->Call(DN_INPUT, Param2))
+				return Msg==DN_CONTROLINPUT ? true : false;
+		}
+		break;
+
+	case DN_LISTCHANGE:
+	case DN_ENTERIDLE:
+		if(!vm->cancel)
+		{
+			if(vm->Call(Msg, Param2))
+				return false;
+		}
+		break;
+
+	case DN_RESIZECONSOLE:
+		if(!vm->cancel)
+		{
+			INPUT_RECORD ReadRec={WINDOW_BUFFER_SIZE_EVENT};
+			ReadRec.Event.WindowBufferSizeEvent.dwSize=*(COORD*)Param2;
+			if(vm->Call(DN_INPUT, &ReadRec))
+				return false;
+			else
+				vm->Resize();
+		}
+		break;
+
+	default:
+		if(Global->CloseFARMenu)
+			SendDlgMessage(hDlg, DM_CLOSE, -1, nullptr);
+		break;
+	}
 	return DefDlgProc(hDlg, Msg, Param1, Param2);
 }
 

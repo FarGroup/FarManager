@@ -376,7 +376,7 @@ class TPointerArray
 		}
 
 	public:
-		TPointerArray(size_t delta=1) { items=nullptr; Count=internalCount=0; setDelta(delta); }
+		TPointerArray(size_t delta=1024) { items=nullptr; Count=internalCount=0; setDelta(delta); }
 		~TPointerArray() { Free(); }
 
 		void Free()
