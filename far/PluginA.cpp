@@ -3364,9 +3364,17 @@ void FreeAnsiPanelInfo(oldfar::PanelInfo* PIA)
 	ClearStruct(*PIA);
 }
 
+struct oldPanelInfoContainer
+{
+	oldPanelInfoContainer() {ClearStruct(Info);}
+	~oldPanelInfoContainer() {FreeAnsiPanelInfo(&Info);}
+
+	oldfar::PanelInfo Info;
+};
+
 int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 {
-	static oldfar::PanelInfo PanelInfoA={},AnotherPanelInfoA={};
+	static oldPanelInfoContainer PanelInfoA, AnotherPanelInfoA;
 	static int Reenter=0;
 
 	if (!hPlugin || hPlugin==INVALID_HANDLE_VALUE)
@@ -3401,7 +3409,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 			{
 				//Попытка борьбы с рекурсией (вызов GET*PANELINFO из GetOpenPanelInfo).
 				//Так как у нас всё статик то должно сработать нормально в 99% случаев
-				*(oldfar::PanelInfo*)Param=Passive?AnotherPanelInfoA:PanelInfoA;
+				*(oldfar::PanelInfo*)Param = Passive? AnotherPanelInfoA.Info : PanelInfoA.Info;
 				return TRUE;
 			}
 
@@ -3410,7 +3418,7 @@ int WINAPI FarPanelControlA(HANDLE hPlugin,int Command,void *Param)
 			if (Passive)
 				hPlugin=PANEL_PASSIVE;
 
-			oldfar::PanelInfo* OldPI=Passive?&AnotherPanelInfoA:&PanelInfoA;
+			oldfar::PanelInfo* OldPI = Passive? &AnotherPanelInfoA.Info : &PanelInfoA.Info;
 			PanelInfo PI = {sizeof(PanelInfo)};
 			int ret = static_cast<int>(NativeInfo.PanelControl(hPlugin,FCTL_GETPANELINFO,0,&PI));
 			FreeAnsiPanelInfo(OldPI);
