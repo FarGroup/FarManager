@@ -188,7 +188,10 @@ NOENTRY = -e-
 !ifndef NEEDDEFLIB
 NODEFLIB = -n
 !endif
-LINK_FLAGS=-q $(ULOUT) $(ULN_DELAY) -Gz -m- -v -Gh -Gh- $(NOENTRY) $(NODEFLIB) /ZD:"$(DEFFILE)" /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(ENV_LIB_OPT)
+!ifdef DEFFILE
+LINK_DEF_OPT=/ZD:"$(DEFFILE)"
+!endif
+LINK_FLAGS=-q $(ULOUT) $(ULN_DELAY) -Gz -m- -v -Gh -Gh- $(NOENTRY) $(NODEFLIB) $(LINK_DEF_OPT) /ZM:"$(MAP)" /ZO:"$(DLLFULLNAME)" $(ENV_LIB_OPT)
 !endif
 
 !ifndef AS
