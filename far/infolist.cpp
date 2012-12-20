@@ -239,7 +239,7 @@ void InfoList::DisplayObject()
 		}
 
 	}
-#
+
 	/* #2 - disk info */
 	if (SectionState[ILSS_DISKINFO].Show)
 	{
@@ -1039,12 +1039,11 @@ int InfoList::OpenDizFile(const wchar_t *DizFile,int YPos)
 	}
 
 	DizView->Show();
+
 	string strTitle;
 	strTitle.Append(L" ").Append(PointToName(strDizFileName)).Append(L" ");
-	TruncStr(strTitle,X2-X1-3);
-	GotoXY(X1+(X2-X1-(int)strTitle.GetLength())/2,YPos-1);
-	SetColor(COL_PANELTEXT);
-	PrintText(strTitle);
+	int CurY=YPos-1;
+	DrawTitle(strTitle,ILSS_DIRDESCRIPTION,CurY);
 	return TRUE;
 }
 
