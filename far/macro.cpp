@@ -341,8 +341,6 @@ void print_opcodes()
 }
 #endif
 
-static TVar __varTextDate;
-
 // для диалога назначения клавиши
 struct DlgParam
 {
@@ -1067,7 +1065,7 @@ int KeyMacro::GetKey()
 				if ((macro->Flags()&MFLAGS_DISABLEOUTPUT) && Global->ScrBuf->GetLockCount()==0)
 					Global->ScrBuf->Lock();
 
-				__varTextDate = mpr->Values[0].String;
+				varTextDate = mpr->Values[0].String;
 				return KEY_OP_PLAINTEXT;
 			}
 
@@ -1511,12 +1509,6 @@ void KeyMacro::WriteMacros(void)
 			}
 		}
 	}
-}
-
-const wchar_t *eStackAsString(int)
-{
-	const wchar_t *s=__varTextDate.toString();
-	return !s?L"":s;
 }
 
 static BOOL CheckEditSelected(MACROMODEAREA Mode, UINT64 CurFlags)

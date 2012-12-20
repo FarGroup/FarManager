@@ -2685,8 +2685,7 @@ int Editor::ProcessKey(int Key)
 		{
 			if (!Flags.Check(FEDITOR_LOCKMODE))
 			{
-				const wchar_t *Fmt = eStackAsString();
-				string strTStr = Fmt;
+				string strTStr(Global->CtrlObject->Macro.eStackAsString());
 
 				Pasting++;
 				//_SVS(SysLogDump(Fmt,0,TStr,strlen(TStr),nullptr));

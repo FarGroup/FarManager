@@ -232,6 +232,8 @@ class KeyMacro
 		int m_MacroPluginIsRunning;
 		int m_DisableNested;
 		int m_WaitKey;
+		TVar varTextDate;
+
 	private:
 		bool ReadKeyMacro(MACROMODEAREA Area);
 		void WriteMacros(void);
@@ -291,7 +293,7 @@ class KeyMacro
 		bool ParseMacroString(const wchar_t *Sequence,bool onlyCheck=false,bool skipFile=true);
 		void GetMacroParseError(DWORD* ErrCode, COORD* ErrPos, string *ErrSrc);
 		intptr_t CallFar(intptr_t OpCode, FarMacroCall* Data);
+		const wchar_t *eStackAsString(int Pos=0) { return NullToEmpty(varTextDate.toString()); }
 };
 
-const wchar_t *eStackAsString(int Pos=0);
 inline bool IsMenuArea(int Area){return Area==MACRO_MAINMENU || Area==MACRO_MENU || Area==MACRO_DISKS || Area==MACRO_USERMENU || Area==MACRO_SHELLAUTOCOMPLETION || Area==MACRO_DIALOGAUTOCOMPLETION;}

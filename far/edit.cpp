@@ -1106,9 +1106,7 @@ int Edit::ProcessKey(int Key)
 					RecurseProcessKey(KEY_DEL);
 			}
 
-			const wchar_t *S = eStackAsString();
-
-			ProcessInsPlainText(S);
+			ProcessInsPlainText(Global->CtrlObject->Macro.eStackAsString());
 
 			Show();
 			return TRUE;
