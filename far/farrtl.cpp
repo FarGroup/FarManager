@@ -407,10 +407,27 @@ static inline const char* getAllocationTypeString(ALLOCATION_TYPE type)
 void PrintMemory()
 {
 #ifdef _DEBUG
-	printf("Not freed blocks:\n");
-	for(memblock* i = FirstMemBlock.next; i; i = i->next)
+	if (global::CallNewDeleteVector || global::CallNewDeleteScalar || global::CallMallocFree || global::AllocatedMemoryBlocks || global::AllocatedMemorySize)
 	{
-		printf("%s:%u -> %s: %s (%u bytes)\n", i->block->File, i->block->Line, i->block->Function, getAllocationTypeString(i->block->AllocationType), i->block->Size);
+		wprintf(L"Memory leaks detected:\n");
+		if (global::CallNewDeleteVector)
+			wprintf(L"  delete[]:   %d\n", global::CallNewDeleteVector);
+		if (global::CallNewDeleteScalar)
+			wprintf(L"  delete:     %d\n", global::CallNewDeleteScalar);
+		if (global::CallMallocFree)
+			wprintf(L"  free():     %d\n", global::CallMallocFree);
+		if (global::AllocatedMemoryBlocks)
+			wprintf(L"Total blocks: %u\n", global::AllocatedMemoryBlocks);
+		if (global::AllocatedMemorySize)
+			wprintf(L"Total bytes:  %u payload, %u overhead\n", global::AllocatedMemorySize - global::AllocatedMemoryBlocks * sizeof(MEMINFO), global::AllocatedMemoryBlocks * sizeof(MEMINFO));
+		wprintf(L"\n");
+
+
+		printf("Not freed blocks:\n");
+		for(memblock* i = FirstMemBlock.next; i; i = i->next)
+		{
+			printf("%s:%u -> %s: %s (%u bytes)\n", i->block->File, i->block->Line, i->block->Function, getAllocationTypeString(i->block->AllocationType), i->block->Size - sizeof(MEMINFO));
+		}
 	}
 #endif
 }
