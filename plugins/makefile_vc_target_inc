@@ -3,7 +3,7 @@
 !ifndef ULINK
 LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper.obj $(OBJDIR)\vc10.obj
 !else
-LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrp_u.obj
+LINK_OBJS = $(LINK_OBJS) $(OBJDIR)\vc10wrapper_u.obj
 !endif
 !endif
 !endif
@@ -40,7 +40,7 @@ $(DLLFULLNAME) : $(LINK_OBJS) $(RES) $(LINK_DEP)
 .cpp{$(OBJDIR)}.obj:
 	@$(CC) $(CPPFLAGS) { $< } 
 
-{$(COMMON)}.cpp{$(OBJDIR)}.obj::
+{$(COMMON)}.cpp{$(OBJDIR)}.obj:
 	@$(CC) $(CPPFLAGS) { $< } 
 !endif
 
