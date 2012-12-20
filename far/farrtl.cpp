@@ -16,6 +16,15 @@ farrtl.cpp
 #pragma intrinsic (memcpy)
 #endif
 
+#ifdef _DEBUG
+#undef xf_malloc
+#undef xf_realloc
+#undef xf_realloc_nomove
+#undef xf_strdup
+#undef xf_wcsdup
+#undef new
+#endif
+
 static bool InsufficientMemoryHandler()
 {
 	if (!Global)
@@ -40,105 +49,7 @@ static bool InsufficientMemoryHandler()
 	return ir.Event.KeyEvent.wVirtualKeyCode == VK_RETURN;
 }
 
-enum ALLOCATION_TYPE
-{
-	AT_RAW    = 0xa7000ea8,
-	AT_SCALAR = 0xa75ca1ae,
-	AT_VECTOR = 0xa77ec10e,
-};
-
-typedef void* (*pAllocator)(size_t size, ALLOCATION_TYPE type);
-typedef void (*pDeallocator)(void* block, ALLOCATION_TYPE type);
-typedef void* (*pReallocator)(void* block, size_t size);
-typedef void* (*pExpander)(void* block, size_t size);
-
-static void* ReleaseAllocator(size_t size, ALLOCATION_TYPE type);
-static void ReleaseDeallocator(void* block, ALLOCATION_TYPE type);
-static void* ReleaseReallocator(void* block, size_t size);
-static void* ReleaseExpander(void* block, size_t size);
-
-#ifdef _DEBUG
-static void* DebugAllocator(size_t size, ALLOCATION_TYPE type);
-static void DebugDeallocator(void* block, ALLOCATION_TYPE type);
-static void* DebugReallocator(void* block, size_t size);
-static void* DebugExpander(void* block, size_t size);
-#endif
-
-static const struct
-{
-	pAllocator Allocator;
-	pDeallocator Deallocator;
-	pReallocator Reallocator;
-	pExpander Expander;
-}
-Memory = 
-{
-#ifdef _DEBUG
-	DebugAllocator,
-	DebugDeallocator,
-	DebugReallocator,
-	DebugExpander,
-#else
-	ReleaseAllocator,
-	ReleaseDeallocator,
-	ReleaseReallocator,
-	ReleaseExpander,
-#endif
-};
-
-void* _cdecl operator new(size_t size) throw()
-{
-	return Memory.Allocator(size, AT_SCALAR);
-}
-
-void* _cdecl operator new[](size_t size) throw()
-{
-	return Memory.Allocator(size, AT_VECTOR);
-}
-
-void _cdecl operator delete(void* block)
-{
-	return Memory.Deallocator(block, AT_SCALAR);
-}
-
-void _cdecl operator delete[](void* block)
-{
-	return Memory.Deallocator(block, AT_VECTOR);
-}
-
-void* xf_malloc(size_t size)
-{
-	return Memory.Allocator(size, AT_RAW);
-}
-
-void xf_free(void* block)
-{
-	return Memory.Deallocator(block, AT_RAW);
-}
-
-void* xf_realloc(void* block, size_t size)
-{
-	return Memory.Reallocator(block, size);
-}
-
-void* _cdecl xf_realloc_nomove(void * block, size_t size)
-{
-	if (!block)
-	{
-		return xf_malloc(size);
-	}
-	else if (Memory.Expander(block, size))
-	{
-		return block;
-	}
-	else
-	{
-		xf_free(block);
-		return xf_malloc(size);
-	}
-}
-
-static void* ReleaseAllocator(size_t size, ALLOCATION_TYPE)
+static void* ReleaseAllocator(size_t size)
 {
 	void* newBlock;
 	do newBlock = malloc(size);
@@ -146,7 +57,7 @@ static void* ReleaseAllocator(size_t size, ALLOCATION_TYPE)
 	return newBlock;
 }
 
-static void ReleaseDeallocator(void* block, ALLOCATION_TYPE)
+static void ReleaseDeallocator(void* block)
 {
 	return free(block);
 }
@@ -168,7 +79,77 @@ static void* ReleaseExpander(void* block, size_t size)
 #endif
 }
 
-#ifdef _DEBUG
+#ifndef _DEBUG
+
+void* xf_malloc(size_t size)
+{
+	return ReleaseAllocator(size);
+}
+
+void xf_free(void* block)
+{
+	return ReleaseDeallocator(block);
+}
+
+void* xf_realloc(void* block, size_t size)
+{
+	return ReleaseReallocator(block, size);
+}
+
+void* _cdecl xf_realloc_nomove(void * block, size_t size)
+{
+	if (!block)
+	{
+		return xf_malloc(size);
+	}
+	else if (ReleaseExpander(block, size))
+	{
+		return block;
+	}
+	else
+	{
+		xf_free(block);
+		return xf_malloc(size);
+	}
+}
+
+void* _cdecl operator new(size_t size) throw()
+{
+	return ReleaseAllocator(size);
+}
+
+void* _cdecl operator new[](size_t size) throw()
+{
+	return ReleaseAllocator(size);
+}
+
+void _cdecl operator delete(void* block)
+{
+	return ReleaseDeallocator(block);
+}
+
+void _cdecl operator delete[](void* block)
+{
+	return ReleaseDeallocator(block);
+}
+
+char* xf_strdup(const char * string)
+{
+	return string ? strcpy(static_cast<char*>(xf_malloc(strlen(string) + 1)),string) : nullptr;
+}
+
+wchar_t* xf_wcsdup(const wchar_t * string)
+{
+	return string ? wcscpy(static_cast<wchar_t*>(xf_malloc((wcslen(string) + 1) * sizeof(wchar_t))),string) : nullptr;
+}
+
+#else
+enum ALLOCATION_TYPE
+{
+	AT_RAW    = 0xa7000ea8,
+	AT_SCALAR = 0xa75ca1ae,
+	AT_VECTOR = 0xa77ec10e,
+};
 
 struct memblock
 {
@@ -190,12 +171,17 @@ struct MEMINFO
 			ALLOCATION_TYPE AllocationType;
 			size_t Size;
 			memblock MemBlock;
+			const char* Function;
+			const char* File;
+			int Line;
 		};
-		char c[MEMORY_ALLOCATION_ALIGNMENT*3];
+		char c[MEMORY_ALLOCATION_ALIGNMENT*4];
 	};
 };
 
-static_assert(sizeof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT*3, "MEMINFO not aligned");
+static_assert(sizeof(MEMINFO) == MEMORY_ALLOCATION_ALIGNMENT*4, "MEMINFO not aligned");
+inline void* ToReal(void* address) { return static_cast<MEMINFO*>(address)-1; }
+inline void* ToUser(void* address) { return static_cast<MEMINFO*>(address)+1; }
 
 static void CheckChain()
 {
@@ -259,18 +245,18 @@ static void UnregisterBlock(memblock *block)
 	global::AllocatedMemorySize-=block->block->Size;
 }
 
-inline void* ToReal(void* address) { return static_cast<MEMINFO*>(address)-1; }
-inline void* ToUser(void* address) { return static_cast<MEMINFO*>(address)+1; }
-
-static void* DebugAllocator(size_t size, ALLOCATION_TYPE type)
+static void* DebugAllocator(size_t size, ALLOCATION_TYPE type,const char* Function,  const char* File, int Line)
 {
 	size_t realSize = size + sizeof(MEMINFO);
 
-	void* realBlock = ReleaseAllocator(realSize, type);
+	void* realBlock = ReleaseAllocator(realSize);
 
 	MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
 	Info->AllocationType = type;
 	Info->Size = realSize;
+	Info->Function = Function;
+	Info->File = File;
+	Info->Line = Line;
 	Info->MemBlock.block = Info;
 	RegisterBlock(&Info->MemBlock);
 	return ToUser(realBlock);
@@ -285,13 +271,13 @@ static void DebugDeallocator(void* block, ALLOCATION_TYPE type)
 		assert(Info->AllocationType == type);
 		UnregisterBlock(&Info->MemBlock);
 	}
-	ReleaseDeallocator(realBlock, type);
+	ReleaseDeallocator(realBlock);
 }
 
-static void* DebugReallocator(void* block, size_t size)
+static void* DebugReallocator(void* block, size_t size, const char* Function, const char* File, int Line)
 {
 	if(!block)
-		return DebugAllocator(size, AT_RAW);
+		return DebugAllocator(size, AT_RAW, Function, File, Line);
 
 	void* realBlock = ToReal(block);
 	MEMINFO* Info = static_cast<MEMINFO*>(realBlock);
@@ -331,37 +317,107 @@ static void* _cdecl DebugExpander(void* block, size_t size)
 
 	return realBlock? ToUser(realBlock) : nullptr;
 }
-#endif
 
-char * __cdecl xf_strdup(const char * string)
+
+void* xf_malloc(size_t size, const char* Function, const char* File, int Line)
 {
-	if (string)
-	{
-		char *memory;
-
-		if ((memory = (char *)xf_malloc(strlen(string) + 1)) )
-			return strcpy(memory,string);
-	}
-
-	return nullptr;
+	return DebugAllocator(size, AT_RAW, Function, File, Line);
 }
 
-wchar_t * __cdecl xf_wcsdup(const wchar_t * string)
+void xf_free(void* block)
 {
-	if (string)
+	return DebugDeallocator(block, AT_RAW);
+}
+
+void* xf_realloc(void* block, size_t size, const char* Function, const char* File, int Line)
+{
+	return DebugReallocator(block, size, Function, File, Line);
+}
+
+void* _cdecl xf_realloc_nomove(void * block, size_t size, const char* Function, const char* File, int Line)
+{
+	if (!block)
 	{
-		wchar_t *memory;
-
-		if ((memory = (wchar_t *)xf_malloc((wcslen(string)+1)*sizeof(wchar_t))) )
-			return wcscpy(memory,string);
+		return xf_malloc(size, Function, File, Line);
 	}
+	else if (DebugExpander(block, size))
+	{
+		return block;
+	}
+	else
+	{
+		xf_free(block);
+		return xf_malloc(size, File, Function, Line);
+	}
+}
 
-	return nullptr;
+void* _cdecl operator new(size_t size) throw()
+{
+	return DebugAllocator(size, AT_SCALAR, __FUNCSIG__, __FILE__, __LINE__);
+}
+
+void* _cdecl operator new[](size_t size) throw()
+{
+	return DebugAllocator(size, AT_VECTOR, __FUNCSIG__, __FILE__, __LINE__);
+}
+
+void* _cdecl operator new(size_t size, const char* Function, const char* File, int Line)
+{
+	return DebugAllocator(size, AT_SCALAR,Function, File, Line);
+}
+
+void* _cdecl operator new[](size_t size, const char* Function, const char* File, int Line)
+{
+	return DebugAllocator(size, AT_VECTOR, Function, File, Line);
+}
+
+void _cdecl operator delete(void* block)
+{
+	return DebugDeallocator(block, AT_SCALAR);
+}
+
+void _cdecl operator delete[](void* block)
+{
+	return DebugDeallocator(block, AT_VECTOR);
+}
+
+char* xf_strdup(const char * string, const char* Function, const char* File, int Line)
+{
+	return string ? strcpy(static_cast<char*>(xf_malloc(strlen(string) + 1, Function, File, Line)),string) : nullptr;
+}
+
+wchar_t* xf_wcsdup(const wchar_t * string, const char* Function, const char* File, int Line)
+{
+	return string ? wcscpy(static_cast<wchar_t*>(xf_malloc((wcslen(string) + 1) * sizeof(wchar_t), Function, File, Line)),string) : nullptr;
+}
+
+static inline const char* getAllocationTypeString(ALLOCATION_TYPE type)
+{
+	switch(type)
+	{
+	case AT_RAW: return "malloc";
+	case AT_SCALAR: return "operator new";
+	case AT_VECTOR: return "operator new[]";
+	}
+	return "unknown";
+}
+
+#endif
+
+void PrintMemory()
+{
+#ifdef _DEBUG
+	printf("Not freed blocks:\n");
+	for(memblock* i = FirstMemBlock.next; i; i = i->next)
+	{
+		printf("%s:%u -> %s: %s (%u bytes)\n", i->block->File, i->block->Line, i->block->Function, getAllocationTypeString(i->block->AllocationType), i->block->Size);
+	}
+#endif
 }
 
 
 // dest è src ÍÅ ÄÎËÆÍÛ ïåðåñåêàòüñÿ
-char * __cdecl xstrncpy(char * dest,const char * src,size_t DestSize)
+char * xstrncpy(char * dest,const char * src,size_t DestSize)
 {
 	char *tmpsrc = dest;
 
@@ -374,7 +430,7 @@ char * __cdecl xstrncpy(char * dest,const char * src,size_t DestSize)
 	return tmpsrc;
 }
 
-wchar_t * __cdecl xwcsncpy(wchar_t * dest,const wchar_t * src,size_t DestSize)
+wchar_t * xwcsncpy(wchar_t * dest,const wchar_t * src,size_t DestSize)
 {
 	wchar_t *tmpsrc = dest;
 
@@ -383,42 +439,6 @@ wchar_t * __cdecl xwcsncpy(wchar_t * dest,const wchar_t * src,size_t DestSize)
 
 	*dest = 0;
 	return tmpsrc;
-}
-
-char * __cdecl xstrncat(char * dest,const char * src, size_t DestSize)
-{
-	char * start=dest;
-
-	while (*dest)
-	{
-		dest++;
-		DestSize--;
-	}
-
-	while (DestSize-->1)
-		if (!(*dest++=*src++))
-			return start;
-
-	*dest=0;
-	return start;
-}
-
-wchar_t * __cdecl xwcsncat(wchar_t * dest,const wchar_t * src, size_t DestSize)
-{
-	wchar_t * start=dest;
-
-	while (*dest)
-	{
-		dest++;
-		DestSize--;
-	}
-
-	while (DestSize-->1)
-		if (!(*dest++=*src++))
-			return start;
-
-	*dest=0;
-	return start;
 }
 
 void* WINAPI bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam)

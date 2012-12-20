@@ -6,40 +6,42 @@ farrtl.cpp
 Переопределение различных CRT функций
 */
 
-#ifdef __cplusplus
+#ifdef _DEBUG
+void* xf_malloc(size_t size, const char* Function, const char* File, int Line);
+void* xf_realloc(void* block, size_t size, const char* Function, const char* File, int Line);
+void* xf_realloc_nomove(void* block, size_t size, const char* Function, const char* File, int Line);
+char* xf_strdup(const char* string, const char* Function, const char* File, int Line);
+wchar_t* xf_wcsdup(const wchar_t* string, const char* Function, const char* File, int Line);
+void* operator new(size_t size, const char* Function, const char* File, int Line);
+void* operator new[](size_t size, const char* Function, const char* File, int Line);
+
+#define xf_malloc(size) xf_malloc(size, __FUNCTION__, __FILE__, __LINE__)
+#define xf_realloc(block, size) xf_realloc(block, size, __FUNCTION__, __FILE__, __LINE__)
+#define xf_realloc_nomove(block, size) xf_realloc_nomove(block, size, __FUNCTION__, __FILE__, __LINE__)
+#define xf_strdup(string) xf_strdup(string, __FUNCTION__, __FILE__, __LINE__)
+#define xf_wcsdup(string) xf_wcsdup(string, __FUNCTION__, __FILE__, __LINE__)
+#define new new(__FUNCTION__, __FILE__, __LINE__)
+#else
+void* xf_malloc(size_t size);
+void* xf_realloc_nomove(void* block, size_t size);
+void* xf_realloc(void* block, size_t size);
+char* xf_strdup(const char* string);
+wchar_t* xf_wcsdup(const wchar_t* string);
+#endif
+
+void PrintMemory();
+
+void  xf_free(void* block);
+char* xstrncpy(char* dest, const char* src, size_t DestSize);
+wchar_t* xwcsncpy(wchar_t* dest, const wchar_t* src, size_t DestSize);
+
+
+
 extern "C"
 {
-#endif
-
-	void __cdecl qsortex(char *base, size_t nel, size_t width,
-	                     int (WINAPI *comp_fp)(const void *, const void *,void*), void *user);
-
-	char * __cdecl xstrncat(char * dest,const char * src,size_t DestSize);
-	wchar_t * __cdecl xwcsncat(wchar_t * dest,const wchar_t * src,size_t DestSize);
-	char * __cdecl xstrncpy(char * dest,const char * src,size_t DestSize);
-	wchar_t * __cdecl xwcsncpy(wchar_t * dest,const wchar_t * src,size_t DestSize);
-	char * __cdecl xf_strdup(const char * string);
-	wchar_t * __cdecl xf_wcsdup(const wchar_t * string);
+	void __cdecl qsortex(char *base, size_t nel, size_t width, int (WINAPI *comp_fp)(const void *, const void *,void*), void *user);
 	void* WINAPI bsearchex(const void* key,const void* base,size_t nelem,size_t width,int (WINAPI *fcmp)(const void*, const void*,void*),void* userparam);
-	void __cdecl far_qsort(
-	    void *base,
-	    size_t num,
-	    size_t width,
-	    int (__cdecl *comp)(const void *, const void *)
-	);
-
-	void  __cdecl xf_free(void *__block);
-	void *__cdecl xf_malloc(size_t __size);
-	void *__cdecl xf_realloc_nomove(void *__block, size_t __size);
-	void *__cdecl xf_realloc(void *__block, size_t __size);
-
-#ifdef __cplusplus
+	void __cdecl far_qsort(void *base, size_t num, size_t width, int (__cdecl *comp)(const void *, const void *));
 }
-#endif
-
-long filelen(FILE *FPtr);
-__int64 filelen64(FILE *FPtr);
-__int64 ftell64(FILE *fp);
-int fseek64(FILE *fp, __int64 offset, int whence);
 
 #define ALIGN(value) ((value+(sizeof(void*)-1))&~(sizeof(void*)-1))

@@ -806,10 +806,12 @@ void AtExit()
 		if (global::CallMallocFree)
 			wprintf(L"  free():     %d\n", global::CallMallocFree);
 		if (global::AllocatedMemoryBlocks)
-			wprintf(L"Total blocks: %d\n", global::AllocatedMemoryBlocks);
+			wprintf(L"Total blocks: %u\n", global::AllocatedMemoryBlocks);
 		if (global::AllocatedMemorySize)
-			wprintf(L"Total bytes: %d\n", global::AllocatedMemorySize);
+			wprintf(L"Total bytes:  %u\n", global::AllocatedMemorySize);
 		wprintf(L"\n");
+
+		PrintMemory();
 	}
 }
 

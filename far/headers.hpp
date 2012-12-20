@@ -34,6 +34,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include <new>
+#include <functional>
 #include <cstdlib>
 #include <cstdio>
 #include <cassert>
