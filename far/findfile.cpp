@@ -680,7 +680,7 @@ static intptr_t GetUserDataFromPluginItem(const wchar_t *Name, const struct Plug
 }
 #endif
 
-void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel,intptr_t UserData)
+void FindFiles::SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel,struct UserDataItem *UserData)
 {
 	if (DirName && *DirName)
 	{
@@ -1080,7 +1080,7 @@ intptr_t FindFiles::MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 	return DefDlgProc(hDlg,Msg,Param1,Param2);
 }
 
-bool FindFiles::GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wchar_t *DestPath, string &strResultName)
+bool FindFiles::GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wchar_t *DestPath, string &strResultName,struct UserDataItem *UserData)
 {
 	_ALGO(CleverSysLog clv(L"FindFiles::GetPluginFile()"));
 	ARCLIST ArcItem;
@@ -1091,7 +1091,7 @@ bool FindFiles::GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData,
 	AddEndSlash(strSaveDir);
 	Global->CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,L"\\",OPM_SILENT);
 	//SetPluginDirectory(ArcList[ArcIndex]->strRootPath,hPlugin);
-	SetPluginDirectory(FindData.strFileName,ArcItem.hPlugin);
+	SetPluginDirectory(FindData.strFileName,ArcItem.hPlugin,false,UserData);
 	const wchar_t *lpFileNameToFind = PointToName(FindData.strFileName);
 	const wchar_t *lpFileNameToFindShort = PointToName(FindData.strAlternateFileName);
 	PluginPanelItem *pItems;
@@ -1792,7 +1792,8 @@ intptr_t FindFiles::FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void
 							FarMkTempEx(strTempDir);
 							apiCreateDirectory(strTempDir, nullptr);
 							CriticalSectionLock Lock(PluginCS);
-							bool bGet=GetPluginFile(FindItem.ArcIndex,FindItem.FindData,strTempDir,strSearchFileName);
+							struct UserDataItem UserData={FindItem.Data,FindItem.FreeData};
+							bool bGet=GetPluginFile(FindItem.ArcIndex,FindItem.FindData,strTempDir,strSearchFileName,&UserData);
 							itd->SetFindListItem(ItemIndex, FindItem);
 							if (!bGet)
 							{
@@ -2686,7 +2687,7 @@ void FindFiles::ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& R
 				bool SetDirectoryResult=false;
 				{
 					CriticalSectionLock Lock(PluginCS);
-					SetDirectoryResult=Global->CtrlObject->Plugins->SetDirectory(hPlugin, CurPanelItem->FileName, OPM_FIND, (intptr_t)CurPanelItem->UserData.Data)!=FALSE;
+					SetDirectoryResult=Global->CtrlObject->Plugins->SetDirectory(hPlugin, CurPanelItem->FileName, OPM_FIND, &CurPanelItem->UserData)!=FALSE;
 				}
 				if (SetDirectoryResult)
 				{
@@ -2840,7 +2841,7 @@ void FindFiles::DoPreparePluginList(HANDLE hDlg, bool Internal)
 	if (SearchMode==FINDAREA_ROOT || SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK || SearchMode==FINDAREA_INPATH)
 	{
 		CriticalSectionLock Lock(PluginCS);
-		Global->CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,strSaveDir,OPM_FIND);
+		Global->CtrlObject->Plugins->SetDirectory(ArcItem.hPlugin,strSaveDir,OPM_FIND,&Info.UserData);
 	}
 
 	if (!Internal)

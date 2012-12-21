@@ -1,3 +1,32 @@
+svs 21.12.2012 16:15:36 +0400 - build 3040
+
+1. Mantis#0002207: SetDirectoryW() всегда передает в поле SetDirectoryInfo->UserData NULL
+   Изменения (не критичные) в АПИ.
+   
+   В SetDirectoryInfo (UserData был, FreeData "не был")
+     а) "intptr_t UserData" стал "intptr_t Reserved"
+     б) добавился "struct UserDataItem UserData"
+
+   В OpenPanelInfo
+     а) добавился "struct UserDataItem UserData"
+        эта компонента относится к OpenPanelInfo::CurDir; плагин должен (если заполняет) 
+        сюда помещать данные, относящиеся к CurDir, FAR будет именно эти значения в SetDirectoryInfo помещать.
+
+   Непонятки:
+     а) PluginManager::CallPlugin() - здесь UserData = {0,0}
+        (непонятное решение)
+     б) Panel::ExecShortcutFolder() - здесь UserData = {0,0}
+        (непонятное решение)
+     в) GetPluginDirList()          - здесь UserData = {0,0}
+        здесь непонятка в том, что плагин говорит "хочу инфу вот по этой дире на вон той панели" - упираемся в "Имя" каталога, а не в элемент панели.
+     г) не хватает вызовов FreeData для OpenPanelInfo
+        разбираться отдельно...
+
+
+   АХТУНГ!
+   Если плагины юзали SetDirectoryInfo.Reserved (бывший SetDirectoryInfo.UserData), перекомпильте с учетом новшества.
+
+
 drkns 21.12.2012 01:39:53 +0200 - build 3039
 
 1. Продолжение 3028.

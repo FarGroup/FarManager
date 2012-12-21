@@ -111,6 +111,9 @@
     Сообщение/события диалоговые в текст
      string __DLGMSG_ToName(int Msg)
 
+    Диалоговые флаги
+     string __DLGDIF_ToName(int Msg)
+
     "Разжевать" INPUT_RECORD
      string __INPUT_RECORD_Dump(INPUT_RECORD *Rec)
 

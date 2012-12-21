@@ -569,14 +569,15 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 
 	if (fp)
 	{
-		fwprintf(fp,L"\tStructSize      =%u\n",static_cast<unsigned>(Info->StructSize));
-		fwprintf(fp,L"\tFlags           =0x%08I64X\n",Info->Flags);
-		fwprintf(fp,L"\tHostFile        ='%s'\n",NullToEmpty(Info->HostFile));
-		fwprintf(fp,L"\tCurDir          ='%s'\n",NullToEmpty(Info->CurDir));
-		fwprintf(fp,L"\tFormat          ='%s'\n",NullToEmpty(Info->Format));
-		fwprintf(fp,L"\tPanelTitle      ='%s'\n",NullToEmpty(Info->PanelTitle));
-		fwprintf(fp,L"\tInfoLines       =%p\n",Info->InfoLines);
-		fwprintf(fp,L"\tInfoLinesNumber =%u\n",static_cast<unsigned>(Info->InfoLinesNumber));
+		fwprintf(fp,L"\tStructSize       =%u\n",static_cast<unsigned>(Info->StructSize));
+		fwprintf(fp,L"\thPanel           =%p\n",Info->hPanel);
+		fwprintf(fp,L"\tFlags            =0x%016I64X\n",Info->Flags);
+		fwprintf(fp,L"\tHostFile         ='%s'\n",NullToEmpty(Info->HostFile));
+		fwprintf(fp,L"\tCurDir           ='%s'\n",NullToEmpty(Info->CurDir));
+		fwprintf(fp,L"\tFormat           ='%s'\n",NullToEmpty(Info->Format));
+		fwprintf(fp,L"\tPanelTitle       ='%s'\n",NullToEmpty(Info->PanelTitle));
+		fwprintf(fp,L"\tInfoLines        =%p\n",Info->InfoLines);
+		fwprintf(fp,L"\tInfoLinesNumber  =%u\n",static_cast<unsigned>(Info->InfoLinesNumber));
 
 		if (Info->InfoLines)
 		{
@@ -587,10 +588,10 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 			}
 		}
 
-		fwprintf(fp,L"\tDescrFiles      =%p\n",Info->DescrFiles);
-		fwprintf(fp,L"\tDescrFilesNumber=%u\n",static_cast<unsigned>(Info->DescrFilesNumber));
-		fwprintf(fp,L"\tPanelModesArray =%p\n",Info->PanelModesArray);
-		fwprintf(fp,L"\tPanelModesNumber=%u\n",static_cast<unsigned>(Info->PanelModesNumber));
+		fwprintf(fp,L"\tDescrFiles       =%p\n",Info->DescrFiles);
+		fwprintf(fp,L"\tDescrFilesNumber =%u\n",static_cast<unsigned>(Info->DescrFilesNumber));
+		fwprintf(fp,L"\tPanelModesArray  =%p\n",Info->PanelModesArray);
+		fwprintf(fp,L"\tPanelModesNumber =%u\n",static_cast<unsigned>(Info->PanelModesNumber));
 
 		if (Info->PanelModesArray)
 		{
@@ -609,11 +610,15 @@ void GetOpenPanelInfo_Dump(const wchar_t *Title,const OpenPanelInfo *Info,FILE *
 			}
 		}
 
-		fwprintf(fp,L"\tStartPanelMode  =%d\n",Info->StartPanelMode);
-		fwprintf(fp,L"\tStartSortMode   =%d\n",Info->StartSortMode);
-		fwprintf(fp,L"\tStartSortOrder  =%d\n",Info->StartSortOrder);
-		fwprintf(fp,L"\tKeyBar          =%p\n",Info->KeyBar);
-		fwprintf(fp,L"\tShortcutData    =%p\n",Info->ShortcutData);
+		fwprintf(fp,L"\tStartPanelMode   =%d\n",Info->StartPanelMode);
+		fwprintf(fp,L"\tStartSortMode    =%d\n",Info->StartSortMode);
+		fwprintf(fp,L"\tStartSortOrder   =%d\n",Info->StartSortOrder);
+		fwprintf(fp,L"\tKeyBar           =%p\n",Info->KeyBar);
+		fwprintf(fp,L"\tShortcutData     =%p\n",Info->ShortcutData);
+		fwprintf(fp,L"\tFreeSize         =%I64d (0x%I64X)\n",Info->FreeSize,Info->FreeSize);
+		fwprintf(fp,L"\tUserData.Data    =%p\n",Info->UserData.Data);
+		fwprintf(fp,L"\tUserData.FreeData=%p\n",Info->UserData.FreeData);
+
 		fwprintf(fp,L"\n");
 		fflush(fp);
 	}
@@ -859,6 +864,13 @@ struct __XXX_Name
 	DWORD Val;
 	const wchar_t *Name;
 };
+
+struct __XXX64_Name
+{
+	unsigned __int64 Val;
+	const wchar_t *Name;
+};
+
 
 static string _XXX_ToName(DWORD Val,const wchar_t *Pref,__XXX_Name *arrDef,size_t cntArr)
 {
@@ -1404,6 +1416,73 @@ string __FARKEY_ToName(int Key)
 #endif
 }
 
+string __DLGDIF_ToName(DWORD Msg)
+{
+#if defined(SYSLOG)
+#define DEF_DIF_(m) { DIF_##m , L#m }
+	__XXX64_Name Message[]=
+	{
+		DEF_DIF_(BOXCOLOR),
+		DEF_DIF_(GROUP),
+		DEF_DIF_(LEFTTEXT),
+		DEF_DIF_(MOVESELECT),
+		DEF_DIF_(SHOWAMPERSAND),
+		DEF_DIF_(CENTERGROUP),
+		DEF_DIF_(NOBRACKETS),
+		DEF_DIF_(MANUALADDHISTORY),
+		DEF_DIF_(SEPARATOR),
+		DEF_DIF_(SEPARATOR2),
+		DEF_DIF_(EDITOR),
+		DEF_DIF_(LISTNOAMPERSAND),
+		DEF_DIF_(LISTNOBOX),
+		DEF_DIF_(HISTORY),
+		DEF_DIF_(BTNNOCLOSE),
+		DEF_DIF_(CENTERTEXT),
+		DEF_DIF_(SEPARATORUSER),
+		DEF_DIF_(SETSHIELD),
+		DEF_DIF_(EDITEXPAND),
+		DEF_DIF_(DROPDOWNLIST),
+		DEF_DIF_(USELASTHISTORY),
+		DEF_DIF_(MASKEDIT),
+		DEF_DIF_(LISTTRACKMOUSE),
+		DEF_DIF_(LISTTRACKMOUSEINFOCUS),
+		DEF_DIF_(SELECTONENTRY),
+		DEF_DIF_(3STATE),
+		DEF_DIF_(EDITPATH),
+		DEF_DIF_(LISTWRAPMODE),
+		DEF_DIF_(NOAUTOCOMPLETE),
+		DEF_DIF_(LISTAUTOHIGHLIGHT),
+		DEF_DIF_(LISTNOCLOSE),
+		DEF_DIF_(EDITPATHEXEC),
+		DEF_DIF_(AUTOMATION),
+		DEF_DIF_(HIDDEN),
+		DEF_DIF_(READONLY),
+		DEF_DIF_(NOFOCUS),
+		DEF_DIF_(DISABLE),
+		DEF_DIF_(DEFAULTBUTTON),
+		DEF_DIF_(FOCUS),
+		DEF_DIF_(RIGHTTEXT),
+		DEF_DIF_(WORDWRAP),
+		DEF_DIF_(NONE),
+	};
+	string Name;
+
+	for (size_t i=0; i<ARRAYSIZE(Message); i++)
+	{
+		if (Message[i].Val == Msg)
+		{
+			Name.Format(L"\"%s\" [%I64d/0x%016I64X]",Message[i].Name,Msg,Msg);
+			return Name;
+		}
+	}
+
+	Name.Format(L"\"DIF_??? [%I64d/0x%016I64X]\"",Msg,Msg);
+	return Name;
+#else
+	return L"";
+#endif
+}
+
 
 string __DLGMSG_ToName(DWORD Msg)
 {
@@ -1435,11 +1514,9 @@ string __DLGMSG_ToName(DWORD Msg)
 		DEF_DM_(SETTEXTPTR),
 		DEF_DM_(SHOWITEM),
 		DEF_DM_(ADDHISTORY),
-
 		DEF_DM_(GETCHECK),
 		DEF_DM_(SETCHECK),
 		DEF_DM_(SET3STATE),
-
 		DEF_DM_(LISTSORT),
 		DEF_DM_(LISTGETITEM),
 		DEF_DM_(LISTGETCURPOS),
@@ -1455,45 +1532,30 @@ string __DLGMSG_ToName(DWORD Msg)
 		DEF_DM_(LISTSETDATA),
 		DEF_DM_(LISTSETTITLES),
 		DEF_DM_(LISTGETTITLES),
-
 		DEF_DM_(RESIZEDIALOG),
 		DEF_DM_(SETITEMPOSITION),
-
 		DEF_DM_(GETDROPDOWNOPENED),
 		DEF_DM_(SETDROPDOWNOPENED),
-
 		DEF_DM_(SETHISTORY),
-
 		DEF_DM_(GETITEMPOSITION),
 		DEF_DM_(SETMOUSEEVENTNOTIFY),
-
 		DEF_DM_(EDITUNCHANGEDFLAG),
-
 		DEF_DM_(GETITEMDATA),
 		DEF_DM_(SETITEMDATA),
-
 		DEF_DM_(LISTSET),
-
 		DEF_DM_(GETCURSORSIZE),
 		DEF_DM_(SETCURSORSIZE),
-
 		DEF_DM_(LISTGETDATASIZE),
-
 		DEF_DM_(GETSELECTION),
 		DEF_DM_(SETSELECTION),
-
 		DEF_DM_(GETEDITPOSITION),
 		DEF_DM_(SETEDITPOSITION),
-
 		DEF_DM_(SETCOMBOBOXEVENT),
 		DEF_DM_(GETCOMBOBOXEVENT),
-
 		DEF_DM_(GETCONSTTEXTPTR),
 		DEF_DM_(GETDLGITEMSHORT),
 		DEF_DM_(SETDLGITEMSHORT),
-
 		DEF_DM_(GETDIALOGINFO),
-
 		DEF_DN_(FIRST),
 		DEF_DN_(BTNCLICK),
 		DEF_DN_(CTLCOLORDIALOG),
@@ -1517,9 +1579,7 @@ string __DLGMSG_ToName(DWORD Msg)
 		DEF_DN_(CONTROLINPUT),
 		DEF_DN_(CLOSE),
 		DEF_DN_(GETVALUE),
-
 		DEF_DM_(USER),
-
 		DEF_DM_(KILLSAVESCREEN),
 		DEF_DM_(ALLKEYMODE),
 		DEF_DN_(ACTIVATEAPP),
@@ -1999,23 +2059,39 @@ void WIN32_FIND_DATA_Dump(const wchar_t *Title,const WIN32_FIND_DATA &wfd,FILE *
 
 		if (wfd.dwFileAttributes&FILE_ATTRIBUTE_REPARSE_POINT)
 		{
-			if (wfd.dwReserved0 == IO_REPARSE_TAG_MOUNT_POINT)
-				fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_MOUNT_POINT (0xA0000003L)\n",12,L"",space);
-
-			if (wfd.dwReserved0 == IO_REPARSE_TAG_HSM)
-				fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_HSM         (0xC0000004L)\n",12,L"",space);
-
-			if (wfd.dwReserved0 == IO_REPARSE_TAG_SIS)
-				fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_SIS         (0x80000007L)\n",12,L"",space);
-
-			if (wfd.dwReserved0 == IO_REPARSE_TAG_DFS)
-				fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_DFS         (0x8000000AL)\n",12,L"",space);
-
-			if (wfd.dwReserved0 == IO_REPARSE_TAG_SYMLINK)
-				fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_SYMLINK     (0xA000000CL)\n",12,L"",space);
-
-			if (wfd.dwReserved0 == IO_REPARSE_TAG_DFSR)
-				fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_DFSR        (0x80000012L)\n",12,L"",space);
+			switch (wfd.dwReserved0)
+			{
+				case IO_REPARSE_TAG_MOUNT_POINT:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_MOUNT_POINT (0xA0000003L)\n",12,L"",space);
+					break;
+				case IO_REPARSE_TAG_HSM:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_HSM         (0xC0000004L)\n",12,L"",space);
+					break;
+				case IO_REPARSE_TAG_HSM2:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_HSM2        (0x80000006L)\n",12,L"",space);
+					break;
+				case IO_REPARSE_TAG_SIS:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_SIS         (0x80000007L)\n",12,L"",space);
+					break;
+				case IO_REPARSE_TAG_DFS:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_DFS         (0x8000000AL)\n",12,L"",space);
+					break;
+				case IO_REPARSE_TAG_DFSR:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_DFSR        (0x80000012L)\n",12,L"",space);
+					break;
+				case IO_REPARSE_TAG_SYMLINK:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_SYMLINK     (0xA000000CL)\n",12,L"",space);
+					break;
+				case IO_REPARSE_TAG_WIM:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_WIM         (0x80000008L)\n",12,L"",space);
+					break;
+				case IO_REPARSE_TAG_CSV:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_CSV         (0x80000009L)\n",12,L"",space);
+					break;
+				default:
+					fwprintf(fp,L"%*s %s     IO_REPARSE_TAG_???         (0x%08XL)\n",12,L"",space,wfd.dwReserved0);
+					break;
+			}
 		}
 
 		fwprintf(fp,L"%*s %s  dwReserved1           =0x%08X (%u)\n",12,L"",space,wfd.dwReserved1,wfd.dwReserved1);

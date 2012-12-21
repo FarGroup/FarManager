@@ -2699,7 +2699,12 @@ BOOL FileList::ChangeDir(const wchar_t *NewDir,BOOL IsUpdated,const FileListItem
 		else
 		{
 			strFindDir = strInfoCurDir;
-			SetDirectorySuccess=Global->CtrlObject->Plugins->SetDirectory(hPlugin,strSetDir,0,(intptr_t)(CurPtr?CurPtr->UserData:0)) != FALSE;
+
+			struct UserDataItem UserData={0};
+			UserData.Data=CurPtr?CurPtr->UserData:nullptr;
+			UserData.FreeData=CurPtr?CurPtr->Callback:nullptr;
+
+			SetDirectorySuccess=Global->CtrlObject->Plugins->SetDirectory(hPlugin,strSetDir,0,&UserData) != FALSE;
 		}
 
 		ProcessPluginCommand();
@@ -5347,23 +5352,4 @@ void FileList::ClearAllItem()
 	}
 
 	PrevDataList.Clear();
-}
-
-intptr_t FileList::GetUserDataFromItem(const wchar_t *Name)
-{
-	intptr_t UserData=0;
-
-	if (Name && *Name)
-	{
-		for (int Index=0; Index < FileCount; ++Index)
-		{
-			if (ListData[Index]->strName == Name)
-			{
-				UserData=(intptr_t)ListData[Index]->UserData;
-				break;
-			}
-		}
-	}
-
-	return UserData;
 }

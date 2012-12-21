@@ -2759,7 +2759,10 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 					NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !Global->CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
 
 					if (!strShortcutFolder.IsEmpty())
-						Global->CtrlObject->Plugins->SetDirectory(hNewPlugin,strShortcutFolder,0);
+					{
+						struct UserDataItem UserData={0}; //????
+						Global->CtrlObject->Plugins->SetDirectory(hNewPlugin,strShortcutFolder,0,&UserData);
+					}
 
 					NewPanel->Update(0);
 					NewPanel->Show();

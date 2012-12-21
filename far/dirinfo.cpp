@@ -387,7 +387,7 @@ static void ScanPluginDir(string& strPluginSearchPath)
 			CopyPluginDirItem(CurPanelItem, strPluginSearchPath);
 			string strFileName = CurPanelItem->FileName;
 
-			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strFileName,OPM_FIND,(intptr_t)CurPanelItem->UserData.Data))
+			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strFileName,OPM_FIND,&CurPanelItem->UserData))
 			{
 				strPluginSearchPath += CurPanelItem->FileName;
 				strPluginSearchPath += L"\x1";
@@ -458,9 +458,9 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 			Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&Info);
 			string strPrevDir = Info.CurDir;
 
-			intptr_t UserData=0; // How to find the value of a variable?
+			struct UserDataItem UserData={0};  // How to find the value of a variable?
 
-			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,Dir,OPM_SILENT,UserData))
+			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,Dir,OPM_SILENT,&UserData))
 			{
 				string strPluginSearchPath = Dir;
 				strPluginSearchPath += L"\x1";
@@ -481,7 +481,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 						Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
 					}
 
-					Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT,UserData);
+					Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT,&Info.UserData);
 				}
 			}
 		}

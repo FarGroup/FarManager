@@ -5808,7 +5808,7 @@ int PluginA::SetDirectory(
     HANDLE hPlugin,
     const wchar_t *Dir,
     int OpMode,
-    intptr_t /* UserData */
+    struct UserDataItem * /* UserData */
 )
 {
 	BOOL bResult = FALSE;

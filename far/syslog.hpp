@@ -64,6 +64,9 @@ string __MCTL_ToName(int Command);
 #define _MCTL_ToName(K) __MCTL_ToName(K).CPtr()
 string __DLGMSG_ToName(DWORD Msg);
 #define _DLGMSG_ToName(K) __DLGMSG_ToName(K).CPtr()
+string __DLGDIF_ToName(DWORD Msg);
+#define _DLGDIF_ToName(K) __DLGDIF_ToName(K).CPtr()
+
 string __ACTL_ToName(int Command);
 #define _ACTL_ToName(K) __ACTL_ToName(K).CPtr()
 string __VCTL_ToName(int Command);

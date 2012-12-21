@@ -711,6 +711,13 @@ struct FarPanelItemFreeInfo
 
 typedef void (WINAPI *FARPANELITEMFREECALLBACK)(void* UserData, const struct FarPanelItemFreeInfo* Info);
 
+struct UserDataItem
+{
+	void* Data;
+	FARPANELITEMFREECALLBACK FreeData;
+};
+
+
 struct PluginPanelItem
 {
 	FILETIME CreationTime;
@@ -731,11 +738,7 @@ struct PluginPanelItem
 	const wchar_t * const *CustomColumnData;
 	size_t CustomColumnNumber;
 	PLUGINPANELITEMFLAGS Flags;
-	struct
-	{
-		void* Data;
-		FARPANELITEMFREECALLBACK FreeData;
-	} UserData;
+	struct UserDataItem UserData;
 	uintptr_t FileAttributes;
 	uintptr_t NumberOfLinks;
 	uintptr_t CRC32;
@@ -2535,6 +2538,7 @@ struct OpenPanelInfo
 	const struct KeyBarTitles   *KeyBar;
 	const wchar_t               *ShortcutData;
 	unsigned __int64             FreeSize;
+	struct UserDataItem          UserData;
 };
 
 struct AnalyseInfo
@@ -2653,8 +2657,9 @@ struct SetDirectoryInfo
 	size_t StructSize;
 	HANDLE hPanel;
 	const wchar_t *Dir;
-	intptr_t UserData;
+	intptr_t Reserved;
 	OPERATION_MODES OpMode;
+	struct UserDataItem UserData;
 };
 
 struct SetFindListInfo

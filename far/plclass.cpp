@@ -1475,7 +1475,7 @@ int Plugin::SetDirectory(
     HANDLE hPlugin,
     const wchar_t *Dir,
     int OpMode,
-    intptr_t UserData
+    struct UserDataItem *UserData
 )
 {
 	BOOL bResult = FALSE;
@@ -1489,7 +1489,11 @@ int Plugin::SetDirectory(
 		Info.hPanel = hPlugin;
 		Info.Dir = Dir;
 		Info.OpMode = OpMode;
-		Info.UserData = UserData;
+		if (UserData)
+		{
+			Info.UserData.Data = UserData->Data;
+			Info.UserData.FreeData = UserData->FreeData;
+		}
 		EXECUTE_FUNCTION_EX(FUNCTION(iSetDirectory)(&Info), es);
 		bResult = es.bResult;
 	}

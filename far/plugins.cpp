@@ -1173,7 +1173,7 @@ int PluginManager::SetDirectory(
     HANDLE hPlugin,
     const wchar_t *Dir,
     int OpMode,
-    intptr_t UserData
+    struct UserDataItem *UserData
 )
 {
 	ChangePriority ChPriority(THREAD_PRIORITY_NORMAL);
@@ -2435,13 +2435,8 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 				NewPanel->SetPluginMode(hNewPlugin,L"",CurFocus || !Global->CtrlObject->Cp()->GetAnotherPanel(NewPanel)->IsVisible());
 				if (Data && *(const wchar_t *)Data)
 				{
-					#if defined(MANTIS_0002207)
-					intptr_t UserData=NewPanel->GetUserDataFromItem((const wchar_t *)Data);
-					#else
-					intptr_t UserData=0;
-					#endif
-
-					SetDirectory(hNewPlugin,(const wchar_t *)Data,0,UserData); // !!! NEED CHECK !!!
+					struct UserDataItem UserData={0};  // !!! NEED CHECK !!!
+					SetDirectory(hNewPlugin,(const wchar_t *)Data,0,&UserData);
 				}
 				// $ 04.04.2001 SVS
 				//	Код закомментирован! Попытка исключить ненужные вызовы в CallPlugin()
