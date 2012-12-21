@@ -246,8 +246,8 @@ public:
 	bool IsPanelPlugin();
 	bool Active() {return Activity != 0;}
 
-	void CallSettingsCreate() { ++CallSettingsCreateFree; }
-	void CallSettingsFree() { --CallSettingsCreateFree; }
+	class AbstractSettings** CreateSettingsHandle(bool local);
+	void DeleteSettingsHandle(AbstractSettings** handle);
 
 protected:
 	virtual void __Prolog() {};
@@ -260,13 +260,13 @@ protected:
 	PluginManager *m_owner; //BUGBUG
 	Language PluginLang;
 	size_t Activity;
-	int CallSettingsCreateFree;
 	bool bPendingRemove;
 
 private:
 	void InitExports();
 	void ClearExports();
 	void SetGuid(const GUID& Guid);
+	void FreeAllocatedResources();
 
 	string strTitle;
 	string strDescription;
@@ -287,6 +287,13 @@ private:
 
 	GUID m_Guid;
 	string m_strGuid;
+
+	struct
+	{
+		DList<AbstractSettings*> Settings;
+		// ... other data, allocated by plugin 
+	}
+	Handles;
 
 	friend class PluginManager;
 };

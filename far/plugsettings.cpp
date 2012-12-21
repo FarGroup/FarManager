@@ -54,6 +54,11 @@ template<> void DeleteItems<FarSettingsHistory>(FarSettingsHistory* Items,size_t
 	}
 }
 
+AbstractSettings::AbstractSettings(Plugin* owner):
+	m_owner(owner)
+{
+}
+
 AbstractSettings::~AbstractSettings()
 {
 	for(size_t ii=0;ii<m_Data.getCount();++ii)
@@ -86,46 +91,34 @@ bool AbstractSettings::IsValid(void)
 	return true;
 }
 
-PluginSettings::PluginSettings(const GUID& Guid, bool Local) : PluginsCfg(nullptr), PluginGuid(Guid)
+PluginSettings::PluginSettings(Plugin* plugin, bool Local):
+	AbstractSettings(plugin),
+	PluginsCfg(nullptr)
 {
-	//хак чтоб SCTL_* могли работать при ExitFarW.
-	extern PluginManager *PluginManagerForExitFar;
-	Plugin* pPlugin=Global->CtrlObject? Global->CtrlObject->Plugins->FindPlugin(PluginGuid) : (PluginManagerForExitFar?PluginManagerForExitFar->FindPlugin(PluginGuid):nullptr);
-	if (pPlugin)
-	{
-		pPlugin->CallSettingsCreate();
-		string strGuid = GuidToStr(Guid);
-		PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
-		unsigned __int64& root(*m_Keys.insertItem(0));
-		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
+	string strGuid = GuidToStr(plugin->GetGUID());
+	PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
+	unsigned __int64& root(*m_Keys.insertItem(0));
+	root=PluginsCfg->CreateKey(0, strGuid, plugin->GetTitle());
 
-		if (!Global->Opt->ReadOnlyConfig)
+	if (!Global->Opt->ReadOnlyConfig)
+	{
+		DizList Diz;
+		string strDbPath = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
+		AddEndSlash(strDbPath);
+		strDbPath += L"PluginsData\\";
+		Diz.Read(strDbPath);
+		string strDbName = strGuid + L".db";
+		string Description = string(plugin->GetTitle()) + L" (" + plugin->GetDescription() + L")";
+		if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description))
 		{
-			DizList Diz;
-			string strDbPath = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
-			AddEndSlash(strDbPath);
-			strDbPath += L"PluginsData\\";
-			Diz.Read(strDbPath);
-			string strDbName = strGuid + L".db";
-			string Description = string(pPlugin->GetTitle()) + L" (" + pPlugin->GetDescription() + L")";
-			if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description))
-			{
-				Diz.AddDizText(strDbName, L"", Description);
-				Diz.Flush(strDbPath);
-			}
+			Diz.AddDizText(strDbName, L"", Description);
+			Diz.Flush(strDbPath);
 		}
 	}
 }
 
 PluginSettings::~PluginSettings()
 {
-	//хак чтоб SCTL_* могли работать при ExitFarW.
-	extern PluginManager *PluginManagerForExitFar;
-	Plugin* pPlugin=Global->CtrlObject? Global->CtrlObject->Plugins->FindPlugin(PluginGuid) : (PluginManagerForExitFar?PluginManagerForExitFar->FindPlugin(PluginGuid):nullptr);
-	if (pPlugin)
-	{
-		pPlugin->CallSettingsFree();
-	}
 	if (PluginsCfg)
 		delete PluginsCfg;
 }

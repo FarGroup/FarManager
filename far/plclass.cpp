@@ -50,6 +50,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FarGuid.hpp"
 #include "manager.hpp"
 #include "console.hpp"
+#include "plugsettings.hpp"
+#include "savescr.hpp"
 
 typedef void   (WINAPI *iClosePanelPrototype)          (const ClosePanelInfo *Info);
 typedef int    (WINAPI *iComparePrototype)             (const CompareInfo *Info);
@@ -530,7 +532,6 @@ Plugin::Plugin(PluginManager *owner, const wchar_t *lpwszModuleName):
 	ExportsNamesA(_ExportsNamesA),
 	m_owner(owner),
 	Activity(0),
-	CallSettingsCreateFree(0),
 	bPendingRemove(false)
 {
 	m_strModuleName = lpwszModuleName;
@@ -766,6 +767,20 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 	return false;
 }
 
+void Plugin::FreeAllocatedResources()
+{
+	// settings
+	for(AbstractSettings** i = Handles.Settings.First(); i; i = Handles.Settings.Next(i))
+	{
+		delete *i;
+	}
+
+	// ... other data, allocated by plugin 
+
+
+	// BUGBUG: unable to handle SaveScreen/RestoreScreen
+}
+
 int Plugin::Unload(bool bExitFAR)
 {
 	int nResult = TRUE;
@@ -790,13 +805,7 @@ int Plugin::Unload(bool bExitFAR)
 		bPendingRemove = true;
 	}
 
-	if (CallSettingsCreateFree)
-	{
-		FormatString s;
-		s << L"Memory leaks detected in '" << this->strTitle << L"' plugin (" << this->strDescription + L")\n"
-			<< L"  SCTL_FREE:  " << CallSettingsCreateFree << L"\n\n";
-		Global->Console->Write(s);
-	}
+	FreeAllocatedResources();
 	return nResult;
 }
 
@@ -823,6 +832,19 @@ bool Plugin::IsPanelPlugin()
 	       Exports[iFreeFindData] ||
 	       Exports[iFreeVirtualFindData] ||
 	       Exports[iClosePanel];
+}
+
+AbstractSettings** Plugin::CreateSettingsHandle(bool local)
+{
+	AbstractSettings** handle = Handles.Settings.Push();
+	*handle = new PluginSettings(this, local);
+	return handle;
+}
+
+void Plugin::DeleteSettingsHandle(AbstractSettings** handle)
+{
+	delete *handle;
+	Handles.Settings.Delete(handle);
 }
 
 bool Plugin::SetStartupInfo()

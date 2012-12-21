@@ -1356,7 +1356,7 @@ void KeyMacro::RunStartMacro()
 		MACROFLAGS_MFLAGS flags = macro->Flags();
 		if (!(flags&MFLAGS_DISABLEMACRO) && (flags&MFLAGS_RUNAFTERFARSTART) && CheckAll(macro->Area(), flags))
 		{
-			PostNewMacro(macro->m_macroId, macro->Code(), flags&~MFLAGS_DISABLEOUTPUT); //FIXME: flags
+			PostNewMacro(macro->m_macroId, macro->Code(), flags);
 		}
 	}
 	IsRunStartMacro=TRUE;
