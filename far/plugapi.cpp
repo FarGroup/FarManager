@@ -2381,7 +2381,10 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 				if (CheckStructSize(data))
 				{
 					if (data->Guid == FarGuid)
+					{
+						settings = new AbstractSettings*();
 						*settings = new FarSettings();
+					}
 					else
 					{
 						Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(data->Guid);
@@ -2409,6 +2412,7 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 				else
 				{
 					delete *settings;
+					delete settings;
 				}
 			}
 			return TRUE;
