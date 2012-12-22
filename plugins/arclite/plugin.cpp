@@ -905,7 +905,7 @@ HANDLE WINAPI OpenW(const OpenInfo* info) {
         return nullptr;
       if (!Far::is_real_file_panel(panel_info)) {
         if ((panel_item.file_attributes & FILE_ATTRIBUTE_DIRECTORY) == 0) {
-          Far::post_macro(L"CtrlPgDn");
+          Far::post_macro(L"Keys('CtrlPgDn')");
           g_detect_next_time = options.detect ? triTrue : triFalse;
         }
         return nullptr;

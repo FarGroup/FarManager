@@ -82,7 +82,7 @@ wstring expand_macros(const wstring& text) {
     if (e_pos == wstring::npos)
       break;
 
-    wstring macro = L"print(" + text.substr(b_pos + 1, e_pos - b_pos - 1) + L") Enter";
+    wstring macro = L"print(" + text.substr(b_pos + 1, e_pos - b_pos - 1) + L") Keys('Enter')";
     wstring mresult;
     if (Far::post_macro(macro))
       Far::input_dlg(c_generic_guid, wstring(), wstring(), mresult);
