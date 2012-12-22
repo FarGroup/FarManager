@@ -554,8 +554,8 @@ int VMenu::DeleteItem(int ID, int Count)
 		MenuItemEx *PtrItem = Item[ID+I];
 
 		xf_free(PtrItem->UserData);
-
 		UpdateInternalCounters(PtrItem->Flags,0);
+		delete PtrItem;
 	}
 
 	// а вот теперь перемещения
