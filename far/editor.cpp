@@ -3855,11 +3855,8 @@ BOOL Editor::Search(int Next)
 						Pasting--;
 					}
 
-					if (EdOpt.SearchCursorAtEnd)
-					{
-						CurPtr->SetCurPos(iFoundPos+SearchLength);
-					}
-
+					int at_end = EdOpt.SearchCursorAtEnd ? SearchLength : 0;
+					
 					int Skip=FALSE;
 					/* $ 24.01.2003 KM
 					   ! ѕо окончании поиска отступим от верха экрана на треть отображаемой высоты.
@@ -4036,10 +4033,8 @@ BOOL Editor::Search(int Next)
 									BlockStartLine = NewNumLine;
 								}
 
-								if (EdOpt.SearchCursorAtEnd)
-								{
-									CurPtr->SetCurPos(CurPos+RStrLen);
-								}
+								if (at_end)
+									at_end = RStrLen;
 
 								delete [] NewStr;
 								Change(ECTYPE_CHANGED,NumLine);
@@ -4054,6 +4049,9 @@ BOOL Editor::Search(int Next)
 							Pasting--;
 						}
 					}
+
+					if (at_end)
+						CurPtr->SetCurPos(iFoundPos+at_end);
 
 					if (!ReplaceMode)
 						break;
