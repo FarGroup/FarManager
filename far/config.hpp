@@ -322,6 +322,7 @@ struct EditorOptions
 
 	StringOption strWordDiv;
 
+	BoolOption KeepEOL;
 };
 
 /* $ 29.03.2001 IS

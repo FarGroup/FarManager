@@ -4256,6 +4256,18 @@ void Editor::Paste(const wchar_t *Src)
 		int StartPos=CurLine->GetCurPos();
 		bool oldAutoIndent=EdOpt.AutoIndent;
 
+		const wchar_t* keep_eol = nullptr;
+		if (EdOpt.KeepEOL) {
+			Edit *line = CurLine;
+			if (line && line->m_prev)
+				line = line->m_prev;
+			if (line) {
+				keep_eol = line->GetEOL();
+				if (!*keep_eol)
+					keep_eol = nullptr;
+			}
+		}
+
 		for (int I=0; ClipText[I];)
 		{
 			if (ClipText[I]==L'\n' || ClipText[I]==L'\r')
@@ -4265,24 +4277,25 @@ void Editor::Paste(const wchar_t *Src)
 				EdOpt.AutoIndent=FALSE;
 				Edit *PrevLine=CurLine;
 				ProcessKey(KEY_ENTER);
-				//_ASSERTE(PrevLine!=CurLine);
-				wchar_t ClipEol[4] = {ClipText[I]};
-				if (ClipText[I]==L'\r' && ClipText[I+1]==L'\n')
-				{
-					ClipEol[1]=L'\n';
-					if (ClipText[I+2]==L'\n')
-						ClipEol[2]=L'\n'; // \r\n\n
-				}
-				PrevLine->SetEOL(ClipEol);
 
-				if (ClipText[I]==L'\r' && ClipText[I+1]==L'\n')
-				{
-					I++;
-					if (ClipText[I+1]==L'\n')
-						I++; // \r\n\n
+				int eol_len = 1;   // LF or CR
+				if (ClipText[I] == L'\r') {
+					if (ClipText[I+1] == L'\n')
+						eol_len = 2; // CRLF
+					else if (ClipText[I+1] == L'\r' && ClipText[I+2] == L'\n')
+						eol_len = 3; // CRCRLF
 				}
 
-				I++;
+				if (keep_eol)
+					PrevLine->SetEOL(keep_eol);
+				else {
+					wchar_t ClipEol[4];
+               wmemcpy(ClipEol, ClipText+I, eol_len);
+					ClipEol[eol_len] = L'\0';
+					PrevLine->SetEOL(ClipEol);
+				}
+
+				I += eol_len;
 			}
 			else
 			{

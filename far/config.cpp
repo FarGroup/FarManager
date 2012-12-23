@@ -955,6 +955,7 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeyEditor,L"ExternalEditorName", AddressAndType(Global->Opt->strExternalEditor), Default(L"")},
 		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimit", AddressAndType(Global->Opt->EdOpt.FileSizeLimitLo), Default(0)},
 		{FSSF_PRIVATE,       NKeyEditor,L"FileSizeLimitHi", AddressAndType(Global->Opt->EdOpt.FileSizeLimitHi), Default(0)},
+		{FSSF_PRIVATE,       NKeyEditor,L"KeepEditorEOL", AddressAndType(Global->Opt->EdOpt.KeepEOL), Default(1)},
 		{FSSF_PRIVATE,       NKeyEditor,L"PersistentBlocks", AddressAndType(Global->Opt->EdOpt.PersistentBlocks), Default(0)},
 		{FSSF_PRIVATE,       NKeyEditor,L"ReadOnlyLock", AddressAndType(Global->Opt->EdOpt.ReadOnlyLock), Default(0)},
 		{FSSF_PRIVATE,       NKeyEditor,L"SaveEditorPos", AddressAndType(Global->Opt->EdOpt.SavePos), Default(1)},
