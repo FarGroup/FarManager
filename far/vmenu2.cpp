@@ -80,7 +80,7 @@ intptr_t WINAPI VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param
 		}
 
 	case DN_CLOSE:
-		if(vm->GetItemFlags() & (LIF_GRAYED|LIF_DISABLE))
+		if(!Param1 && vm->GetItemFlags() & (LIF_GRAYED|LIF_DISABLE))
 			return false;
 		if(vm->Call(Msg, (void*)(Param1<0 ? Param1 : vm->GetSelectPos())))
 			return false;
