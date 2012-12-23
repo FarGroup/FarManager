@@ -3,6 +3,64 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 21.12.2012 01:39:53 +0200 - build 3039
+
+1. Continuation of 3028.
+
+drkns 21.12.2012 00:59:22 +0200 - build 3038
+
+1. Refactoring.
+
+drkns 20.12.2012 23:11:35 +0200 - build 3037
+
+1. Memory deallocation correction in wrapper.
+
+drkns 20.12.2012 22:59:42 +0200 - build 3036
+
+1. Continuation of 3028.
+
+svs 20.12.2012 11:31:27 +0400 - build 3035
+
+1. SQLite 3.7.15.1
+
+2. Drawing artifacts in InfoPanel
+                                          
+drkns 19.12.2012 22:50:44 +0200 - build 3034
+
+1. In menu2, one could "press" grayed & disabled items.
+
+2. Continuation of 3028. 
+
+svs 19.12.2012 13:13:17 +0400 - build 3033
+
+1. Mantis#0002207: SetDirectoryW() always passes NULL in SetDirectoryInfo->UserData field
+   Continuing. The algorithm is redone - searching UserData on specific panel item instead of name.
+   The searcher returns NULL as always.
+
+drkns 19.12.2012 02:42:37 +0200 - build 3032
+
+1. Continuation of 3028.
+
+svs 18.12.2012 11:28:12 +0400 - build 3031
+
+1. Mantis#0002224: menu items filtering with RAlt too
+   (from samlyukov)
+
+2. Mantis#0002226: Transliteration in menu filters
+   (from DAtaMan)
+
+drkns 17.12.2012 21:17:21 +0200 - build 3030
+
+1. Instant update of colors on file group masks change.
+
+2. Mouse malfunction in mask groups menu.
+
+lort 17.12.2012 19:13:09 +0400 - build 3029
+
+1. Problems with F11 and F12 in menus (Mantis#0002225)
+
+2. Dialogs now receive F11 via DN_CONTROLINPUT
+
 drkns 16.12.2012 21:55:11 +0200 - build 3028
 
 1. Improving the built-in leaks detector.
