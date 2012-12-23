@@ -38,7 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "config.hpp"
 
-intptr_t WINAPI VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+intptr_t VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	VMenu2 *vm=(VMenu2*)hDlg;
 
@@ -80,7 +80,7 @@ intptr_t WINAPI VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param
 		}
 
 	case DN_CLOSE:
-		if(!Param1 && vm->GetItemFlags() & (LIF_GRAYED|LIF_DISABLE))
+		if(!ForceClosing && !Param1 && vm->GetItemFlags() & (LIF_GRAYED|LIF_DISABLE))
 			return false;
 		if(vm->Call(Msg, (void*)(Param1<0 ? Param1 : vm->GetSelectPos())))
 			return false;
@@ -318,7 +318,7 @@ FarDialogItem VMenu2DialogItems[]=
 	{DI_LISTBOX, 2, 1, 10, 10, 0, nullptr, nullptr, DIF_LISTNOAMPERSAND/*|DIF_LISTNOCLOSE*/, nullptr},
 };
 
-VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags) : Dialog(VMenu2DialogItems, 1, VMenu2DlgProc, nullptr)
+VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int MaxHeight, DWORD Flags) : Dialog(this, &VMenu2::VMenu2DlgProc, nullptr, VMenu2DialogItems, 1), ForceClosing(false)
 {
 	InitDialogObjects();
 
@@ -565,12 +565,13 @@ intptr_t VMenu2::GetExitCode()
 	return GetSelectPos();
 }
 
-void VMenu2::Close(int ExitCode)
+void VMenu2::Close(int ExitCode, bool Force)
 {
 	if(ExitCode>=0)
 		SetSelectPos(ExitCode);
 	cancel=ExitCode==-1;
 	closing=true;
+	ForceClosing = Force;
 }
 
 void *VMenu2::GetUserData(void *Data, size_t Size, intptr_t Position)

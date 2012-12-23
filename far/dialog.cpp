@@ -297,7 +297,7 @@ void ItemToItemEx(const FarDialogItem *Item, DialogItemEx *ItemEx, size_t Count,
 	}
 }
 
-void Dialog::Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, void* InitParam)
+void Dialog::Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc, void* InitParam)
 {
 	bInitOK = false;
 	Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
@@ -309,31 +309,10 @@ void Dialog::Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* 
 
 	ItemCount = static_cast<int>(SrcItemCount);
 	pSaveItemEx = SrcItem;
-	Init(OwnerClass, HandlerFunction, nullptr, InitParam);
+	Init(OwnerClass, HandlerFunction, DlgProc, InitParam);
 }
 
-Dialog::Dialog(DialogItemEx *SrcItem,    // Набор элементов диалога
-               size_t SrcItemCount,              // Количество элементов
-               FARWINDOWPROC DlgProc,      // Диалоговая процедура
-               void* InitParam):             // Ассоцированные с диалогом данные
-	bInitOK(false)
-{
-	Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
-
-	for (unsigned i = 0; i < SrcItemCount; i++)
-	{
-		Item[i] = new DialogItemEx(SrcItem[i]);
-	}
-
-	ItemCount = static_cast<int>(SrcItemCount);
-	pSaveItemEx = SrcItem;
-	Init(nullptr, nullptr, DlgProc, InitParam);
-}
-
-Dialog::Dialog(const FarDialogItem *SrcItem,    // Набор элементов диалога
-               size_t SrcItemCount,              // Количество элементов
-               FARWINDOWPROC DlgProc,      // Диалоговая процедура
-               void* InitParam)             // Ассоцированные с диалогом данные
+void Dialog::Construct(const FarDialogItem* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc, void* InitParam)
 {
 	bInitOK = false;
 	Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
@@ -346,9 +325,27 @@ Dialog::Dialog(const FarDialogItem *SrcItem,    // Набор элементов диалога
 		ConvertItemEx(CVTITEM_FROMPLUGIN,const_cast<FarDialogItem *>(&SrcItem[i]),Item[i],1);
 	}
 
-	ItemCount = static_cast<unsigned>(SrcItemCount);
+	ItemCount = static_cast<int>(SrcItemCount);
 	pSaveItemEx = nullptr;
-	Init(nullptr, nullptr, DlgProc, InitParam);
+	Init(OwnerClass, HandlerFunction, DlgProc, InitParam);
+}
+
+Dialog::Dialog(DialogItemEx *SrcItem,    // Набор элементов диалога
+               size_t SrcItemCount,              // Количество элементов
+               FARWINDOWPROC DlgProc,      // Диалоговая процедура
+               void* InitParam):             // Ассоцированные с диалогом данные
+	bInitOK(false)
+{
+	Construct(SrcItem, SrcItemCount, nullptr, nullptr, DlgProc, InitParam);
+}
+
+Dialog::Dialog(const FarDialogItem *SrcItem,    // Набор элементов диалога
+               size_t SrcItemCount,              // Количество элементов
+               FARWINDOWPROC DlgProc,      // Диалоговая процедура
+               void* InitParam):             // Ассоцированные с диалогом данные
+	bInitOK(false)
+{
+	Construct(SrcItem, SrcItemCount, nullptr, nullptr, DlgProc, InitParam);
 }
 
 void Dialog::Init(DialogOwner* Owner, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc, void* InitParam)

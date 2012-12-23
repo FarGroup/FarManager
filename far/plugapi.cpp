@@ -821,7 +821,7 @@ intptr_t WINAPI apiMenuFn(
 						if (BreakCode)
 							*BreakCode=I;
 
-						FarMenu.Close();
+						FarMenu.Close(-2, true);
 						return 1;
 					}
 				}

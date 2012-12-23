@@ -183,10 +183,10 @@ typedef intptr_t (DialogOwner::*DialogHandlerFunction)(HANDLE hDlg, intptr_t Msg
 class Dialog: public Frame
 {
 public:
-	template<class T, typename Y>
-	Dialog(T* OwnerClass, Y HandlerFunction, void* InitParam, DialogItemEx* SrcItem, size_t SrcItemCount)
+	template<class T, typename Y, class D>
+	Dialog(T* OwnerClass, Y HandlerFunction, void* InitParam, D* SrcItem, size_t SrcItemCount)
 	{
-		Construct(SrcItem, SrcItemCount, reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<DialogHandlerFunction>(HandlerFunction), InitParam);
+		Construct(SrcItem, SrcItemCount, reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<DialogHandlerFunction>(HandlerFunction), nullptr, InitParam);
 	}
 	Dialog(DialogItemEx *SrcItem, size_t SrcItemCount, FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
 	Dialog(const FarDialogItem *SrcItem, size_t SrcItemCount, FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
@@ -243,7 +243,8 @@ protected:
 	unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
 	
 private:
-	void Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, void* InitParam=nullptr);
+	void Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc=nullptr, void* InitParam=nullptr);
+	void Construct(const FarDialogItem* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc=nullptr, void* InitParam=nullptr);
 	void Init(DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc, void* InitParam);
 	virtual void DisplayObject();
 	void DeleteDialogObjects();

@@ -52,11 +52,12 @@ class VMenu2 : public Dialog
 		INPUT_RECORD DefRec;
 		bool NeedResize;
 		bool closing;
+		bool ForceClosing;
 		MACROMODEAREA MacroMode;
 
 		function<int(int Msg, void *param)> mfn;
 
-		static intptr_t WINAPI VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+		intptr_t VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
 
 		int Call(int Msg, void *param);
@@ -122,7 +123,7 @@ class VMenu2 : public Dialog
 		intptr_t Run(function<int(int Key)> fn=nullptr);
 		intptr_t RunEx(function<int(int Msg, void *param)> fn);
 		intptr_t GetExitCode();
-		void Close(int ExitCode=-2);
+		void Close(int ExitCode=-2, bool Force = false);
 
 
 		void *GetUserData(void *Data, size_t Size, intptr_t Position=-1);
