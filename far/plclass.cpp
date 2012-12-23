@@ -803,9 +803,9 @@ int Plugin::Unload(bool bExitFAR)
 		FuncFlags.Clear(PICFF_LOADED);
 		WorkFlags.Clear(PIWF_DATALOADED);
 		bPendingRemove = true;
+		FreeAllocatedResources();
 	}
 
-	FreeAllocatedResources();
 	return nResult;
 }
 

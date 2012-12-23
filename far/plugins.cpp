@@ -555,15 +555,15 @@ int PluginManager::UnloadPluginExternal(HANDLE hPlugin)
 	Plugin* pPlugin = reinterpret_cast<Plugin*>(hPlugin);
 	if(pPlugin->Active())
 	{
-		if(!IsPluginUnloaded(pPlugin))
-		{
-			UnloadedPlugins.Push(&pPlugin);
-		}
 		nResult = TRUE;
 	}
 	else
 	{
 		nResult = pPlugin->Unload(true);
+	}
+	if(!IsPluginUnloaded(pPlugin))
+	{
+		UnloadedPlugins.Push(&pPlugin);
 	}
 	return nResult;
 }
