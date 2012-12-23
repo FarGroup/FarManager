@@ -3,6 +3,68 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 23.12.2012 19:32:14 +0200 - build 3047
+
+1. Another bug in menus.
+
+drkns 23.12.2012 18:20:07 +0200 - build 3046
+
+1. Correction of plugin unloading.
+
+w17 23.12.2012 17:00:33 +0400 - build 3045
+
+1. Management of EOL type on text insertion in editor.
+   Editor.KeepEditorEOL parameter is added,
+   if the value = true (default) - trying to save the type of carriage returns for the edited file,
+   if the file is empty or the parameter = false - the text is inserted unchanged.
+
+w17 23.12.2012 14:22:48 +0400 - build 3044
+
+1. M#0002232: Find/Replace is off by word length
+
+drkns 22.12.2012 13:53:21 +0200 - build 3043
+
+1. Memory leak in vmenu on item deletion.
+
+drkns 22.12.2012 10:04:19 +0200 - build 3042
+
+1. Correction of 3041.
+
+drkns 21.12.2012 22:41:03 +0200 - build 3041
+
+1. On plugin unload, closing all handles created by it via SCTL_CREATE if it has not taken care about them.
+
+2. 'disableoutput' flag was ignored for auto-starting macros.
+
+svs 21.12.2012 16:15:36 +0400 - build 3040
+
+1. Mantis#0002207: SetDirectoryW() always passes NULL in SetDirectoryInfo->UserData field
+   Changes (minor ones) in API.
+   
+   In SetDirectoryInfo (there was UserData and no FreeData)
+     à) "intptr_t UserData" -> "intptr_t Reserved"
+     á) "struct UserDataItem UserData" added
+
+   In OpenPanelInfo
+     à) "struct UserDataItem UserData" added
+        this component is related to OpenPanelInfo::CurDir; a plugin must (if it fills them) 
+        place data here, related to CurDir, FAR will place these values in SetDirectoryInfo.
+
+   Obscurities:
+     à) PluginManager::CallPlugin() - here UserData = {0,0}
+        (an obscure solution)
+     á) Panel::ExecShortcutFolder() - here UserData = {0,0}
+        (an obscure solution)
+     â) GetPluginDirList()          - here UserData = {0,0}
+        the obscurity: a plugin says "I want info on this dir on that panel" and then we refer to catalog's "Name" instead of a panel item.
+     ã) lack for FreeData calls for OpenPanelInfo
+        handle it separately...
+
+
+   ACHTUNG!
+   If your plugins use SetDirectoryInfo.Reserved (former SetDirectoryInfo.UserData), rebuild them considering this novation.
+
+
 drkns 21.12.2012 01:39:53 +0200 - build 3039
 
 1. Continuation of 3028.
