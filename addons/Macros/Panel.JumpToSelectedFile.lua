@@ -1,7 +1,4 @@
-Macro {
-  area="Shell"; key="JumpToSelectedFile"; flags="DisableOutput|RunAfterFARStart"; action = function()
-
-_G.JumpToSelectedFile = function (p,from,size,step)
+local JumpToSelectedFile = function (p,from,size,step)
   if p.SelectedItemsNumber>0 then
     local to=from+size*step
     for ii=from,to,step do
@@ -17,14 +14,11 @@ _G.JumpToSelectedFile = function (p,from,size,step)
   end
 end
 
-  end;
-}
-
 Macro {
   area="Shell"; key="CtrlShiftDown"; flags="DisableOutput|Selection"; description="Jump to the next selected file"; action = function()
 
 local p=panel.GetPanelInfo(nil, 1)
-_G.JumpToSelectedFile(p,p.CurrentItem+1,p.ItemsNumber,1)
+JumpToSelectedFile(p,p.CurrentItem+1,p.ItemsNumber,1)
 
   end;
 }
@@ -33,7 +27,7 @@ Macro {
   area="Shell"; key="CtrlShiftEnd"; flags="DisableOutput|Selection"; description="Jump to the last selected file"; action = function()
 
 local p=panel.GetPanelInfo(nil, 1)
-_G.JumpToSelectedFile(p,p.ItemsNumber,p.ItemsNumber,-1)
+JumpToSelectedFile(p,p.ItemsNumber,p.ItemsNumber,-1)
 
   end;
 }
@@ -42,7 +36,7 @@ Macro {
   area="Shell"; key="CtrlShiftHome"; flags="DisableOutput|Selection"; description="Jump to the first selected file"; action = function()
 
 local p=panel.GetPanelInfo(nil, 1)
-_G.JumpToSelectedFile(p,1,p.ItemsNumber,1)
+JumpToSelectedFile(p,1,p.ItemsNumber,1)
 
   end;
 }
@@ -51,7 +45,7 @@ Macro {
   area="Shell"; key="CtrlShiftUp"; flags="DisableOutput|Selection"; description="Jump to the previous selected file"; action = function()
 
 local p=panel.GetPanelInfo(nil, 1)
-_G.JumpToSelectedFile(p,p.CurrentItem-1,p.ItemsNumber,-1)
+JumpToSelectedFile(p,p.CurrentItem-1,p.ItemsNumber,-1)
 
   end;
 }
