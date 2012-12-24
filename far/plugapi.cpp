@@ -2359,14 +2359,14 @@ intptr_t WINAPI apiRegExpControl(HANDLE hHandle, FAR_REGEXP_CONTROL_COMMANDS Com
 intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS Command, intptr_t Param1, void* Param2)
 {
 
-	AbstractSettings** settings=nullptr;
+	AbstractSettings* settings=nullptr;
 
 	if (Command != SCTL_CREATE)
 	{
 		if (!hHandle || hHandle == INVALID_HANDLE_VALUE)
 			return FALSE;
 
-		settings = (AbstractSettings**)hHandle;
+		settings = (AbstractSettings*)hHandle;
 	}
 
 	switch (Command)
@@ -2382,18 +2382,17 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 				{
 					if (data->Guid == FarGuid)
 					{
-						settings = new AbstractSettings*();
-						*settings = new FarSettings();
+						settings = new FarSettings();
 					}
 					else
 					{
 						Plugin* plugin = Global->CtrlObject->Plugins->FindPlugin(data->Guid);
 						if (plugin)
 						{
-							settings = reinterpret_cast<AbstractSettings**>(plugin->CreateSettingsHandle(Param1 == PSL_LOCAL));
+							settings = new PluginSettings(data->Guid, Param1 == PSL_LOCAL);
 						}
 					}
-					if (settings && (*settings)->IsValid())
+					if (settings && settings->IsValid())
 					{
 						data->Handle=settings;
 						return TRUE;
@@ -2404,29 +2403,20 @@ intptr_t WINAPI apiSettingsControl(HANDLE hHandle, FAR_SETTINGS_CONTROL_COMMANDS
 			break;
 		case SCTL_FREE:
 			{
-				Plugin* plugin = (*settings)->Owner();
-				if (plugin)
-				{
-					plugin->DeleteSettingsHandle(settings);
-				}
-				else
-				{
-					delete *settings;
-					delete settings;
-				}
+				delete settings;
 			}
 			return TRUE;
 		case SCTL_SET:
-			return CheckStructSize((const FarSettingsItem*)Param2)?(*settings)->Set(*(const FarSettingsItem*)Param2):FALSE;
+			return CheckStructSize((const FarSettingsItem*)Param2)?settings->Set(*(const FarSettingsItem*)Param2):FALSE;
 		case SCTL_GET:
-			return CheckStructSize((const FarSettingsItem*)Param2)?(*settings)->Get(*(FarSettingsItem*)Param2):FALSE;
+			return CheckStructSize((const FarSettingsItem*)Param2)?settings->Get(*(FarSettingsItem*)Param2):FALSE;
 		case SCTL_ENUM:
-			return CheckStructSize((FarSettingsEnum*)Param2)?(*settings)->Enum(*(FarSettingsEnum*)Param2):FALSE;
+			return CheckStructSize((FarSettingsEnum*)Param2)?settings->Enum(*(FarSettingsEnum*)Param2):FALSE;
 		case SCTL_DELETE:
-			return CheckStructSize((const FarSettingsValue*)Param2)?(*settings)->Delete(*(const FarSettingsValue*)Param2):FALSE;
+			return CheckStructSize((const FarSettingsValue*)Param2)?settings->Delete(*(const FarSettingsValue*)Param2):FALSE;
 		case SCTL_CREATESUBKEY:
 		case SCTL_OPENSUBKEY:
-			return CheckStructSize((const FarSettingsValue*)Param2)?(*settings)->SubKey(*(const FarSettingsValue*)Param2, Command==SCTL_CREATESUBKEY):0;
+			return CheckStructSize((const FarSettingsValue*)Param2)?settings->SubKey(*(const FarSettingsValue*)Param2, Command==SCTL_CREATESUBKEY):0;
 	}
 
 	return FALSE;

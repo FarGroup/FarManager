@@ -54,11 +54,6 @@ template<> void DeleteItems<FarSettingsHistory>(FarSettingsHistory* Items,size_t
 	}
 }
 
-AbstractSettings::AbstractSettings(Plugin* owner):
-	m_owner(owner)
-{
-}
-
 AbstractSettings::~AbstractSettings()
 {
 	for(size_t ii=0;ii<m_Data.getCount();++ii)
@@ -91,28 +86,31 @@ bool AbstractSettings::IsValid(void)
 	return true;
 }
 
-PluginSettings::PluginSettings(Plugin* plugin, bool Local):
-	AbstractSettings(plugin),
+PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 	PluginsCfg(nullptr)
 {
-	string strGuid = GuidToStr(plugin->GetGUID());
-	PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
-	unsigned __int64& root(*m_Keys.insertItem(0));
-	root=PluginsCfg->CreateKey(0, strGuid, plugin->GetTitle());
-
-	if (!Global->Opt->ReadOnlyConfig)
+	Plugin* pPlugin = Global->CtrlObject->Plugins->FindPlugin(Guid);
+	if (pPlugin)
 	{
-		DizList Diz;
-		string strDbPath = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
-		AddEndSlash(strDbPath);
-		strDbPath += L"PluginsData\\";
-		Diz.Read(strDbPath);
-		string strDbName = strGuid + L".db";
-		string Description = string(plugin->GetTitle()) + L" (" + plugin->GetDescription() + L")";
-		if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description))
+		string strGuid = GuidToStr(Guid);
+		PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
+		unsigned __int64& root(*m_Keys.insertItem(0));
+		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
+
+		if (!Global->Opt->ReadOnlyConfig)
 		{
-			Diz.AddDizText(strDbName, L"", Description);
-			Diz.Flush(strDbPath);
+			DizList Diz;
+			string strDbPath = Local ? Global->Opt->LocalProfilePath : Global->Opt->ProfilePath;
+			AddEndSlash(strDbPath);
+			strDbPath += L"PluginsData\\";
+			Diz.Read(strDbPath);
+			string strDbName = strGuid + L".db";
+			string Description = string(pPlugin->GetTitle()) + L" (" + pPlugin->GetDescription() + L")";
+			if(StrCmp(Diz.GetDizTextAddr(strDbName, L"", 0), Description))
+			{
+				Diz.AddDizText(strDbName, L"", Description);
+				Diz.Flush(strDbPath);
+			}
 		}
 	}
 }

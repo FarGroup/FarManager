@@ -83,13 +83,10 @@ class AbstractSettings
 	private:
 		char* Add(const wchar_t* Data,size_t Size);
 	protected:
-		class Plugin* m_owner;
 		TPointerArray<char*> m_Data;
 		char* Add(const string& String);
 		char* Add(size_t Size);
 	public:
-		AbstractSettings(Plugin* owner = nullptr);
-		Plugin* Owner() const { return m_owner; }
 		virtual ~AbstractSettings();
 		virtual bool IsValid(void);
 		virtual int Set(const FarSettingsItem& Item)=0;
@@ -107,7 +104,7 @@ class PluginSettings: public AbstractSettings
 		HierarchicalConfig *PluginsCfg;
 		PluginSettings();
 	public:
-		PluginSettings(class Plugin* plugin, bool Local);
+		PluginSettings(const GUID& Guid, bool Local);
 		~PluginSettings();
 		bool IsValid(void);
 		int Set(const FarSettingsItem& Item);

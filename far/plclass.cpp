@@ -767,20 +767,6 @@ bool Plugin::LoadFromCache(const FAR_FIND_DATA_EX &FindData)
 	return false;
 }
 
-void Plugin::FreeAllocatedResources()
-{
-	// settings
-	for(AbstractSettings** i = Handles.Settings.First(); i; i = Handles.Settings.Next(i))
-	{
-		delete *i;
-	}
-
-	// ... other data, allocated by plugin 
-
-
-	// BUGBUG: unable to handle SaveScreen/RestoreScreen
-}
-
 int Plugin::Unload(bool bExitFAR)
 {
 	int nResult = TRUE;
@@ -803,7 +789,6 @@ int Plugin::Unload(bool bExitFAR)
 		FuncFlags.Clear(PICFF_LOADED);
 		WorkFlags.Clear(PIWF_DATALOADED);
 		bPendingRemove = true;
-		FreeAllocatedResources();
 	}
 
 	return nResult;
@@ -832,19 +817,6 @@ bool Plugin::IsPanelPlugin()
 	       Exports[iFreeFindData] ||
 	       Exports[iFreeVirtualFindData] ||
 	       Exports[iClosePanel];
-}
-
-AbstractSettings** Plugin::CreateSettingsHandle(bool local)
-{
-	AbstractSettings** handle = Handles.Settings.Push();
-	*handle = new PluginSettings(this, local);
-	return handle;
-}
-
-void Plugin::DeleteSettingsHandle(AbstractSettings** handle)
-{
-	delete *handle;
-	Handles.Settings.Delete(handle);
 }
 
 bool Plugin::SetStartupInfo()
