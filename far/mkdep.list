@@ -47,6 +47,7 @@ dirmix.cpp
 dirmix.hpp
 dizlist.cpp
 dizlist.hpp
+dizviewer.hpp
 DlgBuilder.cpp
 DlgBuilder.hpp
 dlgedit.cpp

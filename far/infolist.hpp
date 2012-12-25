@@ -34,40 +34,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "panel.hpp"
-#include "viewer.hpp"
+#include "dizviewer.hpp"
 #include "macro.hpp"
-
-//class Viewer;
-
-/* $ 12.10.2001 SKV
-  заврапим Viewer что бы отслеживать рекурсивность вызова
-  методов DizView и случайно не удалить его во время вызова.
-*/
-class DizViewer: public Viewer
-{
-	public:
-		int InRecursion;
-
-	public:
-		DizViewer():InRecursion(0) {}
-		virtual ~DizViewer() {}
-
-	public:
-		virtual int ProcessKey(int Key)
-		{
-			InRecursion++;
-			int res=Viewer::ProcessKey(Key);
-			InRecursion--;
-			return res;
-		}
-		virtual int ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
-		{
-			InRecursion++;
-			int res=Viewer::ProcessMouse(MouseEvent);
-			InRecursion--;
-			return res;
-		}
-};
 
 class InfoList:public Panel
 {
