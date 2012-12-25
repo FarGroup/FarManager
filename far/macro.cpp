@@ -2834,9 +2834,17 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_UCASE:           return ucaseFunc(Data);
 		case MCODE_F_WAITKEY:
 		{
+			MacroRecord* macro = GetTopMacro();
+			if (macro && macro->Flags()&MFLAGS_DISABLEOUTPUT)
+				Global->ScrBuf->Lock();
+
 			++m_DisableNested; ++m_WaitKey;
 			bool result=waitkeyFunc(Data);
 			--m_DisableNested; --m_WaitKey;
+
+			if (macro && macro->Flags()&MFLAGS_DISABLEOUTPUT)
+				Global->ScrBuf->Unlock();
+
 			return result;
 		}
 		case MCODE_F_WINDOW_SCROLL:   return windowscrollFunc(Data);
