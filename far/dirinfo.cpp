@@ -314,7 +314,7 @@ static void CopyPluginDirItem(PluginPanelItem *CurPanelItem, string& strPluginSe
 	DirListItemsNumber++;
 }
 
-static void ScanPluginDir(string& strPluginSearchPath)
+static void ScanPluginDir(OPERATION_MODES OpMode,string& strPluginSearchPath)
 {
 	PluginPanelItem *PanelData=nullptr;
 	size_t ItemCount=0;
@@ -342,7 +342,7 @@ static void ScanPluginDir(string& strPluginSearchPath)
 
 	FarGetPluginDirListMsg(strDirName,AbortOp?0:MSG_KEEPBACKGROUND);
 
-	if (StopSearch || !Global->CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND))
+	if (StopSearch || !Global->CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_FIND|OpMode))
 		return;
 
 	PluginPanelItem *NewList=(PluginPanelItem *)xf_realloc(PluginDirList,1+sizeof(*PluginDirList)*(DirListItemsNumber+ItemCount));
@@ -387,11 +387,11 @@ static void ScanPluginDir(string& strPluginSearchPath)
 			CopyPluginDirItem(CurPanelItem, strPluginSearchPath);
 			string strFileName = CurPanelItem->FileName;
 
-			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strFileName,OPM_FIND,&CurPanelItem->UserData))
+			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strFileName,OPM_FIND|OpMode,&CurPanelItem->UserData))
 			{
 				strPluginSearchPath += CurPanelItem->FileName;
 				strPluginSearchPath += L"\x1";
-				ScanPluginDir(strPluginSearchPath);
+				ScanPluginDir(OpMode,strPluginSearchPath);
 				size_t pos = (size_t)-1;
 				strPluginSearchPath.RPos(pos,L'\x1');
 				strPluginSearchPath.SetLength(pos);
@@ -401,7 +401,7 @@ static void ScanPluginDir(string& strPluginSearchPath)
 				else
 					strPluginSearchPath.Clear();
 
-				if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_FIND))
+				if (!Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_FIND|OpMode))
 				{
 					StopSearch=TRUE;
 					break;
@@ -419,6 +419,9 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 		return FALSE;
 
 	static PluginHandle DirListPlugin;
+	OPERATION_MODES OpMode=0;
+	if (Global->CtrlObject->Cp()->GetAnotherPanel(Global->CtrlObject->Cp()->ActivePanel)->GetType()==QVIEW_PANEL || Global->CtrlObject->Cp()->ActivePanel->GetType()==QVIEW_PANEL)
+		OpMode|=OPM_QUICKVIEW;
 
 	// А не хочет ли плагин посмотреть на текущую панель?
 	if (!hPlugin || hPlugin==PANEL_ACTIVE || hPlugin==PANEL_PASSIVE)
@@ -438,6 +441,7 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 		DirListPlugin.pPlugin=(Plugin*)PluginNumber;
 		DirListPlugin.hPlugin=hPlugin;
 	}
+
 
 	{
 		SaveScreen SaveScr;
@@ -460,14 +464,14 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 
 			struct UserDataItem UserData={0};  // How to find the value of a variable?
 
-			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,Dir,OPM_SILENT,&UserData))
+			if (Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,Dir,OPM_SILENT|OpMode,&UserData))
 			{
 				string strPluginSearchPath = Dir;
 				strPluginSearchPath += L"\x1";
-				ScanPluginDir(strPluginSearchPath);
+				ScanPluginDir(OpMode,strPluginSearchPath);
 				*pPanelItem=PluginDirList;
 				*pItemsNumber=DirListItemsNumber;
-				Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_SILENT);
+				Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,L"..",OPM_SILENT|OpMode);
 				OpenPanelInfo NewInfo;
 				Global->CtrlObject->Plugins->GetOpenPanelInfo(hDirListPlugin,&NewInfo);
 
@@ -476,12 +480,12 @@ int GetPluginDirList(Plugin* PluginNumber, HANDLE hPlugin, const wchar_t *Dir, P
 					PluginPanelItem *PanelData=nullptr;
 					size_t ItemCount=0;
 
-					if (Global->CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_SILENT))
+					if (Global->CtrlObject->Plugins->GetFindData(hDirListPlugin,&PanelData,&ItemCount,OPM_SILENT|OpMode))
 					{
 						Global->CtrlObject->Plugins->FreeFindData(hDirListPlugin,PanelData,ItemCount,true);
 					}
 
-					Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT,&Info.UserData);
+					Global->CtrlObject->Plugins->SetDirectory(hDirListPlugin,strPrevDir,OPM_SILENT|OpMode,&Info.UserData);
 				}
 			}
 		}
