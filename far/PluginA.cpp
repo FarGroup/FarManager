@@ -4768,9 +4768,13 @@ int WINAPI FarEditorControlA(oldfar::EDITOR_CONTROL_COMMANDS OldCommand,void* Pa
 		case oldfar::ECTL_REALTOTAB:
 		case oldfar::ECTL_TABTOREAL:
 		{
-			oldfar::EditorConvertPos *oldecp = (oldfar::EditorConvertPos*) Param;
+			if(!Param)
+        return FALSE;
+      oldfar::EditorConvertPos *oldecp = (oldfar::EditorConvertPos*) Param;
 			EditorConvertPos newecp={sizeof(EditorConvertPos),oldecp->StringNumber,oldecp->SrcPos,oldecp->DestPos};
-			return static_cast<int>(NativeInfo.EditorControl(-1, OldCommand == oldfar::ECTL_REALTOTAB ? ECTL_REALTOTAB : ECTL_TABTOREAL, 0, &newecp));
+			int ret=static_cast<int>(NativeInfo.EditorControl(-1, OldCommand == oldfar::ECTL_REALTOTAB ? ECTL_REALTOTAB : ECTL_TABTOREAL, 0, &newecp));
+      oldecp->DestPos=newecp.DestPos;
+      return ret;
 		}
 		case oldfar::ECTL_SELECT:
 		{
