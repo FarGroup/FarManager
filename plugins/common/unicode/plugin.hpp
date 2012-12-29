@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3040
+  Plugin API for Far Manager 3.0 build 3054
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3040
+#define FARMANAGERVERSION_BUILD 3054
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -1083,6 +1083,7 @@ enum FARMACROVARTYPE
 	FMVT_DOUBLE                 = 3,
 	FMVT_BOOLEAN                = 4,
 	FMVT_BINARY                 = 5,
+	FMVT_POINTER                = 6,
 };
 
 struct FarMacroValue
@@ -1094,6 +1095,7 @@ struct FarMacroValue
 		__int64        Boolean;
 		double         Double;
 		const wchar_t *String;
+		void          *Pointer;
 		struct
 		{
 			void *Data;
@@ -2402,7 +2404,11 @@ enum MACROCALLTYPE
 	MCT_MACROPARSE         = 3,
 	MCT_LOADMACROS         = 4,
 	MCT_ENUMMACROS         = 5,
-	MCT_WRITEMACRO         = 6,
+	MCT_WRITEMACROS        = 6,
+	MCT_GETMACRO           = 7,
+	MCT_PROCESSMACRO       = 8,
+	MCT_DELMACRO           = 9,
+	MCT_RUNSTARTMACRO      = 10,
 };
 
 struct OpenMacroPluginInfo
