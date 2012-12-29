@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "DList.hpp"
 #include "tvar.hpp"
 class Panel;
+struct GetMacroData;
 
 // Macro Const
 enum {
@@ -169,7 +170,7 @@ class MacroRecord
 		GUID m_guid;                   // Гуид владельца макроса
 		void* m_callbackId;            // параметр калбака
 		FARMACROCALLBACK m_callback;   // каллбак для плагинов
-		int m_macroId;                 // Идентификатор загруженного макроса в плагине LuaMacro; 0 для макроса, записанного с клавиатуры
+		int m_macroId;                 // Идентификатор загруженного макроса в плагине LuaMacro; 0 для макроса, запускаемого посредством MSSC_POST.
 		RunningMacro m_running;        // Данные времени исполнения
 	public:
 		MacroRecord();
@@ -237,7 +238,6 @@ class KeyMacro
 	private:
 		bool ReadKeyMacro(MACROMODEAREA Area);
 		void WriteMacros(void);
-		void DeleteMacro(const wchar_t *Area, const wchar_t *Name);
 		void* CallMacroPlugin(OpenMacroPluginInfo* Info);
 		int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
 		intptr_t AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
@@ -251,6 +251,10 @@ class KeyMacro
 		void RemoveCurMacro() { m_CurState->RemoveCurMacro(); }
 		void RestoreMacroChar(void);
 		bool PostNewMacro(int macroId,const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
+		void PushState(bool withClip);
+		void PopState(bool withClip);
+		bool LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t* TextKey, bool UseCommon, bool StrictKeys, bool CheckOnly);
+		void LM_ProcessMacro(MACROMODEAREA Mode, const wchar_t* TextKey, const wchar_t* Code, MACROFLAGS_MFLAGS Flags, const wchar_t* Description, const GUID* Guid=nullptr, FARMACROCALLBACK Callback=nullptr, void* CallbackId=nullptr);
 	public:
 		KeyMacro();
 		~KeyMacro();
@@ -278,13 +282,7 @@ class KeyMacro
 		void SendDropProcess();
 		bool CheckWaitKeyFunc();
 
-		void PushState(bool withClip);
-		void PopState(bool withClip);
-
-		// Функция получения индекса нужного макроса в массиве
-		int GetIndex(MACROMODEAREA* area, int Key, string& strKey, MACROMODEAREA CheckMode, bool UseCommon=true, bool StrictKeys=false);
-		int GetIndex(int Key, string& strKey, MACROMODEAREA CheckMode, bool UseCommon=true, bool StrictKeys=false)
-			{ MACROMODEAREA dummy; return GetIndex(&dummy,Key,strKey,CheckMode,UseCommon,StrictKeys); }
+		bool MacroExists(int Key, MACROMODEAREA CheckMode, bool UseCommon=true, bool StrictKeys=false);
 		void RunStartMacro();
 		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);

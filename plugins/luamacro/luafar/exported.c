@@ -673,6 +673,7 @@ void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val)
 	else if (val->Type == FMVT_DOUBLE)  lua_pushnumber(L, val->Value.Double);
 	else if (val->Type == FMVT_STRING)  push_utf8_string(L, val->Value.String, -1);
 	else if (val->Type == FMVT_BOOLEAN) lua_pushboolean(L, (int)val->Value.Boolean);
+	else if (val->Type == FMVT_POINTER) lua_pushlightuserdata(L, val->Value.Pointer);
 	else if (val->Type == FMVT_BINARY)
 	{
 		lua_createtable(L,1,0);
@@ -741,6 +742,11 @@ static HANDLE FillFarMacroCall (lua_State* L, int narg)
 		{
 			fmc->Values[i].Type = FMVT_STRING;
 			fmc->Values[i].Value.String = wcsdup(check_utf8_string(L, i-narg, NULL));
+		}
+		else if (type == LUA_TLIGHTUSERDATA)
+		{
+			fmc->Values[i].Type = FMVT_POINTER;
+			fmc->Values[i].Value.Pointer = lua_touserdata(L, i-narg);
 		}
 		else if (type == LUA_TTABLE)
 		{

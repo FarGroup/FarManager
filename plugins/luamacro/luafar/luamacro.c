@@ -134,6 +134,12 @@ HANDLE Open_Luamacro(lua_State* L, const struct OpenInfo *Info)
 							mpr->Values[idx].Value.Boolean = lua_toboolean(L, -1);
 							lua_pop(L,1);
 						}
+						else if(type == LUA_TLIGHTUSERDATA)
+						{
+							mpr->Values[idx].Type = FMVT_POINTER;
+							mpr->Values[idx].Value.Pointer = lua_touserdata(L, -1);
+							lua_rawseti(L,-2,idx+1);
+						}
 						else if(type == LUA_TTABLE)
 						{
 							mpr->Values[idx].Type = FMVT_BINARY;
@@ -232,6 +238,11 @@ int far_MacroCallFar(lua_State *L)
 		{
 			args[idx].Type = FMVT_BOOLEAN;
 			args[idx].Value.Boolean = lua_toboolean(L, stackpos);
+		}
+		else if(type == LUA_TLIGHTUSERDATA)
+		{
+			args[idx].Type = FMVT_POINTER;
+			args[idx].Value.Pointer = lua_touserdata(L, stackpos);
 		}
 		else if(bit64_getvalue(L, stackpos, &val64))
 		{

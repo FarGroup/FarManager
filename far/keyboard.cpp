@@ -2927,10 +2927,9 @@ DWORD CalcKeyCode(INPUT_RECORD *rec,int RealKey,int *NotMacros,bool ProcessCtrlC
 
 		if (KeyCode>='0' && KeyCode<='9')
 		{
-			string strKey;
 			if (Global->WaitInFastFind > 0 &&
 			        Global->CtrlObject->Macro.GetCurRecord() < MACROMODE_RECORDING &&
-			        Global->CtrlObject->Macro.GetIndex(KEY_ALTSHIFT0+KeyCode-'0',strKey,MACRO_INVALID) == -1)
+			        !Global->CtrlObject->Macro.MacroExists(KEY_ALTSHIFT0+KeyCode-'0',MACRO_INVALID))
 			{
 				return Modif|Char;
 			}

@@ -32,7 +32,6 @@ extern int luaopen_win(lua_State *L);
 
 extern int  luaB_loadfileW(lua_State *L);
 extern int  pcall_msg(lua_State* L, int narg, int nret);
-extern void PushFarMacroValue(lua_State* L, const struct FarMacroValue* val);
 extern void push_flags_table(lua_State *L);
 extern void SetFarColors(lua_State *L);
 extern void FillPluginPanelItem(lua_State *L, struct PluginPanelItem *pi, int CollectorPos);
