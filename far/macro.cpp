@@ -1287,46 +1287,21 @@ MACROMODEAREA KeyMacro::GetAreaCode(const wchar_t *AreaName)
 	return MACRO_INVALID;
 }
 
-int KeyMacro::GetMacroKeyInfo(bool FromDB, MACROMODEAREA Mode, int Pos, string &strKeyName, string &strDescription)
+bool KeyMacro::GetMacroKeyInfo(MACROMODEAREA Mode, int Pos, string &strKeyName, string &strDescription)
 {
-	const int MACRO_FUNCS = -3;
-	if (Mode >= MACRO_FUNCS && Mode < MACRO_LAST)
+	if (Mode >= MACRO_OTHER && Mode < MACRO_LAST)
 	{
-		if (FromDB)
+		size_t Len=Global->CtrlObject->Macro.m_Macros[Mode].getSize();
+		if (Len && (size_t)Pos < Len)
 		{
-			if (Mode >= MACRO_OTHER)
-			{
-				// TODO
-				return Pos+1;
-			}
-			else if (Mode == MACRO_FUNCS)
-			{
-				// TODO: MACRO_FUNCS
-				return -1;
-			}
-			else
-			{
-				// TODO
-				return Pos+1;
-			}
-		}
-		else
-		{
-			if (Mode >= MACRO_OTHER)
-			{
-				size_t Len=Global->CtrlObject->Macro.m_Macros[Mode].getSize();
-				if (Len && (size_t)Pos < Len)
-				{
-					MacroRecord *MPtr=Global->CtrlObject->Macro.m_Macros[Mode].getItem(Pos);
-					strKeyName=MPtr->Name();
-					strDescription=NullToEmpty(MPtr->Description());
-					return Pos+1;
-				}
-			}
+			MacroRecord *MPtr=Global->CtrlObject->Macro.m_Macros[Mode].getItem(Pos);
+			strKeyName=MPtr->Name();
+			strDescription=NullToEmpty(MPtr->Description());
+			return true;
 		}
 	}
 
-	return -1;
+	return false;
 }
 
 void KeyMacro::SendDropProcess()
@@ -1350,17 +1325,6 @@ void KeyMacro::RunStartMacro()
 	static int IsRunStartMacro=FALSE;
 	if (IsRunStartMacro)
 		return;
-#if 0
-	for (unsigned j=0; j<m_Macros[MACRO_SHELL].getSize(); j++)
-	{
-		MacroRecord* macro = m_Macros[MACRO_SHELL].getItem(j);
-		MACROFLAGS_MFLAGS flags = macro->Flags();
-		if (!(flags&MFLAGS_DISABLEMACRO) && (flags&MFLAGS_RUNAFTERFARSTART) && CheckAll(macro->Area(), flags))
-		{
-			PostNewMacro(macro->m_macroId, macro->Code(), flags);
-		}
-	}
-#endif
 
 	FarMacroCall fmc={sizeof(FarMacroCall),0,nullptr,nullptr,nullptr};
 	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_RUNSTARTMACRO,nullptr,&fmc};

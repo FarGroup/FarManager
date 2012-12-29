@@ -358,7 +358,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 			string strKeyName;
 			string strOutTemp;
 
-			if (Global->CtrlObject->Macro.GetMacroKeyInfo(false,Global->CtrlObject->Macro.GetAreaCode(strMacroArea),MI,strKeyName,strDescription) == -1)
+			if (!Global->CtrlObject->Macro.GetMacroKeyInfo(Global->CtrlObject->Macro.GetAreaCode(strMacroArea),MI,strKeyName,strDescription))
 			{
 				MacroProcess=false;
 				MI=0;
@@ -486,7 +486,7 @@ m1:
 					MacroProcess=true;
 					MI=0;
 					string strDescription,strKeyName;
-					while (Global->CtrlObject->Macro.GetMacroKeyInfo(false,Global->CtrlObject->Macro.GetAreaCode(strMacroArea),MI,strKeyName,strDescription) != -1)
+					while (Global->CtrlObject->Macro.GetMacroKeyInfo(Global->CtrlObject->Macro.GetAreaCode(strMacroArea),MI,strKeyName,strDescription))
 					{
 						SizeKeyName=Max(SizeKeyName,strKeyName.GetLength());
 						MI++;

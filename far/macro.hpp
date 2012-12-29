@@ -123,7 +123,7 @@ ENUM(MACROMODEAREA)
 	MACRO_COMMON,                     // ВЕЗДЕ! - должен быть предпоследним, т.к. приоритет самый низший !!!
 	MACRO_LAST,                       // Должен быть всегда последним! Используется в циклах
 
-	MACRO_INVALID = -4                // FIXME: Должен быть меньше чем MACRO_FUNCS
+	MACRO_INVALID = -1
 };
 
 struct MacroPanelSelect {
@@ -276,7 +276,7 @@ class KeyMacro
 		int GetKey();
 		int PeekKey();
 		static MACROMODEAREA GetAreaCode(const wchar_t *AreaName);
-		static int GetMacroKeyInfo(bool FromDB,MACROMODEAREA Mode,int Pos,string &strKeyName,string &strDescription);
+		static bool GetMacroKeyInfo(MACROMODEAREA Mode,int Pos,string &strKeyName,string &strDescription);
 		static void SetMacroConst(int ConstIndex, __int64 Value);
 		// послать сигнал на прерывание макроса
 		void SendDropProcess();
