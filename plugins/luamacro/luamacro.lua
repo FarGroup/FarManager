@@ -341,8 +341,8 @@ local function AddMacro (srctable)
   end
 
   local macro={}
-  local arFound = {} -- prevent multiple inclusions, i.e. area="Editor,Editor"
-  for a in area:gmatch("[^%s,;]+") do
+  local arFound = {} -- prevent multiple inclusions, i.e. area="Editor Editor"
+  for a in area:gmatch("%S+") do
     local arTable = Areas[a]
     if arTable and not arFound[a] then
       if keyregex then
