@@ -1149,11 +1149,6 @@ int KeyMacro::GetKey()
 
 						Global->ScrBuf->SetLockCount(lockCount);
 
-						//в windows гарантируется, что не бывает указателей меньше 0x10000
-						if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
-							macro->SetData(ResultCallPlugin);
-						else
-							macro->SetBooleanValue(ResultCallPlugin != nullptr);
 
 						if (CallPluginRules)
 						{
@@ -1161,7 +1156,14 @@ int KeyMacro::GetKey()
 								PopState(true);
 						}
 						else
+						{
+							//в windows гарантируется, что не бывает указателей меньше 0x10000
+							if (reinterpret_cast<uintptr_t>(ResultCallPlugin) >= 0x10000 && ResultCallPlugin != INVALID_HANDLE_VALUE)
+								macro->SetData(ResultCallPlugin);
+							else
+								macro->SetBooleanValue(ResultCallPlugin != nullptr);
 							m_InternalInput--;
+						}
 					}
 				}
 
