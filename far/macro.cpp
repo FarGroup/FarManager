@@ -6030,20 +6030,6 @@ M1:
 
 				if (!Result)
 				{
-#if 0
-// мы сюда уже давно не попадаем (проверено на Far 3.0 b2325 и Far 2.0 b1807).
-					if (DisFlags)
-					{
-						// удаляем из DB только если включен автосейв
-						if (Global->Opt->AutoSaveSetup)
-						{
-							// удалим старую запись из DB
-							DeleteMacro(GetAreaName(Data.Area), Data.Name);
-						}
-						// раздисаблим
-						Mac->m_flags&=~(MFLAGS_DISABLEMACRO|MFLAGS_NEEDSAVEMACRO);
-					}
-#endif
 					// в любом случае - вываливаемся
 					SendDlgMessage(hDlg,DM_CLOSE,1,0);
 					return TRUE;

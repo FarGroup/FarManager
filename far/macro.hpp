@@ -83,10 +83,8 @@ static const MACROFLAGS_MFLAGS
 
 	// private flags, for runtime purposes only
 	MFLAGS_PRIVATE_MASK            =0xFFFFFFFF00000000,
-	MFLAGS_POSTFROMPLUGIN          =0x0000000100000000, //! последовательность пришла от АПИ
-	MFLAGS_NEEDSAVEMACRO           =0x0000000200000000, //! необходимо этот макрос запомнить
-	MFLAGS_DISABLEMACRO            =0x0000000400000000, //! этот макрос отключен
-	MFLAGS_CALLPLUGINENABLEMACRO   =0x0000000800000000; // разрешить макросы при вызове плагина функцией CallPlugin
+	MFLAGS_POSTFROMPLUGIN          =0x0000000100000000, // последовательность пришла от АПИ
+	MFLAGS_CALLPLUGINENABLEMACRO   =0x0000000200000000; // разрешить макросы при вызове плагина функцией CallPlugin
 
 
 // коды возврата для KeyMacro::GetCurRecord()
@@ -183,9 +181,6 @@ class MacroRecord
 		const string& Code(void) {return m_code;}
 		const string& Name(void) {return m_name;}
 		const string& Description(void) {return m_description;}
-		bool IsSave(void) {return (m_flags&MFLAGS_NEEDSAVEMACRO) != 0;}
-		void SetSave(void) {m_flags|=MFLAGS_NEEDSAVEMACRO;}
-		void ClearSave(void) {m_flags&=~MFLAGS_NEEDSAVEMACRO;}
 	public:
 		void* GetHandle() { return m_running.GetHandle(); }
 		void SetHandle(void* handle) { m_running.SetHandle(handle); }
