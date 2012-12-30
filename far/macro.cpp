@@ -189,7 +189,6 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_EDITOR_INSSTR=0x%X // N=Editor.InsStr([S[,Line]])\n", MCODE_F_EDITOR_INSSTR);
 	fprintf(fp, "MCODE_F_EDITOR_SETSTR=0x%X // N=Editor.SetStr([S[,Line]])\n", MCODE_F_EDITOR_SETSTR);
 	fprintf(fp, "MCODE_F_GETMACRODATA=0x%X // Получение данных макроса для Eval(S,2)\n", MCODE_F_GETMACRODATA);
-	fprintf(fp, "MCODE_F_UNLOADMACROS=0x%X // Выгрузить макросы\n", MCODE_F_UNLOADMACROS);
 	fprintf(fp, "MCODE_F_POSTNEWMACRO=0x%X // Получить численное выражение флагов макроса\n", MCODE_F_POSTNEWMACRO);
 	fprintf(fp, "MCODE_F_CHECKALL=0x%X // Проверить предварительные условия исполнения макроса\n", MCODE_F_CHECKALL);
 	fprintf(fp, "MCODE_F_NORMALIZEKEY=0x%X // Нормализовать текстовое значение ключа\n", MCODE_F_NORMALIZEKEY);
@@ -660,33 +659,16 @@ MACROMODEAREA KeyMacro::GetMode(void)
 
 bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 {
-	//_SHMUEL(SysLog(L"+KeyMacro::LoadMacros, InitedRAM=%s, LoadALL=%s", InitedRAM?L"true":L"false", LoadAll?L"true":L"false"));
 	bool OnlyUnload = (Global->Opt->Macro.DisableMacro&MDOL_ALL) != 0;
-	int ErrCount=0;
 	InitInternalVars(InitedRAM);
-
-	for (int k=0; k<MACRO_LAST; k++)
-	{
-		m_Macros[k].Free();
-	}
 
 	FarMacroValue values[2]={{FMVT_BOOLEAN},{FMVT_BOOLEAN}};
 	values[0].Boolean = LoadAll ? 1:0;
 	values[1].Boolean = OnlyUnload ? 1:0;
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_LOADMACROS,nullptr,&fmc};
-	if (CallMacroPlugin(&info) && !OnlyUnload)
-	{
-		for (int ii=MACRO_OTHER;ii<MACRO_LAST;++ii)
-		{
-			if (!ReadKeyMacro((MACROMODEAREA)ii))
-			{
-				ErrCount++;
-			}
-		}
-	}
 
-	return !OnlyUnload && !ErrCount;
+	return CallMacroPlugin(&info) && !OnlyUnload;
 }
 
 void KeyMacro::SaveMacros()
@@ -1287,20 +1269,21 @@ MACROMODEAREA KeyMacro::GetAreaCode(const wchar_t *AreaName)
 	return MACRO_INVALID;
 }
 
-bool KeyMacro::GetMacroKeyInfo(MACROMODEAREA Mode, int Pos, string &strKeyName, string &strDescription)
+bool KeyMacro::GetMacroKeyInfo(const wchar_t* strMode, int Pos, string &strKeyName, string &strDescription)
 {
-	if (Mode >= MACRO_OTHER && Mode < MACRO_LAST)
-	{
-		size_t Len=Global->CtrlObject->Macro.m_Macros[Mode].getSize();
-		if (Len && (size_t)Pos < Len)
-		{
-			MacroRecord *MPtr=Global->CtrlObject->Macro.m_Macros[Mode].getItem(Pos);
-			strKeyName=MPtr->Name();
-			strDescription=NullToEmpty(MPtr->Description());
-			return true;
-		}
-	}
+	FarMacroValue values[2]={{FMVT_STRING},{FMVT_BOOLEAN}};
+	values[0].String = strMode;
+	values[1].Boolean = Pos?0:1;
+	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
+	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_ENUMMACROS,nullptr,&fmc};
 
+	MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&info);
+	if (mpr && mpr->Count >= 5)
+	{
+		strKeyName = mpr->Values[1].String;
+		strDescription = mpr->Values[4].String;
+		return true;
+	}
 	return false;
 }
 
@@ -1373,41 +1356,6 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t *PlainText,UINT64 Flags,DW
 		return true;
 	}
 	return false;
-}
-
-bool KeyMacro::ReadKeyMacro(MACROMODEAREA Area)
-{
-	unsigned __int64 MFlags=0;
-	string strMFlags;
-	const wchar_t *strKey, *strSequence, *strDescription;
-	int macroId;
-	int ErrorCount=0;
-
-	FarMacroValue values[1]={{FMVT_STRING,{0}}};
-	values[0].String=GetAreaName(Area);
-	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
-	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_ENUMMACROS,nullptr,&fmc};
-
-	while (true)
-	{
-		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&info);
-		if (!mpr || mpr->Count < 5)
-			break;
-
-		macroId = (int)mpr->Values[0].Double;
-		strKey = mpr->Values[1].String;
-		strMFlags = mpr->Values[2].String;
-		strSequence = mpr->Values[3].String;
-		strDescription = mpr->Values[4].String;
-
-		MFlags = FixFlags(Area, StringToFlags(strMFlags));
-
-		int Key=KeyNameToKey(strKey);
-		MacroRecord macro(Area,MFlags,macroId,Key,strKey,strSequence,strDescription);
-		m_Macros[Area].addItem(macro);
-	}
-
-	return ErrorCount?false:true;
 }
 
 void KeyMacro::WriteMacros(void)
@@ -2814,15 +2762,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				PassBoolean(UseCommon?1:0, Data);
 			}
 			PassBoolean(0, Data);
-			return 0;
-		}
-
-		case MCODE_F_UNLOADMACROS:
-		{
-			for (int k=0; k<MACRO_LAST; k++)
-			{
-				m_Macros[k].Free();
-			}
 			return 0;
 		}
 

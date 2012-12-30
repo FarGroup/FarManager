@@ -215,7 +215,6 @@ class MacroState
 class KeyMacro
 {
 	private:
-		TArray<MacroRecord> m_Macros[MACRO_LAST];
 		MACROMODEAREA m_Mode;
 		MacroState* m_CurState;
 		TStack<MacroState*> m_StateStack;
@@ -236,7 +235,6 @@ class KeyMacro
 		TVar varTextDate;
 
 	private:
-		bool ReadKeyMacro(MACROMODEAREA Area);
 		void WriteMacros(void);
 		void* CallMacroPlugin(OpenMacroPluginInfo* Info);
 		int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
@@ -276,7 +274,7 @@ class KeyMacro
 		int GetKey();
 		int PeekKey();
 		static MACROMODEAREA GetAreaCode(const wchar_t *AreaName);
-		static bool GetMacroKeyInfo(MACROMODEAREA Mode,int Pos,string &strKeyName,string &strDescription);
+		bool GetMacroKeyInfo(const wchar_t* strMode,int Pos,string &strKeyName,string &strDescription);
 		static void SetMacroConst(int ConstIndex, __int64 Value);
 		// послать сигнал на прерывание макроса
 		void SendDropProcess();

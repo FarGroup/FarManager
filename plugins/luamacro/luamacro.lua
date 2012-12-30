@@ -14,10 +14,9 @@ local co_create, co_yield, co_resume, co_status, co_wrap =
   coroutine.create, coroutine.yield, coroutine.resume, coroutine.status, coroutine.wrap
 
 local MCODE_F_GETMACRODATA = 0x80C64
-local MCODE_F_UNLOADMACROS = 0x80C65
-local MCODE_F_POSTNEWMACRO = 0x80C66
-local MCODE_F_CHECKALL     = 0x80C67
-local MCODE_F_NORMALIZEKEY = 0x80C68
+local MCODE_F_POSTNEWMACRO = 0x80C65
+local MCODE_F_CHECKALL     = 0x80C66
+local MCODE_F_NORMALIZEKEY = 0x80C67
 
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
@@ -195,7 +194,6 @@ end
 local LoadMacros, EnumMacros, WriteMacros, GetMacro, ProcessMacroFromFAR, DelMacro, RunStartMacro -- functions
 
 local function UnloadMacros()
-  MacroCallFar(MCODE_F_UNLOADMACROS)
   LoadMacros(true,true)
 end
 
@@ -415,23 +413,39 @@ local function AddRecordedMacro (srctable)
   LoadedMacros[macro.id] = macro
 end
 
-function EnumMacros (strArea)
+function EnumMacros (strArea, resetEnum)
   local area = strArea:lower()
   if Areas[area] then
-    if EnumState.area ~= area then
-      EnumState.area, EnumState.key, EnumState.index = area, nil, 1
+    if EnumState.area ~= area or resetEnum then
+      EnumState.area, EnumState.key, EnumState.index = area, nil, 0
     end
-    if EnumState.key == nil or Areas[area][EnumState.key][EnumState.index] == nil then
-      EnumState.key, EnumState.index = next(Areas[area],EnumState.key), 1
+
+    if EnumState.key == nil or EnumState.index ~= 0 and Areas[area][EnumState.key][EnumState.index] == nil then
+      EnumState.key, EnumState.index = next(Areas[area],EnumState.key), 0
     end
+
     if EnumState.key then
-      local macro = Areas[area][EnumState.key][EnumState.index]
+      local macrotable = Areas[area][EnumState.key]
+      local macro
+      if EnumState.index == 0 then
+        macro = macrotable.recorded
+        if not macro then
+          EnumState.index = 1
+          macro = macrotable[1]
+        end
+      else
+        macro = macrotable[EnumState.index]
+      end
+
       if macro then
         EnumState.index = EnumState.index + 1
-        local sequence = ("@%s (Id=%d)"):format(macro.FileName, macro.id)
-        local len = sequence:len()
-        if len > 62 then sequence = ("@...%s (Id=%d)"):format(macro.FileName:sub(len-58), macro.id) end
-        LastMessage = pack(macro.id, macro.key, macro.flags, sequence, macro.description or "")
+        local code = macro.code
+        if not code then
+          code = ("@%s (Id=%d)"):format(macro.FileName, macro.id)
+          local len = code:len()
+          if len > 62 then code = ("@...%s (Id=%d)"):format(macro.FileName:sub(len-58), macro.id) end
+        end
+        LastMessage = pack(macro.id, macro.key, macro.flags, code, macro.description or "")
         return F.MPRT_COMMONCASE, LastMessage
       end
     end
