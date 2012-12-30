@@ -324,7 +324,7 @@ local function AddMacro (srctable)
 
   local keyregex = key:find("^/.+/$")
   if keyregex then
-    ok, keyregex = pcall(regex.new, key)
+    ok, keyregex = pcall(regex.new, "(" .. key:sub(2,-2) .. ")", "i")
     if not ok then ErrMsg(("Invalid regex: %s"):format(srctable.key)); return; end
   end
 
