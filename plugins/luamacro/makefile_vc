@@ -22,6 +22,8 @@ EXCLUDECRT=1
 
 !include ..\makefile_vc_def_inc
 
+$(DLLFULLNAME) : lualib
+
 LINK_OBJS = $(OBJDIR)\luaplug.obj
 
 LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
@@ -33,7 +35,7 @@ LIBS=$(LIBS) luasdk\$(DIRBIT)\lua$(LUA_VER).lib $(LUALIB)
 	$(CPPFLAGS) $<
 <<
 
-$(LINK_OBJS): $(LUALIB)
+.PHONY: lualib
 
-$(LUALIB):
+lualib:
 	@$(MAKE) $(_MKHIDE) /f makefile_lib_vc INSTALL=$(FAR_WORKDIR)
