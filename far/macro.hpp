@@ -261,7 +261,6 @@ class KeyMacro
 		int ProcessEvent(const struct FAR_INPUT_RECORD *Rec);
 		int GetKey();
 		int PeekKey();
-		static MACROMODEAREA GetAreaCode(const wchar_t *AreaName);
 		bool GetMacroKeyInfo(const wchar_t* strMode,int Pos,string &strKeyName,string &strDescription);
 		static void SetMacroConst(int ConstIndex, __int64 Value);
 		// послать сигнал на прерывание макроса

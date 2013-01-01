@@ -1247,7 +1247,6 @@ string __MCODE_ToName(DWORD OpCode)
 		DEF_MCODE_(F_EDITOR_GETSTR),            // S=Editor.GetStr([Line])
 		DEF_MCODE_(F_EDITOR_INSSTR),            // N=Editor.InsStr([S[,Line]])
 		DEF_MCODE_(F_EDITOR_SETSTR),            // N=Editor.SetStr([S[,Line]])
-		DEF_MCODE_(F_GETMACRODATA),             //
 		DEF_MCODE_(F_POSTNEWMACRO),             //
 		DEF_MCODE_(F_CHECKALL),                 //
 		DEF_MCODE_(F_NORMALIZEKEY),             //

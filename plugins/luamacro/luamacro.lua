@@ -8,16 +8,37 @@ local function LOG (fmt, ...)
   end
 end
 
+--------------------------------------------------------------------------------
+-- Данный список должен в точности соответствовать enum MACROMODEAREA, т.е. тот же смысл и порядок.
+local TrueAreaNames = {
+ "Other", "Shell", "Viewer", "Editor", "Dialog", "Search", "Disks", "MainMenu", "Menu", "Help",
+ "Info", "QView", "Tree", "FindFolder", "UserMenu", "ShellAutoCompletion", "DialogAutoCompletion",
+ "Common",
+}
+
+local AllAreaNames = {}
+for i,v in ipairs(TrueAreaNames) do AllAreaNames[i]=v:lower() end
+for i=1,#AllAreaNames do local str=AllAreaNames[i]; AllAreaNames[str]=i; end
+
+local SomeAreaNames = {
+  "other", "viewer", "editor", "dialog", "menu", "help", "dialogautocompletion",
+  "common" -- "common" должен идти последним
+}
+
+local function GetTrueAreaName(Mode) return TrueAreaNames[Mode+1] or "" end
+local function GetAreaName(Mode)     return AllAreaNames[Mode+1] or "" end
+local function GetAreaCode(Area)     return (AllAreaNames[Area:lower()] or 0) - 1; end
+--------------------------------------------------------------------------------
+
 local F = far.Flags
 local MacroCallFar = far.MacroCallFar
 local co_create, co_yield, co_resume, co_status, co_wrap =
   coroutine.create, coroutine.yield, coroutine.resume, coroutine.status, coroutine.wrap
 
-local MCODE_F_GETMACRODATA = 0x80C64
-local MCODE_F_POSTNEWMACRO = 0x80C65
-local MCODE_F_CHECKALL     = 0x80C66
-local MCODE_F_NORMALIZEKEY = 0x80C67
-local MCODE_F_GETOPTIONS   = 0x80C68
+local MCODE_F_POSTNEWMACRO = 0x80C64
+local MCODE_F_CHECKALL     = 0x80C65
+local MCODE_F_NORMALIZEKEY = 0x80C66
+local MCODE_F_GETOPTIONS   = 0x80C67
 
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
@@ -252,14 +273,38 @@ local function AddCfindFunction()
   end
 end
 
+local function GetEvalData (str) -- Получение данных макроса для Eval(S,2).
+  local Mode
+  local UseCommon=true
+  str = str:match("^%s*(.-)%s*$")
+
+  local strArea,strKey = str:match("^(.-)/(.+)$")
+  if strArea then
+    Mode = GetAreaCode(strArea)
+    if Mode < 0 then
+      Mode = far.MacroGetArea()
+      if strArea == "." then -- вариант "./Key" не подразумевает поиск в Common`е
+        UseCommon=false
+      end
+    else
+      UseCommon=false
+    end
+  else
+    strKey=str
+    Mode=far.MacroGetArea()
+  end
+
+  return Mode, strKey, UseCommon
+end
+
 function _G.eval (str, mode)
   if type(str) ~= "string" then return -1 end
   mode = mode or 0
   if not (mode==0 or mode==1 or mode==2 or mode==3) then return -1 end
 
   if mode == 2 then
-    local area,key,usecommon = MacroCallFar(MCODE_F_GETMACRODATA, str)
-    if not mode then return -2 end
+    local area,key,usecommon = GetEvalData(str)
+    if not area then return -2 end
 
     local _,ret = GetMacro(area,key,usecommon,false,true)
     if ret==nil or ret[1]==0 then return -2 end
@@ -291,7 +336,7 @@ end
 do
   local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."api.lua")
   if func then
-    func { checkarg=checkarg, loadmacro=loadmacro }
+    func { checkarg=checkarg, GetTrueAreaName=GetTrueAreaName }
     Plugin.Call=PluginCall
     Plugin.Menu=PluginMenu
     Plugin.Config=PluginConfig
@@ -450,17 +495,6 @@ function EnumMacros (strArea, resetEnum)
   end
 end
 
-local AllAreaNames = {
-  "other", "shell", "viewer", "editor", "dialog", "search", "disks", "mainmenu", "menu", "help",
-  "info", "qview", "tree", "findfolder", "usermenu", "shellautocompletion", "dialogautocompletion",
-  "common" -- "common" должен идти последним
-}
-
-local SomeAreaNames = {
-  "other", "viewer", "editor", "dialog", "menu", "help", "dialogautocompletion",
-  "common" -- "common" должен идти последним
-}
-
 function LoadMacros (allAreas, unload)
   Areas = {}
   EnumState = {}
@@ -555,7 +589,7 @@ local function GetTopMacros (area, macrolist, checkonly)
   for _,macro in ipairs(macrolist) do
     local pr = macro.priority
     if not checkonly then
-      if MacroCallFar(MCODE_F_CHECKALL, area, macro.flags, macro.callback, macro.callbackId) then
+      if MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), macro.flags, macro.callback, macro.callbackId) then
         if macro.condition then
           pr = macro.condition() -- unprotected call
           pr = (type(pr)=="number") and (pr>100 and 100 or pr<0 and 0 or pr) or (pr and macro.priority)
@@ -604,7 +638,7 @@ local function GetFinalMacro (macrolist, area, checkonly)
   end
 
   local macro = macrolist[selected_index]
-  LastMessage = pack(macro.id, area, macro.code or "", macro.description or "",
+  LastMessage = pack(macro.id, GetAreaCode(area), macro.code or "", macro.description or "",
                      macro.flags, macro.guid, macro.callback, macro.callbackId)
   return F.MPRT_COMMONCASE, LastMessage
 end
@@ -612,8 +646,7 @@ end
 function GetMacro (Area, Key, UseCommon, StrictKeys, CheckOnly)
   if not Areas then return end -- macros were not loaded
 
-  Area,Key = Area:lower(),Key:lower()
-
+  Area,Key = GetAreaName(Area),Key:lower()
   local Names = Area=="" and AreaNames or { Area, UseCommon and "common" or nil }
 
   for _,areaname in ipairs(Names) do
@@ -707,7 +740,8 @@ local function ProcessRecordedMacro (Area, Key, code, flags, description)
   LoadedMacros[macro.id] = macro
 end
 
-function ProcessMacroFromFAR (area, key, code, flags, description, guid, callback, callbackId)
+function ProcessMacroFromFAR (mode, key, code, flags, description, guid, callback, callbackId)
+  local area = GetTrueAreaName(mode)
   if guid then -- MCTL_ADDMACRO
     AddMacro_filename = nil
     AddMacro { area=area, key=key, code=code, flags=flags, description=description,
@@ -735,13 +769,13 @@ function RunStartMacro()
   for _,macros in pairs(Areas.shell) do
     local m = macros.recorded
     if m and not m.disabled and m.flags and m.flags:lower():find("runafterfarstart") then
-      if MacroCallFar(MCODE_F_CHECKALL, "Shell", m.flags) then
+      if MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Shell"), m.flags) then
         MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
       end
     end
     for _,m in ipairs(macros) do
       if not m.disabled and m.flags and m.flags:lower():find("runafterfarstart") then
-        if MacroCallFar(MCODE_F_CHECKALL, "Shell", m.flags) then
+        if MacroCallFar(MCODE_F_CHECKALL, GetAreaCode("Shell"), m.flags) then
           if not m.condition or m.condition() then
             MacroCallFar(MCODE_F_POSTNEWMACRO, m.id, m.code, m.flags)
           end

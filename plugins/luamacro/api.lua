@@ -1,7 +1,7 @@
 -- api.lua
 
 local args = select(1, ...)
-local checkarg, loadmacro = args.checkarg, args.loadmacro
+local checkarg = args.checkarg
 
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
@@ -88,7 +88,7 @@ SetProperties(Object, {
 --------------------------------------------------------------------------------
 
 local prop_Area = {
-  Current    = function() return MacroCallFar(0x80805) end,
+  Current    = function() return args.GetTrueAreaName(MacroCallFar(0x80805)) end,
   -- Note: 0x80400 is subtracted from opcodes here.
   Dialog     = function() return MacroCallFar(0x04) end,
   DialogAutoCompletion = function() return MacroCallFar(0x10) end,
@@ -325,30 +325,6 @@ Drv     = SetProperties({}, prop_Drv)
 Help    = SetProperties({}, prop_Help)
 Mouse   = SetProperties({}, prop_Mouse)
 Viewer  = SetProperties({}, prop_Viewer)
---------------------------------------------------------------------------------
-
-mf.eval = function (str, mode)
-  if type(str) ~= "string" then return -1 end
-  mode = mode or 0
-  if not (mode==0 or mode==1 or mode==2 or mode==3) then return -1 end
-
-  if mode == 2 then
-    str = MacroCallFar(0x80C64, str)
-    if not str then return -2 end
-  end
-
-  local chunk, msg = loadmacro(str)
-  if chunk then
-    if mode==1 then return 0 end
-    if mode==3 then return "" end
-    setfenv(chunk, getfenv(2))
-    chunk()
-    return 0
-  else
-    far.Message(msg, "LuaMacro", nil, "wl")
-    return mode==3 and msg or 11
-  end
-end
 --------------------------------------------------------------------------------
 
 local function basicSerialize (o)

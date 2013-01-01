@@ -188,7 +188,6 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_EDITOR_GETSTR=0x%X // S=Editor.GetStr([Line])\n", MCODE_F_EDITOR_GETSTR);
 	fprintf(fp, "MCODE_F_EDITOR_INSSTR=0x%X // N=Editor.InsStr([S[,Line]])\n", MCODE_F_EDITOR_INSSTR);
 	fprintf(fp, "MCODE_F_EDITOR_SETSTR=0x%X // N=Editor.SetStr([S[,Line]])\n", MCODE_F_EDITOR_SETSTR);
-	fprintf(fp, "MCODE_F_GETMACRODATA=0x%X // ѕолучение данных макроса дл€ Eval(S,2)\n", MCODE_F_GETMACRODATA);
 	fprintf(fp, "MCODE_F_POSTNEWMACRO=0x%X // ѕолучить численное выражение флагов макроса\n", MCODE_F_POSTNEWMACRO);
 	fprintf(fp, "MCODE_F_CHECKALL=0x%X // ѕроверить предварительные услови€ исполнени€ макроса\n", MCODE_F_CHECKALL);
 	fprintf(fp, "MCODE_F_NORMALIZEKEY=0x%X // Ќормализовать текстовое значение ключа\n", MCODE_F_NORMALIZEKEY);
@@ -354,34 +353,6 @@ struct DlgParam
 	bool Changed;
 };
 
-struct TMacroKeywords
-{
-	const wchar_t *Name;   // Ќаименование
-	MACROMODEAREA Value;   // «начение
-};
-
-TMacroKeywords MKeywordsArea[] =
-{
-	{L"Other",                    MACRO_OTHER},
-	{L"Shell",                    MACRO_SHELL},
-	{L"Viewer",                   MACRO_VIEWER},
-	{L"Editor",                   MACRO_EDITOR},
-	{L"Dialog",                   MACRO_DIALOG},
-	{L"Search",                   MACRO_SEARCH},
-	{L"Disks",                    MACRO_DISKS},
-	{L"MainMenu",                 MACRO_MAINMENU},
-	{L"Menu",                     MACRO_MENU},
-	{L"Help",                     MACRO_HELP},
-	{L"Info",                     MACRO_INFOPANEL},
-	{L"QView",                    MACRO_QVIEWPANEL},
-	{L"Tree",                     MACRO_TREEPANEL},
-	{L"FindFolder",               MACRO_FINDFOLDER},
-	{L"UserMenu",                 MACRO_USERMENU},
-	{L"ShellAutoCompletion",      MACRO_SHELLAUTOCOMPLETION},
-	{L"DialogAutoCompletion",     MACRO_DIALOGAUTOCOMPLETION},
-	{L"Common",                   MACRO_COMMON},
-};
-
 struct TMacroKeywords2
 {
 	const wchar_t *Name;       // Ќаименование
@@ -414,8 +385,6 @@ TMacroKeywords2 MKeywordsFlags[] =
 
 	{L"NoSendKeysToPlugins",MFLAGS_NOSENDKEYSTOPLUGINS},
 };
-
-const wchar_t* GetAreaName(MACROMODEAREA AreaValue) {return GetNameOfValue(AreaValue, MKeywordsArea);}
 
 const string FlagsToString(FARKEYMACROFLAGS Flags)
 {
@@ -759,8 +728,8 @@ struct GetMacroData
 bool KeyMacro::LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t* TextKey, bool UseCommon,
 	bool StrictKeys, bool CheckOnly)
 {
-	FarMacroValue values[5]={{FMVT_STRING},{FMVT_STRING},{FMVT_BOOLEAN},{FMVT_BOOLEAN},{FMVT_BOOLEAN}};
-	values[0].String=(Mode==MACRO_INVALID ? L"" : GetAreaName(Mode));
+	FarMacroValue values[5]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_BOOLEAN},{FMVT_BOOLEAN},{FMVT_BOOLEAN}};
+	values[0].Double=Mode;
 	values[1].String=TextKey;
 	values[2].Boolean=(UseCommon?1:0);
 	values[3].Boolean=(StrictKeys?1:0);
@@ -775,7 +744,7 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t
 		if ((Data->MacroId=(int)mpr->Values[0].Double) > 0)
 		{
 			Data->Name        = TextKey;
-			Data->Area        = GetAreaCode(mpr->Values[1].String);
+			Data->Area        = (MACROMODEAREA)mpr->Values[1].Double;
 			Data->Code        = mpr->Values[2].String;
 			Data->Description = mpr->Values[3].String;
 			Data->Flags       = FixFlags(Mode, StringToFlags(mpr->Values[4].String));
@@ -799,10 +768,10 @@ bool KeyMacro::MacroExists(int Key, MACROMODEAREA CheckMode, bool UseCommon, boo
 void KeyMacro::LM_ProcessMacro(MACROMODEAREA Mode, const wchar_t* TextKey, const wchar_t* Code, MACROFLAGS_MFLAGS Flags,
 	const wchar_t* Description, const GUID* Guid, FARMACROCALLBACK Callback, void* CallbackId)
 {
-	FarMacroValue values[8]={{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},{FMVT_BINARY},{FMVT_POINTER},{FMVT_POINTER}};
+	FarMacroValue values[8]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},{FMVT_STRING},{FMVT_BINARY},{FMVT_POINTER},{FMVT_POINTER}};
 	string strFlags=FlagsToString(Flags);
 
-	values[0].String=GetAreaName(Mode);
+	values[0].Double=Mode;
 	values[1].String=TextKey;
 	values[2].String=Code;
 	values[3].String=strFlags;
@@ -1210,16 +1179,6 @@ int KeyMacro::PeekKey()
 	return key;
 }
 
-// получить код моды по имени
-MACROMODEAREA KeyMacro::GetAreaCode(const wchar_t *AreaName)
-{
-	for (size_t i=0; i < ARRAYSIZE(MKeywordsArea); i++)
-		if (!StrCmpI(MKeywordsArea[i].Name,AreaName))
-			return MKeywordsArea[i].Value;
-
-	return MACRO_INVALID;
-}
-
 bool KeyMacro::GetMacroKeyInfo(const wchar_t* strMode, int Pos, string &strKeyName, string &strDescription)
 {
 	FarMacroValue values[2]={{FMVT_STRING},{FMVT_BOOLEAN}};
@@ -1256,15 +1215,14 @@ void KeyMacro::RunStartMacro()
 	if (!Global->CtrlObject || !Global->CtrlObject->Cp() || !Global->CtrlObject->Cp()->ActivePanel || !Global->CtrlObject->Plugins->IsPluginsLoaded())
 		return;
 
-	static int IsRunStartMacro=FALSE;
-	if (IsRunStartMacro)
-		return;
-
-	FarMacroCall fmc={sizeof(FarMacroCall),0,nullptr,nullptr,nullptr};
-	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_RUNSTARTMACRO,nullptr,&fmc};
-	(void)CallMacroPlugin(&info);
-
-	IsRunStartMacro=TRUE;
+	static bool IsRunStartMacro=false;
+	if (!IsRunStartMacro)
+	{
+		IsRunStartMacro=true;
+		FarMacroCall fmc={sizeof(FarMacroCall),0,nullptr,nullptr,nullptr};
+		OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_RUNSTARTMACRO,nullptr,&fmc};
+		(void)CallMacroPlugin(&info);
+	}
 }
 
 int KeyMacro::AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback)
@@ -1947,7 +1905,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		}
 
 		case MCODE_V_MACRO_AREA:
-			return PassString(GetAreaName(Global->CtrlObject->Macro.GetMode()), Data);
+			return PassNumber(GetMode(), Data);
 
 		case MCODE_C_FULLSCREENMODE: // Fullscreen?
 			return PassBoolean(IsConsoleFullscreen(), Data);
@@ -2647,66 +2605,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 		case MCODE_F_XLAT:            return xlatFunc(Data);
 		case MCODE_F_PROMPT:          return promptFunc(Data);
 
-		case MCODE_F_GETMACRODATA: // ѕолучение данных макроса дл€ Eval(S,2).
-		{
-			parseParams(1,Params,Data);
-			TVar& Val(Params[0]);
-
-			if (!(Val.isInteger() && !Val.i())) // учитываем только нормальное содержимое строки компил€ции
-			{
-				// программный вызов макроса, назначенный на кнопкосочетание
-				/*
-					 ƒл€ этого:
-					 а) второй параметр функции установить в 2
-					 б) первым параметром указать строку в формате "Area/Key"
-							здесь:
-								"Area" - область, из которой хотим вызвать макрос
-								"/" - разделитель
-								"Key" - название клавиши
-							"Area/" можно не указывать, в этом случае поиск "Key" будет вестись в текущей активной макрообласти,
-								 если в текущей области "Key" не найден, то поиск продолжитс€ в области Common.
-								 „то бы отключить поиск в области Common (ограничитс€ только "этой" областью),
-								 необходимо в качестве "Area" указать точку.
-
-					 ƒл€ режима 2 функци€ вернет
-						 -1 - ошибка
-						 -2 - нет макроса, заданного кпопкосочетанием (или макрос заблокирован)
-							0 - Ok
-				*/
-				MACROMODEAREA _Mode;
-				bool UseCommon=true;
-				string strVal=Val.toString();
-				strVal=RemoveExternalSpaces(strVal);
-
-				wchar_t *lpwszVal = strVal.GetBuffer();
-				wchar_t *pKey=wcsrchr(lpwszVal,L'/');
-
-				if (pKey  && pKey[1])
-				{
-					*pKey++=0;
-					if ((_Mode = GetAreaCode(lpwszVal)) < 0)
-					{
-						_Mode=GetMode();
-						if (lpwszVal[0] == L'.' && !lpwszVal[1]) // вариант "./Key" не подразумевает поиск в Common`е
-							UseCommon=false;
-					}
-					else
-						UseCommon=false;
-				}
-				else
-				{
-					pKey=lpwszVal;
-					_Mode=GetMode();
-				}
-
-				PassString(GetAreaName(_Mode), Data);
-				PassString(pKey, Data);
-				PassBoolean(UseCommon?1:0, Data);
-			}
-			PassBoolean(0, Data);
-			return 0;
-		}
-
 		case MCODE_F_POSTNEWMACRO:
 		{
 			bool Result = false;
@@ -2726,7 +2624,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			BOOL Result = 0;
 			if (Data->Count >= 2)
 			{
-				MACROMODEAREA Area = GetAreaCode(Data->Values[0].String);
+				MACROMODEAREA Area = (MACROMODEAREA)Data->Values[0].Double;
 				unsigned __int64 Flags = FixFlags(Area, StringToFlags(Data->Values[1].String));
 				FARMACROCALLBACK Callback = (Data->Count>=3 && Data->Values[2].Type==FMVT_POINTER) ?
 					(FARMACROCALLBACK)Data->Values[2].Pointer : nullptr;
