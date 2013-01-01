@@ -10,7 +10,7 @@ LUALIB = $(FAR_WORKDIR)/luafar3.dll
 
 DOCS = _globalinfo.lua api.lua luamacro.lua macrotest.lua
 SRCS = luafar/luaplug.c
-USERCPP = -Iluasdk/include -DEXPORT_OPEN -DEXPORT_EXITFAR
+USERCPP = -Iluasdk/include -DEXPORT_OPEN
 USERLIBS = $(LUALIB) luasdk/$(DIRBIT)/lua$(LUA_VER).dll
 
 NEEDENTRY  = 1

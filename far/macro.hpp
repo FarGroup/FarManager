@@ -162,24 +162,19 @@ class MacroRecord
 		MACROMODEAREA m_area;
 		MACROFLAGS_MFLAGS m_flags;     // ‘лаги макропоследовательности
 		int m_key;                     // Ќазначенна€ клавиша
-		string m_name;                 // им€ записи, может совпадать с именем клавиши
 		string m_code;                 // оригинальный "текст" макроса
 		string m_description;          // описание макроса
-		GUID m_guid;                   // √уид владельца макроса
-		void* m_callbackId;            // параметр калбака
-		FARMACROCALLBACK m_callback;   // каллбак дл€ плагинов
 		int m_macroId;                 // »дентификатор загруженного макроса в плагине LuaMacro; 0 дл€ макроса, запускаемого посредством MSSC_POST.
 		RunningMacro m_running;        // ƒанные времени исполнени€
 	public:
 		MacroRecord();
-		MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Name,string Code,string Description);
+		MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Code,string Description);
 		MacroRecord& operator= (const MacroRecord& src);
 	public:
 		MACROMODEAREA Area(void) {return m_area;}
 		MACROFLAGS_MFLAGS Flags(void) {return m_flags;}
 		int Key() { return m_key; }
 		const string& Code(void) {return m_code;}
-		const string& Name(void) {return m_name;}
 		const string& Description(void) {return m_description;}
 	public:
 		void* GetHandle() { return m_running.GetHandle(); }
@@ -230,7 +225,6 @@ class KeyMacro
 		TVar varTextDate;
 
 	private:
-		void WriteMacros(void);
 		void* CallMacroPlugin(OpenMacroPluginInfo* Info);
 		int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
 		intptr_t AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
@@ -252,15 +246,14 @@ class KeyMacro
 		KeyMacro();
 		~KeyMacro();
 	public:
-		int  IsRecording();
+		int  IsRecording() { return m_Recording; }
 		int  IsExecuting();
-		int  IsExecutingLastKey();
 		int  IsDisableOutput();
 		bool IsHistoryDisable(int TypeHistory);
 		DWORD SetHistoryDisableMask(DWORD Mask);
 		DWORD GetHistoryDisableMask();
-		void SetMode(MACROMODEAREA Mode);
-		MACROMODEAREA GetMode(void);
+		void SetMode(MACROMODEAREA Mode) { m_Mode=Mode; }
+		MACROMODEAREA GetMode(void) { return m_Mode; }
 		bool LoadMacros(bool InitedRAM=true,bool LoadAll=true);
 		void SaveMacros(void);
 		// получить данные о макросе (возвращает статус)

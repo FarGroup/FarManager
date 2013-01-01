@@ -192,6 +192,7 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_POSTNEWMACRO=0x%X // Получить численное выражение флагов макроса\n", MCODE_F_POSTNEWMACRO);
 	fprintf(fp, "MCODE_F_CHECKALL=0x%X // Проверить предварительные условия исполнения макроса\n", MCODE_F_CHECKALL);
 	fprintf(fp, "MCODE_F_NORMALIZEKEY=0x%X // Нормализовать текстовое значение ключа\n", MCODE_F_NORMALIZEKEY);
+	fprintf(fp, "MCODE_F_GETOPTIONS=0x%X // Получить значения некоторых опций Фара\n", MCODE_F_GETOPTIONS);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
 	// булевые переменные - различные состояния
@@ -416,17 +417,6 @@ TMacroKeywords2 MKeywordsFlags[] =
 
 const wchar_t* GetAreaName(MACROMODEAREA AreaValue) {return GetNameOfValue(AreaValue, MKeywordsArea);}
 
-//FIXME: это - временное решение, очень неэффективное.
-MACROMODEAREA GetAreaValue(const wchar_t* AreaName)
-{
-	for (size_t i=0; i<ARRAYSIZE(MKeywordsArea); i++)
-	{
-		if (!_wcsicmp(AreaName, MKeywordsArea[i].Name))
-			return MKeywordsArea[i].Value;
-	}
-	return MACRO_INVALID;
-}
-
 const string FlagsToString(FARKEYMACROFLAGS Flags)
 {
 	return FlagsToString(Flags&MFLAGS_PUBLIC_MASK, MKeywordsFlags);
@@ -475,24 +465,17 @@ MacroRecord::MacroRecord():
 	m_area(MACRO_COMMON),
 	m_flags(0),
 	m_key(-1),
-	m_guid(FarGuid),
-	m_callbackId(nullptr),
-	m_callback(nullptr),
 	m_macroId(0),
 	m_running()
 {
 }
 
-MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Name,string Code,string Description):
+MacroRecord::MacroRecord(MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,int MacroId,int Key,string Code,string Description):
 	m_area(Area),
 	m_flags(Flags),
 	m_key(Key),
-	m_name(Name),
 	m_code(Code),
 	m_description(Description),
-	m_guid(FarGuid),
-	m_callbackId(nullptr),
-	m_callback(nullptr),
 	m_macroId(MacroId),
 	m_running()
 {
@@ -505,12 +488,8 @@ MacroRecord& MacroRecord::operator= (const MacroRecord& src)
 		m_area = src.m_area;
 		m_flags = src.m_flags;
 		m_key = src.m_key;
-		m_name = src.m_name;
 		m_code = src.m_code;
 		m_description = src.m_description;
-		m_guid = src.m_guid;
-		m_callbackId = src.m_callbackId;
-		m_callback = src.m_callback;
 		m_macroId = src.m_macroId;
 		m_running = src.m_running;
 	}
@@ -581,33 +560,15 @@ KeyMacro::~KeyMacro()
 // инициализация всех переменных
 void KeyMacro::InitInternalVars(bool InitedRAM)
 {
-	//InitInternalLIBVars();
-
-	//if (LockScr)
-	//{
-	//	delete LockScr;
-	//	LockScr=nullptr;
-	//}
-
 	if (InitedRAM)
 	{
 		m_CurState->m_MacroQueue.Clear();
 		m_CurState->Executing=MACROMODE_NOMACRO;
 	}
-
 	m_CurState->HistoryDisable=0;
-	m_RecCode.Clear();
-	m_RecDescription.Clear();
-
 	m_Recording=MACROMODE_NOMACRO;
 	m_StateStack.Free();
 	m_InternalInput=0;
-	//VMStack.Free();
-}
-
-int KeyMacro::IsRecording()
-{
-	return m_Recording;
 }
 
 int KeyMacro::IsExecuting()
@@ -617,11 +578,6 @@ int KeyMacro::IsExecuting()
 		return m->Flags()&MFLAGS_NOSENDKEYSTOPLUGINS ? MACROMODE_EXECUTING : MACROMODE_EXECUTING_COMMON;
 	else
 		return m_StateStack.empty() ? MACROMODE_NOMACRO : MACROMODE_EXECUTING_COMMON;
-}
-
-int KeyMacro::IsExecutingLastKey()
-{
-	return false;
 }
 
 int KeyMacro::IsDisableOutput()
@@ -647,33 +603,26 @@ bool KeyMacro::IsHistoryDisable(int TypeHistory)
 	return !m_CurState->m_MacroQueue.Empty() && (m_CurState->HistoryDisable & (1 << TypeHistory));
 }
 
-void KeyMacro::SetMode(MACROMODEAREA Mode)
-{
-	m_Mode=Mode;
-}
-
-MACROMODEAREA KeyMacro::GetMode(void)
-{
-	return m_Mode;
-}
-
 bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
 {
-	bool OnlyUnload = (Global->Opt->Macro.DisableMacro&MDOL_ALL) != 0;
+	if (Global->Opt->Macro.DisableMacro&MDOL_ALL)
+		return false;
+
 	InitInternalVars(InitedRAM);
 
-	FarMacroValue values[2]={{FMVT_BOOLEAN},{FMVT_BOOLEAN}};
+	FarMacroValue values[1]={{FMVT_BOOLEAN}};
 	values[0].Boolean = LoadAll ? 1:0;
-	values[1].Boolean = OnlyUnload ? 1:0;
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_LOADMACROS,nullptr,&fmc};
 
-	return CallMacroPlugin(&info) && !OnlyUnload;
+	return CallMacroPlugin(&info) != nullptr;
 }
 
 void KeyMacro::SaveMacros()
 {
-	WriteMacros();
+	FarMacroCall fmc={sizeof(FarMacroCall),0,nullptr,nullptr,nullptr};
+	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_WRITEMACROS,nullptr,&fmc};
+	CallMacroPlugin(&info);
 }
 
 static __int64 msValues[constMsLAST];
@@ -826,7 +775,7 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t
 		if ((Data->MacroId=(int)mpr->Values[0].Double) > 0)
 		{
 			Data->Name        = TextKey;
-			Data->Area        = GetAreaValue(mpr->Values[1].String);
+			Data->Area        = GetAreaCode(mpr->Values[1].String);
 			Data->Code        = mpr->Values[2].String;
 			Data->Description = mpr->Values[3].String;
 			Data->Flags       = FixFlags(Mode, StringToFlags(mpr->Values[4].String));
@@ -986,7 +935,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 				Global->WaitInFastFind++;
 
 				if (Global->Opt->AutoSaveSetup)
-					WriteMacros(); // записать только изменения!
+					SaveMacros(); // записать только изменения!
 
 				return true;
 			}
@@ -1349,22 +1298,13 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t *PlainText,UINT64 Flags,DW
 {
 	if (!m_InternalInput && (MacroId != 0 || ParseMacroString(PlainText, onlyCheck)))
 	{
-		string strKeyText;
-		KeyToText(AKey,strKeyText);
-		MacroRecord macro(MACRO_COMMON, Flags, MacroId, AKey, strKeyText, PlainText, L"");
+		MacroRecord macro(MACRO_COMMON, Flags, MacroId, AKey, PlainText, L"");
 
 		m_CurState->m_MacroQueue.Push(&macro);
 
 		return true;
 	}
 	return false;
-}
-
-void KeyMacro::WriteMacros(void)
-{
-	FarMacroCall fmc={sizeof(FarMacroCall),0,nullptr,nullptr,nullptr};
-	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_WRITEMACROS,nullptr,&fmc};
-	CallMacroPlugin(&info);
 }
 
 static BOOL CheckEditSelected(MACROMODEAREA Mode, UINT64 CurFlags)
@@ -2786,7 +2726,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			BOOL Result = 0;
 			if (Data->Count >= 2)
 			{
-				MACROMODEAREA Area = GetAreaValue(Data->Values[0].String);
+				MACROMODEAREA Area = GetAreaCode(Data->Values[0].String);
 				unsigned __int64 Flags = FixFlags(Area, StringToFlags(Data->Values[1].String));
 				FARMACROCALLBACK Callback = (Data->Count>=3 && Data->Values[2].Type==FMVT_POINTER) ?
 					(FARMACROCALLBACK)Data->Values[2].Pointer : nullptr;
@@ -2814,6 +2754,16 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 				}
 			}
 			PassBoolean(0,Data);
+			break;
+		}
+
+		case MCODE_F_GETOPTIONS:
+		{
+			DWORD Options = 0;
+			if (Global->Opt->OnlyEditorViewerUsed)              Options |= 0x1;
+			if (Global->Opt->Macro.DisableMacro&MDOL_ALL)       Options |= 0x2;
+			if (Global->Opt->Macro.DisableMacro&MDOL_AUTOSTART) Options |= 0x4;
+			PassNumber(Options, Data);
 			break;
 		}
 

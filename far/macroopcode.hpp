@@ -153,6 +153,7 @@ enum MACRO_OP_CODE
 	MCODE_F_POSTNEWMACRO,             //
 	MCODE_F_CHECKALL,                 //
 	MCODE_F_NORMALIZEKEY,             //
+	MCODE_F_GETOPTIONS,               //
 
 	MCODE_F_LAST,                     // marker
 

@@ -2015,7 +2015,7 @@ intptr_t WINAPI apiMacroControl(const GUID* PluginId, FAR_MACRO_CONTROL_COMMANDS
 			{
 				if (Macro.IsRecording())
 					return FALSE;
-				return Macro.LoadMacros(!Macro.IsExecuting());
+				return Macro.LoadMacros(!Macro.IsExecuting(), !Global->Opt->OnlyEditorViewerUsed);
 			}
 
 			// Param1=0, Param2 - 0

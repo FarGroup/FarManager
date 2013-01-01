@@ -17,6 +17,7 @@ local MCODE_F_GETMACRODATA = 0x80C64
 local MCODE_F_POSTNEWMACRO = 0x80C65
 local MCODE_F_CHECKALL     = 0x80C66
 local MCODE_F_NORMALIZEKEY = 0x80C67
+local MCODE_F_GETOPTIONS   = 0x80C68
 
 local PROPAGATE={} -- a unique value, inaccessible to scripts.
 local gmeta = { __index=_G }
@@ -194,7 +195,8 @@ end
 local LoadMacros, EnumMacros, WriteMacros, GetMacro, ProcessMacroFromFAR, DelMacro, RunStartMacro -- functions
 
 local function UnloadMacros()
-  LoadMacros(true,true)
+  local allAreas = bit64.band(MacroCallFar(MCODE_F_GETOPTIONS),0x1) == 0
+  LoadMacros(allAreas,true)
 end
 
 local function ProcessCommandLine (CmdLine)
@@ -284,10 +286,6 @@ function _G.eval (str, mode)
     far.Message(msg, "LuaMacro", nil, "wl")
     return mode==3 and msg or 11
   end
-end
-
-function export.ExitFAR()
-  UnloadMacros()
 end
 
 do
@@ -459,8 +457,8 @@ local AllAreaNames = {
 }
 
 local SomeAreaNames = {
-    "other", "viewer", "editor", "dialog", "menu", "help", "dialogautocompletion",
-    "common" -- "common" должен идти последним
+  "other", "viewer", "editor", "dialog", "menu", "help", "dialogautocompletion",
+  "common" -- "common" должен идти последним
 }
 
 function LoadMacros (allAreas, unload)
