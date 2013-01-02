@@ -44,6 +44,8 @@ enum FINDAREA
 	FINDAREA_SELECTED,
 };
 
+class Dialog;
+
 class FindFiles
 {
 public:
@@ -56,22 +58,22 @@ private:
 	string &PrepareDriveNameStr(string &strSearchFromRoot);
 	bool IsWordDiv(const wchar_t symbol);
 	void SetPluginDirectory(const wchar_t *DirName,HANDLE hPlugin,bool UpdatePanel=false,struct UserDataItem *UserData=nullptr);
-	intptr_t AdvancedDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	intptr_t AdvancedDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void AdvancedDialog();
-	intptr_t MainDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	intptr_t MainDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	bool GetPluginFile(size_t ArcIndex, const FAR_FIND_DATA_EX& FindData, const wchar_t *DestPath, string &strResultName,struct UserDataItem *UserData);
 	const int FindStringBMH(const wchar_t* searchBuffer, size_t searchBufferCount);
 	const int FindStringBMH(const unsigned char* searchBuffer, size_t searchBufferCount);
 	int LookForString(const string& Name);
 	bool IsFileIncluded(PluginPanelItem* FileItem, const wchar_t *FullName, DWORD FileAttr);
-	intptr_t FindDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
-	void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);
-	void AddMenuRecord(HANDLE hDlg,const wchar_t *FullName, PluginPanelItem& FindData);
-	void DoPreparePluginList(HANDLE hDlg, bool Internal);
-	void ArchiveSearch(HANDLE hDlg, const wchar_t *ArcName);
-	void DoScanTree(HANDLE hDlg, string& strRoot);
-	void ScanPluginTree(HANDLE hDlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel);
-	void DoPrepareFileList(HANDLE hDlg);
+	intptr_t FindDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	void AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, const FAR_FIND_DATA_EX& FindData, void* Data, FARPANELITEMFREECALLBACK FreeData);
+	void AddMenuRecord(Dialog* Dlg,const wchar_t *FullName, PluginPanelItem& FindData);
+	void DoPreparePluginList(Dialog* Dlg, bool Internal);
+	void ArchiveSearch(Dialog* Dlg, const wchar_t *ArcName);
+	void DoScanTree(Dialog* Dlg, string& strRoot);
+	void ScanPluginTree(Dialog* Dlg, HANDLE hPlugin, UINT64 Flags, int& RecurseLevel);
+	void DoPrepareFileList(Dialog* Dlg);
 	unsigned int ThreadRoutine(LPVOID Param);
 	bool FindFilesProcess();
 

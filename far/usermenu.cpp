@@ -898,7 +898,7 @@ enum EditMenuItems
 	EM_BUTTON_CANCEL,
 };
 
-intptr_t UserMenu::EditMenuDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	switch (Msg)
 	{
@@ -916,8 +916,8 @@ intptr_t UserMenu::EditMenuDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, v
 			if (Param1==EM_BUTTON_OK)
 			{
 				BOOL Result=TRUE;
-				LPCWSTR HotKey=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,EM_HOTKEY_EDIT,0));
-				LPCWSTR Label=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,EM_LABEL_EDIT,0));
+				LPCWSTR HotKey=reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,EM_HOTKEY_EDIT,0));
+				LPCWSTR Label=reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,EM_LABEL_EDIT,0));
 				int FocusPos=-1;
 
 				if(StrCmp(HotKey,L"--"))
@@ -943,7 +943,7 @@ intptr_t UserMenu::EditMenuDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, v
 				if (FocusPos!=-1)
 				{
 					Message(MSG_WARNING,1,MSG(MUserMenuTitle),MSG((*Label?MUserMenuInvalidInputHotKey:MUserMenuInvalidInputLabel)),MSG(MOk));
-					SendDlgMessage(hDlg,DM_SETFOCUS,FocusPos,0);
+					Dlg->SendMessage(DM_SETFOCUS,FocusPos,0);
 					Result=FALSE;
 				}
 
@@ -954,7 +954,7 @@ intptr_t UserMenu::EditMenuDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, v
 				switch(Message(MSG_WARNING, 3, MSG(MUserMenuTitle), MSG(MEditMenuConfirmation), MSG(MHYes), MSG(MHNo), MSG(MHCancel)))
 				{
 				case 0:
-					SendDlgMessage(hDlg, DM_CLOSE, EM_BUTTON_OK, nullptr);
+					Dlg->SendMessage( DM_CLOSE, EM_BUTTON_OK, nullptr);
 					break;
 				case 1:
 					return TRUE;
@@ -969,7 +969,7 @@ intptr_t UserMenu::EditMenuDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, v
 			break;
 	}
 
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
 

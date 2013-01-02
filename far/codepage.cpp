@@ -177,7 +177,7 @@ inline uintptr_t codepages::GetMenuItemCodePage(int Position)
 
 inline uintptr_t codepages::GetListItemCodePage(int Position)
 {
-	intptr_t Data = SendDlgMessage(dialog, DM_LISTGETDATA, control, ToPtr(Position));
+	intptr_t Data = dialog->SendMessage(DM_LISTGETDATA, control, ToPtr(Position));
 	return Data? *reinterpret_cast<uintptr_t*>(Data) : 0;
 }
 
@@ -219,7 +219,7 @@ void codepages::AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int
 		if (position==-1)
 		{
 			FarListInfo info={sizeof(FarListInfo)};
-			SendDlgMessage(dialog, DM_LISTINFO, control, &info);
+			dialog->SendMessage(DM_LISTINFO, control, &info);
 			position = static_cast<int>(info.ItemsNumber);
 		}
 
@@ -240,13 +240,13 @@ void codepages::AddCodePage(const wchar_t *codePageName, uintptr_t codePage, int
 			item.Item.Flags |= MIF_GRAYED;
 		}
 
-		SendDlgMessage(dialog, DM_LISTINSERT, control, &item);
+		dialog->SendMessage(DM_LISTINSERT, control, &item);
 		// Устанавливаем данные для элемента
 		FarListItemData data={sizeof(FarListItemData)};
 		data.Index = position;
 		data.Data = &codePage;
 		data.DataSize = sizeof(codePage);
-		SendDlgMessage(dialog, DM_LISTSETDATA, control, &data);
+		dialog->SendMessage(DM_LISTSETDATA, control, &data);
 	}
 	else
 	{
@@ -306,14 +306,14 @@ void codepages::AddSeparator(LPCWSTR Label, int position)
 		if (position==-1)
 		{
 			FarListInfo info={sizeof(FarListInfo)};
-			SendDlgMessage(dialog, DM_LISTINFO, control, &info);
+			dialog->SendMessage(DM_LISTINFO, control, &info);
 			position = static_cast<int>(info.ItemsNumber);
 		}
 
 		FarListInsert item = {sizeof(FarListInsert),position};
 		item.Item.Text = Label;
 		item.Item.Flags = LIF_SEPARATOR;
-		SendDlgMessage(dialog, DM_LISTINSERT, control, &item);
+		dialog->SendMessage(DM_LISTINSERT, control, &item);
 	}
 	else
 	{
@@ -339,7 +339,7 @@ int codepages::GetItemsCount()
 	else
 	{
 		FarListInfo info={sizeof(FarListInfo)};
-		SendDlgMessage(dialog, DM_LISTINFO, control, &info);
+		dialog->SendMessage(DM_LISTINFO, control, &info);
 		return static_cast<int>(info.ItemsNumber);
 	}
 }
@@ -610,7 +610,7 @@ wchar_t *codepages::FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName
 }
 
 // Каллбак для диалога редактирования имени кодовой страницы
-intptr_t codepages::EditDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+intptr_t codepages::EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	if (Msg==DN_CLOSE)
 	{
@@ -623,9 +623,9 @@ intptr_t codepages::EditDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, v
 			if (Param1==EDITCP_OK)
 			{
 				FarDialogItemData item = {sizeof(FarDialogItemData)};
-				item.PtrLength = SendDlgMessage(hDlg, DM_GETTEXT, EDITCP_EDIT, 0);
+				item.PtrLength = Dlg->SendMessage(DM_GETTEXT, EDITCP_EDIT, 0);
 				item.PtrData = strCodePageName.GetBuffer(item.PtrLength+1);
-				SendDlgMessage(hDlg, DM_GETTEXT, EDITCP_EDIT, &item);
+				Dlg->SendMessage(DM_GETTEXT, EDITCP_EDIT, &item);
 				strCodePageName.ReleaseBuffer();
 			}
 			// Если имя кодовой страницы пустое, то считаем, что имя не задано
@@ -656,7 +656,7 @@ intptr_t codepages::EditDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, v
 			}
 		}
 	}
-	return DefDlgProc(hDlg, Msg, Param1, Param2);
+	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
 // Вызов редактора имени кодовой страницы
@@ -745,11 +745,11 @@ bool codepages::SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bSho
 }
 
 // Заполняем список таблицами символов
-UINT codepages::FillCodePagesList(HANDLE dialogHandle, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowM2)
+UINT codepages::FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault, bool allowM2)
 {
 	CallbackCallSource = CodePagesFill;
 	// Устанавливаем переменные для доступа из каллбака
-	dialog = dialogHandle;
+	dialog = Dlg;
 	control = controlId;
 	currentCodePage = codePage;
 	favoriteCodePages = normalCodePages = 0;
@@ -761,17 +761,17 @@ UINT codepages::FillCodePagesList(HANDLE dialogHandle, UINT controlId, uintptr_t
 	{
 		// Если надо выбираем элемент
 		FarListInfo info={sizeof(FarListInfo)};
-		SendDlgMessage(dialogHandle, DM_LISTINFO, control, &info);
+		Dlg->SendMessage(DM_LISTINFO, control, &info);
 
 		for (int i=0; i<static_cast<int>(info.ItemsNumber); i++)
 		{
 			if (GetListItemCodePage(i)==codePage)
 			{
 				FarListGetItem Item={sizeof(FarListGetItem),i};
-				SendDlgMessage(dialog, DM_LISTGETITEM, control, &Item);
-				SendDlgMessage(dialog, DM_SETTEXTPTR, control, const_cast<wchar_t*>(Item.Item.Text));
+				dialog->SendMessage(DM_LISTGETITEM, control, &Item);
+				dialog->SendMessage(DM_SETTEXTPTR, control, const_cast<wchar_t*>(Item.Item.Text));
 				FarListPos Pos={sizeof(FarListPos),i,-1};
-				SendDlgMessage(dialog, DM_LISTSETCURPOS, control, &Pos);
+				dialog->SendMessage(DM_LISTSETCURPOS, control, &Pos);
 				break;
 			}
 		}

@@ -61,6 +61,7 @@ enum
 };
 
 class Plugin;
+class Dialog;
 
 class Message
 {
@@ -77,7 +78,7 @@ public:
 
 private:
 	void Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wchar_t * const *Items, size_t ItemsNumber, const wchar_t* HelpTopic = nullptr, Plugin* PluginNumber = nullptr, const GUID* Id = nullptr);
-	intptr_t MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+	intptr_t MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 	int m_ExitCode;
 	int MessageX1,MessageY1,MessageX2,MessageY2;

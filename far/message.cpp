@@ -79,7 +79,7 @@ bool GetErrorString(string &strErrStr)
 #endif
 }
 
-intptr_t Message::MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t Message::MsgDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -87,12 +87,12 @@ intptr_t Message::MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Para
 		{
 			FarDialogItem di;
 
-			for (int i=0; SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,i,&di); i++)
+			for (int i=0; Dlg->SendMessage(DM_GETDLGITEMSHORT,i,&di); i++)
 			{
 				if (di.Type==DI_EDIT)
 				{
 					COORD pos={};
-					SendDlgMessage(hDlg,DM_SETCURSORPOS,i,&pos);
+					Dlg->SendMessage(DM_SETCURSORPOS,i,&pos);
 				}
 			}
 		}
@@ -100,7 +100,7 @@ intptr_t Message::MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Para
 		case DN_CTLCOLORDLGITEM:
 		{
 			FarDialogItem di;
-			SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,Param1,&di);
+			Dlg->SendMessage(DM_GETDLGITEMSHORT,Param1,&di);
 
 			if (di.Type==DI_EDIT)
 			{
@@ -138,7 +138,7 @@ intptr_t Message::MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_NUMPAD6:
 					if(Param1==LastButtonIndex)
 					{
-						SendDlgMessage(hDlg,DM_SETFOCUS,FirstButtonIndex,0);
+						Dlg->SendMessage(DM_SETFOCUS,FirstButtonIndex,0);
 						return TRUE;
 					}
 					break;
@@ -148,7 +148,7 @@ intptr_t Message::MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_NUMPAD4:
 					if(Param1==FirstButtonIndex)
 					{
-						SendDlgMessage(hDlg,DM_SETFOCUS,LastButtonIndex,0);
+						Dlg->SendMessage(DM_SETFOCUS,LastButtonIndex,0);
 						return TRUE;
 					}
 					break;
@@ -160,7 +160,7 @@ intptr_t Message::MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Para
 				case KEY_CTRLNUMPAD0:
 				case KEY_RCTRLNUMPAD0:
 					{
-						string* strText = reinterpret_cast<string*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
+						string* strText = reinterpret_cast<string*>(Dlg->SendMessage( DM_GETDLGDATA, 0, 0));
 						CopyToClipboard(*strText);
 					}
 					break;
@@ -172,7 +172,7 @@ intptr_t Message::MsgDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Para
 		break;
 	}
 
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
 Message::Message(DWORD Flags,size_t Buttons,const wchar_t *Title,const wchar_t *Str1, const wchar_t *Str2, const wchar_t *Str3, const wchar_t *Str4, const wchar_t *Str5,
@@ -539,7 +539,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 			FlushInputBuffer();
 
 			if (Flags & MSG_KILLSAVESCREEN)
-				SendDlgMessage((HANDLE)&Dlg,DM_KILLSAVESCREEN,0,0);
+				Dlg.SendMessage(DM_KILLSAVESCREEN,0,0);
 
 			Dlg.Process();
 			RetCode=Dlg.GetExitCode();

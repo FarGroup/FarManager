@@ -57,7 +57,7 @@ class VMenu2 : public Dialog
 
 		function<int(int Msg, void *param)> mfn;
 
-		intptr_t VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+		intptr_t VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
 
 		int Call(int Msg, void *param);

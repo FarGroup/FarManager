@@ -1601,7 +1601,7 @@ void FillListItem(FarListItem& Item, FormatString& fs, FARConfigItem& cfg)
 	Item.Text = fs;
 }
 
-intptr_t WINAPI AdvancedConfigDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+intptr_t AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	static FormatString* fs;
 	switch (Msg)
@@ -1613,9 +1613,9 @@ intptr_t WINAPI AdvancedConfigDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1
 	case DN_RESIZECONSOLE:
 		{
 			COORD Size = {(SHORT)Max(ScrX-4, 60), (SHORT)Max(ScrY-2, 20)};
-			SendDlgMessage(hDlg, DM_RESIZEDIALOG, 0, &Size);
+			Dlg->SendMessage(DM_RESIZEDIALOG, 0, &Size);
 			SMALL_RECT ListPos = {3, 1, (SHORT)(Size.X-4), (SHORT)(Size.Y-2)};
-			SendDlgMessage(hDlg, DM_SETITEMPOSITION, 0, &ListPos);
+			Dlg->SendMessage(DM_SETITEMPOSITION, 0, &ListPos);
 		}
 		break;
 
@@ -1630,7 +1630,7 @@ intptr_t WINAPI AdvancedConfigDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1
 				case KEY_SHIFTF1:
 					{
 						FarListInfo ListInfo = {sizeof(ListInfo)};
-						SendDlgMessage(hDlg, DM_LISTINFO, Param1, &ListInfo);
+						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 
 						string HelpTopic = string(FARConfig.Items[ListInfo.SelectPos].KeyName) + L"." + FARConfig.Items[ListInfo.SelectPos].ValName;
 						Help hlp(HelpTopic.CPtr(), nullptr, FHELP_NOSHOWERROR);
@@ -1643,23 +1643,23 @@ intptr_t WINAPI AdvancedConfigDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1
 					break;
 
 				case KEY_F4:
-					SendDlgMessage(hDlg, DM_CLOSE, 0, nullptr);
+					Dlg->SendMessage(DM_CLOSE, 0, nullptr);
 					break;
 
 				case KEY_SHIFTF4:
-					SendDlgMessage(hDlg, DM_CLOSE, 1, nullptr);
+					Dlg->SendMessage(DM_CLOSE, 1, nullptr);
 					break;
 
 				case KEY_CTRLH:
 					{
 						static bool HideUnchanged = true;
-						SendDlgMessage(hDlg, DM_ENABLEREDRAW, 0 , 0);
+						Dlg->SendMessage(DM_ENABLEREDRAW, 0 , 0);
 						FarListInfo ListInfo = {sizeof(ListInfo)};
-						SendDlgMessage(hDlg, DM_LISTINFO, Param1, &ListInfo);
+						Dlg->SendMessage(DM_LISTINFO, Param1, &ListInfo);
 						for(int i = 0; i < static_cast<int>(ListInfo.ItemsNumber); ++i)
 						{
 							FarListGetItem Item={sizeof(FarListGetItem), i};
-							SendDlgMessage(hDlg, DM_LISTGETITEM, 0, &Item);
+							Dlg->SendMessage(DM_LISTGETITEM, 0, &Item);
 							bool NeedUpdate = false;
 							if(HideUnchanged)
 							{
@@ -1680,11 +1680,11 @@ intptr_t WINAPI AdvancedConfigDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1
 							if(NeedUpdate)
 							{
 								FarListUpdate UpdatedItem={sizeof(FarListGetItem), i, Item.Item};
-								SendDlgMessage(hDlg, DM_LISTUPDATE, 0, &UpdatedItem);
+								Dlg->SendMessage(DM_LISTUPDATE, 0, &UpdatedItem);
 							}
 						}
 						HideUnchanged = !HideUnchanged;
-						SendDlgMessage(hDlg, DM_ENABLEREDRAW, 1 , 0);
+						Dlg->SendMessage(DM_ENABLEREDRAW, 1 , 0);
 					}
 					break;
 				}
@@ -1696,7 +1696,7 @@ intptr_t WINAPI AdvancedConfigDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1
 		if (Param1 == 0 || Param1 == 1) // BUGBUG, magic
 		{
 			FarListInfo ListInfo = {sizeof(ListInfo)};
-			SendDlgMessage(hDlg, DM_LISTINFO, 0, &ListInfo);
+			Dlg->SendMessage(DM_LISTINFO, 0, &ListInfo);
 
 			bool Changed = false;
 
@@ -1757,13 +1757,13 @@ intptr_t WINAPI AdvancedConfigDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1
 
 			if(Changed)
 			{
-				SendDlgMessage(hDlg, DM_ENABLEREDRAW, 0 , 0);
+				Dlg->SendMessage(DM_ENABLEREDRAW, 0 , 0);
 				FarListUpdate flu = {sizeof(flu), ListInfo.SelectPos};
 				FillListItem(flu.Item, fs[ListInfo.SelectPos], FARConfig.Items[ListInfo.SelectPos]);
-				SendDlgMessage(hDlg, DM_LISTUPDATE, 0, &flu);
+				Dlg->SendMessage(DM_LISTUPDATE, 0, &flu);
 				FarListPos flp = {sizeof(flp), ListInfo.SelectPos, ListInfo.TopPos};
-				SendDlgMessage(hDlg, DM_LISTSETCURPOS, 0, &flp);
-				SendDlgMessage(hDlg, DM_ENABLEREDRAW, 1 , 0);
+				Dlg->SendMessage(DM_LISTSETCURPOS, 0, &flp);
+				Dlg->SendMessage(DM_ENABLEREDRAW, 1 , 0);
 			}
 			return FALSE;
 		}
@@ -1772,7 +1772,7 @@ intptr_t WINAPI AdvancedConfigDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1
 		break;
 	}
 
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
 bool AdvancedConfig()

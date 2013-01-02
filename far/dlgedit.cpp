@@ -732,7 +732,7 @@ void DlgEdit::DoEditChange()
 {
 	if (m_Dialog->IsInited())
 	{
-		SendDlgMessage((HANDLE)m_Dialog,DN_EDITCHANGE,m_Index,0);
+		m_Dialog->SendMessage(DN_EDITCHANGE,m_Index,0);
 	}
 }
 

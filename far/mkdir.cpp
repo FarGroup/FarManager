@@ -66,7 +66,7 @@ enum
 	MKDIR_CANCEL,
 };
 
-intptr_t WINAPI MkDirDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t MkDirDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -74,7 +74,7 @@ intptr_t WINAPI MkDirDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Para
 			{
 				if (Param1 == MKDIR_COMBOBOX_LINKTYPE)
 				{
-					SendDlgMessage(hDlg, DM_ENABLE, MKDIR_EDIT_LINKPATH, ToPtr(Param2 != 0));
+					Dlg->SendMessage( DM_ENABLE, MKDIR_EDIT_LINKPATH, ToPtr(Param2 != 0));
 				}
 			}
 			break;
@@ -82,8 +82,8 @@ intptr_t WINAPI MkDirDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Para
 		{
 			if (Param1==MKDIR_OK)
 			{
-				string strDirName=reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MKDIR_EDIT,0));
-				Global->Opt->MultiMakeDir=(SendDlgMessage(hDlg,DM_GETCHECK,MKDIR_CHECKBOX,0)==BSTATE_CHECKED);
+				string strDirName=reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,MKDIR_EDIT,0));
+				Global->Opt->MultiMakeDir=(Dlg->SendMessage(DM_GETCHECK,MKDIR_CHECKBOX,0)==BSTATE_CHECKED);
 
 				// это по поводу создания одиночного каталога, который
 				// начинается с пробела! Чтобы ручками не заключать
@@ -102,7 +102,7 @@ intptr_t WINAPI MkDirDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Para
 					InsertQuote(strDirName);
 				}
 
-				UserDefinedList* pDirList=reinterpret_cast<UserDefinedList*>(SendDlgMessage(hDlg,DM_GETDLGDATA,0,0));
+				UserDefinedList* pDirList=reinterpret_cast<UserDefinedList*>(Dlg->SendMessage(DM_GETDLGDATA,0,0));
 
 				if (!pDirList->Set(strDirName))
 				{
@@ -116,7 +116,7 @@ intptr_t WINAPI MkDirDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Para
 		break;
 	}
 
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
 void ShellMakeDir(Panel *SrcPanel)

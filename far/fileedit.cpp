@@ -87,27 +87,27 @@ enum enumOpenEditor
 };
 
 
-intptr_t WINAPI hndOpenEditor(HANDLE hDlg, intptr_t msg, intptr_t param1, void* param2)
+intptr_t hndOpenEditor(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 {
 	if (msg == DN_INITDIALOG)
 	{
 		uintptr_t codepage = *(uintptr_t*)param2;
-		Global->CodePages->FillCodePagesList(hDlg, ID_OE_CODEPAGE, codepage, true, false, true, true);
+		Global->CodePages->FillCodePagesList(Dlg, ID_OE_CODEPAGE, codepage, true, false, true, true);
 	}
 
 	if (msg == DN_CLOSE)
 	{
 		if (param1 == ID_OE_OK)
 		{
-			uintptr_t* param = (uintptr_t*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
+			uintptr_t* param = (uintptr_t*)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
 			FarListPos pos={sizeof(FarListPos)};
-			SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
-			*param = *(uintptr_t*)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
+			Dlg->SendMessage(DM_LISTGETCURPOS, ID_OE_CODEPAGE, &pos);
+			*param = *(uintptr_t*)Dlg->SendMessage(DM_LISTGETDATA, ID_OE_CODEPAGE, ToPtr(pos.SelectPos));
 			return TRUE;
 		}
 	}
 
-	return DefDlgProc(hDlg, msg, param1, param2);
+	return Dlg->DefProc(msg, param1, param2);
 }
 
 bool dlgOpenEditor(string &strFileName, uintptr_t &codepage)
@@ -164,7 +164,7 @@ enum enumSaveFileAs
 	ID_SF_CANCEL,
 };
 
-intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, intptr_t msg, intptr_t param1, void* param2)
+intptr_t hndSaveFileAs(Dialog* Dlg, intptr_t msg, intptr_t param1, void* param2)
 {
 	static uintptr_t codepage=0;
 
@@ -172,17 +172,17 @@ intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, intptr_t msg, intptr_t param1, void* 
 	{
 		case DN_INITDIALOG:
 		{
-			codepage=*(UINT*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
-			Global->CodePages->FillCodePagesList(hDlg, ID_SF_CODEPAGE, codepage, false, false, false, true);
+			codepage=*(UINT*)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
+			Global->CodePages->FillCodePagesList(Dlg, ID_SF_CODEPAGE, codepage, false, false, false, true);
 
 			if (IsUnicodeOrUtfCodePage(codepage))
 			{
-				SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,ToPtr(TRUE));
+				Dlg->SendMessage(DM_ENABLE,ID_SF_SIGNATURE,ToPtr(TRUE));
 			}
 			else
 			{
-				SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(BSTATE_UNCHECKED));
-				SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
+				Dlg->SendMessage(DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(BSTATE_UNCHECKED));
+				Dlg->SendMessage(DM_ENABLE,ID_SF_SIGNATURE,FALSE);
 			}
 
 			break;
@@ -191,10 +191,10 @@ intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, intptr_t msg, intptr_t param1, void* 
 		{
 			if (param1 == ID_SF_OK)
 			{
-				UINT *codepage = (UINT*)SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0);
+				UINT *codepage = (UINT*)Dlg->SendMessage(DM_GETDLGDATA, 0, 0);
 				FarListPos pos={sizeof(FarListPos)};
-				SendDlgMessage(hDlg, DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
-				*codepage = *(UINT*)SendDlgMessage(hDlg, DM_LISTGETDATA, ID_SF_CODEPAGE, ToPtr(pos.SelectPos));
+				Dlg->SendMessage(DM_LISTGETCURPOS, ID_SF_CODEPAGE, &pos);
+				*codepage = *(UINT*)Dlg->SendMessage(DM_LISTGETDATA, ID_SF_CODEPAGE, ToPtr(pos.SelectPos));
 				return TRUE;
 			}
 
@@ -205,8 +205,8 @@ intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, intptr_t msg, intptr_t param1, void* 
 			if (param1==ID_SF_CODEPAGE)
 			{
 				FarListPos pos={sizeof(FarListPos)};
-				SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID_SF_CODEPAGE,&pos);
-				UINT Cp=*reinterpret_cast<UINT*>(SendDlgMessage(hDlg,DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
+				Dlg->SendMessage(DM_LISTGETCURPOS,ID_SF_CODEPAGE,&pos);
+				UINT Cp=*reinterpret_cast<UINT*>(Dlg->SendMessage(DM_LISTGETDATA,ID_SF_CODEPAGE,ToPtr(pos.SelectPos)));
 
 				if (Cp!=codepage)
 				{
@@ -214,13 +214,13 @@ intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, intptr_t msg, intptr_t param1, void* 
 
 					if (IsUnicodeOrUtfCodePage(codepage))
 					{
-						SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(BSTATE_CHECKED));
-						SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,ToPtr(TRUE));
+						Dlg->SendMessage(DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(BSTATE_CHECKED));
+						Dlg->SendMessage(DM_ENABLE,ID_SF_SIGNATURE,ToPtr(TRUE));
 					}
 					else
 					{
-						SendDlgMessage(hDlg,DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(BSTATE_UNCHECKED));
-						SendDlgMessage(hDlg,DM_ENABLE,ID_SF_SIGNATURE,FALSE);
+						Dlg->SendMessage(DM_SETCHECK,ID_SF_SIGNATURE,ToPtr(BSTATE_UNCHECKED));
+						Dlg->SendMessage(DM_ENABLE,ID_SF_SIGNATURE,FALSE);
 					}
 
 					return TRUE;
@@ -233,7 +233,7 @@ intptr_t WINAPI hndSaveFileAs(HANDLE hDlg, intptr_t msg, intptr_t param1, void* 
 		break;
 	}
 
-	return DefDlgProc(hDlg, msg, param1, param2);
+	return Dlg->DefProc(msg, param1, param2);
 }
 
 

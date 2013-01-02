@@ -37,6 +37,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "udlist.hpp"
 
 class Panel;
+class Dialog;
 
 ENUM(COPY_CODES);
 ENUM(ReparsePointTypes);
@@ -62,8 +63,8 @@ private:
 	bool ShellSetAttr(const string& Dest,DWORD Attr);
 	void SetDestDizPath(const string& DestPath);
 	void CheckUpdatePanel(); // выставляет флаг FCOPY_UPDATEPPANEL
-	intptr_t WarnDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
-	intptr_t CopyDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+	intptr_t WarnDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
+	intptr_t CopyDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 
 	DWORD Flags;

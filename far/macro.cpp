@@ -1443,7 +1443,7 @@ enum MACROSETTINGSDLG
 	MS_BUTTON_CANCEL,
 };
 
-intptr_t KeyMacro::ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t KeyMacro::ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -1451,20 +1451,20 @@ intptr_t KeyMacro::ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 
 			if (Param1==MS_CHECKBOX_A_PANEL || Param1==MS_CHECKBOX_P_PANEL)
 				for (int i=1; i<=3; i++)
-					SendDlgMessage(hDlg,DM_ENABLE,Param1+i,Param2);
+					Dlg->SendMessage(DM_ENABLE,Param1+i,Param2);
 
 			break;
 		case DN_CLOSE:
 
 			if (Param1==MS_BUTTON_OK)
 			{
-				LPCWSTR Sequence=(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MS_EDIT_SEQUENCE,0);
+				LPCWSTR Sequence=(LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR,MS_EDIT_SEQUENCE,0);
 				if (*Sequence)
 				{
 					if (ParseMacroString(Sequence))
 					{
 						m_RecCode=Sequence;
-						m_RecDescription=(LPCWSTR)SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,MS_EDIT_DESCR,0);
+						m_RecDescription=(LPCWSTR)Dlg->SendMessage(DM_GETCONSTTEXTPTR,MS_EDIT_DESCR,0);
 						return TRUE;
 					}
 				}
@@ -1478,7 +1478,7 @@ intptr_t KeyMacro::ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 			break;
 	}
 
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
 int KeyMacro::GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src,const wchar_t *Descr)
@@ -4211,7 +4211,7 @@ static bool dlgsetfocusFunc(FarMacroCall* Data)
 		Ret=(__int64)CurFrame->VMProcess(MCODE_V_DLGCURPOS);
 		if ((int)Index >= 0)
 		{
-			if(!SendDlgMessage((HANDLE)CurFrame,DM_SETFOCUS,Index,0))
+			if(!static_cast<Dialog*>(CurFrame)->SendMessage(DM_SETFOCUS,Index,0))
 				Ret=0;
 		}
 	}
@@ -4242,10 +4242,11 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 
 	if (Global->CtrlObject->Macro.GetMode()==MACRO_DIALOG && CurFrame && CurFrame->GetType()==MODALTYPE_DIALOG)
 	{
+		Dialog* Dlg = static_cast<Dialog*>(CurFrame);
 		TVarType typeIndex=Params[0].type();
 		unsigned Index=(unsigned)Params[0].getInteger()-1;
 		if (typeIndex == vtUnknown || ((typeIndex==vtInteger || typeIndex==vtDouble) && (int)Index < -1))
-			Index=((Dialog*)CurFrame)->GetDlgFocusPos();
+			Index=Dlg->GetDlgFocusPos();
 
 		TVarType typeInfoID=Params[1].type();
 		int InfoID=(int)Params[1].getInteger();
@@ -4253,15 +4254,15 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 			InfoID=0;
 
 		FarGetValue fgv={sizeof(FarGetValue),InfoID,FMVT_UNKNOWN};
-		unsigned DlgItemCount=((Dialog*)CurFrame)->GetAllItemCount();
-		const DialogItemEx **DlgItem=((Dialog*)CurFrame)->GetAllItem();
+		unsigned DlgItemCount=Dlg->GetAllItemCount();
+		const DialogItemEx **DlgItem=Dlg->GetAllItem();
 		bool CallDialog=true;
 
 		if (Index == (unsigned)-1)
 		{
 			SMALL_RECT Rect;
 
-			if (SendDlgMessage((HANDLE)CurFrame,DM_GETDLGRECT,0,&Rect))
+			if (Dlg->SendMessage(DM_GETDLGRECT,0,&Rect))
 			{
 				switch (InfoID)
 				{
@@ -4270,7 +4271,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 					case 3: Ret=(__int64)Rect.Top; break;
 					case 4: Ret=(__int64)Rect.Right; break;
 					case 5: Ret=(__int64)Rect.Bottom; break;
-					case 6: Ret=(__int64)(((Dialog*)CurFrame)->GetDlgFocusPos()+1); break;
+					case 6: Ret=(__int64)Dlg->GetDlgFocusPos()+1; break;
 					default: Ret=0; Ret.SetType(vtUnknown); break;
 				}
 			}
@@ -4292,7 +4293,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 					FarListGetItem ListItem={sizeof(FarListGetItem)};
 					ListItem.ItemIndex=Item->ListPtr->GetSelectPos();
 
-					if (SendDlgMessage(CurFrame,DM_LISTGETITEM,Index,&ListItem))
+					if (Dlg->SendMessage(DM_LISTGETITEM,Index,&ListItem))
 					{
 						Ret=ListItem.Item.Text;
 					}
@@ -4392,7 +4393,7 @@ static bool dlggetvalueFunc(FarMacroCall* Data)
 					break;
 			}
 
-			if (SendDlgMessage((HANDLE)CurFrame,DN_GETVALUE,Index,&fgv))
+			if (Dlg->SendMessage(DN_GETVALUE,Index,&fgv))
 			{
 				switch (fgv.Value.Type)
 				{
@@ -5694,7 +5695,7 @@ static bool testfolderFunc(FarMacroCall* Data)
 }
 
 // обработчик диалогового окна назначения клавиши
-intptr_t KeyMacro::AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	string strKeyText;
 	static int LastKey=0;
@@ -5725,7 +5726,7 @@ intptr_t KeyMacro::AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,v
 		for (size_t i=0; i<ARRAYSIZE(PreDefKeyMain); i++)
 		{
 			KeyToText(PreDefKeyMain[i],strKeyText);
-			SendDlgMessage(hDlg,DM_LISTADDSTR,2,const_cast<wchar_t*>(strKeyText.CPtr()));
+			Dlg->SendMessage(DM_LISTADDSTR,2,const_cast<wchar_t*>(strKeyText.CPtr()));
 		}
 
 		DWORD PreDefKey[]=
@@ -5743,12 +5744,12 @@ intptr_t KeyMacro::AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,v
 
 		for (size_t i=0; i<ARRAYSIZE(PreDefKey); i++)
 		{
-			SendDlgMessage(hDlg,DM_LISTADDSTR,2,const_cast<wchar_t*>(L"\1"));
+			Dlg->SendMessage(DM_LISTADDSTR,2,const_cast<wchar_t*>(L"\1"));
 
 			for (size_t j=0; j<ARRAYSIZE(PreDefModKey); j++)
 			{
 				KeyToText(PreDefKey[i]|PreDefModKey[j],strKeyText);
-				SendDlgMessage(hDlg,DM_LISTADDSTR,2,const_cast<wchar_t*>(strKeyText.CPtr()));
+				Dlg->SendMessage(DM_LISTADDSTR,2,const_cast<wchar_t*>(strKeyText.CPtr()));
 			}
 		}
 
@@ -5769,13 +5770,13 @@ intptr_t KeyMacro::AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,v
 				while(nullptr!=(OneKey=KeybList.GetNext()))
 				{
 					xstrncpy(KeyText, OneKey, sizeof(KeyText));
-					SendDlgMessage(hDlg,DM_LISTADDSTR,2,(long)KeyText);
+					Dlg->SendMessage(DM_LISTADDSTR,2,(long)KeyText);
 				}
 			}
 			xf_free(KeyStr);
 		}
 		*/
-		SendDlgMessage(hDlg,DM_SETTEXTPTR,2,nullptr);
+		Dlg->SendMessage(DM_SETTEXTPTR,2,nullptr);
 		// </Клавиши, которые не введешь в диалоге назначения>
 	}
 	else if (Param1 == 2 && Msg == DN_EDITCHANGE)
@@ -5881,7 +5882,7 @@ M1:
 				if (!Result)
 				{
 					// в любом случае - вываливаемся
-					SendDlgMessage(hDlg,DM_CLOSE,1,0);
+					Dlg->SendMessage(DM_CLOSE,1,0);
 					return TRUE;
 				}
 				else if (SetChange && Result == 1)
@@ -5899,7 +5900,7 @@ M1:
 						KMParam->Flags = Data.Flags;
 						KMParam->Changed = true;
 						// в любом случае - вываливаемся
-						SendDlgMessage(hDlg,DM_CLOSE,1,0);
+						Dlg->SendMessage(DM_CLOSE,1,0);
 						return TRUE;
 					}
 				}
@@ -5911,7 +5912,7 @@ M1:
 		}
 
 		KMParam->Recurse++;
-		SendDlgMessage(hDlg,DM_SETTEXTPTR,2,const_cast<wchar_t*>(strKeyText.CPtr()));
+		Dlg->SendMessage(DM_SETTEXTPTR,2,const_cast<wchar_t*>(strKeyText.CPtr()));
 		KMParam->Recurse--;
 		//if(key == KEY_F1 && LastKey == KEY_F1)
 		//LastKey=-1;
@@ -5919,7 +5920,7 @@ M1:
 		LastKey=(int)key;
 		return TRUE;
 	}
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
 int KeyMacro::AssignMacroKey(DWORD &MacroKey, UINT64 &Flags)

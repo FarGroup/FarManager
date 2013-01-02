@@ -837,7 +837,7 @@ intptr_t WINAPI apiMenuFn(
 intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
-		return DefDlgProc(hDlg,Msg,Param1,Param2);
+		return static_cast<Dialog*>(hDlg)->DefProc(Msg,Param1,Param2);
 
 	return 0;
 }
@@ -846,7 +846,7 @@ intptr_t WINAPI apiDefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Par
 intptr_t WINAPI apiSendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	if (hDlg) // исключаем лишний вызов для hDlg=0
-		return SendDlgMessage(hDlg,Msg,Param1,Param2);
+		return static_cast<Dialog*>(hDlg)->SendMessage(Msg,Param1,Param2);
 
 	return 0;
 }
@@ -869,45 +869,43 @@ HANDLE WINAPI apiDialogInit(const GUID* PluginId, const GUID* Id, intptr_t X1, i
 		return hDlg;
 
 	{
-		Dialog *FarDialog = new Dialog(Item,ItemsNumber,DlgProc,Param);
+		Dialog *FarDialog = new PluginDialog(Item, ItemsNumber, DlgProc, Param);
 
-		if (!FarDialog)
-			return hDlg;
+		if (FarDialog->InitOK())
+		{
+			hDlg = FarDialog;
+			FarDialog->SetPosition(X1,Y1,X2,Y2);
 
-		if (!FarDialog->InitOK())
+			if (Flags & FDLG_WARNING)
+				FarDialog->SetDialogMode(DMODE_WARNINGSTYLE);
+
+			if (Flags & FDLG_SMALLDIALOG)
+				FarDialog->SetDialogMode(DMODE_SMALLDIALOG);
+
+			if (Flags & FDLG_NODRAWSHADOW)
+				FarDialog->SetDialogMode(DMODE_NODRAWSHADOW);
+
+			if (Flags & FDLG_NODRAWPANEL)
+				FarDialog->SetDialogMode(DMODE_NODRAWPANEL);
+
+			if (Flags & FDLG_KEEPCONSOLETITLE)
+				FarDialog->SetDialogMode(DMODE_KEEPCONSOLETITLE);
+
+			if (Flags & FDLG_NONMODAL)
+				FarDialog->SetCanLoseFocus(TRUE);
+
+			FarDialog->SetHelp(HelpTopic);
+
+			FarDialog->SetId(*Id);
+			/* $ 29.08.2000 SVS
+			   Запомним номер плагина - сейчас в основном для формирования HelpTopic
+			*/
+			FarDialog->SetPluginOwner(GuidToPlugin(PluginId));
+		}
+		else
 		{
 			delete FarDialog;
-			return hDlg;
 		}
-
-		hDlg = (HANDLE)FarDialog;
-		FarDialog->SetPosition(X1,Y1,X2,Y2);
-
-		if (Flags & FDLG_WARNING)
-			FarDialog->SetDialogMode(DMODE_WARNINGSTYLE);
-
-		if (Flags & FDLG_SMALLDIALOG)
-			FarDialog->SetDialogMode(DMODE_SMALLDIALOG);
-
-		if (Flags & FDLG_NODRAWSHADOW)
-			FarDialog->SetDialogMode(DMODE_NODRAWSHADOW);
-
-		if (Flags & FDLG_NODRAWPANEL)
-			FarDialog->SetDialogMode(DMODE_NODRAWPANEL);
-
-		if (Flags & FDLG_KEEPCONSOLETITLE)
-			FarDialog->SetDialogMode(DMODE_KEEPCONSOLETITLE);
-
-		if (Flags & FDLG_NONMODAL)
-			FarDialog->SetCanLoseFocus(TRUE);
-
-		FarDialog->SetHelp(HelpTopic);
-
-		FarDialog->SetId(*Id);
-		/* $ 29.08.2000 SVS
-		   Запомним номер плагина - сейчас в основном для формирования HelpTopic
-		*/
-		FarDialog->SetPluginOwner(GuidToPlugin(PluginId));
 	}
 	return hDlg;
 }
@@ -935,8 +933,7 @@ void WINAPI apiDialogFree(HANDLE hDlg)
 {
 	if (hDlg != INVALID_HANDLE_VALUE)
 	{
-		Dialog *FarDialog = (Dialog *)hDlg;
-		delete FarDialog;
+		delete static_cast<PluginDialog*>(hDlg);
 	}
 }
 

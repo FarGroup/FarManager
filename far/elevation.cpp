@@ -456,7 +456,7 @@ enum ELEVATIONAPPROVEDLGITEM
 	AAD_BUTTON_SKIP,
 };
 
-intptr_t WINAPI ElevationApproveDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t ElevationApproveDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	switch (Msg)
 	{
@@ -474,7 +474,7 @@ intptr_t WINAPI ElevationApproveDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1
 	default:
 		break;
 	}
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
 struct EAData

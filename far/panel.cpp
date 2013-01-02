@@ -381,7 +381,7 @@ static void ConfigureChangeDriveMode()
 }
 
 
-intptr_t WINAPI ChDiskDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t ChDiskDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -399,7 +399,7 @@ intptr_t WINAPI ChDiskDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Par
 	default:
 		break;
 	}
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
 int Panel::ChangeDiskMenu(int Pos,int FirstCall)

@@ -124,14 +124,14 @@ static DWORD Flags=0;                  // дополнительные флаги - пока только оди
 
 extern void CreatePluginStartupInfo(const Plugin *pPlugin, PluginStartupInfo *PSI, FarStandardFunctions *FSF);
 
-intptr_t WINAPI ExcDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t ExcDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
 		case DN_CTLCOLORDLGITEM:
 		{
 			FarDialogItem di;
-			SendDlgMessage(hDlg,DM_GETDLGITEMSHORT,Param1,&di);
+			Dlg->SendMessage(DM_GETDLGITEMSHORT,Param1,&di);
 
 			if (di.Type==DI_EDIT)
 			{
@@ -151,12 +151,12 @@ intptr_t WINAPI ExcDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2
 				int key = InputRecordToKey(record);
 				if (Param1==10 && (key==KEY_LEFT || key == KEY_NUMPAD4 || key==KEY_SHIFTTAB))
 				{
-					SendDlgMessage(hDlg,DM_SETFOCUS,11,0);
+					Dlg->SendMessage(DM_SETFOCUS,11,0);
 					return TRUE;
 				}
 				else if (Param1==11 && (key==KEY_RIGHT || key == KEY_NUMPAD6 || key==KEY_TAB))
 				{
-					SendDlgMessage(hDlg,DM_SETFOCUS,10,0);
+					Dlg->SendMessage(DM_SETFOCUS,10,0);
 					return TRUE;
 				}
 			}
@@ -165,7 +165,7 @@ intptr_t WINAPI ExcDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2
 	default:
 		break;
 	}
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
 static bool LanguageLoaded()

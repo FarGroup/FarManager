@@ -202,6 +202,8 @@ class MacroState
 		void RemoveCurMacro() { if (!m_MacroQueue.Empty()) m_MacroQueue.Delete(m_MacroQueue.First()); }
 };
 
+class Dialog;
+
 class KeyMacro
 {
 	private:
@@ -227,8 +229,8 @@ class KeyMacro
 	private:
 		void* CallMacroPlugin(OpenMacroPluginInfo* Info);
 		int AssignMacroKey(DWORD& MacroKey,UINT64& Flags);
-		intptr_t AssignMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
-		intptr_t ParamMacroDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+		intptr_t AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
+		intptr_t ParamMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 		int GetMacroSettings(int Key,UINT64 &Flags,const wchar_t *Src=nullptr,const wchar_t *Descr=nullptr);
 		void InitInternalVars(bool InitedRAM=true);
 		bool InitMacroExecution(void);

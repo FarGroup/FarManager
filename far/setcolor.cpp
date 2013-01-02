@@ -339,7 +339,7 @@ void SetColors()
 				intptr_t ItemsCode=(intptr_t)param;
 				if (Msg!=DN_CLOSE || ItemsCode<0)
 					return 0;
-				SendDlgMessage(&GroupsMenu, DM_ENABLEREDRAW, 1, nullptr);
+				GroupsMenu.SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 				switch (ItemsCode)
 				{
 					case 0:
@@ -420,7 +420,7 @@ static void SetItemColors(MenuDataEx *Items,int *PaletteItems,int Size,int TypeS
 
 // 0,1 - dialog,warn List
 // 2,3 - dialog,warn Combobox
-		SendDlgMessage(&ItemsMenu, DM_ENABLEREDRAW, 1, nullptr);
+		ItemsMenu.SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 		if (TypeSub == 1 && PaletteItems[ItemsCode] < 4)
 		{
 			MenuDataEx ListItems[]=
@@ -540,7 +540,7 @@ int ColorIndex[]=
 	F_BLACK|B_WHITE
 };
 
-static intptr_t WINAPI GetColorDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+static intptr_t GetColorDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
 	switch (Msg)
 	{
@@ -560,7 +560,7 @@ static intptr_t WINAPI GetColorDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param
 
 			if (Param1 >= 37 && Param1 <= 39)
 			{
-				FarColor* CurColor=reinterpret_cast<FarColor*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
+				FarColor* CurColor=reinterpret_cast<FarColor*>(Dlg->SendMessage( DM_GETDLGDATA, 0, 0));
 				FarDialogItemColors* Colors = static_cast<FarDialogItemColors*>(Param2);
 				Colors->Colors[0] = *CurColor;
 			}
@@ -571,9 +571,9 @@ static intptr_t WINAPI GetColorDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param
 			if (Param1 >= 2 && Param1 <= 34)
 			{
 				FarColor NewColor;
-				FarColor *CurColor = reinterpret_cast<FarColor*>(SendDlgMessage(hDlg, DM_GETDLGDATA, 0, 0));
+				FarColor *CurColor = reinterpret_cast<FarColor*>(Dlg->SendMessage( DM_GETDLGDATA, 0, 0));
 				FarDialogItem DlgItem = {};
-				SendDlgMessage(hDlg, DM_GETDLGITEMSHORT, Param1, &DlgItem);
+				Dlg->SendMessage( DM_GETDLGITEMSHORT, Param1, &DlgItem);
 				NewColor=*CurColor;
 
 				if (Param1 >= 2 && Param1 <= 17) // Fore
@@ -603,7 +603,7 @@ static intptr_t WINAPI GetColorDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param
 			break;
 	}
 
-	return DefDlgProc(hDlg, Msg, Param1, Param2);
+	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
 

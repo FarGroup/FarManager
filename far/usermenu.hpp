@@ -60,7 +60,7 @@ private:
 	bool EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool Create);
 	int ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<UserMenuItem> *MenuRoot, const string& MenuFileName, const wchar_t *Title=nullptr);
 	void SaveMenu(const string& MenuFileName);
-	intptr_t EditMenuDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+	intptr_t EditMenuDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
 	MENUMODE MenuMode;
 	bool MenuModified;

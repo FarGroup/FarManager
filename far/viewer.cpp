@@ -2472,27 +2472,27 @@ struct MyDialogData
 	bool      recursive;
 };
 
-intptr_t Viewer::ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t Viewer::ViewerSearchDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
 		case DN_INITDIALOG:
 		{
-			SendDlgMessage(hDlg,DM_SDSETVISIBILITY,SendDlgMessage(hDlg,DM_GETCHECK,SD_RADIO_HEX,0) == BSTATE_CHECKED,0);
-			SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_TEXT,ToPtr(1));
-			SendDlgMessage(hDlg,DM_EDITUNCHANGEDFLAG,SD_EDIT_HEX,ToPtr(1));
+			Dlg->SendMessage(DM_SDSETVISIBILITY,Dlg->SendMessage(DM_GETCHECK,SD_RADIO_HEX,0) == BSTATE_CHECKED,0);
+			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,SD_EDIT_TEXT,ToPtr(1));
+			Dlg->SendMessage(DM_EDITUNCHANGEDFLAG,SD_EDIT_HEX,ToPtr(1));
 			return TRUE;
 		}
 		case DM_SDSETVISIBILITY:
 		{
-			SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_TEXT,ToPtr(!Param1));
-			SendDlgMessage(hDlg,DM_SHOWITEM,SD_EDIT_HEX,ToPtr(Param1));
-			SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_CASE,ToPtr(!Param1));
-			int re = SendDlgMessage(hDlg, DM_GETCHECK,SD_CHECKBOX_REGEXP,0) == BSTATE_CHECKED;
+			Dlg->SendMessage(DM_SHOWITEM,SD_EDIT_TEXT,ToPtr(!Param1));
+			Dlg->SendMessage(DM_SHOWITEM,SD_EDIT_HEX,ToPtr(Param1));
+			Dlg->SendMessage(DM_ENABLE,SD_CHECKBOX_CASE,ToPtr(!Param1));
+			int re = Dlg->SendMessage( DM_GETCHECK,SD_CHECKBOX_REGEXP,0) == BSTATE_CHECKED;
 			int ww = !Param1 && !re;
-			SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_WORDS,ToPtr(ww));
-			SendDlgMessage(hDlg,DM_ENABLE,SD_CHECKBOX_REGEXP,ToPtr(!Param1));
-			SendDlgMessage(hDlg, DM_SDREXVISIBILITY, re && !Param1, 0);
+			Dlg->SendMessage(DM_ENABLE,SD_CHECKBOX_WORDS,ToPtr(ww));
+			Dlg->SendMessage(DM_ENABLE,SD_CHECKBOX_REGEXP,ToPtr(!Param1));
+			Dlg->SendMessage( DM_SDREXVISIBILITY, re && !Param1, 0);
 			return TRUE;
 		}
 		case DM_SDREXVISIBILITY:
@@ -2500,7 +2500,7 @@ intptr_t Viewer::ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 			int show = 1;
 			if ( Param1 )
 			{
-				int tlen = (int)SendDlgMessage(hDlg, DM_GETTEXT, SD_EDIT_TEXT, 0);
+				int tlen = (int)Dlg->SendMessage( DM_GETTEXT, SD_EDIT_TEXT, 0);
 				show = 0;
 				if ( tlen > 0 )
 				{
@@ -2509,7 +2509,7 @@ intptr_t Viewer::ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 					if (tlen > (int)(ARRAYSIZE(t)-1))
 						tmp = new wchar_t[tlen+1];
 					FarDialogItemData item = {sizeof(FarDialogItemData), static_cast<size_t>(tlen), tmp};
-					SendDlgMessage(hDlg, DM_GETTEXT, SD_EDIT_TEXT, &item);
+					Dlg->SendMessage( DM_GETTEXT, SD_EDIT_TEXT, &item);
 					string sre = tmp;
 					InsertRegexpQuote(sre);
 					show = re.Compile(sre.CPtr(), OP_PERLSTYLE);
@@ -2517,15 +2517,15 @@ intptr_t Viewer::ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 						delete[] tmp;
 				}
 			}
-			SendDlgMessage(hDlg, DM_ENABLE, SD_TEXT_SEARCH, ToPtr(show));
-			SendDlgMessage(hDlg, DM_ENABLE, SD_BUTTON_OK,   ToPtr(show));
+			Dlg->SendMessage( DM_ENABLE, SD_TEXT_SEARCH, ToPtr(show));
+			Dlg->SendMessage( DM_ENABLE, SD_BUTTON_OK,   ToPtr(show));
 			return TRUE;
 		}
 		case DN_KILLFOCUS:
 		{
 			if ( SD_EDIT_TEXT == Param1 || SD_EDIT_HEX == Param1 )
 			{
-				MyDialogData *my = (MyDialogData *)SendDlgMessage(hDlg, DM_GETITEMDATA, SD_EDIT_TEXT, 0);
+				MyDialogData *my = (MyDialogData *)Dlg->SendMessage( DM_GETITEMDATA, SD_EDIT_TEXT, 0);
 				my->hex_mode = (SD_EDIT_HEX == Param1);
 			}
 			break;
@@ -2533,7 +2533,7 @@ intptr_t Viewer::ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 		case DN_BTNCLICK:
 		{
 			bool need_focus = false;
-			MyDialogData *my = (MyDialogData *)SendDlgMessage(hDlg, DM_GETITEMDATA, SD_EDIT_TEXT, 0);
+			MyDialogData *my = (MyDialogData *)Dlg->SendMessage( DM_GETITEMDATA, SD_EDIT_TEXT, 0);
 			int cradio = (my->hex_mode ? SD_RADIO_HEX : SD_RADIO_TEXT);
 
 			if ((Param1 == SD_RADIO_TEXT || Param1 == SD_RADIO_HEX) && Param2)
@@ -2543,38 +2543,38 @@ intptr_t Viewer::ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 				{
 					bool new_hex = (Param1 == SD_RADIO_HEX);
 
-					SendDlgMessage(hDlg, DM_ENABLEREDRAW, FALSE, 0);
+					Dlg->SendMessage( DM_ENABLEREDRAW, FALSE, 0);
 
 					int sd_dst = new_hex ? SD_EDIT_HEX : SD_EDIT_TEXT;
 					int sd_src = new_hex ? SD_EDIT_TEXT : SD_EDIT_HEX;
 
 					EditorSetPosition esp={sizeof(EditorSetPosition)};
 					esp.CurPos = -1;
-					SendDlgMessage(hDlg, DM_GETEDITPOSITION, sd_src, &esp);
-					const wchar_t *ps = (const wchar_t *)SendDlgMessage(hDlg, DM_GETCONSTTEXTPTR, sd_src, 0);
+					Dlg->SendMessage( DM_GETEDITPOSITION, sd_src, &esp);
+					const wchar_t *ps = (const wchar_t *)Dlg->SendMessage( DM_GETCONSTTEXTPTR, sd_src, 0);
 					string strTo;
 					my->viewer->SearchTextTransform(strTo, ps, !new_hex, esp.CurPos);
 
-					SendDlgMessage(hDlg, DM_SETTEXTPTR, sd_dst, ToPtr((intptr_t)strTo.CPtr()));
-					SendDlgMessage(hDlg, DM_SDSETVISIBILITY, new_hex, 0);
+					Dlg->SendMessage( DM_SETTEXTPTR, sd_dst, ToPtr((intptr_t)strTo.CPtr()));
+					Dlg->SendMessage( DM_SDSETVISIBILITY, new_hex, 0);
 					if (esp.CurPos >= 0)
 					{
 						int p = esp.CurPos;
-						if (SendDlgMessage(hDlg, DM_GETEDITPOSITION, sd_dst, &esp))
+						if (Dlg->SendMessage( DM_GETEDITPOSITION, sd_dst, &esp))
 						{
 							esp.CurPos = esp.CurTabPos = p;
 							esp.LeftPos = 0;
-							SendDlgMessage(hDlg, DM_SETEDITPOSITION, sd_dst, &esp);
+							Dlg->SendMessage( DM_SETEDITPOSITION, sd_dst, &esp);
 						}
 					}
 
 					if (!strTo.IsEmpty())
 					{
-						int changed = (int)SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, sd_src, ToPtr(-1));
-						SendDlgMessage(hDlg, DM_EDITUNCHANGEDFLAG, sd_dst, ToPtr(changed));
+						int changed = (int)Dlg->SendMessage( DM_EDITUNCHANGEDFLAG, sd_src, ToPtr(-1));
+						Dlg->SendMessage( DM_EDITUNCHANGEDFLAG, sd_dst, ToPtr(changed));
 					}
 
-					SendDlgMessage(hDlg,DM_ENABLEREDRAW,TRUE,0);
+					Dlg->SendMessage(DM_ENABLEREDRAW,TRUE,0);
 					my->hex_mode = new_hex;
 					if ( !my->edit_autofocus )
 						return TRUE;
@@ -2582,7 +2582,7 @@ intptr_t Viewer::ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 			}
 			else if ( Param1 == SD_CHECKBOX_REGEXP )
 			{
-				SendDlgMessage(hDlg, DM_SDSETVISIBILITY, my->hex_mode, 0);
+				Dlg->SendMessage( DM_SDSETVISIBILITY, my->hex_mode, 0);
 			}
 
 			if ( my->edit_autofocus && !my->recursive )
@@ -2594,7 +2594,7 @@ intptr_t Viewer::ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 				  || Param1 == SD_CHECKBOX_REGEXP
 				){
 					my->recursive = true;
-					SendDlgMessage(hDlg, DM_SETFOCUS, my->hex_mode ? SD_EDIT_HEX : SD_EDIT_TEXT, 0);
+					Dlg->SendMessage( DM_SETFOCUS, my->hex_mode ? SD_EDIT_HEX : SD_EDIT_TEXT, 0);
 					my->recursive = false;
 				}
 			}
@@ -2606,16 +2606,16 @@ intptr_t Viewer::ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 		}
 		case DN_EDITCHANGE:
 		{
-			if ( Param1 == SD_EDIT_TEXT && SendDlgMessage(hDlg,DM_GETCHECK,SD_CHECKBOX_REGEXP,0) == BSTATE_CHECKED )
-				SendDlgMessage(hDlg, DM_SDREXVISIBILITY, 1, 0);
+			if ( Param1 == SD_EDIT_TEXT && Dlg->SendMessage(DM_GETCHECK,SD_CHECKBOX_REGEXP,0) == BSTATE_CHECKED )
+				Dlg->SendMessage( DM_SDREXVISIBILITY, 1, 0);
 			break;
 		}
 		case DN_HOTKEY:
 		{
 			if (Param1==SD_TEXT_SEARCH)
 			{
-				MyDialogData *my = (MyDialogData *)SendDlgMessage(hDlg, DM_GETITEMDATA, SD_EDIT_TEXT, 0);
-				SendDlgMessage(hDlg, DM_SETFOCUS, (my->hex_mode ? SD_EDIT_HEX : SD_EDIT_TEXT), 0);
+				MyDialogData *my = (MyDialogData *)Dlg->SendMessage( DM_GETITEMDATA, SD_EDIT_TEXT, 0);
+				Dlg->SendMessage( DM_SETFOCUS, (my->hex_mode ? SD_EDIT_HEX : SD_EDIT_TEXT), 0);
 				return FALSE;
 			}
 		}
@@ -2623,7 +2623,7 @@ intptr_t Viewer::ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,vo
 			break;
 	}
 
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
 static void PR_ViewerSearchMsg()

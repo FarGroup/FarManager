@@ -165,6 +165,8 @@ class PluginTree: public Tree<class AncientPlugin*>
 		class AncientPlugin** query(const GUID& value);
 };
 
+class Dialog;
+
 class PluginManager
 {
 	private:

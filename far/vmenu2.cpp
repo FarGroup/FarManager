@@ -38,9 +38,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "keys.hpp"
 #include "config.hpp"
 
-intptr_t VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+intptr_t VMenu2::VMenu2DlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	VMenu2 *vm=(VMenu2*)hDlg;
+	VMenu2 *vm = static_cast<VMenu2*>(Dlg);
 
 	switch(Msg)
 	{
@@ -88,7 +88,7 @@ intptr_t VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param1, void
 
 	case DN_LISTHOTKEY:
 		if (!vm->Call(Msg, Param2))
-			SendDlgMessage(hDlg, DM_CLOSE, -1, nullptr);
+			Dlg->SendMessage( DM_CLOSE, -1, nullptr);
 		break;
 
 	case DN_DRAWDIALOGDONE:
@@ -97,7 +97,7 @@ intptr_t VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param1, void
 			INPUT_RECORD rec=vm->DefRec;
 			ClearStruct(vm->DefRec);
 			if(!vm->Call(DN_INPUT, &rec))
-				SendDlgMessage(hDlg, DM_KEY, 1, &rec);
+				Dlg->SendMessage( DM_KEY, 1, &rec);
 		}
 		break;
 
@@ -142,10 +142,10 @@ intptr_t VMenu2::VMenu2DlgProc(HANDLE  hDlg, intptr_t Msg, intptr_t Param1, void
 
 	default:
 		if(Global->CloseFARMenu)
-			SendDlgMessage(hDlg, DM_CLOSE, -1, nullptr);
+			Dlg->SendMessage( DM_CLOSE, -1, nullptr);
 		break;
 	}
-	return DefDlgProc(hDlg, Msg, Param1, Param2);
+	return Dlg->DefProc(Msg, Param1, Param2);
 }
 
 /*
@@ -158,7 +158,7 @@ int VMenu2::Call(int Msg, void *param)
 	if(!mfn)
 		return 0;
 
-	SendDlgMessage(this, DM_ENABLEREDRAW, 0, nullptr);
+	SendMessage(DM_ENABLEREDRAW, 0, nullptr);
 	int r=mfn(Msg, param);
 
 	bool Visible;
@@ -168,8 +168,8 @@ int VMenu2::Call(int Msg, void *param)
 	GetCursorType(Visible, Size);
 	GetCursorPos(X, Y);
 
-	if(SendDlgMessage(this, DM_ENABLEREDRAW, -1, nullptr)<0)
-		SendDlgMessage(this, DM_ENABLEREDRAW, 1, nullptr);
+	if(SendMessage(DM_ENABLEREDRAW, -1, nullptr)<0)
+		SendMessage(DM_ENABLEREDRAW, 1, nullptr);
 
 	if(NeedResize)
 		Resize();
@@ -182,7 +182,7 @@ int VMenu2::Call(int Msg, void *param)
 		closing=false;
 		if(Msg==DN_CLOSE)
 			return false;
-		SendDlgMessage(this, DM_CLOSE, -1, nullptr);
+		SendMessage(DM_CLOSE, -1, nullptr);
 	}
 
 	return r;
@@ -191,7 +191,7 @@ int VMenu2::Call(int Msg, void *param)
 
 void VMenu2::Resize(bool force)
 {
-	if(!force && (!ProcessEvents() || SendDlgMessage(this, DM_ENABLEREDRAW, -1, nullptr)<0))
+	if(!force && (!ProcessEvents() || SendMessage(DM_ENABLEREDRAW, -1, nullptr)<0))
 	{
 		NeedResize=true;
 		return;
@@ -199,7 +199,7 @@ void VMenu2::Resize(bool force)
 	NeedResize=false;
 
 	FarListInfo info={sizeof(FarListInfo)};
-	SendDlgMessage(this, DM_LISTINFO, 0, &info);
+	SendMessage(DM_LISTINFO, 0, &info);
 
 
 	int X1=this->X1;
@@ -238,15 +238,15 @@ void VMenu2::Resize(bool force)
 		mh=0;
 	if(height>mh)
 	{
-	  if(Y2<=0 && Y1>=ScrY/2)
-	  {
-      Y1+=ShortBox?1:3;
-	    if(height>Y1)
-	      height=Y1;
-	    Y1-=height;
-	  }
-	  else
-		  height=mh;
+		if(Y2<=0 && Y1>=ScrY/2)
+		{
+			Y1+=ShortBox?1:3;
+			if(height>Y1)
+				height=Y1;
+			Y1-=height;
+		}
+		else
+			height=mh;
 	}
 
 	int X=X1;
@@ -257,7 +257,7 @@ void VMenu2::Resize(bool force)
 	COORD size;
 	size.X=width;
 	size.Y=height;
-	SendDlgMessage(this, DM_RESIZEDIALOG, true, &size);
+	SendMessage(DM_RESIZEDIALOG, true, &size);
 
 	SMALL_RECT ipos;
 	if(ShortBox)
@@ -274,12 +274,12 @@ void VMenu2::Resize(bool force)
 		ipos.Right=width-3;
 		ipos.Bottom=height-2;
 	}
-	SendDlgMessage(this, DM_SETITEMPOSITION, 0, &ipos);
+	SendMessage(DM_SETITEMPOSITION, 0, &ipos);
 
 	COORD pos;
 	pos.X=X;
 	pos.Y=Y1;
-	SendDlgMessage(this, DM_MOVEDIALOG, true, &pos);
+	SendMessage(DM_MOVEDIALOG, true, &pos);
 }
 
 LISTITEMFLAGS VMenu2::GetItemFlags(int Position)
@@ -288,7 +288,7 @@ LISTITEMFLAGS VMenu2::GetItemFlags(int Position)
 		Position=GetSelectPos();
 
 	FarListGetItem flgi={sizeof(FarListGetItem), Position};
-	SendDlgMessage(this, DM_LISTGETITEM, 0, &flgi);
+	SendMessage(DM_LISTGETITEM, 0, &flgi);
 	return flgi.Item.Flags;
 }
 
@@ -296,7 +296,7 @@ string VMenu2::GetTitles(int bottom)
 {
 	string title; size_t size=1;
 	FarListTitles titles={sizeof(FarListTitles)};
-	if(!SendDlgMessage(this, DM_LISTGETTITLES, 0, &titles))
+	if(!SendMessage(DM_LISTGETTITLES, 0, &titles))
 		return title;
 	if(bottom)
 	{
@@ -308,7 +308,7 @@ string VMenu2::GetTitles(int bottom)
 		size=titles.TitleSize;
 		titles.Title=title.GetBuffer(size);
 	}
-	SendDlgMessage(this, DM_LISTGETTITLES, 0, &titles);
+	SendMessage(DM_LISTGETTITLES, 0, &titles);
 	title.ReleaseBuffer(size-1);
 	return title;
 }
@@ -336,7 +336,7 @@ VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int Max
 
 
 	SetTitle(Title);
-	SendDlgMessage(this, DM_SETMOUSEEVENTNOTIFY, 1, nullptr);
+	SendMessage(DM_SETMOUSEEVENTNOTIFY, 1, nullptr);
 
 	FarListItem *fli=new FarListItem[ItemCount];
 	for(size_t i=0; i<ItemCount; ++i)
@@ -346,7 +346,7 @@ VMenu2::VMenu2(const wchar_t *Title, MenuDataEx *Data, size_t ItemCount, int Max
 	}
 	FarList fl={sizeof(FarList), ItemCount, fli};
 
-	SendDlgMessage(this, DM_LISTSET, 0, &fl);
+	SendMessage(DM_LISTSET, 0, &fl);
 	delete[] fli;
 
 	for(size_t i=0; i<ItemCount; ++i)
@@ -363,7 +363,7 @@ void VMenu2::SetTitle(const wchar_t *Title)
 	string t=GetTitles(1);
 	titles.Bottom=t;
 	titles.Title=Title;
-	SendDlgMessage(this, DM_LISTSETTITLES, 0, &titles);
+	SendMessage(DM_LISTSETTITLES, 0, &titles);
 }
 void VMenu2::SetBottomTitle(const wchar_t *Title)
 {
@@ -371,13 +371,13 @@ void VMenu2::SetBottomTitle(const wchar_t *Title)
 	string t=GetTitles();
 	titles.Bottom=Title;
 	titles.Title=t;
-	SendDlgMessage(this, DM_LISTSETTITLES, 0, &titles);
+	SendMessage(DM_LISTSETTITLES, 0, &titles);
 }
 
 void VMenu2::SetFlags(DWORD Flags)
 {
 	FarDialogItem fdi;
-	SendDlgMessage(this, DM_GETDLGITEMSHORT, 0, &fdi);
+	SendMessage(DM_GETDLGITEMSHORT, 0, &fdi);
 
 	if(Flags&VMENU_SHOWAMPERSAND)
 		fdi.Flags&=~DIF_LISTNOAMPERSAND;
@@ -392,19 +392,19 @@ void VMenu2::SetFlags(DWORD Flags)
 
 	ListBox().SetFlags(Flags&(VMENU_REVERSEHIGHLIGHT|VMENU_CHANGECONSOLETITLE|VMENU_LISTSINGLEBOX));
 
-	SendDlgMessage(this, DM_SETDLGITEMSHORT, 0, &fdi);
+	SendMessage(DM_SETDLGITEMSHORT, 0, &fdi);
 }
 
 void VMenu2::DeleteItems()
 {
-	SendDlgMessage(this, DM_LISTDELETE, 0, nullptr);
+	SendMessage(DM_LISTDELETE, 0, nullptr);
 	Resize();
 }
 
 int VMenu2::DeleteItem(int ID, int Count)
 {
 	FarListDelete fld={sizeof(FarListDelete), ID, Count};
-	SendDlgMessage(this, DM_LISTDELETE, 0, &fld);
+	SendMessage(DM_LISTDELETE, 0, &fld);
 	Resize();
 	return GetItemCount();
 }
@@ -420,11 +420,11 @@ int VMenu2::AddItem(const MenuItemEx *NewItem, int PosAdd)
 
 	FarListItem fi={NewItem->Flags, NewItem->strName};
 	FarListInsert fli={sizeof(FarListInsert), PosAdd, fi};
-	if(SendDlgMessage(this, DM_LISTINSERT, 0, &fli)<0)
+	if(SendMessage(DM_LISTINSERT, 0, &fli)<0)
 		return -1;
 
 	FarListItemData flid={sizeof(FarListItemData), PosAdd, NewItem->UserDataSize, NewItem->UserData};
-	SendDlgMessage(this, DM_LISTSETDATA, 0, &flid);
+	SendMessage(DM_LISTSETDATA, 0, &flid);
 
 	GetItemPtr(PosAdd)->AccelKey=NewItem->AccelKey;
 
@@ -433,13 +433,13 @@ int VMenu2::AddItem(const MenuItemEx *NewItem, int PosAdd)
 }
 int VMenu2::AddItem(const FarList *NewItem)
 {
-	int r=SendDlgMessage(this, DM_LISTADD, 0, (void*)NewItem);
+	int r=SendMessage(DM_LISTADD, 0, (void*)NewItem);
 	Resize();
 	return r;
 }
 int VMenu2::AddItem(const wchar_t *NewStrItem)
 {
-	int r=SendDlgMessage(this, DM_LISTADDSTR, 0, (void*)NewStrItem);
+	int r=SendMessage(DM_LISTADDSTR, 0, (void*)NewStrItem);
 	Resize();
 	return r;
 }
@@ -447,20 +447,20 @@ int VMenu2::AddItem(const wchar_t *NewStrItem)
 int VMenu2::FindItem(int StartIndex, const wchar_t *Pattern, UINT64 Flags)
 {
 	FarListFind flf={sizeof(FarListFind), StartIndex, Pattern, Flags};
-	return SendDlgMessage(this, DM_LISTFINDSTRING, 0, &flf);
+	return SendMessage(DM_LISTFINDSTRING, 0, &flf);
 }
 
 intptr_t VMenu2::GetItemCount()
 {
 	FarListInfo info={sizeof(FarListInfo)};
-	SendDlgMessage(this, DM_LISTINFO, 0, &info);
+	SendMessage(DM_LISTINFO, 0, &info);
 	return info.ItemsNumber;
 }
 
 int VMenu2::GetSelectPos()
 {
 	FarListPos flp={sizeof(FarListPos)};
-	SendDlgMessage(this, DM_LISTGETCURPOS, 0, &flp);
+	SendMessage(DM_LISTGETCURPOS, 0, &flp);
 	return flp.SelectPos;
 }
 
@@ -468,7 +468,7 @@ int VMenu2::SetSelectPos(int Pos, int Direct)
 {
 /*
 	FarListPos flp={sizeof(FarListPos), Pos, -1};
-	return SendDlgMessage(this, DM_LISTSETCURPOS, 0, &flp); //!! DM_LISTSETCURPOS не работает для скрытого диалога
+	return SendMessage(DM_LISTSETCURPOS, 0, &flp); //!! DM_LISTSETCURPOS не работает для скрытого диалога
 */
 	return ListBox().SetSelectPos(Pos, Direct);
 }
@@ -504,11 +504,11 @@ void VMenu2::UpdateItemFlags(int Pos, UINT64 NewFlags)
 	if(Pos<0)
 		Pos=GetSelectPos();
 	FarListGetItem flgi={sizeof(FarListGetItem), Pos};
-	SendDlgMessage(this, DM_LISTGETITEM, 0, &flgi);
+	SendMessage(DM_LISTGETITEM, 0, &flgi);
 	flgi.Item.Flags=NewFlags;
 
 	FarListUpdate flu={sizeof(FarListUpdate), Pos, flgi.Item};
-	SendDlgMessage(this, DM_LISTUPDATE, 0, &flu);
+	SendMessage(DM_LISTUPDATE, 0, &flu);
 }
 
 void VMenu2::SetPosition(int X1,int Y1,int X2,int Y2)
@@ -578,8 +578,8 @@ void *VMenu2::GetUserData(void *Data, size_t Size, intptr_t Position)
 {
 	if(Position<0)
 		Position=GetSelectPos();
-	void *d=(void*)SendDlgMessage(this, DM_LISTGETDATA, 0, (void*)Position);
-	size_t s=SendDlgMessage(this, DM_LISTGETDATASIZE, 0, (void*)Position);
+	void *d=(void*)SendMessage(DM_LISTGETDATA, 0, (void*)Position);
+	size_t s=SendMessage(DM_LISTGETDATASIZE, 0, (void*)Position);
 
 	if (d && Size && Data && Size>=s)
 		memcpy(Data, d, s);
@@ -593,7 +593,7 @@ size_t VMenu2::SetUserData(LPCVOID Data, size_t Size, intptr_t Position)
 		Position=GetSelectPos();
 
 	FarListItemData flid={sizeof(FarListItemData), Position, Size, (void*)Data};
-	return SendDlgMessage(this, DM_LISTSETDATA, 0, &flid);
+	return SendMessage(DM_LISTSETDATA, 0, &flid);
 }
 
 void VMenu2::Key(int key)
@@ -601,7 +601,7 @@ void VMenu2::Key(int key)
 	INPUT_RECORD rec;
 	KeyToInputRecord(key, &rec);
 	if(ProcessEvents())
-		SendDlgMessage(this, DM_KEY, 1, &rec);
+		SendMessage(DM_KEY, 1, &rec);
 	else
 		DefRec=rec;
 }

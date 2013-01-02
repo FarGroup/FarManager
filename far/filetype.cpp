@@ -404,7 +404,7 @@ enum EDITTYPERECORD
 	ETR_BUTTON_CANCEL,
 };
 
-intptr_t WINAPI EditTypeRecordDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
+intptr_t EditTypeRecordDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 {
 	switch (Msg)
 	{
@@ -418,7 +418,7 @@ intptr_t WINAPI EditTypeRecordDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,v
 				case ETR_COMBO_ALTVIEW:
 				case ETR_COMBO_EDIT:
 				case ETR_COMBO_ALTEDIT:
-					SendDlgMessage(hDlg,DM_ENABLE,Param1+1,ToPtr(reinterpret_cast<intptr_t>(Param2)==BSTATE_CHECKED?TRUE:FALSE));
+					Dlg->SendMessage(DM_ENABLE,Param1+1,ToPtr(reinterpret_cast<intptr_t>(Param2)==BSTATE_CHECKED?TRUE:FALSE));
 					break;
 				default:
 					break;
@@ -430,7 +430,7 @@ intptr_t WINAPI EditTypeRecordDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,v
 			if (Param1==ETR_BUTTON_OK)
 			{
 				BOOL Result=TRUE;
-				string Masks(reinterpret_cast<LPCWSTR>(SendDlgMessage(hDlg,DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,0)));
+				string Masks(reinterpret_cast<LPCWSTR>(Dlg->SendMessage(DM_GETCONSTTEXTPTR,ETR_EDIT_MASKS,0)));
 				CFileMask FMask;
 
 				if (!FMask.Set(Masks,0))
@@ -446,7 +446,7 @@ intptr_t WINAPI EditTypeRecordDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,v
 			break;
 	}
 
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
+	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
 bool EditTypeRecord(unsigned __int64 EditPos,bool NewRec)

@@ -62,13 +62,15 @@ enum CodePagesCallbackCallSource
 	CodePageCheck
 };
 
+class Dialog;
+
 class codepages
 {
 public:
 	codepages();
 	bool IsCodePageSupported(uintptr_t CodePage);
 	bool SelectCodePage(uintptr_t& CodePage, bool bShowUnicode, bool bShowUTF, bool bShowUTF7=false, bool bShowAutoDetect=false);
-	UINT FillCodePagesList(HANDLE dialogHandle, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault=false, bool allowM2=false);
+	UINT FillCodePagesList(Dialog* Dlg, UINT controlId, uintptr_t codePage, bool allowAuto, bool allowAll, bool allowDefault=false, bool allowM2=false);
 	wchar_t *FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName, size_t Length);
 
 private:
@@ -88,12 +90,12 @@ private:
 	void AddCodePages(DWORD codePages);
 	void ProcessSelected(bool select);
 	void FillCodePagesVMenu(bool bShowUnicode, bool bShowUTF, bool bShowUTF7, bool bShowAutoDetect=false, bool bShowM2=false);
-	intptr_t EditDialogProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	intptr_t EditDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 	void EditCodePageName();
 
 	friend BOOL CALLBACK EnumCodePagesProc(wchar_t *lpwszCodePage);
 
-	HANDLE dialog;
+	class Dialog* dialog;
 	UINT control;
 	class VMenu2 *CodePagesMenu;
 	uintptr_t currentCodePage;

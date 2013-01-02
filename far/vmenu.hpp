@@ -276,7 +276,6 @@ class VMenu: public Modal
 		      int ItemCount,
 		      int MaxHeight=0,
 		      DWORD Flags=0,
-		      FARWINDOWPROC Proc=nullptr,
 		      Dialog *ParentDialog=nullptr);
 
 
@@ -376,8 +375,6 @@ class VMenu: public Modal
 		static MenuItemEx *FarList2MenuItem(const FarListItem *Item,MenuItemEx *ListItem);
 		static FarListItem *MenuItem2FarList(const MenuItemEx *ListItem,FarListItem *Item);
 
-		static intptr_t WINAPI DefMenuProc(HANDLE hVMenu,intptr_t Msg,intptr_t Param1,void* Param2);
-		static intptr_t WINAPI SendMenuMessage(HANDLE hVMenu,intptr_t Msg,intptr_t Param1,void* Param2);
 		void SetId(const GUID& Id);
 		const GUID& Id(void);
 };

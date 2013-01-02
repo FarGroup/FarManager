@@ -172,13 +172,15 @@ struct DialogItemEx: public FarDialogItem
 class DlgEdit;
 class ConsoleTitle;
 class Plugin;
+class Dialog;
 
 class DialogOwner
 {
 public:
-	intptr_t Handler(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+	intptr_t Handler(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 };
-typedef intptr_t (DialogOwner::*DialogHandlerFunction)(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2);
+typedef intptr_t (DialogOwner::*MemberHandlerFunction)(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+typedef intptr_t (*StaticHandlerFunction)(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
 
 class Dialog: public Frame
 {
@@ -186,10 +188,10 @@ public:
 	template<class T, typename Y, class D>
 	Dialog(T* OwnerClass, Y HandlerFunction, void* InitParam, D* SrcItem, size_t SrcItemCount)
 	{
-		Construct(SrcItem, SrcItemCount, reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<DialogHandlerFunction>(HandlerFunction), nullptr, InitParam);
+		Construct(SrcItem, SrcItemCount, reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<MemberHandlerFunction>(HandlerFunction), nullptr, InitParam);
 	}
-	Dialog(DialogItemEx *SrcItem, size_t SrcItemCount, FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
-	Dialog(const FarDialogItem *SrcItem, size_t SrcItemCount, FARWINDOWPROC DlgProc=nullptr,void* InitParam=nullptr);
+	Dialog(DialogItemEx *SrcItem, size_t SrcItemCount, StaticHandlerFunction DlgProc=nullptr,void* InitParam=nullptr);
+	Dialog(const FarDialogItem *SrcItem, size_t SrcItemCount, StaticHandlerFunction DlgProc=nullptr,void* InitParam=nullptr);
 	virtual ~Dialog();
 
 	virtual int ProcessKey(int Key);
@@ -233,19 +235,21 @@ public:
 	int SetAutomation(WORD IDParent,WORD id, FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip, FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
-	intptr_t WINAPI DlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+	intptr_t DlgProc(intptr_t Msg,intptr_t Param1,void* Param2);
 	BOOL IsInited();
 	bool ProcessEvents();
 	void SetId(const GUID& Id);
 	const GUID& GetId(){return Id;}
+	intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2);
+	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
 
 protected:
 	unsigned InitDialogObjects(unsigned ID=(unsigned)-1);
 	
 private:
-	void Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc=nullptr, void* InitParam=nullptr);
-	void Construct(const FarDialogItem* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc=nullptr, void* InitParam=nullptr);
-	void Init(DialogOwner* OwnerClass, DialogHandlerFunction HandlerFunction, FARWINDOWPROC DlgProc, void* InitParam);
+	void Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
+	void Construct(const FarDialogItem* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc=nullptr, void* InitParam=nullptr);
+	void Init(DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam);
 	virtual void DisplayObject();
 	void DeleteDialogObjects();
 	int  LenStrItem(int ID, const wchar_t *lpwszStr = nullptr);
@@ -281,7 +285,6 @@ private:
 	int Do_ProcessSpace();
 	void SetComboBoxPos(DialogItemEx* Item=nullptr);
 	void CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1, int &Y1, int &X2, int &Y2);
-	intptr_t CallDlgProc(int nMsg, int nParam1, void* Param2);
 	void ProcessKey(int Key, unsigned ItemPos);
 
 	bool bInitOK;               // диалог был успешно инициализирован
@@ -299,8 +302,8 @@ private:
 	DialogOwner *OwnerClass;
 	union
 	{
-		DialogHandlerFunction DialogHandler;
-		FARWINDOWPROC RealDlgProc;      // функция обработки диалога
+		MemberHandlerFunction DialogHandler;
+		StaticHandlerFunction RealDlgProc;      // функция обработки диалога
 	};
 	// переменные для перемещения диалога
 	int OldX1,OldX2,OldY1,OldY2;
@@ -314,11 +317,22 @@ private:
 
 	friend class History;
 	friend class DlgEdit;
-	friend intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
-	friend intptr_t WINAPI DefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 };
 
-intptr_t WINAPI SendDlgMessage(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
-intptr_t WINAPI DefDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
 bool IsKeyHighlighted(const wchar_t *Str,int Key,int Translate,int AmpPos=-1);
 void ItemToItemEx(const FarDialogItem *Data, DialogItemEx *Item, size_t Count, bool Short = false);
+
+intptr_t PluginDialogProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param2);
+
+class PluginDialog: public Dialog
+{
+public:
+	PluginDialog(const FarDialogItem *SrcItem, size_t SrcItemCount, FARWINDOWPROC DlgProc, void* InitParam):
+		Dialog(SrcItem, SrcItemCount, DlgProc? PluginDialogProc : nullptr, InitParam),
+		m_Proc(DlgProc)
+	{}
+	FARWINDOWPROC Proc() {return m_Proc;}
+
+private:
+	FARWINDOWPROC m_Proc;
+};

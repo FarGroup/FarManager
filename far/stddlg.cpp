@@ -227,29 +227,6 @@ int GetSearchReplaceString(
 	return Result;
 }
 
-
-// Функция для коррекции аля Shift-F4 Shift-Enter без отпускания Shift ;-)
-static intptr_t WINAPI GetStringDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2)
-{
-	/*
-	  if(Msg == DM_KEY)
-	  {
-	//    char KeyText[50];
-	//    KeyToText(Param2,KeyText);
-	//    _D(SysLog(L"%s (0x%08X) ShiftPressed=%d",KeyText,Param2,ShiftPressed));
-	    if(ShiftPressed && (Param2 == KEY_ENTER||Param2 == KEY_NUMENTER) && !Global->CtrlObject->Macro.IsExecuting())
-	    {
-	      DWORD Arr[1];
-	      Arr[0]=Param2 == KEY_ENTER?KEY_SHIFTENTER:KEY_SHIFTNUMENTER;
-	      SendDlgMessage(hDlg,Msg,Param1,(long)Arr);
-	      return TRUE;
-	    }
-	  }
-	*/
-	return DefDlgProc(hDlg,Msg,Param1,Param2);
-}
-
-
 int GetString(
 	const wchar_t *Title,
 	const wchar_t *Prompt,
@@ -342,7 +319,7 @@ int GetString(
 		StrDlg[2].strData = SrcText;
 
 	{
-		Dialog Dlg(StrDlg,ARRAYSIZE(StrDlg)-Substract,GetStringDlgProc);
+		Dialog Dlg(StrDlg,ARRAYSIZE(StrDlg)-Substract);
 		Dlg.SetPosition(-1,-1,76,offset+((Flags&FIB_BUTTONS)?8:6));
 		if(Id) Dlg.SetId(*Id);
 

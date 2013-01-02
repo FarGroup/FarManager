@@ -65,7 +65,6 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
              int ItemCount,     // количество пунктов меню
              int MaxHeight,     // максимальная высота
              DWORD Flags,       // нужен ScrollBar?
-             FARWINDOWPROC Proc,    // обработчик
              Dialog *ParentDialog
             ):  // родитель для ListBox
 	strTitle(Title),
@@ -75,7 +74,6 @@ VMenu::VMenu(const wchar_t *Title,       // заголовок меню
 	MaxLength(0),
 	BoxType(DOUBLE_BOX),
 	ParentDialog(ParentDialog),
-	VMenuProc(Proc?Proc:(FARWINDOWPROC)VMenu::DefMenuProc),
 	OldTitle(nullptr),
 	Used(new bool[WCHAR_MAX]),
 	bFilterEnabled(false),
@@ -1522,7 +1520,7 @@ int VMenu::ProcessKey(int Key)
 				}
 			}
 
-			if (IsHotkey && ParentDialog && SendDlgMessage((HANDLE)ParentDialog,DN_LISTHOTKEY,DialogItemID,ToPtr(SelectPos)))
+			if (IsHotkey && ParentDialog && ParentDialog->SendMessage(DN_LISTHOTKEY,DialogItemID,ToPtr(SelectPos)))
 			{
 				UpdateItemFlags(OldSelectPos,Item[OldSelectPos]->Flags|LIF_SELECTED);
 				ShowMenu(true);
@@ -2910,23 +2908,6 @@ BOOL VMenu::GetVMenuInfo(FarListInfo* Info)
 	}
 
 	return FALSE;
-}
-
-// функция обработки меню (по умолчанию)
-intptr_t WINAPI VMenu::DefMenuProc(HANDLE hVMenu, intptr_t Msg, intptr_t Param1, void* Param2)
-{
-	return 0;
-}
-
-// функция посылки сообщений меню
-intptr_t WINAPI VMenu::SendMenuMessage(HANDLE hVMenu, intptr_t Msg, intptr_t Param1, void* Param2)
-{
-	CriticalSectionLock Lock(((VMenu*)hVMenu)->CS);
-
-	if (hVMenu)
-		return ((VMenu*)hVMenu)->VMenuProc(hVMenu,Msg,Param1,Param2);
-
-	return 0;
 }
 
 // Функция GetItemPtr - получить указатель на нужный Item.

@@ -85,6 +85,8 @@ enum SHOW_MODES
 	SHOW_DUMP
 };
 
+class Dialog;
+
 class Viewer:public ScreenObject
 {
 		friend class FileViewer;
@@ -238,7 +240,7 @@ class Viewer:public ScreenObject
 		bool isBinaryFile(uintptr_t cp);
 
 		void SavePosition();
-		intptr_t ViewerSearchDlgProc(HANDLE hDlg,intptr_t Msg,intptr_t Param1,void* Param2);
+		intptr_t ViewerSearchDlgProc(Dialog* Dlg, intptr_t Msg,intptr_t Param1,void* Param2);
 
 	public:
 		Viewer(bool bQuickView = false, uintptr_t aCodePage = CP_DEFAULT);

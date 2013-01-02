@@ -2421,7 +2421,7 @@ oldfar::FarDialogItem* UnicodeDialogItemToAnsi(FarDialogItem &di,HANDLE hDlg,int
 		break;
 		case oldfar::DI_COMBOBOX:
 		case oldfar::DI_LISTBOX:
-			diA->ListPos=static_cast<int>(NativeInfo.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ItemNumber,0));
+			diA->ListPos=static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_LISTGETCURPOS,ItemNumber,0));
 			break;
 	}
 
@@ -3021,7 +3021,7 @@ intptr_t WINAPI FarSendDlgMessageA(HANDLE hDlg, int OldMsg, int Param1, void* Pa
 					ListTitle.Bottom=(wchar_t *)xf_malloc(sizeof(wchar_t)*ListTitle.BottomSize);
 				}
 
-				intptr_t Ret=NativeInfo.SendDlgMessage(hDlg,DM_LISTGETTITLES,Param1,&ListTitle);
+				intptr_t Ret=NativeInfo.SendDlgMessage(hDlg, DM_LISTGETTITLES,Param1,&ListTitle);
 
 				if (Ret)
 				{
@@ -3251,7 +3251,7 @@ int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2,const 
 
 				if (gdi.Item->Type==DI_COMBOBOX || gdi.Item->Type==DI_LISTBOX)
 				{
-					Item[i].ListPos = static_cast<int>(NativeInfo.SendDlgMessage(hDlg,DM_LISTGETCURPOS,i,0));
+					Item[i].ListPos = static_cast<int>(NativeInfo.SendDlgMessage(hDlg, DM_LISTGETCURPOS,i,0));
 				}
 
 				xf_free(gdi.Item);
