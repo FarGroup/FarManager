@@ -2,6 +2,7 @@
 
 local args = select(1, ...)
 local checkarg = args.checkarg
+local utils = args.utils
 
 local F=far.Flags
 local band,bor = bit64.band,bit64.bor
@@ -88,7 +89,7 @@ SetProperties(Object, {
 --------------------------------------------------------------------------------
 
 local prop_Area = {
-  Current    = function() return args.GetTrueAreaName(MacroCallFar(0x80805)) end,
+  Current    = function() return utils.GetTrueAreaName(MacroCallFar(0x80805)) end,
   -- Note: 0x80400 is subtracted from opcodes here.
   Dialog     = function() return MacroCallFar(0x04) end,
   DialogAutoCompletion = function() return MacroCallFar(0x10) end,
@@ -327,6 +328,65 @@ Mouse   = SetProperties({}, prop_Mouse)
 Viewer  = SetProperties({}, prop_Viewer)
 --------------------------------------------------------------------------------
 
+local function GetEvalData (str) -- Получение данных макроса для Eval(S,2).
+  local Mode
+  local UseCommon=true
+  str = str:match("^%s*(.-)%s*$")
+
+  local strArea,strKey = str:match("^(.-)/(.+)$")
+  if strArea then
+    Mode = utils.GetAreaCode(strArea)
+    if Mode < 0 then
+      Mode = far.MacroGetArea()
+      if strArea == "." then -- вариант "./Key" не подразумевает поиск в Common`е
+        UseCommon=false
+      end
+    else
+      UseCommon=false
+    end
+  else
+    strKey=str
+    Mode=far.MacroGetArea()
+  end
+
+  return Mode, strKey, UseCommon
+end
+
+function mf.eval (str, mode)
+  if type(str) ~= "string" then return -1 end
+  mode = mode or 0
+  if not (mode==0 or mode==1 or mode==2 or mode==3) then return -1 end
+
+  if mode == 2 then
+    local area,key,usecommon = GetEvalData(str)
+    if not area then return -2 end
+
+    local macro = utils.GetMacro(area,key,usecommon,false,true)
+    if not macro then return -2 end
+
+    if macro.action then
+      -- setfenv(macro.action, getfenv(2))
+      macro.action()
+      return 0
+    else
+      str = macro.code
+    end
+  end
+
+  local chunk, msg = args.loadmacro(str)
+  if chunk then
+    if mode==1 then return 0 end
+    if mode==3 then return "" end
+    setfenv(chunk, getfenv(2))
+    chunk()
+    return 0
+  else
+    far.Message(msg, "LuaMacro", nil, "wl")
+    return mode==3 and msg or 11
+  end
+end
+--------------------------------------------------------------------------------
+
 local function basicSerialize (o)
   local tp = type(o)
   if tp == "boolean" then
@@ -404,8 +464,8 @@ end
 _G.band, _G.bnot, _G.bor, _G.bxor, _G.lshift, _G.rshift =
   bit64.band, bit64.bnot, bit64.bor, bit64.bxor, bit64.lshift, bit64.rshift
 
-_G.akey, _G.mmode, _G.msgbox, _G.prompt =
-  mf.akey, mf.mmode, mf.msgbox, mf.prompt
+_G.akey, _G.eval, _G.mmode, _G.msgbox, _G.prompt =
+  mf.akey, mf.eval, mf.mmode, mf.msgbox, mf.prompt
 
 mf.band, mf.bnot, mf.bor, mf.bxor, mf.lshift, mf.rshift =
   bit64.band, bit64.bnot, bit64.bor, bit64.bxor, bit64.lshift, bit64.rshift

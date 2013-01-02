@@ -14,7 +14,7 @@ FAR_WORKDIR=..\..\unicode_far\$(FAR_DIRNAME).$(DIRBIT).vc
 !endif
 LUALIB=$(FAR_WORKDIR)\luafar3.lib
 
-DOCS=_globalinfo.lua api.lua luamacro.lua macrotest.lua
+DOCS=_globalinfo.lua api.lua luamacro.lua macrotest.lua utils.lua
 
 NEEDENTRY = 1
 NEEDDEFLIB = 1
