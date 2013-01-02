@@ -304,7 +304,6 @@ intptr_t DefProcFunction(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void* Param
 
 void Dialog::Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
 {
-	bInitOK = false;
 	Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
 
 	for (unsigned i = 0; i < SrcItemCount; i++)
@@ -319,7 +318,6 @@ void Dialog::Construct(DialogItemEx* SrcItem, size_t SrcItemCount, DialogOwner* 
 
 void Dialog::Construct(const FarDialogItem* SrcItem, size_t SrcItemCount, DialogOwner* OwnerClass, MemberHandlerFunction HandlerFunction, StaticHandlerFunction DlgProc, void* InitParam)
 {
-	bInitOK = false;
 	Item = (DialogItemEx**)xf_malloc(sizeof(DialogItemEx*)*SrcItemCount);
 
 	for (unsigned i = 0; i < SrcItemCount; i++)
@@ -1216,7 +1214,7 @@ BOOL Dialog::GetItemRect(unsigned I,SMALL_RECT& Rect)
 	return TRUE;
 }
 
-bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item)
+bool Dialog::ItemHasDropDownArrow(const DialogItemEx *Item) const
 {
 	return ((!Item->strHistory.IsEmpty() && (Item->Flags & DIF_HISTORY) && Global->Opt->Dialogs.EditHistory) ||
 		(Item->Type == DI_COMBOBOX && Item->ListPtr && Item->ListPtr->GetItemCount() > 0));

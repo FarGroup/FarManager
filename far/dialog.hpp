@@ -186,7 +186,8 @@ class Dialog: public Frame
 {
 public:
 	template<class T, typename Y, class D>
-	Dialog(T* OwnerClass, Y HandlerFunction, void* InitParam, D* SrcItem, size_t SrcItemCount)
+	Dialog(T* OwnerClass, Y HandlerFunction, void* InitParam, D* SrcItem, size_t SrcItemCount):
+		bInitOK(false)
 	{
 		Construct(SrcItem, SrcItemCount, reinterpret_cast<DialogOwner*>(OwnerClass), reinterpret_cast<MemberHandlerFunction>(HandlerFunction), nullptr, InitParam);
 	}
@@ -207,31 +208,32 @@ public:
 	virtual int FastHide();
 	virtual void ResizeConsole();
 	virtual void SetPosition(int X1,int Y1,int X2,int Y2);
-	void FastShow() {ShowDialog();}
-	bool InitOK() {return bInitOK;}
+	virtual void FastShow() {ShowDialog();}
+
+	bool InitOK() const {return bInitOK;}
 	void GetDialogObjectsData();
 	void SetDialogMode(DWORD Flags) { DialogMode.Set(Flags); }
-	bool CheckDialogMode(DWORD Flags) { return DialogMode.Check(Flags)!=FALSE; }
+	bool CheckDialogMode(DWORD Flags) const { return DialogMode.Check(Flags)!=FALSE; }
 	// метод для перемещения диалога
 	void AdjustEditPos(int dx,int dy);
-	int IsMoving() {return DialogMode.Check(DMODE_DRAGGED);}
+	int IsMoving() const {return DialogMode.Check(DMODE_DRAGGED);}
 	void SetModeMoving(bool IsMoving) { DialogMode.Change(DMODE_ISCANMOVE,IsMoving);}
-	int  GetModeMoving() {return DialogMode.Check(DMODE_ISCANMOVE);}
+	int  GetModeMoving() const {return DialogMode.Check(DMODE_ISCANMOVE);}
 	void SetDialogData(void* NewDataDialog);
-	void* GetDialogData() {return DataDialog;};
+	void* GetDialogData() const {return DataDialog;}
 	void InitDialog();
 	void Process();
 	void SetPluginOwner(Plugin* NewPluginAddress) {PluginOwner = ((NewPluginAddress == INVALID_HANDLE_VALUE)? nullptr : NewPluginAddress);}
 	Plugin* GetPluginOwner() const {return PluginOwner;}
 	void SetHelp(const wchar_t *Topic);
 	void ShowHelp();
-	int Done() { return DialogMode.Check(DMODE_ENDLOOP); }
+	int Done() const { return DialogMode.Check(DMODE_ENDLOOP); }
 	void ClearDone();
 	intptr_t CloseDialog();
 	// For MACRO
-	const DialogItemEx **GetAllItem() {return (const DialogItemEx**)Item;};
-	unsigned GetAllItemCount() {return ItemCount;};             // количество элементов диалога
-	unsigned GetDlgFocusPos() {return FocusPos;};
+	const DialogItemEx **GetAllItem() const {return (const DialogItemEx**)Item;}
+	unsigned GetAllItemCount() const {return ItemCount;}
+	unsigned GetDlgFocusPos() const {return FocusPos;}
 	int SetAutomation(WORD IDParent,WORD id, FARDIALOGITEMFLAGS UncheckedSet,FARDIALOGITEMFLAGS UncheckedSkip, FARDIALOGITEMFLAGS CheckedSet,FARDIALOGITEMFLAGS CheckedSkip,
 		FARDIALOGITEMFLAGS Checked3Set=DIF_NONE,FARDIALOGITEMFLAGS Checked3Skip=DIF_NONE);
 
@@ -239,7 +241,7 @@ public:
 	BOOL IsInited();
 	bool ProcessEvents();
 	void SetId(const GUID& Id);
-	const GUID& GetId(){return Id;}
+	const GUID& GetId() const {return Id;}
 	intptr_t SendMessage(intptr_t Msg,intptr_t Param1,void* Param2);
 	intptr_t DefProc(intptr_t Msg,intptr_t Param1,void* Param2);
 
@@ -270,11 +272,11 @@ private:
 	void SelectOnEntry(unsigned Pos,BOOL Selected);
 	void CheckDialogCoord();
 	BOOL GetItemRect(unsigned I,SMALL_RECT& Rect);
-	bool ItemHasDropDownArrow(const DialogItemEx *Item);
+	bool ItemHasDropDownArrow(const DialogItemEx *Item) const;
 	const wchar_t *GetDialogTitle();
 	BOOL SetItemRect(unsigned ID,SMALL_RECT *Rect);
 	void SetDropDownOpened(int Status) { DropDownOpened=Status; }
-	int GetDropDownOpened() { return DropDownOpened; }
+	int GetDropDownOpened() const { return DropDownOpened; }
 	void ProcessCenterGroup();
 	unsigned ProcessRadioButton(unsigned);
 	int ProcessOpenComboBox(FARDIALOGITEMTYPES Type,DialogItemEx *CurItem,unsigned CurFocusPos);
