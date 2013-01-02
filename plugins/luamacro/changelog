@@ -1,3 +1,7 @@
+shmuel 03.01.2013 00:39:45 +0200 - build 61
+
+1. Уточнение 60.1
+
 shmuel 02.01.2013 22:46:02 +0200 - build 60
 
 1. Файл luamacro.lua разделён на два файла (luamacro.lua и utils.lua).
