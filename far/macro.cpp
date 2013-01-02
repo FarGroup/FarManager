@@ -744,7 +744,7 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t
 		if ((Data->MacroId=(int)mpr->Values[0].Double) > 0)
 		{
 			Data->Name        = TextKey;
-			Data->Area        = (MACROMODEAREA)mpr->Values[1].Double;
+			Data->Area        = (MACROMODEAREA)(int)mpr->Values[1].Double;
 			Data->Code        = mpr->Values[2].String;
 			Data->Description = mpr->Values[3].String;
 			Data->Flags       = FixFlags(Mode, StringToFlags(mpr->Values[4].String));
@@ -2624,7 +2624,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			BOOL Result = 0;
 			if (Data->Count >= 2)
 			{
-				MACROMODEAREA Area = (MACROMODEAREA)Data->Values[0].Double;
+				MACROMODEAREA Area = (MACROMODEAREA)(int)Data->Values[0].Double;
 				unsigned __int64 Flags = FixFlags(Area, StringToFlags(Data->Values[1].String));
 				FARMACROCALLBACK Callback = (Data->Count>=3 && Data->Values[2].Type==FMVT_POINTER) ?
 					(FARMACROCALLBACK)Data->Values[2].Pointer : nullptr;
