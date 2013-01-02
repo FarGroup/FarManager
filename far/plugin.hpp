@@ -553,35 +553,35 @@ struct FarGetDialogItem
 	struct FarDialogItem* Item;
 };
 
-#define Dlg_RedrawDialog(Info,hDlg)            Info.Dlg->SendMessage(DM_REDRAW,0,0)
+#define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
 
-#define Dlg_GetDlgData(Info,hDlg)              Info.Dlg->SendMessage(DM_GETDLGDATA,0,0)
-#define Dlg_SetDlgData(Info,hDlg,Data)         Info.Dlg->SendMessage(DM_SETDLGDATA,0,(intptr_t)Data)
+#define Dlg_GetDlgData(Info,hDlg)              Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0)
+#define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(intptr_t)Data)
 
-#define Dlg_GetDlgItemData(Info,hDlg,ID)       Info.Dlg->SendMessage(DM_GETITEMDATA,0,0)
-#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.Dlg->SendMessage(DM_SETITEMDATA,0,(intptr_t)Data)
+#define Dlg_GetDlgItemData(Info,hDlg,ID)       Info.SendDlgMessage(hDlg,DM_GETITEMDATA,0,0)
+#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.SendDlgMessage(hDlg,DM_SETITEMDATA,0,(intptr_t)Data)
 
-#define DlgItem_GetFocus(Info,hDlg)            Info.Dlg->SendMessage(DM_GETFOCUS,0,0)
-#define DlgItem_SetFocus(Info,hDlg,ID)         Info.Dlg->SendMessage(DM_SETFOCUS,ID,0)
-#define DlgItem_Enable(Info,hDlg,ID)           Info.Dlg->SendMessage(DM_ENABLE,ID,TRUE)
-#define DlgItem_Disable(Info,hDlg,ID)          Info.Dlg->SendMessage(DM_ENABLE,ID,FALSE)
-#define DlgItem_IsEnable(Info,hDlg,ID)         Info.Dlg->SendMessage(DM_ENABLE,ID,-1)
-#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.Dlg->SendMessage(DM_SETTEXTPTR,ID,(intptr_t)Str)
+#define DlgItem_GetFocus(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_GETFOCUS,0,0)
+#define DlgItem_SetFocus(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_SETFOCUS,ID,0)
+#define DlgItem_Enable(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_ENABLE,ID,TRUE)
+#define DlgItem_Disable(Info,hDlg,ID)          Info.SendDlgMessage(hDlg,DM_ENABLE,ID,FALSE)
+#define DlgItem_IsEnable(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_ENABLE,ID,-1)
+#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(intptr_t)Str)
 
-#define DlgItem_GetCheck(Info,hDlg,ID)         Info.Dlg->SendMessage(DM_GETCHECK,ID,0)
-#define DlgItem_SetCheck(Info,hDlg,ID,State)   Info.Dlg->SendMessage(DM_SETCHECK,ID,State)
+#define DlgItem_GetCheck(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_GETCHECK,ID,0)
+#define DlgItem_SetCheck(Info,hDlg,ID,State)   Info.SendDlgMessage(hDlg,DM_SETCHECK,ID,State)
 
-#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.Dlg->SendMessage(DM_ADDHISTORY,ID,(intptr_t)Str)
+#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(intptr_t)Str)
 
-#define DlgList_AddString(Info,hDlg,ID,Str)    Info.Dlg->SendMessage(DM_LISTADDSTR,ID,(intptr_t)Str)
-#define DlgList_GetCurPos(Info,hDlg,ID)        Info.Dlg->SendMessage(DM_LISTGETCURPOS,ID,0)
-#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={sizeof(FarListPos),NewPos,-1};Info.Dlg->SendMessage(DM_LISTSETCURPOS,ID,(intptr_t)&LPos);}
-#define DlgList_ClearList(Info,hDlg,ID)        Info.Dlg->SendMessage(DM_LISTDELETE,ID,0)
-#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={sizeof(FarListDelete),Index,1}; Info.Dlg->SendMessage(DM_LISTDELETE,ID,(intptr_t)&FLDItem);}
-#define DlgList_SortUp(Info,hDlg,ID)           Info.Dlg->SendMessage(DM_LISTSORT,ID,0)
-#define DlgList_SortDown(Info,hDlg,ID)         Info.Dlg->SendMessage(DM_LISTSORT,ID,1)
-#define DlgList_GetItemData(Info,hDlg,ID,Index)          Info.Dlg->SendMessage(DM_LISTGETDATA,ID,Index)
-#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{sizeof(FarListItemData),Index,0,Str,0}; Info.Dlg->SendMessage(DM_LISTSETDATA,ID,(intptr_t)&FLID);}
+#define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(intptr_t)Str)
+#define DlgList_GetCurPos(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID,0)
+#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={sizeof(FarListPos),NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(intptr_t)&LPos);}
+#define DlgList_ClearList(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,0)
+#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={sizeof(FarListDelete),Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(intptr_t)&FLDItem);}
+#define DlgList_SortUp(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,0)
+#define DlgList_SortDown(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1)
+#define DlgList_GetItemData(Info,hDlg,ID,Index)          Info.SendDlgMessage(hDlg,DM_LISTGETDATA,ID,Index)
+#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{sizeof(FarListItemData),Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(intptr_t)&FLID);}
 
 typedef unsigned __int64 FARDIALOGFLAGS;
 static const FARDIALOGFLAGS
