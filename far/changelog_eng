@@ -3,6 +3,105 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+drkns 02.01.2013 20:44:40 +0200 - build 3063
+
+1. Refactoring.
+
+drkns 02.01.2013 18:45:01 +0200 - build 3062
+
+1. Refactoring.
+
+shmuel 02.01.2013 07:50:55 +0200 - build 3061
+
+1. Visual C++ build error.
+
+shmuel 02.01.2013 00:50:13 +0200 - build 3060
+
+1. Refactoring.
+
+shmuel 01.01.2013 13:42:42 +0200 - build 3059
+
+1. Refactoring.
+
+zg 31.12.2012 01:16:38 +0200 - build 3058
+
+1. with mmode 3 on, memory corruption took place after Plugin.Call if the macro returned before the plugin call.
+
+shmuel 30.12.2012 21:29:27 +0200 - build 3057
+
+1. Help did not include macros from ShellAutoCompletion and DialogAutoCompletion.
+
+2. Refactoring.
+
+shmuel 30.12.2012 20:00:01 +0200 - build 3056
+
+1. Help did not include macros recorded from keyboard.
+
+2. Refactoring.
+
+shmuel 30.12.2012 00:14:45 +0200 - build 3055
+
+1. Refactoring.
+
+shmuel 29.12.2012 15:17:57 +0200 - build 3054
+
+1. 'area' in macro description may include several areas separated with spaces.
+
+2. 'key' in macro description may include several keys separated with spaces.
+
+3. 'key' in macro description may be given as a FAR regular expression surrounded with slash symbols (/).
+   * In this case /Ctrl/ does not work on RCtrl press, /R?Ctrl/ must be given explicitly etc.
+   * Also, in this case it is necessary to keep Ctrl,Alt,Shift order, for example /AltCtrlF1/ never works.
+
+4. More than one macro is allowed for (key,area) combination. In this case only a macro with the biggest priority is executed
+   (as described in 4a,4b,4c). If there is more than one macro with equal priority, a menu is shown.
+   All auto-starting macros are executed, regardless of priority.
+
+4a. Optional 'priority' field in macro description: a number from 0 to 100. The default value is 50.
+
+4b. Optional 'condition' field in macro description: a function. If it returns false/nil/nothing then the macro
+    is not executed. If it returns a number then the number is used instead of 'priority'. In case of other return values
+    (for example, true) 'priority' is used.
+
+4c. Macros added with MCTL_ADDMACRO have priority = 50.
+
+5. Macros recorded from keyboard are handled in a special way. No more than one for a combination (key,area) is allowed.
+   Their priority is higher than any other macros priority.
+
+6. THe format of macros recorded from keyboard has been changed. If you have such macros saved in
+   Macros/internal directory, move them to Macros/scripts.
+
+7. BUGS AND REGRESSIONS ARE HIGHLY POSSIBLE. Thus, users should better wait a couple of weeks before updating
+   to a new version.
+
+lort 28.12.2012 18:36:32 +0400 - build 3053
+
+1. Correction of 2941.3
+
+svs 25.12.2012 18:44:49 +0400 - build 3052
+
+1. Viewer wrapper for displaying of panel description files (class DizViewer) is placed in a separate file dizviewer.hpp
+   The wrapper is intended to track DizView methods call recursiveness (in the context of InfoList) and... to prevent "viewer" accidental deletion during the call.
+   The wrapper is required for Mantis#0000604 fix
+
+svs 25.12.2012 18:31:20 +0400 - build 3051
+
+1. When API::GetDirList (or internal GetPluginDirInfo/GetPluginDirList) was called, the plugin was not passed OPM_QUICKVIEW flag if an opposite panel was QuickView.
+   OPM_* usage should be reviewed
+
+shmuel 25.12.2012 12:36:38 +0200 - build 3050
+
+1. M#2235: LuaMacro functions call causes panel redraw, despite screen output disable flag set.
+   So far, there is only mf.waitkey fixed.
+
+drkns 25.12.2012 00:19:17 +0200 - build 3049
+
+1. Rollback of 3041.1.
+
+drkns 23.12.2012 22:43:29 +0200 - build 3048
+
+1. Continuation of 3047.
+
 drkns 23.12.2012 19:32:14 +0200 - build 3047
 
 1. Another bug in menus.
