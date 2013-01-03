@@ -244,7 +244,7 @@ do
       pack = pack,
     }
   else
-    ErrMsg(msg); export.Open=function() end; return
+    export={}; ErrMsg(msg); return
   end
 
   local func,msg = loadfile(far.PluginStartupInfo().ModuleDir.."api.lua")
@@ -259,7 +259,7 @@ do
     Plugin.Config=PluginConfig
     Plugin.Command=PluginCommand
   else
-    ErrMsg(msg); export.Open=function() end; return
+    export={}; ErrMsg(msg); return
   end
 
   AddCfindFunction()
