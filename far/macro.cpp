@@ -844,6 +844,16 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			{
 				if (!IsExecuting()||(m_CurState->m_MacroQueue.Empty()&&!m_DisableNested))
 				{
+					DWORD key = Rec->IntKey;
+					if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
+						key=KeyToKeyLayout((int)(key&0x0000FFFF))|(DWORD)(key&(~0x0000FFFF));
+
+					if (key<0xFFFF)
+						key=Upper(static_cast<wchar_t>(key));
+
+					if (key != Rec->IntKey)
+						KeyToText(key,textKey);
+
 					GetMacroData Data;
 					if (LM_GetMacro(&Data, m_Mode, textKey, true, false, false))
 					{
@@ -5836,7 +5846,6 @@ M1:
 		_SVS(SysLog(L"[%d] Assign ==> Param2='%s',LastKey='%s'",__LINE__,_FARKEY_ToName((DWORD)key),LastKey?_FARKEY_ToName(LastKey):L""));
 		KMParam->Key=(DWORD)key;
 		KeyToText((int)key,strKeyText);
-		string strKey;
 
 		// если УЖЕ есть такой макрос...
 		GetMacroData Data;
