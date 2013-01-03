@@ -45,7 +45,7 @@ intptr_t WINAPI PanelControl(
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
     Функция возвращает <code>FALSE</code>, если Far Manager запущен с ключами /e или /v (в качестве внешнего редактора или программы просмотра). В этом режиме панели не создаются.
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CHECKPANELSEXIST" width="10" height="10"> Внимание!</p>
+    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_CHECKPANELSEXIST" width="10" height="10"> Внимание!<br><br></p>
     <UL class=note><LI>В режиме, когда Far Manager запущен с ключами /e или /v, функция обрабатывает только одну эту команду - <code>FCTL_CHECKPANELSEXIST</code>.</LI></UL></td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_ISACTIVEPANEL">FCTL_ISACTIVEPANEL</a></td>
@@ -107,7 +107,7 @@ intptr_t WINAPI PanelControl(
     <code>Param1</code> порядковый номер элемента на панели (подмножество <a href="../structures/panelinfo.html">PanelInfo::ItemsNumber</a>).<br>
     <code>Param2</code> указывает на структуру типа <a href="../structures/fargetpluginpanelitem.html">FarGetPluginPanelItem</a>.<br>
     Функция возвращает размер запрашиваемого элемента панели <a href="../structures/pluginpanelitem.html">PluginPanelItem</a>, если <code>Param2 = NULL</code>.<br>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_GETPANELITEM" width="10" height="10"> Внимание! Tак делать нельзя:</p><br>
+    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_GETPANELITEM" width="10" height="10"> Внимание! Tак делать нельзя:<br></p><br>
     <pre class=code>
 PluginPanelItem PPI;
 Info.PanelControl(PANEL_ACTIVE,FCTL_GETPANELITEM,J,&PPI);
@@ -179,7 +179,7 @@ for(int J=0; J < PInfo.ItemsNumber; J++)
     <td class="cont" width="60%">Начать/закончить операцию выделения в панели.<br>
     <code>Param1</code> не используется.<br>
     <code>Param2</code> не используется.<br>
-    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_BEGINSELECTION" width="10" height="10"> Внимание!</p>
+    <p class=note><img src="../../images/note.gif" alt="Замечание для FCTL_BEGINSELECTION" width="10" height="10"> Внимание!<br><br></p>
     <UL class=note><LI> Порядок использования смотрите в примере к <code>FCTL_SETSELECTION</code></LI></UL></td></tr>
 
     <tr class="cont"><td class="cont" width="40%"><a name="FCTL_SETSELECTION">FCTL_SETSELECTION</a></td>
