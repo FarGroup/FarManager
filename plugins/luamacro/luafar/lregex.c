@@ -92,7 +92,7 @@ int _regex_gmatch_closure(lua_State *L, int is_wide)
 
 		for(i=skip; i<pData->Count; i++)
 		{
-			if(pData->Match[i].start >= 0)
+			if(pData->Match[i].start >= 0 && pData->Match[i].end >= pData->Match[i].start)
 			{
 				if(is_wide)
 					push_utf16_string(L, pData->Text+pData->Match[i].start, pData->Match[i].end-pData->Match[i].start);
@@ -196,7 +196,7 @@ int rx_find_match(lua_State *L, int op_find, int is_function, int is_wide)
 
 		for(i=skip; i<data.Count; i++)
 		{
-			if(data.Match[i].start >= 0)
+			if(data.Match[i].start >= 0 && data.Match[i].end >= data.Match[i].start)
 			{
 				if(is_wide)
 					push_utf16_string(L, data.Text+data.Match[i].start, data.Match[i].end-data.Match[i].start);
@@ -419,7 +419,7 @@ int rx_gsub(lua_State *L, int is_function, int is_wide)
 
 			for(i=skip; i<data.Count; i++)
 			{
-				if(data.Match[i].start >= 0)
+				if(data.Match[i].start >= 0 && data.Match[i].end >= data.Match[i].start)
 				{
 					if(is_wide)
 						push_utf16_string(L, s + data.Match[i].start, (data.Match[i].end - data.Match[i].start));
