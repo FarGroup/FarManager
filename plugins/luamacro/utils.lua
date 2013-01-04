@@ -198,13 +198,13 @@ local function LoadMacros (allAreas, unload)
             ErrMsg(msg) return
           end
           local env = k==1 and {Macro=AddMacro, NoMacro=NoMacro} or {}
+          if k==1 then setmetatable(env,gmeta) end
           setfenv(f, env)
           AddMacro_filename = FullPath
           local ok, msg = pcall(f)
           if ok then
             if k==1 then
               env.Macro,env.NoMacro = nil,nil
-              setmetatable(env, gmeta)
             else
               AddRecordedMacro(env)
             end
