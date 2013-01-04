@@ -286,6 +286,7 @@
 <?define Guid.changelog_19 = "7CB23F6C-4DF1-486A-B3ED-72EBB96B5916" ?>
 <?define Guid._globalinfo.lua = "06C65AEC-4CCE-4CC2-93C8-0FC245324052" ?>
 <?define Guid.api.lua = "D7762394-E99C-46F8-A17E-B683C30E1275" ?>
+<?define Guid.utils.lua = "8119851B-7082-4AAF-8CA0-08BC38649FD7" ?>
 <?define Guid.luamacro.lua = "9983583F-6D6C-4D0C-87DB-16FE9CE29A56" ?>
 <?define Guid.macrotest.lua = "7C521160-324F-44E3-A0DB-4FB9C22CD3C4" ?>
 <?define Guid.lua5.1.dll = "4429E363-97A3-4EB4-9BAB-BAC973A23D42" ?>

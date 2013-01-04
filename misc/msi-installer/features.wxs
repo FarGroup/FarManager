@@ -473,6 +473,7 @@
           <ComponentRef Id="lua5.1.dll" />
           <ComponentRef Id="_globalinfo.lua" />
           <ComponentRef Id="api.lua" />
+          <ComponentRef Id="utils.lua" />
           <ComponentRef Id="luamacro.lua" />
           <ComponentRef Id="macrotest.lua" />
 <?if $(var.Platform) = x86 ?>
