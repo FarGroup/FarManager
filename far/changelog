@@ -1,3 +1,8 @@
+shmuel 04.01.2013 15:52:07 +0200 - build 3065
+
+1. M#2220: MoreHistory -> View/Edit history -> F4 Esc Esc -> Random crash
+   (от Michael Lukashov).
+
 shmuel 03.01.2013 23:35:20 +0200 - build 3064
 
 1. Из форума: макросы типа AltQ не вызываются, если раскладка русская.

@@ -408,6 +408,7 @@ static bool ToDouble(__int64 v, double *d)
 
 RunningMacro::RunningMacro()
 {
+	SetBooleanValue(0);
 	mp_data.StructSize = sizeof(mp_data);
 	mp_data.Count = 0;
 	mp_data.Values = mp_values;
@@ -508,6 +509,7 @@ KeyMacro::KeyMacro():
 	m_Mode(MACRO_SHELL),
 	m_Recording(MACROMODE_NOMACRO),
 	m_RecMode(MACRO_OTHER),
+	StartMode(MACRO_OTHER),
 	m_LockScr(nullptr),
 	m_LastErrorLine(0),
 	m_InternalInput(0),
