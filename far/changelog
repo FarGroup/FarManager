@@ -1,3 +1,7 @@
+lort 04.01.2013 18:02:57 +0400 - build 3066
+
+1. Mantis#0002240: Некорректная работа Ctrl-Enter в меню результатов поиска
+
 shmuel 04.01.2013 15:52:07 +0200 - build 3065
 
 1. M#2220: MoreHistory -> View/Edit history -> F4 Esc Esc -> Random crash

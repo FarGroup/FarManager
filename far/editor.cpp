@@ -3856,7 +3856,7 @@ BOOL Editor::Search(int Next)
 					}
 
 					int at_end = EdOpt.SearchCursorAtEnd ? SearchLength : 0;
-					
+
 					int Skip=FALSE;
 					/* $ 24.01.2003 KM
 					   ! ѕо окончании поиска отступим от верха экрана на треть отображаемой высоты.
@@ -4128,12 +4128,12 @@ BOOL Editor::Search(int Next)
 						BlockStartLine = coord->Line;
 						Unlock();
 						Pasting--;
-						Show();
 					}
 					if (EdOpt.SearchCursorAtEnd)
 					{
 						CurPtr->SetCurPos(coord->Pos+coord->Pos+coord->SearchLen);
 					}
+					Show();
 					break;
 				case KEY_CTRLUP: case KEY_RCTRLUP:
 				case KEY_CTRLDOWN: case KEY_RCTRLDOWN:
