@@ -27,7 +27,7 @@ intptr_t WINAPI ProcessSynchroEventW(
 <h3>Параметры</h3>
 <div class=descr>
   <div class=dfn>Info</div>
-    <div class=dfndescr>Указатель на структуру <a href="../structures/processsynchroeventinfo.html">ProcessSynchroEventInfo</a>, Far Manager передает информацию о событии.<br>
+    <div class=dfndescr>Указатель на структуру <a href="../structures/processsynchroeventinfo.html">ProcessSynchroEventInfo</a>, Far Manager передает информацию о событии, посланном из созданного плагином потока.<br>
     В начале функции проверьте, что поле <code>ProcessSynchroEventInfo.StructSize >= sizeof(ProcessSynchroEventInfo)</code>.</div>
 </div>
 
