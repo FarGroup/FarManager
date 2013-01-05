@@ -833,6 +833,7 @@
           </Component>
           <Component Id="api.lua" Guid="$(var.Guid.api.lua)" Win64="$(var.Win64)">
             <File Id="api.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\api.lua" />
+          </Component>
           <Component Id="utils.lua" Guid="$(var.Guid.utils.lua)" Win64="$(var.Win64)">
             <File Id="utils.lua" KeyPath="yes" Source="$(var.SourceDir)\Plugins\LuaMacro\utils.lua" />
           </Component>
