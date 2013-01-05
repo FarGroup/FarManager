@@ -126,7 +126,7 @@ $(OUTDIR)\$(MODULE)_rus.hlf: project.ini ru.hlf
   $(PREPROC)
 
 $(OUTDIR)\plugin.h: project.ini $(OUTDIR)\far.ini plugin_h.h
-  $(PREPROC)
+  $(TOOL) preproc project.ini $(OUTDIR)\far.ini plugin_h.h $@
 
 COPY = copy /y $** $@
 
@@ -137,7 +137,7 @@ $(OUTDIR)\7z.dll: $(_7Z)
   $(COPY)
 
 $(OUTDIR)\far.ini: $(FARSDK)\plugin.hpp
-  $(TOOL) farver $** $@
+  $(TOOL) farver $(FARSDK)\plugin.hpp $@
 
 $(OUTDIR)\vc10.obj: ..\common\vc10.asm
   $(AS) $(ASFLAGS) ..\common\vc10.asm
