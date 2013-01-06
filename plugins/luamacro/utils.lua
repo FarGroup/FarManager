@@ -327,6 +327,7 @@ end
 
 local function GetMacro (Mode, Key, UseCommon, StrictKeys, CheckOnly)
   if not Areas then return end -- macros were not loaded
+  if Mode >= #TrueAreaNames then return end -- трюк используется в CheckForEscSilent() в Фаре
 
   local Area,Key = GetAreaName(Mode),Key:lower()
   local Names = Area=="" and AreaNames or { Area, UseCommon and "common" or nil }
