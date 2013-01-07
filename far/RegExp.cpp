@@ -4639,69 +4639,71 @@ int RegExp::Search(const RECHAR* textstart,const RECHAR* textend,PMatch match,in
 
 	if (minlength && tempend-start<minlength)return 0;
 
+	int res=0;
+
 	if (!code->bracket.nextalt && code->next->op==opDataStart)
 	{
-		return InnerMatch(start,tempend,match,matchcount
+		res=InnerMatch(start,tempend,match,matchcount
 #ifdef NAMEDBRACKETS
 		                  ,hmatch
 #endif
 		                 );
 	}
-
-	if (!code->bracket.nextalt && code->next->op==opDataEnd && code->next->next->op==opClosingBracket)
-	{
-		matchcount=1;
-		match[0].start=(int)(textend-textstart);
-		match[0].end=match[0].start;
-		return 1;
-	}
-
-	int res=0;
-
-	if (havefirst)
-	{
-		do
-		{
-			while (!first[*str] && str<tempend)str++;
-
-			if (0!=(res=InnerMatch(str,tempend,match,matchcount
-#ifdef NAMEDBRACKETS
-			                       ,hmatch
-#endif
-			                      )))
-			{
-				break;
-			}
-
-			str++;
-		}
-		while (str<tempend);
-
-		if (!res && InnerMatch(str,tempend,match,matchcount
-#ifdef NAMEDBRACKETS
-		                       ,hmatch
-#endif
-		                      ))
-		{
-			res=1;
-		}
-	}
 	else
 	{
-		do
+		if (!code->bracket.nextalt && code->next->op==opDataEnd && code->next->next->op==opClosingBracket)
 		{
-			if (0!=(res=InnerMatch(str,tempend,match,matchcount
+			matchcount=1;
+			match[0].start=(int)(textend-textstart);
+			match[0].end=match[0].start;
+			return 1;
+		}
+
+		if (havefirst)
+		{
+			do
+			{
+				while (!first[*str] && str<tempend)str++;
+
+				if (0!=(res=InnerMatch(str,tempend,match,matchcount
+#ifdef NAMEDBRACKETS
+				                       ,hmatch
+#endif
+				                      )))
+				{
+					break;
+				}
+
+				str++;
+			}
+			while (str<tempend);
+
+			if (!res && InnerMatch(str,tempend,match,matchcount
 #ifdef NAMEDBRACKETS
 			                       ,hmatch
 #endif
-			                      )))
+			                      ))
 			{
-				break;
+				res=1;
 			}
-
-			str++;
 		}
-		while (str<=tempend);
+		else
+		{
+			do
+			{
+				if (0!=(res=InnerMatch(str,tempend,match,matchcount
+#ifdef NAMEDBRACKETS
+				                       ,hmatch
+#endif
+				                      )))
+				{
+					break;
+				}
+
+				str++;
+			}
+			while (str<=tempend);
+		}
 	}
 
 	if (res==1)
@@ -4733,69 +4735,71 @@ int RegExp::SearchEx(const RECHAR* datastart,const RECHAR* textstart,const RECHA
 
 	if (minlength && tempend-start<minlength)return 0;
 
+	int res=0;
+
 	if (!code->bracket.nextalt && code->next->op==opDataStart)
 	{
-		return InnerMatch(str,tempend,match,matchcount
+		res=InnerMatch(str,tempend,match,matchcount
 #ifdef NAMEDBRACKETS
 		                  ,hmatch
 #endif
 		                 );
 	}
-
-	if (!code->bracket.nextalt && code->next->op==opDataEnd && code->next->next->op==opClosingBracket)
-	{
-		matchcount=1;
-		match[0].start=(int)(textend-datastart);
-		match[0].end=match[0].start;
-		return 1;
-	}
-
-	int res=0;
-
-	if (havefirst)
-	{
-		do
-		{
-			while (!first[*str] && str<tempend)str++;
-
-			if (0!=(res=InnerMatch(str,tempend,match,matchcount
-#ifdef NAMEDBRACKETS
-			                       ,hmatch
-#endif
-			                      )))
-			{
-				break;
-			}
-
-			str++;
-		}
-		while (str<tempend);
-
-		if (!res && InnerMatch(str,tempend,match,matchcount
-#ifdef NAMEDBRACKETS
-		                       ,hmatch
-#endif
-		                      ))
-		{
-			res=1;
-		}
-	}
 	else
 	{
-		do
+		if (!code->bracket.nextalt && code->next->op==opDataEnd && code->next->next->op==opClosingBracket)
 		{
-			if (0!=(res=InnerMatch(str,tempend,match,matchcount
+			matchcount=1;
+			match[0].start=(int)(textend-datastart);
+			match[0].end=match[0].start;
+			return 1;
+		}
+
+		if (havefirst)
+		{
+			do
+			{
+				while (!first[*str] && str<tempend)str++;
+
+				if (0!=(res=InnerMatch(str,tempend,match,matchcount
+#ifdef NAMEDBRACKETS
+				                       ,hmatch
+#endif
+				                      )))
+				{
+					break;
+				}
+
+				str++;
+			}
+			while (str<tempend);
+
+			if (!res && InnerMatch(str,tempend,match,matchcount
 #ifdef NAMEDBRACKETS
 			                       ,hmatch
 #endif
-			                      )))
+			                      ))
 			{
-				break;
+				res=1;
 			}
-
-			str++;
 		}
-		while (str<=tempend);
+		else
+		{
+			do
+			{
+				if (0!=(res=InnerMatch(str,tempend,match,matchcount
+#ifdef NAMEDBRACKETS
+				                       ,hmatch
+#endif
+				                      )))
+				{
+					break;
+				}
+
+				str++;
+			}
+			while (str<=tempend);
+		}
 	}
 
 	if (res==1)
