@@ -45,6 +45,22 @@ static int errfile(lua_State *L, const char *what, int fnameindex)
 	return LUA_ERRFILE;
 }
 
+static int skipBOM (FILE *f) {
+	const char *p = "\xEF\xBB\xBF";  /* Utf8 BOM mark */
+	int c = getc(f);
+	if (c != *(unsigned char *)p++)
+		return c;
+	do
+	{
+		if ((c = getc(f)) != *(unsigned char *)p++)
+		{
+			rewind(f);
+			break;
+		}
+	} while (*p != '\0');
+	return getc(f);  /* return next character */
+}
+
 int LF_LoadFile(lua_State *L, const wchar_t *filename)
 {
 	LoadF lf;
@@ -69,7 +85,7 @@ int LF_LoadFile(lua_State *L, const wchar_t *filename)
 		if(lf.f == NULL) return errfile(L, "open", fnameindex);
 	}
 
-	c = getc(lf.f);
+	c = skipBOM(lf.f);
 
 	if(c == '#')     /* Unix exec. file? */
 	{

@@ -4251,13 +4251,13 @@ id=44
 lv=2
 dt=Text
 nm=editor.SetString
-mtime=3526712409
+mtime=3566574226
 <article>
 #_result = editor.SetString (EditorId, StringNumber, StringText, StringEOL)
 #_
 #_**Parameters:**
-#_  EditorId:     integer, or nil
-#_  StringNumber: integer (0-based), or nil
+#_  EditorId:     integer (default=-1)
+#_  StringNumber: integer, 0-based (default=-1)
 #_  StringText:   string
 #_  StringEOL:    string, or nil
 #_
