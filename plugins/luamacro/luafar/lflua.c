@@ -52,7 +52,7 @@ static int skipBOM (FILE *f) {
 		return c;
 	do
 	{
-		if ((c = getc(f)) != *(unsigned char *)p++)
+		if (getc(f) != *(unsigned char *)p++)
 		{
 			rewind(f);
 			break;
