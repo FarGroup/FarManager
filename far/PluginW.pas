@@ -1149,7 +1149,7 @@ const
   PFLAGS_ALTERNATIVENAMES   = $00004000;
   PFLAGS_SHORTCUT           = $00008000;
 
-  
+
 { PANELINFOTYPE }
 
 const
@@ -1275,9 +1275,9 @@ type
 { FILE_CONTROL_COMMANDS }
 
 const
-  PANEL_NONE	              = THandle(-1);
-  PANEL_ACTIVE	              = THandle(-1);
-  PANEL_PASSIVE	              = THandle(-2);
+  PANEL_NONE                  = THandle(-1);
+  PANEL_ACTIVE                = THandle(-1);
+  PANEL_PASSIVE               = THandle(-2);
   PANEL_STOP                  = THandle(-1);
 
 const
@@ -1594,7 +1594,7 @@ const
   KMFLAGS_DISABLEOUTPUT       = $00000001;
   KMFLAGS_NOSENDKEYSTOPLUGINS = $00000002;
   KMFLAGS_SILENTCHECK         = $00000001;
-//KMFLAGS_SAVEMACRO           = $00000004;  
+//KMFLAGS_SAVEMACRO           = $00000004;
 
 
 { FARMACROSENDSTRINGCOMMAND }
@@ -1890,7 +1890,7 @@ type
 const
   WIF_MODIFIED = $00000001;
   WIF_CURRENT  = $00000002;
-  WIF_MODAL    = $00000004;  
+  WIF_MODAL    = $00000004;
 
 
 (*
@@ -2075,7 +2075,7 @@ type
     LeftPos :Int64;
   end;
 
-  
+
 {VIEWER_MODE_FLAGS}
 
 type
@@ -2687,7 +2687,7 @@ const
   PFM_GUID        = 0;
   PFM_MODULENAME  = 1;
 
-  
+
 { FAR_PLUGIN_FLAGS }
 
 type
@@ -3195,7 +3195,7 @@ type
             TFarStdLocalLower = function (UpperChar : TFarChar) :TFarChar; stdcall;
             TFarStdLocalUpperBuf = procedure (Buf : PFarChar; Length :TIntPtr); stdcall;
             TFarStdLocalLowerBuf = procedure (Buf : PFarChar; Length :TIntPtr); stdcall;
-            
+
             TFarStdLocalStrUpr = procedure (S1 :PFarChar); stdcall;
             TFarStdLocalStrLwr = procedure (S1 :PFarChar); stdcall;
             TFarStdLocalStrICmp = function (S1 :PFarChar; S2 :PFarChar) :Integer; stdcall;
@@ -3461,14 +3461,14 @@ typedef BOOL (WINAPI *FARAPICREATEDIRECTORY)(const wchar_t *PathName,LPSECURITY_
 
 struct ArclitePrivateInfo
 {
-	size_t StructSize;
-	FARAPICREATEFILE CreateFile;
-	FARAPIGETFILEATTRIBUTES GetFileAttributes;
-	FARAPISETFILEATTRIBUTES SetFileAttributes;
-	FARAPIMOVEFILEEX MoveFileEx;
-	FARAPIDELETEFILE DeleteFile;
-	FARAPIREMOVEDIRECTORY RemoveDirectory;
-	FARAPICREATEDIRECTORY CreateDirectory;
+    size_t StructSize;
+    FARAPICREATEFILE CreateFile;
+    FARAPIGETFILEATTRIBUTES GetFileAttributes;
+    FARAPISETFILEATTRIBUTES SetFileAttributes;
+    FARAPIMOVEFILEEX MoveFileEx;
+    FARAPIDELETEFILE DeleteFile;
+    FARAPIREMOVEDIRECTORY RemoveDirectory;
+    FARAPICREATEDIRECTORY CreateDirectory;
 };
 *)
 {!!!}
@@ -3478,8 +3478,8 @@ typedef intptr_t (WINAPI *FARAPICALLFAR)(intptr_t CheckCode, struct FarMacroCall
 
 struct MacroPrivateInfo
 {
-	size_t StructSize;
-	FARAPICALLFAR CallFar;
+    size_t StructSize;
+    FARAPICALLFAR CallFar;
 };
 *)
 {!!!}
@@ -3944,7 +3944,7 @@ const
   FE_CLOSE          = 3;
   FE_BREAK          = 4;
   FE_COMMAND        = 5;
-  
+
   FE_GOTFOCUS       = 6;
   FE_KILLFOCUS      = 7;
 
@@ -4312,6 +4312,7 @@ function MakeFarVersion(Major :DWORD; Minor :DWORD; Revision :DWORD; Build :DWOR
 
 const
   FindFileId        :TGUID = '{8C9EAD29-910F-4b24-A669-EDAFBA6ED964}';
+  FindFileResultId  :TGUID = '{536754EB-C2D1-4626-933F-A25D1E1D110A}';
   CopyOverwriteId   :TGUID = '{9FBCB7E1-ACA2-475d-B40D-0F7365B632FF}';
   FileOpenCreateId  :TGUID = '{1D07CEE2-8F4F-480a-BE93-069B4FF59A2B}';
   FileSaveAsId      :TGUID = '{9162F965-78B8-4476-98AC-D699E5B6AFE7}';
@@ -4344,4 +4345,3 @@ end;
 {$Warnings Off}
 end.
 {$endif FarAPI}
-

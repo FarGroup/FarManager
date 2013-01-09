@@ -2974,6 +2974,7 @@ bool FindFiles::FindFilesProcess()
 //  pDlg->SetDynamicallyBorn();
 	Dlg.SetHelp(L"FindFileResult");
 	Dlg.SetPosition(-1, -1, DlgWidth, DlgHeight);
+	Dlg.SetId(FindFileResultId);
 	// Надо бы показать диалог, а то инициализация элементов запаздывает
 	// иногда при поиске и первые элементы не добавляются
 	Dlg.InitDialog();

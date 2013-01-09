@@ -967,6 +967,16 @@ unsigned Dialog::InitDialogObjects(unsigned ID)
 			if (!DialogMode.Check(DMODE_CREATEOBJECTS))
 				CurItem->UCData=new DlgUserControl;
 		}
+		else if (Type == DI_TEXT)
+		{
+			if (CurItem->X1 == -1 && (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2)))
+				ItemFlags |= DIF_CENTERTEXT;
+		}
+		else if (Type == DI_VTEXT)
+		{
+			if (CurItem->Y1 == -1 && (ItemFlags & (DIF_SEPARATOR|DIF_SEPARATOR2)))
+				ItemFlags |= DIF_CENTERTEXT;
+		}
 
 		CurItem->Flags=ItemFlags;
 	}
@@ -1458,8 +1468,8 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4],int ItemPos,int Type,int Focu
 			{
 				// TEXT
 				Color[0] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)?
-(DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGDEFAULTBUTTON:COL_WARNDIALOGBUTTON)):
-(DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGDEFAULTBUTTON:COL_DIALOGBUTTON)));
+						(DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGDEFAULTBUTTON:COL_WARNDIALOGBUTTON)):
+						(DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGDEFAULTBUTTON:COL_DIALOGBUTTON)));
 				// HiText
 				Color[1] = ColorIndexToColor(DialogMode.Check(DMODE_WARNINGSTYLE)? (DisabledItem?COL_WARNDIALOGDISABLED:(Default?COL_WARNDIALOGHIGHLIGHTDEFAULTBUTTON:COL_WARNDIALOGHIGHLIGHTBUTTON)) : (DisabledItem?COL_DIALOGDISABLED:(Default?COL_DIALOGHIGHLIGHTDEFAULTBUTTON:COL_DIALOGHIGHLIGHTBUTTON)));
 			}
@@ -1471,7 +1481,7 @@ intptr_t Dialog::CtlColorDlgItem(FarColor Color[4],int ItemPos,int Type,int Focu
 		case DI_PSWEDIT:
 		case DI_COMBOBOX:
 		case DI_MEMOEDIT:
-{
+		{
 			if (Type == DI_COMBOBOX && (Flags & DIF_DROPDOWNLIST))
 			{
 				if (DialogMode.Check(DMODE_WARNINGSTYLE))
