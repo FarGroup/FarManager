@@ -38,9 +38,12 @@ class AncientPlugin
 		virtual const GUID& GetGUID(void) const = 0;
 };
 
-class PluginManager;
 struct ExecuteStruct
 {
+	ExecuteStruct& operator =(intptr_t value) { nResult = value; return *this; }
+	ExecuteStruct& operator =(HANDLE value) { hResult = value; return *this; }
+	ExecuteStruct& operator =(BOOL value) { bResult = value; return *this; }
+
 	union
 	{
 		intptr_t nResult;
@@ -57,7 +60,8 @@ struct ExecuteStruct
 	int id; //function id
 };
 
-#define EXECUTE_FUNCTION(function, es) \
+#define EXECUTE_FUNCTION(function) \
+[&]() \
 { \
 	__Prolog(); \
 	es.nResult = 0; \
@@ -82,9 +86,9 @@ struct ExecuteStruct
 	} \
 	--Activity; \
 	__Epilog(); \
-}
+}();
 
-#define EXECUTE_FUNCTION_EX(function, es) EXECUTE_FUNCTION(es.nResult = (intptr_t)function, es)
+#define EXECUTE_FUNCTION_EX(function) EXECUTE_FUNCTION(es = function)
 
 #define FUNCTION(id) reinterpret_cast<id##Prototype>(Exports[id])
 
@@ -133,6 +137,8 @@ enum EXPORTS_ENUM
 	iGetMinFarVersion,
 	i_LAST
 };
+
+class PluginManager;
 
 class Plugin: public AncientPlugin
 {

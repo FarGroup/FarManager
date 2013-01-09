@@ -491,6 +491,9 @@
     <ClCompile Include="vmenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vmenu2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="xlat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1028,6 +1031,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vmenu.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vmenu2.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wakeful.hpp">
