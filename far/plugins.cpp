@@ -730,7 +730,7 @@ HANDLE PluginManager::OpenFilePlugin(
 	{
 		pPlugin = PluginsData[i];
 
-		if (!pPlugin->HasOpenFilePlugin() && !(pPlugin->HasAnalyse() && pPlugin->HasOpenPanel()))
+		if (!pPlugin->HasOpenFilePlugin() && !(pPlugin->HasAnalyse() && pPlugin->HasOpen()))
 			continue;
 
 		if(Name && !DataRead)
@@ -2292,7 +2292,7 @@ int PluginManager::ProcessCommandLine(const wchar_t *CommandParam,Panel *Target)
 
 			if (!StrCmpNI(strPrefix, PrStart, (int)Len))
 			{
-				if (PluginsData[I]->Load() && PluginsData[I]->HasOpenPanel())
+				if (PluginsData[I]->Load() && PluginsData[I]->HasOpen())
 				{
 					PluginData *pD=items.addItem();
 					pD->pPlugin=PluginsData[I];
@@ -2407,7 +2407,7 @@ int PluginManager::CallPlugin(const GUID& SysID,int OpenFrom, void *Data,void **
 
 	if (pPlugin)
 	{
-		if (pPlugin->HasOpenPanel() && !Global->ProcessException)
+		if (pPlugin->HasOpen() && !Global->ProcessException)
 		{
 			HANDLE hNewPlugin=Open(pPlugin,OpenFrom,FarGuid,(intptr_t)Data);
 			bool process=false;
@@ -2484,7 +2484,7 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 				switch ((Data->CallFlags & CPT_MASK))
 				{
 					case CPT_MENU:
-						if (!Data->pPlugin->HasOpenPanel())
+						if (!Data->pPlugin->HasOpen())
 							return FALSE;
 						break;
 					case CPT_CONFIGURE:
@@ -2503,12 +2503,12 @@ int PluginManager::CallPluginItem(const GUID& Guid, CallPluginInfo *Data, int *R
 							return FALSE;
 						}
 						//TODO: OpenPanel или OpenFilePlugin?
-						if (!Data->pPlugin->HasOpenPanel())
+						if (!Data->pPlugin->HasOpen())
 							return FALSE;
 						break;
 					case CPT_INTERNAL:
 						//TODO: Уточнить функцию
-						if (!Data->pPlugin->HasOpenPanel())
+						if (!Data->pPlugin->HasOpen())
 							return FALSE;
 						break;
 				}

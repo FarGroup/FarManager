@@ -2726,7 +2726,7 @@ bool Panel::ExecShortcutFolder(string& strShortcutFolder,const GUID& PluginGuid,
 
 		if (pPlugin)
 		{
-			if (pPlugin->HasOpenPanel())
+			if (pPlugin->HasOpen())
 			{
 				if (!strPluginFile.IsEmpty())
 				{

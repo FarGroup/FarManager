@@ -191,43 +191,47 @@ public:
 	virtual bool InitLang(const wchar_t *Path) { return PluginLang.Init(Path); }
 	void CloseLang() { PluginLang.Close(); }
 
-	bool HasGetGlobalInfo()       const { return Exports[iGetGlobalInfo]!=nullptr; }
-	bool HasOpenPanel()           const { return Exports[iOpen]!=nullptr; }
-	bool HasMakeDirectory()       const { return Exports[iMakeDirectory]!=nullptr; }
-	bool HasDeleteFiles()         const { return Exports[iDeleteFiles]!=nullptr; }
-	bool HasPutFiles()            const { return Exports[iPutFiles]!=nullptr; }
-	bool HasGetFiles()            const { return Exports[iGetFiles]!=nullptr; }
-	bool HasSetStartupInfo()      const { return Exports[iSetStartupInfo]!=nullptr; }
-	bool HasClosePanel()          const { return Exports[iClosePanel]!=nullptr; }
-	bool HasGetPluginInfo()       const { return Exports[iGetPluginInfo]!=nullptr; }
-	bool HasGetOpenPanelInfo()    const { return Exports[iGetOpenPanelInfo]!=nullptr; }
-	bool HasGetFindData()         const { return Exports[iGetFindData]!=nullptr; }
-	bool HasFreeFindData()        const { return Exports[iFreeFindData]!=nullptr; }
-	bool HasGetVirtualFindData()  const { return Exports[iGetVirtualFindData]!=nullptr; }
-	bool HasFreeVirtualFindData() const { return Exports[iFreeVirtualFindData]!=nullptr; }
-	bool HasSetDirectory()        const { return Exports[iSetDirectory]!=nullptr; }
-	bool HasProcessHostFile()     const { return Exports[iProcessHostFile]!=nullptr; }
-	bool HasSetFindList()         const { return Exports[iSetFindList]!=nullptr; }
-	bool HasConfigure()           const { return Exports[iConfigure]!=nullptr; }
-	bool HasExitFAR()             const { return Exports[iExitFAR]!=nullptr; }
-	bool HasProcessPanelInput()   const { return Exports[iProcessPanelInput]!=nullptr; }
-	bool HasProcessPanelEvent()   const { return Exports[iProcessPanelEvent]!=nullptr; }
-	bool HasProcessEditorEvent()  const { return Exports[iProcessEditorEvent]!=nullptr; }
-	bool HasCompare()             const { return Exports[iCompare]!=nullptr; }
-	bool HasProcessEditorInput()  const { return Exports[iProcessEditorInput]!=nullptr; }
-	bool HasProcessViewerEvent()  const { return Exports[iProcessViewerEvent]!=nullptr; }
-	bool HasProcessDialogEvent()  const { return Exports[iProcessDialogEvent]!=nullptr; }
-	bool HasProcessSynchroEvent() const { return Exports[iProcessSynchroEvent]!=nullptr; }
-#if defined(MANTIS_0000466)
-	bool HasProcessMacro()        const { return Exports[iProcessMacro]!=nullptr; }
-#endif
-	bool HasProcessConsoleInput() const { return Exports[iProcessConsoleInput]!=nullptr; }
-	bool HasAnalyse()             const { return Exports[iAnalyse]!=nullptr; }
-	bool HasGetCustomData()       const { return Exports[iGetCustomData]!=nullptr; }
-	bool HasFreeCustomData()      const { return Exports[iFreeCustomData]!=nullptr; }
+	#define HAS_FUNCTION(Name) bool Has##Name() const { return Exports[i##Name] != nullptr; }
 
-	bool HasOpenFilePlugin()      const { return Exports[iOpenFilePlugin]!=nullptr; }
-	bool HasMinFarVersion()       const { return Exports[iGetMinFarVersion]!=nullptr; }
+	HAS_FUNCTION(GetGlobalInfo)
+	HAS_FUNCTION(Open)
+	HAS_FUNCTION(MakeDirectory)
+	HAS_FUNCTION(DeleteFiles)
+	HAS_FUNCTION(PutFiles)
+	HAS_FUNCTION(GetFiles)
+	HAS_FUNCTION(SetStartupInfo)
+	HAS_FUNCTION(ClosePanel)
+	HAS_FUNCTION(GetPluginInfo)
+	HAS_FUNCTION(GetOpenPanelInfo)
+	HAS_FUNCTION(GetFindData)
+	HAS_FUNCTION(FreeFindData)
+	HAS_FUNCTION(GetVirtualFindData)
+	HAS_FUNCTION(FreeVirtualFindData)
+	HAS_FUNCTION(SetDirectory)
+	HAS_FUNCTION(ProcessHostFile)
+	HAS_FUNCTION(SetFindList)
+	HAS_FUNCTION(Configure)
+	HAS_FUNCTION(ExitFAR)
+	HAS_FUNCTION(ProcessPanelInput)
+	HAS_FUNCTION(ProcessPanelEvent)
+	HAS_FUNCTION(ProcessEditorEvent)
+	HAS_FUNCTION(Compare)
+	HAS_FUNCTION(ProcessEditorInput)
+	HAS_FUNCTION(ProcessViewerEvent)
+	HAS_FUNCTION(ProcessDialogEvent)
+	HAS_FUNCTION(ProcessSynchroEvent)
+#if defined(MANTIS_0000466)
+	HAS_FUNCTION(ProcessMacro)
+#endif
+	HAS_FUNCTION(ProcessConsoleInput)
+	HAS_FUNCTION(Analyse)
+	HAS_FUNCTION(GetCustomData)
+	HAS_FUNCTION(FreeCustomData)
+
+	HAS_FUNCTION(OpenFilePlugin)
+	HAS_FUNCTION(GetMinFarVersion)
+
+	#undef HAS_FUNCTION
 
 	const string &GetModuleName() const { return m_strModuleName; }
 	const wchar_t *GetCacheName() const  { return m_strCacheName; }
