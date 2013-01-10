@@ -38,35 +38,34 @@ class AncientPlugin
 		virtual const GUID& GetGUID(void) const = 0;
 };
 
+ENUM(ExceptFunctionsType);
+
 struct ExecuteStruct
 {
 	ExecuteStruct& operator =(intptr_t value) { nResult = value; return *this; }
 	ExecuteStruct& operator =(HANDLE value) { hResult = value; return *this; }
-#ifdef _WIN64 // BOOL != intptr_t
-	ExecuteStruct& operator =(BOOL value) { bResult = value; return *this; }
-#endif
-	union
-	{
-		intptr_t nResult;
-		HANDLE hResult;
-		BOOL bResult;
-	};
+	operator intptr_t() const { return nResult; } 
+	operator HANDLE() const { return hResult; } 
+
+	ExceptFunctionsType id;
 
 	union
 	{
 		intptr_t nDefaultResult;
 		HANDLE hDefaultResult;
-		BOOL bDefaultResult;
 	};
-	int id; //function id
+
+	union
+	{
+		intptr_t nResult;
+		HANDLE hResult;
+	};
 };
 
 #define EXECUTE_FUNCTION(function) \
 [&]() \
 { \
 	__Prolog(); \
-	es.nResult = 0; \
-	es.nDefaultResult = 0; \
 	++Activity; \
 	if ( Global->Opt->ExceptRules ) \
 	{ \
@@ -161,7 +160,7 @@ public:
 	virtual int DeleteFiles(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode);
 	virtual int MakeDirectory(HANDLE hPlugin, const wchar_t **Name, int OpMode);
 	virtual int ProcessHostFile(HANDLE hPlugin, PluginPanelItem *PanelItem, size_t ItemsNumber, int OpMode);
-	virtual int ProcessKey(HANDLE hPlugin, const INPUT_RECORD *Rec, bool Pred);
+	virtual int ProcessKey(HANDLE hPlugin, const INPUT_RECORD *Rec, bool);
 	virtual int ProcessPanelEvent(HANDLE hPlugin, int Event, PVOID Param);
 	virtual int Compare(HANDLE hPlugin, const PluginPanelItem *Item1, const PluginPanelItem *Item2, unsigned long Mode);
 	virtual int GetCustomData(const wchar_t *FilePath, wchar_t **CustomData);

@@ -196,7 +196,7 @@ struct FARExceptionState
 /* $ 17.10.2000 SVS
    »— Àﬁ◊≈Õ»ﬂ!
 */
-enum ExceptFunctionsType
+ENUM(ExceptFunctionsType)
 {
 	EXCEPT_KERNEL=-1,
 	EXCEPT_GETGLOBALINFO,
