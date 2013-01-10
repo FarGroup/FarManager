@@ -42,8 +42,9 @@ struct ExecuteStruct
 {
 	ExecuteStruct& operator =(intptr_t value) { nResult = value; return *this; }
 	ExecuteStruct& operator =(HANDLE value) { hResult = value; return *this; }
+#ifdef _WIN64 // BOOL != intptr_t
 	ExecuteStruct& operator =(BOOL value) { bResult = value; return *this; }
-
+#endif
 	union
 	{
 		intptr_t nResult;
