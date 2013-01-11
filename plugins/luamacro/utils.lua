@@ -458,6 +458,7 @@ local function DelMacro (guid, callbackId) -- MCTL_DELMACRO
 end
 
 local function RunStartMacro()
+  if not Areas then return end -- macros not loaded
   for _,macros in pairs(Areas.shell) do
     local m = macros.recorded
     if m and not m.disabled and m.flags and m.flags:lower():find("runafterfarstart") then
@@ -475,6 +476,8 @@ local function RunStartMacro()
       end
     end
   end
+  LastMessage = pack(true)
+  return F.MPRT_COMMONCASE, LastMessage
 end
 
 local function GetMacroById (id)

@@ -1227,13 +1227,16 @@ void KeyMacro::RunStartMacro()
 	if (!Global->CtrlObject || !Global->CtrlObject->Cp() || !Global->CtrlObject->Cp()->ActivePanel || !Global->CtrlObject->Plugins->IsPluginsLoaded())
 		return;
 
-	static bool IsRunStartMacro=false;
-	if (!IsRunStartMacro)
+	static bool IsRunStartMacro=false, IsInside=false;
+
+	if (!IsRunStartMacro && !IsInside)
 	{
-		IsRunStartMacro=true;
-		FarMacroCall fmc={sizeof(FarMacroCall),0,nullptr,nullptr,nullptr};
-		OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_RUNSTARTMACRO,nullptr,&fmc};
-		(void)CallMacroPlugin(&info);
+		IsInside = true;
+		FarMacroCall fmc = {sizeof(FarMacroCall),0,nullptr,nullptr,nullptr};
+		OpenMacroPluginInfo info = {sizeof(OpenMacroPluginInfo),MCT_RUNSTARTMACRO,nullptr,&fmc};
+		MacroPluginReturn* mpr = (MacroPluginReturn*)CallMacroPlugin(&info);
+		IsRunStartMacro = mpr && mpr->Count >= 1 && mpr->Values[0].Boolean;
+		IsInside = false;
 	}
 }
 
