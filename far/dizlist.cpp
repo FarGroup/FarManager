@@ -360,7 +360,7 @@ int _cdecl SortDizIndex(const void *el1,const void *el2)
 	const wchar_t *Diz2=SearchDizData[*(int *)el2]->DizText+SearchDizData[*(int *)el2]->NameStart;
 	int Len1=SearchDizData[*(int *)el1]->NameLength;
 	int Len2=SearchDizData[*(int *)el2]->NameLength;
-	int CmpCode = StrCmpNI(Diz1,Diz2,Min(Len1,Len2));
+	int CmpCode = StrCmpNI(Diz1,Diz2,std::min(Len1,Len2));
 
 	if (!CmpCode)
 	{
@@ -392,7 +392,7 @@ int WINAPI SortDizSearch(const void *key,const void *elem,void*)
 	const wchar_t *DizName=SearchDizData[*(int *)elem]->DizText+SearchDizData[*(int *)elem]->NameStart;
 	int DizNameLength=SearchDizData[*(int *)elem]->NameLength;
 	int NameLength=static_cast<int>(strKey->GetLength());
-	int CmpCode=StrCmpNI(SearchName,DizName, Min(DizNameLength,NameLength));
+	int CmpCode=StrCmpNI(SearchName,DizName, std::min(DizNameLength,NameLength));
 
 	if (!CmpCode)
 	{

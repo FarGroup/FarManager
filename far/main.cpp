@@ -425,9 +425,17 @@ static void InitProfile(string &strProfilePath, string &strLocalProfilePath)
 		Global->Opt->ReadOnlyConfig = GetPrivateProfileInt(L"General", L"ReadOnlyConfig", FALSE, Global->g_strFarINI);
 }
 
+void AtExit()
+{
+	string::ReleaseEUS();
+	PrintMemory();
+}
+
 static int mainImpl(int Argc, wchar_t *Argv[])
 {
+	atexit(AtExit);
 	std::set_new_handler(nullptr);
+	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 
 	global _g;
 
@@ -765,7 +773,6 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 
 	Global->ErrorMode=SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX|(Global->Opt->ExceptRules?SEM_NOGPFAULTERRORBOX:0)|(Global->Db->GeneralCfg()->GetValue(L"System.Exception", L"IgnoreDataAlignmentFaults", 0)?SEM_NOALIGNMENTFAULTEXCEPT:0);
 	SetErrorMode(Global->ErrorMode);
-	SetUnhandledExceptionFilter(FarUnhandledExceptionFilter);
 
 	int InitDriveMenuHotkeys = TRUE;
 	Global->Db->GeneralCfg()->GetValue(L"Interface", L"InitDriveMenuHotkeys", &InitDriveMenuHotkeys, InitDriveMenuHotkeys);
@@ -791,26 +798,34 @@ static int mainImpl(int Argc, wchar_t *Argv[])
 	return Result;
 }
 
-
-void AtExit()
+int mainEH(int Argc, wchar_t *Argv[])
 {
-	string::ReleaseEUS();
-	PrintMemory();
+	int Result = 0;
+	try
+	{
+		Result = mainImpl(Argc, Argv);
+	}
+	catch(std::exception& e)
+	{
+		printf("caught exception %s\n", e.what());
+	}
+	catch(...)
+	{
+		printf("caught unknown exception\n");
+	}
+	return Result;
 }
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])
-{
-	int Result=0;
-	atexit(AtExit);
+ {
 	__try
 	{
-		Result = mainImpl(Argc, Argv);
+		return mainEH(Argc, Argv);
 	}
 	__except(xfilter(EXCEPT_KERNEL, GetExceptionInformation(), nullptr, 1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}
-	return Result;
 }
 
 #ifdef __GNUC__

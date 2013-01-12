@@ -41,7 +41,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "global.hpp"
 #include "imports.hpp"
 
-#define range(low,item,hi) Max(low,Min(item,hi))
+#define range(low,item,hi) std::max(low,std::min(item,hi))
 
 //string **AMonth, **AWeekday, **Month, **Weekday;
 string  *AMonth[2][12], *AWeekday[2][7], *Month[2][12], *Weekday[2][7];

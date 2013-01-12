@@ -33,8 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "DList.hpp"
-
 struct ShortcutItem
 {
 	string strName;
@@ -63,9 +61,9 @@ public:
 
 private:
 	static const size_t KeyCount = 10;
-	DList<ShortcutItem> Items[KeyCount];
+	std::list<ShortcutItem> Items[KeyCount];
 	bool Changed;
 	void MakeItemName(size_t Pos, MenuItemEx* str);
-	void EditItem(VMenu2* Menu, ShortcutItem* Item, bool Root);
+	void EditItem(VMenu2* Menu, ShortcutItem& Item, bool Root);
 	bool Accept(void);
 };

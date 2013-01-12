@@ -41,7 +41,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "interf.hpp"
 #include "palette.hpp"
 #include "config.hpp"
-#include "DList.hpp"
 #include "elevation.hpp"
 #include "console.hpp"
 #include "colormix.hpp"
@@ -128,7 +127,7 @@ void ScreenBuf::Write(int X,int Y,const FAR_CHAR_INFO *Text,int TextLength)
 	if (X<0)
 	{
 		Text-=X;
-		TextLength=Max(0,TextLength+X);
+		TextLength=std::max(0,TextLength+X);
 		X=0;
 	}
 
@@ -168,7 +167,7 @@ void ScreenBuf::Read(int X1,int Y1,int X2,int Y2,FAR_CHAR_INFO *Text,size_t MaxT
 	int I, Idx;
 
 	for (Idx=I=0; I < Height; I++, Idx+=Width)
-		memcpy(Text+Idx,Buf+(Y1+I)*BufX+X1,Min(sizeof(FAR_CHAR_INFO)*Width,MaxTextLength));
+		memcpy(Text+Idx,Buf+(Y1+I)*BufX+X1,std::min(sizeof(FAR_CHAR_INFO)*Width,MaxTextLength));
 }
 
 /* Изменить значение цветовых атрибутов в соответствии с маской
@@ -225,10 +224,10 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color, bo
 	CriticalSectionLock Lock(CS);
 	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
 	{
-		X1=Max(0,X1);
-		X2=Min(static_cast<int>(ScrX),X2);
-		Y1=Max(0,Y1);
-		Y2=Min(static_cast<int>(ScrY),Y2);
+		X1=std::max(0,X1);
+		X2=std::min(static_cast<int>(ScrX),X2);
+		Y1=std::max(0,Y1);
+		Y2=std::min(static_cast<int>(ScrY),Y2);
 
 		int Width=X2-X1+1;
 		int Height=Y2-Y1+1;
@@ -279,10 +278,10 @@ void ScreenBuf::ApplyColor(int X1,int Y1,int X2,int Y2,const FarColor& Color,con
 	CriticalSectionLock Lock(CS);
 	if(X1<=ScrX && Y1<=ScrY && X2>=0 && Y2>=0)
 	{
-		X1=Max(0,X1);
-		X2=Min(static_cast<int>(ScrX),X2);
-		Y1=Max(0,Y1);
-		Y2=Min(static_cast<int>(ScrY),Y2);
+		X1=std::max(0,X1);
+		X2=std::min(static_cast<int>(ScrX),X2);
+		Y1=std::max(0,Y1);
+		Y2=std::min(static_cast<int>(ScrY),Y2);
 
 		FAR_CHAR_INFO *PtrBuf;
 		for (int I = 0; I < Y2-Y1+1; I++)
@@ -391,7 +390,7 @@ void ScreenBuf::Flush()
 				ShowTime(FALSE);
 			}
 
-			DList<SMALL_RECT>WriteList;
+			std::list<SMALL_RECT>WriteList;
 			bool Changes=false;
 
 			if (SBFlags.Check(SBFLAGS_USESHADOW))
@@ -419,7 +418,7 @@ void ScreenBuf::Flush()
 
 						if (WriteRegion.Bottom >= WriteRegion.Top)
 						{
-							WriteList.Push(&WriteRegion);
+							WriteList.push_back(WriteRegion);
 							Changes=true;
 						}
 					}
@@ -435,10 +434,10 @@ void ScreenBuf::Flush()
 						{
 							if (memcmp(PtrBuf,PtrShadow,sizeof(FAR_CHAR_INFO))!=0)
 							{
-								WriteRegion.Left=Min(WriteRegion.Left,J);
-								WriteRegion.Top=Min(WriteRegion.Top,I);
-								WriteRegion.Right=Max(WriteRegion.Right,J);
-								WriteRegion.Bottom=Max(WriteRegion.Bottom,I);
+								WriteRegion.Left=std::min(WriteRegion.Left,J);
+								WriteRegion.Top=std::min(WriteRegion.Top,I);
+								WriteRegion.Right=std::max(WriteRegion.Right,J);
+								WriteRegion.Bottom=std::max(WriteRegion.Bottom,I);
 								Changes=true;
 								Started=true;
 							}
@@ -448,26 +447,24 @@ void ScreenBuf::Flush()
 								// кстати, и при выключенном тоже (но реже).
 								// баг, конечно, не наш, но что делать.
 								// расширяем область прорисовки влево-вправо на 1 символ:
-								WriteRegion.Left=Max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
-								WriteRegion.Right=Min(static_cast<SHORT>(WriteRegion.Right+1),static_cast<SHORT>(BufX-1));
+								WriteRegion.Left=std::max(static_cast<SHORT>(0),static_cast<SHORT>(WriteRegion.Left-1));
+								WriteRegion.Right=std::min(static_cast<SHORT>(WriteRegion.Right+1),static_cast<SHORT>(BufX-1));
 								bool Merge=false;
-								PSMALL_RECT Last=WriteList.Last();
-
-								if (Last)
+								if (!WriteList.empty())
 								{
+									SMALL_RECT& Last=WriteList.back();
 #define MAX_DELTA 5
-
-									if (WriteRegion.Top-1==Last->Bottom && ((WriteRegion.Left>=Last->Left && WriteRegion.Left-Last->Left<MAX_DELTA) || (Last->Right>=WriteRegion.Right && Last->Right-WriteRegion.Right<MAX_DELTA)))
+									if (WriteRegion.Top-1==Last.Bottom && ((WriteRegion.Left>=Last.Left && WriteRegion.Left-Last.Left<MAX_DELTA) || (Last.Right>=WriteRegion.Right && Last.Right-WriteRegion.Right<MAX_DELTA)))
 									{
-										Last->Bottom=WriteRegion.Bottom;
-										Last->Left=Min(Last->Left,WriteRegion.Left);
-										Last->Right=Max(Last->Right,WriteRegion.Right);
+										Last.Bottom=WriteRegion.Bottom;
+										Last.Left=std::min(Last.Left,WriteRegion.Left);
+										Last.Right=std::max(Last.Right,WriteRegion.Right);
 										Merge=true;
 									}
 								}
 
 								if (!Merge)
-									WriteList.Push(&WriteRegion);
+									WriteList.push_back(WriteRegion);
 
 								WriteRegion.Left=BufX-1;
 								WriteRegion.Top=BufY-1;
@@ -480,7 +477,7 @@ void ScreenBuf::Flush()
 
 					if (Started)
 					{
-						WriteList.Push(&WriteRegion);
+						WriteList.push_back(WriteRegion);
 					}
 				}
 			}
@@ -488,15 +485,15 @@ void ScreenBuf::Flush()
 			{
 				Changes=true;
 				SMALL_RECT WriteRegion={0,0,static_cast<SHORT>(BufX-1),static_cast<SHORT>(BufY-1)};
-				WriteList.Push(&WriteRegion);
+				WriteList.push_back(WriteRegion);
 			}
 
 			if (Changes)
 			{
-				for (PSMALL_RECT PtrRect=WriteList.First(); PtrRect; PtrRect=WriteList.Next(PtrRect))
+				for (auto i = WriteList.begin(); i != WriteList.end(); ++i)
 				{
-					COORD BufferSize={BufX, BufY}, BufferCoord={PtrRect->Left,PtrRect->Top};
-					SMALL_RECT WriteRegion=*PtrRect;
+					COORD BufferSize={BufX, BufY}, BufferCoord={i->Left, i->Top};
+					SMALL_RECT WriteRegion=*i;
 					Global->Console->WriteOutput(Buf, BufferSize, BufferCoord, WriteRegion);
 				}
 				Global->Console->Commit();

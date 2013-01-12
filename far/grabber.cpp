@@ -92,10 +92,10 @@ void Grabber::CopyGrabbedArea(int Append, int VerticalBlock)
 		return;
 
 	int X1,Y1,X2,Y2;
-	X1=Min(GArea.X1,GArea.X2);
-	X2=Max(GArea.X1,GArea.X2);
-	Y1=Min(GArea.Y1,GArea.Y2);
-	Y2=Max(GArea.Y1,GArea.Y2);
+	X1=std::min(GArea.X1,GArea.X2);
+	X2=std::max(GArea.X1,GArea.X2);
+	Y1=std::min(GArea.Y1,GArea.Y2);
+	Y2=std::max(GArea.Y1,GArea.Y2);
 	int GWidth=X2-X1+1,GHeight=Y2-Y1+1;
 	int BufSize=(GWidth+3)*GHeight;
 	FAR_CHAR_INFO* CharBuf=new FAR_CHAR_INFO[BufSize], *PtrCharBuf;
@@ -217,13 +217,13 @@ void Grabber::DisplayObject()
 	        PrevArea.Y1!=GArea.Y1 || PrevArea.Y2!=GArea.Y2)
 	{
 		int X1,Y1,X2,Y2;
-		X1=Min(GArea.X1,GArea.X2);
-		X2=Max(GArea.X1,GArea.X2);
-		Y1=Min(GArea.Y1,GArea.Y2);
-		Y2=Max(GArea.Y1,GArea.Y2);
+		X1=std::min(GArea.X1,GArea.X2);
+		X2=std::max(GArea.X1,GArea.X2);
+		Y1=std::min(GArea.Y1,GArea.Y2);
+		Y2=std::max(GArea.Y1,GArea.Y2);
 
-		if (X1>Min(PrevArea.X1,PrevArea.X2) || X2<Max(PrevArea.X1,PrevArea.X2) ||
-		        Y1>Min(PrevArea.Y1,PrevArea.Y2) || Y2<Max(PrevArea.Y1,PrevArea.Y2))
+		if (X1>std::min(PrevArea.X1,PrevArea.X2) || X2<std::max(PrevArea.X1,PrevArea.X2) ||
+		        Y1>std::min(PrevArea.Y1,PrevArea.Y2) || Y2<std::max(PrevArea.Y1,PrevArea.Y2))
 			SaveScr->RestoreArea(FALSE);
 
 		if (GArea.X1!=-1)
@@ -571,8 +571,8 @@ int Grabber::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 	if (IntKeyState.MouseButtonState!=FROM_LEFT_1ST_BUTTON_PRESSED)
 		return FALSE;
 
-	GArea.CurX=Min(Max(static_cast<SHORT>(0),IntKeyState.MouseX),ScrX);
-	GArea.CurY=Min(Max(static_cast<SHORT>(0),IntKeyState.MouseY),ScrY);
+	GArea.CurX=std::min(std::max(static_cast<SHORT>(0),IntKeyState.MouseX),ScrX);
+	GArea.CurY=std::min(std::max(static_cast<SHORT>(0),IntKeyState.MouseY),ScrY);
 
 	if (!MouseEvent->dwEventFlags)
 		ResetArea=TRUE;

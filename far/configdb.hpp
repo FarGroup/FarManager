@@ -33,7 +33,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "udlist.hpp"
-#include "DList.hpp"
 
 struct VersionInfo;
 class SQLiteDb;
@@ -315,7 +314,7 @@ private:
 	HistoryConfig *m_HistoryCfgMem;
 
 	BitFlags CheckedDb;
-	DList<string> m_Problems;
+	std::list<string> m_Problems;
 };
 
 template<class T, class Y>

@@ -52,7 +52,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "manager.hpp"
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
-#include "array.hpp"
 #include "lockscrn.hpp"
 #include "help.hpp"
 #include "syslog.hpp"
@@ -173,7 +172,7 @@ void Panel::ChangeDisk()
 
 	if (!strCurDir.IsEmpty() && strCurDir.At(1)==L':')
 	{
-		Pos=Max(0, Upper(strCurDir.At(0))-L'A');
+		Pos=std::max(0, Upper(strCurDir.At(0))-L'A');
 	}
 
 	while (Pos!=-1)
@@ -234,26 +233,18 @@ const TypeMessage DrTMsg[]=
 
 static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSelected)
 {
-	TArray<ChDiskPluginItem> MPItems;
-	ChDiskPluginItem OneItem;
+	std::list<ChDiskPluginItem> MPItems;
 	int PluginItem;
-	size_t PluginNumber = 0;
 	bool ItemPresent,Done=false;
 	string strMenuText;
 	string strPluginText;
 	size_t PluginMenuItemsCount = 0;
 
-	while (!Done)
+	for (auto i = Global->CtrlObject->Plugins->GetBegin(); i != Global->CtrlObject->Plugins->GetEnd() && !Done; ++i)
 	{
 		for (PluginItem=0;; ++PluginItem)
 		{
-			if (PluginNumber >= Global->CtrlObject->Plugins->GetPluginsCount())
-			{
-				Done=true;
-				break;
-			}
-
-			Plugin *pPlugin = Global->CtrlObject->Plugins->GetPlugin(PluginNumber);
+			Plugin *pPlugin = *i;
 
 			WCHAR HotKey = 0;
 			GUID guid;
@@ -277,6 +268,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 
 			if (!strMenuText.IsEmpty())
 			{
+				ChDiskPluginItem OneItem;
 				OneItem.Clear();
 				PanelMenuItem *item = new PanelMenuItem;
 				item->bIsPlugin = true;
@@ -290,14 +282,7 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				OneItem.Item.UserDataSize=sizeof(PanelMenuItem);
 				OneItem.Item.UserData=item;
 				OneItem.HotKey=HotKey;
-				ChDiskPluginItem *pResult = MPItems.addItem(OneItem);
-
-				if (pResult)
-				{
-					pResult->Item.UserData = item; //BUGBUG, это фантастика просто. Исправить!!!! связано с работой TArray
-					pResult->Item.UserDataSize = sizeof(PanelMenuItem);
-				}
-
+				MPItems.push_back(OneItem);
 				/*
 				else BUGBUG, а вот это, похоже, лишнее
 				{
@@ -307,13 +292,11 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 				*/
 			}
 		} // END: for (PluginItem=0;;++PluginItem)
-
-		++PluginNumber;
 	}
 
-	MPItems.Sort();
-	MPItems.Pack(); // выкинем дубли
-	PluginMenuItemsCount=MPItems.getSize();
+	MPItems.sort();
+	MPItems.unique(); // выкинем дубли
+	PluginMenuItemsCount=MPItems.size();
 
 	if (PluginMenuItemsCount)
 	{
@@ -325,21 +308,23 @@ static size_t AddPluginItems(VMenu2 &ChDisk, int Pos, int DiskCount, bool SetSel
 		ChDisk.AddItem(&ChDiskItem);
 		ChDiskItem.Flags&=~LIF_SEPARATOR;
 
-		for (size_t I=0; I < PluginMenuItemsCount; ++I)
+		int index = 0;
+		std::for_each(RANGE(MPItems, i)
 		{
 			if (Pos > DiskCount && !SetSelected)
 			{
-				MPItems.getItem(I)->Item.SetSelect(DiskCount+static_cast<int>(I)+1==Pos);
+				i.Item.SetSelect(DiskCount+index+1==Pos);
 
 				if (!SetSelected)
-					SetSelected=DiskCount+static_cast<int>(I)+1==Pos;
+					SetSelected=DiskCount+index+1==Pos;
 			}
-			const wchar_t HotKeyStr[]={MPItems.getItem(I)->HotKey?L'&':L' ',MPItems.getItem(I)->HotKey?MPItems.getItem(I)->HotKey:L' ',L' ',MPItems.getItem(I)->HotKey?L' ':L'\0',L'\0'};
-			MPItems.getItem(I)->Item.strName = string(HotKeyStr) + MPItems.getItem(I)->Item.strName;
-			ChDisk.AddItem(&MPItems.getItem(I)->Item);
+			const wchar_t HotKeyStr[]={i.HotKey? L'&' : L' ', i.HotKey? i.HotKey : L' ', L' ', i.HotKey? L' ' : L'\0', L'\0'};
+			i.Item.strName = string(HotKeyStr) + i.Item.strName;
+			ChDisk.AddItem(&i.Item);
 
-			delete(PanelMenuItem*)MPItems.getItem(I)->Item.UserData;  //ммда...
-		}
+			delete(PanelMenuItem*)i.Item.UserData;  //ммда...
+			++index;
+		});
 	}
 	return PluginMenuItemsCount;
 }
@@ -402,6 +387,20 @@ intptr_t ChDiskDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2)
 	return Dlg->DefProc(Msg,Param1,Param2);
 }
 
+class separator
+{
+public:
+	separator():m_value(L' '){}
+	wchar_t Get()
+	{
+		wchar_t value = m_value;
+		m_value = BoxSymbols[BS_V1];
+		return value;
+	}
+private:
+	wchar_t m_value;
+};
+
 int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 {
 	Global->Window->DeviceArivalEvent().Reset();
@@ -448,7 +447,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 
 			int DriveType;
 		};
-		DList<DiskMenuItem> Items;
+		std::list<DiskMenuItem> Items;
 
 		size_t TypeWidth = 0, LabelWidth = 0, FsWidth = 0, TotalSizeWidth = 0, FreeSizeWidth = 0, PathWidth = 0;
 
@@ -462,57 +461,57 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			if (!(DiskMask & 1))   //нету диска
 				continue;
 
-			DiskMenuItem* NewItem = Items.Push();
+			DiskMenuItem NewItem;
 
 			wchar_t Drv[]={L'&',static_cast<wchar_t>(L'A'+I),L':',L'\\',L'\0'};
 			strRootDir=Drv+1;
 			Drv[3] = 0;
-			NewItem->Letter = Drv;
-			NewItem->DriveType = FAR_GetDriveType(strRootDir, Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
+			NewItem.Letter = Drv;
+			NewItem.DriveType = FAR_GetDriveType(strRootDir, Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM?0x01:0);
 
 			if ((1<<I)&NetworkMask)
-				NewItem->DriveType = DRIVE_REMOTE_NOT_CONNECTED;
+				NewItem.DriveType = DRIVE_REMOTE_NOT_CONNECTED;
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_TYPE|DRIVE_SHOW_NETNAME))
 			{
 				string LocalName("?:");
 				LocalName.Replace(0, strRootDir.At(0));
 
-				if (GetSubstName(NewItem->DriveType, LocalName, NewItem->Path))
+				if (GetSubstName(NewItem.DriveType, LocalName, NewItem.Path))
 				{
-					NewItem->DriveType=DRIVE_SUBSTITUTE;
+					NewItem.DriveType=DRIVE_SUBSTITUTE;
 				}
-				else if(DriveCanBeVirtual(NewItem->DriveType) && GetVHDName(LocalName, NewItem->Path))
+				else if(DriveCanBeVirtual(NewItem.DriveType) && GetVHDName(LocalName, NewItem.Path))
 				{
-					NewItem->DriveType=DRIVE_VIRTUAL;
+					NewItem.DriveType=DRIVE_VIRTUAL;
 				}
 
 				for (size_t J=0; J < ARRAYSIZE(DrTMsg); ++J)
 				{
-					if (DrTMsg[J].DrvType == NewItem->DriveType)
+					if (DrTMsg[J].DrvType == NewItem.DriveType)
 					{
-						NewItem->Type = MSG(DrTMsg[J].FarMsg);
+						NewItem.Type = MSG(DrTMsg[J].FarMsg);
 						break;
 					}
 				}
 			}
 
-			int ShowDisk = (NewItem->DriveType!=DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
-			               (!IsDriveTypeCDROM(NewItem->DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM)) &&
-			               (!IsDriveTypeRemote(NewItem->DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOTE));
+			int ShowDisk = (NewItem.DriveType!=DRIVE_REMOVABLE || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOVABLE)) &&
+			               (!IsDriveTypeCDROM(NewItem.DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_CDROM)) &&
+			               (!IsDriveTypeRemote(NewItem.DriveType) || (Global->Opt->ChangeDriveMode & DRIVE_SHOW_REMOTE));
 
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_LABEL|DRIVE_SHOW_FILESYSTEM))
 			{
 				if (ShowDisk && !apiGetVolumeInformation(
 				            strRootDir,
-				            &NewItem->Label,
+				            &NewItem.Label,
 				            nullptr,
 				            nullptr,
 				            nullptr,
-				            &NewItem->Fs
+				            &NewItem.Fs
 				        ))
 				{
-					NewItem->Label = MSG(MChangeDriveLabelAbsent);
+					NewItem.Label = MSG(MChangeDriveLabelAbsent);
 					ShowDisk = FALSE;
 				}
 			}
@@ -526,44 +525,47 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 					if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_SIZE)
 					{
 						//размер как минимум в мегабайтах
-						FileSizeToStr(NewItem->TotalSize,TotalSize,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
-						FileSizeToStr(NewItem->FreeSize,UserFree,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
+						FileSizeToStr(NewItem.TotalSize,TotalSize,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
+						FileSizeToStr(NewItem.FreeSize,UserFree,9,COLUMN_COMMAS|COLUMN_MINSIZEINDEX|1);
 					}
 					else
 					{
 						//размер с точкой и для 0 добавляем букву размера (B)
-						FileSizeToStr(NewItem->TotalSize,TotalSize,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
-						FileSizeToStr(NewItem->FreeSize,UserFree,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+						FileSizeToStr(NewItem.TotalSize,TotalSize,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
+						FileSizeToStr(NewItem.FreeSize,UserFree,9,COLUMN_FLOATSIZE|COLUMN_SHOWBYTESINDEX);
 					}
-					RemoveExternalSpaces(NewItem->TotalSize);
-					RemoveExternalSpaces(NewItem->FreeSize);
+					RemoveExternalSpaces(NewItem.TotalSize);
+					RemoveExternalSpaces(NewItem.FreeSize);
 				}
 			}
 
 			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_NETNAME)
 			{
-				switch(NewItem->DriveType)
+				switch(NewItem.DriveType)
 				{
 				case DRIVE_REMOTE:
 				case DRIVE_REMOTE_NOT_CONNECTED:
-					DriveLocalToRemoteName(NewItem->DriveType,strRootDir.At(0),NewItem->Path);
+					DriveLocalToRemoteName(NewItem.DriveType,strRootDir.At(0),NewItem.Path);
 					break;
 				}
 			}
 
-			TypeWidth = Max(TypeWidth, NewItem->Type.GetLength());
-			LabelWidth = Max(LabelWidth, NewItem->Label.GetLength());
-			FsWidth = Max(FsWidth, NewItem->Fs.GetLength());
-			TotalSizeWidth = Max(TotalSizeWidth, NewItem->TotalSize.GetLength());
-			FreeSizeWidth = Max(FreeSizeWidth, NewItem->FreeSize.GetLength());
-			PathWidth = Max(PathWidth, NewItem->Path.GetLength());
+			TypeWidth = std::max(TypeWidth, NewItem.Type.GetLength());
+			LabelWidth = std::max(LabelWidth, NewItem.Label.GetLength());
+			FsWidth = std::max(FsWidth, NewItem.Fs.GetLength());
+			TotalSizeWidth = std::max(TotalSizeWidth, NewItem.TotalSize.GetLength());
+			FreeSizeWidth = std::max(FreeSizeWidth, NewItem.FreeSize.GetLength());
+			PathWidth = std::max(PathWidth, NewItem.Path.GetLength());
+
+			Items.push_back(NewItem);
 		}
 
 		int MenuLine = 0;
-		for (DiskMenuItem* i = Items.First(); i; i = Items.Next(i))
+
+		std::for_each(RANGE(Items, i)
 		{
 			ChDiskItem.Clear();
-			I = i->Letter[1] - L'A';
+			I = i.Letter[1] - L'A';
 			if (FirstCall)
 			{
 				ChDiskItem.SetSelect(I==Pos);
@@ -582,52 +584,40 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 				}
 			}
 			FormatString ItemName;
-			ItemName << i->Letter;
+			ItemName << i.Letter;
 
-			class separator
-			{
-			public:
-				separator():m_value(L' '){}
-				wchar_t Get()
-				{
-					wchar_t value = m_value;
-					m_value = BoxSymbols[BS_V1];
-					return value;
-				}
-			private:
-				wchar_t m_value;
-			} Separator;
+			separator Separator;
 
 			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_TYPE)
 			{
-				ItemName << Separator.Get() << fmt::LeftAlign() << fmt::ExactWidth(TypeWidth) << i->Type;
+				ItemName << Separator.Get() << fmt::LeftAlign() << fmt::ExactWidth(TypeWidth) << i.Type;
 			}
 			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_LABEL)
 			{
-				ItemName << Separator.Get() << fmt::LeftAlign() << fmt::ExactWidth(LabelWidth) << i->Label;
+				ItemName << Separator.Get() << fmt::LeftAlign() << fmt::ExactWidth(LabelWidth) << i.Label;
 			}
 			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_FILESYSTEM)
 			{
-				ItemName << Separator.Get() << fmt::LeftAlign() << fmt::ExactWidth(FsWidth) << i->Fs;
+				ItemName << Separator.Get() << fmt::LeftAlign() << fmt::ExactWidth(FsWidth) << i.Fs;
 			}
 			if (Global->Opt->ChangeDriveMode & (DRIVE_SHOW_SIZE|DRIVE_SHOW_SIZE_FLOAT))
 			{
-				ItemName << Separator.Get() << fmt::ExactWidth(TotalSizeWidth) << i->TotalSize;
-				ItemName << Separator.Get() << fmt::ExactWidth(FreeSizeWidth) << i->FreeSize;
+				ItemName << Separator.Get() << fmt::ExactWidth(TotalSizeWidth) << i.TotalSize;
+				ItemName << Separator.Get() << fmt::ExactWidth(FreeSizeWidth) << i.FreeSize;
 			}
 			if (Global->Opt->ChangeDriveMode & DRIVE_SHOW_NETNAME && PathWidth)
 			{
-				ItemName << Separator.Get() << i->Path;
+				ItemName << Separator.Get() << i.Path;
 			}
 
 			ChDiskItem.strName = ItemName;
 			PanelMenuItem item;
 			item.bIsPlugin = false;
 			item.cDrive = L'A'+I;
-			item.nDriveType = i->DriveType;
+			item.nDriveType = i.DriveType;
 			ChDisk.SetUserData(&item, sizeof(item), ChDisk.AddItem(&ChDiskItem));
 			MenuLine++;
-		}
+		});
 
 		size_t PluginMenuItemsCount=0;
 
@@ -971,7 +961,7 @@ int Panel::ChangeDiskMenu(int Pos,int FirstCall)
 			int Len1=static_cast<int>(strError.GetLength());
 			int Len2=StrLength(MSG(MChangeDriveCannotReadDisk));
 
-			const int DX=Min(Max(Len1,Len2 + 3)+11, ScrX-1), DY=8;
+			const int DX=std::min(std::max(Len1,Len2 + 3)+11, ScrX-1), DY=8;
 			const FarDialogItem ChDiskData[]=
 			{
 				{DI_DOUBLEBOX,3,1,DX-4,DY-2,0,nullptr,nullptr,0,MSG(MError)},
@@ -1357,8 +1347,8 @@ void Panel::FastFind(int FirstKey)
 	int KeyToProcess=0;
 	Global->WaitInFastFind++;
 	{
-		int FindX=Min(X1+9,ScrX-22);
-		int FindY=Min(Y2,ScrY-2);
+		int FindX=std::min(X1+9,ScrX-22);
+		int FindY=std::min(Y2,ScrY-2);
 		ChangeMacroMode MacroMode(MACRO_SEARCH);
 		SaveScreen SaveScr(FindX,FindY,FindX+21,FindY+2);
 		FastFindShow(FindX,FindY);
@@ -2538,7 +2528,7 @@ static int MessageRemoveConnection(wchar_t Letter, int &UpdateProfile)
 	size_t Len2 = DCDlg[1].strData.GetLength();
 	size_t Len3 = DCDlg[2].strData.GetLength();
 	size_t Len4 = DCDlg[5].strData.GetLength();
-	Len1 = Max(Len1,Max(Len2,Max(Len3,Len4)));
+	Len1 = std::max(Len1,std::max(Len2,std::max(Len3,Len4)));
 	DriveLocalToRemoteName(DRIVE_REMOTE,Letter,strMsgText);
 	DCDlg[3].strData = TruncPathStr(strMsgText, static_cast<int>(Len1));
 	// проверяем - это было постоянное соедение или нет?

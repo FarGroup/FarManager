@@ -287,8 +287,8 @@ void ItemToItemEx(const FarDialogItem *Item, DialogItemEx *ItemEx, size_t Count,
 		}
 		ItemEx->SelStart=-1;
 
-		ItemEx->X2 = Max(ItemEx->X1, ItemEx->X2);
-		ItemEx->Y2 = Max(ItemEx->Y1, ItemEx->Y2);
+		ItemEx->X2 = std::max(ItemEx->X1, ItemEx->X2);
+		ItemEx->Y2 = std::max(ItemEx->Y1, ItemEx->Y2);
 
 		if ((ItemEx->Type == DI_COMBOBOX || ItemEx->Type == DI_LISTBOX) && !Global->IsPtr(Item->ListItems))
 		{
@@ -588,7 +588,7 @@ void Dialog::ProcessCenterGroup()
 						break;
 				} //Бля, це ж ботва какая-то
 
-			int StartX=Max(0,(X2-X1+1-Length)/2);
+			int StartX=std::max(0,(X2-X1+1-Length)/2);
 
 			for (UINT J=I; J < ItemCount && (Item[J]->Flags & DIF_CENTERGROUP) && Item[J]->Y1==Item[I]->Y1; J++)
 			{
@@ -2203,7 +2203,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_CTRLEND:    case KEY_CTRLNUMPAD1:
 			case KEY_RCTRLEND:   case KEY_RCTRLNUMPAD1:
 			case KEY_END:       case KEY_NUMPAD1:
-				rr=(Key == KEY_CTRLRIGHT || Key == KEY_RCTRLRIGHT || Key == KEY_CTRLNUMPAD6 || Key == KEY_RCTRLNUMPAD6)?10:Max(0,ScrX-X2);
+				rr=(Key == KEY_CTRLRIGHT || Key == KEY_RCTRLRIGHT || Key == KEY_CTRLNUMPAD6 || Key == KEY_RCTRLNUMPAD6)?10:std::max(0,ScrX-X2);
 			case KEY_RIGHT:     case KEY_NUMPAD6:
 				Hide();
 
@@ -2243,7 +2243,7 @@ int Dialog::ProcessMoveDialog(DWORD Key)
 			case KEY_CTRLPGDN:  case KEY_CTRLNUMPAD3:
 			case KEY_RCTRLPGDN: case KEY_RCTRLNUMPAD3:
 			case KEY_PGDN:      case KEY_NUMPAD3:
-				rr=(Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN || Key == KEY_CTRLNUMPAD2 || Key == KEY_RCTRLNUMPAD2)? 5:Max(0,ScrY-Y2);
+				rr=(Key == KEY_CTRLDOWN || Key == KEY_RCTRLDOWN || Key == KEY_CTRLNUMPAD2 || Key == KEY_RCTRLNUMPAD2)? 5:std::max(0,ScrY-Y2);
 			case KEY_DOWN:      case KEY_NUMPAD2:
 				Hide();
 
@@ -4635,8 +4635,8 @@ void Dialog::ResizeConsole()
 
 	int x1, y1, x2, y2;
 	GetPosition(x1, y1, x2, y2);
-	c.X = Min(x1, ScrX-1);
-	c.Y = Min(y1, ScrY-1);
+	c.X = std::min(x1, ScrX-1);
+	c.Y = std::min(y1, ScrY-1);
 	if(c.X!=x1 || c.Y!=y1)
 	{
 		c.X = x1;
@@ -6409,10 +6409,10 @@ void Dialog::CalcComboBoxPos(DialogItemEx* CurItem, intptr_t ItemCount, int &X1,
 	if (X2-X1<20)
 		X2=X1+20;
 
-	if (ScrY-Y1<Min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),ItemCount)+2 && Y1>ScrY/2)
+	if (ScrY-Y1<std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),ItemCount)+2 && Y1>ScrY/2)
 	{
 		Y2=Y1-1;
-		Y1=Max((intptr_t)0,Y1-1-Min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),ItemCount)-1);
+		Y1=std::max((intptr_t)0,Y1-1-std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),ItemCount)-1);
 	}
 	else
 	{

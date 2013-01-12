@@ -47,7 +47,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "udlist.hpp"
 #include "console.hpp"
 #include "syslog.hpp"
-#include "array.hpp"
 #include "sqlite.h"
 #include "language.hpp"
 #include "message.hpp"
@@ -299,7 +298,7 @@ public:
 			const char *blob = stmtGetValue.GetColBlob(0);
 			realsize = stmtGetValue.GetColBytes(0);
 			if (Value)
-				memcpy(Value,blob,Min(realsize,static_cast<int>(Size)));
+				memcpy(Value,blob,std::min(realsize,static_cast<int>(Size)));
 		}
 		stmtGetValue.Reset();
 		return realsize;
@@ -645,7 +644,7 @@ public:
 			const char *blob = stmtGetValue.GetColBlob(0);
 			realsize = stmtGetValue.GetColBytes(0);
 			if (Value)
-				memcpy(Value,blob,Min(realsize,static_cast<int>(Size)));
+				memcpy(Value,blob,std::min(realsize,static_cast<int>(Size)));
 		}
 		stmtGetValue.Reset();
 		return realsize;
@@ -1682,7 +1681,7 @@ public:
 		{
 			const char *blob = stmtGetMinFarVersion.GetColBlob(0);
 			int realsize = stmtGetMinFarVersion.GetColBytes(0);
-			memcpy(Version,blob,Min(realsize,(int)sizeof(VersionInfo)));
+			memcpy(Version,blob,std::min(realsize,(int)sizeof(VersionInfo)));
 		}
 		stmtGetMinFarVersion.Reset();
 		return b;
@@ -1695,7 +1694,7 @@ public:
 		{
 			const char *blob = stmtGetVersion.GetColBlob(0);
 			int realsize = stmtGetVersion.GetColBytes(0);
-			memcpy(Version,blob,Min(realsize,(int)sizeof(VersionInfo)));
+			memcpy(Version,blob,std::min(realsize,(int)sizeof(VersionInfo)));
 		}
 		stmtGetVersion.Reset();
 		return b;
@@ -2503,7 +2502,7 @@ void Database::CheckDatabase( SQLiteDb *pDb)
 		}
 		else
 		{
-			m_Problems.Push(&pname);
+			m_Problems.push_back(pname);
 		}
 	}
 }
@@ -2621,7 +2620,7 @@ Database::Database(bool ImportExportMode):
 
 Database::~Database()
 {
-	m_Problems.Clear();
+	m_Problems.clear();
 	delete m_HistoryCfgMem;
 	delete m_HistoryCfg;
 	delete m_PlHotkeyCfg;
@@ -2804,17 +2803,17 @@ void Database::ClearPluginsCache()
 int Database::ShowProblems()
 {
 	int rc = 0;
-	if (m_Problems.Count())
+	if (!m_Problems.empty())
 	{
-		const wchar_t* *msgs = new const wchar_t*[m_Problems.Count()+2];
+		const wchar_t* *msgs = new const wchar_t*[m_Problems.size()+2];
 		int i = 0;
-		for(auto Problem = m_Problems.First(); Problem; Problem = m_Problems.Next(Problem), ++i)
+		for(auto Problem = m_Problems.begin(); Problem != m_Problems.end(); ++Problem, ++i)
 		{
 			msgs[i] = *Problem;
 		}
 		msgs[i] = MSG(MShowConfigFolders);
 		msgs[i+1] = MSG(MIgnore);
-		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs, m_Problems.Count()+2) == 0 ? +1 : -1;
+		rc = Message(MSG_WARNING, 2, MSG(MProblemDb), msgs, m_Problems.size()+2) == 0 ? +1 : -1;
 		delete[] msgs;
 	}
 	return rc;

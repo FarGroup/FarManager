@@ -114,9 +114,9 @@ static int PrepareHotKey(string &strHotKey)
 
 const wchar_t *LocalMenuFileName=L"FarMenu.ini";
 
-static void MenuListToFile(DList<UserMenuItem> *Menu, CachedWrite& CW)
+static void MenuListToFile(std::list<UserMenuItem>& Menu, CachedWrite& CW)
 {
-	for (UserMenuItem *MenuItem=Menu->First(); MenuItem; MenuItem=Menu->Next(MenuItem))
+	for (auto MenuItem = Menu.begin(); MenuItem != Menu.end(); ++MenuItem)
 	{
 		CW.Write(MenuItem->strHotKey.CPtr(), static_cast<DWORD>(MenuItem->strHotKey.GetLength()*sizeof(WCHAR)));
 		CW.Write(L":  ", 3*sizeof(WCHAR));
@@ -127,12 +127,12 @@ static void MenuListToFile(DList<UserMenuItem> *Menu, CachedWrite& CW)
 		{
 			CW.Write(L"{\r\n", 3*sizeof(WCHAR));
 			if (MenuItem->Menu)
-				MenuListToFile(MenuItem->Menu, CW);
+				MenuListToFile(*MenuItem->Menu, CW);
 			CW.Write(L"}\r\n", 3*sizeof(WCHAR));
 		}
 		else
 		{
-			for (string *str=MenuItem->Commands.First(); str; str=MenuItem->Commands.Next(str))
+			for (auto str=MenuItem->Commands.begin(); str != MenuItem->Commands.end(); ++str)
 			{
 				CW.Write(L"    ", 4*sizeof(WCHAR));
 				CW.Write(str->CPtr(), static_cast<DWORD>(str->GetLength()*sizeof(WCHAR)));
@@ -142,7 +142,7 @@ static void MenuListToFile(DList<UserMenuItem> *Menu, CachedWrite& CW)
 	}
 }
 
-static void MenuFileToList(DList<UserMenuItem> *Menu, File& MenuFile, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
+static void MenuFileToList(std::list<UserMenuItem>& Menu, File& MenuFile, GetFileString& GetStr, uintptr_t MenuCP = CP_UNICODE)
 {
 	INT64 Pos = MenuFile.GetPointer();
 	if (!Pos)
@@ -164,7 +164,7 @@ static void MenuFileToList(DList<UserMenuItem> *Menu, File& MenuFile, GetFileStr
 
 		if (*MenuStr==L'{' && MenuItem && MenuItem->Menu)
 		{
-			MenuFileToList(MenuItem->Menu, MenuFile, GetStr, MenuCP);
+			MenuFileToList(*MenuItem->Menu, MenuFile, GetStr, MenuCP);
 			MenuItem = nullptr;
 			continue;
 		}
@@ -186,7 +186,8 @@ static void MenuFileToList(DList<UserMenuItem> *Menu, File& MenuFile, GetFileStr
 				++ChPtr;
 			}
 
-			MenuItem = Menu->Push();
+			Menu.resize(Menu.size() + 1);
+			MenuItem = &Menu.back();
 
 			*ChPtr = 0;
 			MenuItem->strHotKey = MenuStr;
@@ -195,7 +196,7 @@ static void MenuFileToList(DList<UserMenuItem> *Menu, File& MenuFile, GetFileStr
 			MenuItem->Submenu = (GetStr.PeekString(&MenuStr, MenuCP, MenuStrLength) && *MenuStr==L'{');
 
 			if (MenuItem->Submenu)
-				MenuItem->Menu = new DList<UserMenuItem>();
+				MenuItem->Menu = new std::list<UserMenuItem>;
 
 			// Support for old 1.x separator format
 			if (MenuCP==CP_OEMCP && MenuItem->strHotKey==L"-" && MenuItem->strLabel.IsEmpty())
@@ -206,8 +207,7 @@ static void MenuFileToList(DList<UserMenuItem> *Menu, File& MenuFile, GetFileStr
 		else if (MenuItem)
 		{
 			RemoveLeadingSpaces(MenuStr);
-			string *str = MenuItem->Commands.Push();
-			*str = MenuStr;
+			MenuItem->Commands.push_back(MenuStr);
 		}
 	}
 }
@@ -249,7 +249,7 @@ void UserMenu::SaveMenu(const string& MenuFileName)
 			CachedWrite CW(MenuFile);
 			WCHAR Data = SIGN_UNICODE;
 			CW.Write(&Data, 1*sizeof(WCHAR));
-			MenuListToFile(&Menu, CW);
+			MenuListToFile(Menu, CW);
 			CW.Flush();
 			UINT64 Size = 0;
 			MenuFile.GetSize(Size);
@@ -300,7 +300,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 		AddEndSlash(strMenuFileFullPath);
 		strMenuFileFullPath += LocalMenuFileName;
 
-		Menu.Clear();
+		Menu.clear();
 
 		// ѕытаемс€ открыть файл на локальном диске
 		File MenuFile;
@@ -308,7 +308,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 		if (FileOpened)
 		{
 			GetFileString GetStr(MenuFile);
-			MenuFileToList(&Menu, MenuFile, GetStr);
+			MenuFileToList(Menu, MenuFile, GetStr);
 			MenuFile.Close();
 		}
 		else if (MenuMode != MM_USER)
@@ -347,7 +347,7 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 		int _CurrentFrame=FrameManager->GetCurrentFrame()->GetType();
 		Global->CtrlObject->Macro.SetMode(MACRO_USERMENU);
 		// вызываем меню
-		ExitCode=ProcessSingleMenu(&Menu, 0, &Menu, strMenuFileFullPath);
+		ExitCode=ProcessSingleMenu(Menu, 0, Menu, strMenuFileFullPath);
 
 		if (_CurrentFrame == FrameManager->GetCurrentFrame()->GetType()) //???
 			Global->CtrlObject->Macro.SetMode(PrevMacroMode);
@@ -415,13 +415,13 @@ void UserMenu::ProcessUserMenu(bool ChoiceMenuType)
 }
 
 // заполнение меню
-int FillUserMenu(VMenu2& FarUserMenu,DList<UserMenuItem> *Menu,int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
+int FillUserMenu(VMenu2& FarUserMenu, std::list<UserMenuItem>& Menu, int MenuPos,int *FuncPos,const string& Name,const string& ShortName)
 {
 	FarUserMenu.DeleteItems();
 	MenuItemEx FarUserMenuItem;
 	int NumLines=0;
 
-	for (UserMenuItem *MenuItem=Menu->First(); MenuItem; MenuItem=Menu->Next(MenuItem), NumLines++)
+	for (auto MenuItem = Menu.begin(); MenuItem != Menu.end(); ++MenuItem, ++NumLines)
 	{
 		FarUserMenuItem.Clear();
 		int FuncNum=0;
@@ -473,12 +473,11 @@ int FillUserMenu(VMenu2& FarUserMenu,DList<UserMenuItem> *Menu,int MenuPos,int *
 }
 
 // обработка единичного меню
-int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<UserMenuItem> *MenuRoot, const string& MenuFileName, const wchar_t *Title)
+int UserMenu::ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std::list<UserMenuItem>& MenuRoot, const string& MenuFileName, const wchar_t *Title)
 {
 	for (;;)
 	{
 		int NumLine=0, ExitCode, FuncPos[24];
-		UserMenuItem *CurrentMenuItem = nullptr;
 
 		// очистка F-хоткеев
 		for (size_t I=0 ; I < ARRAYSIZE(FuncPos) ; I++)
@@ -516,202 +515,204 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 			}
 		}
 
+		VMenu2 UserMenu(strMenuTitle,nullptr,0,ScrY-4);
+		UserMenu.SetFlags(VMENU_WRAPMODE);
+		UserMenu.SetHelp(L"UserMenu");
+		UserMenu.SetPosition(-1,-1,0,0);
+		UserMenu.SetBottomTitle(MSG(MMainMenuBottomTitle));
+		UserMenu.SetMacroMode(MACRO_USERMENU);
+
+		int ReturnCode=1;
+
+		NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+		std::list<UserMenuItem>::iterator* CurrentMenuItem;
+		ExitCode=UserMenu.Run([&](int Key)->int
 		{
-			VMenu2 UserMenu(strMenuTitle,nullptr,0,ScrY-4);
-			UserMenu.SetFlags(VMENU_WRAPMODE);
-			UserMenu.SetHelp(L"UserMenu");
-			UserMenu.SetPosition(-1,-1,0,0);
-			UserMenu.SetBottomTitle(MSG(MMainMenuBottomTitle));
-			UserMenu.SetMacroMode(MACRO_USERMENU);
+			MenuPos=UserMenu.GetSelectPos();
+			void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
+			CurrentMenuItem = reinterpret_cast<decltype(CurrentMenuItem)>(userdata);
 
-			int ReturnCode=1;
-
-			NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
-			ExitCode=UserMenu.Run([&](int Key)->int
+			if (Key==KEY_SHIFTF1)
 			{
-				MenuPos=UserMenu.GetSelectPos();
-				void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
-				CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
+				UserMenu.Key(KEY_F1);
+				return 1;
+			}
+			if (Key==KEY_SHIFTF11)
+			{
+				UserMenu.Key(KEY_F11);
+				return 1;
+			}
+			if ((unsigned int)Key>=KEY_F1 && (unsigned int)Key<=KEY_F24)
+			{
+				int FuncItemPos;
 
-				if (Key==KEY_SHIFTF1)
+				if ((FuncItemPos=FuncPos[Key-KEY_F1])!=-1)
 				{
-					UserMenu.Key(KEY_F1);
+					UserMenu.Close(FuncItemPos);
 					return 1;
 				}
-				if (Key==KEY_SHIFTF11)
-				{
-					UserMenu.Key(KEY_F11);
-					return 1;
-				}
-				if ((unsigned int)Key>=KEY_F1 && (unsigned int)Key<=KEY_F24)
-				{
-					int FuncItemPos;
+			}
+			else if (Key == L' ') // исключаем пробел из "хоткеев"!
+				return 1;
 
-					if ((FuncItemPos=FuncPos[Key-KEY_F1])!=-1)
+			int KeyProcessed = 1;
+			switch (Key)
+			{
+					/* $ 24.08.2001 VVM + —трелки вправо/влево открывают/закрывают подменю соответственно */
+				case KEY_RIGHT:
+				case KEY_NUMPAD6:
+				case KEY_MSWHEEL_RIGHT:
+					if (CurrentMenuItem && (*CurrentMenuItem)->Submenu)
+						UserMenu.Close(MenuPos);
+					break;
+
+				case KEY_LEFT:
+				case KEY_NUMPAD4:
+				case KEY_MSWHEEL_LEFT:
+					if (Title && *Title)
+						UserMenu.Close(-1);
+					break;
+
+				case KEY_NUMDEL:
+				case KEY_DEL:
+					if (CurrentMenuItem)
 					{
-						UserMenu.Close(FuncItemPos);
-						return 1;
-					}
-				}
-				else if (Key == L' ') // исключаем пробел из "хоткеев"!
-					return 1;
-
-				int KeyProcessed = 1;
-				switch (Key)
-				{
-						/* $ 24.08.2001 VVM + —трелки вправо/влево открывают/закрывают подменю соответственно */
-					case KEY_RIGHT:
-					case KEY_NUMPAD6:
-					case KEY_MSWHEEL_RIGHT:
-						if (CurrentMenuItem && CurrentMenuItem->Submenu)
-							UserMenu.Close(MenuPos);
-						break;
-
-					case KEY_LEFT:
-					case KEY_NUMPAD4:
-					case KEY_MSWHEEL_LEFT:
-						if (Title && *Title)
-							UserMenu.Close(-1);
-						break;
-
-					case KEY_NUMDEL:
-					case KEY_DEL:
-						if (CurrentMenuItem)
-						{
-							DeleteMenuRecord(Menu,CurrentMenuItem);
-							NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
-						}
-						break;
-
-					case KEY_INS:
-					case KEY_F4:
-					case KEY_SHIFTF4:
-					case KEY_NUMPAD0:
-					{
-						bool bNew = Key == KEY_INS || Key == KEY_NUMPAD0;
-						if (!bNew && !CurrentMenuItem)
-							break;
-
-						EditMenu(Menu,CurrentMenuItem,bNew);
-						FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
-						break;
-					}
-
-					case KEY_CTRLUP:
-					case KEY_RCTRLUP:
-					case KEY_CTRLDOWN:
-					case KEY_RCTRLDOWN:
-					{
-						int Pos=UserMenu.GetSelectPos();
-
-						if (Pos!=UserMenu.GetItemCount()-1 && CurrentMenuItem)
-						{
-							if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !Pos) && !((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && Pos==UserMenu.GetItemCount()-2))
-							{
-								MenuModified = true;
-								if (Key==KEY_CTRLUP || Key==KEY_RCTRLUP)
-								{
-									Menu->MoveBefore(Menu->Prev(CurrentMenuItem),CurrentMenuItem);
-									MenuPos--;
-								}
-								else
-								{
-									Menu->MoveAfter(Menu->Next(CurrentMenuItem),CurrentMenuItem);
-									MenuPos++;
-								}
-								FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
-							}
-						}
+						DeleteMenuRecord(Menu,(*CurrentMenuItem));
+						NumLine=FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 					}
 					break;
 
-					case KEY_ALTF4:       // редактировать все меню
-					case KEY_RALTF4:
+				case KEY_INS:
+				case KEY_F4:
+				case KEY_SHIFTF4:
+				case KEY_NUMPAD0:
+				{
+					bool bNew = Key == KEY_INS || Key == KEY_NUMPAD0;
+					if (!bNew && !CurrentMenuItem)
+						break;
+
+					EditMenu(Menu,*CurrentMenuItem,bNew);
+					FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
+					break;
+				}
+
+				case KEY_CTRLUP:
+				case KEY_RCTRLUP:
+				case KEY_CTRLDOWN:
+				case KEY_RCTRLDOWN:
+				{
+					int Pos=UserMenu.GetSelectPos();
+
+					if (Pos!=UserMenu.GetItemCount()-1 && CurrentMenuItem)
 					{
-						File MenuFile;
-						(*FrameManager)[0]->Unlock();
+						if (!((Key==KEY_CTRLUP || Key==KEY_RCTRLUP) && !Pos) && !((Key==KEY_CTRLDOWN || Key==KEY_RCTRLDOWN) && Pos==UserMenu.GetItemCount()-2))
 						{
-							ConsoleTitle *OldTitle=new ConsoleTitle;
-							SaveMenu(MenuFileName);
-							FileEditor ShellEditor(MenuFileName,CP_UNICODE,FFILEEDIT_DISABLEHISTORY,-1,-1,nullptr);
-							delete OldTitle;
-							ShellEditor.SetDynamicallyBorn(false);
-							FrameManager->EnterModalEV();
-							FrameManager->ExecuteModal();
-							FrameManager->ExitModalEV();
-							if (!ShellEditor.IsFileChanged() || (!MenuFile.Open(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
+							MenuModified = true;
+							auto Other = *CurrentMenuItem;
+							if (Key==KEY_CTRLUP || Key==KEY_RCTRLUP)
 							{
-								ReturnCode=0;
-								UserMenu.Close(-1);
-								return 1;
+								--Other;
+								--MenuPos;
 							}
+							else
+							{
+								++Other;
+								++MenuPos;
+							}
+							std::swap(*Other, **CurrentMenuItem);
+								
+							FillUserMenu(UserMenu,Menu,MenuPos,FuncPos,strName,strShortName);
 						}
-						MenuRoot->Clear();
-						GetFileString GetStr(MenuFile);
-						MenuFileToList(MenuRoot, MenuFile, GetStr);
-						MenuFile.Close();
-						MenuModified=true;
-						ReturnCode=0;
-						UserMenu.Close(-1);
-
-						return 1; // «акрыть меню
 					}
+				}
+				break;
 
-					/* $ 28.06.2000 tran
-					выход из пользовательского меню по ShiftF10 из любого уровн€
-					вложенности просто задаем ExitCode -1, и возвращаем FALSE -
-					по FALSE оно и выйдет откуда угодно */
-					case KEY_SHIFTF10:
-						//UserMenu.SetExitCode(-1);
-						ReturnCode=EC_CLOSE_MENU;
-						UserMenu.Close(-1);
-						return 1;
-
-					case KEY_SHIFTF2: // ѕоказать главное меню
-						ReturnCode=EC_MAIN_MENU;
-						UserMenu.Close(-1);
-						return 1;
-
-					case KEY_BS: // ѕоказать меню из родительского каталога только в MM_LOCAL режиме
-
-						if (MenuMode == MM_LOCAL)
+				case KEY_ALTF4:       // редактировать все меню
+				case KEY_RALTF4:
+				{
+					File MenuFile;
+					(*FrameManager)[0]->Unlock();
+					{
+						ConsoleTitle *OldTitle=new ConsoleTitle;
+						SaveMenu(MenuFileName);
+						FileEditor ShellEditor(MenuFileName,CP_UNICODE,FFILEEDIT_DISABLEHISTORY,-1,-1,nullptr);
+						delete OldTitle;
+						ShellEditor.SetDynamicallyBorn(false);
+						FrameManager->EnterModalEV();
+						FrameManager->ExecuteModal();
+						FrameManager->ExitModalEV();
+						if (!ShellEditor.IsFileChanged() || (!MenuFile.Open(MenuFileName, GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING)))
 						{
-							ReturnCode=EC_PARENT_MENU;
+							ReturnCode=0;
 							UserMenu.Close(-1);
 							return 1;
 						}
+					}
+					MenuRoot.clear();
+					GetFileString GetStr(MenuFile);
+					MenuFileToList(MenuRoot, MenuFile, GetStr);
+					MenuFile.Close();
+					MenuModified=true;
+					ReturnCode=0;
+					UserMenu.Close(-1);
 
-					default:
+					return 1; // «акрыть меню
+				}
 
-						KeyProcessed = 0;
+				/* $ 28.06.2000 tran
+				выход из пользовательского меню по ShiftF10 из любого уровн€
+				вложенности просто задаем ExitCode -1, и возвращаем FALSE -
+				по FALSE оно и выйдет откуда угодно */
+				case KEY_SHIFTF10:
+					//UserMenu.SetExitCode(-1);
+					ReturnCode=EC_CLOSE_MENU;
+					UserMenu.Close(-1);
+					return 1;
 
-						if (MenuPos!=UserMenu.GetSelectPos())
-						{
-							MenuPos=UserMenu.GetSelectPos();
-							userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
-							CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
-						}
-				} // switch(Key)
-				return KeyProcessed;
-			});
+				case KEY_SHIFTF2: // ѕоказать главное меню
+					ReturnCode=EC_MAIN_MENU;
+					UserMenu.Close(-1);
+					return 1;
 
-			if (ReturnCode!=1)
-				return ReturnCode;
+				case KEY_BS: // ѕоказать меню из родительского каталога только в MM_LOCAL режиме
 
-			if (ExitCode<0 || ExitCode>=NumLine || !CurrentMenuItem)
-				return EC_CLOSE_LEVEL; //  вверх на один уровень
+					if (MenuMode == MM_LOCAL)
+					{
+						ReturnCode=EC_PARENT_MENU;
+						UserMenu.Close(-1);
+						return 1;
+					}
 
-			void* userdata = UserMenu.GetUserData(nullptr, 0, ExitCode);
-			CurrentMenuItem = userdata? *static_cast<UserMenuItem**>(userdata):nullptr;
+				default:
 
-			if (!CurrentMenuItem)
-				return EC_CLOSE_LEVEL; //  вверх на один уровень
-		}
+					KeyProcessed = 0;
 
-		if (CurrentMenuItem->Submenu)
+					if (MenuPos!=UserMenu.GetSelectPos())
+					{
+						MenuPos=UserMenu.GetSelectPos();
+						void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
+						CurrentMenuItem = reinterpret_cast<decltype(CurrentMenuItem)>(userdata);
+					}
+			} // switch(Key)
+			return KeyProcessed;
+		});
+
+		if (ReturnCode!=1)
+			return ReturnCode;
+
+		if (ExitCode<0 || ExitCode>=NumLine || !CurrentMenuItem)
+			return EC_CLOSE_LEVEL; //  вверх на один уровень
+
+		void* userdata = UserMenu.GetUserData(nullptr, 0, MenuPos);
+		CurrentMenuItem = reinterpret_cast<decltype(CurrentMenuItem)>(userdata);
+
+		if (!CurrentMenuItem)
+			return EC_CLOSE_LEVEL; //  вверх на один уровень
+
+		if ((*CurrentMenuItem)->Submenu)
 		{
 			/* $ 20.08.2001 VVM + ѕри вложенных меню показывает заголовки предыдущих */
-			string strSubMenuLabel = CurrentMenuItem->strLabel;
+			string strSubMenuLabel = (*CurrentMenuItem)->strLabel;
 			SubstFileName(strSubMenuLabel,strName,strShortName,nullptr,nullptr,nullptr,nullptr,TRUE);
 			apiExpandEnvironmentStrings(strSubMenuLabel, strSubMenuLabel);
 
@@ -732,7 +733,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 			}
 
 			/* $ 14.07.2000 VVM ! ≈сли закрыли подменю, то остатьс€. »нече передать управление выше */
-			MenuPos = ProcessSingleMenu(CurrentMenuItem->Menu, 0, MenuRoot, MenuFileName, strSubMenuTitle);
+			MenuPos = ProcessSingleMenu(*(*CurrentMenuItem)->Menu, 0, MenuRoot, MenuFileName, strSubMenuTitle);
 
 			if (MenuPos!=EC_CLOSE_LEVEL)
 				return MenuPos;
@@ -754,7 +755,7 @@ int UserMenu::ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<Us
 		Global->CtrlObject->CmdLine->LockUpdatePanel(TRUE);
 
 		// ÷икл исполнени€ команд меню (CommandX)
-		for (string *str=CurrentMenuItem->Commands.First(); str; str=CurrentMenuItem->Commands.Next(str))
+		for (auto str=(*CurrentMenuItem)->Commands.begin(); str != (*CurrentMenuItem)->Commands.end(); ++str)
 		{
 			string strCommand = *str;
 
@@ -973,7 +974,7 @@ intptr_t UserMenu::EditMenuDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, v
 }
 
 
-bool UserMenu::EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool Create)
+bool UserMenu::EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator& MenuItem, bool Create)
 {
 	bool Result = false;
 	bool SubMenu = false;
@@ -1054,7 +1055,7 @@ bool UserMenu::EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool 
 			EditDlg[EM_MEMOEDIT].strData = strBuffer; //???
 #else
 			int CommandNumber=0;
-			for (string *str=MenuItem->Commands.First(); str && CommandNumber < DI_EDIT_COUNT; str=MenuItem->Commands.Next(str))
+			for (auto str = MenuItem->Commands.begin(); str != MenuItem->Commands.end() && CommandNumber < DI_EDIT_COUNT; ++str)
 			{
 				EditDlg[EM_EDITLINE_0+CommandNumber].strData = *str;
 				CommandNumber++;
@@ -1073,7 +1074,7 @@ bool UserMenu::EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool 
 
 			if (Create)
 			{
-				MenuItem = Menu->InsertBefore(MenuItem);
+				MenuItem = Menu.insert(MenuItem, UserMenuItem());
 			}
 
 			MenuItem->strHotKey = EditDlg[EM_HOTKEY_EDIT].strData;
@@ -1083,7 +1084,7 @@ bool UserMenu::EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool 
 			if (SubMenu)
 			{
 				if (Create)
-					MenuItem->Menu = new DList<UserMenuItem>();
+					MenuItem->Menu = new std::list<UserMenuItem>();
 			}
 			else
 			{
@@ -1100,13 +1101,13 @@ bool UserMenu::EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool 
 					if (!EditDlg[i+EM_EDITLINE_0].strData.IsEmpty())
 						CommandNumber=i+1;
 
-				MenuItem->Commands.Clear();
+				MenuItem->Commands.clear();
 				for (int i=0 ; i < DI_EDIT_COUNT ; i++)
 				{
 					if (i>=CommandNumber)
 						break;
 					else
-						MenuItem->Commands.Push(&EditDlg[i+EM_EDITLINE_0].strData);
+						MenuItem->Commands.push_back(EditDlg[i+EM_EDITLINE_0].strData);
 				}
 #endif
 			}
@@ -1118,7 +1119,7 @@ bool UserMenu::EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool 
 	return Result;
 }
 
-bool UserMenu::DeleteMenuRecord(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem)
+bool UserMenu::DeleteMenuRecord(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator& MenuItem)
 {
 	string strItemName=MenuItem->strLabel;
 	InsertQuote(strItemName);
@@ -1127,6 +1128,6 @@ bool UserMenu::DeleteMenuRecord(DList<UserMenuItem> *Menu, UserMenuItem *MenuIte
 		return false;
 
 	MenuModified=true;
-	Menu->Delete(MenuItem);
+	Menu.erase(MenuItem);
 	return true;
 }

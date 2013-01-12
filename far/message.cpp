@@ -284,7 +284,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 		BtnLength--;
 	}
 
-	DWORD MAX_WIDTH_MESSAGE = Max(ScrX-1-5-5, BtnLength);
+	DWORD MAX_WIDTH_MESSAGE = std::max(ScrX-1-5-5, BtnLength);
 
 	for (MaxLength=BtnLength,I=0; I<StrCount; I++)
 	{
@@ -304,7 +304,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 	}
 
 	// первая коррекция максимального размера
-	MaxLength = Min(MaxLength, MAX_WIDTH_MESSAGE);
+	MaxLength = std::min(MaxLength, MAX_WIDTH_MESSAGE);
 
 	// теперь обработаем MSG_ERRORTYPE
 	DWORD CountErrorLine=0;
@@ -334,7 +334,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 				LenErrStr=MAX_WIDTH_MESSAGE;
 		}
 
-		MaxLength = Max(MaxLength, LenErrStr);
+		MaxLength = std::max(MaxLength, LenErrStr);
 
 		// а теперь проврапим
 		FarFormatText(strErrStr,LenErrStr,strErrStr,L"\n",0); //?? MaxLength ??
@@ -500,7 +500,7 @@ void Message::Init(DWORD Flags, size_t Buttons, const wchar_t *Title, const wcha
 					}
 					else
 					{
-						//xstrncpy(PtrMsgDlg->Data,CPtrStr,Min((int)MAX_WIDTH_MESSAGE,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
+						//xstrncpy(PtrMsgDlg->Data,CPtrStr,std::min(((int)MAX_WIDTH_MESSAGE,(int)sizeof(PtrMsgDlg->Data))); //?? ScrX-15 ??
 						PtrMsgDlg->strData = CPtrStr; //BUGBUG, wrong len
 					}
 				}

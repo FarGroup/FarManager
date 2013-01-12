@@ -121,7 +121,7 @@ bool CachedRead::Read(LPVOID Data, DWORD DataSize, LPDWORD BytesRead)
 
 			Result=true;
 
-			DWORD Actual=Min(BytesLeft, DataSize);
+			DWORD Actual=std::min(BytesLeft, DataSize);
 			memcpy(Data, &Buffer[ReadSize-BytesLeft], Actual);
 			Data=((LPBYTE)Data)+Actual;
 			BytesLeft-=Actual;

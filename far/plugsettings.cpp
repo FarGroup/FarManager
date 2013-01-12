@@ -56,10 +56,10 @@ template<> void DeleteItems<FarSettingsHistory>(FarSettingsHistory* Items,size_t
 
 AbstractSettings::~AbstractSettings()
 {
-	for(size_t ii=0;ii<m_Data.getCount();++ii)
+	std::for_each(RANGE(m_Data, i)
 	{
-		delete [] *m_Data.getItem(ii);
-	}
+		delete [] i;
+	});
 }
 
 char* AbstractSettings::Add(const string& String)
@@ -76,9 +76,9 @@ char* AbstractSettings::Add(const wchar_t* Data,size_t Size)
 
 char* AbstractSettings::Add(size_t Size)
 {
-	char** item=m_Data.addItem();
-	*item=new char[Size];
-	return *item;
+	char* item = new char[Size];
+	m_Data.push_back(item);
+	return item;
 }
 
 bool AbstractSettings::IsValid(void)
@@ -94,7 +94,8 @@ PluginSettings::PluginSettings(const GUID& Guid, bool Local):
 	{
 		string strGuid = GuidToStr(Guid);
 		PluginsCfg = Global->Db->CreatePluginsConfig(strGuid, Local);
-		unsigned __int64& root(*m_Keys.insertItem(0));
+		m_Keys.resize(1);
+		unsigned __int64& root = m_Keys.front();
 		root=PluginsCfg->CreateKey(0, strGuid, pPlugin->GetTitle());
 
 		if (!Global->Opt->ReadOnlyConfig)
@@ -119,32 +120,37 @@ PluginSettings::~PluginSettings()
 {
 	if (PluginsCfg)
 		delete PluginsCfg;
+
+	std::for_each(RANGE(m_Enum, i)
+	{
+		delete i;
+	});
 }
 
 bool PluginSettings::IsValid(void)
 {
-	return m_Keys.getCount()!=0;
+	return !m_Keys.empty();
 }
 
 int PluginSettings::Set(const FarSettingsItem& Item)
 {
 	int result=FALSE;
-	if(Item.Root<m_Keys.getCount())
+	if(Item.Root<m_Keys.size())
 	{
 		switch(Item.Type)
 		{
 			case FST_SUBKEY:
 				break;
 			case FST_QWORD:
-				if (PluginsCfg->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.Number)) result=TRUE;
+				if (PluginsCfg->SetValue(m_Keys[Item.Root],Item.Name,Item.Number)) result=TRUE;
 				break;
 			case FST_STRING:
 				//не даём изменить "description" корня, он выставляется в plugin title фаром
 				if (Item.Root==0 && !Item.Name) break;
-				if (PluginsCfg->SetValue(*m_Keys.getItem(Item.Root),Item.Name,Item.String)) result=TRUE;
+				if (PluginsCfg->SetValue(m_Keys[Item.Root],Item.Name,Item.String)) result=TRUE;
 				break;
 			case FST_DATA:
-				if (PluginsCfg->SetValue(*m_Keys.getItem(Item.Root),Item.Name,(const char *)Item.Data.Data,(int)Item.Data.Size)) result=TRUE;
+				if (PluginsCfg->SetValue(m_Keys[Item.Root],Item.Name,(const char *)Item.Data.Data,(int)Item.Data.Size)) result=TRUE;
 				break;
 			default:
 				break;
@@ -156,7 +162,7 @@ int PluginSettings::Set(const FarSettingsItem& Item)
 int PluginSettings::Get(FarSettingsItem& Item)
 {
 	int result=FALSE;
-	if(Item.Root<m_Keys.getCount())
+	if(Item.Root<m_Keys.size())
 	{
 		switch(Item.Type)
 		{
@@ -165,7 +171,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 			case FST_QWORD:
 				{
 					unsigned __int64 value;
-					if (PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,&value))
+					if (PluginsCfg->GetValue(m_Keys[Item.Root],Item.Name,&value))
 					{
 						result=TRUE;
 						Item.Number=value;
@@ -175,7 +181,7 @@ int PluginSettings::Get(FarSettingsItem& Item)
 			case FST_STRING:
 				{
 					string data;
-					if (PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,data))
+					if (PluginsCfg->GetValue(m_Keys[Item.Root],Item.Name,data))
 					{
 						result=TRUE;
 						Item.String=(wchar_t*)Add(data);
@@ -184,11 +190,11 @@ int PluginSettings::Get(FarSettingsItem& Item)
 				break;
 			case FST_DATA:
 				{
-					int size=PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,nullptr,0);
+					int size=PluginsCfg->GetValue(m_Keys[Item.Root],Item.Name,nullptr,0);
 					if (size)
 					{
 						char* data=Add(size);
-						int checkedSize=PluginsCfg->GetValue(*m_Keys.getItem(Item.Root),Item.Name,data,size);
+						int checkedSize=PluginsCfg->GetValue(m_Keys[Item.Root],Item.Name,data,size);
 						if (size==checkedSize)
 						{
 							result=TRUE;
@@ -213,32 +219,33 @@ static wchar_t* AddString(const string& String)
 	return result;
 }
 
-static void AddItem(Vector<FarSettingsName>& Array, FarSettingsName& Item, const string& String)
+static void AddItem(Vector<FarSettingsName>* Array, FarSettingsName& Item, const string& String)
 {
 	Item.Name=AddString(String);
-	Array.AddItem(Item);
+	Array->AddItem(Item);
 }
 
-static void AddItem(Vector<FarSettingsHistory>& Array, FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
+static void AddItem(Vector<FarSettingsHistory>* Array, FarSettingsHistory& Item, const string& Name, const string& Param, const GUID& Guid, const string& File)
 {
 	Item.Name=AddString(Name);
 	Item.Param=AddString(Param);
 	Item.PluginId=Guid;
 	Item.File=AddString(File);
-	Array.AddItem(Item);
+	Array->AddItem(Item);
 }
 
 int PluginSettings::Enum(FarSettingsEnum& Enum)
 {
 	int result=FALSE;
-	if(Enum.Root<m_Keys.getCount())
+	if(Enum.Root<m_Keys.size())
 	{
-		Vector<FarSettingsName>& array=*m_Enum.addItem();
+		m_Enum.push_back(new Vector<FarSettingsName>);
+		auto array = m_Enum.front();
 		FarSettingsName item;
 		DWORD Index=0,Type;
 		string strName;
 
-		unsigned __int64 root = *m_Keys.getItem(Enum.Root);
+		unsigned __int64 root = m_Keys[Enum.Root];
 		item.Type=FST_SUBKEY;
 		while (PluginsCfg->EnumKeys(root,Index++,strName))
 		{
@@ -265,8 +272,8 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 				AddItem(array,item,strName);
 			}
 		}
-		Enum.Count=array.GetSize();
-		Enum.Items=array.GetItems();
+		Enum.Count=array->GetSize();
+		Enum.Items=array->GetItems();
 		result=TRUE;
 	}
 	return result;
@@ -275,16 +282,16 @@ int PluginSettings::Enum(FarSettingsEnum& Enum)
 int PluginSettings::Delete(const FarSettingsValue& Value)
 {
 	int result=FALSE;
-	if(Value.Root<m_Keys.getCount())
+	if(Value.Root<m_Keys.size())
 	{
 		if (!Value.Value)
 		{
-			if (PluginsCfg->DeleteKeyTree(*m_Keys.getItem(Value.Root)))
+			if (PluginsCfg->DeleteKeyTree(m_Keys[Value.Root]))
 				result=TRUE;
 		}
 		else
 		{
-			if (PluginsCfg->DeleteValue(*m_Keys.getItem(Value.Root),Value.Value))
+			if (PluginsCfg->DeleteValue(m_Keys[Value.Root],Value.Value))
 				result=TRUE;
 		}
 	}
@@ -294,17 +301,17 @@ int PluginSettings::Delete(const FarSettingsValue& Value)
 int PluginSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 {
 	int result=0;
-	if(Value.Root<m_Keys.getCount()&&!wcschr(Value.Value,'\\'))
+	if(Value.Root<m_Keys.size() && !wcschr(Value.Value,'\\'))
 	{
 		unsigned __int64 root = 0;
 		if (bCreate)
-			root = PluginsCfg->CreateKey(*m_Keys.getItem(Value.Root),Value.Value);
+			root = PluginsCfg->CreateKey(m_Keys[Value.Root],Value.Value);
 		else
-			root = PluginsCfg->GetKeyID(*m_Keys.getItem(Value.Root),Value.Value);
+			root = PluginsCfg->GetKeyID(m_Keys[Value.Root],Value.Value);
 		if (root)
 		{
-			result=static_cast<int>(m_Keys.getCount());
-			*m_Keys.insertItem(result) = root;
+			result=static_cast<int>(m_Keys.size());
+			m_Keys.push_back(root);
 		}
 	}
 	return result;
@@ -316,6 +323,15 @@ FarSettings::FarSettings()
 
 FarSettings::~FarSettings()
 {
+	std::for_each(RANGE(m_Enum, i)
+	{
+		delete i;
+	});
+
+	std::for_each(RANGE(m_Keys, i)
+	{
+		delete i;
+	});
 }
 
 int FarSettings::Set(const FarSettingsItem& Item)
@@ -399,7 +415,8 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 		case FSSF_FOLDERSHORTCUT_8:
 		case FSSF_FOLDERSHORTCUT_9:
 			{
-				Vector<FarSettingsHistory>& array=*m_Enum.addItem();
+				auto array = new Vector<FarSettingsHistory>;
+				m_Enum.push_back(array);
 				FarSettingsHistory item={0};
 				string strName,strFile,strData;
 				GUID plugin; size_t index=0;
@@ -407,8 +424,8 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 				{
 					AddItem(array,item,strName,strData,plugin,strFile);
 				}
-				Enum.Count=array.GetSize();
-				Enum.Histories=array.GetItems();
+				Enum.Count=array->GetSize();
+				Enum.Histories=array->GetItems();
 				return TRUE;
 			}
 			break;
@@ -416,9 +433,9 @@ int FarSettings::Enum(FarSettingsEnum& Enum)
 			if(Enum.Root>=FSSF_COUNT)
 			{
 				size_t root=Enum.Root-FSSF_COUNT;
-				if((size_t)root<m_Keys.getCount())
+				if((size_t)root<m_Keys.size())
 				{
-					return FillHistory(HISTORYTYPE_DIALOG,*m_Keys.getItem(root),Enum,FilterNone);
+					return FillHistory(HISTORYTYPE_DIALOG,*m_Keys[root],Enum,FilterNone);
 				}
 			}
 	}
@@ -433,8 +450,8 @@ int FarSettings::Delete(const FarSettingsValue& Value)
 int FarSettings::SubKey(const FarSettingsValue& Value, bool bCreate)
 {
 	if(bCreate||Value.Root!=FSSF_ROOT) return 0;
-	int result=static_cast<int>(m_Keys.getCount());
-	*m_Keys.insertItem(result)=Value.Value;
+	int result=static_cast<int>(m_Keys.size());
+	m_Keys.push_back(new string(Value.Value));
 	return result+FSSF_COUNT;
 }
 
@@ -461,7 +478,8 @@ static HistoryConfig* HistoryRef(int Type)
 
 int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter)
 {
-	Vector<FarSettingsHistory>& array=*m_Enum.addItem();
+	auto array = new Vector<FarSettingsHistory>;
+	m_Enum.push_back(array);
 	FarSettingsHistory item={0};
 	DWORD Index=0;
 	string strName,strGuid,strFile,strData;
@@ -481,7 +499,7 @@ int FarSettings::FillHistory(int Type,const string& HistoryName,FarSettingsEnum&
 			AddItem(array,item,strName,strData,Guid,strFile);
 		}
 	}
-	Enum.Count=array.GetSize();
-	Enum.Histories=array.GetItems();
+	Enum.Count=array->GetSize();
+	Enum.Histories=array->GetItems();
 	return TRUE;
 }

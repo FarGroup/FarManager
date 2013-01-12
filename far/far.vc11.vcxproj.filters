@@ -113,9 +113,6 @@
     <ClCompile Include="dlgedit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DList.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="drivemix.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -553,9 +550,6 @@
     <ClInclude Include="elevation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="array.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="BaseFileMask.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -629,9 +623,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DlgGuid.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DList.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="drivemix.hpp">
@@ -1031,9 +1022,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="vmenu.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="vmenu2.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wakeful.hpp">

@@ -532,12 +532,12 @@ void ShellSetFileAttributesMsg(const wchar_t *Name)
 	int WidthTemp;
 
 	if (Name && *Name)
-		WidthTemp=Max(StrLength(Name),54);
+		WidthTemp=std::max(StrLength(Name),54);
 	else
 		Width=WidthTemp=54;
 
-	WidthTemp=Min(WidthTemp, ScrX/2);
-	Width=Max(Width,WidthTemp);
+	WidthTemp=std::min(WidthTemp, ScrX/2);
+	Width=std::max(Width,WidthTemp);
 	string strOutFileName=Name;
 	TruncPathStr(strOutFileName,Width);
 	CenterStr(strOutFileName,strOutFileName,Width+4);

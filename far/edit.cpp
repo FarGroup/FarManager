@@ -362,7 +362,7 @@ void Edit::FastShow()
 
 	CursorPos=TabCurPos;
 	int RealLeftPos=TabPosToReal(LeftPos);
-	int OutStrLength=Min(EditLength,StrSize-RealLeftPos);
+	int OutStrLength=std::min(EditLength,StrSize-RealLeftPos);
 
 	if (OutStrLength < 0)
 	{
@@ -1742,8 +1742,8 @@ void Edit::SetObjectColor(const FarColor& Color,const FarColor& SelColor)
 void Edit::GetString(wchar_t *Str,int MaxSize)
 {
 	//xwcsncpy(Str, this->Str,MaxSize);
-	wmemmove(Str,this->Str,Min(StrSize,MaxSize-1));
-	Str[Min(StrSize,MaxSize-1)]=0;
+	wmemmove(Str,this->Str,std::min(StrSize,MaxSize-1));
+	Str[std::min(StrSize,MaxSize-1)]=0;
 	Str[MaxSize-1]=0;
 }
 
@@ -1935,7 +1935,7 @@ int Edit::GetSelString(wchar_t *Str, int MaxSize)
 	if (SelEnd==-1)
 		CopyLength=MaxSize;
 	else
-		CopyLength=Min(MaxSize,SelEnd-SelStart+1);
+		CopyLength=std::min(MaxSize,SelEnd-SelStart+1);
 
 	xwcsncpy(Str,this->Str+SelStart,CopyLength);
 	return TRUE;
@@ -2486,7 +2486,7 @@ int Edit::RealPosToTab(int PrevLength, int PrevPos, int Pos, int* CorrectPos)
 
 		// ѕроходим по всем символам до позиции поиска, если она ещЄ в пределах строки,
 		// либо до конца строки, если позици€ поиска за пределами строки
-		for (; Index < Min(Pos, StrSize); Index++)
+		for (; Index < std::min(Pos, StrSize); Index++)
 
 			// ќбрабатываем табы
 			if (Str[Index] == L'\t')
@@ -3161,15 +3161,15 @@ void EditControl::Changed(bool DelBlock)
 
 void EditControl::SetMenuPos(VMenu2& menu)
 {
-	int MaxHeight = Min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())+2;
+	int MaxHeight = std::min(Global->Opt->Dialogs.CBoxMaxHeight.Get(),menu.GetItemCount())+2;
 	if((ScrY-Y1<MaxHeight && Y1>ScrY/2) || MenuUp)
 	{
 		MenuUp = true;
-		menu.SetPosition(X1, Max(0, Y1-1-MaxHeight), Min(ScrX-2,X2), Y1-1);
+		menu.SetPosition(X1, std::max(0, Y1-1-MaxHeight), std::min(ScrX-2,X2), Y1-1);
 	}
 	else
 	{
-		menu.SetPosition(X1,Y1+1,X2,Min(static_cast<int>(ScrY), Y1+1+MaxHeight));
+		menu.SetPosition(X1,Y1+1,X2,std::min(static_cast<int>(ScrY), Y1+1+MaxHeight));
 	}
 }
 
@@ -3275,7 +3275,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 
 	if(*Module && !FirstSlash(Module))
 	{
-		DList<string> List;
+		std::list<string> List;
 		string str;
 		int ModuleLength = StrLength(Module);
 		UserDefinedList ExcludeCmdsList;
@@ -3287,9 +3287,9 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 			{
 				Result=true;
 				str = Item;
-				if(!List.Contains(str))
+				if(std::find(List.begin(), List.end(), str) == List.end())
 				{
-					List.Push(&str);
+					List.push_back(str);
 				}
 			}
 		}
@@ -3327,9 +3327,9 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 						if(!StrCmpI(ModuleExt, PathExtList.GetNext()))
 						{
 							str = data.strFileName;
-							if(!List.Contains(str))
+							if(std::find(List.begin(), List.end(), str) == List.end())
 							{
-								List.Push(&str);
+								List.push_back(str);
 							}
 							Result=true;
 						}
@@ -3388,9 +3388,9 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 							{
 								if (!StrCmpNI(Module, strName, ModuleLength))
 								{
-									if(!List.Contains(strName))
+									if(std::find(List.begin(), List.end(), strName) == List.end())
 									{
-										List.Push(&strName);
+										List.push_back(strName);
 									}
 									Result=true;
 								}
@@ -3427,7 +3427,7 @@ bool EnumModules(const wchar_t *Module, VMenu2* DestMenu)
 			}
 		}
 
-		for(string* i = List.First(); i; i = List.Next(i))
+		for(auto i = List.begin(); i != List.end(); ++i)
 		{
 			DestMenu->AddItem(*i);
 		}
@@ -3813,7 +3813,7 @@ int EditControl::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 					{
 						SelectionStart=CurPos;
 					}
-					Select(Min(SelectionStart,CurPos),Min(StrSize,Max(SelectionStart,CurPos)));
+					Select(std::min(SelectionStart,CurPos),std::min(StrSize,std::max(SelectionStart,CurPos)));
 					Show();
 				}
 			}

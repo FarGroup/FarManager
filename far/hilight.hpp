@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "CFileMask.hpp"
-#include "array.hpp"
 
 class VMenu2;
 class FileFilterParams;
@@ -77,7 +76,7 @@ private:
 	void FillMenu(VMenu2 *HiMenu,int MenuPos);
 	void ProcessGroups();
 
-	TPointerArray<FileFilterParams> HiData;
+	std::vector<FileFilterParams*> HiData;
 	int FirstCount, UpperCount, LowerCount, LastCount;
 	unsigned __int64 CurrentTime;
 	bool Changed;

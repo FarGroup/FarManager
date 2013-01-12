@@ -263,9 +263,9 @@ void CloseConsole()
 	Global->Console->GetCursorPosition(CursorPos);
 	SHORT Height = InitWindowRect.Bottom-InitWindowRect.Top, Width = InitWindowRect.Right-InitWindowRect.Left;
 	if (CursorPos.Y > InitWindowRect.Bottom || CursorPos.Y < InitWindowRect.Top)
-		InitWindowRect.Top = Max(0, CursorPos.Y-Height);
+		InitWindowRect.Top = std::max(0, CursorPos.Y-Height);
 	if (CursorPos.X > InitWindowRect.Right || CursorPos.X < InitWindowRect.Left)
-		InitWindowRect.Left = Max(0, CursorPos.X-Width);
+		InitWindowRect.Left = std::max(0, CursorPos.X-Width);
 	InitWindowRect.Bottom = InitWindowRect.Top + Height;
 	InitWindowRect.Right = InitWindowRect.Left + Width;
 	Global->Console->SetWindowRect(InitWindowRect);

@@ -32,7 +32,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "array.hpp"
 #include "plugin.hpp"
 #include "configdb.hpp"
 
@@ -83,7 +82,7 @@ class AbstractSettings
 	private:
 		char* Add(const wchar_t* Data,size_t Size);
 	protected:
-		TPointerArray<char*> m_Data;
+		std::list<char*> m_Data;
 		char* Add(const string& String);
 		char* Add(size_t Size);
 	public:
@@ -99,8 +98,8 @@ class AbstractSettings
 class PluginSettings: public AbstractSettings
 {
 	private:
-		TPointerArray<Vector<FarSettingsName> > m_Enum;
-		TPointerArray<unsigned __int64> m_Keys;
+		std::vector<Vector<FarSettingsName>*> m_Enum;
+		std::vector<unsigned __int64> m_Keys;
 		HierarchicalConfig *PluginsCfg;
 		PluginSettings();
 	public:
@@ -117,8 +116,8 @@ class PluginSettings: public AbstractSettings
 class FarSettings: public AbstractSettings
 {
 	private:
-		TPointerArray<Vector<FarSettingsHistory> > m_Enum;
-		TPointerArray<string> m_Keys;
+		std::vector<Vector<FarSettingsHistory>*> m_Enum;
+		std::vector<string*> m_Keys;
 		typedef bool (*HistoryFilter)(int Type);
 		int FillHistory(int Type,const string& HistoryName,FarSettingsEnum& Enum,HistoryFilter Filter);
 	public:

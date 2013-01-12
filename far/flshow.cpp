@@ -335,7 +335,7 @@ void FileList::ShowFileList(int Fast)
 		Global->CtrlObject->CmdLine->Show();
 	}
 
-	int TitleX2=Global->Opt->Clock && !Global->Opt->ShowMenuBar ? Min(ScrX-4,X2):X2;
+	int TitleX2=Global->Opt->Clock && !Global->Opt->ShowMenuBar ? std::min(ScrX-4,X2):X2;
 	int TruncSize=TitleX2-X1-3;
 
 	if (!Global->Opt->ShowColumnTitles && Global->Opt->ShowSortMode && Filter && Filter->IsEnabledOnPanel())
@@ -615,7 +615,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,u
 	{
 		int DotLength=StrLength(DotPtr+1);
 		int NameLength=DotLength?(int)(DotPtr-SrcName):SrcLength;
-		int DotPos=MaxLength-Max(DotLength,3);
+		int DotPos=MaxLength-std::max(DotLength,3);
 
 		if (DotPos<=NameLength)
 			DotPos=NameLength+1;
@@ -628,7 +628,7 @@ int FileList::ConvertName(const wchar_t *SrcName,string &strDest,int MaxLength,u
 	}
 	else
 	{
-		wmemcpy(lpwszDest,SrcName,Min(SrcLength, MaxLength));
+		wmemcpy(lpwszDest,SrcName,std::min(SrcLength, MaxLength));
 	}
 
 	strDest.ReleaseBuffer(MaxLength);
@@ -1008,8 +1008,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 						int Length=StrLength(ColumnData);
 						if (Length>ColumnWidth)
 						{
-							CurLeftPos = Min(LeftPos, Length-ColumnWidth);
-							MaxLeftPos = Max(MaxLeftPos, CurLeftPos);
+							CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
+							MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
 						}
 					}
 
@@ -1080,8 +1080,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 									{
 										if (!RightAlign)
 										{
-											CurLeftPos = Min(LeftPos, Length-Width);
-											MaxLeftPos = Max(MaxLeftPos, CurLeftPos);
+											CurLeftPos = std::min(LeftPos, Length-Width);
+											MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
 											NamePtr += CurLeftPos;
 										}
 									}
@@ -1102,7 +1102,7 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 										NamePtr += Length+CurRightPos-Width;
 										RightAlign=FALSE;
 
-										MinLeftPos = Min(MinLeftPos, CurRightPos);
+										MinLeftPos = std::min(MinLeftPos, CurRightPos);
 									}
 								}
 							}
@@ -1268,8 +1268,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								int Length=ListData[ListPos]->DizText ? StrLength(ListData[ListPos]->DizText):0;
 								if (Length>ColumnWidth)
 								{
-									CurLeftPos = Min(LeftPos, Length-ColumnWidth);
-									MaxLeftPos = Max(MaxLeftPos, CurLeftPos);
+									CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
+									MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
 								}
 							}
 
@@ -1306,8 +1306,8 @@ void FileList::ShowList(int ShowStatus,int StartColumn)
 								int Length=StrLength(Owner);
 								if (Length>ColumnWidth)
 								{
-									CurLeftPos = Min(LeftPos, Length-ColumnWidth);
-									MaxLeftPos = Max(MaxLeftPos, CurLeftPos);
+									CurLeftPos = std::min(LeftPos, Length-ColumnWidth);
+									MaxLeftPos = std::max(MaxLeftPos, CurLeftPos);
 								}
 							}
 

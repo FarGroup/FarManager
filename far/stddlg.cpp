@@ -470,7 +470,7 @@ IFileIsInUse* CreateIFileIsInUse(LPCWSTR File)
 
 int OperationFailed(const string& Object, LNGID Title, const wchar_t* Description, bool AllowSkip)
 {
-	DList<string> Msg;
+	std::list<string> Msg;
 	IFileIsInUse *pfiu = nullptr;
 	LNGID Reason = MObjectLockedReasonOpened;
 	bool SwitchBtn = false, CloseBtn = false;
@@ -513,8 +513,7 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 			LPWSTR AppName = nullptr;
 			if(SUCCEEDED(pfiu->GetAppName(&AppName)))
 			{
-				string str(AppName);
-				Msg.Push(&str);
+				Msg.push_back(AppName);
 			}
 		}
 		else
@@ -558,7 +557,7 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 								CloseHandle(hProcess);
 							}
 							tmp << L")";
-							Msg.Push(&tmp);
+							Msg.push_back(tmp);
 						}
 					}
 					delete[] rgpi;
@@ -568,7 +567,7 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 		}
 	}
 	int ButtonCount = (AllowSkip? 4 : 2) + (SwitchBtn? 1 : 0);
-	size_t LineCount = 1 + 1 + (Msg.Count()? Msg.Count() + 1 : 0) + ButtonCount;
+	size_t LineCount = 1 + 1 + (Msg.empty()? 0 : Msg.size() + 1) + ButtonCount;
 	const wchar_t** Msgs = new const wchar_t*[LineCount];
 	Msgs[0] = Description;
 	string qObj(Object);
@@ -576,14 +575,14 @@ int OperationFailed(const string& Object, LNGID Title, const wchar_t* Descriptio
 	Msgs[1] = qObj;
 	LangString strReason(MObjectLockedReason);
 	strReason << MSG(Reason);
-	if(Msg.Count())
+	if(!Msg.empty())
 	{
-		string *s = nullptr;
+		auto s = Msg.begin();
 		Msgs[2] = strReason;
 		for (size_t i = 3; i < LineCount - ButtonCount; ++i)
 		{
-			s = Msg.Next(s);
 			Msgs[i] = *s;
+			++s;
 		}
 	}
 	if(SwitchBtn)

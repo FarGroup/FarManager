@@ -1199,7 +1199,7 @@ int FindFiles::LookForString(const string& Name)
 
 	if (SearchInFirst)
 	{
-		FileSize=Min(SearchInFirst,FileSize);
+		FileSize=std::min(SearchInFirst,FileSize);
 	}
 
 	UINT LastPercents=0;
@@ -2743,7 +2743,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 	}
 	else if (SearchMode==FINDAREA_ALL || SearchMode==FINDAREA_ALL_BUTNETWORK)
 	{
-		DList<string> Volumes;
+		std::list<string> Volumes;
 		DWORD DiskMask=FarGetLogicalDrives();
 		for (WCHAR CurrentDisk=0; DiskMask; CurrentDisk++,DiskMask>>=1)
 		{
@@ -2761,7 +2761,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 			string strGuidVolime;
 			if(apiGetVolumeNameForVolumeMountPoint(Root, strGuidVolime))
 			{
-				Volumes.Push(&strGuidVolime);
+				Volumes.push_back(strGuidVolime);
 			}
 			List.AddItem(Root);
 		}
@@ -2779,7 +2779,7 @@ void FindFiles::DoPrepareFileList(Dialog* Dlg)
 				continue;
 			}
 			bool Mounted = false;
-			for(string* i = Volumes.First(); i; i = Volumes.Next(i))
+			for(auto i = Volumes.begin(); i != Volumes.end(); ++i)
 			{
 				if(i->IsSubStrAt(0,VolumeName))
 				{
@@ -2956,9 +2956,9 @@ bool FindFiles::FindFilesProcess()
 	}
 
 	AnySetFindList = false;
-	for (size_t i=0; i<Global->CtrlObject->Plugins->GetPluginsCount(); i++)
+	for (auto i = Global->CtrlObject->Plugins->GetBegin(); i != Global->CtrlObject->Plugins->GetEnd(); ++i)
 	{
-		if (Global->CtrlObject->Plugins->GetPlugin(i)->HasSetFindList())
+		if ((*i)->HasSetFindList())
 		{
 			AnySetFindList=true;
 			break;

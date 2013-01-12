@@ -162,7 +162,7 @@ Help::Help(const wchar_t *Topic, const wchar_t *Mask,UINT64 Flags):
 		ReadHelp(StackData.strHelpMask);
 	}
 
-	if (HelpList.getSize())
+	if (!HelpList.empty())
 	{
 		ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 		InitKeyBar();
@@ -292,7 +292,7 @@ int Help::ReadHelp(const wchar_t *Mask)
 	}
 	strTabSpace.ReleaseBuffer(CtrlTabSize);
 
-	HelpList.Free();
+	HelpList.clear();
 
 	if (!StrCmp(StackData.strHelpTopic,FoundContents))
 	{
@@ -488,7 +488,7 @@ m1:
 					string strDescription,strKeyName;
 					while (Global->CtrlObject->Macro.GetMacroKeyInfo(strMacroArea,MI,strKeyName,strDescription))
 					{
-						SizeKeyName=Max(SizeKeyName,strKeyName.GetLength());
+						SizeKeyName=std::max(SizeKeyName,strKeyName.GetLength());
 						MI++;
 					}
 					MI=0;
@@ -695,7 +695,7 @@ void Help::AddLine(const wchar_t *Line)
 
 	{
 		HelpRecord AddRecord(strLine);
-		HelpList.addItem(AddRecord);
+		HelpList.push_back(AddRecord);
 	}
 
 	StrCount++;
@@ -804,7 +804,7 @@ void Help::FastShow()
 		if (StrPos<StrCount)
 		{
 			const HelpRecord *rec=GetHelpItem(StrPos);
-			const wchar_t *OutStr=rec?rec->HelpStr:nullptr;
+			const wchar_t *OutStr=rec?rec->HelpStr.CPtr():nullptr;
 
 			if (!OutStr)
 				OutStr=L"";
@@ -812,7 +812,7 @@ void Help::FastShow()
 			if (*OutStr==L'^')
 			{
 				OutStr++;
-				GotoXY(X1+1+Max(0,(X2-X1-1-StringLen(OutStr))/2),Y1+i+1);
+				GotoXY(X1+1+std::max(0,(X2-X1-1-StringLen(OutStr))/2),Y1+i+1);
 			}
 			else
 			{
@@ -981,7 +981,7 @@ bool Help::GetTopic(int realX, int realY, string& strTopic)
 	if (*Str == L'^') // center
 	{
 		int w = StringLen(++Str);
-		x = X1 + 1 + Max(0, (X2 - X1 - 1 - w)/2);
+		x = X1 + 1 + std::max(0, (X2 - X1 - 1 - w)/2);
 	}
 
 	return FastParseLine(Str, nullptr, x, realX, &strTopic, strCtrlColorChar.At(0));
@@ -1574,7 +1574,7 @@ int Help::JumpTopic(const wchar_t *JumpTopic)
 
 	ScreenObject::Flags.Clear(FHELPOBJ_ERRCANNOTOPENHELP);
 
-	if (!HelpList.getSize())
+	if (HelpList.empty())
 	{
 		ErrorHelp=TRUE;
 
@@ -1738,7 +1738,7 @@ int Help::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		}
 	}
 
-   if (simple_move && (prevMsX != MsX || prevMsY != MsY))
+	if (simple_move && (prevMsX != MsX || prevMsY != MsY))
 	{
 		string strTopic;
 		if (GetTopic(MsX, MsY, strTopic))
@@ -1768,14 +1768,14 @@ int Help::IsReferencePresent()
 	}
 
 	const HelpRecord *rec=GetHelpItem(StrPos);
-	wchar_t *OutStr=rec?rec->HelpStr:nullptr;
+	const wchar_t *OutStr=rec?rec->HelpStr.CPtr():nullptr;
 	return (OutStr  && wcschr(OutStr,L'@')  && wcschr(OutStr,L'~') );
 }
 
 const HelpRecord* Help::GetHelpItem(int Pos)
 {
-	if ((unsigned int)Pos < HelpList.getSize())
-		return HelpList.getItem(Pos);
+	if (static_cast<size_t>(Pos) < HelpList.size())
+		return &HelpList[Pos];
 	return nullptr;
 }
 
@@ -1850,21 +1850,6 @@ void Help::MoveToReference(int Forward,int CurScreen)
 	}
 
 	FastShow();
-}
-
-
-static int __cdecl CmpItems(const HelpRecord **el1, const HelpRecord **el2)
-{
-	if (el1==el2)
-		return 0;
-
-	int result=StrCmpI((**el1).HelpStr,(**el2).HelpStr);
-	if (!result)
-		return 0;
-	else if (result < 0)
-		return -1;
-	else
-		return 1;
 }
 
 void Help::Search(FILE *HelpFile,uintptr_t nCodePage)
@@ -1943,7 +1928,7 @@ void Help::Search(FILE *HelpFile,uintptr_t nCodePage)
 
 void Help::ReadDocumentsHelp(int TypeIndex)
 {
-	HelpList.Free();
+	HelpList.clear();
 
 	strCurPluginContents.Clear();
 	StrCount=0;
@@ -1969,15 +1954,13 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	   1. Поиск (для "документов") не только в каталоге Documets, но
 	      и в плагинах
 	*/
-	int OldStrCount=StrCount;
-
 	switch (TypeIndex)
 	{
 		case HIDX_PLUGINS:
 		{
-			for (size_t I=0; I<Global->CtrlObject->Plugins->GetPluginsCount(); I++)
+			for (auto i = Global->CtrlObject->Plugins->GetBegin(); i != Global->CtrlObject->Plugins->GetEnd(); ++i)
 			{
-				strPath = Global->CtrlObject->Plugins->GetPlugin(I)->GetModuleName();
+				strPath = (*i)->GetModuleName();
 				CutToSlash(strPath);
 				uintptr_t nCodePage = CP_OEMCP;
 				FILE *HelpFile=OpenLangFile(strPath,Global->HelpFileMask,Global->Opt->strHelpLanguage,strFullFileName, nCodePage);
@@ -2005,8 +1988,7 @@ void Help::ReadDocumentsHelp(int TypeIndex)
 	}
 
 	// сортируем по алфавиту
-	HelpList.Sort(CmpItems,OldStrCount);
-
+	std::sort(HelpList.begin()+1, HelpList.end());
 	// $ 26.06.2000 IS - Устранение глюка с хелпом по f1, shift+f2, end (решение предложил IG)
 	AddLine(L"");
 }

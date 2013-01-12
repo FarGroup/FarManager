@@ -327,7 +327,7 @@ int History::ProcessMenu(string &strStr, GUID* Guid, string *pstrFile, string *p
 		if (SetUpMenuPos)
 		{
 			Pos.SelectPos=Pos.SelectPos < HistoryMenu.GetItemCount() ? Pos.SelectPos : HistoryMenu.GetItemCount()-1;
-			Pos.TopPos=Min(Pos.TopPos,HistoryMenu.GetItemCount()-Height);
+			Pos.TopPos=std::min(Pos.TopPos,HistoryMenu.GetItemCount()-Height);
 			HistoryMenu.SetSelectPos(&Pos);
 			SetUpMenuPos=false;
 		}

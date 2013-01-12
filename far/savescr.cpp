@@ -52,10 +52,10 @@ SaveScreen::SaveScreen(int X1,int Y1,int X2,int Y2)
 {
 	_OT(SysLog(L"[%p] SaveScreen::SaveScreen(X1=%i,Y1=%i,X2=%i,Y2=%i)",this,X1,Y1,X2,Y2));
 
-	X1=Min(static_cast<int>(ScrX), Max(0, X1));
-	X2=Min(static_cast<int>(ScrX), Max(0, X2));
-	Y1=Min(static_cast<int>(ScrY), Max(0, Y1));
-	Y2=Min(static_cast<int>(ScrY), Max(0, Y2));
+	X1=std::min(static_cast<int>(ScrX), std::max(0, X1));
+	X2=std::min(static_cast<int>(ScrX), std::max(0, X2));
+	Y1=std::min(static_cast<int>(ScrY), std::max(0, Y1));
+	Y2=std::min(static_cast<int>(ScrY), std::max(0, Y2));
 
 	SaveArea(X1,Y1,X2,Y2);
 }
@@ -165,8 +165,8 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 	NX1=NX2=NY1=NY2=0;
 	FAR_CHAR_INFO* NewBuf = new FAR_CHAR_INFO[NewX*NewY];
 	CleanupBuffer(NewBuf,NewX*NewY);
-	int NewWidth=Min(OWi,NewX);
-	int NewHeight=Min(OHe,NewY);
+	int NewWidth=std::min(OWi,NewX);
+	int NewHeight=std::min(OHe,NewY);
 	int iYReal;
 	int ToIndex=0;
 	int FromIndex=0;
@@ -228,7 +228,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 		Global->Console->ResetPosition();
 		if(NewY!=OHe)
 		{
-			COORD Size={static_cast<SHORT>(Max(NewX,OWi)), static_cast<SHORT>(abs(OHe-NewY))};
+			COORD Size={static_cast<SHORT>(std::max(NewX,OWi)), static_cast<SHORT>(abs(OHe-NewY))};
 			COORD Coord={};
 			FAR_CHAR_INFO* Tmp=new FAR_CHAR_INFO[Size.X*Size.Y];
 			if(NewY>OHe)
@@ -255,7 +255,7 @@ void SaveScreen::Resize(int NewX,int NewY, DWORD Corner, bool SyncWithConsole)
 
 		if(NewX!=OWi)
 		{
-			COORD Size={static_cast<SHORT>(abs(NewX-OWi)), static_cast<SHORT>(Max(NewY,OHe))};
+			COORD Size={static_cast<SHORT>(abs(NewX-OWi)), static_cast<SHORT>(std::max(NewY,OHe))};
 			COORD Coord={};
 			FAR_CHAR_INFO* Tmp=new FAR_CHAR_INFO[Size.X*Size.Y];
 			if(NewX>OWi)

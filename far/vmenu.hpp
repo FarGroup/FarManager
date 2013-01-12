@@ -235,9 +235,8 @@ class VMenu: public Modal
 		bool bFilterLocked;
 		string strFilter;
 
-		MenuItemEx **Item;
+		std::vector<MenuItemEx*> Item;
 
-		intptr_t ItemCount;
 		intptr_t ItemHiddenCount;
 		intptr_t ItemSubMenusCount;
 
@@ -333,8 +332,8 @@ class VMenu: public Modal
  		bool AddToFilter(const wchar_t *str);
  		void SetFilterString(const wchar_t *str);
 
-		intptr_t GetItemCount() { return ItemCount; };
-		int  GetShowItemCount() { return ItemCount-ItemHiddenCount; };
+		intptr_t GetItemCount() { return Item.size(); };
+		int  GetShowItemCount() { return static_cast<int>(Item.size())-ItemHiddenCount; };
 		int  GetVisualPos(int Pos);
 		int  VisualPosToReal(int VPos);
 

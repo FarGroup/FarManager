@@ -484,7 +484,7 @@ void CopyProgress::SetProgress(bool TotalProgress,UINT64 CompletedSize,UINT64 To
 	UINT64 OldTotalSize = TotalSize;
 	CompletedSize>>=8;
 	TotalSize>>=8;
-	CompletedSize=Min(CompletedSize,TotalSize);
+	CompletedSize=std::min(CompletedSize,TotalSize);
 	COORD BarCoord={static_cast<SHORT>(Rect.Left+5),static_cast<SHORT>(Rect.Top+(TotalProgress?8:6))};
 	size_t BarLength=Rect.Right-Rect.Left-9-5; //-5 для процентов
 	size_t Length=TotalSize?static_cast<size_t>((TotalSize<1000000?CompletedSize:CompletedSize/100)*BarLength/(TotalSize<1000000?TotalSize:TotalSize/100)):BarLength;
@@ -949,7 +949,7 @@ ShellCopy::ShellCopy(Panel *SrcPanel,        // исходная панель (активная)
 	_tran(SysLog(L"call (*FrameManager)[0]->LockRefresh()"));
 	(*FrameManager)[0]->Lock();
 	CopyBufferSize=Global->Opt->CMOpt.BufferSize;
-	CopyBufferSize=Max(CopyBufferSize,(size_t)COPY_BUFFER_SIZE);
+	CopyBufferSize=std::max(CopyBufferSize,(size_t)COPY_BUFFER_SIZE);
 	Flags=(Move?FCOPY_MOVE:0)|(Link?FCOPY_LINK:0)|(CurrentOnly?FCOPY_CURRENTONLY:0);
 	ShowTotalCopySize=Global->Opt->CMOpt.CopyShowTotal!=0;
 	SelectedFolderNameLength=0;
@@ -3933,13 +3933,13 @@ BOOL ShellCopySecuryMsg(const wchar_t *Name)
 		if (Name && *Name)
 		{
 			PrepareSecuryStartTime = CurTime;     // Первый файл рисуется всегда
-			WidthTemp=Max(StrLength(Name),30);
+			WidthTemp=std::max(StrLength(Name),30);
 		}
 		else
 			Width=WidthTemp=30;
 
-		WidthTemp=Min(WidthTemp, ScrX/2);
-		Width=Max(Width,WidthTemp);
+		WidthTemp=std::min(WidthTemp, ScrX/2);
+		Width=std::max(Width,WidthTemp);
 
 		string strOutFileName = Name; //??? nullptr ???
 		TruncPathStr(strOutFileName,Width);

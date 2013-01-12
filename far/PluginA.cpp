@@ -38,7 +38,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "ctrlobj.hpp"
 #include "scrbuf.hpp"
 #include "farexcpt.hpp"
-#include "DList.hpp"
 #include "config.hpp"
 #include "plclass.hpp"
 #include "PluginA.hpp"
@@ -1422,7 +1421,7 @@ int WINAPI ConvertNameToRealA(const char *Src,char *Dest,int DestSize)
 	else
 		strDest.GetCharString(Dest,DestSize);
 
-	return Min((int)strDest.GetLength(),DestSize);
+	return std::min((int)strDest.GetLength(),DestSize);
 }
 
 int WINAPI FarGetReparsePointInfoA(const char *Src,char *Dest,int DestSize)
@@ -1496,7 +1495,7 @@ DWORD WINAPI ExpandEnvironmentStrA(const char *src, char *dest, size_t size)
 {
 	string strS(src), strD;
 	apiExpandEnvironmentStrings(strS,strD);
-	DWORD len = (DWORD)Min(strD.GetLength(),size-1);
+	DWORD len = (DWORD)std::min(strD.GetLength(),size-1);
 	strD.GetCharString(dest,len+1);
 	return len;
 }
@@ -1761,49 +1760,39 @@ int WINAPI FarMenuFnA(intptr_t PluginNumber,int X,int Y,int MaxHeight,DWORD Flag
 	return ret;
 }
 
-typedef struct DialogData
+struct DialogData
 {
 	oldfar::FARWINDOWPROC DlgProc;
 	HANDLE hDlg;
 	oldfar::FarDialogItem *diA;
 	FarDialogItem *di;
 	FarList *l;
-} *PDialogData;
+};
 
-DList<PDialogData>DialogList;
+std::list<DialogData>* DialogList;
 
 oldfar::FarDialogItem* OneDialogItem=nullptr;
 
-PDialogData FindCurrentDialogData(HANDLE hDlg)
+std::list<DialogData>::const_iterator FindDialogData(HANDLE hDlg)
 {
-	PDialogData Result=nullptr;
-	for(PDialogData* i=DialogList.Last();i;i=DialogList.Prev(i))
+	return std::find_if(DialogList->begin(), DialogList->end(), [&hDlg](const DialogData& i)
 	{
-		if((*i)->hDlg==hDlg)
-		{
-			Result=*i;
-			break;
-		}
-	}
-	return Result;
+		return i.hDlg == hDlg;
+	});
 }
-
 oldfar::FarDialogItem* CurrentDialogItemA(HANDLE hDlg,int ItemNumber)
 {
-	PDialogData Data=FindCurrentDialogData(hDlg);
-	return Data?&Data->diA[ItemNumber]:nullptr;
+	return &FindDialogData(hDlg)->diA[ItemNumber];
 }
 
 FarDialogItem* CurrentDialogItem(HANDLE hDlg,int ItemNumber)
 {
-	PDialogData Data=FindCurrentDialogData(hDlg);
-	return Data?&Data->di[ItemNumber]:nullptr;
+	return &FindDialogData(hDlg)->di[ItemNumber];
 }
 
 FarList* CurrentList(HANDLE hDlg,int ItemNumber)
 {
-	PDialogData Data=FindCurrentDialogData(hDlg);
-	return Data?&Data->l[ItemNumber]:nullptr;
+	return &FindDialogData(hDlg)->l[ItemNumber];
 }
 
 TStack<FarDialogEvent>OriginalEvents;
@@ -1831,8 +1820,8 @@ intptr_t WINAPI FarDefDlgProcA(HANDLE hDlg, int Msg, int Param1, void* Param2)
 
 intptr_t WINAPI CurrentDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
 {
-	PDialogData Data=FindCurrentDialogData(hDlg);
-	return (Data && Data->DlgProc)? Data->DlgProc(Data->hDlg,Msg,Param1,Param2) : FarDefDlgProcA(hDlg, Msg, Param1, Param2);
+	auto Data = FindDialogData(hDlg);
+	return Data->DlgProc? Data->DlgProc(Data->hDlg, Msg, Param1, Param2) : FarDefDlgProcA(hDlg, Msg, Param1, Param2);
 }
 
 void UnicodeListItemToAnsi(FarListItem* li, oldfar::FarListItem* liA)
@@ -3213,13 +3202,18 @@ int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2,const 
 
 	int ret = -1;
 	HANDLE hDlg = NativeInfo.DialogInit(GetPluginGuid(PluginNumber), &FarGuid, X1, Y1, X2, Y2, (HelpTopic?strHT.CPtr():nullptr), (FarDialogItem *)di, ItemsNumber, 0, DlgFlags, DlgProcA, Param);
-	PDialogData NewDialogData=new DialogData;
-	NewDialogData->DlgProc=DlgProc;
-	NewDialogData->hDlg=hDlg;
-	NewDialogData->diA=diA;
-	NewDialogData->di=di;
-	NewDialogData->l=l;
-	DialogList.Push(&NewDialogData);
+	DialogData NewDialogData;
+	NewDialogData.DlgProc=DlgProc;
+	NewDialogData.hDlg=hDlg;
+	NewDialogData.diA=diA;
+	NewDialogData.di=di;
+	NewDialogData.l=l;
+
+	if(!DialogList)
+	{
+		DialogList = new std::list<DialogData>;
+	}
+	DialogList->push_back(NewDialogData);
 
 	if (hDlg != INVALID_HANDLE_VALUE)
 	{
@@ -3271,8 +3265,13 @@ int WINAPI FarDialogExA(intptr_t PluginNumber,int X1,int Y1,int X2,int Y2,const 
 		}
 	}
 
-	delete *DialogList.Last();
-	DialogList.Delete(DialogList.Last());
+	DialogList->pop_back();
+
+	if(DialogList->empty())
+	{
+		delete DialogList;
+		DialogList = nullptr;
+	}
 
 	delete[] diA;
 	delete[] di;
@@ -3875,7 +3874,7 @@ intptr_t WINAPI FarAdvControlA(intptr_t ModuleNumber,oldfar::ADVANCED_CONTROL_CO
 				FarSettingsItem item={sizeof(FarSettingsItem),FSSF_EDITOR,L"WordDiv",FST_UNKNOWN,{0}};
 				if(NativeInfo.SettingsControl(Settings,SCTL_GET,0,&item)&&FST_STRING==item.Type)
 				{
-					Length=Min(oldfar::NM,StrLength(item.String)+1);
+					Length=std::min(oldfar::NM,StrLength(item.String)+1);
 					if(Param) UnicodeToOEM(item.String,(char*)Param,oldfar::NM);
 				}
 				NativeInfo.SettingsControl(Settings,SCTL_FREE,0,0);

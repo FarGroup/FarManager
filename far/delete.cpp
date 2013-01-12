@@ -92,7 +92,7 @@ static void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int 
 		wchar_t *WipeProgress=strWipeProgress.GetBuffer(Length);
 		if (WipeProgress)
 		{
-			size_t CurPos=Min(WipePercent,100)*Length/100;
+			size_t CurPos=std::min(WipePercent,100)*Length/100;
 			wmemset(WipeProgress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(WipeProgress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strWipeProgress.ReleaseBuffer(Length);
@@ -109,7 +109,7 @@ static void ShellDeleteMsg(const wchar_t *Name, DEL_MODE Mode, int Percent, int 
 		wchar_t *Progress=strProgress.GetBuffer(Length);
 		if (Progress)
 		{
-			size_t CurPos=Min(Percent,100)*Length/100;
+			size_t CurPos=std::min(Percent,100)*Length/100;
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);

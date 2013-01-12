@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "panel.hpp"
 #include "dizlist.hpp"
 #include "filefilterparams.hpp"
-#include "DList.hpp"
 #include "panelctype.hpp"
 #include "plugins.hpp"
 #include "filesystemwatcher.hpp"
@@ -198,8 +197,8 @@ class FileList:public Panel
 		FileListItem **ListData;
 		int FileCount;
 		HANDLE hPlugin;
-		DList<PrevDataItem*>PrevDataList;
-		DList<PluginsListItem*>PluginsList;
+		std::list<PrevDataItem*>PrevDataList;
+		std::list<PluginsListItem*>PluginsList;
 		FileSystemWatcher FSWatcher;
 		long UpperFolderTopFile,LastCurFile;
 		long ReturnCurrentFile;

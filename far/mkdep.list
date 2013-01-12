@@ -1,4 +1,3 @@
-array.hpp
 BaseFileMask.hpp
 bitflags.hpp
 cache.cpp
@@ -53,8 +52,6 @@ DlgBuilder.hpp
 dlgedit.cpp
 dlgedit.hpp
 DlgGuid.hpp
-DList.cpp
-DList.hpp
 drivemix.cpp
 drivemix.hpp
 edit.cpp

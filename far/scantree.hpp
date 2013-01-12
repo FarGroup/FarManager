@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 #include "bitflags.hpp"
-#include "array.hpp"
 
 enum
 {
@@ -75,13 +74,14 @@ class ScanTree
 {
 	private:
 		BitFlags Flags;
-		TPointerArray<ScanTreeData> ScanItems;
+		std::list<ScanTreeData*> ScanItems;
 
 		string strFindPath;
 		string strFindMask;
 
 	public:
 		ScanTree(bool RetUpDir, bool Recurse=1, int ScanJunction=-1);
+		~ScanTree();
 
 	public:
 		// 3-й параметр - флаги из старшего слова

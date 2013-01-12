@@ -34,7 +34,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include "DList.hpp"
 #include "plugin.hpp"
 
 class NamesList
@@ -50,9 +49,12 @@ class NamesList
 		{
 			struct FileName2 Value;
 
-			OneName()
+			OneName(const string& Name, const string& ShortName)
 			{
+				Value.strName = Name;
+				Value.strShortName = ShortName;
 			}
+
 			// для перекрывающихся объектов поведение как у xstrncpy!
 			OneName& operator=(struct FileName2 &rhs)
 			{
@@ -62,10 +64,8 @@ class NamesList
 			}
 		};
 
-		typedef DList<OneName> StrList;
-
-		StrList Names;
-		const OneName *CurrentName;
+		std::list<OneName> Names;
+		std::list<OneName>::const_iterator CurrentName;
 
 		string strCurrentDir;
 

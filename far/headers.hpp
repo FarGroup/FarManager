@@ -42,6 +42,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <ctime>
 #include <cmath>
 #include <cfloat>
+#include <list>
+#include <vector>
+#include <algorithm>
 
 #ifdef __GNUC__
 #include <cctype>
@@ -80,10 +83,14 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define WINVER       0x0601
 # define _WIN32_WINNT 0x0601
 # define _WIN32_IE    0x0700
+# define __SEH_NOOP
 #endif // __GNUC__
 
 #define WIN32_LEAN_AND_MEAN
 #define VC_EXTRALEAN
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 
 #define WIN32_NO_STATUS //exclude ntstatus.h macros from winnt.h
 #include <windows.h>
@@ -146,17 +153,13 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # if !defined(__try)
 #  define __try
 # endif
+# if !defined(__except)
 # define __except(a) if(false)
+# endif
 #endif // __GNUC__
 
 inline const wchar_t* NullToEmpty(const wchar_t* Str) { return Str? Str : L"";} 
 inline const wchar_t* EmptyToNull(const wchar_t* Str) { return (Str && !*Str)? nullptr : Str;} 
-
-template <class T>
-inline const T&Min(const T &a, const T &b) { return a<b?a:b; }
-
-template <class T>
-inline const T&Max(const T &a, const T &b) { return a>b?a:b; }
 
 template <class T>
 inline const T Round(const T &a, const T &b) { return a/b+(a%b*2>b?1:0); }
@@ -193,6 +196,8 @@ inline void ClearArray(T (&a)[N]) { memset(a, 0, sizeof(a[0])*N); }
 #  endif
 # endif
 #endif
+
+#define RANGE(T, i) (T).begin(), (T).end(), [&](decltype((T).front()) i)
 
 template <typename T>
 bool CheckNullOrStructSize(const T* s) {return !s || (s->StructSize >= sizeof(T));}

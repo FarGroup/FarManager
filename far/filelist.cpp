@@ -696,9 +696,9 @@ __int64 FileList::VMProcess(int OpCode,void *vParam,__int64 iParam)
 		case MCODE_V_APANEL_PATH0:
 		case MCODE_V_PPANEL_PATH0:
 		{
-			if (PluginsList.Empty())
+			if (PluginsList.empty())
 				return 0;
-			*(string *)vParam = (*PluginsList.Last())->strPrevOriginalCurDir;
+			*(string *)vParam = (*PluginsList.back()).strPrevOriginalCurDir;
 			return 1;
 		}
 
@@ -3764,9 +3764,9 @@ int FileList::GetCurBaseName(string &strName, string &strShortName)
 		return FALSE;
 	}
 
-	if (PanelMode==PLUGIN_PANEL && !PluginsList.Empty()) // для плагинов
+	if (PanelMode==PLUGIN_PANEL && !PluginsList.empty()) // для плагинов
 	{
-		strName = PointToName((*PluginsList.First())->strHostFile);
+		strName = PointToName(PluginsList.front()->strHostFile);
 	}
 	else if (PanelMode==NORMAL_PANEL)
 	{
@@ -5041,34 +5041,34 @@ void FileList::CountDirSize(UINT64 PluginFlags)
 
 int FileList::GetPrevViewMode()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevViewMode:ViewMode;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevViewMode:ViewMode;
 }
 
 
 int FileList::GetPrevSortMode()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevSortMode:SortMode;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevSortMode:SortMode;
 }
 
 
 int FileList::GetPrevSortOrder()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevSortOrder:SortOrder;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevSortOrder:SortOrder;
 }
 
 int FileList::GetPrevNumericSort()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevNumericSort:NumericSort;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevNumericSort:NumericSort;
 }
 
 int FileList::GetPrevCaseSensitiveSort()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevCaseSensitiveSort:CaseSensitiveSort;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevCaseSensitiveSort:CaseSensitiveSort;
 }
 
 int FileList::GetPrevDirectoriesFirst()
 {
-	return (PanelMode==PLUGIN_PANEL && !PluginsList.Empty())?(*PluginsList.First())->PrevDirectoriesFirst:DirectoriesFirst;
+	return (PanelMode==PLUGIN_PANEL && !PluginsList.empty())?PluginsList.front()->PrevDirectoriesFirst:DirectoriesFirst;
 }
 
 HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPLUGINTYPE Type)
@@ -5096,7 +5096,7 @@ HANDLE FileList::OpenFilePlugin(const string* FileName, int PushPrev, OPENFILEPL
 			Item->PrevFileCount=FileCount;
 			Item->PrevTopFile = CurTopFile;
 			Item->strPrevName = FileName? *FileName : L"";
-			PrevDataList.Push(&Item);
+			PrevDataList.push_back(Item);
 			ListData=nullptr;
 			FileCount=0;
 		}
@@ -5345,11 +5345,10 @@ BOOL FileList::GetItem(int Index,void *Dest)
 
 void FileList::ClearAllItem()
 {
-	for (PrevDataItem **i=PrevDataList.First();i;i=PrevDataList.Next(i))
+	std::for_each(RANGE(PrevDataList, i)
 	{
-		DeleteListData((*i)->PrevListData,(*i)->PrevFileCount);
-		delete *i;
-	}
-
-	PrevDataList.Clear();
+		DeleteListData(i->PrevListData,i->PrevFileCount);
+		delete i;
+	});
+	PrevDataList.clear();
 }

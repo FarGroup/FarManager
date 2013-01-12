@@ -360,7 +360,7 @@ void FolderTree::DrawEdit()
 	GotoXY(X1+1,FindY);
 	SetColor(COL_PANELTEXT);
 	Global->FS << SearchTxt<<L"  ";
-	FindEdit->SetPosition(X1+StrLength(SearchTxt)+2,FindY,Min(X2-1,X1+25),FindY);
+	FindEdit->SetPosition(X1+StrLength(SearchTxt)+2,FindY,std::min(X2-1,X1+25),FindY);
 	FindEdit->SetObjectColor(COL_DIALOGEDIT);
 	FindEdit->Show();
 

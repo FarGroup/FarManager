@@ -141,7 +141,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>false</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -153,7 +153,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4355;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4355;4365;4480;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -185,7 +185,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;_WIN64;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>false</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -196,7 +196,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4355;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4355;4365;4480;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -227,7 +227,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;_WIN64;_M_IA64;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>false</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -238,7 +238,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4355;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4355;4365;4480;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -268,7 +268,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AdditionalOptions>/J %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ExceptionHandling>false</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -281,7 +281,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <StringPooling>true</StringPooling>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4355;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4355;4365;4480;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -313,7 +313,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WIN64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>false</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -325,7 +325,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4355;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4355;4365;4480;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -356,7 +356,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WIN64;_M_IA64;FAR_ALPHA_VERSION;SYSLOG_FARSYSLOG;SYSLOG;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
-      <ExceptionHandling>false</ExceptionHandling>
+      <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -368,7 +368,7 @@ if not exist bootstrap mkdir bootstrap</Command>
       <AssemblerListingLocation>$(OutDir)cod\</AssemblerListingLocation>
       <WarningLevel>EnableAllWarnings</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4355;4365;4480;4512;4514;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4054;4061;4100;4127;4191;4242;4244;4245;4255;4345;4350;4355;4365;4480;4512;4514;4571;4625;4626;4640;4668;4706;4710;4711;4738;4820;4836;4917;4986</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
@@ -469,7 +469,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="dizlist.cpp" />
     <ClCompile Include="DlgBuilder.cpp" />
     <ClCompile Include="dlgedit.cpp" />
-    <ClCompile Include="DList.cpp" />
     <ClCompile Include="drivemix.cpp" />
     <ClCompile Include="edit.cpp" />
     <ClCompile Include="editor.cpp" />
@@ -868,7 +867,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
   <ItemGroup>
     <ClInclude Include="configdb.hpp" />
     <ClInclude Include="elevation.hpp" />
-    <ClInclude Include="array.hpp" />
     <ClInclude Include="BaseFileMask.hpp" />
     <ClInclude Include="bitflags.hpp" />
     <ClInclude Include="cache.hpp" />
@@ -947,7 +945,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </CustomBuild>
     <ClInclude Include="dlgedit.hpp" />
     <ClInclude Include="DlgGuid.hpp" />
-    <ClInclude Include="DList.hpp" />
     <ClInclude Include="drivemix.hpp" />
     <ClInclude Include="edit.hpp" />
     <ClInclude Include="editor.hpp" />

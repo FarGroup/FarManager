@@ -33,14 +33,13 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "DList.hpp"
 
 struct UserMenuItem {
 	string strHotKey;
 	string strLabel;
-	DList<string> Commands;
+	std::list<string> Commands;
 	bool Submenu;
-	DList<UserMenuItem> *Menu;
+	std::list<UserMenuItem> *Menu;
 
 	UserMenuItem() { Submenu=false; Menu=nullptr; }
 	~UserMenuItem() { if (Menu) delete Menu; }
@@ -56,9 +55,9 @@ public:
 
 private:
 	void ProcessUserMenu(bool ChoiceMenuType);
-	bool DeleteMenuRecord(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem);
-	bool EditMenu(DList<UserMenuItem> *Menu, UserMenuItem *MenuItem, bool Create);
-	int ProcessSingleMenu(DList<UserMenuItem> *Menu, int MenuPos, DList<UserMenuItem> *MenuRoot, const string& MenuFileName, const wchar_t *Title=nullptr);
+	bool DeleteMenuRecord(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator& MenuItem);
+	bool EditMenu(std::list<UserMenuItem>& Menu, std::list<UserMenuItem>::iterator& MenuItem, bool Create);
+	int ProcessSingleMenu(std::list<UserMenuItem>& Menu, int MenuPos, std::list<UserMenuItem>& MenuRoot, const string& MenuFileName, const wchar_t *Title=nullptr);
 	void SaveMenu(const string& MenuFileName);
 	intptr_t EditMenuDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,void* Param2);
 
@@ -66,6 +65,6 @@ private:
 	bool MenuModified;
 	bool MenuNeedRefresh;
 	bool ItemChanged;
-	DList<UserMenuItem> Menu;
+	std::list<UserMenuItem> Menu;
 
 };

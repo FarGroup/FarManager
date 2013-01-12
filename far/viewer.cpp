@@ -135,7 +135,7 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	vgetc_cb = vgetc_ib = 0;
 	vgetc_composite = L'\0';
 
-	vread_buffer_size = Max(MAX_VIEWLINEB, (intptr_t)8192);
+	vread_buffer_size = std::max(MAX_VIEWLINEB, (intptr_t)8192);
 	vread_buffer = new char[vread_buffer_size];
 
 	lcache_first = lcache_last = -1;
@@ -145,14 +145,14 @@ Viewer::Viewer(bool bQuickView, uintptr_t aCodePage):
 	lcache_ready = false;
 	lcache_wrap = lcache_wwrap = lcache_width = -1;
 
-	int cached_buffer_size = 64*Max(Global->Opt->ViOpt.MaxLineSize*2, (intptr_t)1024);
+	int cached_buffer_size = 64*std::max(Global->Opt->ViOpt.MaxLineSize*2, (intptr_t)1024);
 	max_backward_size = ViewerOptions::eMaxLineSize*3;
 	if ( max_backward_size > cached_buffer_size/2 )
 		max_backward_size = cached_buffer_size / 2;
 	llengths_size = max_backward_size / 40;
 	llengths = new int[llengths_size];
 
-	Search_buffer_size = 3 * Max(MAX_VIEWLINEB, (intptr_t)8000);
+	Search_buffer_size = 3 * std::max(MAX_VIEWLINEB, (intptr_t)8000);
 	Search_buffer = new wchar_t[Search_buffer_size];
 
 	ClearStruct(vString);
@@ -780,7 +780,7 @@ void Viewer::ShowHex()
 	int X,Y,TextPos;
 	int SelStart, SelEnd;
 	bool bSelStartFound = false, bSelEndFound = false;
-	__int64 HexLeftPos=((LeftPos>80-ObjWidth) ? Max(80-ObjWidth,0):LeftPos);
+	__int64 HexLeftPos=((LeftPos>80-ObjWidth) ? std::max(80-ObjWidth,0):LeftPos);
 
 	const wchar_t BorderLine[] = {BoxSymbols[BS_V1],L' ',0};
 	int border_len = (int)wcslen(BorderLine);
@@ -1805,7 +1805,7 @@ int Viewer::ProcessKey(int Key)
 			if (LeftPos>0 && ViewFile.Opened())
 			{
 				if (VM.Hex == 1 && LeftPos > 80-Width)
-					LeftPos=Max(80-Width,1);
+					LeftPos=std::max(80-Width,1);
 
 				LeftPos--;
 				Show();
@@ -2082,7 +2082,7 @@ int Viewer::ProcessMouse(MOUSE_EVENT_RECORD *MouseEvent)
 		if (IntKeyState.MouseY != Y1-1)
 			return TRUE;
 
-		int NameLen = Max(20, ObjWidth-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() ? 3+5 : 0));
+		int NameLen = std::max(20, ObjWidth-40-(Global->Opt->ViewerEditorClock && HostFileViewer && HostFileViewer->IsFullScreen() ? 3+5 : 0));
 		wchar_t tt[10];
 		int cp_len = wsprintf(tt, L"%u", VM.CodePage);
 		//                           ViewMode     CopdePage             Goto
@@ -2645,13 +2645,13 @@ void ViewerSearchMsg(const wchar_t *MsgStr, int Percent, int SearchHex)
 		FormatString strPercent;
 		strPercent<<Percent;
 
-		size_t PercentLength=Max(strPercent.GetLength(),(size_t)3);
-		size_t Length=Max(Min(ScrX-1-10,static_cast<int>(strMsg.GetLength())),40)-PercentLength-2;
+		size_t PercentLength=std::max(strPercent.GetLength(),(size_t)3);
+		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.GetLength())),40)-PercentLength-2;
 		wchar_t *Progress=strProgress.GetBuffer(Length);
 
 		if (Progress)
 		{
-			size_t CurPos=Min(Percent,100)*Length/100;
+			size_t CurPos=std::min(Percent,100)*Length/100;
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);
@@ -2971,7 +2971,7 @@ int Viewer::search_text_forward( search_data* sd )
 	if ( !up_half && nb + 3*(slen+ww) < bsize && !veof() )
 	{
 		int nw1 = vread(buff+nw, 3*(slen+ww), t_buff ? t_buff+nw : nullptr);
-		nw1 = Max(nw1, slen+ww-1);
+		nw1 = std::max(nw1, slen+ww-1);
 		nw += nw1;
 		to1 = to + (t_buff ? GetStrBytesNum(t_buff, nw1) : sd->ch_size * nw1);
 	}

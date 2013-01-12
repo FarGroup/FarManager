@@ -291,7 +291,11 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 	const wchar_t *KeyNames[4]={HighlightKeyName,SortGroupsKeyName,SortGroupsKeyName,HighlightKeyName};
 	const wchar_t *GroupNames[4]={fmtFirstGroup,fmtUpperGroup,fmtLowerGroup,fmtLastGroup};
 	int  *Count[4] = {&FirstCount,&UpperCount,&LowerCount,&LastCount};
-	HiData.Free();
+	std::for_each(RANGE(HiData, i)
+	{
+		delete i;
+	});
+	HiData.clear();
 	FirstCount=UpperCount=LowerCount=LastCount=0;
 
 	for (int j=0; j<4; j++)
@@ -310,15 +314,10 @@ void HighlightFiles::InitHighlightFiles(HierarchicalConfig* cfg)
 			if (!cfg->GetValue(key,HLS.Mask,strMask))
 				break;
 
-			FileFilterParams *HData = HiData.addItem();
-
-			if (HData)
-			{
-				LoadFilter(cfg,key,HData,strMask,GroupDelta[j]+(GroupDelta[j]==DEFAULT_SORT_GROUP?0:i),(GroupDelta[j]==DEFAULT_SORT_GROUP?false:true));
-				(*(Count[j]))++;
-			}
-			else
-				break;
+			auto HData = new FileFilterParams;
+			LoadFilter(cfg,key,HData,strMask,GroupDelta[j]+(GroupDelta[j]==DEFAULT_SORT_GROUP?0:i),(GroupDelta[j]==DEFAULT_SORT_GROUP?false:true));
+			HiData.push_back(HData);
+			(*(Count[j]))++;
 		}
 	}
 }
@@ -331,7 +330,11 @@ HighlightFiles::~HighlightFiles()
 
 void HighlightFiles::ClearData()
 {
-	HiData.Free();
+	std::for_each(RANGE(HiData, i)
+	{
+		delete i;
+	});
+	HiData.clear();
 	FirstCount=UpperCount=LowerCount=LastCount=0;
 }
 
@@ -468,16 +471,14 @@ void HighlightFiles::GetHiColor(FileListItem **FileItem,size_t FileCount,bool Us
 	if (!FileItem || !FileCount)
 		return;
 
-	FileFilterParams *CurHiData;
-
 	for (size_t FCnt=0; FCnt < FileCount; ++FCnt)
 	{
 		FileListItem& fli = *FileItem[FCnt];
 		ApplyDefaultStartingColors(&fli.Colors);
 
-		for (size_t i=0; i < HiData.getCount(); i++)
+		for (size_t i=0; i < HiData.size(); i++)
 		{
-			CurHiData = HiData.getItem(i);
+			FileFilterParams* CurHiData = HiData[i];
 
 			if (UseAttrHighlighting && CurHiData->GetMask(nullptr))
 				continue;
@@ -501,18 +502,14 @@ int HighlightFiles::GetGroup(const FileListItem *fli)
 {
 	for (int i=FirstCount; i<FirstCount+UpperCount; i++)
 	{
-		FileFilterParams *CurGroupData=HiData.getItem(i);
-
-		if (CurGroupData->FileInFilter(*fli, CurrentTime))
-			return(CurGroupData->GetSortGroup());
+		if (HiData[i]->FileInFilter(*fli, CurrentTime))
+			return(HiData[i]->GetSortGroup());
 	}
 
 	for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
 	{
-		FileFilterParams *CurGroupData=HiData.getItem(i);
-
-		if (CurGroupData->FileInFilter(*fli, CurrentTime))
-			return(CurGroupData->GetSortGroup());
+		if (HiData[i]->FileInFilter(*fli, CurrentTime))
+			return(HiData[i]->GetSortGroup());
 	}
 
 	return DEFAULT_SORT_GROUP;
@@ -535,7 +532,7 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 	{
 		for (int i=Count[j][0]; i<Count[j][1]; i++)
 		{
-			MenuString(HiMenuItem.strName,HiData.getItem(i),true);
+			MenuString(HiMenuItem.strName, HiData[i], true);
 			HiMenu->AddItem(&HiMenuItem);
 		}
 
@@ -563,16 +560,16 @@ void HighlightFiles::FillMenu(VMenu2 *HiMenu,int MenuPos)
 void HighlightFiles::ProcessGroups()
 {
 	for (int i=0; i<FirstCount; i++)
-		HiData.getItem(i)->SetSortGroup(DEFAULT_SORT_GROUP);
+		HiData[i]->SetSortGroup(DEFAULT_SORT_GROUP);
 
 	for (int i=FirstCount; i<FirstCount+UpperCount; i++)
-		HiData.getItem(i)->SetSortGroup(i-FirstCount);
+		HiData[i]->SetSortGroup(i-FirstCount);
 
 	for (int i=FirstCount+UpperCount; i<FirstCount+UpperCount+LowerCount; i++)
-		HiData.getItem(i)->SetSortGroup(DEFAULT_SORT_GROUP+1+i-FirstCount-UpperCount);
+		HiData[i]->SetSortGroup(DEFAULT_SORT_GROUP+1+i-FirstCount-UpperCount);
 
 	for (int i=FirstCount+UpperCount+LowerCount; i<FirstCount+UpperCount+LowerCount+LastCount; i++)
-		HiData.getItem(i)->SetSortGroup(DEFAULT_SORT_GROUP);
+		HiData[i]->SetSortGroup(DEFAULT_SORT_GROUP);
 }
 
 int HighlightFiles::MenuPosToRealPos(int MenuPos, int **Count, bool Insert)
@@ -610,8 +607,8 @@ void HighlightFiles::UpdateHighlighting(bool RefreshMasks)
 	ProcessGroups();
 
 	if(RefreshMasks)
-		for (size_t i = 0; i < HiData.getCount(); ++i)
-			HiData.getItem(i)->RefreshMask();
+		for (size_t i = 0; i < HiData.size(); ++i)
+			HiData[i]->RefreshMask();
 
 	//FrameManager->RefreshFrame(); // נופנורטל
 	Global->CtrlObject->Cp()->LeftPanel->Update(UPDATE_KEEP_SELECTION);
@@ -669,17 +666,17 @@ void HighlightFiles::HiEdit(int MenuPos)
 					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
 
-					if (Count && RealSelectPos<(int)HiData.getCount())
+					if (Count && RealSelectPos<(int)HiData.size())
 					{
 						const wchar_t *Mask;
-						HiData.getItem(RealSelectPos)->GetMask(&Mask);
+						HiData[RealSelectPos]->GetMask(&Mask);
 
 						if (Message(MSG_WARNING,2,MSG(MHighlightTitle),
 						            MSG(MHighlightAskDel),Mask,
 						            MSG(MDelete),MSG(MCancel)) != 0)
 							break;
-
-						HiData.deleteItem(RealSelectPos);
+						delete *(HiData.begin()+RealSelectPos);
+						HiData.erase(HiData.begin()+RealSelectPos);
 						(*Count)--;
 						NeedUpdate=TRUE;
 					}
@@ -694,59 +691,35 @@ void HighlightFiles::HiEdit(int MenuPos)
 					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
 
-					if (Count && RealSelectPos<(int)HiData.getCount())
-						if (FileFilterConfig(HiData.getItem(RealSelectPos),true))
+					if (Count && RealSelectPos<(int)HiData.size())
+						if (FileFilterConfig(HiData[RealSelectPos],true))
 							NeedUpdate=TRUE;
 
 					break;
 				}
 
-				case KEY_INS: case KEY_NUMPAD0:
+				case KEY_INS:
+				case KEY_NUMPAD0:
+				case KEY_F5:
 				{
 					int *Count=nullptr;
 					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count,true);
 
 					if (Count)
 					{
-						FileFilterParams *NewHData = HiData.insertItem(RealSelectPos);
+						auto NewHData = new FileFilterParams;
 
-						if (!NewHData)
-							break;
+						if (Key == KEY_F5)
+							*NewHData = *HiData[RealSelectPos];
 
 						if (FileFilterConfig(NewHData,true))
 						{
 							(*Count)++;
 							NeedUpdate=TRUE;
+							HiData.insert(HiData.begin()+RealSelectPos, NewHData);
 						}
 						else
-							HiData.deleteItem(RealSelectPos);
-					}
-
-					break;
-				}
-
-				case KEY_F5:
-				{
-					int *Count=nullptr;
-					int RealSelectPos=MenuPosToRealPos(SelectPos,&Count);
-
-					if (Count && RealSelectPos<(int)HiData.getCount())
-					{
-						FileFilterParams *HData = HiData.insertItem(RealSelectPos);
-
-						if (HData)
-						{
-							*HData = *HiData.getItem(RealSelectPos+1);
-							HData->SetTitle(L"");
-
-							if (FileFilterConfig(HData,true))
-							{
-								NeedUpdate=TRUE;
-								(*Count)++;
-							}
-							else
-								HiData.deleteItem(RealSelectPos);
-						}
+							delete NewHData;
 					}
 
 					break;
@@ -779,8 +752,10 @@ void HighlightFiles::HiEdit(int MenuPos)
 							SelectPos--;
 						}
 						else
-							HiData.swapItems(RealSelectPos,RealSelectPos-1);
-
+						{
+							auto p1 = HiData.begin() + RealSelectPos, p2 = HiData.begin() + RealSelectPos - 1;
+							std::swap(p1, p2);
+						}
 						HiMenu.SetCheck(--SelectPos);
 						NeedUpdate=TRUE;
 						break;
@@ -816,8 +791,10 @@ void HighlightFiles::HiEdit(int MenuPos)
 							SelectPos++;
 						}
 						else
-							HiData.swapItems(RealSelectPos,RealSelectPos+1);
-
+						{
+							auto p1 = HiData.begin() + RealSelectPos, p2 = HiData.begin() + RealSelectPos + 1;
+							std::swap(p1, p2);
+						}
 						HiMenu.SetCheck(++SelectPos);
 						NeedUpdate=TRUE;
 					}
@@ -943,9 +920,7 @@ void HighlightFiles::SaveHiData()
 			if (!key)
 				break;
 
-			FileFilterParams *CurHiData=HiData.getItem(i);
-
-			SaveFilter(cfg,key,CurHiData,(!j || j==3)?false:true);
+			SaveFilter(cfg, key, HiData[i], (!j || j==3)? false : true);
 		}
 	}
 

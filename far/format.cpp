@@ -85,7 +85,7 @@ BaseFormat& BaseFormat::Put(LPCWSTR Data, size_t Length)
 		MaxWidth = Length;
 	}
 
-	string OutStr(Data, Min(MaxWidth, Length));
+	string OutStr(Data, std::min(MaxWidth, Length));
 
 	if (Align == fmt::A_RIGHT)
 	{

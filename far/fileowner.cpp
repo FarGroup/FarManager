@@ -36,7 +36,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "fileowner.hpp"
 #include "pathmix.hpp"
-#include "DList.hpp"
 #include "privilege.hpp"
 #include "elevation.hpp"
 
@@ -101,15 +100,19 @@ struct SIDCacheItem
 	}
 };
 
-DList<SIDCacheItem*>SIDCache;
+std::list<SIDCacheItem*>* SIDCache;
 
 void SIDCacheFlush()
 {
-	for(SIDCacheItem** i=SIDCache.First();i;i=SIDCache.Next(i))
+	if(SIDCache)
 	{
-		delete *i;
+		std::for_each(RANGE(*SIDCache, i)
+		{
+			delete i;
+		});
+		delete SIDCache;
+		SIDCache = nullptr;
 	}
-	SIDCache.Clear();
 }
 
 const wchar_t* AddSIDToCache(const wchar_t *Computer,PSID Sid)
@@ -122,21 +125,27 @@ const wchar_t* AddSIDToCache(const wchar_t *Computer,PSID Sid)
 	}
 	else
 	{
-		Result=(*SIDCache.Push(&NewItem))->strUserName;
+		if(!SIDCache)
+		{
+			SIDCache = new std::list<SIDCacheItem*>;
+		}
+		SIDCache->push_back(NewItem);
+		Result = SIDCache->back()->strUserName;
 	}
 	return Result;
 }
 
 const wchar_t* GetNameFromSIDCache(PSID Sid)
 {
-	LPCWSTR Result=nullptr;
-	for(SIDCacheItem** i=SIDCache.First();i;i=SIDCache.Next(i))
+	const wchar_t* Result = nullptr;
+	if(SIDCache)
 	{
-		if (EqualSid((*i)->Sid,Sid))
+		auto i = std::find_if(SIDCache->begin(), SIDCache->end(), [&Sid](SIDCacheItem* i)
 		{
-			Result=(*i)->strUserName;
-			break;
-		}
+			return EqualSid(i->Sid, Sid);
+		});
+		if(i != SIDCache->end())
+			Result = (*i)->strUserName.CPtr();
 	}
 	return Result;
 }

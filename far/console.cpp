@@ -116,8 +116,8 @@ virtual bool SetSize(COORD Size) const
 		COORD WindowCoord={static_cast<SHORT>(csbi.srWindow.Right-csbi.srWindow.Left+1), static_cast<SHORT>(csbi.srWindow.Bottom-csbi.srWindow.Top+1)};
 		if(WindowCoord.X>csbi.dwSize.X || WindowCoord.Y>csbi.dwSize.Y)
 		{
-			WindowCoord.X=Max(WindowCoord.X,csbi.dwSize.X);
-			WindowCoord.Y=Max(WindowCoord.Y,csbi.dwSize.Y);
+			WindowCoord.X=std::max(WindowCoord.X,csbi.dwSize.X);
+			WindowCoord.Y=std::max(WindowCoord.Y,csbi.dwSize.Y);
 			SetConsoleScreenBufferSize(GetOutputHandle(), WindowCoord);
 		}
 		Result=SetWindowRect(csbi.srWindow);
@@ -242,10 +242,10 @@ virtual bool PeekInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEven
 	NumberOfEventsRead = dwNumberOfEventsRead;
 	if(Global->Opt->WindowMode && Buffer->EventType==MOUSE_EVENT)
 	{
-		Buffer->Event.MouseEvent.dwMousePosition.Y=Max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
+		Buffer->Event.MouseEvent.dwMousePosition.Y=std::max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
 		COORD Size={};
 		GetSize(Size);
-		Buffer->Event.MouseEvent.dwMousePosition.X=Min(Buffer->Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
+		Buffer->Event.MouseEvent.dwMousePosition.X=std::min(Buffer->Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
 	}
 	return Result;
 }
@@ -257,10 +257,10 @@ virtual bool ReadInput(INPUT_RECORD* Buffer, size_t Length, size_t& NumberOfEven
 	NumberOfEventsRead = dwNumberOfEventsRead;
 	if(Global->Opt->WindowMode && Buffer->EventType==MOUSE_EVENT)
 	{
-		Buffer->Event.MouseEvent.dwMousePosition.Y=Max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
+		Buffer->Event.MouseEvent.dwMousePosition.Y=std::max(0, Buffer->Event.MouseEvent.dwMousePosition.Y-GetDelta());
 		COORD Size={};
 		GetSize(Size);
-		Buffer->Event.MouseEvent.dwMousePosition.X=Min(Buffer->Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
+		Buffer->Event.MouseEvent.dwMousePosition.X=std::min(Buffer->Event.MouseEvent.dwMousePosition.X, static_cast<SHORT>(Size.X-1));
 	}
 	return Result;
 }
@@ -293,7 +293,7 @@ virtual bool ReadOutput(FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD BufferCoo
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
 		SHORT SavedY = BufferSize.Y;
-		BufferSize.Y=static_cast<SHORT>(Max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1));
+		BufferSize.Y=static_cast<SHORT>(std::max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1));
 		int Height=ReadRegion.Bottom-ReadRegion.Top+1;
 		int Start=ReadRegion.Top;
 		SMALL_RECT SavedReadRegion=ReadRegion;
@@ -350,7 +350,7 @@ virtual bool WriteOutput(const FAR_CHAR_INFO* Buffer, COORD BufferSize, COORD Bu
 	if(BufferSize.X*BufferSize.Y*sizeof(CHAR_INFO)>MAXSIZE)
 	{
 		SHORT SavedY = BufferSize.Y;
-		BufferSize.Y=static_cast<SHORT>(Max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1));
+		BufferSize.Y=static_cast<SHORT>(std::max(static_cast<int>(MAXSIZE/(BufferSize.X*sizeof(CHAR_INFO))),1));
 		int Height=WriteRegion.Bottom-WriteRegion.Top+1;
 		int Start=WriteRegion.Top;
 		SMALL_RECT SavedWriteRegion=WriteRegion;
@@ -458,8 +458,8 @@ virtual bool SetCursorPosition(COORD Position) const
 		ResetPosition();
 		COORD Size={};
 		GetSize(Size);
-		Position.X=Min(Position.X,static_cast<SHORT>(Size.X-1));
-		Position.Y=Max(static_cast<SHORT>(0),Position.Y);
+		Position.X=std::min(Position.X,static_cast<SHORT>(Size.X-1));
+		Position.Y=std::max(static_cast<SHORT>(0),Position.Y);
 		Position.Y+=GetDelta();
 	}
 	return SetConsoleCursorPosition(GetOutputHandle(), Position)!=FALSE;

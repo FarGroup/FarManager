@@ -33,9 +33,7 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "array.hpp"
 #include "TStack.hpp"
-#include "DList.hpp"
 #include "tvar.hpp"
 class Panel;
 struct GetMacroData;
@@ -192,14 +190,14 @@ class MacroState
 	public:
 		INPUT_RECORD cRec; // "описание реально нажатой клавиши"
 		int Executing;
-		DList<MacroRecord> m_MacroQueue;
+		std::list<MacroRecord*> m_MacroQueue;
 		int KeyProcess;
 		DWORD HistoryDisable;
 		bool UseInternalClipboard;
 	public:
 		MacroState();
-		MacroRecord* GetCurMacro() { return m_MacroQueue.Empty() ? nullptr : m_MacroQueue.First(); }
-		void RemoveCurMacro() { if (!m_MacroQueue.Empty()) m_MacroQueue.Delete(m_MacroQueue.First()); }
+		MacroRecord* GetCurMacro() { return m_MacroQueue.empty() ? nullptr : m_MacroQueue.front(); }
+		void RemoveCurMacro() { if (!m_MacroQueue.empty()) {delete m_MacroQueue.front(); m_MacroQueue.pop_front();} }
 };
 
 class Dialog;

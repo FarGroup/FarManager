@@ -230,7 +230,7 @@ static const wchar_t *_SubstFileName(const wchar_t *CurStr,TSubstData *PSubstDat
 		{
 			if (Ptr[1] != L'?')
 			{
-				xwcsncpy(Modifers,CurStr+2,Min(ARRAYSIZE(Modifers),static_cast<size_t>(Ptr-(CurStr+2)+1)));
+				xwcsncpy(Modifers,CurStr+2,std::min(ARRAYSIZE(Modifers),static_cast<size_t>(Ptr-(CurStr+2)+1)));
 
 				if (pListName)
 				{

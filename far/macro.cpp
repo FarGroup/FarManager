@@ -487,15 +487,13 @@ void KeyMacro::PopState(bool withClip)
 {
 	if (!m_StateStack.empty())
 	{
-		MacroRecord* src=m_CurState->m_MacroQueue.First();
-		if(src)
+		if(!m_CurState->m_MacroQueue.empty())
 		{
 			MacroState* dst=(*m_StateStack.Peek());
-			while(src)
+			std::for_each(RANGE(m_CurState->m_MacroQueue, i)
 			{
-				dst->m_MacroQueue.Push(src);
-				src=m_CurState->m_MacroQueue.Next(src);
-			}
+				dst->m_MacroQueue.push_back(i);
+			});
 		}
 		delete m_CurState;
 		m_StateStack.Pop(m_CurState);
@@ -533,7 +531,11 @@ void KeyMacro::InitInternalVars(bool InitedRAM)
 {
 	if (InitedRAM)
 	{
-		m_CurState->m_MacroQueue.Clear();
+		std::for_each(RANGE(m_CurState->m_MacroQueue, i)
+		{
+			delete i;
+		});
+		m_CurState->m_MacroQueue.clear();
 		m_CurState->Executing=MACROMODE_NOMACRO;
 	}
 	m_CurState->HistoryDisable=0;
@@ -571,7 +573,7 @@ DWORD KeyMacro::GetHistoryDisableMask()
 
 bool KeyMacro::IsHistoryDisable(int TypeHistory)
 {
-	return !m_CurState->m_MacroQueue.Empty() && (m_CurState->HistoryDisable & (1 << TypeHistory));
+	return !m_CurState->m_MacroQueue.empty() && (m_CurState->HistoryDisable & (1 << TypeHistory));
 }
 
 bool KeyMacro::LoadMacros(bool InitedRAM,bool LoadAll)
@@ -844,7 +846,7 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 			}
 			else
 			{
-				if (!IsExecuting()||(m_CurState->m_MacroQueue.Empty()&&!m_DisableNested))
+				if (!IsExecuting()||(m_CurState->m_MacroQueue.empty()&&!m_DisableNested))
 				{
 					DWORD key = Rec->IntKey;
 					if ((key&0x00FFFFFF) > 0x7F && (key&0x00FFFFFF) < 0xFFFF)
@@ -943,7 +945,7 @@ int KeyMacro::GetKey()
 		return 0;
 	}
 
-	if (m_CurState->m_MacroQueue.Empty() && !m_MacroPluginIsRunning)
+	if (m_CurState->m_MacroQueue.empty() && !m_MacroPluginIsRunning)
 	{
 		if (!m_StateStack.empty())
 		{
@@ -990,7 +992,7 @@ int KeyMacro::GetKey()
 					Global->ScrBuf->Unlock();
 
 				RemoveCurMacro();
-				if (m_CurState->m_MacroQueue.Empty())
+				if (m_CurState->m_MacroQueue.empty())
 				{
 					RestoreMacroChar();
 					return 0;
@@ -1271,9 +1273,9 @@ bool KeyMacro::PostNewMacro(int MacroId,const wchar_t *PlainText,UINT64 Flags,DW
 {
 	if (!m_InternalInput && (MacroId != 0 || ParseMacroString(PlainText, onlyCheck)))
 	{
-		MacroRecord macro(MACRO_COMMON, Flags, MacroId, AKey, PlainText, L"");
+		MacroRecord* macro=new MacroRecord(MACRO_COMMON, Flags, MacroId, AKey, PlainText, L"");
 
-		m_CurState->m_MacroQueue.Push(&macro);
+		m_CurState->m_MacroQueue.push_back(macro);
 
 		return true;
 	}
@@ -3857,7 +3859,7 @@ static bool menushowFunc(FarMacroCall* Data)
 		}
 		else
 			if (VFindOrFilter.isString())
-				Menu.SetSelectPos(Max(0,Menu.FindItem(0, VFindOrFilter.toString())),1);
+				Menu.SetSelectPos(std::max(0,Menu.FindItem(0, VFindOrFilter.toString())),1);
 	}
 
 	Frame *frame;

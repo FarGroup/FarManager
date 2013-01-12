@@ -32,7 +32,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "CriticalSections.hpp"
-#include "DList.hpp"
 
 class PluginSynchro
 {
@@ -44,7 +43,7 @@ class PluginSynchro
 			void* Param;
 		};
 		CriticalSection CS;
-		DList<SynchroData> Data;
+		std::list<SynchroData> Data;
 
 	public:
 		PluginSynchro();

@@ -563,12 +563,10 @@ FileWalker::FileWalker():
 FileSize(0),
 	AllocSize(0),
 	ProcessedSize(0),
-	CurrentChunk(nullptr),
+	CurrentChunk(ChunkList.begin()),
 	ChunkSize(0),
 	Sparse(false)
 {
-	SingleChunk.Offset = 0;
-	SingleChunk.Size = 0;
 }
 
 bool FileWalker::InitWalk(size_t BlockSize)
@@ -597,11 +595,11 @@ bool FileWalker::InitWalk(size_t BlockSize)
 						UINT64 RangeEndOffset = Ranges[i].FileOffset.QuadPart + Ranges[i].Length.QuadPart;
 						for(UINT64 j = Ranges[i].FileOffset.QuadPart; j < RangeEndOffset; j+=ChunkSize)
 						{
-							Chunk c = {j, Min(static_cast<DWORD>(RangeEndOffset - j), ChunkSize)};
-							ChunkList.Push(&c);
+							Chunk c = {j, std::min(static_cast<DWORD>(RangeEndOffset - j), ChunkSize)};
+							ChunkList.push_back(c);
 						}
 					}
-					QueryRange.FileOffset.QuadPart = ChunkList.Last()->Offset+ChunkList.Last()->Size;
+					QueryRange.FileOffset.QuadPart = ChunkList.back().Offset+ChunkList.back().Size;
 					QueryRange.Length.QuadPart = FileSize - QueryRange.FileOffset.QuadPart;
 				}
 				else
@@ -609,14 +607,15 @@ bool FileWalker::InitWalk(size_t BlockSize)
 					break;
 				}
 			}
-			Result = !ChunkList.Empty();
+			Result = !ChunkList.empty();
 		}
 		else
 		{
 			AllocSize = FileSize;
-			CurrentChunk = &SingleChunk;
+			ChunkList.push_back(Chunk());
 			Result = true;
 		}
+		CurrentChunk = ChunkList.begin();
 	}
 	return Result;
 }
@@ -627,8 +626,8 @@ bool FileWalker::Step()
 	bool Result = false;
 	if(Sparse)
 	{
-		CurrentChunk = ChunkList.Next(CurrentChunk);
-		if(CurrentChunk)
+		++CurrentChunk;
+		if(CurrentChunk != ChunkList.end())
 		{
 			SetPointer(CurrentChunk->Offset, nullptr, FILE_BEGIN);
 			ProcessedSize += CurrentChunk->Size;

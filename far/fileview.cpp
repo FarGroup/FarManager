@@ -505,7 +505,7 @@ void FileViewer::ShowStatus()
 	if (Global->Opt->ViewerEditorClock && IsFullScreen())
 		NameLength -= 3+5;
 
-	NameLength = Max(NameLength, 20);
+	NameLength = std::max(NameLength, 20);
 
 	TruncPathStr(strName, NameLength);
 	const wchar_t *lpwszStatusFormat = L"%-*s %c %5u %13I64u %7.7s %-4I64d %3d%%";

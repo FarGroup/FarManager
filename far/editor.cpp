@@ -72,8 +72,8 @@ enum {UNDO_EDIT=1,UNDO_INSSTR,UNDO_DELSTR,UNDO_BEGIN,UNDO_END};
 
 Editor::Editor(ScreenObject *pOwner,bool DialogUsed):
 	LastGetLine(nullptr),
-	UndoPos(nullptr),
-	UndoSavePos(nullptr),
+	UndoPos(UndoData.end()),
+	UndoSavePos(UndoData.end()),
 	UndoSkipLevel(0),
 	LastChangeStrPos(0),
 	NumLastLine(0),
@@ -148,9 +148,9 @@ void Editor::FreeAllocatedData(bool FreeUndo)
 		EndList=Prev;
 	}
 
-	UndoData.Clear();
-	UndoSavePos=nullptr;
-	UndoPos=nullptr;
+	UndoData.clear();
+	UndoSavePos=UndoData.end();
+	UndoPos=UndoData.end();
 	UndoSkipLevel=0;
 	ClearSessionBookmarks();
 	TopList=EndList=CurLine=nullptr;
@@ -4867,58 +4867,73 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 
 	if (StrNum==-1)
 		StrNum=NumLine;
-
-	for (EditorUndoData *u=UndoData.Next(UndoPos); u;)
+	auto u = UndoPos;
+	if(u != UndoData.end())
+		++u;
+	while(!UndoData.empty() && u != UndoData.end())
 	{
-		if (u==UndoSavePos)
+		if (u == UndoSavePos)
 		{
-			UndoSavePos=nullptr;
+			UndoSavePos = UndoData.end();
 			Flags.Set(FEDITOR_UNDOSAVEPOSLOST);
 		}
 
-		EditorUndoData *nu=UndoData.Next(u);
-		UndoData.Delete(u);
-		u=nu;
+		u = UndoData.erase(u);
 	}
 
-	EditorUndoData *PrevUndo=UndoData.Last();
-
-	if (Type==UNDO_END)
+	auto PrevUndo=UndoData.end();
+	if(!UndoData.empty())
 	{
-		if (PrevUndo && PrevUndo->Type!=UNDO_BEGIN)
-			PrevUndo=UndoData.Prev(PrevUndo);
-
-		if (PrevUndo && PrevUndo->Type==UNDO_BEGIN)
+		--PrevUndo;
+		switch (Type)
 		{
-			UndoData.Delete(PrevUndo);
-			UndoPos=UndoData.Last();
+		case UNDO_END:
+			{
+				if (PrevUndo->Type!=UNDO_BEGIN)
+				{
+					if(PrevUndo != UndoData.begin())
+						--PrevUndo;
+					else
+						PrevUndo = UndoData.end();
+				}
+				if (PrevUndo != UndoData.end() && PrevUndo->Type==UNDO_BEGIN)
+				{
+					bool eq = PrevUndo==UndoSavePos;
+					UndoData.erase(PrevUndo);
+					UndoPos=UndoData.end();
+					if(!UndoData.empty())
+						--UndoPos;
+					if (eq)
+						UndoSavePos=UndoPos;
 
-			if (PrevUndo==UndoSavePos)
-				UndoSavePos=UndoPos;
+					return;
+				}
+			}
+			break;
 
-			return;
-		}
-	}
-
-	if (Type==UNDO_EDIT && !Flags.Check(FEDITOR_NEWUNDO))
-	{
-		if (PrevUndo && PrevUndo->Type==UNDO_EDIT && StrNum==PrevUndo->StrNum &&
-		        (abs(StrPos-PrevUndo->StrPos)<=1 || abs(StrPos-LastChangeStrPos)<=1))
-		{
-			LastChangeStrPos=StrPos;
-			return;
+		case UNDO_EDIT:
+			{
+				if (!Flags.Check(FEDITOR_NEWUNDO) && PrevUndo->Type==UNDO_EDIT && StrNum==PrevUndo->StrNum &&
+						(abs(StrPos-PrevUndo->StrPos)<=1 || abs(StrPos-LastChangeStrPos)<=1))
+				{
+					LastChangeStrPos=StrPos;
+					return;
+				}
+			}
 		}
 	}
 
 	Flags.Clear(FEDITOR_NEWUNDO);
-	UndoPos=UndoData.Push();
+	UndoData.resize(UndoData.size() + 1);
+	UndoPos=UndoData.end();
+	--UndoPos;
 	UndoPos->SetData(Type,Str,Eol,StrNum,StrPos,Length);
 
 	if (EdOpt.UndoSize>0)
 	{
-		while (!UndoData.Empty() && (UndoData.Count()>static_cast<size_t>(EdOpt.UndoSize) || UndoSkipLevel>0))
+		while (!UndoData.empty() && (UndoData.size()>static_cast<size_t>(EdOpt.UndoSize) || UndoSkipLevel>0))
 		{
-			EditorUndoData *u=UndoData.First();
+			auto u=UndoData.begin();
 
 			if (u->Type==UNDO_BEGIN)
 				++UndoSkipLevel;
@@ -4926,32 +4941,36 @@ void Editor::AddUndoData(int Type,const wchar_t *Str,const wchar_t *Eol,int StrN
 			if (u->Type==UNDO_END && UndoSkipLevel>0)
 				--UndoSkipLevel;
 
-			if (!UndoSavePos)
+			if (UndoSavePos == UndoData.end())
 				Flags.Set(FEDITOR_UNDOSAVEPOSLOST);
 
 			if (u==UndoSavePos)
-				UndoSavePos=nullptr;
+				UndoSavePos == UndoData.end();
 
-			UndoData.Delete(u);
+			UndoData.pop_front();
 		}
 
-		UndoPos=UndoData.Last();
+		UndoPos=UndoData.end();
+		if(!UndoData.empty())
+			--UndoPos;
 	}
 }
 
 void Editor::Undo(int redo)
 {
-	EditorUndoData *ustart=redo ? UndoData.Next(UndoPos) : UndoPos;
+	auto ustart = UndoPos;
+	if(redo)
+		++ustart;
 
-	if (!ustart)
+	if (ustart == UndoData.end())
 		return;
 
 	TextChanged(1);
 	Flags.Set(FEDITOR_DISABLEUNDO);
 	int level=0;
-	EditorUndoData *uend;
+	auto uend = ustart;
 
-	for (uend=ustart; uend; uend=redo ? UndoData.Next(uend) : UndoData.Prev(uend))
+	for (;;)
 	{
 		if (uend->Type==UNDO_BEGIN || uend->Type==UNDO_END)
 		{
@@ -4961,13 +4980,26 @@ void Editor::Undo(int redo)
 
 		if (level<=0)
 			break;
+
+		if(redo)
+		{
+			++uend;
+			if(uend == UndoData.end())
+				break;
+		}
+		else
+		{
+			if(uend == UndoData.begin())
+				break;
+			--uend;
+		}
 	}
 
 	if (level)
 		uend=ustart;
 
 	UnmarkBlock();
-	EditorUndoData *ud=ustart;
+	auto ud=ustart;
 
 	for (;;)
 	{
@@ -5029,11 +5061,17 @@ void Editor::Undo(int redo)
 		if (ud==uend)
 			break;
 
-		ud=redo ? UndoData.Next(ud) : UndoData.Prev(ud);
+		redo? ++ud : --ud;
 	}
 
-	UndoPos=redo ? ud : UndoData.Prev(ud);
-
+	UndoPos = ud;
+	if(!redo)
+	{
+		if(UndoPos == UndoData.begin())
+			UndoPos = UndoData.end();
+		else
+			--UndoPos;
+	}
 	if (!Flags.Check(FEDITOR_UNDOSAVEPOSLOST) && UndoPos==UndoSavePos)
 		TextChanged(0);
 
@@ -5581,7 +5619,7 @@ void Editor::VBlockShift(int Left)
 		}
 
 		AddUndoData(UNDO_EDIT,CurPtr->GetStringAddr(),CurPtr->GetEOL(),BlockStartLine+Line,CurPtr->GetCurPos(),CurPtr->GetLength());
-		intptr_t StrLen=Max(Length,TBlockX+TBlockSizeX+!Left);
+		intptr_t StrLen=std::max(Length,TBlockX+TBlockSizeX+!Left);
 		wchar_t *TmpStr=new wchar_t[StrLen+3];
 		wmemset(TmpStr,L' ',StrLen);
 		wmemcpy(TmpStr,CurStr,Length);
@@ -7181,14 +7219,14 @@ void Editor::EditorShowMsg(const wchar_t *Title,const wchar_t *Msg, const wchar_
 		FormatString strPercent;
 		strPercent<<Percent;
 
-		size_t PercentLength=Max(strPercent.GetLength(),(size_t)3);
-		size_t Length=Max(Min(ScrX-1-10,static_cast<int>(strMsg.GetLength())),40)-PercentLength-2;
+		size_t PercentLength=std::max(strPercent.GetLength(),(size_t)3);
+		size_t Length=std::max(std::min(ScrX-1-10,static_cast<int>(strMsg.GetLength())),40)-PercentLength-2;
 
 		wchar_t *Progress=strProgress.GetBuffer(Length);
 
 		if (Progress)
 		{
-			size_t CurPos=Min(Percent,100)*Length/100;
+			size_t CurPos=std::min(Percent,100)*Length/100;
 			wmemset(Progress,BoxSymbols[BS_X_DB],CurPos);
 			wmemset(Progress+(CurPos),BoxSymbols[BS_X_B0],Length-CurPos);
 			strProgress.ReleaseBuffer(Length);

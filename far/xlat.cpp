@@ -66,8 +66,8 @@ wchar_t* Xlat(wchar_t *Line,
 		return nullptr;
 
 	int Length=StrLength(Line);
-	EndPos=Min(EndPos,Length);
-	StartPos=Max(StartPos,0);
+	EndPos=std::min(EndPos,Length);
+	StartPos=std::max(StartPos,0);
 
 	if (StartPos > EndPos || StartPos >= Length)
 		return Line;
@@ -75,7 +75,7 @@ wchar_t* Xlat(wchar_t *Line,
 	if (!Global->Opt->XLat.Table[0].GetLength() || !Global->Opt->XLat.Table[1].GetLength())
 		return Line;
 
-	size_t MinLenTable=Min(Global->Opt->XLat.Table[0].GetLength(),Global->Opt->XLat.Table[1].GetLength());
+	size_t MinLenTable=std::min(Global->Opt->XLat.Table[0].GetLength(),Global->Opt->XLat.Table[1].GetLength());
 	string strLayoutName;
 	int ProcessLayoutName=FALSE;
 

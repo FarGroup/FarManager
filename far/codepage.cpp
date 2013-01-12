@@ -572,7 +572,7 @@ wchar_t *codepages::FormatCodePageName(uintptr_t CodePage, wchar_t *CodePageName
 	string strCodePageName;
 	if (Global->Db->GeneralCfg()->GetValue(NamesOfCodePagesKey, strCodePage, strCodePageName, L""))
 	{
-		Length = Min(Length-1, strCodePageName.GetLength());
+		Length = std::min(Length-1, strCodePageName.GetLength());
 		IsCodePageNameCustom = true;
 	}
 	else

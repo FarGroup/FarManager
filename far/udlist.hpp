@@ -37,7 +37,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-#include "array.hpp"
 #include "bitflags.hpp"
 
 enum UDL_FLAGS
@@ -61,16 +60,15 @@ enum UDL_FLAGS
 
 class UserDefinedListItem
 {
-	public:
-		size_t index;
-		wchar_t *Str;
-		UserDefinedListItem():index(0), Str(nullptr) {}
-		bool operator==(const UserDefinedListItem &rhs) const;
-		int operator<(const UserDefinedListItem &rhs) const;
-		UserDefinedListItem& operator=(const UserDefinedListItem &rhs);
-		UserDefinedListItem& operator=(const wchar_t *rhs);
-		wchar_t *set(const wchar_t *Src, size_t size);
-		~UserDefinedListItem();
+public:
+
+	UserDefinedListItem():index(0) {}
+	~UserDefinedListItem();
+	bool operator==(const UserDefinedListItem &rhs) const;
+	int operator<(const UserDefinedListItem &rhs) const;
+
+	string Str;
+	size_t index;
 };
 
 class UserDefinedList:NonCopyable
@@ -122,17 +120,15 @@ class UserDefinedList:NonCopyable
 		bool IsEmpty();
 
 		// Вернуть количество элементов в списке
-		size_t GetTotal() const { return Array.getSize(); }
+		size_t GetTotal() const { return ItemsList.size(); }
 
 	private:
 		bool CheckSeparators() const; // проверка разделителей на корректность
 		void SetDefaultSeparators();
 		const wchar_t *Skip(const wchar_t *Str, int &Length, int &RealLength, bool &Error);
-		static int CmpItems(const UserDefinedListItem **el1, const UserDefinedListItem **el2);
-		static void UpdateRemainingItem(UserDefinedListItem *elRemaining, const UserDefinedListItem *elDeleted);
 
-		TArray<UserDefinedListItem> Array;
-		size_t CurrentItem;
+		std::list<UserDefinedListItem> ItemsList;
+		std::list<UserDefinedListItem>::iterator CurrentItem;
 		string strSeparators;
 		BitFlags Flags;
 };

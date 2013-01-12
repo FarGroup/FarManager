@@ -199,7 +199,7 @@ wchar_t* TruncStrFromEnd(wchar_t *Str,int MaxLength)
 {
 	assert(MaxLength >= 0);
 
-	MaxLength=Max(0, MaxLength);
+	MaxLength=std::max(0, MaxLength);
 
 	if (Str)
 	{
@@ -222,7 +222,7 @@ wchar_t* TruncStr(wchar_t *Str,int MaxLength)
 {
 	assert(MaxLength >= 0);
 
-	MaxLength=Max(0, MaxLength);
+	MaxLength=std::max(0, MaxLength);
 
 	if (Str)
 	{
@@ -260,7 +260,7 @@ wchar_t* TruncStrFromCenter(wchar_t *Str, int MaxLength)
 {
 	assert(MaxLength >= 0);
 
-	MaxLength=Max(0, MaxLength);
+	MaxLength=std::max(0, MaxLength);
 
 	if (Str)
 	{
@@ -300,7 +300,7 @@ wchar_t* TruncPathStr(wchar_t *Str, int MaxLength)
 {
 	assert(MaxLength >= 0);
 
-	MaxLength=Max(0, MaxLength);
+	MaxLength=std::max(0, MaxLength);
 
 	if (Str)
 	{

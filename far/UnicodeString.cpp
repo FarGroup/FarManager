@@ -61,7 +61,7 @@ void UnicodeString::Inflate(size_t nSize)
 	else
 	{
 		UnicodeStringData *pNewData = new UnicodeStringData(nSize);
-		size_t nNewLength = Min(m_pData->GetLength(),nSize-1);
+		size_t nNewLength = std::min(m_pData->GetLength(),nSize-1);
 		wmemcpy(pNewData->GetData(),m_pData->GetData(),nNewLength);
 		pNewData->SetLength(nNewLength);
 		m_pData->DecRef();

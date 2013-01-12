@@ -33,8 +33,6 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "DList.hpp"
-
 #define NT_MAX_PATH 32768
 
 struct FAR_FIND_DATA_EX
@@ -156,12 +154,11 @@ private:
 		UINT64 Offset;
 		DWORD Size;
 	};
-	DList<Chunk> ChunkList;
-	Chunk SingleChunk;
+	std::list<Chunk> ChunkList;
 	UINT64 FileSize;
 	UINT64 AllocSize;
 	UINT64 ProcessedSize;
-	Chunk* CurrentChunk;
+	std::list<Chunk>::iterator CurrentChunk;
 	DWORD ChunkSize;
 	bool Sparse;
 };

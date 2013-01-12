@@ -351,12 +351,12 @@ void* _cdecl xf_realloc_nomove(void * block, size_t size, const char* Function, 
 	}
 }
 
-void* _cdecl operator new(size_t size) throw()
+void* _cdecl operator new(size_t size)
 {
 	return DebugAllocator(size, AT_SCALAR, __FUNCTION__, __FILE__, __LINE__);
 }
 
-void* _cdecl operator new[](size_t size) throw()
+void* _cdecl operator new[](size_t size)
 {
 	return DebugAllocator(size, AT_VECTOR, __FUNCTION__, __FILE__, __LINE__);
 }
@@ -377,6 +377,16 @@ void _cdecl operator delete(void* block)
 }
 
 void _cdecl operator delete[](void* block)
+{
+	return DebugDeallocator(block, AT_VECTOR);
+}
+
+void operator delete(void* block, const char* Function, const char* File, int Line)
+{
+	return DebugDeallocator(block, AT_SCALAR);
+}
+
+void operator delete[](void* block, const char* Function, const char* File, int Line)
 {
 	return DebugDeallocator(block, AT_VECTOR);
 }

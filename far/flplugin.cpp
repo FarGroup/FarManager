@@ -67,7 +67,7 @@ void FileList::PushPlugin(HANDLE hPlugin,const wchar_t *HostFile)
 	stItem->PrevCaseSensitiveSort=CaseSensitiveSort;
 	stItem->PrevViewSettings=ViewSettings;
 	stItem->PrevDirectoriesFirst=DirectoriesFirst;
-	PluginsList.Push(&stItem);
+	PluginsList.push_back(stItem);
 	++Global->PluginPanelsCount;
 }
 
@@ -76,25 +76,25 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 {
 	OpenPanelInfo Info={};
 
-	if (PluginsList.Empty())
+	if (PluginsList.empty())
 	{
 		PanelMode=NORMAL_PANEL;
 		return FALSE;
 	}
 
 	// указатель на плагин, с которого уходим
-	PluginsListItem *PStack=*PluginsList.Last();
+	PluginsListItem *PStack=PluginsList.back();
 
 	// закрываем текущий плагин.
-	PluginsList.Delete(PluginsList.Last());
+	PluginsList.pop_back();
 
 	--Global->PluginPanelsCount;
 
 	Global->CtrlObject->Plugins->ClosePanel(hPlugin);
 
-	if (!PluginsList.Empty())
+	if (!PluginsList.empty())
 	{
-		hPlugin=(*PluginsList.Last())->hPlugin;
+		hPlugin=PluginsList.back()->hPlugin;
 		strOriginalCurDir=PStack->strPrevOriginalCurDir;
 
 		if (EnableRestoreViewMode)
@@ -168,10 +168,10 @@ int FileList::PopPlugin(int EnableRestoreViewMode)
 void FileList::PopPrevData(const string& DefaultName,bool Closed,bool UsePrev,bool Position,bool SetDirectorySuccess)
 {
     string strName(DefaultName);
-	if (Closed && !PrevDataList.Empty())
+	if (Closed && !PrevDataList.empty())
 	{
-		PrevDataItem* Item=*PrevDataList.Last();
-		PrevDataList.Delete(PrevDataList.Last());
+		PrevDataItem* Item=PrevDataList.back();
+		PrevDataList.pop_back();
 		if (Item->PrevFileCount>0)
 		{
 			MoveSelection(ListData,FileCount,Item->PrevListData,Item->PrevFileCount);
@@ -928,7 +928,7 @@ void FileList::ProcessHostFile()
 		int Done=FALSE;
 		SaveSelection();
 
-		if (PanelMode==PLUGIN_PANEL && !(*PluginsList.Last())->strHostFile.IsEmpty())
+		if (PanelMode==PLUGIN_PANEL && !PluginsList.back()->strHostFile.IsEmpty())
 		{
 			PluginPanelItem *ItemList;
 			int ItemNumber;
@@ -1209,9 +1209,9 @@ void FileList::ProcessPluginCommand()
 
 void FileList::SetPluginModified()
 {
-	if(PluginsList.Last())
+	if(!PluginsList.empty())
 	{
-		(*PluginsList.Last())->Modified=TRUE;
+		PluginsList.back()->Modified=TRUE;
 	}
 }
 

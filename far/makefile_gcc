@@ -34,7 +34,6 @@ SRCS = \
 	dizlist.cpp \
 	DlgBuilder.cpp \
 	dlgedit.cpp \
-	DList.cpp \
 	drivemix.cpp \
 	edit.cpp \
 	editor.cpp \
@@ -154,6 +153,8 @@ OBJS += $(OBJDIR)initguid.o $(OBJDIR)far.rc.o
 MAP = $(patsubst %.exe,%.map,$(EXEFULLNAME))
 
 TESTOBJS = $(OBJDIR)api_test_c.testobj $(OBJDIR)api_test_c++.testobj
+
+CFLAGS += -fexceptions
 
 .PHONY: all dirs
 all: dirs lng depfile

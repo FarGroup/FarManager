@@ -171,14 +171,13 @@ class PluginManager
 {
 	private:
 
-		Plugin **PluginsData;
-		size_t PluginsCount;
+		std::list<Plugin*> PluginsData;
 #ifndef NO_WRAPPER
 		size_t OemPluginsCount;
 #endif // NO_WRAPPER
 		PluginTree* PluginsCache;
 
-		DList<Plugin*> UnloadedPlugins;
+		std::list<Plugin*> UnloadedPlugins;
 
 	public:
 
@@ -229,9 +228,11 @@ class PluginManager
 		void LoadPlugins();
 
 		Plugin *GetPlugin(const wchar_t *lpwszModuleName);
-		Plugin *GetPlugin(size_t PluginNumber);
 
-		size_t GetPluginsCount() { return PluginsCount; }
+		std::list<Plugin*>::iterator GetBegin() { return PluginsData.begin(); }
+		std::list<Plugin*>::iterator GetEnd() { return PluginsData.end(); }
+
+		size_t GetPluginsCount() { return PluginsData.size(); }
 #ifndef NO_WRAPPER
 		size_t GetOemPluginsCount() { return OemPluginsCount; }
 #endif // NO_WRAPPER

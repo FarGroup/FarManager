@@ -238,7 +238,7 @@ void FileList::ReadFileNames(int KeepSelection, int IgnoreVisible, int DrawMessa
 	FileListItem *NewPtr;
 	// сформируем заголовок вне цикла
 	wchar_t Title[2048];
-	int TitleLength=Min((int)X2-X1-1,(int)(ARRAYSIZE(Title))-1);
+	int TitleLength=std::min((int)X2-X1-1,(int)(ARRAYSIZE(Title))-1);
 	//wmemset(Title,0x0CD,TitleLength); //BUGBUG
 	//Title[TitleLength]=0;
 	MakeSeparator(TitleLength, Title, 9, nullptr);
@@ -671,8 +671,8 @@ void FileList::UpdatePlugin(int KeepSelection, int IgnoreVisible)
 		Update(KeepSelection);
 
 		// WARP> явный хак, но очень способствует - восстанавливает позицию на панели при ошибке чтения архива.
-		if (!PrevDataList.Empty())
-			GoToFile((*PrevDataList.Last())->strPrevName);
+		if (!PrevDataList.empty())
+			GoToFile(PrevDataList.back()->strPrevName);
 
 		return;
 	}

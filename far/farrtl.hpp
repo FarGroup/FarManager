@@ -14,6 +14,8 @@ char* xf_strdup(const char* string, const char* Function, const char* File, int 
 wchar_t* xf_wcsdup(const wchar_t* string, const char* Function, const char* File, int Line);
 void* operator new(size_t size, const char* Function, const char* File, int Line);
 void* operator new[](size_t size, const char* Function, const char* File, int Line);
+void operator delete(void* block, const char* Function, const char* File, int Line);
+void operator delete[](void* block, const char* Function, const char* File, int Line);
 
 #define xf_malloc(size) xf_malloc(size, __FUNCTION__, __FILE__, __LINE__)
 #define xf_realloc(block, size) xf_realloc(block, size, __FUNCTION__, __FILE__, __LINE__)

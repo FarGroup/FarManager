@@ -139,7 +139,7 @@ void QuickView::DisplayObject()
 	{
 		FormatString FString;
 		string DisplayName(strCurFileName);
-		TruncPathStr(DisplayName,Max(0, X2-X1-1-StrLength(MSG(MQuickViewFolder))-5));
+		TruncPathStr(DisplayName,std::max(0, X2-X1-1-StrLength(MSG(MQuickViewFolder))-5));
 		FString<<MSG(MQuickViewFolder)<<L" \""<<DisplayName<<L"\"";
 		SetColor(COL_PANELTEXT);
 		GotoXY(X1+2,Y1+2);
@@ -219,7 +219,7 @@ void QuickView::DisplayObject()
 				Target = MSG(MQuickViewNoData);
 			}
 
-			TruncPathStr(Target,Max(0, X2-X1-1-StrLength(PtrName)-5));
+			TruncPathStr(Target,std::max(0, X2-X1-1-StrLength(PtrName)-5));
 			FString.Clear();
 			FString<<PtrName<<L" \""<<Target<<L"\"";
 			SetColor(COL_PANELTEXT);

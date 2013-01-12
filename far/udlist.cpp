@@ -41,13 +41,12 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 UserDefinedListItem::~UserDefinedListItem()
 {
-	if (Str)
-		xf_free(Str);
 }
 
 bool UserDefinedListItem::operator==(const UserDefinedListItem &rhs) const
 {
-	return (Str && rhs.Str)?(!StrCmpI(Str, rhs.Str)):false;
+	size_t pos;
+	return Str.PosI(pos, rhs.Str);
 }
 
 int UserDefinedListItem::operator<(const UserDefinedListItem &rhs) const
@@ -60,63 +59,9 @@ int UserDefinedListItem::operator<(const UserDefinedListItem &rhs) const
 		return StrCmpI(Str, rhs.Str)<0;
 }
 
-UserDefinedListItem& UserDefinedListItem::operator=(const
-        UserDefinedListItem &rhs)
+bool UDItemLess(const UserDefinedListItem& a, const UserDefinedListItem& b)
 {
-	if (this!=&rhs)
-	{
-		if (Str)
-		{
-			xf_free(Str);
-			Str=nullptr;
-		}
-
-		if (rhs.Str)
-			Str=xf_wcsdup(rhs.Str);
-
-		index=rhs.index;
-	}
-
-	return *this;
-}
-
-UserDefinedListItem& UserDefinedListItem::operator=(const wchar_t *rhs)
-{
-	if (Str!=rhs)
-	{
-		if (Str)
-		{
-			xf_free(Str);
-			Str=nullptr;
-		}
-
-		if (rhs)
-			Str=xf_wcsdup(rhs);
-	}
-
-	return *this;
-}
-
-wchar_t *UserDefinedListItem::set(const wchar_t *Src, size_t size)
-{
-	if (Str!=Src)
-	{
-		if (Str)
-		{
-			xf_free(Str);
-			Str=nullptr;
-		}
-
-		Str=static_cast<wchar_t*>(xf_malloc((size+1)*sizeof(wchar_t)));
-
-		if (Str)
-		{
-			wmemcpy(Str,Src,size);
-			Str[size]=0;
-		}
-	}
-
-	return Str;
+	return a.index < b.index;
 }
 
 UserDefinedList::UserDefinedList()
@@ -161,7 +106,7 @@ bool UserDefinedList::SetParameters(DWORD Flags, const wchar_t* Separators)
 
 void UserDefinedList::Free()
 {
-	Array.Free();
+	ItemsList.clear();
 	Reset();
 }
 
@@ -180,7 +125,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 	if (CheckSeparators() && List && *List)
 	{
 		UserDefinedListItem item;
-		item.index=Array.getSize();
+		item.index=ItemsList.size();
 
 		if (!strSeparators.Contains(*List))
 		{
@@ -194,64 +139,42 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 				{
 					if (Flags.Check(ULF_PACKASTERISKS) && 3==Length && 0==memcmp(CurList, L"*.*", 6))
 					{
-						item=L"*";
-
-						if (!item.Str || !Array.addItem(item))
-							Error=true;
+						item.Str = L"*";
+						ItemsList.push_back(item);
 					}
 					else
 					{
-						item.set(CurList, Length);
+						item.Str.Copy(CurList, Length);
 
-						if (item.Str)
+						if (Flags.Check(ULF_PACKASTERISKS))
 						{
-							if (Flags.Check(ULF_PACKASTERISKS))
-							{
-								int i=0;
-								bool lastAsterisk=false;
+							int i=0;
+							bool lastAsterisk=false;
 
-								while (i<Length)
+							while (i<Length)
+							{
+								if (item.Str[i]==L'*')
 								{
-									if (item.Str[i]==L'*')
-									{
-										if (!lastAsterisk)
-											lastAsterisk=true;
-										else
-										{
-											wmemcpy(item.Str+i, item.Str+i+1, StrLength(item.Str+i+1)+1);
-											--i;
-										}
-									}
+									if (!lastAsterisk)
+										lastAsterisk=true;
 									else
-										lastAsterisk=false;
-
-									++i;
-								}
-							}
-
-							if (Flags.Check(ULF_ADDASTERISK) && !wcspbrk(item.Str,L"?*."))
-							{
-								Length=StrLength(item.Str);
-								/* $ 18.09.2002 DJ
-								   выделялось на 1 байт меньше, чем надо
-								*/
-								item.Str=static_cast<wchar_t*>(xf_realloc(item.Str, (Length+2)*sizeof(wchar_t)));
-
-								/* DJ $ */
-								if (item.Str)
-								{
-									item.Str[Length]=L'*';
-									item.Str[Length+1]=0;
+									{
+										item.Str.Remove(i);
+										--i;
+									}
 								}
 								else
-									Error=true;
-							}
+									lastAsterisk=false;
 
-							if (!Error && !Array.addItem(item))
-								Error=true;
+								++i;
+							}
 						}
-						else
-							Error=true;
+
+						if (Flags.Check(ULF_ADDASTERISK) && !wcspbrk(item.Str,L"?*."))
+						{
+							item.Str+=L"*";
+						}
+						ItemsList.push_back(item);
 					}
 
 					CurList+=RealLength;
@@ -259,7 +182,7 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 				}
 			}
 
-			rc=!Error;
+			rc=true;
 		}
 		else
 		{
@@ -270,14 +193,14 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 
 			if (!*End) // Если кроме разделителя ничего больше в строке нет,
 			{         // то считается, что это не разделитель, а простой символ
-				item=L" ";
+				item.Str = L" ";
 
 				if (item.Str)
 				{
-					*item.Str=*List;
+					item.Str.Replace(0, *List);
 
-					if (Array.addItem(item))
-						rc=true;
+					ItemsList.push_back(item);
+					rc=true;
 				}
 			}
 		}
@@ -285,47 +208,31 @@ bool UserDefinedList::Set(const wchar_t *List, bool AddToList)
 
 	if (rc)
 	{
-		if (Flags.Check(ULF_UNIQUE))
+		if (Flags.Check(ULF_UNIQUE|ULF_SORT))
 		{
-			Array.Sort();
-			Array.Pack(UpdateRemainingItem);
+			ItemsList.sort(UDItemLess);
+			if(Flags.Check(ULF_UNIQUE))
+			{
+				ItemsList.unique([](UserDefinedListItem& a, UserDefinedListItem& b)->bool
+				{
+					if (a.index > b.index)
+						a.index = b.index;
+					return a == b;
+				});
+			}
 		}
 
-		if (!Flags.Check(ULF_SORT))
-			Array.Sort(CmpItems);
-		else if (!Flags.Check(ULF_UNIQUE)) // чтобы не сортировать уже отсортированное
-			Array.Sort();
-
-		size_t i=0, maxI=Array.getSize();
-
-		for (; i<maxI; ++i)
-			Array.getItem(i)->index=i;
-
+		size_t n=0;
+		std::for_each(RANGE(ItemsList, i)
+		{
+			i.index = n++;
+		});
 		Reset();
 	}
 	else
 		Free();
 
 	return rc;
-}
-
-int CDECL UserDefinedList::CmpItems(const UserDefinedListItem **el1,
-                                      const UserDefinedListItem **el2)
-{
-	if (*el1==*el2)
-		return 0;
-	else if ((**el1).index==(**el2).index)
-		return 0;
-	else if ((**el1).index<(**el2).index)
-		return -1;
-	else
-		return 1;
-}
-
-void CDECL UserDefinedList::UpdateRemainingItem(UserDefinedListItem *elRemaining, const UserDefinedListItem *elDeleted)
-{
-	if (elRemaining->index > elDeleted->index)
-		elRemaining->index = elDeleted->index;
 }
 
 const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealLength, bool &Error)
@@ -417,18 +324,21 @@ const wchar_t *UserDefinedList::Skip(const wchar_t *Str, int &Length, int &RealL
 
 void UserDefinedList::Reset()
 {
-	CurrentItem=0;
+	CurrentItem=ItemsList.begin();
 }
 
 bool UserDefinedList::IsEmpty()
 {
-	size_t Size=Array.getSize();
-	return !Size || CurrentItem>=Size;
+	return CurrentItem == ItemsList.end();
 }
 
 const wchar_t *UserDefinedList::GetNext()
 {
-	UserDefinedListItem *item=Array.getItem(CurrentItem);
-	++CurrentItem;
-	return item?item->Str:nullptr;
+	if(CurrentItem != ItemsList.end())
+	{
+		auto Result = CurrentItem->Str;
+		++CurrentItem;
+		return Result;
+	}
+	return nullptr;
 }

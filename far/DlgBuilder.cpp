@@ -92,7 +92,7 @@ struct EditFieldHexBinding: public DialogItemBinding<DialogItemEx>
 
 	EditFieldHexBinding(T *aIntValue, int Width) : IntValue(aIntValue)
 	{
-		int MaskWidth = Min(static_cast<int>(ARRAYSIZE(Mask)-1), Width);
+		int MaskWidth = std::min(static_cast<int>(ARRAYSIZE(Mask)-1), Width);
 		for(int i=0; i<MaskWidth; i++)
 			Mask[i] = L'H';
 		Mask[MaskWidth] = L'\0';

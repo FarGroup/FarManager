@@ -518,7 +518,7 @@ wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePa
 		{
 			_swab((char*)lpwszDest, (char*)lpwszDest, nDestLength*sizeof(wchar_t));
 			wchar_t *Ch = lpwszDest;
-			int nLength = Min(static_cast<int>(wcslen(lpwszDest)), nDestLength);
+			int nLength = std::min(static_cast<int>(wcslen(lpwszDest)), nDestLength);
 
 			while (*Ch)
 			{
@@ -531,7 +531,7 @@ wchar_t *ReadString(FILE *file, wchar_t *lpwszDest, int nDestLength, int nCodePa
 				Ch++;
 			}
 
-			int nNewLength = Min(static_cast<int>(wcslen(lpwszDest)), nDestLength);
+			int nNewLength = std::min(static_cast<int>(wcslen(lpwszDest)), nDestLength);
 			fseek(file, (nNewLength-nLength)*sizeof(wchar_t), SEEK_CUR);
 		}
 	}

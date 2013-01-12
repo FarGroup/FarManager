@@ -1612,7 +1612,7 @@ intptr_t AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 
 	case DN_RESIZECONSOLE:
 		{
-			COORD Size = {(SHORT)Max(ScrX-4, 60), (SHORT)Max(ScrY-2, 20)};
+			COORD Size = {(SHORT)std::max(ScrX-4, 60), (SHORT)std::max(ScrY-2, 20)};
 			Dlg->SendMessage(DM_RESIZEDIALOG, 0, &Size);
 			SMALL_RECT ListPos = {3, 1, (SHORT)(Size.X-4), (SHORT)(Size.Y-2)};
 			Dlg->SendMessage(DM_SETITEMPOSITION, 0, &ListPos);
@@ -1777,7 +1777,7 @@ intptr_t AdvancedConfigDlgProc(Dialog* Dlg, intptr_t Msg, intptr_t Param1, void*
 
 bool AdvancedConfig()
 {
-	int DlgWidth = Max(ScrX-4, 60), DlgHeight = Max(ScrY-2, 20);
+	int DlgWidth = std::max(ScrX-4, 60), DlgHeight = std::max(ScrY-2, 20);
 	FarDialogItem AdvancedConfigDlgData[]=
 	{
 		{DI_LISTBOX,3,1,DlgWidth-4,DlgHeight-2,0,nullptr,nullptr,DIF_NONE,nullptr},
