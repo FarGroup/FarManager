@@ -2345,9 +2345,9 @@ int Editor::ProcessKey(int Key)
 					CurLine->GetBinaryString(&Str,nullptr,Length);
 					int CurPos=CurLine->GetCurPos();
 
-					if (CurPos>Length)
+					while (CurPos>Length)
 					{
-						CurLine->ProcessKey(KEY_END);
+						ProcessKey(KEY_ALTSHIFTLEFT);
 						CurPos=CurLine->GetCurPos();
 					}
 
