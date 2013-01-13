@@ -1,6 +1,6 @@
 #include "farversion.hpp"
 
-#define PLUGIN_BUILD 49
+#define PLUGIN_BUILD 50
 #define PLUGIN_DESC L"Advanced File Compare for Far Manager"
 #define PLUGIN_NAME L"Compare"
 #define PLUGIN_FILENAME L"Compare.dll"

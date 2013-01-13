@@ -117,12 +117,17 @@ static int iTruncLen;
  ****************************************************************************/
 static void TrunCopy(wchar_t *cpDest, const wchar_t *cpSrc)
 {
-	int iLen = (int)lstrlen(FSF.TruncStr(lstrcpy(cpDest, cpSrc), iTruncLen));
-
-	if (iLen < iTruncLen)
+	int iLen = (int)lstrlen(cpSrc);
+	if (iLen <= iTruncLen)
 	{
-		wmemset(&cpDest[iLen], L' ', iTruncLen - iLen);
-		cpDest[iTruncLen] = L'\0';
+		lstrcpy(cpDest, cpSrc);
+		wmemset(cpDest+iLen, L' ', iTruncLen-iLen);
+		cpDest[iLen] = L'\0';
+	}
+	else
+	{
+		lstrcpy(cpDest, L"...");
+		lstrcpy(cpDest+3, cpSrc+iLen-iTruncLen+3);
 	}
 }
 
@@ -487,11 +492,34 @@ static bool CheckForEsc(void)
 /****************************************************************************
  * Строит полное имя файла из пути и имени
  ****************************************************************************/
-static wchar_t *BuildFullFilename(wchar_t cName[MAX_PATH], const wchar_t *cpDir, const wchar_t *cpFileName)
+
+class FileName
 {
-	FSF.AddEndSlash(lstrcpy(cName, cpDir));
-	return lstrcat(cName, cpFileName);
-}
+private:
+	wchar_t tName[MAX_PATH];
+	wchar_t *pBuff;
+	int      bSize;
+
+public:
+	FileName() { pBuff = tName; bSize = static_cast<int>ARRAYSIZE(tName); tName[0] = '\0'; }
+	~FileName() { if (pBuff != tName) delete[] pBuff; }
+
+	const wchar_t* BuildName(const wchar_t *dir, const wchar_t *file)
+	{
+		int mlen = lstrlen(dir) + lstrlen(file) + 6;
+		if (mlen > bSize)
+		{
+			if (pBuff != tName) delete[] pBuff;
+			pBuff = new wchar_t[bSize = mlen+128];
+		}
+
+		if (mlen >= MAX_PATH)
+			lstrcpy(pBuff, L"\\\\?\\");
+
+		FSF.AddEndSlash(lstrcat(pBuff, dir));
+		return lstrcat(pBuff, file);
+	}
+};
 
 struct FileIndex
 {
@@ -666,7 +694,7 @@ bool isnewline(int c)
 static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PData,
                          const wchar_t *ACurDir, const wchar_t *PCurDir, int ScanDepth)
 {
-	wchar_t cpFileA[MAX_PATH], cpFileP[MAX_PATH];
+	FileName FileA, FileP;
 
 	if (AData->FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 	{
@@ -682,8 +710,8 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 			memset(&PInfo, 0, sizeof(PInfo));
 			bool bEqual;
 
-			if (!GetDirList(&AInfo, BuildFullFilename(cpFileA, ACurDir, AData->FileName))
-			        || !GetDirList(&PInfo, BuildFullFilename(cpFileP, PCurDir, PData->FileName)))
+			if (!GetDirList(&AInfo, FileA.BuildName(ACurDir, AData->FileName))
+			 || !GetDirList(&PInfo, FileP.BuildName(PCurDir, PData->FileName)))
 			{
 				bBrokenByEsc = true; // То ли юзер прервал, то ли ошибка чтения
 				bEqual = false; // Остановим сравнение
@@ -783,8 +811,11 @@ static bool CompareFiles(const PluginPanelItem *AData, const PluginPanelItem *PD
 		if (Opt.CompareContents)
 		{
 			HANDLE hFileA, hFileP;
-			ShowMessage(BuildFullFilename(cpFileA, ACurDir, AData->FileName),
-			            BuildFullFilename(cpFileP, PCurDir, PData->FileName));
+
+			const wchar_t *cpFileA = FileA.BuildName(ACurDir, AData->FileName);
+			const wchar_t *cpFileP = FileP.BuildName(PCurDir, PData->FileName);
+
+			ShowMessage(cpFileA, cpFileP);
 
 			if ((hFileA = CreateFile(cpFileA, GENERIC_READ, FILE_SHARE_READ , NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL)) == INVALID_HANDLE_VALUE)
 			{
@@ -966,9 +997,8 @@ static bool CompareDirs(const OwnPanelInfo *AInfo, const OwnPanelInfo *PInfo, bo
 {
 	// Строим индексы файлов для быстрого сравнения
 	struct FileIndex sfiA, sfiP;
-	wchar_t DirA[MAX_PATH], DirP[MAX_PATH];
-	ShowMessage(BuildFullFilename(DirA, AInfo->lpwszCurDir, L"*"),
-	            BuildFullFilename(DirP, PInfo->lpwszCurDir, L"*"));
+	FileName DirA, DirP;
+	ShowMessage(DirA.BuildName(AInfo->lpwszCurDir, L"*"), DirP.BuildName(PInfo->lpwszCurDir, L"*"));
 
 	if (!BuildPanelIndex(AInfo, &sfiA, AFilter) || !BuildPanelIndex(PInfo, &sfiP, PFilter))
 	{
