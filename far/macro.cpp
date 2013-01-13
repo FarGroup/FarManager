@@ -190,7 +190,6 @@ void print_opcodes()
 	fprintf(fp, "MCODE_F_EDITOR_SETSTR=0x%X // N=Editor.SetStr([S[,Line]])\n", MCODE_F_EDITOR_SETSTR);
 	fprintf(fp, "MCODE_F_POSTNEWMACRO=0x%X // Получить численное выражение флагов макроса\n", MCODE_F_POSTNEWMACRO);
 	fprintf(fp, "MCODE_F_CHECKALL=0x%X // Проверить предварительные условия исполнения макроса\n", MCODE_F_CHECKALL);
-	fprintf(fp, "MCODE_F_NORMALIZEKEY=0x%X // Нормализовать текстовое значение ключа\n", MCODE_F_NORMALIZEKEY);
 	fprintf(fp, "MCODE_F_GETOPTIONS=0x%X // Получить значения некоторых опций Фара\n", MCODE_F_GETOPTIONS);
 	fprintf(fp, "MCODE_F_LAST=0x%X // marker\n", MCODE_F_LAST);
 	/* ************************************************************************* */
@@ -717,7 +716,7 @@ static unsigned __int64 FixFlags(MACROMODEAREA Area, unsigned __int64 MFlags)
 
 struct GetMacroData
 {
-	int MacroId; // if MacroId==0, then the other fields are invalid and the key should be consumed.
+	int MacroId;
 	MACROMODEAREA Area;
 	const wchar_t *Name;
 	const wchar_t *Code;
@@ -730,14 +729,13 @@ struct GetMacroData
 
 // эта функция может вывести меню выбора макроса
 bool KeyMacro::LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t* TextKey, bool UseCommon,
-	bool StrictKeys, bool CheckOnly)
+	bool CheckOnly)
 {
-	FarMacroValue values[5]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_BOOLEAN},{FMVT_BOOLEAN},{FMVT_BOOLEAN}};
+	FarMacroValue values[4]={{FMVT_DOUBLE},{FMVT_STRING},{FMVT_BOOLEAN},{FMVT_BOOLEAN}};
 	values[0].Double=Mode;
 	values[1].String=TextKey;
 	values[2].Boolean=(UseCommon?1:0);
-	values[3].Boolean=(StrictKeys?1:0);
-	values[4].Boolean=(CheckOnly?1:0);
+	values[3].Boolean=(CheckOnly?1:0);
 
 	FarMacroCall fmc={sizeof(FarMacroCall),ARRAYSIZE(values),values,nullptr,nullptr};
 	OpenMacroPluginInfo info={sizeof(OpenMacroPluginInfo),MCT_GETMACRO,nullptr,&fmc};
@@ -745,28 +743,26 @@ bool KeyMacro::LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t
 
 	if (mpr)
 	{
-		if ((Data->MacroId=(int)mpr->Values[0].Double) > 0)
-		{
-			Data->Name        = TextKey;
-			Data->Area        = (MACROMODEAREA)(int)mpr->Values[1].Double;
-			Data->Code        = mpr->Values[2].String;
-			Data->Description = mpr->Values[3].String;
-			Data->Flags       = FixFlags(Mode, StringToFlags(mpr->Values[4].String));
+		Data->Name        = TextKey;
+		Data->MacroId     = (int)mpr->Values[0].Double;
+		Data->Area        = (MACROMODEAREA)(int)mpr->Values[1].Double;
+		Data->Code        = mpr->Values[2].String;
+		Data->Description = mpr->Values[3].String;
+		Data->Flags       = FixFlags(Mode, StringToFlags(mpr->Values[4].String));
 
-			Data->Guid        = (mpr->Count>=6 && mpr->Values[5].Type==FMVT_BINARY)  ? *(GUID*)mpr->Values[5].Binary.Data : FarGuid;
-			Data->Callback    = (mpr->Count>=7 && mpr->Values[6].Type==FMVT_POINTER) ? (FARMACROCALLBACK)mpr->Values[6].Pointer : nullptr;
-			Data->CallbackId  = (mpr->Count>=8 && mpr->Values[7].Type==FMVT_POINTER) ? mpr->Values[7].Pointer : nullptr;
-		}
+		Data->Guid        = (mpr->Count>=6 && mpr->Values[5].Type==FMVT_BINARY)  ? *(GUID*)mpr->Values[5].Binary.Data : FarGuid;
+		Data->Callback    = (mpr->Count>=7 && mpr->Values[6].Type==FMVT_POINTER) ? (FARMACROCALLBACK)mpr->Values[6].Pointer : nullptr;
+		Data->CallbackId  = (mpr->Count>=8 && mpr->Values[7].Type==FMVT_POINTER) ? mpr->Values[7].Pointer : nullptr;
 		return true;
 	}
 	return false;
 }
 
-bool KeyMacro::MacroExists(int Key, MACROMODEAREA CheckMode, bool UseCommon, bool StrictKeys)
+bool KeyMacro::MacroExists(int Key, MACROMODEAREA CheckMode, bool UseCommon)
 {
 	GetMacroData dummy;
 	string strKey;
-	return KeyToText(Key,strKey) && LM_GetMacro(&dummy,CheckMode,strKey,UseCommon,StrictKeys,true);
+	return KeyToText(Key,strKey) && LM_GetMacro(&dummy,CheckMode,strKey,UseCommon,true);
 }
 
 void KeyMacro::LM_ProcessMacro(MACROMODEAREA Mode, const wchar_t* TextKey, const wchar_t* Code, MACROFLAGS_MFLAGS Flags,
@@ -859,9 +855,9 @@ int KeyMacro::ProcessEvent(const struct FAR_INPUT_RECORD *Rec)
 						KeyToText(key,textKey);
 
 					GetMacroData Data;
-					if (LM_GetMacro(&Data, m_Mode, textKey, true, false, false))
+					if (LM_GetMacro(&Data, m_Mode, textKey, true, false))
 					{
-						if (Data.MacroId > 0 && PostNewMacro(Data.MacroId, Data.Code, Data.Flags, Rec->IntKey, false))
+						if (PostNewMacro(Data.MacroId, Data.Code, Data.Flags, Rec->IntKey, false))
 						{
 							m_CurState->HistoryDisable=0;
 							m_CurState->cRec=Rec->Rec;
@@ -2651,25 +2647,6 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			}
 			PassBoolean(Result, Data);
 			return 0;
-		}
-
-		case MCODE_F_NORMALIZEKEY:
-		{
-			if (Data->Count>=1 && Data->Values[0].Type==FMVT_STRING)
-			{
-				int Key=KeyNameToKey(Data->Values[0].String);
-				if (Key != -1)
-				{
-					string textKey;
-					if (KeyToText(Key,textKey))
-					{
-						PassString(textKey,Data);
-						break;
-					}
-				}
-			}
-			PassBoolean(0,Data);
-			break;
 		}
 
 		case MCODE_F_GETOPTIONS:
@@ -5726,6 +5703,8 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		if (record->EventType==KEY_EVENT)
 		{
 			key = InputRecordToKey((const INPUT_RECORD *)Param2);
+			if (key&KEY_RCTRL) key = (key&~KEY_RCTRL)|KEY_CTRL;
+			if (key&KEY_RALT) key = (key&~KEY_RALT)|KEY_ALT;
 		}
 	}
 
@@ -5737,7 +5716,8 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		// <Клавиши, которые не введешь в диалоге назначения>
 		DWORD PreDefKeyMain[]=
 		{
-			KEY_CTRLDOWN,KEY_RCTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,KEY_RCTRLF5,
+			//KEY_CTRLDOWN,KEY_RCTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,KEY_RCTRLF5,
+			KEY_CTRLDOWN,KEY_ENTER,KEY_NUMENTER,KEY_ESC,KEY_F1,KEY_CTRLF5,
 		};
 
 		for (size_t i=0; i<ARRAYSIZE(PreDefKeyMain); i++)
@@ -5756,7 +5736,8 @@ intptr_t KeyMacro::AssignMacroDlgProc(Dialog* Dlg,intptr_t Msg,intptr_t Param1,v
 		};
 		DWORD PreDefModKey[]=
 		{
-			0,KEY_CTRL,KEY_RCTRL,KEY_SHIFT,KEY_ALT,KEY_RALT,KEY_CTRLSHIFT,KEY_RCTRLSHIFT,KEY_CTRLALT,KEY_RCTRLRALT,KEY_CTRLRALT,KEY_RCTRLALT,KEY_ALTSHIFT,KEY_RALTSHIFT,
+			//0,KEY_CTRL,KEY_RCTRL,KEY_SHIFT,KEY_ALT,KEY_RALT,KEY_CTRLSHIFT,KEY_RCTRLSHIFT,KEY_CTRLALT,KEY_RCTRLRALT,KEY_CTRLRALT,KEY_RCTRLALT,KEY_ALTSHIFT,KEY_RALTSHIFT,
+			0,KEY_CTRL,KEY_SHIFT,KEY_ALT,KEY_CTRLSHIFT,KEY_CTRLALT,KEY_ALTSHIFT,
 		};
 
 		for (size_t i=0; i<ARRAYSIZE(PreDefKey); i++)
@@ -5856,7 +5837,7 @@ M1:
 
 		// если УЖЕ есть такой макрос...
 		GetMacroData Data;
-		if (LM_GetMacro(&Data,KMParam->Mode,strKeyText,true,true,true))
+		if (LM_GetMacro(&Data,KMParam->Mode,strKeyText,true,true))
 		{
 			// общие макросы учитываем только при удалении.
 			if (m_RecCode.IsEmpty() || Data.Area!=MACRO_COMMON)

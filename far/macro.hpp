@@ -240,7 +240,7 @@ class KeyMacro
 		bool PostNewMacro(int macroId,const wchar_t *PlainText,UINT64 Flags=0,DWORD AKey=0,bool onlyCheck=false);
 		void PushState(bool withClip);
 		void PopState(bool withClip);
-		bool LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t* TextKey, bool UseCommon, bool StrictKeys, bool CheckOnly);
+		bool LM_GetMacro(GetMacroData* Data, MACROMODEAREA Mode, const wchar_t* TextKey, bool UseCommon, bool CheckOnly);
 		void LM_ProcessMacro(MACROMODEAREA Mode, const wchar_t* TextKey, const wchar_t* Code, MACROFLAGS_MFLAGS Flags, const wchar_t* Description, const GUID* Guid=nullptr, FARMACROCALLBACK Callback=nullptr, void* CallbackId=nullptr);
 	public:
 		KeyMacro();
@@ -267,7 +267,7 @@ class KeyMacro
 		void SendDropProcess();
 		bool CheckWaitKeyFunc();
 
-		bool MacroExists(int Key, MACROMODEAREA CheckMode, bool UseCommon=true, bool StrictKeys=false);
+		bool MacroExists(int Key, MACROMODEAREA CheckMode, bool UseCommon=true);
 		void RunStartMacro();
 		int AddMacro(const wchar_t *PlainText,const wchar_t *Description,enum MACROMODEAREA Area,MACROFLAGS_MFLAGS Flags,const INPUT_RECORD& AKey,const GUID& PluginId,void* Id,FARMACROCALLBACK Callback);
 		int DelMacro(const GUID& PluginId,void* Id);

@@ -29,8 +29,7 @@ local function GetAreaCode(Area)     return (AllAreaNames[Area:lower()] or 0) - 
 
 local MCODE_F_POSTNEWMACRO = 0x80C64
 local MCODE_F_CHECKALL     = 0x80C65
-local MCODE_F_NORMALIZEKEY = 0x80C66
-local MCODE_F_GETOPTIONS   = 0x80C67
+local MCODE_F_GETOPTIONS   = 0x80C66
 
 local Areas, AreaNames
 local LoadedMacros
@@ -39,6 +38,40 @@ local EnumState = {}
 local AddMacro_filename
 local AddMacro_fields = {"area","key","code","action","flags","description","priority","condition"}
 local AddMacro_fields2 = {"guid","callback","callbackId"}
+
+local ExpandKey do -- измеренное время исполнения на ключе "CtrlAltShiftF12" = 9.4 микросекунды.
+  local PatExpandKey = regex.new("Ctrl|Alt|Shift|LCtrl|RCtrl|LAlt|RAlt|.*", "i")
+  local lctrl,rctrl,lalt,ralt,rest
+  local t={}
+
+  local function ExpandKeyCallback (elem)
+    if     elem=="ctrl"  then lctrl,rctrl="lctrl","rctrl"
+    elseif elem=="alt"   then lalt,ralt="lalt","ralt"
+    elseif elem=="shift" then rest="shift"
+    elseif elem=="lctrl" then lctrl=elem
+    elseif elem=="rctrl" then rctrl=elem
+    elseif elem=="lalt"  then lalt=elem
+    elseif elem=="ralt"  then ralt=elem
+    else rest=rest..elem
+    end
+  end
+
+  ExpandKey = function (key)
+    lctrl,rctrl,lalt,ralt,rest = nil,nil,nil,nil,""
+    PatExpandKey:gsub(key:lower(), ExpandKeyCallback)
+    local n = (lctrl and rctrl and 2 or 1) * (lalt and ralt and 2 or 1)
+    if n==1 then
+      t[1] = (lctrl or rctrl or "")..(lalt or ralt or "")..rest
+    elseif n==2 then
+      t[1] = (lctrl or rctrl or "")..(lalt or ralt or "")..rest
+      t[2] = (rctrl or lctrl or "")..(ralt or lalt or "")..rest
+    else
+      t[1] = "lctrllalt"..rest; t[2] = "lctrlralt"..rest
+      t[3] = "rctrllalt"..rest; t[4] = "rctrlralt"..rest
+    end
+    return t,n
+  end
+end
 
 local function AddMacro (srctable)
   local ok
@@ -76,11 +109,14 @@ local function AddMacro (srctable)
       else
         local keyFound = {} -- prevent multiple inclusions
         for k in key:gmatch("%S+") do
-          local normkey = (MacroCallFar(MCODE_F_NORMALIZEKEY, k) or k):lower()
-          if not keyFound[normkey] then
-            arTable[normkey] = arTable[normkey] or {}
-            table.insert(arTable[normkey], macro)
-            keyFound[normkey] = true
+          local t,n = ExpandKey(k)
+          for i=1,n do
+            local normkey = t[i]
+            if not keyFound[normkey] then
+              arTable[normkey] = arTable[normkey] or {}
+              table.insert(arTable[normkey], macro)
+              keyFound[normkey] = true
+            end
           end
         end
       end
@@ -100,7 +136,7 @@ local function AddMacro (srctable)
     if type(macro.description)~="string" then macro.description=nil end
     if type(macro.condition)~="function" then macro.condition=nil end
 
-    if type(macro.priority)~="number" then macro.priority=50
+    if type(macro.priority)~="number" then macro.priority=nil
     elseif macro.priority>100 then macro.priority=100 elseif macro.priority<0 then macro.priority=0
     end
 
@@ -112,10 +148,7 @@ end
 local function AddRecordedMacro (srctable)
   local area = type(srctable)=="table" and type(srctable.area)=="string" and srctable.area:lower()
   if not (area and Areas[area]) then return end
-
-  local key = srctable.key
-  if type(key) ~= "string" then return end
-  key = (MacroCallFar(MCODE_F_NORMALIZEKEY, key) or key):lower()
+  local arTable = Areas[area]
 
   if type(srctable.code)=="string" then
     if srctable.code:sub(1,1) ~= "@" then
@@ -126,9 +159,18 @@ local function AddRecordedMacro (srctable)
     return
   end
 
+  local key = srctable.key
+  if type(key) ~= "string" then return end
+  key = key:match("%S+")
+  if not key then return end
+
   local macro = { priority=200 }
-  Areas[area][key] = Areas[area][key] or {}
-  Areas[area][key].recorded = macro
+  local t,n = ExpandKey(key)
+  for i=1,n do
+    local normkey = t[i]
+    arTable[normkey] = arTable[normkey] or {}
+    arTable[normkey].recorded = macro
+  end
 
   for _,v in ipairs{"area","key","code","flags","description"} do macro[v]=srctable[v] end
 
@@ -239,7 +281,7 @@ local function WriteOneMacro (macro, keyname)
   end
 
   if macro.disabled then -- operation "delete"
-    LastMessage[1] = ""
+    LastMessage = pack()
     return F.MPRT_NORMALFINISH, LastMessage
   end
 
@@ -249,7 +291,7 @@ local function WriteOneMacro (macro, keyname)
     fp:write(("area=%q\nkey=%q\nflags=%q\ndescription=%q\ncode=%q\n"):
       format(macro.area, macro.key, macro.flags, macro.description, macro.code))
     fp:close()
-    LastMessage[1] = ""
+    LastMessage = pack()
     return F.MPRT_NORMALFINISH, LastMessage
   end
 end
@@ -259,8 +301,7 @@ local function WriteMacros()
     for keyname,macroarray in pairs(area) do
       local macro = macroarray.recorded
       if macro and macro.needsave then
-        local normkey = MacroCallFar(MCODE_F_NORMALIZEKEY, keyname) or keyname
-        WriteOneMacro(macro,normkey)
+        WriteOneMacro(macro,macro.key)
         if macro.disabled then
           LoadedMacros[macroarray.recorded.id] = false
           macroarray.recorded = nil
@@ -276,12 +317,13 @@ local function GetTopMacros (area, macrolist, checkonly)
   local topmacros = { n=0 }
   local max_priority = -1
   for _,macro in ipairs(macrolist) do
-    local pr = macro.priority
+    local priority = macro.priority or (area=="common" and 40) or 50
+    local pr = priority
     if not checkonly then
       if MacroCallFar(MCODE_F_CHECKALL, GetAreaCode(area), macro.flags, macro.callback, macro.callbackId) then
         if macro.condition then
           pr = macro.condition() -- unprotected call
-          pr = (type(pr)=="number") and (pr>100 and 100 or pr<0 and 0 or pr) or (pr and macro.priority)
+          pr = (type(pr)=="number") and (pr>100 and 100 or pr<0 and 0 or pr) or (pr and priority)
         end
       else
         pr = nil
@@ -304,32 +346,31 @@ local function GetTopMacros (area, macrolist, checkonly)
   return topmacros.n > 0 and topmacros
 end
 
-local function GetFinalMacro (macrolist, area, checkonly)
-  local selected_index = 1
-  if macrolist.n > 1 and not checkonly then
-    local menuitems = {}
-    for i=1,macrolist.n do
-      local macro = macrolist[i]
-      local descr = macro.description
-      if not descr or descr=="" then
-        descr = ("< No description: Id=%d >"):format(macro.id)
-      end
-      menuitems[i] = { text = descr }
+local function GetFromMenu (macrolist)
+  local menuitems = {}
+  for i=1,macrolist.n do
+    local macro = macrolist[i]
+    local descr = macro.description
+    if not descr or descr=="" then
+      descr = ("< No description: Id=%d >"):format(macro.id)
     end
-
-    local item, pos = far.Menu({Title="Execute a macro"}, menuitems)
-    if not item then return end
-
-    selected_index = pos
+    menuitems[i] = { text = descr }
   end
-  return macrolist[selected_index], area
+  local item, pos = far.Menu({Title="Execute a macro"}, menuitems)
+  if item then return macrolist[pos] end
 end
 
-local function GetMacro (Mode, Key, UseCommon, StrictKeys, CheckOnly)
+local GetMacro_keypat = regex.new("^(r?ctrl)?(r?alt)?(.*)")
+
+local function GetMacro (Mode, Key, UseCommon, CheckOnly)
   if not Areas then return end -- macros were not loaded
   if Mode >= #TrueAreaNames then return end -- трюк используется в CheckForEscSilent() в Фаре
 
   local Area,Key = GetAreaName(Mode),Key:lower()
+  Key = GetMacro_keypat:gsub(Key,
+    function(a,b,c)
+      return (a=="ctrl" and "lctrl" or a or "")..(b=="alt" and "lalt" or b or "")..c
+    end)
   local Names = Area=="" and AreaNames or { Area, UseCommon and "common" or nil }
 
   for _,areaname in ipairs(Names) do
@@ -354,43 +395,12 @@ local function GetMacro (Mode, Key, UseCommon, StrictKeys, CheckOnly)
       end
     end
 
-    if next(macrolist) then
-      local trylist = GetTopMacros(areaname, macrolist, CheckOnly)
-      if trylist then return GetFinalMacro(trylist, areaname, CheckOnly) end
-    end
-  end
-
-  if StrictKeys then return end
-
-  local keylist = {}
-  if Key:find("rctrl") then keylist[#keylist+1] = Key:gsub("rctrl","ctrl",1) end
-  if Key:find("ralt") then keylist[#keylist+1] = Key:gsub("ralt","alt",1) end
-  if #keylist==2 then keylist[#keylist+1] = keylist[1]:gsub("ralt","alt",1) end
-  if #keylist==0 then return end
-
-  for _,areaname in ipairs(Names) do
-    local areatable = Areas[areaname]
-    local macrolist = {}
-
-    for _,cur_key in ipairs(keylist) do
-      local macros = areatable[cur_key]
-      if macros and macros.recorded and not macros.recorded.disabled then -- must come first
-        macrolist[#macrolist+1] = macros.recorded
+    if macrolist[1] then
+      local toplist = GetTopMacros(areaname, macrolist, CheckOnly)
+      if toplist then
+        local macro = (CheckOnly or toplist.n==1) and toplist[1] or GetFromMenu(toplist)
+        if macro then return macro, areaname; end
       end
-    end
-    for _,cur_key in ipairs(keylist) do
-      local macros = areatable[cur_key]
-      if macros then -- must come second
-        for _,v in ipairs(macros) do
-          if not v.disabled then macrolist[#macrolist+1]=v end
-        end
-      end
-    end
-
-    if #macrolist > 0 then
-      macrolist.n = #macrolist
-      local trylist = GetTopMacros(areaname, macrolist, CheckOnly)
-      if trylist then return GetFinalMacro(trylist, areaname, CheckOnly) end
     end
   end
 end
@@ -407,11 +417,17 @@ end
 local function ProcessRecordedMacro (Area, Key, code, flags, description)
   local area, key = Area:lower(), Key:lower()
 
+  local keys,numkeys = ExpandKey(Key)
+
   if code == "" then -- удаление
-    local m = Areas[area][key] and Areas[area][key].recorded or
-              Areas["common"][key] and Areas["common"][key].recorded
-    if m then
-      m.disabled,m.needsave = true,true
+    for i=1,numkeys do
+      local k = keys[i]
+      local m = Areas[area][k] and Areas[area][k].recorded or
+                Areas["common"][k] and Areas["common"][k].recorded
+      if m then
+        m.disabled,m.needsave = true,true
+        break
+      end
     end
     return
   end
@@ -420,16 +436,15 @@ local function ProcessRecordedMacro (Area, Key, code, flags, description)
     area=Area, key=Key, code=code, flags=flags, description=description,
     needsave=true, priority=200
   }
-
-  Areas[area][key] = Areas[area][key] or {}
-  if Areas[area][key].recorded then -- модификация
-    macro.id = Areas[area][key].recorded.id
-  else -- добавление
-    macro.id = #LoadedMacros+1
-  end
-
-  Areas[area][key].recorded = macro
+  local existing = Areas[area][keys[1]] and Areas[area][keys[1]].recorded
+  macro.id = existing and existing.id or #LoadedMacros+1
   LoadedMacros[macro.id] = macro
+
+  for i=1,numkeys do
+    local k = keys[i]
+    Areas[area][k] = Areas[area][k] or {}
+    Areas[area][k].recorded = macro
+  end
 end
 
 local function ProcessMacroFromFAR (mode, key, code, flags, description, guid, callback, callbackId)
