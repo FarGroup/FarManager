@@ -216,11 +216,11 @@ DWORD ImportedFunctions::GetFinalPathNameByHandleW(HANDLE File, LPWSTR FilePath,
 	if(pfnGetFinalPathNameByHandleW)
 	{
 		// It is known that GetFinalPathNameByHandle crashes on Windows 7 with Ext2FSD
-		__try
+		SEH_TRY
 		{
 			return pfnGetFinalPathNameByHandleW(File, FilePath, FilePathSize, Flags);
 		}
-		__except(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
+		SEH_EXCEPT(GetExceptionCode() == EXCEPTION_ACCESS_VIOLATION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
 		{
 			return 0;
 		}

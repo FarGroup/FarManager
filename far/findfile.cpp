@@ -2858,14 +2858,14 @@ struct THREADPARAM
 
 unsigned int FindFiles::ThreadRoutine(LPVOID Param)
 {
-	__try
+	SEH_TRY
 	{
 		InitInFileSearch();
 		THREADPARAM* tParam=static_cast<THREADPARAM*>(Param);
 		tParam->PluginMode?DoPreparePluginList(tParam->Dlg, false):DoPrepareFileList(tParam->Dlg);
 		ReleaseInFileSearch();
 	}
-	__except(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),nullptr,1))
+	SEH_EXCEPT(xfilter(EXCEPT_KERNEL,GetExceptionInformation(),nullptr,1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}

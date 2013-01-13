@@ -153,7 +153,7 @@ PluginType IsModulePlugin2(
 	DWORD dwExportAddr;
 	PIMAGE_DOS_HEADER pDOSHeader = (PIMAGE_DOS_HEADER)hModule;
 	PIMAGE_NT_HEADERS pPEHeader;
-	__try
+	SEH_TRY
 	{
 
 		if (pDOSHeader->e_magic != IMAGE_DOS_SIGNATURE)
@@ -224,7 +224,7 @@ PluginType IsModulePlugin2(
 
 		return NOT_PLUGIN;
 	}
-	__except(EXCEPTION_EXECUTE_HANDLER)
+	SEH_EXCEPT(EXCEPTION_EXECUTE_HANDLER)
 	{
 		return NOT_PLUGIN;
 	}

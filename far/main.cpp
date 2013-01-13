@@ -818,11 +818,11 @@ int mainEH(int Argc, wchar_t *Argv[])
 
 int _cdecl wmain(int Argc, wchar_t *Argv[])
  {
-	__try
+	SEH_TRY
 	{
 		return mainEH(Argc, Argv);
 	}
-	__except(xfilter(EXCEPT_KERNEL, GetExceptionInformation(), nullptr, 1))
+	SEH_EXCEPT(xfilter(EXCEPT_KERNEL, GetExceptionInformation(), nullptr, 1))
 	{
 		TerminateProcess(GetCurrentProcess(), 1);
 	}

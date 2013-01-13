@@ -69,11 +69,11 @@ struct ExecuteStruct
 	++Activity; \
 	if ( Global->Opt->ExceptRules ) \
 	{ \
-		__try \
+		SEH_TRY \
 		{ \
 			function; \
 		} \
-		__except(xfilter(es.id, GetExceptionInformation(), this, 0)) \
+		SEH_EXCEPT(xfilter(es.id, GetExceptionInformation(), this, 0)) \
 		{ \
 			m_owner->UnloadPlugin(this, es.id); \
 			es.nResult = es.nDefaultResult; \

@@ -83,7 +83,6 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 # define WINVER       0x0601
 # define _WIN32_WINNT 0x0601
 # define _WIN32_IE    0x0700
-# define __SEH_NOOP
 #endif // __GNUC__
 
 #define WIN32_LEAN_AND_MEAN
@@ -144,18 +143,16 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifdef _MSC_VER
 # include "SDK/sdk.vc.h"
+# define SEH_TRY __try
+# define SEH_EXCEPT __except
 #endif // _MSC_VER
 
 #ifdef __GNUC__
 # include "SDK/sdk.gcc.h"
 # define _abs64 llabs
 # define _wcstoi64 wcstoll
-# if !defined(__try)
-#  define __try
-# endif
-# if !defined(__except)
-# define __except(a) if(false)
-# endif
+# define SEH_TRY
+# define SEH_EXCEPT(x) if(false)
 #endif // __GNUC__
 
 inline const wchar_t* NullToEmpty(const wchar_t* Str) { return Str? Str : L"";} 
