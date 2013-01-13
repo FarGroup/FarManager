@@ -3,6 +3,101 @@ This file is a translation of the main russian changelog and is provided by volu
 It might not always be as up to date as the main changelog.
 =======================================================================================
 
+shmuel 13.01.2013 11:40:40 +0200 - build 3078
+
+1. Changes related to macros.
+
+1.1. Key press interpretation, introduction of left-side modifiers.
+     On key accept, it is considered with left- and right-side modifiers distinguished.
+     I.e. either "LCtrlX" or "RCtrlX" are accepted instead of "CtrlX".
+
+1.2. "Exact" and "generalized" modifiers in keys specifications.
+     * Exact modifiers are LCtrl, LAlt, RCtrl and RAlt. Generalized modifiers are Ctrl and Alt.
+     * Each of generalized modifiers means "any one", i.e. left- or right-side modifiers.
+       Thus, "CtrlAltX" specification is equal to "LCtrlLAltX LCtrlRAltX RCtrlLAltX RCtrlRAltX".
+     * One specification of a key may contain either exact or generalized modifiers,
+       for example, "CtrlRAltX".
+
+1.3. Keys specified with a regular expression.
+     * On key accept, case insensitive matching of its name is performed (see #1) against a regular expression,
+       according to FAR regexps rules.
+     * "/CtrlX/" regular expression never matches because either "LCtrlX" or "RCtrlX" are passed to matching.
+     * Examples of regular expressions independent of modifier type: "/.CtrlX/" or "/[LR]CtrlX/".
+       If you have macros with keys specifications like "/R?CtrlX/", fix them as it mentioned before.
+
+1.4. Key specifications have no priority against each other.
+     For macros 1 (key="RCtrlX"), 2 (key="CtrlX") and 3 (key="/.CtrlX/"), on RCtrlX key press all of them
+     are processed uniformly, and the selection is performed with respect to the given fields:
+     'flags' (including possible callback for MCTL_ADDMACRO macros), 'condition' and 'priority'.
+
+1.5. For keyboard macros recording, generalized modifiers are always used, i.e. you cannot
+     assign a macro to LCtrlX or RCtrlX from keyboard, only to CtrlX.
+
+1.6. Macros in "Common" ares have priority = 40 by default.
+
+drkns 13.01.2013 02:23:07 +0200 - build 3077
+
+1. gcc.
+
+drkns 13.01.2013 00:28:46 +0200 - build 3076
+
+1. Refactoring. Overall use of standard lists and arrays, some lambdas and stuff. Epic bugs are possible.
+
+zg 12.01.2013 04:49:12 +0200 - build 3075
+
+1. 0002252: Inconsistency between selection and cursor movement in block mode.
+
+shmuel 11.01.2013 17:46:00 +0200 - build 3074
+
+1. Forum: on FAR start, if one of panels has a network folder opened, the following message _may_ be shown:
+   attempt to index upvalue 'Areas' (a nil value).
+
+drkns 10.01.2013 21:38:44 +0200 - build 3073
+
+1. Refactoring.
+
+w17 10.01.2013 12:03:54 +0400 - build 3072
+
+1. gcc build fix
+
+drkns 10.01.2013 02:03:43 +0200 - build 3071
+
+1. Refactoring.
+
+drkns 10.01.2013 00:25:12 +0200 - build 3070
+
+1. Refactoring.
+
+svs 09.01.2013 22:04:32 +0400 - build 3069
+
+1. Mantis#0002245: Add GUID for search results window on panels
+     FindFileResultId={536754EB-C2D1-4626-933F-A25D1E1D110A}
+
+2. Mantis#0002243: There's no way to know if a separator has been set with alignment to center if it is set with Х=-1
+      For DIF_SEPARATOR or DIF_SEPARATOR2 given, if X1 or Y1=-1 then FAR aligns the text and
+      forces the DIF_CENTERTEXT flag. In this case the coordinates of the separator are not equal to -1.
+
+svs 09.01.2013 21:49:38 +0400 - build 3068
+
+1. SQLite 3.7.15.2
+
+zg 07.01.2013 05:12:25 +0200 - build 3067
+
+1. RECTL_SEARCHEX for unfound brackets assigned RegExpMatch.start a value different from -1.
+
+lort 04.01.2013 18:02:57 +0400 - build 3066
+
+1. Mantis#0002240: Ctrl-Enter incorrect functioning in search results menu
+
+shmuel 04.01.2013 15:52:07 +0200 - build 3065
+
+1. M#2220: MoreHistory -> View/Edit history -> F4 Esc Esc -> Random crash
+   (от Michael Lukashov).
+
+shmuel 03.01.2013 23:35:20 +0200 - build 3064
+
+1. Forum: macros such as AltQ do not run with Russian keyboard layout.
+
 drkns 02.01.2013 20:44:40 +0200 - build 3063
 
 1. Refactoring.
