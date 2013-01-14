@@ -226,7 +226,7 @@ void VMenu::UpdateItemFlags(int Pos, UINT64 NewFlags)
 	}
 }
 
-// переместить курсор c учётом пунктов которые не могу получать фокус
+// переместить курсор c учётом пунктов которые не могут получать фокус
 int VMenu::SetSelectPos(int Pos, int Direct, bool stop_on_edge)
 {
 	CriticalSectionLock Lock(CS);
@@ -1287,7 +1287,7 @@ int VMenu::ProcessKey(int Key)
 
 			int p = VisualPosToReal(GetVisualPos(SelectPos)+dy);;
 
-			p = std::min(p, static_cast<int>(Item.size()));
+			p = std::min(p, static_cast<int>(Item.size())-1);
 
 			SetSelectPos(p,-1);
 			ShowMenu(true);
