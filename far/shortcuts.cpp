@@ -81,7 +81,12 @@ ShortcutItem::ShortcutItem()
 
 bool ShortcutItem::operator==(const ShortcutItem& Item)
 {
-	return strName == Item.strName && strFolder == Item.strFolder && PluginGuid == Item.PluginGuid && strPluginFile == Item.strPluginFile && strPluginData == Item.strPluginData;
+	return
+	  strName == Item.strName &&
+	  strFolder == Item.strFolder &&
+	  PluginGuid == Item.PluginGuid &&
+	  strPluginFile == Item.strPluginFile &&
+	  strPluginData == Item.strPluginData;
 }
 
 Shortcuts::Shortcuts()
@@ -157,7 +162,6 @@ Shortcuts::~Shortcuts()
 			int index = 0;
 			std::for_each(RANGE(Items[i], j)
 			{
-				++index;
 				FormatString ValueName;
 				ValueName << RecTypeName[PSCR_RT_SHORTCUT] << index;
 				cfg->SetValue(key, ValueName, j.strFolder);
@@ -187,6 +191,7 @@ Shortcuts::~Shortcuts()
 					ValueName << RecTypeName[PSCR_RT_PLUGINDATA] << index;
 					cfg->SetValue(key, ValueName, j.strPluginData);
 				}
+				++index;
 			});
 		}
 	}
