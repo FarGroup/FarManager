@@ -897,21 +897,16 @@ static int editor_SetPosition(lua_State *L)
 		esp.Overtype  = luaL_optinteger(L, 7, -1);
 	}
 
-	if(Info->EditorControl(EditorId, ECTL_SETPOSITION, 0, &esp) != 0)
-		return lua_pushboolean(L, 1), 1;
-
-	return 0;
+	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_SETPOSITION, 0, &esp));
+	return 1;
 }
 
 static int editor_Redraw(lua_State *L)
 {
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
-
-	if(Info->EditorControl(EditorId, ECTL_REDRAW, 0, 0))
-		return lua_pushboolean(L, 1), 1;
-
-	return 0;
+	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_REDRAW, 0, 0));
+	return 1;
 }
 
 static int editor_ExpandTabs(lua_State *L)
@@ -919,11 +914,8 @@ static int editor_ExpandTabs(lua_State *L)
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
 	intptr_t line_num = luaL_optinteger(L, 2, -1);
-
-	if(Info->EditorControl(EditorId, ECTL_EXPANDTABS, 0, &line_num))
-		return lua_pushboolean(L, 1), 1;
-
-	return 0;
+	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_EXPANDTABS, 0, &line_num));
+	return 1;
 }
 
 static int PushBookmarks(lua_State *L, int command)
@@ -1018,22 +1010,16 @@ static int editor_SetTitle(lua_State *L)
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
 	const wchar_t* text = opt_utf8_string(L, 2, NULL);
-
-	if(Info->EditorControl(EditorId, ECTL_SETTITLE, 0, (void*)text))
-		return lua_pushboolean(L, 1), 1;
-
-	return 0;
+	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_SETTITLE, 0, (void*)text));
+	return 1;
 }
 
 static int editor_Quit(lua_State *L)
 {
 	intptr_t EditorId = luaL_optinteger(L, 1, CURRENT_EDITOR);
 	PSInfo *Info = GetPluginData(L)->Info;
-
-	if(Info->EditorControl(EditorId, ECTL_QUIT, 0, 0))
-		return lua_pushboolean(L, 1), 1;
-
-	return 0;
+	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_QUIT, 0, 0));
+	return 1;
 }
 
 static int FillEditorSelect(lua_State *L, int pos_table, struct EditorSelect *es)
@@ -1083,10 +1069,8 @@ static int editor_Select(lua_State *L)
 		es.BlockHeight    = luaL_optinteger(L, 6, -1);
 	}
 
-	if(Info->EditorControl(EditorId, ECTL_SELECT, 0, &es))
-		return lua_pushboolean(L, 1), 1;
-
-	return 0;
+	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_SELECT, 0, &es));
+	return 1;
 }
 
 // This function is that long because FAR API does not supply needed
@@ -1285,11 +1269,8 @@ static int editor_SaveFile(lua_State *L)
 	esf.StructSize = sizeof(esf);
 	esf.FileName = opt_utf8_string(L, 2, L"");
 	esf.FileEOL = opt_utf8_string(L, 3, NULL);
-
-	if(Info->EditorControl(EditorId, ECTL_SAVEFILE, 0, &esf))
-		return lua_pushboolean(L, 1), 1;
-
-	return 0;
+	lua_pushboolean(L, Info->EditorControl(EditorId, ECTL_SAVEFILE, 0, &esf));
+	return 1;
 }
 
 int pushInputRecord(lua_State *L, const INPUT_RECORD* ir)
@@ -1842,11 +1823,8 @@ static int panel_CheckPanelsExist(lua_State *L)
 {
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE handle = OptHandle(L);
-
-	if(Info->PanelControl(handle, FCTL_CHECKPANELSEXIST, 0, 0))
-		return lua_pushboolean(L, 1), 1;
-
-	return 0;
+	lua_pushboolean(L, Info->PanelControl(handle, FCTL_CHECKPANELSEXIST, 0, 0));
+	return 1;
 }
 
 static int panel_ClosePanel(lua_State *L)
@@ -1854,11 +1832,8 @@ static int panel_ClosePanel(lua_State *L)
 	PSInfo *Info = GetPluginData(L)->Info;
 	HANDLE handle = OptHandle(L);
 	const wchar_t *dir = opt_utf8_string(L, 2, NULL);
-
-	if(Info->PanelControl(handle, FCTL_CLOSEPANEL, 0, (void*)dir))
-		return lua_pushboolean(L, 1), 1;
-
-	return 0;
+	lua_pushboolean(L, Info->PanelControl(handle, FCTL_CLOSEPANEL, 0, (void*)dir));
+	return 1;
 }
 
 static int panel_GetPanelInfo(lua_State *L)
@@ -2606,12 +2581,7 @@ static int SetDlgItem(lua_State *L, HANDLE hDlg, int numitem, int pos_table,
 	luaL_checktype(L, pos_table, LUA_TTABLE);
 	lua_pushvalue(L, pos_table);
 	SetFarDialogItem(L, &DialogItem, numitem, 1);
-
-	if(Info->SendDlgMessage(hDlg, DM_SETDLGITEM, numitem, &DialogItem))
-		lua_pushboolean(L,1);
-	else
-		lua_pushboolean(L,0);
-
+	lua_pushboolean(L, Info->SendDlgMessage(hDlg, DM_SETDLGITEM, numitem, &DialogItem));
 	return 1;
 }
 
@@ -3546,8 +3516,8 @@ static int far_ShowHelp(lua_State *L)
 	const wchar_t *HelpTopic = opt_utf8_string(L,2,NULL);
 	UINT64 Flags = CheckFlags(L,3);
 	PSInfo *Info = GetPluginData(L)->Info;
-	BOOL ret = Info->ShowHelp(ModuleName, HelpTopic, Flags);
-	return lua_pushboolean(L, ret), 1;
+	lua_pushboolean(L, Info->ShowHelp(ModuleName, HelpTopic, Flags));
+	return 1;
 }
 
 // DestText = far.InputBox(Title,Prompt,HistoryName,SrcText,DestLength,HelpTopic,Flags)
@@ -3783,25 +3753,29 @@ static int far_GetReparsePointInfo(lua_State *L)
 static int far_LIsAlpha(lua_State *L)
 {
 	const wchar_t* str = check_utf8_string(L, 1, NULL);
-	return lua_pushboolean(L, GetPluginData(L)->FSF->LIsAlpha(*str) != 0), 1;
+	lua_pushboolean(L, GetPluginData(L)->FSF->LIsAlpha(*str) != 0);
+	return 1;
 }
 
 static int far_LIsAlphanum(lua_State *L)
 {
 	const wchar_t* str = check_utf8_string(L, 1, NULL);
-	return lua_pushboolean(L, GetPluginData(L)->FSF->LIsAlphanum(*str) != 0), 1;
+	lua_pushboolean(L, GetPluginData(L)->FSF->LIsAlphanum(*str) != 0);
+	return 1;
 }
 
 static int far_LIsLower(lua_State *L)
 {
 	const wchar_t* str = check_utf8_string(L, 1, NULL);
-	return lua_pushboolean(L, GetPluginData(L)->FSF->LIsLower(*str) != 0), 1;
+	lua_pushboolean(L, GetPluginData(L)->FSF->LIsLower(*str) != 0);
+	return 1;
 }
 
 static int far_LIsUpper(lua_State *L)
 {
 	const wchar_t* str = check_utf8_string(L, 1, NULL);
-	return lua_pushboolean(L, GetPluginData(L)->FSF->LIsUpper(*str) != 0), 1;
+	lua_pushboolean(L, GetPluginData(L)->FSF->LIsUpper(*str) != 0);
+	return 1;
 }
 
 static int convert_buf(lua_State *L, int command)
@@ -3849,7 +3823,8 @@ static int far_MkLink(lua_State *L)
 	const wchar_t* dst = check_utf8_string(L, 2, NULL);
 	UINT64 type = CheckFlags(L, 3);
 	UINT64 flags = CheckFlags(L, 4);
-	return lua_pushboolean(L, GetPluginData(L)->FSF->MkLink(src, dst, type, flags)), 1;
+	lua_pushboolean(L, GetPluginData(L)->FSF->MkLink(src, dst, type, flags));
+	return 1;
 }
 
 static int far_GetPathRoot(lua_State *L)
