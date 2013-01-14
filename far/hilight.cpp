@@ -753,8 +753,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 						}
 						else
 						{
-							auto p1 = HiData.begin() + RealSelectPos, p2 = HiData.begin() + RealSelectPos - 1;
-							std::swap(p1, p2);
+							std::swap(HiData[RealSelectPos], HiData[RealSelectPos-1]);
 						}
 						HiMenu.SetCheck(--SelectPos);
 						NeedUpdate=TRUE;
@@ -792,8 +791,7 @@ void HighlightFiles::HiEdit(int MenuPos)
 						}
 						else
 						{
-							auto p1 = HiData.begin() + RealSelectPos, p2 = HiData.begin() + RealSelectPos + 1;
-							std::swap(p1, p2);
+							std::swap(HiData[RealSelectPos], HiData[RealSelectPos+1]);
 						}
 						HiMenu.SetCheck(++SelectPos);
 						NeedUpdate=TRUE;
