@@ -115,20 +115,46 @@ static int iTruncLen;
  * Усекает начало длинных имен файлов (или дополняет короткие имена)
  * для правильного показа в сообщении сравнения
  ****************************************************************************/
-static void TrunCopy(wchar_t *cpDest, const wchar_t *cpSrc)
+static int SplitCopy(
+	wchar_t* items[], int mitems, wchar_t *name1, const wchar_t *cpName)
 {
-	int iLen = (int)lstrlen(cpSrc);
-	if (iLen <= iTruncLen)
+	int iLen = lstrlen(cpName);
+	if (iLen >= MAX_PATH)
 	{
-		lstrcpy(cpDest, cpSrc);
-		wmemset(cpDest+iLen, L' ', iTruncLen-iLen);
-		cpDest[iLen] = L'\0';
+		iLen -= 4; cpName += 4; // skip '\\?\'
 	}
-	else
+	
+	int i = 0, nitems = (iLen+iTruncLen-1) / iTruncLen;
+	if (nitems > mitems)
 	{
-		lstrcpy(cpDest, L"...");
-		lstrcpy(cpDest+3, cpSrc+iLen-iTruncLen+3);
+		nitems = mitems;
+		while (i < mitems/2)
+		{
+			items[i] = (i > 0 ? new wchar_t[iTruncLen + 1] : name1);
+			wmemcpy(items[i], cpName, iTruncLen);
+			items[i][iTruncLen] = L'\0';
+			cpName += iTruncLen;
+			iLen -= iTruncLen;
+			++i;
+		}
+		lstrcpy(items[i++] = new wchar_t[3+1], L"...");
+		cpName += iLen - iTruncLen*(nitems - i);
+		iLen = iTruncLen*(nitems - i);
 	}
+
+	while (i < nitems)
+	{
+		items[i] = (i > 0 ? new wchar_t[iTruncLen + 1] : name1);
+		int nw = Min(iLen, iTruncLen);
+		wmemcpy(items[i], cpName, nw);
+		wmemset(items[i]+nw, L' ', iTruncLen-nw);
+		items[i][iTruncLen] = L'\0';
+		cpName += nw;
+		iLen -= nw;
+		++i;
+	}
+
+	return nitems;
 }
 
 static bool bStart;
@@ -146,20 +172,28 @@ static void ShowMessage(const wchar_t *Name1, const wchar_t *Name2)
 		return;
 
 	dwTicks = dwNewTicks;
-	wchar_t TruncName1[MAX_PATH], TruncName2[MAX_PATH];
-	TrunCopy(TruncName1, Name1);
-	TrunCopy(TruncName2, Name2);
-	const wchar_t *MsgItems[] =
-	{
-		GetMsg(MCmpTitle),
-		GetMsg(MComparing),
-		TruncName1,
-		GetMsg(MComparingWith),
-		TruncName2
+	wchar_t name1[MAX_PATH], name2[MAX_PATH];
+
+	wchar_t *MsgItems[2+5+1+5] = {
+		(wchar_t *)GetMsg(MCmpTitle), (wchar_t *)GetMsg(MComparing), name1
 	};
-	Info.Message(&MainGuid, nullptr, bStart ? FMSG_LEFTALIGN :
-	             FMSG_LEFTALIGN|FMSG_KEEPBACKGROUND,
-	             NULL, MsgItems, ARRAYSIZE(MsgItems), 0);
+	int n1 = SplitCopy(MsgItems+2,5, name1, Name1);
+
+	MsgItems[2+n1] = (wchar_t *)GetMsg(MComparingWith);
+	int n2 = SplitCopy(MsgItems+2+n1+1,5, name2, Name2);
+
+	Info.Message(
+		&MainGuid, nullptr,
+		bStart ? FMSG_LEFTALIGN : FMSG_LEFTALIGN|FMSG_KEEPBACKGROUND,
+	   nullptr, MsgItems, 2+n1+1+n2, 0
+	);
+
+	while (--n2 > 0)
+		delete[] MsgItems[2+n1+1+n2];
+
+	while (--n1 > 0)
+		delete[] MsgItems[2+n1];
+
 	bStart = false;
 }
 
@@ -1305,8 +1339,8 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 
 	// На время сравнения изменим заголовок консоли ФАРа...
-	wchar_t cConsoleTitle[MAX_PATH], cBuffer[MAX_PATH];
-	DWORD dwTitleSaved = GetConsoleTitle(cConsoleTitle, sizeof(cConsoleTitle));
+	wchar_t cConsoleTitle[512], cBuffer[MAX_PATH];
+	DWORD dwTitleSaved = GetConsoleTitle(cConsoleTitle, ARRAYSIZE(cConsoleTitle));
 	lstrcpy(cBuffer, GetMsg(MComparingFiles));
 	SetConsoleTitle(cBuffer);
 	// Читаем размер буфера сравнения из настроек...
