@@ -3654,13 +3654,13 @@ static bool msgBoxFunc(FarMacroCall* Data)
 }
 
 
-static int WINAPI CompareItems(const MenuItemEx **el1, const MenuItemEx **el2, const SortItemParam *Param)
+static int WINAPI CompareItems(const MenuItemEx *el1, const MenuItemEx *el2, const SortItemParam *Param)
 {
-	if (((*el1)->Flags & LIF_SEPARATOR) || ((*el2)->Flags & LIF_SEPARATOR))
+	if (((el1)->Flags & LIF_SEPARATOR) || ((el2)->Flags & LIF_SEPARATOR))
 		return 0;
 
-	string strName1((*el1)->strName);
-	string strName2((*el2)->strName);
+	string strName1((el1)->strName);
+	string strName2((el2)->strName);
 	RemoveChar(strName1,L'&',true);
 	RemoveChar(strName2,L'&',true);
 	int Res = NumStrCmpI(strName1.CPtr()+Param->Offset,strName2.CPtr()+Param->Offset);
@@ -3807,7 +3807,7 @@ static bool menushowFunc(FarMacroCall* Data)
 	}
 
 	if (bSorting)
-		Menu.SortItems(reinterpret_cast<TMENUITEMEXCMPFUNC>(CompareItems));
+		Menu.SortItems(CompareItems);
 
 	if (bPacking)
 		Menu.Pack();
