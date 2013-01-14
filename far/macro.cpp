@@ -471,6 +471,7 @@ MacroState::MacroState() :
 	HistoryDisable(0),
 	UseInternalClipboard(false)
 {
+	ClearStruct(cRec);
 }
 
 void KeyMacro::PushState(bool withClip)
@@ -2882,7 +2883,7 @@ intptr_t KeyMacro::CallFar(intptr_t CheckCode, FarMacroCall* Data)
 			{
 				if (!(MR->Flags()&MFLAGS_POSTFROMPLUGIN))
 				{
-					INPUT_RECORD *inRec=&m_CurState->cRec;
+					INPUT_RECORD *inRec=&(*m_StateStack.Peek())->cRec;
 					if (!inRec->EventType)
 						inRec->EventType = KEY_EVENT;
 					if(inRec->EventType == MOUSE_EVENT || inRec->EventType == KEY_EVENT || inRec->EventType == FARMACRO_KEY_EVENT)
