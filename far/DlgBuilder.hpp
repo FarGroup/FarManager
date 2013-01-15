@@ -389,8 +389,9 @@ class DialogBuilderBase
 		}
 
 		DialogBuilderBase()
-			: DialogItems(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), Indent(0), SingleBoxIndex(-1),
-			  ColumnStartIndex(-1), ColumnBreakIndex(-1), ColumnMinWidth(0)
+			: DialogItems(nullptr), Bindings(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), Indent(0), SingleBoxIndex(-1),
+			  OKButtonID(-1),
+			  ColumnStartIndex(-1), ColumnBreakIndex(-1), ColumnStartY(-1), ColumnEndY(-1), ColumnMinWidth(0)
 		{
 		}
 
@@ -742,6 +743,7 @@ public:
 		: DialogAPIBinding(aInfo, aHandle, aID),
 		  Value(aValue)
 	{
+		memset(Buffer, 0, sizeof(Buffer));
 		aInfo.FSF->sprintf(Buffer, L"%u", *aValue);
 		int MaskWidth = Width < 31 ? Width : 31;
 		for(int i=1; i<MaskWidth; i++)
@@ -817,13 +819,15 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 
 public:
 		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr)
-			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
+			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam),
+			  DialogHandle(0)
 		{
 			AddBorder(GetLangString(TitleMessageID));
 		}
 
 		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, const wchar_t *TitleMessage, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr)
-			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
+			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam),
+			  DialogHandle(0)
 		{
 			AddBorder(TitleMessage);
 		}

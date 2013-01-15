@@ -212,7 +212,11 @@ static void MenuFileToList(std::list<UserMenuItem>& Menu, File& MenuFile, GetFil
 	}
 }
 
-UserMenu::UserMenu(bool ChoiceMenuType)
+UserMenu::UserMenu(bool ChoiceMenuType):
+	MenuMode(MM_LOCAL),
+	MenuModified(false),
+	MenuNeedRefresh(false),
+	ItemChanged(false)
 {
 	ProcessUserMenu(ChoiceMenuType);
 }

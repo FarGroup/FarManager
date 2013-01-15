@@ -1,3 +1,7 @@
+drkns 15.01.2013 22:03:55 +0200 - build 3084
+
+1. 0002256: Fix warnings: member variable is not initialized in constructor
+
 shmuel 15.01.2013 00:27:59 +0200 - build 3083
 
 1. Рефакторинг.

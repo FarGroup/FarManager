@@ -65,6 +65,7 @@ QuickView::QuickView():
 	OldWrapType(0),
 	uncomplete_dirscan(false)
 {
+	ClearStruct(Data);
 	Type=QVIEW_PANEL;
 	if (!LastMode)
 	{

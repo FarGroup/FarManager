@@ -294,6 +294,8 @@ CopyProgress::CopyProgress(bool Move,bool Total,bool Time):
 	Percents(0),
 	LastWriteTime(0)
 {
+	ClearStruct(Rect);
+	ClearArray(Bar);
 }
 
 void CopyProgress::SetScanName(const wchar_t *Name)
