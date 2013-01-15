@@ -145,24 +145,27 @@ local function AddMacro (srctable)
   end
 end
 
+local CharNames = { ["."]="Dot", ["<"]="Less", [">"]="More", ["|"]="Pipe", ["/"]="Slash",
+                    [":"]="Colon", ["?"]="Question", ["*"]="Asterisk", ['"']="Quote" }
+
 local function AddRecordedMacro (srctable)
   local area = type(srctable)=="table" and type(srctable.area)=="string" and srctable.area:lower()
   if not (area and Areas[area]) then return end
   local arTable = Areas[area]
 
-  if type(srctable.code)=="string" then
-    if srctable.code:sub(1,1) ~= "@" then
-      local f, msg = loadstring(srctable.code)
-      if not f then ErrMsg(msg) return end
-    end
-  else
+  local key = srctable.key
+  if type(key) ~= "string" or
+        -- check correspondence between (a) filename and (b) area_key
+        ("%s_%s"):format(area, (key:gsub(".",CharNames))):lower() ~=
+        AddMacro_filename:gsub("^.*\\",""):sub(1,-5):lower() then
     return
   end
 
-  local key = srctable.key
-  if type(key) ~= "string" then return end
-  key = key:match("%S+")
-  if not key then return end
+  if type(srctable.code) ~= "string" then return end
+  if srctable.code:sub(1,1) ~= "@" then
+    local f, msg = loadstring(srctable.code)
+    if not f then ErrMsg(msg) return end
+  end
 
   local macro = { priority=200 }
   local t,n = ExpandKey(key)
@@ -265,9 +268,6 @@ local function UnloadMacros()
   local allAreas = bit64.band(MacroCallFar(MCODE_F_GETOPTIONS),0x1) == 0
   LoadMacros(allAreas,true)
 end
-
-local CharNames = { ["."]="Dot", ["<"]="Less", [">"]="More", ["|"]="Pipe", ["/"]="Slash",
-                    [":"]="Colon", ["?"]="Question", ["*"]="Asterisk", ['"']="Quote" }
 
 local function WriteOneMacro (macro, keyname)
   local dir = win.GetEnv("farprofile").."\\Macros\\internal"
