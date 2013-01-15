@@ -146,9 +146,6 @@ Options::Options():
 	ElevationMode(0),
 	WindowMode(-1)
 {
-	ClearStruct(FindOpt);
-	ClearStruct(XLat);
-	ClearStruct(Tree);
 #ifndef _DEBUGEXC
 	if(IsDebuggerPresent())
 	{
