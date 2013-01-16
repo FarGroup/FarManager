@@ -490,7 +490,7 @@ void FileEditor::Init(
 				if (OpenModeExstFile == FEOPMODE_QUERY)
 				{
 					const wchar_t* const Items[] = {strFullFileName, MSG(MAskReload), MSG(MCurrent), MSG(MNewOpen), MSG(MReload)};
-					MsgCode=Message(0, 3, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload");
+					MsgCode=Message(0, 3, MSG(MEditTitle),Items, ARRAYSIZE(Items), L"EditorReload", nullptr, &EditorReloadId);
 				}
 				else
 				{
