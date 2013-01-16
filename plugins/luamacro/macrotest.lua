@@ -6,21 +6,24 @@ local function IsNumOrInt(v)
   return type(v)=="number" or bit64.type(v)
 end
 
-assert(not (APanel.Plugin or PPanel.Plugin),
+assert(Area.Shell and Area.Current=="Shell",
+  "Run these tests from the Shell area.")
+
+assert(not APanel.Plugin and not PPanel.Plugin,
   "Run these tests when neither of panels is a plugin panel.")
 
-assert(Area.Shell and not Area.Help, "Run these tests from the Shell area.")
-assert(Area.Current=="Shell")
-
-Keys"F1"
-assert(Area.Help and not Area.Shell)
-assert(Area.Current=="Help")
-Keys"Esc"
-
-Keys"F7"
-assert(Area.Dialog)
-assert(Area.Current=="Dialog")
-Keys"Esc"
+Keys"ShiftF4 CtrlY Enter"
+                assert(Area.Editor and Area.Current=="Editor")        Keys"Esc"
+Keys"F7"        assert(Area.Dialog and Area.Current=="Dialog")        Keys"Esc"
+Keys"Alt?"      assert(Area.Search and Area.Current=="Search")        Keys"Esc"
+Keys"AltF1"     assert(Area.Disks and Area.Current=="Disks")          Keys"Esc"
+Keys"AltF2"     assert(Area.Disks and Area.Current=="Disks")          Keys"Esc"
+Keys"F9"        assert(Area.MainMenu and Area.Current=="MainMenu")    Keys"Esc"
+Keys"F12"       assert(Area.Menu and Area.Current=="Menu")            Keys"Esc"
+Keys"F1"        assert(Area.Help and Area.Current=="Help")            Keys"Esc"
+Keys"CtrlT Tab" assert(Area.Tree and Area.Current=="Tree")      Keys"Tab CtrlT"
+Keys"AltF10"   assert(Area.FindFolder and Area.Current=="FindFolder") Keys"Esc"
+Keys"F2"        assert(Area.UserMenu and Area.Current=="UserMenu")    Keys"Esc"
 
 assert(Area.Current              =="Shell")
 assert(Area.Other                ==false)
@@ -41,9 +44,17 @@ assert(Area.UserMenu             ==false)
 assert(Area.ShellAutoCompletion  ==false)
 assert(Area.DialogAutoCompletion ==false)
 
-assert(akey(0)==0x501007B)
-assert(akey(1)=="CtrlShiftF12")
+local k0,k1 = akey(0),akey(1)
+assert(k0==0x0501007B and k1=="CtrlShiftF12" or
+       k0==0x1401007B and k1=="RCtrlShiftF12")
 --todo: test 2nd parameter
+
+--local text = [[
+--  assert(akey(0)==0x0501007B)
+--  assert(akey(1)=="CtrlShiftF12")
+--  far.Message("akey test OK", "LuaMacro")
+--]]
+--far.MacroPost(text,0,"CtrlShiftF12")
 
 assert(band(0xFF,0xFE,0xFD) == 0xFC)
 assert(bor(1,2,4) == 7)
