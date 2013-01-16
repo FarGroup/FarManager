@@ -6,24 +6,26 @@ local function IsNumOrInt(v)
   return type(v)=="number" or bit64.type(v)
 end
 
-assert(Area.Shell and Area.Current=="Shell",
-  "Run these tests from the Shell area.")
+local function TestArea (area, msg)
+  assert(Area[area]==true and Area.Current==area, msg or "assertion failed")
+end
+
+TestArea("Shell", "Run these tests from the Shell area.")
 
 assert(not APanel.Plugin and not PPanel.Plugin,
   "Run these tests when neither of panels is a plugin panel.")
 
-Keys"ShiftF4 CtrlY Enter"
-                assert(Area.Editor and Area.Current=="Editor")        Keys"Esc"
-Keys"F7"        assert(Area.Dialog and Area.Current=="Dialog")        Keys"Esc"
-Keys"Alt?"      assert(Area.Search and Area.Current=="Search")        Keys"Esc"
-Keys"AltF1"     assert(Area.Disks and Area.Current=="Disks")          Keys"Esc"
-Keys"AltF2"     assert(Area.Disks and Area.Current=="Disks")          Keys"Esc"
-Keys"F9"        assert(Area.MainMenu and Area.Current=="MainMenu")    Keys"Esc"
-Keys"F12"       assert(Area.Menu and Area.Current=="Menu")            Keys"Esc"
-Keys"F1"        assert(Area.Help and Area.Current=="Help")            Keys"Esc"
-Keys"CtrlT Tab" assert(Area.Tree and Area.Current=="Tree")      Keys"Tab CtrlT"
-Keys"AltF10"   assert(Area.FindFolder and Area.Current=="FindFolder") Keys"Esc"
-Keys"F2"        assert(Area.UserMenu and Area.Current=="UserMenu")    Keys"Esc"
+Keys "ShiftF4 CtrlY Enter" TestArea "Editor"     Keys "Esc"
+Keys "F7"                  TestArea "Dialog"     Keys "Esc"
+Keys "Alt?"                TestArea "Search"     Keys "Esc"
+Keys "AltF1"               TestArea "Disks"      Keys "Esc"
+Keys "AltF2"               TestArea "Disks"      Keys "Esc"
+Keys "F9"                  TestArea "MainMenu"   Keys "Esc"
+Keys "F12"                 TestArea "Menu"       Keys "Esc"
+Keys "F1"                  TestArea "Help"       Keys "Esc"
+Keys "CtrlT Tab"           TestArea "Tree"       Keys "Tab CtrlT"
+Keys "AltF10"              TestArea "FindFolder" Keys "Esc"
+Keys "F2"                  TestArea "UserMenu"   Keys "Esc"
 
 assert(Area.Current              =="Shell")
 assert(Area.Other                ==false)
