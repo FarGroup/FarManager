@@ -15,6 +15,7 @@ TestArea("Shell", "Run these tests from the Shell area.")
 assert(not APanel.Plugin and not PPanel.Plugin,
   "Run these tests when neither of panels is a plugin panel.")
 
+Keys "AltIns"              TestArea "Other"      Keys "Esc"
 Keys "ShiftF4 CtrlY Enter" TestArea "Editor"     Keys "Esc"
 Keys "F7"                  TestArea "Dialog"     Keys "Esc"
 Keys "Alt?"                TestArea "Search"     Keys "Esc"
@@ -23,6 +24,8 @@ Keys "AltF2"               TestArea "Disks"      Keys "Esc"
 Keys "F9"                  TestArea "MainMenu"   Keys "Esc"
 Keys "F12"                 TestArea "Menu"       Keys "Esc"
 Keys "F1"                  TestArea "Help"       Keys "Esc"
+Keys "CtrlL Tab"           TestArea "Info"       Keys "Tab CtrlL"
+Keys "CtrlQ Tab"           TestArea "QView"      Keys "Tab CtrlQ"
 Keys "CtrlT Tab"           TestArea "Tree"       Keys "Tab CtrlT"
 Keys "AltF10"              TestArea "FindFolder" Keys "Esc"
 Keys "F2"                  TestArea "UserMenu"   Keys "Esc"
@@ -50,13 +53,6 @@ local k0,k1 = akey(0),akey(1)
 assert(k0==0x0501007B and k1=="CtrlShiftF12" or
        k0==0x1401007B and k1=="RCtrlShiftF12")
 --todo: test 2nd parameter
-
---local text = [[
---  assert(akey(0)==0x0501007B)
---  assert(akey(1)=="CtrlShiftF12")
---  far.Message("akey test OK", "LuaMacro")
---]]
---far.MacroPost(text,0,"CtrlShiftF12")
 
 assert(band(0xFF,0xFE,0xFD) == 0xFC)
 assert(bor(1,2,4) == 7)
@@ -338,6 +334,9 @@ for _,pan in ipairs{APanel,PPanel} do
   assert(type(pan.Visible)     =="boolean")
   assert(type(pan.Width)       =="number")
 end
+
+Keys "Home" assert(APanel.Bof==true)
+Keys "End" assert(APanel.Eof==true)
 
 assert(Panel.FAttr(0,":")==-1)
 assert(Panel.FAttr(1,":")==-1)
