@@ -113,11 +113,8 @@ void ControlObject::Init(int DirCount)
 	Cp()->LeftPanel->Update(0);
 	Cp()->RightPanel->Update(0);
 
-	if (Global->Opt->AutoSaveSetup)
-	{
-		Cp()->LeftPanel->GoToFile(Global->Opt->strLeftCurFile);
-		Cp()->RightPanel->GoToFile(Global->Opt->strRightCurFile);
-	}
+	Cp()->LeftPanel->GoToFile(Global->Opt->strLeftCurFile);
+	Cp()->RightPanel->GoToFile(Global->Opt->strRightCurFile);
 
 	string strStartCurDir;
 	Cp()->ActivePanel->GetCurDir(strStartCurDir);

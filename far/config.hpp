@@ -106,14 +106,14 @@ public:
 	explicit Option(const int Value):iValue(Value), ValueChanged(false), IsString(false){}
 	virtual ~Option(){if(IsString) delete sValue;}
 	bool Changed(){return ValueChanged;}
-	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName) = 0;
+	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName) = 0;
 	virtual const string toString() = 0;
 protected:
 	const string& GetString() const {return *sValue;}
 	const int GetInt() const {return iValue;}
 	void Set(const string& NewValue) {if(*sValue != NewValue) {*sValue = NewValue; ValueChanged = true;}}
 	void Set(const int NewValue) {if(iValue != NewValue) {iValue = NewValue; ValueChanged = true;}}
-	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) = 0;
+	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) = 0;
 private:
 	void MakeUnchanged(){ValueChanged = false;}
 	union
@@ -134,11 +134,11 @@ public:
 	BoolOption& operator=(bool Value){Set(Value); return *this;}
 	const bool Get() const {return GetInt() != false;}
 	operator bool() const {return GetInt() != false;}
-	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, bool Default);
-	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName);
+	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, bool Default);
+	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
 	virtual const string toString(){return Get()? L"true":L"false";}
 private:
-	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(KeyName, ValueName, reinterpret_cast<intptr_t>(Default) != 0);}
+	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, reinterpret_cast<intptr_t>(Default) != 0);}
 
 };
 
@@ -154,11 +154,11 @@ public:
 	Bool3Option operator--(int){int Current = GetInt() % 3; Set((Current+2) % 3); return Current;}
 	Bool3Option operator++(int){int Current = GetInt() % 3; Set((Current+1) % 3); return Current;}
 	operator int() const {return GetInt() % 3;}
-	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, int Default);
-	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName);
+	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, int Default);
+	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
 	virtual const string toString(){ int v = Get(); return v ? (v == 1 ? L"True" : L"Other") : L"False"; }
 private:
-	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(KeyName, ValueName, static_cast<int>(reinterpret_cast<intptr_t>(Default)));}
+	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, static_cast<int>(reinterpret_cast<intptr_t>(Default)));}
 };
 
 class IntOption:public Option
@@ -177,11 +177,11 @@ public:
 	IntOption operator--(int){intptr_t Current = GetInt(); Set(Current-1); return Current;}
 	IntOption operator++(int){intptr_t Current = GetInt(); Set(Current+1); return Current;}
 	operator intptr_t() const {return GetInt();}
-	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, intptr_t Default);
-	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName);
+	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, intptr_t Default);
+	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
 	virtual const string toString(){FormatString s; s << Get(); return s;}
 private:
-	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(KeyName, ValueName, reinterpret_cast<intptr_t>(Default));}
+	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, reinterpret_cast<intptr_t>(Default));}
 };
 
 class StringOption:public Option
@@ -202,9 +202,9 @@ public:
 	StringOption& operator=(const StringOption& Value) {Set(Value); return *this;}
 	StringOption& operator+=(const string& Value) {Set(Get()+Value); return *this;}
 	StringOption& operator+=(wchar_t Value) {Set(Get()+Value); return *this;}
-	bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const wchar_t* Default);
-	virtual bool ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(KeyName, ValueName, static_cast<const wchar_t*>(Default));}
-	virtual bool StoreValue(const wchar_t* KeyName, const wchar_t* ValueName);
+	bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const wchar_t* Default);
+	virtual bool ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const void* Default) {return ReceiveValue(Storage, KeyName, ValueName, static_cast<const wchar_t*>(Default));}
+	virtual bool StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName);
 	virtual const string toString(){return Get();}
 };
 
@@ -783,6 +783,10 @@ public:
 	int ExceptRules;
 	int ElevationMode;
 	int WindowMode;
+
+private:
+	void InitConfig();
+	std::list<std::pair<GeneralConfig*, struct farconfig*>> ConfigList;
 };
 
 void SystemSettings();

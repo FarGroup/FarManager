@@ -272,6 +272,7 @@ public:
 	static void ClearPluginsCache();
 
 	GeneralConfig *GeneralCfg() const { return m_GeneralCfg; }
+	GeneralConfig *LocalGeneralCfg() const { return m_LocalGeneralCfg; }
 	ColorsConfig *ColorsCfg() const { return m_ColorsCfg; }
 	AssociationsConfig *AssocConfig() const { return m_AssocConfig; }
 	PluginsCacheConfig *PlCacheCfg() const { return m_PlCacheCfg; }
@@ -306,6 +307,7 @@ private:
 	bool m_ImportExportMode;
 
 	GeneralConfig *m_GeneralCfg;
+	GeneralConfig *m_LocalGeneralCfg;
 	ColorsConfig *m_ColorsCfg;
 	AssociationsConfig *m_AssocConfig;
 	PluginsCacheConfig *m_PlCacheCfg;

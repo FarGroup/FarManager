@@ -139,29 +139,6 @@ static const WCHAR _BoxSymbols[48+1] =
 	0x0000
 };
 
-Options::Options():
-	ReadOnlyConfig(-1),
-	UseExceptionHandler(0),
-	ExceptRules(-1),
-	ElevationMode(0),
-	WindowMode(-1)
-{
-#ifndef _DEBUGEXC
-	if(IsDebuggerPresent())
-	{
-		ExceptRules = 0;
-	}
-#endif
-
-	// По умолчанию - брать плагины из основного каталога
-	LoadPlug.MainPluginDir = true;
-	LoadPlug.PluginsPersonal = true;
-	LoadPlug.PluginsCacheOnly = false;
-
-	Macro.DisableMacro=0;
-}
-
-
 void SystemSettings()
 {
 	DialogBuilder Builder(MConfigSystemTitle, L"SystemSettings");
@@ -888,15 +865,15 @@ struct farconfig
 	size_t Size;
 	FARConfigItem *Items;
 }
-FARConfig = {};
+FARConfig = {}, FARLocalConfig = {};
+
+#define AddressAndType(x) &x, TypeId(x)
+#define Default(x) reinterpret_cast<const void*>(x)
 
 void InitCFG()
 {
 	static FARConfigItem _CFG[] =
 	{
-		#define AddressAndType(x) &x, TypeId(x)
-		#define Default(x) reinterpret_cast<const void*>(x)
-
 		{FSSF_PRIVATE,       NKeyCmdline, L"AutoComplete", AddressAndType(Global->Opt->CmdLine.AutoComplete), Default(1)},
 		{FSSF_PRIVATE,       NKeyCmdline, L"EditBlock", AddressAndType(Global->Opt->CmdLine.EditBlock), Default(0)},
 		{FSSF_PRIVATE,       NKeyCmdline, L"DelRemovesBlocks", AddressAndType(Global->Opt->CmdLine.DelRemovesBlocks), Default(1)},
@@ -1063,10 +1040,8 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeyPanelLayout,L"TotalInfo", AddressAndType(Global->Opt->ShowPanelTotals), Default(1)},
 
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"CaseSensitiveSort", AddressAndType(Global->Opt->LeftPanel.CaseSensitiveSort), Default(0)},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"CurFile", AddressAndType(Global->Opt->strLeftCurFile), Default(L"")},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"DirectoriesFirst", AddressAndType(Global->Opt->LeftPanel.DirectoriesFirst), Default(1)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"Focus", AddressAndType(Global->Opt->LeftPanel.Focus), Default(1)},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"Folder", AddressAndType(Global->Opt->strLeftFolder), Default(L"")},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"NumericSort", AddressAndType(Global->Opt->LeftPanel.NumericSort), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"SelectedFirst", AddressAndType(Global->Opt->LeftSelectedFirst), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"ShortNames", AddressAndType(Global->Opt->LeftPanel.ShowShortNames), Default(0)},
@@ -1078,10 +1053,8 @@ void InitCFG()
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"Visible", AddressAndType(Global->Opt->LeftPanel.Visible), Default(1)},
 
 		{FSSF_PRIVATE,       NKeyPanelRight,L"CaseSensitiveSort", AddressAndType(Global->Opt->RightPanel.CaseSensitiveSort), Default(0)},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"CurFile", AddressAndType(Global->Opt->strRightCurFile), Default(L"")},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"DirectoriesFirst", AddressAndType(Global->Opt->RightPanel.DirectoriesFirst), Default(1)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"Focus", AddressAndType(Global->Opt->RightPanel.Focus), Default(0)},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"Folder", AddressAndType(Global->Opt->strRightFolder), Default(L"")},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"NumericSort", AddressAndType(Global->Opt->RightPanel.NumericSort), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"SelectedFirst", AddressAndType(Global->Opt->RightSelectedFirst), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"ShortNames", AddressAndType(Global->Opt->RightPanel.ShowShortNames), Default(0)},
@@ -1249,6 +1222,23 @@ void InitCFG()
 	FARConfig.Size = ARRAYSIZE(_CFG);
 }
 
+void InitLocalCFG()
+{
+	static FARConfigItem _CFG[] =
+	{
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"CurFile", AddressAndType(Global->Opt->strLeftCurFile), Default(L"")},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"Folder", AddressAndType(Global->Opt->strLeftFolder), Default(L"")},
+
+		{FSSF_PRIVATE,       NKeyPanelRight,L"CurFile", AddressAndType(Global->Opt->strRightCurFile), Default(L"")},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"Folder", AddressAndType(Global->Opt->strRightFolder), Default(L"")},
+	};
+	FARLocalConfig.Items = _CFG;
+	FARLocalConfig.Size = ARRAYSIZE(_CFG);
+}
+#undef AddressAndType
+#undef Default
+
+
 bool GetConfigValue(const wchar_t *Key, const wchar_t *Name, string &strValue)
 {
 	for (size_t I=0; I < FARConfig.Size; ++I)
@@ -1280,10 +1270,42 @@ bool GetConfigValue(size_t Root, const wchar_t* Name, GeneralConfig::OptionType&
 	return false;
 }
 
+Options::Options():
+	ReadOnlyConfig(-1),
+	UseExceptionHandler(0),
+	ExceptRules(-1),
+	ElevationMode(0),
+	WindowMode(-1)
+{
+#ifndef _DEBUGEXC
+	if(IsDebuggerPresent())
+	{
+		ExceptRules = 0;
+	}
+#endif
+
+	// По умолчанию - брать плагины из основного каталога
+	LoadPlug.MainPluginDir = true;
+	LoadPlug.PluginsPersonal = true;
+	LoadPlug.PluginsCacheOnly = false;
+
+	Macro.DisableMacro=0;
+}
+
+void Options::InitConfig()
+{
+	if(ConfigList.empty())
+	{
+		InitCFG();
+		InitLocalCFG();
+		ConfigList.push_back(std::list<std::pair<GeneralConfig*, farconfig*>>::value_type(Global->Db->GeneralCfg(), &FARConfig));
+		ConfigList.push_back(std::list<std::pair<GeneralConfig*, farconfig*>>::value_type(Global->Db->LocalGeneralCfg(), &FARLocalConfig));
+	}
+}
+
 void Options::Load()
 {
-	if (!FARConfig.Size)
-		InitCFG();
+	InitConfig();
 
 	/* <ПРЕПРОЦЕССЫ> *************************************************** */
 
@@ -1297,10 +1319,13 @@ void Options::Load()
 
 	GetPrivateProfileString(L"General", L"DefaultLanguage", L"English", DefaultLanguage, ARRAYSIZE(DefaultLanguage), Global->g_strFarINI);
 
-	for (size_t I=0; I < FARConfig.Size; ++I)
+	std::for_each(RANGE(ConfigList, i)
 	{
-		FARConfig.Items[I].Value->ReceiveValue(FARConfig.Items[I].KeyName, FARConfig.Items[I].ValName, FARConfig.Items[I].Default);
-	}
+		for (size_t j=0; j < i.second->Size; ++j)
+		{
+			i.second->Items[j].Value->ReceiveValue(i.first, i.second->Items[j].KeyName, i.second->Items[j].ValName, i.second->Items[j].Default);
+		}
+	});
 
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 
@@ -1467,8 +1492,7 @@ void Options::Load()
 
 void Options::Save(bool Ask)
 {
-	if (!FARConfig.Size)
-		InitCFG();
+	InitConfig();
 
 	if (Policies.DisabledOptions&0x20000) // Bit 17 - Сохранить параметры
 		return;
@@ -1526,14 +1550,15 @@ void Options::Save(bool Ask)
 
 	Palette.Save();
 
-	Global->Db->GeneralCfg()->BeginTransaction();
-
-	for (size_t I=0; I < FARConfig.Size; ++I)
+	std::for_each(RANGE(ConfigList, i)
 	{
-		FARConfig.Items[I].Value->StoreValue(FARConfig.Items[I].KeyName, FARConfig.Items[I].ValName);
-	}
-
-	Global->Db->GeneralCfg()->EndTransaction();
+		i.first->BeginTransaction();
+		for (size_t j=0; j < i.second->Size; ++j)
+		{
+			i.second->Items[j].Value->StoreValue(i.first, i.second->Items[j].KeyName, i.second->Items[j].ValName);
+		}
+		i.first->EndTransaction();
+	});
 
 	/* <ПОСТПРОЦЕССЫ> *************************************************** */
 	FileFilter::SaveFilters();
@@ -1806,54 +1831,54 @@ bool AdvancedConfig()
 }
 
 
-bool BoolOption::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, bool Default)
+bool BoolOption::ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, bool Default)
 {
 	int CfgValue = Default;
-	bool Result = Global->Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Storage->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
 	Set(CfgValue != 0);
 	return Result;
 }
 
-bool BoolOption::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
+bool BoolOption::StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || Global->Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
 
-bool Bool3Option::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, int Default)
+bool Bool3Option::ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, int Default)
 {
 	int CfgValue = Default;
-	bool Result = Global->Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Storage->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
 	Set(CfgValue);
 	return Result;
 }
 
-bool Bool3Option::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
+bool Bool3Option::StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || Global->Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
 
-bool IntOption::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, intptr_t Default)
+bool IntOption::ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, intptr_t Default)
 {
 	int CfgValue = Default;
-	bool Result = Global->Db->GeneralCfg()->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
+	bool Result = Storage->GetValue(KeyName, ValueName, &CfgValue, CfgValue);
 	Set(CfgValue);
 	return Result;
 }
 
-bool IntOption::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
+bool IntOption::StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || Global->Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }
 
-bool StringOption::ReceiveValue(const wchar_t* KeyName, const wchar_t* ValueName, const wchar_t* Default)
+bool StringOption::ReceiveValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName, const wchar_t* Default)
 {
 	string CfgValue = Default;
-	bool Result = Global->Db->GeneralCfg()->GetValue(KeyName, ValueName, CfgValue, CfgValue);
+	bool Result = Storage->GetValue(KeyName, ValueName, CfgValue, CfgValue);
 	Set(CfgValue);
 	return Result;
 }
 
-bool StringOption::StoreValue(const wchar_t* KeyName, const wchar_t* ValueName)
+bool StringOption::StoreValue(GeneralConfig* Storage, const wchar_t* KeyName, const wchar_t* ValueName)
 {
-	return !Changed() || Global->Db->GeneralCfg()->SetValue(KeyName, ValueName, Get());
+	return !Changed() || Storage->SetValue(KeyName, ValueName, Get());
 }

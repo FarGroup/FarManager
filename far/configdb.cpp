@@ -484,6 +484,15 @@ public:
 	}
 };
 
+class LocalGeneralConfigDb: public GeneralConfigDb
+{
+public:
+	LocalGeneralConfigDb()
+	{
+		Initialize(L"localconfig.db", true);
+	}
+};
+
 class HierarchicalConfigDb: public HierarchicalConfig, public SQLiteDb {
 	SQLiteStmt stmtCreateKey;
 	SQLiteStmt stmtFindKey;
@@ -2609,6 +2618,7 @@ Database::Database(bool ImportExportMode):
 	m_TemplateLoadState(-1),
 	m_ImportExportMode(ImportExportMode),
 	m_GeneralCfg(CreateDatabase<GeneralConfigDb>()),
+	m_LocalGeneralCfg(CreateDatabase<LocalGeneralConfigDb>()),
 	m_ColorsCfg(CreateDatabase<ColorsConfigDb>()),
 	m_AssocConfig(CreateDatabase<AssociationsConfigDb>()),
 	m_PlCacheCfg(CreateDatabase<PluginsCacheConfigDb>()),
@@ -2627,6 +2637,7 @@ Database::~Database()
 	delete m_PlCacheCfg;
 	delete m_AssocConfig;
 	delete m_ColorsCfg;
+	delete m_LocalGeneralCfg;
 	delete m_GeneralCfg;
 	delete m_TemplateDoc;
 }
