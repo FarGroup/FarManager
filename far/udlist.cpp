@@ -45,8 +45,7 @@ UserDefinedListItem::~UserDefinedListItem()
 
 bool UserDefinedListItem::operator==(const UserDefinedListItem &rhs) const
 {
-	size_t pos;
-	return Str.PosI(pos, rhs.Str);
+	return StrCmpI(Str, rhs.Str) == 0;
 }
 
 int UserDefinedListItem::operator<(const UserDefinedListItem &rhs) const
