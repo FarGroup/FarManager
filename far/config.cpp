@@ -1041,7 +1041,6 @@ void InitCFG()
 
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"CaseSensitiveSort", AddressAndType(Global->Opt->LeftPanel.CaseSensitiveSort), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"DirectoriesFirst", AddressAndType(Global->Opt->LeftPanel.DirectoriesFirst), Default(1)},
-		{FSSF_PRIVATE,       NKeyPanelLeft,L"Focus", AddressAndType(Global->Opt->LeftPanel.Focus), Default(1)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"NumericSort", AddressAndType(Global->Opt->LeftPanel.NumericSort), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"SelectedFirst", AddressAndType(Global->Opt->LeftSelectedFirst), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"ShortNames", AddressAndType(Global->Opt->LeftPanel.ShowShortNames), Default(0)},
@@ -1054,7 +1053,6 @@ void InitCFG()
 
 		{FSSF_PRIVATE,       NKeyPanelRight,L"CaseSensitiveSort", AddressAndType(Global->Opt->RightPanel.CaseSensitiveSort), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"DirectoriesFirst", AddressAndType(Global->Opt->RightPanel.DirectoriesFirst), Default(1)},
-		{FSSF_PRIVATE,       NKeyPanelRight,L"Focus", AddressAndType(Global->Opt->RightPanel.Focus), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"NumericSort", AddressAndType(Global->Opt->RightPanel.NumericSort), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"SelectedFirst", AddressAndType(Global->Opt->RightSelectedFirst), Default(0)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"ShortNames", AddressAndType(Global->Opt->RightPanel.ShowShortNames), Default(0)},
@@ -1227,9 +1225,11 @@ void InitLocalCFG()
 	static FARConfigItem _CFG[] =
 	{
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"CurFile", AddressAndType(Global->Opt->strLeftCurFile), Default(L"")},
+		{FSSF_PRIVATE,       NKeyPanelLeft,L"Focus", AddressAndType(Global->Opt->LeftPanel.Focus), Default(true)},
 		{FSSF_PRIVATE,       NKeyPanelLeft,L"Folder", AddressAndType(Global->Opt->strLeftFolder), Default(L"")},
 
 		{FSSF_PRIVATE,       NKeyPanelRight,L"CurFile", AddressAndType(Global->Opt->strRightCurFile), Default(L"")},
+		{FSSF_PRIVATE,       NKeyPanelRight,L"Focus", AddressAndType(Global->Opt->RightPanel.Focus), Default(false)},
 		{FSSF_PRIVATE,       NKeyPanelRight,L"Folder", AddressAndType(Global->Opt->strRightFolder), Default(L"")},
 	};
 	FARLocalConfig.Items = _CFG;
