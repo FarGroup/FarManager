@@ -38,6 +38,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "poscache.hpp"
 #include "bitflags.hpp"
 #include "config.hpp"
+#include "DList.hpp"
 
 class FileEditor;
 class KeyBar;
@@ -165,9 +166,9 @@ class Editor:public ScreenObject
 		Edit *LastGetLine;
 		int LastGetLineNumber;
 
-		std::list<EditorUndoData> UndoData;
-		std::list<EditorUndoData>::iterator UndoPos;
-		std::list<EditorUndoData>::iterator UndoSavePos;
+		DList<EditorUndoData> UndoData;
+		EditorUndoData *UndoPos;
+		EditorUndoData *UndoSavePos;
 		int UndoSkipLevel;
 
 		int LastChangeStrPos;
