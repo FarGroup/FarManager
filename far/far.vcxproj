@@ -469,7 +469,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     <ClCompile Include="dizlist.cpp" />
     <ClCompile Include="DlgBuilder.cpp" />
     <ClCompile Include="dlgedit.cpp" />
-    <ClCompile Include="DList.cpp" />
     <ClCompile Include="drivemix.cpp" />
     <ClCompile Include="edit.cpp" />
     <ClCompile Include="editor.cpp" />
@@ -946,7 +945,6 @@ cl /nologo /c /Fo"$(IntDir)%(Filename)_c++.testobj" /TP api_test.c
     </CustomBuild>
     <ClInclude Include="dlgedit.hpp" />
     <ClInclude Include="DlgGuid.hpp" />
-    <ClInclude Include="DList.hpp" />
     <ClInclude Include="drivemix.hpp" />
     <ClInclude Include="edit.hpp" />
     <ClInclude Include="editor.hpp" />
