@@ -44,6 +44,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <cfloat>
 #include <list>
 #include <vector>
+#include <map>
 #include <algorithm>
 
 #ifdef __GNUC__

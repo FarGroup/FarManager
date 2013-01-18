@@ -235,6 +235,7 @@ static string MakeName(const ShortcutItem& Item)
 		{
 			result = Item.strFolder;
 		}
+		apiExpandEnvironmentStrings(result, result);
 	}
 	else
 	{

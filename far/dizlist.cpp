@@ -48,25 +48,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "codepage.hpp"
 #include "cache.hpp"
 
-static DizRecord **SearchDizData;
-static int _cdecl SortDizIndex(const void *el1,const void *el2);
-static int WINAPI SortDizSearch(const void *key,const void *elem,void*);
-
-struct DizRecord
-{
-	string DizText;
-	int NameStart;
-	int NameLength;
-	bool Deleted;
-};
-
 DizList::DizList():
-	DizData(nullptr),
-	DizCount(0),
-	IndexData(nullptr),
-	IndexCount(0),
 	Modified(false),
-	NeedRebuild(true),
 	OrigCodePage(CP_DEFAULT),
 	AnsiBuf(nullptr)
 {
@@ -82,21 +65,8 @@ DizList::~DizList()
 
 void DizList::Reset()
 {
-	for (size_t I=0; I<DizCount; I++)
-		delete DizData[I];
-
-	if (DizData)
-		xf_free(DizData);
-
-	DizData=nullptr;
-	DizCount=0;
-
-	delete[] IndexData;
-
-	IndexData=nullptr;
-	IndexCount=0;
+	DizData.clear();
 	Modified=false;
-	NeedRebuild=true;
 	OrigCodePage=CP_DEFAULT;
 }
 
@@ -146,9 +116,10 @@ void DizList::Read(const string& Path, const string* DizName)
 			if (!GetFileFormat(DizFile,CodePage,&bSigFound,false) || !bSigFound)
 				CodePage = Global->Opt->Diz.AnsiByDefault ? CP_ACP : CP_OEMCP;
 
+			auto LastAdded = DizData.end(); 
 			while (GetStr.GetString(&DizText, CodePage, DizLength) > 0)
 			{
-				if (!(DizCount & 127) && clock()-StartTime>1000)
+				if (!(DizData.size() & 127) && clock()-StartTime>1000)
 				{
 					SetCursorType(FALSE,0);
 					PR_ReadingMsg();
@@ -160,7 +131,16 @@ void DizList::Read(const string& Path, const string* DizName)
 				RemoveTrailingSpaces(DizText);
 
 				if (*DizText)
-					AddRecord(DizText);
+				{
+					if(!IsSpace(*DizText))
+					{
+						LastAdded = AddRecord(DizText);
+					}
+					else
+					{
+						LastAdded->second.push_back(DizText);
+					}
+				}
 			}
 
 			OrigCodePage=CodePage;
@@ -177,33 +157,19 @@ void DizList::Read(const string& Path, const string* DizName)
 	strDizFileName.Clear();
 }
 
-
-bool DizList::AddRecord(const string& DizText)
+desc_map::iterator DizList::AddRecord(const string& DizText)
 {
-	DizRecord** NewDizData = DizData;
-
-	if (!(DizCount & 15))
-		NewDizData=(DizRecord **)xf_realloc(DizData,(DizCount+16+1)*sizeof(DizRecord *));
-
-	if (!NewDizData)
-		return false;
-
-	DizData=NewDizData;
-	DizData[DizCount] = new DizRecord;
-	DizData[DizCount]->DizText = DizText;
-	DizData[DizCount]->NameStart=0;
-	DizData[DizCount]->NameLength=0;
-
+	size_t NameStart = 0, NameLength = 0;
 	const wchar_t* DizTextPtr = DizText;
 	if (*DizTextPtr == L'\"')
 	{
 		DizTextPtr++;
-		DizData[DizCount]->NameStart++;
+		NameStart++;
 
 		while (*DizTextPtr && *DizTextPtr!=L'\"')
 		{
 			DizTextPtr++;
-			DizData[DizCount]->NameLength++;
+			NameLength++;
 		}
 	}
 	else
@@ -211,30 +177,26 @@ bool DizList::AddRecord(const string& DizText)
 		while (!IsSpaceOrEos(*DizTextPtr))
 		{
 			DizTextPtr++;
-			DizData[DizCount]->NameLength++;
+			NameLength++;
 		}
 	}
 
-	DizData[DizCount]->Deleted=false;
-	NeedRebuild=true;
 	Modified=true;
-	DizCount++;
-	return true;
+	string Text = DizText.SubStr(NameLength + 1);
+	RemoveExternalSpaces(Text);
+	std::list<string> DescStrings;
+	DescStrings.push_back(Text);
+	return DizData.insert(DizData.begin(), desc_map::value_type(DizText.SubStr(NameStart, NameLength), DescStrings));
 }
-
 
 const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize)
 {
 	const wchar_t *DizText=nullptr;
-	int TextPos;
-	int DizPos=GetDizPosEx(Name,ShortName,&TextPos);
+	auto DizPos=Find(Name,ShortName);
 
-	if (DizPos!=-1)
+	if (DizPos != DizData.end())
 	{
-		DizText=DizData[DizPos]->DizText+TextPos;
-
-		while (*DizText && IsSpace(*DizText))
-			DizText++;
+		DizText=DizPos->second.front();
 
 		if (iswdigit(*DizText))
 		{
@@ -268,22 +230,17 @@ const wchar_t* DizList::GetDizTextAddr(const string& Name, const string& ShortNa
 	return DizText;
 }
 
-
-int DizList::GetDizPosEx(const string& Name, const string& ShortName, int *TextPos)
+desc_map::iterator DizList::Find(const string& Name, const string& ShortName)
 {
-	int DizPos=GetDizPos(Name,TextPos);
-
-	if (DizPos==-1)
-		DizPos=GetDizPos(ShortName,TextPos);
+	auto i = DizData.find(Name);
+	if(i == DizData.end())
+		i = DizData.find(ShortName);
 
 	//если файл описаний был в OEM/ANSI то имена файлов могут не совпадать с юникодными
-	if (DizPos==-1 && !IsUnicodeOrUtfCodePage(OrigCodePage) && OrigCodePage!=CP_DEFAULT)
+	if (i == DizData.end() && !IsUnicodeOrUtfCodePage(OrigCodePage) && OrigCodePage!=CP_DEFAULT)
 	{
 		size_t len = Name.GetLength();
 		char *tmp = (char *)xf_realloc_nomove(AnsiBuf, len+1);
-
-		if (!tmp)
-			return -1;
 
 		AnsiBuf = tmp;
 		WideCharToMultiByte(OrigCodePage, 0, Name, static_cast<int>(len), AnsiBuf, static_cast<int>(len), nullptr, nullptr);
@@ -291,153 +248,25 @@ int DizList::GetDizPosEx(const string& Name, const string& ShortName, int *TextP
 		string strRecoded(AnsiBuf, OrigCodePage);
 
 		if (strRecoded==Name)
-			return -1;
+			return DizData.end();
 
-		return GetDizPos(strRecoded,TextPos);
+		return DizData.find(strRecoded);
 	}
 
-	return DizPos;
+	return i;
 }
-
-
-int DizList::GetDizPos(const string& Name, int *TextPos)
-{
-	if (!DizData || !*Name)
-		return -1;
-
-	if (NeedRebuild)
-		BuildIndex();
-
-	SearchDizData=DizData;
-	string DizSearchKey(Name);
-	int *DestIndex=(int *)bsearchex(&DizSearchKey,IndexData,IndexCount,sizeof(*IndexData),SortDizSearch,nullptr);
-
-	if (DestIndex)
-	{
-		if (TextPos)
-		{
-			*TextPos=DizData[*DestIndex]->NameStart+DizData[*DestIndex]->NameLength;
-
-			if (DizData[*DestIndex]->NameStart && DizData[*DestIndex]->DizText[*TextPos]==L'\"')
-				(*TextPos)++;
-		}
-
-		return *DestIndex;
-	}
-
-	return -1;
-}
-
-
-void DizList::BuildIndex()
-{
-	if (!IndexData || IndexCount!=DizCount)
-	{
-		delete[] IndexData;
-		IndexData=new size_t[DizCount];
-
-		if(!IndexData)
-		{
-			Reset();
-			return;
-		}
-
-		IndexCount=DizCount;
-	}
-
-	for (size_t I=0; I<IndexCount; I++)
-		IndexData[I]=I;
-
-	SearchDizData=DizData;
-	far_qsort((void *)IndexData,IndexCount,sizeof(*IndexData),SortDizIndex);
-	NeedRebuild=false;
-}
-
-
-int _cdecl SortDizIndex(const void *el1,const void *el2)
-{
-	const wchar_t *Diz1=SearchDizData[*(int *)el1]->DizText+SearchDizData[*(int *)el1]->NameStart;
-	const wchar_t *Diz2=SearchDizData[*(int *)el2]->DizText+SearchDizData[*(int *)el2]->NameStart;
-	int Len1=SearchDizData[*(int *)el1]->NameLength;
-	int Len2=SearchDizData[*(int *)el2]->NameLength;
-	int CmpCode = StrCmpNI(Diz1,Diz2,std::min(Len1,Len2));
-
-	if (!CmpCode)
-	{
-		if (Len1>Len2)
-			return 1;
-
-		if (Len1<Len2)
-			return -1;
-
-		//for equal names, deleted is bigger
-		bool Del1=SearchDizData[*(int *)el1]->Deleted;
-		bool Del2=SearchDizData[*(int *)el2]->Deleted;
-
-		if (Del1 && !Del2)
-			return 1;
-
-		if (Del2 && !Del1)
-			return -1;
-	}
-
-	return CmpCode;
-}
-
-
-int WINAPI SortDizSearch(const void *key,const void *elem,void*)
-{
-	const string* strKey = reinterpret_cast<const string*>(key);
-	const wchar_t *SearchName = strKey->CPtr();
-	const wchar_t *DizName=SearchDizData[*(int *)elem]->DizText+SearchDizData[*(int *)elem]->NameStart;
-	int DizNameLength=SearchDizData[*(int *)elem]->NameLength;
-	int NameLength=static_cast<int>(strKey->GetLength());
-	int CmpCode=StrCmpNI(SearchName,DizName, std::min(DizNameLength,NameLength));
-
-	if (!CmpCode)
-	{
-		if (NameLength>DizNameLength)
-			return 1;
-
-		if (NameLength+1<DizNameLength)
-			return -1;
-
-		//filename == filename.
-		if (NameLength+1==DizNameLength && !(DizName[NameLength]==L'.' && wcschr(DizName,L'.')==&DizName[NameLength]))
-			return -1;
-
-		//for equal names, deleted is bigger so deleted items are never matched
-		if (SearchDizData[*(int *)elem]->Deleted)
-			return -1;
-	}
-
-	return CmpCode;
-}
-
 
 bool DizList::DeleteDiz(const string& Name,const string& ShortName)
 {
-	int iDizPos=GetDizPosEx(Name,ShortName,nullptr);
-
-	if (iDizPos==-1)
-		return false;
-	size_t DizPos = iDizPos;
-	DizData[DizPos++]->Deleted=true;
-
-	while (DizPos<DizCount)
+	auto i = Find(Name,ShortName);
+	if (i != DizData.end())
 	{
-		if (*DizData[DizPos]->DizText && !IsSpace(DizData[DizPos]->DizText[0]))
-			break;
-
-		DizData[DizPos]->Deleted=true;
-		DizPos++;
+		i = DizData.erase(i);
+		Modified=true;
+		return true;
 	}
-
-	Modified=true;
-	NeedRebuild=true;
-	return true;
+	return false;
 }
-
 
 bool DizList::Flush(const string& Path,const string* DizName)
 {
@@ -450,7 +279,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	}
 	else if (strDizFileName.IsEmpty())
 	{
-		if (!DizData || !Path)
+		if (DizData.empty() || !Path)
 			return false;
 
 		strDizFileName = Path;
@@ -492,7 +321,7 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 	bool EmptyDiz=true;
 	// Don't use CreationDisposition=CREATE_ALWAYS here - it's kills alternate streams
-	if(DizCount && DizFile.Open(strDizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
+	if(!DizData.empty() && DizFile.Open(strDizFileName, GENERIC_WRITE, FILE_SHARE_READ, nullptr, FileAttr==INVALID_FILE_ATTRIBUTES?CREATE_NEW:TRUNCATE_EXISTING))
 	{
 		uintptr_t CodePage = Global->Opt->Diz.SaveInUTF ? CP_UTF8 : (Global->Opt->Diz.AnsiByDefault ? CP_ACP : CP_OEMCP);
 
@@ -509,34 +338,41 @@ bool DizList::Flush(const string& Path,const string* DizName)
 
 		if(!AnyError)
 		{
-			for (size_t I=0; I<DizCount; I++)
+			for (auto i = DizData.begin(); i != DizData.end(); ++i)
 			{
-				if (!DizData[I]->Deleted)
+				string dump = i->first + L" " + i->second.front();
+				if(i->second.size() > 1)
 				{
-					DWORD Size=static_cast<DWORD>((DizData[I]->DizText.GetLength()+1)*(CodePage == CP_UTF8?3:1)); //UTF-8, up to 3 bytes per char support
-					char* lpDizText = new char[Size];
-					if (lpDizText)
+					auto start = i->second.begin();
+					++start;
+					std::for_each(start, i->second.end(), [&dump](decltype(i->second.front()) i)
 					{
-						int BytesCount=WideCharToMultiByte(CodePage, 0, DizData[I]->DizText, static_cast<int>(DizData[I]->DizText.GetLength()+1), lpDizText, Size, nullptr, nullptr);
-						if (BytesCount && BytesCount-1)
+						dump.Append(L"\r\n ").Append(i);
+					});
+				}
+				DWORD Size=static_cast<DWORD>((dump.GetLength() + 1) * (CodePage == CP_UTF8? 3 : 1)); //UTF-8, up to 3 bytes per char support
+				char* lpDizText = new char[Size];
+				if (lpDizText)
+				{
+					int BytesCount=WideCharToMultiByte(CodePage, 0, dump, static_cast<int>(dump.GetLength()+1), lpDizText, Size, nullptr, nullptr);
+					if (BytesCount && BytesCount-1)
+					{
+						if(Cache.Write(lpDizText, BytesCount-1))
 						{
-							if(Cache.Write(lpDizText, BytesCount-1))
-							{
-								EmptyDiz=false;
-							}
-							else
-							{
-								AnyError=true;
-								break;
-							}
-							if(!Cache.Write("\r\n", 2))
-							{
-								AnyError=true;
-								break;
-							}
+							EmptyDiz=false;
 						}
-						delete[] lpDizText;
+						else
+						{
+							AnyError=true;
+							break;
+						}
+						if(!Cache.Write("\r\n", 2))
+						{
+							AnyError=true;
+							break;
+						}
 					}
+					delete[] lpDizText;
 				}
 			}
 		}
@@ -574,40 +410,27 @@ bool DizList::Flush(const string& Path,const string* DizName)
 	return true;
 }
 
-
-bool DizList::AddDizText(const string& Name,const string& ShortName,const string& DizText)
+void DizList::AddDizText(const string& Name,const string& ShortName,const string& DizText)
 {
 	DeleteDiz(Name,ShortName);
 	string strQuotedName = Name;
 	QuoteSpaceOnly(strQuotedName);
-	return AddRecord(FormatString()<<fmt::LeftAlign()<<fmt::MinWidth(Global->Opt->Diz.StartPos>1?Global->Opt->Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText);
+	AddRecord(FormatString()<<fmt::LeftAlign()<<fmt::MinWidth(Global->Opt->Diz.StartPos>1?Global->Opt->Diz.StartPos-2:0)<<strQuotedName<<L" "<<DizText);
 }
 
-
-bool DizList::CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList *DestDiz)
+bool DizList::CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName, DizList* DestDiz)
 {
-	int TextPos;
-	int iDizPos=GetDizPosEx(Name,ShortName,&TextPos);
+	auto i = Find(Name,ShortName);
 
-	if (iDizPos==-1)
+	if (i == DizData.end())
 		return false;
-	size_t DizPos = iDizPos;
-	while (IsSpace(DizData[DizPos]->DizText[TextPos]))
-		TextPos++;
 
-	DestDiz->AddDizText(DestName,DestShortName,&DizData[DizPos]->DizText[TextPos]);
-
-	while (++DizPos<DizCount)
-	{
-		if (*DizData[DizPos]->DizText && !IsSpace(DizData[DizPos]->DizText[0]))
-			break;
-
-		DestDiz->AddRecord(DizData[DizPos]->DizText);
-	}
+	DestDiz->DeleteDiz(Name,ShortName);
+	DestDiz->DizData.insert(desc_map::value_type(Name, i->second));
+	DestDiz->Modified = true;
 
 	return true;
 }
-
 
 void DizList::GetDizName(string &strDizName)
 {

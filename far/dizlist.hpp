@@ -33,6 +33,19 @@ THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+struct DizRecord;
+
+struct diz_less
+{
+	bool operator() (const string& a, const string& b) const
+	{
+		int r =  StrCmpI(a, b);
+		return r < 0;
+	}
+};
+
+typedef std::map<string, std::list<string>, diz_less> desc_map;
+
 class DizList
 {
 public:
@@ -44,24 +57,18 @@ public:
 	const wchar_t *GetDizTextAddr(const string& Name, const string& ShortName, const __int64 FileSize);
 	bool DeleteDiz(const string& Name, const string& ShortName);
 	bool Flush(const string& Path, const string *DizName=nullptr);
-	bool AddDizText(const string& Name, const string& ShortName, const string& DizText);
+	void AddDizText(const string& Name, const string& ShortName, const string& DizText);
 	bool CopyDiz(const string& Name, const string& ShortName, const string& DestName, const string& DestShortName,DizList *DestDiz);
 	void GetDizName(string &strDizName);
 	static void PR_ReadingMsg();
 
 private:
-	int GetDizPos(const string& Name, int *TextPos);
-	int GetDizPosEx(const string& Name, const string& ShortName, int *TextPos);
-	bool AddRecord(const string& DizText);
-	void BuildIndex();
+	desc_map::iterator Find(const string& Name, const string& ShortName);
+	desc_map::iterator AddRecord(const string& DizText);
 
 	string strDizFileName;
-	struct DizRecord **DizData;
-	size_t DizCount;
-	size_t *IndexData;
-	size_t IndexCount;
+	desc_map DizData;
 	bool Modified;
-	bool NeedRebuild;
 	uintptr_t OrigCodePage;
 	char *AnsiBuf;
 };
